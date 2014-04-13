@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd">
+
+    <!-- Beans Declaration -->
+    <!--bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+                <value>classpath:/hazelcast-config.properties</value>
+            </list>
+        </property>
+    </bean-->
+ 
+	<!--hz:map id="xdm-document" name="xdm-document" instance-ref="hzInstance" />
+	<hz:map id="xdm-data" name="xdm-data" instance-ref="hzInstance" />
+	<hz:map id="dict-document-type" name="dict-document-type" instance-ref="hzInstance" />
+	<hz:map id="dict-path" name="dict-path" instance-ref="hzInstance" />
+	<hz:map id="dict-namespace" name="dict-namespace" instance-ref="hzInstance" />
+
+	<hz:idGenerator id="xdm.document" name="xdm.document" instance-ref="hzInstance"/>
+	<hz:idGenerator id="xdm.data" name="xdm.data" instance-ref="hzInstance"/>
+	<hz:idGenerator id="xdm.path" name="xdm.path" instance-ref="hzInstance"/>
+	<hz:idGenerator id="xdm.namespace" name="xdm.namespace" instance-ref="hzInstance"/>
+	<hz:idGenerator id="xdm.doctype" name="xdm.doctype" instance-ref="hzInstance"/>
+	
+	<hz:executorService id="xdm-exec-pool" name="xdm-exec-pool" instance-ref="hzInstance"/-->
+	
+	<!--bean id="dataGen" class="com.bagri.xdm.hazelcast.HazelcastIdGenerator">
+		<constructor-arg ref="xdm.data" />
+	</bean-->
+	
+	<bean id="cacheFactory" class="com.bagri.xdm.process.coherence.factory.SpringAwareCacheFactory">
+		<constructor-arg value="coherence/xdm-client-cache-config.xml" />
+		<!--constructor-arg value="coherence/xdm-test-cache-config.xml" /-->
+	</bean>
+	
+	<bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+	  <property name="targetClass" value="com.tangosol.net.CacheFactory"/>
+	  <property name="targetMethod" value="setConfigurableCacheFactory"/>
+	  <property name="arguments" ref="cacheFactory"/>
+	</bean>
+
+	<bean id="xdmDictionary" class="com.bagri.xdm.access.coherence.impl.CoherenceSchemaDictionary">
+		<!--constructor-arg value="map" /-->
+		<!--property name="hzInstance" ref="hzInstance"/-->
+		<!--property name="cacheFactory" ref="cacheFactory"/>
+			<bean class="com.bagri.xdm.cache.factory.SpringAwareCacheFactory"
+				factory-method="getFactory">
+			</bean>
+		</property-->
+	</bean>
+
+	<bean id="xdmFactory" class="com.bagri.xdm.access.coherence.impl.CoherenceXDMFactory" />
+
+	<bean id="xdmManager" class="com.bagri.xdm.access.coherence.impl.CoherenceDocumentManager">
+		<property name="xdmFactory" ref="xdmFactory"/>
+		<property name="schemaDictionary" ref="xdmDictionary"/>
+	</bean>
+
+	<bean id="schemaManager" class="com.bagri.xdm.access.impl.XDMSchemaManagerImpl">
+		<property name="schemaDictionary" ref="xdmDictionary"/>
+	</bean>
+</beans>

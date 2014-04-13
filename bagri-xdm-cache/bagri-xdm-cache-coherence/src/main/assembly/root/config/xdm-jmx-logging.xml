@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--configuration debug="true"-->
+<configuration>
+
+    <jmxConfigurator />
+    
+    <contextName>xdm-cache</contextName>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{64} - %msg%n</pattern>
+        </layout>
+    </appender>
+
+    <!--property resource="xdm-cache.properties" /-->
+
+    <appender name="ROLLING" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    	<file>${LOGDIR}/cache/xdm-jmx-server.log</file>
+    	<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      		<!-- rollover daily -->
+      		<fileNamePattern>${LOGDIR}/cache/xdm-jmx-server-%d{yyyy-MM-dd}.%i.gz</fileNamePattern>
+      		<maxHistory>4</maxHistory>
+      		<timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+        		<!-- or whenever the file size reaches 20MB -->
+        		<maxFileSize>50MB</maxFileSize>
+      		</timeBasedFileNamingAndTriggeringPolicy>
+    	</rollingPolicy>
+    	<encoder>
+        	<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{64} - %msg%n</pattern>
+    	</encoder>
+    </appender>
+
+
+    <appender name="COHERENCE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    	<file>${LOGDIR}/cache/xdm-coherence-jmx.log</file>
+    	<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      		<!-- rollover daily -->
+      		<fileNamePattern>${LOGDIR}/cache/xdm-coherence-jmx-%d{yyyy-MM-dd}.%i.gz</fileNamePattern>
+      		<maxHistory>4</maxHistory>
+      		<timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+        		<!-- or whenever the file size reaches 20MB -->
+        		<maxFileSize>50MB</maxFileSize>
+      		</timeBasedFileNamingAndTriggeringPolicy>
+    	</rollingPolicy>
+    	<encoder>
+        	<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level - %msg%n</pattern>
+    	</encoder>
+    </appender>
+
+    <logger name="com.bagri">
+        <level value="trace"/>
+	<!--appender-ref ref="ROLLING" /-->
+    </logger>
+
+    <logger name="Coherence" additivity="false">
+        <level value="debug"/>
+        <appender-ref ref="COHERENCE"/>
+    </logger>
+
+
+    <logger name="org.springframework.core.env">
+        <level value="info"/>
+    </logger>
+    <logger name="org.springframework.beans.factory.support.DefaultListableBeanFactory">
+        <level value="info"/>
+    </logger>
+
+    <logger name="org.springframework.jdbc">
+        <level value="debug"/>
+    </logger>
+
+    <root>
+        <level value="debug"/>
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="ROLLING"/>
+    </root>
+
+</configuration>

@@ -1,0 +1,183 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.sdv.bagri</groupId>
+        <artifactId>bagri-xdm-cache</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+        <relativePath>..</relativePath>
+    </parent>
+
+    <groupId>com.sdv.bagri</groupId>
+    <artifactId>bagri-xdm-cache-hazelcast</artifactId>
+    <name>bagri-xdm-cache-hazelcast</name>
+    <description>Bagri XDM Cache: Hazelcast implementation</description>
+
+    <properties>
+        <!-- Hazelcasr server java args -->
+        <!--run.jvm.args>-server -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005 -Xms512m -Xmx2048m -XX:MaxNewSize=128m -XX:+ExplicitGCInvokesConcurrent -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:+CMSIncrementalMode</run.jvm.args-->
+        <run.jvm.args>-server -Xms512m -Xmx2048m -XX:MaxNewSize=128m -XX:+ExplicitGCInvokesConcurrent -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:+CMSIncrementalMode</run.jvm.args>
+    </properties>
+
+    <dependencies>
+
+        <dependency>
+	    <groupId>com.sdv.bagri</groupId>
+	    <artifactId>bagri-common</artifactId>
+        </dependency>
+        <dependency>
+	    <groupId>com.sdv.bagri</groupId>
+	    <artifactId>bagri-xdm</artifactId>
+        </dependency>
+        <dependency>
+	    <groupId>com.sdv.bagri</groupId>
+	    <artifactId>bagri-xdm-access-api</artifactId>
+        </dependency>
+        <dependency>
+	    <groupId>com.sdv.bagri</groupId>
+	    <artifactId>bagri-xdm-access-hazelcast</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.hazelcast</groupId>
+                    <artifactId>hazelcast-client</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+	    <groupId>com.sdv.bagri</groupId>
+	    <artifactId>bagri-xdm-process-hazelcast</artifactId>
+        </dependency>
+
+        <!-- Spring framework -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+        </dependency>
+        <!--dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jdbc</artifactId>
+        </dependency-->
+        <!--dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <version>${spring.version}</version>
+        </dependency-->
+
+	<dependency>
+	    <groupId>com.hazelcast</groupId>
+	    <artifactId>hazelcast</artifactId>
+	</dependency>
+	<dependency>
+    	    <groupId>com.hazelcast</groupId>
+    	    <artifactId>hazelcast-spring</artifactId>
+	</dependency>
+
+        <!-- Dependencies for logging -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>log4j-over-slf4j</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+    <!--dependency>
+      <groupId>stax</groupId>
+      <artifactId>stax-api</artifactId>
+      <version>1.0.1</version>
+    </dependency-->
+
+        <!--dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency-->
+
+        <!--Test dependencies-->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>${project.name}-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <descriptors>
+                                <descriptor>src/main/assembly/dev.xml</descriptor>
+                                <!--descriptor>src/main/assembly/uat.xml</descriptor>
+                                <descriptor>src/main/assembly/prod.xml</descriptor-->
+                            </descriptors>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+        </plugins>
+    </build>
+
+
+    <profiles>
+        <profile>
+            <id>test</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <executions>
+                            <!-- Run XDM Cache server mvn -Drun-cache -->
+                            <execution>
+                                <id>run-cache</id>
+                                <phase>test</phase>
+                                <configuration>
+                                    <tasks if="run-cache">
+                                        <java fork="true" classname="com.bagri.xdm.cache.hazelcast.XDMCacheServer">
+                                            <jvmarg line="${run.jvm.args}"/>
+                                            <sysproperty key="LOGDIR" value="./logs/"/>
+                                            <sysproperty key="com.sun.management.jmxremote" value="true"/>
+                                            <sysproperty key="com.sun.management.jmxremote.authenticate" value="false"/>
+                                            <sysproperty key="com.sun.management.jmxremote.ssl" value="false"/>
+                                            <sysproperty key="logback.configurationFile" value="xdm-cache-logging.xml"/>
+                                            <sysproperty key="xdm.cluster.node.name" value="first"/>
+                                            <sysproperty key="xdm.cluster.node.schemas" value="TPoX"/>
+                                            <classpath>
+                                                <path refid="maven.compile.classpath"/>
+                                                <path refid="maven.runtime.classpath"/>
+                                                <pathelement location="config/"/>
+                                            </classpath>
+                                        </java>
+                                    </tasks>
+                                </configuration>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                            </execution>
+
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+</project>

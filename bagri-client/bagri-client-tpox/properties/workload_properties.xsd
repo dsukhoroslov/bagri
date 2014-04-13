@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:element name="workload">
+		<xs:complexType>
+			<xs:sequence>
+                <xs:element ref="collections" minOccurs="0" maxOccurs="1"/>
+				<xs:element ref="directory" minOccurs="0" maxOccurs="1"/>
+                <xs:element ref="transactions" minOccurs="1" maxOccurs="1"/>
+			</xs:sequence>
+			<xs:attribute name="name" type="xs:string" use="optional"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="collections">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="collection" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="collection">
+		<xs:complexType>
+			<xs:all>
+				<xs:element name="ids" minOccurs="0">
+				</xs:element>
+				<xs:element name="files" minOccurs="0">
+					<xs:complexType>
+						<xs:attribute name="dir" type="xs:string" use="required"/>
+						<xs:attribute name="firstfileid" type="xs:integer" use="required"/>
+						<xs:attribute name="lastfileid" type="xs:integer" use="required"/>
+						<xs:attribute name="docsperfile" type="xs:integer" use="required"/>
+						<xs:attribute name="fileprefix" type="xs:string" use="optional"/>
+						<xs:attribute name="filepostfix" type="xs:string" use="optional"/>
+					</xs:complexType>
+				</xs:element>
+			</xs:all>
+			<xs:attribute name="name" type="xs:string" use="required"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="directory" type="xs:string"/>
+	<xs:element name="transactions">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="transaction" minOccurs="1" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="transaction">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:choice>
+					<xs:element ref="location" minOccurs="0"/>
+					<xs:element ref="statements" minOccurs="0"/>
+					<xs:element ref="java-plugin" minOccurs="0"/>
+				</xs:choice>
+				<xs:element ref="parameters" minOccurs="0"/>
+			</xs:sequence>
+			<xs:attribute name="weight" type="xs:float" use="optional"/>
+			<xs:attribute name="id" type="xs:integer" use="optional"/>
+			<xs:attribute name="name" type="xs:string" use="optional"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="location" type="xs:string">		<!-- 
+		<xs:complexType>
+			<xs:attribute name="delimiter" type="xs:string" use="optional"/>
+		</xs:complexType>
+		 -->
+	</xs:element>
+	<xs:element name="statements">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="statement" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="statement" type="xs:string"/>
+	<xs:element name="java-plugin" type="xs:string"/>
+	<xs:element name="parameters">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="parameter" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="parameter">
+		<xs:complexType>
+			<xs:choice>
+				<xs:element ref="ids"/>
+				<xs:element ref="files"/>
+				<xs:element ref="filesclob"/>
+				<xs:element ref="file"/>
+				<xs:element ref="file_seq"/>
+				<xs:element ref="uniformint"/>
+				<xs:element ref="uniformdec"/>
+				<xs:element ref="uniform_int"/>
+				<xs:element ref="uniform_dec"/>
+				<xs:element ref="uniform_date"/>
+				<xs:element ref="uniform_time"/>
+				<xs:element ref="uniform_timestamp"/>
+				<xs:element ref="constant"/>
+				<xs:element ref="sequence"/>
+				<xs:element ref="same"/>
+			</xs:choice>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="ids">
+		<xs:complexType>
+			<xs:attribute name="collection" type="xs:string" use="required"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="files">
+		<xs:complexType>
+			<xs:attribute name="collection" type="xs:string" use="required"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="filesclob">
+		<xs:complexType>
+			<xs:attribute name="collection" type="xs:string" use="required"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="file" type="xs:string"/>
+	<xs:element name="file_seq" type="xs:string"/>
+	<xs:element name="uniformint">
+	<!-- @deprecated -->
+		<xs:complexType>
+			<xs:attribute name="min" type="xs:int" use="required"/>
+			<xs:attribute name="max" type="xs:int" use="required"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="uniformdec">
+	<!-- @deprecated -->
+		<xs:complexType>
+			<xs:attribute name="min" type="xs:float" use="required"/>
+			<xs:attribute name="max" type="xs:float" use="required"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="uniform_int">
+		<xs:complexType>
+			<xs:attribute name="min" type="xs:int" use="required"/>
+			<xs:attribute name="max" type="xs:int" use="required"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="uniform_dec">
+		<xs:complexType>
+			<xs:attribute name="min" type="xs:float" use="required"/>
+			<xs:attribute name="max" type="xs:float" use="required"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="uniform_date">
+		<xs:complexType>
+			<xs:attribute name="start" type="xs:date" use="required"/>
+			<xs:attribute name="end" type="xs:date" use="required"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="uniform_time">
+		<xs:complexType>
+			<xs:attribute name="start" type="xs:time" use="required"/>
+			<xs:attribute name="end" type="xs:time" use="required"/>
+			<xs:attribute name="base_date" type="xs:date" use="optional"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="uniform_timestamp">
+		<xs:complexType>
+			<xs:attribute name="start" type="xs:date" use="required"/>
+			<xs:attribute name="end" type="xs:date" use="required"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="constant">
+		<xs:complexType>
+			<xs:attribute name="value" type="xs:string" use="required"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="sequence">
+		<xs:complexType>
+			<xs:attribute name="start" type="xs:int" use="required"/>
+			<xs:attribute name="step" type="xs:int" use="required"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="same">
+		<xs:complexType>
+			<xs:attribute name="param" type="xs:integer" use="required"/>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

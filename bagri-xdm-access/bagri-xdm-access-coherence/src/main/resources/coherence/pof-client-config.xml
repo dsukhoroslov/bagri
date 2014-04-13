@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<pof-config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xmlns="http://xmlns.oracle.com/coherence/coherence-pof-config"
+            xsi:schemaLocation="http://xmlns.oracle.com/coherence/coherence-pof-config coherence-pof-config.xsd">     
+    <user-type-list>
+
+        <!-- coherence POF user types -->
+        <include>coherence-pof-config.xml</include>
+        <include>coherence-common-pof-config.xml</include>
+
+    	<include>coherence/xdm-pof-config.xml</include>
+    </user-type-list>
+
+    <allow-interfaces>true</allow-interfaces>
+    <allow-subclasses>true</allow-subclasses>
+    <!--enable-references>true</enable-references-->
+
+</pof-config>

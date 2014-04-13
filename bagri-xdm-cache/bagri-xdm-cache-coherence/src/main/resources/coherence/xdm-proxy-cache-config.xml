@@ -1,0 +1,137 @@
+<?xml version="1.0"?>
+
+<cache-config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xmlns="http://xmlns.oracle.com/coherence/coherence-cache-config"
+              xsi:schemaLocation="http://xmlns.oracle.com/coherence/coherence-cache-config coherence-cache-config.xsd">
+
+    <defaults>
+        <serializer>
+            <instance>
+                <class-name>com.tangosol.io.pof.ConfigurablePofContext</class-name>
+                <init-params>
+                    <init-param>
+                        <param-type>String</param-type>
+                        <param-value>coherence/pof-server-config.xml</param-value>
+                    </init-param>
+                </init-params>
+            </instance>
+        </serializer>
+    </defaults>
+
+    <caching-scheme-mapping>
+
+        <cache-mapping>
+              <cache-name>xdm-*</cache-name>
+              <scheme-name>xdm-distributed-scheme</scheme-name>
+        </cache-mapping>
+
+        <cache-mapping>
+              <cache-name>dict-*</cache-name>
+              <scheme-name>xdm-replicated-scheme</scheme-name>
+        </cache-mapping>
+
+        <cache-mapping>
+            <cache-name>coherence.common.sequencegenerators</cache-name>
+            <scheme-name>distributed-scheme-for-sequence-generators</scheme-name>
+        </cache-mapping>
+
+        <!--cache-mapping>
+            <cache-name>dist-*</cache-name>
+            <scheme-name>xdm-distributed-scheme</scheme-name>
+        </cache-mapping>
+        <cache-mapping>
+            <cache-name>repl-*</cache-name>
+            <scheme-name>xdm-replicated-scheme</scheme-name>
+        </cache-mapping-->
+    </caching-scheme-mapping>
+
+    <caching-schemes>
+
+        <!--distributed-scheme>
+            <scheme-name>xdm-scheme</scheme-name>
+            <service-name>DistributedXDMDataCache</service-name>
+            <thread-count system-property="tangosol.coherence.distributed.thread.count">10</thread-count>
+            <lease-granularity>member</lease-granularity>
+            <local-storage system-property="tangosol.coherence.distributed.localstorage">false</local-storage>
+            <autostart>true</autostart>
+        </distributed-scheme-->
+
+        <distributed-scheme>
+            <scheme-name>distributed-scheme-for-sequence-generators</scheme-name>
+            <service-name>DistributedCacheForSequenceGenerators</service-name>
+            <thread-count system-property="tangosol.coherence.generator.thread.count">10</thread-count>
+            <autostart>true</autostart>
+        </distributed-scheme>
+
+        <!--
+          Scheme for any distributed (partitioned) cache
+          -->
+        <distributed-scheme>
+            <scheme-name>xdm-distributed-scheme</scheme-name>
+            <service-name>DistributedXDMDataCache</service-name>
+            <thread-count system-property="tangosol.coherence.distributed.thread.count">10</thread-count>
+            <!--compressor>none</compressor-->
+            <lease-granularity>member</lease-granularity>
+            <local-storage system-property="tangosol.coherence.distributed.localstorage">false</local-storage>
+            <autostart>true</autostart>
+        </distributed-scheme>
+
+        <!--
+          Scheme for any replicated cache
+          -->
+        <replicated-scheme>
+            <scheme-name>xdm-replicated-scheme</scheme-name>
+            <service-name>ReplicatedXDMDataCache</service-name>
+            <!--local-storage>false</local-storage-->
+            <lease-granularity>member</lease-granularity>
+            <backing-map-scheme>
+                <local-scheme>
+                    <eviction-policy>HYBRID</eviction-policy>
+                    <high-units>{back-size-limit 0}</high-units>
+                </local-scheme>
+            </backing-map-scheme>
+            <autostart>true</autostart>
+        </replicated-scheme>
+
+        <invocation-scheme>
+            <scheme-name>xdm-invocation-scheme</scheme-name>
+            <service-name>InvocationService</service-name>
+            <thread-count system-property="tangosol.coherence.invocation.thread.count">10</thread-count>
+            <autostart system-property="tangosol.coherence.invocation.autostart">true</autostart>
+        </invocation-scheme>
+
+      <!--
+          Proxy Service scheme that allows remote clients to connect to the
+          cluster over TCP/IP.
+      -->
+
+        <proxy-scheme>
+            <scheme-name>xdm-proxy-scheme</scheme-name>
+            <!--service-name>ExtendTcpProxyService</service-name -->
+            <thread-count system-property="tangosol.coherence.proxy.threads">10</thread-count>
+
+            <acceptor-config>
+                <tcp-acceptor>
+                    <local-address>
+                        <address system-property="tangosol.coherence.extend.address">localhost</address>
+                        <port system-property="tangosol.coherence.extend.port">21000</port>
+                    </local-address>
+                    <reuse-address>true</reuse-address>
+                </tcp-acceptor>
+            </acceptor-config>
+            <proxy-config>
+                <cache-service-proxy>
+                    <enabled>true</enabled>
+                    <lock-enabled>true</lock-enabled>
+                </cache-service-proxy>
+                <invocation-service-proxy>
+                    <enabled>true</enabled>
+                </invocation-service-proxy>
+            </proxy-config>
+
+            <autostart system-property="tangosol.coherence.extend.enabled">true</autostart>
+        </proxy-scheme>
+
+    </caching-schemes>
+</cache-config>
+

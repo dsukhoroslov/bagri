@@ -1,0 +1,101 @@
+<?xml version="1.0"?>
+<pof-config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xmlns="http://xmlns.oracle.com/coherence/coherence-pof-config"
+            xsi:schemaLocation="http://xmlns.oracle.com/coherence/coherence-pof-config coherence-pof-config.xsd">
+    <user-type-list>
+
+        <user-type>
+            <type-id>5000</type-id>
+            <class-name>java.util.Date</class-name>
+            <serializer>
+                <class-name>com.bagri.xdm.access.coherence.pof.DatePofSerializer</class-name>
+            </serializer>
+        </user-type>
+
+        <user-type>
+            <type-id>5013</type-id>
+            <class-name>com.bagri.xdm.XDMDocumentType</class-name>
+            <serializer>
+                <class-name>com.bagri.xdm.access.coherence.pof.XDMDocumentTypePofSerializer</class-name>
+            </serializer>
+        </user-type>
+        <user-type>
+            <type-id>5014</type-id>
+            <class-name>com.bagri.xdm.XDMDocument</class-name>
+            <serializer>
+                <class-name>com.bagri.xdm.access.coherence.pof.XDMDocumentPofSerializer</class-name>
+            </serializer>
+        </user-type>
+        <user-type>
+            <type-id>5015</type-id>
+            <class-name>com.bagri.xdm.XDMNodeKind</class-name>
+            <serializer>
+                <!--class-name>com.bagri.xdm.cache.pof.EnumPofSerializer</class-name-->
+                <class-name>com.tangosol.io.pof.EnumPofSerializer</class-name>
+            </serializer>
+        </user-type>
+        <user-type>
+            <type-id>5016</type-id>
+            <class-name>com.bagri.xdm.XDMElement</class-name>
+            <serializer>
+                <class-name>com.bagri.xdm.access.coherence.pof.XDMElementPofSerializer</class-name>
+            </serializer>
+        </user-type>
+        <user-type>
+            <type-id>5017</type-id>
+            <class-name>com.bagri.xdm.XDMIndex</class-name>
+            <serializer>
+                <class-name>com.bagri.xdm.access.coherence.pof.XDMIndexPofSerializer</class-name>
+            </serializer>
+        </user-type>
+        <user-type>
+            <type-id>5018</type-id>
+            <class-name>com.bagri.xdm.XDMNamespace</class-name>
+            <serializer>
+                <class-name>com.bagri.xdm.access.coherence.pof.XDMNamespacePofSerializer</class-name>
+            </serializer>
+        </user-type>
+        <user-type>
+            <type-id>5019</type-id>
+            <class-name>com.bagri.xdm.XDMPath</class-name>
+            <serializer>
+                <class-name>com.bagri.xdm.access.coherence.pof.XDMPathPofSerializer</class-name>
+            </serializer>
+        </user-type>
+
+        <user-type>
+            <type-id>5020</type-id>
+            <class-name>com.bagri.xdm.access.coherence.data.DataDocumentKey</class-name>
+        </user-type>
+        <user-type>
+            <type-id>5021</type-id>
+            <class-name>com.bagri.xdm.access.coherence.data.PathDocumentKey</class-name>
+        </user-type>
+        <user-type>
+            <type-id>5023</type-id>
+            <class-name>com.bagri.xdm.access.coherence.data.PathValueDocumentKey</class-name>
+        </user-type>
+
+        <user-type>
+            <type-id>5050</type-id>
+            <class-name>com.bagri.xdm.process.coherence.DocumentCreator</class-name>
+        </user-type>
+        <user-type>
+            <type-id>5051</type-id>
+            <class-name>com.bagri.xdm.process.coherence.DocumentBuilder</class-name>
+        </user-type>
+        <user-type>
+            <type-id>5052</type-id>
+            <class-name>com.bagri.xdm.process.coherence.DocumentRemover</class-name>
+        </user-type>
+
+    </user-type-list>
+
+    <!--allow-interfaces>true</allow-interfaces>
+    <allow-subclasses>true</allow-subclasses>
+    <enable-references>true</enable-references-->
+
+    <!--default-serializer>
+         <class-name>com.oracle.coherence.common.serialization.ReflectiveSerializer</class-name>
+     </default-serializer-->
+</pof-config>

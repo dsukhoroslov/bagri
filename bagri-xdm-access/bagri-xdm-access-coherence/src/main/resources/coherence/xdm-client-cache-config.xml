@@ -1,0 +1,112 @@
+<?xml version="1.0"?>
+
+<cache-config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xmlns="http://xmlns.oracle.com/coherence/coherence-cache-config"
+              xsi:schemaLocation="http://xmlns.oracle.com/coherence/coherence-cache-config coherence-cache-config.xsd">
+
+    <defaults>
+        <serializer>
+            <instance>
+                <class-name>com.tangosol.io.pof.ConfigurablePofContext</class-name>
+                <init-params>
+                    <init-param>
+                        <param-type>String</param-type>
+                        <param-value>coherence/pof-client-config.xml</param-value>
+                    </init-param>
+                </init-params>
+            </instance>
+        </serializer>
+    </defaults>
+
+    <caching-scheme-mapping>
+
+        <cache-mapping>
+            <cache-name>dict-*</cache-name>
+            <scheme-name>near-cache-scheme</scheme-name>
+        </cache-mapping>
+
+        <cache-mapping>
+            <cache-name>xdm-*</cache-name>
+            <scheme-name>remote-cache-scheme</scheme-name>
+        </cache-mapping>
+
+        <cache-mapping>
+            <cache-name>coherence.common.sequencegenerators</cache-name>
+            <scheme-name>remote-cache-scheme</scheme-name>
+        </cache-mapping>
+
+    </caching-scheme-mapping>
+
+
+    <caching-schemes>
+
+        <near-scheme>
+            <scheme-name>near-cache-scheme</scheme-name>
+            <front-scheme>
+                <local-scheme>
+                    <scheme-ref>local-cache-scheme</scheme-ref>
+                </local-scheme>
+            </front-scheme>
+            <back-scheme>
+                <remote-cache-scheme>
+                    <scheme-ref>remote-cache-scheme</scheme-ref>
+                </remote-cache-scheme>
+            </back-scheme>
+            <invalidation-strategy>present</invalidation-strategy>
+            <autostart>true</autostart>
+        </near-scheme>
+
+        <local-scheme>
+            <scheme-name>local-cache-scheme</scheme-name>
+            <eviction-policy>HYBRID</eviction-policy>
+            <high-units>{back-size-limit 0}</high-units>
+            <!--unit-calculator>BINARY</unit-calculator-->
+            <expiry-delay>{back-expiry 1h}</expiry-delay>
+            <!--flush-delay>1m</flush-delay-->
+            <cachestore-scheme></cachestore-scheme>
+        </local-scheme>
+
+        <remote-cache-scheme>
+            <scheme-name>remote-cache-scheme</scheme-name>
+            <!--service-name>ExtendTcpCacheService</service-name-->
+            <initiator-config>
+                <tcp-initiator>
+                    <remote-addresses>
+                        <socket-address>
+
+                            <!--use it for Dev Env-->
+                            <address system-property="tangosol.coherence.proxy.address">linbox.sdv.home</address>
+                            <port system-property="tangosol.coherence.proxy.port">17000</port>
+
+                            <!--use it for Local Env-->
+                            <!--address system-property="tangosol.coherence.proxy.address">localhost</address>
+                            <port system-property="tangosol.coherence.proxy.port">21000</port-->
+
+                        </socket-address>
+                    </remote-addresses>
+                    <connect-timeout>10s</connect-timeout>
+                </tcp-initiator>
+                <outgoing-message-handler>
+                    <request-timeout>300s</request-timeout>
+                </outgoing-message-handler>
+            </initiator-config>
+        </remote-cache-scheme>
+
+        <remote-invocation-scheme>
+            <scheme-name>remote-invocation-scheme</scheme-name>
+            <service-name>InvocationService</service-name>
+            <initiator-config>
+                <tcp-initiator>
+                    <remote-addresses>
+                        <socket-address>
+                            <address system-property="tangosol.coherence.proxy.address">localhost</address>
+                            <port system-property="tangosol.coherence.proxy.port">21000</port>
+                        </socket-address>
+                    </remote-addresses>
+                </tcp-initiator>
+            </initiator-config>
+        </remote-invocation-scheme>
+
+    </caching-schemes>
+
+</cache-config>

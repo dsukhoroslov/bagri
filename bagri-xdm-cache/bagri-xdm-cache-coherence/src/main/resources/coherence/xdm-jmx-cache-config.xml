@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+
+<cache-config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xmlns="http://xmlns.oracle.com/coherence/coherence-cache-config"
+              xsi:schemaLocation="http://xmlns.oracle.com/coherence/coherence-cache-config coherence-cache-config.xsd">
+    <!--xmlns:element="class://com.oracle.coherence.environment.extensible.namespaces.XmlElementProcessingNamespaceContentHandler"
+         element:introduce-cache-config="coherence-common-cache-config.xml" -->
+
+    <!--xmlns:introduce="class://com.oracle.coherence.environment.extensible.namespaces.IntroduceNamespaceContentHandler"
+         <introduce:config file="coherence-common-cache-config.xml" / -->
+
+    <defaults>
+        <serializer>
+            <instance>
+                <class-name>com.tangosol.io.pof.ConfigurablePofContext</class-name>
+                <init-params>
+                    <init-param>
+                        <param-type>String</param-type>
+                        <param-value>coherence/pof-server-config.xml</param-value>
+                    </init-param>
+                </init-params>
+            </instance>
+        </serializer>
+    </defaults>
+
+    <caching-scheme-mapping>
+        <cache-mapping>
+            <cache-name>*</cache-name>
+            <scheme-name>xdm-scheme</scheme-name>
+        </cache-mapping>
+    </caching-scheme-mapping>
+
+    <caching-schemes>
+
+        <distributed-scheme>
+            <scheme-name>xdm-scheme</scheme-name>
+            <service-name>DistributedXDMDataCache</service-name>
+            <thread-count system-property="tangosol.coherence.distributed.thread.count">10</thread-count>
+            <lease-granularity>member</lease-granularity>
+            <local-storage system-property="tangosol.coherence.distributed.localstorage">false</local-storage>
+            <autostart>true</autostart>
+        </distributed-scheme>
+
+    </caching-schemes>
+
+</cache-config>

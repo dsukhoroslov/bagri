@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd">
+
+    <!--context:property-placeholder location = "classpath:ccs-cache-server.properties" ignore-unresolvable = "true"/-->
+
+    <import resource="classpath:spring/coh-client-context.xml"/>
+
+    <bean id="xqProcessor" class="com.bagri.xquery.saxon.BagriXQProcessor">
+    	<property name="xdmManager" ref="xdmManager" />
+    	<property name="XQDataFactory" ref="xqConnection" />
+    </bean>
+
+    <bean id="xqDataSource" class="com.bagri.xqj.BagriXQDataSource">
+        <property name="properties">
+            <props>
+                <prop key="schema">TPoX</prop>
+                <prop key="password">TPoX</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="xqConnection" factory-bean="xqDataSource" factory-method="getConnection">
+    	<property name="processor" ref="xqProcessor" />
+    </bean>
+
+</beans>

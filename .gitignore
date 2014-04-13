@@ -1,9 +1,9 @@
 *.class
 
 # Eclipse Files #
-logs
-output
-target
-.settings
+logs/
+output/
+target/
+.settings/
 .classpath
 .project

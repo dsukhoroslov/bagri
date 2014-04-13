@@ -1,0 +1,119 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.sdv.bagri</groupId>
+        <artifactId>bagri</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+        <relativePath>..</relativePath>
+    </parent>
+
+    <groupId>com.sdv.bagri</groupId>
+    <artifactId>bagri-xqj-tck</artifactId>
+    <name>bagri-xqj-tck</name>
+    <description>Bagri XQJ Driver TCK</description>
+
+    <dependencies>
+
+	<dependency>
+	    <groupId>com.sdv.bagri</groupId>
+	    <artifactId>bagri-xqj</artifactId>
+	</dependency>
+	<dependency>
+	    <groupId>com.sdv.bagri</groupId>
+	    <artifactId>bagri-xquery-api</artifactId>
+	</dependency>
+	<dependency>
+	    <groupId>com.sdv.bagri</groupId>
+	    <artifactId>bagri-xquery-saxon</artifactId>
+            <scope>runtime</scope>
+	</dependency>
+
+	<dependency>
+	    <groupId>javax.xml.xquery</groupId>
+	    <artifactId>xqj-api</artifactId>
+	</dependency>
+	<dependency>
+	    <groupId>javax.xml.xquery</groupId>
+	    <artifactId>xqj-tck</artifactId>
+	</dependency>
+	<dependency>
+	    <groupId>com.xqj2</groupId>
+	    <artifactId>xqj2</artifactId>
+	</dependency>
+        <dependency>
+	    <groupId>org.apache.axis</groupId>
+	    <artifactId>axis</artifactId>
+        </dependency>
+
+        <!-- Dependencies for logging -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <!--dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>log4j-over-slf4j</artifactId>
+        </dependency-->
+        <!--dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <scope>runtime</scope>
+        </dependency-->
+
+        <!--dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency-->
+
+        <!--Test dependencies-->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <!--scope>test</scope-->
+        </dependency>
+    </dependencies>
+
+    <profiles>
+        <profile>
+            <id>test</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <executions>
+                            <!-- Run XQL TCK -->
+                            <execution>
+                                <id>run-tck</id>
+                                <phase>test</phase>
+                                <configuration>
+                                    <tasks if="run-tck">
+                                        <java fork="true" classname="com.oracle.xqj.tck.AllTests">
+                                            <!--jvmarg line="${run.jvm.args}"/-->
+                                            <!--sysproperty key="host" value="127.0.0.1"/>
+                                            <sysproperty key="port" value="5701"/-->
+                                            <sysproperty key="com.oracle.xqj.tck.datasource" value="tck.properties"/>
+                                            <classpath>
+                                                <path refid="maven.compile.classpath"/>
+                                                <path refid="maven.runtime.classpath"/>
+                                                <!--pathelement location="config/"/-->
+                                            </classpath>
+                                        </java>
+                                    </tasks>
+                                </configuration>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+</project>

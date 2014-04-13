@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:hz="http://www.hazelcast.com/schema/spring"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+		http://www.hazelcast.com/schema/spring http://www.hazelcast.com/schema/spring/hazelcast-spring-3.2.xsd">
+
+    <!--import resource="classpath:applicationContext-hazelcast.xml" /-->
+ 
+    <!-- Beans Declaration -->
+    <!--bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+                <value>classpath:/hazelcast-config.properties</value>
+            </list>
+        </property>
+    </bean-->
+ 
+	<!--hz:client id="hzInstance">
+		<hz:member>localhost:5701-5710</hz:member>
+	</hz:client-->
+	
+	<bean id="hzInstance" class="com.bagri.xdm.hazelcast.HazelcastClientBuilder" factory-method="newHazelcastClient">
+		<constructor-arg>
+			<bean class="com.hazelcast.client.config.ClientConfig">
+				<!--property name="groupConfig">
+					<bean class="com.hazelcast.config.GroupConfig">
+						<property name="name" value="dev"/>
+						<property name="password" value="pwd"/>
+					</bean>
+				</property-->
+				<property name="addresses">
+					<list>
+						<value>linbox.sdv.home:5701</value>
+						<value>linbox.sdv.home:5702</value>
+						<value>192.168.1.100:5703</value>
+						<value>192.168.1.100:5704</value>
+					</list>
+				</property>
+				<property name="smart" value="true"/>
+			</bean>
+		</constructor-arg>
+	</bean>
+
+	<hz:map id="xdm-document" name="xdm-document" instance-ref="hzInstance" />
+	<hz:map id="xdm-element" name="xdm-element" instance-ref="hzInstance" />
+	<hz:map id="dict-document-type" name="dict-document-type" instance-ref="hzInstance" />
+	<hz:map id="dict-path" name="dict-path" instance-ref="hzInstance" />
+	<hz:map id="dict-namespace" name="dict-namespace" instance-ref="hzInstance" />
+
+	<hz:idGenerator id="xdm.document" name="xdm.document" instance-ref="hzInstance"/>
+	<hz:idGenerator id="xdm.element" name="xdm.element" instance-ref="hzInstance"/>
+	<hz:idGenerator id="xdm.path" name="xdm.path" instance-ref="hzInstance"/>
+	<hz:idGenerator id="xdm.namespace" name="xdm.namespace" instance-ref="hzInstance"/>
+	<hz:idGenerator id="xdm.doctype" name="xdm.doctype" instance-ref="hzInstance"/>
+	
+	<hz:executorService id="xdm-exec-pool" name="xdm-exec-pool" instance-ref="hzInstance"/>
+	
+	<bean id="xdmDictionary" class="com.bagri.xdm.access.hazelcast.impl.HazelcastSchemalDictionary">
+		<!--constructor-arg value="map" /-->
+		<property name="hzInstance" ref="hzInstance"/>
+	</bean>
+
+	<bean id="xdmFactory" class="com.bagri.xdm.access.hazelcast.impl.HazelcastXDMFactory" />
+
+	<bean id="xdmManager" class="com.bagri.xdm.access.hazelcast.impl.HazelcastDocumentManager">
+		<!--constructor-arg value="map" /-->
+		<property name="factory" ref="xdmFactory"/>
+		<property name="hzInstance" ref="hzInstance"/>
+		<property name="schemaDictionary" ref="xdmDictionary"/>
+	</bean>
+</beans>

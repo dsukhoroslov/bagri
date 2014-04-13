@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hazelcast-client xmlns="http://www.hazelcat.com/schema/client-config" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.hazelcast.com/schema/client-config http://www.hazelcast.com/schema/config/hazelcast-client-config-3.2.xsd"> 
+	
+	<!--group>
+		<name>${username}</name>
+		<password>${password}</password>
+	</group-->
+
+	<network>
+		<cluster-members>
+			<!-- default Hazelcast host/port -->
+			<address>localhost:5701</address>
+		</cluster-members>
+		<smart-routing>true</smart-routing>
+	</network>
+
+	<executor-pool-size>10</executor-pool-size>
+
+    <security>
+        <credentials>com.hazelcast.security.UsernamePasswordCredentials</credentials>
+    </security>
+
+	<serialization>
+		<!--portable-version>0</portable-version-->
+		<portable-factories>
+			<portable-factory factory-id="1">com.bagri.xdm.access.hazelcast.pof.XDMPortableFactory</portable-factory>
+		</portable-factories>
+		<serializers>
+			<!--hz:global-serializer class-name="com.hazelcast.nio.serialization.PortableSerializer"/-->
+			<serializer type-class="com.bagri.xdm.XDMElement">com.bagri.xdm.access.hazelcast.pof.XDMElementSerializer</serializer>
+			<serializer type-class="com.bagri.xdm.XDMPath">com.bagri.xdm.access.hazelcast.pof.XDMPathSerializer</serializer>
+			<serializer type-class="com.bagri.xdm.XDMDocument">com.bagri.xdm.access.hazelcast.pof.XDMDocumentSerializer</serializer>
+			<serializer type-class="com.bagri.xdm.XDMDocumentType">com.bagri.xdm.access.hazelcast.pof.XDMDocumentTypeSerializer</serializer>
+			<serializer type-class="com.bagri.xdm.XDMNamespace">com.bagri.xdm.access.hazelcast.pof.XDMNamespaceSerializer</serializer>
+		</serializers>
+	</serialization>
+
+    <load-balancer type="random"></load-balancer>
+	 
+	<near-cache name="dict-path" in-memory-format="OBJECT" />
+	<near-cache name="dict-namespace" in-memory-format="OBJECT" />
+	<near-cache name="dict-document-type" in-memory-format="OBJECT" />
+	
+</hazelcast-client>

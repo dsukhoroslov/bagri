@@ -1,0 +1,31 @@
+<document>
+  <root>
+    <preceding/>
+    <preceding/>
+    <parent>
+      <preciding-sibling>
+        <preciding-sibling-child/>
+      </preciding-sibling>
+      <preciding-sibling/>
+      <self>
+        <child/>
+        <child>
+          <descendant/>
+          <descendant/>
+        </child>
+        <child/>
+        <child/>
+        <child>
+          <descendant/>
+          <descendant/>
+        </child>
+      </self>
+      <following-sibling/>
+      <following-sibling>
+        <following-sibling-child/>
+      </following-sibling>
+    </parent>
+    <following/>
+    <following/>
+  </root>
+</document>

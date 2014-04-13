@@ -1,0 +1,64 @@
+Bank Loan
+Bear Market
+Conservative Allocation
+Convertibles
+Diversified Emerging Mkts
+Diversified Pacific/Asia
+Emerging Markets Bond
+Europe Stock
+Foreign Large Blend
+Foreign Large Growth
+Foreign Large Value
+Foreign Small/Mid Growth
+Foreign Small/Mid Value
+High Yield Bond
+High Yield Muni
+Intermediate Government
+Intermediate-Term Bond
+Japan Stock
+Large Blend
+Large Growth
+Large Value
+Latin America Stock
+Long Government
+Long-Term Bond
+Mid-Cap Blend
+Mid-Cap Growth
+Mid-Cap Value
+Moderate Allocation
+Multisector Bond
+Muni California Int/Sh
+Muni California Long
+Muni Florida
+Muni Massachusetts
+Muni Minnesota
+Muni National Interm
+Muni National Long
+Muni National Short
+Muni New Jersey
+Muni New York Int/Sh
+Muni New York Long
+Muni Ohio
+Muni Pennsylvania
+Muni Single State Int/Sh
+Muni Single State Long
+Pacific/Asia ex-Japan Stk
+Short Government
+Short-Term Bond
+Sm all Value
+Small Blend
+Small Growth
+Small Value
+Speci alty-Communications
+Specialty-Communications
+Specialty-Financial
+Specialty-Health
+Specialty-Natural Res
+Specialty-Precious Metals
+Specialty-Real Estate
+Specialty-Technology
+Specialty-Utilities
+Ultrashort Bond
+World Allocation
+World Bond
+World Stock

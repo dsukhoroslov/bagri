@@ -1,0 +1,12 @@
+Basic Materials
+Capital Goods
+Conglomerates
+Consumer Cyclical
+Consumer Non-Cyclical
+Energy
+Financial
+Healthcare
+Services
+Technology
+Transportation
+Utilities

@@ -1,0 +1,76 @@
+<?xml version='1.0'?>
+
+<coherence xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns="http://xmlns.oracle.com/coherence/coherence-operational-config"
+           xsi:schemaLocation="http://xmlns.oracle.com/coherence/coherence-operational-config.xsd">
+    <!--xml-override="/tangosol-coherence-override.xml"-->
+
+    <cluster-config>
+        <member-identity>
+            <cluster-name system-property="tangosol.coherence.cluster">XDMCacheCluster</cluster-name>
+            <role-name system-property="tangosol.coherence.role">JMXCacheNode</role-name>
+        </member-identity>
+        <!--unicast-listener>
+            <well-known-addresses>
+                <socket-address id="1">
+                    <address system-property="tangosol.coherence.wka1">localhost</address>
+                    <port system-property="tangosol.coherence.wka1.port">8088</port>
+                </socket-address>
+                <socket-address id="2">
+                    <address system-property="tangosol.coherence.wka2">localhost</address>
+                    <port system-property="tangosol.coherence.wka2.port">8090</port>
+                </socket-address>
+                <socket-address id="3">
+                    <address system-property="tangosol.coherence.wka3">localhost</address>
+                    <port system-property="tangosol.coherence.wka3.port">8092</port>
+                </socket-address>
+            </well-known-addresses>
+        </unicast-listener-->
+        <multicast-listener>
+            <time-to-live>0</time-to-live>
+            <join-timeout-milliseconds>10000</join-timeout-milliseconds>
+        </multicast-listener>
+        <shutdown-listener>
+            <enabled system-property="tangosol.coherence.shutdownhook">graceful</enabled>
+        </shutdown-listener>
+        <!--service-guardian>
+              <timeout-milliseconds system-property="tangosol.coherence.guard.timeout">0</timeout-milliseconds>
+              <service-failure-policy>
+                  <class-name></class-name>
+              </service-failure-policy>
+          </service-guardian-->
+
+    </cluster-config>
+    <logging-config>
+        <!--(destination, logger-name?, severity-level, message-format, character-limit)-->
+        <destination system-property="tangosol.coherence.log">log4j</destination>
+        <severity-level system-property="tangosol.coherence.log.level">9</severity-level>
+        <message-format>&lt;{uptime}/{level}&gt; (thread={thread}, member={member};{location}): {text}</message-format>
+    </logging-config>
+
+    <management-config>
+        <managed-nodes system-property="tangosol.coherence.management">all</managed-nodes>
+        <allow-remote-management system-property="tangosol.coherence.management.remote">true</allow-remote-management>
+        <mbeans>
+	    <!--mbean id="200">
+	        <mbean-class>com.bagri.xdm.cache.manage.JMXHelper</mbean-class>
+	    	<mbean-name>name=XDMManager</mbean-name>
+       		<enabled>true</enabled>
+        	<extend-lifecycle>true</extend-lifecycle>
+	    </mbean-->
+
+            <mbean id="201">
+                <mbean-query>ch.qos.logback.classic:*</mbean-query>
+                <mbean-name>type=LogbackConfig</mbean-name>
+                <enabled>true</enabled>
+                <extend-lifecycle>true</extend-lifecycle>
+            </mbean>
+            <!--mbean id="202">
+                <mbean-query>oracle.ucp.admin:*</mbean-query>
+                <mbean-name>type=OracleUcpAdmin</mbean-name>
+                <enabled>true</enabled>
+                <extend-lifecycle>true</extend-lifecycle>
+            </mbean-->
+        </mbeans>
+    </management-config>
+</coherence>

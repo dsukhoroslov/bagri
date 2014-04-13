@@ -1,0 +1,187 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context = "http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.1.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd">
+
+    <bean class="org.springframework.beans.factory.annotation.RequiredAnnotationBeanPostProcessor"/>
+
+    <context:property-placeholder location = "classpath:xdm-cache-server.properties" ignore-unresolvable = "true"/>
+
+    <!--import resource="classpath:spring/xdm-common-context.xml"/-->
+    <!--import resource="classpath:spring/xdm-db-context.xml"/-->
+    <!--import resource="classpath:spring/xdm-processing-context.xml"/-->
+
+    <!--bean id="lobHandler" class="org.springframework.jdbc.support.lob.OracleLobHandler">
+        <property name="nativeJdbcExtractor">
+            <bean class="org.springframework.jdbc.support.nativejdbc.CommonsDbcpNativeJdbcExtractor"/>
+        </property>
+    </bean-->
+
+    <!--bean id="sqCacheStore"
+          class="com.db.cpg.ccs.cache.store.SequenceCacheStore"
+          p:jdbcTemplate-ref="ccsJdbcTemplate"/>
+
+    <bean id="leCacheStore"
+          class="com.db.cpg.ccs.cache.store.LegalEntityCacheStore"
+          p:jdbcTemplate-ref="ccsJdbcTemplate"/>
+
+    <bean id="portCacheStore"
+          class="com.db.cpg.ccs.cache.store.PortfolioCacheStore"
+          p:jdbcTemplate-ref="ccsJdbcTemplate"/-->
+
+    <bean id="replPopulationListener" scope="prototype" class="com.bagri.xdm.cache.coherence.process.CachePopulationListener">
+        <constructor-arg name="clusterSize" value="1"/>
+        <constructor-arg name="invocationServiceName" value="PopulationService"/>
+        <property name="populators">
+            <list>
+                <!-- populates caches from ReplicatedCCSDataCache service only -->
+                <ref bean="nsPopulator"/>
+                <ref bean="pathPopulator"/>
+                <ref bean="typePopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="nsPopulator" class="com.bagri.xdm.cache.coherence.process.ReplicatedCachePopulator">
+        <constructor-arg name="cacheName" value="dict-namespace"/>
+        <property name="populating" value="false"/>
+    </bean>
+
+    <bean id="pathPopulator" class="com.bagri.xdm.cache.coherence.process.ReplicatedCachePopulator">
+        <constructor-arg name="cacheName" value="dict-path"/>
+        <property name="populating" value="false"/>
+    </bean>
+
+    <bean id="typePopulator" class="com.bagri.xdm.cache.coherence.process.ReplicatedCachePopulator">
+        <constructor-arg name="cacheName" value="dict-document-type"/>
+        <property name="populating" value="false"/>
+    </bean>
+
+    <bean id="distPopulationListener" scope="prototype" class="com.bagri.xdm.cache.coherence.process.CachePopulationListener">
+        <constructor-arg name="clusterSize" value="1"/>
+        <constructor-arg name="invocationServiceName" value="PopulationService"/>
+        <property name="populators">
+            <list>
+                <!-- populates caches from DistributedCCSDataCache service only -->
+                <ref bean="xdocPopulator"/>
+                <ref bean="xdatPopulator"/>
+                <!--ref bean="xpPopulator"/>
+                <ref bean="xpvPopulator"/-->
+            </list>
+        </property>
+    </bean>
+
+    <bean id="xdocPopulator" class="com.bagri.xdm.cache.coherence.process.DistributedCachePopulator">
+        <constructor-arg name="cacheName" value="xdm-document"/>
+        <property name="populating" value="false"/>
+        <property name="indexes">
+            <list>
+		<bean class="com.tangosol.util.extractor.PofExtractor">
+			<constructor-arg index="0" value="java.lang.Integer" />
+			<constructor-arg index="1" value="2" />
+		</bean>
+            </list>
+        </property>
+    </bean>
+
+
+    <bean id="xdatPopulator" class="com.bagri.xdm.cache.coherence.process.DistributedCachePopulator">
+        <constructor-arg name="cacheName" value="xdm-element"/>
+        <!--property name="batchSize" value="20000"/>
+        <property name="cacheStore" ref="esCacheStore"/-->
+        <property name="populating" value="false"/>
+        <property name="indexes">
+            <list>
+				<bean class="com.tangosol.util.extractor.PofExtractor">
+					<constructor-arg index="0" value="java.lang.Long" />
+					<constructor-arg index="1" value="2" />
+				</bean>
+				<bean class="com.tangosol.util.extractor.PofExtractor">
+					<constructor-arg index="0" value="java.lang.Integer" />
+					<constructor-arg index="1" value="4" />
+				</bean>
+				<bean class="com.tangosol.util.extractor.PofExtractor">
+					<constructor-arg index="0" value="java.lang.String" />
+					<constructor-arg index="1" value="6" />
+				</bean>
+            </list>
+        </property>
+
+        <!--property name="triggers">
+            <list>
+                <bean class="com.db.cpg.ccs.trigger.EntityStatusAlertTrigger" />
+            </list>
+        </property-->
+    </bean>
+
+    <!--bean id="xpPopulator" class="com.bagri.xdm.cache.process.DistributedCachePopulator">
+        <constructor-arg name="cacheName" value="xdm-path-index"/>
+        <property name="populating" value="false"/>
+        <property name="indexes">
+            <list>
+				<bean class="com.tangosol.util.extractor.PofExtractor">
+					<constructor-arg index="0" value="java.lang.String" />
+					<constructor-arg index="1" value="0" />
+				</bean>
+            </list>
+        </property>
+    </bean-->
+
+    <!--bean id="xpvPopulator" class="com.bagri.xdm.cache.process.DistributedCachePopulator">
+        <constructor-arg name="cacheName" value="xdm-path-value-index"/>
+        <property name="populating" value="false"/>
+        <property name="indexes">
+            <list>
+				<bean class="com.tangosol.util.extractor.PofExtractor">
+					<constructor-arg index="0" value="java.lang.String" />
+					<constructor-arg index="1" value="0" />
+				</bean>
+				<bean class="com.tangosol.util.extractor.PofExtractor">
+					<constructor-arg index="0" value="java.lang.String" />
+					<constructor-arg index="1" value="1" />
+				</bean>
+            </list>
+        </property>
+    </bean-->
+
+    <!--bean id="sqPopulationListener" scope="prototype" class="com.bagri.xdm.cache.process.CachePopulationListener">
+        <constructor-arg name="clusterSize" value="1"/>
+        <constructor-arg name="invocationServiceName" value="PopulationService"/>
+        <property name="populators">
+            <list>
+                <ref bean="sqPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="sqPopulator" class="com.db.cpg.ccs.cache.processing.SQPopulator"> 
+        <constructor-arg name="cacheName" value="coherence.common.sequencegenerators"/>
+        <property name="cacheStore" ref="sqCacheStore"/>
+    </bean-->
+
+	<bean id="xdmDictionary" class="com.bagri.xdm.access.coherence.impl.CoherenceSchemaDictionary"/>
+
+	<bean id="xdmFactory" class="com.bagri.xdm.access.coherence.impl.CoherenceXDMFactory"/>
+
+	<bean id="idGen" class="com.bagri.xdm.access.coherence.impl.ClusteredIdGenerator">
+		<constructor-arg>
+			<bean class="com.oracle.coherence.common.sequencegenerators.ClusteredSequenceGenerator">
+				<constructor-arg index="0" value="xdm.element"/>
+				<constructor-arg index="1" value="100"/>
+			</bean>
+		</constructor-arg>
+	</bean>
+
+	<bean id="xdmManager" class="com.bagri.xdm.process.coherence.CoherenceDocumentServer">
+		<property name="xdmFactory" ref="xdmFactory"/>
+		<property name="schemaDictionary" ref="xdmDictionary"/>
+		<property name="elementIdGenerator" ref="idGen"/>
+	</bean>
+	
+</beans>
+

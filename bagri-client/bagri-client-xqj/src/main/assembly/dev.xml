@@ -1,0 +1,38 @@
+<assembly>
+    <id>dev</id>
+
+    <includeBaseDirectory>false</includeBaseDirectory>
+
+    <formats>
+        <format>tar.gz</format>
+    </formats>
+
+    <dependencySets>
+        <dependencySet>
+            <outputDirectory>/lib</outputDirectory>
+        </dependencySet>
+    </dependencySets>
+
+    <fileSets>
+        <fileSet>
+            <directory>src/main/assembly/dev</directory>
+            <outputDirectory>/</outputDirectory>
+            <lineEnding>unix</lineEnding>
+            <fileMode>755</fileMode>
+            <excludes>
+                <exclude>**/*.formatted</exclude>
+                <exclude>**/conf/*</exclude>
+            </excludes>
+        </fileSet>
+        <fileSet>
+            <directory>src/main/resources</directory>
+            <outputDirectory>/config</outputDirectory>
+            <includes>
+                <include>**/coherence/*.*</include>
+                <include>**/spring/*.*</include>
+                <!--include>**/*.*</include-->
+            </includes>
+        </fileSet>
+    </fileSets>
+
+</assembly>  

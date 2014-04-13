@@ -1,0 +1,7 @@
+USD
+CND
+EUR
+GBP
+YEN
+CHF
+AUD

@@ -1,0 +1,224 @@
+<?xml version="1.0"?>
+
+<cache-config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xmlns="http://xmlns.oracle.com/coherence/coherence-cache-config"
+              xsi:schemaLocation="http://xmlns.oracle.com/coherence/coherence-cache-config coherence-cache-config.xsd">
+
+    <defaults>
+        <serializer>
+            <instance>
+                <class-name>com.tangosol.io.pof.ConfigurablePofContext</class-name>
+                <init-params>
+                    <init-param>
+                        <param-type>String</param-type>
+                        <param-value>coherence/pof-server-config.xml</param-value>
+                    </init-param>
+                </init-params>
+            </instance>
+        </serializer>
+    </defaults>
+
+    <caching-scheme-mapping>
+        <cache-mapping>
+              <cache-name>dist-*</cache-name>
+              <scheme-name>xdm-distributed-scheme</scheme-name>
+              <!--init-params>
+                  <init-param>
+                      <param-name>cachestore-bean-id</param-name>
+                      <param-value>exRulesHistoryCacheStore</param-value>
+                  </init-param>
+                  <init-param>
+                      <param-name>cachestore-timeout</param-name>
+                      <param-value>300s</param-value>
+                  </init-param>
+                  <init-param>
+                      <param-name>read-only</param-name>
+                      <param-value>true</param-value>
+                  </init-param>
+                  <init-param>
+                      <param-name>back-size-limit</param-name>
+                      <param-value>100m</param-value>
+                  </init-param>
+                  <init-param>
+                      <param-name>back-expiry</param-name>
+                      <param-value>10m</param-value>
+                  </init-param>
+              </init-params-->
+        </cache-mapping>
+
+        <cache-mapping>
+              <cache-name>repl-*</cache-name>
+              <scheme-name>xdm-replicated-scheme</scheme-name>
+        </cache-mapping>
+
+        <cache-mapping>
+              <cache-name>dict-*</cache-name>
+              <scheme-name>xdm-replicated-scheme</scheme-name>
+        </cache-mapping>
+
+        <cache-mapping>
+              <cache-name>xdm-*</cache-name>
+              <scheme-name>xdm-transient-scheme</scheme-name>
+        </cache-mapping>
+
+        <cache-mapping>
+            <cache-name>coherence.common.sequencegenerators</cache-name>
+            <scheme-name>distributed-scheme-for-sequence-generators</scheme-name>
+        </cache-mapping>
+
+    </caching-scheme-mapping>
+
+    <caching-schemes>
+
+        <local-scheme>
+            <scheme-name>xdm-local-scheme</scheme-name>
+            <eviction-policy>HYBRID</eviction-policy>
+            <high-units>{back-size-limit 0}</high-units>
+            <unit-calculator>BINARY</unit-calculator>
+            <expiry-delay>{back-expiry 0}</expiry-delay>
+            <!--flush-delay>1m</flush-delay -->
+            <cachestore-scheme></cachestore-scheme>
+        </local-scheme>
+
+        <read-write-backing-map-scheme>
+            <scheme-name>xdm-read-write-scheme</scheme-name>
+            <internal-cache-scheme>
+            	<local-scheme>
+                	<scheme-ref>xdm-local-scheme</scheme-ref>
+                </local-scheme>
+            </internal-cache-scheme>
+            <cachestore-scheme>
+            	<class-scheme>
+                	<class-name>spring-bean:{cachestore-bean-id}</class-name>
+                </class-scheme>
+            </cachestore-scheme>
+            <read-only>{read-only false}</read-only>
+            <write-delay>5s</write-delay>
+            <write-batch-factor>0.5</write-batch-factor>
+            <write-requeue-threshold>100</write-requeue-threshold>
+            <cachestore-timeout>{cachestore-timeout 120s}</cachestore-timeout>
+        </read-write-backing-map-scheme>
+
+        <!-- Base Replicated Cache scheme -->
+        <replicated-scheme>
+            <scheme-name>xdm-replicated-scheme</scheme-name>
+            <service-name>ReplicatedXDMDataCache</service-name>
+            <lease-granularity>member</lease-granularity>
+	    	<member-listener>
+			<class-factory-name>com.bagri.xdm.process.coherence.factory.SpringAwareCacheFactory</class-factory-name>
+			<method-name>instantiateSpringBean</method-name>
+			<init-params>
+			    	<init-param>
+					<param-type>java.lang.String</param-type>
+					<param-value>replPopulationListener</param-value>
+    			    	</init-param>
+			</init-params>
+    	    </member-listener>
+            <backing-map-scheme>
+                <local-scheme>
+                    <eviction-policy>HYBRID</eviction-policy>
+                    <high-units>{back-size-limit 0}</high-units>
+                </local-scheme>
+            </backing-map-scheme>
+            <autostart>true</autostart>
+        </replicated-scheme>
+
+        <!-- Scheme for any distributed cache with no population. -->
+        <distributed-scheme>
+            <scheme-name>xdm-base-distributed-scheme</scheme-name>
+            <!--service-name>DistributedXDMDataCache</service-name-->
+            <thread-count system-property="xdm.cache.threads.distributedScheme">200</thread-count>
+            <backup-count>1</backup-count>
+            <request-timeout>1500s</request-timeout>
+            <guardian-timeout>1200s</guardian-timeout>
+
+            <backing-map-scheme>
+                <read-write-backing-map-scheme>
+            		<scheme-ref>xdm-read-write-scheme</scheme-ref>
+                </read-write-backing-map-scheme>
+            </backing-map-scheme>
+            <!--autostart>true</autostart-->
+        </distributed-scheme>
+
+        <!-- Scheme for any pre-populated distributed cache. -->
+        <distributed-scheme>
+            <scheme-name>xdm-distributed-scheme</scheme-name>
+            <scheme-ref>xdm-base-distributed-scheme</scheme-ref>
+            <service-name>DistributedXDMDataCache</service-name>
+            <member-listener>
+                <class-factory-name>com.bagri.xdm.process.coherence.factory.SpringAwareCacheFactory</class-factory-name>
+                <method-name>instantiateSpringBean</method-name>
+                <init-params>
+                    <init-param>
+                        <param-type>java.lang.String</param-type>
+                        <param-value>distPopulationListener</param-value>
+                    </init-param>
+                </init-params>
+            </member-listener>
+            <autostart>true</autostart>
+        </distributed-scheme>
+
+        <distributed-scheme>
+            <scheme-name>xdm-transient-scheme</scheme-name>
+            <scheme-ref>xdm-distributed-scheme</scheme-ref>
+            <backing-map-scheme>
+            	<local-scheme>
+               	    <scheme-ref>xdm-local-scheme</scheme-ref>
+                </local-scheme>
+            </backing-map-scheme>
+            <autostart>true</autostart>
+        </distributed-scheme>
+
+        <distributed-scheme>
+            <scheme-name>distributed-scheme-for-sequence-generators</scheme-name>
+            <service-name>DistributedCacheForSequenceGenerators</service-name>
+		<!--member-listener>
+			<class-factory-name>com.db.cpg.ccs.cache.factory.SpringAwareCacheFactory</class-factory-name>
+			<method-name>instantiateSpringBean</method-name>
+			<init-params>
+				<init-param>
+					<param-type>java.lang.String</param-type>
+					<param-value>sqPopulationListener</param-value>
+				</init-param>
+			</init-params>
+		</member-listener-->
+            <backing-map-scheme>
+            	<local-scheme>
+               	    <scheme-ref>xdm-local-scheme</scheme-ref>
+                </local-scheme>
+
+                <!--read-write-backing-map-scheme>
+                    <internal-cache-scheme>
+                        <local-scheme/>
+                    </internal-cache-scheme>
+                    <cachestore-scheme>
+                    	<class-scheme>
+                        	<class-name>spring-bean:sqCacheStore</class-name>
+                        </class-scheme>
+                    </cachestore-scheme>
+                </read-write-backing-map-scheme-->
+            </backing-map-scheme>
+            <autostart>true</autostart>
+        </distributed-scheme>
+
+        <invocation-scheme>
+            <scheme-name>xdm-invocation-scheme</scheme-name>
+            <service-name>InvocationService</service-name>
+            <thread-count system-property="xdm.cache.threads.invocationScheme">150</thread-count>
+            <guardian-timeout>3600000</guardian-timeout>
+            <!--task-hung-threshold>60000</task-hung-threshold> <task-timeout>70000</task-timeout -->
+            <autostart system-property="tangosol.coherence.invocation.autostart">true</autostart>
+        </invocation-scheme>
+
+        <invocation-scheme>
+            <scheme-name>xdm-population-scheme</scheme-name>
+            <service-name>PopulationService</service-name>
+            <thread-count system-property="xdm.cache.threads.populationScheme">70</thread-count>
+            <guardian-timeout>3600000</guardian-timeout>
+            <!--task-hung-threshold>60000</task-hung-threshold> <task-timeout>70000</task-timeout -->
+            <autostart system-property="tangosol.coherence.invocation.autostart">true</autostart>
+        </invocation-scheme>
+
+    </caching-schemes>
+
+</cache-config>

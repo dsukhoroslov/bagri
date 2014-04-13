@@ -1,0 +1,35 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+
+    <bean id="xdmDataSource"
+          class="oracle.ucp.jdbc.PoolDataSourceFactory"
+          factory-method="getPoolDataSource">
+        <property name="URL" value="${xdm.jdbc.url}"/>
+        <property name="user" value="${xdm.jdbc.username}"/>
+        <!--<property name="password" value="${xdmJdbcPassword}"/>-->
+        <property name="password" value="${xdm.jdbc.password}"/>
+        <property name="connectionFactoryClassName" value="oracle.jdbc.pool.OracleDataSource"/>
+        <property name="connectionPoolName" value="XDM_POOL"/>
+        <!--property name="connectionWaitTimeout" value="${jdbc.connectionWaitTimeout}"/-->
+        <property name="initialPoolSize" value="${xdm.jdbc.minPoolSize}"/>
+        <property name="minPoolSize" value="${xdm.jdbc.minPoolSize}"/>
+        <property name="maxPoolSize" value="${xdm.jdbc.maxPoolSize}"/>
+        <property name="maxStatements" value="100"/>
+        <!--property name="timeoutCheckInterval" value="${jdbc.timeoutCheckInterval}"/-->
+        <property name="validateConnectionOnBorrow" value="true"/>
+        <property name="SQLForValidateConnection" value="select 1 from dual"/>
+        <property name="connectionProperties">
+            <props>
+                <prop key="defaultRowPrefetch">5000</prop>
+                <prop key="defaultBatchValue">5000</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="xdmJdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate"
+          scope="singleton" p:dataSource-ref="xdmDataSource"/>
+
+</beans>

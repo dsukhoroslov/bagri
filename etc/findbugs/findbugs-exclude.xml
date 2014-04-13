@@ -1,0 +1,16 @@
+<!--
+	Set exclude cases for FindBugs here. Maven FindBugs plugin config in pom.xml
+	is pointing to this file. Also if using IDE FindBugs plugin this file should be
+	included in IDE FindBugs plugin config.
+-->
+
+<FindBugsFilter>
+
+  <!-- Example for excluding some cases -->
+  <!-- Match>
+    <Class name="Class1"/>
+    <Bug code="EI"/>
+    <Bug pattern="EI_EXPOSE_REP"/>
+  </Match -->
+
+</FindBugsFilter>

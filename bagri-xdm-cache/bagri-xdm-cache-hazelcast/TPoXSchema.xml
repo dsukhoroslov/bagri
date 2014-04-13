@@ -1,0 +1,16 @@
+<schemas xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"> 
+    
+    <schema name="TPoX" active="true">
+	<description>TPoX schema for tests</description>
+	<createdAt>2014-03-27</createdAt>
+	<createdBy>SDV</createdBy>
+	<properties>
+	    <property name="xdm.schema.password">TPoX</property>
+	    <property name="xdm.schema.ports">10000-10100</property>
+	    <property name="xdm.schema.ports.start">10000</property>
+	    <property name="xdm.schema.members">localhost</property>
+	    <property name="xdm.schema.thread.pool">10</property>
+	</properties>
+    </schema>
+
+</schemas>
