@@ -32,6 +32,7 @@ public class XDMSchemaProcessorTest {
 	//public void tearDown() throws Exception {
 	//}
 
+
 	@Test
 	public void testParse() {
 		String sampleRoot = "C:\\Work\\Bagri\\project\\trunk\\etc\\samples\\";
