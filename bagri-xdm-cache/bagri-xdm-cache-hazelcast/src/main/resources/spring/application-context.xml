@@ -47,12 +47,12 @@
 			</hz:map>
 
 			<hz:map name="users">
-				<!--hz:map-store enabled="true" write-delay-seconds="10" 
+				<hz:map-store enabled="true" write-delay-seconds="10" 
 					class-name="com.bagri.xdm.cache.hazelcast.store.XDMUserCacheStore">
 					<hz:properties>
-						<hz:property name="xdm.schemas.filename">${xdm.userss.filename}</hz:property>
+						<hz:property name="xdm.users.filename">${xdm.users.filename}</hz:property>
 					</hz:properties>
-				</hz:map-store-->
+				</hz:map-store>
 			</hz:map>
 			
 			<!--hz:listeners>
@@ -66,6 +66,7 @@
 				<hz:serializers>
 					<hz:serializer type-class="com.bagri.xdm.XDMNode" class-name="com.bagri.xdm.access.hazelcast.pof.XDMNodeSerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.XDMSchema" class-name="com.bagri.xdm.access.hazelcast.pof.XDMSchemaSerializer"/>
+					<hz:serializer type-class="com.bagri.xdm.XDMUser" class-name="com.bagri.xdm.access.hazelcast.pof.XDMUserSerializer"/>
 				</hz:serializers>
 			</hz:serialization>
 		</hz:config>

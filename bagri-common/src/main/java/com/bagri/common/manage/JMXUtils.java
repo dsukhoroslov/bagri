@@ -40,7 +40,13 @@ public class JMXUtils {
 	public static final String key_type = "type";
 	public static final String key_name = "name";
 	public static final String domain = "com.bagri.xdm";
+	public static final String type_management = "Management";
     
+	public static boolean registerMBean(String name, Object mBean) {
+		Hashtable<String, String> keys = getKeys(type_management, name);
+		return registerMBean(domain, keys, mBean);
+	}
+
 	public static boolean registerMBean(String type, String name, Object mBean) {
 		Hashtable<String, String> keys = getKeys(type, name);
 		return registerMBean(domain, keys, mBean);

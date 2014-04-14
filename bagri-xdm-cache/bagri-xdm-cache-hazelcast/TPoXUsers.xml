@@ -1,0 +1,9 @@
+<users xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"> 
+    
+    <user login="SDV" active="true">
+	<password>TPoX</password>
+	<createdAt>2014-04-14</createdAt>
+	<createdBy>SDV</createdBy>
+    </user>
+
+</users>

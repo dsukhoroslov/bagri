@@ -27,7 +27,6 @@ public class ClusterManagement implements InitializingBean, MembershipListener,
 
     private static final transient Logger logger = LoggerFactory.getLogger(ClusterManagement.class);
 	private static final String cluster_management = "ClusterManagement";
-	private static final String type_management = "Management";
     
     private HazelcastInstance hzInstance;
     private IMap<String, XDMNode> nodeCache;
@@ -53,7 +52,7 @@ public class ClusterManagement implements InitializingBean, MembershipListener,
 			initNode(member);
 		}
 		
-		JMXUtils.registerMBean(type_management, cluster_management, this);
+		JMXUtils.registerMBean(cluster_management, this);
 	}
 	
 	private void initNode(Member member) throws Exception {
@@ -81,7 +80,7 @@ public class ClusterManagement implements InitializingBean, MembershipListener,
 	
 	private boolean denitNode(XDMNode node) {
 		// find and unreg NodeManager...
-		NodeManager nMgr = mgrCache.get(node.getNode());
+		NodeManager nMgr = mgrCache.remove(node.getNode());
 		if (nMgr != null) {
 			nMgr.close();
 			return true;

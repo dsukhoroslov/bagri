@@ -35,7 +35,6 @@ public class SchemaManagement implements InitializingBean, XDMSchemaManagement, 
 	
     private static final transient Logger logger = LoggerFactory.getLogger(SchemaManagement.class);
 	private static final String schema_management = "SchemaManagement";
-	private static final String type_management = "Management";
     
 	private Properties defaults; 
     private HazelcastInstance hzInstance;
@@ -57,7 +56,7 @@ public class SchemaManagement implements InitializingBean, XDMSchemaManagement, 
         	}
         }
 		
-		JMXUtils.registerMBean(type_management, schema_management, this);
+		JMXUtils.registerMBean(schema_management, this);
 	}
 	
 	@Override

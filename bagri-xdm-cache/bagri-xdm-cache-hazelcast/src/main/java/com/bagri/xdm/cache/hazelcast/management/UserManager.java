@@ -13,7 +13,7 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.IMap;
 
-public class UserManager implements InitializingBean, DisposableBean, UserManagerMBean {
+public class UserManager implements InitializingBean, UserManagerMBean {
 
     private static final transient Logger logger = LoggerFactory.getLogger(UserManager.class);
 	private static final String type_user = "User";
@@ -35,8 +35,7 @@ public class UserManager implements InitializingBean, DisposableBean, UserManage
 		JMXUtils.registerMBean(type_user, userName, this);
 	}
 	
-	@Override
-	public void destroy() throws Exception {
+	public void close() {
 		JMXUtils.unregisterMBean(type_user, userName);
 	}
 
