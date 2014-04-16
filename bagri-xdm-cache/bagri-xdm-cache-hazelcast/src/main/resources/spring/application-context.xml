@@ -11,6 +11,11 @@
     
 	<context:property-placeholder location="classpath:/xdm-cache-server.properties" />
     <context:annotation-config />
+<!--     
+    <context:mbean-server id="localServer"/>
+    <context:mbean-export server="localServer" default-domain="com.bagri.xdm" registration="replaceExisting"/>
+ -->
+    <context:mbean-export default-domain="com.bagri.xdm"/>
  
 	<hz:hazelcast id="hzInstance">
 		<hz:config>
@@ -80,6 +85,13 @@
 
 	<bean id="clusterService" class="com.bagri.xdm.cache.hazelcast.management.ClusterManagement">
 		<constructor-arg ref="hzInstance" />
+		<property name="nodeCache" ref="nodes"/>
+	</bean>
+
+	<bean id="nodeManager" class="com.bagri.xdm.cache.hazelcast.management.NodeManager" scope="prototype">
+		<constructor-arg ref="hzInstance" />
+		<property name="nodeName" value="${xdm.cluster.node.name}"/>
+		<property name="execService" ref="sys-exec-pool"/>
 		<property name="nodeCache" ref="nodes"/>
 	</bean>
 

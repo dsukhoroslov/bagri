@@ -7,10 +7,20 @@ import java.util.Collection;
 import java.util.Hashtable;
 import java.util.Iterator;
 
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import javax.management.openmbean.CompositeData;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.jmx.export.annotation.ManagedAttribute;
+import org.springframework.jmx.export.annotation.ManagedOperation;
+import org.springframework.jmx.export.annotation.ManagedOperationParameter;
+import org.springframework.jmx.export.annotation.ManagedOperationParameters;
+import org.springframework.jmx.export.annotation.ManagedResource;
+import org.springframework.jmx.export.naming.SelfNaming;
 
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.common.util.FileUtils;
@@ -23,7 +33,8 @@ import com.bagri.xdm.process.hazelcast.HazelcastDocumentServer;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 
-public class SchemaManager extends XDMSchemaManagerBase implements InitializingBean, DisposableBean, SchemaManagerMBean {
+@ManagedResource(description="Schema Manager MBean")
+public class SchemaManager extends XDMSchemaManagerBase implements SelfNaming {
 
     private static final transient Logger logger = LoggerFactory.getLogger(SchemaManager.class);
     private static final String type_schema = "Schema";
@@ -44,17 +55,7 @@ public class SchemaManager extends XDMSchemaManagerBase implements InitializingB
 		this.schemaCache = schemaCache;
 	}
 	
-	@Override
-	public void afterPropertiesSet() throws Exception {
-		JMXUtils.registerMBean(type_schema, schemaName, this);
-	}
-
-	@Override
-	public void destroy() throws Exception {
-		JMXUtils.unregisterMBean(type_schema, schemaName);
-	}
-
-	@Override
+	@ManagedAttribute(description="Returns Document Types registered in the Schema")
 	public String[] getRegisteredTypes() {
 		Collection<XDMDocumentType> types = ((XDMSchemaDictionaryBase) schemaDictionary).getDocumentTypes();
 		String[] result = new String[types.size()];
@@ -67,32 +68,49 @@ public class SchemaManager extends XDMSchemaManagerBase implements InitializingB
 	}
 	
 	@Override
+	@ManagedAttribute(description="Returns registered Schema name")
+	public String getSchemaName() {
+		return super.getSchemaName();
+	}
+	
+	@Override
 	protected XDMSchema getSchema() {
 		XDMSchema schema = schemaCache.get(schemaName);
 		logger.trace("getSchema. returning: {}", schema);
 		return schema;
 	}
 
+	@ManagedAttribute(description="Returns registered Schema properties")
+	public CompositeData getSchemaProperties() {
+		return super.getAllProperties();
+	}
+	
 	@Override
 	protected void flushSchema(XDMSchema schema) {
 		schemaCache.put(schemaName, schema);
 	}
 	
-	@Override
+	@ManagedOperation(description="Register Schema")
+	@ManagedOperationParameters({
+		@ManagedOperationParameter(name = "schemaFile", description = "A full path to XSD file to register")})
 	public int registerSchema(String schemaFile) {
 		int size = ((XDMSchemaDictionaryBase) schemaDictionary).getDocumentTypes().size(); 
 		schemaDictionary.registerSchemaUri(schemaFile);
 		return ((XDMSchemaDictionaryBase) schemaDictionary).getDocumentTypes().size() - size;
 	}
 	
-	@Override
+	@ManagedOperation(description="Register Schemas")
+	@ManagedOperationParameters({
+		@ManagedOperationParameter(name = "schemaCatalog", description = "A full path to the directory containing XSD files to register")})
 	public int registerSchemas(String schemasCatalog) {
 		int size = ((XDMSchemaDictionaryBase) schemaDictionary).getDocumentTypes().size(); 
 		((XDMSchemaDictionaryBase) schemaDictionary).registerSchemas(schemasCatalog);
 		return ((XDMSchemaDictionaryBase) schemaDictionary).getDocumentTypes().size() - size;
 	}
 	
-	@Override
+	@ManagedOperation(description="Register Document")
+	@ManagedOperationParameters({
+		@ManagedOperationParameter(name = "docFile", description = "A full path to XML file to register")})
 	public int registerDocument(String docFile) {
 		
 		String uri = "file:///" + docFile;
@@ -121,10 +139,43 @@ public class SchemaManager extends XDMSchemaManagerBase implements InitializingB
 	    return result;
 	}
 
-	@Override
+	@ManagedOperation(description="Register Documents")
+	@ManagedOperationParameters({
+		@ManagedOperationParameter(name = "docCatalog", description = "A full path to the directory containing XML files to register")})
 	public int registerDocuments(String docCatalog) {
 		File catalog = new File(docCatalog);
 		return processFilesInCatalog(catalog);	
 	}
 
+	@Override
+	public ObjectName getObjectName() throws MalformedObjectNameException {
+		logger.debug("getObjectName.enter; schemaName: {}", schemaName);
+		return JMXUtils.getObjectName(type_schema, schemaName);
+	}
+
+	@Override
+	@ManagedOperation(description="Returns named Schema property")
+	@ManagedOperationParameters({
+		@ManagedOperationParameter(name = "name", description = "A name of the property to return")})
+	public String getProperty(String name) {
+		return super.getProperty(name);
+	}
+	
+	@Override
+	@ManagedOperation(description="Set named Schema property")
+	@ManagedOperationParameters({
+		@ManagedOperationParameter(name = "name", description = "A name of the property to set"),
+		@ManagedOperationParameter(name = "value", description = "A value of the property to set")})
+	public void setProperty(String name, String value) {
+		super.setProperty(name, value);
+	}
+	
+	@Override
+	@ManagedOperation(description="Removes named Schema property")
+	@ManagedOperationParameters({
+		@ManagedOperationParameter(name = "name", description = "A name of the property to remove")})
+	public void removeProperty(String name) {
+		super.removeProperty(name);
+	}
+	
 }

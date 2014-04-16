@@ -43,27 +43,36 @@ public class JMXUtils {
 	public static final String type_management = "Management";
     
 	public static boolean registerMBean(String name, Object mBean) {
-		Hashtable<String, String> keys = getKeys(type_management, name);
+		Hashtable<String, String> keys = getStandardKeys(type_management, name);
 		return registerMBean(domain, keys, mBean);
 	}
 
 	public static boolean registerMBean(String type, String name, Object mBean) {
-		Hashtable<String, String> keys = getKeys(type, name);
+		Hashtable<String, String> keys = getStandardKeys(type, name);
 		return registerMBean(domain, keys, mBean);
 	}
 
 	public static boolean unregisterMBean(String type, String name) {
-		Hashtable<String, String> keys = getKeys(type, name);
+		Hashtable<String, String> keys = getStandardKeys(type, name);
 		return unregisterMBean(domain, keys);
 	}
 	
-	private static Hashtable<String, String> getKeys(String type, String name) {
+	public static Hashtable<String, String> getStandardKeys(String type, String name) {
 		Hashtable<String, String> keys = new Hashtable<String, String>(2);
 		keys.put(key_type, type);
 		keys.put(key_name, name);
 		return keys;
 	}
 
+	public static boolean registerMBean(Hashtable<String, String> keys, Object mBean) {
+		return registerMBean(domain, keys, mBean);
+	}
+	
+	public static ObjectName getObjectName(String type, String name) throws MalformedObjectNameException {
+		Hashtable<String, String> keys = getStandardKeys(type, name);
+		return new ObjectName(domain, keys);
+	}
+	
 	public static boolean registerMBean(String domain, Hashtable<String, String> keys, Object mBean) {
 		
 		ArrayList<MBeanServer> servers = MBeanServerFactory.findMBeanServer(null);
@@ -80,6 +89,10 @@ public class JMXUtils {
 		return false;
 	}
     
+	public static boolean unregisterMBean(Hashtable<String, String> keys) {
+		return unregisterMBean(domain, keys);
+	}
+
 	public static boolean unregisterMBean(String domain, Hashtable<String, String> keys) {
 		
 		ArrayList<MBeanServer> servers = MBeanServerFactory.findMBeanServer(null);

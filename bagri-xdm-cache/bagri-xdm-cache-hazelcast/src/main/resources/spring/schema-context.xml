@@ -11,7 +11,8 @@
  
     <!-- Beans Declaration -->
 	<context:property-placeholder ignore-unresolvable="true" location="classpath:/xdm-cache-server.properties" />
-    <!--context:annotation-config /-->
+    <context:annotation-config />
+    <context:mbean-export default-domain="com.bagri.xdm"/>
  
 	<hz:hazelcast id="hzInstance">
 		<hz:config>
@@ -130,6 +131,12 @@
 		<property name="documentManager" ref="xdmManager"/>
 		<property name="schemaDictionary" ref="xdmDictionary"/>
 		<property name="schemaName" value="${xdm.schema.name}"/>
+	</bean>
+
+	<bean id="queryManager" class="com.bagri.xdm.cache.hazelcast.management.QueryManagement">
+		<constructor-arg value="${xdm.schema.name}" />
+		<property name="documentManager" ref="xdmManager"/>
+		<property name="schemaDictionary" ref="xdmDictionary"/>
 	</bean>
 
 	<!--bean id="xmlBuildTask" class="com.bagri.xdm.hazelcast.process.TemplateResultTask" scope="prototype">

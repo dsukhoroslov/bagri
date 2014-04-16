@@ -19,6 +19,11 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.env.PropertiesPropertySource;
+import org.springframework.jmx.export.annotation.ManagedAttribute;
+import org.springframework.jmx.export.annotation.ManagedOperation;
+import org.springframework.jmx.export.annotation.ManagedOperationParameter;
+import org.springframework.jmx.export.annotation.ManagedOperationParameters;
+import org.springframework.jmx.export.annotation.ManagedResource;
 
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.xdm.XDMSchema;
@@ -31,7 +36,9 @@ import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.Member;
 
-public class SchemaManagement implements InitializingBean, XDMSchemaManagement, SchemaManagementMBean {
+@ManagedResource(objectName="com.bagri.xdm:type=Management,name=SchemaManagement", 
+	description="Schema Management MBean")
+public class SchemaManagement implements InitializingBean, XDMSchemaManagement {
 	
     private static final transient Logger logger = LoggerFactory.getLogger(SchemaManagement.class);
 	private static final String schema_management = "SchemaManagement";
@@ -56,15 +63,18 @@ public class SchemaManagement implements InitializingBean, XDMSchemaManagement, 
         	}
         }
 		
-		JMXUtils.registerMBean(schema_management, this);
+		//JMXUtils.registerMBean(schema_management, this);
 	}
 	
-	@Override
+	@ManagedAttribute(description="Default Schema Properties")
 	public CompositeData getDefaultProperties() {
 		return JMXUtils.propsToComposite("Schema defaults", "Schema defaults", defaults);
 	}
 	
-	@Override
+	@ManagedOperation(description="Set Default Property")
+	@ManagedOperationParameters({
+		@ManagedOperationParameter(name = "name", description = "Property name"),
+		@ManagedOperationParameter(name = "value", description = "Property value")})
 	public void setDefaultProperty(String name, String value) {
 		defaults.setProperty(name, value);
 	}
@@ -73,7 +83,7 @@ public class SchemaManagement implements InitializingBean, XDMSchemaManagement, 
 		this.defaults = defaults;
 	}
 	
-	@Override
+	@ManagedAttribute(description="Registered Schema Names")
 	public String[] getSchemaNames() {
 		return schemaCache.keySet().toArray(new String[0]);
 	}
@@ -83,7 +93,10 @@ public class SchemaManagement implements InitializingBean, XDMSchemaManagement, 
 		return new ArrayList<XDMSchema>(schemaCache.values());
 	}
 
-	@Override
+	@ManagedOperation(description="Activate/Deactivate Schema")
+	@ManagedOperationParameters({
+		@ManagedOperationParameter(name = "schemaName", description = "Schema name"),
+		@ManagedOperationParameter(name = "activate", description = "Activate/Deactivate schema")})
 	public boolean activateSchema(String schemaName, boolean activate) {
 		XDMSchema schema = schemaCache.get(schemaName);
 		if (schema != null) {
@@ -110,7 +123,11 @@ public class SchemaManagement implements InitializingBean, XDMSchemaManagement, 
 		return false;
 	}
 
-	@Override
+	@ManagedOperation(description="Create new Schema")
+	@ManagedOperationParameters({
+		@ManagedOperationParameter(name = "schemaName", description = "Schema name"),
+		@ManagedOperationParameter(name = "desription", description = "Schema description"),
+		@ManagedOperationParameter(name = "properties", description = "Schema properties: key/value pairs separated by comma")})
 	public boolean createSchema(String schemaName, String description, String properties) {
 		Properties props = new Properties();
 		properties = properties.replaceAll(";", "\n\r");
@@ -131,7 +148,9 @@ public class SchemaManagement implements InitializingBean, XDMSchemaManagement, 
 		return addSchema(schemaName, description, props) != null;
 	}
 	
-	@Override
+	@ManagedOperation(description="Destroy Schema")
+	@ManagedOperationParameters({
+		@ManagedOperationParameter(name = "schemaName", description = "Schema name")})
 	public boolean destroySchema(String schemaName) {
 		return deleteSchema(schemaName) != null;
 	}
@@ -218,7 +237,6 @@ public class SchemaManagement implements InitializingBean, XDMSchemaManagement, 
     	
     	ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext();
     	ctx.getEnvironment().getPropertySources().addFirst(pps);
-    	
     	ctx.setConfigLocation("spring/schema-context.xml");
     	ctx.refresh();
     	

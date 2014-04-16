@@ -14,6 +14,11 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.jmx.export.annotation.ManagedAttribute;
+import org.springframework.jmx.export.annotation.ManagedOperation;
+import org.springframework.jmx.export.annotation.ManagedOperationParameter;
+import org.springframework.jmx.export.annotation.ManagedOperationParameters;
+import org.springframework.jmx.export.annotation.ManagedResource;
 
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.xdm.XDMNode;
@@ -27,7 +32,9 @@ import com.hazelcast.core.IMap;
  * @author Denis Sukhoroslov
  *
  */
-public class UserManagement implements InitializingBean, UserManagementMBean {
+@ManagedResource(objectName="com.bagri.xdm:type=Management,name=UserManagement", 
+	description="User Management MBean")
+public class UserManagement implements InitializingBean {
 
     private static final transient Logger logger = LoggerFactory.getLogger(UserManagement.class);
 	private static final String user_management = "UserManagement";
@@ -52,18 +59,13 @@ public class UserManagement implements InitializingBean, UserManagementMBean {
         		initUser(user);
         	}
         }
-		
-		JMXUtils.registerMBean(user_management, this);
 	}
 	
 	public void setUserCache(IMap<String, XDMUser> userCache) {
 		this.userCache = userCache;
 	}
 
-	/* (non-Javadoc)
-	 * @see com.bagri.xdm.cache.hazelcast.management.UserManagementMBean#getUserNames()
-	 */
-	@Override
+	@ManagedAttribute(description="Registered User Names")
 	public String[] getUserNames() {
 		return userCache.keySet().toArray(new String[0]);
 	}
@@ -98,11 +100,10 @@ public class UserManagement implements InitializingBean, UserManagementMBean {
 		return false;
 	}
 	
-
-	/* (non-Javadoc)
-	 * @see com.bagri.xdm.cache.hazelcast.management.UserManagementMBean#adduser(java.lang.String, java.lang.String)
-	 */
-	@Override
+	@ManagedOperation(description="Create new User")
+	@ManagedOperationParameters({
+		@ManagedOperationParameter(name = "login", description = "User login"),
+		@ManagedOperationParameter(name = "password", description = "User password")})
 	public boolean addUser(String login, String password) {
 		XDMUser user = new XDMUser(login, password, true, new Date(), user_management);
 		try {
@@ -113,10 +114,9 @@ public class UserManagement implements InitializingBean, UserManagementMBean {
 		return false;
 	}
 
-	/* (non-Javadoc)
-	 * @see com.bagri.xdm.cache.hazelcast.management.UserManagementMBean#deleteUser(java.lang.String)
-	 */
-	@Override
+	@ManagedOperation(description="Delete User")
+	@ManagedOperationParameters({
+		@ManagedOperationParameter(name = "login", description = "User login")})
 	public boolean deleteUser(String login) {
 		// denit UserManager
 		XDMUser user = userCache.get(login);

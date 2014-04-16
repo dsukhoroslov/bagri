@@ -6,14 +6,23 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
 import javax.management.openmbean.CompositeData;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.jmx.export.annotation.ManagedAttribute;
+import org.springframework.jmx.export.annotation.ManagedOperation;
+import org.springframework.jmx.export.annotation.ManagedOperationParameter;
+import org.springframework.jmx.export.annotation.ManagedOperationParameters;
+import org.springframework.jmx.export.annotation.ManagedResource;
+import org.springframework.jmx.export.naming.SelfNaming;
 
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.xdm.XDMNode;
+import com.bagri.xdm.XDMSchema;
 import com.bagri.xdm.access.api.XDMNodeManager;
 import com.bagri.xdm.process.hazelcast.NodeOptionSetter;
 import com.bagri.xdm.process.hazelcast.SchemaDenitiator;
@@ -22,7 +31,8 @@ import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.Member;
 
-public class NodeManager implements InitializingBean, NodeManagerMBean, XDMNodeManager {
+@ManagedResource(description="Cluster Node Manager MBean")
+public class NodeManager implements SelfNaming, XDMNodeManager {
 
     private static final transient Logger logger = LoggerFactory.getLogger(NodeManager.class);
 	private static final String type_node = "Node";
@@ -31,29 +41,45 @@ public class NodeManager implements InitializingBean, NodeManagerMBean, XDMNodeM
     private HazelcastInstance hzInstance;
 	private IExecutorService execService;
     private IMap<String, XDMNode> nodeCache;
+
+	public NodeManager() {
+		// default constructor
+		super();
+	}
     
-	public NodeManager(HazelcastInstance hzInstance, String nodeName) {
+	public NodeManager(HazelcastInstance hzInstance) { //, String nodeName) {
 		this.hzInstance = hzInstance;
-		this.nodeName = nodeName;
-		execService = hzInstance.getExecutorService("xdm-exec-pool");
-		nodeCache = hzInstance.getMap("nodes");
+		//this.nodeName = nodeName;
+		//execService = hzInstance.getExecutorService("xdm-exec-pool");
+		//nodeCache = hzInstance.getMap("nodes");
 	}
 	
-	@Override
-	public void afterPropertiesSet() throws Exception {
-		JMXUtils.registerMBean(type_node, nodeName, this);
+	//public void afterPropertiesSet() throws Exception {
+	//	JMXUtils.registerMBean(type_node, nodeName, this);
+	//}
+
+	public void setExecService(IExecutorService execService) {
+		this.execService = execService;
+	}
+	
+	public void setNodeCache(IMap<String, XDMNode> nodeCache) {
+		this.nodeCache = nodeCache;
+	}
+	
+	public void setNodeName(String nodeName) {
+		this.nodeName = nodeName;
 	}
 	
 	public void close() {
 		JMXUtils.unregisterMBean(type_node, nodeName);
 	}
 
-	@Override
+	@ManagedAttribute(description="Returns registered Node identifier")
 	public String getNodeId() {
 		return getNode().getId();
 	}
 	
-	@Override
+	@ManagedAttribute(description="Returns registered Node location")
 	public String getAddress() {
 		return getNode().getAddress();
 	}
@@ -62,18 +88,25 @@ public class NodeManager implements InitializingBean, NodeManagerMBean, XDMNodeM
 		return getNode().getOptions();
 	}
 
-	@Override
+	@ManagedAttribute(description="Returns registered Node options")
 	public CompositeData getOptions() {
 		Properties options = getOpts();
 		return JMXUtils.propsToComposite(nodeName, "options", options);
 	}
 
 	@Override
+	@ManagedOperation(description="Returns named Node option")
+	@ManagedOperationParameters({
+		@ManagedOperationParameter(name = "name", description = "A name of the option to return")})
 	public String getOption(String name) {
 		return getOpts().getProperty(name);
 	}
 
 	@Override
+	@ManagedOperation(description="Set named Node option")
+	@ManagedOperationParameters({
+		@ManagedOperationParameter(name = "name", description = "A name of the option to set"),
+		@ManagedOperationParameter(name = "value", description = "A value of the option to set")})
 	public void setOption(String name, String value) {
 		XDMNode node = setNodeOption(name, value);
 		Member member = getMember(node.getId());
@@ -100,6 +133,9 @@ public class NodeManager implements InitializingBean, NodeManagerMBean, XDMNodeM
 	}
 
 	@Override
+	@ManagedOperation(description="Removes named Node option")
+	@ManagedOperationParameters({
+		@ManagedOperationParameter(name = "name", description = "A name of the option to remove")})
 	public void removeOption(String name) {
 		// set to default value? or remove..
 		XDMNode node = getNode();
@@ -110,7 +146,7 @@ public class NodeManager implements InitializingBean, NodeManagerMBean, XDMNodeM
 		member.removeAttribute(name);
 	}
 
-	@Override
+	@ManagedAttribute(description="Return Schema names deployed on the Node")
 	public String[] getDeployedSchemas() {
 		XDMNode node = getNode();
 		return node.getSchemas();
@@ -125,7 +161,6 @@ public class NodeManager implements InitializingBean, NodeManagerMBean, XDMNodeM
 		return null;
 	}
 
-
 	//@Override
 	protected XDMNode getNode() {
 		XDMNode node = nodeCache.get(nodeName);
@@ -136,6 +171,12 @@ public class NodeManager implements InitializingBean, NodeManagerMBean, XDMNodeM
 	//@Override
 	protected void flushNode(XDMNode node) {
 		nodeCache.put(nodeName, node);
+	}
+
+	@Override
+	public ObjectName getObjectName() throws MalformedObjectNameException {
+		logger.debug("getObjectName.enter; nodeName: {}", nodeName);
+		return JMXUtils.getObjectName(type_node, nodeName);
 	}
 	
 }

@@ -9,7 +9,16 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.jmx.export.annotation.ManagedAttribute;
+import org.springframework.jmx.export.annotation.ManagedOperation;
+import org.springframework.jmx.export.annotation.ManagedOperationParameter;
+import org.springframework.jmx.export.annotation.ManagedOperationParameters;
+import org.springframework.jmx.export.annotation.ManagedResource;
 
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.xdm.XDMNode;
@@ -22,20 +31,28 @@ import com.hazelcast.core.MemberAttributeEvent;
 import com.hazelcast.core.MembershipEvent;
 import com.hazelcast.core.MembershipListener;
 
-public class ClusterManagement implements InitializingBean, MembershipListener, 
-	ClusterManagementMBean, XDMClusterManagement {
+@ManagedResource(objectName="com.bagri.xdm:type=Management,name=ClusterManagement", 
+	description="Cluster Management MBean")
+public class ClusterManagement implements ApplicationContextAware, InitializingBean, 
+	MembershipListener, XDMClusterManagement {
 
     private static final transient Logger logger = LoggerFactory.getLogger(ClusterManagement.class);
-	private static final String cluster_management = "ClusterManagement";
+	//private static final String cluster_management = "ClusterManagement";
     
     private HazelcastInstance hzInstance;
     private IMap<String, XDMNode> nodeCache;
-    private Map<String, NodeManager> mgrCache = new HashMap<String, NodeManager>();
+    //private Map<String, NodeManager> mgrCache = new HashMap<String, NodeManager>();
+    private ConfigurableApplicationContext context;
     
 	public ClusterManagement(HazelcastInstance hzInstance) {
 		//super();
 		this.hzInstance = hzInstance;
 		hzInstance.getCluster().addMembershipListener(this);
+	}
+
+	@Override
+	public void setApplicationContext(ApplicationContext context) throws BeansException {
+		this.context = (ConfigurableApplicationContext) context;
 	}
 
 	@Override
@@ -51,8 +68,6 @@ public class ClusterManagement implements InitializingBean, MembershipListener,
 		for (Member member: members) {
 			initNode(member);
 		}
-		
-		JMXUtils.registerMBean(cluster_management, this);
 	}
 	
 	private void initNode(Member member) throws Exception {
@@ -69,10 +84,12 @@ public class ClusterManagement implements InitializingBean, MembershipListener,
 			nodeCache.put(node.getNode(), node);
 		}
 
-		if (!mgrCache.containsKey(node.getNode())) {
-			NodeManager nMgr = new NodeManager(hzInstance, node.getNode()); 
-			mgrCache.put(node.getNode(), nMgr);
-			nMgr.afterPropertiesSet();
+		if (!context.containsBean(node.getNode())) {
+			NodeManager nMgr = context.getBeanFactory().createBean(NodeManager.class);
+			context.getBeanFactory().initializeBean(nMgr, node.getNode());
+			
+			//mgrCache.put(node.getNode(), nMgr);
+			//nMgr.afterPropertiesSet();
 			return true;
 		}
 		return false;
@@ -80,9 +97,11 @@ public class ClusterManagement implements InitializingBean, MembershipListener,
 	
 	private boolean denitNode(XDMNode node) {
 		// find and unreg NodeManager...
-		NodeManager nMgr = mgrCache.remove(node.getNode());
-		if (nMgr != null) {
-			nMgr.close();
+		if (context.containsBean(node.getNode())) {
+			NodeManager nMgr = context.getBean(node.getNode(), NodeManager.class); //mgrCache.remove(node.getNode());
+			context.getBeanFactory().destroyBean(node.getNode(), nMgr);
+		//if (nMgr != null) {
+			//nMgr.close();
 			return true;
 		}
 		return false;
@@ -92,12 +111,16 @@ public class ClusterManagement implements InitializingBean, MembershipListener,
 		this.nodeCache = nodeCache;
 	}
 
-	@Override
+	@ManagedAttribute(description="The Nodes Attribute")
 	public String[] getNodes() {
 		return nodeCache.keySet().toArray(new String[0]);
 	}
 
-	@Override
+	@ManagedOperation(description="Add new Node")
+	@ManagedOperationParameters({
+		@ManagedOperationParameter(name = "address", description = "Node address"),
+		@ManagedOperationParameter(name = "nodeId", description = "Node identifier"),
+		@ManagedOperationParameter(name = "options", description = "Node options: key/value pairs separated by comma")})
 	public boolean addNode(String address, String nodeId, String options) {
 		Properties opts = new Properties();
 		options = options.replaceAll(";", "\n\r");
@@ -121,7 +144,11 @@ public class ClusterManagement implements InitializingBean, MembershipListener,
 		return id + "[" + address + "]";
 	}
 
-	@Override
+	//@Override
+	@ManagedOperation(description="Delete existing Node")
+	@ManagedOperationParameters({
+		@ManagedOperationParameter(name = "address", description = "Node address"),
+		@ManagedOperationParameter(name = "nodeId", description = "Node identifier")})
 	public boolean deleteNode(String address, String nodeId) {
 		String key = getNodeKey(address, nodeId);
 		XDMNode node = nodeCache.remove(key);
@@ -155,7 +182,7 @@ public class ClusterManagement implements InitializingBean, MembershipListener,
 		String address = memberAttributeEvent.getMember().getSocketAddress().getHostString();
 		String id = memberAttributeEvent.getMember().getUuid();
 		String key = getNodeKey(address, id);
-		NodeManager nMgr = mgrCache.get(key);
+		NodeManager nMgr = (NodeManager) getNodeManager(key);
 		if (nMgr != null) {
 			nMgr.setNodeOption(memberAttributeEvent.getKey(), memberAttributeEvent.getValue().toString());
 		}
@@ -163,7 +190,11 @@ public class ClusterManagement implements InitializingBean, MembershipListener,
 
 	@Override
 	public XDMNodeManager getNodeManager(String nodeId) {
-		return mgrCache.get(nodeId);
+		try {
+			return context.getBean(nodeId, NodeManager.class);
+		} catch (Exception ex) {
+			return null;
+		}
 	}
 
 }
