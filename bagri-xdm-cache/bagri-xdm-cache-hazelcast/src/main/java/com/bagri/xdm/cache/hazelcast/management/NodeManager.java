@@ -62,6 +62,10 @@ public class NodeManager implements SelfNaming, XDMNodeManager {
 		this.execService = execService;
 	}
 	
+	public void setHzInstance(HazelcastInstance hzInstance) {
+		this.hzInstance = hzInstance;
+	}
+
 	public void setNodeCache(IMap<String, XDMNode> nodeCache) {
 		this.nodeCache = nodeCache;
 	}
@@ -70,9 +74,9 @@ public class NodeManager implements SelfNaming, XDMNodeManager {
 		this.nodeName = nodeName;
 	}
 	
-	public void close() {
-		JMXUtils.unregisterMBean(type_node, nodeName);
-	}
+	//public void close() {
+	//	JMXUtils.unregisterMBean(type_node, nodeName);
+	//}
 
 	@ManagedAttribute(description="Returns registered Node identifier")
 	public String getNodeId() {
@@ -127,8 +131,10 @@ public class NodeManager implements SelfNaming, XDMNodeManager {
 
 	public XDMNode setNodeOption(String name, String value) {
 		XDMNode node = getNode();
-		node.setOption(name, value);
-		flushNode(node);
+		if (node != null) {
+			node.setOption(name, value);
+			flushNode(node);
+		}
 		return node;
 	}
 

@@ -41,7 +41,7 @@ public class ClusterManagement implements ApplicationContextAware, InitializingB
     
     private HazelcastInstance hzInstance;
     private IMap<String, XDMNode> nodeCache;
-    //private Map<String, NodeManager> mgrCache = new HashMap<String, NodeManager>();
+    private Map<String, NodeManager> mgrCache = new HashMap<String, NodeManager>();
     private ConfigurableApplicationContext context;
     
 	public ClusterManagement(HazelcastInstance hzInstance) {
@@ -63,6 +63,7 @@ public class ClusterManagement implements ApplicationContextAware, InitializingB
         //	initNode(node);
         //}
 		
+		// skip it and wait till we get attribute change event
 		Set<Member> members = hzInstance.getCluster().getMembers();
 		logger.debug("afterPropertiesSet.enter; initiating {} nodes", members.size());
 		for (Member member: members) {
@@ -85,10 +86,11 @@ public class ClusterManagement implements ApplicationContextAware, InitializingB
 		}
 
 		if (!context.containsBean(node.getNode())) {
-			NodeManager nMgr = context.getBeanFactory().createBean(NodeManager.class);
-			context.getBeanFactory().initializeBean(nMgr, node.getNode());
+			//NodeManager nMgr = context.getBeanFactory().createBean(NodeManager.class);
+			//context.getBeanFactory().initializeBean(nMgr, node.getNode());
 			
-			//mgrCache.put(node.getNode(), nMgr);
+			NodeManager nMgr = context.getBean("nodeManager", NodeManager.class);
+			mgrCache.put(node.getNode(), nMgr);
 			//nMgr.afterPropertiesSet();
 			return true;
 		}
@@ -97,11 +99,14 @@ public class ClusterManagement implements ApplicationContextAware, InitializingB
 	
 	private boolean denitNode(XDMNode node) {
 		// find and unreg NodeManager...
-		if (context.containsBean(node.getNode())) {
-			NodeManager nMgr = context.getBean(node.getNode(), NodeManager.class); //mgrCache.remove(node.getNode());
-			context.getBeanFactory().destroyBean(node.getNode(), nMgr);
-		//if (nMgr != null) {
+		//if (context.containsBean(node.getNode())) {
+		//	NodeManager nMgr = context.getBean(node.getNode(), NodeManager.class); //mgrCache.remove(node.getNode());
+		//	context.getBeanFactory().destroyBean(node.getNode(), nMgr);
+		
+		NodeManager nMgr = mgrCache.remove(node.getNode()); 
+		if (nMgr != null) {
 			//nMgr.close();
+			context.getBeanFactory().destroyBean(node.getNode(), nMgr);
 			return true;
 		}
 		return false;
@@ -178,9 +183,10 @@ public class ClusterManagement implements ApplicationContextAware, InitializingB
 	public void memberAttributeChanged(MemberAttributeEvent memberAttributeEvent) {
 		// change node options ?
 		logger.debug("memberAttributeChanged.enter; value: {}", memberAttributeEvent.getValue());
-		
-		String address = memberAttributeEvent.getMember().getSocketAddress().getHostString();
-		String id = memberAttributeEvent.getMember().getUuid();
+
+		Member member = memberAttributeEvent.getMember();
+		String address = member.getSocketAddress().getHostString();
+		String id = member.getUuid();
 		String key = getNodeKey(address, id);
 		NodeManager nMgr = (NodeManager) getNodeManager(key);
 		if (nMgr != null) {
@@ -190,11 +196,17 @@ public class ClusterManagement implements ApplicationContextAware, InitializingB
 
 	@Override
 	public XDMNodeManager getNodeManager(String nodeId) {
+		logger.debug("getNodeManager.enter; got nodeId: {}", nodeId);
+		/*
 		try {
-			return context.getBean(nodeId, NodeManager.class);
+			XDMNodeManager result = context.getBean(nodeId, NodeManager.class); 
+			return result;
 		} catch (Exception ex) {
+			logger.debug("getNodeManager; No beans found, all NodeManager beans: {}", context.getBeansOfType(NodeManager.class));
 			return null;
 		}
+		*/
+		return mgrCache.get(nodeId);
 	}
 
 }

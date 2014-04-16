@@ -89,7 +89,7 @@
 	</bean>
 
 	<bean id="nodeManager" class="com.bagri.xdm.cache.hazelcast.management.NodeManager" scope="prototype">
-		<constructor-arg ref="hzInstance" />
+		<property name="hzInstance" ref="hzInstance" />
 		<property name="nodeName" value="${xdm.cluster.node.name}"/>
 		<property name="execService" ref="sys-exec-pool"/>
 		<property name="nodeCache" ref="nodes"/>
