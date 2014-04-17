@@ -1,8 +1,6 @@
 package com.bagri.xdm.cache.hazelcast.management;
 
-import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -12,7 +10,6 @@ import javax.management.openmbean.CompositeData;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.jmx.export.annotation.ManagedAttribute;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedOperationParameter;
@@ -22,10 +19,8 @@ import org.springframework.jmx.export.naming.SelfNaming;
 
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.xdm.XDMNode;
-import com.bagri.xdm.XDMSchema;
 import com.bagri.xdm.access.api.XDMNodeManager;
 import com.bagri.xdm.process.hazelcast.NodeOptionSetter;
-import com.bagri.xdm.process.hazelcast.SchemaDenitiator;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.IMap;
@@ -47,37 +42,13 @@ public class NodeManager implements SelfNaming, XDMNodeManager {
 		super();
 	}
     
-	public NodeManager(HazelcastInstance hzInstance) { //, String nodeName) {
+	public NodeManager(HazelcastInstance hzInstance, String nodeName) {
 		this.hzInstance = hzInstance;
-		//this.nodeName = nodeName;
-		//execService = hzInstance.getExecutorService("xdm-exec-pool");
-		//nodeCache = hzInstance.getMap("nodes");
-	}
-	
-	//public void afterPropertiesSet() throws Exception {
-	//	JMXUtils.registerMBean(type_node, nodeName, this);
-	//}
-
-	public void setExecService(IExecutorService execService) {
-		this.execService = execService;
-	}
-	
-	public void setHzInstance(HazelcastInstance hzInstance) {
-		this.hzInstance = hzInstance;
-	}
-
-	public void setNodeCache(IMap<String, XDMNode> nodeCache) {
-		this.nodeCache = nodeCache;
-	}
-	
-	public void setNodeName(String nodeName) {
 		this.nodeName = nodeName;
+		execService = hzInstance.getExecutorService("xdm-exec-pool");
+		nodeCache = hzInstance.getMap("nodes");
 	}
 	
-	//public void close() {
-	//	JMXUtils.unregisterMBean(type_node, nodeName);
-	//}
-
 	@ManagedAttribute(description="Returns registered Node identifier")
 	public String getNodeId() {
 		return getNode().getId();
@@ -131,10 +102,8 @@ public class NodeManager implements SelfNaming, XDMNodeManager {
 
 	public XDMNode setNodeOption(String name, String value) {
 		XDMNode node = getNode();
-		if (node != null) {
-			node.setOption(name, value);
-			flushNode(node);
-		}
+		node.setOption(name, value);
+		flushNode(node);
 		return node;
 	}
 

@@ -88,12 +88,12 @@
 		<property name="nodeCache" ref="nodes"/>
 	</bean>
 
-	<bean id="nodeManager" class="com.bagri.xdm.cache.hazelcast.management.NodeManager" scope="prototype">
+	<!--bean id="nodeManager" class="com.bagri.xdm.cache.hazelcast.management.NodeManager" scope="prototype">
 		<property name="hzInstance" ref="hzInstance" />
 		<property name="nodeName" value="${xdm.cluster.node.name}"/>
 		<property name="execService" ref="sys-exec-pool"/>
 		<property name="nodeCache" ref="nodes"/>
-	</bean>
+	</bean-->
 
 	<bean id="schemaService" class="com.bagri.xdm.cache.hazelcast.management.SchemaManagement">
 		<constructor-arg ref="hzInstance" />
@@ -113,6 +113,7 @@
 	<bean id="userService" class="com.bagri.xdm.cache.hazelcast.management.UserManagement">
 		<constructor-arg ref="hzInstance" />
 		<property name="userCache" ref="users"/>
+		<!--property name="mbeanExporter" ref="mbeanExporter"/-->
 	</bean>
 
 </beans>

@@ -9,18 +9,15 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jmx.export.annotation.AnnotationMBeanExporter;
 import org.springframework.jmx.export.annotation.ManagedAttribute;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
-import com.bagri.common.manage.JMXUtils;
 import com.bagri.xdm.XDMNode;
 import com.bagri.xdm.access.api.XDMClusterManagement;
 import com.bagri.xdm.access.api.XDMNodeManager;
@@ -33,8 +30,7 @@ import com.hazelcast.core.MembershipListener;
 
 @ManagedResource(objectName="com.bagri.xdm:type=Management,name=ClusterManagement", 
 	description="Cluster Management MBean")
-public class ClusterManagement implements ApplicationContextAware, InitializingBean, 
-	MembershipListener, XDMClusterManagement {
+public class ClusterManagement implements InitializingBean,	MembershipListener, XDMClusterManagement {
 
     private static final transient Logger logger = LoggerFactory.getLogger(ClusterManagement.class);
 	//private static final String cluster_management = "ClusterManagement";
@@ -42,17 +38,14 @@ public class ClusterManagement implements ApplicationContextAware, InitializingB
     private HazelcastInstance hzInstance;
     private IMap<String, XDMNode> nodeCache;
     private Map<String, NodeManager> mgrCache = new HashMap<String, NodeManager>();
-    private ConfigurableApplicationContext context;
+
+    @Autowired
+	private AnnotationMBeanExporter mbeanExporter;
     
 	public ClusterManagement(HazelcastInstance hzInstance) {
 		//super();
 		this.hzInstance = hzInstance;
 		hzInstance.getCluster().addMembershipListener(this);
-	}
-
-	@Override
-	public void setApplicationContext(ApplicationContext context) throws BeansException {
-		this.context = (ConfigurableApplicationContext) context;
 	}
 
 	@Override
@@ -81,32 +74,27 @@ public class ClusterManagement implements ApplicationContextAware, InitializingB
 	}
 	
 	private boolean initNode(XDMNode node) throws Exception {
-		if (!nodeCache.containsKey(node.getNode())) {
-			nodeCache.put(node.getNode(), node);
+		String nodeName = node.getNode();
+		logger.trace("initNode; initiating node: {}", nodeName);
+		
+		if (!nodeCache.containsKey(nodeName)) {
+			nodeCache.put(nodeName, node);
 		}
 
-		if (!context.containsBean(node.getNode())) {
-			//NodeManager nMgr = context.getBeanFactory().createBean(NodeManager.class);
-			//context.getBeanFactory().initializeBean(nMgr, node.getNode());
-			
-			NodeManager nMgr = context.getBean("nodeManager", NodeManager.class);
-			mgrCache.put(node.getNode(), nMgr);
-			//nMgr.afterPropertiesSet();
+		if (!mgrCache.containsKey(nodeName)) {
+			NodeManager nMgr = new NodeManager(hzInstance, nodeName);
+			mgrCache.put(nodeName, nMgr);
+			mbeanExporter.registerManagedResource(nMgr, nMgr.getObjectName());
 			return true;
 		}
 		return false;
 	}
 	
-	private boolean denitNode(XDMNode node) {
+	private boolean denitNode(XDMNode node) throws Exception {
 		// find and unreg NodeManager...
-		//if (context.containsBean(node.getNode())) {
-		//	NodeManager nMgr = context.getBean(node.getNode(), NodeManager.class); //mgrCache.remove(node.getNode());
-		//	context.getBeanFactory().destroyBean(node.getNode(), nMgr);
-		
 		NodeManager nMgr = mgrCache.remove(node.getNode()); 
 		if (nMgr != null) {
-			//nMgr.close();
-			context.getBeanFactory().destroyBean(node.getNode(), nMgr);
+			mbeanExporter.unregisterManagedResource(nMgr.getObjectName());
 			return true;
 		}
 		return false;
@@ -149,7 +137,6 @@ public class ClusterManagement implements ApplicationContextAware, InitializingB
 		return id + "[" + address + "]";
 	}
 
-	//@Override
 	@ManagedOperation(description="Delete existing Node")
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "address", description = "Node address"),
@@ -158,7 +145,11 @@ public class ClusterManagement implements ApplicationContextAware, InitializingB
 		String key = getNodeKey(address, nodeId);
 		XDMNode node = nodeCache.remove(key);
 		if (node != null) {
-			return denitNode(node);
+			try {
+				return denitNode(node);
+			} catch (Exception ex) {
+				logger.error("deleteNode.error: " + ex.getMessage(), ex);
+			}
 		}
 		return false;
 	}
@@ -196,16 +187,7 @@ public class ClusterManagement implements ApplicationContextAware, InitializingB
 
 	@Override
 	public XDMNodeManager getNodeManager(String nodeId) {
-		logger.debug("getNodeManager.enter; got nodeId: {}", nodeId);
-		/*
-		try {
-			XDMNodeManager result = context.getBean(nodeId, NodeManager.class); 
-			return result;
-		} catch (Exception ex) {
-			logger.debug("getNodeManager; No beans found, all NodeManager beans: {}", context.getBeansOfType(NodeManager.class));
-			return null;
-		}
-		*/
+		logger.trace("getNodeManager.enter; got nodeId: {}", nodeId);
 		return mgrCache.get(nodeId);
 	}
 

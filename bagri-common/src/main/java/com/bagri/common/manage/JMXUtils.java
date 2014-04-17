@@ -73,6 +73,10 @@ public class JMXUtils {
 		return new ObjectName(domain, keys);
 	}
 	
+	public static ObjectName getObjectName(Hashtable keys) throws MalformedObjectNameException {
+		return new ObjectName(domain, keys);
+	}
+	
 	public static boolean registerMBean(String domain, Hashtable<String, String> keys, Object mBean) {
 		
 		ArrayList<MBeanServer> servers = MBeanServerFactory.findMBeanServer(null);

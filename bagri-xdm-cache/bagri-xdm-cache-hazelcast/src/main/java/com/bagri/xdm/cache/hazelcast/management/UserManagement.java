@@ -12,7 +12,14 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.jmx.export.annotation.AnnotationMBeanExporter;
 import org.springframework.jmx.export.annotation.ManagedAttribute;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedOperationParameter;
@@ -39,6 +46,10 @@ public class UserManagement implements InitializingBean {
 	//private IExecutorService execService;
     private IMap<String, XDMUser> userCache;
     private Map<String, UserManager> mgrCache = new HashMap<String, UserManager>();
+    
+    @Autowired
+	private AnnotationMBeanExporter mbeanExporter;
+    
     
 	public UserManagement(HazelcastInstance hzInstance) {
 		//super();
@@ -72,24 +83,26 @@ public class UserManagement implements InitializingBean {
 
 
 	private boolean initUser(XDMUser user) throws Exception {
-		if (!userCache.containsKey(user.getLogin())) {
-			userCache.put(user.getLogin(), user);
+		String userName = user.getLogin();
+		if (!userCache.containsKey(userName)) {
+			userCache.put(userName, user);
 		}
 
-		if (!mgrCache.containsKey(user.getLogin())) {
-			UserManager uMgr = new UserManager(hzInstance, user.getLogin()); 
-			mgrCache.put(user.getLogin(), uMgr);
-			uMgr.afterPropertiesSet();
+		if (!mgrCache.containsKey(userName)) {
+			logger.trace("initUser; userName set: {}", userName);
+			UserManager uMgr = new UserManager(userName);
+			mgrCache.put(userName, uMgr);
+			mbeanExporter.registerManagedResource(uMgr, uMgr.getObjectName());
 			return true;
 		}
 		return false;
 	}
 	
-	private boolean denitUser(XDMUser user) {
+	private boolean denitUser(XDMUser user) throws Exception {
 		// find and unreg UserManager...
 		UserManager uMgr = mgrCache.remove(user.getLogin());
 		if (uMgr != null) {
-			uMgr.close();
+			mbeanExporter.unregisterManagedResource(uMgr.getObjectName());
 			return true;
 		}
 		return false;
@@ -116,7 +129,11 @@ public class UserManagement implements InitializingBean {
 		// denit UserManager
 		XDMUser user = userCache.get(login);
 		if (user != null) {
-			return denitUser(user);
+			try {
+				return denitUser(user);
+			} catch (Exception ex) {
+				logger.error("deleteUser; error: " + ex.getMessage(), ex);
+			}
 		}
 		return false;
 	}
