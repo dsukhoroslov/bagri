@@ -1,10 +1,7 @@
 package com.bagri.xdm.cache.hazelcast.management;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Hashtable;
 import java.util.Iterator;
 
 import javax.management.MalformedObjectNameException;
@@ -13,8 +10,6 @@ import javax.management.openmbean.CompositeData;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.DisposableBean;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.jmx.export.annotation.ManagedAttribute;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedOperationParameter;
@@ -23,13 +18,10 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 import org.springframework.jmx.export.naming.SelfNaming;
 
 import com.bagri.common.manage.JMXUtils;
-import com.bagri.common.util.FileUtils;
-import com.bagri.xdm.XDMDocument;
 import com.bagri.xdm.XDMDocumentType;
 import com.bagri.xdm.XDMSchema;
 import com.bagri.xdm.access.api.XDMSchemaDictionaryBase;
 import com.bagri.xdm.access.api.XDMSchemaManagerBase;
-import com.bagri.xdm.process.hazelcast.HazelcastDocumentServer;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 
@@ -109,12 +101,6 @@ public class SchemaManager extends XDMSchemaManagerBase implements SelfNaming {
 	}
 	
 	@Override
-	public ObjectName getObjectName() throws MalformedObjectNameException {
-		logger.debug("getObjectName.enter; schemaName: {}", schemaName);
-		return JMXUtils.getObjectName("type=" + type_schema + ",name=" + schemaName);
-	}
-
-	@Override
 	@ManagedOperation(description="Returns named Schema property")
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "name", description = "A name of the property to return")})
@@ -139,4 +125,10 @@ public class SchemaManager extends XDMSchemaManagerBase implements SelfNaming {
 		super.removeProperty(name);
 	}
 	
+	@Override
+	public ObjectName getObjectName() throws MalformedObjectNameException {
+		logger.debug("getObjectName.enter; schemaName: {}", schemaName);
+		return JMXUtils.getObjectName("type=" + type_schema + ",name=" + schemaName);
+	}
+
 }
