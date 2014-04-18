@@ -54,6 +54,8 @@
 			</hz:map>
 			
 			<hz:map name="xdm-element">
+				<!-- can't persist it in MOngoDB right away; got an exception: 
+					java.lang.IllegalArgumentException: can't serialize class com.bagri.xdm.access.hazelcast.data.DataDocumentKey -->
 				<hz:map-store enabled="true" write-delay-seconds="10" implementation="mongoCacheStore">
 					<!--hz:properties>
 						<hz:property name="xdm.schemas.filename">${xdm.schemas.filename}</hz:property>
