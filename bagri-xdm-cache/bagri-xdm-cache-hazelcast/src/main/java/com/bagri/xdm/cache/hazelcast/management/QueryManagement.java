@@ -64,9 +64,10 @@ public class QueryManagement implements SelfNaming {
 
 	@Override
 	public ObjectName getObjectName() throws MalformedObjectNameException {
-		Hashtable keys = JMXUtils.getStandardKeys(type_schema + ".Query", "QueryManagement");
-		keys.put(type_schema, schemaName);
-		return JMXUtils.getObjectName(keys);
+		//Hashtable keys = JMXUtils.getStandardKeys(type_schema + ".Query", "QueryManagement");
+		//keys.put(type_schema, schemaName);
+		//return JMXUtils.getObjectName("type=" + type_schema + ",Schema=" + schemaName + ",name=QueryManagement");
+		return JMXUtils.getObjectName("type=" + type_schema + ",name=" + schemaName + ".QueryManagement");
 	}
 
 }

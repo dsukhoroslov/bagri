@@ -150,7 +150,8 @@ public class SchemaManager extends XDMSchemaManagerBase implements SelfNaming {
 	@Override
 	public ObjectName getObjectName() throws MalformedObjectNameException {
 		logger.debug("getObjectName.enter; schemaName: {}", schemaName);
-		return JMXUtils.getObjectName(type_schema, schemaName);
+		//return JMXUtils.getObjectName(type_schema, schemaName);
+		return JMXUtils.getObjectName("type=" + type_schema + ",name=" + schemaName);
 	}
 
 	@Override
