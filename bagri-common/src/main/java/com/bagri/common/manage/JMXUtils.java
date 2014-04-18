@@ -77,8 +77,8 @@ public class JMXUtils {
 		return new ObjectName(domain, keys);
 	}
 	
-	public static ObjectName getObjectName(String name) throws MalformedObjectNameException {
-		return new ObjectName(domain + ":" + name);
+	public static ObjectName getObjectName(String keys) throws MalformedObjectNameException {
+		return new ObjectName(domain + ":" + keys);
 	}
 
 	public static boolean registerMBean(String domain, Hashtable<String, String> keys, Object mBean) {
