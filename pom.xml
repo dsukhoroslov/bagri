@@ -27,6 +27,8 @@
         <bagri.version>0.2.0-SNAPSHOT</bagri.version>
 
         <spring.version>3.2.8.RELEASE</spring.version>
+	<spring.mongo.version>1.4.2.RELEASE</spring.mongo.version>
+
         <!--commons-collections.version>3.2.1</commons-collections.version>
         <commons-fileupload.version>1.2.2</commons-fileupload.version>
         <commons-lang3.version>3.1</commons-lang3.version>
@@ -217,6 +219,11 @@
                     </exclusion>
                 </exclusions>
             </dependency>
+	    <dependency>
+		<groupId>org.springframework.data</groupId>
+		<artifactId>spring-data-mongodb</artifactId>
+		<version>${spring.mongo.version}</version>
+	    </dependency>
 
             <dependency>
                 <groupId>xerces</groupId>

@@ -108,49 +108,11 @@ public class SchemaManager extends XDMSchemaManagerBase implements SelfNaming {
 		return ((XDMSchemaDictionaryBase) schemaDictionary).getDocumentTypes().size() - size;
 	}
 	
-	@ManagedOperation(description="Register Document")
-	@ManagedOperationParameters({
-		@ManagedOperationParameter(name = "docFile", description = "A full path to XML file to register")})
-	public int registerDocument(String docFile) {
-		
-		String uri = "file:///" + docFile;
-		//logger.trace("storeDocument; document initialized: {}", docId);
-		//DocumentCreator task = new DocumentCreator(docId, uri, xml);
-
-		try {
-			String xml = FileUtils.readTextFile(docFile);
-			XDMDocument doc = ((HazelcastDocumentServer) docManager).createDocument(uri, xml);
-			return 1;
-		} catch (IOException ex) {
-			logger.error("registerDocument.error: " + ex.getMessage(), ex);
-		}
-		return 0;
-	}
-	
-	private int processFilesInCatalog(File catalog) {
-		int result = 0;
-	    for (File file: catalog.listFiles()) {
-	        if (file.isDirectory()) {
-	            result += processFilesInCatalog(file);
-	        } else {
-	            result += registerDocument(file.getPath());
-	        }
-	    }
-	    return result;
-	}
-
-	@ManagedOperation(description="Register Documents")
-	@ManagedOperationParameters({
-		@ManagedOperationParameter(name = "docCatalog", description = "A full path to the directory containing XML files to register")})
-	public int registerDocuments(String docCatalog) {
-		File catalog = new File(docCatalog);
-		return processFilesInCatalog(catalog);	
-	}
-
 	@Override
 	public ObjectName getObjectName() throws MalformedObjectNameException {
 		logger.debug("getObjectName.enter; schemaName: {}", schemaName);
-		return JMXUtils.getObjectName(type_schema, schemaName);
+		//return JMXUtils.getObjectName(type_schema, schemaName);
+		return JMXUtils.getObjectName(type_schema + "=Schema,name=" + schemaName);
 	}
 
 	@Override
