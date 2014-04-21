@@ -2,8 +2,8 @@ package com.bagri.xdm.access.hazelcast.pof;
 
 import java.io.IOException;
 
-import com.bagri.xdm.XDMNodeKind;
-import com.bagri.xdm.XDMPath;
+import com.bagri.xdm.domain.XDMNodeKind;
+import com.bagri.xdm.domain.XDMPath;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.StreamSerializer;

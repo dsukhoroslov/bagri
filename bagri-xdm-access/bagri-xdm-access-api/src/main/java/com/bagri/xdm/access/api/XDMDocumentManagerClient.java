@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.Map;
 
 import com.bagri.common.query.ExpressionBuilder;
-import com.bagri.xdm.XDMDocument;
+import com.bagri.xdm.domain.XDMDocument;
 
 public abstract class XDMDocumentManagerClient extends XDMDocumentManagerBase implements XDMDocumentManagement {
 	

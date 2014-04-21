@@ -19,7 +19,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import com.bagri.xdm.XDMSchema;
+import com.bagri.xdm.system.XDMSchema;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.MapLoaderLifecycleSupport;
 import com.hazelcast.core.MapStore;
@@ -104,13 +104,16 @@ public class XDMSchemaCacheStore implements MapStore<String, XDMSchema>, MapLoad
 				String name = sElt.getAttribute("name");
 				boolean active = Boolean.valueOf(sElt.getAttribute("active"));
 				NodeList sNodes = sElt.getChildNodes();
+				String vers = null;
 				String desc = null;
 				String at = null;
 				String by = null;
 				Properties sProps = null;
 				for (int j=0; j < sNodes.getLength(); j++) {
 					Node node = sNodes.item(j);
-					if ("description".equals(node.getNodeName())) {
+					if ("version".equals(node.getNodeName())) {
+						vers = node.getTextContent();
+					} else if ("description".equals(node.getNodeName())) {
 						desc = node.getTextContent();
 					} else if ("createdAt".equals(node.getNodeName())) {
 						at = node.getTextContent();
@@ -127,7 +130,7 @@ public class XDMSchemaCacheStore implements MapStore<String, XDMSchema>, MapLoad
 						logger.info("loadSchemas. unknown schema node: {}", node);
 					}
 				}
-				XDMSchema schema = new XDMSchema(name, desc, active, new Date(), by, sProps);
+				XDMSchema schema = new XDMSchema(name, Integer.parseInt(vers), desc, active, new Date(), by, sProps);
 				schemas.put(name, schema);
 			}
 	    } catch (Exception ex) {

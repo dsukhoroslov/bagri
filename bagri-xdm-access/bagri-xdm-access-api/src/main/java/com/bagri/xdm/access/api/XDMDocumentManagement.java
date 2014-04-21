@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import com.bagri.common.query.ExpressionBuilder;
-import com.bagri.xdm.XDMDocument;
+import com.bagri.xdm.domain.XDMDocument;
 
 public interface XDMDocumentManagement {
 

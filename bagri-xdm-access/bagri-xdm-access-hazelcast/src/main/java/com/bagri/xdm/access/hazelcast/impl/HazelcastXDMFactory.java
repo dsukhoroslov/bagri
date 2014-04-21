@@ -3,10 +3,10 @@
  */
 package com.bagri.xdm.access.hazelcast.impl;
 
-import com.bagri.xdm.XDMElement;
 import com.bagri.xdm.access.hazelcast.data.DataDocumentKey;
 import com.bagri.xdm.common.XDMDataKey;
 import com.bagri.xdm.common.XDMFactory;
+import com.bagri.xdm.domain.XDMElement;
 
 /**
  * @author Denis Sukhoroslov: dsukhoroslov@gmail.com

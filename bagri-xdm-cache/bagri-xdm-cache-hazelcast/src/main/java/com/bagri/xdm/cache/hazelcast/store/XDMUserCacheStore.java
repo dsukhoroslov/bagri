@@ -19,8 +19,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import com.bagri.xdm.XDMSchema;
-import com.bagri.xdm.XDMUser;
+import com.bagri.xdm.system.XDMSchema;
+import com.bagri.xdm.system.XDMUser;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.MapLoaderLifecycleSupport;
 import com.hazelcast.core.MapStore;

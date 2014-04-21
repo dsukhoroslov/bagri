@@ -1,4 +1,4 @@
-package com.bagri.xdm;
+package com.bagri.xdm.system;
 
 import java.util.Collections;
 import java.util.Date;
@@ -9,6 +9,7 @@ import java.util.Properties;
 public class XDMSchema {
 
 	private String name;
+	private int version;
 	private String description;
 	private boolean active;
 	private Date createdAt;
@@ -16,9 +17,11 @@ public class XDMSchema {
 	//private Map<String, Object> props = new HashMap<String, Object>();
 	private Properties props = new Properties();
 
-	public XDMSchema(String name, String description, boolean active, Date createdAt, String createdBy, Properties props) {
+	public XDMSchema(String name, int version, String description, boolean active, 
+			Date createdAt, String createdBy, Properties props) {
 		super();
 		this.name = name;
+		this.version = version;
 		this.description = description;
 		this.active = active;
 		this.createdAt = createdAt;
@@ -28,6 +31,10 @@ public class XDMSchema {
 
 	public String getName() {
 		return name;
+	}
+	
+	public int getVersion() {
+		return version;
 	}
 	
 	public String getDescription() {
@@ -40,6 +47,7 @@ public class XDMSchema {
 	
 	public void setActive(boolean active) {
 		this.active = active;
+		//version++;
 	}
 	
 	public Date getCreatedAt() {
@@ -67,6 +75,10 @@ public class XDMSchema {
 		if (props != null) {
 			this.props.putAll(props);
 		}
+	}
+	
+	public void updateVersion() {
+		version++;
 	}
 
 	@Override
@@ -96,9 +108,10 @@ public class XDMSchema {
 
 	@Override
 	public String toString() {
-		return "XDMSchema [name=" + name + ", description=" + description + 
-			", active=" + active + ", createdAt=" + createdAt + 
-			", createdBy=" + createdBy + ", props=" + props + "]";
+		return "XDMSchema [name=" + name + ", version=" + version + 
+			", description=" + description + ", active=" + active + 
+			", createdAt=" + createdAt + ", createdBy=" + createdBy + 
+			", props=" + props + "]";
 	}
 	
 	

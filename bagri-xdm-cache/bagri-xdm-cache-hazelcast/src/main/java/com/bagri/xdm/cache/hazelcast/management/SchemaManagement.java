@@ -26,10 +26,10 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
 import com.bagri.common.manage.JMXUtils;
-import com.bagri.xdm.XDMSchema;
 import com.bagri.xdm.access.api.XDMSchemaManagement;
 import com.bagri.xdm.process.hazelcast.SchemaDenitiator;
 import com.bagri.xdm.process.hazelcast.SchemaInitiator;
+import com.bagri.xdm.system.XDMSchema;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
@@ -167,7 +167,7 @@ public class SchemaManagement implements InitializingBean, XDMSchemaManagement {
 	public XDMSchema addSchema(String schemaName, String description, Properties props) {
 		XDMSchema schema = null;
 		if (!schemaCache.containsKey(schemaName)) {
-			schema = new XDMSchema(schemaName, description, true, new Date(), schema_management, props);
+			schema = new XDMSchema(schemaName, 1, description, true, new Date(), schema_management, props);
 			//if (initSchema(schema)) {
 			if (initSchemaInCluster(schema) > 0) {
 				schemaCache.put(schemaName, schema);
@@ -235,21 +235,26 @@ public class SchemaManagement implements InitializingBean, XDMSchemaManagement {
     	props.setProperty("xdm.schema.name", schemaName);
     	PropertiesPropertySource pps = new PropertiesPropertySource(schemaName, props);
     	
-    	ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext();
-    	ctx.getEnvironment().getPropertySources().addFirst(pps);
-    	ctx.setConfigLocation("spring/schema-context.xml");
-    	ctx.refresh();
+    	try {
+    		ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext();
+    		ctx.getEnvironment().getPropertySources().addFirst(pps);
+    		ctx.setConfigLocation("spring/schema-context.xml");
+    		ctx.refresh();
     	
-        SchemaManager sMgr = ctx.getBean("schemaManager", SchemaManager.class);
-        sMgr.setSchemaCache(schemaCache);
-        HazelcastInstance hz = ctx.getBean("hzInstance", HazelcastInstance.class);
-        hz.getUserContext().put("schemaManager", sMgr);
-        hz.getUserContext().put("appContext", ctx);
-        //hz.getConfig().getSecurityConfig().setEnabled(true);
-        //hz.getConfig().getSecurityConfig().s
+    		SchemaManager sMgr = ctx.getBean("schemaManager", SchemaManager.class);
+    		sMgr.setSchemaCache(schemaCache);
+    		HazelcastInstance hz = ctx.getBean("hzInstance", HazelcastInstance.class);
+    		hz.getUserContext().put("schemaManager", sMgr);
+    		hz.getUserContext().put("appContext", ctx);
+    		//hz.getConfig().getSecurityConfig().setEnabled(true);
+    		//hz.getConfig().getSecurityConfig().s
         
-    	logger.debug("initSchema.exit; schema {} started on instance: {}; config: {}", schemaName, hz, hz.getConfig());
-    	return true;
+    		logger.debug("initSchema.exit; schema {} started on instance: {}; config: {}", schemaName, hz, hz.getConfig());
+    		return true;
+    	} catch (Exception ex) {
+    		logger.error("initSchema.error; " + ex.getMessage(), ex);
+    		return false;
+    	}
 	}
 	
 	private boolean initSchema(XDMSchema schema) {

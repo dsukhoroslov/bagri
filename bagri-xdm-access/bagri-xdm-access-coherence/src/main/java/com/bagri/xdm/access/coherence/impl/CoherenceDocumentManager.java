@@ -13,8 +13,6 @@ import java.util.Set;
 
 import com.bagri.common.query.ExpressionBuilder;
 import com.bagri.common.query.PathExpression;
-import com.bagri.xdm.XDMDocument;
-import com.bagri.xdm.XDMNodeKind;
 import com.bagri.xdm.access.api.XDMDocumentManagerClient;
 //import com.bagri.xdm.cache.data.PathParentDocumentKey;
 //import com.bagri.xdm.cache.data.PathValueDocumentKey;
@@ -22,6 +20,8 @@ import com.bagri.xdm.access.coherence.process.DocumentBuilder;
 import com.bagri.xdm.access.coherence.process.DocumentCreator;
 import com.bagri.xdm.access.coherence.process.DocumentRemover;
 import com.bagri.xdm.common.XDMDataKey;
+import com.bagri.xdm.domain.XDMDocument;
+import com.bagri.xdm.domain.XDMNodeKind;
 import com.oracle.coherence.common.sequencegenerators.ClusteredSequenceGenerator;
 import com.oracle.coherence.common.sequencegenerators.SequenceGenerator;
 import com.tangosol.net.CacheFactory;

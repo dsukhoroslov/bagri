@@ -9,8 +9,8 @@ import net.sf.saxon.trans.XPathException;
 import net.sf.saxon.value.Int64Value;
 import net.sf.saxon.value.SequenceType;
 
-import com.bagri.xdm.XDMDocument;
 import com.bagri.xdm.access.api.XDMDocumentManagement;
+import com.bagri.xdm.domain.XDMDocument;
 
 public class RemoveDocument extends ExtensionFunctionDefinition {
 	

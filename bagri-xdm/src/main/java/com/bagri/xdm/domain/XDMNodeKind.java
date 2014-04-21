@@ -1,4 +1,4 @@
-package com.bagri.xdm;
+package com.bagri.xdm.domain;
 
 public enum XDMNodeKind {
 

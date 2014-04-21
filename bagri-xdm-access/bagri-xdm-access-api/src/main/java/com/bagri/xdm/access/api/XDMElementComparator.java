@@ -2,7 +2,7 @@ package com.bagri.xdm.access.api;
 
 import java.util.Comparator;
 
-import com.bagri.xdm.XDMElement;
+import com.bagri.xdm.domain.XDMElement;
 
 public class XDMElementComparator implements Comparator<XDMElement> {
 

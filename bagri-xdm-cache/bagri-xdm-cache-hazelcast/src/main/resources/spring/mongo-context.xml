@@ -2,14 +2,14 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:context="http://www.springframework.org/schema/context"
-    xmlns:mongo="http://www.springframework.org/schema/data/mongo"
+	xmlns:mongo="http://www.springframework.org/schema/data/mongo"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd
 		http://www.springframework.org/schema/data/mongo http://www.springframework.org/schema/data/mongo/spring-mongo-1.0.xsd">
 
 	<!--context:property-placeholder ignore-unresolvable="true" location="classpath:/xdm-cache-server.properties" /-->
     
-	<mongo:mongo id="mongo" host="localhost" port="27017">
+	<mongo:mongo id="mongo" host="${xdm.schema.store.host}" port="${xdm.schema.store.port}">
 	    <!--mongo:options connections-per-host="8"
                    threads-allowed-to-block-for-connection-multiplier="4"
                    connect-timeout="1000"
@@ -25,7 +25,7 @@
 
 	<bean id="mongoTemplate" class="org.springframework.data.mongodb.core.MongoTemplate">
 	    <constructor-arg ref="mongo"/>
-	    <constructor-arg name="databaseName" value="test"/>
+	    <constructor-arg name="databaseName" value="${xdm.schema.store.dbname}"/>
 	</bean>
 
 	<bean id="mongoCacheStore" class="com.hazelcast.spring.mongodb.MongoMapStore">

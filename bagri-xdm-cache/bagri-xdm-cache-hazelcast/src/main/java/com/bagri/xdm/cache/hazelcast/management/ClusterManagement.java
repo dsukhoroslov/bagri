@@ -18,9 +18,9 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
-import com.bagri.xdm.XDMNode;
 import com.bagri.xdm.access.api.XDMClusterManagement;
 import com.bagri.xdm.access.api.XDMNodeManager;
+import com.bagri.xdm.system.XDMNode;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.Member;

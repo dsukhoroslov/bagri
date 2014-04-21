@@ -16,7 +16,7 @@ import org.junit.Test;
 
 
 //import com.bagri.xdm.access.DataManager;
-import com.bagri.xdm.XDMElement;
+import com.bagri.xdm.domain.XDMElement;
 //import com.bagri.xdm.xml.XDMStaxParser;
 
 public class JCacheDocumentManagerTest {

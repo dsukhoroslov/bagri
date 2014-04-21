@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.bagri.xdm.XDMIndex;
 import com.bagri.xdm.common.XDMDataKey;
+import com.bagri.xdm.domain.XDMIndex;
 import com.tangosol.io.pof.PofReader;
 import com.tangosol.io.pof.PofSerializer;
 import com.tangosol.io.pof.PofWriter;

@@ -44,8 +44,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
 
-import com.bagri.xdm.XDMDocument;
 import com.bagri.xdm.access.api.XDMDocumentManagement;
+import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xquery.api.XQProcessor;
 import com.bagri.xquery.api.XQProcessorBase;
 import com.bagri.xquery.saxon.extension.RemoveDocument;

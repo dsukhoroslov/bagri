@@ -1,6 +1,7 @@
 <schemas xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"> 
     
     <schema name="TPoX" active="true">
+	<version>1</version>
 	<description>TPoX schema for tests</description>
 	<createdAt>2014-03-27</createdAt>
 	<createdBy>SDV</createdBy>
@@ -10,6 +11,10 @@
 	    <property name="xdm.schema.ports.start">10000</property>
 	    <property name="xdm.schema.members">localhost</property>
 	    <property name="xdm.schema.thread.pool">10</property>
+	    <property name="xdm.schema.store.type">MONGO</property>
+	    <property name="xdm.schema.store.host">localhost</property>
+	    <property name="xdm.schema.store.port">27017</property>
+	    <property name="xdm.schema.store.dbname">test</property>
 	</properties>
     </schema>
 

@@ -17,11 +17,11 @@ import javax.xml.stream.XMLStreamException;
 import com.bagri.common.idgen.IdGenerator;
 import com.bagri.common.query.ExpressionBuilder;
 import com.bagri.common.query.PathExpression;
-import com.bagri.xdm.XDMDocument;
-import com.bagri.xdm.XDMElement;
-import com.bagri.xdm.XDMNodeKind;
 import com.bagri.xdm.access.xml.XDMStaxParser;
 import com.bagri.xdm.access.xml.XmlBuilder;
+import com.bagri.xdm.domain.XDMDocument;
+import com.bagri.xdm.domain.XDMElement;
+import com.bagri.xdm.domain.XDMNodeKind;
 
 public abstract class XDMDocumentManagerServer extends XDMDocumentManagerBase /*implements XDMDocumentManager*/ {
 

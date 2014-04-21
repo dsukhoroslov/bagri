@@ -3,7 +3,7 @@ package com.bagri.xdm.access.api;
 import java.util.Collection;
 import java.util.Properties;
 
-import com.bagri.xdm.XDMSchema;
+import com.bagri.xdm.system.XDMSchema;
 
 public interface XDMSchemaManagement {
 

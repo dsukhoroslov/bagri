@@ -1,10 +1,10 @@
 package com.bagri.xdm.access.hazelcast.pof;
 
-import com.bagri.xdm.XDMElement;
 import com.bagri.xdm.access.hazelcast.data.DataDocumentKey;
 import com.bagri.xdm.access.hazelcast.process.DocumentBuilder;
 import com.bagri.xdm.access.hazelcast.process.DocumentRemover;
 import com.bagri.xdm.access.hazelcast.process.DocumentCreator;
+import com.bagri.xdm.domain.XDMElement;
 //import com.bagri.xdm.access.hazelcast.process.SchemaInitiator;
 //import com.bagri.xdm.access.hazelcast.process.SchemaDenitiator;
 import com.hazelcast.nio.serialization.Portable;

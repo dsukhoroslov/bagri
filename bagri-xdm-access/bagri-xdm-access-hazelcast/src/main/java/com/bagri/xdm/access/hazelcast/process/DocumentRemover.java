@@ -6,7 +6,7 @@ import static com.bagri.xdm.access.hazelcast.pof.XDMPortableFactory.factoryId;
 import java.io.IOException;
 import java.util.concurrent.Callable;
 
-import com.bagri.xdm.XDMDocument;
+import com.bagri.xdm.domain.XDMDocument;
 import com.hazelcast.nio.serialization.Portable;
 import com.hazelcast.nio.serialization.PortableReader;
 import com.hazelcast.nio.serialization.PortableWriter;

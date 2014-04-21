@@ -15,9 +15,9 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 import org.springframework.jmx.export.naming.SelfNaming;
 
 import com.bagri.common.manage.JMXUtils;
-import com.bagri.xdm.XDMNode;
-import com.bagri.xdm.XDMUser;
 import com.bagri.xdm.access.api.XDMNodeManager;
+import com.bagri.xdm.system.XDMNode;
+import com.bagri.xdm.system.XDMUser;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.IMap;

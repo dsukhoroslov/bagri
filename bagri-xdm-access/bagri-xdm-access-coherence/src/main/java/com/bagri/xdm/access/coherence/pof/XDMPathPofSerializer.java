@@ -2,8 +2,8 @@ package com.bagri.xdm.access.coherence.pof;
 
 import java.io.IOException;
 
-import com.bagri.xdm.XDMNodeKind;
-import com.bagri.xdm.XDMPath;
+import com.bagri.xdm.domain.XDMNodeKind;
+import com.bagri.xdm.domain.XDMPath;
 import com.tangosol.io.pof.PofReader;
 import com.tangosol.io.pof.PofSerializer;
 import com.tangosol.io.pof.PofWriter;

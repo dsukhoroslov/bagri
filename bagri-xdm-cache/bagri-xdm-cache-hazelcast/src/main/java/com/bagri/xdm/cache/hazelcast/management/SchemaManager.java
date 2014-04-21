@@ -18,10 +18,10 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 import org.springframework.jmx.export.naming.SelfNaming;
 
 import com.bagri.common.manage.JMXUtils;
-import com.bagri.xdm.XDMDocumentType;
-import com.bagri.xdm.XDMSchema;
 import com.bagri.xdm.access.api.XDMSchemaDictionaryBase;
 import com.bagri.xdm.access.api.XDMSchemaManagerBase;
+import com.bagri.xdm.domain.XDMDocumentType;
+import com.bagri.xdm.system.XDMSchema;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 

@@ -7,7 +7,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.hazelcast.core.HazelcastInstance;
 
-import static com.bagri.xdm.XDMNode.*;
+import static com.bagri.xdm.system.XDMNode.*;
 
 public class XDMCacheServer {
 

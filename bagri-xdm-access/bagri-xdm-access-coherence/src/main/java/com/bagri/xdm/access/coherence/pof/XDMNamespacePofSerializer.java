@@ -2,7 +2,7 @@ package com.bagri.xdm.access.coherence.pof;
 
 import java.io.IOException;
 
-import com.bagri.xdm.XDMNamespace;
+import com.bagri.xdm.domain.XDMNamespace;
 import com.tangosol.io.pof.PofReader;
 import com.tangosol.io.pof.PofSerializer;
 import com.tangosol.io.pof.PofWriter;

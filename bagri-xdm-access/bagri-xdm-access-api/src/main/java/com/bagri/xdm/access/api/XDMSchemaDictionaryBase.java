@@ -35,10 +35,10 @@ import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSInput;
 
 import com.bagri.common.idgen.IdGenerator;
-import com.bagri.xdm.XDMDocumentType;
-import com.bagri.xdm.XDMNamespace;
-import com.bagri.xdm.XDMNodeKind;
-import com.bagri.xdm.XDMPath;
+import com.bagri.xdm.domain.XDMDocumentType;
+import com.bagri.xdm.domain.XDMNamespace;
+import com.bagri.xdm.domain.XDMNodeKind;
+import com.bagri.xdm.domain.XDMPath;
 
 public abstract class XDMSchemaDictionaryBase implements XDMSchemaDictionary {
 	

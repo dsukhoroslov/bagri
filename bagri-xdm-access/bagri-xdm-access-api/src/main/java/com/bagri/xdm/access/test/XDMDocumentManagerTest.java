@@ -17,9 +17,9 @@ import com.bagri.common.query.AxisType;
 import com.bagri.common.query.Comparison;
 import com.bagri.common.query.ExpressionBuilder;
 import com.bagri.common.query.PathBuilder;
-import com.bagri.xdm.XDMPath;
 import com.bagri.xdm.access.api.XDMDocumentManagement;
 import com.bagri.xdm.access.api.XDMSchemaDictionary;
+import com.bagri.xdm.domain.XDMPath;
 
 public abstract class XDMDocumentManagerTest {
 

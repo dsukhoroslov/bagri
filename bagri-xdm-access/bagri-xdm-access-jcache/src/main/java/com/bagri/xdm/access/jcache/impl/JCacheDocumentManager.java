@@ -14,7 +14,7 @@ import javax.cache.configuration.MutableConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bagri.xdm.XDMElement;
+import com.bagri.xdm.domain.XDMElement;
 
 /**
  * @author Denis Sukhoroslov: dsukhoroslov@gmail.com

@@ -27,9 +27,9 @@ import org.slf4j.LoggerFactory;
 import com.bagri.common.idgen.IdGenerator;
 import com.bagri.common.idgen.SimpleIdGenerator;
 //import com.bagri.cache.api.PathDictionary;
-import com.bagri.xdm.XDMElement;
-import com.bagri.xdm.XDMNodeKind;
 import com.bagri.xdm.access.api.XDMSchemaDictionary;
+import com.bagri.xdm.domain.XDMElement;
+import com.bagri.xdm.domain.XDMNodeKind;
 
 public class XDMStaxParser {
 

@@ -1,4 +1,4 @@
-package com.bagri.xdm;
+package com.bagri.xdm.domain;
 
 import java.io.Serializable;
 

@@ -1,4 +1,4 @@
-package com.bagri.xdm;
+package com.bagri.xdm.system;
 
 import java.util.Date;
 import java.util.Properties;

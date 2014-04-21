@@ -25,8 +25,8 @@ import org.apache.xerces.xs.XSTypeDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bagri.xdm.XDMPath;
 import com.bagri.xdm.access.api.XDMSchemaDictionary;
+import com.bagri.xdm.domain.XDMPath;
 
 public class XDMSchemaProcessor {
 

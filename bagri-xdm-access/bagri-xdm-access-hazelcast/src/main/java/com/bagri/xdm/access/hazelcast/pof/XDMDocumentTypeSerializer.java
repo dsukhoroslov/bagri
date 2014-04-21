@@ -5,8 +5,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.bagri.xdm.XDMDocumentType;
-import com.bagri.xdm.XDMNamespace;
+import com.bagri.xdm.domain.XDMDocumentType;
+import com.bagri.xdm.domain.XDMNamespace;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.StreamSerializer;

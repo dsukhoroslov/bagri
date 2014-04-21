@@ -17,11 +17,11 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import com.bagri.common.idgen.IdGenerator;
-import com.bagri.xdm.XDMDocumentType;
-import com.bagri.xdm.XDMNamespace;
-import com.bagri.xdm.XDMPath;
 import com.bagri.xdm.access.api.XDMSchemaDictionaryBase;
 import com.bagri.xdm.access.hazelcast.process.SchemaRegistrator;
+import com.bagri.xdm.domain.XDMDocumentType;
+import com.bagri.xdm.domain.XDMNamespace;
+import com.bagri.xdm.domain.XDMPath;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.query.Predicate;

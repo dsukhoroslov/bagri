@@ -15,10 +15,10 @@ import java.util.Map;
 import java.util.Set;
 
 import com.bagri.common.idgen.IdGenerator;
-import com.bagri.xdm.XDMDocumentType;
-import com.bagri.xdm.XDMNamespace;
-import com.bagri.xdm.XDMPath;
 import com.bagri.xdm.access.api.XDMSchemaDictionaryBase;
+import com.bagri.xdm.domain.XDMDocumentType;
+import com.bagri.xdm.domain.XDMNamespace;
+import com.bagri.xdm.domain.XDMPath;
 import com.oracle.coherence.common.sequencegenerators.ClusteredSequenceGenerator;
 import com.tangosol.net.CacheFactory;
 import com.tangosol.net.ConfigurableCacheFactory;

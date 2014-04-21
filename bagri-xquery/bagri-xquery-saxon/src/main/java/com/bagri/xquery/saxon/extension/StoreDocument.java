@@ -1,7 +1,7 @@
 package com.bagri.xquery.saxon.extension;
 
-import com.bagri.xdm.XDMDocument;
 import com.bagri.xdm.access.api.XDMDocumentManagement;
+import com.bagri.xdm.domain.XDMDocument;
 
 import net.sf.saxon.expr.XPathContext;
 import net.sf.saxon.lib.ExtensionFunctionCall;

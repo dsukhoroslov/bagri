@@ -3,8 +3,8 @@ package com.bagri.xdm.access.api;
 import java.util.Collection;
 import java.util.Set;
 
-import com.bagri.xdm.XDMNodeKind;
-import com.bagri.xdm.XDMPath;
+import com.bagri.xdm.domain.XDMNodeKind;
+import com.bagri.xdm.domain.XDMPath;
 
 /**
  * manages schema meta-data in internal replicated caches;

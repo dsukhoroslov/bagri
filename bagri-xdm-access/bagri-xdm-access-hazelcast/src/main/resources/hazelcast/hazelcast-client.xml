@@ -28,11 +28,11 @@
 		</portable-factories>
 		<serializers>
 			<!--hz:global-serializer class-name="com.hazelcast.nio.serialization.PortableSerializer"/-->
-			<serializer type-class="com.bagri.xdm.XDMElement">com.bagri.xdm.access.hazelcast.pof.XDMElementSerializer</serializer>
-			<serializer type-class="com.bagri.xdm.XDMPath">com.bagri.xdm.access.hazelcast.pof.XDMPathSerializer</serializer>
-			<serializer type-class="com.bagri.xdm.XDMDocument">com.bagri.xdm.access.hazelcast.pof.XDMDocumentSerializer</serializer>
-			<serializer type-class="com.bagri.xdm.XDMDocumentType">com.bagri.xdm.access.hazelcast.pof.XDMDocumentTypeSerializer</serializer>
-			<serializer type-class="com.bagri.xdm.XDMNamespace">com.bagri.xdm.access.hazelcast.pof.XDMNamespaceSerializer</serializer>
+			<serializer type-class="com.bagri.xdm.domain.XDMElement">com.bagri.xdm.access.hazelcast.pof.XDMElementSerializer</serializer>
+			<serializer type-class="com.bagri.xdm.domain.XDMPath">com.bagri.xdm.access.hazelcast.pof.XDMPathSerializer</serializer>
+			<serializer type-class="com.bagri.xdm.domain.XDMDocument">com.bagri.xdm.access.hazelcast.pof.XDMDocumentSerializer</serializer>
+			<serializer type-class="com.bagri.xdm.domain.XDMDocumentType">com.bagri.xdm.access.hazelcast.pof.XDMDocumentTypeSerializer</serializer>
+			<serializer type-class="com.bagri.xdm.domain.XDMNamespace">com.bagri.xdm.access.hazelcast.pof.XDMNamespaceSerializer</serializer>
 		</serializers>
 	</serialization>
 

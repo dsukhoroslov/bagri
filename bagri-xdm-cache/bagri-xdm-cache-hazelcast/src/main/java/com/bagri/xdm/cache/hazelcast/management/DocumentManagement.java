@@ -17,9 +17,9 @@ import org.springframework.jmx.export.naming.SelfNaming;
 
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.common.util.FileUtils;
-import com.bagri.xdm.XDMDocument;
 import com.bagri.xdm.access.api.XDMDocumentManagerServer;
 import com.bagri.xdm.access.api.XDMSchemaDictionary;
+import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.process.hazelcast.HazelcastDocumentServer;
 
 @ManagedResource(description="Schema Documents Management MBean")

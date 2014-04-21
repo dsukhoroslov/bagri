@@ -3,7 +3,7 @@ package com.bagri.xdm.access.hazelcast.pof;
 import java.io.IOException;
 import java.util.Date;
 
-import com.bagri.xdm.XDMUser;
+import com.bagri.xdm.system.XDMUser;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.StreamSerializer;

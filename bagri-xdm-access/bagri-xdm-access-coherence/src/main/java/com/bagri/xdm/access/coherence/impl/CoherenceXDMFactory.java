@@ -1,9 +1,9 @@
 package com.bagri.xdm.access.coherence.impl;
 
-import com.bagri.xdm.XDMElement;
 import com.bagri.xdm.access.coherence.data.DataDocumentKey;
 import com.bagri.xdm.common.XDMDataKey;
 import com.bagri.xdm.common.XDMFactory;
+import com.bagri.xdm.domain.XDMElement;
 
 public class CoherenceXDMFactory implements XDMFactory {
 

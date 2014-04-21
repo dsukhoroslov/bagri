@@ -11,8 +11,8 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.bagri.xdm.XDMPath;
 import com.bagri.xdm.access.xml.XDMSchemaProcessor;
+import com.bagri.xdm.domain.XDMPath;
 
 public class XDMSchemaProcessorTest {
 

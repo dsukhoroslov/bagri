@@ -11,12 +11,12 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import com.bagri.common.query.ExpressionBuilder;
-import com.bagri.xdm.XDMDocument;
-import com.bagri.xdm.XDMElement;
-import com.bagri.xdm.XDMNodeKind;
 import com.bagri.xdm.access.api.XDMDocumentManagerServer;
 import com.bagri.xdm.access.hazelcast.data.DataDocumentKey;
 import com.bagri.xdm.common.XDMDataKey;
+import com.bagri.xdm.domain.XDMDocument;
+import com.bagri.xdm.domain.XDMElement;
+import com.bagri.xdm.domain.XDMNodeKind;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.IdGenerator;

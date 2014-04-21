@@ -11,12 +11,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import com.bagri.xdm.XDMDocument;
-import com.bagri.xdm.XDMElement;
-import com.bagri.xdm.XDMNodeKind;
 import com.bagri.xdm.access.api.XDMDocumentManagerServer;
 import com.bagri.xdm.access.coherence.impl.QueryHelper;
 import com.bagri.xdm.common.XDMDataKey;
+import com.bagri.xdm.domain.XDMDocument;
+import com.bagri.xdm.domain.XDMElement;
+import com.bagri.xdm.domain.XDMNodeKind;
 import com.tangosol.net.BackingMapContext;
 import com.tangosol.net.BackingMapManagerContext;
 import com.tangosol.util.BinaryEntry;

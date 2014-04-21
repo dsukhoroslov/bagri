@@ -6,7 +6,7 @@ import java.util.Properties;
 import javax.management.openmbean.CompositeData;
 
 import com.bagri.common.manage.JMXUtils;
-import com.bagri.xdm.XDMSchema;
+import com.bagri.xdm.system.XDMSchema;
 
 public abstract class XDMSchemaManagerBase {
 	
