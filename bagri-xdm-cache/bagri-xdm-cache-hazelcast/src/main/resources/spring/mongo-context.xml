@@ -7,7 +7,8 @@
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd
 		http://www.springframework.org/schema/data/mongo http://www.springframework.org/schema/data/mongo/spring-mongo-1.0.xsd">
 
-	<!--context:property-placeholder ignore-unresolvable="true" location="classpath:/xdm-cache-server.properties" /-->
+    <!-- set some common mongo props in extra properties file -->
+	<context:property-placeholder ignore-unresolvable="true" location="classpath:/xdm-cache-server.properties" />
     
 	<mongo:mongo id="mongo" host="${xdm.schema.store.host}" port="${xdm.schema.store.port}">
 	    <!--mongo:options connections-per-host="8"

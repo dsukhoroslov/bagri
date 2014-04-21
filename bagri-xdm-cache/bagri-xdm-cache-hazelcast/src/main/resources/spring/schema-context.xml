@@ -7,7 +7,7 @@
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd
 		http://www.hazelcast.com/schema/spring http://www.hazelcast.com/schema/spring/hazelcast-spring-3.2.xsd">
 
-	<import resource="classpath:spring/mongo-context.xml" />
+	<!--import resource="classpath:spring/mongo-context.xml" /-->
  
 	<!-- Beans Declaration -->
 	<context:property-placeholder ignore-unresolvable="true" location="classpath:/xdm-cache-server.properties" />
@@ -54,12 +54,13 @@
 			</hz:map>
 			
 			<hz:map name="xdm-element">
-				<!-- can't persist it in MOngoDB right away; got an exception: 
+				<!-- can't persist it in MongoDB right away; got an exception: 
 					java.lang.IllegalArgumentException: can't serialize class com.bagri.xdm.access.hazelcast.data.DataDocumentKey -->
-				<hz:map-store enabled="true" write-delay-seconds="10" implementation="mongoCacheStore">
-					<!--hz:properties>
-						<hz:property name="xdm.schemas.filename">${xdm.schemas.filename}</hz:property>
-					</hz:properties-->
+				<hz:map-store enabled="true" write-delay-seconds="10" initial-mode="LAZY" factory-implementation="xdmStoreFactory">
+						<!-- factory-class-name="com.bagri.xdm.cache.hazelcast.store.XDMMapStoreFactory" -->
+					<hz:properties>
+						<hz:property name="xdm.schema.store.type">${xdm.schema.store.type}</hz:property>
+					</hz:properties>
 				</hz:map-store>
 				<hz:indexes>
 					<hz:index attribute="documentId"/>
@@ -68,10 +69,10 @@
 				</hz:indexes>
 			</hz:map>
 			<hz:map name="xdm-document">
-				<hz:map-store enabled="true" write-delay-seconds="10" implementation="mongoCacheStore">
-					<!--hz:properties>
-						<hz:property name="xdm.schemas.filename">${xdm.schemas.filename}</hz:property>
-					</hz:properties-->
+				<hz:map-store enabled="true" write-delay-seconds="10" initial-mode="EAGER" factory-implementation="xdmStoreFactory">
+					<hz:properties>
+						<hz:property name="xdm.schema.store.type">${xdm.schema.store.type}</hz:property>
+					</hz:properties>
 				</hz:map-store>
 			</hz:map>
 
@@ -120,6 +121,8 @@
 	</bean>
 
 	<bean id="xdmFactory" class="com.bagri.xdm.access.hazelcast.impl.HazelcastXDMFactory"/>
+
+	<bean id="xdmStoreFactory" class="com.bagri.xdm.cache.hazelcast.store.XDMMapStoreFactory"/>
 
 	<bean id="eltGen" class="com.bagri.xdm.access.hazelcast.impl.HazelcastIdGenerator">
 		<constructor-arg ref="xdm.element" />

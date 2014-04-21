@@ -27,6 +27,7 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.xdm.access.api.XDMSchemaManagement;
+import com.bagri.xdm.cache.hazelcast.store.XDMMapStoreFactory;
 import com.bagri.xdm.process.hazelcast.SchemaDenitiator;
 import com.bagri.xdm.process.hazelcast.SchemaInitiator;
 import com.bagri.xdm.system.XDMSchema;
@@ -240,7 +241,10 @@ public class SchemaManagement implements InitializingBean, XDMSchemaManagement {
     		ctx.getEnvironment().getPropertySources().addFirst(pps);
     		ctx.setConfigLocation("spring/schema-context.xml");
     		ctx.refresh();
-    	
+
+    		//XDMMapStoreFactory msFactory = ctx.getBean("xdmStoreFactory", XDMMapStoreFactory.class);
+    		//msFactory.setMapStoreProperties(props);
+    		
     		SchemaManager sMgr = ctx.getBean("schemaManager", SchemaManager.class);
     		sMgr.setSchemaCache(schemaCache);
     		HazelcastInstance hz = ctx.getBean("hzInstance", HazelcastInstance.class);
