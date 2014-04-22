@@ -142,12 +142,12 @@
 		<property name="schemaDictionary" ref="xdmDictionary"/>
 	</bean>
 
-	<bean id="schemaManager" class="com.bagri.xdm.cache.hazelcast.management.SchemaManager">
+	<!--bean id="schemaManager" class="com.bagri.xdm.cache.hazelcast.management.SchemaManager">
 		<constructor-arg ref="hzInstance" />
 		<property name="documentManager" ref="xdmManager"/>
 		<property name="schemaDictionary" ref="xdmDictionary"/>
 		<property name="schemaName" value="${xdm.schema.name}"/>
-	</bean>
+	</bean-->
 
 	<bean id="queryManager" class="com.bagri.xdm.cache.hazelcast.management.QueryManagement">
 		<constructor-arg value="${xdm.schema.name}" />

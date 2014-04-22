@@ -1,6 +1,7 @@
 package com.bagri.xdm.access.hazelcast.data;
 
 import java.io.IOException;
+import java.io.Serializable;
 
 import com.bagri.xdm.common.XDMDataKey;
 import com.hazelcast.core.PartitionAware;
@@ -14,7 +15,12 @@ import com.hazelcast.nio.serialization.PortableWriter;
 import static com.bagri.xdm.access.hazelcast.pof.XDMPortableFactory.*;
 
 public class DataDocumentKey extends XDMDataKey implements DataSerializable, //Portable, 
-	PartitionAware<Long> {
+	PartitionAware<Long>, Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3417262044970162673L;
 
 	public DataDocumentKey() {
 		super();

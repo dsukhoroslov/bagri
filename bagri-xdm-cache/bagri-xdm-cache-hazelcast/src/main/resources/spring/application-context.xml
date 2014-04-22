@@ -49,6 +49,9 @@
 						<hz:property name="xdm.schemas.filename">${xdm.schemas.filename}</hz:property>
 					</hz:properties>
 				</hz:map-store>
+				<hz:entry-listeners>
+					<hz:entry-listener implementation="schemaListener"/>
+				</hz:entry-listeners>
 			</hz:map>
 
 			<hz:map name="users">
@@ -88,13 +91,6 @@
 		<property name="nodeCache" ref="nodes"/>
 	</bean>
 
-	<!--bean id="nodeManager" class="com.bagri.xdm.cache.hazelcast.management.NodeManager" scope="prototype">
-		<property name="hzInstance" ref="hzInstance" />
-		<property name="nodeName" value="${xdm.cluster.node.name}"/>
-		<property name="execService" ref="sys-exec-pool"/>
-		<property name="nodeCache" ref="nodes"/>
-	</bean-->
-
 	<bean id="schemaService" class="com.bagri.xdm.cache.hazelcast.management.SchemaManagement">
 		<constructor-arg ref="hzInstance" />
 		<property name="execService" ref="sys-exec-pool"/>
@@ -102,12 +98,17 @@
 		<property name="defaultProperties">
 			<props>
 				<prop key="xdm.schema.password"></prop>
-	    		<prop key="xdm.schema.ports">${xdm.schema.default.ports}</prop>
-	    		<prop key="xdm.schema.ports.start">${xdm.schema.default.ports.start}</prop>
-	    		<prop key="xdm.schema.members">${xdm.schema.default.members}</prop>
-	    		<prop key="xdm.schema.thread.pool">${xdm.schema.default.thread.pool}</prop>
+				<prop key="xdm.schema.ports">${xdm.schema.default.ports}</prop>
+				<prop key="xdm.schema.ports.start">${xdm.schema.default.ports.start}</prop>
+				<prop key="xdm.schema.members">${xdm.schema.default.members}</prop>
+				<prop key="xdm.schema.thread.pool">${xdm.schema.default.thread.pool}</prop>
+				<prop key="xdm.schema.store.type">${xdm.schema.default.store.type}</prop>
 			</props>
 		</property>
+	</bean>
+
+	<bean id="schemaListener" class="com.bagri.xdm.cache.hazelcast.management.SchemaEntryListener">
+		<!--property name="schemaManagement" ref="schemaService"/-->
 	</bean>
 
 	<bean id="userService" class="com.bagri.xdm.cache.hazelcast.management.UserManagement">

@@ -32,7 +32,7 @@ public class SchemaInitiator extends SchemaDenitiator {
 
 	@Override
 	public Boolean call() throws Exception {
-		return schemaManager.initSchema(schemaName, properties);
+		return schemaManager.initSchema(properties);
 	}
 
 	@Override
