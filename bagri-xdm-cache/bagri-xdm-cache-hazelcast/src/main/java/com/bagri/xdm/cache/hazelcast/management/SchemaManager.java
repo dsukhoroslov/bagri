@@ -249,8 +249,8 @@ public class SchemaManager extends XDMSchemaManagerBase implements SelfNaming {
 	public boolean initSchema(Properties props) {
     	logger.debug("initSchema.enter; schema: {}; properties: {}", schemaName, props);
     	
-    	Object result = schemaCache.executeOnKey(schemaName, new SchemaProcessor());
-    	logger.debug("initSchema; execution result: {}", result);
+    	//Object result = schemaCache.executeOnKey(schemaName, new SchemaProcessor());
+    	//logger.debug("initSchema; execution result: {}", result);
     	
     	props.setProperty("xdm.schema.name", schemaName);
     	PropertiesPropertySource pps = new PropertiesPropertySource(schemaName, props);

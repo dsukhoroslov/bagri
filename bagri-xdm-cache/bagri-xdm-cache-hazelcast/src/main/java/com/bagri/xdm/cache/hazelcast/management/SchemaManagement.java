@@ -200,5 +200,4 @@ public class SchemaManagement implements InitializingBean, XDMSchemaManagement {
 		return mgrCache.get(schemaName);
 	}
 
-
 }
