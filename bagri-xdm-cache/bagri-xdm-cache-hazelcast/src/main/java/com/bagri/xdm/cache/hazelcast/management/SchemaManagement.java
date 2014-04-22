@@ -5,20 +5,20 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
+import javax.management.MalformedObjectNameException;
 import javax.management.openmbean.CompositeData;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.core.env.PropertiesPropertySource;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jmx.export.MBeanExportException;
+import org.springframework.jmx.export.annotation.AnnotationMBeanExporter;
 import org.springframework.jmx.export.annotation.ManagedAttribute;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedOperationParameter;
@@ -27,15 +27,11 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.xdm.access.api.XDMSchemaManagement;
-import com.bagri.xdm.cache.hazelcast.store.XDMMapStoreFactory;
-import com.bagri.xdm.process.hazelcast.SchemaDenitiator;
-import com.bagri.xdm.process.hazelcast.SchemaInitiator;
+import com.bagri.xdm.access.api.XDMSchemaManagerBase;
 import com.bagri.xdm.system.XDMSchema;
-import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.IMap;
-import com.hazelcast.core.Member;
 
 @ManagedResource(objectName="com.bagri.xdm:type=Management,name=SchemaManagement", 
 	description="Schema Management MBean")
@@ -47,7 +43,11 @@ public class SchemaManagement implements InitializingBean, XDMSchemaManagement {
 	private Properties defaults; 
     private HazelcastInstance hzInstance;
 	private IExecutorService execService;
+	private Map<String, SchemaManager> mgrCache = new HashMap<String, SchemaManager>();
     private IMap<String, XDMSchema> schemaCache;
+    
+    @Autowired
+	private AnnotationMBeanExporter mbeanExporter;
     
 	public SchemaManagement(HazelcastInstance hzInstance) {
 		//super();
@@ -59,12 +59,8 @@ public class SchemaManagement implements InitializingBean, XDMSchemaManagement {
         Set<String> names = schemaCache.keySet();
         for (String name: names) {
         	XDMSchema schema = schemaCache.get(name);
-        	if (schema.isActive()) {
-        		initSchema(schema);
-        	}
+       		initSchemaManager(schema);
         }
-		
-		//JMXUtils.registerMBean(schema_management, this);
 	}
 	
 	@ManagedAttribute(description="Default Schema Properties")
@@ -92,36 +88,6 @@ public class SchemaManagement implements InitializingBean, XDMSchemaManagement {
 	@Override
 	public Collection<XDMSchema> getSchemas() {
 		return new ArrayList<XDMSchema>(schemaCache.values());
-	}
-
-	@ManagedOperation(description="Activate/Deactivate Schema")
-	@ManagedOperationParameters({
-		@ManagedOperationParameter(name = "schemaName", description = "Schema name"),
-		@ManagedOperationParameter(name = "activate", description = "Activate/Deactivate schema")})
-	public boolean activateSchema(String schemaName, boolean activate) {
-		XDMSchema schema = schemaCache.get(schemaName);
-		if (schema != null) {
-			if (activate) {
-				if (!schema.isActive()) {
-					if (initSchemaInCluster(schema) > 0) {
-						// load all schema data from PS
-						schema.setActive(activate);
-						schemaCache.put(schemaName, schema);
-						return true;
-					}
-				}
-			} else {
-				if (schema.isActive()) {
-					// compare with number of schema nodes!!
-					if (denitSchemaInCluster(schema) > 0) {
-						schema.setActive(activate);
-						schemaCache.put(schemaName, schema);
-						return true;
-					}
-				}
-			}
-		}
-		return false;
 	}
 
 	@ManagedOperation(description="Create new Schema")
@@ -169,138 +135,63 @@ public class SchemaManagement implements InitializingBean, XDMSchemaManagement {
 		XDMSchema schema = null;
 		if (!schemaCache.containsKey(schemaName)) {
 			schema = new XDMSchema(schemaName, 1, description, true, new Date(), schema_management, props);
-			//if (initSchema(schema)) {
-			if (initSchemaInCluster(schema) > 0) {
+			if (initSchemaManager(schema)) {
 				schemaCache.put(schemaName, schema);
 			}
 		}
 		return schema;
 	}
 	
-	private int initSchemaInCluster(XDMSchema schema) {
-		
-		logger.trace("initSchemaInCluster.enter; schema: {}", schema);
-		SchemaInitiator init = new SchemaInitiator(schema.getName(), schema.getProperties());
-		
-		int cnt = 0;
-        //Set<Member> members = hzInstance.getCluster().getMembers();
-        //for (Member member: members) {
-        //	Future<Boolean> result = execService.submitToMember(init, member);
-		//	try {
-		//		Boolean ok = result.get();
-		//		if (ok) cnt++;
-		//		logger.debug("initSchemaInCluster; Schema {}initialized on node {}", ok ? "" : "NOT ", member);
-		//	} catch (InterruptedException | ExecutionException ex) {
-		//		logger.error("initSchemaInCluster.error; ", ex);
-		//	}
-        //}
-		Map<Member, Future<Boolean>> result = execService.submitToAllMembers(init);
-		for (Map.Entry<Member, Future<Boolean>> entry: result.entrySet()) {
-			try {
-				Boolean ok = entry.getValue().get();
-				if (ok) cnt++;
-				logger.debug("initSchemaInCluster; Schema {}initialized on node {}", ok ? "" : "NOT ", entry.getKey());
-			} catch (InterruptedException | ExecutionException ex) {
-				logger.error("initSchemaInCluster.error; ", ex);
-			}
-		}
-
-		logger.info("initSchemaInCluster.exit; schema {} initialized on {} nodes", schema, cnt);
-		return cnt;
-	}
-
-	private int denitSchemaInCluster(XDMSchema schema) {
-
-		logger.trace("denitSchemaInCluster.enter; schema: {}", schema);
-		SchemaDenitiator denit = new SchemaDenitiator(schema.getName());
-		
-		int cnt = 0;
-		Map<Member, Future<Boolean>> result = execService.submitToAllMembers(denit);
-		for (Map.Entry<Member, Future<Boolean>> entry: result.entrySet()) {
-			try {
-				Boolean ok = entry.getValue().get();
-				if (ok) cnt++;
-				logger.debug("denitSchemaInCluster; Schema {}de-initialized on node {}", ok ? "" : "NOT ", entry.getKey());
-			} catch (InterruptedException | ExecutionException ex) {
-				logger.error("denitSchemaInCluster.error; ", ex);
-			}
-		}
-		logger.info("denitSchemaInCluster.exit; schema {} de-initialized on {} nodes", schema, cnt);
-		return cnt;
-	}
-
-	@Override
-	public boolean initSchema(String schemaName, Properties props) {
-    	logger.debug("initSchema.enter; schema: {}; properties: {}", schemaName, props);
-    	
-    	props.setProperty("xdm.schema.name", schemaName);
-    	PropertiesPropertySource pps = new PropertiesPropertySource(schemaName, props);
-    	
-    	try {
-    		ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext();
-    		ctx.getEnvironment().getPropertySources().addFirst(pps);
-    		ctx.setConfigLocation("spring/schema-context.xml");
-    		ctx.refresh();
-
-    		//XDMMapStoreFactory msFactory = ctx.getBean("xdmStoreFactory", XDMMapStoreFactory.class);
-    		//msFactory.setMapStoreProperties(props);
-    		
-    		SchemaManager sMgr = ctx.getBean("schemaManager", SchemaManager.class);
-    		sMgr.setSchemaCache(schemaCache);
-    		HazelcastInstance hz = ctx.getBean("hzInstance", HazelcastInstance.class);
-    		hz.getUserContext().put("schemaManager", sMgr);
-    		hz.getUserContext().put("appContext", ctx);
-    		//hz.getConfig().getSecurityConfig().setEnabled(true);
-    		//hz.getConfig().getSecurityConfig().s
-        
-    		logger.debug("initSchema.exit; schema {} started on instance: {}; config: {}", schemaName, hz, hz.getConfig());
-    		return true;
-    	} catch (Exception ex) {
-    		logger.error("initSchema.error; " + ex.getMessage(), ex);
-    		return false;
-    	}
-	}
-	
-	private boolean initSchema(XDMSchema schema) {
-		return initSchema(schema.getName(), schema.getProperties());
-	}
-
 	@Override
 	public XDMSchema deleteSchema(String schemaName) {
 		XDMSchema schema = schemaCache.get(schemaName);
+		// lock schema here ?
 		if (schema != null) {
-			if (schema.isActive()) {
-				// compare with number of nodes assigned to the schema!
-				if (denitSchemaInCluster(schema) > 0) {
-					schemaCache.remove(schemaName);
-				}
-			} else {
+			if (denitSchemaManager(schema)) {
 				schemaCache.remove(schemaName);
 			}
 		}
 		return schema;
 	}
 	
-	@Override
-	public boolean denitSchema(String schemaName) {
-    	logger.debug("denitSchema.enter; schema: {}", schemaName);
-    	boolean result = false;
-		// get hzInstance and close it...
-		HazelcastInstance hz = Hazelcast.getHazelcastInstanceByName(schemaName);
-		if (hz != null) {
-			ConfigurableApplicationContext ctx = (ConfigurableApplicationContext) hz.getUserContext().get("appContext");
-			// closed via context anyway
-			//hz.getLifecycleService().shutdown();
-			ctx.close();
-			result = true;
+	private boolean initSchemaManager(XDMSchema schema) {
+		String schemaName = schema.getName();
+		if (!mgrCache.containsKey(schemaName)) {
+			SchemaManager sMgr = new SchemaManager(hzInstance, schemaName);
+			sMgr.setExecService(execService);
+			sMgr.setSchemaCache(schemaCache);
+			mgrCache.put(schemaName, sMgr);
+			int cnt = sMgr.initSchemaInCluster(schema);
+			//mgrCache.put(schemaName, sMgr);
+			try {
+				mbeanExporter.registerManagedResource(sMgr, sMgr.getObjectName());
+				return true;
+			} catch (MBeanExportException | MalformedObjectNameException ex) {
+				logger.error("initSchemaManager.error: ", ex);
+			}
 		}
-    	logger.debug("denitSchema.exit; schema {} deactivated: {}", schemaName, result);
-		return result;
+		return false;
+	}
+	
+	private boolean denitSchemaManager(XDMSchema schema) {
+		String schemaName = schema.getName();
+		if (mgrCache.containsKey(schemaName)) {
+			SchemaManager sMgr = mgrCache.get(schemaName);
+			int cnt = sMgr.denitSchemaInCluster(schema);
+			mgrCache.remove(schemaName);
+			try {
+				mbeanExporter.unregisterManagedResource(sMgr.getObjectName());
+				return true;
+			} catch (MalformedObjectNameException ex) {
+				logger.error("denitSchemaManager.error: ", ex);
+			}
+		}
+		return false;
 	}
 
-	// implement it...
-	public String[] getNodeSchemas(String node) {
-		return null;
+	@Override
+	public XDMSchemaManagerBase getSchemaManager(String schemaName) {
+		return mgrCache.get(schemaName);
 	}
-
+	
 }

@@ -44,6 +44,9 @@ public abstract class XDMSchemaManagerBase {
 	
 	protected abstract XDMSchema getSchema();
 	protected abstract void flushSchema(XDMSchema schema);
+	
+	public abstract boolean initSchema(Properties props);
+	public abstract boolean denitSchema();
 
 	public Properties getProperties() {
 		return getSchema().getProperties();

@@ -9,6 +9,7 @@ import java.util.concurrent.Callable;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.bagri.xdm.access.api.XDMSchemaManagement;
+import com.bagri.xdm.access.api.XDMSchemaManagerBase;
 import com.hazelcast.nio.serialization.Portable;
 import com.hazelcast.nio.serialization.PortableReader;
 import com.hazelcast.nio.serialization.PortableWriter;
@@ -18,7 +19,7 @@ import com.hazelcast.spring.context.SpringAware;
 public class SchemaDenitiator implements Callable<Boolean>, Portable {
 	
 	protected String schemaName;
-	protected transient XDMSchemaManagement schemaManager;
+	protected transient XDMSchemaManagerBase schemaManager;
 	
 	public SchemaDenitiator() {
 		//
@@ -30,13 +31,13 @@ public class SchemaDenitiator implements Callable<Boolean>, Portable {
 	}
 
     @Autowired
-	public void setSchemaManager(XDMSchemaManagement schemaManager) {
-		this.schemaManager = schemaManager;
+	public void setSchemaManager(XDMSchemaManagement schemaManagement) {
+		this.schemaManager = schemaManagement.getSchemaManager(schemaName);
 	}
     
 	@Override
 	public Boolean call() throws Exception {
-		return schemaManager.denitSchema(schemaName);
+		return schemaManager.denitSchema();
 	}
 
 	@Override
@@ -58,7 +59,5 @@ public class SchemaDenitiator implements Callable<Boolean>, Portable {
 	public void writePortable(PortableWriter out) throws IOException {
 		out.writeUTF("name", schemaName);
 	}
-
-	
 
 }
