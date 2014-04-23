@@ -49,9 +49,6 @@
 						<hz:property name="xdm.schemas.filename">${xdm.schemas.filename}</hz:property>
 					</hz:properties>
 				</hz:map-store>
-				<hz:entry-listeners>
-					<hz:entry-listener implementation="schemaListener"/>
-				</hz:entry-listeners>
 			</hz:map>
 
 			<hz:map name="users">
@@ -80,9 +77,9 @@
 		</hz:config>
 	</hz:hazelcast>
 
-	<hz:map id="nodes" name="nodes" instance-ref="hzInstance" />
-	<hz:map id="schemas" name="schemas" instance-ref="hzInstance" />
-	<hz:map id="users" name="users" instance-ref="hzInstance" />
+	<hz:map id="nodes" name="nodes" instance-ref="hzInstance"/>
+	<hz:map id="schemas" name="schemas" instance-ref="hzInstance"/>
+	<hz:map id="users" name="users" instance-ref="hzInstance"/>
 
 	<hz:executorService id="sys-exec-pool" name="sys-exec-pool" instance-ref="hzInstance"/>
 
@@ -93,7 +90,6 @@
 
 	<bean id="schemaService" class="com.bagri.xdm.cache.hazelcast.management.SchemaManagement">
 		<constructor-arg ref="hzInstance" />
-		<property name="execService" ref="sys-exec-pool"/>
 		<property name="schemaCache" ref="schemas"/>
 		<property name="defaultProperties">
 			<props>
@@ -105,10 +101,6 @@
 				<prop key="xdm.schema.store.type">${xdm.schema.default.store.type}</prop>
 			</props>
 		</property>
-	</bean>
-
-	<bean id="schemaListener" class="com.bagri.xdm.cache.hazelcast.management.SchemaEntryListener">
-		<!--property name="schemaManagement" ref="schemaService"/-->
 	</bean>
 
 	<bean id="userService" class="com.bagri.xdm.cache.hazelcast.management.UserManagement">

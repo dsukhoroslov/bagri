@@ -1,4 +1,4 @@
-package com.bagri.xdm.process.hazelcast;
+package com.bagri.xdm.process.hazelcast.schema;
 
 import static com.bagri.xdm.access.hazelcast.pof.XDMPortableFactory.cli_XDMInitSchemaTask;
 import static com.bagri.xdm.access.hazelcast.pof.XDMPortableFactory.factoryId;
@@ -32,7 +32,7 @@ public class SchemaInitiator extends SchemaDenitiator {
 
 	@Override
 	public Boolean call() throws Exception {
-		return schemaManager.initSchema(properties);
+		return schemaManager.initSchema(schemaName, properties);
 	}
 
 	@Override

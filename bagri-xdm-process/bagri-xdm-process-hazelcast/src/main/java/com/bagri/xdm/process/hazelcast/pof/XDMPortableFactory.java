@@ -4,9 +4,9 @@ import com.bagri.xdm.process.hazelcast.DocumentBuilder;
 import com.bagri.xdm.process.hazelcast.DocumentRemover;
 import com.bagri.xdm.process.hazelcast.DocumentCreator;
 import com.bagri.xdm.process.hazelcast.NodeOptionSetter;
-import com.bagri.xdm.process.hazelcast.SchemaDenitiator;
-import com.bagri.xdm.process.hazelcast.SchemaInitiator;
 import com.bagri.xdm.process.hazelcast.SchemaRegistrator;
+import com.bagri.xdm.process.hazelcast.schema.SchemaDenitiator;
+import com.bagri.xdm.process.hazelcast.schema.SchemaInitiator;
 import com.hazelcast.nio.serialization.Portable;
 
 public class XDMPortableFactory extends com.bagri.xdm.access.hazelcast.pof.XDMPortableFactory {

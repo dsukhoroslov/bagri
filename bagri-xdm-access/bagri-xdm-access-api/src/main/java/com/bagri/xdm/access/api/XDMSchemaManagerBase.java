@@ -45,21 +45,18 @@ public abstract class XDMSchemaManagerBase {
 	protected abstract XDMSchema getSchema();
 	protected abstract void flushSchema(XDMSchema schema);
 	
-	public abstract boolean initSchema(Properties props);
-	public abstract boolean denitSchema();
-
-	public Properties getProperties() {
+	public Properties getSchemaProperties() {
 		return getSchema().getProperties();
 	}
 
-	public void setProperties(Properties props) {
+	public void setSchemaProperties(Properties props) {
 		XDMSchema schema = getSchema();
 		schema.setProperties(props);
 		flushSchema(schema);
 	}
 
 	public CompositeData getAllProperties() {
-		Properties props = getProperties();
+		Properties props = getSchemaProperties();
 		return JMXUtils.propsToComposite(schemaName, "properties", props);
 	}
 	

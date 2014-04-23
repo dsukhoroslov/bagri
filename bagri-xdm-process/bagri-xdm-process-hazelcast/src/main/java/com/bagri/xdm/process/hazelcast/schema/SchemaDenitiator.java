@@ -1,4 +1,4 @@
-package com.bagri.xdm.process.hazelcast;
+package com.bagri.xdm.process.hazelcast.schema;
 
 import static com.bagri.xdm.access.hazelcast.pof.XDMPortableFactory.cli_XDMDenitSchemaTask;
 import static com.bagri.xdm.access.hazelcast.pof.XDMPortableFactory.factoryId;
@@ -19,7 +19,7 @@ import com.hazelcast.spring.context.SpringAware;
 public class SchemaDenitiator implements Callable<Boolean>, Portable {
 	
 	protected String schemaName;
-	protected transient XDMSchemaManagerBase schemaManager;
+	protected transient XDMSchemaManagement schemaManager;
 	
 	public SchemaDenitiator() {
 		//
@@ -32,12 +32,12 @@ public class SchemaDenitiator implements Callable<Boolean>, Portable {
 
     @Autowired
 	public void setSchemaManager(XDMSchemaManagement schemaManagement) {
-		this.schemaManager = schemaManagement.getSchemaManager(schemaName);
+		this.schemaManager = schemaManagement;
 	}
     
 	@Override
 	public Boolean call() throws Exception {
-		return schemaManager.denitSchema();
+		return schemaManager.denitSchema(schemaName);
 	}
 
 	@Override

@@ -143,7 +143,7 @@ public class JMXUtils {
     }
 
     public static CompositeData propsToComposite(String name, String desc, Properties props) {
-    	logger.debug("propsToComposite; name: {}; properties: {}", name, props);
+    	logger.trace("propsToComposite; name: {}; properties: {}", name, props);
         if (props != null && !props.isEmpty()) {
             try {
                 String[] names = new String[props.size()];

@@ -164,7 +164,6 @@
                                             <sysproperty key="logback.configurationFile" value="xdm-cache-logging.xml"/>
                                             <sysproperty key="xdm.cluster.node.name" value="first"/>
                                             <sysproperty key="xdm.cluster.node.schemas" value="TPoX"/>
-                                            <sysproperty key="hazelcast.member.attribute.xdm.cluster.node.name" value="first"/>
                                             <classpath>
                                                 <path refid="maven.compile.classpath"/>
                                                 <path refid="maven.runtime.classpath"/>

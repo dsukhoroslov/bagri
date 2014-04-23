@@ -22,6 +22,7 @@ public class XDMMapStoreFactory implements ApplicationContextAware, MapStoreFact
 	
     private static final transient Logger logger = LoggerFactory.getLogger(XDMMapStoreFactory.class);
     private static final String st_mongo = "MONGO";
+    private static final String st_none = "NONE";
     
     private Map<String, MapStore> stores = new HashMap<String, MapStore>();
 	private PropertySource msProps;
@@ -48,8 +49,9 @@ public class XDMMapStoreFactory implements ApplicationContextAware, MapStoreFact
 			    		ctx.setConfigLocation("spring/mongo-context.xml");
 			    		ctx.refresh();
 			    		mStore = ctx.getBean("mongoCacheStore", MongoMapStore.class);
-					} else {
+					} else if (st_none.equals(type) || type == null) {
 						// 
+						mStore = new XDMDummyCacheStore();
 					}
 					
 					stores.put(type, mStore);
