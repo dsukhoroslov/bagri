@@ -1,3 +1,4 @@
+# JVM related Files #
 *.class
 
 # Eclipse Files #
@@ -7,3 +8,8 @@ target/
 .settings/
 .classpath
 .project
+
+# Idea Files #
+*.iml
+*.ipr
+*.iws

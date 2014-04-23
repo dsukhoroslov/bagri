@@ -19,6 +19,10 @@
         <module>bagri-xquery</module>
         <module>bagri-xqj</module>
         <module>bagri-client</module>
+
+        <!--todo: added for compilation; delete if not needed-->
+        <module>bagri-xqj-tck</module>
+
     </modules>
 
     <properties>
@@ -522,23 +526,28 @@
         </plugins>
     </build>
 
-    <!--repositories>
-	<repository>
-	    <id>xqj.net</id>
-	    <url>http://xqj.net/maven</url>
-	</repository>
-    </repositories-->
-    <!--repositories>
+    <repositories>
+
+        <!--repository for xqj2 artifact-->
         <repository>
-            <id>ccs.nexus.thirdparty</id>
-            <url>https://nexus.dbcde.com/content/repositories/ccs-thirdparty</url>
+            <id>xqj.net</id>
+            <url>http://xqj.net/maven</url>
         </repository>
+
+        <!--todo: delete if not needed-->
+        <!--<repository>-->
+            <!--<id>ccs.nexus.thirdparty</id>-->
+            <!--<url>https://nexus.dbcde.com/content/repositories/ccs-thirdparty</url>-->
+        <!--</repository>-->
+
     </repositories>
-    <pluginRepositories>
-        <pluginRepository>
-            <id>ccs.nexus.thirdparty.plugins</id>
-            <url>https://nexus.dbcde.com/content/repositories/ccs-thirdparty</url>
-        </pluginRepository>
-    </pluginRepositories-->
+
+    <!--todo: delete if not needed-->
+    <!--<pluginRepositories>-->
+        <!--<pluginRepository>-->
+            <!--<id>ccs.nexus.thirdparty.plugins</id>-->
+            <!--<url>https://nexus.dbcde.com/content/repositories/ccs-thirdparty</url>-->
+        <!--</pluginRepository>-->
+    <!--</pluginRepositories>-->
 
 </project>

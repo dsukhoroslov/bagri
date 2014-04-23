@@ -1,0 +1,6 @@
+How to install private libraries:
+
+under Windows:
+- goto this directory
+- execute installPrivateLibs_to_MavenLocalRepo.cmd
+- make sure that everything went fine
