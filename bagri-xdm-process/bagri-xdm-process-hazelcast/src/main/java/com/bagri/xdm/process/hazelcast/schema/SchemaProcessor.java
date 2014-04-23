@@ -88,7 +88,7 @@ public abstract class SchemaProcessor implements EntryProcessor<String, XDMSchem
 		for (Map.Entry<Member, Future<Boolean>> entry: result.entrySet()) {
 			try {
 				Boolean ok = entry.getValue().get();
-				if (ok) cnt++;
+				if (!ok) cnt++;
 				logger.debug("denitSchemaInCluster; Schema {}de-initialized on node {}", ok ? "" : "NOT ", entry.getKey());
 			} catch (InterruptedException | ExecutionException ex) {
 				logger.error("denitSchemaInCluster.error; ", ex);

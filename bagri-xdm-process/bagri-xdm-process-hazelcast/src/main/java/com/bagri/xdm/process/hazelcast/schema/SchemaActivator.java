@@ -42,7 +42,7 @@ public class SchemaActivator extends SchemaProcessor implements DataSerializable
 					}
 				} else {
 					if (schema.isActive()) {
-						if (denitSchemaInCluster(schema) > 0) {
+						if (denitSchemaInCluster(schema) == 0) {
 							schema.setActive(false);
 							schema.updateVersion();
 							entry.setValue(schema);
