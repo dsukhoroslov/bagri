@@ -11,7 +11,7 @@ import com.hazelcast.core.MapStore;
 
 public class XDMDummyCacheStore implements MapStore<Object, Object> {
 
-    private static final transient Logger logger = LoggerFactory.getLogger(XDMDummyCacheStore.class);
+    private static final Logger logger = LoggerFactory.getLogger(XDMDummyCacheStore.class);
 
 	@Override
 	public Object load(Object key) {

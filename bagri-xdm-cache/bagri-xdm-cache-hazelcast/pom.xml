@@ -95,6 +95,11 @@
             <scope>runtime</scope>
         </dependency>
 
+	<dependency>
+	    <groupId>org.mongodb</groupId>
+	    <artifactId>mongo-java-driver</artifactId>
+	</dependency>
+
     <!--dependency>
       <groupId>stax</groupId>
       <artifactId>stax-api</artifactId>

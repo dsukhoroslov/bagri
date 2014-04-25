@@ -18,13 +18,14 @@ import com.hazelcast.core.MapStore;
 import com.hazelcast.core.MapStoreFactory;
 import com.hazelcast.spring.mongodb.MongoMapStore;
 
-public class XDMMapStoreFactory implements ApplicationContextAware, MapStoreFactory<Object, Object> {
+public class XDMMapStoreFactory implements ApplicationContextAware, MapStoreFactory {
 	
-    private static final transient Logger logger = LoggerFactory.getLogger(XDMMapStoreFactory.class);
+    private static final Logger logger = LoggerFactory.getLogger(XDMMapStoreFactory.class);
     private static final String st_mongo = "MONGO";
     private static final String st_none = "NONE";
     
-    private Map<String, MapStore> stores = new HashMap<String, MapStore>();
+    private Map<String, ClassPathXmlApplicationContext> contexts = 
+    		new HashMap<String, ClassPathXmlApplicationContext>();
 	private PropertySource msProps;
 	
 	@Override
@@ -35,27 +36,35 @@ public class XDMMapStoreFactory implements ApplicationContextAware, MapStoreFact
 	}
 
 	@Override
-	public MapLoader<Object, Object> newMapStore(String mapName, Properties properties) {
+	public MapLoader newMapStore(String mapName, Properties properties) {
 		String type = properties.getProperty("xdm.schema.store.type");
 		logger.debug("newMapStore.enter; got properties: {} for map: {}", properties, mapName);
 		MapStore mStore = null;
 		try {
 			if (type != null) {
-				mStore = stores.get(type);
-				if (mStore == null) { 
+				ClassPathXmlApplicationContext ctx = contexts.get(type);
+				if (ctx == null) {
 					if (st_mongo.equals(type)) {
-			    		ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext();
+			    		ctx = new ClassPathXmlApplicationContext();
 			    		ctx.getEnvironment().getPropertySources().addFirst(msProps);
 			    		ctx.setConfigLocation("spring/mongo-context.xml");
 			    		ctx.refresh();
-			    		mStore = ctx.getBean("mongoCacheStore", MongoMapStore.class);
-					} else if (st_none.equals(type) || type == null) {
-						// 
-						mStore = new XDMDummyCacheStore();
-					}
-					
-					stores.put(type, mStore);
+						contexts.put(type, ctx);
+					} 
 				}
+				
+				if (ctx != null) { 
+		    		if ("xdm-element".equals(mapName)) {
+		    			mStore = ctx.getBean("elementCacheStore", XDMElementCacheStore.class);
+		    		} else {
+		    			mStore = ctx.getBean("mongoCacheStore", MongoMapStore.class);
+		    		}
+				}
+			}
+		
+			if (st_none.equals(type) || type == null) {
+				// 
+				mStore = new XDMDummyCacheStore();
 			}
 		} catch (Exception ex) {
     		logger.error("newMapStore.error: ", ex.getMessage(), ex);

@@ -26,7 +26,7 @@ import com.hazelcast.core.MapStore;
 
 public class XDMSchemaCacheStore implements MapStore<String, XDMSchema>, MapLoaderLifecycleSupport {
 
-    private static final transient Logger logger = LoggerFactory.getLogger(XDMSchemaCacheStore.class);
+    private static final Logger logger = LoggerFactory.getLogger(XDMSchemaCacheStore.class);
     private static final String schemas_file_name = "xdm.schemas.filename";
     
     private Properties props = new Properties();

@@ -27,7 +27,7 @@ import com.hazelcast.core.MapStore;
 
 public class XDMUserCacheStore implements MapStore<String, XDMUser>, MapLoaderLifecycleSupport {
 
-    private static final transient Logger logger = LoggerFactory.getLogger(XDMUserCacheStore.class);
+    private static final Logger logger = LoggerFactory.getLogger(XDMUserCacheStore.class);
     private static final String users_file_name = "xdm.users.filename";
     
     private Properties props = new Properties();
