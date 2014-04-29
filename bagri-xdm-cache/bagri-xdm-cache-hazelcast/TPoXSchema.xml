@@ -11,7 +11,7 @@
 	    <property name="xdm.schema.ports.start">10000</property>
 	    <property name="xdm.schema.members">localhost</property>
 	    <property name="xdm.schema.thread.pool">10</property>
-	    <property name="xdm.schema.store.type">NONE</property>
+	    <property name="xdm.schema.store.type">MONGO</property>
 	    <property name="xdm.schema.store.host">localhost</property>
 	    <property name="xdm.schema.store.port">27017</property>
 	    <property name="xdm.schema.store.dbname">test</property>

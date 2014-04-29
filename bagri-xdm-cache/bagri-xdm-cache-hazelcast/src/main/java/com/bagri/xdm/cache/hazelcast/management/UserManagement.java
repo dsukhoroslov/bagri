@@ -10,6 +10,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import javax.management.MalformedObjectNameException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -19,6 +21,7 @@ import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.jmx.export.MBeanExportException;
 import org.springframework.jmx.export.annotation.AnnotationMBeanExporter;
 import org.springframework.jmx.export.annotation.ManagedAttribute;
 import org.springframework.jmx.export.annotation.ManagedOperation;
@@ -26,7 +29,12 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
+import com.bagri.xdm.access.api.XDMSchemaDictionary;
+import com.bagri.xdm.process.hazelcast.schema.SchemaCreator;
+import com.bagri.xdm.system.XDMSchema;
 import com.bagri.xdm.system.XDMUser;
+import com.hazelcast.core.EntryEvent;
+import com.hazelcast.core.EntryListener;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 
@@ -36,7 +44,7 @@ import com.hazelcast.core.IMap;
  */
 @ManagedResource(objectName="com.bagri.xdm:type=Management,name=UserManagement", 
 	description="User Management MBean")
-public class UserManagement implements InitializingBean {
+public class UserManagement implements EntryListener<String, XDMUser>, InitializingBean {
 
     private static final transient Logger logger = LoggerFactory.getLogger(UserManagement.class);
 	private static final String user_management = "UserManagement";
@@ -59,17 +67,39 @@ public class UserManagement implements InitializingBean {
 	@Override
 	public void afterPropertiesSet() throws Exception {
         Set<String> names = userCache.keySet();
+		logger.debug("afterPropertiesSet.enter; got users: {}", names); 
         for (String name: names) {
         	XDMUser user = userCache.get(name);
-        	if (user.isActive()) {
-        		initUser(user);
-        	}
+       		//boolean initialized = initSchema(name, schema.getProperties());
+       		//SchemaManager sMgr = (SchemaManager) mgrCache.get(name);
+       		//if (sMgr == null) {
+   			//	logger.debug("afterPropertiesSet; cannot get SchemaManager for schema {}; initializing a new one", name); 
+       		//	try {
+       		//		sMgr = initSchemaManager(name);
+       		//	} catch (MBeanExportException | MalformedObjectNameException ex) {
+       				// JMX registration failed.
+       		//		logger.error("entryAdded.error: ", ex);
+       		//	}
+       		//}
+        	UserManager uMgr = initUserManager(name); 
+   			//if (uMgr != null && !initialized) {
+   			//	sMgr.setState("Failed schema initialization");
+   			//}
+        	// finish it..
         }
+        
+        //for (String name: names) {
+        //	XDMUser user = userCache.get(name);
+        //	if (user.isActive()) {
+        //		initUser(user);
+        //	}
+        //}
 	}
 	
 	public void setUserCache(IMap<String, XDMUser> userCache) {
 		this.userCache = userCache;
-	}
+		userCache.addEntryListener(this, false);
+}
 
 	@ManagedAttribute(description="Registered User Names")
 	public String[] getUserNames() {
@@ -100,24 +130,41 @@ public class UserManagement implements InitializingBean {
 	
 	private boolean denitUser(XDMUser user) throws Exception {
 		// find and unreg UserManager...
-		UserManager uMgr = mgrCache.remove(user.getLogin());
-		if (uMgr != null) {
-			mbeanExporter.unregisterManagedResource(uMgr.getObjectName());
-			return true;
-		}
-		return false;
+		//UserManager uMgr = mgrCache.remove(user.getLogin());
+		//if (uMgr != null) {
+		//	mbeanExporter.unregisterManagedResource(uMgr.getObjectName());
+		//	return true;
+		//}
+		//return false;
+		return userCache.remove(user.getLogin()) != null;
 	}
 	
+	private UserManager initUserManager(String userName) throws MBeanExportException, MalformedObjectNameException {
+		UserManager uMgr = null;
+   	    if (!mgrCache.containsKey(userName)) {
+			uMgr = new UserManager(userName);
+			uMgr.setUserCache(userCache);
+			//XDMSchemaDictionary schemaDict = dictCache.get(schemaName);
+			//sMgr.setSchemaDictionary(schemaDict);
+			mgrCache.put(userName, uMgr);
+			mbeanExporter.registerManagedResource(uMgr, uMgr.getObjectName());
+		}
+   	    return uMgr;
+	}
+
 	@ManagedOperation(description="Create new User")
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "login", description = "User login"),
 		@ManagedOperationParameter(name = "password", description = "User password")})
 	public boolean addUser(String login, String password) {
-		XDMUser user = new XDMUser(login, password, true, new Date(), user_management);
-		try {
-			return initUser(user);
-		} catch (Exception ex) {
-			logger.error("addUser; error: " + ex.getMessage(), ex);
+		XDMUser user = null;
+		if (!userCache.containsKey(login)) {
+			user = new XDMUser(login, password, true, new Date(), user_management);
+			try {
+				return initUser(user);
+			} catch (Exception ex) {
+				logger.error("addUser; error: " + ex.getMessage(), ex);
+			}
 		}
 		return false;
 	}
@@ -136,6 +183,44 @@ public class UserManagement implements InitializingBean {
 			}
 		}
 		return false;
+	}
+
+	@Override
+	public void entryAdded(EntryEvent<String, XDMUser> event) {
+		logger.trace("entryAdded; event: {}", event);
+		String userName = event.getKey();
+		try {
+			//initUserManager(userName);
+		} catch (MBeanExportException/* | MalformedObjectNameException */ ex) {
+			// JMX registration failed.
+			logger.error("entryAdded.error: ", ex);
+		}
+	}
+
+	@Override
+	public void entryRemoved(EntryEvent<String, XDMUser> event) {
+		logger.trace("entryRemoved; event: {}", event);
+		String userName = event.getKey();
+		if (mgrCache.containsKey(userName)) {
+			UserManager uMgr = mgrCache.get(userName);
+			mgrCache.remove(userName);
+			try {
+				mbeanExporter.unregisterManagedResource(uMgr.getObjectName());
+			} catch (MalformedObjectNameException ex) {
+				logger.error("entryRemoved.error: ", ex);
+			}
+		}
+	}
+
+	@Override
+	public void entryUpdated(EntryEvent<String, XDMUser> event) {
+		logger.trace("entryUpdated; event: {}", event);
+	}
+
+	@Override
+	public void entryEvicted(EntryEvent<String, XDMUser> event) {
+		logger.trace("entryEvicted; event: {}", event);
+		// make schema inactive ?
 	}
 
 

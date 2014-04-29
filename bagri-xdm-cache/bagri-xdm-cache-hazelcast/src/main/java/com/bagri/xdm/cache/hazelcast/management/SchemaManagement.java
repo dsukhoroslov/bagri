@@ -188,6 +188,7 @@ public class SchemaManagement implements EntryListener<String, XDMSchema>, Initi
 	@Override
 	public void entryEvicted(EntryEvent<String, XDMSchema> event) {
 		logger.trace("entryEvicted; event: {}", event);
+		// make schema inactive ?
 	}
 
 	@Override
@@ -195,8 +196,9 @@ public class SchemaManagement implements EntryListener<String, XDMSchema>, Initi
 		logger.trace("entryRemoved; event: {}", event);
 		String schemaName = event.getKey();
 		if (mgrCache.containsKey(schemaName)) {
-			SchemaManager sMgr = (SchemaManager) mgrCache.get(schemaName);
+			SchemaManager sMgr = mgrCache.get(schemaName);
 			mgrCache.remove(schemaName);
+			// remove from dictCache ?
 			try {
 				mbeanExporter.unregisterManagedResource(sMgr.getObjectName());
 			} catch (MalformedObjectNameException ex) {

@@ -33,7 +33,7 @@ public class UserManager implements SelfNaming {
 	//private IExecutorService execService;
 	
 	//@Autowired
-    private IMap<String, XDMUser> usersCache;
+    private IMap<String, XDMUser> userCache;
     
 	public UserManager() {
 		//this.userName = userName;
@@ -50,9 +50,9 @@ public class UserManager implements SelfNaming {
 	//	userCache = hzInstance.getMap("users");
 	//}
 	
-	//public void setUserCache(IMap<String, XDMUser> userCache) {
-	//	this.userCache = userCache;
-	//}
+	public void setUserCache(IMap<String, XDMUser> userCache) {
+		this.userCache = userCache;
+	}
 	
 	public void setUserName(String userName) {
 		this.userName = userName;
