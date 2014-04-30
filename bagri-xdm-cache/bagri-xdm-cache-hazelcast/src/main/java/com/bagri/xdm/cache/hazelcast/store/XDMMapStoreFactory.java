@@ -22,6 +22,7 @@ public class XDMMapStoreFactory implements ApplicationContextAware, MapStoreFact
 	
     private static final Logger logger = LoggerFactory.getLogger(XDMMapStoreFactory.class);
     private static final String st_mongo = "MONGO";
+    private static final String st_hive = "HIVE";
     private static final String st_none = "NONE";
     
     private Map<String, ClassPathXmlApplicationContext> contexts = 
@@ -50,15 +51,25 @@ public class XDMMapStoreFactory implements ApplicationContextAware, MapStoreFact
 			    		ctx.setConfigLocation("spring/mongo-context.xml");
 			    		ctx.refresh();
 						contexts.put(type, ctx);
-					} 
+					} else if (st_hive.equals(type)) {
+			    		ctx = new ClassPathXmlApplicationContext();
+			    		ctx.getEnvironment().getPropertySources().addFirst(msProps);
+			    		ctx.setConfigLocation("spring/hive-context.xml");
+			    		ctx.refresh();
+						contexts.put(type, ctx);
+					}
 				}
 				
 				if (ctx != null) { 
-		    		if ("xdm-element".equals(mapName)) {
-		    			mStore = ctx.getBean("elementCacheStore", XDMElementCacheStore.class);
-		    		} else {
-		    			mStore = ctx.getBean("mongoCacheStore", MongoMapStore.class);
-		    		}
+					if (st_mongo.equals(type)) {
+						if ("xdm-element".equals(mapName)) {
+							mStore = ctx.getBean("elementCacheStore", XDMElementCacheStore.class);
+						} else {
+							mStore = ctx.getBean("mongoCacheStore", MongoMapStore.class);
+						}
+					} else {
+						mStore = ctx.getBean("hiveCacheStore", HiveCacheStore.class);
+					}
 				}
 			}
 		

@@ -28,7 +28,7 @@ public class SchemaRemover extends SchemaProcessor implements DataSerializable {
 		if (entry.getValue() != null) {
 			XDMSchema schema = entry.getValue();
 			if (schema.getVersion() == version) {
-				if (denitSchemaInCluster(schema) == 0) {
+				if (denitSchemaInCluster(schema) > 0) {
 					schema.setActive(false);
 					schema.updateVersion();
 					entry.setValue(schema);
@@ -36,6 +36,10 @@ public class SchemaRemover extends SchemaProcessor implements DataSerializable {
 					entry.setValue(null);
 				}
 				return schema;
+			} else {
+				// throw ex ?
+				logger.warn("process; outdated schema version: {}; entry version: {}; process terminated", 
+						version, entry.getValue().getVersion()); 
 			}
 		} 
 		return null;

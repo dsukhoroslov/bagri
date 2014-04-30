@@ -67,10 +67,14 @@
             <artifactId>spring-test</artifactId>
             <version>${spring.version}</version>
         </dependency-->
-        <dependency>
-            <groupId>org.springframework.data</groupId>
-            <artifactId>spring-data-mongodb</artifactId>
-        </dependency>
+	<dependency>
+	    <groupId>org.springframework.data</groupId>
+	    <artifactId>spring-data-mongodb</artifactId>
+	</dependency>
+	<dependency>
+	    <groupId>org.springframework.data</groupId>
+	    <artifactId>spring-data-hadoop</artifactId>
+	</dependency>                       
 
         <dependency>
             <groupId>com.hazelcast</groupId>
@@ -100,10 +104,14 @@
             <scope>runtime</scope>
         </dependency>
 
-        <dependency>
-            <groupId>org.mongodb</groupId>
-            <artifactId>mongo-java-driver</artifactId>
-        </dependency>
+	<dependency>
+	    <groupId>org.mongodb</groupId>
+	    <artifactId>mongo-java-driver</artifactId>
+	</dependency>
+	<dependency>
+	    <groupId>org.apache.thrift</groupId>
+	    <artifactId>libthrift</artifactId>
+	</dependency>
 
         <!--dependency>
           <groupId>stax</groupId>

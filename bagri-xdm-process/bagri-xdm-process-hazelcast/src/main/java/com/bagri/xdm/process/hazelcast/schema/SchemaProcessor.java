@@ -83,19 +83,21 @@ public abstract class SchemaProcessor implements EntryProcessor<String, XDMSchem
 		logger.trace("denitSchemaInCluster.enter; schema: {}", schema);
 		SchemaDenitiator denit = new SchemaDenitiator(schema.getName());
 		
-		int cnt = 0;
+		int cnt = 0; 
 		Map<Member, Future<Boolean>> result = execService.submitToAllMembers(denit);
 		for (Map.Entry<Member, Future<Boolean>> entry: result.entrySet()) {
 			try {
 				Boolean ok = entry.getValue().get();
-				if (!ok) cnt++;
+				if (ok) cnt++;
 				logger.debug("denitSchemaInCluster; Schema {}de-initialized on node {}", ok ? "" : "NOT ", entry.getKey());
 			} catch (InterruptedException | ExecutionException ex) {
 				logger.error("denitSchemaInCluster.error; ", ex);
 			}
 		}
-		logger.info("denitSchemaInCluster.exit; schema {} de-initialized on {} nodes", schema, cnt);
-		return cnt;
+		int rcnt = result.size() - cnt;
+		logger.info("denitSchemaInCluster.exit; schema {} de-initialized on {} nodes; returning: {}", 
+				schema, cnt, rcnt);
+		return rcnt;
 	}
 
 	
