@@ -34,7 +34,7 @@
 
         <spring.version>3.2.8.RELEASE</spring.version>
         <spring.mongo.version>1.4.2.RELEASE</spring.mongo.version>
-       	<spring.hadoop.version>1.0.2.RELEASE</spring.hadoop.version>
+        <spring.hadoop.version>1.0.2.RELEASE</spring.hadoop.version>
 
         <!--commons-collections.version>3.2.1</commons-collections.version>
         <commons-fileupload.version>1.2.2</commons-fileupload.version>
@@ -73,31 +73,15 @@
         <!--coherence-common.version>12.0.1-SNAPSHOT</coherence-common.version-->
         <!--coherence-spring.version>1.0.0</coherence-spring.version-->
         <mongo.version>2.11.4</mongo.version>
-	<thrift.version>0.8.0</thrift.version>
-
-
-
-        <!--todo: why specifying plugins' versions? why don't use default ones?-->
-        <maven-resources-plugin.version>2.6</maven-resources-plugin.version>
-        <maven-release-plugin.version>2.3.2</maven-release-plugin.version>
-        <maven-compiler-plugin.version>2.3.2</maven-compiler-plugin.version>
-        <maven-war-plugin.version>2.1.1</maven-war-plugin.version>
-        <maven-jar-plugin.version>2.3.1</maven-jar-plugin.version>
-        <maven-install-plugin.version>2.3.1</maven-install-plugin.version>
-        <maven-surefire-plugin.version>2.10</maven-surefire-plugin.version>
-        <maven-failsafe-plugin.version>2.12</maven-failsafe-plugin.version>
-        <!--must be greater than 2.2 cause of bug fixes-->
-        <maven-assembly-plugin.version>2.4</maven-assembly-plugin.version>
-        <properties-maven-plugin.version>1.0-alpha-2</properties-maven-plugin.version>
-        <cobertura-maven-plugin.version>2.5.1</cobertura-maven-plugin.version>
-        <findbugs-maven-plugin.version>2.3.2</findbugs-maven-plugin.version>
-        <maven-checkstyle-plugin.version>2.6</maven-checkstyle-plugin.version>
-        <maven-javadoc-plugin.version>2.9</maven-javadoc-plugin.version>
-        <maven-source-plugin.version>2.2.1</maven-source-plugin.version>
-        <maven-dependency-plugin.version>2.5.1</maven-dependency-plugin.version>
+        <thrift.version>0.8.0</thrift.version>
 
         <!-- Reporting cfg -->
         <maven.plugins.cfg.dir>${project.basedir}/../etc/maven_plugins</maven.plugins.cfg.dir>
+
+        <!--DEFAULT MAVEN PLUGINS OVERRIDEN VERSIONS-->
+        <!--must be greater than 2.2 cause of bug fixes-->
+        <maven-assembly-plugin.version>2.4</maven-assembly-plugin.version>
+
     </properties>
 
     <dependencyManagement>
@@ -230,23 +214,23 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-	    <dependency>
-		<groupId>org.springframework.data</groupId>
-		<artifactId>spring-data-mongodb</artifactId>
-		<version>${spring.mongo.version}</version>
-	    </dependency>
-	    <dependency>
-        	<groupId>org.springframework.data</groupId>
-	        <artifactId>spring-data-hadoop</artifactId>
-        	<version>${spring.hadoop.version}</version>
+            <dependency>
+                <groupId>org.springframework.data</groupId>
+                <artifactId>spring-data-mongodb</artifactId>
+                <version>${spring.mongo.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.data</groupId>
+                <artifactId>spring-data-hadoop</artifactId>
+                <version>${spring.hadoop.version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>asm</groupId>
                         <artifactId>asm</artifactId>
                     </exclusion>
-		    <!-- we must exclude here much more.. -->
+                    <!-- we must exclude here much more.. -->
                 </exclusions>
-	    </dependency>                       
+            </dependency>
 
             <dependency>
                 <groupId>xerces</groupId>
@@ -383,22 +367,22 @@
 		<version>${coherence-spring.version}</version>
             </dependency-->
 
-	    <dependency>
-		<groupId>org.mongodb</groupId>
-		<artifactId>mongo-java-driver</artifactId>
-		<version>${mongo.version}</version>
-	    </dependency>
-	    <dependency>
-		<groupId>org.apache.thrift</groupId>
-		<artifactId>libthrift</artifactId>
-		<version>${thrift.version}</version>
-	    </dependency>
-            
-	    <dependency>
-	    	<groupId>com.ibm.tpox</groupId>
-	    	<artifactId>tpox-workload</artifactId>
-	    	<version>${tpox.version}</version>
-	    </dependency>
+            <dependency>
+                <groupId>org.mongodb</groupId>
+                <artifactId>mongo-java-driver</artifactId>
+                <version>${mongo.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.thrift</groupId>
+                <artifactId>libthrift</artifactId>
+                <version>${thrift.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.ibm.tpox</groupId>
+                <artifactId>tpox-workload</artifactId>
+                <version>${tpox.version}</version>
+            </dependency>
 
         </dependencies>
     </dependencyManagement>
@@ -406,79 +390,24 @@
     <build>
         <plugins>
 
+            <!--DEFAULT MAVEN PLUGINS OVERRIDE-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>${maven-compiler-plugin.version}</version>
                 <configuration>
                     <source>${jdk.version}</source>
                     <target>${jdk.version}</target>
                     <encoding>${project.build.sourceEncoding}</encoding>
                 </configuration>
             </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-                <version>${maven-resources-plugin.version}</version>
-            </plugin>
-
-            <!--<plugin>-->
-            <!--<groupId>org.apache.maven.plugins</groupId>-->
-            <!--<artifactId>maven-javadoc-plugin</artifactId>-->
-            <!--<version>${maven-javadoc-plugin.version}</version>-->
-            <!--</plugin>-->
-            <!--<plugin>-->
-            <!--<groupId>org.apache.maven.plugins</groupId>-->
-            <!--<artifactId>maven-source-plugin</artifactId>-->
-            <!--<version>${maven-source-plugin.version}</version>-->
-            <!--</plugin>-->
-
-            <plugin>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>${maven-jar-plugin.version}</version>
-            </plugin>
-            <!--plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-                <version>${maven-war-plugin.version}</version>
-                <configuration>
-                    <archive>
-                        <addMavenDescriptor>false</addMavenDescriptor>
-                    </archive>
-                </configuration>
-            </plugin-->
-            <plugin>
-                <artifactId>maven-install-plugin</artifactId>
-                <version>${maven-install-plugin.version}</version>
-            </plugin>
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>${maven-assembly-plugin.version}</version>
             </plugin>
 
-            <!--plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <version>2.5.1</version>
-                <executions>
-                    <execution>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>unpack-dependencies</goal>
-                        </goals>
-                        <configuration>
-                            <includeGroupIds>com.db.ccs</includeGroupIds>
-                            <excludes>com/db/ccs/*</excludes>
-                            <outputDirectory>${project.build.directory}/classes</outputDirectory>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin-->
-
+            <!-- for testing -->
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>${maven-surefire-plugin.version}</version>
                 <configuration>
                     <!--<debugForkedProcess>-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=23456</debugForkedProcess>-->
                     <systemPropertyVariables>
@@ -492,66 +421,45 @@
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
-            <!-- end for testing -->
 
-            <plugin>
-                <artifactId>maven-failsafe-plugin</artifactId>
-                <version>${maven-failsafe-plugin.version}</version>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>findbugs-maven-plugin</artifactId>
-                <version>${findbugs-maven-plugin.version}</version>
-                <configuration>
-                    <findbugsXmlOutput>true</findbugsXmlOutput>
-                    <xmlOutput>true</xmlOutput>
-                    <excludeFilterFile>${maven.plugins.cfg.dir}/findbugs/findbugs-exclude.xml</excludeFilterFile>
-                    <xmlOutputDirectory>${project.build.directory}/site/findbugs</xmlOutputDirectory>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>cobertura-maven-plugin</artifactId>
-                <version>${cobertura-maven-plugin.version}</version>
-                <configuration>
-                    <formats>
-                        <format>html</format>
-                        <format>xml</format>
-                    </formats>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>${maven-checkstyle-plugin.version}</version>
-                <configuration>
-                    <configLocation>${maven.plugins.cfg.dir}/check_style/customized_checks.xml</configLocation>
-                    <suppressionsLocation>${maven.plugins.cfg.dir}/check_style/checkstyle_suppressions.xml
-                    </suppressionsLocation>
-                </configuration>
-            </plugin>
 
-            <!--plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-release-plugin</artifactId>
-                <version>${maven-release-plugin.version}</version>
-                <configuration>
-                    <tagBase>https://www.dbcde.com/svn/repos/cpg-creditcheck/tags</tagBase>
-                    <branchBase>https://www.dbcde.com/svn/repos/cpg-creditcheck/branches</branchBase>
-                    <preparationGoals>clean install</preparationGoals>
-                    <goals>deploy</goals>
-                    <remoteTagging>true</remoteTagging>
-                    <autoVersionSubmodules>true</autoVersionSubmodules>
-                    <branchName>release-${releaseVersion}</branchName>
-                    <tag>release-${releaseVersion}</tag>
-                </configuration>
-            </plugin-->
-
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>properties-maven-plugin</artifactId>
-                <version>${properties-maven-plugin.version}</version>
-            </plugin>
+            <!--todo: are we really using these plugins?-->
+            <!--<plugin>-->
+            <!--<artifactId>maven-failsafe-plugin</artifactId>-->
+            <!--<version>${maven-failsafe-plugin.version}</version>-->
+            <!--</plugin>-->
+            <!--<plugin>-->
+            <!--<groupId>org.codehaus.mojo</groupId>-->
+            <!--<artifactId>findbugs-maven-plugin</artifactId>-->
+            <!--<version>${findbugs-maven-plugin.version}</version>-->
+            <!--<configuration>-->
+            <!--<findbugsXmlOutput>true</findbugsXmlOutput>-->
+            <!--<xmlOutput>true</xmlOutput>-->
+            <!--<excludeFilterFile>${maven.plugins.cfg.dir}/findbugs/findbugs-exclude.xml</excludeFilterFile>-->
+            <!--<xmlOutputDirectory>${project.build.directory}/site/findbugs</xmlOutputDirectory>-->
+            <!--</configuration>-->
+            <!--</plugin>-->
+            <!--<plugin>-->
+            <!--<groupId>org.codehaus.mojo</groupId>-->
+            <!--<artifactId>cobertura-maven-plugin</artifactId>-->
+            <!--<version>${cobertura-maven-plugin.version}</version>-->
+            <!--<configuration>-->
+            <!--<formats>-->
+            <!--<format>html</format>-->
+            <!--<format>xml</format>-->
+            <!--</formats>-->
+            <!--</configuration>-->
+            <!--</plugin>-->
+            <!--<plugin>-->
+            <!--<groupId>org.apache.maven.plugins</groupId>-->
+            <!--<artifactId>maven-checkstyle-plugin</artifactId>-->
+            <!--<version>${maven-checkstyle-plugin.version}</version>-->
+            <!--<configuration>-->
+            <!--<configLocation>${maven.plugins.cfg.dir}/check_style/customized_checks.xml</configLocation>-->
+            <!--<suppressionsLocation>${maven.plugins.cfg.dir}/check_style/checkstyle_suppressions.xml-->
+            <!--</suppressionsLocation>-->
+            <!--</configuration>-->
+            <!--</plugin>-->
 
         </plugins>
     </build>
@@ -595,7 +503,6 @@
         </profile>
     </profiles>
 
-
     <repositories>
 
         <!--repository for xqj2 artifact-->
@@ -604,20 +511,6 @@
             <url>http://xqj.net/maven</url>
         </repository>
 
-        <!--todo: delete if not needed-->
-        <!--<repository>-->
-        <!--<id>ccs.nexus.thirdparty</id>-->
-        <!--<url>https://nexus.dbcde.com/content/repositories/ccs-thirdparty</url>-->
-        <!--</repository>-->
-
     </repositories>
-
-    <!--todo: delete if not needed-->
-    <!--<pluginRepositories>-->
-    <!--<pluginRepository>-->
-    <!--<id>ccs.nexus.thirdparty.plugins</id>-->
-    <!--<url>https://nexus.dbcde.com/content/repositories/ccs-thirdparty</url>-->
-    <!--</pluginRepository>-->
-    <!--</pluginRepositories>-->
 
 </project>
