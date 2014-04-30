@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.sdv.bagri</groupId>
@@ -27,11 +28,12 @@
 
     <properties>
         <jdk.version>1.7</jdk.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <bagri.version>0.2.0-SNAPSHOT</bagri.version>
 
         <spring.version>3.2.8.RELEASE</spring.version>
-	<spring.mongo.version>1.4.2.RELEASE</spring.mongo.version>
+        <spring.mongo.version>1.4.2.RELEASE</spring.mongo.version>
 
         <!--commons-collections.version>3.2.1</commons-collections.version>
         <commons-fileupload.version>1.2.2</commons-fileupload.version>
@@ -46,7 +48,7 @@
         <xqj2.version>0.1.0</xqj2.version>
         <xerses.version>2.11.0</xerses.version>
         <axis.version>1.4</axis.version>
-    	<saxon.version>9.5.1-3</saxon.version>
+        <saxon.version>9.5.1-3</saxon.version>
         <xmlbeans.version>2.6.0</xmlbeans.version>
 
         <!--mockito.version>1.8.5</mockito.version-->
@@ -60,19 +62,20 @@
 
         <!--<jmxri.version>1.2.1</jmxri.version>-->
 
-	<antlr.version>3.2</antlr.version>
-	<jcache.version>1.0.0-PFD</jcache.version>
-	<jcache.ri.version>0.8</jcache.ri.version>
+        <antlr.version>3.2</antlr.version>
+        <jcache.version>1.0.0-PFD</jcache.version>
+        <jcache.ri.version>0.8</jcache.ri.version>
         <hazelcast.version>3.2</hazelcast.version>
         <!--coherence.version>3.7.1.10</coherence.version-->
         <!--coherence.version>12.1.2-0-0</coherence.version-->
-	<!--coherence-common.version>11.1.0</coherence-common.version-->
+        <!--coherence-common.version>11.1.0</coherence-common.version-->
         <!--coherence-common.version>12.0.1-SNAPSHOT</coherence-common.version-->
-	<!--coherence-spring.version>1.0.0</coherence-spring.version-->
+        <!--coherence-spring.version>1.0.0</coherence-spring.version-->
         <mongo.version>2.11.4</mongo.version>
 
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
+
+        <!--todo: why specifying plugins' versions? why don't use default ones?-->
         <maven-resources-plugin.version>2.6</maven-resources-plugin.version>
         <maven-release-plugin.version>2.3.2</maven-release-plugin.version>
         <maven-compiler-plugin.version>2.3.2</maven-compiler-plugin.version>
@@ -81,7 +84,8 @@
         <maven-install-plugin.version>2.3.1</maven-install-plugin.version>
         <maven-surefire-plugin.version>2.10</maven-surefire-plugin.version>
         <maven-failsafe-plugin.version>2.12</maven-failsafe-plugin.version>
-        <maven-assembly-plugin.version>2.2-beta-5</maven-assembly-plugin.version>
+        <!--must be greater than 2.2 cause of bug fixes-->
+        <maven-assembly-plugin.version>2.4</maven-assembly-plugin.version>
         <properties-maven-plugin.version>1.0-alpha-2</properties-maven-plugin.version>
         <cobertura-maven-plugin.version>2.5.1</cobertura-maven-plugin.version>
         <findbugs-maven-plugin.version>2.3.2</findbugs-maven-plugin.version>
@@ -98,60 +102,60 @@
         <dependencies>
             <!-- Module dependencies -->
             <dependency>
-	    	<groupId>com.sdv.bagri</groupId>
-	    	<artifactId>bagri-common</artifactId>
-            	<version>${project.version}</version>
+                <groupId>com.sdv.bagri</groupId>
+                <artifactId>bagri-common</artifactId>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
-	    	<groupId>com.sdv.bagri</groupId>
-	    	<artifactId>bagri-xdm</artifactId>
-            	<version>${project.version}</version>
+                <groupId>com.sdv.bagri</groupId>
+                <artifactId>bagri-xdm</artifactId>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
-	    	<groupId>com.sdv.bagri</groupId>
-	    	<artifactId>bagri-xquery-api</artifactId>
-            	<version>${project.version}</version>
+                <groupId>com.sdv.bagri</groupId>
+                <artifactId>bagri-xquery-api</artifactId>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
-	    	<groupId>com.sdv.bagri</groupId>
-	    	<artifactId>bagri-xquery-saxon</artifactId>
-            	<version>${project.version}</version>
+                <groupId>com.sdv.bagri</groupId>
+                <artifactId>bagri-xquery-saxon</artifactId>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
-	    	<groupId>com.sdv.bagri</groupId>
-	    	<artifactId>bagri-xqj</artifactId>
-            	<version>${project.version}</version>
+                <groupId>com.sdv.bagri</groupId>
+                <artifactId>bagri-xqj</artifactId>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
-	    	<groupId>com.sdv.bagri</groupId>
-	    	<artifactId>bagri-xdm-access-api</artifactId>
-            	<version>${project.version}</version>
+                <groupId>com.sdv.bagri</groupId>
+                <artifactId>bagri-xdm-access-api</artifactId>
+                <version>${project.version}</version>
                 <exclusions>
                     <exclusion>
-	                <groupId>junit</groupId>
-        	        <artifactId>junit</artifactId>
+                        <groupId>junit</groupId>
+                        <artifactId>junit</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
             <dependency>
-	    	<groupId>com.sdv.bagri</groupId>
-	    	<artifactId>bagri-xdm-access-coherence</artifactId>
-            	<version>${project.version}</version>
+                <groupId>com.sdv.bagri</groupId>
+                <artifactId>bagri-xdm-access-coherence</artifactId>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
-	    	<groupId>com.sdv.bagri</groupId>
-	    	<artifactId>bagri-xdm-access-hazelcast</artifactId>
-            	<version>${project.version}</version>
+                <groupId>com.sdv.bagri</groupId>
+                <artifactId>bagri-xdm-access-hazelcast</artifactId>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
-	    	<groupId>com.sdv.bagri</groupId>
-	    	<artifactId>bagri-xdm-process-coherence</artifactId>
-            	<version>${project.version}</version>
+                <groupId>com.sdv.bagri</groupId>
+                <artifactId>bagri-xdm-process-coherence</artifactId>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
-	    	<groupId>com.sdv.bagri</groupId>
-	    	<artifactId>bagri-xdm-process-hazelcast</artifactId>
-            	<version>${project.version}</version>
+                <groupId>com.sdv.bagri</groupId>
+                <artifactId>bagri-xdm-process-hazelcast</artifactId>
+                <version>${project.version}</version>
             </dependency>
             <!--dependency>
                 <groupId>com.sdv.bagri</groupId>
@@ -169,12 +173,12 @@
                 <artifactId>commons-collections</artifactId>
                 <version>${commons-collections.version}</version>
             </dependency-->
-	    <dependency>
-		<groupId>commons-cli</groupId>
-		<artifactId>commons-cli</artifactId>
+            <dependency>
+                <groupId>commons-cli</groupId>
+                <artifactId>commons-cli</artifactId>
                 <version>${commons-cli.version}</version>
-	    </dependency>
-            
+            </dependency>
+
             <!-- Spring dependencies -->
             <dependency>
                 <groupId>org.springframework</groupId>
@@ -224,59 +228,59 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-	    <dependency>
-		<groupId>org.springframework.data</groupId>
-		<artifactId>spring-data-mongodb</artifactId>
-		<version>${spring.mongo.version}</version>
-	    </dependency>
+            <dependency>
+                <groupId>org.springframework.data</groupId>
+                <artifactId>spring-data-mongodb</artifactId>
+                <version>${spring.mongo.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>xerces</groupId>
                 <artifactId>xercesImpl</artifactId>
                 <version>${xerses.version}</version>
             </dependency>
-	    <dependency>
-	    	<groupId>javax.xml.xquery</groupId>
-	    	<artifactId>xqj-api</artifactId>
-	    	<version>${xqj.version}</version>
-	    </dependency>
-	    <dependency>
-	    	<groupId>javax.xml.xquery</groupId>
-	    	<artifactId>xqj-tck</artifactId>
-	    	<version>${xqj.version}</version>
-	    </dependency>
-	    <dependency>
-	    	<groupId>com.xqj2</groupId>
-	    	<artifactId>xqj2</artifactId>
-	    	<version>${xqj2.version}</version>
-	    </dependency>
-	    <dependency>
-		<groupId>org.apache.axis</groupId>
-		<artifactId>axis</artifactId>
-		<version>${axis.version}</version>
-	    </dependency>
-	    <dependency>
-		<groupId>org.apache.xmlbeans</groupId>
-		<artifactId>xmlbeans</artifactId>
-		<version>${xmlbeans.version}</version>
-	    </dependency>
-	    <dependency>
-	    	<groupId>net.sf.saxon</groupId>
-	    	<artifactId>Saxon-HE</artifactId>
-	    	<version>${saxon.version}</version>
-	    </dependency>
-            
-	    <dependency>
-      	    	<groupId>org.antlr</groupId>
-      	    	<artifactId>antlr-runtime</artifactId>
-      	    	<version>${antlr.version}</version>
-      	    	<exclusions>
-        	    <exclusion>
-          	    	<groupId>org.antlr</groupId>
-          	    	<artifactId>stringtemplate</artifactId>
-        	    </exclusion>
-      	    	</exclusions>
-	    </dependency>
+            <dependency>
+                <groupId>javax.xml.xquery</groupId>
+                <artifactId>xqj-api</artifactId>
+                <version>${xqj.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.xml.xquery</groupId>
+                <artifactId>xqj-tck</artifactId>
+                <version>${xqj.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.xqj2</groupId>
+                <artifactId>xqj2</artifactId>
+                <version>${xqj2.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.axis</groupId>
+                <artifactId>axis</artifactId>
+                <version>${axis.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.xmlbeans</groupId>
+                <artifactId>xmlbeans</artifactId>
+                <version>${xmlbeans.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.sf.saxon</groupId>
+                <artifactId>Saxon-HE</artifactId>
+                <version>${saxon.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.antlr</groupId>
+                <artifactId>antlr-runtime</artifactId>
+                <version>${antlr.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.antlr</groupId>
+                        <artifactId>stringtemplate</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
 
             <!-- Dependencies for logging -->
             <dependency>
@@ -320,33 +324,33 @@
                 <scope>test</scope>
             </dependency-->
 
-	    <dependency>
-	  	<groupId>javax.cache</groupId>
-	  	<artifactId>cache-api</artifactId>
-	  	<version>${jcache.version}</version>
-	    </dependency>
-	    <dependency>
-	  	<groupId>org.jsr107.ri</groupId>
-	  	<artifactId>cache-ri-impl</artifactId>
-	  	<!--artifactId>cache-ri</artifactId-->
-	  	<version>${jcache.ri.version}</version>
-	    </dependency>
+            <dependency>
+                <groupId>javax.cache</groupId>
+                <artifactId>cache-api</artifactId>
+                <version>${jcache.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jsr107.ri</groupId>
+                <artifactId>cache-ri-impl</artifactId>
+                <!--artifactId>cache-ri</artifactId-->
+                <version>${jcache.ri.version}</version>
+            </dependency>
 
-	    <dependency>
-	    	<groupId>com.hazelcast</groupId>
-	    	<artifactId>hazelcast</artifactId>
-	    	<version>${hazelcast.version}</version>
-	    </dependency>
-	    <dependency>
-	    	<groupId>com.hazelcast</groupId>
-	    	<artifactId>hazelcast-spring</artifactId>
-	    	<version>${hazelcast.version}</version>
-	    </dependency>
-	    <dependency>
-	    	<groupId>com.hazelcast</groupId>
-	    	<artifactId>hazelcast-client</artifactId>
-	    	<version>${hazelcast.version}</version>
-	    </dependency>
+            <dependency>
+                <groupId>com.hazelcast</groupId>
+                <artifactId>hazelcast</artifactId>
+                <version>${hazelcast.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.hazelcast</groupId>
+                <artifactId>hazelcast-spring</artifactId>
+                <version>${hazelcast.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.hazelcast</groupId>
+                <artifactId>hazelcast-client</artifactId>
+                <version>${hazelcast.version}</version>
+            </dependency>
 
             <!-- Oracle dependencies -->
             <dependency>
@@ -365,17 +369,17 @@
 		<version>${coherence-spring.version}</version>
             </dependency-->
 
-	    <dependency>
-		<groupId>org.mongodb</groupId>
-		<artifactId>mongo-java-driver</artifactId>
-		<version>${mongo.version}</version>
-	    </dependency>
+            <dependency>
+                <groupId>org.mongodb</groupId>
+                <artifactId>mongo-java-driver</artifactId>
+                <version>${mongo.version}</version>
+            </dependency>
 
-	    <dependency>
-	    	<groupId>com.ibm.tpox</groupId>
-	    	<artifactId>tpox-workload</artifactId>
-	    	<version>${tpox.version}</version>
-	    </dependency>
+            <dependency>
+                <groupId>com.ibm.tpox</groupId>
+                <artifactId>tpox-workload</artifactId>
+                <version>${tpox.version}</version>
+            </dependency>
 
         </dependencies>
     </dependencyManagement>
@@ -401,14 +405,14 @@
             </plugin>
 
             <!--<plugin>-->
-                <!--<groupId>org.apache.maven.plugins</groupId>-->
-                <!--<artifactId>maven-javadoc-plugin</artifactId>-->
-                <!--<version>${maven-javadoc-plugin.version}</version>-->
+            <!--<groupId>org.apache.maven.plugins</groupId>-->
+            <!--<artifactId>maven-javadoc-plugin</artifactId>-->
+            <!--<version>${maven-javadoc-plugin.version}</version>-->
             <!--</plugin>-->
             <!--<plugin>-->
-                <!--<groupId>org.apache.maven.plugins</groupId>-->
-                <!--<artifactId>maven-source-plugin</artifactId>-->
-                <!--<version>${maven-source-plugin.version}</version>-->
+            <!--<groupId>org.apache.maven.plugins</groupId>-->
+            <!--<artifactId>maven-source-plugin</artifactId>-->
+            <!--<version>${maven-source-plugin.version}</version>-->
             <!--</plugin>-->
 
             <plugin>
@@ -583,18 +587,18 @@
 
         <!--todo: delete if not needed-->
         <!--<repository>-->
-            <!--<id>ccs.nexus.thirdparty</id>-->
-            <!--<url>https://nexus.dbcde.com/content/repositories/ccs-thirdparty</url>-->
+        <!--<id>ccs.nexus.thirdparty</id>-->
+        <!--<url>https://nexus.dbcde.com/content/repositories/ccs-thirdparty</url>-->
         <!--</repository>-->
 
     </repositories>
 
     <!--todo: delete if not needed-->
     <!--<pluginRepositories>-->
-        <!--<pluginRepository>-->
-            <!--<id>ccs.nexus.thirdparty.plugins</id>-->
-            <!--<url>https://nexus.dbcde.com/content/repositories/ccs-thirdparty</url>-->
-        <!--</pluginRepository>-->
+    <!--<pluginRepository>-->
+    <!--<id>ccs.nexus.thirdparty.plugins</id>-->
+    <!--<url>https://nexus.dbcde.com/content/repositories/ccs-thirdparty</url>-->
+    <!--</pluginRepository>-->
     <!--</pluginRepositories>-->
 
 </project>

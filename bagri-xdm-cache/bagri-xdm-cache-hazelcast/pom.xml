@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -8,34 +9,38 @@
         <relativePath>..</relativePath>
     </parent>
 
-    <groupId>com.sdv.bagri</groupId>
     <artifactId>bagri-xdm-cache-hazelcast</artifactId>
     <name>bagri-xdm-cache-hazelcast</name>
     <description>Bagri XDM Cache: Hazelcast implementation</description>
 
     <properties>
-        <!-- Hazelcasr server java args -->
-        <!--run.jvm.args>-server -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005 -Xms512m -Xmx2048m -XX:MaxNewSize=128m -XX:+ExplicitGCInvokesConcurrent -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:+CMSIncrementalMode</run.jvm.args-->
-        <run.jvm.args>-server -Xms512m -Xmx2048m -XX:MaxNewSize=128m -XX:+ExplicitGCInvokesConcurrent -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:+CMSIncrementalMode</run.jvm.args>
+        <!-- Local Run Hazelcast server java args -->
+        <!-- Note: don't do it too long! it forces line wrapping! -->
+
+        <!--switch the args0 code for debug-->
+        <run.jvm.args0></run.jvm.args0>
+        <!--<run.jvm.args0>-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005</run.jvm.args0>-->
+        <run.jvm.args1>-server -Xms512m -Xmx2048m -XX:MaxNewSize=128m -XX:+ExplicitGCInvokesConcurrent</run.jvm.args1>
+        <run.jvm.args2>-XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:+CMSIncrementalMode</run.jvm.args2>
     </properties>
 
     <dependencies>
 
         <dependency>
-	    <groupId>com.sdv.bagri</groupId>
-	    <artifactId>bagri-common</artifactId>
+            <groupId>com.sdv.bagri</groupId>
+            <artifactId>bagri-common</artifactId>
         </dependency>
         <dependency>
-	    <groupId>com.sdv.bagri</groupId>
-	    <artifactId>bagri-xdm</artifactId>
+            <groupId>com.sdv.bagri</groupId>
+            <artifactId>bagri-xdm</artifactId>
         </dependency>
         <dependency>
-	    <groupId>com.sdv.bagri</groupId>
-	    <artifactId>bagri-xdm-access-api</artifactId>
+            <groupId>com.sdv.bagri</groupId>
+            <artifactId>bagri-xdm-access-api</artifactId>
         </dependency>
         <dependency>
-	    <groupId>com.sdv.bagri</groupId>
-	    <artifactId>bagri-xdm-access-hazelcast</artifactId>
+            <groupId>com.sdv.bagri</groupId>
+            <artifactId>bagri-xdm-access-hazelcast</artifactId>
             <exclusions>
                 <exclusion>
                     <groupId>com.hazelcast</groupId>
@@ -44,8 +49,8 @@
             </exclusions>
         </dependency>
         <dependency>
-	    <groupId>com.sdv.bagri</groupId>
-	    <artifactId>bagri-xdm-process-hazelcast</artifactId>
+            <groupId>com.sdv.bagri</groupId>
+            <artifactId>bagri-xdm-process-hazelcast</artifactId>
         </dependency>
 
         <!-- Spring framework -->
@@ -62,19 +67,19 @@
             <artifactId>spring-test</artifactId>
             <version>${spring.version}</version>
         </dependency-->
-	<dependency>
-	    <groupId>org.springframework.data</groupId>
-	    <artifactId>spring-data-mongodb</artifactId>
-	</dependency>
+        <dependency>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-mongodb</artifactId>
+        </dependency>
 
-	<dependency>
-	    <groupId>com.hazelcast</groupId>
-	    <artifactId>hazelcast</artifactId>
-	</dependency>
-	<dependency>
-    	    <groupId>com.hazelcast</groupId>
-    	    <artifactId>hazelcast-spring</artifactId>
-	</dependency>
+        <dependency>
+            <groupId>com.hazelcast</groupId>
+            <artifactId>hazelcast</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.hazelcast</groupId>
+            <artifactId>hazelcast-spring</artifactId>
+        </dependency>
 
         <!-- Dependencies for logging -->
         <dependency>
@@ -95,16 +100,16 @@
             <scope>runtime</scope>
         </dependency>
 
-	<dependency>
-	    <groupId>org.mongodb</groupId>
-	    <artifactId>mongo-java-driver</artifactId>
-	</dependency>
+        <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongo-java-driver</artifactId>
+        </dependency>
 
-    <!--dependency>
-      <groupId>stax</groupId>
-      <artifactId>stax-api</artifactId>
-      <version>1.0.1</version>
-    </dependency-->
+        <!--dependency>
+          <groupId>stax</groupId>
+          <artifactId>stax-api</artifactId>
+          <version>1.0.1</version>
+        </dependency-->
 
         <!--dependency>
             <groupId>org.apache.commons</groupId>
@@ -120,33 +125,10 @@
 
     </dependencies>
 
-    <build>
-        <plugins>
-            <plugin>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>${project.name}-assembly</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                        <configuration>
-                            <descriptors>
-                                <descriptor>src/main/assembly/dev.xml</descriptor>
-                                <!--descriptor>src/main/assembly/uat.xml</descriptor>
-                                <descriptor>src/main/assembly/prod.xml</descriptor-->
-                            </descriptors>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-        </plugins>
-    </build>
-
 
     <profiles>
+
+        <!--LOCAL SERVER RUN PROFILE-->
         <profile>
             <id>test</id>
             <build>
@@ -161,7 +143,7 @@
                                 <configuration>
                                     <tasks if="run-cache">
                                         <java fork="true" classname="com.bagri.xdm.cache.hazelcast.XDMCacheServer">
-                                            <jvmarg line="${run.jvm.args}"/>
+                                            <jvmarg line="${run.jvm.args0} ${run.jvm.args1} ${run.jvm.args2}"/>
                                             <sysproperty key="LOGDIR" value="./logs/"/>
                                             <sysproperty key="com.sun.management.jmxremote" value="true"/>
                                             <sysproperty key="com.sun.management.jmxremote.authenticate" value="false"/>
@@ -181,12 +163,38 @@
                                     <goal>run</goal>
                                 </goals>
                             </execution>
-
                         </executions>
                     </plugin>
                 </plugins>
             </build>
         </profile>
+
+        <!--DISTRIBUTIVE BUILD PROFILE-->
+        <profile>
+            <id>distributive</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>${project.name}-assembly</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                                <configuration>
+                                    <descriptors>
+                                        <descriptor>src/main/assembly/distr.xml</descriptor>
+                                    </descriptors>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
     </profiles>
 
 </project>

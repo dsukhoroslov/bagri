@@ -1,6 +1,6 @@
 <assembly>
-    <id>dev</id>
-    <includeBaseDirectory>false</includeBaseDirectory>
+    <id>distr</id>
+    <includeBaseDirectory>true</includeBaseDirectory>
     <formats>
         <format>tar.gz</format>
     </formats>
@@ -11,33 +11,23 @@
     </dependencySets>
 
     <fileSets>
-        <!--fileSet>
-            <directory>src/main/assembly/root</directory>
-            <outputDirectory>/</outputDirectory>
-            <lineEnding>unix</lineEnding>
-            <fileMode>755</fileMode>
-            <excludes>
-                <exclude>**/*.formatted</exclude>
-                <exclude>**/conf/*</exclude>
-            </excludes>
-        </fileSet-->
         <fileSet>
-            <directory>src/main/assembly/dev</directory>
+            <directory>src/main/assembly/distr</directory>
             <outputDirectory>/</outputDirectory>
             <lineEnding>unix</lineEnding>
             <fileMode>755</fileMode>
-            <excludes>
-                <exclude>**/*.formatted</exclude>
-                <exclude>**/conf/*</exclude>
-            </excludes>
+            <!--<excludes>-->
+                <!--<exclude>**/*.formatted</exclude>-->
+                <!--<exclude>**/conf/*</exclude>-->
+            <!--</excludes>-->
         </fileSet>
         <fileSet>
             <directory>src/main/resources</directory>
             <outputDirectory>/config</outputDirectory>
             <includes>
-                <include>**/hazelcast/*.*</include>
-                <include>**/spring/*.*</include>
-                <!--include>**/*.*</include-->
+                <!--<include>**/hazelcast/*.*</include>-->
+                <!--<include>**/spring/*.*</include>-->
+                <include>**/*.*</include>
             </includes>
         </fileSet>
 	<fileSet>
