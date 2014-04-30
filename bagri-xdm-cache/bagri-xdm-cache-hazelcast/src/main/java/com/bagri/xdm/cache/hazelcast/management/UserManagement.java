@@ -51,7 +51,6 @@ public class UserManagement implements EntryListener<String, XDMUser>, Initializ
     
 	//private Properties defaults; 
     private HazelcastInstance hzInstance;
-	//private IExecutorService execService;
     private IMap<String, XDMUser> userCache;
     private Map<String, UserManager> mgrCache = new HashMap<String, UserManager>();
     
@@ -69,31 +68,21 @@ public class UserManagement implements EntryListener<String, XDMUser>, Initializ
         Set<String> names = userCache.keySet();
 		logger.debug("afterPropertiesSet.enter; got users: {}", names); 
         for (String name: names) {
-        	XDMUser user = userCache.get(name);
-       		//boolean initialized = initSchema(name, schema.getProperties());
-       		//SchemaManager sMgr = (SchemaManager) mgrCache.get(name);
-       		//if (sMgr == null) {
-   			//	logger.debug("afterPropertiesSet; cannot get SchemaManager for schema {}; initializing a new one", name); 
-       		//	try {
-       		//		sMgr = initSchemaManager(name);
-       		//	} catch (MBeanExportException | MalformedObjectNameException ex) {
+        	//XDMUser user = userCache.get(name);
+       		UserManager uMgr = (UserManager) mgrCache.get(name);
+       		if (uMgr == null) {
+   				logger.debug("afterPropertiesSet; cannot get UserManager for user {}; initializing a new one", name); 
+       			try {
+       				uMgr = initUserManager(name);
+       			} catch (MBeanExportException | MalformedObjectNameException ex) {
        				// JMX registration failed.
-       		//		logger.error("entryAdded.error: ", ex);
-       		//	}
-       		//}
-        	UserManager uMgr = initUserManager(name); 
-   			//if (uMgr != null && !initialized) {
-   			//	sMgr.setState("Failed schema initialization");
+       				logger.error("afterPropertiesSet.error: ", ex);
+       			}
+       		}
+   			//if (uMgr != null) {
+   			//	sMgr.setState("Failed user initialization");
    			//}
-        	// finish it..
         }
-        
-        //for (String name: names) {
-        //	XDMUser user = userCache.get(name);
-        //	if (user.isActive()) {
-        //		initUser(user);
-        //	}
-        //}
 	}
 	
 	public void setUserCache(IMap<String, XDMUser> userCache) {
@@ -111,60 +100,16 @@ public class UserManagement implements EntryListener<String, XDMUser>, Initializ
 		return new ArrayList<XDMUser>(userCache.values());
 	}
 
-
-	private boolean initUser(XDMUser user) throws Exception {
-		String userName = user.getLogin();
-		if (!userCache.containsKey(userName)) {
-			userCache.put(userName, user);
-		}
-
-		if (!mgrCache.containsKey(userName)) {
-			logger.trace("initUser; userName set: {}", userName);
-			UserManager uMgr = new UserManager(userName);
-			mgrCache.put(userName, uMgr);
-			mbeanExporter.registerManagedResource(uMgr, uMgr.getObjectName());
-			return true;
-		}
-		return false;
-	}
-	
-	private boolean denitUser(XDMUser user) throws Exception {
-		// find and unreg UserManager...
-		//UserManager uMgr = mgrCache.remove(user.getLogin());
-		//if (uMgr != null) {
-		//	mbeanExporter.unregisterManagedResource(uMgr.getObjectName());
-		//	return true;
-		//}
-		//return false;
-		return userCache.remove(user.getLogin()) != null;
-	}
-	
-	private UserManager initUserManager(String userName) throws MBeanExportException, MalformedObjectNameException {
-		UserManager uMgr = null;
-   	    if (!mgrCache.containsKey(userName)) {
-			uMgr = new UserManager(userName);
-			uMgr.setUserCache(userCache);
-			//XDMSchemaDictionary schemaDict = dictCache.get(schemaName);
-			//sMgr.setSchemaDictionary(schemaDict);
-			mgrCache.put(userName, uMgr);
-			mbeanExporter.registerManagedResource(uMgr, uMgr.getObjectName());
-		}
-   	    return uMgr;
-	}
-
 	@ManagedOperation(description="Create new User")
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "login", description = "User login"),
 		@ManagedOperationParameter(name = "password", description = "User password")})
 	public boolean addUser(String login, String password) {
-		XDMUser user = null;
+		// TODO: add it via EntryProcesor
 		if (!userCache.containsKey(login)) {
-			user = new XDMUser(login, password, true, new Date(), user_management);
-			try {
-				return initUser(user);
-			} catch (Exception ex) {
-				logger.error("addUser; error: " + ex.getMessage(), ex);
-			}
+			XDMUser user = new XDMUser(login, password, true, new Date(), user_management);
+			userCache.put(login, user);
+			return true;
 		}
 		return false;
 	}
@@ -173,16 +118,19 @@ public class UserManagement implements EntryListener<String, XDMUser>, Initializ
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "login", description = "User login")})
 	public boolean deleteUser(String login) {
-		// denit UserManager
-		XDMUser user = userCache.get(login);
-		if (user != null) {
-			try {
-				return denitUser(user);
-			} catch (Exception ex) {
-				logger.error("deleteUser; error: " + ex.getMessage(), ex);
-			}
+		// TODO: do it via EntryProcessor
+		return userCache.remove(login) != null;
+	}
+
+	private UserManager initUserManager(String userName) throws MBeanExportException, MalformedObjectNameException {
+		UserManager uMgr = null;
+   	    if (!mgrCache.containsKey(userName)) {
+			uMgr = new UserManager(userName);
+			uMgr.setUserCache(userCache);
+			mgrCache.put(userName, uMgr);
+			mbeanExporter.registerManagedResource(uMgr, uMgr.getObjectName());
 		}
-		return false;
+   	    return uMgr;
 	}
 
 	@Override
@@ -190,8 +138,8 @@ public class UserManagement implements EntryListener<String, XDMUser>, Initializ
 		logger.trace("entryAdded; event: {}", event);
 		String userName = event.getKey();
 		try {
-			//initUserManager(userName);
-		} catch (MBeanExportException/* | MalformedObjectNameException */ ex) {
+			initUserManager(userName);
+		} catch (MBeanExportException | MalformedObjectNameException ex) {
 			// JMX registration failed.
 			logger.error("entryAdded.error: ", ex);
 		}
@@ -220,7 +168,7 @@ public class UserManagement implements EntryListener<String, XDMUser>, Initializ
 	@Override
 	public void entryEvicted(EntryEvent<String, XDMUser> event) {
 		logger.trace("entryEvicted; event: {}", event);
-		// make schema inactive ?
+		// make user inactive ?
 	}
 
 

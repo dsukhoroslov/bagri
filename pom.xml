@@ -32,6 +32,7 @@
 
         <spring.version>3.2.8.RELEASE</spring.version>
 	<spring.mongo.version>1.4.2.RELEASE</spring.mongo.version>
+       	<spring.hadoop.version>1.0.2.RELEASE</spring.hadoop.version>
 
         <!--commons-collections.version>3.2.1</commons-collections.version>
         <commons-fileupload.version>1.2.2</commons-fileupload.version>
@@ -70,6 +71,7 @@
         <!--coherence-common.version>12.0.1-SNAPSHOT</coherence-common.version-->
 	<!--coherence-spring.version>1.0.0</coherence-spring.version-->
         <mongo.version>2.11.4</mongo.version>
+	<thrift.version>0.8.0</thrift.version>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
@@ -229,6 +231,18 @@
 		<artifactId>spring-data-mongodb</artifactId>
 		<version>${spring.mongo.version}</version>
 	    </dependency>
+	    <dependency>
+        	<groupId>org.springframework.data</groupId>
+	        <artifactId>spring-data-hadoop</artifactId>
+        	<version>${spring.hadoop.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>asm</groupId>
+                        <artifactId>asm</artifactId>
+                    </exclusion>
+		    <!-- we must exclude here much more.. -->
+                </exclusions>
+	    </dependency>                       
 
             <dependency>
                 <groupId>xerces</groupId>
@@ -370,7 +384,12 @@
 		<artifactId>mongo-java-driver</artifactId>
 		<version>${mongo.version}</version>
 	    </dependency>
-
+	    <dependency>
+		<groupId>org.apache.thrift</groupId>
+		<artifactId>libthrift</artifactId>
+		<version>${thrift.version}</version>
+	    </dependency>
+            
 	    <dependency>
 	    	<groupId>com.ibm.tpox</groupId>
 	    	<artifactId>tpox-workload</artifactId>

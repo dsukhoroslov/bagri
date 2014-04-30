@@ -74,7 +74,7 @@ public class SchemaManagement implements EntryListener<String, XDMSchema>, Initi
        				sMgr = initSchemaManager(name);
        			} catch (MBeanExportException | MalformedObjectNameException ex) {
        				// JMX registration failed.
-       				logger.error("entryAdded.error: ", ex);
+       				logger.error("afterPropertiesSet.error: ", ex);
        			}
        		}
    			if (sMgr != null && !initialized) {
