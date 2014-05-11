@@ -20,7 +20,12 @@ import javax.management.openmbean.SimpleType;
 import javax.management.openmbean.TabularData;
 import javax.management.openmbean.TabularDataSupport;
 import javax.management.openmbean.TabularType;
+import javax.management.remote.JMXPrincipal;
+import javax.security.auth.Subject;
 
+import java.security.AccessControlContext;
+import java.security.AccessController;
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -114,6 +119,30 @@ public class JMXUtils {
 			logger.error("unregister.error: " + ex.getMessage(), ex);
 		}
 		return false;
+	}
+	
+	public static String getCurrentUser() {
+        AccessControlContext ctx = AccessController.getContext();
+        Subject subj = Subject.getSubject(ctx);
+        String result = null;
+        if (subj == null) {
+        	result = System.getProperty("user.name");
+        } else {
+	        Set<JMXPrincipal> sjp = subj.getPrincipals(JMXPrincipal.class);
+	        if (sjp != null && sjp.size() > 0) {
+	        	result = sjp.iterator().next().getName();
+	        } else {
+		        Set<Principal> sp = subj.getPrincipals();
+		        if (sp != null && sp.size() > 0) {
+		        	result = sp.iterator().next().getName();
+		        }
+	        }
+        }
+        if (result == null) {
+        	result = "unknown";
+        }
+        logger.info("getCurrentUser.exit; returning: {}", result);
+        return result;
 	}
     
     /**

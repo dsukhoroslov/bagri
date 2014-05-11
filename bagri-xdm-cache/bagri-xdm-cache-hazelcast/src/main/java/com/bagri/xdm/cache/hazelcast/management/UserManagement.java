@@ -5,7 +5,6 @@ package com.bagri.xdm.cache.hazelcast.management;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -14,13 +13,8 @@ import javax.management.MalformedObjectNameException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.jmx.export.MBeanExportException;
 import org.springframework.jmx.export.annotation.AnnotationMBeanExporter;
 import org.springframework.jmx.export.annotation.ManagedAttribute;
@@ -29,8 +23,10 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
-import com.bagri.xdm.access.api.XDMSchemaDictionary;
-import com.bagri.xdm.process.hazelcast.schema.SchemaCreator;
+import com.bagri.common.manage.JMXUtils;
+import com.bagri.xdm.process.hazelcast.schema.SchemaRemover;
+import com.bagri.xdm.process.hazelcast.user.UserCreator;
+import com.bagri.xdm.process.hazelcast.user.UserRemover;
 import com.bagri.xdm.system.XDMSchema;
 import com.bagri.xdm.system.XDMUser;
 import com.hazelcast.core.EntryEvent;
@@ -47,7 +43,6 @@ import com.hazelcast.core.IMap;
 public class UserManagement implements EntryListener<String, XDMUser>, InitializingBean {
 
     private static final transient Logger logger = LoggerFactory.getLogger(UserManagement.class);
-	private static final String user_management = "UserManagement";
     
 	//private Properties defaults; 
     private HazelcastInstance hzInstance;
@@ -105,10 +100,10 @@ public class UserManagement implements EntryListener<String, XDMUser>, Initializ
 		@ManagedOperationParameter(name = "login", description = "User login"),
 		@ManagedOperationParameter(name = "password", description = "User password")})
 	public boolean addUser(String login, String password) {
-		// TODO: add it via EntryProcesor
+
 		if (!userCache.containsKey(login)) {
-			XDMUser user = new XDMUser(login, password, true, new Date(), user_management);
-			userCache.put(login, user);
+	    	Object result = userCache.executeOnKey(login, new UserCreator(JMXUtils.getCurrentUser(), password));
+	    	logger.debug("addUser; execution result: {}", result);
 			return true;
 		}
 		return false;
@@ -118,8 +113,14 @@ public class UserManagement implements EntryListener<String, XDMUser>, Initializ
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "login", description = "User login")})
 	public boolean deleteUser(String login) {
-		// TODO: do it via EntryProcessor
-		return userCache.remove(login) != null;
+		//return userCache.remove(login) != null;
+		XDMUser user = userCache.get(login);
+		if (user != null) {
+	    	Object result = userCache.executeOnKey(login, new UserRemover(user.getVersion(), JMXUtils.getCurrentUser()));
+	    	logger.debug("deleteUser; execution result: {}", result);
+	    	return result != null;
+		}
+		return false;
 	}
 
 	private UserManager initUserManager(String userName) throws MBeanExportException, MalformedObjectNameException {

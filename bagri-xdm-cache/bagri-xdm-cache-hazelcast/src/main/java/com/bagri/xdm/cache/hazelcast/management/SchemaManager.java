@@ -133,7 +133,8 @@ public class SchemaManager extends XDMSchemaManagerBase implements SelfNaming {
 	public boolean activateSchema() {
 		XDMSchema schema = getSchema();
 		if (schema != null && !schema.isActive()) {
-	    	Object result = schemaCache.executeOnKey(schemaName, new SchemaActivator(schema.getVersion(), true));
+			String user = JMXUtils.getCurrentUser();
+	    	Object result = schemaCache.executeOnKey(schemaName, new SchemaActivator(schema.getVersion(), user, true));
 	    	logger.trace("activateSchema; execution result: {}", result);
 	    	return result != null;
 		} 
@@ -144,7 +145,8 @@ public class SchemaManager extends XDMSchemaManagerBase implements SelfNaming {
 	public boolean deactivateSchema() {
 		XDMSchema schema = getSchema();
 		if (schema != null && schema.isActive()) {
-	    	Object result = schemaCache.executeOnKey(schemaName, new SchemaActivator(schema.getVersion(), false));
+			String user = JMXUtils.getCurrentUser();
+	    	Object result = schemaCache.executeOnKey(schemaName, new SchemaActivator(schema.getVersion(), user, false));
 	    	logger.trace("deactivateSchema; execution result: {}", result);
 	    	return result != null;
 		}
@@ -165,7 +167,8 @@ public class SchemaManager extends XDMSchemaManagerBase implements SelfNaming {
 				return false;
 			}
 			
-	    	Object result = schemaCache.executeOnKey(schemaName, new SchemaUpdater(schema.getVersion(), true, props));
+	    	Object result = schemaCache.executeOnKey(schemaName, new SchemaUpdater(schema.getVersion(), 
+	    			JMXUtils.getCurrentUser(), true, props));
 	    	logger.trace("updateSchemaProperties; execution result: {}", result);
 	    	return result != null;
 		}
@@ -208,7 +211,8 @@ public class SchemaManager extends XDMSchemaManagerBase implements SelfNaming {
 		if (schema != null) {
 			Properties props = new Properties();
 			props.setProperty(name, value);
-	    	Object result = schemaCache.executeOnKey(schemaName, new SchemaUpdater(schema.getVersion(), false, props));
+	    	Object result = schemaCache.executeOnKey(schemaName, new SchemaUpdater(schema.getVersion(), 
+	    			JMXUtils.getCurrentUser(), false, props));
 	    	logger.trace("setProperty; execution result: {}", result);
 		}
 	}
@@ -221,7 +225,7 @@ public class SchemaManager extends XDMSchemaManagerBase implements SelfNaming {
 		// override property with default value
 		String defValue = parent.getDefaultProperty(name);
 		if (defValue == null) {
-			defValue = ""; //???
+			defValue = ""; // throw exception ???
 		}
 		setProperty(name, defValue);
 	}

@@ -105,13 +105,16 @@ public class XDMUserCacheStore implements MapStore<String, XDMUser>, MapLoaderLi
 				String login = sElt.getAttribute("login");
 				boolean active = Boolean.valueOf(sElt.getAttribute("active"));
 				NodeList sNodes = sElt.getChildNodes();
+				String vers = null;
 				String pass = null;
 				String at = null;
 				String by = null;
 				Properties sProps = null;
 				for (int j=0; j < sNodes.getLength(); j++) {
 					Node node = sNodes.item(j);
-					if ("password".equals(node.getNodeName())) {
+					if ("version".equals(node.getNodeName())) {
+						vers = node.getTextContent();
+					} else if ("password".equals(node.getNodeName())) {
 						pass = node.getTextContent();
 					} else if ("createdAt".equals(node.getNodeName())) {
 						at = node.getTextContent();
@@ -121,7 +124,7 @@ public class XDMUserCacheStore implements MapStore<String, XDMUser>, MapLoaderLi
 						logger.info("loadUsers. unknown user node: {}", node);
 					}
 				}
-				XDMUser user = new XDMUser(login, pass, active, new Date(), by);
+				XDMUser user = new XDMUser(login, pass, active, Integer.parseInt(vers), new Date(), by);
 				users.put(login, user);
 			}
 	    } catch (Exception ex) {

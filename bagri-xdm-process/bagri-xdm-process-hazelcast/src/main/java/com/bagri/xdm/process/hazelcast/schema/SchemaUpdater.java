@@ -1,7 +1,6 @@
 package com.bagri.xdm.process.hazelcast.schema;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.Properties;
 import java.util.Map.Entry;
 
@@ -12,7 +11,6 @@ import com.hazelcast.nio.serialization.DataSerializable;
 
 public class SchemaUpdater extends SchemaProcessor implements DataSerializable {
 
-	private int version;
 	private boolean override;
 	private Properties properties;
 	
@@ -20,8 +18,8 @@ public class SchemaUpdater extends SchemaProcessor implements DataSerializable {
 		//
 	}
 	
-	public SchemaUpdater(int version, boolean override, Properties properties) {
-		this.version = version;
+	public SchemaUpdater(int version, String admin, boolean override, Properties properties) {
+		super(version, admin);
 		this.override = override;
 		this.properties = properties;
 	}
@@ -31,7 +29,7 @@ public class SchemaUpdater extends SchemaProcessor implements DataSerializable {
 		logger.debug("process.enter; entry: {}", entry); 
 		if (entry.getValue() != null) {
 			XDMSchema schema = entry.getValue();
-			if (schema.getVersion() == version) {
+			if (schema.getVersion() == getVersion()) {
 				if (schema.isActive()) {
 					if (denitSchemaInCluster(schema) > 0) {
 						// don't go further
@@ -52,8 +50,9 @@ public class SchemaUpdater extends SchemaProcessor implements DataSerializable {
 						schema.setActive(false);
 					}
 				}
-				schema.updateVersion();
+				schema.updateVersion(getAdmin());
 				entry.setValue(schema);
+				auditEntity(AuditType.update, schema);
 				return schema;
 			}
 		} 
@@ -62,20 +61,16 @@ public class SchemaUpdater extends SchemaProcessor implements DataSerializable {
 
 	@Override
 	public void readData(ObjectDataInput in) throws IOException {
-		// logger.trace("readPortable.enter; in: {}", in);
-		version = in.readInt();
+		super.readData(in);
 		override = in.readBoolean();
 		properties = in.readObject();
 	}
 
 	@Override
 	public void writeData(ObjectDataOutput out) throws IOException {
-		// logger.trace("writePortable.enter; out: {}", out);
-		out.writeInt(version);
+		super.writeData(out);
 		out.writeBoolean(override);
 		out.writeObject(properties);
 	}
-
-
 
 }

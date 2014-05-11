@@ -120,7 +120,8 @@ public class HazelcastDocumentServer extends XDMDocumentManagerServer {
 			}
 
 			//XDMDocument doc = new XDMDocumentPortable(docId, uri, docType); // + version, createdAt, createdBy, encoding
-			XDMDocument doc = new XDMDocument(id, uri, docType); // + version, createdAt, createdBy, encoding
+			String user = "system"; // get current user from context somehow..
+			XDMDocument doc = new XDMDocument(id, uri, docType, user); // + version, createdAt, encoding
 			xddCache.put(id, doc);
 		
 			mDictionary.normalizeDocumentType(docType);

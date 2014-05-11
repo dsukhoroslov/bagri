@@ -10,7 +10,7 @@ import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.StreamSerializer;
 
-public class XDMSchemaSerializer implements StreamSerializer<XDMSchema> {
+public class XDMSchemaSerializer extends XDMEntitySerializer implements StreamSerializer<XDMSchema> {
 
 	@Override
 	public int getTypeId() {
@@ -18,32 +18,24 @@ public class XDMSchemaSerializer implements StreamSerializer<XDMSchema> {
 	}
 
 	@Override
-	public void destroy() {
-		// what should we do here?
-	}
-
-	@Override
 	public XDMSchema read(ObjectDataInput in) throws IOException {
-		
+		Object[] entity = super.readEntity(in);
 		XDMSchema xSchema = new XDMSchema(in.readUTF(),
-				in.readInt(),
+				(int) entity[0],
 				in.readUTF(),
 				in.readBoolean(),
-				new Date(in.readLong()),
-				in.readUTF(),
+				(Date) entity[1],
+				(String) entity[2],
 				(Properties) in.readObject()); 
 		return xSchema;
 	}
 
 	@Override
 	public void write(ObjectDataOutput out, XDMSchema xSchema)	throws IOException {
-		
+		super.writeEntity(out, xSchema);
 		out.writeUTF(xSchema.getName());
-		out.writeInt(xSchema.getVersion());
 		out.writeUTF(xSchema.getDescription());
 		out.writeBoolean(xSchema.isActive());
-		out.writeLong(xSchema.getCreatedAt().getTime());
-		out.writeUTF(xSchema.getCreatedBy());
 		out.writeObject(xSchema.getProperties());
 	}
 

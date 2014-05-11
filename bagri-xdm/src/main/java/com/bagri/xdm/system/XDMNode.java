@@ -1,10 +1,24 @@
 package com.bagri.xdm.system;
 
+import java.util.Date;
 import java.util.Properties;
 
-public class XDMNode {
+import com.bagri.xdm.api.XDMEntity;
+
+public class XDMNode extends XDMEntity {
+	
+	public enum NodeRole {
+		
+		admin,
+		server;
+		
+		public static boolean isAdminRole(String role) {
+			return admin.name().equals(role);
+		}
+	}
 	
     public static final String op_node_name = "xdm.cluster.node.name";
+    public static final String op_node_role = "xdm.cluster.node.role";
     public static final String op_node_size = "xdm.cluster.node.size";
     public static final String op_node_schemas = "xdm.cluster.node.schemas";
 
@@ -12,8 +26,8 @@ public class XDMNode {
 	private String address;
 	private Properties options = new Properties();
 
-	public XDMNode(String address, String id, Properties options) {
-		//super();
+	public XDMNode(String address, String id, Properties options, int version, Date createdAt, String createdBy) {
+		super(version, createdAt, createdBy);
 		this.id = id;
 		this.address = address;
 		setOptions(options);
@@ -96,7 +110,9 @@ public class XDMNode {
 	 */
 	@Override
 	public String toString() {
-		return "XDMNode [" + address + ":" + id + "; options=" + options + "]";
+		return "XDMNode [" + address + ":" + id + "; version=" + getVersion() +
+				"; created at=" + getCreatedAt() + "; by=" + getCreatedBy() +
+				"; options=" + options + "]";
 	}
 	
 }

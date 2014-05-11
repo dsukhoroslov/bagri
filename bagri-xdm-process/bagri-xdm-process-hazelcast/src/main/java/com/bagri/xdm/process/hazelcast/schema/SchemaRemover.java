@@ -12,14 +12,12 @@ import com.hazelcast.spring.context.SpringAware;
 @SpringAware
 public class SchemaRemover extends SchemaProcessor implements DataSerializable {
 	
-	private int version;
-
 	public SchemaRemover() {
 		//
 	}
 	
-	public SchemaRemover(int version) {
-		this.version = version;
+	public SchemaRemover(int version, String admin) {
+		super(version, admin);
 	}
 
 	@Override
@@ -27,34 +25,23 @@ public class SchemaRemover extends SchemaProcessor implements DataSerializable {
 		logger.debug("process.enter; entry: {}", entry); 
 		if (entry.getValue() != null) {
 			XDMSchema schema = entry.getValue();
-			if (schema.getVersion() == version) {
+			if (schema.getVersion() == getVersion()) {
 				if (denitSchemaInCluster(schema) > 0) {
 					schema.setActive(false);
-					schema.updateVersion();
+					schema.updateVersion(getAdmin());
 					entry.setValue(schema);
 				} else {
 					entry.setValue(null);
 				}
+				auditEntity(AuditType.delete, schema);
 				return schema;
 			} else {
 				// throw ex ?
 				logger.warn("process; outdated schema version: {}; entry version: {}; process terminated", 
-						version, entry.getValue().getVersion()); 
+						getVersion(), entry.getValue().getVersion()); 
 			}
 		} 
 		return null;
 	}	
-	
-	
-	@Override
-	public void readData(ObjectDataInput in) throws IOException {
-		version = in.readInt();
-	}
-
-	@Override
-	public void writeData(ObjectDataOutput out) throws IOException {
-		out.writeInt(version);
-	}
-
 	
 }

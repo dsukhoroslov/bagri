@@ -2,6 +2,7 @@ package com.bagri.xdm.cache.hazelcast.management;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -21,8 +22,13 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
+import com.bagri.common.manage.JMXUtils;
 import com.bagri.xdm.access.api.XDMClusterManagement;
 import com.bagri.xdm.access.api.XDMNodeManager;
+import com.bagri.xdm.process.hazelcast.node.NodeCreator;
+import com.bagri.xdm.process.hazelcast.node.NodeRemover;
+import com.bagri.xdm.process.hazelcast.user.UserCreator;
+import com.bagri.xdm.process.hazelcast.user.UserRemover;
 import com.bagri.xdm.system.XDMNode;
 import com.bagri.xdm.system.XDMUser;
 import com.hazelcast.core.EntryEvent;
@@ -76,20 +82,20 @@ public class ClusterManagement implements EntryListener<String, XDMNode>, Initia
 		opts.putAll(member.getAttributes());
 		String address = member.getSocketAddress().getHostString();
 		String id = member.getUuid();
-		XDMNode node = new XDMNode(address, id, opts);
-		initNode(node);
+		addNode(id, address, opts);
 	}
 	
-	private boolean initNode(XDMNode node) throws Exception {
-		String nodeName = node.getNode();
-		logger.trace("initNode; initiating node: {}", nodeName);
-		
-		if (!nodeCache.containsKey(nodeName)) {
-			nodeCache.put(nodeName, node);
+	private boolean addNode(String id, String address, Properties options) throws Exception {
+	
+		String key = getNodeKey(address, id);
+		if (!nodeCache.containsKey(key)) {
+	    	Object result = nodeCache.executeOnKey(key, new NodeCreator(JMXUtils.getCurrentUser(), 
+	    			id, address, options));
+	    	logger.debug("addUser; execution result: {}", result);
 			return true;
 		}
-
 		return false;
+		
 	}
 	
 	private boolean denitNode(XDMNode node) throws Exception {
@@ -121,10 +127,9 @@ public class ClusterManagement implements EntryListener<String, XDMNode>, Initia
 			logger.error("createSchema.error: ", ex);
 			return false;
 		}
-		XDMNode node = new XDMNode(address, nodeId, opts);
 		
 		try {
-			return initNode(node);
+			return addNode(nodeId, address, options);
 		} catch (Exception ex) {
 			logger.error("addNode.error: " + ex.getMessage(), ex);
 		}
@@ -140,9 +145,18 @@ public class ClusterManagement implements EntryListener<String, XDMNode>, Initia
 		@ManagedOperationParameter(name = "address", description = "Node address"),
 		@ManagedOperationParameter(name = "nodeId", description = "Node identifier")})
 	public boolean deleteNode(String address, String nodeId) {
+		//String key = getNodeKey(address, nodeId);
+		//XDMNode node = nodeCache.remove(key);
+		//return node != null;
+		
 		String key = getNodeKey(address, nodeId);
-		XDMNode node = nodeCache.remove(key);
-		return node != null;
+		XDMNode node = nodeCache.get(key);
+		if (node != null) {
+	    	Object result = nodeCache.executeOnKey(key, new NodeRemover(node.getVersion(), JMXUtils.getCurrentUser()));
+	    	logger.debug("deleteNode; execution result: {}", result);
+	    	return result != null;
+		}
+		return false;
 	}
 
 	@Override
@@ -158,7 +172,7 @@ public class ClusterManagement implements EntryListener<String, XDMNode>, Initia
 	public void memberRemoved(MembershipEvent membershipEvent) {
 		String address = membershipEvent.getMember().getSocketAddress().getHostString();
 		String id = membershipEvent.getMember().getUuid();
-		// TODO: denitNode!
+		// TODO: denitNode!?
 		deleteNode(address, id);
 	}
 

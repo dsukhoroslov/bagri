@@ -3,23 +3,21 @@ package com.bagri.xdm.system;
 import java.util.Date;
 import java.util.Properties;
 
-public class XDMUser {
+import com.bagri.xdm.api.XDMEntity;
+
+public class XDMUser extends XDMEntity {
 	
 	private String login;
 	private String password;
 	private boolean active;
-	private Date createdAt;
-	private String createdBy;
 	//private Properties props = new Properties();
 	
 	
-	public XDMUser(String login, String password, boolean active, Date createdAt, String createdBy) {
-		//super();
+	public XDMUser(String login, String password, boolean active, int version, Date createdAt, String createdBy) {
+		super(version, createdAt, createdBy);
 		this.login = login;
 		this.password = password;
 		this.active = active;
-		this.createdAt = createdAt;
-		this.createdBy = createdBy;
 	}
 
 
@@ -60,22 +58,6 @@ public class XDMUser {
 	 */
 	public String getLogin() {
 		return login;
-	}
-
-
-	/**
-	 * @return the createdAt
-	 */
-	public Date getCreatedAt() {
-		return createdAt;
-	}
-
-
-	/**
-	 * @return the createdBy
-	 */
-	public String getCreatedBy() {
-		return createdBy;
 	}
 
 
@@ -122,9 +104,9 @@ public class XDMUser {
 	 */
 	@Override
 	public String toString() {
-		return "XDMUser [login=" + login //+ ", password=" + password
-				+ ", active=" + active + ", createdAt=" + createdAt
-				+ ", createdBy=" + createdBy + "]";
+		return "XDMUser [login=" + login + ", version=" + getVersion()  //+ ", password=" + password
+				+ ", active=" + active + ", created at=" + getCreatedAt()
+				+ ", by=" + getCreatedBy() + "]";
 	}
 	
 

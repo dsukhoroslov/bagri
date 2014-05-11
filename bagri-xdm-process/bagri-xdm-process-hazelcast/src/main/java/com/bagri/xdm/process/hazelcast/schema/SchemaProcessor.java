@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.bagri.xdm.process.hazelcast.EntityProcessor;
 import com.bagri.xdm.system.XDMSchema;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.Member;
@@ -17,7 +18,7 @@ import com.hazelcast.map.EntryProcessor;
 import com.hazelcast.spring.context.SpringAware;
 
 @SpringAware
-public abstract class SchemaProcessor implements EntryProcessor<String, XDMSchema>, 
+public abstract class SchemaProcessor extends EntityProcessor implements EntryProcessor<String, XDMSchema>, 
 	EntryBackupProcessor<String, XDMSchema> {
 	
 	protected final transient Logger logger = LoggerFactory.getLogger(getClass());
@@ -26,6 +27,10 @@ public abstract class SchemaProcessor implements EntryProcessor<String, XDMSchem
 
 	public SchemaProcessor() {
 		//
+	}
+	
+	public SchemaProcessor(int version, String admin) {
+		super(version, admin);
 	}
 	
     @Autowired
@@ -45,7 +50,6 @@ public abstract class SchemaProcessor implements EntryProcessor<String, XDMSchem
 	}
 
 	
-
 	protected int initSchemaInCluster(XDMSchema schema) {
 		
 		logger.trace("initSchemaInCluster.enter; schema: {}", schema);

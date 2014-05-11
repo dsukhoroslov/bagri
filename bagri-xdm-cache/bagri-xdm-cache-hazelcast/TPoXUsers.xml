@@ -1,9 +1,16 @@
 <users xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"> 
     
-    <user login="SDV" active="true">
+    <user login="admin" active="true">
+	<version>1</version>
 	<password>TPoX</password>
 	<createdAt>2014-04-14</createdAt>
-	<createdBy>SDV</createdBy>
+	<createdBy>admin</createdBy>
+    </user>
+    <user login="SDV" active="true">
+	<version>1</version>
+	<password>TPoX</password>
+	<createdAt>2014-04-24</createdAt>
+	<createdBy>admin</createdBy>
     </user>
 
 </users>

@@ -12,15 +12,14 @@ import com.hazelcast.spring.context.SpringAware;
 @SpringAware
 public class SchemaActivator extends SchemaProcessor implements DataSerializable {
 	
-	private int version;
 	private boolean activate;
 	
 	public SchemaActivator() {
 		//
 	}
 	
-	public SchemaActivator(int version, boolean activate) {
-		this.version = version;
+	public SchemaActivator(int version, String admin, boolean activate) {
+		super(version, admin);
 		this.activate = activate;
 	}
 
@@ -30,26 +29,29 @@ public class SchemaActivator extends SchemaProcessor implements DataSerializable
 		Object result = null;
 		if (entry.getValue() != null) {
 			XDMSchema schema = entry.getValue();
-			if (schema.getVersion() == version) {
+			if (schema.getVersion() == getVersion()) {
 				if (activate) {
 					if (!schema.isActive()) {
 						if (initSchemaInCluster(schema) > 0) {
 							schema.setActive(true);
-							schema.updateVersion();
+							schema.updateVersion(getAdmin());
 							entry.setValue(schema);
 							result = schema;
+							auditEntity(AuditType.update, schema);
 						}
 					}
 				} else {
 					if (schema.isActive()) {
 						if (denitSchemaInCluster(schema) == 0) {
 							schema.setActive(false);
-							schema.updateVersion();
+							schema.updateVersion(getAdmin());
 							entry.setValue(schema);
 							result = schema;
+							auditEntity(AuditType.update, schema);
 						}
 					}
 				}
+				// or, write audit record here, even in case of version failure?
 			}
 		} 
 		logger.debug("process.exit; returning: {}", result); 
@@ -58,13 +60,13 @@ public class SchemaActivator extends SchemaProcessor implements DataSerializable
 
 	@Override
 	public void readData(ObjectDataInput in) throws IOException {
-		version = in.readInt();
+		super.readData(in);
 		activate = in.readBoolean();
 	}
 
 	@Override
 	public void writeData(ObjectDataOutput out) throws IOException {
-		out.writeInt(version);
+		super.writeData(out);
 		out.writeBoolean(activate);
 	}
 

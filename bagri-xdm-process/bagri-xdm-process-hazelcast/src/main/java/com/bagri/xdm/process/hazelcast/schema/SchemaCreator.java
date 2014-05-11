@@ -21,7 +21,8 @@ public class SchemaCreator extends SchemaProcessor implements DataSerializable {
 		//
 	}
 	
-	public SchemaCreator(String description, Properties properties) {
+	public SchemaCreator(String admin, String description, Properties properties) {
+		super(1, admin);
 		this.description = description;
 		this.properties = properties;
 	}
@@ -31,11 +32,13 @@ public class SchemaCreator extends SchemaProcessor implements DataSerializable {
 		logger.debug("process.enter; entry: {}", entry); 
 		if (entry.getValue() == null) {
 			String schemaName = entry.getKey();
-			XDMSchema schema = new XDMSchema(schemaName, 1, description, true, new Date(), "SchemaManagement", properties);
+			XDMSchema schema = new XDMSchema(schemaName, getVersion(), description, 
+					true, new Date(), getAdmin(), properties);
 			if (initSchemaInCluster(schema) == 0) {
 				schema.setActive(false);
 			}
 			entry.setValue(schema);
+			auditEntity(AuditType.create, schema);
 			return schema;
 		} 
 		return null;
@@ -43,14 +46,14 @@ public class SchemaCreator extends SchemaProcessor implements DataSerializable {
 
 	@Override
 	public void readData(ObjectDataInput in) throws IOException {
-		// logger.trace("readPortable.enter; in: {}", in);
+		super.readData(in);
 		description = in.readUTF();
 		properties = in.readObject();
 	}
 
 	@Override
 	public void writeData(ObjectDataOutput out) throws IOException {
-		// logger.trace("writePortable.enter; out: {}", out);
+		super.writeData(out);
 		out.writeUTF(description);
 		out.writeObject(properties);
 	}

@@ -1,6 +1,7 @@
 package com.bagri.xdm.access.hazelcast.pof;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.Properties;
 
 import com.bagri.xdm.system.XDMNode;
@@ -8,7 +9,7 @@ import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.StreamSerializer;
 
-public class XDMNodeSerializer implements StreamSerializer<XDMNode> {
+public class XDMNodeSerializer extends XDMEntitySerializer implements StreamSerializer<XDMNode> {
 
 	@Override
 	public int getTypeId() {
@@ -16,22 +17,20 @@ public class XDMNodeSerializer implements StreamSerializer<XDMNode> {
 	}
 
 	@Override
-	public void destroy() {
-		// what should we do here?
-	}
-
-	@Override
 	public XDMNode read(ObjectDataInput in) throws IOException {
-		
+		Object[] entity = super.readEntity(in);
 		XDMNode xNode = new XDMNode(in.readUTF(), 
 				in.readUTF(),
-				(Properties) in.readObject()); 
+				(Properties) in.readObject(),
+				(int) entity[0], 
+				(Date) entity[1], 
+				(String) entity[2]); 
 		return xNode;
 	}
 
 	@Override
-	public void write(ObjectDataOutput out, XDMNode xNode)	throws IOException {
-		
+	public void write(ObjectDataOutput out, XDMNode xNode) throws IOException {
+		super.writeEntity(out, xNode);
 		out.writeUTF(xNode.getAddress());
 		out.writeUTF(xNode.getId());
 		out.writeObject(xNode.getOptions());

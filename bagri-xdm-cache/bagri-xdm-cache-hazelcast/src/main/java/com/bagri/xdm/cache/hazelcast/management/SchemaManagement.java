@@ -3,6 +3,7 @@ package com.bagri.xdm.cache.hazelcast.management;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,6 +34,7 @@ import com.bagri.xdm.access.api.XDMSchemaDictionary;
 import com.bagri.xdm.access.api.XDMSchemaManagement;
 import com.bagri.xdm.process.hazelcast.schema.SchemaCreator;
 import com.bagri.xdm.process.hazelcast.schema.SchemaRemover;
+import com.bagri.xdm.system.XDMNode;
 import com.bagri.xdm.system.XDMSchema;
 import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.EntryListener;
@@ -59,26 +61,50 @@ public class SchemaManagement implements EntryListener<String, XDMSchema>, Initi
 		//super();
 		this.hzInstance = hzInstance;
 	}
+	
+	//private boolean 
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
         Set<String> names = schemaCache.keySet();
 		logger.debug("afterPropertiesSet.enter; got schemas: {}", names); 
-        for (String name: names) {
+		
+        //String schemas = hz.getCluster().getLocalMember().getStringAttribute(op_node_schemas);
+    	String schemaStr = System.getProperty(XDMNode.op_node_schemas);
+    	String[] schemas = schemaStr.split(" ");
+
+    	String roleStr = System.getProperty(XDMNode.op_node_role);
+    	//String[] roles = roleStr.split(" ");
+    	boolean isAdmin = XDMNode.NodeRole.isAdminRole(roleStr);
+
+		for (String name: names) {
         	XDMSchema schema = schemaCache.get(name);
-       		boolean initialized = initSchema(name, schema.getProperties());
+        	boolean initialized = false;
+        	boolean localSchema = Arrays.binarySearch(schemas, name) >= 0; 
+        	if (localSchema) {
+           		initialized = initSchema(name, schema.getProperties());
+        	}
+        	
        		SchemaManager sMgr = (SchemaManager) mgrCache.get(name);
        		if (sMgr == null) {
-   				logger.debug("afterPropertiesSet; cannot get SchemaManager for schema {}; initializing a new one", name); 
-       			try {
-       				sMgr = initSchemaManager(name);
-       			} catch (MBeanExportException | MalformedObjectNameException ex) {
-       				// JMX registration failed.
-       				logger.error("afterPropertiesSet.error: ", ex);
+       			if (localSchema || isAdmin) {
+       				logger.debug("afterPropertiesSet; cannot get SchemaManager for schema {}; initializing a new one", name); 
+       				try {
+       					sMgr = initSchemaManager(name);
+       				} catch (MBeanExportException | MalformedObjectNameException ex) {
+       					// JMX registration failed.
+       					logger.error("afterPropertiesSet.error: ", ex);
+       				}
        			}
        		}
-   			if (sMgr != null && !initialized) {
-   				sMgr.setState("Failed schema initialization");
+   			if (sMgr != null) {
+   				if (localSchema) {
+   					if (!initialized) {
+   		   				sMgr.setState("Failed schema initialization");
+   					}
+   				} else {
+   	   				sMgr.setState("External schema; not initialized");
+   				}
    			}
         }
 	}
@@ -155,8 +181,10 @@ public class SchemaManagement implements EntryListener<String, XDMSchema>, Initi
 	public XDMSchema addSchema(String schemaName, String description, Properties props) {
 		XDMSchema schema = null;
 		if (!schemaCache.containsKey(schemaName)) {
-	    	Object result = schemaCache.executeOnKey(schemaName, new SchemaCreator(description, props));
-	    	logger.debug("initSchema; execution result: {}", result);
+			// get current user from context...
+			String user = JMXUtils.getCurrentUser();
+	    	Object result = schemaCache.executeOnKey(schemaName, new SchemaCreator(user, description, props));
+	    	logger.debug("addSchema; execution result: {}", result);
 	    	schema = (XDMSchema) result;
 		}
 		return schema;
@@ -166,8 +194,9 @@ public class SchemaManagement implements EntryListener<String, XDMSchema>, Initi
 	public XDMSchema deleteSchema(String schemaName) {
 		XDMSchema schema = schemaCache.get(schemaName);
 		if (schema != null) {
-	    	Object result = schemaCache.executeOnKey(schemaName, new SchemaRemover(schema.getVersion()));
-	    	logger.debug("denitSchema; execution result: {}", result);
+			String user = JMXUtils.getCurrentUser();
+	    	Object result = schemaCache.executeOnKey(schemaName, new SchemaRemover(schema.getVersion(), user));
+	    	logger.debug("deleteSchema; execution result: {}", result);
 	    	schema = (XDMSchema) result;
 		}
 		return schema;

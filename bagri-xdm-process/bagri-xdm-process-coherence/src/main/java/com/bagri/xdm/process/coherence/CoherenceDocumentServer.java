@@ -103,7 +103,8 @@ public class CoherenceDocumentServer extends XDMDocumentManagerServer {
 				createElement(ctx, itr.next(), docType);
 			}
 
-			XDMDocument doc = new XDMDocument(id, uri, docType); // + version, createdAt, createdBy, encoding
+			String user = "system"; // get user from context!
+			XDMDocument doc = new XDMDocument(id, uri, docType, user); // + version, createdAt, encoding
 			docEntry.setValue(doc, false);
 		
 			mDictionary.normalizeDocumentType(docType);

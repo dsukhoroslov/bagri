@@ -98,6 +98,8 @@ public class NodeManager implements SelfNaming, XDMNodeManager {
 				logger.error("setOption.error; ", ex);
 			}
 		}
+		
+		// @TODO: do it via NodeUpdater!
 	}
 
 	public XDMNode setNodeOption(String name, String value) {

@@ -3,42 +3,37 @@ package com.bagri.xdm.domain;
 import java.io.Serializable;
 import java.util.Date;
 
-public class XDMDocument { //implements Serializable {
+import com.bagri.xdm.api.XDMEntity;
+
+public class XDMDocument extends XDMEntity { //implements Serializable {
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 304713901204617098L;
+	//private static final long serialVersionUID = 304713901204617098L;
 	
 	protected long documentId;
 	protected String uri;
 	protected int typeId;
-	protected int version;
-	protected Date createdAt;
-	protected String createdBy;
 	protected String encoding;
 	
 	public XDMDocument() {
 		//
 	}
 	
-	public XDMDocument(long documentId, String uri, int typeId) {
+	public XDMDocument(long documentId, String uri, int typeId, String owner) {
+		super(0, new Date(), owner);
 		this.documentId = documentId;
 		this.uri = uri;
 		this.typeId = typeId;
-		this.version = 0;
-		this.createdAt = new Date();
-		this.createdBy = "system"; // get default user from connection..
 		this.encoding = "UTF-8";
 	}
 	
 	public XDMDocument(long documentId, String uri, int typeId, int version, Date createdAt, String createdBy, String encoding) {
+		super(version, createdAt, createdBy);
 		this.documentId = documentId;
 		this.uri = uri;
 		this.typeId = typeId;
-		this.version = version;
-		this.createdAt = new Date(createdAt.getTime());
-		this.createdBy = createdBy;
 		this.encoding = encoding;
 	}
 
@@ -64,27 +59,6 @@ public class XDMDocument { //implements Serializable {
 	}
 
 	/**
-	 * @return the version
-	 */
-	public int getVersion() {
-		return version;
-	}
-
-	/**
-	 * @return the createdAt
-	 */
-	public Date getCreatedAt() {
-		return createdAt;
-	}
-
-	/**
-	 * @return the createdBy
-	 */
-	public String getCreatedBy() {
-		return createdBy;
-	}
-
-	/**
 	 * @return the encoding
 	 */
 	public String getEncoding() {
@@ -97,8 +71,8 @@ public class XDMDocument { //implements Serializable {
 	@Override
 	public String toString() {
 		return "XDMDocument [documentId=" + documentId + ", uri=" + uri
-				+ ", typeId=" + typeId + ", version=" + version 
-				+ ", createdAt=" + createdAt + ", createdBy=" + createdBy
+				+ ", typeId=" + typeId + ", version=" + getVersion()
+				+ ", createdAt=" + getCreatedAt() + ", createdBy=" + getCreatedBy()
 				+ ", encoding=" + encoding + "]";
 	}
 	

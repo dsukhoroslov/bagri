@@ -1,5 +1,7 @@
 package com.bagri.xdm.cache.hazelcast.management;
 
+import java.util.Properties;
+
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
@@ -16,7 +18,10 @@ import org.springframework.jmx.export.naming.SelfNaming;
 
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.xdm.access.api.XDMNodeManager;
+import com.bagri.xdm.process.hazelcast.schema.SchemaUpdater;
+import com.bagri.xdm.process.hazelcast.user.UserUpdater;
 import com.bagri.xdm.system.XDMNode;
+import com.bagri.xdm.system.XDMSchema;
 import com.bagri.xdm.system.XDMUser;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
@@ -43,12 +48,12 @@ public class UserManager implements SelfNaming {
 		this.userName = userName;
 	}
 
-    //public UserManager(HazelcastInstance hzInstance, String userName) {
-	//	this.hzInstance = hzInstance;
-	//	this.userName = userName;
-		//execService = hzInstance.getExecutorService("xdm-exec-pool");
-	//	userCache = hzInstance.getMap("users");
-	//}
+	//@Override
+	protected XDMUser getUser() {
+		XDMUser user = userCache.get(userName);
+		//logger.trace("getSchema. returning: {}", schema);
+		return user;
+	}
 	
 	public void setUserCache(IMap<String, XDMUser> userCache) {
 		this.userCache = userCache;
@@ -71,8 +76,14 @@ public class UserManager implements SelfNaming {
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "login", description = "User login"),
 		@ManagedOperationParameter(name = "password", description = "New User's password")})
-	public boolean changePassword(String login, String password) {
-		// TODO Auto-generated method stub
+	public boolean changePassword(String login, String oldPassword, String newPassword) {
+		XDMUser user = getUser();
+		if (user != null) {
+	    	Object result = userCache.executeOnKey(login, new UserUpdater(user.getVersion(), 
+	    			JMXUtils.getCurrentUser(), oldPassword, newPassword));
+	    	logger.trace("changePassword; execution result: {}", result);
+	    	return result != null;
+		}
 		return false;
 	}
 

@@ -204,7 +204,8 @@ public class HazelcastDocumentManager extends XDMDocumentManagerClient {
 		long docId = docGen.next();
 		String uri = "/library/" + docId;
 		//xddCache.put(docId, null);
-		xddCache.put(docId, new XDMDocument(docId, uri, 0));
+		// @TODO: get current user from somewhere
+		xddCache.put(docId, new XDMDocument(docId, uri, 0, "system"));
 		logger.trace("storeDocument; document initialized: {}", docId);
 		
 		DocumentCreator task = new DocumentCreator(docId, uri, xml);
