@@ -20,9 +20,10 @@ public class BagriJMXAuthenticator implements JMXAuthenticator {
 
     private UserManagement uMgr;
 
+    @Override
 	public Subject authenticate(Object credentials) {
 
-		logger.debug("authenticate.enter; got credentials: {}", credentials); 
+		logger.info("authenticate.enter; got credentials: {}", credentials); 
 		// Verify that credentials is of type String[].
 		//
 		if (!(credentials instanceof String[])) {
@@ -47,10 +48,12 @@ public class BagriJMXAuthenticator implements JMXAuthenticator {
 		String password = (String) aCredentials[1];
 
 		if (checkCreds(username, password)) {
-			return new Subject(true,
+			Subject result = new Subject(true,
 					Collections.singleton(new JMXPrincipal(username)),
 					Collections.EMPTY_SET,
 					Collections.EMPTY_SET);
+			logger.info("authenticate.exit; returning: {}", result);
+			return result;
 		} else {
 			throw new SecurityException("Invalid credentials");
 		}

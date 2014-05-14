@@ -3,6 +3,7 @@ package com.bagri.xdm.cache.hazelcast;
 import static org.junit.Assert.*;
 
 import java.net.MalformedURLException;
+import java.util.Arrays;
 import java.util.HashMap;
 
 import javax.management.MBeanServerConnection;
@@ -17,7 +18,7 @@ public class XDMCacheServerTest {
 	
 	private static String url = "service:jmx:rmi:///jndi/rmi://localhost:3333/jmxrmi";
 	private static String user = "admin";
-	private static String password = "admin123";
+	private static String password = "admin";
 
 	@Test
 	public void testJMXConnection() throws Exception {
@@ -27,14 +28,18 @@ public class XDMCacheServerTest {
         env.put(JMXConnector.CREDENTIALS, creds);
 
         JMXServiceURL jmxUrl = new JMXServiceURL(url);
-        JMXConnector jmxc = JMXConnectorFactory.connect(jmxUrl, env);
+        //JMXConnector jmxc = JMXConnectorFactory.connect(jmxUrl, env);
+        
+        JMXConnector jmxc = JMXConnectorFactory.newJMXConnector(jmxUrl, null);
+        jmxc.connect(env);
+        
         MBeanServerConnection mbsc = jmxc.getMBeanServerConnection();
         String[] domains = mbsc.getDomains();
         assertTrue(containsDomain(domains, "com.bagri.xdm"));
         
         ObjectName name = new ObjectName("com.bagri.xdm:type=Management,name=ClusterManagement");
         Object nodes = mbsc.getAttribute(name, "Nodes");
-        System.out.println("got nodes: " + nodes);
+        //System.out.println("got nodes: " + Arrays.toString((String[]) nodes));
         String[] sNodes = (String[]) nodes;
         assertTrue(sNodes.length > 0);
 	}

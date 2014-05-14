@@ -156,8 +156,8 @@
                                             <sysproperty key="com.sun.management.jmxremote" value="true"/>
 					    <sysproperty key="com.sun.management.jmxremote.port" value="3333"/>
                                             <sysproperty key="com.sun.management.jmxremote.authenticate" value="false"/>
-					    <!--sysproperty key="com.sun.management.jmxremote.password.file" value=""/-->
-					    <!-- C:\Work\Bagri\git\bagri\bagri-xdm-cache\bagri-xdm-cache-hazelcast\src\main\resources\admins.password -->
+					    <!--sysproperty key="com.sun.management.jmxremote.password.file" 
+						value="C:\Work\Bagri\git\bagri\bagri-xdm-cache\bagri-xdm-cache-hazelcast\src\main\resources\admins.password"/-->
 					    <!--sysproperty key="com.sun.management.jmxremote.login.config" value="admin-server"/-->
                                             <sysproperty key="com.sun.management.jmxremote.ssl" value="false"/>
                                             <sysproperty key="logback.configurationFile" value="xdm-cache-logging.xml"/>

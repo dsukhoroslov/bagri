@@ -1,6 +1,7 @@
 package com.bagri.xdm.cache.hazelcast;
 
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,6 +33,22 @@ public class XDMCacheServer {
     
     @SuppressWarnings("unchecked")
 	public static void main(String[] args) {
+    	
+        context = new ClassPathXmlApplicationContext("spring/application-context.xml");
+        HazelcastInstance hz = context.getBean("hzInstance", HazelcastInstance.class);
+        String name = hz.getConfig().getProperty(op_node_name);
+        hz.getCluster().getLocalMember().setStringAttribute(op_node_name, name);
+        //String schemas = hz.getConfig().getProperty(op_node_schemas);
+        //hz.getCluster().getLocalMember().setStringAttribute(op_node_schemas, schemas);
+        logger.debug("System Cache started with Config: {}; Instance: {}", hz.getConfig(), hz);
+        
+        //UserManagement uMgr = context.getBean("userService", UserManagement.class);
+        //auth.setUserManager(uMgr);
+        BagriJMXAuthenticator auth = context.getBean("authManager", BagriJMXAuthenticator.class);
+        
+        // just to see the current user on startup..
+        String user = JMXUtils.getCurrentUser();
+        
     	String sport = System.getProperty("com.sun.management.jmxremote.port");
     	int port = Integer.parseInt(sport);
     	JMXServiceURL url;
@@ -43,13 +60,16 @@ public class XDMCacheServer {
 			throw new IllegalArgumentException("wrong JMX connection", ex);
 		}
 		
-		logger.debug("going to start JMX connector server at: {}", url);
-        Map env = new HashMap();
-        BagriJMXAuthenticator auth = new BagriJMXAuthenticator();
+        Map<String, Object> env = new HashMap<String, Object>();
+        //BagriJMXAuthenticator auth = new BagriJMXAuthenticator();
         env.put(JMXConnectorServer.AUTHENTICATOR, auth);
+		logger.debug("going to start JMX connector server at: {}, with attributes: {}", url, env);
     	//MBeanServer mbs = MBeanServerFactory.createMBeanServer();
-		ArrayList<MBeanServer> servers = MBeanServerFactory.findMBeanServer(null);
-		MBeanServer mbs = servers.get(0);
+		
+		//ArrayList<MBeanServer> servers = MBeanServerFactory.findMBeanServer(null);
+		//MBeanServer mbs = servers.get(0);
+		MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
+		
         JMXConnectorServer cs;
 		try {
 			cs = JMXConnectorServerFactory.newJMXConnectorServer(url, env, mbs);
@@ -58,20 +78,13 @@ public class XDMCacheServer {
 			logger.error("error starting connection JMX server: " + ex.getMessage(), ex);
 			throw new RuntimeException(ex);
 		}
+		logger.debug("JMX connector server started with attributes: {}", cs.getAttributes());
     	
-        context = new ClassPathXmlApplicationContext("spring/application-context.xml");
-        HazelcastInstance hz = context.getBean("hzInstance", HazelcastInstance.class);
-        String name = hz.getConfig().getProperty(op_node_name);
-        hz.getCluster().getLocalMember().setStringAttribute(op_node_name, name);
-        //String schemas = hz.getConfig().getProperty(op_node_schemas);
-        //hz.getCluster().getLocalMember().setStringAttribute(op_node_schemas, schemas);
-        logger.debug("System Cache started with Config: {}; Instance: {}", hz.getConfig(), hz);
-        
-        UserManagement uMgr = context.getBean("userService", UserManagement.class);
-        auth.setUserManager(uMgr);
-        
-        // just to see the current user on startup..
-        String user = JMXUtils.getCurrentUser();
+		ArrayList<MBeanServer> servers = MBeanServerFactory.findMBeanServer(null);
+		for (MBeanServer s: servers) {
+			logger.debug("server: {}", s);
+		}
+		logger.debug("Spring server: {}", context.getBean("mbeanServer"));
     }
 
 }
