@@ -16,7 +16,7 @@ import org.junit.Test;
 
 public class XDMCacheServerTest {
 	
-	private static String url = "service:jmx:rmi:///jndi/rmi://localhost:3333/jmxrmi";
+	private static String url = "service:jmx:rmi://localhost/jndi/rmi://localhost:3333/jmxrmi";
 	private static String user = "admin";
 	private static String password = "admin";
 

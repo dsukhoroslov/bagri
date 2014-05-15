@@ -42,13 +42,6 @@ public class XDMCacheServer {
         //hz.getCluster().getLocalMember().setStringAttribute(op_node_schemas, schemas);
         logger.debug("System Cache started with Config: {}; Instance: {}", hz.getConfig(), hz);
         
-        //UserManagement uMgr = context.getBean("userService", UserManagement.class);
-        //auth.setUserManager(uMgr);
-        BagriJMXAuthenticator auth = context.getBean("authManager", BagriJMXAuthenticator.class);
-        
-        // just to see the current user on startup..
-        String user = JMXUtils.getCurrentUser();
-        
     	String sport = System.getProperty("com.sun.management.jmxremote.port");
     	int port = Integer.parseInt(sport);
     	JMXServiceURL url;
@@ -62,29 +55,25 @@ public class XDMCacheServer {
 		
         Map<String, Object> env = new HashMap<String, Object>();
         //BagriJMXAuthenticator auth = new BagriJMXAuthenticator();
+        BagriJMXAuthenticator auth = context.getBean("authManager", BagriJMXAuthenticator.class);
         env.put(JMXConnectorServer.AUTHENTICATOR, auth);
+        //env.put("jmx.remote.x.password.file", "");
+        //env.put("jmx.remote.x.access.file", "");
 		logger.debug("going to start JMX connector server at: {}, with attributes: {}", url, env);
-    	//MBeanServer mbs = MBeanServerFactory.createMBeanServer();
-		
-		//ArrayList<MBeanServer> servers = MBeanServerFactory.findMBeanServer(null);
-		//MBeanServer mbs = servers.get(0);
+
 		MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
+		logger.debug("Platform MBean server: {}", mbs);
+		logger.debug("Spring MBean server: {}", context.getBean("mbeanServer"));
 		
         JMXConnectorServer cs;
 		try {
 			cs = JMXConnectorServerFactory.newJMXConnectorServer(url, env, mbs);
 	        cs.start();    	
 		} catch (IOException ex) {
-			logger.error("error starting connection JMX server: " + ex.getMessage(), ex);
+			logger.error("error starting JMX connector server: " + ex.getMessage(), ex);
 			throw new RuntimeException(ex);
 		}
 		logger.debug("JMX connector server started with attributes: {}", cs.getAttributes());
-    	
-		ArrayList<MBeanServer> servers = MBeanServerFactory.findMBeanServer(null);
-		for (MBeanServer s: servers) {
-			logger.debug("server: {}", s);
-		}
-		logger.debug("Spring server: {}", context.getBean("mbeanServer"));
     }
 
 }

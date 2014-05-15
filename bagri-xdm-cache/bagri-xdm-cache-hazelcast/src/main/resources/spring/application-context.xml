@@ -20,13 +20,16 @@
                     p:locateExistingServerIfPossible="true"/-->
     <!--bean id="jmxServer" class="java.lang.management.ManagementFactory" factory-method="getPlatformMBeanServer"/-->
      
-    <context:mbean-server />
-    <context:mbean-export default-domain="com.bagri.xdm"/>
+    <!--context:mbean-server /-->
+    <bean id="mbeanServer" class="java.lang.management.ManagementFactory" factory-method="getPlatformMBeanServer"/>
+    <context:mbean-export server="mbeanServer" default-domain="com.bagri.xdm"/>
+    
 <!-- 
     <context:mbean-server id="jmxServer"/>
     <context:mbean-export server="jmxServer" default-domain="com.bagri.xdm"/> registration="replaceExisting"
  -->
-     <!-- JXM Authentication -->
+    
+    <!-- JXM Authentication -->
     <util:constant id="jmx.auth.attribute" static-field="javax.management.remote.JMXConnectorServer.AUTHENTICATOR"/>
 
     <bean id="authManager" class="com.bagri.xdm.cache.hazelcast.security.BagriJMXAuthenticator">
@@ -49,7 +52,7 @@
         <property name="serviceUrl" value="service:jmx:rmi:///jndi/rmi://localhost:3333/jmxrmi"/>
         <property name="environmentMap">
         	<map>
-        		<entry key-ref="jmx.auth.attribute" value-ref="jmx.authenticator"/>
+        		<entry key-ref="jmx.auth.attribute" value-ref="authManager"/>
         	</map>
         </property>
     </bean-->

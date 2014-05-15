@@ -23,6 +23,7 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
 import com.bagri.common.manage.JMXUtils;
+import com.bagri.common.util.FileUtils;
 import com.bagri.xdm.access.api.XDMClusterManagement;
 import com.bagri.xdm.access.api.XDMNodeManager;
 import com.bagri.xdm.process.hazelcast.node.NodeCreator;
@@ -91,7 +92,7 @@ public class ClusterManagement implements EntryListener<String, XDMNode>, Initia
 		if (!nodeCache.containsKey(key)) {
 	    	Object result = nodeCache.executeOnKey(key, new NodeCreator(JMXUtils.getCurrentUser(), 
 	    			id, address, options));
-	    	logger.debug("addUser; execution result: {}", result);
+	    	logger.debug("addNode; execution result: {}", result);
 			return true;
 		}
 		return false;
@@ -119,17 +120,17 @@ public class ClusterManagement implements EntryListener<String, XDMNode>, Initia
 		@ManagedOperationParameter(name = "nodeId", description = "Node identifier"),
 		@ManagedOperationParameter(name = "options", description = "Node options: key/value pairs separated by comma")})
 	public boolean addNode(String address, String nodeId, String options) {
-		Properties opts = new Properties();
-		options = options.replaceAll(";", "\n\r");
+
+		Properties opts;
 		try {
-			opts.load(new StringReader(options));
+			opts = FileUtils.propsFromString(options);
 		} catch (IOException ex) {
 			logger.error("createSchema.error: ", ex);
 			return false;
 		}
-		
+
 		try {
-			return addNode(nodeId, address, options);
+			return addNode(nodeId, address, opts);
 		} catch (Exception ex) {
 			logger.error("addNode.error: " + ex.getMessage(), ex);
 		}
