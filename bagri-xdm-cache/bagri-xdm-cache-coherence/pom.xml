@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -8,37 +9,38 @@
         <relativePath>..</relativePath>
     </parent>
 
-    <groupId>com.sdv.bagri</groupId>
     <artifactId>bagri-xdm-cache-coherence</artifactId>
     <name>bagri-xdm-cache-coherence</name>
     <description>Bagri XDM Cache: Coherence implementation</description>
 
     <properties>
         <!-- Coherence server java args -->
-        <run.jvm.args>-server -Xms512m -Xmx2048m -XX:MaxNewSize=128m -XX:+ExplicitGCInvokesConcurrent -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:+CMSIncrementalMode</run.jvm.args>
+        <run.jvm.args>-server -Xms512m -Xmx2048m -XX:MaxNewSize=128m -XX:+ExplicitGCInvokesConcurrent -XX:+UseParNewGC
+            -XX:+UseConcMarkSweepGC -XX:+CMSIncrementalMode
+        </run.jvm.args>
     </properties>
 
     <dependencies>
 
         <dependency>
-	    <groupId>com.sdv.bagri</groupId>
-	    <artifactId>bagri-common</artifactId>
+            <groupId>com.sdv.bagri</groupId>
+            <artifactId>bagri-common</artifactId>
         </dependency>
         <dependency>
-	    <groupId>com.sdv.bagri</groupId>
-	    <artifactId>bagri-xdm</artifactId>
+            <groupId>com.sdv.bagri</groupId>
+            <artifactId>bagri-xdm</artifactId>
         </dependency>
         <dependency>
-	    <groupId>com.sdv.bagri</groupId>
-	    <artifactId>bagri-xdm-access-api</artifactId>
+            <groupId>com.sdv.bagri</groupId>
+            <artifactId>bagri-xdm-access-api</artifactId>
         </dependency>
         <dependency>
-	    <groupId>com.sdv.bagri</groupId>
-	    <artifactId>bagri-xdm-access-coherence</artifactId>
+            <groupId>com.sdv.bagri</groupId>
+            <artifactId>bagri-xdm-access-coherence</artifactId>
         </dependency>
         <dependency>
-	    <groupId>com.sdv.bagri</groupId>
-	    <artifactId>bagri-xdm-process-coherence</artifactId>
+            <groupId>com.sdv.bagri</groupId>
+            <artifactId>bagri-xdm-process-coherence</artifactId>
         </dependency>
 
         <!-- Spring framework -->
@@ -56,15 +58,15 @@
             <version>${spring.version}</version>
         </dependency-->
 
-	<dependency>
-	    <groupId>com.oracle.coherence</groupId>
-	    <artifactId>coherence</artifactId>
-	</dependency>
         <dependency>
-	    <groupId>com.oracle.coherence.incubator</groupId>
-	    <artifactId>coherence-common</artifactId>
-	    <!--version>${coherence-common.version}</version-->
-	</dependency>
+            <groupId>com.oracle.coherence</groupId>
+            <artifactId>coherence</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.oracle.coherence.incubator</groupId>
+            <artifactId>coherence-common</artifactId>
+            <!--version>${coherence-common.version}</version-->
+        </dependency>
         <!--dependency>
 	    <groupId>com.oracle.coherence.spring</groupId>
 	    <artifactId>coherence-spring</artifactId>
@@ -90,11 +92,11 @@
             <scope>runtime</scope>
         </dependency>
 
-    <!--dependency>
-      <groupId>stax</groupId>
-      <artifactId>stax-api</artifactId>
-      <version>1.0.1</version>
-    </dependency-->
+        <!--dependency>
+          <groupId>stax</groupId>
+          <artifactId>stax-api</artifactId>
+          <version>1.0.1</version>
+        </dependency-->
 
         <!--dependency>
             <groupId>org.apache.commons</groupId>
@@ -151,19 +153,23 @@
                                 <configuration>
                                     <tasks if="run-cache">
                                         <java fork="true" classname="com.tangosol.net.DefaultCacheServer">
-                                        <!--java fork="true" classname="com.bagri.xdm.cache.XDMCacheServer"-->
+                                            <!--java fork="true" classname="com.bagri.xdm.cache.XDMCacheServer"-->
                                             <jvmarg line="${run.jvm.args}"/>
                                             <sysproperty key="LOGDIR" value="./logs/"/>
-                                            <sysproperty key="tangosol.coherence.override" value="coherence/xdm-coherence-override.xml"/>
+                                            <sysproperty key="tangosol.coherence.override"
+                                                         value="coherence/xdm-coherence-override.xml"/>
                                             <!--sysproperty key="tangosol.coherence.cacheconfig" value="coherence/xdm-server-cache-config.xml"/-->
                                             <!--sysproperty key="tangosol.coherence.localhost" value="localhost"/>
                                             <sysproperty key="tangosol.coherence.localport" value="8088"/-->
                                             <sysproperty key="tangosol.pof.enabled" value="true"/>
                                             <sysproperty key="tangosol.coherence.ttl" value="0"/>
-                                            <sysproperty key="tangosol.coherence.management" value="all" />
-                                            <sysproperty key="tangosol.coherence.management.refresh.policy" value="refresh-expired"/>
-                                            <sysproperty key="tangosol.coherence.management.refresh.expiry" value="500"/>
-                                            <sysproperty key="tangosol.coherence.management.refresh.timeout" value="120000"/>
+                                            <sysproperty key="tangosol.coherence.management" value="all"/>
+                                            <sysproperty key="tangosol.coherence.management.refresh.policy"
+                                                         value="refresh-expired"/>
+                                            <sysproperty key="tangosol.coherence.management.refresh.expiry"
+                                                         value="500"/>
+                                            <sysproperty key="tangosol.coherence.management.refresh.timeout"
+                                                         value="120000"/>
                                             <sysproperty key="com.sun.management.jmxremote" value="true"/>
                                             <sysproperty key="com.sun.management.jmxremote.authenticate" value="false"/>
                                             <sysproperty key="com.sun.management.jmxremote.ssl" value="false"/>
@@ -194,15 +200,21 @@
                                         <java fork="true" classname="com.tangosol.net.DefaultCacheServer">
                                             <jvmarg line="-Xmx128m"/>
                                             <sysproperty key="LOGDIR" value="./logs/"/>
-                                            <sysproperty key="tangosol.coherence.invocation.request.timeout" value="120000"/>
-                                            <sysproperty key="tangosol.coherence.override" value="coherence/xdm-jmx-coherence-override.xml"/>
-                                            <sysproperty key="tangosol.coherence.cacheconfig" value="coherence/xdm-jmx-cache-config.xml"/>
+                                            <sysproperty key="tangosol.coherence.invocation.request.timeout"
+                                                         value="120000"/>
+                                            <sysproperty key="tangosol.coherence.override"
+                                                         value="coherence/xdm-jmx-coherence-override.xml"/>
+                                            <sysproperty key="tangosol.coherence.cacheconfig"
+                                                         value="coherence/xdm-jmx-cache-config.xml"/>
                                             <sysproperty key="tangosol.pof.enabled" value="true"/>
                                             <sysproperty key="tangosol.coherence.ttl" value="0"/>
                                             <sysproperty key="tangosol.coherence.management" value="all"/>
-                                            <sysproperty key="tangosol.coherence.management.remote.httpport" value="10002"/>
-                                            <sysproperty key="tangosol.coherence.management.refresh.timeout" value="300000"/>
-                                            <sysproperty key="com.tangosol.net.management.MBeanConnector" value="-http"/>
+                                            <sysproperty key="tangosol.coherence.management.remote.httpport"
+                                                         value="10002"/>
+                                            <sysproperty key="tangosol.coherence.management.refresh.timeout"
+                                                         value="300000"/>
+                                            <sysproperty key="com.tangosol.net.management.MBeanConnector"
+                                                         value="-http"/>
                                             <sysproperty key="com.sun.management.jmxremote" value="true"/>
                                             <sysproperty key="com.sun.management.jmxremote.authenticate" value="false"/>
                                             <sysproperty key="com.sun.management.jmxremote.ssl" value="false"/>
@@ -232,10 +244,13 @@
                                         <java fork="true" classname="com.tangosol.net.DefaultCacheServer">
                                             <jvmarg line="-Xmx128m"/>
                                             <sysproperty key="LOGDIR" value="./logs/"/>
-                                            <sysproperty key="tangosol.coherence.override" value="coherence/xdm-proxy-coherence-override.xml"/>
-                                            <sysproperty key="tangosol.coherence.cacheconfig" value="coherence/xdm-proxy-cache-config.xml"/>
+                                            <sysproperty key="tangosol.coherence.override"
+                                                         value="coherence/xdm-proxy-coherence-override.xml"/>
+                                            <sysproperty key="tangosol.coherence.cacheconfig"
+                                                         value="coherence/xdm-proxy-cache-config.xml"/>
                                             <sysproperty key="tangosol.coherence.extend.port" value="21000"/>
-                                            <sysproperty key="tangosol.coherence.distributed.localstorage" value="false"/>
+                                            <sysproperty key="tangosol.coherence.distributed.localstorage"
+                                                         value="false"/>
                                             <sysproperty key="tangosol.pof.enabled" value="true"/>
                                             <sysproperty key="tangosol.coherence.invocation.autostart" value="true"/>
 
