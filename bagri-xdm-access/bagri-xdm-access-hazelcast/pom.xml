@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -8,7 +9,6 @@
         <relativePath>..</relativePath>
     </parent>
 
-    <groupId>com.sdv.bagri</groupId>
     <artifactId>bagri-xdm-access-hazelcast</artifactId>
     <name>bagri-xdm-access-hazelcast</name>
     <description>BagRi XDM Access Layer: Hazelcast Implementation</description>
@@ -16,26 +16,26 @@
     <dependencies>
 
         <dependency>
-	    <groupId>com.sdv.bagri</groupId>
-	    <artifactId>bagri-common</artifactId>
+            <groupId>com.sdv.bagri</groupId>
+            <artifactId>bagri-common</artifactId>
         </dependency>
-	<dependency>
-	    <groupId>com.sdv.bagri</groupId>
-	    <artifactId>bagri-xdm</artifactId>
-	</dependency>
         <dependency>
-	    <groupId>com.sdv.bagri</groupId>
-	    <artifactId>bagri-xdm-access-api</artifactId>
+            <groupId>com.sdv.bagri</groupId>
+            <artifactId>bagri-xdm</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sdv.bagri</groupId>
+            <artifactId>bagri-xdm-access-api</artifactId>
         </dependency>
 
-	<dependency>
-	    <groupId>com.hazelcast</groupId>
-	    <artifactId>hazelcast-client</artifactId>
-	</dependency>
-	<dependency>
-    	    <groupId>com.hazelcast</groupId>
-    	    <artifactId>hazelcast-spring</artifactId>
-	</dependency>
+        <dependency>
+            <groupId>com.hazelcast</groupId>
+            <artifactId>hazelcast-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.hazelcast</groupId>
+            <artifactId>hazelcast-spring</artifactId>
+        </dependency>
 
         <!-- Spring framework -->
         <!--dependency>

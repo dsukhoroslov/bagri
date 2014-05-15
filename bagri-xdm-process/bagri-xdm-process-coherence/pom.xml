@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -8,7 +9,6 @@
         <relativePath>..</relativePath>
     </parent>
 
-    <groupId>com.sdv.bagri</groupId>
     <artifactId>bagri-xdm-process-coherence</artifactId>
     <name>bagri-xdm-process-coherence</name>
     <description>Bagri XDM Processing: Coherence implementation</description>
@@ -16,20 +16,20 @@
     <dependencies>
 
         <dependency>
-	    <groupId>com.sdv.bagri</groupId>
-	    <artifactId>bagri-common</artifactId>
+            <groupId>com.sdv.bagri</groupId>
+            <artifactId>bagri-common</artifactId>
         </dependency>
         <dependency>
-	    <groupId>com.sdv.bagri</groupId>
-	    <artifactId>bagri-xdm</artifactId>
+            <groupId>com.sdv.bagri</groupId>
+            <artifactId>bagri-xdm</artifactId>
         </dependency>
         <dependency>
-	    <groupId>com.sdv.bagri</groupId>
-	    <artifactId>bagri-xdm-access-api</artifactId>
+            <groupId>com.sdv.bagri</groupId>
+            <artifactId>bagri-xdm-access-api</artifactId>
         </dependency>
         <dependency>
-	    <groupId>com.sdv.bagri</groupId>
-	    <artifactId>bagri-xdm-access-coherence</artifactId>
+            <groupId>com.sdv.bagri</groupId>
+            <artifactId>bagri-xdm-access-coherence</artifactId>
         </dependency>
 
         <!-- Spring framework -->
@@ -38,15 +38,15 @@
             <artifactId>spring-context</artifactId>
         </dependency>
 
-	<dependency>
-	    <groupId>com.oracle.coherence</groupId>
-	    <artifactId>coherence</artifactId>
-	</dependency>
         <dependency>
-	    <groupId>com.oracle.coherence.incubator</groupId>
-	    <artifactId>coherence-common</artifactId>
-	    <!--version>${coherence-common.version}</version-->
-	</dependency>
+            <groupId>com.oracle.coherence</groupId>
+            <artifactId>coherence</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.oracle.coherence.incubator</groupId>
+            <artifactId>coherence-common</artifactId>
+            <!--version>${coherence-common.version}</version-->
+        </dependency>
         <!--dependency>
 	    <groupId>com.oracle.coherence.spring</groupId>
 	    <artifactId>coherence-spring</artifactId>

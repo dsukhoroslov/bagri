@@ -67,14 +67,14 @@
             <artifactId>spring-test</artifactId>
             <version>${spring.version}</version>
         </dependency-->
-	<dependency>
-	    <groupId>org.springframework.data</groupId>
-	    <artifactId>spring-data-mongodb</artifactId>
-	</dependency>
-	<dependency>
-	    <groupId>org.springframework.data</groupId>
-	    <artifactId>spring-data-hadoop</artifactId>
-	</dependency>                       
+        <dependency>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-mongodb</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-hadoop</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>com.hazelcast</groupId>
@@ -104,14 +104,14 @@
             <scope>runtime</scope>
         </dependency>
 
-	<dependency>
-	    <groupId>org.mongodb</groupId>
-	    <artifactId>mongo-java-driver</artifactId>
-	</dependency>
-	<dependency>
-	    <groupId>org.apache.thrift</groupId>
-	    <artifactId>libthrift</artifactId>
-	</dependency>
+        <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongo-java-driver</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.thrift</groupId>
+            <artifactId>libthrift</artifactId>
+        </dependency>
 
         <!--dependency>
           <groupId>stax</groupId>
@@ -154,12 +154,14 @@
                                             <jvmarg line="${run.jvm.args0} ${run.jvm.args1} ${run.jvm.args2}"/>
                                             <sysproperty key="LOGDIR" value="./logs/"/>
                                             <sysproperty key="com.sun.management.jmxremote" value="true"/>
-					    <sysproperty key="com.sun.management.jmxremote.port" value="3333"/>
+                                            <sysproperty key="com.sun.management.jmxremote.port" value="3333"/>
                                             <sysproperty key="com.sun.management.jmxremote.authenticate" value="true"/>
-					    <!--sysproperty key="com.sun.management.jmxremote.password.file" value="${project.basedir}/src/main/resources/admins.password"/-->
-					    <sysproperty key="com.sun.management.jmxremote.login.config" value="BagriLoginConfig"/>
+                                            <!--sysproperty key="com.sun.management.jmxremote.password.file" value="${project.basedir}/src/main/resources/admins.password"/-->
+                                            <sysproperty key="com.sun.management.jmxremote.login.config"
+                                                         value="BagriLoginConfig"/>
                                             <sysproperty key="com.sun.management.jmxremote.ssl" value="false"/>
-					    <sysproperty key="java.security.auth.login.config" value="${project.basedir}/src/main/resources/jaas.config"/>
+                                            <sysproperty key="java.security.auth.login.config"
+                                                         value="${project.basedir}/src/main/resources/jaas.config"/>
                                             <sysproperty key="logback.configurationFile" value="xdm-cache-logging.xml"/>
                                             <sysproperty key="xdm.cluster.node.name" value="admin"/>
                                             <sysproperty key="xdm.cluster.node.role" value="admin"/>

@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -8,7 +9,6 @@
         <relativePath>..</relativePath>
     </parent>
 
-    <groupId>com.sdv.bagri</groupId>
     <artifactId>bagri-xdm-access-jcache</artifactId>
     <name>bagri-xdm-access-jcache</name>
     <description>BagRi XDM Access Layer: JCache Implementation</description>
@@ -16,26 +16,26 @@
     <dependencies>
 
         <dependency>
-	    <groupId>com.sdv.bagri</groupId>
-	    <artifactId>bagri-common</artifactId>
+            <groupId>com.sdv.bagri</groupId>
+            <artifactId>bagri-common</artifactId>
         </dependency>
-	<dependency>
-	    <groupId>com.sdv.bagri</groupId>
-	    <artifactId>bagri-xdm</artifactId>
-	</dependency>
         <dependency>
-	    <groupId>com.sdv.bagri</groupId>
-	    <artifactId>bagri-xdm-access-api</artifactId>
+            <groupId>com.sdv.bagri</groupId>
+            <artifactId>bagri-xdm</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sdv.bagri</groupId>
+            <artifactId>bagri-xdm-access-api</artifactId>
         </dependency>
 
-	<dependency>
-	  <groupId>javax.cache</groupId>
-	  <artifactId>cache-api</artifactId>
-	</dependency>
-	<dependency>
-	  <groupId>org.jsr107.ri</groupId>
-	  <artifactId>cache-ri-impl</artifactId>
-	</dependency>
+        <dependency>
+            <groupId>javax.cache</groupId>
+            <artifactId>cache-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jsr107.ri</groupId>
+            <artifactId>cache-ri-impl</artifactId>
+        </dependency>
 
         <!-- Dependencies for logging -->
         <dependency>
