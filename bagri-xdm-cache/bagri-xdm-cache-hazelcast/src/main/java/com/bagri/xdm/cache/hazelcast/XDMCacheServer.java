@@ -13,6 +13,7 @@ import javax.management.remote.JMXAuthenticator;
 import javax.management.remote.JMXConnectorServer;
 import javax.management.remote.JMXConnectorServerFactory;
 import javax.management.remote.JMXServiceURL;
+import javax.management.remote.MBeanServerForwarder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +22,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.xdm.cache.hazelcast.management.UserManagement;
+import com.bagri.xdm.cache.hazelcast.security.BagriJAASInvocationHandler;
 import com.bagri.xdm.cache.hazelcast.security.BagriJMXAuthenticator;
 import com.hazelcast.core.HazelcastInstance;
 
@@ -68,7 +70,10 @@ public class XDMCacheServer {
         JMXConnectorServer cs;
 		try {
 			cs = JMXConnectorServerFactory.newJMXConnectorServer(url, env, mbs);
-	        cs.start();    	
+			
+	        MBeanServerForwarder mbsf = BagriJAASInvocationHandler.newProxyInstance();
+	        cs.setMBeanServerForwarder(mbsf);
+	        cs.start();
 		} catch (IOException ex) {
 			logger.error("error starting JMX connector server: " + ex.getMessage(), ex);
 			throw new RuntimeException(ex);
