@@ -5,6 +5,31 @@
 # vim:ft=sh:
 #
 
+##################################################
+# JVM config parameters
+##################################################
+
+jmx_port=$(( 6200 + $nodeNum ))
+
+main='com.bagri.xdm.hzcache.XDMCacheServer'
+JAVA_OPTS="\
+-Xms4096m \
+-Xmx4096m \
+-XX:NewSize=128m \
+-XX:MaxNewSize=128m \
+-XX:+ExplicitGCInvokesConcurrent \
+-XX:+UseParNewGC \
+-XX:+UseConcMarkSweepGC \
+-XX:+CMSIncrementalMode \
+-Dlogback.configurationFile=xdm-cache-logging.xml
+-Dcom.sun.management.jmxremote.authenticate=false \
+-Dcom.sun.management.jmxremote.ssl=false \
+-Dcom.sun.management.jmxremote \
+-Dcom.sun.management.jmxremote.port=${jmx_port} \
+"
+##################################################
+
+
 appname="`basename $0`"
 appname=${appname/\.sh/}
 apphome="`cd \`dirname $0\`/.. && pwd && cd - >/dev/null`"
@@ -49,6 +74,7 @@ do
 done
 
 . "${apphome}/bin/${appname}.conf"
+
 
 export CLASSPATH
 

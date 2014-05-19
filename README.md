@@ -14,3 +14,4 @@ Consists of the following Maven modules:
 * bagri-client - sample clients
 * bagri-xqj - JSR225 implementation
 * bagri-xqj-tck - JSR225 TCK starter
+* bagri-distr - distributive package

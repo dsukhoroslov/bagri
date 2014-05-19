@@ -20,6 +20,7 @@
         <module>bagri-xquery</module>
         <module>bagri-xqj</module>
         <module>bagri-client</module>
+        <module>bagri-distr</module>
 
         <!--todo: added for compilation; delete if not needed-->
         <module>bagri-xqj-tck</module>
@@ -74,12 +75,15 @@
         <mongo.version>2.11.4</mongo.version>
         <thrift.version>0.8.0</thrift.version>
 
+        <!--todo: never used, do we need it? -->
         <!-- Reporting cfg -->
-        <maven.plugins.cfg.dir>${project.basedir}/../etc/maven_plugins</maven.plugins.cfg.dir>
+        <!--<maven.plugins.cfg.dir>${project.basedir}/../etc/maven_plugins</maven.plugins.cfg.dir>-->
 
         <!--DEFAULT MAVEN PLUGINS OVERRIDEN VERSIONS-->
         <!--must be greater than 2.2 cause of bug fixes-->
         <maven-assembly-plugin.version>2.4</maven-assembly-plugin.version>
+        <maven-javadoc-plugin.version>2.9.1</maven-javadoc-plugin.version>
+        <maven-source-plugin.version>2.2.1</maven-source-plugin.version>
 
     </properties>
 
@@ -95,6 +99,11 @@
                 <groupId>com.sdv.bagri</groupId>
                 <artifactId>bagri-xdm</artifactId>
                 <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sdv.bagri</groupId>
+                <artifactId>bagri-xdm-cache-hazelcast</artifactId>
+                <version>0.0.1-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.sdv.bagri</groupId>
@@ -392,9 +401,29 @@
     </dependencyManagement>
 
     <build>
-        <plugins>
+        <pluginManagement>
 
             <!--DEFAULT MAVEN PLUGINS OVERRIDE-->
+
+            <plugins>
+                <plugin>
+                    <artifactId>maven-assembly-plugin</artifactId>
+                    <version>${maven-assembly-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <version>${maven-javadoc-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-source-plugin</artifactId>
+                    <version>${maven-source-plugin.version}</version>
+                </plugin>
+            </plugins>
+
+        </pluginManagement>
+
+        <plugins>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -404,10 +433,7 @@
                     <encoding>${project.build.sourceEncoding}</encoding>
                 </configuration>
             </plugin>
-            <plugin>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <version>${maven-assembly-plugin.version}</version>
-            </plugin>
+
 
             <!-- for testing -->
             <plugin>
@@ -466,35 +492,23 @@
             <!--</plugin>-->
 
         </plugins>
+
     </build>
 
 
     <profiles>
 
-        <!--DOCUMENTING PROFILE-->
+        <!--DISTRIBUTIVE PROFILE-->
         <profile>
-            <id>document</id>
+            <id>distr</id>
             <build>
                 <plugins>
-                    <!--it's for generation of src and javadoc artifacts-->
+                    <!--creates SRC jar files for all modules, needed for entire javadoc creation-->
                     <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>
                         <executions>
                             <execution>
-                                <id>attach-sources</id>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>attach-javadocs</id>
+                                <id>bundle-sources</id>
                                 <goals>
                                     <goal>jar</goal>
                                 </goals>

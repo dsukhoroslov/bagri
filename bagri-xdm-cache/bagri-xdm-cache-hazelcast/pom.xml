@@ -242,32 +242,6 @@
             </build>
         </profile>
 
-        <!--DISTRIBUTIVE BUILD PROFILE-->
-        <profile>
-            <id>distributive</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-assembly-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>${project.name}-assembly</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>single</goal>
-                                </goals>
-                                <configuration>
-                                    <descriptors>
-                                        <descriptor>src/main/assembly/distr.xml</descriptor>
-                                    </descriptors>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-
     </profiles>
 
 </project>
