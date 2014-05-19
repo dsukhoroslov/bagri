@@ -3,6 +3,8 @@ package com.bagri.common.manage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.bagri.common.security.LocalSubject;
+
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanRegistrationException;
@@ -124,8 +126,11 @@ public class JMXUtils {
 	public static String getCurrentUser() {
         AccessControlContext ctx = AccessController.getContext();
         Subject subj = Subject.getSubject(ctx);
-        logger.trace("getCurrentUser; subject: {}", subj);
         String result = null;
+        if (subj == null) {
+        	subj = LocalSubject.getSubject();
+        }
+        logger.trace("getCurrentUser; subject: {}", subj);
         if (subj == null) {
         	result = System.getProperty("user.name");
         } else {

@@ -17,6 +17,8 @@ import javax.security.auth.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.bagri.common.security.LocalSubject;
+
 public class BagriJAASInvocationHandler implements InvocationHandler {
 
     private static final transient Logger logger = LoggerFactory.getLogger(BagriJAASInvocationHandler.class);
@@ -25,11 +27,10 @@ public class BagriJAASInvocationHandler implements InvocationHandler {
 	
 	public static MBeanServerForwarder newProxyInstance() {
 
-		final InvocationHandler handler = new BagriJAASInvocationHandler();
-		final Class[] interfaces = new Class[] {MBeanServerForwarder.class};
 		Object proxy = Proxy.newProxyInstance(
-				MBeanServerForwarder.class.getClassLoader(), interfaces,
-				handler);
+				MBeanServerForwarder.class.getClassLoader(), 
+				new Class[] {MBeanServerForwarder.class}, 
+				new BagriJAASInvocationHandler());
 
 		return MBeanServerForwarder.class.cast(proxy);
 	}
@@ -45,11 +46,12 @@ public class BagriJAASInvocationHandler implements InvocationHandler {
 		}
 
 		if (methodName.equals("setMBeanServer")) {
-			if (args[0] == null)
+			if (args[0] == null) {
 				throw new IllegalArgumentException("Null MBeanServer");
-			if (mbs != null)
-				throw new IllegalArgumentException("MBeanServer object "
-						+ "already initialized");
+			}
+			if (mbs != null) {
+				throw new IllegalArgumentException("MBeanServer object already initialized");
+			}
 			mbs = (MBeanServer) args[0];
 			return null;
 		}
@@ -64,11 +66,13 @@ public class BagriJAASInvocationHandler implements InvocationHandler {
 		// itself
 		if (subject == null) {
 			return method.invoke(mbs, args);
+		} else {
+			//
+			LocalSubject.setSubject(subject);
 		}
 
 		// Restrict access to "createMBean" and "unregisterMBean" to any user
-		if (methodName.equals("createMBean")
-				|| methodName.equals("unregisterMBean")) {
+		if (methodName.equals("createMBean") || methodName.equals("unregisterMBean")) {
 			throw new SecurityException("Access denied");
 		}
 
@@ -91,8 +95,8 @@ public class BagriJAASInvocationHandler implements InvocationHandler {
 		}
 
 		// "role2" can only call "getAttribute" on the MBeanServerDelegate MBean
-		if (identity.equals("role2") && methodName.equals("getAttribute")
-				&& MBeanServerDelegate.DELEGATE_NAME.equals(args[0])) {
+		if (identity.equals("role2") && methodName.equals("getAttribute") && 
+				MBeanServerDelegate.DELEGATE_NAME.equals(args[0])) {
 			return method.invoke(mbs, args);
 		}
 
