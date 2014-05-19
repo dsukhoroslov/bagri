@@ -3,6 +3,8 @@ package com.bagri.xdm.cache.hazelcast;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.net.MalformedURLException;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -44,12 +46,12 @@ public class XDMCacheServer {
         //hz.getCluster().getLocalMember().setStringAttribute(op_node_schemas, schemas);
         logger.debug("System Cache started with Config: {}; Instance: {}", hz.getConfig(), hz);
         
-    	String sport = System.getProperty("com.sun.management.jmxremote.port");
-    	int port = Integer.parseInt(sport);
+    	//String sport = System.getProperty("com.sun.management.jmxremote.port");
+    	int port = 3333; //Integer.parseInt(sport);
     	JMXServiceURL url;
 		try {
-			url = new JMXServiceURL("rmi", "localhost", port);
-			//url = new JMXServiceURL("service:jmx:rmi:///jndi/rmi://localhost:3333/jmxrmi");
+			//url = new JMXServiceURL("rmi", "localhost", port);
+			url = new JMXServiceURL("service:jmx:rmi://localhost/jndi/rmi://localhost:3333/jmxrmi");
 		} catch (MalformedURLException ex) {
 			logger.warn("error creating JMX URL: {}", ex.getMessage());
 			throw new IllegalArgumentException("wrong JMX connection", ex);
@@ -63,6 +65,13 @@ public class XDMCacheServer {
         //env.put("jmx.remote.x.access.file", "");
 		logger.debug("going to start JMX connector server at: {}, with attributes: {}", url, env);
 
+		try {
+			LocateRegistry.createRegistry(port);
+		} catch (RemoteException ex) {
+			logger.warn("error creating JMX Registry: {}", ex.getMessage());
+			//throw new IllegalArgumentException("wrong JMX registry", ex);
+		}
+		
 		MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
 		logger.debug("Platform MBean server: {}", mbs);
 		logger.debug("Spring MBean server: {}", context.getBean("mbeanServer"));

@@ -124,6 +124,7 @@ public class JMXUtils {
 	public static String getCurrentUser() {
         AccessControlContext ctx = AccessController.getContext();
         Subject subj = Subject.getSubject(ctx);
+        logger.trace("getCurrentUser; subject: {}", subj);
         String result = null;
         if (subj == null) {
         	result = System.getProperty("user.name");

@@ -58,6 +58,8 @@ public class BagriJAASInvocationHandler implements InvocationHandler {
 		AccessControlContext acc = AccessController.getContext();
 		Subject subject = Subject.getSubject(acc);
 
+		logger.trace("invoke; got Subject: {}", subject); 
+		
 		// Allow operations performed locally on behalf of the connector server
 		// itself
 		if (subject == null) {
@@ -71,13 +73,16 @@ public class BagriJAASInvocationHandler implements InvocationHandler {
 		}
 
 		// Retrieve JMXPrincipal from Subject
-		Set<JMXPrincipal> principals = subject
-				.getPrincipals(JMXPrincipal.class);
+		Set<JMXPrincipal> principals = subject.getPrincipals(JMXPrincipal.class);
 		if (principals == null || principals.isEmpty()) {
 			throw new SecurityException("Access denied");
 		}
 		Principal principal = principals.iterator().next();
 		String identity = principal.getName();
+		
+		if ("admin".equals(identity)) {
+			return method.invoke(mbs, args);
+		}
 
 		// "role1" can perform any operation other than "createMBean" and
 		// "unregisterMBean"
