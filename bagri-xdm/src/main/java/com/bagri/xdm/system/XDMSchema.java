@@ -11,9 +11,14 @@ import javax.xml.bind.annotation.XmlType;
 
 import com.bagri.xdm.api.XDMEntity;
 
-@XmlType(namespace = "http://www.bagri.com/xdm/system",
-	propOrder = {"name", "active", "description", "props"})
 @XmlAccessorType(XmlAccessType.FIELD)
+@XmlType(namespace = "http://www.bagri.com/xdm/system",
+	propOrder = {
+		"name", 
+		"active", 
+		"description", 
+		"props"
+})
 public class XDMSchema extends XDMEntity {
 
 	@XmlAttribute(required = true)

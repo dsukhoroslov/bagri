@@ -22,6 +22,7 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.IdGenerator;
 import com.hazelcast.core.Member;
+import com.hazelcast.monitor.LocalMapStats;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
 
@@ -44,11 +45,24 @@ public class HazelcastDocumentServer extends XDMDocumentManagerServer {
     	return xdmCache.size();
     }
     
+    public long getSchemaSize() {
+    	// @TODO: do this on all cache nodes!
+    	LocalMapStats stats = xddCache.getLocalMapStats();
+    	long size = stats.getBackupEntryMemoryCost() + stats.getOwnedEntryMemoryCost();
+    	stats = xdmCache.getLocalMapStats();
+    	size += stats.getBackupEntryMemoryCost() + stats.getOwnedEntryMemoryCost();
+    	return size;
+    }
+    
     public Map<Integer, Integer> getTypeDocuments() {
     	return Collections.EMPTY_MAP;
     }
 
     public Map<Integer, Integer> getTypeElements() {
+    	return Collections.EMPTY_MAP;
+    }
+
+    public Map<Integer, Long> getTypeSchemaSize() {
     	return Collections.EMPTY_MAP;
     }
 

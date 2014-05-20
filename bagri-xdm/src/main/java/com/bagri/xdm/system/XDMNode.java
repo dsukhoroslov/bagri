@@ -3,8 +3,21 @@ package com.bagri.xdm.system;
 import java.util.Date;
 import java.util.Properties;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlType;
+
 import com.bagri.xdm.api.XDMEntity;
 
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlType(namespace = "http://www.bagri.com/xdm/system",
+	propOrder = {
+		"id", 
+		"address", 
+		"options"
+})
 public class XDMNode extends XDMEntity {
 	
 	public enum NodeRole {
@@ -22,8 +35,13 @@ public class XDMNode extends XDMEntity {
     public static final String op_node_size = "xdm.cluster.node.size";
     public static final String op_node_schemas = "xdm.cluster.node.schemas";
 
+	@XmlAttribute(required = true)
 	private String id;
+	
+	@XmlElement(required = true)
 	private String address;
+	
+	@XmlElement(required = false)
 	private Properties options = new Properties();
 
 	public XDMNode(String address, String id, Properties options, int version, Date createdAt, String createdBy) {

@@ -8,8 +8,13 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-@XmlRootElement(name = "config", namespace = "http://www.bagri.com/xdm/system")
 @XmlAccessorType(XmlAccessType.FIELD)
+@XmlRootElement(name = "config", namespace = "http://www.bagri.com/xdm/system" //,
+//	propOrder = {
+//		"nodes", 
+//		"schemas"
+//}
+)
 public class XDMConfig {
 	
 	@XmlElement

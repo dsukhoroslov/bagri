@@ -54,13 +54,14 @@
                         <transformSchema>
                             <uri>http://www.bagri.com/xdm/system</uri>
                             <toPrefix>xdm</toPrefix>
-                            <toFile>XDMConfig</toFile>
+                            <toFile>XDMConfig.xsd</toFile>
                         </transformSchema>
                     </transformSchemas>
                     <includes>
+                        <include>com/bagri/xdm/api/*.java</include>
                         <include>com/bagri/xdm/system/*.java</include>
                     </includes>
-		    <verbose>true</verbose>
+		    <outputDirectory>${project.build.directory}/generated-resources/schema</outputDirectory>
                 </configuration>
             </plugin>
             

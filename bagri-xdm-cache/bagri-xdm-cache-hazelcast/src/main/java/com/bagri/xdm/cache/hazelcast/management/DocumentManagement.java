@@ -74,6 +74,17 @@ public class DocumentManagement implements SelfNaming {
 		return null;
 	}
     
+	@ManagedAttribute(description="Returns Schema size in bytes")
+	public Long getSchemaSize() {
+		return ((HazelcastDocumentServer) docManager).getSchemaSize(); 
+	}
+    
+	@ManagedAttribute(description="Returns Schema size in bytes, per document type")
+	public CompositeData getTypedSchemaSize() {
+		Map<Integer, Long> counts = ((HazelcastDocumentServer) docManager).getTypeSchemaSize();
+		return null;
+	}
+    
 	@ManagedOperation(description="Register Document")
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "docFile", description = "A full path to XML file to register")})
