@@ -10,6 +10,7 @@ import java.util.Set;
 
 import javax.management.MBeanServer;
 import javax.management.MBeanServerDelegate;
+import javax.management.ObjectName;
 import javax.management.remote.JMXPrincipal;
 import javax.management.remote.MBeanServerForwarder;
 import javax.security.auth.Subject;
@@ -18,23 +19,30 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bagri.common.security.LocalSubject;
+import com.bagri.xdm.cache.hazelcast.management.UserManagement;
 
 public class BagriJAASInvocationHandler implements InvocationHandler {
 
     private static final transient Logger logger = LoggerFactory.getLogger(BagriJAASInvocationHandler.class);
 	
 	private MBeanServer mbs;
+	private UserManagement autzManager;
 	
-	public static MBeanServerForwarder newProxyInstance() {
+	private BagriJAASInvocationHandler(UserManagement autzManager) {
+		this.autzManager = autzManager;
+	}
+	
+	public static MBeanServerForwarder newProxyInstance(UserManagement autzManager) {
 
 		Object proxy = Proxy.newProxyInstance(
 				MBeanServerForwarder.class.getClassLoader(), 
 				new Class[] {MBeanServerForwarder.class}, 
-				new BagriJAASInvocationHandler());
+				new BagriJAASInvocationHandler(autzManager));
 
 		return MBeanServerForwarder.class.cast(proxy);
 	}
 
+	@Override
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 		
 		logger.trace("invoke.enter; method: {}; args: {}", method.getName(), args); 
@@ -84,23 +92,32 @@ public class BagriJAASInvocationHandler implements InvocationHandler {
 		Principal principal = principals.iterator().next();
 		String identity = principal.getName();
 		
-		if ("admin".equals(identity)) {
+		if (checkPermissions(identity, methodName, (ObjectName) args[0])) {
 			return method.invoke(mbs, args);
+		}
+
+		throw new SecurityException("Access denied");
+	}
+	
+	public boolean checkPermissions(String identity, String methodName, ObjectName target) {
+
+		if ("admin".equals(identity)) {
+			return true;
 		}
 
 		// "role1" can perform any operation other than "createMBean" and
 		// "unregisterMBean"
 		if (identity.equals("role1")) {
-			return method.invoke(mbs, args);
+			return true;
 		}
 
 		// "role2" can only call "getAttribute" on the MBeanServerDelegate MBean
 		if (identity.equals("role2") && methodName.equals("getAttribute") && 
-				MBeanServerDelegate.DELEGATE_NAME.equals(args[0])) {
-			return method.invoke(mbs, args);
+				MBeanServerDelegate.DELEGATE_NAME.equals(target)) {
+			return true;
 		}
-
-		throw new SecurityException("Access denied");
+		
+		return false;
 	}
 
 }

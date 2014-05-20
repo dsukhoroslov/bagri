@@ -2,9 +2,11 @@ package com.bagri.xdm.cache.hazelcast.management;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+import javax.management.openmbean.CompositeData;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +50,28 @@ public class DocumentManagement implements SelfNaming {
 	@ManagedAttribute(description="Returns corresponding Schema name")
 	public String getSchema() {
 		return schemaName;
+	}
+    
+	@ManagedAttribute(description="Returns Schema size in documents")
+	public Integer getDocumentCount() {
+		return ((HazelcastDocumentServer) docManager).getXddSize(); 
+	}
+    
+	@ManagedAttribute(description="Returns Schema size in documents, per document type")
+	public CompositeData getTypedDocumentCount() {
+		Map<Integer, Integer> counts = ((HazelcastDocumentServer) docManager).getTypeDocuments();
+		return null;
+	}
+    
+	@ManagedAttribute(description="Returns Schema size in elements")
+	public Integer getElementCount() {
+		return ((HazelcastDocumentServer) docManager).getXdmSize(); 
+	}
+    
+	@ManagedAttribute(description="Returns Schema size in elements, per document type")
+	public CompositeData getTypedElementCount() {
+		Map<Integer, Integer> counts = ((HazelcastDocumentServer) docManager).getTypeElements();
+		return null;
 	}
     
 	@ManagedOperation(description="Register Document")

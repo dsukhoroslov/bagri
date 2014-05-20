@@ -25,9 +25,9 @@ import com.bagri.xdm.domain.XDMNodeKind;
 
 public abstract class XDMDocumentManagerServer extends XDMDocumentManagerBase /*implements XDMDocumentManager*/ {
 
-    protected IdGenerator idGen;
+    protected IdGenerator<Long> idGen;
     
-    public void setElementIdGenerator(IdGenerator idGen) {
+    public void setElementIdGenerator(IdGenerator<Long> idGen) {
     	this.idGen = idGen;
     }
 	

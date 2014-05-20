@@ -4,12 +4,14 @@ import java.util.Properties;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+import javax.management.openmbean.CompositeData;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jmx.export.annotation.ManagedAttribute;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
@@ -63,6 +65,21 @@ public class UserManager implements SelfNaming {
 		this.userName = userName;
 	}
 	
+	@ManagedAttribute(description="Returns User name")
+	public String getName() {
+		return userName;
+	}
+	
+	@ManagedAttribute(description="Returns User version")
+	public int getVersion() {
+		return getUser().getVersion();
+	}
+
+	@ManagedAttribute(description="Returns User state")
+	public boolean isActive() {
+		return getUser().isActive();
+	}
+
 	@ManagedOperation(description="Activates/Deactivates User")
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "login", description = "User login"),

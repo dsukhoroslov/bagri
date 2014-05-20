@@ -65,6 +65,7 @@
 				<hz:property name="hazelcast.jmx">true</hz:property>
 				<hz:property name="hazelcast.jmx.detailed">true</hz:property>
 				<hz:property name="hazelcast.logging.type">slf4j</hz:property>
+				<hz:property name="xdm.cluster.admin.port">${xdm.cluster.admin.port}</hz:property>
 				<hz:property name="xdm.cluster.node.name">${xdm.cluster.node.name}</hz:property>
 				<hz:property name="xdm.cluster.node.role">${xdm.cluster.node.role}</hz:property>
 				<hz:property name="xdm.cluster.node.schemas">${xdm.cluster.node.schemas}</hz:property>

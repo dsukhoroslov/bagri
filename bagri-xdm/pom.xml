@@ -35,4 +35,35 @@
 
     </dependencies>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>jaxb2-maven-plugin</artifactId>
+                <version>1.6</version>
+                <executions>
+                    <execution>
+                        <id>schemagen</id>
+                        <goals>
+                            <goal>schemagen</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <transformSchemas>
+                        <transformSchema>
+                            <uri>http://www.bagri.com/xdm/system</uri>
+                            <toPrefix>xdm</toPrefix>
+                            <toFile>XDMConfig</toFile>
+                        </transformSchema>
+                    </transformSchemas>
+                    <includes>
+                        <include>com/bagri/xdm/system/*.java</include>
+                    </includes>
+		    <verbose>true</verbose>
+                </configuration>
+            </plugin>
+            
+        </plugins>
+    </build>
 </project>

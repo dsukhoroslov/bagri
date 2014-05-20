@@ -1,19 +1,32 @@
 package com.bagri.xdm.system;
 
-import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
+
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlType;
 
 import com.bagri.xdm.api.XDMEntity;
 
+@XmlType(namespace = "http://www.bagri.com/xdm/system",
+	propOrder = {"name", "active", "description", "props"})
+@XmlAccessorType(XmlAccessType.FIELD)
 public class XDMSchema extends XDMEntity {
 
+	@XmlAttribute(required = true)
 	private String name;
+	
+	@XmlElement(required = true)
 	private String description;
+	
+	@XmlAttribute(required = true)
 	private boolean active;
 	//private Map<String, Object> props = new HashMap<String, Object>();
+	
+	@XmlElement(name = "properties", required = false)
 	private Properties props = new Properties();
 
 	public XDMSchema(String name, int version, String description, boolean active, 
@@ -100,3 +113,4 @@ public class XDMSchema extends XDMEntity {
 	
 	
 }
+

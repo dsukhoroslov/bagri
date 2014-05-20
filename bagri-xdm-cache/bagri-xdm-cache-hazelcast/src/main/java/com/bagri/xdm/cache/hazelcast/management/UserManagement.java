@@ -171,6 +171,17 @@ public class UserManagement implements EntryListener<String, XDMUser>, Initializ
 		logger.trace("entryEvicted; event: {}", event);
 		// make user inactive ?
 	}
+	
+	public boolean authenticate(String login, String password) {
+		XDMUser user = userCache.get(login);
+		if (user != null) {
+			// @TODO: we'll NOT store passwords in open text,
+			// will have to hash pwd and compare with original hash
+			return password.equals(user.getPassword());
+		}
+		// throw NotFound exception?
+		return false;
+	}
 
 
 }

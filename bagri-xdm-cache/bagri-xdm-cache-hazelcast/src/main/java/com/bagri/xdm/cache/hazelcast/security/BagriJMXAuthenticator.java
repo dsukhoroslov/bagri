@@ -63,11 +63,9 @@ public class BagriJMXAuthenticator implements JMXAuthenticator {
 		this.uMgr = uMgr;
 	}
 	
-	private boolean checkCreds(String username, String password) {
+	private boolean checkCreds(String login, String password) {
 		// check user from userCache..
-		logger.debug("checkCreds.enter; got user: {}, password: {}", username, password); 
-
-		return username.equals(password);
+		return uMgr.authenticate(login, password);
 	}
 
 }

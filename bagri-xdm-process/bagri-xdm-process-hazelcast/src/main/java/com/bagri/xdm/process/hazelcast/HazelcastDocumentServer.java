@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +34,22 @@ public class HazelcastDocumentServer extends XDMDocumentManagerServer {
     
     public void setDocumentIdGenerator(IdGenerator docGen) {
     	this.docGen = docGen;
+    }
+    
+    public int getXddSize() {
+    	return xddCache.size();
+    }
+    
+    public int getXdmSize() {
+    	return xdmCache.size();
+    }
+    
+    public Map<Integer, Integer> getTypeDocuments() {
+    	return Collections.EMPTY_MAP;
+    }
+
+    public Map<Integer, Integer> getTypeElements() {
+    	return Collections.EMPTY_MAP;
     }
 
     public void setXddCache(IMap<Long, XDMDocument> cache) {

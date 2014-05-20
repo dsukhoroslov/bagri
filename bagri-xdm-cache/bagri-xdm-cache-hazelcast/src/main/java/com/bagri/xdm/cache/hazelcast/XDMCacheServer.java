@@ -46,12 +46,17 @@ public class XDMCacheServer {
         //hz.getCluster().getLocalMember().setStringAttribute(op_node_schemas, schemas);
         logger.debug("System Cache started with Config: {}; Instance: {}", hz.getConfig(), hz);
         
-    	//String sport = System.getProperty("com.sun.management.jmxremote.port");
-    	int port = 3333; //Integer.parseInt(sport);
+        String role = hz.getConfig().getProperty("xdm.cluster.node.role");
+        if (!"admin".equals(role)) {
+        	return;
+        }
+        
+    	String xport = hz.getConfig().getProperty("xdm.cluster.admin.port");
+    	int port = Integer.parseInt(xport);
     	JMXServiceURL url;
 		try {
 			//url = new JMXServiceURL("rmi", "localhost", port);
-			url = new JMXServiceURL("service:jmx:rmi://localhost/jndi/rmi://localhost:3333/jmxrmi");
+			url = new JMXServiceURL("service:jmx:rmi://localhost/jndi/rmi://localhost:" + xport + "/jmxrmi");
 		} catch (MalformedURLException ex) {
 			logger.warn("error creating JMX URL: {}", ex.getMessage());
 			throw new IllegalArgumentException("wrong JMX connection", ex);
@@ -79,8 +84,8 @@ public class XDMCacheServer {
         JMXConnectorServer cs;
 		try {
 			cs = JMXConnectorServerFactory.newJMXConnectorServer(url, env, mbs);
-			
-	        MBeanServerForwarder mbsf = BagriJAASInvocationHandler.newProxyInstance();
+			UserManagement uMgr = context.getBean(UserManagement.class);
+	        MBeanServerForwarder mbsf = BagriJAASInvocationHandler.newProxyInstance(uMgr);
 	        cs.setMBeanServerForwarder(mbsf);
 	        cs.start();
 		} catch (IOException ex) {
