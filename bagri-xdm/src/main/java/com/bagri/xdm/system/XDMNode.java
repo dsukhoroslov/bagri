@@ -7,6 +7,8 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlEnum;
+import javax.xml.bind.annotation.XmlEnumValue;
 import javax.xml.bind.annotation.XmlType;
 
 import com.bagri.xdm.api.XDMEntity;
@@ -20,9 +22,14 @@ import com.bagri.xdm.api.XDMEntity;
 })
 public class XDMNode extends XDMEntity {
 	
+	@XmlType(name = "NodeRole", namespace = "http://www.bagri.com/xdm/system")
+	@XmlEnum
 	public enum NodeRole {
 		
+	    @XmlEnumValue("admin")
 		admin,
+
+	    @XmlEnumValue("server")
 		server;
 		
 		public static boolean isAdminRole(String role) {

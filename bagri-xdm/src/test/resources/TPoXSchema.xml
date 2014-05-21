@@ -1,0 +1,41 @@
+<config xmlns="http://www.bagri.com/xdm/system" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"> 
+    
+<schemas>
+    <schema name="TPoX" active="true">
+	<version>1</version>
+	<description>TPoX: schema for TPoX-related tests</description>
+	<createdAt>2014-03-27</createdAt>
+	<createdBy>SDV</createdBy>
+	<properties>
+	    <property name="xdm.schema.password">TPoX</property>
+	    <property name="xdm.schema.ports">10000-10100</property>
+	    <property name="xdm.schema.ports.start">10000</property>
+	    <property name="xdm.schema.members">localhost</property>
+	    <property name="xdm.schema.thread.pool">10</property>
+	    <property name="xdm.schema.store.type">HIVE</property>
+	    <property name="xdm.schema.store.host">localhost</property>
+	    <property name="xdm.schema.store.port">27017</property>
+	    <property name="xdm.schema.store.dbname">test</property>
+	</properties>
+    </schema>
+
+    <schema name="Test" active="true">
+	<version>1</version>
+	<description>Test schema</description>
+	<createdAt>2014-04-27</createdAt>
+	<createdBy>SDV</createdBy>
+	<properties>
+	    <property name="xdm.schema.password">Test</property>
+	    <property name="xdm.schema.ports">10200-10300</property>
+	    <property name="xdm.schema.ports.start">10200</property>
+	    <property name="xdm.schema.members">localhost</property>
+	    <property name="xdm.schema.thread.pool">10</property>
+	    <property name="xdm.schema.store.type">MONGO</property>
+	    <property name="xdm.schema.store.host">localhost</property>
+	    <property name="xdm.schema.store.port">27017</property>
+	    <property name="xdm.schema.store.dbname">test</property>
+	</properties>
+    </schema>
+</schemas>
+
+</config>

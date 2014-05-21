@@ -5,6 +5,7 @@ import java.util.Date;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -20,6 +21,7 @@ public abstract class XDMEntity implements Versionable {
 	private int version;
 
 	@XmlElement(required = true)
+    @XmlSchemaType(name = "dateTime")
 	private Date createdAt;
 
 	@XmlElement(required = true)

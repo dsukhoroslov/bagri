@@ -58,8 +58,11 @@
                         </transformSchema>
                     </transformSchemas>
                     <includes>
-                        <include>com/bagri/xdm/api/*.java</include>
-                        <include>com/bagri/xdm/system/*.java</include>
+                        <include>com/bagri/xdm/api/Versionable.java</include>
+                        <include>com/bagri/xdm/api/XDMEntity.java</include>
+                        <include>com/bagri/xdm/system/XDMConfig.java</include>
+                        <include>com/bagri/xdm/system/XDMNode.java</include>
+                        <include>com/bagri/xdm/system/XDMSchema.java</include>
                     </includes>
 		    <outputDirectory>${project.build.directory}/generated-resources/schema</outputDirectory>
                 </configuration>
