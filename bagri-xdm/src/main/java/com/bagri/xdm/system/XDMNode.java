@@ -10,12 +10,12 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlEnumValue;
 import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import com.bagri.xdm.api.XDMEntity;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(namespace = "http://www.bagri.com/xdm/system",
-	propOrder = {
+@XmlType(namespace = "http://www.bagri.com/xdm/system", propOrder = {
 		"id", 
 		"address", 
 		"options"
@@ -48,8 +48,14 @@ public class XDMNode extends XDMEntity {
 	@XmlElement(required = true)
 	private String address;
 	
-	@XmlElement(required = false)
+	@XmlElement(name = "options")
+	@XmlJavaTypeAdapter(XDMEntriesAdapter.class)
 	private Properties options = new Properties();
+
+	public XDMNode() {
+		// we need it for JAXB
+		super();
+	}
 
 	public XDMNode(String address, String id, Properties options, int version, Date createdAt, String createdBy) {
 		super(version, createdAt, createdBy);

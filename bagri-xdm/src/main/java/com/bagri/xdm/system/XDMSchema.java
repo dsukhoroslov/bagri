@@ -7,13 +7,14 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import com.bagri.xdm.api.XDMEntity;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(namespace = "http://www.bagri.com/xdm/system",
-	propOrder = {
+@XmlType(namespace = "http://www.bagri.com/xdm/system", propOrder = {
 		"name", 
 		"active", 
 		"description", 
@@ -31,8 +32,14 @@ public class XDMSchema extends XDMEntity {
 	private boolean active;
 	//private Map<String, Object> props = new HashMap<String, Object>();
 	
-	@XmlElement(name = "properties", required = false)
+	@XmlElement(name = "properties")
+	@XmlJavaTypeAdapter(XDMEntriesAdapter.class)
 	private Properties props = new Properties();
+	
+	public XDMSchema() {
+		// we need it for JAXB
+		super();
+	}
 
 	public XDMSchema(String name, int version, String description, boolean active, 
 			Date createdAt, String createdBy, Properties props) {

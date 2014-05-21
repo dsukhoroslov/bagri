@@ -3,10 +3,16 @@ package com.bagri.xdm.system;
 import static org.junit.Assert.*;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.Date;
+import java.util.Properties;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.SchemaOutputResolver;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.transform.Result;
 
 import org.junit.Test;
 
@@ -16,20 +22,49 @@ public class XDMConfigTest {
 	public void testRead() throws JAXBException {
 		JAXBContext jc = JAXBContext.newInstance(XDMConfig.class);
         Unmarshaller unmarshaller = jc.createUnmarshaller();
-        File xml = new File("src/test/resources/TPoXSchema.xml");
+        File xml = new File("src/test/resources/test_config.xml");
         XDMConfig config = (XDMConfig) unmarshaller.unmarshal(xml);
         assertNotNull(config);
+
+        Marshaller marshaller = jc.createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+        marshaller.marshal(config, System.out);
+        
         assertTrue(config.getNodes().size() == 0);
         assertTrue(config.getSchemas().size() == 2);
     }
 	
-	public void testWrite() {
+	@Test
+	public void testWrite() throws JAXBException {
 		
-        //Marshaller marshaller = jc.createMarshaller();
-        //marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+		Properties props = new Properties();
+		props.setProperty("xdm.schema.password", "test");
+		XDMSchema schema = new XDMSchema("Test", 1, "description", false, new Date(), "test", props);
+		XDMConfig config = new XDMConfig();
+		config.getSchemas().add(schema);
+		
+		XDMNode node = new XDMNode("localhost", "firts", props, 1, new Date(), "test");
+		config.getNodes().add(node);
+
+		JAXBContext jc = JAXBContext.newInstance(XDMConfig.class);
+        Marshaller marshaller = jc.createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
         //marshaller.setProperty(Marshaller.JAXB_NO_NAMESPACE_SCHEMA_LOCATION, "file:///C:/Documents%20and%20Settings/mojalal/Desktop/FirstXSD.xml");
-        //marshaller.marshal(config, System.out);
-		
+        marshaller.marshal(config, System.out);
 	}
 
+	//@Test
+	//public void testSchema() throws JAXBException, IOException {
+	//	
+	//	JAXBContext jc = JAXBContext.newInstance(XDMConfig.class);
+	//	jc.generateSchema(new TestSchemaOutputResolver());
+	//}
+	
+	
+	class TestSchemaOutputResolver extends SchemaOutputResolver {
+	    public Result createOutput(String namespaceUri, String suggestedFileName) throws IOException {
+	        //return new StreamResult(new File(baseDir,suggestedFileName));
+	    	return null;
+	    }
+	}	
 }

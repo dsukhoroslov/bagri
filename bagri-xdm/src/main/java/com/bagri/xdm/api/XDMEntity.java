@@ -6,14 +6,21 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlSchemaType;
+import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
 
+import com.bagri.xdm.system.XDMNode;
+import com.bagri.xdm.system.XDMSchema;
+
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(namespace = "http://www.bagri.com/xdm/system",
-	propOrder = {
+@XmlType(namespace = "http://www.bagri.com/xdm/system",	propOrder = {
 		"version", 
 		"createdAt", 
 		"createdBy"
+})
+@XmlSeeAlso({
+    XDMNode.class,
+    XDMSchema.class
 })
 public abstract class XDMEntity implements Versionable {
 	

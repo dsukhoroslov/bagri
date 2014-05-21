@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:config xmlns:ns2="http://www.bagri.com/xdm/system">
+    <nodes>
+        <node id="8d5edd7b-7f2a-4f0a-beb8-a085a924c62e">
+            <version>1</version>
+            <createdAt>2014-05-22T02:03:32.477+04:00</createdAt>
+            <createdBy>Denis</createdBy>
+            <address>localhost</address>
+            <options>
+                <entry name="xdm.cluster.node.name">admin</entry>
+            </options>
+        </node>
+    </nodes>
+    <schemas>
+        <schema name="TPoX" active="true">
+            <version>1</version>
+            <createdAt>2014-04-21T14:40:58.096+04:00</createdAt>
+            <createdBy>SDV</createdBy>
+            <description>TPoX: schema for TPoX-related tests</description>
+            <properties>
+                <entry name="xdm.schema.store.type">HIVE</entry>
+                <entry name="xdm.schema.ports">10000-10100</entry>
+                <entry name="xdm.schema.store.host">localhost</entry>
+                <entry name="xdm.schema.password">TPoX</entry>
+                <entry name="xdm.schema.store.port">27017</entry>
+                <entry name="xdm.schema.ports.start">10000</entry>
+                <entry name="xdm.schema.members">localhost</entry>
+                <entry name="xdm.schema.thread.pool">10</entry>
+                <entry name="xdm.schema.store.dbname">test</entry>
+            </properties>
+        </schema>
+        <schema name="Test" active="true">
+            <version>1</version>
+            <createdAt>2014-04-21T14:40:58.096+04:00</createdAt>
+            <createdBy>SDV</createdBy>
+            <description>Test schema</description>
+            <properties>
+                <entry name="xdm.schema.store.type">MONGO</entry>
+                <entry name="xdm.schema.ports">10200-10300</entry>
+                <entry name="xdm.schema.store.host">localhost</entry>
+                <entry name="xdm.schema.password">Test</entry>
+                <entry name="xdm.schema.store.port">27017</entry>
+                <entry name="xdm.schema.ports.start">10200</entry>
+                <entry name="xdm.schema.members">localhost</entry>
+                <entry name="xdm.schema.thread.pool">10</entry>
+                <entry name="xdm.schema.store.dbname">test</entry>
+            </properties>
+        </schema>
+    </schemas>
+</ns2:config>

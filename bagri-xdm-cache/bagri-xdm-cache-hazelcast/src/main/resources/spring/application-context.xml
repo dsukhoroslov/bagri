@@ -81,16 +81,11 @@
 			<hz:executor-service name="xdm-exec-pool" pool-size="${xdm.cache.threads.invocationScheme}" />
 
 			<hz:map name="nodes">
+				<hz:map-store enabled="true" write-delay-seconds="10" implementation="nodeCacheStore"/>
 			</hz:map>
 			
 			<hz:map name="schemas">
-				<hz:map-store enabled="true" write-delay-seconds="10" 
-					class-name="com.bagri.xdm.cache.hazelcast.store.XDMSchemaCacheStore">
-					<!--implementation="schemaCacheStore"-->
-					<hz:properties>
-						<hz:property name="xdm.schemas.filename">${xdm.schemas.filename}</hz:property>
-					</hz:properties>
-				</hz:map-store>
+				<hz:map-store enabled="true" write-delay-seconds="10" implementation="schemaCacheStore"/>
 			</hz:map>
 
 			<hz:map name="users">
@@ -124,6 +119,18 @@
 	<hz:map id="users" name="users" instance-ref="hzInstance"/>
 
 	<hz:executorService id="sys-exec-pool" name="sys-exec-pool" instance-ref="hzInstance"/>
+
+	<bean id="schemaCacheStore" class="com.bagri.xdm.cache.hazelcast.store.XDMSchemaCacheStore">
+		<property name="configManagement" ref="configService"/>
+	</bean>
+
+	<bean id="nodeCacheStore" class="com.bagri.xdm.cache.hazelcast.store.XDMNodeCacheStore">
+		<property name="configManagement" ref="configService"/>
+	</bean>
+
+	<bean id="configService" class="com.bagri.xdm.cache.hazelcast.management.ConfigManagement">
+		<constructor-arg value="${xdm.config.filename}" />
+	</bean>
 
 	<bean id="clusterService" class="com.bagri.xdm.cache.hazelcast.management.ClusterManagement">
 		<constructor-arg ref="hzInstance" />
