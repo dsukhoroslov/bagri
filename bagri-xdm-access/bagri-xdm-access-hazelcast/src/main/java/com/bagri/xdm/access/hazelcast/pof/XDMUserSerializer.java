@@ -33,6 +33,7 @@ public class XDMUserSerializer extends XDMEntitySerializer implements StreamSeri
 		out.writeUTF(xUser.getLogin());
 		out.writeUTF(xUser.getPassword());
 		out.writeBoolean(xUser.isActive());
+		// write grants and roles
 	}
 
 }

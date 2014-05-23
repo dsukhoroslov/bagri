@@ -14,6 +14,7 @@ public class XDMPortableFactory implements PortableFactory {
 	
 	public static final int factoryId = 1; 
 	
+	public static final int cli_XDMRole = 1;
 	public static final int cli_XDMUser = 2;
 	public static final int cli_XDMNode = 3;
 	public static final int cli_XDMSchema = 4;
