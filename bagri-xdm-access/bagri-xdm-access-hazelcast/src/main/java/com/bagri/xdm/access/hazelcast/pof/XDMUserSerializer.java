@@ -2,7 +2,10 @@ package com.bagri.xdm.access.hazelcast.pof;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 
+import com.bagri.xdm.system.XDMPermission;
+import com.bagri.xdm.system.XDMRole;
 import com.bagri.xdm.system.XDMUser;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
@@ -18,12 +21,15 @@ public class XDMUserSerializer extends XDMEntitySerializer implements StreamSeri
 	@Override
 	public XDMUser read(ObjectDataInput in) throws IOException {
 		Object[] entity = super.readEntity(in);
-		XDMUser xUser = new XDMUser(in.readUTF(), 
-				in.readUTF(),
-				in.readBoolean(),
+		XDMUser xUser = new XDMUser(
 				(int) entity[0],
 				(Date) entity[1],
-				(String) entity[2]); 
+				(String) entity[2],
+				in.readUTF(), 
+				in.readUTF(),
+				in.readBoolean(),
+				(List<XDMPermission>) in.readObject(),
+				(List<XDMRole>) in.readObject()); 
 		return xUser;
 	}
 
@@ -34,6 +40,8 @@ public class XDMUserSerializer extends XDMEntitySerializer implements StreamSeri
 		out.writeUTF(xUser.getPassword());
 		out.writeBoolean(xUser.isActive());
 		// write grants and roles
+		out.writeObject(xUser.getGrants());
+		out.writeObject(xUser.getAssignedRoles());
 	}
 
 }

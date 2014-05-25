@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:access xmlns:ns2="http://www.bagri.com/xdm/access">
+    <roles>
+        <role name="AdminRole">
+            <version>1</version>
+            <createdAt>2014-05-26T00:33:18.068+04:00</createdAt>
+            <createdBy>Denis</createdBy>
+            <description>admin: can do everything</description>
+            <permissions/>
+            <includedRoles></includedRoles>
+        </role>
+        <role name="TestRole">
+            <version>1</version>
+            <createdAt>2014-05-23T09:42:49.630+04:00</createdAt>
+            <createdBy>test</createdBy>
+            <description>Description</description>
+            <permissions/>
+            <includedRoles></includedRoles>
+        </role>
+    </roles>
+    <users>
+        <user login="SDV" active="true">
+            <version>1</version>
+            <createdAt>2014-05-23T09:42:49.630+04:00</createdAt>
+            <createdBy>admin</createdBy>
+            <password>TPoX</password>
+            <grants/>
+            <assignedRoles>TestRole</assignedRoles>
+        </user>
+        <user login="test" active="true">
+            <version>1</version>
+            <createdAt>2014-05-24T17:29:41.705+04:00</createdAt>
+            <createdBy>Denis</createdBy>
+            <password>test</password>
+            <grants/>
+            <assignedRoles></assignedRoles>
+        </user>
+        <user login="admin" active="true">
+            <version>1</version>
+            <createdAt>2014-05-22T09:42:49.630+04:00</createdAt>
+            <createdBy>admin</createdBy>
+            <password>TPoX</password>
+            <grants/>
+            <assignedRoles></assignedRoles>
+        </user>
+    </users>
+</ns2:access>

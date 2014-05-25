@@ -32,8 +32,8 @@ public class SchemaCreator extends SchemaProcessor implements DataSerializable {
 		logger.debug("process.enter; entry: {}", entry); 
 		if (entry.getValue() == null) {
 			String schemaName = entry.getKey();
-			XDMSchema schema = new XDMSchema(schemaName, getVersion(), description, 
-					true, new Date(), getAdmin(), properties);
+			XDMSchema schema = new XDMSchema(getVersion(), new Date(), getAdmin(), schemaName, 
+					description, true, properties);
 			if (initSchemaInCluster(schema) == 0) {
 				schema.setActive(false);
 			}

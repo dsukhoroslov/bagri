@@ -27,15 +27,10 @@ import com.hazelcast.core.IMap;
 import com.hazelcast.core.Member;
 
 @ManagedResource(description="Cluster Node Manager MBean")
-public class NodeManager implements SelfNaming, XDMNodeManager {
+public class NodeManager extends EntityManager<XDMNode> implements XDMNodeManager {
 
-    private static final transient Logger logger = LoggerFactory.getLogger(NodeManager.class);
-	private static final String type_node = "Node";
-
-	private String nodeName;
     private HazelcastInstance hzInstance;
 	private IExecutorService execService;
-    private IMap<String, XDMNode> nodeCache;
 
 	public NodeManager() {
 		// default constructor
@@ -43,30 +38,45 @@ public class NodeManager implements SelfNaming, XDMNodeManager {
 	}
     
 	public NodeManager(HazelcastInstance hzInstance, String nodeName) {
+		super(nodeName);
 		this.hzInstance = hzInstance;
-		this.nodeName = nodeName;
 		execService = hzInstance.getExecutorService("xdm-exec-pool");
-		nodeCache = hzInstance.getMap("nodes");
+		//IMap<String, XDMNode> nodes = hzInstance.getMap("nodes"); 
+		//setEntityCache(nodes);
 	}
 	
-	@ManagedAttribute(description="Returns registered Node identifier")
-	public String getNodeId() {
-		return getNode().getId();
+	@ManagedAttribute(description="Returns registered Node name")
+	public String getName() {
+		return entityName;
 	}
 	
 	@ManagedAttribute(description="Returns registered Node location")
 	public String getAddress() {
-		return getNode().getAddress();
+		return getEntity().getAddress();
+	}
+	
+	@ManagedAttribute(description="Returns active Node identifier")
+	public String getNodeId() {
+		XDMNode node = getEntity();
+		Member member = getMember(node.getName(), node.getAddress());
+		return member.getUuid();
+	}
+	
+	@ManagedAttribute(description="Returns Node state")
+	public boolean isActive() {
+		XDMNode node = getEntity();
+		Member member = getMember(node.getName(), node.getAddress());
+		return member != null;
 	}
 	
 	public Properties getOpts() {
-		return getNode().getOptions();
+		return getEntity().getOptions();
 	}
 
 	@ManagedAttribute(description="Returns registered Node options")
 	public CompositeData getOptions() {
 		Properties options = getOpts();
-		return JMXUtils.propsToComposite(nodeName, "options", options);
+		return JMXUtils.propsToComposite(entityName, "options", options);
 	}
 
 	@Override
@@ -84,7 +94,7 @@ public class NodeManager implements SelfNaming, XDMNodeManager {
 		@ManagedOperationParameter(name = "value", description = "A value of the option to set")})
 	public void setOption(String name, String value) {
 		XDMNode node = setNodeOption(name, value);
-		Member member = getMember(node.getId());
+		Member member = getMember(node.getName(), node.getAddress());
 		if (member.localMember()) {
 			member.setStringAttribute(name, value);
 		} else {
@@ -103,9 +113,9 @@ public class NodeManager implements SelfNaming, XDMNodeManager {
 	}
 
 	public XDMNode setNodeOption(String name, String value) {
-		XDMNode node = getNode();
+		XDMNode node = getEntity();
 		node.setOption(name, value);
-		flushNode(node);
+		flushEntity(node);
 		return node;
 	}
 
@@ -115,45 +125,33 @@ public class NodeManager implements SelfNaming, XDMNodeManager {
 		@ManagedOperationParameter(name = "name", description = "A name of the option to remove")})
 	public void removeOption(String name) {
 		// set to default value? or remove..
-		XDMNode node = getNode();
+		XDMNode node = getEntity();
 		node.setOption(name, null);
-		flushNode(node);
+		flushEntity(node);
 
-		Member member = getMember(node.getId());
+		Member member = getMember(node.getName(), node.getAddress());
 		member.removeAttribute(name);
 	}
 
 	@ManagedAttribute(description="Return Schema names deployed on the Node")
 	public String[] getDeployedSchemas() {
-		XDMNode node = getNode();
+		XDMNode node = getEntity();
 		return node.getSchemas();
 	}
 	
-	private Member getMember(String uuid) {
+	private Member getMember(String name, String address) {
 		for (Member member: hzInstance.getCluster().getMembers()) {
-			if (uuid.equals(member.getUuid())) {
+			if (address.equals(member.getSocketAddress().getHostName()) &&
+					name.equals(member.getStringAttribute(XDMNode.op_node_name))) {
 				return member;
 			}
 		}
 		return null;
 	}
 
-	//@Override
-	protected XDMNode getNode() {
-		XDMNode node = nodeCache.get(nodeName);
-		logger.trace("getNode. returning: {}", node);
-		return node;
-	}
-
-	//@Override
-	protected void flushNode(XDMNode node) {
-		nodeCache.put(nodeName, node);
-	}
-
 	@Override
-	public ObjectName getObjectName() throws MalformedObjectNameException {
-		logger.debug("getObjectName.enter; nodeName: {}", nodeName);
-		return JMXUtils.getObjectName(type_node, nodeName);
+	protected String getEntityType() {
+		return "Node";
 	}
 	
 }

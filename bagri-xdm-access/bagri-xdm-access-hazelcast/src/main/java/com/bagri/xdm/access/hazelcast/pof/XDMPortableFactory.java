@@ -18,12 +18,13 @@ public class XDMPortableFactory implements PortableFactory {
 	public static final int cli_XDMUser = 2;
 	public static final int cli_XDMNode = 3;
 	public static final int cli_XDMSchema = 4;
-	public static final int cli_XDMDocument = 5;
-	public static final int cli_XDMElememt = 6; 
-	public static final int cli_DataDocumentKey = 7; 
-	public static final int cli_XDMDocumentType = 8;
-	public static final int cli_XDMPath = 9;
-	public static final int cli_XDMNamespace = 10;
+	public static final int cli_XDMPermission = 5;
+	public static final int cli_XDMDocument = 50;
+	public static final int cli_XDMElememt = 51; 
+	public static final int cli_DataDocumentKey = 52; 
+	public static final int cli_XDMDocumentType = 53;
+	public static final int cli_XDMPath = 54;
+	public static final int cli_XDMNamespace = 55;
 	
 	public static final int cli_XDMDocumentTask = 112; 
 	public static final int cli_TemplateResultTask = 114;

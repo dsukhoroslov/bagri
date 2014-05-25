@@ -18,44 +18,18 @@
 
     <!--bean id="jmx.server" class="org.springframework.jmx.support.MBeanServerFactoryBean"
                     p:locateExistingServerIfPossible="true"/-->
-    <!--bean id="jmxServer" class="java.lang.management.ManagementFactory" factory-method="getPlatformMBeanServer"/-->
-     
     <!--context:mbean-server /-->
+
     <bean id="mbeanServer" class="java.lang.management.ManagementFactory" factory-method="getPlatformMBeanServer"/>
     <context:mbean-export server="mbeanServer" default-domain="com.bagri.xdm"/>
     
 <!-- 
-    <context:mbean-server id="jmxServer"/>
     <context:mbean-export server="jmxServer" default-domain="com.bagri.xdm"/> registration="replaceExisting"
  -->
     
-    <!-- JXM Authentication -->
-    <util:constant id="jmx.auth.attribute" static-field="javax.management.remote.JMXConnectorServer.AUTHENTICATOR"/>
-
     <bean id="authManager" class="com.bagri.xdm.cache.hazelcast.security.BagriJMXAuthenticator">
         <property name="userManager" ref="userService"/>
     </bean>
-
-    <!--util:map id="jmx.environment">
-        <entry key-ref="jmx.auth.attribute" value-ref="jmx.authenticator"/>
-    </util:map-->
-
-    <!-- Needed to declare the following -->
-    <!--bean id="jmx.registry" class="org.springframework.remoting.rmi.RmiRegistryFactoryBean">
-        <property name="port" value="3333"/>
-    </bean-->
-
-    <!--bean id="jmx.server.connector" class="org.springframework.jmx.support.ConnectorServerFactoryBean"> 
-    	< depends-on="jmx.registry" >
-        <property name="server" ref="mbeanServer"/>
-        <property name="objectName" value="connector:name=rmi"/>
-        <property name="serviceUrl" value="service:jmx:rmi:///jndi/rmi://localhost:3333/jmxrmi"/>
-        <property name="environmentMap">
-        	<map>
-        		<entry key-ref="jmx.auth.attribute" value-ref="authManager"/>
-        	</map>
-        </property>
-    </bean-->
 
 	<hz:hazelcast id="hzInstance">
 		<hz:config>
@@ -88,13 +62,12 @@
 				<hz:map-store enabled="true" write-delay-seconds="10" implementation="schemaCacheStore"/>
 			</hz:map>
 
+			<hz:map name="roles">
+				<hz:map-store enabled="true" write-delay-seconds="10" implementation="roleCacheStore"/>
+			</hz:map>
+			
 			<hz:map name="users">
-				<hz:map-store enabled="true" write-delay-seconds="10" 
-					class-name="com.bagri.xdm.cache.hazelcast.store.XDMUserCacheStore">
-					<hz:properties>
-						<hz:property name="xdm.users.filename">${xdm.users.filename}</hz:property>
-					</hz:properties>
-				</hz:map-store>
+				<hz:map-store enabled="true" write-delay-seconds="10" implementation="userCacheStore"/>
 			</hz:map>
 			
 			<!--hz:listeners>
@@ -108,7 +81,9 @@
 				<hz:serializers>
 					<hz:serializer type-class="com.bagri.xdm.system.XDMNode" class-name="com.bagri.xdm.access.hazelcast.pof.XDMNodeSerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.system.XDMSchema" class-name="com.bagri.xdm.access.hazelcast.pof.XDMSchemaSerializer"/>
+					<hz:serializer type-class="com.bagri.xdm.system.XDMRole" class-name="com.bagri.xdm.access.hazelcast.pof.XDMRoleSerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.system.XDMUser" class-name="com.bagri.xdm.access.hazelcast.pof.XDMUserSerializer"/>
+					<hz:serializer type-class="com.bagri.xdm.system.XDMPermission" class-name="com.bagri.xdm.access.hazelcast.pof.XDMPermissionSerializer"/>
 				</hz:serializers>
 			</hz:serialization>
 		</hz:config>
@@ -116,30 +91,43 @@
 
 	<hz:map id="nodes" name="nodes" instance-ref="hzInstance"/>
 	<hz:map id="schemas" name="schemas" instance-ref="hzInstance"/>
+	<hz:map id="roles" name="roles" instance-ref="hzInstance"/>
 	<hz:map id="users" name="users" instance-ref="hzInstance"/>
 
 	<hz:executorService id="sys-exec-pool" name="sys-exec-pool" instance-ref="hzInstance"/>
 
 	<bean id="schemaCacheStore" class="com.bagri.xdm.cache.hazelcast.store.XDMSchemaCacheStore">
-		<property name="configManagement" ref="configService"/>
+		<property name="entityManagement" ref="configService"/>
 	</bean>
 
 	<bean id="nodeCacheStore" class="com.bagri.xdm.cache.hazelcast.store.XDMNodeCacheStore">
-		<property name="configManagement" ref="configService"/>
+		<property name="entityManagement" ref="configService"/>
+	</bean>
+
+	<bean id="roleCacheStore" class="com.bagri.xdm.cache.hazelcast.store.XDMRoleCacheStore">
+		<property name="entityManagement" ref="accessService"/>
+	</bean>
+
+	<bean id="userCacheStore" class="com.bagri.xdm.cache.hazelcast.store.XDMUserCacheStore">
+		<property name="entityManagement" ref="accessService"/>
 	</bean>
 
 	<bean id="configService" class="com.bagri.xdm.cache.hazelcast.management.ConfigManagement">
 		<constructor-arg value="${xdm.config.filename}" />
 	</bean>
 
+	<bean id="accessService" class="com.bagri.xdm.cache.hazelcast.management.AccessManagement">
+		<constructor-arg value="${xdm.access.filename}" />
+	</bean>
+
 	<bean id="clusterService" class="com.bagri.xdm.cache.hazelcast.management.ClusterManagement">
 		<constructor-arg ref="hzInstance" />
-		<property name="nodeCache" ref="nodes"/>
+		<property name="entityCache" ref="nodes"/>
 	</bean>
 
 	<bean id="schemaService" class="com.bagri.xdm.cache.hazelcast.management.SchemaManagement">
 		<constructor-arg ref="hzInstance" />
-		<property name="schemaCache" ref="schemas"/>
+		<property name="entityCache" ref="schemas"/>
 		<property name="defaultProperties">
 			<props>
 				<prop key="xdm.schema.password"></prop>
@@ -154,8 +142,11 @@
 
 	<bean id="userService" class="com.bagri.xdm.cache.hazelcast.management.UserManagement">
 		<constructor-arg ref="hzInstance" />
-		<property name="userCache" ref="users"/>
-		<!--property name="mbeanExporter" ref="mbeanExporter"/-->
+		<property name="entityCache" ref="users"/>
 	</bean>
 
+	<bean id="roleService" class="com.bagri.xdm.cache.hazelcast.management.RoleManagement">
+		<constructor-arg ref="hzInstance" />
+		<property name="entityCache" ref="roles"/>
+	</bean>
 </beans>

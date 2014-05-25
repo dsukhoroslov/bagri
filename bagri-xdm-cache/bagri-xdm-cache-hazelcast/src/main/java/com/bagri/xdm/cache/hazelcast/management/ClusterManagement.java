@@ -31,6 +31,7 @@ import com.bagri.xdm.process.hazelcast.node.NodeRemover;
 import com.bagri.xdm.process.hazelcast.user.UserCreator;
 import com.bagri.xdm.process.hazelcast.user.UserRemover;
 import com.bagri.xdm.system.XDMNode;
+import com.bagri.xdm.system.XDMRole;
 import com.bagri.xdm.system.XDMUser;
 import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.EntryListener;
@@ -43,39 +44,26 @@ import com.hazelcast.core.MembershipListener;
 
 @ManagedResource(objectName="com.bagri.xdm:type=Management,name=ClusterManagement", 
 	description="Cluster Management MBean")
-public class ClusterManagement implements EntryListener<String, XDMNode>, InitializingBean,	
-	MembershipListener, XDMClusterManagement {
+public class ClusterManagement extends EntityManagement<String, XDMNode> implements InitializingBean, XDMClusterManagement {
 
-    private static final transient Logger logger = LoggerFactory.getLogger(ClusterManagement.class);
-	//private static final String cluster_management = "ClusterManagement";
-    
-    private HazelcastInstance hzInstance;
-    private IMap<String, XDMNode> nodeCache;
-    private Map<String, NodeManager> mgrCache = new HashMap<String, NodeManager>();
-
-    @Autowired
-	private AnnotationMBeanExporter mbeanExporter;
-    
 	public ClusterManagement(HazelcastInstance hzInstance) {
-		//super();
-		this.hzInstance = hzInstance;
-		hzInstance.getCluster().addMembershipListener(this);
+		super(hzInstance);
 	}
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-        Set<String> names = nodeCache.keySet();
+        Set<String> names = entityCache.keySet();
         for (String name: names) {
         	//XDMNode node = nodeCache.get(name);
-        	initNodeManager(name);
+        	//initNodeManager(name);
         }
 		
 		// skip it and wait till we get attribute change event
-		Set<Member> members = hzInstance.getCluster().getMembers();
-		logger.debug("afterPropertiesSet.enter; initiating {} nodes", members.size());
-		for (Member member: members) {
-			initNode(member);
-		}
+		//Set<Member> members = hzInstance.getCluster().getMembers();
+		//logger.debug("afterPropertiesSet.enter; initiating {} nodes", members.size());
+		//for (Member member: members) {
+		//	initNode(member);
+		//}
 	}
 	
 	private void initNode(Member member) throws Exception {
@@ -86,12 +74,12 @@ public class ClusterManagement implements EntryListener<String, XDMNode>, Initia
 		addNode(id, address, opts);
 	}
 	
-	private boolean addNode(String id, String address, Properties options) throws Exception {
+	private boolean addNode(String name, String address, Properties options) throws Exception {
 	
-		String key = getNodeKey(address, id);
-		if (!nodeCache.containsKey(key)) {
-	    	Object result = nodeCache.executeOnKey(key, new NodeCreator(JMXUtils.getCurrentUser(), 
-	    			id, address, options));
+		String key = getNodeKey(name, address);
+		if (!entityCache.containsKey(key)) {
+	    	Object result = entityCache.executeOnKey(key, new NodeCreator(JMXUtils.getCurrentUser(), 
+	    			name, address, options));
 	    	logger.debug("addNode; execution result: {}", result);
 			return true;
 		}
@@ -101,59 +89,55 @@ public class ClusterManagement implements EntryListener<String, XDMNode>, Initia
 	
 	private boolean denitNode(XDMNode node) throws Exception {
 		// TODO: deactivate node!
-		return nodeCache.remove(node.getNode()) != null;
+		return entityCache.remove(node.getNode()) != null;
 	}
 	
-	public void setNodeCache(IMap<String, XDMNode> nodeCache) {
-		this.nodeCache = nodeCache;
-		nodeCache.addEntryListener(this, false);
-	}
-
 	@ManagedAttribute(description="The Nodes Attribute")
 	public String[] getNodes() {
-		return nodeCache.keySet().toArray(new String[0]);
+		return entityCache.keySet().toArray(new String[0]);
 	}
 
 	@ManagedOperation(description="Add new Node")
 	@ManagedOperationParameters({
+		@ManagedOperationParameter(name = "name", description = "Node name"),
 		@ManagedOperationParameter(name = "address", description = "Node address"),
-		@ManagedOperationParameter(name = "nodeId", description = "Node identifier"),
 		@ManagedOperationParameter(name = "options", description = "Node options: key/value pairs separated by comma")})
-	public boolean addNode(String address, String nodeId, String options) {
+	public boolean addNode(String name, String address, String options) {
 
 		Properties opts;
 		try {
 			opts = FileUtils.propsFromString(options);
+			opts.setProperty(XDMNode.op_node_name, name);
 		} catch (IOException ex) {
 			logger.error("createSchema.error: ", ex);
 			return false;
 		}
 
 		try {
-			return addNode(nodeId, address, opts);
+			return addNode(name, address, opts);
 		} catch (Exception ex) {
 			logger.error("addNode.error: " + ex.getMessage(), ex);
 		}
 		return false;
 	}
 	
-	private String getNodeKey(String address, String id) {
-		return id + "[" + address + "]";
+	private String getNodeKey(String name, String address) {
+		return name + "[" + address + "]";
 	}
 
 	@ManagedOperation(description="Delete existing Node")
 	@ManagedOperationParameters({
-		@ManagedOperationParameter(name = "address", description = "Node address"),
-		@ManagedOperationParameter(name = "nodeId", description = "Node identifier")})
-	public boolean deleteNode(String address, String nodeId) {
+		@ManagedOperationParameter(name = "name", description = "Node name"),
+		@ManagedOperationParameter(name = "address", description = "Node address")})
+	public boolean deleteNode(String name, String address) {
 		//String key = getNodeKey(address, nodeId);
 		//XDMNode node = nodeCache.remove(key);
 		//return node != null;
 		
-		String key = getNodeKey(address, nodeId);
-		XDMNode node = nodeCache.get(key);
+		String key = getNodeKey(name, address);
+		XDMNode node = entityCache.get(key);
 		if (node != null) {
-	    	Object result = nodeCache.executeOnKey(key, new NodeRemover(node.getVersion(), JMXUtils.getCurrentUser()));
+	    	Object result = entityCache.executeOnKey(key, new NodeRemover(node.getVersion(), JMXUtils.getCurrentUser()));
 	    	logger.debug("deleteNode; execution result: {}", result);
 	    	return result != null;
 		}
@@ -161,90 +145,17 @@ public class ClusterManagement implements EntryListener<String, XDMNode>, Initia
 	}
 
 	@Override
-	public void memberAdded(MembershipEvent membershipEvent) {
-		try {
-			initNode(membershipEvent.getMember());
-		} catch (Exception ex) {
-			logger.error("memberAdded.error: " + ex.getMessage(), ex);
-		}
-	}
-
-	@Override
-	public void memberRemoved(MembershipEvent membershipEvent) {
-		String address = membershipEvent.getMember().getSocketAddress().getHostString();
-		String id = membershipEvent.getMember().getUuid();
-		// TODO: denitNode!?
-		deleteNode(address, id);
-	}
-
-	@Override
-	public void memberAttributeChanged(MemberAttributeEvent memberAttributeEvent) {
-		// change node options ?
-		logger.debug("memberAttributeChanged.enter; value: {}", memberAttributeEvent.getValue());
-
-		Member member = memberAttributeEvent.getMember();
-		String address = member.getSocketAddress().getHostString();
-		String id = member.getUuid();
-		String key = getNodeKey(address, id);
-		NodeManager nMgr = (NodeManager) getNodeManager(key);
-		if (nMgr != null) {
-			nMgr.setNodeOption(memberAttributeEvent.getKey(), memberAttributeEvent.getValue().toString());
-		}
-	}
-
-	@Override
 	public XDMNodeManager getNodeManager(String nodeId) {
 		logger.trace("getNodeManager.enter; got nodeId: {}", nodeId);
-		return mgrCache.get(nodeId);
-	}
-
-	private NodeManager initNodeManager(String nodeName) throws MBeanExportException, MalformedObjectNameException {
-		NodeManager nMgr = null;
-   	    if (!mgrCache.containsKey(nodeName)) {
-			nMgr = new NodeManager(hzInstance, nodeName);
-			//nMgr.setNodeCache(nodeCache);
-			mgrCache.put(nodeName, nMgr);
-			mbeanExporter.registerManagedResource(nMgr, nMgr.getObjectName());
-		}
-   	    return nMgr;
-	}
-
-	
-	@Override
-	public void entryAdded(EntryEvent<String, XDMNode> event) {
-		String nodeName = event.getKey();
-		try {
-			initNodeManager(nodeName);
-		} catch (MBeanExportException | MalformedObjectNameException ex) {
-			// JMX registration failed.
-			logger.error("entryAdded.error: ", ex);
-		}
+		EntityManager<XDMNode> mgr = mgrCache.get(nodeId); 
+		return (NodeManager) mgr;
 	}
 
 	@Override
-	public void entryRemoved(EntryEvent<String, XDMNode> event) {
-		String nodeName = event.getKey();
-		if (mgrCache.containsKey(nodeName)) {
-			NodeManager nMgr = mgrCache.get(nodeName);
-			mgrCache.remove(nodeName);
-			try {
-				mbeanExporter.unregisterManagedResource(nMgr.getObjectName());
-			} catch (MalformedObjectNameException ex) {
-				logger.error("entryRemoved.error: ", ex);
-			}
-		}
+	protected EntityManager<XDMNode> createEntityManager(String nodeName) {
+		NodeManager mgr = new NodeManager(hzInstance, nodeName);
+		mgr.setEntityCache(entityCache);
+		return mgr;
 	}
 
-	@Override
-	public void entryUpdated(EntryEvent<String, XDMNode> event) {
-		logger.trace("entryUpdated; event: {}", event);
-	}
-
-	@Override
-	public void entryEvicted(EntryEvent<String, XDMNode> event) {
-		logger.trace("entryEvicted; event: {}", event);
-		// make node inactive ?
-	}
-
-	
 }

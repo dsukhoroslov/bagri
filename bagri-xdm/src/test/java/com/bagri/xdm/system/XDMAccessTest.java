@@ -3,7 +3,9 @@ package com.bagri.xdm.system;
 import static org.junit.Assert.*;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -33,13 +35,15 @@ public class XDMAccessTest {
 	@Test
 	public void testWrite() throws JAXBException {
 
-		XDMRole role = new XDMRole("TestRole", "Description", 1, new Date(), "test");
-		role.getPermissions().put("resource1", XDMPermission.readonly);
-		role.getPermissions().put("resource2", XDMPermission.readwrite);
-		
-		XDMUser user = new XDMUser("admin", "admin", true, 1, new Date(), "test");
+		List<XDMPermission> perms = new ArrayList<XDMPermission>(2);
+		perms.add(new XDMPermission(XDMPermission.Permission.readonly, "resource1"));
+		perms.add(new XDMPermission(XDMPermission.Permission.readwrite, "resource2"));
+		XDMRole role = new XDMRole(1, new Date(), "test", "TestRole", "Description", perms, null);
+
+		perms.clear();
+		perms.add(new XDMPermission(XDMPermission.Permission.execute, "schema3"));
+		XDMUser user = new XDMUser(1, new Date(), "test", "admin", "admin", true, perms, null);
 		user.getAssignedRoles().add(role);
-		user.getGrants().put("schema3", XDMPermission.execute);
 
 		XDMAccess access = new XDMAccess();
 		access.getRoles().add(role);

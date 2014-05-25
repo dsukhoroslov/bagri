@@ -36,6 +36,7 @@ import com.bagri.xdm.process.hazelcast.schema.SchemaCreator;
 import com.bagri.xdm.process.hazelcast.schema.SchemaRemover;
 import com.bagri.xdm.system.XDMNode;
 import com.bagri.xdm.system.XDMSchema;
+import com.bagri.xdm.system.XDMUser;
 import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.EntryListener;
 import com.hazelcast.core.Hazelcast;
@@ -44,29 +45,18 @@ import com.hazelcast.core.IMap;
 
 @ManagedResource(objectName="com.bagri.xdm:type=Management,name=SchemaManagement", 
 	description="Schema Management MBean")
-public class SchemaManagement implements EntryListener<String, XDMSchema>, InitializingBean, XDMSchemaManagement {
+public class SchemaManagement extends EntityManagement<String, XDMSchema> implements InitializingBean, XDMSchemaManagement {
 	
-    private static final transient Logger logger = LoggerFactory.getLogger(SchemaManagement.class);
-    
 	private Properties defaults; 
-    private HazelcastInstance hzInstance;
-    private IMap<String, XDMSchema> schemaCache;
-    private Map<String, SchemaManager> mgrCache = new HashMap<String, SchemaManager>(); 
     private Map<String, XDMSchemaDictionary> dictCache = new HashMap<String, XDMSchemaDictionary>(); 
-    
-    @Autowired
-	private AnnotationMBeanExporter mbeanExporter;
-    
-	public SchemaManagement(HazelcastInstance hzInstance) {
-		//super();
-		this.hzInstance = hzInstance;
+
+    public SchemaManagement(HazelcastInstance hzInstance) {
+		super(hzInstance);
 	}
 	
-	//private boolean 
-
 	@Override
 	public void afterPropertiesSet() throws Exception {
-        Set<String> names = schemaCache.keySet();
+        Set<String> names = entityCache.keySet();
 		logger.debug("afterPropertiesSet.enter; got schemas: {}", names); 
 		
         //String schemas = hz.getCluster().getLocalMember().getStringAttribute(op_node_schemas);
@@ -78,19 +68,19 @@ public class SchemaManagement implements EntryListener<String, XDMSchema>, Initi
     	boolean isAdmin = XDMNode.NodeRole.isAdminRole(roleStr);
 
 		for (String name: names) {
-        	XDMSchema schema = schemaCache.get(name);
+        	XDMSchema schema = entityCache.get(name);
         	boolean initialized = false;
         	boolean localSchema = Arrays.binarySearch(schemas, name) >= 0; 
         	if (localSchema) {
            		initialized = initSchema(name, schema.getProperties());
         	}
         	
-       		SchemaManager sMgr = (SchemaManager) mgrCache.get(name);
+       		EntityManager<XDMSchema> sMgr = mgrCache.get(name);
        		if (sMgr == null) {
        			if (localSchema || isAdmin) {
        				logger.debug("afterPropertiesSet; cannot get SchemaManager for schema {}; initializing a new one", name); 
        				try {
-       					sMgr = initSchemaManager(name);
+       					sMgr = initEntityManager(name);
        				} catch (MBeanExportException | MalformedObjectNameException ex) {
        					// JMX registration failed.
        					logger.error("afterPropertiesSet.error: ", ex);
@@ -100,18 +90,13 @@ public class SchemaManagement implements EntryListener<String, XDMSchema>, Initi
    			if (sMgr != null) {
    				if (localSchema) {
    					if (!initialized) {
-   		   				sMgr.setState("Failed schema initialization");
+   		   				((SchemaManager) sMgr).setState("Failed schema initialization");
    					}
    				} else {
-   	   				sMgr.setState("External schema; not initialized");
+   					((SchemaManager) sMgr).setState("External schema; not initialized");
    				}
    			}
         }
-	}
-
-	public void setSchemaCache(IMap<String, XDMSchema> schemaCache) {
-		this.schemaCache = schemaCache;
-		schemaCache.addEntryListener(this, false);
 	}
 
 	public String getDefaultProperty(String name) {
@@ -137,12 +122,12 @@ public class SchemaManagement implements EntryListener<String, XDMSchema>, Initi
 	
 	@ManagedAttribute(description="Registered Schema Names")
 	public String[] getSchemaNames() {
-		return schemaCache.keySet().toArray(new String[0]);
+		return entityCache.keySet().toArray(new String[0]);
 	}
 	
 	@Override
 	public Collection<XDMSchema> getSchemas() {
-		return new ArrayList<XDMSchema>(schemaCache.values());
+		return super.getEntities();
 	}
 
 	@ManagedOperation(description="Create new Schema")
@@ -180,10 +165,10 @@ public class SchemaManagement implements EntryListener<String, XDMSchema>, Initi
 	@Override
 	public XDMSchema addSchema(String schemaName, String description, Properties props) {
 		XDMSchema schema = null;
-		if (!schemaCache.containsKey(schemaName)) {
+		if (!entityCache.containsKey(schemaName)) {
 			// get current user from context...
 			String user = JMXUtils.getCurrentUser();
-	    	Object result = schemaCache.executeOnKey(schemaName, new SchemaCreator(user, description, props));
+	    	Object result = entityCache.executeOnKey(schemaName, new SchemaCreator(user, description, props));
 	    	logger.debug("addSchema; execution result: {}", result);
 	    	schema = (XDMSchema) result;
 		}
@@ -192,10 +177,10 @@ public class SchemaManagement implements EntryListener<String, XDMSchema>, Initi
 	
 	@Override
 	public XDMSchema deleteSchema(String schemaName) {
-		XDMSchema schema = schemaCache.get(schemaName);
+		XDMSchema schema = entityCache.get(schemaName);
 		if (schema != null) {
 			String user = JMXUtils.getCurrentUser();
-	    	Object result = schemaCache.executeOnKey(schemaName, new SchemaRemover(schema.getVersion(), user));
+	    	Object result = entityCache.executeOnKey(schemaName, new SchemaRemover(schema.getVersion(), user));
 	    	logger.debug("deleteSchema; execution result: {}", result);
 	    	schema = (XDMSchema) result;
 		}
@@ -203,54 +188,27 @@ public class SchemaManagement implements EntryListener<String, XDMSchema>, Initi
 	}
 	
 	@Override
-	public void entryAdded(EntryEvent<String, XDMSchema> event) {
-		logger.trace("entryAdded; event: {}", event);
-		String schemaName = event.getKey();
-		try {
-			initSchemaManager(schemaName);
-		} catch (MBeanExportException | MalformedObjectNameException ex) {
-			// JMX registration failed.
-			logger.error("entryAdded.error: ", ex);
-		}
+	protected EntityManager<XDMSchema> createEntityManager(String userName) {
+		SchemaManager mgr = new SchemaManager(this, userName);
+		mgr.setEntityCache(entityCache);
+		return mgr;
 	}
 	
 	@Override
-	public void entryEvicted(EntryEvent<String, XDMSchema> event) {
-		logger.trace("entryEvicted; event: {}", event);
-		// make schema inactive ?
-	}
-
-	@Override
-	public void entryRemoved(EntryEvent<String, XDMSchema> event) {
-		logger.trace("entryRemoved; event: {}", event);
-		String schemaName = event.getKey();
-		if (mgrCache.containsKey(schemaName)) {
-			SchemaManager sMgr = mgrCache.get(schemaName);
-			mgrCache.remove(schemaName);
-			// remove from dictCache ?
-			try {
-				mbeanExporter.unregisterManagedResource(sMgr.getObjectName());
-			} catch (MalformedObjectNameException ex) {
-				logger.error("entryRemoved.error: ", ex);
-			}
-		}
-	}
-
-	@Override
-	public void entryUpdated(EntryEvent<String, XDMSchema> event) {
-		logger.trace("entryUpdated; event: {}", event);
-	}
-
-	private SchemaManager initSchemaManager(String schemaName) throws MBeanExportException, MalformedObjectNameException {
-		SchemaManager sMgr = null;
-   	    if (!mgrCache.containsKey(schemaName)) {
-			sMgr = new SchemaManager(this, schemaName);
-			sMgr.setSchemaCache(schemaCache);
+	protected EntityManager<XDMSchema> initEntityManager(String schemaName) throws MalformedObjectNameException {
+		SchemaManager sMgr = (SchemaManager) super.initEntityManager(schemaName);
+		if (sMgr != null) {
 			XDMSchemaDictionary schemaDict = dictCache.get(schemaName);
 			sMgr.setSchemaDictionary(schemaDict);
-			mgrCache.put(schemaName, sMgr);
-			mbeanExporter.registerManagedResource(sMgr, sMgr.getObjectName());
 		}
+   	    //if (!mgrCache.containsKey(schemaName)) {
+		//	sMgr = new SchemaManager(this, schemaName);
+		//	sMgr.setSchemaCache(entityCache);
+		//	XDMSchemaDictionary schemaDict = dictCache.get(schemaName);
+		//	sMgr.setSchemaDictionary(schemaDict);
+		//	mgrCache.put(schemaName, sMgr);
+		//	mbeanExporter.registerManagedResource(sMgr, sMgr.getObjectName());
+		//}
    	    return sMgr;
 	}
 
@@ -272,7 +230,7 @@ public class SchemaManagement implements EntryListener<String, XDMSchema>, Initi
     		//hz.getConfig().getSecurityConfig().setEnabled(true);
     		//hz.getConfig().getSecurityConfig().s
     	    XDMSchemaDictionary schemaDict = ctx.getBean("xdmDictionary", XDMSchemaDictionary.class);
-    	    SchemaManager sMgr = mgrCache.get(schemaName);
+    	    SchemaManager sMgr = (SchemaManager) mgrCache.get(schemaName);
        	    if (sMgr != null) {
        	    	sMgr.setSchemaDictionary(schemaDict);
        	    } else {

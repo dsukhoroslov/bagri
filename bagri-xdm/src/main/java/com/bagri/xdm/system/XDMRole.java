@@ -10,6 +10,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlID;
 import javax.xml.bind.annotation.XmlIDREF;
 import javax.xml.bind.annotation.XmlList;
@@ -33,8 +34,9 @@ public class XDMRole extends XDMEntity {
 	@XmlElement(required = true)
 	private String description;
 	
-	@XmlElement(required = false)
-	private Map<String, XDMPermission> permissions = new HashMap<String, XDMPermission>(); 
+	@XmlElement(name="permission")
+	@XmlElementWrapper(name="permissions")
+	private List<XDMPermission> permissions = new ArrayList<XDMPermission>(); 
 	
 	@XmlList
 	@XmlIDREF
@@ -44,10 +46,13 @@ public class XDMRole extends XDMEntity {
 		super();
 	}
 	
-	public XDMRole(String name, String description, int version, Date createdAt, String createdBy) {
+	public XDMRole(int version, Date createdAt, String createdBy, String name, String description,  
+			List<XDMPermission> permissions, List<XDMRole> includedRoles) {
 		super(version, createdAt, createdBy);
 		this.name = name;
 		this.description = description;
+		setPermissions(permissions);
+		setIncludedRoles(includedRoles);
 	}
 	
 	public String getName() {
@@ -58,7 +63,7 @@ public class XDMRole extends XDMEntity {
 		return description;
 	}
 	
-	public Map<String, XDMPermission> getPermissions() {
+	public List<XDMPermission> getPermissions() {
 		return permissions;
 	}
 	
@@ -66,6 +71,20 @@ public class XDMRole extends XDMEntity {
 		return includedRoles;
 	}
 
+	public void setPermissions(List<XDMPermission> permissions) {
+		this.permissions.clear();
+		if (permissions != null) {
+			this.permissions.addAll(permissions);
+		}
+	}
+	
+	public void setIncludedRoles(List<XDMRole> includedRoles) {
+		this.includedRoles.clear();
+		if (includedRoles != null) {
+			this.includedRoles.addAll(includedRoles);
+		}
+	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;

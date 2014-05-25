@@ -9,18 +9,21 @@ import com.hazelcast.core.MapStore;
 
 public class XDMNodeCacheStore extends ConfigCacheStore<String, XDMNode> implements MapStore<String, XDMNode> {
 
+	@SuppressWarnings("unchecked")
 	@Override
 	protected Map<String, XDMNode> loadEntities() {
 		Map<String, XDMNode> nodes = new HashMap<String, XDMNode>();
-		for (XDMNode node: cfg.getNodes()) {
-			nodes.put(node.getId(), node);
+		Collection<XDMNode> cNodes = (Collection<XDMNode>) cfg.getEntities(XDMNode.class); 
+		for (XDMNode node: cNodes) {
+			//nodes.put(node.getName(), node);
+			nodes.put(node.getNode(), node);
 	    }
 		return nodes;
 	}
 
 	@Override
 	protected void storeEntities(Map<String, XDMNode> entities) {
-		cfg.setNodes(entities.values());
+		cfg.setEntities(XDMNode.class, entities.values());
 	}
 
 

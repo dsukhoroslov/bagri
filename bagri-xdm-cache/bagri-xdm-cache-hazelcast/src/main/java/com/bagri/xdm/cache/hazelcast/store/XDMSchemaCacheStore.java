@@ -20,6 +20,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.bagri.xdm.cache.hazelcast.management.ConfigManagement;
+import com.bagri.xdm.system.XDMNode;
 import com.bagri.xdm.system.XDMSchema;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.MapLoaderLifecycleSupport;
@@ -27,10 +28,12 @@ import com.hazelcast.core.MapStore;
 
 public class XDMSchemaCacheStore extends ConfigCacheStore<String, XDMSchema> implements MapStore<String, XDMSchema> { 
 
+	@SuppressWarnings("unchecked")
 	@Override
 	protected Map<String, XDMSchema> loadEntities() {
 		Map<String, XDMSchema> schemas = new HashMap<String, XDMSchema>();
-		for (XDMSchema schema: cfg.getSchemas()) {
+		Collection<XDMSchema> cSchemas = (Collection<XDMSchema>) cfg.getEntities(XDMSchema.class); 
+		for (XDMSchema schema: cSchemas) {
 			schemas.put(schema.getName(), schema);
 	    }
 		return schemas;
@@ -38,7 +41,7 @@ public class XDMSchemaCacheStore extends ConfigCacheStore<String, XDMSchema> imp
 
 	@Override
 	protected void storeEntities(Map<String, XDMSchema> entities) {
-		cfg.setSchemas(entities.values());
+		cfg.setEntities(XDMSchema.class, entities.values());
 	}
 
 }

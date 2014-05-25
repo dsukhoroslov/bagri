@@ -39,11 +39,11 @@ public class XDMConfigTest {
 		
 		Properties props = new Properties();
 		props.setProperty("xdm.schema.password", "test");
-		XDMSchema schema = new XDMSchema("Test", 1, "description", false, new Date(), "test", props);
+		XDMSchema schema = new XDMSchema(1, new Date(), "test", "Test", "description", false, props);
 		XDMConfig config = new XDMConfig();
 		config.getSchemas().add(schema);
 		
-		XDMNode node = new XDMNode("localhost", "firts", props, 1, new Date(), "test");
+		XDMNode node = new XDMNode(1, new Date(), "test", "firts", "localhost", props);
 		config.getNodes().add(node);
 
 		JAXBContext jc = JAXBContext.newInstance(XDMConfig.class);

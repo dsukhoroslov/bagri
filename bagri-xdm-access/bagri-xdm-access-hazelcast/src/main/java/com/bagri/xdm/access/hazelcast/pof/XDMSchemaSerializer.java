@@ -20,12 +20,13 @@ public class XDMSchemaSerializer extends XDMEntitySerializer implements StreamSe
 	@Override
 	public XDMSchema read(ObjectDataInput in) throws IOException {
 		Object[] entity = super.readEntity(in);
-		XDMSchema xSchema = new XDMSchema(in.readUTF(),
+		XDMSchema xSchema = new XDMSchema(
 				(int) entity[0],
-				in.readUTF(),
-				in.readBoolean(),
 				(Date) entity[1],
 				(String) entity[2],
+				in.readUTF(),
+				in.readUTF(),
+				in.readBoolean(),
 				(Properties) in.readObject()); 
 		return xSchema;
 	}

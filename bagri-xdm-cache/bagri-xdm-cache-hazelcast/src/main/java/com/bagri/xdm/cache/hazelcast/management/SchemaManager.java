@@ -21,6 +21,8 @@ import org.springframework.jmx.export.naming.SelfNaming;
 
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.common.util.FileUtils;
+import com.bagri.xdm.access.api.XDMDocumentManagerServer;
+import com.bagri.xdm.access.api.XDMSchemaDictionary;
 import com.bagri.xdm.access.api.XDMSchemaDictionaryBase;
 import com.bagri.xdm.access.api.XDMSchemaManagerBase;
 import com.bagri.xdm.domain.XDMDocumentType;
@@ -30,41 +32,51 @@ import com.bagri.xdm.system.XDMSchema;
 import com.hazelcast.core.IMap;
 
 @ManagedResource(description="Schema Manager MBean")
-public class SchemaManager extends XDMSchemaManagerBase implements SelfNaming {
+//public class SchemaManager extends XDMSchemaManagerBase implements SelfNaming {
+public class SchemaManager extends EntityManager<XDMSchema> {
 
-    private static final transient Logger logger = LoggerFactory.getLogger(SchemaManager.class);
-    private static final String type_schema = "Schema";
     private static final String state_ok = "working";
 
     private String state = state_ok;
     private SchemaManagement parent;
-    private IMap<String, XDMSchema> schemaCache;
+	protected XDMDocumentManagerServer docManager;
+	protected XDMSchemaDictionary schemaDictionary;
     
 	public SchemaManager() {
 		super();
 	}
 
 	public SchemaManager(SchemaManagement parent, String schemaName) {
-		super();
+		super(schemaName);
 		this.parent = parent;
-		this.schemaName = schemaName;
 	}
 	
+	public XDMDocumentManagerServer getDocumentManager() {
+		return docManager;
+	}
 	
-	public void setSchemaCache(IMap<String, XDMSchema> schemaCache) {
-		this.schemaCache = schemaCache;
+	public void setDocumentManager(XDMDocumentManagerServer docManager) {
+		this.docManager = docManager;
+	}
+	
+	public XDMSchemaDictionary getSchemaDictionary() {
+		return schemaDictionary;
+	}
+	
+	public void setSchemaDictionary(XDMSchemaDictionary schemaDictionary) {
+		this.schemaDictionary = schemaDictionary;
 	}
 	
 	@ManagedAttribute(description="Returns short Schema description")
 	public String getDescription() {
-		return getSchema().getDescription();
+		return getEntity().getDescription();
 	}
 
 	@ManagedAttribute(description="Returns short Schema description")
 	public void setDescription(String description) {
-		XDMSchema schema = getSchema();
+		XDMSchema schema = getEntity();
 		schema.setDescription(description);
-		flushSchema(schema);
+		flushEntity(schema);
 	}
 	
 	@ManagedAttribute(description="Returns Document Types registered in the Schema")
@@ -81,7 +93,7 @@ public class SchemaManager extends XDMSchemaManagerBase implements SelfNaming {
 
 	@ManagedAttribute(description="Returns Schema persistence type")
 	public String getPersistenceType() {
-		String result = getSchema().getProperty("xdm.schema.store.type");
+		String result = getEntity().getProperty("xdm.schema.store.type");
 		if (result == null) {
 			result = "NONE";
 		}
@@ -90,22 +102,23 @@ public class SchemaManager extends XDMSchemaManagerBase implements SelfNaming {
 
 	@ManagedAttribute(description="Returns registered Schema name")
 	public String getName() {
-		return super.getSchemaName();
+		return entityName;
 	}
 	
 	@ManagedAttribute(description="Returns registered Schema properties")
 	public CompositeData getProperties() {
-		return super.getAllProperties();
+		Properties props = getEntity().getProperties();
+		return JMXUtils.propsToComposite(entityName, "properties", props);
 	}
 	
 	@ManagedAttribute(description="Returns registered Schema version")
 	public int getVersion() {
-		return getSchema().getVersion();
+		return getEntity().getVersion();
 	}
 
 	@ManagedAttribute(description="Returns Schema state")
 	public boolean isActive() {
-		return getSchema().isActive();
+		return getEntity().isActive(); //?? prabably we have to calc it..
 	}
 
 	@ManagedAttribute(description="Returns registered Schema state")
@@ -117,24 +130,12 @@ public class SchemaManager extends XDMSchemaManagerBase implements SelfNaming {
 		this.state = state;
 	}
 	
-	@Override
-	protected XDMSchema getSchema() {
-		XDMSchema schema = schemaCache.get(schemaName);
-		//logger.trace("getSchema. returning: {}", schema);
-		return schema;
-	}
-
-	@Override
-	protected void flushSchema(XDMSchema schema) {
-		schemaCache.put(schemaName, schema);
-	}
-	
 	@ManagedOperation(description="Activate Schema")
 	public boolean activateSchema() {
-		XDMSchema schema = getSchema();
+		XDMSchema schema = getEntity();
 		if (schema != null && !schema.isActive()) {
 			String user = JMXUtils.getCurrentUser();
-	    	Object result = schemaCache.executeOnKey(schemaName, new SchemaActivator(schema.getVersion(), user, true));
+	    	Object result = entityCache.executeOnKey(entityName, new SchemaActivator(schema.getVersion(), user, true));
 	    	logger.trace("activateSchema; execution result: {}", result);
 	    	return result != null;
 		} 
@@ -143,10 +144,10 @@ public class SchemaManager extends XDMSchemaManagerBase implements SelfNaming {
 		
 	@ManagedOperation(description="Deactivate Schema")
 	public boolean deactivateSchema() {
-		XDMSchema schema = getSchema();
+		XDMSchema schema = getEntity();
 		if (schema != null && schema.isActive()) {
 			String user = JMXUtils.getCurrentUser();
-	    	Object result = schemaCache.executeOnKey(schemaName, new SchemaActivator(schema.getVersion(), user, false));
+	    	Object result = entityCache.executeOnKey(entityName, new SchemaActivator(schema.getVersion(), user, false));
 	    	logger.trace("deactivateSchema; execution result: {}", result);
 	    	return result != null;
 		}
@@ -157,7 +158,7 @@ public class SchemaManager extends XDMSchemaManagerBase implements SelfNaming {
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "properties", description = "Schema properties: key/value pairs separated by comma")})
 	public boolean updateSchemaProperties(String properties) {
-		XDMSchema schema = getSchema();
+		XDMSchema schema = getEntity();
 		if (schema != null) {
 			Properties props;
 			try {
@@ -167,7 +168,7 @@ public class SchemaManager extends XDMSchemaManagerBase implements SelfNaming {
 				return false;
 			}
 			
-	    	Object result = schemaCache.executeOnKey(schemaName, new SchemaUpdater(schema.getVersion(), 
+	    	Object result = entityCache.executeOnKey(entityName, new SchemaUpdater(schema.getVersion(), 
 	    			JMXUtils.getCurrentUser(), true, props));
 	    	logger.trace("updateSchemaProperties; execution result: {}", result);
 	    	return result != null;
@@ -193,31 +194,31 @@ public class SchemaManager extends XDMSchemaManagerBase implements SelfNaming {
 		return ((XDMSchemaDictionaryBase) schemaDictionary).getDocumentTypes().size() - size;
 	}
 	
-	@Override
+	//@Override
 	@ManagedOperation(description="Returns named Schema property")
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "name", description = "A name of the property to return")})
 	public String getProperty(String name) {
-		return super.getProperty(name);
+		return getEntity().getProperty(name);
 	}
 	
-	@Override
+	//@Override
 	@ManagedOperation(description="Set named Schema property")
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "name", description = "A name of the property to set"),
 		@ManagedOperationParameter(name = "value", description = "A value of the property to set")})
 	public void setProperty(String name, String value) {
-		XDMSchema schema = getSchema();
+		XDMSchema schema = getEntity();
 		if (schema != null) {
 			Properties props = new Properties();
 			props.setProperty(name, value);
-	    	Object result = schemaCache.executeOnKey(schemaName, new SchemaUpdater(schema.getVersion(), 
+	    	Object result = entityCache.executeOnKey(entityName, new SchemaUpdater(schema.getVersion(), 
 	    			JMXUtils.getCurrentUser(), false, props));
 	    	logger.trace("setProperty; execution result: {}", result);
 		}
 	}
 	
-	@Override
+	//@Override
 	@ManagedOperation(description="Removes named Schema property")
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "name", description = "A name of the property to remove")})
@@ -231,9 +232,8 @@ public class SchemaManager extends XDMSchemaManagerBase implements SelfNaming {
 	}
 	
 	@Override
-	public ObjectName getObjectName() throws MalformedObjectNameException {
-		logger.debug("getObjectName.enter; schemaName: {}", schemaName);
-		return JMXUtils.getObjectName("type=" + type_schema + ",name=" + schemaName);
+	protected String getEntityType() {
+		return "Schema";
 	}
 
 }

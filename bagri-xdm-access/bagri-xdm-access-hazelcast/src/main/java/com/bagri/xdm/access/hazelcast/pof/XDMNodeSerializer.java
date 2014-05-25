@@ -19,20 +19,21 @@ public class XDMNodeSerializer extends XDMEntitySerializer implements StreamSeri
 	@Override
 	public XDMNode read(ObjectDataInput in) throws IOException {
 		Object[] entity = super.readEntity(in);
-		XDMNode xNode = new XDMNode(in.readUTF(), 
-				in.readUTF(),
-				(Properties) in.readObject(),
+		XDMNode xNode = new XDMNode(
 				(int) entity[0], 
 				(Date) entity[1], 
-				(String) entity[2]); 
+				(String) entity[2], 
+				in.readUTF(), 
+				in.readUTF(),
+				(Properties) in.readObject());
 		return xNode;
 	}
 
 	@Override
 	public void write(ObjectDataOutput out, XDMNode xNode) throws IOException {
 		super.writeEntity(out, xNode);
+		out.writeUTF(xNode.getName());
 		out.writeUTF(xNode.getAddress());
-		out.writeUTF(xNode.getId());
 		out.writeObject(xNode.getOptions());
 	}
 

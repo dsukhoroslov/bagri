@@ -23,8 +23,8 @@ public class UserCreator extends UserProcessor implements DataSerializable {
 		logger.debug("process.enter; entry: {}", entry); 
 		if (entry.getValue() == null) {
 			String login = entry.getKey();
-			XDMUser user = new XDMUser(login, password, true, getVersion(),  
-					new Date(), getAdmin());
+			XDMUser user = new XDMUser(getVersion(), new Date(), getAdmin(), 
+					login, password, true, null, null);
 			entry.setValue(user);
 			auditEntity(AuditType.create, user);
 			return user;

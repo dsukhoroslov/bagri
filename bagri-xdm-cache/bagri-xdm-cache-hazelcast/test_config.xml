@@ -1,13 +1,22 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ns2:config xmlns:ns2="http://www.bagri.com/xdm/system">
     <nodes>
-        <node id="8d5edd7b-7f2a-4f0a-beb8-a085a924c62e">
+        <node name="admin">
             <version>1</version>
-            <createdAt>2014-05-22T02:03:32.477+04:00</createdAt>
+            <createdAt>2014-05-24T17:54:42.221+04:00</createdAt>
             <createdBy>Denis</createdBy>
             <address>localhost</address>
             <options>
-                <entry name="xdm.cluster.node.name">admin</entry>
+                <entry name="xdm.cluster.node.role">admin</entry>
+            </options>
+        </node>
+        <node name="first">
+            <version>1</version>
+            <createdAt>2014-05-25T18:05:46.327+04:00</createdAt>
+            <createdBy>Denis</createdBy>
+            <address>localhost</address>
+            <options>
+                <entry name="xdm.cluster.node.role">server</entry>
             </options>
         </node>
     </nodes>

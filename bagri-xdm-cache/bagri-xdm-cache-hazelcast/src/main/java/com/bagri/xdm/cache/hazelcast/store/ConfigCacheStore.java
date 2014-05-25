@@ -8,16 +8,16 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bagri.xdm.cache.hazelcast.management.ConfigManagement;
+import com.bagri.xdm.cache.hazelcast.management.EntityConfig;
 
 public abstract class ConfigCacheStore<K, V> {
 	
     protected final Logger logger = LoggerFactory.getLogger(getClass());
-    protected ConfigManagement cfg;
+    protected EntityConfig cfg;
     protected Map<K, V> entities;
 	
 
-	public void setConfigManagement(ConfigManagement cfg) {
+	public void setEntityManagement(EntityConfig cfg) {
 		this.cfg = cfg;
 		entities = loadEntities();
 	}

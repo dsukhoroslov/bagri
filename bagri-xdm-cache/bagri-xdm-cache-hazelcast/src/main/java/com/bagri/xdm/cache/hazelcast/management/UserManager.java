@@ -1,83 +1,39 @@
 package com.bagri.xdm.cache.hazelcast.management;
 
-import java.util.Properties;
-
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import javax.management.openmbean.CompositeData;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.DisposableBean;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jmx.export.annotation.ManagedAttribute;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
-import org.springframework.jmx.export.naming.SelfNaming;
 
 import com.bagri.common.manage.JMXUtils;
-import com.bagri.xdm.access.api.XDMNodeManager;
-import com.bagri.xdm.process.hazelcast.schema.SchemaUpdater;
 import com.bagri.xdm.process.hazelcast.user.UserUpdater;
-import com.bagri.xdm.system.XDMNode;
-import com.bagri.xdm.system.XDMSchema;
 import com.bagri.xdm.system.XDMUser;
-import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IExecutorService;
-import com.hazelcast.core.IMap;
 
 @ManagedResource(description="User Manager MBean")
-public class UserManager implements SelfNaming {
+public class UserManager extends EntityManager<XDMUser> {
 
-    private static final transient Logger logger = LoggerFactory.getLogger(UserManager.class);
-	private static final String type_user = "User";
-
-	private String userName;
-    //private HazelcastInstance hzInstance;
-	//private IExecutorService execService;
-	
-	//@Autowired
-    private IMap<String, XDMUser> userCache;
-    
 	public UserManager() {
-		//this.userName = userName;
+		super();
 	}
 
 	public UserManager(String userName) {
-		this.userName = userName;
+		super(userName);
 	}
 
-	//@Override
-	protected XDMUser getUser() {
-		XDMUser user = userCache.get(userName);
-		//logger.trace("getSchema. returning: {}", schema);
-		return user;
-	}
-	
-	public void setUserCache(IMap<String, XDMUser> userCache) {
-		this.userCache = userCache;
-	}
-	
-	public void setUserName(String userName) {
-		this.userName = userName;
-	}
-	
 	@ManagedAttribute(description="Returns User name")
 	public String getName() {
-		return userName;
+		return entityName;
 	}
 	
 	@ManagedAttribute(description="Returns User version")
 	public int getVersion() {
-		return getUser().getVersion();
+		return super.getVersion();
 	}
 
 	@ManagedAttribute(description="Returns User state")
 	public boolean isActive() {
-		return getUser().isActive();
+		return getEntity().isActive();
 	}
 
 	@ManagedOperation(description="Activates/Deactivates User")
@@ -94,9 +50,9 @@ public class UserManager implements SelfNaming {
 		@ManagedOperationParameter(name = "login", description = "User login"),
 		@ManagedOperationParameter(name = "password", description = "New User's password")})
 	public boolean changePassword(String login, String oldPassword, String newPassword) {
-		XDMUser user = getUser();
+		XDMUser user = getEntity();
 		if (user != null) {
-	    	Object result = userCache.executeOnKey(login, new UserUpdater(user.getVersion(), 
+	    	Object result = entityCache.executeOnKey(login, new UserUpdater(user.getVersion(), 
 	    			JMXUtils.getCurrentUser(), oldPassword, newPassword));
 	    	logger.trace("changePassword; execution result: {}", result);
 	    	return result != null;
@@ -105,10 +61,8 @@ public class UserManager implements SelfNaming {
 	}
 
 	@Override
-	public ObjectName getObjectName() throws MalformedObjectNameException {
-		logger.debug("getObjectName.enter; userName: {}", userName);
-		return JMXUtils.getObjectName(type_user, userName);
+	protected String getEntityType() {
+		return "User";
 	}
-
 
 }

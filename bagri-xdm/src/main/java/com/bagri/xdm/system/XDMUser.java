@@ -11,6 +11,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlID;
 import javax.xml.bind.annotation.XmlIDREF;
 import javax.xml.bind.annotation.XmlList;
@@ -37,10 +38,10 @@ public class XDMUser extends XDMEntity {
 	
 	@XmlAttribute(required = true)
 	private boolean active;
-	//private Properties props = new Properties();
 	
-	@XmlElement(required = false)
-	private Map<String, XDMPermission> grants = new HashMap<String, XDMPermission>(); 
+	@XmlElement(name="grant")
+	@XmlElementWrapper(name="grants")
+	private List<XDMPermission> grants = new ArrayList<XDMPermission>(); 
 	
 	@XmlList
 	@XmlIDREF
@@ -50,13 +51,15 @@ public class XDMUser extends XDMEntity {
 		super();
 	}
 	
-	public XDMUser(String login, String password, boolean active, int version, Date createdAt, String createdBy) {
+	public XDMUser(int version, Date createdAt, String createdBy, String login, String password, 
+			boolean active,	List<XDMPermission> grants, List<XDMRole> assignedRoles) {
 		super(version, createdAt, createdBy);
 		this.login = login;
 		this.password = password;
 		this.active = active;
+		setGrants(grants);
+		setAssignedRoles(assignedRoles);
 	}
-
 
 	/**
 	 * @return the password
@@ -97,7 +100,7 @@ public class XDMUser extends XDMEntity {
 		return login;
 	}
 	
-	public Map<String, XDMPermission> getGrants() {
+	public List<XDMPermission> getGrants() {
 		return grants;
 	}
 	
@@ -105,6 +108,20 @@ public class XDMUser extends XDMEntity {
 		return assignedRoles;
 	}
 
+	public void setGrants(List<XDMPermission> grants) {
+		this.grants.clear();
+		if (grants != null) {
+			this.grants.addAll(grants);
+		}
+	}
+	
+	public void setAssignedRoles(List<XDMRole> assignedRoles) {
+		this.assignedRoles.clear();
+		if (assignedRoles != null) {
+			this.assignedRoles.addAll(assignedRoles);
+		}
+	}
+	
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()

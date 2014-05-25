@@ -40,8 +40,8 @@ public class XDMSchema extends XDMEntity {
 		super();
 	}
 
-	public XDMSchema(String name, int version, String description, boolean active, 
-			Date createdAt, String createdBy, Properties props) {
+	public XDMSchema(int version, Date createdAt, String createdBy, String name, 
+			String description, boolean active,	Properties props) {
 		super(version, createdAt, createdBy);
 		this.name = name;
 		this.description = description;
