@@ -9,6 +9,14 @@
             <permissions/>
             <includedRoles></includedRoles>
         </role>
+        <role name="AdminRole">
+            <version>1</version>
+            <createdAt>2014-05-23T09:42:49.630+04:00</createdAt>
+            <createdBy>test</createdBy>
+            <description>Description</description>
+            <permissions/>
+            <includedRoles>TestRole</includedRoles>
+        </role>
     </roles>
 
     <users>

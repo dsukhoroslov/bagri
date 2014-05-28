@@ -74,7 +74,7 @@ public class RoleManagement extends EntityManagement<String, XDMRole> implements
 		return false;
 	}
 
-	@ManagedOperation(description="Delete User")
+	@ManagedOperation(description="Delete Role")
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "name", description = "Role name")})
 	public boolean deleteRole(String name) {

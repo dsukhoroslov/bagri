@@ -45,9 +45,15 @@ public class NodeManager extends EntityManager<XDMNode> implements XDMNodeManage
 		//setEntityCache(nodes);
 	}
 	
+	@Override
+	protected String getEntityType() {
+		return "Node";
+	}
+	
 	@ManagedAttribute(description="Returns registered Node name")
 	public String getName() {
-		return entityName;
+		// this is not an entityName!
+		return getEntity().getName();
 	}
 	
 	@ManagedAttribute(description="Returns registered Node location")
@@ -59,7 +65,10 @@ public class NodeManager extends EntityManager<XDMNode> implements XDMNodeManage
 	public String getNodeId() {
 		XDMNode node = getEntity();
 		Member member = getMember(node.getName(), node.getAddress());
-		return member.getUuid();
+		if (member != null) {
+			return member.getUuid();
+		}
+		return "Not Available";
 	}
 	
 	@ManagedAttribute(description="Returns Node state")
@@ -149,9 +158,4 @@ public class NodeManager extends EntityManager<XDMNode> implements XDMNodeManage
 		return null;
 	}
 
-	@Override
-	protected String getEntityType() {
-		return "Node";
-	}
-	
 }

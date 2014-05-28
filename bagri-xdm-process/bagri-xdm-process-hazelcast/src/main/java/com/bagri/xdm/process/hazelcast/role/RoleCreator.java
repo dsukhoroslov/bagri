@@ -44,6 +44,4 @@ public class RoleCreator extends RoleProcessor implements DataSerializable {
 		out.writeUTF(description);
 	}
 
-
-
 }

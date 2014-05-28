@@ -15,6 +15,11 @@ public abstract class EntityProcessor {
 		delete
 	}
 	
+	public enum Action {
+		add,
+		remove
+	}
+	
 	private int version;
 	private String admin;
 	

@@ -26,7 +26,7 @@ public class RoleRemover extends RoleProcessor implements DataSerializable {
 				return role;
 			} else {
 				// throw ex ?
-				logger.warn("process; outdated user version: {}; entry version: {}; process terminated", 
+				logger.warn("process; outdated role version: {}; entry version: {}; process terminated", 
 						getVersion(), entry.getValue().getVersion()); 
 			}
 		} 

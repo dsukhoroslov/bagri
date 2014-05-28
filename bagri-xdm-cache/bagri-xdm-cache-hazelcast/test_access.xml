@@ -1,20 +1,52 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ns2:access xmlns:ns2="http://www.bagri.com/xdm/access">
     <roles>
+        <role name="UserManagement">
+            <version>2</version>
+            <createdAt>2014-05-27T00:41:30.274+04:00</createdAt>
+            <createdBy>Denis</createdBy>
+            <description>management access to all UserManagement operations</description>
+            <permissions>
+                <permission resource="com.bagri.xdm:type=Management,name=UserManagement">read modify</permission>
+            </permissions>
+            <includedRoles></includedRoles>
+        </role>
+        <role name="NodeManagement">
+            <version>2</version>
+            <createdAt>2014-05-27T00:39:07.329+04:00</createdAt>
+            <createdBy>Denis</createdBy>
+            <description>management access to all ClusterManagement operations</description>
+            <permissions>
+                <permission resource="com.bagri.xdm:type=Management,name=ClusterManagement">modify execute</permission>
+            </permissions>
+            <includedRoles></includedRoles>
+        </role>
+        <role name="SchemaManagement">
+            <version>2</version>
+            <createdAt>2014-05-27T00:40:42.010+04:00</createdAt>
+            <createdBy>Denis</createdBy>
+            <description>management access to all SchemaManagement operations</description>
+            <permissions>
+                <permission resource="com.bagri.xdm:type=Management,name=SchemaManagement">read modify execute</permission>
+            </permissions>
+            <includedRoles></includedRoles>
+        </role>
         <role name="AdminRole">
-            <version>1</version>
-            <createdAt>2014-05-26T00:33:18.068+04:00</createdAt>
+            <version>5</version>
+            <createdAt>2014-05-28T09:13:20.929+04:00</createdAt>
             <createdBy>Denis</createdBy>
             <description>admin: can do everything</description>
             <permissions/>
-            <includedRoles></includedRoles>
+            <includedRoles>UserManagement NodeManagement</includedRoles>
         </role>
         <role name="TestRole">
-            <version>1</version>
-            <createdAt>2014-05-23T09:42:49.630+04:00</createdAt>
-            <createdBy>test</createdBy>
+            <version>3</version>
+            <createdAt>2014-05-27T00:36:16.320+04:00</createdAt>
+            <createdBy>Denis</createdBy>
             <description>Description</description>
-            <permissions/>
+            <permissions>
+                <permission resource="resource3">modify</permission>
+            </permissions>
             <includedRoles></includedRoles>
         </role>
     </roles>
@@ -24,8 +56,10 @@
             <createdAt>2014-05-23T09:42:49.630+04:00</createdAt>
             <createdBy>admin</createdBy>
             <password>TPoX</password>
-            <grants/>
-            <assignedRoles>TestRole</assignedRoles>
+            <grants>
+                <grant resource="schema3">execute</grant>
+            </grants>
+            <assignedRoles></assignedRoles>
         </user>
         <user login="test" active="true">
             <version>1</version>

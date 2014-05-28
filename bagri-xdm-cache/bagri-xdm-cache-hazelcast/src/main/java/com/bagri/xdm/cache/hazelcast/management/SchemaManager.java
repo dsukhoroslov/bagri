@@ -154,28 +154,6 @@ public class SchemaManager extends EntityManager<XDMSchema> {
 		return false;
 	}
 
-	@ManagedOperation(description="Update Schema")
-	@ManagedOperationParameters({
-		@ManagedOperationParameter(name = "properties", description = "Schema properties: key/value pairs separated by comma")})
-	public boolean updateSchemaProperties(String properties) {
-		XDMSchema schema = getEntity();
-		if (schema != null) {
-			Properties props;
-			try {
-				props = FileUtils.propsFromString(properties);
-			} catch (IOException ex) {
-				logger.error("updateSchemaProperties.error: ", ex);
-				return false;
-			}
-			
-	    	Object result = entityCache.executeOnKey(entityName, new SchemaUpdater(schema.getVersion(), 
-	    			JMXUtils.getCurrentUser(), true, props));
-	    	logger.trace("updateSchemaProperties; execution result: {}", result);
-	    	return result != null;
-		}
-		return false;
-	}
-
 	@ManagedOperation(description="Register Schema")
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "schemaFile", description = "A full path to XSD file to register")})
@@ -231,6 +209,28 @@ public class SchemaManager extends EntityManager<XDMSchema> {
 		setProperty(name, defValue);
 	}
 	
+	@ManagedOperation(description="Update Schema properties")
+	@ManagedOperationParameters({
+		@ManagedOperationParameter(name = "properties", description = "Schema properties: key/value pairs separated by comma")})
+	public boolean updateProperties(String properties) {
+		XDMSchema schema = getEntity();
+		if (schema != null) {
+			Properties props;
+			try {
+				props = FileUtils.propsFromString(properties);
+			} catch (IOException ex) {
+				logger.error("updateProperties.error: ", ex);
+				return false;
+			}
+			
+	    	Object result = entityCache.executeOnKey(entityName, new SchemaUpdater(schema.getVersion(), 
+	    			JMXUtils.getCurrentUser(), true, props));
+	    	logger.trace("updateProperties; execution result: {}", result);
+	    	return result != null;
+		}
+		return false;
+	}
+
 	@Override
 	protected String getEntityType() {
 		return "Schema";
