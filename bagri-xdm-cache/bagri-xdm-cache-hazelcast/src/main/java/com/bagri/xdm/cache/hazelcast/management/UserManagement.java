@@ -16,6 +16,7 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
 import com.bagri.common.manage.JMXUtils;
+import com.bagri.common.security.Encryptor;
 import com.bagri.xdm.process.hazelcast.user.UserCreator;
 import com.bagri.xdm.process.hazelcast.user.UserRemover;
 import com.bagri.xdm.system.XDMRole;
@@ -102,9 +103,8 @@ public class UserManagement extends EntityManagement<String, XDMUser> implements
 	public boolean authenticate(String login, String password) {
 		XDMUser user = entityCache.get(login);
 		if (user != null) {
-			// @TODO: we'll NOT store passwords in open text,
-			// will have to hash pwd and compare with original hash
-			return password.equals(user.getPassword());
+			String pwd = Encryptor.encrypt(password);
+			return pwd.equals(user.getPassword());
 		}
 		// throw NotFound exception?
 		return false;

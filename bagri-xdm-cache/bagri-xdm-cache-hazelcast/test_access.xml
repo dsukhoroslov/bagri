@@ -26,7 +26,7 @@
             <createdAt>2014-05-27T00:40:42.010+04:00</createdAt>
             <createdBy>Denis</createdBy>
             <permissions>
-                <permission resource="com.bagri.xdm:type=Management,name=SchemaManagement">modify execute read</permission>
+                <permission resource="com.bagri.xdm:type=Management,name=SchemaManagement">modify read execute</permission>
             </permissions>
             <includedRoles></includedRoles>
             <description>management access to all SchemaManagement operations</description>
@@ -52,28 +52,20 @@
     </roles>
     <users>
         <user login="SDV" active="true">
-            <version>2</version>
-            <createdAt>2014-05-28T15:59:10.996+04:00</createdAt>
-            <createdBy>dsukhoroslov</createdBy>
+            <version>1</version>
+            <createdAt>2014-05-23T09:42:49.630+04:00</createdAt>
+            <createdBy>admin</createdBy>
             <permissions/>
             <includedRoles>AdminRole</includedRoles>
-            <password>TPoX</password>
+            <password>07e3379a4942bbf67f06b72fbd748f1d</password>
         </user>
-        <user login="test" active="true">
-            <version>1</version>
-            <createdAt>2014-05-24T17:29:41.705+04:00</createdAt>
+        <user login="admin" active="true">
+            <version>2</version>
+            <createdAt>2014-05-29T01:12:30.559+04:00</createdAt>
             <createdBy>Denis</createdBy>
             <permissions/>
             <includedRoles></includedRoles>
-            <password>test</password>
-        </user>
-        <user login="admin" active="true">
-            <version>1</version>
-            <createdAt>2014-05-22T09:42:49.630+04:00</createdAt>
-            <createdBy>admin</createdBy>
-            <permissions/>
-            <includedRoles></includedRoles>
-            <password>TPoX</password>
+            <password>5f4dcc3b5aa765d61d8327deb882cf99</password>
         </user>
     </users>
 </ns2:access>

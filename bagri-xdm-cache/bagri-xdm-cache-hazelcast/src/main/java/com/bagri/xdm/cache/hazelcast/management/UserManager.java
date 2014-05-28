@@ -90,12 +90,12 @@ public class UserManager extends PermissionAwareManager<XDMUser> {
 
 	@ManagedOperation(description="Changes User password")
 	@ManagedOperationParameters({
-		@ManagedOperationParameter(name = "login", description = "User login"),
-		@ManagedOperationParameter(name = "password", description = "New User's password")})
-	public boolean changePassword(String login, String oldPassword, String newPassword) {
+		@ManagedOperationParameter(name = "oldPassword", description = "old User's password"),
+		@ManagedOperationParameter(name = "newPassword", description = "new User's password")})
+	public boolean changePassword(String oldPassword, String newPassword) {
 		XDMUser user = getEntity();
 		if (user != null) {
-	    	Object result = entityCache.executeOnKey(login, new UserUpdater(user.getVersion(), 
+	    	Object result = entityCache.executeOnKey(entityName, new UserUpdater(user.getVersion(), 
 	    			JMXUtils.getCurrentUser(), oldPassword, newPassword));
 	    	logger.trace("changePassword; execution result: {}", result);
 	    	return result != null;

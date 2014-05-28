@@ -3,6 +3,7 @@ package com.bagri.xdm.process.hazelcast.user;
 import java.io.IOException;
 import java.util.Map.Entry;
 
+import com.bagri.common.security.Encryptor;
 import com.bagri.xdm.system.XDMUser;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
@@ -29,8 +30,10 @@ public class UserUpdater extends UserProcessor implements DataSerializable {
 		if (entry.getValue() != null) {
 			XDMUser user = entry.getValue();
 			if (user.getVersion() == getVersion()) {
-				if (oldPassword.equals(user.getPassword())) {
-					user.setPassword(newPassword);
+				String pwd = Encryptor.encrypt(oldPassword);
+				if (pwd.equals(user.getPassword())) {
+					pwd = Encryptor.encrypt(newPassword);
+					user.setPassword(pwd);
 					user.updateVersion(getAdmin());
 					entry.setValue(user);
 					auditEntity(AuditType.update, user);
