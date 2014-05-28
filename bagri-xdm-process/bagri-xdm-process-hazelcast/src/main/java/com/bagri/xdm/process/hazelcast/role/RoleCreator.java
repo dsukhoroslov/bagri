@@ -23,8 +23,7 @@ public class RoleCreator extends RoleProcessor implements DataSerializable {
 		logger.debug("process.enter; entry: {}", entry); 
 		if (entry.getValue() == null) {
 			String name = entry.getKey();
-			XDMRole role = new XDMRole(getVersion(), new Date(), getAdmin(), 
-					name, description, null, null);
+			XDMRole role = new XDMRole(getVersion(), new Date(), getAdmin(), null, null, name, description);
 			entry.setValue(role);
 			auditEntity(AuditType.create, role);
 			return role;

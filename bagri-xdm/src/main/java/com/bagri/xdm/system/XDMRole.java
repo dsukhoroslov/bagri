@@ -21,11 +21,9 @@ import com.bagri.xdm.api.XDMEntity;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(namespace = "http://www.bagri.com/xdm/access", propOrder = {
 		"name", 
-		"description", 
-		"permissions",
-		"includedRoles"
+		"description"
 })
-public class XDMRole extends XDMEntity {
+public class XDMRole extends XDMPermissionAware {
 
 	@XmlAttribute
 	@XmlID
@@ -34,25 +32,15 @@ public class XDMRole extends XDMEntity {
 	@XmlElement(required = true)
 	private String description;
 	
-	@XmlElement(name = "permissions")
-	@XmlJavaTypeAdapter(XDMPermissionsAdapter.class)
-	private Map<String, XDMPermission> permissions = new HashMap<String, XDMPermission>(); 
-	
-	@XmlList
-	//@XmlIDREF
-	private Set<String> includedRoles = new HashSet<String>();
-	
 	public XDMRole() {
 		super();
 	}
 	
-	public XDMRole(int version, Date createdAt, String createdBy, String name, String description,  
-			Map<String, XDMPermission> permissions, Set<String> includedRoles) {
-		super(version, createdAt, createdBy);
+	public XDMRole(int version, Date createdAt, String createdBy, Map<String, XDMPermission> permissions, Set<String> includedRoles,
+			String name, String description) {
+		super(version, createdAt, createdBy, permissions, includedRoles);
 		this.name = name;
 		this.description = description;
-		setPermissions(permissions);
-		setIncludedRoles(includedRoles);
 	}
 	
 	public String getName() {
@@ -61,54 +49,6 @@ public class XDMRole extends XDMEntity {
 	
 	public String getDescription() {
 		return description;
-	}
-	
-	public Map<String, XDMPermission> getPermissions() {
-		return permissions;
-	}
-	
-	public Map<String, Object> getFlatPermissions() {
-		Map<String, Object> perms = new HashMap<String, Object>(permissions.size());
-		for (Map.Entry<String, XDMPermission> e: permissions.entrySet()) {
-			perms.put(e.getKey(), e.getValue().getPermissionsAsString());
-		}
-		return perms;
-	}
-	
-	//public Set<XDMPermission.Permission> getResourcePermissions(String resource) {
-	//	Set<XDMPermission.Permission> perms = new HashSet<XDMPermission.Permission>();
-	//	for (XDMPermission p: permissions) {
-	//		if (resource.equals(p.getResource())) {
-	//			perms.addAll(p.getPermissions());
-	//		}
-	//	}
-	//	return perms;
-	//}
-	
-	public Set<String> getIncludedRoles() {
-		return includedRoles;
-	}
-	
-	public void setPermissions(Map<String, XDMPermission> permissions) {
-		this.permissions.clear();
-		if (permissions != null) {
-			this.permissions.putAll(permissions);
-		}
-	}
-	
-	public void setIncludedRoles(Set<String> includedRoles) {
-		this.includedRoles.clear();
-		if (includedRoles != null) {
-			this.includedRoles.addAll(includedRoles);
-		}
-	}
-	
-	public boolean addIncludedRole(String role) {
-		return includedRoles.add(role);
-	}
-	
-	public boolean removeIncludedRole(String role) {
-		return includedRoles.remove(role);
 	}
 	
 	@Override
@@ -137,8 +77,8 @@ public class XDMRole extends XDMEntity {
 	@Override
 	public String toString() {
 		return "XDMRole [name=" + name + ", description=" + description
-				+ ", permissions=" + permissions + ", includedRoles="
-				+ includedRoles + "]";
+				+ ", permissions=" + getPermissions() + ", includedRoles="
+				+ getIncludedRoles() + "]";
 	}
 	
 	

@@ -37,10 +37,10 @@ public class XDMRoleSerializer extends XDMEntitySerializer implements StreamSeri
 				(int) entity[0],
 				(Date) entity[1],
 				(String) entity[2],
+				mPerms, 
+				roles,
 				name, 
-				description,
-				mPerms,
-				roles); 
+				description);
 		return xRole;
 	}
 
@@ -51,7 +51,6 @@ public class XDMRoleSerializer extends XDMEntitySerializer implements StreamSeri
 		out.writeUTF(xRole.getDescription());
 		// write permissions and roles
 		List<XDMPermission> perms = new ArrayList<XDMPermission>(xRole.getPermissions().values());
-		//out.writeObject(xRole.getPermissions());
 		out.writeObject(perms);
 		out.writeObject(xRole.getIncludedRoles());
 	}

@@ -18,8 +18,10 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.xdm.process.hazelcast.user.UserCreator;
 import com.bagri.xdm.process.hazelcast.user.UserRemover;
+import com.bagri.xdm.system.XDMRole;
 import com.bagri.xdm.system.XDMUser;
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IMap;
 
 /**
  * @author Denis Sukhoroslov email: dsukhoroslov@gmail.com
@@ -92,6 +94,8 @@ public class UserManagement extends EntityManagement<String, XDMUser> implements
 	protected EntityManager<XDMUser> createEntityManager(String userName) {
 		UserManager mgr = new UserManager(userName);
 		mgr.setEntityCache(entityCache);
+		IMap<String, XDMRole> roles = hzInstance.getMap("roles");
+		mgr.setRoleCache(roles);
 		return mgr;
 	}
 	

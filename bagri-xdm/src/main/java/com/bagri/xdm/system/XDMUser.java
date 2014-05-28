@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -23,11 +24,9 @@ import com.bagri.xdm.api.XDMEntity;
 @XmlType(namespace = "http://www.bagri.com/xdm/access", propOrder = {
 		"login", 
 		"password", 
-		"active",
-		"grants",
-		"assignedRoles"
+		"active"
 })
-public class XDMUser extends XDMEntity {
+public class XDMUser extends XDMPermissionAware {
 	
 	@XmlAttribute
 	@XmlID
@@ -39,26 +38,16 @@ public class XDMUser extends XDMEntity {
 	@XmlAttribute(required = true)
 	private boolean active;
 	
-	@XmlElement(name="grant")
-	@XmlElementWrapper(name="grants")
-	private List<XDMPermission> grants = new ArrayList<XDMPermission>(); 
-	
-	@XmlList
-	@XmlIDREF
-	private List<XDMRole> assignedRoles = new ArrayList<XDMRole>();
-	
 	public XDMUser() {
 		super();
 	}
 	
-	public XDMUser(int version, Date createdAt, String createdBy, String login, String password, 
-			boolean active,	List<XDMPermission> grants, List<XDMRole> assignedRoles) {
-		super(version, createdAt, createdBy);
+	public XDMUser(int version, Date createdAt, String createdBy, Map<String, XDMPermission> permissions, Set<String> includedRoles,
+			String login, String password, boolean active) {
+		super(version, createdAt, createdBy, permissions, includedRoles);
 		this.login = login;
 		this.password = password;
 		this.active = active;
-		setGrants(grants);
-		setAssignedRoles(assignedRoles);
 	}
 
 	/**
@@ -100,29 +89,6 @@ public class XDMUser extends XDMEntity {
 		return login;
 	}
 	
-	public List<XDMPermission> getGrants() {
-		return grants;
-	}
-	
-	public List<XDMRole> getAssignedRoles() {
-		return assignedRoles;
-	}
-
-	public void setGrants(List<XDMPermission> grants) {
-		this.grants.clear();
-		if (grants != null) {
-			this.grants.addAll(grants);
-		}
-	}
-	
-	public void setAssignedRoles(List<XDMRole> assignedRoles) {
-		this.assignedRoles.clear();
-		if (assignedRoles != null) {
-			this.assignedRoles.addAll(assignedRoles);
-		}
-	}
-	
-
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
 	 */

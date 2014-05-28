@@ -5,77 +5,75 @@
             <version>2</version>
             <createdAt>2014-05-27T00:41:30.274+04:00</createdAt>
             <createdBy>Denis</createdBy>
-            <description>management access to all UserManagement operations</description>
             <permissions>
-                <permission resource="com.bagri.xdm:type=Management,name=UserManagement">read modify</permission>
+                <permission resource="com.bagri.xdm:type=Management,name=UserManagement">modify read</permission>
             </permissions>
             <includedRoles></includedRoles>
+            <description>management access to all UserManagement operations</description>
         </role>
         <role name="NodeManagement">
             <version>2</version>
             <createdAt>2014-05-27T00:39:07.329+04:00</createdAt>
             <createdBy>Denis</createdBy>
-            <description>management access to all ClusterManagement operations</description>
             <permissions>
                 <permission resource="com.bagri.xdm:type=Management,name=ClusterManagement">modify execute</permission>
             </permissions>
             <includedRoles></includedRoles>
+            <description>management access to all ClusterManagement operations</description>
         </role>
         <role name="SchemaManagement">
             <version>2</version>
             <createdAt>2014-05-27T00:40:42.010+04:00</createdAt>
             <createdBy>Denis</createdBy>
-            <description>management access to all SchemaManagement operations</description>
             <permissions>
-                <permission resource="com.bagri.xdm:type=Management,name=SchemaManagement">read modify execute</permission>
+                <permission resource="com.bagri.xdm:type=Management,name=SchemaManagement">modify execute read</permission>
             </permissions>
             <includedRoles></includedRoles>
+            <description>management access to all SchemaManagement operations</description>
         </role>
         <role name="AdminRole">
             <version>5</version>
             <createdAt>2014-05-28T09:13:20.929+04:00</createdAt>
             <createdBy>Denis</createdBy>
-            <description>admin: can do everything</description>
             <permissions/>
             <includedRoles>UserManagement NodeManagement</includedRoles>
+            <description>admin: can do everything</description>
         </role>
         <role name="TestRole">
             <version>3</version>
             <createdAt>2014-05-27T00:36:16.320+04:00</createdAt>
             <createdBy>Denis</createdBy>
-            <description>Description</description>
             <permissions>
                 <permission resource="resource3">modify</permission>
             </permissions>
             <includedRoles></includedRoles>
+            <description>Description</description>
         </role>
     </roles>
     <users>
         <user login="SDV" active="true">
-            <version>1</version>
-            <createdAt>2014-05-23T09:42:49.630+04:00</createdAt>
-            <createdBy>admin</createdBy>
+            <version>2</version>
+            <createdAt>2014-05-28T15:59:10.996+04:00</createdAt>
+            <createdBy>dsukhoroslov</createdBy>
+            <permissions/>
+            <includedRoles>AdminRole</includedRoles>
             <password>TPoX</password>
-            <grants>
-                <grant resource="schema3">execute</grant>
-            </grants>
-            <assignedRoles></assignedRoles>
         </user>
         <user login="test" active="true">
             <version>1</version>
             <createdAt>2014-05-24T17:29:41.705+04:00</createdAt>
             <createdBy>Denis</createdBy>
+            <permissions/>
+            <includedRoles></includedRoles>
             <password>test</password>
-            <grants/>
-            <assignedRoles></assignedRoles>
         </user>
         <user login="admin" active="true">
             <version>1</version>
             <createdAt>2014-05-22T09:42:49.630+04:00</createdAt>
             <createdBy>admin</createdBy>
+            <permissions/>
+            <includedRoles></includedRoles>
             <password>TPoX</password>
-            <grants/>
-            <assignedRoles></assignedRoles>
         </user>
     </users>
 </ns2:access>

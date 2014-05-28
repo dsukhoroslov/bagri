@@ -1,5 +1,12 @@
 package com.bagri.xdm.cache.hazelcast.management;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import javax.management.openmbean.CompositeData;
+
 import org.springframework.jmx.export.annotation.ManagedAttribute;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedOperationParameter;
@@ -8,10 +15,15 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.xdm.process.hazelcast.user.UserUpdater;
+import com.bagri.xdm.system.XDMPermission;
+import com.bagri.xdm.system.XDMRole;
 import com.bagri.xdm.system.XDMUser;
+import com.hazelcast.core.IMap;
 
 @ManagedResource(description="User Manager MBean")
-public class UserManager extends EntityManager<XDMUser> {
+public class UserManager extends PermissionAwareManager<XDMUser> {
+	
+	private IMap<String, XDMRole> roleCache;
 
 	public UserManager() {
 		super();
@@ -19,6 +31,10 @@ public class UserManager extends EntityManager<XDMUser> {
 
 	public UserManager(String userName) {
 		super(userName);
+	}
+	
+	public void setRoleCache(IMap<String, XDMRole> roleCache) {
+		this.roleCache = roleCache;
 	}
 
 	@ManagedAttribute(description="Returns User name")
@@ -36,6 +52,33 @@ public class UserManager extends EntityManager<XDMUser> {
 		return getEntity().isActive();
 	}
 
+	@ManagedAttribute(description="Returns effective User permissions, recursivelly")
+	public CompositeData getRecursivePermissions() {
+		Map<String, XDMPermission> xPerms = new HashMap<String, XDMPermission>();
+		for (String role: getDirectRoles()) {
+			getRecursivePermissions(xPerms, role);
+		}
+		Map<String, Object> pMap = new HashMap<String, Object>(xPerms.size());
+		for (Map.Entry<String, XDMPermission> e: xPerms.entrySet()) {
+			pMap.put(e.getKey(), e.getValue().getPermissionsAsString());
+		}
+		return JMXUtils.propsToComposite(entityName, "permissions", pMap);
+	}
+	
+	@ManagedAttribute(description="Returns all Roles assigned to this User, recursivelly")
+	public String[] getRecursiveRoles() {
+		Set<String> xRoles = new HashSet<String>();
+		for (String role: getDirectRoles()) {
+			getRecursiveRoles(xRoles, role);
+		}
+		return xRoles.toArray(new String[xRoles.size()]);
+	}
+
+	@Override
+	protected IMap<String, XDMRole> getRoleCache() {
+		return roleCache;
+	}
+	
 	@ManagedOperation(description="Activates/Deactivates User")
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "login", description = "User login"),

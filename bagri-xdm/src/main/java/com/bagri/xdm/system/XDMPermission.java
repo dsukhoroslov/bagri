@@ -91,7 +91,10 @@ public class XDMPermission {
 			pNames[i++] = p.name();
 		}
 		return pNames;
-		
+	}
+	
+	public boolean isEmpty() {
+		return perms.isEmpty();
 	}
 	
 	public void setPermissions(Set<Permission> permissions) {

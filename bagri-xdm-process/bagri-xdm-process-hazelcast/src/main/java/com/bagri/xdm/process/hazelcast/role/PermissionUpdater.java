@@ -3,13 +3,22 @@ package com.bagri.xdm.process.hazelcast.role;
 import java.io.IOException;
 import java.util.Map.Entry;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.bagri.xdm.process.hazelcast.EntityProcessor;
 import com.bagri.xdm.system.XDMPermission;
+import com.bagri.xdm.system.XDMPermissionAware;
 import com.bagri.xdm.system.XDMPermission.Permission;
-import com.bagri.xdm.system.XDMRole;
+import com.hazelcast.map.EntryBackupProcessor;
+import com.hazelcast.map.EntryProcessor;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 
-public class PermissionUpdater extends RoleProcessor {
+public class PermissionUpdater extends EntityProcessor implements EntryProcessor<String, XDMPermissionAware>, 
+	EntryBackupProcessor<String, XDMPermissionAware> {
+
+	private static final transient Logger logger = LoggerFactory.getLogger(RoleUpdater.class);
 
 	private Action action;
 	private String resource;
@@ -23,38 +32,39 @@ public class PermissionUpdater extends RoleProcessor {
 	}
 
 	@Override
-	public Object process(Entry<String, XDMRole> entry) {
+	public void processBackup(Entry<String, XDMPermissionAware> entry) {
+		process(entry);		
+	}
+
+	@Override
+	public EntryBackupProcessor<String, XDMPermissionAware> getBackupProcessor() {
+		return this;
+	}
+	
+	@Override
+	public Object process(Entry<String, XDMPermissionAware> entry) {
 		logger.debug("process.enter; entry: {}", entry); 
 		if (entry.getValue() != null) {
-			XDMRole role = entry.getValue();
+			XDMPermissionAware role = entry.getValue();
 			if (role.getVersion() == getVersion()) {
-				XDMPermission perm = role.getPermissions().get(resource);
-				if (perm != null) {
-					if (action == Action.add) {
+				if (action == Action.add) {
+					for (String permission: permissions) {
+						if (!role.addPermission(resource, Permission.valueOf(permission))) {
+							logger.warn("process.add; permission {} already granted for resource {}, skipped;", 
+									permission, resource); 
+						}
+					} 
+				} else {
+					if (permissions.length > 0) {
 						for (String permission: permissions) {
-							if (!perm.addPermission(Permission.valueOf(permission))) {
-								logger.warn("process.add; permission {} already granted for resource {}, skipped;", 
+							if (!role.removePermission(resource, Permission.valueOf(permission))) {
+								logger.warn("process.remove; permission {} not granted for resource {}, skipped;", 
 										permission, resource); 
 							}
-						}
+						} 
 					} else {
-						if (permissions.length > 0) {
-							for (String permission: permissions) {
-								if (!perm.removePermission(Permission.valueOf(permission))) {
-									logger.warn("process.remove; permission {} not granted for resource {}, skipped;", 
-											permission, resource); 
-								}
-							}
-						} else {
-							role.getPermissions().remove(resource);
-						}
+						role.removePermission(resource, null);
 					}
-				} else {
-					perm = new XDMPermission(resource);
-					for (String permission: permissions) {
-						perm.addPermission(Permission.valueOf(permission));
-					}
-					role.getPermissions().put(resource, perm);
 				}
 				role.updateVersion(getAdmin());
 				entry.setValue(role);

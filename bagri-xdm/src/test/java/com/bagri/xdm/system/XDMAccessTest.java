@@ -39,13 +39,13 @@ public class XDMAccessTest {
 		Map<String, XDMPermission> perms = new HashMap<String, XDMPermission>(2);
 		perms.put("resource1", new XDMPermission("resource1", XDMPermission.Permission.read));
 		perms.put("resource2", new XDMPermission("resource2", XDMPermission.Permission.read, XDMPermission.Permission.modify));
-		XDMRole role = new XDMRole(1, new Date(), "test", "TestRole", "Description", perms, null);
+		XDMRole role = new XDMRole(1, new Date(), "test", perms, null, "TestRole", "Description");
 
 		//perms.clear();
 		//perms.add(new XDMPermission(XDMPermission.Permission.execute, "schema3"));
-		XDMUser user = new XDMUser(1, new Date(), "test", "admin", "admin", true, null, null);
-		user.getAssignedRoles().add(role);
-		user.getGrants().add(new XDMPermission("schema3", XDMPermission.Permission.execute));
+		XDMUser user = new XDMUser(1, new Date(), "test", null, null, "admin", "admin", true);
+		user.addIncludedRole(role.getName());
+		user.addPermission("schema3", XDMPermission.Permission.execute);
 
 		XDMAccess access = new XDMAccess();
 		access.getRoles().add(role);
