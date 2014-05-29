@@ -97,6 +97,10 @@ public class XDMPermission {
 		return perms.isEmpty();
 	}
 	
+	public boolean isWildcard() {
+		return resource.indexOf("*") >= 0;
+	}
+	
 	public void setPermissions(Set<Permission> permissions) {
 		this.perms.clear();
 		if (permissions != null) {

@@ -1,10 +1,13 @@
 package com.bagri.xdm.cache.hazelcast.management;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.management.MBeanServer;
 import javax.management.openmbean.CompositeData;
 
 import org.springframework.jmx.export.annotation.ManagedAttribute;
@@ -70,6 +73,24 @@ public class UserManager extends PermissionAwareManager<XDMUser> {
 		return xPerms;
 	}
 	
+	//@ManagedAttribute(description="Returns effective User permissions, recursivelly, resolving wildcards")
+	public Map<String, XDMPermission> getFlatPermissions() {
+		Map<String, XDMPermission> xPerms = getAllPermissions();
+		List<XDMPermission> lPerms = new ArrayList<XDMPermission>(xPerms.values());
+		for (XDMPermission lPerm: lPerms) {
+			if (lPerm.isWildcard()) {
+				xPerms.remove(lPerm.getResource());
+				List<String> all = JMXUtils.queryNames(lPerm.getResource());
+				for (String resource: all) {
+					XDMPermission xPerm = new XDMPermission(resource, lPerm.getPermissions());
+					xPerms.put(resource, xPerm);
+				}
+			}
+		}
+    	logger.trace("getFlatPermissions.exit; returning: {}", xPerms);
+		return xPerms;
+	}
+
 	@ManagedAttribute(description="Returns all Roles assigned to this User, recursivelly")
 	public String[] getRecursiveRoles() {
 		Set<String> xRoles = new HashSet<String>();

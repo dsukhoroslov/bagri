@@ -3,8 +3,10 @@
  */
 package com.bagri.xdm.cache.hazelcast.management;
 
+import java.lang.management.ManagementFactory;
 import java.util.Set;
 
+import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 
 import org.springframework.beans.factory.InitializingBean;

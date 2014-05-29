@@ -25,10 +25,12 @@ import javax.management.openmbean.TabularType;
 import javax.management.remote.JMXPrincipal;
 import javax.security.auth.Subject;
 
+import java.lang.management.ManagementFactory;
 import java.security.AccessControlContext;
 import java.security.AccessController;
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
@@ -149,6 +151,21 @@ public class JMXUtils {
         }
         logger.info("getCurrentUser.exit; returning: {}", result);
         return result;
+	}
+	
+	public static List<String> queryNames(String wildcard) {
+		MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
+		try {
+			 Set<ObjectName> names = mbs.queryNames(new ObjectName(wildcard), null);
+			 List<String> result = new ArrayList<String>(names.size());
+			 for (ObjectName name: names) {
+				 result.add(name.toString());
+			 }
+			 return result; 
+		} catch (MalformedObjectNameException ex) {
+			logger.error("queryNames.error: " + ex.getMessage(), ex);
+		}
+		return Collections.emptyList();
 	}
     
     /**

@@ -97,16 +97,17 @@ public class BagriJAASInvocationHandler implements InvocationHandler {
 		// Retrieve JMXPrincipal from Subject
 		Set<JMXPrincipal> principals = subject.getPrincipals(JMXPrincipal.class);
 		if (principals == null || principals.isEmpty()) {
-			throw new SecurityException("Access denied");
+			throw new SecurityException("No principal found. Access denied");
 		}
 		Principal principal = principals.iterator().next();
 		String identity = principal.getName();
+		ObjectName oName = (ObjectName) args[0];
 		
-		if (checkPermissions(identity, methodName, (ObjectName) args[0])) {
+		if (checkPermissions(identity, methodName, oName)) {
 			return method.invoke(mbs, args);
 		}
 
-		throw new SecurityException("Access denied");
+		throw new SecurityException("Access denied to resource: " + oName.toString());
 	}
 	
 	public boolean checkPermissions(String identity, String methodName, ObjectName target) {
@@ -126,7 +127,8 @@ public class BagriJAASInvocationHandler implements InvocationHandler {
 			return false;
 		}
 		
-		Map<String, XDMPermission> xPerms = uMgr.getAllPermissions();
+		//Map<String, XDMPermission> xPerms = uMgr.getAllPermissions();
+		Map<String, XDMPermission> xPerms = uMgr.getFlatPermissions();
 		XDMPermission xPerm = xPerms.get(target.toString());
 		if (xPerm == null) {
 			//no permissions granted to this resource
@@ -134,13 +136,16 @@ public class BagriJAASInvocationHandler implements InvocationHandler {
 			return false;
 		}
 
-		if (methodName.equals("getAttribute") && xPerm.hasPermission(Permission.read)) {
+		if ((methodName.startsWith("getAttribute") || methodName.equals("getMBeanInfo") 
+				|| methodName.equals("isInstanceOf") || methodName.equals("isRegistered")
+				|| methodName.equals("queryMBeans") || methodName.equals("queryNames"))
+				&& xPerm.hasPermission(Permission.read)) {
 			// granted read access
 			logger.trace("checkPermissions.exit; returning: true"); 
 			return true;
 		}
 
-		if (methodName.equals("setAttribute") && xPerm.hasPermission(Permission.modify)) {
+		if (methodName.startsWith("setAttribute") && xPerm.hasPermission(Permission.modify)) {
 			// granted write access
 			logger.trace("checkPermissions.exit; returning: true"); 
 			return true;
