@@ -23,7 +23,7 @@ public class BagriJMXAuthenticator implements JMXAuthenticator {
     @Override
 	public Subject authenticate(Object credentials) {
 
-		logger.info("authenticate.enter; got credentials: {}", credentials); 
+		//logger.info("authenticate.enter; got credentials: {}", credentials); 
 		// Verify that credentials is of type String[].
 		//
 		if (!(credentials instanceof String[])) {
@@ -52,7 +52,7 @@ public class BagriJMXAuthenticator implements JMXAuthenticator {
 					Collections.singleton(new JMXPrincipal(username)),
 					Collections.EMPTY_SET,
 					Collections.EMPTY_SET);
-			logger.info("authenticate.exit; returning: {}", result);
+			logger.debug("authenticate.exit; returning: {}", result);
 			return result;
 		} else {
 			throw new SecurityException("Invalid credentials");
@@ -65,6 +65,7 @@ public class BagriJMXAuthenticator implements JMXAuthenticator {
 	
 	private boolean checkCreds(String login, String password) {
 		// check user from userCache..
+		logger.debug("authenticate; login: {}", login);
 		return uMgr.authenticate(login, password);
 	}
 

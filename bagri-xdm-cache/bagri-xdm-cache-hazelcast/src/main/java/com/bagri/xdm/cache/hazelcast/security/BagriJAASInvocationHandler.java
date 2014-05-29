@@ -6,6 +6,7 @@ import java.lang.reflect.Proxy;
 import java.security.AccessControlContext;
 import java.security.AccessController;
 import java.security.Principal;
+import java.util.Map;
 import java.util.Set;
 
 import javax.management.MBeanServer;
@@ -18,8 +19,12 @@ import javax.security.auth.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.bagri.common.manage.JMXUtils;
 import com.bagri.common.security.LocalSubject;
 import com.bagri.xdm.cache.hazelcast.management.UserManagement;
+import com.bagri.xdm.cache.hazelcast.management.UserManager;
+import com.bagri.xdm.system.XDMPermission;
+import com.bagri.xdm.system.XDMPermission.Permission;
 
 public class BagriJAASInvocationHandler implements InvocationHandler {
 
@@ -58,12 +63,17 @@ public class BagriJAASInvocationHandler implements InvocationHandler {
 				throw new IllegalArgumentException("Null MBeanServer");
 			}
 			if (mbs != null) {
-				throw new IllegalArgumentException("MBeanServer object already initialized");
+				throw new IllegalArgumentException("MBeanServer already initialized");
 			}
 			mbs = (MBeanServer) args[0];
 			return null;
 		}
 
+		if (args == null || args.length == 0 || !(args[0] instanceof ObjectName)) {
+			// some MBeanServer method
+			return method.invoke(mbs, args);
+		}
+		
 		// Retrieve Subject from current AccessControlContext
 		AccessControlContext acc = AccessController.getContext();
 		Subject subject = Subject.getSubject(acc);
@@ -80,10 +90,10 @@ public class BagriJAASInvocationHandler implements InvocationHandler {
 		}
 
 		// Restrict access to "createMBean" and "unregisterMBean" to any user
-		if (methodName.equals("createMBean") || methodName.equals("unregisterMBean")) {
-			throw new SecurityException("Access denied");
-		}
-
+		//if (methodName.equals("createMBean") || methodName.equals("unregisterMBean")) {
+		//	throw new SecurityException("Access denied");
+		//}
+		
 		// Retrieve JMXPrincipal from Subject
 		Set<JMXPrincipal> principals = subject.getPrincipals(JMXPrincipal.class);
 		if (principals == null || principals.isEmpty()) {
@@ -101,22 +111,48 @@ public class BagriJAASInvocationHandler implements InvocationHandler {
 	
 	public boolean checkPermissions(String identity, String methodName, ObjectName target) {
 
-		if ("admin".equals(identity)) {
-			return true;
-		}
-
-		// "role1" can perform any operation other than "createMBean" and
-		// "unregisterMBean"
-		if (identity.equals("role1")) {
-			return true;
-		}
-
-		// "role2" can only call "getAttribute" on the MBeanServerDelegate MBean
-		if (identity.equals("role2") && methodName.equals("getAttribute") && 
-				MBeanServerDelegate.DELEGATE_NAME.equals(target)) {
+		logger.trace("checkPermissions.enter; identity: {}; method: {}; target: {}", identity, methodName, target); 
+		
+		if (!JMXUtils.domain.equals(target.getDomain())) {
+			// grant access to other domains
+			logger.trace("checkPermissions.exit; returning: true"); 
 			return true;
 		}
 		
+		UserManager uMgr = (UserManager) autzManager.getEntityManager(identity);
+		if (uMgr == null) {
+			// unknown user, shouldn't be this
+			logger.trace("checkPermissions.exit; returning: false"); 
+			return false;
+		}
+		
+		Map<String, XDMPermission> xPerms = uMgr.getAllPermissions();
+		XDMPermission xPerm = xPerms.get(target.toString());
+		if (xPerm == null) {
+			//no permissions granted to this resource
+			logger.trace("checkPermissions.exit; returning: false"); 
+			return false;
+		}
+
+		if (methodName.equals("getAttribute") && xPerm.hasPermission(Permission.read)) {
+			// granted read access
+			logger.trace("checkPermissions.exit; returning: true"); 
+			return true;
+		}
+
+		if (methodName.equals("setAttribute") && xPerm.hasPermission(Permission.modify)) {
+			// granted write access
+			logger.trace("checkPermissions.exit; returning: true"); 
+			return true;
+		}
+
+		if (methodName.equals("invoke") && xPerm.hasPermission(Permission.execute)) {
+			// granted execute access
+			logger.trace("checkPermissions.exit; returning: true"); 
+			return true;
+		}
+
+		logger.trace("checkPermissions.exit; returning: false"); 
 		return false;
 	}
 

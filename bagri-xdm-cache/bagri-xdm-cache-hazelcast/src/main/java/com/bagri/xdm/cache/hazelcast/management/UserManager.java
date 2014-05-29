@@ -54,15 +54,20 @@ public class UserManager extends PermissionAwareManager<XDMUser> {
 
 	@ManagedAttribute(description="Returns effective User permissions, recursivelly")
 	public CompositeData getRecursivePermissions() {
-		Map<String, XDMPermission> xPerms = new HashMap<String, XDMPermission>();
-		for (String role: getDirectRoles()) {
-			getRecursivePermissions(xPerms, role);
-		}
+		Map<String, XDMPermission> xPerms = getAllPermissions();
 		Map<String, Object> pMap = new HashMap<String, Object>(xPerms.size());
 		for (Map.Entry<String, XDMPermission> e: xPerms.entrySet()) {
 			pMap.put(e.getKey(), e.getValue().getPermissionsAsString());
 		}
 		return JMXUtils.propsToComposite(entityName, "permissions", pMap);
+	}
+	
+	public Map<String, XDMPermission> getAllPermissions() {
+		Map<String, XDMPermission> xPerms = new HashMap<String, XDMPermission>();
+		for (String role: getDirectRoles()) {
+			getRecursivePermissions(xPerms, role);
+		}
+		return xPerms;
 	}
 	
 	@ManagedAttribute(description="Returns all Roles assigned to this User, recursivelly")

@@ -112,6 +112,10 @@ public class XDMPermission {
 		return perms.remove(permission);
 	}
 	
+	public boolean hasPermission(Permission permission) {
+		return perms.contains(permission);
+	}
+	
 	@Override
 	public String toString() {
 		return "XDMPermission [" + perms + "]";

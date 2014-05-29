@@ -60,6 +60,10 @@ public abstract class EntityManagement<String, E extends XDMEntity> implements E
 		return new ArrayList<E>(entityCache.values());
 	}
 	
+	public EntityManager<E> getEntityManager(String entityName) {
+		return mgrCache.get(entityName);
+	}
+	
 	//public String[] getEntityNames() {
 	//	Set<String> names = entityCache.keySet();
 	//	return names.toArray(new String[names.size()]);
