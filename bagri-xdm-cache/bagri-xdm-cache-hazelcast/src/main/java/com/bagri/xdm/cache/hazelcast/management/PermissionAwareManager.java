@@ -1,9 +1,11 @@
 package com.bagri.xdm.cache.hazelcast.management;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -119,11 +121,33 @@ public abstract class PermissionAwareManager<P extends XDMPermissionAware> exten
 	}
 
 	private P updatePermissions(String resource, String permissions, RoleUpdater.Action action) {
-		String[] aPerms = permissions.split(" ");
 		P role = getEntity();
+		String[] aPerms = resolvePermissions(permissions);
 	    Object result = entityCache.executeOnKey(entityName, new PermissionUpdater(role.getVersion(), 
 	    		JMXUtils.getCurrentUser(), resource, aPerms, action));
 		return (P) result;
+	}
+	
+	private String[] resolvePermissions(String permissions) {
+		String[] aPerms = permissions.split(" ");
+	    logger.trace("resolvePermissions.enter; got permissions: '{}'; split to array: {} with length: {}", permissions, aPerms, aPerms.length);
+	    List<String> lPerms = new ArrayList<String>(aPerms.length);
+	    for (String perm: aPerms) {
+	    	String xPerm = perm.trim();
+	    	if (xPerm.length() > 0) {
+	    		try {
+	    			if (XDMPermission.Permission.valueOf(xPerm) != null) {
+	    				lPerms.add(xPerm);
+	    			} else {
+	    			    logger.info("resolvePermissions; unknown permission: {}, skipping", xPerm);
+	    			}
+	    		} catch (Exception ex) {
+    			    logger.warn("resolvePermissions; error resolving permission: {}, skipping", xPerm);
+	    		}
+	    	}
+	    }
+	    logger.trace("resolvePermissions.exit; returning: {}", lPerms);
+		return lPerms.toArray(new String[lPerms.size()]);
 	}
 	
 	@ManagedOperation(description="Adds included (nested) Roles")

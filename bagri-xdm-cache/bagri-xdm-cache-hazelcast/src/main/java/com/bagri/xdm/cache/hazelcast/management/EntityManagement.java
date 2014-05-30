@@ -85,14 +85,11 @@ public abstract class EntityManagement<String, E extends XDMEntity> implements E
 	public void entryRemoved(EntryEvent<String, E> event) {
 		logger.trace("entryRemoved; event: {}", event);
 		String entityName = event.getKey();
-		if (entityCache.containsKey(entityName)) {
-			EntityManager<E> eMgr = mgrCache.get(entityName);
-			mgrCache.remove(entityName);
-			try {
-				mbeanExporter.unregisterManagedResource(eMgr.getObjectName());
-			} catch (MalformedObjectNameException ex) {
-				logger.error("entryRemoved.error: ", ex);
-			}
+		EntityManager<E> eMgr = mgrCache.remove(entityName);
+		try {
+			mbeanExporter.unregisterManagedResource(eMgr.getObjectName());
+		} catch (MalformedObjectNameException ex) {
+			logger.error("entryRemoved.error: ", ex);
 		}
 	}
 
