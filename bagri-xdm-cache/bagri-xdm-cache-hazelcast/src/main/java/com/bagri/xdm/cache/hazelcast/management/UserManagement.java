@@ -44,16 +44,16 @@ public class UserManagement extends EntityManagement<String, XDMUser> implements
 		logger.debug("afterPropertiesSet.enter; got users: {}", names); 
         for (String name: names) {
         	//XDMUser user = userCache.get(name);
-       		EntityManager<XDMUser> uMgr = mgrCache.get(name);
-       		if (uMgr == null) {
-   				logger.debug("afterPropertiesSet; cannot get UserManager for user {}; initializing a new one", name); 
-       			try {
-       				uMgr = initEntityManager(name);
-       			} catch (MBeanExportException | MalformedObjectNameException ex) {
-       				// JMX registration failed.
-       				logger.error("afterPropertiesSet.error: ", ex);
-       			}
-       		}
+       		//EntityManager<XDMUser> uMgr = mgrCache.get(name);
+       		//if (uMgr == null) {
+   			//	logger.debug("afterPropertiesSet; cannot get UserManager for user {}; initializing a new one", name); 
+       		//	try {
+       		//		uMgr = initEntityManager(name);
+       		//	} catch (MBeanExportException | MalformedObjectNameException ex) {
+       		//		// JMX registration failed.
+       		//		logger.error("afterPropertiesSet.error: ", ex);
+       		//	}
+       		//}
    			//if (uMgr != null) {
    			//	sMgr.setState("Failed user initialization");
    			//}

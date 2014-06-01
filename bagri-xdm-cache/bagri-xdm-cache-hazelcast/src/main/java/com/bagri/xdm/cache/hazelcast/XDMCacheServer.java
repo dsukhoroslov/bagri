@@ -22,7 +22,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import com.bagri.common.manage.JMXUtils;
 import com.bagri.xdm.cache.hazelcast.management.UserManagement;
 import com.bagri.xdm.cache.hazelcast.security.BagriJAASInvocationHandler;
 import com.bagri.xdm.cache.hazelcast.security.BagriJMXAuthenticator;
@@ -38,7 +37,16 @@ public class XDMCacheServer {
     @SuppressWarnings("unchecked")
 	public static void main(String[] args) {
     	
-        context = new ClassPathXmlApplicationContext("spring/application-context.xml");
+        String role = System.getProperty(op_node_role);
+        String contextPath;
+        if ("admin".equals(role)) {
+        	contextPath = "spring/bagri-admin-context.xml";
+        } else {
+        	contextPath = "spring/bagri-server-context.xml";
+        }
+        logger.info("Starting \"{}\" node with Context [{}]", role, contextPath);
+    	
+        context = new ClassPathXmlApplicationContext(contextPath);
         HazelcastInstance hz = context.getBean("hzInstance", HazelcastInstance.class);
         String name = hz.getConfig().getProperty(op_node_name);
         hz.getCluster().getLocalMember().setStringAttribute(op_node_name, name);
@@ -46,7 +54,7 @@ public class XDMCacheServer {
         //hz.getCluster().getLocalMember().setStringAttribute(op_node_schemas, schemas);
         logger.debug("System Cache started with Config: {}; Instance: {}", hz.getConfig(), hz);
         
-        String role = hz.getConfig().getProperty("xdm.cluster.node.role");
+        //String role = hz.getConfig().getProperty("xdm.cluster.node.role");
         if (!"admin".equals(role)) {
         	return;
         }

@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import com.bagri.common.idgen.IdGenerator;
@@ -31,6 +32,7 @@ import com.bagri.xdm.access.api.XDMDocumentManagerClient;
 import com.bagri.xdm.access.hazelcast.process.DocumentBuilder;
 import com.bagri.xdm.access.hazelcast.process.DocumentCreator;
 import com.bagri.xdm.access.hazelcast.process.DocumentRemover;
+import com.bagri.xdm.access.hazelcast.process.SchemaStatsAggregator;
 import com.bagri.xdm.common.XDMDataKey;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMElement;
@@ -45,6 +47,7 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.Member;
+import com.hazelcast.monitor.LocalMapStats;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
 import com.hazelcast.security.UsernamePasswordCredentials;
@@ -92,6 +95,35 @@ public class HazelcastDocumentManager extends XDMDocumentManagerClient {
 		return hzInstance;
 	}
 	
+    public int getXddSize() {
+    	return xddCache.size();
+    }
+    
+    public int getXdmSize() {
+    	return xdmCache.size();
+    }
+    
+    public long getSchemaSize() {
+    	
+		long stamp = System.currentTimeMillis();
+		logger.trace("getSchemaSize.enter;");
+		
+		SchemaStatsAggregator task = new SchemaStatsAggregator();
+		Map<Member, Future<Long>> results = execService.submitToAllMembers(task);
+		long fullSize = 0;
+		for (Map.Entry<Member, Future<Long>> entry: results.entrySet()) {
+			try {
+				Long size = entry.getValue().get();
+				fullSize += size;
+			} catch (InterruptedException | ExecutionException ex) {
+				logger.error("getSchemaSize.error; ", ex);
+			}
+		}
+		stamp = System.currentTimeMillis() - stamp;
+		logger.trace("getSchemaSize.exit; returning: {}; timeTaken: {}", fullSize, stamp);
+    	return fullSize;
+    }
+    
 	private void loadCache(IMap cache) {
 		long stamp = System.currentTimeMillis();
 		Set keys = cache.keySet();

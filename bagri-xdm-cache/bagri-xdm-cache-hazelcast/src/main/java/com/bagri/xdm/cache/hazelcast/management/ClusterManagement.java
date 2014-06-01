@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import javax.management.MalformedObjectNameException;
 
@@ -28,14 +30,17 @@ import com.bagri.xdm.access.api.XDMClusterManagement;
 import com.bagri.xdm.access.api.XDMNodeManager;
 import com.bagri.xdm.process.hazelcast.node.NodeCreator;
 import com.bagri.xdm.process.hazelcast.node.NodeRemover;
+import com.bagri.xdm.process.hazelcast.schema.SchemaInitiator;
 import com.bagri.xdm.process.hazelcast.user.UserCreator;
 import com.bagri.xdm.process.hazelcast.user.UserRemover;
 import com.bagri.xdm.system.XDMNode;
 import com.bagri.xdm.system.XDMRole;
+import com.bagri.xdm.system.XDMSchema;
 import com.bagri.xdm.system.XDMUser;
 import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.EntryListener;
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.Member;
 import com.hazelcast.core.MemberAttributeEvent;

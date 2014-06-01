@@ -25,6 +25,7 @@
 				<hz:property name="hazelcast.jmx">true</hz:property>
 				<hz:property name="hazelcast.jmx.detailed">true</hz:property>
 				<hz:property name="hazelcast.logging.type">slf4j</hz:property>
+				<hz:property name="xdm.cluster.admin.port">${xdm.cluster.admin.port}</hz:property>
 				<hz:property name="xdm.cluster.node.name">${xdm.cluster.node.name}</hz:property>
 				<hz:property name="xdm.cluster.node.role">${xdm.cluster.node.role}</hz:property>
 				<hz:property name="xdm.cluster.node.schemas">${xdm.cluster.node.schemas}</hz:property>
@@ -33,33 +34,27 @@
 				<hz:join>
 					<hz:multicast enabled="false"/>
 					<hz:tcp-ip enabled="true">
-						<hz:members>${xdm.cluster.address}</hz:members>
+						<hz:members>${xdm.cluster.admin.address}</hz:members>
 					</hz:tcp-ip>
 				</hz:join>
 			</hz:network>
 			<hz:executor-service name="xdm-exec-pool" pool-size="${xdm.cache.threads.invocationScheme}" />
 
-			<hz:map name="nodes">
+			<!--hz:map name="nodes">
+				<hz:map-store enabled="true" write-delay-seconds="10" implementation="nodeCacheStore"/>
 			</hz:map>
 			
 			<hz:map name="schemas">
-				<hz:map-store enabled="true" write-delay-seconds="10" 
-					class-name="com.bagri.xdm.cache.hazelcast.store.XDMSchemaCacheStore">
-					<!--implementation="schemaCacheStore"-->
-					<hz:properties>
-						<hz:property name="xdm.schemas.filename">${xdm.schemas.filename}</hz:property>
-					</hz:properties>
-				</hz:map-store>
+				<hz:map-store enabled="true" write-delay-seconds="10" implementation="schemaCacheStore"/>
 			</hz:map>
 
-			<hz:map name="users">
-				<hz:map-store enabled="true" write-delay-seconds="10" 
-					class-name="com.bagri.xdm.cache.hazelcast.store.XDMUserCacheStore">
-					<hz:properties>
-						<hz:property name="xdm.users.filename">${xdm.users.filename}</hz:property>
-					</hz:properties>
-				</hz:map-store>
+			<hz:map name="roles">
+				<hz:map-store enabled="true" write-delay-seconds="10" implementation="roleCacheStore"/>
 			</hz:map>
+			
+			<hz:map name="users">
+				<hz:map-store enabled="true" write-delay-seconds="10" implementation="userCacheStore"/>
+			</hz:map-->
 			
 			<!--hz:listeners>
 				<hz:listener implementation="clusterService"/>
@@ -72,26 +67,53 @@
 				<hz:serializers>
 					<hz:serializer type-class="com.bagri.xdm.system.XDMNode" class-name="com.bagri.xdm.access.hazelcast.pof.XDMNodeSerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.system.XDMSchema" class-name="com.bagri.xdm.access.hazelcast.pof.XDMSchemaSerializer"/>
+					<hz:serializer type-class="com.bagri.xdm.system.XDMRole" class-name="com.bagri.xdm.access.hazelcast.pof.XDMRoleSerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.system.XDMUser" class-name="com.bagri.xdm.access.hazelcast.pof.XDMUserSerializer"/>
+					<hz:serializer type-class="com.bagri.xdm.system.XDMPermission" class-name="com.bagri.xdm.access.hazelcast.pof.XDMPermissionSerializer"/>
 				</hz:serializers>
 			</hz:serialization>
 		</hz:config>
 	</hz:hazelcast>
 
-	<hz:map id="nodes" name="nodes" instance-ref="hzInstance"/>
+	<!--hz:map id="nodes" name="nodes" instance-ref="hzInstance"/>
 	<hz:map id="schemas" name="schemas" instance-ref="hzInstance"/>
-	<hz:map id="users" name="users" instance-ref="hzInstance"/>
+	<hz:map id="roles" name="roles" instance-ref="hzInstance"/>
+	<hz:map id="users" name="users" instance-ref="hzInstance"/-->
 
 	<hz:executorService id="sys-exec-pool" name="sys-exec-pool" instance-ref="hzInstance"/>
 
+	<!--bean id="schemaCacheStore" class="com.bagri.xdm.cache.hazelcast.store.XDMSchemaCacheStore">
+		<property name="entityManagement" ref="configService"/>
+	</bean>
+
+	<bean id="nodeCacheStore" class="com.bagri.xdm.cache.hazelcast.store.XDMNodeCacheStore">
+		<property name="entityManagement" ref="configService"/>
+	</bean>
+
+	<bean id="roleCacheStore" class="com.bagri.xdm.cache.hazelcast.store.XDMRoleCacheStore">
+		<property name="entityManagement" ref="accessService"/>
+	</bean>
+
+	<bean id="userCacheStore" class="com.bagri.xdm.cache.hazelcast.store.XDMUserCacheStore">
+		<property name="entityManagement" ref="accessService"/>
+	</bean>
+
+	<bean id="configService" class="com.bagri.xdm.cache.hazelcast.management.ConfigManagement">
+		<constructor-arg value="${xdm.config.filename}" />
+	</bean>
+
+	<bean id="accessService" class="com.bagri.xdm.cache.hazelcast.management.AccessManagement">
+		<constructor-arg value="${xdm.access.filename}" />
+	</bean>
+
 	<bean id="clusterService" class="com.bagri.xdm.cache.hazelcast.management.ClusterManagement">
 		<constructor-arg ref="hzInstance" />
-		<property name="nodeCache" ref="nodes"/>
+		<property name="entityCache" ref="nodes"/>
 	</bean>
 
 	<bean id="schemaService" class="com.bagri.xdm.cache.hazelcast.management.SchemaManagement">
 		<constructor-arg ref="hzInstance" />
-		<property name="schemaCache" ref="schemas"/>
+		<property name="entityCache" ref="schemas"/>
 		<property name="defaultProperties">
 			<props>
 				<prop key="xdm.schema.password"></prop>
@@ -106,8 +128,12 @@
 
 	<bean id="userService" class="com.bagri.xdm.cache.hazelcast.management.UserManagement">
 		<constructor-arg ref="hzInstance" />
-		<property name="userCache" ref="users"/>
-		<!--property name="mbeanExporter" ref="mbeanExporter"/-->
+		<property name="entityCache" ref="users"/>
 	</bean>
+
+	<bean id="roleService" class="com.bagri.xdm.cache.hazelcast.management.RoleManagement">
+		<constructor-arg ref="hzInstance" />
+		<property name="entityCache" ref="roles"/>
+	</bean-->
 
 </beans>

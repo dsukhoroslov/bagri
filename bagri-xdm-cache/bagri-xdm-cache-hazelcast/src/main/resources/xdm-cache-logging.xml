@@ -43,6 +43,10 @@
         <level value="debug"/>
     </logger>
 
+    <logger name="com.bagri.xdm.cache.hazelcast.security.BagriJAASInvocationHandler">
+        <level value="debug"/>
+    </logger>
+
     <logger name="com.hazelcast">
         <level value="info"/>
     </logger>

@@ -67,6 +67,8 @@ public abstract class SchemaProcessor extends EntityProcessor implements EntryPr
 		//		logger.error("initSchemaInCluster.error; ", ex);
 		//	}
         //}
+		
+		// do this on Schema nodes only, not on ALL nodes!
 		Map<Member, Future<Boolean>> result = execService.submitToAllMembers(init);
 		for (Map.Entry<Member, Future<Boolean>> entry: result.entrySet()) {
 			try {

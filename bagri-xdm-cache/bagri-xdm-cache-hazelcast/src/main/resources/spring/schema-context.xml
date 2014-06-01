@@ -149,7 +149,7 @@
 		<property name="schemaName" value="${xdm.schema.name}"/>
 	</bean-->
 
-	<bean id="queryManager" class="com.bagri.xdm.cache.hazelcast.management.QueryManagement">
+	<!--bean id="queryManager" class="com.bagri.xdm.cache.hazelcast.management.QueryManagement">
 		<constructor-arg value="${xdm.schema.name}" />
 		<property name="documentManager" ref="xdmManager"/>
 		<property name="schemaDictionary" ref="xdmDictionary"/>
@@ -159,6 +159,6 @@
 		<constructor-arg value="${xdm.schema.name}" />
 		<property name="documentManager" ref="xdmManager"/>
 		<property name="schemaDictionary" ref="xdmDictionary"/>
-	</bean>
+	</bean-->
 
 </beans>

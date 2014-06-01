@@ -9,8 +9,12 @@ import java.util.Properties;
 import java.util.concurrent.Callable;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.core.env.PropertiesPropertySource;
 
+import com.bagri.xdm.access.api.XDMSchemaDictionary;
 import com.bagri.xdm.access.api.XDMSchemaManagement;
+import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.nio.serialization.Portable;
 import com.hazelcast.nio.serialization.PortableReader;
 import com.hazelcast.nio.serialization.PortableWriter;
@@ -32,7 +36,34 @@ public class SchemaInitiator extends SchemaDenitiator {
 
 	@Override
 	public Boolean call() throws Exception {
-		return schemaManager.initSchema(schemaName, properties);
+		//return schemaManager.initSchema(schemaName, properties);
+		
+    	properties.setProperty("xdm.schema.name", schemaName);
+    	PropertiesPropertySource pps = new PropertiesPropertySource(schemaName, properties);
+    	
+    	try {
+    		ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext();
+    		ctx.getEnvironment().getPropertySources().addFirst(pps);
+    		ctx.setConfigLocation("spring/schema-context.xml");
+    		ctx.refresh();
+
+    		HazelcastInstance hz = ctx.getBean("hzInstance", HazelcastInstance.class);
+    		hz.getUserContext().put("appContext", ctx);
+    		//hz.getConfig().getSecurityConfig().setEnabled(true);
+    		//hz.getConfig().getSecurityConfig().s
+    	    //XDMSchemaDictionary schemaDict = ctx.getBean("xdmDictionary", XDMSchemaDictionary.class);
+    	    //SchemaManager sMgr = (SchemaManager) mgrCache.get(schemaName);
+       	    //if (sMgr != null) {
+       	    //	sMgr.setSchemaDictionary(schemaDict);
+       	    //} else {
+       	    //	dictCache.put(schemaName, schemaDict);
+       	    //}
+    		logger.debug("initSchema.exit; schema {} started on instance: {}", schemaName, hz);
+    		return true;
+    	} catch (Exception ex) {
+    		logger.error("initSchema.error; " + ex.getMessage(), ex);
+    		return false;
+    	}
 	}
 
 	@Override

@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.management.MBeanServer;
-import javax.management.MBeanServerDelegate;
 import javax.management.ObjectName;
 import javax.management.remote.JMXPrincipal;
 import javax.management.remote.MBeanServerForwarder;

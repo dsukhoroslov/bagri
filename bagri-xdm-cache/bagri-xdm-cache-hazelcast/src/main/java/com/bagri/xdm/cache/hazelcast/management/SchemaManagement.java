@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.openmbean.CompositeData;
@@ -33,6 +35,7 @@ import com.bagri.common.util.FileUtils;
 import com.bagri.xdm.access.api.XDMSchemaDictionary;
 import com.bagri.xdm.access.api.XDMSchemaManagement;
 import com.bagri.xdm.process.hazelcast.schema.SchemaCreator;
+import com.bagri.xdm.process.hazelcast.schema.SchemaInitiator;
 import com.bagri.xdm.process.hazelcast.schema.SchemaRemover;
 import com.bagri.xdm.system.XDMNode;
 import com.bagri.xdm.system.XDMSchema;
@@ -41,18 +44,31 @@ import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.EntryListener;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.IMap;
+import com.hazelcast.core.Member;
+import com.hazelcast.core.MemberAttributeEvent;
+import com.hazelcast.core.MembershipEvent;
+import com.hazelcast.core.MembershipListener;
 
 @ManagedResource(objectName="com.bagri.xdm:type=Management,name=SchemaManagement", 
 	description="Schema Management MBean")
-public class SchemaManagement extends EntityManagement<String, XDMSchema> implements InitializingBean, XDMSchemaManagement {
+public class SchemaManagement extends EntityManagement<String, XDMSchema> implements InitializingBean, 
+	MembershipListener, XDMSchemaManagement {
+	
+	private IExecutorService execService;
 	
 	private Properties defaults; 
     private Map<String, XDMSchemaDictionary> dictCache = new HashMap<String, XDMSchemaDictionary>(); 
 
     public SchemaManagement(HazelcastInstance hzInstance) {
 		super(hzInstance);
+		hzInstance.getCluster().addMembershipListener(this);
 	}
+    
+    public void setExecService(IExecutorService execService) {
+    	this.execService = execService;
+    }
 	
 	@Override
 	public void afterPropertiesSet() throws Exception {
@@ -222,7 +238,7 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
     	try {
     		ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext();
     		ctx.getEnvironment().getPropertySources().addFirst(pps);
-    		ctx.setConfigLocation("spring/schema-context.xml");
+    		ctx.setConfigLocation("spring/schema-client-context.xml");
     		ctx.refresh();
 
     		HazelcastInstance hz = ctx.getBean("hzInstance", HazelcastInstance.class);
@@ -259,6 +275,49 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
 		}
     	logger.debug("denitSchema.exit; schema {} deactivated: {}", schemaName, result);
 		return result;
+	}
+
+	@Override
+	public void memberAdded(MembershipEvent membershipEvent) {
+		logger.trace("memberAdded.enter; event: {}", membershipEvent);
+		// get schemas; for each schema registered to this member
+		Member member = membershipEvent.getMember();
+		String schemas = member.getStringAttribute(XDMNode.op_node_schemas);
+		int cnt = 0;
+		if (schemas == null) {
+			schemas = "TPoX";
+		}
+		String[] aSchemas = schemas.split(" ");
+		for (String name: aSchemas) {
+			XDMSchema schema = entityCache.get(name);
+			if (schema != null) {
+				SchemaInitiator init = new SchemaInitiator(schema.getName(), schema.getProperties());
+				Future<Boolean> result = execService.submitToMember(init, member);
+				Boolean ok = false;
+				try {
+					ok = result.get();
+					if (ok) {
+						if (initSchema(schema.getName(), schema.getProperties())) {
+							cnt++;
+						}
+					}
+					logger.debug("memberAdded; Schema {}initialized on node {}", ok ? "" : "NOT ", member);
+				} catch (InterruptedException | ExecutionException ex) {
+					logger.error("memberAdded.error; ", ex);
+				}
+			}
+		}
+		logger.trace("memberAdded.exit; {} schemas initialized", cnt);
+	}
+
+	@Override
+	public void memberRemoved(MembershipEvent membershipEvent) {
+		logger.trace("memberRemoved.enter; event: {}", membershipEvent);
+	}
+
+	@Override
+	public void memberAttributeChanged(MemberAttributeEvent memberAttributeEvent) {
+		logger.trace("memberAttributeChanged.enter; event: {}", memberAttributeEvent);
 	}
 
 }

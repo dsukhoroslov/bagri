@@ -6,6 +6,8 @@ import static com.bagri.xdm.access.hazelcast.pof.XDMPortableFactory.factoryId;
 import java.io.IOException;
 import java.util.concurrent.Callable;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.bagri.xdm.access.api.XDMSchemaManagement;
@@ -18,8 +20,10 @@ import com.hazelcast.spring.context.SpringAware;
 @SpringAware
 public class SchemaDenitiator implements Callable<Boolean>, Portable {
 	
+	protected final transient Logger logger = LoggerFactory.getLogger(getClass());
+	
 	protected String schemaName;
-	protected transient XDMSchemaManagement schemaManager;
+	//protected transient XDMSchemaManagement schemaManager;
 	
 	public SchemaDenitiator() {
 		//
@@ -30,14 +34,14 @@ public class SchemaDenitiator implements Callable<Boolean>, Portable {
 		this.schemaName = schemaName;
 	}
 
-    @Autowired
-	public void setSchemaManager(XDMSchemaManagement schemaManagement) {
-		this.schemaManager = schemaManagement;
-	}
+    //@Autowired
+	//public void setSchemaManager(XDMSchemaManagement schemaManagement) {
+	//	this.schemaManager = schemaManagement;
+	//}
     
 	@Override
 	public Boolean call() throws Exception {
-		return schemaManager.denitSchema(schemaName);
+		return false; //schemaManager.denitSchema(schemaName);
 	}
 
 	@Override

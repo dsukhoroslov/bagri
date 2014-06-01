@@ -1,10 +1,9 @@
 package com.bagri.xdm.access.hazelcast.pof;
 
-import com.bagri.xdm.access.hazelcast.data.DataDocumentKey;
 import com.bagri.xdm.access.hazelcast.process.DocumentBuilder;
 import com.bagri.xdm.access.hazelcast.process.DocumentRemover;
 import com.bagri.xdm.access.hazelcast.process.DocumentCreator;
-import com.bagri.xdm.domain.XDMElement;
+import com.bagri.xdm.access.hazelcast.process.SchemaStatsAggregator;
 //import com.bagri.xdm.access.hazelcast.process.SchemaInitiator;
 //import com.bagri.xdm.access.hazelcast.process.SchemaDenitiator;
 import com.hazelcast.nio.serialization.Portable;
@@ -33,6 +32,7 @@ public class XDMPortableFactory implements PortableFactory {
 	public static final int cli_XDMInitSchemaTask = 117;
 	public static final int cli_XDMDenitSchemaTask = 118;
 	public static final int cli_XDMSetNodeOptionTask = 119;
+	public static final int cli_XDMSchemaAggregationTask = 120;
 	
 	
 	@Override
@@ -48,6 +48,7 @@ public class XDMPortableFactory implements PortableFactory {
 			//case cli_XDMInitSchemaTask: return new SchemaInitiator();
 			//case cli_XDMDenitSchemaTask: return new SchemaDenitiator();
 			//case cli_XDMSetNodeOptionTask: return new NodeOptionSetter();
+			case cli_XDMSchemaAggregationTask: return new SchemaStatsAggregator();
 		}
 		return null;
 	}

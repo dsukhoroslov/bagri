@@ -140,7 +140,7 @@ public class SchemaManager extends EntityManager<XDMSchema> {
 	    	return result != null;
 		} 
 		return false;
-	}		
+	}
 		
 	@ManagedOperation(description="Deactivate Schema")
 	public boolean deactivateSchema() {

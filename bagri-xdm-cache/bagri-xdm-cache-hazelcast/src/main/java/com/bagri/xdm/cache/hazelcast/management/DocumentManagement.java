@@ -19,8 +19,9 @@ import org.springframework.jmx.export.naming.SelfNaming;
 
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.common.util.FileUtils;
-import com.bagri.xdm.access.api.XDMDocumentManagerServer;
+import com.bagri.xdm.access.api.XDMDocumentManagerBase;
 import com.bagri.xdm.access.api.XDMSchemaDictionary;
+import com.bagri.xdm.access.hazelcast.impl.HazelcastDocumentManager;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.process.hazelcast.HazelcastDocumentServer;
 
@@ -30,7 +31,7 @@ public class DocumentManagement implements SelfNaming {
     private static final transient Logger logger = LoggerFactory.getLogger(DocumentManagement.class);
     private static final String type_schema = "Schema";
     
-	private XDMDocumentManagerServer docManager;
+	private HazelcastDocumentManager docManager;
 	private XDMSchemaDictionary schemaDictionary;
     
     private String schemaName;
@@ -39,7 +40,7 @@ public class DocumentManagement implements SelfNaming {
     	this.schemaName = schemaName;
     }
 
-	public void setDocumentManager(XDMDocumentManagerServer docManager) {
+	public void setDocumentManager(HazelcastDocumentManager docManager) {
 		this.docManager = docManager;
 	}
 	
@@ -54,34 +55,34 @@ public class DocumentManagement implements SelfNaming {
     
 	@ManagedAttribute(description="Returns Schema size in documents")
 	public Integer getDocumentCount() {
-		return ((HazelcastDocumentServer) docManager).getXddSize(); 
+		return docManager.getXddSize(); 
 	}
     
 	@ManagedAttribute(description="Returns Schema size in documents, per document type")
 	public CompositeData getTypedDocumentCount() {
-		Map<Integer, Integer> counts = ((HazelcastDocumentServer) docManager).getTypeDocuments();
+		Map<Integer, Integer> counts = null; //((HazelcastDocumentServer) docManager).getTypeDocuments();
 		return null;
 	}
     
 	@ManagedAttribute(description="Returns Schema size in elements")
 	public Integer getElementCount() {
-		return ((HazelcastDocumentServer) docManager).getXdmSize(); 
+		return docManager.getXdmSize(); 
 	}
     
 	@ManagedAttribute(description="Returns Schema size in elements, per document type")
 	public CompositeData getTypedElementCount() {
-		Map<Integer, Integer> counts = ((HazelcastDocumentServer) docManager).getTypeElements();
+		Map<Integer, Integer> counts = null; //((HazelcastDocumentServer) docManager).getTypeElements();
 		return null;
 	}
     
 	@ManagedAttribute(description="Returns Schema size in bytes")
 	public Long getSchemaSize() {
-		return ((HazelcastDocumentServer) docManager).getSchemaSize(); 
+		return docManager.getSchemaSize(); 
 	}
     
 	@ManagedAttribute(description="Returns Schema size in bytes, per document type")
 	public CompositeData getTypedSchemaSize() {
-		Map<Integer, Long> counts = ((HazelcastDocumentServer) docManager).getTypeSchemaSize();
+		Map<Integer, Long> counts = null; //((HazelcastDocumentServer) docManager).getTypeSchemaSize();
 		return null;
 	}
     
@@ -91,12 +92,9 @@ public class DocumentManagement implements SelfNaming {
 	public int registerDocument(String docFile) {
 		
 		String uri = "file:///" + docFile;
-		//logger.trace("storeDocument; document initialized: {}", docId);
-		//DocumentCreator task = new DocumentCreator(docId, uri, xml);
-
 		try {
 			String xml = FileUtils.readTextFile(docFile);
-			XDMDocument doc = ((HazelcastDocumentServer) docManager).createDocument(uri, xml);
+			XDMDocument doc = docManager.storeDocument(xml); //(uri, xml);
 			return 1;
 		} catch (IOException ex) {
 			logger.error("registerDocument.error: " + ex.getMessage(), ex);
