@@ -1,46 +1,39 @@
 package com.bagri.xdm.cache.hazelcast.management;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.Properties;
 
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
 import javax.management.openmbean.CompositeData;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.jmx.export.annotation.ManagedAttribute;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
-import org.springframework.jmx.export.naming.SelfNaming;
 
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.common.util.FileUtils;
 import com.bagri.xdm.access.api.XDMDocumentManagerServer;
 import com.bagri.xdm.access.api.XDMSchemaDictionary;
 import com.bagri.xdm.access.api.XDMSchemaDictionaryBase;
-import com.bagri.xdm.access.api.XDMSchemaManagerBase;
-import com.bagri.xdm.domain.XDMDocumentType;
 import com.bagri.xdm.process.hazelcast.schema.SchemaActivator;
 import com.bagri.xdm.process.hazelcast.schema.SchemaUpdater;
 import com.bagri.xdm.system.XDMSchema;
-import com.hazelcast.core.IMap;
+import com.hazelcast.client.HazelcastClient;
+import com.hazelcast.core.HazelcastInstance;
 
 @ManagedResource(description="Schema Manager MBean")
 //public class SchemaManager extends XDMSchemaManagerBase implements SelfNaming {
 public class SchemaManager extends EntityManager<XDMSchema> {
 
     private static final String state_ok = "working";
+    private static final String state_fail = "inactive";
 
-    private String state = state_ok;
     private SchemaManagement parent;
 	protected XDMDocumentManagerServer docManager;
 	protected XDMSchemaDictionary schemaDictionary;
+	private ClassPathXmlApplicationContext clientContext;
     
 	public SchemaManager() {
 		super();
@@ -49,6 +42,10 @@ public class SchemaManager extends EntityManager<XDMSchema> {
 	public SchemaManager(SchemaManagement parent, String schemaName) {
 		super(schemaName);
 		this.parent = parent;
+	}
+	
+	public void setClientContext(ClassPathXmlApplicationContext clientContext) {
+		this.clientContext = clientContext;
 	}
 	
 	public XDMDocumentManagerServer getDocumentManager() {
@@ -67,6 +64,20 @@ public class SchemaManager extends EntityManager<XDMSchema> {
 		this.schemaDictionary = schemaDictionary;
 	}
 	
+	@ManagedAttribute(description="Returns number of active schema nodes")
+	public int getActiveNodes() {
+		if (clientContext == null) {
+			return 0;
+		}
+		HazelcastInstance hzInstance = clientContext.getBean("hzInstance", HazelcastInstance.class);
+		logger.trace("getActiveNodes; client: {}", hzInstance);
+		if (hzInstance instanceof HazelcastClient) {
+			return ((HazelcastClient) hzInstance).getClientClusterService().getSize();
+		} else {
+			return hzInstance.getCluster().getMembers().size();
+		}
+	}
+
 	@ManagedAttribute(description="Returns short Schema description")
 	public String getDescription() {
 		return getEntity().getDescription();
@@ -79,18 +90,6 @@ public class SchemaManager extends EntityManager<XDMSchema> {
 		flushEntity(schema);
 	}
 	
-	@ManagedAttribute(description="Returns Document Types registered in the Schema")
-	public String[] getRegisteredTypes() {
-		Collection<XDMDocumentType> types = ((XDMSchemaDictionaryBase) schemaDictionary).getDocumentTypes();
-		String[] result = new String[types.size()];
-		Iterator<XDMDocumentType> itr = types.iterator();
-		for (int i=0; i < types.size(); i++) {
-			result[i] = itr.next().getRootPath();
-		}
-		Arrays.sort(result);
-		return result;
-	}
-
 	@ManagedAttribute(description="Returns Schema persistence type")
 	public String getPersistenceType() {
 		String result = getEntity().getProperty("xdm.schema.store.type");
@@ -123,12 +122,15 @@ public class SchemaManager extends EntityManager<XDMSchema> {
 
 	@ManagedAttribute(description="Returns registered Schema state")
 	public String getState() {
-		return state;
+		if (clientContext == null) {
+			return state_fail;
+		}
+		return state_ok;
 	}
 	
-	void setState(String state) {
-		this.state = state;
-	}
+	//void setState(String state) {
+	//	this.state = state;
+	//}
 	
 	@ManagedOperation(description="Activate Schema")
 	public boolean activateSchema() {
