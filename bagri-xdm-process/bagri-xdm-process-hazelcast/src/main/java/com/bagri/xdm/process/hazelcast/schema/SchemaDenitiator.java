@@ -9,9 +9,12 @@ import java.util.concurrent.Callable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ConfigurableApplicationContext;
 
 import com.bagri.xdm.access.api.XDMSchemaManagement;
 import com.bagri.xdm.access.api.XDMSchemaManagerBase;
+import com.hazelcast.core.Hazelcast;
+import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.nio.serialization.Portable;
 import com.hazelcast.nio.serialization.PortableReader;
 import com.hazelcast.nio.serialization.PortableWriter;
@@ -23,7 +26,6 @@ public class SchemaDenitiator implements Callable<Boolean>, Portable {
 	protected final transient Logger logger = LoggerFactory.getLogger(getClass());
 	
 	protected String schemaName;
-	//protected transient XDMSchemaManagement schemaManager;
 	
 	public SchemaDenitiator() {
 		//
@@ -34,14 +36,21 @@ public class SchemaDenitiator implements Callable<Boolean>, Portable {
 		this.schemaName = schemaName;
 	}
 
-    //@Autowired
-	//public void setSchemaManager(XDMSchemaManagement schemaManagement) {
-	//	this.schemaManager = schemaManagement;
-	//}
-    
 	@Override
 	public Boolean call() throws Exception {
-		return false; //schemaManager.denitSchema(schemaName);
+		//return schemaManager.denitSchema(schemaName);
+		
+    	logger.trace("denitSchema.enter; schema: {}", schemaName);
+    	boolean result = false;
+		// get hzInstance and close it...
+		HazelcastInstance hz = Hazelcast.getHazelcastInstanceByName(schemaName);
+		if (hz != null) {
+			ConfigurableApplicationContext ctx = (ConfigurableApplicationContext) hz.getUserContext().get("appContext");
+			ctx.close();
+			result = true;
+		}
+    	logger.trace("denitSchema.exit; schema {} deactivated: {}", schemaName, result);
+		return result;
 	}
 
 	@Override

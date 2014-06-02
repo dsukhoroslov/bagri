@@ -14,6 +14,7 @@ import org.springframework.core.env.PropertiesPropertySource;
 
 import com.bagri.xdm.access.api.XDMSchemaDictionary;
 import com.bagri.xdm.access.api.XDMSchemaManagement;
+import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.nio.serialization.Portable;
 import com.hazelcast.nio.serialization.PortableReader;
@@ -38,6 +39,12 @@ public class SchemaInitiator extends SchemaDenitiator {
 	public Boolean call() throws Exception {
 		//return schemaManager.initSchema(schemaName, properties);
 		
+		HazelcastInstance hz = Hazelcast.getHazelcastInstanceByName(schemaName);
+		if (hz != null) {
+    		logger.debug("initSchema.exit; schema {} already started on instance: {}, returning", schemaName, hz);
+    		return false;
+		}
+		
     	properties.setProperty("xdm.schema.name", schemaName);
     	PropertiesPropertySource pps = new PropertiesPropertySource(schemaName, properties);
     	
@@ -47,17 +54,9 @@ public class SchemaInitiator extends SchemaDenitiator {
     		ctx.setConfigLocation("spring/schema-context.xml");
     		ctx.refresh();
 
-    		HazelcastInstance hz = ctx.getBean("hzInstance", HazelcastInstance.class);
+    		hz = ctx.getBean("hzInstance", HazelcastInstance.class);
     		hz.getUserContext().put("appContext", ctx);
     		//hz.getConfig().getSecurityConfig().setEnabled(true);
-    		//hz.getConfig().getSecurityConfig().s
-    	    //XDMSchemaDictionary schemaDict = ctx.getBean("xdmDictionary", XDMSchemaDictionary.class);
-    	    //SchemaManager sMgr = (SchemaManager) mgrCache.get(schemaName);
-       	    //if (sMgr != null) {
-       	    //	sMgr.setSchemaDictionary(schemaDict);
-       	    //} else {
-       	    //	dictCache.put(schemaName, schemaDict);
-       	    //}
     		logger.debug("initSchema.exit; schema {} started on instance: {}", schemaName, hz);
     		return true;
     	} catch (Exception ex) {

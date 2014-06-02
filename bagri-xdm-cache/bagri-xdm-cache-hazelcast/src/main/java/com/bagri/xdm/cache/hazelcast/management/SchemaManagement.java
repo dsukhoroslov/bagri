@@ -313,6 +313,23 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
 	@Override
 	public void memberRemoved(MembershipEvent membershipEvent) {
 		logger.trace("memberRemoved.enter; event: {}", membershipEvent);
+		Member member = membershipEvent.getMember();
+		String schemas = member.getStringAttribute(XDMNode.op_node_schemas);
+		int cnt = 0;
+		if (schemas == null) {
+			schemas = "TPoX";
+		}
+		String[] aSchemas = schemas.split(" ");
+		for (String name: aSchemas) {
+			XDMSchema schema = entityCache.get(name);
+			if (schema != null) {
+				if (denitSchema(schema.getName())) {
+					cnt++;
+					logger.debug("memberRemoved; Schema {} de-initialized on node {}", name, member);
+				}
+			}
+		}
+		logger.trace("memberRemoved.exit; {} schemas de-initialized", cnt);
 	}
 
 	@Override
