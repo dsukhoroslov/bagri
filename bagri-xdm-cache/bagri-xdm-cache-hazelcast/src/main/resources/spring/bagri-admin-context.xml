@@ -126,6 +126,7 @@
 	<bean id="schemaService" class="com.bagri.xdm.cache.hazelcast.management.SchemaManagement">
 		<constructor-arg ref="hzInstance" />
 		<property name="entityCache" ref="schemas"/>
+		<property name="clusterService" ref="clusterService"/>
 		<property name="execService" ref="sys-exec-pool"/>
 		<property name="defaultProperties">
 			<props>

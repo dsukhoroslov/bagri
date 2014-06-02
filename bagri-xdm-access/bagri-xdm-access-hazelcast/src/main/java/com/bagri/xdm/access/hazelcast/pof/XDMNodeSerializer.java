@@ -24,7 +24,6 @@ public class XDMNodeSerializer extends XDMEntitySerializer implements StreamSeri
 				(Date) entity[1], 
 				(String) entity[2], 
 				in.readUTF(), 
-				in.readUTF(),
 				(Properties) in.readObject());
 		return xNode;
 	}
@@ -33,7 +32,6 @@ public class XDMNodeSerializer extends XDMEntitySerializer implements StreamSeri
 	public void write(ObjectDataOutput out, XDMNode xNode) throws IOException {
 		super.writeEntity(out, xNode);
 		out.writeUTF(xNode.getName());
-		out.writeUTF(xNode.getAddress());
 		out.writeObject(xNode.getOptions());
 	}
 

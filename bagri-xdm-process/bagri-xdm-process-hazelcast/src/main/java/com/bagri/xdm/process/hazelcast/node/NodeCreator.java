@@ -13,17 +13,15 @@ import com.hazelcast.nio.serialization.DataSerializable;
 public class NodeCreator extends NodeProcessor implements DataSerializable {
 
 	private String name;
-	private String address;
 	private Properties options;
 	
 	public NodeCreator() {
 		//
 	}
 	
-	public NodeCreator(String admin, String name, String address, Properties options) {
+	public NodeCreator(String admin, String name, Properties options) {
 		super(1, admin);
 		this.name = name;
-		this.address = address;
 		this.options = options;
 	}
 
@@ -32,7 +30,7 @@ public class NodeCreator extends NodeProcessor implements DataSerializable {
 		logger.debug("process.enter; entry: {}", entry); 
 		if (entry.getValue() == null) {
 			String nodeId = entry.getKey();
-			XDMNode node = new XDMNode(getVersion(), new Date(), getAdmin(), name, address, options);
+			XDMNode node = new XDMNode(getVersion(), new Date(), getAdmin(), name, options);
 			entry.setValue(node);
 			auditEntity(AuditType.create, node);
 			return node;
@@ -44,7 +42,6 @@ public class NodeCreator extends NodeProcessor implements DataSerializable {
 	public void readData(ObjectDataInput in) throws IOException {
 		super.readData(in);
 		name = in.readUTF();
-		address = in.readUTF();
 		options = in.readObject();
 	}
 
@@ -52,7 +49,6 @@ public class NodeCreator extends NodeProcessor implements DataSerializable {
 	public void writeData(ObjectDataOutput out) throws IOException {
 		super.writeData(out);
 		out.writeUTF(name);
-		out.writeUTF(address);
 		out.writeObject(options);
 	}
 

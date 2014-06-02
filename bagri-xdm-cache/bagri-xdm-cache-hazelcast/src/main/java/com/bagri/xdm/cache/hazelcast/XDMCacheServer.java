@@ -1,17 +1,18 @@
 package com.bagri.xdm.cache.hazelcast;
 
+import static com.bagri.xdm.system.XDMNode.op_node_name;
+import static com.bagri.xdm.system.XDMNode.op_node_role;
+import static com.bagri.xdm.system.XDMNode.op_node_schemas;
+
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.net.MalformedURLException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.management.MBeanServer;
-import javax.management.MBeanServerFactory;
-import javax.management.remote.JMXAuthenticator;
 import javax.management.remote.JMXConnectorServer;
 import javax.management.remote.JMXConnectorServerFactory;
 import javax.management.remote.JMXServiceURL;
@@ -26,8 +27,6 @@ import com.bagri.xdm.cache.hazelcast.management.UserManagement;
 import com.bagri.xdm.cache.hazelcast.security.BagriJAASInvocationHandler;
 import com.bagri.xdm.cache.hazelcast.security.BagriJMXAuthenticator;
 import com.hazelcast.core.HazelcastInstance;
-
-import static com.bagri.xdm.system.XDMNode.*;
 
 public class XDMCacheServer {
 
@@ -53,12 +52,19 @@ public class XDMCacheServer {
         //String schemas = hz.getConfig().getProperty(op_node_schemas);
         //hz.getCluster().getLocalMember().setStringAttribute(op_node_schemas, schemas);
         logger.debug("System Cache started with Config: {}; Instance: {}", hz.getConfig(), hz);
+        logger.debug("Cluster size: {}", hz.getCluster().getMembers().size());
         
         //String role = hz.getConfig().getProperty("xdm.cluster.node.role");
-        if (!"admin".equals(role)) {
-        	return;
+        if ("admin".equals(role)) {
+        	initAdminNode(hz);
+        } else {
+        	initServerNode(hz);
         }
         
+    }
+    
+    private static void initAdminNode(HazelcastInstance hz) {
+    	
     	String xport = hz.getConfig().getProperty("xdm.cluster.admin.port");
     	int port = Integer.parseInt(xport);
     	JMXServiceURL url;
@@ -101,6 +107,22 @@ public class XDMCacheServer {
 			throw new RuntimeException(ex);
 		}
 		logger.debug("JMX connector server started with attributes: {}", cs.getAttributes());
+    }
+    
+    private static void initServerNode(HazelcastInstance hz) {
+        int clusterSize = hz.getCluster().getMembers().size();
+    	if (clusterSize == 1) {
+            String schemas = System.getProperty(op_node_schemas);
+            String[] aSchemas = schemas.split(" ");
+            for (String name: aSchemas) {
+            	String schema = name.trim();
+            	if (schema.length() > 0) {
+            		logger.debug("Going to deploy schema: {}", schema);
+            		// will deploy schema here..
+            	}
+            }
+    	}
+    	
     }
 
 }

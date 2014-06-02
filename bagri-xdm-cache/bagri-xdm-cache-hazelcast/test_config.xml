@@ -5,17 +5,16 @@
             <version>1</version>
             <createdAt>2014-05-24T17:54:42.221+04:00</createdAt>
             <createdBy>Denis</createdBy>
-            <address>localhost</address>
             <options>
                 <entry name="xdm.cluster.node.role">admin</entry>
             </options>
         </node>
         <node name="first">
-            <version>1</version>
-            <createdAt>2014-05-25T18:05:46.327+04:00</createdAt>
+            <version>3</version>
+            <createdAt>2014-06-11T02:15:20.792+04:00</createdAt>
             <createdBy>Denis</createdBy>
-            <address>localhost</address>
             <options>
+                <entry name="xdm.cluster.node.schemas">TPoX</entry>
                 <entry name="xdm.cluster.node.role">server</entry>
             </options>
         </node>

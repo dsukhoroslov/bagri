@@ -3,15 +3,15 @@
  */
 package com.bagri.xdm.cache.hazelcast.management;
 
-import java.util.Hashtable;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
-import javax.xml.namespace.QName;
 import javax.xml.xquery.XQConnection;
 import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQExpression;
-import javax.xml.xquery.XQPreparedExpression;
 import javax.xml.xquery.XQResultSequence;
 
 import org.slf4j.Logger;
@@ -26,6 +26,8 @@ import org.springframework.jmx.export.naming.SelfNaming;
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.xdm.access.api.XDMDocumentManagerBase;
 import com.bagri.xdm.access.api.XDMSchemaDictionary;
+import com.bagri.xdm.access.api.XDMSchemaDictionaryBase;
+import com.bagri.xdm.domain.XDMDocumentType;
 
 /**
  * @author Denis Sukhoroslov
@@ -64,6 +66,18 @@ public class QueryManagement implements SelfNaming {
 	@ManagedAttribute(description="Returns corresponding Schema name")
 	public String getSchema() {
 		return schemaName;
+	}
+
+	@ManagedAttribute(description="Returns Document Types registered in the Schema")
+	public String[] getRegisteredTypes() {
+		Collection<XDMDocumentType> types = ((XDMSchemaDictionaryBase) schemaDictionary).getDocumentTypes();
+		String[] result = new String[types.size()];
+		Iterator<XDMDocumentType> itr = types.iterator();
+		for (int i=0; i < types.size(); i++) {
+			result[i] = itr.next().getRootPath();
+		}
+		Arrays.sort(result);
+		return result;
 	}
 
 	@ManagedOperation(description="Run XQuery. Returns string output specified by XQuery")

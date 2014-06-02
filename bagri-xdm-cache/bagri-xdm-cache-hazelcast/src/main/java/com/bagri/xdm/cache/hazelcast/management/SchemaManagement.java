@@ -1,8 +1,6 @@
 package com.bagri.xdm.cache.hazelcast.management;
 
 import java.io.IOException;
-import java.io.StringReader;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -13,17 +11,13 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
 import javax.management.openmbean.CompositeData;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.env.PropertiesPropertySource;
 import org.springframework.jmx.export.MBeanExportException;
-import org.springframework.jmx.export.annotation.AnnotationMBeanExporter;
 import org.springframework.jmx.export.annotation.ManagedAttribute;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedOperationParameter;
@@ -39,13 +33,10 @@ import com.bagri.xdm.process.hazelcast.schema.SchemaInitiator;
 import com.bagri.xdm.process.hazelcast.schema.SchemaRemover;
 import com.bagri.xdm.system.XDMNode;
 import com.bagri.xdm.system.XDMSchema;
-import com.bagri.xdm.system.XDMUser;
-import com.hazelcast.core.EntryEvent;
-import com.hazelcast.core.EntryListener;
-import com.hazelcast.core.Hazelcast;
+import com.hazelcast.client.HazelcastClient;
+import com.hazelcast.cluster.MemberAttributeOperationType;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
-import com.hazelcast.core.IMap;
 import com.hazelcast.core.Member;
 import com.hazelcast.core.MemberAttributeEvent;
 import com.hazelcast.core.MembershipEvent;
@@ -54,18 +45,28 @@ import com.hazelcast.core.MembershipListener;
 @ManagedResource(objectName="com.bagri.xdm:type=Management,name=SchemaManagement", 
 	description="Schema Management MBean")
 public class SchemaManagement extends EntityManagement<String, XDMSchema> implements InitializingBean, 
-	MembershipListener, XDMSchemaManagement {
+	MembershipListener { //, XDMSchemaManagement {
 	
 	private IExecutorService execService;
+	private ClusterManagement srvCluster;
 	
 	private Properties defaults; 
-    private Map<String, XDMSchemaDictionary> dictCache = new HashMap<String, XDMSchemaDictionary>(); 
+    //private Map<String, XDMSchemaDictionary> dictCache = new HashMap<String, XDMSchemaDictionary>(); 
+    private Map<String, ClassPathXmlApplicationContext> ctxCache = new HashMap<String, ClassPathXmlApplicationContext>(); 
 
     public SchemaManagement(HazelcastInstance hzInstance) {
 		super(hzInstance);
 		hzInstance.getCluster().addMembershipListener(this);
 	}
     
+    public ClusterManagement getClusterService() {
+    	return srvCluster;
+    }
+    
+    public void setClusterService(ClusterManagement srvCluster) {
+    	this.srvCluster = srvCluster;
+    }
+	
     public void setExecService(IExecutorService execService) {
     	this.execService = execService;
     }
@@ -103,15 +104,15 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
        				}
        			}
        		}
-   			if (sMgr != null) {
-   				if (localSchema) {
-   					if (!initialized) {
-   		   				((SchemaManager) sMgr).setState("Failed schema initialization");
-   					}
-   				} else {
-   					((SchemaManager) sMgr).setState("External schema; not initialized");
-   				}
-   			}
+   			//if (sMgr != null) {
+   			//	if (localSchema) {
+   			//		if (!initialized) {
+   		   	//			((SchemaManager) sMgr).setState("Failed schema initialization");
+   			//		}
+   			//	} else {
+   			//		((SchemaManager) sMgr).setState("External schema; not initialized");
+   			//	}
+   			//}
         }
 	}
 
@@ -141,7 +142,7 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
 		return entityCache.keySet().toArray(new String[0]);
 	}
 	
-	@Override
+	//@Override
 	public Collection<XDMSchema> getSchemas() {
 		return super.getEntities();
 	}
@@ -167,7 +168,6 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
 				props.setProperty(prop, defaults.getProperty(prop));
 			}
 		}
-		
 		return addSchema(schemaName, description, props) != null;
 	}
 	
@@ -178,7 +178,7 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
 		return deleteSchema(schemaName) != null;
 	}
 	
-	@Override
+	//@Override
 	public XDMSchema addSchema(String schemaName, String description, Properties props) {
 		XDMSchema schema = null;
 		if (!entityCache.containsKey(schemaName)) {
@@ -191,7 +191,7 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
 		return schema;
 	}
 	
-	@Override
+	//@Override
 	public XDMSchema deleteSchema(String schemaName) {
 		XDMSchema schema = entityCache.get(schemaName);
 		if (schema != null) {
@@ -204,33 +204,22 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
 	}
 	
 	@Override
-	protected EntityManager<XDMSchema> createEntityManager(String userName) {
-		SchemaManager mgr = new SchemaManager(this, userName);
+	protected EntityManager<XDMSchema> createEntityManager(String schemaName) {
+		SchemaManager mgr = new SchemaManager(this, schemaName);
 		mgr.setEntityCache(entityCache);
+		//XDMSchemaDictionary schemaDict = dictCache.get(schemaName);
+		//mgr.setSchemaDictionary(schemaDict);
 		return mgr;
 	}
 	
-	@Override
-	protected EntityManager<XDMSchema> initEntityManager(String schemaName) throws MalformedObjectNameException {
-		SchemaManager sMgr = (SchemaManager) super.initEntityManager(schemaName);
-		if (sMgr != null) {
-			XDMSchemaDictionary schemaDict = dictCache.get(schemaName);
-			sMgr.setSchemaDictionary(schemaDict);
-		}
-   	    //if (!mgrCache.containsKey(schemaName)) {
-		//	sMgr = new SchemaManager(this, schemaName);
-		//	sMgr.setSchemaCache(entityCache);
-		//	XDMSchemaDictionary schemaDict = dictCache.get(schemaName);
-		//	sMgr.setSchemaDictionary(schemaDict);
-		//	mgrCache.put(schemaName, sMgr);
-		//	mbeanExporter.registerManagedResource(sMgr, sMgr.getObjectName());
-		//}
-   	    return sMgr;
-	}
-
-	@Override
+	//@Override
 	public boolean initSchema(String schemaName, Properties props) {
     	logger.debug("initSchema.enter; schema: {}; properties: {}", schemaName, props);
+    	
+    	if (ctxCache.containsKey(schemaName)) {
+        	logger.debug("initSchema; schema {} already initialized", schemaName);
+        	return false;
+    	}
     	
     	props.setProperty("xdm.schema.name", schemaName);
     	PropertiesPropertySource pps = new PropertiesPropertySource(schemaName, props);
@@ -240,19 +229,27 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
     		ctx.getEnvironment().getPropertySources().addFirst(pps);
     		ctx.setConfigLocation("spring/schema-client-context.xml");
     		ctx.refresh();
+    		
+    		ctxCache.put(schemaName, ctx);
 
     		HazelcastInstance hz = ctx.getBean("hzInstance", HazelcastInstance.class);
-    		hz.getUserContext().put("appContext", ctx);
+    		//hz.getUserContext().put("appContext", ctx);
     		//hz.getConfig().getSecurityConfig().setEnabled(true);
     		//hz.getConfig().getSecurityConfig().s
     	    XDMSchemaDictionary schemaDict = ctx.getBean("xdmDictionary", XDMSchemaDictionary.class);
     	    SchemaManager sMgr = (SchemaManager) mgrCache.get(schemaName);
        	    if (sMgr != null) {
+       	    	sMgr.setClientContext(ctx);
        	    	sMgr.setSchemaDictionary(schemaDict);
+       	    	
+        	    DocumentManagement dMgr = ctx.getBean("docManager", DocumentManagement.class);
+				mbeanExporter.registerManagedResource(dMgr, dMgr.getObjectName());
+        	    QueryManagement qMgr = ctx.getBean("queryManager", QueryManagement.class);
+				mbeanExporter.registerManagedResource(qMgr, qMgr.getObjectName());
        	    } else {
-       	    	dictCache.put(schemaName, schemaDict);
+       	    	//dictCache.put(schemaName, schemaDict);
        	    }
-    		logger.debug("initSchema.exit; schema {} started on instance: {}", schemaName, hz);
+    		logger.debug("initSchema.exit; client schema {} started on instance: {}", schemaName, hz);
     		return true;
     	} catch (Exception ex) {
     		logger.error("initSchema.error; " + ex.getMessage(), ex);
@@ -260,21 +257,61 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
     	}
 	}
 	
-	@Override
-	public boolean denitSchema(String schemaName) {
+	//@Override
+	public boolean denitSchema(String schemaName, Set<Member> members) {
     	logger.debug("denitSchema.enter; schema: {}", schemaName);
     	boolean result = false;
-		// get hzInstance and close it...
-		HazelcastInstance hz = Hazelcast.getHazelcastInstanceByName(schemaName);
-		if (hz != null) {
-			ConfigurableApplicationContext ctx = (ConfigurableApplicationContext) hz.getUserContext().get("appContext");
-			// closed via context anyway
-			//hz.getLifecycleService().shutdown();
-			ctx.close();
-			result = true;
+    	
+    	// do this if we don't have schema nodes any more!
+    	ClassPathXmlApplicationContext ctx = ctxCache.get(schemaName);
+    	if (ctx != null) {
+    		//HazelcastInstance hzClient = ctx.getBean("hzInstance", HazelcastInstance.class);
+    		//int size = hzClient.getCluster().getMembers().size();
+    		if (!isSchemaActive(schemaName, members)) {
+       		//if (size == 0) {
+    			try {
+    				DocumentManagement dMgr = ctx.getBean("docManager", DocumentManagement.class);
+    				mbeanExporter.unregisterManagedResource(dMgr.getObjectName());
+    				QueryManagement qMgr = ctx.getBean("queryManager", QueryManagement.class);
+    				mbeanExporter.unregisterManagedResource(qMgr.getObjectName());
+
+        			ctx.close();
+        			ctxCache.remove(schemaName);
+        			SchemaManager sMgr = (SchemaManager) mgrCache.get(schemaName);
+        			if (sMgr != null) {
+        				sMgr.setClientContext(null);
+        			}
+        			result = true;
+    			} catch (Exception ex) {
+					logger.error("denisSchema.error; ", ex);
+				}
+       	    }			
 		}
     	logger.debug("denitSchema.exit; schema {} deactivated: {}", schemaName, result);
 		return result;
+	}
+	
+	private boolean isSchemaActive(String schemaName, Set<Member> members) {
+
+		// does not work via cluster size for some reason..
+		for (Member member: members) {
+			logger.trace("isSchemaActive; options: {}; on Member: {}", member.getAttributes(), member);
+			//String schemas = member.getStringAttribute(XDMNode.op_node_schemas);
+			//if (schemas != null) {
+		    //	String[] aSchemas = schemas.split(" ");
+		    //	for (String schema: aSchemas) {
+		    //		if (schemaName.equals(schema.trim())) {
+		    			// check that node is not removed one
+		    //			return true;
+		    //		}
+		    //	}
+			//}
+			String name = member.getStringAttribute(XDMNode.op_node_name);
+			if ("first".equals(name)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	@Override
@@ -282,12 +319,8 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
 		logger.trace("memberAdded.enter; event: {}", membershipEvent);
 		// get schemas; for each schema registered to this member
 		Member member = membershipEvent.getMember();
-		String schemas = member.getStringAttribute(XDMNode.op_node_schemas);
 		int cnt = 0;
-		if (schemas == null) {
-			schemas = "TPoX";
-		}
-		String[] aSchemas = schemas.split(" ");
+		String[] aSchemas = getMemberSchemas(member);
 		for (String name: aSchemas) {
 			XDMSchema schema = entityCache.get(name);
 			if (schema != null) {
@@ -296,15 +329,26 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
 				Boolean ok = false;
 				try {
 					ok = result.get();
-					if (ok) {
-						if (initSchema(schema.getName(), schema.getProperties())) {
-							cnt++;
-						}
-					}
-					logger.debug("memberAdded; Schema {}initialized on node {}", ok ? "" : "NOT ", member);
 				} catch (InterruptedException | ExecutionException ex) {
 					logger.error("memberAdded.error; ", ex);
 				}
+
+				if (ok) {
+					if (initSchema(schema.getName(), schema.getProperties())) {
+						cnt++;
+					}
+						
+					try {
+						DocumentManager dMgr = new DocumentManager(name, member.getUuid()); 
+						mbeanExporter.registerManagedResource(dMgr, dMgr.getObjectName());
+
+						QueryManager qMgr = new QueryManager(name, member.getUuid()); 
+						mbeanExporter.registerManagedResource(qMgr, qMgr.getObjectName());
+					} catch (MalformedObjectNameException ex) {
+						logger.error("memberAdded.error; ", ex);
+					}
+				}
+				logger.debug("memberAdded; Schema {}initialized on node {}", ok ? "" : "NOT ", member);
 			}
 		}
 		logger.trace("memberAdded.exit; {} schemas initialized", cnt);
@@ -314,27 +358,56 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
 	public void memberRemoved(MembershipEvent membershipEvent) {
 		logger.trace("memberRemoved.enter; event: {}", membershipEvent);
 		Member member = membershipEvent.getMember();
-		String schemas = member.getStringAttribute(XDMNode.op_node_schemas);
 		int cnt = 0;
-		if (schemas == null) {
-			schemas = "TPoX";
-		}
-		String[] aSchemas = schemas.split(" ");
+		String[] aSchemas = getMemberSchemas(member);
 		for (String name: aSchemas) {
 			XDMSchema schema = entityCache.get(name);
 			if (schema != null) {
-				if (denitSchema(schema.getName())) {
+				// use there membershipEvent.members() !!
+				if (denitSchema(schema.getName(), membershipEvent.getMembers())) {
 					cnt++;
 					logger.debug("memberRemoved; Schema {} de-initialized on node {}", name, member);
+				}
+
+				try {
+					ObjectName queryName = JMXUtils.getObjectName("type=Schema,name=" + name + 
+							",kind=QueryManagement,node=" + member.getUuid());
+					mbeanExporter.unregisterManagedResource(queryName);
+
+					ObjectName docName = JMXUtils.getObjectName("type=Schema,name=" + name + 
+							",kind=DocumentManagement,node=" + member.getUuid());
+					mbeanExporter.unregisterManagedResource(docName);
+				} catch (MalformedObjectNameException ex) {
+					logger.error("memberRemoved.error; ", ex);
 				}
 			}
 		}
 		logger.trace("memberRemoved.exit; {} schemas de-initialized", cnt);
 	}
+	
+	private String[] getMemberSchemas(Member member) {
+		String schemas = member.getStringAttribute(XDMNode.op_node_schemas);
+		if (schemas == null) {
+			schemas = "TPoX";
+		}
+		return schemas.split(" ");
+	}
 
 	@Override
 	public void memberAttributeChanged(MemberAttributeEvent memberAttributeEvent) {
 		logger.trace("memberAttributeChanged.enter; event: {}", memberAttributeEvent);
+		// if attribute is schemas then deploy schema on member ?
+		if (XDMNode.op_node_schemas.equals(memberAttributeEvent.getKey())) {
+			Member member = memberAttributeEvent.getMember();
+			String nodeName = member.getStringAttribute(XDMNode.op_node_name);
+			if (memberAttributeEvent.getOperationType() == MemberAttributeOperationType.PUT) {
+				// set
+				String newSchemas = (String) memberAttributeEvent.getValue();
+				// do this via memberAdded??
+			} else {
+				// remove all
+			}
+		}
 	}
 
 }

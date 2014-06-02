@@ -15,8 +15,7 @@ public class XDMNodeCacheStore extends ConfigCacheStore<String, XDMNode> impleme
 		Map<String, XDMNode> nodes = new HashMap<String, XDMNode>();
 		Collection<XDMNode> cNodes = (Collection<XDMNode>) cfg.getEntities(XDMNode.class); 
 		for (XDMNode node: cNodes) {
-			//nodes.put(node.getName(), node);
-			nodes.put(node.getNode(), node);
+			nodes.put(node.getName(), node);
 	    }
 		return nodes;
 	}

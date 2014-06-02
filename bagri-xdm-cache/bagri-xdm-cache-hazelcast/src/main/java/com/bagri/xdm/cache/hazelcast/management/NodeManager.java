@@ -1,33 +1,26 @@
 package com.bagri.xdm.cache.hazelcast.management;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
 import javax.management.openmbean.CompositeData;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.jmx.export.annotation.ManagedAttribute;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
-import org.springframework.jmx.export.naming.SelfNaming;
 
 import com.bagri.common.manage.JMXUtils;
-import com.bagri.xdm.access.api.XDMNodeManager;
-import com.bagri.xdm.process.hazelcast.NodeOptionSetter;
+import com.bagri.xdm.process.hazelcast.node.NodeUpdater;
 import com.bagri.xdm.system.XDMNode;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
-import com.hazelcast.core.IMap;
 import com.hazelcast.core.Member;
 
 @ManagedResource(description="Cluster Node Manager MBean")
-public class NodeManager extends EntityManager<XDMNode> implements XDMNodeManager {
+public class NodeManager extends EntityManager<XDMNode> { //implements XDMNodeManager {
 
     private HazelcastInstance hzInstance;
 	private IExecutorService execService;
@@ -56,26 +49,26 @@ public class NodeManager extends EntityManager<XDMNode> implements XDMNodeManage
 		return getEntity().getName();
 	}
 	
-	@ManagedAttribute(description="Returns registered Node location")
-	public String getAddress() {
-		return getEntity().getAddress();
-	}
-	
 	@ManagedAttribute(description="Returns active Node identifier")
-	public String getNodeId() {
+	public String[] getNodeIds() {
 		XDMNode node = getEntity();
-		Member member = getMember(node.getName(), node.getAddress());
-		if (member != null) {
-			return member.getUuid();
+		List<Member> members = getMembers(node.getName());
+		if (members.size() > 0) {
+			int i = 0;
+			String[] ids = new String[members.size()];
+			for (Member member: members) {
+				ids[i++] = member.getUuid();
+			}
+			return ids;
 		}
-		return "Not Available";
+		return null;
 	}
 	
 	@ManagedAttribute(description="Returns Node state")
 	public boolean isActive() {
 		XDMNode node = getEntity();
-		Member member = getMember(node.getName(), node.getAddress());
-		return member != null;
+		List<Member> members = getMembers(node.getName());
+		return members.size() > 0;
 	}
 	
 	public Properties getOpts() {
@@ -88,7 +81,7 @@ public class NodeManager extends EntityManager<XDMNode> implements XDMNodeManage
 		return JMXUtils.propsToComposite(entityName, "options", options);
 	}
 
-	@Override
+	//@Override
 	@ManagedOperation(description="Returns named Node option")
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "name", description = "A name of the option to return")})
@@ -96,50 +89,34 @@ public class NodeManager extends EntityManager<XDMNode> implements XDMNodeManage
 		return getOpts().getProperty(name);
 	}
 
-	@Override
 	@ManagedOperation(description="Set named Node option")
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "name", description = "A name of the option to set"),
 		@ManagedOperationParameter(name = "value", description = "A value of the option to set")})
 	public void setOption(String name, String value) {
-		XDMNode node = setNodeOption(name, value);
-		Member member = getMember(node.getName(), node.getAddress());
-		if (member.localMember()) {
-			member.setStringAttribute(name, value);
-		} else {
-			logger.trace("setOption; distribute option set to node: {}", member);
-			NodeOptionSetter nos = new NodeOptionSetter(node.getNode(), name, value);
-			Future<Boolean> result = execService.submitToMember(nos, member);
-			try {
-				Boolean ok = result.get();
-				logger.debug("setOption; distributed option set: {}", ok);
-			} catch (InterruptedException | ExecutionException ex) {
-				logger.error("setOption.error; ", ex);
-			}
-		}
-		
-		// @TODO: do it via NodeUpdater!
-	}
-
-	public XDMNode setNodeOption(String name, String value) {
 		XDMNode node = getEntity();
-		node.setOption(name, value);
-		flushEntity(node);
-		return node;
+		if (node != null) {
+			Properties opts = new Properties();
+			opts.setProperty(name, value);
+	    	Object result = entityCache.executeOnKey(entityName, new NodeUpdater(node.getVersion(), 
+	    			JMXUtils.getCurrentUser(), false, opts));
+	    	logger.trace("setProperty; execution result: {}", result);
+		}
 	}
 
-	@Override
+	//@Override
 	@ManagedOperation(description="Removes named Node option")
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "name", description = "A name of the option to remove")})
 	public void removeOption(String name) {
-		// set to default value? or remove..
 		XDMNode node = getEntity();
-		node.setOption(name, null);
-		flushEntity(node);
-
-		Member member = getMember(node.getName(), node.getAddress());
-		member.removeAttribute(name);
+		if (node != null) {
+			Properties opts = node.getOptions();
+			opts.remove(name); // is it safe??
+	    	Object result = entityCache.executeOnKey(entityName, new NodeUpdater(node.getVersion(), 
+	    			JMXUtils.getCurrentUser(), true, opts));
+	    	logger.trace("removeProperty; execution result: {}", result);
+		}
 	}
 
 	@ManagedAttribute(description="Return Schema names deployed on the Node")
@@ -148,14 +125,33 @@ public class NodeManager extends EntityManager<XDMNode> implements XDMNodeManage
 		return node.getSchemas();
 	}
 	
-	private Member getMember(String name, String address) {
+	private List<Member> getMembers(String name) {
+		List<Member> members = new ArrayList<Member>();
 		for (Member member: hzInstance.getCluster().getMembers()) {
-			if (address.equals(member.getSocketAddress().getHostName()) &&
-					name.equals(member.getStringAttribute(XDMNode.op_node_name))) {
-				return member;
+			if (name.equals(member.getStringAttribute(XDMNode.op_node_name))) {
+				members.add(member);
 			}
 		}
-		return null;
+		return members;
+	}
+	
+	@ManagedOperation(description="Initiates schema on Cluster node(-s)")
+	@ManagedOperationParameters({
+		@ManagedOperationParameter(name = "schemaName", description = "Schema name to add")})
+	public void addSchema(String schemaName) {
+		XDMNode node = getEntity();
+		String schemas = node.getOption(XDMNode.op_node_schemas);
+		if (schemas != null) {
+			if (schemas.length() > 0) {
+				schemas = schemas + " " + schemaName;
+			} else {
+				schemas = schemaName;
+			}
+		} else {
+			schemas = schemaName;
+		}
+		
+		setOption(XDMNode.op_node_schemas, schemas);
 	}
 
 }

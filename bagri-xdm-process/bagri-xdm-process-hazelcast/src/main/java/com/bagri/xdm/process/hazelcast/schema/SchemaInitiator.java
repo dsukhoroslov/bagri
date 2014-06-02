@@ -1,22 +1,16 @@
 package com.bagri.xdm.process.hazelcast.schema;
 
 import static com.bagri.xdm.access.hazelcast.pof.XDMPortableFactory.cli_XDMInitSchemaTask;
-import static com.bagri.xdm.access.hazelcast.pof.XDMPortableFactory.factoryId;
 
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Properties;
-import java.util.concurrent.Callable;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.env.PropertiesPropertySource;
 
-import com.bagri.xdm.access.api.XDMSchemaDictionary;
-import com.bagri.xdm.access.api.XDMSchemaManagement;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.nio.serialization.Portable;
 import com.hazelcast.nio.serialization.PortableReader;
 import com.hazelcast.nio.serialization.PortableWriter;
 import com.hazelcast.spring.context.SpringAware;

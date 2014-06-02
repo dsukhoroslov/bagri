@@ -43,7 +43,7 @@ public class XDMConfigTest {
 		XDMConfig config = new XDMConfig();
 		config.getSchemas().add(schema);
 		
-		XDMNode node = new XDMNode(1, new Date(), "test", "firts", "localhost", props);
+		XDMNode node = new XDMNode(1, new Date(), "test", "firts", props);
 		config.getNodes().add(node);
 
 		JAXBContext jc = JAXBContext.newInstance(XDMConfig.class);

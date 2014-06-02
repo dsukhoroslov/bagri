@@ -17,7 +17,6 @@ import com.bagri.xdm.api.XDMEntity;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(namespace = "http://www.bagri.com/xdm/system", propOrder = {
 		"name", 
-		"address", 
 		"options"
 })
 public class XDMNode extends XDMEntity {
@@ -45,9 +44,6 @@ public class XDMNode extends XDMEntity {
 	@XmlAttribute(required = true)
 	private String name;
 	
-	@XmlElement(required = true)
-	private String address;
-	
 	@XmlElement(name = "options")
 	@XmlJavaTypeAdapter(XDMEntriesAdapter.class)
 	private Properties options = new Properties();
@@ -57,10 +53,9 @@ public class XDMNode extends XDMEntity {
 		super();
 	}
 
-	public XDMNode(int version, Date createdAt, String createdBy, String name, String address, Properties options) {
+	public XDMNode(int version, Date createdAt, String createdBy, String name, Properties options) {
 		super(version, createdAt, createdBy);
 		this.name = name;
-		this.address = address;
 		setOptions(options);
 	}
 
@@ -68,17 +63,12 @@ public class XDMNode extends XDMEntity {
 		return name;
 	}
 	
-	public String getAddress() {
-		return address;
-	}
-	
-	public String getNode() {
-		return name + "[" + address + "]";
-	}
-	
 	public String[] getSchemas() {
 		String schemas = getOption(op_node_schemas);
-		return schemas.split(" ");
+		if (schemas != null) {
+			return schemas.split(" ");
+		}
+		return null;
 	}
 	
 	public Properties getOptions() {
@@ -108,7 +98,6 @@ public class XDMNode extends XDMEntity {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + name.hashCode();
-		result = prime * result + address.hashCode();
 		return result;
 	}
 
@@ -130,9 +119,6 @@ public class XDMNode extends XDMEntity {
 		if (!name.equals(other.name)) {
 			return false;
 		}
-		if (!address.equals(other.address)) {
-			return false;
-		}
 		return true;
 	}
 
@@ -141,9 +127,9 @@ public class XDMNode extends XDMEntity {
 	 */
 	@Override
 	public String toString() {
-		return "XDMNode [name=" + name + "; addess=" + address + 
-				"; version=" + getVersion() + "; created at=" + getCreatedAt() + 
-				"; by=" + getCreatedBy() + "; options=" + options + "]";
+		return "XDMNode [name=" + name + "; version=" + getVersion() + 
+				"; created at=" + getCreatedAt() + "; by=" + getCreatedBy() + 
+				"; options=" + options + "]";
 	}
 	
 }

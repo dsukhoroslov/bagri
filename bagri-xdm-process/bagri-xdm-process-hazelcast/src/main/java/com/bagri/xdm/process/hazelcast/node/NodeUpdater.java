@@ -11,14 +11,16 @@ import com.hazelcast.nio.serialization.DataSerializable;
 
 public class NodeUpdater extends NodeProcessor implements DataSerializable {
 
+	private boolean override;
 	private Properties options;
 	
 	public NodeUpdater() {
 		//
 	}
 	
-	public NodeUpdater(int version, String admin, Properties options) {
+	public NodeUpdater(int version, String admin, boolean override, Properties options) {
 		super(version, admin);
+		this.override = override;
 		this.options = options;
 	}
 
@@ -29,9 +31,18 @@ public class NodeUpdater extends NodeProcessor implements DataSerializable {
 			XDMNode node = entry.getValue();
 			if (node.getVersion() == getVersion()) {
 				// what if new options are not consistent with the current node state??
-				
-				for (String name: options.stringPropertyNames()) {
-					node.setOption(name, options.getProperty(name));
+
+				if (override) {
+					node.setOptions(options);
+				} else {
+					for (String name: options.stringPropertyNames()) {
+						node.setOption(name, options.getProperty(name));
+					}
+				}
+
+				if (updateNodeInCluster(node) == 0) {
+					logger.info("process; no members updated!"); 
+					// rollback changes somehow?
 				}
 				
 				node.updateVersion(getAdmin());
@@ -46,12 +57,14 @@ public class NodeUpdater extends NodeProcessor implements DataSerializable {
 	@Override
 	public void readData(ObjectDataInput in) throws IOException {
 		super.readData(in);
+		override = in.readBoolean();
 		options = in.readObject();
 	}
 
 	@Override
 	public void writeData(ObjectDataOutput out) throws IOException {
 		super.writeData(out);
+		out.writeBoolean(override);
 		out.writeObject(options);
 	}
 
