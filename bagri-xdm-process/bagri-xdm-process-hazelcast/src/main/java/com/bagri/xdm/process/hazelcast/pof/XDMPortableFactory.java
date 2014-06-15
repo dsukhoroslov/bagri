@@ -4,6 +4,7 @@ import com.bagri.xdm.process.hazelcast.DocumentBuilder;
 import com.bagri.xdm.process.hazelcast.DocumentRemover;
 import com.bagri.xdm.process.hazelcast.DocumentCreator;
 import com.bagri.xdm.process.hazelcast.SchemaRegistrator;
+import com.bagri.xdm.process.hazelcast.node.NodeInfoProvider;
 import com.bagri.xdm.process.hazelcast.node.NodeOptionSetter;
 import com.bagri.xdm.process.hazelcast.schema.SchemaDenitiator;
 import com.bagri.xdm.process.hazelcast.schema.SchemaInitiator;
@@ -26,6 +27,7 @@ public class XDMPortableFactory extends com.bagri.xdm.access.hazelcast.pof.XDMPo
 			case cli_XDMDenitSchemaTask: return new SchemaDenitiator();
 			case cli_XDMSetNodeOptionTask: return new NodeOptionSetter();
 			case cli_XDMSchemaAggregationTask: return new SchemaStatsAggregator();
+			case cli_XDMGetNodeInfoTask: return new NodeInfoProvider();
 		}
 		return null;
 	}

@@ -9,7 +9,7 @@
 
 	<!-- Beans Declaration -->
     
-	<context:property-placeholder location="classpath:/xdm-cache-server.properties" />
+	<context:property-placeholder location="file:${xdm.config.path}/${xdm.server.properties.file}" />
 	<context:annotation-config />
 <!--     
 	<context:mbean-server id="localServer"/>
@@ -25,7 +25,6 @@
 				<hz:property name="hazelcast.jmx">true</hz:property>
 				<hz:property name="hazelcast.jmx.detailed">true</hz:property>
 				<hz:property name="hazelcast.logging.type">slf4j</hz:property>
-				<hz:property name="xdm.cluster.admin.port">${xdm.cluster.admin.port}</hz:property>
 				<hz:property name="xdm.cluster.node.name">${xdm.cluster.node.name}</hz:property>
 				<hz:property name="xdm.cluster.node.role">${xdm.cluster.node.role}</hz:property>
 				<hz:property name="xdm.cluster.node.schemas">${xdm.cluster.node.schemas}</hz:property>
@@ -34,7 +33,7 @@
 				<hz:join>
 					<hz:multicast enabled="false"/>
 					<hz:tcp-ip enabled="true">
-						<hz:members>${xdm.cluster.admin.address}</hz:members>
+						<hz:members>${xdm.cluster.members}</hz:members>
 					</hz:tcp-ip>
 				</hz:join>
 			</hz:network>

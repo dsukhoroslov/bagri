@@ -40,7 +40,7 @@ public class SchemaDenitiator implements Callable<Boolean>, Portable {
 	public Boolean call() throws Exception {
 		//return schemaManager.denitSchema(schemaName);
 		
-    	logger.trace("denitSchema.enter; schema: {}", schemaName);
+    	logger.trace("call.enter; schema: {}", schemaName);
     	boolean result = false;
 		// get hzInstance and close it...
 		HazelcastInstance hz = Hazelcast.getHazelcastInstanceByName(schemaName);
@@ -49,7 +49,7 @@ public class SchemaDenitiator implements Callable<Boolean>, Portable {
 			ctx.close();
 			result = true;
 		}
-    	logger.trace("denitSchema.exit; schema {} deactivated: {}", schemaName, result);
+    	logger.trace("call.exit; schema {} deactivated: {}", schemaName, result);
 		return result;
 	}
 

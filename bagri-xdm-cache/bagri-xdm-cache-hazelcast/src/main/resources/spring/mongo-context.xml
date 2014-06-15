@@ -8,7 +8,7 @@
 		http://www.springframework.org/schema/data/mongo http://www.springframework.org/schema/data/mongo/spring-mongo-1.0.xsd">
 
     <!-- set some common mongo props in extra properties file -->
-	<context:property-placeholder ignore-unresolvable="true" location="classpath:/xdm-cache-server.properties"/>
+	<context:property-placeholder ignore-unresolvable="true" location="classpath:/${xdm.server.properties.file}"/>
     <context:mbean-export/>
     
 	<mongo:mongo id="mongo" host="${xdm.schema.store.host}" port="${xdm.schema.store.port}">

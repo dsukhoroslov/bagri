@@ -11,7 +11,7 @@
 
     <!-- Beans Declarations -->
     
-	<context:property-placeholder location="classpath:/xdm-cache-server.properties" />
+    <context:property-placeholder location="file:${xdm.config.path}/xdm-admin-server.properties" />
     <context:annotation-config />
 
     <!--bean id="jmx.server" class="org.springframework.jmx.support.MBeanServerFactoryBean"
@@ -46,7 +46,7 @@
 				<hz:join>
 					<hz:multicast enabled="false"/>
 					<hz:tcp-ip enabled="true">
-						<hz:members>${xdm.cluster.admin.address}</hz:members>
+						<hz:members>${xdm.cluster.members}</hz:members>
 					</hz:tcp-ip>
 				</hz:join>
 			</hz:network>

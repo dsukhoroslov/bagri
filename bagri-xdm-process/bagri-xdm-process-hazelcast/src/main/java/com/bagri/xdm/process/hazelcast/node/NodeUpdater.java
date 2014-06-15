@@ -11,6 +11,7 @@ import com.hazelcast.nio.serialization.DataSerializable;
 
 public class NodeUpdater extends NodeProcessor implements DataSerializable {
 
+	private String comment;
 	private boolean override;
 	private Properties options;
 	
@@ -18,8 +19,9 @@ public class NodeUpdater extends NodeProcessor implements DataSerializable {
 		//
 	}
 	
-	public NodeUpdater(int version, String admin, boolean override, Properties options) {
+	public NodeUpdater(int version, String admin, String comment, boolean override, Properties options) {
 		super(version, admin);
+		this.comment = comment;
 		this.override = override;
 		this.options = options;
 	}
@@ -40,7 +42,7 @@ public class NodeUpdater extends NodeProcessor implements DataSerializable {
 					}
 				}
 
-				if (updateNodeInCluster(node) == 0) {
+				if (updateNodesInCluster(node, comment) == 0) {
 					logger.info("process; no members updated!"); 
 					// rollback changes somehow?
 				}
@@ -57,6 +59,7 @@ public class NodeUpdater extends NodeProcessor implements DataSerializable {
 	@Override
 	public void readData(ObjectDataInput in) throws IOException {
 		super.readData(in);
+		comment = in.readUTF();
 		override = in.readBoolean();
 		options = in.readObject();
 	}
@@ -64,6 +67,7 @@ public class NodeUpdater extends NodeProcessor implements DataSerializable {
 	@Override
 	public void writeData(ObjectDataOutput out) throws IOException {
 		super.writeData(out);
+		out.writeUTF(comment);
 		out.writeBoolean(override);
 		out.writeObject(options);
 	}
