@@ -198,6 +198,7 @@
                                             <sysproperty key="java.security.auth.login.config"
                                                          value="${project.basedir}/src/main/resources/jaas.config"/-->
                                             <sysproperty key="logback.configurationFile" value="xdm-cache-logging.xml"/>
+                                            <sysproperty key="xdm.config.path" value="src/main/resources"/>
                                             <sysproperty key="xdm.cluster.node.name" value="admin"/>
                                             <sysproperty key="xdm.cluster.node.role" value="admin"/>
                                             <sysproperty key="xdm.cluster.node.schemas" value=""/>
@@ -227,6 +228,8 @@
                                             <sysproperty key="com.sun.management.jmxremote.authenticate" value="false"/>
                                             <sysproperty key="com.sun.management.jmxremote.ssl" value="false"/-->
                                             <sysproperty key="logback.configurationFile" value="xdm-cache-logging.xml"/>
+                                            <sysproperty key="xdm.config.path" value="src/main/resources"/>
+					    <sysproperty key="xdm.server.properties.file" value="xdm-server-first.properties"/>
                                             <sysproperty key="xdm.cluster.node.name" value="first"/>
                                             <sysproperty key="xdm.cluster.node.role" value="server"/>
                                             <sysproperty key="xdm.cluster.node.schemas" value="TPoX"/>
@@ -256,6 +259,8 @@
                                             <sysproperty key="com.sun.management.jmxremote.authenticate" value="false"/>
                                             <sysproperty key="com.sun.management.jmxremote.ssl" value="false"/-->
                                             <sysproperty key="logback.configurationFile" value="xdm-cache-logging.xml"/>
+                                            <sysproperty key="xdm.config.path" value="src/main/resources"/>
+					    <sysproperty key="xdm.server.properties.file" value="xdm-server-second.properties"/>
                                             <sysproperty key="xdm.cluster.node.name" value="second"/>
                                             <sysproperty key="xdm.cluster.node.role" value="server"/>
                                             <sysproperty key="xdm.cluster.node.schemas" value="TPoX Test"/>

@@ -99,7 +99,7 @@ public class NodeManager extends EntityManager<XDMNode> { //implements XDMNodeMa
 			Properties opts = new Properties();
 			opts.setProperty(name, value);
 	    	Object result = entityCache.executeOnKey(entityName, new NodeUpdater(node.getVersion(), 
-	    			JMXUtils.getCurrentUser(), false, opts));
+	    			JMXUtils.getCurrentUser(), "Option " + name + " set from JMX console", false, opts));
 	    	logger.trace("setProperty; execution result: {}", result);
 		}
 	}
@@ -114,7 +114,7 @@ public class NodeManager extends EntityManager<XDMNode> { //implements XDMNodeMa
 			Properties opts = node.getOptions();
 			opts.remove(name); // is it safe??
 	    	Object result = entityCache.executeOnKey(entityName, new NodeUpdater(node.getVersion(), 
-	    			JMXUtils.getCurrentUser(), true, opts));
+	    			JMXUtils.getCurrentUser(), "Option " + name + " removed from JMX console", true, opts));
 	    	logger.trace("removeProperty; execution result: {}", result);
 		}
 	}
@@ -154,4 +154,15 @@ public class NodeManager extends EntityManager<XDMNode> { //implements XDMNodeMa
 		setOption(XDMNode.op_node_schemas, schemas);
 	}
 
+	@ManagedOperation(description="Returns Node configurations")
+	public String generateOptions() {
+		Properties options = getOpts();
+		StringBuilder result = new StringBuilder();
+		for (String name: options.stringPropertyNames()) {
+			result.append(name).append("=").append(options.getProperty(name));
+			result.append("\n");
+		}
+		return result.toString();
+	}
+	
 }

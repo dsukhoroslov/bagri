@@ -265,7 +265,7 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
     	// do this if we don't have schema nodes any more!
     	ClassPathXmlApplicationContext ctx = ctxCache.get(schemaName);
     	if (ctx != null) {
-    		//HazelcastInstance hzClient = ctx.getBean("hzInstance", HazelcastInstance.class);
+    		HazelcastInstance hzClient = ctx.getBean("hzInstance", HazelcastInstance.class);
     		//int size = hzClient.getCluster().getMembers().size();
     		if (!isSchemaActive(schemaName, members)) {
        		//if (size == 0) {
@@ -274,6 +274,8 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
     				mbeanExporter.unregisterManagedResource(dMgr.getObjectName());
     				QueryManagement qMgr = ctx.getBean("queryManager", QueryManagement.class);
     				mbeanExporter.unregisterManagedResource(qMgr.getObjectName());
+    				
+    				hzClient.shutdown();
 
         			ctx.close();
         			ctxCache.remove(schemaName);
@@ -283,7 +285,7 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
         			}
         			result = true;
     			} catch (Exception ex) {
-					logger.error("denisSchema.error; ", ex);
+					logger.error("denitSchema.error; ", ex);
 				}
        	    }			
 		}
@@ -351,6 +353,14 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
 				logger.debug("memberAdded; Schema {}initialized on node {}", ok ? "" : "NOT ", member);
 			}
 		}
+		
+		try {
+			TopologyManager tMgr = new TopologyManager(execService, member);
+			mbeanExporter.registerManagedResource(tMgr, tMgr.getObjectName());
+		} catch (MalformedObjectNameException ex) {
+			logger.error("memberAdded.error; ", ex);
+		}
+		
 		logger.trace("memberAdded.exit; {} schemas initialized", cnt);
 	}
 
@@ -382,6 +392,14 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
 				}
 			}
 		}
+
+		try {
+			ObjectName topName = JMXUtils.getObjectName("Topology", member.getUuid());
+			mbeanExporter.unregisterManagedResource(topName);
+		} catch (MalformedObjectNameException ex) {
+			logger.error("memberRemoved.error; ", ex);
+		}
+
 		logger.trace("memberRemoved.exit; {} schemas de-initialized", cnt);
 	}
 	
@@ -395,7 +413,8 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
 
 	@Override
 	public void memberAttributeChanged(MemberAttributeEvent memberAttributeEvent) {
-		logger.trace("memberAttributeChanged.enter; event: {}", memberAttributeEvent);
+		logger.trace("memberAttributeChanged.enter; event: {}; attribute: {}; value: {}", 
+				memberAttributeEvent, memberAttributeEvent.getKey(), memberAttributeEvent.getValue());
 		// if attribute is schemas then deploy schema on member ?
 		if (XDMNode.op_node_schemas.equals(memberAttributeEvent.getKey())) {
 			Member member = memberAttributeEvent.getMember();

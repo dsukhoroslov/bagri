@@ -8,7 +8,7 @@
 		http://www.springframework.org/schema/hadoop http://www.springframework.org/schema/hadoop/spring-hadoop.xsd">
 
 	<!-- set some common hive props in extra properties file -->
-	<context:property-placeholder ignore-unresolvable="true" location="classpath:/xdm-cache-server.properties"/>
+	<context:property-placeholder ignore-unresolvable="true" location="classpath:/${xdm.server.properties.file}"/>
 	<context:mbean-export/>
     
 	<hdp:hive-client-factory host="${xdm.schema.store.host}" port="${xdm.schema.store.port}" />

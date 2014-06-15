@@ -53,12 +53,7 @@ public abstract class EntityManager<E extends XDMEntity> implements SelfNaming {
 	}
 	
 	public int getVersion() {
-		//try {
 		return getEntity().getVersion();
-		//} catch (Exception ex) {
-		//	logger.error("", ex);
-		//	throw ex;
-		//}
 	}
 
 	public Date getCreatedAt() {

@@ -10,7 +10,7 @@
 	<!--import resource="classpath:spring/mongo-context.xml" /-->
  
 	<!-- Beans Declaration -->
-	<context:property-placeholder ignore-unresolvable="true" location="classpath:/xdm-cache-server.properties" />
+	<context:property-placeholder ignore-unresolvable="true" location="classpath:/${xdm.server.properties.file}" />
 	<context:annotation-config />
 	<context:mbean-export default-domain="com.bagri.xdm"/>
  

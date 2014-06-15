@@ -54,5 +54,4 @@ public abstract class EntityProcessor {
 		out.writeUTF(admin);
 	}
 
-
 }
