@@ -14,10 +14,8 @@ public class XDMPathKey<T> {
 	/**
 	 * Class constructor
 	 * 
-	 * @param leftKey
-	 *            Left key
-	 * @param rightKey
-	 *            Right key
+	 * @param T path
+	 * @param long documentId
 	 */
 	public XDMPathKey(T path, long documentId) {
 		this.path = path;
@@ -25,7 +23,7 @@ public class XDMPathKey<T> {
 	}
 
 	/**
-	 * @return Left key
+	 * @return T path
 	 */
 	public T getPath() {
 		return path;
@@ -36,8 +34,7 @@ public class XDMPathKey<T> {
 	}
 
 	/**
-	 * @param obj
-	 *            Compared object
+	 * @param obj Compared object
 	 * @return Equal result flag
 	 */
 	@Override

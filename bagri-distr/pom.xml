@@ -6,6 +6,7 @@
         <groupId>com.sdv.bagri</groupId>
         <artifactId>bagri</artifactId>
         <version>0.0.1-SNAPSHOT</version>
+        <relativePath>..</relativePath>
     </parent>
 
     <artifactId>bagri-distr</artifactId>
@@ -13,11 +14,101 @@
     <name>bagri-distr</name>
     <description>BagRi Distributive module</description>
 
-    <modules>
+    <!--modules>
         <module>bagri-distr-hazelcast</module>
-    </modules>
+    </modules-->
 
     <dependencies>
+        <!--dependency>
+            <groupId>com.sdv.bagri</groupId>
+            <artifactId>bagri-common</artifactId>
+        </dependency>                     
+        <dependency>
+            <groupId>com.sdv.bagri</groupId>
+            <artifactId>bagri-xdm</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sdv.bagri</groupId>
+            <artifactId>bagri-xdm-access-api</artifactId>
+        </dependency-->
+
+        <dependency>
+            <groupId>com.sdv.bagri</groupId>
+            <artifactId>bagri-xdm-cache-hazelcast</artifactId>
+        </dependency>
+
+        <dependency>
+	    <groupId>com.sdv.bagri</groupId>
+	    <artifactId>bagri-visualvm-plugin</artifactId>
+	    <version>0.0.1-SNAPSHOT</version>
+	    <type>nbm</type>
+        </dependency>
+
+        <!--dependency>
+            <groupId>com.sdv.bagri</groupId>
+            <artifactId>bagri-client-xqj</artifactId>
+	    <version>0.0.1-SNAPSHOT</version>
+        </dependency-->
     </dependencies>
+
+    <profiles>
+        <profile>
+            <id>distr</id>
+            <build>
+                <plugins>
+
+                    <plugin>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>aggregate</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>aggregate</goal>
+                                </goals>
+                                <configuration>
+                                    <aggregate>true</aggregate>
+
+                                    <!-- switch on dependency-driven aggregation -->
+                                    <includeDependencySources>true</includeDependencySources>
+				    <!--includeTransitiveDependencySources>true</includeTransitiveDependencySources-->
+
+                                    <dependencySourceIncludes>
+                                        <dependencySourceInclude>com.sdv.bagri:*</dependencySourceInclude>
+                                    </dependencySourceIncludes>
+
+                                    <debug>true</debug>
+                                    <verbose>true</verbose>
+				    <outputDirectory>${project.build.directory}/javadoc</outputDirectory>
+
+                                    <subpackages>com.bagri.*</subpackages>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>assembly</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                                <configuration>
+				    <finalName>bagri-${project.version}</finalName>
+                                    <descriptors>
+                                        <descriptor>src/main/assembly/hazelcast.xml</descriptor>
+                                    </descriptors>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>

@@ -155,7 +155,7 @@
                                         <java fork="true" classname="com.tangosol.net.DefaultCacheServer">
                                             <!--java fork="true" classname="com.bagri.xdm.cache.XDMCacheServer"-->
                                             <jvmarg line="${run.jvm.args}"/>
-                                            <sysproperty key="LOGDIR" value="./logs/"/>
+                                            <sysproperty key="node.logdir" value="./logs/"/>
                                             <sysproperty key="tangosol.coherence.override"
                                                          value="coherence/xdm-coherence-override.xml"/>
                                             <!--sysproperty key="tangosol.coherence.cacheconfig" value="coherence/xdm-server-cache-config.xml"/-->
@@ -199,7 +199,7 @@
                                     <tasks if="run-jmx">
                                         <java fork="true" classname="com.tangosol.net.DefaultCacheServer">
                                             <jvmarg line="-Xmx128m"/>
-                                            <sysproperty key="LOGDIR" value="./logs/"/>
+                                            <sysproperty key="node.logdir" value="./logs/"/>
                                             <sysproperty key="tangosol.coherence.invocation.request.timeout"
                                                          value="120000"/>
                                             <sysproperty key="tangosol.coherence.override"
@@ -243,7 +243,7 @@
                                     <tasks if="run-proxy">
                                         <java fork="true" classname="com.tangosol.net.DefaultCacheServer">
                                             <jvmarg line="-Xmx128m"/>
-                                            <sysproperty key="LOGDIR" value="./logs/"/>
+                                            <sysproperty key="node.logdir" value="./logs/"/>
                                             <sysproperty key="tangosol.coherence.override"
                                                          value="coherence/xdm-proxy-coherence-override.xml"/>
                                             <sysproperty key="tangosol.coherence.cacheconfig"

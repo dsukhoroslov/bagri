@@ -5,7 +5,7 @@
 	xmlns:hz="http://www.hazelcast.com/schema/spring"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd
-		http://www.hazelcast.com/schema/spring http://www.hazelcast.com/schema/spring/hazelcast-spring-3.2.xsd">
+		http://www.hazelcast.com/schema/spring http://www.hazelcast.com/schema/spring/hazelcast-spring-3.3.xsd">
 
 	<!-- Beans Declaration -->
     
@@ -25,9 +25,7 @@
 				<hz:property name="hazelcast.jmx">true</hz:property>
 				<hz:property name="hazelcast.jmx.detailed">true</hz:property>
 				<hz:property name="hazelcast.logging.type">slf4j</hz:property>
-				<hz:property name="xdm.cluster.node.name">${xdm.cluster.node.name}</hz:property>
-				<hz:property name="xdm.cluster.node.role">${xdm.cluster.node.role}</hz:property>
-				<hz:property name="xdm.cluster.node.schemas">${xdm.cluster.node.schemas}</hz:property>
+				<!--hz:property name="hazelcast.partition.count">0</hz:property-->				
 			</hz:properties>
 			<hz:network port="5701" port-auto-increment="true">
 				<hz:join>
@@ -37,6 +35,14 @@
 					</hz:tcp-ip>
 				</hz:join>
 			</hz:network>
+			<!--hz:partition-group enabled="true" group-type="CUSTOM">
+				<hz:member-group>
+					<hz:interface>192.168.1.87:5701</hz:interface>
+				</hz:member-group>
+				<hz:member-group>
+					<hz:interface>192.168.1.*</hz:interface>
+				</hz:member-group>
+			</hz:partition-group-->
 			<hz:executor-service name="xdm-exec-pool" pool-size="${xdm.cache.threads.invocationScheme}" />
 
 			<!--hz:map name="nodes">
@@ -71,6 +77,11 @@
 					<hz:serializer type-class="com.bagri.xdm.system.XDMPermission" class-name="com.bagri.xdm.access.hazelcast.pof.XDMPermissionSerializer"/>
 				</hz:serializers>
 			</hz:serialization>
+			<hz:member-attributes>
+				<hz:attribute name="xdm.cluster.node.name">${xdm.cluster.node.name}</hz:attribute>
+				<hz:attribute name="xdm.cluster.node.role">server</hz:attribute>
+				<hz:attribute name="xdm.cluster.node.schemas">${xdm.cluster.node.schemas}</hz:attribute>
+			</hz:member-attributes>
 		</hz:config>
 	</hz:hazelcast>
 

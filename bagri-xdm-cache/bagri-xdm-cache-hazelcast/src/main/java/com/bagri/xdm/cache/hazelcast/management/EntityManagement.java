@@ -21,6 +21,7 @@ import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.EntryListener;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
+import com.hazelcast.core.MapEvent;
 
 public abstract class EntityManagement<String, E extends XDMEntity> implements EntryListener<String, E> {
 	
@@ -104,5 +105,11 @@ public abstract class EntityManagement<String, E extends XDMEntity> implements E
 		// make entity inactive ?
 	}
 	
+	@Override
+	public void mapEvicted(MapEvent event) {
+		logger.trace("mapEvicted; event: {}", event);
+		// make entity inactive ?
+	}
+
 
 }

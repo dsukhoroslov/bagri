@@ -50,6 +50,16 @@
             <!--scope>runtime</scope-->
         </dependency>
 
+        <!-- TPoX benchmark framework -->
+        <dependency>
+            <groupId>com.ibm.tpox</groupId>
+            <artifactId>tpox-workload</artifactId>
+            <version>2.1</version>
+            <scope>system</scope>
+            <!--optional>false</optional-->
+            <systemPath>${project.basedir}/../../etc/lib/tpox-workload-2.1.jar</systemPath>
+        </dependency>
+
         <!-- Spring framework -->
         <dependency>
             <groupId>org.springframework</groupId>
@@ -85,10 +95,6 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.ibm.tpox</groupId>
-            <artifactId>tpox-workload</artifactId>
         </dependency>
         <dependency>
             <groupId>commons-cli</groupId>

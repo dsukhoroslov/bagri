@@ -15,10 +15,10 @@
     <!--property resource="xdm-cache.properties" /-->
 
     <appender name="ROLLING" class="ch.qos.logback.core.rolling.RollingFileAppender">
-    	<file>${LOGDIR}/cache/xdm-cache-server-node-${com.db.caching.coherence.node.instance}.log</file>
+    	<file>${node.logdir}/cache/xdm-cache-server-node-${node.instance}.log</file>
     	<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
       		<!-- rollover daily -->
-      		<fileNamePattern>${LOGDIR}/cache/xdm-cache-server-node-${com.db.caching.coherence.node.instance}-%d{yyyy-MM-dd}.%i.gz</fileNamePattern>
+      		<fileNamePattern>${node.logdir}/cache/xdm-cache-server-node-${node.instance}-%d{yyyy-MM-dd}.%i.gz</fileNamePattern>
       		<maxHistory>4</maxHistory>
       		<timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
         		<!-- or whenever the file size reaches 20MB -->
@@ -30,22 +30,6 @@
     	</encoder>
     </appender>
 
-
-    <appender name="COHERENCE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-    	<file>${LOGDIR}/cache/xdm-coherence-server-node-${com.db.caching.coherence.node.instance}.log</file>
-    	<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-      		<!-- rollover daily -->
-      		<fileNamePattern>${LOGDIR}/cache/xdm-coherence-server-node-${com.db.caching.coherence.node.instance}-%d{yyyy-MM-dd}.%i.gz</fileNamePattern>
-      		<maxHistory>4</maxHistory>
-      		<timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-        		<!-- or whenever the file size reaches 20MB -->
-        		<maxFileSize>50MB</maxFileSize>
-      		</timeBasedFileNamingAndTriggeringPolicy>
-    	</rollingPolicy>
-    	<encoder>
-        	<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level - %msg%n</pattern>
-    	</encoder>
-    </appender>
 
     <logger name="com.bagri">
         <level value="trace"/>
@@ -59,16 +43,18 @@
         <level value="debug"/>
     </logger>
 
-    <logger name="com.bagri.xdm.cache.process.XDMDocumentProcessor">
+    <logger name="com.bagri.xdm.cache.hazelcast.security.BagriJAASInvocationHandler">
         <level value="debug"/>
     </logger>
 
-    <logger name="Coherence" additivity="false">
-        <level value="debug"/>
-        <appender-ref ref="COHERENCE"/>
+    <logger name="com.hazelcast">
+        <level value="info"/>
     </logger>
 
     <logger name="org.springframework.core.env">
+        <level value="info"/>
+    </logger>
+    <logger name="org.springframework.beans.factory.support.DefaultListableBeanFactory">
         <level value="info"/>
     </logger>
     <logger name="org.springframework.jms.core.JmsTemplate">

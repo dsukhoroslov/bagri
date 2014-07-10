@@ -17,6 +17,7 @@ import com.bagri.xdm.process.hazelcast.node.NodeCreator;
 import com.bagri.xdm.process.hazelcast.node.NodeRemover;
 import com.bagri.xdm.system.XDMNode;
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.MapEvent;
 
 @ManagedResource(objectName="com.bagri.xdm:type=Management,name=ClusterManagement", 
 	description="Cluster Management MBean")

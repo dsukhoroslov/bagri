@@ -49,7 +49,7 @@ public class XDMElement { //implements Serializable {
 	}
 
 	/**
-	 * @param id the id to set
+	 * @param long elementId the element Id to set
 	 */
 	public void setElementId(long elementId) {
 		this.elementId = elementId;

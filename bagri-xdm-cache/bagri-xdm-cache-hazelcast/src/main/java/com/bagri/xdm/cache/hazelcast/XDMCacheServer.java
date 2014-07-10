@@ -47,12 +47,11 @@ public class XDMCacheServer {
     	
         context = new ClassPathXmlApplicationContext(contextPath);
         HazelcastInstance hz = context.getBean("hzInstance", HazelcastInstance.class);
-        String name = hz.getConfig().getProperty(op_node_name);
-        hz.getCluster().getLocalMember().setStringAttribute(op_node_name, name);
+        String name = hz.getCluster().getLocalMember().getStringAttribute(op_node_name);
         //String schemas = hz.getConfig().getProperty(op_node_schemas);
         //hz.getCluster().getLocalMember().setStringAttribute(op_node_schemas, schemas);
         logger.debug("System Cache started with Config: {}; Instance: {}", hz.getConfig(), hz);
-        logger.debug("Cluster size: {}", hz.getCluster().getMembers().size());
+        logger.debug("Cluster size: {}; Node: {}", hz.getCluster().getMembers().size(), name);
         
         //String role = hz.getConfig().getProperty("xdm.cluster.node.role");
         if ("admin".equals(role)) {
@@ -112,7 +111,7 @@ public class XDMCacheServer {
     private static void initServerNode(HazelcastInstance hz) {
         int clusterSize = hz.getCluster().getMembers().size();
     	if (clusterSize == 1) {
-            String schemas = System.getProperty(op_node_schemas);
+            String schemas = hz.getCluster().getLocalMember().getStringAttribute(op_node_schemas);
             String[] aSchemas = schemas.split(" ");
             for (String name: aSchemas) {
             	String schema = name.trim();

@@ -15,10 +15,10 @@
     <!--property resource="xdm-cache.properties" /-->
 
     <appender name="ROLLING" class="ch.qos.logback.core.rolling.RollingFileAppender">
-    	<file>${LOGDIR}/cache/xdm-cache-server-node-${com.db.node.num}.log</file>
+    	<file>${node.logdir}/cache/xdm-cache-server-node-${node.instance}.log</file>
     	<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
       		<!-- rollover daily -->
-      		<fileNamePattern>${LOGDIR}/cache/xdm-cache-server-node-${com.db.node.num}-%d{yyyy-MM-dd}.%i.gz</fileNamePattern>
+      		<fileNamePattern>${node.logdir}/cache/xdm-cache-server-node-${node.instance}-%d{yyyy-MM-dd}.%i.gz</fileNamePattern>
       		<maxHistory>4</maxHistory>
       		<timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
         		<!-- or whenever the file size reaches 20MB -->

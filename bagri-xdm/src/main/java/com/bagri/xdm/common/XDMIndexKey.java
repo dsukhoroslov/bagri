@@ -1,6 +1,6 @@
 package com.bagri.xdm.common;
 
-import java.io.Serializable;
+//import java.io.Serializable;
 
 public class XDMIndexKey<T1, T2> {
 	
@@ -17,8 +17,9 @@ public class XDMIndexKey<T1, T2> {
 	    /**
 	     * Class constructor
 	     *
-	     * @param leftKey  Left key
-	     * @param rightKey Right key
+	     * @param T1 path
+	     * @param T2 index
+	     * @param long documentId
 	     */
 	    public XDMIndexKey(T1 path, T2 index, long documentId) {
 	        this.path = path;
@@ -27,7 +28,7 @@ public class XDMIndexKey<T1, T2> {
 	    }
 
 	    /**
-	     * @return Left key
+	     * @return T1 path
 	     */
 	    public T1 getPath() {
 	        return path;
@@ -38,7 +39,7 @@ public class XDMIndexKey<T1, T2> {
 	    }
 
 	    /**
-	     * @return Right key
+	     * @return T2 index
 	     */
 	    public T2 getIndex() {
 	        return index;

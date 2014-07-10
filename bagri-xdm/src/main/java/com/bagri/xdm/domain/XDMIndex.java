@@ -76,7 +76,7 @@ public class XDMIndex<V> { //implements Serializable {
 	}
 
 	/**
-	 * @return the docIds
+	 * @return the dataIds
 	 */
 	public Set<Long> getDataIds() {
 		Set<Long> dataIds = new HashSet<Long>();
@@ -87,7 +87,7 @@ public class XDMIndex<V> { //implements Serializable {
 	}
 
 	/**
-	 * @return the docIds
+	 * @return the documentIds
 	 */
 	public Set<Long> getDocumentIds() {
 		Set<Long> docIds = new HashSet<Long>();
@@ -98,14 +98,14 @@ public class XDMIndex<V> { //implements Serializable {
 	}
 
 	/**
-	 * @return the elementIds
+	 * @return the references
 	 */
 	public Set<? extends XDMDataKey> getReferences() {
 		return Collections.unmodifiableSet(references);
 	}
 
 	/**
-	 * @param elementIds the elementIds to set
+	 * @param references the references to set
 	 */
 	public void setReferences(Set<? extends XDMDataKey> references) {
 		this.references.clear();
