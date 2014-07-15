@@ -1,4 +1,4 @@
-package com.bagri.xdm.cache.hazelcast.store;
+package com.bagri.xdm.cache.hazelcast.store.system;
 
 import java.util.Collection;
 import java.util.HashSet;

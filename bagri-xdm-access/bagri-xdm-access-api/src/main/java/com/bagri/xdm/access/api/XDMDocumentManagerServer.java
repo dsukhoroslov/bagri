@@ -43,11 +43,7 @@ public abstract class XDMDocumentManagerServer extends XDMDocumentManagerBase /*
 		XDMStaxParser parser = new XDMStaxParser(mDictionary, id, idGen);
 		try {
 			elements = parser.parse(reader);
-		//} catch (IOException | XMLStreamException ex) {
-		} catch (IOException ex) {
-			logger.error("parseDocument; can't parse document", ex);
-			return null;
-		} catch (XMLStreamException ex) {
+		} catch (IOException | XMLStreamException ex) {
 			logger.error("parseDocument; can't parse document", ex);
 			return null;
 		} finally {

@@ -6,11 +6,19 @@ import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Properties;
 
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.env.PropertiesPropertySource;
 
+import com.bagri.xdm.access.api.XDMSchemaDictionary;
+import com.bagri.xdm.access.api.XDMSchemaDictionaryBase;
+import com.bagri.xdm.access.hazelcast.impl.HazelcastSchemaDictionary;
+import com.hazelcast.config.MapConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IMap;
+import com.hazelcast.core.MapLoader;
+import com.hazelcast.core.MapStoreFactory;
 import com.hazelcast.nio.serialization.PortableReader;
 import com.hazelcast.nio.serialization.PortableWriter;
 import com.hazelcast.spring.context.SpringAware;
@@ -45,18 +53,31 @@ public class SchemaInitiator extends SchemaDenitiator {
     	try {
     		ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext();
     		ctx.getEnvironment().getPropertySources().addFirst(pps);
-    		ctx.setConfigLocation("spring/schema-context.xml");
+    		ctx.setConfigLocation("spring/schema-server-context.xml");
     		ctx.refresh();
 
     		hz = ctx.getBean("hzInstance", HazelcastInstance.class);
     		hz.getUserContext().put("appContext", ctx);
     		//hz.getConfig().getSecurityConfig().setEnabled(true);
+    		//populateSchema(hz, ctx);
     		logger.debug("initSchema.exit; schema {} started on instance: {}", schemaName, hz);
     		return true;
     	} catch (Exception ex) {
     		logger.error("initSchema.error; " + ex.getMessage(), ex);
     		return false;
     	}
+	}
+	
+	private void populateSchema(HazelcastInstance hz, ApplicationContext ctx) {
+		//IMap dtCache = hz.getMap("dict-document-type");
+		//MapConfig dtConfig = hz.getConfig().getMapConfig("dict-document-type");
+		//MapStoreFactory msFactory = (MapStoreFactory) dtConfig.getMapStoreConfig().getFactoryImplementation();
+		//MapLoader populator = msFactory.newMapStore("dict-document-type", properties);
+
+		XDMSchemaDictionary schemaDict = ctx.getBean("xdmDictionary", HazelcastSchemaDictionary.class);
+		String schemaPath = properties.getProperty("xdm.schema.store.schema.path");
+		logger.debug("populateSchema; path: {}; properties: {}", schemaPath, properties);
+		((XDMSchemaDictionaryBase) schemaDict).registerSchemas(schemaPath);
 	}
 
 	@Override

@@ -9,7 +9,7 @@
 
 	<!-- Beans Declaration -->
     
-	<context:property-placeholder location="file:${xdm.config.path}/${xdm.server.properties.file}" />
+	<context:property-placeholder location="file:${xdm.config.path}/${xdm.config.properties.file}" />
 	<context:annotation-config />
 <!--     
 	<context:mbean-server id="localServer"/>

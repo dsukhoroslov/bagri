@@ -43,15 +43,30 @@
             <createdBy>SDV</createdBy>
             <description>TPoX: schema for TPoX-related tests</description>
             <properties>
-                <entry name="xdm.schema.store.type">HIVE</entry>
-                <entry name="xdm.schema.ports">10000-10100</entry>
-                <entry name="xdm.schema.store.host">localhost</entry>
-                <entry name="xdm.schema.password">TPoX</entry>
-                <entry name="xdm.schema.store.port">27017</entry>
-                <entry name="xdm.schema.ports.start">10000</entry>
-                <entry name="xdm.schema.members">192.168.1.87:10000, 192.168.1.229:10000</entry>
                 <entry name="xdm.schema.thread.pool">10</entry>
-                <entry name="xdm.schema.store.dbname">test</entry>
+                <entry name="xdm.schema.store.data.path">../../etc/samples/data</entry>
+                <entry name="xdm.schema.ports">10000-10100</entry>
+                <entry name="xdm.schema.ports.start">10000</entry>
+                <entry name="xdm.schema.store.type">XML</entry>
+                <entry name="xdm.schema.store.schema.path">C:\Work\Bagri\git\bagri\etc\samples\schema</entry>
+                <entry name="xdm.schema.members">localhost:10000</entry>
+                <entry name="xdm.schema.password">TPoX</entry>
+            </properties>
+        </schema>
+        <schema name="XMark" active="true">
+            <version>2</version>
+            <createdAt>2014-07-15T01:13:04.416+04:00</createdAt>
+            <createdBy>Denis</createdBy>
+            <description>XMark benchmark schema</description>
+            <properties>
+                <entry name="xdm.schema.thread.pool">10</entry>
+                <entry name="xdm.schema.store.data.path">../../etc/samples/xmark</entry>
+                <entry name="xdm.schema.ports">20000-20010</entry>
+                <entry name="xdm.schema.name">XMark</entry>
+                <entry name="xdm.schema.ports.start">20000</entry>
+                <entry name="xdm.schema.store.type">XML</entry>
+                <entry name="xdm.schema.members">localhost:20000</entry>
+                <entry name="xdm.schema.password">XMark</entry>
             </properties>
         </schema>
     </schemas>

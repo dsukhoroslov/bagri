@@ -1,4 +1,4 @@
-package com.bagri.xdm.cache.hazelcast.store;
+package com.bagri.xdm.cache.hazelcast.store.system;
 
 import java.io.File;
 import java.util.Collection;
@@ -26,7 +26,7 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.MapLoaderLifecycleSupport;
 import com.hazelcast.core.MapStore;
 
-public class XDMSchemaCacheStore extends ConfigCacheStore<String, XDMSchema> implements MapStore<String, XDMSchema> { 
+public class SchemaCacheStore extends ConfigCacheStore<String, XDMSchema> implements MapStore<String, XDMSchema> { 
 
 	@SuppressWarnings("unchecked")
 	@Override

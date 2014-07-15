@@ -9,7 +9,7 @@
 
 	<!-- Beans Declaration -->
     
-	<context:property-placeholder location="file:${xdm.config.path}/${xdm.server.properties.file}" />
+	<context:property-placeholder location="file:${xdm.config.path}/${xdm.config.properties.file}" />
 	<context:annotation-config />
 <!--     
 	<context:mbean-server id="localServer"/>
@@ -91,59 +91,5 @@
 	<hz:map id="users" name="users" instance-ref="hzInstance"/-->
 
 	<hz:executorService id="sys-exec-pool" name="sys-exec-pool" instance-ref="hzInstance"/>
-
-	<!--bean id="schemaCacheStore" class="com.bagri.xdm.cache.hazelcast.store.XDMSchemaCacheStore">
-		<property name="entityManagement" ref="configService"/>
-	</bean>
-
-	<bean id="nodeCacheStore" class="com.bagri.xdm.cache.hazelcast.store.XDMNodeCacheStore">
-		<property name="entityManagement" ref="configService"/>
-	</bean>
-
-	<bean id="roleCacheStore" class="com.bagri.xdm.cache.hazelcast.store.XDMRoleCacheStore">
-		<property name="entityManagement" ref="accessService"/>
-	</bean>
-
-	<bean id="userCacheStore" class="com.bagri.xdm.cache.hazelcast.store.XDMUserCacheStore">
-		<property name="entityManagement" ref="accessService"/>
-	</bean>
-
-	<bean id="configService" class="com.bagri.xdm.cache.hazelcast.management.ConfigManagement">
-		<constructor-arg value="${xdm.config.filename}" />
-	</bean>
-
-	<bean id="accessService" class="com.bagri.xdm.cache.hazelcast.management.AccessManagement">
-		<constructor-arg value="${xdm.access.filename}" />
-	</bean>
-
-	<bean id="clusterService" class="com.bagri.xdm.cache.hazelcast.management.ClusterManagement">
-		<constructor-arg ref="hzInstance" />
-		<property name="entityCache" ref="nodes"/>
-	</bean>
-
-	<bean id="schemaService" class="com.bagri.xdm.cache.hazelcast.management.SchemaManagement">
-		<constructor-arg ref="hzInstance" />
-		<property name="entityCache" ref="schemas"/>
-		<property name="defaultProperties">
-			<props>
-				<prop key="xdm.schema.password"></prop>
-				<prop key="xdm.schema.ports">${xdm.schema.default.ports}</prop>
-				<prop key="xdm.schema.ports.start">${xdm.schema.default.ports.start}</prop>
-				<prop key="xdm.schema.members">${xdm.schema.default.members}</prop>
-				<prop key="xdm.schema.thread.pool">${xdm.schema.default.thread.pool}</prop>
-				<prop key="xdm.schema.store.type">${xdm.schema.default.store.type}</prop>
-			</props>
-		</property>
-	</bean>
-
-	<bean id="userService" class="com.bagri.xdm.cache.hazelcast.management.UserManagement">
-		<constructor-arg ref="hzInstance" />
-		<property name="entityCache" ref="users"/>
-	</bean>
-
-	<bean id="roleService" class="com.bagri.xdm.cache.hazelcast.management.RoleManagement">
-		<constructor-arg ref="hzInstance" />
-		<property name="entityCache" ref="roles"/>
-	</bean-->
 
 </beans>

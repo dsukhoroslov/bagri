@@ -46,8 +46,13 @@ public class XDMStaxParser {
 	private XDMSchemaDictionary dict;
 
 	public static List<XDMElement> parseDocument(XDMSchemaDictionary dictionary, long documentId, 
-			String xml) throws IOException, XMLStreamException {
-		XDMStaxParser parser = new XDMStaxParser(dictionary, documentId);
+			IdGenerator generator, String xml) throws IOException, XMLStreamException {
+		XDMStaxParser parser;
+		if (generator == null) {
+			parser = new XDMStaxParser(dictionary, documentId);
+		} else {
+			parser = new XDMStaxParser(dictionary, documentId, generator);
+		}
 		return parser.parse(xml);
 	}
 	

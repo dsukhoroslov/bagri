@@ -1,4 +1,4 @@
-package com.bagri.xdm.cache.hazelcast.store;
+package com.bagri.xdm.cache.hazelcast.store.mongo;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -19,9 +19,9 @@ import com.hazelcast.core.MapStore;
 import com.hazelcast.spring.mongodb.MongoMapStore;
 import com.mongodb.DBObject;
 
-public class XDMElementCacheStore implements MapStore<DataDocumentKey, XDMElement> {
+public class ElementCacheStore implements MapStore<DataDocumentKey, XDMElement> {
 
-    private static final Logger logger = LoggerFactory.getLogger(XDMElementCacheStore.class);
+    private static final Logger logger = LoggerFactory.getLogger(ElementCacheStore.class);
     
     //@Autowired
     private MongoMapStore mongoCacheStore;

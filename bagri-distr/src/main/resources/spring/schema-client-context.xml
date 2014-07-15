@@ -7,7 +7,7 @@
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd
 		http://www.hazelcast.com/schema/spring http://www.hazelcast.com/schema/spring/hazelcast-spring-3.2.xsd">
 
-	<context:property-placeholder ignore-unresolvable="true" location="classpath:/xdm-admin-server.properties" />
+	<context:property-placeholder ignore-unresolvable="true" location="classpath:/xdm-admin.properties" />
 	<context:annotation-config />
  
 	<!--bean id="mbeanServer" class="java.lang.management.ManagementFactory" factory-method="getPlatformMBeanServer"/>

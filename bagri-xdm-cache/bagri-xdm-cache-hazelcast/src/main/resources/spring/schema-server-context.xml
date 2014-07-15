@@ -10,7 +10,7 @@
 	<!--import resource="classpath:spring/mongo-context.xml" /-->
  
 	<!-- Beans Declaration -->
-	<context:property-placeholder ignore-unresolvable="true" location="classpath:/${xdm.server.properties.file}" />
+	<context:property-placeholder ignore-unresolvable="true" location="classpath:/${xdm.config.properties.file}" />
 	<context:annotation-config />
 	<context:mbean-export default-domain="com.bagri.xdm"/>
  
@@ -49,6 +49,11 @@
 				</hz:indexes>
 			</hz:map>
 			<hz:map name="dict-document-type">
+				<hz:map-store enabled="true" write-delay-seconds="10" initial-mode="EAGER" factory-implementation="xdmStoreFactory">
+					<hz:properties>
+						<hz:property name="xdm.schema.store.type">${xdm.schema.store.type}</hz:property>
+					</hz:properties>
+				</hz:map-store>
 				<hz:near-cache time-to-live-seconds="0" max-idle-seconds="60" eviction-policy="LRU" 
 					max-size="0" invalidate-on-change="true"/>
 			</hz:map>
@@ -57,7 +62,6 @@
 				<!-- can't persist it in MongoDB right away; got an exception: 
 					java.lang.IllegalArgumentException: can't serialize class com.bagri.xdm.access.hazelcast.data.DataDocumentKey -->
 				<hz:map-store enabled="true" write-delay-seconds="10" initial-mode="LAZY" factory-implementation="xdmStoreFactory">
-						<!-- factory-class-name="com.bagri.xdm.cache.hazelcast.store.XDMMapStoreFactory" -->
 					<hz:properties>
 						<hz:property name="xdm.schema.store.type">${xdm.schema.store.type}</hz:property>
 					</hz:properties>
@@ -141,24 +145,5 @@
 		<property name="xdmCache" ref="xdm-element"/>
 		<property name="schemaDictionary" ref="xdmDictionary"/>
 	</bean>
-
-	<!--bean id="schemaManager" class="com.bagri.xdm.cache.hazelcast.management.SchemaManager">
-		<constructor-arg ref="hzInstance" />
-		<property name="documentManager" ref="xdmManager"/>
-		<property name="schemaDictionary" ref="xdmDictionary"/>
-		<property name="schemaName" value="${xdm.schema.name}"/>
-	</bean-->
-
-	<!--bean id="queryManager" class="com.bagri.xdm.cache.hazelcast.management.QueryManagement">
-		<constructor-arg value="${xdm.schema.name}" />
-		<property name="documentManager" ref="xdmManager"/>
-		<property name="schemaDictionary" ref="xdmDictionary"/>
-	</bean>
-
-	<bean id="docManager" class="com.bagri.xdm.cache.hazelcast.management.DocumentManagement">
-		<constructor-arg value="${xdm.schema.name}" />
-		<property name="documentManager" ref="xdmManager"/>
-		<property name="schemaDictionary" ref="xdmDictionary"/>
-	</bean-->
 
 </beans>

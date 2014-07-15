@@ -227,7 +227,7 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
     	try {
     		ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext();
     		ctx.getEnvironment().getPropertySources().addFirst(pps);
-    		ctx.setConfigLocation("spring/schema-client-context.xml");
+    		ctx.setConfigLocation("spring/schema-admin-context.xml");
     		ctx.refresh();
     		
     		ctxCache.put(schemaName, ctx);

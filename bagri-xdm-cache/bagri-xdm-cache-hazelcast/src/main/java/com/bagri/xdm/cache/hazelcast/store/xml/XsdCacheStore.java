@@ -1,4 +1,4 @@
-package com.bagri.xdm.cache.hazelcast.store;
+package com.bagri.xdm.cache.hazelcast.store.xml;
 
 import java.util.Collection;
 import java.util.Map;
@@ -6,21 +6,21 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.hadoop.hive.HiveTemplate;
 
+import com.bagri.xdm.access.api.XDMSchemaDictionary;
+import com.bagri.xdm.access.api.XDMSchemaDictionaryBase;
 import com.hazelcast.core.MapStore;
 
-public class HiveCacheStore implements MapStore {
+public class XsdCacheStore extends XmlCacheStore implements MapStore {
 
-    private static final Logger logger = LoggerFactory.getLogger(HiveCacheStore.class);
+    private static final Logger logger = LoggerFactory.getLogger(XsdCacheStore.class);
     
-    private HiveTemplate hiveTemplate;
+	protected XDMSchemaDictionary schemaDictionary;
     
-    public void setHiveTemplate(HiveTemplate hiveTemplate) {
-    	this.hiveTemplate =  hiveTemplate;
-		logger.trace("setHiveTemplate; template: {}", hiveTemplate);
-    }
-
+	public void setSchemaDictionary(XDMSchemaDictionary dictionary) {
+		this.schemaDictionary = dictionary;
+	}
+    
 	@Override
 	public Object load(Object key) {
 		logger.trace("load.enter; key: {}", key);
@@ -35,7 +35,12 @@ public class HiveCacheStore implements MapStore {
 
 	@Override
 	public Set loadAllKeys() {
-		logger.trace("loadAllKeys.enter;");
+		logger.trace("loadAllKeys.enter; path: {}", getDataPath());
+		if (schemaDictionary == null) {
+			logger.debug("loadAllKeys; dictionary is not set yet.");
+		} else {
+			((XDMSchemaDictionaryBase) schemaDictionary).registerSchemas(getDataPath());
+		}
 		return null;
 	}
 

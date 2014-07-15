@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema targetNamespace="http://tpox-benchmark.com/security" xmlns:security="http://tpox-benchmark.com/security" xmlns:xsd="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xsd:simpleType name="SecurityDecimalType">
+		<xsd:restriction base="xsd:decimal">
+			<xsd:minInclusive value="0"/>
+			<xsd:totalDigits value="13"/>
+			<xsd:fractionDigits value="4"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="Price52weekType">
+		<xsd:sequence>
+			<xsd:element name="Price52week-low" type="security:SecurityDecimalType"/>
+			<xsd:element name="Price52week-low-date" type="xsd:date"/>
+			<xsd:element name="Price52week-high" type="security:SecurityDecimalType"/>
+			<xsd:element name="Price52week-high-date" type="xsd:date"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="PriceTodayType">
+		<xsd:all>
+			<xsd:element name="PreviousClose" type="security:SecurityDecimalType"/>
+			<xsd:element name="Open" type="security:SecurityDecimalType"/>
+			<xsd:element name="High" type="security:SecurityDecimalType"/>
+			<xsd:element name="Low" type="security:SecurityDecimalType"/>
+		</xsd:all>
+	</xsd:complexType>
+	<xsd:complexType name="PriceType">
+		<xsd:sequence>
+			<xsd:element name="LastTrade" type="security:SecurityDecimalType"/>
+			<xsd:element name="Ask" type="security:SecurityDecimalType"/>
+			<xsd:element name="Bid" type="security:SecurityDecimalType"/>
+			<xsd:element name="Price50DayAvg" type="security:SecurityDecimalType"/>
+			<xsd:element name="Price200DayAvg" type="security:SecurityDecimalType"/>
+			<xsd:element name="PriceToday" type="security:PriceTodayType"/>
+			<xsd:element name="Price52week" type="security:Price52weekType"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="SecurityInfoType">
+		<xsd:sequence>
+			<xsd:choice>
+				<xsd:element name="StockInformation">
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:element name="Sector" type="security:SectorType"/>
+							<xsd:element name="Industry" type="security:IndustryType" minOccurs="0" maxOccurs="unbounded"/>
+							<xsd:element name="Category" type="security:CategoryType"/>
+							<xsd:element name="OutstShares" type="security:SecurityDecimalType"/>
+						</xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
+				<xsd:element name="FundInformation">
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:element name="FundFamily" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+							<xsd:element name="Sector" type="security:SectorType" minOccurs="0"/>
+							<xsd:element name="Industry" type="security:IndustryType" minOccurs="0" maxOccurs="unbounded"/>
+							<xsd:element name="AssetGroup" type="xsd:string"/>
+							<!--xsd:choice-->
+							<xsd:element name="Category" type="security:CategoryType" minOccurs="0"/>
+							<xsd:element name="FixedIncome" type="security:FixedIncomeType" minOccurs="0"/>
+							<!--/xsd:choice-->
+							<xsd:element name="ExpenseRatio" type="security:SecurityDecimalType"/>
+							<xsd:element name="TotalAssets" type="security:SecurityDecimalType"/>
+							<xsd:element name="MinInitialInvestment" type="xsd:integer" minOccurs="0"/>
+							<xsd:element name="MinSubsequentInvestment" type="xsd:integer" minOccurs="0"/>
+						</xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
+			</xsd:choice>
+			<xsd:element name="Description" type="security:DescriptionType"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:element name="Security">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="Symbol">
+					<xsd:simpleType>
+						<xsd:restriction base="xsd:string">
+							<xsd:maxLength value="7"/>
+							<xsd:minLength value="1"/>
+						</xsd:restriction>
+					</xsd:simpleType>
+				</xsd:element>
+				<xsd:element name="Name" type="xsd:string"/>
+				<xsd:element name="ShortName" type="xsd:string"/>
+				<xsd:element name="SecurityType">
+					<xsd:simpleType>
+						<xsd:restriction base="xsd:string">
+							<xsd:enumeration value="Stock"/>
+							<xsd:enumeration value="Bond"/>
+							<xsd:enumeration value="Stock Fund"/>
+							<xsd:enumeration value="Bond Fund"/>
+							<xsd:enumeration value="Mixed Fund"/>
+						</xsd:restriction>
+					</xsd:simpleType>
+				</xsd:element>
+				<xsd:element name="SecurityInformation" type="security:SecurityInfoType"/>
+				<xsd:element name="Price" type="security:PriceType"/>
+				<xsd:element name="PE" type="security:SecurityDecimalType"/>
+				<xsd:element name="Yield" type="security:SecurityDecimalType"/>
+				<xsd:element name="DivPerShare" type="security:SecurityDecimalType"/>
+			</xsd:sequence>
+			<xsd:attribute name="id" type="xsd:integer" use="required"/>
+		</xsd:complexType>
+	</xsd:element>
+	<!-- #############  Security Information ######################### -->
+	<xsd:complexType name="CategoryType">
+		<xsd:attribute name="Capitalization" use="required">
+			<xsd:simpleType>
+				<xsd:restriction base="xsd:string">
+					<xsd:enumeration value="Large"/>
+					<xsd:enumeration value="Medium"/>
+					<xsd:enumeration value="Small"/>
+				</xsd:restriction>
+			</xsd:simpleType>
+		</xsd:attribute>
+		<xsd:attribute name="Class" use="required">
+			<xsd:simpleType>
+				<xsd:restriction base="xsd:string">
+					<xsd:enumeration value="Value"/>
+					<xsd:enumeration value="Growth"/>
+					<xsd:enumeration value="Blend"/>
+				</xsd:restriction>
+			</xsd:simpleType>
+		</xsd:attribute>
+	</xsd:complexType>
+	<xsd:complexType name="FixedIncomeType">
+		<xsd:attribute name="Duration" use="required">
+			<xsd:simpleType>
+				<xsd:restriction base="xsd:string">
+					<xsd:enumeration value="Short Term"/>
+					<xsd:enumeration value="Medium Term"/>
+					<xsd:enumeration value="Long Term"/>
+				</xsd:restriction>
+			</xsd:simpleType>
+		</xsd:attribute>
+		<xsd:attribute name="Quality" use="required">
+			<xsd:simpleType>
+				<xsd:restriction base="xsd:string">
+					<xsd:enumeration value="High"/>
+					<xsd:enumeration value="Medium"/>
+					<xsd:enumeration value="Low"/>
+				</xsd:restriction>
+			</xsd:simpleType>
+		</xsd:attribute>
+	</xsd:complexType>
+	<xsd:element name="AnyKeyword" type="xsd:string" abstract="true"/>
+	<xsd:element name="CEO" type="xsd:string" substitutionGroup="security:AnyKeyword"/>
+	<xsd:element name="Product" type="xsd:string" substitutionGroup="security:AnyKeyword"/>
+	<xsd:element name="Competitor" type="xsd:string" substitutionGroup="security:AnyKeyword"/>
+	<xsd:element name="Assets" type="xsd:string" substitutionGroup="security:AnyKeyword"/>
+	<xsd:element name="Rating" type="xsd:string" substitutionGroup="security:AnyKeyword"/>
+	<xsd:element name="Manager" type="xsd:string" substitutionGroup="security:AnyKeyword"/>
+	<xsd:element name="Risk" type="xsd:string" substitutionGroup="security:AnyKeyword"/>
+	<xsd:element name="Cost" type="xsd:string" substitutionGroup="security:AnyKeyword"/>
+	<xsd:element name="Dividend" type="xsd:string" substitutionGroup="security:AnyKeyword"/>
+	<xsd:element name="Strategy" type="xsd:string" substitutionGroup="security:AnyKeyword"/>
+	<xsd:element name="Holdings" type="xsd:string" substitutionGroup="security:AnyKeyword"/>
+	<xsd:element name="Index" type="xsd:string" substitutionGroup="security:AnyKeyword"/>
+	<xsd:element name="Keyword" type="xsd:string" substitutionGroup="security:AnyKeyword"/>
+	<xsd:complexType name="TextWithKeywordsType" mixed="true">
+		<xsd:sequence>
+			<xsd:element ref="security:AnyKeyword" minOccurs="0" maxOccurs="unbounded"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="DescriptionType">
+		<xsd:choice>
+			<xsd:element name="BusinessSummary" type="security:TextWithKeywordsType" minOccurs="0"/>
+			<xsd:sequence>
+				<xsd:element name="FundDescription" type="security:TextWithKeywordsType"/>
+				<xsd:element name="Management" type="security:TextWithKeywordsType" minOccurs="0"/>
+			</xsd:sequence>
+		</xsd:choice>
+	</xsd:complexType>
+	<xsd:simpleType name="SectorType">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="Basic Materials"/>
+			<xsd:enumeration value="Capital Goods"/>
+			<xsd:enumeration value="Conglomerates"/>
+			<xsd:enumeration value="Consumer Cyclical"/>
+			<xsd:enumeration value="Consumer Non-Cyclical"/>
+			<xsd:enumeration value="Energy"/>
+			<xsd:enumeration value="Financial"/>
+			<xsd:enumeration value="Healthcare"/>
+			<xsd:enumeration value="Services"/>
+			<xsd:enumeration value="Technology"/>
+			<xsd:enumeration value="Transportation"/>
+			<xsd:enumeration value="Utilities"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="IndustryType">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="Apparel/Accessories"/>
+			<xsd:enumeration value="AirCourier"/>
+			<xsd:enumeration value="Aerospace&amp;Defense"/>
+			<xsd:enumeration value="Advertising"/>
+			<xsd:enumeration value="Auto&amp;TruckManufacturers"/>
+			<xsd:enumeration value="Auto&amp;TruckParts"/>
+			<xsd:enumeration value="Airline"/>
+			<xsd:enumeration value="Appliance&amp;Tool"/>
+			<xsd:enumeration value="Audio&amp;VideoEquipment"/>
+			<xsd:enumeration value="Beverages(Alcoholic)"/>
+			<xsd:enumeration value="Broadcasting&amp;CableTV"/>
+			<xsd:enumeration value="Biotechnology&amp;Drugs"/>
+			<xsd:enumeration value="Beverages(Non-Alcoholic)"/>
+			<xsd:enumeration value="BusinessServices"/>
+			<xsd:enumeration value="Constr.&amp;Agric.Machinery"/>
+			<xsd:enumeration value="Chemicals-Plastics&amp;Rubber"/>
+			<xsd:enumeration value="ComputerStorageDevices"/>
+			<xsd:enumeration value="CommunicationsEquipment"/>
+			<xsd:enumeration value="ConsumerFinancialServices"/>
+			<xsd:enumeration value="Casinos&amp;Gaming"/>
+			<xsd:enumeration value="ComputerHardware"/>
+			<xsd:enumeration value="Containers&amp;Packaging"/>
+			<xsd:enumeration value="Coal"/>
+			<xsd:enumeration value="ChemicalManufacturing"/>
+			<xsd:enumeration value="ComputerNetworks"/>
+			<xsd:enumeration value="Conglomerates"/>
+			<xsd:enumeration value="ComputerPeripherals"/>
+			<xsd:enumeration value="Crops"/>
+			<xsd:enumeration value="ComputerServices"/>
+			<xsd:enumeration value="Retail(Catalog&amp;MailOrder)"/>
+			<xsd:enumeration value="CommunicationsServices"/>
+			<xsd:enumeration value="ConstructionServices"/>
+			<xsd:enumeration value="Constr.-Supplies&amp;Fixtures"/>
+			<xsd:enumeration value="Retail(Department&amp;Discount)"/>
+			<xsd:enumeration value="Retail(Drugs)"/>
+			<xsd:enumeration value="ElectronicInstruments&amp;Controls"/>
+			<xsd:enumeration value="ElectricUtilities"/>
+			<xsd:enumeration value="Furniture&amp;Fixtures"/>
+			<xsd:enumeration value="Fish/Livestock"/>
+			<xsd:enumeration value="Footwear"/>
+			<xsd:enumeration value="FoodProcessing"/>
+			<xsd:enumeration value="FabricatedPlastic&amp;Rubber"/>
+			<xsd:enumeration value="Forestry&amp;WoodProducts"/>
+			<xsd:enumeration value="Retail(Grocery)"/>
+			<xsd:enumeration value="Gold&amp;Silver"/>
+			<xsd:enumeration value="HealthcareFacilities"/>
+			<xsd:enumeration value="Retail(HomeImprovement)"/>
+			<xsd:enumeration value="Hotels&amp;Motels"/>
+			<xsd:enumeration value="Insurance(Accident&amp;Health)"/>
+			<xsd:enumeration value="Insurance(Life)"/>
+			<xsd:enumeration value="Insurance(Miscellaneous)"/>
+			<xsd:enumeration value="Insurance(Prop&amp;Casualty)"/>
+			<xsd:enumeration value="Iron&amp;Steel"/>
+			<xsd:enumeration value="InvestmentServices"/>
+			<xsd:enumeration value="Jewelry&amp;Silverware"/>
+			<xsd:enumeration value="MoneyCenterBanks"/>
+			<xsd:enumeration value="MajorDrugs"/>
+			<xsd:enumeration value="MedicalEquipment&amp;Supplies"/>
+			<xsd:enumeration value="Misc.FabricatedProducts"/>
+			<xsd:enumeration value="Misc.CapitalGoods"/>
+			<xsd:enumeration value="MobileHomes&amp;RVs"/>
+			<xsd:enumeration value="MetalMining"/>
+			<xsd:enumeration value="MotionPictures"/>
+			<xsd:enumeration value="Misc.FinancialServices"/>
+			<xsd:enumeration value="Misc.Transportation"/>
+			<xsd:enumeration value="NaturalGasUtilities"/>
+			<xsd:enumeration value="Non-MetallicMining"/>
+			<xsd:enumeration value="OfficeEquipment"/>
+			<xsd:enumeration value="Oil&amp;Gas-Integrated"/>
+			<xsd:enumeration value="Oil&amp;GasOperations"/>
+			<xsd:enumeration value="OfficeSupplies"/>
+			<xsd:enumeration value="OilWellServices&amp;Equipment"/>
+			<xsd:enumeration value="Paper&amp;PaperProducts"/>
+			<xsd:enumeration value="Photography"/>
+			<xsd:enumeration value="Personal&amp;HouseholdProducts"/>
+			<xsd:enumeration value="Printing&amp;Publishing"/>
+			<xsd:enumeration value="PrintingServices"/>
+			<xsd:enumeration value="PersonalServices"/>
+			<xsd:enumeration value="RecreationalActivities"/>
+			<xsd:enumeration value="RegionalBanks"/>
+			<xsd:enumeration value="RealEstateOperations"/>
+			<xsd:enumeration value="Retail(Speciality)"/>
+			<xsd:enumeration value="Construction-RawMaterials"/>
+			<xsd:enumeration value="Rental&amp;Leasing"/>
+			<xsd:enumeration value="RecreationalProducts"/>
+			<xsd:enumeration value="Railroads"/>
+			<xsd:enumeration value="Restaurants"/>
+			<xsd:enumeration value="Retail(Apparel)"/>
+			<xsd:enumeration value="S&amp;Ls/SavingsBanks"/>
+			<xsd:enumeration value="Schools"/>
+			<xsd:enumeration value="Semiconductors"/>
+			<xsd:enumeration value="Software&amp;Programming"/>
+			<xsd:enumeration value="SecuritySystems&amp;Services"/>
+			<xsd:enumeration value="Scientific&amp;TechnicalInstr."/>
+			<xsd:enumeration value="Retail(Technology)"/>
+			<xsd:enumeration value="Tires"/>
+			<xsd:enumeration value="Textiles-NonApparel"/>
+			<xsd:enumeration value="Tobacco"/>
+			<xsd:enumeration value="Trucking"/>
+			<xsd:enumeration value="WasteManagementServices"/>
+			<xsd:enumeration value="WaterTransportation"/>
+			<xsd:enumeration value="WaterUtilities"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+</xsd:schema>

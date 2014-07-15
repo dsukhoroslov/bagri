@@ -30,12 +30,12 @@ public class DateUtils {
             }
             long mins = duration / MILLIS_PER_MINUTE;
             if (mins > 0) {
-                result.append(mins).append(" mins ");
+                result.append(mins).append(" min ");
                 duration = duration - mins * MILLIS_PER_MINUTE;
             }
             long secs = duration / MILLIS_PER_SECOND;
             if (secs > 0) {
-                result.append(secs).append(" secs ");
+                result.append(secs).append(" sec ");
                 duration = duration - secs * MILLIS_PER_SECOND;
             }
             if (duration > 0) {

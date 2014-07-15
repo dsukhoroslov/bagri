@@ -1,4 +1,4 @@
-package com.bagri.xdm.cache.hazelcast.store;
+package com.bagri.xdm.cache.hazelcast.store.mongo;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

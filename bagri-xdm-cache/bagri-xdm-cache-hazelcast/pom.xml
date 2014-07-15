@@ -20,7 +20,7 @@
         <!--switch the args0 code for debug-->
         <run.jvm.args0></run.jvm.args0>
         <!--<run.jvm.args0>-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005</run.jvm.args0>-->
-        <run.jvm.args1>-server -Xms1024m -Xmx1024m -XX:NewSize=256m -XX:MaxNewSize=256m -XX:PermSize=256m -XX:MaxPermSize=256m -XX:+ExplicitGCInvokesConcurrent -XX:+UnlockDiagnosticVMOptions -XX:ParGCCardsPerStrideChunk=2048</run.jvm.args1>
+        <run.jvm.args1>-server -Xms1g -Xmx4g -XX:NewSize=256m -XX:MaxNewSize=256m -XX:PermSize=256m -XX:MaxPermSize=256m -XX:+ExplicitGCInvokesConcurrent -XX:+UnlockDiagnosticVMOptions -XX:ParGCCardsPerStrideChunk=2048</run.jvm.args1>
         <run.jvm.args2>-XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:+CMSScavengeBeforeRemark -XX:+UseCMSInitiatingOccupancyOnly -XX:CMSInitiatingOccupancyFraction=70 -XX:+CMSConcurrentMTEnabled</run.jvm.args2>
         <run.jvm.args3>-XX:+PrintGC -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+HeapDumpOnOutOfMemoryError -Xloggc:./logs/gc/gc.log -XX:GCLogFileSize=50M -XX:NumberOfGCLogFiles=10 -XX:+UseGCLogFileRotation</run.jvm.args3>
     </properties>
@@ -187,8 +187,8 @@
                                 <configuration>
                                     <tasks if="run-admin">
                                         <java fork="true" classname="com.bagri.xdm.cache.hazelcast.XDMCacheServer">
-                                            <jvmarg line="${run.jvm.args0} ${run.jvm.args1} ${run.jvm.args2} ${run.jvm.args3}"/>
-                                            <sysproperty key="node.logdir" value="./logs/"/>
+                                            <jvmarg line="-server -Xms512m -Xmx512m"/>
+                                            <sysproperty key="node.logdir" value="./logs"/>
                                             <sysproperty key="com.sun.management.jmxremote" value="true"/>
                                             <!--sysproperty key="com.sun.management.jmxremote.port" value="3333"/>
                                             <sysproperty key="com.sun.management.jmxremote.authenticate" value="true"/-->
@@ -200,6 +200,8 @@
                                                          value="${project.basedir}/src/main/resources/jaas.config"/-->
                                             <sysproperty key="logback.configurationFile" value="xdm-cache-logging.xml"/>
                                             <sysproperty key="xdm.config.path" value="src/main/resources"/>
+                                            <sysproperty key="xdm.config.context.file" value="spring/bagri-admin-context.xml"/>
+					    <sysproperty key="xdm.config.properties.file" value="xdm-admin.properties"/>
                                             <sysproperty key="xdm.cluster.node.name" value="admin"/>
                                             <sysproperty key="xdm.cluster.node.role" value="admin"/>
                                             <sysproperty key="xdm.cluster.node.schemas" value=""/>
@@ -224,13 +226,14 @@
                                     <tasks if="run-first">
                                         <java fork="true" classname="com.bagri.xdm.cache.hazelcast.XDMCacheServer">
                                             <jvmarg line="${run.jvm.args0} ${run.jvm.args1} ${run.jvm.args2} ${run.jvm.args3}"/>
-                                            <sysproperty key="node.logdir" value="./logs/"/>
+                                            <sysproperty key="node.logdir" value="./logs"/>
                                             <!--sysproperty key="com.sun.management.jmxremote" value="true"/>
                                             <sysproperty key="com.sun.management.jmxremote.authenticate" value="false"/>
                                             <sysproperty key="com.sun.management.jmxremote.ssl" value="false"/-->
                                             <sysproperty key="logback.configurationFile" value="xdm-cache-logging.xml"/>
                                             <sysproperty key="xdm.config.path" value="src/main/resources"/>
-					    <sysproperty key="xdm.server.properties.file" value="xdm-server-first.properties"/>
+                                            <sysproperty key="xdm.config.context.file" value="spring/bagri-server-context.xml"/>
+					    <sysproperty key="xdm.config.properties.file" value="xdm-server.properties"/>
                                             <classpath>
                                                 <path refid="maven.compile.classpath"/>
                                                 <path refid="maven.runtime.classpath"/>
@@ -252,16 +255,14 @@
                                     <tasks if="run-second">
                                         <java fork="true" classname="com.bagri.xdm.cache.hazelcast.XDMCacheServer">
                                             <jvmarg line="${run.jvm.args0} ${run.jvm.args1} ${run.jvm.args2} ${run.jvm.args3}"/>
-                                            <sysproperty key="node.logdir" value="./logs/"/>
+                                            <sysproperty key="node.logdir" value="./logs"/>
                                             <!--sysproperty key="com.sun.management.jmxremote" value="true"/>
                                             <sysproperty key="com.sun.management.jmxremote.authenticate" value="false"/>
                                             <sysproperty key="com.sun.management.jmxremote.ssl" value="false"/-->
                                             <sysproperty key="logback.configurationFile" value="xdm-cache-logging.xml"/>
                                             <sysproperty key="xdm.config.path" value="src/main/resources"/>
-					    <sysproperty key="xdm.server.properties.file" value="xdm-server-second.properties"/>
-                                            <sysproperty key="xdm.cluster.node.name" value="second"/>
-                                            <sysproperty key="xdm.cluster.node.role" value="server"/>
-                                            <sysproperty key="xdm.cluster.node.schemas" value="TPoX Test"/>
+                                            <sysproperty key="xdm.config.context.file" value="spring/bagri-server-context.xml"/>
+					    <sysproperty key="xdm.config.properties.file" value="xdm-second.properties"/>
                                             <classpath>
                                                 <path refid="maven.compile.classpath"/>
                                                 <path refid="maven.runtime.classpath"/>

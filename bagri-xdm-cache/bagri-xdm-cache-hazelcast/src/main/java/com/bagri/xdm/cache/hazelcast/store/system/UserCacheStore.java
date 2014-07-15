@@ -1,4 +1,4 @@
-package com.bagri.xdm.cache.hazelcast.store;
+package com.bagri.xdm.cache.hazelcast.store.system;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -7,7 +7,7 @@ import java.util.Map;
 import com.bagri.xdm.system.XDMUser;
 import com.hazelcast.core.MapStore;
 
-public class XDMUserCacheStore extends ConfigCacheStore<String, XDMUser> implements MapStore<String, XDMUser> { 
+public class UserCacheStore extends ConfigCacheStore<String, XDMUser> implements MapStore<String, XDMUser> { 
 
 	@SuppressWarnings("unchecked")
 	@Override

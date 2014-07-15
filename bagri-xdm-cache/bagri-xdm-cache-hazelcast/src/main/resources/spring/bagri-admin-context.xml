@@ -11,7 +11,7 @@
 
     <!-- Beans Declarations -->
     
-    <context:property-placeholder location="file:${xdm.config.path}/xdm-admin-server.properties" />
+    <context:property-placeholder location="file:${xdm.config.path}/xdm-admin.properties" />
     <context:annotation-config />
 
     <!--bean id="jmx.server" class="org.springframework.jmx.support.MBeanServerFactoryBean"
@@ -103,19 +103,19 @@
 
 	<hz:executorService id="sys-exec-pool" name="sys-exec-pool" instance-ref="hzInstance"/>
 
-	<bean id="schemaCacheStore" class="com.bagri.xdm.cache.hazelcast.store.XDMSchemaCacheStore">
+	<bean id="schemaCacheStore" class="com.bagri.xdm.cache.hazelcast.store.system.SchemaCacheStore">
 		<property name="entityManagement" ref="configService"/>
 	</bean>
 
-	<bean id="nodeCacheStore" class="com.bagri.xdm.cache.hazelcast.store.XDMNodeCacheStore">
+	<bean id="nodeCacheStore" class="com.bagri.xdm.cache.hazelcast.store.system.NodeCacheStore">
 		<property name="entityManagement" ref="configService"/>
 	</bean>
 
-	<bean id="roleCacheStore" class="com.bagri.xdm.cache.hazelcast.store.XDMRoleCacheStore">
+	<bean id="roleCacheStore" class="com.bagri.xdm.cache.hazelcast.store.system.RoleCacheStore">
 		<property name="entityManagement" ref="accessService"/>
 	</bean>
 
-	<bean id="userCacheStore" class="com.bagri.xdm.cache.hazelcast.store.XDMUserCacheStore">
+	<bean id="userCacheStore" class="com.bagri.xdm.cache.hazelcast.store.system.UserCacheStore">
 		<property name="entityManagement" ref="accessService"/>
 	</bean>
 

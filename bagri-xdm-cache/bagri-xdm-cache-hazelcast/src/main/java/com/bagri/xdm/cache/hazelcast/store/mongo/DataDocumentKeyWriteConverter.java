@@ -1,4 +1,4 @@
-package com.bagri.xdm.cache.hazelcast.store;
+package com.bagri.xdm.cache.hazelcast.store.mongo;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;

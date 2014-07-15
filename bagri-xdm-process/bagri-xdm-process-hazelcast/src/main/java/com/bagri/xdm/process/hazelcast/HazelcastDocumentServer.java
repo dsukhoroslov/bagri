@@ -1,17 +1,16 @@
 package com.bagri.xdm.process.hazelcast;
 
-import java.io.IOException;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import com.bagri.common.query.ExpressionBuilder;
 import com.bagri.xdm.access.api.XDMDocumentManagerServer;
 import com.bagri.xdm.access.hazelcast.data.DataDocumentKey;
 import com.bagri.xdm.common.XDMDataKey;
@@ -145,10 +144,11 @@ public class HazelcastDocumentServer extends XDMDocumentManagerServer {
 		
 		if (root != null) {
 			int docType = mDictionary.translateDocumentType(root.getPath());
-			
+			Map<XDMDataKey, XDMElement> elements = new HashMap<XDMDataKey, XDMElement>(data.size());
 			for (Iterator<XDMElement> itr = data.iterator(); itr.hasNext();) {
-				createElement(itr.next(), docType);
+				addElement(elements, itr.next(), docType);
 			}
+			xdmCache.putAll(elements);
 
 			//XDMDocument doc = new XDMDocumentPortable(docId, uri, docType); // + version, createdAt, createdBy, encoding
 			String user = "system"; // get current user from context somehow..
@@ -164,21 +164,18 @@ public class HazelcastDocumentServer extends XDMDocumentManagerServer {
 		}
 	}
 
-	private Object createElement(XDMElement xdm, int docType) {
+	private void addElement(Map<XDMDataKey, XDMElement> elements, XDMElement xdm, int docType) {
 		
 		XDMDataKey xdk = mFactory.newXDMDataKey(xdm.getElementId(), xdm.getDocumentId());
-		//Object xdk1 = ctx.getKeyToInternalConverter().convert(xdk);
-
-		//if (xdmEntry.isPresent()) {
 		if (xdmCache.containsKey(xdk)) {
 			throw new IllegalStateException("XDM Entry with id " + xdk + " already exists");
 		}
 		xdm.setPathId(mDictionary.translatePath(docType, xdm.getPath(), XDMNodeKind.fromPath(xdm.getPath())));
 		//xdmCache.put(xdk, new XDMDataPortable(xdm));
-		xdmCache.put(xdk, xdm);
+		//xdmCache.put(xdk, xdm);
 		//xdmEntry.setValue(xdm, false);
 		//logger.trace("create.exit; stored key: {}", xdk);
-		return xdm.getElementId();
+		elements.put(xdk, xdm);
 	}
 
 	

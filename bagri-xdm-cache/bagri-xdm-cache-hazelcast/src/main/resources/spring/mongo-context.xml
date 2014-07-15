@@ -8,7 +8,7 @@
 		http://www.springframework.org/schema/data/mongo http://www.springframework.org/schema/data/mongo/spring-mongo-1.0.xsd">
 
     <!-- set some common mongo props in extra properties file -->
-	<context:property-placeholder ignore-unresolvable="true" location="classpath:/${xdm.server.properties.file}"/>
+	<context:property-placeholder ignore-unresolvable="true" location="classpath:/${xdm.config.properties.file}"/>
     <context:mbean-export/>
     
 	<mongo:mongo id="mongo" host="${xdm.schema.store.host}" port="${xdm.schema.store.port}">
@@ -31,10 +31,10 @@
 	<mongo:mapping-converter>
 		<mongo:custom-converters>
 			<mongo:converter>
-				<bean class="com.bagri.xdm.cache.hazelcast.store.DataDocumentKeyReadConverter"/>
+				<bean class="com.bagri.xdm.cache.hazelcast.store.mongo.DataDocumentKeyReadConverter"/>
 			</mongo:converter>
 			<mongo:converter>
-				<bean class="com.bagri.xdm.cache.hazelcast.store.DataDocumentKeyWriteConverter"/>
+				<bean class="com.bagri.xdm.cache.hazelcast.store.mongo.DataDocumentKeyWriteConverter"/>
 			</mongo:converter>
 		</mongo:custom-converters>
 	</mongo:mapping-converter>
@@ -51,7 +51,8 @@
 	    <property name="mongoTemplate" ref="mongoTemplate" />
 	</bean>
 
-	<bean id="elementCacheStore" class="com.bagri.xdm.cache.hazelcast.store.XDMElementCacheStore">
+	<bean id="elementCacheStore" class="com.bagri.xdm.cache.hazelcast.store.mongo.ElementCacheStore">
 	    <property name="mongoCacheStore" ref="mongoCacheStore" />
 	</bean>
+
 </beans>

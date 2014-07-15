@@ -36,13 +36,8 @@ public class XDMCacheServer {
     @SuppressWarnings("unchecked")
 	public static void main(String[] args) {
     	
+        String contextPath = System.getProperty("xdm.config.context.file");
         String role = System.getProperty(op_node_role);
-        String contextPath;
-        if ("admin".equals(role)) {
-        	contextPath = "spring/bagri-admin-context.xml";
-        } else {
-        	contextPath = "spring/bagri-server-context.xml";
-        }
         logger.info("Starting \"{}\" node with Context [{}]", role, contextPath);
     	
         context = new ClassPathXmlApplicationContext(contextPath);
@@ -79,8 +74,6 @@ public class XDMCacheServer {
         //BagriJMXAuthenticator auth = new BagriJMXAuthenticator();
         BagriJMXAuthenticator auth = context.getBean("authManager", BagriJMXAuthenticator.class);
         env.put(JMXConnectorServer.AUTHENTICATOR, auth);
-        //env.put("jmx.remote.x.password.file", "");
-        //env.put("jmx.remote.x.access.file", "");
 		logger.debug("going to start JMX connector server at: {}, with attributes: {}", url, env);
 
 		try {

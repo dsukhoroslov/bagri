@@ -1,4 +1,4 @@
-package com.bagri.xdm.cache.hazelcast.store;
+package com.bagri.xdm.cache.hazelcast.store.system;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -7,7 +7,7 @@ import java.util.Map;
 import com.bagri.xdm.system.XDMRole;
 import com.hazelcast.core.MapStore;
 
-public class XDMRoleCacheStore extends ConfigCacheStore<String, XDMRole> implements MapStore<String, XDMRole> { 
+public class RoleCacheStore extends ConfigCacheStore<String, XDMRole> implements MapStore<String, XDMRole> { 
 
 	@SuppressWarnings("unchecked")
 	@Override
