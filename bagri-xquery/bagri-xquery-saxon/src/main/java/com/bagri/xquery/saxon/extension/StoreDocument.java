@@ -11,6 +11,7 @@ import net.sf.saxon.om.StructuredQName;
 import net.sf.saxon.trans.XPathException;
 import net.sf.saxon.value.Int64Value;
 import net.sf.saxon.value.SequenceType;
+import net.sf.saxon.value.StringValue;
 
 public class StoreDocument extends ExtensionFunctionDefinition {
 	
@@ -32,7 +33,7 @@ public class StoreDocument extends ExtensionFunctionDefinition {
 
 	@Override
 	public SequenceType getResultType(SequenceType[] suppliedArgumentTypes) {
-		return SequenceType.SINGLE_NUMERIC;
+		return SequenceType.SINGLE_STRING;
 	}
 
 	@Override
@@ -46,7 +47,7 @@ public class StoreDocument extends ExtensionFunctionDefinition {
 				String xml = arguments[0].head().getStringValue();
 				// validate document ?
 				XDMDocument doc = xdm.storeDocument(xml);
-				return new Int64Value(doc.getDocumentId());
+				return new StringValue(doc.getUri());
 			}
         };
 	} 

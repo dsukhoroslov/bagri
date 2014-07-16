@@ -29,7 +29,7 @@ public class HazelcastDocumentServer extends XDMDocumentManagerServer {
 	
     private HazelcastInstance hzInstance;
     private IdGenerator docGen;
-    private IMap<Long, XDMDocument> xddCache;
+    private IMap<String, XDMDocument> xddCache;
     private IMap<XDMDataKey, XDMElement> xdmCache;
     
     public void setDocumentIdGenerator(IdGenerator docGen) {
@@ -65,7 +65,7 @@ public class HazelcastDocumentServer extends XDMDocumentManagerServer {
     	return Collections.EMPTY_MAP;
     }
 
-    public void setXddCache(IMap<Long, XDMDocument> cache) {
+    public void setXddCache(IMap<String, XDMDocument> cache) {
     	this.xddCache = cache;
     }
 
@@ -128,18 +128,18 @@ public class HazelcastDocumentServer extends XDMDocumentManagerServer {
     public XDMDocument createDocument(String uri, String xml) {
     	
 		long docId = docGen.newId(); 
-		return createDocument(new AbstractMap.SimpleEntry(docId, null), uri, xml);
+		return createDocument(new AbstractMap.SimpleEntry(uri, null), docId, xml);
     }
     
 	@Override
-	public XDMDocument createDocument(Entry<Long, XDMDocument> entry, String uri, String xml) {
+	public XDMDocument createDocument(Entry<String, XDMDocument> entry, long docId, String xml) {
 		logger.trace("createDocument.enter; entry: {}", entry);
 		//if (docEntry.isPresent()) {
 		//	throw new IllegalStateException("Document Entry with id " + entry.getKey() + " already exists");
 		//}
 
-		Long id = entry.getKey();
-		List<XDMElement> data = parseDocument(xml, id);
+		String uri = entry.getKey();
+		List<XDMElement> data = parseDocument(xml, docId);
 		XDMElement root = getDocumentRoot(data);
 		
 		if (root != null) {
@@ -152,8 +152,8 @@ public class HazelcastDocumentServer extends XDMDocumentManagerServer {
 
 			//XDMDocument doc = new XDMDocumentPortable(docId, uri, docType); // + version, createdAt, createdBy, encoding
 			String user = "system"; // get current user from context somehow..
-			XDMDocument doc = new XDMDocument(id, uri, docType, user); // + version, createdAt, encoding
-			xddCache.put(id, doc);
+			XDMDocument doc = new XDMDocument(docId, uri, docType, user); // + version, createdAt, encoding
+			xddCache.put(uri, doc);
 		
 			mDictionary.normalizeDocumentType(docType);
 			logger.trace("createDocument.exit; returning: {}", doc);
@@ -180,18 +180,19 @@ public class HazelcastDocumentServer extends XDMDocumentManagerServer {
 
 	
 	@Override
-	public void deleteDocument(Entry<Long, XDMDocument> entry) {
+	public void deleteDocument(Entry<String, XDMDocument> entry) {
 
-		long docId = entry.getKey();
-		logger.trace("process.enter; entry: {}", docId);
+		String uri = entry.getKey();
+		logger.trace("process.enter; entry: {}", uri);
 		//if (!entry.isPresent()) {
 		//	throw new IllegalStateException("Document Entry with id " + entry.getKey() + " not found");
 		//}
 
 	    boolean removed = false;
-	    if (xddCache.remove(docId) != null) {
+	    XDMDocument doc = xddCache.remove(uri);
+	    if (doc != null) {
 	    
-	   		Predicate f = Predicates.equal("documentId", docId);
+	   		Predicate f = Predicates.equal("documentId", doc.getDocumentId());
 			Set<XDMDataKey> xdmKeys = xdmCache.keySet(f);
 			logger.trace("process; got {} document elements to remove", xdmKeys.size());
 			int cnt = 0;
@@ -213,8 +214,8 @@ public class HazelcastDocumentServer extends XDMDocumentManagerServer {
 	}
 
 	@Override
-	public XDMDocument updateDocument(Entry<Long, XDMDocument> entry, boolean newVersion, String xml) {
-		// TODO Auto-generated method stub
+	public XDMDocument updateDocument(Entry<String, XDMDocument> entry, boolean newVersion, String xml) {
+		// TODO: not implemented yet
 		return null;
 	}
 

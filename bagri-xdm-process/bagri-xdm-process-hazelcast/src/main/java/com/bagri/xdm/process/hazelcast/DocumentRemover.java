@@ -27,14 +27,14 @@ public class DocumentRemover extends com.bagri.xdm.access.hazelcast.process.Docu
     
     @Override
 	public XDMDocument call() throws Exception {
-		logger.trace("process.enter; entry: {}", docId);
+		logger.trace("process.enter; entry: {}", uri);
 
 		if (xdmManager == null) {
 			ApplicationContext ctx = HazelcastUtils.findContext();
 			xdmManager = ctx.getBean(HazelcastDocumentServer.class); 
 		}
 		
-		xdmManager.deleteDocument(new AbstractMap.SimpleEntry(docId, null));
+		xdmManager.deleteDocument(new AbstractMap.SimpleEntry(uri, null));
 		return null;
 	}
 

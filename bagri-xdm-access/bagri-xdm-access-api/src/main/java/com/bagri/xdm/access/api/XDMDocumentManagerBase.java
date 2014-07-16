@@ -39,7 +39,7 @@ public abstract class XDMDocumentManagerBase {
 	}
 
 	protected abstract Set<Long> queryPathKeys(Set<Long> found, PathExpression pex);
-	public abstract Collection<Long> getDocumentIDs(ExpressionBuilder query);
+	//public abstract Collection<Long> getDocumentIDs(ExpressionBuilder query);
 	
 	public Set<Long> queryKeys(Set<Long> found, Expression ex) {
 		if (ex instanceof BinaryExpression) {
@@ -61,16 +61,6 @@ public abstract class XDMDocumentManagerBase {
 		}
 		
 		return queryPathKeys(found, (PathExpression) ex);
-	}
-	
-	//@Override
-	public Collection<String> getDocumentURIs(ExpressionBuilder query) {
-		Collection<Long> keys = getDocumentIDs(query);
-		Collection<String> result = new ArrayList<String>();
-		for (Long key: keys) {
-			result.add(String.valueOf(key));
-		}
-		return result;
 	}
 	
 }

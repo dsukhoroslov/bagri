@@ -3,8 +3,6 @@
  */
 package com.bagri.xquery.saxon;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.StringReader;
 
 import javax.xml.transform.Result;
@@ -34,7 +32,12 @@ import net.sf.saxon.trans.XPathException;
  */
 public class BagriSourceResolver implements SourceResolver, ExternalObjectModel {
 	
-    private static final Logger logger = LoggerFactory.getLogger(BagriSourceResolver.class);
+    /**
+	 * need it because ExternalObjectModel extends Serializable
+	 */
+	private static final long serialVersionUID = 766503700601897539L;
+
+	private static final Logger logger = LoggerFactory.getLogger(BagriSourceResolver.class);
 	
     private XDMDocumentManagement mgr;
 
@@ -48,9 +51,10 @@ public class BagriSourceResolver implements SourceResolver, ExternalObjectModel 
 	@Override
 	public Source resolveSource(Source source, Configuration config) throws XPathException {
 		logger.trace("resolveSource. source: {}; config: {}", source, config);
-		String[] path = source.getSystemId().split("/");
-		int docId = Integer.parseInt(path[path.length - 1]);
-		String content = mgr.getDocumentAsString(docId);
+		//String[] path = source.getSystemId().split("/");
+		//int docId = Integer.parseInt(path[path.length - 1]);
+		//String content = mgr.getDocumentAsString(docId);
+		String content = mgr.getDocumentAsString(source.getSystemId());
 		
 		//content = content.replaceAll("&", "&amp;");
 		

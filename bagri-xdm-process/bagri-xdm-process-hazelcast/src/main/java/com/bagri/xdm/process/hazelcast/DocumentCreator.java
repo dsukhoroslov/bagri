@@ -41,7 +41,7 @@ public class DocumentCreator extends com.bagri.xdm.access.hazelcast.process.Docu
 			xdmManager = ctx.getBean(HazelcastDocumentServer.class); 
 		}
 		
-		XDMDocument doc = xdmManager.createDocument(new AbstractMap.SimpleEntry(docId, null), uri, xml);
+		XDMDocument doc = xdmManager.createDocument(new AbstractMap.SimpleEntry(uri, null), docId, xml);
 		
 		logger.trace("process.exit; returning: {}", doc);
 		return doc;

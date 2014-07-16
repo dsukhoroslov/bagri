@@ -32,9 +32,9 @@ public abstract class XDMDocumentManagerServer extends XDMDocumentManagerBase /*
     }
 	
     public abstract Collection<String> buildDocument(int docType, String template, Map<String, String> params, Set entries);
-	public abstract XDMDocument createDocument(Entry<Long, XDMDocument> entry, String uri, String xml);
-	public abstract void deleteDocument(Entry<Long, XDMDocument> entry);
-	public abstract XDMDocument updateDocument(Entry<Long, XDMDocument> entry, boolean newVersion, String xml); // + audit info?
+	public abstract XDMDocument createDocument(Entry<String, XDMDocument> entry, long docId, String xml);
+	public abstract void deleteDocument(Entry<String, XDMDocument> entry);
+	public abstract XDMDocument updateDocument(Entry<String, XDMDocument> entry, boolean newVersion, String xml); // + audit info?
 	
 	protected List<XDMElement> parseDocument(String xml, long id) {
 
@@ -87,10 +87,10 @@ public abstract class XDMDocumentManagerServer extends XDMDocumentManagerBase /*
 		return null;
 	}	
 	
-	@Override
-	public Collection<Long> getDocumentIDs(ExpressionBuilder query) {
-		return null;
-	}
+	//@Override
+	//public Collection<Long> getDocumentIDs(ExpressionBuilder query) {
+	//	return null;
+	//}
 	
 	//protected abstract Long getDocumentId(String uri);
 	

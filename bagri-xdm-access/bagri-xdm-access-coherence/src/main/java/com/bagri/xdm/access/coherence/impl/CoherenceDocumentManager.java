@@ -76,7 +76,7 @@ public class CoherenceDocumentManager extends XDMDocumentManagerClient {
 		return xddCache;
 	}
 
-	@Override
+	//@Override
 	protected Long getDocumentId(String uri) {
 		Filter f = new EqualsFilter(new PofExtractor(String.class, 1), uri);
 		Set<Long> docKeys = new HashSet<Long>(xddCache.keySet(f));
@@ -87,7 +87,7 @@ public class CoherenceDocumentManager extends XDMDocumentManagerClient {
 		return docKeys.iterator().next();
 	}
 	
-	@Override
+	//@Override
 	public XDMDocument getDocument(long docId) {
 		return (XDMDocument) xddCache.get(docId);
 	}
@@ -110,7 +110,7 @@ public class CoherenceDocumentManager extends XDMDocumentManagerClient {
 		return null;
 	}
 
-	@Override
+	//@Override
 	public void removeDocument(long docId) {
 		
 		logger.trace("removeDocument.enter; docId: {}", docId);
@@ -123,17 +123,17 @@ public class CoherenceDocumentManager extends XDMDocumentManagerClient {
 	public Collection<String> getXML(ExpressionBuilder query, String template, Map params) {
 		long stamp = System.currentTimeMillis();
 		
-		Collection<Long> docIds = getDocumentIDs(query);
-		if (docIds.size() > 0) {
+		Collection<String> uris = getDocumentURIs(query);
+		if (uris.size() > 0) {
 			DocumentBuilder ta = new DocumentBuilder(query.getRoot().getDocType(), template, params);
-			Object result = xddCache.aggregate(docIds, ta);
+			Object result = xddCache.aggregate(uris, ta);
 			logger.trace("getXml.exit; got aggregation results: {}; time taken {}", result, System.currentTimeMillis() - stamp);
 			return (Collection<String>) result;
 		}
-		return Collections.EMPTY_LIST;
+		return Collections.emptyList();
 	}
 	
-	@Override
+	//@Override
 	public String getDocumentAsString(long docId) {
 		
 		long stamp = System.currentTimeMillis();
@@ -226,11 +226,35 @@ public class CoherenceDocumentManager extends XDMDocumentManagerClient {
 		return found;
 	}
 	
-	@Override
+	//@Override
 	public Collection<Long> getDocumentIDs(ExpressionBuilder query) {
 		Filter f = new EqualsFilter(new PofExtractor(Integer.class, 2), query.getRoot().getDocType());
 		Set<Long> keys = new HashSet<Long>(xddCache.keySet(f));
 		return queryKeys(keys, query.getRoot());
+	}
+
+	@Override
+	public XDMDocument getDocument(String uri) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getDocumentAsString(String uri) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void removeDocument(String uri) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public Collection<String> getDocumentURIs(ExpressionBuilder query) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 }

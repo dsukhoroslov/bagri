@@ -19,6 +19,7 @@ import com.bagri.xdm.cache.hazelcast.store.hive.HiveCacheStore;
 import com.bagri.xdm.cache.hazelcast.store.xml.ElementCacheStore;
 import com.bagri.xdm.cache.hazelcast.store.xml.DocumentCacheStore;
 import com.bagri.xdm.cache.hazelcast.store.xml.XsdCacheStore;
+import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.MapLoader;
 import com.hazelcast.core.MapStore;
 import com.hazelcast.core.MapStoreFactory;
@@ -77,7 +78,10 @@ public class XDMMapStoreFactory implements ApplicationContextAware, MapStoreFact
 					}
 				}
 				
-				if (ctx != null) { 
+				if (ctx != null) {
+					
+					HazelcastInstance hz = parentCtx.getBean("hzInstance", HazelcastInstance.class);
+		    		hz.getUserContext().put("storeContext", ctx);
 					if (st_mongo.equals(type)) {
 						if ("xdm-element".equals(mapName)) {
 							mStore = ctx.getBean("elementCacheStore", 

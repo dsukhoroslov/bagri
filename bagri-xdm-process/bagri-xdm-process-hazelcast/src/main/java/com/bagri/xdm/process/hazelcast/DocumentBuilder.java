@@ -32,7 +32,7 @@ public class DocumentBuilder extends com.bagri.xdm.access.hazelcast.process.Docu
 			xdmManager = ctx.getBean(HazelcastDocumentServer.class); 
 		}
 		
-        return xdmManager.buildDocument(docType, template, params, docIds);
+        return xdmManager.buildDocument(docType, template, params, uris);
     }
     
 	

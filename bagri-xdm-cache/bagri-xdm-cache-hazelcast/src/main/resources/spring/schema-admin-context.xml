@@ -25,8 +25,11 @@
 		</hz:security-->
 	
 		<hz:serialization>
+			<hz:data-serializable-factories>
+				<hz:data-serializable-factory factory-id="2" class-name="com.bagri.xdm.process.hazelcast.pof.XDMDataSerializationFactory"/>
+			</hz:data-serializable-factories>
 			<hz:portable-factories>
-				<hz:portable-factory factory-id="1" class-name="com.bagri.xdm.access.hazelcast.pof.XDMPortableFactory"/>
+				<hz:portable-factory factory-id="1" class-name="com.bagri.xdm.process.hazelcast.pof.XDMPortableFactory"/>
 			</hz:portable-factories>
 			<hz:serializers>
 				<!--hz:global-serializer class-name="com.hazelcast.nio.serialization.PortableSerializer"/-->

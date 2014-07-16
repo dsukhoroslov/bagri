@@ -54,7 +54,7 @@ import com.hazelcast.security.UsernamePasswordCredentials;
 
 public class HazelcastDocumentManager extends XDMDocumentManagerClient {
 
-	private IMap<Long, XDMDocument> xddCache;
+	private IMap<String, XDMDocument> xddCache;
 	private IMap<XDMDataKey, XDMElement> xdmCache;
 	private IdGenerator<Long> docGen;
 	protected IExecutorService execService;
@@ -208,26 +208,31 @@ public class HazelcastDocumentManager extends XDMDocumentManagerClient {
 		return xdmCache;
 	}
 	
-	IMap<Long, XDMDocument> getDocumentCache() {
+	IMap<String, XDMDocument> getDocumentCache() {
 		return xddCache;
 	}
 
-	@Override
-	public Long getDocumentId(String uri) {
-   		Predicate f = Predicates.equal("uri", uri);
-		Set<Long> docKeys = xddCache.keySet(f);
-		if (docKeys.size() == 0) {
-			return null;
-		}
+	//@Override
+	//public Long getDocumentId(String uri) {
+   	//	Predicate f = Predicates.equal("uri", uri);
+	//	Set<Long> docKeys = xddCache.keySet(f);
+	//	if (docKeys.size() == 0) {
+	//		return null;
+	//	}
 		// todo: check if too many docs ??
-		return docKeys.iterator().next();
-	}
+	//	return docKeys.iterator().next();
+	//}
+	
+	//@Override
+	//public XDMDocument getDocument(long docId) {
+	//	return xddCache.get(docId);
+	//}
 	
 	@Override
-	public XDMDocument getDocument(long docId) {
-		return xddCache.get(docId);
+	public XDMDocument getDocument(String uri) {
+		return xddCache.get(uri);
 	}
-	
+
 	@Override
 	public XDMDocument storeDocument(String xml) {
 
@@ -237,7 +242,7 @@ public class HazelcastDocumentManager extends XDMDocumentManagerClient {
 		String uri = "/library/" + docId;
 		//xddCache.put(docId, null);
 		// @TODO: get current user from somewhere
-		xddCache.put(docId, new XDMDocument(docId, uri, 0, "system"));
+		xddCache.put(uri, new XDMDocument(docId, uri, 0, "system"));
 		logger.trace("storeDocument; document initialized: {}", docId);
 		
 		DocumentCreator task = new DocumentCreator(docId, uri, xml);
@@ -248,9 +253,9 @@ public class HazelcastDocumentManager extends XDMDocumentManagerClient {
 			result = future.get();
 			logger.trace("storeDocument.exit; time taken: {}; returning: {}", System.currentTimeMillis() - stamp, result);
 			return (XDMDocument) result;
-		//} catch (InterruptedException | ExecutionException ex) {
+		} catch (InterruptedException | ExecutionException ex) {
 			// the document could be stored anyway..
-		//	logger.error("storeDocument: exception", ex);
+			logger.error("storeDocument: exception", ex);
 		} catch (Throwable ex) {
 			// the document was not stored..
 			xddCache.remove(docId);
@@ -267,15 +272,15 @@ public class HazelcastDocumentManager extends XDMDocumentManagerClient {
 	}
 	
 	@Override
-	public void removeDocument(long docId) {
+	public void removeDocument(String uri) {
 		
 		long stamp = System.currentTimeMillis();
-		logger.trace("removeDocument.enter; docId: {}", docId);
+		logger.trace("removeDocument.enter; uri: {}", uri);
 		//XDMDocumentRemover proc = new XDMDocumentRemover();
 		//Object result = xddCache.executeOnKey(docId, proc);
 		
-		DocumentRemover task = new DocumentRemover(docId);
-		Future<XDMDocument> future = execService.submitToKeyOwner(task, docId);
+		DocumentRemover task = new DocumentRemover(uri);
+		Future<XDMDocument> future = execService.submitToKeyOwner(task, uri);
 		logger.trace("removeDocument; the task submit; feature: {}", future);
 		XDMDocument result;
 		try {
@@ -315,9 +320,9 @@ public class HazelcastDocumentManager extends XDMDocumentManagerClient {
 	public Collection<String> getXML(ExpressionBuilder query, String template, Map params) {
 		long stamp = System.currentTimeMillis();
 		
-		Collection<Long> docIds = getDocumentIDs(query);
-		if (docIds.size() > 0) {
-			DocumentBuilder tt = new DocumentBuilder(query.getRoot().getDocType(), template, docIds, params);
+		Collection<String> uris = getDocumentURIs(query);
+		if (uris.size() > 0) {
+			DocumentBuilder tt = new DocumentBuilder(query.getRoot().getDocType(), template, uris, params);
 			Map<Member, Future<Collection<String>>> result = execService.submitToAllMembers(tt);
 
 			Collection<String> xmls = new ArrayList<String>();
@@ -329,27 +334,27 @@ public class HazelcastDocumentManager extends XDMDocumentManagerClient {
 					}
 					logger.trace("getXml.exit; got template results: {}; time taken {}", c, System.currentTimeMillis() - stamp);
 					xmls.addAll(c);
-				} catch (Exception ex) { //InterruptedException | ExecutionException ex) {
+				} catch (InterruptedException | ExecutionException ex) {
 					logger.error("getXml; error getting result", ex);
 				}
 			}
 			return xmls;
 		}
-		return Collections.EMPTY_LIST;
+		return Collections.emptyList();
 	}
 	
 	@Override
-	public String getDocumentAsString(long docId) {
+	public String getDocumentAsString(String uri) {
 		
 		long stamp = System.currentTimeMillis();
-		XDMDocument xdoc = (XDMDocument) xddCache.get(docId);
+		XDMDocument xdoc = (XDMDocument) xddCache.get(uri);
 		int docType = xdoc.getTypeId();
 		String path = mDictionary.getDocumentRoot(docType);
 
 		Map<String, String> params = new HashMap<String, String>();
 		params.put(":doc", path);
 
-		DocumentBuilder tt = new DocumentBuilder(docType, ":doc", Collections.singleton(docId), params);
+		DocumentBuilder tt = new DocumentBuilder(docType, ":doc", Collections.singleton(uri), params);
 		Map<Member, Future<Collection<String>>> result = execService.submitToAllMembers(tt);
 
 		for (Future<Collection<String>> future: result.values()) {
@@ -437,18 +442,26 @@ public class HazelcastDocumentManager extends XDMDocumentManagerClient {
 		}
 		return found;
 	}
-	
+
+	// TODO: move all this processing to the server side!!
 	@Override
-	public Collection<Long> getDocumentIDs(ExpressionBuilder query) {
+	public Collection<String> getDocumentURIs(ExpressionBuilder query) {
 		if (query.getRoot() != null) {
 			Predicate f = Predicates.equal("typeId", query.getRoot().getDocType());
 			//Set<Long> keys = new HashSet<Long>(xddCache.keySet(f));
-			Set<Long> keys = xddCache.keySet(f);
-			return queryKeys(keys, query.getRoot());
+			Collection<XDMDocument> docs = xddCache.values(f);
+			Set<Long> docIds = new HashSet<Long>(docs.size());
+			for (XDMDocument doc: docs) {
+				docIds.add(doc.getDocumentId());
+			}
+			docIds = queryKeys(docIds, query.getRoot());
+			f = Predicates.in("documentId", docIds.toArray(new Long[docIds.size()]));
+			return xddCache.keySet(f);
 		} else {
+			// ?!?
 			return xddCache.keySet();
 		}
 	}
-	
+
 	
 }

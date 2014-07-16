@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import javax.xml.stream.XMLStreamException;
@@ -19,10 +20,12 @@ import com.bagri.xdm.common.XDMDataKey;
 import com.bagri.xdm.common.XDMFactory;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMElement;
+import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IdGenerator;
+import com.hazelcast.core.MapLoaderLifecycleSupport;
 import com.hazelcast.core.MapStore;
 
-public class ElementCacheStore extends XmlCacheStore implements MapStore<XDMDataKey, XDMElement> {
+public class ElementCacheStore extends XmlCacheStore implements MapStore<XDMDataKey, XDMElement>, MapLoaderLifecycleSupport {
 
 	private static final Logger logger = LoggerFactory.getLogger(ElementCacheStore.class);
 	    
@@ -31,6 +34,19 @@ public class ElementCacheStore extends XmlCacheStore implements MapStore<XDMData
     private com.bagri.common.idgen.IdGenerator<Long> idGen;
     private DocumentCacheStore docStore;
     private Map<XDMDataKey, XDMElement> elements;
+    private XDMSchemaDictionary schemaDict;
+
+	@Override
+	public void init(HazelcastInstance hazelcastInstance, Properties properties, String mapName) {
+		logger.trace("init.enter; properties: {}", properties);
+		schemaDict = (XDMSchemaDictionary) properties.get("xdmDictionary");
+		logger.trace("init.exit; dictionary: {}", schemaDict);
+	}
+
+	@Override
+	public void destroy() {
+		// do nothing
+	}
     
     public void setDocumentIdGenerator(IdGenerator docGen) {
     	this.docGen = docGen;
@@ -88,6 +104,10 @@ public class ElementCacheStore extends XmlCacheStore implements MapStore<XDMData
 				for (XDMElement elt: elts) {
 					XDMDataKey xKey = keyFactory.newXDMDataKey(elt.getElementId(), docId);
 					elements.put(xKey, elt);
+					
+					if (schemaDict != null) {
+						logger.debug("loadAllKeys; registering element...");
+					}
 				}
 			} catch (IOException | XMLStreamException ex) {
 				logger.error("loadAllKeys.error; key: " + key, ex);
@@ -117,5 +137,6 @@ public class ElementCacheStore extends XmlCacheStore implements MapStore<XDMData
 	public void deleteAll(Collection<XDMDataKey> keys) {
 		logger.trace("deleteAll.enter; keys: {}", keys.size());
 	}
+
     
 }

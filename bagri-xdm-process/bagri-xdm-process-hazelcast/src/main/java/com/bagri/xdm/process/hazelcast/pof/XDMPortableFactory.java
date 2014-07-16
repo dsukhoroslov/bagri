@@ -23,8 +23,8 @@ public class XDMPortableFactory extends com.bagri.xdm.access.hazelcast.pof.XDMPo
 			case cli_TemplateResultTask: return new DocumentBuilder();
 			case cli_XDMDocumentRemover: return new DocumentRemover();
 			case cli_XDMSchemaTask: return new SchemaRegistrator();
-			case cli_XDMInitSchemaTask: return new SchemaInitiator();
-			case cli_XDMDenitSchemaTask: return new SchemaDenitiator();
+			//case cli_XDMInitSchemaTask: return new SchemaInitiator();
+			//case cli_XDMDenitSchemaTask: return new SchemaDenitiator();
 			case cli_XDMSetNodeOptionTask: return new NodeOptionSetter();
 			case cli_XDMSchemaAggregationTask: return new SchemaStatsAggregator();
 			case cli_XDMGetNodeInfoTask: return new NodeInfoProvider();
