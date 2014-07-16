@@ -53,10 +53,10 @@ public class TopologyManager implements SelfNaming {
 	@ManagedAttribute(description="Returns schemas deployed on the Node")
 	public String[] getDeployedSchemas() {
 		String schemas = member.getStringAttribute(XDMNode.op_node_schemas);
-		//if (schemas == null) {
-		//	schemas = "TPoX";
-		//}
-		return schemas.split(" ");
+		if (schemas != null) {
+			return schemas.split(" ");
+		}
+		return new String[0];
 	}
 	
 	@ManagedAttribute(description="Returns active Node options")

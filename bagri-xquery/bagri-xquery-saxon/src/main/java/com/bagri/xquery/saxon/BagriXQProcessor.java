@@ -244,21 +244,21 @@ public class BagriXQProcessor extends XQProcessorBase implements XQProcessor {
 		} else if (command.startsWith("removeDocument")) {
 
 			if (bindings.size() == 0) {
-				throw new XQException("documentId not provided");
+				throw new XQException("document uri not provided");
 			}
 			
 			XQItemAccessor item;
 			if (bindings.size() > 1) {
-				QName dName = new QName("docId");
+				QName dName = new QName("uri");
 				item = bindings.get(dName);
 				if (item == null) {
-					throw new XQException("documentId not provided");
+					throw new XQException("document uri not provided");
 				}
 			} else {
 				item = bindings.entrySet().iterator().next().getValue();
 			}
-			long docId = item.getLong();
-			dMgr.removeDocument(docId);
+			String uri = item.getAtomicValue();
+			dMgr.removeDocument(uri);
 			return null;
 		} else {
 			throw new XQException("unknown command: " + command);

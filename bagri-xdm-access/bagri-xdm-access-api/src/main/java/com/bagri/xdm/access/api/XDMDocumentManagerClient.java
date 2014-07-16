@@ -10,21 +10,21 @@ import com.bagri.xdm.domain.XDMDocument;
 public abstract class XDMDocumentManagerClient extends XDMDocumentManagerBase implements XDMDocumentManagement {
 	
 
-	protected abstract Long getDocumentId(String uri);
-	
-	@Override
-	public XDMDocument getDocument(String uri) {
-		return getDocument(getDocumentId(uri));
-	}
-
-	@Override
-	public String getDocumentAsString(String uri) {
-		return getDocumentAsString(getDocumentId(uri));
-	}
-	
-	@Override
-	public void removeDocument(String uri) {
-		removeDocument(getDocumentId(uri));
-	}
+//	protected abstract Long getDocumentId(String uri);
+//	
+//	@Override
+//	public XDMDocument getDocument(String uri) {
+//		return getDocument(getDocumentId(uri));
+//	}
+//
+//	@Override
+//	public String getDocumentAsString(String uri) {
+//		return getDocumentAsString(getDocumentId(uri));
+//	}
+//	
+//	@Override
+//	public void removeDocument(String uri) {
+//		removeDocument(getDocumentId(uri));
+//	}
 	
 }

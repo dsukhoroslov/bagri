@@ -16,14 +16,14 @@ public class DocumentRemover implements // EntryProcessor<Long, XDMDocument>,
 										// XDMDocument>,
 		Callable<XDMDocument>, Portable {
 
-	protected long docId;
+	protected String uri;
 
 	public DocumentRemover() {
 		//
 	}
 
-	public DocumentRemover(long docId) {
-		this.docId = docId;
+	public DocumentRemover(String uri) {
+		this.uri = uri;
 	}
 
 	@Override
@@ -59,12 +59,12 @@ public class DocumentRemover implements // EntryProcessor<Long, XDMDocument>,
 
 	@Override
 	public void readPortable(PortableReader in) throws IOException {
-		docId = in.readLong("id");
+		uri = in.readUTF("uri");
 	}
 
 	@Override
 	public void writePortable(PortableWriter out) throws IOException {
-		out.writeLong("id", docId);
+		out.writeUTF("uri", uri);
 	}
 
 }

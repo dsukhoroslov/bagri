@@ -25,7 +25,7 @@ public class SchemaStatsAggregator extends com.bagri.xdm.access.hazelcast.proces
     @Autowired
 	public void setHzInstance(HazelcastInstance hzInstance) {
 		this.hzInstance = hzInstance;
-		logger.debug("sethzInstance; got instance: {}", hzInstance); 
+		logger.trace("setHzInstance; got instance: {}", hzInstance); 
 	}
     
 	@Override

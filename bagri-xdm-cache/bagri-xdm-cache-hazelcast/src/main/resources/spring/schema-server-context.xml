@@ -49,7 +49,7 @@
 				</hz:indexes>
 			</hz:map>
 			<hz:map name="dict-document-type">
-				<hz:map-store enabled="true" write-delay-seconds="10" initial-mode="EAGER" factory-implementation="xdmStoreFactory">
+				<hz:map-store enabled="true" write-delay-seconds="10" initial-mode="LAZY" factory-implementation="xdmStoreFactory">
 					<hz:properties>
 						<hz:property name="xdm.schema.store.type">${xdm.schema.store.type}</hz:property>
 					</hz:properties>
@@ -73,7 +73,7 @@
 				</hz:indexes>
 			</hz:map>
 			<hz:map name="xdm-document">
-				<hz:map-store enabled="true" write-delay-seconds="10" initial-mode="EAGER" factory-implementation="xdmStoreFactory">
+				<hz:map-store enabled="true" write-delay-seconds="10" initial-mode="LAZY" factory-implementation="xdmStoreFactory">
 					<hz:properties>
 						<hz:property name="xdm.schema.store.type">${xdm.schema.store.type}</hz:property>
 					</hz:properties>

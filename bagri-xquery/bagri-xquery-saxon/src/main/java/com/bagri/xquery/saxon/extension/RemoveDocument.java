@@ -43,13 +43,8 @@ public class RemoveDocument extends ExtensionFunctionDefinition {
 			@Override
 			public Sequence call(XPathContext context, Sequence[] arguments) throws XPathException {
 				
-				String id = arguments[0].head().getStringValue();
-				try {
-					long docId = Long.parseLong(id);
-					xdm.removeDocument(docId);
-				} catch (NumberFormatException ex) {
-					xdm.removeDocument(id);
-				}
+				String uri = arguments[0].head().getStringValue();
+				xdm.removeDocument(uri);
 				return null; //new Int64Value(doc.getDocumentId());
 			}
         };

@@ -13,15 +13,19 @@ import org.springframework.context.ConfigurableApplicationContext;
 
 import com.bagri.xdm.access.api.XDMSchemaManagement;
 import com.bagri.xdm.access.api.XDMSchemaManagerBase;
+import com.bagri.xdm.process.hazelcast.pof.XDMDataSerializationFactory;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.nio.ObjectDataInput;
+import com.hazelcast.nio.ObjectDataOutput;
+import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 import com.hazelcast.nio.serialization.Portable;
 import com.hazelcast.nio.serialization.PortableReader;
 import com.hazelcast.nio.serialization.PortableWriter;
 import com.hazelcast.spring.context.SpringAware;
 
 @SpringAware
-public class SchemaDenitiator implements Callable<Boolean>, Portable {
+public class SchemaDenitiator implements Callable<Boolean>, IdentifiedDataSerializable { // Portable {
 	
 	protected final transient Logger logger = LoggerFactory.getLogger(getClass());
 	
@@ -54,23 +58,24 @@ public class SchemaDenitiator implements Callable<Boolean>, Portable {
 	}
 
 	@Override
-	public int getClassId() {
+	public int getId() {
 		return cli_XDMDenitSchemaTask;
 	}
 
 	@Override
 	public int getFactoryId() {
-		return factoryId;
+		return XDMDataSerializationFactory.factoryId;
 	}
 
 	@Override
-	public void readPortable(PortableReader in) throws IOException {
-		schemaName = in.readUTF("name");
+	public void readData(ObjectDataInput in) throws IOException {
+		schemaName = in.readUTF();
+	}
+	
+	@Override
+	public void writeData(ObjectDataOutput out) throws IOException {
+		out.writeUTF(schemaName);
 	}
 
-	@Override
-	public void writePortable(PortableWriter out) throws IOException {
-		out.writeUTF("name", schemaName);
-	}
 
 }

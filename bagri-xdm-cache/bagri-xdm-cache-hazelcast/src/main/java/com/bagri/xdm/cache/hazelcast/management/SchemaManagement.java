@@ -30,6 +30,7 @@ import com.bagri.xdm.access.api.XDMSchemaDictionary;
 import com.bagri.xdm.access.api.XDMSchemaManagement;
 import com.bagri.xdm.process.hazelcast.schema.SchemaCreator;
 import com.bagri.xdm.process.hazelcast.schema.SchemaInitiator;
+import com.bagri.xdm.process.hazelcast.schema.SchemaPopulator;
 import com.bagri.xdm.process.hazelcast.schema.SchemaRemover;
 import com.bagri.xdm.system.XDMNode;
 import com.bagri.xdm.system.XDMSchema;
@@ -249,6 +250,11 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
        	    } else {
        	    	//dictCache.put(schemaName, schemaDict);
        	    }
+       	    
+			logger.debug("process; schema activated, starting population");
+			SchemaPopulator pop = new SchemaPopulator(schemaName);
+			hz.getExecutorService("xdm-exec-pool").submitToAllMembers(pop);
+       	    
     		logger.debug("initSchema.exit; client schema {} started on instance: {}", schemaName, hz);
     		return true;
     	} catch (Exception ex) {
@@ -405,10 +411,10 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
 	
 	private String[] getMemberSchemas(Member member) {
 		String schemas = member.getStringAttribute(XDMNode.op_node_schemas);
-		if (schemas == null) {
-			schemas = "TPoX";
+		if (schemas != null) {
+			return schemas.split(" ");
 		}
-		return schemas.split(" ");
+		return new String[0];
 	}
 
 	@Override

@@ -1,25 +1,19 @@
 package com.bagri.xquery.saxon;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.bagri.common.query.ExpressionBuilder;
-import com.bagri.xdm.access.api.XDMSchemaDictionary;
-import com.bagri.xdm.access.api.XDMDocumentManagement;
 
 import net.sf.saxon.om.Item;
 import net.sf.saxon.om.SequenceIterator;
 import net.sf.saxon.trans.XPathException;
 import net.sf.saxon.tree.iter.LookaheadIterator;
 import net.sf.saxon.value.AnyURIValue;
-import net.sf.saxon.value.QNameValue;
-import net.sf.saxon.value.StringValue;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.bagri.common.query.ExpressionBuilder;
+import com.bagri.xdm.access.api.XDMDocumentManagement;
 
 public class BagriXDMIterator implements SequenceIterator<Item>, LookaheadIterator<Item> {
 	
@@ -45,10 +39,7 @@ public class BagriXDMIterator implements SequenceIterator<Item>, LookaheadIterat
 	}
 	
 	private void loadData() {
-		//String price = getPrice(symbol);
-		//item = new StringValue(price);
 		Collection<String> ids = dataMgr.getDocumentURIs(query);
-		//docIds.addAll(ids);
 		iter = ids.iterator();
 		//position = 0;
 	}
@@ -62,7 +53,7 @@ public class BagriXDMIterator implements SequenceIterator<Item>, LookaheadIterat
 		if (iter.hasNext()) {
 			String curr = iter.next();
 			position++;
-			current = new AnyURIValue("/library/" + curr); // QNameValue("", "", key);
+			current = new AnyURIValue(curr); //"/library/" + curr); // QNameValue("", "", key);
 		} else {
 			current = null;
 		}
@@ -83,7 +74,7 @@ public class BagriXDMIterator implements SequenceIterator<Item>, LookaheadIterat
 
 	@Override
 	public void close() {
-		logger.trace("close.");
+		logger.trace("close;");
 		iter = null;
 		position = -1;
 	}

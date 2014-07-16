@@ -26,17 +26,17 @@ public abstract class XDMDocumentManagerTest {
 	protected static String sampleRoot;
 	protected XDMDocumentManagement dMgr;
 	protected XDMSchemaDictionary mDictionary;
-	protected List<Long> docIds = new ArrayList<Long>();
+	protected List<String> uris = new ArrayList<String>();
 	
 	public void storeSecurityTest() throws IOException {
 		String xml = readTextFile(sampleRoot + "security1500.xml");
-		docIds.add(dMgr.storeDocument(xml).getDocumentId());
+		uris.add(dMgr.storeDocument(xml).getUri());
 
 		xml = readTextFile(sampleRoot + "security5621.xml");
-		docIds.add(dMgr.storeDocument(xml).getDocumentId());
+		uris.add(dMgr.storeDocument(xml).getUri());
 
 		xml = readTextFile(sampleRoot + "security9012.xml");
-		docIds.add(dMgr.storeDocument(xml).getDocumentId());
+		uris.add(dMgr.storeDocument(xml).getUri());
 
 		String prefix = mDictionary.getNamespacePrefix("http://tpox-benchmark.com/security"); 
 		int docType = mDictionary.getDocumentType("/" + prefix + ":Security");
@@ -45,19 +45,19 @@ public abstract class XDMDocumentManagerTest {
 	
 	public void storeOrderTest() throws IOException {
 		String xml = readTextFile(sampleRoot + "order123.xml");
-		docIds.add(dMgr.storeDocument(xml).getDocumentId());
+		uris.add(dMgr.storeDocument(xml).getUri());
 		xml = readTextFile(sampleRoot + "order654.xml");
-		docIds.add(dMgr.storeDocument(xml).getDocumentId());
+		uris.add(dMgr.storeDocument(xml).getUri());
 	}
 	
 	public void storeCustomerTest() throws IOException {
 		String xml = readTextFile(sampleRoot + "custacc.xml");
-		docIds.add(dMgr.storeDocument(xml).getDocumentId());
+		uris.add(dMgr.storeDocument(xml).getUri());
 	}
 	
 	public void removeDocumentsTest() { 
-		for (long docId: docIds) {
-			dMgr.removeDocument(docId);
+		for (String uri: uris) {
+			dMgr.removeDocument(uri);
 		}
 	}
 	

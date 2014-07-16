@@ -34,6 +34,7 @@ public class XDMPortableFactory implements PortableFactory {
 	public static final int cli_XDMSetNodeOptionTask = 119;
 	public static final int cli_XDMSchemaAggregationTask = 120;
 	public static final int cli_XDMGetNodeInfoTask = 121;
+	public static final int cli_XDMPopulateSchemaTask = 122;
 	
 	
 	@Override

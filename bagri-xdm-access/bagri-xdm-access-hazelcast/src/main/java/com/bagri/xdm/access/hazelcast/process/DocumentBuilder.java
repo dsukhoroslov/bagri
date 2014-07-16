@@ -19,18 +19,18 @@ public class DocumentBuilder implements Callable<Collection<String>>, Portable {
 
 	protected int docType;
 	protected String template;
-	protected Set<Long> docIds = new HashSet<Long>();
+	protected Set<String> uris = new HashSet<String>();
 	protected Map<String, String> params = new HashMap<String, String>();
 
 	public DocumentBuilder() {
 		//
 	}
 
-	public DocumentBuilder(int docType, String template, Collection<Long> docIds, Map<String, String> params) {
+	public DocumentBuilder(int docType, String template, Collection<String> uris, Map<String, String> params) {
 		this.docType = docType;
 		this.template = template;
-		if (docIds != null) {
-			this.docIds.addAll(docIds);
+		if (uris != null) {
+			this.uris.addAll(uris);
 		}
 		if (params != null) {
 			this.params.putAll(params);
@@ -56,9 +56,9 @@ public class DocumentBuilder implements Callable<Collection<String>>, Portable {
 	public void readPortable(PortableReader in) throws IOException {
 		docType = in.readInt("docType");
 		template = in.readUTF("template");
-		long[] la = in.readLongArray("docIds");
-		for (long l : la) {
-			docIds.add(l);
+		int size = in.readInt("size");
+		for (int i=0; i < size; i++) {
+			uris.add(in.readUTF("uri" + i));
 		}
 		Map<String, String> map = in.getRawDataInput().readObject();
 		params.putAll(map);
@@ -68,13 +68,13 @@ public class DocumentBuilder implements Callable<Collection<String>>, Portable {
 	public void writePortable(PortableWriter out) throws IOException {
 		out.writeInt("docType", docType);
 		out.writeUTF("template", template);
+		out.writeInt("size", uris.size());
 		int i = 0;
-		long[] la = new long[docIds.size()];
-		for (long l : docIds) {
-			la[i] = l;
+		for (String uri: uris) {
+			out.writeUTF("uri" + i, uri);
 			i++;
 		}
-		out.writeLongArray("docIds", la);
+		//out.getRawDataOutput().writeObject(uris);
 		out.getRawDataOutput().writeObject(params);
 	}
 

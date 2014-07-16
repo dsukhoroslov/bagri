@@ -60,7 +60,12 @@ import com.bagri.xdm.access.api.XDMSchemaDictionary;
 
 public class BagriCollectionResolver implements CollectionURIResolver {
 
-    private static final Logger logger = LoggerFactory.getLogger(BagriCollectionResolver.class);
+    /**
+	 * need it because CollectionURIResolver extends Serializable
+	 */
+	private static final long serialVersionUID = -3339879838382944740L;
+
+	private static final Logger logger = LoggerFactory.getLogger(BagriCollectionResolver.class);
 
     private XPathContext ctx;
     private XQueryExpression exp;
@@ -71,7 +76,7 @@ public class BagriCollectionResolver implements CollectionURIResolver {
     }
 
 	@Override
-	public SequenceIterator resolve(String href, String base, XPathContext context) throws XPathException {
+	public SequenceIterator<Item> resolve(String href, String base, XPathContext context) throws XPathException {
 		
 		logger.debug("resolve. href: {}; base: {}; context: {}", new Object[] {href, base, context});
 		//return EmptyIterator.getInstance();

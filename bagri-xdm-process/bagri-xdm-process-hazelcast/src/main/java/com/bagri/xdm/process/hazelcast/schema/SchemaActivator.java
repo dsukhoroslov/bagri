@@ -1,9 +1,12 @@
 package com.bagri.xdm.process.hazelcast.schema;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.Future;
 
 import com.bagri.xdm.system.XDMSchema;
+import com.hazelcast.core.Member;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.DataSerializable;
@@ -38,6 +41,10 @@ public class SchemaActivator extends SchemaProcessor implements DataSerializable
 							entry.setValue(schema);
 							result = schema;
 							auditEntity(AuditType.update, schema);
+
+							logger.debug("process; schema activated, starting population");
+							SchemaPopulator pop = new SchemaPopulator(schema.getName());
+							execService.submitToAllMembers(pop);
 						}
 					}
 				} else {
