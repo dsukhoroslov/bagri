@@ -18,7 +18,6 @@ import static com.bagri.visualvm.manager.util.Icons.*;
 
 public class EditNodeDialog extends JDialog {
     private static final KeyStroke ESCAPE_STROKE = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
-    private JTextField address;
     private JTextField nodeId;
     private ObjectName objectName;
     private Map<String, NodeOption> options = new HashMap<String, NodeOption>();
@@ -38,24 +37,10 @@ public class EditNodeDialog extends JDialog {
         GridBagConstraints cs = new GridBagConstraints();
 
         cs.fill = GridBagConstraints.HORIZONTAL;
-        JLabel lbAddress = new JLabel("Address: ");
+
+        JLabel lbNodeId = new JLabel("Name: ");
         cs.gridx = 0;
         cs.gridy = 0;
-        cs.gridwidth = 1;
-        cs.anchor = GridBagConstraints.LINE_START;
-        fieldsPanel.add(lbAddress, cs);
-
-        address = new JTextField(20);
-        cs.gridx = 1;
-        cs.gridy = 0;
-        cs.anchor = GridBagConstraints.LINE_END;
-        cs.gridwidth = 2;
-        cs.weightx=1;
-        fieldsPanel.add(address, cs);
-
-        JLabel lbNodeId = new JLabel("Node Id: ");
-        cs.gridx = 0;
-        cs.gridy = 1;
         cs.gridwidth = 1;
         cs.weightx=0;
         fieldsPanel.add(lbNodeId, cs);
@@ -63,13 +48,12 @@ public class EditNodeDialog extends JDialog {
         nodeId = new JTextField(20);
 //        nodeId.setMinimumSize(new Dimension(200, -1));
         cs.gridx = 1;
-        cs.gridy = 1;
+        cs.gridy = 0;
         cs.gridwidth = 2;
         fieldsPanel.add(nodeId, cs);
         if (Mode.EDIT == mode) {
             objectName = node.getObjectName();
-            address.setText(node.getAddress());
-            nodeId.setText(node.getNodeId());
+            nodeId.setText(node.getName());
             for (NodeOption op : node.getNodeOptions()) {
                 options.put(op.getOptionName(), op);
             }
@@ -249,7 +233,7 @@ public class EditNodeDialog extends JDialog {
     }
 
     public Node getNode() {
-        Node res = new Node(objectName, nodeId.getText(), address.getText());
+        Node res = new Node(objectName, nodeId.getText());
         res.setNodeOptions(new ArrayList<NodeOption>(options.values()));
         return res;
     }

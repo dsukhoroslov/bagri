@@ -4,7 +4,6 @@ import com.bagri.visualvm.manager.model.*;
 
 import javax.management.*;
 import javax.management.openmbean.CompositeData;
-import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -82,12 +81,14 @@ public class DefaultServiceProvider implements UserManagementService, ClusterMan
     @Override
     public Node getNode(ObjectName on) throws ServiceException {
         try {
-            String nodeId = (String) connection.invoke(on, "getNodeId", null, null);
-            String address = (String) connection.invoke(on, "getAddress", null, null);
+            String name = (String) connection.invoke(on, "getName", null, null);
             String[] deployedSchemas = new String[0];
             CompositeData optionsCd = null;
             try {
                 deployedSchemas = (String[]) connection.invoke(on, "getDeployedSchemas",null, null);
+                if (null == deployedSchemas) {
+                    deployedSchemas = new String[0];
+                }
             } catch (Exception e) {
                 // Ignore it for now
             }
@@ -96,7 +97,7 @@ public class DefaultServiceProvider implements UserManagementService, ClusterMan
             } catch (Exception e) {
                 // Ignore it for now
             }
-            Node node = new Node(on, nodeId, address);
+            Node node = new Node(on, name);
             node.setNodeOptions(convertCompositeToNodeOptions(optionsCd));
             node.setDeployedSchemas(Arrays.asList(deployedSchemas));
             return node;
@@ -113,12 +114,14 @@ public class DefaultServiceProvider implements UserManagementService, ClusterMan
             List<Node> nodes = new ArrayList<Node>();
             for (ObjectInstance instance : instances) {
                 ObjectName on = instance.getObjectName();
-                String nodeId = (String) connection.invoke(on, "getNodeId", null, null);
-                String address = (String) connection.invoke(on, "getAddress", null, null);
+                String name = (String) connection.invoke(on, "getName", null, null);
                 String[] deployedSchemas = new String[0];
                 CompositeData optionsCd = null;
                 try {
                     deployedSchemas = (String[]) connection.invoke(on, "getDeployedSchemas",null, null);
+                    if (null == deployedSchemas) {
+                        deployedSchemas = new String[0];
+                    }
                 } catch (Exception e) {
                     //Ignore it for now
                 }
@@ -127,7 +130,7 @@ public class DefaultServiceProvider implements UserManagementService, ClusterMan
                 } catch (Exception e) {
                     //Ignore it for now
                 }
-                Node node = new Node(on, nodeId, address);
+                Node node = new Node(on, name);
                 node.setNodeOptions(convertCompositeToNodeOptions(optionsCd));
                 node.setDeployedSchemas(Arrays.asList(deployedSchemas));
                 nodes.add(node);
@@ -183,8 +186,8 @@ public class DefaultServiceProvider implements UserManagementService, ClusterMan
         try {
             connection.invoke(new ObjectName("com.bagri.xdm:type=Management,name=ClusterManagement")
                     , "addNode"
-                    ,new Object[] {node.getAddress(), node.getNodeId(), optionsStr}
-                    , new String[] {String.class.getName(), String.class.getName(), String.class.getName()});
+                    ,new Object[] {node.getName(), optionsStr}
+                    , new String[] {String.class.getName(), String.class.getName()});
         } catch (Exception e) {
             LOGGER.throwing(this.getClass().getName(), "addNode", e);
             throw new ServiceException(e);
@@ -196,10 +199,10 @@ public class DefaultServiceProvider implements UserManagementService, ClusterMan
         try {
             connection.invoke(new ObjectName("com.bagri.xdm:type=Management,name=ClusterManagement")
                     , "deleteNode"
-                    ,new Object[] {node.getAddress(), node.getNodeId()}
-                    , new String[] {String.class.getName(), String.class.getName()});
+                    ,new Object[] {node.getName()}
+                    , new String[] {String.class.getName()});
         } catch (Exception e) {
-            LOGGER.throwing(this.getClass().getName(), "addNode", e);
+            LOGGER.throwing(this.getClass().getName(), "deleteNode", e);
             throw new ServiceException(e);
         }
     }
