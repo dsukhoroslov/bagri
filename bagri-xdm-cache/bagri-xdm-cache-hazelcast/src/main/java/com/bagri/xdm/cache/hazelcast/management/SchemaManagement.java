@@ -251,9 +251,9 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
        	    	//dictCache.put(schemaName, schemaDict);
        	    }
        	    
-			logger.debug("process; schema activated, starting population");
-			SchemaPopulator pop = new SchemaPopulator(schemaName);
-			hz.getExecutorService("xdm-exec-pool").submitToAllMembers(pop);
+			//logger.debug("process; schema activated, starting population");
+			//SchemaPopulator pop = new SchemaPopulator(schemaName);
+			//hz.getExecutorService("xdm-exec-pool").submitToAllMembers(pop);
        	    
     		logger.debug("initSchema.exit; client schema {} started on instance: {}", schemaName, hz);
     		return true;

@@ -1,10 +1,14 @@
 package com.bagri.xdm.process.hazelcast.schema;
 
 import static com.bagri.xdm.access.hazelcast.pof.XDMDataSerializationFactory.cli_XDMPopulateSchemaTask;
+import static com.bagri.xdm.access.api.XDMCacheConstants.CN_XDM_DOCUMENT;
+import static com.bagri.xdm.access.api.XDMCacheConstants.CN_XDM_ELEMENT;
 
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -19,6 +23,8 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.MapLoader;
 import com.hazelcast.core.MapLoaderLifecycleSupport;
+import com.hazelcast.core.Partition;
+import com.hazelcast.core.PartitionService;
 
 public class SchemaPopulator extends SchemaDenitiator {
 	
@@ -63,36 +69,71 @@ public class SchemaPopulator extends SchemaDenitiator {
     	//((ConfigurableApplicationContext) ctx).
 
 		XDMSchemaDictionary schemaDict = schemaCtx.getBean("xdmDictionary", HazelcastSchemaDictionary.class);
-		//<bean id="eltCacheStore" class="com.bagri.xdm.cache.hazelcast.store.xml.ElementCacheStore">
-		MapLoaderLifecycleSupport eltCacheStore = storeCtx.getBean("eltCacheStore", MapLoaderLifecycleSupport.class);
+		MapLoader docCacheStore = storeCtx.getBean("docCacheStore", MapLoader.class);
+		MapLoader eltCacheStore = storeCtx.getBean("eltCacheStore", MapLoader.class);
 		
-		String cacheName = "xdm-elements";
 		Properties props = new Properties();
 		props.put("xdmDictionary", schemaDict);
-		eltCacheStore.init(hz, props, cacheName);
+		((MapLoaderLifecycleSupport) eltCacheStore).init(hz, props, CN_XDM_ELEMENT);
+		PartitionService pSvc = hz.getPartitionService();
 
 		int size = 0;
-		IMap<String, XDMDocument> xddCache = hz.getMap("xdm-documents");
+		IMap<String, XDMDocument> xddCache = hz.getMap(CN_XDM_DOCUMENT);
 		Set<String> dKeys = xddCache.localKeySet();
 		if (dKeys.size() == 0) {
-			MapLoader docCacheStore = storeCtx.getBean("docCacheStore", MapLoader.class);
 			dKeys = docCacheStore.loadAllKeys();
 			size = xddCache.size();
 		}
 		Map<String, XDMDocument> docs = xddCache.getAll(dKeys);
-    	logger.trace("populateSchema; documents keys loaded: {}; documents returned: {}; cache size: {}", dKeys.size(), docs.size(), size);
+		if (dKeys.size() > 0 && docs.size() == 0) {
+			Iterator<String> itr = dKeys.iterator();
+			while (itr.hasNext()) {
+				String uri = itr.next();
+				Partition p = pSvc.getPartition(uri);
+				if (!p.getOwner().localMember()) {
+					itr.remove();
+				}
+			}
+			
+			docs = docCacheStore.loadAll(dKeys);
+			for (Map.Entry<String, XDMDocument> e: docs.entrySet()) {
+				xddCache.putTransient(e.getKey(), e.getValue(), 0, TimeUnit.DAYS);
+				size++;
+			}
+	    	logger.trace("populateSchema; documents keys left: {}; documents loaded: {}; documents put: {}", dKeys.size(), docs.size(), size);
+		} else {
+			logger.trace("populateSchema; documents keys loaded: {}; documents returned: {}; cache size: {}", dKeys.size(), docs.size(), size);
+		}
 		
     	size = 0;
-		IMap<XDMDataKey, XDMElement> xdmCache = hz.getMap(cacheName);
+		IMap<XDMDataKey, XDMElement> xdmCache = hz.getMap(CN_XDM_ELEMENT);
 		Set<XDMDataKey> eKeys = xdmCache.localKeySet();
 		if (eKeys.size() == 0) {
-			eKeys = ((MapLoader) eltCacheStore).loadAllKeys();
+			eKeys = eltCacheStore.loadAllKeys();
 			size = xdmCache.size();
 		}
 		Map<XDMDataKey, XDMElement> elts = xdmCache.getAll(eKeys);
-    	logger.trace("populateSchema.exit; elements keys loaded: {}; elements returned: {}; cache size: {}", eKeys.size(), elts.size(), size);
+		if (eKeys.size() > 0 && elts.size() == 0) {
+			Iterator<XDMDataKey> itr = eKeys.iterator();
+			while (itr.hasNext()) {
+				XDMDataKey key = itr.next();
+				Partition p = pSvc.getPartition(key);
+				if (!p.getOwner().localMember()) {
+					itr.remove();
+				}
+			}
+			
+			elts = eltCacheStore.loadAll(eKeys);
+			for (Map.Entry<XDMDataKey, XDMElement> e: elts.entrySet()) {
+				xdmCache.putTransient(e.getKey(), e.getValue(), 0, TimeUnit.DAYS);
+				size++;
+			}
+	    	logger.trace("populateSchema; elements keys left: {}; elements loaded: {}; elements put: {}", eKeys.size(), elts.size(), size);
+		} else {
+			logger.trace("populateSchema.exit; elements keys loaded: {}; elements returned: {}; cache size: {}", eKeys.size(), elts.size(), size);
+		}
 	}
-
+	
 	@Override
 	public int getId() {
 		return cli_XDMPopulateSchemaTask;

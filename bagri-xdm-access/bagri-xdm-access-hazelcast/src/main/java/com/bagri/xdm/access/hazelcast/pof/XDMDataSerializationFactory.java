@@ -13,7 +13,7 @@ public class XDMDataSerializationFactory implements DataSerializableFactory {
 	
 	@Override
 	public IdentifiedDataSerializable create(int typeId) {
-		// TODO Auto-generated method stub
+		// this class will eventually substitute XDMPortableFactory..
 		return null;
 	}
 	

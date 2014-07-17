@@ -26,6 +26,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import com.bagri.xdm.cache.hazelcast.management.UserManagement;
 import com.bagri.xdm.cache.hazelcast.security.BagriJAASInvocationHandler;
 import com.bagri.xdm.cache.hazelcast.security.BagriJMXAuthenticator;
+import com.bagri.xdm.process.hazelcast.schema.SchemaPopulator;
 import com.hazelcast.core.HazelcastInstance;
 
 public class XDMCacheServer {
@@ -103,16 +104,20 @@ public class XDMCacheServer {
     
     private static void initServerNode(HazelcastInstance hz) {
         int clusterSize = hz.getCluster().getMembers().size();
-    	if (clusterSize == 1) {
-            String schemas = hz.getCluster().getLocalMember().getStringAttribute(op_node_schemas);
-            String[] aSchemas = schemas.split(" ");
-            for (String name: aSchemas) {
-            	String schema = name.trim();
-            	if (schema.length() > 0) {
+        String schemas = hz.getCluster().getLocalMember().getStringAttribute(op_node_schemas);
+        String[] aSchemas = schemas.split(" ");
+        for (String name: aSchemas) {
+          	String schema = name.trim();
+           	if (schema.length() > 0) {
+            	if (clusterSize == 1) {
             		logger.debug("Going to deploy schema: {}", schema);
             		// will deploy schema here..
             	}
-            }
+
+        		logger.debug("initServerNode; schema activated, starting population");
+        		SchemaPopulator pop = new SchemaPopulator(schema);
+        		hz.getExecutorService("xdm-exec-pool").submitToAllMembers(pop);
+           	}
     	}
     	
     }

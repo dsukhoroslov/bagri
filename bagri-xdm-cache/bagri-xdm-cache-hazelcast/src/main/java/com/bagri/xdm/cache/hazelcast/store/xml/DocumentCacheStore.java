@@ -62,7 +62,9 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<String
 		Path path = Paths.get(getDataPath());
 		try {
 			docUris = new HashSet<String>(processPathFiles(path));
-			docKeys = new HashMap<String, Long>(docUris.size());
+			if (docKeys == null) {
+				docKeys = new HashMap<String, Long>(docUris.size());
+			}
 		} catch (IOException ex) {
 			logger.error("loadAllKeys.error;", ex);
 		}
