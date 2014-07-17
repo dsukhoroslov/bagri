@@ -81,13 +81,7 @@ public class ClusterManagementPanel extends JPanel {
         // Column configs
         ArrayList<ColumnConfig> configs = new ArrayList<ColumnConfig>();
         ColumnConfig c = new ColumnConfig();
-        c.setHeader("Address");
-        c.setColumnClass(String.class);
-        c.setWidth(40);
-        c.setResizable(true);
-        configs.add(c);
-        c = new ColumnConfig();
-        c.setHeader("Node Id");
+        c.setHeader("Name");
         c.setColumnClass(String.class);
         c.setWidth(45);
         c.setResizable(true);
@@ -104,7 +98,7 @@ public class ClusterManagementPanel extends JPanel {
                 }
                 java.util.List<GridRow> rows = new ArrayList<GridRow>();
                 for (Node n : nodes) {
-                    rows.add(new DefaultGridRow(n.getObjectName(), new Object[]{n.getAddress(), n.getNodeId()}));
+                    rows.add(new DefaultGridRow(n.getObjectName(), new Object[]{n.getName()}));
                 }
                 return rows;
             }
@@ -220,7 +214,7 @@ public class ClusterManagementPanel extends JPanel {
             final GridRow row = ((GridTableModel) grid.getModel()).getRow(selectedIndex);
             int n = JOptionPane.showConfirmDialog(
                     ClusterManagementPanel.this,
-                    "Are you sure you want to delete selected node \"" + row.getValueAt(1) + "\"?",
+                    "Are you sure you want to delete selected node \"" + row.getValueAt(0) + "\"?",
                     "Confirm deletion",
                     JOptionPane.YES_NO_OPTION);
             if (JOptionPane.YES_OPTION == n) {

@@ -5,15 +5,13 @@ import java.util.List;
 
 public class Node {
     private ObjectName objectName;
-    private String nodeId;
-    private String address;
+    private String name;
     private List<NodeOption> nodeOptions;
     private List<String> deployedSchemas;
 
-    public Node(ObjectName objectName, String nodeId, String address) {
+    public Node(ObjectName objectName, String name) {
         this.objectName = objectName;
-        this.nodeId = nodeId;
-        this.address = address;
+        this.name = name;
     }
 
     public ObjectName getObjectName() {
@@ -24,20 +22,12 @@ public class Node {
         this.objectName = objectName;
     }
 
-    public String getNodeId() {
-        return nodeId;
+    public String getName() {
+        return name;
     }
 
-    public void setNodeId(String nodeId) {
-        this.nodeId = nodeId;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public List<NodeOption> getNodeOptions() {
@@ -59,6 +49,6 @@ public class Node {
     @Override
 
     public String toString() {
-        return nodeId ;
+        return name;
     }
 }

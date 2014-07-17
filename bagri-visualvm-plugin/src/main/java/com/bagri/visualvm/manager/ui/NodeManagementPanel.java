@@ -30,7 +30,7 @@ public class NodeManagementPanel extends JPanel {
         this.clusterService = clusterService;
         this.node = node;
         tabbedPane = new JTabbedPane();
-        tabbedPane.addTab(node.getNodeId(), createMainPanel());
+        tabbedPane.addTab(node.getName(), createMainPanel());
         add(tabbedPane);
         tabbedPane.setBorder(BorderFactory.createEmptyBorder());
         setBorder(BorderFactory.createEmptyBorder());
