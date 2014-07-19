@@ -13,6 +13,7 @@ import javax.xml.xquery.XQItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.bagri.common.util.FileUtils;
 import com.bagri.xdm.access.api.XDMDocumentManagement;
 
 import net.sf.saxon.Configuration;
@@ -50,11 +51,12 @@ public class BagriSourceResolver implements SourceResolver, ExternalObjectModel 
 	 */
 	@Override
 	public Source resolveSource(Source source, Configuration config) throws XPathException {
-		logger.trace("resolveSource. source: {}; config: {}", source, config);
+		logger.trace("resolveSource. source: {}; config: {}", source.getSystemId(), config);
 		//String[] path = source.getSystemId().split("/");
 		//int docId = Integer.parseInt(path[path.length - 1]);
 		//String content = mgr.getDocumentAsString(docId);
-		String content = mgr.getDocumentAsString(source.getSystemId());
+		String uri = FileUtils.path2Uri(source.getSystemId());
+		String content = mgr.getDocumentAsString(uri);
 		
 		//content = content.replaceAll("&", "&amp;");
 		

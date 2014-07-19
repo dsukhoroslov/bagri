@@ -41,6 +41,11 @@ public class PathBuilder {
 		this.segments = new ArrayList(source.segments);
 	}
 	
+	@Override
+	public String toString() {
+		return getFullPath();
+	}
+	
 	private class PathSegment {
 
 		private AxisType axis;

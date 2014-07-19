@@ -59,6 +59,11 @@ public class UserManagement extends EntityManagement<String, XDMUser> implements
    			//}
         }
 	}
+
+	@ManagedAttribute(description="Current User Name")
+	public String getCurrentUser() {
+		return JMXUtils.getCurrentUser();
+	}
 	
 	@ManagedAttribute(description="Registered User Names")
 	public String[] getUserNames() {

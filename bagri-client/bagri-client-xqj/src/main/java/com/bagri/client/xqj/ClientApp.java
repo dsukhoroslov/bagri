@@ -28,12 +28,14 @@ public class ClientApp {
 		boolean found = false;
 		try {
 			//client.storeSecCommand();
-			long id = client.storeSecQuery();
+			//long id = client.storeSecQuery();
 			//long id = client.storeXmlDocument("axis.xml");
-			System.out.println("document stored; id: " + id);
-			found = client.runSecQuery();
+			//System.out.println("document stored; id: " + id);
+			//found = client.runSecQuery();
 			//found = client.runAxisQuery();
-			client.removeSecCommand(id);
+			found = client.searchSecQuery();
+			//found = client.searchSecQueryParams();
+			//client.removeSecCommand(id);
 		} catch (XQException e) {
 			e.printStackTrace();
 		}
@@ -57,7 +59,7 @@ public class ClientApp {
 	public boolean runPriceQuery() throws XQException {
 		
 		String query = "declare namespace s=\"http://tpox-benchmark.com/security\";\n" +
-			"declare variable $sym external;\n" + // $v\n" +
+			"declare variable $sym external;\n" + 
 			//"for $sec in fn:doc(\"sdoc\")/s:Security\n" +
 			"for $sec in fn:collection(\"/{http://tpox-benchmark.com/security}Security\")/s:Security\n" +
 	  		"where $sec/s:Symbol=$sym\n" + //'IBM'\n" +
@@ -78,7 +80,7 @@ public class ClientApp {
 	public boolean runSecQuery() throws XQException {
 		
 		String query = "declare namespace s=\"http://tpox-benchmark.com/security\";\n" +
-			"declare variable $sym external;\n" + // $v\n" +
+			"declare variable $sym external;\n" + 
 			//"for $sec in fn:doc(\"sdoc\")/s:Security\n" +
 			"for $sec in fn:collection(\"/{http://tpox-benchmark.com/security}Security\")/s:Security\n" +
 	  		"where $sec/s:Symbol=$sym\n" + //'IBM'\n" +
@@ -97,13 +99,36 @@ public class ClientApp {
 
 	public boolean searchSecQuery() throws XQException {
 		
-		//String query = "declare namespace s=\"http://tpox-benchmark.com/security\";\n" +
 		String query = "declare default element namespace \"http://tpox-benchmark.com/security\";\n" +
-			"declare variable $sect external;\n" + // $v\n" +
-			"declare variable $pemin external;\n" + // $v\n" +
-			"declare variable $pemax external;\n" + // $v\n" +
-			"declare variable $yield external;\n" + // $v\n" +
-			//"for $sec in fn:doc(\"sdoc\")/s:Security\n" +
+			"for $sec in fn:collection(\"/{http://tpox-benchmark.com/security}Security\")/Security\n" +
+	  		"where $sec[SecurityInformation/*/Sector = 'Technology' and PE[. >= xs:decimal('25') and . < xs:decimal('28.0')] and Yield > xs:decimal('0')]\n" +			
+			"return	<Security>\n" +	
+			"\t{$sec/Symbol}\n" +
+			"\t{$sec/Name}\n" +
+			"\t{$sec/SecurityType}\n" +
+			"\t{$sec/SecurityInformation//Sector}\n" +
+			"\t{$sec/PE}\n" +
+			"\t{$sec/Yield}\n" +
+			"</Security>";
+
+		XQExpression xqe = xqc.createExpression();
+		XQResultSequence xqs = xqe.executeQuery(query);
+		
+	    boolean found = false;
+	    while (xqs.next()) {
+			System.out.println(xqs.getItemAsString(null));
+			found = true;
+	    }
+	    return found;
+	}
+
+	public boolean searchSecQueryParams() throws XQException {
+		
+		String query = "declare default element namespace \"http://tpox-benchmark.com/security\";\n" +
+			"declare variable $sect external;\n" + 
+			"declare variable $pemin external;\n" +
+			"declare variable $pemax external;\n" + 
+			"declare variable $yield external;\n" + 
 			"for $sec in fn:collection(\"/{http://tpox-benchmark.com/security}Security\")/Security\n" +
 	  		"where $sec[SecurityInformation/*/Sector = $sect and PE[. >= $pemin and . < $pemax] and Yield > $yield]\n" +
 			"return	<Security>\n" +	
@@ -120,8 +145,8 @@ public class ClientApp {
 	    xqpe.bindFloat(new QName("pemin"), 25,  null);
 	    xqpe.bindFloat(new QName("pemax"), 28,  null);
 	    xqpe.bindFloat(new QName("yield"), 0,  null);
-	    
 	    XQResultSequence xqs = xqpe.executeQuery();
+		
 	    boolean found = false;
 	    while (xqs.next()) {
 			System.out.println(xqs.getItemAsString(null));

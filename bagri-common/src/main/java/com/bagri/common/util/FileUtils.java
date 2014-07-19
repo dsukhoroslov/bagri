@@ -2,6 +2,7 @@ package com.bagri.common.util;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -31,4 +32,19 @@ public class FileUtils {
 		props.load(new StringReader(properties));
 		return props;
 	}
+	
+	public static String uri2Path(String uri) {
+		if (uri.startsWith("file:///")) {
+			return Paths.get(URI.create(uri)).toString();
+		}
+		return uri;
+	}
+	
+	public static String path2Uri(String path) {
+		if (!path.startsWith("file:///")) {
+			return Paths.get(path).toUri().toString();
+		}
+		return path;
+	}
+	
 }

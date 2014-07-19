@@ -1,5 +1,7 @@
 package com.bagri.xdm.process.hazelcast;
 
+import java.net.URI;
+import java.nio.file.Paths;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -11,6 +13,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import com.bagri.common.util.FileUtils;
 import com.bagri.xdm.access.api.XDMDocumentManagerServer;
 import com.bagri.xdm.access.hazelcast.data.DataDocumentKey;
 import com.bagri.xdm.common.XDMDataKey;
@@ -81,22 +84,25 @@ public class HazelcastDocumentServer extends XDMDocumentManagerServer {
     
     @Override
 	public Collection<String> buildDocument(int docType, String template, Map<String, String> params, Set entries) {
-    	Set<Long> docIds = (Set<Long>) entries;
-        logger.trace("buildDocument.enter; docIds: {}", docIds.size());
+    	Set<String> uris = (Set<String>) entries;
+        logger.trace("buildDocument.enter; uris: {}", uris.size());
 		long stamp = System.currentTimeMillis();
-        Collection<String> result = new ArrayList<String>(docIds.size());
+        Collection<String> result = new ArrayList<String>(uris.size());
 		
 		Member local = hzInstance.getCluster().getLocalMember();
-		for (Iterator<Long> itr = docIds.iterator(); itr.hasNext(); ) {
-			Long docId = itr.next();
-			if (!local.equals(hzInstance.getPartitionService().getPartition(docId).getOwner())) {
+		for (Iterator<String> itr = uris.iterator(); itr.hasNext(); ) {
+			String uri = itr.next();
+			// @TODO: translate it to path ???
+			uri = FileUtils.uri2Path(uri);
+			if (!hzInstance.getPartitionService().getPartition(uri).getOwner().localMember()) {
 				itr.remove();
-		        logger.trace("buildDocument; docId {} removed", docId);
+		        logger.trace("buildDocument; uri {} removed", uri);
 			} else {
 				StringBuilder buff = new StringBuilder(template);
 				for (Map.Entry<String, String> param: params.entrySet()) {
 					String key = param.getKey();
-					String str = buildElement(xdmCache, param.getValue(), docId, docType);
+					XDMDocument doc = xddCache.get(uri);
+					String str = buildElement(xdmCache, param.getValue(), doc.getDocumentId(), docType);
 					while (true) {
 						int idx = buff.indexOf(key);
 				        //logger.trace("aggregate; searching key: {} in buff: {}; result: {}", new Object[] {key, buff, idx});

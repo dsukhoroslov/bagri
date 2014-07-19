@@ -14,6 +14,8 @@ import static com.bagri.xdm.access.hazelcast.impl.HazelcastConfigProperties.PV_M
 import static com.bagri.xdm.access.hazelcast.impl.HazelcastConfigProperties.PV_MODE_SERVER;
 
 import java.io.InputStream;
+import java.net.URI;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -28,6 +30,7 @@ import java.util.concurrent.Future;
 import com.bagri.common.idgen.IdGenerator;
 import com.bagri.common.query.ExpressionBuilder;
 import com.bagri.common.query.PathExpression;
+import com.bagri.common.util.FileUtils;
 import com.bagri.xdm.access.api.XDMDocumentManagerClient;
 import com.bagri.xdm.access.hazelcast.process.DocumentBuilder;
 import com.bagri.xdm.access.hazelcast.process.DocumentCreator;
@@ -230,6 +233,7 @@ public class HazelcastDocumentManager extends XDMDocumentManagerClient {
 	
 	@Override
 	public XDMDocument getDocument(String uri) {
+		uri = FileUtils.uri2Path(uri);
 		return xddCache.get(uri);
 	}
 
@@ -347,7 +351,11 @@ public class HazelcastDocumentManager extends XDMDocumentManagerClient {
 	public String getDocumentAsString(String uri) {
 		
 		long stamp = System.currentTimeMillis();
-		XDMDocument xdoc = (XDMDocument) xddCache.get(uri);
+		XDMDocument xdoc = getDocument(uri);
+		if (xdoc == null) {
+			return "ERROR: No document found for URI '" + uri + "'";
+		}
+		
 		int docType = xdoc.getTypeId();
 		String path = mDictionary.getDocumentRoot(docType);
 
@@ -436,6 +444,7 @@ public class HazelcastDocumentManager extends XDMDocumentManagerClient {
 			for (XDMDataKey key: keys) {
 				docIds.add(key.getDocumentId());
 			}
+			logger.trace("queryPathKeys; old keys: {}, new keys: {}", found.size(), docIds.size());
 			found.retainAll(docIds);
 		} else {
 			found.clear();
@@ -446,21 +455,35 @@ public class HazelcastDocumentManager extends XDMDocumentManagerClient {
 	// TODO: move all this processing to the server side!!
 	@Override
 	public Collection<String> getDocumentURIs(ExpressionBuilder query) {
+		Set<String> paths;
 		if (query.getRoot() != null) {
-			Predicate f = Predicates.equal("typeId", query.getRoot().getDocType());
+			int typeId = query.getRoot().getDocType();
+			Predicate f = Predicates.equal("typeId", typeId);
 			//Set<Long> keys = new HashSet<Long>(xddCache.keySet(f));
 			Collection<XDMDocument> docs = xddCache.values(f);
+			if (docs.size() == 0) {
+				String root = mDictionary.getDocumentRoot(typeId);
+				logger.trace("getDocumentURIs; no docs found for type: {}; root: {}", typeId, root);
+				docs = xddCache.values();
+			}
 			Set<Long> docIds = new HashSet<Long>(docs.size());
 			for (XDMDocument doc: docs) {
 				docIds.add(doc.getDocumentId());
 			}
 			docIds = queryKeys(docIds, query.getRoot());
+			logger.trace("getDocumentURIs; got docIds: {}", docIds);
 			f = Predicates.in("documentId", docIds.toArray(new Long[docIds.size()]));
-			return xddCache.keySet(f);
+			paths = xddCache.keySet(f);
 		} else {
 			// ?!?
-			return xddCache.keySet();
+			paths = xddCache.keySet();
 		}
+
+		Set<String> result = new HashSet<String>(paths.size()); 
+		for (String path: paths) {
+			result.add(Paths.get(path).toUri().toString());
+		}
+		return result;
 	}
 
 	

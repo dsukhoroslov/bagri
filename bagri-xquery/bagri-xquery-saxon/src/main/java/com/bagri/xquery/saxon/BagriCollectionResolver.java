@@ -11,9 +11,11 @@ import net.sf.saxon.expr.AxisExpression;
 import net.sf.saxon.expr.BinaryExpression;
 import net.sf.saxon.expr.BindingReference;
 import net.sf.saxon.expr.BooleanExpression;
+import net.sf.saxon.expr.CastExpression;
 import net.sf.saxon.expr.Expression;
 import net.sf.saxon.expr.GeneralComparison10;
 import net.sf.saxon.expr.GeneralComparison20;
+import net.sf.saxon.expr.Literal;
 import net.sf.saxon.expr.StringLiteral;
 import net.sf.saxon.expr.ValueComparison;
 import net.sf.saxon.expr.VariableReference;
@@ -22,6 +24,7 @@ import net.sf.saxon.expr.instruct.Block;
 import net.sf.saxon.expr.parser.Token;
 import net.sf.saxon.lib.CollectionURIResolver;
 import net.sf.saxon.om.AxisInfo;
+import net.sf.saxon.om.GroundedValue;
 import net.sf.saxon.om.Item;
 import net.sf.saxon.om.NodeInfo;
 import net.sf.saxon.om.Sequence;
@@ -98,14 +101,23 @@ public class BagriCollectionResolver implements CollectionURIResolver {
 		return iter;
 	}
 	
+	private Object getValue(GroundedValue value) throws XPathException {
+		if (value != null) {
+			Item item = value.head();
+			if (item != null) {
+				return itemToObject(item);
+			}
+		}
+		return null;
+	}
+	
 	private Object getVariable(int slot) throws XPathException {
 		Sequence sq = ctx.evaluateLocalVariable(slot);
 		if (sq != null) {
 			Item item = sq.head();
-			if (item == null) {
-				return null;
+			if (item != null) {
+				return itemToObject(item);
 			}
-			return itemToObject(item);
 		}
 		return null;
 	}
@@ -155,7 +167,7 @@ public class BagriCollectionResolver implements CollectionURIResolver {
 		com.bagri.common.query.Expression ex = eb.getExpression(exIndex);
 		if (ex != null) {
     		path.setPath(ex.getPath()); 
-        	logger.trace("iterate; path switched to: {}", path);
+        	logger.trace("iterate; path switched to: {}; from index: {}", path, exIndex);
 		}
 	}
 
@@ -196,6 +208,7 @@ public class BagriCollectionResolver implements CollectionURIResolver {
     		Comparison compType = getComparison(((BooleanExpression) ex).getOperator());
     		if (compType != null) {
    	    		exIndex = eb.addExpression(docType, compType, path, null);
+	        	logger.trace("iterate; added expression at index: {}", exIndex);
     		} else {
     	    	throw new IllegalStateException("Unexpected expression: " + ex);
     		}
@@ -218,18 +231,25 @@ public class BagriCollectionResolver implements CollectionURIResolver {
     			} else if (e instanceof StringLiteral) {
     				value = ((StringLiteral) e).getStringValue();
     				break;
+    			} else if (e instanceof Literal) {
+    				value = getValue(((Literal) e).getValue()); 
+    				break;
     			}
     			varIdx++;
     		}
     		Comparison compType = getComparison(be.getOperator());
-    		if (compType != null && value != null) {
+    		if (compType == null) {
+            	logger.debug("iterate; can't get comparison from {}", be);
+    	    	throw new IllegalStateException("Unexpected expression: " + ex);
+    		} else if (value == null) {
+            	logger.debug("iterate; can't get value from {}; operands: {}", be, be.getOperands());
+    	    	throw new IllegalStateException("Unexpected expression: " + ex);
+    		} else {
     			if (varIdx == 0) {
     				compType = Comparison.negate(compType);
     			}
         		exIndex = eb.addExpression(docType, compType, path, value);
         		setParentPath(eb, exIndex, path);
-    		} else {
-    	    	throw new IllegalStateException("Unexpected expression: " + ex);
     		}
     	}  
 
@@ -242,7 +262,7 @@ public class BagriCollectionResolver implements CollectionURIResolver {
     			//path.append("/text()");
     			path.addPathSegment(AxisType.CHILD, null, "text()");
     		}
-    	}    	
+    	}
     	logger.trace("end: {}; path: {}", ex.getClass().getName(), path.getFullPath());
     	return path.toString();
     }

@@ -9,7 +9,7 @@ public class Expression {
 	public Expression(int docType, Comparison compType, PathBuilder path) {
 		this.docType = docType;
 		this.compType = compType;
-		this.path = path;
+		this.path = new PathBuilder(path);
 	}
 	
 	public int getDocType() {

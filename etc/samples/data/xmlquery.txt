@@ -1,0 +1,46 @@
+declare namespace s="http://tpox-benchmark.com/security";
+(: declare variable $sym external; :)
+for $sec in fn:collection("/{http://tpox-benchmark.com/security}Security")/s:Security
+where $sec/s:Symbol='IBM' (: $sym  IBM; VFINX; PTTAX  :)
+return 
+	<print>The open price of the security "{$sec/s:Name/text()}" is {$sec/s:Price/s:PriceToday/s:Open/text()} dollars</print>
+
+
+declare namespace s="http://tpox-benchmark.com/security";
+(: declare variable $sym external; :)
+
+for $sec in fn:collection("/{http://tpox-benchmark.com/security}Security")/s:Security
+where $sec/s:Symbol='IBM' (: $sym :)
+return $sec
+		
+
+declare default element namespace "http://tpox-benchmark.com/security";
+(: declare variable $sect external;
+declare variable $pemin external;
+declare variable $pemax external;
+declare variable $yield external; :)
+
+for $sec in fn:collection("/{http://tpox-benchmark.com/security}Security")/Security
+(: where $sec[SecurityInformation/*/Sector = $sect and PE[. >= $pemin and . < $pemax] and Yield > $yield] :)
+where $sec[SecurityInformation/*/Sector = 'Technology' and PE[. >= xs:decimal('25') and . < xs:decimal('28.0')] and Yield > xs:decimal('0')]
+
+return	<Security>
+	{$sec/Symbol}
+	{$sec/Name}
+	{$sec/SecurityType}
+	{$sec/SecurityInformation//Sector}
+	{$sec/PE}
+	{$sec/Yield}
+</Security>
+    
+
+/*
+		String query = //"declare namespace s=\"http://tpox-benchmark.com/security\";\n" +
+				//"for $sec in fn:collection(\"/{http://tpox-benchmark.com/security}Security\")/s:Security\n" +
+				"for $e in fn:collection(\"/document\")/document\n" +
+		  		//"where $sec/s:Symbol=$sym\n" + //'IBM'\n" +
+				"return $e//child\n";
+		
+*/
+
+
