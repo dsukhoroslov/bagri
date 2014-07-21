@@ -65,7 +65,7 @@ public class BagriSourceResolver implements SourceResolver, ExternalObjectModel 
 			DocumentInfo doc = config.buildDocument(src);
 			return doc;
 		}
-		logger.trace("resolveSource. got empty content, length: {}", content.length());
+		logger.trace("resolveSource. got empty content: '{}'", content);
 		return null;
 		
 		//Source src = new BagriXDMSource(config);

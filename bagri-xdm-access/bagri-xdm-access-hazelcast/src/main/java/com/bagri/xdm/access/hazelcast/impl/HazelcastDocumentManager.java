@@ -371,7 +371,7 @@ public class HazelcastDocumentManager extends XDMDocumentManagerClient {
 				if (c.isEmpty()) {
 					continue;
 				}
-				logger.trace("getDocumentAsString.exit; got template results: {}; time taken {}", c, System.currentTimeMillis() - stamp);
+				logger.trace("getDocumentAsString.exit; got template results: {}; time taken {}", c.size(), System.currentTimeMillis() - stamp);
 				return c.iterator().next();
 			} catch (Exception ex) { //InterruptedException | ExecutionException ex) {
 				logger.error("getDocumentAsString; error getting result", ex);

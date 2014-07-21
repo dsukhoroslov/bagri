@@ -18,12 +18,17 @@ public class XmlBuilder {
     	StringBuffer buff = new StringBuffer();
     	Stack<XDMElement> dataStack = new Stack<XDMElement>();
     	boolean eltOpen = false;
+	int idx = 0;
     	for (XDMElement xdm: xdms) {
-    		//logger.trace("buildXml; xdm: {}", xdm);
-    		XDMPath path = dict.getPath(xdm.getPathId());
-    		if (path ==  null) {
-    			logger.warn("Can't find path for element: {}", xdm);
-    		}
+    		idx++;
+		if (idx % 10000 == 0) {
+    			logger.trace("buildXml; idx: {}; length: {}", idx, buff.length());
+		}
+
+		//XDMPath path = dict.getPath(xdm.getPathId());
+    		//if (path ==  null) {
+    		//	logger.warn("Can't find path for element: {}", xdm);
+    		//}
     		
     		switch (xdm.getKind()) {
     			case document: { // this must be the first row..
@@ -35,7 +40,7 @@ public class XmlBuilder {
     				if (xdm.getName() != null && xdm.getName().trim().length() > 0) {
     					buff.append(":").append(xdm.getName());
     				}
-   					buff.append("=\"").append(xdm.getValue()).append("\"");
+   				buff.append("=\"").append(xdm.getValue()).append("\"");
     				break;
     			}
     			case element: {

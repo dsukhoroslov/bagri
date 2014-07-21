@@ -70,7 +70,7 @@ public abstract class XDMDocumentManagerServer extends XDMDocumentManagerBase /*
 	
     protected String buildXml(Set<Map.Entry> xdEntries) {
     	
-        logger.trace("buildXml; got entries: {}", xdEntries.size()); 
+        logger.trace("buildXml.enter; got entries: {}", xdEntries.size()); 
         
         List<XDMElement> xdmList = new ArrayList<XDMElement>(xdEntries.size()); 
         for (Map.Entry xdEntry : xdEntries) {
@@ -78,8 +78,16 @@ public abstract class XDMDocumentManagerServer extends XDMDocumentManagerBase /*
         	xdmList.add(xdm);
         }
         
+	long stamp = System.currentTimeMillis();
+        logger.trace("buildXml; before sort; list size: {}", xdmList.size()); 
         Collections.sort(xdmList, new XDMElementComparator());
-       	return XmlBuilder.buildXml(mDictionary, xdmList);
+	stamp = System.currentTimeMillis() - stamp;
+        logger.trace("buildXml; after sort; time taken: {}", stamp); 
+	stamp = System.currentTimeMillis();
+	String xml = XmlBuilder.buildXml(mDictionary, xdmList);
+	stamp = System.currentTimeMillis() - stamp;
+        logger.trace("buildXml.exit; returning xml length: {}; time taken: {}", xml.length(), stamp); 
+	return xml;
     }
     
 	@Override

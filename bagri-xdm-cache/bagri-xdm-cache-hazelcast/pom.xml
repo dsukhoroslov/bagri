@@ -20,8 +20,9 @@
         <!--switch the args0 code for debug-->
         <run.jvm.args0></run.jvm.args0>
         <!--<run.jvm.args0>-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005</run.jvm.args0>-->
-        <run.jvm.args1>-server -Xms1g -Xmx4g -XX:NewSize=256m -XX:MaxNewSize=256m -XX:PermSize=256m -XX:MaxPermSize=256m -XX:+ExplicitGCInvokesConcurrent -XX:+UnlockDiagnosticVMOptions -XX:ParGCCardsPerStrideChunk=2048</run.jvm.args1>
-        <run.jvm.args2>-XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:+CMSScavengeBeforeRemark -XX:+UseCMSInitiatingOccupancyOnly -XX:CMSInitiatingOccupancyFraction=70 -XX:+CMSConcurrentMTEnabled</run.jvm.args2>
+        <run.jvm.args1>-server -XX:NewSize=256m -XX:MaxNewSize=256m -XX:PermSize=256m -XX:MaxPermSize=256m -XX:+ExplicitGCInvokesConcurrent -XX:+UnlockDiagnosticVMOptions -XX:ParGCCardsPerStrideChunk=2048</run.jvm.args1>
+        <run.jvm.args2>-XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:+CMSScavengeBeforeRemark -XX:+CMSConcurrentMTEnabled</run.jvm.args2>
+	<!-- -XX:+UseCMSInitiatingOccupancyOnly -XX:CMSInitiatingOccupancyFraction=70 -->
         <run.jvm.args3>-XX:+PrintGC -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+HeapDumpOnOutOfMemoryError -Xloggc:./logs/gc/gc.log -XX:GCLogFileSize=50M -XX:NumberOfGCLogFiles=10 -XX:+UseGCLogFileRotation</run.jvm.args3>
     </properties>
 
@@ -187,7 +188,7 @@
                                 <configuration>
                                     <tasks if="run-admin">
                                         <java fork="true" classname="com.bagri.xdm.cache.hazelcast.XDMCacheServer">
-                                            <jvmarg line="-server -Xms512m -Xmx512m"/>
+                                            <jvmarg line="-server -Xms512m -Xmx1028m"/>
                                             <sysproperty key="node.logdir" value="./logs"/>
                                             <sysproperty key="com.sun.management.jmxremote" value="true"/>
                                             <!--sysproperty key="com.sun.management.jmxremote.port" value="3333"/>
@@ -225,7 +226,7 @@
                                 <configuration>
                                     <tasks if="run-first">
                                         <java fork="true" classname="com.bagri.xdm.cache.hazelcast.XDMCacheServer">
-                                            <jvmarg line="${run.jvm.args0} ${run.jvm.args1} ${run.jvm.args2} ${run.jvm.args3}"/>
+                                            <jvmarg line="-Xms1g -Xmx2g ${run.jvm.args0} ${run.jvm.args1} ${run.jvm.args2} ${run.jvm.args3}"/>
                                             <sysproperty key="node.logdir" value="./logs"/>
                                             <!--sysproperty key="com.sun.management.jmxremote" value="true"/>
                                             <sysproperty key="com.sun.management.jmxremote.authenticate" value="false"/>
@@ -254,7 +255,7 @@
                                 <configuration>
                                     <tasks if="run-second">
                                         <java fork="true" classname="com.bagri.xdm.cache.hazelcast.XDMCacheServer">
-                                            <jvmarg line="${run.jvm.args0} ${run.jvm.args1} ${run.jvm.args2} ${run.jvm.args3}"/>
+                                            <jvmarg line="-Xms1g -Xmx5g ${run.jvm.args0} ${run.jvm.args1} ${run.jvm.args2} ${run.jvm.args3}"/>
                                             <sysproperty key="node.logdir" value="./logs"/>
                                             <!--sysproperty key="com.sun.management.jmxremote" value="true"/>
                                             <sysproperty key="com.sun.management.jmxremote.authenticate" value="false"/>
