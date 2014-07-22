@@ -94,4 +94,21 @@ public class Schema {
     public String toString() {
         return schemaName;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Schema schema = (Schema) o;
+
+        if (!schemaName.equals(schema.schemaName)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return schemaName.hashCode();
+    }
 }

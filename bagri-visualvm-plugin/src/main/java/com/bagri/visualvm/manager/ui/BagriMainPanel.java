@@ -26,6 +26,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.logging.Logger;
 
 public class BagriMainPanel extends JPanel implements NotificationListener, PropertyChangeListener {
@@ -41,6 +42,8 @@ public class BagriMainPanel extends JPanel implements NotificationListener, Prop
     private ClusterManagementPanel clusterManagementPanel;
     private BagriManagementPanel bagriManagementPanel;
     private SchemaManagementPanel schemaManagementPanel;
+    // TODO: Remove cache entry if schema is deleted.
+    private HashMap<String, SchemaPanel> schemaCache = new HashMap<String, SchemaPanel>();
 
     public BagriMainPanel(MBeanServerConnection connection) {
         // Services
@@ -220,7 +223,13 @@ public class BagriMainPanel extends JPanel implements NotificationListener, Prop
                 } else if (nodeInfo instanceof SchemaManagement) {
                     splitPane.setRightComponent(getSchemaManagementPanel());
                 } else if (nodeInfo instanceof Schema) {
-                    splitPane.setRightComponent(new SchemaPanel(schemaManagementService, eventBus, (Schema) nodeInfo));
+                    Schema s = (Schema) nodeInfo;
+                    SchemaPanel panel = schemaCache.get(s.getSchemaName());
+                    if (null == panel) {
+                        panel = new SchemaPanel(schemaManagementService, eventBus, s);
+                        schemaCache.put(s.getSchemaName(), panel);
+                    }
+                    splitPane.setRightComponent(panel);
                 } else if (nodeInfo instanceof BagriManager) {
                     splitPane.setRightComponent(getBagriManagementPanel());
                 } else {
@@ -371,7 +380,19 @@ public class BagriMainPanel extends JPanel implements NotificationListener, Prop
         for (VirtualMachineDescriptor virtualMachineDescriptor : attachProvider.listVirtualMachines()) {
             if (pickThisOne(virtualMachineDescriptor)) {
                 descriptor = virtualMachineDescriptor;
-                break;
+                final VirtualMachine virtualMachine = attachProvider.attachVirtualMachine(descriptor);
+
+                final JMXServiceURL target = getURLForVM(virtualMachine);
+                final JMXConnector connector = JMXConnectorFactory.connect(target);
+                final MBeanServerConnection remote = connector.getMBeanServerConnection();
+                try {
+                    Object o = remote.getObjectInstance(new ObjectName("com.bagri.xdm:type=Management,name=ClusterManagement"));
+                    if (null != o) {
+                        break;
+                    }
+                } catch (Exception e) {
+                    // Swallow for now
+                }
             }
         }
 

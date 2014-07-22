@@ -8,9 +8,9 @@ import com.bagri.visualvm.manager.service.SchemaManagementService;
 import com.bagri.visualvm.manager.service.ServiceException;
 
 import javax.swing.*;
+import javax.swing.text.DefaultEditorKit;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.logging.Logger;
@@ -86,6 +86,33 @@ public class SchemaPanel extends JPanel {
         //Create a text area.
         query = new JTextArea();
         query.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
+        query.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                super.mouseReleased(e);
+                if ( SwingUtilities.isRightMouseButton ( e ) ) {
+                    // TODO: add Icons
+                    // TODO: display "Cut" and "Copy" as grayed text, if text is not selected
+                    JPopupMenu menu = new JPopupMenu ();
+                    JMenuItem menuItem = new JMenuItem(new DefaultEditorKit.CutAction());
+                    menuItem.setText("Cut");
+                    menuItem.setMnemonic(KeyEvent.VK_T);
+                    menu.add(menuItem);
+
+                    menuItem = new JMenuItem(new DefaultEditorKit.CopyAction());
+                    menuItem.setText("Copy");
+                    menuItem.setMnemonic(KeyEvent.VK_C);
+                    menu.add(menuItem);
+
+                    // TODO: display "paste" as grayed text if clipboard is empty.
+                    menuItem = new JMenuItem(new DefaultEditorKit.PasteAction());
+                    menuItem.setText("Paste");
+                    menuItem.setMnemonic(KeyEvent.VK_P);
+                    menu.add(menuItem);
+                    menu.show(query, e.getX(), e.getY());
+                }
+             }
+        });
         JScrollPane areaScrollPane = new JScrollPane(query);
         areaScrollPane.setPreferredSize(new Dimension(500, 150));
         areaScrollPane.setMinimumSize(new Dimension(500, 150));
