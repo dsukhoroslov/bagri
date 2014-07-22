@@ -56,6 +56,8 @@ public class BagriSourceResolver implements SourceResolver, ExternalObjectModel 
 		//int docId = Integer.parseInt(path[path.length - 1]);
 		//String content = mgr.getDocumentAsString(docId);
 		String uri = FileUtils.path2Uri(source.getSystemId());
+		// move this processing to a node (member)
+		// the document belongs to
 		String content = mgr.getDocumentAsString(uri);
 		
 		//content = content.replaceAll("&", "&amp;");
@@ -67,12 +69,6 @@ public class BagriSourceResolver implements SourceResolver, ExternalObjectModel 
 		}
 		logger.trace("resolveSource. got empty content: '{}'", content);
 		return null;
-		
-		//Source src = new BagriXDMSource(config);
-		//Source src = new PullSource(new BagriXDMPullProvider(config));
-		//Source src = new com.saxonica.pull.UnconstructedDocument();
-		//src.setSystemId(source.getSystemId());
-		//return src;
 	}
 
 

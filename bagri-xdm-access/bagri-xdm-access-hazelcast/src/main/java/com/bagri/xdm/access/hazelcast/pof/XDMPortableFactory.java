@@ -24,6 +24,8 @@ public class XDMPortableFactory implements PortableFactory {
 	public static final int cli_XDMDocumentType = 53;
 	public static final int cli_XDMPath = 54;
 	public static final int cli_XDMNamespace = 55;
+
+	public static final int cli_XQCursor = 75;
 	
 	public static final int cli_XDMDocumentTask = 112; 
 	public static final int cli_TemplateResultTask = 114;

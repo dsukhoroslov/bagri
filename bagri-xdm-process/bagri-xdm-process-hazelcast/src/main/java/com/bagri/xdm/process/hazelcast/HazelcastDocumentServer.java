@@ -7,19 +7,32 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.Future;
 import java.util.Set;
 
+import javax.xml.xquery.XQException;
+import javax.xml.xquery.XQStaticContext;
+
+import com.bagri.common.manage.JMXUtils;
+import com.bagri.common.query.ExpressionBuilder;
+import com.bagri.common.query.PathExpression;
 import com.bagri.common.util.FileUtils;
 import com.bagri.xdm.access.api.XDMDocumentManagerServer;
 import com.bagri.xdm.access.hazelcast.data.DataDocumentKey;
+import com.bagri.xdm.access.hazelcast.impl.BagriXQCursor;
+import com.bagri.xdm.access.hazelcast.process.DocumentBuilder;
+import com.bagri.xdm.access.hazelcast.process.DocumentCreator;
 import com.bagri.xdm.common.XDMDataKey;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMElement;
 import com.bagri.xdm.domain.XDMNodeKind;
+import com.bagri.xquery.api.XQCursor;
+import com.bagri.xquery.api.XQProcessor;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.IdGenerator;
@@ -34,6 +47,7 @@ public class HazelcastDocumentServer extends XDMDocumentManagerServer {
     private IdGenerator docGen;
     private IMap<String, XDMDocument> xddCache;
     private IMap<XDMDataKey, XDMElement> xdmCache;
+    private XQProcessor xqProcessor;
     
     public void setDocumentIdGenerator(IdGenerator docGen) {
     	this.docGen = docGen;
@@ -81,15 +95,18 @@ public class HazelcastDocumentServer extends XDMDocumentManagerServer {
 		this.hzInstance = hzInstance;
 		logger.debug("setHzInstange; got instance: {}", hzInstance.getName()); 
 	}
+	
+	public void setXQProcessor(XQProcessor xqProcessor) {
+		this.xqProcessor = xqProcessor;
+		xqProcessor.setXdmManager(this);
+	}
     
     @Override
-	public Collection<String> buildDocument(int docType, String template, Map<String, String> params, Set entries) {
-    	Set<String> uris = (Set<String>) entries;
+	public Collection<String> buildDocument(Set<String> uris, String template, Map<String, String> params) {
         logger.trace("buildDocument.enter; uris: {}", uris.size());
 		long stamp = System.currentTimeMillis();
         Collection<String> result = new ArrayList<String>(uris.size());
 		
-		Member local = hzInstance.getCluster().getLocalMember();
 		for (Iterator<String> itr = uris.iterator(); itr.hasNext(); ) {
 			String uri = itr.next();
 			// @TODO: translate it to path ???
@@ -102,7 +119,7 @@ public class HazelcastDocumentServer extends XDMDocumentManagerServer {
 				for (Map.Entry<String, String> param: params.entrySet()) {
 					String key = param.getKey();
 					XDMDocument doc = xddCache.get(uri);
-					String str = buildElement(xdmCache, param.getValue(), doc.getDocumentId(), docType);
+					String str = buildElement(xdmCache, param.getValue(), doc.getDocumentId(), doc.getTypeId());
 					while (true) {
 						int idx = buff.indexOf(key);
 				        //logger.trace("aggregate; searching key: {} in buff: {}; result: {}", new Object[] {key, buff, idx});
@@ -156,8 +173,8 @@ public class HazelcastDocumentServer extends XDMDocumentManagerServer {
 			}
 			xdmCache.putAll(elements);
 
-			//XDMDocument doc = new XDMDocumentPortable(docId, uri, docType); // + version, createdAt, createdBy, encoding
-			String user = "system"; // get current user from context somehow..
+			// @TODO: get current user from somewhere
+			String user = JMXUtils.getCurrentUser();
 			XDMDocument doc = new XDMDocument(docId, uri, docType, user); // + version, createdAt, encoding
 			xddCache.put(uri, doc);
 		
@@ -225,4 +242,203 @@ public class HazelcastDocumentServer extends XDMDocumentManagerServer {
 		return null;
 	}
 
+	@SuppressWarnings("rawtypes")
+	private Predicate getValueFilter(PathExpression pex) {
+		String field = "value";
+		Object value = pex.getValue();
+		if (value instanceof Integer) {
+			field = "asInt"; 
+		} else if (value instanceof Long) {
+			field = "asLong";
+		} else if (value instanceof Boolean) {
+			field = "asBoolean";
+		} else if (value instanceof Byte) {
+			field = "asByte";
+		} else if (value instanceof Short) {
+			field = "asShort";
+		} else if (value instanceof Float) {
+			field = "asFloat";
+		} else if (value instanceof Double) {
+			field = "asDouble";
+		} else {
+			value = value.toString();
+		}
+	
+		switch (pex.getCompType()) {
+			case EQ: return Predicates.equal(field, (Comparable) value);
+			case LE: return Predicates.lessEqual(field, (Comparable) value);
+			case LT: return Predicates.lessThan(field, (Comparable) value);
+			case GE: return Predicates.greaterEqual(field, (Comparable) value);
+			case GT: return Predicates.greaterThan(field, (Comparable) value);
+			default: return null;
+		}
+		
+	}
+	
+	@Override
+	protected Set<Long> queryPathKeys(Set<Long> found, PathExpression pex) {
+
+		int pathId = -1;
+		if (pex.isRegex()) {
+			Set<Integer> pathIds = mDictionary.translatePathFromRegex(pex.getDocType(), pex.getRegex());
+			logger.trace("queryPathKeys; regex: {}; pathIds: {}", pex.getRegex(), pathIds);
+			if (pathIds.size() > 0) {
+				pathId = pathIds.iterator().next();
+			}
+		} else {
+			String path = pex.getFullPath();
+			logger.trace("queryPathKeys; path: {}; comparison: {}", path, pex.getCompType());
+			pathId = mDictionary.translatePath(pex.getDocType(), path, XDMNodeKind.fromPath(path));
+		}
+		String value = pex.getValue().toString();
+		Predicate valueFilter = getValueFilter(pex);
+		if (valueFilter == null) {
+			throw new IllegalArgumentException("Can't construct filter for expression: " + pex);
+		}
+
+		Predicate f = Predicates.and(Predicates.equal("pathId", pathId), valueFilter);
+		Set<XDMDataKey> keys = xdmCache.keySet(f);
+		logger.trace("queryPathKeys; path: {}, value: {}; got keys: {}; cache size: {}", 
+				new Object[] {pathId, value, keys.size(), xdmCache.size()}); 
+		
+		if (keys.size() > 0) {
+			Set<Long> docIds = new HashSet<Long>();
+			for (XDMDataKey key: keys) {
+				docIds.add(key.getDocumentId());
+			}
+			logger.trace("queryPathKeys; old keys: {}, new keys: {}", found.size(), docIds.size());
+			found.retainAll(docIds);
+		} else {
+			found.clear();
+		}
+		return found;
+	}
+
+	@Override
+	public Collection<String> getDocumentURIs(ExpressionBuilder query) {
+		Set<String> paths;
+		if (query.getRoot() != null) {
+			int typeId = query.getRoot().getDocType();
+			Predicate f = Predicates.equal("typeId", typeId);
+			//Set<Long> keys = new HashSet<Long>(xddCache.keySet(f));
+			Collection<XDMDocument> docs = xddCache.values(f);
+			if (docs.size() == 0) {
+				String root = mDictionary.getDocumentRoot(typeId);
+				logger.trace("getDocumentURIs; no docs found for type: {}; root: {}", typeId, root);
+				docs = xddCache.values();
+			}
+			Set<Long> docIds = new HashSet<Long>(docs.size());
+			for (XDMDocument doc: docs) {
+				docIds.add(doc.getDocumentId());
+			}
+			docIds = queryKeys(docIds, query.getRoot());
+			logger.trace("getDocumentURIs; got docIds: {}", docIds);
+			f = Predicates.in("documentId", docIds.toArray(new Long[docIds.size()]));
+			paths = xddCache.keySet(f);
+		} else {
+			// ?!?
+			paths = xddCache.keySet();
+		}
+
+		Set<String> result = new HashSet<String>(paths.size()); 
+		for (String path: paths) {
+			result.add(Paths.get(path).toUri().toString());
+		}
+		return result;
+	}
+
+	@Override
+	public XDMDocument getDocument(String uri) {
+		return xddCache.get(uri);
+	}
+
+	@Override
+	public String getDocumentAsString(String uri) {
+		String path = FileUtils.uri2Path(uri);
+		logger.trace("getDocumentAsString; got uri: {}; path: {}", uri, path);
+		XDMDocument doc = xddCache.get(path);
+		if (doc == null) {
+			logger.info("getDocumentAsString; no document found for URI: {}", uri);
+			return null;
+		}
+		
+		String xPath = mDictionary.getDocumentRoot(doc.getTypeId());
+		Map<String, String> params = new HashMap<String, String>();
+		params.put(":doc", xPath);
+		Collection<String> results = buildDocument(Collections.singleton(path), ":doc", params);
+		return results.isEmpty() ? null : results.iterator().next();
+	}
+
+	@Override
+	public XDMDocument storeDocument(String xml) {
+
+		logger.trace("storeDocument.enter; xml: {}", xml.length());
+		long docId = docGen.newId();
+		// @TODO: build URI properly
+		String uri = "/library/" + docId;
+		//xddCache.put(uri, new XDMDocument(docId, uri, 0, "system"));
+	    return createDocument(new AbstractMap.SimpleEntry(uri, null), docId, xml);
+	}
+
+	@Override
+	public XDMDocument storeDocument(String uri, String xml) {
+		// create new document version ??
+		logger.trace("storeDocument.enter; uri: {}; xml: {}", uri, xml.length());
+		long docId = docGen.newId();
+		//xddCache.put(uri, new XDMDocument(docId, uri, 0, "system"));
+	    return createDocument(new AbstractMap.SimpleEntry(uri, null), docId, xml);
+	    // go to updateDocument ..?
+	}
+
+	@Override
+	public void removeDocument(String uri) {
+		deleteDocument(new AbstractMap.SimpleEntry(uri, null));
+	}
+
+	@Override
+	public void close() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public Collection<String> getXML(ExpressionBuilder query, String template, Map params) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Object executeXCommand(String command, Map bindings,	Map context) {
+		
+		logger.trace("executeXCommand.enter; command: {}; bindings: {}", command, bindings);
+		Object result = null;
+		try {
+			result = xqProcessor.executeXCommand(command, bindings, context);
+		} catch (XQException ex) {
+			logger.error("executeXCommand; error: ", ex);
+		}
+		logger.trace("executeXCommand.exit; returning: {}", result);
+		return result;
+	}
+
+	@Override
+	public Object executeXQuery(String query, Map bindings,	Map context) {
+
+		logger.trace("executeXQuery.enter; command: {}; bindings: {}", query, bindings);
+		Object result = null;
+		try {
+			Iterator iter = xqProcessor.executeXQuery(query, context);
+			result = createCursor(iter);
+		} catch (XQException ex) {
+			logger.error("executeXQuery; error: ", ex);
+		}
+		logger.trace("executeXQuery.exit; returning: {}", result);
+		return result;
+	}
+
+	private XQCursor createCursor(Iterator iter) {
+		BagriXQCursor xqCursor = new BagriXQCursor(iter);
+		xqCursor.serialize(hzInstance);
+		return xqCursor;
+	}
 }

@@ -17,7 +17,12 @@ public class HazelcastUtils {
 		return Hazelcast.getHazelcastInstanceByName(hz_instance);
 	}
 	
-	public static HazelcastInstance findSchemaInstance() {
+	public static HazelcastInstance findSchemaInstance(String schemaName) {
+
+		return Hazelcast.getHazelcastInstanceByName(schemaName);
+	}
+	
+	public static HazelcastInstance findDefaultInstance() {
 
 		HazelcastInstance hzInstance = null;
 		Set<HazelcastInstance> instances = Hazelcast.getAllHazelcastInstances();
@@ -35,11 +40,19 @@ public class HazelcastUtils {
 
 	public static ApplicationContext findContext() {
 		
-		HazelcastInstance hzInstance = findSchemaInstance();
+		HazelcastInstance hzInstance = findDefaultInstance();
 		if (hzInstance != null) {
 			return (ApplicationContext) hzInstance.getUserContext().get(app_context);
 		}
 		return null;
 	}
 	
+	public static ApplicationContext findContext(String schemaName) {
+		
+		HazelcastInstance hzInstance = findSchemaInstance(schemaName);
+		if (hzInstance != null) {
+			return (ApplicationContext) hzInstance.getUserContext().get(app_context);
+		}
+		return null;
+	}
 }

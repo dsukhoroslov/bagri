@@ -1,5 +1,6 @@
 package com.bagri.xquery.api;
 
+import java.util.Iterator;
 import java.util.Map;
 
 import javax.xml.namespace.QName;
@@ -10,8 +11,14 @@ import javax.xml.xquery.XQStaticContext;
 
 public interface XQProcessor extends QueryProcessor {
 
-	// todo: think about return type: Object vs Iterator..
-    Object processCommand(String command, Map<QName, XQItemAccessor> bindings, XQStaticContext ctx) throws XQException;
+	Iterator executeXCommand(String command, Map<QName, XQItemAccessor> bindings, 
+			XQStaticContext ctx) throws XQException;
+	
+    Iterator executeXCommand(String command, Map<QName, XQItemAccessor> bindings, 
+    		Map<String, Object> ctx) throws XQException;
+
+    // Saxon specific conversion
+    // @TODO: move this out of the interface!
 	String convertToString(Object item) throws XQException;
 	
 }

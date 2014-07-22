@@ -10,19 +10,13 @@ import java.util.Map;
 
 import javax.xml.namespace.QName;
 import javax.xml.xquery.XQConnection;
-import javax.xml.xquery.XQConstants;
-import javax.xml.xquery.XQDynamicContext;
 import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQExpression;
-import javax.xml.xquery.XQItem;
 import javax.xml.xquery.XQItemAccessor;
-import javax.xml.xquery.XQItemType;
 import javax.xml.xquery.XQMetaData;
 import javax.xml.xquery.XQPreparedExpression;
-import javax.xml.xquery.XQSequence;
 import javax.xml.xquery.XQStaticContext;
 
-import com.bagri.xquery.api.QueryProcessor;
 import com.bagri.xquery.api.XQProcessor;
 
 public class BagriXQConnection extends BagriXQDataFactory implements XQConnection {
@@ -292,7 +286,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 		}
 		// run cmd..
 		//logger.info("executeCommand. got command: {}", cmd);
-		processor.processCommand(cmd, bindings, ctx); //
+		processor.executeXCommand(cmd, bindings, ctx); //
 	}
 
 	public Iterator executeQuery(String query) throws XQException {
@@ -307,7 +301,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 		}
 		// run cmd..
 		//logger.info("executeQuery. got query: {}", query);
-		result = processor.evaluateXQuery(query, ctx);
+		result = (Iterator) processor.executeXQuery(query, ctx);
 		return result;
 	}
 	

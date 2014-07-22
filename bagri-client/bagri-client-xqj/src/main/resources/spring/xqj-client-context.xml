@@ -8,7 +8,7 @@
     <!--import resource="classpath:spring/coh-client-context.xml"/-->
     <import resource="classpath:spring/hz-client-context.xml"/>
 
-    <bean id="xqProcessor" class="com.bagri.xquery.saxon.BagriXQProcessor">
+    <bean id="xqProcessor" class="com.bagri.xquery.saxon.BagriXQProcessorProxy">
     	<property name="xdmManager" ref="xdmManager" />
     	<property name="XQDataFactory" ref="xqConnection" />
     </bean>

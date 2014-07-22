@@ -27,6 +27,10 @@
             <groupId>com.sdv.bagri</groupId>
             <artifactId>bagri-xdm-access-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.sdv.bagri</groupId>
+            <artifactId>bagri-xquery-api</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>com.hazelcast</groupId>
