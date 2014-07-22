@@ -11,7 +11,8 @@ import javax.xml.xquery.XQStaticContext;
 public interface XQProcessor extends QueryProcessor {
 
 	// todo: think about return type: Object vs Iterator..
-    Object processCommand(String command, Map<QName, XQItemAccessor> bindings, XQStaticContext ctx) throws XQException;
+    Object executeXCommand(String command, Map<QName, XQItemAccessor> bindings, XQStaticContext ctx) throws XQException;
+    Object executeXCommand(String command, Map<QName, XQItemAccessor> bindings, Map<String, Object> ctx) throws XQException;
 	String convertToString(Object item) throws XQException;
 	
 }

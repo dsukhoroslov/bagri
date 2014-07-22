@@ -147,6 +147,13 @@
 		<property name="xddCache" ref="xdm-document"/>
 		<property name="xdmCache" ref="xdm-element"/>
 		<property name="schemaDictionary" ref="xdmDictionary"/>
+		<property name="XQProcessor" ref="xqProcessor"/>
 	</bean>
+	
+    <bean id="xqProcessor" class="com.bagri.xquery.saxon.BagriXQProcessor">
+    	<!--property name="xdmManager" ref="xdmManager" /-->
+    	<!--property name="XQDataFactory" ref="xqConnection" /-->
+    </bean>
+
 
 </beans>

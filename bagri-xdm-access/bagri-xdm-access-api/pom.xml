@@ -24,10 +24,10 @@
             <artifactId>bagri-xdm</artifactId>
         </dependency>
 
-        <!--dependency>
-            <groupId>org.apache.xmlbeans</groupId>
-            <artifactId>xmlbeans</artifactId>
-            </dependency-->
+        <dependency>
+            <groupId>javax.xml.xquery</groupId>
+            <artifactId>xqj-api</artifactId>
+        </dependency>
 
         <!-- Dependencies for logging -->
         <dependency>

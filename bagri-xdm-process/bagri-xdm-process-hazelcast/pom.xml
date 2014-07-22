@@ -37,6 +37,11 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <dependency>
+            <groupId>com.sdv.bagri</groupId>
+	    <artifactId>bagri-xquery-api</artifactId>
+        </dependency>
+
 
         <!-- Spring framework -->
         <dependency>
