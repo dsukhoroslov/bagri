@@ -100,7 +100,7 @@ public class HazelcastDocumentServer extends XDMDocumentManagerServer {
 		this.xqProcessor = xqProcessor;
 		xqProcessor.setXdmManager(this);
 	}
-    
+	
     @Override
 	public Collection<String> buildDocument(Set<String> uris, String template, Map<String, String> params) {
         logger.trace("buildDocument.enter; uris: {}", uris.size());
@@ -441,4 +441,5 @@ public class HazelcastDocumentServer extends XDMDocumentManagerServer {
 		xqCursor.serialize(hzInstance);
 		return xqCursor;
 	}
+
 }

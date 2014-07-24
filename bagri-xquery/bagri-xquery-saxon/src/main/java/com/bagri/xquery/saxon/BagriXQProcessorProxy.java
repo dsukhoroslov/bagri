@@ -50,7 +50,6 @@ public class BagriXQProcessorProxy extends SaxonXQProcessor implements XQProcess
     		bindings.put(qName, params.get(qName));
     	}
     	logger.trace("executeXQuery; bindings: {}", bindings);
-		//return (Iterator) dMgr.executeXQuery(query, bindings, ctx);
 		return (Iterator) dMgr.executeXQuery(query, bindings, ctx);
 	}
 

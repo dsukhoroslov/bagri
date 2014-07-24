@@ -301,7 +301,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 		}
 		// run cmd..
 		//logger.info("executeQuery. got query: {}", query);
-		result = (Iterator) processor.executeXQuery(query, ctx);
+		result = processor.executeXQuery(query, ctx);
 		return result;
 	}
 	

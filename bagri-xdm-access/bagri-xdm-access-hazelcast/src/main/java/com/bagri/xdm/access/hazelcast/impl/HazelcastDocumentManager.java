@@ -10,29 +10,21 @@ import static com.bagri.xdm.access.hazelcast.impl.HazelcastConfigProperties.PN_C
 import static com.bagri.xdm.access.hazelcast.impl.HazelcastConfigProperties.PN_SCHEMA_NAME;
 import static com.bagri.xdm.access.hazelcast.impl.HazelcastConfigProperties.PN_SCHEMA_PASS;
 import static com.bagri.xdm.access.hazelcast.impl.HazelcastConfigProperties.PN_SERVER_ADDRESS;
-import static com.bagri.xdm.access.hazelcast.impl.HazelcastConfigProperties.PV_MODE_CLIENT;
 import static com.bagri.xdm.access.hazelcast.impl.HazelcastConfigProperties.PV_MODE_SERVER;
 
 import java.io.InputStream;
-import java.net.URI;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import javax.xml.xquery.XQStaticContext;
-
 import com.bagri.common.idgen.IdGenerator;
 import com.bagri.common.query.ExpressionBuilder;
-import com.bagri.common.query.PathExpression;
 import com.bagri.common.util.FileUtils;
 import com.bagri.xdm.access.api.XDMDocumentManagerClient;
 import com.bagri.xdm.access.hazelcast.process.CommandExecutor;
@@ -44,8 +36,6 @@ import com.bagri.xdm.access.hazelcast.process.SchemaStatsAggregator;
 import com.bagri.xdm.common.XDMDataKey;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMElement;
-import com.bagri.xdm.domain.XDMNodeKind;
-import com.bagri.xquery.api.XQCursor;
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.client.config.XmlClientConfigBuilder;
@@ -56,9 +46,6 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.Member;
-import com.hazelcast.monitor.LocalMapStats;
-import com.hazelcast.query.Predicate;
-import com.hazelcast.query.Predicates;
 import com.hazelcast.security.UsernamePasswordCredentials;
 
 public class HazelcastDocumentManager extends XDMDocumentManagerClient {
