@@ -2,13 +2,12 @@ package com.bagri.xdm.access.hazelcast.pof;
 
 import java.io.IOException;
 
-import com.bagri.xdm.access.hazelcast.impl.BagriXQCursor;
-import com.bagri.xquery.api.XQCursor;
+import com.bagri.xdm.access.hazelcast.impl.HazelcastXQCursor;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.StreamSerializer;
 
-public class XDMCursorSerializer implements StreamSerializer<XQCursor> {
+public class XDMCursorSerializer implements StreamSerializer<HazelcastXQCursor> {
 
 	@Override
 	public int getTypeId() {
@@ -21,15 +20,15 @@ public class XDMCursorSerializer implements StreamSerializer<XQCursor> {
 	}
 
 	@Override
-	public XQCursor read(ObjectDataInput in) throws IOException {
+	public HazelcastXQCursor read(ObjectDataInput in) throws IOException {
 		String qName = in.readUTF();
-		return new BagriXQCursor(qName);
+		return new HazelcastXQCursor(qName);
 	}
 
 	@Override
-	public void write(ObjectDataOutput out, XQCursor cursor) throws IOException {
+	public void write(ObjectDataOutput out, HazelcastXQCursor cursor) throws IOException {
 		
-		out.writeUTF(((BagriXQCursor) cursor).getQueueName());
+		out.writeUTF(((HazelcastXQCursor) cursor).getQueueName());
 	}
 
 }

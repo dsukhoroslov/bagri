@@ -14,7 +14,6 @@ import net.sf.saxon.expr.instruct.GlobalParameterSet;
 import net.sf.saxon.om.StructuredQName;
 
 import com.bagri.xdm.access.api.XDMDocumentManagement;
-import com.bagri.xquery.api.XQCursor;
 import com.bagri.xquery.api.XQProcessor;
 
 public class BagriXQProcessorProxy extends SaxonXQProcessor implements XQProcessor {

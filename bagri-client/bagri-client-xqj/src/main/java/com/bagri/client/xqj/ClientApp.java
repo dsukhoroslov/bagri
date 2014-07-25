@@ -16,15 +16,22 @@ import javax.xml.xquery.XQSequence;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import com.hazelcast.core.HazelcastInstance;
+
 public class ClientApp {
 	
-    private static ApplicationContext context;
+    private static ClassPathXmlApplicationContext context;
     private XQConnection xqc;
 
 	public static void main(String[] args) throws XQException {
 		//
 		context = new ClassPathXmlApplicationContext("spring/xqj-client-context.xml");
-		ClientApp client = new ClientApp(context.getBean("xqConnection", XQConnection.class));
+		XQConnection xqc = context.getBean("xqConnection", XQConnection.class);
+		ClientApp client = new ClientApp(xqc);
+		HazelcastInstance hz = context.getBean("hzInstance", HazelcastInstance.class);
+		//hz.getUserContext().put("appContext", context);
+		hz.getUserContext().put("xqConnection", xqc);
+				
 		boolean found = false;
 		try {
 			//client.storeSecCommand();
@@ -44,6 +51,8 @@ public class ClientApp {
 	    	throw new XQException("result is empty");
 	    }
 
+	    //context.close();
+	    
 		//try { 
 		//	client.runPriceQuery();
 		//} catch (XQException ex) {

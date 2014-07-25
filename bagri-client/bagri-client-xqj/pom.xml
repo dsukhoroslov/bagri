@@ -78,12 +78,12 @@
         <dependency>
             <groupId>com.hazelcast</groupId>
             <artifactId>hazelcast-client</artifactId>
-            <scope>runtime</scope>
+            <!--scope>runtime</scope-->
         </dependency>
         <dependency>
             <groupId>com.hazelcast</groupId>
             <artifactId>hazelcast-spring</artifactId>
-            <scope>runtime</scope>
+            <!--scope>runtime</scope-->
         </dependency>
 
         <!--dependency>

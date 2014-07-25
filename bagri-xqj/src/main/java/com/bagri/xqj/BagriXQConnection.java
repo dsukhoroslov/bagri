@@ -30,11 +30,14 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 
 		metaData = new BagriXQMetaData(this, null);
 		context = new BagriXQStaticContext();
+		BagriXQUtils.setXQDataFactory(this);
 	}
 
 	public BagriXQConnection(String address, int timeout, String username, String password) {
 
 		metaData = new BagriXQMetaData(this, username);
+		context = new BagriXQStaticContext();
+		BagriXQUtils.setXQDataFactory(this);
 	}
 	
 	public XQProcessor getProcessor() {
@@ -54,6 +57,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 		//	throw new XQException("Connection is already closed");
 		//}
 		
+		BagriXQUtils.setXQDataFactory(null);
         logger.trace("close");
 		
 		//client.getLifecycleService().kill();

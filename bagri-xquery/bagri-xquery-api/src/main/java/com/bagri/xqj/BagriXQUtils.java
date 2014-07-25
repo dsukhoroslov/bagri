@@ -553,11 +553,19 @@ public class BagriXQUtils {
 	}
 	
 	private static XQProcessor xqProcessor;
+	private static XQDataFactory xqFactory;
 	
-	static void setXQProcessor(XQProcessor processor) {
+	public static void setXQProcessor(XQProcessor processor) {
 		xqProcessor = processor;
 	}
 	
+	public static XQDataFactory getXQDataFactory() {
+		return xqFactory;
+	}
+	
+	static void setXQDataFactory(XQDataFactory factory) {
+		xqFactory = factory;
+	}
 	
 	public static String itemToString(Object item) throws XQException {
 		if (xqProcessor == null) {

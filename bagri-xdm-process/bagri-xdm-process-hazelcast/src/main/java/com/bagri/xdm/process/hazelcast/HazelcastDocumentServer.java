@@ -1,6 +1,5 @@
 package com.bagri.xdm.process.hazelcast;
 
-import java.net.URI;
 import java.nio.file.Paths;
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -12,11 +11,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.Future;
 import java.util.Set;
 
 import javax.xml.xquery.XQException;
-import javax.xml.xquery.XQStaticContext;
 
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.common.query.ExpressionBuilder;
@@ -24,19 +21,15 @@ import com.bagri.common.query.PathExpression;
 import com.bagri.common.util.FileUtils;
 import com.bagri.xdm.access.api.XDMDocumentManagerServer;
 import com.bagri.xdm.access.hazelcast.data.DataDocumentKey;
-import com.bagri.xdm.access.hazelcast.impl.BagriXQCursor;
-import com.bagri.xdm.access.hazelcast.process.DocumentBuilder;
-import com.bagri.xdm.access.hazelcast.process.DocumentCreator;
+import com.bagri.xdm.access.hazelcast.impl.HazelcastXQCursor;
 import com.bagri.xdm.common.XDMDataKey;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMElement;
 import com.bagri.xdm.domain.XDMNodeKind;
-import com.bagri.xquery.api.XQCursor;
 import com.bagri.xquery.api.XQProcessor;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.IdGenerator;
-import com.hazelcast.core.Member;
 import com.hazelcast.monitor.LocalMapStats;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
@@ -410,6 +403,7 @@ public class HazelcastDocumentServer extends XDMDocumentManagerServer {
 	@Override
 	public Object executeXCommand(String command, Map bindings,	Map context) {
 		
+		long stamp = System.currentTimeMillis();
 		logger.trace("executeXCommand.enter; command: {}; bindings: {}", command, bindings);
 		Object result = null;
 		try {
@@ -417,13 +411,15 @@ public class HazelcastDocumentServer extends XDMDocumentManagerServer {
 		} catch (XQException ex) {
 			logger.error("executeXCommand; error: ", ex);
 		}
-		logger.trace("executeXCommand.exit; returning: {}", result);
+		stamp = System.currentTimeMillis() - stamp;
+		logger.trace("executeXCommand.exit; returning: {}; time taken: {}", result, stamp);
 		return result;
 	}
 
 	@Override
 	public Object executeXQuery(String query, Map bindings,	Map context) {
 
+		long stamp = System.currentTimeMillis();
 		logger.trace("executeXQuery.enter; command: {}; bindings: {}", query, bindings);
 		Object result = null;
 		try {
@@ -432,12 +428,13 @@ public class HazelcastDocumentServer extends XDMDocumentManagerServer {
 		} catch (XQException ex) {
 			logger.error("executeXQuery; error: ", ex);
 		}
-		logger.trace("executeXQuery.exit; returning: {}", result);
+		stamp = System.currentTimeMillis() - stamp;
+		logger.trace("executeXQuery.exit; returning: {}; time taken: {}", result, stamp);
 		return result;
 	}
 
-	private XQCursor createCursor(Iterator iter) {
-		BagriXQCursor xqCursor = new BagriXQCursor(iter);
+	private HazelcastXQCursor createCursor(Iterator iter) {
+		HazelcastXQCursor xqCursor = new HazelcastXQCursor(iter);
 		xqCursor.serialize(hzInstance);
 		return xqCursor;
 	}

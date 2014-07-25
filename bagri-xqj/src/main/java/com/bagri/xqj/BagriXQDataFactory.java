@@ -80,13 +80,13 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-public abstract class BagriXQDataFactory implements XQDataFactory {
+public class BagriXQDataFactory implements XQDataFactory {
 	
 	protected boolean closed = false;
 
     protected final Logger logger;
 	    
-    BagriXQDataFactory() {
+    public BagriXQDataFactory() {
     	logger = LoggerFactory.getLogger(getClass().getName());
     }
     

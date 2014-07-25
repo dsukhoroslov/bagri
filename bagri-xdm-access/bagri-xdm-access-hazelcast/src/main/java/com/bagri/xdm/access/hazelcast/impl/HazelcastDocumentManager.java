@@ -378,9 +378,9 @@ public class HazelcastDocumentManager extends XDMDocumentManagerClient {
 		Future<Object> future = execService.submit(task);
 		Object result = null;
 		try {
-			BagriXQCursor cursor = (BagriXQCursor) future.get();
+			HazelcastXQCursor cursor = (HazelcastXQCursor) future.get();
 			cursor.deserialize(hzInstance);
-			result = cursor.getIterator();
+			result = cursor;
 			logger.trace("executeXQuery.exit; time taken: {}; returning: {}", System.currentTimeMillis() - stamp, result);
 			//return (XDMDocument) result;
 		} catch (InterruptedException | ExecutionException ex) {

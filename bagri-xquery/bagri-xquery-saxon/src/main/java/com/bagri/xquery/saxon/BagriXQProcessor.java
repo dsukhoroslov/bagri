@@ -16,7 +16,7 @@ import net.sf.saxon.trans.XPathException;
 
 import com.bagri.xdm.access.api.XDMDocumentManagement;
 import com.bagri.xdm.domain.XDMDocument;
-import com.bagri.xquery.api.XQCursor;
+import com.bagri.xqj.BagriXQUtils;
 import com.bagri.xquery.api.XQProcessor;
 
 public class BagriXQProcessor extends SaxonXQProcessor implements XQProcessor {
@@ -103,6 +103,7 @@ public class BagriXQProcessor extends SaxonXQProcessor implements XQProcessor {
 	        	bcr.setExpression(exp);
 	        }
 	        SequenceIterator<Item> itr = exp.iterator(dqc);
+	        BagriXQUtils.setXQProcessor(this);
 	        return new BagriSequenceIterator(xqFactory, itr); // iterToList(itr);
         } catch (XPathException ex) {
         	logger.error("executeXQuery.error: ", ex);

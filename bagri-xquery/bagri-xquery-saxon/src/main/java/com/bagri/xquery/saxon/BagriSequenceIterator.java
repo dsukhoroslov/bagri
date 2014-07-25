@@ -317,14 +317,14 @@ public class BagriSequenceIterator implements Iterator {
         } else if (item instanceof NodeInfo) {
         	org.w3c.dom.Node node = NodeOverNodeInfo.wrap((NodeInfo)item);
         	XQItemType xqt = BagriXQUtils.getTypeForNode(xqFactory, node);
+        	//return xqFactory.createItemFromNode(node, xqt);
         	return xqFactory.createItemFromNode(node, xqt);
         } else if (item instanceof ObjectValue) {
-        	XQItemType xqt;
         	Object value = ((ObjectValue) item).getObject();
         	if (value instanceof XQItem) {
         		return (XQItem) value;
         	} else {
-				xqt = BagriXQUtils.getTypeForObject(xqFactory, value);
+            	XQItemType xqt = BagriXQUtils.getTypeForObject(xqFactory, value);
             	return xqFactory.createItemFromObject(value, xqt);
         	}
         }
