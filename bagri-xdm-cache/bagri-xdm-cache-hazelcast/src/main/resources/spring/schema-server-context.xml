@@ -49,7 +49,7 @@
 				</hz:indexes>
 			</hz:map>
 			<hz:map name="dict-document-type">
-				<hz:map-store enabled="true" write-delay-seconds="10" initial-mode="LAZY" factory-implementation="xdmStoreFactory">
+				<hz:map-store enabled="true" write-delay-seconds="5" initial-mode="LAZY" factory-implementation="xdmStoreFactory">
 					<hz:properties>
 						<hz:property name="xdm.schema.store.type">${xdm.schema.store.type}</hz:property>
 					</hz:properties>
@@ -58,6 +58,16 @@
 					max-size="0" invalidate-on-change="true"/>
 			</hz:map>
 			
+			<hz:map name="xdm-document">
+				<hz:map-store enabled="true" write-delay-seconds="10" initial-mode="LAZY" factory-implementation="xdmStoreFactory">
+					<hz:properties>
+						<hz:property name="xdm.schema.store.type">${xdm.schema.store.type}</hz:property>
+					</hz:properties>
+				</hz:map-store>
+				<hz:indexes>
+					<hz:index attribute="documentId"/>
+				</hz:indexes>
+			</hz:map>
 			<hz:map name="xdm-element">
 				<!-- can't persist it in MongoDB right away; got an exception: 
 					java.lang.IllegalArgumentException: can't serialize class com.bagri.xdm.access.hazelcast.data.DataDocumentKey -->
@@ -72,14 +82,7 @@
 					<hz:index attribute="value"/>
 				</hz:indexes>
 			</hz:map>
-			<hz:map name="xdm-document">
-				<hz:map-store enabled="true" write-delay-seconds="10" initial-mode="LAZY" factory-implementation="xdmStoreFactory">
-					<hz:properties>
-						<hz:property name="xdm.schema.store.type">${xdm.schema.store.type}</hz:property>
-					</hz:properties>
-				</hz:map-store>
-			</hz:map>
-
+			
 			<hz:serialization>
 				<hz:data-serializable-factories>
 					<hz:data-serializable-factory factory-id="2" class-name="com.bagri.xdm.process.hazelcast.pof.XDMDataSerializationFactory"/>
@@ -100,15 +103,15 @@
 				</hz:serializers>
 			</hz:serialization>
 
-			<hz:security enabled="true">
+			<!--hz:security enabled="true">
 				<hz:client-login-modules>
 					<hz:login-module class-name="com.bagri.xdm.cache.hazelcast.security.BagriLoginModule" usage="REQUIRED">
-						<!--hz:properties>
+						<hz:properties>
 							<hz:property name="property3">value3</hz:property>
-						</hz:properties-->
+						</hz:properties>
 					</hz:login-module>
 				</hz:client-login-modules>
-			</hz:security>
+			</hz:security-->
 		</hz:config>
 	</hz:hazelcast>
 
@@ -158,7 +161,32 @@
     <bean id="xqProcessor" class="com.bagri.xquery.saxon.BagriXQProcessor">
     	<!--property name="xdmManager" ref="xdmManager" /-->
     	<property name="XQDataFactory" ref="xqFactory" />
+		<property name="properties">
+			<props>
+				<prop key="xqj.schema.baseUri">${xqj.schema.baseUri}</prop>
+				<prop key="xqj.schema.constructionMode">${xqj.schema.constructionMode}</prop>
+				<prop key="xqj.schema.defaultCollationUri">${xqj.schema.defaultCollationUri}</prop>
+				<prop key="xqj.schema.defaultElementTypeNamespace">${xqj.schema.defaultElementTypeNamespace}</prop>
+				<prop key="xqj.schema.defaultFunctionNamespace">${xqj.schema.defaultFunctionNamespace}</prop>
+				<prop key="xqj.schema.orderingMode">${xqj.schema.orderingMode}</prop>
+				<prop key="xqj.schema.defaultOrderForEmptySequences">${xqj.schema.defaultOrderForEmptySequences}</prop>
+				<prop key="xqj.schema.boundarySpacePolicy">${xqj.schema.boundarySpacePolicy}</prop>
+				<prop key="xqj.schema.copyNamespacesModePreserve">${xqj.schema.copyNamespacesModePreserve}</prop>
+				<prop key="xqj.schema.copyNamespacesModeInherit">${xqj.schema.copyNamespacesModeInherit}</prop>
+				<prop key="xqj.schema.bindingMode">${xqj.schema.bindingMode}</prop>
+				<prop key="xqj.schema.queryLanguageTypeAndVersion">${xqj.schema.queryLanguageTypeAndVersion}</prop>
+				<prop key="xqj.schema.holdability">${xqj.schema.holdability}</prop>
+				<prop key="xqj.schema.scrollability">${xqj.schema.scrollability}</prop>
+				<prop key="xqj.schema.queryTimeout">${xqj.schema.queryTimeout}</prop>
+				<!--prop key="xqj.schema.defaultNamespaces">${xqj.schema.defaultNamespaces}</prop-->
+			</props>
+		</property>
     </bean>
 
+	<bean id="popManager" class="com.bagri.xdm.cache.hazelcast.management.PopulationManager">
+		<constructor-arg ref="hzInstance" />
+		<property name="schemaName" value="${xdm.schema.name}"/>
+		<property name="populationSize" value="${xdm.schema.population.size}"/>
+	</bean>
 
 </beans>

@@ -201,7 +201,7 @@
                                                          value="${project.basedir}/src/main/resources/jaas.config"/-->
                                             <sysproperty key="logback.configurationFile" value="xdm-cache-logging.xml"/>
                                             <sysproperty key="xdm.config.path" value="src/main/resources"/>
-                                            <sysproperty key="xdm.config.context.file" value="spring/bagri-admin-context.xml"/>
+                                            <sysproperty key="xdm.config.context.file" value="spring/system-admin-context.xml"/>
 					    <sysproperty key="xdm.config.properties.file" value="xdm-admin.properties"/>
                                             <sysproperty key="xdm.cluster.node.name" value="admin"/>
                                             <sysproperty key="xdm.cluster.node.role" value="admin"/>
@@ -233,7 +233,7 @@
                                             <sysproperty key="com.sun.management.jmxremote.ssl" value="false"/-->
                                             <sysproperty key="logback.configurationFile" value="xdm-cache-logging.xml"/>
                                             <sysproperty key="xdm.config.path" value="src/main/resources"/>
-                                            <sysproperty key="xdm.config.context.file" value="spring/bagri-server-context.xml"/>
+                                            <sysproperty key="xdm.config.context.file" value="spring/system-server-context.xml"/>
 					    <sysproperty key="xdm.config.properties.file" value="xdm-server.properties"/>
                                             <classpath>
                                                 <path refid="maven.compile.classpath"/>
@@ -262,7 +262,7 @@
                                             <sysproperty key="com.sun.management.jmxremote.ssl" value="false"/-->
                                             <sysproperty key="logback.configurationFile" value="xdm-cache-logging.xml"/>
                                             <sysproperty key="xdm.config.path" value="src/main/resources"/>
-                                            <sysproperty key="xdm.config.context.file" value="spring/bagri-server-context.xml"/>
+                                            <sysproperty key="xdm.config.context.file" value="spring/system-server-context.xml"/>
 					    <sysproperty key="xdm.config.properties.file" value="xdm-second.properties"/>
                                             <classpath>
                                                 <path refid="maven.compile.classpath"/>

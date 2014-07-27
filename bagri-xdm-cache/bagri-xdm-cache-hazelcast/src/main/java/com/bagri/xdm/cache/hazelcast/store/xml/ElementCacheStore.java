@@ -20,7 +20,6 @@ import com.bagri.xdm.access.api.XDMSchemaDictionary;
 import com.bagri.xdm.access.xml.XDMStaxParser;
 import com.bagri.xdm.common.XDMDataKey;
 import com.bagri.xdm.common.XDMFactory;
-import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMElement;
 import com.bagri.xdm.domain.XDMNodeKind;
 import com.hazelcast.core.HazelcastInstance;
@@ -32,7 +31,6 @@ public class ElementCacheStore extends XmlCacheStore implements MapStore<XDMData
 
 	private static final Logger logger = LoggerFactory.getLogger(ElementCacheStore.class);
 	    
-    private IdGenerator docGen;
 	protected XDMFactory keyFactory;
     private com.bagri.common.idgen.IdGenerator<Long> idGen;
     private DocumentCacheStore docStore;
@@ -43,17 +41,12 @@ public class ElementCacheStore extends XmlCacheStore implements MapStore<XDMData
 	public void init(HazelcastInstance hazelcastInstance, Properties properties, String mapName) {
 		logger.trace("init.enter; properties: {}", properties);
 		schemaDict = (XDMSchemaDictionary) properties.get("xdmDictionary");
-		logger.trace("init.exit; dictionary: {}", schemaDict);
 	}
 
 	@Override
 	public void destroy() {
 		// do nothing
 	}
-    
-    public void setDocumentIdGenerator(IdGenerator docGen) {
-    	this.docGen = docGen;
-    }
     
     public void setDocumentStore(DocumentCacheStore docStore) {
     	this.docStore = docStore;
@@ -106,25 +99,31 @@ public class ElementCacheStore extends XmlCacheStore implements MapStore<XDMData
 	
 	@Override
 	public Set<XDMDataKey> loadAllKeys() {
-		logger.trace("loadAllKeys.enter; docStore: {}", docStore);
+		if (schemaDict == null) {
+			logger.trace("loadAllKeys.enter; dictionary is not set yet, skipping population");
+			return null;
+		}
+
+		logger.trace("loadAllKeys.enter; dictionary: {}", schemaDict);
 		long stamp = System.currentTimeMillis();
-		Map<String, Long> docKeys = docStore.getDocumentKeys();
+		Map<String, DocumentDataHolder> docKeys = docStore.getDocumentKeys();
 		elements = new HashMap<XDMDataKey, XDMElement>(docKeys.size());
-		for (Map.Entry<String, Long> key: docKeys.entrySet()) {
+		for (Map.Entry<String, DocumentDataHolder> key: docKeys.entrySet()) {
 			try {
 				String xml = FileUtils.readTextFile(key.getKey());
-				long docId = key.getValue();
-				List<XDMElement> elts = XDMStaxParser.parseDocument(null, docId, idGen, xml);
+				DocumentDataHolder data = key.getValue();
+				List<XDMElement> elts = XDMStaxParser.parseDocument(null, data.docId, idGen, xml);
 
 				if (schemaDict != null) {
 					XDMElement root = getDocumentRoot(elts);
 					if (root != null) {
 						int docType = schemaDict.translateDocumentType(root.getPath());
 						for (XDMElement elt: elts) {
-							XDMDataKey xKey = keyFactory.newXDMDataKey(elt.getElementId(), docId);
+							XDMDataKey xKey = keyFactory.newXDMDataKey(elt.getElementId(), data.docId);
 							elt.setPathId(schemaDict.translatePath(docType, elt.getPath(), XDMNodeKind.fromPath(elt.getPath())));
 							elements.put(xKey, elt);
 						}
+						data.docType = docType;
 						schemaDict.normalizeDocumentType(docType);
 						//logger.trace("createDocument.exit; returning: {}", doc);
 					} else {
@@ -132,7 +131,7 @@ public class ElementCacheStore extends XmlCacheStore implements MapStore<XDMData
 					}
 				} else {				
 					for (XDMElement elt: elts) {
-						XDMDataKey xKey = keyFactory.newXDMDataKey(elt.getElementId(), docId);
+						XDMDataKey xKey = keyFactory.newXDMDataKey(elt.getElementId(), data.docId);
 						elements.put(xKey, elt);
 					}
 				}

@@ -44,8 +44,8 @@ public class SchemaPopulator extends SchemaDenitiator {
 		HazelcastInstance hz = Hazelcast.getHazelcastInstanceByName(schemaName);
 		if (hz != null) {
 			try {
-				populateSchema(hz);
-				result = true;
+				// @TODO: ensure that partitions migration has been already finished! 
+				result = populateSchema(hz);
 			} catch (Exception ex) {
 		    	logger.error("call.error; on Schema population", ex);
 			}
@@ -54,84 +54,80 @@ public class SchemaPopulator extends SchemaDenitiator {
 		return result;
 	}
 
-	private void populateSchema(HazelcastInstance hz) {
+	private boolean populateSchema(HazelcastInstance hz) {
 
     	logger.trace("populateSchema.enter; HZ instance: {}", hz);
 
 		ApplicationContext schemaCtx = (ApplicationContext) hz.getUserContext().get("appContext");
 		ApplicationContext storeCtx = (ApplicationContext) hz.getUserContext().get("storeContext");
     	
-    	//IMap dtCache = hz.getMap("dict-document-type");
-		//MapConfig dtConfig = hz.getConfig().getMapConfig("dict-document-type");
-		//MapStoreFactory msFactory = (MapStoreFactory) dtConfig.getMapStoreConfig().getFactoryImplementation();
-		//MapLoader populator = msFactory.newMapStore("dict-document-type", properties);
-    	
-    	//((ConfigurableApplicationContext) ctx).
-
 		XDMSchemaDictionary schemaDict = schemaCtx.getBean("xdmDictionary", HazelcastSchemaDictionary.class);
 		MapLoader docCacheStore = storeCtx.getBean("docCacheStore", MapLoader.class);
 		MapLoader eltCacheStore = storeCtx.getBean("eltCacheStore", MapLoader.class);
 		
 		Properties props = new Properties();
+		props.put("ready", true);
+		((MapLoaderLifecycleSupport) docCacheStore).init(hz, props, CN_XDM_DOCUMENT);
+		props.clear();
 		props.put("xdmDictionary", schemaDict);
 		((MapLoaderLifecycleSupport) eltCacheStore).init(hz, props, CN_XDM_ELEMENT);
 		PartitionService pSvc = hz.getPartitionService();
 
-		int size = 0;
 		IMap<String, XDMDocument> xddCache = hz.getMap(CN_XDM_DOCUMENT);
-		Set<String> dKeys = xddCache.localKeySet();
+		Set<String> dKeys = docCacheStore.loadAllKeys();
+		filterExternalKeys(dKeys, pSvc);
 		if (dKeys.size() == 0) {
-			dKeys = docCacheStore.loadAllKeys();
-			size = xddCache.size();
+			logger.info("populateSchema; no local document keys found");
+			return false;
 		}
+		
+		IMap<XDMDataKey, XDMElement> xdmCache = hz.getMap(CN_XDM_ELEMENT);
+		Set<XDMDataKey> eKeys = eltCacheStore.loadAllKeys();
+		filterExternalKeys(eKeys, pSvc);
+		
 		Map<String, XDMDocument> docs = xddCache.getAll(dKeys);
 		if (dKeys.size() > 0 && docs.size() == 0) {
-			Iterator<String> itr = dKeys.iterator();
-			while (itr.hasNext()) {
-				String uri = itr.next();
-				Partition p = pSvc.getPartition(uri);
-				if (!p.getOwner().localMember()) {
-					itr.remove();
-				}
-			}
-			
+			int populated = 0;
 			docs = docCacheStore.loadAll(dKeys);
 			for (Map.Entry<String, XDMDocument> e: docs.entrySet()) {
 				xddCache.putTransient(e.getKey(), e.getValue(), 0, TimeUnit.DAYS);
-				size++;
+				populated++;
 			}
-	    	logger.trace("populateSchema; documents keys left: {}; documents loaded: {}; documents put: {}", dKeys.size(), docs.size(), size);
+	    	logger.trace("populateSchema; documents keys left: {}; documents loaded: {}; documents put: {}", 
+	    			dKeys.size(), docs.size(), populated);
 		} else {
-			logger.trace("populateSchema; documents keys loaded: {}; documents returned: {}; cache size: {}", dKeys.size(), docs.size(), size);
+			logger.trace("populateSchema; documents keys loaded: {}; documents returned: {};", 
+					dKeys.size(), docs.size());
 		}
 		
-    	size = 0;
-		IMap<XDMDataKey, XDMElement> xdmCache = hz.getMap(CN_XDM_ELEMENT);
-		Set<XDMDataKey> eKeys = xdmCache.localKeySet();
-		if (eKeys.size() == 0) {
-			eKeys = eltCacheStore.loadAllKeys();
-			size = xdmCache.size();
-		}
 		Map<XDMDataKey, XDMElement> elts = xdmCache.getAll(eKeys);
 		if (eKeys.size() > 0 && elts.size() == 0) {
-			Iterator<XDMDataKey> itr = eKeys.iterator();
-			while (itr.hasNext()) {
-				XDMDataKey key = itr.next();
-				Partition p = pSvc.getPartition(key);
-				if (!p.getOwner().localMember()) {
-					itr.remove();
-				}
-			}
-			
+			int populated = 0;
 			elts = eltCacheStore.loadAll(eKeys);
 			for (Map.Entry<XDMDataKey, XDMElement> e: elts.entrySet()) {
 				xdmCache.putTransient(e.getKey(), e.getValue(), 0, TimeUnit.DAYS);
-				size++;
+				populated++;
 			}
-	    	logger.trace("populateSchema; elements keys left: {}; elements loaded: {}; elements put: {}", eKeys.size(), elts.size(), size);
+	    	logger.trace("populateSchema; elements keys left: {}; elements loaded: {}; elements put: {}", 
+	    			eKeys.size(), elts.size(), populated);
 		} else {
-			logger.trace("populateSchema.exit; elements keys loaded: {}; elements returned: {}; cache size: {}", eKeys.size(), elts.size(), size);
+			logger.trace("populateSchema.exit; elements keys loaded: {}; elements returned: {}", 
+					eKeys.size(), elts.size());
 		}
+		
+		return true;
+	}
+	
+	private void filterExternalKeys(Set keys, PartitionService pSvc) {
+		Iterator itr = keys.iterator();
+		while (itr.hasNext()) {
+			Object key = itr.next();
+			Partition p = pSvc.getPartition(key);
+			if (!p.getOwner().localMember()) {
+				itr.remove();
+			}
+		}
+		
 	}
 	
 	@Override

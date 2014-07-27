@@ -3,6 +3,7 @@ package com.bagri.xdm.access.api;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Properties;
 
 import com.bagri.common.query.ExpressionBuilder;
 import com.bagri.xdm.domain.XDMDocument;
@@ -26,7 +27,7 @@ public interface XDMDocumentManagement {
 	Collection<String> getDocumentURIs(ExpressionBuilder query);
 	Collection<String> getXML(ExpressionBuilder query, String template, Map params);
 	
-	Object executeXCommand(String command, Map bindings, Map context);
-	Object executeXQuery(String query, Map bindings, Map context);
+	Object executeXCommand(String command, Map bindings, Properties props);
+	Object executeXQuery(String query, Map bindings, Properties props);
 	
 }

@@ -57,7 +57,7 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
 
     public SchemaManagement(HazelcastInstance hzInstance) {
 		super(hzInstance);
-		hzInstance.getCluster().addMembershipListener(this);
+		//hzInstance.getCluster().addMembershipListener(this);
 	}
     
     public ClusterManagement getClusterService() {

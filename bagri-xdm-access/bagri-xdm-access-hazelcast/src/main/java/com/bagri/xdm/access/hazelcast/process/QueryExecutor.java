@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.Callable;
 
 import javax.xml.xquery.XQStaticContext;
@@ -19,13 +20,13 @@ public class QueryExecutor implements Callable<Object>, IdentifiedDataSerializab
 
 	protected String query;
 	protected Map bindings;
-	protected Map context;
+	protected Properties context;
 	
 	public QueryExecutor() {
 		// for de-serialization
 	}
 	
-	public QueryExecutor(String query, Map bindings, Map context) {
+	public QueryExecutor(String query, Map bindings, Properties context) {
 		this.query = query;
 		this.bindings = bindings;
 		this.context = context;

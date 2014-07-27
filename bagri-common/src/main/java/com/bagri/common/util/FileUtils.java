@@ -34,14 +34,14 @@ public class FileUtils {
 	}
 	
 	public static String uri2Path(String uri) {
-		if (uri.startsWith("file:///")) {
+		if (uri.startsWith("file:/")) {
 			return Paths.get(URI.create(uri)).toString();
 		}
 		return uri;
 	}
 	
 	public static String path2Uri(String path) {
-		if (!path.startsWith("file:///")) {
+		if (!path.startsWith("file:/")) {
 			return Paths.get(path).toUri().toString();
 		}
 		return path;

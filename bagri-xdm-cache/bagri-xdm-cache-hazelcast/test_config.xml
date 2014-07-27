@@ -51,6 +51,25 @@
                 <entry name="xdm.schema.store.schema.path">C:\Work\Bagri\git\bagri\etc\samples\schema</entry>
                 <entry name="xdm.schema.members">localhost:10000</entry>
                 <entry name="xdm.schema.password">TPoX</entry>
+                <entry name="xdm.schema.population.size">3</entry>
+
+		<entry name="xqj.schema.baseUri">file:///C:/Work/Bagri/git/bagri/etc/samples/data/</entry>
+		<entry name="xqj.schema.constructionMode">CONSTRUCTION_MODE_PRESERVE</entry>
+		<entry name="xqj.schema.defaultCollationUri"></entry>
+		<entry name="xqj.schema.defaultElementTypeNamespace"></entry>
+		<entry name="xqj.schema.defaultFunctionNamespace">fn</entry>
+		<entry name="xqj.schema.orderingMode">ORDERING_MODE_UNORDERED</entry>
+		<entry name="xqj.schema.defaultOrderForEmptySequences">DEFAULT_ORDER_FOR_EMPTY_SEQUENCES_LEAST</entry>
+		<entry name="xqj.schema.boundarySpacePolicy">BOUNDARY_SPACE_PRESERVE</entry>
+		<entry name="xqj.schema.copyNamespacesModePreserve">COPY_NAMESPACES_MODE_PRESERVE</entry>
+		<entry name="xqj.schema.copyNamespacesModeInherit">COPY_NAMESPACES_MODE_INHERIT</entry>
+		<entry name="xqj.schema.bindingMode">BINDING_MODE_IMMEDIATE</entry>
+		<entry name="xqj.schema.queryLanguageTypeAndVersion">LANGTYPE_XQUERY</entry>
+		<entry name="xqj.schema.holdability">HOLDTYPE_CLOSE_CURSORS_AT_COMMIT</entry>
+		<entry name="xqj.schema.scrollability">SCROLLTYPE_FORWARD_ONLY</entry>
+		<entry name="xqj.schema.queryTimeout">0</entry>
+		<!--entry name="xqj.schema.defaultNamespaces">${xqj.schema.defaultNamespaces}</entry-->
+
             </properties>
         </schema>
         <schema name="XMark" active="true">
@@ -67,6 +86,24 @@
                 <entry name="xdm.schema.store.type">XML</entry>
                 <entry name="xdm.schema.members">localhost:20000</entry>
                 <entry name="xdm.schema.password">XMark</entry>
+                <entry name="xdm.schema.population.size">2</entry>
+
+		<entry name="xqj.schema.baseUri">file:///C:/Work/Bagri/git/bagri/etc/samples/xmark/</entry>
+		<entry name="xqj.schema.constructionMode">CONSTRUCTION_MODE_PRESERVE</entry>
+		<entry name="xqj.schema.defaultCollationUri"></entry>
+		<entry name="xqj.schema.defaultElementTypeNamespace"></entry>
+		<entry name="xqj.schema.defaultFunctionNamespace">fn</entry>
+		<entry name="xqj.schema.orderingMode">ORDERING_MODE_UNORDERED</entry>
+		<entry name="xqj.schema.defaultOrderForEmptySequences">DEFAULT_ORDER_FOR_EMPTY_SEQUENCES_LEAST</entry>
+		<entry name="xqj.schema.boundarySpacePolicy">BOUNDARY_SPACE_PRESERVE</entry>
+		<entry name="xqj.schema.copyNamespacesModePreserve">COPY_NAMESPACES_MODE_PRESERVE</entry>
+		<entry name="xqj.schema.copyNamespacesModeInherit">COPY_NAMESPACES_MODE_INHERIT</entry>
+		<entry name="xqj.schema.bindingMode">BINDING_MODE_IMMEDIATE</entry>
+		<entry name="xqj.schema.queryLanguageTypeAndVersion">LANGTYPE_XQUERY</entry>
+		<entry name="xqj.schema.holdability">HOLDTYPE_CLOSE_CURSORS_AT_COMMIT</entry>
+		<entry name="xqj.schema.scrollability">SCROLLTYPE_FORWARD_ONLY</entry>
+		<entry name="xqj.schema.queryTimeout">0</entry>
+		<!--entry name="xqj.schema.defaultNamespaces">${xqj.schema.defaultNamespaces}</entry-->
             </properties>
         </schema>
     </schemas>

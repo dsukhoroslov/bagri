@@ -3,6 +3,7 @@ package com.bagri.xquery.saxon;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.xml.namespace.QName;
 import javax.xml.xquery.XQException;
@@ -42,11 +43,11 @@ public class BagriXQProcessor extends SaxonXQProcessor implements XQProcessor {
 	@Override
 	public Iterator executeXCommand(String command, Map<QName, XQItemAccessor> bindings, XQStaticContext ctx) throws XQException {
 		
-		return executeXCommand(command, bindings, (Map<String, Object>) null);
+		return executeXCommand(command, bindings, (Properties) null);
 	}
 	
 	@Override
-	public Iterator executeXCommand(String command, Map<QName, XQItemAccessor> bindings, Map<String, Object> ctx) throws XQException {
+	public Iterator executeXCommand(String command, Map<QName, XQItemAccessor> bindings, Properties props) throws XQException {
 		
 	    XDMDocumentManagement dMgr = getXdmManager();
 	    
@@ -120,9 +121,9 @@ public class BagriXQProcessor extends SaxonXQProcessor implements XQProcessor {
     }
     
 	@Override
-    public Iterator executeXQuery(String query, Map<String, Object> ctx) throws XQException {
+    public Iterator executeXQuery(String query, Properties props) throws XQException {
 
-		setStaticContext(sqc, ctx);
+		setStaticContext(sqc, props);
         return execQuery(query);
 	}
 	

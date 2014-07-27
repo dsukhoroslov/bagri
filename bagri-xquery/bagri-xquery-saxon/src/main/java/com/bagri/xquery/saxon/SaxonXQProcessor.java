@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import javax.xml.namespace.QName;
@@ -18,7 +19,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import javax.xml.xquery.XQConstants;
+import static javax.xml.xquery.XQConstants.*;
 import javax.xml.xquery.XQDataFactory;
 import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQItem;
@@ -43,6 +44,7 @@ import net.sf.saxon.trans.XPathException;
 import net.sf.saxon.value.ObjectValue;
 
 import com.bagri.xdm.access.api.XDMDocumentManagement;
+import static com.bagri.xqj.BagriXQConstants.*;
 import com.bagri.xquery.api.XQProcessorBase;
 import com.bagri.xquery.saxon.extension.RemoveDocument;
 import com.bagri.xquery.saxon.extension.StoreDocument;
@@ -56,6 +58,8 @@ public abstract class SaxonXQProcessor extends XQProcessorBase {
     protected DynamicQueryContext dqc;
     
     protected XQDataFactory xqFactory;
+    
+    protected Properties properties = new Properties();
     
     public SaxonXQProcessor() {
         config = new Configuration();
@@ -73,6 +77,20 @@ public abstract class SaxonXQProcessor extends XQProcessorBase {
         //config.registerExternalObjectModel(resolver);
     }
     
+    public Properties getProperties() {
+    	return properties;
+    }
+    
+    public void setProperties(Properties props) {
+    	this.properties.clear();
+    	properties.putAll(props);
+    	try {
+    		setStaticContext(sqc, properties);
+    	} catch (XQException ex) {
+    		logger.error("setProperties.error", ex);
+    	}
+    }
+    
     protected void setStaticContext(StaticQueryContext sqc, XQStaticContext ctx) throws XQException {
     	sqc.setBaseURI(ctx.getBaseURI());
         sqc.setSchemaAware(false);
@@ -82,9 +100,9 @@ public abstract class SaxonXQProcessor extends XQProcessorBase {
     	sqc.setDefaultElementNamespace(ctx.getDefaultElementTypeNamespace());
     	sqc.setDefaultFunctionNamespace(ctx.getDefaultFunctionNamespace());
         //sqc.setEmptyLeast(emptyLeast);
-    	sqc.setInheritNamespaces(ctx.getCopyNamespacesModeInherit() == XQConstants.COPY_NAMESPACES_MODE_INHERIT);
+    	sqc.setInheritNamespaces(ctx.getCopyNamespacesModeInherit() == COPY_NAMESPACES_MODE_INHERIT);
     	//sqc.setPreserveBoundarySpace(preserve);
-    	sqc.setPreserveNamespaces(ctx.getCopyNamespacesModePreserve() == XQConstants.COPY_NAMESPACES_MODE_PRESERVE);
+    	sqc.setPreserveNamespaces(ctx.getCopyNamespacesModePreserve() == COPY_NAMESPACES_MODE_PRESERVE);
     	sqc.clearNamespaces();
     	String[] prefixes = ctx.getNamespacePrefixes();
     	for (String prefix: prefixes) {
@@ -98,24 +116,30 @@ public abstract class SaxonXQProcessor extends XQProcessorBase {
         //}
     }
     
-    protected void setStaticContext(StaticQueryContext sqc, Map<String, Object> ctx) throws XQException {
-    	sqc.setBaseURI((String) ctx.get("BaseURI"));
+    protected void setStaticContext(StaticQueryContext sqc, Properties props) throws XQException {
+    	String baseUri = props.getProperty(pn_baseURI);
+    	if (baseUri != null && baseUri.length() > 0) {
+    		sqc.setBaseURI(props.getProperty(pn_baseURI));
+    		logger.debug("setStaticContext; baseURI: {}", sqc.getBaseURI());
+    	}
         sqc.setSchemaAware(false);
         //sqc.setConstructionMode(constructionModeIsPreserve ? Validation.PRESERVE : Validation.STRIP);
     	//sqc.setConstructionMode(ctx.getConstructionMode());
     	sqc.setConstructionMode(Validation.STRIP);
-    	sqc.setDefaultElementNamespace((String) ctx.get("DefaultElementTypeNamespace"));
-    	sqc.setDefaultFunctionNamespace((String) ctx.get("DefaultFunctionNamespace"));
+    	sqc.setDefaultElementNamespace(props.getProperty(pn_defaultElementTypeNamespace));
+    	sqc.setDefaultFunctionNamespace(props.getProperty(pn_defaultFunctionNamespace));
         //sqc.setEmptyLeast(emptyLeast);
-    	sqc.setInheritNamespaces((Boolean) ctx.get("CopyNamespacesModeInherit"));
+    	sqc.setInheritNamespaces(String.valueOf(COPY_NAMESPACES_MODE_INHERIT).equals(props.getProperty(pn_copyNamespacesModeInherit)));
     	//sqc.setPreserveBoundarySpace(preserve);
-    	sqc.setPreserveNamespaces((Boolean) ctx.get("CopyNamespacesModePreserve"));
+    	sqc.setPreserveNamespaces(String.valueOf(COPY_NAMESPACES_MODE_PRESERVE).equals(props.getProperty(pn_copyNamespacesModePreserve)));
     	sqc.clearNamespaces();
-    	Map<String, String> namespaces = (Map<String, String>) ctx.get("Namespaces");
-    	for (Map.Entry<String, String> e: namespaces.entrySet()) {
-    		sqc.declareNamespace(e.getKey(), e.getValue());
+    	Map<String, String> namespaces = (Map<String, String>) props.get(pn_defaultNamespaces);
+    	if (namespaces != null) {
+    		for (Map.Entry<String, String> e: namespaces.entrySet()) {
+    			sqc.declareNamespace(e.getKey(), e.getValue());
+    		}
     	}
-    	sqc.declareDefaultCollation((String) ctx.get("DefaultCollation"));
+    	sqc.declareDefaultCollation(props.getProperty(pn_defaultCollationUri));
     	//...
     	
         //if (contextItemStaticType != null) {
@@ -123,20 +147,20 @@ public abstract class SaxonXQProcessor extends XQProcessorBase {
         //}
     }
 
-    protected Map<String, Object> contextToMap(XQStaticContext ctx) throws XQException {
-    	Map<String, Object> result = new HashMap<String, Object>(8);
-    	result.put("BaseURI", ctx.getBaseURI());
-    	result.put("DefaultElementTypeNamespace", ctx.getDefaultElementTypeNamespace());
-    	result.put("DefaultFunctionNamespace", ctx.getDefaultFunctionNamespace());
-    	result.put("DefaultCollation", ctx.getDefaultCollation());
-    	result.put("CopyNamespacesModeInherit", ctx.getCopyNamespacesModeInherit() == XQConstants.COPY_NAMESPACES_MODE_INHERIT);
-    	result.put("CopyNamespacesModePreserve", ctx.getCopyNamespacesModePreserve() == XQConstants.COPY_NAMESPACES_MODE_PRESERVE);
+    protected Properties contextToProps(XQStaticContext ctx) throws XQException {
+    	Properties result = new Properties();
+    	result.put(pn_baseURI, ctx.getBaseURI());
+    	result.put(pn_defaultElementTypeNamespace, ctx.getDefaultElementTypeNamespace());
+    	result.put(pn_defaultFunctionNamespace, ctx.getDefaultFunctionNamespace());
+    	result.put(pn_defaultCollationUri, ctx.getDefaultCollation());
+    	result.put(pn_copyNamespacesModeInherit, ctx.getCopyNamespacesModeInherit() == COPY_NAMESPACES_MODE_INHERIT);
+    	result.put(pn_copyNamespacesModePreserve, ctx.getCopyNamespacesModePreserve() == COPY_NAMESPACES_MODE_PRESERVE);
     	
     	Map<String, String> namespaces = new HashMap<String, String>();
     	for (String prefix: ctx.getNamespacePrefixes()) {
     		namespaces.put(prefix, ctx.getNamespaceURI(prefix));
     	}
-    	result.put("Namespaces", namespaces);
+    	result.put(pn_defaultNamespaces, namespaces);
     	return result;
     }
 

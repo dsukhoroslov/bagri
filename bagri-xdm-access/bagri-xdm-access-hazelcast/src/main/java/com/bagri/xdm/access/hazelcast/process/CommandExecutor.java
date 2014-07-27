@@ -6,6 +6,7 @@ import static com.bagri.xdm.access.hazelcast.pof.XDMDataSerializationFactory.fac
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.Callable;
 
 import com.hazelcast.nio.ObjectDataInput;
@@ -16,13 +17,13 @@ public class CommandExecutor implements Callable<Object>, IdentifiedDataSerializ
 
 	protected String command;
 	protected Map bindings;
-	protected Map context;
+	protected Properties context;
 	
 	public CommandExecutor() {
 		// for de-serialization
 	}
 	
-	public CommandExecutor(String command, Map bindings, Map context) {
+	public CommandExecutor(String command, Map bindings, Properties context) {
 		this.command = command;
 		this.bindings = bindings;
 		this.context = context;

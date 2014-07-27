@@ -2,6 +2,7 @@ package com.bagri.xquery.api;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.xml.namespace.QName;
 import javax.xml.xquery.XQException;
@@ -14,7 +15,7 @@ public interface XQProcessor extends QueryProcessor {
 			XQStaticContext ctx) throws XQException;
 	
     Iterator executeXCommand(String command, Map<QName, XQItemAccessor> bindings, 
-    		Map<String, Object> ctx) throws XQException;
+    		Properties props) throws XQException;
 
     // Saxon specific conversion
     // @TODO: move this out of the interface!

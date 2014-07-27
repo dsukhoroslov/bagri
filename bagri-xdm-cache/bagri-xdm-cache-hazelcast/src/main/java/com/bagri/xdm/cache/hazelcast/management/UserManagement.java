@@ -32,32 +32,10 @@ import com.hazelcast.core.IMap;
  */
 @ManagedResource(objectName="com.bagri.xdm:type=Management,name=UserManagement", 
 	description="User Management MBean")
-public class UserManagement extends EntityManagement<String, XDMUser> implements InitializingBean {
+public class UserManagement extends EntityManagement<String, XDMUser> {
 
 	public UserManagement(HazelcastInstance hzInstance) {
 		super(hzInstance);
-	}
-
-	@Override
-	public void afterPropertiesSet() throws Exception {
-        Set<String> names = entityCache.keySet();
-		logger.debug("afterPropertiesSet.enter; got users: {}", names); 
-        for (String name: names) {
-        	//XDMUser user = userCache.get(name);
-       		//EntityManager<XDMUser> uMgr = mgrCache.get(name);
-       		//if (uMgr == null) {
-   			//	logger.debug("afterPropertiesSet; cannot get UserManager for user {}; initializing a new one", name); 
-       		//	try {
-       		//		uMgr = initEntityManager(name);
-       		//	} catch (MBeanExportException | MalformedObjectNameException ex) {
-       		//		// JMX registration failed.
-       		//		logger.error("afterPropertiesSet.error: ", ex);
-       		//	}
-       		//}
-   			//if (uMgr != null) {
-   			//	sMgr.setState("Failed user initialization");
-   			//}
-        }
 	}
 
 	@ManagedAttribute(description="Current User Name")

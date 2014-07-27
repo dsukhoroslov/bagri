@@ -1,7 +1,7 @@
 
 -- Q1.Return the name of the person with ID `person0'.
 
-let $auction := fn:doc("C:/Work/Bagri/git/bagri/etc/samples/xmark/auction.xml") return
+let $auction := fn:doc("auction.xml") return
 for $b in $auction/site/people/person[@id = "person0"] return $b/name/text()
 
 -- Q2. Return the initial increases of all open auctions.
@@ -13,6 +13,7 @@ return <increase>{$b/bidder[1]/increase/text()}</increase>
 -- Q3. Return the IDs of all open auctions whose current
 --     increase is at least twice as high as the initial increase.
 
+declare base-uri "file:///C:/Work/Bagri/git/bagri/etc/samples/xmark/";
 let $auction := doc("auction.xml") return
 for $b in $auction/site/open_auctions/open_auction
 where zero-or-one($b/bidder[1]/increase/text()) * 2 <= $b/bidder[last()]/increase/text()

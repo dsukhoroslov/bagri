@@ -83,7 +83,7 @@ public class HazelcastSchemaDictionary extends XDMSchemaDictionaryBase {
 		nsGen = new HazelcastIdGenerator(hzInstance.getIdGenerator(SQN_NAMESPACE));
 		pathGen = new HazelcastIdGenerator(hzInstance.getIdGenerator(SQN_PATH));
 		typeGen = new HazelcastIdGenerator(hzInstance.getIdGenerator(SQN_DOCTYPE));
-		getLogger().debug("initialize.exit; nsCache: {}", nsCache); 
+		getLogger().debug("initialize.exit; typeCache size: {}", typeCache.size()); 
 	}
 	
 	@Override

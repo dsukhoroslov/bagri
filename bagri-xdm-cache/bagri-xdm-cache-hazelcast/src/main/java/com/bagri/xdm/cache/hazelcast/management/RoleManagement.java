@@ -26,35 +26,13 @@ import com.hazelcast.core.HazelcastInstance;
  */
 @ManagedResource(objectName="com.bagri.xdm:type=Management,name=RoleManagement", 
 	description="Role Management MBean")
-public class RoleManagement extends EntityManagement<String, XDMRole> implements InitializingBean {
+public class RoleManagement extends EntityManagement<String, XDMRole> {
 
 	public RoleManagement(HazelcastInstance hzInstance) {
 		//
 		super(hzInstance);
 	}
 
-	@Override
-	public void afterPropertiesSet() throws Exception {
-        Set<String> names = entityCache.keySet();
-		logger.debug("afterPropertiesSet.enter; got roles: {}", names); 
-        for (String name: names) {
-        	//XDMUser user = userCache.get(name);
-       		//UserManager uMgr = (UserManager) mgrCache.get(name);
-       		//if (uMgr == null) {
-   			//	logger.debug("afterPropertiesSet; cannot get UserManager for user {}; initializing a new one", name); 
-       		//	try {
-       		//		uMgr = initUserManager(name);
-       		//	} catch (MBeanExportException | MalformedObjectNameException ex) {
-       				// JMX registration failed.
-       		//		logger.error("afterPropertiesSet.error: ", ex);
-       		//	}
-       		//}
-   			//if (uMgr != null) {
-   			//	sMgr.setState("Failed user initialization");
-   			//}
-        }
-	}
-	
 	@ManagedAttribute(description="Registered Roles")
 	public String[] getRoleNames() {
 		return entityCache.keySet().toArray(new String[0]);

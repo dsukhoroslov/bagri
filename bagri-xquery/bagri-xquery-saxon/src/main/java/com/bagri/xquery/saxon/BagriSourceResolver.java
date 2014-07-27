@@ -55,7 +55,11 @@ public class BagriSourceResolver implements SourceResolver, ExternalObjectModel 
 		//String[] path = source.getSystemId().split("/");
 		//int docId = Integer.parseInt(path[path.length - 1]);
 		//String content = mgr.getDocumentAsString(docId);
+
+		// why do we need this conversion here at all??
 		String uri = FileUtils.path2Uri(source.getSystemId());
+		//String uri = source.getSystemId();
+		
 		// move this processing to a node (member)
 		// the document belongs to
 		String content = mgr.getDocumentAsString(uri);

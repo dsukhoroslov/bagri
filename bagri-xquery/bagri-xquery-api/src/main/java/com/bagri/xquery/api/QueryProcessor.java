@@ -3,6 +3,7 @@ package com.bagri.xquery.api;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.xml.namespace.QName;
 import javax.xml.xquery.XQDataFactory;
@@ -16,10 +17,12 @@ public interface QueryProcessor {
     XDMDocumentManagement getXdmManager();
     void setXdmManager(XDMDocumentManagement mgr);
     void setXQDataFactory(XQDataFactory xqFactory);    
+    
+    Properties getProperties();
 	
     Collection<QName> prepareXQuery(String query, XQStaticContext ctx) throws XQException;
     Iterator executeXQuery(String query, XQStaticContext ctx) throws XQException;
-    Iterator executeXQuery(String query, Map<String, Object> ctx) throws XQException;
+    Iterator executeXQuery(String query, Properties props) throws XQException;
     void bindVariable(QName varName, Object var) throws XQException;
     void unbindVariable(QName varName) throws XQException;
 	

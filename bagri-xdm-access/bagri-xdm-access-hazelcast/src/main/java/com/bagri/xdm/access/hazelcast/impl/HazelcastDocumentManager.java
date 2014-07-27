@@ -22,6 +22,8 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import com.bagri.common.idgen.IdGenerator;
 import com.bagri.common.query.ExpressionBuilder;
@@ -350,12 +352,12 @@ public class HazelcastDocumentManager extends XDMDocumentManagerClient {
 	}
 
 	@Override
-	public Object executeXCommand(String command, Map bindings, Map context) {
+	public Object executeXCommand(String command, Map bindings, Properties props) {
 
 		long stamp = System.currentTimeMillis();
-		logger.trace("executeXCommand.enter; command: {}; bindings: {}; context: {}", command, bindings, context);
+		logger.trace("executeXCommand.enter; command: {}; bindings: {}; context: {}", command, bindings, props);
 		
-		CommandExecutor task = new CommandExecutor(command, bindings, context);
+		CommandExecutor task = new CommandExecutor(command, bindings, props);
 		Future<Object> future = execService.submit(task);
 		Object result = null;
 		try {
@@ -369,24 +371,35 @@ public class HazelcastDocumentManager extends XDMDocumentManagerClient {
 	}
 
 	@Override
-	public Object executeXQuery(String query, Map bindings, Map context) {
+	public Object executeXQuery(String query, Map bindings, Properties props) {
 
 		long stamp = System.currentTimeMillis();
-		logger.trace("executeXQuery.enter; query: {}; bindings: {}; context: {}", query, bindings, context);
+		logger.trace("executeXQuery.enter; query: {}; bindings: {}; context: {}", query, bindings, props);
 		
-		QueryExecutor task = new QueryExecutor(query, bindings, context);
+		QueryExecutor task = new QueryExecutor(query, bindings, props);
 		Future<Object> future = execService.submit(task);
 		Object result = null;
+		// @TODO: get timeout from XQJ context
+		long timeout = 30;
 		try {
-			HazelcastXQCursor cursor = (HazelcastXQCursor) future.get();
+			HazelcastXQCursor cursor;
+			if (timeout > 0) {
+				cursor = (HazelcastXQCursor) future.get(timeout, TimeUnit.SECONDS);
+			} else {
+				cursor = (HazelcastXQCursor) future.get();
+			}
 			cursor.deserialize(hzInstance);
 			result = cursor;
 			logger.trace("executeXQuery.exit; time taken: {}; returning: {}", System.currentTimeMillis() - stamp, result);
 			//return (XDMDocument) result;
+		} catch (TimeoutException ex) {
+			future.cancel(true);
+			logger.warn("executeXQuery.error; query timed out", ex);
 		} catch (InterruptedException | ExecutionException ex) {
+			// cancel feature ??
 			logger.error("executeXQuery.error; error getting result", ex);
 		}
-		return result; //.iterator();
+		return result; 
 	}
 
 	@Override

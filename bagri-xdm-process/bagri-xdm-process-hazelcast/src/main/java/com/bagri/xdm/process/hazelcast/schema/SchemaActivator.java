@@ -42,9 +42,9 @@ public class SchemaActivator extends SchemaProcessor implements DataSerializable
 							result = schema;
 							auditEntity(AuditType.update, schema);
 
-							logger.debug("process; schema activated, starting population");
-							SchemaPopulator pop = new SchemaPopulator(schema.getName());
-							execService.submitToAllMembers(pop);
+							//logger.debug("process; schema activated, starting population");
+							//SchemaPopulator pop = new SchemaPopulator(schema.getName());
+							//execService.submitToAllMembers(pop);
 						}
 					}
 				} else {

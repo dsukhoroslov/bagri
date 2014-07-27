@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.xml.namespace.QName;
 import javax.xml.xquery.XQException;
@@ -21,25 +22,25 @@ public class BagriXQProcessorProxy extends SaxonXQProcessor implements XQProcess
 	@Override
 	public Iterator executeXCommand(String command, Map<QName, XQItemAccessor> bindings, XQStaticContext ctx) throws XQException {
 		
-		return executeXCommand(command, bindings, contextToMap(ctx));
+		return executeXCommand(command, bindings, contextToProps(ctx));
 	}
 
 	@Override
-	public Iterator executeXCommand(String command, Map<QName, XQItemAccessor> bindings, Map<String, Object> ctx) throws XQException {
+	public Iterator executeXCommand(String command, Map<QName, XQItemAccessor> bindings, Properties props) throws XQException {
 		
     	logger.trace("executeXCommand.enter; command: {}", command);
     	XDMDocumentManagement dMgr = getXdmManager();
-		return (Iterator) dMgr.executeXCommand(command, bindings, ctx);
+		return (Iterator) dMgr.executeXCommand(command, bindings, props);
 	}
 
 	@Override
 	public Iterator executeXQuery(String query, XQStaticContext ctx) throws XQException {
 
-		return executeXQuery(query, contextToMap(ctx));
+		return executeXQuery(query, contextToProps(ctx));
 	}
 
 	@Override
-	public Iterator executeXQuery(String query, Map<String, Object> ctx) throws XQException {
+	public Iterator executeXQuery(String query, Properties props) throws XQException {
 
     	logger.trace("executeXQuery.enter; query: {}", query);
     	XDMDocumentManagement dMgr = getXdmManager();
@@ -49,12 +50,11 @@ public class BagriXQProcessorProxy extends SaxonXQProcessor implements XQProcess
     		bindings.put(qName, params.get(qName));
     	}
     	logger.trace("executeXQuery; bindings: {}", bindings);
-		return (Iterator) dMgr.executeXQuery(query, bindings, ctx);
+		return (Iterator) dMgr.executeXQuery(query, bindings, props);
 	}
 
 	//@Override
 	//public Collection<QName> prepareXQuery(String query, XQStaticContext ctx) throws XQException {
-		// TODO Auto-generated method stub
 	//	return null;
 	//}
 

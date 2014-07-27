@@ -18,14 +18,14 @@ public class XmlBuilder {
     	StringBuffer buff = new StringBuffer();
     	Stack<XDMElement> dataStack = new Stack<XDMElement>();
     	boolean eltOpen = false;
-	int idx = 0;
+    	//int idx = 0;
     	for (XDMElement xdm: xdms) {
-    		idx++;
-		if (idx % 10000 == 0) {
-    			logger.trace("buildXml; idx: {}; length: {}", idx, buff.length());
-		}
+    		//idx++;
+    		//if (idx % 10000 == 0) {
+    		//	logger.trace("buildXml; idx: {}; length: {}", idx, buff.length());
+    		//}
 
-		//XDMPath path = dict.getPath(xdm.getPathId());
+    		//XDMPath path = dict.getPath(xdm.getPathId());
     		//if (path ==  null) {
     		//	logger.warn("Can't find path for element: {}", xdm);
     		//}

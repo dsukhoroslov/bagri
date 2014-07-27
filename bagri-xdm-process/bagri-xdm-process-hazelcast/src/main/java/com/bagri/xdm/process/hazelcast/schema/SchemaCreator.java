@@ -40,11 +40,11 @@ public class SchemaCreator extends SchemaProcessor implements DataSerializable {
 			entry.setValue(schema);
 			auditEntity(AuditType.create, schema);
 
-			if (schema.isActive()) {
-				logger.debug("process; schema activated, starting population");
-				SchemaPopulator pop = new SchemaPopulator(schema.getName());
-				execService.submitToAllMembers(pop);
-			}
+			//if (schema.isActive()) {
+			//	logger.debug("process; schema activated, starting population");
+			//	SchemaPopulator pop = new SchemaPopulator(schema.getName());
+			//	execService.submitToAllMembers(pop);
+			//}
 			return schema;
 		} 
 		return null;

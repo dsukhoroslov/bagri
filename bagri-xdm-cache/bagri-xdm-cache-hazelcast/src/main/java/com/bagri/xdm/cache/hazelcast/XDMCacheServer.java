@@ -11,6 +11,8 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import javax.management.MBeanServer;
 import javax.management.remote.JMXConnectorServer;
@@ -23,11 +25,18 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import com.bagri.xdm.cache.hazelcast.management.PopulationManager;
 import com.bagri.xdm.cache.hazelcast.management.UserManagement;
 import com.bagri.xdm.cache.hazelcast.security.BagriJAASInvocationHandler;
 import com.bagri.xdm.cache.hazelcast.security.BagriJMXAuthenticator;
+import com.bagri.xdm.process.hazelcast.schema.SchemaInitiator;
 import com.bagri.xdm.process.hazelcast.schema.SchemaPopulator;
+import com.bagri.xdm.system.XDMSchema;
+import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IExecutorService;
+import com.hazelcast.core.IMap;
+import com.hazelcast.core.Member;
 
 public class XDMCacheServer {
 
@@ -102,24 +111,50 @@ public class XDMCacheServer {
 		logger.debug("JMX connector server started with attributes: {}", cs.getAttributes());
     }
     
-    private static void initServerNode(HazelcastInstance hz) {
-        int clusterSize = hz.getCluster().getMembers().size();
-        String schemas = hz.getCluster().getLocalMember().getStringAttribute(op_node_schemas);
+    private static void initServerNode(HazelcastInstance systemInstance) {
+        int clusterSize = systemInstance.getCluster().getMembers().size();
+        String schemas = systemInstance.getCluster().getLocalMember().getStringAttribute(op_node_schemas);
         String[] aSchemas = schemas.split(" ");
+        IMap<String, XDMSchema> schemaCache = systemInstance.getMap("schemas");
         for (String name: aSchemas) {
           	String schema = name.trim();
            	if (schema.length() > 0) {
-            	if (clusterSize == 1) {
-            		logger.debug("Going to deploy schema: {}", schema);
+            	//if (clusterSize == 1) {
+            		logger.debug("initServerNode; Going to deploy schema: {}", schema);
             		// will deploy schema here..
+            	//}
+            	XDMSchema xSchema = schemaCache.get(schema);
+            	if (xSchema != null) {
+            		initSchema(systemInstance, xSchema);
             	}
 
-        		logger.debug("initServerNode; schema activated, starting population");
-        		SchemaPopulator pop = new SchemaPopulator(schema);
-        		hz.getExecutorService("xdm-exec-pool").submitToAllMembers(pop);
+            	HazelcastInstance schemaInstance = Hazelcast.getHazelcastInstanceByName(schema);
+            	if (schemaInstance != null) {
+            		ApplicationContext schemaContext = (ApplicationContext) schemaInstance.getUserContext().get("appContext");
+            		PopulationManager popManager = schemaContext.getBean("popManager", PopulationManager.class);
+            		popManager.checkPopulation(schemaInstance.getCluster().getMembers().size());
+            	} else {
+            		logger.warn("initServerNode; cannot find HazelcastInstance for schema '{}'!", schema);
+            	}
            	}
     	}
     	
     }
-
+    
+    private static boolean initSchema(HazelcastInstance hzInstance, XDMSchema schema) {
+    	
+		logger.trace("initSchema.enter; schema: {}", schema);
+		SchemaInitiator init = new SchemaInitiator(schema.getName(), schema.getProperties());
+		IExecutorService execService = hzInstance.getExecutorService("xdm-exec-pool");
+       	Future<Boolean> result = execService.submitToMember(init, hzInstance.getCluster().getLocalMember());
+       	Boolean ok = false;
+       	try {
+			ok = result.get();
+		} catch (InterruptedException | ExecutionException ex) {
+			logger.error("initSchemaInCluster.error; ", ex);
+        }
+		logger.info("initSchemaInCluster.exit; schema {} {}initialized", schema, ok ? "" : "NOT ");
+		return ok;
+	}
+    
 }

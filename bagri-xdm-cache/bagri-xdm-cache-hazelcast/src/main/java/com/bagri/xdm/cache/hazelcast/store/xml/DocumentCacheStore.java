@@ -13,23 +13,42 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.bagri.xdm.access.api.XDMSchemaDictionary;
 import com.bagri.xdm.domain.XDMDocument;
+import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IdGenerator;
+import com.hazelcast.core.MapLoaderLifecycleSupport;
 import com.hazelcast.core.MapStore;
 
-public class DocumentCacheStore extends XmlCacheStore implements MapStore<String, XDMDocument> {
+public class DocumentCacheStore extends XmlCacheStore implements MapStore<String, XDMDocument>, MapLoaderLifecycleSupport {
 
     private static final Logger logger = LoggerFactory.getLogger(DocumentCacheStore.class);
+    private static final int defVersion = 1;
+    private static final String defEncoding = "UTF-8";
     
+    private boolean ready = false;
     private IdGenerator docGen;
-    private Map<String, Long> docKeys;
+    private Map<String, DocumentDataHolder> docKeys = new HashMap<String, DocumentDataHolder>();
     
-	Map<String, Long> getDocumentKeys() {
+	@Override
+	public void init(HazelcastInstance hazelcastInstance, Properties properties, String mapName) {
+		logger.trace("init.enter; properties: {}", properties);
+		Object prop = properties.get("ready");
+		ready = prop != null && (Boolean) prop; 
+	}
+
+	@Override
+	public void destroy() {
+		// do nothing
+	}
+    
+	Map<String, DocumentDataHolder> getDocumentKeys() {
 		return docKeys;
 	}
 	
@@ -37,31 +56,37 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<String
     	this.docGen = docGen;
     }
     
-	private List<String> processPathFiles(Path path) throws IOException {
-		List<String> result = new ArrayList<String>(); 
+	private void processPathFiles(Path path) throws IOException {
 		DirectoryStream<Path> ds = Files.newDirectoryStream(path, "*.xml");
 	    for (Iterator<Path> itr = ds.iterator(); itr.hasNext();) {
 	    	path = itr.next();
 	        if (Files.isDirectory(path)) {
-	            result.addAll(processPathFiles(path));
+	            processPathFiles(path);
 	        } else {
 	    		//logger.trace("processPathFiles; path: {}; uri: {}", path.toString(), path.toUri().toString());
-	            result.add(path.toAbsolutePath().normalize().toString());
+	            docKeys.put(normalizePath(path), new DocumentDataHolder(docGen.newId()));
 	        }
 	    }
-	    return result;
 	}
 
+	private String normalizePath(Path path) {
+		return path.toAbsolutePath().normalize().toString();
+	}
+	
     private XDMDocument newDocumentFromPath(Path path) {
     	if (Files.exists(path)) {
-    		long docId = docGen.newId();
-    		String uri = path.toAbsolutePath().normalize().toString();
-    		docKeys.put(uri, docId);
-    		// @todo: get docType from dictionary
-    		int docType = 0;
+    		String uri = normalizePath(path);
+    		DocumentDataHolder data = docKeys.get(uri);
+    		if (data == null) {
+	    		logger.info("newDocumentFromPath; got unknown path: {}", path);
+    			data = new DocumentDataHolder(docGen.newId());
+    			// @todo: how will we get docType now ?
+    			docKeys.put(uri, data);
+    		}
     		try {
-				return new XDMDocument(docId, uri, docType, 1, 
-					new Date(Files.getLastModifiedTime(path).toMillis()), Files.getOwner(path).getName(), "UTF-8");
+				return new XDMDocument(data.docId, uri, data.docType, defVersion, 
+					new Date(Files.getLastModifiedTime(path).toMillis()), Files.getOwner(path).getName(), 
+					defEncoding);
 			} catch (IOException ex) {
 				logger.error("newDocumentFromPath.error; path: " + path, ex);
 			}
@@ -72,7 +97,6 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<String
 	@Override
 	public XDMDocument load(String key) {
 		logger.trace("load.enter; key: {}", key);
-    	//File file = new File(key);
 		Path path = Paths.get(key);
     	XDMDocument result = newDocumentFromPath(path);
 		logger.trace("load.exit; returning: {}", result);
@@ -96,14 +120,18 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<String
 
 	@Override
 	public Set<String> loadAllKeys() {
+		if (!ready) {
+			logger.trace("loadAllKeys.enter; store is not ready yet, skipping population");
+			return null;
+		}
+		
 		logger.trace("loadAllKeys.enter;");
 	    Set<String> docUris = null;
 		Path path = Paths.get(getDataPath());
 		try {
-			docUris = new HashSet<String>(processPathFiles(path));
-			if (docKeys == null) {
-				docKeys = new HashMap<String, Long>(docUris.size());
-			}
+			docKeys.clear();
+			processPathFiles(path);
+			docUris = new HashSet(docKeys.keySet());
 		} catch (IOException ex) {
 			logger.error("loadAllKeys.error;", ex);
 		}
@@ -151,5 +179,5 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<String
 		}
 		logger.trace("deleteAll.exit; deleted: {}", deleted);
 	}
-
+	
 }

@@ -32,7 +32,41 @@ return	<Security>
 	{$sec/PE}
 	{$sec/Yield}
 </Security>
+
+
+declare default element namespace "http://tpox-benchmark.com/custacc";
+for $cust in fn:collection("/{http://tpox-benchmark.com/custacc}Customer")/Customer
+return 
+        <Customer_Profile CUSTOMERID="{$cust/@id}">
+                {$cust/Name}
+                {$cust/DateOfBirth}
+                {$cust/Gender}
+                {$cust/CountryOfResidence}
+                {$cust/Languages}
+                {$cust/Addresses}
+                {$cust/EmailAddresses}
+        </Customer_Profile>
+
     
+declare default element namespace "http://tpox-benchmark.com/custacc";
+
+for $cust in fn:collection("/{http://tpox-benchmark.com/custacc}Customer")/Customer
+return
+	<Customer>{$cust/@id}
+		{$cust/Name}
+		<Customer_Securities>
+			{
+			 for $account in $cust/Accounts/Account	
+			 return 
+				<Account BALANCE="{$account/Balance/OnlineActualBal}" ACCOUNT_ID="{$account/@id}">
+					<Securities>
+						{$account/Holdings/Position/Name}
+					</Securities>
+				</Account>
+			}
+		</Customer_Securities>
+	</Customer>
+
 
 /*
 		String query = //"declare namespace s=\"http://tpox-benchmark.com/security\";\n" +

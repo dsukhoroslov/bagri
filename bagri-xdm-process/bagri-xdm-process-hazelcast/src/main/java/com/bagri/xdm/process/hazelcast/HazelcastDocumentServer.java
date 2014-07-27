@@ -1,5 +1,6 @@
 package com.bagri.xdm.process.hazelcast;
 
+import java.net.URI;
 import java.nio.file.Paths;
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -11,6 +12,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Properties;
 import java.util.Set;
 
 import javax.xml.xquery.XQException;
@@ -26,6 +28,7 @@ import com.bagri.xdm.common.XDMDataKey;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMElement;
 import com.bagri.xdm.domain.XDMNodeKind;
+import com.bagri.xqj.BagriXQConstants;
 import com.bagri.xquery.api.XQProcessor;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
@@ -36,8 +39,8 @@ import com.hazelcast.query.Predicates;
 
 public class HazelcastDocumentServer extends XDMDocumentManagerServer {
 	
-    private HazelcastInstance hzInstance;
     private IdGenerator docGen;
+    private HazelcastInstance hzInstance;
     private IMap<String, XDMDocument> xddCache;
     private IMap<XDMDataKey, XDMElement> xdmCache;
     private XQProcessor xqProcessor;
@@ -342,14 +345,31 @@ public class HazelcastDocumentServer extends XDMDocumentManagerServer {
 
 	@Override
 	public XDMDocument getDocument(String uri) {
-		return xddCache.get(uri);
+		XDMDocument doc = null; //xddCache.get(uri);
+		if (doc == null) {
+			String path = FileUtils.uri2Path(uri);
+			logger.trace("getDocument; got uri: {}; path: {}", uri, path);
+			doc = xddCache.get(path);
+			if (doc == null) {
+				Properties props = xqProcessor.getProperties();
+				String baseUri = props.getProperty(BagriXQConstants.pn_baseURI);
+				logger.trace("getDocument; base URI: {}", baseUri);
+				URI base = URI.create(baseUri);
+				URI full = base.resolve(FileUtils.path2Uri(uri));
+				path = Paths.get(full).toString();
+				logger.trace("getDocument; got full uri: {}; full path: {}", full, path);
+				doc = xddCache.get(path);
+			}
+		}
+		logger.trace("getDocument; returning: {}", doc);
+		return doc;
 	}
 
 	@Override
 	public String getDocumentAsString(String uri) {
-		String path = FileUtils.uri2Path(uri);
-		logger.trace("getDocumentAsString; got uri: {}; path: {}", uri, path);
-		XDMDocument doc = xddCache.get(path);
+		//String path = FileUtils.uri2Path(uri);
+		//logger.trace("getDocumentAsString; got uri: {}; path: {}", uri, path);
+		XDMDocument doc = getDocument(uri);
 		if (doc == null) {
 			logger.info("getDocumentAsString; no document found for URI: {}", uri);
 			return null;
@@ -358,7 +378,7 @@ public class HazelcastDocumentServer extends XDMDocumentManagerServer {
 		String xPath = mDictionary.getDocumentRoot(doc.getTypeId());
 		Map<String, String> params = new HashMap<String, String>();
 		params.put(":doc", xPath);
-		Collection<String> results = buildDocument(Collections.singleton(path), ":doc", params);
+		Collection<String> results = buildDocument(Collections.singleton(doc.getUri()), ":doc", params);
 		return results.isEmpty() ? null : results.iterator().next();
 	}
 
@@ -401,13 +421,13 @@ public class HazelcastDocumentServer extends XDMDocumentManagerServer {
 	}
 
 	@Override
-	public Object executeXCommand(String command, Map bindings,	Map context) {
+	public Object executeXCommand(String command, Map bindings,	Properties props) {
 		
 		long stamp = System.currentTimeMillis();
 		logger.trace("executeXCommand.enter; command: {}; bindings: {}", command, bindings);
 		Object result = null;
 		try {
-			result = xqProcessor.executeXCommand(command, bindings, context);
+			result = xqProcessor.executeXCommand(command, bindings, props);
 		} catch (XQException ex) {
 			logger.error("executeXCommand; error: ", ex);
 		}
@@ -417,13 +437,13 @@ public class HazelcastDocumentServer extends XDMDocumentManagerServer {
 	}
 
 	@Override
-	public Object executeXQuery(String query, Map bindings,	Map context) {
+	public Object executeXQuery(String query, Map bindings,	Properties props) {
 
 		long stamp = System.currentTimeMillis();
 		logger.trace("executeXQuery.enter; command: {}; bindings: {}", query, bindings);
 		Object result = null;
 		try {
-			Iterator iter = xqProcessor.executeXQuery(query, context);
+			Iterator iter = xqProcessor.executeXQuery(query, props);
 			result = createCursor(iter);
 		} catch (XQException ex) {
 			logger.error("executeXQuery; error: ", ex);

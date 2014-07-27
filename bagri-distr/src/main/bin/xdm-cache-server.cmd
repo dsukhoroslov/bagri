@@ -29,7 +29,7 @@ set java_opts=%java_opts% -Xloggc:../logs/gc.log -XX:GCLogFileSize=50M -XX:Numbe
 set java_opts=%java_opts% -Dnode.logdir=../logs
 set java_opts=%java_opts% -Dlogback.configurationFile=../config/xdm-cache-logging.xml
 set java_opts=%java_opts% -Dxdm.config.path=../config
-set java_opts=%java_opts% -Dxdm.config.context.file=spring/bagri-admin-context.xml
+set java_opts=%java_opts% -Dxdm.config.context.file=spring/system-admin-context.xml
 set java_opts=%java_opts% -Dxdm.config.properties.file=xdm-server.properties
 
 rem jmx_port=$(( 6200 + $nodeNum ))

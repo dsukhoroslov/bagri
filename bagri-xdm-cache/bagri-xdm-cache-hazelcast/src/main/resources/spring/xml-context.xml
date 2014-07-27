@@ -16,7 +16,6 @@
 
 	<bean id="eltCacheStore" class="com.bagri.xdm.cache.hazelcast.store.xml.ElementCacheStore">
 	    <property name="dataPath" value="${xdm.schema.store.data.path}" />
-	    <property name="documentIdGenerator" ref="xdm.document"/>
 	    <property name="documentStore" ref="docCacheStore"/>
 	    <property name="elementIdGenerator" ref="eltGen"/>
 		<property name="keyFactory" ref="xdmFactory"/>
