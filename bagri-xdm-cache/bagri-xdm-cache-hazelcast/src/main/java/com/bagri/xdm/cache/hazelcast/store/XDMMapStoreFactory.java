@@ -77,11 +77,12 @@ public class XDMMapStoreFactory implements ApplicationContextAware, MapStoreFact
 						contexts.put(type, ctx);
 					}
 				}
+				logger.debug("newMapStore; got context: {}", ctx);
 				
 				if (ctx != null) {
-					
-					HazelcastInstance hz = parentCtx.getBean("hzInstance", HazelcastInstance.class);
-		    		hz.getUserContext().put("storeContext", ctx);
+					// deadlocks here
+					//HazelcastInstance hz = parentCtx.getBean("hzInstance", HazelcastInstance.class);
+		    		//hz.getUserContext().put("storeContext", ctx);
 					if (st_mongo.equals(type)) {
 						if ("xdm-element".equals(mapName)) {
 							mStore = ctx.getBean("elementCacheStore", 

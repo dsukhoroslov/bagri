@@ -111,10 +111,10 @@ public abstract class EntityManagement<String, E extends XDMEntity> implements E
 		// make entity inactive ?
 	}
 
-	@Override
-	public void mapCleared(MapEvent event) {
-		logger.trace("mapCleared; event: {}", event);
+	//@Override
+	//public void mapCleared(MapEvent event) {
+	//	logger.trace("mapCleared; event: {}", event);
 		// shouldn't be this! delete all roles?
-	}
+	//}
 
 }
