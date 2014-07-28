@@ -9,8 +9,10 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.MemberAttributeEvent;
 import com.hazelcast.core.MembershipEvent;
 import com.hazelcast.core.MembershipListener;
+import com.hazelcast.core.MigrationEvent;
+import com.hazelcast.core.MigrationListener;
 
-public class PopulationManager implements MembershipListener {
+public class PopulationManager implements MembershipListener, MigrationListener {
 
     private static final transient Logger logger = LoggerFactory.getLogger(PopulationManager.class);
     
@@ -20,7 +22,8 @@ public class PopulationManager implements MembershipListener {
     
     public PopulationManager(HazelcastInstance hzInstance) {
     	this.hzInstance = hzInstance;
-    	//hzInstance.getCluster().addMembershipListener(this);
+    	hzInstance.getCluster().addMembershipListener(this);
+    	hzInstance.getPartitionService().addMigrationListener(this);
     }
 
     public void setSchemaName(String schemaName) {
@@ -58,6 +61,21 @@ public class PopulationManager implements MembershipListener {
 	@Override
 	public void memberAttributeChanged(MemberAttributeEvent memberAttributeEvent) {
 		logger.trace("memberAttributeChaged; event: {}", memberAttributeEvent);
+	}
+
+	@Override
+	public void migrationStarted(MigrationEvent migrationEvent) {
+		logger.trace("migrationStarted; event: {}", migrationEvent);
+	}
+
+	@Override
+	public void migrationCompleted(MigrationEvent migrationEvent) {
+		logger.trace("migrationCompleted; event: {}", migrationEvent);
+	}
+
+	@Override
+	public void migrationFailed(MigrationEvent migrationEvent) {
+		logger.trace("migrationFailed; event: {}", migrationEvent);
 	}
 
 

@@ -23,7 +23,7 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.MapLoader;
 import com.hazelcast.core.MapStore;
 import com.hazelcast.core.MapStoreFactory;
-import com.hazelcast.spring.mongodb.MongoMapStore;
+//import com.hazelcast.spring.mongodb.MongoMapStore;
 
 public class XDMMapStoreFactory implements ApplicationContextAware, MapStoreFactory {
 	
@@ -87,7 +87,7 @@ public class XDMMapStoreFactory implements ApplicationContextAware, MapStoreFact
 							mStore = ctx.getBean("elementCacheStore", 
 									com.bagri.xdm.cache.hazelcast.store.mongo.ElementCacheStore.class);
 						} else {
-							mStore = ctx.getBean("mongoCacheStore", MongoMapStore.class);
+							mStore = null; //ctx.getBean("mongoCacheStore", MongoMapStore.class);
 						}
 					} else if (st_hive.equals(type)) {
 						mStore = ctx.getBean("hiveCacheStore", HiveCacheStore.class);

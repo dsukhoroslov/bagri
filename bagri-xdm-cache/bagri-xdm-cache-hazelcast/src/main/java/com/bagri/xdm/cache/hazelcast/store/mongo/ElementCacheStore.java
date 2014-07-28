@@ -16,7 +16,7 @@ import org.springframework.data.mongodb.core.convert.MongoConverter;
 import com.bagri.xdm.access.hazelcast.data.DataDocumentKey;
 import com.bagri.xdm.domain.XDMElement;
 import com.hazelcast.core.MapStore;
-import com.hazelcast.spring.mongodb.MongoMapStore;
+//import com.hazelcast.spring.mongodb.MongoMapStore;
 import com.mongodb.DBObject;
 
 public class ElementCacheStore implements MapStore<DataDocumentKey, XDMElement> {
@@ -24,17 +24,18 @@ public class ElementCacheStore implements MapStore<DataDocumentKey, XDMElement> 
     private static final Logger logger = LoggerFactory.getLogger(ElementCacheStore.class);
     
     //@Autowired
-    private MongoMapStore mongoCacheStore;
+    //private MongoMapStore mongoCacheStore;
+    private MapStore mongoCacheStore; 
     
-    public void setMongoCacheStore(MongoMapStore store) {
-    	this.mongoCacheStore = store;
-    }
+    //public void setMongoCacheStore(MongoMapStore store) {
+    //	this.mongoCacheStore = store;
+    //}
 
 	@Override
 	public XDMElement load(DataDocumentKey key) {
 		logger.trace("load.enter; key: {}", key);
 		//key = getMongoTemplate().getConverter().convertToMongoType(key);
-		Object mongoKey = mongoCacheStore.getMongoTemplate().getConverter().convertToMongoType(key);
+		Object mongoKey = null; //mongoCacheStore.getMongoTemplate().getConverter().convertToMongoType(key);
 		XDMElement result = (XDMElement) mongoCacheStore.load(mongoKey);
 		logger.trace("load.exit; returning: {}", result);
 		return result;
@@ -44,7 +45,7 @@ public class ElementCacheStore implements MapStore<DataDocumentKey, XDMElement> 
 	public Map<DataDocumentKey, XDMElement> loadAll(Collection<DataDocumentKey> keys) {
 		logger.trace("loadAll.enter; keys: {}", keys.size());
 		List mongoKeys = new ArrayList(keys.size());
-		MongoConverter mc = mongoCacheStore.getMongoTemplate().getConverter();
+		MongoConverter mc = null; //mongoCacheStore.getMongoTemplate().getConverter();
 		for (Object key: keys) {
 			mongoKeys.add(mc.convertToMongoType(key));
 		}
@@ -66,7 +67,7 @@ public class ElementCacheStore implements MapStore<DataDocumentKey, XDMElement> 
 		Set result = mongoCacheStore.loadAllKeys();
 		logger.trace("loadAllKeys; intermediate result: {}", result);
 		Set<DataDocumentKey> result2 = new HashSet<DataDocumentKey>(result.size());
-		MongoConverter mc = mongoCacheStore.getMongoTemplate().getConverter();
+		MongoConverter mc = null; //mongoCacheStore.getMongoTemplate().getConverter();
 		for (Object key: result) {
 			if (key instanceof DBObject) {
 				result2.add(mc.read(DataDocumentKey.class, (DBObject) key));
@@ -80,7 +81,7 @@ public class ElementCacheStore implements MapStore<DataDocumentKey, XDMElement> 
 	public void store(DataDocumentKey key, XDMElement value) {
 		logger.trace("store.enter; key: {}; value: {}", key, value);
 		//key = "" + ((DataDocumentKey) key).getDataId() + ":" + ((DataDocumentKey) key).getDocumentId();
-		Object mongoKey = mongoCacheStore.getMongoTemplate().getConverter().convertToMongoType(key);
+		Object mongoKey = null; //mongoCacheStore.getMongoTemplate().getConverter().convertToMongoType(key);
 		mongoCacheStore.store(mongoKey, value);
 		logger.trace("store.exit;");
 	}
@@ -89,7 +90,7 @@ public class ElementCacheStore implements MapStore<DataDocumentKey, XDMElement> 
 	public void storeAll(Map<DataDocumentKey, XDMElement> entries) {
 		logger.trace("storeAll.enter; entries: {}", entries.size());
 		Map map = new HashMap(entries.size());
-		MongoConverter mc = mongoCacheStore.getMongoTemplate().getConverter();
+		MongoConverter mc = null; //mongoCacheStore.getMongoTemplate().getConverter();
 		for (Map.Entry<DataDocumentKey, XDMElement> entry: entries.entrySet()) {
 			map.put(mc.convertToMongoType(entry.getKey()), entry.getValue());
 		}
@@ -100,7 +101,7 @@ public class ElementCacheStore implements MapStore<DataDocumentKey, XDMElement> 
 	@Override
 	public void delete(DataDocumentKey key) {
 		logger.trace("delete.enter; key: {}", key);
-		Object mongoKey = mongoCacheStore.getMongoTemplate().getConverter().convertToMongoType(key);
+		Object mongoKey = null; //mongoCacheStore.getMongoTemplate().getConverter().convertToMongoType(key);
 		mongoCacheStore.delete(mongoKey);
 		logger.trace("delete.exit;");
 	}
@@ -109,7 +110,7 @@ public class ElementCacheStore implements MapStore<DataDocumentKey, XDMElement> 
 	public void deleteAll(Collection<DataDocumentKey> keys) {
 		logger.trace("deleteAll.enter; keys: {}", keys.size());
 		List mongoKeys = new ArrayList(keys.size());
-		MongoConverter mc = mongoCacheStore.getMongoTemplate().getConverter();
+		MongoConverter mc = null; //mongoCacheStore.getMongoTemplate().getConverter();
 		for (Object key: keys) {
 			mongoKeys.add(mc.convertToMongoType(key));
 		}
