@@ -29,6 +29,7 @@ import com.bagri.xdm.cache.hazelcast.management.PopulationManager;
 import com.bagri.xdm.cache.hazelcast.management.UserManagement;
 import com.bagri.xdm.cache.hazelcast.security.BagriJAASInvocationHandler;
 import com.bagri.xdm.cache.hazelcast.security.BagriJMXAuthenticator;
+import com.bagri.xdm.process.hazelcast.SpringContextHolder;
 import com.bagri.xdm.process.hazelcast.schema.SchemaInitiator;
 import com.bagri.xdm.process.hazelcast.schema.SchemaPopulator;
 import com.bagri.xdm.system.XDMSchema;
@@ -117,24 +118,26 @@ public class XDMCacheServer {
         String[] aSchemas = schemas.split(" ");
         IMap<String, XDMSchema> schemaCache = systemInstance.getMap("schemas");
         for (String name: aSchemas) {
-          	String schema = name.trim();
-           	if (schema.length() > 0) {
+          	String schemaName = name.trim();
+           	if (schemaName.length() > 0) {
             	//if (clusterSize == 1) {
-            		logger.debug("initServerNode; Going to deploy schema: {}", schema);
+            		logger.debug("initServerNode; Going to deploy schema: {}", schemaName);
             		// will deploy schema here..
             	//}
-            	XDMSchema xSchema = schemaCache.get(schema);
+            	XDMSchema xSchema = schemaCache.get(schemaName);
             	if (xSchema != null) {
             		initSchema(systemInstance, xSchema);
             	}
 
-            	HazelcastInstance schemaInstance = Hazelcast.getHazelcastInstanceByName(schema);
+            	HazelcastInstance schemaInstance = Hazelcast.getHazelcastInstanceByName(schemaName);
             	if (schemaInstance != null) {
-            		ApplicationContext schemaContext = (ApplicationContext) schemaInstance.getUserContext().get("appContext");
+            		//ApplicationContext schemaContext = (ApplicationContext) schemaInstance.getUserContext().get("appContext");
+            		ApplicationContext schemaContext = (ApplicationContext) 
+            				SpringContextHolder.getContext(schemaName, "appContext");
             		PopulationManager popManager = schemaContext.getBean("popManager", PopulationManager.class);
             		popManager.checkPopulation(schemaInstance.getCluster().getMembers().size());
             	} else {
-            		logger.warn("initServerNode; cannot find HazelcastInstance for schema '{}'!", schema);
+            		logger.warn("initServerNode; cannot find HazelcastInstance for schema '{}'!", schemaName);
             	}
            	}
     	}

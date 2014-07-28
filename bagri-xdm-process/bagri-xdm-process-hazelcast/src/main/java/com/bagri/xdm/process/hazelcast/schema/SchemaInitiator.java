@@ -8,6 +8,7 @@ import java.util.Properties;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.env.PropertiesPropertySource;
 
+import com.bagri.xdm.process.hazelcast.SpringContextHolder;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.nio.ObjectDataInput;
@@ -48,8 +49,8 @@ public class SchemaInitiator extends SchemaDenitiator {
     		ctx.refresh();
 
     		hz = ctx.getBean("hzInstance", HazelcastInstance.class);
-    		hz.getUserContext().put("appContext", ctx);
     		//hz.getConfig().getSecurityConfig().setEnabled(true);
+			SpringContextHolder.setContext(schemaName, "appContext", ctx);
     		logger.debug("initSchema.exit; schema {} started on instance: {}", schemaName, hz);
     		return true;
     	} catch (Exception ex) {

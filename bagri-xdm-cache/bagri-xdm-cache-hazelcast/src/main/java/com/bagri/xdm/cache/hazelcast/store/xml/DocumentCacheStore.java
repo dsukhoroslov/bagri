@@ -40,7 +40,11 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<String
 	public void init(HazelcastInstance hazelcastInstance, Properties properties, String mapName) {
 		logger.trace("init.enter; properties: {}", properties);
 		Object prop = properties.get("ready");
-		ready = prop != null && (Boolean) prop; 
+		ready = prop != null && (Boolean) prop;
+		Object o = properties.get("documentIdGenerator");
+		if (o != null) {
+			docGen = (IdGenerator) o;
+		}
 	}
 
 	@Override
@@ -52,9 +56,9 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<String
 		return docKeys;
 	}
 	
-    public void setDocumentIdGenerator(IdGenerator docGen) {
-    	this.docGen = docGen;
-    }
+    //public void setDocumentIdGenerator(IdGenerator docGen) {
+    //	this.docGen = docGen;
+    //}
     
 	private void processPathFiles(Path path) throws IOException {
 		DirectoryStream<Path> ds = Files.newDirectoryStream(path, "*.xml");

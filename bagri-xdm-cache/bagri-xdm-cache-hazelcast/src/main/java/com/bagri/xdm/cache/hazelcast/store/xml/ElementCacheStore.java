@@ -15,6 +15,7 @@ import javax.xml.stream.XMLStreamException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.bagri.common.idgen.IdGenerator;
 import com.bagri.common.util.FileUtils;
 import com.bagri.xdm.access.api.XDMSchemaDictionary;
 import com.bagri.xdm.access.xml.XDMStaxParser;
@@ -23,7 +24,6 @@ import com.bagri.xdm.common.XDMFactory;
 import com.bagri.xdm.domain.XDMElement;
 import com.bagri.xdm.domain.XDMNodeKind;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IdGenerator;
 import com.hazelcast.core.MapLoaderLifecycleSupport;
 import com.hazelcast.core.MapStore;
 
@@ -32,7 +32,7 @@ public class ElementCacheStore extends XmlCacheStore implements MapStore<XDMData
 	private static final Logger logger = LoggerFactory.getLogger(ElementCacheStore.class);
 	    
 	protected XDMFactory keyFactory;
-    private com.bagri.common.idgen.IdGenerator<Long> idGen;
+    private IdGenerator<Long> idGen;
     private DocumentCacheStore docStore;
     private Map<XDMDataKey, XDMElement> elements;
     private XDMSchemaDictionary schemaDict;
@@ -41,6 +41,8 @@ public class ElementCacheStore extends XmlCacheStore implements MapStore<XDMData
 	public void init(HazelcastInstance hazelcastInstance, Properties properties, String mapName) {
 		logger.trace("init.enter; properties: {}", properties);
 		schemaDict = (XDMSchemaDictionary) properties.get("xdmDictionary");
+		idGen = (IdGenerator<Long>) properties.get("elementIdGenerator");
+		keyFactory = (XDMFactory) properties.get("keyFactory");
 	}
 
 	@Override
@@ -52,13 +54,13 @@ public class ElementCacheStore extends XmlCacheStore implements MapStore<XDMData
     	this.docStore = docStore;
     }
 
-    public void setElementIdGenerator(com.bagri.common.idgen.IdGenerator<Long> idGen) {
-    	this.idGen = idGen;
-    }
+    //public void setElementIdGenerator(com.bagri.common.idgen.IdGenerator<Long> idGen) {
+    //	this.idGen = idGen;
+    //}
 
-	public void setKeyFactory(XDMFactory factory) {
-		this.keyFactory = factory;
-	}
+	//public void setKeyFactory(XDMFactory factory) {
+	//	this.keyFactory = factory;
+	//}
     
 	@Override
 	public XDMElement load(XDMDataKey key) {

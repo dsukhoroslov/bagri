@@ -18,6 +18,7 @@ import com.bagri.xdm.access.hazelcast.impl.HazelcastSchemaDictionary;
 import com.bagri.xdm.common.XDMDataKey;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMElement;
+import com.bagri.xdm.process.hazelcast.SpringContextHolder;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
@@ -58,21 +59,25 @@ public class SchemaPopulator extends SchemaDenitiator {
 
     	logger.trace("populateSchema.enter; HZ instance: {}", hz);
 
-		ApplicationContext schemaCtx = (ApplicationContext) hz.getUserContext().get("appContext");
-		ApplicationContext storeCtx = (ApplicationContext) hz.getUserContext().get("storeContext");
+		ApplicationContext schemaCtx = (ApplicationContext) SpringContextHolder.getContext(schemaName, "appContext");
+		ApplicationContext storeCtx = (ApplicationContext) SpringContextHolder.getContext(schemaName, "storeContext");
     	
-		XDMSchemaDictionary schemaDict = schemaCtx.getBean("xdmDictionary", HazelcastSchemaDictionary.class);
 		MapLoader docCacheStore = storeCtx.getBean("docCacheStore", MapLoader.class);
 		MapLoader eltCacheStore = storeCtx.getBean("eltCacheStore", MapLoader.class);
 		
 		Properties props = new Properties();
 		props.put("ready", true);
+		props.put("documentIdGenerator", schemaCtx.getBean("xdm.document"));
 		((MapLoaderLifecycleSupport) docCacheStore).init(hz, props, CN_XDM_DOCUMENT);
+		
 		props.clear();
-		props.put("xdmDictionary", schemaDict);
+		props.put("xdmDictionary", schemaCtx.getBean("xdmDictionary"));
+		props.put("elementIdGenerator", schemaCtx.getBean("eltGen"));
+		props.put("keyFactory", schemaCtx.getBean("xdmFactory"));
 		((MapLoaderLifecycleSupport) eltCacheStore).init(hz, props, CN_XDM_ELEMENT);
-		PartitionService pSvc = hz.getPartitionService();
 
+		PartitionService pSvc = hz.getPartitionService();
+		//
 		IMap<String, XDMDocument> xddCache = hz.getMap(CN_XDM_DOCUMENT);
 		Set<String> dKeys = docCacheStore.loadAllKeys();
 		filterExternalKeys(dKeys, pSvc);

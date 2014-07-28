@@ -30,7 +30,7 @@ public class ClientApp {
 		ClientApp client = new ClientApp(xqc);
 		HazelcastInstance hz = context.getBean("hzInstance", HazelcastInstance.class);
 		//hz.getUserContext().put("appContext", context);
-		hz.getUserContext().put("xqConnection", xqc);
+		//hz.getUserContext().put("xqConnection", xqc);
 				
 		boolean found = false;
 		try {

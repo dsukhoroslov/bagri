@@ -49,9 +49,10 @@
 				</hz:indexes>
 			</hz:map>
 			<hz:map name="dict-document-type">
-				<hz:map-store enabled="true" write-delay-seconds="10" factory-implementation="xdmStoreFactory">
+				<hz:map-store enabled="true" write-delay-seconds="10" initial-mode="LAZY" factory-implementation="xdmStoreFactory">
 					<hz:properties>
-						<hz:property name="xdm.schema.store.type">NONE</hz:property>
+						<hz:property name="xdm.schema.name">${xdm.schema.name}</hz:property>
+						<hz:property name="xdm.schema.store.type">${xdm.schema.store.type}</hz:property>
 					</hz:properties>
 				</hz:map-store>
 				<hz:near-cache time-to-live-seconds="0" max-idle-seconds="60" eviction-policy="LRU" 
@@ -59,11 +60,12 @@
 			</hz:map>
 			
 			<hz:map name="xdm-document">
-				<!--hz:map-store enabled="true" write-delay-seconds="10" initial-mode="LAZY" factory-implementation="xdmStoreFactory">
+				<hz:map-store enabled="true" write-delay-seconds="10" initial-mode="LAZY" factory-implementation="xdmStoreFactory">
 					<hz:properties>
+						<hz:property name="xdm.schema.name">${xdm.schema.name}</hz:property>
 						<hz:property name="xdm.schema.store.type">${xdm.schema.store.type}</hz:property>
 					</hz:properties>
-				</hz:map-store-->
+				</hz:map-store>
 				<hz:indexes>
 					<hz:index attribute="documentId"/>
 				</hz:indexes>
@@ -71,11 +73,12 @@
 			<hz:map name="xdm-element">
 				<!-- can't persist it in MongoDB right away; got an exception: 
 					java.lang.IllegalArgumentException: can't serialize class com.bagri.xdm.access.hazelcast.data.DataDocumentKey -->
-				<!--hz:map-store enabled="true" write-delay-seconds="10" initial-mode="LAZY" factory-implementation="xdmStoreFactory">
+				<hz:map-store enabled="true" write-delay-seconds="10" initial-mode="LAZY" factory-implementation="xdmStoreFactory">
 					<hz:properties>
+						<hz:property name="xdm.schema.name">${xdm.schema.name}</hz:property>
 						<hz:property name="xdm.schema.store.type">${xdm.schema.store.type}</hz:property>
 					</hz:properties>
-				</hz:map-store-->
+				</hz:map-store>
 				<hz:indexes>
 					<hz:index attribute="documentId"/>
 					<hz:index attribute="path" ordered="true"/>
@@ -188,5 +191,5 @@
 		<property name="schemaName" value="${xdm.schema.name}"/>
 		<property name="populationSize" value="${xdm.schema.population.size}"/>
 	</bean>
-
+	
 </beans>

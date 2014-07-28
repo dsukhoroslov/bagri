@@ -51,7 +51,7 @@
                 <entry name="xdm.schema.store.schema.path">C:\Work\Bagri\git\bagri\etc\samples\schema</entry>
                 <entry name="xdm.schema.members">localhost:10000</entry>
                 <entry name="xdm.schema.password">TPoX</entry>
-                <entry name="xdm.schema.population.size">3</entry>
+                <entry name="xdm.schema.population.size">2</entry>
 
 		<entry name="xqj.schema.baseUri">file:///C:/Work/Bagri/git/bagri/etc/samples/data/</entry>
 		<entry name="xqj.schema.constructionMode">CONSTRUCTION_MODE_PRESERVE</entry>

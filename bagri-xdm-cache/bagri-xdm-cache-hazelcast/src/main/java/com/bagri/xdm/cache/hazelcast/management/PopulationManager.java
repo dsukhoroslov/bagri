@@ -48,9 +48,9 @@ public class PopulationManager implements MembershipListener, MigrationListener 
 	@Override
 	public void memberAdded(MembershipEvent membershipEvent) {
 		logger.trace("memberAdded; event: {}", membershipEvent);
-		if (membershipEvent.getMember().localMember()) {
+		//if (membershipEvent.getMember().localMember()) {
 			checkPopulation(membershipEvent.getMembers().size());
-		}
+		//}
 	}
 
 	@Override

@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 
+import com.bagri.xdm.process.hazelcast.SpringContextHolder;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.nio.ObjectDataInput;
@@ -42,7 +43,8 @@ public class SchemaDenitiator implements Callable<Boolean>, IdentifiedDataSerial
 		// get hzInstance and close it...
 		HazelcastInstance hz = Hazelcast.getHazelcastInstanceByName(schemaName);
 		if (hz != null) {
-			ConfigurableApplicationContext ctx = (ConfigurableApplicationContext) hz.getUserContext().get("appContext");
+			ConfigurableApplicationContext ctx = (ConfigurableApplicationContext) 
+					SpringContextHolder.getContext(schemaName, "appContext");
 			ctx.close();
 			result = true;
 		}
