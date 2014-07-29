@@ -78,7 +78,6 @@ public class XDMMapStoreFactory implements ApplicationContextAware, MapStoreFact
 				if (ctx != null) {
 					// deadlocks here
 					//HazelcastInstance hz = parentCtx.getBean("hzInstance", HazelcastInstance.class);
-					//logger.debug("newMapStore; got HZ: {}", hz);
 		    		//hz.getUserContext().put("storeContext", ctx);
 					SpringContextHolder.setAbsentContext(schemaName, "storeContext", ctx);
 					

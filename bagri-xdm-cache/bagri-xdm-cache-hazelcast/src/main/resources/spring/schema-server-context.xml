@@ -48,6 +48,7 @@
 					<hz:index attribute="path" ordered="true"/>
 				</hz:indexes>
 			</hz:map>
+			
 			<hz:map name="dict-document-type">
 				<hz:map-store enabled="true" write-delay-seconds="10" initial-mode="LAZY" factory-implementation="xdmStoreFactory">
 					<hz:properties>
