@@ -52,6 +52,7 @@ import com.hazelcast.security.UsernamePasswordCredentials;
 
 public class HazelcastDocumentManager extends XDMDocumentManagerClient {
 
+	private String schemaName;
 	private IMap<String, XDMDocument> xddCache;
 	private IMap<XDMDataKey, XDMElement> xdmCache;
 	private IdGenerator<Long> docGen;
@@ -81,6 +82,8 @@ public class HazelcastDocumentManager extends XDMDocumentManagerClient {
 	public HazelcastDocumentManager(HazelcastInstance hzInstance) {
 		super();
 		this.hzInstance = hzInstance;
+		logger.trace("<init>; HZ: {}", hzInstance); 
+		schemaName = ((com.hazelcast.client.HazelcastClientProxy) hzInstance).getClientConfig().getGroupConfig().getName();
 		initializeServices();
 	}
 	
@@ -374,9 +377,10 @@ public class HazelcastDocumentManager extends XDMDocumentManagerClient {
 	public Object executeXQuery(String query, Map bindings, Properties props) {
 
 		long stamp = System.currentTimeMillis();
-		logger.trace("executeXQuery.enter; query: {}; bindings: {}; context: {}", query, bindings, props);
+		logger.trace("executeXQuery.enter; query: {}; bindings: {}; context: {}; schea: {}", 
+				query, bindings, props, schemaName);
 		
-		QueryExecutor task = new QueryExecutor(query, bindings, props);
+		QueryExecutor task = new QueryExecutor(schemaName, query, bindings, props);
 		Future<Object> future = execService.submit(task);
 		Object result = null;
 		// @TODO: get timeout from XQJ context

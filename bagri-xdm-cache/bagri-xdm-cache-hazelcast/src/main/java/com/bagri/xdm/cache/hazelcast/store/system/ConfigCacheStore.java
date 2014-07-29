@@ -36,8 +36,9 @@ public abstract class ConfigCacheStore<K, V> {
 	}
 
 	public Set<K> loadAllKeys() {
-		logger.trace("loadAllKeys.enter; ");
+		logger.trace("loadAllKeys.enter;");
 		Set<K> result = new HashSet<K>(entities.keySet());
+		logger.trace("loadAllKeys.exit; returning {} keys", result.size());
 		return result;
 	}
 

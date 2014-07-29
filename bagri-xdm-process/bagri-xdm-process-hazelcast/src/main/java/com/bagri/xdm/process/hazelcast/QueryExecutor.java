@@ -26,7 +26,9 @@ public class QueryExecutor extends com.bagri.xdm.access.hazelcast.process.QueryE
 	public Object call() throws Exception {
 		
 		if (xdmManager == null) {
-			ApplicationContext ctx = HazelcastUtils.findContext();
+			//ApplicationContext ctx = HazelcastUtils.findContext();
+			ApplicationContext ctx = (ApplicationContext) SpringContextHolder.getContext(schemaName, "appContext");
+			logger.debug("call; got context: {}, for schema: {}", ctx, schemaName); 
 			xdmManager = ctx.getBean(XDMDocumentManagement.class); 
 		}
 		

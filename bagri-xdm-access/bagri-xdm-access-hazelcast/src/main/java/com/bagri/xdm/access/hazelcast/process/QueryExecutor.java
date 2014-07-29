@@ -18,6 +18,7 @@ import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
 public class QueryExecutor implements Callable<Object>, IdentifiedDataSerializable {
 
+	protected String schemaName;
 	protected String query;
 	protected Map bindings;
 	protected Properties context;
@@ -26,7 +27,8 @@ public class QueryExecutor implements Callable<Object>, IdentifiedDataSerializab
 		// for de-serialization
 	}
 	
-	public QueryExecutor(String query, Map bindings, Properties context) {
+	public QueryExecutor(String schemaName, String query, Map bindings, Properties context) {
+		this.schemaName = schemaName;
 		this.query = query;
 		this.bindings = bindings;
 		this.context = context;
@@ -52,6 +54,7 @@ public class QueryExecutor implements Callable<Object>, IdentifiedDataSerializab
 
 	@Override
 	public void readData(ObjectDataInput in) throws IOException {
+		schemaName = in.readUTF();
 		query = in.readUTF();
 		bindings = in.readObject();
 		context = in.readObject();
@@ -59,6 +62,7 @@ public class QueryExecutor implements Callable<Object>, IdentifiedDataSerializab
 
 	@Override
 	public void writeData(ObjectDataOutput out) throws IOException {
+		out.writeUTF(schemaName);
 		out.writeUTF(query);
 		out.writeObject(bindings);
 		out.writeObject(context);

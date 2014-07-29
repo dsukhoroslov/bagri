@@ -57,7 +57,7 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
 
     public SchemaManagement(HazelcastInstance hzInstance) {
 		super(hzInstance);
-		//hzInstance.getCluster().addMembershipListener(this);
+		hzInstance.getCluster().addMembershipListener(this);
 	}
     
     public ClusterManagement getClusterService() {
@@ -236,7 +236,6 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
     		HazelcastInstance hz = ctx.getBean("hzInstance", HazelcastInstance.class);
     		//hz.getUserContext().put("appContext", ctx);
     		//hz.getConfig().getSecurityConfig().setEnabled(true);
-    		//hz.getConfig().getSecurityConfig().s
     	    XDMSchemaDictionary schemaDict = ctx.getBean("xdmDictionary", XDMSchemaDictionary.class);
     	    SchemaManager sMgr = (SchemaManager) mgrCache.get(schemaName);
        	    if (sMgr != null) {
@@ -332,16 +331,16 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
 		for (String name: aSchemas) {
 			XDMSchema schema = entityCache.get(name);
 			if (schema != null) {
-				SchemaInitiator init = new SchemaInitiator(schema.getName(), schema.getProperties());
-				Future<Boolean> result = execService.submitToMember(init, member);
-				Boolean ok = false;
-				try {
-					ok = result.get();
-				} catch (InterruptedException | ExecutionException ex) {
-					logger.error("memberAdded.error; ", ex);
-				}
+				//SchemaInitiator init = new SchemaInitiator(schema.getName(), schema.getProperties());
+				//Future<Boolean> result = execService.submitToMember(init, member);
+				//Boolean ok = false;
+				//try {
+				//	ok = result.get();
+				//} catch (InterruptedException | ExecutionException ex) {
+				//	logger.error("memberAdded.error; ", ex);
+				//}
 
-				if (ok) {
+				//if (ok) {
 					if (initSchema(schema.getName(), schema.getProperties())) {
 						cnt++;
 					}
@@ -355,8 +354,8 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
 					} catch (MalformedObjectNameException ex) {
 						logger.error("memberAdded.error; ", ex);
 					}
-				}
-				logger.debug("memberAdded; Schema {}initialized on node {}", ok ? "" : "NOT ", member);
+				//}
+				//logger.debug("memberAdded; Schema {}initialized on node {}", ok ? "" : "NOT ", member);
 			}
 		}
 		
