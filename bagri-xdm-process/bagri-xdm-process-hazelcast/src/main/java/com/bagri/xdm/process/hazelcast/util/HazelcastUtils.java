@@ -6,6 +6,9 @@ import org.springframework.context.ApplicationContext;
 
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.instance.HazelcastInstanceImpl;
+import com.hazelcast.instance.HazelcastInstanceProxy;
+import com.hazelcast.instance.Node;
 
 public class HazelcastUtils {
 	
@@ -55,4 +58,20 @@ public class HazelcastUtils {
 		}
 		return null;
 	}
+
+    //public static Node getNode(HazelcastInstance hz) {
+    //    HazelcastInstanceImpl impl = getHazelcastInstanceImpl(hz);
+    //    return impl != null ? impl.node : null;
+    //}
+
+    //public static HazelcastInstanceImpl getHazelcastInstanceImpl(HazelcastInstance hz) {
+    //    HazelcastInstanceImpl impl = null;
+    //    if (hz instanceof HazelcastInstanceProxy) {
+    //        impl = ((HazelcastInstanceProxy) hz).original;
+    //    } else if (hz instanceof HazelcastInstanceImpl) {
+    //        impl = (HazelcastInstanceImpl) hz;
+    //    }
+    //    return impl;
+    //}
+	
 }

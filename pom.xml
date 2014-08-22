@@ -54,7 +54,7 @@
         <jdk.version>1.7</jdk.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <spring.version>3.2.9.RELEASE</spring.version>
+        <spring.version>3.2.10.RELEASE</spring.version>
         <spring.mongo.version>1.4.2.RELEASE</spring.mongo.version>
         <spring.hadoop.version>1.0.2.RELEASE</spring.hadoop.version>
 
@@ -81,6 +81,7 @@
 
         <slf4j.version>1.7.5</slf4j.version>
         <logback.version>1.0.13</logback.version>
+        <janino.version>2.6.1</janino.version>
         <!--mail.version>1.4.4</mail.version-->
 
         <!--<jmxri.version>1.2.1</jmxri.version>-->
@@ -333,6 +334,11 @@
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-classic</artifactId>
                 <version>${logback.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codehaus.janino</groupId>
+                <artifactId>janino</artifactId>
+                <version>${janino.version}</version>
             </dependency>
 
             <!-- Dependencies for unit tests -->

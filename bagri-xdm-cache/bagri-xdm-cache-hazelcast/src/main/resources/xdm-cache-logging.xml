@@ -1,10 +1,28 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!--configuration debug="true"-->
-<configuration>
+<configuration debug="true">
+<!--configuration-->
 
-    <jmxConfigurator />
+    <jmxConfigurator/>
     
-    <contextName>xdm-cache</contextName>
+    <!--contextName>xdm-cache</contextName-->
+
+    <if condition='isDefined("node.instance")'>
+        <then>
+            <property name="suffix" value="${node.instance}"/>
+        </then>
+        <else>
+            <timestamp key="suffix" datePattern="yyyyMMdd'T'HHmmss"/>
+        </else>
+    </if>
+
+    <if condition='isDefined("node.name")'>
+        <then>
+            <property name="prefix" value="${node.name}"/>
+        </then>
+        <else>
+            <property name="prefix" value="xdm"/>
+        </else>
+    </if>
 
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <layout class="ch.qos.logback.classic.PatternLayout">
@@ -15,10 +33,10 @@
     <!--property resource="xdm-cache.properties" /-->
 
     <appender name="ROLLING" class="ch.qos.logback.core.rolling.RollingFileAppender">
-    	<file>${node.logdir}/cache/xdm-cache-server-node-${node.instance}.log</file>
+    	<file>${node.logdir}/cache/${prefix}-server-${suffix}.log</file>
     	<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
       		<!-- rollover daily -->
-      		<fileNamePattern>${node.logdir}/cache/xdm-cache-server-node-${node.instance}-%d{yyyy-MM-dd}.%i.gz</fileNamePattern>
+      		<fileNamePattern>${node.logdir}/cache/${prefix}-server-${suffix}-%d{yyyy-MM-dd}.%i.gz</fileNamePattern>
       		<maxHistory>4</maxHistory>
       		<timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
         		<!-- or whenever the file size reaches 20MB -->

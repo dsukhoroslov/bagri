@@ -140,6 +140,11 @@
             <artifactId>logback-classic</artifactId>
             <scope>runtime</scope>
         </dependency>
+        <dependency>
+            <groupId>org.codehaus.janino</groupId>
+            <artifactId>janino</artifactId>
+            <scope>runtime</scope>
+        </dependency>
 
         <dependency>
             <groupId>org.mongodb</groupId>
@@ -190,6 +195,7 @@
                                         <java fork="true" classname="com.bagri.xdm.cache.hazelcast.XDMCacheServer">
                                             <jvmarg line="-server -Xms512m -Xmx1028m"/>
                                             <sysproperty key="node.logdir" value="./logs"/>
+                                            <sysproperty key="node.name" value="admin"/>
                                             <sysproperty key="com.sun.management.jmxremote" value="true"/>
                                             <!--sysproperty key="com.sun.management.jmxremote.port" value="3333"/>
                                             <sysproperty key="com.sun.management.jmxremote.authenticate" value="true"/-->
@@ -228,6 +234,7 @@
                                         <java fork="true" classname="com.bagri.xdm.cache.hazelcast.XDMCacheServer">
                                             <jvmarg line="-Xms1g -Xmx2g ${run.jvm.args0} ${run.jvm.args1} ${run.jvm.args2} ${run.jvm.args3}"/>
                                             <sysproperty key="node.logdir" value="./logs"/>
+                                            <sysproperty key="node.name" value="first"/>
                                             <!--sysproperty key="com.sun.management.jmxremote" value="true"/>
                                             <sysproperty key="com.sun.management.jmxremote.authenticate" value="false"/>
                                             <sysproperty key="com.sun.management.jmxremote.ssl" value="false"/-->

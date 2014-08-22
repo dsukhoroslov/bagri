@@ -56,7 +56,7 @@ public class XDMCacheServer {
         String name = hz.getCluster().getLocalMember().getStringAttribute(op_node_name);
         //String schemas = hz.getConfig().getProperty(op_node_schemas);
         //hz.getCluster().getLocalMember().setStringAttribute(op_node_schemas, schemas);
-        logger.debug("System Cache started with Config: {}; Instance: {}", hz.getConfig(), hz);
+        logger.debug("System Cache started with Config: {}; Instance: {}", hz.getConfig(), hz.getClass().getName());
         logger.debug("Cluster size: {}; Node: {}", hz.getCluster().getMembers().size(), name);
         
         //String role = hz.getConfig().getProperty("xdm.cluster.node.role");
@@ -135,7 +135,8 @@ public class XDMCacheServer {
             		ApplicationContext schemaContext = (ApplicationContext) 
             				SpringContextHolder.getContext(schemaName, "appContext");
             		PopulationManager popManager = schemaContext.getBean("popManager", PopulationManager.class);
-            		popManager.checkPopulation(schemaInstance.getCluster().getMembers().size());
+            		//popManager.checkPopulation(schemaInstance.getCluster().getMembers().size());
+            		logger.debug("initServerNode; I could start population for schema '{}' here..", schemaName);
             	} else {
             		logger.warn("initServerNode; cannot find HazelcastInstance for schema '{}'!", schemaName);
             	}

@@ -32,6 +32,7 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<String
     private static final int defVersion = 1;
     private static final String defEncoding = "UTF-8";
     
+    private HazelcastInstance hzInstance;
     private boolean ready = false;
     private IdGenerator docGen;
     private Map<String, DocumentDataHolder> docKeys = new HashMap<String, DocumentDataHolder>();
@@ -39,6 +40,7 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<String
 	@Override
 	public void init(HazelcastInstance hazelcastInstance, Properties properties, String mapName) {
 		logger.trace("init.enter; properties: {}", properties);
+		this.hzInstance = hazelcastInstance;
 		Object prop = properties.get("ready");
 		ready = prop != null && (Boolean) prop;
 		Object o = properties.get("documentIdGenerator");
@@ -109,7 +111,7 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<String
 
 	@Override
 	public Map<String, XDMDocument> loadAll(Collection<String> keys) {
-		logger.trace("loadAll.enter; keys: {}", keys);
+		logger.trace("loadAll.enter; keys: {}; Cluster size: {}", keys, hzInstance.getCluster().getMembers().size());
 		Map<String, XDMDocument> result = new HashMap<String, XDMDocument>(keys.size());
 	    for (String key: keys) {
 			Path path = Paths.get(key);
