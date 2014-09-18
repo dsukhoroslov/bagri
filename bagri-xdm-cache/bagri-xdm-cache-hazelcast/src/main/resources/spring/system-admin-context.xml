@@ -62,11 +62,11 @@
 			<hz:executor-service name="sys-exec-pool" pool-size="${xdm.cache.threads.invocationScheme}" />
 
 			<hz:map name="nodes">
-				<hz:map-store enabled="true" write-delay-seconds="10" implementation="nodeCacheStore"/>
+				<hz:map-store enabled="true" write-delay-seconds="10" initial-mode="EAGER" implementation="nodeCacheStore"/>
 			</hz:map>
 			
 			<hz:map name="schemas">
-				<hz:map-store enabled="true" write-delay-seconds="10" implementation="schemaCacheStore"/>
+				<hz:map-store enabled="true" write-delay-seconds="10" initial-mode="EAGER" implementation="schemaCacheStore"/>
 			</hz:map>
 
 			<hz:map name="roles">

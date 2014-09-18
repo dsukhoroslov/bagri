@@ -25,11 +25,10 @@ import com.hazelcast.spi.NodeEngine;
 import com.hazelcast.spring.context.SpringAware;
 
 @SpringAware
-public class PopulationManager implements MembershipListener, MigrationListener, NodeAware, HazelcastInstanceAware {
+public class PopulationManager implements MembershipListener, MigrationListener { //, NodeAware, HazelcastInstanceAware {
 
     private static final transient Logger logger = LoggerFactory.getLogger(PopulationManager.class);
 
-    private Node node;
     private String schemaName;
     private int populationSize;
     private HazelcastInstance hzInstance;
@@ -38,8 +37,9 @@ public class PopulationManager implements MembershipListener, MigrationListener,
     	this.hzInstance = hzInstance;
     	hzInstance.getCluster().addMembershipListener(this);
     	hzInstance.getPartitionService().addMigrationListener(this);
-    	ManagedContext ctx = hzInstance.getConfig().getManagedContext();
-    	logger.debug("<init>; HZ: {}; Context: {}", hzInstance, ctx);
+    	
+    	//ManagedContext ctx = hzInstance.getConfig().getManagedContext();
+    	//logger.debug("<init>; HZ: {}; Context: {}", hzInstance, ctx);
     	//if (ctx != null) {
     	//	ctx.initialize(this);
         //	logger.debug("<init>; Node initialized: {}", node);
@@ -47,24 +47,6 @@ public class PopulationManager implements MembershipListener, MigrationListener,
     	//hzInstance = Hazelcast.getHazelcastInstanceByName(hzInstance.getName());
     	//logger.debug("<init>; second HZ: {}; Class: {}", hzInstance, hzInstance.getClass().getName());
     }
-
-	@Override
-	public void setHazelcastInstance(HazelcastInstance hazelcastInstance) {
-    	logger.debug("setHazelcastInstance; got Instance: {} of class: {}", hazelcastInstance, 
-    			hazelcastInstance.getClass().getName());
-	}
-
-	@Override
-	public void setNode(Node node) {
-    	logger.debug("setNode; got Node: {}", node);
-    	this.node = node;
-    	
-    	//final Node node = ...
-		//final InternalPartitionService ps = node.getPartitionService();
-		//if (ps.hasOnGoingMigration()) {
-		//	...
-		//}
-	}
 
     public void setSchemaName(String schemaName) {
     	this.schemaName = schemaName;
@@ -118,12 +100,12 @@ public class PopulationManager implements MembershipListener, MigrationListener,
 		logger.trace("migrationFailed; event: {}", migrationEvent);
 	}
 
-	@Override
+	//@Override
 	public void migrationInitialized(MigrationEvent migrationEvent) {
 		logger.trace("migrationInitialized; event: {}", migrationEvent);
 	}
 
-	@Override
+	//@Override
 	public void migrationFinalized(MigrationEvent migrationEvent) {
 		logger.trace("migrationFinalized; event: {}", migrationEvent);
 	}

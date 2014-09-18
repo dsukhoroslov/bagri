@@ -31,11 +31,11 @@ public class ClusterManagement extends EntityManagement<String, XDMNode> impleme
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-        Set<String> names = entityCache.keySet();
-        for (String name: names) {
+        //Set<String> names = entityCache.keySet();
+        //for (String name: names) {
         	//XDMNode node = nodeCache.get(name);
         	//initNodeManager(name);
-        }
+        //}
 		
 		// skip it and wait till we get attribute change event
 		//Set<Member> members = hzInstance.getCluster().getMembers();
