@@ -4,14 +4,14 @@
 
     <parent>
         <groupId>com.sdv.bagri</groupId>
-        <artifactId>bagri-xdm-access</artifactId>
+        <artifactId>bagri-client</artifactId>
         <version>0.3.1-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
 
-    <artifactId>bagri-xdm-access-jcache</artifactId>
-    <name>bagri-xdm-access-jcache</name>
-    <description>BagRi XDM Access Layer: JCache Implementation</description>
+    <artifactId>bagri-client-hazelcast</artifactId>
+    <name>bagri-client-hazelcast</name>
+    <description>BagRi XDM Access Layer: Hazelcast Implementation</description>
 
     <dependencies>
 
@@ -25,16 +25,51 @@
         </dependency>
         <dependency>
             <groupId>com.sdv.bagri</groupId>
-            <artifactId>bagri-xdm-access-api</artifactId>
+            <artifactId>bagri-client-api</artifactId>
+        </dependency>
+        <!--dependency>
+            <groupId>com.sdv.bagri</groupId>
+            <artifactId>bagri-xqj</artifactId>
+        </dependency-->
+        <dependency>
+            <groupId>com.sdv.bagri</groupId>
+            <artifactId>bagri-xquery-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sdv.bagri</groupId>
+            <artifactId>bagri-test-common</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!--dependency>
+            <groupId>com.hazelcast</groupId>
+            <artifactId>hazelcast</artifactId>
+        </dependency-->
+
+        <dependency>
+            <groupId>com.hazelcast</groupId>
+            <artifactId>hazelcast-client</artifactId>
+            <!--exclusions>
+                <exclusion>
+                    <groupId>com.hazelcast</groupId>
+                    <artifactId>hazelcast</artifactId>
+                </exclusion>
+            </exclusions-->
+        </dependency>
+        <dependency>
+            <groupId>com.hazelcast</groupId>
+            <artifactId>hazelcast-spring</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>javax.cache</groupId>
-            <artifactId>cache-api</artifactId>
+            <groupId>javax.xml.xquery</groupId>
+            <artifactId>xqj-api</artifactId>
         </dependency>
+
+        <!-- Spring framework -->
         <!--dependency>
-            <groupId>org.jsr107.ri</groupId>
-            <artifactId>cache-ri-impl</artifactId>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
         </dependency-->
 
         <!-- Dependencies for logging -->
@@ -45,21 +80,22 @@
         <!--dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
-        </dependency>
-        <dependency>
+        </dependency-->
+        <!--dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>log4j-over-slf4j</artifactId>
         </dependency-->
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <scope>runtime</scope>
+            <scope>test</scope>
         </dependency>
 
         <!--Test dependencies-->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>

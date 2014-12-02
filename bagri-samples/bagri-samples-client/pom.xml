@@ -38,21 +38,16 @@
         </dependency>
         <dependency>
             <groupId>com.sdv.bagri</groupId>
-            <artifactId>bagri-xdm-access-api</artifactId>
+            <artifactId>bagri-client-api</artifactId>
         </dependency>
         <!--dependency>
             <groupId>com.sdv.bagri</groupId>
             <artifactId>bagri-xdm-access-coherence</artifactId>
                 <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.sdv.bagri</groupId>
-            <artifactId>bagri-xdm-process-coherence</artifactId>
-                <scope>runtime</scope>
         </dependency-->
         <dependency>
             <groupId>com.sdv.bagri</groupId>
-            <artifactId>bagri-xdm-access-hazelcast</artifactId>
+            <artifactId>bagri-client-hazelcast</artifactId>
             <scope>runtime</scope>
         </dependency>
 

@@ -4,14 +4,14 @@
 
     <parent>
         <groupId>com.sdv.bagri</groupId>
-        <artifactId>bagri-xdm-access</artifactId>
+        <artifactId>bagri-client</artifactId>
         <version>0.3.1-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
 
-    <artifactId>bagri-xdm-access-coherence</artifactId>
-    <name>bagri-xdm-access-coherence</name>
-    <description>BagRi XDM Access Layer: Coherence Implementation</description>
+    <artifactId>bagri-client-jcache</artifactId>
+    <name>bagri-client-jcache</name>
+    <description>BagRi XDM Access Layer: JCache Implementation</description>
 
     <dependencies>
 
@@ -25,22 +25,16 @@
         </dependency>
         <dependency>
             <groupId>com.sdv.bagri</groupId>
-            <artifactId>bagri-xdm-access-api</artifactId>
+            <artifactId>bagri-client-api</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>com.oracle.coherence</groupId>
-            <artifactId>coherence</artifactId>
+            <groupId>javax.cache</groupId>
+            <artifactId>cache-api</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.oracle.coherence.incubator</groupId>
-            <artifactId>coherence-common</artifactId>
-        </dependency>
-
-        <!-- Spring framework -->
         <!--dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
+            <groupId>org.jsr107.ri</groupId>
+            <artifactId>cache-ri-impl</artifactId>
         </dependency-->
 
         <!-- Dependencies for logging -->
@@ -51,22 +45,21 @@
         <!--dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
-        </dependency-->
-        <!--dependency>
+        </dependency>
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>log4j-over-slf4j</artifactId>
         </dependency-->
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <scope>test</scope>
+            <scope>runtime</scope>
         </dependency>
 
         <!--Test dependencies-->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <scope>test</scope>
         </dependency>
 
     </dependencies>

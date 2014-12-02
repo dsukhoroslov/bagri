@@ -4,13 +4,13 @@
 
     <parent>
         <groupId>com.sdv.bagri</groupId>
-        <artifactId>bagri-xdm-cache</artifactId>
+        <artifactId>bagri-server</artifactId>
         <version>0.3.1-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
 
-    <artifactId>bagri-xdm-cache-coherence</artifactId>
-    <name>bagri-xdm-cache-coherence</name>
+    <artifactId>bagri-server-coherence</artifactId>
+    <name>bagri-server-coherence</name>
     <description>Bagri XDM Cache: Coherence implementation</description>
 
     <properties>
@@ -32,16 +32,12 @@
         </dependency>
         <dependency>
             <groupId>com.sdv.bagri</groupId>
-            <artifactId>bagri-xdm-access-api</artifactId>
+            <artifactId>bagri-client-api</artifactId>
         </dependency>
         <dependency>
             <groupId>com.sdv.bagri</groupId>
-            <artifactId>bagri-xdm-access-coherence</artifactId>
+            <artifactId>bagri-client-coherence</artifactId>
         </dependency>
-        <!--dependency>
-            <groupId>com.sdv.bagri</groupId>
-            <artifactId>bagri-xdm-process-coherence</artifactId>
-        </dependency-->
 
         <!-- Spring framework -->
         <dependency>

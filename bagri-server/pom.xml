@@ -9,14 +9,14 @@
         <relativePath>..</relativePath>
     </parent>
 
-    <artifactId>bagri-xdm-cache</artifactId>
+    <artifactId>bagri-server</artifactId>
     <packaging>pom</packaging>
-    <name>bagri-xdm-cache</name>
-    <description>BagRi XDM Cache Components</description>
+    <name>bagri-server</name>
+    <description>BagRi XDM Cache Server Components</description>
 
     <modules>
-        <!--module>bagri-xdm-cache-coherence</module-->
-        <module>bagri-xdm-cache-hazelcast</module>
+        <!--module>bagri-server-coherence</module-->
+        <module>bagri-server-hazelcast</module>
     </modules>
 
     <dependencies>

@@ -4,13 +4,13 @@
 
     <parent>
         <groupId>com.sdv.bagri</groupId>
-        <artifactId>bagri-xdm-cache</artifactId>
+        <artifactId>bagri-server</artifactId>
         <version>0.3.1-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
 
-    <artifactId>bagri-xdm-cache-hazelcast</artifactId>
-    <name>bagri-xdm-cache-hazelcast</name>
+    <artifactId>bagri-server-hazelcast</artifactId>
+    <name>bagri-server-hazelcast</name>
     <description>Bagri XDM Cache: Hazelcast implementation</description>
 
     <properties>
@@ -39,17 +39,17 @@
         </dependency>
         <dependency>
             <groupId>com.sdv.bagri</groupId>
-            <artifactId>bagri-xdm-access-api</artifactId>
+            <artifactId>bagri-client-api</artifactId>
         </dependency>
         <dependency>
             <groupId>com.sdv.bagri</groupId>
-            <artifactId>bagri-xdm-access-hazelcast</artifactId>
-            <!--exclusions>
+            <artifactId>bagri-client-hazelcast</artifactId>
+            <exclusions>
                 <exclusion>
                     <groupId>com.hazelcast</groupId>
                     <artifactId>hazelcast-client</artifactId>
                 </exclusion>
-            </exclusions-->
+            </exclusions>
         </dependency>
         <!--dependency>
             <groupId>com.sdv.bagri</groupId>
