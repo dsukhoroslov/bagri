@@ -48,8 +48,8 @@ public class BagriXQAxisTest {
 		xqds = new BagriXQDataSource();
 	    xqds.setProperty(BagriXQDataSource.HOST, "127.0.0.1");
 	    xqds.setProperty(BagriXQDataSource.PORT, "5701");
-	    xqds.setProperty(BagriXQDataSource.XQ_PROCESSOR, "com.bagri.xquery.saxon.BagriXQProcessor");
-	    xqds.setProperty(BagriXQDataSource.XDM_MANAGER, "com.bagri.xdm.access.hazelcast.impl.HazelcastDocumentManager");
+	    xqds.setProperty(BagriXQDataSource.XQ_PROCESSOR, "com.bagri.xquery.saxon.BagriXQProcessorProxy");
+	    xqds.setProperty(BagriXQDataSource.XDM_MANAGER, "com.bagri.xdm.access.hazelcast.impl.DocumentManagementClient");
 
 		String query = "declare namespace bgdm=\"http://bagri.com/bagri-xdm\";\n" +
 				"declare variable $sec external;\n\n" + 

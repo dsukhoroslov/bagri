@@ -43,6 +43,7 @@ public class BagriXQItemAccessorTest {
 	    //xqds.setProperty(BagriXQDataSource.HOST, "127.0.0.1");
 	    //xqds.setProperty(BagriXQDataSource.PORT, "5701");
 	    xqds.setProperty(BagriXQDataSource.XQ_PROCESSOR, "com.bagri.xquery.saxon.BagriXQProcessor");
+	    xqds.setProperty(BagriXQDataSource.XDM_MANAGER, "com.bagri.xdm.access.hazelcast.impl.DocumentManagementClient");
 		xqc = xqds.getConnection();
 	}
 

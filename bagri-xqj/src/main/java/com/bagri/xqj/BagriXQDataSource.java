@@ -54,8 +54,8 @@ public class BagriXQDataSource implements XQDataSource {
 		properties.put(USER, "anonymous");
 		properties.put(PASSWORD, "syspwd");
 		properties.put(SCHEMA, "system");
-		properties.put(XQ_PROCESSOR, ""); //"com.bagri.xquery.saxon.BagriXQProcessor"); 
-		properties.put(XDM_MANAGER, ""); //"com.bagri.xdm.access.hazelcast.impl.HazelcastDocumentManager"); 
+		properties.put(XQ_PROCESSOR, ""); //"com.bagri.xquery.saxon.BagriXQProcessor"); //Proxy
+		properties.put(XDM_MANAGER, ""); //"com.bagri.xdm.access.hazelcast.impl.DocumentManagementClient"); 
 	}
 
 	@Override
@@ -130,14 +130,14 @@ public class BagriXQDataSource implements XQDataSource {
 						if (xdm instanceof XDMDocumentManagement) {
 							((XQProcessor) xqp).setXdmManager((XDMDocumentManagement) xdm);
 						} else {
-							throw new XQException("Specified XDM Manager class does not implement XDMDocumentManager: " + 
+							throw new XQException("Specified XDM Manager class does not implement XDMDocumentManagement interface: " + 
 									properties.getProperty(XDM_MANAGER));
 						}
 					}						
 					connect.setProcessor((XQProcessor) xqp);
 					((XQProcessor) xqp).setXQDataFactory(connect);
 				} else {
-					throw new XQException("Specified XQ Processor class does not implement XQProcessor: " + 
+					throw new XQException("Specified XQ Processor class does not implement XQProcessor interface: " + 
 							properties.getProperty(XQ_PROCESSOR));
 				}
 			}

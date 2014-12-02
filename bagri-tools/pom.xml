@@ -10,15 +10,13 @@
         <relativePath>..</relativePath>
     </parent>
 
-    <artifactId>bagri-xquery</artifactId>
+    <artifactId>bagri-tools</artifactId>
     <packaging>pom</packaging>
-    <name>bagri-xquery</name>
-    <description>BagRi XQuery Processing Components</description>
+    <name>bagri-tools</name>
+    <description>BagRi: Tools and Plugins</description>
 
     <modules>
-        <module>bagri-xquery-api</module>
-        <module>bagri-xquery-rex</module>
-        <module>bagri-xquery-saxon</module>
+        <module>bagri-tools-vvmp</module>
     </modules>
 
     <dependencies>

@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.sdv.bagri</groupId>
         <artifactId>bagri</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>0.3.1-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
 
@@ -40,14 +40,13 @@
         <dependency>
 	    <groupId>com.sdv.bagri</groupId>
 	    <artifactId>bagri-visualvm-plugin</artifactId>
-	    <version>0.0.1-SNAPSHOT</version>
+	    <version>${project.version}</version>
 	    <type>nbm</type>
         </dependency>
 
         <!--dependency>
             <groupId>com.sdv.bagri</groupId>
             <artifactId>bagri-client-xqj</artifactId>
-	    <version>0.0.1-SNAPSHOT</version>
         </dependency-->
     </dependencies>
 

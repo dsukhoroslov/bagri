@@ -4,13 +4,13 @@
 
     <parent>
         <groupId>com.sdv.bagri</groupId>
-        <artifactId>bagri-client</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
+        <artifactId>bagri-test</artifactId>
+        <version>0.3.1-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
 
-    <artifactId>bagri-client-tpox</artifactId>
-    <name>bagri-client-tpox</name>
+    <artifactId>bagri-test-tpox</artifactId>
+    <name>bagri-test-tpox</name>
     <description>Bagri TPoX Data Loader</description>
 
     <dependencies>

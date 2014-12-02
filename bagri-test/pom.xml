@@ -10,15 +10,15 @@
         <relativePath>..</relativePath>
     </parent>
 
-    <artifactId>bagri-xquery</artifactId>
+    <artifactId>bagri-test</artifactId>
     <packaging>pom</packaging>
-    <name>bagri-xquery</name>
-    <description>BagRi XQuery Processing Components</description>
+    <name>bagri-test</name>
+    <description>BagRi: Test Utilities and Artifacts</description>
 
     <modules>
-        <module>bagri-xquery-api</module>
-        <module>bagri-xquery-rex</module>
-        <module>bagri-xquery-saxon</module>
+        <module>bagri-test-common</module>
+        <module>bagri-test-tpox</module>
+        <module>bagri-test-xqj</module>
     </modules>
 
     <dependencies>

@@ -4,13 +4,13 @@
 
     <parent>
         <groupId>com.sdv.bagri</groupId>
-        <artifactId>bagri-client</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
+        <artifactId>bagri-samples</artifactId>
+        <version>0.3.1-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
 
-    <artifactId>bagri-client-xqj</artifactId>
-    <name>bagri-client-xqj</name>
+    <artifactId>bagri-samples-client</artifactId>
+    <name>bagri-samples-client</name>
     <description>Bagri XQJ Client Test App</description>
 
     <dependencies>
@@ -119,30 +119,5 @@
         </dependency>
 
     </dependencies>
-
-    <!--build>
-        <plugins>
-            <plugin>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>${project.name}-assembly</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                        <configuration>
-                            <descriptors>
-                                <descriptor>src/main/assembly/dev.xml</descriptor>
-                                <descriptor>src/main/assembly/uat.xml</descriptor>
-                                <descriptor>src/main/assembly/prod.xml</descriptor>
-                            </descriptors>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-        </plugins>
-    </build-->
 
 </project>

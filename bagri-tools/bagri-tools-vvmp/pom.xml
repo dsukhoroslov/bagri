@@ -2,15 +2,22 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.sdv.bagri</groupId>
-    <artifactId>bagri-visualvm-plugin</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-    <name>bagri-visualvm-plugin</name>
+    <parent>
+        <groupId>com.sdv.bagri</groupId>
+        <artifactId>bagri-tools</artifactId>
+        <version>0.3.1-SNAPSHOT</version>
+        <relativePath>..</relativePath>
+    </parent>
+
+    <!--groupId>com.sdv.bagri</groupId-->
+    <artifactId>bagri-tools-vvmp</artifactId>
+    <!--version>0.3.1-SNAPSHOT</version-->
+    <name>bagri-tools-vvmp</name>
     <description>BagRi: VisualVM plugin</description>
     <packaging>nbm</packaging>
 
     <properties>
-	<nbm.plugin.version>3.8</nbm.plugin.version>
+	<nbm.plugin.version>3.11</nbm.plugin.version>
 	<helper.plugin.version>1.7</helper.plugin.version>
     </properties>
 
@@ -24,7 +31,7 @@
             <systemPath>${project.basedir}/lib/com-sun-tools-visualvm-core.jar</systemPath>
         </dependency>
     
-    <dependency>
+    	<dependency>
             <groupId>com.sun.tools</groupId>
             <artifactId>visualvm-jmx</artifactId>
             <version>1.0.0</version>
@@ -77,14 +84,14 @@
 
     <build>
         <plugins>
-            <plugin>
+            <!--plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
                     <source>1.7</source>
                     <target>1.7</target>
                 </configuration>
-            </plugin>
+            </plugin-->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>nbm-maven-plugin</artifactId>
@@ -94,7 +101,7 @@
                     <licenseName>GNU General Public License, version 2</licenseName>
                     <licenseFile>license.txt</licenseFile>
                     <sourceManifestFile>${basedir}/src/main/resources/META-INF/MANIFEST.MF</sourceManifestFile>
-                    <finalName>bagri-visualvm-plugin-${project.version}</finalName>
+                    <finalName>${project.name}-${project.version}</finalName>
                     <requiresRestart>true</requiresRestart>
                 </configuration>
             </plugin>

@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.sdv.bagri</groupId>
         <artifactId>bagri-xdm-access</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>0.3.1-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
 
@@ -37,14 +37,14 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <!--scope>test</scope-->
+            <scope>test</scope>
         </dependency>
 
         <!--Test dependencies-->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <!--scope>runtime</scope-->
+            <scope>test</scope>
         </dependency>
 
     </dependencies>

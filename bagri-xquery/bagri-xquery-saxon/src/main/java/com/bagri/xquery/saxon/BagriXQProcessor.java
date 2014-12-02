@@ -38,13 +38,13 @@ public class BagriXQProcessor extends SaxonXQProcessor implements XQProcessor {
     private static NamePool defNamePool = new NamePool();
     private static DocumentNumberAllocator defDocNumberAllocator = new DocumentNumberAllocator();
     
-    //public BagriXQProcessor() {
-    //	super();
-    //	config.setNamePool(defNamePool);
-    //	config.setDocumentNumberAllocator(defDocNumberAllocator);
+    public BagriXQProcessor() {
+    	super();
+    	config.setNamePool(defNamePool);
+    	config.setDocumentNumberAllocator(defDocNumberAllocator);
         //BagriSourceResolver resolver = new BagriSourceResolver(null);
         //config.registerExternalObjectModel(resolver);
-    //}
+    }
 
     public BagriXQProcessor(XDMDocumentManagement dMgr) {
     	//this();
