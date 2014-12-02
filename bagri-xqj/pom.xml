@@ -21,7 +21,7 @@
         </dependency>
         <dependency>
             <groupId>com.sdv.bagri</groupId>
-            <artifactId>bagri-xdm-access-api</artifactId>
+            <artifactId>bagri-client-api</artifactId>
         </dependency>
         <dependency>
             <groupId>com.sdv.bagri</groupId>
@@ -73,7 +73,7 @@
         </dependency>
         <dependency>
             <groupId>com.sdv.bagri</groupId>
-            <artifactId>bagri-xdm-access-hazelcast</artifactId>
+            <artifactId>bagri-client-hazelcast</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

@@ -4,24 +4,24 @@
 
     <parent>
         <groupId>com.sdv.bagri</groupId>
-        <artifactId>bagri-xquery</artifactId>
+        <artifactId>bagri-client</artifactId>
         <version>0.3.1-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
 
-    <artifactId>bagri-xquery-saxon</artifactId>
-    <name>bagri-xquery-saxon</name>
-    <description>Bagri XQuery Saxon Parser</description>
+    <artifactId>bagri-client-api</artifactId>
+    <name>bagri-client-api</name>
+    <description>BagRi XDM Access API</description>
 
     <dependencies>
 
         <dependency>
             <groupId>com.sdv.bagri</groupId>
-            <artifactId>bagri-xquery-api</artifactId>
+            <artifactId>bagri-common</artifactId>
         </dependency>
         <dependency>
             <groupId>com.sdv.bagri</groupId>
-            <artifactId>bagri-client-api</artifactId>
+            <artifactId>bagri-xdm</artifactId>
         </dependency>
 
         <dependency>
@@ -29,11 +29,7 @@
             <artifactId>xqj-api</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>net.sf.saxon</groupId>
-            <artifactId>Saxon-HE</artifactId>
-        </dependency>
-
+        <!-- Dependencies for logging -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
@@ -41,7 +37,7 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <scope>runtime</scope>
+            <scope>test</scope>
         </dependency>
 
         <!--Test dependencies-->

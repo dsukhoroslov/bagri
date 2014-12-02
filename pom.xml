@@ -37,11 +37,11 @@
     <modules>
         <module>bagri-common</module>
         <module>bagri-xdm</module>
-        <module>bagri-xdm-access</module>
-        <module>bagri-xdm-cache</module>
+        <module>bagri-client</module>
         <module>bagri-xquery</module>
         <module>bagri-xqj</module>
         <module>bagri-test</module>
+        <module>bagri-server</module>
         <module>bagri-samples</module>
         <module>bagri-tools</module>
         <module>bagri-distr</module>
@@ -122,15 +122,36 @@
                 <groupId>com.sdv.bagri</groupId>
                 <artifactId>bagri-test-common</artifactId>
                 <version>${project.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>junit</groupId>
+                        <artifactId>junit</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.sdv.bagri</groupId>
                 <artifactId>bagri-xdm</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <!--dependency>
+                <groupId>com.sdv.bagri</groupId>
+                <artifactId>bagri-client-coherence</artifactId>
+                <version>${project.version}</version>
+            </dependency>
             <dependency>
                 <groupId>com.sdv.bagri</groupId>
-                <artifactId>bagri-xdm-cache-hazelcast</artifactId>
+                <artifactId>bagri-server-coherence</artifactId>
+                <version>${project.version}</version>
+            </dependency-->
+            <dependency>
+                <groupId>com.sdv.bagri</groupId>
+                <artifactId>bagri-client-hazelcast</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sdv.bagri</groupId>
+                <artifactId>bagri-server-hazelcast</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -150,40 +171,9 @@
             </dependency>
             <dependency>
                 <groupId>com.sdv.bagri</groupId>
-                <artifactId>bagri-xdm-access-api</artifactId>
-                <version>${project.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>junit</groupId>
-                        <artifactId>junit</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>com.sdv.bagri</groupId>
-                <artifactId>bagri-xdm-access-coherence</artifactId>
+                <artifactId>bagri-client-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            <dependency>
-                <groupId>com.sdv.bagri</groupId>
-                <artifactId>bagri-xdm-access-hazelcast</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <!--dependency>
-                <groupId>com.sdv.bagri</groupId>
-                <artifactId>bagri-xdm-process-coherence</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.sdv.bagri</groupId>
-                <artifactId>bagri-xdm-process-hazelcast</artifactId>
-                <version>${project.version}</version>
-            </dependency-->
-            <!--dependency>
-                <groupId>com.sdv.bagri</groupId>
-                <artifactId>bagri-cache</artifactId>
-                <version>${project.version}</version>
-            </dependency-->
 
             <!--dependency>
                 <groupId>org.apache.commons</groupId>
@@ -288,11 +278,11 @@
                 <artifactId>axis</artifactId>
                 <version>${axis.version}</version>
             </dependency>
-            <dependency>
+            <!--dependency>
                 <groupId>org.apache.xmlbeans</groupId>
                 <artifactId>xmlbeans</artifactId>
                 <version>${xmlbeans.version}</version>
-            </dependency>
+            </dependency-->
             <dependency>
                 <groupId>net.sf.saxon</groupId>
                 <artifactId>Saxon-HE</artifactId>

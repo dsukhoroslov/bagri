@@ -16,7 +16,7 @@
 
         <dependency>
             <groupId>com.sdv.bagri</groupId>
-            <artifactId>bagri-xdm-cache-hazelcast</artifactId>
+            <artifactId>bagri-server-hazelcast</artifactId>
         </dependency>
 
     </dependencies>
