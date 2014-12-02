@@ -1,7 +1,7 @@
 @echo off
 @
 @rem This will start a console application
-@rem demonstrating the functionality of the Coherence(tm) API
+@rem running TPoX workbench
 @
 setlocal
 

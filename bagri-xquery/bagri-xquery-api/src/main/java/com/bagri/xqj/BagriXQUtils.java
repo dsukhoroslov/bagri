@@ -1,5 +1,67 @@
 package com.bagri.xqj;
 
+import static com.bagri.xqj.BagriXQConstants.xs_ns;
+import static com.bagri.xqj.BagriXQConstants.xs_prefix;
+import static javax.xml.xquery.XQItemType.XQBASETYPE_ANYATOMICTYPE;
+import static javax.xml.xquery.XQItemType.XQBASETYPE_ANYSIMPLETYPE;
+import static javax.xml.xquery.XQItemType.XQBASETYPE_ANYTYPE;
+import static javax.xml.xquery.XQItemType.XQBASETYPE_ANYURI;
+import static javax.xml.xquery.XQItemType.XQBASETYPE_BASE64BINARY;
+import static javax.xml.xquery.XQItemType.XQBASETYPE_BOOLEAN;
+import static javax.xml.xquery.XQItemType.XQBASETYPE_BYTE;
+import static javax.xml.xquery.XQItemType.XQBASETYPE_DATE;
+import static javax.xml.xquery.XQItemType.XQBASETYPE_DATETIME;
+import static javax.xml.xquery.XQItemType.XQBASETYPE_DAYTIMEDURATION;
+import static javax.xml.xquery.XQItemType.XQBASETYPE_DECIMAL;
+import static javax.xml.xquery.XQItemType.XQBASETYPE_DOUBLE;
+import static javax.xml.xquery.XQItemType.XQBASETYPE_DURATION;
+import static javax.xml.xquery.XQItemType.XQBASETYPE_ENTITIES;
+import static javax.xml.xquery.XQItemType.XQBASETYPE_ENTITY;
+import static javax.xml.xquery.XQItemType.XQBASETYPE_FLOAT;
+import static javax.xml.xquery.XQItemType.XQBASETYPE_GDAY;
+import static javax.xml.xquery.XQItemType.XQBASETYPE_GMONTH;
+import static javax.xml.xquery.XQItemType.XQBASETYPE_GMONTHDAY;
+import static javax.xml.xquery.XQItemType.XQBASETYPE_GYEAR;
+import static javax.xml.xquery.XQItemType.XQBASETYPE_GYEARMONTH;
+import static javax.xml.xquery.XQItemType.XQBASETYPE_HEXBINARY;
+import static javax.xml.xquery.XQItemType.XQBASETYPE_ID;
+import static javax.xml.xquery.XQItemType.XQBASETYPE_IDREF;
+import static javax.xml.xquery.XQItemType.XQBASETYPE_IDREFS;
+import static javax.xml.xquery.XQItemType.XQBASETYPE_INT;
+import static javax.xml.xquery.XQItemType.XQBASETYPE_INTEGER;
+import static javax.xml.xquery.XQItemType.XQBASETYPE_LANGUAGE;
+import static javax.xml.xquery.XQItemType.XQBASETYPE_LONG;
+import static javax.xml.xquery.XQItemType.XQBASETYPE_NAME;
+import static javax.xml.xquery.XQItemType.XQBASETYPE_NCNAME;
+import static javax.xml.xquery.XQItemType.XQBASETYPE_NEGATIVE_INTEGER;
+import static javax.xml.xquery.XQItemType.XQBASETYPE_NMTOKEN;
+import static javax.xml.xquery.XQItemType.XQBASETYPE_NMTOKENS;
+import static javax.xml.xquery.XQItemType.XQBASETYPE_NONNEGATIVE_INTEGER;
+import static javax.xml.xquery.XQItemType.XQBASETYPE_NONPOSITIVE_INTEGER;
+import static javax.xml.xquery.XQItemType.XQBASETYPE_NORMALIZED_STRING;
+import static javax.xml.xquery.XQItemType.XQBASETYPE_NOTATION;
+import static javax.xml.xquery.XQItemType.XQBASETYPE_POSITIVE_INTEGER;
+import static javax.xml.xquery.XQItemType.XQBASETYPE_QNAME;
+import static javax.xml.xquery.XQItemType.XQBASETYPE_SHORT;
+import static javax.xml.xquery.XQItemType.XQBASETYPE_STRING;
+import static javax.xml.xquery.XQItemType.XQBASETYPE_TIME;
+import static javax.xml.xquery.XQItemType.XQBASETYPE_TOKEN;
+import static javax.xml.xquery.XQItemType.XQBASETYPE_UNSIGNED_BYTE;
+import static javax.xml.xquery.XQItemType.XQBASETYPE_UNSIGNED_INT;
+import static javax.xml.xquery.XQItemType.XQBASETYPE_UNSIGNED_LONG;
+import static javax.xml.xquery.XQItemType.XQBASETYPE_UNSIGNED_SHORT;
+import static javax.xml.xquery.XQItemType.XQBASETYPE_UNTYPED;
+import static javax.xml.xquery.XQItemType.XQBASETYPE_UNTYPEDATOMIC;
+import static javax.xml.xquery.XQItemType.XQBASETYPE_YEARMONTHDURATION;
+import static javax.xml.xquery.XQItemType.XQITEMKIND_ATOMIC;
+import static javax.xml.xquery.XQItemType.XQITEMKIND_ATTRIBUTE;
+import static javax.xml.xquery.XQItemType.XQITEMKIND_DOCUMENT_ELEMENT;
+import static javax.xml.xquery.XQItemType.XQITEMKIND_DOCUMENT_SCHEMA_ELEMENT;
+import static javax.xml.xquery.XQItemType.XQITEMKIND_ELEMENT;
+import static javax.xml.xquery.XQItemType.XQITEMKIND_PI;
+import static javax.xml.xquery.XQItemType.XQITEMKIND_SCHEMA_ATTRIBUTE;
+import static javax.xml.xquery.XQItemType.XQITEMKIND_SCHEMA_ELEMENT;
+
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -39,15 +101,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 
-import static javax.xml.xquery.XQItemType.*;
-
-import com.bagri.xquery.api.XQProcessor;
-
 public class BagriXQUtils {
 
-	private static String xs_prefix = "xs";
-	private static String xs_ns = "http://www.w3.org/2001/XMLSchema";
-	
     public static QName getTypeName(int baseType) {
     	switch (baseType) {
     		case XQBASETYPE_ANYATOMICTYPE: return new QName(xs_ns, "anyAtomicType", xs_prefix);
@@ -552,26 +607,4 @@ public class BagriXQUtils {
 		}
 	}
 	
-	private static XQProcessor xqProcessor;
-	private static XQDataFactory xqFactory;
-	
-	public static void setXQProcessor(XQProcessor processor) {
-		xqProcessor = processor;
-	}
-	
-	public static XQDataFactory getXQDataFactory() {
-		return xqFactory;
-	}
-	
-	static void setXQDataFactory(XQDataFactory factory) {
-		xqFactory = factory;
-	}
-	
-	public static String itemToString(Object item) throws XQException {
-		if (xqProcessor == null) {
-			throw new XQException("convertion processor not specified (yet)");
-		}
-		return xqProcessor.convertToString(item);
-	}
-		
 }

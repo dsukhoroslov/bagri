@@ -30,6 +30,13 @@ public interface XDMSchemaDictionary {
 	String translateNamespace(String namespace);
 	
 	/**
+	 * 
+	 * @param namespace
+	 * @return
+	 */
+	String translateNamespace(String namespace, String prefix);
+
+	/**
 	 * translates full node path like "/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}Name"
 	 * to its prefixed equivalent: "/ns0:Security/ns0:Name" 
 	 */
@@ -41,7 +48,7 @@ public interface XDMSchemaDictionary {
 	 * 
 	 * registers new pathId if it is not registered yet;  
 	 */
-	int translatePath(int typeId, String path, XDMNodeKind kind);
+	XDMPath translatePath(int typeId, String path, XDMNodeKind kind);
 	
 	/**
 	 * translates regex expression like "^/ns0:Security/ns0:SecurityInformation/.(*)/ns0:Sector/text\\(\\)$";

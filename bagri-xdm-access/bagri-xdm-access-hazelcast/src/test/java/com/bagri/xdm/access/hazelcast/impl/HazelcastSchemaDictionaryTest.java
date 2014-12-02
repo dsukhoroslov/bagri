@@ -19,17 +19,15 @@ import com.hazelcast.core.Hazelcast;
 
 public class HazelcastSchemaDictionaryTest extends XDMSchemaDictionaryTest {
 	
-	//private staic boolean
-	
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		//System.setProperty("hazelcast.config", "hazelcast/hazelcast.xml");
-		System.setProperty(PN_SERVER_ADDRESS, "localhost:10000");
+		System.setProperty(PN_SERVER_ADDRESS, "localhost:10500");
 		System.setProperty(PN_POOL_SIZE, "10");
 		System.setProperty(PN_CACHE_MODE, PV_MODE_CLIENT);
-		System.setProperty(PN_SCHEMA_NAME, "TPoX");
-		System.setProperty(PN_SCHEMA_PASS, "TPoX");
-		sampleRoot = "C:\\Work\\Bagri\\project\\trunk\\etc\\samples\\";
+		System.setProperty(PN_SCHEMA_NAME, "TPoX2");
+		System.setProperty(PN_SCHEMA_PASS, "TPoX2");
+		sampleRoot = "..\\..\\etc\\samples\\schema\\";
 	}
 
 	@AfterClass
@@ -39,19 +37,17 @@ public class HazelcastSchemaDictionaryTest extends XDMSchemaDictionaryTest {
 
 	@Before
 	public void setUp() throws Exception {
-		HazelcastDocumentManager dMgr = new HazelcastDocumentManager();
+		dMgr = new DocumentManagementClient();
 		mDictionary = dMgr.getSchemaDictionary();
 
 		registerSecuritySchemaTest();
 		registerCustaccSchemaTest();
-		registerCommonSchemaTest();
+		//registerCommonSchemaTest();
 	}
 
 	@After
 	public void tearDown() throws Exception {
-		// remove documents here!
-		//removeDocumentsTest();
-		//Hazelcast.shutdownAll();
+		dMgr.close();
 	}
 
 }

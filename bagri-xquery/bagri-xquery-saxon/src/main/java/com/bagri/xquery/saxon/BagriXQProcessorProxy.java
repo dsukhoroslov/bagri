@@ -15,6 +15,7 @@ import net.sf.saxon.expr.instruct.GlobalParameterSet;
 import net.sf.saxon.om.StructuredQName;
 
 import com.bagri.xdm.access.api.XDMDocumentManagement;
+import com.bagri.xqj.BagriXQUtils;
 import com.bagri.xquery.api.XQProcessor;
 
 public class BagriXQProcessorProxy extends SaxonXQProcessor implements XQProcessor {
@@ -28,7 +29,7 @@ public class BagriXQProcessorProxy extends SaxonXQProcessor implements XQProcess
 	@Override
 	public Iterator executeXCommand(String command, Map<QName, XQItemAccessor> bindings, Properties props) throws XQException {
 		
-    	logger.trace("executeXCommand.enter; command: {}", command);
+    	//logger.trace("executeXCommand.enter; command: {}", command);
     	XDMDocumentManagement dMgr = getXdmManager();
 		return (Iterator) dMgr.executeXCommand(command, bindings, props);
 	}
@@ -42,14 +43,15 @@ public class BagriXQProcessorProxy extends SaxonXQProcessor implements XQProcess
 	@Override
 	public Iterator executeXQuery(String query, Properties props) throws XQException {
 
-    	logger.trace("executeXQuery.enter; query: {}", query);
+    	//logger.trace("executeXQuery.enter; query: {}", query);
     	XDMDocumentManagement dMgr = getXdmManager();
     	GlobalParameterSet params = dqc.getParameters();
     	Map bindings = new HashMap<QName, Object>(params.getNumberOfKeys());
     	for (StructuredQName qName: params.getKeys()) {
-    		bindings.put(qName, params.get(qName));
+    		QName vName = new QName(qName.getURI(), qName.getLocalPart(), qName.getPrefix()); 
+    		bindings.put(vName, params.get(qName));
     	}
-    	logger.trace("executeXQuery; bindings: {}", bindings);
+    	//logger.trace("executeXQuery; bindings: {}", bindings);
 		return (Iterator) dMgr.executeXQuery(query, bindings, props);
 	}
 

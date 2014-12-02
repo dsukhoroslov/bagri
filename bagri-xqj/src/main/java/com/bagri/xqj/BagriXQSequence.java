@@ -22,18 +22,23 @@ public abstract class BagriXQSequence extends BagriXQItemAccessor implements XQS
 	
 	protected BagriXQConnection connection;
 	
+	//BagriXQSequence(BagriXQConnection connection) {
+	//	super();
+	//	this.connection = connection;
+	//}
+	
 	BagriXQSequence(BagriXQConnection connection) {
-		super();
+		super(connection.getProcessor());
 		this.connection = connection;
 	}
-	
+
 	@Override
 	public XQItem getItem() throws XQException {
 		
 		if (isClosed()) {
 			throw new XQException("Sequence is closed");
 		}
-		return new BagriXQItem(type, value);
+		return new BagriXQItem(getXQProcessor(), type, value);
 	}
 
 	@Override

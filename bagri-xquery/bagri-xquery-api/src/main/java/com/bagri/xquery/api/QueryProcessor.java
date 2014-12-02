@@ -11,12 +11,16 @@ import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQStaticContext;
 
 import com.bagri.xdm.access.api.XDMDocumentManagement;
+import com.bagri.xdm.access.api.XDMQueryManagement;
 
 public interface QueryProcessor {
 	
     XDMDocumentManagement getXdmManager();
     void setXdmManager(XDMDocumentManagement mgr);
     void setXQDataFactory(XQDataFactory xqFactory);    
+
+    XDMQueryManagement getXQManager();
+    void setXQManager(XDMQueryManagement mgr);
     
     Properties getProperties();
 	

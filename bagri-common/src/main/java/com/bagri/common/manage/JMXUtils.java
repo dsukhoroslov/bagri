@@ -31,6 +31,7 @@ import java.security.AccessController;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
@@ -149,7 +150,7 @@ public class JMXUtils {
         if (result == null) {
         	result = "unknown";
         }
-        logger.info("getCurrentUser.exit; returning: {}", result);
+        logger.trace("getCurrentUser.exit; returning: {}", result);
         return result;
 	}
 	
@@ -169,31 +170,152 @@ public class JMXUtils {
 	}
     
     /**
-     * @param name  Property name
-     * @param desc  Property description
-     * @param props Property map
+     * @param name  Statistics name
+     * @param desc  Statistics description
+     * @param props Statistics map
      * @return Composite data
      */
-    public static CompositeData propsToComposite(String name, String desc, Map<String, Object> props) {
-        if (props != null && !props.isEmpty()) {
+    public static CompositeData mapToComposite(String name, String desc, Map<String, Object> map) {
+        if (map != null && !map.isEmpty()) {
             try {
-                String[] names = new String[props.size()];
-                OpenType[] types = new OpenType[props.size()];
+                String[] names = new String[map.size()];
+                OpenType[] types = new OpenType[map.size()];
                 int idx = 0;
-                for (Map.Entry<String, Object> e : props.entrySet()) {
+                for (Map.Entry<String, Object> e : map.entrySet()) {
                     names[idx] = e.getKey();
                     types[idx] = getOpenType(e.getValue());
                     idx++;
                 }
                 CompositeType type = new CompositeType(name, desc, names, names, types);
-                return new CompositeDataSupport(type, props);
+                return new CompositeDataSupport(type, map);
             } catch (OpenDataException ex) {
-                logger.warn("propsToComposite. error: {}", ex.getMessage());
+                logger.warn("statsToComposite. error: {}", ex.getMessage());
             }
         }
         return null;
     }
 
+	public static TabularData aggregateStats(TabularData source, TabularData target) {
+    	// source is not nullable
+		TabularData result = new TabularDataSupport(source.getTabularType());
+        Set<List> keys = (Set<List>) source.keySet();
+    	if (target == null) {
+       		for (List key: keys) {
+       			result.put(source.get(key.toArray()));
+        	}
+    	} else {
+       		for (List key: keys) {
+       			Object[] index = key.toArray();
+       			CompositeData aggr = aggregateStats(source.get(index), target.get(index));
+       			result.put(aggr);
+        	}
+    	}
+		return result;
+	}
+    
+    public static CompositeData aggregateStats(CompositeData source, CompositeData target) {
+    	// source is not nullable
+		Set<String> keys = source.getCompositeType().keySet();
+		String[] names = keys.toArray(new String[keys.size()]);
+		Object[] srcVals = source.getAll(names);
+    	if (target == null) {
+    		try {
+				target = new CompositeDataSupport(source.getCompositeType(), names, srcVals);
+			} catch (OpenDataException ex) {
+                logger.warn("aggregateStats. error: {}", ex.getMessage());
+                return null;
+			}
+    	} else {
+    		long tmSum = 0;
+    		long tmFirst = 0;
+    		long tmLast = 0;
+    		int cntInvoke = 0;
+    		Object[] trgVals = target.getAll(names);
+    		for (int i=0; i < srcVals.length; i++) {
+    			trgVals[i] = aggregateValue(names[i], srcVals[i], trgVals[i]);
+    	        if ("Invoked".equals(names[i])) {
+    	        	cntInvoke = (Integer) trgVals[i]; 
+    	        } else if ("Sum time".equals(names[i])) {
+    	        	tmSum = (Long) trgVals[i];
+    	        } else if ("First".equals(names[i])) {
+    	        	tmFirst = ((Date) trgVals[i]).getTime();
+    	        } else if ("Last".equals(names[i])) {
+    	        	tmLast = ((Date) trgVals[i]).getTime();
+    	        }
+    		}
+    		
+    		if (cntInvoke > 0) {
+	    		for (int i=0; i < srcVals.length; i++) {
+	    	        if ("Avg time".equals(names[i])) {
+	    	        	double dSum = tmSum;
+	    	        	trgVals[i] = dSum/cntInvoke;
+	    	        } else if ("Throughput".equals(names[i])) {
+	    				double dCnt = cntInvoke*1000;
+	    				trgVals[i] = dCnt/(tmLast - tmFirst);
+	    	        }
+	    		}
+    		}
+    		
+			try {
+				target = new CompositeDataSupport(source.getCompositeType(), names, trgVals);
+			} catch (OpenDataException ex) {
+                logger.warn("aggregateStats. error: {}", ex.getMessage());
+                return null;
+			}
+    	}
+    	return target;
+    }
+    
+    private static Object aggregateValue(String name, Object value1, Object value2) {
+        //logger.trace("aggregateValue. name: {}; v1: {}; v2: {}", name, value1, value2);
+        //if ("Avg time".equals(name)) {
+        //	return value1;
+        //}
+        if ("Failed".equals(name)) {
+        	return (Integer) value1 + (Integer) value2;
+        }
+        if ("First".equals(name)) {
+        	if (((Comparable) value1).compareTo((Comparable) value2) < 0) {
+            	return value1;
+        	}
+        	return value2;
+        }
+        if ("Invoked".equals(name)) {
+        	return (Integer) value1 + (Integer) value2;
+        }
+        if ("Last".equals(name)) {
+        	if (((Comparable) value1).compareTo((Comparable) value2) > 0) {
+            	return value1;
+        	}
+        	return value2;
+        }
+        if ("Max time".equals(name)) {
+        	if (((Comparable) value1).compareTo((Comparable) value2) > 0) {
+            	return value1;
+        	}
+        	return value2;
+        }
+        if ("Method".equals(name)) {
+        	return value1;
+        }
+        if ("Min time".equals(name)) {
+        	if (((Comparable) value1).compareTo((Comparable) value2) < 0) {
+            	return value1;
+        	}
+        	return value2;
+        }
+        if ("Succeed".equals(name)) {
+        	return (Integer) value1 + (Integer) value2;
+        }
+        if ("Sum time".equals(name)) {
+        	return (Long) value1 + (Long) value2;
+        }
+        //if ("Throughput".equals(name)) {
+        //	return value1;
+        //}
+    	return 0.0d; //null;
+    }
+    
     public static CompositeData propsToComposite(String name, String desc, Properties props) {
     	logger.trace("propsToComposite; name: {}; properties: {}", name, props);
         if (props != null && !props.isEmpty()) {
@@ -315,6 +437,22 @@ public class JMXUtils {
         }
         String name = value.getClass().getName();
         //if (OpenType.ALLOWED_CLASSNAMES_LIST.contains(name)) {
+
+        if ("java.lang.Long".equals(name)) {
+            return SimpleType.LONG;
+        }
+        if ("java.lang.Integer".equals(name)) {
+            return SimpleType.INTEGER;
+        }
+        if ("java.lang.String".equals(name)) {
+            return SimpleType.STRING;
+        }
+        if ("java.lang.Double".equals(name)) {
+            return SimpleType.DOUBLE;
+        }
+        if ("java.lang.Float".equals(name)) {
+            return SimpleType.FLOAT;
+        }
         if ("java.math.BigDecimal".equals(name)) {
             return SimpleType.BIGDECIMAL;
         }
@@ -333,23 +471,8 @@ public class JMXUtils {
         if ("java.util.Date".equals(name)) {
             return SimpleType.DATE;
         }
-        if ("java.lang.Double".equals(name)) {
-            return SimpleType.DOUBLE;
-        }
-        if ("java.lang.Float".equals(name)) {
-            return SimpleType.FLOAT;
-        }
-        if ("java.lang.Integer".equals(name)) {
-            return SimpleType.INTEGER;
-        }
-        if ("java.lang.Long".equals(name)) {
-            return SimpleType.LONG;
-        }
         if ("java.lang.Short".equals(name)) {
             return SimpleType.SHORT;
-        }
-        if ("java.lang.String".equals(name)) {
-            return SimpleType.STRING;
         }
         //"javax.management.ObjectName",
         //CompositeData.class.getName(),

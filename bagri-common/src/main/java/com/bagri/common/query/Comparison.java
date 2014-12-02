@@ -27,5 +27,15 @@ public enum Comparison {
 			default: return comp;
 		}
 	}
+	
+	public static boolean isBinary(Comparison compType) {
+		switch (compType) {
+			case AND:
+			case OR: return true;
+			//case NOT:
+			//	return -1;
+			default: return false;
+		}
+	}
 
 }

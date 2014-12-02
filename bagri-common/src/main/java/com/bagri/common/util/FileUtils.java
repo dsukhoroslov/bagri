@@ -1,7 +1,13 @@
 package com.bagri.common.util;
 
+import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
+import java.io.Writer;
 import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -25,15 +31,24 @@ public class FileUtils {
 	   	}
 	    return text.toString();
 	}
-
-	public static Properties propsFromString(String properties) throws IOException {
-		Properties props = new Properties();
-		properties = properties.replaceAll(";", "\n\r");
-		props.load(new StringReader(properties));
-		return props;
-	}
 	
-	public static String uri2Path(String uri) {
+	public static void writeTextFile(String fileName, String content) throws IOException {
+		
+		try (Writer writer = new BufferedWriter(
+				new OutputStreamWriter(new FileOutputStream(fileName), ENCODING.name()))) {
+		    writer.write(content);
+		}		
+	}
+
+    public static void appendTextFile(String fileName, String content) throws IOException {
+        
+        try (Writer writer = new BufferedWriter(
+                new OutputStreamWriter(new FileOutputStream(fileName, true), ENCODING.name()))) {
+            writer.write(content);
+        }           
+    }
+    
+    public static String uri2Path(String uri) {
 		if (uri.startsWith("file:/")) {
 			return Paths.get(URI.create(uri)).toString();
 		}
@@ -41,7 +56,10 @@ public class FileUtils {
 	}
 	
 	public static String path2Uri(String path) {
-		if (!path.startsWith("file:/")) {
+		if (!path.startsWith("file:///")) {
+			if (path.startsWith("file:/")) {
+				path = Paths.get(URI.create(path)).toString();
+			}
 			return Paths.get(path).toUri().toString();
 		}
 		return path;

@@ -1,6 +1,7 @@
 package com.bagri.common.query;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class PathBuilder {
@@ -18,6 +19,10 @@ public class PathBuilder {
 	public PathBuilder addPathSegment(AxisType axis, String namespace, String segment) {
 		segments.add(new PathSegment(axis, namespace, segment));
 		return this;
+	}
+	
+	public List<PathSegment> getSegments() {
+		return Collections.unmodifiableList(segments);
 	}
 
 	public String getFullPath() {
@@ -46,7 +51,7 @@ public class PathBuilder {
 		return getFullPath();
 	}
 	
-	private class PathSegment {
+	public class PathSegment {
 
 		private AxisType axis;
 		private String namespace;
@@ -60,6 +65,18 @@ public class PathBuilder {
 			this(axis);
 			this.namespace = namespace;
 			this.segment = segment;
+		}
+		
+		public AxisType getAxis() {
+			return axis;
+		}
+		
+		public String getNamespace() {
+			return namespace;
+		}
+		
+		public String getSegment() {
+			return segment;
 		}
 		
 		public boolean isSimple() {

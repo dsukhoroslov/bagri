@@ -25,6 +25,21 @@ public class XQItemTypeSerializer implements StreamSerializer<XQItemType> {
 
     private static final Logger logger = LoggerFactory.getLogger(XQItemTypeSerializer.class);
 	
+	private XQDataFactory xqFactory;
+	
+	protected XQDataFactory getXQDataFactory() {
+		// @TODO: take it from context somehow!
+		//HazelcastInstance hz = Hazelcast.getHazelcastInstanceByName("TPoX");
+		//logger.trace("getXQDataFactory; hz: {}; context: {}", hz, hz.getUserContext());
+		//return (XQDataFactory) hz.getUserContext().get("xqConnection");
+		//return BagriXQUtils.getXQDataFactory();
+		return xqFactory;
+	}
+
+	public void setXQDataFactory(XQDataFactory xqDataFactory) {
+		this.xqFactory = xqDataFactory;
+	}
+    
 	@Override
 	public int getTypeId() {
 		return XDMPortableFactory.cli_XQItemType;
@@ -36,14 +51,6 @@ public class XQItemTypeSerializer implements StreamSerializer<XQItemType> {
 		
 	}
 	
-	private XQDataFactory getXQDataFactory() {
-		// @TODO: take it from context somehow!
-		//HazelcastInstance hz = Hazelcast.getHazelcastInstanceByName("TPoX");
-		//logger.trace("getXQDataFactory; hz: {}; context: {}", hz, hz.getUserContext());
-		//return (XQDataFactory) hz.getUserContext().get("xqConnection");
-		return BagriXQUtils.getXQDataFactory();
-	}
-
 	@Override
 	public XQItemType read(ObjectDataInput in) throws IOException {
 		try {

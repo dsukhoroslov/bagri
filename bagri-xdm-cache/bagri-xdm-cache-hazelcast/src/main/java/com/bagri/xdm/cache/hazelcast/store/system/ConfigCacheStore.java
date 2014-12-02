@@ -1,6 +1,7 @@
 package com.bagri.xdm.cache.hazelcast.store.system;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -27,7 +28,15 @@ public abstract class ConfigCacheStore<K, V> {
 
 	public Map<K, V> loadAll(Collection<K> keys) {
 		logger.trace("loadAll.enter; keys: {}", keys);
-		return entities;
+		Map<K, V> result = new HashMap<K, V>(keys.size());
+		for (K key: keys) {
+			V value = entities.get(key);
+			if (value != null) {
+				result.put(key, value);
+			}
+		}
+		logger.trace("loadAll.exit; returning {} entities", result.size());
+		return result;
 	}
 	
 	public V load(K key) {

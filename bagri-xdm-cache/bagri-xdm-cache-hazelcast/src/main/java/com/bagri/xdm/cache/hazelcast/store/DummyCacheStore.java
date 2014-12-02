@@ -2,17 +2,32 @@ package com.bagri.xdm.cache.hazelcast.store;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IdGenerator;
+import com.hazelcast.core.MapLoaderLifecycleSupport;
 import com.hazelcast.core.MapStore;
 
-public class DummyCacheStore implements MapStore<Object, Object> {
+public class DummyCacheStore implements MapStore<Object, Object>, MapLoaderLifecycleSupport {
 
-    private static final Logger logger = LoggerFactory.getLogger(DummyCacheStore.class);
+    private Logger logger;
 
+	@Override
+	public void init(HazelcastInstance hazelcastInstance, Properties properties, String mapName) {
+	    logger = LoggerFactory.getLogger(DummyCacheStore.class.getName() + "[" + mapName + "]");
+		logger.trace("init.enter; properties: {}", properties);
+	}
+
+	@Override
+	public void destroy() {
+		logger.trace("destroy.enter;");
+	}
+    
 	@Override
 	public Object load(Object key) {
 		logger.trace("load.enter; key: {}", key);

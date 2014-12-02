@@ -25,10 +25,13 @@ public class PopulationManagement implements SelfNaming {
 	private IExecutorService execService;
 	
     
-    public PopulationManagement(String schemaName, HazelcastInstance hzInstance) {
+    public PopulationManagement(String schemaName) {
     	this.schemaName = schemaName;
-		this.hzInstance = hzInstance;
 	}
+    
+    public void setHzInstance(HazelcastInstance hzInstance) {
+		this.hzInstance = hzInstance;
+    }
 	
 	@Override
 	public ObjectName getObjectName() throws MalformedObjectNameException {

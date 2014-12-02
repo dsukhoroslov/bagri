@@ -4,7 +4,7 @@ import com.bagri.xdm.domain.XDMElement;
 
 public interface XDMFactory {
 	
-	XDMDataKey newXDMDataKey(long dataId, long documentId);
+	XDMDataKey newXDMDataKey(long documentId, int pathId);
 	XDMElement newXDMData();
 
 }

@@ -19,35 +19,25 @@ import javax.xml.xquery.XQStaticContext;
 
 import com.bagri.xquery.api.XQProcessor;
 
+import static com.bagri.xqj.BagriXQConstants.ex_connection_closed;
+import static com.bagri.xqj.BagriXQConstants.ex_null_context;
+
 public class BagriXQConnection extends BagriXQDataFactory implements XQConnection {
 	
 	private boolean autoCommit;
 	private BagriXQMetaData metaData;
 	private BagriXQStaticContext context;
-	private XQProcessor processor;
 	
 	public BagriXQConnection(String address, int timeout) {
 
 		metaData = new BagriXQMetaData(this, null);
 		context = new BagriXQStaticContext();
-		BagriXQUtils.setXQDataFactory(this);
 	}
 
 	public BagriXQConnection(String address, int timeout, String username, String password) {
 
 		metaData = new BagriXQMetaData(this, username);
 		context = new BagriXQStaticContext();
-		BagriXQUtils.setXQDataFactory(this);
-	}
-	
-	public XQProcessor getProcessor() {
-		return this.processor;
-	}
-	
-	public void setProcessor(XQProcessor processor) {
-		this.processor = processor;
-		BagriXQUtils.setXQProcessor(processor);
-        logger.debug("setProcessor; got processor: {}", processor);
 	}
 	
 	@Override
@@ -57,11 +47,9 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 		//	throw new XQException("Connection is already closed");
 		//}
 		
-		BagriXQUtils.setXQDataFactory(null);
-        logger.trace("close");
-		
-		//client.getLifecycleService().kill();
+		getProcessor().getXdmManager().close();
 		closed = true;
+        logger.debug("close.");
 	}
 
 	@Override
@@ -74,7 +62,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 	public XQExpression createExpression() throws XQException {
 		
 		if (isClosed()) {
-			throw new XQException("Connection is closed");
+			throw new XQException(ex_connection_closed);
 		}
 		return new BagriXQExpression(this);
 	}
@@ -83,10 +71,10 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 	public XQExpression createExpression(XQStaticContext context) throws XQException {
 		
 		if (isClosed()) {
-			throw new XQException("Connection is closed");
+			throw new XQException(ex_connection_closed);
 		}
 		if (context == null) {
-			throw new XQException("Context is null");
+			throw new XQException(ex_null_context);
 		}
 		return new BagriXQExpression(this, context);
 	}
@@ -101,7 +89,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 	public XQMetaData getMetaData() throws XQException {
 		
 		if (isClosed()) {
-			throw new XQException("Connection is closed");
+			throw new XQException(ex_connection_closed);
 		}
 		return metaData;
 	}
@@ -110,7 +98,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 	public XQStaticContext getStaticContext() throws XQException {
 		
 		if (isClosed()) {
-			throw new XQException("Connection is closed");
+			throw new XQException(ex_connection_closed);
 		}
 		return context; //new BagriXQStaticContext(context);
 	}
@@ -118,14 +106,14 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 	@Override
 	public boolean isClosed() {
 		
-		return /*!client.getLifecycleService().isRunning() ||*/ closed;
+		return closed;
 	}
 
 	@Override
 	public XQPreparedExpression prepareExpression(String xquery) throws XQException {
 		
 		if (isClosed()) {
-			throw new XQException("Connection is closed");
+			throw new XQException(ex_connection_closed);
 		}
 		if (xquery == null) {
 			throw new XQException("Provided xquery is null");
@@ -141,7 +129,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 	public XQPreparedExpression prepareExpression(Reader xquery) throws XQException {
 
 		if (isClosed()) {
-			throw new XQException("Connection is closed");
+			throw new XQException(ex_connection_closed);
 		}
 		if (xquery == null) {
 			throw new XQException("Provided xquery reader is null");
@@ -158,7 +146,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 	public XQPreparedExpression prepareExpression(InputStream xquery) throws XQException {
 
 		if (isClosed()) {
-			throw new XQException("Connection is closed");
+			throw new XQException(ex_connection_closed);
 		}
 		if (xquery == null) {
 			throw new XQException("Provided xquery stream is null");
@@ -175,10 +163,10 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 	public XQPreparedExpression prepareExpression(String xquery, XQStaticContext context) throws XQException {
 
 		if (isClosed()) {
-			throw new XQException("Connection is closed");
+			throw new XQException(ex_connection_closed);
 		}
 		if (context == null) {
-			throw new XQException("Context is null");
+			throw new XQException(ex_null_context);
 		}
 		if (xquery == null) {
 			throw new XQException("Provided xquery is null");
@@ -194,10 +182,10 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 	public XQPreparedExpression prepareExpression(Reader xquery, XQStaticContext context) throws XQException {
 
 		if (isClosed()) {
-			throw new XQException("Connection is closed");
+			throw new XQException(ex_connection_closed);
 		}
 		if (context == null) {
-			throw new XQException("Context is null");
+			throw new XQException(ex_null_context);
 		}
 		if (xquery == null) {
 			throw new XQException("Provided xquery reader is null");
@@ -214,10 +202,10 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 	public XQPreparedExpression prepareExpression(InputStream xquery, XQStaticContext context) throws XQException {
 
 		if (isClosed()) {
-			throw new XQException("Connection is closed");
+			throw new XQException(ex_connection_closed);
 		}
 		if (context == null) {
-			throw new XQException("Context is null");
+			throw new XQException(ex_null_context);
 		}
 		if (xquery == null) {
 			throw new XQException("Provided xquery stream is null");
@@ -247,10 +235,10 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 	public void setStaticContext(XQStaticContext context) throws XQException {
 		
 		if (isClosed()) {
-			throw new XQException("Connection is closed");
+			throw new XQException(ex_connection_closed);
 		}
 		if (context == null) {
-			throw new XQException("Context is null");
+			throw new XQException(ex_null_context);
 		}
 		if (this.context != context) {
 			this.context.copyFrom(context);
@@ -286,11 +274,11 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 			XQStaticContext ctx) throws XQException {
 		
 		if (isClosed()) {
-			throw new XQException("Connection is closed");
+			throw new XQException(ex_connection_closed);
 		}
 		// run cmd..
 		//logger.info("executeCommand. got command: {}", cmd);
-		processor.executeXCommand(cmd, bindings, ctx); //
+		getProcessor().executeXCommand(cmd, bindings, ctx); //
 	}
 
 	public Iterator executeQuery(String query) throws XQException {
@@ -301,11 +289,11 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 	public Iterator executeQuery(String query, XQStaticContext ctx) throws XQException {
 		
 		if (isClosed()) {
-			throw new XQException("Connection is closed");
+			throw new XQException(ex_connection_closed);
 		}
 		// run cmd..
 		//logger.info("executeQuery. got query: {}", query);
-		result = processor.executeXQuery(query, ctx);
+		result = getProcessor().executeXQuery(query, ctx);
 		return result;
 	}
 	
@@ -317,17 +305,17 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 	public void prepareQuery(BagriXQPreparedExpression exp, XQStaticContext ctx) throws XQException {
 		
 		if (isClosed()) {
-			throw new XQException("Connection is closed");
+			throw new XQException(ex_connection_closed);
 		}
-		Collection<QName> vars = processor.prepareXQuery(exp.getXQuery(), ctx);
+		Collection<QName> vars = getProcessor().prepareXQuery(exp.getXQuery(), ctx);
 		exp.setVarNames(vars);
 	}
 	
 	void bindVariable(QName varName, Object var) throws XQException {
-		processor.bindVariable(varName, var);
+		getProcessor().bindVariable(varName, var);
 	}
 	
 	void unbindVariable(QName varName) throws XQException {
-		processor.unbindVariable(varName);
+		getProcessor().unbindVariable(varName);
 	}
 }

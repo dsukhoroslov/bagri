@@ -15,7 +15,8 @@ import org.junit.Test;
 
 import com.bagri.common.query.AxisType;
 import com.bagri.common.query.Comparison;
-import com.bagri.common.query.ExpressionBuilder;
+//import com.bagri.common.query.ExpressionBuilder;
+import com.bagri.common.query.ExpressionContainer;
 import com.bagri.common.query.PathBuilder;
 import com.bagri.xdm.access.api.XDMDocumentManagement;
 import com.bagri.xdm.access.api.XDMSchemaDictionary;
@@ -26,39 +27,40 @@ public abstract class XDMDocumentManagerTest {
 	protected static String sampleRoot;
 	protected XDMDocumentManagement dMgr;
 	protected XDMSchemaDictionary mDictionary;
-	protected List<String> uris = new ArrayList<String>();
+	protected List<Long> ids = new ArrayList<Long>();
 	
 	public void storeSecurityTest() throws IOException {
 		String xml = readTextFile(sampleRoot + "security1500.xml");
-		uris.add(dMgr.storeDocument(xml).getUri());
+		ids.add(dMgr.storeDocument(xml).getDocumentId());
 
 		xml = readTextFile(sampleRoot + "security5621.xml");
-		uris.add(dMgr.storeDocument(xml).getUri());
+		ids.add(dMgr.storeDocument(xml).getDocumentId());
 
 		xml = readTextFile(sampleRoot + "security9012.xml");
-		uris.add(dMgr.storeDocument(xml).getUri());
+		ids.add(dMgr.storeDocument(xml).getDocumentId());
 
-		String prefix = mDictionary.getNamespacePrefix("http://tpox-benchmark.com/security"); 
-		int docType = mDictionary.getDocumentType("/" + prefix + ":Security");
-		mDictionary.getPathFromRegex(docType, ".*");
+		//String prefix = mDictionary.getNamespacePrefix("http://tpox-benchmark.com/security"); 
+		//int docType = mDictionary.getDocumentType("/" + prefix + ":Security");
+		//mDictionary.getPathFromRegex(docType, ".*");
 	}
 	
 	public void storeOrderTest() throws IOException {
 		String xml = readTextFile(sampleRoot + "order123.xml");
-		uris.add(dMgr.storeDocument(xml).getUri());
+		ids.add(dMgr.storeDocument(xml).getDocumentId());
 		xml = readTextFile(sampleRoot + "order654.xml");
-		uris.add(dMgr.storeDocument(xml).getUri());
+		ids.add(dMgr.storeDocument(xml).getDocumentId());
 	}
 	
 	public void storeCustomerTest() throws IOException {
 		String xml = readTextFile(sampleRoot + "custacc.xml");
-		uris.add(dMgr.storeDocument(xml).getUri());
+		ids.add(dMgr.storeDocument(xml).getDocumentId());
 	}
 	
 	public void removeDocumentsTest() { 
-		for (String uri: uris) {
-			dMgr.removeDocument(uri);
+		for (Long id: ids) {
+			dMgr.removeDocument(id);
 		}
+		ids.clear();
 	}
 	
 	public Collection<String> getPrice(String symbol) {
@@ -68,8 +70,8 @@ public abstract class XDMDocumentManagerTest {
 				addPathSegment(AxisType.CHILD, prefix, "Security").
 				addPathSegment(AxisType.CHILD, prefix, "Symbol").
 				addPathSegment(AxisType.CHILD, null, "text()");
-		ExpressionBuilder ec = new ExpressionBuilder();
-		ec.addExpression(docType, Comparison.EQ, path, symbol);
+		ExpressionContainer ec = new ExpressionContainer();
+		ec.addExpression(docType, Comparison.EQ, path, "$sym", symbol);
 		Map<String, String> params = new HashMap<String, String>();
 		params.put(":name", "/" + prefix + ":Security/" + prefix + ":Name/text()");
 		params.put(":price", "/" + prefix + ":Security/" + prefix + ":Price/" + prefix + ":PriceToday/" + prefix + ":Open/text()");
@@ -83,8 +85,8 @@ public abstract class XDMDocumentManagerTest {
 				addPathSegment(AxisType.CHILD, prefix, "Security").
 				addPathSegment(AxisType.CHILD, prefix, "Symbol").
 				addPathSegment(AxisType.CHILD, null, "text()");
-		ExpressionBuilder ec = new ExpressionBuilder();
-		ec.addExpression(docType, Comparison.EQ, path, symbol);
+		ExpressionContainer ec = new ExpressionContainer();
+		ec.addExpression(docType, Comparison.EQ, path, "$sym", symbol);
 		Map<String, String> params = new HashMap<String, String>();
 		params.put(":sec", "/" + prefix + ":Security");
 		return dMgr.getXML(ec, ":sec", params);
@@ -97,8 +99,8 @@ public abstract class XDMDocumentManagerTest {
 				addPathSegment(AxisType.CHILD, prefix, "FIXML").
 				addPathSegment(AxisType.CHILD, prefix, "Order").
 				addPathSegment(AxisType.CHILD, null, "@ID");
-		ExpressionBuilder ec = new ExpressionBuilder();
-		ec.addExpression(docType, Comparison.EQ, path, id);
+		ExpressionContainer ec = new ExpressionContainer();
+		ec.addExpression(docType, Comparison.EQ, path, "$id", id);
 		Map<String, String> params = new HashMap<String, String>();
 		params.put(":order", "/" + prefix + ":FIXML/" + prefix + ":Order");
 		return dMgr.getXML(ec, ":order", params);
@@ -110,8 +112,8 @@ public abstract class XDMDocumentManagerTest {
 		PathBuilder path = new PathBuilder().
 				addPathSegment(AxisType.CHILD, prefix, "Customer").
 				addPathSegment(AxisType.CHILD, null, "@id");
-		ExpressionBuilder ec = new ExpressionBuilder();
-		ec.addExpression(docType, Comparison.EQ, path, id);
+		ExpressionContainer ec = new ExpressionContainer();
+		ec.addExpression(docType, Comparison.EQ, path, "$id", id);
 
 		String template = "<Customer_Profile CUSTOMERID=\":id\">\n" +
 				"\t:name" + 
@@ -139,8 +141,8 @@ public abstract class XDMDocumentManagerTest {
 		PathBuilder path = new PathBuilder().
 				addPathSegment(AxisType.CHILD, prefix, "Customer").
 				addPathSegment(AxisType.CHILD, null, "@id");
-		ExpressionBuilder ec = new ExpressionBuilder();
-		ec.addExpression(docType, Comparison.EQ, path, id);
+		ExpressionContainer ec = new ExpressionContainer();
+		ec.addExpression(docType, Comparison.EQ, path, "$id", id);
 
 		String template = "<Customer>:id\n" +
 				"\t:name" + 
@@ -169,26 +171,26 @@ public abstract class XDMDocumentManagerTest {
 		int docType = mDictionary.getDocumentType("/" + prefix + ":Security");
 		PathBuilder path = new PathBuilder().
 				addPathSegment(AxisType.CHILD, prefix, "Security");
-		ExpressionBuilder ec = new ExpressionBuilder();
-		ec.addExpression(docType, Comparison.AND, path, null);
-		ec.addExpression(docType, Comparison.AND, path, null);
+		ExpressionContainer ec = new ExpressionContainer();
+		ec.addExpression(docType, Comparison.AND, path);
+		ec.addExpression(docType, Comparison.AND, path);
 		path.addPathSegment(AxisType.CHILD, prefix, "SecurityInformation").
 				addPathSegment(AxisType.CHILD, null, "*").
 				addPathSegment(AxisType.CHILD, prefix, "Sector").
 				addPathSegment(AxisType.CHILD, null, "text()");
-		ec.addExpression(docType, Comparison.EQ, path, sector);
+		ec.addExpression(docType, Comparison.EQ, path, "$sec", sector);
 		path = new PathBuilder().
 				addPathSegment(AxisType.CHILD, prefix, "Security").
 				addPathSegment(AxisType.CHILD, prefix, "PE");
-		ec.addExpression(docType, Comparison.AND, path, null);
+		ec.addExpression(docType, Comparison.AND, path);
 		path.addPathSegment(AxisType.CHILD, null, "text()");
-		ec.addExpression(docType, Comparison.GE, path, peMin);
-		ec.addExpression(docType, Comparison.LT, path, peMax);
+		ec.addExpression(docType, Comparison.GE, path, "$peMin", peMin);
+		ec.addExpression(docType, Comparison.LT, path, "$peMax", peMax);
 		path = new PathBuilder().
 				addPathSegment(AxisType.CHILD, prefix, "Security").
 				addPathSegment(AxisType.CHILD, prefix, "Yield").
 				addPathSegment(AxisType.CHILD, null, "text()");
-		ec.addExpression(docType, Comparison.GT, path, yieldMin);
+		ec.addExpression(docType, Comparison.GT, path, "$yMin", yieldMin);
 
         String template = "<Security>\n" +
 				"\t:symbol" + 
@@ -232,23 +234,28 @@ public abstract class XDMDocumentManagerTest {
 	}
 
 
+	//@Ignore
 	@Test
-	public void getSecurityPathTest() {
+	public void getSecurityPathTest() throws IOException {
+		storeSecurityTest();
 		Collection<XDMPath> sec = getSecurityPath();
 		Assert.assertNotNull(sec);
 		Assert.assertTrue(sec.size() > 0);
 	}
 
+	//@Ignore
 	@Test
-	public void getCustomerPathTest() {
+	public void getCustomerPathTest() throws IOException {
+		storeCustomerTest();
 		Collection<XDMPath> sec = getCustomerPath();
 		Assert.assertNotNull(sec);
 		Assert.assertTrue(sec.size() > 0);
 	}
 	
-	@Ignore
+	//@Ignore
 	@Test
-	public void getPriceTest() { 
+	public void getPriceTest() throws IOException {
+		storeSecurityTest();
 
 		Collection<String> sec = getPrice("VFINX");
 		Assert.assertNotNull(sec);
@@ -263,9 +270,10 @@ public abstract class XDMDocumentManagerTest {
 		Assert.assertTrue(sec.size() == 1);
 	}
 
-	@Ignore
+	//@Ignore
 	@Test
-	public void getSecurityTest() {
+	public void getSecurityTest() throws IOException {
+		storeSecurityTest();
 
 		Collection<String> sec = getSecurity("VFINX");
 		Assert.assertNotNull(sec);
@@ -280,9 +288,10 @@ public abstract class XDMDocumentManagerTest {
 		Assert.assertTrue(sec.size() == 1);
 	}
 
-	@Ignore
+	//@Ignore
 	@Test
-	public void searchSecurityTest() {
+	public void searchSecurityTest() throws IOException {
+		storeSecurityTest();
 
 		Collection<String> sec = searchSecurity("Technology", 25, 28, 0);
 		Assert.assertNotNull(sec);
@@ -297,9 +306,10 @@ public abstract class XDMDocumentManagerTest {
 		Assert.assertTrue(sec.size() == 0);
 	}
 
-	@Ignore
+	//@Ignore
 	@Test
-	public void getOrderTest() {
+	public void getOrderTest() throws IOException {
+		storeOrderTest();
 		Collection<String> sec = getOrder("103404");
 		Assert.assertNotNull(sec);
 		Assert.assertTrue(sec.size() == 1);
@@ -308,17 +318,19 @@ public abstract class XDMDocumentManagerTest {
 		Assert.assertTrue(sec.size() == 1);
 	}
 
-	@Ignore
+	//@Ignore
 	@Test
-	public void getCustomerProfileTest() {
+	public void getCustomerProfileTest() throws IOException {
+		storeCustomerTest();
 		Collection<String> sec = getCustomerProfile("1011");
 		Assert.assertNotNull(sec);
 		Assert.assertTrue(sec.size() == 1);
 	}
 
-	@Ignore
+	//@Ignore
 	@Test
-	public void getCustomerAccountsTest() {
+	public void getCustomerAccountsTest() throws IOException {
+		storeCustomerTest();
 		Collection<String> sec = getCustomerAccounts("1011");
 		Assert.assertNotNull(sec);
 		Assert.assertTrue(sec.size() == 1);

@@ -7,7 +7,7 @@
 	</collections>
 	<transactions>
 
-		<transaction id="1" name="addSecurity" weight="100">
+		<!--transaction id="1" name="addSecurity" weight="100">
 			<java-plugin>com.bagri.client.tpox.workload.BagriXQJPlugin</java-plugin>
 			<parameters>
 				<parameter>
@@ -26,8 +26,34 @@
 					<files collection="security"/>
 				</parameter>
 			</parameters>
-		</transaction>
+		</transaction-->
 
+		<transaction id="1" name="addSecurity" weight="100">
+			<java-plugin>com.bagri.client.tpox.workload.BagriXQJPlugin</java-plugin>
+			<parameters>
+				<parameter>
+					<constant value="
+declare namespace bgdm=&quot;http://bagri.com/bagri-xdm&quot;;
+declare variable $sec external;
+
+for $id in bgdm:store-document($sec)
+return $id" />
+				</parameter>
+				<parameter>
+					<constant value="true" />
+				</parameter>
+				<parameter>
+					<constant value="sec" />
+				</parameter>
+				<parameter>
+					<constant value="document" />
+				</parameter>
+				<parameter>
+					<files collection="security"/>
+				</parameter>
+			</parameters>
+		</transaction>
 	</transactions>
 </workload>
+
 

@@ -3,7 +3,8 @@
     <id>hazelcast</id>
     <includeBaseDirectory>true</includeBaseDirectory>
     <formats>
-        <format>zip</format>
+        <!--format>zip</format-->
+        <format>tar.gz</format>
     </formats>
 
     <dependencySets>
@@ -53,7 +54,18 @@
             <fileMode>755</fileMode>
             <includes>
                 <include>*.sh</include>
+            </includes>
+        </fileSet>
+
+        <!--other exec files-->
+        <fileSet>
+            <directory>src/main/bin</directory>
+            <outputDirectory>/bin</outputDirectory>
+            <lineEnding>unix</lineEnding>
+            <includes>
+                <include>*.conf</include>
                 <include>*.bat</include>
+                <include>*.cmd</include>
             </includes>
         </fileSet>
 
@@ -63,6 +75,15 @@
             <outputDirectory>/config</outputDirectory>
             <includes>
                 <include>**/spring/*.*</include>
+                <include>**/*.*</include>
+            </includes>
+        </fileSet>
+
+        <!--sample datasets are copied from samples-->
+        <fileSet>
+            <directory>src/main/data</directory>
+            <outputDirectory>/data</outputDirectory>
+            <includes>
                 <include>**/*.*</include>
             </includes>
         </fileSet>

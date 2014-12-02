@@ -14,7 +14,8 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.common.util.FileUtils;
-import com.bagri.xdm.access.api.XDMDocumentManagerServer;
+import com.bagri.common.util.PropUtils;
+import com.bagri.xdm.access.api.XDMDocumentManagementServer;
 import com.bagri.xdm.access.api.XDMSchemaDictionary;
 import com.bagri.xdm.access.api.XDMSchemaDictionaryBase;
 import com.bagri.xdm.process.hazelcast.schema.SchemaActivator;
@@ -31,7 +32,7 @@ public class SchemaManager extends EntityManager<XDMSchema> {
     private static final String state_fail = "inactive";
 
     private SchemaManagement parent;
-	protected XDMDocumentManagerServer docManager;
+	protected XDMDocumentManagementServer docManager;
 	protected XDMSchemaDictionary schemaDictionary;
 	private ClassPathXmlApplicationContext clientContext;
     
@@ -48,11 +49,11 @@ public class SchemaManager extends EntityManager<XDMSchema> {
 		this.clientContext = clientContext;
 	}
 	
-	public XDMDocumentManagerServer getDocumentManager() {
+	public XDMDocumentManagementServer getDocumentManager() {
 		return docManager;
 	}
 	
-	public void setDocumentManager(XDMDocumentManagerServer docManager) {
+	public void setDocumentManager(XDMDocumentManagementServer docManager) {
 		this.docManager = docManager;
 	}
 	
@@ -219,7 +220,7 @@ public class SchemaManager extends EntityManager<XDMSchema> {
 		if (schema != null) {
 			Properties props;
 			try {
-				props = FileUtils.propsFromString(properties);
+				props = PropUtils.propsFromString(properties);
 			} catch (IOException ex) {
 				logger.error("updateProperties.error: ", ex);
 				return false;

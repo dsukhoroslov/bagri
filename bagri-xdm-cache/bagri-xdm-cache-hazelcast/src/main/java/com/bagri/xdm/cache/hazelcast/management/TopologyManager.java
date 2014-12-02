@@ -21,10 +21,13 @@ import org.springframework.jmx.export.naming.SelfNaming;
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.xdm.process.hazelcast.node.NodeInfoProvider;
 import com.bagri.xdm.process.hazelcast.node.NodeInfoProvider.InfoType;
+import com.bagri.xdm.process.hazelcast.node.NodeKiller;
 import com.bagri.xdm.process.hazelcast.node.NodeOptionSetter;
 import com.bagri.xdm.system.XDMNode;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.Member;
+
+import static com.bagri.xdm.process.hazelcast.util.HazelcastUtils.getMemberSchemas;
 
 @ManagedResource(description="Topology Manager MBean")
 public class TopologyManager implements SelfNaming {
@@ -41,7 +44,7 @@ public class TopologyManager implements SelfNaming {
 	}
 	
 	@ManagedAttribute(description="Returns active Node id")
-	public String getNodeId() {
+	public String getId() {
 		return member.getUuid();
 	}
 	
@@ -52,24 +55,31 @@ public class TopologyManager implements SelfNaming {
 	
 	@ManagedAttribute(description="Returns schemas deployed on the Node")
 	public String[] getDeployedSchemas() {
-		String schemas = member.getStringAttribute(XDMNode.op_node_schemas);
-		if (schemas != null) {
-			return schemas.split(" ");
-		}
-		return new String[0];
-	}
+		return getMemberSchemas(member);
+	}	
 	
 	@ManagedAttribute(description="Returns active Node options")
 	public CompositeData getOptions() {
 		Map<String, Object> opts = member.getAttributes();
-		return JMXUtils.propsToComposite(member.getUuid(), "options", opts);
+		return JMXUtils.mapToComposite(member.getUuid(), "options", opts);
 	}
 	
 	@ManagedAttribute(description="Returns active Node configuration name")
-	public String getNodeName() {
+	public String getName() {
 		return member.getStringAttribute(XDMNode.op_node_name);
 	}
 	
+	@ManagedAttribute(description="Returns active Node configuration role")
+	public String getRole() {
+		return member.getStringAttribute(XDMNode.op_node_role);
+	}
+
+	@ManagedAttribute(description="Returns active Node version")
+	public String getVersion() {
+		// TODO: implement it.. build number etc..
+		return "0.1"; //member.getStringAttribute(XDMNode.op_node_version);
+	}
+
 	@ManagedAttribute(description="Returns active Node clients")
 	public CompositeData getClientsInfo() {
 		return getCompositeInfo(InfoType.client);
@@ -101,10 +111,14 @@ public class TopologyManager implements SelfNaming {
 		}
 		return null;
 	}
+	
+	public static ObjectName getMemberName(Member member) throws MalformedObjectNameException {
+		return JMXUtils.getObjectName("Topology", member.getUuid());
+	}
 
 	@Override
 	public ObjectName getObjectName() throws MalformedObjectNameException {
-		return JMXUtils.getObjectName("Topology", member.getUuid());
+		return getMemberName(member);
 	}
 
 	@ManagedOperation(description="Set active Node option")
@@ -130,6 +144,12 @@ public class TopologyManager implements SelfNaming {
 		} catch (InterruptedException | ExecutionException ex) {
 			logger.error("setOption.error; ", ex);
 		}
+	}
+	
+	@ManagedOperation(description="Shuts down Node")
+	public void shutdown() {
+		NodeKiller task = new NodeKiller();
+		execService.executeOnMember(task, member);
 	}
 	
 }

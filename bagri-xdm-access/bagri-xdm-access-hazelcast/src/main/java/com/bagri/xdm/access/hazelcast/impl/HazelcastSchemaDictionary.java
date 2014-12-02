@@ -1,11 +1,6 @@
 package com.bagri.xdm.access.hazelcast.impl;
 
-import static com.bagri.xdm.access.api.XDMCacheConstants.CN_XDM_DOCTYPE_DICT;
-import static com.bagri.xdm.access.api.XDMCacheConstants.CN_XDM_NAMESPACE_DICT;
-import static com.bagri.xdm.access.api.XDMCacheConstants.CN_XDM_PATH_DICT;
-import static com.bagri.xdm.access.api.XDMCacheConstants.SQN_DOCTYPE;
-import static com.bagri.xdm.access.api.XDMCacheConstants.SQN_NAMESPACE;
-import static com.bagri.xdm.access.api.XDMCacheConstants.SQN_PATH;
+import static com.bagri.xdm.access.api.XDMCacheConstants.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -13,43 +8,49 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import com.bagri.common.idgen.IdGenerator;
 import com.bagri.xdm.access.api.XDMSchemaDictionaryBase;
-import com.bagri.xdm.access.hazelcast.process.SchemaRegistrator;
 import com.bagri.xdm.domain.XDMDocumentType;
 import com.bagri.xdm.domain.XDMNamespace;
 import com.bagri.xdm.domain.XDMPath;
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IAtomicLong;
 import com.hazelcast.core.IMap;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
 
 public class HazelcastSchemaDictionary extends XDMSchemaDictionaryBase { 
 
-	private Map<String, XDMNamespace> nsCache;
-	private Map<String, XDMPath> pathCache;
-	private Map<String, XDMDocumentType> typeCache;
+	private IMap<String, XDMPath> pathCache;
+	private IMap<String, XDMNamespace> nsCache;
+	private IMap<String, XDMDocumentType> typeCache;
 	private IdGenerator<Long> nsGen;
 	private IdGenerator<Long> pathGen;
 	private IdGenerator<Long> typeGen;
 	
 	//@Autowired
-	private HazelcastInstance hzInstance;
+	//private HazelcastInstance hzInstance;
 
-	public HazelcastSchemaDictionary(HazelcastInstance hzInstance) {
+	public HazelcastSchemaDictionary() {
 		super();
-		this.hzInstance = hzInstance;
-		initialize();
 	}
 	
-	///public void setHzInstance(HazelcastInstance hzInstance) {
-	//	this.hzInstance = hzInstance;
-		//logger.debug("setHzInstange; got instance: {}", hzInstance.getName()); 
-	//	initialize();
-	//}
+	public HazelcastSchemaDictionary(HazelcastInstance hzInstance) {
+		super();
+		initialize(hzInstance);
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void initialize(HazelcastInstance hzInstance) {
+		nsCache = hzInstance.getMap(CN_XDM_NAMESPACE_DICT);
+		pathCache = hzInstance.getMap(CN_XDM_PATH_DICT);
+		typeCache = hzInstance.getMap(CN_XDM_DOCTYPE_DICT);
+		nsGen = new HazelcastIdGenerator(hzInstance.getAtomicLong(SQN_NAMESPACE));
+		pathGen = new HazelcastIdGenerator(hzInstance.getAtomicLong(SQN_PATH));
+		typeGen = new HazelcastIdGenerator(hzInstance.getAtomicLong(SQN_DOCTYPE));
+	}
 	
 	protected Map<String, XDMNamespace> getNamespaceCache() {
 		return nsCache;
@@ -74,35 +75,48 @@ public class HazelcastSchemaDictionary extends XDMSchemaDictionaryBase {
 	protected IdGenerator<Long> getTypeGen() {
 		return typeGen;
 	}
-    
-	@SuppressWarnings("unchecked")
-	private void initialize() {
-		nsCache = hzInstance.getMap(CN_XDM_NAMESPACE_DICT);
-		pathCache = hzInstance.getMap(CN_XDM_PATH_DICT);
-		typeCache = hzInstance.getMap(CN_XDM_DOCTYPE_DICT);
-		nsGen = new HazelcastIdGenerator(hzInstance.getIdGenerator(SQN_NAMESPACE));
-		pathGen = new HazelcastIdGenerator(hzInstance.getIdGenerator(SQN_PATH));
-		typeGen = new HazelcastIdGenerator(hzInstance.getIdGenerator(SQN_DOCTYPE));
-		getLogger().debug("initialize.exit; typeCache size: {}", typeCache.size()); 
+
+	public void setNamespaceCache(IMap<String, XDMNamespace> nsCache) {
+		this.nsCache = nsCache;
 	}
 	
+	public void setPathCache(IMap<String, XDMPath> pathCache) {
+		this.pathCache = pathCache;
+	}
+	
+	public void setTypeCache(IMap<String, XDMDocumentType> typeCache) {
+		this.typeCache = typeCache;
+	}
+	
+	public void setNamespaceGen(IAtomicLong nsGen) {
+		this.nsGen = new HazelcastIdGenerator(nsGen);
+	}
+
+	public void setPathGen(IAtomicLong pathGen) {
+		this.pathGen = new HazelcastIdGenerator(pathGen);
+	}
+	
+	public void setTypeGen(IAtomicLong typeGen) {
+		this.typeGen = new HazelcastIdGenerator(typeGen);
+	}
+
 	@Override
 	public XDMPath getPath(int pathId) {
 
 		Predicate f = Predicates.equal("pathId", pathId);
-		Set<Map.Entry<String, XDMPath>> entries = getNamedCache(pathCache).entrySet(f);
+		Collection<XDMPath> entries = pathCache.values(f);
 		if (entries.isEmpty()) {
 			return null;
 		}
 		// check size > 1 ??
-		return entries.iterator().next().getValue();
+		return entries.iterator().next();
 	}
 	
 	@Override
 	public Collection<XDMPath> getTypePaths(int typeId) {
 		
 		Predicate f = Predicates.equal("typeId", typeId);
-		Collection<XDMPath> entries = getNamedCache(pathCache).values(f);
+		Collection<XDMPath> entries = pathCache.values(f);
 		if (entries.isEmpty()) {
 			return entries;
 		}
@@ -117,10 +131,8 @@ public class HazelcastSchemaDictionary extends XDMSchemaDictionaryBase {
 	
 	@Override
 	protected XDMDocumentType getDocumentTypeById(int typeId) {
-		
-		//Filter f = new EqualsFilter("getTypeId", typeId);
 		Predicate f = Predicates.equal("typeId",  typeId);
-		Set<Map.Entry<String, XDMDocumentType>> types = getNamedCache(typeCache).entrySet(f);
+		Set<Map.Entry<String, XDMDocumentType>> types = typeCache.entrySet(f);
 		if (types.size() == 0) {
 			return null;
 		}
@@ -129,9 +141,8 @@ public class HazelcastSchemaDictionary extends XDMSchemaDictionaryBase {
 
 	@Override
 	protected Set getTypedPathEntries(int typeId) {
-		//Filter f = new EqualsFilter("getTypeId", typeId);
 		Predicate f = Predicates.equal("typeId",  typeId);
-		Set<Map.Entry<String, XDMPath>> entries = getNamedCache(pathCache).entrySet(f);
+		Set<Map.Entry<String, XDMPath>> entries = pathCache.entrySet(f);
 		return entries;
 	}
 	
@@ -140,18 +151,18 @@ public class HazelcastSchemaDictionary extends XDMSchemaDictionaryBase {
 		//Filter f = new AndFilter(new RegexFilter(new KeyExtractor(IdentityExtractor.INSTANCE), regex), 
 		//		new EqualsFilter("getTypeId", typeId));
 		Predicate f = Predicates.and(new Predicates.RegexPredicate("path", regex), Predicates.equal("typeId", typeId));
-		Set<Map.Entry> entries = getNamedCache(pathCache).entrySet(f);
+		Set<Map.Entry<String, XDMPath>> entries = pathCache.entrySet(f);
 		return entries;
 	}
 
-	private IMap getNamedCache(Map cache) {
-		return (IMap) cache;
-	}
+	//private IMap getNamedCache(Map cache) {
+	//	return (IMap) cache;
+	//}
 
 	@Override
 	protected boolean lock(Map cache, Object key) {
 		try {
-			return getNamedCache(cache).tryLock(key, timeout, TimeUnit.MILLISECONDS);
+			return ((IMap) cache).tryLock(key, timeout, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException ex) {
 			getLogger().error("Interrupted on lock", ex);
 			return false;
@@ -160,7 +171,7 @@ public class HazelcastSchemaDictionary extends XDMSchemaDictionaryBase {
 
 	@Override
 	protected void unlock(Map cache, Object key) {
-		getNamedCache(cache).unlock(key);
+		((IMap) cache).unlock(key);
 	}
 
 	@Override

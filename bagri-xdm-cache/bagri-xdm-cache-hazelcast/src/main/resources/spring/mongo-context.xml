@@ -8,10 +8,10 @@
 		http://www.springframework.org/schema/data/mongo http://www.springframework.org/schema/data/mongo/spring-mongo-1.0.xsd">
 
     <!-- set some common mongo props in extra properties file -->
-	<context:property-placeholder ignore-unresolvable="true" location="classpath:/${xdm.config.properties.file}"/>
+    <context:property-placeholder ignore-unresolvable="true" location="classpath:/${xdm.config.properties.file}"/>
     <context:mbean-export/>
     
-	<mongo:mongo id="mongo" host="${xdm.schema.store.host}" port="${xdm.schema.store.port}">
+    <mongo:mongo id="mongo" host="${xdm.schema.store.host}" port="${xdm.schema.store.port}">
 	    <!--mongo:options connections-per-host="8"
                    threads-allowed-to-block-for-connection-multiplier="4"
                    connect-timeout="1000"
@@ -23,7 +23,7 @@
                    write-number="1"
                    write-timeout="0"
                    write-fsync="true"/-->
-	</mongo:mongo>
+    </mongo:mongo>
 
     <!-- by default look for a Mongo object named 'mongo' -->
     <mongo:jmx/>

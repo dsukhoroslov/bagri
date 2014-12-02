@@ -24,12 +24,11 @@ import javax.xml.transform.Source;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bagri.common.idgen.IdGenerator;
-import com.bagri.common.idgen.SimpleIdGenerator;
-//import com.bagri.cache.api.PathDictionary;
 import com.bagri.xdm.access.api.XDMSchemaDictionary;
+import com.bagri.xdm.domain.XDMData;
 import com.bagri.xdm.domain.XDMElement;
 import com.bagri.xdm.domain.XDMNodeKind;
+import com.bagri.xdm.domain.XDMPath;
 
 public class XDMStaxParser {
 
@@ -37,79 +36,96 @@ public class XDMStaxParser {
 
 	private static XMLInputFactory factory = XMLInputFactory.newInstance();
 	private StringBuilder chars;
-	private List<XDMElement> dataList;
-
-	//private long elementId = 0;
-	private long documentId = 0;
-	private Stack<XDMElement> dataStack;
-	private IdGenerator<Long> idGen;
+	private List<XMLEvent> firstEvents;
+	private List<XDMData> dataList;
+	private Stack<XDMData> dataStack;
 	private XDMSchemaDictionary dict;
+	private int docType = -1;
+	private long elementId;
 
-	public static List<XDMElement> parseDocument(XDMSchemaDictionary dictionary, long documentId, 
-			IdGenerator generator, String xml) throws IOException, XMLStreamException {
+	public static List<XDMData> parseDocument(XDMSchemaDictionary dictionary, String xml) throws IOException, XMLStreamException {
 		XDMStaxParser parser;
-		if (generator == null) {
-			parser = new XDMStaxParser(dictionary, documentId);
-		} else {
-			parser = new XDMStaxParser(dictionary, documentId, generator);
-		}
+		parser = new XDMStaxParser(dictionary);
 		return parser.parse(xml);
 	}
 	
-	//public XDMStaxParser() {
-	//	this(0);
-	//}
-	
-	public XDMStaxParser(XDMSchemaDictionary dict, long documentId) {
+	public XDMStaxParser(XDMSchemaDictionary dict) {
 		this.dict = dict;
-		this.documentId = documentId;
-		this.idGen = new SimpleIdGenerator(0);
 	}
 
-	public XDMStaxParser(XDMSchemaDictionary dict, long documentId, IdGenerator generator) {
-		this.dict = dict;
-		this.documentId = documentId;
-		this.idGen = generator;
-	}
-
-	public List<XDMElement> parse(String xml) throws IOException, XMLStreamException {
-		//FileInputStream in = new FileInputStream(file);
-		Reader reader = new StringReader(xml);
-		return parse(reader);
+	public List<XDMData> parse(String xml) throws IOException, XMLStreamException {
+		try (Reader reader = new StringReader(xml)) {
+			return parse(reader);
+		}
 	}
 	
-	public List<XDMElement> parse(File file) throws IOException, XMLStreamException {
-		FileInputStream stream = new FileInputStream(file);
-		//Reader reader = new FileReader(file);
-		return parse(stream);
+	public List<XDMData> parse(File file) throws IOException, XMLStreamException {
+		try (Reader reader = new FileReader(file)) {
+			return parse(reader);
+		}
 	}
 	
-	public List<XDMElement> parse(InputStream stream) throws IOException, XMLStreamException {
+	public List<XDMData> parse(InputStream stream) throws IOException, XMLStreamException {
 		
-		return parse(factory.createXMLEventReader(stream));
+		XMLEventReader eventReader = null;
+		try {
+			eventReader = factory.createXMLEventReader(stream); 
+			return parse(eventReader);
+		} finally {
+			eventReader.close();
+		}
 	}
 	
-	public List<XDMElement> parse(Reader reader) throws IOException, XMLStreamException {
+	public List<XDMData> parse(Reader reader) throws IOException, XMLStreamException {
 		
-		return parse(factory.createXMLEventReader(reader));
+		XMLEventReader eventReader = null;
+		try {
+			eventReader = factory.createXMLEventReader(reader); 
+			return parse(eventReader);
+		} finally {
+			eventReader.close();
+		}
 	}
 	
-	public List<XDMElement> parse(Source source) throws IOException, XMLStreamException {
+	public List<XDMData> parse(Source source) throws IOException, XMLStreamException {
 		
-		return parse(factory.createXMLEventReader(source));
+		XMLEventReader eventReader = null;
+		try {
+			eventReader = factory.createXMLEventReader(source); 
+			return parse(eventReader);
+		} finally {
+			eventReader.close();
+		}
 	}
 	
-	public List<XDMElement> parse(XMLEventReader eventReader) throws IOException, XMLStreamException {
+	public List<XDMData> parse(XMLEventReader eventReader) throws IOException, XMLStreamException {
 		
+		init();
 		while (eventReader.hasNext()) {
+			processEvent(eventReader.nextEvent());
+		}
 
-			XMLEvent xmlEvent = eventReader.nextEvent();
-			//logger.trace("event: {}", xmlEvent);
-
+		List<XDMData> result = dataList;
+		dataList = null;
+		return result;
+	}
+	
+	private void processEvent(XMLEvent xmlEvent) {
+		
+		//logger.trace("event: {}; type: {}; docType: {}", xmlEvent, xmlEvent.getEventType(), docType);
+		if (docType < 0) {
+			firstEvents.add(xmlEvent);
+			if (xmlEvent.getEventType() == XMLStreamConstants.START_ELEMENT) {
+				String root = "/" + xmlEvent.asStartElement().getName();
+				docType = dict.translateDocumentType(root);
+				for (XMLEvent event: firstEvents) {
+					processEvent(event);
+				}
+			}
+		} else {
 			switch (xmlEvent.getEventType()) {
-
 				case XMLStreamConstants.START_DOCUMENT:
-					init();
+					processDocument((StartDocument) xmlEvent);
 					break;
 				case XMLStreamConstants.START_ELEMENT:
 					processStartElement(xmlEvent.asStartElement());
@@ -136,73 +152,66 @@ public class XDMStaxParser {
 					break;
 			}
 		}
-
-		List<XDMElement> result = dataList;
-		dataList = null;
-		return result;
 	}
 
 	private void cleanup() {
 		chars = null;
+		firstEvents = null;
+		dataStack = null;
 	}
 
 	private void init() {
-		dataList = new ArrayList<XDMElement>();
-		dataStack = new Stack<XDMElement>();
-
-		XDMElement start = new XDMElement();
-		start.setElementId(idGen.next());
-		start.setDocumentId(documentId);
-		start.setKind(XDMNodeKind.document);
-		start.setParentId(0);
-		start.setPath("");
-		dataStack.add(start);
-		dataList.add(start);
-
+		firstEvents = new ArrayList<XMLEvent>();
+		dataList = new ArrayList<XDMData>();
+		dataStack = new Stack<XDMData>();
+		docType = -1;
+		elementId = 0;
 		chars = new StringBuilder();
 	}
+	
+	private void processDocument(StartDocument document) {
 
+		//logger.trace("document: {}", document);
+		XDMElement start = new XDMElement();
+		start.setElementId(elementId++);
+		//start.setParentId(0); // -1 ?
+		XDMPath path = dict.translatePath(docType, "", XDMNodeKind.document);
+		XDMData data = new XDMData(path, start);
+		dataStack.add(data);
+		dataList.add(data);
+	}
+
+	@SuppressWarnings("unchecked")
 	private void processStartElement(StartElement element) {
-
-		XDMElement parent = dataStack.peek();
-		XDMElement current = addData(parent, XDMNodeKind.element, null); 
-		current.setName(element.getName().getLocalPart());
-		current.setPath(parent.getPath() + "/" + element.getName());
+		
+		XDMData parent = dataStack.peek();
+		XDMData current = addData(parent, XDMNodeKind.element, "/" + element.getName(), null); 
 		dataStack.add(current);
 
 		for (Iterator<Namespace> itr = element.getNamespaces(); itr.hasNext();) {
 			Namespace ns = itr.next();
-			XDMElement nspace = addData(current, XDMNodeKind.namespace, ns.getValue()); 
-			String name = ns.getName().getLocalPart();
-			nspace.setName(name);
-			//nspace.setPath(null); 
-			if (name != null && name.trim().length() > 0) {
-				name = "xmlns:" + name;
-			} else {
-				name = "xmlns";
-			}
-			nspace.setPath(current.getPath() + "/#" + name);
+			// TODO: process default namespace properly
+			String prefix = dict.translateNamespace(ns.getValue(), ns.getName().getLocalPart());
+			addData(current, XDMNodeKind.namespace, "/#" + prefix, ns.getValue()); 
 		}
 
 		for (Iterator<Attribute> itr = element.getAttributes(); itr.hasNext();) {
 			Attribute a = itr.next();
-			XDMElement attr = addData(current, XDMNodeKind.attribute, a.getValue());
-			attr.setName(a.getName().getLocalPart());
-			attr.setPath(current.getPath() + "/@" + a.getName());
+			// TODO: process additional (not registered yet) namespaces properly
+			addData(current, XDMNodeKind.attribute, "/@" + a.getName(), a.getValue()); //.trim());
 		}
 	}
 
 	private void processEndElement(EndElement element) {
 
-		XDMElement current = dataStack.pop();
-		//logger.trace("current: {}", current);
-		//logger.trace("end chars: {}", chars.toString());
-		//logger.trace("element: {}", element);
+		XDMData current = dataStack.pop();
 		if (chars.length() > 0) {
 			String content = chars.toString();
 			// normalize xml content.. what if it is already normalized??
 			content = content.replaceAll("&", "&amp;");
-			XDMElement text = addData(current, XDMNodeKind.text, content); 
+			// trim left/right ? this is schema-dependent. trim if schema-type 
+			// is xs:token, for instance..
+			XDMData text = addData(current, XDMNodeKind.text, "/text()", content); 
 			chars.delete(0, chars.length());
 			//logger.trace("text: {}", text);
 		}
@@ -210,49 +219,43 @@ public class XDMStaxParser {
 
 	private void processCharacters(Characters characters) {
 
-		//logger.trace("characters: {}", characters);
-		//logger.trace("chars: {}", characters.getData());
 		if (characters.getData().trim().length() > 0) {
 			chars.append(characters.getData());
 		}
 	}
 
-	private void processComment(Comment value) {
+	private void processComment(Comment comment) {
 
-		XDMElement comment = addData(XDMNodeKind.comment, value.getText());
+		//logger.trace("comment: {}", comment);
+		addData(dataStack.peek(), XDMNodeKind.comment, "/comment()", comment.getText());
 	}
 
 	private void processAttribute(Attribute attribute) {
 		// ...
-		//logger.trace("attribute: {}", attribute);
+		logger.trace("attribute: {}", attribute);
 	}
 
-	private void processPI(ProcessingInstruction value) {
+	private void processPI(ProcessingInstruction pi) {
 
-		XDMElement pi = addData(XDMNodeKind.pi, value.getData());
-		pi.setName(value.getTarget());
-	}
-
-	private XDMElement addData(XDMNodeKind kind, String value) {
+		//For a processing-instruction node: processing-instruction(local)[position] where local is the name 
+		//of the processing instruction node and position is an integer representing the position of the selected 
+		//node among its like-named processing-instruction node siblings
 		
-		return addData(dataStack.peek(), kind, value);
+		XDMData piData = addData(dataStack.peek(), XDMNodeKind.pi, "/?" + pi.getTarget(), pi.getData());
+		//logger.trace("piData: {}; target: {}", piData, pi.getTarget());
 	}
 
-	private XDMElement addData(XDMElement top, XDMNodeKind kind, String value) {
-		
-		XDMElement data = new XDMElement();
-		data.setElementId(idGen.next());
-		data.setDocumentId(documentId);
-		data.setParentId(top.getElementId());
-		String path = top.getPath();
-		if (kind == XDMNodeKind.text) {
-			path += "/text()";
-		} 
-		data.setPath(path);
-		data.setKind(kind);
-		data.setValue(value);
-		dataList.add(data);
-		return data;
+	private XDMData addData(XDMData parent, XDMNodeKind kind, String name, String value) {
+
+		XDMElement xElt = new XDMElement();
+		xElt.setElementId(elementId++);
+		xElt.setParentId(parent.getElementId());
+		String path = parent.getPath() + name;
+		xElt.setValue(value);
+		XDMPath xPath = dict.translatePath(docType, path, kind);
+		XDMData xData = new XDMData(xPath, xElt);
+		dataList.add(xData);
+		return xData;
 	}
 	
 }

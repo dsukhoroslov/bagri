@@ -4,23 +4,20 @@ import java.util.Collection;
 
 import javax.xml.namespace.QName;
 
-import org.w3c.dom.Attr;
-import org.w3c.dom.Node;
-
 public interface XDMAccessor {
 	
-	Collection<Attr> getAttributes();
+	Collection<XDMAccessor> getAttributes();
 	String getBaseURI();
-	Collection<Node> getChildren();
+	Collection<XDMAccessor> getChildren();
 	String getDocumentURI();
 	boolean isID();
 	boolean isIDREFs();
 	Collection<String> getNamespaceBindings();
-	Collection<Node> getNamespaceNodes();
+	Collection<XDMAccessor> getNamespaceNodes();
 	boolean isNilled();
 	String getNodeKind();
 	QName getNodeName();
-	Node getParent();
+	XDMAccessor getParent();
 	String getStringValue();
 	QName getTypeName();
 	Object getTypedValue();

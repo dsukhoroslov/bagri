@@ -7,7 +7,7 @@ setlocal
 
 :config
 
-set TPoX_HOME=D:\Work\Bagri\TPoX
+set TPoX_HOME=C:\Work\Bagri\TPoX
 set app_home=.
 
 rem specify the JVM heap size

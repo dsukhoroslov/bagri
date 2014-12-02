@@ -17,7 +17,7 @@ import net.sf.tpox.workload.transaction.Transaction;
 
 public class BagriXDMPlugin extends BagriTPoXPlugin {
 
-    private static final transient Logger logger = LoggerFactory.getLogger(BagriXDMPlugin.class);
+    //private static final transient Logger logger = LoggerFactory.getLogger(BagriXDMPlugin.class);
     
     private XDMDocumentManagement cdm;
     

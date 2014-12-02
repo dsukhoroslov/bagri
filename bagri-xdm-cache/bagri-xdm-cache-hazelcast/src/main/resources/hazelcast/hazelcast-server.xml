@@ -43,11 +43,11 @@
 		<near-cache/>
 	</map>
 	<map name="xdm-element">
-		<indexes>
+		<!--indexes>
 			<index>documentId</index>
 			<index ordered="true">pathId</index>
 			<index>value</index>
-		</indexes>
+		</indexes-->
 	</map>
 	<map name="xdm-document"/>
 

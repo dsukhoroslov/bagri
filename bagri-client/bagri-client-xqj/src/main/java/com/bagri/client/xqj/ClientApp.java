@@ -13,7 +13,6 @@ import javax.xml.xquery.XQPreparedExpression;
 import javax.xml.xquery.XQResultSequence;
 import javax.xml.xquery.XQSequence;
 
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.hazelcast.core.HazelcastInstance;
@@ -24,25 +23,29 @@ public class ClientApp {
     private XQConnection xqc;
 
 	public static void main(String[] args) throws XQException {
+		
+		//System.setProperty("xdm.schema.members", "localhost:10600");
 		//
 		context = new ClassPathXmlApplicationContext("spring/xqj-client-context.xml");
 		XQConnection xqc = context.getBean("xqConnection", XQConnection.class);
 		ClientApp client = new ClientApp(xqc);
-		HazelcastInstance hz = context.getBean("hzInstance", HazelcastInstance.class);
-		//hz.getUserContext().put("appContext", context);
-		//hz.getUserContext().put("xqConnection", xqc);
+		//HazelcastInstance hz = context.getBean("hzInstance", HazelcastInstance.class);
 				
 		boolean found = false;
 		try {
 			//client.storeSecCommand();
-			//long id = client.storeSecQuery();
+			long id = client.storeSecQuery();
 			//long id = client.storeXmlDocument("axis.xml");
 			//System.out.println("document stored; id: " + id);
+			//found = client.runPriceQuery();
+			//client.runPriceQuery();
 			//found = client.runSecQuery();
+			//client.runSecQuery();
+			//found = client.searchSecQuery();
+			found = client.searchSecQueryParams();
+			client.searchSecQueryParams();
 			//found = client.runAxisQuery();
-			found = client.searchSecQuery();
-			//found = client.searchSecQueryParams();
-			//client.removeSecCommand(id);
+			client.removeSecCommand(id);
 		} catch (XQException e) {
 			e.printStackTrace();
 		}
@@ -123,12 +126,12 @@ public class ClientApp {
 		XQExpression xqe = xqc.createExpression();
 		XQResultSequence xqs = xqe.executeQuery(query);
 		
-	    boolean found = false;
+	    int cnt = 0;
 	    while (xqs.next()) {
-			System.out.println(xqs.getItemAsString(null));
-			found = true;
+	    	cnt++;
 	    }
-	    return found;
+	    System.out.println("Got " + cnt + " results");
+	    return cnt > 0;
 	}
 
 	public boolean searchSecQueryParams() throws XQException {
@@ -140,6 +143,7 @@ public class ClientApp {
 			"declare variable $yield external;\n" + 
 			"for $sec in fn:collection(\"/{http://tpox-benchmark.com/security}Security\")/Security\n" +
 	  		"where $sec[SecurityInformation/*/Sector = $sect and PE[. >= $pemin and . < $pemax] and Yield > $yield]\n" +
+	  		//"where $sec[SecurityInformation/*/Sector = $sect and PE[. >= xs:decimal($pemin) and . < xs:decimal($pemax)] and Yield > xs:decimal($yield)]\n" +
 			"return	<Security>\n" +	
 			"\t{$sec/Symbol}\n" +
 			"\t{$sec/Name}\n" +
@@ -151,17 +155,20 @@ public class ClientApp {
 
 	    XQPreparedExpression xqpe = xqc.prepareExpression(query);
 	    xqpe.bindString(new QName("sect"), "Technology", null);
-	    xqpe.bindFloat(new QName("pemin"), 25,  null);
-	    xqpe.bindFloat(new QName("pemax"), 28,  null);
-	    xqpe.bindFloat(new QName("yield"), 0,  null);
+	    //xqpe.bindFloat(new QName("pemin"), 25,  null);
+	    //xqpe.bindFloat(new QName("pemax"), 28,  null);
+	    //xqpe.bindFloat(new QName("yield"), 0,  null);
+	    xqpe.bindInt(new QName("pemin"), 25,  null);
+	    xqpe.bindInt(new QName("pemax"), 28,  null);
+	    xqpe.bindInt(new QName("yield"), 0,  null);
 	    XQResultSequence xqs = xqpe.executeQuery();
-		
-	    boolean found = false;
+
+	    int cnt = 0;
 	    while (xqs.next()) {
-			System.out.println(xqs.getItemAsString(null));
-			found = true;
+	    	cnt++;
 	    }
-	    return found;
+	    System.out.println("Got " + cnt + " results");
+	    return cnt > 0;
 	}
 
 	public void insertSecQuery() throws XQException {
@@ -181,7 +188,7 @@ public class ClientApp {
 
 	public void storeSecCommand() throws XQException {
 
-		String dName = "C:\\Work\\Bagri\\project\\trunk\\etc\\samples\\";
+		String dName = "..\\..\\etc\\samples\\data\\";
 		String xml;
 		try {
 			xml = readTextFile(dName + "security5621.xml");
@@ -203,7 +210,7 @@ public class ClientApp {
 	
 	private long storeXmlDocument(String fileName) throws XQException {
 		
-		String dName = "C:\\Work\\Bagri\\project\\trunk\\etc\\samples\\";
+		String dName = "..\\..\\etc\\samples\\data\\";
 		String xml;
 		try {
 			xml = readTextFile(dName + fileName);

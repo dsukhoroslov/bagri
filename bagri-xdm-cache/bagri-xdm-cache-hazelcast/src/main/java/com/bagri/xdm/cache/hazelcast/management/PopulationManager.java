@@ -1,27 +1,17 @@
 package com.bagri.xdm.cache.hazelcast.management;
 
-import java.util.Properties;
+import static com.bagri.xdm.access.api.XDMCacheConstants.PN_XDM_SYSTEM_POOL;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 
 import com.bagri.xdm.process.hazelcast.schema.SchemaPopulator;
-import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.HazelcastInstanceAware;
-import com.hazelcast.core.ManagedContext;
 import com.hazelcast.core.MemberAttributeEvent;
 import com.hazelcast.core.MembershipEvent;
 import com.hazelcast.core.MembershipListener;
 import com.hazelcast.core.MigrationEvent;
 import com.hazelcast.core.MigrationListener;
-import com.hazelcast.instance.HazelcastInstanceProxy;
-import com.hazelcast.instance.HazelcastManagedContext;
-import com.hazelcast.instance.Node;
-import com.hazelcast.spi.ManagedService;
-import com.hazelcast.spi.NodeAware;
-import com.hazelcast.spi.NodeEngine;
 import com.hazelcast.spring.context.SpringAware;
 
 @SpringAware
@@ -60,9 +50,9 @@ public class PopulationManager implements MembershipListener, MigrationListener 
     	if (populationSize == currentSize) {
     		logger.debug("checkPopulation; starting population on cluster size: {}", currentSize);
     		SchemaPopulator pop = new SchemaPopulator(schemaName);
-    		hzInstance.getExecutorService("xdm-exec-pool").submitToMember(pop, hzInstance.getCluster().getLocalMember());
+    		hzInstance.getExecutorService(PN_XDM_SYSTEM_POOL).submitToMember(pop, hzInstance.getCluster().getLocalMember());
     	} else {
-    		logger.debug("checkPopulation; cluster size ({}) does not conform to configured size ({}), skipping population",
+    		logger.debug("checkPopulation; cluster size ({}) does not match configured population size ({}), skipping population",
     				currentSize, populationSize);
     	}
     }
@@ -71,7 +61,7 @@ public class PopulationManager implements MembershipListener, MigrationListener 
 	public void memberAdded(MembershipEvent membershipEvent) {
 		logger.trace("memberAdded; event: {}", membershipEvent);
 		//if (membershipEvent.getMember().localMember()) {
-			//checkPopulation(membershipEvent.getMembers().size());
+			checkPopulation(membershipEvent.getMembers().size());
 		//}
 	}
 

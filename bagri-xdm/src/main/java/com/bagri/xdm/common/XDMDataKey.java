@@ -2,26 +2,26 @@ package com.bagri.xdm.common;
 
 public class XDMDataKey {
 	
-	protected long dataId;
 	protected long documentId;
+	protected int pathId;
 	
 	public XDMDataKey() {
 		//
 	}
 	
-	public XDMDataKey(long dataId, long documentId) {
-		this.dataId = dataId;
+	public XDMDataKey(long documentId, int pathId) {
 		this.documentId = documentId;
-	}
-	
-	public long getDataId() {
-		return dataId;
+		this.pathId = pathId;
 	}
 	
 	public long getDocumentId() {
 		return documentId;
 	}
 
+	public int getPathId() {
+		return pathId;
+	}
+	
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
 	 */
@@ -29,8 +29,8 @@ public class XDMDataKey {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + (int) (dataId ^ (dataId >>> 32));
 		result = prime * result + (int) (documentId ^ (documentId >>> 32));
+		result = prime * result + (int) (pathId ^ (pathId >>> 32));
 		return result;
 	}
 
@@ -49,10 +49,10 @@ public class XDMDataKey {
 			return false;
 		}
 		XDMDataKey other = (XDMDataKey) obj;
-		if (dataId != other.dataId) {
+		if (documentId != other.documentId) {
 			return false;
 		}
-		if (documentId != other.documentId) {
+		if (pathId != other.pathId) {
 			return false;
 		}
 		return true;
@@ -63,9 +63,8 @@ public class XDMDataKey {
 	 */
 	@Override
 	public String toString() {
-		return getClass().getSimpleName() + " [dataId=" + dataId + ", documentId=" + documentId + "]";
+		return getClass().getSimpleName() + " [documentId=" + documentId + ",pathId=" + pathId + "]";
 	}
 	
 	
-
 }

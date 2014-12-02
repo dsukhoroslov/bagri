@@ -1,16 +1,23 @@
 package com.bagri.xdm.cache.hazelcast;
 
+import static com.bagri.xdm.access.api.XDMCacheConstants.PN_XDM_SYSTEM_POOL;
+import static com.bagri.xdm.system.XDMNode.op_admin_port;
 import static com.bagri.xdm.system.XDMNode.op_node_name;
 import static com.bagri.xdm.system.XDMNode.op_node_role;
 import static com.bagri.xdm.system.XDMNode.op_node_schemas;
+import static com.bagri.xdm.process.hazelcast.util.HazelcastUtils.getMemberSchemas;
 
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.net.MalformedURLException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -25,18 +32,19 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import com.bagri.xdm.cache.hazelcast.management.ConfigManagement;
 import com.bagri.xdm.cache.hazelcast.management.PopulationManager;
+import com.bagri.xdm.cache.hazelcast.management.SchemaManagement;
 import com.bagri.xdm.cache.hazelcast.management.UserManagement;
 import com.bagri.xdm.cache.hazelcast.security.BagriJAASInvocationHandler;
 import com.bagri.xdm.cache.hazelcast.security.BagriJMXAuthenticator;
 import com.bagri.xdm.process.hazelcast.SpringContextHolder;
+import com.bagri.xdm.process.hazelcast.schema.SchemaAdministrator;
 import com.bagri.xdm.process.hazelcast.schema.SchemaInitiator;
-import com.bagri.xdm.process.hazelcast.schema.SchemaPopulator;
 import com.bagri.xdm.system.XDMSchema;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
-import com.hazelcast.core.IMap;
 import com.hazelcast.core.Member;
 
 public class XDMCacheServer {
@@ -44,33 +52,36 @@ public class XDMCacheServer {
     private static final transient Logger logger = LoggerFactory.getLogger(XDMCacheServer.class);
     private static ApplicationContext context;
     
+    private static final String xdm_config_filename = "xdm.config.filename";
+    private static final String xdm_config_context_filename = "xdm.config.context.file";
+    private static final String xdm_schema_store_type = "xdm.schema.store.type";
+    
     @SuppressWarnings("unchecked")
 	public static void main(String[] args) {
     	
-        String contextPath = System.getProperty("xdm.config.context.file");
-        String role = System.getProperty(op_node_role);
-        logger.info("Starting \"{}\" node with Context [{}]", role, contextPath);
+        String contextPath = System.getProperty(xdm_config_context_filename);
+        logger.info("Starting XDM node with Context [{}]", contextPath);
     	
         context = new ClassPathXmlApplicationContext(contextPath);
         HazelcastInstance hz = context.getBean("hzInstance", HazelcastInstance.class);
-        String name = hz.getCluster().getLocalMember().getStringAttribute(op_node_name);
-        //String schemas = hz.getConfig().getProperty(op_node_schemas);
-        //hz.getCluster().getLocalMember().setStringAttribute(op_node_schemas, schemas);
+    	Member local = hz.getCluster().getLocalMember();
+        String name = local.getStringAttribute(op_node_name);
+        String role = local.getStringAttribute(op_node_role);
         logger.debug("System Cache started with Config: {}; Instance: {}", hz.getConfig(), hz.getClass().getName());
-        logger.debug("Cluster size: {}; Node: {}", hz.getCluster().getMembers().size(), name);
+        logger.debug("Cluster size: {}; Node: {}; Role: {}", hz.getCluster().getMembers().size(), name, role);
         
-        //String role = hz.getConfig().getProperty("xdm.cluster.node.role");
-        if ("admin".equals(role)) {
+        if (isAdminRole(role)) {
         	initAdminNode(hz);
+        	// discover active schema server nodes now..
+        	lookupManagedNodes(hz, context);
         } else {
-        	initServerNode(hz);
+        	initServerNode(hz, local);
         }
-        
     }
     
-    private static void initAdminNode(HazelcastInstance hz) {
+    private static void initAdminNode(HazelcastInstance hzInstance) {
     	
-    	String xport = hz.getConfig().getProperty("xdm.cluster.admin.port");
+    	String xport = hzInstance.getConfig().getProperty(op_admin_port);
     	int port = Integer.parseInt(xport);
     	JMXServiceURL url;
 		try {
@@ -111,54 +122,106 @@ public class XDMCacheServer {
 		}
 		logger.debug("JMX connector server started with attributes: {}", cs.getAttributes());
     }
-    
-    private static void initServerNode(HazelcastInstance systemInstance) {
-        int clusterSize = systemInstance.getCluster().getMembers().size();
-        String schemas = systemInstance.getCluster().getLocalMember().getStringAttribute(op_node_schemas);
-        String[] aSchemas = schemas.split(" ");
-        IMap<String, XDMSchema> schemaCache = systemInstance.getMap("schemas");
+
+	private static void lookupManagedNodes(HazelcastInstance hzInstance, ApplicationContext context) {
+
+		SchemaManagement sMgr = context.getBean("schemaService", SchemaManagement.class);
+		for (Member member: hzInstance.getCluster().getMembers()) {
+			if (!member.localMember()) {
+				sMgr.initMember(member);
+			}
+		}
+	}
+
+    private static void initServerNode(HazelcastInstance systemInstance, Member local) {
+        //int clusterSize = systemInstance.getCluster().getMembers().size();
+        String[] aSchemas = getMemberSchemas(local);
+        
+        Map<String, XDMSchema> schemaCache;
+       	String confName = System.getProperty(xdm_config_filename);
+       	if (confName != null) {
+       		ConfigManagement cfg = new ConfigManagement(confName);
+       		Collection<XDMSchema> cSchemas = (Collection<XDMSchema>) cfg.getEntities(XDMSchema.class); 
+   			schemaCache = new HashMap<String, XDMSchema>(cSchemas.size());
+       		for (XDMSchema schema: cSchemas) {
+       			schemaCache.put(schema.getName(), schema);
+       	    }
+       	} else {
+       		schemaCache = null;
+       	}
+        
         for (String name: aSchemas) {
           	String schemaName = name.trim();
-           	if (schemaName.length() > 0) {
-            	//if (clusterSize == 1) {
-            		logger.debug("initServerNode; Going to deploy schema: {}", schemaName);
-            		// will deploy schema here..
-            	//}
+       		logger.debug("initServerNode; going to deploy schema: {}", schemaName);
+       		boolean initialized = false;
+       		if (schemaCache != null) {
             	XDMSchema xSchema = schemaCache.get(schemaName);
             	if (xSchema != null) {
-            		initSchema(systemInstance, xSchema);
-            	}
-
-            	HazelcastInstance schemaInstance = Hazelcast.getHazelcastInstanceByName(schemaName);
-            	if (schemaInstance != null) {
-            		//ApplicationContext schemaContext = (ApplicationContext) schemaInstance.getUserContext().get("appContext");
-            		ApplicationContext schemaContext = (ApplicationContext) 
-            				SpringContextHolder.getContext(schemaName, "appContext");
-            		PopulationManager popManager = schemaContext.getBean("popManager", PopulationManager.class);
-            		//popManager.checkPopulation(schemaInstance.getCluster().getMembers().size());
-            		logger.debug("initServerNode; I could start population for schema '{}' here..", schemaName);
-            	} else {
-            		logger.warn("initServerNode; cannot find HazelcastInstance for schema '{}'!", schemaName);
-            	}
+            		initialized = initSchema(systemInstance, local, xSchema);
+            		String store = xSchema.getProperty(xdm_schema_store_type);
+            		if (!"NONE".equals(store)) {
+	            		HazelcastInstance schemaInstance = Hazelcast.getHazelcastInstanceByName(schemaName);
+		            	if (schemaInstance != null) {
+		            		//ApplicationContext schemaContext = (ApplicationContext) schemaInstance.getUserContext().get("appContext");
+		            		ApplicationContext schemaContext = (ApplicationContext) 
+		            				SpringContextHolder.getContext(schemaName, "appContext");
+		            		PopulationManager popManager = schemaContext.getBean("popManager", PopulationManager.class);
+		            		// we need to do it here, for local (just started) node only..
+		            		popManager.checkPopulation(schemaInstance.getCluster().getMembers().size());
+		            		//logger.debug("initServerNode; started population for schema '{}' here..", schemaName);
+		            	} else {
+		            		logger.warn("initServerNode; cannot find HazelcastInstance for schema '{}'!", schemaName);
+		            	}
+            		}
+            	}            	
            	}
+       		// notify admin node about new schema Member
+           	notifyAdmins(systemInstance, local, schemaName, initialized);
     	}
-    	
     }
     
-    private static boolean initSchema(HazelcastInstance hzInstance, XDMSchema schema) {
+    private static void notifyAdmins(HazelcastInstance hzInstance, Member local, String schemaName, boolean initialized) {
+
+    	int cnt = 0;
+		IExecutorService execService = hzInstance.getExecutorService(PN_XDM_SYSTEM_POOL);
+    	Set<Member> members = hzInstance.getCluster().getMembers();
+    	for (Member member: members) {
+    		if (isAdminRole(member.getStringAttribute(op_node_role))) {
+    			// notify admin about new schema node (local)
+    			// hzInstance -> system instance, SchemaManagement is in its context
+    			// submit task to init member in admin..
+    			SchemaAdministrator adminTask = new SchemaAdministrator(schemaName, !initialized, local.getUuid());
+    	       	Future<Boolean> result = execService.submitToMember(adminTask, member);
+    	       	try {
+    				if (result.get()) {
+    					cnt++;
+    				}
+    			} catch (InterruptedException | ExecutionException ex) {
+    				logger.error("notifyAdmins.error; ", ex);
+    	        }
+    		}
+    	}
+		logger.debug("notifyAdmins; notified {} admin nodes out of {} members", cnt, members.size());
+    }
+    
+    private static boolean initSchema(HazelcastInstance hzInstance, Member member, XDMSchema schema) {
     	
 		logger.trace("initSchema.enter; schema: {}", schema);
 		SchemaInitiator init = new SchemaInitiator(schema.getName(), schema.getProperties());
-		IExecutorService execService = hzInstance.getExecutorService("xdm-exec-pool");
-       	Future<Boolean> result = execService.submitToMember(init, hzInstance.getCluster().getLocalMember());
+		IExecutorService execService = hzInstance.getExecutorService(PN_XDM_SYSTEM_POOL);
+       	Future<Boolean> result = execService.submitToMember(init, member);
        	Boolean ok = false;
        	try {
 			ok = result.get();
 		} catch (InterruptedException | ExecutionException ex) {
-			logger.error("initSchemaInCluster.error; ", ex);
+			logger.error("initSchema.error; ", ex);
         }
-		logger.info("initSchemaInCluster.exit; schema {} {}initialized", schema, ok ? "" : "NOT ");
+		logger.info("initSchema.exit; schema {} {}initialized", schema, ok ? "" : "NOT ");
 		return ok;
 	}
+    
+    private static boolean isAdminRole(String role) {
+        return "admin".equals(role);
+    }
     
 }

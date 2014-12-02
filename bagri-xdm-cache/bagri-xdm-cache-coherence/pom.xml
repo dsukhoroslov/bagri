@@ -38,10 +38,10 @@
             <groupId>com.sdv.bagri</groupId>
             <artifactId>bagri-xdm-access-coherence</artifactId>
         </dependency>
-        <dependency>
+        <!--dependency>
             <groupId>com.sdv.bagri</groupId>
             <artifactId>bagri-xdm-process-coherence</artifactId>
-        </dependency>
+        </dependency-->
 
         <!-- Spring framework -->
         <dependency>

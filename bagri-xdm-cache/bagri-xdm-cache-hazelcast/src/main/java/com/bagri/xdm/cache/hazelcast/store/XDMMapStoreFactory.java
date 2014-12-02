@@ -13,6 +13,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.env.PropertySource;
 
+import static com.bagri.xdm.access.api.XDMCacheConstants.*;
 import com.bagri.xdm.cache.hazelcast.store.hive.HiveCacheStore;
 import com.bagri.xdm.cache.hazelcast.store.xml.DocumentCacheStore;
 import com.bagri.xdm.cache.hazelcast.store.xml.ElementCacheStore;
@@ -82,7 +83,7 @@ public class XDMMapStoreFactory implements ApplicationContextAware, MapStoreFact
 					SpringContextHolder.setAbsentContext(schemaName, "storeContext", ctx);
 					
 					if (st_mongo.equals(type)) {
-						if ("xdm-element".equals(mapName)) {
+						if (CN_XDM_ELEMENT.equals(mapName)) {
 							mStore = ctx.getBean("elementCacheStore", 
 									com.bagri.xdm.cache.hazelcast.store.mongo.ElementCacheStore.class);
 						} else {
@@ -91,11 +92,11 @@ public class XDMMapStoreFactory implements ApplicationContextAware, MapStoreFact
 					} else if (st_hive.equals(type)) {
 						mStore = ctx.getBean("hiveCacheStore", HiveCacheStore.class);
 					} else if (st_xml.equals(type)) {
-						if ("xdm-document".equals(mapName)) {
+						if (CN_XDM_DOCUMENT.equals(mapName)) {
 							mStore = ctx.getBean("docCacheStore", DocumentCacheStore.class);
-						} else if ("xdm-element".equals(mapName)) {
+						} else if (CN_XDM_ELEMENT.equals(mapName)) {
 							mStore = ctx.getBean("eltCacheStore", ElementCacheStore.class);
-						} else if ("dict-document-type".equals(mapName)) {
+						} else if (CN_XDM_DOCTYPE_DICT.equals(mapName)) {
 							mStore = ctx.getBean("xsdCacheStore", XsdCacheStore.class);
 						} else {
 							mStore = new DummyCacheStore();

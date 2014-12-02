@@ -22,6 +22,7 @@ public enum XDMNodeKind {
 			last = segments[segments.length-1];
 		} else {
 			last = path;
+			//return XDMNodeKind.document; ??
 		}
 		if (last.startsWith("@")) {
 			return XDMNodeKind.attribute;
@@ -29,8 +30,14 @@ public enum XDMNodeKind {
 		if (last.startsWith("#")) {
 			return XDMNodeKind.namespace;
 		}
+		if (last.startsWith("?")) {
+			return XDMNodeKind.pi;
+		}
 		if (last.endsWith("text()")) {
 			return XDMNodeKind.text;
+		}
+		if (last.endsWith("comment()")) {
+			return XDMNodeKind.comment;
 		}
 		
 		return XDMNodeKind.element;

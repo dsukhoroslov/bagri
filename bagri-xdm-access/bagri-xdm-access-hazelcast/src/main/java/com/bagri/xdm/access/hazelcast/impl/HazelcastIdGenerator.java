@@ -1,29 +1,30 @@
 package com.bagri.xdm.access.hazelcast.impl;
 
-import com.hazelcast.core.IdGenerator;
+import com.bagri.common.idgen.IdGenerator;
+import com.hazelcast.core.IAtomicLong;
 
-public class HazelcastIdGenerator implements com.bagri.common.idgen.IdGenerator<Long> {
+public class HazelcastIdGenerator implements IdGenerator<Long> {
 	
-	private IdGenerator idGen; 
+	private IAtomicLong idGen; 
 
-	public HazelcastIdGenerator(IdGenerator idGen) {
+	public HazelcastIdGenerator(IAtomicLong idGen) {
 		this.idGen = idGen;
 	}
 
 	@Override
 	public Long next() {
 		//
-		return idGen.newId();
+		return idGen.incrementAndGet();
 	}
 
 	@Override
 	public Long[] nextRange(int size) {
 		Long[] result = new Long[size];
-			for (int i=0; i < size; i++) {
-			result[i] = idGen.newId();
+		long current = idGen.getAndAdd(size);
+		for (int i=1; i <= size; i++) {
+			result[i] = current + 1;
 		}
-		//Range r = idGen.next(size);
-		return result; //new Long[] {0L, 0L}; //{r.getFrom(), r.getTo()};
+		return result; 
 	}
 
 }

@@ -51,14 +51,14 @@ public class BagriSequenceIterator implements Iterator {
 
 	private XQDataFactory xqFactory;
 	private SequenceIterator iter;
-	private Item current = null;
-	private Item next = null;
+	private Item next;
 	
 	public BagriSequenceIterator(XQDataFactory xqFactory, SequenceIterator iter) {
 		this.xqFactory = xqFactory;
 		this.iter = iter;
 		try {
-			current = iter.next();
+			// profile: it takes 3.52 ms to do 2 next!
+			// changed to have only 1
 			next = iter.next();
 		} catch (XPathException e) {
 			//
@@ -67,16 +67,12 @@ public class BagriSequenceIterator implements Iterator {
 
 	@Override
 	public boolean hasNext() {
-		//if ((SequenceIterator.LOOKAHEAD & iter.getProperties()) != 0) {
-		//	return ((LookaheadIterator) iter).hasNext();
-		//}
-		return current != null;
+		return next != null;
 	}
 	
 	@Override
 	public Object next() {
-		Item item = current;
-		current = next;
+		Item item = next;
 		try {
 			next = iter.next();
 		} catch (XPathException ex) {

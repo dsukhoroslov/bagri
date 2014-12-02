@@ -35,16 +35,16 @@ public class XDMIndex<V> { //implements Serializable {
 		this.value = value;
 		if (references != null) {
 			for (XDMDataKey ref: references) {
-				addIndex(ref.getDocumentId(), ref.getDataId());
+				addIndex(ref.getDocumentId(), ref.getPathId());
 			}
 		}
 	}
 
-	public XDMIndex(String path, V value, long documentId, long dataId) {
+	public XDMIndex(String path, V value, long documentId, int pathId) {
 		super();
 		this.path = path;
 		this.value = value;
-		addIndex(documentId, dataId);
+		addIndex(documentId, pathId);
 	}
 
 	/**
@@ -78,10 +78,10 @@ public class XDMIndex<V> { //implements Serializable {
 	/**
 	 * @return the dataIds
 	 */
-	public Set<Long> getDataIds() {
-		Set<Long> dataIds = new HashSet<Long>();
+	public Set<Integer> getPathIds() {
+		Set<Integer> dataIds = new HashSet<Integer>(references.size());
 		for (XDMDataKey ref: references) {
-			dataIds.add(ref.getDataId());
+			dataIds.add(ref.getPathId());
 		}
 		return dataIds;
 	}
@@ -111,17 +111,17 @@ public class XDMIndex<V> { //implements Serializable {
 		this.references.clear();
 		if (references != null && references.size() > 0) {
 			for (XDMDataKey ref: references) {
-				addIndex(ref.getDocumentId(), ref.getDataId());
+				addIndex(ref.getDocumentId(), ref.getPathId());
 			}
 		}
 	}
 	
-	public void addIndex(long documentId, long dataId) {
+	public void addIndex(long documentId, int pathId) {
 		if (factory == null) {
 			// log this...
 			factory = XDMHelper.getXDMFactory();
 		}
-		this.references.add(factory.newXDMDataKey(dataId, documentId));
+		this.references.add(factory.newXDMDataKey(documentId, pathId));
 	}
 	
 }

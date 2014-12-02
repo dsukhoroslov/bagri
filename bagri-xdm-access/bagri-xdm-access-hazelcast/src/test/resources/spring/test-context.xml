@@ -50,11 +50,11 @@
 					max-size="0" invalidate-on-change="true"/>
 			</hz:map>
 			<hz:map name="xdm-element">
-				<hz:indexes>
+				<!--hz:indexes>
 					<hz:index attribute="documentId"/>
 					<hz:index attribute="path" ordered="true"/>
 					<hz:index attribute="value"/>
-				</hz:indexes>
+				</hz:indexes-->
 			</hz:map>
 			<hz:map name="xdm-document">
 			</hz:map>
@@ -83,7 +83,7 @@
 	<hz:idGenerator id="xdm.namespace" name="xdm.namespace" instance-ref="hzInstance"/>
 	<hz:idGenerator id="xdm.doctype" name="xdm.doctype" instance-ref="hzInstance"/>
 	
-	<bean id="xdmManager" class="com.bagri.xdm.access.hazelcast.impl.HazelcastDocumentManager">
+	<bean id="xdmManager" class="com.bagri.xdm.access.hazelcast.impl.DocumentManagementClient">
 		<!--constructor-arg value="map" /-->
 		<property name="hzInstance" ref="hzInstance"/>
 	</bean>

@@ -8,8 +8,8 @@ import com.bagri.xdm.domain.XDMElement;
 public class CoherenceXDMFactory implements XDMFactory {
 
 	@Override
-	public XDMDataKey newXDMDataKey(long dataId, long documentId) {
-		return new DataDocumentKey(dataId, documentId);
+	public XDMDataKey newXDMDataKey(long documentId, int pathId) {
+		return new DataDocumentKey(documentId, pathId);
 	}
 
 	@Override

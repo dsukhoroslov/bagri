@@ -102,10 +102,14 @@ import net.sf.saxon.value.HexBinaryValue;
 import net.sf.saxon.value.Int64Value;
 import net.sf.saxon.value.ObjectValue;
 import net.sf.saxon.value.QNameValue;
+import net.sf.saxon.value.SaxonDuration;
+import net.sf.saxon.value.SaxonXMLGregorianCalendar;
 import net.sf.saxon.value.StringValue;
 import net.sf.saxon.value.TimeValue;
-import net.sf.saxon.xqj.SaxonDuration;
-import net.sf.saxon.xqj.SaxonXMLGregorianCalendar;
+//import net.sf.saxon.xqj.SaxonDuration;
+//import net.sf.saxon.xqj.SaxonXMLGregorianCalendar;
+
+
 
 import org.w3c.dom.Attr;
 import org.w3c.dom.Comment;

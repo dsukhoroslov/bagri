@@ -1,6 +1,7 @@
 package com.bagri.common.query;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -15,7 +16,7 @@ public class ExpressionBuilder {
 		return resolveCurrentParent();
 	}
 	
-	public int addExpression(int docType, Comparison compType, PathBuilder path, Object value) {
+	public int addExpression(int docType, Comparison compType, PathBuilder path, String param) {
 		Expression ex;
 		switch (compType) {
 			case AND:
@@ -25,7 +26,7 @@ public class ExpressionBuilder {
 			case NOT:
 				return -1;
 			default:
-				ex = new PathExpression(docType, compType, path, value);
+				ex = new PathExpression(docType, compType, path, param);
 		}
 		return addExpression(ex);
 	}
@@ -42,6 +43,10 @@ public class ExpressionBuilder {
 			return null;
 		}
 		return expressions.get(exIdx);
+	}
+	
+	public List<Expression> getExpressions() {
+		return Collections.unmodifiableList(expressions);
 	}
 
 	public Expression getRoot() {
@@ -77,7 +82,7 @@ public class ExpressionBuilder {
 	
 	public String toString() {
 		StringBuilder buff = new StringBuilder();
-		buff.append("ExpressionContainer; size: ").append(expressions.size());
+		buff.append("ExpressionBuilder; size: ").append(expressions.size());
 		if (expressions.size() > 0) {
 			buff.append(" [");
 			buff.append(expressions.get(0));

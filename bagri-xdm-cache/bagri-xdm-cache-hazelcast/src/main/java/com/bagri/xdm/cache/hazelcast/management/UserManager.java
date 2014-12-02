@@ -62,7 +62,7 @@ public class UserManager extends PermissionAwareManager<XDMUser> {
 		for (Map.Entry<String, XDMPermission> e: xPerms.entrySet()) {
 			pMap.put(e.getKey(), e.getValue().getPermissionsAsString());
 		}
-		return JMXUtils.propsToComposite(entityName, "permissions", pMap);
+		return JMXUtils.mapToComposite(entityName, "permissions", pMap);
 	}
 	
 	public Map<String, XDMPermission> getAllPermissions() {

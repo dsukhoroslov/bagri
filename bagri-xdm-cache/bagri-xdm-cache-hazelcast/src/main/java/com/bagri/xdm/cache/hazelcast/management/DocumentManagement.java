@@ -3,10 +3,13 @@ package com.bagri.xdm.cache.hazelcast.management;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.management.openmbean.CompositeData;
+import javax.management.openmbean.TabularData;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,11 +22,17 @@ import org.springframework.jmx.export.naming.SelfNaming;
 
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.common.util.FileUtils;
-import com.bagri.xdm.access.api.XDMDocumentManagerBase;
+import com.bagri.xdm.access.api.XDMCacheConstants;
+import com.bagri.xdm.access.api.XDMDocumentManagementBase;
 import com.bagri.xdm.access.api.XDMSchemaDictionary;
-import com.bagri.xdm.access.hazelcast.impl.HazelcastDocumentManager;
+import com.bagri.xdm.access.hazelcast.impl.DocumentManagementClient;
 import com.bagri.xdm.domain.XDMDocument;
-import com.bagri.xdm.process.hazelcast.HazelcastDocumentServer;
+import com.bagri.xdm.process.hazelcast.DocumentManagementServer;
+import com.bagri.xdm.process.hazelcast.DocumentStatsCollector;
+import com.bagri.xdm.process.hazelcast.DocumentStatsReseter;
+import com.bagri.xdm.process.hazelcast.schema.SchemaStatsAggregator;
+import com.hazelcast.core.IExecutorService;
+import com.hazelcast.core.Member;
 
 @ManagedResource(description="Schema Documents Management MBean")
 public class DocumentManagement implements SelfNaming {
@@ -31,8 +40,9 @@ public class DocumentManagement implements SelfNaming {
     private static final transient Logger logger = LoggerFactory.getLogger(DocumentManagement.class);
     private static final String type_schema = "Schema";
     
-	private HazelcastDocumentManager docManager;
+	private DocumentManagementClient docManager;
 	private XDMSchemaDictionary schemaDictionary;
+	private IExecutorService execService;
     
     private String schemaName;
     
@@ -40,7 +50,11 @@ public class DocumentManagement implements SelfNaming {
     	this.schemaName = schemaName;
     }
 
-	public void setDocumentManager(HazelcastDocumentManager docManager) {
+	public void setExecService(IExecutorService execService) {
+		this.execService = execService;
+	}
+	
+	public void setDocumentManager(DocumentManagementClient docManager) {
 		this.docManager = docManager;
 	}
 	
@@ -77,7 +91,25 @@ public class DocumentManagement implements SelfNaming {
     
 	@ManagedAttribute(description="Returns Schema size in bytes")
 	public Long getSchemaSize() {
-		return docManager.getSchemaSize(); 
+		//return docManager.getSchemaSize(); 
+	
+		long stamp = System.currentTimeMillis();
+		logger.trace("getSchemaSize.enter;");
+		
+		SchemaStatsAggregator task = new SchemaStatsAggregator();
+		Map<Member, Future<Long>> results = execService.submitToAllMembers(task);
+		long fullSize = 0;
+		for (Map.Entry<Member, Future<Long>> entry: results.entrySet()) {
+			try {
+				Long size = entry.getValue().get();
+				fullSize += size;
+			} catch (InterruptedException | ExecutionException ex) {
+				logger.error("getSchemaSize.error; ", ex);
+			}
+		}
+		stamp = System.currentTimeMillis() - stamp;
+		logger.trace("getSchemaSize.exit; returning: {}; timeTaken: {}", fullSize, stamp);
+    	return fullSize;
 	}
     
 	@ManagedAttribute(description="Returns Schema size in bytes, per document type")
@@ -85,6 +117,15 @@ public class DocumentManagement implements SelfNaming {
 		Map<Integer, Long> counts = null; //((HazelcastDocumentServer) docManager).getTypeSchemaSize();
 		return null;
 	}
+	
+	@ManagedOperation(description="Returns Document XML")
+	@ManagedOperationParameters({
+		@ManagedOperationParameter(name = "docId", description = "Internal Document identifier")})
+	public String getDocumentXML(long docId) {
+		//
+		return docManager.getDocumentAsString(docId);
+	}
+
     
 	@ManagedOperation(description="Register Document")
 	@ManagedOperationParameters({
@@ -126,5 +167,49 @@ public class DocumentManagement implements SelfNaming {
 	public ObjectName getObjectName() throws MalformedObjectNameException {
 		return JMXUtils.getObjectName("type=" + type_schema + ",name=" + schemaName + ",kind=DocumentManagement");
 	}
+
+	@ManagedAttribute(description="Returns aggregated DocumentManagement invocation statistics, per method")
+	public TabularData getInvocationStatistics() {
+		DocumentStatsCollector task = new DocumentStatsCollector(); 
+		logger.trace("getInvocationStatistics.enter; going to collect stats for schema: {}", schemaName);
+
+		int cnt = 0;
+		TabularData result = null;
+		Map<Member, Future<TabularData>> futures = execService.submitToAllMembers(task);
+		for (Map.Entry<Member, Future<TabularData>> entry: futures.entrySet()) {
+			try {
+				TabularData stats = entry.getValue().get();
+				result = JMXUtils.aggregateStats(stats, result);
+			} catch (InterruptedException | ExecutionException ex) {
+				logger.error("getInvocationStatistics.error: " + ex.getMessage(), ex);
+			}
+		}
+		logger.trace("getInvocationStatistics.exit; got stats from {} nodes", cnt);
+		return result;
+	}
 	
+	//private TabularData aggregateStats(TabularData source, TabularData target) {
+		//
+	//	return target;
+	//}
+    
+	@ManagedOperation(description="Reset DocumentManagement invocation statistics")
+	public void resetStatistics() {
+		//
+		DocumentStatsReseter task = new DocumentStatsReseter(); 
+		logger.trace("resetStatistics.enter; going to reset stats for schema: {}", schemaName);
+
+		int cnt = 0;
+		Map<Member, Future<Boolean>> futures = execService.submitToAllMembers(task);
+		for (Map.Entry<Member, Future<Boolean>> entry: futures.entrySet()) {
+			try {
+				if (entry.getValue().get()) {
+					cnt++;
+				}
+			} catch (InterruptedException | ExecutionException ex) {
+				logger.error("resetStatistics.error: " + ex.getMessage() + " on member " + entry.getKey(), ex);
+			}
+		}
+		logger.trace("resetStatistics.exit; reset stats on {} nodes", cnt);
+	}
 }

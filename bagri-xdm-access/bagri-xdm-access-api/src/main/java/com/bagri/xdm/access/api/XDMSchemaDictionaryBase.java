@@ -13,7 +13,6 @@ import java.util.TreeMap;
 
 import org.apache.xerces.dom.DOMXSImplementationSourceImpl;
 import org.apache.xerces.impl.xs.XSImplementationImpl;
-import org.apache.xerces.xs.LSInputList;
 import org.apache.xerces.xs.StringList;
 import org.apache.xerces.xs.XSAttributeUse;
 import org.apache.xerces.xs.XSComplexTypeDefinition;
@@ -79,6 +78,8 @@ public abstract class XDMSchemaDictionaryBase implements XDMSchemaDictionary {
 	@Override
 	public String normalizePath(String path) {
 		//getLogger().trace("normalizePath.enter; goth path: {}", path);
+		// profile: it takes 1.13 ms!
+		// TODO: optimize it!
 		StringTokenizer tc = new StringTokenizer(path, "{}", true);
 		StringBuffer buff = new StringBuffer();
 		boolean isNamespace = false;
@@ -105,11 +106,19 @@ public abstract class XDMSchemaDictionaryBase implements XDMSchemaDictionary {
 
 	@Override
 	public String translateNamespace(String namespace) {
+		
+		return translateNamespace(namespace, null);
+	}
+
+	@Override
+	public String translateNamespace(String namespace, String prefix) {
 		//getLogger().trace("getNamespacePrefix.enter; goth namespace: {}", namespace);
 
 		XDMNamespace xns = (XDMNamespace) getNamespaceCache().get(namespace);
 		if (xns == null) {
-			String prefix = "ns" + getNamespaceGen().next();
+			if (prefix == null || prefix.isEmpty()) {
+				prefix = "ns" + getNamespaceGen().next();
+			}
 			xns = new XDMNamespace(namespace, prefix, null);
 			xns = putIfAbsent(getNamespaceCache(), namespace, xns);
 		}
@@ -118,41 +127,44 @@ public abstract class XDMSchemaDictionaryBase implements XDMSchemaDictionary {
 		return result;
 	}
 
-	protected String getDictionaryPath(String path, int typeId) {
+	// @todo: change it to int ?!
+	//protected int getDictionaryPath(int typeId, String path) {
 		//getLogger().trace("getDictionaryPath.enter; goth path: {}", path);
 
-		String result = null;
-		XDMPath xpath = (XDMPath) getPathCache().get(path);
-		if (xpath != null) {
-			result = String.valueOf(xpath.getPathId());
-		}
+		//String result = null;
+	//	XDMPath xpath = getPathCache().get(path);
+	//	if (xpath != null) {
+			//result = String.valueOf(xpath.getPathId());
+	//		return xpath.getPathId();
+	//	}
 		//getLogger().trace("getDictionaryPath.exit; returning: {}", result);
-		return result;
-	}
+	//	return WRONG_PATH; //result;
+	//}
 
     
 	@Override
-	public int translatePath(int typeId, String path, XDMNodeKind kind) {
+	public XDMPath translatePath(int typeId, String path, XDMNodeKind kind) {
 		// "/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}Name/text()"
 		
 		//getLogger().trace("translatePath.enter; goth path: {}", path);
-		if (path == null || path.length() == 0) {
-			return WRONG_PATH;
-		}
+		if (kind != XDMNodeKind.document) {
+			if (path == null || path.length() == 0) {
+				return null; //WRONG_PATH;
+			}
 		
-		path = normalizePath(path);
-		int result = addDictionaryPath(typeId, path, kind); 
+			path = normalizePath(path);
+		}
+		XDMPath result = addDictionaryPath(typeId, path, kind); 
 		//getLogger().trace("translatePath.exit; returning: {}", result);
 		return result;
 	}
 	
-
 	@Override
 	public String getNamespacePrefix(String namespace) {
 		//getLogger().trace("getNamespacePrefix.enter; goth namespace: {}", namespace);
 
 		String result = null;
-		XDMNamespace xns = (XDMNamespace) getNamespaceCache().get(namespace);
+		XDMNamespace xns = getNamespaceCache().get(namespace);
 		if (xns != null) {
 			result = xns.getPrefix();
 		}
@@ -166,7 +178,7 @@ public abstract class XDMSchemaDictionaryBase implements XDMSchemaDictionary {
 		getLogger().trace("getPathElements.enter; got path: {}, type: {}", root, typeId);
 		Set<Integer> result = new HashSet<Integer>();
 
-		XDMPath xPath = (XDMPath) getPathCache().get(root);
+		XDMPath xPath = getPathCache().get(root);
 		if (xPath != null) {
 			int pId = xPath.getPathId();
 			while (pId <= xPath.getPostId()) {
@@ -181,13 +193,13 @@ public abstract class XDMSchemaDictionaryBase implements XDMSchemaDictionary {
 
 	@Override
 	public int getDocumentType(String root) {
-		//
+		// 
 		getLogger().trace("getDocumentTypeId.enter; got path: {}", root);
 		root = normalizePath(root);
 		getLogger().trace("getDocumentTypeId; normalized path: {}", root);
 
 		int result = WRONG_PATH;
-		XDMDocumentType xdt = (XDMDocumentType) getTypeCache().get(root);
+		XDMDocumentType xdt = getTypeCache().get(root);
 		if (xdt != null) {
 			result = xdt.getTypeId();
 		} else {
@@ -224,10 +236,10 @@ public abstract class XDMSchemaDictionaryBase implements XDMSchemaDictionary {
 		return result;
 	}
 
-	protected int addDictionaryPath(int typeId, String path, XDMNodeKind kind) {
+	protected XDMPath addDictionaryPath(int typeId, String path, XDMNodeKind kind) {
 		//getLogger().trace("addDictionaryPath.enter; goth path: {}", path);
 
-		XDMPath xpath = (XDMPath) getPathCache().get(path);
+		XDMPath xpath = getPathCache().get(path);
 		if (xpath == null) {
 			int pathId = getPathGen().next().intValue();
 			xpath = new XDMPath(path, typeId, kind, pathId, 0, pathId); // specify parentId, postId at normalization phase
@@ -245,23 +257,24 @@ public abstract class XDMSchemaDictionaryBase implements XDMSchemaDictionary {
 				xpath = xp2;
 			}
 		}
-		int result = xpath.getPathId();
+		//int result = xpath.getPathId();
 		//getLogger().trace("addDictionaryPath.exit; returning: {}", result);
-		return result;
+		return xpath;
 	}
 
 	@Override
 	public void normalizeDocumentType(int typeId) {
-		
-		getLogger().trace("normalizeDocPath.enter; got typeId: {}", typeId);
+
+		// TODO: do this via EntryProcessor ?
+		getLogger().trace("normalizeDocumentType.enter; got typeId: {}", typeId);
 
 		XDMDocumentType type = getDocumentTypeById(typeId);
 		if (type == null) {
-			throw new IllegalStateException("type for root ID \"" + typeId + "\" is not registered yet");
+			throw new IllegalStateException("type ID \"" + typeId + "\" not registered yet");
 		}
 		
 		if (type.isNormalized()) {
-			getLogger().trace("normalizeDocPath; already normalized: {}", type);
+			getLogger().trace("normalizeDocumentType; already normalized (1): {}", type);
 			return;
 		}
 		
@@ -271,16 +284,27 @@ public abstract class XDMSchemaDictionaryBase implements XDMSchemaDictionary {
 		try {
 			locked = lock(getTypeCache(), root);
 			if (!locked) {
-				throw new IllegalStateException("Can't get lock on document-type cache for normalization");
+				getLogger().info("normalizeDocumentType; Can't get lock on document-type {} for normalization, " +
+							"thus it is being normalized by someone else.", type);
+				return;
 			}
-
+			
+			// it can be already normalized after we get lock!
+			type = getDocumentTypeById(typeId);
+			if (type.isNormalized()) {
+				getLogger().trace("normalizeDocumentType; already normalized (2): {}", type);
+				return;
+			}
+			
 			cnt = normalizeDocPath(type.getTypeId());
 			type.setNormalized(true);
 			getTypeCache().put(root, type);
 		} finally {
-			unlock(getTypeCache(), root);
+			if (locked) {
+				unlock(getTypeCache(), root);
+			}
 		}
-		getLogger().trace("normalizeDocPath.exit; normalized {} path elements", cnt);
+		getLogger().trace("normalizeDocumentType.exit; typeId: {}; normalized {} path elements", typeId, cnt);
 	}
 	
 	private int normalizeDocPath(int typeId) {

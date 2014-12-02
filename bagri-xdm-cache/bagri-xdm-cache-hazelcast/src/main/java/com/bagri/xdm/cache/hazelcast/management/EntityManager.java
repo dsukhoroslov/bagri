@@ -37,7 +37,7 @@ public abstract class EntityManager<E extends XDMEntity> implements SelfNaming {
 	}
 	
 	protected void flushEntity(E entity) {
-		entityCache.put(entityName, entity);
+		entityCache.set(entityName, entity);
 	}
 	
 	public void setEntityCache(IMap<String, E> entityCache) {

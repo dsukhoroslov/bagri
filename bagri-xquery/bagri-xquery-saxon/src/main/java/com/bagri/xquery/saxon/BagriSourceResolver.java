@@ -4,18 +4,20 @@
 package com.bagri.xquery.saxon;
 
 import java.io.StringReader;
+import java.net.URI;
 
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
-import javax.xml.xquery.XQItem;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bagri.common.util.FileUtils;
 import com.bagri.xdm.access.api.XDMDocumentManagement;
+import com.bagri.xdm.access.api.XDMDocumentManagementServer;
 
+import static com.bagri.xqj.BagriXQConstants.bg_schema;
 import net.sf.saxon.Configuration;
 import net.sf.saxon.event.Receiver;
 import net.sf.saxon.expr.JPConverter;
@@ -24,8 +26,8 @@ import net.sf.saxon.lib.ExternalObjectModel;
 import net.sf.saxon.lib.SourceResolver;
 import net.sf.saxon.om.DocumentInfo;
 import net.sf.saxon.om.NodeInfo;
-import net.sf.saxon.pull.PullSource;
 import net.sf.saxon.trans.XPathException;
+import net.sf.saxon.tree.tiny.TinyDocumentImpl;
 
 /**
  * @author Denis Sukhoroslov
@@ -52,23 +54,52 @@ public class BagriSourceResolver implements SourceResolver, ExternalObjectModel 
 	@Override
 	public Source resolveSource(Source source, Configuration config) throws XPathException {
 		logger.trace("resolveSource. source: {}; config: {}", source.getSystemId(), config);
-		//String[] path = source.getSystemId().split("/");
-		//int docId = Integer.parseInt(path[path.length - 1]);
-		//String content = mgr.getDocumentAsString(docId);
+		
+		Long docId;
+		String original = source.getSystemId();
 
-		// why do we need this conversion here at all??
-		String uri = FileUtils.path2Uri(source.getSystemId());
-		//String uri = source.getSystemId();
+		// TODO: use config.getSystemURIResolver() !
+		
+		URI uri = URI.create(original);
+		logger.trace("resolveSource. got {} URI: {}", uri.isAbsolute() ? "absolute" : "relative", uri);
+		if (bg_schema.equals(uri.getScheme())) {
+			// skip leading "/"
+			docId = Long.parseLong(uri.getPath().substring(1));
+		} else {
+			String src = original;
+			if ("file".equals(uri.getScheme())) { 
+				src = FileUtils.path2Uri(src);
+			}
+			logger.debug("resolveSource; not a native schema {}, trying uri: {}", uri.getScheme(), src); 
+			docId = mgr.getDocumentId(src);
+		}
+
+		Source src = ((XDMDocumentManagementServer) mgr).getDocumentSource(docId);
+		if (src != null) {
+			//config.
+			logger.trace("resolveSource. got document from cache, returning: {}", src);
+			//if (source instanceof TinyDocumentImpl) {
+			((TinyDocumentImpl) src).getTree().setConfiguration(config);
+			return src;
+		}
+		
+		// can return just a custom source (containing docId) from here,
+		// but perform the real resolution to the NodeInfo in unravel method
 		
 		// move this processing to a node (member)
 		// the document belongs to
-		String content = mgr.getDocumentAsString(uri);
-		
+		logger.debug("resolveSource; looking for documentId: {}", docId);
+		// another bottleneck! takes 6.73 ms, even to get XML from cache! !?
+		String content = mgr.getDocumentAsString(docId);
 		//content = content.replaceAll("&", "&amp;");
-		
+		 
 		if (content != null && content.trim().length() > 0) {
-			StreamSource src = new StreamSource(new StringReader(content));
-			DocumentInfo doc = config.buildDocument(src);
+			logger.trace("resolveSource; got content: {}", content.length());
+			StreamSource ss = new StreamSource(new StringReader(content));
+			// bottleneck! takes 15 ms. Cache DocumentInfo in Saxon instead! 
+			NodeInfo doc = config.buildDocument(ss);
+			((XDMDocumentManagementServer) mgr).putDocumentSource(docId, doc);
+			//((TinyDocumentImpl) doc).getTree().setConfiguration(config);
 			return doc;
 		}
 		logger.trace("resolveSource. got empty content: '{}'", content);
@@ -89,15 +120,15 @@ public class BagriSourceResolver implements SourceResolver, ExternalObjectModel 
 		return null;
 	}
 
+	private JPConverter jpc = null;
 
 	@Override
 	public JPConverter getJPConverter(Class sourceClass, Configuration config) {
-		//if (sourceClass.isAssignableFrom(XQItem.class)) {
-			logger.trace("getJPConverter. source: {}; returning custom converter", sourceClass);
-			return new BagriJPConverter();
-		//}
-		//logger.trace("getJPConverter. source: {}; returning null", sourceClass);
-		//return null;
+		if (jpc == null) { 
+			jpc = new BagriJPConverter();
+			logger.trace("getJPConverter. source: {}; new JPC instance: {}", sourceClass, jpc);
+		}
+		return jpc;
 	}
 
 
@@ -124,10 +155,17 @@ public class BagriSourceResolver implements SourceResolver, ExternalObjectModel 
 
 	@Override
 	public NodeInfo unravel(Source source, Configuration config) {
-		logger.trace("unravel. source: {}; config: {}", source, config);
-		if (source instanceof BagriXDMSource) {
-			return (BagriXDMSource) source;
-		}
+		// invoked after every document resolution:
+		// unravel. source: net.sf.saxon.tree.tiny.TinyDocumentImpl@153; config: net.sf.saxon.Configuration@ce339b2
+		// thus, can move document resolution from resolve to this method
+		// but, what for ?
+		//logger.trace("unravel. source: {}; config: {}", source, config);
+		if (source instanceof TinyDocumentImpl) {
+			TinyDocumentImpl doc = (TinyDocumentImpl) source;
+			doc.getTree().setConfiguration(config);
+			return doc;
+		} 
+		logger.info("unravel. source: {}; config: {}", source, config);
 		return null;
 	}
 

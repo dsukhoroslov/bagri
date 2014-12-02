@@ -32,10 +32,10 @@
             <groupId>javax.cache</groupId>
             <artifactId>cache-api</artifactId>
         </dependency>
-        <dependency>
+        <!--dependency>
             <groupId>org.jsr107.ri</groupId>
             <artifactId>cache-ri-impl</artifactId>
-        </dependency>
+        </dependency-->
 
         <!-- Dependencies for logging -->
         <dependency>

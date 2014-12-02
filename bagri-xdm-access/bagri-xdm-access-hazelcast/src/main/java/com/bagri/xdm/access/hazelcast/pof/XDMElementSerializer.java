@@ -16,7 +16,7 @@ public class XDMElementSerializer implements StreamSerializer<XDMElement> {
 
 	@Override
 	public int getTypeId() {
-		return XDMPortableFactory.cli_XDMElememt;
+		return XDMPortableFactory.cli_XDMElement;
 	}
 
 	@Override
@@ -25,10 +25,6 @@ public class XDMElementSerializer implements StreamSerializer<XDMElement> {
 		XDMElement xData = new XDMElement(
 				in.readLong(),
 				in.readLong(),
-				in.readLong(),
-				XDMNodeKind.valueOf(in.readUTF()),
-				in.readInt(),
-				in.readUTF(),
 				in.readUTF());
 		return xData;
 	}
@@ -38,10 +34,6 @@ public class XDMElementSerializer implements StreamSerializer<XDMElement> {
 		
 		out.writeLong(xData.getElementId());
 		out.writeLong(xData.getParentId());
-		out.writeLong(xData.getDocumentId());
-		out.writeUTF(xData.getKind().name());
-		out.writeInt(xData.getPathId());
-		out.writeUTF(xData.getName());
 		out.writeUTF(xData.getValue());
 	}
 

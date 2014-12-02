@@ -16,11 +16,7 @@ public class XDMElementPofSerializer implements PofSerializer {
 		XDMElement xData = new XDMElement(
 				in.readLong(0),
 				in.readLong(1),
-				in.readLong(2),
-				(XDMNodeKind) in.readObject(3),
-				in.readInt(4),
-				in.readString(5),
-				in.readString(6));
+				in.readString(2));
 		in.readRemainder();
 		return xData;
 	}
@@ -31,11 +27,7 @@ public class XDMElementPofSerializer implements PofSerializer {
 		XDMElement xData = (XDMElement) data;
 		out.writeLong(0, xData.getElementId());
 		out.writeLong(1, xData.getParentId()); // can be null !?
-		out.writeLong(2, xData.getDocumentId());
-		out.writeObject(3, xData.getKind());
-		out.writeInt(4, xData.getPathId());
-		out.writeString(5, xData.getName());
-		out.writeString(6, xData.getValue());
+		out.writeString(2, xData.getValue());
 		//private int positionInParent;
         out.writeRemainder(null);
 	}

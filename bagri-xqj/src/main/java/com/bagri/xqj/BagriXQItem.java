@@ -4,13 +4,19 @@ import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQItem;
 import javax.xml.xquery.XQItemType;
 
+import com.bagri.xquery.api.XQProcessor;
+
 public class BagriXQItem extends BagriXQItemAccessor implements XQItem {
 	
-	BagriXQItem(XQItemType type, Object value) {
-		super();
+	//BagriXQItem(XQItemType type, Object value) {
+	//	super();
+	//	setCurrent(type, value);
+	//}
+
+	BagriXQItem(XQProcessor xqProcessor, XQItemType type, Object value) {
+		super(xqProcessor);
 		setCurrent(type, value);
 	}
-
 
 	public String toString() {
 		

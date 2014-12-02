@@ -30,9 +30,9 @@ public class BagriXQDataSourceTest {
     	xqds = new BagriXQDataSource();
 	    //xqds.setProperty(BagriXQDataSource.HOST, "127.0.0.1");
 	    //xqds.setProperty(BagriXQDataSource.PORT, "5701");
-	    xqds.setProperty(BagriXQDataSource.ADDRESS, "localhost:10000");
-	    xqds.setProperty(BagriXQDataSource.SCHEMA, "TPoX");
-	    xqds.setProperty(BagriXQDataSource.PASSWORD, "TPoX");
+	    xqds.setProperty(BagriXQDataSource.ADDRESS, "localhost:10500");
+	    xqds.setProperty(BagriXQDataSource.SCHEMA, "TPoX2");
+	    xqds.setProperty(BagriXQDataSource.PASSWORD, "TPoX2");
 	    //xqds.setProperty("hz.cache.mode", "client");
 	    xqds.setProperty(BagriXQDataSource.XQ_PROCESSOR, "com.bagri.xquery.saxon.BagriXQProcessor");
 	    xqds.setProperty(BagriXQDataSource.XDM_MANAGER, "com.bagri.xdm.access.hazelcast.impl.HazelcastDocumentManager");

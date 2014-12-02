@@ -11,6 +11,8 @@ import net.sf.saxon.value.SequenceType;
 
 import com.bagri.xdm.access.api.XDMDocumentManagement;
 import com.bagri.xdm.domain.XDMDocument;
+import static com.bagri.xqj.BagriXQConstants.bg_ns;
+import static com.bagri.xqj.BagriXQConstants.bg_schema;
 
 public class RemoveDocument extends ExtensionFunctionDefinition {
 	
@@ -22,12 +24,12 @@ public class RemoveDocument extends ExtensionFunctionDefinition {
 
 	@Override
 	public StructuredQName getFunctionQName() {
-		return new StructuredQName("bgdm", "http://bagri.com/bagri-xdm", "remove-document");
+		return new StructuredQName(bg_schema, bg_ns, "remove-document");
 	}
 
 	@Override
 	public SequenceType[] getArgumentTypes() {
-		return new SequenceType[] {SequenceType.OPTIONAL_STRING, SequenceType.OPTIONAL_NUMERIC}; // or string ??
+		return new SequenceType[] {SequenceType.OPTIONAL_NUMERIC, SequenceType.OPTIONAL_NUMERIC}; // or string ??
 	}
 
 	@Override
@@ -43,8 +45,8 @@ public class RemoveDocument extends ExtensionFunctionDefinition {
 			@Override
 			public Sequence call(XPathContext context, Sequence[] arguments) throws XPathException {
 				
-				String uri = arguments[0].head().getStringValue();
-				xdm.removeDocument(uri);
+				String docId = arguments[0].head().getStringValue();
+				xdm.removeDocument(Long.parseLong(docId));
 				return null; //new Int64Value(doc.getDocumentId());
 			}
         };

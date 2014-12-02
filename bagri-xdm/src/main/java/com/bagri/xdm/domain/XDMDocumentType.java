@@ -11,7 +11,7 @@ public class XDMDocumentType { //implements Serializable {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 7751396606546961425L;
+	//private static final long serialVersionUID = 7751396606546961425L;
 	
 	private int typeId;
 	private String rootPath;

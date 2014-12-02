@@ -10,6 +10,7 @@ import javax.management.MalformedObjectNameException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jmx.export.MBeanExportException;
 import org.springframework.jmx.export.annotation.AnnotationMBeanExporter;
@@ -23,7 +24,7 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.MapEvent;
 
-public abstract class EntityManagement<String, E extends XDMEntity> implements EntryListener<String, E> {
+public abstract class EntityManagement<String, E extends XDMEntity> implements EntryListener<String, E>, InitializingBean {
 	
     protected final transient Logger logger = LoggerFactory.getLogger(getClass());
 	
@@ -37,6 +38,16 @@ public abstract class EntityManagement<String, E extends XDMEntity> implements E
 	public EntityManagement(HazelcastInstance hzInstance) {
 		//super();
 		this.hzInstance = hzInstance;
+	}
+	
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		logger.trace("afterPropertiesSet.enter");
+        Set<String> names = entityCache.keySet();
+        for (String name: names) {
+        	initEntityManager(name);
+        }
+		logger.trace("afterPropertiesSet.exit; initiated {} entity managers", names.size());
 	}
 	
 	public void setEntityCache(IMap<String, E> entityCache) {

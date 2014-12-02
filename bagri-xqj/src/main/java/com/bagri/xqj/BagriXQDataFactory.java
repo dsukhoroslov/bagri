@@ -2,54 +2,7 @@ package com.bagri.xqj;
 
 import static com.bagri.xqj.BagriXQUtils.getTypeName;
 import static com.bagri.xqj.BagriXQUtils.isAtomicType;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_ANYSIMPLETYPE;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_ANYTYPE;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_ANYURI;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_BOOLEAN;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_BYTE;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_DECIMAL;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_DOUBLE;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_ENTITIES;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_ENTITY;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_FLOAT;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_ID;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_IDREF;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_IDREFS;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_INT;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_INTEGER;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_LONG;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_NAME;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_NCNAME;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_NEGATIVE_INTEGER;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_NMTOKEN;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_NMTOKENS;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_NONNEGATIVE_INTEGER;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_NONPOSITIVE_INTEGER;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_NORMALIZED_STRING;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_NOTATION;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_POSITIVE_INTEGER;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_SHORT;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_STRING;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_TOKEN;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_UNSIGNED_BYTE;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_UNSIGNED_INT;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_UNSIGNED_LONG;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_UNSIGNED_SHORT;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_UNTYPED;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_UNTYPEDATOMIC;
-import static javax.xml.xquery.XQItemType.XQITEMKIND_ATOMIC;
-import static javax.xml.xquery.XQItemType.XQITEMKIND_ATTRIBUTE;
-import static javax.xml.xquery.XQItemType.XQITEMKIND_COMMENT;
-import static javax.xml.xquery.XQItemType.XQITEMKIND_DOCUMENT;
-import static javax.xml.xquery.XQItemType.XQITEMKIND_DOCUMENT_ELEMENT;
-import static javax.xml.xquery.XQItemType.XQITEMKIND_DOCUMENT_SCHEMA_ELEMENT;
-import static javax.xml.xquery.XQItemType.XQITEMKIND_ELEMENT;
-import static javax.xml.xquery.XQItemType.XQITEMKIND_ITEM;
-import static javax.xml.xquery.XQItemType.XQITEMKIND_NODE;
-import static javax.xml.xquery.XQItemType.XQITEMKIND_PI;
-import static javax.xml.xquery.XQItemType.XQITEMKIND_SCHEMA_ATTRIBUTE;
-import static javax.xml.xquery.XQItemType.XQITEMKIND_SCHEMA_ELEMENT;
-import static javax.xml.xquery.XQItemType.XQITEMKIND_TEXT;
+import static javax.xml.xquery.XQItemType.*;
 
 import java.io.InputStream;
 import java.io.Reader;
@@ -80,15 +33,28 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
+import com.bagri.xquery.api.XQProcessor;
+
 public class BagriXQDataFactory implements XQDataFactory {
+
+	protected final Logger logger;
 	
 	protected boolean closed = false;
-
-    protected final Logger logger;
-	    
+	private XQProcessor processor;
+	
     public BagriXQDataFactory() {
     	logger = LoggerFactory.getLogger(getClass().getName());
     }
+    
+	public XQProcessor getProcessor() {
+		return this.processor;
+	}
+	
+	public void setProcessor(XQProcessor processor) {
+		this.processor = processor;
+		//BagriXQUtils.setXQProcessor(processor);
+        logger.debug("setProcessor; got processor: {}", processor);
+	}
     
 	@Override
 	public XQItemType createAtomicType(int baseType) throws XQException {
@@ -147,7 +113,7 @@ public class BagriXQDataFactory implements XQDataFactory {
 		if (elementType == null) {
 			throw new XQException("provided elementType is null");
 		} 
-		if (elementType.getItemKind() !=  XQItemType.XQITEMKIND_ELEMENT) {
+		if (elementType.getItemKind() !=  XQITEMKIND_ELEMENT) {
 			throw new XQException("provided elementType has wrong kind: " + elementType);
 		}
 		return new BagriXQItemType(elementType.getBaseType(), XQITEMKIND_DOCUMENT_ELEMENT, elementType.getNodeName(), elementType.getTypeName(), 
@@ -210,7 +176,7 @@ public class BagriXQDataFactory implements XQDataFactory {
 		if (item.isClosed()) {
 			throw new XQException("Item is closed");
 		}
-		return new BagriXQItem(item.getItemType(), item.getAtomicValue());
+		return new BagriXQItem(processor, item.getItemType(), item.getAtomicValue());
 	}
 
 	@Override
@@ -231,7 +197,7 @@ public class BagriXQDataFactory implements XQDataFactory {
 		if (!((BagriXQItemType) type).isValueCompatible(value)) {
 			throw new XQException("Value is not compatible");
 		} 
-		return new BagriXQItem(type, value);
+		return new BagriXQItem(processor, type, value);
 	}
 
 	@Override
@@ -241,7 +207,7 @@ public class BagriXQDataFactory implements XQDataFactory {
 			throw new XQException("Connection is closed");
 		}
 		if (type == null || type.getBaseType() == XQBASETYPE_BOOLEAN) {
-			return new BagriXQItem(new BagriXQItemType(XQBASETYPE_BOOLEAN, XQITEMKIND_ATOMIC, null, getTypeName(XQBASETYPE_BOOLEAN), false, null), value);
+			return new BagriXQItem(processor, new BagriXQItemType(XQBASETYPE_BOOLEAN, XQITEMKIND_ATOMIC, null, getTypeName(XQBASETYPE_BOOLEAN), false, null), value);
 		} 
 		throw new XQException("wrong boolean type: " + type + "(" + type.getBaseType() + ")");
 	}
@@ -253,48 +219,48 @@ public class BagriXQDataFactory implements XQDataFactory {
 			throw new XQException("Connection is closed");
 		}
 		if (type == null) {
-			return new BagriXQItem(new BagriXQItemType(XQBASETYPE_BYTE, XQITEMKIND_ATOMIC, null, getTypeName(XQBASETYPE_BYTE), false, null), value);
+			return new BagriXQItem(processor, new BagriXQItemType(XQBASETYPE_BYTE, XQITEMKIND_ATOMIC, null, getTypeName(XQBASETYPE_BYTE), false, null), value);
 		}
 
 		switch (type.getBaseType()) {
 			case XQBASETYPE_BYTE: 
 			case XQBASETYPE_SHORT: 
 			case XQBASETYPE_INT: 
-	    	case XQBASETYPE_LONG: return new BagriXQItem(type, value);
-			case XQBASETYPE_DECIMAL: return new BagriXQItem(type, new java.math.BigDecimal(value));
+	    	case XQBASETYPE_LONG: return new BagriXQItem(processor, type, value);
+			case XQBASETYPE_DECIMAL: return new BagriXQItem(processor, type, new java.math.BigDecimal(value));
 
-			case XQBASETYPE_INTEGER: return new BagriXQItem(type, new java.math.BigInteger(String.valueOf(value)));
+			case XQBASETYPE_INTEGER: return new BagriXQItem(processor, type, new java.math.BigInteger(String.valueOf(value)));
 			case XQBASETYPE_NEGATIVE_INTEGER: if (value < 0) {
-					return new BagriXQItem(type, new java.math.BigInteger(String.valueOf(value)));
+					return new BagriXQItem(processor, type, new java.math.BigInteger(String.valueOf(value)));
 				}
 				break;
 			case XQBASETYPE_NONNEGATIVE_INTEGER: if (value >= 0) {
-					return new BagriXQItem(type, new java.math.BigInteger(String.valueOf(value)));
+					return new BagriXQItem(processor, type, new java.math.BigInteger(String.valueOf(value)));
 				}
 				break;
 			case XQBASETYPE_NONPOSITIVE_INTEGER: if (value <= 0) {
-					return new BagriXQItem(type, new java.math.BigInteger(String.valueOf(value)));
+					return new BagriXQItem(processor, type, new java.math.BigInteger(String.valueOf(value)));
 				}
 				break;
 			case XQBASETYPE_POSITIVE_INTEGER: if (value > 0) {
-					return new BagriXQItem(type, new java.math.BigInteger(String.valueOf(value)));
+					return new BagriXQItem(processor, type, new java.math.BigInteger(String.valueOf(value)));
 				}
 				break; 
 			
 			case XQBASETYPE_UNSIGNED_BYTE: if (value >= 0) { 
-					return new BagriXQItem(type, value);
+					return new BagriXQItem(processor, type, value);
 				}
 				break;
 			case XQBASETYPE_UNSIGNED_INT: if (value >= 0) {
-					return new BagriXQItem(type, value); 
+					return new BagriXQItem(processor, type, value); 
 				}
 				break;
 			case XQBASETYPE_UNSIGNED_LONG: if (value >= 0) {
-					return new BagriXQItem(type, new java.math.BigInteger(String.valueOf(value)));
+					return new BagriXQItem(processor, type, new java.math.BigInteger(String.valueOf(value)));
 				}
 				break;
 			case XQBASETYPE_UNSIGNED_SHORT: if (value >= 0) {
-					return new BagriXQItem(type, value);
+					return new BagriXQItem(processor, type, value);
 				}
 		}
 		throw new XQException("wrong byte type: " + type + "(" + type.getBaseType() + ")");
@@ -342,11 +308,11 @@ public class BagriXQDataFactory implements XQDataFactory {
 		//logger.info("document is: {}", doc);
 
 		if (type == null) {
-			return new BagriXQItem(createDocumentElementType(createElementType(null, XQBASETYPE_UNTYPED)), 
+			return new BagriXQItem(processor, createDocumentElementType(createElementType(null, XQBASETYPE_UNTYPED)), 
 					value); //XQUtils.textToDocument(value));
 		} else if (type.getItemKind() == XQITEMKIND_DOCUMENT_ELEMENT || 
 				type.getItemKind() == XQITEMKIND_DOCUMENT_SCHEMA_ELEMENT) {
-			return new BagriXQItem(type, value); //XQUtils.textToDocument(value));
+			return new BagriXQItem(processor, type, value); //XQUtils.textToDocument(value));
 		}
 
 		throw new XQException("wrong document type: " + type + "(" + type.getBaseType() + ")");
@@ -385,7 +351,7 @@ public class BagriXQDataFactory implements XQDataFactory {
 			throw new XQException("Connection is closed");
 		}
 		if (type == null || type.getBaseType() == XQBASETYPE_DOUBLE) {
-			return new BagriXQItem(new BagriXQItemType(XQBASETYPE_DOUBLE, XQITEMKIND_ATOMIC, null, getTypeName(XQBASETYPE_DOUBLE), false, null), value);
+			return new BagriXQItem(processor, new BagriXQItemType(XQBASETYPE_DOUBLE, XQITEMKIND_ATOMIC, null, getTypeName(XQBASETYPE_DOUBLE), false, null), value);
 		} 
 		throw new XQException("wrong double type: " + type + "(" + type.getBaseType() + ")");
 	}
@@ -397,7 +363,7 @@ public class BagriXQDataFactory implements XQDataFactory {
 			throw new XQException("Connection is closed");
 		}
 		if (type == null || type.getBaseType() == XQBASETYPE_FLOAT) {
-			return new BagriXQItem(new BagriXQItemType(XQBASETYPE_FLOAT, XQITEMKIND_ATOMIC, null, getTypeName(XQBASETYPE_FLOAT), false, null), value);
+			return new BagriXQItem(processor, new BagriXQItemType(XQBASETYPE_FLOAT, XQITEMKIND_ATOMIC, null, getTypeName(XQBASETYPE_FLOAT), false, null), value);
 		} 
 		throw new XQException("wrong float type: " + type + "(" + type.getBaseType() + ")");
 	}
@@ -409,55 +375,55 @@ public class BagriXQDataFactory implements XQDataFactory {
 			throw new XQException("Connection is closed");
 		}
 		if (type == null) {
-			return new BagriXQItem(new BagriXQItemType(XQBASETYPE_INT, XQITEMKIND_ATOMIC, null, getTypeName(XQBASETYPE_INT), false, null), value);
+			return new BagriXQItem(processor, new BagriXQItemType(XQBASETYPE_INT, XQITEMKIND_ATOMIC, null, getTypeName(XQBASETYPE_INT), false, null), value);
 		}
 
 		Integer intVal = new Integer(value);
 		switch (type.getBaseType()) {
 			case XQBASETYPE_BYTE: if (value >= Byte.MIN_VALUE && value <= Byte.MAX_VALUE) {
-					return new BagriXQItem(type, intVal.byteValue());
+					return new BagriXQItem(processor, type, intVal.byteValue());
 				}
 				break;
 			case XQBASETYPE_SHORT: if (value >= Short.MIN_VALUE && value <= Short.MAX_VALUE) {
-					return new BagriXQItem(type, intVal.shortValue());
+					return new BagriXQItem(processor, type, intVal.shortValue());
 				}
 				break;
-			case XQBASETYPE_INT: return new BagriXQItem(type, intVal);
-	    	case XQBASETYPE_LONG: return new BagriXQItem(type, new Long(value));
-			case XQBASETYPE_DECIMAL: return new BagriXQItem(type, new java.math.BigDecimal(value));
+			case XQBASETYPE_INT: return new BagriXQItem(processor, type, intVal);
+	    	case XQBASETYPE_LONG: return new BagriXQItem(processor, type, new Long(value));
+			case XQBASETYPE_DECIMAL: return new BagriXQItem(processor, type, new java.math.BigDecimal(value));
 
-			case XQBASETYPE_INTEGER: return new BagriXQItem(type, new java.math.BigInteger(String.valueOf(value)));
+			case XQBASETYPE_INTEGER: return new BagriXQItem(processor, type, new java.math.BigInteger(String.valueOf(value)));
 			case XQBASETYPE_NEGATIVE_INTEGER: if (value < 0) {
-					return new BagriXQItem(type, new java.math.BigInteger(String.valueOf(value)));
+					return new BagriXQItem(processor, type, new java.math.BigInteger(String.valueOf(value)));
 				}
 				break;
 			case XQBASETYPE_NONNEGATIVE_INTEGER: if (value >= 0) {
-					return new BagriXQItem(type, new java.math.BigInteger(String.valueOf(value)));
+					return new BagriXQItem(processor, type, new java.math.BigInteger(String.valueOf(value)));
 				}
 				break;
 			case XQBASETYPE_NONPOSITIVE_INTEGER: if (value <= 0) {
-					return new BagriXQItem(type, new java.math.BigInteger(String.valueOf(value)));
+					return new BagriXQItem(processor, type, new java.math.BigInteger(String.valueOf(value)));
 				}
 				break;
 			case XQBASETYPE_POSITIVE_INTEGER: if (value > 0) {
-					return new BagriXQItem(type, new java.math.BigInteger(String.valueOf(value)));
+					return new BagriXQItem(processor, type, new java.math.BigInteger(String.valueOf(value)));
 				}
 				break; 
 			
 			case XQBASETYPE_UNSIGNED_BYTE: if (value >= 0 && value <= Short.MAX_VALUE) { 
-					return new BagriXQItem(type, intVal.shortValue());
+					return new BagriXQItem(processor, type, intVal.shortValue());
 				}
 				break;
 			case XQBASETYPE_UNSIGNED_INT: if (value >= 0) {
-					return new BagriXQItem(type, value); 
+					return new BagriXQItem(processor, type, value); 
 				}
 				break;
 			case XQBASETYPE_UNSIGNED_LONG: if (value >= 0) {
-					return new BagriXQItem(type, new java.math.BigInteger(String.valueOf(value)));
+					return new BagriXQItem(processor, type, new java.math.BigInteger(String.valueOf(value)));
 				}
 				break;
 			case XQBASETYPE_UNSIGNED_SHORT: if (value >= 0) {
-					return new BagriXQItem(type, value);
+					return new BagriXQItem(processor, type, value);
 				}
 		}
 		throw new XQException("wrong int type: " + type + "(" + type.getBaseType() + ")");
@@ -471,58 +437,58 @@ public class BagriXQDataFactory implements XQDataFactory {
 		}
 		
 		if (type == null) {
-			return new BagriXQItem(new BagriXQItemType(XQBASETYPE_LONG, XQITEMKIND_ATOMIC, null, getTypeName(XQBASETYPE_LONG), false, null), value);
+			return new BagriXQItem(processor, new BagriXQItemType(XQBASETYPE_LONG, XQITEMKIND_ATOMIC, null, getTypeName(XQBASETYPE_LONG), false, null), value);
 		} 
 		
 		Long longVal = new Long(value);
 		switch (type.getBaseType()) {
 			case XQBASETYPE_BYTE: if (value >= Byte.MIN_VALUE && value <= Byte.MAX_VALUE) {
-					return new BagriXQItem(type, longVal.byteValue());
+					return new BagriXQItem(processor, type, longVal.byteValue());
 				}
 				break;
 			case XQBASETYPE_SHORT: if (value >= Short.MIN_VALUE && value <= Short.MAX_VALUE) {
-					return new BagriXQItem(type, longVal.shortValue());
+					return new BagriXQItem(processor, type, longVal.shortValue());
 				}
 				break;
 			case XQBASETYPE_INT: if (value >= Integer.MIN_VALUE && value <= Integer.MAX_VALUE) {
-					return new BagriXQItem(type, longVal.intValue());
+					return new BagriXQItem(processor, type, longVal.intValue());
 				}
 				break;
-	    	case XQBASETYPE_LONG: return new BagriXQItem(type, longVal);
-			case XQBASETYPE_DECIMAL: return new BagriXQItem(type, new java.math.BigDecimal(value));
+	    	case XQBASETYPE_LONG: return new BagriXQItem(processor, type, longVal);
+			case XQBASETYPE_DECIMAL: return new BagriXQItem(processor, type, new java.math.BigDecimal(value));
 
-			case XQBASETYPE_INTEGER: return new BagriXQItem(type, new java.math.BigInteger(longVal.toString()));
+			case XQBASETYPE_INTEGER: return new BagriXQItem(processor, type, new java.math.BigInteger(longVal.toString()));
 			case XQBASETYPE_NEGATIVE_INTEGER: if (value < 0) {
-					return new BagriXQItem(type, new java.math.BigInteger(longVal.toString()));
+					return new BagriXQItem(processor, type, new java.math.BigInteger(longVal.toString()));
 				}
 				break;
 			case XQBASETYPE_NONNEGATIVE_INTEGER: if (value >= 0) {
-					return new BagriXQItem(type, new java.math.BigInteger(longVal.toString()));
+					return new BagriXQItem(processor, type, new java.math.BigInteger(longVal.toString()));
 				}
 				break;
 			case XQBASETYPE_NONPOSITIVE_INTEGER: if (value <= 0) {
-					return new BagriXQItem(type, new java.math.BigInteger(longVal.toString()));
+					return new BagriXQItem(processor, type, new java.math.BigInteger(longVal.toString()));
 				}
 				break;
 			case XQBASETYPE_POSITIVE_INTEGER: if (value > 0) {
-					return new BagriXQItem(type, new java.math.BigInteger(longVal.toString()));
+					return new BagriXQItem(processor, type, new java.math.BigInteger(longVal.toString()));
 				}
 				break; 
 			
 			case XQBASETYPE_UNSIGNED_BYTE: if (value >= 0 && value <= Short.MAX_VALUE) { 
-					return new BagriXQItem(type, longVal.shortValue());
+					return new BagriXQItem(processor, type, longVal.shortValue());
 				}
 				break;
 			case XQBASETYPE_UNSIGNED_INT: if (value >= 0) {
-					return new BagriXQItem(type, longVal); 
+					return new BagriXQItem(processor, type, longVal); 
 				}
 				break;
 			case XQBASETYPE_UNSIGNED_LONG: if (value >= 0) {
-					return new BagriXQItem(type, new java.math.BigInteger(longVal.toString()));
+					return new BagriXQItem(processor, type, new java.math.BigInteger(longVal.toString()));
 				}
 				break;
 			case XQBASETYPE_UNSIGNED_SHORT: if (value >= 0 && value <= Integer.MAX_VALUE) {
-					return new BagriXQItem(type, longVal.intValue());
+					return new BagriXQItem(processor, type, longVal.intValue());
 				}
 		}
 		throw new XQException("wrong long type: " + type + "(" + type.getBaseType() + ")");
@@ -538,12 +504,12 @@ public class BagriXQDataFactory implements XQDataFactory {
 			throw new XQException("value is null");
 		}
 		if (type == null) {
-			return new BagriXQItem(createNodeType(), value); 
+			return new BagriXQItem(processor, createNodeType(), value); 
 		} else { 
 			if (!((BagriXQItemType) type).isNodeCompatible(value)) {
 				throw new XQException("Node type and value are not compatible");
 			} 
-			return new BagriXQItem(type, value); 
+			return new BagriXQItem(processor, type, value); 
 		}
 	}
 
@@ -566,7 +532,7 @@ public class BagriXQDataFactory implements XQDataFactory {
 				throw new XQException("Value is not compatible");
 			} 
 		}
-		return new BagriXQItem(type, value);
+		return new BagriXQItem(processor, type, value);
 	}
 
 	@Override
@@ -576,52 +542,52 @@ public class BagriXQDataFactory implements XQDataFactory {
 			throw new XQException("Connection is closed");
 		}
 		if (type == null) {
-			return new BagriXQItem(new BagriXQItemType(XQBASETYPE_SHORT, XQITEMKIND_ATOMIC, null, getTypeName(XQBASETYPE_SHORT), false, null), value);
+			return new BagriXQItem(processor, new BagriXQItemType(XQBASETYPE_SHORT, XQITEMKIND_ATOMIC, null, getTypeName(XQBASETYPE_SHORT), false, null), value);
 		}
 
 		Short shortVal = new Short(value);
 		switch (type.getBaseType()) {
 			case XQBASETYPE_BYTE: if (value >= Byte.MIN_VALUE && value <= Byte.MAX_VALUE) {
-					return new BagriXQItem(type, shortVal.byteValue());
+					return new BagriXQItem(processor, type, shortVal.byteValue());
 				}
 				break;
-			case XQBASETYPE_SHORT: return new BagriXQItem(type, value); 
-			case XQBASETYPE_INT: return new BagriXQItem(type, new Integer(value));
-	    	case XQBASETYPE_LONG: return new BagriXQItem(type, new Long(value));
-			case XQBASETYPE_DECIMAL: return new BagriXQItem(type, new java.math.BigDecimal(value));
+			case XQBASETYPE_SHORT: return new BagriXQItem(processor, type, value); 
+			case XQBASETYPE_INT: return new BagriXQItem(processor, type, new Integer(value));
+	    	case XQBASETYPE_LONG: return new BagriXQItem(processor, type, new Long(value));
+			case XQBASETYPE_DECIMAL: return new BagriXQItem(processor, type, new java.math.BigDecimal(value));
 
-			case XQBASETYPE_INTEGER: return new BagriXQItem(type, new java.math.BigInteger(String.valueOf(value)));
+			case XQBASETYPE_INTEGER: return new BagriXQItem(processor, type, new java.math.BigInteger(String.valueOf(value)));
 			case XQBASETYPE_NEGATIVE_INTEGER: if (value < 0) {
-					return new BagriXQItem(type, new java.math.BigInteger(String.valueOf(value)));
+					return new BagriXQItem(processor, type, new java.math.BigInteger(String.valueOf(value)));
 				}
 				break;
 			case XQBASETYPE_NONNEGATIVE_INTEGER: if (value >= 0) {
-					return new BagriXQItem(type, new java.math.BigInteger(String.valueOf(value)));
+					return new BagriXQItem(processor, type, new java.math.BigInteger(String.valueOf(value)));
 				}
 				break;
 			case XQBASETYPE_NONPOSITIVE_INTEGER: if (value <= 0) {
-					return new BagriXQItem(type, new java.math.BigInteger(String.valueOf(value)));
+					return new BagriXQItem(processor, type, new java.math.BigInteger(String.valueOf(value)));
 				}
 				break;
 			case XQBASETYPE_POSITIVE_INTEGER: if (value > 0) {
-					return new BagriXQItem(type, new java.math.BigInteger(String.valueOf(value)));
+					return new BagriXQItem(processor, type, new java.math.BigInteger(String.valueOf(value)));
 				}
 				break; 
 			
 			case XQBASETYPE_UNSIGNED_BYTE: if (value >= 0) { 
-					return new BagriXQItem(type, value);
+					return new BagriXQItem(processor, type, value);
 				}
 				break;
 			case XQBASETYPE_UNSIGNED_INT: if (value >= 0) {
-					return new BagriXQItem(type, new Integer(value)); 
+					return new BagriXQItem(processor, type, new Integer(value)); 
 				}
 				break;
 			case XQBASETYPE_UNSIGNED_LONG: if (value >= 0) {
-					return new BagriXQItem(type, new java.math.BigInteger(String.valueOf(value)));
+					return new BagriXQItem(processor, type, new java.math.BigInteger(String.valueOf(value)));
 				}
 				break;
 			case XQBASETYPE_UNSIGNED_SHORT: if (value >= 0) {
-					return new BagriXQItem(type, new Integer(value));
+					return new BagriXQItem(processor, type, new Integer(value));
 				}
 		}
 		throw new XQException("wrong short type: " + type + "(" + type.getBaseType() + ")");
@@ -644,38 +610,38 @@ public class BagriXQDataFactory implements XQDataFactory {
 			case XQBASETYPE_NOTATION:  
 			case XQBASETYPE_STRING: 
 			case XQBASETYPE_UNTYPEDATOMIC: 
-				return new BagriXQItem(type, value);
+				return new BagriXQItem(processor, type, value);
 				
 			case XQBASETYPE_ID: if (Id.isValid(value)) {
-					return new BagriXQItem(type, value);
+					return new BagriXQItem(processor, type, value);
 				}
 				break;
 			case XQBASETYPE_NAME: if (Name.isValid(value)) {
-					return new BagriXQItem(type, value);
+					return new BagriXQItem(processor, type, value);
 				}
 				break;
 			case XQBASETYPE_ENTITY: 
 			case XQBASETYPE_ENTITIES: 
 			case XQBASETYPE_IDREF: 
 			case XQBASETYPE_NCNAME: if (NCName.isValid(value)) {
-					return new BagriXQItem(type, value);
+					return new BagriXQItem(processor, type, value);
 				}
 				//throw new XQException("can't convert string \"" + value + "\" to type " + type);
 				break;
 			case XQBASETYPE_NMTOKEN: if (NMToken.isValid(value)) {
-					return new BagriXQItem(type, value);
+					return new BagriXQItem(processor, type, value);
 				}
 				break;
 			case XQBASETYPE_NORMALIZED_STRING: if (NormalizedString.isValid(value)) {
-					return new BagriXQItem(type, value);
+					return new BagriXQItem(processor, type, value);
 				}
 				break;
 			case XQBASETYPE_TOKEN: if (Token.isValid(value)) {
-					return new BagriXQItem(type, value);
+					return new BagriXQItem(processor, type, value);
 				}
 				break;
 		}
-		throw new XQException("wrong string type: " + type + "(" + type.getBaseType() + ")");
+		throw new XQException("wrong string value: " + value + " for type: " + type);
 	}
 
 	@Override
@@ -809,4 +775,5 @@ public class BagriXQDataFactory implements XQDataFactory {
 		return new BagriXQItemType(XQBASETYPE_UNTYPED, XQITEMKIND_TEXT, null, getTypeName(XQBASETYPE_UNTYPED), false, null);
 	}
 
+	
 }

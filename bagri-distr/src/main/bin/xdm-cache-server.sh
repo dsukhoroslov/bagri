@@ -5,31 +5,6 @@
 # vim:ft=sh:
 #
 
-##################################################
-# JVM config parameters
-##################################################
-
-jmx_port=$(( 6200 + $nodeNum ))
-
-main='com.bagri.xdm.hzcache.XDMCacheServer'
-JAVA_OPTS="\
--Xms4096m \
--Xmx4096m \
--XX:NewSize=128m \
--XX:MaxNewSize=128m \
--XX:+ExplicitGCInvokesConcurrent \
--XX:+UseParNewGC \
--XX:+UseConcMarkSweepGC \
--XX:+CMSIncrementalMode \
--Dlogback.configurationFile=xdm-cache-logging.xml
--Dcom.sun.management.jmxremote.authenticate=false \
--Dcom.sun.management.jmxremote.ssl=false \
--Dcom.sun.management.jmxremote \
--Dcom.sun.management.jmxremote.port=${jmx_port} \
-"
-##################################################
-
-
 appname="`basename $0`"
 appname=${appname/\.sh/}
 apphome="`cd \`dirname $0\`/.. && pwd && cd - >/dev/null`"
@@ -75,7 +50,6 @@ done
 
 . "${apphome}/bin/${appname}.conf"
 
-
 export CLASSPATH
 
 backupdir="${apphome}/backup"
@@ -84,6 +58,7 @@ rundir="${apphome}/run"
 
 mkdir -p "${backupdir}"
 mkdir -p "${logdir}"
+mkdir -p "${logdir}/gc"
 mkdir -p "${rundir}"
 
 stdoutfile="${logdir}/${appname}_${HOSTNAME}_${nodeNum}.out"
@@ -118,7 +93,7 @@ start() {
         JAVA_OPTS="${JAVA_OPTS} -Dcom.db.application.name=${appname}"
 	JAVA_OPTS="${JAVA_OPTS} -Dcom.db.host.name=`hostname -f 2>/dev/null || hostname`"
 	JAVA_OPTS="${JAVA_OPTS} -Dcom.db.node.num=${nodeNum}"
-	JAVA_OPTS="${JAVA_OPTS} -DLOGDIR=${logdir}"
+#	JAVA_OPTS="${JAVA_OPTS} -DLOGDIR=${logdir}"
         ${JAVA_HOME}/bin/java ${JAVA_OPTS} "${main}" </dev/null >>"${stdoutfile}" 2>>"${stderrfile}" &
         echo $! >"${pidfile}"
 

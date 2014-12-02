@@ -346,4 +346,15 @@ public class BagriXQMetaData implements XQMetaData, XQMetaData2 {
 		return false;
 	}
 
+	@Override
+	public boolean isXASupported() throws XQException {
+
+		if (connect.isClosed()) {
+			throw new XQException("Connection is closed");
+		}
+		
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 }

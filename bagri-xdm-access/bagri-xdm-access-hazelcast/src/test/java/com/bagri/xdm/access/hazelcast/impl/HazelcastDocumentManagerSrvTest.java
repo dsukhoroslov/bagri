@@ -23,12 +23,12 @@ public class HazelcastDocumentManagerSrvTest extends XDMDocumentManagerTest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		//System.setProperty("hazelcast.config", "hazelcast/hazelcast.xml");
-		System.setProperty(PN_SERVER_ADDRESS, "localhost:10000");
+		System.setProperty(PN_SERVER_ADDRESS, "localhost:10500");
 		System.setProperty(PN_POOL_SIZE, "10");
 		System.setProperty(PN_CACHE_MODE, PV_MODE_CLIENT);
-		System.setProperty(PN_SCHEMA_NAME, "TPoX");
-		System.setProperty(PN_SCHEMA_PASS, "TPoX");
-		sampleRoot = "C:\\Work\\Bagri\\project\\trunk\\etc\\samples\\";
+		System.setProperty(PN_SCHEMA_NAME, "TPoX2");
+		System.setProperty(PN_SCHEMA_PASS, "TPoX2");
+		sampleRoot = "..\\..\\etc\\samples\\data\\";
 	}
 
 	@AfterClass
@@ -38,7 +38,7 @@ public class HazelcastDocumentManagerSrvTest extends XDMDocumentManagerTest {
 
 	@Before
 	public void setUp() throws Exception {
-		dMgr = new HazelcastDocumentManager();
+		dMgr = new DocumentManagementClient();
 		mDictionary = dMgr.getSchemaDictionary();
 
 		storeSecurityTest();

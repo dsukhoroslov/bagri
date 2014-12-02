@@ -19,7 +19,10 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+
 import static javax.xml.xquery.XQConstants.*;
+
+import javax.xml.xquery.XQConstants;
 import javax.xml.xquery.XQDataFactory;
 import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQItem;
@@ -33,7 +36,9 @@ import org.w3c.dom.Node;
 import net.sf.saxon.Configuration;
 import net.sf.saxon.dom.NodeOverNodeInfo;
 import net.sf.saxon.expr.JPConverter;
+import net.sf.saxon.expr.instruct.GlobalParameterSet;
 import net.sf.saxon.expr.instruct.GlobalVariable;
+import net.sf.saxon.lib.FeatureKeys;
 import net.sf.saxon.lib.Validation;
 import net.sf.saxon.om.StructuredQName;
 import net.sf.saxon.query.DynamicQueryContext;
@@ -44,27 +49,26 @@ import net.sf.saxon.trans.XPathException;
 import net.sf.saxon.value.ObjectValue;
 
 import com.bagri.xdm.access.api.XDMDocumentManagement;
+
 import static com.bagri.xqj.BagriXQConstants.*;
+
 import com.bagri.xquery.api.XQProcessorBase;
 import com.bagri.xquery.saxon.extension.RemoveDocument;
 import com.bagri.xquery.saxon.extension.StoreDocument;
 
 public abstract class SaxonXQProcessor extends XQProcessorBase {
 
-    protected final Logger logger = LoggerFactory.getLogger(getClass());
-
     protected Configuration config;
     protected StaticQueryContext sqc;
     protected DynamicQueryContext dqc;
     
-    protected XQDataFactory xqFactory;
-    
     protected Properties properties = new Properties();
     
     public SaxonXQProcessor() {
-        config = new Configuration();
+        config = Configuration.newConfiguration();
         config.setHostLanguage(Configuration.XQUERY);
         config.setSchemaValidationMode(Validation.STRIP);
+        //config.setConfigurationProperty(FeatureKeys.PRE_EVALUATE_DOC_FUNCTION, Boolean.TRUE);
         sqc = config.newStaticQueryContext();
         // supported in Saxon-EE only
         //sqc.setUpdatingEnabled(true);
@@ -93,15 +97,18 @@ public abstract class SaxonXQProcessor extends XQProcessorBase {
     
     protected void setStaticContext(StaticQueryContext sqc, XQStaticContext ctx) throws XQException {
     	sqc.setBaseURI(ctx.getBaseURI());
+    	// !!
         sqc.setSchemaAware(false);
-        //sqc.setConstructionMode(constructionModeIsPreserve ? Validation.PRESERVE : Validation.STRIP);
-    	//sqc.setConstructionMode(ctx.getConstructionMode());
-    	sqc.setConstructionMode(Validation.STRIP);
+    	if (ctx.getConstructionMode() == CONSTRUCTION_MODE_PRESERVE) {
+    		sqc.setConstructionMode(Validation.PRESERVE);
+    	} else {
+    		sqc.setConstructionMode(Validation.STRIP);
+    	}
+    	sqc.setPreserveBoundarySpace(ctx.getBoundarySpacePolicy() == BOUNDARY_SPACE_PRESERVE);
     	sqc.setDefaultElementNamespace(ctx.getDefaultElementTypeNamespace());
     	sqc.setDefaultFunctionNamespace(ctx.getDefaultFunctionNamespace());
         //sqc.setEmptyLeast(emptyLeast);
     	sqc.setInheritNamespaces(ctx.getCopyNamespacesModeInherit() == COPY_NAMESPACES_MODE_INHERIT);
-    	//sqc.setPreserveBoundarySpace(preserve);
     	sqc.setPreserveNamespaces(ctx.getCopyNamespacesModePreserve() == COPY_NAMESPACES_MODE_PRESERVE);
     	sqc.clearNamespaces();
     	String[] prefixes = ctx.getNamespacePrefixes();
@@ -110,27 +117,31 @@ public abstract class SaxonXQProcessor extends XQProcessorBase {
     	}
     	sqc.declareDefaultCollation(ctx.getDefaultCollation());
     	//...
-    	
+
+    	// ctx.getContextItemStaticType() -> contextItemStaticType
         //if (contextItemStaticType != null) {
         //    sqc.setRequiredContextItemType(contextItemStaticType.getSaxonItemType());
         //}
     }
     
     protected void setStaticContext(StaticQueryContext sqc, Properties props) throws XQException {
-    	String baseUri = props.getProperty(pn_baseURI);
-    	if (baseUri != null && baseUri.length() > 0) {
+		logger.trace("setStaticContext.enter; got props: {}", props);
+    	//String baseUri = props.getProperty(pn_baseURI);
+    	//if (baseUri != null && baseUri.length() > 0) {
     		sqc.setBaseURI(props.getProperty(pn_baseURI));
-    		logger.debug("setStaticContext; baseURI: {}", sqc.getBaseURI());
-    	}
+    	//}
+       	// !!
         sqc.setSchemaAware(false);
-        //sqc.setConstructionMode(constructionModeIsPreserve ? Validation.PRESERVE : Validation.STRIP);
-    	//sqc.setConstructionMode(ctx.getConstructionMode());
-    	sqc.setConstructionMode(Validation.STRIP);
-    	sqc.setDefaultElementNamespace(props.getProperty(pn_defaultElementTypeNamespace));
+        if (String.valueOf(CONSTRUCTION_MODE_PRESERVE).equals(props.getProperty(pn_constructionMode))) {
+    		sqc.setConstructionMode(Validation.PRESERVE);
+    	} else {
+    		sqc.setConstructionMode(Validation.STRIP);
+        }
+    	sqc.setPreserveBoundarySpace(String.valueOf(BOUNDARY_SPACE_PRESERVE).equals(props.getProperty(pn_boundarySpacePolicy)));
+        sqc.setDefaultElementNamespace(props.getProperty(pn_defaultElementTypeNamespace));
     	sqc.setDefaultFunctionNamespace(props.getProperty(pn_defaultFunctionNamespace));
         //sqc.setEmptyLeast(emptyLeast);
     	sqc.setInheritNamespaces(String.valueOf(COPY_NAMESPACES_MODE_INHERIT).equals(props.getProperty(pn_copyNamespacesModeInherit)));
-    	//sqc.setPreserveBoundarySpace(preserve);
     	sqc.setPreserveNamespaces(String.valueOf(COPY_NAMESPACES_MODE_PRESERVE).equals(props.getProperty(pn_copyNamespacesModePreserve)));
     	sqc.clearNamespaces();
     	Map<String, String> namespaces = (Map<String, String>) props.get(pn_defaultNamespaces);
@@ -140,8 +151,10 @@ public abstract class SaxonXQProcessor extends XQProcessorBase {
     		}
     	}
     	sqc.declareDefaultCollation(props.getProperty(pn_defaultCollationUri));
+		logger.trace("setStaticContext.exit; built context: {}; base URI: {}", sqc, sqc.getBaseURI());
     	//...
     	
+    	// ctx.getContextItemStaticType() -> contextItemStaticType
         //if (contextItemStaticType != null) {
         //    sqc.setRequiredContextItemType(contextItemStaticType.getSaxonItemType());
         //}
@@ -170,11 +183,6 @@ public abstract class SaxonXQProcessor extends XQProcessorBase {
     	super.setXdmManager(mgr);
         config.registerExtensionFunction(new StoreDocument(mgr));
         config.registerExtensionFunction(new RemoveDocument(mgr));
-    }
-    
-    //@Override
-    public void setXQDataFactory(XQDataFactory xqFactory) {
-    	this.xqFactory = xqFactory;
     }
     
 	//@Override
@@ -229,9 +237,18 @@ public abstract class SaxonXQProcessor extends XQProcessorBase {
     
 	//@Override
     public void unbindVariable(QName varName) throws XQException {
-		logger.trace("unbindVariable.enter; numberOfKeys: {}; unbind: {}", dqc.getParameters().getNumberOfKeys(), varName);
+		//logger.trace("unbindVariable.enter; numberOfKeys: {}; unbind: {}", dqc.getParameters().getNumberOfKeys(), varName);
         dqc.setParameter(getClarkName(varName), null);
-		logger.trace("unbindVariable.exit; numberOfKeys: {}", dqc.getParameters().getNumberOfKeys());
+		//logger.trace("unbindVariable.exit; numberOfKeys: {}", dqc.getParameters().getNumberOfKeys());
+    }
+    
+    protected Map<String, Object> getParams() {
+    	Map<String, Object> params = new HashMap<String, Object>(dqc.getParameters().getNumberOfKeys());
+    	GlobalParameterSet pset = dqc.getParameters();
+    	for (StructuredQName name: pset.getKeys()) {
+    		params.put(name.getClarkName(), pset.get(name));
+    	}
+    	return params;
     }
     
     private static String getClarkName(QName qname) {

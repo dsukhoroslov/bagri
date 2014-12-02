@@ -6,8 +6,16 @@ public class SimpleIdGenerator implements IdGenerator<Long> {
 
 	private final AtomicLong id;
 	
+	public SimpleIdGenerator() {
+		this(0);
+	}
+	
 	public SimpleIdGenerator(long start) {
 		id = new AtomicLong(start);
+	}
+	
+	public SimpleIdGenerator(AtomicLong id) {
+		this.id = id;
 	}
 	
 	@Override
@@ -17,8 +25,12 @@ public class SimpleIdGenerator implements IdGenerator<Long> {
 
 	@Override
 	public Long[] nextRange(int size) {
-		long end = id.addAndGet(size);
-		return new Long[] {end - size + 1, end};
+		Long[] result = new Long[size];
+		long current = id.getAndAdd(size);
+		for (int i=1; i <= size; i++) {
+			result[i] = current + 1;
+		}
+		return result; 
 	}
 
 }

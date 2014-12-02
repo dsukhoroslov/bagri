@@ -2,6 +2,8 @@ package com.bagri.xquery.saxon.extension;
 
 import com.bagri.xdm.access.api.XDMDocumentManagement;
 import com.bagri.xdm.domain.XDMDocument;
+import static com.bagri.xqj.BagriXQConstants.bg_ns;
+import static com.bagri.xqj.BagriXQConstants.bg_schema;
 
 import net.sf.saxon.expr.XPathContext;
 import net.sf.saxon.lib.ExtensionFunctionCall;
@@ -11,7 +13,7 @@ import net.sf.saxon.om.StructuredQName;
 import net.sf.saxon.trans.XPathException;
 import net.sf.saxon.value.Int64Value;
 import net.sf.saxon.value.SequenceType;
-import net.sf.saxon.value.StringValue;
+//import net.sf.saxon.value.StringValue;
 
 public class StoreDocument extends ExtensionFunctionDefinition {
 	
@@ -23,7 +25,7 @@ public class StoreDocument extends ExtensionFunctionDefinition {
 
 	@Override
 	public StructuredQName getFunctionQName() {
-		return new StructuredQName("bgdm", "http://bagri.com/bagri-xdm", "store-document");
+		return new StructuredQName(bg_schema, bg_ns, "store-document");
 	}
 
 	@Override
@@ -33,7 +35,7 @@ public class StoreDocument extends ExtensionFunctionDefinition {
 
 	@Override
 	public SequenceType getResultType(SequenceType[] suppliedArgumentTypes) {
-		return SequenceType.SINGLE_STRING;
+		return SequenceType.SINGLE_NUMERIC;
 	}
 
 	@Override
@@ -47,7 +49,7 @@ public class StoreDocument extends ExtensionFunctionDefinition {
 				String xml = arguments[0].head().getStringValue();
 				// validate document ?
 				XDMDocument doc = xdm.storeDocument(xml);
-				return new StringValue(doc.getUri());
+				return new Int64Value(doc.getDocumentId());
 			}
         };
 	} 

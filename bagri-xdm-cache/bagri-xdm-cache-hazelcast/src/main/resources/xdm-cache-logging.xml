@@ -6,21 +6,21 @@
     
     <!--contextName>xdm-cache</contextName-->
 
-    <if condition='isDefined("node.instance")'>
-        <then>
-            <property name="suffix" value="${node.instance}"/>
-        </then>
-        <else>
-            <timestamp key="suffix" datePattern="yyyyMMdd'T'HHmmss"/>
-        </else>
-    </if>
-
     <if condition='isDefined("node.name")'>
         <then>
             <property name="prefix" value="${node.name}"/>
         </then>
         <else>
             <property name="prefix" value="xdm"/>
+        </else>
+    </if>
+
+    <if condition='isDefined("node.instance")'>
+        <then>
+            <property name="suffix" value="${node.instance}"/>
+        </then>
+        <else>
+            <timestamp key="suffix" datePattern="yyyyMMdd'T'HHmmss"/>
         </else>
     </if>
 
@@ -50,26 +50,34 @@
 
 
     <logger name="com.bagri">
-        <level value="trace"/>
+        <level value="${xdm.log.level}"/>
     </logger>
 
-    <logger name="com.bagri.xdm.cache.factory">
-        <level value="debug"/>
-    </logger>
+    <!--logger name="com.bagri.xdm.cache.factory">
+        <level value="${xdm.log.level}"/>
+    </logger-->
 
-    <logger name="com.bagri.xdm.cache.process.XDMDataProcessor">
+    <!--logger name="com.bagri.xdm.cache.hazelcast.security.BagriJAASInvocationHandler">
         <level value="debug"/>
-    </logger>
+    </logger-->
 
-    <logger name="com.bagri.xdm.cache.hazelcast.security.BagriJAASInvocationHandler">
+    <!--logger name="com.bagri.xdm.cache.hazelcast.store.DummyCacheStore"-->
+    <!--logger name="com.bagri.xdm.cache.hazelcast.store">
         <level value="debug"/>
-    </logger>
+    </logger-->
+
+    <!--logger name="com.bagri.xdm.cache.process.XDMDataProcessor">
+        <level value="debug"/>
+    </logger-->
 
     <logger name="com.hazelcast">
         <level value="info"/>
     </logger>
 
     <logger name="org.springframework.core.env">
+        <level value="info"/>
+    </logger>
+    <logger name="org.springframework.beans.factory.annotation.InjectionMetadata">
         <level value="info"/>
     </logger>
     <logger name="org.springframework.beans.factory.support.DefaultListableBeanFactory">
@@ -87,6 +95,7 @@
     <logger name="org.springframework.jdbc.support.JdbcUtils">
         <level value="info"/>
     </logger>
+
 
     <root>
         <level value="debug"/>

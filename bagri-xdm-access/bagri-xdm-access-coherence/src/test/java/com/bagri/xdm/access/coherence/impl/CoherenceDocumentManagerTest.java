@@ -13,7 +13,7 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 
-import com.bagri.xdm.access.coherence.impl.CoherenceDocumentManager;
+import com.bagri.xdm.access.coherence.impl.DocumentManagementClient;
 import com.bagri.xdm.access.coherence.process.DocumentBuilder;
 import com.bagri.xdm.access.test.XDMDocumentManagerTest;
 import com.bagri.xdm.common.XDMDataKey;
@@ -64,7 +64,7 @@ public class CoherenceDocumentManagerTest extends XDMDocumentManagerTest {
 	
 	@Before
 	public void setUp() throws Exception {
-		dMgr = new CoherenceDocumentManager();
+		dMgr = new DocumentManagementClient();
 		mDictionary = dMgr.getSchemaDictionary();
 		
 		storeSecurityTest();

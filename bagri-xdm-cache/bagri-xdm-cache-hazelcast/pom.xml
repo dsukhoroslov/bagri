@@ -18,12 +18,13 @@
         <!-- Note: don't do it too long! it forces line wrapping! -->
 
         <!--switch the args0 code for debug-->
-        <run.jvm.args0></run.jvm.args0>
+        <run.jvm.args0>-Xverify:none</run.jvm.args0>
         <!--<run.jvm.args0>-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005</run.jvm.args0>-->
         <run.jvm.args1>-server -XX:NewSize=256m -XX:MaxNewSize=256m -XX:PermSize=256m -XX:MaxPermSize=256m -XX:+ExplicitGCInvokesConcurrent -XX:+UnlockDiagnosticVMOptions -XX:ParGCCardsPerStrideChunk=2048</run.jvm.args1>
         <run.jvm.args2>-XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:+CMSScavengeBeforeRemark -XX:+CMSConcurrentMTEnabled</run.jvm.args2>
 	<!-- -XX:+UseCMSInitiatingOccupancyOnly -XX:CMSInitiatingOccupancyFraction=70 -->
-        <run.jvm.args3>-XX:+PrintGC -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+HeapDumpOnOutOfMemoryError -Xloggc:./logs/gc/gc.log -XX:GCLogFileSize=50M -XX:NumberOfGCLogFiles=10 -XX:+UseGCLogFileRotation</run.jvm.args3>
+	<!-- -XX:GCLogFileSize=50M -XX:NumberOfGCLogFiles=10 -XX:+UseGCLogFileRotation -->
+        <run.jvm.args3>-XX:+PrintGC -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+HeapDumpOnOutOfMemoryError -Xloggc:./logs/gc/gc.log</run.jvm.args3>
     </properties>
 
     <dependencies>
@@ -50,10 +51,10 @@
                 </exclusion>
             </exclusions-->
         </dependency>
-        <dependency>
+        <!--dependency>
             <groupId>com.sdv.bagri</groupId>
             <artifactId>bagri-xdm-process-hazelcast</artifactId>
-        </dependency>
+        </dependency-->
 
         <dependency>
             <groupId>com.sdv.bagri</groupId>
@@ -66,7 +67,6 @@
         <dependency>
             <groupId>com.sdv.bagri</groupId>
             <artifactId>bagri-xquery-saxon</artifactId>
-            <scope>runtime</scope>
         </dependency>
         <!--dependency>
             <groupId>com.sdv.bagri</groupId>
@@ -206,6 +206,7 @@
                                             <sysproperty key="java.security.auth.login.config"
                                                          value="${project.basedir}/src/main/resources/jaas.config"/-->
                                             <sysproperty key="logback.configurationFile" value="xdm-cache-logging.xml"/>
+                                            <sysproperty key="xdm.log.level" value="trace"/>
                                             <sysproperty key="xdm.config.path" value="src/main/resources"/>
                                             <sysproperty key="xdm.config.context.file" value="spring/system-admin-context.xml"/>
 					    <sysproperty key="xdm.config.properties.file" value="xdm-admin.properties"/>
@@ -239,9 +240,11 @@
                                             <sysproperty key="com.sun.management.jmxremote.authenticate" value="false"/>
                                             <sysproperty key="com.sun.management.jmxremote.ssl" value="false"/-->
                                             <sysproperty key="logback.configurationFile" value="xdm-cache-logging.xml"/>
+                                            <sysproperty key="xdm.log.level" value="debug"/>
                                             <sysproperty key="xdm.config.path" value="src/main/resources"/>
                                             <sysproperty key="xdm.config.context.file" value="spring/system-server-context.xml"/>
 					    <sysproperty key="xdm.config.properties.file" value="xdm-server.properties"/>
+					    <sysproperty key="xdm.config.filename" value="test_config.xml"/>
                                             <classpath>
                                                 <path refid="maven.compile.classpath"/>
                                                 <path refid="maven.runtime.classpath"/>
@@ -262,15 +265,80 @@
                                 <configuration>
                                     <tasks if="run-second">
                                         <java fork="true" classname="com.bagri.xdm.cache.hazelcast.XDMCacheServer">
-                                            <jvmarg line="-Xms1g -Xmx5g ${run.jvm.args0} ${run.jvm.args1} ${run.jvm.args2} ${run.jvm.args3}"/>
+                                            <jvmarg line="-Xms1g -Xmx4g ${run.jvm.args0} ${run.jvm.args1} ${run.jvm.args2} ${run.jvm.args3}"/>
                                             <sysproperty key="node.logdir" value="./logs"/>
                                             <!--sysproperty key="com.sun.management.jmxremote" value="true"/>
                                             <sysproperty key="com.sun.management.jmxremote.authenticate" value="false"/>
                                             <sysproperty key="com.sun.management.jmxremote.ssl" value="false"/-->
                                             <sysproperty key="logback.configurationFile" value="xdm-cache-logging.xml"/>
+                                            <sysproperty key="xdm.log.level" value="trace"/>
                                             <sysproperty key="xdm.config.path" value="src/main/resources"/>
                                             <sysproperty key="xdm.config.context.file" value="spring/system-server-context.xml"/>
 					    <sysproperty key="xdm.config.properties.file" value="xdm-second.properties"/>
+					    <!--sysproperty key="xdm.config.filename" value="test_config.xml"/-->
+                                            <classpath>
+                                                <path refid="maven.compile.classpath"/>
+                                                <path refid="maven.runtime.classpath"/>
+                                                <pathelement location="config/"/>
+                                            </classpath>
+                                        </java>
+                                    </tasks>
+                                </configuration>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                            </execution>
+
+                            <!-- Run XDM Cache server mvn -Drun-cache -->
+                            <execution>
+                                <id>run-third</id>
+                                <phase>test</phase>
+                                <configuration>
+                                    <tasks if="run-third">
+                                        <java fork="true" classname="com.bagri.xdm.cache.hazelcast.XDMCacheServer">
+                                            <jvmarg line="-Xms1g -Xmx3g ${run.jvm.args0} ${run.jvm.args1} ${run.jvm.args2} ${run.jvm.args3}"/>
+                                            <sysproperty key="node.logdir" value="./logs"/>
+                                            <sysproperty key="node.name" value="third"/>
+                                            <!--sysproperty key="com.sun.management.jmxremote" value="true"/>
+                                            <sysproperty key="com.sun.management.jmxremote.authenticate" value="false"/>
+                                            <sysproperty key="com.sun.management.jmxremote.ssl" value="false"/-->
+                                            <sysproperty key="logback.configurationFile" value="xdm-cache-logging.xml"/>
+                                            <sysproperty key="xdm.log.level" value="info"/>
+                                            <sysproperty key="xdm.config.path" value="src/main/resources"/>
+                                            <sysproperty key="xdm.config.context.file" value="spring/system-server-context.xml"/>
+					    <sysproperty key="xdm.config.properties.file" value="xdm-third.properties"/>
+					    <sysproperty key="xdm.config.filename" value="test_config.xml"/>
+                                            <classpath>
+                                                <path refid="maven.compile.classpath"/>
+                                                <path refid="maven.runtime.classpath"/>
+                                                <pathelement location="config/"/>
+                                            </classpath>
+                                        </java>
+                                    </tasks>
+                                </configuration>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                            </execution>
+
+                            <!-- Run XDM Cache server mvn -Drun-cache -->
+                            <execution>
+                                <id>run-fourth</id>
+                                <phase>test</phase>
+                                <configuration>
+                                    <tasks if="run-fourth">
+                                        <java fork="true" classname="com.bagri.xdm.cache.hazelcast.XDMCacheServer">
+                                            <jvmarg line="-Xms1g -Xmx2g ${run.jvm.args0} ${run.jvm.args1} ${run.jvm.args2} ${run.jvm.args3}"/>
+                                            <sysproperty key="node.logdir" value="./logs"/>
+                                            <sysproperty key="node.name" value="fourth"/>
+                                            <!--sysproperty key="com.sun.management.jmxremote" value="true"/>
+                                            <sysproperty key="com.sun.management.jmxremote.authenticate" value="false"/>
+                                            <sysproperty key="com.sun.management.jmxremote.ssl" value="false"/-->
+                                            <sysproperty key="logback.configurationFile" value="xdm-cache-logging.xml"/>
+                                            <sysproperty key="xdm.log.level" value="trace"/>
+                                            <sysproperty key="xdm.config.path" value="src/main/resources"/>
+                                            <sysproperty key="xdm.config.context.file" value="spring/system-server-context.xml"/>
+					    <sysproperty key="xdm.config.properties.file" value="xdm-fourth.properties"/>
                                             <classpath>
                                                 <path refid="maven.compile.classpath"/>
                                                 <path refid="maven.runtime.classpath"/>

@@ -38,7 +38,6 @@
         <module>bagri-common</module>
         <module>bagri-xdm</module>
         <module>bagri-xdm-access</module>
-        <module>bagri-xdm-process</module>
         <module>bagri-xdm-cache</module>
         <module>bagri-xquery</module>
         <module>bagri-xqj</module>
@@ -54,7 +53,8 @@
         <jdk.version>1.7</jdk.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <spring.version>3.2.10.RELEASE</spring.version>
+        <!--spring.version>3.2.10.RELEASE</spring.version-->
+        <spring.version>4.1.1.RELEASE</spring.version>
         <spring.mongo.version>1.4.2.RELEASE</spring.mongo.version>
         <spring.hadoop.version>1.0.2.RELEASE</spring.hadoop.version>
 
@@ -68,10 +68,12 @@
         <oracle.ucp.version>11.2.0.1.0</oracle.ucp.version-->
 
         <xqj.version>1.0</xqj.version>
-        <xqj2.version>0.1.0</xqj2.version>
+        <xqj2.version>0.2.0</xqj2.version>
         <xerses.version>2.11.0</xerses.version>
         <axis.version>1.4</axis.version>
-        <saxon.version>9.5.1-3</saxon.version>
+        <saxon.version>9.5.1-8</saxon.version>
+        <!--saxon.version>9.6.0-1</saxon.version-->
+        <!--saxon.version>9.5.1-3</saxon.version-->
         <xmlbeans.version>2.6.0</xmlbeans.version>
         <jackson.version>2.3.2</jackson.version>
 
@@ -87,12 +89,12 @@
         <!--<jmxri.version>1.2.1</jmxri.version>-->
 
         <antlr.version>3.2</antlr.version>
-        <jcache.version>1.0.0-PFD</jcache.version>
-        <jcache.ri.version>0.8</jcache.ri.version>
-        <hazelcast.version>3.3</hazelcast.version>
-        <!--coherence.version>3.7.1.10</coherence.version-->
+        <jcache.version>1.0.0</jcache.version>
+        <!--jcache.ri.version>0.8</jcache.ri.version-->
+        <hazelcast.version>3.3.3</hazelcast.version>
+        <coherence.version>3.7.1.10</coherence.version>
         <!--coherence.version>12.1.2-0-0</coherence.version-->
-        <!--coherence-common.version>11.1.0</coherence-common.version-->
+        <coherence-common.version>11.1.0</coherence-common.version>
         <!--coherence-common.version>12.0.1-SNAPSHOT</coherence-common.version-->
         <!--coherence-spring.version>1.0.0</coherence-spring.version-->
         <mongo.version>2.11.4</mongo.version>
@@ -167,7 +169,7 @@
                 <artifactId>bagri-xdm-access-hazelcast</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            <dependency>
+            <!--dependency>
                 <groupId>com.sdv.bagri</groupId>
                 <artifactId>bagri-xdm-process-coherence</artifactId>
                 <version>${project.version}</version>
@@ -176,7 +178,7 @@
                 <groupId>com.sdv.bagri</groupId>
                 <artifactId>bagri-xdm-process-hazelcast</artifactId>
                 <version>${project.version}</version>
-            </dependency>
+            </dependency-->
             <!--dependency>
                 <groupId>com.sdv.bagri</groupId>
                 <artifactId>bagri-cache</artifactId>
@@ -366,12 +368,11 @@
                 <artifactId>cache-api</artifactId>
                 <version>${jcache.version}</version>
             </dependency>
-            <dependency>
+            <!--dependency>
                 <groupId>org.jsr107.ri</groupId>
                 <artifactId>cache-ri-impl</artifactId>
-                <!--artifactId>cache-ri</artifactId-->
                 <version>${jcache.ri.version}</version>
-            </dependency>
+            </dependency-->
 
             <dependency>
                 <groupId>com.hazelcast</groupId>
@@ -380,17 +381,17 @@
             </dependency>
             <dependency>
                 <groupId>com.hazelcast</groupId>
-                <artifactId>hazelcast-spring</artifactId>
+                <artifactId>hazelcast-client</artifactId>
                 <version>${hazelcast.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.hazelcast</groupId>
-                <artifactId>hazelcast-client</artifactId>
+                <artifactId>hazelcast-spring</artifactId>
                 <version>${hazelcast.version}</version>
             </dependency>
 
             <!-- Oracle dependencies -->
-            <dependency>
+            <!--dependency>
                 <groupId>com.oracle.coherence</groupId>
                 <artifactId>coherence</artifactId>
                 <version>${coherence.version}</version>
@@ -399,7 +400,7 @@
                 <groupId>com.oracle.coherence.incubator</groupId>
                 <artifactId>coherence-common</artifactId>
                 <version>${coherence-common.version}</version>
-            </dependency>
+            </dependency-->
             <!--dependency>
 		<groupId>com.oracle.coherence.spring</groupId>
 		<artifactId>coherence-spring</artifactId>

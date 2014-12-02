@@ -20,7 +20,7 @@ import static javax.xml.xquery.XQItemType.*;
 import org.w3c.dom.Node;
 import org.xml.sax.ContentHandler;
 
-//import com.bagri.xquery.api.XQProcessor;
+import com.bagri.xquery.api.XQProcessor;
 
 public abstract class BagriXQItemAccessor implements XQItemAccessor {
 	
@@ -28,8 +28,14 @@ public abstract class BagriXQItemAccessor implements XQItemAccessor {
 	protected Object value;
 	protected boolean positioned = false;
 	private boolean closed;
+	
+	private XQProcessor xqProcessor;
 
-	BagriXQItemAccessor() {
+	//BagriXQItemAccessor() {
+	//}
+	
+	BagriXQItemAccessor(XQProcessor xqProcessor) {
+		this.xqProcessor = xqProcessor;
 	}
 	
 	//BagriXQItemAccessor(XQItemType type, String value) {
@@ -51,6 +57,10 @@ public abstract class BagriXQItemAccessor implements XQItemAccessor {
 		this.type = type;
 		this.value = value;
 		this.positioned = true;
+	}
+	
+	XQProcessor getXQProcessor() {
+		return xqProcessor;
 	}
 	
 	@Override
@@ -191,7 +201,8 @@ public abstract class BagriXQItemAccessor implements XQItemAccessor {
 			throw new XQException("Item is closed");
 		}
 		
-		return BagriXQUtils.itemToString(value); //value.toString();
+		//return BagriXQUtils.itemToString(value); //value.toString();
+		return xqProcessor.convertToString(value);
 	}
 
 	@Override
@@ -268,7 +279,8 @@ public abstract class BagriXQItemAccessor implements XQItemAccessor {
 			throw new XQException("Value is not accessible");
 		}
         //return "<e>" + value.toString() + "</e>";
-		return BagriXQUtils.itemToString(value);
+		//return BagriXQUtils.itemToString(value);
+		return xqProcessor.convertToString(value);
 	}
 
 	@Override

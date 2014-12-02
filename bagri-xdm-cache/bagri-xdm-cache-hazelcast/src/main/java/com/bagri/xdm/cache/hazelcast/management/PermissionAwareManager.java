@@ -45,7 +45,7 @@ public abstract class PermissionAwareManager<P extends XDMPermissionAware> exten
 	@ManagedAttribute(description="Returns registered Role permissions")
 	public CompositeData getDirectPermissions() {
 		Map<String, Object> pMap = getEntity().getFlatPermissions();
-		return JMXUtils.propsToComposite(entityName, "permissions", pMap);
+		return JMXUtils.mapToComposite(entityName, "permissions", pMap);
 	}
 	
 	@ManagedAttribute(description="Returns included (nested) Roles")

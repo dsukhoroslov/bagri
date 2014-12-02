@@ -1,7 +1,9 @@
 package com.bagri.xquery.saxon;
 
 import java.math.BigInteger;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import javax.xml.xquery.XQItem;
 
@@ -9,18 +11,22 @@ import net.sf.saxon.dom.NodeOverNodeInfo;
 import net.sf.saxon.expr.Atomizer;
 import net.sf.saxon.expr.AxisExpression;
 import net.sf.saxon.expr.BinaryExpression;
+import net.sf.saxon.expr.Binding;
 import net.sf.saxon.expr.BindingReference;
 import net.sf.saxon.expr.BooleanExpression;
 import net.sf.saxon.expr.CastExpression;
 import net.sf.saxon.expr.Expression;
 import net.sf.saxon.expr.GeneralComparison10;
 import net.sf.saxon.expr.GeneralComparison20;
+import net.sf.saxon.expr.LetExpression;
 import net.sf.saxon.expr.Literal;
+import net.sf.saxon.expr.LocalVariableReference;
 import net.sf.saxon.expr.StringLiteral;
 import net.sf.saxon.expr.ValueComparison;
 import net.sf.saxon.expr.VariableReference;
 import net.sf.saxon.expr.XPathContext;
 import net.sf.saxon.expr.instruct.Block;
+import net.sf.saxon.expr.instruct.GeneralVariable;
 import net.sf.saxon.expr.parser.Token;
 import net.sf.saxon.lib.CollectionURIResolver;
 import net.sf.saxon.om.AxisInfo;
@@ -47,8 +53,10 @@ import net.sf.saxon.value.HexBinaryValue;
 import net.sf.saxon.value.Int64Value;
 import net.sf.saxon.value.ObjectValue;
 import net.sf.saxon.value.QualifiedNameValue;
-import net.sf.saxon.xqj.SaxonDuration;
-import net.sf.saxon.xqj.SaxonXMLGregorianCalendar;
+import net.sf.saxon.value.SaxonDuration;
+import net.sf.saxon.value.SaxonXMLGregorianCalendar;
+//import net.sf.saxon.xqj.SaxonDuration;
+//import net.sf.saxon.xqj.SaxonXMLGregorianCalendar;
 import static net.sf.saxon.om.StandardNames.*;
 
 import org.slf4j.Logger;
@@ -57,6 +65,7 @@ import org.slf4j.LoggerFactory;
 import com.bagri.common.query.AxisType;
 import com.bagri.common.query.Comparison;
 import com.bagri.common.query.ExpressionBuilder;
+import com.bagri.common.query.ExpressionContainer;
 import com.bagri.common.query.PathBuilder;
 import com.bagri.xdm.access.api.XDMDocumentManagement;
 import com.bagri.xdm.access.api.XDMSchemaDictionary;
@@ -73,31 +82,56 @@ public class BagriCollectionResolver implements CollectionURIResolver {
     private XPathContext ctx;
     private XQueryExpression exp;
     private XDMDocumentManagement mgr;
+    private ExpressionContainer ec;
 
     public BagriCollectionResolver(XDMDocumentManagement mgr) {
     	this.mgr = mgr;
     }
+    
+    ExpressionContainer getContainer() {
+    	// should return Container's copy!
+    	return this.ec;
+    }
+    
+    void setContainer(ExpressionContainer ec) {
+    	// copy it!
+		logger.trace("setContainer. got: {}", ec);
+    	this.ec = ec;
+    }
+
+	void setExpression(XQueryExpression exp) {
+		this.exp = exp;
+	}
 
 	@Override
 	public SequenceIterator<Item> resolve(String href, String base, XPathContext context) throws XPathException {
 		
-		logger.debug("resolve. href: {}; base: {}; context: {}", new Object[] {href, base, context});
-		//return EmptyIterator.getInstance();
-
+		logger.trace("resolve. href: {}; base: {}; context: {}", href, base, context);
 		this.ctx = context;
-		XDMSchemaDictionary dict = mgr.getSchemaDictionary();
-		String root = dict.normalizePath(href);
-		int docType = dict.getDocumentType(root);
-		
-		ExpressionBuilder eb = new ExpressionBuilder();
-		String path = iterate(docType, exp.getExpression(), new PathBuilder(), eb);
-		logger.debug("resolve; expressions: {}; path: {}", eb, path); 
-		// if (eb.size == 0) eb.addExpression(path, ..)
+		long stamp = System.currentTimeMillis();
 
-		BagriXDMIterator iter = new BagriXDMIterator(eb);
-		iter.setDataManager(mgr);
+		if (ec == null) {
+			int docType;
+			if (href == null) {
+				// means default collection: all schema documents
+				docType = -1;
+			} else {
+				XDMSchemaDictionary dict = mgr.getSchemaDictionary();
+				String root = dict.normalizePath(href);
+				docType = dict.getDocumentType(root);
+			}
+	
+			ec = new ExpressionContainer();
+			//Map<String, String> vars = new HashMap<String, String>();
+			String path = iterate(docType, exp.getExpression(), new PathBuilder()); //, vars);
+			//logger.trace("resolve; vars resolved: {}", vars); 
+		}
+		stamp = System.currentTimeMillis() - stamp;
+		logger.debug("resolve; time taken: {}; expressions: {}", stamp, ec); 
+
+		// provide builder's copy here..
+		BagriCollectionIterator iter = new BagriCollectionIterator(mgr, ec);
 		logger.trace("resolve. xdm: {}; returning iter: {}", mgr, iter);
-		//context.
 		return iter;
 	}
 	
@@ -128,15 +162,12 @@ public class BagriCollectionResolver implements CollectionURIResolver {
 			case AxisInfo.ANCESTOR_OR_SELF: return AxisType.ANCESTOR_OR_SELF;
 			case AxisInfo.ATTRIBUTE: return AxisType.ATTRIBUTE;
 			case AxisInfo.CHILD: return AxisType.CHILD; 
-				//path.append("/");
 			case AxisInfo.DESCENDANT: return AxisType.DESCENDANT; 
-				//path.append("//");
 			case AxisInfo.DESCENDANT_OR_SELF: return AxisType.DESCENDANT_OR_SELF;
 			case AxisInfo.FOLLOWING: return AxisType.FOLLOWING;
 			case AxisInfo.FOLLOWING_SIBLING: return AxisType.FOLLOWING_SIBLING;
 			case AxisInfo.NAMESPACE: return AxisType.NAMESPACE;
 			case AxisInfo.PARENT: return AxisType.PARENT;
-				//path.append("/../");
 			case AxisInfo.PRECEDING: return AxisType.PRECEDING;
 			case AxisInfo.PRECEDING_OR_ANCESTOR: return null; //??
 			case AxisInfo.PRECEDING_SIBLING: return AxisType.PRECEDING_SIBLING;
@@ -171,7 +202,8 @@ public class BagriCollectionResolver implements CollectionURIResolver {
 		}
 	}
 
-    private String iterate(int docType, Expression ex, PathBuilder path, ExpressionBuilder eb) throws XPathException {
+    //private String iterate(int docType, Expression ex, PathBuilder path, Map<String, String> vars) throws XPathException {
+    private String iterate(int docType, Expression ex, PathBuilder path) throws XPathException {
     	logger.trace("start: {}; path: {}", ex.getClass().getName(), ex); //ex.getObjectName());
 
     	if (ex instanceof Block) {
@@ -207,26 +239,49 @@ public class BagriCollectionResolver implements CollectionURIResolver {
     	if (ex instanceof BooleanExpression) {
     		Comparison compType = getComparison(((BooleanExpression) ex).getOperator());
     		if (compType != null) {
-   	    		exIndex = eb.addExpression(docType, compType, path, null);
+   	    		exIndex = ec.addExpression(docType, compType, path);
 	        	logger.trace("iterate; added expression at index: {}", exIndex);
     		} else {
     	    	throw new IllegalStateException("Unexpected expression: " + ex);
     		}
     	}
+
+    	//if (ex instanceof LetExpression) {
+    	//	LetExpression let = (LetExpression) ex;
+    	//	StructuredQName lName = let.getObjectName();
+    	//	logger.trace("iterate; let: {}", lName);
+    	//}
     	
     	Iterator<Expression> ie = ex.iterateSubExpressions();
     	while (ie.hasNext()) {
     		Expression e = ie.next();
-    		iterate(docType, e, path, eb);
+    		iterate(docType, e, path); //, vars);
     	}
     	
     	if (ex instanceof GeneralComparison10 || ex instanceof GeneralComparison20 || ex instanceof ValueComparison) {
     		BinaryExpression be = (BinaryExpression) ex;
     		int varIdx = 0;
     		Object value = null;
+    		String pName = null;
     		for (Expression e: be.getOperands()) {
     			if (e instanceof VariableReference) {
-    	    		value = getVariable(((VariableReference) e).getBinding().getLocalSlotNumber());
+    				Binding bind = ((VariableReference) e).getBinding();
+    				if (bind instanceof LetExpression) {
+    					Expression e2 = ((LetExpression) bind).getSequence();
+    					if (e2 instanceof Atomizer) {
+    			    		e2 = ((Atomizer) e2).getBaseExpression();
+    			    		if (e2 instanceof VariableReference) {
+    			    			// paired ref to the e
+    			    			pName = ((VariableReference) e2).getBinding().getVariableQName().getLocalPart(); 
+    			    		}
+    			    	}
+    				}
+    				
+    				if (pName == null) {
+    					pName = bind.getVariableQName().getClarkName();
+    				}
+    	    		value = getVariable(bind.getLocalSlotNumber());
+        			logger.trace("iterate; got reference: {}, value: {}", pName, value);
     	    		break;
     			} else if (e instanceof StringLiteral) {
     				value = ((StringLiteral) e).getStringValue();
@@ -248,29 +303,40 @@ public class BagriCollectionResolver implements CollectionURIResolver {
     			if (varIdx == 0) {
     				compType = Comparison.negate(compType);
     			}
-        		exIndex = eb.addExpression(docType, compType, path, value);
-        		setParentPath(eb, exIndex, path);
+        		exIndex = ec.addExpression(docType, compType, path, pName, value);
+        		setParentPath(ec.getExpression(), exIndex, path);
     		}
     	}  
 
     	if (ex instanceof BooleanExpression) {
-    		setParentPath(eb, exIndex, path);
+    		setParentPath(ec.getExpression(), exIndex, path);
     	}
     	
     	if (ex instanceof Atomizer) {
-    		if (!(((Atomizer) ex).getBaseExpression() instanceof BindingReference)) {
+    		Atomizer at = (Atomizer) ex;
+    		if (at.getBaseExpression() instanceof BindingReference) {
+       			//logger.trace("iterate; got base ref: {}", at.getBaseExpression());
+    		} else {
     			//path.append("/text()");
     			path.addPathSegment(AxisType.CHILD, null, "text()");
     		}
     	}
+    	
+    	//if (ex instanceof VariableReference) {
+    	//	VariableReference var = (VariableReference) ex;
+    	//	if (var.getBinding() instanceof GeneralVariable) {
+   		//		Expression ex2 = ((XQueryExpression) var.getContainer()).getExpression(); 
+   		//		String vName = ex2.getObjectName().getClarkName();
+   		//		String pName = ((GeneralVariable) var.getBinding()).getVariableQName().getLocalPart();
+       	//		logger.trace("iterate; got var: {}, with name: {}", pName, vName);
+       	//		vars.put(vName, pName);
+    	//	}
+    	//}
+    	
     	logger.trace("end: {}; path: {}", ex.getClass().getName(), path.getFullPath());
     	return path.toString();
     }
     
-	void setExpression(XQueryExpression exp) {
-		this.exp = exp;
-	}
-
     private static Object itemToObject(Item item) throws XPathException {
         if (item instanceof AtomicValue) {
             AtomicValue p = ((AtomicValue)item);

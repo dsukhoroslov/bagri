@@ -1,70 +1,29 @@
 package com.bagri.xdm.access.hazelcast.process;
 
-import static com.bagri.xdm.access.hazelcast.pof.XDMPortableFactory.cli_XDMDocumentRemover;
-import static com.bagri.xdm.access.hazelcast.pof.XDMPortableFactory.factoryId;
+import static com.bagri.xdm.access.hazelcast.pof.XDMDataSerializationFactory.cli_XDMDocumentRemover;
 
-import java.io.IOException;
 import java.util.concurrent.Callable;
 
 import com.bagri.xdm.domain.XDMDocument;
-import com.hazelcast.nio.serialization.Portable;
-import com.hazelcast.nio.serialization.PortableReader;
-import com.hazelcast.nio.serialization.PortableWriter;
 
-public class DocumentRemover implements // EntryProcessor<Long, XDMDocument>,
-										// EntryBackupProcessor<Long,
-										// XDMDocument>,
-		Callable<XDMDocument>, Portable {
-
-	protected String uri;
+public class DocumentRemover extends DocumentAwareTask implements Callable<XDMDocument> {
 
 	public DocumentRemover() {
-		//
+		super();
 	}
 
-	public DocumentRemover(String uri) {
-		this.uri = uri;
+	public DocumentRemover(long docId) {
+		super(docId);
 	}
 
 	@Override
-	public int getClassId() {
+	public int getId() {
 		return cli_XDMDocumentRemover;
 	}
 
 	@Override
-	public int getFactoryId() {
-		return factoryId;
-	}
-
-	// @Override
-	// public EntryBackupProcessor<Long, XDMDocument> getBackupProcessor() {
-	// logger.trace("getBackupProcesssor.enter");
-	// return this;
-	// }
-
-	// @Override
-	// public Object process(Entry<Long, XDMDocument> docEntry) {
-
-	@Override
 	public XDMDocument call() throws Exception {
-
 		return null;
-	}
-
-	// @Override
-	// public void processBackup(Entry<Long, XDMDocument> entry) {
-	// logger.trace("processBackup.enter");
-	// process(entry);
-	// }
-
-	@Override
-	public void readPortable(PortableReader in) throws IOException {
-		uri = in.readUTF("uri");
-	}
-
-	@Override
-	public void writePortable(PortableWriter out) throws IOException {
-		out.writeUTF("uri", uri);
 	}
 
 }

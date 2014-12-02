@@ -2,20 +2,20 @@ package com.bagri.common.query;
 
 public class PathExpression extends Expression {
 	
-	private Object value;
+	private String paramName;
 	
-	public PathExpression(int docType, Comparison compType, PathBuilder path, Object value) {
+	public PathExpression(int docType, Comparison compType, PathBuilder path, String paramName) {
 		super(docType, compType, path);
-		this.value = value;
+		this.paramName = paramName;
 	}
 	
-	public Object getValue() {
-		return this.value;
+	public String getParamName() {
+		return this.paramName;
 	}
 	
-	public void setValue(Object value) {
-		this.value = value;
-	}
+	//public void setValue(Object value) {
+	//	this.value = value;
+	//}
 	
 	public boolean isRegex() {
 		return path.hasRegex(); // .contains("/*/");
@@ -38,7 +38,7 @@ public class PathExpression extends Expression {
 	
 	@Override
 	public String toString() {
-		return "PathExpression [path=" + path + ", value=" + value
+		return "PathExpression [path=" + path + ", param=" + paramName
 				+ ", docType=" + docType + ", compType=" + compType + "]";
 	}
 	

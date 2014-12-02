@@ -18,20 +18,20 @@ public enum AxisType {
 	SELF;
 	
 	public String getAxis() {
-		switch (this.ordinal()) {
-			//case 0:
-			//case 1: return "";
-			case 2: return "/@";
-			case 3: return "/";
-			case 4: return "//";
-			//case 5:
-			//case 6:
-			//case 7: return "";
-			//case 8: return "#";
-			case 9: return "/..";
-			//case 10:
-			//case 11: return "";
-			case 12: return "/.";
+		switch (this) {
+			//case ANCESTOR: return "/ancestor"
+			//case ANCESTOR_OR_SELF: return "/ancestor-or-self";
+			case ATTRIBUTE: return "/@";
+			case CHILD: return "/"; // "/child"
+			case DESCENDANT: return "//"; // return "/descendant";
+			//case DESCENDANT_OR_SELF: "/descendant-or-self"
+			//case FOLLOWING: return "/following";
+			//case FOLLOWING_SIBLING: return "/following-sibling";
+			case NAMESPACE: return "/#";
+			case PARENT: return "/.."; // "/parent"
+			//case PRECEDING: return "/preceding";
+			//case PRECEDING_SIBLING: return "/preceding-sibling";
+			case SELF: return "/."; // "/self"
 		}
 		return "";
 	}

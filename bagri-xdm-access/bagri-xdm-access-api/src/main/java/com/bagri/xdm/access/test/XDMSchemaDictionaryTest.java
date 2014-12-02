@@ -8,12 +8,14 @@ import java.util.Collection;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.bagri.xdm.access.api.XDMDocumentManagement;
 import com.bagri.xdm.access.api.XDMSchemaDictionary;
 import com.bagri.xdm.domain.XDMPath;
 
 public abstract class XDMSchemaDictionaryTest {
 
 	protected static String sampleRoot;
+	protected XDMDocumentManagement dMgr;
 	protected XDMSchemaDictionary mDictionary;
 	
 	public void registerSecuritySchemaTest() throws IOException { 

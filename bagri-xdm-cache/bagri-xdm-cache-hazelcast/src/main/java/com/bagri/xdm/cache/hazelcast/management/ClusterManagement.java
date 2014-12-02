@@ -13,6 +13,7 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.common.util.FileUtils;
+import com.bagri.common.util.PropUtils;
 import com.bagri.xdm.process.hazelcast.node.NodeCreator;
 import com.bagri.xdm.process.hazelcast.node.NodeRemover;
 import com.bagri.xdm.system.XDMNode;
@@ -21,7 +22,7 @@ import com.hazelcast.core.MapEvent;
 
 @ManagedResource(objectName="com.bagri.xdm:type=Management,name=ClusterManagement", 
 	description="Cluster Management MBean")
-public class ClusterManagement extends EntityManagement<String, XDMNode> implements InitializingBean {
+public class ClusterManagement extends EntityManagement<String, XDMNode> {
 	
 	//, XDMClusterManagement {
 
@@ -29,22 +30,6 @@ public class ClusterManagement extends EntityManagement<String, XDMNode> impleme
 		super(hzInstance);
 	}
 
-	@Override
-	public void afterPropertiesSet() throws Exception {
-        //Set<String> names = entityCache.keySet();
-        //for (String name: names) {
-        	//XDMNode node = nodeCache.get(name);
-        	//initNodeManager(name);
-        //}
-		
-		// skip it and wait till we get attribute change event
-		//Set<Member> members = hzInstance.getCluster().getMembers();
-		//logger.debug("afterPropertiesSet.enter; initiating {} nodes", members.size());
-		//for (Member member: members) {
-		//	initNode(member);
-		//}
-	}
-	
 	private boolean addNode(String name, Properties options) throws Exception {
 	
 		if (!entityCache.containsKey(name)) {
@@ -69,7 +54,7 @@ public class ClusterManagement extends EntityManagement<String, XDMNode> impleme
 
 		Properties opts;
 		try {
-			opts = FileUtils.propsFromString(options);
+			opts = PropUtils.propsFromString(options);
 			opts.setProperty(XDMNode.op_node_name, name);
 		} catch (IOException ex) {
 			logger.error("createSchema.error: ", ex);

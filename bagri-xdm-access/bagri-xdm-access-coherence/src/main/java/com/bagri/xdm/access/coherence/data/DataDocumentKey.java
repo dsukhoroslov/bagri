@@ -14,8 +14,8 @@ public class DataDocumentKey extends XDMDataKey implements KeyAssociation, Porta
 		super();
 	}
 
-	public DataDocumentKey(long dataId, long documentId) {
-		super(dataId, documentId);
+	public DataDocumentKey(long documentId, int pathId) {
+		super(documentId, pathId);
 	}
 
 	@Override
@@ -25,14 +25,14 @@ public class DataDocumentKey extends XDMDataKey implements KeyAssociation, Porta
 
 	@Override
 	public void readExternal(PofReader in) throws IOException {
-		dataId = in.readLong(0);
-		documentId = in.readLong(1);
+		documentId = in.readLong(0);
+		pathId = in.readInt(1);
 	}
 
 	@Override
 	public void writeExternal(PofWriter out) throws IOException {
-		out.writeLong(0,  dataId);
-		out.writeLong(1,  documentId);
+		out.writeLong(0,  documentId);
+		out.writeLong(1,  pathId);
 	}
 
 }

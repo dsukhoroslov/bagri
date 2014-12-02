@@ -1,5 +1,7 @@
 package com.bagri.xdm.cache.hazelcast.management;
 
+import static com.bagri.xdm.access.api.XDMCacheConstants.PN_XDM_SYSTEM_POOL;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -23,7 +25,7 @@ import com.hazelcast.core.Member;
 public class NodeManager extends EntityManager<XDMNode> { //implements XDMNodeManager {
 
     private HazelcastInstance hzInstance;
-	private IExecutorService execService;
+	//private IExecutorService execService;
 
 	public NodeManager() {
 		// default constructor
@@ -33,7 +35,7 @@ public class NodeManager extends EntityManager<XDMNode> { //implements XDMNodeMa
 	public NodeManager(HazelcastInstance hzInstance, String nodeName) {
 		super(nodeName);
 		this.hzInstance = hzInstance;
-		execService = hzInstance.getExecutorService("xdm-exec-pool");
+		//execService = hzInstance.getExecutorService(PN_XDM_SYSTEM_POOL);
 		//IMap<String, XDMNode> nodes = hzInstance.getMap("nodes"); 
 		//setEntityCache(nodes);
 	}

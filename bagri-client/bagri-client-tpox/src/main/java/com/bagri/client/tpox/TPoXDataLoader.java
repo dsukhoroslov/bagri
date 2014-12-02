@@ -17,7 +17,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.bagri.xdm.access.api.XDMDocumentManagement;
 //import com.bagri.xdm.access.coherence.impl.CoherenceDocumentManager;
-import com.bagri.xdm.access.hazelcast.impl.HazelcastDocumentManager;
+import com.bagri.xdm.access.hazelcast.impl.DocumentManagementClient;
 import com.bagri.xdm.domain.XDMDocument;
 
 import static com.bagri.xdm.access.api.XDMCacheConstants.*;

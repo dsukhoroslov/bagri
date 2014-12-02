@@ -133,7 +133,7 @@ public class CachePopulationManager implements CachePopulationManagerMBean {
 						Map<String, Object> stats = ((StatsCollectingPopulator) pop).getStats();
 						stats.put("Cache", pop.getCacheName());
 						//CompositeData data = JMXUtils.propsToComposite(pop.getCacheName(), "Population statistics", stats);
-						CompositeData data = JMXUtils.propsToComposite("population", "Population statistics", stats);
+						CompositeData data = JMXUtils.mapToComposite("population", "Population statistics", stats);
 		        		log.trace("getStatisticSeries; got data: {} from stats: {}", data, stats);
 			        	if (data != null) {
 			        		if (result == null) {

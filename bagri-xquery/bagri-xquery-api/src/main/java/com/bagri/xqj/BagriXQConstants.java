@@ -22,4 +22,10 @@ public class BagriXQConstants {
 	public static final String pn_queryTimeout = "xqj.schema.queryTimeout";
 	public static final String pn_defaultNamespaces = "xqj.schema.defaultNamespaces";
 	
+	public static final String bg_schema = "bgdm";
+	public static final String bg_ns = "http://bagri.com/bagri-xdm";
+	
+	
+	public static final String ex_connection_closed = "Connection is closed";
+	public static final String ex_null_context = "Context is null";
 }

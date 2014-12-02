@@ -15,11 +15,6 @@
 
     <dependencies>
 
-        <!--dependency>
-	    <groupId>com.sdv.bagri</groupId>
-	    <artifactId>bagri-xdm</artifactId>
-        </dependency-->
-
         <dependency>
             <groupId>xerces</groupId>
             <artifactId>xercesImpl</artifactId>

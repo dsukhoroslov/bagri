@@ -2,11 +2,16 @@ package com.bagri.xdm.cache.hazelcast.store.xml;
 
 class DocumentDataHolder {
 
-	long docId;
+	String uri;
 	int docType = 0;
 		
-	DocumentDataHolder(long docId) {
-		this.docId = docId;
+	DocumentDataHolder(String uri) {
+		this.uri = uri;
 	}
 
+	@Override
+	public String toString() {
+		return "DocumentDataHolder [uri=" + uri + ", docType=" + docType + "]";
+	}
+	
 }

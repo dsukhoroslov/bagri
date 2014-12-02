@@ -21,14 +21,18 @@ public class XDMCursorSerializer implements StreamSerializer<HazelcastXQCursor> 
 
 	@Override
 	public HazelcastXQCursor read(ObjectDataInput in) throws IOException {
-		String qName = in.readUTF();
-		return new HazelcastXQCursor(qName);
+		String clientId = in.readUTF();
+		boolean failure = in.readBoolean();
+		//int queueSize = in.readInt();
+		return new HazelcastXQCursor(clientId, failure); //, queueSize);
 	}
 
 	@Override
 	public void write(ObjectDataOutput out, HazelcastXQCursor cursor) throws IOException {
 		
-		out.writeUTF(((HazelcastXQCursor) cursor).getQueueName());
+		out.writeUTF(cursor.getClientId());
+		out.writeBoolean(cursor.isFailure());
+		//out.writeInt(cursor.getQueueSize());
 	}
 
 }

@@ -24,7 +24,7 @@ public class XDMCacheConstants {
      * CacheStore: no
      * Mapped as: no
      */
-	public static final String CN_XDM_PATH_INDEX = "xdm-path-index";
+	//public static final String CN_XDM_PATH_INDEX = "xdm-path-index";
 
     /**
      * XDM Path-Value cache
@@ -34,6 +34,33 @@ public class XDMCacheConstants {
      */
 	//public static final String CN_XDM_PATH_VALUE_INDEX = "xdm-path-value-index";
 	
+    /**
+     * XDM XML cache
+     * Key: Long; documentId 
+     * Value: String (XML)
+     * CacheStore: no
+     * Mapped as: no
+     */
+	public static final String CN_XDM_XML = "xdm-xml";
+
+    /**
+     * XDM Query cache
+     * Key: Long; query hash 
+     * Value: com.bagri.xdm.XDMQuery
+     * CacheStore: no
+     * Mapped as: no
+     */
+	public static final String CN_XDM_QUERY = "xdm-query";
+
+    /**
+     * XDM Result cache
+     * Key: Long; query hash 
+     * Value: com.bagri.xdm.XDMResult
+     * CacheStore: no
+     * Mapped as: no
+     */
+	public static final String CN_XDM_RESULT = "xdm-result";
+
     /**
      * XDM Namespace cache
      * Key: String (NS URI); Value: com.bagri.xdm.XDMNamespace
@@ -62,7 +89,9 @@ public class XDMCacheConstants {
     public static final String SQN_DOCUMENT = "xdm.document";
     public static final String SQN_NAMESPACE = "xdm.namespace";
     public static final String SQN_PATH = "xdm.path";
-    public static final String SQN_DOCTYPE = "xdm.document.type";
-    public static final String SQN_ELEMENT = "xdm.element";
+    public static final String SQN_DOCTYPE = "xdm.doctype";
+    //public static final String SQN_ELEMENT = "xdm.element";
     
+	public static final String PN_XDM_SCHEMA_POOL = "xdm-exec-pool";
+	public static final String PN_XDM_SYSTEM_POOL = "sys-exec-pool";
 }

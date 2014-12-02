@@ -8,7 +8,7 @@
 		http://www.springframework.org/schema/hadoop http://www.springframework.org/schema/hadoop/spring-hadoop.xsd">
 
 	<!-- set some common hive props in extra properties file -->
-	<context:property-placeholder ignore-unresolvable="true" location="classpath:/${xdm.server.properties.file}"/>
+	<context:property-placeholder ignore-unresolvable="true" location="classpath:/${xdm.config.properties.file}"/>
 	<context:mbean-export/>
     
 	<hdp:hive-client-factory host="${xdm.schema.store.host}" port="${xdm.schema.store.port}" />
@@ -16,7 +16,7 @@
 	<hdp:hive-template />
 	
 	<!-- wire hive template into a bean -->
-	<bean id="hiveCacheStore" class="com.bagri.xdm.cache.hazelcast.store.HiveCacheStore">
+	<bean id="hiveCacheStore" class="com.bagri.xdm.cache.hazelcast.store.hive.HiveCacheStore">
 	    <property name="hiveTemplate" ref="hiveTemplate" />
 	</bean>
 

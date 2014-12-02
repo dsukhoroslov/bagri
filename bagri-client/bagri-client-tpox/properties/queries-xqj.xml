@@ -66,17 +66,65 @@ return
 			</parameters>
 		</transaction>
 
-		<!--transaction id="3" name="searchSecurity" weight="40">
+		<!--transaction id="3" name="searchSecurity" weight="100">
 			<java-plugin>com.bagri.client.tpox.workload.BagriXQJPlugin</java-plugin>
 			<parameters>
+
+				<parameter>
+					<constant value="
+declare default element namespace &quot;http://tpox-benchmark.com/security&quot;;
+declare variable $sect external;
+declare variable $pemin external;
+declare variable $pemax external;
+declare variable $yield external; 
+
+for $sec in fn:collection(&quot;/{http://tpox-benchmark.com/security}Security&quot;)/Security
+where $sec[SecurityInformation/*/Sector = $sect and PE[. >= $pemin and . &lt; $pemax] and Yield > $yield]
+
+return	&lt;Security&gt;
+	{$sec/Symbol}
+	{$sec/Name}
+	{$sec/SecurityType}
+	{$sec/SecurityInformation//Sector}
+	{$sec/PE}
+	{$sec/Yield}
+&lt;/Security&gt; " />
+				</parameter>
+				<parameter>
+					<constant value="true" />
+				</parameter>
+				<parameter>
+					<constant value="sect" />
+				</parameter>
+				<parameter>
+					<constant value="string" />
+				</parameter>
 				<parameter>
 					<file>input/security_sectors.txt</file>
+				</parameter>
+				<parameter>
+					<constant value="pemin" />
+				</parameter>
+				<parameter>
+					<constant value="int" />
 				</parameter>
 				<parameter>
 					<uniformint min="20" max="23" />
 				</parameter>
 				<parameter>
+					<constant value="pemax" />
+				</parameter>
+				<parameter>
+					<constant value="int" />
+				</parameter>
+				<parameter>
 					<uniformint min="25" max="27" />
+				</parameter>
+				<parameter>
+					<constant value="yield" />
+				</parameter>
+				<parameter>
+					<constant value="int" />
 				</parameter>
 				<parameter>
 					<uniformint min="4" max="6" />

@@ -19,7 +19,7 @@ import javax.xml.xquery.XQResultSequence;
 import javax.xml.xquery.XQSequence;
 
 import junit.framework.Assert;
-import net.sf.saxon.xqj.SaxonXQDataSource;
+//import net.sf.saxon.xqj.SaxonXQDataSource;
 
 import org.junit.After;
 import org.junit.Before;
@@ -36,7 +36,7 @@ public class SaxonParserTest {
 
 	@Before
 	public void setUp() throws Exception {
-		parser = new BagriXQProcessor();
+		parser = new BagriXQProcessor(null);
 	}
 
 	@After
@@ -51,7 +51,8 @@ public class SaxonParserTest {
 
 	@Test
     public void testSaxon() throws XQException {
-        SaxonXQDataSource xqds = new SaxonXQDataSource();
+        //SaxonXQDataSource xqds = new SaxonXQDataSource();
+		XQDataSource xqds = null;
         XQConnection xqc = xqds.getConnection();
 		XQExpression xqe = xqc.createExpression();
 	    XQSequence xqs = xqe.executeQuery("<e>Hello world!</e>");
@@ -59,13 +60,14 @@ public class SaxonParserTest {
         while (xqs.next()) {
             System.out.println(xqs.getItemAsString(null));
         }
-        System.out.println(xqds.getSchemaValidationMode());
+        //System.out.println(xqds.getSchemaValidationMode());
     }
 	
 	@Test
 	public void testGetInt() throws XQException {
 
-        SaxonXQDataSource xqds = new SaxonXQDataSource();
+        //SaxonXQDataSource xqds = new SaxonXQDataSource();
+		XQDataSource xqds = null;
         XQConnection xqc = xqds.getConnection();
 	    XQExpression xqe = xqc.createExpression();
 	    XQSequence xqs = xqe.executeQuery("xs:int('1'), 10.0");
@@ -87,7 +89,8 @@ public class SaxonParserTest {
 	@Test
 	public void testGetBoolean() throws XQException {
 
-        SaxonXQDataSource xqds = new SaxonXQDataSource();
+        //SaxonXQDataSource xqds = new SaxonXQDataSource();
+		XQDataSource xqds = null;
         XQConnection xqc = xqds.getConnection();
 		XQExpression xqe = xqc.createExpression();
 	    xqe.bindObject(new QName("v"), Boolean.valueOf(true), null);
@@ -106,7 +109,8 @@ public class SaxonParserTest {
 	@Test
 	public void testGetByte() throws XQException {
 		
-        SaxonXQDataSource xqds = new SaxonXQDataSource();
+        //SaxonXQDataSource xqds = new SaxonXQDataSource();
+		XQDataSource xqds = null;
         XQConnection xqc = xqds.getConnection();
 		XQExpression xqe = xqc.createExpression();
 		XQSequence xqs = xqe.executeQuery("xs:byte('1')");
@@ -118,7 +122,8 @@ public class SaxonParserTest {
 	
 	@Test
 	public void testBinding() throws XQException {
-        SaxonXQDataSource xqds = new SaxonXQDataSource();
+        //SaxonXQDataSource xqds = new SaxonXQDataSource();
+		XQDataSource xqds = null;
         XQConnection xqc = xqds.getConnection();
 	    XQPreparedExpression xqpe = xqc.prepareExpression("declare variable $v external; $v");
 	    xqpe.bindString(new QName("v"), "Hello world!", xqc.createAtomicType(XQItemType.XQBASETYPE_STRING));
@@ -140,7 +145,8 @@ public class SaxonParserTest {
 	@Test
 	public void testBindNode() throws XQException, IOException, SAXException, ParserConfigurationException {
 		XQPreparedExpression xqpe;
-        SaxonXQDataSource xqds = new SaxonXQDataSource();
+        //SaxonXQDataSource xqds = new SaxonXQDataSource();
+		XQDataSource xqds = null;
         XQConnection xqc = xqds.getConnection();
 
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();

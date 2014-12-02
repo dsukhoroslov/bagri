@@ -1,7 +1,7 @@
 package com.bagri.xdm.access.hazelcast.process;
 
-import static com.bagri.xdm.access.hazelcast.pof.XDMPortableFactory.cli_TemplateResultTask;
-import static com.bagri.xdm.access.hazelcast.pof.XDMPortableFactory.factoryId;
+import static com.bagri.xdm.access.hazelcast.pof.XDMDataSerializationFactory.cli_TemplateResultTask;
+import static com.bagri.xdm.access.hazelcast.pof.XDMDataSerializationFactory.factoryId;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -11,26 +11,26 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
-import com.hazelcast.nio.serialization.Portable;
-import com.hazelcast.nio.serialization.PortableReader;
-import com.hazelcast.nio.serialization.PortableWriter;
+import com.hazelcast.nio.ObjectDataInput;
+import com.hazelcast.nio.ObjectDataOutput;
+import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
-public class DocumentBuilder implements Callable<Collection<String>>, Portable {
+public class DocumentBuilder implements Callable<Collection<String>>, IdentifiedDataSerializable {
 
 	protected int docType;
 	protected String template;
-	protected Set<String> uris = new HashSet<String>();
+	protected Set<Long> docIds = new HashSet<Long>();
 	protected Map<String, String> params = new HashMap<String, String>();
 
 	public DocumentBuilder() {
 		//
 	}
 
-	public DocumentBuilder(int docType, String template, Collection<String> uris, Map<String, String> params) {
+	public DocumentBuilder(int docType, String template, Collection<Long> docIds, Map<String, String> params) {
 		this.docType = docType;
 		this.template = template;
-		if (uris != null) {
-			this.uris.addAll(uris);
+		if (docIds != null) {
+			this.docIds.addAll(docIds);
 		}
 		if (params != null) {
 			this.params.putAll(params);
@@ -43,7 +43,7 @@ public class DocumentBuilder implements Callable<Collection<String>>, Portable {
 	}
 
 	@Override
-	public int getClassId() {
+	public int getId() {
 		return cli_TemplateResultTask;
 	}
 
@@ -53,29 +53,21 @@ public class DocumentBuilder implements Callable<Collection<String>>, Portable {
 	}
 
 	@Override
-	public void readPortable(PortableReader in) throws IOException {
-		docType = in.readInt("docType");
-		template = in.readUTF("template");
-		int size = in.readInt("size");
-		for (int i=0; i < size; i++) {
-			uris.add(in.readUTF("uri" + i));
-		}
-		Map<String, String> map = in.getRawDataInput().readObject();
+	public void readData(ObjectDataInput in) throws IOException {
+		docType = in.readInt();
+		template = in.readUTF();
+		Set<Long> ids = in.readObject();
+		docIds.addAll(ids);
+		Map<String, String> map = in.readObject();
 		params.putAll(map);
 	}
 
 	@Override
-	public void writePortable(PortableWriter out) throws IOException {
-		out.writeInt("docType", docType);
-		out.writeUTF("template", template);
-		out.writeInt("size", uris.size());
-		int i = 0;
-		for (String uri: uris) {
-			out.writeUTF("uri" + i, uri);
-			i++;
-		}
-		//out.getRawDataOutput().writeObject(uris);
-		out.getRawDataOutput().writeObject(params);
+	public void writeData(ObjectDataOutput out) throws IOException {
+		out.writeInt(docType);
+		out.writeUTF(template);
+		out.writeObject(docIds);
+		out.writeObject(params);
 	}
 
 }

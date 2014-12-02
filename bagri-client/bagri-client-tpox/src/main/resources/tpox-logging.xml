@@ -46,11 +46,11 @@
     	</encoder>
     </appender>
 
-    <!--logger name="com.bagri">
-        <level value="trace"/>
+    <logger name="com.bagri">
+        <level value="info"/>
     </logger>
 
-    <logger name="com.bagri.xdm.cache.factory">
+    <!--logger name="com.bagri.xdm.cache.factory">
         <level value="debug"/>
     </logger>
 
@@ -82,7 +82,7 @@
     </logger>
 
     <root>
-        <level value="debug"/>
+        <level value="info"/>
         <appender-ref ref="STDOUT"/>
         <!--appender-ref ref="ROLLING"/-->
     </root>

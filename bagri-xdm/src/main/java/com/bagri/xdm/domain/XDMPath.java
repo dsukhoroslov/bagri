@@ -1,8 +1,9 @@
 package com.bagri.xdm.domain;
 
-import java.io.Serializable;
+//import java.io.Serializable;
+//import static javax.xml.xquery.XQItemType.*
 
-public class XDMPath implements Comparable { //implements Serializable {
+public class XDMPath implements Comparable<XDMPath> { //implements Serializable {
 	
 	/**
 	 * 
@@ -15,6 +16,12 @@ public class XDMPath implements Comparable { //implements Serializable {
 	private int pathId;
 	private int parentId;
 	private int postId;
+	
+	// the type constant from javax.xml.xquery.XQItemType.*
+	//private int dataType;
+	
+	// cache it!
+	private String name = null; 
 	
 	public XDMPath() {
 		super();
@@ -35,6 +42,44 @@ public class XDMPath implements Comparable { //implements Serializable {
 	 */
 	public String getPath() {
 		return path;
+	}
+	
+	/**
+	 * @return the last path portion
+	 */
+	public String getName() {
+		if (kind == XDMNodeKind.document || kind == XDMNodeKind.comment) {
+			return null;
+		}
+		
+		if (name == null) {
+			String last;
+			String[] segments = path.split("/");
+	
+			switch (kind) {
+				case attribute: //@
+				case namespace: //#
+				case pi: 		//?
+					last = segments[segments.length-1];
+					name = last.substring(1);
+					break;
+				case text: 
+					name = segments[segments.length-2];
+					break;
+				case element:
+					if (segments.length > 0) {
+						name = segments[segments.length-1];
+					} else {
+						name = path;
+					}
+					break;
+				//case document:
+				//case comment:
+				default:
+					return null;
+			}
+		}
+		return name;
 	}
 	
 	/**
@@ -86,6 +131,28 @@ public class XDMPath implements Comparable { //implements Serializable {
 		this.postId = postId;
 	}
 
+	
+	@Override
+	public int hashCode() {
+		return 31 + path.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		
+		XDMPath other = (XDMPath) obj;
+		return path.equals(other.path);
+	}
+
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
@@ -97,9 +164,9 @@ public class XDMPath implements Comparable { //implements Serializable {
 	}
 
 	@Override
-	public int compareTo(Object other) {
+	public int compareTo(XDMPath other) {
 		
-		return this.pathId - ((XDMPath) other).pathId;
+		return this.pathId - other.pathId;
 	}
 	
 	
