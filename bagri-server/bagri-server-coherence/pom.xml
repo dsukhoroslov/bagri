@@ -16,7 +16,7 @@
     <properties>
         <!-- Coherence server java args -->
         <run.jvm.args>-server -Xms512m -Xmx2048m -XX:MaxNewSize=128m -XX:+ExplicitGCInvokesConcurrent -XX:+UseParNewGC
-            -XX:+UseConcMarkSweepGC -XX:+CMSIncrementalMode
+            -XX:+UseConcMarkSweepGC
         </run.jvm.args>
     </properties>
 
@@ -37,6 +37,10 @@
         <dependency>
             <groupId>com.sdv.bagri</groupId>
             <artifactId>bagri-client-coherence</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sdv.bagri</groupId>
+            <artifactId>bagri-server-common</artifactId>
         </dependency>
 
         <!-- Spring framework -->

@@ -1,4 +1,4 @@
-package com.bagri.xdm.cache.hazelcast.security;
+package com.bagri.xdm.cache.common.security;
 
 import java.util.Map;
 

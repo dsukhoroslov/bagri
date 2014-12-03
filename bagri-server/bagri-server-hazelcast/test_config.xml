@@ -57,13 +57,13 @@
                 <entry name="xqj.schema.queryLanguageTypeAndVersion">LANGTYPE_XQUERY</entry>
                 <entry name="xqj.schema.defaultElementTypeNamespace"></entry>
                 <entry name="xqj.schema.queryTimeout">0</entry>
-                <entry name="xdm.schema.store.data.path">../../etc/samples/data</entry>
-                <entry name="xqj.schema.baseUri">file:///C:/Work/Bagri/git/bagri/etc/samples/data/</entry>
+                <entry name="xdm.schema.store.data.path">../../etc/samples/tpox</entry>
+                <entry name="xqj.schema.baseUri">file:///C:/Work/Bagri/git/bagri/etc/samples/tpox/</entry>
                 <entry name="xdm.schema.store.type">XML</entry>
                 <entry name="xqj.schema.holdability">HOLDTYPE_CLOSE_CURSORS_AT_COMMIT</entry>
                 <entry name="xqj.schema.copyNamespacesModeInherit">COPY_NAMESPACES_MODE_INHERIT</entry>
                 <entry name="xqj.schema.boundarySpacePolicy">BOUNDARY_SPACE_PRESERVE</entry>
-                <entry name="xdm.schema.store.schema.path">C:\Work\Bagri\git\bagri\etc\samples\schema</entry>
+                <entry name="xdm.schema.store.schema.path">C:\Work\Bagri\git\bagri\etc\samples\tpox</entry>
                 <entry name="xqj.schema.defaultFunctionNamespace">fn</entry>
                 <entry name="xdm.schema.password">TPoX</entry>
                 <entry name="xdm.schema.population.size">1</entry>
@@ -90,8 +90,8 @@
                 <entry name="xqj.schema.queryLanguageTypeAndVersion">LANGTYPE_XQUERY</entry>
                 <entry name="xqj.schema.defaultElementTypeNamespace"></entry>
                 <entry name="xqj.schema.queryTimeout">0</entry>
-                <entry name="xdm.schema.store.data.path">../../etc/samples/data2</entry>
-                <entry name="xqj.schema.baseUri">file:///C:/Work/Bagri/git/bagri/etc/samples/data2/</entry>
+                <entry name="xdm.schema.store.data.path">../../etc/samples/tpox2</entry>
+                <entry name="xqj.schema.baseUri">file:///C:/Work/Bagri/git/bagri/etc/samples/tpox2/</entry>
                 <entry name="xdm.schema.store.type">NONE</entry>
                 <entry name="xqj.schema.holdability">HOLDTYPE_CLOSE_CURSORS_AT_COMMIT</entry>
                 <entry name="xqj.schema.copyNamespacesModeInherit">COPY_NAMESPACES_MODE_INHERIT</entry>

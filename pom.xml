@@ -166,6 +166,11 @@
                 <version>${project.version}</version>
             </dependency>
 
+	    <dependency>
+            	<groupId>com.sdv.bagri</groupId>
+            	<artifactId>bagri-server-common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
             <!--dependency>
                 <groupId>com.sdv.bagri</groupId>
                 <artifactId>bagri-server-coherence</artifactId>

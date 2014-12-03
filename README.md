@@ -15,3 +15,4 @@ Consists of the following Maven modules:
 * bagri-test - Test Utilities, e.g. TPoX test suite runner, JSR225 TCK runner
 * bagri-tools - Tools/Plugings, e.g. Bagri VisualVM Plugin
 * bagri-distr - distributive package
+* etc - additional libs, sample data, etc...

@@ -1,1 +1,1 @@
-del ..\..\bagri-xdm-cache\bagri-xdm-cache-hazelcast\logs\cache\*
+del ..\..\bagri-servre\bagri-server-hazelcast\logs\cache\*

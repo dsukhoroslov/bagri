@@ -12,9 +12,10 @@
     <artifactId>bagri-server</artifactId>
     <packaging>pom</packaging>
     <name>bagri-server</name>
-    <description>BagRi XDM Cache Server Components</description>
+    <description>BagRi XDM Cache: Server Components</description>
 
     <modules>
+        <module>bagri-server-common</module>
         <!--module>bagri-server-coherence</module-->
         <module>bagri-server-hazelcast</module>
     </modules>
