@@ -134,14 +134,14 @@
                 <artifactId>bagri-xdm</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.sdv.bagri</groupId>
+                <artifactId>bagri-client-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
             <!--dependency>
                 <groupId>com.sdv.bagri</groupId>
                 <artifactId>bagri-client-coherence</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.sdv.bagri</groupId>
-                <artifactId>bagri-server-coherence</artifactId>
                 <version>${project.version}</version>
             </dependency-->
             <dependency>
@@ -149,11 +149,7 @@
                 <artifactId>bagri-client-hazelcast</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            <dependency>
-                <groupId>com.sdv.bagri</groupId>
-                <artifactId>bagri-server-hazelcast</artifactId>
-                <version>${project.version}</version>
-            </dependency>
+
             <dependency>
                 <groupId>com.sdv.bagri</groupId>
                 <artifactId>bagri-xquery-api</artifactId>
@@ -169,9 +165,15 @@
                 <artifactId>bagri-xqj</artifactId>
                 <version>${project.version}</version>
             </dependency>
+
+            <!--dependency>
+                <groupId>com.sdv.bagri</groupId>
+                <artifactId>bagri-server-coherence</artifactId>
+                <version>${project.version}</version>
+            </dependency-->
             <dependency>
                 <groupId>com.sdv.bagri</groupId>
-                <artifactId>bagri-client-api</artifactId>
+                <artifactId>bagri-server-hazelcast</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
