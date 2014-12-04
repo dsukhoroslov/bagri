@@ -1,4 +1,4 @@
-package com.bagri.client.xqj;
+package com.bagri.samples.client;
 
 import static com.bagri.common.util.FileUtils.readTextFile;
 
@@ -72,7 +72,6 @@ public class ClientApp {
 		
 		String query = "declare namespace s=\"http://tpox-benchmark.com/security\";\n" +
 			"declare variable $sym external;\n" + 
-			//"for $sec in fn:doc(\"sdoc\")/s:Security\n" +
 			"for $sec in fn:collection(\"/{http://tpox-benchmark.com/security}Security\")/s:Security\n" +
 	  		"where $sec/s:Symbol=$sym\n" + //'IBM'\n" +
 			"return\n" +   
@@ -93,7 +92,6 @@ public class ClientApp {
 		
 		String query = "declare namespace s=\"http://tpox-benchmark.com/security\";\n" +
 			"declare variable $sym external;\n" + 
-			//"for $sec in fn:doc(\"sdoc\")/s:Security\n" +
 			"for $sec in fn:collection(\"/{http://tpox-benchmark.com/security}Security\")/s:Security\n" +
 	  		"where $sec/s:Symbol=$sym\n" + //'IBM'\n" +
 			"return $sec\n";

@@ -22,10 +22,16 @@ case "`uname -s`" in
                 ;;
 esac
 
-nodeNum=0
+nodeName=first
 if [ $# -gt 1 ]
 then
-   nodeNum=$2
+   nodeName=$2
+fi
+
+nodeNum=0
+if [ $# -gt 2 ]
+then
+   nodeNum=$3
 fi
 
 libdir="${java_apphome}${file_separator}lib"
@@ -53,7 +59,7 @@ done
 export CLASSPATH
 
 backupdir="${apphome}/backup"
-logdir="${apphome}/logs"
+logdir="${apphome}/logs/${nodeName}"
 rundir="${apphome}/run"
 
 mkdir -p "${backupdir}"
@@ -61,9 +67,9 @@ mkdir -p "${logdir}"
 mkdir -p "${logdir}/gc"
 mkdir -p "${rundir}"
 
-stdoutfile="${logdir}/${appname}_${HOSTNAME}_${nodeNum}.out"
-stderrfile="${logdir}/${appname}_${HOSTNAME}_${nodeNum}.err"
-pidfile="${rundir}/${appname}_${HOSTNAME}_${nodeNum}.pid"
+stdoutfile="${logdir}/${appname}_${HOSTNAME}_${nodeName}_${nodeNum}.out"
+stderrfile="${logdir}/${appname}_${HOSTNAME}_${nodeName}_${nodeNum}.err"
+pidfile="${rundir}/${appname}_${HOSTNAME}_${nodeName}_${nodeNum}.pid"
 
 #
 # Under Cygwin, ps itself won't return a nonzero code if PID is not found.
@@ -82,18 +88,12 @@ pid_exists() {
 start() {
         if status >/dev/null
         then
-                echo "${appname}-${HOSTNAME}-node-${nodeNum} is already running"
+                echo "${appname}-${HOSTNAME}-${nodeName}-${nodeNum} is already running"
                 return 1
         fi
 
         JAVA_OPTS="${JAVA_OPTS} -showversion"
         JAVA_OPTS="${JAVA_OPTS} -server"
-#        JAVA_OPTS="${JAVA_OPTS} -Djava.awt.headless=true"
-        JAVA_OPTS="${JAVA_OPTS} -Dcom.db.application.home=${java_apphome}"
-        JAVA_OPTS="${JAVA_OPTS} -Dcom.db.application.name=${appname}"
-	JAVA_OPTS="${JAVA_OPTS} -Dcom.db.host.name=`hostname -f 2>/dev/null || hostname`"
-	JAVA_OPTS="${JAVA_OPTS} -Dcom.db.node.num=${nodeNum}"
-#	JAVA_OPTS="${JAVA_OPTS} -DLOGDIR=${logdir}"
         ${JAVA_HOME}/bin/java ${JAVA_OPTS} "${main}" </dev/null >>"${stdoutfile}" 2>>"${stderrfile}" &
         echo $! >"${pidfile}"
 
@@ -175,21 +175,21 @@ status() {
                 pid="`cat ${pidfile}`"
                 if pid_exists "${pid}"
                 then
-                        echo -e "${appname}-${HOSTNAME}-node-${nodeNum} (pid ${pid}) is ${green}running${default}."
+                        echo -e "${appname}-${HOSTNAME}-${nodeName}-${nodeNum} (pid ${pid}) is ${green}running${default}."
                         return 0
                 else
-                        echo -e "${appname}-${HOSTNAME}-node-${nodeNum} (pid ${pid}) is ${red}dead${default}."
+                        echo -e "${appname}-${HOSTNAME}-${nodeName}-${nodeNum} (pid ${pid}) is ${red}dead${default}."
                         return 1
                 fi
         fi
-        echo -e "${appname}-${HOSTNAME}-node-${nodeNum} is ${red}stopped${default}."
+        echo -e "${appname}-${HOSTNAME}-${nodeName}-${nodeNum} is ${red}stopped${default}."
         return 1
 }
 
 usage() {
         cat <<EOF
 Usage:
-${appname} (start|stop|restart|status|usage) [node-number]
+${appname} (start|stop|restart|status|usage) [config-name] [node-number]
 EOF
         return 0
 }

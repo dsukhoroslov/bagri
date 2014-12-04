@@ -27,7 +27,7 @@
 	    <useAllReactorProjects>true</useAllReactorProjects>
 	    <!--includeSubModules>true</includeSubModules-->
 	    <includes>
-            	<include>com.sdv.bagri:bagri-client-xqj</include>
+            	<include>com.sdv.bagri:bagri-samples-client</include>
 	    </includes>
 	    <sources>
 		<outputDirectoryMapping>samples/${module.basedir.name}</outputDirectoryMapping>
@@ -41,6 +41,24 @@
           	    </fileSet>
         	</fileSets>
       	    </sources>
+        </moduleSet>
+
+        <moduleSet>
+	    <useAllReactorProjects>true</useAllReactorProjects>
+	    <!--includeSubModules>true</includeSubModules-->
+	    <includes>
+            	<include>com.sdv.bagri:bagri-common</include>
+            	<include>com.sdv.bagri:bagri-xdm</include>
+            	<include>com.sdv.bagri:bagri-client-api</include>
+            	<include>com.sdv.bagri:bagri-client-hazelcast</include>
+            	<include>com.sdv.bagri:bagri-xqj</include>
+            	<include>com.sdv.bagri:bagri-xquery-api</include>
+            	<include>com.sdv.bagri:bagri-xquery-saxon</include>
+	    </includes>
+	    <binaries>
+        	<outputDirectory>distr</outputDirectory>
+        	<unpack>false</unpack>
+	    </binaries>
         </moduleSet>
     </moduleSets>
 

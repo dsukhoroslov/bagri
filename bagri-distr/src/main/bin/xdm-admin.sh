@@ -95,12 +95,6 @@ start() {
 
         JAVA_OPTS="${JAVA_OPTS} -showversion"
         JAVA_OPTS="${JAVA_OPTS} -server"
-#        JAVA_OPTS="${JAVA_OPTS} -Djava.awt.headless=true"
-        JAVA_OPTS="${JAVA_OPTS} -Dcom.db.application.home=${java_apphome}"
-        JAVA_OPTS="${JAVA_OPTS} -Dcom.db.application.name=${appname}"
-	JAVA_OPTS="${JAVA_OPTS} -Dcom.db.host.name=`hostname -f 2>/dev/null || hostname`"
-	JAVA_OPTS="${JAVA_OPTS} -Dcom.db.node.num=${nodeNum}"
-#	JAVA_OPTS="${JAVA_OPTS} -DLOGDIR=${logdir}"
         ${JAVA_HOME}/bin/java ${JAVA_OPTS} "${main}" </dev/null >>"${stdoutfile}" 2>>"${stderrfile}" &
         echo $! >"${pidfile}"
 
