@@ -1,4 +1,7 @@
-<assembly>
+<assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2
+	http://maven.apache.org/xsd/assembly-1.1.2.xsd">
 
     <id>hazelcast</id>
     <includeBaseDirectory>true</includeBaseDirectory>
@@ -41,24 +44,6 @@
           	    </fileSet>
         	</fileSets>
       	    </sources>
-        </moduleSet>
-
-        <moduleSet>
-	    <useAllReactorProjects>true</useAllReactorProjects>
-	    <!--includeSubModules>true</includeSubModules-->
-	    <includes>
-            	<include>com.sdv.bagri:bagri-common</include>
-            	<include>com.sdv.bagri:bagri-xdm</include>
-            	<include>com.sdv.bagri:bagri-client-api</include>
-            	<include>com.sdv.bagri:bagri-client-hazelcast</include>
-            	<include>com.sdv.bagri:bagri-xqj</include>
-            	<include>com.sdv.bagri:bagri-xquery-api</include>
-            	<include>com.sdv.bagri:bagri-xquery-saxon</include>
-	    </includes>
-	    <binaries>
-        	<outputDirectory>distr</outputDirectory>
-        	<unpack>false</unpack>
-	    </binaries>
         </moduleSet>
     </moduleSets>
 
@@ -103,6 +88,15 @@
             <outputDirectory>/data</outputDirectory>
             <includes>
                 <include>**/*.*</include>
+            </includes>
+        </fileSet>
+
+        <!--produced localy xqj-driver jar goes to distr-->
+        <fileSet>
+            <directory>${project.build.directory}</directory>
+            <outputDirectory>/distr</outputDirectory>
+            <includes>
+                <include>*-xqj.jar</include>
             </includes>
         </fileSet>
 

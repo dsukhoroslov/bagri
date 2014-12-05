@@ -98,6 +98,7 @@
                                 <configuration>
 				    <finalName>bagri-${project.version}</finalName>
                                     <descriptors>
+                                        <descriptor>src/main/assembly/xqj-driver.xml</descriptor>
                                         <descriptor>src/main/assembly/hazelcast.xml</descriptor>
                                     </descriptors>
                                 </configuration>
