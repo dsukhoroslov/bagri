@@ -7,6 +7,11 @@ import java.util.Properties;
 import com.bagri.common.query.ExpressionBuilder;
 import com.bagri.xdm.domain.XDMQuery;
 
+/**
+ * XDMQueryManagement - client interface
+ * 
+ * @author Denis Sukhoroslov
+ */
 public interface XDMQueryManagement {
 	
 	XDMQuery getQuery(String query); //, Map bindings);

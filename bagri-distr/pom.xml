@@ -10,16 +10,12 @@
     </parent>
 
     <artifactId>bagri-distr</artifactId>
-    <packaging>pom</packaging>
+    <packaging>jar</packaging>
     <name>bagri-distr</name>
     <description>BagRi Distributive module</description>
 
-    <!--modules>
-        <module>bagri-distr-hazelcast</module>
-    </modules-->
-
     <dependencies>
-        <!--dependency>
+        <dependency>
             <groupId>com.sdv.bagri</groupId>
             <artifactId>bagri-common</artifactId>
         </dependency>                     
@@ -30,7 +26,23 @@
         <dependency>
             <groupId>com.sdv.bagri</groupId>
             <artifactId>bagri-client-api</artifactId>
-        </dependency-->
+        </dependency>
+        <dependency>
+            <groupId>com.sdv.bagri</groupId>
+            <artifactId>bagri-client-hazelcast</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sdv.bagri</groupId>
+            <artifactId>bagri-xqj</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sdv.bagri</groupId>
+            <artifactId>bagri-xquery-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sdv.bagri</groupId>
+            <artifactId>bagri-xquery-saxon</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>com.sdv.bagri</groupId>
@@ -44,10 +56,6 @@
 	    <type>nbm</type>
         </dependency>
 
-        <!--dependency>
-            <groupId>com.sdv.bagri</groupId>
-            <artifactId>bagri-client-xqj</artifactId>
-        </dependency-->
     </dependencies>
 
     <profiles>
@@ -60,27 +68,32 @@
                         <artifactId>maven-javadoc-plugin</artifactId>
                         <executions>
                             <execution>
-                                <id>aggregate</id>
+                                <id>javadoc-jar</id>
                                 <phase>package</phase>
                                 <goals>
-                                    <goal>aggregate</goal>
+                                    <goal>jar</goal>
                                 </goals>
                                 <configuration>
-                                    <aggregate>true</aggregate>
+                                    <!--aggregate>true</aggregate-->
 
                                     <!-- switch on dependency-driven aggregation -->
-                                    <!--includeDependencySources>true</includeDependencySources-->
-				    <!--includeTransitiveDependencySources>true</includeTransitiveDependencySources-->
+                                    <includeDependencySources>true</includeDependencySources>
+				    <includeTransitiveDependencySources>false</includeTransitiveDependencySources>
 
-                                    <dependencySourceIncludes>
-                                        <dependencySourceInclude>com.sdv.bagri:*</dependencySourceInclude>
-                                    </dependencySourceIncludes>
+                                    <dependencySourceExcludes>
+                                        <dependencySourceExclude>com.sdv.bagri:bagri-server*</dependencySourceExclude>
+                                        <dependencySourceExclude>com.sdv.bagri:bagri-tools*</dependencySourceExclude>
+                                    </dependencySourceExcludes>
 
-                                    <debug>true</debug>
+                                    <doctitle>Bagri: XML DB on top of Distributed Cache</doctitle>
                                     <verbose>true</verbose>
-				    <outputDirectory>${project.build.directory}/javadoc</outputDirectory>
+				    <!--outputDirectory>${project.build.directory}/javadoc</outputDirectory-->
+          			    <links>
+					<link>http://docs.hazelcast.org/docs/3.3/javadoc/</link>
+					<link>http://www.saxonica.com/documentation9.5/index.html#!javadoc</link>
+          			    </links>				    
 
-                                    <subpackages>com.bagri.*</subpackages>
+                                    <windowtitle>Bagri: XML DB on top of Distributed Cache</windowtitle>
                                 </configuration>
                             </execution>
                         </executions>

@@ -102,8 +102,8 @@
 
         <!--all the dependent modules javadocs generated-->
         <fileSet>
-            <directory>target/javadoc</directory>
-            <outputDirectory>docs</outputDirectory>
+            <directory>${project.build.directory}/apidocs</directory>
+            <outputDirectory>/docs</outputDirectory>
         </fileSet>
 
     </fileSets>

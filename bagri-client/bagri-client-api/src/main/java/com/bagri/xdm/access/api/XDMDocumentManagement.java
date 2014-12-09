@@ -9,6 +9,11 @@ import com.bagri.common.query.ExpressionBuilder;
 import com.bagri.common.query.ExpressionContainer;
 import com.bagri.xdm.domain.XDMDocument;
 
+/**
+ * XDMDocumentManagement - client interface
+ * 
+ * @author Denis Sukhoroslov
+ */
 public interface XDMDocumentManagement {
 
 	//XDMDocument getDocument(String uri);

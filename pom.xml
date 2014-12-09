@@ -8,7 +8,9 @@
     <version>0.3.1-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>bagri</name>
+    <!--shortDescription>An XML DB on top of Distributed Cache</shortDescription-->
     <description>BagRi: Root Project</description>
+    <inceptionYear>2012</inceptionYear>
 
     <licenses>
         <license>
@@ -33,6 +35,10 @@
         <system>Github</system>
         <url>https://github.com/dsukhoroslov/bagri/issues</url>
     </issueManagement>
+    <organization>
+      <name>Denis Sukhoroslov</name>
+      <url>www.bagri.ru</url>
+    </organization>
 
     <modules>
         <module>bagri-common</module>
@@ -261,6 +267,14 @@
                         <groupId>asm</groupId>
                         <artifactId>asm</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>javax.servlet</groupId>
+                        <artifactId>servet-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.xml.stream</groupId>
+                        <artifactId>stax-api</artifactId>
+                    </exclusion>
                     <!-- we must exclude here much more.. -->
                 </exclusions>
             </dependency>
@@ -478,6 +492,7 @@
                 <executions>
                     <execution>
                         <id>attach-sources</id>
+			<phase>package</phase>
                         <goals>
                             <goal>jar</goal>
                         </goals>
