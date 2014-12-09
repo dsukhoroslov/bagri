@@ -10,7 +10,7 @@
     <name>bagri</name>
     <!--shortDescription>An XML DB on top of Distributed Cache</shortDescription-->
     <description>BagRi: Root Project</description>
-    <inceptionYear>2012</inceptionYear>
+    <inceptionYear>2013</inceptionYear>
 
     <licenses>
         <license>
@@ -29,6 +29,12 @@
             <id>dsukhoroslov</id>
             <name>Denis Sukhoroslov</name>
             <email>dsukhoroslov@gmail.com</email>
+            <url>http://lnkd.in/Qxq9gy</url>
+            <roles>
+                <role>architect</role>
+                <role>developer</role>
+            </roles>
+            <timezone>+3</timezone>
         </developer>
     </developers>
     <issueManagement>

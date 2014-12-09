@@ -41,20 +41,13 @@
             <scope>test</scope>
         </dependency>
 
-        <!--dependency>
+        <dependency>
             <groupId>com.hazelcast</groupId>
             <artifactId>hazelcast</artifactId>
-        </dependency-->
-
+        </dependency>
         <dependency>
             <groupId>com.hazelcast</groupId>
             <artifactId>hazelcast-client</artifactId>
-            <!--exclusions>
-                <exclusion>
-                    <groupId>com.hazelcast</groupId>
-                    <artifactId>hazelcast</artifactId>
-                </exclusion>
-            </exclusions-->
         </dependency>
         <dependency>
             <groupId>com.hazelcast</groupId>
