@@ -113,6 +113,7 @@
 
         <!--DEFAULT MAVEN PLUGINS OVERRIDEN VERSIONS-->
         <!--must be greater than 2.2 cause of bug fixes-->
+        <!--maven-assembly-plugin.version>2.4</maven-assembly-plugin.version-->
         <maven-assembly-plugin.version>2.5.2</maven-assembly-plugin.version>
         <maven-javadoc-plugin.version>2.10.1</maven-javadoc-plugin.version>
         <maven-source-plugin.version>2.2.1</maven-source-plugin.version>

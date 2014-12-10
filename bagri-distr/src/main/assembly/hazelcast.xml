@@ -6,106 +6,11 @@
     <id>hazelcast</id>
     <includeBaseDirectory>true</includeBaseDirectory>
     <formats>
-        <!--format>zip</format-->
+        <format>zip</format>
         <format>tar.gz</format>
     </formats>
 
-    <dependencySets>
-        <dependencySet>
-            <outputDirectory>lib</outputDirectory>
-            <excludes>
-                <exclude>*:nbm</exclude>
-            </excludes>
-        </dependencySet>
-        <dependencySet>
-            <outputDirectory>distr</outputDirectory>
-            <includes>
-                <include>*:nbm</include>
-            </includes>
-        </dependencySet>
-    </dependencySets>
-
-    <moduleSets>
-        <moduleSet>
-	    <useAllReactorProjects>true</useAllReactorProjects>
-	    <!--includeSubModules>true</includeSubModules-->
-	    <includes>
-            	<include>com.sdv.bagri:bagri-samples-client</include>
-	    </includes>
-	    <sources>
-		<outputDirectoryMapping>samples/${module.basedir.name}</outputDirectoryMapping>
-		<excludeSubModuleDirectories>true</excludeSubModuleDirectories>
-        	<fileSets>
-          	    <fileSet>
-            		<includes>
-                	    <include>src/**</include>
-                	    <include>pom.xml</include>
-	            	</includes>
-          	    </fileSet>
-        	</fileSets>
-      	    </sources>
-        </moduleSet>
-    </moduleSets>
-
-    <fileSets>
-
-        <!--files from bin directory must be executable-->
-        <fileSet>
-            <directory>src/main/bin</directory>
-            <outputDirectory>/bin</outputDirectory>
-            <lineEnding>unix</lineEnding>
-            <fileMode>755</fileMode>
-            <includes>
-                <include>*.sh</include>
-            </includes>
-        </fileSet>
-
-        <!--other exec files-->
-        <fileSet>
-            <directory>src/main/bin</directory>
-            <outputDirectory>/bin</outputDirectory>
-            <lineEnding>unix</lineEnding>
-            <includes>
-                <include>*.conf</include>
-                <include>*.bat</include>
-                <include>*.cmd</include>
-            </includes>
-        </fileSet>
-
-        <!--config files are copied from resources-->
-        <fileSet>
-            <directory>src/main/resources</directory>
-            <outputDirectory>/config</outputDirectory>
-            <includes>
-                <include>**/spring/*.*</include>
-                <include>**/*.*</include>
-            </includes>
-        </fileSet>
-
-        <!--sample datasets are copied from samples-->
-        <fileSet>
-            <directory>src/main/data</directory>
-            <outputDirectory>/data</outputDirectory>
-            <includes>
-                <include>**/*.*</include>
-            </includes>
-        </fileSet>
-
-        <!--produced localy xqj-driver jar goes to distr-->
-        <fileSet>
-            <directory>${project.build.directory}</directory>
-            <outputDirectory>/distr</outputDirectory>
-            <includes>
-                <include>*-xqj.jar</include>
-            </includes>
-        </fileSet>
-
-        <!--all the dependent modules javadocs generated-->
-        <fileSet>
-            <directory>${project.build.directory}/apidocs</directory>
-            <outputDirectory>/docs</outputDirectory>
-        </fileSet>
-
-    </fileSets>
-
+    <componentDescriptors>
+        <componentDescriptor>common.xml</componentDescriptor>
+    </componentDescriptors>
 </assembly>  

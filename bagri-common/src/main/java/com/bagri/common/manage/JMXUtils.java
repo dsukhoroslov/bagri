@@ -172,7 +172,7 @@ public class JMXUtils {
     /**
      * @param name  Statistics name
      * @param desc  Statistics description
-     * @param props Statistics map
+     * @param map	Statistics name/value map
      * @return Composite data
      */
     public static CompositeData mapToComposite(String name, String desc, Map<String, Object> map) {

@@ -34,7 +34,7 @@ public class XDMElement {
 	}
 
 	/**
-	 * @param long elementId the element Id to set
+	 * @param elementId the element Id to set
 	 */
 	public void setElementId(long elementId) {
 		this.elementId = elementId;

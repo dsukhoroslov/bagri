@@ -25,14 +25,15 @@ public interface XDMSchemaDictionary {
 	/**
 	 * 
 	 * @param namespace
-	 * @return
+	 * @return namespace prefix: http://tpox-benchmark.com/security -> ns0
 	 */
 	String translateNamespace(String namespace);
 	
 	/**
 	 * 
 	 * @param namespace
-	 * @return
+	 * @param prefix
+	 * @return namespace prefix: http://tpox-benchmark.com/security -> ns0
 	 */
 	String translateNamespace(String namespace, String prefix);
 

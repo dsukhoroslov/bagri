@@ -17,9 +17,9 @@ public class XDMIndexKey<T1, T2> {
 	    /**
 	     * Class constructor
 	     *
-	     * @param T1 path
-	     * @param T2 index
-	     * @param long documentId
+	     * @param path	<T1>
+	     * @param index	<T2>
+	     * @param documentId long
 	     */
 	    public XDMIndexKey(T1 path, T2 index, long documentId) {
 	        this.path = path;
@@ -28,7 +28,7 @@ public class XDMIndexKey<T1, T2> {
 	    }
 
 	    /**
-	     * @return T1 path
+	     * @return path	<T1>
 	     */
 	    public T1 getPath() {
 	        return path;
@@ -39,7 +39,7 @@ public class XDMIndexKey<T1, T2> {
 	    }
 
 	    /**
-	     * @return T2 index
+	     * @return index <T2>
 	     */
 	    public T2 getIndex() {
 	        return index;
