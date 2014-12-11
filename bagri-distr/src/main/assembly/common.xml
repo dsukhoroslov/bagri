@@ -4,22 +4,19 @@
     <dependencySets>
         <dependencySet>
             <outputDirectory>lib</outputDirectory>
-            <excludes>
-                <exclude>*:bagri-tools-*</exclude>
-                <exclude>*:bagri-distr:*</exclude>
+            <!--excludes>
+                <exclude>*:bagri-tools-*</exclude-->
 		<!-- doesn't work -->
-		<!--exclude>*:servlet-api:2.5:20081211:*</exclude>
-                <exclude>*:nbm</exclude-->
-            </excludes>
+		<!--exclude>*:servlet-api:2.5:20081211:*</exclude-->
+            <!--/excludes-->
+	    <useProjectArtifact>false</useProjectArtifact>
         </dependencySet>
         <!--dependencySet>
             <outputDirectory>distr</outputDirectory>
-            <includes-->
-		<!-- doesn't work -->
-                <!--include>*:bagri-tools-vvmp:*:nbm</include-->
-                <!--include>*:bagri-tools-vvmp:*</include-->
-                <!--include>*:nbm</include>
+            <includes>
+                <include>*:nbm:*</include>
             </includes>
+	    <useStrictFiltering>true</useStrictFiltering>
         </dependencySet-->
     </dependencySets>
 
@@ -44,9 +41,8 @@
       	    </sources>
         </moduleSet>
 
-        <moduleSet>
+        <!--moduleSet>
 	    <useAllReactorProjects>true</useAllReactorProjects>
-	    <includeSubModules>true</includeSubModules>
 	    <includes>
             	<include>com.sdv.bagri:bagri-tools-vvmp:*</include>
 	    </includes>
@@ -54,11 +50,11 @@
 		<outputDirectory>distr</outputDirectory>
 		<includeDependencies>false</includeDependencies>
        		<includes>
-               	    <include>*.nbm</include>
+               	    <include>com.sdv.bagri:bagri-tools-vvmp:nbm:*</include>
             	</includes>
 		<unpack>false</unpack>
       	    </binaries>
-        </moduleSet>
+        </moduleSet-->
     </moduleSets>
 
     <fileSets>
@@ -129,5 +125,12 @@
         </fileSet>
 
     </fileSets>
+
+    <files>
+        <file>
+            <source>../bagri-tools/bagri-tools-vvmp/target/bagri-tools-vvmp-${project.version}.nbm</source>
+            <outputDirectory>distr</outputDirectory>
+        </file>
+    </files>
 
 </component>  

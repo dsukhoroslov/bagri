@@ -51,17 +51,10 @@
 
         <!--dependency>
 	    <groupId>com.sdv.bagri</groupId>
-	    <artifactId>bagri-test-tpox</artifactId>
-	    <version>${project.version}</version>
-        </dependency-->
-        <dependency>
-	    <groupId>com.sdv.bagri</groupId>
 	    <artifactId>bagri-tools-vvmp</artifactId>
-	    <!--version>${project.version}</version-->
-            <version>0.3.1-SNAPSHOT</version>
+	    <version>${project.version}</version>
 	    <type>nbm</type>
-        </dependency>
-
+        </dependency-->
     </dependencies>
 
     <profiles>
@@ -80,8 +73,6 @@
                                     <goal>jar</goal>
                                 </goals>
                                 <configuration>
-                                    <!--aggregate>true</aggregate-->
-
                                     <!-- switch on dependency-driven aggregation -->
                                     <includeDependencySources>true</includeDependencySources>
 				    <includeTransitiveDependencySources>false</includeTransitiveDependencySources>
@@ -89,12 +80,11 @@
                                     <dependencySourceExcludes>
                                         <dependencySourceExclude>com.sdv.bagri:bagri-server*</dependencySourceExclude>
                                         <!--dependencySourceExclude>com.sdv.bagri:bagri-test*</dependencySourceExclude-->
-                                        <dependencySourceExclude>com.sdv.bagri:bagri-tools*</dependencySourceExclude>
+                                        <!--dependencySourceExclude>com.sdv.bagri:bagri-tools*</dependencySourceExclude-->
                                     </dependencySourceExcludes>
 
                                     <doctitle>Bagri: XML DB on top of Distributed Cache</doctitle>
                                     <verbose>false</verbose>
-				    <!--outputDirectory>${project.build.directory}/javadoc</outputDirectory-->
           			    <links>
 					<link>http://docs.hazelcast.org/docs/3.3/javadoc/</link>
 					<link>http://www.saxonica.com/documentation9.5/index.html#!javadoc</link>

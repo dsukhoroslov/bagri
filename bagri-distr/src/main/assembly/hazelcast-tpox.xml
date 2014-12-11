@@ -16,7 +16,7 @@
         <moduleSet>
 	    <useAllReactorProjects>true</useAllReactorProjects>
 	    <includes> 
-            	<include>com.sdv.bagri:bagri-test-tpox:*</include>
+            	<include>*:bagri-test-tpox:*</include>
 	    </includes>
 	    <sources>
 		<includeModuleDirectory>false</includeModuleDirectory>
@@ -61,10 +61,10 @@
         </fileSet>
 
         <fileSet>
-            <directory>src/main/tpox</directory>
+            <directory>../etc/lib</directory>
             <outputDirectory>/lib</outputDirectory>
             <includes>
-                <include>*.jar</include>
+                <include>tpox-workload-2.1.jar</include>
             </includes>
         </fileSet>
     </fileSets>
