@@ -165,6 +165,17 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
 		//mgr.setSchemaDictionary(schemaDict);
 		return mgr;
 	}
+
+	private void adjustConnectionProps(Properties props) {
+		String members = props.getProperty("xdm.schema.members");
+		String[] servers = members.split(", ");
+		if (servers.length > 0) {
+			String port = props.getProperty("xdm.schema.ports.first");
+			if (port != null) {
+				props.setProperty("xdm.schema.members", servers[0] + ":" + port);
+			}
+		}
+	}
 	
 	public HazelcastInstance initSchema(String schemaName, Properties props) {
     	logger.debug("initSchema.enter; schema: {}; properties: {}", schemaName, props);
@@ -175,12 +186,14 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
     		return ctx.getBean("hzInstance", HazelcastInstance.class);
     	}
     	
+    	adjustConnectionProps(props);
     	props.setProperty("xdm.schema.name", schemaName);
     	PropertiesPropertySource pps = new PropertiesPropertySource(schemaName, props);
     	
     	try {
     		ctx = new ClassPathXmlApplicationContext();
     		ctx.getEnvironment().getPropertySources().addFirst(pps);
+            //String contextPath = System.getProperty("xdm.config.context.file");
     		ctx.setConfigLocation("spring/schema-admin-context.xml");
     		ctx.refresh();
     		

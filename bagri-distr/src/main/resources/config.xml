@@ -67,7 +67,8 @@
                 <entry name="xdm.schema.ports.last">10600</entry>
                 <entry name="xqj.schema.defaultOrderForEmptySequences">DEFAULT_ORDER_FOR_EMPTY_SEQUENCES_LEAST</entry>
                 <entry name="xqj.schema.copyNamespacesModePreserve">COPY_NAMESPACES_MODE_PRESERVE</entry>
-                <entry name="xdm.schema.members">192.168.1.87, 192.168.1.100, 192.168.1.200</entry>
+                <!--entry name="xdm.schema.members">192.168.1.87, 192.168.1.100, 192.168.1.200</entry-->
+                <entry name="xdm.schema.members">localhost</entry>
                 <entry name="xdm.schema.thread.pool">32</entry>
                 <entry name="xqj.schema.queryLanguageTypeAndVersion">LANGTYPE_XQUERY</entry>
                 <entry name="xqj.schema.defaultElementTypeNamespace"></entry>
