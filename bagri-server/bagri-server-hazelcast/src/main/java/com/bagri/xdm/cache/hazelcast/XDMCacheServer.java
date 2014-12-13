@@ -1,6 +1,7 @@
 package com.bagri.xdm.cache.hazelcast;
 
 import static com.bagri.xdm.access.api.XDMCacheConstants.PN_XDM_SYSTEM_POOL;
+import static com.bagri.xdm.access.api.XDMConfigConstants.*;
 import static com.bagri.xdm.system.XDMNode.op_admin_port;
 import static com.bagri.xdm.system.XDMNode.op_node_name;
 import static com.bagri.xdm.system.XDMNode.op_node_role;
@@ -52,14 +53,10 @@ public class XDMCacheServer {
     private static final transient Logger logger = LoggerFactory.getLogger(XDMCacheServer.class);
     private static ApplicationContext context;
     
-    private static final String xdm_config_filename = "xdm.config.filename";
-    private static final String xdm_config_context_filename = "xdm.config.context.file";
-    private static final String xdm_schema_store_type = "xdm.schema.store.type";
-    
     @SuppressWarnings("unchecked")
 	public static void main(String[] args) {
     	
-        String contextPath = System.getProperty(xdm_config_context_filename);
+        String contextPath = System.getProperty(xdm_config_context_file);
         logger.info("Starting XDM node with Context [{}]", contextPath);
     	
         context = new ClassPathXmlApplicationContext(contextPath);

@@ -11,7 +11,7 @@
 
     <!-- Beans Declarations -->
     
-    <context:property-placeholder location="file:${xdm.config.path}/xdm-admin.properties" />
+    <context:property-placeholder location="file:${xdm.config.path}/admin.properties" />
     <context:annotation-config />
 
     <!--bean id="jmx.server" class="org.springframework.jmx.support.MBeanServerFactoryBean"

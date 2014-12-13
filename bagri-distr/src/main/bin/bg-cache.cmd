@@ -11,7 +11,7 @@ if "%java_home%"=="" (set java_exec=java) else (set java_exec=%java_home%\bin\ja
 
 if "%1"=="" (set node_name=first) else (set node_name=%1)
 
-if not exist ..\config\xdm-%node_name%.properties goto usage
+if not exist ..\config\%node_name%.properties goto usage
 
 if "%2"=="" (set node_num=0) else (set node_num=%2)
 
@@ -37,10 +37,10 @@ set java_opts=%java_opts% -Xloggc:../logs/%node_name%/gc/gc.%node_num%.log -XX:+
 rem specify logging & XDM options
 set java_opts=%java_opts% -Dnode.name=%node_name% -Dnode.instance=%node_num%
 set java_opts=%java_opts% -Dnode.logdir=../logs/%node_name% -Dxdm.log.level=info
-set java_opts=%java_opts% -Dlogback.configurationFile=../config/xdm-cache-logging.xml
+set java_opts=%java_opts% -Dlogback.configurationFile=../config/logging.xml
 set java_opts=%java_opts% -Dxdm.config.path=../config
-set java_opts=%java_opts% -Dxdm.config.context.file=spring/system-server-context.xml
-set java_opts=%java_opts% -Dxdm.config.properties.file=xdm-%node_name%.properties
+set java_opts=%java_opts% -Dxdm.config.context.file=spring/cache-system-context.xml
+set java_opts=%java_opts% -Dxdm.config.properties.file=%node_name%.properties
 set java_opts=%java_opts% -Dxdm.config.filename=../config/config.xml
 
 rem specify JMX options
@@ -56,10 +56,10 @@ goto exit
 
 :usage
 
-echo ERROR: config file ..\config\xdm-%node_name%.properties not found
+echo ERROR: config file ..\config\%node_name%.properties not found
 
 echo Usage:
-echo   ^<app_home^>\bin\xdm-cache-server.cmd config-name instance-num
+echo   ^<app_home^>\bin\bg-cache.cmd properties-name instance-num
 goto exit
 
 :exit

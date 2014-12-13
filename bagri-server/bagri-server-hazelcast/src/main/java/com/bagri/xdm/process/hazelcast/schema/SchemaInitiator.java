@@ -1,5 +1,6 @@
 package com.bagri.xdm.process.hazelcast.schema;
 
+import static com.bagri.xdm.access.api.XDMConfigConstants.*;
 import static com.bagri.xdm.access.hazelcast.pof.XDMDataSerializationFactory.cli_XDMInitSchemaTask;
 
 import java.io.IOException;
@@ -39,13 +40,15 @@ public class SchemaInitiator extends SchemaDenitiator {
     		return false;
 		}
 		
-    	properties.setProperty("xdm.schema.name", schemaName);
+    	properties.setProperty(xdm_schema_name, schemaName);
     	PropertiesPropertySource pps = new PropertiesPropertySource(schemaName, properties);
     	
     	try {
     		ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext();
     		ctx.getEnvironment().getPropertySources().addFirst(pps);
-    		ctx.setConfigLocation("spring/schema-server-context.xml");
+            //String contextPath = System.getProperty(xdm_config_context_file);
+    		//ctx.setConfigLocation(contextPath);
+    		ctx.setConfigLocation("spring/cache-schema-context.xml");
     		ctx.refresh();
 
     		hz = ctx.getBean("hzInstance", HazelcastInstance.class);

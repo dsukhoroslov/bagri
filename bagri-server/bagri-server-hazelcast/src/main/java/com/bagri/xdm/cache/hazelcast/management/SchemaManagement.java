@@ -39,6 +39,7 @@ import com.hazelcast.core.MemberAttributeEvent;
 import com.hazelcast.core.MembershipEvent;
 import com.hazelcast.core.MembershipListener;
 
+import static com.bagri.xdm.access.api.XDMConfigConstants.*;
 import static com.bagri.xdm.process.hazelcast.util.HazelcastUtils.getMemberSchemas;
 
 @ManagedResource(objectName="com.bagri.xdm:type=Management,name=SchemaManagement", 
@@ -167,12 +168,12 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
 	}
 
 	private void adjustConnectionProps(Properties props) {
-		String members = props.getProperty("xdm.schema.members");
+		String members = props.getProperty(xdm_schema_members);
 		String[] servers = members.split(", ");
 		if (servers.length > 0) {
-			String port = props.getProperty("xdm.schema.ports.first");
+			String port = props.getProperty(xdm_schema_ports_first);
 			if (port != null) {
-				props.setProperty("xdm.schema.members", servers[0] + ":" + port);
+				props.setProperty(xdm_schema_members, servers[0] + ":" + port);
 			}
 		}
 	}
@@ -187,14 +188,15 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
     	}
     	
     	adjustConnectionProps(props);
-    	props.setProperty("xdm.schema.name", schemaName);
+    	props.setProperty(xdm_schema_name, schemaName);
     	PropertiesPropertySource pps = new PropertiesPropertySource(schemaName, props);
     	
     	try {
     		ctx = new ClassPathXmlApplicationContext();
     		ctx.getEnvironment().getPropertySources().addFirst(pps);
-            //String contextPath = System.getProperty("xdm.config.context.file");
-    		ctx.setConfigLocation("spring/schema-admin-context.xml");
+            //String contextPath = System.getProperty(xdm_config_context_file);
+    		//ctx.setConfigLocation(contextPath);
+    		ctx.setConfigLocation("spring/admin-schema-context.xml");
     		ctx.refresh();
     		
     		ctxCache.put(schemaName, ctx);

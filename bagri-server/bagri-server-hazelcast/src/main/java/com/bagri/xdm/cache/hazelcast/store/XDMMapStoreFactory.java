@@ -14,6 +14,8 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.env.PropertySource;
 
 import static com.bagri.xdm.access.api.XDMCacheConstants.*;
+import static com.bagri.xdm.access.api.XDMConfigConstants.*;
+
 import com.bagri.xdm.cache.hazelcast.store.hive.HiveCacheStore;
 import com.bagri.xdm.cache.hazelcast.store.xml.DocumentCacheStore;
 import com.bagri.xdm.cache.hazelcast.store.xml.ElementCacheStore;
@@ -58,8 +60,8 @@ public class XDMMapStoreFactory implements ApplicationContextAware, MapStoreFact
 
 	@Override
 	public MapLoader newMapStore(String mapName, Properties properties) {
-		String schemaName = properties.getProperty("xdm.schema.name");
-		String type = properties.getProperty("xdm.schema.store.type");
+		String schemaName = properties.getProperty(xdm_schema_name);
+		String type = properties.getProperty(xdm_schema_store_type);
 		logger.debug("newMapStore.enter; got properties: {} for map: {}", properties, mapName);
 		MapStore mStore = null;
 		try {
@@ -67,11 +69,11 @@ public class XDMMapStoreFactory implements ApplicationContextAware, MapStoreFact
 				ClassPathXmlApplicationContext ctx = contexts.get(type);
 				if (ctx == null) {
 					if (st_mongo.equals(type)) {
-			    		ctx = loadContext(st_mongo, "spring/mongo-context.xml");
+			    		ctx = loadContext(st_mongo, "spring/store-mongo-context.xml");
 					} else if (st_hive.equals(type)) {
-			    		ctx = loadContext(st_hive, "spring/hive-context.xml");
+			    		ctx = loadContext(st_hive, "spring/store-hive-context.xml");
 					} else if (st_xml.equals(type)) {
-			    		ctx = loadContext(st_xml, "spring/xml-context.xml");
+			    		ctx = loadContext(st_xml, "spring/store-xml-context.xml");
 					}
 				}
 				logger.debug("newMapStore; got context: {}", ctx);

@@ -1,1 +1,0 @@
-del ..\..\bagri-servre\bagri-server-hazelcast\logs\cache\*

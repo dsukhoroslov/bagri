@@ -117,38 +117,6 @@
                 <entry name="xdm.schema.population.size">1</entry>
             </properties>
         </schema>
-        <schema name="XDM" active="true">
-            <version>1</version>
-            <createdAt>2014-10-06T21:30:58.096+04:00</createdAt>
-            <createdBy>SDV</createdBy>
-            <description>Catalog: schema from XDM spec</description>
-            <properties>
-                <entry name="xqj.schema.orderingMode">ORDERING_MODE_UNORDERED</entry>
-                <entry name="xqj.schema.defaultCollationUri"></entry>
-                <entry name="xqj.schema.constructionMode">CONSTRUCTION_MODE_PRESERVE</entry>
-                <entry name="xqj.schema.bindingMode">BINDING_MODE_IMMEDIATE</entry>
-                <entry name="xqj.schema.scrollability">SCROLLTYPE_FORWARD_ONLY</entry>
-                <entry name="xdm.schema.ports.first">10050</entry>
-                <entry name="xdm.schema.ports.last">10060</entry>
-                <entry name="xqj.schema.defaultOrderForEmptySequences">DEFAULT_ORDER_FOR_EMPTY_SEQUENCES_LEAST</entry>
-                <entry name="xqj.schema.copyNamespacesModePreserve">COPY_NAMESPACES_MODE_PRESERVE</entry>
-                <entry name="xdm.schema.members">192.168.1.87, 192.168.1.100, 192.168.1.200</entry>
-                <entry name="xdm.schema.thread.pool">10</entry>
-                <entry name="xqj.schema.queryLanguageTypeAndVersion">LANGTYPE_XQUERY</entry>
-                <entry name="xqj.schema.defaultElementTypeNamespace"></entry>
-                <entry name="xqj.schema.queryTimeout">0</entry>
-                <entry name="xdm.schema.store.data.path">../../etc/samples/xdm</entry>
-                <entry name="xqj.schema.baseUri">file:///C:/Work/Bagri/git/bagri/etc/samples/xdm/</entry>
-                <entry name="xdm.schema.store.type">XML</entry>
-                <entry name="xqj.schema.holdability">HOLDTYPE_CLOSE_CURSORS_AT_COMMIT</entry>
-                <entry name="xqj.schema.copyNamespacesModeInherit">COPY_NAMESPACES_MODE_INHERIT</entry>
-                <entry name="xqj.schema.boundarySpacePolicy">BOUNDARY_SPACE_PRESERVE</entry>
-                <entry name="xdm.schema.store.schema.path">C:\Work\Bagri\git\bagri\etc\samples\xdm</entry>
-                <entry name="xqj.schema.defaultFunctionNamespace">fn</entry>
-                <entry name="xdm.schema.password">XDM</entry>
-                <entry name="xdm.schema.population.size">1</entry>
-            </properties>
-        </schema>
     </schemas>
 </ns2:config>
 

@@ -1,5 +1,6 @@
 package com.bagri.xdm.process.hazelcast.node;
 
+import static com.bagri.xdm.access.api.XDMConfigConstants.*;
 import static com.bagri.xdm.access.hazelcast.pof.XDMPortableFactory.cli_XDMSetNodeOptionTask;
 import static com.bagri.xdm.access.hazelcast.pof.XDMPortableFactory.factoryId;
 
@@ -27,9 +28,6 @@ import com.hazelcast.spring.context.SpringAware;
 public class NodeOptionSetter implements Callable<Boolean>, Portable {
 	
 	private static final transient Logger logger = LoggerFactory.getLogger(NodeOptionSetter.class);
-	
-	private static final String PROPS_PATH = "xdm.config.path";
-	private static final String PROPS_NAME = "xdm.server.properties.file";
 	
 	private String admin;
 	private String comment;
@@ -62,8 +60,8 @@ public class NodeOptionSetter implements Callable<Boolean>, Portable {
 		}
 			
 		// now flush node properties no its props file
-		String propsPath = System.getProperty(PROPS_PATH);
-		String propsName = System.getProperty(PROPS_NAME);
+		String propsPath = System.getProperty(xdm_config_path);
+		String propsName = System.getProperty(xdm_config_properties_file);
 		if (propsName != null) {
 			storeOptions(propsPath + "/" + propsName);
 		} else {
