@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:access xmlns:ns2="http://www.bagri.com/xdm/access">
+    <roles>
+        <role name="UserManagement">
+            <version>3</version>
+            <createdAt>2014-05-29T19:29:19.858+04:00</createdAt>
+            <createdBy>dsukhoroslov</createdBy>
+            <permissions>
+                <permission resource="com.bagri.xdm:type=Management,name=UserManagement">read execute modify</permission>
+                <permission resource="com.bagri.xdm:name=*,type=User">read execute modify</permission>
+            </permissions>
+            <includedRoles></includedRoles>
+            <description>management access to all UserManagement operations</description>
+        </role>
+        <role name="NodeManagement">
+            <version>6</version>
+            <createdAt>2014-05-29T19:28:38.920+04:00</createdAt>
+            <createdBy>dsukhoroslov</createdBy>
+            <permissions>
+                <permission resource="com.bagri.xdm:type=Management,name=ClusterManagement">read execute modify</permission>
+                <permission resource="com.bagri.xdm:name=*,type=Node">read execute modify</permission>
+            </permissions>
+            <includedRoles></includedRoles>
+            <description>management access to all ClusterManagement operations</description>
+        </role>
+        <role name="SchemaManagement">
+            <version>3</version>
+            <createdAt>2014-05-29T19:29:00.944+04:00</createdAt>
+            <createdBy>dsukhoroslov</createdBy>
+            <permissions>
+                <permission resource="com.bagri.xdm:name=*,type=Schema">read execute modify</permission>
+                <permission resource="com.bagri.xdm:type=Schema,name=*,kind=DocumentManagement">read execute modify</permission>
+                <permission resource="com.bagri.xdm:type=Schema,name=*,kind=QueryManagement">read execute modify</permission>
+                <permission resource="com.bagri.xdm:type=Management,name=SchemaManagement">read execute modify</permission>
+            </permissions>
+            <includedRoles></includedRoles>
+            <description>management access to all SchemaManagement operations</description>
+        </role>
+        <role name="RoleManagement">
+            <version>2</version>
+            <createdAt>2014-05-29T19:26:58.463+04:00</createdAt>
+            <createdBy>dsukhoroslov</createdBy>
+            <permissions>
+                <permission resource="com.bagri.xdm:type=Management,name=RoleManagement">read execute modify</permission>
+                <permission resource="com.bagri.xdm:name=*,type=Role">read execute modify</permission>
+            </permissions>
+            <includedRoles></includedRoles>
+            <description>management access to all SchemaManagement operations</description>
+        </role>
+        <role name="AdminRole">
+            <version>5</version>
+            <createdAt>2014-05-28T09:13:20.929+04:00</createdAt>
+            <createdBy>Denis</createdBy>
+            <permissions/>
+            <includedRoles>UserManagement NodeManagement SchemaManagement RoleManagement</includedRoles>
+            <description>admin: can do everything</description>
+        </role>
+        <role name="TestRole">
+            <version>3</version>
+            <createdAt>2014-05-27T00:36:16.320+04:00</createdAt>
+            <createdBy>Denis</createdBy>
+            <permissions>
+                <permission resource="resource3">modify</permission>
+            </permissions>
+            <includedRoles></includedRoles>
+            <description>Description</description>
+        </role>
+    </roles>
+    <users>
+        <user login="SDV" active="true">
+            <version>1</version>
+            <createdAt>2014-05-23T09:42:49.630+04:00</createdAt>
+            <createdBy>admin</createdBy>
+            <permissions/>
+            <includedRoles>AdminRole</includedRoles>
+            <password>07e3379a4942bbf67f06b72fbd748f1d</password>
+        </user>
+        <user login="admin" active="true">
+            <version>2</version>
+            <createdAt>2014-05-29T01:12:30.559+04:00</createdAt>
+            <createdBy>Denis</createdBy>
+            <permissions/>
+            <includedRoles></includedRoles>
+            <password>5f4dcc3b5aa765d61d8327deb882cf99</password>
+        </user>
+    </users>
+</ns2:access>

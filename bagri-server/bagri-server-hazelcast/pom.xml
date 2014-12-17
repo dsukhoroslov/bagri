@@ -172,6 +172,41 @@
     </dependencies>
 
 
+    <build>
+      <plugins>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>buildnumber-maven-plugin</artifactId>
+          <executions>
+            <execution>
+              <phase>validate</phase>
+              <goals>
+                <goal>create</goal>
+              </goals>
+            </execution>
+          </executions>
+          <configuration>
+            <doCheck>false</doCheck>
+            <doUpdate>false</doUpdate>
+          </configuration>
+        </plugin>
+
+        <plugin>
+          <artifactId>maven-jar-plugin</artifactId>
+          <configuration>
+            <archive>
+              <manifest>
+                <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+              </manifest>
+              <!--manifestEntries>
+                <Build-Number>$\{buildNumber}</Build-Number>
+              </manifestEntries-->
+            </archive>
+          </configuration>
+        </plugin>
+      </plugins>
+    </build>
+
     <profiles>
 
         <!--LOCAL SERVER RUN PROFILE-->
@@ -236,7 +271,7 @@
                                             <sysproperty key="com.sun.management.jmxremote.authenticate" value="false"/>
                                             <sysproperty key="com.sun.management.jmxremote.ssl" value="false"/-->
                                             <sysproperty key="logback.configurationFile" value="logging.xml"/>
-                                            <sysproperty key="xdm.log.level" value="debug"/>
+                                            <sysproperty key="xdm.log.level" value="trace"/>
                                             <sysproperty key="xdm.config.path" value="src/main/resources"/>
                                             <sysproperty key="xdm.config.context.file" value="spring/cache-system-context.xml"/>
 					    <sysproperty key="xdm.config.properties.file" value="first.properties"/>

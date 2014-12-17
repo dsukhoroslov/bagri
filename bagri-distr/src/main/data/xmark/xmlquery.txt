@@ -6,15 +6,14 @@ for $b in $auction/site/people/person[@id = "person0"] return $b/name/text()
 
 -- Q2. Return the initial increases of all open auctions.
 
-let $auction := doc("auction.xml") return
+let $auction := fn:doc("auction.xml") return
 for $b in $auction/site/open_auctions/open_auction
 return <increase>{$b/bidder[1]/increase/text()}</increase>
 
 -- Q3. Return the IDs of all open auctions whose current
 --     increase is at least twice as high as the initial increase.
 
-declare base-uri "file:///C:/Work/Bagri/git/bagri/etc/samples/xmark/";
-let $auction := doc("auction.xml") return
+let $auction := fn:doc("auction.xml") return
 for $b in $auction/site/open_auctions/open_auction
 where zero-or-one($b/bidder[1]/increase/text()) * 2 <= $b/bidder[last()]/increase/text()
 return
@@ -25,7 +24,7 @@ return
 -- Q4. List the reserves of those open auctions where a
 --     certain person issued a bid before another person.
 
-let $auction := doc("auction.xml") return
+let $auction := fn:doc("auction.xml") return
 for $b in $auction/site/open_auctions/open_auction
 where
   some $pr1 in $b/bidder/personref[@person = "person20"],
@@ -35,7 +34,7 @@ return <history>{$b/reserve/text()}</history>
 
 -- Q5.  How many sold items cost more than 40?
 
-let $auction := doc("auction.xml") return
+let $auction := fn:doc("auction.xml") return
 count(
   for $i in $auction/site/closed_auctions/closed_auction
   where $i/price/text() >= 40
@@ -44,12 +43,12 @@ count(
 
 -- Q6. How many items are listed on all continents?
 
-let $auction := doc("auction.xml") return
+let $auction := fn:doc("auction.xml") return
 for $b in $auction//site/regions return count($b//item)
 
 -- Q7. How many pieces of prose are in our database?}
 
-let $auction := doc("auction.xml") return
+let $auction := fn:doc("auction.xml") return
 for $p in $auction/site
 return
   count($p//description) + count($p//annotation) + count($p//emailaddress)
@@ -57,7 +56,7 @@ return
 -- Q8. List the names of persons and the number of items they bought.
 --     (joins person, closed\_auction)}
 
-let $auction := doc("auction.xml") return
+let $auction := fn:doc("auction.xml") return
 for $p in $auction/site/people/person
 let $a :=
   for $t in $auction/site/closed_auctions/closed_auction
@@ -68,7 +67,7 @@ return <item person="{$p/name/text()}">{count($a)}</item>
 -- Q9. List the names of persons and the names of the items they bought
 --     in Europe.  (joins person, closed\_auction, item)}
 
-let $auction := doc("auction.xml") return
+let $auction := fn:doc("auction.xml") return
 let $ca := $auction/site/closed_auctions/closed_auction return
 let
     $ei := $auction/site/regions/europe/item
@@ -84,7 +83,7 @@ return <person name="{$p/name/text()}">{$a}</person>
 -- Q10. List all persons according to their interest;
 --      use French markup in the result.
 
-let $auction := doc("auction.xml") return
+let $auction := fn:doc("auction.xml") return
 for $i in
   distinct-values($auction/site/people/person/profile/interest/@category)
 let $p :=

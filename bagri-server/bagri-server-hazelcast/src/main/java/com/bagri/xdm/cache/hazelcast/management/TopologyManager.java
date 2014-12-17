@@ -1,9 +1,15 @@
 package com.bagri.xdm.cache.hazelcast.management;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.jar.Attributes;
+import java.util.jar.Manifest;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -19,6 +25,7 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 import org.springframework.jmx.export.naming.SelfNaming;
 
 import com.bagri.common.manage.JMXUtils;
+import com.bagri.xdm.cache.hazelcast.XDMCacheServer;
 import com.bagri.xdm.process.hazelcast.node.NodeInfoProvider;
 import com.bagri.xdm.process.hazelcast.node.NodeInfoProvider.InfoType;
 import com.bagri.xdm.process.hazelcast.node.NodeKiller;
@@ -76,8 +83,33 @@ public class TopologyManager implements SelfNaming {
 
 	@ManagedAttribute(description="Returns active Node version")
 	public String getVersion() {
-		// TODO: implement it.. build number etc..
-		return "0.1"; //member.getStringAttribute(XDMNode.op_node_version);
+		
+		Class clazz = XDMCacheServer.class;
+		String className = clazz.getSimpleName() + ".class";
+		String classPath = clazz.getResource(className).toString();
+		if (!classPath.startsWith("jar")) {
+		  // Class not from JAR
+			return null;
+		}
+		String manifestPath = classPath.substring(0, classPath.lastIndexOf("!") + 1) + "/META-INF/MANIFEST.MF";
+		Manifest manifest;
+
+		try (InputStream is = new URL(manifestPath).openStream()) {
+			manifest = new Manifest(is);
+			Attributes attr = manifest.getMainAttributes();
+			String version = attr.getValue("Implementation-Version");
+			String number = attr.getValue("Build-Number");
+			if (number == null) {
+				return version;
+			}
+			if (version == null) {
+				return number;
+			}
+			return version + ":" + number;
+		} catch (IOException ex) {
+			logger.error("getVersion.error", ex); 
+		}
+		return null;
 	}
 
 	@ManagedAttribute(description="Returns active Node clients")

@@ -41,8 +41,8 @@ rem "-u 83 -tr 251"  or "-u 251 -tr 83" can be use to insert the 20833
 rem security documents  (because 83 * 251 = 20833). 4166*5 = 3472*6 = 2976*7 = 2604*8 = 2314*9
 
                                       
-"%java_exec%" -server -showversion %java_opts% -cp "%app_home%\target\lib\*;%app_home%\target\*" net.sf.tpox.workload.core.WorkloadDriver -w properties/queries-xqj.xml -u 10 %*
-rem "%java_exec%" -server -showversion %java_opts% -cp "%app_home%\target\lib\*;%app_home%\target\*" net.sf.tpox.workload.core.WorkloadDriver -w properties/insSecurity-xqj.xml -tr 2083 -u 10 %*
+"%java_exec%" -server -showversion %java_opts% -cp "%app_home%\target\lib\*;%app_home%\target\*" net.sf.tpox.workload.core.WorkloadDriver -w queries/queries-xqj.xml -u 10 %*
+rem "%java_exec%" -server -showversion %java_opts% -cp "%app_home%\target\lib\*;%app_home%\target\*" net.sf.tpox.workload.core.WorkloadDriver -w queries/insSecurity-xqj.xml -tr 2083 -u 10 %*
 
 goto exit
 

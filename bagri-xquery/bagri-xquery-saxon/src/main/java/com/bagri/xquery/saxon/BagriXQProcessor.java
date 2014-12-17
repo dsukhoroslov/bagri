@@ -159,10 +159,17 @@ public class BagriXQProcessor extends SaxonXQProcessor implements XQProcessor {
 	        } else {
 	        	// cacheable = false; -> don't want to rewrite already cached xqExp/xdmExp
     	    	xqExp = (XQueryExpression) xQuery.getXqExpression();
-    	    	ExpressionBuilder xdmExp = xQuery.getXdmExpression();
-    	    	ExpressionContainer ec = new ExpressionContainer(xdmExp, getParams());
-	        	bcr.setContainer(ec);
-	        	
+    	    	Map params = getParams();
+    	    	if (params == null || params.isEmpty()) {
+    	    		// static query; must get params from the query itself..
+    	    		// or, just run it again..
+    	        	bcr.setExpression(xqExp);
+    	        	bcr.setContainer(null);
+    	    	} else {
+        	    	ExpressionBuilder xdmExp = xQuery.getXdmExpression();
+    	    		ExpressionContainer ec = new ExpressionContainer(xdmExp, params);
+    	    		bcr.setContainer(ec);
+    	    	}
 	        	// xqExp was created in another instance of XQProcesser, with different Configuration and BCR.
 	        	// the following call to xqExp.iterate causes old BCR from the expression's config to be used!
 	        	xqExp.getExecutable().setConfiguration(config);

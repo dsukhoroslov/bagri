@@ -50,7 +50,7 @@
         <role name="AdminRole">
             <version>5</version>
             <createdAt>2014-05-28T09:13:20.929+04:00</createdAt>
-            <createdBy>Denis</createdBy>
+            <createdBy>dsukhoroslov</createdBy>
             <permissions/>
             <includedRoles>UserManagement NodeManagement SchemaManagement RoleManagement</includedRoles>
             <description>admin: can do everything</description>
@@ -67,20 +67,12 @@
         </role>
     </roles>
     <users>
-        <user login="SDV" active="true">
-            <version>1</version>
-            <createdAt>2014-05-23T09:42:49.630+04:00</createdAt>
-            <createdBy>admin</createdBy>
-            <permissions/>
-            <includedRoles>AdminRole</includedRoles>
-            <password>07e3379a4942bbf67f06b72fbd748f1d</password>
-        </user>
         <user login="admin" active="true">
             <version>2</version>
             <createdAt>2014-05-29T01:12:30.559+04:00</createdAt>
-            <createdBy>Denis</createdBy>
+            <createdBy>admin</createdBy>
             <permissions/>
-            <includedRoles></includedRoles>
+            <includedRoles>AdminRole</includedRoles>
             <password>5f4dcc3b5aa765d61d8327deb882cf99</password>
         </user>
     </users>

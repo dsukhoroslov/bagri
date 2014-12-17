@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workload name="queries" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="workload_properties.xsd">
+	<collections>
+		<collection name="custacc">
+			<files dir="/data/custacc" firstfileid="1" lastfileid="1" docsperfile="50000" fileprefix="batch-" filepostfix="xml.offset"/>
+		</collection>
+		<collection name="custids">
+			<ids first="1002" last="51001" />
+		</collection>
+	</collections>
+	<transactions>
+		<transaction id="1" name="addDocument" weight="40">
+			<java-plugin>com.bagri.client.tpox.workload.BagriXQJPlugin</java-plugin>
+			<parameters>
+				<parameter>
+					<constant value="
+declare namespace bgdm=&quot;http://bagri.com/bagri-xdm&quot;;
+declare variable $doc external;
+
+for $id in bgdm:store-document($doc)
+return $id" />
+				</parameter>
+				<parameter>
+					<constant value="true" />
+				</parameter>
+				<parameter>
+					<constant value="doc" />
+				</parameter>
+				<parameter>
+					<constant value="document" />
+				</parameter>
+				<parameter>
+					<files collection="custacc"/>
+				</parameter>
+			</parameters>
+		</transaction>
+
+		<transaction id="2" name="getCustomerProfile" weight="30">
+			<java-plugin>com.bagri.client.tpox.workload.BagriXQJPlugin</java-plugin>
+			<parameters>
+				<parameter>
+					<constant value="
+declare default element namespace &quot;http://tpox-benchmark.com/custacc&quot;;
+declare variable $id external;
+
+for $cust in fn:collection(&quot;/{http://tpox-benchmark.com/custacc}Customer&quot;)/Customer
+where $cust/@id=$id
+return 
+        &lt;Customer_Profile CUSTOMERID=&quot;{$cust/@id}&quot;&gt;
+                {$cust/Name}
+                {$cust/DateOfBirth}
+                {$cust/Gender}
+                {$cust/CountryOfResidence}
+                {$cust/Languages}
+                {$cust/Addresses}
+                {$cust/EmailAddresses}
+        &lt;/Customer_Profile&gt;" />
+				</parameter>
+				<parameter>
+					<constant value="true" />
+				</parameter>
+				<parameter>
+					<constant value="id" />
+				</parameter>
+				<parameter>
+					<constant value="string" />
+				</parameter>
+				<parameter>
+					<ids collection="custids" />
+				</parameter>
+			</parameters>
+		</transaction>
+		<transaction id="3" name="getCustomerAccounts" weight="30">
+			<java-plugin>com.bagri.client.tpox.workload.BagriXQJPlugin</java-plugin>
+			<parameters>
+				<parameter>
+					<constant value="
+declare default element namespace &quot;http://tpox-benchmark.com/custacc&quot;;
+declare variable $id external;
+
+for $cust in fn:collection(&quot;/{http://tpox-benchmark.com/custacc}Customer&quot;)/Customer
+where $cust/@id=$id
+return
+	&lt;Customer&gt;{$cust/@id}
+		{$cust/Name}
+		&lt;Customer_Securities&gt;
+			{
+			 for $account in $cust/Accounts/Account	
+			 return 
+				&lt;Account BALANCE=&quot;{$account/Balance/OnlineActualBal}&quot; ACCOUNT_ID=&quot;{$account/@id}&quot;&gt;
+					&lt;Securities&gt;
+						{$account/Holdings/Position/Name}
+					&lt;/Securities&gt;
+				&lt;/Account&gt;
+			}
+		&lt;/Customer_Securities&gt;
+	&lt;/Customer&gt;" />
+				</parameter>
+				<parameter>
+					<constant value="true" />
+				</parameter>
+				<parameter>
+					<constant value="id" />
+				</parameter>
+				<parameter>
+					<constant value="string" />
+				</parameter>
+				<parameter>
+					<ids collection="custids" />
+				</parameter>
+			</parameters>
+		</transaction>
+	</transactions>
+</workload>
+

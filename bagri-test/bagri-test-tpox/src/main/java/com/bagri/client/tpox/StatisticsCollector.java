@@ -34,11 +34,12 @@ public class StatisticsCollector {
 		String schema = args[1];
 		String file = args[2];
 		String marker= args[3];
-		System.out.println("got address: " + address + "; schema: " + schema);
+		String method = args[4];
+		System.out.println("got address: " + address + "; schema: " + schema + "; method: " + method);
 
 		try {
 			StatisticsCollector sc = new StatisticsCollector(address, schema);
-			String stats = sc.getStatistics();
+			String stats = sc.getStatistics(method);
 			stats = marker + "; " + stats;
 			System.out.println("got stats: " + stats + " will append to the file: " + file);
 			stats += System.lineSeparator();
@@ -61,16 +62,16 @@ public class StatisticsCollector {
         String url = "service:jmx:rmi:///jndi/rmi://" + jmxAddress + "/jmxrmi";
         mName = new ObjectName("com.bagri.xdm:type=Schema,name=" + schema + ",kind=DocumentManagement"); 
         HashMap environment = new HashMap();
-        environment.put(JMXConnector.CREDENTIALS, new String[] {"SDV", "TPoX"});
-        //environment.put(JMXConnector.CREDENTIALS, new String[] {"admin", "password"});
+        //environment.put(JMXConnector.CREDENTIALS, new String[] {"SDV", "TPoX"});
+        environment.put(JMXConnector.CREDENTIALS, new String[] {"admin", "password"});
 
         jmxc = JMXConnectorFactory.connect(new JMXServiceURL(url), environment);
         mbsc = jmxc.getMBeanServerConnection();
 	}
 	
-	public String getStatistics() throws Exception {
+	public String getStatistics(String method) throws Exception {
 		TabularData data = (TabularData) mbsc.getAttribute(mName, "InvocationStatistics");
-		CompositeData stats = data.get(new String[] {"executeXQuery"});
+		CompositeData stats = data.get(new String[] {method});
 		StringBuffer buff = new StringBuffer();
 		for (String key: stats.getCompositeType().keySet()) {
 			buff.append(key).append("=").append(stats.get(key));

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workload name="queries" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="workload_properties.xsd">
+	<collections>
+		<collection name="security">
+			<files dir="/data/security" firstfileid="1" lastfileid="1" docsperfile="20833" fileprefix="batch-" filepostfix="xml.offset"/>
+		</collection>
+	</collections>
+	<transactions>
+
+		<transaction id="1" name="addDocument" weight="100">
+			<java-plugin>com.bagri.client.tpox.workload.BagriXDMPlugin</java-plugin>
+			<parameters>
+				<parameter>
+					<files collection="security"/>
+				</parameter>
+			</parameters>
+		</transaction>
+
+	</transactions>
+</workload>
+

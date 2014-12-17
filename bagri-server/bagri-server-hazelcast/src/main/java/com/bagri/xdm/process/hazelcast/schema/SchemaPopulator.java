@@ -31,7 +31,7 @@ public class SchemaPopulator extends SchemaDenitiator {
 
 	@Override
 	public Boolean call() throws Exception {
-    	logger.trace("call.enter; schema: {}", schemaName);
+    	logger.debug("call.enter; schema: {}", schemaName);
     	boolean result = false;
 		// get hzInstance and close it...
 		HazelcastInstance hz = Hazelcast.getHazelcastInstanceByName(schemaName);
@@ -43,7 +43,7 @@ public class SchemaPopulator extends SchemaDenitiator {
 		    	logger.error("call.error; on Schema population", ex);
 			}
 		}
-    	logger.trace("call.exit; schema {} populated: {}", schemaName, result);
+    	logger.debug("call.exit; schema {} populated: {}", schemaName, result);
 		return result;
 	}
 

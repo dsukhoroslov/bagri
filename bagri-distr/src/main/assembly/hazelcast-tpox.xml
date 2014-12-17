@@ -25,7 +25,7 @@
             		<outputDirectory>/tpox</outputDirectory>
             		<includes>
 	                    <include>**/input/*.*</include>
-               		    <include>**/properties/*.*</include>
+               		    <include>**/queries/*.*</include>
 		        </includes>
           	    </fileSet>
         	</fileSets>
@@ -33,6 +33,7 @@
 	    <binaries>
         	<outputDirectory>/lib</outputDirectory>
        		<includes>
+                    <include>*:bagri-test-common:*</include>
                     <include>*:bagri-test-tpox:*</include>
 	        </includes>
 		<unpack>false</unpack>
@@ -56,7 +57,9 @@
             <outputDirectory>/tpox</outputDirectory>
             <lineEnding>windows</lineEnding>
             <includes>
-                <include>*.cmd</include>
+                <include>set-tpox-env.cmd</include>
+                <include>tpox-xqj-*.cmd</include>
+                <include>*.txt</include>
             </includes>
         </fileSet>
 

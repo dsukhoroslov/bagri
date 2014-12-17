@@ -40,6 +40,10 @@
             <groupId>com.sdv.bagri</groupId>
             <artifactId>bagri-client-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.sdv.bagri</groupId>
+            <artifactId>bagri-test-common</artifactId>
+        </dependency>
         <!--dependency>
 	    <groupId>com.sdv.bagri</groupId>
 	    <artifactId>bagri-client-coherence</artifactId>

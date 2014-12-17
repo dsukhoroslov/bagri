@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workload name="insertCustaccs" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="workload_properties.xsd">
+	<collections>
+		<collection name="custacc">
+			<files dir="/data/custacc" firstfileid="1" lastfileid="1" docsperfile="50000" fileprefix="batch-" filepostfix="xml.offset"/>
+		</collection>
+	</collections>
+	<transactions>
+
+		<transaction id="1" name="addDocument" weight="100">
+			<java-plugin>com.bagri.client.tpox.workload.BagriXQJPlugin</java-plugin>
+			<parameters>
+				<parameter>
+					<constant value="
+declare namespace bgdm=&quot;http://bagri.com/bagri-xdm&quot;;
+declare variable $doc external;
+
+for $id in bgdm:store-document($doc)
+return $id" />
+				</parameter>
+				<parameter>
+					<constant value="true" />
+				</parameter>
+				<parameter>
+					<constant value="doc" />
+				</parameter>
+				<parameter>
+					<constant value="document" />
+				</parameter>
+				<parameter>
+					<files collection="custacc"/>
+				</parameter>
+			</parameters>
+		</transaction>
+
+	</transactions>
+</workload>

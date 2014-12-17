@@ -30,7 +30,9 @@ public abstract class EntityManagement<String, E extends XDMEntity> implements E
 	
 	protected IMap<String, E> entityCache; 
     protected HazelcastInstance hzInstance;
-    protected Map<String, EntityManager<E>> mgrCache = new HashMap<String, EntityManager<E>>(); //not sure I have to do this here
+    //not sure I have to do this here
+    //protected Map<String, EntityManager<E>> mgrCache = new HashMap<String, EntityManager<E>>(); 
+    protected Map<String, EntityManager<E>> mgrCache = new HashMap<>(); 
 
     @Autowired
 	protected AnnotationMBeanExporter mbeanExporter;

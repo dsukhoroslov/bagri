@@ -38,7 +38,7 @@ rem possible values are: member, owner, any
 
 rem think about how long time this should run
                                       
-"%java_exec%" -server -showversion %java_opts% -cp "%app_home%\target\lib\*;%app_home%\target\*" net.sf.tpox.workload.core.WorkloadDriver -w properties/orders-xqj.xml -u 10 %*
+"%java_exec%" -server -showversion %java_opts% -cp "%app_home%\target\lib\*;%app_home%\target\*" net.sf.tpox.workload.core.WorkloadDriver -w queries/orders-xqj.xml -u 10 %*
 
 goto exit
 

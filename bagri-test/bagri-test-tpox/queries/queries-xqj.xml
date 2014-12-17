@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workload name="queries" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="workload_properties.xsd">
+	<collections>
+		<collection name="orderids">
+			<ids first="103282" last="603281" />
+		</collection>
+
+		<collection name="custids">
+			<ids first="1002" last="51001" />
+		</collection>
+	</collections>
+
+	<transactions>
+		<transaction id="1" name="getSecurity" weight="20">
+			<java-plugin>com.bagri.client.tpox.workload.BagriXQJPlugin</java-plugin>
+			<parameters>
+				<parameter>
+					<constant value="
+declare namespace s=&quot;http://tpox-benchmark.com/security&quot;;
+declare variable $sym external;
+
+for $sec in fn:collection(&quot;/{http://tpox-benchmark.com/security}Security&quot;)/s:Security
+where $sec/s:Symbol=$sym
+return $sec" />
+				</parameter>
+				<parameter>
+					<constant value="true" />
+				</parameter>
+				<parameter>
+					<constant value="sym" />
+				</parameter>
+				<parameter>
+					<constant value="string" />
+				</parameter>
+				<parameter>
+					<file>input/security_symbols.txt</file>
+				</parameter>
+			</parameters>
+		</transaction>
+
+		<transaction id="2" name="getSecurityPrice" weight="20">
+			<java-plugin>com.bagri.client.tpox.workload.BagriXQJPlugin</java-plugin>
+			<parameters>
+				<parameter>
+					<constant value="
+declare namespace s=&quot;http://tpox-benchmark.com/security&quot;;
+declare variable $sym external;
+
+for $sec in fn:collection(&quot;/{http://tpox-benchmark.com/security}Security&quot;)/s:Security
+where $sec/s:Symbol=$sym
+return
+	&lt;print&gt;The open price of the security &quot;{$sec/s:Name/text()}&quot; is {$sec/s:Price/s:PriceToday/s:Open/text()} dollars&lt;/print&gt;" />
+				</parameter>
+				<parameter>
+					<constant value="true" />
+				</parameter>
+				<parameter>
+					<constant value="sym" />
+				</parameter>
+				<parameter>
+					<constant value="string" />
+				</parameter>
+				<parameter>
+					<file>input/security_symbols.txt</file>
+				</parameter>
+			</parameters>
+		</transaction>
+
+		<transaction id="3" name="searchSecurity" weight="10">
+			<java-plugin>com.bagri.client.tpox.workload.BagriXQJPlugin</java-plugin>
+			<parameters>
+
+				<parameter>
+					<constant value="
+declare default element namespace &quot;http://tpox-benchmark.com/security&quot;;
+declare variable $sect external;
+declare variable $pemin external;
+declare variable $pemax external;
+declare variable $yield external; 
+
+for $sec in fn:collection(&quot;/{http://tpox-benchmark.com/security}Security&quot;)/Security
+where $sec[SecurityInformation/*/Sector = $sect and PE[. >= $pemin and . &lt; $pemax] and Yield > $yield]
+
+return	&lt;Security&gt;
+	{$sec/Symbol}
+	{$sec/Name}
+	{$sec/SecurityType}
+	{$sec/SecurityInformation//Sector}
+	{$sec/PE}
+	{$sec/Yield}
+&lt;/Security&gt; " />
+				</parameter>
+				<parameter>
+					<constant value="true" />
+				</parameter>
+				<parameter>
+					<constant value="sect" />
+				</parameter>
+				<parameter>
+					<constant value="string" />
+				</parameter>
+				<parameter>
+					<file>input/security_sectors.txt</file>
+				</parameter>
+				<parameter>
+					<constant value="pemin" />
+				</parameter>
+				<parameter>
+					<constant value="int" />
+				</parameter>
+				<parameter>
+					<uniformint min="20" max="23" />
+				</parameter>
+				<parameter>
+					<constant value="pemax" />
+				</parameter>
+				<parameter>
+					<constant value="int" />
+				</parameter>
+				<parameter>
+					<uniformint min="25" max="27" />
+				</parameter>
+				<parameter>
+					<constant value="yield" />
+				</parameter>
+				<parameter>
+					<constant value="int" />
+				</parameter>
+				<parameter>
+					<uniformint min="4" max="6" />
+				</parameter>
+			</parameters>
+		</transaction>
+
+		<transaction id="4" name="getOrder" weight="20">
+			<java-plugin>com.bagri.client.tpox.workload.BagriXQJPlugin</java-plugin>
+			<parameters>
+				<parameter>
+					<constant value="
+declare namespace o=&quot;http://www.fixprotocol.org/FIXML-4-4&quot;;
+declare variable $ID external;
+
+for $ord in fn:collection(&quot;/{http://www.fixprotocol.org/FIXML-4-4}FIXML&quot;)/o:FIXML
+where $ord/o:Order/@ID=$ID
+return $ord/o:Order" />
+				</parameter>
+				<parameter>
+					<constant value="true" />
+				</parameter>
+				<parameter>
+					<constant value="ID" />
+				</parameter>
+				<parameter>
+					<constant value="string" />
+				</parameter>
+				<parameter>
+					<ids collection="orderids" />
+				</parameter>
+			</parameters>
+		</transaction>
+
+		<transaction id="5" name="getCustomerProfile" weight="15">
+			<java-plugin>com.bagri.client.tpox.workload.BagriXQJPlugin</java-plugin>
+			<parameters>
+				<parameter>
+					<constant value="
+declare default element namespace &quot;http://tpox-benchmark.com/custacc&quot;;
+declare variable $id external;
+
+for $cust in fn:collection(&quot;/{http://tpox-benchmark.com/custacc}Customer&quot;)/Customer
+where $cust/@id=$id
+return 
+        &lt;Customer_Profile CUSTOMERID=&quot;{$cust/@id}&quot;&gt;
+                {$cust/Name}
+                {$cust/DateOfBirth}
+                {$cust/Gender}
+                {$cust/CountryOfResidence}
+                {$cust/Languages}
+                {$cust/Addresses}
+                {$cust/EmailAddresses}
+        &lt;/Customer_Profile&gt;" />
+				</parameter>
+				<parameter>
+					<constant value="true" />
+				</parameter>
+				<parameter>
+					<constant value="id" />
+				</parameter>
+				<parameter>
+					<constant value="string" />
+				</parameter>
+				<parameter>
+					<ids collection="custids" />
+				</parameter>
+			</parameters>
+		</transaction>
+
+		<transaction id="6" name="getCustomerAccounts" weight="15">
+			<java-plugin>com.bagri.client.tpox.workload.BagriXQJPlugin</java-plugin>
+			<parameters>
+				<parameter>
+					<constant value="
+declare default element namespace &quot;http://tpox-benchmark.com/custacc&quot;;
+declare variable $id external;
+
+for $cust in fn:collection(&quot;/{http://tpox-benchmark.com/custacc}Customer&quot;)/Customer
+where $cust/@id=$id
+return
+	&lt;Customer&gt;{$cust/@id}
+		{$cust/Name}
+		&lt;Customer_Securities&gt;
+			{
+			 for $account in $cust/Accounts/Account	
+			 return 
+				&lt;Account BALANCE=&quot;{$account/Balance/OnlineActualBal}&quot; ACCOUNT_ID=&quot;{$account/@id}&quot;&gt;
+					&lt;Securities&gt;
+						{$account/Holdings/Position/Name}
+					&lt;/Securities&gt;
+				&lt;/Account&gt;
+			}
+		&lt;/Customer_Securities&gt;
+	&lt;/Customer&gt;" />
+				</parameter>
+				<parameter>
+					<constant value="true" />
+				</parameter>
+				<parameter>
+					<constant value="id" />
+				</parameter>
+				<parameter>
+					<constant value="string" />
+				</parameter>
+				<parameter>
+					<ids collection="custids" />
+				</parameter>
+			</parameters>
+		</transaction>
+
+	</transactions>
+</workload>
+

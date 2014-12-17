@@ -176,6 +176,7 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
 				props.setProperty(xdm_schema_members, servers[0] + ":" + port);
 			}
 		}
+		logger.debug("adjustConnectionProps; members: {}", props.getProperty(xdm_schema_members));
 	}
 	
 	public HazelcastInstance initSchema(String schemaName, Properties props) {

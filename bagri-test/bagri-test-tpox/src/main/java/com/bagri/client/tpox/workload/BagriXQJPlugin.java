@@ -9,25 +9,19 @@ import javax.xml.namespace.QName;
 import javax.xml.xquery.XQConnection;
 import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQExpression;
-//import javax.xml.xquery.XQItemType;
 import javax.xml.xquery.XQPreparedExpression;
 import javax.xml.xquery.XQResultSequence;
 
-
-
-//import net.sf.tpox.workload.core.WorkloadProcessor;
 import net.sf.tpox.workload.parameter.ActualParamInfo;
 import net.sf.tpox.workload.parameter.Parameter;
 import net.sf.tpox.workload.transaction.Transaction;
-//import net.sf.tpox.workload.transaction.javaplugin.GenericJavaClassPlugin;
-//import net.sf.tpox.workload.util.WorkloadEnvironment;
-
-
 
 //import org.slf4j.Logger;
 //import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+import static com.bagri.xdm.access.api.XDMConfigConstants.xdm_spring_context;
 
 public class BagriXQJPlugin extends BagriTPoXPlugin {
 
@@ -37,7 +31,7 @@ public class BagriXQJPlugin extends BagriTPoXPlugin {
 		
 		@Override
 		protected XQConnection initialValue() {
-	    	String config = System.getProperty("xqj.spring.context");
+	    	String config = System.getProperty(xdm_spring_context);
 			ApplicationContext context = new ClassPathXmlApplicationContext(config);
 			XQConnection xqc = context.getBean("xqConnection", XQConnection.class); 
 	    	logger.debug("initialValue; XQC: {}", xqc);
@@ -49,7 +43,7 @@ public class BagriXQJPlugin extends BagriTPoXPlugin {
     //private XQConnection xqc;
     
     public BagriXQJPlugin() {
-    	String config = System.getProperty("xqj.spring.context");
+    	String config = System.getProperty(xdm_spring_context);
     	logger.debug("<init>. Spring context: {}", config);
     	if (config != null) {
     	    //ApplicationContext 

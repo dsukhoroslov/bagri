@@ -34,7 +34,7 @@ public class ClientApp {
 		boolean found = false;
 		try {
 			//client.storeSecCommand();
-			long id = client.storeSecQuery();
+			//long id = client.storeSecQuery();
 			//long id = client.storeXmlDocument("axis.xml");
 			//System.out.println("document stored; id: " + id);
 			//found = client.runPriceQuery();
@@ -45,7 +45,7 @@ public class ClientApp {
 			found = client.searchSecQueryParams();
 			client.searchSecQueryParams();
 			//found = client.runAxisQuery();
-			client.removeSecCommand(id);
+			//client.removeSecCommand(id);
 		} catch (XQException e) {
 			e.printStackTrace();
 		}

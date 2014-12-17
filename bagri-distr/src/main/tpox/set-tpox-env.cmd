@@ -1,13 +1,22 @@
 
 :config
 
-if "%tpox_home%"=="" set tpox_home=.
+rem set TPoX HOME properly!
+
+if "%TPOX_HOME%"=="" set TPOX_HOME=.
 
 set app_home=../
 
 rem specify the JVM heap size
 rem set memory=1024m
 set memory=256m
+
+rem specify schema and admin hosts:ports
+set admin_addr=localhost:3330
+set schema_addr=localhost:10500
+rem set schema_addr=192.168.1.100:10500
+
+set schema=TPoX2
 
 :start
 if "%java_home%"=="" (set java_exec=java) else (set java_exec=%java_home%\bin\java)
@@ -17,12 +26,11 @@ if "%java_home%"=="" (set java_exec=java) else (set java_exec=%java_home%\bin\ja
 set java_opts=-Xms%memory% -Xmx%memory% 
 
 set java_opts=%java_opts% -Dlogback.configurationFile=tpox-logging.xml
-set java_opts=%java_opts% -Dxqj.spring.context=spring/tpox-client-context.xml
+set java_opts=%java_opts% -Dxdm.spring.context=spring/tpox-client-context.xml
 
-rem set java_opts=%java_opts% -Dxdm.schema.members=192.168.1.100:10500
-set java_opts=%java_opts% -Dxdm.schema.members=localhost:10500
-set java_opts=%java_opts% -Dxdm.schema.name=TPoX2
-set java_opts=%java_opts% -Dxdm.schema.password=TPoX2
+set java_opts=%java_opts% -Dxdm.schema.members=%schema_addr%
+set java_opts=%java_opts% -Dxdm.schema.name=%schema%
+set java_opts=%java_opts% -Dxdm.schema.password=%schema%
 set java_opts=%java_opts% -Dxdm.client.submitTo=any
 rem possible values are: member, owner, any
 

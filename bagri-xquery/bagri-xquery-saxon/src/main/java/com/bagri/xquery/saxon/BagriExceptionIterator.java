@@ -1,5 +1,7 @@
 package com.bagri.xquery.saxon;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Iterator;
 
 public class BagriExceptionIterator implements Iterator {
@@ -17,11 +19,19 @@ public class BagriExceptionIterator implements Iterator {
 
 	@Override
 	public Object next() {
-		Object result = failure;
+		//Object result = failure;
+		//if (failure != null) {
+		//	failure = failure.getCause();
+		//}
+		//return result;
 		if (failure != null) {
-			failure = failure.getCause();
+			StringWriter sw = new StringWriter();
+			failure.printStackTrace(new PrintWriter(sw));
+			sw.flush();
+			failure = null;
+			return sw.toString();
 		}
-		return result;
+		return null;
 	}
 
 	@Override

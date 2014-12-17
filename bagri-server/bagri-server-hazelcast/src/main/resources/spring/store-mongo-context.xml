@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mongo="http://www.springframework.org/schema/data/mongo"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd
+		http://www.springframework.org/schema/data/mongo http://www.springframework.org/schema/data/mongo/spring-mongo-1.0.xsd">
+
+    <!-- set some common mongo props in extra properties file -->
+    <context:property-placeholder ignore-unresolvable="true" location="classpath:/${xdm.config.properties.file}"/>
+    <context:mbean-export/>
+    
+    <mongo:mongo id="mongo" host="${xdm.schema.store.host}" port="${xdm.schema.store.port}">
+	    <!--mongo:options connections-per-host="8"
+                   threads-allowed-to-block-for-connection-multiplier="4"
+                   connect-timeout="1000"
+                   max-wait-time="1500"
+                   auto-connect-retry="true"
+                   socket-keep-alive="true"
+                   socket-timeout="1500"
+                   slave-ok="true"
+                   write-number="1"
+                   write-timeout="0"
+                   write-fsync="true"/-->
+    </mongo:mongo>
+
+    <!-- by default look for a Mongo object named 'mongo' -->
+    <mongo:jmx/>
+
+	<mongo:mapping-converter>
+		<mongo:custom-converters>
+			<mongo:converter>
+				<bean class="com.bagri.xdm.cache.hazelcast.store.mongo.DataDocumentKeyReadConverter"/>
+			</mongo:converter>
+			<mongo:converter>
+				<bean class="com.bagri.xdm.cache.hazelcast.store.mongo.DataDocumentKeyWriteConverter"/>
+			</mongo:converter>
+		</mongo:custom-converters>
+	</mongo:mapping-converter>
+	
+	<mongo:db-factory dbname="${xdm.schema.store.dbname}" mongo-ref="mongo"/>
+
+	<bean id="mongoTemplate" class="org.springframework.data.mongodb.core.MongoTemplate">
+	    <!--constructor-arg ref="mongo"/-->
+	    <constructor-arg name="mongoDbFactory" ref="mongoDbFactory"/>
+	    <constructor-arg name="mongoConverter" ref="mappingConverter"/>
+	</bean>
+
+	<bean id="mongoCacheStore" class="com.hazelcast.spring.mongodb.MongoMapStore">
+	    <property name="mongoTemplate" ref="mongoTemplate" />
+	</bean>
+
+	<bean id="elementCacheStore" class="com.bagri.xdm.cache.hazelcast.store.mongo.ElementCacheStore">
+	    <property name="mongoCacheStore" ref="mongoCacheStore" />
+	</bean>
+
+</beans>
