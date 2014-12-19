@@ -78,7 +78,7 @@ public class BagriXQDataSourceTest {
 	@Test
 	public void testStoreSecurity() throws XQException {
 
-		String dName = "C:\\Work\\Bagri\\project\\trunk\\etc\\samples\\";
+		String dName = "..\\etc\\samples\\tpox\\";
 		String xml;
 		try {
 			xml = readTextFile(dName + "security1500.xml");

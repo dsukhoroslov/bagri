@@ -22,6 +22,7 @@
 				<hz:property name="hazelcast.jmx">true</hz:property>
 				<hz:property name="hazelcast.jmx.detailed">true</hz:property>
 				<hz:property name="hazelcast.logging.type">slf4j</hz:property>
+				<hz:property name="hazelcast.partition.count">${xdm.schema.partition.count}</hz:property>
 				<!--hz:property name="hazelcast.operation.thread.count">271</hz:property-->
 				<!--hz:property name="hazelcast.initial.min.cluster.size">${xdm.schema.population.size}</hz:property-->
 			</hz:properties>

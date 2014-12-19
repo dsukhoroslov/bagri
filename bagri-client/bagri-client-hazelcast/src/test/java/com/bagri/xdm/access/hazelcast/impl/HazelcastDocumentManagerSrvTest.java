@@ -28,7 +28,7 @@ public class HazelcastDocumentManagerSrvTest extends XDMDocumentManagerTest {
 		System.setProperty(PN_CACHE_MODE, PV_MODE_CLIENT);
 		System.setProperty(PN_SCHEMA_NAME, "TPoX2");
 		System.setProperty(PN_SCHEMA_PASS, "TPoX2");
-		sampleRoot = "..\\..\\etc\\samples\\data\\";
+		sampleRoot = "..\\..\\etc\\samples\\tpox\\";
 	}
 
 	@AfterClass

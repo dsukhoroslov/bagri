@@ -27,7 +27,7 @@ public class HazelcastSchemaDictionaryTest extends XDMSchemaDictionaryTest {
 		System.setProperty(PN_CACHE_MODE, PV_MODE_CLIENT);
 		System.setProperty(PN_SCHEMA_NAME, "TPoX2");
 		System.setProperty(PN_SCHEMA_PASS, "TPoX2");
-		sampleRoot = "..\\..\\etc\\samples\\schema\\";
+		sampleRoot = "..\\..\\etc\\samples\\tpox\\";
 	}
 
 	@AfterClass

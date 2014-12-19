@@ -52,7 +52,7 @@ public class CoherenceDocumentManagerTest extends XDMDocumentManagerTest {
 		CacheFactory.getCache(CN_XDM_NAMESPACE_DICT);
 		CacheFactory.getCache(CN_XDM_PATH_DICT);
 		System.out.println("cluster started");
-		sampleRoot = "C:\\Work\\Bagri\\project\\trunk\\etc\\samples\\";
+		sampleRoot = "..\\..\\etc\\samples\\tpox\\";
 	}
 
 	@AfterClass
