@@ -30,6 +30,9 @@ public class BagriXQSequenceTest {
 	@Before
 	public void setUp() throws Exception {
 	    XQDataSource xqds = new BagriXQDataSource();
+	    xqds.setProperty(BagriXQDataSource.ADDRESS, "localhost:10500");
+	    xqds.setProperty(BagriXQDataSource.SCHEMA, "TPoX2");
+	    xqds.setProperty(BagriXQDataSource.PASSWORD, "TPoX2");
 	    xqds.setProperty(BagriXQDataSource.XQ_PROCESSOR, "com.bagri.xquery.saxon.BagriXQProcessorProxy");
 	    xqds.setProperty(BagriXQDataSource.XDM_MANAGER, "com.bagri.xdm.access.hazelcast.impl.DocumentManagementClient");
 		xqc = xqds.getConnection();

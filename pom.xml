@@ -34,7 +34,7 @@
                 <role>architect</role>
                 <role>developer</role>
             </roles>
-            <timezone>+3</timezone>
+            <!--timezone>+3</timezone-->
         </developer>
     </developers>
     <issueManagement>
