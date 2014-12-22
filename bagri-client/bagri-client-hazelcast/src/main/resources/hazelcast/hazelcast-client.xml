@@ -40,8 +40,8 @@
 			<serializer type-class="com.bagri.xdm.domain.XDMResults" class-name="com.bagri.xdm.access.hazelcast.pof.XDMResultsSerializer"/>
 			<serializer type-class="com.bagri.xdm.access.hazelcast.impl.HazelcastXQCursor" class-name="com.bagri.xdm.access.hazelcast.pof.XDMCursorSerializer"/>
 			<!--  these two cause ClassNotFoundException -->
-			<serializer type-class="com.bagri.xqj.BagriXQItem" class-name="com.bagri.xdm.access.hazelcast.pof.XQItemSerializer"/>
-			<serializer type-class="com.bagri.xqj.BagriXQItemType" class-name="com.bagri.xdm.access.hazelcast.pof.XQItemTypeSerializer"/>
+			<!--serializer type-class="com.bagri.xqj.BagriXQItem" class-name="com.bagri.xdm.access.hazelcast.pof.XQItemSerializer"/>
+			<serializer type-class="com.bagri.xqj.BagriXQItemType" class-name="com.bagri.xdm.access.hazelcast.pof.XQItemTypeSerializer"/-->
 			<serializer type-class="com.bagri.common.query.Expression" class-name="com.bagri.xdm.access.hazelcast.pof.ExpressionSerializer"/>
 			<serializer type-class="com.bagri.common.query.PathExpression" class-name="com.bagri.xdm.access.hazelcast.pof.ExpressionSerializer"/>
 			<serializer type-class="com.bagri.common.query.BinaryExpression" class-name="com.bagri.xdm.access.hazelcast.pof.ExpressionSerializer"/>

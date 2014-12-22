@@ -19,10 +19,16 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import javax.xml.xquery.XQDataFactory;
+import javax.xml.xquery.XQItem;
+import javax.xml.xquery.XQItemType;
+
 import com.bagri.common.idgen.IdGenerator;
 import com.bagri.common.query.ExpressionBuilder;
 import com.bagri.common.query.ExpressionContainer;
 import com.bagri.xdm.access.api.XDMDocumentManagementClient;
+import com.bagri.xdm.access.hazelcast.pof.XQItemSerializer;
+import com.bagri.xdm.access.hazelcast.pof.XQItemTypeSerializer;
 import com.bagri.xdm.access.hazelcast.process.DocumentBuilder;
 import com.bagri.xdm.access.hazelcast.process.DocumentCreator;
 import com.bagri.xdm.access.hazelcast.process.DocumentRemover;
@@ -39,6 +45,7 @@ import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.client.config.XmlClientConfigBuilder;
 import com.hazelcast.config.ClasspathXmlConfig;
 import com.hazelcast.config.Config;
+import com.hazelcast.config.SerializerConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
@@ -144,6 +151,7 @@ public class DocumentManagementClient extends XDMDocumentManagementClient {
 		setProperty(original, props, PN_SCHEMA_NAME, "schema");
 		setProperty(original, props, PN_SCHEMA_PASS, "password");
 		setProperty(original, props, PN_SERVER_ADDRESS, "address");
+		props.put("xqDataFactory", original.get("xqDataFactory"));
 		return props;
 	}
 	
@@ -172,6 +180,23 @@ public class DocumentManagementClient extends XDMDocumentManagementClient {
 			//SecureCredentials creds = new SecureCredentials(password);
 			//config.getSecurityConfig().setCredentials(creds);
 			//config.setCredentials(creds);
+			
+			XQDataFactory xqFactory = (XQDataFactory) props.get("xqDataFactory");
+			if (xqFactory != null) {
+				XQItemSerializer xqis = new XQItemSerializer();
+				xqis.setXQDataFactory(xqFactory);
+				SerializerConfig xqisc = new SerializerConfig();
+				xqisc.setTypeClass(XQItem.class);
+				xqisc.setImplementation(xqis);
+				config.getSerializationConfig().getSerializerConfigs().add(xqisc);
+				
+				XQItemTypeSerializer xqits = new XQItemTypeSerializer();
+				xqits.setXQDataFactory(xqFactory);
+				SerializerConfig xqitsc = new SerializerConfig();
+				xqitsc.setTypeClass(XQItemType.class);
+				xqitsc.setImplementation(xqits);
+				config.getSerializationConfig().getSerializerConfigs().add(xqitsc);
+			}
 			logger.debug("initializeHazelcast; config: {}", config);
 			hzClient = HazelcastClient.newHazelcastClient(config);
 			//logger.debug("initializeHazelcast; got HZ: {}", hzInstance);
@@ -390,6 +415,7 @@ public class DocumentManagementClient extends XDMDocumentManagementClient {
 			return result; 
 		} catch (Exception ex) {
 			logger.warn("executeXQuery.error; time taken: {}; exception: {}", System.currentTimeMillis() - stamp, ex);
+			ex.printStackTrace();
 		}
 		return null; 
 	}

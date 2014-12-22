@@ -66,6 +66,33 @@ public class BagriXQDataSource implements XQDataSource {
 		return initConnection(address, timeout);
 	}
 	
+	@Override
+	public XQConnection getConnection(Connection connection) throws XQException {
+		
+		// will work only if the Connection provided is an 
+		// another connection to the underlying cache
+		throw new XQException("method not supported"); //return null;
+	}
+	
+	@Override
+	public XQConnection getConnection(String username, String password) throws XQException {
+		
+		String address = getAddress();
+		logger.trace("getConnection. creating new connection for address: {}; user: {}", address, username);
+		//return new BagriXQConnection(address, timeout); //, username, password);
+		properties.put(USER, username);
+		properties.put(PASSWORD, password);
+		return initConnection(address, timeout);
+	}
+
+	private String getAddress() {
+		String address = properties.getProperty(ADDRESS);
+		if (address == null) {
+			address = properties.getProperty(HOST) + ":" + properties.getProperty(PORT);
+		}
+		return address; 
+	}
+
 	private Object makeInstance(String propName) throws XQException {
 
 		String className = properties.getProperty(propName);
@@ -79,14 +106,12 @@ public class BagriXQDataSource implements XQDataSource {
 			return instance;
 		} catch (ClassNotFoundException ex) {
 			throw new XQException("Unknown " + propName + " class: " + className);
-		} catch (InstantiationException ex) {
-			throw new XQException("Cannot instantiate " + className + ". Exception: " + ex.getMessage());
-		} catch (IllegalAccessException ex) {
+		} catch (InstantiationException | IllegalAccessException ex) {
 			throw new XQException("Cannot instantiate " + className + ". Exception: " + ex.getMessage());
 		}
 	}
 	
-	private Object initDocManager() throws XQException {
+	private Object initDocManager(BagriXQConnection connect) throws XQException {
 
 		String className = properties.getProperty(XDM_MANAGER);
 		if (className == null || className.trim().length() == 0) {
@@ -99,7 +124,9 @@ public class BagriXQDataSource implements XQDataSource {
 			try {
 				Constructor init = procClass.getConstructor(Properties.class);
 				if (init != null) {
-					return init.newInstance(properties);
+					Properties props = new Properties(properties);
+					props.put("xqDataFactory", connect);
+					return init.newInstance(props);
 				}
 			} catch (Exception ex) {
 				logger.error("initDocManager. error creating DocumentManager of type " + className + 
@@ -109,9 +136,7 @@ public class BagriXQDataSource implements XQDataSource {
 			return procClass.newInstance(); 
 		} catch (ClassNotFoundException ex) {
 			throw new XQException("Unknown class: " + className);
-		} catch (InstantiationException ex) {
-			throw new XQException("Cannot instantiate " + className + ". Exception: " + ex.getMessage());
-		} catch (IllegalAccessException ex) {
+		} catch (InstantiationException | IllegalAccessException ex) { 
 			throw new XQException("Cannot instantiate " + className + ". Exception: " + ex.getMessage());
 		}
 		
@@ -125,7 +150,7 @@ public class BagriXQDataSource implements XQDataSource {
 			if (xqp != null) {
 				if (xqp instanceof XQProcessor) {
 					//Object xdm = makeInstance(XDM_MANAGER);
-					Object xdm = initDocManager();
+					Object xdm = initDocManager(connect);
 					if (xdm != null) {
 						if (xdm instanceof XDMDocumentManagement) {
 							((XQProcessor) xqp).setXdmManager((XDMDocumentManagement) xdm);
@@ -143,32 +168,6 @@ public class BagriXQDataSource implements XQDataSource {
 			}
 		}
 		return connect;
-	}
-
-	@Override
-	public XQConnection getConnection(Connection connection) throws XQException {
-		
-		// will work only if the Connection provided is an 
-		// another connection to the underlying cache
-		
-		throw new XQException("method not supported"); //return null;
-	}
-	
-	private String getAddress() {
-		String address = properties.getProperty(ADDRESS);
-		if (address == null) {
-			address = properties.getProperty(HOST) + ":" + properties.getProperty(PORT);
-		}
-		return address; 
-	}
-
-	@Override
-	public XQConnection getConnection(String username, String password) throws XQException {
-		
-		String address = getAddress();
-		logger.trace("getConnection. creating new connection for address: {}; user: {}", address, username);
-		//return new BagriXQConnection(address, timeout); //, username, password);
-		return initConnection(address, timeout);
 	}
 
 	@Override
