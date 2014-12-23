@@ -5,11 +5,14 @@ import static com.bagri.xqj.BagriXQConstants.xs_prefix;
 import static javax.xml.xquery.XQItemType.*;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.GregorianCalendar;
 
 import javax.xml.datatype.Duration;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xquery.XQDataFactory;
 import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQItem;
@@ -17,6 +20,8 @@ import javax.xml.xquery.XQItemType;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
 
 import com.bagri.xqj.BagriXQUtils;
 import com.hazelcast.nio.ObjectDataInput;
@@ -51,10 +56,14 @@ public class XQItemSerializer implements StreamSerializer<XQItem> {
 	public XQItem read(ObjectDataInput in) throws IOException {
 		try {
 			XQItemType type = in.readObject();
-			logger.trace("read; got type: {}", type); 
+			logger.trace("read; got type: {}", type);
+			if (type == null) {
+				// throw exception?
+				return null;
+			}
 			
 			int bType = type.getBaseType();
-			if (BagriXQUtils.isAtomicType(type.getBaseType())) {
+			if (BagriXQUtils.isAtomicType(bType)) {
 				switch (bType) {
 					case XQBASETYPE_BASE64BINARY:
 		    		case XQBASETYPE_HEXBINARY: 
@@ -114,14 +123,35 @@ public class XQItemSerializer implements StreamSerializer<XQItem> {
 						QName qname = new QName(in.readUTF());
 						return xqFactory.createItemFromObject(qname, type);
 					}
+					default: {
+						String value = in.readUTF();
+						logger.trace("read; got value: {}", value); 
+						return xqFactory.createItemFromString(value, type);
+					}
 				}
 			} else {
-				//
+				String value = in.readUTF();
+				logger.trace("read; got value: {}", value); 
+				switch (type.getItemKind()) {
+					case XQITEMKIND_DOCUMENT: return xqFactory.createItemFromDocument(value, null, type);
+					case XQITEMKIND_DOCUMENT_ELEMENT: 
+					case XQITEMKIND_ATTRIBUTE: 
+					case XQITEMKIND_COMMENT:
+					case XQITEMKIND_ELEMENT:
+					case XQITEMKIND_NODE:
+					case XQITEMKIND_PI:
+					case XQITEMKIND_TEXT: {
+				        //DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+				        //DocumentBuilder parser = factory.newDocumentBuilder();
+				        //Document document = parser.parse(new InputSource(new StringReader("<e>Hello world!</e>")));
+						Document doc = BagriXQUtils.textToDocument(value);
+						return xqFactory.createItemFromNode(doc, type); 
+					}
+				}
 			}
-
-			String value = in.readUTF();
-			logger.trace("read; got value: {}", value); 
-			return xqFactory.createItemFromString(value, type);
+			
+			logger.info("read; no relevant item created, returning null");
+			return null;
 		} catch (XQException ex) {
 			throw new IOException(ex);
 		}
@@ -130,9 +160,13 @@ public class XQItemSerializer implements StreamSerializer<XQItem> {
 	@Override
 	public void write(ObjectDataOutput out, XQItem item) throws IOException {
 		try {
-			out.writeObject(item.getItemType());
-			if (BagriXQUtils.isAtomicType(item.getItemType().getBaseType())) {
-				switch (item.getItemType().getBaseType()) {
+			XQItemType type = item.getItemType();
+			out.writeObject(type);
+			logger.trace("write; got type: {}", type);
+
+			int bType = type.getBaseType();
+			if (BagriXQUtils.isAtomicType(bType)) {
+				switch (bType) {
 					case XQBASETYPE_BASE64BINARY: 
 		    		case XQBASETYPE_HEXBINARY: {
 						byte[] ba = (byte[]) item.getObject();
@@ -179,7 +213,7 @@ public class XQItemSerializer implements StreamSerializer<XQItem> {
 					}
 		    		case XQBASETYPE_FLOAT: {
 		    			out.writeFloat(item.getFloat());
-		    			return;
+						return;
 		    		}
 					case XQBASETYPE_DECIMAL: {
 						// this must be BigDecimal
@@ -197,13 +231,33 @@ public class XQItemSerializer implements StreamSerializer<XQItem> {
 		    			// must be XMLGregorianCalendar
 		    			XMLGregorianCalendar xgc = (XMLGregorianCalendar) item.getObject();
 		    			out.writeObject(xgc.toGregorianCalendar());
-		    		}					
+						return;
+		    		}
+		    		default: {
+		    			out.writeUTF(item.getItemAsString(null));
+						return;
+		    		}
 				}
 			} else {
 				//
+				switch (type.getItemKind()) {
+					case XQITEMKIND_ATTRIBUTE: 
+					case XQITEMKIND_COMMENT:
+					case XQITEMKIND_DOCUMENT:
+					case XQITEMKIND_DOCUMENT_ELEMENT:
+					case XQITEMKIND_ELEMENT:
+					case XQITEMKIND_NODE:
+					case XQITEMKIND_PI:
+					case XQITEMKIND_TEXT: {
+						out.writeUTF(item.getItemAsString(null));
+						return;
+					}
+					default: {
+						logger.info("write; wrong item kind: {}, writing as is", type.getItemKind());
+						out.writeObject(item.getObject());
+					}
+				}
 			}
-			out.writeUTF(item.getItemAsString(null));
-			//out.writeObject(item.getObject());
 		} catch (XQException ex) {
 			throw new IOException(ex);
 		}

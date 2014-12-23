@@ -30,8 +30,13 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.w3c.dom.Attr;
+import org.w3c.dom.Comment;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.ProcessingInstruction;
+import org.w3c.dom.Text;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -219,7 +224,7 @@ public class BagriXQItemAccessorTest {
 	    } catch (XQException e) {
 	    	Assert.fail("A-XQIA-3.1: getNode on element() failed with message: " + e.getMessage());
 	    }
-	    Assert.assertEquals("A-XQIA-3.1: getNode on element() failed", true, node instanceof org.w3c.dom.Element);
+	    Assert.assertEquals("A-XQIA-3.1: getNode on element() failed", true, node instanceof Element);
 	    Assert.assertEquals("A-XQIA-3.1: getNode on element() failed", "e", node.getLocalName());
 	    xqs.next();
 	    try {
@@ -227,7 +232,7 @@ public class BagriXQItemAccessorTest {
 	    } catch (XQException e) {
 	    	Assert.fail("A-XQIA-3.1: getNode on attribute() failed with message: " + e.getMessage());
 	    }
-	    Assert.assertEquals("A-XQIA-3.1: getNode on attribute() failed", true, node instanceof org.w3c.dom.Attr);
+	    Assert.assertEquals("A-XQIA-3.1: getNode on attribute() failed", true, node instanceof Attr);
 	    Assert.assertEquals("A-XQIA-3.1: getNode on attribute() failed", "a", node.getLocalName());
 	    xqe.close();
 	    
@@ -595,17 +600,17 @@ public class BagriXQItemAccessorTest {
 		    xqs.next();
 		    assertTrue(msg + "for xs:yearMonthDuration", xqs.getObject() instanceof Duration);
 		    xqs.next();
-		    assertTrue(msg + "for attribute", xqs.getObject() instanceof org.w3c.dom.Attr);
+		    assertTrue(msg + "for attribute", xqs.getObject() instanceof Attr);
 		    xqs.next();
-		    assertTrue(msg + "for comment", xqs.getObject() instanceof org.w3c.dom.Comment);
+		    assertTrue(msg + "for comment", xqs.getObject() instanceof Comment);
 		    xqs.next();
-		    assertTrue(msg + "for document", xqs.getObject() instanceof org.w3c.dom.Document);
+		    assertTrue(msg + "for document", xqs.getObject() instanceof Document);
 		    xqs.next();
-		    assertTrue(msg + "for element", xqs.getObject() instanceof org.w3c.dom.Element);
+		    assertTrue(msg + "for element", xqs.getObject() instanceof Element);
 		    xqs.next();
-		    assertTrue(msg + "for processing instruction", xqs.getObject() instanceof org.w3c.dom.ProcessingInstruction);
+		    assertTrue(msg + "for processing instruction", xqs.getObject() instanceof ProcessingInstruction);
 		    xqs.next();
-		    assertTrue(msg + "for text", xqs.getObject() instanceof org.w3c.dom.Text);
+		    assertTrue(msg + "for text", xqs.getObject() instanceof Text);
 		} catch (XQException e) {
 		    e.printStackTrace();
 		    fail("A-XQIA-4.1: getObject on element() failed with message: " + e.getMessage());

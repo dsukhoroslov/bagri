@@ -275,7 +275,6 @@ public class BagriSequenceIterator implements Iterator {
         } else if (item instanceof NodeInfo) {
         	org.w3c.dom.Node node = NodeOverNodeInfo.wrap((NodeInfo)item);
         	XQItemType xqt = BagriXQUtils.getTypeForNode(xqFactory, node);
-        	//return xqFactory.createItemFromNode(node, xqt);
         	return xqFactory.createItemFromNode(node, xqt);
         } else if (item instanceof ObjectValue) {
         	Object value = ((ObjectValue) item).getObject();

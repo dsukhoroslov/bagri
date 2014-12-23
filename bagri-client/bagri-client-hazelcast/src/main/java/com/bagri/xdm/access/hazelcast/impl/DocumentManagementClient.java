@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -96,10 +97,11 @@ public class DocumentManagementClient extends XDMDocumentManagementClient {
 			//} catch (InterruptedException ex) {
 			//	logger.info("close; interrupted: {}", ex);
 			//}
-			// destroy result queue!
-			if (cursor != null) {
-				cursor.close(true);
-			}
+		
+			// destroy result queue!?
+			//if (cursor != null) {
+			//	cursor.close(true);
+			//}
 			
 			//List<Runnable> lostTasks = execService.shutdownNow();
 			//if (lostTasks != null && lostTasks.size() > 0) {
@@ -454,10 +456,12 @@ public class DocumentManagementClient extends XDMDocumentManagementClient {
 
 		Object result = null;
 		long timeout = Long.parseLong(props.getProperty("timeout", "0"));
+		int fetchSize = Integer.parseInt(props.getProperty("batchSize", "0"));
 		try {
-			if (cursor != null) {
-				cursor.close(false);
-			}
+			//if (cursor != null) {
+			//	cursor.close(false);
+			//}
+			
 			if (timeout > 0) {
 				cursor = (HazelcastXQCursor) future.get(timeout, TimeUnit.SECONDS);
 			} else {
@@ -472,7 +476,12 @@ public class DocumentManagementClient extends XDMDocumentManagementClient {
 					throw ex;
 				}
 			}
-			result = cursor;
+			
+			if (fetchSize == 0) {
+				result = extractFromCursor(cursor);
+			} else {
+				result = cursor;
+			}
 		} catch (TimeoutException ex) {
 			future.cancel(true);
 			logger.warn("execXQuery.error; query timed out", ex);
@@ -487,6 +496,14 @@ public class DocumentManagementClient extends XDMDocumentManagementClient {
 		// get it form some common service, 
 		// QueryManagement most probably
 		return query.hashCode();
+	}
+	
+	private Iterator extractFromCursor(HazelcastXQCursor cursor) {
+		List result = new ArrayList();
+		while (cursor.hasNext()) {
+			result.add(cursor.next());
+		}
+		return result.iterator();
 	}
 
 }
