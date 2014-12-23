@@ -460,7 +460,7 @@ public class DocumentManagementServer extends XDMDocumentManagementServer implem
 	
 	private Object execXQCommand(boolean isQuery, String xqCmd, Map bindings, Properties props) {
 
-		logger.trace("executeXQCommand.enter; query: {}, command: {}; bindings: {}", isQuery, xqCmd, bindings);
+		logger.trace("execXQCommand.enter; query: {}, command: {}; bindings: {}", isQuery, xqCmd, bindings);
 		Object result = null;
 		Iterator iter = null;
 		String clientId = props.getProperty("clientId");

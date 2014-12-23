@@ -8,6 +8,8 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Properties;
 
+import javax.xml.datatype.Duration;
+import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -505,15 +507,7 @@ public class BagriXQItemAccessorTest {
 		                       "<e/>, " +
 		                       "processing-instruction {'a'} {'b'}," +
 		                       "<e>text</e>/text()");
-		Class xmlGregorianCalendar = null;
-		Class duration = null;
-		try {
-		    xmlGregorianCalendar = Class.forName("javax.xml.datatype.XMLGregorianCalendar");
-		    duration = Class.forName("javax.xml.datatype.Duration");
-		} catch (Exception e) {
-		    // assume JDK 1.4
-		}
-		
+
 		try {
 		    String msg = "A-XQIA-4.1: getObject implements casting rules of '14.4 Mapping an XQuery Atomic Value to a Java Object Type' ";
 		    xqs.next();
@@ -525,9 +519,9 @@ public class BagriXQItemAccessorTest {
 		    xqs.next();
 		    assertTrue(msg + "for xs:byte", xqs.getObject() instanceof Byte);
 		    xqs.next();
-		    if (xmlGregorianCalendar != null) assertTrue(msg + "for xs:date", xmlGregorianCalendar.isInstance(xqs.getObject()));
+		    assertTrue(msg + "for xs:date", xqs.getObject() instanceof XMLGregorianCalendar);
 		    xqs.next();
-		    if (xmlGregorianCalendar != null) assertTrue(msg + "for xs:dateTime", xmlGregorianCalendar.isInstance(xqs.getObject()));
+		    assertTrue(msg + "for xs:dateTime", xqs.getObject() instanceof XMLGregorianCalendar);
 		    xqs.next();
 		    assertTrue(msg + "for xs:decimal", xqs.getObject() instanceof BigDecimal);
 		    xqs.next();
@@ -537,15 +531,15 @@ public class BagriXQItemAccessorTest {
 		    xqs.next();
 		    assertTrue(msg + "for xs:float", xqs.getObject() instanceof Float);
 		    xqs.next();
-		    if (xmlGregorianCalendar != null) assertTrue(msg + "for xs:gDay", xmlGregorianCalendar.isInstance(xqs.getObject()));
+		    assertTrue(msg + "for xs:gDay", xqs.getObject() instanceof XMLGregorianCalendar);
 		    xqs.next();
-		    if (xmlGregorianCalendar != null) assertTrue(msg + "for xs:gMonth", xmlGregorianCalendar.isInstance(xqs.getObject()));
+		    assertTrue(msg + "for xs:gMonth", xqs.getObject() instanceof XMLGregorianCalendar);
 		    xqs.next();
-		    if (xmlGregorianCalendar != null) assertTrue(msg + "for xs:MonthDay", xmlGregorianCalendar.isInstance(xqs.getObject()));
+		    assertTrue(msg + "for xs:MonthDay", xqs.getObject() instanceof XMLGregorianCalendar);
 		    xqs.next();
-		    if (xmlGregorianCalendar != null) assertTrue(msg + "for xs:Year", xmlGregorianCalendar.isInstance(xqs.getObject()));
+		    assertTrue(msg + "for xs:Year", xqs.getObject() instanceof XMLGregorianCalendar);
 		    xqs.next();
-		    if (xmlGregorianCalendar != null) assertTrue(msg + "for xs:YearMonth", xmlGregorianCalendar.isInstance(xqs.getObject()));
+		    assertTrue(msg + "for xs:YearMonth", xqs.getObject() instanceof XMLGregorianCalendar);
 		    xqs.next();
 		    assertTrue(msg + "for xs:hexBinary", xqs.getObject() instanceof byte[]); 
 		    xqs.next();
@@ -583,7 +577,7 @@ public class BagriXQItemAccessorTest {
 		    xqs.next();
 		    assertTrue(msg + "for xs:string", xqs.getObject() instanceof String); 
 		    xqs.next();
-		    if (xmlGregorianCalendar != null) assertTrue(msg + "for xs:time", xmlGregorianCalendar.isInstance(xqs.getObject()));
+		    assertTrue(msg + "for xs:time", xqs.getObject() instanceof XMLGregorianCalendar);
 		    xqs.next();
 		    assertTrue(msg + "for xs:token", xqs.getObject() instanceof String); 
 		    xqs.next();
@@ -595,11 +589,11 @@ public class BagriXQItemAccessorTest {
 		    xqs.next();
 		    assertTrue(msg + "for xs:unsignedShort", xqs.getObject() instanceof Integer); 
 		    xqs.next();
-		    if (duration != null) assertTrue(msg + "for xs:dayTimeDuration", duration.isInstance(xqs.getObject()));
+		    assertTrue(msg + "for xs:dayTimeDuration", xqs.getObject() instanceof Duration);
 		    xqs.next();
 		    assertTrue(msg + "for xs:untypedAtomic", xqs.getObject() instanceof String); 
 		    xqs.next();
-		    if (duration != null) assertTrue(msg + "for xs:yearMonthDuration", duration.isInstance(xqs.getObject()));
+		    assertTrue(msg + "for xs:yearMonthDuration", xqs.getObject() instanceof Duration);
 		    xqs.next();
 		    assertTrue(msg + "for attribute", xqs.getObject() instanceof org.w3c.dom.Attr);
 		    xqs.next();

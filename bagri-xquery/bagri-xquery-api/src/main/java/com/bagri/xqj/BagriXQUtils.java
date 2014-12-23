@@ -74,8 +74,12 @@ import java.io.Writer;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URI;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 
+import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeConstants;
+import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.Duration;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
@@ -102,6 +106,15 @@ import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 
 public class BagriXQUtils {
+	
+	private static DatatypeFactory dtFactory;
+	static {
+		try {
+			dtFactory = DatatypeFactory.newInstance();
+		} catch (DatatypeConfigurationException e) {
+			throw new IllegalStateException("Can not instantiate datatype factory");
+		}
+	}
 
     public static QName getTypeName(int baseType) {
     	switch (baseType) {
@@ -476,6 +489,44 @@ public class BagriXQUtils {
 */		
 	}
 
+    
+	public static XMLGregorianCalendar getXMLCalendar(GregorianCalendar gc, int cType) { 
+    	switch (cType) {
+    		case XQItemType.XQBASETYPE_DATE:
+    			return dtFactory.newXMLGregorianCalendarDate(gc.get(Calendar.YEAR), gc.get(Calendar.MONTH) + 1, 
+    					gc.get(Calendar.DAY_OF_MONTH), gc.get(Calendar.ZONE_OFFSET)); 
+    		case XQItemType.XQBASETYPE_GDAY: 
+    			return dtFactory.newXMLGregorianCalendarDate(DatatypeConstants.FIELD_UNDEFINED, 
+    					DatatypeConstants.FIELD_UNDEFINED, gc.get(Calendar.DAY_OF_MONTH), DatatypeConstants.FIELD_UNDEFINED); 
+    		case XQItemType.XQBASETYPE_GMONTH:  
+    			return dtFactory.newXMLGregorianCalendarDate(DatatypeConstants.FIELD_UNDEFINED, 
+    					gc.get(Calendar.MONTH) + 1, DatatypeConstants.FIELD_UNDEFINED, DatatypeConstants.FIELD_UNDEFINED); 
+    		case XQItemType.XQBASETYPE_GMONTHDAY:  
+    			return dtFactory.newXMLGregorianCalendarDate(DatatypeConstants.FIELD_UNDEFINED, 
+    					gc.get(Calendar.MONTH) + 1, gc.get(Calendar.DAY_OF_MONTH), DatatypeConstants.FIELD_UNDEFINED); 
+    		case XQItemType.XQBASETYPE_GYEAR:  
+    			return dtFactory.newXMLGregorianCalendarDate(gc.get(Calendar.YEAR), 
+    					DatatypeConstants.FIELD_UNDEFINED, DatatypeConstants.FIELD_UNDEFINED, DatatypeConstants.FIELD_UNDEFINED); 
+    		case XQItemType.XQBASETYPE_GYEARMONTH: 
+    			return dtFactory.newXMLGregorianCalendarDate(gc.get(Calendar.YEAR), 
+    					gc.get(Calendar.MONTH) + 1, DatatypeConstants.FIELD_UNDEFINED, DatatypeConstants.FIELD_UNDEFINED); 
+    		case XQItemType.XQBASETYPE_TIME:
+    			return dtFactory.newXMLGregorianCalendarTime(gc.get(Calendar.HOUR), gc.get(Calendar.MINUTE), 
+    					gc.get(Calendar.SECOND), gc.get(Calendar.MILLISECOND), gc.get(Calendar.ZONE_OFFSET)); 
+    		//default: //XQItemType.XQBASETYPE_DATETIME 
+    	}
+    	return dtFactory.newXMLGregorianCalendar(gc);
+    }
+	
+    public static Duration getXMLDuration(String duration, int dType) { 
+    	switch (dType) {
+			case XQBASETYPE_DURATION: return dtFactory.newDuration(duration); 
+			case XQBASETYPE_DAYTIMEDURATION: return dtFactory.newDurationDayTime(duration); 
+			case XQBASETYPE_YEARMONTHDURATION: return dtFactory.newDurationYearMonth(duration);
+    	}
+    	return null;
+    }
+	
 	public static XQItemType getTypeForNode(XQDataFactory factory, org.w3c.dom.Node node) throws XQException {
 		//new URI(node.getBaseURI()));
 		switch (node.getNodeType()) {

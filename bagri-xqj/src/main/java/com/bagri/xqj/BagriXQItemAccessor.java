@@ -88,28 +88,36 @@ public abstract class BagriXQItemAccessor implements XQItemAccessor {
 				}
 				break;
 			}
-			case XQBASETYPE_INT: {
+			case XQBASETYPE_INT: 
+			case XQBASETYPE_UNSIGNED_SHORT: {
 				Integer i = (Integer) value;
 				if (i.longValue() >= min && i.longValue() <= max) {
 					return i.longValue();
 				}
 				break;
 			}
-			case XQBASETYPE_LONG: {
+			case XQBASETYPE_LONG: 
+			case XQBASETYPE_UNSIGNED_INT: {
 				Long l = (Long) value;
 				if (l.longValue() >= min && l.longValue() <= max) {
 					return l.longValue();
 				}
 				break;
 			}
-			case XQBASETYPE_SHORT: {
+			case XQBASETYPE_SHORT: 
+			case XQBASETYPE_UNSIGNED_BYTE: {
 				Short s = (Short) value;
 				if (s.longValue() >= min && s.longValue() <= max) {
 					return s.longValue();
 				}
 				break;
 			}
-			case XQBASETYPE_INTEGER: {
+			case XQBASETYPE_INTEGER: 
+			case XQBASETYPE_NEGATIVE_INTEGER: 
+			case XQBASETYPE_NONNEGATIVE_INTEGER: 
+			case XQBASETYPE_NONPOSITIVE_INTEGER: 
+			case XQBASETYPE_POSITIVE_INTEGER: 
+			case XQBASETYPE_UNSIGNED_LONG: {
 				java.math.BigInteger i = (java.math.BigInteger) value;
 				if (i.longValue() >= min && i.longValue() <= max) {
 					return i.longValue();
@@ -130,8 +138,7 @@ public abstract class BagriXQItemAccessor implements XQItemAccessor {
 			}
 			//default: 
 		}
-		throw new XQException("ItemType is not " + typeName);
-		
+		throw new XQException("ItemType is not " + typeName + "; the value is: " + value);
 	}
 
 	@Override

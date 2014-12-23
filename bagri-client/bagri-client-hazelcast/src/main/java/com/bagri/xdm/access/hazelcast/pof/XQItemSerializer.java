@@ -2,30 +2,13 @@ package com.bagri.xdm.access.hazelcast.pof;
 
 import static com.bagri.xqj.BagriXQConstants.xs_ns;
 import static com.bagri.xqj.BagriXQConstants.xs_prefix;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_BASE64BINARY;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_BOOLEAN;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_BYTE;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_DECIMAL;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_DOUBLE;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_DURATION;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_ENTITIES;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_ENTITY;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_FLOAT;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_INT;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_INTEGER;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_LONG;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_NEGATIVE_INTEGER;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_NONNEGATIVE_INTEGER;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_NONPOSITIVE_INTEGER;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_POSITIVE_INTEGER;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_SHORT;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_UNSIGNED_BYTE;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_UNSIGNED_INT;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_UNSIGNED_LONG;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_UNSIGNED_SHORT;
+import static javax.xml.xquery.XQItemType.*;
 
 import java.io.IOException;
+import java.util.GregorianCalendar;
 
+import javax.xml.datatype.Duration;
+import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 import javax.xml.xquery.XQDataFactory;
 import javax.xml.xquery.XQException;
@@ -47,12 +30,6 @@ public class XQItemSerializer implements StreamSerializer<XQItem> {
 	private XQDataFactory xqFactory;
 	
 	protected XQDataFactory getXQDataFactory() {
-		// @TODO: take it from context somehow!
-		//HazelcastInstance hz = Hazelcast.getHazelcastInstanceByName("TPoX");
-		//ApplicationContext ctx = hz.getUserContext().get("appContext");
-		//logger.trace("getXQDataFactory; hz: {}; context: {}", hz, hz.getUserContext());
-		//return (XQDataFactory) hz.getUserContext().get("xqConnection");
-		//return BagriXQUtils.getXQDataFactory();
 		return xqFactory;
 	}
 
@@ -74,42 +51,76 @@ public class XQItemSerializer implements StreamSerializer<XQItem> {
 	public XQItem read(ObjectDataInput in) throws IOException {
 		try {
 			XQItemType type = in.readObject();
-			String value = in.readUTF();
-			logger.trace("read; got type: {}, value: {}", type, value); 
-			//Object value = in.readObject();
-			XQDataFactory xqFactory = getXQDataFactory();
-			if (type != null && BagriXQUtils.isAtomicType(type.getBaseType())) {
-				switch (type.getBaseType()) {
+			logger.trace("read; got type: {}", type); 
+			
+			int bType = type.getBaseType();
+			if (BagriXQUtils.isAtomicType(type.getBaseType())) {
+				switch (bType) {
 					case XQBASETYPE_BASE64BINARY:
-						// !! this is an array of..! must be written properly!
-						return xqFactory.createItemFromObject(value, type);
+		    		case XQBASETYPE_HEXBINARY: 
+						int len = in.readInt();
+						byte[] ba = new byte[len];
+						in.readFully(ba);
+						return xqFactory.createItemFromObject(ba, type);
 					case XQBASETYPE_BOOLEAN: 
-						return xqFactory.createItemFromBoolean(new Boolean(value), type);
+						return xqFactory.createItemFromBoolean(in.readBoolean(), type);
 					case XQBASETYPE_BYTE: 
-						return xqFactory.createItemFromByte(new Byte(value), type);
+						return xqFactory.createItemFromByte(in.readByte(), type);
 					case XQBASETYPE_SHORT:
-						return xqFactory.createItemFromShort(new Short(value), type);
+					case XQBASETYPE_UNSIGNED_BYTE:  
+						return xqFactory.createItemFromShort(in.readShort(), type);
 					case XQBASETYPE_INT: 
+					case XQBASETYPE_UNSIGNED_SHORT:
+						return xqFactory.createItemFromInt(in.readInt(), type);
 					case XQBASETYPE_LONG: 
+					case XQBASETYPE_UNSIGNED_INT: 
+						return xqFactory.createItemFromLong(in.readLong(), type);
 					case XQBASETYPE_INTEGER: 
 					case XQBASETYPE_NEGATIVE_INTEGER: 
 					case XQBASETYPE_NONNEGATIVE_INTEGER: 
 					case XQBASETYPE_NONPOSITIVE_INTEGER: 
 					case XQBASETYPE_POSITIVE_INTEGER: 
-					case XQBASETYPE_UNSIGNED_BYTE:  
-					case XQBASETYPE_UNSIGNED_INT: 
 					case XQBASETYPE_UNSIGNED_LONG:
-					case XQBASETYPE_UNSIGNED_SHORT:
-						return xqFactory.createItemFromLong(new Long(value), type);
-
+						// BigInteger
+						return xqFactory.createItemFromObject(in.readObject(), type);
 					case XQBASETYPE_DECIMAL:
-						return xqFactory.createItemFromLong(new java.math.BigDecimal(value).longValue(), type);
+						// BigDecimal
+						return xqFactory.createItemFromObject(in.readObject(), type);
 					case XQBASETYPE_DOUBLE: 
-						return xqFactory.createItemFromDouble(new Double(value), type);
+						return xqFactory.createItemFromDouble(in.readDouble(), type);
 		    		case XQBASETYPE_FLOAT: 
-						return xqFactory.createItemFromFloat(new Float(value), type);
+						return xqFactory.createItemFromFloat(in.readFloat(), type);
+		    		case XQBASETYPE_DATE: 
+		    		case XQBASETYPE_DATETIME: 
+		    		case XQBASETYPE_TIME: 
+		    		case XQBASETYPE_GDAY: 
+		    		case XQBASETYPE_GMONTH: 
+		    		case XQBASETYPE_GMONTHDAY: 
+		    		case XQBASETYPE_GYEAR: 
+		    		case XQBASETYPE_GYEARMONTH: {
+		    			// must be XMLGregorianCalendar
+		    			GregorianCalendar gc = (GregorianCalendar) in.readObject();
+		    			XMLGregorianCalendar xgc = BagriXQUtils.getXMLCalendar(gc, bType);
+						return xqFactory.createItemFromObject(xgc, type);
+		    		}					
+		    		case XQBASETYPE_DURATION: 
+		    		case XQBASETYPE_DAYTIMEDURATION: 
+		    		case XQBASETYPE_YEARMONTHDURATION: {
+		    			// must be string representation of Duration
+		    			Duration xd = BagriXQUtils.getXMLDuration(in.readUTF(), bType);
+						return xqFactory.createItemFromObject(xd, type);
+		    		}
+					case XQBASETYPE_QNAME: {
+						QName qname = new QName(in.readUTF());
+						return xqFactory.createItemFromObject(qname, type);
+					}
 				}
+			} else {
+				//
 			}
+
+			String value = in.readUTF();
+			logger.trace("read; got value: {}", value); 
 			return xqFactory.createItemFromString(value, type);
 		} catch (XQException ex) {
 			throw new IOException(ex);
@@ -120,40 +131,77 @@ public class XQItemSerializer implements StreamSerializer<XQItem> {
 	public void write(ObjectDataOutput out, XQItem item) throws IOException {
 		try {
 			out.writeObject(item.getItemType());
-			/*
 			if (BagriXQUtils.isAtomicType(item.getItemType().getBaseType())) {
 				switch (item.getItemType().getBaseType()) {
-					case XQBASETYPE_BASE64BINARY:
-						// !! this is an array of..! must be written properly!
-						return xqFactory.createItemFromObject(value, type);
-					case XQBASETYPE_BOOLEAN: 
-						return xqFactory.createItemFromBoolean(new Boolean(value), type);
-					case XQBASETYPE_BYTE: 
-						return xqFactory.createItemFromByte(new Byte(value), type);
-					case XQBASETYPE_SHORT:
-						return xqFactory.createItemFromShort(new Short(value), type);
+					case XQBASETYPE_BASE64BINARY: 
+		    		case XQBASETYPE_HEXBINARY: {
+						byte[] ba = (byte[]) item.getObject();
+						out.writeInt(ba.length);
+						out.write(ba);
+						return;
+					}
+					case XQBASETYPE_BOOLEAN: {
+						out.writeBoolean(item.getBoolean());
+						return;
+					}
+					case XQBASETYPE_BYTE: { 
+						out.writeByte(item.getByte());
+						return;
+					}
 					case XQBASETYPE_INT: 
+					case XQBASETYPE_UNSIGNED_SHORT: {
+						out.writeInt(item.getInt());
+						return;
+					}
 					case XQBASETYPE_LONG: 
+					case XQBASETYPE_UNSIGNED_INT: { 
+						out.writeLong(item.getLong());
+						return;
+					}
+					case XQBASETYPE_SHORT: 
+					case XQBASETYPE_UNSIGNED_BYTE: {  
+						out.writeShort(item.getShort());
+						return;
+					}
 					case XQBASETYPE_INTEGER: 
 					case XQBASETYPE_NEGATIVE_INTEGER: 
 					case XQBASETYPE_NONNEGATIVE_INTEGER: 
 					case XQBASETYPE_NONPOSITIVE_INTEGER: 
 					case XQBASETYPE_POSITIVE_INTEGER: 
-					case XQBASETYPE_UNSIGNED_BYTE:  
-					case XQBASETYPE_UNSIGNED_INT: 
-					case XQBASETYPE_UNSIGNED_LONG:
-					case XQBASETYPE_UNSIGNED_SHORT:
-						return xqFactory.createItemFromLong(new Long(value), type);
-
-					case XQBASETYPE_DECIMAL:
-						return xqFactory.createItemFromLong(new java.math.BigDecimal(value).longValue(), type);
-					case XQBASETYPE_DOUBLE: 
-						return xqFactory.createItemFromDouble(new Double(value), type);
-		    		case XQBASETYPE_FLOAT: 
-						return xqFactory.createItemFromFloat(new Float(value), type);
+					case XQBASETYPE_UNSIGNED_LONG: {
+						// this must be BigInteger
+						out.writeObject(item.getObject());
+						return;
+					}
+					case XQBASETYPE_DOUBLE: {
+						out.writeDouble(item.getDouble());
+						return;
+					}
+		    		case XQBASETYPE_FLOAT: {
+		    			out.writeFloat(item.getFloat());
+		    			return;
+		    		}
+					case XQBASETYPE_DECIMAL: {
+						// this must be BigDecimal
+						out.writeObject(item.getObject());
+						return;
+					}
+		    		case XQBASETYPE_DATE: 
+		    		case XQBASETYPE_DATETIME: 
+		    		case XQBASETYPE_TIME: 
+		    		case XQBASETYPE_GDAY: 
+		    		case XQBASETYPE_GMONTH: 
+		    		case XQBASETYPE_GMONTHDAY: 
+		    		case XQBASETYPE_GYEAR: 
+		    		case XQBASETYPE_GYEARMONTH: {
+		    			// must be XMLGregorianCalendar
+		    			XMLGregorianCalendar xgc = (XMLGregorianCalendar) item.getObject();
+		    			out.writeObject(xgc.toGregorianCalendar());
+		    		}					
 				}
+			} else {
+				//
 			}
-			*/
 			out.writeUTF(item.getItemAsString(null));
 			//out.writeObject(item.getObject());
 		} catch (XQException ex) {

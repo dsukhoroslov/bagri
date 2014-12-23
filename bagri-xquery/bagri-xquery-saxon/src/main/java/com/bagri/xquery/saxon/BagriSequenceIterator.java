@@ -40,15 +40,6 @@ import com.bagri.xqj.BagriXQUtils;
 
 public class BagriSequenceIterator implements Iterator {
 	
-	private static DatatypeFactory factory;
-	static {
-		try {
-			factory = DatatypeFactory.newInstance();
-		} catch (DatatypeConfigurationException e) {
-			throw new IllegalStateException("Can not instantiate datatype factory");
-		}
-	}
-
 	private XQDataFactory xqFactory;
 	private SequenceIterator iter;
 	private Item next;
@@ -100,120 +91,91 @@ public class BagriSequenceIterator implements Iterator {
 
     private static XMLGregorianCalendar getCalendar(CalendarValue c, int cType) { //throws XPathException {
     	GregorianCalendar cal = c.getCalendar(); 
-    	switch (cType) {
-    		case XQItemType.XQBASETYPE_DATE:
-    			return factory.newXMLGregorianCalendarDate(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, 
-    					cal.get(Calendar.DAY_OF_MONTH), cal.get(Calendar.ZONE_OFFSET)); 
-    		case XQItemType.XQBASETYPE_GDAY: 
-    			return factory.newXMLGregorianCalendarDate(DatatypeConstants.FIELD_UNDEFINED, 
-    					DatatypeConstants.FIELD_UNDEFINED, cal.get(Calendar.DAY_OF_MONTH), DatatypeConstants.FIELD_UNDEFINED); 
-    		case XQItemType.XQBASETYPE_GMONTH:  
-    			return factory.newXMLGregorianCalendarDate(DatatypeConstants.FIELD_UNDEFINED, 
-    					cal.get(Calendar.MONTH) + 1, DatatypeConstants.FIELD_UNDEFINED, DatatypeConstants.FIELD_UNDEFINED); 
-    		case XQItemType.XQBASETYPE_GMONTHDAY:  
-    			return factory.newXMLGregorianCalendarDate(DatatypeConstants.FIELD_UNDEFINED, 
-    					cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH), DatatypeConstants.FIELD_UNDEFINED); 
-    		case XQItemType.XQBASETYPE_GYEAR:  
-    			return factory.newXMLGregorianCalendarDate(cal.get(Calendar.YEAR), 
-    					DatatypeConstants.FIELD_UNDEFINED, DatatypeConstants.FIELD_UNDEFINED, DatatypeConstants.FIELD_UNDEFINED); 
-    		case XQItemType.XQBASETYPE_GYEARMONTH: 
-    			return factory.newXMLGregorianCalendarDate(cal.get(Calendar.YEAR), 
-    					cal.get(Calendar.MONTH) + 1, DatatypeConstants.FIELD_UNDEFINED, DatatypeConstants.FIELD_UNDEFINED); 
-    		case XQItemType.XQBASETYPE_TIME:
-    			return factory.newXMLGregorianCalendarTime(cal.get(Calendar.HOUR), cal.get(Calendar.MINUTE), 
-    					cal.get(Calendar.SECOND), cal.get(Calendar.MILLISECOND), cal.get(Calendar.ZONE_OFFSET)); 
-    		default: //XQItemType.XQBASETYPE_DATETIME 
-    	}
-		return factory.newXMLGregorianCalendar(cal);
+    	return BagriXQUtils.getXMLCalendar(cal, cType);
     }
 
     private static Duration getDuration(DurationValue d, int type) { //throws XPathException {
-   		switch (type) {
-   			case 0: return factory.newDuration(d.getStringValue());
-   			case 1: return factory.newDurationDayTime(d.getStringValue());
-   			case 2: return factory.newDurationYearMonth(d.getStringValue());
-   		}
-   		return null;
+    	return BagriXQUtils.getXMLDuration(d.getStringValue(), type);
     }
 
     private XQItem itemToXQItem(Item item) throws XPathException, XQException {
         if (item instanceof AtomicValue) {
-        	int type;
-        	Object value;
+	    int type;
+            Object value;
         	
             AtomicValue p = ((AtomicValue)item);
             int t = p.getItemType().getPrimitiveType();
             switch (t) {
                 case StandardNames.XS_ANY_URI:
-                	type = XQItemType.XQBASETYPE_ANYURI; 	
+                    type = XQItemType.XQBASETYPE_ANYURI; 	
                     value = p.getStringValue();
                     break;
                 case StandardNames.XS_BASE64_BINARY:
-                	type = XQItemType.XQBASETYPE_BASE64BINARY;
+                    type = XQItemType.XQBASETYPE_BASE64BINARY;
                     value = ((Base64BinaryValue)p).getBinaryValue();
                     break;
                 case StandardNames.XS_BOOLEAN:
-                	type = XQItemType.XQBASETYPE_BOOLEAN;
+                    type = XQItemType.XQBASETYPE_BOOLEAN;
                     value = Boolean.valueOf(((BooleanValue)p).getBooleanValue());
                     break;
                 case StandardNames.XS_DATE:
-                	type = XQItemType.XQBASETYPE_DATE;
+                    type = XQItemType.XQBASETYPE_DATE;
                     value = getCalendar((CalendarValue) p, XQItemType.XQBASETYPE_DATE);
                     break;
                 case StandardNames.XS_TIME:
-                	type = XQItemType.XQBASETYPE_TIME;
+                    type = XQItemType.XQBASETYPE_TIME;
                     value = getCalendar((CalendarValue) p, XQItemType.XQBASETYPE_TIME);
                     break;
                 case StandardNames.XS_DATE_TIME:
-                	type = XQItemType.XQBASETYPE_DATETIME;
+                    type = XQItemType.XQBASETYPE_DATETIME;
                     value = getCalendar((CalendarValue) p, XQItemType.XQBASETYPE_DATETIME);
                     break;
                 case StandardNames.XS_DECIMAL:
-                	type = XQItemType.XQBASETYPE_DECIMAL;
+                    type = XQItemType.XQBASETYPE_DECIMAL;
                     value = ((DecimalValue)p).getDecimalValue();
                     break;
                 case StandardNames.XS_DOUBLE:
-                	type = XQItemType.XQBASETYPE_DOUBLE;
+                    type = XQItemType.XQBASETYPE_DOUBLE;
                     value = ((DoubleValue)p).getDoubleValue();
                     break;
                 case StandardNames.XS_DURATION:
-                	type = XQItemType.XQBASETYPE_DURATION;
-                    value = getDuration((DurationValue) p, 0);
+                    type = XQItemType.XQBASETYPE_DURATION;
+                    value = getDuration((DurationValue) p, type);
                     break;
                 case StandardNames.XS_DAY_TIME_DURATION:
-                	type = XQItemType.XQBASETYPE_DAYTIMEDURATION;
-                    value = getDuration((DurationValue) p, 1);
+                    type = XQItemType.XQBASETYPE_DAYTIMEDURATION;
+                    value = getDuration((DurationValue) p, type);
                     break;
                 case StandardNames.XS_YEAR_MONTH_DURATION:
-                	type = XQItemType.XQBASETYPE_YEARMONTHDURATION;
-                    value = getDuration((DurationValue) p, 2);
+                    type = XQItemType.XQBASETYPE_YEARMONTHDURATION;
+                    value = getDuration((DurationValue) p, type);
                     break;
                 case StandardNames.XS_FLOAT:
-                	type = XQItemType.XQBASETYPE_FLOAT;
+                    type = XQItemType.XQBASETYPE_FLOAT;
                     value = ((FloatValue)p).getFloatValue();
                     break;
                 case StandardNames.XS_G_DAY:
-                	type = XQItemType.XQBASETYPE_GDAY;
+                    type = XQItemType.XQBASETYPE_GDAY;
                     value = getCalendar((CalendarValue) p, XQItemType.XQBASETYPE_GDAY);
                     break;
                 case StandardNames.XS_G_MONTH:
-                	type = XQItemType.XQBASETYPE_GMONTH;
+                    type = XQItemType.XQBASETYPE_GMONTH;
                     value = getCalendar((CalendarValue) p, XQItemType.XQBASETYPE_GMONTH);
                     break;
                 case StandardNames.XS_G_MONTH_DAY:
-                	type = XQItemType.XQBASETYPE_GMONTHDAY;
+                    type = XQItemType.XQBASETYPE_GMONTHDAY;
                     value = getCalendar((CalendarValue) p, XQItemType.XQBASETYPE_GMONTHDAY);
                     break;
                 case StandardNames.XS_G_YEAR:
-                	type = XQItemType.XQBASETYPE_GYEAR;
+                    type = XQItemType.XQBASETYPE_GYEAR;
                     value = getCalendar((CalendarValue) p, XQItemType.XQBASETYPE_GYEAR);
                     break;
                 case StandardNames.XS_G_YEAR_MONTH:
-                	type = XQItemType.XQBASETYPE_GYEARMONTH;
+                    type = XQItemType.XQBASETYPE_GYEARMONTH;
                     value = getCalendar((CalendarValue) p, XQItemType.XQBASETYPE_GYEARMONTH);
                     break;
                 case StandardNames.XS_HEX_BINARY:
-                	type = XQItemType.XQBASETYPE_HEXBINARY;
+                    type = XQItemType.XQBASETYPE_HEXBINARY;
                     value = ((HexBinaryValue)p).getBinaryValue();
                     break;
                 case StandardNames.XS_INTEGER:
