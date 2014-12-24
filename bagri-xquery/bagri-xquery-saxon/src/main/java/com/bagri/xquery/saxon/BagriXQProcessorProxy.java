@@ -31,7 +31,11 @@ public class BagriXQProcessorProxy extends SaxonXQProcessor implements XQProcess
 		
     	//logger.trace("executeXCommand.enter; command: {}", command);
     	XDMDocumentManagement dMgr = getXdmManager();
-		return (Iterator) dMgr.executeXCommand(command, bindings, props);
+    	try {
+    		return (Iterator) dMgr.executeXCommand(command, bindings, props);
+    	} catch (RuntimeException ex) {
+    		throw new XQException(ex.getMessage());
+    	}
 	}
 
 	@Override
@@ -52,7 +56,12 @@ public class BagriXQProcessorProxy extends SaxonXQProcessor implements XQProcess
     		bindings.put(vName, params.get(qName));
     	}
     	//logger.trace("executeXQuery; bindings: {}", bindings);
-		return (Iterator) dMgr.executeXQuery(query, bindings, props);
+    	
+    	try {
+    		return (Iterator) dMgr.executeXQuery(query, bindings, props);
+    	} catch (RuntimeException ex) {
+    		throw new XQException(ex.getMessage());
+    	}
 	}
 
 	//@Override

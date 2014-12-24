@@ -66,13 +66,22 @@ public class XQItemTypeSerializer implements StreamSerializer<XQItemType> {
 					return xqFactory.createAtomicType(baseType, typeName, schemaURI); 
 				} else { 
 					switch (kind) {
-						case XQITEMKIND_ATTRIBUTE: return xqFactory.createAttributeType(nodeName, baseType, typeName, schemaURI); 
-						case XQITEMKIND_DOCUMENT: return xqFactory.createDocumentType();
-						case XQITEMKIND_DOCUMENT_ELEMENT: return xqFactory.createDocumentElementType(null); // elementType !?
-						case XQITEMKIND_DOCUMENT_SCHEMA_ELEMENT: return xqFactory.createDocumentSchemaElementType(null); // elementType !? 
-						case XQITEMKIND_ELEMENT: return xqFactory.createElementType(nodeName, baseType, typeName, schemaURI, nillable);
-						case XQITEMKIND_SCHEMA_ATTRIBUTE: return xqFactory.createSchemaAttributeType(nodeName, baseType, schemaURI);
-						case XQITEMKIND_SCHEMA_ELEMENT: return xqFactory.createSchemaElementType(nodeName, baseType, schemaURI);
+						case XQITEMKIND_ATTRIBUTE: 
+							return xqFactory.createAttributeType(nodeName, baseType, typeName, schemaURI); 
+						case XQITEMKIND_DOCUMENT: 
+							return xqFactory.createDocumentType();
+						case XQITEMKIND_DOCUMENT_ELEMENT:
+							XQItemType deType = xqFactory.createElementType(nodeName, baseType, typeName, schemaURI, nillable);
+							return xqFactory.createDocumentElementType(deType); 
+						case XQITEMKIND_DOCUMENT_SCHEMA_ELEMENT: 
+							XQItemType seType = xqFactory.createSchemaElementType(nodeName, baseType, schemaURI);
+							return xqFactory.createDocumentSchemaElementType(seType);  
+						case XQITEMKIND_ELEMENT: 
+							return xqFactory.createElementType(nodeName, baseType, typeName, schemaURI, nillable);
+						case XQITEMKIND_SCHEMA_ATTRIBUTE: 
+							return xqFactory.createSchemaAttributeType(nodeName, baseType, schemaURI);
+						case XQITEMKIND_SCHEMA_ELEMENT: 
+							return xqFactory.createSchemaElementType(nodeName, baseType, schemaURI);
 					}
 				}
 			} else {

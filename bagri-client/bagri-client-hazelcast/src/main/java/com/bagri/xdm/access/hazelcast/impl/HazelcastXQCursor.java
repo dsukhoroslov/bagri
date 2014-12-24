@@ -60,15 +60,24 @@ public class HazelcastXQCursor implements Iterator<Object> {
 		queue = hz.getQueue("client:" + clientId);
 		if (batchSize > 0) {
 			for (int i = 0; i < batchSize && iter.hasNext(); i++) {
-				queue.add(iter.next());
+				//queue.add(iter.next());
+				addNext();
 			}
 			
 			// we should store current position in iter, to repeat
 			// results provision later..
 		} else {
 			while (iter.hasNext()) { 
-				queue.add(iter.next());
+				//queue.add(iter.next());
+				addNext();
 			}
+		}
+	}
+	
+	private void addNext() {
+		Object o = iter.next();
+		if (o != null) {
+			queue.add(o);
 		}
 	}
 	

@@ -304,7 +304,7 @@ public class BagriXQDataFactory implements XQDataFactory {
 			throw new XQException("value is null");
 		}
 		
-		Document doc = BagriXQUtils.textToDocument(value);
+		//Document doc = BagriXQUtils.textToDocument(value);
 		//logger.info("document is: {}", doc);
 
 		if (type == null) {
@@ -501,7 +501,7 @@ public class BagriXQDataFactory implements XQDataFactory {
 			throw new XQException("Connection is closed");
 		}
 		if (value == null) {
-			throw new XQException("value is null");
+			throw new XQException("Node value is null");
 		}
 		if (type == null) {
 			return new BagriXQItem(processor, createNodeType(), value); 

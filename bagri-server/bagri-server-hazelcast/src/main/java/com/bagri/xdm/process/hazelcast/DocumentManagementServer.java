@@ -436,8 +436,8 @@ public class DocumentManagementServer extends XDMDocumentManagementServer implem
 		return execXQCommand(true, query, bindings, props);
 	}
 
-	private HazelcastXQCursor createCursor(String clientId, int batchSize, Iterator iter) {
-		final HazelcastXQCursor xqCursor = new HazelcastXQCursor(clientId, batchSize, iter);
+	private HazelcastXQCursor createCursor(String clientId, int batchSize, Iterator iter, boolean failure) {
+		final HazelcastXQCursor xqCursor = new HazelcastXQCursor(clientId, batchSize, iter, failure);
 		
 		// TODO: put everything to the queue - can be too slow!
 		// think of async solution..
@@ -490,10 +490,10 @@ public class DocumentManagementServer extends XDMDocumentManagementServer implem
 				
 			//	iter = queryManager.addQueryResults(xqCmd, bindings, props, iter);
 			}
-			result = createCursor(clientId, batchSize, iter);
+			result = createCursor(clientId, batchSize, iter, false);
 		} catch (Throwable ex) {
 			logger.error("execXQCommand.error;", ex);
-			result = createCursor(clientId, batchSize, new BagriExceptionIterator(ex));
+			result = createCursor(clientId, batchSize, new BagriExceptionIterator(ex), true);
 		}
 		logger.trace("execXQCommand.exit; returning: {}, for client: {}", result, clientId);
 		return result;

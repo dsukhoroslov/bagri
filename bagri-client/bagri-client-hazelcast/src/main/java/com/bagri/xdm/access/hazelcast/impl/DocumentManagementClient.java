@@ -21,6 +21,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import javax.xml.xquery.XQDataFactory;
+import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQItem;
 import javax.xml.xquery.XQItemType;
 
@@ -396,14 +397,14 @@ public class DocumentManagementClient extends XDMDocumentManagementClient {
 
 		long stamp = System.currentTimeMillis();
 		logger.trace("executeXCommand.enter; command: {}; bindings: {}; context: {}", command, bindings, props);
-		try {
+		//try {
 			Object result = execXQuery(false, command, bindings, props);
 			logger.trace("executeXCommand.exit; time taken: {}; returning: {}", System.currentTimeMillis() - stamp, result);
 			return result;
-		} catch (Exception ex) {
-			logger.warn("executeXCommand.error; time taken: {}; exception: {}", System.currentTimeMillis() - stamp, ex);
-		}
-		return null; 
+		//} catch (Exception ex) {
+		//	logger.warn("executeXCommand.error; time taken: {}; exception: {}", System.currentTimeMillis() - stamp, ex);
+		//}
+		//return null; 
 	}
 
 	@Override
@@ -411,18 +412,18 @@ public class DocumentManagementClient extends XDMDocumentManagementClient {
 
 		long stamp = System.currentTimeMillis();
 		logger.trace("executeXQuery.enter; query: {}; bindings: {}; context: {}", query, bindings, props);
-		try {
+		//try {
 			Object result = execXQuery(true, query, bindings, props);
 			logger.trace("executeXQuery.exit; time taken: {}; returning: {}", System.currentTimeMillis() - stamp, result);
 			return result; 
-		} catch (Exception ex) {
-			logger.warn("executeXQuery.error; time taken: {}; exception: {}", System.currentTimeMillis() - stamp, ex);
-			ex.printStackTrace();
-		}
-		return null; 
+		//} catch (Exception ex) {
+		//	logger.warn("executeXQuery.error; time taken: {}; exception: {}", System.currentTimeMillis() - stamp, ex);
+		//	ex.printStackTrace();
+		//}
+		//return null; 
 	}
 	
-	private Object execXQuery(boolean isQuery, String query, Map bindings, Properties props) throws Exception {
+	private Object execXQuery(boolean isQuery, String query, Map bindings, Properties props) { //throws Exception {
 		
 		//if (logger.isTraceEnabled()) {
 		//	for (Object o: bindings.entrySet()) {
@@ -468,12 +469,19 @@ public class DocumentManagementClient extends XDMDocumentManagementClient {
 				cursor = (HazelcastXQCursor) future.get();
 			}
 			
+			logger.trace("execXQuery; got cursor: {}", cursor);
 			if (cursor != null) {
 				cursor.deserialize(hzClient);
 
 				if (cursor.isFailure()) {
-					Exception ex = (Exception) cursor.next();
-					throw ex;
+					//Exception ex = (Exception) cursor.next();
+					//throw ex;
+					while (cursor.hasNext()) {
+						Object err = cursor.next();
+						if (err instanceof String) {
+							throw new RuntimeException((String) err);
+						}
+					}
 				}
 			}
 			
