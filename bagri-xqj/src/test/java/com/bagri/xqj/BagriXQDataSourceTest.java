@@ -9,6 +9,7 @@ import javax.xml.xquery.XQConnection;
 import javax.xml.xquery.XQDataSource;
 import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQExpression;
+import javax.xml.xquery.XQItem;
 import javax.xml.xquery.XQItemType;
 import javax.xml.xquery.XQPreparedExpression;
 import javax.xml.xquery.XQResultSequence;
@@ -96,4 +97,51 @@ public class BagriXQDataSourceTest {
 	    xqe.close();
 	}
 	
+	@Test
+	public void testCreateItemFromDocumentString() throws XQException {
+
+	    XQConnection xqc = xqds.getConnection();
+		try {
+			xqc.createItemFromDocument((String)null, null, null);
+		    junit.framework.Assert.fail("A-XQDF-1.2: null argument is invalid and throws an XQException.");
+		} catch (XQException e) {
+			// Expect an XQException
+		}    
+
+		boolean failed = false;
+		try {
+			XQItem xqitem = xqc.createItemFromDocument("<e>Hello world!</e>", null, xqc.createAtomicType(XQItemType.XQBASETYPE_BOOLEAN));
+		    // conversion succeeded, we're having implementation defined behaviour
+		    // but at least the XDM instance must be of the right type.
+		    if (xqitem.getItemType().getItemKind() != XQItemType.XQITEMKIND_ATOMIC) {
+		        failed = true;
+		    }
+		    if (xqitem.getItemType().getBaseType() != XQItemType.XQBASETYPE_BOOLEAN) {
+		        failed = true;
+		    }
+		} catch (XQException e) {
+		    // Expect an XQException
+		}   
+		if (failed) {
+			junit.framework.Assert.fail("A-XQDF-1.3: The conversion is subject to the following constraints. "
+					+ "Either it fails with an XQException, either it is successful in which case it must result in an instance of XDT.");
+		}
+
+		try {
+			XQItem xqitem = xqc.createItemFromDocument("<e>", null, null);
+		    junit.framework.Assert.fail("A-XQDF-1.4: The conversion of the value to an XDM instance must fail.");
+		} catch (XQException e) {
+		    // Expect an XQException
+		}    
+
+		XQItem xqi = null;
+		try {
+		    xqi = xqc.createItemFromDocument("<e>Hello world!</e>", null, null);
+		} catch (XQException e) {
+		    junit.framework.Assert.fail("A-XQDF-1.5: createItemFromDocument() failed with message: " + e.getMessage());
+		}
+		String result = xqi.getItemAsString(null);
+		junit.framework.Assert.assertTrue("A-XQDF-1.5: Expects serialized result contains '<e>Hello world!</e>', but it is '" 
+					+ result + "'", result.indexOf("<e>Hello world!</e>") != -1);
+	}
 }

@@ -1,5 +1,8 @@
 package com.bagri.xquery.saxon;
 
+import java.io.Reader;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
@@ -12,10 +15,12 @@ import javax.xml.xquery.XQItemAccessor;
 import javax.xml.xquery.XQQueryException;
 import javax.xml.xquery.XQStaticContext;
 
+import net.sf.saxon.dom.NodeOverNodeInfo;
 import net.sf.saxon.lib.CollectionURIResolver;
 import net.sf.saxon.om.Item;
 import net.sf.saxon.om.NamePool;
 import net.sf.saxon.om.SequenceIterator;
+import net.sf.saxon.query.QueryResult;
 import net.sf.saxon.query.XQueryExpression;
 import net.sf.saxon.trans.XPathException;
 import net.sf.saxon.tree.util.DocumentNumberAllocator;
@@ -187,18 +192,23 @@ public class BagriXQProcessor extends SaxonXQProcessor implements XQProcessor {
 	        }
 	        stamp = System.currentTimeMillis() - stamp;
 		    logger.trace("execQuery.exit; iterator props: {}; time taken: {}", itr.getProperties(), stamp);
+		    //serializeResults(itr);
 	        return new BagriSequenceIterator(getXQDataFactory(), itr); 
         } catch (Throwable ex) {
         	logger.error("execQuery.error: ", ex);
         	XQException xqe;
         	if (ex instanceof XPathException) {
         		XPathException xpe = (XPathException) ex;
-            	if (xpe.getLocator() == null) {
-            		xqe = new XQQueryException(ex.getMessage(), xpe.getErrorCodeQName().toJaxpQName());
-            	} else {
-            		xqe = new XQQueryException(ex.getMessage(), xpe.getErrorCodeQName().toJaxpQName(), 
-            			xpe.getLocator().getLineNumber(), xpe.getLocator().getColumnNumber(), 0);
-            	}
+        		if (xpe.getErrorCodeQName() == null) {
+            		xqe = new XQException(xpe.getMessage());
+        		} else {
+	            	if (xpe.getLocator() == null) {
+	            		xqe = new XQQueryException(xpe.getMessage(), xpe.getErrorCodeQName().toJaxpQName());
+	            	} else {
+	            		xqe = new XQQueryException(xpe.getMessage(), xpe.getErrorCodeQName().toJaxpQName(), 
+	            			xpe.getLocator().getLineNumber(), xpe.getLocator().getColumnNumber(), 0);
+	            	}
+        		}
         	} else {
         		xqe = new XQException(ex.getMessage());
         	}
@@ -220,6 +230,23 @@ public class BagriXQProcessor extends SaxonXQProcessor implements XQProcessor {
 
 		setStaticContext(sqc, props);
         return execQuery(query);
+	}
+	
+	
+	private void serializeResults(SequenceIterator results) throws XQException {
+		
+		try {
+			//SequenceIterator iterator = (SequenceIterator) results; 
+			Writer writer = new StringWriter();
+			Properties props = new Properties();
+			props.setProperty("method", "text");
+			QueryResult.serializeSequence(results, config, writer, props);
+			logger.trace("serializeResults; serialized: {}", writer.toString());
+			//Reader reader = new StringReader();
+		} catch (XPathException ex) {
+			throw new XQException(ex.getMessage());
+		}
+		
 	}
 	
 }

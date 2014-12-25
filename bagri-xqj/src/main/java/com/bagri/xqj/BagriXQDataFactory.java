@@ -304,7 +304,9 @@ public class BagriXQDataFactory implements XQDataFactory {
 			throw new XQException("value is null");
 		}
 		
-		//Document doc = BagriXQUtils.textToDocument(value);
+		// do not delete this line. it'll throw exception
+		// in case when value contains wrong XML
+		Document doc = BagriXQUtils.textToDocument(value);
 		//logger.info("document is: {}", doc);
 
 		if (type == null) {
@@ -315,7 +317,7 @@ public class BagriXQDataFactory implements XQDataFactory {
 			return new BagriXQItem(processor, type, value); //XQUtils.textToDocument(value));
 		}
 
-		throw new XQException("wrong document type: " + type + "(" + type.getBaseType() + ")");
+		throw new XQException("wrong document type: " + type); // + "(" + type.getBaseType() + ")");
 	}
 
 	@Override
