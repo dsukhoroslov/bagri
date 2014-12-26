@@ -33,6 +33,13 @@ public class PathBuilder {
 		return sb.toString();
 	}
 	
+	public PathSegment getLastSegment() {
+		if (segments.size() > 0) {
+			return segments.get(segments.size() - 1);
+		}
+		return null;
+	}
+	
 	public boolean hasRegex() {
 		for (PathSegment segment: segments) {
 			if (segment.isPattern()) {

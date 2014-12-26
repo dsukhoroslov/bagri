@@ -67,6 +67,7 @@ import com.bagri.common.query.Comparison;
 import com.bagri.common.query.ExpressionBuilder;
 import com.bagri.common.query.ExpressionContainer;
 import com.bagri.common.query.PathBuilder;
+import com.bagri.common.query.PathBuilder.PathSegment;
 import com.bagri.xdm.access.api.XDMDocumentManagement;
 import com.bagri.xdm.access.api.XDMSchemaDictionary;
 
@@ -317,8 +318,10 @@ public class BagriCollectionResolver implements CollectionURIResolver {
     		if (at.getBaseExpression() instanceof BindingReference) {
        			//logger.trace("iterate; got base ref: {}", at.getBaseExpression());
     		} else {
-    			//path.append("/text()");
-    			path.addPathSegment(AxisType.CHILD, null, "text()");
+    			PathSegment ps = path.getLastSegment();
+    			if (ps != null && ps.getAxis() == AxisType.CHILD) {
+    				path.addPathSegment(AxisType.CHILD, null, "text()");
+    			}
     		}
     	}
     	
