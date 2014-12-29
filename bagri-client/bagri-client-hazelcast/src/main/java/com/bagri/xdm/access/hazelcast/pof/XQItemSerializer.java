@@ -22,6 +22,7 @@ import javax.xml.xquery.XQItemType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 
 import com.bagri.xqj.BagriXQUtils;
@@ -132,7 +133,8 @@ public class XQItemSerializer implements StreamSerializer<XQItem> {
 						default: {
 							String value = in.readUTF();
 							logger.trace("read; got value: {}", value); 
-							return xqFactory.createItemFromString(value, type);
+							//return xqFactory.createItemFromString(value, type);
+							return xqFactory.createItemFromAtomicValue(value, type);
 						}
 					}
 				} 
@@ -264,6 +266,8 @@ public class XQItemSerializer implements StreamSerializer<XQItem> {
 				case XQITEMKIND_NODE:
 				case XQITEMKIND_PI:
 				case XQITEMKIND_TEXT: {
+					//Node n = item.getNode();
+					//logger.info("write; writing node: {}; {}", n.getClass().getName(), n);
 					Properties props = new Properties();
 					props.setProperty("method", "text");
 					out.writeUTF(item.getItemAsString(props));

@@ -29,10 +29,11 @@ public class XDMPortableFactory implements PortableFactory {
 	public static final int cli_XDMResults = 58;
 	public static final int cli_XDMSource = 59;
 
-	public static final int cli_XQCursor = 75;
+	public static final int cli_XQItemType = 75;
 	public static final int cli_XQItem = 76;
-	public static final int cli_XQItemType = 77;
-	public static final int cli_XDMCredentials = 78;
+	public static final int cli_XQSequence = 77;
+	public static final int cli_XQCursor = 78;
+	public static final int cli_XDMCredentials = 79;
 	
 	public static final int cli_Expression = 80;
 	public static final int cli_ExpressionBuilder = 81;

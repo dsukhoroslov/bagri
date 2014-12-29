@@ -15,6 +15,8 @@ import javax.xml.xquery.XQItem;
 import org.w3c.dom.Node;
 import org.xml.sax.ContentHandler;
 
+import com.bagri.xquery.api.XQProcessor;
+
 public class IterableXQSequence extends BagriXQSequence {
 	
 	//private static Logger log = LoggerFactory.getLogger(IterableXQSequence.class);
@@ -23,8 +25,9 @@ public class IterableXQSequence extends BagriXQSequence {
 	private boolean accessed;
 	
 	@SuppressWarnings("rawtypes")
-	IterableXQSequence(BagriXQConnection connection, Iterator iterator) {
-		super(connection);
+	//IterableXQSequence(BagriXQConnection connection, Iterator iterator) {
+	IterableXQSequence(BagriXQDataFactory xqFactory, XQProcessor  xqProcessor, Iterator iterator) {
+		super(xqFactory, xqProcessor);
 		this.iterator = iterator;
 		accessed = false;
 		//log.info("<init>. got iterator: {}", iterator);
@@ -295,7 +298,7 @@ public class IterableXQSequence extends BagriXQSequence {
 			} else if (current instanceof XQItem) {
 				setCurrent(((XQItem) current).getItemType(), ((XQItem) current).getObject());
 			} else {
-				setCurrent(BagriXQUtils.getTypeForObject(connection, current), current);
+				setCurrent(BagriXQUtils.getTypeForObject(xqFactory, current), current);
 			}
 			accessed = false;
 			return true;

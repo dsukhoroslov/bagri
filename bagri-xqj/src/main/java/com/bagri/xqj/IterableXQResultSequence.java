@@ -11,7 +11,7 @@ public class IterableXQResultSequence extends IterableXQSequence implements XQRe
 	private BagriXQDynamicContext expression;
 	
 	IterableXQResultSequence(BagriXQDynamicContext expression) {
-		super(expression.connection, expression.connection.getResultIterator());
+		super(expression.connection, expression.connection.getProcessor(), expression.connection.getResultIterator());
 		this.expression = expression;
 	}
 

@@ -10,7 +10,7 @@ public class ScrollableXQResultSequence extends ScrollableXQSequence implements	
 	private BagriXQDynamicContext expression;
 	
 	ScrollableXQResultSequence(BagriXQDynamicContext expression) {
-		super(expression.connection, expression.connection.getResultList());
+		super(expression.connection, expression.connection.getProcessor(), expression.connection.getResultList());
 		this.expression = expression;
 	}
 

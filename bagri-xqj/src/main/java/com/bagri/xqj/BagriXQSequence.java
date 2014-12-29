@@ -18,18 +18,26 @@ import javax.xml.xquery.XQSequence;
 
 import org.xml.sax.ContentHandler;
 
+import com.bagri.xquery.api.XQProcessor;
+
 public abstract class BagriXQSequence extends BagriXQItemAccessor implements XQSequence /*, XQResultSequence*/ {
 	
-	protected BagriXQConnection connection;
+	//protected BagriXQConnection connection;
+	protected BagriXQDataFactory xqFactory;
 	
 	//BagriXQSequence(BagriXQConnection connection) {
 	//	super();
 	//	this.connection = connection;
 	//}
 	
-	BagriXQSequence(BagriXQConnection connection) {
-		super(connection.getProcessor());
-		this.connection = connection;
+	//BagriXQSequence(BagriXQConnection connection) {
+	//	super(connection.getProcessor());
+	//	this.connection = connection;
+	//}
+
+	BagriXQSequence(BagriXQDataFactory xqFactory, XQProcessor xqProcessor) {
+		super(xqProcessor);
+		this.xqFactory = xqFactory;
 	}
 
 	@Override

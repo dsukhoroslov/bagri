@@ -2,14 +2,14 @@
 <workload name="queries" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="workload_properties.xsd">
 	<collections>
 		<collection name="custacc">
-			<files dir="/data/custacc" firstfileid="1" lastfileid="1" docsperfile="50000" fileprefix="batch-" filepostfix="xml.offset"/>
+			<files dir="/data/custacc" firstfileid="1" lastfileid="2" docsperfile="50000" fileprefix="batch-" filepostfix="xml.offset"/>
 		</collection>
 		<collection name="custids">
-			<ids first="1002" last="51001" />
+			<ids first="1002" last="101001" />
 		</collection>
 	</collections>
 	<transactions>
-		<transaction id="1" name="addDocument" weight="40">
+		<!--transaction id="1" name="addDocument" weight="40">
 			<java-plugin>com.bagri.client.tpox.workload.BagriXQJPlugin</java-plugin>
 			<parameters>
 				<parameter>
@@ -33,9 +33,9 @@ return $id" />
 					<files collection="custacc"/>
 				</parameter>
 			</parameters>
-		</transaction>
+		</transaction-->
 
-		<transaction id="2" name="getCustomerProfile" weight="30">
+		<transaction id="2" name="getCustomerProfile" weight="50">
 			<java-plugin>com.bagri.client.tpox.workload.BagriXQJPlugin</java-plugin>
 			<parameters>
 				<parameter>
@@ -70,7 +70,7 @@ return
 				</parameter>
 			</parameters>
 		</transaction>
-		<transaction id="3" name="getCustomerAccounts" weight="30">
+		<transaction id="3" name="getCustomerAccounts" weight="50">
 			<java-plugin>com.bagri.client.tpox.workload.BagriXQJPlugin</java-plugin>
 			<parameters>
 				<parameter>

@@ -705,7 +705,8 @@ public class BagriXQDataFactory implements XQDataFactory {
 			throw new XQException("Sequence is null");
 		}
 		
-		return new ScrollableXQSequence((BagriXQConnection) this, getList(sqc));
+		//return new ScrollableXQSequence((BagriXQConnection) this, getList(sqc));
+		return new ScrollableXQSequence(this, processor, getList(sqc));
 	}
 
 	@Override
@@ -719,7 +720,8 @@ public class BagriXQDataFactory implements XQDataFactory {
 			throw new XQException("Iterator is null");
 		}
 		
-		return new ScrollableXQSequence((BagriXQConnection) this, getList(itr));
+		//return new ScrollableXQSequence((BagriXQConnection) this, getList(itr));
+		return new ScrollableXQSequence(this, processor, getList(itr));
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })

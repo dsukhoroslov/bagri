@@ -124,6 +124,7 @@ public class BagriXQItemType extends BagriXQSequenceType implements XQItemType {
 	public boolean isValueCompatible(String value) {
 		switch (baseType) {
 			case XQBASETYPE_ANYTYPE: 
+			case XQBASETYPE_ANYATOMICTYPE:
 			case XQBASETYPE_STRING: return true;
 			case XQBASETYPE_BOOLEAN: try {
 				Boolean.parseBoolean(value);

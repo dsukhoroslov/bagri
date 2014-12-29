@@ -24,6 +24,7 @@ import javax.xml.xquery.XQDataFactory;
 import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQItem;
 import javax.xml.xquery.XQItemType;
+import javax.xml.xquery.XQSequence;
 
 import com.bagri.common.idgen.IdGenerator;
 import com.bagri.common.query.ExpressionBuilder;
@@ -31,6 +32,7 @@ import com.bagri.common.query.ExpressionContainer;
 import com.bagri.xdm.access.api.XDMDocumentManagementClient;
 import com.bagri.xdm.access.hazelcast.pof.XQItemSerializer;
 import com.bagri.xdm.access.hazelcast.pof.XQItemTypeSerializer;
+import com.bagri.xdm.access.hazelcast.pof.XQSequenceSerializer;
 import com.bagri.xdm.access.hazelcast.process.DocumentBuilder;
 import com.bagri.xdm.access.hazelcast.process.DocumentCreator;
 import com.bagri.xdm.access.hazelcast.process.DocumentRemover;
@@ -186,19 +188,20 @@ public class DocumentManagementClient extends XDMDocumentManagementClient {
 			
 			XQDataFactory xqFactory = (XQDataFactory) props.get("xqDataFactory");
 			if (xqFactory != null) {
-				XQItemSerializer xqis = new XQItemSerializer();
-				xqis.setXQDataFactory(xqFactory);
-				SerializerConfig xqisc = new SerializerConfig();
-				xqisc.setTypeClass(XQItem.class);
-				xqisc.setImplementation(xqis);
-				config.getSerializationConfig().getSerializerConfigs().add(xqisc);
-				
 				XQItemTypeSerializer xqits = new XQItemTypeSerializer();
 				xqits.setXQDataFactory(xqFactory);
-				SerializerConfig xqitsc = new SerializerConfig();
-				xqitsc.setTypeClass(XQItemType.class);
-				xqitsc.setImplementation(xqits);
-				config.getSerializationConfig().getSerializerConfigs().add(xqitsc);
+				config.getSerializationConfig().getSerializerConfigs().add(
+						new SerializerConfig().setTypeClass(XQItemType.class).setImplementation(xqits));
+
+				XQItemSerializer xqis = new XQItemSerializer();
+				xqis.setXQDataFactory(xqFactory);
+				config.getSerializationConfig().getSerializerConfigs().add(
+						new SerializerConfig().setTypeClass(XQItem.class).setImplementation(xqis));
+				
+				XQSequenceSerializer xqss = new XQSequenceSerializer();
+				xqss.setXQDataFactory(xqFactory);
+				config.getSerializationConfig().getSerializerConfigs().add(
+						new SerializerConfig().setTypeClass(XQSequence.class).setImplementation(xqss));
 			}
 			logger.debug("initializeHazelcast; config: {}", config);
 			hzClient = HazelcastClient.newHazelcastClient(config);

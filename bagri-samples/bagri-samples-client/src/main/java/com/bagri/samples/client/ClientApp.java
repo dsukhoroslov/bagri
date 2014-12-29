@@ -34,7 +34,7 @@ public class ClientApp {
 		boolean found = false;
 		try {
 			//client.storeSecCommand();
-			//long id = client.storeSecQuery();
+			long id = client.storeSecQuery();
 			//long id = client.storeXmlDocument("axis.xml");
 			//System.out.println("document stored; id: " + id);
 			//found = client.runPriceQuery();
@@ -43,9 +43,9 @@ public class ClientApp {
 			//client.runSecQuery();
 			//found = client.searchSecQuery();
 			found = client.searchSecQueryParams();
-			client.searchSecQueryParams();
+			//client.searchSecQueryParams();
 			//found = client.runAxisQuery();
-			//client.removeSecCommand(id);
+			client.removeSecCommand(id);
 		} catch (XQException e) {
 			e.printStackTrace();
 		}
@@ -186,7 +186,7 @@ public class ClientApp {
 
 	public void storeSecCommand() throws XQException {
 
-		String dName = "..\\..\\etc\\samples\\data\\";
+		String dName = "..\\..\\etc\\samples\\tpox\\";
 		String xml;
 		try {
 			xml = readTextFile(dName + "security5621.xml");
@@ -208,7 +208,7 @@ public class ClientApp {
 	
 	private long storeXmlDocument(String fileName) throws XQException {
 		
-		String dName = "..\\..\\etc\\samples\\data\\";
+		String dName = "..\\..\\etc\\samples\\tpox\\";
 		String xml;
 		try {
 			xml = readTextFile(dName + fileName);
