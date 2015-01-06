@@ -81,6 +81,7 @@
         <xerses.version>2.11.0</xerses.version>
         <axis.version>1.4</axis.version>
         <saxon.version>9.5.1-8</saxon.version>
+        <!--saxon.version>9.5.1-3</saxon.version-->
         <!--saxon.version>9.6.0-1</saxon.version-->
         <!--xmlbeans.version>2.6.0</xmlbeans.version-->
         <jackson.version>2.3.2</jackson.version>

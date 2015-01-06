@@ -229,11 +229,14 @@ public abstract class BagriXQItemAccessor implements XQItemAccessor {
 		}
 		
 		switch (type.getItemKind()) {
-			case XQITEMKIND_ATTRIBUTE: return (org.w3c.dom.Attr) value;
+			case XQITEMKIND_ATTRIBUTE: 
+			case XQITEMKIND_SCHEMA_ATTRIBUTE: return (org.w3c.dom.Attr) value;
 			case XQITEMKIND_COMMENT: return (org.w3c.dom.Comment) value;
 			case XQITEMKIND_DOCUMENT: return (org.w3c.dom.Document) value;
+			case XQITEMKIND_ELEMENT: 
 			case XQITEMKIND_DOCUMENT_ELEMENT: 
-			case XQITEMKIND_ELEMENT: return (org.w3c.dom.Element) value;
+			case XQITEMKIND_DOCUMENT_SCHEMA_ELEMENT:
+			case XQITEMKIND_SCHEMA_ELEMENT: return (org.w3c.dom.Element) value;
 			case XQITEMKIND_PI: return (org.w3c.dom.ProcessingInstruction) value;
 			case XQITEMKIND_TEXT: return (org.w3c.dom.Text) value;
 			default: 
@@ -246,7 +249,11 @@ public abstract class BagriXQItemAccessor implements XQItemAccessor {
 		
 		Node node = getNode();
 		try {
-			return new URI(node.getBaseURI());
+			String base = node.getBaseURI();
+			if (base == null) {
+				base = "";
+			}
+			return new URI(base);
 		} catch (URISyntaxException ex) {
 			throw new XQException(ex.getMessage());
 		}

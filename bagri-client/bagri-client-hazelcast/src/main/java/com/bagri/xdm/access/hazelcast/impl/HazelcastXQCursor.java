@@ -76,6 +76,7 @@ public class HazelcastXQCursor implements Iterator<Object> {
 	
 	private void addNext() {
 		Object o = iter.next();
+		logger.trace("addNext; next: {}", o);
 		if (o != null) {
 			queue.add(o);
 		}

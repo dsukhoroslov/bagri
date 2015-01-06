@@ -66,6 +66,8 @@ public abstract class BagriXQSequence extends BagriXQItemAccessor implements XQS
 			throw new XQException("Sequence is closed");
 		}
         
+		// TODO: do this via xqProcessor.serializeSequence(...);
+		
 		StringBuffer buff = new StringBuffer();
 		//buff.append("<s>");
 		

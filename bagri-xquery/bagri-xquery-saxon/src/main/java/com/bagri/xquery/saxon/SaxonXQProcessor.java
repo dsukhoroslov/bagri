@@ -138,8 +138,8 @@ public abstract class SaxonXQProcessor extends XQProcessorBase {
     		sqc.setConstructionMode(Validation.STRIP);
         }
     	sqc.setPreserveBoundarySpace(String.valueOf(BOUNDARY_SPACE_PRESERVE).equals(props.getProperty(pn_boundarySpacePolicy)));
-        sqc.setDefaultElementNamespace(props.getProperty(pn_defaultElementTypeNamespace));
-    	sqc.setDefaultFunctionNamespace(props.getProperty(pn_defaultFunctionNamespace));
+        sqc.setDefaultElementNamespace(props.getProperty(pn_defaultElementTypeNamespace, ""));
+    	sqc.setDefaultFunctionNamespace(props.getProperty(pn_defaultFunctionNamespace, ""));
         //sqc.setEmptyLeast(emptyLeast);
     	sqc.setInheritNamespaces(String.valueOf(COPY_NAMESPACES_MODE_INHERIT).equals(props.getProperty(pn_copyNamespacesModeInherit)));
     	sqc.setPreserveNamespaces(String.valueOf(COPY_NAMESPACES_MODE_PRESERVE).equals(props.getProperty(pn_copyNamespacesModePreserve)));
@@ -150,7 +150,7 @@ public abstract class SaxonXQProcessor extends XQProcessorBase {
     			sqc.declareNamespace(e.getKey(), e.getValue());
     		}
     	}
-    	sqc.declareDefaultCollation(props.getProperty(pn_defaultCollationUri));
+    	sqc.declareDefaultCollation(props.getProperty(pn_defaultCollationUri, ""));
 		logger.trace("setStaticContext.exit; built context: {}; base URI: {}", sqc, sqc.getBaseURI());
     	//...
     	
@@ -201,7 +201,8 @@ public abstract class SaxonXQProcessor extends XQProcessorBase {
 		    	t.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
 		    	t.setOutputProperty(OutputKeys.INDENT, "yes");
 		    	t.transform(new DOMSource((Node) item), new StreamResult(sw));
-		    } catch (TransformerException te) {
+		    //} catch (TransformerException te) {
+		    } catch (Exception te) {
 		    	throw new XQException(te.getMessage());
 		    }
 		    return sw.toString();

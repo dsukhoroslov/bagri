@@ -110,7 +110,7 @@ public class BagriXQItemType extends BagriXQSequenceType implements XQItemType {
 	public boolean isNodeCompatible(org.w3c.dom.Node node) {
 		short type = node.getNodeType();
 		switch (kind) {
-			case XQITEMKIND_DOCUMENT: return (type == Node.DOCUMENT_NODE);
+			case XQITEMKIND_DOCUMENT: return (type == Node.DOCUMENT_NODE || type == Node.DOCUMENT_FRAGMENT_NODE);
 			case XQITEMKIND_DOCUMENT_ELEMENT: 
 			case XQITEMKIND_ELEMENT: return (type == Node.ELEMENT_NODE);
 			case XQITEMKIND_ATTRIBUTE: return (type == Node.ATTRIBUTE_NODE);
