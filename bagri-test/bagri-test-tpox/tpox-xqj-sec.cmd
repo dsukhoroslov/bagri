@@ -27,7 +27,7 @@ rem set java_opts=%java_opts% -Dtangosol.coherence.proxy.address=localhost
 rem set java_opts=%java_opts% -Dtangosol.coherence.proxy.port=21000
 
 set java_opts=%java_opts% -Dlogback.configurationFile=hz-client-logging.xml -Dlog.name=tpox-client -Dhz.log.level=warn
-set java_opts=%java_opts% -Dxqj.spring.context=spring/tpox-client-context.xml
+set java_opts=%java_opts% -Dxdm.spring.context=spring/tpox-client-context.xml
 
 set java_opts=%java_opts% -Dxdm.schema.members=192.168.1.100:10500
 rem set java_opts=%java_opts% -Dxdm.schema.members=localhost:10500

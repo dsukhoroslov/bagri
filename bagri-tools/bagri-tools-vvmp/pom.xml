@@ -15,6 +15,10 @@
     <name>bagri-tools-vvmp</name>
     <description>BagRi: VisualVM plugin</description>
     <packaging>nbm</packaging>
+    <organization>
+      <name>Roman Orekhov</name>
+      <url>www.bagri.ru</url>
+    </organization>
 
     <properties>
 	<nbm.plugin.version>3.11</nbm.plugin.version>
