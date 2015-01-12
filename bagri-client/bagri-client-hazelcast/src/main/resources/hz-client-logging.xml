@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--configuration debug="true"-->
+<configuration>
+
+    <include resource="client-logging.xml"/>
+
+    <logger name="com.hazelcast">
+        <level value="${hz.log.level:-info}"/>
+    </logger>
+
+    <!--root>
+        <level value="debug"/>
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="ROLLING"/>
+    </root-->
+
+</configuration>

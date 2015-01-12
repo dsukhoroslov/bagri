@@ -2,7 +2,7 @@
 <workload name="insertCustaccs" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="workload_properties.xsd">
 	<collections>
 		<collection name="custacc">
-			<files dir="/data/custacc" firstfileid="1" lastfileid="1" docsperfile="50000" fileprefix="batch-" filepostfix="xml.offset"/>
+			<files dir="/data/custacc" firstfileid="1" lastfileid="2" docsperfile="50000" fileprefix="batch-" filepostfix="xml.offset"/>
 		</collection>
 	</collections>
 	<transactions>

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workload name="queries" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="workload_properties.xsd">
+	<collections>
+		<collection name="order">
+			<files dir="/data/order" firstfileid="1" lastfileid="1" docsperfile="20000" fileprefix="batch-" filepostfix="xml.offset"/>
+		</collection>
+		<collection name="orderids">
+			<ids first="103282" last="123281" />
+		</collection>
+	</collections>
+
+	<transactions>
+		<!--transaction id="1" name="addDocument" weight="50">
+			<java-plugin>com.bagri.client.tpox.workload.BagriXQJPlugin</java-plugin>
+			<parameters>
+				<parameter>
+					<constant value="
+declare namespace bgdm=&quot;http://bagri.com/bagri-xdm&quot;;
+declare variable $doc external;
+
+for $id in bgdm:store-document($doc)
+return $id" />
+				</parameter>
+				<parameter>
+					<constant value="true" />
+				</parameter>
+				<parameter>
+					<constant value="doc" />
+				</parameter>
+				<parameter>
+					<constant value="document" />
+				</parameter>
+				<parameter>
+					<files collection="order"/>
+				</parameter>
+			</parameters>
+		</transaction-->
+
+		<transaction id="2" name="getOrder" weight="100">
+			<java-plugin>com.bagri.client.tpox.workload.BagriXQJPlugin</java-plugin>
+			<parameters>
+				<parameter>
+					<constant value="
+declare namespace o=&quot;http://www.fixprotocol.org/FIXML-4-4&quot;;
+declare variable $ID external;
+
+for $ord in fn:collection(&quot;/{http://www.fixprotocol.org/FIXML-4-4}FIXML&quot;)/o:FIXML
+where $ord/o:Order/@ID=$ID
+return $ord/o:Order" />
+				</parameter>
+				<parameter>
+					<constant value="true" />
+				</parameter>
+				<parameter>
+					<constant value="ID" />
+				</parameter>
+				<parameter>
+					<constant value="string" />
+				</parameter>
+				<parameter>
+					<ids collection="orderids" />
+				</parameter>
+			</parameters>
+		</transaction>
+	</transactions>
+</workload>

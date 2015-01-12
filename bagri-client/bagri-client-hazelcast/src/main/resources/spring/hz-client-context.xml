@@ -19,6 +19,10 @@
  	<hz:client id="hzInstance">
 		<hz:group name="${xdm.schema.name}" password="${xdm.schema.password}"/>
 	
+		<hz:properties>
+			<hz:property name="hazelcast.logging.type">slf4j</hz:property>
+		</hz:properties>
+
 		<hz:network smart-routing="true">
 			<hz:member>${xdm.schema.members}</hz:member>
 		</hz:network>

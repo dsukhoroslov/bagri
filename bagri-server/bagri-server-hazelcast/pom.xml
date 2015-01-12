@@ -216,7 +216,7 @@
                                                          value="BagriLoginConfig"/>
                                             <sysproperty key="java.security.auth.login.config"
                                                          value="${project.basedir}/src/main/resources/jaas.config"/-->
-                                            <sysproperty key="logback.configurationFile" value="logging.xml"/>
+                                            <sysproperty key="logback.configurationFile" value="hz-logging.xml"/>
                                             <sysproperty key="xdm.log.level" value="trace"/>
                                             <sysproperty key="xdm.config.path" value="src/main/resources"/>
                                             <sysproperty key="xdm.config.context.file" value="spring/admin-system-context.xml"/>
@@ -250,7 +250,7 @@
                                             <!--sysproperty key="com.sun.management.jmxremote" value="true"/>
                                             <sysproperty key="com.sun.management.jmxremote.authenticate" value="false"/>
                                             <sysproperty key="com.sun.management.jmxremote.ssl" value="false"/-->
-                                            <sysproperty key="logback.configurationFile" value="logging.xml"/>
+                                            <sysproperty key="logback.configurationFile" value="hz-logging.xml"/>
                                             <sysproperty key="xdm.log.level" value="trace"/>
                                             <sysproperty key="xdm.config.path" value="src/main/resources"/>
                                             <sysproperty key="xdm.config.context.file" value="spring/cache-system-context.xml"/>
@@ -281,8 +281,8 @@
                                             <!--sysproperty key="com.sun.management.jmxremote" value="true"/>
                                             <sysproperty key="com.sun.management.jmxremote.authenticate" value="false"/>
                                             <sysproperty key="com.sun.management.jmxremote.ssl" value="false"/-->
-                                            <sysproperty key="logback.configurationFile" value="logging.xml"/>
-                                            <sysproperty key="xdm.log.level" value="trace"/>
+                                            <sysproperty key="logback.configurationFile" value="hz-logging.xml"/>
+                                            <sysproperty key="xdm.log.level" value="info"/>
                                             <sysproperty key="xdm.config.path" value="src/main/resources"/>
                                             <sysproperty key="xdm.config.context.file" value="spring/cache-system-context.xml"/>
 					    <sysproperty key="xdm.config.properties.file" value="second.properties"/>
@@ -313,7 +313,7 @@
                                             <!--sysproperty key="com.sun.management.jmxremote" value="true"/>
                                             <sysproperty key="com.sun.management.jmxremote.authenticate" value="false"/>
                                             <sysproperty key="com.sun.management.jmxremote.ssl" value="false"/-->
-                                            <sysproperty key="logback.configurationFile" value="logging.xml"/>
+                                            <sysproperty key="logback.configurationFile" value="hz-logging.xml"/>
                                             <sysproperty key="xdm.log.level" value="info"/>
                                             <sysproperty key="xdm.config.path" value="src/main/resources"/>
                                             <sysproperty key="xdm.config.context.file" value="spring/cache-system-context.xml"/>
@@ -345,7 +345,7 @@
                                             <!--sysproperty key="com.sun.management.jmxremote" value="true"/>
                                             <sysproperty key="com.sun.management.jmxremote.authenticate" value="false"/>
                                             <sysproperty key="com.sun.management.jmxremote.ssl" value="false"/-->
-                                            <sysproperty key="logback.configurationFile" value="logging.xml"/>
+                                            <sysproperty key="logback.configurationFile" value="hz-logging.xml"/>
                                             <sysproperty key="xdm.log.level" value="trace"/>
                                             <sysproperty key="xdm.config.path" value="src/main/resources"/>
                                             <sysproperty key="xdm.config.context.file" value="spring/cache-system-context.xml"/>

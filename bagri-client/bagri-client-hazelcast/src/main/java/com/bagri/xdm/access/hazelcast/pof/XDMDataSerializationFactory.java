@@ -26,6 +26,7 @@ public class XDMDataSerializationFactory implements DataSerializableFactory {
 	public static final int cli_XDMDenitSchemaTask = 118;
 	public static final int cli_XDMSchemaAdminTask = 119;
 	public static final int cli_XDMSchemaMemberTask = 120;
+	public static final int cli_XDMCleanSchemaTask = 121;
 	public static final int cli_XDMPopulateSchemaTask = 122;
 	public static final int cli_DocumentUrisProviderTask = 123;
 	public static final int cli_XMLBuilderTask = 124;

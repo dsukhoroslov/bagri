@@ -27,7 +27,7 @@ set java_opts=%java_opts% -Dtangosol.coherence.proxy.address=linbox.sdv.home
 set java_opts=%java_opts% -Dtangosol.coherence.proxy.port=17000
 
 rem set java_opts=%java_opts% -Dtangosol.coherence.management=all -Dtangosol.coherence.management.remote=true
-set java_opts=%java_opts% -Dlogback.configurationFile=%app_home%\target\classes\tpox-logging.xml
+set java_opts=%java_opts% -Dlogback.configurationFile=ch-client-logging.xml
 set java_opts=%java_opts% -Dxdm.data.manager=Hazelcast
 
 "%java_exec%" -server -showversion %java_opts% -cp "%app_home%\target\lib\*;%app_home%\target\*" net.sf.tpox.workload.core.WorkloadDriver -u 25 -w queries/queries.xml %*

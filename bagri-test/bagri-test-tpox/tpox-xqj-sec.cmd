@@ -26,7 +26,7 @@ set java_opts=-Xms%memory% -Xmx%memory%
 rem set java_opts=%java_opts% -Dtangosol.coherence.proxy.address=localhost
 rem set java_opts=%java_opts% -Dtangosol.coherence.proxy.port=21000
 
-set java_opts=%java_opts% -Dlogback.configurationFile=%app_home%\target\classes\tpox-logging.xml
+set java_opts=%java_opts% -Dlogback.configurationFile=hz-client-logging.xml -Dlog.name=tpox-client -Dhz.log.level=warn
 set java_opts=%java_opts% -Dxqj.spring.context=spring/tpox-client-context.xml
 
 set java_opts=%java_opts% -Dxdm.schema.members=192.168.1.100:10500
@@ -44,13 +44,13 @@ rem insert securities to the cache
 "%java_exec%" -server -showversion %java_opts% -cp "%app_home%\target\*;%app_home%\target\lib\*" net.sf.tpox.workload.core.WorkloadDriver -w queries/insSecurity-xqj.xml -tr 2604 -u 8 
 
 rem get insert statistics
-"%java_exec%" -server %java_opts% -cp "%app_home%\target\*;%app_home%\target\lib\*" com.bagri.client.tpox.StatisticsCollector localhost:3330 TPoX2 ./stats.txt InsertSecurities executeXQuery
+"%java_exec%" -server %java_opts% -cp "%app_home%\target\*;%app_home%\target\lib\*" com.bagri.client.tpox.StatisticsCollector localhost:3330 TPoX2 ./stats.txt InsertSecurities executeXQuery false
 
 rem perform queries loopig by user count
 for /l %%x in (50, 10, 100) do (
 	echo %%x
 	"%java_exec%" -server %java_opts% -cp "%app_home%\target\*;%app_home%\target\lib\*" net.sf.tpox.workload.core.WorkloadDriver -w queries/securities-xqj.xml -u %%x 
-	"%java_exec%" -server %java_opts% -cp "%app_home%\target\*;%app_home%\target\lib\*" com.bagri.client.tpox.StatisticsCollector localhost:3330 TPoX2 ./stats.txt Users=%%x executeXQuery
+	"%java_exec%" -server %java_opts% -cp "%app_home%\target\*;%app_home%\target\lib\*" com.bagri.client.tpox.StatisticsCollector localhost:3330 TPoX2 ./stats.txt Users=%%x executeXQuery false
 )
 
 goto exit

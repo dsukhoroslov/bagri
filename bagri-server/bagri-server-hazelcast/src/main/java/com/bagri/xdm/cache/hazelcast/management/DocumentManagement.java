@@ -2,6 +2,11 @@ package com.bagri.xdm.cache.hazelcast.management;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -30,6 +35,7 @@ import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.process.hazelcast.DocumentManagementServer;
 import com.bagri.xdm.process.hazelcast.DocumentStatsCollector;
 import com.bagri.xdm.process.hazelcast.DocumentStatsReseter;
+import com.bagri.xdm.process.hazelcast.schema.SchemaCleaner;
 import com.bagri.xdm.process.hazelcast.schema.SchemaStatsAggregator;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.Member;
@@ -126,7 +132,26 @@ public class DocumentManagement implements SelfNaming {
 		return docManager.getDocumentAsString(docId);
 	}
 
-    
+	@ManagedOperation(description="delete all Schema documents")
+	@ManagedOperationParameters({
+		@ManagedOperationParameter(name = "evictOnly", description = "Delete from Cache or from Cache and CacheStore too")})
+	public boolean clear(boolean evictOnly) {
+		
+		SchemaCleaner task = new SchemaCleaner(schemaName, evictOnly);
+		Map<Member, Future<Boolean>> results = execService.submitToAllMembers(task);
+		boolean result = true;
+		for (Map.Entry<Member, Future<Boolean>> entry: results.entrySet()) {
+			try {
+				if (!entry.getValue().get()) {
+					result = false;
+				}
+			} catch (InterruptedException | ExecutionException ex) {
+				logger.error("clear.error; ", ex);
+			}
+		}
+		return result;
+	}
+	    
 	@ManagedOperation(description="Register Document")
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "docFile", description = "A full path to XML file to register")})
@@ -143,23 +168,27 @@ public class DocumentManagement implements SelfNaming {
 		return 0;
 	}
 	
-	private int processFilesInCatalog(File catalog) {
+	private int processFilesInCatalog(Path catalog) {
 		int result = 0;
-	    for (File file: catalog.listFiles()) {
-	        if (file.isDirectory()) {
-	            result += processFilesInCatalog(file);
-	        } else {
-	            result += registerDocument(file.getPath());
-	        }
-	    }
+		try (DirectoryStream<Path> stream = Files.newDirectoryStream(catalog, "*.xml")) {
+		    for (Path path: stream) {
+		        if (Files.isDirectory(path)) {
+		            result += processFilesInCatalog(path);
+		        } else {
+		            result += registerDocument(path.toString()); // file.getPath());
+		        }
+		    }
+		} catch (IOException ex) {
+			logger.error("processFilesInCatalog.error: " + ex.getMessage(), ex);
+		}
 	    return result;
 	}
-
+	
 	@ManagedOperation(description="Register Documents")
 	@ManagedOperationParameters({
-		@ManagedOperationParameter(name = "docCatalog", description = "A full path to the directory containing XML files to register")})
-	public int registerDocuments(String docCatalog) {
-		File catalog = new File(docCatalog);
+		@ManagedOperationParameter(name = "catalog", description = "A full path to the directory containing XML files to register")})
+	public int registerDocuments(String path) {
+		Path catalog = Paths.get(path);
 		return processFilesInCatalog(catalog);	
 	}
 

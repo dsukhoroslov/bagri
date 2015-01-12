@@ -13,6 +13,7 @@ import com.bagri.xdm.process.hazelcast.QueryProcessor;
 import com.bagri.xdm.process.hazelcast.XMLProvider;
 import com.bagri.xdm.process.hazelcast.XQCommandExecutor;
 import com.bagri.xdm.process.hazelcast.node.NodeKiller;
+import com.bagri.xdm.process.hazelcast.schema.SchemaCleaner;
 import com.bagri.xdm.process.hazelcast.schema.SchemaDenitiator;
 import com.bagri.xdm.process.hazelcast.schema.SchemaInitiator;
 import com.bagri.xdm.process.hazelcast.schema.SchemaAdministrator;
@@ -30,6 +31,7 @@ public class XDMDataSerializationFactory extends com.bagri.xdm.access.hazelcast.
 			case cli_XDMDocumentRemover: return new DocumentRemover();
 			case cli_XDMInitSchemaTask: return new SchemaInitiator();
 			case cli_XDMDenitSchemaTask: return new SchemaDenitiator();
+			case cli_XDMCleanSchemaTask: return new SchemaCleaner();
 			case cli_XDMSchemaAdminTask: return new SchemaAdministrator();
 			case cli_XDMSchemaMemberTask: return new SchemaMemberExtractor();
 			case cli_XDMPopulateSchemaTask: return new SchemaPopulator();

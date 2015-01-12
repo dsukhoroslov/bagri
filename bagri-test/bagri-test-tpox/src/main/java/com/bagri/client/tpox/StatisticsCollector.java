@@ -35,7 +35,9 @@ public class StatisticsCollector {
 		String file = args[2];
 		String marker= args[3];
 		String method = args[4];
-		System.out.println("got address: " + address + "; schema: " + schema + "; method: " + method);
+		String clear = args[5];
+		System.out.println("got address: " + address + "; schema: " + schema + 
+				"; method: " + method + "; clear: " + clear);
 
 		try {
 			StatisticsCollector sc = new StatisticsCollector(address, schema);
@@ -45,6 +47,10 @@ public class StatisticsCollector {
 			stats += System.lineSeparator();
 			FileUtils.appendTextFile(file, stats);
 			sc.resetStatistics();
+			if ("true".equalsIgnoreCase(clear)) {
+				sc.clearSchema(true);
+			}
+			sc.jmxc.close();
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
@@ -82,7 +88,12 @@ public class StatisticsCollector {
 	
 	public void resetStatistics() throws Exception {
 		mbsc.invoke(mName, "resetStatistics", null, null);
-		jmxc.close();
+		//jmxc.close();
+	}
+	
+	public void clearSchema(boolean evictOnly) throws Exception {
+		mbsc.invoke(mName, "clear", new Object[] {evictOnly}, new String[] {boolean.class.getName()});
+		//jmxc.close();
 	}
 
 }

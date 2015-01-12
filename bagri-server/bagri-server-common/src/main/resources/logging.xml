@@ -1,10 +1,9 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<configuration debug="true">
-<!--configuration-->
+<included>
 
     <jmxConfigurator/>
     
     <!--contextName>xdm-cache</contextName-->
+    <!--property resource="xdm-cache.properties" /-->
 
     <if condition='isDefined("node.name")'>
         <then>
@@ -25,12 +24,10 @@
     </if>
 
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-        <layout class="ch.qos.logback.classic.PatternLayout">
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{64} - %msg%n</pattern>
-        </layout>
+    	<encoder>
+        	<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{64} - %msg%n</pattern>
+    	</encoder>
     </appender>
-
-    <!--property resource="xdm-cache.properties" /-->
 
     <appender name="ROLLING" class="ch.qos.logback.core.rolling.RollingFileAppender">
     	<file>${node.logdir}/cache/${prefix}-server-${suffix}.log</file>
@@ -39,7 +36,7 @@
       		<fileNamePattern>${node.logdir}/cache/${prefix}-server-${suffix}-%d{yyyy-MM-dd}.%i.gz</fileNamePattern>
       		<maxHistory>4</maxHistory>
       		<timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-        		<!-- or whenever the file size reaches 20MB -->
+        		<!-- or whenever the file size reaches 50MB -->
         		<maxFileSize>50MB</maxFileSize>
       		</timeBasedFileNamingAndTriggeringPolicy>
     	</rollingPolicy>
@@ -70,10 +67,6 @@
         <level value="debug"/>
     </logger-->
 
-    <logger name="com.hazelcast">
-        <level value="info"/>
-    </logger>
-
     <logger name="org.springframework.core.env">
         <level value="info"/>
     </logger>
@@ -100,4 +93,4 @@
         <appender-ref ref="ROLLING"/>
     </root>
 
-</configuration>
+</included>

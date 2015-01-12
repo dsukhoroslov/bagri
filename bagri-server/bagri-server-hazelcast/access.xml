@@ -80,7 +80,7 @@
             <createdAt>2014-05-29T01:12:30.559+04:00</createdAt>
             <createdBy>Denis</createdBy>
             <permissions/>
-            <includedRoles></includedRoles>
+            <includedRoles>AdminRole</includedRoles>
             <password>5f4dcc3b5aa765d61d8327deb882cf99</password>
         </user>
     </users>

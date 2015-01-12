@@ -225,7 +225,7 @@ public class BagriXQItemAccessorTest {
 	    	Assert.fail("A-XQIA-3.1: getNode on element() failed with message: " + e.getMessage());
 	    }
 	    Assert.assertEquals("A-XQIA-3.1: getNode on element() failed", true, node instanceof Element);
-	    //Assert.assertEquals("A-XQIA-3.1: getNode on element() failed", "e", node.getLocalName());
+	    Assert.assertEquals("A-XQIA-3.1: getNode on element() failed", "e", node.getLocalName());
 	    xqs.next();
 	    try {
 	    	node = xqs.getNode();
@@ -233,13 +233,13 @@ public class BagriXQItemAccessorTest {
 	    	Assert.fail("A-XQIA-3.1: getNode on attribute() failed with message: " + e.getMessage());
 	    }
 	    Assert.assertEquals("A-XQIA-3.1: getNode on attribute() failed", true, node instanceof Attr);
-	    //Assert.assertEquals("A-XQIA-3.1: getNode on attribute() failed", "a", node.getLocalName());
+	    Assert.assertEquals("A-XQIA-3.1: getNode on attribute() failed", "a", node.getLocalName());
 	    xqe.close();
 	    
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder parser = factory.newDocumentBuilder();
         Document document = parser.parse(new InputSource(new StringReader("<e>Hello world!</e>")));
-	    Assert.assertEquals("getLocalName on element() failed", "e", document.getDocumentElement().getLocalName());
+	    //Assert.assertEquals("getLocalName on element() failed", "e", document.getDocumentElement().getLocalName());
 
         XQItem xqi = null;
         try {

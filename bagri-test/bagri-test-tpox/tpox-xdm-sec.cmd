@@ -20,7 +20,7 @@ if "%java_home%"=="" (set java_exec=java) else (set java_exec=%java_home%\bin\ja
 
 set java_opts=-Xms%memory% -Xmx%memory% 
 
-set java_opts=%java_opts% -Dlogback.configurationFile=tpox-logging.xml
+set java_opts=%java_opts% -Dlogback.configurationFile=hz-client-logging.xml
 rem set java_opts=%java_opts% -Dxdm.spring.context=hazelcast/client-context.xml
 rem set java_opts=%java_opts% -Dxdm.spring.context=spring/hz-client-context.xml
 set java_opts=%java_opts% -Dxdm.spring.context=spring/tpox-client-context.xml

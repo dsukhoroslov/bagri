@@ -28,6 +28,7 @@ public interface XDMDocumentManagement {
 	// todo: add methods to store document from Source, Reader, XMLStreamReader, InputStream
 	//void removeDocument(String uri);
 	void removeDocument(long docId);
+
 	void close();
 
 	XDMSchemaDictionary getSchemaDictionary();

@@ -181,6 +181,7 @@ public class DocumentManagementClient extends XDMDocumentManagementClient {
 			config.getGroupConfig().setName(schema);
 			config.getGroupConfig().setPassword(password);
 			config.getNetworkConfig().addAddress(address);
+			//config.setProperty("hazelcast.logging.type", "slf4j");
 			//UsernamePasswordCredentials creds = new UsernamePasswordCredentials(schema, password);
 			//SecureCredentials creds = new SecureCredentials(password);
 			//config.getSecurityConfig().setCredentials(creds);
