@@ -115,6 +115,9 @@
                 <configuration>
                     <archive>
                         <manifestFile>src/main/resources/META-INF/MANIFEST.MF</manifestFile>
+              		<manifestEntries>
+                	    <OpenIDE-Module-Specification-Version>${project.version}</OpenIDE-Module-Specification-Version>
+              		</manifestEntries>
                     </archive>
                 </configuration>
             </plugin>
