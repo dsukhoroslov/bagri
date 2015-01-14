@@ -6,6 +6,9 @@ import static com.bagri.xdm.access.hazelcast.pof.XDMDataSerializationFactory.fac
 import java.io.IOException;
 import java.util.Map.Entry;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.bagri.common.query.PathExpression;
 import com.bagri.xdm.common.XDMDataKey;
 import com.bagri.xdm.domain.XDMElements;
@@ -16,7 +19,7 @@ import com.hazelcast.query.Predicate;
 
 public class QueryPredicate implements Predicate<XDMDataKey, XDMElements>, IdentifiedDataSerializable { 
 	
-	//private static final transient Logger logger = LoggerFactory.getLogger(QueryProcessor.class);
+	private static final transient Logger logger = LoggerFactory.getLogger(QueryPredicate.class);
 	//private Set<String> threads = new HashSet<String>();
 	
 	private PathExpression pex;
@@ -43,19 +46,24 @@ public class QueryPredicate implements Predicate<XDMDataKey, XDMElements>, Ident
 
 	@Override
 	public boolean apply(Entry<XDMDataKey, XDMElements> xdmEntry) {
-		return xdmEntry.getValue().apply(pex, value);
+		logger.trace("apply.enter");
+		boolean result = xdmEntry.getValue().apply(pex, value);
+		logger.trace("apply.exit; returning {}", result);
+		return result;
 	}
 	
 	@Override
 	public void readData(ObjectDataInput in) throws IOException {
 		pex = in.readObject();
 		value = in.readObject();
+		logger.trace("readData.exit");
 	}
 
 	@Override
 	public void writeData(ObjectDataOutput out) throws IOException {
 		out.writeObject(pex);
 		out.writeObject(value);
+		logger.trace("writeData.exit");
 	}
 
 }

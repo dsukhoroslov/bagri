@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Comment;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.ProcessingInstruction;
 import org.w3c.dom.Text;
@@ -162,22 +163,26 @@ public class XQItemSerializer implements StreamSerializer<XQItem> {
 				case XQITEMKIND_DOCUMENT_ELEMENT: 
 				case XQITEMKIND_DOCUMENT_SCHEMA_ELEMENT: { 
 					String value = in.readUTF();
+					//String ns = in.readUTF();
 					XQItem result = xqFactory.createItemFromDocument(value, null, type);
 					return result;
 				}
 				case XQITEMKIND_ELEMENT: 
 				case XQITEMKIND_SCHEMA_ELEMENT:	{
 					String value = in.readUTF();
+					//String ns = in.readUTF();
 					Document doc = BagriXQUtils.textToDocument(value);
-					//doc.normalizeDocument();
 					return xqFactory.createItemFromNode(doc.getDocumentElement(), type); 
+					//return xqFactory.createItemFromNode(doc.createElementNS(ns, doc.getDocumentElement().getNodeName()), type); 
 				}
 				case XQITEMKIND_ATTRIBUTE: 
 				case XQITEMKIND_SCHEMA_ATTRIBUTE: {
 					String value = in.readUTF();
+					String ns = in.readUTF();
 					Document doc = BagriXQUtils.textToDocument(value);
 					Attr a = (Attr) doc.getDocumentElement().getAttributes().item(0);
-					return xqFactory.createItemFromNode(a, type); 
+					//return xqFactory.createItemFromNode(a, type); 
+					return xqFactory.createItemFromNode(doc.createAttributeNS(ns, a.getNodeName()), type); 
 				}
 				case XQITEMKIND_COMMENT: {
 					String value = in.readUTF();
@@ -295,18 +300,16 @@ public class XQItemSerializer implements StreamSerializer<XQItem> {
 			//
 			switch (type.getItemKind()) {
 				case XQITEMKIND_DOCUMENT: {
-					String value = item.getItemAsString(null);
-					if (value == null || value.length() == 0) { // an empty DocumentFragment!
-						logger.info("write; got empty document content"); 
-					} 
-					out.writeUTF(value);
+					out.writeUTF(item.getItemAsString(null));
 					return;
 				}
 				case XQITEMKIND_DOCUMENT_ELEMENT:
-				case XQITEMKIND_ELEMENT:
 				case XQITEMKIND_DOCUMENT_SCHEMA_ELEMENT: 
+				case XQITEMKIND_ELEMENT:
 				case XQITEMKIND_SCHEMA_ELEMENT:	{
+					//Element e = (Element) item.getNode();
 					out.writeUTF(item.getItemAsString(null));
+					//out.writeUTF(item.getNode().getNamespaceURI());
 					return;
 				}
 				case XQITEMKIND_ATTRIBUTE:
@@ -314,6 +317,7 @@ public class XQItemSerializer implements StreamSerializer<XQItem> {
 					Attr a = (Attr) item.getNode();
 					String xml = "<e " + a.getName() + "=\"" + a.getNodeValue() + "\"/>";
 					out.writeUTF(xml);
+					out.writeUTF(a.getNamespaceURI());
 					return;
 				}
 				case XQITEMKIND_COMMENT: { 
