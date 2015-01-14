@@ -8,10 +8,10 @@ setlocal
 call set-tpox-env.cmd
 
 rem think about how long time this should run
-"%java_exec%" -server -showversion %java_opts% -cp "%app_home%\target\*;%app_home%\target\lib\*" net.sf.tpox.workload.core.WorkloadDriver -w queries/orders-xqj.xml -u 10 %*                                      
+rem "%java_exec%" -server -showversion %java_opts% -cp "%app_home%\target\*;%app_home%\target\lib\*" net.sf.tpox.workload.core.WorkloadDriver -w queries/orders-xqj.xml -u 10 %*
 
 setlocal enableDelayedExpansion
-for /l %%x in (40, 10, 40) do (
+for /l %%x in (40, 10, 50) do (
 	set n=%%x
 	set /a count=100*n
 	echo !count!

@@ -35,6 +35,7 @@ public class XDMStaxParser {
 	private static final Logger logger = LoggerFactory.getLogger(XDMStaxParser.class);
 
 	private static XMLInputFactory factory = XMLInputFactory.newInstance();
+
 	private StringBuilder chars;
 	private List<XMLEvent> firstEvents;
 	private List<XDMData> dataList;
@@ -72,7 +73,9 @@ public class XDMStaxParser {
 			eventReader = factory.createXMLEventReader(stream); 
 			return parse(eventReader);
 		} finally {
-			eventReader.close();
+			if (eventReader != null) {
+				eventReader.close();
+			}
 		}
 	}
 	
@@ -83,7 +86,9 @@ public class XDMStaxParser {
 			eventReader = factory.createXMLEventReader(reader); 
 			return parse(eventReader);
 		} finally {
-			eventReader.close();
+			if (eventReader != null) {
+				eventReader.close();
+			}
 		}
 	}
 	
@@ -94,7 +99,9 @@ public class XDMStaxParser {
 			eventReader = factory.createXMLEventReader(source); 
 			return parse(eventReader);
 		} finally {
-			eventReader.close();
+			if (eventReader != null) {
+				eventReader.close();
+			}
 		}
 	}
 	
