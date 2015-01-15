@@ -52,6 +52,7 @@ import com.bagri.xdm.access.api.XDMDocumentManagement;
 
 import static com.bagri.xqj.BagriXQConstants.*;
 
+import com.bagri.xqj.BagriXQUtils;
 import com.bagri.xquery.api.XQProcessorBase;
 import com.bagri.xquery.saxon.extension.RemoveDocument;
 import com.bagri.xquery.saxon.extension.StoreDocument;
@@ -195,17 +196,7 @@ public abstract class SaxonXQProcessor extends XQProcessorBase {
 				throw new XQException(ex.getMessage());
 			}
 		} else if (item instanceof Node) {
-		    StringWriter sw = new StringWriter();
-		    try {
-		    	Transformer t = TransformerFactory.newInstance().newTransformer();
-		    	t.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-		    	t.setOutputProperty(OutputKeys.INDENT, "yes");
-		    	t.transform(new DOMSource((Node) item), new StreamResult(sw));
-		    //} catch (TransformerException te) {
-		    } catch (Exception te) {
-		    	throw new XQException(te.getMessage());
-		    }
-		    return sw.toString();
+			return BagriXQUtils.nodeToString((Node) item); 
 		} else if (item instanceof ObjectValue) {
 			return convertToString(((ObjectValue) item).getObject());
 		} else if (item instanceof XQSequence) {

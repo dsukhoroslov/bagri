@@ -102,7 +102,7 @@
                 <entry name="xqj.schema.defaultFunctionNamespace"></entry>
                 <entry name="xdm.schema.password">TPoX2</entry>
                 <!--entry name="xdm.schema.partition.count">971</entry-->
-                <entry name="xdm.schema.partition.count">1973</entry>
+                <entry name="xdm.schema.partition.count">271</entry>
                 <entry name="xdm.schema.population.size">1</entry>
             </properties>
         </schema>

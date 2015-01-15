@@ -6,6 +6,7 @@ import static javax.xml.xquery.XQItemType.*;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.lang.reflect.Method;
 import java.util.GregorianCalendar;
 import java.util.Properties;
 
@@ -31,6 +32,7 @@ import org.w3c.dom.Text;
 import org.xml.sax.InputSource;
 
 import com.bagri.xqj.BagriXQUtils;
+import com.bagri.xquery.api.XQProcessor;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.StreamSerializer;
@@ -47,6 +49,16 @@ public class XQItemSerializer implements StreamSerializer<XQItem> {
 
 	public void setXQDataFactory(XQDataFactory xqDataFactory) {
 		this.xqFactory = xqDataFactory;
+	}
+
+	protected XQProcessor getXQProcessor() {
+		try {
+			Method get = xqFactory.getClass().getMethod("getProcessor");
+			return (XQProcessor) get.invoke(xqFactory);
+		} catch (Exception ex) {
+			logger.warn("getXQProcessor.error; can't get XQProcessor", ex);
+		}
+		return null;
 	}
 
 	@Override
@@ -145,7 +157,6 @@ public class XQItemSerializer implements StreamSerializer<XQItem> {
 						default: {
 							String value = in.readUTF();
 							logger.trace("read; got value: {}", value); 
-							//return xqFactory.createItemFromString(value, type);
 							return xqFactory.createItemFromAtomicValue(value, type);
 						}
 					}
@@ -163,14 +174,19 @@ public class XQItemSerializer implements StreamSerializer<XQItem> {
 				case XQITEMKIND_DOCUMENT_ELEMENT: 
 				case XQITEMKIND_DOCUMENT_SCHEMA_ELEMENT: { 
 					String value = in.readUTF();
-					//String ns = in.readUTF();
+					if (in.readBoolean()) {
+						String ns = in.readUTF();
+					}
 					XQItem result = xqFactory.createItemFromDocument(value, null, type);
 					return result;
 				}
 				case XQITEMKIND_ELEMENT: 
 				case XQITEMKIND_SCHEMA_ELEMENT:	{
 					String value = in.readUTF();
-					//String ns = in.readUTF();
+					String ns = null;
+					if (in.readBoolean()) {
+						ns = in.readUTF();
+					}
 					Document doc = BagriXQUtils.textToDocument(value);
 					return xqFactory.createItemFromNode(doc.getDocumentElement(), type); 
 					//return xqFactory.createItemFromNode(doc.createElementNS(ns, doc.getDocumentElement().getNodeName()), type); 
@@ -181,7 +197,6 @@ public class XQItemSerializer implements StreamSerializer<XQItem> {
 					String ns = in.readUTF();
 					Document doc = BagriXQUtils.textToDocument(value);
 					Attr a = (Attr) doc.getDocumentElement().getAttributes().item(0);
-					//return xqFactory.createItemFromNode(a, type); 
 					return xqFactory.createItemFromNode(doc.createAttributeNS(ns, a.getNodeName()), type); 
 				}
 				case XQITEMKIND_COMMENT: {
@@ -308,8 +323,17 @@ public class XQItemSerializer implements StreamSerializer<XQItem> {
 				case XQITEMKIND_ELEMENT:
 				case XQITEMKIND_SCHEMA_ELEMENT:	{
 					//Element e = (Element) item.getNode();
-					out.writeUTF(item.getItemAsString(null));
-					//out.writeUTF(item.getNode().getNamespaceURI());
+					//out.writeUTF(BagriXQUtils.nodeToString(e));
+					Object value = item.getObject();
+					XQProcessor xqPro = getXQProcessor();
+					out.writeUTF(xqPro.convertToString(value));
+					if (value instanceof Element) {
+						out.writeBoolean(true);
+						Element e = (Element) value;
+						out.writeUTF(e.getNamespaceURI());
+					} else {
+						out.writeBoolean(false);
+					}
 					return;
 				}
 				case XQITEMKIND_ATTRIBUTE:

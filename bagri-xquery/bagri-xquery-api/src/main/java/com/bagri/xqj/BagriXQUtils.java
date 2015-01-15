@@ -88,11 +88,13 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
+import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.xquery.XQDataFactory;
@@ -637,16 +639,30 @@ public class BagriXQUtils {
 		
 		TransformerFactory transFactory = TransformerFactory.newInstance();  
 		try {
-			Transformer trans = transFactory.newTransformer();  
+			Transformer t = transFactory.newTransformer();  
 			Writer writer = new StringWriter();
-			Result result = new StreamResult(writer);  
-			trans.transform(source, result);
+			t.transform(source, new StreamResult(writer));
 			writer.flush();
 			return writer.toString();
 		} catch (Exception ex) { //TransformerException | IOException ex) {
 			throw new XQException(ex.getMessage());
 		}  
 		
+	}
+	
+	public static String nodeToString(Node node) throws XQException {
+		
+		TransformerFactory transFactory = TransformerFactory.newInstance();  
+	    try {
+	    	Transformer t = transFactory.newTransformer();
+	    	t.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+	    	t.setOutputProperty(OutputKeys.INDENT, "yes");
+	    	Writer writer = new StringWriter();
+	    	t.transform(new DOMSource(node), new StreamResult(writer));
+		    return writer.toString();
+	    } catch (Exception ex) { //(TransformerException te) {
+	    	throw new XQException(ex.getMessage());
+	    }
 	}
 	
 	public static void stringToResult(String source, Result result) throws XQException {

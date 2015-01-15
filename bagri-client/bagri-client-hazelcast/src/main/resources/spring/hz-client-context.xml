@@ -104,15 +104,15 @@
 	</bean>
 
 	<bean id="xqItemTypeSerializer" class="com.bagri.xdm.access.hazelcast.pof.XQItemTypeSerializer">
-    		<property name="XQDataFactory" ref="xqConnection" />
+    	<property name="XQDataFactory" ref="xqConnection" />
 	</bean>
 
 	<bean id="xqItemSerializer" class="com.bagri.xdm.access.hazelcast.pof.XQItemSerializer">
-    		<property name="XQDataFactory" ref="xqConnection" />
+    	<property name="XQDataFactory" ref="xqConnection" />
 	</bean>
 	
 	<bean id="xqSequenceSerializer" class="com.bagri.xdm.access.hazelcast.pof.XQSequenceSerializer">
-    		<property name="XQDataFactory" ref="xqConnection" />
+    	<property name="XQDataFactory" ref="xqConnection" />
 	</bean>
 	
 </beans>
