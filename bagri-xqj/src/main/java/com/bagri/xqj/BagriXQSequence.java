@@ -2,9 +2,7 @@ package com.bagri.xqj;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.StringWriter;
 import java.io.Writer;
-import java.util.Iterator;
 import java.util.Properties;
 
 import javax.xml.stream.XMLStreamReader;
@@ -12,8 +10,6 @@ import javax.xml.transform.Result;
 import javax.xml.transform.sax.SAXResult;
 import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQItem;
-import javax.xml.xquery.XQItemType;
-import javax.xml.xquery.XQResultSequence;
 import javax.xml.xquery.XQSequence;
 
 import org.xml.sax.ContentHandler;
@@ -22,19 +18,8 @@ import com.bagri.xquery.api.XQProcessor;
 
 public abstract class BagriXQSequence extends BagriXQItemAccessor implements XQSequence /*, XQResultSequence*/ {
 	
-	//protected BagriXQConnection connection;
 	protected BagriXQDataFactory xqFactory;
 	
-	//BagriXQSequence(BagriXQConnection connection) {
-	//	super();
-	//	this.connection = connection;
-	//}
-	
-	//BagriXQSequence(BagriXQConnection connection) {
-	//	super(connection.getProcessor());
-	//	this.connection = connection;
-	//}
-
 	BagriXQSequence(BagriXQDataFactory xqFactory, XQProcessor xqProcessor) {
 		super(xqProcessor);
 		this.xqFactory = xqFactory;
@@ -69,8 +54,6 @@ public abstract class BagriXQSequence extends BagriXQItemAccessor implements XQS
 		// TODO: do this via xqProcessor.serializeSequence(...);
 		
 		StringBuffer buff = new StringBuffer();
-		//buff.append("<s>");
-		
 		boolean hasNext = isOnItem();
 		if (!hasNext) {
 			hasNext = next();
@@ -83,8 +66,6 @@ public abstract class BagriXQSequence extends BagriXQItemAccessor implements XQS
 				hasNext = false;
 			}
 		}
-		
-		//buff.append("</s>");
         return buff.toString();
 	}
 

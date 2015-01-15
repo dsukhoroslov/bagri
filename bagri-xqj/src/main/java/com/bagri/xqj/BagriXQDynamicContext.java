@@ -1,14 +1,10 @@
 package com.bagri.xqj;
 
-import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
@@ -122,17 +118,6 @@ public class BagriXQDynamicContext implements XQDynamicContext {
 	@Override
 	public void bindSequence(QName varName, XQSequence value) throws XQException {
 
-		//if (isClosed()) {
-		//	throw new XQException("Connection is closed");
-		//}
-		//if (varName == null) {
-		//	throw new XQException("varName is null");
-		//}
-		//if (value.isClosed()) {
-		//	throw new XQException("Item is closed");
-		//}
-		//bindings.put(varName, value);
-		//connection.bindVariable(varName, value);
 		bindXQItemAccessor(varName, (BagriXQItemAccessor) value);
 	}
 

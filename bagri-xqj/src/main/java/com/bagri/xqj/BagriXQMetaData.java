@@ -1,5 +1,7 @@
 package com.bagri.xqj;
 
+import static com.bagri.xqj.BagriXQConstants.ex_connection_closed;
+
 import java.util.Set;
 
 import javax.xml.xquery.XQConnection;
@@ -26,37 +28,37 @@ public class BagriXQMetaData implements XQMetaData, XQMetaData2 {
 	public int getXQJ2MajorVersion() throws XQException {
 		
 		if (connect.isClosed()) {
-			throw new XQException("Connection is closed");
-		}
-		
-		return 0;
-	}
-
-	@Override
-	public int getXQJ2MinorVersion() throws XQException {
-		
-		if (connect.isClosed()) {
-			throw new XQException("Connection is closed");
+			throw new XQException(ex_connection_closed);
 		}
 		
 		return 1;
 	}
 
 	@Override
+	public int getXQJ2MinorVersion() throws XQException {
+		
+		if (connect.isClosed()) {
+			throw new XQException(ex_connection_closed);
+		}
+		
+		return 0;
+	}
+
+	@Override
 	public String getXQJ2Version() throws XQException {
 		
 		if (connect.isClosed()) {
-			throw new XQException("Connection is closed");
+			throw new XQException(ex_connection_closed);
 		}
 		
-		return "0.1.0";
+		return "1.0";
 	}
 
 	@Override
 	public boolean isXQueryUpdateFacilitySupported() throws XQException {
 		
 		if (connect.isClosed()) {
-			throw new XQException("Connection is closed");
+			throw new XQException(ex_connection_closed);
 		}
 		
 		return true;
@@ -66,7 +68,7 @@ public class BagriXQMetaData implements XQMetaData, XQMetaData2 {
 	public boolean isXQueryFullTextSupported() throws XQException {
 		
 		if (connect.isClosed()) {
-			throw new XQException("Connection is closed");
+			throw new XQException(ex_connection_closed);
 		}
 		
 		return true;
@@ -76,7 +78,7 @@ public class BagriXQMetaData implements XQMetaData, XQMetaData2 {
 	public boolean isXQuery30Supported() throws XQException {
 		
 		if (connect.isClosed()) {
-			throw new XQException("Connection is closed");
+			throw new XQException(ex_connection_closed);
 		}
 		
 		return true;
@@ -86,7 +88,7 @@ public class BagriXQMetaData implements XQMetaData, XQMetaData2 {
 	public int getProductMajorVersion() throws XQException {
 		
 		if (connect.isClosed()) {
-			throw new XQException("Connection is closed");
+			throw new XQException(ex_connection_closed);
 		}
 		
 		return 0;
@@ -96,38 +98,37 @@ public class BagriXQMetaData implements XQMetaData, XQMetaData2 {
 	public int getProductMinorVersion() throws XQException {
 		
 		if (connect.isClosed()) {
-			throw new XQException("Connection is closed");
+			throw new XQException(ex_connection_closed);
 		}
 		
-		return 1;
+		return 5;
 	}
 
 	@Override
 	public String getProductName() throws XQException {
 		
 		if (connect.isClosed()) {
-			throw new XQException("Connection is closed");
+			throw new XQException(ex_connection_closed);
 		}
 		
-		return "bagri-xqj-0.0.1";
+		return "bagri-xqj";
 	}
 
 	@Override
 	public String getProductVersion() throws XQException {
 		
 		if (connect.isClosed()) {
-			throw new XQException("Connection is closed");
+			throw new XQException(ex_connection_closed);
 		}
 		
-		// TODO Auto-generated method stub
-		return null;
+		return "0.5.1";
 	}
 
 	@Override
 	public int getXQJMajorVersion() throws XQException {
 		
 		if (connect.isClosed()) {
-			throw new XQException("Connection is closed");
+			throw new XQException(ex_connection_closed);
 		}
 		
 		return 1;
@@ -137,7 +138,7 @@ public class BagriXQMetaData implements XQMetaData, XQMetaData2 {
 	public int getXQJMinorVersion() throws XQException {
 		
 		if (connect.isClosed()) {
-			throw new XQException("Connection is closed");
+			throw new XQException(ex_connection_closed);
 		}
 		
 		return 0;
@@ -147,7 +148,7 @@ public class BagriXQMetaData implements XQMetaData, XQMetaData2 {
 	public String getXQJVersion() throws XQException {
 		
 		if (connect.isClosed()) {
-			throw new XQException("Connection is closed");
+			throw new XQException(ex_connection_closed);
 		}
 		
 		return "1.0";
@@ -157,7 +158,7 @@ public class BagriXQMetaData implements XQMetaData, XQMetaData2 {
 	public boolean isReadOnly() throws XQException {
 		
 		if (connect.isClosed()) {
-			throw new XQException("Connection is closed");
+			throw new XQException(ex_connection_closed);
 		}
 		
 		return false;
@@ -167,7 +168,7 @@ public class BagriXQMetaData implements XQMetaData, XQMetaData2 {
 	public boolean isXQueryXSupported() throws XQException {
 		
 		if (connect.isClosed()) {
-			throw new XQException("Connection is closed");
+			throw new XQException(ex_connection_closed);
 		}
 		
 		return false;
@@ -177,7 +178,7 @@ public class BagriXQMetaData implements XQMetaData, XQMetaData2 {
 	public boolean isTransactionSupported() throws XQException {
 		
 		if (connect.isClosed()) {
-			throw new XQException("Connection is closed");
+			throw new XQException(ex_connection_closed);
 		}
 		
 		return false;
@@ -187,7 +188,7 @@ public class BagriXQMetaData implements XQMetaData, XQMetaData2 {
 	public boolean isStaticTypingFeatureSupported() throws XQException {
 		
 		if (connect.isClosed()) {
-			throw new XQException("Connection is closed");
+			throw new XQException(ex_connection_closed);
 		}
 		
 		// TODO Auto-generated method stub
@@ -198,7 +199,7 @@ public class BagriXQMetaData implements XQMetaData, XQMetaData2 {
 	public boolean isSchemaImportFeatureSupported() throws XQException {
 		
 		if (connect.isClosed()) {
-			throw new XQException("Connection is closed");
+			throw new XQException(ex_connection_closed);
 		}
 		
 		// TODO Auto-generated method stub
@@ -209,7 +210,7 @@ public class BagriXQMetaData implements XQMetaData, XQMetaData2 {
 	public boolean isSchemaValidationFeatureSupported() throws XQException {
 		
 		if (connect.isClosed()) {
-			throw new XQException("Connection is closed");
+			throw new XQException(ex_connection_closed);
 		}
 		
 		// TODO Auto-generated method stub
@@ -220,7 +221,7 @@ public class BagriXQMetaData implements XQMetaData, XQMetaData2 {
 	public boolean isFullAxisFeatureSupported() throws XQException {
 		
 		if (connect.isClosed()) {
-			throw new XQException("Connection is closed");
+			throw new XQException(ex_connection_closed);
 		}
 		
 		// TODO Auto-generated method stub
@@ -231,7 +232,7 @@ public class BagriXQMetaData implements XQMetaData, XQMetaData2 {
 	public boolean isModuleFeatureSupported() throws XQException {
 		
 		if (connect.isClosed()) {
-			throw new XQException("Connection is closed");
+			throw new XQException(ex_connection_closed);
 		}
 		
 		// TODO Auto-generated method stub
@@ -242,18 +243,18 @@ public class BagriXQMetaData implements XQMetaData, XQMetaData2 {
 	public boolean isSerializationFeatureSupported() throws XQException {
 		
 		if (connect.isClosed()) {
-			throw new XQException("Connection is closed");
+			throw new XQException(ex_connection_closed);
 		}
 		
 		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 	@Override
 	public boolean isStaticTypingExtensionsSupported() throws XQException {
 		
 		if (connect.isClosed()) {
-			throw new XQException("Connection is closed");
+			throw new XQException(ex_connection_closed);
 		}
 		
 		// TODO Auto-generated method stub
@@ -264,10 +265,9 @@ public class BagriXQMetaData implements XQMetaData, XQMetaData2 {
 	public String getUserName() throws XQException {
 		
 		if (connect.isClosed()) {
-			throw new XQException("Connection is closed");
+			throw new XQException(ex_connection_closed);
 		}
 		
-		// TODO Auto-generated method stub
 		return userName;
 	}
 
@@ -275,7 +275,7 @@ public class BagriXQMetaData implements XQMetaData, XQMetaData2 {
 	public int getMaxExpressionLength() throws XQException {
 		
 		if (connect.isClosed()) {
-			throw new XQException("Connection is closed");
+			throw new XQException(ex_connection_closed);
 		}
 		
 		// TODO Auto-generated method stub
@@ -286,7 +286,7 @@ public class BagriXQMetaData implements XQMetaData, XQMetaData2 {
 	public int getMaxUserNameLength() throws XQException {
 		
 		if (connect.isClosed()) {
-			throw new XQException("Connection is closed");
+			throw new XQException(ex_connection_closed);
 		}
 		
 		return 64;
@@ -296,7 +296,7 @@ public class BagriXQMetaData implements XQMetaData, XQMetaData2 {
 	public boolean wasCreatedFromJDBCConnection() throws XQException {
 		
 		if (connect.isClosed()) {
-			throw new XQException("Connection is closed");
+			throw new XQException(ex_connection_closed);
 		}
 		
 		return false;
@@ -306,7 +306,7 @@ public class BagriXQMetaData implements XQMetaData, XQMetaData2 {
 	public boolean isXQueryEncodingDeclSupported() throws XQException {
 		
 		if (connect.isClosed()) {
-			throw new XQException("Connection is closed");
+			throw new XQException(ex_connection_closed);
 		}
 		
 		// TODO Auto-generated method stub
@@ -317,7 +317,7 @@ public class BagriXQMetaData implements XQMetaData, XQMetaData2 {
 	public Set getSupportedXQueryEncodings() throws XQException {
 		
 		if (connect.isClosed()) {
-			throw new XQException("Connection is closed");
+			throw new XQException(ex_connection_closed);
 		}
 		
 		// TODO Auto-generated method stub
@@ -328,7 +328,7 @@ public class BagriXQMetaData implements XQMetaData, XQMetaData2 {
 	public boolean isXQueryEncodingSupported(String encoding) throws XQException {
 		
 		if (connect.isClosed()) {
-			throw new XQException("Connection is closed");
+			throw new XQException(ex_connection_closed);
 		}
 		
 		// TODO Auto-generated method stub
@@ -339,7 +339,7 @@ public class BagriXQMetaData implements XQMetaData, XQMetaData2 {
 	public boolean isUserDefinedXMLSchemaTypeSupported() throws XQException {
 		
 		if (connect.isClosed()) {
-			throw new XQException("Connection is closed");
+			throw new XQException(ex_connection_closed);
 		}
 		
 		// TODO Auto-generated method stub
@@ -350,7 +350,7 @@ public class BagriXQMetaData implements XQMetaData, XQMetaData2 {
 	public boolean isXASupported() throws XQException {
 
 		if (connect.isClosed()) {
-			throw new XQException("Connection is closed");
+			throw new XQException(ex_connection_closed);
 		}
 		
 		// TODO Auto-generated method stub

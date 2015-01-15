@@ -25,7 +25,6 @@ public class IterableXQSequence extends BagriXQSequence {
 	private boolean accessed;
 	
 	@SuppressWarnings("rawtypes")
-	//IterableXQSequence(BagriXQConnection connection, Iterator iterator) {
 	IterableXQSequence(BagriXQDataFactory xqFactory, XQProcessor  xqProcessor, Iterator iterator) {
 		super(xqFactory, xqProcessor);
 		this.iterator = iterator;

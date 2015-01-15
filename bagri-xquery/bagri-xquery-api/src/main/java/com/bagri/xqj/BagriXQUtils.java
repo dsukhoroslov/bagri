@@ -583,10 +583,9 @@ public class BagriXQUtils {
 	public static Document textToDocument(String text) throws XQException {
 		
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();  
-	    DocumentBuilder builder;  
-	    try  
-	    {  
-	        builder = factory.newDocumentBuilder();  
+		factory.setNamespaceAware(true);
+	    try {  
+		    DocumentBuilder builder = factory.newDocumentBuilder();  
 	        //return builder.parse(new InputSource(new ByteArrayInputStream(xml.getBytes("utf-8"))));  
 	        return builder.parse(new ByteArrayInputStream(text.getBytes("utf-8")));  
 	    } catch (Exception ex) {  
@@ -597,11 +596,9 @@ public class BagriXQUtils {
 	public static Document textToDocument(InputStream text) throws XQException {
 		
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();  
-	    DocumentBuilder builder;  
-	    try  
-	    {  
-	        builder = factory.newDocumentBuilder();  
-	        //return builder.parse(new InputSource(new ByteArrayInputStream(xml.getBytes("utf-8"))));  
+		factory.setNamespaceAware(true);
+	    try {  
+		    DocumentBuilder builder = factory.newDocumentBuilder();  
 	        return builder.parse(text);  
 	    } catch (Exception ex) {  
 	        throw new XQException(ex.getMessage());
@@ -611,11 +608,9 @@ public class BagriXQUtils {
 	public static Document textToDocument(Reader text) throws XQException {
 		
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();  
-	    DocumentBuilder builder;  
-	    try  
-	    {  
-	        builder = factory.newDocumentBuilder();  
-	        //return builder.parse(new InputSource(new ByteArrayInputStream(xml.getBytes("utf-8"))));  
+		factory.setNamespaceAware(true);
+	    try {  
+		    DocumentBuilder builder = factory.newDocumentBuilder();  
 	        return builder.parse(new InputSource(text));  
 	    } catch (Exception ex) {  
 	        throw new XQException(ex.getMessage());
@@ -624,9 +619,9 @@ public class BagriXQUtils {
 	
 	
 	public static XMLStreamReader stringToStream(String content) throws XQException {
+		
 		XMLInputFactory factory = XMLInputFactory.newInstance();
-
-		//get Reader connected to XML input from somewhere..
+		//get Reader connected to XML input from somewhere..?
 		Reader reader = new StringReader(content);
 		try {
 		    return factory.createXMLStreamReader(reader);
@@ -639,9 +634,11 @@ public class BagriXQUtils {
 		
 		TransformerFactory transFactory = TransformerFactory.newInstance();  
 		try {
-			Transformer t = transFactory.newTransformer();  
+			Transformer trans = transFactory.newTransformer();  
+	    	trans.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+	    	trans.setOutputProperty(OutputKeys.INDENT, "yes");
 			Writer writer = new StringWriter();
-			t.transform(source, new StreamResult(writer));
+			trans.transform(source, new StreamResult(writer));
 			writer.flush();
 			return writer.toString();
 		} catch (Exception ex) { //TransformerException | IOException ex) {
@@ -652,17 +649,18 @@ public class BagriXQUtils {
 	
 	public static String nodeToString(Node node) throws XQException {
 		
-		TransformerFactory transFactory = TransformerFactory.newInstance();  
-	    try {
-	    	Transformer t = transFactory.newTransformer();
-	    	t.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-	    	t.setOutputProperty(OutputKeys.INDENT, "yes");
-	    	Writer writer = new StringWriter();
-	    	t.transform(new DOMSource(node), new StreamResult(writer));
-		    return writer.toString();
-	    } catch (Exception ex) { //(TransformerException te) {
-	    	throw new XQException(ex.getMessage());
-	    }
+		//TransformerFactory transFactory = TransformerFactory.newInstance();  
+	    //try {
+	    //	Transformer trans = transFactory.newTransformer();
+	    //	trans.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+	    //	trans.setOutputProperty(OutputKeys.INDENT, "yes");
+	    //	Writer writer = new StringWriter();
+	    //	trans.transform(new DOMSource(node), new StreamResult(writer));
+		//  return writer.toString();
+	    //} catch (Exception ex) { //(TransformerException te) {
+	    //	throw new XQException(ex.getMessage());
+	    //}
+		return sourceToString(new DOMSource(node));
 	}
 	
 	public static void stringToResult(String source, Result result) throws XQException {

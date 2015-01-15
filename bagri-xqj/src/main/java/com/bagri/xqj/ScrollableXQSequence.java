@@ -13,7 +13,6 @@ public class ScrollableXQSequence extends BagriXQSequence implements XQSequence 
 	private List sequence;
 	private int position;
 	
-	//ScrollableXQSequence(BagriXQConnection connection, List sequence) {
 	ScrollableXQSequence(BagriXQDataFactory xqFactory, XQProcessor xqProcessor, List sequence) {
 		super(xqFactory, xqProcessor);
 		this.sequence = sequence;

@@ -12,7 +12,7 @@ import static javax.xml.xquery.XQConstants.*;
 
 public class BagriXQStaticContext implements XQStaticContext {
 
-	private Map<String, String> namespaces = new HashMap<String, String>(4);
+	private Map<String, String> namespaces = new HashMap<String, String>(6);
 	private String defaultElementTypeNamespace = "";
 	private String defaultFunctionNamespace = "";
 	private String defaultCollationUri = "";

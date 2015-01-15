@@ -22,7 +22,7 @@ public class BagriXQPreparedExpression extends BagriXQDynamicContext implements	
 	
 	private String xquery;
 
-	public BagriXQPreparedExpression(XQStaticContext context) {
+	BagriXQPreparedExpression(XQStaticContext context) {
 		super(context);
 	}
 	

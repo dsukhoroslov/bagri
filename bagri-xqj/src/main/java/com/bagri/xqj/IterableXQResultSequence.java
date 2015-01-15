@@ -32,7 +32,6 @@ public class IterableXQResultSequence extends IterableXQSequence implements XQRe
 		}
 		//checkAccess();
 		super.getItem();
-		//return new BagriXQResultItem(this.getItemType(), this.getAtomicValue(), this);
 		return new BagriXQResultItem(type, value, this);
 	}
 

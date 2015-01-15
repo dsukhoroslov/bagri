@@ -31,17 +31,9 @@ public abstract class BagriXQItemAccessor implements XQItemAccessor {
 	
 	private XQProcessor xqProcessor;
 
-	//BagriXQItemAccessor() {
-	//}
-	
 	BagriXQItemAccessor(XQProcessor xqProcessor) {
 		this.xqProcessor = xqProcessor;
 	}
-	
-	//BagriXQItemAccessor(XQItemType type, String value) {
-	//	this.type = type;
-	//	this.value = value;
-	//}
 	
 	public void close() throws XQException {
 		
@@ -208,7 +200,6 @@ public abstract class BagriXQItemAccessor implements XQItemAccessor {
 			throw new XQException("Item is closed");
 		}
 		
-		//return BagriXQUtils.itemToString(value); //value.toString();
 		return xqProcessor.convertToString(value);
 	}
 

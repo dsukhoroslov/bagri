@@ -12,10 +12,6 @@ public class BagriXQResultItem extends BagriXQItem implements XQResultItem {
 	
 	private XQResultSequence parent;
 
-	//BagriXQResultItem(XQItemType type, Object value) {
-	//	super(type, value);
-	//}
-
 	BagriXQResultItem(XQProcessor xqProcessor, XQItemType type, Object value) {
 		super(xqProcessor, type, value);
 	}
