@@ -105,7 +105,7 @@ public class XDMElements {
     
     private boolean compareValue(Comparison comp, String value1, String value2) {
 
-    	int result = value1.compareTo(value2);
+    	int result = value2.compareTo(value1);
     	switch (comp) {
 	        case EQ: return result == 0;
 	        case NE: return result != 0;
