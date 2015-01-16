@@ -1,5 +1,7 @@
 package com.bagri.xqj;
 
+import javax.xml.xquery.XQException;
+
 public class BagriXQConstants {
 
 	public static final String xs_prefix = "xs";
@@ -28,4 +30,31 @@ public class BagriXQConstants {
 	
 	public static final String ex_connection_closed = "Connection is closed";
 	public static final String ex_null_context = "Context is null";
+
+	// XQJ MetaData feature constants
+	public static final int xqf_Update = 1;
+	public static final int xqf_XQueryX = 2;
+	public static final int xqf_Transaction = 3;
+	public static final int xqf_Full_Axis = 4;
+	public static final int xqf_Schema_Import = 5;
+	public static final int xqf_Schema_Validation = 6;
+	public static final int xqf_Module = 7;
+	public static final int xqf_Serialization = 8;
+	public static final int xqf_Static_Typing = 9;
+	public static final int xqf_Static_Typing_Extensions = 10;
+	public static final int xqf_XQuery_Encoding_Decl = 11;
+	public static final int xqf_User_Defined_XML_Schema_Type = 12;
+	
+	//   public int getMaxExpressionLength() throws XQException;
+	//   public int getMaxUserNameLength() throws XQException;
+	//   public boolean wasCreatedFromJDBCConnection() throws XQException;
+	//   public java.util.Set getSupportedXQueryEncodings() throws XQException;
+	//   public boolean isXQueryEncodingSupported(String encoding) throws XQException;
+	
+	// XQJ2 MetaData feature constants
+	public static final int xqf_XQuery_Update_Facility = 13;
+	public static final int xqf_XQuery_Full_Text = 14;
+	public static final int xqf_XQuery_30 = 15;
+	public static final int xqf_XA = 16;
+	   
 }

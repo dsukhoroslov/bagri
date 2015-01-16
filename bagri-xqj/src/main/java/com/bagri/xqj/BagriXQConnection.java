@@ -19,7 +19,6 @@ import javax.xml.xquery.XQStaticContext;
 
 import com.bagri.xquery.api.XQProcessor;
 
-import static com.bagri.xqj.BagriXQConstants.ex_connection_closed;
 import static com.bagri.xqj.BagriXQConstants.ex_null_context;
 
 public class BagriXQConnection extends BagriXQDataFactory implements XQConnection {
@@ -61,18 +60,14 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 	@Override
 	public XQExpression createExpression() throws XQException {
 		
-		if (isClosed()) {
-			throw new XQException(ex_connection_closed);
-		}
+		checkConnection();
 		return new BagriXQExpression(this);
 	}
 
 	@Override
 	public XQExpression createExpression(XQStaticContext context) throws XQException {
 		
-		if (isClosed()) {
-			throw new XQException(ex_connection_closed);
-		}
+		checkConnection();
 		if (context == null) {
 			throw new XQException(ex_null_context);
 		}
@@ -88,18 +83,14 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 	@Override
 	public XQMetaData getMetaData() throws XQException {
 		
-		if (isClosed()) {
-			throw new XQException(ex_connection_closed);
-		}
+		checkConnection();
 		return metaData;
 	}
 
 	@Override
 	public XQStaticContext getStaticContext() throws XQException {
 		
-		if (isClosed()) {
-			throw new XQException(ex_connection_closed);
-		}
+		checkConnection();
 		return context; //new BagriXQStaticContext(context);
 	}
 
@@ -112,9 +103,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 	@Override
 	public XQPreparedExpression prepareExpression(String xquery) throws XQException {
 		
-		if (isClosed()) {
-			throw new XQException(ex_connection_closed);
-		}
+		checkConnection();
 		if (xquery == null) {
 			throw new XQException("Provided xquery is null");
 		}
@@ -128,9 +117,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 	@Override
 	public XQPreparedExpression prepareExpression(Reader xquery) throws XQException {
 
-		if (isClosed()) {
-			throw new XQException(ex_connection_closed);
-		}
+		checkConnection();
 		if (xquery == null) {
 			throw new XQException("Provided xquery reader is null");
 		}
@@ -145,9 +132,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 	@Override
 	public XQPreparedExpression prepareExpression(InputStream xquery) throws XQException {
 
-		if (isClosed()) {
-			throw new XQException(ex_connection_closed);
-		}
+		checkConnection();
 		if (xquery == null) {
 			throw new XQException("Provided xquery stream is null");
 		}
@@ -162,9 +147,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 	@Override
 	public XQPreparedExpression prepareExpression(String xquery, XQStaticContext context) throws XQException {
 
-		if (isClosed()) {
-			throw new XQException(ex_connection_closed);
-		}
+		checkConnection();
 		if (context == null) {
 			throw new XQException(ex_null_context);
 		}
@@ -181,9 +164,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 	@Override
 	public XQPreparedExpression prepareExpression(Reader xquery, XQStaticContext context) throws XQException {
 
-		if (isClosed()) {
-			throw new XQException(ex_connection_closed);
-		}
+		checkConnection();
 		if (context == null) {
 			throw new XQException(ex_null_context);
 		}
@@ -201,9 +182,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 	@Override
 	public XQPreparedExpression prepareExpression(InputStream xquery, XQStaticContext context) throws XQException {
 
-		if (isClosed()) {
-			throw new XQException(ex_connection_closed);
-		}
+		checkConnection();
 		if (context == null) {
 			throw new XQException(ex_null_context);
 		}
@@ -234,9 +213,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 	@Override
 	public void setStaticContext(XQStaticContext context) throws XQException {
 		
-		if (isClosed()) {
-			throw new XQException(ex_connection_closed);
-		}
+		checkConnection();
 		if (context == null) {
 			throw new XQException(ex_null_context);
 		}
@@ -273,9 +250,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 	public void executeCommand(String cmd, Map<QName, XQItemAccessor> bindings, 
 			XQStaticContext ctx) throws XQException {
 		
-		if (isClosed()) {
-			throw new XQException(ex_connection_closed);
-		}
+		checkConnection();
 		// run cmd..
 		//logger.info("executeCommand. got command: {}", cmd);
 		getProcessor().executeXCommand(cmd, bindings, ctx); //
@@ -288,9 +263,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 	
 	public Iterator executeQuery(String query, XQStaticContext ctx) throws XQException {
 		
-		if (isClosed()) {
-			throw new XQException(ex_connection_closed);
-		}
+		checkConnection();
 		// run cmd..
 		//logger.info("executeQuery. got query: {}", query);
 		result = getProcessor().executeXQuery(query, ctx);
@@ -304,9 +277,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 	
 	public void prepareQuery(BagriXQPreparedExpression exp, XQStaticContext ctx) throws XQException {
 		
-		if (isClosed()) {
-			throw new XQException(ex_connection_closed);
-		}
+		checkConnection();
 		Collection<QName> vars = getProcessor().prepareXQuery(exp.getXQuery(), ctx);
 		exp.setVarNames(vars);
 	}

@@ -23,7 +23,8 @@ public interface QueryProcessor {
     void setXQManager(XDMQueryManagement mgr);
     
     Properties getProperties();
-	
+	boolean isFeatureSupported(int feature);
+    
     Collection<QName> prepareXQuery(String query, XQStaticContext ctx) throws XQException;
     Iterator executeXQuery(String query, XQStaticContext ctx) throws XQException;
     Iterator executeXQuery(String query, Properties props) throws XQException;

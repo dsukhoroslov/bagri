@@ -1,10 +1,9 @@
 package com.bagri.xqj;
 
-import static com.bagri.xqj.BagriXQConstants.ex_connection_closed;
+import static com.bagri.xqj.BagriXQConstants.*;
 
 import java.util.Set;
 
-import javax.xml.xquery.XQConnection;
 import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQMetaData;
 
@@ -12,313 +11,221 @@ import com.xqj2.XQMetaData2;
 
 public class BagriXQMetaData implements XQMetaData, XQMetaData2 {
 	
+	public static final int max_expression_length = Integer.MAX_VALUE;
+	public static final int max_user_name_length = 64;
+	
 	private String userName;
-	private XQConnection connect;
+	private BagriXQConnection connect;
 	
 	BagriXQMetaData(String userName) {
 		this.userName = userName;
 	}
 
-	BagriXQMetaData(XQConnection connect, String userName) {
+	BagriXQMetaData(BagriXQConnection connect, String userName) {
 		this(userName);
 		this.connect = connect;
 	}
-
+	
 	@Override
 	public int getXQJ2MajorVersion() throws XQException {
-		
-		if (connect.isClosed()) {
-			throw new XQException(ex_connection_closed);
-		}
-		
+
+		connect.checkConnection();
 		return 1;
 	}
 
 	@Override
 	public int getXQJ2MinorVersion() throws XQException {
 		
-		if (connect.isClosed()) {
-			throw new XQException(ex_connection_closed);
-		}
-		
+		connect.checkConnection();
 		return 0;
 	}
 
 	@Override
 	public String getXQJ2Version() throws XQException {
 		
-		if (connect.isClosed()) {
-			throw new XQException(ex_connection_closed);
-		}
-		
+		connect.checkConnection();
 		return "1.0";
 	}
 
 	@Override
 	public boolean isXQueryUpdateFacilitySupported() throws XQException {
 		
-		if (connect.isClosed()) {
-			throw new XQException(ex_connection_closed);
-		}
-		
-		return true;
+		connect.checkConnection();
+		return connect.getProcessor().isFeatureSupported(xqf_XQuery_Update_Facility);
 	}
 
 	@Override
 	public boolean isXQueryFullTextSupported() throws XQException {
 		
-		if (connect.isClosed()) {
-			throw new XQException(ex_connection_closed);
-		}
-		
-		return true;
+		connect.checkConnection();
+		return connect.getProcessor().isFeatureSupported(xqf_XQuery_Full_Text);
 	}
 
 	@Override
 	public boolean isXQuery30Supported() throws XQException {
 		
-		if (connect.isClosed()) {
-			throw new XQException(ex_connection_closed);
-		}
-		
-		return true;
+		connect.checkConnection();
+		return connect.getProcessor().isFeatureSupported(xqf_XQuery_30);
 	}
 
 	@Override
 	public int getProductMajorVersion() throws XQException {
 		
-		if (connect.isClosed()) {
-			throw new XQException(ex_connection_closed);
-		}
-		
+		connect.checkConnection();
 		return 0;
 	}
 
 	@Override
 	public int getProductMinorVersion() throws XQException {
 		
-		if (connect.isClosed()) {
-			throw new XQException(ex_connection_closed);
-		}
-		
+		connect.checkConnection();
 		return 5;
 	}
 
 	@Override
 	public String getProductName() throws XQException {
 		
-		if (connect.isClosed()) {
-			throw new XQException(ex_connection_closed);
-		}
-		
+		connect.checkConnection();
 		return "bagri-xqj";
 	}
 
 	@Override
 	public String getProductVersion() throws XQException {
 		
-		if (connect.isClosed()) {
-			throw new XQException(ex_connection_closed);
-		}
-		
+		connect.checkConnection();
 		return "0.5.1";
 	}
 
 	@Override
 	public int getXQJMajorVersion() throws XQException {
 		
-		if (connect.isClosed()) {
-			throw new XQException(ex_connection_closed);
-		}
-		
+		connect.checkConnection();
 		return 1;
 	}
 
 	@Override
 	public int getXQJMinorVersion() throws XQException {
 		
-		if (connect.isClosed()) {
-			throw new XQException(ex_connection_closed);
-		}
-		
+		connect.checkConnection();
 		return 0;
 	}
 
 	@Override
 	public String getXQJVersion() throws XQException {
 		
-		if (connect.isClosed()) {
-			throw new XQException(ex_connection_closed);
-		}
-		
+		connect.checkConnection();
 		return "1.0";
 	}
 
 	@Override
 	public boolean isReadOnly() throws XQException {
 		
-		if (connect.isClosed()) {
-			throw new XQException(ex_connection_closed);
-		}
-		
-		return false;
+		connect.checkConnection();
+		return !connect.getProcessor().isFeatureSupported(xqf_Update);
 	}
 
 	@Override
 	public boolean isXQueryXSupported() throws XQException {
 		
-		if (connect.isClosed()) {
-			throw new XQException(ex_connection_closed);
-		}
-		
-		return false;
+		connect.checkConnection();
+		return connect.getProcessor().isFeatureSupported(xqf_XQueryX);
 	}
 
 	@Override
 	public boolean isTransactionSupported() throws XQException {
 		
-		if (connect.isClosed()) {
-			throw new XQException(ex_connection_closed);
-		}
-		
-		return false;
-	}
-
-	@Override
-	public boolean isStaticTypingFeatureSupported() throws XQException {
-		
-		if (connect.isClosed()) {
-			throw new XQException(ex_connection_closed);
-		}
-		
-		// TODO Auto-generated method stub
-		return false;
+		connect.checkConnection();
+		return connect.getProcessor().isFeatureSupported(xqf_Transaction);
 	}
 
 	@Override
 	public boolean isSchemaImportFeatureSupported() throws XQException {
 		
-		if (connect.isClosed()) {
-			throw new XQException(ex_connection_closed);
-		}
-		
-		// TODO Auto-generated method stub
-		return false;
+		connect.checkConnection();
+		return connect.getProcessor().isFeatureSupported(xqf_Schema_Import);
 	}
 
 	@Override
 	public boolean isSchemaValidationFeatureSupported() throws XQException {
 		
-		if (connect.isClosed()) {
-			throw new XQException(ex_connection_closed);
-		}
-		
-		// TODO Auto-generated method stub
-		return false;
+		connect.checkConnection();
+		return connect.getProcessor().isFeatureSupported(xqf_Schema_Validation);
 	}
 
 	@Override
 	public boolean isFullAxisFeatureSupported() throws XQException {
 		
-		if (connect.isClosed()) {
-			throw new XQException(ex_connection_closed);
-		}
-		
-		// TODO Auto-generated method stub
-		return false;
+		connect.checkConnection();
+		return connect.getProcessor().isFeatureSupported(xqf_Full_Axis);
 	}
 
 	@Override
 	public boolean isModuleFeatureSupported() throws XQException {
 		
-		if (connect.isClosed()) {
-			throw new XQException(ex_connection_closed);
-		}
-		
-		// TODO Auto-generated method stub
-		return false;
+		connect.checkConnection();
+		return connect.getProcessor().isFeatureSupported(xqf_Module);
 	}
 
 	@Override
 	public boolean isSerializationFeatureSupported() throws XQException {
 		
-		if (connect.isClosed()) {
-			throw new XQException(ex_connection_closed);
-		}
+		connect.checkConnection();
+		return connect.getProcessor().isFeatureSupported(xqf_Serialization);
+	}
+
+	@Override
+	public boolean isStaticTypingFeatureSupported() throws XQException {
 		
-		// TODO Auto-generated method stub
-		return true;
+		connect.checkConnection();
+		return connect.getProcessor().isFeatureSupported(xqf_Static_Typing);
 	}
 
 	@Override
 	public boolean isStaticTypingExtensionsSupported() throws XQException {
 		
-		if (connect.isClosed()) {
-			throw new XQException(ex_connection_closed);
-		}
-		
-		// TODO Auto-generated method stub
-		return false;
+		connect.checkConnection();
+		return connect.getProcessor().isFeatureSupported(xqf_Static_Typing_Extensions);
 	}
 
 	@Override
 	public String getUserName() throws XQException {
 		
-		if (connect.isClosed()) {
-			throw new XQException(ex_connection_closed);
-		}
-		
+		connect.checkConnection();
 		return userName;
 	}
 
 	@Override
 	public int getMaxExpressionLength() throws XQException {
 		
-		if (connect.isClosed()) {
-			throw new XQException(ex_connection_closed);
-		}
-		
-		// TODO Auto-generated method stub
-		return Integer.MAX_VALUE;
+		connect.checkConnection();
+		return max_expression_length;
 	}
 
 	@Override
 	public int getMaxUserNameLength() throws XQException {
 		
-		if (connect.isClosed()) {
-			throw new XQException(ex_connection_closed);
-		}
-		
-		return 64;
+		connect.checkConnection();
+		return max_user_name_length;
 	}
 
 	@Override
 	public boolean wasCreatedFromJDBCConnection() throws XQException {
 		
-		if (connect.isClosed()) {
-			throw new XQException(ex_connection_closed);
-		}
-		
+		connect.checkConnection();
 		return false;
 	}
 
 	@Override
 	public boolean isXQueryEncodingDeclSupported() throws XQException {
 		
-		if (connect.isClosed()) {
-			throw new XQException(ex_connection_closed);
-		}
-		
-		// TODO Auto-generated method stub
-		return false;
+		connect.checkConnection();
+		return connect.getProcessor().isFeatureSupported(xqf_XQuery_Encoding_Decl);
 	}
 
 	@Override
 	public Set getSupportedXQueryEncodings() throws XQException {
 		
-		if (connect.isClosed()) {
-			throw new XQException(ex_connection_closed);
-		}
+		connect.checkConnection();
 		
 		// TODO Auto-generated method stub
 		return null;
@@ -327,9 +234,7 @@ public class BagriXQMetaData implements XQMetaData, XQMetaData2 {
 	@Override
 	public boolean isXQueryEncodingSupported(String encoding) throws XQException {
 		
-		if (connect.isClosed()) {
-			throw new XQException(ex_connection_closed);
-		}
+		connect.checkConnection();
 		
 		// TODO Auto-generated method stub
 		return false;
@@ -338,23 +243,15 @@ public class BagriXQMetaData implements XQMetaData, XQMetaData2 {
 	@Override
 	public boolean isUserDefinedXMLSchemaTypeSupported() throws XQException {
 		
-		if (connect.isClosed()) {
-			throw new XQException(ex_connection_closed);
-		}
-		
-		// TODO Auto-generated method stub
-		return false;
+		connect.checkConnection();
+		return connect.getProcessor().isFeatureSupported(xqf_User_Defined_XML_Schema_Type);
 	}
 
 	@Override
 	public boolean isXASupported() throws XQException {
 
-		if (connect.isClosed()) {
-			throw new XQException(ex_connection_closed);
-		}
-		
-		// TODO Auto-generated method stub
-		return false;
+		connect.checkConnection();
+		return connect.getProcessor().isFeatureSupported(xqf_XA);
 	}
 
 }

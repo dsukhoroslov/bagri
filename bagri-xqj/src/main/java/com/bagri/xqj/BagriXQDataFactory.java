@@ -31,7 +31,6 @@ import org.apache.axis.types.NormalizedString;
 import org.apache.axis.types.Token;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import com.bagri.xquery.api.XQProcessor;
@@ -65,9 +64,7 @@ public class BagriXQDataFactory implements XQDataFactory {
 	@Override
 	public XQItemType createAtomicType(int baseType, QName typeName, URI schemaURI) throws XQException {
 		
-		if (closed) {
-			throw new XQException(ex_connection_closed);
-		}
+		checkConnection();
 		if (baseType == XQBASETYPE_UNTYPED || baseType == XQBASETYPE_ANYTYPE ||
 			baseType == XQBASETYPE_IDREFS || baseType == XQBASETYPE_NMTOKENS ||
 			baseType == XQBASETYPE_ENTITIES || baseType == XQBASETYPE_ANYSIMPLETYPE) {
@@ -86,9 +83,7 @@ public class BagriXQDataFactory implements XQDataFactory {
 	@Override
 	public XQItemType createAttributeType(QName nodeName, int baseType, QName typeName,	URI schemaURI) throws XQException {
 		
-		if (closed) {
-			throw new XQException(ex_connection_closed);
-		}
+		checkConnection();
 		if (baseType == XQBASETYPE_UNTYPED || baseType == XQBASETYPE_ANYTYPE) {
 			throw new XQException("Wrong base type: " + baseType);
 		}
@@ -98,18 +93,14 @@ public class BagriXQDataFactory implements XQDataFactory {
 	@Override
 	public XQItemType createCommentType() throws XQException {
 		
-		if (closed) {
-			throw new XQException(ex_connection_closed);
-		}
+		checkConnection();
 		return new BagriXQItemType(XQBASETYPE_UNTYPED, XQITEMKIND_COMMENT, null, getTypeName(XQBASETYPE_UNTYPED), false, null);
 	}
 
 	@Override
 	public XQItemType createDocumentElementType(XQItemType elementType)	throws XQException {
 		
-		if (closed) {
-			throw new XQException(ex_connection_closed);
-		}
+		checkConnection();
 		if (elementType == null) {
 			throw new XQException("provided elementType is null");
 		} 
@@ -123,9 +114,7 @@ public class BagriXQDataFactory implements XQDataFactory {
 	@Override
 	public XQItemType createDocumentSchemaElementType(XQItemType elementType) throws XQException {
 		
-		if (closed) {
-			throw new XQException(ex_connection_closed);
-		}
+		checkConnection();
 		return new BagriXQItemType(XQBASETYPE_ANYTYPE, XQITEMKIND_DOCUMENT_SCHEMA_ELEMENT, elementType.getNodeName(), 
 				elementType.getTypeName(), elementType.isElementNillable(), elementType.getSchemaURI());
 
@@ -134,9 +123,7 @@ public class BagriXQDataFactory implements XQDataFactory {
 	@Override
 	public XQItemType createDocumentType() throws XQException {
 		
-		if (closed) {
-			throw new XQException(ex_connection_closed);
-		}
+		checkConnection();
 		return new BagriXQItemType(XQBASETYPE_ANYTYPE, XQITEMKIND_DOCUMENT, null, null,	false, null);
 	}
 
@@ -149,20 +136,16 @@ public class BagriXQDataFactory implements XQDataFactory {
 	@Override
 	public XQItemType createElementType(QName nodeName, int baseType, QName typeName, URI schemaURI, boolean allowNil) throws XQException {
 		
-		if (closed) {
-			throw new XQException(ex_connection_closed);
-		}
+		checkConnection();
 		return new BagriXQItemType(baseType, XQITEMKIND_ELEMENT, nodeName, typeName, allowNil, schemaURI);
 	}
 
 	@Override
 	public XQItem createItem(XQItem item) throws XQException {
 		
+		checkConnection();
 		if (item == null) {
 			throw new XQException("Item is null");
-		}
-		if (closed) {
-			throw new XQException(ex_connection_closed);
 		}
 		if (item.isClosed()) {
 			throw new XQException("Item is closed");
@@ -173,9 +156,7 @@ public class BagriXQDataFactory implements XQDataFactory {
 	@Override
 	public XQItem createItemFromAtomicValue(String value, XQItemType type) throws XQException {
 		
-		if (closed) {
-			throw new XQException(ex_connection_closed);
-		}
+		checkConnection();
 		if (type == null) {
 			throw new XQException("value is null");
 		}
@@ -194,9 +175,7 @@ public class BagriXQDataFactory implements XQDataFactory {
 	@Override
 	public XQItem createItemFromBoolean(boolean value, XQItemType type) throws XQException {
 
-		if (closed) {
-			throw new XQException(ex_connection_closed);
-		}
+		checkConnection();
 		if (type == null || type.getBaseType() == XQBASETYPE_BOOLEAN) {
 			return new BagriXQItem(xqProcessor, new BagriXQItemType(XQBASETYPE_BOOLEAN, XQITEMKIND_ATOMIC, null, getTypeName(XQBASETYPE_BOOLEAN), false, null), value);
 		} 
@@ -206,9 +185,7 @@ public class BagriXQDataFactory implements XQDataFactory {
 	@Override
 	public XQItem createItemFromByte(byte value, XQItemType type) throws XQException {
 
-		if (closed) {
-			throw new XQException(ex_connection_closed);
-		}
+		checkConnection();
 		if (type == null) {
 			return new BagriXQItem(xqProcessor, new BagriXQItemType(XQBASETYPE_BYTE, XQITEMKIND_ATOMIC, null, getTypeName(XQBASETYPE_BYTE), false, null), value);
 		}
@@ -260,9 +237,7 @@ public class BagriXQDataFactory implements XQDataFactory {
 	@Override
 	public XQItem createItemFromDocument(XMLStreamReader value, XQItemType type) throws XQException {
 
-		if (closed) {
-			throw new XQException(ex_connection_closed);
-		}
+		checkConnection();
 		if (value == null) {
 			throw new XQException("StreamReader is null");
 		}
@@ -274,9 +249,7 @@ public class BagriXQDataFactory implements XQDataFactory {
 	@Override
 	public XQItem createItemFromDocument(Source value, XQItemType type) throws XQException {
 
-		if (closed) {
-			throw new XQException(ex_connection_closed);
-		}
+		checkConnection();
 		if (value == null) {
 			throw new XQException("Source is null");
 		}
@@ -288,9 +261,7 @@ public class BagriXQDataFactory implements XQDataFactory {
 	@Override
 	public XQItem createItemFromDocument(String value, String baseURI, XQItemType type) throws XQException {
 
-		if (closed) {
-			throw new XQException(ex_connection_closed);
-		}
+		checkConnection();
 		if (value == null) {
 			throw new XQException("value is null");
 		}
@@ -316,9 +287,7 @@ public class BagriXQDataFactory implements XQDataFactory {
 	@Override
 	public XQItem createItemFromDocument(Reader value, String baseURI, XQItemType type) throws XQException {
 
-		if (closed) {
-			throw new XQException(ex_connection_closed);
-		}
+		checkConnection();
 		if (value == null) {
 			throw new XQException("value is null");
 		}
@@ -329,9 +298,7 @@ public class BagriXQDataFactory implements XQDataFactory {
 	@Override
 	public XQItem createItemFromDocument(InputStream value, String baseURI, XQItemType type) throws XQException {
 
-		if (closed) {
-			throw new XQException(ex_connection_closed);
-		}
+		checkConnection();
 		if (value == null) {
 			throw new XQException("value is null");
 		}
@@ -342,9 +309,7 @@ public class BagriXQDataFactory implements XQDataFactory {
 	@Override
 	public XQItem createItemFromDouble(double value, XQItemType type) throws XQException {
 
-		if (closed) {
-			throw new XQException(ex_connection_closed);
-		}
+		checkConnection();
 		if (type == null || type.getBaseType() == XQBASETYPE_DOUBLE) {
 			return new BagriXQItem(xqProcessor, new BagriXQItemType(XQBASETYPE_DOUBLE, XQITEMKIND_ATOMIC, null, getTypeName(XQBASETYPE_DOUBLE), false, null), value);
 		} 
@@ -354,9 +319,7 @@ public class BagriXQDataFactory implements XQDataFactory {
 	@Override
 	public XQItem createItemFromFloat(float value, XQItemType type)	throws XQException {
 
-		if (closed) {
-			throw new XQException(ex_connection_closed);
-		}
+		checkConnection();
 		if (type == null || type.getBaseType() == XQBASETYPE_FLOAT) {
 			return new BagriXQItem(xqProcessor, new BagriXQItemType(XQBASETYPE_FLOAT, XQITEMKIND_ATOMIC, null, getTypeName(XQBASETYPE_FLOAT), false, null), value);
 		} 
@@ -366,9 +329,7 @@ public class BagriXQDataFactory implements XQDataFactory {
 	@Override
 	public XQItem createItemFromInt(int value, XQItemType type)	throws XQException {
 
-		if (closed) {
-			throw new XQException(ex_connection_closed);
-		}
+		checkConnection();
 		if (type == null) {
 			return new BagriXQItem(xqProcessor, new BagriXQItemType(XQBASETYPE_INT, XQITEMKIND_ATOMIC, null, getTypeName(XQBASETYPE_INT), false, null), value);
 		}
@@ -427,10 +388,7 @@ public class BagriXQDataFactory implements XQDataFactory {
 	@Override
 	public XQItem createItemFromLong(long value, XQItemType type) throws XQException {
 
-		if (closed) {
-			throw new XQException(ex_connection_closed);
-		}
-		
+		checkConnection();
 		if (type == null) {
 			return new BagriXQItem(xqProcessor, new BagriXQItemType(XQBASETYPE_LONG, XQITEMKIND_ATOMIC, null, getTypeName(XQBASETYPE_LONG), false, null), value);
 		} 
@@ -492,9 +450,7 @@ public class BagriXQDataFactory implements XQDataFactory {
 	@Override
 	public XQItem createItemFromNode(Node value, XQItemType type) throws XQException {
 
-		if (closed) {
-			throw new XQException(ex_connection_closed);
-		}
+		checkConnection();
 		if (value == null) {
 			throw new XQException("Node value is null");
 		}
@@ -511,9 +467,7 @@ public class BagriXQDataFactory implements XQDataFactory {
 	@Override
 	public XQItem createItemFromObject(Object value, XQItemType type) throws XQException {
 
-		if (closed) {
-			throw new XQException(ex_connection_closed);
-		}
+		checkConnection();
 		if (value == null) {
 			throw new XQException("value is null");
 		}
@@ -530,9 +484,7 @@ public class BagriXQDataFactory implements XQDataFactory {
 	@Override
 	public XQItem createItemFromShort(short value, XQItemType type)	throws XQException {
 
-		if (closed) {
-			throw new XQException(ex_connection_closed);
-		}
+		checkConnection();
 		if (type == null) {
 			return new BagriXQItem(xqProcessor, new BagriXQItemType(XQBASETYPE_SHORT, XQITEMKIND_ATOMIC, null, getTypeName(XQBASETYPE_SHORT), false, null), value);
 		}
@@ -588,9 +540,7 @@ public class BagriXQDataFactory implements XQDataFactory {
 	@Override
 	public XQItem createItemFromString(String value, XQItemType type) throws XQException {
 
-		if (closed) {
-			throw new XQException(ex_connection_closed);
-		}
+		checkConnection();
 		if (value == null) {
 			throw new XQException("value is null");
 		}
@@ -639,27 +589,21 @@ public class BagriXQDataFactory implements XQDataFactory {
 	@Override
 	public XQItemType createItemType() throws XQException {
 
-		if (closed) {
-			throw new XQException(ex_connection_closed);
-		}
+		checkConnection();
 		return new BagriXQItemType(XQBASETYPE_ANYTYPE, XQITEMKIND_ITEM, null, getTypeName(XQBASETYPE_ANYTYPE), false, null);
 	}
 
 	@Override
 	public XQItemType createNodeType() throws XQException {
 		
-		if (closed) {
-			throw new XQException(ex_connection_closed);
-		}
+		checkConnection();
 		return new BagriXQItemType(XQBASETYPE_ANYTYPE, XQITEMKIND_NODE, null, getTypeName(XQBASETYPE_UNTYPED), false, null);
 	}
 
 	@Override
 	public XQItemType createProcessingInstructionType(String piTarget) throws XQException {
 		
-		if (closed) {
-			throw new XQException(ex_connection_closed);
-		}
+		checkConnection();
 		QName nodeName = null;
 		if (piTarget != null) {
 			nodeName = new QName(piTarget);
@@ -670,27 +614,21 @@ public class BagriXQDataFactory implements XQDataFactory {
 	@Override
 	public XQItemType createSchemaAttributeType(QName nodeName, int baseType, URI schemaURI) throws XQException {
 		
-		if (closed) {
-			throw new XQException(ex_connection_closed);
-		}
+		checkConnection();
 		return new BagriXQItemType(baseType, XQITEMKIND_SCHEMA_ATTRIBUTE, nodeName, getTypeName(XQBASETYPE_ANYTYPE), false, schemaURI);
 	}
 
 	@Override
 	public XQItemType createSchemaElementType(QName nodeName, int baseType, URI schemaURI) throws XQException {
 		
-		if (closed) {
-			throw new XQException(ex_connection_closed);
-		}
+		checkConnection();
 		return new BagriXQItemType(baseType, XQITEMKIND_SCHEMA_ELEMENT, nodeName, getTypeName(XQBASETYPE_UNTYPED), false, schemaURI);
 	}
 	
 	@Override
 	public XQSequence createSequence(XQSequence sqc) throws XQException {
 		
-		if (closed) {
-			throw new XQException(ex_connection_closed);
-		}
+		checkConnection();
 		if (sqc == null) {
 			throw new XQException("Sequence is null");
 		}
@@ -702,9 +640,7 @@ public class BagriXQDataFactory implements XQDataFactory {
 	@SuppressWarnings("rawtypes")
 	public XQSequence createSequence(Iterator itr) throws XQException {
 
-		if (closed) {
-			throw new XQException(ex_connection_closed);
-		}
+		checkConnection();
 		if (itr == null) {
 			throw new XQException("Iterator is null");
 		}
@@ -738,9 +674,7 @@ public class BagriXQDataFactory implements XQDataFactory {
 	@Override
 	public XQSequenceType createSequenceType(XQItemType type, int occurence) throws XQException {
 		
-		if (closed) {
-			throw new XQException(ex_connection_closed);
-		}
+		checkConnection();
 		if (type == null) {
 			if (occurence == XQSequenceType.OCC_EMPTY) {
 				return new BagriXQSequenceType(type, occurence);
@@ -760,12 +694,16 @@ public class BagriXQDataFactory implements XQDataFactory {
 
 	@Override
 	public XQItemType createTextType() throws XQException {
+
+		checkConnection();
+		return new BagriXQItemType(XQBASETYPE_UNTYPED, XQITEMKIND_TEXT, null, getTypeName(XQBASETYPE_UNTYPED), false, null);
+	}
+
+	void checkConnection() throws XQException {
 		
 		if (closed) {
 			throw new XQException(ex_connection_closed);
 		}
-		return new BagriXQItemType(XQBASETYPE_UNTYPED, XQITEMKIND_TEXT, null, getTypeName(XQBASETYPE_UNTYPED), false, null);
 	}
-
 	
 }
