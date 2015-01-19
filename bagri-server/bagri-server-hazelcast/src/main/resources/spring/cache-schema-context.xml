@@ -194,40 +194,27 @@
 		<property name="xdmCache" ref="xdm-element"/>
 		<property name="xmlCache" ref="xdm-xml"/>
 		<property name="schemaDictionary" ref="xdmDictionary"/>
-    	<property name="queryManager" ref="xqManager"/>
+		<property name="queryManager" ref="xqManager"/>
 	</bean>
 	
 	<bean id="xdmStats" class="com.bagri.common.manage.InvocationStatistics"/>
 	
-    <bean id="xdmProxy" class="com.bagri.xdm.process.hazelcast.DocumentManagementProxy" factory-method="newDMProxy">
-		<constructor-arg index="0" ref="xdmManager" />
-		<constructor-arg index="1" ref="xdmStats" />
-    </bean>
-	
-	<bean id="xqFactory" class="com.bagri.xqj.BagriXQDataFactory">
-    	<!--property name="processor" ref="xqProcessor" /-->
-    </bean>
+	<bean id="popManager" class="com.bagri.xdm.cache.hazelcast.management.PopulationManager">
+		<constructor-arg ref="hzInstance" />
+		<property name="schemaName" value="${xdm.schema.name}"/>
+		<property name="populationSize" value="${xdm.schema.population.size}"/>
+	</bean>
 
-    <!--bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-        <property name="targetObject" ref="xqProcessor" />
-        <property name="targetMethod" value="setXdmManager" />
-        <property name="arguments">
-            <list>
-                <ref local="xdmManager" />
-            </list>
-        </property>
-    </bean-->
-    
 	<bean id="xqItemTypeSerializer" class="com.bagri.xdm.access.hazelcast.pof.XQItemTypeSerializer">
-    	<property name="XQDataFactory" ref="xqFactory" />
+    		<property name="XQDataFactory" ref="xqFactory" />
 	</bean>
 
 	<bean id="xqItemSerializer" class="com.bagri.xdm.access.hazelcast.pof.XQItemSerializer">
-    	<property name="XQDataFactory" ref="xqFactory" />
+    		<property name="XQDataFactory" ref="xqFactory" />
 	</bean>
 	
 	<bean id="xqSequenceSerializer" class="com.bagri.xdm.access.hazelcast.pof.XQSequenceSerializer">
-    	<property name="XQDataFactory" ref="xqFactory" />
+    		<property name="XQDataFactory" ref="xqFactory" />
 	</bean>
     
 	<bean id="xqManager" class="com.bagri.xdm.process.hazelcast.QueryManagementServer">
@@ -235,36 +222,4 @@
 		<property name="resultCache" ref="xdm-result"/>
 	</bean>
 
-    <bean id="xqProcessor" class="com.bagri.xquery.saxon.BagriXQProcessor" lazy-init="true" scope="prototype">
-    	<!--property name="xdmManager" ref="xdmManager" /-->
-    	<!--property name="XQManager" ref="xqManager" /-->
-    	<property name="XQDataFactory" ref="xqFactory" />
-		<property name="properties">
-			<props>
-				<prop key="xqj.schema.baseUri">${xqj.schema.baseUri}</prop>
-				<prop key="xqj.schema.constructionMode">${xqj.schema.constructionMode}</prop>
-				<prop key="xqj.schema.defaultCollationUri">${xqj.schema.defaultCollationUri}</prop>
-				<prop key="xqj.schema.defaultElementTypeNamespace">${xqj.schema.defaultElementTypeNamespace}</prop>
-				<prop key="xqj.schema.defaultFunctionNamespace">${xqj.schema.defaultFunctionNamespace}</prop>
-				<prop key="xqj.schema.orderingMode">${xqj.schema.orderingMode}</prop>
-				<prop key="xqj.schema.defaultOrderForEmptySequences">${xqj.schema.defaultOrderForEmptySequences}</prop>
-				<prop key="xqj.schema.boundarySpacePolicy">${xqj.schema.boundarySpacePolicy}</prop>
-				<prop key="xqj.schema.copyNamespacesModePreserve">${xqj.schema.copyNamespacesModePreserve}</prop>
-				<prop key="xqj.schema.copyNamespacesModeInherit">${xqj.schema.copyNamespacesModeInherit}</prop>
-				<prop key="xqj.schema.bindingMode">${xqj.schema.bindingMode}</prop>
-				<prop key="xqj.schema.queryLanguageTypeAndVersion">${xqj.schema.queryLanguageTypeAndVersion}</prop>
-				<prop key="xqj.schema.holdability">${xqj.schema.holdability}</prop>
-				<prop key="xqj.schema.scrollability">${xqj.schema.scrollability}</prop>
-				<prop key="xqj.schema.queryTimeout">${xqj.schema.queryTimeout}</prop>
-				<!--prop key="xqj.schema.defaultNamespaces">${xqj.schema.defaultNamespaces}</prop-->
-			</props>
-		</property>
-    </bean>
-
-	<bean id="popManager" class="com.bagri.xdm.cache.hazelcast.management.PopulationManager">
-		<constructor-arg ref="hzInstance" />
-		<property name="schemaName" value="${xdm.schema.name}"/>
-		<property name="populationSize" value="${xdm.schema.population.size}"/>
-	</bean>
-	
 </beans>

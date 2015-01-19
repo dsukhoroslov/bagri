@@ -63,7 +63,7 @@ public class BagriXQProcessor extends SaxonXQProcessor implements XQProcessor {
     @Override
     public void setXdmManager(XDMDocumentManagement mgr) {
     	super.setXdmManager(mgr);
-    	CollectionURIResolver old = bcr;
+    	//CollectionURIResolver old = bcr;
     	bcr = new BagriCollectionResolver(mgr);
         config.setCollectionURIResolver(bcr);
         BagriSourceResolver resolver = new BagriSourceResolver(mgr);

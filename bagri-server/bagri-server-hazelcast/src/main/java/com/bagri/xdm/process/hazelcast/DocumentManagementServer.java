@@ -216,38 +216,40 @@ public class DocumentManagementServer extends XDMDocumentManagementServer implem
 
 		Long docId = entry.getKey();
 		logger.trace("deleteDocument.enter; docId: {}", docId);
-		//if (!entry.isPresent()) {
-		//	throw new IllegalStateException("Document Entry with id " + entry.getKey() + " not found");
-		//}
-
 	    boolean removed = false;
 	    XDMDocument doc = xddCache.remove(docId);
 	    if (doc != null) {
-	    	int cnt = 0;
-	    	//Set<XDMDataKey> localKeys = xdmCache.localKeySet();
-	    	int localSize = xdmCache.localKeySet().size();
-	    	Collection<XDMPath> allPaths = mDictionary.getTypePaths(doc.getTypeId());
-			logger.trace("deleteDocument; got {} possible paths to remove; xdmCache size: {}; local keys: {}", 
-					allPaths.size(), xdmCache.size(), localSize);
-	        for (XDMPath path: allPaths) {
-	        	// check containsKey to prevent CacheStore.load !
-	        	XDMDataKey key = mFactory.newXDMDataKey(docId, path.getPathId()); 
-	        	//if (xdmCache.containsKey(key)) {
-	        	//if (localKeys.contains(key)) {
-	        		xdmCache.delete(key);
-		        	cnt++;
-	        	//} else {
-	    		//	logger.trace("deleteDocument; data not found for key {}", key);
-	        	//}
-	        }
-	    	localSize -= xdmCache.localKeySet().size();
-			logger.trace("deleteDocument; deleted keys: {}; xdmCache size after delete: {}; local size: {}", cnt, 
-					xdmCache.size(), localSize);
+	    	deleteDocumentElements(docId, doc.getTypeId());
 			xmlCache.delete(docId);
 			srcCache.remove(docId);
 	        removed = true;
+	    //} else { 
+		//	throw new IllegalStateException("Document Entry with id " + entry.getKey() + " not found");
 	    }
 		logger.trace("deleteDocument.exit; removed: {}", removed);
+	}
+	
+	private void deleteDocumentElements(long docId, int typeId) {
+
+    	int cnt = 0;
+    	//Set<XDMDataKey> localKeys = xdmCache.localKeySet();
+    	int localSize = xdmCache.localKeySet().size();
+    	Collection<XDMPath> allPaths = mDictionary.getTypePaths(typeId);
+		logger.trace("deleteDocumentElements; got {} possible paths to remove; xdmCache size: {}; local keys: {}", 
+				allPaths.size(), xdmCache.size(), localSize);
+        for (XDMPath path: allPaths) {
+        	// check containsKey to prevent CacheStore.load !
+        	XDMDataKey key = mFactory.newXDMDataKey(docId, path.getPathId()); 
+        	//if (localKeys.contains(key)) {
+        		xdmCache.delete(key);
+	        	cnt++;
+        	//} else {
+    		//	logger.trace("deleteDocument; data not found for key {}", key);
+        	//}
+        }
+    	localSize -= xdmCache.localKeySet().size();
+		logger.trace("deleteDocumentElements; deleted keys: {}; xdmCache size after delete: {}; local size: {}", cnt, 
+				xdmCache.size(), localSize);
 	}
 
 	@Override
@@ -390,10 +392,7 @@ public class DocumentManagementServer extends XDMDocumentManagementServer implem
 	@Override
 	public XDMDocument storeDocument(String xml) {
 
-		long docId = docGen.next();
-		// @TODO: build URI properly
-		String uri = "/library/" + docId;
-	    return storeDocument(docId, uri, xml);
+	    return storeDocument(0, null, xml);
 	}
 
 	@Override
@@ -401,6 +400,33 @@ public class DocumentManagementServer extends XDMDocumentManagementServer implem
 		// create new document version ??
 		// what if we want to pass here correct URI ??
 		logger.trace("storeDocument.enter; docId: {}; uri: {}; xml: {}", docId, uri, xml.length());
+
+		boolean update = false;
+		if (docId == 0) {
+			docId = docGen.next();
+		} else {
+			update = true;
+		}
+		
+		if (uri == null) {
+			uri = "" + docId + ".xml";
+		} else {
+			Long existingId = getDocumentId(uri);
+			if (existingId != null && existingId != docId) {
+				// otherwise we'll get a situation when two different Documents
+				// are stored in the same file.
+				throw new IllegalArgumentException("Document with URI '" + uri + "' already exists; docId: " + existingId);
+			}
+		}
+		
+		if (update) {
+		    XDMDocument doc = xddCache.get(docId);
+		    if (doc != null) {
+		    	deleteDocumentElements(docId, doc.getTypeId());
+		    } else {
+				throw new IllegalArgumentException("Document with ID '" + docId + "' not exists in repository");
+		    }
+		}
 	    return createDocument(new AbstractMap.SimpleEntry(docId, null), uri, xml);
 	    // go to updateDocument ..?
 	}

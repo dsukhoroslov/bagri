@@ -1,6 +1,7 @@
 package com.bagri.samples.embedded;
 
 import static com.bagri.common.util.FileUtils.readTextFile;
+import static com.bagri.xdm.access.api.XDMConfigConstants.*;
 
 import java.io.IOException;
 
@@ -24,10 +25,11 @@ public class EmbeddedApp {
 
 	public static void main(String[] args) throws XQException {
 		
-		//System.setProperty("xdm.schema.members", "localhost:10600");
-		//
+		//System.setProperty(xdm_config_path, "");
+		System.setProperty(xdm_config_properties_file, "embedded.properties");
+		
 		context = new ClassPathXmlApplicationContext("spring/xqj-embedded-context.xml");
-		XQConnection xqc = context.getBean("xqConnection", XQConnection.class);
+		XQConnection xqc = context.getBean("xqFactory", XQConnection.class);
 		EmbeddedApp client = new EmbeddedApp(xqc);
 		//HazelcastInstance hz = context.getBean("hzInstance", HazelcastInstance.class);
 				
@@ -46,8 +48,8 @@ public class EmbeddedApp {
 			//client.searchSecQueryParams();
 			//found = client.runAxisQuery();
 			client.removeSecCommand(id);
-		} catch (XQException e) {
-			e.printStackTrace();
+		} catch (XQException ex) {
+			ex.printStackTrace();
 		}
 
 	    if (!found) {
@@ -55,13 +57,6 @@ public class EmbeddedApp {
 	    }
 
 	    //context.close();
-	    
-		//try { 
-		//	client.runPriceQuery();
-		//} catch (XQException ex) {
-			// expected empty result
-		//	System.out.println("no document found - correct");
-		//}
 	}
 	
 	public EmbeddedApp(XQConnection xqc) {

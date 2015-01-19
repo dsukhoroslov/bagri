@@ -3,6 +3,7 @@ package com.bagri.xdm.domain;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import com.bagri.common.query.Comparison;
 import com.bagri.common.query.PathExpression;
@@ -117,22 +118,23 @@ public class XDMElements {
         }
     }
 
-    private boolean compareValues(Comparison comp, String value, Map<Long, XDMElement> elements) {
+    @SuppressWarnings("unchecked")
+	private boolean compareValues(Comparison comp, String value, Map<Long, XDMElement> elements) {
 
-        TreeMap<Object, Long> values = new TreeMap<Object, Long>();
+        TreeSet values = new TreeSet();
         for (XDMElement element: elements.values()) {
         	if (element.getValue() != null) {
-        		values.put(element.getValue(), element.getElementId());
+        		values.add(element.getValue());
         	}
         }
     	
         switch (comp) {
-	        case EQ: return values.containsKey(value);
-	        case NE: return !values.containsKey(value);
-	        case LE: return values.floorKey(value) != null;
-	        case LT: return values.lowerKey(value) != null;
-	        case GE: return values.ceilingKey(value) != null;
-	        case GT: return values.higherKey(value) != null;
+	        case EQ: return values.contains(value);
+	        case NE: return !values.contains(value);
+	        case LE: return values.floor(value) != null;
+	        case LT: return values.lower(value) != null;
+	        case GE: return values.ceiling(value) != null;
+	        case GT: return values.higher(value) != null;
 	        default: return false;
         }
     }

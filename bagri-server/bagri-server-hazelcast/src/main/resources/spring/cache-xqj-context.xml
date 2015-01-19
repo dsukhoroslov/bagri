@@ -2,29 +2,37 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:hz="http://www.hazelcast.com/schema/spring"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
-		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd">
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd
+		http://www.hazelcast.com/schema/spring http://www.hazelcast.com/schema/spring/hazelcast-spring-3.3.xsd">
 
-    <context:property-placeholder ignore-unresolvable="true" location="classpath:/embedded.properties" />
+	<import resource="classpath:spring/cache-schema-context.xml" />
+ 
+	<!-- Beans Declaration -->
+	<context:property-placeholder ignore-unresolvable="true" location="classpath:/${xdm.config.properties.file}" />
+	<context:annotation-config />
+	
+	<bean id="xdmProxy" class="com.bagri.xdm.process.hazelcast.DocumentManagementProxy" factory-method="newDMProxy">
+		<constructor-arg index="0" ref="xdmManager" />
+		<constructor-arg index="1" ref="xdmStats" />
+	</bean>
+	
+	<bean id="xqFactory" class="com.bagri.xqj.BagriXQDataFactory">
+    		<!--property name="processor" ref="xqProcessor" /-->
+	</bean>
 
-    <!--import resource="classpath:spring/coh-client-context.xml"/-->
-    <import resource="classpath:spring/cache-schema-context.xml"/>
-
-    <bean id="xqDataSource" class="com.bagri.xqj.BagriXQDataSource">
-        <property name="properties">
-            <props>
-                <prop key="address">${xdm.schema.members}</prop>
-                <prop key="schema">${xdm.schema.name}</prop>
-                <prop key="password">${xdm.schema.password}</prop>
-            </props>
+    <!--bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+        <property name="targetObject" ref="xqProcessor" />
+        <property name="targetMethod" value="setXdmManager" />
+        <property name="arguments">
+            <list>
+                <ref local="xdmManager" />
+            </list>
         </property>
-    </bean>
-
-    <bean id="xqFactory" factory-bean="xqDataSource" factory-method="getConnection">
-    	<property name="processor" ref="xqProcessor" />
-    </bean>
+    </bean-->
     
-    <bean id="xqProcessor" class="com.bagri.xquery.saxon.BagriXQProcessor">
+	<bean id="xqProcessor" class="com.bagri.xquery.saxon.BagriXQProcessor" lazy-init="true" scope="prototype">
 		<!--property name="xdmManager" ref="xdmManager" /-->
 		<!--property name="XQManager" ref="xqManager" /-->
 		<property name="XQDataFactory" ref="xqFactory" />
@@ -48,26 +56,6 @@
 				<!--prop key="xqj.schema.defaultNamespaces">${xqj.schema.defaultNamespaces}</prop-->
 			</props>
 		</property>
-    </bean>
-
-    <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-        <property name="targetObject" ref="xqProcessor" />
-        <property name="targetMethod" value="setXdmManager" />
-        <property name="arguments">
-            <list>
-                <ref local="xdmManager" />
-            </list>
-        </property>
-    </bean>
-    
-    <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-        <property name="targetObject" ref="xqProcessor" />
-        <property name="targetMethod" value="setXQManager" />
-        <property name="arguments">
-            <list>
-                <ref local="xqManager" />
-            </list>
-        </property>
-    </bean>
+	</bean>
 
 </beans>

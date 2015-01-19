@@ -48,7 +48,7 @@ public class SchemaInitiator extends SchemaDenitiator {
     		ctx.getEnvironment().getPropertySources().addFirst(pps);
             //String contextPath = System.getProperty(xdm_config_context_file);
     		//ctx.setConfigLocation(contextPath);
-    		ctx.setConfigLocation("spring/cache-schema-context.xml");
+    		ctx.setConfigLocation("spring/cache-xqj-context.xml");
     		ctx.refresh();
 
     		hz = ctx.getBean("hzInstance", HazelcastInstance.class);

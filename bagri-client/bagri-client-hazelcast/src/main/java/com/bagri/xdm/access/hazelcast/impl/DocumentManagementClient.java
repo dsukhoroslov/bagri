@@ -256,30 +256,29 @@ public class DocumentManagementClient extends XDMDocumentManagementClient {
 	@Override
 	public XDMDocument storeDocument(String xml) {
 
-		long docId = docGen.next();
-		String uri = "" + docId + ".xml";
-		return storeDocument(docId, uri, xml);
+		return storeDocument(0, null, xml);
 	}
 
-	public XDMDocument storeDocument(String uri, String xml) {
-
-		long docId = docGen.next();
-		return storeDocument(docId, uri, xml);
-	}
+	//public XDMDocument storeDocument(String uri, String xml) {
+	//
+	//	long docId = docGen.next();
+	//	return storeDocument(docId, uri, xml);
+	//}
 
 	@Override
 	public XDMDocument storeDocument(long docId, String uri, String xml) {
 		
+		if (xml == null) {
+			throw new IllegalArgumentException("XML can not be null");
+		}
+		logger.trace("storeDocument.enter; docId: {}, uri: {}; xml: {}", docId, uri, xml.length());
+
+		if (docId == 0) {
+			docId = docGen.next();
+		}
+		//String uri = "" + docId + ".xml";
 		// todo: override existing document -> create a new version ?
 
-		logger.trace("storeDocument.enter; docId: {}, uri: {}; xml: {}", docId, uri, xml.length());
-		// @TODO: generate uri properly.. depends on Schema settings 
-		//String uri = "" + docId + ".xml";
-		//xddCache.put(docId, null);
-		// @TODO: get current user from somewhere. but we're on the client side here..
-		//xddCache.put(docId, new XDMDocument(docId, uri, 0, "system"));
-		//logger.trace("storeDocument; document initialized: {}", docId);
-		
 		DocumentCreator task = new DocumentCreator(docId, uri, xml);
 		Future<XDMDocument> future = execService.submitToKeyOwner(task, docId);
 		try {

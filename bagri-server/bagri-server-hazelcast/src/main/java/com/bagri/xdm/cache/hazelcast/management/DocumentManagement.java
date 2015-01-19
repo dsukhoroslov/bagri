@@ -160,7 +160,7 @@ public class DocumentManagement implements SelfNaming {
 		String uri = "file:///" + docFile;
 		try {
 			String xml = FileUtils.readTextFile(docFile);
-			XDMDocument doc = docManager.storeDocument(xml); //(uri, xml);
+			XDMDocument doc = docManager.storeDocument(0, uri, xml);
 			return 1;
 		} catch (IOException ex) {
 			logger.error("registerDocument.error: " + ex.getMessage(), ex);
