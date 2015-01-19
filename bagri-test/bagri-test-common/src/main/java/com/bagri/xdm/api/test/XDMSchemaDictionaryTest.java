@@ -1,4 +1,4 @@
-package com.bagri.xdm.access.test;
+package com.bagri.xdm.api.test;
 
 import static com.bagri.common.util.FileUtils.readTextFile;
 

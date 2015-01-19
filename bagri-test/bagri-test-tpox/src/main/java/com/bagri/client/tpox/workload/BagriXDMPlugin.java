@@ -9,8 +9,9 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import static com.bagri.xdm.access.api.XDMConfigConstants.xdm_spring_context;
+
 import com.bagri.xdm.access.api.XDMDocumentManagement;
-import com.bagri.xdm.access.test.XDMDocumentManagerTest;
+import com.bagri.xdm.api.test.XDMDocumentManagerTest;
 import com.bagri.xdm.domain.XDMDocument;
 
 import net.sf.tpox.workload.parameter.ActualParamInfo;

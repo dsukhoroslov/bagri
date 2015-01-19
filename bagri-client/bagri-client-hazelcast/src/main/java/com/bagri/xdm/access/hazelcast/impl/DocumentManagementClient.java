@@ -143,7 +143,6 @@ public class DocumentManagementClient extends XDMDocumentManagementClient {
 	
 	private static Properties getSystemProps() {
 		Properties props = new Properties();
-		props.setProperty(PN_CACHE_MODE, System.getProperty(PN_CACHE_MODE, "client"));
 		props.setProperty(PN_SCHEMA_NAME, getSystemProperty(PN_SCHEMA_NAME, "schema"));
 		props.setProperty(PN_SCHEMA_PASS, getSystemProperty(PN_SCHEMA_PASS, "password"));
 		props.setProperty(PN_SERVER_ADDRESS, getSystemProperty(PN_SERVER_ADDRESS, "address"));
@@ -152,7 +151,6 @@ public class DocumentManagementClient extends XDMDocumentManagementClient {
 	
 	private static Properties getConvertedProps(Properties original) {
 		Properties props = new Properties();
-		setProperty(original, props, PN_CACHE_MODE, null);
 		setProperty(original, props, PN_SCHEMA_NAME, "schema");
 		setProperty(original, props, PN_SCHEMA_PASS, "password");
 		setProperty(original, props, PN_SERVER_ADDRESS, "address");
@@ -168,50 +166,44 @@ public class DocumentManagementClient extends XDMDocumentManagementClient {
 	}
 	
 	private void initializeHazelcast(Properties props) {
-		String mode = props.getProperty(PN_CACHE_MODE);
-		if (PV_MODE_SERVER.equalsIgnoreCase(mode)) {
-			Config config = new ClasspathXmlConfig("hazelcast/hazelcast-server.xml");
-			hzClient = Hazelcast.newHazelcastInstance(config);
-		} else {
-			String schema = props.getProperty(PN_SCHEMA_NAME);
-			String password = props.getProperty(PN_SCHEMA_PASS);
-			String address = props.getProperty(PN_SERVER_ADDRESS);
-			InputStream in = DocumentManagementClient.class.getResourceAsStream("/hazelcast/hazelcast-client.xml");
-			ClientConfig config = new XmlClientConfigBuilder(in).build();
-			config.getGroupConfig().setName(schema);
-			config.getGroupConfig().setPassword(password);
-			config.getNetworkConfig().addAddress(address);
-			//config.setProperty("hazelcast.logging.type", "slf4j");
-			//UsernamePasswordCredentials creds = new UsernamePasswordCredentials(schema, password);
-			//SecureCredentials creds = new SecureCredentials(password);
-			//config.getSecurityConfig().setCredentials(creds);
-			//config.setCredentials(creds);
+		String schema = props.getProperty(PN_SCHEMA_NAME);
+		String password = props.getProperty(PN_SCHEMA_PASS);
+		String address = props.getProperty(PN_SERVER_ADDRESS);
+		InputStream in = DocumentManagementClient.class.getResourceAsStream("/hazelcast/hazelcast-client.xml");
+		ClientConfig config = new XmlClientConfigBuilder(in).build();
+		config.getGroupConfig().setName(schema);
+		config.getGroupConfig().setPassword(password);
+		config.getNetworkConfig().addAddress(address);
+		//config.setProperty("hazelcast.logging.type", "slf4j");
+		//UsernamePasswordCredentials creds = new UsernamePasswordCredentials(schema, password);
+		//SecureCredentials creds = new SecureCredentials(password);
+		//config.getSecurityConfig().setCredentials(creds);
+		//config.setCredentials(creds);
 			
-			XQDataFactory xqFactory = (XQDataFactory) props.get("xqDataFactory");
-			if (xqFactory != null) {
-				XQItemTypeSerializer xqits = new XQItemTypeSerializer();
-				xqits.setXQDataFactory(xqFactory);
-				config.getSerializationConfig().getSerializerConfigs().add(
-						new SerializerConfig().setTypeClass(XQItemType.class).setImplementation(xqits));
+		XQDataFactory xqFactory = (XQDataFactory) props.get("xqDataFactory");
+		if (xqFactory != null) {
+			XQItemTypeSerializer xqits = new XQItemTypeSerializer();
+			xqits.setXQDataFactory(xqFactory);
+			config.getSerializationConfig().getSerializerConfigs().add(
+					new SerializerConfig().setTypeClass(XQItemType.class).setImplementation(xqits));
 
-				XQItemSerializer xqis = new XQItemSerializer();
-				xqis.setXQDataFactory(xqFactory);
-				config.getSerializationConfig().getSerializerConfigs().add(
-						new SerializerConfig().setTypeClass(XQItem.class).setImplementation(xqis));
+			XQItemSerializer xqis = new XQItemSerializer();
+			xqis.setXQDataFactory(xqFactory);
+			config.getSerializationConfig().getSerializerConfigs().add(
+					new SerializerConfig().setTypeClass(XQItem.class).setImplementation(xqis));
 				
-				XQSequenceSerializer xqss = new XQSequenceSerializer();
-				xqss.setXQDataFactory(xqFactory);
-				config.getSerializationConfig().getSerializerConfigs().add(
-						new SerializerConfig().setTypeClass(XQSequence.class).setImplementation(xqss));
-			}
-			logger.debug("initializeHazelcast; config: {}", config);
-			hzClient = HazelcastClient.newHazelcastClient(config);
-			//logger.debug("initializeHazelcast; got HZ: {}", hzInstance);
-			com.hazelcast.client.HazelcastClientProxy proxy = (com.hazelcast.client.HazelcastClientProxy) hzClient; 
-			schemaName = proxy.getClientConfig().getGroupConfig().getName();
-			clientId = proxy.getLocalEndpoint().getUuid();
-			logger.trace("initializeHazelcast; connected to HZ server as: {}", clientId);
+			XQSequenceSerializer xqss = new XQSequenceSerializer();
+			xqss.setXQDataFactory(xqFactory);
+			config.getSerializationConfig().getSerializerConfigs().add(
+					new SerializerConfig().setTypeClass(XQSequence.class).setImplementation(xqss));
 		}
+		logger.debug("initializeHazelcast; config: {}", config);
+		hzClient = HazelcastClient.newHazelcastClient(config);
+		//logger.debug("initializeHazelcast; got HZ: {}", hzInstance);
+		com.hazelcast.client.HazelcastClientProxy proxy = (com.hazelcast.client.HazelcastClientProxy) hzClient; 
+		schemaName = proxy.getClientConfig().getGroupConfig().getName();
+		clientId = proxy.getLocalEndpoint().getUuid();
+		logger.trace("initializeHazelcast; connected to HZ server as: {}", clientId);
 	}
 
 	private void initializeServices() {
@@ -220,12 +212,9 @@ public class DocumentManagementClient extends XDMDocumentManagementClient {
 		execService = hzClient.getExecutorService(PN_XDM_SCHEMA_POOL);
 		docGen = new HazelcastIdGenerator(hzClient.getAtomicLong(SQN_DOCUMENT));
 		
-		//String mode = System.getProperty(PN_CACHE_MODE);
-		//if (!(PV_MODE_SERVER.equalsIgnoreCase(mode))) {
 		//	loadCache(hzClient.getMap(CN_XDM_PATH_DICT)); 
 		//	loadCache(hzClient.getMap(CN_XDM_NAMESPACE_DICT)); 
 		//	loadCache(hzClient.getMap(CN_XDM_DOCTYPE_DICT));
-		//}
 	}
 	
 	IMap<XDMDataKey, XDMElements> getDataCache() {

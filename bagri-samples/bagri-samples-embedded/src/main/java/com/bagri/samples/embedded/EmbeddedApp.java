@@ -25,7 +25,6 @@ public class EmbeddedApp {
 
 	public static void main(String[] args) throws XQException {
 		
-		//System.setProperty(xdm_config_path, "");
 		System.setProperty(xdm_config_properties_file, "embedded.properties");
 		
 		context = new ClassPathXmlApplicationContext("spring/xqj-embedded-context.xml");

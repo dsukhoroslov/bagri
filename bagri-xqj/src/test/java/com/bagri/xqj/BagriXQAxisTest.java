@@ -1,10 +1,6 @@
 package com.bagri.xqj;
 
 import static com.bagri.common.util.FileUtils.readTextFile;
-import static com.bagri.xdm.access.hazelcast.impl.HazelcastConfigProperties.PN_CACHE_MODE;
-import static com.bagri.xdm.access.hazelcast.impl.HazelcastConfigProperties.PN_POOL_SIZE;
-import static com.bagri.xdm.access.hazelcast.impl.HazelcastConfigProperties.PN_SERVER_ADDRESS;
-import static com.bagri.xdm.access.hazelcast.impl.HazelcastConfigProperties.PV_MODE_CLIENT;
 import static org.junit.Assert.*;
 
 import java.io.IOException;

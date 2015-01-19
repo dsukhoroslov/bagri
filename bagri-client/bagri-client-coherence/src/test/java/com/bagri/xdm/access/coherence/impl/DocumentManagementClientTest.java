@@ -15,7 +15,7 @@ import org.junit.BeforeClass;
 
 import com.bagri.xdm.access.coherence.impl.DocumentManagementClient;
 import com.bagri.xdm.access.coherence.process.DocumentBuilder;
-import com.bagri.xdm.access.test.XDMDocumentManagerTest;
+import com.bagri.xdm.api.test.XDMDocumentManagerTest;
 import com.bagri.xdm.common.XDMDataKey;
 import com.tangosol.net.CacheFactory;
 import com.tangosol.util.Filter;
@@ -30,7 +30,7 @@ import com.tangosol.util.filter.LessFilter;
 
 import static com.bagri.xdm.access.api.XDMCacheConstants.*;
 
-public class CoherenceDocumentManagerTest extends XDMDocumentManagerTest {
+public class DocumentManagementClientTest extends XDMDocumentManagerTest {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {

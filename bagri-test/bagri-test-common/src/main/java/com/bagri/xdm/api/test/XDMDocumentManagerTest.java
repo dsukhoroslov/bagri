@@ -1,4 +1,4 @@
-package com.bagri.xdm.access.test;
+package com.bagri.xdm.api.test;
 
 import static com.bagri.common.util.FileUtils.readTextFile;
 
@@ -31,13 +31,16 @@ public abstract class XDMDocumentManagerTest {
 	protected List<Long> ids = new ArrayList<Long>();
 	
 	public void storeSecurityTest() throws IOException {
-		String xml = readTextFile(sampleRoot + "security1500.xml");
+		String path = sampleRoot + "security1500.xml"; 
+		String xml = readTextFile(path);
 		ids.add(dMgr.storeDocument(xml).getDocumentId());
 
-		xml = readTextFile(sampleRoot + "security5621.xml");
+		path = sampleRoot + "security5621.xml";
+		xml = readTextFile(path);
 		ids.add(dMgr.storeDocument(xml).getDocumentId());
 
-		xml = readTextFile(sampleRoot + "security9012.xml");
+		path = sampleRoot + "security9012.xml";
+		xml = readTextFile(path);
 		ids.add(dMgr.storeDocument(xml).getDocumentId());
 
 		//String prefix = mDictionary.getNamespacePrefix("http://tpox-benchmark.com/security"); 
@@ -236,7 +239,6 @@ public abstract class XDMDocumentManagerTest {
 	}
 
 
-	//@Ignore
 	@Test
 	public void getSecurityPathTest() throws IOException {
 		storeSecurityTest();
@@ -245,7 +247,6 @@ public abstract class XDMDocumentManagerTest {
 		Assert.assertTrue(sec.size() > 0);
 	}
 
-	//@Ignore
 	@Test
 	public void getCustomerPathTest() throws IOException {
 		storeCustomerTest();
@@ -254,7 +255,6 @@ public abstract class XDMDocumentManagerTest {
 		Assert.assertTrue(sec.size() > 0);
 	}
 	
-	//@Ignore
 	@Test
 	public void getPriceTest() throws IOException {
 		storeSecurityTest();
@@ -272,7 +272,6 @@ public abstract class XDMDocumentManagerTest {
 		Assert.assertTrue(sec.size() == 1);
 	}
 
-	//@Ignore
 	@Test
 	public void getSecurityTest() throws IOException {
 		storeSecurityTest();
@@ -290,7 +289,6 @@ public abstract class XDMDocumentManagerTest {
 		Assert.assertTrue(sec.size() == 1);
 	}
 
-	//@Ignore
 	@Test
 	public void searchSecurityTest() throws IOException {
 		storeSecurityTest();
@@ -308,7 +306,6 @@ public abstract class XDMDocumentManagerTest {
 		Assert.assertTrue(sec.size() == 0);
 	}
 
-	//@Ignore
 	@Test
 	public void getOrderTest() throws IOException {
 		storeOrderTest();
@@ -320,7 +317,6 @@ public abstract class XDMDocumentManagerTest {
 		Assert.assertTrue(sec.size() == 1);
 	}
 
-	//@Ignore
 	@Test
 	public void getCustomerProfileTest() throws IOException {
 		storeCustomerTest();
@@ -329,7 +325,6 @@ public abstract class XDMDocumentManagerTest {
 		Assert.assertTrue(sec.size() == 1);
 	}
 
-	//@Ignore
 	@Test
 	public void getCustomerAccountsTest() throws IOException {
 		storeCustomerTest();

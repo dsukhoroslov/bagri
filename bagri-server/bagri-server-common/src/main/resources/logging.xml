@@ -29,22 +29,25 @@
     	</encoder>
     </appender>
 
-    <appender name="ROLLING" class="ch.qos.logback.core.rolling.RollingFileAppender">
-    	<file>${node.logdir}/cache/${prefix}-server-${suffix}.log</file>
-    	<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-      		<!-- rollover daily -->
-      		<fileNamePattern>${node.logdir}/cache/${prefix}-server-${suffix}-%d{yyyy-MM-dd}.%i.gz</fileNamePattern>
-      		<maxHistory>4</maxHistory>
-      		<timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+    <if condition='isDefined("node.logdir")'>
+        <then>
+            <appender name="ROLLING" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    	        <file>${node.logdir}/cache/${prefix}-server-${suffix}.log</file>
+                <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      		    <!-- rollover daily -->
+      		    <fileNamePattern>${node.logdir}/cache/${prefix}-server-${suffix}-%d{yyyy-MM-dd}.%i.gz</fileNamePattern>
+      		    <maxHistory>4</maxHistory>
+      		    <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
         		<!-- or whenever the file size reaches 50MB -->
         		<maxFileSize>50MB</maxFileSize>
-      		</timeBasedFileNamingAndTriggeringPolicy>
-    	</rollingPolicy>
-    	<encoder>
-        	<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{64} - %msg%n</pattern>
-    	</encoder>
-    </appender>
-
+      		    </timeBasedFileNamingAndTriggeringPolicy>
+    	        </rollingPolicy>
+    	        <encoder>
+        	    <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{64} - %msg%n</pattern>
+    	        </encoder>
+            </appender>
+        </then>
+    </if>
 
     <logger name="com.bagri">
         <level value="${xdm.log.level}"/>
@@ -87,10 +90,13 @@
     </logger>
 
 
-    <root>
-        <level value="debug"/>
+    <root level="debug">
         <appender-ref ref="STDOUT"/>
-        <appender-ref ref="ROLLING"/>
+        <if condition='isDefined("node.logdir")'>
+            <then>
+                <appender-ref ref="ROLLING"/>
+            </then>
+        </if>
     </root>
 
 </included>

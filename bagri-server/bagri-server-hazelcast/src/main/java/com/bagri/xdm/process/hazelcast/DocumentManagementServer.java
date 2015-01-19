@@ -1,7 +1,5 @@
 package com.bagri.xdm.process.hazelcast;
 
-import static com.bagri.xdm.access.api.XDMCacheConstants.PN_XDM_SCHEMA_POOL;
-
 import java.io.IOException;
 import java.util.AbstractMap;
 import java.util.ArrayList;
