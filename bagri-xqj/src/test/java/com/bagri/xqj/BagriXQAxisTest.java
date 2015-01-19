@@ -25,8 +25,10 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
+@Ignore
 public class BagriXQAxisTest {
 
 	private static XQDataSource xqds;
@@ -37,7 +39,7 @@ public class BagriXQAxisTest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 
-		String dName = "C:\\Work\\Bagri\\project\\trunk\\etc\\samples\\";
+		String dName = "..\\..\\etc\\samples\\test\\";
 		String xml;
 		try {
 			xml = readTextFile(dName + "axis.xml");
@@ -46,8 +48,9 @@ public class BagriXQAxisTest {
 		}
 
 		xqds = new BagriXQDataSource();
-	    xqds.setProperty(BagriXQDataSource.HOST, "127.0.0.1");
-	    xqds.setProperty(BagriXQDataSource.PORT, "5701");
+	    xqds.setProperty(BagriXQDataSource.ADDRESS, "localhost:10500");
+	    xqds.setProperty(BagriXQDataSource.SCHEMA, "TPoX2");
+	    xqds.setProperty(BagriXQDataSource.PASSWORD, "TPoX2");
 	    xqds.setProperty(BagriXQDataSource.XQ_PROCESSOR, "com.bagri.xquery.saxon.BagriXQProcessorProxy");
 	    xqds.setProperty(BagriXQDataSource.XDM_MANAGER, "com.bagri.xdm.access.hazelcast.impl.DocumentManagementClient");
 

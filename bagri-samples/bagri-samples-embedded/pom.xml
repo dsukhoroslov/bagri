@@ -1,0 +1,104 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.sdv.bagri</groupId>
+        <artifactId>bagri-samples</artifactId>
+        <version>0.3.1-SNAPSHOT</version>
+        <relativePath>..</relativePath>
+    </parent>
+
+    <artifactId>bagri-samples-embedded</artifactId>
+    <name>bagri-samples-embedded</name>
+    <description>Bagri XQJ Embedded Test App</description>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>com.sdv.bagri</groupId>
+            <artifactId>bagri-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sdv.bagri</groupId>
+            <artifactId>bagri-xdm</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sdv.bagri</groupId>
+            <artifactId>bagri-xqj</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sdv.bagri</groupId>
+            <artifactId>bagri-xquery-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sdv.bagri</groupId>
+            <artifactId>bagri-xquery-saxon</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.sdv.bagri</groupId>
+            <artifactId>bagri-client-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sdv.bagri</groupId>
+            <artifactId>bagri-client-hazelcast</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.sdv.bagri</groupId>
+            <artifactId>bagri-server-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sdv.bagri</groupId>
+            <artifactId>bagri-server-hazelcast</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.xml.xquery</groupId>
+            <artifactId>xqj-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.xqj2</groupId>
+            <artifactId>xqj2</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.saxon</groupId>
+            <artifactId>Saxon-HE</artifactId>
+        </dependency>
+
+        <!-- Spring framework -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.hazelcast</groupId>
+            <artifactId>hazelcast-all</artifactId>
+        </dependency>
+
+        <!-- Dependencies for logging -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!--Test dependencies-->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
+
+    </dependencies>
+
+</project>

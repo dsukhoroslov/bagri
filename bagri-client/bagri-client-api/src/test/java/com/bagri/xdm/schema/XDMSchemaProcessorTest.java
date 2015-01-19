@@ -34,17 +34,12 @@ public class XDMSchemaProcessorTest {
 
 
 	@Test
-	public void testParse() {
-		String sampleRoot = "C:\\Work\\Bagri\\project\\trunk\\etc\\samples\\";
-		String fileName = sampleRoot + "Common.xsd"; //"security.xsd";
+	public void testParse() throws IOException {
+		String sampleRoot = "..\\..\\etc\\samples\\tpox\\";
+		String fileName = sampleRoot + "security.xsd";
 		XDMSchemaProcessor proc = new XDMSchemaProcessor();
-		try {
-			List<XDMPath> xpl = proc.parse(fileName);
-			assertNotNull(xpl);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		List<XDMPath> xpl = proc.parse(fileName);
+		assertNotNull(xpl);
 	}
 
 }

@@ -21,8 +21,10 @@ import javax.xml.xquery.XQSequence;
 import junit.framework.Assert;
 //import net.sf.saxon.xqj.SaxonXQDataSource;
 
+
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
@@ -30,6 +32,7 @@ import org.xml.sax.SAXException;
 
 import com.bagri.xquery.saxon.BagriXQProcessor;
 
+@Ignore
 public class SaxonParserTest {
 	
 	private BagriXQProcessor parser;

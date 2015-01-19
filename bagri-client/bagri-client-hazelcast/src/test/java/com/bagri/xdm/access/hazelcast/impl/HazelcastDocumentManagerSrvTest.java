@@ -12,10 +12,12 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 
 import com.bagri.xdm.access.test.XDMDocumentManagerTest;
 import com.hazelcast.core.Hazelcast;
 
+@Ignore
 public class HazelcastDocumentManagerSrvTest extends XDMDocumentManagerTest {
 	
 	//private staic boolean

@@ -20,6 +20,7 @@ import com.bagri.common.query.ExpressionContainer;
 import com.bagri.common.query.PathBuilder;
 import com.bagri.xdm.access.api.XDMDocumentManagement;
 import com.bagri.xdm.access.api.XDMSchemaDictionary;
+import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMPath;
 
 public abstract class XDMDocumentManagerTest {
@@ -46,7 +47,8 @@ public abstract class XDMDocumentManagerTest {
 	
 	public void storeOrderTest() throws IOException {
 		String xml = readTextFile(sampleRoot + "order123.xml");
-		ids.add(dMgr.storeDocument(xml).getDocumentId());
+		XDMDocument doc = dMgr.storeDocument(xml);
+		ids.add(doc.getDocumentId());
 		xml = readTextFile(sampleRoot + "order654.xml");
 		ids.add(dMgr.storeDocument(xml).getDocumentId());
 	}
