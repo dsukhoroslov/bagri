@@ -17,9 +17,9 @@
 
 	<executor-pool-size>10</executor-pool-size>
 
-    <!--security>
-        <credentials>com.hazelcast.security.UsernamePasswordCredentials</credentials>
-    </security-->
+	<!--security>
+		<credentials>com.hazelcast.security.UsernamePasswordCredentials</credentials>
+	</security-->
 
 	<serialization>
 		<data-serializable-factories>
@@ -51,7 +51,7 @@
 		</serializers>
 	</serialization>
 
-    <load-balancer type="random"></load-balancer>
+	<load-balancer type="random"></load-balancer>
 	 
 	<near-cache name="dict-path" in-memory-format="OBJECT" />
 	<near-cache name="dict-namespace" in-memory-format="OBJECT" />

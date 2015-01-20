@@ -11,7 +11,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import static com.bagri.xdm.access.api.XDMConfigConstants.xdm_spring_context;
 
 import com.bagri.xdm.access.api.XDMDocumentManagement;
-import com.bagri.xdm.api.test.XDMDocumentManagerTest;
+import com.bagri.xdm.api.test.XDMDocumentManagementTest;
 import com.bagri.xdm.domain.XDMDocument;
 
 import net.sf.tpox.workload.parameter.ActualParamInfo;
@@ -145,7 +145,7 @@ public class BagriXDMPlugin extends BagriTPoXPlugin {
 		return result;
 	}
 	
-	private class TPoXDocumentManagerTest extends XDMDocumentManagerTest {
+	private class TPoXDocumentManagerTest extends XDMDocumentManagementTest {
 		
 		TPoXDocumentManagerTest(XDMDocumentManagement dMgr) {
 			this.dMgr = dMgr;

@@ -15,7 +15,7 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import com.bagri.xdm.api.test.XDMDocumentManagerTest;
+import com.bagri.xdm.api.test.XDMDocumentManagementTest;
 import com.bagri.xdm.common.XDMDataKey;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMElement;
@@ -23,7 +23,7 @@ import com.bagri.xdm.domain.XDMElements;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.IMap;
 
-public class DocumentManagementClientTest extends XDMDocumentManagerTest {
+public class DocumentManagementClientTest extends XDMDocumentManagementTest {
 	
 	//private staic boolean
 	

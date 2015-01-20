@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
 import com.bagri.xdm.access.api.XDMDocumentManagement;
-import com.bagri.xdm.access.api.XDMDocumentManagementServer;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.process.hazelcast.util.HazelcastUtils;
 import com.hazelcast.spring.context.SpringAware;

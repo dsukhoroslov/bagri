@@ -1,34 +1,24 @@
-package com.bagri.xdm.access.api;
+package com.bagri.xdm.cache.common;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
-import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.Source;
 
-import com.bagri.common.idgen.IdGenerator;
 import com.bagri.common.query.BinaryExpression;
 import com.bagri.common.query.Comparison;
 import com.bagri.common.query.Expression;
-import com.bagri.common.query.ExpressionBuilder;
 import com.bagri.common.query.ExpressionContainer;
 import com.bagri.common.query.PathExpression;
-import com.bagri.xdm.access.xml.XDMStaxParser;
+import com.bagri.xdm.access.api.XDMDocumentManagement;
+import com.bagri.xdm.access.api.XDMDocumentManagementBase;
 import com.bagri.xdm.access.xml.XmlBuilder;
 import com.bagri.xdm.common.XDMDataKey;
 import com.bagri.xdm.domain.XDMData;
 import com.bagri.xdm.domain.XDMDocument;
-import com.bagri.xdm.domain.XDMElement;
 import com.bagri.xdm.domain.XDMElements;
 import com.bagri.xdm.domain.XDMNodeKind;
 

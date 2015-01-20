@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 
 import com.bagri.common.util.FileUtils;
 import com.bagri.xdm.access.api.XDMDocumentManagement;
-import com.bagri.xdm.access.api.XDMDocumentManagementServer;
 
 import static com.bagri.xqj.BagriXQConstants.bg_schema;
 import net.sf.saxon.Configuration;
@@ -74,14 +73,13 @@ public class BagriSourceResolver implements SourceResolver, ExternalObjectModel 
 			docId = mgr.getDocumentId(src);
 		}
 
-		Source src = ((XDMDocumentManagementServer) mgr).getDocumentSource(docId);
-		if (src != null) {
-			//config.
-			logger.trace("resolveSource. got document from cache, returning: {}", src);
-			//if (source instanceof TinyDocumentImpl) {
-			((TinyDocumentImpl) src).getTree().setConfiguration(config);
-			return src;
-		}
+		//Source src = null; //((XDMDocumentManagementServer) mgr).getDocumentSource(docId);
+		//if (src != null) {
+		//	logger.trace("resolveSource. got document from cache, returning: {}", src);
+		//	//if (source instanceof TinyDocumentImpl) {
+		//	((TinyDocumentImpl) src).getTree().setConfiguration(config);
+		//	return src;
+		//}
 		
 		// can return just a custom source (containing docId) from here,
 		// but perform the real resolution to the NodeInfo in unravel method
@@ -98,8 +96,7 @@ public class BagriSourceResolver implements SourceResolver, ExternalObjectModel 
 			StreamSource ss = new StreamSource(new StringReader(content));
 			// bottleneck! takes 15 ms. Cache DocumentInfo in Saxon instead! 
 			NodeInfo doc = config.buildDocument(ss);
-			((XDMDocumentManagementServer) mgr).putDocumentSource(docId, doc);
-			//((TinyDocumentImpl) doc).getTree().setConfiguration(config);
+			//((XDMDocumentManagementServer) mgr).putDocumentSource(docId, doc);
 			return doc;
 		}
 		logger.trace("resolveSource. got empty content: '{}'", content);
@@ -116,7 +113,7 @@ public class BagriSourceResolver implements SourceResolver, ExternalObjectModel 
 
 	@Override
 	public String getIdentifyingURI() {
-		logger.trace("getIdentifyingURI"); //, targetClass);
+		logger.trace("getIdentifyingURI"); 
 		return null;
 	}
 

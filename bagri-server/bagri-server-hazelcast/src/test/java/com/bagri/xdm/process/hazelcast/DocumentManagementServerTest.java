@@ -1,10 +1,6 @@
 package com.bagri.xdm.process.hazelcast;
 
 import static com.bagri.xdm.access.api.XDMConfigConstants.xdm_config_properties_file;
-import static com.bagri.xdm.access.hazelcast.impl.HazelcastConfigProperties.PN_POOL_SIZE;
-import static com.bagri.xdm.access.hazelcast.impl.HazelcastConfigProperties.PN_SCHEMA_NAME;
-import static com.bagri.xdm.access.hazelcast.impl.HazelcastConfigProperties.PN_SCHEMA_PASS;
-import static com.bagri.xdm.access.hazelcast.impl.HazelcastConfigProperties.PN_SERVER_ADDRESS;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -12,9 +8,9 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import com.bagri.xdm.api.test.XDMDocumentManagerTest;
+import com.bagri.xdm.api.test.XDMDocumentManagementTest;
 
-public class DocumentManagementServerTest extends XDMDocumentManagerTest {
+public class DocumentManagementServerTest extends XDMDocumentManagementTest {
 	
     private static ClassPathXmlApplicationContext context;
 

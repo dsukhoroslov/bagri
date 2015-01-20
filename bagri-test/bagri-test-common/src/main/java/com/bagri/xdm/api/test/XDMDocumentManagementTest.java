@@ -23,7 +23,7 @@ import com.bagri.xdm.access.api.XDMSchemaDictionary;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMPath;
 
-public abstract class XDMDocumentManagerTest {
+public abstract class XDMDocumentManagementTest {
 
 	protected static String sampleRoot;
 	protected XDMDocumentManagement dMgr;

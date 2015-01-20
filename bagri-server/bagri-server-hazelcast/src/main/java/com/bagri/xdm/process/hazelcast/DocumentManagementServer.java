@@ -29,10 +29,10 @@ import com.bagri.common.manage.JMXUtils;
 import com.bagri.common.query.ExpressionBuilder;
 import com.bagri.common.query.ExpressionContainer;
 import com.bagri.common.query.PathExpression;
-import com.bagri.xdm.access.api.XDMDocumentManagementServer;
 import com.bagri.xdm.access.api.XDMQueryManagement;
 import com.bagri.xdm.access.hazelcast.impl.HazelcastXQCursor;
 import com.bagri.xdm.access.xml.XDMStaxParser;
+import com.bagri.xdm.cache.common.XDMDocumentManagementServer;
 import com.bagri.xdm.common.XDMDataKey;
 import com.bagri.xdm.domain.XDMData;
 import com.bagri.xdm.domain.XDMDocument;
@@ -421,8 +421,6 @@ public class DocumentManagementServer extends XDMDocumentManagementServer implem
 		    XDMDocument doc = xddCache.get(docId);
 		    if (doc != null) {
 		    	deleteDocumentElements(docId, doc.getTypeId());
-		    } else {
-				throw new IllegalArgumentException("Document with ID '" + docId + "' not exists in repository");
 		    }
 		}
 	    return createDocument(new AbstractMap.SimpleEntry(docId, null), uri, xml);
