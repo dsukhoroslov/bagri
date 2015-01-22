@@ -10,7 +10,7 @@
 	<network>
 		<cluster-members>
 			<!-- default Hazelcast host/port -->
-			<address>localhost:5701</address>
+			<!--address>localhost:5701</address-->
 		</cluster-members>
 		<smart-routing>true</smart-routing>
 	</network>

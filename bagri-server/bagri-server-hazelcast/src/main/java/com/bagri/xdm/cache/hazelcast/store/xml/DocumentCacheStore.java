@@ -57,6 +57,7 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<Long, 
 	private XDMFactory keyFactory;
     private XDMDocumentManagement docMgr;
     private XDMSchemaDictionary schemaDict;
+    private IMap<Long, String> xmlCache;
     private IMap<XDMDataKey, XDMElements> xdmCache;
     
 	@Override
@@ -68,6 +69,7 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<Long, 
 		docMgr = (XDMDocumentManagement) properties.get("xdmManager");
 		schemaDict = (XDMSchemaDictionary) properties.get("xdmDictionary");
 		//schemaDict = docMgr.getSchemaDictionary();
+		xmlCache = hzInstance.getMap(XDMCacheConstants.CN_XDM_XML);
 		xdmCache = hzInstance.getMap(XDMCacheConstants.CN_XDM_ELEMENT);
 	}
 
@@ -113,7 +115,8 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<Long, 
 	    		try {
 	        		Map<XDMDataKey, XDMElements> elements = loadElements(docId);
 	        		xdmCache.putAll(elements);
-	    			
+	        		// double read of the file, not good..
+	        		//xmlCache.set(docId, FileUtils.readTextFile(data.uri));
 					return new XDMDocument(docId, uri, data.docType, defVersion, 
 						new Date(Files.getLastModifiedTime(path).toMillis()), Files.getOwner(path).getName(), 
 						defEncoding);

@@ -14,6 +14,8 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
@@ -29,8 +31,10 @@ import com.bagri.common.manage.JMXUtils;
 import com.bagri.common.query.ExpressionBuilder;
 import com.bagri.common.query.ExpressionContainer;
 import com.bagri.common.query.PathExpression;
+import static com.bagri.xdm.access.api.XDMCacheConstants.*;
 import com.bagri.xdm.access.api.XDMQueryManagement;
 import com.bagri.xdm.access.hazelcast.impl.HazelcastXQCursor;
+import com.bagri.xdm.access.hazelcast.process.XMLProvider;
 import com.bagri.xdm.access.xml.XDMStaxParser;
 import com.bagri.xdm.cache.common.XDMDocumentManagementServer;
 import com.bagri.xdm.common.XDMDataKey;
@@ -365,13 +369,27 @@ public class DocumentManagementServer extends XDMDocumentManagementServer implem
 				return null;
 			}
 			
-			String root = mDictionary.getDocumentRoot(doc.getTypeId());
-			Map<String, String> params = new HashMap<String, String>();
-			params.put(":doc", root);
-			Collection<String> results = buildDocument(Collections.singleton(docId), ":doc", params);
-			if (!results.isEmpty()) {
-				xml = results.iterator().next();
-				xmlCache.set(docId, xml);
+			// if docId is not local then buildDocument returns null!
+			// query docId owner node for the XML instead
+			if (hzInstance.getPartitionService().getPartition(docId).getOwner().localMember()) {
+				String root = mDictionary.getDocumentRoot(doc.getTypeId());
+				Map<String, String> params = new HashMap<String, String>();
+				params.put(":doc", root);
+				Collection<String> results = buildDocument(Collections.singleton(docId), ":doc", params);
+				if (!results.isEmpty()) {
+					xml = results.iterator().next();
+					xmlCache.set(docId, xml);
+				}
+			} else {
+				XMLProvider xp = new XMLProvider(docId);
+				IExecutorService execService = hzInstance.getExecutorService(PN_XDM_SCHEMA_POOL);
+				Future<String> future = execService.submitToKeyOwner(xp, docId);
+				try {
+					xml = future.get();
+				} catch (InterruptedException | ExecutionException ex) {
+					logger.error("getDocumentAsString; error getting result", ex);
+					// rethrow ex?
+				}
 			}
 		}
 		return xml;

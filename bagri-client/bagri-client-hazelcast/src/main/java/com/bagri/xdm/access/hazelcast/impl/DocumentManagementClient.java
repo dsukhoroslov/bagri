@@ -428,7 +428,7 @@ public class DocumentManagementClient extends XDMDocumentManagementClient {
 		props.put("clientId", clientId);
 		//props.put("batchSize", "5");
 		
-		String runOn = System.getProperty("xdm.client.submitTo", "owner");
+		String runOn = System.getProperty("xdm.client.submitTo", "any");
 		
 		XQCommandExecutor task = new XQCommandExecutor(isQuery, schemaName, query, bindings, props);
 		Future<Object> future;
