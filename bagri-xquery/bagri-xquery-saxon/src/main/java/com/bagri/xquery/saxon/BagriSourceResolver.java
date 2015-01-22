@@ -73,13 +73,13 @@ public class BagriSourceResolver implements SourceResolver, ExternalObjectModel 
 			docId = mgr.getDocumentId(src);
 		}
 
-		//Source src = null; //((XDMDocumentManagementServer) mgr).getDocumentSource(docId);
-		//if (src != null) {
-		//	logger.trace("resolveSource. got document from cache, returning: {}", src);
+		Source src = mgr.getDocumentAsSource(docId);
+		if (src != null) {
+			logger.trace("resolveSource. got document from cache, returning: {}", src);
 		//	//if (source instanceof TinyDocumentImpl) {
 		//	((TinyDocumentImpl) src).getTree().setConfiguration(config);
-		//	return src;
-		//}
+			return src;
+		}
 		
 		// can return just a custom source (containing docId) from here,
 		// but perform the real resolution to the NodeInfo in unravel method
@@ -96,7 +96,7 @@ public class BagriSourceResolver implements SourceResolver, ExternalObjectModel 
 			StreamSource ss = new StreamSource(new StringReader(content));
 			// bottleneck! takes 15 ms. Cache DocumentInfo in Saxon instead! 
 			NodeInfo doc = config.buildDocument(ss);
-			//((XDMDocumentManagementServer) mgr).putDocumentSource(docId, doc);
+			mgr.storeDocumentSource(docId, doc);
 			return doc;
 		}
 		logger.trace("resolveSource. got empty content: '{}'", content);

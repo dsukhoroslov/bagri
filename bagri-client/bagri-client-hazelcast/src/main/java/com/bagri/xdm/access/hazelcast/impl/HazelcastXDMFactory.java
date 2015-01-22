@@ -4,8 +4,10 @@
 package com.bagri.xdm.access.hazelcast.impl;
 
 import com.bagri.xdm.access.hazelcast.data.DocumentPathKey;
+import com.bagri.xdm.access.hazelcast.data.PathIndexKey;
 import com.bagri.xdm.common.XDMDataKey;
 import com.bagri.xdm.common.XDMFactory;
+import com.bagri.xdm.common.XDMIndexKey;
 import com.bagri.xdm.domain.XDMElement;
 
 /**
@@ -13,7 +15,7 @@ import com.bagri.xdm.domain.XDMElement;
  * @version 1.0
  *
  */
-public class HazelcastXDMFactory implements XDMFactory {
+public final class HazelcastXDMFactory implements XDMFactory {
 	
 	//public HazelcastXDMFactory() {
 		//
@@ -25,6 +27,14 @@ public class HazelcastXDMFactory implements XDMFactory {
 	@Override
 	public XDMDataKey newXDMDataKey(long documentId, int pathId) {
 		return new DocumentPathKey(documentId, pathId);
+	}
+
+	/* (non-Javadoc)
+	 * @see com.bagri.xdm.common.XDMFactory#newXDMDataKey(long, long)
+	 */
+	@Override
+	public XDMIndexKey newXDMIndexKey(int pathId, Object value) {
+		return new PathIndexKey(pathId, value);
 	}
 
 	/* (non-Javadoc)

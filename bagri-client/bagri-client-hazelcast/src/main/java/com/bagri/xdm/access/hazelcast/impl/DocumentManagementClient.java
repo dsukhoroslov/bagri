@@ -6,6 +6,7 @@ import static com.bagri.common.util.PropUtils.getSystemProperty;
 import static com.bagri.common.util.PropUtils.setProperty;
 
 import java.io.InputStream;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -20,6 +21,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import javax.xml.transform.Source;
+import javax.xml.transform.stream.StreamSource;
 import javax.xml.xquery.XQDataFactory;
 import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQItem;
@@ -44,6 +47,7 @@ import com.bagri.xdm.access.hazelcast.process.XQCommandExecutor;
 import com.bagri.xdm.common.XDMDataKey;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMElements;
+import com.bagri.xqj.BagriXQUtils;
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.client.config.XmlClientConfigBuilder;
@@ -321,6 +325,26 @@ public class DocumentManagementClient extends XDMDocumentManagementClient {
 		return result;
 	}
 
+	@Override
+	public Source getDocumentAsSource(long docId) {
+		String xml = getDocumentAsString(docId);
+		if (xml != null) {
+			return new StreamSource(new StringReader(xml));
+		}
+		return null;
+	}
+
+	@Override
+	public XDMDocument storeDocumentSource(long docId, Source source) {
+		try {
+			String xml = BagriXQUtils.sourceToString(source);
+			return storeDocument(docId, null, xml);
+		} catch (XQException ex) {
+			logger.error("storeDocumentSource.error; " + ex.getMessage(), ex);
+		}
+		return null;
+	}
+	
 	@Override
 	public Collection<String> getDocumentURIs(ExpressionContainer query) {
 

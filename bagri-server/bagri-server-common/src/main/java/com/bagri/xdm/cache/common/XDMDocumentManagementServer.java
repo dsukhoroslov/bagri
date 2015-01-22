@@ -29,8 +29,8 @@ public abstract class XDMDocumentManagementServer extends XDMDocumentManagementB
 	public abstract void deleteDocument(Entry<Long, XDMDocument> entry);
 	public abstract XDMDocument updateDocument(Entry<Long, XDMDocument> entry, boolean newVersion, String xml); // + audit info?
 	
-	public abstract Source getDocumentSource(long docId);
-	public abstract void putDocumentSource(long docId, Source source);
+	//public abstract Source getDocumentSource(long docId);
+	//public abstract void putDocumentSource(long docId, Source source);
 
 	//public abstract ExpressionBuilder getQuery(String query, Map bindings);
 	protected abstract Set<Long> queryPathKeys(Set<Long> found, PathExpression pex, Object value);

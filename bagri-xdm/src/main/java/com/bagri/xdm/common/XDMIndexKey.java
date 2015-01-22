@@ -1,12 +1,9 @@
 package com.bagri.xdm.common;
 
-//import java.io.Serializable;
-
-public class XDMIndexKey<T1, T2> {
+public class XDMIndexKey {
 	
-	    private T1 path;
-	    private T2 index;
-	    protected long documentId;
+	    protected int pathId;
+	    protected Object value;
 
 	    /**
 	     * Class constructor
@@ -19,37 +16,26 @@ public class XDMIndexKey<T1, T2> {
 	     *
 	     * @param path	<T1>
 	     * @param index	<T2>
-	     * @param documentId long
 	     */
-	    public XDMIndexKey(T1 path, T2 index, long documentId) {
-	        this.path = path;
-	        this.index = index;
-	        this.documentId = documentId;
+	    public XDMIndexKey(int pathId, Object value) {
+	        this.pathId = pathId;
+	        this.value = value;
 	    }
 
 	    /**
 	     * @return path	<T1>
 	     */
-	    public T1 getPath() {
-	        return path;
-	    }
-
-	    public void setPath(T1 path) {
-	        this.path = path;
+	    public int getPathId() {
+	        return pathId;
 	    }
 
 	    /**
-	     * @return index <T2>
+	     * @return value <T2>
 	     */
-	    public T2 getIndex() {
-	        return index;
+	    public Object getValue() {
+	        return value;
 	    }
 
-	    public void setIndex(T2 index) {
-	        this.index = index;
-	    }
-
-	    
 	    /**
 	     * @param obj Compared object
 	     * @return Equal result flag
@@ -65,27 +51,12 @@ public class XDMIndexKey<T1, T2> {
 
 	        XDMIndexKey that = (XDMIndexKey) obj;
 	        
-	        if (documentId != that.documentId) {
+	        if (pathId != that.pathId) {
 	        	return false;
 	        }
-	        
-	        //if (path == null) {
-	        //	if (that.path != null) {
-	        //		return false;
-	        //	}
-	        //} else 
-	        	if (!path.equals(that.path)) {
-	        		return false;
-	        	}
-
-	        //if (index == null) {
-	        //	if (that.index != null) {
-	        //		return false;
-	        //	}
-	        //} else 
-	        	if (!index.equals(that.index)) {
-	        		return false;
-	        	}
+        	if (!value.equals(that.value)) {
+	        	return false;
+	        }
 	        
 	        return true;
 
@@ -96,14 +67,10 @@ public class XDMIndexKey<T1, T2> {
 	     */
 	    @Override
 	    public int hashCode() {
-	        //int result = leftKey != null ? leftKey.hashCode() : 0;
-	        //result = 31 * result + (rightKey != null ? rightKey.hashCode() : 0);
-	        
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + (int) (documentId ^ (documentId >>> 32));
-			result = prime * result + (int) (path.hashCode() ^ (path.hashCode() >>> 32));
-			result = prime * result + (int) (index.hashCode() ^ (index.hashCode() >>> 32));
+			result = prime * result + (int) (pathId ^ (pathId >>> 32));
+			result = prime * result + (int) (value.hashCode() ^ (value.hashCode() >>> 32));
 			return result;
 	    }
 
@@ -112,7 +79,6 @@ public class XDMIndexKey<T1, T2> {
 	     */
 	    @Override
 	    public String toString() {
-	        return getClass().getSimpleName() + " [path=" + path + "; index=" + index +
-	        		 "; documentId=" + documentId +"]";
+	        return getClass().getSimpleName() + " [pathId=" + pathId + "; value=" + value +"]";
 	    }
 	}

@@ -46,7 +46,7 @@ public class XDMPathKey<T> {
 			return false;
 		}
 
-		XDMPathKey that = (XDMPathKey) obj;
+		XDMPathKey<T> that = (XDMPathKey<T>) obj;
 
 		if (documentId != that.documentId) {
 			return false;
@@ -82,7 +82,6 @@ public class XDMPathKey<T> {
 	 */
 	@Override
 	public String toString() {
-		return getClass().getSimpleName() + " [path=" + path + "; documentId="
-				+ documentId + "]";
+		return getClass().getSimpleName() + " [path=" + path + "; documentId=" + documentId + "]";
 	}
 }

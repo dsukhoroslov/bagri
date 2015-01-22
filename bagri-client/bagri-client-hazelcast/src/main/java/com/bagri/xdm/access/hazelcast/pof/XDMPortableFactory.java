@@ -18,6 +18,7 @@ public class XDMPortableFactory implements PortableFactory {
 	public static final int cli_XDMNode = 3;
 	public static final int cli_XDMSchema = 4;
 	public static final int cli_XDMPermission = 5;
+	
 	public static final int cli_XDMDocument = 50;
 	public static final int cli_XDMElement = 51; 
 	public static final int cli_DataDocumentKey = 52; 
@@ -28,6 +29,7 @@ public class XDMPortableFactory implements PortableFactory {
 	public static final int cli_XDMQuery = 57;
 	public static final int cli_XDMResults = 58;
 	public static final int cli_XDMSource = 59;
+	public static final int cli_XDMIndex = 60;
 
 	public static final int cli_XQItemType = 75;
 	public static final int cli_XQItem = 76;

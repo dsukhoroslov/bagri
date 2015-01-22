@@ -5,6 +5,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
+import javax.xml.transform.Source;
+
 import com.bagri.common.query.ExpressionBuilder;
 import com.bagri.common.query.ExpressionContainer;
 import com.bagri.xdm.domain.XDMDocument;
@@ -23,6 +25,7 @@ public interface XDMDocumentManagement {
 	//String getDocumentAsString(String uri);
 	String getDocumentAsString(long docId);
 	// todo: add methods to return document as Source, Reader, XMLStreamReader, InputStream
+	Source getDocumentAsSource(long docId);
 	
 	/**
 	 * Creates a new Document and stores it in XDM repository
@@ -42,6 +45,8 @@ public interface XDMDocumentManagement {
 	 */
 	XDMDocument storeDocument(long docId, String uri, String xml);
 	// todo: add methods to store document from Source, Reader, XMLStreamReader, InputStream
+
+	XDMDocument storeDocumentSource(long docId, Source source);
 	
 	//void removeDocument(String uri);
 	void removeDocument(long docId);

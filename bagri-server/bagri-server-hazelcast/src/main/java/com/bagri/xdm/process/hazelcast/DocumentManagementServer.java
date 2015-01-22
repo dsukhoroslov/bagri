@@ -28,19 +28,24 @@ import org.springframework.context.ApplicationContextAware;
 
 import com.bagri.common.idgen.IdGenerator;
 import com.bagri.common.manage.JMXUtils;
+import com.bagri.common.query.Comparison;
 import com.bagri.common.query.ExpressionBuilder;
 import com.bagri.common.query.ExpressionContainer;
 import com.bagri.common.query.PathExpression;
+
 import static com.bagri.xdm.access.api.XDMCacheConstants.*;
+
 import com.bagri.xdm.access.api.XDMQueryManagement;
 import com.bagri.xdm.access.hazelcast.impl.HazelcastXQCursor;
 import com.bagri.xdm.access.hazelcast.process.XMLProvider;
 import com.bagri.xdm.access.xml.XDMStaxParser;
 import com.bagri.xdm.cache.common.XDMDocumentManagementServer;
 import com.bagri.xdm.common.XDMDataKey;
+import com.bagri.xdm.common.XDMIndexKey;
 import com.bagri.xdm.domain.XDMData;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMElements;
+import com.bagri.xdm.domain.XDMIndex;
 import com.bagri.xdm.domain.XDMNodeKind;
 import com.bagri.xdm.domain.XDMPath;
 import com.bagri.xqj.BagriXQDataFactory;
@@ -71,6 +76,7 @@ public class DocumentManagementServer extends XDMDocumentManagementServer implem
 	private IMap<Long, XDMDocument> xddCache;
     private IMap<Long, String> xmlCache;
     private Map<Long, Source> srcCache;
+    private IMap<XDMIndexKey, XDMIndex> idxCache;
     private IMap<XDMDataKey, XDMElements> xdmCache;
 	private Map<String, XQProcessor> processors = new ConcurrentHashMap<String, XQProcessor>();
 
@@ -84,6 +90,10 @@ public class DocumentManagementServer extends XDMDocumentManagementServer implem
     	this.docGen = docGen;
     }
     
+    public void setIdxCache(IMap<XDMIndexKey, XDMIndex> cache) {
+    	this.idxCache = cache;
+    }
+
     public void setXddCache(IMap<Long, XDMDocument> cache) {
     	this.xddCache = cache;
     }
@@ -188,6 +198,8 @@ public class DocumentManagementServer extends XDMDocumentManagementServer implem
 		if (root != null) {
 			int docType = mDictionary.translateDocumentType(root.getPath());
 			Map<XDMDataKey, XDMElements> elements = new HashMap<XDMDataKey, XDMElements>(elts.size());
+			Map<XDMIndexKey, XDMIndex> indexes = new HashMap<XDMIndexKey, XDMIndex>();
+			
 			for (XDMData elt: elts) {
 				XDMDataKey xdk = mFactory.newXDMDataKey(docId, elt.getPathId());
 				XDMElements xdes = elements.get(xdk);
@@ -196,8 +208,22 @@ public class DocumentManagementServer extends XDMDocumentManagementServer implem
 					elements.put(xdk, xdes);
 				}
 				xdes.addElement(elt.getElement());
+				
+				// handle indexes
+				if (isIndexedPath(elt.getPathId(), elt.getPath())) {
+					XDMIndexKey xid = mFactory.newXDMIndexKey(elt.getPathId(), elt.getValue());
+					XDMIndex xidx = indexes.get(xid);
+					if (xidx == null) {
+						xidx = new XDMIndex(docId);
+						indexes.put(xid, xidx);
+					} else {
+						xidx.addIndex(docId);
+					}
+				}
 			}
 			xdmCache.putAll(elements);
+			idxCache.putAll(indexes);
+			logger.trace("createDocument; cached {} elements and {} indexes for docId: {}", elements.size(), indexes.size(), docId);
 
 			String user = JMXUtils.getCurrentUser();
 			XDMDocument doc = new XDMDocument(docId, uri, docType, user); // + version, createdAt, encoding
@@ -211,6 +237,11 @@ public class DocumentManagementServer extends XDMDocumentManagementServer implem
 			logger.warn("createDocument.exit; the document is not valid as it has no root element, returning null");
 			return null;
 		}
+	}
+	
+	private boolean isIndexedPath(int pathId, String path) {
+		// TODO: get this info from Schema config
+		return path.endsWith("Symbol/text()") || path.endsWith("Order/@ID") || path.endsWith("Customer/@id");
 	}
 
 	@Override
@@ -295,6 +326,22 @@ public class DocumentManagementServer extends XDMDocumentManagementServer implem
    		//} catch (Throwable ex) {
    		//	logger.error("queryPathKeys", ex);
    		//}
+		
+		//if (pathId > 0 && Comparison.EQ.equals(pex.getCompType())) {
+		//	XDMIndexKey idx = mFactory.newXDMIndexKey(pathId, value);
+		//	XDMIndex xidx = idxCache.get(idx);
+		//	if (xidx != null) {
+		//		Set<Long> result;
+		//		if (found == null) {
+		//			result = xidx.getDocumentIds();
+		//		} else {
+		//			found.retainAll(xidx.getDocumentIds());
+		//			result = found;
+		//		}
+		//		logger.trace("queryPathKeys.exit; returning {} indexed keys", result.size()); 
+		//		return result;
+		//	}
+		//}
    		
    		Predicate<XDMDataKey, XDMElements> f = Predicates.and(pp, new QueryPredicate(pex, value));
    		Set<XDMDataKey> xdmKeys = xdmCache.keySet(f);
@@ -396,13 +443,14 @@ public class DocumentManagementServer extends XDMDocumentManagementServer implem
 	}
 
 	@Override
-	public Source getDocumentSource(long docId) {
+	public Source getDocumentAsSource(long docId) {
 		return srcCache.get(docId);
 	}
 	
 	@Override
-	public void putDocumentSource(long docId, Source source) {
+	public XDMDocument storeDocumentSource(long docId, Source source) {
 		srcCache.put(docId, source);
+		return xddCache.get(docId);
 	}
 	
 	@Override

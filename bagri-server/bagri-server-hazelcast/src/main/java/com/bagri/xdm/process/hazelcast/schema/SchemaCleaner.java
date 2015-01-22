@@ -1,6 +1,7 @@
 package com.bagri.xdm.process.hazelcast.schema;
 
 import static com.bagri.xdm.access.hazelcast.pof.XDMDataSerializationFactory.cli_XDMCleanSchemaTask;
+import static com.bagri.xdm.access.api.XDMCacheConstants.*;
 
 import java.io.IOException;
 import java.util.concurrent.Callable;
@@ -31,14 +32,10 @@ public class SchemaCleaner extends SchemaProcessingTask implements Callable<Bool
 		HazelcastInstance hz = Hazelcast.getHazelcastInstanceByName(schemaName);
 		if (hz != null) {
 			// get docs caches and clean them
-			//<hz:map id="xdm-xml" name="xdm-xml" instance-ref="hzInstance" />
-			//<hz:map id="xdm-query" name="xdm-query" instance-ref="hzInstance" />
-			//<hz:map id="xdm-result" name="xdm-result" instance-ref="hzInstance" />
-			//<hz:map id="xdm-document" name="xdm-document" instance-ref="hzInstance" />
-			//<hz:map id="xdm-element" name="xdm-element" instance-ref="hzInstance" />
-			cleanCache(hz, "xdm-xml");
-			cleanCache(hz, "xdm-document");
-			cleanCache(hz, "xdm-element");
+			cleanCache(hz, CN_XDM_XML);
+			cleanCache(hz, CN_XDM_DOCUMENT);
+			cleanCache(hz, CN_XDM_ELEMENT);
+			cleanCache(hz, CN_XDM_INDEX);
 			System.gc();
 			result = true;
 		}

@@ -20,11 +20,11 @@ public class XDMCacheConstants {
 
     /**
      * XDM Path cache
-     * Key: PathDocumentKey; Value: com.bagri.xdm.XDMIndex<null>
+     * Key: PathIndexKey; Value: com.bagri.xdm.XDMIndex
      * CacheStore: no
      * Mapped as: no
      */
-	//public static final String CN_XDM_PATH_INDEX = "xdm-path-index";
+	public static final String CN_XDM_INDEX = "xdm-index";
 
     /**
      * XDM Path-Value cache
