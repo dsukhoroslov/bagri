@@ -103,7 +103,7 @@ public abstract class XDMDocumentManagementTest {
 		PathBuilder path = new PathBuilder().
 				addPathSegment(AxisType.CHILD, prefix, "FIXML").
 				addPathSegment(AxisType.CHILD, prefix, "Order").
-				addPathSegment(AxisType.ATTRIBUTE, null, "@ID");
+				addPathSegment(AxisType.ATTRIBUTE, null, "ID");
 		ExpressionContainer ec = new ExpressionContainer();
 		ec.addExpression(docType, Comparison.EQ, path, "$id", id);
 		Map<String, String> params = new HashMap<String, String>();
@@ -116,7 +116,7 @@ public abstract class XDMDocumentManagementTest {
 		int docType = mDictionary.getDocumentType("/" + prefix + ":Customer");
 		PathBuilder path = new PathBuilder().
 				addPathSegment(AxisType.CHILD, prefix, "Customer").
-				addPathSegment(AxisType.ATTRIBUTE, null, "@id");
+				addPathSegment(AxisType.ATTRIBUTE, null, "id");
 		ExpressionContainer ec = new ExpressionContainer();
 		ec.addExpression(docType, Comparison.EQ, path, "$id", id);
 
@@ -145,7 +145,7 @@ public abstract class XDMDocumentManagementTest {
 		int docType = mDictionary.getDocumentType("/" + prefix + ":Customer");
 		PathBuilder path = new PathBuilder().
 				addPathSegment(AxisType.CHILD, prefix, "Customer").
-				addPathSegment(AxisType.ATTRIBUTE, null, "@id");
+				addPathSegment(AxisType.ATTRIBUTE, null, "id");
 		ExpressionContainer ec = new ExpressionContainer();
 		ec.addExpression(docType, Comparison.EQ, path, "$id", id);
 

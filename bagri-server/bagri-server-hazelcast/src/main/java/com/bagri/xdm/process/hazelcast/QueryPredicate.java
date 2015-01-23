@@ -19,6 +19,11 @@ import com.hazelcast.query.Predicate;
 
 public class QueryPredicate implements Predicate<XDMDataKey, XDMElements>, IdentifiedDataSerializable { 
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2796783159287994964L;
+
 	private static final transient Logger logger = LoggerFactory.getLogger(QueryPredicate.class);
 	//private Set<String> threads = new HashSet<String>();
 	
@@ -46,9 +51,9 @@ public class QueryPredicate implements Predicate<XDMDataKey, XDMElements>, Ident
 
 	@Override
 	public boolean apply(Entry<XDMDataKey, XDMElements> xdmEntry) {
-		logger.trace("apply.enter");
+		//logger.trace("apply.enter");
 		boolean result = xdmEntry.getValue().apply(pex, value);
-		logger.trace("apply.exit; returning {}", result);
+		//logger.trace("apply.exit; returning {}", result);
 		return result;
 	}
 	
@@ -56,14 +61,14 @@ public class QueryPredicate implements Predicate<XDMDataKey, XDMElements>, Ident
 	public void readData(ObjectDataInput in) throws IOException {
 		pex = in.readObject();
 		value = in.readObject();
-		logger.trace("readData.exit");
+		//logger.trace("readData.exit");
 	}
 
 	@Override
 	public void writeData(ObjectDataOutput out) throws IOException {
 		out.writeObject(pex);
 		out.writeObject(value);
-		logger.trace("writeData.exit");
+		//logger.trace("writeData.exit");
 	}
 
 }

@@ -96,17 +96,27 @@
 				</hz:indexes>
 			</hz:map>
 
+			<hz:map name="xdm-index" async-backup-count="1" backup-count="0" in-memory-format="OBJECT">
+				<!-- think about store indexes persistently... 
+				<hz:map-store enabled="true" write-delay-seconds="10" factory-implementation="xdmStoreFactory">
+					<hz:properties>
+						<hz:property name="xdm.schema.name">${xdm.schema.name}</hz:property>
+						<hz:property name="xdm.schema.store.type">${xdm.schema.store.type}</hz:property>
+					</hz:properties>
+				</hz:map-store-->
+			</hz:map>
+
 			<hz:map name="xdm-xml" async-backup-count="1" backup-count="0" in-memory-format="OBJECT"
 					 eviction-policy="LRU" time-to-live-seconds="0" max-size-policy="USED_HEAP_PERCENTAGE" 
-					 max-size="25" eviction-percentage="10" max-idle-seconds="3600">
+					 max-size="25" eviction-percentage="10">
 			</hz:map>
 			<hz:map name="xdm-query" async-backup-count="1" backup-count="0" in-memory-format="OBJECT"
 					 eviction-policy="LRU" time-to-live-seconds="0" max-size-policy="USED_HEAP_PERCENTAGE" 
-					 max-size="15" eviction-percentage="10" max-idle-seconds="3600">
+					 max-size="15" eviction-percentage="10">
 			</hz:map>
 			<hz:map name="xdm-result" async-backup-count="1" backup-count="0" in-memory-format="OBJECT"
 					 eviction-policy="LRU" time-to-live-seconds="0" max-size-policy="USED_HEAP_PERCENTAGE" 
-					 max-size="10" eviction-percentage="10" max-idle-seconds="3600">
+					 max-size="10" eviction-percentage="10">
 			</hz:map>
 			
 			<hz:serialization>
@@ -126,9 +136,11 @@
 					<hz:serializer type-class="com.bagri.xdm.domain.XDMNamespace" class-name="com.bagri.xdm.access.hazelcast.pof.XDMNamespaceSerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.domain.XDMQuery" class-name="com.bagri.xdm.access.hazelcast.pof.XDMQuerySerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.domain.XDMResults" class-name="com.bagri.xdm.access.hazelcast.pof.XDMResultsSerializer"/>
+					<hz:serializer type-class="com.bagri.xdm.domain.XDMIndex" class-name="com.bagri.xdm.access.hazelcast.pof.XDMIndexSerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.access.hazelcast.impl.HazelcastXQCursor" class-name="com.bagri.xdm.access.hazelcast.pof.XDMCursorSerializer"/>
-					<hz:serializer type-class="com.bagri.xqj.BagriXQItem" implementation="xqItemSerializer"/>
 					<hz:serializer type-class="com.bagri.xqj.BagriXQItemType" implementation="xqItemTypeSerializer"/>
+					<hz:serializer type-class="com.bagri.xqj.BagriXQItem" implementation="xqItemSerializer"/>
+					<hz:serializer type-class="com.bagri.xqj.BagriXQSequence" implementation="xqSequenceSerializer"/>
 					<hz:serializer type-class="com.bagri.common.query.Expression" class-name="com.bagri.xdm.access.hazelcast.pof.ExpressionSerializer"/>
 					<hz:serializer type-class="com.bagri.common.query.PathExpression" class-name="com.bagri.xdm.access.hazelcast.pof.ExpressionSerializer"/>
 					<hz:serializer type-class="com.bagri.common.query.BinaryExpression" class-name="com.bagri.xdm.access.hazelcast.pof.ExpressionSerializer"/>
@@ -155,6 +167,7 @@
 	<hz:map id="xdm-result" name="xdm-result" instance-ref="hzInstance" />
 	<hz:map id="xdm-document" name="xdm-document" instance-ref="hzInstance" />
 	<hz:map id="xdm-element" name="xdm-element" instance-ref="hzInstance" />
+	<hz:map id="xdm-index" name="xdm-index" instance-ref="hzInstance" />
 	<hz:map id="dict-document-type" name="dict-document-type" instance-ref="hzInstance" />
 	<hz:map id="dict-path" name="dict-path" instance-ref="hzInstance" />
 	<hz:map id="dict-namespace" name="dict-namespace" instance-ref="hzInstance" />
@@ -191,75 +204,35 @@
 		<property name="xdmFactory" ref="xdmFactory"/>
 		<property name="xddCache" ref="xdm-document"/>
 		<property name="xdmCache" ref="xdm-element"/>
+		<property name="idxCache" ref="xdm-index"/>
 		<property name="xmlCache" ref="xdm-xml"/>
 		<property name="schemaDictionary" ref="xdmDictionary"/>
-    	<property name="queryManager" ref="xqManager"/>
+		<property name="queryManager" ref="xqManager"/>
 	</bean>
 	
 	<bean id="xdmStats" class="com.bagri.common.manage.InvocationStatistics"/>
 	
-    <bean id="xdmProxy" class="com.bagri.xdm.process.hazelcast.DocumentManagementProxy" factory-method="newDMProxy">
-		<constructor-arg index="0" ref="xdmManager" />
-		<constructor-arg index="1" ref="xdmStats" />
-    </bean>
-	
-	<bean id="xqFactory" class="com.bagri.xqj.BagriXQDataFactory">
-    	<!--property name="processor" ref="xqProcessor" /-->
-    </bean>
-
-    <!--bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-        <property name="targetObject" ref="xqProcessor" />
-        <property name="targetMethod" value="setXdmManager" />
-        <property name="arguments">
-            <list>
-                <ref local="xdmManager" />
-            </list>
-        </property>
-    </bean-->
-    
-	<bean id="xqItemSerializer" class="com.bagri.xdm.access.hazelcast.pof.XQItemSerializer">
-    	<property name="XQDataFactory" ref="xqFactory" />
-	</bean>
-	
-	<bean id="xqItemTypeSerializer" class="com.bagri.xdm.access.hazelcast.pof.XQItemTypeSerializer">
-    	<property name="XQDataFactory" ref="xqFactory" />
-	</bean>
-
-	<bean id="xqManager" class="com.bagri.xdm.process.hazelcast.QueryManagementServer">
-		<property name="queryCache" ref="xdm-query"/>
-		<property name="resultCache" ref="xdm-result"/>
-	</bean>
-
-    <bean id="xqProcessor" class="com.bagri.xquery.saxon.BagriXQProcessor" lazy-init="true" scope="prototype">
-    	<!--property name="xdmManager" ref="xdmManager" /-->
-    	<!--property name="XQManager" ref="xqManager" /-->
-    	<property name="XQDataFactory" ref="xqFactory" />
-		<property name="properties">
-			<props>
-				<prop key="xqj.schema.baseUri">${xqj.schema.baseUri}</prop>
-				<prop key="xqj.schema.constructionMode">${xqj.schema.constructionMode}</prop>
-				<prop key="xqj.schema.defaultCollationUri">${xqj.schema.defaultCollationUri}</prop>
-				<prop key="xqj.schema.defaultElementTypeNamespace">${xqj.schema.defaultElementTypeNamespace}</prop>
-				<prop key="xqj.schema.defaultFunctionNamespace">${xqj.schema.defaultFunctionNamespace}</prop>
-				<prop key="xqj.schema.orderingMode">${xqj.schema.orderingMode}</prop>
-				<prop key="xqj.schema.defaultOrderForEmptySequences">${xqj.schema.defaultOrderForEmptySequences}</prop>
-				<prop key="xqj.schema.boundarySpacePolicy">${xqj.schema.boundarySpacePolicy}</prop>
-				<prop key="xqj.schema.copyNamespacesModePreserve">${xqj.schema.copyNamespacesModePreserve}</prop>
-				<prop key="xqj.schema.copyNamespacesModeInherit">${xqj.schema.copyNamespacesModeInherit}</prop>
-				<prop key="xqj.schema.bindingMode">${xqj.schema.bindingMode}</prop>
-				<prop key="xqj.schema.queryLanguageTypeAndVersion">${xqj.schema.queryLanguageTypeAndVersion}</prop>
-				<prop key="xqj.schema.holdability">${xqj.schema.holdability}</prop>
-				<prop key="xqj.schema.scrollability">${xqj.schema.scrollability}</prop>
-				<prop key="xqj.schema.queryTimeout">${xqj.schema.queryTimeout}</prop>
-				<!--prop key="xqj.schema.defaultNamespaces">${xqj.schema.defaultNamespaces}</prop-->
-			</props>
-		</property>
-    </bean>
-
 	<bean id="popManager" class="com.bagri.xdm.cache.hazelcast.management.PopulationManager">
 		<constructor-arg ref="hzInstance" />
 		<property name="schemaName" value="${xdm.schema.name}"/>
 		<property name="populationSize" value="${xdm.schema.population.size}"/>
 	</bean>
+
+	<bean id="xqItemTypeSerializer" class="com.bagri.xdm.access.hazelcast.pof.XQItemTypeSerializer">
+    		<property name="XQDataFactory" ref="xqFactory" />
+	</bean>
+
+	<bean id="xqItemSerializer" class="com.bagri.xdm.access.hazelcast.pof.XQItemSerializer">
+    		<property name="XQDataFactory" ref="xqFactory" />
+	</bean>
 	
+	<bean id="xqSequenceSerializer" class="com.bagri.xdm.access.hazelcast.pof.XQSequenceSerializer">
+    		<property name="XQDataFactory" ref="xqFactory" />
+	</bean>
+    
+	<bean id="xqManager" class="com.bagri.xdm.process.hazelcast.QueryManagementServer">
+		<property name="queryCache" ref="xdm-query"/>
+		<property name="resultCache" ref="xdm-result"/>
+	</bean>
+
 </beans>

@@ -34,18 +34,20 @@ public class ClientApp {
 		boolean found = false;
 		try {
 			//client.storeSecCommand();
-			long id = client.storeSecQuery();
+			//long id = client.storeSecQuery();
 			//long id = client.storeXmlDocument("axis.xml");
 			//System.out.println("document stored; id: " + id);
-			//found = client.runPriceQuery();
+			found = client.runPriceQuery("IBM"); //IBM; VFINX; PTTAX
+			found &= client.runPriceQuery("VFINX");
+			found &= client.runPriceQuery("PTTAX");
 			//client.runPriceQuery();
 			//found = client.runSecQuery();
 			//client.runSecQuery();
 			//found = client.searchSecQuery();
-			found = client.searchSecQueryParams();
+			//found = client.searchSecQueryParams();
 			//client.searchSecQueryParams();
 			//found = client.runAxisQuery();
-			client.removeSecCommand(id);
+			//client.removeSecCommand(id);
 		} catch (XQException e) {
 			e.printStackTrace();
 		}
@@ -68,7 +70,7 @@ public class ClientApp {
 		this.xqc = xqc;
 	}
 	
-	public boolean runPriceQuery() throws XQException {
+	public boolean runPriceQuery(String symbol) throws XQException {
 		
 		String query = "declare namespace s=\"http://tpox-benchmark.com/security\";\n" +
 			"declare variable $sym external;\n" + 
@@ -78,7 +80,7 @@ public class ClientApp {
 			"\t<print>The open price of the security \"{$sec/s:Name/text()}\" is {$sec/s:Price/s:PriceToday/s:Open/text()} dollars</print>\n";
 
 	    XQPreparedExpression xqpe = xqc.prepareExpression(query);
-	    xqpe.bindString(new QName("sym"), "IBM", null); //IBM; VFINX; PTTAX
+	    xqpe.bindString(new QName("sym"), symbol, null); //IBM; VFINX; PTTAX
 	    XQResultSequence xqs = xqpe.executeQuery();
 	    boolean found = false;
 	    while (xqs.next()) {

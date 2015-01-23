@@ -23,7 +23,7 @@
 				<hz:property name="hazelcast.logging.type">slf4j</hz:property>
 				<!--hz:property name="hazelcast.partition.count">1</hz:property-->				
 			</hz:properties>
-			<hz:network port="5701" port-auto-increment="true">
+			<hz:network port="${xdm.cluster.port}" port-auto-increment="true">
 				<hz:join>
 					<hz:multicast enabled="false"/>
 					<hz:tcp-ip enabled="true" connection-timeout-seconds="10">

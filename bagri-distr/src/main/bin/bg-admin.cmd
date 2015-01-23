@@ -31,7 +31,7 @@ set java_opts=%java_opts% -Xloggc:../logs/admin/gc/gc.log -XX:+UseGCLogFileRotat
 rem specify logging & XDM options
 set java_opts=%java_opts% -Dnode.name=admin -Dnode.instance=%node_num%
 set java_opts=%java_opts% -Dnode.logdir=../logs/admin -Dxdm.log.level=debug
-set java_opts=%java_opts% -Dlogback.configurationFile=../config/logging.xml
+set java_opts=%java_opts% -Dlogback.configurationFile=../config/hz-logging.xml
 set java_opts=%java_opts% -Dxdm.config.path=../config
 set java_opts=%java_opts% -Dxdm.config.context.file=spring/admin-system-context.xml
 set java_opts=%java_opts% -Dxdm.config.properties.file=admin.properties

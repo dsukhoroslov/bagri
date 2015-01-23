@@ -25,9 +25,9 @@
     <context:mbean-export server="jmxServer" default-domain="com.bagri.xdm"/> registration="replaceExisting"
  -->
     
-    <bean id="authManager" class="com.bagri.xdm.cache.hazelcast.security.BagriJMXAuthenticator">
-        <property name="userManager" ref="userService"/>
-    </bean>
+	<bean id="authManager" class="com.bagri.xdm.cache.hazelcast.security.BagriJMXAuthenticator">
+		<property name="userManager" ref="userService"/>
+	</bean>
 
 	<hz:hazelcast id="hzInstance">
 		<hz:config>
@@ -42,7 +42,7 @@
 				<hz:property name="xdm.cluster.node.role">${xdm.cluster.node.role}</hz:property>
 				<hz:property name="xdm.cluster.node.schemas">${xdm.cluster.node.schemas}</hz:property-->
 			</hz:properties>
-			<hz:network port="5701" port-auto-increment="true">
+			<hz:network port="${xdm.cluster.port}" port-auto-increment="true">
 				<hz:join>
 					<hz:multicast enabled="false"/>
 					<hz:tcp-ip enabled="true" connection-timeout-seconds="10">
@@ -76,7 +76,7 @@
 				<hz:property name="hazelcast.jmx.detailed">true</hz:property>
 				<hz:property name="hazelcast.logging.type">slf4j</hz:property>
 			</hz:properties>
-			<hz:network port="5771" port-auto-increment="true">
+			<hz:network port="${xdm.data.port}" port-auto-increment="true">
 				<hz:join>
 					<hz:multicast enabled="false"/>
 					<hz:tcp-ip enabled="true" connection-timeout-seconds="5">

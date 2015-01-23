@@ -19,9 +19,9 @@
 			<hz:member>${xdm.schema.members}</hz:member>
 		</hz:network>
 		
-		<hz:security>
+		<!--hz:security>
 			<hz:credentials>com.bagri.xdm.access.hazelcast.impl.SecureCredentials</hz:credentials>
-		</hz:security>
+		</hz:security-->
 	
 		<hz:serialization>
 			<hz:data-serializable-factories>
@@ -40,9 +40,11 @@
 				<hz:serializer type-class="com.bagri.xdm.domain.XDMNamespace" class-name="com.bagri.xdm.access.hazelcast.pof.XDMNamespaceSerializer"/>
 				<hz:serializer type-class="com.bagri.xdm.domain.XDMQuery" class-name="com.bagri.xdm.access.hazelcast.pof.XDMQuerySerializer"/>
 				<hz:serializer type-class="com.bagri.xdm.domain.XDMResults" class-name="com.bagri.xdm.access.hazelcast.pof.XDMResultsSerializer"/>
+				<hz:serializer type-class="com.bagri.xdm.domain.XDMIndex" class-name="com.bagri.xdm.access.hazelcast.pof.XDMIndexSerializer"/>
 				<hz:serializer type-class="com.bagri.xdm.access.hazelcast.impl.HazelcastXQCursor" class-name="com.bagri.xdm.access.hazelcast.pof.XDMCursorSerializer"/>
-				<hz:serializer type-class="com.bagri.xqj.BagriXQItem" implementation="xqItemSerializer"/>
 				<hz:serializer type-class="com.bagri.xqj.BagriXQItemType" implementation="xqItemTypeSerializer"/>
+				<hz:serializer type-class="com.bagri.xqj.BagriXQItem" implementation="xqItemSerializer"/>
+				<hz:serializer type-class="com.bagri.xqj.BagriXQSequence" implementation="xqSequenceSerializer"/>
 				<hz:serializer type-class="com.bagri.common.query.Expression" class-name="com.bagri.xdm.access.hazelcast.pof.ExpressionSerializer"/>
 				<hz:serializer type-class="com.bagri.common.query.PathExpression" class-name="com.bagri.xdm.access.hazelcast.pof.ExpressionSerializer"/>
 				<hz:serializer type-class="com.bagri.common.query.BinaryExpression" class-name="com.bagri.xdm.access.hazelcast.pof.ExpressionSerializer"/>
@@ -132,22 +134,26 @@
 		</property-->
 	</bean>
 
-    <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-        <property name="targetObject" ref="xqProcessor" />
-        <property name="targetMethod" value="setXdmManager" />
-        <property name="arguments">
-            <list>
-                <ref local="xdmManager" />
-            </list>
-        </property>
-    </bean>
+	<bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+		<property name="targetObject" ref="xqProcessor" />
+		<property name="targetMethod" value="setXdmManager" />
+		<property name="arguments">
+			<list>
+				<ref local="xdmManager" />
+			</list>
+		</property>
+	</bean>
     
+	<bean id="xqItemTypeSerializer" class="com.bagri.xdm.access.hazelcast.pof.XQItemTypeSerializer">
+    		<property name="XQDataFactory" ref="xqConnection" />
+	</bean>
+
 	<bean id="xqItemSerializer" class="com.bagri.xdm.access.hazelcast.pof.XQItemSerializer">
-	    <property name="XQDataFactory" ref="xqConnection" />
+    		<property name="XQDataFactory" ref="xqConnection" />
 	</bean>
 	
-	<bean id="xqItemTypeSerializer" class="com.bagri.xdm.access.hazelcast.pof.XQItemTypeSerializer">
-	    <property name="XQDataFactory" ref="xqConnection" />
+	<bean id="xqSequenceSerializer" class="com.bagri.xdm.access.hazelcast.pof.XQSequenceSerializer">
+    		<property name="XQDataFactory" ref="xqConnection" />
 	</bean>
 
 	<bean id="queryManager" class="com.bagri.xdm.cache.hazelcast.management.QueryManagement">
@@ -163,9 +169,9 @@
 		<property name="schemaDictionary" ref="xdmDictionary"/>
 	</bean>
 
-	<bean id="popManager" class="com.bagri.xdm.cache.hazelcast.management.PopulationManagement">
+	<!--bean id="popManager" class="com.bagri.xdm.cache.hazelcast.management.PopulationManagement">
 		<constructor-arg value="${xdm.schema.name}" />
 		<property name="hzInstance" ref="hzInstance"/>
-	</bean>
+	</bean-->
 
 </beans>

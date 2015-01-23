@@ -26,6 +26,7 @@
 	    <!--includeSubModules>true</includeSubModules-->
 	    <includes>
             	<include>com.sdv.bagri:bagri-samples-client</include>
+            	<include>com.sdv.bagri:bagri-samples-embedded</include>
 	    </includes>
 	    <sources>
 		<outputDirectoryMapping>samples/${module.basedir.name}</outputDirectoryMapping>

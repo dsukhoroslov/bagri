@@ -19,9 +19,9 @@
 			<hz:member>${xdm.schema.members}</hz:member>
 		</hz:network>
 		
-		<hz:security>
+		<!--hz:security>
 			<hz:credentials>com.bagri.xdm.access.hazelcast.impl.SecureCredentials</hz:credentials>
-		</hz:security>
+		</hz:security-->
 	
 		<hz:serialization>
 			<hz:data-serializable-factories>
@@ -134,15 +134,15 @@
 		</property-->
 	</bean>
 
-    <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-        <property name="targetObject" ref="xqProcessor" />
-        <property name="targetMethod" value="setXdmManager" />
-        <property name="arguments">
-            <list>
-                <ref local="xdmManager" />
-            </list>
-        </property>
-    </bean>
+	<bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+		<property name="targetObject" ref="xqProcessor" />
+		<property name="targetMethod" value="setXdmManager" />
+		<property name="arguments">
+			<list>
+				<ref local="xdmManager" />
+			</list>
+		</property>
+	</bean>
     
 	<bean id="xqItemTypeSerializer" class="com.bagri.xdm.access.hazelcast.pof.XQItemTypeSerializer">
     		<property name="XQDataFactory" ref="xqConnection" />
@@ -169,9 +169,9 @@
 		<property name="schemaDictionary" ref="xdmDictionary"/>
 	</bean>
 
-	<bean id="popManager" class="com.bagri.xdm.cache.hazelcast.management.PopulationManagement">
+	<!--bean id="popManager" class="com.bagri.xdm.cache.hazelcast.management.PopulationManagement">
 		<constructor-arg value="${xdm.schema.name}" />
 		<property name="hzInstance" ref="hzInstance"/>
-	</bean>
+	</bean-->
 
 </beans>

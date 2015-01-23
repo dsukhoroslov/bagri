@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:hz="http://www.hazelcast.com/schema/spring"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd
+		http://www.hazelcast.com/schema/spring http://www.hazelcast.com/schema/spring/hazelcast-spring-3.3.xsd">
+
+	<import resource="classpath:spring/cache-schema-context.xml" />
+ 
+	<!-- Beans Declaration -->
+	<context:property-placeholder ignore-unresolvable="true" location="classpath:/${xdm.config.properties.file}" />
+	<context:annotation-config />
+	
+	<bean id="xdmProxy" class="com.bagri.xdm.process.hazelcast.DocumentManagementProxy" factory-method="newDMProxy">
+		<constructor-arg index="0" ref="xdmManager" />
+		<constructor-arg index="1" ref="xdmStats" />
+	</bean>
+	
+	<bean id="xqFactory" class="com.bagri.xqj.BagriXQDataFactory">
+    		<!--property name="processor" ref="xqProcessor" /-->
+	</bean>
+
+    <!--bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+        <property name="targetObject" ref="xqProcessor" />
+        <property name="targetMethod" value="setXdmManager" />
+        <property name="arguments">
+            <list>
+                <ref local="xdmManager" />
+            </list>
+        </property>
+    </bean-->
+    
+	<bean id="xqProcessor" class="com.bagri.xquery.saxon.BagriXQProcessor" lazy-init="true" scope="prototype">
+		<!--property name="xdmManager" ref="xdmManager" /-->
+		<!--property name="XQManager" ref="xqManager" /-->
+		<property name="XQDataFactory" ref="xqFactory" />
+		<property name="properties">
+			<props>
+				<prop key="xqj.schema.baseUri">${xqj.schema.baseUri}</prop>
+				<prop key="xqj.schema.constructionMode">${xqj.schema.constructionMode}</prop>
+				<prop key="xqj.schema.defaultCollationUri">${xqj.schema.defaultCollationUri}</prop>
+				<prop key="xqj.schema.defaultElementTypeNamespace">${xqj.schema.defaultElementTypeNamespace}</prop>
+				<prop key="xqj.schema.defaultFunctionNamespace">${xqj.schema.defaultFunctionNamespace}</prop>
+				<prop key="xqj.schema.orderingMode">${xqj.schema.orderingMode}</prop>
+				<prop key="xqj.schema.defaultOrderForEmptySequences">${xqj.schema.defaultOrderForEmptySequences}</prop>
+				<prop key="xqj.schema.boundarySpacePolicy">${xqj.schema.boundarySpacePolicy}</prop>
+				<prop key="xqj.schema.copyNamespacesModePreserve">${xqj.schema.copyNamespacesModePreserve}</prop>
+				<prop key="xqj.schema.copyNamespacesModeInherit">${xqj.schema.copyNamespacesModeInherit}</prop>
+				<prop key="xqj.schema.bindingMode">${xqj.schema.bindingMode}</prop>
+				<prop key="xqj.schema.queryLanguageTypeAndVersion">${xqj.schema.queryLanguageTypeAndVersion}</prop>
+				<prop key="xqj.schema.holdability">${xqj.schema.holdability}</prop>
+				<prop key="xqj.schema.scrollability">${xqj.schema.scrollability}</prop>
+				<prop key="xqj.schema.queryTimeout">${xqj.schema.queryTimeout}</prop>
+				<!--prop key="xqj.schema.defaultNamespaces">${xqj.schema.defaultNamespaces}</prop-->
+			</props>
+		</property>
+	</bean>
+
+</beans>

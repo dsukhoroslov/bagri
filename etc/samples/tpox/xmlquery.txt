@@ -36,6 +36,7 @@ return	<Security>
 
 declare default element namespace "http://tpox-benchmark.com/custacc";
 for $cust in fn:collection("/{http://tpox-benchmark.com/custacc}Customer")/Customer
+where $cust/@id=$id
 return 
         <Customer_Profile CUSTOMERID="{$cust/@id}">
                 {$cust/Name}
@@ -51,6 +52,7 @@ return
 declare default element namespace "http://tpox-benchmark.com/custacc";
 
 for $cust in fn:collection("/{http://tpox-benchmark.com/custacc}Customer")/Customer
+where $cust/@id=$id
 return
 	<Customer>{$cust/@id}
 		{$cust/Name}
@@ -66,4 +68,12 @@ return
 			}
 		</Customer_Securities>
 	</Customer>
+
+
+declare namespace o="http://www.fixprotocol.org/FIXML-4-4";
+(: declare variable $ID external; :)
+
+for $ord in fn:collection("/{http://www.fixprotocol.org/FIXML-4-4}FIXML")/o:FIXML
+where $ord/o:Order/@ID=103404 (: 103404, 103935 :)
+return $ord/o:Order
 

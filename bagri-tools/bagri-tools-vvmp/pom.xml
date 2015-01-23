@@ -5,13 +5,12 @@
     <parent>
         <groupId>com.sdv.bagri</groupId>
         <artifactId>bagri-tools</artifactId>
-        <version>0.3.1-SNAPSHOT</version>
+        <version>0.4.1-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
 
     <!--groupId>com.sdv.bagri</groupId-->
     <artifactId>bagri-tools-vvmp</artifactId>
-    <!--version>0.3.1-SNAPSHOT</version-->
     <name>bagri-tools-vvmp</name>
     <description>BagRi: VisualVM plugin</description>
     <packaging>nbm</packaging>

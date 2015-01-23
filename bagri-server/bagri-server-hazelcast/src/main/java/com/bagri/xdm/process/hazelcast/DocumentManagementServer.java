@@ -210,7 +210,7 @@ public class DocumentManagementServer extends XDMDocumentManagementServer implem
 				xdes.addElement(elt.getElement());
 				
 				// handle indexes
-				if (isIndexedPath(elt.getPathId(), elt.getPath())) {
+				if (isIndexedPath(elt.getPathId(), elt.getPath()) && elt.getValue() != null) {
 					XDMIndexKey xid = mFactory.newXDMIndexKey(elt.getPathId(), elt.getValue());
 					XDMIndex xidx = indexes.get(xid);
 					if (xidx == null) {
@@ -327,21 +327,22 @@ public class DocumentManagementServer extends XDMDocumentManagementServer implem
    		//	logger.error("queryPathKeys", ex);
    		//}
 		
-		//if (pathId > 0 && Comparison.EQ.equals(pex.getCompType())) {
-		//	XDMIndexKey idx = mFactory.newXDMIndexKey(pathId, value);
-		//	XDMIndex xidx = idxCache.get(idx);
-		//	if (xidx != null) {
-		//		Set<Long> result;
-		//		if (found == null) {
-		//			result = xidx.getDocumentIds();
-		//		} else {
-		//			found.retainAll(xidx.getDocumentIds());
-		//			result = found;
-		//		}
-		//		logger.trace("queryPathKeys.exit; returning {} indexed keys", result.size()); 
-		//		return result;
-		//	}
-		//}
+		if (pathId > 0 && Comparison.EQ.equals(pex.getCompType())) {
+			XDMIndexKey idx = mFactory.newXDMIndexKey(pathId, value.toString());
+			XDMIndex xidx = idxCache.get(idx);
+			logger.trace("queryPathKeys; seach for index {} get {}", idx, xidx); 
+			if (xidx != null) {
+				Set<Long> result;
+				if (found == null) {
+					result = xidx.getDocumentIds();
+				} else {
+					found.retainAll(xidx.getDocumentIds());
+					result = found;
+				}
+				logger.trace("queryPathKeys.exit; returning {} indexed keys", result.size()); 
+				return result;
+			}
+		}
    		
    		Predicate<XDMDataKey, XDMElements> f = Predicates.and(pp, new QueryPredicate(pex, value));
    		Set<XDMDataKey> xdmKeys = xdmCache.keySet(f);
