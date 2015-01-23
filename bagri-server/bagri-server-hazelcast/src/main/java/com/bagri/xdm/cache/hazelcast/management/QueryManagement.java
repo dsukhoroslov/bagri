@@ -36,25 +36,14 @@ import com.bagri.xdm.domain.XDMDocumentType;
  *
  */
 @ManagedResource(description="(X)Query Management MBean")
-public class QueryManagement implements SelfNaming {
+public class QueryManagement extends SchemaFeatureManagement {
 	
-    private static final transient Logger logger = LoggerFactory.getLogger(QueryManagement.class);
-	//private static final String schema_management = "SchemaManagement";
-    private static final String type_schema = "Schema";
-
-	private XDMSchemaDictionary schemaDictionary;
     private XQConnection xqConn;
     
-    private String schemaName;
-    
     public QueryManagement(String schemaName) {
-    	this.schemaName = schemaName;
+    	super(schemaName);
     }
 
-	public void setSchemaDictionary(XDMSchemaDictionary schemaDictionary) {
-		this.schemaDictionary = schemaDictionary;
-	}
-	
 	public void setXQConnection(XQConnection xqConn) {
 		this.xqConn = xqConn;
 	}
@@ -114,8 +103,8 @@ public class QueryManagement implements SelfNaming {
 	}
 
 	@Override
-	public ObjectName getObjectName() throws MalformedObjectNameException {
-		return JMXUtils.getObjectName("type=" + type_schema + ",name=" + schemaName + ",kind=QueryManagement");
+	protected String getFeatureKind() {
+		return "QueryManagement";
 	}
 
 }

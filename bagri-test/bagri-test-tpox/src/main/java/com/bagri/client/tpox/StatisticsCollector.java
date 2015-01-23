@@ -2,6 +2,9 @@ package com.bagri.client.tpox;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -26,7 +29,6 @@ public class StatisticsCollector {
 
     private MBeanServerConnection mbsc;
     private JMXConnector jmxc;
-    private ObjectName mName;
 	
 	public static void main(String[] args) {
 
@@ -41,8 +43,11 @@ public class StatisticsCollector {
 
 		try {
 			StatisticsCollector sc = new StatisticsCollector(address, schema);
-			String stats = sc.getStatistics(method);
-			stats = marker + "; " + stats;
+
+			String stats = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date()) + "; " + marker;
+			stats += "; " + sc.getActiveNodes();
+			stats += System.lineSeparator();
+			stats += sc.getStatistics(method);
 			System.out.println("got stats: " + stats + " will append to the file: " + file);
 			stats += System.lineSeparator();
 			FileUtils.appendTextFile(file, stats);
@@ -66,8 +71,8 @@ public class StatisticsCollector {
 		this.jmxAddress = jmxAddress;
 		this.schema = schema;
         String url = "service:jmx:rmi:///jndi/rmi://" + jmxAddress + "/jmxrmi";
-        mName = new ObjectName("com.bagri.xdm:type=Schema,name=" + schema + ",kind=DocumentManagement"); 
         HashMap environment = new HashMap();
+        // TODO: get creds securely from outside..
         //environment.put(JMXConnector.CREDENTIALS, new String[] {"SDV", "TPoX"});
         environment.put(JMXConnector.CREDENTIALS, new String[] {"admin", "password"});
 
@@ -75,7 +80,14 @@ public class StatisticsCollector {
         mbsc = jmxc.getMBeanServerConnection();
 	}
 	
+	public String getActiveNodes() throws Exception {
+        ObjectName mName = new ObjectName("com.bagri.xdm:name=" + schema + ",type=Schema"); 
+		String[] nodes = (String[]) mbsc.getAttribute(mName, "ActiveNodes");
+		return Arrays.toString(nodes);
+	}
+	
 	public String getStatistics(String method) throws Exception {
+        ObjectName mName = new ObjectName("com.bagri.xdm:type=Schema,name=" + schema + ",kind=DocumentManagement"); 
 		TabularData data = (TabularData) mbsc.getAttribute(mName, "InvocationStatistics");
 		CompositeData stats = data.get(new String[] {method});
 		StringBuffer buff = new StringBuffer();
@@ -87,11 +99,13 @@ public class StatisticsCollector {
 	}
 	
 	public void resetStatistics() throws Exception {
+        ObjectName mName = new ObjectName("com.bagri.xdm:type=Schema,name=" + schema + ",kind=DocumentManagement"); 
 		mbsc.invoke(mName, "resetStatistics", null, null);
 		//jmxc.close();
 	}
 	
 	public void clearSchema(boolean evictOnly) throws Exception {
+        ObjectName mName = new ObjectName("com.bagri.xdm:type=Schema,name=" + schema + ",kind=DocumentManagement"); 
 		mbsc.invoke(mName, "clear", new Object[] {evictOnly}, new String[] {boolean.class.getName()});
 		//jmxc.close();
 	}

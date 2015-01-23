@@ -156,17 +156,22 @@
     		<property name="XQDataFactory" ref="xqConnection" />
 	</bean>
 
-	<bean id="queryManager" class="com.bagri.xdm.cache.hazelcast.management.QueryManagement">
-		<constructor-arg value="${xdm.schema.name}" />
-		<property name="schemaDictionary" ref="xdmDictionary"/>
-		<property name="XQConnection" ref="xqConnection"/>
-	</bean>
-
 	<bean id="docManager" class="com.bagri.xdm.cache.hazelcast.management.DocumentManagement">
 		<constructor-arg value="${xdm.schema.name}" />
 		<property name="execService" ref="xdm-exec-pool"/>
 		<property name="documentManager" ref="xdmManager"/>
 		<property name="schemaDictionary" ref="xdmDictionary"/>
+	</bean>
+
+	<bean id="indexManager" class="com.bagri.xdm.cache.hazelcast.management.IndexManagement">
+		<constructor-arg value="${xdm.schema.name}" />
+		<property name="schemaDictionary" ref="xdmDictionary"/>
+	</bean>
+
+	<bean id="queryManager" class="com.bagri.xdm.cache.hazelcast.management.QueryManagement">
+		<constructor-arg value="${xdm.schema.name}" />
+		<property name="schemaDictionary" ref="xdmDictionary"/>
+		<property name="XQConnection" ref="xqConnection"/>
 	</bean>
 
 	<!--bean id="popManager" class="com.bagri.xdm.cache.hazelcast.management.PopulationManagement">

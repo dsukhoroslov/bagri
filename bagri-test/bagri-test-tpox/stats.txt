@@ -126,3 +126,24 @@ InsertOrders; Avg time=11.177683333333333; Failed=0; First=Fri Jan 23 02:49:37 M
 Orders=6000; Avg time=0.39804641748143316; Failed=0; First=Fri Jan 23 02:51:27 MSK 2015; Invoked=753897; Last=Fri Jan 23 02:55:24 MSK 2015; Max time=532; Method=executeXQuery; Min time=0; Succeed=753897; Sum time=300086; Throughput=3174.931460120529; 
 InsertOrders; Avg time=12.551342857142858; Failed=0; First=Fri Jan 23 02:56:08 MSK 2015; Invoked=70000; Last=Fri Jan 23 02:58:05 MSK 2015; Max time=4453; Method=executeXQuery; Min time=2; Succeed=70000; Sum time=878594; Throughput=599.7669477003221; 
 Orders=7000; Avg time=1.3711673756544502; Failed=0; First=Fri Jan 23 02:58:52 MSK 2015; Invoked=488960; Last=Fri Jan 23 03:02:19 MSK 2015; Max time=4153; Method=executeXQuery; Min time=0; Succeed=488960; Sum time=670446; Throughput=2361.019232533547; <- GC issues! 
+
+InsertSecurities; Avg time=34.434331797235025; Failed=0; First=Fri Jan 23 16:11:40 MSK 2015; Invoked=20832; Last=Fri Jan 23 16:13:41 MSK 2015; Max time=1181; Method=executeXQuery; Min time=0; Succeed=20832; Sum time=717336; Throughput=172.7549404164628; 
+Users=5; Avg time=1.1315996343160604; Failed=0; First=Fri Jan 23 16:13:57 MSK 2015; Invoked=171733; Last=Fri Jan 23 16:17:53 MSK 2015; Max time=518; Method=executeXQuery; Min time=0; Succeed=171733; Sum time=194333; Throughput=726.656878218446; 
+Users=6; Avg time=1.157751997886204; Failed=0; First=Fri Jan 23 16:18:10 MSK 2015; Invoked=200587; Last=Fri Jan 23 16:22:06 MSK 2015; Max time=333; Method=executeXQuery; Min time=0; Succeed=200587; Sum time=232230; Throughput=847.9579629089465; 
+Users=7; Avg time=1.21633194287135; Failed=0; First=Fri Jan 23 16:22:23 MSK 2015; Invoked=217194; Last=Fri Jan 23 16:26:19 MSK 2015; Max time=267; Method=executeXQuery; Min time=0; Succeed=217194; Sum time=264180; Throughput=918.0689585209044; 
+Users=8; Avg time=1.0901158498922852; Failed=0; First=Fri Jan 23 16:26:34 MSK 2015; Invoked=331895; Last=Fri Jan 23 16:30:31 MSK 2015; Max time=121; Method=executeXQuery; Min time=0; Succeed=331895; Sum time=361804; Throughput=1397.0761563199812; 
+Users=9; Avg time=1.2146627529623992; Failed=0; First=Fri Jan 23 16:30:46 MSK 2015; Invoked=322627; Last=Fri Jan 23 16:34:43 MSK 2015; Max time=67; Method=executeXQuery; Min time=0; Succeed=322627; Sum time=391883; Throughput=1360.2966598362384; 
+Users=10; Avg time=1.2295732387730305; Failed=0; First=Fri Jan 23 16:34:58 MSK 2015; Invoked=322616; Last=Fri Jan 23 16:38:55 MSK 2015; Max time=136; Method=executeXQuery; Min time=0; Succeed=322616; Sum time=396680; Throughput=1359.0354949323043; 
+
+InsertSecurities; Avg time=25.937451996927802; Failed=0; First=Fri Jan 23 17:13:14 MSK 2015; Invoked=20832; Last=Fri Jan 23 17:14:39 MSK 2015; Max time=740; Method=executeXQuery; Min time=0; Succeed=20832; Sum time=540329; Throughput=244.57880833577929; 
+Users=5; Avg time=0.953809671774576; Failed=0; First=Fri Jan 23 17:14:52 MSK 2015; Invoked=305735; Last=Fri Jan 23 17:18:50 MSK 2015; Max time=153; Method=executeXQuery; Min time=0; Succeed=305735; Sum time=291613; Throughput=1284.6332260477154; 
+Users=6; Avg time=1.197858769931663; Failed=0; First=Fri Jan 23 17:19:04 MSK 2015; Invoked=285350; Last=Fri Jan 23 17:23:02 MSK 2015; Max time=54; Method=executeXQuery; Min time=0; Succeed=285350; Sum time=341809; Throughput=1199.1611965136706; 
+Users=7; Avg time=1.3832595053525285; Failed=0; First=Fri Jan 23 17:23:16 MSK 2015; Invoked=281736; Last=Fri Jan 23 17:27:13 MSK 2015; Max time=192; Method=executeXQuery; Min time=0; Succeed=281736; Sum time=389714; Throughput=1185.8124744832462; 
+Users=8; Avg time=1.6474318985236016; Failed=0; First=Fri Jan 23 17:27:27 MSK 2015; Invoked=278922; Last=Fri Jan 23 17:31:25 MSK 2015; Max time=119; Method=executeXQuery; Min time=0; Succeed=278922; Sum time=459505; Throughput=1173.2425884174042; 
+Users=9; Avg time=1.912022375004801; Failed=0; First=Fri Jan 23 17:31:40 MSK 2015; Invoked=286391; Last=Fri Jan 23 17:35:37 MSK 2015; Max time=176; Method=executeXQuery; Min time=0; Succeed=286391; Sum time=547586; Throughput=1206.9647086588952; 
+Users=10; Avg time=2.059821182616148; Failed=0; First=Fri Jan 23 17:35:51 MSK 2015; Invoked=294043; Last=Fri Jan 23 17:39:49 MSK 2015; Max time=111; Method=executeXQuery; Min time=0; Succeed=294043; Sum time=605676; Throughput=1238.5555667879769; 
+
+2015-01-23 19:27:01.226; InsertSecurities; [localhost/127.0.0.1:10500]
+Avg time=26.15010560675883; Failed=0; First=Fri Jan 23 19:25:38 MSK 2015; Invoked=20832; Last=Fri Jan 23 19:27:00 MSK 2015; Max time=711; Method=executeXQuery; Min time=0; Succeed=20832; Sum time=544759; Throughput=253.28275459585643; 
+2015-01-23 19:31:12.995; Users=5; [localhost/127.0.0.1:10500]
+Avg time=0.9770080029581891; Failed=0; First=Fri Jan 23 19:27:14 MSK 2015; Invoked=302888; Last=Fri Jan 23 19:31:12 MSK 2015; Max time=143; Method=executeXQuery; Min time=0; Succeed=302888; Sum time=295924; Throughput=1273.3127622186535; 

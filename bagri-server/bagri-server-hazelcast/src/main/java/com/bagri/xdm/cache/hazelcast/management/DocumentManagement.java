@@ -1,12 +1,10 @@
 package com.bagri.xdm.cache.hazelcast.management;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -16,8 +14,6 @@ import javax.management.ObjectName;
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.TabularData;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.jmx.export.annotation.ManagedAttribute;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedOperationParameter;
@@ -41,19 +37,13 @@ import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.Member;
 
 @ManagedResource(description="Schema Documents Management MBean")
-public class DocumentManagement implements SelfNaming {
+public class DocumentManagement extends SchemaFeatureManagement {
 
-    private static final transient Logger logger = LoggerFactory.getLogger(DocumentManagement.class);
-    private static final String type_schema = "Schema";
-    
 	private DocumentManagementClient docManager;
-	private XDMSchemaDictionary schemaDictionary;
 	private IExecutorService execService;
     
-    private String schemaName;
-    
     public DocumentManagement(String schemaName) {
-    	this.schemaName = schemaName;
+    	super(schemaName);
     }
 
 	public void setExecService(IExecutorService execService) {
@@ -64,15 +54,6 @@ public class DocumentManagement implements SelfNaming {
 		this.docManager = docManager;
 	}
 	
-	public void setSchemaDictionary(XDMSchemaDictionary schemaDictionary) {
-		this.schemaDictionary = schemaDictionary;
-	}
-	
-	@ManagedAttribute(description="Returns corresponding Schema name")
-	public String getSchema() {
-		return schemaName;
-	}
-    
 	@ManagedAttribute(description="Returns Schema size in documents")
 	public Integer getDocumentCount() {
 		return docManager.getXddSize(); 
@@ -192,11 +173,6 @@ public class DocumentManagement implements SelfNaming {
 		return processFilesInCatalog(catalog);	
 	}
 
-	@Override
-	public ObjectName getObjectName() throws MalformedObjectNameException {
-		return JMXUtils.getObjectName("type=" + type_schema + ",name=" + schemaName + ",kind=DocumentManagement");
-	}
-
 	@ManagedAttribute(description="Returns aggregated DocumentManagement invocation statistics, per method")
 	public TabularData getInvocationStatistics() {
 		DocumentStatsCollector task = new DocumentStatsCollector(); 
@@ -240,5 +216,10 @@ public class DocumentManagement implements SelfNaming {
 			}
 		}
 		logger.trace("resetStatistics.exit; reset stats on {} nodes", cnt);
+	}
+
+	@Override
+	protected String getFeatureKind() {
+		return "DocumentManagement";
 	}
 }

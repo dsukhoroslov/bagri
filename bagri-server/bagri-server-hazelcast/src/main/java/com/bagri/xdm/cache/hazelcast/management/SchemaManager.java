@@ -1,7 +1,9 @@
 package com.bagri.xdm.cache.hazelcast.management;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.management.openmbean.CompositeData;
 
@@ -23,6 +25,8 @@ import com.bagri.xdm.process.hazelcast.schema.SchemaUpdater;
 import com.bagri.xdm.system.XDMSchema;
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.Member;
+import com.hazelcast.instance.MemberImpl;
 
 import static com.bagri.xdm.access.api.XDMConfigConstants.xdm_schema_store_type;
 
@@ -67,17 +71,29 @@ public class SchemaManager extends EntityManager<XDMSchema> {
 		this.schemaDictionary = schemaDictionary;
 	}
 	
-	@ManagedAttribute(description="Returns number of active schema nodes")
-	public int getActiveNodes() {
+	@ManagedAttribute(description="Returns active schema nodes")
+	public String[] getActiveNodes() {
 		if (clientContext == null) {
-			return 0;
+			return new String[0];
 		}
 		HazelcastInstance hzInstance = clientContext.getBean("hzInstance", HazelcastInstance.class);
 		logger.trace("getActiveNodes; client: {}", hzInstance);
 		if (hzInstance instanceof HazelcastClient) {
-			return ((HazelcastClient) hzInstance).getClientClusterService().getSize();
+			Collection<MemberImpl> members = ((HazelcastClient) hzInstance).getClientClusterService().getMemberList();
+			String[] result = new String[members.size()];
+			int idx = 0;
+			for (Member member: members) {
+				result[idx++] = member.getSocketAddress().toString();
+			}
+			return result;
 		} else {
-			return hzInstance.getCluster().getMembers().size();
+			Set<Member> members = hzInstance.getCluster().getMembers();
+			String[] result = new String[members.size()];
+			int idx = 0;
+			for (Member member: members) {
+				result[idx++] = member.getSocketAddress().toString();
+			}
+			return result;
 		}
 	}
 
