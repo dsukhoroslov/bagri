@@ -15,7 +15,6 @@ import com.bagri.xdm.access.api.XDMSchemaDictionary;
 public abstract class SchemaFeatureManagement implements SelfNaming {
 	
     protected final Logger logger = LoggerFactory.getLogger(getClass());
-    protected static final String type_schema = "Schema";
 
     protected String schemaName;
 	protected XDMSchemaDictionary schemaDictionary;
@@ -37,7 +36,7 @@ public abstract class SchemaFeatureManagement implements SelfNaming {
 
 	@Override
 	public ObjectName getObjectName() throws MalformedObjectNameException {
-		return JMXUtils.getObjectName("type=" + type_schema + ",name=" + schemaName + ",kind=" + getFeatureKind());
+		return JMXUtils.getObjectName("type=Schema,name=" + schemaName + ",kind=" + getFeatureKind());
 	}
 
 }

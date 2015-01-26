@@ -34,12 +34,12 @@ public class ClientApp {
 		boolean found = false;
 		try {
 			//client.storeSecCommand();
-			//long id = client.storeSecQuery();
+			long id = client.storeSecQuery();
 			//long id = client.storeXmlDocument("axis.xml");
 			//System.out.println("document stored; id: " + id);
 			found = client.runPriceQuery("IBM"); //IBM; VFINX; PTTAX
-			found &= client.runPriceQuery("VFINX");
-			found &= client.runPriceQuery("PTTAX");
+			found &= client.runPriceQuery("IBM");
+			found &= client.runPriceQuery("IBM");
 			//client.runPriceQuery();
 			//found = client.runSecQuery();
 			//client.runSecQuery();
@@ -47,7 +47,7 @@ public class ClientApp {
 			//found = client.searchSecQueryParams();
 			//client.searchSecQueryParams();
 			//found = client.runAxisQuery();
-			//client.removeSecCommand(id);
+			client.removeSecCommand(id);
 		} catch (XQException e) {
 			e.printStackTrace();
 		}

@@ -63,7 +63,7 @@ public class HazelcastUtils {
 	
 	public static String[] getMemberSchemas(Member member) {
 		String schemas = member.getStringAttribute(XDMNode.op_node_schemas);
-		if (schemas != null) {
+		if (schemas != null && schemas.trim().length() > 0) {
 			return schemas.split(" ");
 		}
 		return new String[0];

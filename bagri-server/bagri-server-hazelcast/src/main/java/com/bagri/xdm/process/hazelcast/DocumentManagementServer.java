@@ -36,6 +36,7 @@ import com.bagri.common.query.PathExpression;
 import static com.bagri.xdm.access.api.XDMCacheConstants.*;
 
 import com.bagri.xdm.access.api.XDMQueryManagement;
+import com.bagri.xdm.access.api.XDMSchemaDictionaryBase;
 import com.bagri.xdm.access.hazelcast.impl.HazelcastXQCursor;
 import com.bagri.xdm.access.hazelcast.process.XMLProvider;
 import com.bagri.xdm.access.xml.XDMStaxParser;
@@ -178,65 +179,71 @@ public class DocumentManagementServer extends XDMDocumentManagementServer implem
 	@Override
 	public XDMDocument createDocument(Entry<Long, XDMDocument> entry, String uri, String xml) {
 		logger.trace("createDocument.enter; entry: {}", entry);
-		//if (docEntry.isPresent()) {
-		//	override ??
-		//	throw new IllegalStateException("Document Entry with id " + entry.getKey() + " already exists");
-		//}
 
-		Long docId = entry.getKey();
 		XDMStaxParser parser = new XDMStaxParser(mDictionary);
-		List<XDMData> elts;
+		List<XDMData> data;
 		try {
-			elts = parser.parse(xml);
+			data = parser.parse(xml);
 		} catch (IOException | XMLStreamException ex) {
 			// TODO: move this out & refactor
-			ex.printStackTrace();
+			logger.debug("createDocument.error", ex); 
 			throw new IllegalArgumentException(ex);
 		}
-		XDMData root = getDataRoot(elts);
 		
-		if (root != null) {
-			int docType = mDictionary.translateDocumentType(root.getPath());
-			Map<XDMDataKey, XDMElements> elements = new HashMap<XDMDataKey, XDMElements>(elts.size());
-			Map<XDMIndexKey, XDMIndexedValue> indexes = new HashMap<XDMIndexKey, XDMIndexedValue>();
-			
-			for (XDMData elt: elts) {
-				XDMDataKey xdk = mFactory.newXDMDataKey(docId, elt.getPathId());
-				XDMElements xdes = elements.get(xdk);
-				if (xdes == null) {
-					xdes = new XDMElements(xdk.getPathId(), null);
-					elements.put(xdk, xdes);
-				}
-				xdes.addElement(elt.getElement());
-				
-				// handle indexes
-				if (isPathIndexed(elt.getPathId()) && elt.getValue() != null) {
-					XDMIndexKey xid = mFactory.newXDMIndexKey(elt.getPathId(), elt.getValue());
-					XDMIndexedValue xidx = indexes.get(xid);
-					if (xidx == null) {
-						xidx = new XDMIndexedValue(docId);
-						indexes.put(xid, xidx);
-					} else {
-						xidx.addIndex(docId);
-					}
-				}
-			}
-			xdmCache.putAll(elements);
-			idxCache.putAll(indexes);
-			logger.trace("createDocument; cached {} elements and {} indexes for docId: {}", elements.size(), indexes.size(), docId);
-
+		Long docId = entry.getKey();
+		int docType = loadElements(docId, data); 
+		if (docType >= 0) {
 			String user = JMXUtils.getCurrentUser();
 			XDMDocument doc = new XDMDocument(docId, uri, docType, user); // + version, createdAt, encoding
 			xddCache.set(docId, doc);
 			xmlCache.set(docId, xml);
-		
-			mDictionary.normalizeDocumentType(docType);
 			logger.trace("createDocument.exit; returning: {}", doc);
 			return doc;
 		} else {
 			logger.warn("createDocument.exit; the document is not valid as it has no root element, returning null");
 			return null;
 		}
+	}
+	
+	public int loadElements(long docId, List<XDMData> data) {
+		
+		long stamp = System.currentTimeMillis();
+		XDMData root = getDataRoot(data);
+		if (root != null) {
+			int docType = mDictionary.translateDocumentType(root.getPath());
+			Map<XDMDataKey, XDMElements> elements = new HashMap<XDMDataKey, XDMElements>(data.size());
+			Map<XDMIndexKey, XDMIndexedValue> indexes = new HashMap<XDMIndexKey, XDMIndexedValue>();
+			
+			for (XDMData xdm: data) {
+				XDMDataKey xdk = mFactory.newXDMDataKey(docId, xdm.getPathId());
+				XDMElements xdes = elements.get(xdk);
+				if (xdes == null) {
+					xdes = new XDMElements(xdk.getPathId(), null);
+					elements.put(xdk, xdes);
+				}
+				xdes.addElement(xdm.getElement());
+				
+				// handle indexes
+				if (isPathIndexed(xdm.getPathId()) && xdm.getValue() != null) {
+					XDMIndexKey xid = mFactory.newXDMIndexKey(xdm.getPathId(), xdm.getValue());
+					XDMIndexedValue xidx = indexes.get(xid);
+					if (xidx == null) {
+						xidx = new XDMIndexedValue(docId);
+						indexes.put(xid, xidx);
+					} else {
+						xidx.addDocumentId(docId);
+					}
+				}
+			}
+			xdmCache.putAll(elements);
+			idxCache.putAll(indexes);
+			stamp = System.currentTimeMillis() - stamp;
+			logger.trace("loadElements; cached {} elements and {} indexes for docId: {}; time taken: {}", 
+					elements.size(), indexes.size(), docId, stamp);
+			mDictionary.normalizeDocumentType(docType);
+			return docType;
+		}
+		return XDMSchemaDictionaryBase.WRONG_PATH;
 	}
 	
 	private boolean isPathIndexed(int pathId) {
@@ -270,14 +277,10 @@ public class DocumentManagementServer extends XDMDocumentManagementServer implem
 		logger.trace("deleteDocumentElements; got {} possible paths to remove; xdmCache size: {}; local keys: {}", 
 				allPaths.size(), xdmCache.size(), localSize);
         for (XDMPath path: allPaths) {
-        	// check containsKey to prevent CacheStore.load !
         	XDMDataKey key = mFactory.newXDMDataKey(docId, path.getPathId()); 
-        	//if (localKeys.contains(key)) {
-        		xdmCache.delete(key);
-	        	cnt++;
-        	//} else {
-    		//	logger.trace("deleteDocument; data not found for key {}", key);
-        	//}
+       		xdmCache.delete(key);
+        	cnt++;
+        	// TODO: remove indexed values!
         }
     	localSize -= xdmCache.localKeySet().size();
 		logger.trace("deleteDocumentElements; deleted keys: {}; xdmCache size after delete: {}; local size: {}", cnt, 

@@ -18,7 +18,6 @@ import static com.bagri.xdm.access.api.XDMConfigConstants.*;
 
 import com.bagri.xdm.cache.hazelcast.store.hive.HiveCacheStore;
 import com.bagri.xdm.cache.hazelcast.store.xml.DocumentCacheStore;
-import com.bagri.xdm.cache.hazelcast.store.xml.ElementCacheStore;
 import com.bagri.xdm.cache.hazelcast.store.xml.XsdCacheStore;
 import com.bagri.xdm.process.hazelcast.SpringContextHolder;
 import com.hazelcast.core.MapLoader;
@@ -96,8 +95,6 @@ public class XDMMapStoreFactory implements ApplicationContextAware, MapStoreFact
 					} else if (st_xml.equals(type)) {
 						if (CN_XDM_DOCUMENT.equals(mapName)) {
 							mStore = ctx.getBean("docCacheStore", DocumentCacheStore.class);
-						} else if (CN_XDM_ELEMENT.equals(mapName)) {
-							mStore = ctx.getBean("eltCacheStore", ElementCacheStore.class);
 						} else if (CN_XDM_DOCTYPE_DICT.equals(mapName)) {
 							mStore = ctx.getBean("xsdCacheStore", XsdCacheStore.class);
 						} else {

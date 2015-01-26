@@ -24,7 +24,7 @@ public class XDMIndexedValue { //implements Serializable {
 
 	public XDMIndexedValue(long docId) {
 		this();
-		addIndex(docId);
+		addDocumentId(docId);
 	}
 	
 	public XDMIndexedValue(Collection<Long> docIds) {
@@ -33,7 +33,7 @@ public class XDMIndexedValue { //implements Serializable {
 		//this.value = value;
 		if (docIds != null) {
 			for (Long docId: docIds) {
-				addIndex(docId);
+				addDocumentId(docId);
 			}
 		}
 	}
@@ -59,8 +59,12 @@ public class XDMIndexedValue { //implements Serializable {
 		return docIds;
 	}
 
-	public void addIndex(long docId) {
+	public void addDocumentId(long docId) {
 		docIds.add(docId);
+	}
+	
+	public int getCount() {
+		return docIds.size();
 	}
 	
 }

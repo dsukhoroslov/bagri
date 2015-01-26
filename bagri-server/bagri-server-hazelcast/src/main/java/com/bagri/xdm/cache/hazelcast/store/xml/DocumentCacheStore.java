@@ -36,6 +36,7 @@ import com.bagri.xdm.domain.XDMData;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMElements;
 import com.bagri.xdm.domain.XDMNodeKind;
+import com.bagri.xdm.process.hazelcast.DocumentManagementServer;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.IdGenerator;
@@ -55,7 +56,7 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<Long, 
     
 	//private String dataPath;
 	private XDMFactory keyFactory;
-    private XDMDocumentManagement docMgr;
+    private DocumentManagementServer docMgr;
     private XDMSchemaDictionary schemaDict;
     private IMap<Long, String> xmlCache;
     private IMap<XDMDataKey, XDMElements> xdmCache;
@@ -66,7 +67,7 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<Long, 
 		hzInstance = hazelcastInstance;
 		//dataPath = (String) properties.get("dataPath");
 		keyFactory = (XDMFactory) properties.get("keyFactory");
-		docMgr = (XDMDocumentManagement) properties.get("xdmManager");
+		docMgr = (DocumentManagementServer) properties.get("xdmManager");
 		schemaDict = (XDMSchemaDictionary) properties.get("xdmDictionary");
 		//schemaDict = docMgr.getSchemaDictionary();
 		xmlCache = hzInstance.getMap(XDMCacheConstants.CN_XDM_XML);
@@ -103,25 +104,29 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<Long, 
 		return path.toAbsolutePath().normalize().toString();
 	}
 	
-    private XDMDocument newDocumentFromID(long docId) {
-		DocumentDataHolder data = docKeys.get(docId);
-		if (data != null) {
-			Path path = Paths.get(data.uri);
+    private XDMDocument loadDocument(long docId) {
+		DocumentDataHolder ddh = docKeys.get(docId);
+		if (ddh != null) {
+			Path path = Paths.get(ddh.uri);
 	    	if (Files.exists(path)) {
 	    		String uri = normalizePath(path);
 	    		path = Paths.get(uri);
 	    		uri = path.toUri().toString();
-	    		
-	    		try {
-	        		Map<XDMDataKey, XDMElements> elements = loadElements(docId);
-	        		xdmCache.putAll(elements);
-	        		// double read of the file, not good..
-	        		//xmlCache.set(docId, FileUtils.readTextFile(data.uri));
-					return new XDMDocument(docId, uri, data.docType, defVersion, 
-						new Date(Files.getLastModifiedTime(path).toMillis()), Files.getOwner(path).getName(), 
-						defEncoding);
+        		try {
+        			String xml = FileUtils.readTextFile(ddh.uri);
+    	    		XDMStaxParser parser = new XDMStaxParser(schemaDict);
+        			//List<XDMData> data = parser.parse(new File(ddh.uri));
+        			List<XDMData> data = parser.parse(xml);         			
+        			int docType = docMgr.loadElements(docId, data); 
+        			if (docType >= 0) {
+        				ddh.docType = docType;
+						xmlCache.set(docId, xml);
+		        		return new XDMDocument(docId, uri, docType, defVersion, 
+								new Date(Files.getLastModifiedTime(path).toMillis()), 
+								Files.getOwner(path).getName(),	defEncoding);
+        			}
 				} catch (IOException | XMLStreamException ex) {
-					logger.error("newDocumentFromID.error; path: " + path, ex);
+					logger.error("loadDocument.error", ex);
 				}
 	    	}
 		}
@@ -138,46 +143,10 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<Long, 
 		return null;
 	}
     
-	private Map<XDMDataKey, XDMElements> loadElements(long docId) throws IOException, XMLStreamException {
-		logger.trace("loadElements.enter; docId: {}", docId);
-		long stamp = System.currentTimeMillis();
-		Map<XDMDataKey, XDMElements> elements = new HashMap<XDMDataKey, XDMElements>(); 
-
-		DocumentDataHolder data = docKeys.get(docId);
-		XDMStaxParser parser = new XDMStaxParser(schemaDict);
-		List<XDMData> elts = parser.parse(new File(data.uri));
-		XDMData root = getDataRoot(elts);
-
-		//logger.trace("loadAllKeys; data: {}", elts);
-				
-		if (root != null) {
-			int docType = schemaDict.translateDocumentType(root.getPath());
-			for (XDMData elt: elts) {
-				XDMDataKey xdk = keyFactory.newXDMDataKey(docId, elt.getPathId());
-				XDMElements xdes = elements.get(xdk);
-				if (xdes == null) {
-					xdes = new XDMElements(elt.getPathId(), null);
-					elements.put(xdk, xdes);
-				}
-				xdes.addElement(elt.getElement());
-			}
-			data.docType = docType;
-			schemaDict.normalizeDocumentType(docType);
-			// cache here loaded XML in xmlCache !?
-		} else {
-			logger.warn("loadElements; the document is not valid as it has no root element");
-		}
-
-		stamp = System.currentTimeMillis() - stamp;
-		logger.trace("loadElements.exit; loaded elements: {}; time taken: {}", elements.size(), stamp);
-		return elements;
-	}
-    
-    
 	@Override
 	public XDMDocument load(Long key) {
 		logger.trace("load.enter; key: {}", key);
-    	XDMDocument result = newDocumentFromID(key);
+    	XDMDocument result = loadDocument(key);
 		logger.trace("load.exit; returning: {}", result);
 		return result;
 	}
@@ -187,7 +156,7 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<Long, 
 		logger.trace("loadAll.enter; keys: {}; Cluster size: {}", keys, hzInstance.getCluster().getMembers().size());
 		Map<Long, XDMDocument> result = new HashMap<Long, XDMDocument>(keys.size());
 	    for (Long key: keys) {
-	    	XDMDocument doc = newDocumentFromID(key);
+	    	XDMDocument doc = loadDocument(key);
 	    	if (doc != null) {
 	    		result.put(key, doc);
 	    	}
@@ -308,4 +277,20 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<Long, 
 		logger.trace("deleteAll.exit; deleted: {}", deleted);
 	}
 	
+
+	private class DocumentDataHolder {
+
+		String uri;
+		int docType = 0;
+			
+		DocumentDataHolder(String uri) {
+			this.uri = uri;
+		}
+
+		@Override
+		public String toString() {
+			return "DocumentDataHolder [uri=" + uri + ", docType=" + docType + "]";
+		}
+		
+	}
 }

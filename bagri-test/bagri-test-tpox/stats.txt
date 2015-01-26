@@ -162,3 +162,32 @@ Avg time=0.6989735079522849; Failed=0; First=Mon Jan 26 02:16:15 MSK 2015; Invok
 Avg time=0.7770437680405347; Failed=0; First=Mon Jan 26 02:20:27 MSK 2015; Invoked=645768; Last=Mon Jan 26 02:24:25 MSK 2015; Max time=78; Method=executeXQuery; Min time=0; Succeed=645768; Sum time=501790; Throughput=2716.632521276014; 
 2015-01-26 02:28:38.098; Users=10; [localhost/127.0.0.1:10500]
 Avg time=0.8190306554665657; Failed=0; First=Mon Jan 26 02:24:39 MSK 2015; Invoked=644518; Last=Mon Jan 26 02:28:37 MSK 2015; Max time=86; Method=executeXQuery; Min time=0; Succeed=644518; Sum time=527880; Throughput=2715.1547321150233; 
+2015-01-26 15:19:54.851; InsertSecurities; [localhost/127.0.0.1:10500]
+Avg time=38.88527265745007; Failed=0; First=Mon Jan 26 15:17:48 MSK 2015; Invoked=20832; Last=Mon Jan 26 15:19:53 MSK 2015; Max time=820; Method=executeXQuery; Min time=1; Succeed=20832; Sum time=810058; Throughput=165.85327017236574; 
+2015-01-26 15:24:06.929; Users=5; [localhost/127.0.0.1:10500]
+Avg time=1.1999977912592767; Failed=0; First=Mon Jan 26 15:20:07 MSK 2015; Invoked=271648; Last=Mon Jan 26 15:24:05 MSK 2015; Max time=128; Method=executeXQuery; Min time=0; Succeed=271648; Sum time=325977; Throughput=1141.8291257891772; 
+2015-01-26 15:28:18.934; Users=6; [localhost/127.0.0.1:10500]
+Avg time=1.230805819598487; Failed=0; First=Mon Jan 26 15:24:19 MSK 2015; Invoked=264898; Last=Mon Jan 26 15:28:17 MSK 2015; Max time=188; Method=executeXQuery; Min time=0; Succeed=264898; Sum time=326038; Throughput=1113.8451705680275; 
+2015-01-26 15:32:30.546; Users=7; [localhost/127.0.0.1:10500]
+Avg time=1.7038460217712303; Failed=0; First=Mon Jan 26 15:28:32 MSK 2015; Invoked=291210; Last=Mon Jan 26 15:32:29 MSK 2015; Max time=83; Method=executeXQuery; Min time=0; Succeed=291210; Sum time=496177; Throughput=1224.9301746475082; 
+2015-01-26 15:36:42.539; Users=8; [localhost/127.0.0.1:10500]
+Avg time=2.1643429202035995; Failed=0; First=Mon Jan 26 15:32:43 MSK 2015; Invoked=250099; Last=Mon Jan 26 15:36:41 MSK 2015; Max time=552; Method=executeXQuery; Min time=0; Succeed=250099; Sum time=541300; Throughput=1051.4457963020575; 
+2015-01-26 15:40:54.595; Users=9; [localhost/127.0.0.1:10500]
+Avg time=2.0856617184111483; Failed=0; First=Mon Jan 26 15:36:55 MSK 2015; Invoked=285892; Last=Mon Jan 26 15:40:53 MSK 2015; Max time=484; Method=executeXQuery; Min time=0; Succeed=285892; Sum time=596274; Throughput=1203.862236239836; 
+2015-01-26 15:45:06.326; Users=10; [localhost/127.0.0.1:10500]
+Avg time=2.2795959821974847; Failed=0; First=Mon Jan 26 15:41:08 MSK 2015; Invoked=286027; Last=Mon Jan 26 15:45:05 MSK 2015; Max time=248; Method=executeXQuery; Min time=0; Succeed=286027; Sum time=652026; Throughput=1204.6944955712704; 
+
+2015-01-26 19:03:32.470; InsertSecurities; [localhost/127.0.0.1:10500]
+Avg time=33.58702956989247; Failed=0; First=Mon Jan 26 19:01:38 MSK 2015; Invoked=20832; Last=Mon Jan 26 19:03:31 MSK 2015; Max time=414; Method=executeXQuery; Min time=0; Succeed=20832; Sum time=699685; Throughput=183.19644019206078; 
+2015-01-26 19:07:44.098; Users=5; [localhost/127.0.0.1:10500]
+Avg time=1.082778353312614; Failed=0; First=Mon Jan 26 19:03:45 MSK 2015; Invoked=304065; Last=Mon Jan 26 19:07:43 MSK 2015; Max time=108; Method=executeXQuery; Min time=0; Succeed=304065; Sum time=329235; Throughput=1277.1654667797948; 
+2015-01-26 19:11:56.023; Users=6; [localhost/127.0.0.1:10500]
+Avg time=1.3947292257296402; Failed=0; First=Mon Jan 26 19:07:57 MSK 2015; Invoked=304054; Last=Mon Jan 26 19:11:54 MSK 2015; Max time=140; Method=executeXQuery; Min time=0; Succeed=304054; Sum time=424073; Throughput=1278.1715304226466; 
+2015-01-26 19:16:08.043; Users=7; [localhost/127.0.0.1:10500]
+Avg time=1.5332763022469358; Failed=0; First=Mon Jan 26 19:12:09 MSK 2015; Invoked=299252; Last=Mon Jan 26 19:16:06 MSK 2015; Max time=129; Method=executeXQuery; Min time=0; Succeed=299252; Sum time=458836; Throughput=1258.4558838990215; 
+2015-01-26 19:20:19.962; Users=8; [localhost/127.0.0.1:10500]
+Avg time=1.820310020015304; Failed=0; First=Mon Jan 26 19:16:21 MSK 2015; Invoked=299271; Last=Mon Jan 26 19:20:18 MSK 2015; Max time=139; Method=executeXQuery; Min time=0; Succeed=299271; Sum time=544766; Throughput=1259.3354710026006; 
+2015-01-26 19:24:31.806; Users=9; [localhost/127.0.0.1:10500]
+Avg time=2.032602295135846; Failed=0; First=Mon Jan 26 19:20:33 MSK 2015; Invoked=292096; Last=Mon Jan 26 19:24:30 MSK 2015; Max time=101; Method=executeXQuery; Min time=0; Succeed=292096; Sum time=593715; Throughput=1231.0130183200508; 
+2015-01-26 19:28:43.777; Users=10; [localhost/127.0.0.1:10500]
+Avg time=2.3033104070665775; Failed=0; First=Mon Jan 26 19:24:45 MSK 2015; Invoked=292532; Last=Mon Jan 26 19:28:42 MSK 2015; Max time=224; Method=executeXQuery; Min time=0; Succeed=292532; Sum time=673792; Throughput=1232.9336396012898; 

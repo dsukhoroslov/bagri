@@ -9,8 +9,6 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.TabularData;
 
@@ -19,16 +17,11 @@ import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
-import org.springframework.jmx.export.naming.SelfNaming;
 
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.common.util.FileUtils;
-import com.bagri.xdm.access.api.XDMCacheConstants;
-import com.bagri.xdm.access.api.XDMDocumentManagementBase;
-import com.bagri.xdm.access.api.XDMSchemaDictionary;
 import com.bagri.xdm.access.hazelcast.impl.DocumentManagementClient;
 import com.bagri.xdm.domain.XDMDocument;
-import com.bagri.xdm.process.hazelcast.DocumentManagementServer;
 import com.bagri.xdm.process.hazelcast.DocumentStatsCollector;
 import com.bagri.xdm.process.hazelcast.DocumentStatsReseter;
 import com.bagri.xdm.process.hazelcast.schema.SchemaCleaner;
@@ -147,6 +140,15 @@ public class DocumentManagement extends SchemaFeatureManagement {
 			logger.error("registerDocument.error: " + ex.getMessage(), ex);
 		}
 		return 0;
+	}
+	
+	@ManagedOperation(description="Updates already registerd Document")
+	@ManagedOperationParameters({
+		@ManagedOperationParameter(name = "docId", description = "Registered Document identifier"),
+		@ManagedOperationParameter(name = "uri", description = "A new uri for the file or null"),
+		@ManagedOperationParameter(name = "docFile", description = "A full path to XML file to register")})
+	public void updateDocument(int docId, String uri, String docFile) {
+		// TODO: implement it!
 	}
 	
 	private int processFilesInCatalog(Path catalog) {
