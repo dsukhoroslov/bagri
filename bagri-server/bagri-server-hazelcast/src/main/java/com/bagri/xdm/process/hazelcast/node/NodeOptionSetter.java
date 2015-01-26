@@ -1,11 +1,10 @@
 package com.bagri.xdm.process.hazelcast.node;
 
-import static com.bagri.xdm.access.api.XDMConfigConstants.*;
-import static com.bagri.xdm.access.hazelcast.pof.XDMPortableFactory.cli_XDMSetNodeOptionTask;
-import static com.bagri.xdm.access.hazelcast.pof.XDMPortableFactory.factoryId;
+import static com.bagri.xdm.access.api.XDMConfigConstants.xdm_config_path;
+import static com.bagri.xdm.access.api.XDMConfigConstants.xdm_config_properties_file;
+import static com.bagri.xdm.access.hazelcast.pof.XDMDataSerializationFactory.cli_XDMSetNodeOptionTask;
+import static com.bagri.xdm.access.hazelcast.pof.XDMDataSerializationFactory.factoryId;
 
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Enumeration;
@@ -15,17 +14,16 @@ import java.util.concurrent.Callable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bagri.xdm.system.XDMNode;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.Member;
-import com.hazelcast.nio.serialization.Portable;
-import com.hazelcast.nio.serialization.PortableReader;
-import com.hazelcast.nio.serialization.PortableWriter;
+import com.hazelcast.nio.ObjectDataInput;
+import com.hazelcast.nio.ObjectDataOutput;
+import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 import com.hazelcast.spring.context.SpringAware;
 
 @SpringAware
-public class NodeOptionSetter implements Callable<Boolean>, Portable {
+public class NodeOptionSetter implements Callable<Boolean>, IdentifiedDataSerializable { 
 	
 	private static final transient Logger logger = LoggerFactory.getLogger(NodeOptionSetter.class);
 	
@@ -81,7 +79,7 @@ public class NodeOptionSetter implements Callable<Boolean>, Portable {
 	}
 
 	@Override
-	public int getClassId() {
+	public int getId() {
 		return cli_XDMSetNodeOptionTask;
 	}
 
@@ -91,29 +89,29 @@ public class NodeOptionSetter implements Callable<Boolean>, Portable {
 	}
 
 	@Override
-	public void readPortable(PortableReader in) throws IOException {
-		admin = in.readUTF("admin");
-		comment = in.readUTF("comment");
-		int size = in.readInt("size");
+	public void readData(ObjectDataInput in) throws IOException {
+		admin = in.readUTF();
+		comment = in.readUTF();
+		int size = in.readInt();
 		options = new Properties();
 		for (int i=0; i < size; i++) {
-			String key = in.readUTF("key" + i);
-			String value = in.readUTF("value" + i);
+			String key = in.readUTF();
+			String value = in.readUTF();
 			options.setProperty(key, value);
 		}
 	}
-
+	
 	@Override
-	public void writePortable(PortableWriter out) throws IOException {
-		out.writeUTF("admin", admin);
-		out.writeUTF("comment", comment);
-		out.writeInt("size", options.size());
+	public void writeData(ObjectDataOutput out) throws IOException {
+		out.writeUTF(admin);
+		out.writeUTF(comment);
+		out.writeInt(options.size());
 		Enumeration<String> props = (Enumeration<String>) options.propertyNames();
 		for (int i=0; i < options.size(); i++) {
 			String key = props.nextElement();
-			out.writeUTF("key" + i, key);
-			out.writeUTF("value" + i, options.getProperty(key));
+			out.writeUTF(key);
+			out.writeUTF(options.getProperty(key));
 		}
 	}
-	
+
 }

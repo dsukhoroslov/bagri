@@ -3,13 +3,12 @@
 
 rem set TPoX HOME properly!
 
-if "%TPOX_HOME%"=="" set TPOX_HOME=.
+if "%TPOX_HOME%"=="" set TPOX_HOME=C:\Work\Bagri\TPoX
 
 set app_home=../
 
 rem specify the JVM heap size
-rem set memory=1024m
-set memory=256m
+set memory=2048m
 
 rem specify schema and admin hosts:ports
 set admin_addr=localhost:3330

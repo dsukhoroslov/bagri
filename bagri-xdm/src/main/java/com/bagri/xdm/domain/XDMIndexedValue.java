@@ -8,7 +8,7 @@ import java.util.Set;
  * @author Denis Sukhoroslov: dsukhoroslov@gmail.com
  * @version 0.3
  */
-public class XDMIndex { //implements Serializable {
+public class XDMIndexedValue { //implements Serializable {
 
 	/**
 	 * 
@@ -19,15 +19,15 @@ public class XDMIndex { //implements Serializable {
 	//private Object value;
 	private Set<Long> docIds = new HashSet<Long>();
 
-	public XDMIndex() {
+	public XDMIndexedValue() {
 	}
 
-	public XDMIndex(long docId) {
+	public XDMIndexedValue(long docId) {
 		this();
 		addIndex(docId);
 	}
 	
-	public XDMIndex(Collection<Long> docIds) {
+	public XDMIndexedValue(Collection<Long> docIds) {
 		this();
 		//this.path = path;
 		//this.value = value;

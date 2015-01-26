@@ -40,6 +40,9 @@ public class XDMConfigTest {
 		Properties props = new Properties();
 		props.setProperty("xdm.schema.password", "test");
 		XDMSchema schema = new XDMSchema(1, new Date(), "test", "Test", "description", false, props);
+		XDMIndex index = new XDMIndex(1, new Date(), "test", "idx_test", 
+				"/{http://tpox-benchmark.com/security}Security", "/Security/Symbol", true, "description");
+		schema.addIndex(index);
 		XDMConfig config = new XDMConfig();
 		config.getSchemas().add(schema);
 		

@@ -38,6 +38,10 @@ public class XDMDataSerializationFactory implements DataSerializableFactory {
 	public static final int cli_ProcessQueryTask = 130;
 	public static final int cli_ApplyQueryTask = 131;
 	public static final int cli_KillNodeTask = 132;
+	public static final int cli_XDMSetNodeOptionTask = 133;
+	public static final int cli_XDMSchemaAggregationTask = 134;
+	public static final int cli_XDMGetNodeInfoTask = 135;
+	
 	
 	@Override
 	public IdentifiedDataSerializable create(int typeId) {
@@ -49,7 +53,6 @@ public class XDMDataSerializationFactory implements DataSerializableFactory {
 			case cli_XDMDocumentRemover: return new DocumentRemover();
 			case cli_DocumentUrisProviderTask: return new DocumentUrisProvider(); 
 			case cli_XDMExecXQCommandTask: return new XQCommandExecutor();
-			//case cli_InvocationStatsTask: return new InvocationStatsCollector(); 
 			case cli_DocumentIdsProviderTask: return new DocumentIdsProvider(); 
 			case cli_XMLBuilderTask: return new XMLBuilder();
 			case cli_XMLProviderTask: return new XMLProvider();

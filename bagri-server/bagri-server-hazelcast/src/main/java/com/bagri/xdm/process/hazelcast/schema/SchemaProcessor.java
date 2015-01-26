@@ -53,7 +53,7 @@ public abstract class SchemaProcessor extends EntityProcessor implements EntryPr
 	protected int initSchemaInCluster(XDMSchema schema) {
 		
 		logger.trace("initSchemaInCluster.enter; schema: {}", schema);
-		SchemaInitiator init = new SchemaInitiator(schema.getName(), schema.getProperties());
+		SchemaInitiator init = new SchemaInitiator(schema);
 		
 		int cnt = 0;
         //Set<Member> members = hzInstance.getCluster().getMembers();

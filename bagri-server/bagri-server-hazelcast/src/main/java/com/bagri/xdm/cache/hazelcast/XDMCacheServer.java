@@ -204,7 +204,7 @@ public class XDMCacheServer {
     private static boolean initSchema(HazelcastInstance hzInstance, Member member, XDMSchema schema) {
     	
 		logger.trace("initSchema.enter; schema: {}", schema);
-		SchemaInitiator init = new SchemaInitiator(schema.getName(), schema.getProperties());
+		SchemaInitiator init = new SchemaInitiator(schema);
 		IExecutorService execService = hzInstance.getExecutorService(PN_XDM_SYSTEM_POOL);
        	Future<Boolean> result = execService.submitToMember(init, member);
        	Boolean ok = false;

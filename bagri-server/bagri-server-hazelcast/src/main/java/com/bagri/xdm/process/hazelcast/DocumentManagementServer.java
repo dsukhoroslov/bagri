@@ -45,7 +45,7 @@ import com.bagri.xdm.common.XDMIndexKey;
 import com.bagri.xdm.domain.XDMData;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMElements;
-import com.bagri.xdm.domain.XDMIndex;
+import com.bagri.xdm.domain.XDMIndexedValue;
 import com.bagri.xdm.domain.XDMNodeKind;
 import com.bagri.xdm.domain.XDMPath;
 import com.bagri.xqj.BagriXQDataFactory;
@@ -76,7 +76,7 @@ public class DocumentManagementServer extends XDMDocumentManagementServer implem
 	private IMap<Long, XDMDocument> xddCache;
     private IMap<Long, String> xmlCache;
     private Map<Long, Source> srcCache;
-    private IMap<XDMIndexKey, XDMIndex> idxCache;
+    private IMap<XDMIndexKey, XDMIndexedValue> idxCache;
     private IMap<XDMDataKey, XDMElements> xdmCache;
 	private Map<String, XQProcessor> processors = new ConcurrentHashMap<String, XQProcessor>();
 
@@ -90,7 +90,7 @@ public class DocumentManagementServer extends XDMDocumentManagementServer implem
     	this.docGen = docGen;
     }
     
-    public void setIdxCache(IMap<XDMIndexKey, XDMIndex> cache) {
+    public void setIdxCache(IMap<XDMIndexKey, XDMIndexedValue> cache) {
     	this.idxCache = cache;
     }
 
@@ -198,7 +198,7 @@ public class DocumentManagementServer extends XDMDocumentManagementServer implem
 		if (root != null) {
 			int docType = mDictionary.translateDocumentType(root.getPath());
 			Map<XDMDataKey, XDMElements> elements = new HashMap<XDMDataKey, XDMElements>(elts.size());
-			Map<XDMIndexKey, XDMIndex> indexes = new HashMap<XDMIndexKey, XDMIndex>();
+			Map<XDMIndexKey, XDMIndexedValue> indexes = new HashMap<XDMIndexKey, XDMIndexedValue>();
 			
 			for (XDMData elt: elts) {
 				XDMDataKey xdk = mFactory.newXDMDataKey(docId, elt.getPathId());
@@ -210,11 +210,11 @@ public class DocumentManagementServer extends XDMDocumentManagementServer implem
 				xdes.addElement(elt.getElement());
 				
 				// handle indexes
-				if (isIndexedPath(elt.getPathId(), elt.getPath()) && elt.getValue() != null) {
+				if (isPathIndexed(elt.getPathId()) && elt.getValue() != null) {
 					XDMIndexKey xid = mFactory.newXDMIndexKey(elt.getPathId(), elt.getValue());
-					XDMIndex xidx = indexes.get(xid);
+					XDMIndexedValue xidx = indexes.get(xid);
 					if (xidx == null) {
-						xidx = new XDMIndex(docId);
+						xidx = new XDMIndexedValue(docId);
 						indexes.put(xid, xidx);
 					} else {
 						xidx.addIndex(docId);
@@ -239,9 +239,8 @@ public class DocumentManagementServer extends XDMDocumentManagementServer implem
 		}
 	}
 	
-	private boolean isIndexedPath(int pathId, String path) {
-		// TODO: get this info from Schema config
-		return path.endsWith("Symbol/text()") || path.endsWith("Order/@ID") || path.endsWith("Customer/@id");
+	private boolean isPathIndexed(int pathId) {
+		return mDictionary.isPathIndexed(pathId);
 	}
 
 	@Override
@@ -327,9 +326,10 @@ public class DocumentManagementServer extends XDMDocumentManagementServer implem
    		//	logger.error("queryPathKeys", ex);
    		//}
 		
-		if (pathId > 0 && Comparison.EQ.equals(pex.getCompType())) {
+		if (pathId > 0 && Comparison.EQ.equals(pex.getCompType()) && 
+				isPathIndexed(pathId)) {
 			XDMIndexKey idx = mFactory.newXDMIndexKey(pathId, value.toString());
-			XDMIndex xidx = idxCache.get(idx);
+			XDMIndexedValue xidx = idxCache.get(idx);
 			logger.trace("queryPathKeys; seach for index {} get {}", idx, xidx); 
 			if (xidx != null) {
 				Set<Long> result;

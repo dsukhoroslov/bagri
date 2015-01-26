@@ -14,7 +14,9 @@ import com.bagri.common.idgen.IdGenerator;
 import com.bagri.xdm.access.api.XDMSchemaDictionaryBase;
 import com.bagri.xdm.domain.XDMDocumentType;
 import com.bagri.xdm.domain.XDMNamespace;
+import com.bagri.xdm.domain.XDMNodeKind;
 import com.bagri.xdm.domain.XDMPath;
+import com.bagri.xdm.system.XDMIndex;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IAtomicLong;
 import com.hazelcast.core.IMap;
@@ -23,6 +25,7 @@ import com.hazelcast.query.Predicates;
 
 public class HazelcastSchemaDictionary extends XDMSchemaDictionaryBase { 
 
+	private IMap<Integer, Boolean> idxCache;
 	private IMap<String, XDMPath> pathCache;
 	private IMap<String, XDMNamespace> nsCache;
 	private IMap<String, XDMDocumentType> typeCache;
@@ -56,6 +59,10 @@ public class HazelcastSchemaDictionary extends XDMSchemaDictionaryBase {
 		return nsCache;
 	}
 	
+	protected Map<Integer, Boolean> getIndexCache() {
+		return idxCache;
+	}
+	
 	protected Map<String, XDMPath> getPathCache() {
 		return pathCache;
 	}
@@ -78,6 +85,10 @@ public class HazelcastSchemaDictionary extends XDMSchemaDictionaryBase {
 
 	public void setNamespaceCache(IMap<String, XDMNamespace> nsCache) {
 		this.nsCache = nsCache;
+	}
+	
+	public void setIndexCache(IMap<Integer, Boolean> idxCache) {
+		this.idxCache = idxCache;
 	}
 	
 	public void setPathCache(IMap<String, XDMPath> pathCache) {
@@ -110,6 +121,30 @@ public class HazelcastSchemaDictionary extends XDMSchemaDictionaryBase {
 		}
 		// check size > 1 ??
 		return entries.iterator().next();
+	}
+	
+	@Override
+	public boolean isPathIndexed(int pathId) {
+		XDMPath xPath = getPath(pathId);
+		String path = xPath.getPath();
+		//return path.endsWith("Symbol/text()") || path.endsWith("Order/@ID") || path.endsWith("Customer/@id");
+		return idxCache.get(pathId) != null;
+	}
+
+	@Override
+	public boolean createIndex(XDMIndex index) {
+		int docType = translateDocumentType(index.getDocumentType());
+		String path = index.getPath();
+		XDMNodeKind kind = path.endsWith("/text()") ? XDMNodeKind.text : XDMNodeKind.attribute;
+		XDMPath xPath = translatePath(docType, path, kind);
+		getLogger().trace("createIndex; creating index on path: {}, for docType: {}", xPath, docType);
+		return idxCache.putIfAbsent(xPath.getPathId(), index.isUnique()) == null;
+	}
+	
+	@Override
+	public boolean deleteIndex(int pathId) {
+		Boolean index = idxCache.remove(pathId);
+		return index != null;
 	}
 	
 	@Override

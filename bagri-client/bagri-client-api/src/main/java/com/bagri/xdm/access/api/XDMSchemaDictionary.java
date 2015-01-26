@@ -5,6 +5,7 @@ import java.util.Set;
 
 import com.bagri.xdm.domain.XDMNodeKind;
 import com.bagri.xdm.domain.XDMPath;
+import com.bagri.xdm.system.XDMIndex;
 
 /**
  * manages schema meta-data in internal replicated caches;
@@ -18,7 +19,7 @@ public interface XDMSchemaDictionary {
 	 * performs translation from full namespace declaration to its prefix part:
 	 * http://tpox-benchmark.com/security -> ns0
 	 * 
-	 * creates new prefix in case when new (not yet registered) namespace provided;
+	 * creates new prefix in case when new (not registered yet) namespace provided;
 	 */
 	String getNamespacePrefix(String namespace);
 	
@@ -75,6 +76,27 @@ public interface XDMSchemaDictionary {
 	 */
 	XDMPath getPath(int pathId);
 	
+	/**
+	 * @param pathId
+	 * check is path indexed or not
+	 * 
+	 */
+	boolean isPathIndexed(int pathId); 
+	
+	/**
+	 * @param typeId
+	 * registers a new index
+	 * 
+	 */
+	boolean createIndex(XDMIndex index);
+	
+	/**
+	 * @param typeId
+	 * remove an existing index
+	 * 
+	 */
+	boolean deleteIndex(int pathId);
+
 	/**
 	 * 
 	 * @param typeId

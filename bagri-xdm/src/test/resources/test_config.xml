@@ -35,6 +35,17 @@
 				<entry name="xdm.schema.store.port">27017</entry>
 				<entry name="xdm.schema.store.dbname">test</entry>
 			</properties>
+			<indexes>
+				<index name="idx_test">
+					<version>1</version>
+					<createdAt>2015-01-25T13:36:26.965+03:00</createdAt>
+					<createdBy>SDV</createdBy>
+					<docType>/{http://tpox-benchmark.com/security}Security</docType>
+					<path>/Security/Symbol</path>
+					<unique>true</unique>
+					<description>description</description>
+				</index>
+			</indexes>
 		</schema>
 	</schemas>
 

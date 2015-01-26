@@ -1,12 +1,17 @@
 package com.bagri.xdm.system;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
@@ -17,7 +22,8 @@ import com.bagri.xdm.api.XDMEntity;
 		"name", 
 		"active", 
 		"description", 
-		"props"
+		"props",
+		"indexes"
 })
 public class XDMSchema extends XDMEntity {
 
@@ -34,6 +40,10 @@ public class XDMSchema extends XDMEntity {
 	@XmlElement(name = "properties")
 	@XmlJavaTypeAdapter(XDMEntriesAdapter.class)
 	private Properties props = new Properties();
+	
+	@XmlElement(name="index")
+	@XmlElementWrapper(name="indexes")
+	private Set<XDMIndex> indexes = new HashSet<XDMIndex>();
 	
 	public XDMSchema() {
 		// we need it for JAXB
@@ -89,29 +99,42 @@ public class XDMSchema extends XDMEntity {
 		}
 	}
 	
+	public Set<XDMIndex> getIndexes() {
+		return indexes;
+	}
+	
+	public boolean addIndex(XDMIndex index) {
+		return indexes.add(index);
+	}
+	
+	public boolean removeIndex(String name) {
+		for (XDMIndex index: indexes) {
+			if (name.equals(index.getName())) {
+				indexes.remove(index);
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		return result;
+		return 31 + name.hashCode();
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (getClass() != obj.getClass()) {
 			return false;
+		}
 		XDMSchema other = (XDMSchema) obj;
-		if (name == null) {
-			if (other.name != null)
-				return false;
-		} else if (!name.equals(other.name))
-			return false;
-		return true;
+		return name.equals(other.name);
 	}
 
 	@Override
@@ -119,7 +142,7 @@ public class XDMSchema extends XDMEntity {
 		return "XDMSchema [name=" + name + ", version=" + getVersion() + 
 			", description=" + description + ", active=" + active + 
 			", created at=" + getCreatedAt() + ", by=" + getCreatedBy() + 
-			", props=" + props + "]";
+			", props=" + props + ", indexes=" + indexes + "]";
 	}
 	
 	

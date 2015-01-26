@@ -2,8 +2,8 @@ package com.bagri.xdm.process.hazelcast.schema;
 
 import static com.bagri.xdm.access.api.XDMCacheConstants.CN_XDM_DOCUMENT;
 import static com.bagri.xdm.access.api.XDMCacheConstants.CN_XDM_ELEMENT;
-import static com.bagri.xdm.access.hazelcast.pof.XDMPortableFactory.cli_XDMSchemaAggregationTask;
-import static com.bagri.xdm.access.hazelcast.pof.XDMPortableFactory.factoryId;
+import static com.bagri.xdm.access.hazelcast.pof.XDMDataSerializationFactory.cli_XDMSchemaAggregationTask;
+import static com.bagri.xdm.access.hazelcast.pof.XDMDataSerializationFactory.factoryId;
 
 import java.io.IOException;
 import java.util.concurrent.Callable;
@@ -18,27 +18,25 @@ import com.bagri.xdm.domain.XDMElement;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.monitor.LocalMapStats;
-import com.hazelcast.nio.serialization.Portable;
-import com.hazelcast.nio.serialization.PortableReader;
-import com.hazelcast.nio.serialization.PortableWriter;
+import com.hazelcast.nio.ObjectDataInput;
+import com.hazelcast.nio.ObjectDataOutput;
+import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 import com.hazelcast.spring.context.SpringAware;
 
 @SpringAware
-public class SchemaStatsAggregator implements Callable<Long>, Portable {
+public class SchemaStatsAggregator implements Callable<Long>, IdentifiedDataSerializable { 
 	
 	private static final transient Logger logger = LoggerFactory.getLogger(SchemaStatsAggregator.class);
     
 	private transient HazelcastInstance hzInstance;
 
 	@Override
-	public int getClassId() {
-		// logger.trace("getClassId.exit; returning: {}", cli_XDMDocumentTask);
+	public int getId() {
 		return cli_XDMSchemaAggregationTask;
 	}
 
 	@Override
 	public int getFactoryId() {
-		// logger.trace("getFactoryId.exit; returning: {}", factoryId);
 		return factoryId;
 	}
 
@@ -63,13 +61,13 @@ public class SchemaStatsAggregator implements Callable<Long>, Portable {
     }
     
 	@Override
-	public void readPortable(PortableReader in) throws IOException {
-		// logger.trace("readPortable.enter; in: {}", in);
+	public void readData(ObjectDataInput in) throws IOException {
+		// nothing to read
 	}
 
 	@Override
-	public void writePortable(PortableWriter out) throws IOException {
-		// logger.trace("writePortable.enter; out: {}", out);
+	public void writeData(ObjectDataOutput out) throws IOException {
+		// nothing to write
 	}
 
 }

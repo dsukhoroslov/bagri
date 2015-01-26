@@ -1,21 +1,14 @@
 package com.bagri.xdm.access.hazelcast.pof;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.Date;
 
-import com.bagri.xdm.domain.XDMIndex;
+import com.bagri.xdm.system.XDMIndex;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.StreamSerializer;
 
-public class XDMIndexSerializer implements StreamSerializer<XDMIndex> {
-
-	@Override
-	public void destroy() {
-	}
+public class XDMIndexSerializer extends XDMEntitySerializer implements StreamSerializer<XDMIndex> {
 
 	@Override
 	public int getTypeId() {
@@ -24,26 +17,27 @@ public class XDMIndexSerializer implements StreamSerializer<XDMIndex> {
 
 	@Override
 	public XDMIndex read(ObjectDataInput in) throws IOException {
-		
-		long[] ids = in.readLongArray();
-		List<Long> docIds = new ArrayList<Long>(ids.length);
-		for (long docId: ids) {
-			docIds.add(docId);
-		}
-		return new XDMIndex(docIds);
+		Object[] entity = super.readEntity(in);
+		XDMIndex xIndex = new XDMIndex(
+				(int) entity[0],
+				(Date) entity[1],
+				(String) entity[2],
+				in.readUTF(),
+				in.readUTF(),
+				in.readUTF(),
+				in.readBoolean(),
+				in.readUTF());
+		return xIndex;
 	}
 
 	@Override
 	public void write(ObjectDataOutput out, XDMIndex xIndex) throws IOException {
-		
-		Set<Long> docIds = xIndex.getDocumentIds();
-		long[] ids = new long[docIds.size()];
-		int idx = 0;
-		for (Iterator<Long> itr = docIds.iterator(); itr.hasNext();) {
-			ids[idx] = itr.next();
-			idx++;
-		}
-		out.writeLongArray(ids);
+		super.writeEntity(out, xIndex);
+		out.writeUTF(xIndex.getName());
+		out.writeUTF(xIndex.getDocumentType());
+		out.writeUTF(xIndex.getPath());
+		out.writeBoolean(xIndex.isUnique());
+		out.writeUTF(xIndex.getDescription());
 	}
 
 

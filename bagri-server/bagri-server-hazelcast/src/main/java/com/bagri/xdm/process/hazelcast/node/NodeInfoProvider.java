@@ -1,7 +1,7 @@
 package com.bagri.xdm.process.hazelcast.node;
 
-import static com.bagri.xdm.access.hazelcast.pof.XDMPortableFactory.cli_XDMGetNodeInfoTask;
-import static com.bagri.xdm.access.hazelcast.pof.XDMPortableFactory.factoryId;
+import static com.bagri.xdm.access.hazelcast.pof.XDMDataSerializationFactory.cli_XDMGetNodeInfoTask;
+import static com.bagri.xdm.access.hazelcast.pof.XDMDataSerializationFactory.factoryId;
 
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
@@ -20,11 +20,11 @@ import com.bagri.common.util.DateUtils;
 import com.hazelcast.core.Client;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.nio.serialization.Portable;
-import com.hazelcast.nio.serialization.PortableReader;
-import com.hazelcast.nio.serialization.PortableWriter;
+import com.hazelcast.nio.ObjectDataInput;
+import com.hazelcast.nio.ObjectDataOutput;
+import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
-public class NodeInfoProvider implements Callable<CompositeData>, Portable {
+public class NodeInfoProvider implements Callable<CompositeData>, IdentifiedDataSerializable { 
 	
 	public enum InfoType {
 		memory,
@@ -47,7 +47,7 @@ public class NodeInfoProvider implements Callable<CompositeData>, Portable {
 	}
 
 	@Override
-	public int getClassId() {
+	public int getId() {
 		return cli_XDMGetNodeInfoTask;
 	}
 
@@ -78,13 +78,13 @@ public class NodeInfoProvider implements Callable<CompositeData>, Portable {
 	}
 
 	@Override
-	public void readPortable(PortableReader reader) throws IOException {
-		type = InfoType.valueOf(reader.readUTF("type"));
+	public void readData(ObjectDataInput in) throws IOException {
+		type = InfoType.valueOf(in.readUTF());
 	}
 
 	@Override
-	public void writePortable(PortableWriter writer) throws IOException {
-		writer.writeUTF("type",  type.name());
+	public void writeData(ObjectDataOutput out) throws IOException {
+		out.writeUTF(type.name());
 	}
 
 }

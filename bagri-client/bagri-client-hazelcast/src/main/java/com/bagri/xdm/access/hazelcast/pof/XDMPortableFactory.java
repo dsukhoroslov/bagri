@@ -18,6 +18,7 @@ public class XDMPortableFactory implements PortableFactory {
 	public static final int cli_XDMNode = 3;
 	public static final int cli_XDMSchema = 4;
 	public static final int cli_XDMPermission = 5;
+	public static final int cli_XDMIndex = 6;
 	
 	public static final int cli_XDMDocument = 50;
 	public static final int cli_XDMElement = 51; 
@@ -29,7 +30,7 @@ public class XDMPortableFactory implements PortableFactory {
 	public static final int cli_XDMQuery = 57;
 	public static final int cli_XDMResults = 58;
 	public static final int cli_XDMSource = 59;
-	public static final int cli_XDMIndex = 60;
+	public static final int cli_XDMIndexedValue = 60;
 
 	public static final int cli_XQItemType = 75;
 	public static final int cli_XQItem = 76;
@@ -41,19 +42,7 @@ public class XDMPortableFactory implements PortableFactory {
 	public static final int cli_ExpressionBuilder = 81;
 	public static final int cli_PathBuilder = 82;
 	public static final int cli_ExpressionContainer = 83;
-	public static final int cli_StructuredQName = 85;
-	
-	//public static final int cli_XDMDocumentTask = 112; 
-	//public static final int cli_TemplateResultTask = 114;
-	//public static final int cli_XDMDocumentRemover = 115;
-	//public static final int cli_XDMSchemaTask = 116;
-	//public static final int cli_XDMInitSchemaTask = 117;
-	//public static final int cli_XDMDenitSchemaTask = 118;
-	public static final int cli_XDMSetNodeOptionTask = 119;
-	public static final int cli_XDMSchemaAggregationTask = 120;
-	public static final int cli_XDMGetNodeInfoTask = 121;
-	//public static final int cli_DocumentsProviderTask = 122;
-
+	//public static final int cli_StructuredQName = 85;
 	
 	@Override
 	public Portable create(int classId) {

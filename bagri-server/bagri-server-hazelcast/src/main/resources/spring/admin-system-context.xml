@@ -25,9 +25,9 @@
     <context:mbean-export server="jmxServer" default-domain="com.bagri.xdm"/> registration="replaceExisting"
  -->
     
-    <bean id="authManager" class="com.bagri.xdm.cache.hazelcast.security.BagriJMXAuthenticator">
-        <property name="userManager" ref="userService"/>
-    </bean>
+	<bean id="authManager" class="com.bagri.xdm.cache.hazelcast.security.BagriJMXAuthenticator">
+		<property name="userManager" ref="userService"/>
+	</bean>
 
 	<hz:hazelcast id="hzInstance">
 		<hz:config>
@@ -55,9 +55,17 @@
 				<hz:data-serializable-factories>
 					<hz:data-serializable-factory factory-id="2" class-name="com.bagri.xdm.process.hazelcast.pof.XDMDataSerializationFactory"/>
 				</hz:data-serializable-factories>
-				<hz:portable-factories>
+				<!--hz:portable-factories>
 					<hz:portable-factory factory-id="1" class-name="com.bagri.xdm.process.hazelcast.pof.XDMPortableFactory"/>
-				</hz:portable-factories>
+				</hz:portable-factories-->
+				<!--hz:serializers>
+					<hz:serializer type-class="com.bagri.xdm.system.XDMNode" class-name="com.bagri.xdm.access.hazelcast.pof.XDMNodeSerializer"/>
+					<hz:serializer type-class="com.bagri.xdm.system.XDMSchema" class-name="com.bagri.xdm.access.hazelcast.pof.XDMSchemaSerializer"/>
+					<hz:serializer type-class="com.bagri.xdm.system.XDMIndex" class-name="com.bagri.xdm.access.hazelcast.pof.XDMIndexSerializer"/>
+					<hz:serializer type-class="com.bagri.xdm.system.XDMRole" class-name="com.bagri.xdm.access.hazelcast.pof.XDMRoleSerializer"/>
+					<hz:serializer type-class="com.bagri.xdm.system.XDMUser" class-name="com.bagri.xdm.access.hazelcast.pof.XDMUserSerializer"/>
+					<hz:serializer type-class="com.bagri.xdm.system.XDMPermission" class-name="com.bagri.xdm.access.hazelcast.pof.XDMPermissionSerializer"/>
+				</hz:serializers-->
 			</hz:serialization>
 			<hz:member-attributes>
 				<hz:attribute name="xdm.cluster.node.name">${xdm.cluster.node.name}</hz:attribute>
@@ -76,7 +84,7 @@
 				<hz:property name="hazelcast.jmx.detailed">true</hz:property>
 				<hz:property name="hazelcast.logging.type">slf4j</hz:property>
 			</hz:properties>
-			<hz:network port="5771" port-auto-increment="true">
+			<hz:network port="${xdm.data.port}" port-auto-increment="true">
 				<hz:join>
 					<hz:multicast enabled="false"/>
 					<hz:tcp-ip enabled="true" connection-timeout-seconds="5">
@@ -106,6 +114,7 @@
 				<hz:serializers>
 					<hz:serializer type-class="com.bagri.xdm.system.XDMNode" class-name="com.bagri.xdm.access.hazelcast.pof.XDMNodeSerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.system.XDMSchema" class-name="com.bagri.xdm.access.hazelcast.pof.XDMSchemaSerializer"/>
+					<hz:serializer type-class="com.bagri.xdm.system.XDMIndex" class-name="com.bagri.xdm.access.hazelcast.pof.XDMIndexSerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.system.XDMRole" class-name="com.bagri.xdm.access.hazelcast.pof.XDMRoleSerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.system.XDMUser" class-name="com.bagri.xdm.access.hazelcast.pof.XDMUserSerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.system.XDMPermission" class-name="com.bagri.xdm.access.hazelcast.pof.XDMPermissionSerializer"/>

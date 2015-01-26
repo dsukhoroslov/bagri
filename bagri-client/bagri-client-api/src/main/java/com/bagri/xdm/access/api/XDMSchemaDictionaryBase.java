@@ -127,7 +127,6 @@ public abstract class XDMSchemaDictionaryBase implements XDMSchemaDictionary {
 		return result;
 	}
 
-	// @todo: change it to int ?!
 	//protected int getDictionaryPath(int typeId, String path) {
 		//getLogger().trace("getDictionaryPath.enter; goth path: {}", path);
 
@@ -140,7 +139,6 @@ public abstract class XDMSchemaDictionaryBase implements XDMSchemaDictionary {
 		//getLogger().trace("getDictionaryPath.exit; returning: {}", result);
 	//	return WRONG_PATH; //result;
 	//}
-
     
 	@Override
 	public XDMPath translatePath(int typeId, String path, XDMNodeKind kind) {

@@ -53,7 +53,7 @@ public class SchemaAdministrator extends SchemaProcessingTask implements Callabl
 			if (uuid.equals(member.getUuid())) {
 		    	if (init) {
 		    		XDMSchema schema = schemaService.getSchema(schemaName);
-		    		SchemaInitiator initTask = new SchemaInitiator(schema.getName(), schema.getProperties());
+		    		SchemaInitiator initTask = new SchemaInitiator(schema);
 		    		IExecutorService execService = hzInstance.getExecutorService(PN_XDM_SYSTEM_POOL);
 		    		Future<Boolean> initiated = execService.submitToMember(initTask, member);
 		    		Boolean ok = false;

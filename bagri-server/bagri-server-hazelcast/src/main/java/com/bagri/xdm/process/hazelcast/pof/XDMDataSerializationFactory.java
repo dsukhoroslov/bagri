@@ -12,13 +12,16 @@ import com.bagri.xdm.process.hazelcast.QueryPredicate;
 import com.bagri.xdm.process.hazelcast.QueryProcessor;
 import com.bagri.xdm.process.hazelcast.XMLProvider;
 import com.bagri.xdm.process.hazelcast.XQCommandExecutor;
+import com.bagri.xdm.process.hazelcast.node.NodeInfoProvider;
 import com.bagri.xdm.process.hazelcast.node.NodeKiller;
+import com.bagri.xdm.process.hazelcast.node.NodeOptionSetter;
 import com.bagri.xdm.process.hazelcast.schema.SchemaCleaner;
 import com.bagri.xdm.process.hazelcast.schema.SchemaDenitiator;
 import com.bagri.xdm.process.hazelcast.schema.SchemaInitiator;
 import com.bagri.xdm.process.hazelcast.schema.SchemaAdministrator;
 import com.bagri.xdm.process.hazelcast.schema.SchemaMemberExtractor;
 import com.bagri.xdm.process.hazelcast.schema.SchemaPopulator;
+import com.bagri.xdm.process.hazelcast.schema.SchemaStatsAggregator;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
 public class XDMDataSerializationFactory extends com.bagri.xdm.access.hazelcast.pof.XDMDataSerializationFactory {
@@ -45,6 +48,9 @@ public class XDMDataSerializationFactory extends com.bagri.xdm.access.hazelcast.
 			case cli_ProcessQueryTask: return new QueryProcessor();
 			case cli_ApplyQueryTask: return new QueryPredicate();
 			case cli_KillNodeTask: return new NodeKiller();
+			case cli_XDMSetNodeOptionTask: return new NodeOptionSetter();
+			case cli_XDMSchemaAggregationTask: return new SchemaStatsAggregator();
+			case cli_XDMGetNodeInfoTask: return new NodeInfoProvider();
 		}
 		return super.create(typeId);
 	}
