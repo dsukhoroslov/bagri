@@ -77,3 +77,87 @@ for $ord in fn:collection("/{http://www.fixprotocol.org/FIXML-4-4}FIXML")/o:FIXM
 where $ord/o:Order/@ID=103404 (: 103404, 103935 :)
 return $ord/o:Order
 
+-----------------------------------------------------------------------
+DB2 queries. Want to express them in standard XQuery..
+
+declare default element namespace "http://www.fixprotocol.org/FIXML-4-4";
+declare namespace s="http://tpox-benchmark.com/security";
+
+for $ord in fn:collection("/{http://www.fixprotocol.org/FIXML-4-4}FIXML")/FIXML/Order[@ID="109505"]
+for $sec in fn:collection("/{http://tpox-benchmark.com/security}Security")/s:Security[s:Symbol=$ord/Instrmt/@Sym/fn:string(.)]
+return  
+	<Today_Order_Price ORDER_ID="{$ord/@ID}">
+	{string($ord/OrdQty/@Qty*$sec/s:Price/s:PriceToday/s:Open)}
+	</Today_Order_Price>
+
+(: another version :)
+
+declare default element namespace "http://www.fixprotocol.org/FIXML-4-4";
+declare namespace s="http://tpox-benchmark.com/security";
+
+for $ord in fn:collection("/{http://www.fixprotocol.org/FIXML-4-4}FIXML")/FIXML/Order
+for $sec in fn:collection("/{http://tpox-benchmark.com/security}Security")/s:Security
+where @ID='109505' and s:Symbol=$ord/Instrmt/@Sym/fn:string(.)
+return  
+	<Today_Order_Price ORDER_ID="{$ord/@ID}">
+	{xs:string($ord/OrdQty/@Qty*$sec/s:Price/s:PriceToday/s:Open)}
+	</Today_Order_Price>
+
+
+declare default element namespace "http://www.fixprotocol.org/FIXML-4-4";
+declare namespace c="http://tpox-benchmark.com/custacc";
+
+for $ord in db2-fn:xmlcolumn("ORDER.ODOC")/FIXML/Order
+for $cust in db2-fn:xmlcolumn("CUSTACC.CADOC")/c:Customer[c:Accounts/c:Account/@id=$ord/@Acct/fn:string(.)]
+where $ord/OrdQty/@Cash>3000 and $cust/c:CountryOfResidence="Taiwan" 
+return $cust/c:ShortNames/c:ShortName
+
+
+declare default element namespace "http://www.fixprotocol.org/FIXML-4-4";
+declare namespace c="http://tpox-benchmark.com/custacc";
+
+for $cust in db2-fn:xmlcolumn("CUSTACC.CADOC")/c:Customer[c:Addresses/c:Address/c:PostalCode=26652] 
+for $ord in db2-fn:xmlcolumn("ORDER.ODOC")/FIXML/Order[@Acct=$cust/c:Accounts/c:Account/@id/fn:string(.) and @Side="2"]
+order by $cust/c:Name/c:LastName/text() 
+return 
+	<Customer>
+ 		{$cust/c:Name/c:LastName/text()} - {$cust/c:Addresses/c:Address[@primary="Yes"]/c:Phones/c:Phone[@primary="Yes"]}
+	</Customer>
+
+
+declare default element namespace "http://www.fixprotocol.org/FIXML-4-4"; 
+declare namespace c="http://tpox-benchmark.com/custacc"; 
+
+let $orderprice :=
+
+for  $cust in db2-fn:xmlcolumn("CUSTACC.CADOC")/c:Customer[@id=1011]
+for $ord in db2-fn:xmlcolumn("ORDER.ODOC")/FIXML/Order[@Acct=$cust/c:Accounts/c:Account/@id/fn:string(.)]
+return $ord/OrdQty/@Cash
+
+return max($orderprice)
+
+
+declare default element namespace "http://www.fixprotocol.org/FIXML-4-4"; 
+declare namespace s="http://tpox-benchmark.com/security"; 
+declare namespace c="http://tpox-benchmark.com/custacc"; 
+
+let $order  := 
+	for $ss in db2-fn:xmlcolumn("SECURITY.SDOC")/s:Security[s:SecurityInformation/s:StockInformation/s:Industry ="Software&amp;Programming"] 
+	for $ord in db2-fn:xmlcolumn("ORDER.ODOC")/FIXML/Order[Instrmt/@Sym=$ss/s:Symbol/fn:string(.)] 
+	for $cs in db2-fn:xmlcolumn("CUSTACC.CADOC")/c:Customer[c:Addresses/c:Address/c:State="West Virginia"]/c:Accounts/c:Account[@id=$ord/@Acct/fn:string(.)] 
+	return $ord/OrdQty/@Cash
+return string(max($order))
+
+->
+
+declare default element namespace "http://www.fixprotocol.org/FIXML-4-4"; 
+declare namespace s="http://tpox-benchmark.com/security"; 
+declare namespace c="http://tpox-benchmark.com/custacc"; 
+
+let $order  := 
+	for $ss in fn:collection("/{http://tpox-benchmark.com/security}Security")/s:Security[s:SecurityInformation/s:StockInformation/s:Industry ="Software&amp;Programming"] 
+	for $ord in fn:collection("/{http://www.fixprotocol.org/FIXML-4-4}FIXML")/FIXML/Order[Instrmt/@Sym=$ss/s:Symbol/fn:string(.)] 
+	for $cs in fn:collection("/{http://tpox-benchmark.com/custacc}Customer")/c:Customer[c:Addresses/c:Address/c:State="West Virginia"]/c:Accounts/c:Account[@id=$ord/@Acct/fn:string(.)] 
+	return $ord/OrdQty/@Cash
+return xs:string(fn:max($order))
+
