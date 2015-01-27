@@ -13,7 +13,7 @@ import com.bagri.xdm.system.XDMIndex;
  * 
  * @author Denis Sukhoroslov: dsukhoroslov@gmail.com
  */
-public interface XDMSchemaDictionary {
+public interface XDMModelManagement {
 	
 	/**
 	 * performs translation from full namespace declaration to its prefix part:

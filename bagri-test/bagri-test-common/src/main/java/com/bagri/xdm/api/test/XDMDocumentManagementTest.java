@@ -19,29 +19,42 @@ import com.bagri.common.query.Comparison;
 import com.bagri.common.query.ExpressionContainer;
 import com.bagri.common.query.PathBuilder;
 import com.bagri.xdm.api.XDMDocumentManagement;
-import com.bagri.xdm.api.XDMSchemaDictionary;
+import com.bagri.xdm.api.XDMModelManagement;
+import com.bagri.xdm.api.XDMQueryManagement;
+import com.bagri.xdm.api.XDMRepository;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMPath;
 
 public abstract class XDMDocumentManagementTest {
 
 	protected static String sampleRoot;
-	protected XDMDocumentManagement dMgr;
-	protected XDMSchemaDictionary mDictionary;
+	protected XDMRepository xRepo;
 	protected List<Long> ids = new ArrayList<Long>();
 	
+	protected XDMDocumentManagement getDocManagement() {
+		return xRepo.getDocumentManagement();
+	}
+	
+	protected XDMModelManagement getModelManagement() {
+		return xRepo.getModelManagement();
+	}
+
+	protected XDMQueryManagement getQueryManagement() {
+		return xRepo.getQueryManagement();
+	}
+
 	public void storeSecurityTest() throws IOException {
 		String path = sampleRoot + "security1500.xml"; 
 		String xml = readTextFile(path);
-		ids.add(dMgr.storeDocument(xml).getDocumentId());
+		ids.add(getDocManagement().storeDocumentFromString(0, null, xml).getDocumentId());
 
 		path = sampleRoot + "security5621.xml";
 		xml = readTextFile(path);
-		ids.add(dMgr.storeDocument(xml).getDocumentId());
+		ids.add(getDocManagement().storeDocumentFromString(0, null, xml).getDocumentId());
 
 		path = sampleRoot + "security9012.xml";
 		xml = readTextFile(path);
-		ids.add(dMgr.storeDocument(xml).getDocumentId());
+		ids.add(getDocManagement().storeDocumentFromString(0, null, xml).getDocumentId());
 
 		//String prefix = mDictionary.getNamespacePrefix("http://tpox-benchmark.com/security"); 
 		//int docType = mDictionary.getDocumentType("/" + prefix + ":Security");
@@ -50,27 +63,27 @@ public abstract class XDMDocumentManagementTest {
 	
 	public void storeOrderTest() throws IOException {
 		String xml = readTextFile(sampleRoot + "order123.xml");
-		XDMDocument doc = dMgr.storeDocument(xml);
+		XDMDocument doc = getDocManagement().storeDocumentFromString(0, null, xml);
 		ids.add(doc.getDocumentId());
 		xml = readTextFile(sampleRoot + "order654.xml");
-		ids.add(dMgr.storeDocument(xml).getDocumentId());
+		ids.add(getDocManagement().storeDocumentFromString(0, null, xml).getDocumentId());
 	}
 	
 	public void storeCustomerTest() throws IOException {
 		String xml = readTextFile(sampleRoot + "custacc.xml");
-		ids.add(dMgr.storeDocument(xml).getDocumentId());
+		ids.add(getDocManagement().storeDocumentFromString(0, null, xml).getDocumentId());
 	}
 	
 	public void removeDocumentsTest() { 
 		for (Long id: ids) {
-			dMgr.removeDocument(id);
+			getDocManagement().removeDocument(id);
 		}
 		ids.clear();
 	}
 	
 	public Collection<String> getPrice(String symbol) {
-		String prefix = mDictionary.getNamespacePrefix("http://tpox-benchmark.com/security"); 
-		int docType = mDictionary.getDocumentType("/" + prefix + ":Security");
+		String prefix = getModelManagement().getNamespacePrefix("http://tpox-benchmark.com/security"); 
+		int docType = getModelManagement().getDocumentType("/" + prefix + ":Security");
 		PathBuilder path = new PathBuilder().
 				addPathSegment(AxisType.CHILD, prefix, "Security").
 				addPathSegment(AxisType.CHILD, prefix, "Symbol").
@@ -80,12 +93,12 @@ public abstract class XDMDocumentManagementTest {
 		Map<String, String> params = new HashMap<String, String>();
 		params.put(":name", "/" + prefix + ":Security/" + prefix + ":Name/text()");
 		params.put(":price", "/" + prefix + ":Security/" + prefix + ":Price/" + prefix + ":PriceToday/" + prefix + ":Open/text()");
-		return dMgr.getXML(ec, "<print>The open price of the security \":name\" is :price dollars</print>", params);
+		return getQueryManagement().getXML(ec, "<print>The open price of the security \":name\" is :price dollars</print>", params);
 	}
 	
 	public Collection<String> getSecurity(String symbol) {
-		String prefix = mDictionary.getNamespacePrefix("http://tpox-benchmark.com/security"); 
-		int docType = mDictionary.getDocumentType("/" + prefix + ":Security");
+		String prefix = getModelManagement().getNamespacePrefix("http://tpox-benchmark.com/security"); 
+		int docType = getModelManagement().getDocumentType("/" + prefix + ":Security");
 		PathBuilder path = new PathBuilder().
 				addPathSegment(AxisType.CHILD, prefix, "Security").
 				addPathSegment(AxisType.CHILD, prefix, "Symbol").
@@ -94,12 +107,12 @@ public abstract class XDMDocumentManagementTest {
 		ec.addExpression(docType, Comparison.EQ, path, "$sym", symbol);
 		Map<String, String> params = new HashMap<String, String>();
 		params.put(":sec", "/" + prefix + ":Security");
-		return dMgr.getXML(ec, ":sec", params);
+		return getQueryManagement().getXML(ec, ":sec", params);
 	}
 	
 	public Collection<String> getOrder(String id) {
-		String prefix = mDictionary.getNamespacePrefix("http://www.fixprotocol.org/FIXML-4-4"); 
-		int docType = mDictionary.getDocumentType("/" + prefix + ":FIXML"); // /" + prefix + ":Order");
+		String prefix = getModelManagement().getNamespacePrefix("http://www.fixprotocol.org/FIXML-4-4"); 
+		int docType = getModelManagement().getDocumentType("/" + prefix + ":FIXML"); // /" + prefix + ":Order");
 		PathBuilder path = new PathBuilder().
 				addPathSegment(AxisType.CHILD, prefix, "FIXML").
 				addPathSegment(AxisType.CHILD, prefix, "Order").
@@ -108,12 +121,12 @@ public abstract class XDMDocumentManagementTest {
 		ec.addExpression(docType, Comparison.EQ, path, "$id", id);
 		Map<String, String> params = new HashMap<String, String>();
 		params.put(":order", "/" + prefix + ":FIXML/" + prefix + ":Order");
-		return dMgr.getXML(ec, ":order", params);
+		return getQueryManagement().getXML(ec, ":order", params);
 	}
 	
 	public Collection<String> getCustomerProfile(String id) {
-		String prefix = mDictionary.getNamespacePrefix("http://tpox-benchmark.com/custacc"); 
-		int docType = mDictionary.getDocumentType("/" + prefix + ":Customer");
+		String prefix = getModelManagement().getNamespacePrefix("http://tpox-benchmark.com/custacc"); 
+		int docType = getModelManagement().getDocumentType("/" + prefix + ":Customer");
 		PathBuilder path = new PathBuilder().
 				addPathSegment(AxisType.CHILD, prefix, "Customer").
 				addPathSegment(AxisType.ATTRIBUTE, null, "id");
@@ -137,12 +150,12 @@ public abstract class XDMDocumentManagementTest {
 		params.put(":langs", "/" + prefix + ":Customer/" + prefix + ":Languages");
 		params.put(":addrs", "/" + prefix + ":Customer/" + prefix + ":Addresses");
 		params.put(":eadrs", "/" + prefix + ":Customer/" + prefix + ":EmailAddresses");
-		return dMgr.getXML(ec, template, params);
+		return getQueryManagement().getXML(ec, template, params);
 	}
 	
 	public Collection<String> getCustomerAccounts(String id) {
-		String prefix = mDictionary.getNamespacePrefix("http://tpox-benchmark.com/custacc"); 
-		int docType = mDictionary.getDocumentType("/" + prefix + ":Customer");
+		String prefix = getModelManagement().getNamespacePrefix("http://tpox-benchmark.com/custacc"); 
+		int docType = getModelManagement().getDocumentType("/" + prefix + ":Customer");
 		PathBuilder path = new PathBuilder().
 				addPathSegment(AxisType.CHILD, prefix, "Customer").
 				addPathSegment(AxisType.ATTRIBUTE, null, "id");
@@ -167,13 +180,13 @@ public abstract class XDMDocumentManagementTest {
 		params.put(":accId", "/" + prefix + ":Customer/" + prefix + ":Accounts/" + prefix + ":Account/@id");
 		params.put(":posName", "/" + prefix + ":Customer/" + prefix + ":Accounts/" + prefix + ":Account/" + prefix + ":Holdings/" + prefix + ":Position/" + prefix + ":Name");
 		
-		return dMgr.getXML(ec, template, params);
+		return getQueryManagement().getXML(ec, template, params);
 	}
 	
 	public Collection<String> searchSecurity(String sector, float peMin, float peMax, float yieldMin) {
 
-		String prefix = mDictionary.getNamespacePrefix("http://tpox-benchmark.com/security"); 
-		int docType = mDictionary.getDocumentType("/" + prefix + ":Security");
+		String prefix = getModelManagement().getNamespacePrefix("http://tpox-benchmark.com/security"); 
+		int docType = getModelManagement().getDocumentType("/" + prefix + ":Security");
 		PathBuilder path = new PathBuilder().
 				addPathSegment(AxisType.CHILD, prefix, "Security");
 		ExpressionContainer ec = new ExpressionContainer();
@@ -223,19 +236,19 @@ public abstract class XDMDocumentManagementTest {
 		params.put(":pe", "/" + prefix + ":Security/" + prefix + ":PE");
    		params.put(":yield", "/" + prefix + ":Security/" + prefix + ":Yield");
 
-		return dMgr.getXML(ec, template, params);
+		return getQueryManagement().getXML(ec, template, params);
 	}
 	
 	public Collection<XDMPath> getSecurityPath() {
-		String prefix = mDictionary.getNamespacePrefix("http://tpox-benchmark.com/security"); 
-		int docType = mDictionary.getDocumentType("/" + prefix + ":Security");
-		return mDictionary.getTypePaths(docType);
+		String prefix = getModelManagement().getNamespacePrefix("http://tpox-benchmark.com/security"); 
+		int docType = getModelManagement().getDocumentType("/" + prefix + ":Security");
+		return getModelManagement().getTypePaths(docType);
 	}
 
 	public Collection<XDMPath> getCustomerPath() {
-		String prefix = mDictionary.getNamespacePrefix("http://tpox-benchmark.com/custacc"); 
-		int docType = mDictionary.getDocumentType("/" + prefix + ":Customer");
-		return mDictionary.getTypePaths(docType);
+		String prefix = getModelManagement().getNamespacePrefix("http://tpox-benchmark.com/custacc"); 
+		int docType = getModelManagement().getDocumentType("/" + prefix + ":Customer");
+		return getModelManagement().getTypePaths(docType);
 	}
 
 

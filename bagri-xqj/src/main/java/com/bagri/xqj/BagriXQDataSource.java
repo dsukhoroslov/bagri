@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bagri.xdm.api.XDMDocumentManagement;
+import com.bagri.xdm.api.XDMRepository;
 import com.bagri.xquery.api.XQProcessor;
 
 /**
@@ -35,7 +36,7 @@ public class BagriXQDataSource implements XQDataSource {
 	public static final String ADDRESS = "address";
 	
 	public static final String XQ_PROCESSOR = "query.processor";
-	public static final String XDM_MANAGER = "xdm.document.manager";
+	public static final String XDM_REPOSITORY = "xdm.repository";
 	
 	private PrintWriter writer;
 	private int timeout = 100;
@@ -55,7 +56,7 @@ public class BagriXQDataSource implements XQDataSource {
 		properties.put(PASSWORD, "syspwd");
 		properties.put(SCHEMA, "system");
 		properties.put(XQ_PROCESSOR, ""); //"com.bagri.xquery.saxon.BagriXQProcessor"); //Proxy
-		properties.put(XDM_MANAGER, ""); //"com.bagri.xdm.client.hazelcast.impl.DocumentManagementClient"); 
+		properties.put(XDM_REPOSITORY, ""); //"com.bagri.xdm.client.hazelcast.impl.RepositoryImpl"); 
 	}
 
 	@Override
@@ -111,9 +112,9 @@ public class BagriXQDataSource implements XQDataSource {
 		}
 	}
 	
-	private Object initDocManager(BagriXQConnection connect) throws XQException {
+	private Object initRepository(BagriXQConnection connect) throws XQException {
 
-		String className = properties.getProperty(XDM_MANAGER);
+		String className = properties.getProperty(XDM_REPOSITORY);
 		if (className == null || className.trim().length() == 0) {
 			return null; 
 		}
@@ -129,7 +130,7 @@ public class BagriXQDataSource implements XQDataSource {
 					return init.newInstance(props);
 				}
 			} catch (Exception ex) {
-				logger.error("initDocManager. error creating DocumentManager of type " + className + 
+				logger.error("initRepository. error creating Repository of type " + className + 
 						"with Properties. Falling back to default constructor", ex);
 			}
 			
@@ -150,13 +151,13 @@ public class BagriXQDataSource implements XQDataSource {
 			if (xqp != null) {
 				if (xqp instanceof XQProcessor) {
 					//Object xdm = makeInstance(XDM_MANAGER);
-					Object xdm = initDocManager(connect);
+					Object xdm = initRepository(connect);
 					if (xdm != null) {
-						if (xdm instanceof XDMDocumentManagement) {
-							((XQProcessor) xqp).setXdmManager((XDMDocumentManagement) xdm);
+						if (xdm instanceof XDMRepository) {
+							((XQProcessor) xqp).setRepository((XDMRepository) xdm);
 						} else {
-							throw new XQException("Specified XDM Manager class does not implement XDMDocumentManagement interface: " + 
-									properties.getProperty(XDM_MANAGER));
+							throw new XQException("Specified Repository class does not implement XDMRepository interface: " + 
+									properties.getProperty(XDM_REPOSITORY));
 						}
 					}						
 					connect.setProcessor((XQProcessor) xqp);

@@ -1,5 +1,6 @@
 package com.bagri.xdm.api;
 
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
@@ -19,21 +20,18 @@ import com.bagri.xdm.domain.XDMDocument;
 public interface XDMDocumentManagement {
 
 	//XDMDocument getDocument(String uri);
+	//String getDocumentAsString(String uri);
+	//void removeDocument(String uri);
+
+	Iterator<Long> getDocumentIds(String pattern);
+	//Iterator<XDMDocument> getDocuments(String pattern);
+	
 	XDMDocument getDocument(long docId);
 
-	Long getDocumentId(String uri);
-	//String getDocumentAsString(String uri);
 	String getDocumentAsString(long docId);
-	// todo: add methods to return document as Source, Reader, XMLStreamReader, InputStream
 	Source getDocumentAsSource(long docId);
-	
-	/**
-	 * Creates a new Document and stores it in XDM repository
-	 * 
-	 * @param xml: Document's XML representation, can not be null
-	 * @return XDMDocument: created Document
-	 */
-	XDMDocument storeDocument(String xml);
+	InputStream getDocumentAsSream(long docId);
+	// todo: add methods to return document as Document, Reader, XMLStreamReader..
 	
 	/**
 	 * Creates a new Document or overrides an existing one in XDM repository
@@ -41,24 +39,13 @@ public interface XDMDocumentManagement {
 	 * @param docId: long; creates new Document if docId = 0; overrides existing one if docId > 0 and docId exists in repository 
 	 * @param uri: String; the Document's URI, can be null; if uri is not null it must be unique in XDM repository 
 	 * @param xml: Document's XML representation, can not be null
-	 * @return XDMDocument: created or overridden Document
+	 * @return XDMDocument: created or overridden (versioned ?) Document
 	 */
-	XDMDocument storeDocument(long docId, String uri, String xml);
-	// todo: add methods to store document from Source, Reader, XMLStreamReader, InputStream
-
-	XDMDocument storeDocumentSource(long docId, Source source);
+	XDMDocument storeDocumentFromString(long docId, String uri, String xml);
+	XDMDocument storeDocumentFromSource(long docId, String uri, Source source);
+	XDMDocument storeDocumentFromStream(long docId, String uri, InputStream stream);
+	// todo: add methods to store document from Document, Reader, XMLStreamReader
 	
-	//void removeDocument(String uri);
 	void removeDocument(long docId);
 
-	void close();
-
-	XDMSchemaDictionary getSchemaDictionary();
-	Collection<Long> getDocumentIDs(ExpressionContainer query);
-	Collection<String> getDocumentURIs(ExpressionContainer query);
-	Collection<String> getXML(ExpressionContainer query, String template, Map params);
-	
-	Object executeXCommand(String command, Map bindings, Properties props);
-	Object executeXQuery(String query, Map bindings, Properties props);
-	
 }

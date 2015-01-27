@@ -9,7 +9,6 @@ import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
 
-import com.bagri.xdm.api.Versionable;
 import com.bagri.xdm.system.XDMIdentity;
 import com.bagri.xdm.system.XDMNode;
 import com.bagri.xdm.system.XDMRole;

@@ -32,7 +32,7 @@ import com.bagri.common.idgen.IdGenerator;
 import com.bagri.common.query.ExpressionBuilder;
 import com.bagri.common.query.ExpressionContainer;
 import com.bagri.xdm.api.XDMDocumentManagement;
-import com.bagri.xdm.api.XDMDocumentManagementBase;
+import com.bagri.xdm.client.common.impl.XDMDocumentManagementBase;
 import com.bagri.xdm.client.hazelcast.serialize.XQItemSerializer;
 import com.bagri.xdm.client.hazelcast.serialize.XQItemTypeSerializer;
 import com.bagri.xdm.client.hazelcast.serialize.XQSequenceSerializer;
@@ -63,7 +63,7 @@ import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
 import com.hazelcast.security.UsernamePasswordCredentials;
 
-public class DocumentManagementClient extends XDMDocumentManagementBase implements XDMDocumentManagement {
+public class DocumentManagementImpl extends XDMDocumentManagementBase implements XDMDocumentManagement {
 
 	public static final String PN_POOL_SIZE = "hz.pool.size";
 	public static final String PN_SCHEMA_NAME = "hz.schema.name";
@@ -80,17 +80,17 @@ public class DocumentManagementClient extends XDMDocumentManagementBase implemen
 	private HazelcastInstance hzClient;
 	private ResultsIterator cursor;
 	
-	public DocumentManagementClient() {
+	public DocumentManagementImpl() {
 		super();
 		initializeFromProperties(getSystemProps());
 	}
 
-	public DocumentManagementClient(Properties props) {
+	public DocumentManagementImpl(Properties props) {
 		super();
 		initializeFromProperties(getConvertedProps(props));
 	}
 	
-	public DocumentManagementClient(HazelcastInstance hzInstance) {
+	public DocumentManagementImpl(HazelcastInstance hzInstance) {
 		super();
 		this.hzClient = hzInstance;
 		com.hazelcast.client.HazelcastClientProxy proxy = (com.hazelcast.client.HazelcastClientProxy) hzClient; 
@@ -100,7 +100,7 @@ public class DocumentManagementClient extends XDMDocumentManagementBase implemen
 		initializeServices();
 	}
 	
-	@Override
+	//@Override
 	public void close() {
 		logger.trace("close.enter;");
 		if (hzClient.getLifecycleService().isRunning()) {
@@ -169,8 +169,8 @@ public class DocumentManagementClient extends XDMDocumentManagementBase implemen
 	
 	private void initializeFromProperties(Properties props) {
 		initializeHazelcast(props);
-		mFactory = new XDMFactoryImpl();
-		mDictionary = new SchemaDictionaryImpl(hzClient);
+		factory = new XDMFactoryImpl();
+		model = new ModelManagementImpl(hzClient);
 		initializeServices();
 	}
 	
@@ -178,7 +178,7 @@ public class DocumentManagementClient extends XDMDocumentManagementBase implemen
 		String schema = props.getProperty(PN_SCHEMA_NAME);
 		String password = props.getProperty(PN_SCHEMA_PASS);
 		String address = props.getProperty(PN_SERVER_ADDRESS);
-		InputStream in = DocumentManagementClient.class.getResourceAsStream("/hazelcast/hazelcast-client.xml");
+		InputStream in = DocumentManagementImpl.class.getResourceAsStream("/hazelcast/hazelcast-client.xml");
 		ClientConfig config = new XmlClientConfigBuilder(in).build();
 		config.getGroupConfig().setName(schema);
 		config.getGroupConfig().setPassword(password);
@@ -239,7 +239,7 @@ public class DocumentManagementClient extends XDMDocumentManagementBase implemen
 		return xddCache.get(docId);
 	}
 	
-	@Override
+	//@Override
 	public Long getDocumentId(String uri) {
 		// do this via EP ?!
    		Predicate<Long, XDMDocument> f = Predicates.equal("uri", uri);
@@ -252,9 +252,35 @@ public class DocumentManagementClient extends XDMDocumentManagementBase implemen
 	}
 	
 	@Override
+	public Iterator<Long> getDocumentIds(String pattern) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	@Override
+	public String getDocumentAsString(long docId) {
+		// actually, I can try just get it from XML cache!
+		
+		long stamp = System.currentTimeMillis();
+		logger.trace("getDocumentAsString.enter; got docId: {}", docId);
+		
+		String result = null;
+		XMLProvider xp = new XMLProvider(docId);
+		Future<String> future = execService.submitToKeyOwner(xp, docId);
+		try {
+			result = future.get();
+		} catch (InterruptedException | ExecutionException ex) {
+			logger.error("getDocumentAsString; error getting result", ex);
+		}
+		stamp = System.currentTimeMillis() - stamp;
+		logger.trace("getDocumentAsString.exit; got template results: {}; time taken {}", 
+				result == null ? 0 : result.length(), stamp);
+		return result;
+	}
+
 	public XDMDocument storeDocument(String xml) {
 
-		return storeDocument(0, null, xml);
+		return storeDocumentFromString(0, null, xml);
 	}
 
 	//public XDMDocument storeDocument(String uri, String xml) {
@@ -264,7 +290,7 @@ public class DocumentManagementClient extends XDMDocumentManagementBase implemen
 	//}
 
 	@Override
-	public XDMDocument storeDocument(long docId, String uri, String xml) {
+	public XDMDocument storeDocumentFromString(long docId, String uri, String xml) {
 		
 		if (xml == null) {
 			throw new IllegalArgumentException("XML can not be null");
@@ -307,232 +333,6 @@ public class DocumentManagementClient extends XDMDocumentManagementBase implemen
 		} catch (InterruptedException | ExecutionException ex) {
 			logger.error("removeDocument.error: ", ex);
 		}
-	}
-	
-	@Override
-	public String getDocumentAsString(long docId) {
-		// actually, I can try just get it from XML cache!
-		
-		long stamp = System.currentTimeMillis();
-		logger.trace("getDocumentAsString.enter; got docId: {}", docId);
-		
-		String result = null;
-		XMLProvider xp = new XMLProvider(docId);
-		Future<String> future = execService.submitToKeyOwner(xp, docId);
-		try {
-			result = future.get();
-		} catch (InterruptedException | ExecutionException ex) {
-			logger.error("getDocumentAsString; error getting result", ex);
-		}
-		stamp = System.currentTimeMillis() - stamp;
-		logger.trace("getDocumentAsString.exit; got template results: {}; time taken {}", 
-				result == null ? 0 : result.length(), stamp);
-		return result;
-	}
-
-	@Override
-	public Source getDocumentAsSource(long docId) {
-		String xml = getDocumentAsString(docId);
-		if (xml != null) {
-			return new StreamSource(new StringReader(xml));
-		}
-		return null;
-	}
-
-	@Override
-	public XDMDocument storeDocumentSource(long docId, Source source) {
-		try {
-			String xml = BagriXQUtils.sourceToString(source);
-			return storeDocument(docId, null, xml);
-		} catch (XQException ex) {
-			logger.error("storeDocumentSource.error; " + ex.getMessage(), ex);
-		}
-		return null;
-	}
-	
-	@Override
-	public Collection<String> getDocumentURIs(ExpressionContainer query) {
-
-		long stamp = System.currentTimeMillis();
-		logger.trace("getDocumentURIs.enter; query: {}", query);
-		
-		DocumentUrisProvider task = new DocumentUrisProvider(query);
-		Future<Collection<String>> future = execService.submit(task);
-		Collection<String> result = null;
-		try {
-			result = future.get();
-		} catch (InterruptedException | ExecutionException ex) {
-			logger.error("getDocumentURIs.error; error getting result", ex);
-		}
-		stamp = System.currentTimeMillis() - stamp;
-		logger.trace("getDocumentURIs.exit; time taken: {}; returning: {}", stamp, result);
-		return result;
-	}
-	
-	@Override
-	public Collection<Long> getDocumentIDs(ExpressionContainer query) {
-
-		long stamp = System.currentTimeMillis();
-		logger.trace("getDocumentIDs.enter; query: {}", query);
-		
-		DocumentIdsProvider task = new DocumentIdsProvider(query);
-		Future<Collection<Long>> future = execService.submit(task);
-		Collection<Long> result = null;
-		try {
-			result = future.get();
-		} catch (InterruptedException | ExecutionException ex) {
-			logger.error("getDocumentIDs.error; error getting result", ex);
-		}
-		stamp = System.currentTimeMillis() - stamp;
-		logger.trace("getDocumentIDs.exit; time taken: {}; returning: {}", stamp, result);
-		return result;
-	}
-	
-	@Override
-	public Collection<String> getXML(ExpressionContainer query, String template, Map params) {
-		long stamp = System.currentTimeMillis();
-		logger.trace("getXML.enter; got query: {}; template: {}; params: {}", query, template, params);
-		
-		XMLBuilder xb = new XMLBuilder(query, template, params);
-		Map<Member, Future<Collection<String>>> result = execService.submitToAllMembers(xb);
-
-		Collection<String> xmls = new ArrayList<String>();
-		for (Future<Collection<String>> future: result.values()) {
-			try {
-				Collection<String> c = future.get();
-				if (c.isEmpty()) {
-					continue;
-				}
-				xmls.addAll(c);
-			} catch (InterruptedException | ExecutionException ex) {
-				logger.error("getXML; error getting result", ex);
-			}
-		}
-		stamp = System.currentTimeMillis() - stamp;
-		logger.trace("getXML.exit; got query results: {}; time taken {}", xmls.size(), stamp);
-		return xmls;
-	}
-	
-	@Override
-	public Object executeXCommand(String command, Map bindings, Properties props) {
-
-		long stamp = System.currentTimeMillis();
-		logger.trace("executeXCommand.enter; command: {}; bindings: {}; context: {}", command, bindings, props);
-		//try {
-			Object result = execXQuery(false, command, bindings, props);
-			logger.trace("executeXCommand.exit; time taken: {}; returning: {}", System.currentTimeMillis() - stamp, result);
-			return result;
-		//} catch (Exception ex) {
-		//	logger.warn("executeXCommand.error; time taken: {}; exception: {}", System.currentTimeMillis() - stamp, ex);
-		//}
-		//return null; 
-	}
-
-	@Override
-	public Object executeXQuery(String query, Map bindings, Properties props) {
-
-		long stamp = System.currentTimeMillis();
-		logger.trace("executeXQuery.enter; query: {}; bindings: {}; context: {}", query, bindings, props);
-		//try {
-			Object result = execXQuery(true, query, bindings, props);
-			logger.trace("executeXQuery.exit; time taken: {}; returning: {}", System.currentTimeMillis() - stamp, result);
-			return result; 
-		//} catch (Exception ex) {
-		//	logger.warn("executeXQuery.error; time taken: {}; exception: {}", System.currentTimeMillis() - stamp, ex);
-		//	ex.printStackTrace();
-		//}
-		//return null; 
-	}
-	
-	private Object execXQuery(boolean isQuery, String query, Map bindings, Properties props) { //throws Exception {
-		
-		//if (logger.isTraceEnabled()) {
-		//	for (Object o: bindings.entrySet()) {
-		//		Map.Entry e = (Map.Entry) o;
-		//		logger.trace("execXQuery.binding; {}:{}; {}:{}", e.getKey().getClass().getName(),
-		//				e.getKey(), e.getValue().getClass().getName(), e.getValue());
-		//	}
-		//}
-		
-		props.put("clientId", clientId);
-		//props.put("batchSize", "5");
-		
-		String runOn = System.getProperty("xdm.client.submitTo", "any");
-		
-		XQCommandExecutor task = new XQCommandExecutor(isQuery, schemaName, query, bindings, props);
-		Future<Object> future;
-		if (isQuery) {
-			if ("owner".equals(runOn)) {
-				int key = getQueryKey(query);
-				future = execService.submitToKeyOwner(task, key);
-			} else if ("member".equals(runOn)) {
-				int key = getQueryKey(query);
-				Member member = hzClient.getPartitionService().getPartition(key).getOwner();
-				future = execService.submitToMember(task, member);
-			} else {
-				future = execService.submit(task);
-			}
-		} else {
-			future = execService.submit(task);
-		}
-
-		Object result = null;
-		long timeout = Long.parseLong(props.getProperty("timeout", "0"));
-		int fetchSize = Integer.parseInt(props.getProperty("batchSize", "0"));
-		try {
-			//if (cursor != null) {
-			//	cursor.close(false);
-			//}
-			
-			if (timeout > 0) {
-				cursor = (ResultsIterator) future.get(timeout, TimeUnit.SECONDS);
-			} else {
-				cursor = (ResultsIterator) future.get();
-			}
-			
-			logger.trace("execXQuery; got cursor: {}", cursor);
-			if (cursor != null) {
-				cursor.deserialize(hzClient);
-
-				if (cursor.isFailure()) {
-					//Exception ex = (Exception) cursor.next();
-					//throw ex;
-					while (cursor.hasNext()) {
-						Object err = cursor.next();
-						if (err instanceof String) {
-							throw new RuntimeException((String) err);
-						}
-					}
-				}
-			}
-			
-			if (fetchSize == 0) {
-				result = extractFromCursor(cursor);
-			} else {
-				result = cursor;
-			}
-		} catch (TimeoutException ex) {
-			future.cancel(true);
-			logger.warn("execXQuery.error; query timed out", ex);
-		} catch (InterruptedException | ExecutionException ex) {
-			// cancel future ??
-			logger.error("execXQuery.error; error getting result", ex);
-		}
-		return result; 
-	}
-	
-	private int getQueryKey(String query) {
-		// get it form some common service, 
-		// QueryManagement most probably
-		return query.hashCode();
-	}
-	
-	private Iterator extractFromCursor(ResultsIterator cursor) {
-		List result = new ArrayList();
-		while (cursor.hasNext()) {
-			result.add(cursor.next());
-		}
-		return result.iterator();
 	}
 
 }

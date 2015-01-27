@@ -1,6 +1,6 @@
 package com.bagri.xdm.client.hazelcast.impl;
 
-import static com.bagri.xdm.client.hazelcast.impl.DocumentManagementClient.*;
+import static com.bagri.xdm.client.hazelcast.impl.DocumentManagementImpl.*;
 import static org.junit.Assert.*;
 
 import org.junit.After;
@@ -9,11 +9,11 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.bagri.xdm.api.test.XDMSchemaDictionaryTest;
-import com.bagri.xdm.client.hazelcast.impl.DocumentManagementClient;
+import com.bagri.xdm.api.test.XDMModelManagementTest;
+import com.bagri.xdm.client.hazelcast.impl.DocumentManagementImpl;
 import com.hazelcast.core.Hazelcast;
 
-public class SchemaDictionaryTest extends XDMSchemaDictionaryTest {
+public class ModelManagementTest extends XDMModelManagementTest {
 	
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
@@ -32,8 +32,8 @@ public class SchemaDictionaryTest extends XDMSchemaDictionaryTest {
 
 	@Before
 	public void setUp() throws Exception {
-		dMgr = new DocumentManagementClient();
-		mDictionary = dMgr.getSchemaDictionary();
+		xRepo = new RepositoryImpl();
+		mDictionary = xRepo.getModelManagement();
 
 		registerSecuritySchemaTest();
 		registerCustaccSchemaTest();
@@ -42,7 +42,7 @@ public class SchemaDictionaryTest extends XDMSchemaDictionaryTest {
 
 	@After
 	public void tearDown() throws Exception {
-		dMgr.close();
+		xRepo.close();
 	}
 
 }

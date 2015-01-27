@@ -5,6 +5,8 @@ package com.bagri.xquery.saxon;
 
 import java.io.StringReader;
 import java.net.URI;
+import java.util.Collection;
+import java.util.Iterator;
 
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
@@ -15,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import com.bagri.common.util.FileUtils;
 import com.bagri.xdm.api.XDMDocumentManagement;
+import com.bagri.xdm.api.XDMRepository;
 
 import static com.bagri.xqj.BagriXQConstants.bg_schema;
 import net.sf.saxon.Configuration;
@@ -41,10 +44,10 @@ public class SourceResolverImpl implements SourceResolver, ExternalObjectModel {
 
 	private static final Logger logger = LoggerFactory.getLogger(SourceResolverImpl.class);
 	
-    private XDMDocumentManagement mgr;
+    private XDMRepository repo;
 
-    public SourceResolverImpl(XDMDocumentManagement mgr) {
-    	this.mgr = mgr;
+    public SourceResolverImpl(XDMRepository repo) {
+    	this.repo = repo;
     }
 	
 	/* (non-Javadoc)
@@ -70,7 +73,9 @@ public class SourceResolverImpl implements SourceResolver, ExternalObjectModel {
 				src = FileUtils.path2Uri(src);
 			}
 			logger.debug("resolveSource; not a native schema {}, trying uri: {}", uri.getScheme(), src); 
-			docId = mgr.getDocumentId(src);
+			Iterator<Long> ids = repo.getDocumentManagement().getDocumentIds(src);
+			docId = ids.next();
+			// check for null ?
 		}
 
 		//Source src = mgr.getDocumentAsSource(docId);
@@ -88,7 +93,7 @@ public class SourceResolverImpl implements SourceResolver, ExternalObjectModel {
 		// the document belongs to
 		logger.debug("resolveSource; looking for documentId: {}", docId);
 		// another bottleneck! takes 6.73 ms, even to get XML from cache! !?
-		String content = mgr.getDocumentAsString(docId);
+		String content = repo.getDocumentManagement().getDocumentAsString(docId);
 		//content = content.replaceAll("&", "&amp;");
 		 
 		if (content != null && content.trim().length() > 0) {

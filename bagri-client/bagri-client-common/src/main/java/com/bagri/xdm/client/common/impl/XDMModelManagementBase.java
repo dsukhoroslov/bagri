@@ -1,4 +1,4 @@
-package com.bagri.xdm.api;
+package com.bagri.xdm.client.common.impl;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -34,19 +34,20 @@ import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSInput;
 
 import com.bagri.common.idgen.IdGenerator;
+import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.domain.XDMDocumentType;
 import com.bagri.xdm.domain.XDMNamespace;
 import com.bagri.xdm.domain.XDMNodeKind;
 import com.bagri.xdm.domain.XDMPath;
 
-public abstract class XDMSchemaDictionaryBase implements XDMSchemaDictionary {
+public abstract class XDMModelManagementBase implements XDMModelManagement {
 	
 	public static final int WRONG_PATH = -1;
 	
     private final Logger logger; 
     protected static final long timeout = 100; // 100ms to wait for lock..
 	
-	public XDMSchemaDictionaryBase() {
+	public XDMModelManagementBase() {
 		this.logger = LoggerFactory.getLogger(this.getClass());
 		//initialize();
 	}

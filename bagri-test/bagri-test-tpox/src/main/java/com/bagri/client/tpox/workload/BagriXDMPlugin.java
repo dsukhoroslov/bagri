@@ -11,6 +11,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import static com.bagri.xdm.client.common.XDMConfigConstants.xdm_spring_context;
 
 import com.bagri.xdm.api.XDMDocumentManagement;
+import com.bagri.xdm.api.XDMRepository;
 import com.bagri.xdm.api.test.XDMDocumentManagementTest;
 import com.bagri.xdm.domain.XDMDocument;
 
@@ -25,7 +26,7 @@ public class BagriXDMPlugin extends BagriTPoXPlugin {
 		protected TPoXDocumentManagerTest initialValue() {
 	    	String config = System.getProperty(xdm_spring_context);
 			ApplicationContext context = new ClassPathXmlApplicationContext(config);
-			XDMDocumentManagement xdm = context.getBean("xdmManager", XDMDocumentManagement.class);
+			XDMRepository xdm = context.getBean("xdmRepository", XDMRepository.class);
 			TPoXDocumentManagerTest xdmt = new TPoXDocumentManagerTest(xdm);
 	    	logger.debug("initialValue; XDM: {}", xdm);
 			return xdmt;
@@ -147,17 +148,16 @@ public class BagriXDMPlugin extends BagriTPoXPlugin {
 	
 	private class TPoXDocumentManagerTest extends XDMDocumentManagementTest {
 		
-		TPoXDocumentManagerTest(XDMDocumentManagement dMgr) {
-			this.dMgr = dMgr;
-			this.mDictionary = dMgr.getSchemaDictionary();
+		TPoXDocumentManagerTest(XDMRepository xRepo) {
+			this.xRepo = xRepo;
 		}
 		
 		void close() {
-			dMgr.close();
+			xRepo.close();
 		}
 		
 		XDMDocument storeDocument(String xml) {
-			return dMgr.storeDocument(xml);
+			return xRepo.getDocumentManagement().storeDocumentFromString(0, null, xml);
 		}
 		
 	}

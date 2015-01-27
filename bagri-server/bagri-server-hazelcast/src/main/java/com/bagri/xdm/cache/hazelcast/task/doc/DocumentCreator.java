@@ -25,7 +25,7 @@ public class DocumentCreator extends com.bagri.xdm.client.hazelcast.task.doc.Doc
 	public XDMDocument call() throws Exception {
 		logger.trace("call.enter; xdm: {} ", xdmProxy);
 
-		XDMDocument doc = xdmProxy.storeDocument(docId, uri, xml);
+		XDMDocument doc = xdmProxy.storeDocumentFromString(docId, uri, xml);
 		
 		logger.trace("process.exit; returning: {}", doc);
 		return doc;

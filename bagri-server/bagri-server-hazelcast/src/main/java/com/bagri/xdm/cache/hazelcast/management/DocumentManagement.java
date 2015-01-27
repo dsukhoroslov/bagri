@@ -24,7 +24,7 @@ import com.bagri.xdm.cache.hazelcast.task.doc.DocumentStatsCollector;
 import com.bagri.xdm.cache.hazelcast.task.doc.DocumentStatsReseter;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaCleaner;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaStatsAggregator;
-import com.bagri.xdm.client.hazelcast.impl.DocumentManagementClient;
+import com.bagri.xdm.client.hazelcast.impl.DocumentManagementImpl;
 import com.bagri.xdm.domain.XDMDocument;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.Member;
@@ -32,7 +32,7 @@ import com.hazelcast.core.Member;
 @ManagedResource(description="Schema Documents Management MBean")
 public class DocumentManagement extends SchemaFeatureManagement {
 
-	private DocumentManagementClient docManager;
+	private DocumentManagementImpl docManager;
 	private IExecutorService execService;
     
     public DocumentManagement(String schemaName) {
@@ -43,7 +43,7 @@ public class DocumentManagement extends SchemaFeatureManagement {
 		this.execService = execService;
 	}
 	
-	public void setDocumentManager(DocumentManagementClient docManager) {
+	public void setDocumentManager(DocumentManagementImpl docManager) {
 		this.docManager = docManager;
 	}
 	
@@ -134,7 +134,7 @@ public class DocumentManagement extends SchemaFeatureManagement {
 		String uri = "file:///" + docFile;
 		try {
 			String xml = FileUtils.readTextFile(docFile);
-			XDMDocument doc = docManager.storeDocument(0, uri, xml);
+			XDMDocument doc = docManager.storeDocumentFromString(0, uri, xml);
 			return 1;
 		} catch (IOException ex) {
 			logger.error("registerDocument.error: " + ex.getMessage(), ex);

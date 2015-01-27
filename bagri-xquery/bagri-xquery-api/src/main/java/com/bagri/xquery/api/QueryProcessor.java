@@ -2,7 +2,6 @@ package com.bagri.xquery.api;
 
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Properties;
 
 import javax.xml.namespace.QName;
@@ -10,18 +9,17 @@ import javax.xml.xquery.XQDataFactory;
 import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQStaticContext;
 
-import com.bagri.xdm.api.XDMDocumentManagement;
-import com.bagri.xdm.api.XDMQueryManagement;
+import com.bagri.xdm.api.XDMRepository;
 
 public interface QueryProcessor {
 	
-    XDMDocumentManagement getXdmManager();
-    void setXdmManager(XDMDocumentManagement mgr);
-    void setXQDataFactory(XQDataFactory xqFactory);    
+    //XDMDocumentManagement getXdmManager();
+    //void setXdmManager(XDMDocumentManagement mgr);
 
-    XDMQueryManagement getXQManager();
-    void setXQManager(XDMQueryManagement mgr);
-    
+    XDMRepository getRepository();
+    void setRepository(XDMRepository xRepo);
+	void setXQDataFactory(XQDataFactory xqFactory);    
+	
     Properties getProperties();
 	boolean isFeatureSupported(int feature);
     

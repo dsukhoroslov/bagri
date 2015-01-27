@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.env.PropertiesPropertySource;
 
-import com.bagri.xdm.api.XDMSchemaDictionary;
+import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.cache.hazelcast.impl.DocumentManagementServer;
 import com.bagri.xdm.cache.hazelcast.util.SpringContextHolder;
 import com.bagri.xdm.system.XDMIndex;
@@ -69,10 +69,9 @@ public class SchemaInitiator implements Callable<Boolean>, IdentifiedDataSeriali
 			
 			Set<XDMIndex> indexes = schema.getIndexes();
 			if (indexes.size() > 0) {
-				DocumentManagementServer docMgr = ctx.getBean(DocumentManagementServer.class);
-				XDMSchemaDictionary sDict = docMgr.getSchemaDictionary();
+				XDMModelManagement xModel = ctx.getBean(XDMModelManagement.class);
 				for (XDMIndex idx: indexes) {
-					sDict.createIndex(idx);
+					xModel.createIndex(idx);
 				}
 			}
     		logger.debug("initSchema.exit; schema {} started on instance: {}", schemaName, hz);

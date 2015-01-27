@@ -7,17 +7,17 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bagri.xdm.api.XDMSchemaDictionary;
-import com.bagri.xdm.api.XDMSchemaDictionaryBase;
+import com.bagri.xdm.api.XDMModelManagement;
+import com.bagri.xdm.client.common.impl.XDMModelManagementBase;
 import com.hazelcast.core.MapStore;
 
 public class XsdCacheStore extends XmlCacheStore implements MapStore {
 
     private static final Logger logger = LoggerFactory.getLogger(XsdCacheStore.class);
     
-	protected XDMSchemaDictionary schemaDictionary;
+	protected XDMModelManagement schemaDictionary;
     
-	public void setSchemaDictionary(XDMSchemaDictionary dictionary) {
+	public void setSchemaDictionary(XDMModelManagement dictionary) {
 		this.schemaDictionary = dictionary;
 	}
     
@@ -39,7 +39,7 @@ public class XsdCacheStore extends XmlCacheStore implements MapStore {
 		if (schemaDictionary == null) {
 			logger.debug("loadAllKeys; dictionary is not set yet.");
 		} else {
-			((XDMSchemaDictionaryBase) schemaDictionary).registerSchemas(getDataPath());
+			((XDMModelManagementBase) schemaDictionary).registerSchemas(getDataPath());
 		}
 		return null;
 	}

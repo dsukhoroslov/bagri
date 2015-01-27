@@ -21,7 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bagri.common.query.ExpressionContainer;
-import com.bagri.xdm.api.XDMDocumentManagement;
+import com.bagri.xdm.api.XDMQueryManagement;
 
 
 public class CollectionIterator implements SequenceIterator<Item>, 
@@ -29,20 +29,20 @@ public class CollectionIterator implements SequenceIterator<Item>,
 	
     private static final Logger logger = LoggerFactory.getLogger(CollectionIterator.class);
 	
-	private XDMDocumentManagement dataMgr;
+	private XDMQueryManagement queryMgr;
 	private ExpressionContainer query;
 	private Collection<Long> docIds = null;
 	private Iterator<Long> iter;
 	private Item current;
 	private int position = -1;
 	
-	public CollectionIterator(XDMDocumentManagement dataMgr, ExpressionContainer query) {
-		this.dataMgr = dataMgr;
+	public CollectionIterator(XDMQueryManagement queryMgr, ExpressionContainer query) {
+		this.queryMgr = queryMgr;
 		this.query = query;
 	}
 	
 	private void loadData() {
-		docIds = dataMgr.getDocumentIDs(query);
+		docIds = queryMgr.getDocumentIDs(query);
 		logger.trace("loadData; got {} document ids", docIds.size());
 		iter = docIds.iterator();
 	}

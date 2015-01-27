@@ -10,14 +10,14 @@ import org.springframework.jmx.export.annotation.ManagedAttribute;
 import org.springframework.jmx.export.naming.SelfNaming;
 
 import com.bagri.common.manage.JMXUtils;
-import com.bagri.xdm.api.XDMSchemaDictionary;
+import com.bagri.xdm.api.XDMModelManagement;
 
 public abstract class SchemaFeatureManagement implements SelfNaming {
 	
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     protected String schemaName;
-	protected XDMSchemaDictionary schemaDictionary;
+	protected XDMModelManagement schemaDictionary;
 	
     public SchemaFeatureManagement(String schemaName) {
     	this.schemaName = schemaName;
@@ -28,7 +28,7 @@ public abstract class SchemaFeatureManagement implements SelfNaming {
 		return schemaName;
 	}
 	
-	public void setSchemaDictionary(XDMSchemaDictionary schemaDictionary) {
+	public void setSchemaDictionary(XDMModelManagement schemaDictionary) {
 		this.schemaDictionary = schemaDictionary;
 	}
 	

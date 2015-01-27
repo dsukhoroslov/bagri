@@ -14,7 +14,7 @@ import com.bagri.common.query.Expression;
 import com.bagri.common.query.ExpressionContainer;
 import com.bagri.common.query.PathExpression;
 import com.bagri.xdm.api.XDMDocumentManagement;
-import com.bagri.xdm.api.XDMDocumentManagementBase;
+import com.bagri.xdm.client.common.impl.XDMDocumentManagementBase;
 import com.bagri.xdm.client.xml.XmlBuilder;
 import com.bagri.xdm.common.XDMDataKey;
 import com.bagri.xdm.domain.XDMData;

@@ -48,7 +48,7 @@ public class StoreDocument extends ExtensionFunctionDefinition {
 				
 				String xml = arguments[0].head().getStringValue();
 				// validate document ?
-				XDMDocument doc = xdm.storeDocument(xml);
+				XDMDocument doc = xdm.storeDocumentFromString(0, null, xml);
 				return new Int64Value(doc.getDocumentId());
 			}
         };

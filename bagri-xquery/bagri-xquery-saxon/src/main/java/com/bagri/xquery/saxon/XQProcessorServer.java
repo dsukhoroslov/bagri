@@ -30,6 +30,7 @@ import com.bagri.common.query.ExpressionContainer;
 //import com.bagri.xdm.access.api.XDMDocumentManagementServer;
 import com.bagri.xdm.api.XDMDocumentManagement;
 import com.bagri.xdm.api.XDMQueryManagement;
+import com.bagri.xdm.api.XDMRepository;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMQuery;
 import com.bagri.xqj.BagriXQConstants;
@@ -51,22 +52,22 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
         //config.registerExternalObjectModel(resolver);
     }
 
-    public XQProcessorServer(XDMDocumentManagement dMgr) {
+    public XQProcessorServer(XDMRepository xRepo) {
     	//this();
     	super();
     	config.setNamePool(defNamePool);
     	config.setDocumentNumberAllocator(defDocNumberAllocator);
-    	logger.trace("<init>; got XDM: {}", dMgr);
-    	setXdmManager(dMgr);
+    	logger.trace("<init>; got Repo: {}", xRepo);
+    	setRepository(xRepo);
     }
 
     @Override
-    public void setXdmManager(XDMDocumentManagement mgr) {
-    	super.setXdmManager(mgr);
+    public void setRepository(XDMRepository xRepo) {
+    	super.setRepository(xRepo);
     	//CollectionURIResolver old = bcr;
-    	bcr = new CollectionURIResolverImpl(mgr);
+    	bcr = new CollectionURIResolverImpl(xRepo);
         config.setCollectionURIResolver(bcr);
-        SourceResolverImpl resolver = new SourceResolverImpl(mgr);
+        SourceResolverImpl resolver = new SourceResolverImpl(xRepo);
         config.setSourceResolver(resolver);
         config.registerExternalObjectModel(resolver);
     }
@@ -87,7 +88,7 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 	@Override
 	public Iterator executeXCommand(String command, Map<QName, XQItemAccessor> bindings, Properties props) throws XQException {
 		
-	    XDMDocumentManagement dMgr = getXdmManager();
+	    XDMDocumentManagement dMgr = getRepository().getDocumentManagement();
 	    
 		if (command.startsWith("storeDocument")) {
 			if (bindings.size() == 0) {
@@ -106,7 +107,8 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 			}
 			String xml = item.getItemAsString(null);
 			// validate document ?
-			XDMDocument doc = dMgr.storeDocument(xml);
+			// add/pass other params ?!
+			XDMDocument doc = dMgr.storeDocumentFromString(0, null, xml);
 			return Collections.singletonList(doc).iterator();
 			//return Collections.emptyIterator();
 		} else if (command.startsWith("removeDocument")) {
@@ -141,7 +143,9 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 		
 		long stamp = System.currentTimeMillis();
    	    XQueryExpression xqExp = null;
-   	    XDMQuery xQuery = getXQManager().getQuery(query);
+   	    
+   	    XDMQueryManagement qMgr = getRepository().getQueryManagement();
+   	    XDMQuery xQuery = qMgr.getQuery(query);
    	    boolean cacheable = false;
 
    	    try {
@@ -185,10 +189,10 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 		    stamp = System.currentTimeMillis();
 	        SequenceIterator<Item> itr = xqExp.iterator(dqc);
 	        if (bcr.getContainer() != null && cacheable) {
-	        	getXQManager().addQuery(query, xqExp, bcr.getContainer().getExpression());
+	        	qMgr.addQuery(query, xqExp, bcr.getContainer().getExpression());
 	        } else {
 	        	// cache just xqExp
-		        //getXQManager().addExpression(query, xqExp);
+		        //qMgr.addExpression(query, xqExp);
 	        }
 	        stamp = System.currentTimeMillis() - stamp;
 		    logger.trace("execQuery.exit; iterator props: {}; time taken: {}", itr.getProperties(), stamp);

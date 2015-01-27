@@ -69,7 +69,9 @@ import com.bagri.common.query.ExpressionContainer;
 import com.bagri.common.query.PathBuilder;
 import com.bagri.common.query.PathBuilder.PathSegment;
 import com.bagri.xdm.api.XDMDocumentManagement;
-import com.bagri.xdm.api.XDMSchemaDictionary;
+import com.bagri.xdm.api.XDMModelManagement;
+import com.bagri.xdm.api.XDMQueryManagement;
+import com.bagri.xdm.api.XDMRepository;
 
 public class CollectionURIResolverImpl implements CollectionURIResolver {
 
@@ -81,12 +83,12 @@ public class CollectionURIResolverImpl implements CollectionURIResolver {
 	private static final Logger logger = LoggerFactory.getLogger(CollectionURIResolverImpl.class);
 
     private XPathContext ctx;
+    private XDMRepository repo;
     private XQueryExpression exp;
-    private XDMDocumentManagement mgr;
     private ExpressionContainer ec;
 
-    public CollectionURIResolverImpl(XDMDocumentManagement mgr) {
-    	this.mgr = mgr;
+    public CollectionURIResolverImpl(XDMRepository repo) {
+    	this.repo = repo;
     }
     
     ExpressionContainer getContainer() {
@@ -117,7 +119,7 @@ public class CollectionURIResolverImpl implements CollectionURIResolver {
 				// means default collection: all schema documents
 				docType = -1;
 			} else {
-				XDMSchemaDictionary dict = mgr.getSchemaDictionary();
+				XDMModelManagement dict = repo.getModelManagement();
 				String root = dict.normalizePath(href);
 				docType = dict.getDocumentType(root);
 			}
@@ -131,8 +133,8 @@ public class CollectionURIResolverImpl implements CollectionURIResolver {
 		logger.debug("resolve; time taken: {}; expressions: {}", stamp, ec); 
 
 		// provide builder's copy here..
-		CollectionIterator iter = new CollectionIterator(mgr, ec);
-		logger.trace("resolve. xdm: {}; returning iter: {}", mgr, iter);
+		CollectionIterator iter = new CollectionIterator(repo.getQueryManagement(), ec);
+		logger.trace("resolve. xdm: {}; returning iter: {}", repo, iter);
 		return iter;
 	}
 	
@@ -224,7 +226,7 @@ public class CollectionURIResolverImpl implements CollectionURIResolver {
 		    	int code = test.getFingerprint();
 		    	if (code >= 0) {
 		    		StructuredQName name = ctx.getNamePool().getStructuredQName(code);
-		    		namespace = mgr.getSchemaDictionary().getNamespacePrefix(name.getURI());
+		    		namespace = repo.getModelManagement().getNamespacePrefix(name.getURI());
 		    		segment = name.getLocalPart();
 		    	} else {
 		    		// case with regex..

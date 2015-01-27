@@ -46,7 +46,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 		//	throw new XQException("Connection is already closed");
 		//}
 		
-		getProcessor().getXdmManager().close();
+		getProcessor().getRepository().close();
 		closed = true;
         logger.debug("close.");
 	}

@@ -575,8 +575,8 @@ public class BagriXQUtils {
 		return sb.toString();
 	}
 
-	public static String textToString(InputStream xquery) throws XQException {
-		Reader r = new InputStreamReader(xquery); //, "UTF-8");
+	public static String textToString(InputStream stream) throws XQException {
+		Reader r = new InputStreamReader(stream); //, "UTF-8");
 		return textToString(r);
 	}
 	

@@ -49,6 +49,7 @@ import net.sf.saxon.trans.XPathException;
 import net.sf.saxon.value.ObjectValue;
 
 import com.bagri.xdm.api.XDMDocumentManagement;
+import com.bagri.xdm.api.XDMRepository;
 
 import static com.bagri.xqj.BagriXQConstants.*;
 
@@ -204,11 +205,11 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
     }
 
     @Override
-    public void setXdmManager(XDMDocumentManagement mgr) {
+    public void setRepository(XDMRepository xRepo) {
     	//config.setConfigurationProperty("xdm", mgr);
-    	super.setXdmManager(mgr);
-        config.registerExtensionFunction(new StoreDocument(mgr));
-        config.registerExtensionFunction(new RemoveDocument(mgr));
+    	super.setRepository(xRepo);
+        config.registerExtensionFunction(new StoreDocument(xRepo.getDocumentManagement()));
+        config.registerExtensionFunction(new RemoveDocument(xRepo.getDocumentManagement()));
     }
     
 	//@Override

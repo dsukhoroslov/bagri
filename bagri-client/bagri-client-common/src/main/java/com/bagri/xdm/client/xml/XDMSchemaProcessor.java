@@ -25,19 +25,19 @@ import org.apache.xerces.xs.XSTypeDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bagri.xdm.api.XDMSchemaDictionary;
+import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.domain.XDMPath;
 
 public class XDMSchemaProcessor {
 
 	private static final Logger logger = LoggerFactory.getLogger(XDMSchemaProcessor.class);
 	
-	private XDMSchemaDictionary dict;
+	private XDMModelManagement dict;
 	
 	public XDMSchemaProcessor() {
 	}
 
-	public XDMSchemaProcessor(XDMSchemaDictionary dict) {
+	public XDMSchemaProcessor(XDMModelManagement dict) {
 		this.dict = dict;
 	}
 	

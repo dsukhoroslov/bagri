@@ -19,7 +19,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 //import com.bagri.xdm.access.coherence.impl.CoherenceDocumentManager;
 
 import com.bagri.xdm.api.XDMDocumentManagement;
-import com.bagri.xdm.client.hazelcast.impl.DocumentManagementClient;
+import com.bagri.xdm.client.hazelcast.impl.DocumentManagementImpl;
 import com.bagri.xdm.domain.XDMDocument;
 
 import static com.bagri.xdm.client.common.XDMCacheConstants.*;
@@ -125,7 +125,7 @@ public class TPoXDataLoader {
 
 	private String storeDocument(String uri, String xml) {
 
-		XDMDocument doc = xdmMgr.storeDocument(xml);
+		XDMDocument doc = xdmMgr.storeDocumentFromString(0, uri, xml);
 		//logger.trace("storeDocument.exit; result: {}", result);
 		return doc.getUri();
 	}

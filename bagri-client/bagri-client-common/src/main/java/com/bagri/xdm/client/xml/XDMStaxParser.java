@@ -24,7 +24,7 @@ import javax.xml.transform.Source;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bagri.xdm.api.XDMSchemaDictionary;
+import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.domain.XDMData;
 import com.bagri.xdm.domain.XDMElement;
 import com.bagri.xdm.domain.XDMNodeKind;
@@ -40,17 +40,17 @@ public class XDMStaxParser {
 	private List<XMLEvent> firstEvents;
 	private List<XDMData> dataList;
 	private Stack<XDMData> dataStack;
-	private XDMSchemaDictionary dict;
+	private XDMModelManagement dict;
 	private int docType = -1;
 	private long elementId;
 
-	public static List<XDMData> parseDocument(XDMSchemaDictionary dictionary, String xml) throws IOException, XMLStreamException {
+	public static List<XDMData> parseDocument(XDMModelManagement dictionary, String xml) throws IOException, XMLStreamException {
 		XDMStaxParser parser;
 		parser = new XDMStaxParser(dictionary);
 		return parser.parse(xml);
 	}
 	
-	public XDMStaxParser(XDMSchemaDictionary dict) {
+	public XDMStaxParser(XDMModelManagement dict) {
 		this.dict = dict;
 	}
 

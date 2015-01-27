@@ -1,4 +1,4 @@
-package com.bagri.xdm.api;
+package com.bagri.xdm.common;
 
 import java.util.Collection;
 

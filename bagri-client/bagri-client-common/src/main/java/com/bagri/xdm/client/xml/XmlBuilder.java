@@ -10,7 +10,7 @@ import java.util.Stack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bagri.xdm.api.XDMSchemaDictionary;
+import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.common.XDMDataKey;
 import com.bagri.xdm.domain.XDMData;
 import com.bagri.xdm.domain.XDMElement;
@@ -22,7 +22,7 @@ public class XmlBuilder {
 
 	private static final Logger logger = LoggerFactory.getLogger(XmlBuilder.class);
 	
-    public static String buildXml(XDMSchemaDictionary dict, Map<XDMDataKey, XDMElements> elements) {
+    public static String buildXml(XDMModelManagement dict, Map<XDMDataKey, XDMElements> elements) {
     	StringBuffer buff = new StringBuffer();
     	Collection<XDMData> dataList = buildDataList(dict, elements);
     	
@@ -152,7 +152,7 @@ public class XmlBuilder {
 		return eltOpen;
     }
     
-    private static Collection<XDMData> buildDataList(XDMSchemaDictionary dict, Map<XDMDataKey, XDMElements> elements) {
+    private static Collection<XDMData> buildDataList(XDMModelManagement dict, Map<XDMDataKey, XDMElements> elements) {
 
     	List<XDMData> dataList = new ArrayList<XDMData>(elements.size() * 2);
     	for (Map.Entry<XDMDataKey, XDMElements> entry: elements.entrySet()) {

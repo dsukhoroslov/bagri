@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
 import com.bagri.xdm.api.XDMDocumentManagement;
+import com.bagri.xdm.api.XDMQueryManagement;
 //import com.bagri.xdm.process.hazelcast.util.HazelcastUtils;
 import com.hazelcast.spring.context.SpringAware;
 
@@ -14,10 +15,10 @@ public class XQCommandExecutor extends com.bagri.xdm.client.hazelcast.task.query
 
 	private static final transient Logger logger = LoggerFactory.getLogger(XQCommandExecutor.class);
     
-	private transient XDMDocumentManagement xdmProxy;
+	private transient XDMQueryManagement xdmProxy;
     
     @Autowired
-	public void setXdmProxy(XDMDocumentManagement xdmProxy) {
+	public void setXdmProxy(XDMQueryManagement xdmProxy) {
 		this.xdmProxy = xdmProxy;
 		logger.debug("setXdmProxy; got manager: {}", xdmProxy); 
 	}

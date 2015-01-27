@@ -21,7 +21,7 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
-import com.bagri.xdm.api.XDMSchemaDictionaryBase;
+import com.bagri.xdm.client.common.impl.XDMModelManagementBase;
 import com.bagri.xdm.domain.XDMDocumentType;
 
 /**
@@ -48,7 +48,7 @@ public class QueryManagement extends SchemaFeatureManagement {
 
 	@ManagedAttribute(description="Returns Document Types registered in the Schema")
 	public String[] getRegisteredTypes() {
-		Collection<XDMDocumentType> types = ((XDMSchemaDictionaryBase) schemaDictionary).getDocumentTypes();
+		Collection<XDMDocumentType> types = ((XDMModelManagementBase) schemaDictionary).getDocumentTypes();
 		String[] result = new String[types.size()];
 		Iterator<XDMDocumentType> itr = types.iterator();
 		for (int i=0; i < types.size(); i++) {

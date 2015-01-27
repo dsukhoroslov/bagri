@@ -7,41 +7,36 @@ import org.slf4j.LoggerFactory;
 
 import com.bagri.xdm.api.XDMDocumentManagement;
 import com.bagri.xdm.api.XDMQueryManagement;
+import com.bagri.xdm.api.XDMRepository;
 
 public abstract class XQProcessorBase {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     private XQDataFactory xqFactory;
-    private XDMDocumentManagement dMgr;
-    private XDMQueryManagement qMgr;
+    private XDMRepository xRepo;
 
-    public XDMDocumentManagement getXdmManager() {
-    	return dMgr;
+    public XDMRepository getRepository() {
+    	return xRepo;
     }
     
+    public XDMQueryManagement getQueryManagement() {
+    	return xRepo.getQueryManagement();
+    }
+
     public XQDataFactory getXQDataFactory() {
     	return xqFactory;
     }
 
-    public void setXdmManager(XDMDocumentManagement mgr) {
+    public void setRepository(XDMRepository xRepo) {
     	//config.setConfigurationProperty("xdm", mgr);
-    	this.dMgr = mgr;
-    	logger.trace("setXdmManager; got XDM: {}", dMgr); 
+    	this.xRepo = xRepo;
+    	logger.trace("setRepository; got Repo: {}", xRepo); 
     }
     
     //@Override
     public void setXQDataFactory(XQDataFactory xqFactory) {
     	this.xqFactory = xqFactory;
-    }
-    
-    public XDMQueryManagement getXQManager() {
-    	return qMgr;
-    }
-    
-    public void setXQManager(XDMQueryManagement mgr) {
-    	this.qMgr = mgr;
-    	logger.trace("setXQManager; got XQM: {}", qMgr); 
     }
     
 }

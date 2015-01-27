@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.bagri.xdm.api.XDMDocumentManagement;
+import com.bagri.xdm.api.XDMQueryManagement;
 import com.hazelcast.spring.context.SpringAware;
 
 @SpringAware
@@ -14,10 +15,10 @@ public class XMLBuilder extends com.bagri.xdm.client.hazelcast.task.doc.XMLBuild
 
     private static final transient Logger logger = LoggerFactory.getLogger(XMLBuilder.class);
 	    
-	private XDMDocumentManagement xdmProxy;
+	private XDMQueryManagement xdmProxy;
 	    
     @Autowired
-	public void setXdmProxy(XDMDocumentManagement xdmProxy) {
+	public void setXdmProxy(XDMQueryManagement xdmProxy) {
 		this.xdmProxy = xdmProxy;
 		logger.trace("setXdmProxy; got proxy: {}", xdmProxy); 
 	}

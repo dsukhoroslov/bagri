@@ -17,11 +17,11 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.common.util.FileUtils;
 import com.bagri.common.util.PropUtils;
-import com.bagri.xdm.api.XDMSchemaDictionary;
-import com.bagri.xdm.api.XDMSchemaDictionaryBase;
+import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.cache.common.XDMDocumentManagementServer;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaActivator;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaUpdater;
+import com.bagri.xdm.client.common.impl.XDMModelManagementBase;
 import com.bagri.xdm.system.XDMSchema;
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.core.HazelcastInstance;
@@ -39,7 +39,7 @@ public class SchemaManager extends EntityManager<XDMSchema> {
 
     private SchemaManagement parent;
 	protected XDMDocumentManagementServer docManager;
-	protected XDMSchemaDictionary schemaDictionary;
+	protected XDMModelManagement schemaDictionary;
 	private ClassPathXmlApplicationContext clientContext;
     
 	public SchemaManager() {
@@ -63,11 +63,11 @@ public class SchemaManager extends EntityManager<XDMSchema> {
 		this.docManager = docManager;
 	}
 	
-	public XDMSchemaDictionary getSchemaDictionary() {
+	public XDMModelManagement getSchemaDictionary() {
 		return schemaDictionary;
 	}
 	
-	public void setSchemaDictionary(XDMSchemaDictionary schemaDictionary) {
+	public void setSchemaDictionary(XDMModelManagement schemaDictionary) {
 		this.schemaDictionary = schemaDictionary;
 	}
 	
@@ -179,18 +179,18 @@ public class SchemaManager extends EntityManager<XDMSchema> {
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "schemaFile", description = "A full path to XSD file to register")})
 	public int registerSchema(String schemaFile) {
-		int size = ((XDMSchemaDictionaryBase) schemaDictionary).getDocumentTypes().size(); 
+		int size = ((XDMModelManagementBase) schemaDictionary).getDocumentTypes().size(); 
 		schemaDictionary.registerSchemaUri(schemaFile);
-		return ((XDMSchemaDictionaryBase) schemaDictionary).getDocumentTypes().size() - size;
+		return ((XDMModelManagementBase) schemaDictionary).getDocumentTypes().size() - size;
 	}
 	
 	@ManagedOperation(description="Register Schemas")
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "schemaCatalog", description = "A full path to the directory containing XSD files to register")})
 	public int registerSchemas(String schemasCatalog) {
-		int size = ((XDMSchemaDictionaryBase) schemaDictionary).getDocumentTypes().size(); 
-		((XDMSchemaDictionaryBase) schemaDictionary).registerSchemas(schemasCatalog);
-		return ((XDMSchemaDictionaryBase) schemaDictionary).getDocumentTypes().size() - size;
+		int size = ((XDMModelManagementBase) schemaDictionary).getDocumentTypes().size(); 
+		((XDMModelManagementBase) schemaDictionary).registerSchemas(schemasCatalog);
+		return ((XDMModelManagementBase) schemaDictionary).getDocumentTypes().size() - size;
 	}
 	
 	//@Override

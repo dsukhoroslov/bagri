@@ -1,27 +1,19 @@
 package com.bagri.xdm.client.hazelcast.impl;
 
-import static com.bagri.xdm.client.hazelcast.impl.DocumentManagementClient.*;
+import static com.bagri.xdm.client.hazelcast.impl.DocumentManagementImpl.*;
 
 import java.io.IOException;
-import java.util.Map;
 
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.bagri.xdm.api.test.XDMDocumentManagementTest;
-import com.bagri.xdm.client.hazelcast.impl.DocumentManagementClient;
-import com.bagri.xdm.common.XDMDataKey;
-import com.bagri.xdm.domain.XDMDocument;
-import com.bagri.xdm.domain.XDMElement;
-import com.bagri.xdm.domain.XDMElements;
 import com.hazelcast.core.Hazelcast;
-import com.hazelcast.core.IMap;
 
-public class DocumentManagementClientTest extends XDMDocumentManagementTest {
+public class DocumentManagementTest extends XDMDocumentManagementTest {
 	
 	//private staic boolean
 	
@@ -42,8 +34,7 @@ public class DocumentManagementClientTest extends XDMDocumentManagementTest {
 
 	@Before
 	public void setUp() throws Exception {
-		dMgr = new DocumentManagementClient();
-		mDictionary = dMgr.getSchemaDictionary();
+		xRepo = new RepositoryImpl();
 
 		//storeSecurityTest();
 		//storeCustomerTest();
@@ -54,23 +45,7 @@ public class DocumentManagementClientTest extends XDMDocumentManagementTest {
 	public void tearDown() throws Exception {
 		// remove documents here!
 		removeDocumentsTest();
-		dMgr.close();
-	}
-	
-	@Test
-	@Ignore
-	public void getDocumentsCacheTest() {
-		IMap<Long, XDMDocument> cache = ((DocumentManagementClient) dMgr).getDocumentCache();
-		Map<Long, XDMDocument> all = cache.getAll(cache.keySet());
-		System.out.println("Documents Cache: " + all);
-	}
-
-	@Test
-	@Ignore
-	public void getElementsCacheTest() {
-		IMap<XDMDataKey, XDMElements> cache = ((DocumentManagementClient) dMgr).getDataCache();
-		Map<XDMDataKey, XDMElements> all = cache.getAll(cache.keySet());
-		System.out.println("Elements Cache: " + all);
+		xRepo.close();
 	}
 	
 	@Test

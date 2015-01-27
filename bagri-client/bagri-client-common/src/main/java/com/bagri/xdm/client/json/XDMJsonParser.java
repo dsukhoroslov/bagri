@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import com.bagri.common.idgen.IdGenerator;
 import com.bagri.common.idgen.SimpleIdGenerator;
-import com.bagri.xdm.api.XDMSchemaDictionary;
+import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.domain.XDMElement;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
@@ -36,9 +36,9 @@ public class XDMJsonParser {
 	private long documentId = 0;
 	private Stack<XDMElement> dataStack;
 	private IdGenerator<Long> idGen;
-	private XDMSchemaDictionary dict;
+	private XDMModelManagement dict;
 
-	public static List<XDMElement> parseDocument(XDMSchemaDictionary dictionary, long documentId, 
+	public static List<XDMElement> parseDocument(XDMModelManagement dictionary, long documentId, 
 			String xml) throws IOException, XMLStreamException {
 		XDMJsonParser parser = new XDMJsonParser(dictionary, documentId);
 		return parser.parse(xml);
@@ -48,13 +48,13 @@ public class XDMJsonParser {
 		//this(0);
 	}
 	
-	public XDMJsonParser(XDMSchemaDictionary dict, long documentId) {
+	public XDMJsonParser(XDMModelManagement dict, long documentId) {
 		this.dict = dict;
 		this.documentId = documentId;
 		this.idGen = new SimpleIdGenerator(0);
 	}
 
-	public XDMJsonParser(XDMSchemaDictionary dict, long documentId, IdGenerator generator) {
+	public XDMJsonParser(XDMModelManagement dict, long documentId, IdGenerator generator) {
 		this.dict = dict;
 		this.documentId = documentId;
 		this.idGen = generator;

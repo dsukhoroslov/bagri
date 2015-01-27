@@ -24,7 +24,7 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.common.util.FileUtils;
 import com.bagri.common.util.PropUtils;
-import com.bagri.xdm.api.XDMSchemaDictionary;
+import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaCreator;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaMemberExtractor;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaRemover;
@@ -204,7 +204,7 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
     		HazelcastInstance hz = ctx.getBean("hzInstance", HazelcastInstance.class);
     		//hz.getUserContext().put("appContext", ctx);
     		//hz.getConfig().getSecurityConfig().setEnabled(true);
-    	    XDMSchemaDictionary schemaDict = ctx.getBean("xdmDictionary", XDMSchemaDictionary.class);
+    	    XDMModelManagement schemaDict = ctx.getBean("xdmDictionary", XDMModelManagement.class);
     	    SchemaManager sMgr = (SchemaManager) mgrCache.get(schemaName);
        	    if (sMgr != null) {
        	    	sMgr.setClientContext(ctx);

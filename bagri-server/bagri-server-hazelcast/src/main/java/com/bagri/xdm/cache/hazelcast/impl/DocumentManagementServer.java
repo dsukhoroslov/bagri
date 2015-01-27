@@ -36,8 +36,8 @@ import com.bagri.common.query.PathExpression;
 import static com.bagri.xdm.client.common.XDMCacheConstants.*;
 
 import com.bagri.xdm.api.XDMQueryManagement;
-import com.bagri.xdm.api.XDMSchemaDictionaryBase;
 import com.bagri.xdm.cache.common.XDMDocumentManagementServer;
+import com.bagri.xdm.client.common.impl.XDMModelManagementBase;
 import com.bagri.xdm.client.hazelcast.impl.ResultsIterator;
 import com.bagri.xdm.client.hazelcast.task.doc.XMLProvider;
 import com.bagri.xdm.client.xml.XDMStaxParser;
@@ -243,7 +243,7 @@ public class DocumentManagementServer extends XDMDocumentManagementServer implem
 			mDictionary.normalizeDocumentType(docType);
 			return docType;
 		}
-		return XDMSchemaDictionaryBase.WRONG_PATH;
+		return XDMModelManagementBase.WRONG_PATH;
 	}
 	
 	private boolean isPathIndexed(int pathId) {
