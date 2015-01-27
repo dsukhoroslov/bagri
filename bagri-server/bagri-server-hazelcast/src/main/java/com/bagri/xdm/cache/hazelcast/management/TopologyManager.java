@@ -26,15 +26,15 @@ import org.springframework.jmx.export.naming.SelfNaming;
 
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.xdm.cache.hazelcast.XDMCacheServer;
-import com.bagri.xdm.process.hazelcast.node.NodeInfoProvider;
-import com.bagri.xdm.process.hazelcast.node.NodeInfoProvider.InfoType;
-import com.bagri.xdm.process.hazelcast.node.NodeKiller;
-import com.bagri.xdm.process.hazelcast.node.NodeOptionSetter;
+import com.bagri.xdm.cache.hazelcast.task.node.NodeInfoProvider;
+import com.bagri.xdm.cache.hazelcast.task.node.NodeKiller;
+import com.bagri.xdm.cache.hazelcast.task.node.NodeOptionSetter;
+import com.bagri.xdm.cache.hazelcast.task.node.NodeInfoProvider.InfoType;
 import com.bagri.xdm.system.XDMNode;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.Member;
 
-import static com.bagri.xdm.process.hazelcast.util.HazelcastUtils.getMemberSchemas;
+import static com.bagri.xdm.cache.hazelcast.util.HazelcastUtils.getMemberSchemas;
 
 @ManagedResource(description="Topology Manager MBean")
 public class TopologyManager implements SelfNaming {

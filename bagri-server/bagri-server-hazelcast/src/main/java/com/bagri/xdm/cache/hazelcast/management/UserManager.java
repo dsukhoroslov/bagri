@@ -17,7 +17,7 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
 import com.bagri.common.manage.JMXUtils;
-import com.bagri.xdm.process.hazelcast.user.UserUpdater;
+import com.bagri.xdm.cache.hazelcast.task.user.UserUpdater;
 import com.bagri.xdm.system.XDMPermission;
 import com.bagri.xdm.system.XDMRole;
 import com.bagri.xdm.system.XDMUser;

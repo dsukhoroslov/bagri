@@ -1,5 +1,9 @@
 package com.bagri.xdm.cache.hazelcast.management;
 
+import java.util.Map;
+import java.util.Set;
+
+import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.TabularData;
 
 import org.springframework.jmx.export.annotation.ManagedAttribute;
@@ -8,6 +12,8 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
+import com.bagri.common.manage.JMXUtils;
+import com.bagri.xdm.system.XDMIndex;
 import com.bagri.xdm.system.XDMSchema;
 import com.hazelcast.core.IMap;
 
@@ -32,9 +38,23 @@ public class IndexManagement extends SchemaFeatureManagement {
 	public TabularData getIndexes() {
 		// get XDMSchema somehow! then get its indexes and build TabularData
 		XDMSchema schema = schemaCache.get(schemaName);
-		logger.debug("getIndexes; got indexes: {}", schema.getIndexes());
-		return null;
-	}
+		Set<XDMIndex> indexes = schema.getIndexes();
+		if (indexes.size() == 0) {
+			return null;
+		}
+		
+        TabularData result = null;
+        for (XDMIndex index: indexes) {
+            try {
+                Map<String, Object> def = index.toMap();
+                CompositeData data = JMXUtils.mapToComposite("index", "Index definition", def);
+                result = JMXUtils.compositeToTabular("index", "Index definition", "name", result, data);
+            } catch (Exception ex) {
+                logger.error("getIndexes; error", ex);
+            }
+        }
+        return result;
+    }
 	
 	@ManagedAttribute(description="Return aggregated index usage statistics, per index")
 	public TabularData getIndexStatistics() {

@@ -17,11 +17,11 @@
 
         <dependency>
             <groupId>com.sdv.bagri</groupId>
-            <artifactId>bagri-xquery-api</artifactId>
+            <artifactId>bagri-xdm</artifactId>
         </dependency>
         <dependency>
             <groupId>com.sdv.bagri</groupId>
-            <artifactId>bagri-client-api</artifactId>
+            <artifactId>bagri-xquery-api</artifactId>
         </dependency>
 
         <dependency>

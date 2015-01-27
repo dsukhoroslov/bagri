@@ -1,11 +1,11 @@
 package com.bagri.xdm.cache.hazelcast.management;
 
-import static com.bagri.xdm.access.api.XDMCacheConstants.PN_XDM_SYSTEM_POOL;
+import static com.bagri.xdm.client.common.XDMCacheConstants.PN_XDM_SYSTEM_POOL;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bagri.xdm.process.hazelcast.schema.SchemaPopulator;
+import com.bagri.xdm.cache.hazelcast.task.schema.SchemaPopulator;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.MemberAttributeEvent;
 import com.hazelcast.core.MembershipEvent;

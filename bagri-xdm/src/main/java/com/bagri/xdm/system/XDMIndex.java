@@ -1,6 +1,8 @@
 package com.bagri.xdm.system;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -9,7 +11,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlID;
 import javax.xml.bind.annotation.XmlType;
 
-import com.bagri.xdm.api.XDMEntity;
+import com.bagri.xdm.common.XDMEntity;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(namespace = "http://www.bagri.com/xdm/system", propOrder = {
@@ -90,6 +92,19 @@ public class XDMIndex extends XDMEntity {
 		}
 		XDMIndex other = (XDMIndex) obj;
 		return name.equals(other.name); 
+	}
+	
+	public Map<String, Object> toMap() {
+		Map<String, Object> result = new HashMap<>();
+		result.put("name", name);
+		result.put("version", getVersion());
+		result.put("created at", getCreatedAt().toString());
+		result.put("created by", getCreatedBy());
+		result.put("path", path);
+		result.put("document type", docType);
+		result.put("unique", unique);
+		result.put("description", description);
+		return result;
 	}
 
 	@Override

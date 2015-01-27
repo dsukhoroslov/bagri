@@ -10,7 +10,7 @@ import org.springframework.jmx.export.annotation.ManagedAttribute;
 import org.springframework.jmx.export.naming.SelfNaming;
 
 import com.bagri.common.manage.JMXUtils;
-import com.bagri.xdm.access.api.XDMSchemaDictionary;
+import com.bagri.xdm.api.XDMSchemaDictionary;
 
 public abstract class SchemaFeatureManagement implements SelfNaming {
 	

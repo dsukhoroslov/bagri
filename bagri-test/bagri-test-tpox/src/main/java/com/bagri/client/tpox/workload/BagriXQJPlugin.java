@@ -16,12 +16,13 @@ import net.sf.tpox.workload.parameter.ActualParamInfo;
 import net.sf.tpox.workload.parameter.Parameter;
 import net.sf.tpox.workload.transaction.Transaction;
 
+
 //import org.slf4j.Logger;
 //import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import static com.bagri.xdm.access.api.XDMConfigConstants.xdm_spring_context;
+import static com.bagri.xdm.client.common.XDMConfigConstants.xdm_spring_context;
 
 public class BagriXQJPlugin extends BagriTPoXPlugin {
 

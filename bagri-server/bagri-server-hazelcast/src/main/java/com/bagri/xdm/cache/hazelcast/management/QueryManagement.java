@@ -21,7 +21,7 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
-import com.bagri.xdm.access.api.XDMSchemaDictionaryBase;
+import com.bagri.xdm.api.XDMSchemaDictionaryBase;
 import com.bagri.xdm.domain.XDMDocumentType;
 
 /**

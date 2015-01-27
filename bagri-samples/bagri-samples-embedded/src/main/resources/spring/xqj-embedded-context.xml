@@ -24,7 +24,7 @@
     	<property name="processor" ref="xqProcessor" />
     </bean>
     
-    <bean id="xqProcessor" class="com.bagri.xquery.saxon.BagriXQProcessor">
+    <bean id="xqProcessor" class="com.bagri.xquery.saxon.XQProcessorServer">
 		<!--property name="xdmManager" ref="xdmManager" /-->
 		<!--property name="XQManager" ref="xqManager" /-->
 		<property name="XQDataFactory" ref="xqFactory" />

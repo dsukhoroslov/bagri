@@ -33,7 +33,7 @@ public class BagriXQDynamicContextTest {
 	    xqds.setProperty(BagriXQDataSource.SCHEMA, "TPoX2");
 	    xqds.setProperty(BagriXQDataSource.PASSWORD, "TPoX2");
 	    xqds.setProperty(BagriXQDataSource.XQ_PROCESSOR, "com.bagri.xquery.saxon.BagriXQProcessorProxy");
-	    xqds.setProperty(BagriXQDataSource.XDM_MANAGER, "com.bagri.xdm.access.hazelcast.impl.DocumentManagementClient");
+	    xqds.setProperty(BagriXQDataSource.XDM_MANAGER, "com.bagri.xdm.client.hazelcast.impl.DocumentManagementClient");
 		xqc = xqds.getConnection();
 	}
 

@@ -5,7 +5,7 @@ import java.util.Collection;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 
-import com.bagri.xdm.api.XDMEntity;
+import com.bagri.xdm.common.XDMEntity;
 import com.bagri.xdm.system.XDMConfig;
 import com.bagri.xdm.system.XDMNode;
 import com.bagri.xdm.system.XDMSchema;

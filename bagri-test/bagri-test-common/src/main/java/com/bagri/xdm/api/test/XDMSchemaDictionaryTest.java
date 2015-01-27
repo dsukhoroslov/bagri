@@ -8,8 +8,8 @@ import java.util.Collection;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.bagri.xdm.access.api.XDMDocumentManagement;
-import com.bagri.xdm.access.api.XDMSchemaDictionary;
+import com.bagri.xdm.api.XDMDocumentManagement;
+import com.bagri.xdm.api.XDMSchemaDictionary;
 import com.bagri.xdm.domain.XDMPath;
 
 public abstract class XDMSchemaDictionaryTest {

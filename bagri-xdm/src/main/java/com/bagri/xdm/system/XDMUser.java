@@ -18,7 +18,7 @@ import javax.xml.bind.annotation.XmlIDREF;
 import javax.xml.bind.annotation.XmlList;
 import javax.xml.bind.annotation.XmlType;
 
-import com.bagri.xdm.api.XDMEntity;
+import com.bagri.xdm.common.XDMEntity;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(namespace = "http://www.bagri.com/xdm/access", propOrder = {

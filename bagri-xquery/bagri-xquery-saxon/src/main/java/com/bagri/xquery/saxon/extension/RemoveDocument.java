@@ -9,8 +9,9 @@ import net.sf.saxon.trans.XPathException;
 import net.sf.saxon.value.Int64Value;
 import net.sf.saxon.value.SequenceType;
 
-import com.bagri.xdm.access.api.XDMDocumentManagement;
+import com.bagri.xdm.api.XDMDocumentManagement;
 import com.bagri.xdm.domain.XDMDocument;
+
 import static com.bagri.xqj.BagriXQConstants.bg_ns;
 import static com.bagri.xqj.BagriXQConstants.bg_schema;
 

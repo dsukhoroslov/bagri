@@ -1,10 +1,10 @@
 package com.bagri.xquery.saxon.extension;
 
-import com.bagri.xdm.access.api.XDMDocumentManagement;
+import com.bagri.xdm.api.XDMDocumentManagement;
 import com.bagri.xdm.domain.XDMDocument;
+
 import static com.bagri.xqj.BagriXQConstants.bg_ns;
 import static com.bagri.xqj.BagriXQConstants.bg_schema;
-
 import net.sf.saxon.expr.XPathContext;
 import net.sf.saxon.lib.ExtensionFunctionCall;
 import net.sf.saxon.lib.ExtensionFunctionDefinition;

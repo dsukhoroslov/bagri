@@ -20,12 +20,12 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.common.util.FileUtils;
-import com.bagri.xdm.access.hazelcast.impl.DocumentManagementClient;
+import com.bagri.xdm.cache.hazelcast.task.doc.DocumentStatsCollector;
+import com.bagri.xdm.cache.hazelcast.task.doc.DocumentStatsReseter;
+import com.bagri.xdm.cache.hazelcast.task.schema.SchemaCleaner;
+import com.bagri.xdm.cache.hazelcast.task.schema.SchemaStatsAggregator;
+import com.bagri.xdm.client.hazelcast.impl.DocumentManagementClient;
 import com.bagri.xdm.domain.XDMDocument;
-import com.bagri.xdm.process.hazelcast.DocumentStatsCollector;
-import com.bagri.xdm.process.hazelcast.DocumentStatsReseter;
-import com.bagri.xdm.process.hazelcast.schema.SchemaCleaner;
-import com.bagri.xdm.process.hazelcast.schema.SchemaStatsAggregator;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.Member;
 

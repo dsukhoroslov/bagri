@@ -3,7 +3,7 @@ package com.bagri.xdm.domain;
 import java.io.Serializable;
 import java.util.Date;
 
-import com.bagri.xdm.api.XDMEntity;
+import com.bagri.xdm.common.XDMEntity;
 
 public class XDMDocument extends XDMEntity { //implements Serializable {
 

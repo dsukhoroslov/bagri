@@ -24,11 +24,11 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.common.util.FileUtils;
 import com.bagri.common.util.PropUtils;
-import com.bagri.xdm.access.api.XDMSchemaDictionary;
+import com.bagri.xdm.api.XDMSchemaDictionary;
+import com.bagri.xdm.cache.hazelcast.task.schema.SchemaCreator;
+import com.bagri.xdm.cache.hazelcast.task.schema.SchemaMemberExtractor;
+import com.bagri.xdm.cache.hazelcast.task.schema.SchemaRemover;
 import com.bagri.xdm.common.StringStringKey;
-import com.bagri.xdm.process.hazelcast.schema.SchemaCreator;
-import com.bagri.xdm.process.hazelcast.schema.SchemaMemberExtractor;
-import com.bagri.xdm.process.hazelcast.schema.SchemaRemover;
 import com.bagri.xdm.system.XDMNode;
 import com.bagri.xdm.system.XDMSchema;
 import com.hazelcast.cluster.MemberAttributeOperationType;
@@ -39,8 +39,8 @@ import com.hazelcast.core.MemberAttributeEvent;
 import com.hazelcast.core.MembershipEvent;
 import com.hazelcast.core.MembershipListener;
 
-import static com.bagri.xdm.access.api.XDMConfigConstants.*;
-import static com.bagri.xdm.process.hazelcast.util.HazelcastUtils.getMemberSchemas;
+import static com.bagri.xdm.cache.hazelcast.util.HazelcastUtils.getMemberSchemas;
+import static com.bagri.xdm.client.common.XDMConfigConstants.*;
 
 @ManagedResource(objectName="com.bagri.xdm:type=Management,name=SchemaManagement", 
 	description="Schema Management MBean")

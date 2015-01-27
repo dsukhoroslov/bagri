@@ -10,8 +10,8 @@ import javax.xml.xquery.XQDataFactory;
 import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQStaticContext;
 
-import com.bagri.xdm.access.api.XDMDocumentManagement;
-import com.bagri.xdm.access.api.XDMQueryManagement;
+import com.bagri.xdm.api.XDMDocumentManagement;
+import com.bagri.xdm.api.XDMQueryManagement;
 
 public interface QueryProcessor {
 	

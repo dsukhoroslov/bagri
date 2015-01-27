@@ -1,6 +1,6 @@
 package com.bagri.xdm.cache.hazelcast.management;
 
-import static com.bagri.xdm.access.api.XDMCacheConstants.PN_XDM_SYSTEM_POOL;
+import static com.bagri.xdm.client.common.XDMCacheConstants.PN_XDM_SYSTEM_POOL;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +15,7 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
 import com.bagri.common.manage.JMXUtils;
-import com.bagri.xdm.process.hazelcast.node.NodeUpdater;
+import com.bagri.xdm.cache.hazelcast.task.node.NodeUpdater;
 import com.bagri.xdm.system.XDMNode;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;

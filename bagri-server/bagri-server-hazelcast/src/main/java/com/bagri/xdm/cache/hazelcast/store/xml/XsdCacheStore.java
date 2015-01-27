@@ -7,8 +7,8 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bagri.xdm.access.api.XDMSchemaDictionary;
-import com.bagri.xdm.access.api.XDMSchemaDictionaryBase;
+import com.bagri.xdm.api.XDMSchemaDictionary;
+import com.bagri.xdm.api.XDMSchemaDictionaryBase;
 import com.hazelcast.core.MapStore;
 
 public class XsdCacheStore extends XmlCacheStore implements MapStore {

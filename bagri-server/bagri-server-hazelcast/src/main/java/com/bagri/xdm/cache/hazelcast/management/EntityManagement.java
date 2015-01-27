@@ -15,7 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jmx.export.MBeanExportException;
 import org.springframework.jmx.export.annotation.AnnotationMBeanExporter;
 
-import com.bagri.xdm.api.XDMEntity;
+import com.bagri.xdm.common.XDMEntity;
 import com.bagri.xdm.system.XDMNode;
 import com.bagri.xdm.system.XDMUser;
 import com.hazelcast.core.EntryEvent;

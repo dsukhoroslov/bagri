@@ -15,11 +15,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.sdv.bagri</groupId>
-            <artifactId>bagri-client-api</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>org.antlr</groupId>
             <artifactId>antlr-runtime</artifactId>
             <exclusions>
@@ -40,12 +35,6 @@
             <artifactId>Saxon-HE</artifactId>
         </dependency>
 
-        <!-- Spring framework -->
-        <!--dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
-        </dependency-->
-
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
@@ -56,11 +45,6 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!--dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-        </dependency-->
-
         <!--Test dependencies-->
         <dependency>
             <groupId>junit</groupId>
@@ -68,33 +52,5 @@
         </dependency>
 
     </dependencies>
-
-    <!--build>
-        <plugins>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>${maven-compiler-plugin.version}</version>
-                <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
-                    <encoding>UTF-8</encoding>
-                </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-                <version>${maven-resources-plugin.version}</version>
-            </plugin>
-
-            <plugin>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>${maven-jar-plugin.version}</version>
-            </plugin>
-
-        </plugins>
-    </build-->
 
 </project>

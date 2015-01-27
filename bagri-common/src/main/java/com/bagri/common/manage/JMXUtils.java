@@ -195,6 +195,20 @@ public class JMXUtils {
         return null;
     }
 
+    public static TabularData compositeToTabular(String name, String desc, String key, 
+    		TabularData source, CompositeData data) throws OpenDataException {
+        if (data == null) {
+            return source;
+        }
+        if (source == null) {
+        	TabularType type = new TabularType(name, desc, data.getCompositeType(),	new String[] {key});
+        	source = new TabularDataSupport(type); 
+        } 
+        source.put(data);
+        //logger.trace("getStatisticSeries; added row: {}", data);
+        return source;
+    }
+
 	public static TabularData aggregateStats(TabularData source, TabularData target) {
     	// source is not nullable
 		TabularData result = new TabularDataSupport(source.getTabularType());

@@ -150,7 +150,7 @@
             </dependency>
             <dependency>
                 <groupId>com.sdv.bagri</groupId>
-                <artifactId>bagri-client-api</artifactId>
+                <artifactId>bagri-client-common</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <!--dependency>

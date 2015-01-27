@@ -18,8 +18,8 @@ import com.bagri.common.query.Comparison;
 //import com.bagri.common.query.ExpressionBuilder;
 import com.bagri.common.query.ExpressionContainer;
 import com.bagri.common.query.PathBuilder;
-import com.bagri.xdm.access.api.XDMDocumentManagement;
-import com.bagri.xdm.access.api.XDMSchemaDictionary;
+import com.bagri.xdm.api.XDMDocumentManagement;
+import com.bagri.xdm.api.XDMSchemaDictionary;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMPath;
 

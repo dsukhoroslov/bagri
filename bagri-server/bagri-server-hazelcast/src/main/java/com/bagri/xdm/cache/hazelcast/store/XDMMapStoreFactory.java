@@ -13,13 +13,13 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.env.PropertySource;
 
-import static com.bagri.xdm.access.api.XDMCacheConstants.*;
-import static com.bagri.xdm.access.api.XDMConfigConstants.*;
+import static com.bagri.xdm.client.common.XDMCacheConstants.*;
+import static com.bagri.xdm.client.common.XDMConfigConstants.*;
 
 import com.bagri.xdm.cache.hazelcast.store.hive.HiveCacheStore;
 import com.bagri.xdm.cache.hazelcast.store.xml.DocumentCacheStore;
 import com.bagri.xdm.cache.hazelcast.store.xml.XsdCacheStore;
-import com.bagri.xdm.process.hazelcast.SpringContextHolder;
+import com.bagri.xdm.cache.hazelcast.util.SpringContextHolder;
 import com.hazelcast.core.MapLoader;
 import com.hazelcast.core.MapStore;
 import com.hazelcast.core.MapStoreFactory;

@@ -16,28 +16,6 @@
         </property>
     </bean-->
  
-	<!--bean id="hzInstance" class="com.bagri.xdm.hazelcast.HazelcastClientBuilder" factory-method="newHazelcastClient">
-		<constructor-arg>
-			<bean class="com.hazelcast.client.config.ClientConfig"-->
-				<!--property name="groupConfig">
-					<bean class="com.hazelcast.config.GroupConfig">
-						<property name="name" value="dev"/>
-						<property name="password" value="pwd"/>
-					</bean>
-				</property-->
-				<!--property name="addresses">
-					<list>
-						<value>linbox.sdv.home:5701</value>
-						<value>linbox.sdv.home:5702</value>
-						<value>192.168.1.100:5703</value>
-						<value>192.168.1.100:5704</value>
-					</list>
-				</property>
-				<property name="smart" value="true"/>
-			</bean>
-		</constructor-arg>
-	</bean-->
-
 	<hz:client id="hzInstance">
 		<hz:group name="TPoX2" password="TPoX2"/>
 	
@@ -51,27 +29,31 @@
 	
 		<hz:serialization>
 			<hz:data-serializable-factories>
-				<hz:data-serializable-factory factory-id="2" class-name="com.bagri.xdm.access.hazelcast.pof.XDMDataSerializationFactory"/>
+				<hz:data-serializable-factory factory-id="2" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory"/>
 			</hz:data-serializable-factories>
-			<hz:portable-factories>
+			<!--hz:portable-factories>
 				<hz:portable-factory factory-id="1" class-name="com.bagri.xdm.access.hazelcast.pof.XDMPortableFactory"/>
-			</hz:portable-factories>
+			</hz:portable-factories-->
 			<hz:serializers>
 				<!--hz:global-serializer class-name="com.hazelcast.nio.serialization.PortableSerializer"/-->
-				<hz:serializer type-class="com.bagri.xdm.domain.XDMElement" class-name="com.bagri.xdm.access.hazelcast.pof.XDMElementSerializer"/>
-				<hz:serializer type-class="com.bagri.xdm.domain.XDMElements" class-name="com.bagri.xdm.access.hazelcast.pof.XDMElementsSerializer"/>
-				<hz:serializer type-class="com.bagri.xdm.domain.XDMPath" class-name="com.bagri.xdm.access.hazelcast.pof.XDMPathSerializer"/>
-				<hz:serializer type-class="com.bagri.xdm.domain.XDMDocument" class-name="com.bagri.xdm.access.hazelcast.pof.XDMDocumentSerializer"/>
-				<hz:serializer type-class="com.bagri.xdm.domain.XDMDocumentType" class-name="com.bagri.xdm.access.hazelcast.pof.XDMDocumentTypeSerializer"/>
-				<hz:serializer type-class="com.bagri.xdm.domain.XDMNamespace" class-name="com.bagri.xdm.access.hazelcast.pof.XDMNamespaceSerializer"/>
-				<hz:serializer type-class="com.bagri.xdm.access.hazelcast.impl.HazelcastXQCursor" class-name="com.bagri.xdm.access.hazelcast.pof.XDMCursorSerializer"/>
-				<hz:serializer type-class="com.bagri.xqj.BagriXQItem" class-name="com.bagri.xdm.access.hazelcast.pof.XQItemSerializer"/>
-				<hz:serializer type-class="com.bagri.xqj.BagriXQItemType" class-name="com.bagri.xdm.access.hazelcast.pof.XQItemTypeSerializer"/>
-				<hz:serializer type-class="com.bagri.common.query.Expression" class-name="com.bagri.xdm.access.hazelcast.pof.ExpressionSerializer"/>
-				<hz:serializer type-class="com.bagri.common.query.PathExpression" class-name="com.bagri.xdm.access.hazelcast.pof.ExpressionSerializer"/>
-				<hz:serializer type-class="com.bagri.common.query.BinaryExpression" class-name="com.bagri.xdm.access.hazelcast.pof.ExpressionSerializer"/>
-				<hz:serializer type-class="com.bagri.common.query.ExpressionBuilder" class-name="com.bagri.xdm.access.hazelcast.pof.ExpressionBuilderSerializer"/>
-				<hz:serializer type-class="com.bagri.common.query.PathBuilder" class-name="com.bagri.xdm.access.hazelcast.pof.PathBuilderSerializer"/>
+				<hz:serializer type-class="com.bagri.common.query.Expression" class-name="com.bagri.xdm.client.hazelcast.serialize.ExpressionSerializer"/>
+				<hz:serializer type-class="com.bagri.common.query.PathExpression" class-name="com.bagri.xdm.client.hazelcast.serialize.ExpressionSerializer"/>
+				<hz:serializer type-class="com.bagri.common.query.BinaryExpression" class-name="com.bagri.xdm.client.hazelcast.serialize.ExpressionSerializer"/>
+				<hz:serializer type-class="com.bagri.common.query.ExpressionBuilder" class-name="com.bagri.xdm.client.hazelcast.serialize.ExpressionBuilderSerializer"/>
+				<hz:serializer type-class="com.bagri.common.query.PathBuilder" class-name="com.bagri.xdm.client.hazelcast.serialize.PathBuilderSerializer"/>
+				<hz:serializer type-class="com.bagri.common.query.ExpressionContainer" class-name="com.bagri.xdm.client.hazelcast.serialize.ExpressionContainerSerializer"/>
+				<hz:serializer type-class="com.bagri.xdm.domain.XDMElement" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMElementSerializer"/>
+				<hz:serializer type-class="com.bagri.xdm.domain.XDMElements" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMElementsSerializer"/>
+				<hz:serializer type-class="com.bagri.xdm.domain.XDMPath" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMPathSerializer"/>
+				<hz:serializer type-class="com.bagri.xdm.domain.XDMDocument" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMDocumentSerializer"/>
+				<hz:serializer type-class="com.bagri.xdm.domain.XDMDocumentType" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMDocumentTypeSerializer"/>
+				<hz:serializer type-class="com.bagri.xdm.domain.XDMNamespace" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMNamespaceSerializer"/>
+				<hz:serializer type-class="com.bagri.xdm.domain.XDMQuery" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMQuerySerializer"/>
+				<hz:serializer type-class="com.bagri.xdm.domain.XDMResults" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMResultsSerializer"/>
+				<hz:serializer type-class="com.bagri.xdm.domain.XDMIndex" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMIndexSerializer"/>
+				<hz:serializer type-class="com.bagri.xqj.BagriXQItemType" implementation="xqItemTypeSerializer"/>
+				<hz:serializer type-class="com.bagri.xqj.BagriXQItem" implementation="xqItemSerializer"/>
+				<hz:serializer type-class="com.bagri.xqj.BagriXQSequence" implementation="xqSequenceSerializer"/>
 			</hz:serializers>
 		</hz:serialization>
 
@@ -99,13 +81,13 @@
 	
 	<hz:executorService id="xdm-exec-pool" name="xdm-exec-pool" instance-ref="hzInstance"/>
 	
-	<bean id="xdmDictionary" class="com.bagri.xdm.access.hazelcast.impl.HazelcastSchemaDictionary">
+	<bean id="xdmDictionary" class="com.bagri.xdm.client.hazelcast.impl.SchemaDictionaryImpl">
 		<constructor-arg ref="hzInstance"/>
 	</bean>
 
-	<bean id="xdmFactory" class="com.bagri.xdm.access.hazelcast.impl.HazelcastXDMFactory" />
+	<bean id="xdmFactory" class="com.bagri.xdm.client.hazelcast.impl.XDMFactoryImpl" />
 
-	<bean id="xdmManager" class="com.bagri.xdm.access.hazelcast.impl.DocumentManagementClient">
+	<bean id="xdmManager" class="com.bagri.xdm.client.hazelcast.impl.DocumentManagementClient">
 		<constructor-arg ref="hzInstance"/>
 		<property name="xdmFactory" ref="xdmFactory"/>
 		<property name="schemaDictionary" ref="xdmDictionary"/>

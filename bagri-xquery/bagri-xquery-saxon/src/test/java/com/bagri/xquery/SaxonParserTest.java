@@ -30,16 +30,16 @@ import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import com.bagri.xquery.saxon.BagriXQProcessor;
+import com.bagri.xquery.saxon.XQProcessorServer;
 
 @Ignore
 public class SaxonParserTest {
 	
-	private BagriXQProcessor parser;
+	private XQProcessorServer parser;
 
 	@Before
 	public void setUp() throws Exception {
-		parser = new BagriXQProcessor(null);
+		parser = new XQProcessorServer(null);
 	}
 
 	@After

@@ -60,9 +60,9 @@
 			</hz:map>
 			<hz:serialization>
 				<!--hz:portable-version>0</hz:portable-version-->
-				<hz:portable-factories>
+				<!--hz:portable-factories>
 					<hz:portable-factory factory-id="1" class-name="com.bagri.xdm.access.hazelcast.pof.XDMPortableFactory"/>
-				</hz:portable-factories>
+				</hz:portable-factories-->
 				<!--hz:serializers-->
 					<!--hz:global-serializer class-name="com.hazelcast.nio.serialization.PortableSerializer"/-->
 					<!--hz:serializer type-class="com.bagri.xdm.XDMData" class-name="com.bagri.xdm.hazelcast.pof.XDMDataSerializer"/>

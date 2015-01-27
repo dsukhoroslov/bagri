@@ -16,9 +16,8 @@
     <dependencies>
         <dependency>
             <groupId>com.sdv.bagri</groupId>
-            <artifactId>bagri-client-api</artifactId>
+            <artifactId>bagri-xdm</artifactId>
         </dependency>
-
         <dependency>
             <groupId>javax.xml.xquery</groupId>
             <artifactId>xqj-api</artifactId>

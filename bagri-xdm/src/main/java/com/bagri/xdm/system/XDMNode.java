@@ -12,7 +12,7 @@ import javax.xml.bind.annotation.XmlEnumValue;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import com.bagri.xdm.api.XDMEntity;
+import com.bagri.xdm.common.XDMEntity;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(namespace = "http://www.bagri.com/xdm/system", propOrder = {

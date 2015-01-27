@@ -14,7 +14,7 @@ import javax.xml.xquery.XQException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bagri.xdm.access.api.XDMDocumentManagement;
+import com.bagri.xdm.api.XDMDocumentManagement;
 import com.bagri.xquery.api.XQProcessor;
 
 /**
@@ -55,7 +55,7 @@ public class BagriXQDataSource implements XQDataSource {
 		properties.put(PASSWORD, "syspwd");
 		properties.put(SCHEMA, "system");
 		properties.put(XQ_PROCESSOR, ""); //"com.bagri.xquery.saxon.BagriXQProcessor"); //Proxy
-		properties.put(XDM_MANAGER, ""); //"com.bagri.xdm.access.hazelcast.impl.DocumentManagementClient"); 
+		properties.put(XDM_MANAGER, ""); //"com.bagri.xdm.client.hazelcast.impl.DocumentManagementClient"); 
 	}
 
 	@Override

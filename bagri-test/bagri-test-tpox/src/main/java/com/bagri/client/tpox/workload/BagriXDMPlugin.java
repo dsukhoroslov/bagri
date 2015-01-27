@@ -8,9 +8,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import static com.bagri.xdm.access.api.XDMConfigConstants.xdm_spring_context;
+import static com.bagri.xdm.client.common.XDMConfigConstants.xdm_spring_context;
 
-import com.bagri.xdm.access.api.XDMDocumentManagement;
+import com.bagri.xdm.api.XDMDocumentManagement;
 import com.bagri.xdm.api.test.XDMDocumentManagementTest;
 import com.bagri.xdm.domain.XDMDocument;
 

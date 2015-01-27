@@ -1,12 +1,12 @@
 package com.bagri.xdm.cache.hazelcast;
 
-import static com.bagri.xdm.access.api.XDMCacheConstants.PN_XDM_SYSTEM_POOL;
-import static com.bagri.xdm.access.api.XDMConfigConstants.*;
+import static com.bagri.xdm.cache.hazelcast.util.HazelcastUtils.getMemberSchemas;
+import static com.bagri.xdm.client.common.XDMCacheConstants.PN_XDM_SYSTEM_POOL;
+import static com.bagri.xdm.client.common.XDMConfigConstants.*;
 import static com.bagri.xdm.system.XDMNode.op_admin_port;
 import static com.bagri.xdm.system.XDMNode.op_node_name;
 import static com.bagri.xdm.system.XDMNode.op_node_role;
 import static com.bagri.xdm.system.XDMNode.op_node_schemas;
-import static com.bagri.xdm.process.hazelcast.util.HazelcastUtils.getMemberSchemas;
 
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
@@ -39,9 +39,9 @@ import com.bagri.xdm.cache.hazelcast.management.SchemaManagement;
 import com.bagri.xdm.cache.hazelcast.management.UserManagement;
 import com.bagri.xdm.cache.hazelcast.security.BagriJAASInvocationHandler;
 import com.bagri.xdm.cache.hazelcast.security.BagriJMXAuthenticator;
-import com.bagri.xdm.process.hazelcast.SpringContextHolder;
-import com.bagri.xdm.process.hazelcast.schema.SchemaAdministrator;
-import com.bagri.xdm.process.hazelcast.schema.SchemaInitiator;
+import com.bagri.xdm.cache.hazelcast.task.schema.SchemaAdministrator;
+import com.bagri.xdm.cache.hazelcast.task.schema.SchemaInitiator;
+import com.bagri.xdm.cache.hazelcast.util.SpringContextHolder;
 import com.bagri.xdm.system.XDMSchema;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;

@@ -12,10 +12,10 @@
     <artifactId>bagri-client</artifactId>
     <packaging>pom</packaging>
     <name>bagri-client</name>
-    <description>BagRi XDM Access Components</description>
+    <description>BagRi XDM Client Components</description>
 
     <modules>
-        <module>bagri-client-api</module>
+        <module>bagri-client-common</module>
         <!--module>bagri-client-coherence</module-->
         <module>bagri-client-hazelcast</module>
         <!--module>bagri-client-jcache</module-->

@@ -19,8 +19,8 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.common.security.Encryptor;
-import com.bagri.xdm.process.hazelcast.user.UserCreator;
-import com.bagri.xdm.process.hazelcast.user.UserRemover;
+import com.bagri.xdm.cache.hazelcast.task.user.UserCreator;
+import com.bagri.xdm.cache.hazelcast.task.user.UserRemover;
 import com.bagri.xdm.system.XDMRole;
 import com.bagri.xdm.system.XDMUser;
 import com.hazelcast.core.HazelcastInstance;

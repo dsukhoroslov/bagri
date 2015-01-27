@@ -15,12 +15,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import com.bagri.xdm.access.api.XDMDocumentManagement;
+
 //import com.bagri.xdm.access.coherence.impl.CoherenceDocumentManager;
-import com.bagri.xdm.access.hazelcast.impl.DocumentManagementClient;
+
+import com.bagri.xdm.api.XDMDocumentManagement;
+import com.bagri.xdm.client.hazelcast.impl.DocumentManagementClient;
 import com.bagri.xdm.domain.XDMDocument;
 
-import static com.bagri.xdm.access.api.XDMCacheConstants.*;
+import static com.bagri.xdm.client.common.XDMCacheConstants.*;
 
 public class TPoXDataLoader {
 

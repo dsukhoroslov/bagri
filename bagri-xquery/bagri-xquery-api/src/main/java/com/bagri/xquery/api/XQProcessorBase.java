@@ -5,8 +5,8 @@ import javax.xml.xquery.XQDataFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bagri.xdm.access.api.XDMDocumentManagement;
-import com.bagri.xdm.access.api.XDMQueryManagement;
+import com.bagri.xdm.api.XDMDocumentManagement;
+import com.bagri.xdm.api.XDMQueryManagement;
 
 public abstract class XQProcessorBase {
 

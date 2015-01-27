@@ -19,10 +19,10 @@
             <groupId>com.sdv.bagri</groupId>
             <artifactId>bagri-common</artifactId>
         </dependency>
-        <dependency>
+        <!--dependency>
             <groupId>com.sdv.bagri</groupId>
-            <artifactId>bagri-client-api</artifactId>
-        </dependency>
+            <artifactId>bagri-client-common</artifactId>
+        </dependency-->
         <dependency>
             <groupId>com.sdv.bagri</groupId>
             <artifactId>bagri-xquery-api</artifactId>

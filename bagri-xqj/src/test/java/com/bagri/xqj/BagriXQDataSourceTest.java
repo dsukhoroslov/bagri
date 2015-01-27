@@ -37,7 +37,7 @@ public class BagriXQDataSourceTest {
 	    xqds.setProperty(BagriXQDataSource.PASSWORD, "TPoX2");
 	    //xqds.setProperty("hz.cache.mode", "client");
 	    xqds.setProperty(BagriXQDataSource.XQ_PROCESSOR, "com.bagri.xquery.saxon.BagriXQProcessorProxy");
-	    xqds.setProperty(BagriXQDataSource.XDM_MANAGER, "com.bagri.xdm.access.hazelcast.impl.DocumentManagementClient");
+	    xqds.setProperty(BagriXQDataSource.XDM_MANAGER, "com.bagri.xdm.client.hazelcast.impl.DocumentManagementClient");
     }
 	
 	@Test

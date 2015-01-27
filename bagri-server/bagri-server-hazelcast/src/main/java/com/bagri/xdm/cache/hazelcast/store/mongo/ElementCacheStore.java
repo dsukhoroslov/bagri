@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 
-import com.bagri.xdm.access.hazelcast.data.DocumentPathKey;
+import com.bagri.xdm.client.hazelcast.data.DocumentPathKey;
 import com.bagri.xdm.domain.XDMElement;
 import com.hazelcast.core.MapStore;
 //import com.hazelcast.spring.mongodb.MongoMapStore;

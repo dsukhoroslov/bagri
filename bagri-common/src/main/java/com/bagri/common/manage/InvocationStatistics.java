@@ -31,26 +31,13 @@ public class InvocationStatistics {
                 Map<String, Object> stats = entry.getValue().toMap();
                 stats.put("Method", entry.getKey());
                 CompositeData data = JMXUtils.mapToComposite("invocation", "Method invocation statistics", stats);
-                result = getTabularData(result, data);
+                result = JMXUtils.compositeToTabular("invocation", "Method invocation statistics", "Method", 
+                		result, data);
             } catch (Exception ex) {
                 //logger.error("getStatisticSeries; error", ex);
             }
         }
         //logger.trace("getStatisticSeries.exit; returning: {}", result);
-        return result;
-    }
-
-    private TabularData getTabularData(TabularData result, CompositeData data) throws OpenDataException {
-        if (data == null) {
-            return result;
-        }
-        if (result == null) {
-        	TabularType type = new TabularType("invocation", "Method invocation statistics", data.getCompositeType(), 
-        			new String[] {"Method"});
-        	result = new TabularDataSupport(type); 
-        } 
-        result.put(data);
-        //logger.trace("getStatisticSeries; added row: {}", data);
         return result;
     }
 

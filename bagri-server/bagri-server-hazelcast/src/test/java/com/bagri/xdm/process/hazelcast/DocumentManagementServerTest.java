@@ -1,6 +1,6 @@
 package com.bagri.xdm.process.hazelcast;
 
-import static com.bagri.xdm.access.api.XDMConfigConstants.xdm_config_properties_file;
+import static com.bagri.xdm.client.common.XDMConfigConstants.xdm_config_properties_file;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -9,6 +9,7 @@ import org.junit.BeforeClass;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.bagri.xdm.api.test.XDMDocumentManagementTest;
+import com.bagri.xdm.cache.hazelcast.impl.DocumentManagementServer;
 
 public class DocumentManagementServerTest extends XDMDocumentManagementTest {
 	

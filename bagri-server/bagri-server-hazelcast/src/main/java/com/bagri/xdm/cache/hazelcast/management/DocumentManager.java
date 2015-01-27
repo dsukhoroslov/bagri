@@ -16,9 +16,9 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 import org.springframework.jmx.export.naming.SelfNaming;
 
 import com.bagri.common.manage.JMXUtils;
-import com.bagri.xdm.access.api.XDMCacheConstants;
-import com.bagri.xdm.process.hazelcast.DocumentStatsCollector;
-import com.bagri.xdm.process.hazelcast.DocumentStatsReseter;
+import com.bagri.xdm.cache.hazelcast.task.doc.DocumentStatsCollector;
+import com.bagri.xdm.cache.hazelcast.task.doc.DocumentStatsReseter;
+import com.bagri.xdm.client.common.XDMCacheConstants;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.Member;

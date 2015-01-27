@@ -22,17 +22,17 @@ import org.junit.Test;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
-import com.bagri.xdm.process.hazelcast.QueryManagementServer;
+import com.bagri.xdm.cache.hazelcast.impl.QueryManagementServer;
 import com.bagri.xqj.BagriXQDataFactory;
-import com.bagri.xquery.saxon.BagriXQProcessor;
+import com.bagri.xquery.saxon.XQProcessorServer;
 
 public class SaxonQueryTest {
 
-	private BagriXQProcessor processor;
+	private XQProcessorServer processor;
 
 	@Before
 	public void setUp() throws Exception {
-		processor = new BagriXQProcessor(null);
+		processor = new XQProcessorServer(null);
 		BagriXQDataFactory xqFactory = new BagriXQDataFactory();
 		xqFactory.setProcessor(processor);
 		processor.setXQDataFactory(xqFactory);

@@ -17,18 +17,18 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.common.util.FileUtils;
 import com.bagri.common.util.PropUtils;
-import com.bagri.xdm.access.api.XDMSchemaDictionary;
-import com.bagri.xdm.access.api.XDMSchemaDictionaryBase;
+import com.bagri.xdm.api.XDMSchemaDictionary;
+import com.bagri.xdm.api.XDMSchemaDictionaryBase;
 import com.bagri.xdm.cache.common.XDMDocumentManagementServer;
-import com.bagri.xdm.process.hazelcast.schema.SchemaActivator;
-import com.bagri.xdm.process.hazelcast.schema.SchemaUpdater;
+import com.bagri.xdm.cache.hazelcast.task.schema.SchemaActivator;
+import com.bagri.xdm.cache.hazelcast.task.schema.SchemaUpdater;
 import com.bagri.xdm.system.XDMSchema;
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.Member;
 import com.hazelcast.instance.MemberImpl;
 
-import static com.bagri.xdm.access.api.XDMConfigConstants.xdm_schema_store_type;
+import static com.bagri.xdm.client.common.XDMConfigConstants.xdm_schema_store_type;
 
 @ManagedResource(description="Schema Manager MBean")
 //public class SchemaManager extends XDMSchemaManagerBase implements SelfNaming {
