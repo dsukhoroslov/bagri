@@ -1,19 +1,19 @@
 package com.bagri.xdm.cache.hazelcast.serialize;
 
-import com.bagri.xdm.cache.hazelcast.impl.QueryPredicate;
+import com.bagri.xdm.cache.hazelcast.predicate.QueryPredicate;
 import com.bagri.xdm.cache.hazelcast.task.doc.DocumentBuilder;
 import com.bagri.xdm.cache.hazelcast.task.doc.DocumentCreator;
-import com.bagri.xdm.cache.hazelcast.task.doc.DocumentIdsProvider;
 import com.bagri.xdm.cache.hazelcast.task.doc.DocumentRemover;
 import com.bagri.xdm.cache.hazelcast.task.doc.DocumentStatsCollector;
 import com.bagri.xdm.cache.hazelcast.task.doc.DocumentStatsReseter;
-import com.bagri.xdm.cache.hazelcast.task.doc.DocumentUrisProvider;
-import com.bagri.xdm.cache.hazelcast.task.doc.XMLBuilder;
 import com.bagri.xdm.cache.hazelcast.task.doc.XMLProvider;
 import com.bagri.xdm.cache.hazelcast.task.node.NodeInfoProvider;
 import com.bagri.xdm.cache.hazelcast.task.node.NodeKiller;
 import com.bagri.xdm.cache.hazelcast.task.node.NodeOptionSetter;
+import com.bagri.xdm.cache.hazelcast.task.query.DocumentIdsProvider;
+import com.bagri.xdm.cache.hazelcast.task.query.DocumentUrisProvider;
 import com.bagri.xdm.cache.hazelcast.task.query.QueryProcessor;
+import com.bagri.xdm.cache.hazelcast.task.query.XMLBuilder;
 import com.bagri.xdm.cache.hazelcast.task.query.XQCommandExecutor;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaAdministrator;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaCleaner;

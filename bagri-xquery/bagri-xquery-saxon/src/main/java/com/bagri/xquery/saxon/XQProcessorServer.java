@@ -31,6 +31,7 @@ import com.bagri.common.query.ExpressionContainer;
 import com.bagri.xdm.api.XDMDocumentManagement;
 import com.bagri.xdm.api.XDMQueryManagement;
 import com.bagri.xdm.api.XDMRepository;
+import com.bagri.xdm.api.XQQueryManagement;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMQuery;
 import com.bagri.xqj.BagriXQConstants;
@@ -144,7 +145,7 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 		long stamp = System.currentTimeMillis();
    	    XQueryExpression xqExp = null;
    	    
-   	    XDMQueryManagement qMgr = getRepository().getQueryManagement();
+   	    XQQueryManagement qMgr = (XQQueryManagement) getQueryManagement();
    	    XDMQuery xQuery = qMgr.getQuery(query);
    	    boolean cacheable = false;
 

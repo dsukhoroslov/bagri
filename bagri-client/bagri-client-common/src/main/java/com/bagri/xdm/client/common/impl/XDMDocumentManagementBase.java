@@ -21,25 +21,6 @@ public abstract class XDMDocumentManagementBase {
 	
     protected final transient Logger logger = LoggerFactory.getLogger(getClass());
 	
-	protected XDMFactory factory;
-	protected XDMModelManagement model;
-	
-	public XDMFactory getXdmFactory() {
-		return this.factory;
-	}
-	
-	public void setXdmFactory(XDMFactory factory) {
-		this.factory = factory;
-	}
-	
-	public XDMModelManagement getModel() {
-		return this.model;
-	}
-	
-	public void setModel(XDMModelManagement model) {
-		this.model = model;
-	}
-
 	public abstract String getDocumentAsString(long docId);
 	public abstract XDMDocument storeDocumentFromString(long docId, String uri, String xml);
 	

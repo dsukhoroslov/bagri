@@ -15,6 +15,8 @@ import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
+// this task class is never used! do we need it at all?
+
 public class DocumentBuilder implements Callable<Collection<String>>, IdentifiedDataSerializable {
 
 	protected int docType;

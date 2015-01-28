@@ -1,4 +1,4 @@
-package com.bagri.xdm.client.hazelcast.impl;
+package com.bagri.xdm.cache.hazelcast.impl;
 
 import static com.bagri.xdm.client.common.XDMCacheConstants.*;
 
@@ -12,6 +12,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.bagri.common.idgen.IdGenerator;
 import com.bagri.xdm.client.common.impl.XDMModelManagementBase;
+import com.bagri.xdm.client.hazelcast.impl.IdGeneratorImpl;
 import com.bagri.xdm.domain.XDMDocumentType;
 import com.bagri.xdm.domain.XDMNamespace;
 import com.bagri.xdm.domain.XDMNodeKind;

@@ -67,11 +67,10 @@ import com.hazelcast.monitor.LocalMapStats;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
 
-public class DocumentManagementServer extends XDMDocumentManagementServer implements ClientListener, ApplicationContextAware {
+public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	
-    private ApplicationContext appContext;
     private HazelcastInstance hzInstance;
-    private XDMQueryManagement queryManager;
+    //private XDMQueryManagement queryManager;
 
     private IdGenerator<Long> docGen;
 	private IMap<Long, XDMDocument> xddCache;
@@ -79,15 +78,20 @@ public class DocumentManagementServer extends XDMDocumentManagementServer implem
     private Map<Long, Source> srcCache;
     private IMap<XDMIndexKey, XDMIndexedValue> idxCache;
     private IMap<XDMDataKey, XDMElements> xdmCache;
-	private Map<String, XQProcessor> processors = new ConcurrentHashMap<String, XQProcessor>();
 
+    IMap<Long, XDMDocument> getDocumentCache() {
+    	return xddCache;
+    }
+
+    IMap<XDMDataKey, XDMElements> getElementCache() {
+    	return xdmCache;
+    }
     
-	@Override
-	public void setApplicationContext(ApplicationContext context) throws BeansException {
-		this.appContext = context;
-	}
+    IMap<XDMIndexKey, XDMIndexedValue> getIndexCache() {
+    	return idxCache;
+    }
 
-	public void setDocumentIdGenerator(IdGenerator docGen) {
+    public void setDocumentIdGenerator(IdGenerator docGen) {
     	this.docGen = docGen;
     }
     
@@ -111,13 +115,11 @@ public class DocumentManagementServer extends XDMDocumentManagementServer implem
     //@Autowired
 	public void setHzInstance(HazelcastInstance hzInstance) {
 		this.hzInstance = hzInstance;
-		hzInstance.getClientService().addClientListener(this);
-		logger.debug("setHzInstange; got instance: {}", hzInstance.getName()); 
 	}
 	
-    public void setQueryManager(XDMQueryManagement xqManager) {
-    	this.queryManager = xqManager;
-    }
+    //public void setQueryManager(XDMQueryManagement xqManager) {
+    //	this.queryManager = xqManager;
+    //}
     
     @Override
 	public Collection<String> buildDocument(Set<Long> docIds, String template, Map<String, String> params) {
@@ -156,11 +158,11 @@ public class DocumentManagementServer extends XDMDocumentManagementServer implem
 	}
     
     private Set<XDMDataKey> getDocumentElementKeys(String path, long docId, int docType) {
-    	Set<Integer> parts = mDictionary.getPathElements(docType, path);
+    	Set<Integer> parts = model.getPathElements(docType, path);
     	Set<XDMDataKey> keys = new HashSet<XDMDataKey>(parts.size());
     	// not all the path keys exists as data key for particular document!
     	for (Integer part: parts) {
-    		keys.add(mFactory.newXDMDataKey(docId, part));
+    		keys.add(factory.newXDMDataKey(docId, part));
     	}
     	return keys;
     }
@@ -176,11 +178,11 @@ public class DocumentManagementServer extends XDMDocumentManagementServer implem
 		return createDocument(new AbstractMap.SimpleEntry(docId, null), uri, xml);
     }
     
-	@Override
+	//@Override
 	public XDMDocument createDocument(Entry<Long, XDMDocument> entry, String uri, String xml) {
 		logger.trace("createDocument.enter; entry: {}", entry);
 
-		XDMStaxParser parser = new XDMStaxParser(mDictionary);
+		XDMStaxParser parser = new XDMStaxParser(model);
 		List<XDMData> data;
 		try {
 			data = parser.parse(xml);
@@ -210,12 +212,12 @@ public class DocumentManagementServer extends XDMDocumentManagementServer implem
 		long stamp = System.currentTimeMillis();
 		XDMData root = getDataRoot(data);
 		if (root != null) {
-			int docType = mDictionary.translateDocumentType(root.getPath());
+			int docType = model.translateDocumentType(root.getPath());
 			Map<XDMDataKey, XDMElements> elements = new HashMap<XDMDataKey, XDMElements>(data.size());
 			Map<XDMIndexKey, XDMIndexedValue> indexes = new HashMap<XDMIndexKey, XDMIndexedValue>();
 			
 			for (XDMData xdm: data) {
-				XDMDataKey xdk = mFactory.newXDMDataKey(docId, xdm.getPathId());
+				XDMDataKey xdk = factory.newXDMDataKey(docId, xdm.getPathId());
 				XDMElements xdes = elements.get(xdk);
 				if (xdes == null) {
 					xdes = new XDMElements(xdk.getPathId(), null);
@@ -225,7 +227,7 @@ public class DocumentManagementServer extends XDMDocumentManagementServer implem
 				
 				// handle indexes
 				if (isPathIndexed(xdm.getPathId()) && xdm.getValue() != null) {
-					XDMIndexKey xid = mFactory.newXDMIndexKey(xdm.getPathId(), xdm.getValue());
+					XDMIndexKey xid = factory.newXDMIndexKey(xdm.getPathId(), xdm.getValue());
 					XDMIndexedValue xidx = indexes.get(xid);
 					if (xidx == null) {
 						xidx = new XDMIndexedValue(docId);
@@ -240,17 +242,17 @@ public class DocumentManagementServer extends XDMDocumentManagementServer implem
 			stamp = System.currentTimeMillis() - stamp;
 			logger.trace("loadElements; cached {} elements and {} indexes for docId: {}; time taken: {}", 
 					elements.size(), indexes.size(), docId, stamp);
-			mDictionary.normalizeDocumentType(docType);
+			model.normalizeDocumentType(docType);
 			return docType;
 		}
 		return XDMModelManagementBase.WRONG_PATH;
 	}
 	
 	private boolean isPathIndexed(int pathId) {
-		return mDictionary.isPathIndexed(pathId);
+		return model.isPathIndexed(pathId);
 	}
 
-	@Override
+	//@Override
 	public void deleteDocument(Entry<Long, XDMDocument> entry) {
 
 		Long docId = entry.getKey();
@@ -273,11 +275,11 @@ public class DocumentManagementServer extends XDMDocumentManagementServer implem
     	int cnt = 0;
     	//Set<XDMDataKey> localKeys = xdmCache.localKeySet();
     	int localSize = xdmCache.localKeySet().size();
-    	Collection<XDMPath> allPaths = mDictionary.getTypePaths(typeId);
+    	Collection<XDMPath> allPaths = model.getTypePaths(typeId);
 		logger.trace("deleteDocumentElements; got {} possible paths to remove; xdmCache size: {}; local keys: {}", 
 				allPaths.size(), xdmCache.size(), localSize);
         for (XDMPath path: allPaths) {
-        	XDMDataKey key = mFactory.newXDMDataKey(docId, path.getPathId()); 
+        	XDMDataKey key = factory.newXDMDataKey(docId, path.getPathId()); 
        		xdmCache.delete(key);
         	cnt++;
         	// TODO: remove indexed values!
@@ -288,118 +290,13 @@ public class DocumentManagementServer extends XDMDocumentManagementServer implem
 	}
 
 	@Override
-	public XDMDocument updateDocument(Entry<Long, XDMDocument> entry, boolean newVersion, String xml) {
-		// TODO: not implemented yet
-		return null;
-	}
-
-	@Override
-	protected Set<Long> queryPathKeys(Set<Long> found, PathExpression pex, Object value) {
-
-		logger.trace("queryPathKeys.enter; found: {}", found == null ? "null" : found.size()); 
-		Predicate pp = null;
-		int pathId = 0;
-		if (pex.isRegex()) {
-			Set<Integer> pathIds = mDictionary.translatePathFromRegex(pex.getDocType(), pex.getRegex());
-			logger.trace("queryPathKeys; regex: {}; pathIds: {}", pex.getRegex(), pathIds);
-			if (pathIds.size() > 0) {
-				// ?? use all of them !
-				pp = Predicates.in("pathId", pathIds.toArray(new Integer[pathIds.size()]));
-			}
-		} else {
-			String path = pex.getFullPath();
-			logger.trace("queryPathKeys; path: {}; comparison: {}", path, pex.getCompType());
-			XDMPath xPath = mDictionary.translatePath(pex.getDocType(), path, XDMNodeKind.fromPath(path));
-			pp = Predicates.equal("pathId", xPath.getPathId());
-			pathId = xPath.getPathId();
-		}
-		
-		if (pp == null) {
-			throw new IllegalArgumentException("Path not found for expression: " + pex);
-		}
-		
-   		//try {
-		//	long stamp = System.currentTimeMillis(); 
-	   	//	Supplier<XDMDataKey, XDMElements, Object> supplier = Supplier.fromKeyPredicate(new DataKeyPredicate(pathId));
-	   	//	Aggregation<XDMDataKey, Object, Long> aggregation = Aggregations.count();
-	   	//	Long count = xdmCache.aggregate(supplier, aggregation);
-	   	//	stamp = System.currentTimeMillis() - stamp;
-		//	logger.info("queryPathKeys; got {} aggregation results; time taken: {}", count, stamp); 
-   		//} catch (Throwable ex) {
-   		//	logger.error("queryPathKeys", ex);
-   		//}
-		
-		if (pathId > 0 && Comparison.EQ.equals(pex.getCompType()) && 
-				isPathIndexed(pathId)) {
-			XDMIndexKey idx = mFactory.newXDMIndexKey(pathId, value.toString());
-			XDMIndexedValue xidx = idxCache.get(idx);
-			logger.trace("queryPathKeys; seach for index {} get {}", idx, xidx); 
-			if (xidx != null) {
-				Set<Long> result;
-				if (found == null) {
-					result = xidx.getDocumentIds();
-				} else {
-					found.retainAll(xidx.getDocumentIds());
-					result = found;
-				}
-				logger.trace("queryPathKeys.exit; returning {} indexed keys", result.size()); 
-				return result;
-			}
-		}
-   		
-   		Predicate<XDMDataKey, XDMElements> f = Predicates.and(pp, new QueryPredicate(pex, value));
-   		Set<XDMDataKey> xdmKeys = xdmCache.keySet(f);
-		logger.trace("queryPathKeys; got {} query results", xdmKeys.size()); 
-		Set<Long> result = new HashSet<Long>(xdmKeys.size());
-		if (found == null) {
-			for (XDMDataKey key: xdmKeys) {
-				result.add(key.getDocumentId());
-			}
-		} else {
-			for (XDMDataKey key: xdmKeys) {
-				long docId = key.getDocumentId();
-				if (found.contains(docId)) {
-					result.add(docId);
-				}
-			}
-		}
-		logger.trace("queryPathKeys.exit; returning {} keys", result.size()); 
-		return result;
-	}
-
-	@Override
-	public Collection<Long> getDocumentIDs(ExpressionContainer query) {
-		ExpressionBuilder exp = query.getExpression();
-		if (exp.getRoot() != null) {
-			return queryKeys(null, query, exp.getRoot());
-		}
-		logger.info("getDocumentIDs; got rootless path: {}", query); 
-		// can we use local keySet only !?
-		return xddCache.keySet();
-	}
-	
-	@Override
-	public Collection<String> getDocumentURIs(ExpressionContainer query) {
-		// TODO: remove this method completely, or
-		// make reverse cache..? or, make URI from docId somehow..
-		Collection<Long> ids = getDocumentIDs(query);
-		Set<String> result = new HashSet<String>(ids.size());
-		// TODO: better to do this via EP or aggregator?
-		Map<Long, XDMDocument> docs = xddCache.getAll(new HashSet<Long>(ids));
-		for (XDMDocument doc: docs.values()) {
-			result.add(doc.getUri());
-		}
-		return result;
-	}
-
-	@Override
 	public XDMDocument getDocument(long docId) {
 		XDMDocument doc = xddCache.get(docId); 
 		logger.trace("getDocument; returning: {}", doc);
 		return doc;
 	}
 
-	@Override
+	//@Override
 	public Long getDocumentId(String uri) {
    		Predicate<Long, XDMDocument> f = Predicates.equal("uri", uri);
 		Set<Long> docKeys = xddCache.keySet(f);
@@ -408,6 +305,12 @@ public class DocumentManagementServer extends XDMDocumentManagementServer implem
 		}
 		// todo: check if too many docs ??
 		return docKeys.iterator().next();
+	}
+
+	@Override
+	public Iterator<Long> getDocumentIds(String pattern) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 	@Override
@@ -423,7 +326,7 @@ public class DocumentManagementServer extends XDMDocumentManagementServer implem
 			// if docId is not local then buildDocument returns null!
 			// query docId owner node for the XML instead
 			if (hzInstance.getPartitionService().getPartition(docId).getOwner().localMember()) {
-				String root = mDictionary.getDocumentRoot(doc.getTypeId());
+				String root = model.getDocumentRoot(doc.getTypeId());
 				Map<String, String> params = new HashMap<String, String>();
 				params.put(":doc", root);
 				Collection<String> results = buildDocument(Collections.singleton(docId), ":doc", params);
@@ -452,19 +355,19 @@ public class DocumentManagementServer extends XDMDocumentManagementServer implem
 	}
 	
 	@Override
-	public XDMDocument storeDocumentSource(long docId, Source source) {
+	public XDMDocument storeDocumentFromSource(long docId, String uri, Source source) {
 		srcCache.put(docId, source);
 		return xddCache.get(docId);
 	}
 	
-	@Override
-	public XDMDocument storeDocument(String xml) {
+	//@Override
+	public XDMDocument storeDocumentFromString(String xml) {
 
-	    return storeDocument(0, null, xml);
+	    return storeDocumentFromString(0, null, xml);
 	}
 
 	@Override
-	public XDMDocument storeDocument(long docId, String uri, String xml) {
+	public XDMDocument storeDocumentFromString(long docId, String uri, String xml) {
 		// create new document version ??
 		// what if we want to pass here correct URI ??
 		logger.trace("storeDocument.enter; docId: {}; uri: {}; xml: {}", docId, uri, xml.length());
@@ -502,139 +405,5 @@ public class DocumentManagementServer extends XDMDocumentManagementServer implem
 		deleteDocument(new AbstractMap.SimpleEntry(docId, null));
 	}
 
-	@Override
-	public void close() {
-		// TODO Auto-generated method stub
-	}
-
-	@Override
-	public Collection<String> getXML(ExpressionContainer query, String template, Map params) {
-		Collection<Long> docIds = getDocumentIDs(query);
-		if (docIds.size() > 0) {
-			return buildDocument(new HashSet<Long>(docIds), template, params);
-		}
-		return Collections.EMPTY_LIST;
-	}
-
-	@Override
-	public Object executeXCommand(String command, Map bindings, Properties props) {
-		
-		return execXQCommand(false, command, bindings, props);
-	}
-
-	@Override
-	public Object executeXQuery(String query, Map bindings, Properties props) {
-
-		return execXQCommand(true, query, bindings, props);
-	}
-
-	private ResultsIterator createCursor(String clientId, int batchSize, Iterator iter, boolean failure) {
-		final ResultsIterator xqCursor = new ResultsIterator(clientId, batchSize, iter, failure);
-		
-		// TODO: put everything to the queue - can be too slow!
-		// think of async solution..
-		// profile: it takes 3.19 ms to serialize!
-		// another profile session: 13 ms spent in toData conversion!
-		// 12.5 ms: SaxonXQProcessor.convertToString -> net.sf.saxon.query.QueryResult.serializeSequence (11 ms)
-
-		// but async serialization takes even more time! because of the thread context switch, most probably
-		//IExecutorService execService = hzInstance.getExecutorService(PN_XDM_SCHEMA_POOL);
-		//execService.execute(new Runnable() {
-		//	@Override
-		//	public void run() {
-		//		xqCursor.serialize(hzInstance);
-		//	}
-		//});
-		
-		xqCursor.serialize(hzInstance);
-		return xqCursor;
-	}
 	
-	private Object execXQCommand(boolean isQuery, String xqCmd, Map bindings, Properties props) {
-
-		logger.trace("execXQCommand.enter; query: {}, command: {}; bindings: {}", isQuery, xqCmd, bindings);
-		Object result = null;
-		Iterator iter = null;
-		String clientId = props.getProperty("clientId");
-		int batchSize = Integer.parseInt(props.getProperty("batchSize", "0"));
-		try {
-			//if (isQuery) {
-			//	iter = queryManager.getQueryResults(xqCmd, bindings, props);
-			//}
-			
-			if (iter == null) {
-				XQProcessor xqp = getXQProcessor(clientId);
-				for (Object o: bindings.entrySet()) {
-					Map.Entry<QName, Object> var = (Map.Entry<QName, Object>) o; 
-					xqp.bindVariable(var.getKey(), var.getValue());
-				}
-				
-				if (isQuery) {
-					iter = xqp.executeXQuery(xqCmd, props);
-				} else {
-					iter = xqp.executeXCommand(xqCmd, bindings, props);
-				}
-				
-				for (Object o: bindings.entrySet()) {
-					Map.Entry<QName, Object> var = (Map.Entry<QName, Object>) o; 
-					xqp.unbindVariable(var.getKey());
-				}
-				
-			//	iter = queryManager.addQueryResults(xqCmd, bindings, props, iter);
-			}
-			result = createCursor(clientId, batchSize, iter, false);
-		} catch (Throwable ex) {
-			logger.error("execXQCommand.error;", ex);
-			result = createCursor(clientId, batchSize, new ExceptionIterator(ex), true);
-		}
-		logger.trace("execXQCommand.exit; returning: {}, for client: {}", result, clientId);
-		return result;
-	}
-
-	@Override
-	public void clientConnected(Client client) {
-		logger.trace("clientConnected.enter; client: {}", client); 
-		// create queue
-		IQueue queue = hzInstance.getQueue("client:" + client.getUuid());
-		// create/cache new XQProcessor
-		XQProcessor proc = getXQProcessor(client.getUuid());
-		logger.trace("clientConnected.exit; queue {} created for client: {}; XQProcessor: {}", 
-				queue.getName(), client.getSocketAddress(), proc);
-	}
-
-	@Override
-	public void clientDisconnected(Client client) {
-		logger.trace("clientDisconnected.enter; client: {}", client);
-		String qName = "client:" + client.getUuid();
-		boolean destroyed = false;
-		Collection<DistributedObject> all = hzInstance.getDistributedObjects();
-		int sizeBefore = all.size();
-		for (DistributedObject obj: all) {
-			if (qName.equals(obj.getName())) {
-				// remove queue
-				IQueue queue = hzInstance.getQueue(qName);
-				queue.destroy();
-				destroyed = true;
-				break;
-			}
-		}
-		int sizeAfter = hzInstance.getDistributedObjects().size(); 
-		XQProcessor proc = processors.remove(client.getUuid());
-		logger.trace("clientDisconnected.exit; queue {} {} for client: {}; size before: {}, after: {}", 
-				qName, destroyed ? "destroyed" : "skipped", client.getSocketAddress(), sizeBefore, sizeAfter); 
-	}
-	
-	private XQProcessor getXQProcessor(String clientId) {
-		XQProcessor result = processors.get(clientId);
-		if (result == null) {
-			result = appContext.getBean(XQProcessor.class, this);
-			//QueryManagementServer qMgr = appContext.getBean(QueryManagementServer.class);
-			result.setXQManager(queryManager);
-			((BagriXQDataFactory) ((XQProcessorServer) result).getXQDataFactory()).setProcessor(result);
-			processors.put(clientId, result);
-		}
-		logger.trace("getXQProcessor; returning: {}", result);
-		return result;
-	}
-
 }

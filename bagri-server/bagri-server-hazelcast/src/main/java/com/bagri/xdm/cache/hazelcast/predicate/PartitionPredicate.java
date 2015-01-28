@@ -1,4 +1,4 @@
-package com.bagri.xdm.cache.hazelcast.impl;
+package com.bagri.xdm.cache.hazelcast.predicate;
 
 import java.util.Map;
 import java.util.Set;

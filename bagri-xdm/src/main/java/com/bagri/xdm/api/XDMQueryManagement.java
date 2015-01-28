@@ -24,16 +24,6 @@ public interface XDMQueryManagement {
 	Collection<Long> getDocumentIDs(ExpressionContainer query);
 	Collection<String> getDocumentURIs(ExpressionContainer query);
 	
-	
-	// the below methods are for server implementation,
-	// we don't need them in the client API! but, we need to use them from XQProcesserImpl!
-	
-	XDMQuery getQuery(String query); //, Map bindings);
-	boolean addQuery(String query, Object xqExpression, ExpressionBuilder xdmExpression);
-	void addExpression(String query, Object xqExpression);
-	void addExpression(String query, ExpressionBuilder xdmExpression);
-
-	Iterator getQueryResults(String query, Map<String, Object> params, Properties props);
-	Iterator addQueryResults(String query, Map<String, Object> params, Properties props, Iterator results);
+	int getQueryKey(String query); 
 	
 }

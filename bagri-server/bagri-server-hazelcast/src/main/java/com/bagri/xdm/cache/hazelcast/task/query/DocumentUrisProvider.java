@@ -1,4 +1,4 @@
-package com.bagri.xdm.cache.hazelcast.task.doc;
+package com.bagri.xdm.cache.hazelcast.task.query;
 
 import java.util.Collection;
 
@@ -11,23 +11,23 @@ import com.bagri.xdm.api.XDMQueryManagement;
 import com.hazelcast.spring.context.SpringAware;
 
 @SpringAware
-public class XMLBuilder extends com.bagri.xdm.client.hazelcast.task.doc.XMLBuilder {
+public class DocumentUrisProvider extends com.bagri.xdm.client.hazelcast.task.query.DocumentUrisProvider {
 
-    private static final transient Logger logger = LoggerFactory.getLogger(XMLBuilder.class);
+	private static final transient Logger logger = LoggerFactory.getLogger(DocumentUrisProvider.class);
 	    
 	private XDMQueryManagement xdmProxy;
 	    
-    @Autowired
+	@Autowired
 	public void setXdmProxy(XDMQueryManagement xdmProxy) {
 		this.xdmProxy = xdmProxy;
 		logger.trace("setXdmProxy; got proxy: {}", xdmProxy); 
 	}
 	    
-    @Override
+	@Override
 	public Collection<String> call() throws Exception {
 		logger.trace("call.enter; container: {}", exp); //eBuilder.getRoot());
-		Collection<String> result = xdmProxy.getXML(exp, template, params);
-		logger.trace("call.exit; returning: {}", result.size());
+		Collection<String> result = xdmProxy.getDocumentURIs(exp);
+		logger.trace("call.exit; returning: {}", result);
 		return result;
 	}
 

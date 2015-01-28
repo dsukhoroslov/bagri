@@ -1,4 +1,4 @@
-package com.bagri.xdm.client.hazelcast.task.doc;
+package com.bagri.xdm.client.hazelcast.task.query;
 
 import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_DocumentUrisProviderTask;
 

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.bagri.xdm.client.hazelcast.impl;
+package com.bagri.xdm.cache.hazelcast.impl;
 
 import com.bagri.xdm.client.hazelcast.data.DocumentPathKey;
 import com.bagri.xdm.client.hazelcast.data.PathIndexKey;

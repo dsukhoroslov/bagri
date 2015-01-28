@@ -1,4 +1,4 @@
-package com.bagri.xdm.cache.hazelcast.impl;
+package com.bagri.xdm.cache.hazelcast.predicate;
 
 import com.bagri.xdm.common.XDMDataKey;
 import com.hazelcast.mapreduce.KeyPredicate;

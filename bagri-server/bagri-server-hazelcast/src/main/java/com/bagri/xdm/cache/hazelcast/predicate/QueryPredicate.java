@@ -1,4 +1,4 @@
-package com.bagri.xdm.cache.hazelcast.impl;
+package com.bagri.xdm.cache.hazelcast.predicate;
 
 import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_ApplyQueryTask;
 import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.factoryId;

@@ -1,15 +1,14 @@
 package com.bagri.xdm.client.hazelcast.impl;
 
+import static com.bagri.xdm.client.common.XDMCacheConstants.PN_XDM_SCHEMA_POOL;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,12 +16,10 @@ import org.slf4j.LoggerFactory;
 import com.bagri.common.query.ExpressionBuilder;
 import com.bagri.common.query.ExpressionContainer;
 import com.bagri.xdm.api.XDMQueryManagement;
-import com.bagri.xdm.client.hazelcast.task.doc.DocumentIdsProvider;
-import com.bagri.xdm.client.hazelcast.task.doc.DocumentUrisProvider;
-import com.bagri.xdm.client.hazelcast.task.doc.XMLBuilder;
-import com.bagri.xdm.client.hazelcast.task.query.XQCommandExecutor;
+import com.bagri.xdm.client.hazelcast.task.query.DocumentIdsProvider;
+import com.bagri.xdm.client.hazelcast.task.query.DocumentUrisProvider;
+import com.bagri.xdm.client.hazelcast.task.query.XMLBuilder;
 import com.bagri.xdm.domain.XDMQuery;
-import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.Member;
 
@@ -30,12 +27,17 @@ public class QueryManagementImpl implements XDMQueryManagement {
 	
     private final static Logger logger = LoggerFactory.getLogger(QueryManagementImpl.class);
 	
-	private String clientId;
-	private String schemaName;
-    
-	private HazelcastInstance hzClient;
+    private RepositoryImpl repo;
 	private IExecutorService execService;
-	private ResultsIterator cursor;
+	
+	public QueryManagementImpl() {
+		// what should we do here? 
+	}
+	
+	void initialize(RepositoryImpl repo) {
+		this.repo = repo;
+		execService = repo.getHazelcastClient().getExecutorService(PN_XDM_SCHEMA_POOL);
+	}
 	
 	@Override
 	public Collection<String> getDocumentURIs(ExpressionContainer query) {
@@ -106,7 +108,7 @@ public class QueryManagementImpl implements XDMQueryManagement {
 		long stamp = System.currentTimeMillis();
 		logger.trace("executeXCommand.enter; command: {}; bindings: {}; context: {}", command, bindings, props);
 		//try {
-			Iterator result = execXQuery(false, command, bindings, props);
+			Iterator result = repo.execXQuery(false, command, bindings, props);
 			logger.trace("executeXCommand.exit; time taken: {}; returning: {}", System.currentTimeMillis() - stamp, result);
 			return result;
 		//} catch (Exception ex) {
@@ -121,7 +123,7 @@ public class QueryManagementImpl implements XDMQueryManagement {
 		long stamp = System.currentTimeMillis();
 		logger.trace("executeXQuery.enter; query: {}; bindings: {}; context: {}", query, bindings, props);
 		//try {
-			Iterator result = execXQuery(true, query, bindings, props);
+			Iterator result = repo.execXQuery(true, query, bindings, props);
 			logger.trace("executeXQuery.exit; time taken: {}; returning: {}", System.currentTimeMillis() - stamp, result);
 			return result; 
 		//} catch (Exception ex) {
@@ -131,137 +133,10 @@ public class QueryManagementImpl implements XDMQueryManagement {
 		//return null; 
 	}
 	
-	private Iterator execXQuery(boolean isQuery, String query, Map bindings, Properties props) { //throws Exception {
-		
-		//if (logger.isTraceEnabled()) {
-		//	for (Object o: bindings.entrySet()) {
-		//		Map.Entry e = (Map.Entry) o;
-		//		logger.trace("execXQuery.binding; {}:{}; {}:{}", e.getKey().getClass().getName(),
-		//				e.getKey(), e.getValue().getClass().getName(), e.getValue());
-		//	}
-		//}
-		
-		props.put("clientId", clientId);
-		//props.put("batchSize", "5");
-		
-		String runOn = System.getProperty("xdm.client.submitTo", "any");
-		
-		XQCommandExecutor task = new XQCommandExecutor(isQuery, schemaName, query, bindings, props);
-		Future<Object> future;
-		if (isQuery) {
-			if ("owner".equals(runOn)) {
-				int key = getQueryKey(query);
-				future = execService.submitToKeyOwner(task, key);
-			} else if ("member".equals(runOn)) {
-				int key = getQueryKey(query);
-				Member member = hzClient.getPartitionService().getPartition(key).getOwner();
-				future = execService.submitToMember(task, member);
-			} else {
-				future = execService.submit(task);
-			}
-		} else {
-			future = execService.submit(task);
-		}
-
-		Iterator result = null;
-		long timeout = Long.parseLong(props.getProperty("timeout", "0"));
-		int fetchSize = Integer.parseInt(props.getProperty("batchSize", "0"));
-		try {
-			//if (cursor != null) {
-			//	cursor.close(false);
-			//}
-			
-			if (timeout > 0) {
-				cursor = (ResultsIterator) future.get(timeout, TimeUnit.SECONDS);
-			} else {
-				cursor = (ResultsIterator) future.get();
-			}
-			
-			logger.trace("execXQuery; got cursor: {}", cursor);
-			if (cursor != null) {
-				cursor.deserialize(hzClient);
-
-				if (cursor.isFailure()) {
-					//Exception ex = (Exception) cursor.next();
-					//throw ex;
-					while (cursor.hasNext()) {
-						Object err = cursor.next();
-						if (err instanceof String) {
-							throw new RuntimeException((String) err);
-						}
-					}
-				}
-			}
-			
-			if (fetchSize == 0) {
-				result = extractFromCursor(cursor);
-			} else {
-				result = cursor;
-			}
-		} catch (TimeoutException ex) {
-			future.cancel(true);
-			logger.warn("execXQuery.error; query timed out", ex);
-		} catch (InterruptedException | ExecutionException ex) {
-			// cancel future ??
-			logger.error("execXQuery.error; error getting result", ex);
-		}
-		return result; 
-	}
-	
-	private int getQueryKey(String query) {
-		// get it from some common service, 
-		// QueryManagement most probably
+	@Override
+	public int getQueryKey(String query) {
+		// TODO: implement it via cifer ...
 		return query.hashCode();
-	}
-	
-	private Iterator extractFromCursor(ResultsIterator cursor) {
-		List result = new ArrayList();
-		while (cursor.hasNext()) {
-			result.add(cursor.next());
-		}
-		return result.iterator();
-	}
-
-	
-	
-	
-	@Override
-	public XDMQuery getQuery(String query) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public boolean addQuery(String query, Object xqExpression,
-			ExpressionBuilder xdmExpression) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public void addExpression(String query, Object xqExpression) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void addExpression(String query, ExpressionBuilder xdmExpression) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public Iterator getQueryResults(String query, Map<String, Object> params,
-			Properties props) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Iterator addQueryResults(String query, Map<String, Object> params,
-			Properties props, Iterator results) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 }

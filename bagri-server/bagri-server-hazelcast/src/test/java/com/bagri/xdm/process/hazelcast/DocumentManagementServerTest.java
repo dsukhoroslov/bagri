@@ -9,7 +9,8 @@ import org.junit.BeforeClass;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.bagri.xdm.api.test.XDMDocumentManagementTest;
-import com.bagri.xdm.cache.hazelcast.impl.DocumentManagementServer;
+import com.bagri.xdm.cache.hazelcast.impl.DocumentManagementImpl;
+import com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl;
 
 public class DocumentManagementServerTest extends XDMDocumentManagementTest {
 	
@@ -33,8 +34,7 @@ public class DocumentManagementServerTest extends XDMDocumentManagementTest {
 
 	@Before
 	public void setUp() throws Exception {
-		dMgr = context.getBean(DocumentManagementServer.class);
-		mDictionary = dMgr.getSchemaDictionary();
+		xRepo = context.getBean(RepositoryImpl.class);
 	}
 
 	@After

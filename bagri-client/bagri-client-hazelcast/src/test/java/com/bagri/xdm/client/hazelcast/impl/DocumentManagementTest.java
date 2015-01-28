@@ -1,6 +1,6 @@
 package com.bagri.xdm.client.hazelcast.impl;
 
-import static com.bagri.xdm.client.hazelcast.impl.DocumentManagementImpl.*;
+import static com.bagri.xdm.client.hazelcast.impl.RepositoryImpl.*;
 
 import java.io.IOException;
 

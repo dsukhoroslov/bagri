@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
 import com.bagri.xdm.cache.common.XDMDocumentManagementServer;
-import com.bagri.xdm.cache.hazelcast.impl.DocumentManagementServer;
+import com.bagri.xdm.cache.hazelcast.impl.DocumentManagementImpl;
 import com.bagri.xdm.cache.hazelcast.util.HazelcastUtils;
 import com.hazelcast.spring.context.SpringAware;
 
@@ -30,7 +30,7 @@ public class DocumentBuilder extends com.bagri.xdm.client.hazelcast.task.doc.Doc
 		
 		if (xdmManager == null) {
 			ApplicationContext ctx = HazelcastUtils.findContext();
-			xdmManager = ctx.getBean(DocumentManagementServer.class); 
+			xdmManager = ctx.getBean(DocumentManagementImpl.class); 
 		}
 		
         return xdmManager.buildDocument(docIds, template, params);

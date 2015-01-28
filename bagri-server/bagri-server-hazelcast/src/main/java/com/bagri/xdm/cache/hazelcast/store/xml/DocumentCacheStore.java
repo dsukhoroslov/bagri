@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 import com.bagri.common.util.FileUtils;
 import com.bagri.xdm.api.XDMDocumentManagement;
 import com.bagri.xdm.api.XDMModelManagement;
-import com.bagri.xdm.cache.hazelcast.impl.DocumentManagementServer;
+import com.bagri.xdm.cache.hazelcast.impl.DocumentManagementImpl;
 import com.bagri.xdm.client.common.XDMCacheConstants;
 import com.bagri.xdm.client.xml.XDMStaxParser;
 import com.bagri.xdm.common.XDMDataKey;
@@ -56,7 +56,7 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<Long, 
     
 	//private String dataPath;
 	private XDMFactory keyFactory;
-    private DocumentManagementServer docMgr;
+    private DocumentManagementImpl docMgr;
     private XDMModelManagement schemaDict;
     private IMap<Long, String> xmlCache;
     private IMap<XDMDataKey, XDMElements> xdmCache;
@@ -67,7 +67,7 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<Long, 
 		hzInstance = hazelcastInstance;
 		//dataPath = (String) properties.get("dataPath");
 		keyFactory = (XDMFactory) properties.get("keyFactory");
-		docMgr = (DocumentManagementServer) properties.get("xdmManager");
+		docMgr = (DocumentManagementImpl) properties.get("xdmManager");
 		schemaDict = (XDMModelManagement) properties.get("xdmDictionary");
 		//schemaDict = docMgr.getSchemaDictionary();
 		xmlCache = hzInstance.getMap(XDMCacheConstants.CN_XDM_XML);
