@@ -26,23 +26,17 @@ import com.bagri.xdm.cache.hazelcast.task.schema.SchemaCleaner;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaStatsAggregator;
 import com.bagri.xdm.client.hazelcast.impl.DocumentManagementImpl;
 import com.bagri.xdm.domain.XDMDocument;
-import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.Member;
 
 @ManagedResource(description="Schema Documents Management MBean")
 public class DocumentManagement extends SchemaFeatureManagement {
 
 	private DocumentManagementImpl docManager;
-	private IExecutorService execService;
     
     public DocumentManagement(String schemaName) {
     	super(schemaName);
     }
 
-	public void setExecService(IExecutorService execService) {
-		this.execService = execService;
-	}
-	
 	public void setDocumentManager(DocumentManagementImpl docManager) {
 		this.docManager = docManager;
 	}
@@ -177,47 +171,12 @@ public class DocumentManagement extends SchemaFeatureManagement {
 
 	@ManagedAttribute(description="Returns aggregated DocumentManagement invocation statistics, per method")
 	public TabularData getInvocationStatistics() {
-		DocumentStatsCollector task = new DocumentStatsCollector(); 
-		logger.trace("getInvocationStatistics.enter; going to collect stats for schema: {}", schemaName);
-
-		int cnt = 0;
-		TabularData result = null;
-		Map<Member, Future<TabularData>> futures = execService.submitToAllMembers(task);
-		for (Map.Entry<Member, Future<TabularData>> entry: futures.entrySet()) {
-			try {
-				TabularData stats = entry.getValue().get();
-				result = JMXUtils.aggregateStats(stats, result);
-			} catch (InterruptedException | ExecutionException ex) {
-				logger.error("getInvocationStatistics.error: " + ex.getMessage(), ex);
-			}
-		}
-		logger.trace("getInvocationStatistics.exit; got stats from {} nodes", cnt);
-		return result;
+		return super.getInvocationStatistics(new DocumentStatsCollector());
 	}
 	
-	//private TabularData aggregateStats(TabularData source, TabularData target) {
-		//
-	//	return target;
-	//}
-    
 	@ManagedOperation(description="Reset DocumentManagement invocation statistics")
 	public void resetStatistics() {
-		//
-		DocumentStatsReseter task = new DocumentStatsReseter(); 
-		logger.trace("resetStatistics.enter; going to reset stats for schema: {}", schemaName);
-
-		int cnt = 0;
-		Map<Member, Future<Boolean>> futures = execService.submitToAllMembers(task);
-		for (Map.Entry<Member, Future<Boolean>> entry: futures.entrySet()) {
-			try {
-				if (entry.getValue().get()) {
-					cnt++;
-				}
-			} catch (InterruptedException | ExecutionException ex) {
-				logger.error("resetStatistics.error: " + ex.getMessage() + " on member " + entry.getKey(), ex);
-			}
-		}
-		logger.trace("resetStatistics.exit; reset stats on {} nodes", cnt);
+		super.resetStatistics(new DocumentStatsReseter()); 
 	}
 
 	@Override

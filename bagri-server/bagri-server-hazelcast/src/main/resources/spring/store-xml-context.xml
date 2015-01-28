@@ -16,7 +16,7 @@
 
 	<bean id="xsdCacheStore" class="com.bagri.xdm.cache.hazelcast.store.xml.XsdCacheStore">
 	    <property name="dataPath" value="${xdm.schema.store.schema.path}" />
-		<!--property name="schemaDictionary" ref="xdmDictionary"/-->
+		<!--property name="schemaDictionary" ref="xdmModel"/-->
 	</bean>
 
 </beans>

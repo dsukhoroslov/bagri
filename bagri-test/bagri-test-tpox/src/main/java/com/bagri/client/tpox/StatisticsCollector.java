@@ -34,11 +34,12 @@ public class StatisticsCollector {
 
 		String address = args[0];
 		String schema = args[1];
-		String file = args[2];
-		String marker= args[3];
-		String method = args[4];
-		String clear = args[5];
-		System.out.println("got address: " + address + "; schema: " + schema + 
+		String kind = args[2];
+		String method = args[3];
+		String marker= args[4];
+		String file = args[5];
+		String clear = args[6];
+		System.out.println("got address: " + address + "; schema: " + schema + "; MBean: " + kind + 
 				"; method: " + method + "; clear: " + clear);
 
 		try {
@@ -47,11 +48,11 @@ public class StatisticsCollector {
 			String stats = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date()) + "; " + marker;
 			stats += "; " + sc.getActiveNodes();
 			stats += System.lineSeparator();
-			stats += sc.getStatistics(method);
+			stats += sc.getStatistics(kind, method);
 			System.out.println("got stats: " + stats + " will append to the file: " + file);
 			stats += System.lineSeparator();
 			FileUtils.appendTextFile(file, stats);
-			sc.resetStatistics();
+			sc.resetStatistics(kind);
 			if ("true".equalsIgnoreCase(clear)) {
 				sc.clearSchema(true);
 			}
@@ -86,8 +87,8 @@ public class StatisticsCollector {
 		return Arrays.toString(nodes);
 	}
 	
-	public String getStatistics(String method) throws Exception {
-        ObjectName mName = new ObjectName("com.bagri.xdm:type=Schema,name=" + schema + ",kind=DocumentManagement"); 
+	public String getStatistics(String kind, String method) throws Exception {
+        ObjectName mName = new ObjectName("com.bagri.xdm:type=Schema,name=" + schema + ",kind=" + kind); 
 		TabularData data = (TabularData) mbsc.getAttribute(mName, "InvocationStatistics");
 		CompositeData stats = data.get(new String[] {method});
 		StringBuffer buff = new StringBuffer();
@@ -98,8 +99,8 @@ public class StatisticsCollector {
 		return buff.toString();
 	}
 	
-	public void resetStatistics() throws Exception {
-        ObjectName mName = new ObjectName("com.bagri.xdm:type=Schema,name=" + schema + ",kind=DocumentManagement"); 
+	public void resetStatistics(String kind) throws Exception {
+        ObjectName mName = new ObjectName("com.bagri.xdm:type=Schema,name=" + schema + ",kind=" + kind); 
 		mbsc.invoke(mName, "resetStatistics", null, null);
 		//jmxc.close();
 	}

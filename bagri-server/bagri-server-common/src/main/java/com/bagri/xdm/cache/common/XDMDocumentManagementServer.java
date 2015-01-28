@@ -3,16 +3,8 @@ package com.bagri.xdm.cache.common;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
-import javax.xml.transform.Source;
-
-import com.bagri.common.query.BinaryExpression;
-import com.bagri.common.query.Comparison;
-import com.bagri.common.query.Expression;
-import com.bagri.common.query.ExpressionContainer;
-import com.bagri.common.query.PathExpression;
 import com.bagri.xdm.api.XDMDocumentManagement;
 import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.client.common.impl.XDMDocumentManagementBase;
@@ -20,7 +12,6 @@ import com.bagri.xdm.client.xml.XmlBuilder;
 import com.bagri.xdm.common.XDMDataKey;
 import com.bagri.xdm.common.XDMFactory;
 import com.bagri.xdm.domain.XDMData;
-import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMElements;
 import com.bagri.xdm.domain.XDMNodeKind;
 

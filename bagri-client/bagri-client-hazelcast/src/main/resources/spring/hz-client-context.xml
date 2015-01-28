@@ -89,23 +89,29 @@
 	
 	<hz:executorService id="xdm-exec-pool" name="xdm-exec-pool" instance-ref="hzInstance"/>
 	
-	<bean id="xdmDictionary" class="com.bagri.xdm.client.hazelcast.impl.SchemaDictionaryImpl">
-		<!--constructor-arg ref="hzInstance"/-->
+	<!--bean id="xdmFactory" class="com.bagri.xdm.cache.hazelcast.impl.XDMFactoryImpl" /-->
+
+	<bean id="xdmModel" class="com.bagri.xdm.client.hazelcast.impl.ModelManagementImpl">
 		<property name="namespaceCache" ref="dict-namespace"/>
 		<property name="pathCache" ref="dict-path"/>
-		<property name="indexCache" ref="dict-index"/>
 		<property name="typeCache" ref="dict-document-type"/>
+		<property name="indexCache" ref="dict-index"/>
 		<property name="namespaceGen" ref="xdm.namespace"/>
 		<property name="pathGen" ref="xdm.path"/>
 		<property name="typeGen" ref="xdm.doctype"/>
 	</bean>
 
-	<bean id="xdmFactory" class="com.bagri.xdm.client.hazelcast.impl.XDMFactoryImpl" />
+	<bean id="xqManager" class="com.bagri.xdm.client.hazelcast.impl.QueryManagementImpl">
+		<!--property name="repository" ref="xdmRepo"/-->
+	</bean>
 
-	<bean id="xdmManager" class="com.bagri.xdm.client.hazelcast.impl.DocumentManagementClient">
-		<constructor-arg ref="hzInstance"/>
-		<property name="xdmFactory" ref="xdmFactory"/>
-		<property name="schemaDictionary" ref="xdmDictionary"/>
+	<bean id="xdmManager" class="com.bagri.xdm.client.hazelcast.impl.DocumentManagementImpl"/>
+
+	<bean id="xdmRepo" class="com.bagri.xdm.client.hazelcast.impl.RepositoryImpl">
+		<constructor-arg ref="hzInstance" />
+		<property name="modelManagement" ref="xdmModel"/>
+		<property name="queryManagement" ref="xqManager"/>
+		<property name="documentManagement" ref="xdmManager"/>
 	</bean>
 
 	<bean id="xqItemTypeSerializer" class="com.bagri.xdm.client.hazelcast.serialize.XQItemTypeSerializer">

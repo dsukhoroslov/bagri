@@ -12,8 +12,7 @@ import javax.xml.xquery.XQException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bagri.xdm.api.XDMModelManagement;
-import com.bagri.xdm.common.XDMFactory;
+import static com.bagri.common.util.FileUtils.def_encoding;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xqj.BagriXQUtils;
 
@@ -36,7 +35,7 @@ public abstract class XDMDocumentManagementBase {
 		String xml = getDocumentAsString(docId);
 		if (xml != null) {
 			try {
-				return new ByteArrayInputStream(xml.getBytes("utf-8"));
+				return new ByteArrayInputStream(xml.getBytes(def_encoding));
 			} catch (UnsupportedEncodingException ex) {
 				throw new RuntimeException(ex);
 			}

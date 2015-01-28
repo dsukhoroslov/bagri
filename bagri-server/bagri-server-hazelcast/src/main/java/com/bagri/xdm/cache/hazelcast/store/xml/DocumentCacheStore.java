@@ -25,6 +25,7 @@ import javax.xml.stream.XMLStreamException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static com.bagri.common.util.FileUtils.def_encoding;
 import com.bagri.common.util.FileUtils;
 import com.bagri.xdm.api.XDMDocumentManagement;
 import com.bagri.xdm.api.XDMModelManagement;
@@ -48,7 +49,6 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<Long, 
 
     private static final Logger logger = LoggerFactory.getLogger(DocumentCacheStore.class);
     private static final int defVersion = 1;
-    private static final String defEncoding = "UTF-8";
     
     private HazelcastInstance hzInstance;
     //private IdGenerator docGen;
@@ -68,7 +68,7 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<Long, 
 		//dataPath = (String) properties.get("dataPath");
 		keyFactory = (XDMFactory) properties.get("keyFactory");
 		docMgr = (DocumentManagementImpl) properties.get("xdmManager");
-		schemaDict = (XDMModelManagement) properties.get("xdmDictionary");
+		schemaDict = (XDMModelManagement) properties.get("xdmModel");
 		//schemaDict = docMgr.getSchemaDictionary();
 		xmlCache = hzInstance.getMap(XDMCacheConstants.CN_XDM_XML);
 		xdmCache = hzInstance.getMap(XDMCacheConstants.CN_XDM_ELEMENT);
@@ -123,7 +123,7 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<Long, 
 						xmlCache.set(docId, xml);
 		        		return new XDMDocument(docId, uri, docType, defVersion, 
 								new Date(Files.getLastModifiedTime(path).toMillis()), 
-								Files.getOwner(path).getName(),	defEncoding);
+								Files.getOwner(path).getName(),	def_encoding);
         			}
 				} catch (IOException | XMLStreamException ex) {
 					logger.error("loadDocument.error", ex);

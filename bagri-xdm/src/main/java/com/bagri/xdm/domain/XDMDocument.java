@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 import com.bagri.xdm.common.XDMEntity;
+import static com.bagri.common.util.FileUtils.def_encoding;
 
 public class XDMDocument extends XDMEntity { //implements Serializable {
 
@@ -26,7 +27,7 @@ public class XDMDocument extends XDMEntity { //implements Serializable {
 		this.documentId = documentId;
 		this.uri = uri;
 		this.typeId = typeId;
-		this.encoding = "UTF-8";
+		this.encoding = def_encoding;
 	}
 	
 	public XDMDocument(long documentId, String uri, int typeId, int version, Date createdAt, String createdBy, String encoding) {

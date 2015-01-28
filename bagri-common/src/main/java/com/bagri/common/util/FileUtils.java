@@ -19,12 +19,13 @@ import java.util.Scanner;
 
 public class FileUtils {
 	
-	private final static Charset ENCODING = StandardCharsets.UTF_8;
+	public final static Charset cs_encoding = StandardCharsets.UTF_8;
+	public final static String def_encoding = cs_encoding.name();
 	
 	public static String readTextFile(String fileName) throws IOException {
 	    Path path = Paths.get(fileName);
 	    StringBuilder text = new StringBuilder();
-	    try (Scanner scanner = new Scanner(path, ENCODING.name())){
+	    try (Scanner scanner = new Scanner(path, def_encoding)){
 	    	while (scanner.hasNextLine()) {
 	    		text.append(scanner.nextLine()).append("\n");
 	    	}      
@@ -35,7 +36,7 @@ public class FileUtils {
 	public static void writeTextFile(String fileName, String content) throws IOException {
 		
 		try (Writer writer = new BufferedWriter(
-				new OutputStreamWriter(new FileOutputStream(fileName), ENCODING.name()))) {
+				new OutputStreamWriter(new FileOutputStream(fileName), def_encoding))) {
 		    writer.write(content);
 		}		
 	}
@@ -43,7 +44,7 @@ public class FileUtils {
     public static void appendTextFile(String fileName, String content) throws IOException {
         
         try (Writer writer = new BufferedWriter(
-                new OutputStreamWriter(new FileOutputStream(fileName, true), ENCODING.name()))) {
+                new OutputStreamWriter(new FileOutputStream(fileName, true), def_encoding))) {
             writer.write(content);
         }           
     }

@@ -14,6 +14,8 @@ import com.bagri.xdm.api.XDMDocumentManagement;
 import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.api.XDMQueryManagement;
 import com.bagri.xdm.api.XDMRepository;
+import com.bagri.xdm.client.common.impl.XDMRepositoryBase;
+import com.bagri.xdm.client.hazelcast.impl.ModelManagementImpl;
 import com.bagri.xqj.BagriXQDataFactory;
 import com.bagri.xquery.api.XQProcessor;
 import com.bagri.xquery.saxon.XQProcessorServer;
@@ -23,7 +25,7 @@ import com.hazelcast.core.DistributedObject;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IQueue;
 
-public class RepositoryImpl implements ApplicationContextAware, ClientListener, XDMRepository {
+public class RepositoryImpl extends XDMRepositoryBase implements ApplicationContextAware, ClientListener, XDMRepository {
 
 	private static final transient Logger logger = LoggerFactory.getLogger(RepositoryImpl.class);
 	
@@ -98,20 +100,4 @@ public class RepositoryImpl implements ApplicationContextAware, ClientListener, 
 		// TODO: disconnect all clients ?
 	}
 
-	@Override
-	public XDMDocumentManagement getDocumentManagement() {
-		return appContext.getBean(DocumentManagementImpl.class);
-	}
-
-	@Override
-	public XDMQueryManagement getQueryManagement() {
-		return appContext.getBean(QueryManagementImpl.class);
-	}
-
-	@Override
-	public XDMModelManagement getModelManagement() {
-		return appContext.getBean(ModelManagementImpl.class);
-	}
-
-	
 }

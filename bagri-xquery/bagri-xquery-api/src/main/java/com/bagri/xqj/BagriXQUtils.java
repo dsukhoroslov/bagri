@@ -107,6 +107,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 
+import static com.bagri.common.util.FileUtils.def_encoding;
+
 public class BagriXQUtils {
 	
 	private static DatatypeFactory dtFactory;
@@ -576,7 +578,7 @@ public class BagriXQUtils {
 	}
 
 	public static String textToString(InputStream stream) throws XQException {
-		Reader r = new InputStreamReader(stream); //, "UTF-8");
+		Reader r = new InputStreamReader(stream); 
 		return textToString(r);
 	}
 	
@@ -587,7 +589,7 @@ public class BagriXQUtils {
 	    try {  
 		    DocumentBuilder builder = factory.newDocumentBuilder();  
 	        //return builder.parse(new InputSource(new ByteArrayInputStream(xml.getBytes("utf-8"))));  
-	        return builder.parse(new ByteArrayInputStream(text.getBytes("utf-8")));  
+	        return builder.parse(new ByteArrayInputStream(text.getBytes(def_encoding)));  
 	    } catch (Exception ex) {  
 	        throw new XQException(ex.getMessage());
 	    } 		

@@ -187,7 +187,7 @@
 	
 	<hz:executorService id="xdm-exec-pool" name="xdm-exec-pool" instance-ref="hzInstance"/>
 	
-	<bean id="xdmModel" class="com.bagri.xdm.cache.hazelcast.impl.ModelManagementImpl">
+	<bean id="xdmModel" class="com.bagri.xdm.client.hazelcast.impl.ModelManagementImpl">
 		<!--constructor-arg ref="hzInstance" /-->
 		<property name="namespaceCache" ref="dict-namespace"/>
 		<property name="pathCache" ref="dict-path"/>
@@ -217,7 +217,9 @@
 		<property name="model" ref="xdmModel"/>
 	</bean>
 	
-	<bean id="xdmStats" class="com.bagri.common.manage.InvocationStatistics"/>
+	<bean id="docStats" class="com.bagri.common.manage.InvocationStatistics"/>
+
+	<bean id="queryStats" class="com.bagri.common.manage.InvocationStatistics"/>
 	
 	<bean id="popManager" class="com.bagri.xdm.cache.hazelcast.management.PopulationManager">
 		<constructor-arg ref="hzInstance" />
@@ -248,7 +250,8 @@
 
 	<bean id="xdmRepo" class="com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl">
 		<property name="hzInstance" ref="hzInstance"/>
-		<!--property name="schemaDictionary" ref="xdmDictionary"/>
-		<property name="queryManager" ref="xqManager"/-->
+		<property name="modelManagement" ref="xdmModel"/>
+		<property name="queryManagement" ref="xqManager"/>
+		<property name="documentManagement" ref="xdmManager"/>
 	</bean>
 </beans>

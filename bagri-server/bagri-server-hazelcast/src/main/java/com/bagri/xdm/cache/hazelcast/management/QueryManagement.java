@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 
+import javax.management.openmbean.TabularData;
 import javax.xml.namespace.QName;
 import javax.xml.xquery.XQConnection;
 import javax.xml.xquery.XQException;
@@ -21,6 +22,8 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
+import com.bagri.xdm.cache.hazelcast.task.doc.DocumentStatsCollector;
+import com.bagri.xdm.cache.hazelcast.task.doc.DocumentStatsReseter;
 import com.bagri.xdm.client.common.impl.XDMModelManagementBase;
 import com.bagri.xdm.domain.XDMDocumentType;
 
@@ -48,7 +51,7 @@ public class QueryManagement extends SchemaFeatureManagement {
 
 	@ManagedAttribute(description="Returns Document Types registered in the Schema")
 	public String[] getRegisteredTypes() {
-		Collection<XDMDocumentType> types = ((XDMModelManagementBase) schemaDictionary).getDocumentTypes();
+		Collection<XDMDocumentType> types = ((XDMModelManagementBase) modelMgr).getDocumentTypes();
 		String[] result = new String[types.size()];
 		Iterator<XDMDocumentType> itr = types.iterator();
 		for (int i=0; i < types.size(); i++) {
@@ -93,6 +96,16 @@ public class QueryManagement extends SchemaFeatureManagement {
 			logger.error(error, ex); 
 			return error;
 		}
+	}
+
+	@ManagedAttribute(description="Returns aggregated QueryManagement invocation statistics, per method")
+	public TabularData getInvocationStatistics() {
+		return null; //super.getInvocationStatistics(new DocumentStatsCollector());
+	}
+	
+	@ManagedOperation(description="Reset QueryManagement invocation statistics")
+	public void resetStatistics() {
+		//super.resetStatistics(new DocumentStatsReseter()); 
 	}
 
 	@Override

@@ -204,7 +204,7 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
     		HazelcastInstance hz = ctx.getBean("hzInstance", HazelcastInstance.class);
     		//hz.getUserContext().put("appContext", ctx);
     		//hz.getConfig().getSecurityConfig().setEnabled(true);
-    	    XDMModelManagement schemaDict = ctx.getBean("xdmDictionary", XDMModelManagement.class);
+    	    XDMModelManagement schemaDict = ctx.getBean("xdmModel", XDMModelManagement.class);
     	    SchemaManager sMgr = (SchemaManager) mgrCache.get(schemaName);
        	    if (sMgr != null) {
        	    	sMgr.setClientContext(ctx);

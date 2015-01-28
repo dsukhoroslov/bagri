@@ -27,6 +27,7 @@ import com.bagri.xdm.api.XDMDocumentManagement;
 import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.api.XDMQueryManagement;
 import com.bagri.xdm.api.XDMRepository;
+import com.bagri.xdm.client.common.impl.XDMRepositoryBase;
 import com.bagri.xdm.client.hazelcast.serialize.XQItemSerializer;
 import com.bagri.xdm.client.hazelcast.serialize.XQItemTypeSerializer;
 import com.bagri.xdm.client.hazelcast.serialize.XQSequenceSerializer;
@@ -39,7 +40,7 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.Member;
 
-public class RepositoryImpl implements XDMRepository {
+public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 	
     private final static Logger logger = LoggerFactory.getLogger(RepositoryImpl.class);
 	
@@ -48,10 +49,6 @@ public class RepositoryImpl implements XDMRepository {
 	public static final String PN_SCHEMA_PASS = "hz.schema.password";
 	public static final String PN_SERVER_ADDRESS = "hz.server.address";
     
-	private XDMDocumentManagement docMgr;
-	//private XDMModelManagement modelMgr;
-	private XDMQueryManagement queryMgr;
-	
 	private String clientId;
 	private String schemaName;
 	
@@ -142,12 +139,26 @@ public class RepositoryImpl implements XDMRepository {
 
 	private void initializeServices() {
 		execService = hzClient.getExecutorService(PN_XDM_SCHEMA_POOL);
-		docMgr = new DocumentManagementImpl();
-		((DocumentManagementImpl) docMgr).initialize(this);
-		queryMgr = new QueryManagementImpl();
-		((QueryManagementImpl) queryMgr).initialize(this);
+		DocumentManagementImpl docMgr = new DocumentManagementImpl();
+		setDocumentManagement(docMgr);
+		QueryManagementImpl queryMgr = new QueryManagementImpl();
+		setQueryManagement(queryMgr);
+		ModelManagementImpl modelMgr = new ModelManagementImpl();
+		setModelManagement(modelMgr);
 	}
 
+	@Override
+	public void setDocumentManagement(XDMDocumentManagement docMgr) {
+		super.setDocumentManagement(docMgr);
+		((DocumentManagementImpl) docMgr).initialize(this);
+	}
+
+	@Override
+	public void setQueryManagement(XDMQueryManagement queryMgr) {
+		super.setQueryManagement(queryMgr);
+		((QueryManagementImpl) queryMgr).initialize(this);
+	}
+	
 	@Override
 	public void close() {
 		logger.trace("close.enter;");
@@ -200,10 +211,10 @@ public class RepositoryImpl implements XDMRepository {
 		Future<Object> future;
 		if (isQuery) {
 			if ("owner".equals(runOn)) {
-				int key = queryMgr.getQueryKey(query);
+				int key = getQueryManagement().getQueryKey(query);
 				future = execService.submitToKeyOwner(task, key);
 			} else if ("member".equals(runOn)) {
-				int key = queryMgr.getQueryKey(query);
+				int key = getQueryManagement().getQueryKey(query);
 				Member member = hzClient.getPartitionService().getPartition(key).getOwner();
 				future = execService.submitToMember(task, member);
 			} else {
@@ -266,36 +277,5 @@ public class RepositoryImpl implements XDMRepository {
 		return result.iterator();
 	}
 
-
-	
-	
-	
-	
-	@Override
-	public XDMDocumentManagement getDocumentManagement() {
-		return docMgr;
-	}
-	
-	public void setDocumentManagement(XDMDocumentManagement docMgr) {
-		this.docMgr = docMgr;
-	}
-
-	@Override
-	public XDMQueryManagement getQueryManagement() {
-		return queryMgr;
-	}
-
-	public void setDocumentManagement(XDMQueryManagement queryMgr) {
-		this.queryMgr = queryMgr;
-	}
-
-	@Override
-	public XDMModelManagement getModelManagement() {
-		return null; //modelMgr;
-	}
-
-	//public void setModelManagement(XDMModelManagement modelMgr) {
-	//	this.modelMgr = modelMgr;
-	//}
 
 }
