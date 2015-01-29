@@ -175,24 +175,6 @@ public class SchemaManager extends EntityManager<XDMSchema> {
 		return false;
 	}
 
-	@ManagedOperation(description="Register Schema")
-	@ManagedOperationParameters({
-		@ManagedOperationParameter(name = "schemaFile", description = "A full path to XSD file to register")})
-	public int registerSchema(String schemaFile) {
-		int size = ((XDMModelManagementBase) schemaDictionary).getDocumentTypes().size(); 
-		schemaDictionary.registerSchemaUri(schemaFile);
-		return ((XDMModelManagementBase) schemaDictionary).getDocumentTypes().size() - size;
-	}
-	
-	@ManagedOperation(description="Register Schemas")
-	@ManagedOperationParameters({
-		@ManagedOperationParameter(name = "schemaCatalog", description = "A full path to the directory containing XSD files to register")})
-	public int registerSchemas(String schemasCatalog) {
-		int size = ((XDMModelManagementBase) schemaDictionary).getDocumentTypes().size(); 
-		((XDMModelManagementBase) schemaDictionary).registerSchemas(schemasCatalog);
-		return ((XDMModelManagementBase) schemaDictionary).getDocumentTypes().size() - size;
-	}
-	
 	//@Override
 	@ManagedOperation(description="Returns named Schema property")
 	@ManagedOperationParameters({

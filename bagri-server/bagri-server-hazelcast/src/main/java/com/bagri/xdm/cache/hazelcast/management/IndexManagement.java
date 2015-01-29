@@ -61,11 +61,6 @@ public class IndexManagement extends SchemaFeatureManagement {
 		return null;
 	}
 
-	@ManagedAttribute(description="Return candidate index usage statistics, per query path")
-	public TabularData getIndexCandidateStatistics() {
-		return null;
-	}
-	
 	@ManagedOperation(description="Creates a new Index")
 	@ManagedOperationParameters({@ManagedOperationParameter(name = "path", description = "XPath to index")})
 	public void addIndex(String path) {

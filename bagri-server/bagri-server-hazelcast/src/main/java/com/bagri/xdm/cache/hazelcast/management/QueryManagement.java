@@ -44,23 +44,6 @@ public class QueryManagement extends SchemaFeatureManagement {
 		this.xqConn = xqConn;
 	}
 	
-	@ManagedAttribute(description="Returns corresponding Schema name")
-	public String getSchema() {
-		return schemaName;
-	}
-
-	@ManagedAttribute(description="Returns Document Types registered in the Schema")
-	public String[] getRegisteredTypes() {
-		Collection<XDMDocumentType> types = ((XDMModelManagementBase) modelMgr).getDocumentTypes();
-		String[] result = new String[types.size()];
-		Iterator<XDMDocumentType> itr = types.iterator();
-		for (int i=0; i < types.size(); i++) {
-			result[i] = itr.next().getRootPath();
-		}
-		Arrays.sort(result);
-		return result;
-	}
-
 	@ManagedOperation(description="Run XQuery. Returns string output specified by XQuery")
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "query", description = "A query request provided in XQuery syntax")})

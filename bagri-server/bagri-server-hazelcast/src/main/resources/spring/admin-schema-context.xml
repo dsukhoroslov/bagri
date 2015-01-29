@@ -176,6 +176,11 @@
 		<property name="modelManager" ref="xdmModel"/>
 	</bean>
 
+	<bean id="modelManager" class="com.bagri.xdm.cache.hazelcast.management.ModelManagement">
+		<constructor-arg value="${xdm.schema.name}" />
+		<property name="modelManager" ref="xdmModel"/>
+	</bean>
+
 	<bean id="queryManager" class="com.bagri.xdm.cache.hazelcast.management.QueryManagement">
 		<constructor-arg value="${xdm.schema.name}" />
 		<property name="execService" ref="xdm-exec-pool"/>

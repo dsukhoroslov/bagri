@@ -215,6 +215,8 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
         	    IndexManagement iMgr = ctx.getBean("indexManager", IndexManagement.class);
         	    iMgr.setSchemaCache(entityCache);
 				mbeanExporter.registerManagedResource(iMgr, iMgr.getObjectName());
+        	    ModelManagement mMgr = ctx.getBean("modelManager", ModelManagement.class);
+				mbeanExporter.registerManagedResource(mMgr, mMgr.getObjectName());
         	    QueryManagement qMgr = ctx.getBean("queryManager", QueryManagement.class);
 				mbeanExporter.registerManagedResource(qMgr, qMgr.getObjectName());
        	    } else {
@@ -245,6 +247,8 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
     				mbeanExporter.unregisterManagedResource(dMgr.getObjectName());
     				IndexManagement iMgr = ctx.getBean("indexManager", IndexManagement.class);
     				mbeanExporter.unregisterManagedResource(iMgr.getObjectName());
+    				ModelManagement mMgr = ctx.getBean("modelManager", ModelManagement.class);
+    				mbeanExporter.unregisterManagedResource(mMgr.getObjectName());
     				QueryManagement qMgr = ctx.getBean("queryManager", QueryManagement.class);
     				mbeanExporter.unregisterManagedResource(qMgr.getObjectName());
     				
