@@ -2,7 +2,6 @@ package com.bagri.xdm.client.hazelcast.serialize;
 
 import com.bagri.xdm.client.hazelcast.data.QueryParamsKey;
 import com.bagri.xdm.client.hazelcast.impl.ResultsIterator;
-import com.bagri.xdm.client.hazelcast.task.doc.DocumentBuilder;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentCreator;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentRemover;
 import com.bagri.xdm.client.hazelcast.task.doc.XMLProvider;
@@ -15,13 +14,41 @@ import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
 public class XDMDataSerializationFactory implements DataSerializableFactory { 
 
-	public static final int factoryId = 2; 
+	public static final int factoryId = 1; 
+	
+	public static final int cli_XDMRole = 1;
+	public static final int cli_XDMUser = 2;
+	public static final int cli_XDMNode = 3;
+	public static final int cli_XDMSchema = 4;
+	public static final int cli_XDMPermission = 5;
+	public static final int cli_XDMIndex = 6;
+	
+	public static final int cli_XDMDocument = 50;
+	public static final int cli_XDMElement = 51; 
+	public static final int cli_DataDocumentKey = 52; 
+	public static final int cli_XDMDocumentType = 53;
+	public static final int cli_XDMPath = 54;
+	public static final int cli_XDMNamespace = 55;
+	public static final int cli_XDMElements = 56; 
+	public static final int cli_XDMQuery = 57;
+	public static final int cli_XDMResults = 58;
+	public static final int cli_XDMSource = 59;
+	public static final int cli_XDMIndexedValue = 60;
+
+	public static final int cli_XQItemType = 75;
+	public static final int cli_XQItem = 76;
+	public static final int cli_XQSequence = 77;
+
+	public static final int cli_Expression = 80;
+	public static final int cli_ExpressionBuilder = 81;
+	public static final int cli_PathBuilder = 82;
+	public static final int cli_ExpressionContainer = 83;
+	//public static final int cli_StructuredQName = 85;
 	
 	public static final int cli_XQCursor = 110;
 	public static final int cli_XDMQueryParamsKey = 111; 
 
 	public static final int cli_XDMDocumentTask = 112; 
-	public static final int cli_TemplateResultTask = 114;
 	public static final int cli_XDMDocumentRemover = 115;
 	
 	public static final int cli_XDMInitSchemaTask = 117;
@@ -52,7 +79,6 @@ public class XDMDataSerializationFactory implements DataSerializableFactory {
 			case cli_XQCursor: return new ResultsIterator();
 			case cli_XDMQueryParamsKey: return new QueryParamsKey();
 			case cli_XDMDocumentTask: return new DocumentCreator();
-			case cli_TemplateResultTask: return new DocumentBuilder();
 			case cli_XDMDocumentRemover: return new DocumentRemover();
 			case cli_DocumentUrisProviderTask: return new DocumentUrisProvider(); 
 			case cli_XDMExecXQCommandTask: return new XQCommandExecutor();

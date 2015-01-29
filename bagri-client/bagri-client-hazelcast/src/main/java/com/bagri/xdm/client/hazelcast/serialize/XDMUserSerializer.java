@@ -19,7 +19,7 @@ public class XDMUserSerializer extends XDMEntitySerializer implements StreamSeri
 
 	@Override
 	public int getTypeId() {
-		return XDMPortableFactory.cli_XDMUser;
+		return XDMDataSerializationFactory.cli_XDMUser;
 	}
 
 	@Override

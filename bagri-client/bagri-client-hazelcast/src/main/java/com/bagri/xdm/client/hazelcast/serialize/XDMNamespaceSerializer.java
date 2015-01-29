@@ -11,7 +11,7 @@ public class XDMNamespaceSerializer implements StreamSerializer<XDMNamespace> {
 
 	@Override
 	public int getTypeId() {
-		return XDMPortableFactory.cli_XDMNamespace;
+		return XDMDataSerializationFactory.cli_XDMNamespace;
 	}
 
 	@Override

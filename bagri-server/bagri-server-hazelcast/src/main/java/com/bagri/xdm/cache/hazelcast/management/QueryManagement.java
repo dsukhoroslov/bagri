@@ -22,8 +22,8 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
-import com.bagri.xdm.cache.hazelcast.task.doc.DocumentStatsCollector;
-import com.bagri.xdm.cache.hazelcast.task.doc.DocumentStatsReseter;
+import com.bagri.xdm.cache.hazelcast.task.stats.InvocationStatsCollector;
+import com.bagri.xdm.cache.hazelcast.task.stats.InvocationStatsReseter;
 import com.bagri.xdm.client.common.impl.XDMModelManagementBase;
 import com.bagri.xdm.domain.XDMDocumentType;
 
@@ -100,12 +100,12 @@ public class QueryManagement extends SchemaFeatureManagement {
 
 	@ManagedAttribute(description="Returns aggregated QueryManagement invocation statistics, per method")
 	public TabularData getInvocationStatistics() {
-		return null; //super.getInvocationStatistics(new DocumentStatsCollector());
+		return super.getInvocationStatistics(new InvocationStatsCollector(schemaName, "queryStats"));
 	}
 	
 	@ManagedOperation(description="Reset QueryManagement invocation statistics")
 	public void resetStatistics() {
-		//super.resetStatistics(new DocumentStatsReseter()); 
+		super.resetStatistics(new InvocationStatsReseter(schemaName, "queryStats")); 
 	}
 
 	@Override

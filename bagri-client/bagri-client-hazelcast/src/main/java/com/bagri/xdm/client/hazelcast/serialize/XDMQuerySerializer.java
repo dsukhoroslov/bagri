@@ -12,7 +12,7 @@ public class XDMQuerySerializer implements StreamSerializer<XDMQuery> {
 
 	@Override
 	public int getTypeId() {
-		return XDMPortableFactory.cli_XDMQuery;
+		return XDMDataSerializationFactory.cli_XDMQuery;
 	}
 
 	@Override

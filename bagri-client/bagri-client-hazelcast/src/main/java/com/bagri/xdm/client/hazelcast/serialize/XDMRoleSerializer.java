@@ -18,7 +18,7 @@ public class XDMRoleSerializer extends XDMEntitySerializer implements StreamSeri
 
 	@Override
 	public int getTypeId() {
-		return XDMPortableFactory.cli_XDMRole;
+		return XDMDataSerializationFactory.cli_XDMRole;
 	}
 
 	@Override

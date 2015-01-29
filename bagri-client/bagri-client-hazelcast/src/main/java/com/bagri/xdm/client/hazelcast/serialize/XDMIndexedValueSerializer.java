@@ -19,7 +19,7 @@ public class XDMIndexedValueSerializer implements StreamSerializer<XDMIndexedVal
 
 	@Override
 	public int getTypeId() {
-		return XDMPortableFactory.cli_XDMIndexedValue;
+		return XDMDataSerializationFactory.cli_XDMIndexedValue;
 	}
 
 	@Override

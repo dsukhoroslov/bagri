@@ -3,6 +3,7 @@ package com.bagri.xdm.cache.hazelcast.task.doc;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.bagri.xdm.api.XDMDocumentManagement;
 import com.bagri.xdm.domain.XDMDocument;
@@ -13,21 +14,20 @@ public class DocumentCreator extends com.bagri.xdm.client.hazelcast.task.doc.Doc
 
 	private static final transient Logger logger = LoggerFactory.getLogger(DocumentCreator.class);
     
-	private XDMDocumentManagement xdmProxy;
+	private transient XDMDocumentManagement docMgr;
     
     @Autowired
-	public void setXdmProxy(XDMDocumentManagement xdmProxy) {
-		this.xdmProxy = xdmProxy;
-		logger.trace("setXdmProxy; got proxy: {}", xdmProxy); 
+    @Qualifier("docProxy")
+	public void setDocManager(XDMDocumentManagement docMgr) {
+		this.docMgr = docMgr;
+		logger.debug("setDocManager; got DocumentManager: {}", docMgr); 
 	}
     
 	@Override
 	public XDMDocument call() throws Exception {
-		logger.trace("call.enter; xdm: {} ", xdmProxy);
-
-		XDMDocument doc = xdmProxy.storeDocumentFromString(docId, uri, xml);
-		
-		logger.trace("process.exit; returning: {}", doc);
+		logger.trace("call.enter; xdm: {} ", docMgr);
+		XDMDocument doc = docMgr.storeDocumentFromString(docId, uri, xml);
+		logger.trace("call.exit; returning: {}", doc);
 		return doc;
 	}
 	

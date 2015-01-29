@@ -35,7 +35,7 @@
 		
 		<hz:serialization>
 			<hz:data-serializable-factories>
-				<hz:data-serializable-factory factory-id="2" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory"/>
+				<hz:data-serializable-factory factory-id="1" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory"/>
 			</hz:data-serializable-factories>
 			<!--hz:portable-factories>
 				<hz:portable-factory factory-id="1" class-name="com.bagri.xdm.access.hazelcast.pof.XDMPortableFactory"/>
@@ -57,9 +57,9 @@
 				<hz:serializer type-class="com.bagri.xdm.domain.XDMQuery" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMQuerySerializer"/>
 				<hz:serializer type-class="com.bagri.xdm.domain.XDMResults" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMResultsSerializer"/>
 				<hz:serializer type-class="com.bagri.xdm.domain.XDMIndexedValue" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMIndexedValueSerializer"/>
-				<hz:serializer type-class="com.bagri.xqj.BagriXQItemType" implementation="xqItemTypeSerializer"/>
-				<hz:serializer type-class="com.bagri.xqj.BagriXQItem" implementation="xqItemSerializer"/>
-				<hz:serializer type-class="com.bagri.xqj.BagriXQSequence" implementation="xqSequenceSerializer"/>
+				<hz:serializer type-class="javax.xml.xquery.XQItemType" implementation="xqItemTypeSerializer"/>
+				<hz:serializer type-class="javax.xml.xquery.XQItem" implementation="xqItemSerializer"/>
+				<hz:serializer type-class="javax.xml.xquery.XQSequence" implementation="xqSequenceSerializer"/>
 			</hz:serializers>
 		</hz:serialization>
 

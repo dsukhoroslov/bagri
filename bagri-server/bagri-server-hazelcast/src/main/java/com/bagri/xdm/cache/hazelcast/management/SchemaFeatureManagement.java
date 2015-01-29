@@ -18,8 +18,8 @@ import org.springframework.jmx.export.naming.SelfNaming;
 
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.xdm.api.XDMModelManagement;
-import com.bagri.xdm.cache.hazelcast.task.doc.DocumentStatsCollector;
-import com.bagri.xdm.cache.hazelcast.task.doc.DocumentStatsReseter;
+import com.bagri.xdm.cache.hazelcast.task.stats.InvocationStatsCollector;
+import com.bagri.xdm.cache.hazelcast.task.stats.InvocationStatsReseter;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.Member;
 
@@ -65,6 +65,7 @@ public abstract class SchemaFeatureManagement implements SelfNaming {
 			try {
 				TabularData stats = entry.getValue().get();
 				result = JMXUtils.aggregateStats(stats, result);
+				cnt++;
 			} catch (InterruptedException | ExecutionException ex) {
 				logger.error("getInvocationStatistics.error: " + ex.getMessage(), ex);
 			}

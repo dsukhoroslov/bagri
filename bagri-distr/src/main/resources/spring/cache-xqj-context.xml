@@ -13,9 +13,14 @@
 	<context:property-placeholder ignore-unresolvable="true" location="classpath:/${xdm.config.properties.file}" />
 	<context:annotation-config />
 	
-	<bean id="xdmProxy" class="com.bagri.xdm.process.hazelcast.DocumentManagementProxy" factory-method="newDMProxy">
+	<bean id="docProxy" class="com.bagri.xdm.cache.hazelcast.impl.DocumentManagementProxy" factory-method="newDMProxy">
 		<constructor-arg index="0" ref="xdmManager" />
-		<constructor-arg index="1" ref="xdmStats" />
+		<constructor-arg index="1" ref="docStats" />
+	</bean>
+	
+	<bean id="queryProxy" class="com.bagri.xdm.cache.hazelcast.impl.QueryManagementProxy" factory-method="newQMProxy">
+		<constructor-arg index="0" ref="xqManager" />
+		<constructor-arg index="1" ref="queryStats" />
 	</bean>
 	
 	<bean id="xqFactory" class="com.bagri.xqj.BagriXQDataFactory">
@@ -32,7 +37,7 @@
         </property>
     </bean-->
     
-	<bean id="xqProcessor" class="com.bagri.xquery.saxon.BagriXQProcessor" lazy-init="true" scope="prototype">
+	<bean id="xqProcessor" class="com.bagri.xquery.saxon.XQProcessorServer" lazy-init="true" scope="prototype">
 		<!--property name="xdmManager" ref="xdmManager" /-->
 		<!--property name="XQManager" ref="xqManager" /-->
 		<property name="XQDataFactory" ref="xqFactory" />

@@ -16,7 +16,7 @@ public class XDMPermissionSerializer implements StreamSerializer<XDMPermission> 
 
 	@Override
 	public int getTypeId() {
-		return XDMPortableFactory.cli_XDMPermission;
+		return XDMDataSerializationFactory.cli_XDMPermission;
 	}
 
 	@Override

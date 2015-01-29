@@ -18,7 +18,7 @@ public class XDMElementsSerializer implements StreamSerializer<XDMElements> {
 
 	@Override
 	public int getTypeId() {
-		return XDMPortableFactory.cli_XDMElements;
+		return XDMDataSerializationFactory.cli_XDMElements;
 	}
 
 	@Override

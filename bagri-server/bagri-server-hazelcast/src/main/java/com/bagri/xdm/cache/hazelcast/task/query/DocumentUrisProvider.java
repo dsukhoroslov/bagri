@@ -5,6 +5,7 @@ import java.util.Collection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.bagri.xdm.api.XDMDocumentManagement;
 import com.bagri.xdm.api.XDMQueryManagement;
@@ -15,18 +16,19 @@ public class DocumentUrisProvider extends com.bagri.xdm.client.hazelcast.task.qu
 
 	private static final transient Logger logger = LoggerFactory.getLogger(DocumentUrisProvider.class);
 	    
-	private XDMQueryManagement xdmProxy;
-	    
-	@Autowired
-	public void setXdmProxy(XDMQueryManagement xdmProxy) {
-		this.xdmProxy = xdmProxy;
-		logger.trace("setXdmProxy; got proxy: {}", xdmProxy); 
+	private transient XDMQueryManagement queryMgr;
+    
+    @Autowired
+    @Qualifier("queryProxy")
+	public void setQueryManager(XDMQueryManagement queryMgr) {
+		this.queryMgr = queryMgr;
+		logger.debug("setQueryManager; got QueryManager: {}", queryMgr); 
 	}
 	    
 	@Override
 	public Collection<String> call() throws Exception {
 		logger.trace("call.enter; container: {}", exp); //eBuilder.getRoot());
-		Collection<String> result = xdmProxy.getDocumentURIs(exp);
+		Collection<String> result = queryMgr.getDocumentURIs(exp);
 		logger.trace("call.exit; returning: {}", result);
 		return result;
 	}

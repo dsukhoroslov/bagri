@@ -17,7 +17,7 @@ public class ExpressionBuilderSerializer implements StreamSerializer<ExpressionB
 
 	@Override
 	public int getTypeId() {
-		return XDMPortableFactory.cli_ExpressionBuilder;
+		return XDMDataSerializationFactory.cli_ExpressionBuilder;
 	}
 
 	@Override

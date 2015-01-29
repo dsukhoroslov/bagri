@@ -52,7 +52,37 @@
                 <entry name="xdm.schema.password">TPoX</entry>
                 <entry name="xdm.schema.partition.count">271</entry>
                 <entry name="xdm.schema.population.size">1</entry>
+                <entry name="xdm.schema.buffer.size">64</entry>
             </properties>
+            <indexes>
+                <index name="IDX_Security_Symbol">
+                    <version>1</version>
+                    <createdAt>2015-01-25T13:36:26.965+03:00</createdAt>
+                    <createdBy>SDV</createdBy>
+                    <docType>/{http://tpox-benchmark.com/security}Security</docType>
+                    <path>/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}Symbol/text()</path>
+                    <unique>true</unique>
+                    <description>Security Symbol</description>
+                </index>
+                <index name="IDX_Order_ID">
+                    <version>1</version>
+                    <createdAt>2015-01-25T13:36:26.965+03:00</createdAt>
+                    <createdBy>SDV</createdBy>
+                    <docType>/{http://www.fixprotocol.org/FIXML-4-4}FIXML</docType>
+                    <path>/{http://www.fixprotocol.org/FIXML-4-4}FIXML/{http://www.fixprotocol.org/FIXML-4-4}Order/@ID</path>
+                    <unique>true</unique>
+                    <description>Order ID</description>
+                </index>
+                <index name="IDX_Customer_id">
+                    <version>1</version>
+                    <createdAt>2015-01-25T13:36:26.965+03:00</createdAt>
+                    <createdBy>SDV</createdBy>
+                    <docType>/{http://tpox-benchmark.com/custacc}Customer</docType>
+                    <path>/{http://tpox-benchmark.com/custacc}Customer/@id</path>
+                    <unique>true</unique>
+                    <description>Customer id</description>
+                </index>
+            </indexes>
         </schema>
         <schema name="TPoX2" active="true">
             <version>1</version>
@@ -86,7 +116,37 @@
                 <entry name="xdm.schema.password">TPoX2</entry>
                 <entry name="xdm.schema.partition.count">971</entry>
                 <entry name="xdm.schema.population.size">1</entry>
+                <entry name="xdm.schema.buffer.size">128</entry>
             </properties>
+            <indexes>
+                <index name="IDX_Security_Symbol">
+                    <version>1</version>
+                    <createdAt>2015-01-25T13:36:26.965+03:00</createdAt>
+                    <createdBy>SDV</createdBy>
+                    <docType>/{http://tpox-benchmark.com/security}Security</docType>
+                    <path>/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}Symbol/text()</path>
+                    <unique>true</unique>
+                    <description>Security Symbol</description>
+                </index>
+                <index name="IDX_Order_ID">
+                    <version>1</version>
+                    <createdAt>2015-01-25T13:36:26.965+03:00</createdAt>
+                    <createdBy>SDV</createdBy>
+                    <docType>/{http://www.fixprotocol.org/FIXML-4-4}FIXML</docType>
+                    <path>/{http://www.fixprotocol.org/FIXML-4-4}FIXML/{http://www.fixprotocol.org/FIXML-4-4}Order/@ID</path>
+                    <unique>true</unique>
+                    <description>Order ID</description>
+                </index>
+                <index name="IDX_Customer_id">
+                    <version>1</version>
+                    <createdAt>2015-01-25T13:36:26.965+03:00</createdAt>
+                    <createdBy>SDV</createdBy>
+                    <docType>/{http://tpox-benchmark.com/custacc}Customer</docType>
+                    <path>/{http://tpox-benchmark.com/custacc}Customer/@id</path>
+                    <unique>true</unique>
+                    <description>Customer id</description>
+                </index>
+            </indexes>
         </schema>
         <schema name="XMark" active="true">
             <version>2</version>
@@ -121,6 +181,7 @@
                 <entry name="xdm.schema.name">XMark</entry>
                 <entry name="xdm.schema.partition.count">157</entry>
                 <entry name="xdm.schema.population.size">1</entry>
+                <entry name="xdm.schema.buffer.size">256</entry>
             </properties>
         </schema>
     </schemas>

@@ -33,7 +33,7 @@ public class XQSequenceSerializer implements StreamSerializer<XQSequence> {
 
 	@Override
 	public int getTypeId() {
-		return XDMPortableFactory.cli_XQSequence;
+		return XDMDataSerializationFactory.cli_XQSequence;
 	}
 
 	@Override

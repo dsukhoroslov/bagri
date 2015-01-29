@@ -19,7 +19,7 @@ public class XDMResultsSerializer  implements StreamSerializer<XDMResults> {
 
 	@Override
 	public int getTypeId() {
-		return XDMPortableFactory.cli_XDMResults;
+		return XDMDataSerializationFactory.cli_XDMResults;
 	}
 
 	@Override

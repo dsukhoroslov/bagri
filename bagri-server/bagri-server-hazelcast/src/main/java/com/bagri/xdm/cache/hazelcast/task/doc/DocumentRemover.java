@@ -1,14 +1,11 @@
 package com.bagri.xdm.cache.hazelcast.task.doc;
 
-import java.util.AbstractMap;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.bagri.xdm.api.XDMDocumentManagement;
-import com.bagri.xdm.cache.hazelcast.util.HazelcastUtils;
 import com.bagri.xdm.domain.XDMDocument;
 import com.hazelcast.spring.context.SpringAware;
 
@@ -17,24 +14,19 @@ public class DocumentRemover extends com.bagri.xdm.client.hazelcast.task.doc.Doc
 
     private static final transient Logger logger = LoggerFactory.getLogger(DocumentRemover.class);
     
-	private XDMDocumentManagement xdmProxy;
+	private transient XDMDocumentManagement docMgr;
     
     @Autowired
-	public void setXdmProxy(XDMDocumentManagement xdmProxy) {
-		this.xdmProxy = xdmProxy;
-		logger.trace("setXdmProxy; got proxy: {}", xdmProxy); 
+    @Qualifier("docProxy")
+	public void setDocManager(XDMDocumentManagement docMgr) {
+		this.docMgr = docMgr;
+		logger.debug("setDocManager; got DocumentManager: {}", docMgr); 
 	}
     
     @Override
 	public XDMDocument call() throws Exception {
 		logger.trace("call.enter; docId: {}", docId);
-
-		//if (xdmManager == null) {
-		//	ApplicationContext ctx = HazelcastUtils.findContext();
-		//	xdmManager = ctx.getBean(DocumentManagementServer.class); 
-		//}
-		
-		xdmProxy.removeDocument(docId);
+		docMgr.removeDocument(docId);
 		return null;
 	}
 
