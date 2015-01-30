@@ -16,10 +16,10 @@ import org.springframework.core.env.PropertySource;
 import static com.bagri.xdm.client.common.XDMCacheConstants.*;
 import static com.bagri.xdm.client.common.XDMConfigConstants.*;
 
-import com.bagri.xdm.cache.hazelcast.store.hive.HiveCacheStore;
 import com.bagri.xdm.cache.hazelcast.store.xml.DocumentCacheStore;
 import com.bagri.xdm.cache.hazelcast.store.xml.XsdCacheStore;
 import com.bagri.xdm.cache.hazelcast.util.SpringContextHolder;
+import com.bagri.xdm.cache.store.DataStore;
 import com.hazelcast.core.MapLoader;
 import com.hazelcast.core.MapStore;
 import com.hazelcast.core.MapStoreFactory;
@@ -85,14 +85,16 @@ public class XDMMapStoreFactory implements ApplicationContextAware, MapStoreFact
 					
 					if (st_mongo.equals(type)) {
 						if (CN_XDM_ELEMENT.equals(mapName)) {
-							mStore = ctx.getBean("elementCacheStore", 
-									com.bagri.xdm.cache.hazelcast.store.mongo.ElementCacheStore.class);
+							DataStore store = ctx.getBean("elementCacheStore",  DataStore.class); 
+							mStore = new DataStoreAdapter(store);
 						} else {
 							mStore = null; //ctx.getBean("mongoCacheStore", MongoMapStore.class);
 						}
 					} else if (st_hive.equals(type)) {
-						mStore = ctx.getBean("hiveCacheStore", HiveCacheStore.class);
+						DataStore store = ctx.getBean("hiveCacheStore", DataStore.class);
+						mStore = new DataStoreAdapter(store);
 					} else if (st_xml.equals(type)) {
+						// TODO: move XML stores to extra module too
 						if (CN_XDM_DOCUMENT.equals(mapName)) {
 							mStore = ctx.getBean("docCacheStore", DocumentCacheStore.class);
 						} else if (CN_XDM_DOCTYPE_DICT.equals(mapName)) {

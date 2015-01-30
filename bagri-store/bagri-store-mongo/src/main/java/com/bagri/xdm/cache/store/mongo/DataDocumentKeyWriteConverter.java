@@ -1,4 +1,4 @@
-package com.bagri.xdm.cache.common.store.mongo;
+package com.bagri.xdm.cache.store.mongo;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;

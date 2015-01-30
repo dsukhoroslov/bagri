@@ -1,4 +1,4 @@
-package com.bagri.xdm.cache.hazelcast.store.hive;
+package com.bagri.xdm.cache.store.hive;
 
 import java.util.Collection;
 import java.util.Map;
@@ -8,9 +8,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.hadoop.hive.HiveTemplate;
 
-import com.hazelcast.core.MapStore;
+import com.bagri.xdm.cache.store.DataStore;
 
-public class HiveCacheStore implements MapStore {
+public class HiveCacheStore implements DataStore {
 
     private static final Logger logger = LoggerFactory.getLogger(HiveCacheStore.class);
     

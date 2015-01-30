@@ -53,6 +53,7 @@
         <module>bagri-xquery</module>
         <module>bagri-xqj</module>
         <module>bagri-test</module>
+        <module>bagri-store</module>
         <module>bagri-server</module>
         <module>bagri-samples</module>
         <module>bagri-tools</module>
@@ -177,6 +178,12 @@
             <dependency>
                 <groupId>com.sdv.bagri</groupId>
                 <artifactId>bagri-xqj</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+	    <dependency>
+            	<groupId>com.sdv.bagri</groupId>
+            	<artifactId>bagri-store-common</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

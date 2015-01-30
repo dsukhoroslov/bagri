@@ -1,4 +1,4 @@
-package com.bagri.xdm.cache.common.store.mongo;
+package com.bagri.xdm.cache.store.mongo;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
