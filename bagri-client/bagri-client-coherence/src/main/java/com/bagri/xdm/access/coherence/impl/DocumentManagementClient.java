@@ -12,6 +12,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import javax.xml.transform.Source;
+
 import com.bagri.common.query.ExpressionBuilder;
 import com.bagri.common.query.ExpressionContainer;
 import com.bagri.common.query.PathExpression;
@@ -252,6 +254,18 @@ public class DocumentManagementClient extends XDMDocumentManagementClient {
 
 	@Override
 	public Object executeXQuery(String query, Map bindings, Properties props) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Source getDocumentAsSource(long arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public XDMDocument storeDocumentSource(long arg0, Source arg1) {
 		// TODO Auto-generated method stub
 		return null;
 	}

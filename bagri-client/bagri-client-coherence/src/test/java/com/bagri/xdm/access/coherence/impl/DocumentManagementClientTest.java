@@ -64,8 +64,8 @@ public class DocumentManagementClientTest extends XDMDocumentManagementTest {
 	
 	@Before
 	public void setUp() throws Exception {
-		dMgr = new DocumentManagementClient();
-		mDictionary = dMgr.getSchemaDictionary();
+		//dMgr = new DocumentManagementClient();
+		//mDictionary = dMgr.getSchemaDictionary();
 		
 		storeSecurityTest();
 		storeCustomerTest();
