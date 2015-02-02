@@ -59,8 +59,12 @@ public class XDMIndexedValue { //implements Serializable {
 		return docIds;
 	}
 
-	public void addDocumentId(long docId) {
-		docIds.add(docId);
+	public boolean addDocumentId(long docId) {
+		return docIds.add(docId);
+	}
+	
+	public boolean removeDocumentId(long docId) {
+		return docIds.remove(docId);
 	}
 	
 	public int getCount() {

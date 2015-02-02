@@ -43,16 +43,16 @@
 
         <dependency>
             <groupId>com.hazelcast</groupId>
-            <artifactId>hazelcast</artifactId>
+            <artifactId>hazelcast-all</artifactId>
         </dependency>
-        <dependency>
+        <!--dependency>
             <groupId>com.hazelcast</groupId>
             <artifactId>hazelcast-client</artifactId>
         </dependency>
         <dependency>
             <groupId>com.hazelcast</groupId>
             <artifactId>hazelcast-spring</artifactId>
-        </dependency>
+        </dependency-->
 
         <dependency>
             <groupId>javax.xml.xquery</groupId>

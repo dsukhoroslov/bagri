@@ -226,7 +226,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 				}
 				xdes.addElement(xdm.getElement());
 				
-				// handle indexes
+       			// add indexes; better to do this asynchronously!
 				if (isPathIndexed(xdm.getPathId()) && xdm.getValue() != null) {
 					XDMIndexKey xid = factory.newXDMIndexKey(xdm.getPathId(), xdm.getValue());
 					XDMIndexedValue xidx = indexes.get(xid);
@@ -239,7 +239,9 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 				}
 			}
 			xdmCache.putAll(elements);
+			// can have collisions here when two threads add/change the same index!
 			idxCache.putAll(indexes);
+			
 			stamp = System.currentTimeMillis() - stamp;
 			logger.trace("loadElements; cached {} elements and {} indexes for docId: {}; time taken: {}", 
 					elements.size(), indexes.size(), docId, stamp);
@@ -286,10 +288,18 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
         	if (isPathIndexed(pathId)) {
 	       		XDMElements elts = xdmCache.remove(dKey);
 	       		if (elts != null) {
-	       			// remove indexes
+	       			// remove indexes; better to do this asynchronously!
 	       			for (XDMElement elt: elts.getElements().values()) {
 	       				XDMIndexKey iKey = factory.newXDMIndexKey(pathId, elt.getValue());
-	       				idxCache.delete(iKey);
+	       				// will have collisions here when two threads change/delete the same index!
+	       				XDMIndexedValue xIdx = idxCache.get(iKey);
+	       				if (xIdx != null && xIdx.removeDocumentId(docId)) {
+	       					if (xIdx.getCount() > 0) {
+	       						idxCache.put(iKey, xIdx);
+	       					} else {
+	    	       				idxCache.delete(iKey);
+	       					}
+	       				}
 	       				iCnt++;
 	       			}
 	       		}
