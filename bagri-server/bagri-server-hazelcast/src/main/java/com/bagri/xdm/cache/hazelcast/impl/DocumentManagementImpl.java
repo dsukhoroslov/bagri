@@ -45,6 +45,7 @@ import com.bagri.xdm.common.XDMDataKey;
 import com.bagri.xdm.common.XDMIndexKey;
 import com.bagri.xdm.domain.XDMData;
 import com.bagri.xdm.domain.XDMDocument;
+import com.bagri.xdm.domain.XDMElement;
 import com.bagri.xdm.domain.XDMElements;
 import com.bagri.xdm.domain.XDMIndexedValue;
 import com.bagri.xdm.domain.XDMNodeKind;
@@ -278,15 +279,28 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
     	Collection<XDMPath> allPaths = model.getTypePaths(typeId);
 		logger.trace("deleteDocumentElements; got {} possible paths to remove; xdmCache size: {}; local keys: {}", 
 				allPaths.size(), xdmCache.size(), localSize);
+		int iCnt = 0;
         for (XDMPath path: allPaths) {
-        	XDMDataKey key = factory.newXDMDataKey(docId, path.getPathId()); 
-       		xdmCache.delete(key);
-        	cnt++;
-        	// TODO: remove indexed values!
+        	int pathId = path.getPathId();
+        	XDMDataKey dKey = factory.newXDMDataKey(docId, pathId);
+        	if (isPathIndexed(pathId)) {
+	       		XDMElements elts = xdmCache.remove(dKey);
+	       		if (elts != null) {
+	       			// remove indexes
+	       			for (XDMElement elt: elts.getElements().values()) {
+	       				XDMIndexKey iKey = factory.newXDMIndexKey(pathId, elt.getValue());
+	       				idxCache.delete(iKey);
+	       				iCnt++;
+	       			}
+	       		}
+        	} else {
+        		xdmCache.delete(dKey);
+        	}
+   			cnt++;
         }
     	localSize -= xdmCache.localKeySet().size();
-		logger.trace("deleteDocumentElements; deleted keys: {}; xdmCache size after delete: {}; local size: {}", cnt, 
-				xdmCache.size(), localSize);
+		logger.trace("deleteDocumentElements; deleted keys: {}; indexes: {}; xdmCache size after delete: {}; " +
+				"local size: {}", cnt, iCnt, xdmCache.size(), localSize);
 	}
 
 	@Override
