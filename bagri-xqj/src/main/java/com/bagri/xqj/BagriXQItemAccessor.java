@@ -20,6 +20,7 @@ import static javax.xml.xquery.XQItemType.*;
 import org.w3c.dom.Node;
 import org.xml.sax.ContentHandler;
 
+import com.bagri.common.util.XMLUtils;
 import com.bagri.xquery.api.XQProcessor;
 
 public abstract class BagriXQItemAccessor implements XQItemAccessor {
@@ -266,7 +267,11 @@ public abstract class BagriXQItemAccessor implements XQItemAccessor {
 			throw new XQException("Item is closed");
 		}
 		
-		return BagriXQUtils.stringToStream(getItemAsString(null));
+		try {
+			return XMLUtils.stringToStream(getItemAsString(null));
+		} catch (IOException ex) {
+			throw new XQException(ex.getMessage());
+		}
 	}
 
 	@Override
@@ -357,7 +362,11 @@ public abstract class BagriXQItemAccessor implements XQItemAccessor {
 			throw new XQException("Item is closed");
 		}
 		
-		BagriXQUtils.stringToResult(getItemAsString(null), new SAXResult(saxhdlr));
+		try {
+			XMLUtils.stringToResult(getItemAsString(null), new SAXResult(saxhdlr));
+		} catch (IOException ex) {
+			throw new XQException(ex.getMessage());
+		}
 	}
 
 	@Override
@@ -370,7 +379,11 @@ public abstract class BagriXQItemAccessor implements XQItemAccessor {
 			throw new XQException("Item is closed");
 		}
 		
-		BagriXQUtils.stringToResult(getItemAsString(null), result);
+		try {
+			XMLUtils.stringToResult(getItemAsString(null), result);
+		} catch (IOException ex) {
+			throw new XQException(ex.getMessage());
+		}
 	}
 
 }

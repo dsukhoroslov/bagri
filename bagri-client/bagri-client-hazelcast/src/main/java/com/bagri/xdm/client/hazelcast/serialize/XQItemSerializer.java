@@ -21,6 +21,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.ProcessingInstruction;
 import org.w3c.dom.Text;
 
+import com.bagri.common.util.XMLUtils;
 import com.bagri.xqj.BagriXQUtils;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
@@ -143,10 +144,10 @@ public class XQItemSerializer implements StreamSerializer<XQItem> {
 				case XQITEMKIND_DOCUMENT: {
 					String value = in.readUTF();
 					if (value != null && value.length() > 0) {
-						Document doc = BagriXQUtils.textToDocument(value);
+						Document doc = XMLUtils.textToDocument(value);
 						return xqFactory.createItemFromNode(doc, type);
 					} else {
-						Document doc = BagriXQUtils.textToDocument("<e/>");
+						Document doc = XMLUtils.textToDocument("<e/>");
 						return xqFactory.createItemFromNode(doc.createDocumentFragment(), type);
 					}
 				}
@@ -158,34 +159,34 @@ public class XQItemSerializer implements StreamSerializer<XQItem> {
 				}
 				case XQITEMKIND_ELEMENT: 
 				case XQITEMKIND_SCHEMA_ELEMENT:	{
-					Document doc = BagriXQUtils.textToDocument(in.readUTF());
+					Document doc = XMLUtils.textToDocument(in.readUTF());
 					return xqFactory.createItemFromNode(doc.getDocumentElement(), type);
 				}
 				case XQITEMKIND_ATTRIBUTE: 
 				case XQITEMKIND_SCHEMA_ATTRIBUTE: {
 					String value = in.readUTF();
-					Document doc = BagriXQUtils.textToDocument(value);
+					Document doc = XMLUtils.textToDocument(value);
 					Attr a = (Attr) doc.getDocumentElement().getAttributes().item(0);
 					return xqFactory.createItemFromNode(a, type); 
 				}
 				case XQITEMKIND_COMMENT: {
 					String value = in.readUTF();
-					Document doc = BagriXQUtils.textToDocument(value);
+					Document doc = XMLUtils.textToDocument(value);
 					return xqFactory.createItemFromNode(doc.getDocumentElement().getFirstChild(), type); 
 				}
 				case XQITEMKIND_NODE: {
 					String value = in.readUTF();
-					Document doc = BagriXQUtils.textToDocument(value);
+					Document doc = XMLUtils.textToDocument(value);
 					return xqFactory.createItemFromNode(doc, type); 
 				}
 				case XQITEMKIND_PI: {
 					String value = in.readUTF();
-					Document doc = BagriXQUtils.textToDocument(value);
+					Document doc = XMLUtils.textToDocument(value);
 					return xqFactory.createItemFromNode(doc.getDocumentElement().getFirstChild(), type); 
 				}
 				case XQITEMKIND_TEXT: {
 					String value = in.readUTF();
-					Document doc = BagriXQUtils.textToDocument(value);
+					Document doc = XMLUtils.textToDocument(value);
 					return xqFactory.createItemFromNode(doc.getDocumentElement().getFirstChild(), type); 
 				}
 			}

@@ -62,15 +62,6 @@ import static javax.xml.xquery.XQItemType.XQITEMKIND_PI;
 import static javax.xml.xquery.XQItemType.XQITEMKIND_SCHEMA_ATTRIBUTE;
 import static javax.xml.xquery.XQItemType.XQITEMKIND_SCHEMA_ELEMENT;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URI;
@@ -83,31 +74,13 @@ import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.Duration;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Result;
-import javax.xml.transform.Source;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
 import javax.xml.xquery.XQDataFactory;
 import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQItem;
 import javax.xml.xquery.XQItemType;
 
-import org.apache.axis.types.NCName;
-import org.w3c.dom.Document;
+import org.apache.xerces.util.XMLChar;
 import org.w3c.dom.Node;
-import org.xml.sax.InputSource;
-
-import static com.bagri.common.util.FileUtils.def_encoding;
 
 public class BagriXQUtils {
 	
@@ -323,7 +296,7 @@ public class BagriXQUtils {
     			return false;
     		case XQBASETYPE_NAME: return true;
     		case XQBASETYPE_NCNAME:  
-    			if (NCName.isValid(sval)) {
+    			if (XMLChar.isValidNCName(sval)) {
     				return true;
     			}
     			return false;
@@ -552,128 +525,6 @@ public class BagriXQUtils {
 				return factory.createTextType();
 			default: 
 				return factory.createNodeType();
-		}
-	}
-	
-	public static String textToString(Reader xquery) throws XQException {
-		StringBuilder sb = new StringBuilder();
-		BufferedReader br = new BufferedReader(xquery);
-		String NL = System.getProperty("line.separator");
-		String line = null;
-		try {
-			while((line = br.readLine()) != null) {
-				sb.append(line).append(NL);
-            }
-			sb.deleteCharAt(sb.length() - 1);
-		} catch (IOException ex) {
-			throw new XQException(ex.getMessage());
-		} finally {
-			try {
-				br.close();
-			} catch (IOException e) {
-				//e.printStackTrace();
-			}
-		}
-		return sb.toString();
-	}
-
-	public static String textToString(InputStream stream) throws XQException {
-		Reader r = new InputStreamReader(stream); 
-		return textToString(r);
-	}
-	
-	public static Document textToDocument(String text) throws XQException {
-		
-		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();  
-		factory.setNamespaceAware(true);
-	    try {  
-		    DocumentBuilder builder = factory.newDocumentBuilder();  
-	        //return builder.parse(new InputSource(new ByteArrayInputStream(xml.getBytes("utf-8"))));  
-	        return builder.parse(new ByteArrayInputStream(text.getBytes(def_encoding)));  
-	    } catch (Exception ex) {  
-	        throw new XQException(ex.getMessage());
-	    } 		
-	}
-
-	public static Document textToDocument(InputStream text) throws XQException {
-		
-		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();  
-		factory.setNamespaceAware(true);
-	    try {  
-		    DocumentBuilder builder = factory.newDocumentBuilder();  
-	        return builder.parse(text);  
-	    } catch (Exception ex) {  
-	        throw new XQException(ex.getMessage());
-	    } 		
-	}
-
-	public static Document textToDocument(Reader text) throws XQException {
-		
-		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();  
-		factory.setNamespaceAware(true);
-	    try {  
-		    DocumentBuilder builder = factory.newDocumentBuilder();  
-	        return builder.parse(new InputSource(text));  
-	    } catch (Exception ex) {  
-	        throw new XQException(ex.getMessage());
-	    } 		
-	}
-	
-	
-	public static XMLStreamReader stringToStream(String content) throws XQException {
-		
-		XMLInputFactory factory = XMLInputFactory.newInstance();
-		//get Reader connected to XML input from somewhere..?
-		Reader reader = new StringReader(content);
-		try {
-		    return factory.createXMLStreamReader(reader);
-		} catch (XMLStreamException ex) {
-		    throw new XQException(ex.getMessage());
-		}		
-	}
-	
-	public static String sourceToString(Source source) throws XQException {
-		
-		TransformerFactory transFactory = TransformerFactory.newInstance();  
-		try {
-			Transformer trans = transFactory.newTransformer();  
-	    	trans.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-	    	trans.setOutputProperty(OutputKeys.INDENT, "yes");
-			Writer writer = new StringWriter();
-			trans.transform(source, new StreamResult(writer));
-			writer.flush();
-			return writer.toString();
-		} catch (Exception ex) { //TransformerException | IOException ex) {
-			throw new XQException(ex.getMessage());
-		}  
-		
-	}
-	
-	public static String nodeToString(Node node) throws XQException {
-		
-		//TransformerFactory transFactory = TransformerFactory.newInstance();  
-	    //try {
-	    //	Transformer trans = transFactory.newTransformer();
-	    //	trans.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-	    //	trans.setOutputProperty(OutputKeys.INDENT, "yes");
-	    //	Writer writer = new StringWriter();
-	    //	trans.transform(new DOMSource(node), new StreamResult(writer));
-		//  return writer.toString();
-	    //} catch (Exception ex) { //(TransformerException te) {
-	    //	throw new XQException(ex.getMessage());
-	    //}
-		return sourceToString(new DOMSource(node));
-	}
-	
-	public static void stringToResult(String source, Result result) throws XQException {
-	
-	    TransformerFactory transFactory = TransformerFactory.newInstance();
-		try {
-			Transformer trans = transFactory.newTransformer();  
-		    StringReader reader = new StringReader(source);
-		    trans.transform(new StreamSource(reader), result);
-		} catch (TransformerException ex) {
-			throw new XQException(ex.getMessage());
 		}
 	}
 	

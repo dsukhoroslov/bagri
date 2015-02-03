@@ -5,6 +5,7 @@ import static com.bagri.xqj.BagriXQUtils.getTypeName;
 import static com.bagri.xqj.BagriXQUtils.isAtomicType;
 import static javax.xml.xquery.XQItemType.*;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.net.URI;
@@ -23,16 +24,12 @@ import javax.xml.xquery.XQItemType;
 import javax.xml.xquery.XQSequence;
 import javax.xml.xquery.XQSequenceType;
 
-import org.apache.axis.types.Id;
-import org.apache.axis.types.NCName;
-import org.apache.axis.types.NMToken;
-import org.apache.axis.types.Name;
-import org.apache.axis.types.NormalizedString;
-import org.apache.axis.types.Token;
+import org.apache.xerces.util.XMLChar;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
 
+import com.bagri.common.util.XMLUtils;
 import com.bagri.xquery.api.XQProcessor;
 
 public class BagriXQDataFactory implements XQDataFactory {
@@ -242,7 +239,12 @@ public class BagriXQDataFactory implements XQDataFactory {
 			throw new XQException("StreamReader is null");
 		}
 
-		String content = BagriXQUtils.sourceToString(new StAXSource(value));
+		String content;
+		try {
+			content = XMLUtils.sourceToString(new StAXSource(value));
+		} catch (IOException ex) {
+			throw new XQException(ex.getMessage());
+		}
 		return createItemFromDocument(content, null, type);
 	}
 
@@ -254,7 +256,12 @@ public class BagriXQDataFactory implements XQDataFactory {
 			throw new XQException("Source is null");
 		}
 		
-		String content = BagriXQUtils.sourceToString(value);
+		String content;
+		try {
+			content = XMLUtils.sourceToString(value);
+		} catch (IOException ex) {
+			throw new XQException(ex.getMessage());
+		}
 		return createItemFromDocument(content, null, type);
 	}
 
@@ -268,7 +275,11 @@ public class BagriXQDataFactory implements XQDataFactory {
 		
 		// do not delete this line. it'll throw exception
 		// in case when value contains wrong XML
-		BagriXQUtils.textToDocument(value);
+		try {
+			XMLUtils.textToDocument(value);
+		} catch (IOException ex) {
+			throw new XQException(ex.getMessage());
+		}
 
 		if (type == null) {
 			return new BagriXQItem(xqProcessor, createDocumentElementType(createElementType(null, XQBASETYPE_UNTYPED)), 
@@ -291,7 +302,12 @@ public class BagriXQDataFactory implements XQDataFactory {
 		if (value == null) {
 			throw new XQException("value is null");
 		}
-		String s = BagriXQUtils.textToString(value);
+		String s;
+		try {
+			s = XMLUtils.textToString(value);
+		} catch (IOException ex) {
+			throw new XQException(ex.getMessage());
+		}
 		return createItemFromDocument(s, baseURI, type);
 	}
 
@@ -302,7 +318,12 @@ public class BagriXQDataFactory implements XQDataFactory {
 		if (value == null) {
 			throw new XQException("value is null");
 		}
-		String s = BagriXQUtils.textToString(value);
+		String s;
+		try {
+			s = XMLUtils.textToString(value);
+		} catch (IOException ex) {
+			throw new XQException(ex.getMessage());
+		}
 		return createItemFromDocument(s, baseURI, type);
 	}
 
@@ -554,31 +575,31 @@ public class BagriXQDataFactory implements XQDataFactory {
 			case XQBASETYPE_UNTYPEDATOMIC: 
 				return new BagriXQItem(xqProcessor, type, value);
 				
-			case XQBASETYPE_ID: if (Id.isValid(value)) {
+			case XQBASETYPE_ID: if (XMLChar.isValidNCName(value)) {
 					return new BagriXQItem(xqProcessor, type, value);
 				}
 				break;
-			case XQBASETYPE_NAME: if (Name.isValid(value)) {
+			case XQBASETYPE_NAME: if (XMLChar.isValidName(value)) {
 					return new BagriXQItem(xqProcessor, type, value);
 				}
 				break;
 			case XQBASETYPE_ENTITY: 
 			case XQBASETYPE_ENTITIES: 
 			case XQBASETYPE_IDREF: 
-			case XQBASETYPE_NCNAME: if (NCName.isValid(value)) {
+			case XQBASETYPE_NCNAME: if (XMLChar.isValidNCName(value)) {
 					return new BagriXQItem(xqProcessor, type, value);
 				}
 				//throw new XQException("can't convert string \"" + value + "\" to type " + type);
 				break;
-			case XQBASETYPE_NMTOKEN: if (NMToken.isValid(value)) {
+			case XQBASETYPE_NMTOKEN: if (XMLChar.isValidNmtoken(value)) {
 					return new BagriXQItem(xqProcessor, type, value);
 				}
 				break;
-			case XQBASETYPE_NORMALIZED_STRING: if (NormalizedString.isValid(value)) {
+			case XQBASETYPE_NORMALIZED_STRING: if (isValidNormalizedString(value)) {
 					return new BagriXQItem(xqProcessor, type, value);
 				}
 				break;
-			case XQBASETYPE_TOKEN: if (Token.isValid(value)) {
+			case XQBASETYPE_TOKEN: if (isValidToken(value)) {
 					return new BagriXQItem(xqProcessor, type, value);
 				}
 				break;
@@ -586,6 +607,68 @@ public class BagriXQDataFactory implements XQDataFactory {
 		throw new XQException("wrong string value: " + value + " for type: " + type);
 	}
 
+	/**
+	 * implementation taken from org.apache.axis.types.NormalizedString class
+	 * 
+	 * @param value
+	 * @return
+	 */
+    private boolean isValidNormalizedString(String value)  {
+        int scan;
+
+        for (scan = 0; scan < value.length(); scan++) {
+            char cDigit = value.charAt(scan);
+            switch (cDigit) {
+                case 0x09:
+                case 0x0A:
+                case 0x0D:
+                    return false;
+                default:
+                    break;
+            }
+        }
+        return true;
+    }
+
+    /**
+	 * implementation taken from org.apache.axis.types.Token class
+     * 
+     * @param value
+     * @return
+     */
+    private boolean isValidToken(String value) {
+        int scan;
+        // check to see if we have a string to review
+        if (  (value == null) || (value.length() == 0)  )
+            return true;
+            
+        // no leading space
+        if (value.charAt(0) == 0x20)
+            return false;
+
+        // no trail space
+        if (value.charAt(value.length() - 1) == 0x20)
+            return false;
+
+        for (scan=0; scan < value.length(); scan++) {
+            char cDigit = value.charAt(scan);
+            switch (cDigit) {
+                case 0x09:
+                case 0x0A:
+                    return false;
+                case 0x20:
+                   // no doublspace
+                    if (scan+1 < value.length())
+                        if (value.charAt(scan + 1) == 0x20) {
+                            return false;
+                        }
+                default:
+                    break;
+            }
+        }
+        return true;
+    }
+	
 	@Override
 	public XQItemType createItemType() throws XQException {
 

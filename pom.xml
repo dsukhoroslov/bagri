@@ -80,7 +80,6 @@
         <xqj.version>1.0</xqj.version>
         <xqj2.version>0.2.0</xqj2.version>
         <xerses.version>2.11.0</xerses.version>
-        <axis.version>1.4</axis.version>
         <saxon.version>9.5.1-8</saxon.version>
         <!--saxon.version>9.5.1-3</saxon.version-->
         <!--saxon.version>9.6.0-1</saxon.version-->
@@ -309,16 +308,6 @@
                 <artifactId>xqj2</artifactId>
                 <version>${xqj2.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.apache.axis</groupId>
-                <artifactId>axis</artifactId>
-                <version>${axis.version}</version>
-            </dependency>
-            <!--dependency>
-                <groupId>org.apache.xmlbeans</groupId>
-                <artifactId>xmlbeans</artifactId>
-                <version>${xmlbeans.version}</version>
-            </dependency-->
             <dependency>
                 <groupId>net.sf.saxon</groupId>
                 <artifactId>Saxon-HE</artifactId>

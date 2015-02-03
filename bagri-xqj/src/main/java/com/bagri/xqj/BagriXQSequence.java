@@ -14,6 +14,7 @@ import javax.xml.xquery.XQSequence;
 
 import org.xml.sax.ContentHandler;
 
+import com.bagri.common.util.XMLUtils;
 import com.bagri.xquery.api.XQProcessor;
 
 public abstract class BagriXQSequence extends BagriXQItemAccessor implements XQSequence /*, XQResultSequence*/ {
@@ -41,7 +42,11 @@ public abstract class BagriXQSequence extends BagriXQItemAccessor implements XQS
 			throw new XQException("Sequence is closed");
 		}
 		
-		return BagriXQUtils.stringToStream(getSequenceAsString(null));
+		try {
+			return XMLUtils.stringToStream(getSequenceAsString(null));
+		} catch (IOException ex) {
+			throw new XQException(ex.getMessage());
+		}
 	}
 	
 	@Override
@@ -114,7 +119,11 @@ public abstract class BagriXQSequence extends BagriXQItemAccessor implements XQS
 			throw new XQException("Provided ContextHandler is null");
 		}
 
-		BagriXQUtils.stringToResult(getSequenceAsString(null), new SAXResult(saxhdlr));
+		try {
+			XMLUtils.stringToResult(getSequenceAsString(null), new SAXResult(saxhdlr));
+		} catch (IOException ex) {
+			throw new XQException(ex.getMessage());
+		}
 	}
 
 	@Override
@@ -127,7 +136,11 @@ public abstract class BagriXQSequence extends BagriXQItemAccessor implements XQS
 			throw new XQException("Provided Result is null");
 		}
 
-		BagriXQUtils.stringToResult(getSequenceAsString(null), result);
+		try {
+			XMLUtils.stringToResult(getSequenceAsString(null), result);
+		} catch (IOException ex) {
+			throw new XQException(ex.getMessage());
+		}
 	}
 
 	

@@ -1,5 +1,6 @@
 package com.bagri.xqj;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.util.ArrayList;
@@ -17,6 +18,7 @@ import javax.xml.xquery.XQMetaData;
 import javax.xml.xquery.XQPreparedExpression;
 import javax.xml.xquery.XQStaticContext;
 
+import com.bagri.common.util.XMLUtils;
 import com.bagri.xquery.api.XQProcessor;
 
 import static com.bagri.xqj.BagriXQConstants.ex_null_context;
@@ -123,7 +125,12 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 		}
 		
 		BagriXQPreparedExpression exp = new BagriXQPreparedExpression(this);
-		String query = BagriXQUtils.textToString(xquery);
+		String query;
+		try {
+			query = XMLUtils.textToString(xquery);
+		} catch (IOException ex) {
+			throw new XQException(ex.getMessage());
+		}
 		exp.setXQuery(query);
 		prepareQuery(exp);
 		return exp;
@@ -138,7 +145,12 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 		}
 
 		BagriXQPreparedExpression exp = new BagriXQPreparedExpression(this);
-		String query = BagriXQUtils.textToString(xquery);
+		String query;
+		try {
+			query = XMLUtils.textToString(xquery);
+		} catch (IOException ex) {
+			throw new XQException(ex.getMessage());
+		}
 		exp.setXQuery(query);
 		prepareQuery(exp);
 		return exp;
@@ -173,7 +185,12 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 		}
 
 		BagriXQPreparedExpression exp = new BagriXQPreparedExpression(this, context);
-		String query = BagriXQUtils.textToString(xquery);
+		String query;
+		try {
+			query = XMLUtils.textToString(xquery);
+		} catch (IOException ex) {
+			throw new XQException(ex.getMessage());
+		}
 		exp.setXQuery(query);
 		prepareQuery(exp, context);
 		return exp;
@@ -191,7 +208,12 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 		}
 
 		BagriXQPreparedExpression exp = new BagriXQPreparedExpression(this, context);
-		String query = BagriXQUtils.textToString(xquery);
+		String query;
+		try {
+			query = XMLUtils.textToString(xquery);
+		} catch (IOException ex) {
+			throw new XQException(ex.getMessage());
+		}
 		exp.setXQuery(query);
 		prepareQuery(exp, context);
 		return exp;

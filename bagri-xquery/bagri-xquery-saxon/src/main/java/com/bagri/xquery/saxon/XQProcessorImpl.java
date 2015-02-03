@@ -1,6 +1,7 @@
 package com.bagri.xquery.saxon;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
 import java.util.Collection;
@@ -48,6 +49,7 @@ import net.sf.saxon.query.XQueryExpression;
 import net.sf.saxon.trans.XPathException;
 import net.sf.saxon.value.ObjectValue;
 
+import com.bagri.common.util.XMLUtils;
 import com.bagri.xdm.api.XDMDocumentManagement;
 import com.bagri.xdm.api.XDMRepository;
 
@@ -222,7 +224,11 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
 				throw new XQException(ex.getMessage());
 			}
 		} else if (item instanceof Node) {
-			return BagriXQUtils.nodeToString((Node) item); 
+			try {
+				return XMLUtils.nodeToString((Node) item);
+			} catch (IOException ex) {
+				throw new XQException(ex.getMessage());
+			} 
 		} else if (item instanceof ObjectValue) {
 			return convertToString(((ObjectValue) item).getObject());
 		} else if (item instanceof XQSequence) {

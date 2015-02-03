@@ -63,6 +63,15 @@
             </includes>
         </fileSet>
 
+        <!--produced localy xqj-driver jar goes to distr-->
+        <fileSet>
+            <directory>${project.build.directory}</directory>
+            <outputDirectory>/lib</outputDirectory>
+            <includes>
+                <include>commons-cli-*.jar</include>
+            </includes>
+        </fileSet>
+
         <fileSet>
             <directory>../etc/lib</directory>
             <outputDirectory>/lib</outputDirectory>

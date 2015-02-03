@@ -2,6 +2,7 @@ package com.bagri.xquery.saxon;
 
 import static javax.xml.xquery.XQItemType.*;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
@@ -59,6 +60,8 @@ import net.sf.saxon.value.SaxonXMLGregorianCalendar;
 //import net.sf.saxon.xqj.SaxonDuration;
 //import net.sf.saxon.xqj.SaxonXMLGregorianCalendar;
 
+
+
 import org.w3c.dom.Attr;
 import org.w3c.dom.Comment;
 import org.w3c.dom.Document;
@@ -67,6 +70,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.ProcessingInstruction;
 import org.w3c.dom.Text;
 
+import com.bagri.common.util.XMLUtils;
 import com.bagri.xqj.BagriXQUtils;
 
 public class JPConverterImpl extends JPConverter {
@@ -245,9 +249,9 @@ public class JPConverterImpl extends JPConverter {
     private Item convertToItem(Object value, Configuration config, int kind) throws XPathException {
     	if (value instanceof String) {
     		try {
-				value = BagriXQUtils.textToDocument((String) value);
-			} catch (XQException e) {
-				throw new XPathException(e);
+				value = XMLUtils.textToDocument((String) value);
+			} catch (IOException ex) {
+				throw new XPathException(ex);
 			}
     	}
     	

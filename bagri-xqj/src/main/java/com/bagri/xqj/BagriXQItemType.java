@@ -2,14 +2,12 @@ package com.bagri.xqj;
 
 import java.net.URI;
 
-import javax.xml.datatype.DatatypeConstants;
 import javax.xml.namespace.QName;
 import javax.xml.xquery.XQException;
-import javax.xml.xquery.XQItem;
 import javax.xml.xquery.XQItemType;
 import javax.xml.xquery.XQSequenceType;
 
-import org.apache.axis.types.NCName;
+import org.apache.xerces.util.XMLChar;
 import org.w3c.dom.Node;
 
 public class BagriXQItemType extends BagriXQSequenceType implements XQItemType {
@@ -180,7 +178,7 @@ public class BagriXQItemType extends BagriXQSequenceType implements XQItemType {
 			} catch (Exception e) {
 				break;
 			} 
-			case XQBASETYPE_NCNAME: if (NCName.isValid(value)) {
+			case XQBASETYPE_NCNAME: if (XMLChar.isValidNCName(value)) {
 				return true;
 			}
 		}

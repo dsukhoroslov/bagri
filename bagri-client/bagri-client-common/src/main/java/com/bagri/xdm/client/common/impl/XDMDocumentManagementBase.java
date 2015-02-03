@@ -1,20 +1,21 @@
 package com.bagri.xdm.client.common.impl;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
-import javax.xml.xquery.XQException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static com.bagri.common.util.FileUtils.def_encoding;
+
+import com.bagri.common.util.XMLUtils;
 import com.bagri.xdm.domain.XDMDocument;
-import com.bagri.xqj.BagriXQUtils;
 
 public abstract class XDMDocumentManagementBase {
 	
@@ -45,9 +46,9 @@ public abstract class XDMDocumentManagementBase {
 	
 	public XDMDocument storeDocumentFromSource(long docId, String uri, Source source) {
 		try {
-			String xml = BagriXQUtils.sourceToString(source);
+			String xml = XMLUtils.sourceToString(source);
 			return storeDocumentFromString(docId, uri, xml);
-		} catch (XQException ex) {
+		} catch (IOException ex) {
 			logger.error("storeDocumentFromSource.error; " + ex.getMessage(), ex);
 			throw new RuntimeException(ex);
 		}
@@ -55,10 +56,9 @@ public abstract class XDMDocumentManagementBase {
 	
 	public XDMDocument storeDocumentFromStream(long docId, String uri, InputStream stream) {
 		try {
-			// refactor the method below..
-			String xml = BagriXQUtils.textToString(stream);
+			String xml = XMLUtils.textToString(stream);
 			return storeDocumentFromString(docId, uri, xml);
-		} catch (XQException ex) {
+		} catch (IOException ex) {
 			throw new RuntimeException(ex);
 		}
 	}

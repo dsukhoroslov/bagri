@@ -2,6 +2,7 @@ package com.bagri.xqj;
 
 //import static com.bagri.xqj.BagriXQConstants.ex_connection_closed;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.util.Iterator;
@@ -11,6 +12,8 @@ import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQExpression;
 import javax.xml.xquery.XQResultSequence;
 import javax.xml.xquery.XQStaticContext;
+
+import com.bagri.common.util.XMLUtils;
 
 public class BagriXQExpression extends BagriXQDynamicContext implements XQExpression {
 	
@@ -48,8 +51,15 @@ public class BagriXQExpression extends BagriXQDynamicContext implements XQExpres
 		if (cmd == null) {
 			throw new XQException("Provided command reader is null");
 		}
-		String s = BagriXQUtils.textToString(cmd);
-		connection.executeCommand(s, getBindings());
+		
+		String str;
+		try {
+			str = XMLUtils.textToString(cmd);
+		} catch (IOException ex) {
+			throw new XQException(ex.getMessage());
+		}
+
+		connection.executeCommand(str, getBindings());
 	}
 
 	@Override
@@ -61,6 +71,7 @@ public class BagriXQExpression extends BagriXQDynamicContext implements XQExpres
 		if (query == null) {
 			throw new XQException("Provided query is null");
 		}
+		
 		// run it...
 		Iterator result = connection.executeQuery(query);
 		
@@ -79,9 +90,15 @@ public class BagriXQExpression extends BagriXQDynamicContext implements XQExpres
 		if (query == null) {
 			throw new XQException("Provided query reader is null");
 		}
+
 		// run it...
-		String s = BagriXQUtils.textToString(query);
-		Object result = connection.executeQuery(s);
+		String str;
+		try {
+			str = XMLUtils.textToString(query);
+		} catch (IOException ex) {
+			throw new XQException(ex.getMessage());
+		}
+		Iterator result = connection.executeQuery(str);
 
 		if (context.getScrollability() == XQConstants.SCROLLTYPE_SCROLLABLE) {
 			return new ScrollableXQResultSequence(this);
@@ -98,9 +115,15 @@ public class BagriXQExpression extends BagriXQDynamicContext implements XQExpres
 		if (query == null) {
 			throw new XQException("Provided query stream is null");
 		}
+		
 		// run it...
-		String s = BagriXQUtils.textToString(query);
-		Object result = connection.executeQuery(s);
+		String str;
+		try {
+			str = XMLUtils.textToString(query);
+		} catch (IOException ex) {
+			throw new XQException(ex.getMessage());
+		}
+		Iterator result = connection.executeQuery(str);
 
 		if (context.getScrollability() == XQConstants.SCROLLTYPE_SCROLLABLE) {
 			return new ScrollableXQResultSequence(this);

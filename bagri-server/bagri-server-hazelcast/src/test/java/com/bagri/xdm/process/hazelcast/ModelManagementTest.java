@@ -46,4 +46,13 @@ public class ModelManagementTest extends XDMModelManagementTest {
 		xRepo.close();
 	}
 
+	//@Test
+	//public void testParse() throws IOException {
+	//	String sampleRoot = "..\\..\\etc\\samples\\tpox\\";
+	//	String fileName = sampleRoot + "security.xsd";
+	//	XDMSchemaProcessor proc = new XDMSchemaProcessor();
+	//	List<XDMPath> xpl = proc.parse(fileName);
+	//	assertNotNull(xpl);
+	//}
+	
 }

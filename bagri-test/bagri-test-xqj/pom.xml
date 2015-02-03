@@ -50,10 +50,6 @@
             <groupId>com.xqj2</groupId>
             <artifactId>xqj2</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.apache.axis</groupId>
-            <artifactId>axis</artifactId>
-        </dependency>
 
         <!-- Dependencies for logging -->
         <dependency>
