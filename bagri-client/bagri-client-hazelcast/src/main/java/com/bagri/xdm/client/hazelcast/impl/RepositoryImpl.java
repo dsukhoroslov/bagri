@@ -109,7 +109,9 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 		config.getGroupConfig().setName(schema);
 		config.getGroupConfig().setPassword(password);
 		config.getNetworkConfig().addAddress(address);
-		config.getNetworkConfig().setSmartRouting(smart.equalsIgnoreCase("true"));
+		if (smart != null) {
+			config.getNetworkConfig().setSmartRouting(smart.equalsIgnoreCase("true"));
+		}
 		//config.setProperty("hazelcast.logging.type", "slf4j");
 		//UsernamePasswordCredentials creds = new UsernamePasswordCredentials(schema, password);
 		//SecureCredentials creds = new SecureCredentials(password);
@@ -148,7 +150,7 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 		setDocumentManagement(docMgr);
 		QueryManagementImpl queryMgr = new QueryManagementImpl();
 		setQueryManagement(queryMgr);
-		ModelManagementImpl modelMgr = new ModelManagementImpl();
+		ModelManagementImpl modelMgr = new ModelManagementImpl(hzClient);
 		setModelManagement(modelMgr);
 	}
 

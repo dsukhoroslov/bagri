@@ -17,6 +17,9 @@ public class PropUtils {
 		String prop = System.getProperty(name);
 		if (prop == null) {
 			prop = System.getProperty(fallback);
+			if (prop == null) {
+				prop = fallback;
+			}
 		}
 		return prop;
 	}

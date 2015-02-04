@@ -226,7 +226,7 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
 		} else if (item instanceof Node) {
 			try {
 				return XMLUtils.nodeToString((Node) item);
-			} catch (IOException ex) {
+			} catch (Exception ex) {
 				throw new XQException(ex.getMessage());
 			} 
 		} else if (item instanceof ObjectValue) {
