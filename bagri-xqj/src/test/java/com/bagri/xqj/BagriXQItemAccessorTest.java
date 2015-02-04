@@ -287,10 +287,12 @@ public class BagriXQItemAccessorTest {
 		XQSequence xqs = xqe.executeQuery("<e a='Hello world!'/>/@*");
 	    xqs.next();
 	    try {
-	      xqs.getItemAsString(new Properties());
-	      junit.framework.Assert.fail("A-XQIA-8.1: serialization process fails when sequence contains a top-level attribute");
+	    	xqs.getItemAsString(new Properties());
+	    	Assert.fail("A-XQIA-8.1: serialization process fails when sequence contains a top-level attribute");
 	    } catch (XQException xq) {
-	      // Expect an XQException
+	    	// Expect an XQException
+	    } catch (Exception ex) {
+		    fail("Expecting XQException, but got: " + ex.getMessage());
 	    }
 	    xqe.close();
 	}

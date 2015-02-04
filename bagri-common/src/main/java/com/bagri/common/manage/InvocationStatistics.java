@@ -13,15 +13,47 @@ import javax.management.openmbean.TabularType;
 
 public class InvocationStatistics {
 
-	// this will be some cache, actually..
+	// stats indexes provided in alphabetical order
+	public static final int idx_Avg_Time = 0;
+	public static final int idx_Failed = 1;
+	public static final int idx_First = 2;
+	public static final int idx_Invoked = 3;
+	public static final int idx_Last = 4;
+	public static final int idx_Max_Time = 5;
+	public static final int idx_Method = 6;
+	public static final int idx_Min_Time = 7;
+	public static final int idx_Succeed = 8;
+	public static final int idx_Sum_Time = 9;
+	public static final int idx_Throughput = 10;
+	
+	// stats names
+	public static final String sn_Avg_Time = "Avg time";
+	public static final String sn_Failed = "Failed";
+	public static final String sn_First = "First";
+	public static final String sn_Invoked = "Invoked";
+	public static final String sn_Last = "Last";
+	public static final String sn_Max_Time = "Max time";
+	public static final String sn_Method = "Method"; 
+	public static final String sn_Min_Time = "Min time";
+	public static final String sn_Succeed = "Succeed";
+	public static final String sn_Sum_Time = "Sum time";
+	public static final String sn_Throughput = "Throughput";
+	
+	private static final String sn_Name = "invocation";
+	private static final String sn_Header = "Method Invocation Statistics";
+	private static final String colon = ": ";
+	private static final String semicolon = "; ";
+	private static final String empty = ": 0; ";
+	
+	// this will be some cache, probably..?
 	private Map<String, MethodInvocationStats> mStats = new HashMap<String, MethodInvocationStats>();
 
-	public Collection<String> getStatNames() {
+	public Collection<String> getStatsNames() {
 		return mStats.keySet();
 	}
 	
-	public Map<String, Object> getNamedStats(String name) {
-		return mStats.get(name).toMap();
+	public Map<String, Object> getNamedStats(String methodName) {
+		return mStats.get(methodName).toMap();
 	}
 	
 	public TabularData getStatistics() {
@@ -29,10 +61,9 @@ public class InvocationStatistics {
         for (Map.Entry<String, MethodInvocationStats> entry: mStats.entrySet()) {
             try {
                 Map<String, Object> stats = entry.getValue().toMap();
-                stats.put("Method", entry.getKey());
-                CompositeData data = JMXUtils.mapToComposite("invocation", "Method invocation statistics", stats);
-                result = JMXUtils.compositeToTabular("invocation", "Method invocation statistics", "Method", 
-                		result, data);
+                stats.put(sn_Method, entry.getKey());
+                CompositeData data = JMXUtils.mapToComposite(sn_Name, sn_Header, stats);
+                result = JMXUtils.compositeToTabular(sn_Name, sn_Header, sn_Method, result, data);
             } catch (Exception ex) {
                 //logger.error("getStatisticSeries; error", ex);
             }
@@ -42,8 +73,7 @@ public class InvocationStatistics {
     }
 
 	public void initStats(String name) {
-		MethodInvocationStats stats = new MethodInvocationStats();
-		mStats.put(name, stats);
+		mStats.put(name, new MethodInvocationStats());
 	}
 	
 	public void resetStats() {
@@ -97,23 +127,23 @@ public class InvocationStatistics {
 		
 		Map<String, Object> toMap() {
 			Map<String, Object> result = new HashMap<String, Object>(10);
-			result.put("First", new Date(tmFirst));
-			result.put("Last", new Date(tmLast));
-			result.put("Invoked", cntInvoked);
-			result.put("Failed", cntFailed);
-			result.put("Succeed", cntSucceed);
-			result.put("Max time", tmMax);
-			result.put("Sum time", tmSum);
+			result.put(sn_First, new Date(tmFirst));
+			result.put(sn_Last, new Date(tmLast));
+			result.put(sn_Invoked, cntInvoked);
+			result.put(sn_Failed, cntFailed);
+			result.put(sn_Succeed, cntSucceed);
+			result.put(sn_Max_Time, tmMax);
+			result.put(sn_Sum_Time, tmSum);
 			if (cntInvoked > 0) {
-				result.put("Min time", tmMin);
+				result.put(sn_Min_Time, tmMin);
 				double dSum = tmSum;
-				result.put("Avg time", dSum/cntInvoked);
+				result.put(sn_Avg_Time, dSum/cntInvoked);
 				double dCnt = cntInvoked*1000;
-				result.put("Throughput", dCnt/(tmLast - tmFirst));
+				result.put(sn_Throughput, dCnt/(tmLast - tmFirst));
 			} else {
-				result.put("Min time", 0L);
-				result.put("Avg time", 0.0d);
-				result.put("Throughput", 0.0d);
+				result.put(sn_Min_Time, 0L);
+				result.put(sn_Avg_Time, 0.0d);
+				result.put(sn_Throughput, 0.0d);
 			}
 			return result;
 		}
@@ -121,25 +151,25 @@ public class InvocationStatistics {
 		// how will we present stats ?
 		@Override
 		public String toString() {
-			StringBuffer buff = new StringBuffer("Method Invocation Statistics [");
-			buff.append("First: ").append(new Date(tmFirst)).append("; ");
-			buff.append("Last: ").append(new Date(tmLast)).append("; ");
-			buff.append("Invoked: ").append(cntInvoked).append("; ");
-			buff.append("Failed: ").append(cntFailed).append("; ");
-			buff.append("Succeed: ").append(cntSucceed).append("; ");
-			buff.append("Max time: ").append(tmMax).append("; ");
+			StringBuffer buff = new StringBuffer(sn_Header).append(" [");
+			buff.append(sn_First).append(colon).append(new Date(tmFirst)).append(semicolon);
+			buff.append(sn_Last).append(colon).append(new Date(tmLast)).append(semicolon);
+			buff.append(sn_Invoked).append(colon).append(cntInvoked).append(semicolon);
+			buff.append(sn_Failed).append(colon).append(cntFailed).append(semicolon);
+			buff.append(sn_Succeed).append(colon).append(cntSucceed).append(semicolon);
+			buff.append(sn_Max_Time).append(colon).append(tmMax).append(semicolon);
 			if (cntInvoked > 0) {
-				buff.append("Min time: ").append(tmMin).append("; ");
+				buff.append(sn_Min_Time).append(colon).append(tmMin).append(semicolon);
 				double dSum = tmSum;
-				buff.append("Avg time: ").append(dSum/cntInvoked).append("; ");
+				buff.append(sn_Avg_Time).append(colon).append(dSum/cntInvoked).append(semicolon);
 				double dCnt = cntInvoked*1000;
-				buff.append("Throughput: ").append(dCnt/(tmLast - tmFirst)).append("; ");
+				buff.append(sn_Throughput).append(colon).append(dCnt/(tmLast - tmFirst)).append(semicolon);
 			} else {
-				buff.append("Min time: 0; ");
-				buff.append("Avg time: 0; ");
-				buff.append("Throughput: 0; ");
+				buff.append(sn_Min_Time).append(empty);
+				buff.append(sn_Avg_Time).append(empty);
+				buff.append(sn_Throughput).append(empty);
 			}
-			buff.append("Sum time: ").append(tmSum);
+			buff.append(sn_Sum_Time).append(colon).append(tmSum);
 			buff.append("]");
 			return buff.toString();
 		}

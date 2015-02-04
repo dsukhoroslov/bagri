@@ -48,6 +48,7 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 	public static final String PN_SCHEMA_NAME = "hz.schema.name";
 	public static final String PN_SCHEMA_PASS = "hz.schema.password";
 	public static final String PN_SERVER_ADDRESS = "hz.server.address";
+	public static final String PN_CLIENT_SMART = "hz.client.smart";
     
 	private String clientId;
 	private String schemaName;
@@ -79,6 +80,7 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 		props.setProperty(PN_SCHEMA_NAME, getSystemProperty(PN_SCHEMA_NAME, "schema"));
 		props.setProperty(PN_SCHEMA_PASS, getSystemProperty(PN_SCHEMA_PASS, "password"));
 		props.setProperty(PN_SERVER_ADDRESS, getSystemProperty(PN_SERVER_ADDRESS, "address"));
+		props.setProperty(PN_CLIENT_SMART, getSystemProperty(PN_CLIENT_SMART, "false"));
 		return props;
 	}
 	
@@ -87,6 +89,7 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 		setProperty(original, props, PN_SCHEMA_NAME, "schema");
 		setProperty(original, props, PN_SCHEMA_PASS, "password");
 		setProperty(original, props, PN_SERVER_ADDRESS, "address");
+		setProperty(original, props, PN_CLIENT_SMART, "false");
 		props.put("xqDataFactory", original.get("xqDataFactory"));
 		return props;
 	}
@@ -100,11 +103,13 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 		String schema = props.getProperty(PN_SCHEMA_NAME);
 		String password = props.getProperty(PN_SCHEMA_PASS);
 		String address = props.getProperty(PN_SERVER_ADDRESS);
+		String smart = props.getProperty(PN_CLIENT_SMART);
 		InputStream in = DocumentManagementImpl.class.getResourceAsStream("/hazelcast/hazelcast-client.xml");
 		ClientConfig config = new XmlClientConfigBuilder(in).build();
 		config.getGroupConfig().setName(schema);
 		config.getGroupConfig().setPassword(password);
 		config.getNetworkConfig().addAddress(address);
+		config.getNetworkConfig().setSmartRouting(smart.equalsIgnoreCase("true"));
 		//config.setProperty("hazelcast.logging.type", "slf4j");
 		//UsernamePasswordCredentials creds = new UsernamePasswordCredentials(schema, password);
 		//SecureCredentials creds = new SecureCredentials(password);

@@ -13,7 +13,6 @@ To learn more about TPoX settings go to http://sourceforge.net/p/tpox/code/HEAD/
 Or, check downloaded documents at $TPOX_HOME/documentation and $TPOX_HOME/WorkloadDriver/README.TXT
 
 - tpox-xqj-custacc/tpox-xqj-orders/tpox-xqj-sec scripts are for XQJ (JSR225) interface performance tests. 
-- tpox-xdm-custacc/tpox-xdm-orders/tpox-xdm-sec scripts are for XDM proprietary interface performance tests. 
 
 Client-side (TPOX) statistics are collected in ./output folder. 
-Server-side statistics are collected in stats.xtx file.
+Server-side statistics are collected in stats.txt file.

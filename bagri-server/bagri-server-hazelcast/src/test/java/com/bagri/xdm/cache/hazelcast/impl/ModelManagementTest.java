@@ -1,4 +1,4 @@
-package com.bagri.xdm.process.hazelcast;
+package com.bagri.xdm.cache.hazelcast.impl;
 
 import static com.bagri.xdm.client.hazelcast.impl.DocumentManagementImpl.*;
 import static org.junit.Assert.*;

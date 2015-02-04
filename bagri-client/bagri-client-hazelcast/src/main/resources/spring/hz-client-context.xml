@@ -23,10 +23,10 @@
 			<hz:property name="hazelcast.logging.type">slf4j</hz:property>
 		</hz:properties>
 
-		<hz:network smart-routing="true">
+		<hz:network smart-routing="false">
 			<hz:member>${xdm.schema.members}</hz:member>
 			<!--hz:socket-options buffer-size="${xdm.schema.buffer.size}"/-->
-			<hz:socket-options buffer-size="256"/>
+			<hz:socket-options buffer-size="128"/>
 		</hz:network>
  
 		<!--hz:security>

@@ -1,4 +1,4 @@
-package com.bagri.xdm.process.hazelcast;
+package com.bagri.xdm.cache.hazelcast.impl;
 
 import static com.bagri.xdm.client.common.XDMConfigConstants.xdm_config_properties_file;
 
@@ -12,7 +12,7 @@ import com.bagri.xdm.api.test.XDMDocumentManagementTest;
 import com.bagri.xdm.cache.hazelcast.impl.DocumentManagementImpl;
 import com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl;
 
-public class DocumentManagementServerTest extends XDMDocumentManagementTest {
+public class DocumentManagementImplTest extends XDMDocumentManagementTest {
 	
     private static ClassPathXmlApplicationContext context;
 

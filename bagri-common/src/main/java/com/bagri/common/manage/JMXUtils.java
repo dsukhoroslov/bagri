@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bagri.common.security.LocalSubject;
+import static com.bagri.common.manage.InvocationStatistics.*;
 
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
@@ -240,34 +241,21 @@ public class JMXUtils {
                 return null;
 			}
     	} else {
-    		long tmSum = 0;
-    		long tmFirst = 0;
-    		long tmLast = 0;
-    		int cntInvoke = 0;
     		Object[] trgVals = target.getAll(names);
-    		for (int i=0; i < srcVals.length; i++) {
-    			trgVals[i] = aggregateValue(names[i], srcVals[i], trgVals[i]);
-    	        if ("Invoked".equals(names[i])) {
-    	        	cntInvoke = (Integer) trgVals[i]; 
-    	        } else if ("Sum time".equals(names[i])) {
-    	        	tmSum = (Long) trgVals[i];
-    	        } else if ("First".equals(names[i])) {
-    	        	tmFirst = ((Date) trgVals[i]).getTime();
-    	        } else if ("Last".equals(names[i])) {
-    	        	tmLast = ((Date) trgVals[i]).getTime();
-    	        }
+    		// should remove this loop/switch and aggregate at 
+    		// every concrete index inline..
+    		for (int i=0; i < names.length; i++) {
+    			trgVals[i] = aggregateValue(i, srcVals[i], trgVals[i]);
     		}
-    		
+    		int cntInvoke = (Integer) trgVals[idx_Invoked];
+    		long tmFirst = ((Date) trgVals[idx_First]).getTime();
+    		long tmLast = ((Date) trgVals[idx_Last]).getTime();
+    		long tmSum = (Long) trgVals[idx_Sum_Time];
     		if (cntInvoke > 0) {
-	    		for (int i=0; i < srcVals.length; i++) {
-	    	        if ("Avg time".equals(names[i])) {
-	    	        	double dSum = tmSum;
-	    	        	trgVals[i] = dSum/cntInvoke;
-	    	        } else if ("Throughput".equals(names[i])) {
-	    				double dCnt = cntInvoke*1000;
-	    				trgVals[i] = dCnt/(tmLast - tmFirst);
-	    	        }
-	    		}
+   	        	double dSum = tmSum;
+   	        	trgVals[idx_Avg_Time] = dSum/cntInvoke;
+   				double dCnt = cntInvoke*1000;
+   				trgVals[idx_Throughput] = dCnt/(tmLast - tmFirst);
     		}
     		
 			try {
@@ -280,54 +268,34 @@ public class JMXUtils {
     	return target;
     }
     
-    private static Object aggregateValue(String name, Object value1, Object value2) {
+    private static Object aggregateValue(int idx, Object value1, Object value2) {
         //logger.trace("aggregateValue. name: {}; v1: {}; v2: {}", name, value1, value2);
-        //if ("Avg time".equals(name)) {
-        //	return value1;
-        //}
-        if ("Failed".equals(name)) {
-        	return (Integer) value1 + (Integer) value2;
+    	switch (idx) {
+    		case idx_Failed: return (Integer) value1 + (Integer) value2;
+    		case idx_First: if (((Comparable) value1).compareTo((Comparable) value2) < 0) {
+            		return value1;
+        		}
+        		return value2;
+    		case idx_Invoked: return (Integer) value1 + (Integer) value2;
+    		case idx_Last: if (((Comparable) value1).compareTo((Comparable) value2) > 0) {
+            		return value1;
+        		}
+        		return value2;
+    		case idx_Max_Time: if (((Comparable) value1).compareTo((Comparable) value2) > 0) {
+            		return value1;
+        		}
+        		return value2;
+    		case idx_Method: return value1;
+    		case idx_Min_Time: if (((Comparable) value1).compareTo((Comparable) value2) < 0) {
+            		return value1;
+        		}
+        		return value2;
+    		case idx_Succeed: return (Integer) value1 + (Integer) value2;
+    		case idx_Sum_Time: return (Long) value1 + (Long) value2;
         }
-        if ("First".equals(name)) {
-        	if (((Comparable) value1).compareTo((Comparable) value2) < 0) {
-            	return value1;
-        	}
-        	return value2;
-        }
-        if ("Invoked".equals(name)) {
-        	return (Integer) value1 + (Integer) value2;
-        }
-        if ("Last".equals(name)) {
-        	if (((Comparable) value1).compareTo((Comparable) value2) > 0) {
-            	return value1;
-        	}
-        	return value2;
-        }
-        if ("Max time".equals(name)) {
-        	if (((Comparable) value1).compareTo((Comparable) value2) > 0) {
-            	return value1;
-        	}
-        	return value2;
-        }
-        if ("Method".equals(name)) {
-        	return value1;
-        }
-        if ("Min time".equals(name)) {
-        	if (((Comparable) value1).compareTo((Comparable) value2) < 0) {
-            	return value1;
-        	}
-        	return value2;
-        }
-        if ("Succeed".equals(name)) {
-        	return (Integer) value1 + (Integer) value2;
-        }
-        if ("Sum time".equals(name)) {
-        	return (Long) value1 + (Long) value2;
-        }
-        //if ("Throughput".equals(name)) {
-        //	return value1;
-        //}
-    	return 0.0d; //null;
+		//case idx_Avg_Time: 
+        //case idx_Throughput:
+    	return 0.0d; 
     }
     
     public static CompositeData propsToComposite(String name, String desc, Properties props) {
