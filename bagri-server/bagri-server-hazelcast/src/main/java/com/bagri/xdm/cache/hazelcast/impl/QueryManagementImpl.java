@@ -24,9 +24,9 @@ import com.bagri.common.query.ExpressionBuilder;
 import com.bagri.common.query.ExpressionContainer;
 import com.bagri.common.query.PathExpression;
 import com.bagri.xdm.api.XDMModelManagement;
-import com.bagri.xdm.api.XDMQueryManagement;
+//import com.bagri.xdm.api.XDMQueryManagement;
 import com.bagri.xdm.api.XDMRepository;
-import com.bagri.xdm.api.XQQueryManagement;
+import com.bagri.xdm.cache.api.XDMQueryManagement;
 import com.bagri.xdm.cache.hazelcast.predicate.QueryPredicate;
 import com.bagri.xdm.client.hazelcast.data.QueryParamsKey;
 import com.bagri.xdm.client.hazelcast.impl.ResultsIterator;
@@ -47,12 +47,13 @@ import com.hazelcast.core.IMap;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
 
-public class QueryManagementImpl implements XQQueryManagement {
+public class QueryManagementImpl implements XDMQueryManagement {
 	
 	private static final transient Logger logger = LoggerFactory.getLogger(QueryManagementImpl.class);
 	
 	private RepositoryImpl repo;
 	private XDMModelManagement model;
+    private IndexManagementImpl idxMgr;
 	private DocumentManagementImpl docMgr;
 	
     private IMap<Integer, XDMQuery> xqCache;
@@ -61,7 +62,6 @@ public class QueryManagementImpl implements XQQueryManagement {
     
 	private IMap<Long, XDMDocument> xddCache;
     private IMap<XDMDataKey, XDMElements> xdmCache;
-    private IMap<XDMIndexKey, XDMIndexedValue> idxCache;
     
     public QueryManagementImpl() {
     	logger.info("<init>; query cache initialized");
@@ -73,7 +73,6 @@ public class QueryManagementImpl implements XQQueryManagement {
     	this.docMgr = (DocumentManagementImpl) repo.getDocumentManagement();
     	this.xddCache = docMgr.getDocumentCache();
     	this.xdmCache = docMgr.getElementCache();
-    	this.idxCache = docMgr.getIndexCache();
     }
 
     public void setQueryCache(IMap<Integer, XDMQuery> cache) {
@@ -83,6 +82,11 @@ public class QueryManagementImpl implements XQQueryManagement {
     public void setResultCache(IMap<XDMResultsKey, XDMResults> cache) {
     	this.xrCache = cache;
     }
+    
+    public void setIndexManager(IndexManagementImpl indexManager) {
+    	this.idxMgr = indexManager;
+    }
+    
     
     // can inherit from some top ..
     @Override
@@ -266,16 +270,15 @@ public class QueryManagementImpl implements XQQueryManagement {
    		//}
 		
 		if (pathId > 0 && Comparison.EQ.equals(pex.getCompType()) && 
-				model.isPathIndexed(pathId)) {
-			XDMIndexKey idx = docMgr.getXdmFactory().newXDMIndexKey(pathId, value.toString());
-			XDMIndexedValue xidx = idxCache.get(idx);
-			logger.trace("queryPathKeys; seach for index {} get {}", idx, xidx); 
-			if (xidx != null) {
+				idxMgr.isPathIndexed(pathId)) {
+			Set<Long> docIds = idxMgr.getIndexedDocuments(pathId, value.toString());
+			logger.trace("queryPathKeys; seach for index - got ids: {}", docIds); 
+			if (docIds != null) {
 				Set<Long> result;
 				if (found == null) {
-					result = xidx.getDocumentIds();
+					result = docIds;
 				} else {
-					found.retainAll(xidx.getDocumentIds());
+					found.retainAll(docIds);
 					result = found;
 				}
 				logger.trace("queryPathKeys.exit; returning {} indexed keys", result.size()); 

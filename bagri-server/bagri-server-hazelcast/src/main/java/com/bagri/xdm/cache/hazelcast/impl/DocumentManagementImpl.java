@@ -36,6 +36,7 @@ import com.bagri.common.query.PathExpression;
 import static com.bagri.xdm.client.common.XDMCacheConstants.*;
 
 import com.bagri.xdm.api.XDMQueryManagement;
+import com.bagri.xdm.cache.api.XDMIndexManagement;
 import com.bagri.xdm.cache.common.XDMDocumentManagementServer;
 import com.bagri.xdm.client.common.impl.XDMModelManagementBase;
 import com.bagri.xdm.client.hazelcast.impl.ResultsIterator;
@@ -72,12 +73,12 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	
     private HazelcastInstance hzInstance;
     //private XDMQueryManagement queryManager;
+    private IndexManagementImpl indexManager;
 
     private IdGenerator<Long> docGen;
 	private IMap<Long, XDMDocument> xddCache;
     private IMap<Long, String> xmlCache;
     private Map<Long, Source> srcCache;
-    private IMap<XDMIndexKey, XDMIndexedValue> idxCache;
     private IMap<XDMDataKey, XDMElements> xdmCache;
 
     IMap<Long, XDMDocument> getDocumentCache() {
@@ -88,18 +89,10 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
     	return xdmCache;
     }
     
-    IMap<XDMIndexKey, XDMIndexedValue> getIndexCache() {
-    	return idxCache;
-    }
-
     public void setDocumentIdGenerator(IdGenerator docGen) {
     	this.docGen = docGen;
     }
     
-    public void setIdxCache(IMap<XDMIndexKey, XDMIndexedValue> cache) {
-    	this.idxCache = cache;
-    }
-
     public void setXddCache(IMap<Long, XDMDocument> cache) {
     	this.xddCache = cache;
     }
@@ -118,11 +111,15 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		this.hzInstance = hzInstance;
 	}
 	
+    public void setIndexManager(IndexManagementImpl indexManager) {
+    	this.indexManager = indexManager;
+    }
+    
     //public void setQueryManager(XDMQueryManagement xqManager) {
     //	this.queryManager = xqManager;
     //}
-    
-    @Override
+
+	@Override
 	public Collection<String> buildDocument(Set<Long> docIds, String template, Map<String, String> params) {
         logger.trace("buildDocument.enter; docIds: {}", docIds.size());
 		long stamp = System.currentTimeMillis();
@@ -215,7 +212,6 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		if (root != null) {
 			int docType = model.translateDocumentType(root.getPath());
 			Map<XDMDataKey, XDMElements> elements = new HashMap<XDMDataKey, XDMElements>(data.size());
-			Map<XDMIndexKey, XDMIndexedValue> indexes = new HashMap<XDMIndexKey, XDMIndexedValue>();
 			
 			for (XDMData xdm: data) {
 				XDMDataKey xdk = factory.newXDMDataKey(docId, xdm.getPathId());
@@ -225,26 +221,13 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 					elements.put(xdk, xdes);
 				}
 				xdes.addElement(xdm.getElement());
-				
-       			// add indexes; better to do this asynchronously!
-				if (isPathIndexed(xdm.getPathId()) && xdm.getValue() != null) {
-					XDMIndexKey xid = factory.newXDMIndexKey(xdm.getPathId(), xdm.getValue());
-					XDMIndexedValue xidx = indexes.get(xid);
-					if (xidx == null) {
-						xidx = new XDMIndexedValue(docId);
-						indexes.put(xid, xidx);
-					} else {
-						xidx.addDocumentId(docId);
-					}
-				}
+				indexManager.addIndex(docId, xdm.getPathId(), xdm.getValue());
 			}
 			xdmCache.putAll(elements);
-			// can have collisions here when two threads add/change the same index!
-			idxCache.putAll(indexes);
 			
 			stamp = System.currentTimeMillis() - stamp;
-			logger.trace("loadElements; cached {} elements and {} indexes for docId: {}; time taken: {}", 
-					elements.size(), indexes.size(), docId, stamp);
+			logger.trace("loadElements; cached {} elements for docId: {}; time taken: {}", 
+					elements.size(), docId, stamp);
 			model.normalizeDocumentType(docType);
 			return docType;
 		}
@@ -252,7 +235,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	}
 	
 	private boolean isPathIndexed(int pathId) {
-		return model.isPathIndexed(pathId);
+		return indexManager.isPathIndexed(pathId);
 	}
 
 	//@Override
@@ -288,18 +271,8 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
         	if (isPathIndexed(pathId)) {
 	       		XDMElements elts = xdmCache.remove(dKey);
 	       		if (elts != null) {
-	       			// remove indexes; better to do this asynchronously!
 	       			for (XDMElement elt: elts.getElements().values()) {
-	       				XDMIndexKey iKey = factory.newXDMIndexKey(pathId, elt.getValue());
-	       				// will have collisions here when two threads change/delete the same index!
-	       				XDMIndexedValue xIdx = idxCache.get(iKey);
-	       				if (xIdx != null && xIdx.removeDocumentId(docId)) {
-	       					if (xIdx.getCount() > 0) {
-	       						idxCache.put(iKey, xIdx);
-	       					} else {
-	    	       				idxCache.delete(iKey);
-	       					}
-	       				}
+	       				indexManager.dropIndex(docId, pathId, elt.getValue());
 	       				iCnt++;
 	       			}
 	       		}

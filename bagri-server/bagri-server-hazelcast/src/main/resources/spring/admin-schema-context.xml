@@ -85,7 +85,6 @@
 		<property name="namespaceCache" ref="dict-namespace"/>
 		<property name="pathCache" ref="dict-path"/>
 		<property name="typeCache" ref="dict-document-type"/>
-		<property name="indexCache" ref="dict-index"/>
 		<property name="namespaceGen" ref="xdm.namespace"/>
 		<property name="pathGen" ref="xdm.path"/>
 		<property name="typeGen" ref="xdm.doctype"/>

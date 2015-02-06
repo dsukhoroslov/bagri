@@ -15,8 +15,6 @@ import javax.xml.xquery.XQItemAccessor;
 import javax.xml.xquery.XQQueryException;
 import javax.xml.xquery.XQStaticContext;
 
-import net.sf.saxon.dom.NodeOverNodeInfo;
-import net.sf.saxon.lib.CollectionURIResolver;
 import net.sf.saxon.om.Item;
 import net.sf.saxon.om.NamePool;
 import net.sf.saxon.om.SequenceIterator;
@@ -29,13 +27,12 @@ import com.bagri.common.query.ExpressionBuilder;
 import com.bagri.common.query.ExpressionContainer;
 //import com.bagri.xdm.access.api.XDMDocumentManagementServer;
 import com.bagri.xdm.api.XDMDocumentManagement;
-import com.bagri.xdm.api.XDMQueryManagement;
+//import com.bagri.xdm.api.XDMQueryManagement;
 import com.bagri.xdm.api.XDMRepository;
-import com.bagri.xdm.api.XQQueryManagement;
+import com.bagri.xdm.cache.api.XDMQueryManagement;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMQuery;
 import com.bagri.xqj.BagriXQConstants;
-import com.bagri.xqj.BagriXQUtils;
 import com.bagri.xquery.api.XQProcessor;
 
 public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
@@ -145,7 +142,7 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 		long stamp = System.currentTimeMillis();
    	    XQueryExpression xqExp = null;
    	    
-   	    XQQueryManagement qMgr = (XQQueryManagement) getQueryManagement();
+   	    XDMQueryManagement qMgr = (XDMQueryManagement) getQueryManagement();
    	    XDMQuery xQuery = qMgr.getQuery(query);
    	    boolean cacheable = false;
 

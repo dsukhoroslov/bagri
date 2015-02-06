@@ -15,6 +15,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.env.PropertiesPropertySource;
 
 import com.bagri.xdm.api.XDMModelManagement;
+import com.bagri.xdm.cache.api.XDMIndexManagement;
 import com.bagri.xdm.cache.hazelcast.impl.DocumentManagementImpl;
 import com.bagri.xdm.cache.hazelcast.util.SpringContextHolder;
 import com.bagri.xdm.system.XDMIndex;
@@ -69,9 +70,9 @@ public class SchemaInitiator implements Callable<Boolean>, IdentifiedDataSeriali
 			
 			Set<XDMIndex> indexes = schema.getIndexes();
 			if (indexes.size() > 0) {
-				XDMModelManagement xModel = ctx.getBean(XDMModelManagement.class);
+				XDMIndexManagement xIndex = ctx.getBean(XDMIndexManagement.class);
 				for (XDMIndex idx: indexes) {
-					xModel.createIndex(idx);
+					xIndex.createIndex(idx);
 				}
 			}
     		logger.debug("initSchema.exit; schema {} started on instance: {}", schemaName, hz);

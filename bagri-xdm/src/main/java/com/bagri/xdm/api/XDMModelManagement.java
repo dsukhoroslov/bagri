@@ -77,27 +77,6 @@ public interface XDMModelManagement {
 	XDMPath getPath(int pathId);
 	
 	/**
-	 * @param pathId
-	 * check is path indexed or not
-	 * 
-	 */
-	boolean isPathIndexed(int pathId); 
-	
-	/**
-	 * @param typeId
-	 * registers a new index
-	 * 
-	 */
-	boolean createIndex(XDMIndex index);
-	
-	/**
-	 * @param typeId
-	 * remove an existing index
-	 * 
-	 */
-	boolean deleteIndex(int pathId);
-
-	/**
 	 * 
 	 * @param typeId
 	 * @return Collection of XDMPath belonging to the typeId provided.

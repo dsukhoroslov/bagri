@@ -64,7 +64,9 @@ public abstract class SchemaFeatureManagement implements SelfNaming {
 		for (Map.Entry<Member, Future<TabularData>> entry: futures.entrySet()) {
 			try {
 				TabularData stats = entry.getValue().get();
+				logger.trace("getInvocationStatistics; got stats: {}, from member {}", stats, entry.getKey());
 				result = JMXUtils.aggregateStats(stats, result);
+				logger.trace("getInvocationStatistics; got aggregated result: {}", result);
 				cnt++;
 			} catch (InterruptedException | ExecutionException ex) {
 				logger.error("getInvocationStatistics.error: " + ex.getMessage(), ex);
