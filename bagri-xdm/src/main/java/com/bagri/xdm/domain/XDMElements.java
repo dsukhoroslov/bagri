@@ -1,5 +1,6 @@
 package com.bagri.xdm.domain;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
@@ -46,7 +47,7 @@ public class XDMElements {
    
     public Map<Long, XDMElement> getElements() {
           if (elementRef == null) {
-        	  return null;
+        	  return Collections.emptyMap();
           }
           if (elementRef instanceof XDMElement) {
         	  Map<Long, XDMElement> elements = new HashMap<Long, XDMElement>();

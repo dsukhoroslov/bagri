@@ -24,7 +24,7 @@ public interface XDMIndexManagement {
 	 * remove an existing index
 	 * 
 	 */
-	boolean deleteIndex(int pathId);
+	XDMPath deleteIndex(XDMIndex index);
 
 
 	boolean rebuildIndex(int pathId);

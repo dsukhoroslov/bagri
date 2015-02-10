@@ -69,19 +69,30 @@ public class IndexManagementImpl implements XDMIndexManagement {
 
 	@Override
 	public XDMPath createIndex(XDMIndex index) {
-		int docType = mdlMgr.translateDocumentType(index.getDocumentType());
-		String path = index.getPath();
-		XDMNodeKind kind = path.endsWith("/text()") ? XDMNodeKind.text : XDMNodeKind.attribute;
-		XDMPath xPath = mdlMgr.translatePath(docType, path, kind);
-		logger.trace("createIndex; creating index on path: {}, for docType: {}", xPath, docType);
+		XDMPath xPath = getPathForIndex(index);
 		idxDict.putIfAbsent(xPath.getPathId(), index);
 		return xPath;
 	}
 	
 	@Override
-	public boolean deleteIndex(int pathId) {
-		XDMIndex index = idxDict.remove(pathId);
-		return index != null;
+	public XDMPath deleteIndex(XDMIndex index) {
+		// we must not do translate here!
+		XDMPath xPath = getPathForIndex(index);
+		//if (idxDict.remove(xPath.getPathId()) != null) {
+		//	return xPath;
+		//}
+		//return null;
+		idxDict.remove(xPath.getPathId());
+		return xPath;
+	}
+	
+	private XDMPath getPathForIndex(XDMIndex index) {
+		int docType = mdlMgr.translateDocumentType(index.getDocumentType());
+		String path = index.getPath();
+		XDMNodeKind kind = path.endsWith("/text()") ? XDMNodeKind.text : XDMNodeKind.attribute;
+		XDMPath xPath = mdlMgr.translatePath(docType, path, kind);
+		logger.trace("getPathForIndex; returning: {}", xPath);
+		return xPath;
 	}
 	
 	public void addIndex(long docId, int pathId, Object value) {

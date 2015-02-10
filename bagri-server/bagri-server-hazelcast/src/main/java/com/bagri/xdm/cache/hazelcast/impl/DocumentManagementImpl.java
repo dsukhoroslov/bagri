@@ -240,9 +240,27 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		for (Long docId: docIds) {
 			XDMDataKey xdk = factory.newXDMDataKey(docId, pathId);
 			XDMElements elts = xdmCache.get(xdk);
-			for (XDMElement elt: elts.getElements().values()) {
-				indexManager.addIndex(docId, pathId, elt.getValue());
-				cnt++;
+			if (elts != null) {
+				for (XDMElement elt: elts.getElements().values()) {
+					indexManager.addIndex(docId, pathId, elt.getValue());
+					cnt++;
+				}
+			}
+		}
+		return cnt;
+	}
+
+	int deindexElements(int docType, int pathId) {
+		Set<Long> docIds = getDocumentsOfType(docType);
+		int cnt = 0;
+		for (Long docId: docIds) {
+			XDMDataKey xdk = factory.newXDMDataKey(docId, pathId);
+			XDMElements elts = xdmCache.get(xdk);
+			if (elts != null) {
+				for (XDMElement elt: elts.getElements().values()) {
+					indexManager.dropIndex(docId, pathId, elt.getValue());
+					cnt++;
+				}
 			}
 		}
 		return cnt;

@@ -131,6 +131,20 @@ public class RepositoryImpl extends XDMRepositoryBase implements ApplicationCont
 		return false;
 	}
 
+	public boolean dropSchemaIndex(String name) {
+		
+		XDMIndex index = xdmSchema.removeIndex(name);
+		if (index != null) {
+			XDMPath path = indexMgr.deleteIndex(index);
+			if (path != null) {
+				DocumentManagementImpl docMgr = (DocumentManagementImpl) getDocumentManagement();
+				return docMgr.deindexElements(path.getTypeId(), path.getPathId()) > 0;
+			}
+		}
+		logger.info("call; index {} does not exist?", index);
+		return false;
+	}
+	
 	@Override
 	public XDMIndexManagement getIndexManagement() {
 		return indexMgr;

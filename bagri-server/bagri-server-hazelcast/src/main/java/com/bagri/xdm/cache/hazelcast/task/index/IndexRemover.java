@@ -43,7 +43,7 @@ public class IndexRemover implements Callable<Boolean>, IdentifiedDataSerializab
 	public Boolean call() throws Exception {
 		logger.trace("call.enter");
 		long stamp = System.currentTimeMillis();
-		boolean result = false; //xdmRepo.addSchemaIndex(index);
+		boolean result = xdmRepo.dropSchemaIndex(index);
 		stamp = System.currentTimeMillis() - stamp;
 		logger.trace("call.exit; returning: {}; time taken: {}", result, stamp);
 		return result;

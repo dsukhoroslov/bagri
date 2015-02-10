@@ -266,7 +266,7 @@ public class SchemaManager extends EntityManager<XDMSchema> {
 	
 	boolean deleteIndex(String name) {
 		XDMSchema schema = getEntity();
-		if (schema.removeIndex(name)) {
+		if (schema.removeIndex(name) != null) {
 			// store schema!
 			flushEntity(schema);
 			return true;
