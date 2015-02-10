@@ -1,6 +1,6 @@
 package com.bagri.xdm.cache.hazelcast.task.stats;
 
-import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_InvocationStatsCollectTask;
+import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_CollectInvocationStatsTask;
 
 import java.util.concurrent.Callable;
 
@@ -23,7 +23,7 @@ public class InvocationStatsCollector extends InvocationStatsTask implements Cal
 
 	@Override
 	public int getId() {
-		return cli_InvocationStatsCollectTask;
+		return cli_CollectInvocationStatsTask;
 	}
 
 	@Override

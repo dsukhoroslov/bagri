@@ -6,6 +6,8 @@ public interface XDMRepository {
 	
 	//XDMAccessManagement getAccessManagement();
 	
+	//XDMTransactionManagement getTxManagement();
+	
 	XDMDocumentManagement getDocumentManagement();
 	
 	XDMQueryManagement getQueryManagement();

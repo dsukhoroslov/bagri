@@ -2,6 +2,8 @@ package com.bagri.xdm.cache.hazelcast.management;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.TabularData;
@@ -13,14 +15,16 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
 import com.bagri.common.manage.JMXUtils;
+import com.bagri.xdm.cache.hazelcast.task.index.IndexCreator;
+import com.bagri.xdm.cache.hazelcast.task.index.IndexRemover;
 import com.bagri.xdm.system.XDMIndex;
 import com.bagri.xdm.system.XDMSchema;
-import com.hazelcast.core.IMap;
+import com.hazelcast.core.Member;
 
 @ManagedResource(description="Schema Indexes Management MBean")
 public class IndexManagement extends SchemaFeatureManagement {
 	
-	private IMap<String, XDMSchema> schemaCache;
+	private SchemaManager schemaManager;
 
 	public IndexManagement(String schemaName) {
 		super(schemaName);
@@ -30,14 +34,14 @@ public class IndexManagement extends SchemaFeatureManagement {
 		return "IndexManagement";
 	}
 	
-	public void setSchemaCache(IMap<String, XDMSchema> schemaCache) {
-		this.schemaCache = schemaCache;
+	public void setSchemaManager(SchemaManager schemaManager) {
+		this.schemaManager = schemaManager;
 	}
 
 	@ManagedAttribute(description="Return indexes defined on Schema")
 	public TabularData getIndexes() {
 		// get XDMSchema somehow! then get its indexes and build TabularData
-		XDMSchema schema = schemaCache.get(schemaName);
+		XDMSchema schema = schemaManager.getEntity();
 		Set<XDMIndex> indexes = schema.getIndexes();
 		if (indexes.size() == 0) {
 			return null;
@@ -62,20 +66,66 @@ public class IndexManagement extends SchemaFeatureManagement {
 	}
 
 	@ManagedOperation(description="Creates a new Index")
-	@ManagedOperationParameters({@ManagedOperationParameter(name = "path", description = "XPath to index")})
-	public void addIndex(String path) {
-		// not implemented yet
+	@ManagedOperationParameters({
+		@ManagedOperationParameter(name = "name", description = "Index name to create"),
+		@ManagedOperationParameter(name = "path", description = "XPath to index"),
+		@ManagedOperationParameter(name = "docType", description = "Root path for document type"),
+		@ManagedOperationParameter(name = "unique", description = "Is index unique"),
+		@ManagedOperationParameter(name = "description", description = "Index description")})
+	public void addIndex(String name, String path, String docType, boolean unique, String description) {
+
+		logger.trace("addIndex.enter;");
+		long stamp = System.currentTimeMillis();
+		XDMIndex index = schemaManager.addIndex(name, path, docType, unique, description);
+		if (index == null) {
+			throw new IllegalStateException("Index '" + name + "' in schema '" + schemaName + "' already exists");
+		}
+		
+		IndexCreator task = new IndexCreator(index);
+		Map<Member, Future<Boolean>> results = execService.submitToAllMembers(task);
+		int cnt = 0;
+		for (Map.Entry<Member, Future<Boolean>> entry: results.entrySet()) {
+			try {
+				if (entry.getValue().get()) {
+					cnt++;
+				}
+			} catch (InterruptedException | ExecutionException ex) {
+				logger.error("addIndex.error; ", ex);
+			}
+		}
+		stamp = System.currentTimeMillis() - stamp;
+		logger.trace("addIndex.exit; index created on {} members; timeTaken: {}", cnt, stamp);
 	}
 	
 	@ManagedOperation(description="Removes an existing Index")
-	@ManagedOperationParameters({@ManagedOperationParameter(name = "path", description = "XPath to delete from indexes")})
-	public void dropIndex(String path) {
-		// not implemented yet
+	@ManagedOperationParameters({@ManagedOperationParameter(name = "name", description = "Index name to delete")})
+	public void dropIndex(String name) {
+		
+		logger.trace("dropIndex.enter;");
+		long stamp = System.currentTimeMillis();
+		if (!schemaManager.deleteIndex(name)) {
+			throw new IllegalStateException("Index '" + name + "' in schema '" + schemaName + "' does not exist");
+		}
+
+		IndexRemover task = new IndexRemover(name);
+		Map<Member, Future<Boolean>> results = execService.submitToAllMembers(task);
+		int cnt = 0;
+		for (Map.Entry<Member, Future<Boolean>> entry: results.entrySet()) {
+			try {
+				if (entry.getValue().get()) {
+					cnt++;
+				}
+			} catch (InterruptedException | ExecutionException ex) {
+				logger.error("dropIndex.error; ", ex);
+			}
+		}
+		stamp = System.currentTimeMillis() - stamp;
+		logger.trace("dropIndex.exit; index deleted on {} members; timeTaken: {}", cnt, stamp);
 	}
 
 	@ManagedOperation(description="Rebuilds an existing Index")
-	@ManagedOperationParameters({@ManagedOperationParameter(name = "path", description = "XPath to rebuild")})
-	public void rebuildIndex(String path) {
+	@ManagedOperationParameters({@ManagedOperationParameter(name = "name", description = "Index to rebuild")})
+	public void rebuildIndex(String name) {
 		// not implemented yet
 	}
 

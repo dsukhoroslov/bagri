@@ -213,7 +213,7 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
         	    DocumentManagement dMgr = ctx.getBean("docManager", DocumentManagement.class);
 				mbeanExporter.registerManagedResource(dMgr, dMgr.getObjectName());
         	    IndexManagement iMgr = ctx.getBean("indexManager", IndexManagement.class);
-        	    iMgr.setSchemaCache(entityCache);
+        	    iMgr.setSchemaManager(sMgr);
 				mbeanExporter.registerManagedResource(iMgr, iMgr.getObjectName());
         	    ModelManagement mMgr = ctx.getBean("modelManager", ModelManagement.class);
 				mbeanExporter.registerManagedResource(mMgr, mMgr.getObjectName());

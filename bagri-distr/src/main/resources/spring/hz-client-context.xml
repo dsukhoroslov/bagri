@@ -23,10 +23,10 @@
 			<hz:property name="hazelcast.logging.type">slf4j</hz:property>
 		</hz:properties>
 
-		<hz:network smart-routing="true">
+		<hz:network smart-routing="false">
 			<hz:member>${xdm.schema.members}</hz:member>
 			<!--hz:socket-options buffer-size="${xdm.schema.buffer.size}"/-->
-			<hz:socket-options buffer-size="256"/>
+			<hz:socket-options buffer-size="128"/>
 		</hz:network>
  
 		<!--hz:security>
@@ -95,7 +95,6 @@
 		<property name="namespaceCache" ref="dict-namespace"/>
 		<property name="pathCache" ref="dict-path"/>
 		<property name="typeCache" ref="dict-document-type"/>
-		<property name="indexCache" ref="dict-index"/>
 		<property name="namespaceGen" ref="xdm.namespace"/>
 		<property name="pathGen" ref="xdm.path"/>
 		<property name="typeGen" ref="xdm.doctype"/>

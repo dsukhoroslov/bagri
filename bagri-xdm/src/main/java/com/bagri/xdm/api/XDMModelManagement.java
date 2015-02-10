@@ -5,7 +5,6 @@ import java.util.Set;
 
 import com.bagri.xdm.domain.XDMNodeKind;
 import com.bagri.xdm.domain.XDMPath;
-import com.bagri.xdm.system.XDMIndex;
 
 /**
  * manages schema meta-data in internal replicated caches;

@@ -4,6 +4,8 @@ import com.bagri.xdm.cache.hazelcast.predicate.QueryPredicate;
 import com.bagri.xdm.cache.hazelcast.task.doc.DocumentCreator;
 import com.bagri.xdm.cache.hazelcast.task.doc.DocumentRemover;
 import com.bagri.xdm.cache.hazelcast.task.doc.XMLProvider;
+import com.bagri.xdm.cache.hazelcast.task.index.IndexCreator;
+import com.bagri.xdm.cache.hazelcast.task.index.IndexRemover;
 import com.bagri.xdm.cache.hazelcast.task.node.NodeInfoProvider;
 import com.bagri.xdm.cache.hazelcast.task.node.NodeKiller;
 import com.bagri.xdm.cache.hazelcast.task.node.NodeOptionSetter;
@@ -28,27 +30,29 @@ public class XDMDataSerializationFactory extends com.bagri.xdm.client.hazelcast.
 	@Override
 	public IdentifiedDataSerializable create(int typeId) {
 		switch (typeId) {
-			case cli_XDMDocumentTask: return new DocumentCreator();
-			case cli_XDMDocumentRemover: return new DocumentRemover();
+			case cli_XDMCreateDocumentTask: return new DocumentCreator();
+			case cli_XDMRemoveDocumentTask: return new DocumentRemover();
 			case cli_XDMInitSchemaTask: return new SchemaInitiator();
 			case cli_XDMDenitSchemaTask: return new SchemaDenitiator();
 			case cli_XDMCleanSchemaTask: return new SchemaCleaner();
 			case cli_XDMSchemaAdminTask: return new SchemaAdministrator();
 			case cli_XDMSchemaMemberTask: return new SchemaMemberExtractor();
 			case cli_XDMPopulateSchemaTask: return new SchemaPopulator();
-			case cli_DocumentUrisProviderTask: return new DocumentUrisProvider(); 
-			case cli_XMLBuilderTask: return new XMLBuilder();
+			case cli_ProvideDocumentUrisTask: return new DocumentUrisProvider(); 
+			case cli_ProvideDocumentIdsTask: return new DocumentIdsProvider(); 
+			case cli_ProvideDocumentXMLTask: return new XMLProvider();
+			case cli_BuildQueryXMLTask: return new XMLBuilder();
 			case cli_XDMExecXQCommandTask: return new XQCommandExecutor();
-			case cli_InvocationStatsCollectTask: return new InvocationStatsCollector();
-			case cli_DocumentIdsProviderTask: return new DocumentIdsProvider(); 
-			case cli_XMLProviderTask: return new XMLProvider();
-			case cli_InvocationStatsResetTask: return new InvocationStatsReseter();
+			case cli_CollectInvocationStatsTask: return new InvocationStatsCollector();
+			case cli_ResetInvocationStatsTask: return new InvocationStatsReseter();
 			case cli_ProcessQueryTask: return new QueryProcessor();
 			case cli_ApplyQueryTask: return new QueryPredicate();
 			case cli_KillNodeTask: return new NodeKiller();
 			case cli_XDMSetNodeOptionTask: return new NodeOptionSetter();
-			case cli_XDMSchemaAggregationTask: return new SchemaStatsAggregator();
+			case cli_XDMAggregateSchemaInfoTask: return new SchemaStatsAggregator();
 			case cli_XDMGetNodeInfoTask: return new NodeInfoProvider();
+			case cli_CreateIndexTask: return new IndexCreator();
+			case cli_RemoveIndexTask: return new IndexRemover();
 		}
 		return super.create(typeId);
 	}

@@ -76,7 +76,7 @@ public class XDMIndex extends XDMEntity {
 
 	@Override
 	public int hashCode() {
-		return 31 + name.hashCode();
+		return name.hashCode();
 	}
 
 	@Override

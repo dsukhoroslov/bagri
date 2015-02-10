@@ -28,11 +28,11 @@ public abstract class XDMDocumentManagementServer extends XDMDocumentManagementB
 		this.factory = factory;
 	}
 	
-	public XDMModelManagement getModel() {
+	public XDMModelManagement getModelManager() {
 		return this.model;
 	}
 	
-	public void setModel(XDMModelManagement model) {
+	public void setModelManager(XDMModelManagement model) {
 		this.model = model;
 	}
 

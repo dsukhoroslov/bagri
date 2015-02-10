@@ -19,8 +19,8 @@ public class XDMCacheConstants {
 	public static final String CN_XDM_ELEMENT = "xdm-element";
 
     /**
-     * XDM Path cache
-     * Key: PathIndexKey; Value: com.bagri.xdm.XDMIndex
+     * XDM Index cache
+     * Key: PathIndexKey; Value: com.bagri.xdm.XDMIndexedValue
      * CacheStore: no
      * Mapped as: no
      */
@@ -76,6 +76,14 @@ public class XDMCacheConstants {
      * Mapped as: no
      */
 	public static final String CN_XDM_PATH_DICT = "dict-path";
+
+    /**
+     * XDM Index cache
+     * Key: String (Index Name); Value: com.bagri.xdm.XDMIndex
+     * CacheStore: no
+     * Mapped as: no
+     */
+	public static final String CN_XDM_INDEX_DICT = "dict-index";
 
     /**
      * XDM Document cache

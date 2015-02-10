@@ -49,11 +49,11 @@
 			<hz:queue name="client:*" backup-count="1" />
 			
 			<hz:map name="dict-namespace" async-backup-count="1" backup-count="0" in-memory-format="OBJECT">
-				<hz:near-cache time-to-live-seconds="0" max-idle-seconds="60" eviction-policy="LRU" 
+				<hz:near-cache time-to-live-seconds="0" max-idle-seconds="0" eviction-policy="LRU" 
 					max-size="0" invalidate-on-change="true" in-memory-format="OBJECT"/>
 			</hz:map>
 			<hz:map name="dict-path" async-backup-count="1" backup-count="0" in-memory-format="OBJECT">
-				<hz:near-cache time-to-live-seconds="0" max-idle-seconds="60" eviction-policy="LRU" 
+				<hz:near-cache time-to-live-seconds="0" max-idle-seconds="0" eviction-policy="LRU" 
 					max-size="0" invalidate-on-change="true" in-memory-format="OBJECT"/>
 				<hz:indexes>
 					<hz:index attribute="typeId"/>
@@ -61,7 +61,7 @@
 				</hz:indexes>
 			</hz:map>
 			<hz:map name="dict-index" async-backup-count="1" backup-count="0" in-memory-format="OBJECT">
-				<hz:near-cache time-to-live-seconds="0" max-idle-seconds="60" eviction-policy="LRU" 
+				<hz:near-cache time-to-live-seconds="0" max-idle-seconds="0" eviction-policy="LRU" 
 					max-size="0" invalidate-on-change="true" in-memory-format="OBJECT"/>
 			</hz:map>
 			<hz:map name="dict-document-type" async-backup-count="1" backup-count="0" in-memory-format="OBJECT">
@@ -71,7 +71,7 @@
 						<hz:property name="xdm.schema.store.type">${xdm.schema.store.type}</hz:property>
 					</hz:properties>
 				</hz:map-store-->
-				<hz:near-cache time-to-live-seconds="0" max-idle-seconds="60" eviction-policy="LRU" 
+				<hz:near-cache time-to-live-seconds="0" max-idle-seconds="0" eviction-policy="LRU" 
 					max-size="0" invalidate-on-change="true" in-memory-format="OBJECT"/>
 			</hz:map>
 			
@@ -149,6 +149,7 @@
 					<hz:serializer type-class="com.bagri.xdm.domain.XDMNamespace" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMNamespaceSerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.domain.XDMQuery" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMQuerySerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.domain.XDMResults" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMResultsSerializer"/>
+					<hz:serializer type-class="com.bagri.xdm.system.XDMIndex" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMIndexSerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.domain.XDMIndexedValue" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMIndexedValueSerializer"/>
 					<hz:serializer type-class="javax.xml.xquery.XQItemType" implementation="xqItemTypeSerializer"/>
 					<hz:serializer type-class="javax.xml.xquery.XQItem" implementation="xqItemSerializer"/>
@@ -192,7 +193,6 @@
 		<property name="namespaceCache" ref="dict-namespace"/>
 		<property name="pathCache" ref="dict-path"/>
 		<property name="typeCache" ref="dict-document-type"/>
-		<property name="indexCache" ref="dict-index"/>
 		<property name="namespaceGen" ref="xdm.namespace"/>
 		<property name="pathGen" ref="xdm.path"/>
 		<property name="typeGen" ref="xdm.doctype"/>
@@ -206,15 +206,22 @@
 		<constructor-arg ref="xdm.document" />
 	</bean>
 
+	<bean id="idxManager" class="com.bagri.xdm.cache.hazelcast.impl.IndexManagementImpl">
+		<property name="xdmFactory" ref="xdmFactory"/>
+		<property name="indexDictionary" ref="dict-index"/>
+		<property name="indexCache" ref="xdm-index"/>
+		<property name="model" ref="xdmModel"/>
+	</bean>
+
 	<bean id="xdmManager" class="com.bagri.xdm.cache.hazelcast.impl.DocumentManagementImpl">
 		<property name="documentIdGenerator" ref="docGen"/>
 		<property name="hzInstance" ref="hzInstance"/>
 		<property name="xdmFactory" ref="xdmFactory"/>
 		<property name="xddCache" ref="xdm-document"/>
 		<property name="xdmCache" ref="xdm-element"/>
-		<property name="idxCache" ref="xdm-index"/>
 		<property name="xmlCache" ref="xdm-xml"/>
 		<property name="model" ref="xdmModel"/>
+		<property name="indexManager" ref="idxManager"/>
 	</bean>
 	
 	<bean id="docStats" class="com.bagri.common.manage.InvocationStatistics"/>
@@ -246,6 +253,7 @@
 		<property name="xdmCache" ref="xdm-element"/>
 		<property name="idxCache" ref="xdm-index"/-->
    		<property name="repository" ref="xdmRepo" />
+   		<property name="indexManager" ref="idxManager" />
 	</bean>
 
 	<bean id="xdmRepo" class="com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl">

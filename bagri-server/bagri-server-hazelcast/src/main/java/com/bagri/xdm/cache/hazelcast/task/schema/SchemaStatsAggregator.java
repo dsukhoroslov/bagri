@@ -2,7 +2,7 @@ package com.bagri.xdm.cache.hazelcast.task.schema;
 
 import static com.bagri.xdm.client.common.XDMCacheConstants.CN_XDM_DOCUMENT;
 import static com.bagri.xdm.client.common.XDMCacheConstants.CN_XDM_ELEMENT;
-import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_XDMSchemaAggregationTask;
+import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_XDMAggregateSchemaInfoTask;
 import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.factoryId;
 
 import java.io.IOException;
@@ -32,7 +32,7 @@ public class SchemaStatsAggregator implements Callable<Long>, IdentifiedDataSeri
 
 	@Override
 	public int getId() {
-		return cli_XDMSchemaAggregationTask;
+		return cli_XDMAggregateSchemaInfoTask;
 	}
 
 	@Override

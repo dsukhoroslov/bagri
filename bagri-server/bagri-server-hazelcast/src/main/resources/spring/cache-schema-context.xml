@@ -188,8 +188,7 @@
 	
 	<hz:executorService id="xdm-exec-pool" name="xdm-exec-pool" instance-ref="hzInstance"/>
 	
-	<bean id="xdmModel" class="com.bagri.xdm.client.hazelcast.impl.ModelManagementImpl">
-		<!--constructor-arg ref="hzInstance" /-->
+	<bean id="mdlManager" class="com.bagri.xdm.client.hazelcast.impl.ModelManagementImpl">
 		<property name="namespaceCache" ref="dict-namespace"/>
 		<property name="pathCache" ref="dict-path"/>
 		<property name="typeCache" ref="dict-document-type"/>
@@ -210,17 +209,17 @@
 		<property name="xdmFactory" ref="xdmFactory"/>
 		<property name="indexDictionary" ref="dict-index"/>
 		<property name="indexCache" ref="xdm-index"/>
-		<property name="model" ref="xdmModel"/>
+		<property name="modelManager" ref="mdlManager"/>
 	</bean>
 
-	<bean id="xdmManager" class="com.bagri.xdm.cache.hazelcast.impl.DocumentManagementImpl">
+	<bean id="docManager" class="com.bagri.xdm.cache.hazelcast.impl.DocumentManagementImpl">
 		<property name="documentIdGenerator" ref="docGen"/>
 		<property name="hzInstance" ref="hzInstance"/>
 		<property name="xdmFactory" ref="xdmFactory"/>
 		<property name="xddCache" ref="xdm-document"/>
 		<property name="xdmCache" ref="xdm-element"/>
 		<property name="xmlCache" ref="xdm-xml"/>
-		<property name="model" ref="xdmModel"/>
+		<property name="modelManager" ref="mdlManager"/>
 		<property name="indexManager" ref="idxManager"/>
 	</bean>
 	
@@ -258,8 +257,10 @@
 
 	<bean id="xdmRepo" class="com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl">
 		<property name="hzInstance" ref="hzInstance"/>
-		<property name="modelManagement" ref="xdmModel"/>
+		<property name="modelManagement" ref="mdlManager"/>
 		<property name="queryManagement" ref="xqManager"/>
-		<property name="documentManagement" ref="xdmManager"/>
+		<property name="documentManagement" ref="docManager"/>
+   		<property name="indexManagement" ref="idxManager" />
 	</bean>
+	
 </beans>

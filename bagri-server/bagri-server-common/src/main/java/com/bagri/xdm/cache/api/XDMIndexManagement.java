@@ -1,5 +1,6 @@
 package com.bagri.xdm.cache.api;
 
+import com.bagri.xdm.domain.XDMPath;
 import com.bagri.xdm.system.XDMIndex;
 
 public interface XDMIndexManagement {
@@ -16,7 +17,7 @@ public interface XDMIndexManagement {
 	 * registers a new index
 	 * 
 	 */
-	boolean createIndex(XDMIndex index);
+	XDMPath createIndex(XDMIndex index);
 	
 	/**
 	 * @param typeId

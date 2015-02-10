@@ -234,10 +234,25 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		return XDMModelManagementBase.WRONG_PATH;
 	}
 	
-	private boolean isPathIndexed(int pathId) {
-		return indexManager.isPathIndexed(pathId);
+	int indexElements(int docType, int pathId) {
+		Set<Long> docIds = getDocumentsOfType(docType);
+		int cnt = 0;
+		for (Long docId: docIds) {
+			XDMDataKey xdk = factory.newXDMDataKey(docId, pathId);
+			XDMElements elts = xdmCache.get(xdk);
+			for (XDMElement elt: elts.getElements().values()) {
+				indexManager.addIndex(docId, pathId, elt.getValue());
+				cnt++;
+			}
+		}
+		return cnt;
 	}
-
+	
+	private Set<Long> getDocumentsOfType(int docType) {
+   		Predicate<Long, XDMDocument> f = Predicates.equal("typeId", docType);
+		return xddCache.keySet(f);
+	}
+	
 	//@Override
 	public void deleteDocument(Entry<Long, XDMDocument> entry) {
 
@@ -268,7 +283,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
         for (XDMPath path: allPaths) {
         	int pathId = path.getPathId();
         	XDMDataKey dKey = factory.newXDMDataKey(docId, pathId);
-        	if (isPathIndexed(pathId)) {
+        	if (indexManager.isPathIndexed(pathId)) {
 	       		XDMElements elts = xdmCache.remove(dKey);
 	       		if (elts != null) {
 	       			for (XDMElement elt: elts.getElements().values()) {

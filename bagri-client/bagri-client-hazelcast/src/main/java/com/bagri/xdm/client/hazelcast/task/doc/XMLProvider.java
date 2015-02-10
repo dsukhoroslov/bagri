@@ -1,6 +1,6 @@
 package com.bagri.xdm.client.hazelcast.task.doc;
 
-import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_XMLProviderTask;
+import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_ProvideDocumentXMLTask;
 
 import java.util.concurrent.Callable;
 
@@ -21,7 +21,7 @@ public class XMLProvider extends DocumentAwareTask implements Callable<String> {
 
 	@Override
 	public int getId() {
-		return cli_XMLProviderTask;
+		return cli_ProvideDocumentXMLTask;
 	}
 
 }

@@ -1,11 +1,10 @@
 package com.bagri.xdm.client.hazelcast.task.query;
 
-import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_DocumentUrisProviderTask;
+import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_ProvideDocumentUrisTask;
 
 import java.util.Collection;
 import java.util.concurrent.Callable;
 
-import com.bagri.common.query.ExpressionBuilder;
 import com.bagri.common.query.ExpressionContainer;
 
 public class DocumentUrisProvider extends ResultBuilder implements Callable<Collection<String>> {
@@ -20,7 +19,7 @@ public class DocumentUrisProvider extends ResultBuilder implements Callable<Coll
 
 	@Override
 	public int getId() {
-		return cli_DocumentUrisProviderTask;
+		return cli_ProvideDocumentUrisTask;
 	}
 
 	@Override

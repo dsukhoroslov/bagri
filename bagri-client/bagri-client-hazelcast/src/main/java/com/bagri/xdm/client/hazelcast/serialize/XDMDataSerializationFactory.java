@@ -48,8 +48,8 @@ public class XDMDataSerializationFactory implements DataSerializableFactory {
 	public static final int cli_XQCursor = 110;
 	public static final int cli_XDMQueryParamsKey = 111; 
 
-	public static final int cli_XDMDocumentTask = 112; 
-	public static final int cli_XDMDocumentRemover = 115;
+	public static final int cli_XDMCreateDocumentTask = 112; 
+	public static final int cli_XDMRemoveDocumentTask = 115;
 	
 	public static final int cli_XDMInitSchemaTask = 117;
 	public static final int cli_XDMDenitSchemaTask = 118;
@@ -57,34 +57,35 @@ public class XDMDataSerializationFactory implements DataSerializableFactory {
 	public static final int cli_XDMSchemaMemberTask = 120;
 	public static final int cli_XDMCleanSchemaTask = 121;
 	public static final int cli_XDMPopulateSchemaTask = 122;
-	public static final int cli_DocumentUrisProviderTask = 123;
-	public static final int cli_XMLBuilderTask = 124;
-	public static final int cli_XDMExecXQCommandTask = 125;
-	public static final int cli_InvocationStatsCollectTask = 126;
-	public static final int cli_DocumentIdsProviderTask = 127;
-	public static final int cli_XMLProviderTask = 128;
-	public static final int cli_InvocationStatsResetTask = 129;
+	public static final int cli_ProvideDocumentUrisTask = 123;
+	public static final int cli_ProvideDocumentIdsTask = 124;
+	public static final int cli_ProvideDocumentXMLTask = 125;
+	public static final int cli_BuildQueryXMLTask = 126;
+	public static final int cli_XDMExecXQCommandTask = 127;
+	public static final int cli_CollectInvocationStatsTask = 128;
+	public static final int cli_ResetInvocationStatsTask = 129;
 	public static final int cli_ProcessQueryTask = 130;
 	public static final int cli_ApplyQueryTask = 131;
 	public static final int cli_KillNodeTask = 132;
 	public static final int cli_XDMSetNodeOptionTask = 133;
-	public static final int cli_XDMSchemaAggregationTask = 134;
+	public static final int cli_XDMAggregateSchemaInfoTask = 134;
 	public static final int cli_XDMGetNodeInfoTask = 135;
 	
+	public static final int cli_CreateIndexTask = 136;
+	public static final int cli_RemoveIndexTask = 137;
 	
 	@Override
 	public IdentifiedDataSerializable create(int typeId) {
-		// this class will eventually substitute XDMPortableFactory..
 		switch (typeId) {
 			case cli_XQCursor: return new ResultsIterator();
 			case cli_XDMQueryParamsKey: return new QueryParamsKey();
-			case cli_XDMDocumentTask: return new DocumentCreator();
-			case cli_XDMDocumentRemover: return new DocumentRemover();
-			case cli_DocumentUrisProviderTask: return new DocumentUrisProvider(); 
+			case cli_XDMCreateDocumentTask: return new DocumentCreator();
+			case cli_XDMRemoveDocumentTask: return new DocumentRemover();
+			case cli_ProvideDocumentUrisTask: return new DocumentUrisProvider(); 
+			case cli_ProvideDocumentIdsTask: return new DocumentIdsProvider(); 
+			case cli_ProvideDocumentXMLTask: return new XMLProvider();
 			case cli_XDMExecXQCommandTask: return new XQCommandExecutor();
-			case cli_DocumentIdsProviderTask: return new DocumentIdsProvider(); 
-			case cli_XMLBuilderTask: return new XMLBuilder();
-			case cli_XMLProviderTask: return new XMLProvider();
+			case cli_BuildQueryXMLTask: return new XMLBuilder();
 		}
 		return null;
 	}

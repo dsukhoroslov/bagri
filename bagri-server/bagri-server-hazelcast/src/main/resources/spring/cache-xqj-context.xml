@@ -14,7 +14,7 @@
 	<context:annotation-config />
 	
 	<bean id="docProxy" class="com.bagri.xdm.cache.hazelcast.impl.DocumentManagementProxy" factory-method="newDMProxy">
-		<constructor-arg index="0" ref="xdmManager" />
+		<constructor-arg index="0" ref="docManager" />
 		<constructor-arg index="1" ref="docStats" />
 	</bean>
 	
@@ -32,7 +32,7 @@
         <property name="targetMethod" value="setXdmManager" />
         <property name="arguments">
             <list>
-                <ref local="xdmManager" />
+                <ref local="docManager" />
             </list>
         </property>
     </bean-->

@@ -23,7 +23,7 @@ public class IndexManagementImpl implements XDMIndexManagement {
     private IMap<XDMIndexKey, XDMIndexedValue> idxCache;
 
 	private XDMFactory factory;
-    private ModelManagementImpl model;
+    private ModelManagementImpl mdlMgr;
 
 	protected XDMFactory getXdmFactory() {
 		return this.factory;
@@ -33,12 +33,12 @@ public class IndexManagementImpl implements XDMIndexManagement {
 		this.factory = factory;
 	}
     
-	protected ModelManagementImpl getModel() {
-		return this.model;
+	protected ModelManagementImpl getModelManager() {
+		return this.mdlMgr;
 	}
 	
-	public void setModel(ModelManagementImpl model) {
-		this.model = model;
+	public void setModelManager(ModelManagementImpl mdlMgr) {
+		this.mdlMgr = mdlMgr;
 	}
     
 	protected Map<Integer, XDMIndex> getIndexDictionary() {
@@ -59,20 +59,23 @@ public class IndexManagementImpl implements XDMIndexManagement {
 
 	@Override
 	public boolean isPathIndexed(int pathId) {
-		XDMPath xPath = model.getPath(pathId);
-		String path = xPath.getPath();
-		//return path.endsWith("Symbol/text()") || path.endsWith("Order/@ID") || path.endsWith("Customer/@id");
+		XDMPath xPath = mdlMgr.getPath(pathId);
+		if (xPath == null) {
+			logger.warn("isPathIndexed; got unknown pathId: {}", pathId);
+			return false;
+		}
 		return idxDict.get(pathId) != null;
 	}
 
 	@Override
-	public boolean createIndex(XDMIndex index) {
-		int docType = model.translateDocumentType(index.getDocumentType());
+	public XDMPath createIndex(XDMIndex index) {
+		int docType = mdlMgr.translateDocumentType(index.getDocumentType());
 		String path = index.getPath();
 		XDMNodeKind kind = path.endsWith("/text()") ? XDMNodeKind.text : XDMNodeKind.attribute;
-		XDMPath xPath = model.translatePath(docType, path, kind);
+		XDMPath xPath = mdlMgr.translatePath(docType, path, kind);
 		logger.trace("createIndex; creating index on path: {}, for docType: {}", xPath, docType);
-		return idxDict.putIfAbsent(xPath.getPathId(), index) == null;
+		idxDict.putIfAbsent(xPath.getPathId(), index);
+		return xPath;
 	}
 	
 	@Override

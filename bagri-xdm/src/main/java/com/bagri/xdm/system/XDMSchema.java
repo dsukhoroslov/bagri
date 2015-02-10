@@ -110,8 +110,8 @@ public class XDMSchema extends XDMEntity {
 	public boolean removeIndex(String name) {
 		for (XDMIndex index: indexes) {
 			if (name.equals(index.getName())) {
-				indexes.remove(index);
-				return true;
+				return indexes.remove(index);
+				//return true;
 			}
 		}
 		return false;

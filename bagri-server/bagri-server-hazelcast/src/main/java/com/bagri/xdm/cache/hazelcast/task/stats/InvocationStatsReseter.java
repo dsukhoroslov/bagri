@@ -1,6 +1,6 @@
 package com.bagri.xdm.cache.hazelcast.task.stats;
 
-import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_InvocationStatsResetTask;
+import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_ResetInvocationStatsTask;
 
 import java.util.concurrent.Callable;
 
@@ -20,7 +20,7 @@ public class InvocationStatsReseter extends InvocationStatsTask implements Calla
 
 	@Override
 	public int getId() {
-		return cli_InvocationStatsResetTask;
+		return cli_ResetInvocationStatsTask;
 	}
 
 	@Override

@@ -1,6 +1,6 @@
 package com.bagri.xdm.client.hazelcast.task.query;
 
-import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_XMLBuilderTask;
+import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_BuildQueryXMLTask;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
-import com.bagri.common.query.ExpressionBuilder;
 import com.bagri.common.query.ExpressionContainer;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
@@ -32,7 +31,7 @@ public class XMLBuilder extends ResultBuilder implements Callable<Collection<Str
 	
 	@Override
 	public int getId() {
-		return cli_XMLBuilderTask;
+		return cli_BuildQueryXMLTask;
 	}
 
 	@Override

@@ -2,6 +2,7 @@ package com.bagri.xdm.cache.hazelcast.management;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Properties;
 import java.util.Set;
 
@@ -15,13 +16,13 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
 import com.bagri.common.manage.JMXUtils;
-import com.bagri.common.util.FileUtils;
 import com.bagri.common.util.PropUtils;
 import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.cache.common.XDMDocumentManagementServer;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaActivator;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaUpdater;
 import com.bagri.xdm.client.common.impl.XDMModelManagementBase;
+import com.bagri.xdm.system.XDMIndex;
 import com.bagri.xdm.system.XDMSchema;
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.core.HazelcastInstance;
@@ -134,9 +135,9 @@ public class SchemaManager extends EntityManager<XDMSchema> {
 		return getEntity().getVersion();
 	}
 
-	@ManagedAttribute(description="Returns Schema state")
+	@ManagedAttribute(description="Returns registered Schema activity")
 	public boolean isActive() {
-		return getEntity().isActive(); //?? prabably we have to calc it..
+		return getEntity().isActive(); //?? probably we have to calc it..
 	}
 
 	@ManagedAttribute(description="Returns registered Schema state")
@@ -252,4 +253,24 @@ public class SchemaManager extends EntityManager<XDMSchema> {
 		// throw ex for wrong node name?
 	}
 
+	XDMIndex addIndex(String name, String path, String docType, boolean unique, String description) {
+		XDMIndex index = new XDMIndex(1, new Date(), JMXUtils.getCurrentUser(), name, docType, path, unique, description);
+		XDMSchema schema = getEntity();
+		if (schema.addIndex(index)) {
+			// store schema!
+			flushEntity(schema);
+			return index;
+		}
+		return null;
+	}
+	
+	boolean deleteIndex(String name) {
+		XDMSchema schema = getEntity();
+		if (schema.removeIndex(name)) {
+			// store schema!
+			flushEntity(schema);
+			return true;
+		}
+		return false;
+	}
 }

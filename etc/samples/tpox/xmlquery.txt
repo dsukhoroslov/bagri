@@ -161,3 +161,6 @@ let $order  :=
 	return $ord/OrdQty/@Cash
 return xs:string(fn:max($order))
 
+
+
+/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}SecurityInformation/{http://tpox-benchmark.com/security}StockInformation/{http://tpox-benchmark.com/security}Sector/text()

@@ -1,6 +1,6 @@
 package com.bagri.xdm.client.hazelcast.task.doc;
 
-import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_XDMDocumentRemover;
+import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_XDMRemoveDocumentTask;
 
 import java.util.concurrent.Callable;
 
@@ -18,7 +18,7 @@ public class DocumentRemover extends DocumentAwareTask implements Callable<XDMDo
 
 	@Override
 	public int getId() {
-		return cli_XDMDocumentRemover;
+		return cli_XDMRemoveDocumentTask;
 	}
 
 	@Override
