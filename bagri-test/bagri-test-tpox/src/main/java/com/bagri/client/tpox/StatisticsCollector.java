@@ -49,7 +49,7 @@ public class StatisticsCollector {
 			stats += "; " + sc.getActiveNodes();
 			stats += System.lineSeparator();
 			stats += sc.getStatistics(kind, method);
-			System.out.println("got stats: " + stats + " will append to the file: " + file);
+			System.out.println("got stats: " + stats + "will append to the file: " + file);
 			stats += System.lineSeparator();
 			FileUtils.appendTextFile(file, stats);
 			sc.resetStatistics(kind);

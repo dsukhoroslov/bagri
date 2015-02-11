@@ -8,26 +8,24 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 
-import com.bagri.common.manage.InvocationStatistics;
+import com.bagri.common.stats.StatisticsProvider;
 import com.bagri.xdm.cache.hazelcast.util.SpringContextHolder;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
-public abstract class InvocationStatsTask implements IdentifiedDataSerializable {
+public abstract class StatisticsTask implements IdentifiedDataSerializable {
 
 	protected final transient Logger logger = LoggerFactory.getLogger(getClass());
 
-	//protected transient InvocationStatistics xdmStats;
-	
 	private String schemaName;
 	private String statsName;
     
-	public InvocationStatsTask() {
+	public StatisticsTask() {
 		// de-serialize
 	}
 	
-	public InvocationStatsTask(String schemaName, String statsName) {
+	public StatisticsTask(String schemaName, String statsName) {
 		this.schemaName = schemaName;
 		this.statsName = statsName;
 	}
@@ -44,9 +42,9 @@ public abstract class InvocationStatsTask implements IdentifiedDataSerializable 
 	//	logger.trace("setXdmStats; got statistics: {}", xdmStats); 
 	//}
 	
-	protected InvocationStatistics getStats() {
+	protected StatisticsProvider getStats() {
 		ApplicationContext ctx = (ApplicationContext) SpringContextHolder.getContext(schemaName, "appContext");
-		InvocationStatistics stats = ctx.getBean(statsName, InvocationStatistics.class); 
+		StatisticsProvider stats = ctx.getBean(statsName, StatisticsProvider.class); 
 		logger.trace("getStats; returning: {}, for name: {}", stats, statsName);
 		return stats;
 	}

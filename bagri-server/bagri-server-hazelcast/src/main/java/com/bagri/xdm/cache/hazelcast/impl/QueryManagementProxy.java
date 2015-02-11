@@ -2,8 +2,8 @@ package com.bagri.xdm.cache.hazelcast.impl;
 
 import java.lang.reflect.Proxy;
 
-import com.bagri.common.manage.InvocationStatistics;
-import com.bagri.common.manage.InvocationStatsHandler;
+import com.bagri.common.stats.InvocationStatistics;
+import com.bagri.common.stats.InvocationStatsHandler;
 import com.bagri.xdm.api.XDMQueryManagement;
 
 public class QueryManagementProxy extends InvocationStatsHandler {

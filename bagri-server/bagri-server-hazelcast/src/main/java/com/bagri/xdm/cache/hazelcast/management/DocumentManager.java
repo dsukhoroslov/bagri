@@ -16,8 +16,8 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 import org.springframework.jmx.export.naming.SelfNaming;
 
 import com.bagri.common.manage.JMXUtils;
-import com.bagri.xdm.cache.hazelcast.task.stats.InvocationStatsCollector;
-import com.bagri.xdm.cache.hazelcast.task.stats.InvocationStatsReseter;
+import com.bagri.xdm.cache.hazelcast.task.stats.StatisticSeriesCollector;
+import com.bagri.xdm.cache.hazelcast.task.stats.StatisticsReseter;
 import com.bagri.xdm.client.common.XDMCacheConstants;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
@@ -51,7 +51,7 @@ public class DocumentManager implements SelfNaming {
 	@ManagedAttribute(description="Returns DocumentManagement invocation statistics, per method")
 	public TabularData getInvocationStatistics() {
 		// must get stats from particular proxy. run task on that node..
-		InvocationStatsCollector task = new InvocationStatsCollector(); 
+		StatisticSeriesCollector task = new StatisticSeriesCollector(); 
 		IExecutorService execService = hzInstance.getExecutorService(XDMCacheConstants.PN_XDM_SCHEMA_POOL);
 		logger.trace("getInvocationStatistics.enter; going to collect stats from member: {}", uuid);
 
@@ -71,7 +71,7 @@ public class DocumentManager implements SelfNaming {
 	@ManagedOperation(description="Reset DocumentManagement invocation statistics")
 	public void resetStatistics() {
 		//
-		InvocationStatsReseter task = new InvocationStatsReseter(); 
+		StatisticsReseter task = new StatisticsReseter(); 
 		IExecutorService execService = hzInstance.getExecutorService(XDMCacheConstants.PN_XDM_SCHEMA_POOL);
 		logger.trace("resetStatistics.enter; going to reset stats on member: {}", uuid);
 

@@ -22,8 +22,8 @@ import com.bagri.common.manage.JMXUtils;
 import com.bagri.common.util.FileUtils;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaCleaner;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaStatsAggregator;
-import com.bagri.xdm.cache.hazelcast.task.stats.InvocationStatsCollector;
-import com.bagri.xdm.cache.hazelcast.task.stats.InvocationStatsReseter;
+import com.bagri.xdm.cache.hazelcast.task.stats.StatisticSeriesCollector;
+import com.bagri.xdm.cache.hazelcast.task.stats.StatisticsReseter;
 import com.bagri.xdm.client.hazelcast.impl.DocumentManagementImpl;
 import com.bagri.xdm.domain.XDMDocument;
 import com.hazelcast.core.Member;
@@ -171,12 +171,12 @@ public class DocumentManagement extends SchemaFeatureManagement {
 
 	@ManagedAttribute(description="Returns aggregated DocumentManagement invocation statistics, per method")
 	public TabularData getInvocationStatistics() {
-		return super.getInvocationStatistics(new InvocationStatsCollector(schemaName, "docStats"));
+		return super.getInvocationStatistics(new StatisticSeriesCollector(schemaName, "docStats"));
 	}
 	
 	@ManagedOperation(description="Reset DocumentManagement invocation statistics")
 	public void resetStatistics() {
-		super.resetStatistics(new InvocationStatsReseter(schemaName, "docStats")); 
+		super.resetStatistics(new StatisticsReseter(schemaName, "docStats")); 
 	}
 
 	@Override

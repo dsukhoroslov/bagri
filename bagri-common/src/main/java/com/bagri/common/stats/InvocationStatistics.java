@@ -1,4 +1,4 @@
-package com.bagri.common.manage;
+package com.bagri.common.stats;
 
 import java.util.Collection;
 import java.util.Date;
@@ -11,7 +11,9 @@ import javax.management.openmbean.TabularData;
 import javax.management.openmbean.TabularDataSupport;
 import javax.management.openmbean.TabularType;
 
-public class InvocationStatistics {
+import com.bagri.common.manage.JMXUtils;
+
+public class InvocationStatistics implements StatisticsProvider {
 
 	// stats indexes provided in alphabetical order
 	public static final int idx_Avg_Time = 0;
@@ -56,7 +58,14 @@ public class InvocationStatistics {
 		return mStats.get(methodName).toMap();
 	}
 	
-	public TabularData getStatistics() {
+	@Override
+	public CompositeData getStatisticTotals() {
+		// it just has no much sense to implement this method for invocation stats;
+		return null;
+	}
+	
+	@Override
+	public TabularData getStatisticSeries() {
         TabularData result = null;
         for (Map.Entry<String, MethodInvocationStats> entry: mStats.entrySet()) {
             try {
@@ -76,7 +85,8 @@ public class InvocationStatistics {
 		mStats.put(name, new MethodInvocationStats());
 	}
 	
-	public void resetStats() {
+	@Override
+	public void resetStatistics() {
 		// renew all registered stats..
 		for (String name: mStats.keySet()) {
 			initStats(name);

@@ -3,11 +3,12 @@ package com.bagri.xdm.client.hazelcast.data;
 import java.io.IOException;
 
 import com.bagri.xdm.common.XDMIndexKey;
+import com.hazelcast.core.PartitionAware;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.DataSerializable;
 
-public class PathIndexKey extends XDMIndexKey implements DataSerializable { //Portable, PartitionAware<Long> { 
+public class PathIndexKey extends XDMIndexKey implements DataSerializable { //, PartitionAware<Integer> { //Portable { 
 
 	public PathIndexKey() {
 		super();
@@ -16,6 +17,11 @@ public class PathIndexKey extends XDMIndexKey implements DataSerializable { //Po
 	public PathIndexKey(int pathId, Object value) {
 		super(pathId, value);
 	}
+
+	//@Override
+	//public Integer getPartitionKey() {
+	//	return getPathId();
+	//}
 
 	@Override
 	public void readData(ObjectDataInput in) throws IOException {

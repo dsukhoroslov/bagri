@@ -18,8 +18,8 @@ import org.springframework.jmx.export.naming.SelfNaming;
 
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.xdm.api.XDMModelManagement;
-import com.bagri.xdm.cache.hazelcast.task.stats.InvocationStatsCollector;
-import com.bagri.xdm.cache.hazelcast.task.stats.InvocationStatsReseter;
+import com.bagri.xdm.cache.hazelcast.task.stats.StatisticSeriesCollector;
+import com.bagri.xdm.cache.hazelcast.task.stats.StatisticsReseter;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.Member;
 

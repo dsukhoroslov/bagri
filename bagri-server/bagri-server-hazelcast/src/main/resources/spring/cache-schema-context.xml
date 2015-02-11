@@ -210,6 +210,7 @@
 		<property name="indexDictionary" ref="dict-index"/>
 		<property name="indexCache" ref="xdm-index"/>
 		<property name="modelManager" ref="mdlManager"/>
+		<property name="indexStatistics" ref="indexStats"/>
 	</bean>
 
 	<bean id="docManager" class="com.bagri.xdm.cache.hazelcast.impl.DocumentManagementImpl">
@@ -223,10 +224,12 @@
 		<property name="indexManager" ref="idxManager"/>
 	</bean>
 	
-	<bean id="docStats" class="com.bagri.common.manage.InvocationStatistics"/>
+	<bean id="docStats" class="com.bagri.common.stats.InvocationStatistics"/>
 
-	<bean id="queryStats" class="com.bagri.common.manage.InvocationStatistics"/>
+	<bean id="queryStats" class="com.bagri.common.stats.InvocationStatistics"/>
 	
+	<bean id="indexStats" class="com.bagri.common.stats.UsageStatistics"/>
+
 	<bean id="popManager" class="com.bagri.xdm.cache.hazelcast.management.PopulationManager">
 		<constructor-arg ref="hzInstance" />
 		<property name="schemaName" value="${xdm.schema.name}"/>
@@ -245,7 +248,7 @@
     		<property name="XQDataFactory" ref="xqFactory" />
 	</bean>
     
-	<bean id="xqManager" class="com.bagri.xdm.cache.hazelcast.impl.QueryManagementImpl">
+	<bean id="queryManager" class="com.bagri.xdm.cache.hazelcast.impl.QueryManagementImpl">
 		<property name="queryCache" ref="xdm-query"/>
 		<property name="resultCache" ref="xdm-result"/>
 		<!--property name="xddCache" ref="xdm-document"/>
@@ -258,7 +261,7 @@
 	<bean id="xdmRepo" class="com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl">
 		<property name="hzInstance" ref="hzInstance"/>
 		<property name="modelManagement" ref="mdlManager"/>
-		<property name="queryManagement" ref="xqManager"/>
+		<property name="queryManagement" ref="queryManager"/>
 		<property name="documentManagement" ref="docManager"/>
    		<property name="indexManagement" ref="idxManager" />
 	</bean>

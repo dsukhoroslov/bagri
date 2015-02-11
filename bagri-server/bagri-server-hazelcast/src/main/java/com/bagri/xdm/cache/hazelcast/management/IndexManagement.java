@@ -17,6 +17,7 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.xdm.cache.hazelcast.task.index.IndexCreator;
 import com.bagri.xdm.cache.hazelcast.task.index.IndexRemover;
+import com.bagri.xdm.cache.hazelcast.task.stats.StatisticSeriesCollector;
 import com.bagri.xdm.system.XDMIndex;
 import com.bagri.xdm.system.XDMSchema;
 import com.hazelcast.core.Member;
@@ -62,7 +63,23 @@ public class IndexManagement extends SchemaFeatureManagement {
 	
 	@ManagedAttribute(description="Return aggregated index usage statistics, per index")
 	public TabularData getIndexStatistics() {
-		return null;
+		//return super.getInvocationStatistics(new StatisticSeriesCollector(schemaName, "indexStats"));
+		
+		StatisticSeriesCollector statsTask = new StatisticSeriesCollector(schemaName, "indexStats");
+		int cnt = 0;
+		TabularData result = null;
+		Map<Member, Future<TabularData>> futures = execService.submitToAllMembers(statsTask);
+		for (Map.Entry<Member, Future<TabularData>> entry: futures.entrySet()) {
+			try {
+				TabularData stats = entry.getValue().get();
+				result = stats; //JMXUtils.aggregateStats(stats, result);
+				cnt++;
+			} catch (InterruptedException | ExecutionException ex) {
+				logger.error("getInvocationStatistics.error: " + ex.getMessage(), ex);
+			}
+		}
+		logger.trace("getInvocationStatistics.exit; got stats from {} nodes", cnt);
+		return result;
 	}
 
 	@ManagedOperation(description="Creates a new Index")

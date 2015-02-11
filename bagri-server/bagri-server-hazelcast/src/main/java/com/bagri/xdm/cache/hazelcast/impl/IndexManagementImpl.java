@@ -3,9 +3,14 @@ package com.bagri.xdm.cache.hazelcast.impl;
 import java.util.Map;
 import java.util.Set;
 
+import javax.management.openmbean.CompositeData;
+import javax.management.openmbean.TabularData;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.bagri.common.stats.StatisticsProvider;
+import com.bagri.common.stats.UsageStatistics;
 import com.bagri.xdm.cache.api.XDMIndexManagement;
 import com.bagri.xdm.client.hazelcast.impl.ModelManagementImpl;
 import com.bagri.xdm.common.XDMFactory;
@@ -16,7 +21,7 @@ import com.bagri.xdm.domain.XDMPath;
 import com.bagri.xdm.system.XDMIndex;
 import com.hazelcast.core.IMap;
 
-public class IndexManagementImpl implements XDMIndexManagement {
+public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsProvider {
 	
 	private static final transient Logger logger = LoggerFactory.getLogger(IndexManagementImpl.class);
 	private IMap<Integer, XDMIndex> idxDict;
@@ -24,6 +29,8 @@ public class IndexManagementImpl implements XDMIndexManagement {
 
 	private XDMFactory factory;
     private ModelManagementImpl mdlMgr;
+    
+    private UsageStatistics indexStats;
 
 	protected XDMFactory getXdmFactory() {
 		return this.factory;
@@ -56,6 +63,10 @@ public class IndexManagementImpl implements XDMIndexManagement {
     public void setIndexCache(IMap<XDMIndexKey, XDMIndexedValue> cache) {
     	this.idxCache = cache;
     }
+    
+    public void setIndexStatistics(UsageStatistics indexStats) {
+    	this.indexStats = indexStats;
+    }
 
 	@Override
 	public boolean isPathIndexed(int pathId) {
@@ -71,6 +82,7 @@ public class IndexManagementImpl implements XDMIndexManagement {
 	public XDMPath createIndex(XDMIndex index) {
 		XDMPath xPath = getPathForIndex(index);
 		idxDict.putIfAbsent(xPath.getPathId(), index);
+		indexStats.initStats(index.getName());
 		return xPath;
 	}
 	
@@ -83,6 +95,7 @@ public class IndexManagementImpl implements XDMIndexManagement {
 		//}
 		//return null;
 		idxDict.remove(xPath.getPathId());
+		indexStats.deleteStats(index.getName());
 		return xPath;
 	}
 	
@@ -111,6 +124,7 @@ public class IndexManagementImpl implements XDMIndexManagement {
 	public void dropIndex(long docId, int pathId, Object value) {
 		XDMIndexKey iKey = factory.newXDMIndexKey(pathId, value);
 		// will have collisions here when two threads change/delete the same index!
+		// but not for unique index!
 		XDMIndexedValue xIdx = idxCache.get(iKey);
 		if (xIdx != null && xIdx.removeDocumentId(docId)) {
 			if (xIdx.getCount() > 0) {
@@ -122,11 +136,15 @@ public class IndexManagementImpl implements XDMIndexManagement {
 	}
 	
 	public Set<Long> getIndexedDocuments(int pathId, String value) {
-		XDMIndexKey idx = factory.newXDMIndexKey(pathId, value);
-		XDMIndexedValue xidx = idxCache.get(idx);
-		if (xidx != null) {
-			return xidx.getDocumentIds();
+		XDMIndex idx = idxDict.get(pathId);
+		// can't be null ?!
+		XDMIndexKey idxk = factory.newXDMIndexKey(pathId, value);
+		XDMIndexedValue xidv = idxCache.get(idxk);
+		if (xidv != null) {
+			//indexStats.updateStats(idx.getName(), true);
+			return xidv.getDocumentIds();
 		}
+		//indexStats.updateStats(idx.getName(), false);
 		return null;
 	}
 	

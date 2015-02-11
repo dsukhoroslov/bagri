@@ -1,4 +1,4 @@
-package com.bagri.common.manage;
+package com.bagri.common.stats;
 
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.TabularData;
@@ -8,13 +8,13 @@ import java.util.List;
 /**
  *   Common interface for statistic beans.
  */
-public interface StatsManager {
+public interface StatisticsProvider {
 
     /**
     *
     * @return overall statistics
     */
-    CompositeData getStatistics();
+    CompositeData getStatisticTotals();
 
     /**
     *
@@ -26,11 +26,5 @@ public interface StatsManager {
      * clears collected statistics
      */
     void resetStatistics();
-
-    /**
-     *
-     * @return Formatted EOD statistics to be emailed
-     */
-    List<String> returnEODStatistics();
 
 }

@@ -1,4 +1,4 @@
-package com.bagri.common.manage;
+package com.bagri.common.stats;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;

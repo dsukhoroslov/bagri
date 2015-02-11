@@ -283,6 +283,8 @@ public class QueryManagementImpl implements XDMQueryManagement {
 				}
 				logger.trace("queryPathKeys.exit; returning {} indexed keys", result.size()); 
 				return result;
+			} else {
+				return Collections.emptySet();
 			}
 		}
    		

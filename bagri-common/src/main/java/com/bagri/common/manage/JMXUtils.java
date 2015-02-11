@@ -4,7 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bagri.common.security.LocalSubject;
-import static com.bagri.common.manage.InvocationStatistics.*;
+
+import static com.bagri.common.stats.InvocationStatistics.*;
 
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;

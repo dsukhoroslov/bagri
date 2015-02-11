@@ -16,7 +16,7 @@ public class XQCommandExecutor extends com.bagri.xdm.client.hazelcast.task.query
 	private transient XDMQueryManagement queryMgr;
     
     @Autowired
-    @Qualifier("queryProxy")
+    @Qualifier("queryProxy") //queryProxy //queryManager
 	public void setQueryManager(XDMQueryManagement queryMgr) {
 		this.queryMgr = queryMgr;
 		logger.debug("setQueryManager; got QueryManager: {}", queryMgr); 

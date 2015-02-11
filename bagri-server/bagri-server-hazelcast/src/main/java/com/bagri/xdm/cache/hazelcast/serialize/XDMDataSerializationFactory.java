@@ -21,8 +21,9 @@ import com.bagri.xdm.cache.hazelcast.task.schema.SchemaInitiator;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaMemberExtractor;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaPopulator;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaStatsAggregator;
-import com.bagri.xdm.cache.hazelcast.task.stats.InvocationStatsCollector;
-import com.bagri.xdm.cache.hazelcast.task.stats.InvocationStatsReseter;
+import com.bagri.xdm.cache.hazelcast.task.stats.StatisticSeriesCollector;
+import com.bagri.xdm.cache.hazelcast.task.stats.StatisticTotalsCollector;
+import com.bagri.xdm.cache.hazelcast.task.stats.StatisticsReseter;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
 public class XDMDataSerializationFactory extends com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory {
@@ -43,8 +44,9 @@ public class XDMDataSerializationFactory extends com.bagri.xdm.client.hazelcast.
 			case cli_ProvideDocumentXMLTask: return new XMLProvider();
 			case cli_BuildQueryXMLTask: return new XMLBuilder();
 			case cli_XDMExecXQCommandTask: return new XQCommandExecutor();
-			case cli_CollectInvocationStatsTask: return new InvocationStatsCollector();
-			case cli_ResetInvocationStatsTask: return new InvocationStatsReseter();
+			case cli_CollectStatisticSeriesTask: return new StatisticSeriesCollector();
+			case cli_CollectStatisticTotalsTask: return new StatisticTotalsCollector();
+			case cli_ResetStatisticsTask: return new StatisticsReseter();
 			case cli_ProcessQueryTask: return new QueryProcessor();
 			case cli_ApplyQueryTask: return new QueryPredicate();
 			case cli_KillNodeTask: return new NodeKiller();
