@@ -301,7 +301,8 @@ public class CollectionURIResolverImpl implements CollectionURIResolver {
     	    	throw new IllegalStateException("Unexpected expression: " + ex);
     		} else if (value == null) {
             	logger.debug("iterate; can't get value from {}; operands: {}", be, be.getOperands());
-    	    	throw new IllegalStateException("Unexpected expression: " + ex);
+            	// thrown in case of join. have to think about this..
+    	    	//throw new IllegalStateException("Unexpected expression: " + ex);
     		} else {
     			if (varIdx == 0) {
     				compType = Comparison.negate(compType);

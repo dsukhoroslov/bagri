@@ -83,21 +83,21 @@ DB2 queries. Want to express them in standard XQuery..
 declare default element namespace "http://www.fixprotocol.org/FIXML-4-4";
 declare namespace s="http://tpox-benchmark.com/security";
 
-for $ord in fn:collection("/{http://www.fixprotocol.org/FIXML-4-4}FIXML")/FIXML/Order[@ID="109505"]
+for $ord in fn:collection("/{http://www.fixprotocol.org/FIXML-4-4}FIXML")/FIXML/Order[@ID="103935"]
 for $sec in fn:collection("/{http://tpox-benchmark.com/security}Security")/s:Security[s:Symbol=$ord/Instrmt/@Sym/fn:string(.)]
 return  
 	<Today_Order_Price ORDER_ID="{$ord/@ID}">
 	{string($ord/OrdQty/@Qty*$sec/s:Price/s:PriceToday/s:Open)}
 	</Today_Order_Price>
 
-(: another version :)
+(: another version: wrong! XPDY0002: The context item is absent :)
 
 declare default element namespace "http://www.fixprotocol.org/FIXML-4-4";
 declare namespace s="http://tpox-benchmark.com/security";
 
 for $ord in fn:collection("/{http://www.fixprotocol.org/FIXML-4-4}FIXML")/FIXML/Order
 for $sec in fn:collection("/{http://tpox-benchmark.com/security}Security")/s:Security
-where @ID='109505' and s:Symbol=$ord/Instrmt/@Sym/fn:string(.)
+where $ord/@ID='109505' and s:Symbol=$ord/Instrmt/@Sym/fn:string(.)
 return  
 	<Today_Order_Price ORDER_ID="{$ord/@ID}">
 	{xs:string($ord/OrdQty/@Qty*$sec/s:Price/s:PriceToday/s:Open)}

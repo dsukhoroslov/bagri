@@ -1,6 +1,7 @@
 package com.bagri.xdm.client.hazelcast.serialize;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,11 +28,6 @@ public class XDMElementsSerializer implements StreamSerializer<XDMElements> {
 		int pathId = in.readInt();
 		XDMElements xelts = new XDMElements(pathId, null);
 		int size = in.readInt();
-		//Map<Long, XDMElement> elts = new HashMap<Long, XDMElement>(size);
-		//for (int i=0; i < size; i++) {
-		//	elts.put(in.readLong(), (XDMElement) in.readObject());
-		//}
-		//XDMElements xelts = new XDMElements(elts);
 		for (int i=0; i < size; i++) {
 			xelts.addElement((XDMElement) in.readObject());
 		}
@@ -41,12 +37,11 @@ public class XDMElementsSerializer implements StreamSerializer<XDMElements> {
 	@Override
 	public void write(ObjectDataOutput out, XDMElements xelts) throws IOException {
 		
-		Map<Long, XDMElement> elts = xelts.getElements();
+		Collection<XDMElement> elements = xelts.getElements();
 		out.writeInt(xelts.getPathId());
-		out.writeInt(elts.size());
-		for (Map.Entry<Long, XDMElement> entry: elts.entrySet()) {
-			//out.writeLong(entry.getKey());
-			out.writeObject(entry.getValue());
+		out.writeInt(elements.size());
+		for (XDMElement element: elements) {
+			out.writeObject(element);
 		}
 	}
 

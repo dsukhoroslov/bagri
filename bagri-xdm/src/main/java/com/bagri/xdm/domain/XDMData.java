@@ -1,6 +1,6 @@
 package com.bagri.xdm.domain;
 
-public class XDMData implements Comparable {
+public class XDMData implements Comparable<XDMData> {
     	
    	private XDMPath path;
    	private XDMElement element;
@@ -47,9 +47,8 @@ public class XDMData implements Comparable {
     //}
     
 	@Override
-	public int compareTo(Object o) {
+	public int compareTo(XDMData other) {
 
-		XDMData other = (XDMData) o;
 		return (int) (this.getElementId() - other.getElementId());
 	}
 

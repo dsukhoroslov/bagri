@@ -241,7 +241,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 			XDMDataKey xdk = factory.newXDMDataKey(docId, pathId);
 			XDMElements elts = xdmCache.get(xdk);
 			if (elts != null) {
-				for (XDMElement elt: elts.getElements().values()) {
+				for (XDMElement elt: elts.getElements()) {
 					indexManager.addIndex(docId, pathId, elt.getValue());
 					cnt++;
 				}
@@ -257,7 +257,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 			XDMDataKey xdk = factory.newXDMDataKey(docId, pathId);
 			XDMElements elts = xdmCache.get(xdk);
 			if (elts != null) {
-				for (XDMElement elt: elts.getElements().values()) {
+				for (XDMElement elt: elts.getElements()) {
 					indexManager.dropIndex(docId, pathId, elt.getValue());
 					cnt++;
 				}
@@ -304,7 +304,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
         	if (indexManager.isPathIndexed(pathId)) {
 	       		XDMElements elts = xdmCache.remove(dKey);
 	       		if (elts != null) {
-	       			for (XDMElement elt: elts.getElements().values()) {
+	       			for (XDMElement elt: elts.getElements()) {
 	       				indexManager.dropIndex(docId, pathId, elt.getValue());
 	       				iCnt++;
 	       			}

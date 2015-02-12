@@ -1,8 +1,12 @@
 package com.bagri.xdm.domain;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -29,33 +33,34 @@ public class XDMElements {
           setElements(elements);
     }
 
-    public void addElement(XDMElement element) {
+    @SuppressWarnings("unchecked")
+	public void addElement(XDMElement element) {
           if (elementRef == null) {
                  elementRef = element;
                  return;
           }
           if (elementRef instanceof XDMElement) {
                  XDMElement oldElement = (XDMElement) elementRef;
-                 elementRef = new HashMap<Long, XDMElement>();
-                 ((Map<Long, XDMElement>) elementRef).put(oldElement.getElementId(), oldElement);
+                 elementRef = new TreeSet<XDMElement>();
+                 ((Set<XDMElement>) elementRef).add(oldElement);
           }
-          ((Map<Long, XDMElement>) elementRef).put(element.getElementId(), element);
+          ((Set<XDMElement>) elementRef).add(element);
           //if (element.getValue() != null) {
           //     values.put(element.getValue(), element.getElementId());
           //} // put null as some special object (static)
     }
    
-    public Map<Long, XDMElement> getElements() {
+    @SuppressWarnings("unchecked")
+	public Collection<XDMElement> getElements() {
           if (elementRef == null) {
-        	  return Collections.emptyMap();
+        	  return Collections.emptyList();
           }
           if (elementRef instanceof XDMElement) {
-        	  Map<Long, XDMElement> elements = new HashMap<Long, XDMElement>();
-        	  XDMElement element = (XDMElement) elementRef;
-        	  elements.put(element.getElementId(), element);
+        	  Set<XDMElement> elements = new TreeSet<XDMElement>();
+        	  elements.add((XDMElement) elementRef);
               return elements;
           }
-          return (Map<Long, XDMElement>) elementRef;
+          return (Set<XDMElement>) elementRef;
     }
    
     public int getPathId() {
@@ -100,7 +105,7 @@ public class XDMElements {
           if (elementRef instanceof XDMElement) {
         	  return compareValue(pex.getCompType(), val, ((XDMElement) elementRef).getValue());
           } else {
-        	  return compareValues(pex.getCompType(), val, (Map<Long, XDMElement>) elementRef);
+        	  return compareValues(pex.getCompType(), val, (Set<XDMElement>) elementRef);
           }
          
     }
@@ -120,10 +125,11 @@ public class XDMElements {
     }
 
     @SuppressWarnings("unchecked")
-	private boolean compareValues(Comparison comp, String value, Map<Long, XDMElement> elements) {
+	private boolean compareValues(Comparison comp, String value, Set<XDMElement> elements) {
 
+    	// can we prevent this copy somehow?
         TreeSet values = new TreeSet();
-        for (XDMElement element: elements.values()) {
+        for (XDMElement element: elements) {
         	if (element.getValue() != null) {
         		values.add(element.getValue());
         	}
@@ -144,6 +150,5 @@ public class XDMElements {
     public String toString() {
           return "XDMElements [pathId=" + pathId + ", elementRef=" + elementRef + "]";
     }
-   
    
 }

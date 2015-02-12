@@ -165,7 +165,7 @@ public class XmlBuilder {
     		}
     		
     		XDMElements elts = entry.getValue();
-    		for (XDMElement element: elts.getElements().values()) {
+    		for (XDMElement element: elts.getElements()) {
     			XDMData data = new XDMData(path, element);
     			dataList.add(data);
     		}
