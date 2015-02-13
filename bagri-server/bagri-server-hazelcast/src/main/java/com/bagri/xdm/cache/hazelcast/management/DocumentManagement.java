@@ -20,6 +20,7 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.common.util.FileUtils;
+import com.bagri.xdm.cache.hazelcast.task.doc.DocumentStructureProvider;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaCleaner;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaStatsAggregator;
 import com.bagri.xdm.cache.hazelcast.task.stats.StatisticSeriesCollector;
@@ -90,6 +91,21 @@ public class DocumentManagement extends SchemaFeatureManagement {
 	public CompositeData getTypedSchemaSize() {
 		Map<Integer, Long> counts = null; //((HazelcastDocumentServer) docManager).getTypeSchemaSize();
 		return null;
+	}
+
+	@ManagedOperation(description="Returns Document Elements")
+	@ManagedOperationParameters({
+		@ManagedOperationParameter(name = "docId", description = "Internal Document identifier")})
+	public String[] getDocumentElements(long docId) {
+		//
+		DocumentStructureProvider task = new DocumentStructureProvider(docId);
+		Future<String[]> result = execService.submitToKeyOwner(task, docId);
+		try {
+			return result.get();
+		} catch (InterruptedException | ExecutionException ex) {
+			logger.error("getDocumentElements.error; ", ex);
+			return new String[] {"Error: " + ex.getMessage()}; 
+		}
 	}
 	
 	@ManagedOperation(description="Returns Document XML")

@@ -596,4 +596,8 @@ public abstract class XDMModelManagementBase implements XDMModelManagement {
 		return typeCache.values();
 	}
 	
+	public Collection<XDMNamespace> getNamespaces() {
+		Map<String, XDMNamespace> nsCache = getNamespaceCache();
+		return nsCache.values();
+	}
 }

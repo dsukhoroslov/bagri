@@ -87,7 +87,7 @@ for $ord in fn:collection("/{http://www.fixprotocol.org/FIXML-4-4}FIXML")/FIXML/
 for $sec in fn:collection("/{http://tpox-benchmark.com/security}Security")/s:Security[s:Symbol=$ord/Instrmt/@Sym/fn:string(.)]
 return  
 	<Today_Order_Price ORDER_ID="{$ord/@ID}">
-	{string($ord/OrdQty/@Qty*$sec/s:Price/s:PriceToday/s:Open)}
+	{xs:string($ord/OrdQty/@Qty*$sec/s:Price/s:PriceToday/s:Open)}
 	</Today_Order_Price>
 
 (: another version: wrong! XPDY0002: The context item is absent :)

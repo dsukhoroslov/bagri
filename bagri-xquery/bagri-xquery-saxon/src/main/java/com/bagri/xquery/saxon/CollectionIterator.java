@@ -36,6 +36,12 @@ public class CollectionIterator implements SequenceIterator<Item>,
 	private Item current;
 	private int position = -1;
 	
+	public CollectionIterator(Collection<Long> docIds) {
+		// for debug only
+		this.docIds = new ArrayList<Long>(docIds);
+		iter = this.docIds.iterator();
+	}
+	
 	public CollectionIterator(XDMQueryManagement queryMgr, ExpressionContainer query) {
 		this.queryMgr = queryMgr;
 		this.query = query;
@@ -63,6 +69,7 @@ public class CollectionIterator implements SequenceIterator<Item>,
 		} else {
 			current = null;
 		}
+		logger.trace("next.exit; returning: {}", current);
 		return current;
 	}
 

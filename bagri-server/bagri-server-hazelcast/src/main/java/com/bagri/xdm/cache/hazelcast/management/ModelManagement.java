@@ -14,6 +14,8 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 
 import com.bagri.xdm.client.common.impl.XDMModelManagementBase;
 import com.bagri.xdm.domain.XDMDocumentType;
+import com.bagri.xdm.domain.XDMNamespace;
+import com.bagri.xdm.domain.XDMPath;
 
 @ManagedResource(description="Model Management MBean")
 public class ModelManagement extends SchemaFeatureManagement {
@@ -27,18 +29,43 @@ public class ModelManagement extends SchemaFeatureManagement {
 		return "ModelManagement";
 	}
 
-	@ManagedAttribute(description="Returns Document Types registered in the Schema")
-	public String[] getRegisteredTypes() {
+	@ManagedAttribute(description="Return Document Types registered in the Schema")
+	public String[] getDocumentTypes() {
 		Collection<XDMDocumentType> types = ((XDMModelManagementBase) modelMgr).getDocumentTypes();
 		String[] result = new String[types.size()];
-		Iterator<XDMDocumentType> itr = types.iterator();
-		for (int i=0; i < types.size(); i++) {
-			result[i] = itr.next().getRootPath();
+		int idx = 0;
+		for (XDMDocumentType type: types) {
+			result[idx++] = "" + type.getTypeId() + ": " + type.getRootPath();
 		}
 		Arrays.sort(result);
 		return result;
 	}
 
+	@ManagedAttribute(description="Return Namespaces registered in the Schema")
+	public String[] getNamespaces() {
+		Collection<XDMNamespace> nss = ((XDMModelManagementBase) modelMgr).getNamespaces();
+		String[] result = new String[nss.size()];
+		int idx = 0;
+		for (XDMNamespace ns: nss) {
+			result[idx++] = ns.getPrefix() + ": " + ns.getUri();
+		}
+		Arrays.sort(result);
+		return result;
+	}
+	
+	@ManagedOperation(description="Return all unique paths for the document type provided")
+	@ManagedOperationParameters({
+		@ManagedOperationParameter(name = "typeId", description = "A document type identifier")})
+	public String[] getPathsForType(int typeId) {
+		Collection<XDMPath> paths = modelMgr.getTypePaths(typeId);
+		String[] result = new String[paths.size()];
+		int idx = 0;
+		for (XDMPath path: paths) {
+			result[idx++] = "" + path.getPathId() + ": " + path.getPath();
+		}
+		return result;
+	}
+	
 	@ManagedAttribute(description="Return candidate index usage statistics, per query path")
 	public TabularData getPathStatistics() {
 		return null;

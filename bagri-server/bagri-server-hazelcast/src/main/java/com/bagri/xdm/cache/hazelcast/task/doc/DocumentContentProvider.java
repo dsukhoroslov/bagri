@@ -12,7 +12,7 @@ import com.bagri.xdm.api.XDMQueryManagement;
 import com.hazelcast.spring.context.SpringAware;
 
 @SpringAware
-public class XMLProvider extends com.bagri.xdm.client.hazelcast.task.doc.XMLProvider {
+public class DocumentContentProvider extends com.bagri.xdm.client.hazelcast.task.doc.DocumentContentProvider {
 
     //private static final transient Logger logger = LoggerFactory.getLogger(XMLProvider.class);
     

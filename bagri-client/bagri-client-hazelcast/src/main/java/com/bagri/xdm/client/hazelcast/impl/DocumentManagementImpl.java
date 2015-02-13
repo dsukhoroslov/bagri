@@ -12,7 +12,7 @@ import com.bagri.xdm.api.XDMDocumentManagement;
 import com.bagri.xdm.client.common.impl.XDMDocumentManagementBase;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentCreator;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentRemover;
-import com.bagri.xdm.client.hazelcast.task.doc.XMLProvider;
+import com.bagri.xdm.client.hazelcast.task.doc.DocumentContentProvider;
 import com.bagri.xdm.common.XDMDataKey;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMElements;
@@ -97,7 +97,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementBase implements
 		logger.trace("getDocumentAsString.enter; got docId: {}", docId);
 		
 		String result = null;
-		XMLProvider xp = new XMLProvider(docId);
+		DocumentContentProvider xp = new DocumentContentProvider(docId);
 		Future<String> future = execService.submitToKeyOwner(xp, docId);
 		try {
 			result = future.get();

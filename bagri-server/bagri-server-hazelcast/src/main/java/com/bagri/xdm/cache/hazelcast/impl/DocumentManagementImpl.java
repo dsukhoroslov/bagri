@@ -40,7 +40,7 @@ import com.bagri.xdm.cache.api.XDMIndexManagement;
 import com.bagri.xdm.cache.common.XDMDocumentManagementServer;
 import com.bagri.xdm.client.common.impl.XDMModelManagementBase;
 import com.bagri.xdm.client.hazelcast.impl.ResultsIterator;
-import com.bagri.xdm.client.hazelcast.task.doc.XMLProvider;
+import com.bagri.xdm.client.hazelcast.task.doc.DocumentContentProvider;
 import com.bagri.xdm.client.xml.XDMStaxParser;
 import com.bagri.xdm.common.XDMDataKey;
 import com.bagri.xdm.common.XDMIndexKey;
@@ -165,6 +165,18 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
     	return keys;
     }
 
+    public Collection<XDMElements> getDocumentElements(long docId) {
+		XDMDocument doc = getDocument(docId);
+		if (doc == null) {
+			return null;
+		}
+
+		int typeId = doc.getTypeId();
+		Set<XDMDataKey> keys = getDocumentElementKeys(model.getDocumentRoot(typeId), docId, typeId);
+		Map<XDMDataKey, XDMElements> elements = xdmCache.getAll(keys);
+		return elements.values();
+    }
+    
     private String buildElement(IMap dataMap, String path, long docId, int docType) {
     	Set<XDMDataKey> xdKeys = getDocumentElementKeys(path, docId, docType);
        	return buildXml(dataMap.getAll(xdKeys));
@@ -339,7 +351,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 
 	@Override
 	public Iterator<Long> getDocumentIds(String pattern) {
-		// TODO Auto-generated method stub
+		// TODO: implement it
 		return null;
 	}
 	
@@ -365,7 +377,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 					xmlCache.set(docId, xml);
 				}
 			} else {
-				XMLProvider xp = new XMLProvider(docId);
+				DocumentContentProvider xp = new DocumentContentProvider(docId);
 				IExecutorService execService = hzInstance.getExecutorService(PN_XDM_SCHEMA_POOL);
 				Future<String> future = execService.submitToKeyOwner(xp, docId);
 				try {

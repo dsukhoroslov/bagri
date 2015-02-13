@@ -146,10 +146,11 @@ public class InvocationStatistics implements StatisticsProvider {
 			result.put(sn_Sum_Time, tmSum);
 			if (cntInvoked > 0) {
 				result.put(sn_Min_Time, tmMin);
-				double dSum = tmSum;
-				result.put(sn_Avg_Time, dSum/cntInvoked);
+				//double dSum = tmSum;
+				double tmAvg = tmSum/cntInvoked;
+				result.put(sn_Avg_Time, tmAvg);
 				double dCnt = cntInvoked*1000;
-				result.put(sn_Throughput, dCnt/(tmLast - tmFirst));
+				result.put(sn_Throughput, dCnt/(tmLast - tmFirst + tmAvg));
 			} else {
 				result.put(sn_Min_Time, 0L);
 				result.put(sn_Avg_Time, 0.0d);
@@ -170,10 +171,11 @@ public class InvocationStatistics implements StatisticsProvider {
 			buff.append(sn_Max_Time).append(colon).append(tmMax).append(semicolon);
 			if (cntInvoked > 0) {
 				buff.append(sn_Min_Time).append(colon).append(tmMin).append(semicolon);
-				double dSum = tmSum;
-				buff.append(sn_Avg_Time).append(colon).append(dSum/cntInvoked).append(semicolon);
+				//double dSum = tmSum;
+				double tmAvg = tmSum/cntInvoked;
+				buff.append(sn_Avg_Time).append(colon).append(tmAvg).append(semicolon);
 				double dCnt = cntInvoked*1000;
-				buff.append(sn_Throughput).append(colon).append(dCnt/(tmLast - tmFirst)).append(semicolon);
+				buff.append(sn_Throughput).append(colon).append(dCnt/(tmLast - tmFirst + tmAvg)).append(semicolon);
 			} else {
 				buff.append(sn_Min_Time).append(empty);
 				buff.append(sn_Avg_Time).append(empty);

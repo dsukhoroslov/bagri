@@ -4,7 +4,7 @@ import com.bagri.xdm.client.hazelcast.data.QueryParamsKey;
 import com.bagri.xdm.client.hazelcast.impl.ResultsIterator;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentCreator;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentRemover;
-import com.bagri.xdm.client.hazelcast.task.doc.XMLProvider;
+import com.bagri.xdm.client.hazelcast.task.doc.DocumentContentProvider;
 import com.bagri.xdm.client.hazelcast.task.query.DocumentIdsProvider;
 import com.bagri.xdm.client.hazelcast.task.query.DocumentUrisProvider;
 import com.bagri.xdm.client.hazelcast.task.query.XMLBuilder;
@@ -59,21 +59,22 @@ public class XDMDataSerializationFactory implements DataSerializableFactory {
 	public static final int cli_XDMPopulateSchemaTask = 122;
 	public static final int cli_ProvideDocumentUrisTask = 123;
 	public static final int cli_ProvideDocumentIdsTask = 124;
-	public static final int cli_ProvideDocumentXMLTask = 125;
-	public static final int cli_BuildQueryXMLTask = 126;
-	public static final int cli_XDMExecXQCommandTask = 127;
-	public static final int cli_CollectStatisticSeriesTask = 128;
-	public static final int cli_CollectStatisticTotalsTask = 129;
-	public static final int cli_ResetStatisticsTask = 130;
-	public static final int cli_ProcessQueryTask = 131;
-	public static final int cli_ApplyQueryTask = 132;
-	public static final int cli_KillNodeTask = 133;
-	public static final int cli_XDMSetNodeOptionTask = 134;
-	public static final int cli_XDMAggregateSchemaInfoTask = 135;
-	public static final int cli_XDMGetNodeInfoTask = 136;
+	public static final int cli_ProvideDocumentContentTask = 125;
+	public static final int cli_ProvideDocumentStructureTask = 126;
+	public static final int cli_BuildQueryXMLTask = 127;
+	public static final int cli_XDMExecXQCommandTask = 128;
+	public static final int cli_CollectStatisticSeriesTask = 129;
+	public static final int cli_CollectStatisticTotalsTask = 130;
+	public static final int cli_ResetStatisticsTask = 131;
+	public static final int cli_ProcessQueryTask = 132;
+	public static final int cli_ApplyQueryTask = 133;
+	public static final int cli_KillNodeTask = 134;
+	public static final int cli_XDMSetNodeOptionTask = 135;
+	public static final int cli_XDMAggregateSchemaInfoTask = 136;
+	public static final int cli_XDMGetNodeInfoTask = 137;
 	
-	public static final int cli_CreateIndexTask = 137;
-	public static final int cli_RemoveIndexTask = 138;
+	public static final int cli_CreateIndexTask = 138;
+	public static final int cli_RemoveIndexTask = 139;
 	
 	@Override
 	public IdentifiedDataSerializable create(int typeId) {
@@ -84,7 +85,7 @@ public class XDMDataSerializationFactory implements DataSerializableFactory {
 			case cli_XDMRemoveDocumentTask: return new DocumentRemover();
 			case cli_ProvideDocumentUrisTask: return new DocumentUrisProvider(); 
 			case cli_ProvideDocumentIdsTask: return new DocumentIdsProvider(); 
-			case cli_ProvideDocumentXMLTask: return new XMLProvider();
+			case cli_ProvideDocumentContentTask: return new DocumentContentProvider();
 			case cli_XDMExecXQCommandTask: return new XQCommandExecutor();
 			case cli_BuildQueryXMLTask: return new XMLBuilder();
 		}
