@@ -4,12 +4,19 @@ import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFacto
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.Callable;
+
+import javax.management.openmbean.CompositeData;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
+import com.bagri.common.manage.JMXUtils;
+import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.cache.hazelcast.impl.DocumentManagementImpl;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentAwareTask;
 import com.bagri.xdm.common.XDMDataKey;
@@ -20,7 +27,7 @@ import com.bagri.xdm.domain.XDMPath;
 import com.hazelcast.spring.context.SpringAware;
 
 @SpringAware
-public class DocumentStructureProvider extends DocumentAwareTask implements Callable<String[]> {
+public class DocumentStructureProvider extends DocumentAwareTask implements Callable<CompositeData> {
 	
 	private transient DocumentManagementImpl docMgr;
     
@@ -39,25 +46,33 @@ public class DocumentStructureProvider extends DocumentAwareTask implements Call
 	}
 	
 	@Override
-	public String[] call() throws Exception {
+	public CompositeData call() throws Exception {
 		
     	Collection<XDMElements> elements = docMgr.getDocumentElements(docId);
     	if (elements == null) {
     		return null;
     	}
     	
-		List<String> result = new ArrayList<>(elements.size());
+    	XDMModelManagement model = docMgr.getModelManager();
+    	Map<String, Object> tree = new HashMap<>();
 		for (XDMElements elts: elements) {
+			XDMPath path = model.getPath(elts.getPathId());
 			StringBuffer buff = new StringBuffer();
-			buff.append(elts.getPathId()).append(": [");
+			buff.append("[");
+			int idx = 0;
 			for (XDMElement elt: elts.getElements()) {
-				buff.append(elt.getValue()).append(", ");
+				if (idx > 0) {
+					buff.append(", ");
+				}
+				buff.append("\"").append(elt.getValue()).append("\"");
+				idx++;
 			}
-			buff.delete(buff.length() - 2, buff.length());
 			buff.append("]");
-			result.add(buff.toString());
+			tree.put(String.format("(%05d) %s", path.getPathId(), path.getPath()), buff.toString());
 		}
-		return result.toArray(new String[result.size()]);
+		
+		String header = docMgr.getDocument(docId).toString();
+		return JMXUtils.mapToComposite(String.valueOf(docId), header, tree);
 	}
 
 	@Override

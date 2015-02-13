@@ -96,15 +96,15 @@ public class DocumentManagement extends SchemaFeatureManagement {
 	@ManagedOperation(description="Returns Document Elements")
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "docId", description = "Internal Document identifier")})
-	public String[] getDocumentElements(long docId) {
+	public CompositeData getDocumentElements(long docId) {
 		//
 		DocumentStructureProvider task = new DocumentStructureProvider(docId);
-		Future<String[]> result = execService.submitToKeyOwner(task, docId);
+		Future<CompositeData> result = execService.submitToKeyOwner(task, docId);
 		try {
 			return result.get();
 		} catch (InterruptedException | ExecutionException ex) {
 			logger.error("getDocumentElements.error; ", ex);
-			return new String[] {"Error: " + ex.getMessage()}; 
+			return null; //new String[] {"Error: " + ex.getMessage()}; 
 		}
 	}
 	
