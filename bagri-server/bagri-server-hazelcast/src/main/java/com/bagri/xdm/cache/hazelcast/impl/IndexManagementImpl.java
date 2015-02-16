@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import com.bagri.common.stats.StatisticsProvider;
 import com.bagri.common.stats.UsageStatistics;
 import com.bagri.xdm.cache.api.XDMIndexManagement;
+import com.bagri.xdm.cache.hazelcast.task.index.ValueIndexator;
 import com.bagri.xdm.client.hazelcast.impl.ModelManagementImpl;
 import com.bagri.xdm.common.XDMFactory;
 import com.bagri.xdm.common.XDMIndexKey;
@@ -19,6 +20,7 @@ import com.bagri.xdm.domain.XDMIndexedValue;
 import com.bagri.xdm.domain.XDMNodeKind;
 import com.bagri.xdm.domain.XDMPath;
 import com.bagri.xdm.system.XDMIndex;
+import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.IMap;
 
 public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsProvider {
@@ -26,6 +28,7 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 	private static final transient Logger logger = LoggerFactory.getLogger(IndexManagementImpl.class);
 	private IMap<Integer, XDMIndex> idxDict;
     private IMap<XDMIndexKey, XDMIndexedValue> idxCache;
+	private IExecutorService execService;
 
 	private XDMFactory factory;
     private ModelManagementImpl mdlMgr;
@@ -44,10 +47,6 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 		return this.mdlMgr;
 	}
 	
-	public void setModelManager(ModelManagementImpl mdlMgr) {
-		this.mdlMgr = mdlMgr;
-	}
-    
 	protected Map<Integer, XDMIndex> getIndexDictionary() {
 		return idxDict;
 	}
@@ -68,14 +67,25 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
     	this.indexStats = indexStats;
     }
 
+	public void setExecService(IExecutorService execService) {
+		this.execService = execService;
+	}
+    
+	public void setModelManager(ModelManagementImpl mdlMgr) {
+		this.mdlMgr = mdlMgr;
+	}
+    
 	@Override
 	public boolean isPathIndexed(int pathId) {
+		// TODO: it takes a lot of time to perform these two gets
+		// even on local cache! think about better solution!
 		XDMPath xPath = mdlMgr.getPath(pathId);
 		if (xPath == null) {
 			logger.warn("isPathIndexed; got unknown pathId: {}", pathId);
 			return false;
 		}
 		return idxDict.get(pathId) != null;
+		//return pathId == 2;
 	}
 
 	@Override
@@ -112,12 +122,19 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 		// add index; better to do this asynchronously!
 		if (isPathIndexed(pathId) && value != null) {
 			XDMIndexKey xid = factory.newXDMIndexKey(pathId, value);
+			
 			XDMIndexedValue xidx = idxCache.get(xid);
 			if (xidx == null) {
 				xidx = new XDMIndexedValue(docId);
 			} 
 			xidx.addDocumentId(docId);
 			idxCache.put(xid, xidx);
+			
+			// it works asynch. but major time is taken in isPathIndexed
+			// method..
+			//ValueIndexator indexator = new ValueIndexator(docId);
+			//idxCache.submitToKey(xid, indexator);
+			//logger.trace("addIndex; index submit for key {}", xid);
 		}
 	}
 	

@@ -7,6 +7,7 @@ import com.bagri.xdm.cache.hazelcast.task.doc.DocumentContentProvider;
 import com.bagri.xdm.cache.hazelcast.task.doc.DocumentStructureProvider;
 import com.bagri.xdm.cache.hazelcast.task.index.IndexCreator;
 import com.bagri.xdm.cache.hazelcast.task.index.IndexRemover;
+import com.bagri.xdm.cache.hazelcast.task.index.ValueIndexator;
 import com.bagri.xdm.cache.hazelcast.task.node.NodeInfoProvider;
 import com.bagri.xdm.cache.hazelcast.task.node.NodeKiller;
 import com.bagri.xdm.cache.hazelcast.task.node.NodeOptionSetter;
@@ -57,6 +58,7 @@ public class XDMDataSerializationFactory extends com.bagri.xdm.client.hazelcast.
 			case cli_XDMGetNodeInfoTask: return new NodeInfoProvider();
 			case cli_CreateIndexTask: return new IndexCreator();
 			case cli_RemoveIndexTask: return new IndexRemover();
+			case cli_IndexValueTask: return new ValueIndexator();
 		}
 		return super.create(typeId);
 	}
