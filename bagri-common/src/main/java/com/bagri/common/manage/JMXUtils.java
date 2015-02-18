@@ -213,6 +213,7 @@ public class JMXUtils {
 
 	public static TabularData aggregateStats(TabularData source, TabularData target) {
     	// source is not nullable
+        logger.debug("aggregateStats.enter; got source: {}", source);
 		TabularData result = new TabularDataSupport(source.getTabularType());
         Set<List> keys = (Set<List>) source.keySet();
     	if (target == null) {
@@ -226,6 +227,7 @@ public class JMXUtils {
        			result.put(aggr);
         	}
     	}
+        logger.debug("aggregateStats.exit; returning: {}", result);
 		return result;
 	}
     

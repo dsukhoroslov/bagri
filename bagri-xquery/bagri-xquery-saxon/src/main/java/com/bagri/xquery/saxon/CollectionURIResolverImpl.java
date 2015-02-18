@@ -121,8 +121,7 @@ public class CollectionURIResolverImpl implements CollectionURIResolver {
 		this.ctx = context;
 		long stamp = System.currentTimeMillis();
 
-		//if (ec == null) {
-			//int docType;
+		if (exCont == null) {
 			if (href == null) {
 				// means default collection: all schema documents
 				currentType = -1;
@@ -133,10 +132,8 @@ public class CollectionURIResolverImpl implements CollectionURIResolver {
 	
 			exCont = new ExpressionContainer();
 			currentPath = new PathBuilder();
-			//Map<String, String> vars = new HashMap<String, String>();
 			String path = iterate(exp.getExpression()); //, new PathBuilder()); //, vars);
-			//logger.trace("resolve; vars resolved: {}", vars); 
-		//}
+		}
 		stamp = System.currentTimeMillis() - stamp;
 		logger.debug("resolve; time taken: {}; expressions: {}", stamp, exCont); 
 
