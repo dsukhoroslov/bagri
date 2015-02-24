@@ -61,7 +61,8 @@ public class ModelManagement extends SchemaFeatureManagement {
 		String[] result = new String[paths.size()];
 		int idx = 0;
 		for (XDMPath path: paths) {
-			result[idx++] = "" + path.getPathId() + ": " + path.getPath();
+			result[idx++] = "" + path.getPathId() + ": " + path.getPath() + 
+					" (" + path.getNodeKind() + ")";
 		}
 		return result;
 	}

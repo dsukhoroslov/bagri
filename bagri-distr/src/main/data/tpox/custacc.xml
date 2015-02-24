@@ -1,167 +1,187 @@
 <?xml version="1.0" encoding="US-ASCII"?>
-<Customer id="1011"
-xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://tpox-benchmark.com/custacc" xsi:schemaLocation="http://tpox-benchmark.com/custacc custacc.xsd"><Mnemonic>VilloldoMarjo</Mnemonic>
-<ShortNames>
-<ShortName>Marjo Villoldo</ShortName>
-</ShortNames>
-<Name>
-<Title>Mrs</Title>
-<FirstName>Marjo</FirstName>
-<MiddleName>Akos</MiddleName>
-<LastName>Villoldo</LastName>
-</Name>
-<DateOfBirth>1956-11-27</DateOfBirth>
-<Gender>Male</Gender>
-<Nationality>Portuguese</Nationality>
-<CountryOfResidence>Portugal</CountryOfResidence>
-<Languages>
-<Language>Portuguese</Language>
-</Languages>
-<Addresses>
-<Address primary="Yes" type="Temporary">
-<gStreet>
-<Street>832 Blossom Hill Rd</Street>
-</gStreet>
-<POBox>51306</POBox>
-<City>San Jose</City>
-<PostalCode>56137</PostalCode>
-<State>California</State>
-<Country>USA</Country>
-<CityCountry>San Jose 56137, USA</CityCountry>
-<Phones>
-<Phone primary="Yes" type="Temporary">
-<CountryCode>196</CountryCode>
-<AreaCode>248</AreaCode>
-<Number>4744196</Number>
-</Phone>
-<Phone primary="No" type="Home">
-<CountryCode>118</CountryCode>
-<AreaCode>900</AreaCode>
-<Number>9123188</Number>
-<Extension>9754</Extension>
-</Phone>
-<Phone primary="No" type="Work">
-<CountryCode>168</CountryCode>
-<AreaCode>684</AreaCode>
-<Number>5958607</Number>
-<Extension>7206</Extension>
-</Phone>
-</Phones>
-</Address>
-<EmailAddresses>
-<Email primary="Yes">Marjo.Villoldo@evergreen.edu</Email>
-<Email primary="No">Fosca.Palomar@co.in</Email>
-</EmailAddresses>
-</Addresses>
-<BankingInfo>
-<CustomerSince>1991-07-22</CustomerSince>
-<PremiumCustomer>No</PremiumCustomer>
-<CustomerStatus>Active</CustomerStatus>
-<LastContactDate>1996-06-27</LastContactDate>
-<ReviewFrequency>Monthly</ReviewFrequency>
-<Online>
-<Login>OVilloldo</Login>
-<Pin>
-<EncryptedData Type="http://www.w3.org/2001/04/xmlenc#Content">
-<CipherData>
-<CipherValue>oZaTDiJHvi71vUhaX8dz</CipherValue>
-</CipherData>
-</EncryptedData>
-</Pin>
-<Trading-password>
-<EncryptedData Type="http://www.w3.org/2001/04/xmlenc#Content">
-<CipherData>
-<CipherValue>ErKP3OfFSGcinasZSFRM</CipherValue>
-</CipherData>
-</EncryptedData>
-</Trading-password>
-</Online>
-<Tax>
-<SSN>
-<EncryptedData Type="http://www.w3.org/2001/04/xmlenc#Content">
-<CipherData>
-<CipherValue>0UJVOB6pnM8RHnfZihcE</CipherValue>
-</CipherData>
-</EncryptedData>
-</SSN>
-<TaxRate>0.34</TaxRate>
-</Tax>
-<Currency>YEN</Currency>
-</BankingInfo>
-<Accounts>
-<Account id="104138966">
-<Category>12</Category>
-<AccountTitle>Mrs Marjo Villoldo EUR</AccountTitle>
-<ShortTitle>Villoldo EUR</ShortTitle>
-<Mnemonic>VilloldoEUR</Mnemonic>
-<Currency>EUR</Currency>
-<CurrencyMarket>3</CurrencyMarket>
-<OpeningDate>2000-07-17</OpeningDate>
-<AccountOfficer>Sissel Kell</AccountOfficer>
-<LastUpdate>2003-08-25T18:04:22</LastUpdate>
-<Balance>
-<OnlineActualBal>448484</OnlineActualBal>
-<OnlineClearedBal>568712</OnlineClearedBal>
-<WorkingBalance>969702</WorkingBalance>
-</Balance>
-<Passbook>Yes</Passbook>
-<gValueDate>
-<mValueDate>
-<ValueDate>1999-02-04</ValueDate>
-<CreditMovement>95261.34</CreditMovement>
-<ValueDatedBal>786528</ValueDatedBal>
-</mValueDate>
-<mValueDate>
-<ValueDate>1995-10-24</ValueDate>
-<CreditMovement>90802.26</CreditMovement>
-<ValueDatedBal>900904</ValueDatedBal>
-</mValueDate>
-<mValueDate>
-<ValueDate>1991-11-01</ValueDate>
-<CreditMovement>55020.97</CreditMovement>
-<ValueDatedBal>578638</ValueDatedBal>
-</mValueDate>
-<mValueDate>
-<ValueDate>1990-09-30</ValueDate>
-<CreditMovement>7557.34</CreditMovement>
-<ValueDatedBal>410335</ValueDatedBal>
-</mValueDate>
-<mValueDate>
-<ValueDate>2002-01-10</ValueDate>
-<CreditMovement>85217.47</CreditMovement>
-<ValueDatedBal>485080</ValueDatedBal>
-</mValueDate>
-</gValueDate>
-<ChargeCcy>EUR</ChargeCcy>
-<InterestCcy>EUR</InterestCcy>
-<AllowNetting>Yes</AllowNetting>
-<gInputter>
-<Inputter>Gareth Vittorini</Inputter>
-<Inputter>Parker Tawa</Inputter>
-<Inputter>Gongzhu Clemm</Inputter>
-<Inputter>Gareth Vittorini</Inputter>
-<Inputter>Gareth Vittorini</Inputter>
-</gInputter>
-<Holdings>
-<Position>
-<Symbol>PRRR</Symbol>
-<Name>Pioneer Railcorp</Name>
-<Type>Stock</Type>
-<Quantity>1816.780</Quantity>
-</Position>
-<Position>
-<Symbol>PHYDX</Symbol>
-<Name>PIMCO High Yield D</Name>
-<Type>Bond Fund</Type>
-<Quantity>734.599</Quantity>
-</Position>
-<Position>
-<Symbol>AIIIX</Symbol>
-<Name>American AAdvantage Intl Eq Idx Inst</Name>
-<Type>Stock Fund</Type>
-<Quantity>2330.892</Quantity>
-</Position>
-</Holdings>
-</Account>
-</Accounts>
+<Customer id="1011" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://tpox-benchmark.com/custacc" xsi:schemaLocation="http://tpox-benchmark.com/custacc custacc.xsd">
+	<Mnemonic>VilloldoMarjo</Mnemonic>
+	<ShortNames>
+		<ShortName>Marjo Villoldo</ShortName>
+	</ShortNames>
+	<Name>
+		<Title>Mrs</Title>
+		<FirstName>Marjo</FirstName>
+		<MiddleName>Akos</MiddleName>
+		<LastName>Villoldo</LastName>
+	</Name>
+	<DateOfBirth>1956-11-27</DateOfBirth>
+	<Gender>Male</Gender>
+	<Nationality>Portuguese</Nationality>
+	<CountryOfResidence>Portugal</CountryOfResidence>
+	<Languages>
+		<Language>Portuguese</Language>
+	</Languages>
+	<Addresses>
+		<Address primary="Yes" type="Temporary">
+			<gStreet>
+				<Street>832 Blossom Hill Rd</Street>
+			</gStreet>
+			<POBox>51306</POBox>
+			<City>San Jose</City>
+			<PostalCode>56137</PostalCode>
+			<State>California</State>
+			<Country>USA</Country>
+			<CityCountry>San Jose 56137, USA</CityCountry>
+			<Phones>
+				<Phone primary="Yes" type="Temporary">
+					<CountryCode>196</CountryCode>
+					<AreaCode>248</AreaCode>
+					<Number>4744196</Number>
+				</Phone>
+				<Phone primary="No" type="Home">
+					<CountryCode>118</CountryCode>
+					<AreaCode>900</AreaCode>
+					<Number>9123188</Number>
+					<Extension>9754</Extension>
+				</Phone>
+				<Phone primary="No" type="Work">
+					<CountryCode>168</CountryCode>
+					<AreaCode>684</AreaCode>
+					<Number>5958607</Number>
+					<Extension>7206</Extension>
+				</Phone>
+			</Phones>
+		</Address>
+		<EmailAddresses>
+			<Email primary="Yes">Marjo.Villoldo@evergreen.edu</Email>
+			<Email primary="No">Fosca.Palomar@co.in</Email>
+		</EmailAddresses>
+	</Addresses>
+	<BankingInfo>
+		<CustomerSince>1991-07-22</CustomerSince>
+		<PremiumCustomer>No</PremiumCustomer>
+		<CustomerStatus>Active</CustomerStatus>
+		<LastContactDate>1996-06-27</LastContactDate>
+		<ReviewFrequency>Monthly</ReviewFrequency>
+		<Online>
+			<Login>OVilloldo</Login>
+			<Pin>
+				<EncryptedData Type="http://www.w3.org/2001/04/xmlenc#Content">
+					<CipherData>
+						<CipherValue>oZaTDiJHvi71vUhaX8dz</CipherValue>
+					</CipherData>
+				</EncryptedData>
+			</Pin>
+			<Trading-password>
+				<EncryptedData Type="http://www.w3.org/2001/04/xmlenc#Content">
+					<CipherData>
+						<CipherValue>ErKP3OfFSGcinasZSFRM</CipherValue>
+					</CipherData>
+				</EncryptedData>
+			</Trading-password>
+		</Online>
+		<Tax>
+			<SSN>
+				<EncryptedData Type="http://www.w3.org/2001/04/xmlenc#Content">
+					<CipherData>
+						<CipherValue>0UJVOB6pnM8RHnfZihcE</CipherValue>
+					</CipherData>
+				</EncryptedData>
+			</SSN>
+			<TaxRate>0.34</TaxRate>
+		</Tax>
+		<Currency>YEN</Currency>
+	</BankingInfo>
+	<Accounts>
+		<!--Account id="104144118" -->
+		<Account id="104139870">
+			<Category>12</Category>
+			<AccountTitle>Mrs Marjo Villoldo EUR</AccountTitle>
+			<ShortTitle>Villoldo EUR</ShortTitle>
+			<Mnemonic>VilloldoEUR</Mnemonic>
+			<Currency>EUR</Currency>
+			<CurrencyMarket>3</CurrencyMarket>
+			<OpeningDate>2000-07-17</OpeningDate>
+			<AccountOfficer>Sissel Kell</AccountOfficer>
+			<LastUpdate>2003-08-25T18:04:22</LastUpdate>
+			<Balance>
+				<OnlineActualBal>448484</OnlineActualBal>
+				<OnlineClearedBal>568712</OnlineClearedBal>
+				<WorkingBalance>969702</WorkingBalance>
+			</Balance>
+			<Passbook>Yes</Passbook>
+			<gValueDate>
+				<mValueDate>
+					<ValueDate>1999-02-04</ValueDate>
+					<CreditMovement>95261.34</CreditMovement>
+					<ValueDatedBal>786528</ValueDatedBal>
+				</mValueDate>
+				<mValueDate>
+					<ValueDate>1995-10-24</ValueDate>
+					<CreditMovement>90802.26</CreditMovement>
+					<ValueDatedBal>900904</ValueDatedBal>
+				</mValueDate>
+				<mValueDate>
+					<ValueDate>1991-11-01</ValueDate>
+					<CreditMovement>55020.97</CreditMovement>
+					<ValueDatedBal>578638</ValueDatedBal>
+				</mValueDate>
+				<mValueDate>
+					<ValueDate>1990-09-30</ValueDate>
+					<CreditMovement>7557.34</CreditMovement>
+					<ValueDatedBal>410335</ValueDatedBal>
+				</mValueDate>
+				<mValueDate>
+					<ValueDate>2002-01-10</ValueDate>
+					<CreditMovement>85217.47</CreditMovement>
+					<ValueDatedBal>485080</ValueDatedBal>
+				</mValueDate>
+			</gValueDate>
+			<ChargeCcy>EUR</ChargeCcy>
+			<InterestCcy>EUR</InterestCcy>
+			<AllowNetting>Yes</AllowNetting>
+			<gInputter>
+				<Inputter>Gareth Vittorini</Inputter>
+				<Inputter>Parker Tawa</Inputter>
+				<Inputter>Gongzhu Clemm</Inputter>
+				<Inputter>Gareth Vittorini</Inputter>
+				<Inputter>Gareth Vittorini</Inputter>
+			</gInputter>
+			<Holdings>
+				<!--Position>
+					<Symbol>PRRR</Symbol>
+					<Name>Pioneer Railcorp</Name>
+					<Type>Stock</Type>
+					<Quantity>1816.780</Quantity>
+				</Position>
+				<Position>
+					<Symbol>PHYDX</Symbol>
+					<Name>PIMCO High Yield D</Name>
+					<Type>Bond Fund</Type>
+					<Quantity>734.599</Quantity>
+				</Position>
+				<Position>
+					<Symbol>AIIIX</Symbol>
+					<Name>American AAdvantage Intl Eq Idx Inst</Name>
+					<Type>Stock Fund</Type>
+					<Quantity>2330.892</Quantity>
+				</Position-->
+				<Position>
+					<Symbol>IBM</Symbol>
+					<Name>Internatinal Business Machines Corporation</Name>
+					<Type>Stock</Type>
+					<Quantity>1916.780</Quantity>
+				</Position>
+				<Position>
+					<Symbol>PTTAX</Symbol>
+					<Name>PIMCO Total Return A</Name>
+					<Type>Bond Fund</Type>
+					<Quantity>2734.599</Quantity>
+				</Position>
+				<Position>
+					<Symbol>VFINX</Symbol>
+					<Name>Vanguard 500 Index Fund</Name>
+					<Type>Stock Fund</Type>
+					<Quantity>3250.892</Quantity>
+				</Position>
+			</Holdings>
+		</Account>
+	</Accounts>
 </Customer>

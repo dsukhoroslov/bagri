@@ -58,7 +58,7 @@ public class DocumentStructureProvider extends DocumentAwareTask implements Call
 		for (XDMElements elts: elements) {
 			XDMPath path = model.getPath(elts.getPathId());
 			StringBuffer buff = new StringBuffer();
-			buff.append("[");
+			buff.append(path.getNodeKind()).append(" [");
 			int idx = 0;
 			for (XDMElement elt: elts.getElements()) {
 				if (idx > 0) {

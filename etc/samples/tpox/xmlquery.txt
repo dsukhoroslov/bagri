@@ -36,7 +36,7 @@ return	<Security>
 
 declare default element namespace "http://tpox-benchmark.com/custacc";
 for $cust in fn:collection("/{http://tpox-benchmark.com/custacc}Customer")/Customer
-where $cust/@id=$id
+where $cust/@id=1011
 return 
         <Customer_Profile CUSTOMERID="{$cust/@id}">
                 {$cust/Name}
@@ -52,7 +52,7 @@ return
 declare default element namespace "http://tpox-benchmark.com/custacc";
 
 for $cust in fn:collection("/{http://tpox-benchmark.com/custacc}Customer")/Customer
-where $cust/@id=$id
+where $cust/@id=1011
 return
 	<Customer>{$cust/@id}
 		{$cust/Name}
@@ -95,7 +95,7 @@ declare namespace c="http://tpox-benchmark.com/custacc";
 
 for $ord in fn:collection("/{http://www.fixprotocol.org/FIXML-4-4}FIXML")/FIXML/Order
 for $cust in fn:collection("/{http://tpox-benchmark.com/custacc}Customer")/c:Customer[c:Accounts/c:Account/@id=$ord/@Acct/fn:string(.)]
-where $ord/OrdQty/@Cash>3000 and $cust/c:CountryOfResidence="Portugal" 
+where $ord/OrdQty/@Cash<2000 and $cust/c:CountryOfResidence="Portugal" 
 return $cust/c:ShortNames/c:ShortName
 
 
@@ -116,7 +116,7 @@ declare namespace c="http://tpox-benchmark.com/custacc";
 
 let $orderprice :=
 
-for  $cust in fn:collection("/{http://tpox-benchmark.com/custacc}Customer")/c:Customer[@id=1011]
+for $cust in fn:collection("/{http://tpox-benchmark.com/custacc}Customer")/c:Customer[@id=1011]
 for $ord in fn:collection("/{http://www.fixprotocol.org/FIXML-4-4}FIXML")/FIXML/Order[@Acct=$cust/c:Accounts/c:Account/@id/fn:string(.)]
 return $ord/OrdQty/@Cash
 
@@ -135,3 +135,11 @@ let $order  :=
 return xs:string(fn:max($order))
 
 
+
+declare namespace s="http://tpox-benchmark.com/security"; 
+declare namespace c="http://tpox-benchmark.com/custacc"; 
+
+for $cust in fn:collection("/{http://tpox-benchmark.com/custacc}Customer")/c:Customer[@id=1011]
+for $sec in fn:collection("/{http://tpox-benchmark.com/security}Security")/s:Security[s:Symbol=$cust/c:Accounts/c:Account/c:Holdings/c:Position/c:Symbol/fn:string(.)] 
+
+return <Security>{$sec/s:Name/text()}</Security>

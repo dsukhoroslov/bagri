@@ -93,8 +93,6 @@ public class CollectionURIResolverImpl implements CollectionURIResolver {
     private XQueryExpression exp;
     private ExpressionContainer exCont;
 
-    private int step = 0;
-    
     public CollectionURIResolverImpl(XDMRepository repo) {
     	this.repo = repo;
     }
@@ -121,7 +119,7 @@ public class CollectionURIResolverImpl implements CollectionURIResolver {
 		this.ctx = context;
 		long stamp = System.currentTimeMillis();
 
-		if (exCont == null) {
+		//if (exCont == null) {
 			if (href == null) {
 				// means default collection: all schema documents
 				currentType = -1;
@@ -132,21 +130,14 @@ public class CollectionURIResolverImpl implements CollectionURIResolver {
 	
 			exCont = new ExpressionContainer();
 			currentPath = new PathBuilder();
-			String path = iterate(exp.getExpression()); //, new PathBuilder()); //, vars);
-		}
+			iterate(exp.getExpression()); //, new PathBuilder()); //, vars);
+		//}
 		stamp = System.currentTimeMillis() - stamp;
 		logger.debug("resolve; time taken: {}; expressions: {}", stamp, exCont); 
 
 		// provide builder's copy here..
 		CollectionIterator iter = new CollectionIterator(repo.getQueryManagement(), exCont);
 
-		//long docId = step % 2 == 0 ? 2L : 4L;
-		//List<Long> docIds = new ArrayList<Long>(1);
-		//docIds.add(docId);
-		//docIds.add(4L);
-		//CollectionIterator iter = new CollectionIterator(docIds);
-		//step++;
-		
 		logger.trace("resolve. xdm: {}; returning iter: {}", repo, iter);
 		return iter;
 	}
@@ -231,14 +222,13 @@ public class CollectionURIResolverImpl implements CollectionURIResolver {
 	//	return value;
 	//}
 
-    //private String iterate(int docType, Expression ex, PathBuilder path, Map<String, String> vars) throws XPathException {
-    private String iterate(Expression ex /*, PathBuilder path*/) throws XPathException {
-    	logger.trace("start: {}; path: {}", ex.getClass().getName(), ex); //ex.getObjectName());
+    private void iterate(Expression ex /*, PathBuilder path*/) throws XPathException {
+    	logger.trace("start: {}; path: {}", ex.getClass().getName(), ex); 
 
     	PathBuilder path = currentPath;
     	if (ex instanceof Block) {
-        	logger.trace("end: {}; path: {}", ex.getClass().getName(), path);
-    		return path.toString();
+        	logger.trace("end: {}; path: {}", ex.getClass().getName(), path.getFullPath());
+    		return;
     	}
     	
     	if (ex instanceof Collection) {
@@ -306,7 +296,7 @@ public class CollectionURIResolverImpl implements CollectionURIResolver {
     	
     	if (ex instanceof GeneralComparison10 || ex instanceof GeneralComparison20 || ex instanceof ValueComparison) {
     		BinaryExpression be = (BinaryExpression) ex;
-    		int varIdx = 0;
+    		//int varIdx = 0;
     		Object value = null;
     		String pName = null;
     		for (Expression e: be.getOperands()) {
@@ -336,7 +326,7 @@ public class CollectionURIResolverImpl implements CollectionURIResolver {
     				value = getValue(((Literal) e).getValue()); 
     				break;
     			}
-    			varIdx++;
+    			//varIdx++;
     		}
     		Comparison compType = getComparison(be.getOperator());
     		if (compType == null) {
@@ -347,9 +337,10 @@ public class CollectionURIResolverImpl implements CollectionURIResolver {
             	// thrown in case of join. have to think about this..
     	    	//throw new IllegalStateException("Unexpected expression: " + ex);
     		} else {
-    			if (varIdx == 0) {
-    				compType = Comparison.negate(compType);
-    			}
+    			// simse we do not need this workaround any more..
+    			//if (varIdx == 0) {
+    			//	compType = Comparison.negate(compType);
+    			//}
     			if (currentType == collectType) {
     				//value = normalizeValue(value);
     				exIndex = exCont.addExpression(currentType, compType, path, pName, value);
@@ -387,7 +378,6 @@ public class CollectionURIResolverImpl implements CollectionURIResolver {
     	//}
     	
     	logger.trace("end: {}; path: {}", ex.getClass().getName(), path.getFullPath());
-    	return path.toString();
     }
     
     private static Object itemToObject(Item item) throws XPathException {
