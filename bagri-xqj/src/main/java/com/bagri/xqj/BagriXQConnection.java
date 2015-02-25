@@ -19,6 +19,7 @@ import javax.xml.xquery.XQPreparedExpression;
 import javax.xml.xquery.XQStaticContext;
 
 import com.bagri.common.util.XMLUtils;
+import com.bagri.xdm.api.XDMTransactionManagement;
 import com.bagri.xquery.api.XQProcessor;
 
 import static com.bagri.xqj.BagriXQConstants.ex_null_context;
@@ -54,12 +55,6 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 	}
 
 	@Override
-	public void commit() throws XQException {
-		
-		//client.getTransaction().commit();
-	}
-
-	@Override
 	public XQExpression createExpression() throws XQException {
 		
 		checkConnection();
@@ -77,9 +72,51 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 	}
 
 	@Override
+	public void commit() throws XQException {
+
+		if (autoCommit) {
+	        logger.info("commit; The connection is in AutoCommit state, nothing to commit explicitly.");
+	        return;
+		}
+		getTxManager().commitTransaction();
+		getTxManager().beginTransaction();
+	}
+	
+	@Override
 	public boolean getAutoCommit() throws XQException {
 		
 		return autoCommit;
+	}
+
+	private XDMTransactionManagement getTxManager() {
+		return getProcessor().getRepository().getTxManagement();
+	}
+
+	@Override
+	public void rollback() throws XQException {
+		
+		if (autoCommit) {
+	        logger.info("rollback; The connection is in AutoCommit state, nothing to rollback explicitly.");
+	        return;
+		}
+		getTxManager().rollbackTransaction();
+		getTxManager().beginTransaction();
+	}
+
+	@Override
+	public void setAutoCommit(boolean autoCommit) throws XQException {
+
+		if (this.autoCommit == autoCommit) {
+			// no-op
+			return;
+		}
+		if (!this.autoCommit) {
+			getTxManager().commitTransaction();
+		}
+		this.autoCommit = autoCommit;
+		if (!this.autoCommit) {
+			getTxManager().beginTransaction();
+		}
 	}
 
 	@Override
@@ -217,19 +254,6 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 		exp.setXQuery(query);
 		prepareQuery(exp, context);
 		return exp;
-	}
-
-	@Override
-	public void rollback() throws XQException {
-		
-		//client.getTransaction().rollback();
-	}
-
-	@Override
-	public void setAutoCommit(boolean autoCommit) throws XQException {
-		
-		this.autoCommit = autoCommit;
-		//client.getTransaction().
 	}
 
 	@Override

@@ -107,11 +107,14 @@
 
 	<bean id="xdmManager" class="com.bagri.xdm.client.hazelcast.impl.DocumentManagementImpl"/>
 
+	<bean id="txManager" class="com.bagri.xdm.client.hazelcast.impl.TransactionManagementImpl"/>
+
 	<bean id="xdmRepo" class="com.bagri.xdm.client.hazelcast.impl.RepositoryImpl">
 		<constructor-arg ref="hzInstance" />
 		<property name="modelManagement" ref="xdmModel"/>
 		<property name="queryManagement" ref="xqManager"/>
 		<property name="documentManagement" ref="xdmManager"/>
+		<property name="txManagement" ref="txManager"/>
 	</bean>
 
 	<bean id="xqItemTypeSerializer" class="com.bagri.xdm.client.hazelcast.serialize.XQItemTypeSerializer">

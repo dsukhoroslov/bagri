@@ -162,8 +162,6 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
 	protected EntityManager<XDMSchema> createEntityManager(String schemaName) {
 		SchemaManager mgr = new SchemaManager(this, schemaName);
 		mgr.setEntityCache(entityCache);
-		//XDMSchemaDictionary schemaDict = dictCache.get(schemaName);
-		//mgr.setSchemaDictionary(schemaDict);
 		return mgr;
 	}
 
@@ -219,8 +217,8 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
 				mbeanExporter.registerManagedResource(mMgr, mMgr.getObjectName());
         	    QueryManagement qMgr = ctx.getBean("queryManager", QueryManagement.class);
 				mbeanExporter.registerManagedResource(qMgr, qMgr.getObjectName());
-       	    } else {
-       	    	//dictCache.put(schemaName, schemaDict);
+				TransactionManagement tMgr = ctx.getBean("transManager", TransactionManagement.class);
+				mbeanExporter.registerManagedResource(tMgr, tMgr.getObjectName());
        	    }
        	    
     		logger.debug("initSchema.exit; client schema {} started on instance: {}", schemaName, hz);
@@ -251,6 +249,8 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
     				mbeanExporter.unregisterManagedResource(mMgr.getObjectName());
     				QueryManagement qMgr = ctx.getBean("queryManager", QueryManagement.class);
     				mbeanExporter.unregisterManagedResource(qMgr.getObjectName());
+    				TransactionManagement tMgr = ctx.getBean("transManager", TransactionManagement.class);
+    				mbeanExporter.unregisterManagedResource(tMgr.getObjectName());
     				
     				hzClient.shutdown();
 

@@ -97,12 +97,15 @@
 	</bean>
 
 	<bean id="xdmManager" class="com.bagri.xdm.client.hazelcast.impl.DocumentManagementImpl"/>
+	
+	<bean id="txManager" class="com.bagri.xdm.client.hazelcast.impl.TransactionManagementImpl"/>
 
 	<bean id="xdmRepo" class="com.bagri.xdm.client.hazelcast.impl.RepositoryImpl">
 		<constructor-arg ref="hzInstance" />
 		<property name="modelManagement" ref="xdmModel"/>
 		<property name="queryManagement" ref="xqManager"/>
 		<property name="documentManagement" ref="xdmManager"/>
+		<property name="txManagement" ref="txManager"/>
 	</bean>
 
 	<bean id="xqDataSource" class="com.bagri.xqj.BagriXQDataSource">
@@ -189,6 +192,11 @@
 		<property name="execService" ref="xdm-exec-pool"/>
 		<property name="modelManager" ref="xdmModel"/>
 		<property name="XQConnection" ref="xqConnection"/>
+	</bean>
+
+	<bean id="transManager" class="com.bagri.xdm.cache.hazelcast.management.TransactionManagement">
+		<constructor-arg value="${xdm.schema.name}" />
+		<property name="execService" ref="xdm-exec-pool"/>
 	</bean>
 
 	<!--bean id="popManager" class="com.bagri.xdm.cache.hazelcast.management.PopulationManagement">

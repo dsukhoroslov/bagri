@@ -152,6 +152,8 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 		setQueryManagement(queryMgr);
 		ModelManagementImpl modelMgr = new ModelManagementImpl(hzClient);
 		setModelManagement(modelMgr);
+		TransactionManagementImpl txMgr = new TransactionManagementImpl();
+		setTxManagement(txMgr);
 	}
 
 	@Override
