@@ -1,5 +1,6 @@
 package com.bagri.common.query;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -9,6 +10,10 @@ public class QueryBuilder {
 	
 	public QueryBuilder() {
 		//
+	}
+	
+	public QueryBuilder(Collection<ExpressionContainer> containers) {
+		setContainers(containers);
 	}
 	
 	public void addContainer(ExpressionContainer container) {
@@ -21,8 +26,17 @@ public class QueryBuilder {
 		return containers.get(docId);
 	}
 	
-	public Map<Integer, ExpressionContainer> getContainers() {
-		return containers;
+	public Collection<ExpressionContainer> getContainers() {
+		return containers.values();
 	}
-
+	
+	public void setContainers(Collection<ExpressionContainer> containers) {
+		this.containers.clear();
+		if (containers != null) {
+			for (ExpressionContainer ec: containers) {
+				addContainer(ec);
+			}
+		}
+	}
+	
 }

@@ -161,10 +161,22 @@ public class CollectionURIResolverImpl implements CollectionURIResolver {
 	private Object getVariable(int slot) throws XPathException {
 		Sequence sq = ctx.evaluateLocalVariable(slot);
 		if (sq != null) {
-			Item item = sq.head();
-			if (item != null) {
-				return itemToObject(item);
-			}
+			//Item item = sq.head();
+			//if (item != null) {
+			//	return itemToObject(item);
+			//}
+			List result = new ArrayList();
+			SequenceIterator itr = sq.iterate();
+			while (true) {
+				Item item = itr.next();
+				if (item == null) {
+					break;
+				}
+				Object o = itemToObject(item);
+				logger.trace("getVariable; got item: {}", o);
+				result.add(o);
+			} 
+			return result;
 		}
 		return null;
 	}

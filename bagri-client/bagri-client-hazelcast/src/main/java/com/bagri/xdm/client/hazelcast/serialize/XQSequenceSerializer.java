@@ -19,7 +19,7 @@ import com.hazelcast.nio.serialization.StreamSerializer;
 
 public class XQSequenceSerializer implements StreamSerializer<XQSequence> {
 
-    private static final Logger logger = LoggerFactory.getLogger(XQItemSerializer.class);
+    private static final Logger logger = LoggerFactory.getLogger(XQSequenceSerializer.class);
 	
 	private XQDataFactory xqFactory;
 	

@@ -271,7 +271,12 @@ public class QueryManagementImpl implements XDMQueryManagement {
 		
 		if (pathId > 0 && Comparison.EQ.equals(pex.getCompType()) && 
 				idxMgr.isPathIndexed(pathId)) {
-			Set<Long> docIds = idxMgr.getIndexedDocuments(pathId, value.toString());
+			Set<Long> docIds;
+			if (value instanceof Iterable) {
+				docIds = idxMgr.getIndexedDocuments(pathId, (Iterable) value);
+			} else {
+				docIds = idxMgr.getIndexedDocuments(pathId, value.toString());
+			}
 			logger.trace("queryPathKeys; seach for index - got ids: {}", docIds); 
 			if (docIds != null) {
 				Set<Long> result;

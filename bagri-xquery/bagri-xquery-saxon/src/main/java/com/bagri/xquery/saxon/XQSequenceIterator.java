@@ -1,23 +1,23 @@
 package com.bagri.xquery.saxon;
 
 import java.math.BigInteger;
-import java.util.Calendar;
+import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.Iterator;
+import java.util.List;
 
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeConstants;
-import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.Duration;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.xquery.XQDataFactory;
 import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQItem;
+import javax.xml.xquery.XQItemAccessor;
 import javax.xml.xquery.XQItemType;
 
 import net.sf.saxon.dom.NodeOverNodeInfo;
 import net.sf.saxon.om.Item;
 import net.sf.saxon.om.NodeInfo;
+import net.sf.saxon.om.Sequence;
 import net.sf.saxon.om.SequenceIterator;
 import net.sf.saxon.om.StandardNames;
 import net.sf.saxon.trans.XPathException;
@@ -98,9 +98,10 @@ public class XQSequenceIterator implements Iterator {
     	return BagriXQUtils.getXMLDuration(d.getStringValue(), type);
     }
 
-    private XQItem itemToXQItem(Item item) throws XPathException, XQException {
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+	private XQItemAccessor itemToXQItem(Item item) throws XPathException, XQException {
         if (item instanceof AtomicValue) {
-	    int type;
+        	int type;
             Object value;
         	
             AtomicValue p = ((AtomicValue)item);
@@ -278,12 +279,20 @@ public class XQSequenceIterator implements Iterator {
         	return xqFactory.createItemFromNode(node, xqt);
         } else if (item instanceof ObjectValue) {
         	Object value = ((ObjectValue) item).getObject();
-        	if (value instanceof XQItem) {
-        		return (XQItem) value;
+        	if (value instanceof XQItem) { //Accessor) {
+        		return (XQItemAccessor) value;
         	} else {
             	XQItemType xqt = BagriXQUtils.getTypeForObject(xqFactory, value);
             	return xqFactory.createItemFromObject(value, xqt);
         	}
+        } else if (item instanceof Sequence) {
+        	Sequence sq = (Sequence) item;
+        	SequenceIterator itr = sq.iterate();
+        	List list = new ArrayList();
+        	for (Item itm = itr.next(); itm != null;) {
+        		list.add(itemToXQItem(itm));
+        	}
+        	xqFactory.createSequence(list.iterator());
         }
         return null; //item.;
     }

@@ -1,5 +1,7 @@
 package com.bagri.xdm.cache.hazelcast.impl;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -163,6 +165,21 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 		}
 		//indexStats.updateStats(idx.getName(), false);
 		return null;
+	}
+	
+	public Set<Long> getIndexedDocuments(int pathId, Iterable values) {
+		XDMIndex idx = idxDict.get(pathId);
+		// can't be null ?!
+		Set<XDMIndexKey> keys = new HashSet<>();
+		for (Object value: values) {
+			keys.add(factory.newXDMIndexKey(pathId, value));
+		}
+		Map<XDMIndexKey, XDMIndexedValue> xidv = idxCache.getAll(keys);
+		Set<Long> ids = new HashSet<>(xidv.size());
+		for (XDMIndexedValue value: xidv.values()) {
+			ids.addAll(value.getDocumentIds());
+		}
+		return ids;
 	}
 	
 	@Override

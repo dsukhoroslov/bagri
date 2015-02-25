@@ -1,5 +1,6 @@
 package com.bagri.xqj;
 
+import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQItem;
 import javax.xml.xquery.XQItemType;
 
@@ -11,6 +12,14 @@ public class BagriXQItem extends BagriXQItemAccessor implements XQItem {
 		super(xqProcessor);
 		setCurrent(type, value);
 	}
+
+	//@Override
+	//public XQItemType getItemType() throws XQException {
+	//	if (!positioned) {
+	//		throw new XQException("not positioned on the Item");
+	//	}
+	//	return super.getItemType();
+	//}
 
 	public String toString() {
 		
