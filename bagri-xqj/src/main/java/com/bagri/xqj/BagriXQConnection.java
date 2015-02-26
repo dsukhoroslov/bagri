@@ -26,7 +26,9 @@ import static com.bagri.xqj.BagriXQConstants.ex_null_context;
 
 public class BagriXQConnection extends BagriXQDataFactory implements XQConnection {
 	
+	private String txId;
 	private boolean autoCommit;
+	private boolean transactional;
 	private BagriXQMetaData metaData;
 	private BagriXQStaticContext context;
 	
@@ -78,8 +80,8 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 	        logger.info("commit; The connection is in AutoCommit state, nothing to commit explicitly.");
 	        return;
 		}
-		getTxManager().commitTransaction();
-		getTxManager().beginTransaction();
+		getTxManager().commitTransaction(txId);
+		txId = getTxManager().beginTransaction();
 	}
 	
 	@Override
@@ -99,8 +101,8 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 	        logger.info("rollback; The connection is in AutoCommit state, nothing to rollback explicitly.");
 	        return;
 		}
-		getTxManager().rollbackTransaction();
-		getTxManager().beginTransaction();
+		getTxManager().rollbackTransaction(txId);
+		txId = getTxManager().beginTransaction();
 	}
 
 	@Override
@@ -111,12 +113,21 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 			return;
 		}
 		if (!this.autoCommit) {
-			getTxManager().commitTransaction();
+			getTxManager().commitTransaction(txId);
 		}
 		this.autoCommit = autoCommit;
 		if (!this.autoCommit) {
-			getTxManager().beginTransaction();
+			txId = getTxManager().beginTransaction();
 		}
+	}
+	
+	public boolean isTransactional() {
+		return transactional;
+	}
+	
+	public void setTransactional(boolean transactional) {
+		// check current state ??
+		this.transactional = transactional;
 	}
 
 	@Override

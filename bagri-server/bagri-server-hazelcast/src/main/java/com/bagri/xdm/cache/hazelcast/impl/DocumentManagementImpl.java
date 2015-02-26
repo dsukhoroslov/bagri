@@ -1,5 +1,7 @@
 package com.bagri.xdm.cache.hazelcast.impl;
 
+import static com.bagri.xdm.client.common.XDMCacheConstants.PN_XDM_SCHEMA_POOL;
+
 import java.io.IOException;
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -11,61 +13,29 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.Source;
-import javax.xml.xquery.XQException;
-
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 
 import com.bagri.common.idgen.IdGenerator;
 import com.bagri.common.manage.JMXUtils;
-import com.bagri.common.query.Comparison;
-import com.bagri.common.query.ExpressionBuilder;
-import com.bagri.common.query.ExpressionContainer;
-import com.bagri.common.query.PathExpression;
-
-import static com.bagri.xdm.client.common.XDMCacheConstants.*;
-
-import com.bagri.xdm.api.XDMQueryManagement;
-import com.bagri.xdm.cache.api.XDMIndexManagement;
 import com.bagri.xdm.cache.common.XDMDocumentManagementServer;
 import com.bagri.xdm.client.common.impl.XDMModelManagementBase;
-import com.bagri.xdm.client.hazelcast.impl.ResultsIterator;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentContentProvider;
 import com.bagri.xdm.client.xml.XDMStaxParser;
 import com.bagri.xdm.common.XDMDataKey;
-import com.bagri.xdm.common.XDMIndexKey;
 import com.bagri.xdm.domain.XDMData;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMElement;
 import com.bagri.xdm.domain.XDMElements;
-import com.bagri.xdm.domain.XDMIndexedValue;
-import com.bagri.xdm.domain.XDMNodeKind;
 import com.bagri.xdm.domain.XDMPath;
-import com.bagri.xqj.BagriXQDataFactory;
-import com.bagri.xquery.api.XQProcessor;
-import com.bagri.xquery.saxon.ExceptionIterator;
-import com.bagri.xquery.saxon.XQProcessorServer;
-import com.hazelcast.core.Client;
-import com.hazelcast.core.ClientListener;
-import com.hazelcast.core.DistributedObject;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.IMap;
-import com.hazelcast.core.IQueue;
-import com.hazelcast.mapreduce.aggregation.Aggregation;
-import com.hazelcast.mapreduce.aggregation.Aggregations;
-import com.hazelcast.mapreduce.aggregation.Supplier;
-import com.hazelcast.monitor.LocalMapStats;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
 

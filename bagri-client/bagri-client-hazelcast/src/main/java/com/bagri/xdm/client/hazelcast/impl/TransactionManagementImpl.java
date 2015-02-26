@@ -12,7 +12,7 @@ public class TransactionManagementImpl implements XDMTransactionManagement {
 	private boolean isInTx = false;
 
 	@Override
-	public void beginTransaction() {
+	public String beginTransaction() {
 		if (isInTx) {
 			logger.trace("beginTransaction; in transaction now: yes"); 
 			// commit or throw ex?
@@ -20,10 +20,11 @@ public class TransactionManagementImpl implements XDMTransactionManagement {
 			logger.trace("beginTransaction; in transaction now: no"); 
 		}
 		isInTx = true;
+		return "txId";
 	}
 
 	@Override
-	public void commitTransaction() {
+	public void commitTransaction(String txId) {
 		if (!isInTx) {
 			logger.trace("commitTransaction; in transaction now: no"); 
 			// throw ex?
@@ -35,7 +36,7 @@ public class TransactionManagementImpl implements XDMTransactionManagement {
 	}
 
 	@Override
-	public void rollbackTransaction() {
+	public void rollbackTransaction(String txId) {
 		if (!isInTx) {
 			logger.trace("rollbackTransaction; in transaction now: no"); 
 			// throw ex?

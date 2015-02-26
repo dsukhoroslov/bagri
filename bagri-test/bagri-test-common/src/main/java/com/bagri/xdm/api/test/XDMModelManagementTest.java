@@ -13,54 +13,70 @@ import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.api.XDMRepository;
 import com.bagri.xdm.domain.XDMPath;
 
-public abstract class XDMModelManagementTest {
+public abstract class XDMModelManagementTest extends XDMManagementTest {
 
-	protected static String sampleRoot;
-	protected XDMRepository xRepo;
-	protected XDMModelManagement mDictionary;
+	//protected XDMModelManagement mDictionary;
 	
 	public void registerSecuritySchemaTest() throws IOException { 
 		//String schema = sampleRoot + "security.xsd";
 		String schema = readTextFile(sampleRoot + "security.xsd");
-		mDictionary.registerSchema(schema);
+		getModelManagement().registerSchema(schema);
 	}
 	
 	public void registerCustaccSchemaTest() throws IOException { 
 		//String schema = sampleRoot + "custacc.xsd";
 		String schema = readTextFile(sampleRoot + "custacc.xsd");
-		mDictionary.registerSchema(schema);
+		getModelManagement().registerSchema(schema);
 	}
 	
-	public void registerCommonSchemaTest() throws IOException { 
+	//public void registerCommonSchemaTest() throws IOException { 
 		//String schema = sampleRoot + "custacc.xsd";
-		String schema = readTextFile(sampleRoot + "Common.xsd");
-		mDictionary.registerSchema(schema);
-	}
+	//	String schema = readTextFile(sampleRoot + "Common.xsd");
+	//	mDictionary.registerSchema(schema);
+	//}
 	
 	public Collection<XDMPath> getSecurityPath() {
-		String prefix = mDictionary.getNamespacePrefix("http://tpox-benchmark.com/security"); 
-		int docType = mDictionary.getDocumentType("/" + prefix + ":Security");
-		return mDictionary.getTypePaths(docType);
+		String prefix = getModelManagement().getNamespacePrefix("http://tpox-benchmark.com/security"); 
+		int docType = getModelManagement().getDocumentType("/" + prefix + ":Security");
+		return getModelManagement().getTypePaths(docType);
 	}
-
+	
 	public Collection<XDMPath> getCustomerPath() {
-		String prefix = mDictionary.getNamespacePrefix("http://tpox-benchmark.com/custacc"); 
-		int docType = mDictionary.getDocumentType("/" + prefix + ":Customer");
-		return mDictionary.getTypePaths(docType);
+		String prefix = getModelManagement().getNamespacePrefix("http://tpox-benchmark.com/custacc"); 
+		int docType = getModelManagement().getDocumentType("/" + prefix + ":Customer");
+		return getModelManagement().getTypePaths(docType);
 	}
 
 	@Test
-	public void getSecurityPathTest() {
+	public void registerSecurityPathTest() throws IOException {
+		registerSecuritySchemaTest();
 		Collection<XDMPath> sec = getSecurityPath();
 		Assert.assertNotNull(sec);
 		Assert.assertTrue(sec.size() > 0);
 	}
 
 	@Test
-	public void getCustomerPathTest() {
+	public void registerCustomerPathTest() throws IOException {
+		registerCustaccSchemaTest();
 		Collection<XDMPath> sec = getCustomerPath();
 		Assert.assertNotNull(sec);
 		Assert.assertTrue(sec.size() > 0);
 	}
 
+	@Test
+	public void getSecurityPathTest() throws IOException {
+		storeSecurityTest();
+		Collection<XDMPath> sec = getSecurityPath();
+		Assert.assertNotNull(sec);
+		Assert.assertTrue(sec.size() > 0);
+	}
+
+	@Test
+	public void getCustomerPathTest() throws IOException {
+		storeCustomerTest();
+		Collection<XDMPath> sec = getCustomerPath();
+		Assert.assertNotNull(sec);
+		Assert.assertTrue(sec.size() > 0);
+	}
+	
 }

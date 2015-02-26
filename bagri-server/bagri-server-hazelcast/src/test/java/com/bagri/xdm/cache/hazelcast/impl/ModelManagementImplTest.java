@@ -1,8 +1,5 @@
 package com.bagri.xdm.cache.hazelcast.impl;
 
-import static com.bagri.xdm.client.hazelcast.impl.DocumentManagementImpl.*;
-import static org.junit.Assert.*;
-
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -10,11 +7,10 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.bagri.xdm.api.test.XDMModelManagementTest;
-import com.bagri.xdm.client.hazelcast.impl.DocumentManagementImpl;
 import com.bagri.xdm.client.hazelcast.impl.RepositoryImpl;
 import com.hazelcast.core.Hazelcast;
 
-public class ModelManagementTest extends XDMModelManagementTest {
+public class ModelManagementImplTest extends XDMModelManagementTest {
 	
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
@@ -34,10 +30,10 @@ public class ModelManagementTest extends XDMModelManagementTest {
 	@Before
 	public void setUp() throws Exception {
 		xRepo = new RepositoryImpl();
-		mDictionary = xRepo.getModelManagement();
+		//mDictionary = xRepo.getModelManagement();
 
-		registerSecuritySchemaTest();
-		registerCustaccSchemaTest();
+		//registerSecuritySchemaTest();
+		//registerCustaccSchemaTest();
 		//registerCommonSchemaTest();
 	}
 
