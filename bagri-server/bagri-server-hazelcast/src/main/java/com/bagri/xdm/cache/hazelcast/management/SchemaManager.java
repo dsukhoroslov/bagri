@@ -1,8 +1,10 @@
 package com.bagri.xdm.cache.hazelcast.management;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
@@ -25,6 +27,7 @@ import com.bagri.xdm.client.common.impl.XDMModelManagementBase;
 import com.bagri.xdm.system.XDMIndex;
 import com.bagri.xdm.system.XDMSchema;
 import com.hazelcast.client.HazelcastClient;
+import com.hazelcast.client.impl.HazelcastClientInstanceImpl;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.Member;
 import com.hazelcast.instance.MemberImpl;
@@ -78,9 +81,8 @@ public class SchemaManager extends EntityManager<XDMSchema> {
 			return new String[0];
 		}
 		HazelcastInstance hzInstance = clientContext.getBean("hzInstance", HazelcastInstance.class);
-		logger.trace("getActiveNodes; client: {}", hzInstance);
-		if (hzInstance instanceof HazelcastClient) {
-			Collection<MemberImpl> members = ((HazelcastClient) hzInstance).getClientClusterService().getMemberList();
+		if (hzInstance instanceof HazelcastClientInstanceImpl) {
+			Collection<MemberImpl> members = ((HazelcastClientInstanceImpl) hzInstance).getClientClusterService().getMemberList();
 			String[] result = new String[members.size()];
 			int idx = 0;
 			for (Member member: members) {

@@ -68,7 +68,7 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 	
 	public RepositoryImpl(HazelcastInstance hzInstance) {
 		this.hzClient = hzInstance;
-		com.hazelcast.client.HazelcastClientProxy proxy = (com.hazelcast.client.HazelcastClientProxy) hzClient; 
+		com.hazelcast.client.impl.HazelcastClientProxy proxy = (com.hazelcast.client.impl.HazelcastClientProxy) hzClient;
 		schemaName = proxy.getClientConfig().getGroupConfig().getName();
 		clientId = proxy.getLocalEndpoint().getUuid();
 		logger.trace("<init>; connected to HZ server as: {}; {}", clientId, proxy);
@@ -112,6 +112,7 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 		if (smart != null) {
 			config.getNetworkConfig().setSmartRouting(smart.equalsIgnoreCase("true"));
 		}
+		
 		//config.setProperty("hazelcast.logging.type", "slf4j");
 		//UsernamePasswordCredentials creds = new UsernamePasswordCredentials(schema, password);
 		//SecureCredentials creds = new SecureCredentials(password);
@@ -138,7 +139,7 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 		logger.debug("initializeHazelcast; config: {}", config);
 		hzClient = HazelcastClient.newHazelcastClient(config);
 		//logger.debug("initializeHazelcast; got HZ: {}", hzInstance);
-		com.hazelcast.client.HazelcastClientProxy proxy = (com.hazelcast.client.HazelcastClientProxy) hzClient; 
+		com.hazelcast.client.impl.HazelcastClientProxy proxy = (com.hazelcast.client.impl.HazelcastClientProxy) hzClient; 
 		schemaName = proxy.getClientConfig().getGroupConfig().getName();
 		clientId = proxy.getLocalEndpoint().getUuid();
 		logger.trace("initializeHazelcast; connected to HZ server as: {}", clientId);
