@@ -82,8 +82,7 @@ public class XDMElements {
          
           //String field = "value";
           //Object value = pex.getValue().toString();
-          String val = value.toString();
-         
+    	
           //if (value instanceof Integer) {
           //     field = "asInt";
           //} else if (value instanceof Long) {
@@ -101,12 +100,17 @@ public class XDMElements {
           //} else {
           //     value = value.toString();
           //}
-          
-          if (elementRef instanceof XDMElement) {
-        	  return compareValue(pex.getCompType(), val, ((XDMElement) elementRef).getValue());
-          } else {
-        	  return compareValues(pex.getCompType(), val, (Set<XDMElement>) elementRef);
-          }
+
+    	if (value instanceof Collection) {
+    		// TODO: implement this case..
+    	}
+        String val = value.toString();
+    	
+        if (elementRef instanceof XDMElement) {
+        	return compareValue(pex.getCompType(), val, ((XDMElement) elementRef).getValue());
+        } else {
+        	return compareValues(pex.getCompType(), val, (Set<XDMElement>) elementRef);
+        }
          
     }
     

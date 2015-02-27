@@ -236,7 +236,7 @@ public class QueryManagementImpl implements XDMQueryManagement {
 
 	protected Set<Long> queryPathKeys(Set<Long> found, PathExpression pex, Object value) {
 
-		logger.trace("queryPathKeys.enter; found: {}", found == null ? "null" : found.size()); 
+		logger.trace("queryPathKeys.enter; found: {}; value: {}", (found == null ? "null" : found.size()), value); 
 		Predicate pp = null;
 		int pathId = 0;
 		if (pex.isRegex()) {
@@ -268,7 +268,7 @@ public class QueryManagementImpl implements XDMQueryManagement {
    		//} catch (Throwable ex) {
    		//	logger.error("queryPathKeys", ex);
    		//}
-		
+
 		if (pathId > 0 && Comparison.EQ.equals(pex.getCompType()) && 
 				idxMgr.isPathIndexed(pathId)) {
 			Set<Long> docIds;
@@ -292,8 +292,24 @@ public class QueryManagementImpl implements XDMQueryManagement {
 				return Collections.emptySet();
 			}
 		}
-   		
-   		Predicate<XDMDataKey, XDMElements> f = Predicates.and(pp, new QueryPredicate(pex, value));
+
+		QueryPredicate qp;
+		if (value instanceof Collection) {
+			Collection values = (Collection) value;
+			if (values.size() == 0) {
+				return Collections.emptySet();
+			}
+			if (values.size() == 1) {
+		   		qp = new QueryPredicate(pex, values.iterator().next());
+			} else {
+				// fix this..
+				qp = new QueryPredicate(pex, value);
+			}
+		} else {
+	   		qp = new QueryPredicate(pex, value);
+		}
+
+		Predicate<XDMDataKey, XDMElements> f = Predicates.and(pp, qp);
    		Set<XDMDataKey> xdmKeys = xdmCache.keySet(f);
 		logger.trace("queryPathKeys; got {} query results", xdmKeys.size()); 
 		Set<Long> result = new HashSet<Long>(xdmKeys.size());
