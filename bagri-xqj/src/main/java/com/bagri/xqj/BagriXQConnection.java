@@ -36,12 +36,28 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 
 		metaData = new BagriXQMetaData(this, null);
 		context = new BagriXQStaticContext();
+		this.transactional = false;
+	}
+
+	public BagriXQConnection(String address, int timeout, boolean transactional) {
+
+		metaData = new BagriXQMetaData(this, null);
+		context = new BagriXQStaticContext();
+		this.transactional = transactional;
 	}
 
 	public BagriXQConnection(String address, int timeout, String username, String password) {
 
 		metaData = new BagriXQMetaData(this, username);
 		context = new BagriXQStaticContext();
+		this.transactional = false;
+	}
+	
+	public BagriXQConnection(String address, int timeout, String username, String password, boolean transactional) {
+
+		metaData = new BagriXQMetaData(this, username);
+		context = new BagriXQStaticContext();
+		this.transactional = transactional;
 	}
 	
 	@Override
@@ -50,6 +66,14 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 		//if (isClosed()) {
 		//	throw new XQException("Connection is already closed");
 		//}
+		
+		if (transactional) {
+			if (autoCommit) {
+				getTxManager().commitTransaction(txId);
+			} else {
+				// ??
+			}
+		}
 		
 		getProcessor().getRepository().close();
 		closed = true;
@@ -76,12 +100,14 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 	@Override
 	public void commit() throws XQException {
 
-		if (autoCommit) {
-	        logger.info("commit; The connection is in AutoCommit state, nothing to commit explicitly.");
-	        return;
+		if (transactional) {
+			if (autoCommit) {
+		        logger.info("commit; The connection is in AutoCommit state, nothing to commit explicitly.");
+		        return;
+			}
+			getTxManager().commitTransaction(txId);
+			txId = null;
 		}
-		getTxManager().commitTransaction(txId);
-		txId = getTxManager().beginTransaction();
 	}
 	
 	@Override
@@ -97,12 +123,14 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 	@Override
 	public void rollback() throws XQException {
 		
-		if (autoCommit) {
-	        logger.info("rollback; The connection is in AutoCommit state, nothing to rollback explicitly.");
-	        return;
+		if (transactional) {
+			if (autoCommit) {
+		        logger.info("rollback; The connection is in AutoCommit state, nothing to rollback explicitly.");
+		        return;
+			}
+			getTxManager().rollbackTransaction(txId);
+			txId = null;
 		}
-		getTxManager().rollbackTransaction(txId);
-		txId = getTxManager().beginTransaction();
 	}
 
 	@Override
@@ -112,12 +140,12 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 			// no-op
 			return;
 		}
-		if (!this.autoCommit) {
-			getTxManager().commitTransaction(txId);
-		}
-		this.autoCommit = autoCommit;
-		if (!this.autoCommit) {
-			txId = getTxManager().beginTransaction();
+		if (transactional) {
+			if (!this.autoCommit) {
+				getTxManager().commitTransaction(txId);
+				txId = null;
+			}
+			this.autoCommit = autoCommit;
 		}
 	}
 	
@@ -308,9 +336,26 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 			XQStaticContext ctx) throws XQException {
 		
 		checkConnection();
-		// run cmd..
-		//logger.info("executeCommand. got command: {}", cmd);
-		getProcessor().executeXCommand(cmd, bindings, ctx); //
+		if (transactional) {
+			if (autoCommit || txId == null) {
+				txId = getTxManager().beginTransaction();
+			}
+			try {
+				getProcessor().executeXCommand(cmd, bindings, ctx);
+				if (autoCommit && txId != null) {
+					getTxManager().commitTransaction(txId);
+					txId = null;
+				}
+			} catch (Throwable ex) {
+				if (txId != null) {
+					getTxManager().rollbackTransaction(txId);
+					txId = null;
+				}
+				throw ex;
+			}
+		} else {
+			getProcessor().executeXCommand(cmd, bindings, ctx);
+		}
 	}
 
 	public Iterator executeQuery(String query) throws XQException {
@@ -321,9 +366,27 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 	public Iterator executeQuery(String query, XQStaticContext ctx) throws XQException {
 		
 		checkConnection();
-		// run cmd..
-		//logger.info("executeQuery. got query: {}", query);
-		result = getProcessor().executeXQuery(query, ctx);
+		Iterator result;
+		if (transactional) {
+			if (autoCommit || txId == null) {
+				txId = getTxManager().beginTransaction();
+			}
+			try {
+				result = getProcessor().executeXQuery(query, ctx);
+				if (autoCommit && txId != null) {
+					getTxManager().commitTransaction(txId);
+					txId = null;
+				}
+			} catch (Throwable ex) {
+				if (txId != null) {
+					getTxManager().rollbackTransaction(txId);
+					txId = null;
+				}
+				throw ex;
+			}
+		} else {
+			result = getProcessor().executeXQuery(query, ctx);
+		}
 		return result;
 	}
 	
