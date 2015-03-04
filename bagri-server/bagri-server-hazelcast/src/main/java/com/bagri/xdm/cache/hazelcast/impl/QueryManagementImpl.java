@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.xml.namespace.QName;
 import javax.xml.transform.Source;
@@ -58,7 +59,7 @@ public class QueryManagementImpl implements XDMQueryManagement {
 	
     private IMap<Integer, XDMQuery> xqCache;
     private IMap<XDMResultsKey, XDMResults> xrCache;
-    private Map<Integer, XDMQuery> xQueries = new HashMap<Integer, XDMQuery>();
+    private Map<Integer, XDMQuery> xQueries = new ConcurrentHashMap<Integer, XDMQuery>();
     
 	private IMap<Long, XDMDocument> xddCache;
     private IMap<XDMDataKey, XDMElements> xdmCache;
@@ -210,6 +211,12 @@ public class QueryManagementImpl implements XDMQueryManagement {
 		return xqr.getResults().iterator();
 	}
 
+	@Override
+	public void clearCache() {
+		xqCache.evictAll();
+		xrCache.evictAll();
+		xQueries.clear();
+	}
 	
 	public Set<Long> queryKeys(Set<Long> found, ExpressionContainer ec, Expression ex) {
 		if (ex instanceof BinaryExpression) {

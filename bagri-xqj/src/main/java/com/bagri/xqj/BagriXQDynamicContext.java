@@ -245,5 +245,4 @@ public class BagriXQDynamicContext implements XQDynamicContext {
 	}
 	
 	
-
 }

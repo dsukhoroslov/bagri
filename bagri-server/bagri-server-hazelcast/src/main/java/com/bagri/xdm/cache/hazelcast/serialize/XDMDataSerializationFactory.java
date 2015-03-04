@@ -17,11 +17,12 @@ import com.bagri.xdm.cache.hazelcast.task.query.QueryProcessor;
 import com.bagri.xdm.cache.hazelcast.task.query.XMLBuilder;
 import com.bagri.xdm.cache.hazelcast.task.query.XQCommandExecutor;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaAdministrator;
-import com.bagri.xdm.cache.hazelcast.task.schema.SchemaCleaner;
+import com.bagri.xdm.cache.hazelcast.task.schema.SchemaDocCleaner;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaDenitiator;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaInitiator;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaMemberExtractor;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaPopulator;
+import com.bagri.xdm.cache.hazelcast.task.schema.SchemaQueryCleaner;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaStatsAggregator;
 import com.bagri.xdm.cache.hazelcast.task.stats.StatisticSeriesCollector;
 import com.bagri.xdm.cache.hazelcast.task.stats.StatisticTotalsCollector;
@@ -37,7 +38,7 @@ public class XDMDataSerializationFactory extends com.bagri.xdm.client.hazelcast.
 			case cli_XDMRemoveDocumentTask: return new DocumentRemover();
 			case cli_XDMInitSchemaTask: return new SchemaInitiator();
 			case cli_XDMDenitSchemaTask: return new SchemaDenitiator();
-			case cli_XDMCleanSchemaTask: return new SchemaCleaner();
+			case cli_XDMCleanSchemaTask: return new SchemaDocCleaner();
 			case cli_XDMSchemaAdminTask: return new SchemaAdministrator();
 			case cli_XDMSchemaMemberTask: return new SchemaMemberExtractor();
 			case cli_XDMPopulateSchemaTask: return new SchemaPopulator();
@@ -59,6 +60,7 @@ public class XDMDataSerializationFactory extends com.bagri.xdm.client.hazelcast.
 			case cli_CreateIndexTask: return new IndexCreator();
 			case cli_RemoveIndexTask: return new IndexRemover();
 			case cli_IndexValueTask: return new ValueIndexator();
+			case cli_XDMCleanQueryTask:  return new SchemaQueryCleaner();
 		}
 		return super.create(typeId);
 	}

@@ -157,20 +157,20 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 
 	    	    // HOWTO: distinguish a query from command utilizing external function (store, remove)?
 		        cacheable = !xqExp.getExpression().getExpressionName().startsWith(BagriXQConstants.bg_schema);
-	        	logger.trace("execQuery; isSubtree: {}; isVacuous: {}; isUpdating: {}", 
-	        			xqExp.getExpression().isSubtreeExpression(), xqExp.getExpression().isVacuousExpression(), 
-	        			xqExp.getExpression().isUpdatingExpression());
+	        	//logger.trace("execQuery; isSubtree: {}; isVacuous: {}; isUpdating: {}", 
+	        	//		xqExp.getExpression().isSubtreeExpression(), xqExp.getExpression().isVacuousExpression(), 
+	        	//		xqExp.getExpression().isUpdatingExpression());
 
 	        	bcr.setExpression(xqExp);
 	        	bcr.setContainer(null);
 	        } else {
 	        	// cacheable = false; -> don't want to rewrite already cached xqExp/xdmExp
     	    	xqExp = (XQueryExpression) xQuery.getXqExpression();
+	        	bcr.setExpression(xqExp);
     	    	Map params = getParams();
     	    	if (params == null || params.isEmpty()) {
     	    		// static query; must get params from the query itself..
     	    		// or, just run it again..
-    	        	bcr.setExpression(xqExp);
     	        	bcr.setContainer(null);
     	    	} else {
         	    	ExpressionBuilder xdmExp = xQuery.getXdmExpression();

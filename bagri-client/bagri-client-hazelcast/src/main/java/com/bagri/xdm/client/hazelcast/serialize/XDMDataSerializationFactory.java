@@ -73,11 +73,11 @@ public class XDMDataSerializationFactory implements DataSerializableFactory {
 	public static final int cli_XDMSetNodeOptionTask = 135;
 	public static final int cli_XDMAggregateSchemaInfoTask = 136;
 	public static final int cli_XDMGetNodeInfoTask = 137;
-	
 	public static final int cli_CreateIndexTask = 138;
 	public static final int cli_RemoveIndexTask = 139;
 	public static final int cli_IndexValueTask = 140;
 	public static final int cli_DeindexValueTask = 141;
+	public static final int cli_XDMCleanQueryTask = 142;
 	
 	@Override
 	public IdentifiedDataSerializable create(int typeId) {

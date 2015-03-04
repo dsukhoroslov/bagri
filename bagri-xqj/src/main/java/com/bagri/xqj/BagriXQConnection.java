@@ -3,10 +3,8 @@ package com.bagri.xqj;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import javax.xml.namespace.QName;
@@ -20,7 +18,6 @@ import javax.xml.xquery.XQStaticContext;
 
 import com.bagri.common.util.XMLUtils;
 import com.bagri.xdm.api.XDMTransactionManagement;
-import com.bagri.xquery.api.XQProcessor;
 
 import static com.bagri.xqj.BagriXQConstants.ex_null_context;
 
@@ -32,28 +29,28 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 	private BagriXQMetaData metaData;
 	private BagriXQStaticContext context;
 	
-	public BagriXQConnection(String address, int timeout) {
+	public BagriXQConnection(String address) {
 
 		metaData = new BagriXQMetaData(this, null);
 		context = new BagriXQStaticContext();
 		this.transactional = false;
 	}
 
-	public BagriXQConnection(String address, int timeout, boolean transactional) {
+	public BagriXQConnection(String address, boolean transactional) {
 
 		metaData = new BagriXQMetaData(this, null);
 		context = new BagriXQStaticContext();
 		this.transactional = transactional;
 	}
 
-	public BagriXQConnection(String address, int timeout, String username, String password) {
+	public BagriXQConnection(String address, String username, String password) {
 
 		metaData = new BagriXQMetaData(this, username);
 		context = new BagriXQStaticContext();
 		this.transactional = false;
 	}
 	
-	public BagriXQConnection(String address, int timeout, String username, String password, boolean transactional) {
+	public BagriXQConnection(String address, String username, String password, boolean transactional) {
 
 		metaData = new BagriXQMetaData(this, username);
 		context = new BagriXQStaticContext();
@@ -307,29 +304,9 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 		}
 	}
 
-	public Iterator getResultIterator() {
-		//List list = getResultList(); //new ArrayList();
-		//XQSequence result = new IterableXQSequence(list.iterator()); // ScrollableXQSequence(list);
-		//return new BagriXQSequenceIterator(result);
-		return result;
-	}
-	
-	private Iterator result;
-
-	public List getResultList() {
-		List list = new ArrayList();
-		if (result != null) {
-			while (result.hasNext()) {
-				list.add(result.next());
-			}
-		}
-		return list; 
-	}
-	
-
 	public void executeCommand(String cmd, Map<QName, XQItemAccessor> bindings) throws XQException {
 		
-		executeCommand(cmd, bindings, context); //
+		executeCommand(cmd, bindings, context); 
 	}
 	
 	public void executeCommand(String cmd, Map<QName, XQItemAccessor> bindings, 

@@ -1,6 +1,7 @@
 package com.bagri.xqj;
 
 //import static com.bagri.xqj.BagriXQConstants.ex_connection_closed;
+import static com.bagri.common.util.CollectionUtils.copyIterator;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -76,9 +77,9 @@ public class BagriXQExpression extends BagriXQDynamicContext implements XQExpres
 		Iterator result = connection.executeQuery(query);
 		
 		if (context.getScrollability() == XQConstants.SCROLLTYPE_SCROLLABLE) {
-			return new ScrollableXQResultSequence(this);
+			return new ScrollableXQResultSequence(this, copyIterator(result));
 		}
-		return new IterableXQResultSequence(this);
+		return new IterableXQResultSequence(this, result);
 	}
 
 	@Override
@@ -101,9 +102,9 @@ public class BagriXQExpression extends BagriXQDynamicContext implements XQExpres
 		Iterator result = connection.executeQuery(str);
 
 		if (context.getScrollability() == XQConstants.SCROLLTYPE_SCROLLABLE) {
-			return new ScrollableXQResultSequence(this);
+			return new ScrollableXQResultSequence(this, copyIterator(result));
 		}
-		return new IterableXQResultSequence(this);
+		return new IterableXQResultSequence(this, result);
 	}
 
 	@Override
@@ -126,9 +127,9 @@ public class BagriXQExpression extends BagriXQDynamicContext implements XQExpres
 		Iterator result = connection.executeQuery(str);
 
 		if (context.getScrollability() == XQConstants.SCROLLTYPE_SCROLLABLE) {
-			return new ScrollableXQResultSequence(this);
+			return new ScrollableXQResultSequence(this, copyIterator(result));
 		}
-		return new IterableXQResultSequence(this);
+		return new IterableXQResultSequence(this, result);
 	}
 	
 }

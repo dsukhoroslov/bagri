@@ -34,10 +34,12 @@ public class BagriXQDataSource implements XQDataSource {
 	public static final String USER = "user";
 	public static final String PASSWORD = "password";
 	public static final String ADDRESS = "address";
+	public static final String TRANSACTIONAL = "transactional";
 	
 	public static final String XQ_PROCESSOR = "query.processor";
 	public static final String XDM_REPOSITORY = "xdm.repository";
 	
+	// TODO: make some relevant writer which will do logging
 	private PrintWriter writer;
 	private int timeout = 100;
 	private Properties properties = new Properties();
@@ -80,7 +82,6 @@ public class BagriXQDataSource implements XQDataSource {
 		
 		String address = getAddress();
 		logger.trace("getConnection. creating new connection for address: {}; user: {}", address, username);
-		//return new BagriXQConnection(address, timeout); //, username, password);
 		properties.put(USER, username);
 		properties.put(PASSWORD, password);
 		return initConnection(address, timeout);
@@ -92,6 +93,11 @@ public class BagriXQDataSource implements XQDataSource {
 			address = properties.getProperty(HOST) + ":" + properties.getProperty(PORT);
 		}
 		return address; 
+	}
+	
+	private boolean getTransactional() {
+		String transactional = properties.getProperty(TRANSACTIONAL);
+		return ("true".equalsIgnoreCase(transactional));
 	}
 
 	private Object makeInstance(String propName) throws XQException {
@@ -145,12 +151,13 @@ public class BagriXQDataSource implements XQDataSource {
 	
 	private XQConnection initConnection(String address, int timeout) throws XQException {
 
-		BagriXQConnection connect = new BagriXQConnection(address, timeout);
+		BagriXQConnection connect = new BagriXQConnection(address, getTransactional());
 		if (connect.getProcessor() == null) {
 			Object xqp = makeInstance(XQ_PROCESSOR);
 			if (xqp != null) {
 				if (xqp instanceof XQProcessor) {
 					//Object xdm = makeInstance(XDM_MANAGER);
+					// TODO: init/connect within timeout..
 					Object xdm = initRepository(connect);
 					if (xdm != null) {
 						if (xdm instanceof XDMRepository) {

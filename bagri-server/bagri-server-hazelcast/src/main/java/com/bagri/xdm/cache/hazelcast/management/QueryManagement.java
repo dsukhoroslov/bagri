@@ -7,6 +7,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import javax.management.openmbean.TabularData;
 import javax.xml.namespace.QName;
@@ -22,10 +24,12 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
+import com.bagri.xdm.cache.hazelcast.task.schema.SchemaQueryCleaner;
 import com.bagri.xdm.cache.hazelcast.task.stats.StatisticSeriesCollector;
 import com.bagri.xdm.cache.hazelcast.task.stats.StatisticsReseter;
 import com.bagri.xdm.client.common.impl.XDMModelManagementBase;
 import com.bagri.xdm.domain.XDMDocumentType;
+import com.hazelcast.core.Member;
 
 /**
  * @author Denis Sukhoroslov
@@ -44,6 +48,24 @@ public class QueryManagement extends SchemaFeatureManagement {
 		this.xqConn = xqConn;
 	}
 	
+	@ManagedOperation(description="clear Query cache")
+	public boolean clear() {
+		
+		SchemaQueryCleaner task = new SchemaQueryCleaner(schemaName);
+		Map<Member, Future<Boolean>> results = execService.submitToAllMembers(task);
+		boolean result = true;
+		for (Map.Entry<Member, Future<Boolean>> entry: results.entrySet()) {
+			try {
+				if (!entry.getValue().get()) {
+					result = false;
+				}
+			} catch (InterruptedException | ExecutionException ex) {
+				logger.error("clear.error; ", ex);
+			}
+		}
+		return result;
+	}
+	    
 	@ManagedOperation(description="Run XQuery. Returns string output specified by XQuery")
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "query", description = "A query request provided in XQuery syntax")})

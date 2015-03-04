@@ -21,7 +21,7 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.common.util.FileUtils;
 import com.bagri.xdm.cache.hazelcast.task.doc.DocumentStructureProvider;
-import com.bagri.xdm.cache.hazelcast.task.schema.SchemaCleaner;
+import com.bagri.xdm.cache.hazelcast.task.schema.SchemaDocCleaner;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaStatsAggregator;
 import com.bagri.xdm.cache.hazelcast.task.stats.StatisticSeriesCollector;
 import com.bagri.xdm.cache.hazelcast.task.stats.StatisticsReseter;
@@ -121,7 +121,7 @@ public class DocumentManagement extends SchemaFeatureManagement {
 		@ManagedOperationParameter(name = "evictOnly", description = "Delete from Cache or from Cache and CacheStore too")})
 	public boolean clear(boolean evictOnly) {
 		
-		SchemaCleaner task = new SchemaCleaner(schemaName, evictOnly);
+		SchemaDocCleaner task = new SchemaDocCleaner(schemaName, evictOnly);
 		Map<Member, Future<Boolean>> results = execService.submitToAllMembers(task);
 		boolean result = true;
 		for (Map.Entry<Member, Future<Boolean>> entry: results.entrySet()) {

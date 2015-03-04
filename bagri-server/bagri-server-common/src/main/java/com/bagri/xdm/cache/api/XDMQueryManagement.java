@@ -19,5 +19,7 @@ public interface XDMQueryManagement extends com.bagri.xdm.api.XDMQueryManagement
 
 	Iterator getQueryResults(String query, Map<String, Object> params, Properties props);
 	Iterator addQueryResults(String query, Map<String, Object> params, Properties props, Iterator results);
+	
+	void clearCache();
 
 }

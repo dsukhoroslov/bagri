@@ -1,5 +1,7 @@
 package com.bagri.xqj;
 
+import java.util.Iterator;
+
 import javax.xml.xquery.XQConnection;
 import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQItem;
@@ -10,8 +12,8 @@ public class IterableXQResultSequence extends IterableXQSequence implements XQRe
 
 	private BagriXQDynamicContext expression;
 	
-	IterableXQResultSequence(BagriXQDynamicContext expression) {
-		super(expression.connection, expression.connection.getProcessor(), expression.connection.getResultIterator());
+	IterableXQResultSequence(BagriXQDynamicContext expression, Iterator itr) {
+		super(expression.connection, expression.connection.getProcessor(), itr);
 		this.expression = expression;
 	}
 

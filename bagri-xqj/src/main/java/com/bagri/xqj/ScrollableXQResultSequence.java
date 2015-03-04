@@ -1,5 +1,7 @@
 package com.bagri.xqj;
 
+import java.util.List;
+
 import javax.xml.xquery.XQConnection;
 import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQItem;
@@ -9,8 +11,8 @@ public class ScrollableXQResultSequence extends ScrollableXQSequence implements	
 
 	private BagriXQDynamicContext expression;
 	
-	ScrollableXQResultSequence(BagriXQDynamicContext expression) {
-		super(expression.connection, expression.connection.getProcessor(), expression.connection.getResultList());
+	ScrollableXQResultSequence(BagriXQDynamicContext expression, List sequence) {
+		super(expression.connection, expression.connection.getProcessor(), sequence);
 		this.expression = expression;
 	}
 

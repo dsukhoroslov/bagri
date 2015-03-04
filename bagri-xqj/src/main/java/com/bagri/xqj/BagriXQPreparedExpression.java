@@ -1,6 +1,9 @@
 package com.bagri.xqj;
 
+import static com.bagri.common.util.CollectionUtils.copyIterator;
+
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -67,12 +70,12 @@ public class BagriXQPreparedExpression extends BagriXQDynamicContext implements	
 			throw new XQException("Expression is closed");
 		}
 		// run it...
-		connection.executeQuery(xquery, context); //this.getStaticContext());
+		Iterator result = connection.executeQuery(xquery, context); //this.getStaticContext());
 		
 		if (context.getScrollability() == XQConstants.SCROLLTYPE_SCROLLABLE) {
-			return new ScrollableXQResultSequence(this);
+			return new ScrollableXQResultSequence(this, copyIterator(result));
 		}
-		return new IterableXQResultSequence(this);
+		return new IterableXQResultSequence(this, result);
 	}
 
 	@Override
