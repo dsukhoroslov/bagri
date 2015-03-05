@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.BlockingQueue;
 
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.TabularData;
@@ -11,7 +12,9 @@ import javax.management.openmbean.TabularData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.bagri.common.stats.InvocationEvent;
 import com.bagri.common.stats.StatisticsProvider;
+import com.bagri.common.stats.UsageEvent;
 import com.bagri.common.stats.UsageStatistics;
 import com.bagri.xdm.cache.api.XDMIndexManagement;
 import com.bagri.xdm.cache.hazelcast.task.index.ValueIndexator;
@@ -35,7 +38,8 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 	private XDMFactory factory;
     private ModelManagementImpl mdlMgr;
     
-    private UsageStatistics indexStats;
+    private boolean enableStats = true;
+	private BlockingQueue<UsageEvent> queue;
 
 	protected XDMFactory getXdmFactory() {
 		return this.factory;
@@ -65,11 +69,15 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
     	this.idxCache = cache;
     }
     
-    public void setIndexStatistics(UsageStatistics indexStats) {
-    	this.indexStats = indexStats;
+    public void setStatsQueue(BlockingQueue<UsageEvent> queue) {
+    	this.queue = queue;
     }
 
-	public void setExecService(IExecutorService execService) {
+    public void setStatsEnabled(boolean enable) {
+    	this.enableStats = enable;
+    }
+
+    public void setExecService(IExecutorService execService) {
 		this.execService = execService;
 	}
     
@@ -94,7 +102,7 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 	public XDMPath createIndex(XDMIndex index) {
 		XDMPath xPath = getPathForIndex(index);
 		idxDict.putIfAbsent(xPath.getPathId(), index);
-		indexStats.initStats(index.getName());
+		//indexStats.initStats(index.getName());
 		return xPath;
 	}
 	
@@ -107,7 +115,7 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 		//}
 		//return null;
 		idxDict.remove(xPath.getPathId());
-		indexStats.deleteStats(index.getName());
+		//indexStats.deleteStats(index.getName());
 		return xPath;
 	}
 	
@@ -160,10 +168,10 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 		XDMIndexKey idxk = factory.newXDMIndexKey(pathId, value);
 		XDMIndexedValue xidv = idxCache.get(idxk);
 		if (xidv != null) {
-			//indexStats.updateStats(idx.getName(), true);
+			updateStats(idx.getName(), true, 1);
 			return xidv.getDocumentIds();
 		}
-		//indexStats.updateStats(idx.getName(), false);
+		updateStats(idx.getName(), false, 1);
 		return null;
 	}
 	
@@ -179,7 +187,17 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 		for (XDMIndexedValue value: xidv.values()) {
 			ids.addAll(value.getDocumentIds());
 		}
+		updateStats(idx.getName(), true, xidv.size());
+		updateStats(idx.getName(), false, keys.size() - xidv.size());
 		return ids;
+	}
+	
+	private void updateStats(String name, boolean success, int count) {
+		if (enableStats) {
+			if (!queue.offer(new UsageEvent(name, success, count))) {
+				logger.warn("updateStats; queue is full!!");
+			}
+		}
 	}
 	
 	@Override

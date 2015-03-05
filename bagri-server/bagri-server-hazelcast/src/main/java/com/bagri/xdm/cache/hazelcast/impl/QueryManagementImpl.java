@@ -44,6 +44,7 @@ import com.bagri.xdm.domain.XDMQuery;
 import com.bagri.xdm.domain.XDMResults;
 import com.bagri.xquery.api.XQProcessor;
 import com.bagri.xquery.saxon.ExceptionIterator;
+import com.hazelcast.core.BaseMap;
 import com.hazelcast.core.IMap;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
@@ -72,8 +73,8 @@ public class QueryManagementImpl implements XDMQueryManagement {
     	this.repo = repo;
     	this.model = repo.getModelManagement();
     	this.docMgr = (DocumentManagementImpl) repo.getDocumentManagement();
-    	this.xddCache = docMgr.getDocumentCache();
-    	this.xdmCache = docMgr.getElementCache();
+    	this.xddCache = (IMap) docMgr.getDocumentCache();
+    	this.xdmCache = (IMap) docMgr.getElementCache();
     }
 
     public void setQueryCache(IMap<Integer, XDMQuery> cache) {

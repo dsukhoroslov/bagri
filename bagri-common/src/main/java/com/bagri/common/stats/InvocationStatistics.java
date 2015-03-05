@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.BlockingQueue;
 
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.OpenDataException;
@@ -11,9 +12,12 @@ import javax.management.openmbean.TabularData;
 import javax.management.openmbean.TabularDataSupport;
 import javax.management.openmbean.TabularType;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.bagri.common.manage.JMXUtils;
 
-public class InvocationStatistics implements StatisticsProvider {
+public class InvocationStatistics implements Runnable, StatisticsProvider {
 
 	// stats indexes provided in alphabetical order
 	public static final int idx_Avg_Time = 0;
@@ -47,9 +51,16 @@ public class InvocationStatistics implements StatisticsProvider {
 	private static final String semicolon = "; ";
 	private static final String empty = ": 0; ";
 	
+    private final Logger logger;
+	
+	private BlockingQueue<InvocationEvent> queue =  null;
 	// this will be some cache, probably..?
 	private Map<String, MethodInvocationStats> mStats = new HashMap<String, MethodInvocationStats>();
-
+	
+	public InvocationStatistics(String name) {
+		logger = LoggerFactory.getLogger(getClass().getName() + "[" + name + "]");
+	}
+	
 	public Collection<String> getStatsNames() {
 		return mStats.keySet();
 	}
@@ -74,15 +85,17 @@ public class InvocationStatistics implements StatisticsProvider {
                 CompositeData data = JMXUtils.mapToComposite(sn_Name, sn_Header, stats);
                 result = JMXUtils.compositeToTabular(sn_Name, sn_Header, sn_Method, result, data);
             } catch (Exception ex) {
-                //logger.error("getStatisticSeries; error", ex);
+                logger.error("getStatisticSeries; error", ex);
             }
         }
         //logger.trace("getStatisticSeries.exit; returning: {}", result);
         return result;
     }
 
-	public void initStats(String name) {
-		mStats.put(name, new MethodInvocationStats());
+	public MethodInvocationStats initStats(String name) {
+		MethodInvocationStats miStats = new MethodInvocationStats();
+		mStats.put(name, miStats);
+		return miStats;
 	}
 	
 	@Override
@@ -92,15 +105,40 @@ public class InvocationStatistics implements StatisticsProvider {
 			initStats(name);
 		}
 	}
+
+	@Override
+	public void run() {
+		logger.info("run; start"); 
+		boolean running = true;
+		while (running) {
+			try {
+				InvocationEvent event = queue.take();
+				updateStats(event.getName(), event.isSuccess(), event.getDuration());
+			} catch (InterruptedException ex) {
+				logger.warn("run; interrupted");
+				running = false;
+			}
+		}
+		logger.info("run; finish"); 
+	}
+
+	public void setStatsQueue(BlockingQueue<InvocationEvent> queue) {
+		if (this.queue == null) {
+			this.queue = queue;
+			Thread listener = new Thread(this);
+			listener.start();
+		} else {
+			logger.warn("setStatsQueue; stats queue is already assigned: {}", queue);
+		}
+	}
 	
 	public void updateStats(String name, boolean success, long duration) {
 		long now = System.currentTimeMillis();
 		MethodInvocationStats miStats = mStats.get(name);
-		if (miStats != null) {
-			synchronized (miStats) {
-				miStats.update(success, duration, now);
-			}
+		if (miStats == null) {
+			miStats = initStats(name);
 		}
+		miStats.update(success, duration, now);
 	}
 	
 	private class MethodInvocationStats {

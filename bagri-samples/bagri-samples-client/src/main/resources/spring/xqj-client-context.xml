@@ -31,12 +31,12 @@
     
     <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
         <property name="targetObject" ref="xqProcessor" />
-        <property name="targetMethod" value="setXdmManager" />
-        <property name="arguments">
-            <list>
-                <ref local="xdmManager" />
-            </list>
-        </property>
+		<property name="targetMethod" value="setRepository" />
+		<property name="arguments">
+			<list>
+				<ref local="xdmRepo" />
+			</list>
+		</property>
     </bean>
     
 </beans>

@@ -197,11 +197,32 @@
 		<constructor-arg ref="xdm.document" />
 	</bean>
 
-	<bean id="docStats" class="com.bagri.common.stats.InvocationStatistics"/>
+	<bean id="mTicker" class="com.bagri.common.stats.MillisTicker"/>
+	<bean id="nTicker" class="com.bagri.common.stats.NanosTicker"/>
 
-	<bean id="queryStats" class="com.bagri.common.stats.InvocationStatistics"/>
+	<bean id="docQueue" class="java.util.concurrent.ArrayBlockingQueue">
+		<constructor-arg value="1024" />
+	</bean>
+	<bean id="docStats" class="com.bagri.common.stats.InvocationStatistics">
+		<constructor-arg value="docs" />
+		<property name="statsQueue" ref="docQueue"/>
+	</bean>
+
+	<bean id="queryQueue" class="java.util.concurrent.ArrayBlockingQueue">
+		<constructor-arg value="1024" />
+	</bean>
+	<bean id="queryStats" class="com.bagri.common.stats.InvocationStatistics">
+		<constructor-arg value="query" />
+		<property name="statsQueue" ref="queryQueue"/>
+	</bean>
 	
-	<bean id="indexStats" class="com.bagri.common.stats.UsageStatistics"/>
+	<bean id="indexQueue" class="java.util.concurrent.ArrayBlockingQueue">
+		<constructor-arg value="1024" />
+	</bean>
+	<bean id="indexStats" class="com.bagri.common.stats.UsageStatistics">
+		<constructor-arg value="index" />
+		<property name="statsQueue" ref="indexQueue"/>
+	</bean>
 
 	<bean id="popManager" class="com.bagri.xdm.cache.hazelcast.management.PopulationManager">
 		<constructor-arg ref="hzInstance" />
@@ -210,7 +231,7 @@
 	</bean>
 
 	<bean id="xqItemTypeSerializer" class="com.bagri.xdm.client.hazelcast.serialize.XQItemTypeSerializer">
-    		<property name="XQDataFactory" ref="xqFactory" />
+   		<property name="XQDataFactory" ref="xqFactory" />
 	</bean>
 
 	<bean id="xqItemSerializer" class="com.bagri.xdm.client.hazelcast.serialize.XQItemSerializer">
@@ -236,7 +257,7 @@
 		<property name="indexDictionary" ref="dict-index"/>
 		<property name="indexCache" ref="xdm-index"/>
 		<property name="modelManager" ref="mdlManager"/>
-		<property name="indexStatistics" ref="indexStats"/>
+		<property name="statsQueue" ref="indexQueue"/>
 	</bean>
 
 	<bean id="docManager" class="com.bagri.xdm.cache.hazelcast.impl.DocumentManagementImpl">
@@ -248,6 +269,7 @@
 		<property name="xmlCache" ref="xdm-xml"/>
 		<property name="modelManager" ref="mdlManager"/>
 		<property name="indexManager" ref="idxManager"/>
+		<property name="txManager" ref="txManager"/>
 	</bean>
 
 	<bean id="txManager" class="com.bagri.xdm.cache.hazelcast.impl.TransactionManagementImpl">

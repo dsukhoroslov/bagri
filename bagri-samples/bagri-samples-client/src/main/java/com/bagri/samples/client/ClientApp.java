@@ -38,8 +38,8 @@ public class ClientApp {
 			//long id = client.storeXmlDocument("axis.xml");
 			//System.out.println("document stored; id: " + id);
 			found = client.runPriceQuery("IBM"); //IBM; VFINX; PTTAX
-			found &= client.runPriceQuery("IBM");
-			found &= client.runPriceQuery("IBM");
+			found &= client.runSecQuery();
+			//found &= client.runPriceQuery("IBM");
 			//client.runPriceQuery();
 			//found = client.runSecQuery();
 			//client.runSecQuery();

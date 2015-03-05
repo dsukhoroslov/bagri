@@ -8,9 +8,12 @@ import org.slf4j.LoggerFactory;
 
 import com.bagri.xdm.api.XDMTransactionManagement;
 import com.bagri.xdm.client.common.XDMCacheConstants;
+import com.bagri.xdm.common.XDMDataKey;
 import com.bagri.xdm.domain.XDMDocument;
+import com.bagri.xdm.domain.XDMElements;
 import com.hazelcast.core.BaseMap;
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IMap;
 import com.hazelcast.core.TransactionalMap;
 import com.hazelcast.transaction.TransactionContext;
 
@@ -22,9 +25,16 @@ public class TransactionManagementImpl implements XDMTransactionManagement {
 	private boolean isInTx = false;
 	private Map<String, TransactionContext> txCache; // = new ConcurrentHashMap<>();
 
+    private IMap<Long, String> xmlCache;
+	private IMap<Long, XDMDocument> xddCache;
+    private IMap<XDMDataKey, XDMElements> xdmCache;
+	
 	public void setHzInstance(HazelcastInstance hzInstance) {
 		this.hzInstance = hzInstance;
 		txCache = new ConcurrentHashMap<>();
+		xmlCache = hzInstance.getMap(XDMCacheConstants.CN_XDM_XML);
+		xddCache = hzInstance.getMap(XDMCacheConstants.CN_XDM_DOCUMENT);
+		xdmCache = hzInstance.getMap(XDMCacheConstants.CN_XDM_ELEMENT);
 		//txCache = hzInstance.getMap("xdm-tx");
 		//com.hazelcast.nio.serialization.HazelcastSerializationException: 
 		//There is no suitable serializer for class com.hazelcast.transaction.impl.TransactionContextImpl
@@ -51,6 +61,7 @@ public class TransactionManagementImpl implements XDMTransactionManagement {
 		TransactionContext txCtx = txCache.get(txId);
 		if (txCtx != null) {
 			txCtx.commitTransaction();
+			txCache.remove(txId);
 		} else {
 			// throw ex?
 		}
@@ -64,10 +75,15 @@ public class TransactionManagementImpl implements XDMTransactionManagement {
 		TransactionContext txCtx = txCache.get(txId);
 		if (txCtx != null) {
 			txCtx.rollbackTransaction();
+			txCache.remove(txId);
 		} else {
 			// throw ex?
 		}
 		logger.trace("rollbackTransaction.exit;"); 
+	}
+	
+	String getCurrentTxId() {
+		return txCache.size() > 0 ? txCache.keySet().iterator().next() : null;
 	}
 
 	BaseMap getTransactionalCache(String txId, String cacheName) {

@@ -4,14 +4,18 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.BlockingQueue;
 
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.TabularData;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.common.stats.StatisticsProvider;
 
-public class UsageStatistics implements StatisticsProvider {
+public class UsageStatistics implements Runnable, StatisticsProvider {
 
 	// stats names
 	//public static final String sn_Avg_Time = "Avg time";
@@ -31,8 +35,15 @@ public class UsageStatistics implements StatisticsProvider {
 	private static final String colon = ": ";
 	private static final String semicolon = "; ";
 	
+    private final Logger logger;
+	
+	private BlockingQueue<UsageEvent> queue =  null;
 	private Map<String, ResourceUsageStats> rStats = new HashMap<String, ResourceUsageStats>();
 
+	public UsageStatistics(String name) {
+		logger = LoggerFactory.getLogger(getClass().getName() + "[" + name + "]");
+	}
+	
 	public Collection<String> getStatsNames() {
 		return rStats.keySet();
 	}
@@ -43,7 +54,7 @@ public class UsageStatistics implements StatisticsProvider {
 	
 	@Override
 	public CompositeData getStatisticTotals() {
-		// it just has no much sense to implement this method for invocation stats;
+		// it just has no much sense to implement this method for usage stats;
 		return null;
 	}
 	
@@ -64,8 +75,10 @@ public class UsageStatistics implements StatisticsProvider {
         return result;
     }
 
-	public void initStats(String name) {
-		rStats.put(name, new ResourceUsageStats());
+	public ResourceUsageStats initStats(String name) {
+		ResourceUsageStats ruStats = new ResourceUsageStats();
+		rStats.put(name, ruStats);
+		return ruStats;
 	}
 	
 	public void deleteStats(String name) {
@@ -80,16 +93,42 @@ public class UsageStatistics implements StatisticsProvider {
 		}
 	}
 	
-	public void updateStats(String name, boolean success) {
-		long now = System.currentTimeMillis();
-		ResourceUsageStats ruStats = rStats.get(name);
-		if (ruStats != null) {
-			synchronized (ruStats) {
-				ruStats.update(success, now);
+	@Override
+	public void run() {
+		logger.info("run; start"); 
+		boolean running = true;
+		while (running) {
+			try {
+				UsageEvent event = queue.take();
+				updateStats(event.getName(), event.isSuccess(), event.getCount());
+			} catch (InterruptedException ex) {
+				logger.warn("run; interrupted");
+				running = false;
 			}
+		}
+		logger.info("run; finish"); 
+	}
+
+	public void setStatsQueue(BlockingQueue<UsageEvent> queue) {
+		if (this.queue == null) {
+			this.queue = queue;
+			Thread listener = new Thread(this);
+			listener.start();
+		} else {
+			logger.warn("setStatsQueue; stats queue is already assigned: {}", queue);
 		}
 	}
 	
+	public void updateStats(String name, boolean success, int count) {
+		if (count > 0) {
+			long now = System.currentTimeMillis();
+			ResourceUsageStats ruStats = rStats.get(name);
+			if (ruStats == null) {
+				ruStats = initStats(name);
+			}
+			ruStats.update(success, now, count);
+		}
+	}
 
 	private class ResourceUsageStats {
 		
@@ -103,12 +142,12 @@ public class UsageStatistics implements StatisticsProvider {
 		private long tmFirst = 0;
 		private long tmLast;
 		
-		void update(boolean success, long now) {
-			cntAccessed++;
+		void update(boolean success, long now, int count) {
+			cntAccessed += count;
 			if (success) {
-				cntHits++;
+				cntHits += count;
 			} else {
-				cntMiss++;
+				cntMiss += count;
 			}
 			tmLast = now;
 			if (tmFirst == 0) {
