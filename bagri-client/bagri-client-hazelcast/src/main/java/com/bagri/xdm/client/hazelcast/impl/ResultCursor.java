@@ -16,9 +16,9 @@ import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
-public class ResultsIterator implements Iterator<Object>, IdentifiedDataSerializable {
+public class ResultCursor implements Iterator<Object>, IdentifiedDataSerializable {
 	
-    private static final transient Logger logger = LoggerFactory.getLogger(ResultsIterator.class);
+    private static final transient Logger logger = LoggerFactory.getLogger(ResultCursor.class);
 	
 	private Iterator<Object> iter;
 	private Object current = null;
@@ -28,31 +28,31 @@ public class ResultsIterator implements Iterator<Object>, IdentifiedDataSerializ
 	private int batchSize;
 	private boolean failure;
 	
-	public ResultsIterator() {
+	public ResultCursor() {
 		// for de-serializer
 	}
 	
 	// used to instantiate cursor from server side -> write
-	public ResultsIterator(String clientId, int batchSize, Iterator<Object> iter) {
+	public ResultCursor(String clientId, int batchSize, Iterator<Object> iter) {
 		this.clientId = clientId;
 		this.batchSize = batchSize;
 		this.iter = iter;
 		this.failure = false;
 	}
 
-	public ResultsIterator(String clientId, int batchSize, Iterator<Object> iter, boolean failure) {
+	public ResultCursor(String clientId, int batchSize, Iterator<Object> iter, boolean failure) {
 		this(clientId, batchSize, iter);
 		this.failure = failure;
 	}
 
 	// used to instantiate cursor from client side -> read
-	public ResultsIterator(String clientId) { //, int qSize) {
+	public ResultCursor(String clientId) { //, int qSize) {
 		this.clientId = clientId;
 		this.failure = false;
 		//this.queueSize = qSize;
 	}
 
-	public ResultsIterator(String clientId, boolean failure) { //, int qSize) {
+	public ResultCursor(String clientId, boolean failure) { //, int qSize) {
 		this(clientId);
 		this.failure = failure;
 	}
@@ -144,7 +144,7 @@ public class ResultsIterator implements Iterator<Object>, IdentifiedDataSerializ
 
 	@Override
 	public String toString() {
-		return "HazelcastXQCursor [clientId=" + clientId + ", failure="	+ failure + "]";
+		return "ResultCursor [clientId=" + clientId + ", failure="	+ failure + "]";
 	}
 
 	@Override

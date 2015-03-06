@@ -16,6 +16,8 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.TransactionalMap;
 import com.hazelcast.transaction.TransactionContext;
+import com.hazelcast.transaction.TransactionOptions;
+import com.hazelcast.transaction.TransactionOptions.TransactionType;
 
 public class TransactionManagementImpl implements XDMTransactionManagement {
 	
@@ -44,7 +46,8 @@ public class TransactionManagementImpl implements XDMTransactionManagement {
 	@Override
 	public String beginTransaction() {
 		logger.trace("beginTransaction.enter;"); 
-		TransactionContext txCtx = hzInstance.newTransactionContext();
+		TransactionOptions txOps = new TransactionOptions().setTransactionType(TransactionType.LOCAL);
+		TransactionContext txCtx = hzInstance.newTransactionContext(txOps);
 		String txId = txCtx.getTxnId();
 		txCache.put(txId, txCtx);
 		txCtx.beginTransaction();

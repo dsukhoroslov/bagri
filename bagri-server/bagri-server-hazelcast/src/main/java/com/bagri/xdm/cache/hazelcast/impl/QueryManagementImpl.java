@@ -30,7 +30,7 @@ import com.bagri.xdm.api.XDMRepository;
 import com.bagri.xdm.cache.api.XDMQueryManagement;
 import com.bagri.xdm.cache.hazelcast.predicate.QueryPredicate;
 import com.bagri.xdm.client.hazelcast.data.QueryParamsKey;
-import com.bagri.xdm.client.hazelcast.impl.ResultsIterator;
+import com.bagri.xdm.client.hazelcast.impl.ResultCursor;
 import com.bagri.xdm.common.XDMDataKey;
 import com.bagri.xdm.common.XDMFactory;
 import com.bagri.xdm.common.XDMIndexKey;
@@ -386,7 +386,7 @@ public class QueryManagementImpl implements XDMQueryManagement {
 	private Iterator execXQCommand(boolean isQuery, String xqCmd, Map bindings, Properties props) {
 
 		logger.trace("execXQCommand.enter; query: {}, command: {}; bindings: {}", isQuery, xqCmd, bindings);
-		ResultsIterator result = null;
+		ResultCursor result = null;
 		Iterator iter = null;
 		String clientId = props.getProperty("clientId");
 		int batchSize = Integer.parseInt(props.getProperty("batchSize", "0"));
@@ -424,8 +424,8 @@ public class QueryManagementImpl implements XDMQueryManagement {
 		return result;
 	}
 
-	private ResultsIterator createCursor(String clientId, int batchSize, Iterator iter, boolean failure) {
-		final ResultsIterator xqCursor = new ResultsIterator(clientId, batchSize, iter, failure);
+	private ResultCursor createCursor(String clientId, int batchSize, Iterator iter, boolean failure) {
+		final ResultCursor xqCursor = new ResultCursor(clientId, batchSize, iter, failure);
 		
 		// TODO: put everything to the queue - can be too slow!
 		// think of async solution..

@@ -1,7 +1,7 @@
 package com.bagri.xdm.client.hazelcast.serialize;
 
 import com.bagri.xdm.client.hazelcast.data.QueryParamsKey;
-import com.bagri.xdm.client.hazelcast.impl.ResultsIterator;
+import com.bagri.xdm.client.hazelcast.impl.ResultCursor;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentCreator;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentRemover;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentContentProvider;
@@ -46,11 +46,15 @@ public class XDMDataSerializationFactory implements DataSerializableFactory {
 	public static final int cli_QueryBuilder = 84;
 	//public static final int cli_StructuredQName = 85;
 	
-	public static final int cli_XQCursor = 110;
-	public static final int cli_XDMQueryParamsKey = 111; 
+	public static final int cli_XQCursor = 90;
+	public static final int cli_XDMQueryParamsKey = 91; 
 
-	public static final int cli_XDMCreateDocumentTask = 112; 
-	public static final int cli_XDMRemoveDocumentTask = 115;
+	public static final int cli_XDMCreateDocumentTask = 110; 
+	public static final int cli_XDMRemoveDocumentTask = 111;
+
+	public static final int cli_XDMBeginTransactionTask = 112; 
+	public static final int cli_XDMCommitTransactionTask = 113;
+	public static final int cli_XDMRollbackTransactionTask = 114;
 	
 	public static final int cli_XDMInitSchemaTask = 117;
 	public static final int cli_XDMDenitSchemaTask = 118;
@@ -82,7 +86,7 @@ public class XDMDataSerializationFactory implements DataSerializableFactory {
 	@Override
 	public IdentifiedDataSerializable create(int typeId) {
 		switch (typeId) {
-			case cli_XQCursor: return new ResultsIterator();
+			case cli_XQCursor: return new ResultCursor();
 			case cli_XDMQueryParamsKey: return new QueryParamsKey();
 			case cli_XDMCreateDocumentTask: return new DocumentCreator();
 			case cli_XDMRemoveDocumentTask: return new DocumentRemover();

@@ -40,7 +40,7 @@ import com.bagri.xdm.cache.api.XDMIndexManagement;
 import com.bagri.xdm.cache.common.XDMDocumentManagementServer;
 import com.bagri.xdm.client.common.XDMCacheConstants;
 import com.bagri.xdm.client.common.impl.XDMModelManagementBase;
-import com.bagri.xdm.client.hazelcast.impl.ResultsIterator;
+import com.bagri.xdm.client.hazelcast.impl.ResultCursor;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentContentProvider;
 import com.bagri.xdm.client.xml.XDMStaxParser;
 import com.bagri.xdm.common.XDMDataKey;

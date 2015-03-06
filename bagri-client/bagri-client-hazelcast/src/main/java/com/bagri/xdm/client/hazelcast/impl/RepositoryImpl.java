@@ -53,7 +53,7 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 	private String clientId;
 	private String schemaName;
 	
-	private ResultsIterator cursor;
+	private ResultCursor cursor;
 	private HazelcastInstance hzClient;
 	private IExecutorService execService;
 	
@@ -202,6 +202,10 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 		return hzClient;
 	}
 	
+	String getClientId() {
+		return clientId;
+	}
+	
 	Iterator execXQuery(boolean isQuery, String query, Map bindings, Properties props) { //throws Exception {
 		
 		//if (logger.isTraceEnabled()) {
@@ -243,9 +247,9 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 			//}
 			
 			if (timeout > 0) {
-				cursor = (ResultsIterator) future.get(timeout, TimeUnit.SECONDS);
+				cursor = (ResultCursor) future.get(timeout, TimeUnit.SECONDS);
 			} else {
-				cursor = (ResultsIterator) future.get();
+				cursor = (ResultCursor) future.get();
 			}
 			
 			logger.trace("execXQuery; got cursor: {}", cursor);
@@ -279,7 +283,7 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 		return result; 
 	}
 	
-	private Iterator extractFromCursor(ResultsIterator cursor) {
+	private Iterator extractFromCursor(ResultCursor cursor) {
 		List result = new ArrayList();
 		while (cursor.hasNext()) {
 			result.add(cursor.next());

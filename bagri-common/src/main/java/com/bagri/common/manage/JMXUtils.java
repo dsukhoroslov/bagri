@@ -211,15 +211,20 @@ public class JMXUtils {
         return source;
     }
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static TabularData aggregateStats(TabularData source, TabularData target) {
     	// source is not nullable
         logger.debug("aggregateStats.enter; got source: {}", source);
+        if (source == null) {
+        	return target;
+        }
 		TabularData result = new TabularDataSupport(source.getTabularType());
         Set<List> keys = (Set<List>) source.keySet();
     	if (target == null) {
-       		for (List key: keys) {
-       			result.put(source.get(key.toArray()));
-        	}
+       		//for (List key: keys) {
+       		//	result.put(source.get(key.toArray()));
+        	//}
+    		return source;
     	} else {
        		for (List key: keys) {
        			Object[] index = key.toArray();
