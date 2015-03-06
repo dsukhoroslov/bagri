@@ -3,16 +3,16 @@ package com.bagri.xdm.cache.hazelcast.impl;
 import java.lang.reflect.Proxy;
 import java.util.concurrent.BlockingQueue;
 
-import com.bagri.common.stats.InvocationEvent;
+import com.bagri.common.stats.StatisticsEvent;
 import com.bagri.common.stats.InvocationStatistics;
 import com.bagri.common.stats.InvocationStatsHandler;
-import com.bagri.common.stats.StopWatch;
+import com.bagri.common.stats.watch.StopWatch;
 import com.bagri.xdm.api.XDMQueryManagement;
 
 public class QueryManagementProxy extends InvocationStatsHandler {
 	
 	public static XDMQueryManagement newQMProxy(XDMQueryManagement queryMgr, 
-			BlockingQueue<InvocationEvent> queue, StopWatch stopWatch) {
+			BlockingQueue<StatisticsEvent> queue, StopWatch stopWatch) {
 
 		Object proxy = Proxy.newProxyInstance(
 				XDMQueryManagement.class.getClassLoader(), 
@@ -22,7 +22,7 @@ public class QueryManagementProxy extends InvocationStatsHandler {
 		return XDMQueryManagement.class.cast(proxy);
 	}
 	
-	private QueryManagementProxy(XDMQueryManagement queryMgr, BlockingQueue<InvocationEvent> queue, 
+	private QueryManagementProxy(XDMQueryManagement queryMgr, BlockingQueue<StatisticsEvent> queue, 
 			StopWatch stopWatch) {
 		super(queryMgr, queue);
 		setStopWatch(stopWatch);

@@ -3,16 +3,16 @@ package com.bagri.xdm.cache.hazelcast.impl;
 import java.lang.reflect.Proxy;
 import java.util.concurrent.BlockingQueue;
 
-import com.bagri.common.stats.InvocationEvent;
 import com.bagri.common.stats.InvocationStatistics;
 import com.bagri.common.stats.InvocationStatsHandler;
-import com.bagri.common.stats.StopWatch;
+import com.bagri.common.stats.StatisticsEvent;
+import com.bagri.common.stats.watch.StopWatch;
 import com.bagri.xdm.api.XDMDocumentManagement;
 
 public class DocumentManagementProxy extends InvocationStatsHandler {
 	
 	public static XDMDocumentManagement newDMProxy(XDMDocumentManagement docMgr, 
-			BlockingQueue<InvocationEvent> queue, StopWatch stopWatch) {
+			BlockingQueue<StatisticsEvent> queue, StopWatch stopWatch) {
 
 		Object proxy = Proxy.newProxyInstance(
 				XDMDocumentManagement.class.getClassLoader(), 
@@ -22,7 +22,7 @@ public class DocumentManagementProxy extends InvocationStatsHandler {
 		return XDMDocumentManagement.class.cast(proxy);
 	}
 	
-	private DocumentManagementProxy(XDMDocumentManagement docMgr, BlockingQueue<InvocationEvent> queue,
+	private DocumentManagementProxy(XDMDocumentManagement docMgr, BlockingQueue<StatisticsEvent> queue,
 			StopWatch stopWatch) {
 		super(docMgr, queue);
 		setStopWatch(stopWatch);

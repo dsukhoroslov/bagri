@@ -12,9 +12,8 @@ import javax.management.openmbean.TabularData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bagri.common.stats.InvocationEvent;
+import com.bagri.common.stats.StatisticsEvent;
 import com.bagri.common.stats.StatisticsProvider;
-import com.bagri.common.stats.UsageEvent;
 import com.bagri.common.stats.UsageStatistics;
 import com.bagri.xdm.cache.api.XDMIndexManagement;
 import com.bagri.xdm.cache.hazelcast.task.index.ValueIndexator;
@@ -39,7 +38,7 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
     private ModelManagementImpl mdlMgr;
     
     private boolean enableStats = true;
-	private BlockingQueue<UsageEvent> queue;
+	private BlockingQueue<StatisticsEvent> queue;
 
 	protected XDMFactory getXdmFactory() {
 		return this.factory;
@@ -69,7 +68,7 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
     	this.idxCache = cache;
     }
     
-    public void setStatsQueue(BlockingQueue<UsageEvent> queue) {
+    public void setStatsQueue(BlockingQueue<StatisticsEvent> queue) {
     	this.queue = queue;
     }
 
@@ -194,7 +193,7 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 	
 	private void updateStats(String name, boolean success, int count) {
 		if (enableStats) {
-			if (!queue.offer(new UsageEvent(name, success, count))) {
+			if (!queue.offer(new StatisticsEvent(name, success, count))) {
 				logger.warn("updateStats; queue is full!!");
 			}
 		}

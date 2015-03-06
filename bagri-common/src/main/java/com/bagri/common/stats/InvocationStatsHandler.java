@@ -8,7 +8,7 @@ import java.util.concurrent.BlockingQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bagri.common.manage.JMXUtils;
+import com.bagri.common.stats.watch.StopWatch;
 
 public abstract class InvocationStatsHandler implements InvocationHandler {
 
@@ -16,9 +16,9 @@ public abstract class InvocationStatsHandler implements InvocationHandler {
 	
 	private Object target; 
 	private StopWatch stopWatch;
-	private BlockingQueue<InvocationEvent> queue;
+	private BlockingQueue<StatisticsEvent> queue;
 	
-	protected InvocationStatsHandler(Object target, BlockingQueue<InvocationEvent> queue) {
+	protected InvocationStatsHandler(Object target, BlockingQueue<StatisticsEvent> queue) {
 		this.target = target;
 		this.queue = queue;
 	}
@@ -52,7 +52,7 @@ public abstract class InvocationStatsHandler implements InvocationHandler {
         }
         //stamp = System.currentTimeMillis() - stamp;
         long stamp = stopWatch.stop();
-        if (!queue.offer(new InvocationEvent(name, !failed, stamp))) {
+        if (!queue.offer(new StatisticsEvent(name, !failed, stamp))) {
         	logger.warn("invoke: the queue is full!!");
         }
         if (failed) {

@@ -1,63 +1,15 @@
 package com.bagri.common.stats;
 
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.BlockingQueue;
 
-import javax.management.openmbean.CompositeData;
-import javax.management.openmbean.TabularData;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.bagri.common.manage.JMXUtils;
-import com.bagri.common.stats.StatisticsProvider;
-
-public class UsageStatistics implements Runnable, StatisticsProvider {
-
-	// stats names
-	//public static final String sn_Avg_Time = "Avg time";
-	public static final String sn_Miss = "Miss";
-	public static final String sn_First = "First";
-	public static final String sn_Accessed = "Accessed";
-	public static final String sn_Last = "Last";
-	//public static final String sn_Max_Time = "Max time";
-	public static final String sn_Resource = "Resource"; 
-	//public static final String sn_Min_Time = "Min time";
-	public static final String sn_Hits = "Hits";
-	//public static final String sn_Sum_Time = "Sum time";
-	//public static final String sn_Throughput = "Throughput";
-
-	private static final String sn_Name = "usage";
-	private static final String sn_Header = "Resource Usage Statistics";
-	private static final String colon = ": ";
-	private static final String semicolon = "; ";
-	
-    private final Logger logger;
-	
-	private BlockingQueue<UsageEvent> queue =  null;
-	private Map<String, ResourceUsageStats> rStats = new HashMap<String, ResourceUsageStats>();
+public class UsageStatistics extends StatisticsCollector implements StatisticsProvider {
 
 	public UsageStatistics(String name) {
-		logger = LoggerFactory.getLogger(getClass().getName() + "[" + name + "]");
+		super(name);
 	}
-	
-	public Collection<String> getStatsNames() {
-		return rStats.keySet();
-	}
-	
-	public Map<String, Object> getNamedStats(String resourceName) {
-		return rStats.get(resourceName).toMap();
-	}
-	
-	@Override
-	public CompositeData getStatisticTotals() {
-		// it just has no much sense to implement this method for usage stats;
-		return null;
-	}
-	
+/*	
 	@Override
 	public TabularData getStatisticSeries() {
         TabularData result = null;
@@ -74,63 +26,30 @@ public class UsageStatistics implements Runnable, StatisticsProvider {
         //logger.trace("getStatisticSeries.exit; returning: {}", result);
         return result;
     }
+*/
 
-	public ResourceUsageStats initStats(String name) {
-		ResourceUsageStats ruStats = new ResourceUsageStats();
-		rStats.put(name, ruStats);
-		return ruStats;
-	}
-	
-	public void deleteStats(String name) {
-		rStats.remove(name);
-	}
-	
 	@Override
-	public void resetStatistics() {
-		// renew all registered stats..
-		for (String name: rStats.keySet()) {
-			initStats(name);
-		}
+	protected Statistics createStatistics(String name) {
+		return new ResourceUsageStatistics();
 	}
 	
-	@Override
-	public void run() {
-		logger.info("run; start"); 
-		boolean running = true;
-		while (running) {
-			try {
-				UsageEvent event = queue.take();
-				updateStats(event.getName(), event.isSuccess(), event.getCount());
-			} catch (InterruptedException ex) {
-				logger.warn("run; interrupted");
-				running = false;
-			}
-		}
-		logger.info("run; finish"); 
-	}
+	private class ResourceUsageStatistics implements Statistics {
 
-	public void setStatsQueue(BlockingQueue<UsageEvent> queue) {
-		if (this.queue == null) {
-			this.queue = queue;
-			Thread listener = new Thread(this);
-			listener.start();
-		} else {
-			logger.warn("setStatsQueue; stats queue is already assigned: {}", queue);
-		}
-	}
-	
-	public void updateStats(String name, boolean success, int count) {
-		if (count > 0) {
-			long now = System.currentTimeMillis();
-			ResourceUsageStats ruStats = rStats.get(name);
-			if (ruStats == null) {
-				ruStats = initStats(name);
-			}
-			ruStats.update(success, now, count);
-		}
-	}
-
-	private class ResourceUsageStats {
+		// stats names
+		//public static final String sn_Avg_Time = "Avg time";
+		private static final String sn_Miss = "Miss";
+		private static final String sn_First = "First";
+		private static final String sn_Accessed = "Accessed";
+		private static final String sn_Last = "Last";
+		//public static final String sn_Max_Time = "Max time";
+		//public static final String sn_Min_Time = "Min time";
+		private static final String sn_Hits = "Hits";
+		//public static final String sn_Sum_Time = "Sum time";
+		//public static final String sn_Throughput = "Throughput";
+		
+		private static final String sn_Name = "usage";
+		private static final String sn_Header = "Resource Usage Statistics";
+		private static final String sn_Resource = "Resource"; 
 		
 		private int cntAccessed;
 		private int cntMiss;
@@ -142,20 +61,36 @@ public class UsageStatistics implements Runnable, StatisticsProvider {
 		private long tmFirst = 0;
 		private long tmLast;
 		
-		void update(boolean success, long now, int count) {
-			cntAccessed += count;
-			if (success) {
-				cntHits += count;
+		@Override
+		public String getDescription() {
+			return sn_Resource;
+		}
+
+		@Override
+		public String getHeader() {
+			return sn_Header;
+		}
+
+		@Override
+		public String getName() {
+			return sn_Name;
+		}
+
+		@Override
+		public void update(StatisticsEvent event) {
+			cntAccessed += event.getCount();
+			if (event.isSuccess()) {
+				cntHits += event.getCount();
 			} else {
-				cntMiss += count;
+				cntMiss += event.getCount();
 			}
-			tmLast = now;
+			tmLast = event.getTimestamp();
 			if (tmFirst == 0) {
-				tmFirst = now;
+				tmFirst = tmLast;
 			}
 		}
 		
-		Map<String, Object> toMap() {
+		public Map<String, Object> toMap() {
 			Map<String, Object> result = new HashMap<String, Object>(10);
 			result.put(sn_First, new Date(tmFirst));
 			result.put(sn_Last, new Date(tmLast));
@@ -167,7 +102,6 @@ public class UsageStatistics implements Runnable, StatisticsProvider {
 			return result;
 		}
 		
-		// how will we present stats ?
 		@Override
 		public String toString() {
 			StringBuffer buff = new StringBuffer(sn_Header).append(" [");
@@ -179,6 +113,8 @@ public class UsageStatistics implements Runnable, StatisticsProvider {
 			buff.append("]");
 			return buff.toString();
 		}
+
 	}
+
 	
 }

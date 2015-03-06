@@ -12,12 +12,7 @@ import javax.management.openmbean.TabularData;
 import javax.management.openmbean.TabularDataSupport;
 import javax.management.openmbean.TabularType;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.bagri.common.manage.JMXUtils;
-
-public class InvocationStatistics implements Runnable, StatisticsProvider {
+public class InvocationStatistics extends StatisticsCollector implements StatisticsProvider {
 
 	// stats indexes provided in alphabetical order
 	public static final int idx_Avg_Time = 0;
@@ -32,49 +27,10 @@ public class InvocationStatistics implements Runnable, StatisticsProvider {
 	public static final int idx_Sum_Time = 9;
 	public static final int idx_Throughput = 10;
 	
-	// stats names
-	public static final String sn_Avg_Time = "Avg time";
-	public static final String sn_Failed = "Failed";
-	public static final String sn_First = "First";
-	public static final String sn_Invoked = "Invoked";
-	public static final String sn_Last = "Last";
-	public static final String sn_Max_Time = "Max time";
-	public static final String sn_Method = "Method"; 
-	public static final String sn_Min_Time = "Min time";
-	public static final String sn_Succeed = "Succeed";
-	public static final String sn_Sum_Time = "Sum time";
-	public static final String sn_Throughput = "Throughput";
-	
-	private static final String sn_Name = "invocation";
-	private static final String sn_Header = "Method Invocation Statistics";
-	private static final String colon = ": ";
-	private static final String semicolon = "; ";
-	private static final String empty = ": 0; ";
-	
-    private final Logger logger;
-	
-	private BlockingQueue<InvocationEvent> queue =  null;
-	// this will be some cache, probably..?
-	private Map<String, MethodInvocationStats> mStats = new HashMap<String, MethodInvocationStats>();
-	
 	public InvocationStatistics(String name) {
-		logger = LoggerFactory.getLogger(getClass().getName() + "[" + name + "]");
+		super(name);
 	}
-	
-	public Collection<String> getStatsNames() {
-		return mStats.keySet();
-	}
-	
-	public Map<String, Object> getNamedStats(String methodName) {
-		return mStats.get(methodName).toMap();
-	}
-	
-	@Override
-	public CompositeData getStatisticTotals() {
-		// it just has no much sense to implement this method for invocation stats;
-		return null;
-	}
-	
+/*	
 	@Override
 	public TabularData getStatisticSeries() {
         TabularData result = null;
@@ -91,57 +47,28 @@ public class InvocationStatistics implements Runnable, StatisticsProvider {
         //logger.trace("getStatisticSeries.exit; returning: {}", result);
         return result;
     }
-
-	public MethodInvocationStats initStats(String name) {
-		MethodInvocationStats miStats = new MethodInvocationStats();
-		mStats.put(name, miStats);
-		return miStats;
+*/
+	protected MethodInvocationStats createStatistics(String name) {
+		return new MethodInvocationStats();
 	}
 	
-	@Override
-	public void resetStatistics() {
-		// renew all registered stats..
-		for (String name: mStats.keySet()) {
-			initStats(name);
-		}
-	}
+	private class MethodInvocationStats implements Statistics {
 
-	@Override
-	public void run() {
-		logger.info("run; start"); 
-		boolean running = true;
-		while (running) {
-			try {
-				InvocationEvent event = queue.take();
-				updateStats(event.getName(), event.isSuccess(), event.getDuration());
-			} catch (InterruptedException ex) {
-				logger.warn("run; interrupted");
-				running = false;
-			}
-		}
-		logger.info("run; finish"); 
-	}
-
-	public void setStatsQueue(BlockingQueue<InvocationEvent> queue) {
-		if (this.queue == null) {
-			this.queue = queue;
-			Thread listener = new Thread(this);
-			listener.start();
-		} else {
-			logger.warn("setStatsQueue; stats queue is already assigned: {}", queue);
-		}
-	}
-	
-	public void updateStats(String name, boolean success, long duration) {
-		long now = System.currentTimeMillis();
-		MethodInvocationStats miStats = mStats.get(name);
-		if (miStats == null) {
-			miStats = initStats(name);
-		}
-		miStats.update(success, duration, now);
-	}
-	
-	private class MethodInvocationStats {
+		// stats names
+		private static final String sn_Avg_Time = "Avg time";
+		private static final String sn_Failed = "Failed";
+		private static final String sn_First = "First";
+		private static final String sn_Invoked = "Invoked";
+		private static final String sn_Last = "Last";
+		private static final String sn_Max_Time = "Max time";
+		private static final String sn_Method = "Method"; 
+		private static final String sn_Min_Time = "Min time";
+		private static final String sn_Succeed = "Succeed";
+		private static final String sn_Sum_Time = "Sum time";
+		private static final String sn_Throughput = "Throughput";
+		
+		private static final String sn_Name = "invocation";
+		private static final String sn_Header = "Method Invocation Statistics";
 		
 		private int cntInvoked;
 		private int cntFailed;
@@ -152,28 +79,44 @@ public class InvocationStatistics implements Runnable, StatisticsProvider {
 		private long tmSum;
 		private long tmFirst = 0;
 		private long tmLast;
+
+		@Override
+		public String getDescription() {
+			return sn_Method;
+		}
+
+		@Override
+		public String getHeader() {
+			return sn_Header;
+		}
 		
-		void update(boolean success, long duration, long now) {
+		@Override
+		public String getName() {
+			return sn_Name;
+		}
+		
+		public void update(StatisticsEvent event) {
 			cntInvoked++;
-			tmSum += duration;
-			if (duration < tmMin) {
-				tmMin = duration;
+			tmSum += event.getDuration();
+			if (event.getDuration() < tmMin) {
+				tmMin = event.getDuration();
 			}
-			if (duration > tmMax) {
-				tmMax = duration;
+			if (event.getDuration() > tmMax) {
+				tmMax = event.getDuration();
 			}
-			if (success) {
+			if (event.isSuccess()) {
 				cntSucceed++;
 			} else {
 				cntFailed++;
 			}
-			tmLast = now;
+			tmLast = event.getTimestamp();
 			if (tmFirst == 0) {
-				tmFirst = now;
+				tmFirst = tmLast;
 			}
 		}
 		
-		Map<String, Object> toMap() {
+		@Override
+		public Map<String, Object> toMap() {
 			Map<String, Object> result = new HashMap<String, Object>(10);
 			result.put(sn_First, new Date(tmFirst));
 			result.put(sn_Last, new Date(tmLast));
@@ -197,7 +140,6 @@ public class InvocationStatistics implements Runnable, StatisticsProvider {
 			return result;
 		}
 		
-		// how will we present stats ?
 		@Override
 		public String toString() {
 			StringBuffer buff = new StringBuffer(sn_Header).append(" [");
@@ -223,6 +165,7 @@ public class InvocationStatistics implements Runnable, StatisticsProvider {
 			buff.append("]");
 			return buff.toString();
 		}
+
 	}
 
 }

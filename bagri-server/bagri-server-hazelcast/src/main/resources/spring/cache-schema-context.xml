@@ -197,8 +197,8 @@
 		<constructor-arg ref="xdm.document" />
 	</bean>
 
-	<bean id="mTicker" class="com.bagri.common.stats.MillisTicker"/>
-	<bean id="nTicker" class="com.bagri.common.stats.NanosTicker"/>
+	<bean id="mTicker" class="com.bagri.common.stats.watch.MillisTicker"/>
+	<bean id="nTicker" class="com.bagri.common.stats.watch.NanosTicker"/>
 
 	<bean id="docQueue" class="java.util.concurrent.ArrayBlockingQueue">
 		<constructor-arg value="1024" />

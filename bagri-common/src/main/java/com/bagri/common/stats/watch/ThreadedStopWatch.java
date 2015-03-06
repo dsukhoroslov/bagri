@@ -1,4 +1,5 @@
-package com.bagri.common.stats;
+package com.bagri.common.stats.watch;
+
 
 public class ThreadedStopWatch implements StopWatch {
 

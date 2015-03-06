@@ -17,7 +17,7 @@
 		<constructor-arg index="0" ref="docManager" />
 		<constructor-arg index="1" ref="docQueue" />
    		<constructor-arg index="2">
-   			<bean class="com.bagri.common.stats.SimpleStopWatch">
+   			<bean class="com.bagri.common.stats.watch.SimpleStopWatch">
 				<constructor-arg ref="mTicker" />
    			</bean>
    		</constructor-arg>
@@ -27,7 +27,7 @@
 		<constructor-arg index="0" ref="queryManager" />
 		<constructor-arg index="1" ref="queryQueue" />
    		<constructor-arg index="2">
-   			<bean class="com.bagri.common.stats.ThreadedStopWatch">
+   			<bean class="com.bagri.common.stats.watch.ThreadedStopWatch">
 				<property name="ticker" ref="mTicker" />
    			</bean>
    		</constructor-arg>
