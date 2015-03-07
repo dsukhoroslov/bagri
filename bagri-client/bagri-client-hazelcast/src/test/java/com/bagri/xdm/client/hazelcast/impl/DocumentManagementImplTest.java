@@ -13,9 +13,8 @@ import org.junit.Test;
 import com.bagri.xdm.api.test.XDMDocumentManagementTest;
 import com.hazelcast.core.Hazelcast;
 
-public class DocumentManagementTest extends XDMDocumentManagementTest {
+public class DocumentManagementImplTest extends XDMDocumentManagementTest {
 	
-	//private staic boolean
 	
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {

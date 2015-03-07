@@ -27,6 +27,9 @@ import com.bagri.xdm.cache.hazelcast.task.schema.SchemaStatsAggregator;
 import com.bagri.xdm.cache.hazelcast.task.stats.StatisticSeriesCollector;
 import com.bagri.xdm.cache.hazelcast.task.stats.StatisticTotalsCollector;
 import com.bagri.xdm.cache.hazelcast.task.stats.StatisticsReseter;
+import com.bagri.xdm.cache.hazelcast.task.tx.TransactionAborter;
+import com.bagri.xdm.cache.hazelcast.task.tx.TransactionCommiter;
+import com.bagri.xdm.cache.hazelcast.task.tx.TransactionStarter;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
 public class XDMDataSerializationFactory extends com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory {
@@ -36,6 +39,9 @@ public class XDMDataSerializationFactory extends com.bagri.xdm.client.hazelcast.
 		switch (typeId) {
 			case cli_XDMCreateDocumentTask: return new DocumentCreator();
 			case cli_XDMRemoveDocumentTask: return new DocumentRemover();
+			case cli_XDMBeginTransactionTask: return new TransactionStarter(); 
+			case cli_XDMCommitTransactionTask: return new TransactionCommiter();
+			case cli_XDMRollbackTransactionTask: return new TransactionAborter();
 			case cli_XDMInitSchemaTask: return new SchemaInitiator();
 			case cli_XDMDenitSchemaTask: return new SchemaDenitiator();
 			case cli_XDMCleanSchemaTask: return new SchemaDocCleaner();

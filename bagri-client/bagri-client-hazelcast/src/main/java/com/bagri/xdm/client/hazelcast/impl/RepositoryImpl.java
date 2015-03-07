@@ -27,6 +27,7 @@ import com.bagri.xdm.api.XDMDocumentManagement;
 import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.api.XDMQueryManagement;
 import com.bagri.xdm.api.XDMRepository;
+import com.bagri.xdm.api.XDMTransactionManagement;
 import com.bagri.xdm.client.common.impl.XDMRepositoryBase;
 import com.bagri.xdm.client.hazelcast.serialize.XQItemSerializer;
 import com.bagri.xdm.client.hazelcast.serialize.XQItemTypeSerializer;
@@ -167,6 +168,12 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 	public void setQueryManagement(XDMQueryManagement queryMgr) {
 		super.setQueryManagement(queryMgr);
 		((QueryManagementImpl) queryMgr).initialize(this);
+	}
+	
+	@Override
+	public void setTxManagement(XDMTransactionManagement txMgr) {
+		super.setTxManagement(txMgr);
+		((TransactionManagementImpl) txMgr).initialize(this);
 	}
 	
 	@Override
