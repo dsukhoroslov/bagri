@@ -84,21 +84,15 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	private IMap<Long, XDMDocument> xddCache;
     private IMap<XDMDataKey, XDMElements> xdmCache;
 
-    BaseMap<Long, String> getXmlCache() {
-    	//return txManager.getTransactionalCache(txManager.getCurrentTxId(), XDMCacheConstants.CN_XDM_XML); 
-    	//return txManager.getTransactionalCache(null, XDMCacheConstants.CN_XDM_XML);
+    IMap<Long, String> getXmlCache() {
     	return xmlCache;
     }
 
-    BaseMap<Long, XDMDocument> getDocumentCache() {
-    	//return txManager.getTransactionalCache(txManager.getCurrentTxId(), XDMCacheConstants.CN_XDM_DOCUMENT);
-    	//return txManager.getTransactionalCache(null, XDMCacheConstants.CN_XDM_DOCUMENT);
+    IMap<Long, XDMDocument> getDocumentCache() {
     	return xddCache;
     }
 
-    BaseMap<XDMDataKey, XDMElements> getElementCache() {
-    	//return txManager.getTransactionalCache(txManager.getCurrentTxId(), XDMCacheConstants.CN_XDM_ELEMENT);
-    	//return txManager.getTransactionalCache(null, XDMCacheConstants.CN_XDM_ELEMENT);
+    IMap<XDMDataKey, XDMElements> getElementCache() {
     	return xdmCache;
     }
     
@@ -142,8 +136,6 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		long stamp = System.currentTimeMillis();
         Collection<String> result = new ArrayList<String>(docIds.size());
 		
-        BaseMap<Long, XDMDocument> xddCache = getDocumentCache();
-        BaseMap<XDMDataKey, XDMElements> xdmCache = getElementCache();
 		for (Iterator<Long> itr = docIds.iterator(); itr.hasNext(); ) {
 			Long docId = itr.next();
 			if (hzInstance.getPartitionService().getPartition(docId).getOwner().localMember()) {
@@ -192,8 +184,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 
 		int typeId = doc.getTypeId();
 		Set<XDMDataKey> keys = getDocumentElementKeys(model.getDocumentRoot(typeId), docId, typeId);
-        BaseMap<XDMDataKey, XDMElements> xdmCache = getElementCache();
-		Map<XDMDataKey, XDMElements> elements = ((IMap) xdmCache).getAll(keys);
+		Map<XDMDataKey, XDMElements> elements = xdmCache.getAll(keys);
 		return elements.values();
     }
     
@@ -222,9 +213,6 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 			throw new IllegalArgumentException(ex);
 		}
 
-        BaseMap<Long, XDMDocument> xddCache = getDocumentCache();
-        BaseMap<Long, String> xmlCache = getXmlCache();
-		
 		Long docId = entry.getKey();
 		int docType = loadElements(docId, data); 
 		if (docType >= 0) {
@@ -258,8 +246,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 				xdes.addElement(xdm.getElement());
 				indexManager.addIndex(docId, xdm.getPathId(), xdm.getValue());
 			}
-	        BaseMap<XDMDataKey, XDMElements> xdmCache = getElementCache();
-			((IMap) xdmCache).putAll(elements);
+			xdmCache.putAll(elements);
 			
 			stamp = System.currentTimeMillis() - stamp;
 			logger.trace("loadElements; cached {} elements for docId: {}; time taken: {}", 
@@ -273,7 +260,6 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	int indexElements(int docType, int pathId) {
 		Set<Long> docIds = getDocumentsOfType(docType);
 		int cnt = 0;
-        BaseMap<XDMDataKey, XDMElements> xdmCache = getElementCache();
 		for (Long docId: docIds) {
 			XDMDataKey xdk = factory.newXDMDataKey(docId, pathId);
 			XDMElements elts = xdmCache.get(xdk);
@@ -290,7 +276,6 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	int deindexElements(int docType, int pathId) {
 		Set<Long> docIds = getDocumentsOfType(docType);
 		int cnt = 0;
-        BaseMap<XDMDataKey, XDMElements> xdmCache = getElementCache();
 		for (Long docId: docIds) {
 			XDMDataKey xdk = factory.newXDMDataKey(docId, pathId);
 			XDMElements elts = xdmCache.get(xdk);
@@ -306,8 +291,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	
 	private Set<Long> getDocumentsOfType(int docType) {
    		Predicate<Long, XDMDocument> f = Predicates.equal("typeId", docType);
-        BaseMap<Long, XDMDocument> xddCache = getDocumentCache();
-		return ((IMap) xddCache).keySet(f);
+		return xddCache.keySet(f);
 	}
 	
 	//@Override
@@ -316,11 +300,9 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		Long docId = entry.getKey();
 		logger.trace("deleteDocument.enter; docId: {}", docId);
 	    boolean removed = false;
-        BaseMap<Long, XDMDocument> xddCache = getDocumentCache();
 	    XDMDocument doc = xddCache.remove(docId);
 	    if (doc != null) {
 	    	deleteDocumentElements(docId, doc.getTypeId());
-	        BaseMap<Long, String> xmlCache = getXmlCache();
 			xmlCache.delete(docId);
 			srcCache.remove(docId);
 	        removed = true;
@@ -334,7 +316,6 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 
     	int cnt = 0;
     	//Set<XDMDataKey> localKeys = xdmCache.localKeySet();
-        BaseMap<XDMDataKey, XDMElements> xdmCache = getElementCache();
     	Collection<XDMPath> allPaths = model.getTypePaths(typeId);
 		logger.trace("deleteDocumentElements; got {} possible paths to remove; xdmCache size: {}", 
 				allPaths.size(), xdmCache.size());
@@ -361,7 +342,6 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 
 	@Override
 	public XDMDocument getDocument(long docId) {
-        BaseMap<Long, XDMDocument> xddCache = getDocumentCache();
 		XDMDocument doc = xddCache.get(docId); 
 		logger.trace("getDocument; returning: {}", doc);
 		return doc;
@@ -370,8 +350,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	//@Override
 	public Long getDocumentId(String uri) {
    		Predicate<Long, XDMDocument> f = Predicates.equal("uri", uri);
-        BaseMap<Long, XDMDocument> xddCache = getDocumentCache();
-		Set<Long> docKeys = ((IMap) xddCache).keySet(f);
+		Set<Long> docKeys = xddCache.keySet(f);
 		if (docKeys.size() == 0) {
 			return null;
 		}
@@ -387,7 +366,6 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	
 	@Override
 	public String getDocumentAsString(long docId) {
-        BaseMap<Long, String> xmlCache = getXmlCache();
 		String xml = xmlCache.get(docId);
 		if (xml == null) {
 			XDMDocument doc = getDocument(docId);
@@ -430,7 +408,6 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	@Override
 	public XDMDocument storeDocumentFromSource(long docId, String uri, Source source) {
 		srcCache.put(docId, source);
-        BaseMap<Long, XDMDocument> xddCache = getDocumentCache();
 		return xddCache.get(docId);
 	}
 	
@@ -465,7 +442,6 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		}
 		
 		if (update) {
-	        BaseMap<Long, XDMDocument> xddCache = getDocumentCache();
 		    XDMDocument doc = xddCache.get(docId);
 		    if (doc != null) {
 		    	deleteDocumentElements(docId, doc.getTypeId());

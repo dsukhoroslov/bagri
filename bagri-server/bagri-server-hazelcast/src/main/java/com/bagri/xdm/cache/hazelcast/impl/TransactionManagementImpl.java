@@ -27,16 +27,9 @@ public class TransactionManagementImpl implements XDMTransactionManagement {
 	private boolean isInTx = false;
 	private Map<String, TransactionContext> txCache; // = new ConcurrentHashMap<>();
 
-    private IMap<Long, String> xmlCache;
-	private IMap<Long, XDMDocument> xddCache;
-    private IMap<XDMDataKey, XDMElements> xdmCache;
-	
 	public void setHzInstance(HazelcastInstance hzInstance) {
 		this.hzInstance = hzInstance;
 		txCache = new ConcurrentHashMap<>();
-		xmlCache = hzInstance.getMap(XDMCacheConstants.CN_XDM_XML);
-		xddCache = hzInstance.getMap(XDMCacheConstants.CN_XDM_DOCUMENT);
-		xdmCache = hzInstance.getMap(XDMCacheConstants.CN_XDM_ELEMENT);
 		//txCache = hzInstance.getMap("xdm-tx");
 		//com.hazelcast.nio.serialization.HazelcastSerializationException: 
 		//There is no suitable serializer for class com.hazelcast.transaction.impl.TransactionContextImpl

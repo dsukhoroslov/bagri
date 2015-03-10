@@ -37,6 +37,7 @@ public class XDMDataSerializationFactory implements DataSerializableFactory {
 	public static final int cli_XDMResults = 58;
 	public static final int cli_XDMSource = 59;
 	public static final int cli_XDMIndexedValue = 60;
+	public static final int cli_XDMTransaction = 61;
 
 	public static final int cli_XQItemType = 75;
 	public static final int cli_XQItem = 76;

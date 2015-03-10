@@ -22,8 +22,8 @@ public class QueryBuilder {
 		//
 	}
 	
-	public ExpressionContainer getContainer(int docId) {
-		return containers.get(docId);
+	public ExpressionContainer getContainer(int docType) {
+		return containers.get(docType);
 	}
 	
 	public Collection<ExpressionContainer> getContainers() {

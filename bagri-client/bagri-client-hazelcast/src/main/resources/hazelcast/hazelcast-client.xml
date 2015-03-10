@@ -46,6 +46,7 @@
 			<serializer type-class="com.bagri.xdm.domain.XDMQuery" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMQuerySerializer"/>
 			<serializer type-class="com.bagri.xdm.domain.XDMResults" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMResultsSerializer"/>
 			<serializer type-class="com.bagri.xdm.domain.XDMIndexedValue" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMIndexedValueSerializer"/>
+			<serializer type-class="com.bagri.xdm.domain.XDMTransaction" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMTransactionSerializer"/>
 		</serializers>
 	</serialization>
 

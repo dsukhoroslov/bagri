@@ -113,6 +113,16 @@
 				</hz:map-store-->
 			</hz:map>
 
+			<hz:map name="xdm-transaction" async-backup-count="1" backup-count="0" in-memory-format="BINARY">
+				<!-- think about store indexes persistently... 
+				<hz:map-store enabled="true" write-delay-seconds="10" factory-implementation="xdmStoreFactory">
+					<hz:properties>
+						<hz:property name="xdm.schema.name">${xdm.schema.name}</hz:property>
+						<hz:property name="xdm.schema.store.type">${xdm.schema.store.type}</hz:property>
+					</hz:properties>
+				</hz:map-store-->
+			</hz:map>
+
 			<hz:map name="xdm-xml" async-backup-count="1" backup-count="0" in-memory-format="OBJECT"
 					 eviction-policy="LRU" time-to-live-seconds="0" max-size-policy="USED_HEAP_PERCENTAGE" 
 					 max-size="25" eviction-percentage="10">
@@ -152,6 +162,7 @@
 					<hz:serializer type-class="com.bagri.xdm.domain.XDMResults" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMResultsSerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.system.XDMIndex" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMIndexSerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.domain.XDMIndexedValue" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMIndexedValueSerializer"/>
+					<hz:serializer type-class="com.bagri.xdm.domain.XDMTransaction" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMTransactionSerializer"/>
 					<hz:serializer type-class="javax.xml.xquery.XQItemType" implementation="xqItemTypeSerializer"/>
 					<hz:serializer type-class="javax.xml.xquery.XQItem" implementation="xqItemSerializer"/>
 					<hz:serializer type-class="javax.xml.xquery.XQSequence" implementation="xqSequenceSerializer"/>
@@ -176,6 +187,7 @@
 	<hz:map id="xdm-document" name="xdm-document" instance-ref="hzInstance" />
 	<hz:map id="xdm-element" name="xdm-element" instance-ref="hzInstance" />
 	<hz:map id="xdm-index" name="xdm-index" instance-ref="hzInstance" />
+	<hz:map id="xdm-transaction" name="xdm-transaction" instance-ref="hzInstance" />
 	<hz:map id="dict-document-type" name="dict-document-type" instance-ref="hzInstance" />
 	<hz:map id="dict-path" name="dict-path" instance-ref="hzInstance" />
 	<hz:map id="dict-namespace" name="dict-namespace" instance-ref="hzInstance" />
