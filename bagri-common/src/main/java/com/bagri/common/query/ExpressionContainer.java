@@ -45,10 +45,15 @@ public class ExpressionContainer {
 	public Object getParam(PathExpression pex) {
 		return params.get(pex.getParamName());
 	}
+	
+	public void resetParams(Map<String, Object> params) {
+		// do not clear existing params ?
+		this.params.putAll(params);
+	}
 
 	@Override
 	public String toString() {
-		return super.toString() + "; [eBuilder=" + eBuilder + ", params=" + params + "]";
+		return "ExpressionContainer: [eBuilder=" + eBuilder + ", params=" + params + "]";
 	}
 	
 	

@@ -1,22 +1,22 @@
 package com.bagri.xdm.domain;
 
-import com.bagri.common.query.ExpressionBuilder;
+import com.bagri.common.query.QueryBuilder;
 
 public class XDMQuery {
 	
 	private String query;
 	private Object xqExpression;
-	private ExpressionBuilder xdmExpression;
+	private QueryBuilder xdmQuery;
 	
 	public XDMQuery() {
 		//
 	}
 	
-	public XDMQuery(String query, Object xqExpression, ExpressionBuilder xdmExpression) {
+	public XDMQuery(String query, Object xqExpression, QueryBuilder xdmQuery) {
 		super();
 		this.query = query;
 		this.xqExpression = xqExpression;
-		this.xdmExpression = xdmExpression;
+		this.xdmQuery = xdmQuery;
 	}
 
 	public String getQuery() {
@@ -27,8 +27,8 @@ public class XDMQuery {
 		return xqExpression;
 	}
 
-	public ExpressionBuilder getXdmExpression() {
-		return xdmExpression;
+	public QueryBuilder getXdmQuery() {
+		return xdmQuery;
 	}
 
 	@Override
@@ -54,7 +54,7 @@ public class XDMQuery {
 	@Override
 	public String toString() {
 		return "XDMQuery [query=" + query + ", xqExpression=" + xqExpression
-				+ ", xdmExpression=" + xdmExpression + "]";
+				+ ", xdmQuery=" + xdmQuery + "]";
 	}
 	
 	

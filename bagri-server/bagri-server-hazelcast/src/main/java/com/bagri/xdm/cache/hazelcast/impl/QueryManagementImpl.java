@@ -24,6 +24,7 @@ import com.bagri.common.query.Expression;
 import com.bagri.common.query.ExpressionBuilder;
 import com.bagri.common.query.ExpressionContainer;
 import com.bagri.common.query.PathExpression;
+import com.bagri.common.query.QueryBuilder;
 import com.bagri.xdm.api.XDMModelManagement;
 //import com.bagri.xdm.api.XDMQueryManagement;
 import com.bagri.xdm.api.XDMRepository;
@@ -125,13 +126,13 @@ public class QueryManagementImpl implements XDMQueryManagement {
 	}
 
 	@Override
-	public boolean addQuery(String query, Object xqExpression, ExpressionBuilder xdmExpression) {
+	public boolean addQuery(String query, Object xqExpression, QueryBuilder xdmQuery) {
 		Integer qCode = getQueryKey(query);
 		logger.trace("addQuery.enter; got code: {}; query cache size: {}", qCode, xQueries.size());
 		boolean result = false;
 		//if (xqCache.tryLock(qCode)) {
 		//	try {
-		result = xQueries.put(qCode, new XDMQuery(query, xqExpression, xdmExpression)) == null;
+		result = xQueries.put(qCode, new XDMQuery(query, xqExpression, xdmQuery)) == null;
 		//		xqObjects.put(qCode, xqExpression);
 		//	} finally {
 		//		xqCache.unlock(qCode);
@@ -145,12 +146,12 @@ public class QueryManagementImpl implements XDMQueryManagement {
 	public void addExpression(String query, Object xqExpression) {
 		Integer qCode = getQueryKey(query);
 		logger.trace("addExpression.enter; got code: {}; query cache size: {}", qCode, xQueries.size());
-		ExpressionBuilder xdmExpression = null;
+		QueryBuilder xdmQuery = null;
 		XDMQuery xQuery = xQueries.get(qCode);
 		if (xQuery != null) {
-			xdmExpression = xQuery.getXdmExpression(); 
+			xdmQuery = xQuery.getXdmQuery(); 
 		}
-		xQuery = new XDMQuery(query, xqExpression, xdmExpression);
+		xQuery = new XDMQuery(query, xqExpression, xdmQuery);
 		//if (xqCache.tryLock(qCode)) {
 		//	try {
 		xQueries.put(qCode, xQuery);
@@ -164,7 +165,7 @@ public class QueryManagementImpl implements XDMQueryManagement {
 	}
 
 	@Override
-	public void addExpression(String query, ExpressionBuilder xdmExpression) {
+	public void addExpression(String query, QueryBuilder xdmQuery) {
 		Integer qCode = getQueryKey(query);
 		logger.trace("addExpression.enter; got code: {}; query cache size: {}", qCode, xQueries.size());
 		Object xqExpression = null;
@@ -172,7 +173,7 @@ public class QueryManagementImpl implements XDMQueryManagement {
 		if (xQuery != null) {
 			xqExpression = xQuery.getXqExpression(); 
 		}
-		xQuery = new XDMQuery(query, xqExpression, xdmExpression);
+		xQuery = new XDMQuery(query, xqExpression, xdmQuery);
 		//if (xqCache.tryLock(qCode)) {
 		//	try {
 		xQueries.put(qCode, xQuery);

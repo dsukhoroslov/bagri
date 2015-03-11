@@ -136,4 +136,10 @@ public class CollectionIterator implements SequenceIterator<Item>,
 		return result;
 	}
 
+	@Override
+	public String toString() {
+		return "CollectionIterator [queryMgr=" + queryMgr + ", query=" + query
+				+ ", docIds=" + docIds + ", current=" + current + ", position=" + position + "]";
+	}
+
 }

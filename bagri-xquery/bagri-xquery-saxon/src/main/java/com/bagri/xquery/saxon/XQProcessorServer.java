@@ -25,6 +25,7 @@ import net.sf.saxon.tree.util.DocumentNumberAllocator;
 
 import com.bagri.common.query.ExpressionBuilder;
 import com.bagri.common.query.ExpressionContainer;
+import com.bagri.common.query.QueryBuilder;
 //import com.bagri.xdm.access.api.XDMDocumentManagementServer;
 import com.bagri.xdm.api.XDMDocumentManagement;
 //import com.bagri.xdm.api.XDMQueryManagement;
@@ -134,9 +135,6 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 	}
 	
 	private Iterator execQuery(String query) throws XQException {
-       	// profile: it takes 23.6 ms to compile query!
-       	// TODO: think about query cache!
-
 	    logger.trace("execQuery.enter; this: {}", this);
 		
 		long stamp = System.currentTimeMillis();
@@ -162,22 +160,19 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 	        	//		xqExp.getExpression().isUpdatingExpression());
 
 	        	bcr.setExpression(xqExp);
-	        	bcr.setContainer(null);
+	        	bcr.setQuery(null);
 	        } else {
 	        	// cacheable = false; -> don't want to rewrite already cached xqExp/xdmExp
     	    	xqExp = (XQueryExpression) xQuery.getXqExpression();
 	        	bcr.setExpression(xqExp);
     	    	Map params = getParams();
-    	    	if (params == null || params.isEmpty()) {
-    	    		// static query; must get params from the query itself..
-    	    		// or, just run it again..
-    	        	bcr.setContainer(null);
-    	    	} else {
-        	    	ExpressionBuilder xdmExp = xQuery.getXdmExpression();
-    	    		ExpressionContainer ec = new ExpressionContainer(xdmExp, params);
-    	    		bcr.setContainer(ec);
+    	    	QueryBuilder xdmQuery = xQuery.getXdmQuery();
+    	    	if (!(params == null || params.isEmpty())) {
+        	    	xdmQuery.resetParams(params);
     	    	}
-	        	// xqExp was created in another instance of XQProcesser, with different Configuration and BCR.
+	    		bcr.setQuery(xdmQuery);
+
+	    		// xqExp was created in another instance of XQProcesser, with different Configuration and BCR.
 	        	// the following call to xqExp.iterate causes old BCR from the expression's config to be used!
 	        	xqExp.getExecutable().setConfiguration(config);
     	    }
@@ -186,8 +181,8 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 		    logger.trace("execQuery; xQuery: {}; time taken: {}", xQuery, stamp);
 		    stamp = System.currentTimeMillis();
 	        SequenceIterator<Item> itr = xqExp.iterator(dqc);
-	        if (bcr.getContainer() != null && cacheable) {
-	        	qMgr.addQuery(query, xqExp, bcr.getContainer().getExpression());
+	        if (bcr.getQuery() != null && cacheable) {
+	        	qMgr.addQuery(query, xqExp, bcr.getQuery());
 	        } else {
 	        	// cache just xqExp
 		        //qMgr.addExpression(query, xqExp);
