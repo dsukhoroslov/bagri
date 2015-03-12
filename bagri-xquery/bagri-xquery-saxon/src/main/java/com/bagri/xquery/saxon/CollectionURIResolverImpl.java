@@ -154,23 +154,8 @@ public class CollectionURIResolverImpl implements CollectionURIResolver {
 		return dict.getDocumentType(root);
 	}
 	
-	private Object getValue(GroundedValue value) throws XPathException {
-		if (value != null) {
-			Item item = value.head();
-			if (item != null) {
-				return itemToObject(item);
-			}
-		}
-		return null;
-	}
-	
-	private Object getVariable(int slot) throws XPathException {
-		Sequence sq = ctx.evaluateLocalVariable(slot);
+	private Object getValues(Sequence sq) throws XPathException {
 		if (sq != null) {
-			//Item item = sq.head();
-			//if (item != null) {
-			//	return itemToObject(item);
-			//}
 			List result = new ArrayList();
 			SequenceIterator itr = sq.iterate();
 			while (true) {
@@ -179,7 +164,7 @@ public class CollectionURIResolverImpl implements CollectionURIResolver {
 					break;
 				}
 				Object o = itemToObject(item);
-				logger.trace("getVariable; got item: {}", o);
+				//logger.trace("getVariable; got item: {}", o);
 				result.add(o);
 			} 
 			return result;
@@ -274,7 +259,7 @@ public class CollectionURIResolverImpl implements CollectionURIResolver {
     				if (pName == null) {
     					pName = bind.getVariableQName().getClarkName();
     				}
-    	    		value = getVariable(bind.getLocalSlotNumber());
+    	    		value = getValues(ctx.evaluateLocalVariable(bind.getLocalSlotNumber()));
         			logger.trace("iterateParams; got reference: {}, value: {}", pName, value);
         			if (pName != null && value != null) {
         				query.setEmptyParam(pName, value);
@@ -401,14 +386,14 @@ public class CollectionURIResolverImpl implements CollectionURIResolver {
     				if (pName == null) {
     					pName = bind.getVariableQName().getClarkName();
     				}
-    	    		value = getVariable(bind.getLocalSlotNumber());
+    	    		value = getValues(ctx.evaluateLocalVariable(bind.getLocalSlotNumber()));
         			logger.trace("iterate; got reference: {}, value: {}", pName, value);
     	    		break;
     			} else if (e instanceof StringLiteral) {
     				value = ((StringLiteral) e).getStringValue();
     				break;
     			} else if (e instanceof Literal) {
-    				value = getValue(((Literal) e).getValue()); 
+    				value = getValues(((Literal) e).getValue()); 
     				break;
     			}
     			//varIdx++;

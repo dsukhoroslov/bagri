@@ -140,6 +140,18 @@ public class IndexManagement extends SchemaFeatureManagement {
 		logger.trace("dropIndex.exit; index deleted on {} members; timeTaken: {}", cnt, stamp);
 	}
 
+	@ManagedOperation(description="Enables/Disables an existing Index")
+	@ManagedOperationParameters({
+		@ManagedOperationParameter(name = "name", description = "Index name to enable/disable"),
+		@ManagedOperationParameter(name = "enable", description = "enable/disable index")})
+	public void enableIndex(String name, boolean enable) {
+		
+		if (!schemaManager.enableIndex(name, enable)) {
+			throw new IllegalStateException("Index '" + name + "' in schema '" + schemaName + 
+					"' does not exist or already " + (enable ? "enabled" : "disabled"));
+		}
+	}
+	
 	@ManagedOperation(description="Rebuilds an existing Index")
 	@ManagedOperationParameters({@ManagedOperationParameter(name = "name", description = "Index to rebuild")})
 	public void rebuildIndex(String name) {

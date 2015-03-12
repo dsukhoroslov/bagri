@@ -39,8 +39,8 @@ public class XDMNode extends XDMEntity {
     public static final String op_node_name = "xdm.cluster.node.name";
     public static final String op_node_role = "xdm.cluster.node.role";
     public static final String op_node_size = "xdm.cluster.node.size";
-    public static final String op_node_schemas = "xdm.cluster.node.schemas";
     public static final String op_admin_port = "xdm.cluster.admin.port";
+    public static final String op_node_schemas = "xdm.cluster.node.schemas";
 
 	@XmlAttribute(required = true)
 	private String name;
@@ -89,6 +89,7 @@ public class XDMNode extends XDMEntity {
 		if (options != null) {
 			this.options.putAll(options);
 		}
+		// update version !?
 	}
 
 	/* (non-Javadoc)

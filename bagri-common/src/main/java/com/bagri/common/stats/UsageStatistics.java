@@ -63,12 +63,12 @@ public class UsageStatistics extends StatisticsCollector implements StatisticsPr
 		
 		@Override
 		public String getDescription() {
-			return sn_Resource;
+			return sn_Header;
 		}
 
 		@Override
 		public String getHeader() {
-			return sn_Header;
+			return sn_Resource;
 		}
 
 		@Override

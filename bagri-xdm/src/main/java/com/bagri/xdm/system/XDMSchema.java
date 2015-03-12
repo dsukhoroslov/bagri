@@ -107,6 +107,15 @@ public class XDMSchema extends XDMEntity {
 		return indexes.add(index);
 	}
 	
+	public boolean enableIndex(String name, boolean enable) {
+		for (XDMIndex index: indexes) {
+			if (name.equals(index.getName())) {
+				return index.setEnabled(enable);
+			}
+		}
+		return false;
+	}
+
 	public XDMIndex removeIndex(String name) {
 		for (XDMIndex index: indexes) {
 			if (name.equals(index.getName())) {

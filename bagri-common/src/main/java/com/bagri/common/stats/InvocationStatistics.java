@@ -82,12 +82,12 @@ public class InvocationStatistics extends StatisticsCollector implements Statist
 
 		@Override
 		public String getDescription() {
-			return sn_Method;
+			return sn_Header;
 		}
 
 		@Override
 		public String getHeader() {
-			return sn_Header;
+			return sn_Method;
 		}
 		
 		@Override

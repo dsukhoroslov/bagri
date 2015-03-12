@@ -19,7 +19,8 @@ import com.bagri.xdm.common.XDMEntity;
 		"docType", 
 		"path",
 		"unique",
-		"description" 
+		"description",
+		"enabled"
 })
 public class XDMIndex extends XDMEntity {
 	
@@ -39,19 +40,23 @@ public class XDMIndex extends XDMEntity {
 	@XmlElement(required = 	false)
 	private String description;
 		
+	@XmlElement(required = 	false, defaultValue = "true")
+	private boolean enabled;
+
 	public XDMIndex() {
 		// for JAXB
 		super();
 	}
 	
 	public XDMIndex(int version, Date createdAt, String createdBy, String name, 
-			String docType, String path, boolean unique, String description) {
+			String docType, String path, boolean unique, String description, boolean enabled) {
 		super(version, createdAt, createdBy);
 		this.name = name;
 		this.docType = docType;
 		this.path = path;
 		this.unique = unique;
 		this.description = description;
+		this.enabled = enabled;
 	}
 
 	public String getName() {
@@ -70,8 +75,21 @@ public class XDMIndex extends XDMEntity {
 		return path;
 	}
 
+	public boolean isEnabled() {
+		return enabled;
+	}
+
 	public boolean isUnique() {
 		return unique;
+	}
+
+	public boolean setEnabled(boolean enabled) {
+		if (this.enabled != enabled) {
+			this.enabled = enabled;
+			//this.updateVersion("???");
+			return true;
+		}
+		return false;
 	}
 
 	@Override
@@ -104,6 +122,7 @@ public class XDMIndex extends XDMEntity {
 		result.put("document type", docType);
 		result.put("unique", unique);
 		result.put("description", description);
+		result.put("enabled", enabled);
 		return result;
 	}
 
@@ -112,7 +131,7 @@ public class XDMIndex extends XDMEntity {
 		return "XDMIndex [name=" + name + ", version=" + getVersion()
 				+ ", docType=" + docType + ", path=" + path + ", unique=" + unique
 				+ ", created at=" + getCreatedAt() + ", by=" + getCreatedBy()
-				+ ", description=" + description + "]";
+				+ ", description=" + description + ", enabled=" + enabled + "]";
 	}
 	
 }

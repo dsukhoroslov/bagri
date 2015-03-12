@@ -26,18 +26,21 @@ public class XDMIndexSerializer extends XDMEntitySerializer implements StreamSer
 				in.readUTF(),
 				in.readUTF(),
 				in.readBoolean(),
-				in.readUTF());
+				in.readUTF(),
+				in.readBoolean());
 		return xIndex;
 	}
 
 	@Override
 	public void write(ObjectDataOutput out, XDMIndex xIndex) throws IOException {
+		
 		super.writeEntity(out, xIndex);
 		out.writeUTF(xIndex.getName());
 		out.writeUTF(xIndex.getDocumentType());
 		out.writeUTF(xIndex.getPath());
 		out.writeBoolean(xIndex.isUnique());
 		out.writeUTF(xIndex.getDescription());
+		out.writeBoolean(xIndex.isEnabled());
 	}
 
 

@@ -88,15 +88,27 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 	public boolean isPathIndexed(int pathId) {
 		// TODO: it takes a lot of time to perform these two gets
 		// even on local cache! think about better solution!
-		XDMPath xPath = mdlMgr.getPath(pathId);
-		if (xPath == null) {
-			logger.warn("isPathIndexed; got unknown pathId: {}", pathId);
-			return false;
-		}
+		//XDMPath xPath = mdlMgr.getPath(pathId);
+		//if (xPath == null) {
+		//	logger.warn("isPathIndexed; got unknown pathId: {}", pathId);
+		//	return false;
+		//}
+		
+		// well, one get is better :)
+		// how near cache does works on cache miss!? does is go to 
+		// original cache? 
 		return idxDict.get(pathId) != null;
 		//return pathId == 2;
 	}
 
+	public boolean isIndexEnabled(int pathId) {
+		XDMIndex idx = idxDict.get(pathId);
+		if (idx != null) {
+			return idx.isEnabled();
+		}
+		return false;
+	}
+	
 	@Override
 	public XDMPath createIndex(XDMIndex index) {
 		XDMPath xPath = getPathForIndex(index);
@@ -139,8 +151,7 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 			xidx.addDocumentId(docId);
 			idxCache.put(xid, xidx);
 			
-			// it works asynch. but major time is taken in isPathIndexed
-			// method..
+			// it works asynch. but major time is taken in isPathIndexed method..
 			//ValueIndexator indexator = new ValueIndexator(docId);
 			//idxCache.submitToKey(xid, indexator);
 			//logger.trace("addIndex; index submit for key {}", xid);

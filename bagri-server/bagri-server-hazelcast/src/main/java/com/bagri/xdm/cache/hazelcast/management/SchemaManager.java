@@ -256,7 +256,8 @@ public class SchemaManager extends EntityManager<XDMSchema> {
 	}
 
 	XDMIndex addIndex(String name, String path, String docType, boolean unique, String description) {
-		XDMIndex index = new XDMIndex(1, new Date(), JMXUtils.getCurrentUser(), name, docType, path, unique, description);
+		XDMIndex index = new XDMIndex(1, new Date(), JMXUtils.getCurrentUser(), name, docType, 
+				path, unique, description, true);
 		XDMSchema schema = getEntity();
 		if (schema.addIndex(index)) {
 			// store schema!
@@ -269,6 +270,16 @@ public class SchemaManager extends EntityManager<XDMSchema> {
 	boolean deleteIndex(String name) {
 		XDMSchema schema = getEntity();
 		if (schema.removeIndex(name) != null) {
+			// store schema!
+			flushEntity(schema);
+			return true;
+		}
+		return false;
+	}
+
+	boolean enableIndex(String name, boolean enable) {
+		XDMSchema schema = getEntity();
+		if (schema.enableIndex(name, enable)) {
 			// store schema!
 			flushEntity(schema);
 			return true;

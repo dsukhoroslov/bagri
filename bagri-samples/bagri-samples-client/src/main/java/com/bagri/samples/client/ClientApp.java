@@ -38,7 +38,9 @@ public class ClientApp {
 			//long id = client.storeXmlDocument("axis.xml");
 			//System.out.println("document stored; id: " + id);
 			found = client.runPriceQuery("IBM"); //IBM; VFINX; PTTAX
-			found &= client.runSecQuery();
+			found &= client.runPriceQuery("IBM"); //IBM; VFINX; PTTAX
+			found &= client.runSecQuery("IBM");
+			found &= client.runSecQuery("IBM");
 			//found &= client.runPriceQuery("IBM");
 			//client.runPriceQuery();
 			//found = client.runSecQuery();
@@ -75,7 +77,7 @@ public class ClientApp {
 		String query = "declare namespace s=\"http://tpox-benchmark.com/security\";\n" +
 			"declare variable $sym external;\n" + 
 			"for $sec in fn:collection(\"/{http://tpox-benchmark.com/security}Security\")/s:Security\n" +
-	  		"where $sec/s:Symbol=$sym\n" + //'IBM'\n" +
+	  		"where $sec/s:Symbol=$sym\n" + 
 			"return\n" +   
 			"\t<print>The open price of the security \"{$sec/s:Name/text()}\" is {$sec/s:Price/s:PriceToday/s:Open/text()} dollars</print>\n";
 
@@ -90,16 +92,16 @@ public class ClientApp {
 	    return found;
 	}
 
-	public boolean runSecQuery() throws XQException {
+	public boolean runSecQuery(String symbol) throws XQException {
 		
 		String query = "declare namespace s=\"http://tpox-benchmark.com/security\";\n" +
 			"declare variable $sym external;\n" + 
 			"for $sec in fn:collection(\"/{http://tpox-benchmark.com/security}Security\")/s:Security\n" +
-	  		"where $sec/s:Symbol=$sym\n" + //'IBM'\n" +
+	  		"where $sec/s:Symbol=$sym\n" + 
 			"return $sec\n";
 
 	    XQPreparedExpression xqpe = xqc.prepareExpression(query);
-	    xqpe.bindString(new QName("sym"), "IBM", null);
+	    xqpe.bindString(new QName("sym"), symbol, null);
 	    XQResultSequence xqs = xqpe.executeQuery();
 	    boolean found = false;
 	    while (xqs.next()) {
