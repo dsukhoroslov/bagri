@@ -29,6 +29,7 @@ import static com.bagri.common.util.FileUtils.def_encoding;
 import com.bagri.common.util.FileUtils;
 import com.bagri.xdm.api.XDMDocumentManagement;
 import com.bagri.xdm.api.XDMModelManagement;
+import com.bagri.xdm.api.XDMTransactionManagement;
 import com.bagri.xdm.cache.hazelcast.impl.DocumentManagementImpl;
 import com.bagri.xdm.client.common.XDMCacheConstants;
 import com.bagri.xdm.client.xml.XDMStaxParser;
@@ -44,6 +45,9 @@ import com.hazelcast.core.IdGenerator;
 import com.hazelcast.core.MapLoaderLifecycleSupport;
 import com.hazelcast.core.MapStore;
 import com.hazelcast.core.PartitionService;
+
+import static com.bagri.xdm.api.XDMTransactionManagement.TX_NO;
+import static com.bagri.xdm.api.XDMTransactionManagement.TX_INIT;
 
 public class DocumentCacheStore extends XmlCacheStore implements MapStore<Long, XDMDocument>, MapLoaderLifecycleSupport {
 
@@ -121,7 +125,8 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<Long, 
         			if (docType >= 0) {
         				ddh.docType = docType;
 						xmlCache.set(docId, xml);
-		        		return new XDMDocument(docId, uri, docType, defVersion, 
+						// can make a fake population TX with id = 1! 
+		        		return new XDMDocument(docId, uri, docType, defVersion, TX_INIT, TX_NO, 
 								new Date(Files.getLastModifiedTime(path).toMillis()), 
 								Files.getOwner(path).getName(),	def_encoding);
         			}

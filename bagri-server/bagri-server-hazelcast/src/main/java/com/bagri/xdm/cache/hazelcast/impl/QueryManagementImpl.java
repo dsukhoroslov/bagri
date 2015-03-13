@@ -278,8 +278,7 @@ public class QueryManagementImpl implements XDMQueryManagement {
    		//	logger.error("queryPathKeys", ex);
    		//}
 
-		if (pathId > 0 && Comparison.EQ.equals(pex.getCompType()) && 
-				idxMgr.isIndexEnabled(pathId)) {
+		if (pathId > 0 && Comparison.EQ.equals(pex.getCompType()) && idxMgr.isIndexEnabled(pathId)) {
 			Set<Long> docIds;
 			if (value instanceof Collection) {
 				Collection values = (Collection) value;
@@ -296,6 +295,7 @@ public class QueryManagementImpl implements XDMQueryManagement {
 			}
 			logger.trace("queryPathKeys; search for index - got ids: {}", docIds); 
 			if (docIds != null) {
+				docIds = (Set<Long>) checkDocumentsCommited(docIds);
 				Set<Long> result;
 				if (found == null) {
 					result = docIds;
@@ -332,13 +332,17 @@ public class QueryManagementImpl implements XDMQueryManagement {
 		Set<Long> result = new HashSet<Long>(xdmKeys.size());
 		if (found == null) {
 			for (XDMDataKey key: xdmKeys) {
-				result.add(key.getDocumentId());
+				if (checkDocumentCommited(key.getDocumentId())) {
+					result.add(key.getDocumentId());
+				}
 			}
 		} else {
 			for (XDMDataKey key: xdmKeys) {
 				long docId = key.getDocumentId();
 				if (found.contains(docId)) {
-					result.add(docId);
+					if (checkDocumentCommited(docId)) {
+						result.add(docId);
+					}
 				}
 			}
 		}
@@ -346,6 +350,19 @@ public class QueryManagementImpl implements XDMQueryManagement {
 		return result;
 	}
 
+	private boolean checkDocumentCommited(long docId) {
+		return true;
+	}
+	
+	private Collection<Long> checkDocumentsCommited(Collection<Long> docIds) {
+		for (Long docId: docIds) {
+			if (!checkDocumentCommited(docId)) {
+				docIds.remove(docId);
+			}
+		}
+		return docIds;
+	}
+	
 	@Override
 	public Collection<Long> getDocumentIDs(ExpressionContainer query) {
 		ExpressionBuilder exp = query.getExpression();

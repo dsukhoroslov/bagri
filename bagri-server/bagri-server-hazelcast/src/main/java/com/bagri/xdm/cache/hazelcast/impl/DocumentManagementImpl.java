@@ -217,7 +217,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		int docType = loadElements(docId, data); 
 		if (docType >= 0) {
 			String user = JMXUtils.getCurrentUser();
-			XDMDocument doc = new XDMDocument(docId, uri, docType, user); // + version, createdAt, encoding
+			XDMDocument doc = new XDMDocument(docId, uri, docType, user, txManager.getCurrentTxId()); // + version, createdAt, encoding
 			xddCache.set(docId, doc);
 			xmlCache.set(docId, xml);
 			logger.trace("createDocument.exit; returning: {}", doc);

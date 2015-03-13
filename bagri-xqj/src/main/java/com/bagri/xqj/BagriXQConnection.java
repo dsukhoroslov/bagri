@@ -19,6 +19,7 @@ import javax.xml.xquery.XQStaticContext;
 import com.bagri.common.util.XMLUtils;
 import com.bagri.xdm.api.XDMTransactionManagement;
 
+import static com.bagri.xdm.api.XDMTransactionManagement.TX_NO;
 import static com.bagri.xqj.BagriXQConstants.ex_null_context;
 
 public class BagriXQConnection extends BagriXQDataFactory implements XQConnection {
@@ -103,7 +104,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 		        return;
 			}
 			getTxManager().commitTransaction(txId);
-			txId = 0;
+			txId = TX_NO;
 		}
 	}
 	
@@ -126,7 +127,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 		        return;
 			}
 			getTxManager().rollbackTransaction(txId);
-			txId = 0;
+			txId = TX_NO;
 		}
 	}
 
@@ -140,7 +141,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 		if (transactional) {
 			if (!this.autoCommit) {
 				getTxManager().commitTransaction(txId);
-				txId = 0;
+				txId = TX_NO;
 			}
 			this.autoCommit = autoCommit;
 		}
@@ -314,19 +315,19 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 		
 		checkConnection();
 		if (transactional) {
-			if (autoCommit || txId == 0) {
+			if (autoCommit || txId == TX_NO) {
 				txId = getTxManager().beginTransaction();
 			}
 			try {
 				getProcessor().executeXCommand(cmd, bindings, ctx);
-				if (autoCommit && txId != 0) {
+				if (autoCommit && txId != TX_NO) {
 					getTxManager().commitTransaction(txId);
-					txId = 0;
+					txId = TX_NO;
 				}
 			} catch (Throwable ex) {
-				if (txId != 0) {
+				if (txId != TX_NO) {
 					getTxManager().rollbackTransaction(txId);
-					txId = 0;
+					txId = TX_NO;
 				}
 				throw ex;
 			}
@@ -345,19 +346,19 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 		checkConnection();
 		Iterator result;
 		if (transactional) {
-			if (autoCommit || txId == 0) {
+			if (autoCommit || txId == TX_NO) {
 				txId = getTxManager().beginTransaction();
 			}
 			try {
 				result = getProcessor().executeXQuery(query, ctx);
-				if (autoCommit && txId != 0) {
+				if (autoCommit && txId != TX_NO) {
 					getTxManager().commitTransaction(txId);
-					txId = 0;
+					txId = TX_NO;
 				}
 			} catch (Throwable ex) {
-				if (txId != 0) {
+				if (txId != TX_NO) {
 					getTxManager().rollbackTransaction(txId);
-					txId = 0;
+					txId = TX_NO;
 				}
 				throw ex;
 			}
