@@ -198,6 +198,7 @@
 	<hz:atomicLong id="xdm.path" name="xdm.path" instance-ref="hzInstance"/>
 	<hz:atomicLong id="xdm.namespace" name="xdm.namespace" instance-ref="hzInstance"/>
 	<hz:atomicLong id="xdm.doctype" name="xdm.doctype" instance-ref="hzInstance"/>
+	<hz:atomicLong id="xdm.transaction" name="xdm.transaction" instance-ref="hzInstance"/>
 	
 	<hz:executorService id="xdm-exec-pool" name="xdm-exec-pool" instance-ref="hzInstance"/>
 	

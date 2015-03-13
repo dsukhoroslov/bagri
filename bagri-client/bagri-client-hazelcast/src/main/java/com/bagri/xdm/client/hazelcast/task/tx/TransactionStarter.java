@@ -4,7 +4,7 @@ import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFacto
 
 import java.util.concurrent.Callable;
 
-public class TransactionStarter extends ClientAwareTask implements Callable<String> {
+public class TransactionStarter extends ClientAwareTask implements Callable<Long> {
 
 	public TransactionStarter() {
 		super();
@@ -20,7 +20,7 @@ public class TransactionStarter extends ClientAwareTask implements Callable<Stri
 	}
 
 	@Override
-	public String call() throws Exception {
+	public Long call() throws Exception {
 		return null;
 	}
 

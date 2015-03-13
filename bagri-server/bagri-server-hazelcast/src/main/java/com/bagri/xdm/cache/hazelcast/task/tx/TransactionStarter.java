@@ -16,7 +16,7 @@ public class TransactionStarter extends com.bagri.xdm.client.hazelcast.task.tx.T
 	}
     
     @Override
-	public String call() throws Exception {
+	public Long call() throws Exception {
 		return txMgr.beginTransaction();
 	}
 	

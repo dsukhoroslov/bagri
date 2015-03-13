@@ -20,7 +20,7 @@ public class TransactionManagementImpl implements XDMTransactionManagement {
     private static final Logger logger = LoggerFactory.getLogger(TransactionManagementImpl.class);
 	
 	private IExecutorService execService;
-    private String txId = null;
+    private long txId = 0;
     private String clientId = null;
 
 	void initialize(RepositoryImpl repo) {
@@ -30,17 +30,17 @@ public class TransactionManagementImpl implements XDMTransactionManagement {
 	}
     
 	@Override
-	public String beginTransaction() {
+	public long beginTransaction() {
 		logger.trace("beginTransaction.enter; current txId: {}", txId); 
-		if (txId != null) {
+		if (txId != 0) {
 			// commit or throw ex?
-			return null;
+			return 0;
 		}
 
-		String result = null;
+		Long result = null;
 		//String clientId = ""; //get ClientId somehow..
 		TransactionStarter txs = new TransactionStarter(clientId);
-		Future<String> future = execService.submitToKeyOwner(txs, clientId);
+		Future<Long> future = execService.submitToKeyOwner(txs, clientId);
 		try {
 			result = future.get();
 		} catch (InterruptedException | ExecutionException ex) {
@@ -52,9 +52,9 @@ public class TransactionManagementImpl implements XDMTransactionManagement {
 	}
 
 	@Override
-	public void commitTransaction(String txId) {
+	public void commitTransaction(long txId) {
 		logger.trace("commitTransaction.enter; current txId: {}", this.txId);
-		if (this.txId == null) {
+		if (this.txId == 0) {
 			// throw ex?
 			return;
 		}
@@ -65,7 +65,7 @@ public class TransactionManagementImpl implements XDMTransactionManagement {
 		Future<Boolean> future = execService.submitToKeyOwner(txc, clientId);
 		try {
 			result = future.get();
-			this.txId = null;
+			this.txId = 0;
 		} catch (InterruptedException | ExecutionException ex) {
 			logger.error("commitTransaction; error getting result", ex);
 		}
@@ -73,9 +73,9 @@ public class TransactionManagementImpl implements XDMTransactionManagement {
 	}
 
 	@Override
-	public void rollbackTransaction(String txId) {
+	public void rollbackTransaction(long txId) {
 		logger.trace("rollbackTransaction.enter; current txId: {}", this.txId);
-		if (this.txId == null) {
+		if (this.txId == 0) {
 			// throw ex?
 			return;
 		}
@@ -86,7 +86,7 @@ public class TransactionManagementImpl implements XDMTransactionManagement {
 		Future<Boolean> future = execService.submitToKeyOwner(txa, clientId);
 		try {
 			result = future.get();
-			this.txId = null;
+			this.txId = 0;
 		} catch (InterruptedException | ExecutionException ex) {
 			logger.error("rollbackTransaction; error getting result", ex);
 		}

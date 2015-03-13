@@ -10,13 +10,13 @@ import com.hazelcast.nio.ObjectDataOutput;
 
 public class TransactionAborter extends ClientAwareTask implements Callable<Boolean> {
 	
-	protected String txId;
+	protected long txId;
 	
 	public TransactionAborter() {
 		super();
 	}
 
-	public TransactionAborter(String clientId, String txId) {
+	public TransactionAborter(String clientId, long txId) {
 		super(clientId);
 		this.txId = txId;
 	}
@@ -34,13 +34,13 @@ public class TransactionAborter extends ClientAwareTask implements Callable<Bool
 	@Override
 	public void readData(ObjectDataInput in) throws IOException {
 		super.readData(in);
-		txId = in.readUTF();
+		txId = in.readLong();
 	}
 
 	@Override
 	public void writeData(ObjectDataOutput out) throws IOException {
 		super.writeData(out);
-		out.writeUTF(txId);
+		out.writeLong(txId);
 	}
 
 	

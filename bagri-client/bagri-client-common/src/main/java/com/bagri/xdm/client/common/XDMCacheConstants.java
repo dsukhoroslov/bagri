@@ -62,6 +62,15 @@ public class XDMCacheConstants {
 	public static final String CN_XDM_RESULT = "xdm-result";
 
     /**
+     * XDM Transaction cache
+     * Key: Long; transaction identifier 
+     * Value: com.bagri.xdm.XDMTransaction
+     * CacheStore: yes...
+     * Mapped as: no
+     */
+	public static final String CN_XDM_TRANSACTION = "xdm-transaction";
+	
+    /**
      * XDM Namespace cache
      * Key: String (NS URI); Value: com.bagri.xdm.XDMNamespace
      * CacheStore: no
@@ -99,6 +108,7 @@ public class XDMCacheConstants {
     public static final String SQN_PATH = "xdm.path";
     public static final String SQN_DOCTYPE = "xdm.doctype";
     //public static final String SQN_ELEMENT = "xdm.element";
+    public static final String SQN_TRANSACTION = "xdm.transaction";
     
 	public static final String PN_XDM_SCHEMA_POOL = "xdm-exec-pool";
 	public static final String PN_XDM_SYSTEM_POOL = "sys-exec-pool";

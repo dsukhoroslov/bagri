@@ -2,10 +2,10 @@ package com.bagri.xdm.api;
 
 public interface XDMTransactionManagement {
 	
-	String beginTransaction();
+	long beginTransaction();
 	
-	void commitTransaction(String txId);
+	void commitTransaction(long txId);
 	
-	void rollbackTransaction(String txId);
+	void rollbackTransaction(long txId);
 
 }

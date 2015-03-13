@@ -1,16 +1,23 @@
 package com.bagri.xdm.cache.hazelcast.impl;
 
+import static com.bagri.xdm.client.common.XDMCacheConstants.CN_XDM_TRANSACTION;
+import static com.bagri.xdm.client.common.XDMCacheConstants.SQN_TRANSACTION;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.bagri.common.idgen.IdGenerator;
+import com.bagri.common.manage.JMXUtils;
 import com.bagri.xdm.api.XDMTransactionManagement;
 import com.bagri.xdm.client.common.XDMCacheConstants;
+import com.bagri.xdm.client.hazelcast.impl.IdGeneratorImpl;
 import com.bagri.xdm.common.XDMDataKey;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMElements;
+import com.bagri.xdm.domain.XDMTransaction;
 import com.hazelcast.core.BaseMap;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
@@ -23,41 +30,36 @@ public class TransactionManagementImpl implements XDMTransactionManagement {
 	
     private static final Logger logger = LoggerFactory.getLogger(TransactionManagementImpl.class);
 	
-    private HazelcastInstance hzInstance;
-	private boolean isInTx = false;
-	private Map<String, TransactionContext> txCache; // = new ConcurrentHashMap<>();
+    //private HazelcastInstance hzInstance;
+	private IdGenerator<Long> txGen;
+	private IMap<Long, XDMTransaction> txCache; 
 
 	public void setHzInstance(HazelcastInstance hzInstance) {
-		this.hzInstance = hzInstance;
-		txCache = new ConcurrentHashMap<>();
-		//txCache = hzInstance.getMap("xdm-tx");
-		//com.hazelcast.nio.serialization.HazelcastSerializationException: 
-		//There is no suitable serializer for class com.hazelcast.transaction.impl.TransactionContextImpl
+		//this.hzInstance = hzInstance;
+		txCache = hzInstance.getMap(CN_XDM_TRANSACTION);
+		txGen = new IdGeneratorImpl(hzInstance.getAtomicLong(SQN_TRANSACTION));
 	}
 	
 	
 	@Override
-	public String beginTransaction() {
+	public long beginTransaction() {
 		logger.trace("beginTransaction.enter;"); 
-		TransactionOptions txOps = new TransactionOptions().setTransactionType(TransactionType.LOCAL);
-		TransactionContext txCtx = hzInstance.newTransactionContext(txOps);
-		String txId = txCtx.getTxnId();
-		txCache.put(txId, txCtx);
-		txCtx.beginTransaction();
-		logger.trace("beginTransaction.exit; got context: {}; returning: {}", txCtx, txId); 
-		//TransactionalMap<Long, XDMDocument> txDocCache = txCtx.getMap(XDMCacheConstants.CN_XDM_DOCUMENT);
-		//logger.trace("beginTransaction.exit; got transactional cache: {};", txDocCache); 
+		long txId = txGen.next();
+		// TODO: do this via EntryProcessor?
+		XDMTransaction xTx = new XDMTransaction(txId, JMXUtils.getCurrentUser());
+		txCache.set(txId, xTx);
+		logger.trace("beginTransaction.exit; started tx: {}; returning: {}", xTx, txId); 
 		return txId;
 	}
 
 	@Override
-	public void commitTransaction(String txId) {
+	public void commitTransaction(long txId) {
 		logger.trace("commitTransaction.enter; got txId: {}", txId); 
-		// perform commit via Hazelcast...
-		TransactionContext txCtx = txCache.get(txId);
-		if (txCtx != null) {
-			txCtx.commitTransaction();
-			txCache.remove(txId);
+		// TODO: do this via EntryProcessor?
+		XDMTransaction xTx = txCache.get(txId);
+		if (xTx != null) {
+			xTx.finish(true);
+			txCache.set(txId, xTx);
 		} else {
 			// throw ex?
 		}
@@ -65,34 +67,21 @@ public class TransactionManagementImpl implements XDMTransactionManagement {
 	}
 
 	@Override
-	public void rollbackTransaction(String txId) {
+	public void rollbackTransaction(long txId) {
 		logger.trace("rollbackTransaction.enter; got txId: {}", txId); 
-		// perform rollback via Hazelcast...
-		TransactionContext txCtx = txCache.get(txId);
-		if (txCtx != null) {
-			txCtx.rollbackTransaction();
-			txCache.remove(txId);
+		// TODO: do this via EntryProcessor?
+		XDMTransaction xTx = txCache.get(txId);
+		if (xTx != null) {
+			xTx.finish(false);
+			txCache.set(txId, xTx);
 		} else {
 			// throw ex?
 		}
 		logger.trace("rollbackTransaction.exit;"); 
 	}
 	
-	String getCurrentTxId() {
-		return txCache.size() > 0 ? txCache.keySet().iterator().next() : null;
-	}
-
-	BaseMap getTransactionalCache(String txId, String cacheName) {
-		if (txId == null) {
-			return hzInstance.getMap(cacheName);
-		}
-		
-		TransactionContext txCtx = txCache.get(txId);
-		if (txCtx != null) {
-			return txCtx.getMap(cacheName);
-		}
-		// throw ex?
-		return null;
-	}
+	//String getCurrentTxId() {
+	//	return txCache.size() > 0 ? txCache.keySet().iterator().next() : null;
+	//}
 
 }

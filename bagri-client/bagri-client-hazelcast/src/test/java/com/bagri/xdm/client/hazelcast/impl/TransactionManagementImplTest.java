@@ -60,7 +60,7 @@ public class TransactionManagementImplTest extends XDMManagementTest {
 
 	@Test
 	public void rollbackTransactionTest() throws IOException {
-		String txId = xRepo.getTxManagement().beginTransaction();
+		long txId = xRepo.getTxManagement().beginTransaction();
 		storeSecurityTest();
 
 		Collection<String> sec = getSecurity("VFINX");

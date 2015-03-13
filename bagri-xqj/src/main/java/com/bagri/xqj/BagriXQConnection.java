@@ -23,7 +23,7 @@ import static com.bagri.xqj.BagriXQConstants.ex_null_context;
 
 public class BagriXQConnection extends BagriXQDataFactory implements XQConnection {
 	
-	private String txId;
+	private long txId;
 	private boolean autoCommit;
 	private boolean transactional;
 	private BagriXQMetaData metaData;
@@ -103,7 +103,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 		        return;
 			}
 			getTxManager().commitTransaction(txId);
-			txId = null;
+			txId = 0;
 		}
 	}
 	
@@ -126,7 +126,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 		        return;
 			}
 			getTxManager().rollbackTransaction(txId);
-			txId = null;
+			txId = 0;
 		}
 	}
 
@@ -140,7 +140,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 		if (transactional) {
 			if (!this.autoCommit) {
 				getTxManager().commitTransaction(txId);
-				txId = null;
+				txId = 0;
 			}
 			this.autoCommit = autoCommit;
 		}
@@ -314,19 +314,19 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 		
 		checkConnection();
 		if (transactional) {
-			if (autoCommit || txId == null) {
+			if (autoCommit || txId == 0) {
 				txId = getTxManager().beginTransaction();
 			}
 			try {
 				getProcessor().executeXCommand(cmd, bindings, ctx);
-				if (autoCommit && txId != null) {
+				if (autoCommit && txId != 0) {
 					getTxManager().commitTransaction(txId);
-					txId = null;
+					txId = 0;
 				}
 			} catch (Throwable ex) {
-				if (txId != null) {
+				if (txId != 0) {
 					getTxManager().rollbackTransaction(txId);
-					txId = null;
+					txId = 0;
 				}
 				throw ex;
 			}
@@ -345,19 +345,19 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 		checkConnection();
 		Iterator result;
 		if (transactional) {
-			if (autoCommit || txId == null) {
+			if (autoCommit || txId == 0) {
 				txId = getTxManager().beginTransaction();
 			}
 			try {
 				result = getProcessor().executeXQuery(query, ctx);
-				if (autoCommit && txId != null) {
+				if (autoCommit && txId != 0) {
 					getTxManager().commitTransaction(txId);
-					txId = null;
+					txId = 0;
 				}
 			} catch (Throwable ex) {
-				if (txId != null) {
+				if (txId != 0) {
 					getTxManager().rollbackTransaction(txId);
-					txId = null;
+					txId = 0;
 				}
 				throw ex;
 			}
