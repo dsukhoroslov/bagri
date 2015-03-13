@@ -41,7 +41,7 @@ public class XDMIndex extends XDMEntity {
 	private String description;
 		
 	@XmlElement(required = 	false, defaultValue = "true")
-	private boolean enabled;
+	private boolean enabled = true;
 
 	public XDMIndex() {
 		// for JAXB
