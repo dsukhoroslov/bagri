@@ -3,14 +3,21 @@ package com.bagri.xdm.cache.hazelcast.impl;
 import static com.bagri.xdm.client.common.XDMCacheConstants.CN_XDM_TRANSACTION;
 import static com.bagri.xdm.client.common.XDMCacheConstants.SQN_TRANSACTION;
 
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicLong;
+
+import javax.management.openmbean.CompositeData;
+import javax.management.openmbean.TabularData;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bagri.common.idgen.IdGenerator;
 import com.bagri.common.manage.JMXUtils;
+import com.bagri.common.stats.StatisticsProvider;
 import com.bagri.xdm.cache.api.XDMTransactionManagement;
 import com.bagri.xdm.client.hazelcast.impl.IdGeneratorImpl;
 import com.bagri.xdm.common.XDMTransactionState;
@@ -18,7 +25,7 @@ import com.bagri.xdm.domain.XDMTransaction;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 
-public class TransactionManagementImpl implements XDMTransactionManagement {
+public class TransactionManagementImpl implements XDMTransactionManagement, StatisticsProvider {
 	
     private static final Logger logger = LoggerFactory.getLogger(TransactionManagementImpl.class);
 	
@@ -125,6 +132,7 @@ public class TransactionManagementImpl implements XDMTransactionManagement {
 		
 		try {
 			V result = call.call();
+			// handle ResultCursor with failure = true!
 			if (autoCommit) {
 				commitTransaction(txId);
 			}
@@ -136,6 +144,34 @@ public class TransactionManagementImpl implements XDMTransactionManagement {
 			rollbackTransaction(txId);
 			throw new RuntimeException(ex);
 		}
+	}
+
+
+	@Override
+	public CompositeData getStatisticTotals() {
+		Map<String, Object> result = new HashMap<String, Object>(4);
+		long started = cntStarted.get();
+		long commited = cntCommited.get();
+		long rolled = cntRolled.get();
+		result.put("Started", started);
+		result.put("Commited", commited);
+		result.put("Rolled Back", rolled);
+		result.put("In Progress", started - commited - rolled);
+		return JMXUtils.mapToComposite("Transaction statistics", "Transaction statistics", result);
+	}
+
+
+	@Override
+	public TabularData getStatisticSeries() {
+		return null;
+	}
+
+
+	@Override
+	public void resetStatistics() {
+		cntStarted = new AtomicLong(0);
+		cntCommited = new AtomicLong(0);
+		cntRolled = new AtomicLong(0);
 	}
 
 }

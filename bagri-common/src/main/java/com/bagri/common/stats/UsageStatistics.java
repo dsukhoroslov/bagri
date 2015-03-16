@@ -91,7 +91,7 @@ public class UsageStatistics extends StatisticsCollector implements StatisticsPr
 		}
 		
 		public Map<String, Object> toMap() {
-			Map<String, Object> result = new HashMap<String, Object>(10);
+			Map<String, Object> result = new HashMap<String, Object>(5);
 			result.put(sn_First, new Date(tmFirst));
 			result.put(sn_Last, new Date(tmLast));
 			result.put(sn_Accessed, cntAccessed);

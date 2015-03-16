@@ -7,6 +7,7 @@ import java.util.concurrent.Future;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.TabularData;
 import javax.xml.xquery.XQConnection;
 
@@ -55,8 +56,8 @@ public abstract class SchemaFeatureManagement implements SelfNaming {
 		return JMXUtils.getObjectName("type=Schema,name=" + schemaName + ",kind=" + getFeatureKind());
 	}
 
-	protected TabularData getInvocationStatistics(Callable<TabularData> statsTask) {
-		logger.trace("getInvocationStatistics.enter; going to collect stats for schema: {}", schemaName);
+	protected TabularData getSeriesStatistics(Callable<TabularData> statsTask) {
+		logger.trace("getSeriesStatistics.enter; going to collect stats for schema: {}", schemaName);
 
 		int cnt = 0;
 		TabularData result = null;
@@ -64,15 +65,36 @@ public abstract class SchemaFeatureManagement implements SelfNaming {
 		for (Map.Entry<Member, Future<TabularData>> entry: futures.entrySet()) {
 			try {
 				TabularData stats = entry.getValue().get();
-				logger.trace("getInvocationStatistics; got stats: {}, from member {}", stats, entry.getKey());
+				logger.trace("getSeriesStatistics; got stats: {}, from member {}", stats, entry.getKey());
 				result = JMXUtils.aggregateStats(stats, result);
-				logger.trace("getInvocationStatistics; got aggregated result: {}", result);
+				logger.trace("getSeriesStatistics; got aggregated result: {}", result);
 				cnt++;
 			} catch (InterruptedException | ExecutionException ex) {
-				logger.error("getInvocationStatistics.error: " + ex.getMessage(), ex);
+				logger.error("getSeriesStatistics.error: " + ex.getMessage(), ex);
 			}
 		}
-		logger.trace("getInvocationStatistics.exit; got stats from {} nodes", cnt);
+		logger.trace("getSeriesStatistics.exit; got stats from {} nodes", cnt);
+		return result;
+	}
+	
+	protected CompositeData getTotalsStatistics(Callable<CompositeData> statsTask) {
+		logger.trace("getTotalsStatistics.enter; going to collect stats for schema: {}", schemaName);
+
+		int cnt = 0;
+		CompositeData result = null;
+		Map<Member, Future<CompositeData>> futures = execService.submitToAllMembers(statsTask);
+		for (Map.Entry<Member, Future<CompositeData>> entry: futures.entrySet()) {
+			try {
+				CompositeData stats = entry.getValue().get();
+				logger.trace("getTotalsStatistics; got stats: {}, from member {}", stats, entry.getKey());
+				result = JMXUtils.aggregateStats(stats, result);
+				logger.trace("getTotalsStatistics; got aggregated result: {}", result);
+				cnt++;
+			} catch (InterruptedException | ExecutionException ex) {
+				logger.error("getTotalsStatistics.error: " + ex.getMessage(), ex);
+			}
+		}
+		logger.trace("getTotalsStatistics.exit; got stats from {} nodes", cnt);
 		return result;
 	}
 	

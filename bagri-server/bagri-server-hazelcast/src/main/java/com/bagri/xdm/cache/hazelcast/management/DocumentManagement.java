@@ -187,7 +187,7 @@ public class DocumentManagement extends SchemaFeatureManagement {
 
 	@ManagedAttribute(description="Returns aggregated DocumentManagement invocation statistics, per method")
 	public TabularData getInvocationStatistics() {
-		return super.getInvocationStatistics(new StatisticSeriesCollector(schemaName, "docStats"));
+		return super.getSeriesStatistics(new StatisticSeriesCollector(schemaName, "docStats"));
 	}
 	
 	@ManagedOperation(description="Reset DocumentManagement invocation statistics")

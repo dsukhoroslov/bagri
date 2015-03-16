@@ -453,7 +453,19 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 
 	@Override
 	public void removeDocument(long docId) {
-		deleteDocument(new AbstractMap.SimpleEntry(docId, null));
+		//deleteDocument(new AbstractMap.SimpleEntry(docId, null));
+		
+		logger.trace("removeDocument.enter; docId: {}", docId);
+	    XDMDocument doc = getDocument(docId);
+	    boolean removed = false;
+	    if (doc != null) {
+			String user = JMXUtils.getCurrentUser();
+	    	doc.finishDocument(txManager.getCurrentTxId(), user);
+	    	xddCache.put(docId, doc);
+		    removed = true;
+	    }
+		logger.trace("removeDocument.exit; removed: {}", removed);
+		
 	}
 
 	

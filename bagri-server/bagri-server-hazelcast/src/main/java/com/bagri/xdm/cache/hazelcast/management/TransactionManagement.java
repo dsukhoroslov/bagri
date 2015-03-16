@@ -1,11 +1,15 @@
 package com.bagri.xdm.cache.hazelcast.management;
 
+import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.TabularData;
 
 import org.springframework.jmx.export.annotation.ManagedAttribute;
+import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
 import com.bagri.xdm.cache.hazelcast.task.stats.StatisticSeriesCollector;
+import com.bagri.xdm.cache.hazelcast.task.stats.StatisticTotalsCollector;
+import com.bagri.xdm.cache.hazelcast.task.stats.StatisticsReseter;
 
 @ManagedResource(description="Schema Transactions Management MBean")
 public class TransactionManagement extends SchemaFeatureManagement {
@@ -25,8 +29,15 @@ public class TransactionManagement extends SchemaFeatureManagement {
 	//}
 
 	@ManagedAttribute(description="Return aggregated transaction statistics")
-	public TabularData getTxStatistics() {
-		return super.getInvocationStatistics(new StatisticSeriesCollector(schemaName, "txStats"));
+	public CompositeData getTxStatistics() {
+		return super.getTotalsStatistics(new StatisticTotalsCollector(schemaName, "txManager"));
 	}
+	
+	
+	@ManagedOperation(description="Reset TransactionManagement statistics")
+	public void resetStatistics() {
+		super.resetStatistics(new StatisticsReseter(schemaName, "txManager")); 
+	}
+
 	
 }

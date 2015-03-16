@@ -349,7 +349,7 @@ public class QueryManagementImpl implements XDMQueryManagement {
 
 	private boolean checkDocumentCommited(long docId) {
 		XDMDocument doc = docMgr.getDocument(docId);
-		if (doc.getTxFinish() > TX_NO) {
+		if (doc.getTxFinish() > TX_NO && txMgr.isTxVisible(doc.getTxFinish())) {
 			return false;
 		}
 		return txMgr.isTxVisible(doc.getTxStart());

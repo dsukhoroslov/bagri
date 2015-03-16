@@ -105,7 +105,7 @@ public class QueryManagement extends SchemaFeatureManagement {
 
 	@ManagedAttribute(description="Returns aggregated QueryManagement invocation statistics, per method")
 	public TabularData getInvocationStatistics() {
-		return super.getInvocationStatistics(new StatisticSeriesCollector(schemaName, "queryStats"));
+		return super.getSeriesStatistics(new StatisticSeriesCollector(schemaName, "queryStats"));
 	}
 	
 	@ManagedOperation(description="Reset QueryManagement invocation statistics")
