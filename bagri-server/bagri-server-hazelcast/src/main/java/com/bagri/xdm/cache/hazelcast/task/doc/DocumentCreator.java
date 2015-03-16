@@ -36,7 +36,6 @@ public class DocumentCreator extends com.bagri.xdm.client.hazelcast.task.doc.Doc
     @Override
 	public XDMDocument call() throws Exception {
 
-    	long txId = XDMTransactionManagement.TX_NO;
     	return txMgr.callInTransaction(txId, new Callable<XDMDocument>() {
     		
 	    	public XDMDocument call() {

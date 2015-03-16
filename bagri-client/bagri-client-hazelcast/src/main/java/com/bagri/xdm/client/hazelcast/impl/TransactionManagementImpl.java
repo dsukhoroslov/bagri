@@ -37,16 +37,14 @@ public class TransactionManagementImpl implements XDMTransactionManagement {
 			return 0;
 		}
 
-		Long result = null;
 		//String clientId = ""; //get ClientId somehow..
 		TransactionStarter txs = new TransactionStarter(clientId);
 		Future<Long> future = execService.submitToKeyOwner(txs, clientId);
 		try {
-			result = future.get();
+			txId = future.get();
 		} catch (InterruptedException | ExecutionException ex) {
 			logger.error("beginTransaction; error getting result", ex);
 		}
-		txId = result;
 		logger.trace("beginTransaction.exit; returnig txId: {}", txId); 
 		return txId;
 	}
@@ -91,6 +89,10 @@ public class TransactionManagementImpl implements XDMTransactionManagement {
 			logger.error("rollbackTransaction; error getting result", ex);
 		}
 		logger.trace("rollbackTransaction.exit; rolled back: {}", result); 
+	}
+	
+	long getTxId() {
+		return this.txId;
 	}
 
 }

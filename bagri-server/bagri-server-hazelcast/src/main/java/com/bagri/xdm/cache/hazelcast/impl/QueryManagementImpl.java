@@ -356,9 +356,11 @@ public class QueryManagementImpl implements XDMQueryManagement {
 	}
 	
 	private Collection<Long> checkDocumentsCommited(Collection<Long> docIds) {
-		for (Long docId: docIds) {
+		Iterator<Long> itr = docIds.iterator();
+		while (itr.hasNext()) {
+			long docId = itr.next();
 			if (!checkDocumentCommited(docId)) {
-				docIds.remove(docId);
+				itr.remove();
 			}
 		}
 		return docIds;

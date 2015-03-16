@@ -57,7 +57,6 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 	private ResultCursor cursor;
 	private HazelcastInstance hzClient;
 	private IExecutorService execService;
-	
 
 	public RepositoryImpl() {
 		initializeFromProperties(getSystemProps());
@@ -212,6 +211,10 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 	String getClientId() {
 		return clientId;
 	}
+
+	long getTransactionId() {
+		return ((TransactionManagementImpl) this.getTxManagement()).getTxId();
+	}
 	
 	Iterator execXQuery(boolean isQuery, String query, Map bindings, Properties props) { //throws Exception {
 		
@@ -223,13 +226,14 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 		//	}
 		//}
 		
-		props.put("clientId", clientId);
 		//props.put("batchSize", "5");
+		props.put("clientId", clientId);
+		props.put("txId", String.valueOf(getTransactionId()));
 		
 		String runOn = System.getProperty("xdm.client.submitTo", "any");
 		
 		XQCommandExecutor task = new XQCommandExecutor(isQuery, schemaName, query, bindings, props);
-		Future<Object> future;
+		Future<ResultCursor> future;
 		if (isQuery) {
 			if ("owner".equals(runOn)) {
 				int key = getQueryManagement().getQueryKey(query);
@@ -254,9 +258,9 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 			//}
 			
 			if (timeout > 0) {
-				cursor = (ResultCursor) future.get(timeout, TimeUnit.SECONDS);
+				cursor = future.get(timeout, TimeUnit.SECONDS);
 			} else {
-				cursor = (ResultCursor) future.get();
+				cursor = future.get();
 			}
 			
 			logger.trace("execXQuery; got cursor: {}", cursor);

@@ -42,7 +42,6 @@ public final class XDMFactoryImpl implements XDMFactory {
 	 */
 	@Override
 	public XDMElement newXDMData() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

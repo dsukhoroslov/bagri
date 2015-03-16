@@ -1,5 +1,6 @@
 package com.bagri.xdm.cache.hazelcast.task.query;
 
+import java.util.Iterator;
 import java.util.concurrent.Callable;
 
 import org.slf4j.Logger;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.bagri.xdm.api.XDMQueryManagement;
 import com.bagri.xdm.cache.api.XDMTransactionManagement;
+import com.bagri.xdm.client.hazelcast.impl.ResultCursor;
 import com.hazelcast.spring.context.SpringAware;
 
 @SpringAware
@@ -33,20 +35,20 @@ public class XQCommandExecutor extends com.bagri.xdm.client.hazelcast.task.query
 	}
 
     @Override
-	public Object call() throws Exception {
+	public ResultCursor call() throws Exception {
 		
     	long txId = XDMTransactionManagement.TX_NO;
     	String id = context.getProperty("txId");
 		if (id != null) {
 			txId = Long.parseLong(id);
 		}
-    	return txMgr.callInTransaction(txId, new Callable<Object>() {
+    	return txMgr.callInTransaction(txId, new Callable<ResultCursor>() {
     		
-	    	public Object call() {
+	    	public ResultCursor call() {
 				if (isQuery) {
-					return queryMgr.executeXQuery(command, bindings, context);
+					return (ResultCursor) queryMgr.executeXQuery(command, bindings, context);
 				} else {
-			        return queryMgr.executeXCommand(command, bindings, context);
+			        return (ResultCursor) queryMgr.executeXCommand(command, bindings, context);
 				}
 	    	}
     	});

@@ -61,33 +61,40 @@ public class TransactionManagementImplTest extends XDMManagementTest {
 	@Test
 	public void rollbackTransactionTest() throws IOException {
 		long txId = xRepo.getTxManagement().beginTransaction();
-		storeSecurityTest();
-
-		Collection<String> sec = getSecurity("VFINX");
-		Assert.assertNotNull(sec);
-		Assert.assertTrue(sec.size() > 0);
-
-		sec = getSecurity("IBM");
-		Assert.assertNotNull(sec);
-		Assert.assertTrue(sec.size() > 0);
-
-		sec = getSecurity("PTTAX");
-		Assert.assertNotNull(sec);
-		Assert.assertTrue(sec.size() > 0);
-
-		xRepo.getTxManagement().rollbackTransaction(txId);
-		
-		sec = getSecurity("VFINX");
-		Assert.assertNotNull(sec);
-		Assert.assertTrue(sec.size() == 0);
-
-		sec = getSecurity("IBM");
-		Assert.assertNotNull(sec);
-		Assert.assertTrue(sec.size() == 0);
-
-		sec = getSecurity("PTTAX");
-		Assert.assertNotNull(sec);
-		Assert.assertTrue(sec.size() == 0);
+		try {
+			storeSecurityTest();
+	
+			Collection<String> sec = getSecurity("VFINX");
+			Assert.assertNotNull(sec);
+			Assert.assertTrue(sec.size() > 0);
+	
+			sec = getSecurity("IBM");
+			Assert.assertNotNull(sec);
+			Assert.assertTrue(sec.size() > 0);
+	
+			sec = getSecurity("PTTAX");
+			Assert.assertNotNull(sec);
+			Assert.assertTrue(sec.size() > 0);
+	
+			xRepo.getTxManagement().rollbackTransaction(txId);
+			txId = 0;
+			
+			sec = getSecurity("VFINX");
+			Assert.assertNotNull(sec);
+			Assert.assertTrue(sec.size() == 0);
+	
+			sec = getSecurity("IBM");
+			Assert.assertNotNull(sec);
+			Assert.assertTrue(sec.size() == 0);
+	
+			sec = getSecurity("PTTAX");
+			Assert.assertNotNull(sec);
+			Assert.assertTrue(sec.size() == 0);
+		} finally {
+			if (txId > 0) {
+				xRepo.getTxManagement().rollbackTransaction(txId);
+			}
+		}
 	}
 	
 }

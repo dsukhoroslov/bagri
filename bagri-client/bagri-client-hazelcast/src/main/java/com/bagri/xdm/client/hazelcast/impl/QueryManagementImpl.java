@@ -45,7 +45,7 @@ public class QueryManagementImpl implements XDMQueryManagement {
 		long stamp = System.currentTimeMillis();
 		logger.trace("getDocumentURIs.enter; query: {}", query);
 		
-		DocumentUrisProvider task = new DocumentUrisProvider(query);
+		DocumentUrisProvider task = new DocumentUrisProvider(query, repo.getTransactionId());
 		Future<Collection<String>> future = execService.submit(task);
 		Collection<String> result = null;
 		try {
@@ -64,7 +64,7 @@ public class QueryManagementImpl implements XDMQueryManagement {
 		long stamp = System.currentTimeMillis();
 		logger.trace("getDocumentIDs.enter; query: {}", query);
 		
-		DocumentIdsProvider task = new DocumentIdsProvider(query);
+		DocumentIdsProvider task = new DocumentIdsProvider(query, repo.getTransactionId());
 		Future<Collection<Long>> future = execService.submit(task);
 		Collection<Long> result = null;
 		try {
@@ -82,7 +82,7 @@ public class QueryManagementImpl implements XDMQueryManagement {
 		long stamp = System.currentTimeMillis();
 		logger.trace("getXML.enter; got query: {}; template: {}; params: {}", query, template, params);
 		
-		XMLBuilder xb = new XMLBuilder(query, template, params);
+		XMLBuilder xb = new XMLBuilder(query, repo.getTransactionId(), template, params);
 		Map<Member, Future<Collection<String>>> result = execService.submitToAllMembers(xb);
 
 		Collection<String> xmls = new ArrayList<String>();

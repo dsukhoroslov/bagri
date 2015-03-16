@@ -20,6 +20,7 @@ import com.bagri.common.manage.JMXUtils;
 import com.bagri.common.stats.StatisticsProvider;
 import com.bagri.xdm.cache.api.XDMTransactionManagement;
 import com.bagri.xdm.client.hazelcast.impl.IdGeneratorImpl;
+import com.bagri.xdm.client.hazelcast.impl.ResultCursor;
 import com.bagri.xdm.common.XDMTransactionState;
 import com.bagri.xdm.domain.XDMTransaction;
 import com.hazelcast.core.HazelcastInstance;
@@ -133,6 +134,12 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 		try {
 			V result = call.call();
 			// handle ResultCursor with failure = true!
+			if (result instanceof ResultCursor) {
+				if (((ResultCursor) result).isFailure()) {
+					rollbackTransaction(txId);
+					autoCommit = false;
+				}
+			}
 			if (autoCommit) {
 				commitTransaction(txId);
 			}
@@ -146,7 +153,6 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 		}
 	}
 
-
 	@Override
 	public CompositeData getStatisticTotals() {
 		Map<String, Object> result = new HashMap<String, Object>(4);
@@ -159,7 +165,6 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 		result.put("In Progress", started - commited - rolled);
 		return JMXUtils.mapToComposite("Transaction statistics", "Transaction statistics", result);
 	}
-
 
 	@Override
 	public TabularData getStatisticSeries() {

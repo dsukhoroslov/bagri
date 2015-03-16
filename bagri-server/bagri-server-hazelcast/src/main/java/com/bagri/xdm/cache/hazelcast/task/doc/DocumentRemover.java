@@ -36,7 +36,6 @@ public class DocumentRemover extends com.bagri.xdm.client.hazelcast.task.doc.Doc
     @Override
 	public XDMDocument call() throws Exception {
     	
-    	long txId = XDMTransactionManagement.TX_NO;
     	txMgr.callInTransaction(txId, new Callable<Void>() {
     		
 	    	public Void call() {

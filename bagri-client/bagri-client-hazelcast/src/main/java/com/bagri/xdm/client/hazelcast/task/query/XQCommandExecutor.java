@@ -5,15 +5,17 @@ import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFacto
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 
+import com.bagri.xdm.client.hazelcast.impl.ResultCursor;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
-public class XQCommandExecutor implements Callable<Object>, IdentifiedDataSerializable {
+public class XQCommandExecutor implements Callable<ResultCursor>, IdentifiedDataSerializable {
 
 	protected boolean isQuery;
 	protected String schemaName;
@@ -35,7 +37,7 @@ public class XQCommandExecutor implements Callable<Object>, IdentifiedDataSerial
 	}
 
 	@Override
-	public Object call() throws Exception {
+	public ResultCursor call() throws Exception {
 		
 		return null;
 	}

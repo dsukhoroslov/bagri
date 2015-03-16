@@ -29,6 +29,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementBase implements
 	private IMap<XDMDataKey, XDMElements> xdmCache;
 	private IdGenerator<Long> docGen;
 	private IExecutorService execService;
+    private RepositoryImpl repo;
 	
 	public DocumentManagementImpl() {
 		super();
@@ -60,6 +61,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementBase implements
 	}
 	
 	void initialize(RepositoryImpl repo) {
+		this.repo = repo;
 		HazelcastInstance hzClient = repo.getHazelcastClient();
 		xddCache = hzClient.getMap(CN_XDM_DOCUMENT);
 		xdmCache = hzClient.getMap(CN_XDM_ELEMENT);
@@ -134,10 +136,8 @@ public class DocumentManagementImpl extends XDMDocumentManagementBase implements
 			docId = docGen.next();
 		}
 		// todo: override existing document -> create a new version ?
-		// todo: get txId from some context
-		long txId = XDMTransactionManagement.TX_NO;
 		
-		DocumentCreator task = new DocumentCreator(docId, txId, uri, xml);
+		DocumentCreator task = new DocumentCreator(docId, repo.getTransactionId(), uri, xml);
 		Future<XDMDocument> future = execService.submitToKeyOwner(task, docId);
 		try {
 			XDMDocument result = future.get();
@@ -157,10 +157,8 @@ public class DocumentManagementImpl extends XDMDocumentManagementBase implements
 		logger.trace("removeDocument.enter; docId: {}", docId);
 		//XDMDocumentRemover proc = new XDMDocumentRemover();
 		//Object result = xddCache.executeOnKey(docId, proc);
-		// todo: get txId from some context
-		long txId = XDMTransactionManagement.TX_NO;
 		
-		DocumentRemover task = new DocumentRemover(docId, txId);
+		DocumentRemover task = new DocumentRemover(docId, repo.getTransactionId());
 		Future<XDMDocument> future = execService.submitToKeyOwner(task, docId);
 		try {
 			XDMDocument result = future.get();

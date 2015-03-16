@@ -36,6 +36,7 @@ public class XDMDataSerializationFactory extends com.bagri.xdm.client.hazelcast.
 
 	@Override
 	public IdentifiedDataSerializable create(int typeId) {
+		
 		switch (typeId) {
 			case cli_XDMCreateDocumentTask: return new DocumentCreator();
 			case cli_XDMRemoveDocumentTask: return new DocumentRemover();

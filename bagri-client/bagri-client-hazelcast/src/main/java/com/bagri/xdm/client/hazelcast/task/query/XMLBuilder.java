@@ -14,6 +14,7 @@ import com.hazelcast.nio.ObjectDataOutput;
 
 public class XMLBuilder extends ResultBuilder implements Callable<Collection<String>> {
 
+	
 	protected String template;
 	protected Map<String, String> params = new HashMap<String, String>();
 	
@@ -21,8 +22,8 @@ public class XMLBuilder extends ResultBuilder implements Callable<Collection<Str
 		super();
 	}
 	
-	public XMLBuilder(ExpressionContainer exp, String template, Map<String, String> params) {
-		super(exp);
+	public XMLBuilder(ExpressionContainer exp, long txId, String template, Map<String, String> params) {
+		super(exp, txId);
 		this.template = template;
 		if (params != null) {
 			this.params.putAll(params);
