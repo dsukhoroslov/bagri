@@ -9,6 +9,7 @@ import java.util.concurrent.Future;
 
 import com.bagri.common.idgen.IdGenerator;
 import com.bagri.xdm.api.XDMDocumentManagement;
+import com.bagri.xdm.api.XDMTransactionManagement;
 import com.bagri.xdm.client.common.impl.XDMDocumentManagementBase;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentCreator;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentRemover;
@@ -133,8 +134,10 @@ public class DocumentManagementImpl extends XDMDocumentManagementBase implements
 			docId = docGen.next();
 		}
 		// todo: override existing document -> create a new version ?
-
-		DocumentCreator task = new DocumentCreator(docId, uri, xml);
+		// todo: get txId from some context
+		long txId = XDMTransactionManagement.TX_NO;
+		
+		DocumentCreator task = new DocumentCreator(docId, txId, uri, xml);
 		Future<XDMDocument> future = execService.submitToKeyOwner(task, docId);
 		try {
 			XDMDocument result = future.get();
@@ -154,8 +157,10 @@ public class DocumentManagementImpl extends XDMDocumentManagementBase implements
 		logger.trace("removeDocument.enter; docId: {}", docId);
 		//XDMDocumentRemover proc = new XDMDocumentRemover();
 		//Object result = xddCache.executeOnKey(docId, proc);
+		// todo: get txId from some context
+		long txId = XDMTransactionManagement.TX_NO;
 		
-		DocumentRemover task = new DocumentRemover(docId);
+		DocumentRemover task = new DocumentRemover(docId, txId);
 		Future<XDMDocument> future = execService.submitToKeyOwner(task, docId);
 		try {
 			XDMDocument result = future.get();

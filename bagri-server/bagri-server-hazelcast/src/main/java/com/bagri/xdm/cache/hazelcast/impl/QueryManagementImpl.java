@@ -1,9 +1,10 @@
 package com.bagri.xdm.cache.hazelcast.impl;
 
+import static com.bagri.xdm.api.XDMTransactionManagement.TX_NO;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -13,7 +14,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.xml.namespace.QName;
-import javax.xml.transform.Source;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,26 +26,20 @@ import com.bagri.common.query.ExpressionContainer;
 import com.bagri.common.query.PathExpression;
 import com.bagri.common.query.QueryBuilder;
 import com.bagri.xdm.api.XDMModelManagement;
-//import com.bagri.xdm.api.XDMQueryManagement;
-import com.bagri.xdm.api.XDMRepository;
 import com.bagri.xdm.cache.api.XDMQueryManagement;
 import com.bagri.xdm.cache.hazelcast.predicate.QueryPredicate;
 import com.bagri.xdm.client.hazelcast.data.QueryParamsKey;
 import com.bagri.xdm.client.hazelcast.impl.ResultCursor;
 import com.bagri.xdm.common.XDMDataKey;
-import com.bagri.xdm.common.XDMFactory;
-import com.bagri.xdm.common.XDMIndexKey;
 import com.bagri.xdm.common.XDMResultsKey;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMElements;
-import com.bagri.xdm.domain.XDMIndexedValue;
 import com.bagri.xdm.domain.XDMNodeKind;
 import com.bagri.xdm.domain.XDMPath;
 import com.bagri.xdm.domain.XDMQuery;
 import com.bagri.xdm.domain.XDMResults;
 import com.bagri.xquery.api.XQProcessor;
 import com.bagri.xquery.saxon.ExceptionIterator;
-import com.hazelcast.core.BaseMap;
 import com.hazelcast.core.IMap;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
@@ -58,6 +52,7 @@ public class QueryManagementImpl implements XDMQueryManagement {
 	private XDMModelManagement model;
     private IndexManagementImpl idxMgr;
 	private DocumentManagementImpl docMgr;
+	private TransactionManagementImpl txMgr;
 	
     private IMap<Integer, XDMQuery> xqCache;
     private IMap<XDMResultsKey, XDMResults> xrCache;
@@ -74,8 +69,9 @@ public class QueryManagementImpl implements XDMQueryManagement {
     	this.repo = repo;
     	this.model = repo.getModelManagement();
     	this.docMgr = (DocumentManagementImpl) repo.getDocumentManagement();
-    	this.xddCache = (IMap) docMgr.getDocumentCache();
-    	this.xdmCache = (IMap) docMgr.getElementCache();
+    	this.txMgr = (TransactionManagementImpl) repo.getTxManagement();
+    	this.xddCache = docMgr.getDocumentCache();
+    	this.xdmCache = docMgr.getElementCache();
     }
 
     public void setQueryCache(IMap<Integer, XDMQuery> cache) {
@@ -296,6 +292,7 @@ public class QueryManagementImpl implements XDMQueryManagement {
 			logger.trace("queryPathKeys; search for index - got ids: {}", docIds); 
 			if (docIds != null) {
 				docIds = (Set<Long>) checkDocumentsCommited(docIds);
+				logger.trace("queryPathKeys; ids after transaction check: {}", docIds); 
 				Set<Long> result;
 				if (found == null) {
 					result = docIds;
@@ -351,7 +348,11 @@ public class QueryManagementImpl implements XDMQueryManagement {
 	}
 
 	private boolean checkDocumentCommited(long docId) {
-		return true;
+		XDMDocument doc = docMgr.getDocument(docId);
+		if (doc.getTxFinish() > TX_NO) {
+			return false;
+		}
+		return txMgr.isTxVisible(doc.getTxStart());
 	}
 	
 	private Collection<Long> checkDocumentsCommited(Collection<Long> docIds) {

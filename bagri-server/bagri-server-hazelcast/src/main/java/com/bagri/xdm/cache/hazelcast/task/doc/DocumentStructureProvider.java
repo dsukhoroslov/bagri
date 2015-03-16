@@ -30,15 +30,16 @@ import com.hazelcast.spring.context.SpringAware;
 public class DocumentStructureProvider extends DocumentAwareTask implements Callable<CompositeData> {
 	
 	private transient DocumentManagementImpl docMgr;
-    
+
 	public DocumentStructureProvider() {
 		super();
 	}
 	
 	public DocumentStructureProvider(long docId) {
-		super(docId);
+		super(docId, 0);
 	}
 
+	
     @Autowired
     @Qualifier("docManager")
 	public void setDocManager(DocumentManagementImpl docMgr) {

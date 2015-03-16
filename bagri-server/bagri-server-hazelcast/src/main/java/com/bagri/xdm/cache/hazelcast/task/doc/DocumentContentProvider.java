@@ -14,22 +14,16 @@ import com.hazelcast.spring.context.SpringAware;
 @SpringAware
 public class DocumentContentProvider extends com.bagri.xdm.client.hazelcast.task.doc.DocumentContentProvider {
 
-    //private static final transient Logger logger = LoggerFactory.getLogger(XMLProvider.class);
-    
 	private transient XDMDocumentManagement docMgr;
     
     @Autowired
     @Qualifier("docProxy")
 	public void setDocManager(XDMDocumentManagement docMgr) {
 		this.docMgr = docMgr;
-		//logger.debug("setDocManager; got DocumentManager: {}", docMgr); 
 	}
 	    
     @Override
 	public String call() throws Exception {
-		//logger.trace("call.enter; builder: {}", eBuilder.getRoot());
-		//Collection<String> result = xdmProxy.getXML(eBuilder, template, params);
-		//logger.trace("call.exit; returning: {}", result.size());
 		return docMgr.getDocumentAsString(docId);
 	}
 }
