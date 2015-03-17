@@ -38,8 +38,6 @@ public class XQSequenceSerializer implements StreamSerializer<XQSequence> {
 
 	@Override
 	public void destroy() {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
@@ -57,10 +55,15 @@ public class XQSequenceSerializer implements StreamSerializer<XQSequence> {
 	@Override
 	public void write(ObjectDataOutput out, XQSequence sequence) throws IOException {
 		try {
-			XQItemType type = sequence.getItemType();
-			out.writeObject(type);
+			XQItemType type = null;
+			boolean typeSerialized = false;
 			List list = new ArrayList();
 			while (sequence.next()) {
+				if (!typeSerialized) {
+					type = sequence.getItemType();
+					out.writeObject(type);
+					typeSerialized = true;
+				}
 				list.add(sequence.getItem());
 			}
 			logger.trace("write; got type: {}; list: {}", type, list);

@@ -344,7 +344,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 	public Iterator executeQuery(String query, XQStaticContext ctx) throws XQException {
 		
 		checkConnection();
-		Iterator result;
+		Iterator result = null;
 		if (transactional) {
 			if (autoCommit || txId == TX_NO) {
 				txId = getTxManager().beginTransaction();
@@ -364,6 +364,10 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 			}
 		} else {
 			result = getProcessor().executeXQuery(query, ctx);
+		}
+		
+		if (result == null) {
+			throw new XQException("got no response");
 		}
 		return result;
 	}

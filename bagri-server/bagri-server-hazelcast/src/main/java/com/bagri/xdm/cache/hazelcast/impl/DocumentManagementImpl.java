@@ -459,13 +459,12 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	    XDMDocument doc = getDocument(docId);
 	    boolean removed = false;
 	    if (doc != null) {
-			String user = JMXUtils.getCurrentUser();
-	    	doc.finishDocument(txManager.getCurrentTxId(), user);
+			//String user = JMXUtils.getCurrentUser();
+	    	doc.finishDocument(txManager.getCurrentTxId()); //, user);
 	    	xddCache.put(docId, doc);
 		    removed = true;
 	    }
 		logger.trace("removeDocument.exit; removed: {}", removed);
-		
 	}
 
 	

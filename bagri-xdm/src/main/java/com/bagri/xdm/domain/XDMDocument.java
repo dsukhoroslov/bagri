@@ -80,9 +80,9 @@ public class XDMDocument extends XDMEntity {
 		return txFinish;
 	}
 	
-	public void finishDocument(long txFinish, String by) {
+	public void finishDocument(long txFinish) { //, String by) {
 		this.txFinish = txFinish;
-		updateVersion(by);
+		//updateVersion(by);
 	}
 
 	/* (non-Javadoc)
