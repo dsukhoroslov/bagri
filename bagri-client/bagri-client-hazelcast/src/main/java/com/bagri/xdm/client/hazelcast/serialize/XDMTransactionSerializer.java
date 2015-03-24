@@ -2,6 +2,7 @@ package com.bagri.xdm.client.hazelcast.serialize;
 
 import java.io.IOException;
 
+import com.bagri.xdm.common.XDMTransactionIsolation;
 import com.bagri.xdm.common.XDMTransactionState;
 import com.bagri.xdm.domain.XDMTransaction;
 import com.hazelcast.nio.ObjectDataInput;
@@ -26,6 +27,7 @@ public class XDMTransactionSerializer implements StreamSerializer<XDMTransaction
 				in.readLong(),
 				in.readLong(),
 				in.readUTF(),
+				XDMTransactionIsolation.valueOf(in.readUTF()),
 				XDMTransactionState.valueOf(in.readUTF()));
 	}
 
@@ -36,6 +38,7 @@ public class XDMTransactionSerializer implements StreamSerializer<XDMTransaction
 		out.writeLong(xTrans.getStartedAt());
 		out.writeLong(xTrans.getFinishedAt());
 		out.writeUTF(xTrans.getStartedBy());
+		out.writeUTF(xTrans.getTxIsolation().name());
 		out.writeUTF(xTrans.getTxState().name());
 	}
 

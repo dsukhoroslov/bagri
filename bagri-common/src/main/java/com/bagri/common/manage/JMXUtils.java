@@ -264,6 +264,7 @@ public class JMXUtils {
    	        	trgVals[idx_Avg_Time] = dSum/cntInvoke;
    				double dCnt = cntInvoke*1000;
    				trgVals[idx_Throughput] = dCnt/(tmLast - tmFirst);
+   				trgVals[idx_Duration] = tmLast - tmFirst;
     		}
     		
 			try {
@@ -279,6 +280,7 @@ public class JMXUtils {
     private static Object aggregateValue(int idx, Object value1, Object value2) {
         //logger.trace("aggregateValue. name: {}; v1: {}; v2: {}", name, value1, value2);
     	switch (idx) {
+    		case idx_Duration: return 0L; 
     		case idx_Failed: return (Integer) value1 + (Integer) value2;
     		case idx_First: if (((Comparable) value1).compareTo((Comparable) value2) < 0) {
             		return value1;

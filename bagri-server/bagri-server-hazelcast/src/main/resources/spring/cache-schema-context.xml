@@ -121,6 +121,9 @@
 						<hz:property name="xdm.schema.store.type">${xdm.schema.store.type}</hz:property>
 					</hz:properties>
 				</hz:map-store-->
+				<hz:indexes>
+					<hz:index attribute="txState"/>
+				</hz:indexes>
 			</hz:map>
 
 			<hz:map name="xdm-xml" async-backup-count="1" backup-count="0" in-memory-format="OBJECT"

@@ -93,7 +93,6 @@ public class CollectionURIResolverImpl implements CollectionURIResolver {
     private XDMRepository repo;
     private QueryBuilder query;
     private XQueryExpression exp;
-    //private ExpressionContainer exCont;
 
     public CollectionURIResolverImpl(XDMRepository repo) {
     	this.repo = repo;
@@ -407,7 +406,7 @@ public class CollectionURIResolverImpl implements CollectionURIResolver {
             	// thrown in case of join. have to think about this..
     	    	//throw new IllegalStateException("Unexpected expression: " + ex);
     		} //else {
-    			// simse we do not need this workaround any more..
+    			// semse we do not need this workaround any more..
     			//if (varIdx == 0) {
     			//	compType = Comparison.negate(compType);
     			//}

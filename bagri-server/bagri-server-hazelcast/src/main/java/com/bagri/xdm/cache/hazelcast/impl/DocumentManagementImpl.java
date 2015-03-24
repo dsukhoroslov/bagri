@@ -421,7 +421,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	public XDMDocument storeDocumentFromString(long docId, String uri, String xml) {
 		// create new document version ??
 		// what if we want to pass here correct URI ??
-		logger.trace("storeDocument.enter; docId: {}; uri: {}; xml: {}", docId, uri, xml.length());
+		logger.trace("storeDocumentFromString.enter; docId: {}; uri: {}; xml: {}", docId, uri, xml.length());
 
 		boolean update = false;
 		if (docId == 0) {
@@ -444,11 +444,13 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		if (update) {
 		    XDMDocument doc = xddCache.get(docId);
 		    if (doc != null) {
-		    	deleteDocumentElements(docId, doc.getTypeId());
+		    	// we must finish old Document and create a new one!
+		    	doc.finishDocument(txManager.getCurrentTxId());
+		    	//deleteDocumentElements(docId, doc.getTypeId());
+		    	// but the created Document will have the same docId, wrong!
 		    }
 		}
 	    return createDocument(new AbstractMap.SimpleEntry(docId, null), uri, xml);
-	    // go to updateDocument ..?
 	}
 
 	@Override

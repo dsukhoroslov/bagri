@@ -3,9 +3,11 @@ package com.bagri.xdm.cache.hazelcast.impl;
 import static com.bagri.xdm.client.common.XDMCacheConstants.CN_XDM_TRANSACTION;
 import static com.bagri.xdm.client.common.XDMCacheConstants.SQN_TRANSACTION;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -18,13 +20,18 @@ import org.slf4j.LoggerFactory;
 import com.bagri.common.idgen.IdGenerator;
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.common.stats.StatisticsProvider;
+import com.bagri.common.stats.StatisticsCollector.Statistics;
 import com.bagri.xdm.cache.api.XDMTransactionManagement;
 import com.bagri.xdm.client.hazelcast.impl.IdGeneratorImpl;
 import com.bagri.xdm.client.hazelcast.impl.ResultCursor;
+import com.bagri.xdm.common.XDMTransactionIsolation;
 import com.bagri.xdm.common.XDMTransactionState;
+import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMTransaction;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
+import com.hazelcast.query.Predicate;
+import com.hazelcast.query.Predicates;
 
 public class TransactionManagementImpl implements XDMTransactionManagement, StatisticsProvider {
 	
@@ -60,6 +67,20 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 		long txId = txGen.next();
 		// TODO: do this via EntryProcessor?
 		XDMTransaction xTx = new XDMTransaction(txId, JMXUtils.getCurrentUser());
+		txCache.set(txId, xTx);
+		thTx.set(txId);
+		cntStarted.incrementAndGet();
+		logger.trace("beginTransaction.exit; started tx: {}; returning: {}", xTx, txId); 
+		return txId;
+	}
+
+	@Override
+	public long beginTransaction(XDMTransactionIsolation txIsolation) {
+		logger.trace("beginTransaction.enter; txIsolation: {}", txIsolation); 
+		long txId = txGen.next();
+		// TODO: do this via EntryProcessor?
+		XDMTransaction xTx = new XDMTransaction(txId, System.currentTimeMillis(), 0, 
+				JMXUtils.getCurrentUser(), txIsolation, XDMTransactionState.started);
 		txCache.set(txId, xTx);
 		thTx.set(txId);
 		cntStarted.incrementAndGet();
@@ -107,13 +128,36 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 			// current tx;
 			return true;
 		}
+		// can not be null!
+		XDMTransaction xTx = txCache.get(cTx);
+		if (xTx == null) {
+			throw new IllegalStateException("Can not find current Transaction with txId " + cTx);
+		}
+
+		// current tx is not finished yet!
+		if (xTx.getTxState() != XDMTransactionState.started) {
+			throw new IllegalStateException("Current Transaction is already " + xTx.getTxState());
+		}
+			
+		XDMTransactionIsolation txIsolation = xTx.getTxIsolation(); 
+		if (txIsolation == XDMTransactionIsolation.dirtyRead) {
+			// current tx is dirtyRead, can see not-committed tx results
+			return true;
+		}
+		
+		xTx = txCache.get(txId);
+		boolean commited = xTx == null || xTx.getTxState() == XDMTransactionState.commited;
+		if (txIsolation == XDMTransactionIsolation.readCommited) {
+			return commited;
+		}
+
+		// txIsolation is repeatableRead or serializable
 		if (txId > cTx) {
 			// the tx started after current, so it is not visible
 			// for current tx
 			return false;
 		}
-		XDMTransaction xTx = txCache.get(txId);
-		return xTx == null || xTx.getTxState() == XDMTransactionState.commited; 
+		return commited; 
 	}
 	
 	long getCurrentTxId() {
@@ -168,7 +212,29 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 
 	@Override
 	public TabularData getStatisticSeries() {
-		return null;
+		// return InProgress Transactions here!?
+   		Predicate<Long, XDMTransaction> f = Predicates.equal("txState", XDMTransactionState.started);
+		Collection<XDMTransaction> txStarted = txCache.values(f);
+		if (txStarted == null || txStarted.isEmpty()) {
+			return null;
+		}
+		
+        TabularData result = null;
+    	String desc = "InProgress Transactions";
+    	String name = "InProgress Transactions";
+    	String header = "txId"; 
+        for (XDMTransaction xTx: txStarted) {
+            try {
+                Map<String, Object> txStats = xTx.toMap();
+                //stats.put(header, entry.getKey());
+                CompositeData data = JMXUtils.mapToComposite(name, desc, txStats);
+                result = JMXUtils.compositeToTabular(name, desc, header, result, data);
+            } catch (Exception ex) {
+                logger.error("getStatisticSeries; error", ex);
+            }
+        }
+        //logger.trace("getStatisticSeries.exit; returning: {}", result);
+        return result;
 	}
 
 

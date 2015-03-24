@@ -12,20 +12,23 @@ import javax.management.openmbean.TabularData;
 import javax.management.openmbean.TabularDataSupport;
 import javax.management.openmbean.TabularType;
 
+import com.bagri.common.util.DateUtils;
+
 public class InvocationStatistics extends StatisticsCollector implements StatisticsProvider {
 
 	// stats indexes provided in alphabetical order
 	public static final int idx_Avg_Time = 0;
-	public static final int idx_Failed = 1;
-	public static final int idx_First = 2;
-	public static final int idx_Invoked = 3;
-	public static final int idx_Last = 4;
-	public static final int idx_Max_Time = 5;
-	public static final int idx_Method = 6;
-	public static final int idx_Min_Time = 7;
-	public static final int idx_Succeed = 8;
-	public static final int idx_Sum_Time = 9;
-	public static final int idx_Throughput = 10;
+	public static final int idx_Duration = 1;
+	public static final int idx_Failed = 2;
+	public static final int idx_First = 3;
+	public static final int idx_Invoked = 4;
+	public static final int idx_Last = 5;
+	public static final int idx_Max_Time = 6;
+	public static final int idx_Method = 7;
+	public static final int idx_Min_Time = 8;
+	public static final int idx_Succeed = 9;
+	public static final int idx_Sum_Time = 10;
+	public static final int idx_Throughput = 11;
 	
 	public InvocationStatistics(String name) {
 		super(name);
@@ -56,6 +59,7 @@ public class InvocationStatistics extends StatisticsCollector implements Statist
 
 		// stats names
 		private static final String sn_Avg_Time = "Avg time";
+		private static final String sn_Duration = "Duration";
 		private static final String sn_Failed = "Failed";
 		private static final String sn_First = "First";
 		private static final String sn_Invoked = "Invoked";
@@ -117,7 +121,7 @@ public class InvocationStatistics extends StatisticsCollector implements Statist
 		
 		@Override
 		public Map<String, Object> toMap() {
-			Map<String, Object> result = new HashMap<String, Object>(10);
+			Map<String, Object> result = new HashMap<String, Object>(12);
 			result.put(sn_First, new Date(tmFirst));
 			result.put(sn_Last, new Date(tmLast));
 			result.put(sn_Invoked, cntInvoked);
@@ -132,10 +136,12 @@ public class InvocationStatistics extends StatisticsCollector implements Statist
 				result.put(sn_Avg_Time, tmAvg);
 				double dCnt = cntInvoked*1000;
 				result.put(sn_Throughput, dCnt/(tmLast - tmFirst + tmAvg));
+				result.put(sn_Duration, DateUtils.getDuration(tmLast - tmFirst));
 			} else {
 				result.put(sn_Min_Time, 0L);
 				result.put(sn_Avg_Time, 0.0d);
 				result.put(sn_Throughput, 0.0d);
+				result.put(sn_Duration, 0L);
 			}
 			return result;
 		}
@@ -156,10 +162,12 @@ public class InvocationStatistics extends StatisticsCollector implements Statist
 				buff.append(sn_Avg_Time).append(colon).append(tmAvg).append(semicolon);
 				double dCnt = cntInvoked*1000;
 				buff.append(sn_Throughput).append(colon).append(dCnt/(tmLast - tmFirst + tmAvg)).append(semicolon);
+				buff.append(sn_Duration).append(colon).append(DateUtils.getDuration(tmLast - tmFirst)).append(semicolon);
 			} else {
 				buff.append(sn_Min_Time).append(empty);
 				buff.append(sn_Avg_Time).append(empty);
 				buff.append(sn_Throughput).append(empty);
+				buff.append(sn_Duration).append(empty);
 			}
 			buff.append(sn_Sum_Time).append(colon).append(tmSum);
 			buff.append("]");

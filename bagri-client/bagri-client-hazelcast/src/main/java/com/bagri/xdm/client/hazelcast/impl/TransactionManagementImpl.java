@@ -12,6 +12,7 @@ import com.bagri.xdm.api.XDMTransactionManagement;
 import com.bagri.xdm.client.hazelcast.task.tx.TransactionAborter;
 import com.bagri.xdm.client.hazelcast.task.tx.TransactionCommiter;
 import com.bagri.xdm.client.hazelcast.task.tx.TransactionStarter;
+import com.bagri.xdm.common.XDMTransactionIsolation;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
 
@@ -28,9 +29,15 @@ public class TransactionManagementImpl implements XDMTransactionManagement {
 		execService = hzClient.getExecutorService(PN_XDM_SCHEMA_POOL);
 		clientId = repo.getClientId();
 	}
-    
+
 	@Override
 	public long beginTransaction() {
+		// TODO: get default value from session config!
+		return beginTransaction(XDMTransactionIsolation.readCommited);
+	}
+	
+	@Override
+	public long beginTransaction(XDMTransactionIsolation txIsolation) {
 		logger.trace("beginTransaction.enter; current txId: {}", txId); 
 		if (txId != 0) {
 			// commit or throw ex?
@@ -38,7 +45,7 @@ public class TransactionManagementImpl implements XDMTransactionManagement {
 		}
 
 		//String clientId = ""; //get ClientId somehow..
-		TransactionStarter txs = new TransactionStarter(clientId);
+		TransactionStarter txs = new TransactionStarter(clientId, txIsolation);
 		Future<Long> future = execService.submitToKeyOwner(txs, clientId);
 		try {
 			txId = future.get();
