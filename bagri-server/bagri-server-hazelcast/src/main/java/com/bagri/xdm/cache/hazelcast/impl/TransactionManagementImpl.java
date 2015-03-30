@@ -63,21 +63,19 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 	
 	@Override
 	public long beginTransaction() {
-		logger.trace("beginTransaction.enter;"); 
-		long txId = txGen.next();
-		// TODO: do this via EntryProcessor?
-		XDMTransaction xTx = new XDMTransaction(txId, JMXUtils.getCurrentUser());
-		txCache.set(txId, xTx);
-		thTx.set(txId);
-		cntStarted.incrementAndGet();
-		logger.trace("beginTransaction.exit; started tx: {}; returning: {}", xTx, txId); 
-		return txId;
+		// get default isolation level from some config..
+		return beginTransaction(XDMTransactionIsolation.readCommited);
 	}
 
 	@Override
 	public long beginTransaction(XDMTransactionIsolation txIsolation) {
 		logger.trace("beginTransaction.enter; txIsolation: {}", txIsolation); 
-		long txId = txGen.next();
+		long txId = thTx.get();
+		if (txId > TX_NO) {
+			throw new IllegalStateException("nested transactions are not supported; current txId: " + txId);
+		}
+
+		txId = txGen.next();
 		// TODO: do this via EntryProcessor?
 		XDMTransaction xTx = new XDMTransaction(txId, System.currentTimeMillis(), 0, 
 				JMXUtils.getCurrentUser(), txIsolation, XDMTransactionState.started);
@@ -100,7 +98,7 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 			throw new IllegalStateException("No transaction found for TXID: " + txId);
 		}
 		txCache.delete(txId);
-		thTx.set(XDMTransactionManagement.TX_NO);
+		thTx.set(TX_NO);
 		cntCommited.incrementAndGet();
 		logger.trace("commitTransaction.exit; tx: {}", xTx); 
 	}
@@ -117,7 +115,7 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 			throw new IllegalStateException("No transaction found for TXID: " + txId);
 		}
 		// do not delete rolled back tx for a while
-		thTx.set(XDMTransactionManagement.TX_NO);
+		thTx.set(TX_NO);
 		cntRolled.incrementAndGet();
 		logger.trace("rollbackTransaction.exit; tx: {}", xTx); 
 	}

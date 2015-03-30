@@ -34,7 +34,6 @@ import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMElement;
 import com.bagri.xdm.domain.XDMElements;
 import com.bagri.xdm.domain.XDMPath;
-import com.hazelcast.core.BaseMap;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.IMap;
@@ -66,7 +65,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
     	return xdmCache;
     }
     
-    public void setDocumentIdGenerator(IdGenerator docGen) {
+    public void setDocumentIdGenerator(IdGenerator<Long> docGen) {
     	this.docGen = docGen;
     }
     
@@ -114,7 +113,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 				for (Map.Entry<String, String> param: params.entrySet()) {
 					String key = param.getKey();
 					XDMDocument doc = xddCache.get(docKey);
-					String str = buildElement(xdmCache, param.getValue(), doc.getDocumentId(), doc.getTypeId());
+					String str = buildElement(xdmCache, param.getValue(), doc.getDocumentKey(), doc.getTypeId());
 					while (true) {
 						int idx = buff.indexOf(key);
 				        //logger.trace("aggregate; searching key: {} in buff: {}; result: {}", new Object[] {key, buff, idx});
@@ -159,12 +158,14 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		return elements.values();
     }
     
-    private String buildElement(BaseMap dataMap, String path, long docId, int docType) {
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private String buildElement(IMap dataMap, String path, long docId, int docType) {
     	Set<XDMDataKey> xdKeys = getDocumentElementKeys(path, docId, docType);
-       	return buildXml(((IMap) dataMap).getAll(xdKeys));
+       	return buildXml(dataMap.getAll(xdKeys));
     }
     
-    public XDMDocument createDocument(String uri, String xml) {
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public XDMDocument createDocument(String uri, String xml) {
     	
 		XDMDocumentKey docKey = factory.newXDMDocumentKey(docGen.next(), 1); 
 		return createDocument(new AbstractMap.SimpleEntry(docKey, null), uri, xml);
@@ -260,8 +261,10 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		return cnt;
 	}
 	
+	@SuppressWarnings("unchecked")
 	private Set<XDMDocumentKey> getDocumentsOfType(int docType) {
-   		Predicate<XDMDocumentKey, XDMDocument> f = Predicates.equal("typeId", docType);
+   		Predicate<XDMDocumentKey, XDMDocument> f = Predicates.and(Predicates.equal("typeId", docType), 
+   				Predicates.equal("txFinish", 0L));
 		return xddCache.keySet(f);
 	}
 	
@@ -323,14 +326,24 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	}
 	
 	//@Override
+	@SuppressWarnings("unchecked")
 	public Long getDocumentId(String uri) {
-   		Predicate<XDMDocumentKey, XDMDocument> f = Predicates.equal("uri", uri);
+		// the txFinish can be > 0, but not committed yet!
+   		Predicate<XDMDocumentKey, XDMDocument> f = Predicates.and(Predicates.equal("uri", uri), 
+   				Predicates.equal("txFinish", 0L));
 		Set<XDMDocumentKey> docKeys = xddCache.keySet(f);
 		if (docKeys.size() == 0) {
 			return null;
 		}
-		// todo: check if too many docs ??
-		return docKeys.iterator().next().getKey();
+
+		// should also check if doc's start transaction is committed..
+		long docId = 0;
+		for (XDMDocumentKey docKey: docKeys) {
+			if (docKey.getKey() > docId) {
+				docId = docKey.getKey();
+			}
+		}
+		return docId;
 	}
 
 	@Override
@@ -394,6 +407,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	}
 
 	@Override
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public XDMDocument storeDocumentFromString(long docId, String uri, String xml) {
 		// create new document version ??
 		// what if we want to pass here correct URI ??
@@ -401,19 +415,31 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 
 		boolean update = false;
 		if (docId == 0) {
-			docId = XDMDocumentKey.toKey(docGen.next(), 1);
+			if (uri == null) {
+				docId = XDMDocumentKey.toKey(docGen.next(), 1);
+				uri = "" + docId + ".xml";
+			} else {
+				Long existingId = getDocumentId(uri);
+				if (existingId != null) {
+					docId = existingId;
+					update = true;
+				} else {
+					docId = XDMDocumentKey.toKey(docGen.next(), 1);
+				}
+			}
 		} else {
 			update = true;
-		}
-		
-		if (uri == null) {
-			uri = "" + docId + ".xml";
-		} else {
-			Long existingId = getDocumentId(uri);
-			if (existingId != null && existingId != docId) {
-				// otherwise we'll get a situation when two different Documents
-				// are stored in the same file.
-				throw new IllegalArgumentException("Document with URI '" + uri + "' already exists; docId: " + existingId);
+			if (uri == null) {
+				uri = "" + docId + ".xml";
+			} else {
+				Long existingId = getDocumentId(uri);
+				// shouldn't we check here if document with docId exists?
+				if (existingId != null && existingId != docId) {
+					// otherwise we'll get a situation when two different Documents
+					// are stored in the same file.
+					// what if they point to different versions of the same document!?
+					throw new IllegalArgumentException("Document with URI '" + uri + "' already exists; docId: " + existingId);
+				}
 			}
 		}
 		

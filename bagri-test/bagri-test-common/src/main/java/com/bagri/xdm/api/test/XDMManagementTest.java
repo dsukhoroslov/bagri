@@ -65,7 +65,12 @@ public abstract class XDMManagementTest {
 	}
 	
 	public void storeSecurityTest() throws IOException {
-		long txId =  getTxManagement().beginTransaction();
+		long txId = 0;
+		try {
+			txId = getTxManagement().beginTransaction();
+		} catch (IllegalStateException ex) {
+			// make it checkable; anticipated exception
+		}
 		String path = sampleRoot + "security1500.xml"; 
 		String xml = readTextFile(path);
 		ids.add(getDocManagement().storeDocumentFromString(0, null, xml).getDocumentKey());
@@ -77,23 +82,39 @@ public abstract class XDMManagementTest {
 		path = sampleRoot + "security9012.xml";
 		xml = readTextFile(path);
 		ids.add(getDocManagement().storeDocumentFromString(0, null, xml).getDocumentKey());
-		getTxManagement().commitTransaction(txId);
+		if (txId > 0) {
+			getTxManagement().commitTransaction(txId);
+		}
 	}
 	
 	public void storeOrderTest() throws IOException {
-		long txId =  getTxManagement().beginTransaction();
+		long txId = 0;
+		try {
+			txId = getTxManagement().beginTransaction();
+		} catch (IllegalStateException ex) {
+			// make it checkable; anticipated exception
+		}
 		String xml = readTextFile(sampleRoot + "order123.xml");
 		ids.add(getDocManagement().storeDocumentFromString(0, null, xml).getDocumentKey());
 		xml = readTextFile(sampleRoot + "order654.xml");
 		ids.add(getDocManagement().storeDocumentFromString(0, null, xml).getDocumentKey());
-		getTxManagement().commitTransaction(txId);
+		if (txId > 0) {
+			getTxManagement().commitTransaction(txId);
+		}
 	}
 	
 	public void storeCustomerTest() throws IOException {
-		long txId =  getTxManagement().beginTransaction();
+		long txId = 0;
+		try {
+			txId = getTxManagement().beginTransaction();
+		} catch (IllegalStateException ex) {
+			// make it checkable; anticipated exception
+		}
 		String xml = readTextFile(sampleRoot + "custacc.xml");
 		ids.add(getDocManagement().storeDocumentFromString(0, null, xml).getDocumentKey());
-		getTxManagement().commitTransaction(txId);
+		if (txId > 0) {
+			getTxManagement().commitTransaction(txId);
+		}
 	}
 	
 
