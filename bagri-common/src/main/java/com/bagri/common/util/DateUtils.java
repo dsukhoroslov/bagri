@@ -41,6 +41,7 @@ public class DateUtils {
             if (duration > 0) {
                 result.append(duration).append(" ms ");
             }
+            result.deleteCharAt(result.length() - 1);
         }
         return result.toString();
     }

@@ -56,40 +56,44 @@ public abstract class XDMManagementTest {
 	}
 	
 	protected void removeDocumentsTest() { 
+		long txId =  getTxManagement().beginTransaction();
 		for (Long id: ids) {
 			getDocManagement().removeDocument(id);
 		}
 		ids.clear();
+		getTxManagement().commitTransaction(txId);
 	}
 	
 	public void storeSecurityTest() throws IOException {
+		long txId =  getTxManagement().beginTransaction();
 		String path = sampleRoot + "security1500.xml"; 
 		String xml = readTextFile(path);
-		ids.add(getDocManagement().storeDocumentFromString(0, null, xml).getDocumentId());
+		ids.add(getDocManagement().storeDocumentFromString(0, null, xml).getDocumentKey());
 
 		path = sampleRoot + "security5621.xml";
 		xml = readTextFile(path);
-		ids.add(getDocManagement().storeDocumentFromString(0, null, xml).getDocumentId());
+		ids.add(getDocManagement().storeDocumentFromString(0, null, xml).getDocumentKey());
 
 		path = sampleRoot + "security9012.xml";
 		xml = readTextFile(path);
-		ids.add(getDocManagement().storeDocumentFromString(0, null, xml).getDocumentId());
-
-		//String prefix = mDictionary.getNamespacePrefix("http://tpox-benchmark.com/security"); 
-		//int docType = mDictionary.getDocumentType("/" + prefix + ":Security");
-		//mDictionary.getPathFromRegex(docType, ".*");
+		ids.add(getDocManagement().storeDocumentFromString(0, null, xml).getDocumentKey());
+		getTxManagement().commitTransaction(txId);
 	}
 	
 	public void storeOrderTest() throws IOException {
+		long txId =  getTxManagement().beginTransaction();
 		String xml = readTextFile(sampleRoot + "order123.xml");
-		ids.add(getDocManagement().storeDocumentFromString(0, null, xml).getDocumentId());
+		ids.add(getDocManagement().storeDocumentFromString(0, null, xml).getDocumentKey());
 		xml = readTextFile(sampleRoot + "order654.xml");
-		ids.add(getDocManagement().storeDocumentFromString(0, null, xml).getDocumentId());
+		ids.add(getDocManagement().storeDocumentFromString(0, null, xml).getDocumentKey());
+		getTxManagement().commitTransaction(txId);
 	}
 	
 	public void storeCustomerTest() throws IOException {
+		long txId =  getTxManagement().beginTransaction();
 		String xml = readTextFile(sampleRoot + "custacc.xml");
-		ids.add(getDocManagement().storeDocumentFromString(0, null, xml).getDocumentId());
+		ids.add(getDocManagement().storeDocumentFromString(0, null, xml).getDocumentKey());
+		getTxManagement().commitTransaction(txId);
 	}
 	
 

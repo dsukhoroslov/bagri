@@ -31,6 +31,7 @@ import com.bagri.xdm.cache.hazelcast.predicate.QueryPredicate;
 import com.bagri.xdm.client.hazelcast.data.QueryParamsKey;
 import com.bagri.xdm.client.hazelcast.impl.ResultCursor;
 import com.bagri.xdm.common.XDMDataKey;
+import com.bagri.xdm.common.XDMDocumentKey;
 import com.bagri.xdm.common.XDMResultsKey;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMElements;
@@ -58,7 +59,7 @@ public class QueryManagementImpl implements XDMQueryManagement {
     private IMap<XDMResultsKey, XDMResults> xrCache;
     private Map<Integer, XDMQuery> xQueries = new ConcurrentHashMap<Integer, XDMQuery>();
     
-	private IMap<Long, XDMDocument> xddCache;
+	private IMap<XDMDocumentKey, XDMDocument> xddCache;
     private IMap<XDMDataKey, XDMElements> xdmCache;
     
     public QueryManagementImpl() {
@@ -374,17 +375,32 @@ public class QueryManagementImpl implements XDMQueryManagement {
 		}
 		logger.info("getDocumentIDs; got rootless path: {}", query); 
 		// can we use local keySet only !?
-		return xddCache.keySet();
+		List<Long> result = new ArrayList<Long>(xddCache.keySet().size());
+		for (XDMDocumentKey docKey: xddCache.keySet()) {
+			// we must provide only visible docIds!
+			if (checkDocumentCommited(docKey.getKey())) {
+				result.add(docKey.getKey());
+			}
+		}
+		return result;
 	}
+
+	//private Collection<XDMDocumentKey> getDocumentKeys(ExpressionContainer query) {
+	//	return null;
+	//}
 	
 	@Override
 	public Collection<String> getDocumentURIs(ExpressionContainer query) {
 		// TODO: remove this method completely, or
 		// make reverse cache..? or, make URI from docId somehow..
 		Collection<Long> ids = getDocumentIDs(query);
+		Set<XDMDocumentKey> keys = new HashSet<XDMDocumentKey>(ids.size());
+		for (Long id: ids) {
+			keys.add(docMgr.getXdmFactory().newXDMDocumentKey(id));
+		}
 		Set<String> result = new HashSet<String>(ids.size());
 		// TODO: better to do this via EP or aggregator?
-		Map<Long, XDMDocument> docs = xddCache.getAll(new HashSet<Long>(ids));
+		Map<XDMDocumentKey, XDMDocument> docs = xddCache.getAll(keys);
 		for (XDMDocument doc: docs.values()) {
 			result.add(doc.getUri());
 		}
@@ -393,7 +409,14 @@ public class QueryManagementImpl implements XDMQueryManagement {
 
 	@Override
 	public Collection<String> getXML(ExpressionContainer query, String template, Map params) {
+		long txId = 0;
+		if (txMgr.getCurrentTxId() == 0) {
+			txId = txMgr.beginTransaction();
+		}
 		Collection<Long> docIds = getDocumentIDs(query);
+		if (txId > 0) {
+			txMgr.commitTransaction(txId);
+		}
 		if (docIds.size() > 0) {
 			return docMgr.buildDocument(new HashSet<Long>(docIds), template, params);
 		}

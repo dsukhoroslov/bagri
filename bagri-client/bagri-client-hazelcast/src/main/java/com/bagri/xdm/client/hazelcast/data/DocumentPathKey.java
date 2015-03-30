@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.Serializable;
 
 import com.bagri.xdm.common.XDMDataKey;
+import com.bagri.xdm.common.XDMDocumentKey;
 import com.hazelcast.core.PartitionAware;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
@@ -29,7 +30,7 @@ public class DocumentPathKey extends XDMDataKey implements DataSerializable, //P
 
 	@Override
 	public Long getPartitionKey() {
-		return documentId;
+		return XDMDocumentKey.toDocumentId(documentId);
 	}
 
 	//@Override

@@ -131,7 +131,7 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 		// can not be null!
 		XDMTransaction xTx = txCache.get(cTx);
 		if (xTx == null) {
-			throw new IllegalStateException("Can not find current Transaction with txId " + cTx);
+			throw new IllegalStateException("Can not find current Transaction with txId " + cTx + "; txId: " + txId);
 		}
 
 		// current tx is not finished yet!

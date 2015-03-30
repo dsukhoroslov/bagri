@@ -126,7 +126,7 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<Long, 
         				ddh.docType = docType;
 						xmlCache.set(docId, xml);
 						// can make a fake population TX with id = 1! 
-		        		return new XDMDocument(docId, uri, docType, defVersion, TX_INIT, TX_NO, 
+		        		return new XDMDocument(docId, defVersion, uri, docType, TX_INIT, TX_NO, 
 								new Date(Files.getLastModifiedTime(path).toMillis()), 
 								Files.getOwner(path).getName(),	def_encoding);
         			}

@@ -3,9 +3,11 @@
  */
 package com.bagri.xdm.cache.hazelcast.impl;
 
+import com.bagri.xdm.client.hazelcast.data.DocumentKey;
 import com.bagri.xdm.client.hazelcast.data.DocumentPathKey;
 import com.bagri.xdm.client.hazelcast.data.PathIndexKey;
 import com.bagri.xdm.common.XDMDataKey;
+import com.bagri.xdm.common.XDMDocumentKey;
 import com.bagri.xdm.common.XDMFactory;
 import com.bagri.xdm.common.XDMIndexKey;
 import com.bagri.xdm.domain.XDMElement;
@@ -17,20 +19,32 @@ import com.bagri.xdm.domain.XDMElement;
  */
 public final class XDMFactoryImpl implements XDMFactory {
 	
-	//public HazelcastXDMFactory() {
-		//
-	//}
-
 	/* (non-Javadoc)
-	 * @see com.bagri.xdm.common.XDMFactory#newXDMDataKey(long, long)
+	 * @see com.bagri.xdm.common.XDMFactory#newXDMDocumentKey(long)
 	 */
 	@Override
-	public XDMDataKey newXDMDataKey(long documentId, int pathId) {
-		return new DocumentPathKey(documentId, pathId);
+	public XDMDocumentKey newXDMDocumentKey(long documentKey) {
+		return new DocumentKey(documentKey);
 	}
 
 	/* (non-Javadoc)
-	 * @see com.bagri.xdm.common.XDMFactory#newXDMDataKey(long, long)
+	 * @see com.bagri.xdm.common.XDMFactory#newXDMDocumentKey(long, int)
+	 */
+	@Override
+	public XDMDocumentKey newXDMDocumentKey(long documentId, int version) {
+		return new DocumentKey(documentId, version);
+	}
+
+	/* (non-Javadoc)
+	 * @see com.bagri.xdm.common.XDMFactory#newXDMDataKey(long, int)
+	 */
+	@Override
+	public XDMDataKey newXDMDataKey(long documentKey, int pathId) {
+		return new DocumentPathKey(documentKey, pathId);
+	}
+
+	/* (non-Javadoc)
+	 * @see com.bagri.xdm.common.XDMFactory#newXDMIndexKey(int, Object)
 	 */
 	@Override
 	public XDMIndexKey newXDMIndexKey(int pathId, Object value) {
@@ -44,5 +58,6 @@ public final class XDMFactoryImpl implements XDMFactory {
 	public XDMElement newXDMData() {
 		return null;
 	}
+
 
 }
