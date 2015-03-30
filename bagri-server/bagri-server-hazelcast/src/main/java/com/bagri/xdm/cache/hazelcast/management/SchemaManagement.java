@@ -21,6 +21,7 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
+import com.bagri.common.config.XDMConfigConstants;
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.common.util.FileUtils;
 import com.bagri.common.util.PropUtils;
@@ -39,8 +40,8 @@ import com.hazelcast.core.MemberAttributeEvent;
 import com.hazelcast.core.MembershipEvent;
 import com.hazelcast.core.MembershipListener;
 
+import static com.bagri.common.config.XDMConfigConstants.*;
 import static com.bagri.xdm.cache.hazelcast.util.HazelcastUtils.getMemberSchemas;
-import static com.bagri.xdm.client.common.XDMConfigConstants.*;
 
 @ManagedResource(objectName="com.bagri.xdm:type=Management,name=SchemaManagement", 
 	description="Schema Management MBean")
@@ -381,9 +382,9 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
 		logger.trace("memberAttributeChanged.enter; event: {}; attribute: {}; value: {}", 
 				memberAttributeEvent, memberAttributeEvent.getKey(), memberAttributeEvent.getValue());
 		// if attribute is schemas then deploy schema on member ?
-		if (XDMNode.op_node_schemas.equals(memberAttributeEvent.getKey())) {
+		if (XDMConfigConstants.xdm_cluster_node_schemas.equals(memberAttributeEvent.getKey())) {
 			Member member = memberAttributeEvent.getMember();
-			String nodeName = member.getStringAttribute(XDMNode.op_node_name);
+			String nodeName = member.getStringAttribute(XDMConfigConstants.xdm_cluster_node_name);
 			if (memberAttributeEvent.getOperationType() == MemberAttributeOperationType.PUT) {
 				// set
 				String newSchemas = (String) memberAttributeEvent.getValue();

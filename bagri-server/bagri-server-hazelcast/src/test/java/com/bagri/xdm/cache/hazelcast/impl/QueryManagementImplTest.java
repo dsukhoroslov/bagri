@@ -8,11 +8,11 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import com.bagri.xdm.api.test.XDMDocumentManagementTest;
+import com.bagri.xdm.api.test.XDMQueryManagementTest;
 import com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl;
 
-public class DocumentManagementImplTest extends XDMDocumentManagementTest {
-	
+public class QueryManagementImplTest extends XDMQueryManagementTest {
+
     private static ClassPathXmlApplicationContext context;
 
 	@BeforeClass
@@ -41,5 +41,6 @@ public class DocumentManagementImplTest extends XDMDocumentManagementTest {
 		// remove documents here!
 		removeDocumentsTest();
 	}
+
 
 }

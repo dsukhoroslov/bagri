@@ -1,6 +1,6 @@
 package com.bagri.xdm.cache.hazelcast.task.schema;
 
-import static com.bagri.xdm.client.common.XDMConfigConstants.xdm_schema_name;
+import static com.bagri.common.config.XDMConfigConstants.xdm_schema_name;
 import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_XDMInitSchemaTask;
 import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.factoryId;
 

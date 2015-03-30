@@ -1,35 +1,32 @@
 package com.bagri.client.tpox.workload;
 
+import static com.bagri.common.config.XDMConfigConstants.xdm_spring_context;
+
 import java.sql.SQLException;
 import java.util.Collection;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-
-import static com.bagri.xdm.client.common.XDMConfigConstants.xdm_spring_context;
-
-import com.bagri.xdm.api.XDMDocumentManagement;
-import com.bagri.xdm.api.XDMRepository;
-import com.bagri.xdm.api.test.XDMDocumentManagementTest;
-import com.bagri.xdm.domain.XDMDocument;
 
 import net.sf.tpox.workload.parameter.ActualParamInfo;
 import net.sf.tpox.workload.transaction.Transaction;
 
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+import com.bagri.xdm.api.XDMRepository;
+import com.bagri.xdm.api.test.XDMQueryManagementTest;
+import com.bagri.xdm.domain.XDMDocument;
+
 public class BagriXDMPlugin extends BagriTPoXPlugin {
 
-	private ThreadLocal<TPoXDocumentManagerTest> xdmt = new ThreadLocal<TPoXDocumentManagerTest>() {
+	private ThreadLocal<TPoXQueryManagerTest> xqmt = new ThreadLocal<TPoXQueryManagerTest>() {
 		
 		@Override
-		protected TPoXDocumentManagerTest initialValue() {
+		protected TPoXQueryManagerTest initialValue() {
 	    	String config = System.getProperty(xdm_spring_context);
 			ApplicationContext context = new ClassPathXmlApplicationContext(config);
 			XDMRepository xdm = context.getBean("xdmRepository", XDMRepository.class);
-			TPoXDocumentManagerTest xdmt = new TPoXDocumentManagerTest(xdm);
+			TPoXQueryManagerTest xqmt = new TPoXQueryManagerTest(xdm);
 	    	logger.debug("initialValue; XDM: {}", xdm);
-			return xdmt;
+			return xqmt;
  		}
 		
 	};
@@ -51,16 +48,15 @@ public class BagriXDMPlugin extends BagriTPoXPlugin {
 	@Override
 	public void close() throws SQLException {
 		//xdm.close();
-		logger.info("close; XDMT: {}", xdmt.get());
+		logger.info("close; XQMT: {}", xqmt.get());
 		try {
-			xdmt.get().close();
+			xqmt.get().close();
 		} catch (Exception ex) {
 			logger.error("close.error; " + ex, ex);
 			throw new SQLException(ex);
 		}
 	}
 
-	@SuppressWarnings("unused")
 	@Override
 	public int execute() throws SQLException {
 		int transNo = wp.getNextTransNumToExecute(rand);
@@ -74,14 +70,14 @@ public class BagriXDMPlugin extends BagriTPoXPlugin {
 				if (param != null) {
 					xml = new String(param.getDocument());
 				}
-				xdmt.get().storeDocument(xml);
+				xqmt.get().storeDocument(xml);
 				result = 1;
 				break;
 			}
 			case "getSecurity": {
 				ActualParamInfo param = wp.getParamMarkerActualValue(transNo, 0, rand);
 				String symbol = param.getActualValue();
-				Collection<String> sec = xdmt.get().getSecurity(symbol);
+				Collection<String> sec = xqmt.get().getSecurity(symbol);
 				if (sec != null && !sec.isEmpty()) {
 					result = 1;
 				}
@@ -90,7 +86,7 @@ public class BagriXDMPlugin extends BagriTPoXPlugin {
 			case "getSecurityPrice": {
 				ActualParamInfo param = wp.getParamMarkerActualValue(transNo, 0, rand);
 				String symbol = param.getActualValue();
-				Collection<String> sec = xdmt.get().getPrice(symbol);
+				Collection<String> sec = xqmt.get().getPrice(symbol);
 				if (sec != null && !sec.isEmpty()) {
 					result = 1;
 				}
@@ -105,7 +101,7 @@ public class BagriXDMPlugin extends BagriTPoXPlugin {
 				int peMax = Integer.valueOf(param.getActualValue());
 				param = wp.getParamMarkerActualValue(transNo, 3, rand);
 				int yieldMin = Integer.valueOf(param.getActualValue());
-				Collection<String> sec = xdmt.get().searchSecurity(sector, peMin, peMax, yieldMin);
+				Collection<String> sec = xqmt.get().searchSecurity(sector, peMin, peMax, yieldMin);
 				if (sec != null && !sec.isEmpty()) {
 					result = 1;
 				}
@@ -114,7 +110,7 @@ public class BagriXDMPlugin extends BagriTPoXPlugin {
 			case "getOrder": {
 				ActualParamInfo param = wp.getParamMarkerActualValue(transNo, 0, rand);
 				String id = param.getActualValue();
-				Collection<String> sec = xdmt.get().getOrder(id);
+				Collection<String> sec = xqmt.get().getOrder(id);
 				if (sec != null && !sec.isEmpty()) {
 					result = 1;
 				}
@@ -123,7 +119,7 @@ public class BagriXDMPlugin extends BagriTPoXPlugin {
 			case "getCustomerProfile": {
 				ActualParamInfo param = wp.getParamMarkerActualValue(transNo, 0, rand);
 				String id = param.getActualValue();
-				Collection<String> sec = xdmt.get().getCustomerProfile(id);
+				Collection<String> sec = xqmt.get().getCustomerProfile(id);
 				if (sec != null && !sec.isEmpty()) {
 					result = 1;
 				}
@@ -132,7 +128,7 @@ public class BagriXDMPlugin extends BagriTPoXPlugin {
 			case "getCustomerAccounts": {
 				ActualParamInfo param = wp.getParamMarkerActualValue(transNo, 0, rand);
 				String id = param.getActualValue();
-				Collection<String> sec = xdmt.get().getCustomerAccounts(id);
+				Collection<String> sec = xqmt.get().getCustomerAccounts(id);
 				if (sec != null && !sec.isEmpty()) {
 					result = 1;
 				}
@@ -146,9 +142,9 @@ public class BagriXDMPlugin extends BagriTPoXPlugin {
 		return result;
 	}
 	
-	private class TPoXDocumentManagerTest extends XDMDocumentManagementTest {
+	private class TPoXQueryManagerTest extends XDMQueryManagementTest {
 		
-		TPoXDocumentManagerTest(XDMRepository xRepo) {
+		TPoXQueryManagerTest(XDMRepository xRepo) {
 			this.xRepo = xRepo;
 		}
 		

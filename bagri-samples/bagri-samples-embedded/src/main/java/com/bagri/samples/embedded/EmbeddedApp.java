@@ -1,7 +1,7 @@
 package com.bagri.samples.embedded;
 
+import static com.bagri.common.config.XDMConfigConstants.*;
 import static com.bagri.common.util.FileUtils.readTextFile;
-import static com.bagri.xdm.client.common.XDMConfigConstants.*;
 
 import java.io.IOException;
 

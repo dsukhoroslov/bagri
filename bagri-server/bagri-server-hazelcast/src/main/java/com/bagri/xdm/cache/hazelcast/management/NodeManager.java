@@ -14,6 +14,7 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
+import com.bagri.common.config.XDMConfigConstants;
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.xdm.cache.hazelcast.task.node.NodeUpdater;
 import com.bagri.xdm.system.XDMNode;
@@ -130,7 +131,7 @@ public class NodeManager extends EntityManager<XDMNode> { //implements XDMNodeMa
 	private List<Member> getMembers(String name) {
 		List<Member> members = new ArrayList<Member>();
 		for (Member member: hzInstance.getCluster().getMembers()) {
-			if (name.equals(member.getStringAttribute(XDMNode.op_node_name))) {
+			if (name.equals(member.getStringAttribute(XDMConfigConstants.xdm_cluster_node_name))) {
 				members.add(member);
 			}
 		}
@@ -142,7 +143,7 @@ public class NodeManager extends EntityManager<XDMNode> { //implements XDMNodeMa
 		@ManagedOperationParameter(name = "schemaName", description = "Schema name to add")})
 	public void addSchema(String schemaName) {
 		XDMNode node = getEntity();
-		String schemas = node.getOption(XDMNode.op_node_schemas);
+		String schemas = node.getOption(XDMConfigConstants.xdm_cluster_node_schemas);
 		if (schemas != null) {
 			if (schemas.length() > 0) {
 				schemas = schemas + " " + schemaName;
@@ -153,7 +154,7 @@ public class NodeManager extends EntityManager<XDMNode> { //implements XDMNodeMa
 			schemas = schemaName;
 		}
 		
-		setOption(XDMNode.op_node_schemas, schemas);
+		setOption(XDMConfigConstants.xdm_cluster_node_schemas, schemas);
 	}
 
 	@ManagedOperation(description="Returns Node configurations")

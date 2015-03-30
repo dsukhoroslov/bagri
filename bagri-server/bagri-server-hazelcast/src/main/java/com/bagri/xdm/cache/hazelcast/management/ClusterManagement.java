@@ -11,6 +11,7 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
+import com.bagri.common.config.XDMConfigConstants;
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.common.util.FileUtils;
 import com.bagri.common.util.PropUtils;
@@ -55,7 +56,7 @@ public class ClusterManagement extends EntityManagement<String, XDMNode> {
 		Properties opts;
 		try {
 			opts = PropUtils.propsFromString(options);
-			opts.setProperty(XDMNode.op_node_name, name);
+			opts.setProperty(XDMConfigConstants.xdm_cluster_node_name, name);
 		} catch (IOException ex) {
 			logger.error("createSchema.error: ", ex);
 			return false;

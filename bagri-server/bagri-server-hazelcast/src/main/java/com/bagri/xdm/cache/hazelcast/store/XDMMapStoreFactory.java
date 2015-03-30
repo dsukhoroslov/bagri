@@ -13,8 +13,8 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.env.PropertySource;
 
+import static com.bagri.common.config.XDMConfigConstants.*;
 import static com.bagri.xdm.client.common.XDMCacheConstants.*;
-import static com.bagri.xdm.client.common.XDMConfigConstants.*;
 
 import com.bagri.xdm.cache.hazelcast.store.xml.DocumentCacheStore;
 import com.bagri.xdm.cache.hazelcast.store.xml.XsdCacheStore;

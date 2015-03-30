@@ -32,7 +32,7 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.Member;
 import com.hazelcast.instance.MemberImpl;
 
-import static com.bagri.xdm.client.common.XDMConfigConstants.xdm_schema_store_type;
+import static com.bagri.common.config.XDMConfigConstants.xdm_schema_store_type;
 
 @ManagedResource(description="Schema Manager MBean")
 //public class SchemaManager extends XDMSchemaManagerBase implements SelfNaming {

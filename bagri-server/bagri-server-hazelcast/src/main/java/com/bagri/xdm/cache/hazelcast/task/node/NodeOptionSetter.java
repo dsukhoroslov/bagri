@@ -1,7 +1,7 @@
 package com.bagri.xdm.cache.hazelcast.task.node;
 
-import static com.bagri.xdm.client.common.XDMConfigConstants.xdm_config_path;
-import static com.bagri.xdm.client.common.XDMConfigConstants.xdm_config_properties_file;
+import static com.bagri.common.config.XDMConfigConstants.xdm_config_path;
+import static com.bagri.common.config.XDMConfigConstants.xdm_config_properties_file;
 import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_XDMSetNodeOptionTask;
 import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.factoryId;
 

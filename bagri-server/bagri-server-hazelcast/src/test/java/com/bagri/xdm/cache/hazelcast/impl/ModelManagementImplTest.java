@@ -1,40 +1,39 @@
 package com.bagri.xdm.cache.hazelcast.impl;
 
+import static com.bagri.common.config.XDMConfigConstants.xdm_config_properties_file;
+
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.bagri.xdm.api.test.XDMModelManagementTest;
-import com.bagri.xdm.client.hazelcast.impl.RepositoryImpl;
-import com.hazelcast.core.Hazelcast;
+import com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl;
 
 public class ModelManagementImplTest extends XDMModelManagementTest {
 	
+    private static ClassPathXmlApplicationContext context;
+	
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		//System.setProperty("hazelcast.config", "hazelcast/hazelcast.xml");
-		//System.setProperty(PN_SERVER_ADDRESS, "localhost:10500");
-		//System.setProperty(PN_POOL_SIZE, "10");
-		//System.setProperty(PN_SCHEMA_NAME, "TPoX2");
-		//System.setProperty(PN_SCHEMA_PASS, "TPoX2");
 		sampleRoot = "..\\..\\etc\\samples\\tpox\\";
+		System.setProperty("hz.log.level", "info");
+		System.setProperty("xdm.log.level", "trace");
+		System.setProperty("logback.configurationFile", "hz-logging.xml");
+		System.setProperty(xdm_config_properties_file, "test.properties");
+		context = new ClassPathXmlApplicationContext("spring/cache-xqj-context.xml");
 	}
 
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
-		Hazelcast.shutdownAll();
+		context.close();
 	}
 
 	@Before
 	public void setUp() throws Exception {
-		xRepo = new RepositoryImpl();
-		//mDictionary = xRepo.getModelManagement();
-
-		//registerSecuritySchemaTest();
-		//registerCustaccSchemaTest();
-		//registerCommonSchemaTest();
+		xRepo = context.getBean(RepositoryImpl.class);
 	}
 
 	@After

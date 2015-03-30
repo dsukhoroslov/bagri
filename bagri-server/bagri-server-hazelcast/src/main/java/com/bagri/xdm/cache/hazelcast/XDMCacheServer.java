@@ -1,12 +1,8 @@
 package com.bagri.xdm.cache.hazelcast;
 
+import static com.bagri.common.config.XDMConfigConstants.*;
 import static com.bagri.xdm.cache.hazelcast.util.HazelcastUtils.getMemberSchemas;
 import static com.bagri.xdm.client.common.XDMCacheConstants.PN_XDM_SYSTEM_POOL;
-import static com.bagri.xdm.client.common.XDMConfigConstants.*;
-import static com.bagri.xdm.system.XDMNode.op_admin_port;
-import static com.bagri.xdm.system.XDMNode.op_node_name;
-import static com.bagri.xdm.system.XDMNode.op_node_role;
-import static com.bagri.xdm.system.XDMNode.op_node_schemas;
 
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
@@ -62,8 +58,8 @@ public class XDMCacheServer {
         context = new ClassPathXmlApplicationContext(contextPath);
         HazelcastInstance hz = context.getBean("hzInstance", HazelcastInstance.class);
     	Member local = hz.getCluster().getLocalMember();
-        String name = local.getStringAttribute(op_node_name);
-        String role = local.getStringAttribute(op_node_role);
+        String name = local.getStringAttribute(xdm_cluster_node_name);
+        String role = local.getStringAttribute(xdm_cluster_node_role);
         logger.debug("System Cache started with Config: {}; Instance: {}", hz.getConfig(), hz.getClass().getName());
         logger.debug("Cluster size: {}; Node: {}; Role: {}", hz.getCluster().getMembers().size(), name, role);
         
@@ -78,7 +74,7 @@ public class XDMCacheServer {
     
     private static void initAdminNode(HazelcastInstance hzInstance) {
     	
-    	String xport = hzInstance.getConfig().getProperty(op_admin_port);
+    	String xport = hzInstance.getConfig().getProperty(xdm_cluster_admin_port);
     	int port = Integer.parseInt(xport);
     	JMXServiceURL url;
 		try {
@@ -183,7 +179,7 @@ public class XDMCacheServer {
 		IExecutorService execService = hzInstance.getExecutorService(PN_XDM_SYSTEM_POOL);
     	Set<Member> members = hzInstance.getCluster().getMembers();
     	for (Member member: members) {
-    		if (isAdminRole(member.getStringAttribute(op_node_role))) {
+    		if (isAdminRole(member.getStringAttribute(xdm_cluster_node_role))) {
     			// notify admin about new schema node (local)
     			// hzInstance -> system instance, SchemaManagement is in its context
     			// submit task to init member in admin..

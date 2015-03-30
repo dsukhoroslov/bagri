@@ -22,6 +22,7 @@ import org.junit.Test;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
+import com.bagri.xdm.client.common.impl.XDMRepositoryBase;
 import com.bagri.xdm.cache.hazelcast.impl.QueryManagementImpl;
 import com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl;
 import com.bagri.xqj.BagriXQDataFactory;
@@ -33,11 +34,13 @@ public class SaxonQueryTest {
 
 	@Before
 	public void setUp() throws Exception {
-		processor = new XQProcessorServer(null);
+		QueryManagementImpl qMgr = new QueryManagementImpl();
+		RepositoryImpl xRepo = new RepositoryImpl();
+		xRepo.setQueryManagement(qMgr);
+		processor = new XQProcessorServer(xRepo);
 		BagriXQDataFactory xqFactory = new BagriXQDataFactory();
 		xqFactory.setProcessor(processor);
 		processor.setXQDataFactory(xqFactory);
-		processor.setRepository(new RepositoryImpl());
 	}
 
 	@After

@@ -18,6 +18,7 @@ import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.api.XDMQueryManagement;
 import com.bagri.xdm.api.XDMRepository;
 import com.bagri.xdm.api.XDMTransactionManagement;
+import com.bagri.xdm.domain.XDMDocument;
 
 public abstract class XDMManagementTest {
 
@@ -64,6 +65,20 @@ public abstract class XDMManagementTest {
 		getTxManagement().commitTransaction(txId);
 	}
 	
+	public XDMDocument createDocumentTest(String fileName) throws IOException {
+		String xml = readTextFile(fileName);
+		return getDocManagement().storeDocumentFromString(0, null, xml);
+	}
+	
+	public XDMDocument updateDocumentTest(long docId, String uri, String fileName) throws IOException {
+		String xml = readTextFile(fileName);
+		return getDocManagement().storeDocumentFromString(docId, uri, xml);
+	}
+
+	public void removeDocumentTest(long docId) { //throws IOException {
+		getDocManagement().removeDocument(docId);
+	}
+
 	public void storeSecurityTest() throws IOException {
 		long txId = 0;
 		try {
@@ -71,17 +86,9 @@ public abstract class XDMManagementTest {
 		} catch (IllegalStateException ex) {
 			// make it checkable; anticipated exception
 		}
-		String path = sampleRoot + "security1500.xml"; 
-		String xml = readTextFile(path);
-		ids.add(getDocManagement().storeDocumentFromString(0, null, xml).getDocumentKey());
-
-		path = sampleRoot + "security5621.xml";
-		xml = readTextFile(path);
-		ids.add(getDocManagement().storeDocumentFromString(0, null, xml).getDocumentKey());
-
-		path = sampleRoot + "security9012.xml";
-		xml = readTextFile(path);
-		ids.add(getDocManagement().storeDocumentFromString(0, null, xml).getDocumentKey());
+		ids.add(createDocumentTest(sampleRoot + "security1500.xml").getDocumentKey());
+		ids.add(createDocumentTest(sampleRoot + "security5621.xml").getDocumentKey());
+		ids.add(createDocumentTest(sampleRoot + "security9012.xml").getDocumentKey());
 		if (txId > 0) {
 			getTxManagement().commitTransaction(txId);
 		}
@@ -94,10 +101,8 @@ public abstract class XDMManagementTest {
 		} catch (IllegalStateException ex) {
 			// make it checkable; anticipated exception
 		}
-		String xml = readTextFile(sampleRoot + "order123.xml");
-		ids.add(getDocManagement().storeDocumentFromString(0, null, xml).getDocumentKey());
-		xml = readTextFile(sampleRoot + "order654.xml");
-		ids.add(getDocManagement().storeDocumentFromString(0, null, xml).getDocumentKey());
+		ids.add(createDocumentTest(sampleRoot + "order123.xml").getDocumentKey());
+		ids.add(createDocumentTest(sampleRoot + "order654.xml").getDocumentKey());
 		if (txId > 0) {
 			getTxManagement().commitTransaction(txId);
 		}
@@ -110,12 +115,10 @@ public abstract class XDMManagementTest {
 		} catch (IllegalStateException ex) {
 			// make it checkable; anticipated exception
 		}
-		String xml = readTextFile(sampleRoot + "custacc.xml");
-		ids.add(getDocManagement().storeDocumentFromString(0, null, xml).getDocumentKey());
+		ids.add(createDocumentTest(sampleRoot + "custacc.xml").getDocumentKey());
 		if (txId > 0) {
 			getTxManagement().commitTransaction(txId);
 		}
 	}
-	
 
 }

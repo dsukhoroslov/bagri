@@ -24,6 +24,7 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 import org.springframework.jmx.export.naming.SelfNaming;
 
+import com.bagri.common.config.XDMConfigConstants;
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.xdm.cache.hazelcast.XDMCacheServer;
 import com.bagri.xdm.cache.hazelcast.task.node.NodeInfoProvider;
@@ -73,12 +74,12 @@ public class TopologyManager implements SelfNaming {
 	
 	@ManagedAttribute(description="Returns active Node configuration name")
 	public String getName() {
-		return member.getStringAttribute(XDMNode.op_node_name);
+		return member.getStringAttribute(XDMConfigConstants.xdm_cluster_node_name);
 	}
 	
 	@ManagedAttribute(description="Returns active Node configuration role")
 	public String getRole() {
-		return member.getStringAttribute(XDMNode.op_node_role);
+		return member.getStringAttribute(XDMConfigConstants.xdm_cluster_node_role);
 	}
 
 	@ManagedAttribute(description="Returns active Node version")
@@ -165,7 +166,7 @@ public class TopologyManager implements SelfNaming {
 			props.setProperty(entry.getKey(), entry.getValue().toString());
 		}
 		props.put(name, value);
-		String nodeName = member.getStringAttribute(XDMNode.op_node_name);
+		String nodeName = member.getStringAttribute(XDMConfigConstants.xdm_cluster_node_name);
 		logger.trace("setOption; nodeName: {}; options: {}", nodeName, props);
 		NodeOptionSetter setter = new NodeOptionSetter(JMXUtils.getCurrentUser(), 
 				"Option " + name + " set from JMX console", props);

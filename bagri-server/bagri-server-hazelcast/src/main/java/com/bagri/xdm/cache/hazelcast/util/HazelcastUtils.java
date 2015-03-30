@@ -4,6 +4,7 @@ import java.util.Set;
 
 import org.springframework.context.ApplicationContext;
 
+import com.bagri.common.config.XDMConfigConstants;
 import com.bagri.xdm.system.XDMNode;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
@@ -62,7 +63,7 @@ public class HazelcastUtils {
 	}
 	
 	public static String[] getMemberSchemas(Member member) {
-		String schemas = member.getStringAttribute(XDMNode.op_node_schemas);
+		String schemas = member.getStringAttribute(XDMConfigConstants.xdm_cluster_node_schemas);
 		if (schemas != null && schemas.trim().length() > 0) {
 			return schemas.split(" ");
 		}

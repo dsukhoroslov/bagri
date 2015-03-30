@@ -1,6 +1,12 @@
-package com.bagri.xdm.client.common;
+package com.bagri.common.config;
 
 public class XDMConfigConstants {
+	
+    public static final String xdm_cluster_node_name = "xdm.cluster.node.name";
+    public static final String xdm_cluster_node_role = "xdm.cluster.node.role";
+    public static final String xdm_cluster_node_size = "xdm.cluster.node.size";
+    public static final String xdm_cluster_admin_port = "xdm.cluster.admin.port";
+    public static final String xdm_cluster_node_schemas = "xdm.cluster.node.schemas";
 
     public static final String xdm_config_filename = "xdm.config.filename";
     public static final String xdm_config_path = "xdm.config.path";
