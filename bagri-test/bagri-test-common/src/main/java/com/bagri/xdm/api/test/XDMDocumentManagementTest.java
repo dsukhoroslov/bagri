@@ -19,12 +19,9 @@ public abstract class XDMDocumentManagementTest extends XDMManagementTest {
 		
 		long txId = getTxManagement().beginTransaction();
 		XDMDocument doc = createDocumentTest(sampleRoot + "security1500.xml");
-		//Assert.assertTrue(doc.getDocumentId() == 1);
 		Assert.assertTrue(doc.getTxStart() == txId);
 		Assert.assertTrue(doc.getTxFinish() == 0);
 		ids.add(doc.getDocumentKey());
-		//ids.add(createDocumentTest(sampleRoot + "security5621.xml").getDocumentKey());
-		//ids.add(createDocumentTest(sampleRoot + "security9012.xml").getDocumentKey());
 		getTxManagement().commitTransaction(txId);
 	}
 	
@@ -33,7 +30,6 @@ public abstract class XDMDocumentManagementTest extends XDMManagementTest {
 		
 		long txId = getTxManagement().beginTransaction();
 		XDMDocument doc = createDocumentTest(sampleRoot + "security1500.xml");
-		//Assert.assertTrue(doc.getDocumentId() == 1);
 		Assert.assertTrue(doc.getTxStart() == txId);
 		Assert.assertTrue(doc.getTxFinish() == 0);
 		ids.add(doc.getDocumentKey());
@@ -63,4 +59,31 @@ public abstract class XDMDocumentManagementTest extends XDMManagementTest {
 		getTxManagement().commitTransaction(txId);
 	}
 	
+	@Test
+	public void removeSecurityTest() throws IOException {
+		
+		long txId = getTxManagement().beginTransaction();
+		XDMDocument doc = createDocumentTest(sampleRoot + "security1500.xml");
+		Assert.assertTrue(doc.getTxStart() == txId);
+		Assert.assertTrue(doc.getTxFinish() == 0);
+		ids.add(doc.getDocumentKey());
+		getTxManagement().commitTransaction(txId);
+		long docId = doc.getDocumentId();
+		long docKey = doc.getDocumentKey();
+		
+		long txId2 = getTxManagement().beginTransaction();
+		removeDocumentTest(docKey);
+		doc = getDocManagement().getDocument(docKey);
+		Assert.assertTrue(doc.getTxStart() == txId);
+		Assert.assertTrue(doc.getTxFinish() == txId2);
+		Assert.assertTrue(doc.getDocumentId() == docId);
+		Assert.assertTrue(doc.getDocumentKey() == docKey);
+		//Assert.assertTrue(doc.getVersion() == ++version);
+		//Assert.assertEquals(doc.getUri(), uri);
+		ids.add(doc.getDocumentKey());
+		getTxManagement().commitTransaction(txId2);
+
+		//doc = getDocManagement().getDocument(docKey);
+		//Assert.assertNull(doc);
+	}
 }

@@ -139,13 +139,13 @@ public class DocumentManagement extends SchemaFeatureManagement {
 	@ManagedOperation(description="Register Document")
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "docFile", description = "A full path to XML file to register")})
-	public int registerDocument(String docFile) {
+	public long registerDocument(String docFile) {
 		
 		String uri = "file:///" + docFile;
 		try {
 			String xml = FileUtils.readTextFile(docFile);
 			XDMDocument doc = docManager.storeDocumentFromString(0, uri, xml);
-			return 1;
+			return doc.getDocumentKey();
 		} catch (IOException ex) {
 			logger.error("registerDocument.error: " + ex.getMessage(), ex);
 		}
@@ -157,10 +157,32 @@ public class DocumentManagement extends SchemaFeatureManagement {
 		@ManagedOperationParameter(name = "docId", description = "Registered Document identifier"),
 		@ManagedOperationParameter(name = "uri", description = "A new uri for the file or null"),
 		@ManagedOperationParameter(name = "docFile", description = "A full path to XML file to register")})
-	public void updateDocument(int docId, String uri, String docFile) {
-		// TODO: implement it!
+	public long updateDocument(long docId, String uri, String docFile) {
+
+		try {
+			String xml = FileUtils.readTextFile(docFile);
+			XDMDocument doc = docManager.storeDocumentFromString(docId, uri, xml);
+			return doc.getDocumentKey();
+		} catch (IOException ex) {
+			logger.error("updateDocument.error: " + ex.getMessage(), ex);
+		}
+		return 0;
 	}
 	
+	@ManagedOperation(description="Remove Document")
+	@ManagedOperationParameters({
+		@ManagedOperationParameter(name = "docId", description = "Registered Document identifier")})
+	public boolean removeDocument(long docId) {
+		
+		try {
+			docManager.removeDocument(docId);
+			return true;
+		} catch (Exception ex) {
+			logger.error("removeDocument.error: " + ex.getMessage(), ex);
+		}
+		return false;
+	}
+
 	private int processFilesInCatalog(Path catalog) {
 		int result = 0;
 		try (DirectoryStream<Path> stream = Files.newDirectoryStream(catalog, "*.xml")) {
