@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <hazelcast-client xmlns="http://www.hazelcat.com/schema/client-config" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.hazelcast.com/schema/client-config http://www.hazelcast.com/schema/config/hazelcast-client-config-3.3.xsd"> 
+	xsi:schemaLocation="http://www.hazelcast.com/schema/client-config http://www.hazelcast.com/schema/config/hazelcast-client-config-3.4.xsd"> 
 	
 	<!--group>
 		<name>${username}</name>
@@ -25,9 +25,9 @@
 		<data-serializable-factories>
 			<data-serializable-factory factory-id="1">com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory</data-serializable-factory>
 		</data-serializable-factories>
-		<!--portable-factories>
-			<portable-factory factory-id="1">com.bagri.xdm.access.hazelcast.pof.XDMPortableFactory</portable-factory>
-		</portable-factories-->
+		<portable-factories>
+			<portable-factory factory-id="2">com.bagri.xdm.client.hazelcast.serialize.XDMPortableFactory</portable-factory>
+		</portable-factories>
 		<serializers>
 			<!--hz:global-serializer class-name="com.hazelcast.nio.serialization.PortableSerializer"/-->
 			<serializer type-class="com.bagri.common.query.Expression" class-name="com.bagri.xdm.client.hazelcast.serialize.ExpressionSerializer"/>
@@ -53,6 +53,7 @@
 	<load-balancer type="random"></load-balancer>
 	 
 	<near-cache name="dict-path" in-memory-format="OBJECT" />
+	<near-cache name="dict-index" in-memory-format="OBJECT" />
 	<near-cache name="dict-namespace" in-memory-format="OBJECT" />
 	<near-cache name="dict-document-type" in-memory-format="OBJECT" />
 	

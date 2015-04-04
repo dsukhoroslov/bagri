@@ -25,8 +25,8 @@ public class TransactionManagementImplTest extends XDMManagementTest {
 		//System.setProperty("hazelcast.config", "hazelcast/hazelcast.xml");
 		System.setProperty(PN_SERVER_ADDRESS, "localhost:10500"); 
 		System.setProperty(PN_POOL_SIZE, "10");
-		System.setProperty(PN_SCHEMA_NAME, "TPoX2");
-		System.setProperty(PN_SCHEMA_PASS, "TPoX2");
+		System.setProperty(PN_SCHEMA_NAME, "admin");
+		System.setProperty(PN_SCHEMA_PASS, "admin");
 		sampleRoot = "..\\..\\etc\\samples\\tpox\\";
 	}
 
@@ -38,10 +38,6 @@ public class TransactionManagementImplTest extends XDMManagementTest {
 	@Before
 	public void setUp() throws Exception {
 		xRepo = new RepositoryImpl();
-
-		//storeSecurityTest();
-		//storeCustomerTest();
-		//storeOrderTest();
 	}
 
 	@After
@@ -51,13 +47,6 @@ public class TransactionManagementImplTest extends XDMManagementTest {
 		xRepo.close();
 	}
 	
-	//@Test
-	//public void storeDocumentsTest() throws IOException {
-	//	storeSecurityTest();
-	//	storeOrderTest();
-	//	storeCustomerTest();
-	//}
-
 	@Test
 	public void rollbackTransactionTest() throws IOException {
 		long txId = xRepo.getTxManagement().beginTransaction();

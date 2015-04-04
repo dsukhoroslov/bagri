@@ -3,16 +3,15 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:context="http://www.springframework.org/schema/context"
 	xmlns:hz="http://www.hazelcast.com/schema/spring"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
-		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd
-		http://www.hazelcast.com/schema/spring http://www.hazelcast.com/schema/spring/hazelcast-spring-3.3.xsd">
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.1.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.1.xsd
+		http://www.hazelcast.com/schema/spring http://www.hazelcast.com/schema/spring/hazelcast-spring-3.4.xsd">
 
 	<!--import resource="classpath:spring/xml-context.xml" /-->
  
 	<!-- Beans Declaration -->
 	<context:property-placeholder ignore-unresolvable="true" location="classpath:/${xdm.config.properties.file}" />
 	<context:annotation-config />
-	<!--context:mbean-export default-domain="com.bagri.xdm"/-->
  
 	<hz:hazelcast id="hzInstance">
 		<hz:config>
@@ -48,11 +47,13 @@
 			
 			<hz:queue name="client:*" backup-count="1" />
 			
-			<hz:map name="dict-namespace" async-backup-count="1" backup-count="0" in-memory-format="OBJECT">
+			<hz:map name="dict-namespace" async-backup-count="${xdm.schema.dict.backup.async}" 
+				backup-count="${xdm.schema.dict.backup.sync}" in-memory-format="OBJECT">
 				<hz:near-cache time-to-live-seconds="0" max-idle-seconds="0" eviction-policy="LRU" 
 					max-size="0" invalidate-on-change="true" in-memory-format="OBJECT"/>
 			</hz:map>
-			<hz:map name="dict-path" async-backup-count="1" backup-count="0" in-memory-format="OBJECT">
+			<hz:map name="dict-path" async-backup-count="${xdm.schema.dict.backup.async}" 
+				backup-count="${xdm.schema.dict.backup.sync}" in-memory-format="OBJECT">
 				<hz:near-cache time-to-live-seconds="0" max-idle-seconds="0" eviction-policy="LRU" 
 					max-size="0" invalidate-on-change="true" in-memory-format="OBJECT"/>
 				<hz:indexes>
@@ -60,11 +61,13 @@
 					<hz:index attribute="pathId" ordered="true"/>
 				</hz:indexes>
 			</hz:map>
-			<hz:map name="dict-index" async-backup-count="1" backup-count="0" in-memory-format="OBJECT">
+			<hz:map name="dict-index" async-backup-count="${xdm.schema.dict.backup.async}" 
+				backup-count="${xdm.schema.dict.backup.sync}" in-memory-format="OBJECT">
 				<hz:near-cache time-to-live-seconds="0" max-idle-seconds="0" eviction-policy="LRU" 
 					max-size="0" invalidate-on-change="true" in-memory-format="OBJECT"/>
 			</hz:map>
-			<hz:map name="dict-document-type" async-backup-count="1" backup-count="0" in-memory-format="OBJECT">
+			<hz:map name="dict-document-type" async-backup-count="${xdm.schema.dict.backup.async}" 
+				backup-count="${xdm.schema.dict.backup.sync}" in-memory-format="OBJECT">
 				<!--hz:map-store enabled="true" write-delay-seconds="10" factory-implementation="xdmStoreFactory">
 					<hz:properties>
 						<hz:property name="xdm.schema.name">${xdm.schema.name}</hz:property>
@@ -75,7 +78,8 @@
 					max-size="0" invalidate-on-change="true" in-memory-format="OBJECT"/>
 			</hz:map>
 			
-			<hz:map name="xdm-document" async-backup-count="1" backup-count="0" in-memory-format="OBJECT">
+			<hz:map name="xdm-document" async-backup-count="${xdm.schema.data.backup.async}" 
+				backup-count="${xdm.schema.data.backup.sync}" in-memory-format="OBJECT">
 				<hz:map-store enabled="true" write-delay-seconds="10" factory-implementation="xdmStoreFactory">
 					<hz:properties>
 						<hz:property name="xdm.schema.name">${xdm.schema.name}</hz:property>
@@ -88,7 +92,8 @@
 					<hz:index attribute="uri"/>
 				</hz:indexes>
 			</hz:map>
-			<hz:map name="xdm-element" async-backup-count="1" backup-count="0" in-memory-format="OBJECT">
+			<hz:map name="xdm-element" async-backup-count="${xdm.schema.data.backup.async}" 
+				backup-count="${xdm.schema.data.backup.sync}" in-memory-format="OBJECT">
 				<!-- can't persist it in MongoDB right away; got an exception: 
 					java.lang.IllegalArgumentException: can't serialize class com.bagri.xdm.access.hazelcast.data.DataDocumentKey -->
 				<!--hz:map-store enabled="true" write-delay-seconds="10" factory-implementation="xdmStoreFactory">
@@ -104,7 +109,8 @@
 				</hz:indexes>
 			</hz:map>
 
-			<hz:map name="xdm-index" async-backup-count="1" backup-count="0" in-memory-format="OBJECT">
+			<hz:map name="xdm-index" async-backup-count="${xdm.schema.data.backup.async}" 
+				backup-count="${xdm.schema.data.backup.sync}" in-memory-format="OBJECT">
 				<!-- think about store indexes persistently... 
 				<hz:map-store enabled="true" write-delay-seconds="10" factory-implementation="xdmStoreFactory">
 					<hz:properties>
@@ -114,7 +120,8 @@
 				</hz:map-store-->
 			</hz:map>
 
-			<hz:map name="xdm-transaction" async-backup-count="1" backup-count="0" in-memory-format="BINARY">
+			<hz:map name="xdm-transaction" async-backup-count="${xdm.schema.trans.backup.async}" 
+				backup-count="${xdm.schema.trans.backup.sync}" in-memory-format="BINARY">
 				<!-- think about store indexes persistently... 
 				<hz:map-store enabled="true" write-delay-seconds="10" factory-implementation="xdmStoreFactory">
 					<hz:properties>
@@ -127,15 +134,18 @@
 				</hz:indexes>
 			</hz:map>
 
-			<hz:map name="xdm-xml" async-backup-count="1" backup-count="0" in-memory-format="OBJECT"
+			<hz:map name="xdm-xml" async-backup-count="${xdm.schema.query.backup.async}" 
+					 backup-count="${xdm.schema.query.backup.sync}" in-memory-format="OBJECT"
 					 eviction-policy="LRU" time-to-live-seconds="0" max-size-policy="USED_HEAP_PERCENTAGE" 
 					 max-size="25" eviction-percentage="10">
 			</hz:map>
-			<hz:map name="xdm-query" async-backup-count="1" backup-count="0" in-memory-format="OBJECT"
+			<hz:map name="xdm-query" async-backup-count="${xdm.schema.query.backup.async}" 
+					 backup-count="${xdm.schema.query.backup.sync}" in-memory-format="OBJECT"
 					 eviction-policy="LRU" time-to-live-seconds="0" max-size-policy="USED_HEAP_PERCENTAGE" 
 					 max-size="15" eviction-percentage="10">
 			</hz:map>
-			<hz:map name="xdm-result" async-backup-count="1" backup-count="0" in-memory-format="OBJECT"
+			<hz:map name="xdm-result" async-backup-count="${xdm.schema.query.backup.async}" 
+					 backup-count="${xdm.schema.query.backup.sync}" in-memory-format="OBJECT"
 					 eviction-policy="LRU" time-to-live-seconds="0" max-size-policy="USED_HEAP_PERCENTAGE" 
 					 max-size="10" eviction-percentage="10">
 			</hz:map>
@@ -144,9 +154,9 @@
 				<hz:data-serializable-factories>
 					<hz:data-serializable-factory factory-id="1" class-name="com.bagri.xdm.cache.hazelcast.serialize.XDMDataSerializationFactory"/>
 				</hz:data-serializable-factories>
-				<!--hz:portable-factories>
-					<hz:portable-factory factory-id="1" class-name="com.bagri.xdm.process.hazelcast.pof.XDMPortableFactory"/>
-				</hz:portable-factories-->
+				<hz:portable-factories>
+					<hz:portable-factory factory-id="2" class-name="com.bagri.xdm.cache.hazelcast.serialize.XDMPortableFactory"/>
+				</hz:portable-factories>
 				<hz:serializers>
 					<!--hz:global-serializer class-name="com.hazelcast.nio.serialization.PortableSerializer"/-->
 					<hz:serializer type-class="com.bagri.common.query.Expression" class-name="com.bagri.xdm.client.hazelcast.serialize.ExpressionSerializer"/>
@@ -293,6 +303,11 @@
 		<property name="hzInstance" ref="hzInstance"/>
 	</bean>
 	
+	<bean id="accManager" class="com.bagri.xdm.cache.hazelcast.impl.AccessManagementImpl">
+		<property name="schemaName" value="${xdm.schema.name}"/>
+		<property name="schemaPass" value="${xdm.schema.password}"/>
+	</bean>
+
 	<bean id="queryManager" class="com.bagri.xdm.cache.hazelcast.impl.QueryManagementImpl">
 		<property name="queryCache" ref="xdm-query"/>
 		<property name="resultCache" ref="xdm-result"/>

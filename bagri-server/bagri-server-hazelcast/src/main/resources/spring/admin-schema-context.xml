@@ -3,9 +3,9 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:context="http://www.springframework.org/schema/context"
 	xmlns:hz="http://www.hazelcast.com/schema/spring"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
-		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd
-		http://www.hazelcast.com/schema/spring http://www.hazelcast.com/schema/spring/hazelcast-spring-3.3.xsd">
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.1.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.1.xsd
+		http://www.hazelcast.com/schema/spring http://www.hazelcast.com/schema/spring/hazelcast-spring-3.4.xsd">
 
 	<context:property-placeholder ignore-unresolvable="true" location="classpath:/admin.properties" />
 	<context:annotation-config />
@@ -18,20 +18,20 @@
 		<hz:network smart-routing="true">
 			<hz:member>${xdm.schema.members}</hz:member>
 			<!--hz:socket-options buffer-size="${xdm.schema.buffer.size}"/-->
-			<hz:socket-options buffer-size="256"/>
+			<hz:socket-options buffer-size="128"/>
 		</hz:network>
 		
-		<!--hz:security>
-			<hz:credentials>com.bagri.xdm.access.hazelcast.impl.SecureCredentials</hz:credentials>
-		</hz:security-->
+		<hz:security>
+			<hz:credentials>com.bagri.xdm.client.hazelcast.serialize.SecureCredentials</hz:credentials>
+		</hz:security>
 	
 		<hz:serialization>
 			<hz:data-serializable-factories>
 				<hz:data-serializable-factory factory-id="1" class-name="com.bagri.xdm.cache.hazelcast.serialize.XDMDataSerializationFactory"/>
 			</hz:data-serializable-factories>
-			<!--hz:portable-factories>
-				<hz:portable-factory factory-id="1" class-name="com.bagri.xdm.process.hazelcast.pof.XDMPortableFactory"/>
-			</hz:portable-factories-->
+			<hz:portable-factories>
+				<hz:portable-factory factory-id="2" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMPortableFactory"/>
+			</hz:portable-factories>
 			<hz:serializers>
 				<hz:serializer type-class="com.bagri.common.query.Expression" class-name="com.bagri.xdm.client.hazelcast.serialize.ExpressionSerializer"/>
 				<hz:serializer type-class="com.bagri.common.query.PathExpression" class-name="com.bagri.xdm.client.hazelcast.serialize.ExpressionSerializer"/>
@@ -62,6 +62,7 @@
 		</hz:proxy-factories-->
 		
 		<hz:near-cache name="dict-path" in-memory-format="OBJECT" />
+		<hz:near-cache name="dict-index" in-memory-format="OBJECT" />
 		<hz:near-cache name="dict-namespace" in-memory-format="OBJECT" />
 		<hz:near-cache name="dict-document-type" in-memory-format="OBJECT" />
 		
@@ -152,7 +153,7 @@
 		<property name="targetMethod" value="setRepository" />
 		<property name="arguments">
 			<list>
-				<ref local="xdmRepo" />
+				<ref bean="xdmRepo" />
 			</list>
 		</property>
 	</bean>

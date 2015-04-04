@@ -52,6 +52,14 @@
                 <entry name="xqj.schema.defaultFunctionNamespace"></entry>
                 <entry name="xdm.schema.password">TPoX2</entry>
                 <entry name="xdm.schema.population.size">1</entry>
+		<entry name="xdm.schema.data.backup.async">1</entry>
+		<entry name="xdm.schema.data.backup.sync">0</entry>
+		<entry name="xdm.schema.dict.backup.async">1</entry>
+		<entry name="xdm.schema.dict.backup.sync">0</entry>
+		<entry name="xdm.schema.query.backup.async">0</entry>
+		<entry name="xdm.schema.query.backup.sync">0</entry>
+		<entry name="xdm.schema.trans.backup.async">0</entry>
+		<entry name="xdm.schema.trans.backup.sync">1</entry>
             </properties>
             <indexes>
                 <index name="IDX_Customer_id">
@@ -118,6 +126,14 @@
                 <entry name="xqj.schema.defaultFunctionNamespace">fn</entry>
                 <entry name="xdm.schema.password">TPoX</entry>
                 <entry name="xdm.schema.population.size">1</entry>
+		<entry name="xdm.schema.data.backup.async">1</entry>
+		<entry name="xdm.schema.data.backup.sync">0</entry>
+		<entry name="xdm.schema.dict.backup.async">1</entry>
+		<entry name="xdm.schema.dict.backup.sync">0</entry>
+		<entry name="xdm.schema.query.backup.async">0</entry>
+		<entry name="xdm.schema.query.backup.sync">0</entry>
+		<entry name="xdm.schema.trans.backup.async">0</entry>
+		<entry name="xdm.schema.trans.backup.sync">1</entry>
             </properties>
             <indexes>
                 <index name="IDX_Customer_id">
@@ -184,6 +200,14 @@
                 <entry name="xqj.schema.defaultFunctionNamespace">fn</entry>
                 <entry name="xdm.schema.password">XDM</entry>
                 <entry name="xdm.schema.population.size">1</entry>
+		<entry name="xdm.schema.data.backup.async">1</entry>
+		<entry name="xdm.schema.data.backup.sync">0</entry>
+		<entry name="xdm.schema.dict.backup.async">1</entry>
+		<entry name="xdm.schema.dict.backup.sync">0</entry>
+		<entry name="xdm.schema.query.backup.async">0</entry>
+		<entry name="xdm.schema.query.backup.sync">0</entry>
+		<entry name="xdm.schema.trans.backup.async">0</entry>
+		<entry name="xdm.schema.trans.backup.sync">1</entry>
             </properties>
             <indexes/>
         </schema>
@@ -219,6 +243,14 @@
                 <entry name="xdm.schema.password">XMark</entry>
                 <entry name="xdm.schema.name">XMark</entry>
                 <entry name="xdm.schema.population.size">1</entry>
+		<entry name="xdm.schema.data.backup.async">1</entry>
+		<entry name="xdm.schema.data.backup.sync">0</entry>
+		<entry name="xdm.schema.dict.backup.async">1</entry>
+		<entry name="xdm.schema.dict.backup.sync">0</entry>
+		<entry name="xdm.schema.query.backup.async">0</entry>
+		<entry name="xdm.schema.query.backup.sync">0</entry>
+		<entry name="xdm.schema.trans.backup.async">0</entry>
+		<entry name="xdm.schema.trans.backup.sync">1</entry>
             </properties>
             <indexes/>
         </schema>

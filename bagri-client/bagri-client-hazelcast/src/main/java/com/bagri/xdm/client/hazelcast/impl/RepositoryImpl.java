@@ -29,6 +29,7 @@ import com.bagri.xdm.api.XDMQueryManagement;
 import com.bagri.xdm.api.XDMRepository;
 import com.bagri.xdm.api.XDMTransactionManagement;
 import com.bagri.xdm.client.common.impl.XDMRepositoryBase;
+import com.bagri.xdm.client.hazelcast.serialize.SecureCredentials;
 import com.bagri.xdm.client.hazelcast.serialize.XQItemSerializer;
 import com.bagri.xdm.client.hazelcast.serialize.XQItemTypeSerializer;
 import com.bagri.xdm.client.hazelcast.serialize.XQSequenceSerializer;
@@ -115,9 +116,9 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 		
 		//config.setProperty("hazelcast.logging.type", "slf4j");
 		//UsernamePasswordCredentials creds = new UsernamePasswordCredentials(schema, password);
-		//SecureCredentials creds = new SecureCredentials(password);
-		//config.getSecurityConfig().setCredentials(creds);
-		//config.setCredentials(creds);
+		SecureCredentials creds = new SecureCredentials(schema, password);
+		config.getSecurityConfig().setCredentials(creds);
+		config.setCredentials(creds);
 			
 		XQDataFactory xqFactory = (XQDataFactory) props.get("xqDataFactory");
 		if (xqFactory != null) {
