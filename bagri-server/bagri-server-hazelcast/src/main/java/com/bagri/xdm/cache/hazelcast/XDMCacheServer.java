@@ -151,8 +151,8 @@ public class XDMCacheServer {
             	XDMSchema xSchema = schemaCache.get(schemaName);
             	if (xSchema != null) {
             		initialized = initSchema(systemInstance, local, xSchema);
-            		String store = xSchema.getProperty(xdm_schema_store_type);
-            		if (!"NONE".equals(store)) {
+            		String store = xSchema.getProperty(xdm_schema_store_enabled);
+            		if ("true".equalsIgnoreCase(store)) {
 	            		HazelcastInstance schemaInstance = Hazelcast.getHazelcastInstanceByName(schemaName);
 		            	if (schemaInstance != null) {
 		            		//ApplicationContext schemaContext = (ApplicationContext) schemaInstance.getUserContext().get("appContext");

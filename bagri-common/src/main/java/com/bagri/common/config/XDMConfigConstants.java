@@ -20,5 +20,6 @@ public class XDMConfigConstants {
     public static final String xdm_schema_ports_first = "xdm.schema.ports.first";
     public static final String xdm_schema_ports_last = "xdm.schema.ports.last";
     public static final String xdm_schema_store_type = "xdm.schema.store.type";
+    public static final String xdm_schema_store_enabled = "xdm.schema.store.enabled";
 
 }

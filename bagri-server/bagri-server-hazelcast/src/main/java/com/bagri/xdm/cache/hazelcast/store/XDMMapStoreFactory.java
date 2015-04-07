@@ -109,7 +109,8 @@ public class XDMMapStoreFactory implements ApplicationContextAware, MapStoreFact
 			}
 		
 			if (st_none.equals(type) || type == null) {
-				// 
+				// but map-store is enabled! means: config error
+				// todo: throw exception
 				mStore = new DummyCacheStore();
 			}
 		} catch (Exception ex) {

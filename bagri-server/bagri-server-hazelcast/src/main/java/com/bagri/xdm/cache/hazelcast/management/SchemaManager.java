@@ -32,6 +32,7 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.Member;
 import com.hazelcast.instance.MemberImpl;
 
+import static com.bagri.common.config.XDMConfigConstants.xdm_schema_store_enabled;
 import static com.bagri.common.config.XDMConfigConstants.xdm_schema_store_type;
 
 @ManagedResource(description="Schema Manager MBean")
@@ -114,9 +115,13 @@ public class SchemaManager extends EntityManager<XDMSchema> {
 	
 	@ManagedAttribute(description="Returns Schema persistence type")
 	public String getPersistenceType() {
-		String result = getEntity().getProperty(xdm_schema_store_type);
+		String result = getEntity().getProperty(xdm_schema_store_enabled);
+		if (!"true".equalsIgnoreCase(result)) {
+			return "NONE";
+		}
+		result = getEntity().getProperty(xdm_schema_store_type);
 		if (result == null) {
-			result = "NONE";
+			return "NONE";
 		}
 		return result;
 	}

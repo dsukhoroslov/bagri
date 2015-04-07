@@ -47,13 +47,13 @@
 			
 			<hz:queue name="client:*" backup-count="1" />
 			
-			<hz:map name="dict-namespace" async-backup-count="${xdm.schema.dict.backup.async}" 
-				backup-count="${xdm.schema.dict.backup.sync}" in-memory-format="OBJECT">
+			<hz:map name="dict-namespace" in-memory-format="OBJECT"  async-backup-count="${xdm.schema.dict.backup.async}" 
+				backup-count="${xdm.schema.dict.backup.sync}" read-backup-data="${xdm.schema.dict.backup.read}">
 				<hz:near-cache time-to-live-seconds="0" max-idle-seconds="0" eviction-policy="LRU" 
 					max-size="0" invalidate-on-change="true" in-memory-format="OBJECT"/>
 			</hz:map>
-			<hz:map name="dict-path" async-backup-count="${xdm.schema.dict.backup.async}" 
-				backup-count="${xdm.schema.dict.backup.sync}" in-memory-format="OBJECT">
+			<hz:map name="dict-path" in-memory-format="OBJECT" async-backup-count="${xdm.schema.dict.backup.async}" 
+				backup-count="${xdm.schema.dict.backup.sync}" read-backup-data="${xdm.schema.dict.backup.read}">
 				<hz:near-cache time-to-live-seconds="0" max-idle-seconds="0" eviction-policy="LRU" 
 					max-size="0" invalidate-on-change="true" in-memory-format="OBJECT"/>
 				<hz:indexes>
@@ -61,13 +61,13 @@
 					<hz:index attribute="pathId" ordered="true"/>
 				</hz:indexes>
 			</hz:map>
-			<hz:map name="dict-index" async-backup-count="${xdm.schema.dict.backup.async}" 
-				backup-count="${xdm.schema.dict.backup.sync}" in-memory-format="OBJECT">
+			<hz:map name="dict-index" in-memory-format="OBJECT" async-backup-count="${xdm.schema.dict.backup.async}" 
+				backup-count="${xdm.schema.dict.backup.sync}" read-backup-data="${xdm.schema.dict.backup.read}">
 				<hz:near-cache time-to-live-seconds="0" max-idle-seconds="0" eviction-policy="LRU" 
 					max-size="0" invalidate-on-change="true" in-memory-format="OBJECT"/>
 			</hz:map>
-			<hz:map name="dict-document-type" async-backup-count="${xdm.schema.dict.backup.async}" 
-				backup-count="${xdm.schema.dict.backup.sync}" in-memory-format="OBJECT">
+			<hz:map name="dict-document-type" in-memory-format="OBJECT" async-backup-count="${xdm.schema.dict.backup.async}" 
+				backup-count="${xdm.schema.dict.backup.sync}" read-backup-data="${xdm.schema.dict.backup.read}">
 				<!--hz:map-store enabled="true" write-delay-seconds="10" factory-implementation="xdmStoreFactory">
 					<hz:properties>
 						<hz:property name="xdm.schema.name">${xdm.schema.name}</hz:property>
@@ -78,9 +78,9 @@
 					max-size="0" invalidate-on-change="true" in-memory-format="OBJECT"/>
 			</hz:map>
 			
-			<hz:map name="xdm-document" async-backup-count="${xdm.schema.data.backup.async}" 
-				backup-count="${xdm.schema.data.backup.sync}" in-memory-format="OBJECT">
-				<hz:map-store enabled="true" write-delay-seconds="10" factory-implementation="xdmStoreFactory">
+			<hz:map name="xdm-document" in-memory-format="OBJECT" async-backup-count="${xdm.schema.data.backup.async}" 
+				backup-count="${xdm.schema.data.backup.sync}" read-backup-data="${xdm.schema.data.backup.read}">
+				<hz:map-store enabled="${xdm.schema.store.enabled}" write-delay-seconds="10" factory-implementation="xdmStoreFactory">
 					<hz:properties>
 						<hz:property name="xdm.schema.name">${xdm.schema.name}</hz:property>
 						<hz:property name="xdm.schema.store.type">${xdm.schema.store.type}</hz:property>
@@ -92,10 +92,8 @@
 					<hz:index attribute="uri"/>
 				</hz:indexes>
 			</hz:map>
-			<hz:map name="xdm-element" async-backup-count="${xdm.schema.data.backup.async}" 
-				backup-count="${xdm.schema.data.backup.sync}" in-memory-format="OBJECT">
-				<!-- can't persist it in MongoDB right away; got an exception: 
-					java.lang.IllegalArgumentException: can't serialize class com.bagri.xdm.access.hazelcast.data.DataDocumentKey -->
+			<hz:map name="xdm-element" in-memory-format="OBJECT" async-backup-count="${xdm.schema.data.backup.async}" 
+				backup-count="${xdm.schema.data.backup.sync}" read-backup-data="${xdm.schema.data.backup.read}">
 				<!--hz:map-store enabled="true" write-delay-seconds="10" factory-implementation="xdmStoreFactory">
 					<hz:properties>
 						<hz:property name="xdm.schema.name">${xdm.schema.name}</hz:property>
@@ -108,10 +106,9 @@
 					<!--hz:index attribute="value"/-->
 				</hz:indexes>
 			</hz:map>
-
-			<hz:map name="xdm-index" async-backup-count="${xdm.schema.data.backup.async}" 
-				backup-count="${xdm.schema.data.backup.sync}" in-memory-format="OBJECT">
-				<!-- think about store indexes persistently... 
+			<hz:map name="xdm-index" in-memory-format="OBJECT" async-backup-count="${xdm.schema.data.backup.async}" 
+				backup-count="${xdm.schema.data.backup.sync}" read-backup-data="${xdm.schema.data.backup.read}">
+				<!-- think about store indexes persistently... but not necessarily
 				<hz:map-store enabled="true" write-delay-seconds="10" factory-implementation="xdmStoreFactory">
 					<hz:properties>
 						<hz:property name="xdm.schema.name">${xdm.schema.name}</hz:property>
@@ -120,9 +117,9 @@
 				</hz:map-store-->
 			</hz:map>
 
-			<hz:map name="xdm-transaction" async-backup-count="${xdm.schema.trans.backup.async}" 
-				backup-count="${xdm.schema.trans.backup.sync}" in-memory-format="BINARY">
-				<!-- think about store indexes persistently... 
+			<hz:map name="xdm-transaction" in-memory-format="BINARY" async-backup-count="${xdm.schema.trans.backup.async}" 
+				backup-count="${xdm.schema.trans.backup.sync}" read-backup-data="${xdm.schema.trans.backup.read}">
+				<!-- mast persist transaction log... 
 				<hz:map-store enabled="true" write-delay-seconds="10" factory-implementation="xdmStoreFactory">
 					<hz:properties>
 						<hz:property name="xdm.schema.name">${xdm.schema.name}</hz:property>
@@ -134,18 +131,18 @@
 				</hz:indexes>
 			</hz:map>
 
-			<hz:map name="xdm-xml" async-backup-count="${xdm.schema.query.backup.async}" 
-					 backup-count="${xdm.schema.query.backup.sync}" in-memory-format="OBJECT"
+			<hz:map name="xdm-xml" in-memory-format="OBJECT" async-backup-count="${xdm.schema.query.backup.async}" 
+					 backup-count="${xdm.schema.query.backup.sync}" read-backup-data="${xdm.schema.query.backup.read}"
 					 eviction-policy="LRU" time-to-live-seconds="0" max-size-policy="USED_HEAP_PERCENTAGE" 
 					 max-size="25" eviction-percentage="10">
 			</hz:map>
-			<hz:map name="xdm-query" async-backup-count="${xdm.schema.query.backup.async}" 
-					 backup-count="${xdm.schema.query.backup.sync}" in-memory-format="OBJECT"
+			<hz:map name="xdm-query" in-memory-format="OBJECT" async-backup-count="${xdm.schema.query.backup.async}" 
+					 backup-count="${xdm.schema.query.backup.sync}" read-backup-data="${xdm.schema.query.backup.read}"
 					 eviction-policy="LRU" time-to-live-seconds="0" max-size-policy="USED_HEAP_PERCENTAGE" 
 					 max-size="15" eviction-percentage="10">
 			</hz:map>
-			<hz:map name="xdm-result" async-backup-count="${xdm.schema.query.backup.async}" 
-					 backup-count="${xdm.schema.query.backup.sync}" in-memory-format="OBJECT"
+			<hz:map name="xdm-result" in-memory-format="OBJECT" async-backup-count="${xdm.schema.query.backup.async}" 
+					 backup-count="${xdm.schema.query.backup.sync}" read-backup-data="${xdm.schema.query.backup.read}"
 					 eviction-policy="LRU" time-to-live-seconds="0" max-size-policy="USED_HEAP_PERCENTAGE" 
 					 max-size="10" eviction-percentage="10">
 			</hz:map>
