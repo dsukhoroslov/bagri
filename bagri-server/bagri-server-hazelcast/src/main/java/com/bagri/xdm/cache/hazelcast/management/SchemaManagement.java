@@ -216,6 +216,9 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
 				mbeanExporter.registerManagedResource(iMgr, iMgr.getObjectName());
         	    ModelManagement mMgr = ctx.getBean("modelManager", ModelManagement.class);
 				mbeanExporter.registerManagedResource(mMgr, mMgr.getObjectName());
+        	    ModuleManagement uMgr = ctx.getBean("moduleManager", ModuleManagement.class);
+        	    uMgr.setSchemaManager(sMgr);
+				mbeanExporter.registerManagedResource(uMgr, uMgr.getObjectName());
         	    QueryManagement qMgr = ctx.getBean("queryManager", QueryManagement.class);
 				mbeanExporter.registerManagedResource(qMgr, qMgr.getObjectName());
 				TransactionManagement tMgr = ctx.getBean("transManager", TransactionManagement.class);
@@ -248,6 +251,8 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
     				mbeanExporter.unregisterManagedResource(iMgr.getObjectName());
     				ModelManagement mMgr = ctx.getBean("modelManager", ModelManagement.class);
     				mbeanExporter.unregisterManagedResource(mMgr.getObjectName());
+    				ModuleManagement uMgr = ctx.getBean("moduleManager", ModuleManagement.class);
+    				mbeanExporter.unregisterManagedResource(uMgr.getObjectName());
     				QueryManagement qMgr = ctx.getBean("queryManager", QueryManagement.class);
     				mbeanExporter.unregisterManagedResource(qMgr.getObjectName());
     				TransactionManagement tMgr = ctx.getBean("transManager", TransactionManagement.class);

@@ -17,6 +17,7 @@ import com.bagri.xdm.cache.api.XDMRepository;
 import com.bagri.xdm.client.common.impl.XDMRepositoryBase;
 import com.bagri.xdm.domain.XDMPath;
 import com.bagri.xdm.system.XDMIndex;
+import com.bagri.xdm.system.XDMModule;
 import com.bagri.xdm.system.XDMSchema;
 import com.bagri.xqj.BagriXQDataFactory;
 import com.bagri.xquery.api.XQProcessor;
@@ -152,6 +153,38 @@ public class RepositoryImpl extends XDMRepositoryBase implements ApplicationCont
 
 	public void setIndexManagement(XDMIndexManagement indexMgr) {
 		this.indexMgr = indexMgr;
+	}
+	
+	//@Override
+	//public XDMModuleManagement getModuleManagement() {
+	//	return moduleMgr;
+	//}
+
+	//public void setModuleManagement(XDMModuleManagement moduleMgr) {
+	//	this.moduleMgr = moduleMgr;
+	//}
+	
+	public boolean addSchemaModule(XDMModule module) {
+		
+		if (xdmSchema.addModule(module)) {
+			//XDMPath path = indexMgr.createIndex(index);
+			//DocumentManagementImpl docMgr = (DocumentManagementImpl) getDocumentManagement();
+			return true; //docMgr.indexElements(path.getTypeId(), path.getPathId()) > 0;
+		}
+		return false;
+	}
+
+	public boolean dropSchemaModule(String name) {
+		
+		XDMModule module = xdmSchema.removeModule(name);
+		if (module != null) {
+			//XDMPath path = indexMgr.deleteIndex(index);
+			//if (path != null) {
+			//	DocumentManagementImpl docMgr = (DocumentManagementImpl) getDocumentManagement();
+				return true; //docMgr.deindexElements(path.getTypeId(), path.getPathId()) > 0;
+			//}
+		}
+		return false;
 	}
 	
 }

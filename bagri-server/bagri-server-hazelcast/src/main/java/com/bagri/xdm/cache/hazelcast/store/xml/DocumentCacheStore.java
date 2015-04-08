@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static com.bagri.common.util.FileUtils.def_encoding;
+
 import com.bagri.common.util.FileUtils;
 import com.bagri.xdm.api.XDMDocumentManagement;
 import com.bagri.xdm.api.XDMModelManagement;
@@ -34,6 +35,7 @@ import com.bagri.xdm.cache.hazelcast.impl.DocumentManagementImpl;
 import com.bagri.xdm.client.common.XDMCacheConstants;
 import com.bagri.xdm.client.xml.XDMStaxParser;
 import com.bagri.xdm.common.XDMDataKey;
+import com.bagri.xdm.common.XDMDocumentKey;
 import com.bagri.xdm.common.XDMFactory;
 import com.bagri.xdm.domain.XDMData;
 import com.bagri.xdm.domain.XDMDocument;
@@ -49,20 +51,20 @@ import com.hazelcast.core.PartitionService;
 import static com.bagri.xdm.api.XDMTransactionManagement.TX_NO;
 import static com.bagri.xdm.api.XDMTransactionManagement.TX_INIT;
 
-public class DocumentCacheStore extends XmlCacheStore implements MapStore<Long, XDMDocument>, MapLoaderLifecycleSupport {
+public class DocumentCacheStore extends XmlCacheStore implements MapStore<XDMDocumentKey, XDMDocument>, MapLoaderLifecycleSupport {
 
     private static final Logger logger = LoggerFactory.getLogger(DocumentCacheStore.class);
     private static final int defVersion = 1;
     
     private HazelcastInstance hzInstance;
     //private IdGenerator docGen;
-    private Map<Long, DocumentDataHolder> docKeys = new HashMap<Long, DocumentDataHolder>();
+    private Map<XDMDocumentKey, DocumentDataHolder> docKeys = new HashMap<XDMDocumentKey, DocumentDataHolder>();
     
 	//private String dataPath;
 	private XDMFactory keyFactory;
     private DocumentManagementImpl docMgr;
     private XDMModelManagement schemaDict;
-    private IMap<Long, String> xmlCache;
+    private IMap<XDMDocumentKey, String> xmlCache;
     private IMap<XDMDataKey, XDMElements> xdmCache;
     
 	@Override
@@ -108,7 +110,7 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<Long, 
 		return path.toAbsolutePath().normalize().toString();
 	}
 	
-    private XDMDocument loadDocument(long docId) {
+    private XDMDocument loadDocument(XDMDocumentKey docId) {
 		DocumentDataHolder ddh = docKeys.get(docId);
 		if (ddh != null) {
 			Path path = Paths.get(ddh.uri);
@@ -121,13 +123,13 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<Long, 
     	    		XDMStaxParser parser = new XDMStaxParser(schemaDict);
         			//List<XDMData> data = parser.parse(new File(ddh.uri));
         			List<XDMData> data = parser.parse(xml);         			
-        			int docType = docMgr.loadElements(docId, data); 
+        			int docType = docMgr.loadElements(docId.getKey(), data); 
         			if (docType >= 0) {
         				ddh.docType = docType;
 						xmlCache.set(docId, xml);
 						// can make a fake population TX with id = 1! 
-		        		return new XDMDocument(docId, defVersion, uri, docType, TX_INIT, TX_NO, 
-								new Date(Files.getLastModifiedTime(path).toMillis()), 
+		        		return new XDMDocument(docId.getDocumentId(), defVersion, uri, docType, 
+		        				TX_INIT, TX_NO,	new Date(Files.getLastModifiedTime(path).toMillis()), 
 								Files.getOwner(path).getName(),	def_encoding);
         			}
 				} catch (IOException | XMLStreamException ex) {
@@ -149,7 +151,7 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<Long, 
 	}
     
 	@Override
-	public XDMDocument load(Long key) {
+	public XDMDocument load(XDMDocumentKey key) {
 		logger.trace("load.enter; key: {}", key);
     	XDMDocument result = loadDocument(key);
 		logger.trace("load.exit; returning: {}", result);
@@ -157,10 +159,10 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<Long, 
 	}
 
 	@Override
-	public Map<Long, XDMDocument> loadAll(Collection<Long> keys) {
+	public Map<XDMDocumentKey, XDMDocument> loadAll(Collection<XDMDocumentKey> keys) {
 		logger.trace("loadAll.enter; keys: {}; Cluster size: {}", keys, hzInstance.getCluster().getMembers().size());
-		Map<Long, XDMDocument> result = new HashMap<Long, XDMDocument>(keys.size());
-	    for (Long key: keys) {
+		Map<XDMDocumentKey, XDMDocument> result = new HashMap<XDMDocumentKey, XDMDocument>(keys.size());
+	    for (XDMDocumentKey key: keys) {
 	    	XDMDocument doc = loadDocument(key);
 	    	if (doc != null) {
 	    		result.put(key, doc);
@@ -171,14 +173,14 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<Long, 
 	}
 
 	@Override
-	public Set<Long> loadAllKeys() {
+	public Set<XDMDocumentKey> loadAllKeys() {
 		if (schemaDict == null) {
 			logger.trace("loadAllKeys.enter; store is not ready yet, skipping population");
 			return null;
 		}
 		
 		logger.trace("loadAllKeys.enter;");
-	    Set<Long> docIds = null;
+	    Set<XDMDocumentKey> docIds = null;
 		Path root = Paths.get(getDataPath());
 		try {
 			docKeys.clear();
@@ -189,11 +191,12 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<Long, 
 			PartitionService ps = hzInstance.getPartitionService();
 			for (Path path: files) {
 				if (ps.getPartition(docId).getOwner().localMember()) {
-					docKeys.put(docId, new DocumentDataHolder(normalizePath(path)));
+					XDMDocumentKey docKey = docMgr.getXdmFactory().newXDMDocumentKey(docId);
+					docKeys.put(docKey, new DocumentDataHolder(normalizePath(path)));
 				}
 				docId++;
 			}
-			docIds = new HashSet<Long>(docKeys.keySet());
+			docIds = new HashSet<XDMDocumentKey>(docKeys.keySet());
 			// TODO: set DocumentIdGenerator to the current docId
 			// ...
 		} catch (IOException ex) {
@@ -204,7 +207,7 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<Long, 
 	}
 	
 	@Override
-	public void store(Long key, XDMDocument value) {
+	public void store(XDMDocumentKey key, XDMDocument value) {
 		logger.trace("store.enter; key: {}; value: {}", key, value);
 		if (docMgr == null) {
 			logger.trace("store; not ready yet, skipping store");
@@ -228,7 +231,7 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<Long, 
 			// update existing document - put a new version
 		}
 		
-		String xml = docMgr.getDocumentAsString(key);
+		String xml = docMgr.getDocumentAsString(key.getKey());
 		try {
 			FileUtils.writeTextFile(data.uri, xml);
 			logger.trace("store.exit; stored as: {}; length: {}", data.uri, xml.length());
@@ -238,16 +241,16 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<Long, 
 	}
 
 	@Override
-	public void storeAll(Map<Long, XDMDocument> entries) {
+	public void storeAll(Map<XDMDocumentKey, XDMDocument> entries) {
 		logger.trace("storeAll.enter; entries: {}", entries.size());
-		for (Map.Entry<Long, XDMDocument> entry: entries.entrySet()) {
+		for (Map.Entry<XDMDocumentKey, XDMDocument> entry: entries.entrySet()) {
 			store(entry.getKey(), entry.getValue());
 		}
 		logger.trace("storeAll.exit; stored: {}", entries.size());
 	}
 
 	@Override
-	public void delete(Long key) {
+	public void delete(XDMDocumentKey key) {
 		logger.trace("delete.enter; key: {}", key);
     	boolean result = false;
 		DocumentDataHolder data = docKeys.get(key);
@@ -263,10 +266,10 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<Long, 
 	}
 
 	@Override
-	public void deleteAll(Collection<Long> keys) {
+	public void deleteAll(Collection<XDMDocumentKey> keys) {
 		logger.trace("deleteAll.enter; keys: {}", keys.size());
 		int deleted = 0;
-		for (Long key: keys) {
+		for (XDMDocumentKey key: keys) {
 			DocumentDataHolder data = docKeys.get(key);
 			if (data != null) {
 		    	Path path = Paths.get(data.uri);

@@ -143,3 +143,18 @@ for $cust in fn:collection("/{http://tpox-benchmark.com/custacc}Customer")/c:Cus
 for $sec in fn:collection("/{http://tpox-benchmark.com/security}Security")/s:Security[s:Symbol=$cust/c:Accounts/c:Account/c:Holdings/c:Position/c:Symbol/fn:string(.)] 
 
 return <Security>{$sec/s:Name/text()}</Security>
+
+
+
+xquery version "1.0";
+declare base-uri "file:///C:/Work/Bagri/git/bagri/etc/samples/tpox/"; 
+declare namespace s="http://tpox-benchmark.com/security"; 
+declare namespace c="http://tpox-benchmark.com/custacc"; 
+import module namespace hw="http://helloworld" at "hello_module.xq";
+
+for $cust in fn:collection("/{http://tpox-benchmark.com/custacc}Customer")/c:Customer[@id=1011]
+for $sec in fn:collection("/{http://tpox-benchmark.com/security}Security")/s:Security[s:Symbol=$cust/c:Accounts/c:Account/c:Holdings/c:Position/c:Symbol/fn:string(.)] 
+
+return <Security>{hw:helloworld($sec/s:Name/text())}</Security>
+
+

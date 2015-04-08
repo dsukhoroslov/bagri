@@ -25,6 +25,7 @@ import com.bagri.xdm.cache.hazelcast.task.schema.SchemaActivator;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaUpdater;
 import com.bagri.xdm.client.common.impl.XDMModelManagementBase;
 import com.bagri.xdm.system.XDMIndex;
+import com.bagri.xdm.system.XDMModule;
 import com.bagri.xdm.system.XDMSchema;
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.client.impl.HazelcastClientInstanceImpl;
@@ -285,6 +286,38 @@ public class SchemaManager extends EntityManager<XDMSchema> {
 	boolean enableIndex(String name, boolean enable) {
 		XDMSchema schema = getEntity();
 		if (schema.enableIndex(name, enable)) {
+			// store schema!
+			flushEntity(schema);
+			return true;
+		}
+		return false;
+	}
+
+	XDMModule addModule(String name, String fileName, String description, String text) {
+		XDMModule module = new XDMModule(1, new Date(), JMXUtils.getCurrentUser(), name, 
+				fileName, description, text, true);
+		XDMSchema schema = getEntity();
+		if (schema.addModule(module)) {
+			// store schema!
+			flushEntity(schema);
+			return module;
+		}
+		return null;
+	}
+	
+	boolean deleteModule(String name) {
+		XDMSchema schema = getEntity();
+		if (schema.removeModule(name) != null) {
+			// store schema!
+			flushEntity(schema);
+			return true;
+		}
+		return false;
+	}
+
+	boolean enableModule(String name, boolean enable) {
+		XDMSchema schema = getEntity();
+		if (schema.enableModule(name, enable)) {
 			// store schema!
 			flushEntity(schema);
 			return true;

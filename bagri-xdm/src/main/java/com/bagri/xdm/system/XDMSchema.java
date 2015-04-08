@@ -23,7 +23,8 @@ import com.bagri.xdm.common.XDMEntity;
 		"active", 
 		"description", 
 		"props",
-		"indexes"
+		"indexes",
+		"modules"
 })
 public class XDMSchema extends XDMEntity {
 
@@ -44,6 +45,10 @@ public class XDMSchema extends XDMEntity {
 	@XmlElement(name="index")
 	@XmlElementWrapper(name="indexes")
 	private Set<XDMIndex> indexes = new HashSet<XDMIndex>();
+	
+	@XmlElement(name="module")
+	@XmlElementWrapper(name="modules")
+	private Set<XDMModule> modules = new HashSet<XDMModule>();
 	
 	public XDMSchema() {
 		// we need it for JAXB
@@ -128,6 +133,35 @@ public class XDMSchema extends XDMEntity {
 		return null;
 	}
 	
+	public Set<XDMModule> getModules() {
+		return modules;
+	}
+	
+	public boolean addModule(XDMModule module) {
+		return modules.add(module);
+	}
+	
+	public boolean enableModule(String name, boolean enable) {
+		for (XDMModule module: modules) {
+			if (name.equals(module.getName())) {
+				return module.setEnabled(enable);
+			}
+		}
+		return false;
+	}
+
+	public XDMModule removeModule(String name) {
+		for (XDMModule module: modules) {
+			if (name.equals(module.getName())) {
+				if (modules.remove(module)) {
+					return module;
+				}
+				break;
+			}
+		}
+		return null;
+	}
+	
 	@Override
 	public int hashCode() {
 		return 31 + name.hashCode();
@@ -153,7 +187,8 @@ public class XDMSchema extends XDMEntity {
 		return "XDMSchema [name=" + name + ", version=" + getVersion() + 
 			", description=" + description + ", active=" + active + 
 			", created at=" + getCreatedAt() + ", by=" + getCreatedBy() + 
-			", props=" + props + ", indexes=" + indexes + "]";
+			", props=" + props + ", indexes=" + indexes +
+			", modules=" + modules + "]";
 	}
 	
 	
