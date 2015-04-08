@@ -317,7 +317,6 @@ public class QueryManagementImpl implements XDMQueryManagement {
 			if (values.size() == 1) {
 		   		qp = new QueryPredicate(pex, values.iterator().next());
 			} else {
-				// fix this..
 				qp = new QueryPredicate(pex, value);
 			}
 		} else {

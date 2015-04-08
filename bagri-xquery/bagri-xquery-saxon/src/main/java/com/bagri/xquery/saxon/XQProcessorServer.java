@@ -15,6 +15,7 @@ import javax.xml.xquery.XQItemAccessor;
 import javax.xml.xquery.XQQueryException;
 import javax.xml.xquery.XQStaticContext;
 
+import net.sf.saxon.lib.ModuleURIResolver;
 import net.sf.saxon.om.Item;
 import net.sf.saxon.om.NamePool;
 import net.sf.saxon.om.SequenceIterator;
@@ -66,9 +67,11 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
     	//CollectionURIResolver old = bcr;
     	bcr = new CollectionURIResolverImpl(xRepo);
         config.setCollectionURIResolver(bcr);
-        SourceResolverImpl resolver = new SourceResolverImpl(xRepo);
-        config.setSourceResolver(resolver);
-        config.registerExternalObjectModel(resolver);
+        SourceResolverImpl sResolver = new SourceResolverImpl(xRepo);
+        config.setSourceResolver(sResolver);
+        config.registerExternalObjectModel(sResolver);
+        ModuleURIResolver mResolver = new ModuleURIResolverImpl(xRepo);
+        config.setModuleURIResolver(mResolver);
     }
 
     //@Override
@@ -144,6 +147,9 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
    	    XDMQuery xQuery = qMgr.getQuery(query);
    	    boolean cacheable = false;
 
+	    //logger.trace("execQuery; module resolver: {}", config.getModuleURIResolver());
+	    sqc.setModuleURIResolver(config.getModuleURIResolver());
+   	    
    	    try {
     	    if (xQuery == null) {
 		        xqExp = sqc.compileQuery(query);
