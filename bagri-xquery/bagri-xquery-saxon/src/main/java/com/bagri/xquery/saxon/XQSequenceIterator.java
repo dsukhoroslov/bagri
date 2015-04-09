@@ -48,8 +48,6 @@ public class XQSequenceIterator implements Iterator {
 		this.xqFactory = xqFactory;
 		this.iter = iter;
 		try {
-			// profile: it takes 3.52 ms to do 2 next!
-			// changed to have only 1
 			next = iter.next();
 		} catch (XPathException e) {
 			//
@@ -288,11 +286,12 @@ public class XQSequenceIterator implements Iterator {
         } else if (item instanceof Sequence) {
         	Sequence sq = (Sequence) item;
         	SequenceIterator itr = sq.iterate();
-        	List list = new ArrayList();
-        	for (Item itm = itr.next(); itm != null;) {
-        		list.add(itemToXQItem(itm));
-        	}
-        	xqFactory.createSequence(list.iterator());
+        	//List list = new ArrayList();
+        	//for (Item itm = itr.next(); itm != null;) {
+        	//	list.add(itemToXQItem(itm));
+        	//}
+        	//xqFactory.createSequence(list.iterator());
+        	xqFactory.createSequence(new XQSequenceIterator(xqFactory, itr));
         }
         return null; //item.;
     }

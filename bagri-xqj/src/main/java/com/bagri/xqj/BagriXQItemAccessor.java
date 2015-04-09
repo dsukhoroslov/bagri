@@ -288,8 +288,6 @@ public abstract class BagriXQItemAccessor implements XQItemAccessor {
 		if (value == null) {
 			throw new XQException("Value is not accessible");
 		}
-        //return "<e>" + value.toString() + "</e>";
-		//return BagriXQUtils.itemToString(value);
 		return xqProcessor.convertToString(value);
 	}
 
