@@ -70,7 +70,7 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
         SourceResolverImpl sResolver = new SourceResolverImpl(xRepo);
         config.setSourceResolver(sResolver);
         config.registerExternalObjectModel(sResolver);
-        ModuleURIResolver mResolver = new ModuleURIResolverImpl(xRepo);
+        ModuleURIResolver mResolver = new ModuleURIResolverImpl((com.bagri.xdm.cache.api.XDMRepository) xRepo);
         config.setModuleURIResolver(mResolver);
     }
 
@@ -148,7 +148,7 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
    	    boolean cacheable = false;
 
 	    //logger.trace("execQuery; module resolver: {}", config.getModuleURIResolver());
-	    sqc.setModuleURIResolver(config.getModuleURIResolver());
+	    //sqc.setModuleURIResolver(config.getModuleURIResolver());
    	    
    	    try {
     	    if (xQuery == null) {

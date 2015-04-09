@@ -103,10 +103,10 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
 		
 		switch (feature) {
 			case xqf_Update: 
-			case xqf_Serialization: return true;
+			case xqf_Serialization: 
+			case xqf_Transaction: return true;
 
 			case xqf_XQueryX: 
-			case xqf_Transaction: 
 			case xqf_Full_Axis:
 			case xqf_Schema_Import:
 			case xqf_Schema_Validation:

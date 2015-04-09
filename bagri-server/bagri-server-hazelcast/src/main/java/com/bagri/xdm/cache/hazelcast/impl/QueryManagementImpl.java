@@ -289,7 +289,7 @@ public class QueryManagementImpl implements XDMQueryManagement {
 				}
 			} else {
 				docIds = idxMgr.getIndexedDocuments(pathId, value.toString());
-			}
+			} 
 			logger.trace("queryPathKeys; search for index - got ids: {}", docIds); 
 			if (docIds != null) {
 				docIds = (Set<Long>) checkDocumentsCommited(docIds);
