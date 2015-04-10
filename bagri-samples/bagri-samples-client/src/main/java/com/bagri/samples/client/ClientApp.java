@@ -221,7 +221,8 @@ public class ClientApp {
 		}
 
 		String query = "declare namespace bgdm=\"http://bagri.com/bagri-xdm\";\n" +
-				"declare variable $sec external;\n\n" + 
+				"declare variable $sec external;\n" + 
+				"declare option bgdm:document-format \"JSON\";\n\n" + 
 				//"return bgdm:store-document($sec)\n";
 				"for $id in bgdm:store-document($sec)\n" +
 				"return $id\n";

@@ -150,6 +150,9 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 	    //logger.trace("execQuery; module resolver: {}", config.getModuleURIResolver());
 	    sqc.setModuleURIResolver(config.getModuleURIResolver());
    	    
+		//"declare option bgdm:document-format \"JSON\";\n\n" +
+	    //check query and get 
+	    
    	    try {
     	    if (xQuery == null) {
 		        xqExp = sqc.compileQuery(query);

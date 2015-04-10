@@ -41,6 +41,8 @@ public class StoreDocument extends ExtensionFunctionDefinition {
 	@Override
 	public ExtensionFunctionCall makeCallExpression() {
 
+		//"declare option bgdm:document-format \"JSON\";\n\n" +
+
 		return new ExtensionFunctionCall() {
 
 			@Override
@@ -51,6 +53,10 @@ public class StoreDocument extends ExtensionFunctionDefinition {
 				XDMDocument doc = xdm.storeDocumentFromString(0, null, xml);
 				return new Int64Value(doc.getDocumentId());
 			}
-        };
+
+			// think to override it, get ctx and take document-format option from it somehow
+			//this.supplyStaticContext(context, locationId, arguments);
+			
+		};
 	} 
 }
