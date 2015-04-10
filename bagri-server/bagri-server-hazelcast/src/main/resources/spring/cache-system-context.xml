@@ -44,6 +44,7 @@
 					<hz:serializer type-class="com.bagri.xdm.system.XDMNode" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMNodeSerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.system.XDMSchema" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMSchemaSerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.system.XDMIndex" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMIndexSerializer"/>
+					<hz:serializer type-class="com.bagri.xdm.system.XDMModule" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMModuleSerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.system.XDMRole" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMRoleSerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.system.XDMUser" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMUserSerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.system.XDMPermission" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMPermissionSerializer"/>

@@ -121,6 +121,15 @@ public class XDMSchema extends XDMEntity {
 		return false;
 	}
 
+	public XDMIndex getIndex(String name) {
+		for (XDMIndex index: indexes) {
+			if (name.equals(index.getName())) {
+				return index;
+			}
+		}
+		return null;
+	}
+
 	public XDMIndex removeIndex(String name) {
 		for (XDMIndex index: indexes) {
 			if (name.equals(index.getName())) {
@@ -148,6 +157,15 @@ public class XDMSchema extends XDMEntity {
 			}
 		}
 		return false;
+	}
+
+	public XDMModule getModule(String name) {
+		for (XDMModule module: modules) {
+			if (name.equals(module.getName())) {
+				return module;
+			}
+		}
+		return null;
 	}
 
 	public XDMModule removeModule(String name) {

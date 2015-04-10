@@ -148,7 +148,7 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
    	    boolean cacheable = false;
 
 	    //logger.trace("execQuery; module resolver: {}", config.getModuleURIResolver());
-	    //sqc.setModuleURIResolver(config.getModuleURIResolver());
+	    sqc.setModuleURIResolver(config.getModuleURIResolver());
    	    
    	    try {
     	    if (xQuery == null) {

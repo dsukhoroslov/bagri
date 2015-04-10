@@ -40,6 +40,7 @@ public class ModuleManagement extends SchemaFeatureManagement {
 	public TabularData getModules() {
 		XDMSchema schema = schemaManager.getEntity();
 		Set<XDMModule> modules = schema.getModules();
+        logger.trace("getModules; modules: {}", modules);
 		if (modules.size() == 0) {
 			return null;
 		}

@@ -77,6 +77,11 @@
 				<hz:near-cache time-to-live-seconds="0" max-idle-seconds="0" eviction-policy="LRU" 
 					max-size="0" invalidate-on-change="true" in-memory-format="OBJECT"/>
 			</hz:map>
+			<hz:map name="dict-module" in-memory-format="OBJECT" async-backup-count="${xdm.schema.dict.backup.async}" 
+				backup-count="${xdm.schema.dict.backup.sync}" read-backup-data="${xdm.schema.dict.backup.read}">
+				<hz:near-cache time-to-live-seconds="0" max-idle-seconds="0" eviction-policy="LRU" 
+					max-size="0" invalidate-on-change="true" in-memory-format="OBJECT"/>
+			</hz:map>
 			
 			<hz:map name="xdm-document" in-memory-format="OBJECT" async-backup-count="${xdm.schema.data.backup.async}" 
 				backup-count="${xdm.schema.data.backup.sync}" read-backup-data="${xdm.schema.data.backup.read}">
@@ -171,9 +176,10 @@
 					<hz:serializer type-class="com.bagri.xdm.domain.XDMNamespace" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMNamespaceSerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.domain.XDMQuery" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMQuerySerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.domain.XDMResults" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMResultsSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.system.XDMIndex" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMIndexSerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.domain.XDMIndexedValue" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMIndexedValueSerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.domain.XDMTransaction" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMTransactionSerializer"/>
+					<hz:serializer type-class="com.bagri.xdm.system.XDMIndex" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMIndexSerializer"/>
+					<hz:serializer type-class="com.bagri.xdm.system.XDMModule" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMModuleSerializer"/>
 					<hz:serializer type-class="javax.xml.xquery.XQItemType" implementation="xqItemTypeSerializer"/>
 					<hz:serializer type-class="javax.xml.xquery.XQItem" implementation="xqItemSerializer"/>
 					<hz:serializer type-class="javax.xml.xquery.XQSequence" implementation="xqSequenceSerializer"/>
@@ -203,6 +209,7 @@
 	<hz:map id="dict-path" name="dict-path" instance-ref="hzInstance" />
 	<hz:map id="dict-namespace" name="dict-namespace" instance-ref="hzInstance" />
 	<hz:map id="dict-index" name="dict-index" instance-ref="hzInstance" />
+	<hz:map id="dict-module" name="dict-module" instance-ref="hzInstance" />
 
 	<hz:atomicLong id="xdm.document" name="xdm.document" instance-ref="hzInstance"/>
 	<!--hz:atomicLong id="xdm.element" name="xdm.element" instance-ref="hzInstance"/-->
