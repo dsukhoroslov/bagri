@@ -152,6 +152,8 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
    	    
 		//"declare option bgdm:document-format \"JSON\";\n\n" +
 	    //check query and get 
+	    //sqc.getExecutable().
+	    //dqc.
 	    
    	    try {
     	    if (xQuery == null) {

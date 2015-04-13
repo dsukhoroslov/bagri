@@ -175,6 +175,9 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	public XDMDocument createDocument(Entry<XDMDocumentKey, XDMDocument> entry, String uri, String xml) {
 		logger.trace("createDocument.enter; entry: {}", entry);
 
+		// TODO: check from Repo context, if document-format is
+		// XML or JSON or something else..
+		
 		// TODO: move this out & refactor ?
 		XDMStaxParser parser = new XDMStaxParser(model);
 		List<XDMData> data;

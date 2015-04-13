@@ -291,6 +291,7 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
 
         try {
 	        final XQueryExpression exp = sqc.compileQuery(query);
+	        // why do we do this? to populate dqc with params??
 	        List results = exp.evaluate(dqc);
 	        for (Object result: results) {
 	            logger.trace("result: {}; class: {}", result, result.getClass().getName());

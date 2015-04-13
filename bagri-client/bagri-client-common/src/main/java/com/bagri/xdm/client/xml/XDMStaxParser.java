@@ -45,8 +45,7 @@ public class XDMStaxParser {
 	private long elementId;
 
 	public static List<XDMData> parseDocument(XDMModelManagement dictionary, String xml) throws IOException, XMLStreamException {
-		XDMStaxParser parser;
-		parser = new XDMStaxParser(dictionary);
+		XDMStaxParser parser = new XDMStaxParser(dictionary);
 		return parser.parse(xml);
 	}
 	

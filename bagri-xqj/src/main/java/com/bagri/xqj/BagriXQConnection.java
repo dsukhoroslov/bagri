@@ -25,8 +25,8 @@ import static com.bagri.xqj.BagriXQConstants.ex_null_context;
 public class BagriXQConnection extends BagriXQDataFactory implements XQConnection {
 	
 	private long txId;
-	private boolean autoCommit;
-	private boolean transactional;
+	private boolean autoCommit = true; // default value
+	private boolean transactional = true; // default value
 	private BagriXQMetaData metaData;
 	private BagriXQStaticContext context;
 	
@@ -34,7 +34,11 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 
 		metaData = new BagriXQMetaData(this, null);
 		context = new BagriXQStaticContext();
-		this.transactional = false;
+		try {
+			transactional = metaData.isTransactionSupported();
+		} catch (XQException ex) {
+			transactional = false;
+		}
 	}
 
 	public BagriXQConnection(String address, boolean transactional) {
@@ -48,7 +52,11 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 
 		metaData = new BagriXQMetaData(this, username);
 		context = new BagriXQStaticContext();
-		this.transactional = false;
+		try {
+			transactional = metaData.isTransactionSupported();
+		} catch (XQException ex) {
+			transactional = false;
+		}
 	}
 	
 	public BagriXQConnection(String address, String username, String password, boolean transactional) {
@@ -98,11 +106,12 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 	@Override
 	public void commit() throws XQException {
 
+		checkConnection();
+		if (autoCommit) {
+	        throw new XQException("The connection is in AutoCommit state, nothing to commit explicitly.");
+		}
+
 		if (transactional) {
-			if (autoCommit) {
-		        logger.info("commit; The connection is in AutoCommit state, nothing to commit explicitly.");
-		        return;
-			}
 			getTxManager().commitTransaction(txId);
 			txId = TX_NO;
 		}
@@ -111,6 +120,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 	@Override
 	public boolean getAutoCommit() throws XQException {
 		
+		checkConnection();
 		return autoCommit;
 	}
 
@@ -121,11 +131,12 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 	@Override
 	public void rollback() throws XQException {
 		
+		checkConnection();
+		if (autoCommit) {
+	        throw new XQException("The connection is in AutoCommit state, nothing to rollback explicitly.");
+		}
+
 		if (transactional) {
-			if (autoCommit) {
-		        logger.info("rollback; The connection is in AutoCommit state, nothing to rollback explicitly.");
-		        return;
-			}
 			getTxManager().rollbackTransaction(txId);
 			txId = TX_NO;
 		}
@@ -134,8 +145,8 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 	@Override
 	public void setAutoCommit(boolean autoCommit) throws XQException {
 
+		checkConnection();
 		if (this.autoCommit == autoCommit) {
-			// no-op
 			return;
 		}
 		if (transactional) {
@@ -143,8 +154,8 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 				getTxManager().commitTransaction(txId);
 				txId = TX_NO;
 			}
-			this.autoCommit = autoCommit;
 		}
+		this.autoCommit = autoCommit;
 	}
 	
 	public boolean isTransactional() {
