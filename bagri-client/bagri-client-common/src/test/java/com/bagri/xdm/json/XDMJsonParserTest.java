@@ -10,7 +10,7 @@ import org.junit.Test;
 
 import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.client.json.XDMJsonParser;
-import com.bagri.xdm.domain.XDMElement;
+import com.bagri.xdm.domain.XDMData;
 
 public class XDMJsonParserTest {
 
@@ -69,8 +69,9 @@ public class XDMJsonParserTest {
 		//"\t\"messages\":[\"msg 1\",\"msg 2\",\"msg 3\"]\n" +
 		//"}";
 		try {
-			List<XDMElement> elts = parser.parse(json);
-			assertNull(elts);
+			List<XDMData> elts = parser.parse(json);
+			assertNotNull(elts);
+			assertTrue(elts.size() > 0);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

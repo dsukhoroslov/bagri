@@ -2,6 +2,7 @@ package com.bagri.xdm.client.json;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
@@ -42,161 +43,156 @@ public class XDMJsonParser {
 	
 	private static final Logger logger = LoggerFactory.getLogger(XDMJsonParser.class);
 
-	private static XMLInputFactory factory = XMLInputFactory.newInstance();
-	private StringBuilder chars;
-	private List<JsonToken> firstTokens;
+	private static JsonFactory factory = new JsonFactory();
+
 	private List<XDMData> dataList;
 	private Stack<XDMData> dataStack;
 	private XDMModelManagement dict;
 	private int docType = -1;
 	private long elementId;
 
-	public static List<XDMElement> parseDocument(XDMModelManagement dictionary, String xml) throws IOException {
+	public static List<XDMData> parseDocument(XDMModelManagement dictionary, String json) throws IOException {
 		XDMJsonParser parser = new XDMJsonParser(dictionary);
-		return parser.parse(xml);
+		return parser.parse(json);
 	}
 	
 	public XDMJsonParser(XDMModelManagement dict) {
 		this.dict = dict;
 	}
 
-	public List<XDMElement> parse(String json) throws IOException { //, XMLStreamException {
-		JsonFactory jfactory = new JsonFactory();
-		JsonParser jParser = jfactory.createParser(json);	
-		return parse(jParser);
+	public List<XDMData> parse(String json) throws IOException { 
+		try (Reader reader = new StringReader(json)) {
+			return parse(reader);
+		}
 	}
 	
-	public List<XDMElement> parse(File file) throws IOException { //, XMLStreamException {
-		JsonFactory jfactory = new JsonFactory();
-		JsonParser jParser = jfactory.createParser(file);	
-		return parse(jParser);
+	public List<XDMData> parse(File file) throws IOException {
+		try (Reader reader = new FileReader(file)) {
+			return parse(reader);
+		}
 	}
 	
-	public List<XDMElement> parse(InputStream stream) throws IOException { //, XMLStreamException {
-		JsonFactory jfactory = new JsonFactory();
-		JsonParser jParser = jfactory.createParser(stream);	
-		return parse(jParser);
+	public List<XDMData> parse(InputStream stream) throws IOException {
+		
+		JsonParser jParser = null;
+		try {
+			jParser = factory.createParser(stream);	
+			return parse(jParser);
+		} finally {
+			if (jParser != null) {
+				jParser.close();
+			}
+		}
 	}
 	
-	public List<XDMElement> parse(Reader reader) throws IOException { //, XMLStreamException {
-		JsonFactory jfactory = new JsonFactory();
-		JsonParser jParser = jfactory.createParser(reader);	
-		return parse(jParser);
+	public List<XDMData> parse(Reader reader) throws IOException {
+		
+		JsonParser jParser = null;
+		try {
+			jParser = factory.createParser(reader);	
+			return parse(jParser);
+		} finally {
+			if (jParser != null) {
+				jParser.close();
+			}
+		}
 	}
-/*	
-	public List<XDMData> parse(XMLEventReader eventReader) throws IOException, XMLStreamException {
+
+	public List<XDMData> parse(JsonParser parser) throws IOException {
+		
+		logger.trace("parse.enter; context: {}; schema: {}", parser.getParsingContext(), parser.getSchema());
 		
 		init();
-		while (eventReader.hasNext()) {
-			processEvent(eventReader.nextEvent());
+		while (parser.nextToken() != null) {
+			processToken(parser);
 		}
 
 		List<XDMData> result = dataList;
 		dataList = null;
+		logger.trace("parse.exit; returning {} elements", result); //.size());
 		return result;
 	}
-*/	
-	public List<XDMElement> parse(JsonParser parser) throws IOException { //, XMLStreamException {
+	
+	public void processToken(JsonParser parser) throws IOException { //, XMLStreamException {
 
-		logger.trace("parse.enter; got parser: {}; context: {}", parser, parser.getParsingContext());
+		JsonToken token = parser.getCurrentToken();
+		logger.trace("processToken; got token: {}; name: {}; value: {}", token.name(), parser.getCurrentName(), parser.getText());
 		
-		while (parser.nextToken() != null) {
-			JsonToken token = parser.getCurrentToken();
-			logger.trace("parse; next token: {}; name: {}; text: {}", token, parser.getCurrentName(), parser.getText());
+		switch (token) {
 			
-			switch (token) {
-			
-				case START_OBJECT:
-					if (dataStack.size() == 0) {
-						processDocument(token);
-					} else {
-						processStartElement(token);
-					}
-					break;
-				case START_ARRAY: 
-				case NOT_AVAILABLE:
-				case FIELD_NAME:
-					break;
-				case END_OBJECT:
-					processEndElement(token);
-					break;
-				case END_ARRAY: 
-				case VALUE_EMBEDDED_OBJECT:
-				case VALUE_FALSE:
-				case VALUE_NULL:
-				case VALUE_NUMBER_FLOAT:
-				case VALUE_NUMBER_INT:
-				case VALUE_TRUE:
-				case VALUE_STRING:
-					processValue(token.asString());
-					break;
-				default: 
-					logger.trace("parse; unknown token: {}", token);
-			}
-			
+			case START_OBJECT:
+				if (dataStack.size() == 0) {
+					processDocument(token);
+				} 
+			case START_ARRAY: 
+				if (parser.getCurrentName() != null) {
+					processStartElement(parser.getCurrentName());
+				}
+			case NOT_AVAILABLE:
+			case FIELD_NAME:
+				break;
+			case END_OBJECT:
+			case END_ARRAY: 
+				if (parser.getCurrentName() != null) {
+					processEndElement();
+				}
+				break;
+			case VALUE_EMBEDDED_OBJECT:
+			case VALUE_FALSE:
+			case VALUE_NULL:
+			case VALUE_NUMBER_FLOAT:
+			case VALUE_NUMBER_INT:
+			case VALUE_TRUE:
+			case VALUE_STRING:
+				processStartElement(parser.getCurrentName());
+				processValueElement(parser.getText());
+				break;
+			default: 
+				logger.trace("parse; unknown token: {}", token);
 		}			
-		logger.trace("parse.exit; context: {}; schema: {}", parser.getParsingContext(), parser.getSchema());
-		parser.close();
-		
-		return null;
 	}
 
 	private void cleanup() {
-		chars = null;
-		firstTokens = null;
 		dataStack = null;
 	}
 
 	private void init() {
-		firstTokens = new ArrayList<JsonToken>();
 		dataList = new ArrayList<XDMData>();
 		dataStack = new Stack<XDMData>();
 		docType = -1;
 		elementId = 0;
-		chars = new StringBuilder();
 	}
 	
 	private void processDocument(JsonToken document) {
 
-		//logger.trace("document: {}", document);
 		XDMElement start = new XDMElement();
 		start.setElementId(elementId++);
 		//start.setParentId(0); // -1 ?
-		XDMPath path = dict.translatePath(docType, "", XDMNodeKind.document);
+		XDMPath path = getPath("", XDMNodeKind.document);
 		XDMData data = new XDMData(path, start);
 		dataStack.add(data);
 		dataList.add(data);
 	}
 
 	@SuppressWarnings("unchecked")
-	private void processStartElement(JsonToken element) {
+	private void processStartElement(String name) {
 		
 		XDMData parent = dataStack.peek();
-		XDMData current = addData(parent, XDMNodeKind.element, "/" + element.name(), null); 
+		XDMData current = addData(parent, XDMNodeKind.element, "/" + name, null); 
 		dataStack.add(current);
 
 	}
 
-	private void processEndElement(JsonToken element) {
+	private void processEndElement() {
 
-		XDMData current = dataStack.pop();
-		if (chars.length() > 0) {
-			String content = chars.toString();
-			// normalize xml content.. what if it is already normalized??
-			content = content.replaceAll("&", "&amp;");
-			// trim left/right ? this is schema-dependent. trim if schema-type 
-			// is xs:token, for instance..
-			XDMData text = addData(current, XDMNodeKind.text, "/text()", content); 
-			chars.delete(0, chars.length());
-			//logger.trace("text: {}", text);
-		}
+		dataStack.pop();
 	}
-	
-	private void processValue(String value) {
 
-		//if (characters.getData().trim().length() > 0) {
-			chars.append(value);
-		//}
+	private void processValueElement(String value) {
+		
+		XDMData current = dataStack.pop();
+		//String content = value.replaceAll("&", "&amp;");
+		addData(current, XDMNodeKind.text, "/text()", value);
 	}
 	
 	private XDMData addData(XDMData parent, XDMNodeKind kind, String name, String value) {
@@ -206,9 +202,14 @@ public class XDMJsonParser {
 		xElt.setParentId(parent.getElementId());
 		String path = parent.getPath() + name;
 		xElt.setValue(value);
-		XDMPath xPath = dict.translatePath(docType, path, kind);
+		XDMPath xPath = getPath(path, kind);
 		XDMData xData = new XDMData(xPath, xElt);
 		dataList.add(xData);
 		return xData;
+	}
+	
+	private XDMPath getPath(String path, XDMNodeKind kind) {
+		//return dict.translatePath(docType, path, kind);
+		return new XDMPath(path, 0, kind, 0, 0, 0);
 	}
 }
