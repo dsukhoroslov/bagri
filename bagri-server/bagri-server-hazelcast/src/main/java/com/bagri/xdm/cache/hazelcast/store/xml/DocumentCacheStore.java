@@ -41,6 +41,7 @@ import com.bagri.xdm.domain.XDMData;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMElements;
 import com.bagri.xdm.domain.XDMNodeKind;
+import com.bagri.xdm.domain.XDMParser;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.IdGenerator;
@@ -120,7 +121,7 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<XDMDoc
 	    		uri = path.toUri().toString();
         		try {
         			String xml = FileUtils.readTextFile(ddh.uri);
-    	    		XDMStaxParser parser = new XDMStaxParser(schemaDict);
+    	    		XDMParser parser = docMgr.getXdmFactory().newXDMParser(XDMParser.df_xml, schemaDict);
         			//List<XDMData> data = parser.parse(new File(ddh.uri));
         			List<XDMData> data = parser.parse(xml);         			
         			int docType = docMgr.loadElements(docId.getKey(), data); 
@@ -132,7 +133,7 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<XDMDoc
 		        				TX_INIT, TX_NO,	new Date(Files.getLastModifiedTime(path).toMillis()), 
 								Files.getOwner(path).getName(),	def_encoding);
         			}
-				} catch (IOException | XMLStreamException ex) {
+				} catch (IOException ex) {
 					logger.error("loadDocument.error", ex);
 				}
 	    	}

@@ -28,9 +28,10 @@ import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.domain.XDMData;
 import com.bagri.xdm.domain.XDMElement;
 import com.bagri.xdm.domain.XDMNodeKind;
+import com.bagri.xdm.domain.XDMParser;
 import com.bagri.xdm.domain.XDMPath;
 
-public class XDMStaxParser {
+public class XDMStaxParser implements XDMParser {
 
 	private static final Logger logger = LoggerFactory.getLogger(XDMStaxParser.class);
 
@@ -53,62 +54,82 @@ public class XDMStaxParser {
 		this.dict = dict;
 	}
 
-	public List<XDMData> parse(String xml) throws IOException, XMLStreamException {
+	@Override
+	public List<XDMData> parse(String xml) throws IOException {
 		try (Reader reader = new StringReader(xml)) {
 			return parse(reader);
 		}
 	}
 	
-	public List<XDMData> parse(File file) throws IOException, XMLStreamException {
+	@Override
+	public List<XDMData> parse(File file) throws IOException {
 		try (Reader reader = new FileReader(file)) {
 			return parse(reader);
 		}
 	}
 	
-	public List<XDMData> parse(InputStream stream) throws IOException, XMLStreamException {
+	@Override
+	public List<XDMData> parse(InputStream stream) throws IOException {
 		
 		XMLEventReader eventReader = null;
 		try {
-			eventReader = factory.createXMLEventReader(stream); 
-			return parse(eventReader);
-		} finally {
-			if (eventReader != null) {
-				eventReader.close();
+			try {
+				eventReader = factory.createXMLEventReader(stream); 
+				return parse(eventReader);
+			} finally {
+				if (eventReader != null) {
+					eventReader.close();
+				}
 			}
+		} catch (XMLStreamException ex) {
+			throw new IOException(ex);
 		}
 	}
 	
-	public List<XDMData> parse(Reader reader) throws IOException, XMLStreamException {
+	@Override
+	public List<XDMData> parse(Reader reader) throws IOException {
 		
 		XMLEventReader eventReader = null;
 		try {
-			eventReader = factory.createXMLEventReader(reader); 
-			return parse(eventReader);
-		} finally {
-			if (eventReader != null) {
-				eventReader.close();
+			try {
+				eventReader = factory.createXMLEventReader(reader); 
+				return parse(eventReader);
+			} finally {
+				if (eventReader != null) {
+					eventReader.close();
+				}
 			}
+		} catch (XMLStreamException ex) {
+			throw new IOException(ex);
 		}
 	}
 	
-	public List<XDMData> parse(Source source) throws IOException, XMLStreamException {
+	public List<XDMData> parse(Source source) throws IOException {
 		
 		XMLEventReader eventReader = null;
 		try {
-			eventReader = factory.createXMLEventReader(source); 
-			return parse(eventReader);
-		} finally {
-			if (eventReader != null) {
-				eventReader.close();
+			try {
+				eventReader = factory.createXMLEventReader(source); 
+				return parse(eventReader);
+			} finally {
+				if (eventReader != null) {
+					eventReader.close();
+				}
 			}
+		} catch (XMLStreamException ex) {
+			throw new IOException(ex);
 		}
 	}
 	
-	public List<XDMData> parse(XMLEventReader eventReader) throws IOException, XMLStreamException {
+	public List<XDMData> parse(XMLEventReader eventReader) throws IOException {
 		
 		init();
 		while (eventReader.hasNext()) {
-			processEvent(eventReader.nextEvent());
+			try {
+				processEvent(eventReader.nextEvent());
+			} catch (XMLStreamException ex) {
+				throw new IOException(ex);
+			}
 		}
 
 		List<XDMData> result = dataList;

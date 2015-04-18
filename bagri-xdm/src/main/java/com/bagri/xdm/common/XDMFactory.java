@@ -1,6 +1,8 @@
 package com.bagri.xdm.common;
 
+import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.domain.XDMElement;
+import com.bagri.xdm.domain.XDMParser;
 
 public interface XDMFactory {
 	
@@ -9,5 +11,7 @@ public interface XDMFactory {
 	XDMDataKey newXDMDataKey(long documentKey, int pathId);
 	XDMIndexKey newXDMIndexKey(int pathId, Object value);
 	XDMElement newXDMData();
+	
+	XDMParser newXDMParser(String dataFormat, XDMModelManagement model);
 
 }

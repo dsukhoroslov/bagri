@@ -3,14 +3,18 @@
  */
 package com.bagri.xdm.cache.hazelcast.impl;
 
+import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.client.hazelcast.data.DocumentKey;
 import com.bagri.xdm.client.hazelcast.data.DocumentPathKey;
 import com.bagri.xdm.client.hazelcast.data.PathIndexKey;
+import com.bagri.xdm.client.json.XDMJsonParser;
+import com.bagri.xdm.client.xml.XDMStaxParser;
 import com.bagri.xdm.common.XDMDataKey;
 import com.bagri.xdm.common.XDMDocumentKey;
 import com.bagri.xdm.common.XDMFactory;
 import com.bagri.xdm.common.XDMIndexKey;
 import com.bagri.xdm.domain.XDMElement;
+import com.bagri.xdm.domain.XDMParser;
 
 /**
  * @author Denis Sukhoroslov: dsukhoroslov@gmail.com
@@ -60,4 +64,15 @@ public final class XDMFactoryImpl implements XDMFactory {
 	}
 
 
+	/* (non-Javadoc)
+	 * @see com.bagri.xdm.common.XDMFactory#newXDMParser()
+	 */
+	@Override
+	public XDMParser newXDMParser(String dataFormat, XDMModelManagement model) {
+		if (XDMParser.df_json.equals(dataFormat)) {
+			return new XDMJsonParser(model);
+		}
+		return new XDMStaxParser(model);
+	}
+	
 }

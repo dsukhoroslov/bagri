@@ -33,6 +33,7 @@ import com.bagri.xdm.domain.XDMData;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMElement;
 import com.bagri.xdm.domain.XDMElements;
+import com.bagri.xdm.domain.XDMParser;
 import com.bagri.xdm.domain.XDMPath;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
@@ -179,11 +180,12 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		// XML or JSON or something else..
 		
 		// TODO: move this out & refactor ?
-		XDMStaxParser parser = new XDMStaxParser(model);
+		// TODO: get actual data format from context!
+		XDMParser parser = factory.newXDMParser(XDMParser.df_xml, model);
 		List<XDMData> data;
 		try {
 			data = parser.parse(xml);
-		} catch (IOException | XMLStreamException ex) {
+		} catch (IOException ex) {
 			logger.debug("createDocument.error", ex); 
 			throw new IllegalArgumentException(ex);
 		}

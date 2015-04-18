@@ -34,12 +34,13 @@ import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.domain.XDMData;
 import com.bagri.xdm.domain.XDMElement;
 import com.bagri.xdm.domain.XDMNodeKind;
+import com.bagri.xdm.domain.XDMParser;
 import com.bagri.xdm.domain.XDMPath;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
-public class XDMJsonParser {
+public class XDMJsonParser implements XDMParser {
 	
 	private static final Logger logger = LoggerFactory.getLogger(XDMJsonParser.class);
 
@@ -60,18 +61,21 @@ public class XDMJsonParser {
 		this.dict = dict;
 	}
 
+	@Override
 	public List<XDMData> parse(String json) throws IOException { 
 		try (Reader reader = new StringReader(json)) {
 			return parse(reader);
 		}
 	}
 	
+	@Override
 	public List<XDMData> parse(File file) throws IOException {
 		try (Reader reader = new FileReader(file)) {
 			return parse(reader);
 		}
 	}
 	
+	@Override
 	public List<XDMData> parse(InputStream stream) throws IOException {
 		
 		JsonParser jParser = null;
@@ -85,6 +89,7 @@ public class XDMJsonParser {
 		}
 	}
 	
+	@Override
 	public List<XDMData> parse(Reader reader) throws IOException {
 		
 		JsonParser jParser = null;
@@ -209,7 +214,7 @@ public class XDMJsonParser {
 	}
 	
 	private XDMPath getPath(String path, XDMNodeKind kind) {
-		//return dict.translatePath(docType, path, kind);
-		return new XDMPath(path, 0, kind, 0, 0, 0);
+		return dict.translatePath(docType, path, kind);
+		//return new XDMPath(path, 0, kind, 0, 0, 0);
 	}
 }
