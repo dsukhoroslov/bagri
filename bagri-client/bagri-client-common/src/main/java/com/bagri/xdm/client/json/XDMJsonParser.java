@@ -127,7 +127,7 @@ public class XDMJsonParser implements XDMParser {
 			
 			case START_OBJECT:
 				if (dataStack.size() == 0) {
-					processDocument(token);
+					processDocument(parser.nextFieldName());
 				} 
 			case START_ARRAY: 
 				if (parser.getCurrentName() != null) {
@@ -168,11 +168,13 @@ public class XDMJsonParser implements XDMParser {
 		elementId = 0;
 	}
 	
-	private void processDocument(JsonToken document) {
+	private void processDocument(String name) {
 
 		XDMElement start = new XDMElement();
 		start.setElementId(elementId++);
 		//start.setParentId(0); // -1 ?
+		String root = "/" + (name == null ? "" : name);
+		docType = dict.translateDocumentType(root);
 		XDMPath path = getPath("", XDMNodeKind.document);
 		XDMData data = new XDMData(path, start);
 		dataStack.add(data);
@@ -183,9 +185,10 @@ public class XDMJsonParser implements XDMParser {
 	private void processStartElement(String name) {
 		
 		XDMData parent = dataStack.peek();
-		XDMData current = addData(parent, XDMNodeKind.element, "/" + name, null); 
-		dataStack.add(current);
-
+		if (!name.equals(parent.getName())) {
+			XDMData current = addData(parent, XDMNodeKind.element, "/" + name, null); 
+			dataStack.add(current);
+		}
 	}
 
 	private void processEndElement() {

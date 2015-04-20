@@ -150,10 +150,11 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 	    //logger.trace("execQuery; module resolver: {}", config.getModuleURIResolver());
 	    sqc.setModuleURIResolver(config.getModuleURIResolver());
    	    
-		//"declare option bgdm:document-format \"JSON\";\n\n" +
 	    //check query and get 
-	    //sqc.getExecutable().
-	    //dqc.
+	    if (query.indexOf("declare option bgdm:document-format \"JSON\"") > 0) {
+	    	properties.setProperty("xdm.document.format", "JSON");
+		    logger.trace("execQuery; set document format: {}", "JSON");
+	    }
 	    
    	    try {
     	    if (xQuery == null) {
@@ -225,7 +226,6 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
         }
 	}
     
-	@SuppressWarnings("unchecked")
 	@Override
     public Iterator executeXQuery(String query, XQStaticContext ctx) throws XQException {
 

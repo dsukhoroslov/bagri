@@ -207,7 +207,8 @@ public class ClientApp {
 	}
 
 	public long storeSecQuery() throws XQException {
-		return storeXmlDocument("security5621.xml");
+		//return storeXmlDocument("security5621.xml");
+		return storeXmlDocument("person.json");
 	}
 	
 	private long storeXmlDocument(String fileName) throws XQException {

@@ -73,6 +73,7 @@ public class QueryManagementImpl implements XDMQueryManagement {
     	this.txMgr = (TransactionManagementImpl) repo.getTxManagement();
     	this.xddCache = docMgr.getDocumentCache();
     	this.xdmCache = docMgr.getElementCache();
+    	docMgr.setRepository(repo);
     }
 
     public void setQueryCache(IMap<Integer, XDMQuery> cache) {

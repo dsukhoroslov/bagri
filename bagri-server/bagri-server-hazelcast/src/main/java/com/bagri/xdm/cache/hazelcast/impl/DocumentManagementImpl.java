@@ -35,6 +35,7 @@ import com.bagri.xdm.domain.XDMElement;
 import com.bagri.xdm.domain.XDMElements;
 import com.bagri.xdm.domain.XDMParser;
 import com.bagri.xdm.domain.XDMPath;
+import com.bagri.xquery.api.XQProcessor;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.IMap;
@@ -43,6 +44,7 @@ import com.hazelcast.query.Predicates;
 
 public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	
+	private RepositoryImpl repo;
     private HazelcastInstance hzInstance;
     //private XDMQueryManagement queryManager;
     private IndexManagementImpl indexManager;
@@ -54,6 +56,12 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	private IMap<XDMDocumentKey, XDMDocument> xddCache;
     private IMap<XDMDataKey, XDMElements> xdmCache;
 
+    public void setRepository(RepositoryImpl repo) {
+    	this.repo = repo;
+    	//this.model = repo.getModelManagement();
+    	this.txManager = (TransactionManagementImpl) repo.getTxManagement();
+    }
+    
     IMap<XDMDocumentKey, String> getXmlCache() {
     	return xmlCache;
     }
@@ -92,9 +100,9 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
     	this.indexManager = indexManager;
     }
     
-    public void setTxManager(TransactionManagementImpl txManager) {
-    	this.txManager = txManager;
-    }
+    //public void setTxManager(TransactionManagementImpl txManager) {
+    //	this.txManager = txManager;
+    //}
 
     //public void setQueryManager(XDMQueryManagement xqManager) {
     //	this.queryManager = xqManager;
@@ -171,17 +179,23 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		XDMDocumentKey docKey = factory.newXDMDocumentKey(docGen.next(), 1); 
 		return createDocument(new AbstractMap.SimpleEntry(docKey, null), uri, xml);
     }
+	
+	private String getDataFormat() {
+		XQProcessor xqp = repo.getXQProcessor();
+		String format = xqp.getProperties().getProperty("xdm.document.format");
+		if (format != null) {
+			return format;
+		}
+		return XDMParser.df_xml;
+	}
     
 	//@Override
 	public XDMDocument createDocument(Entry<XDMDocumentKey, XDMDocument> entry, String uri, String xml) {
 		logger.trace("createDocument.enter; entry: {}", entry);
 
-		// TODO: check from Repo context, if document-format is
-		// XML or JSON or something else..
-		
 		// TODO: move this out & refactor ?
-		// TODO: get actual data format from context!
-		XDMParser parser = factory.newXDMParser(XDMParser.df_xml, model);
+		String dataFormat = getDataFormat();
+		XDMParser parser = factory.newXDMParser(dataFormat, model);
 		List<XDMData> data;
 		try {
 			data = parser.parse(xml);

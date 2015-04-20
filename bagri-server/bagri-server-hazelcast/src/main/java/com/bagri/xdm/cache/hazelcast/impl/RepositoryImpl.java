@@ -14,6 +14,7 @@ import org.springframework.context.ApplicationContextAware;
 import com.bagri.xdm.api.XDMQueryManagement;
 import com.bagri.xdm.cache.api.XDMIndexManagement;
 import com.bagri.xdm.cache.api.XDMRepository;
+import com.bagri.xdm.cache.api.XDMTransactionManagement;
 import com.bagri.xdm.client.common.impl.XDMRepositoryBase;
 import com.bagri.xdm.domain.XDMPath;
 import com.bagri.xdm.system.XDMIndex;
@@ -31,6 +32,14 @@ import com.hazelcast.core.IQueue;
 public class RepositoryImpl extends XDMRepositoryBase implements ApplicationContextAware, ClientListener, XDMRepository {
 
 	private static final transient Logger logger = LoggerFactory.getLogger(RepositoryImpl.class);
+	
+	private ThreadLocal<String> thClient = new ThreadLocal<String>() {
+		
+		@Override
+		protected String initialValue() {
+			return null;
+ 		}
+	};
 	
 	private XDMSchema xdmSchema;
     private XDMIndexManagement indexMgr;
@@ -86,8 +95,14 @@ public class RepositoryImpl extends XDMRepositoryBase implements ApplicationCont
 	HazelcastInstance getHzInstance() {
 		return hzInstance;
 	}
+
+	XQProcessor getXQProcessor() {
+		String clientId = thClient.get();
+		return getXQProcessor(clientId);
+	}
 	
 	XQProcessor getXQProcessor(String clientId) {
+		thClient.set(clientId);
 		XQProcessor result = processors.get(clientId);
 		if (result == null) {
 			result = appContext.getBean(XQProcessor.class, this);
@@ -99,7 +114,7 @@ public class RepositoryImpl extends XDMRepositoryBase implements ApplicationCont
 		logger.trace("getXQProcessor; returning: {}", result);
 		return result;
 	}
-
+	
 	@Override
 	public void close() {
 		// TODO: disconnect all clients ?

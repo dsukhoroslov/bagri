@@ -300,7 +300,8 @@
 		<property name="xmlCache" ref="xdm-xml"/>
 		<property name="modelManager" ref="mdlManager"/>
 		<property name="indexManager" ref="idxManager"/>
-		<property name="txManager" ref="txManager"/>
+		<!--property name="txManager" ref="txManager"/-->
+   		<!--property name="repository" ref="xdmRepo" /-->
 	</bean>
 
 	<bean id="txManager" class="com.bagri.xdm.cache.hazelcast.impl.TransactionManagementImpl">

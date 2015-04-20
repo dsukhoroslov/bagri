@@ -85,6 +85,10 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
         //config.registerExternalObjectModel(resolver);
     }
     
+    public String getProperty(String propName) {
+    	return properties.getProperty(propName);
+    }
+    
     public Properties getProperties() {
     	return properties;
     }
