@@ -9,6 +9,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.bagri.xdm.api.XDMModelManagement;
+import com.bagri.xdm.client.json.XDMJaksonParser;
 import com.bagri.xdm.client.json.XDMJsonParser;
 import com.bagri.xdm.domain.XDMData;
 

@@ -1,0 +1,73 @@
+{
+  "Security": {
+    "-xmlns": "http://tpox-benchmark.com/security",
+    "-xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
+    "-id": "9012",
+    "-xsi:schemaLocation": "http://tpox-benchmark.com/security security.xsd",
+    "Symbol": "PTTAX",
+    "Name": "PIMCO Total Return A",
+    "ShortName": "PIMCO TotRet",
+    "SecurityType": "Bond Fund",
+    "SecurityInformation": {
+      "FundInformation": {
+        "FundFamily": "Fund Family",
+        "AssetGroup": "Asset Group",
+        "FixedIncome": {
+          "-Duration": "Medium Term",
+          "-Quality": "High"
+        },
+        "ExpenseRatio": ".35",
+        "TotalAssets": "8490000000",
+        "MinInitialInvestment": "2500",
+        "MinSubsequentInvestment": "100"
+      },
+      "Description": {
+        "FundDescription": {
+          "#text": [
+            "
+PIMCO Total Return Fund seeks total return consistent with preservation of capital. The fund normally invests at ",
+            ", including U.S. government securities, corporate bonds, and mortgage-related securities. It may invest ",
+            ". The fund may invest ",
+            " rated ",
+            ". The portfolio duration generally ranges from three to six years.
+			"
+          ],
+          "Assets": [
+            "least 65% of assets in debt securities",
+            "up to 20% of assets in securities denominated in foreign currencies",
+            "up to 10% of assets in high yield securities"
+          ],
+          "Rating": "B or higher"
+        },
+        "Management": {
+          "Manager": "William H. Gross, Lead Manager since 11-May-87",
+          "#text": ". 
+Gross is founder and chief investment officer with Pacific Investment Management Company. Mr Gross and his bond team have twice been awarded Morningstars Fixed-Income Manager of the Year award, in 1998 and 2000. In a 1993 survey by Pensions and Investments magazine, he was recognized by his peers as the most influential authority on the bond market in the United States. Gross is a Chartered Financial Analyst and a member of the Los Angeles Society of Financial Analysts. 
+			"
+        }
+      }
+    },
+    "Price": {
+      "LastTrade": "86.23",
+      "Ask": "38.12",
+      "Bid": "34.78",
+      "Price50DayAvg": "35.37",
+      "Price200DayAvg": "30.21",
+      "PriceToday": {
+        "PreviousClose": "36.07",
+        "Open": "36.23",
+        "Low": "36.23",
+        "High": "36.23"
+      },
+      "Price52week": {
+        "Price52week-low": "29.44",
+        "Price52week-low-date": "2002-05-12",
+        "Price52week-high": "42.11",
+        "Price52week-high-date": "2002-11-02"
+      }
+    },
+    "PE": "17.13",
+    "Yield": "0.94",
+    "DivPerShare": "1.64"
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "Security": {
+    "-xmlns": "http://tpox-benchmark.com/security",
+    "-xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
+    "-id": "5621",
+    "-xsi:schemaLocation": "http://tpox-benchmark.com/security security.xsd",
+    "Symbol": "IBM",
+    "Name": "Internatinal Business Machines Corporation",
+    "ShortName": "IBM",
+    "SecurityType": "Stock",
+    "SecurityInformation": {
+      "StockInformation": {
+        "Sector": "Technology",
+        "Industry": [
+          "ComputerHardware",
+          "ComputerServices",
+          "ComputerStorageDevices",
+          "Software&Programming",
+          "Semiconductors"
+        ],
+        "Category": {
+          "-Capitalization": "Large",
+          "-Class": "Value"
+        },
+        "OutstShares": "165867735"
+      },
+      "Description": {
+        "BusinessSummary": "
+International Business Machines Corporation (IBM) uses advanced information technology (IT) to provide customer solutions. The Company operates primarily in a single industry using several segments that create value by offering a variety of solutions that include, either singularly or in some combination, technologies, systems, products, services, software and financing. Organizationally, its major operations are comprised of a Global Services segment; three hardware product segments, Systems Group, Personal Systems Group and Technology Group; a Software segment; a Global Financing segment, and an Enterprise Investments segment. The segments are determined based on several factors, including customer base, homogeneity of products, technology and delivery channels.
+The Company offers its products through its global sales and distribution organizations. The sales and distribution organizations have both a geographic focus (in the Americas, Europe/Middle East/Africa and Asia Pacific) and a specialized and global industry focus. In addition, these organizations include a global sales and distribution effort devoted exclusively to small and medium-sized businesses. IBM also offers its products through a variety of third-party distributors and resellers, as well as through its online channels.
+IBM owns, or is licensed under a number of patents, which vary in duration, relating to its products, and its businesses employ a variety of components, supplies and raw materials from a substantial number of suppliers around the world. It operates in more than 160 countries worldwide and derives more than half of its revenues from sales outside the United States. IBM's revenues are affected by such factors as the introduction of new products, the length of the sales cycles and the seasonality of technology purchases.
+			"
+      }
+    },
+    "Price": {
+      "LastTrade": "86.23",
+      "Ask": "88.12",
+      "Bid": "84.78",
+      "Price50DayAvg": "85.37",
+      "Price200DayAvg": "80.21",
+      "PriceToday": {
+        "PreviousClose": "86.07",
+        "Open": "86.23",
+        "Low": "86.23",
+        "High": "86.23"
+      },
+      "Price52week": {
+        "Price52week-low": "69.44",
+        "Price52week-low-date": "2002-05-12",
+        "Price52week-high": "92.11",
+        "Price52week-high-date": "2002-11-02"
+      }
+    },
+    "PE": "27.13",
+    "Yield": "0.74",
+    "DivPerShare": "0.64"
+  }
+}

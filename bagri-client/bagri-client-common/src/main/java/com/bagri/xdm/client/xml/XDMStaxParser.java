@@ -1,7 +1,6 @@
 package com.bagri.xdm.client.xml;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,28 +9,34 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Stack;
 
-import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.events.*;
+import javax.xml.stream.events.Attribute;
+import javax.xml.stream.events.Characters;
+import javax.xml.stream.events.Comment;
+import javax.xml.stream.events.EndElement;
+import javax.xml.stream.events.Namespace;
+import javax.xml.stream.events.ProcessingInstruction;
+import javax.xml.stream.events.StartDocument;
+import javax.xml.stream.events.StartElement;
+import javax.xml.stream.events.XMLEvent;
 import javax.xml.transform.Source;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bagri.xdm.api.XDMModelManagement;
+import com.bagri.xdm.client.parser.XDMDataParser;
 import com.bagri.xdm.domain.XDMData;
 import com.bagri.xdm.domain.XDMElement;
 import com.bagri.xdm.domain.XDMNodeKind;
 import com.bagri.xdm.domain.XDMParser;
 import com.bagri.xdm.domain.XDMPath;
 
-public class XDMStaxParser implements XDMParser {
+public class XDMStaxParser extends XDMDataParser implements XDMParser {
 
 	private static final Logger logger = LoggerFactory.getLogger(XDMStaxParser.class);
 
@@ -39,11 +44,6 @@ public class XDMStaxParser implements XDMParser {
 
 	private StringBuilder chars;
 	private List<XMLEvent> firstEvents;
-	private List<XDMData> dataList;
-	private Stack<XDMData> dataStack;
-	private XDMModelManagement dict;
-	private int docType = -1;
-	private long elementId;
 
 	public static List<XDMData> parseDocument(XDMModelManagement dictionary, String xml) throws IOException, XMLStreamException {
 		XDMStaxParser parser = new XDMStaxParser(dictionary);
@@ -51,7 +51,7 @@ public class XDMStaxParser implements XDMParser {
 	}
 	
 	public XDMStaxParser(XDMModelManagement dict) {
-		this.dict = dict;
+		super(dict);
 	}
 
 	@Override
@@ -131,6 +131,7 @@ public class XDMStaxParser implements XDMParser {
 				throw new IOException(ex);
 			}
 		}
+		cleanup();
 
 		List<XDMData> result = dataList;
 		dataList = null;
@@ -166,7 +167,7 @@ public class XDMStaxParser implements XDMParser {
 					//eventReader.nextTag();
 					break;
 				case XMLStreamConstants.END_DOCUMENT:
-					cleanup();
+					//cleanup();
 					break;
 				case XMLStreamConstants.ATTRIBUTE:
 					processAttribute((Attribute) xmlEvent);
@@ -181,18 +182,15 @@ public class XDMStaxParser implements XDMParser {
 		}
 	}
 
-	private void cleanup() {
+	protected void cleanup() {
+		super.cleanup();
 		chars = null;
 		firstEvents = null;
-		dataStack = null;
 	}
 
-	private void init() {
+	protected void init() {
+		super.init();
 		firstEvents = new ArrayList<XMLEvent>();
-		dataList = new ArrayList<XDMData>();
-		dataStack = new Stack<XDMData>();
-		docType = -1;
-		elementId = 0;
 		chars = new StringBuilder();
 	}
 	
@@ -272,17 +270,4 @@ public class XDMStaxParser implements XDMParser {
 		//logger.trace("piData: {}; target: {}", piData, pi.getTarget());
 	}
 
-	private XDMData addData(XDMData parent, XDMNodeKind kind, String name, String value) {
-
-		XDMElement xElt = new XDMElement();
-		xElt.setElementId(elementId++);
-		xElt.setParentId(parent.getElementId());
-		String path = parent.getPath() + name;
-		xElt.setValue(value);
-		XDMPath xPath = dict.translatePath(docType, path, kind);
-		XDMData xData = new XDMData(xPath, xElt);
-		dataList.add(xData);
-		return xData;
-	}
-	
 }

@@ -102,16 +102,26 @@ public class RepositoryImpl extends XDMRepositoryBase implements ApplicationCont
 	}
 	
 	XQProcessor getXQProcessor(String clientId) {
-		thClient.set(clientId);
-		XQProcessor result = processors.get(clientId);
-		if (result == null) {
-			result = appContext.getBean(XQProcessor.class, this);
-			XDMQueryManagement qMgr = getQueryManagement();
-			result.setRepository(this);
-			((BagriXQDataFactory) ((XQProcessorServer) result).getXQDataFactory()).setProcessor(result);
-			processors.put(clientId, result);
+		XQProcessor result;
+		if (clientId == null) {
+			result = newXQProcessor();
+		} else {
+			thClient.set(clientId);
+			result = processors.get(clientId);
+			if (result == null) {
+				result = newXQProcessor();
+				processors.put(clientId, result);
+			}
 		}
 		logger.trace("getXQProcessor; returning: {}", result);
+		return result;
+	}
+	
+	private XQProcessor newXQProcessor() {
+		XQProcessor result = appContext.getBean(XQProcessor.class, this);
+		XDMQueryManagement qMgr = getQueryManagement();
+		result.setRepository(this);
+		((BagriXQDataFactory) ((XQProcessorServer) result).getXQDataFactory()).setProcessor(result);
 		return result;
 	}
 	

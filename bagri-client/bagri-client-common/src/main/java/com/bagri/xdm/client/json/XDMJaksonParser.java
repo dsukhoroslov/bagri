@@ -6,13 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-import javax.json.Json;
-import javax.json.stream.JsonParser;
-import javax.json.stream.JsonParserFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,31 +18,22 @@ import com.bagri.xdm.domain.XDMElement;
 import com.bagri.xdm.domain.XDMNodeKind;
 import com.bagri.xdm.domain.XDMParser;
 import com.bagri.xdm.domain.XDMPath;
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
 
-public class XDMJsonParser extends XDMDataParser implements XDMParser {
+public class XDMJaksonParser extends XDMDataParser implements XDMParser {
 	
-	private static final Logger logger = LoggerFactory.getLogger(XDMJsonParser.class);
+	private static final Logger logger = LoggerFactory.getLogger(XDMJaksonParser.class);
 
-	private static JsonParserFactory factory;
-	static {
-		//JsonProvider provider = JsonProvider.provider();
-		//Map<String, Boolean> config = new HashMap<String, Boolean>();
-		//config.put(JsonFactory.Feature.CANONICALIZE_FIELD_NAMES.name(), true);
-		//config.put(JsonParser.Feature.ALLOW_COMMENTS.name(), true);
-		//config.put(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT.name(), true);
-		//provider.createParserFactory(config); // Understands JsonFactory and JsonParser features
-		
-		Map<String, Object> params = new HashMap<String, Object>();
-		//params.put("javax.json.spi.JsonProvider", "com.github.pgelinas.jackson.javax.json.spi.JacksonProvider");
-		factory = Json.createParserFactory(params);
-	}
-	
+	private static JsonFactory factory = new JsonFactory();
+
 	public static List<XDMData> parseDocument(XDMModelManagement dictionary, String json) throws IOException {
-		XDMJsonParser parser = new XDMJsonParser(dictionary);
+		XDMJaksonParser parser = new XDMJaksonParser(dictionary);
 		return parser.parse(json);
 	}
 	
-	public XDMJsonParser(XDMModelManagement dict) {
+	public XDMJaksonParser(XDMModelManagement dict) {
 		super(dict);
 	}
 
@@ -68,27 +53,39 @@ public class XDMJsonParser extends XDMDataParser implements XDMParser {
 	
 	@Override
 	public List<XDMData> parse(InputStream stream) throws IOException {
-
-		try (JsonParser parser = factory.createParser(stream)) {
-			return parse(parser);
+		
+		JsonParser jParser = null;
+		try {
+			jParser = factory.createParser(stream);	
+			return parse(jParser);
+		} finally {
+			if (jParser != null) {
+				jParser.close();
+			}
 		}
 	}
 	
 	@Override
 	public List<XDMData> parse(Reader reader) throws IOException {
 		
-		try (JsonParser parser = factory.createParser(reader)) {
-			return parse(parser);
+		JsonParser jParser = null;
+		try {
+			jParser = factory.createParser(reader);	
+			return parse(jParser);
+		} finally {
+			if (jParser != null) {
+				jParser.close();
+			}
 		}
 	}
 
 	public List<XDMData> parse(JsonParser parser) throws IOException {
 		
-		logger.trace("parse.enter; parser: {}", parser);
+		logger.trace("parse.enter; context: {}; schema: {}", parser.getParsingContext(), parser.getSchema());
 		
 		init();
-		while (parser.hasNext()) {
-			processEvent(parser);
+		while (parser.nextToken() != null) {
+			processToken(parser);
 		}
 
 		List<XDMData> result = dataList;
@@ -97,42 +94,42 @@ public class XDMJsonParser extends XDMDataParser implements XDMParser {
 		return result;
 	}
 	
-	private void processEvent(JsonParser parser) throws IOException { //, XMLStreamException {
+	private void processToken(JsonParser parser) throws IOException { //, XMLStreamException {
 
-		JsonParser.Event event = parser.next();
-		logger.trace("processEvent; got token: {}; text: {}", event.name()); //, parser.getString());
+		JsonToken token = parser.getCurrentToken();
+		logger.trace("processToken; got token: {}; name: {}; value: {}", token.name(), parser.getCurrentName(), parser.getText());
 		
-		switch (event) {
+		switch (token) {
 			
 			case START_OBJECT:
 				if (dataStack.size() == 0) {
-					parser.next();
-					processDocument(parser.getString());
-					processStartElement(parser.getString());
+					processDocument(parser.nextFieldName());
 				} 
 			case START_ARRAY: 
-				//if (parser.getString() != null) {
-				//	processStartElement(parser.getString());
-				//}
-				break;
-			case KEY_NAME:
-				processStartElement(parser.getString());
+				if (parser.getCurrentName() != null) {
+					processStartElement(parser.getCurrentName());
+				}
+			case NOT_AVAILABLE:
+			case FIELD_NAME:
 				break;
 			case END_OBJECT:
 			case END_ARRAY: 
-				//if (parser.getString() != null) {
-				//	processEndElement();
-				//}
+				if (parser.getCurrentName() != null) {
+					processEndElement();
+				}
 				break;
+			case VALUE_EMBEDDED_OBJECT:
 			case VALUE_FALSE:
 			case VALUE_NULL:
-			case VALUE_NUMBER:
+			case VALUE_NUMBER_FLOAT:
+			case VALUE_NUMBER_INT:
 			case VALUE_TRUE:
 			case VALUE_STRING:
-				processValueElement(parser.getString());
+				processStartElement(parser.getCurrentName());
+				processValueElement(parser.getText());
 				break;
 			default: 
-				logger.trace("processEvent; unknown event: {}", event);
+				logger.trace("processToken; unknown token: {}", token);
 		}			
 	}
 
@@ -143,7 +140,7 @@ public class XDMJsonParser extends XDMDataParser implements XDMParser {
 		//start.setParentId(0); // -1 ?
 		String root = "/" + (name == null ? "" : name);
 		docType = dict.translateDocumentType(root);
-		XDMPath path = dict.translatePath(docType, "", XDMNodeKind.document);
+		XDMPath path = dict.translatePath(docType, "", XDMNodeKind.document); 
 		XDMData data = new XDMData(path, start);
 		dataStack.add(data);
 		dataList.add(data);

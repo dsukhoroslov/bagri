@@ -1,0 +1,2 @@
+#com.github.pgelinas.jackson.javax.json.spi.JacksonProvider
+org.glassfish.json.JsonProviderImpl
