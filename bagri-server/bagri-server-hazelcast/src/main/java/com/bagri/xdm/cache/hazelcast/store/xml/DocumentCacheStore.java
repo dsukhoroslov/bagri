@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static com.bagri.common.util.FileUtils.def_encoding;
+import static com.bagri.common.config.XDMConfigConstants.xdm_schema_store_type;
 
 import com.bagri.common.util.FileUtils;
 import com.bagri.xdm.api.XDMDocumentManagement;
@@ -62,23 +63,28 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<XDMDoc
     private Map<XDMDocumentKey, DocumentDataHolder> docKeys = new HashMap<XDMDocumentKey, DocumentDataHolder>();
     
 	//private String dataPath;
-	private XDMFactory keyFactory;
+    private String dataFormat = XDMParser.df_xml;
+	//private XDMFactory keyFactory;
     private DocumentManagementImpl docMgr;
     private XDMModelManagement schemaDict;
     private IMap<XDMDocumentKey, String> xmlCache;
-    private IMap<XDMDataKey, XDMElements> xdmCache;
+    //private IMap<XDMDataKey, XDMElements> xdmCache;
     
 	@Override
 	public void init(HazelcastInstance hazelcastInstance, Properties properties, String mapName) {
 		logger.trace("init.enter; properties: {}", properties);
 		hzInstance = hazelcastInstance;
 		//dataPath = (String) properties.get("dataPath");
-		keyFactory = (XDMFactory) properties.get("keyFactory");
+		//keyFactory = (XDMFactory) properties.get("keyFactory");
 		docMgr = (DocumentManagementImpl) properties.get("xdmManager");
 		schemaDict = (XDMModelManagement) properties.get("xdmModel");
 		//schemaDict = docMgr.getSchemaDictionary();
 		xmlCache = hzInstance.getMap(XDMCacheConstants.CN_XDM_XML);
-		xdmCache = hzInstance.getMap(XDMCacheConstants.CN_XDM_ELEMENT);
+		//xdmCache = hzInstance.getMap(XDMCacheConstants.CN_XDM_ELEMENT);
+		String df = properties.getProperty(xdm_schema_store_type);
+		if (df != null) {
+			dataFormat = df;
+		}
 	}
 
 	@Override
@@ -121,7 +127,7 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<XDMDoc
 	    		uri = path.toUri().toString();
         		try {
         			String xml = FileUtils.readTextFile(ddh.uri);
-    	    		XDMParser parser = docMgr.getXdmFactory().newXDMParser(XDMParser.df_xml, schemaDict);
+    	    		XDMParser parser = docMgr.getXdmFactory().newXDMParser(dataFormat, schemaDict);
         			//List<XDMData> data = parser.parse(new File(ddh.uri));
         			List<XDMData> data = parser.parse(xml);         			
         			int docType = docMgr.loadElements(docId.getKey(), data); 

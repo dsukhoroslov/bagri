@@ -32,6 +32,7 @@ public class XDMMapStoreFactory implements ApplicationContextAware, MapStoreFact
     private static final String st_mongo = "MONGO";
     private static final String st_hive = "HIVE";
     private static final String st_xml = "XML";
+    private static final String st_json = "JSON";
     private static final String st_none = "NONE";
     
     private ApplicationContext parentCtx;
@@ -73,6 +74,8 @@ public class XDMMapStoreFactory implements ApplicationContextAware, MapStoreFact
 			    		ctx = loadContext(st_hive, "spring/store-hive-context.xml");
 					} else if (st_xml.equals(type)) {
 			    		ctx = loadContext(st_xml, "spring/store-xml-context.xml");
+					} else if (st_json.equals(type)) {
+			    		ctx = loadContext(st_json, "spring/store-xml-context.xml");
 					}
 				}
 				logger.debug("newMapStore; got context: {}", ctx);
@@ -93,7 +96,7 @@ public class XDMMapStoreFactory implements ApplicationContextAware, MapStoreFact
 					} else if (st_hive.equals(type)) {
 						DataStore store = ctx.getBean("hiveCacheStore", DataStore.class);
 						mStore = new DataStoreAdapter(store);
-					} else if (st_xml.equals(type)) {
+					} else if (st_xml.equals(type) || st_json.equals(type)) {
 						// TODO: move XML stores to extra module too
 						if (CN_XDM_DOCUMENT.equals(mapName)) {
 							mStore = ctx.getBean("docCacheStore", DocumentCacheStore.class);

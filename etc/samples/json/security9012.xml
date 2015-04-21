@@ -24,13 +24,11 @@
       "Description": {
         "FundDescription": {
           "#text": [
-            "
-PIMCO Total Return Fund seeks total return consistent with preservation of capital. The fund normally invests at ",
+            "PIMCO Total Return Fund seeks total return consistent with preservation of capital. The fund normally invests at ",
             ", including U.S. government securities, corporate bonds, and mortgage-related securities. It may invest ",
             ". The fund may invest ",
             " rated ",
-            ". The portfolio duration generally ranges from three to six years.
-			"
+            ". The portfolio duration generally ranges from three to six years."
           ],
           "Assets": [
             "least 65% of assets in debt securities",
@@ -41,9 +39,7 @@ PIMCO Total Return Fund seeks total return consistent with preservation of capit
         },
         "Management": {
           "Manager": "William H. Gross, Lead Manager since 11-May-87",
-          "#text": ". 
-Gross is founder and chief investment officer with Pacific Investment Management Company. Mr Gross and his bond team have twice been awarded Morningstars Fixed-Income Manager of the Year award, in 1998 and 2000. In a 1993 survey by Pensions and Investments magazine, he was recognized by his peers as the most influential authority on the bond market in the United States. Gross is a Chartered Financial Analyst and a member of the Los Angeles Society of Financial Analysts. 
-			"
+          "#text": ". Gross is founder and chief investment officer with Pacific Investment Management Company. Mr Gross and his bond team have twice been awarded Morningstars Fixed-Income Manager of the Year award, in 1998 and 2000. In a 1993 survey by Pensions and Investments magazine, he was recognized by his peers as the most influential authority on the bond market in the United States. Gross is a Chartered Financial Analyst and a member of the Los Angeles Society of Financial Analysts. "
         }
       }
     },

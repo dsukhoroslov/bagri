@@ -4,7 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
-import javax.xml.stream.events.XMLEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.domain.XDMData;
@@ -14,6 +15,8 @@ import com.bagri.xdm.domain.XDMPath;
 
 public abstract class XDMDataParser {
 
+	protected final Logger logger = LoggerFactory.getLogger(getClass());
+	
 	protected List<XDMData> dataList;
 	protected Stack<XDMData> dataStack;
 	protected XDMModelManagement dict;
@@ -25,7 +28,7 @@ public abstract class XDMDataParser {
 	}
 	
 	protected XDMData addData(XDMData parent, XDMNodeKind kind, String name, String value) {
-
+		logger.trace("addData.enter; name: {}; kind: {}; value: {}; parent: {}", name, kind, value, parent);
 		XDMElement xElt = new XDMElement();
 		xElt.setElementId(elementId++);
 		xElt.setParentId(parent.getElementId());

@@ -24,8 +24,6 @@ import com.fasterxml.jackson.core.JsonToken;
 
 public class XDMJaksonParser extends XDMDataParser implements XDMParser {
 	
-	private static final Logger logger = LoggerFactory.getLogger(XDMJaksonParser.class);
-
 	private static JsonFactory factory = new JsonFactory();
 
 	public static List<XDMData> parseDocument(XDMModelManagement dictionary, String json) throws IOException {
@@ -87,6 +85,7 @@ public class XDMJaksonParser extends XDMDataParser implements XDMParser {
 		while (parser.nextToken() != null) {
 			processToken(parser);
 		}
+		cleanup();
 
 		List<XDMData> result = dataList;
 		dataList = null;
@@ -126,7 +125,7 @@ public class XDMJaksonParser extends XDMDataParser implements XDMParser {
 			case VALUE_TRUE:
 			case VALUE_STRING:
 				processStartElement(parser.getCurrentName());
-				processValueElement(parser.getText());
+				processValueElement(parser.getCurrentName(), parser.getText());
 				break;
 			default: 
 				logger.trace("processToken; unknown token: {}", token);
@@ -148,10 +147,12 @@ public class XDMJaksonParser extends XDMDataParser implements XDMParser {
 
 	private void processStartElement(String name) {
 		
-		XDMData parent = dataStack.peek();
-		if (!name.equals(parent.getName())) {
-			XDMData current = addData(parent, XDMNodeKind.element, "/" + name, null); 
-			dataStack.add(current);
+		if (name != null && !name.startsWith("-")) {
+			XDMData parent = dataStack.peek();
+			if (!name.equals(parent.getName())) {
+				XDMData current = addData(parent, XDMNodeKind.element, "/" + name, null); 
+				dataStack.add(current);
+			}
 		}
 	}
 
@@ -160,11 +161,24 @@ public class XDMJaksonParser extends XDMDataParser implements XDMParser {
 		dataStack.pop();
 	}
 
-	private void processValueElement(String value) {
+	private void processValueElement(String name, String value) {
 		
-		XDMData current = dataStack.pop();
 		//String content = value.replaceAll("&", "&amp;");
-		addData(current, XDMNodeKind.text, "/text()", value);
+		if (name == null) {
+			XDMData current = dataStack.peek();
+			addData(current, XDMNodeKind.text, "/text()", value);
+		} else if (name.startsWith("-") || name.startsWith("@")) {
+			XDMData current = dataStack.peek(); 
+			name = name.substring(1);
+			if (name.startsWith("xmlns")) {
+				addData(current, XDMNodeKind.namespace, "/#" + name, value);
+			} else {
+				addData(current, XDMNodeKind.attribute, "/@" + name, value);
+			}
+		} else {
+			XDMData current = dataStack.pop();
+			addData(current, XDMNodeKind.text, "/text()", value);
+		}
 	}
 	
 }

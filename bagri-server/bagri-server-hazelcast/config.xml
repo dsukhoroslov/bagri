@@ -295,5 +295,65 @@ declare function hw:helloworld($name as xs:string)
             <indexes/>
             <modules/>
         </schema>
+        <schema name="TPoX-J" active="true">
+            <version>1</version>
+            <createdAt>2014-09-27T15:00:58.096+04:00</createdAt>
+            <createdBy>SDV</createdBy>
+            <description>TPoX: transient schema for TPoX-related tests; no persistent store</description>
+            <properties>
+                <entry name="xdm.schema.password">TPoX-J</entry>
+                <entry name="xdm.schema.data.backup.read">false</entry>
+                <entry name="xqj.schema.orderingMode">ORDERING_MODE_UNORDERED</entry>
+                <entry name="xdm.schema.trans.backup.async">0</entry>
+                <entry name="xdm.schema.store.enabled">true</entry>
+                <entry name="xqj.schema.queryLanguageTypeAndVersion">LANGTYPE_XQUERY</entry>
+                <entry name="xqj.schema.bindingMode">BINDING_MODE_IMMEDIATE</entry>
+                <entry name="xdm.schema.thread.pool">8</entry>
+                <entry name="xqj.schema.boundarySpacePolicy">BOUNDARY_SPACE_PRESERVE</entry>
+                <entry name="xdm.schema.ports.first">10700</entry>
+                <entry name="xqj.schema.scrollability">SCROLLTYPE_FORWARD_ONLY</entry>
+                <entry name="xqj.schema.holdability">HOLDTYPE_CLOSE_CURSORS_AT_COMMIT</entry>
+                <entry name="xdm.schema.store.type">JSON</entry>
+                <entry name="xqj.schema.copyNamespacesModePreserve">COPY_NAMESPACES_MODE_PRESERVE</entry>
+                <entry name="xqj.schema.queryTimeout">0</entry>
+                <entry name="xqj.schema.defaultFunctionNamespace"></entry>
+                <entry name="xdm.schema.ports.last">10800</entry>
+                <entry name="xdm.schema.population.size">1</entry>
+                <entry name="xqj.schema.defaultElementTypeNamespace"></entry>
+                <entry name="xdm.schema.data.backup.async">1</entry>
+                <entry name="xdm.schema.store.data.path">../../etc/samples/json</entry>
+                <entry name="xqj.schema.copyNamespacesModeInherit">COPY_NAMESPACES_MODE_INHERIT</entry>
+                <entry name="xdm.schema.dict.backup.sync">0</entry>
+                <entry name="xqj.schema.baseUri">file:///C:/Work/Bagri/git/bagri/etc/samples/json/</entry>
+                <entry name="xdm.schema.trans.backup.sync">1</entry>
+                <entry name="xdm.schema.store.schema.path"></entry>
+                <entry name="xqj.schema.defaultOrderForEmptySequences">DEFAULT_ORDER_FOR_EMPTY_SEQUENCES_LEAST</entry>
+                <entry name="xdm.schema.query.backup.sync">0</entry>
+                <entry name="xdm.schema.buffer.size">128</entry>
+                <entry name="xdm.schema.dict.backup.async">1</entry>
+                <entry name="xdm.schema.dict.backup.read">true</entry>
+                <entry name="xdm.schema.trans.backup.read">false</entry>
+                <entry name="xqj.schema.defaultCollationUri"></entry>
+                <entry name="xdm.schema.query.backup.async">0</entry>
+                <entry name="xdm.schema.members">localhost</entry>
+                <entry name="xdm.schema.data.backup.sync">0</entry>
+                <entry name="xqj.schema.constructionMode">CONSTRUCTION_MODE_PRESERVE</entry>
+                <entry name="xdm.schema.query.backup.read">true</entry>
+                <entry name="xdm.schema.partition.count">271</entry>
+            </properties>
+            <indexes>
+                <index name="IDX_Security_Symbol">
+                    <version>1</version>
+                    <createdAt>2015-04-22T13:36:26.965+03:00</createdAt>
+                    <createdBy>SDV</createdBy>
+                    <docType>/Security</docType>
+                    <path>/Security/Symbol/text()</path>
+                    <unique>true</unique>
+                    <description>Security Symbol</description>
+                    <enabled>true</enabled>
+                </index>
+            </indexes>
+            <modules/>
+        </schema>
     </schemas>
 </ns2:config>

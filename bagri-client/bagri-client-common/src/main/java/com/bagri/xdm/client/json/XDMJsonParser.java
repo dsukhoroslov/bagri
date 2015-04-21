@@ -27,8 +27,6 @@ import com.bagri.xdm.domain.XDMPath;
 
 public class XDMJsonParser extends XDMDataParser implements XDMParser {
 	
-	private static final Logger logger = LoggerFactory.getLogger(XDMJsonParser.class);
-
 	private static JsonParserFactory factory;
 	static {
 		//JsonProvider provider = JsonProvider.provider();
@@ -90,6 +88,7 @@ public class XDMJsonParser extends XDMDataParser implements XDMParser {
 		while (parser.hasNext()) {
 			processEvent(parser);
 		}
+		cleanup();
 
 		List<XDMData> result = dataList;
 		dataList = null;

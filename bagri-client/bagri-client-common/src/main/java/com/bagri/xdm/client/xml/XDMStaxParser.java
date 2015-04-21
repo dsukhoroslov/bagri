@@ -38,8 +38,6 @@ import com.bagri.xdm.domain.XDMPath;
 
 public class XDMStaxParser extends XDMDataParser implements XDMParser {
 
-	private static final Logger logger = LoggerFactory.getLogger(XDMStaxParser.class);
-
 	private static XMLInputFactory factory = XMLInputFactory.newInstance();
 
 	private StringBuilder chars;
