@@ -45,5 +45,8 @@ public class JsonDocumentManagementTest extends XDMDocumentManagementTest {
 		removeDocumentsTest();
 	}
 
-
+	protected String getFileName(String original) {
+		return original.substring(0, original.indexOf(".")) + ".json";
+	}
+	
 }

@@ -101,7 +101,8 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<XDMDoc
     //}
     
 	private void processPathFiles(Path root, List<Path> files) throws IOException {
-		try (DirectoryStream<Path> stream = Files.newDirectoryStream(root, "*.xml")) {
+		String ext = "*." + dataFormat.toLowerCase();
+		try (DirectoryStream<Path> stream = Files.newDirectoryStream(root, ext)) {
 		    for (Path path: stream) {
 		        if (Files.isDirectory(path)) {
 		            processPathFiles(path, files);

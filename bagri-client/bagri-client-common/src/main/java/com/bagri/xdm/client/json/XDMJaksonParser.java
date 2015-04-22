@@ -144,10 +144,14 @@ public class XDMJaksonParser extends XDMDataParser implements XDMParser {
 		dataStack.add(data);
 		dataList.add(data);
 	}
+	
+	private boolean isAttribute(String name) {
+		return name.startsWith("-") || name.startsWith("@");
+	}
 
 	private void processStartElement(String name) {
 		
-		if (name != null && !name.startsWith("-")) {
+		if (name != null && !isAttribute(name)) {
 			XDMData parent = dataStack.peek();
 			if (!name.equals(parent.getName())) {
 				XDMData current = addData(parent, XDMNodeKind.element, "/" + name, null); 
@@ -167,7 +171,7 @@ public class XDMJaksonParser extends XDMDataParser implements XDMParser {
 		if (name == null) {
 			XDMData current = dataStack.peek();
 			addData(current, XDMNodeKind.text, "/text()", value);
-		} else if (name.startsWith("-") || name.startsWith("@")) {
+		} else if (isAttribute(name)) {
 			XDMData current = dataStack.peek(); 
 			name = name.substring(1);
 			if (name.startsWith("xmlns")) {

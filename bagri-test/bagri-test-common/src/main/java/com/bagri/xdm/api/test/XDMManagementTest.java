@@ -26,6 +26,10 @@ public abstract class XDMManagementTest {
 	protected XDMRepository xRepo;
 	protected List<Long> ids = new ArrayList<Long>();
 	
+	protected String getFileName(String original) {
+		return original;
+	}
+	
 	protected XDMDocumentManagement getDocManagement() {
 		return xRepo.getDocumentManagement();
 	}
@@ -86,9 +90,9 @@ public abstract class XDMManagementTest {
 		} catch (IllegalStateException ex) {
 			// make it checkable; anticipated exception
 		}
-		ids.add(createDocumentTest(sampleRoot + "security1500.xml").getDocumentKey());
-		ids.add(createDocumentTest(sampleRoot + "security5621.xml").getDocumentKey());
-		ids.add(createDocumentTest(sampleRoot + "security9012.xml").getDocumentKey());
+		ids.add(createDocumentTest(sampleRoot + getFileName("security1500.xml")).getDocumentKey());
+		ids.add(createDocumentTest(sampleRoot + getFileName("security5621.xml")).getDocumentKey());
+		ids.add(createDocumentTest(sampleRoot + getFileName("security9012.xml")).getDocumentKey());
 		if (txId > 0) {
 			getTxManagement().commitTransaction(txId);
 		}
@@ -101,8 +105,8 @@ public abstract class XDMManagementTest {
 		} catch (IllegalStateException ex) {
 			// make it checkable; anticipated exception
 		}
-		ids.add(createDocumentTest(sampleRoot + "order123.xml").getDocumentKey());
-		ids.add(createDocumentTest(sampleRoot + "order654.xml").getDocumentKey());
+		ids.add(createDocumentTest(sampleRoot + getFileName("order123.xml")).getDocumentKey());
+		ids.add(createDocumentTest(sampleRoot + getFileName("order654.xml")).getDocumentKey());
 		if (txId > 0) {
 			getTxManagement().commitTransaction(txId);
 		}
@@ -115,7 +119,7 @@ public abstract class XDMManagementTest {
 		} catch (IllegalStateException ex) {
 			// make it checkable; anticipated exception
 		}
-		ids.add(createDocumentTest(sampleRoot + "custacc.xml").getDocumentKey());
+		ids.add(createDocumentTest(sampleRoot + getFileName("custacc.xml")).getDocumentKey());
 		if (txId > 0) {
 			getTxManagement().commitTransaction(txId);
 		}

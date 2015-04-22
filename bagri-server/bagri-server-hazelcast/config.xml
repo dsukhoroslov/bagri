@@ -297,7 +297,7 @@ declare function hw:helloworld($name as xs:string)
         </schema>
         <schema name="TPoX-J" active="true">
             <version>1</version>
-            <createdAt>2014-09-27T15:00:58.096+04:00</createdAt>
+            <createdAt>2015-04-22T13:36:26.965+03:00</createdAt>
             <createdBy>SDV</createdBy>
             <description>TPoX: transient schema for TPoX-related tests; no persistent store</description>
             <properties>
@@ -342,7 +342,7 @@ declare function hw:helloworld($name as xs:string)
                 <entry name="xdm.schema.partition.count">271</entry>
             </properties>
             <indexes>
-                <index name="IDX_Security_Symbol">
+                <!--index name="IDX_Security_Symbol">
                     <version>1</version>
                     <createdAt>2015-04-22T13:36:26.965+03:00</createdAt>
                     <createdBy>SDV</createdBy>
@@ -351,7 +351,7 @@ declare function hw:helloworld($name as xs:string)
                     <unique>true</unique>
                     <description>Security Symbol</description>
                     <enabled>true</enabled>
-                </index>
+                </index-->
             </indexes>
             <modules/>
         </schema>

@@ -18,7 +18,7 @@ public abstract class XDMDocumentManagementTest extends XDMManagementTest {
 	public void createSecurityTest() throws IOException {
 		
 		long txId = getTxManagement().beginTransaction();
-		XDMDocument doc = createDocumentTest(sampleRoot + "security1500.xml");
+		XDMDocument doc = createDocumentTest(sampleRoot + getFileName("security1500.xml"));
 		Assert.assertTrue(doc.getTxStart() == txId);
 		Assert.assertTrue(doc.getTxFinish() == 0);
 		ids.add(doc.getDocumentKey());
@@ -29,7 +29,7 @@ public abstract class XDMDocumentManagementTest extends XDMManagementTest {
 	public void updateSecurityTest() throws IOException {
 		
 		long txId = getTxManagement().beginTransaction();
-		XDMDocument doc = createDocumentTest(sampleRoot + "security1500.xml");
+		XDMDocument doc = createDocumentTest(sampleRoot + getFileName("security1500.xml"));
 		Assert.assertTrue(doc.getTxStart() == txId);
 		Assert.assertTrue(doc.getTxFinish() == 0);
 		ids.add(doc.getDocumentKey());
@@ -39,7 +39,7 @@ public abstract class XDMDocumentManagementTest extends XDMManagementTest {
 		String uri = doc.getUri();
 		
 		txId = getTxManagement().beginTransaction();
-		doc = updateDocumentTest(0, uri, sampleRoot + "security9012.xml");
+		doc = updateDocumentTest(0, uri, sampleRoot + getFileName("security9012.xml"));
 		Assert.assertTrue(doc.getTxStart() == txId);
 		Assert.assertTrue(doc.getTxFinish() == 0);
 		Assert.assertTrue(doc.getDocumentId() == docId);
@@ -49,7 +49,7 @@ public abstract class XDMDocumentManagementTest extends XDMManagementTest {
 		getTxManagement().commitTransaction(txId);
 
 		txId = getTxManagement().beginTransaction();
-		doc = updateDocumentTest(doc.getDocumentKey(), null, sampleRoot + "security5621.xml");
+		doc = updateDocumentTest(doc.getDocumentKey(), null, sampleRoot + getFileName("security5621.xml"));
 		Assert.assertTrue(doc.getTxStart() == txId);
 		Assert.assertTrue(doc.getTxFinish() == 0);
 		Assert.assertTrue(doc.getDocumentId() == docId);
@@ -63,7 +63,7 @@ public abstract class XDMDocumentManagementTest extends XDMManagementTest {
 	public void removeSecurityTest() throws IOException {
 		
 		long txId = getTxManagement().beginTransaction();
-		XDMDocument doc = createDocumentTest(sampleRoot + "security1500.xml");
+		XDMDocument doc = createDocumentTest(sampleRoot + getFileName("security1500.xml"));
 		Assert.assertTrue(doc.getTxStart() == txId);
 		Assert.assertTrue(doc.getTxFinish() == 0);
 		ids.add(doc.getDocumentKey());

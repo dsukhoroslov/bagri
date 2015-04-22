@@ -108,10 +108,11 @@ public class XDMJsonParser extends XDMDataParser implements XDMParser {
 					parser.next();
 					processDocument(parser.getString());
 					processStartElement(parser.getString());
-				} 
+				}
+				break;
 			case START_ARRAY: 
 				//if (parser.getString() != null) {
-				//	processStartElement(parser.getString());
+					processStartElement(null);
 				//}
 				break;
 			case KEY_NAME:
@@ -120,7 +121,7 @@ public class XDMJsonParser extends XDMDataParser implements XDMParser {
 			case END_OBJECT:
 			case END_ARRAY: 
 				//if (parser.getString() != null) {
-				//	processEndElement();
+					processEndElement();
 				//}
 				break;
 			case VALUE_FALSE:
@@ -148,12 +149,34 @@ public class XDMJsonParser extends XDMDataParser implements XDMParser {
 		dataList.add(data);
 	}
 
+	private boolean isAttribute(String name) {
+		return name.startsWith("-") || name.startsWith("@");
+	}
+	
 	private void processStartElement(String name) {
 		
-		XDMData parent = dataStack.peek();
-		if (!name.equals(parent.getName())) {
-			XDMData current = addData(parent, XDMNodeKind.element, "/" + name, null); 
-			dataStack.add(current);
+		if (name != null) { // && !name.startsWith("-")) {
+			XDMData parent = dataStack.peek();
+			if (!name.equals(parent.getName())) {
+				XDMData current = null;
+				if (isAttribute(name)) {
+					name = name.substring(1);
+					if (name.startsWith("xmlns")) {
+						current = addData(parent, XDMNodeKind.namespace, "/#" + name, null);
+					} else {
+						current = addData(parent, XDMNodeKind.attribute, "/@" + name, null);
+					}
+				//} else if (name.equals("#text")) {
+					// just swallow it
+				} else {
+					current = addData(parent, XDMNodeKind.element, "/" + name, null); 
+				}
+				if (current != null) {
+					dataStack.add(current);
+				}
+			}
+		} else {
+			dataStack.add(null);
 		}
 	}
 
@@ -164,9 +187,22 @@ public class XDMJsonParser extends XDMDataParser implements XDMParser {
 
 	private void processValueElement(String value) {
 		
-		XDMData current = dataStack.pop();
+		//XDMData current = dataStack.pop();
 		//String content = value.replaceAll("&", "&amp;");
-		addData(current, XDMNodeKind.text, "/text()", value);
-	}
+		//addData(current, XDMNodeKind.text, "/text()", value);
 	
+		XDMData current = dataStack.pop();
+		boolean isArray = current == null;
+		if (isArray) {
+			current = dataStack.peek();
+		}
+		if (current.getNodeKind() == XDMNodeKind.element) {
+			addData(current, XDMNodeKind.text, "/text()", value);
+		} else {
+			current.getElement().setValue(value);
+		}
+		if (isArray) {
+			dataStack.add(null);
+		}
+	}	
 }
