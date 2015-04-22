@@ -111,18 +111,15 @@ public class XDMJsonParser extends XDMDataParser implements XDMParser {
 				}
 				break;
 			case START_ARRAY: 
-				//if (parser.getString() != null) {
-					processStartElement(null);
-				//}
+				processStartElement(null);
 				break;
 			case KEY_NAME:
 				processStartElement(parser.getString());
 				break;
-			case END_OBJECT:
 			case END_ARRAY: 
-				//if (parser.getString() != null) {
-					processEndElement();
-				//}
+				processEndElement();
+			case END_OBJECT:
+				processEndElement();
 				break;
 			case VALUE_FALSE:
 			case VALUE_NULL:
