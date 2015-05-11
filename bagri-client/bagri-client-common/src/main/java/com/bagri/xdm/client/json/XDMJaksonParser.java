@@ -134,12 +134,12 @@ public class XDMJaksonParser extends XDMDataParser implements XDMParser {
 
 	private void processDocument(String name) {
 
-		XDMElement start = new XDMElement();
-		start.setElementId(elementId++);
-		//start.setParentId(0); // -1 ?
 		String root = "/" + (name == null ? "" : name);
 		docType = dict.translateDocumentType(root);
 		XDMPath path = dict.translatePath(docType, "", XDMNodeKind.document); 
+		XDMElement start = new XDMElement();
+		start.setElementId(elementId++);
+		//start.setParentId(0); // -1 ?
 		XDMData data = new XDMData(path, start);
 		dataStack.add(data);
 		dataList.add(data);
@@ -153,7 +153,10 @@ public class XDMJaksonParser extends XDMDataParser implements XDMParser {
 		
 		if (name != null && !isAttribute(name)) {
 			XDMData parent = dataStack.peek();
-			if (!name.equals(parent.getName())) {
+			if (name.equals("#text")) {
+				// add marker
+				dataStack.add(null);
+			} else if (!name.equals(parent.getName())) {
 				XDMData current = addData(parent, XDMNodeKind.element, "/" + name, null); 
 				dataStack.add(current);
 			}
@@ -167,9 +170,14 @@ public class XDMJaksonParser extends XDMDataParser implements XDMParser {
 
 	private void processValueElement(String name, String value) {
 		
-		//String content = value.replaceAll("&", "&amp;");
+		//value = value.replaceAll("&", "&amp;");
 		if (name == null) {
 			XDMData current = dataStack.peek();
+			if (current == null) {
+				// #text in array; not sure it'll always work.
+				// use XDMJsonParser.getTopData instead ?
+				current = dataStack.elementAt(dataStack.size() - 2);
+			}
 			addData(current, XDMNodeKind.text, "/text()", value);
 		} else if (isAttribute(name)) {
 			XDMData current = dataStack.peek(); 
@@ -181,6 +189,10 @@ public class XDMJaksonParser extends XDMDataParser implements XDMParser {
 			}
 		} else {
 			XDMData current = dataStack.pop();
+			if (current == null) {
+				// #text
+				current = dataStack.peek(); 
+			}
 			addData(current, XDMNodeKind.text, "/text()", value);
 		}
 	}

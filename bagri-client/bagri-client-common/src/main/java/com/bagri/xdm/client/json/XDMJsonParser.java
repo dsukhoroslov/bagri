@@ -12,6 +12,7 @@ import java.util.Map;
 
 import javax.json.Json;
 import javax.json.stream.JsonParser;
+import javax.json.stream.JsonParser.Event;
 import javax.json.stream.JsonParserFactory;
 
 import org.slf4j.Logger;
@@ -99,7 +100,13 @@ public class XDMJsonParser extends XDMDataParser implements XDMParser {
 	private void processEvent(JsonParser parser) throws IOException { //, XMLStreamException {
 
 		JsonParser.Event event = parser.next();
-		logger.trace("processEvent; got token: {}; text: {}", event.name()); //, parser.getString());
+		if (event == Event.VALUE_STRING || event == Event.VALUE_NUMBER) {
+			logger.trace("processEvent; got token: {}; value: {}", event.name(), parser.getString());
+		} else if (event == Event.KEY_NAME) {
+			logger.trace("processEvent; got token: {}; key: {}", event.name(), parser.getString());
+		} else {
+			logger.trace("processEvent; got token: {}", event.name()); 
+		}
 		
 		switch (event) {
 			
@@ -108,10 +115,12 @@ public class XDMJsonParser extends XDMDataParser implements XDMParser {
 					parser.next();
 					processDocument(parser.getString());
 					processStartElement(parser.getString());
+				} else {
+					processStartElement(false);
 				}
 				break;
 			case START_ARRAY: 
-				processStartElement(null);
+				processStartElement(true);
 				break;
 			case KEY_NAME:
 				processStartElement(parser.getString());
@@ -132,15 +141,25 @@ public class XDMJsonParser extends XDMDataParser implements XDMParser {
 				logger.trace("processEvent; unknown event: {}", event);
 		}			
 	}
+	
+	private XDMData getTopData() {
+		for (int i = dataStack.size() - 1; i >= 0; i--) {
+			XDMData data = dataStack.elementAt(i);
+			if (data != null && data.getElement() != null) {
+				return data;
+			}
+		}
+		return null;
+	}
 
 	private void processDocument(String name) {
 
-		XDMElement start = new XDMElement();
-		start.setElementId(elementId++);
-		//start.setParentId(0); // -1 ?
 		String root = "/" + (name == null ? "" : name);
 		docType = dict.translateDocumentType(root);
 		XDMPath path = dict.translatePath(docType, "", XDMNodeKind.document);
+		XDMElement start = new XDMElement();
+		start.setElementId(elementId++);
+		//start.setParentId(0); // -1 ?
 		XDMData data = new XDMData(path, start);
 		dataStack.add(data);
 		dataList.add(data);
@@ -150,51 +169,62 @@ public class XDMJsonParser extends XDMDataParser implements XDMParser {
 		return name.startsWith("-") || name.startsWith("@");
 	}
 	
+	private void processStartElement(boolean isArray) {
+		if (isArray) {
+			dataStack.add(null);
+		} else {
+			XDMData current = dataStack.lastElement(); //getTopData(); 
+			if (current == null || current.getNodeKind() != XDMNodeKind.element) {
+				dataStack.add(null);
+			}
+		}
+	}
+	
 	private void processStartElement(String name) {
 		
-		if (name != null) { // && !name.startsWith("-")) {
-			XDMData parent = dataStack.peek();
-			if (!name.equals(parent.getName())) {
-				XDMData current = null;
-				if (isAttribute(name)) {
-					name = name.substring(1);
-					if (name.startsWith("xmlns")) {
-						current = addData(parent, XDMNodeKind.namespace, "/#" + name, null);
-					} else {
-						current = addData(parent, XDMNodeKind.attribute, "/@" + name, null);
-					}
-				//} else if (name.equals("#text")) {
-					// just swallow it
+		XDMData parent = getTopData();
+		if (!name.equals(parent.getName())) {
+			XDMData current = null;
+			if (isAttribute(name)) {
+				name = name.substring(1);
+				if (name.startsWith("xmlns")) {
+					current = addData(parent, XDMNodeKind.namespace, "/#" + name, null);
 				} else {
-					current = addData(parent, XDMNodeKind.element, "/" + name, null); 
+					current = addData(parent, XDMNodeKind.attribute, "/@" + name, null);
 				}
-				if (current != null) {
-					dataStack.add(current);
-				}
+			} else if (name.equals("#text")) {
+				//dataStack.add(null);
+				current = new XDMData(null, null);  
+			} else {
+				current = addData(parent, XDMNodeKind.element, "/" + name, null); 
 			}
-		} else {
-			dataStack.add(null);
+			if (current != null) {
+				dataStack.add(current);
+			}
 		}
 	}
 
 	private void processEndElement() {
-
-		dataStack.pop();
+		if (dataStack.size() > 0) {
+			XDMData current = dataStack.pop();
+			logger.trace("processEndElement; got current: {}", current);
+		}
 	}
 
 	private void processValueElement(String value) {
 		
-		//XDMData current = dataStack.pop();
-		//String content = value.replaceAll("&", "&amp;");
-		//addData(current, XDMNodeKind.text, "/text()", value);
+		//value = value.replaceAll("&", "&amp;");
 	
 		XDMData current = dataStack.pop();
 		boolean isArray = current == null;
-		if (isArray) {
-			current = dataStack.peek();
+		if (isArray || current.getElement() == null) {
+			//current = dataStack.peek();
+			current = getTopData();
 		}
 		if (current.getNodeKind() == XDMNodeKind.element) {
 			addData(current, XDMNodeKind.text, "/text()", value);
+		//} else if (current.getNodeKind() == XDMNodeKind.text) {
+		//	current.getElement().setValue(value);
 		} else {
 			current.getElement().setValue(value);
 		}

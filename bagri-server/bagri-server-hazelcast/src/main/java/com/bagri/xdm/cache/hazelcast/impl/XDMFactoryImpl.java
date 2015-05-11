@@ -71,6 +71,7 @@ public final class XDMFactoryImpl implements XDMFactory {
 	@Override
 	public XDMParser newXDMParser(String dataFormat, XDMModelManagement model) {
 		if (XDMParser.df_json.equals(dataFormat)) {
+			// TODO: make this configurable
 			//return new XDMJaksonParser(model);
 			return new XDMJsonParser(model);
 		}
