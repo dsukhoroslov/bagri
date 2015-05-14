@@ -3,14 +3,6 @@
  */
 package com.bagri.xdm.cache.hazelcast.management;
 
-import java.lang.management.ManagementFactory;
-import java.util.Set;
-
-import javax.management.MBeanServer;
-import javax.management.MalformedObjectNameException;
-
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.jmx.export.MBeanExportException;
 import org.springframework.jmx.export.annotation.ManagedAttribute;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedOperationParameter;

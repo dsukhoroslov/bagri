@@ -189,28 +189,28 @@ public class RepositoryImpl extends XDMRepositoryBase implements ApplicationCont
 	//	this.moduleMgr = moduleMgr;
 	//}
 	
-	public boolean addSchemaModule(XDMModule module) {
+	//public boolean addSchemaModule(XDMModule module) {
 		
-		if (xdmSchema.addModule(module)) {
+	//	if (xdmSchema.addModule(module)) {
 			//XDMPath path = indexMgr.createIndex(index);
 			//DocumentManagementImpl docMgr = (DocumentManagementImpl) getDocumentManagement();
-			return true; //docMgr.indexElements(path.getTypeId(), path.getPathId()) > 0;
-		}
-		return false;
-	}
+	//		return true; //docMgr.indexElements(path.getTypeId(), path.getPathId()) > 0;
+	//	}
+	//	return false;
+	//}
 
-	public boolean dropSchemaModule(String name) {
+	//public boolean dropSchemaModule(String name) {
 		
-		XDMModule module = xdmSchema.removeModule(name);
-		if (module != null) {
+	//	XDMModule module = xdmSchema.removeModule(name);
+	//	if (module != null) {
 			//XDMPath path = indexMgr.deleteIndex(index);
 			//if (path != null) {
 			//	DocumentManagementImpl docMgr = (DocumentManagementImpl) getDocumentManagement();
-				return true; //docMgr.deindexElements(path.getTypeId(), path.getPathId()) > 0;
+	//			return true; //docMgr.deindexElements(path.getTypeId(), path.getPathId()) > 0;
 			//}
-		}
-		return false;
-	}
+	//	}
+	//	return false;
+	//}
 	
 }
 

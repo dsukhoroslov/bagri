@@ -32,6 +32,7 @@ public class XDMConfigTest {
         
         assertTrue(config.getNodes().size() == 0);
         assertTrue(config.getSchemas().size() == 2);
+        assertTrue(config.getModules().size() == 0);
     }
 	
 	@Test

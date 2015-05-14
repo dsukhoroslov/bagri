@@ -13,7 +13,8 @@ import javax.xml.bind.annotation.XmlType;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(namespace = "http://www.bagri.com/xdm/system",	propOrder = {
 		"nodes", 
-		"schemas"
+		"schemas",
+		"modules"
 })
 @XmlRootElement(name = "config", namespace = "http://www.bagri.com/xdm/system") 
 public class XDMConfig {
@@ -26,6 +27,10 @@ public class XDMConfig {
 	@XmlElementWrapper(name="schemas")
 	private List<XDMSchema> schemas = new ArrayList<XDMSchema>();
 	
+	@XmlElement(name="module")
+	@XmlElementWrapper(name="modules")
+	private List<XDMModule> modules = new ArrayList<XDMModule>();
+
 	public List<XDMNode> getNodes() {
 		return nodes;
 	}
@@ -34,4 +39,7 @@ public class XDMConfig {
 		return schemas;
 	}
 	
+	public List<XDMModule> getModules() {
+		return modules;
+	}
 }

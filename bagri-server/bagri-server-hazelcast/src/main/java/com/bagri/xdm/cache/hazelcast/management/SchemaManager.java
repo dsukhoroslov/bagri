@@ -292,7 +292,7 @@ public class SchemaManager extends EntityManager<XDMSchema> {
 		}
 		return false;
 	}
-
+/*
 	XDMModule addModule(String name, String fileName, String description, String text) {
 		XDMModule module = new XDMModule(1, new Date(), JMXUtils.getCurrentUser(), name, 
 				fileName, description, text, true);
@@ -324,4 +324,5 @@ public class SchemaManager extends EntityManager<XDMSchema> {
 		}
 		return false;
 	}
+*/	
 }

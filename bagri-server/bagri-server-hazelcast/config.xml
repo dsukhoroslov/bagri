@@ -178,24 +178,6 @@
                     <enabled>true</enabled>
                 </index>
             </indexes>
-            <modules>
-                <module name="hello_module">
-                    <version>1</version>
-                    <createdAt>2015-04-10T13:36:26.965+03:00</createdAt>
-                    <createdBy>SDV</createdBy>
-                    <fileName>/hello_module.xq</fileName>
-                    <description>The Hello Test Module</description>
-                    <text>
-module namespace hw = &quot;http://helloworld&quot;;
-
-declare function hw:helloworld($name as xs:string)
-{
-  fn:concat(&quot;hello &quot;, $name, &quot;!&quot;)
-};
-		    </text>
-                    <enabled>true</enabled>
-                </module>
-            </modules>
         </schema>
         <schema name="XDM" active="true">
             <version>1</version>
@@ -356,4 +338,22 @@ declare function hw:helloworld($name as xs:string)
             <modules/>
         </schema>
     </schemas>
+    <modules>
+        <module name="hello_module">
+            <version>1</version>
+            <createdAt>2015-04-10T13:36:26.965+03:00</createdAt>
+            <createdBy>SDV</createdBy>
+            <fileName>/hello_module.xq</fileName>
+            <description>The Hello Test Module</description>
+            <text>
+module namespace hw = &quot;http://helloworld&quot;;
+
+declare function hw:helloworld($name as xs:string)
+{
+  fn:concat(&quot;hello &quot;, $name, &quot;!&quot;)
+};
+            </text>
+            <enabled>true</enabled>
+        </module>
+    </modules>
 </ns2:config>

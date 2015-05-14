@@ -1,6 +1,7 @@
 package com.bagri.xdm.cache.hazelcast.management;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
@@ -15,31 +16,42 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.common.util.FileUtils;
+import com.bagri.xdm.cache.hazelcast.task.user.UserCreator;
+import com.bagri.xdm.cache.hazelcast.task.user.UserRemover;
 import com.bagri.xdm.system.XDMModule;
+import com.bagri.xdm.system.XDMRole;
 import com.bagri.xdm.system.XDMSchema;
+import com.bagri.xdm.system.XDMUser;
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IMap;
 
-@ManagedResource(description="Schema Documents Management MBean")
-public class ModuleManagement extends SchemaFeatureManagement {
+/**
+ * @author Denis Sukhoroslov email: dsukhoroslov@gmail.com
+ *
+ */
+@ManagedResource(objectName="com.bagri.xdm:type=Management,name=ModuleManagement", 
+	description="XQuery Module Management MBean")
+public class ModuleManagement extends EntityManagement<String, XDMModule> {
 
-	private SchemaManager schemaManager;
-
-    public ModuleManagement(String schemaName) {
-    	super(schemaName);
+    public ModuleManagement(HazelcastInstance hzInstance) {
+    	super(hzInstance);
     }
 
 	@Override
-	protected String getFeatureKind() {
-		return "ModuleManagement";
+	protected EntityManager<XDMModule> createEntityManager(String moduleName) {
+		ModuleManager mgr = new ModuleManager(hzInstance, moduleName);
+		mgr.setEntityCache(entityCache);
+		return mgr;
 	}
-	
-	public void setSchemaManager(SchemaManager schemaManager) {
-		this.schemaManager = schemaManager;
+    
+	@ManagedAttribute(description="Return registered Module names")
+	public String[] getModuleNames() {
+		return entityCache.keySet().toArray(new String[0]);
 	}
 
-	@ManagedAttribute(description="Return modules defined on Schema")
+	@ManagedAttribute(description="Return registered Modules")
 	public TabularData getModules() {
-		XDMSchema schema = schemaManager.getEntity();
-		Set<XDMModule> modules = schema.getModules();
+		Collection<XDMModule> modules = entityCache.values();
         logger.trace("getModules; modules: {}", modules);
 		if (modules.size() == 0) {
 			return null;
@@ -57,7 +69,7 @@ public class ModuleManagement extends SchemaFeatureManagement {
         }
         return result;
     }
-	
+/*	
 	@ManagedOperation(description="Creates a new Module")
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "name", description = "Module name to create"),
@@ -140,4 +152,42 @@ public class ModuleManagement extends SchemaFeatureManagement {
 
 		logger.trace("registerModule.exit; module registered: {}", module);
 	}
+*/	
+	
+	
 }
+
+
+/*
+
+
+	@ManagedOperation(description="Create new User")
+	@ManagedOperationParameters({
+		@ManagedOperationParameter(name = "login", description = "User login"),
+		@ManagedOperationParameter(name = "password", description = "User password")})
+	public boolean addUser(String login, String password) {
+
+		if (!entityCache.containsKey(login)) {
+	    	Object result = entityCache.executeOnKey(login, new UserCreator(JMXUtils.getCurrentUser(), password));
+	    	logger.debug("addUser; execution result: {}", result);
+			return true;
+		}
+		return false;
+	}
+
+	@ManagedOperation(description="Delete User")
+	@ManagedOperationParameters({
+		@ManagedOperationParameter(name = "login", description = "User login")})
+	public boolean deleteUser(String login) {
+		//return userCache.remove(login) != null;
+		XDMUser user = entityCache.get(login);
+		if (user != null) {
+	    	Object result = entityCache.executeOnKey(login, new UserRemover(user.getVersion(), JMXUtils.getCurrentUser()));
+	    	logger.debug("deleteUser; execution result: {}", result);
+	    	return result != null;
+		}
+		return false;
+	}
+
+
+*/

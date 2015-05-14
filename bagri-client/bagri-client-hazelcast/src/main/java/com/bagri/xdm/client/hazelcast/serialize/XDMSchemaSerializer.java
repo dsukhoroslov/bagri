@@ -37,11 +37,11 @@ public class XDMSchemaSerializer extends XDMEntitySerializer implements StreamSe
 			XDMIndex idx = in.readObject();
 			xSchema.addIndex(idx);
 		}
-		size = in.readInt();
-		for (int i=0; i < size; i++) {
-			XDMModule mdl = in.readObject();
-			xSchema.addModule(mdl);
-		}
+		//size = in.readInt();
+		//for (int i=0; i < size; i++) {
+		//	XDMModule mdl = in.readObject();
+		//	xSchema.addModule(mdl);
+		//}
 		return xSchema;
 	}
 
@@ -57,10 +57,10 @@ public class XDMSchemaSerializer extends XDMEntitySerializer implements StreamSe
 		for (XDMIndex index: xSchema.getIndexes()) {
 			out.writeObject(index);
 		}
-		out.writeInt(xSchema.getModules().size());
-		for (XDMModule module: xSchema.getModules()) {
-			out.writeObject(module);
-		}
+		//out.writeInt(xSchema.getModules().size());
+		//for (XDMModule module: xSchema.getModules()) {
+		//	out.writeObject(module);
+		//}
 	}
 
 }

@@ -23,7 +23,7 @@ import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.Member;
 
 @ManagedResource(description="Cluster Node Manager MBean")
-public class NodeManager extends EntityManager<XDMNode> { //implements XDMNodeManager {
+public class NodeManager extends EntityManager<XDMNode> { 
 
     private HazelcastInstance hzInstance;
 	//private IExecutorService execService;

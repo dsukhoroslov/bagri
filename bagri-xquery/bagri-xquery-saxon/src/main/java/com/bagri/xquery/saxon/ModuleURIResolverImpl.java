@@ -48,7 +48,7 @@ public class ModuleURIResolverImpl implements ModuleURIResolver {
 			// moduleURI is the module namespace!
 			moduleName = moduleURI;
 		}
-		XDMModule module = schema.getModule(moduleName);
+		XDMModule module = null; //schema.getModule(moduleName);
 		if (module != null) {
 			Reader mReader = new StringReader(module.getText());
 			return new StreamSource[] {new StreamSource(mReader)};
