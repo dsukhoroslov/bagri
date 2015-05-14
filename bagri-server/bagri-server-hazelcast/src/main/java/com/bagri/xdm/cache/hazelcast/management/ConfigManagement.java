@@ -7,6 +7,7 @@ import javax.xml.bind.JAXBException;
 
 import com.bagri.xdm.common.XDMEntity;
 import com.bagri.xdm.system.XDMConfig;
+import com.bagri.xdm.system.XDMModule;
 import com.bagri.xdm.system.XDMNode;
 import com.bagri.xdm.system.XDMSchema;
 
@@ -33,6 +34,9 @@ public class ConfigManagement extends EntityConfig {
 		if (entityClass == XDMSchema.class) {
 			return config.getSchemas();
 		}
+		if (entityClass == XDMModule.class) {
+			return config.getModules();
+		}
 		// throw ex ?
 		return null;
 	}
@@ -43,6 +47,8 @@ public class ConfigManagement extends EntityConfig {
 			setEntities(config, config.getNodes(), entities);
 		} else if (entityClass == XDMSchema.class) {
 			setEntities(config, config.getSchemas(), entities);
+		} else if (entityClass == XDMModule.class) {
+			setEntities(config, config.getModules(), entities);
 		} else {
 			// throw ex?
 		}

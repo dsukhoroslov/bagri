@@ -13,10 +13,10 @@ public class ModuleCacheStore extends ConfigCacheStore<String, XDMModule> implem
 	@Override
 	protected Map<String, XDMModule> loadEntities() {
 		Map<String, XDMModule> modules = new HashMap<String, XDMModule>();
-		//Collection<XDMModule> cModules = (Collection<XDMModule>) cfg.getEntities(XDMModule.class); 
-		//for (XDMModule module: cModules) {
-		//	modules.put(module.getName(), module);
-	    //}
+		Collection<XDMModule> cModules = (Collection<XDMModule>) cfg.getEntities(XDMModule.class); 
+		for (XDMModule module: cModules) {
+			modules.put(module.getName(), module);
+	    }
 		return modules;
 	}
 
