@@ -39,6 +39,7 @@ import net.sf.saxon.dom.NodeOverNodeInfo;
 import net.sf.saxon.expr.JPConverter;
 import net.sf.saxon.expr.instruct.GlobalParameterSet;
 import net.sf.saxon.expr.instruct.GlobalVariable;
+import net.sf.saxon.functions.FunctionLibraryList;
 import net.sf.saxon.lib.FeatureKeys;
 import net.sf.saxon.lib.Validation;
 import net.sf.saxon.om.StructuredQName;
@@ -72,6 +73,8 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
         config = Configuration.newConfiguration();
         config.setHostLanguage(Configuration.XQUERY);
         config.setSchemaValidationMode(Validation.STRIP);
+        //FunctionLibraryList list;
+        //list.
         //config.setConfigurationProperty(FeatureKeys.PRE_EVALUATE_DOC_FUNCTION, Boolean.TRUE);
         sqc = config.newStaticQueryContext();
         // supported in Saxon-EE only

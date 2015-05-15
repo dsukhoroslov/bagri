@@ -39,7 +39,7 @@ public class ModuleManagement extends EntityManagement<String, XDMModule> {
 
 	@Override
 	protected EntityManager<XDMModule> createEntityManager(String moduleName) {
-		ModuleManager mgr = new ModuleManager(hzInstance, moduleName);
+		ModuleManager mgr = new ModuleManager(moduleName);
 		mgr.setEntityCache(entityCache);
 		return mgr;
 	}
@@ -123,18 +123,6 @@ public class ModuleManagement extends EntityManagement<String, XDMModule> {
 		logger.trace("dropModule.exit; module deleted on members");
 	}
 
-	@ManagedOperation(description="Enables/Disables an existing Module")
-	@ManagedOperationParameters({
-		@ManagedOperationParameter(name = "name", description = "Module name to enable/disable"),
-		@ManagedOperationParameter(name = "enable", description = "enable/disable module")})
-	public void enableModule(String name, boolean enable) {
-		
-		if (!schemaManager.enableModule(name, enable)) {
-			throw new IllegalStateException("Module '" + name + "' in schema '" + schemaName + 
-					"' does not exist or already " + (enable ? "enabled" : "disabled"));
-		}
-	}
-	
 	@ManagedOperation(description="Creates a new Module")
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "name", description = "Module name to create"),

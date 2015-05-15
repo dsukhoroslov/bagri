@@ -48,7 +48,6 @@ public class NodeManager extends EntityManager<XDMNode> {
 	
 	@ManagedAttribute(description="Returns registered Node name")
 	public String getName() {
-		// this is not an entityName!
 		return getEntity().getName();
 	}
 	

@@ -13,9 +13,6 @@ import com.bagri.xdm.api.XDMRepository;
 
 public interface QueryProcessor {
 	
-    //XDMDocumentManagement getXdmManager();
-    //void setXdmManager(XDMDocumentManagement mgr);
-
     XDMRepository getRepository();
     void setRepository(XDMRepository xRepo);
 	void setXQDataFactory(XQDataFactory xqFactory);    

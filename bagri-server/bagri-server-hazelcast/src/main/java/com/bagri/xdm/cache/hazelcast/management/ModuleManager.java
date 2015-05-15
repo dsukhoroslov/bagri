@@ -1,15 +1,22 @@
 package com.bagri.xdm.cache.hazelcast.management;
 
+import javax.xml.xquery.XQConnection;
+
 import org.springframework.jmx.export.annotation.ManagedAttribute;
+import org.springframework.jmx.export.annotation.ManagedOperation;
+import org.springframework.jmx.export.annotation.ManagedOperationParameter;
+import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
 import com.bagri.xdm.system.XDMModule;
+import com.bagri.xquery.api.XQCompiler;
+import com.bagri.xquery.api.XQProcessor;
 import com.hazelcast.core.HazelcastInstance;
 
 @ManagedResource(description="XQuery Module Manager MBean")
 public class ModuleManager extends EntityManager<XDMModule> { 
 
-    private HazelcastInstance hzInstance;
+	private XQCompiler xqComp;
 	//private IExecutorService execService;
 
 	public ModuleManager() {
@@ -17,12 +24,15 @@ public class ModuleManager extends EntityManager<XDMModule> {
 		super();
 	}
     
-	public ModuleManager(HazelcastInstance hzInstance, String moduleName) {
+	public ModuleManager(String moduleName) {
 		super(moduleName);
-		this.hzInstance = hzInstance;
 		//execService = hzInstance.getExecutorService(PN_XDM_SYSTEM_POOL);
 		//IMap<String, XDMNode> nodes = hzInstance.getMap("nodes"); 
 		//setEntityCache(nodes);
+	}
+
+	public void setXQCompiler(XQCompiler xqComp) {
+		this.xqComp = xqComp;
 	}
 	
 	@Override
@@ -32,8 +42,14 @@ public class ModuleManager extends EntityManager<XDMModule> {
 	
 	@ManagedAttribute(description="Returns registered Module name")
 	public String getName() {
-		// this is not an entityName!
-		return getEntity().getName();
+		return entityName;
 	}
 
+	@ManagedOperation(description="Compiles registered Module")
+	public void compileModule() {
+
+		// not implemented yet
+		xqComp.compileQuery(this.getEntity().getText());
+	}
+	
 }
