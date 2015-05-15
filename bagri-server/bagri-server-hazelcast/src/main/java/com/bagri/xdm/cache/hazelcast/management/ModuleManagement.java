@@ -22,6 +22,7 @@ import com.bagri.xdm.system.XDMModule;
 import com.bagri.xdm.system.XDMRole;
 import com.bagri.xdm.system.XDMSchema;
 import com.bagri.xdm.system.XDMUser;
+import com.bagri.xquery.api.XQCompiler;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 
@@ -33,14 +34,21 @@ import com.hazelcast.core.IMap;
 	description="XQuery Module Management MBean")
 public class ModuleManagement extends EntityManagement<String, XDMModule> {
 
+	private XQCompiler xqComp;
+	
     public ModuleManagement(HazelcastInstance hzInstance) {
     	super(hzInstance);
     }
 
+	public void setXQCompiler(XQCompiler xqComp) {
+		this.xqComp = xqComp;
+	}
+	
 	@Override
 	protected EntityManager<XDMModule> createEntityManager(String moduleName) {
 		ModuleManager mgr = new ModuleManager(moduleName);
 		mgr.setEntityCache(entityCache);
+		mgr.setXQCompiler(xqComp);
 		return mgr;
 	}
     

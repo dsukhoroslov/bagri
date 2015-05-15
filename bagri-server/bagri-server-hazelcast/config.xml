@@ -98,7 +98,6 @@
                     <enabled>false</enabled>
                 </index>
             </indexes>
-            <modules/>
         </schema>
         <schema name="TPoX" active="true">
             <version>1</version>
@@ -226,7 +225,6 @@
                 <entry name="xdm.schema.query.backup.read">true</entry>
             </properties>
             <indexes/>
-            <modules/>
         </schema>
         <schema name="XMark" active="true">
             <version>2</version>
@@ -275,7 +273,6 @@
                 <entry name="xdm.schema.query.backup.read">true</entry>
             </properties>
             <indexes/>
-            <modules/>
         </schema>
         <schema name="TPoX-J" active="true">
             <version>1</version>
@@ -323,19 +320,7 @@
                 <entry name="xdm.schema.query.backup.read">true</entry>
                 <entry name="xdm.schema.partition.count">271</entry>
             </properties>
-            <indexes>
-                <!--index name="IDX_Security_Symbol">
-                    <version>1</version>
-                    <createdAt>2015-04-22T13:36:26.965+03:00</createdAt>
-                    <createdBy>SDV</createdBy>
-                    <docType>/Security</docType>
-                    <path>/Security/Symbol/text()</path>
-                    <unique>true</unique>
-                    <description>Security Symbol</description>
-                    <enabled>true</enabled>
-                </index-->
-            </indexes>
-            <modules/>
+            <indexes/>
         </schema>
     </schemas>
     <modules>
@@ -345,14 +330,7 @@
             <createdBy>SDV</createdBy>
             <fileName>/hello_module.xq</fileName>
             <description>The Hello Test Module</description>
-            <text>
-module namespace hw = &quot;http://helloworld&quot;;
-
-declare function hw:helloworld($name as xs:string)
-{
-  fn:concat(&quot;hello &quot;, $name, &quot;!&quot;)
-};
-            </text>
+            <text>module namespace hw = &quot;http://helloworld&quot;;  declare function hw:helloworld($name as xs:string) {   fn:concat345(hello, $name, &quot;!&quot;) }; </text>
             <enabled>true</enabled>
         </module>
     </modules>

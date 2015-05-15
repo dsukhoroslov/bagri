@@ -156,9 +156,12 @@
 		<property name="entityManagement" ref="accessService"/>
 	</bean>
 
+	<bean id="xqCompiler" class="com.bagri.xquery.saxon.XQCompilerImpl"/>
+
 	<bean id="moduleService" class="com.bagri.xdm.cache.hazelcast.management.ModuleManagement">
 		<constructor-arg ref="dataInstance" />
 		<property name="entityCache" ref="modules"/>
+		<property name="XQCompiler" ref="xqCompiler"/>
 	</bean>
 
 	<bean id="clusterService" class="com.bagri.xdm.cache.hazelcast.management.ClusterManagement">

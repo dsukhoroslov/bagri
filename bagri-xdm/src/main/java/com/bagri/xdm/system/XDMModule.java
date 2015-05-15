@@ -83,6 +83,11 @@ public class XDMModule extends XDMEntity {
 		return false;
 	}
 
+	public void setText(String text) {
+		this.text = text;
+		//this.updateVersion("???");
+	}
+	
 	@Override
 	public int hashCode() {
 		return name.hashCode();
