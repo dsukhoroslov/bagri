@@ -26,6 +26,7 @@ public class XDMModuleSerializer extends XDMEntitySerializer implements StreamSe
 				in.readUTF(),
 				in.readUTF(),
 				in.readUTF(),
+				in.readUTF(),
 				in.readBoolean());
 		return xModule;
 	}
@@ -37,7 +38,8 @@ public class XDMModuleSerializer extends XDMEntitySerializer implements StreamSe
 		out.writeUTF(xModule.getName());
 		out.writeUTF(xModule.getFileName());
 		out.writeUTF(xModule.getDescription());
-		out.writeUTF(xModule.getText());
+		out.writeUTF(xModule.getNamespace());
+		out.writeUTF(xModule.getBody());
 		out.writeBoolean(xModule.isEnabled());
 	}
 

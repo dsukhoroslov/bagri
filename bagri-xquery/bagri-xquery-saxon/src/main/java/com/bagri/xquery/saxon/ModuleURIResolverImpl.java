@@ -50,7 +50,7 @@ public class ModuleURIResolverImpl implements ModuleURIResolver {
 		}
 		XDMModule module = null; //schema.getModule(moduleName);
 		if (module != null) {
-			Reader mReader = new StringReader(module.getText());
+			Reader mReader = new StringReader(module.getBody());
 			return new StreamSource[] {new StreamSource(mReader)};
 		} else {
 			// throw ex?

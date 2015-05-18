@@ -328,9 +328,9 @@
             <version>1</version>
             <createdAt>2015-04-10T13:36:26.965+03:00</createdAt>
             <createdBy>SDV</createdBy>
-            <fileName>/hello_module.xq</fileName>
+            <fileName>C://Work/Bagri/git/bagri/etc/samples/tpox/hello_module.xq</fileName>
             <description>The Hello Test Module</description>
-            <text>module namespace hw = &quot;http://helloworld&quot;;  declare function hw:helloworld($name as xs:string) {   fn:concat345(hello, $name, &quot;!&quot;) }; </text>
+            <namespace>http://helloworld</namespace>
             <enabled>true</enabled>
         </module>
     </modules>

@@ -1,5 +1,7 @@
 package com.bagri.xdm.cache.hazelcast.management;
 
+import java.util.List;
+
 import org.springframework.jmx.export.annotation.ManagedAttribute;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedResource;
@@ -31,11 +33,17 @@ public class ModuleManager extends EntityManager<XDMModule> {
 	
 	@ManagedOperation(description="Compiles registered Module")
 	public void compileModule() {
-
 		XDMModule module = getEntity();
-		xqComp.compileModule("http://helloworld", module.getName(), module.getText());
+		xqComp.compileModule(module);
 	}
 
+	@ManagedOperation(description="Returns Module functions")
+	public String[] getDeclaredFunctions() {
+		XDMModule module = getEntity();
+		List<String> list = xqComp.getModuleFunctions(module);
+		return list.toArray(new String[list.size()]);
+	}
+	
 	@Override
 	protected String getEntityType() {
 		return "Module";
@@ -43,7 +51,7 @@ public class ModuleManager extends EntityManager<XDMModule> {
 
 	@ManagedOperation(description="Returns Module body")
 	public String getBody() {
-		return getEntity().getText();
+		return getEntity().getBody();
 	}
 	
 	@ManagedAttribute(description="Returns Module description")
@@ -61,9 +69,14 @@ public class ModuleManager extends EntityManager<XDMModule> {
 		return entityName;
 	}
 
+	@ManagedAttribute(description="Returns registered Module name")
+	public String getNamespace() {
+		return getEntity().getNamespace();
+	}
+
 	@ManagedAttribute(description="Returns Module compilation state")
 	public String getState() {
-		return "invalid";
+		return xqComp.getModuleState(getEntity()) ? "valid" : "invalid";
 	}
 
 	@ManagedAttribute(description="Returns Module version")
@@ -75,8 +88,7 @@ public class ModuleManager extends EntityManager<XDMModule> {
 	public void setBody(String body) {
 		// TODO: do this via EntryProcessor with locks etc.. 
 		XDMModule module = getEntity();
-		module.setText(body);
+		module.setBody(body);
 		flushEntity(module);
-		// TODO: now write it on disk..
 	}
 }

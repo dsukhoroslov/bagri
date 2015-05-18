@@ -16,11 +16,9 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.common.util.FileUtils;
-import com.bagri.xdm.cache.hazelcast.task.user.UserCreator;
-import com.bagri.xdm.cache.hazelcast.task.user.UserRemover;
+import com.bagri.xdm.cache.hazelcast.task.module.ModuleCreator;
+import com.bagri.xdm.cache.hazelcast.task.module.ModuleRemover;
 import com.bagri.xdm.system.XDMModule;
-import com.bagri.xdm.system.XDMRole;
-import com.bagri.xdm.system.XDMSchema;
 import com.bagri.xdm.system.XDMUser;
 import com.bagri.xquery.api.XQCompiler;
 import com.hazelcast.core.HazelcastInstance;
@@ -77,60 +75,41 @@ public class ModuleManagement extends EntityManagement<String, XDMModule> {
         }
         return result;
     }
-/*	
+	
 	@ManagedOperation(description="Creates a new Module")
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "name", description = "Module name to create"),
 		@ManagedOperationParameter(name = "fileName", description = "File for module"),
 		@ManagedOperationParameter(name = "description", description = "Module description"),
-		@ManagedOperationParameter(name = "text", description = "Module body")})
-	public void addModule(String name, String fileName, String description, String text) {
+		@ManagedOperationParameter(name = "namespace", description = "Module namespace")})
+	public void addModule(String name, String fileName, String description, String namespace) {
 
 		logger.trace("addModule.enter;");
-		XDMModule module = schemaManager.addModule(name, fileName, description, text);
-		if (module == null) {
-			throw new IllegalStateException("Module '" + name + "' in schema '" + schemaName + "' already exists");
+		XDMModule module = null;
+		if (!entityCache.containsKey(name)) {
+	    	Object result = entityCache.executeOnKey(name, 
+	    			new ModuleCreator(JMXUtils.getCurrentUser(), fileName, namespace, description));
+			//return true;
+	    	module = (XDMModule) result;
 		}
-		
-		//IndexCreator task = new IndexCreator(index);
-		//Map<Member, Future<Boolean>> results = execService.submitToAllMembers(task);
-		//int cnt = 0;
-		//for (Map.Entry<Member, Future<Boolean>> entry: results.entrySet()) {
-		//	try {
-		//		if (entry.getValue().get()) {
-		//			cnt++;
-		//		}
-		//	} catch (InterruptedException | ExecutionException ex) {
-		//		logger.error("addIndex.error; ", ex);
-		//	}
-		//}
+		//return false;
 		logger.trace("addModule.exit; module created: {}", module);
 	}
 	
 	@ManagedOperation(description="Removes an existing Module")
 	@ManagedOperationParameters({@ManagedOperationParameter(name = "name", description = "Module name to delete")})
-	public void dropModule(String name) {
+	public void deleteModule(String name) {
 		
-		logger.trace("dropModule.enter;");
-		if (!schemaManager.deleteModule(name)) {
-			throw new IllegalStateException("Module '" + name + "' in schema '" + schemaName + "' does not exist");
+		logger.trace("deleteModule.enter; name: {}", name);
+		XDMModule module = entityCache.get(name);
+		if (module != null) {
+	    	Object result = entityCache.executeOnKey(name, new ModuleRemover(module.getVersion(), JMXUtils.getCurrentUser()));
+	    	//return result != null;
 		}
-
-		//IndexRemover task = new IndexRemover(name);
-		//Map<Member, Future<Boolean>> results = execService.submitToAllMembers(task);
-		//int cnt = 0;
-		//for (Map.Entry<Member, Future<Boolean>> entry: results.entrySet()) {
-		//	try {
-		//		if (entry.getValue().get()) {
-		//			cnt++;
-		//		}
-		//	} catch (InterruptedException | ExecutionException ex) {
-		//		logger.error("dropIndex.error; ", ex);
-		//	}
-		//}
-		logger.trace("dropModule.exit; module deleted on members");
+		//return false;
+		logger.trace("deleteModule.exit; module deleted");
 	}
-
+/*
 	@ManagedOperation(description="Creates a new Module")
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "name", description = "Module name to create"),
@@ -148,42 +127,6 @@ public class ModuleManagement extends EntityManagement<String, XDMModule> {
 
 		logger.trace("registerModule.exit; module registered: {}", module);
 	}
-*/	
-	
+*/		
 	
 }
-
-
-/*
-
-
-	@ManagedOperation(description="Create new User")
-	@ManagedOperationParameters({
-		@ManagedOperationParameter(name = "login", description = "User login"),
-		@ManagedOperationParameter(name = "password", description = "User password")})
-	public boolean addUser(String login, String password) {
-
-		if (!entityCache.containsKey(login)) {
-	    	Object result = entityCache.executeOnKey(login, new UserCreator(JMXUtils.getCurrentUser(), password));
-	    	logger.debug("addUser; execution result: {}", result);
-			return true;
-		}
-		return false;
-	}
-
-	@ManagedOperation(description="Delete User")
-	@ManagedOperationParameters({
-		@ManagedOperationParameter(name = "login", description = "User login")})
-	public boolean deleteUser(String login) {
-		//return userCache.remove(login) != null;
-		XDMUser user = entityCache.get(login);
-		if (user != null) {
-	    	Object result = entityCache.executeOnKey(login, new UserRemover(user.getVersion(), JMXUtils.getCurrentUser()));
-	    	logger.debug("deleteUser; execution result: {}", result);
-	    	return result != null;
-		}
-		return false;
-	}
-
-
-*/

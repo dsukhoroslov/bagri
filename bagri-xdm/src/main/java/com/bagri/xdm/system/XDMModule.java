@@ -9,6 +9,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlID;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 
 import com.bagri.xdm.common.XDMEntity;
@@ -18,7 +19,7 @@ import com.bagri.xdm.common.XDMEntity;
 		"name", 
 		"fileName",
 		"description",
-		"text",
+		"namespace",
 		"enabled"
 })
 public class XDMModule extends XDMEntity {
@@ -34,9 +35,12 @@ public class XDMModule extends XDMEntity {
 	private String description;
 		
 	@XmlElement(required = 	true)
-	private String text;
+	private String namespace;
 
-	@XmlElement(required = 	false, defaultValue = "true")
+	@XmlTransient
+	private String body;
+
+	@XmlElement(required = false, defaultValue = "true")
 	private boolean enabled = true;
 
 	public XDMModule() {
@@ -45,12 +49,13 @@ public class XDMModule extends XDMEntity {
 	}
 	
 	public XDMModule(int version, Date createdAt, String createdBy, String name, 
-			String fileName, String description, String text, boolean enabled) {
+			String fileName, String description, String namespace, String body, boolean enabled) {
 		super(version, createdAt, createdBy);
 		this.name = name;
 		this.fileName = fileName;
 		this.description = description;
-		this.text = text;
+		this.namespace = namespace;
+		this.body = body;
 		this.enabled = enabled;
 	}
 
@@ -66,8 +71,12 @@ public class XDMModule extends XDMEntity {
 		return description;
 	}
 	
-	public String getText() {
-		return text;
+	public String getNamespace() {
+		return namespace;
+	}
+
+	public String getBody() {
+		return body;
 	}
 
 	public boolean isEnabled() {
@@ -83,8 +92,8 @@ public class XDMModule extends XDMEntity {
 		return false;
 	}
 
-	public void setText(String text) {
-		this.text = text;
+	public void setBody(String body) {
+		this.body = body;
 		//this.updateVersion("???");
 	}
 	
@@ -116,8 +125,9 @@ public class XDMModule extends XDMEntity {
 		result.put("created by", getCreatedBy());
 		result.put("fileName", fileName);
 		result.put("description", description);
+		result.put("namespace", namespace);
 		result.put("enabled", enabled);
-		result.put("text", text);
+		result.put("body", body);
 		return result;
 	}
 
@@ -126,7 +136,7 @@ public class XDMModule extends XDMEntity {
 		return "XDMModule [name=" + name + ", version=" + getVersion()
 				+ ", fileName=" + fileName + ", description=" + description  
 				+ ", created at=" + getCreatedAt() + ", by=" + getCreatedBy()
-				+ ", enabled=" + enabled + "]";
+				+ ", namespace=" + namespace + ", enabled=" + enabled + "]";
 	}
 	
 
