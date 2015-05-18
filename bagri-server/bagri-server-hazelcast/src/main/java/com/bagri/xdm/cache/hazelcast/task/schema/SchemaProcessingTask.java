@@ -24,14 +24,14 @@ public abstract class SchemaProcessingTask implements IdentifiedDataSerializable
 		//
 	}
 	
-	@Autowired
-	public void setHzInstance(HazelcastInstance hzInstance) {
-		this.hzInstance = hzInstance;
-	}
-
 	public SchemaProcessingTask(String schemaName) {
 		// this();
 		this.schemaName = schemaName;
+	}
+
+	@Autowired
+	public void setHzInstance(HazelcastInstance hzInstance) {
+		this.hzInstance = hzInstance;
 	}
 
 	@Override

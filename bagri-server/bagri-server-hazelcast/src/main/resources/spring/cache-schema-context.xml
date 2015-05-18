@@ -15,6 +15,7 @@
  
 	<hz:hazelcast id="hzInstance">
 		<hz:config>
+			<!--hz:spring-aware/-->
 			<hz:instance-name>${xdm.schema.name}</hz:instance-name>
 			<hz:group name="${xdm.schema.name}" password="${xdm.schema.password}"/>
 			<hz:properties>

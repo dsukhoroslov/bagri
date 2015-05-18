@@ -182,7 +182,8 @@ public class XQCompilerImpl implements XQCompiler, ErrorListener {
 			buff.append(ufp.getRequiredType().toString());
 			idx++;
 		}
-		buff.append(")");
+		buff.append(") as ");
+		buff.append(function.getDeclaredResultType().toString());
 		return buff.toString();
 	}
 

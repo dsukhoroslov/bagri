@@ -17,6 +17,7 @@
     </bean-->
  
  	<hz:client id="hzInstance">
+		<!--hz:spring-aware/-->
 		<hz:group name="${xdm.schema.name}" password="${xdm.schema.password}"/>
 	
 		<hz:properties>

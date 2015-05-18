@@ -15,6 +15,7 @@
  
 	<hz:hazelcast id="hzInstance">
 		<hz:config>
+			<!--hz:spring-aware/-->
 			<hz:instance-name>hzInstance</hz:instance-name>
 			<hz:group name="system" password="syspwd"/>
 			<hz:properties>

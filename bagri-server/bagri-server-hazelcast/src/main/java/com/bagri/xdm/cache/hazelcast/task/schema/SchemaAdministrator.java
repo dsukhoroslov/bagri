@@ -40,14 +40,12 @@ public class SchemaAdministrator extends SchemaProcessingTask implements Callabl
     @Autowired
 	public void setSchemaService(SchemaManagement schemaService) {
 		this.schemaService = schemaService;
-		//logger.trace("setHzInstance; got instance: {}", hzInstance); 
 	}
 	
 	@Override
 	public Boolean call() throws Exception {
     	logger.trace("call.enter; schema: {}; init: {}", schemaName, init);
-		//HazelcastInstance hz = Hazelcast.getHazelcastInstanceByName(schemaName);
-    	//Member member = hz.getCluster().getLocalMember();
+    	//logger.trace("call.enter; HZ: {}; SM: {}", hzInstance, schemaService);
 		boolean result = false;
 		for (Member member: hzInstance.getCluster().getMembers()) {
 			if (uuid.equals(member.getUuid())) {

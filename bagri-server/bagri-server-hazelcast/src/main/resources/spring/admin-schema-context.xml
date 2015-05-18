@@ -11,6 +11,7 @@
 	<context:annotation-config />
  
 	<hz:client id="hzInstance">
+		<!--hz:spring-aware/-->
 		<hz:group name="${xdm.schema.name}" password="${xdm.schema.password}"/>
 	
 		<!-- adjust connection settings properly: timeout, attempts cnt etc.
@@ -187,12 +188,6 @@
 	</bean>
 
 	<bean id="modelManager" class="com.bagri.xdm.cache.hazelcast.management.ModelManagement">
-		<constructor-arg value="${xdm.schema.name}" />
-		<property name="execService" ref="xdm-exec-pool"/>
-		<property name="modelManager" ref="xdmModel"/>
-	</bean>
-
-	<bean id="moduleManager" class="com.bagri.xdm.cache.hazelcast.management.ModuleManagement">
 		<constructor-arg value="${xdm.schema.name}" />
 		<property name="execService" ref="xdm-exec-pool"/>
 		<property name="modelManager" ref="xdmModel"/>
