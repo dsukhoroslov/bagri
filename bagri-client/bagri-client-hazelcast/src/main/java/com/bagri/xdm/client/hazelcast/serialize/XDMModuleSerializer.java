@@ -43,6 +43,4 @@ public class XDMModuleSerializer extends XDMEntitySerializer implements StreamSe
 		out.writeBoolean(xModule.isEnabled());
 	}
 
-
-
 }

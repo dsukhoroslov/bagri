@@ -2,7 +2,9 @@ package com.bagri.xdm.system;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -93,5 +95,18 @@ public class XDMLibrary extends XDMEntity {
 		return functions;
 	}
 	
+	public Map<String, Object> toMap() {
+		Map<String, Object> result = new HashMap<>();
+		result.put("name", name);
+		result.put("version", getVersion());
+		result.put("created at", getCreatedAt().toString());
+		result.put("created by", getCreatedBy());
+		result.put("fileName", fileName);
+		result.put("description", description);
+		result.put("namespace", namespace);
+		result.put("enabled", enabled);
+		return result;
+	}
+
 	
 }

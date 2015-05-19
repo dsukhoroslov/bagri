@@ -3,6 +3,7 @@ package com.bagri.xquery.saxon;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
@@ -29,6 +30,8 @@ import net.sf.saxon.query.XQueryExpression;
 import net.sf.saxon.trans.XPathException;
 import net.sf.saxon.value.SequenceType;
 
+import com.bagri.xdm.system.XDMFunction;
+import com.bagri.xdm.system.XDMLibrary;
 import com.bagri.xdm.system.XDMModule;
 import com.bagri.xquery.api.XQCompiler;
 
@@ -40,6 +43,7 @@ public class XQCompilerImpl implements XQCompiler, ErrorListener {
 	
     private Configuration config;
     private StaticQueryContext sqc;
+	private List<XDMLibrary> libraries = new ArrayList<>();
     private List<TransformerException> errors = new ArrayList<>();
 	
     public XQCompilerImpl() {
@@ -127,6 +131,12 @@ public class XQCompilerImpl implements XQCompiler, ErrorListener {
 		}
 	}
 	
+	@Override
+	public void setLibraries(Collection<XDMLibrary> libraries) {
+		this.libraries.clear();
+		this.libraries.addAll(libraries);
+	}
+	
 	private XQueryExpression getModuleExpression(XDMModule module) {
 		//logger.trace("getModuleExpression.enter; got namespace: {}, name: {}, body: {}", namespace, name, body);
 		clearErrors();
@@ -137,7 +147,10 @@ public class XQCompilerImpl implements XQCompiler, ErrorListener {
 			query += "1213";
 			sqc.setModuleURIResolver(new LocalModuleURIResolver(module.getBody()));
 			logger.trace("getModuleExpression; compiling query: {}", query);
-			//logger.trace("getModuleExpression.exit; time taken: {}", stamp); 
+			//logger.trace("getModuleExpression.exit; time taken: {}", stamp);
+			
+			// TODO: register extension for each and every library/function..
+			// then think how to cache this info..
 			return sqc.compileQuery(query);
 			//sqc.getCompiledLibrary("test")...
 		} catch (XPathException ex) {

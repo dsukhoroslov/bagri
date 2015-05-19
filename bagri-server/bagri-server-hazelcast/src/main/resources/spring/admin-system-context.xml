@@ -115,6 +115,9 @@
 			<hz:serialization>
 				<hz:serializers>
 					<hz:serializer type-class="com.bagri.xdm.system.XDMModule" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMModuleSerializer"/>
+					<hz:serializer type-class="com.bagri.xdm.system.XDMLibrary" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMLibrarySerializer"/>
+					<hz:serializer type-class="com.bagri.xdm.system.XDMFunction" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMFunctionSerializer"/>
+					<hz:serializer type-class="com.bagri.xdm.system.XDMParameter" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMParameterSerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.system.XDMNode" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMNodeSerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.system.XDMSchema" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMSchemaSerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.system.XDMIndex" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMIndexSerializer"/>
@@ -172,6 +175,12 @@
 	<bean id="moduleService" class="com.bagri.xdm.cache.hazelcast.management.ModuleManagement">
 		<constructor-arg ref="dataInstance" />
 		<property name="entityCache" ref="modules"/>
+		<property name="XQCompiler" ref="xqCompiler"/>
+	</bean>
+
+	<bean id="libraryService" class="com.bagri.xdm.cache.hazelcast.management.LibraryManagement">
+		<constructor-arg ref="dataInstance" />
+		<property name="entityCache" ref="libraries"/>
 		<property name="XQCompiler" ref="xqCompiler"/>
 	</bean>
 

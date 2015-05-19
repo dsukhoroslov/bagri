@@ -328,11 +328,32 @@
             <version>1</version>
             <createdAt>2015-04-10T13:36:26.965+03:00</createdAt>
             <createdBy>SDV</createdBy>
-            <fileName>C://Work/Bagri/git/bagri/etc/samples/tpox/hello_module.xq</fileName>
+            <fileName>../../etc/samples/tpox/hello_module.xq</fileName>
             <description>The Hello Test Module</description>
             <namespace>http://helloworld</namespace>
             <enabled>true</enabled>
         </module>
     </modules>
-    <libraries/>
+    <libraries>
+        <library name="java_library">
+            <version>1</version>
+            <createdAt>2015-05-20T00:00:26.965+03:00</createdAt>
+            <createdBy>SDV</createdBy>
+            <!--fileName>null</fileName-->
+            <description>The Standard Java Extension Library</description>
+            <namespace>http://java.lang</namespace>
+            <enabled>true</enabled>
+            <functions>
+                <function>
+		    <className>java.lang.Double</className>
+		    <method>asString</method>
+		    <resultClass>java.lang.String</resultClass>
+            	    <!--description>null</description-->
+            	    <parameters>
+                	<parameter name="value" type="double"/>
+	    	    </parameters>
+	    	</function>
+	    </functions>
+        </library>
+    </libraries>
 </ns2:config>

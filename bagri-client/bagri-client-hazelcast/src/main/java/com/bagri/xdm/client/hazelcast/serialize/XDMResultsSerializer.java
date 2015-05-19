@@ -11,7 +11,7 @@ import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.StreamSerializer;
 
-public class XDMResultsSerializer  implements StreamSerializer<XDMResults> {
+public class XDMResultsSerializer implements StreamSerializer<XDMResults> {
 
 	@Override
 	public void destroy() {
