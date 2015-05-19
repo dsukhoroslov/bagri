@@ -14,7 +14,8 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(namespace = "http://www.bagri.com/xdm/system",	propOrder = {
 		"nodes", 
 		"schemas",
-		"modules"
+		"modules",
+		"libraries"
 })
 @XmlRootElement(name = "config", namespace = "http://www.bagri.com/xdm/system") 
 public class XDMConfig {
@@ -31,6 +32,10 @@ public class XDMConfig {
 	@XmlElementWrapper(name="modules")
 	private List<XDMModule> modules = new ArrayList<XDMModule>();
 
+	@XmlElement(name="library")
+	@XmlElementWrapper(name="libraries")
+	private List<XDMLibrary> libraries = new ArrayList<XDMLibrary>();
+
 	public List<XDMNode> getNodes() {
 		return nodes;
 	}
@@ -42,4 +47,9 @@ public class XDMConfig {
 	public List<XDMModule> getModules() {
 		return modules;
 	}
+
+	public List<XDMLibrary> getLibraries() {
+		return libraries;
+	}
+
 }

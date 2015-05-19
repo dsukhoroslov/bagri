@@ -92,6 +92,10 @@
 				<hz:map-store enabled="true" write-delay-seconds="10" initial-mode="EAGER" implementation="moduleCacheStore"/>
 			</hz:map>
 
+			<hz:map name="libraries">
+				<hz:map-store enabled="true" write-delay-seconds="10" initial-mode="EAGER" implementation="libraryCacheStore"/>
+			</hz:map>
+
 			<hz:map name="nodes">
 				<hz:map-store enabled="true" write-delay-seconds="10" initial-mode="EAGER" implementation="nodeCacheStore"/>
 			</hz:map>
@@ -123,6 +127,7 @@
 	</hz:hazelcast>
 
 	<hz:map id="modules" name="modules" instance-ref="dataInstance"/>
+	<hz:map id="libraries" name="libraries" instance-ref="dataInstance"/>
 	<hz:map id="nodes" name="nodes" instance-ref="dataInstance"/>
 	<hz:map id="schemas" name="schemas" instance-ref="dataInstance"/>
 	<hz:map id="roles" name="roles" instance-ref="dataInstance"/>
@@ -135,6 +140,10 @@
 	</bean>
 
 	<bean id="moduleCacheStore" class="com.bagri.xdm.cache.hazelcast.store.system.ModuleCacheStore">
+		<property name="entityManagement" ref="configService"/>
+	</bean>
+
+	<bean id="libraryCacheStore" class="com.bagri.xdm.cache.hazelcast.store.system.LibraryCacheStore">
 		<property name="entityManagement" ref="configService"/>
 	</bean>
 

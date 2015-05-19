@@ -334,4 +334,5 @@
             <enabled>true</enabled>
         </module>
     </modules>
+    <libraries/>
 </ns2:config>
