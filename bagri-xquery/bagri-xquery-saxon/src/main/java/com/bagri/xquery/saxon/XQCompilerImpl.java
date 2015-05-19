@@ -20,6 +20,8 @@ import net.sf.saxon.expr.instruct.UserFunctionParameter;
 import net.sf.saxon.functions.ExecutableFunctionLibrary;
 import net.sf.saxon.functions.FunctionLibrary;
 import net.sf.saxon.functions.FunctionLibraryList;
+import net.sf.saxon.functions.IntegratedFunctionLibrary;
+import net.sf.saxon.lib.FeatureKeys;
 import net.sf.saxon.lib.ModuleURIResolver;
 import net.sf.saxon.lib.Validation;
 import net.sf.saxon.query.StaticQueryContext;
@@ -44,7 +46,7 @@ public class XQCompilerImpl implements XQCompiler, ErrorListener {
         config = Configuration.newConfiguration();
         config.setHostLanguage(Configuration.XQUERY);
         config.setSchemaValidationMode(Validation.STRIP);
-        //FunctionLibraryList list;
+        //config.setConfigurationProperty(FeatureKeys.ALLOW_EXTERNAL_FUNCTIONS, Boolean.TRUE);
         //list.
         //config.setConfigurationProperty(FeatureKeys.PRE_EVALUATE_DOC_FUNCTION, Boolean.TRUE);
         sqc = config.newStaticQueryContext();
@@ -103,6 +105,7 @@ public class XQCompilerImpl implements XQCompiler, ErrorListener {
 		//module.
 		logger.trace("getModuleFunctions.enter; got module: {}", module);
 		XQueryExpression exp = getModuleExpression(module);
+		// sqc.getExecutable().setFunctionLibrary(extLibrary);
 		List<String> result = lookupFunctions(exp.getExecutable().getFunctionLibrary());
 		stamp = System.currentTimeMillis() - stamp;
 		logger.trace("getModuleFunctions.exit; time taken: {}; returning: {}", stamp, result);
@@ -138,6 +141,7 @@ public class XQCompilerImpl implements XQCompiler, ErrorListener {
 			return sqc.compileQuery(query);
 			//sqc.getCompiledLibrary("test")...
 		} catch (XPathException ex) {
+			//IntegratedFunctionLibrary ifl = config.getIntegratedFunctionLibrary();
 			StringBuffer buff = new StringBuffer();
 			for (TransformerException tex: errors) {
 				buff.append(tex.getMessageAndLocation()).append("\n");
@@ -183,6 +187,7 @@ public class XQCompilerImpl implements XQCompiler, ErrorListener {
 			idx++;
 		}
 		buff.append(") as ");
+		// TODO: get rid of Q{} notation..
 		buff.append(function.getDeclaredResultType().toString());
 		return buff.toString();
 	}
@@ -212,6 +217,7 @@ public class XQCompilerImpl implements XQCompiler, ErrorListener {
 
 		@Override
 		public StreamSource[] resolve(String moduleURI, String baseURI,	String[] locations) throws XPathException {
+			logger.trace("resolve.enter; got moduleURI: {}, baseURI: {}, locations: {}", moduleURI, baseURI, locations);
 			Reader reader = new StringReader(body);
 			return new StreamSource[] {new StreamSource(reader)};
 		}

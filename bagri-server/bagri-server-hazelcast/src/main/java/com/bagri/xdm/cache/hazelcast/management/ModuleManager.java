@@ -1,6 +1,8 @@
 package com.bagri.xdm.cache.hazelcast.management;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.jmx.export.annotation.ManagedAttribute;
 import org.springframework.jmx.export.annotation.ManagedOperation;
@@ -35,6 +37,13 @@ public class ModuleManager extends EntityManager<XDMModule> {
 	public void compileModule() {
 		XDMModule module = getEntity();
 		xqComp.compileModule(module);
+	}
+
+	@ManagedOperation(description="Reloads registered Module from disk")
+	public void refreshModule() {
+		Set<String> keys = new HashSet<>(1);
+		keys.add(entityName);
+		entityCache.loadAll(keys, true);
 	}
 
 	@ManagedOperation(description="Returns Module functions")

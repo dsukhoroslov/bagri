@@ -1,6 +1,31 @@
 module namespace hw = "http://helloworld";
+(: declare namespace fw = "java:java.io.FileWriter"; :)
+declare namespace double="java.lang.Double";
 
-declare function hw:helloworld($name as xs:string)
-{
+declare function hw:hello($world) {
+ 'Hello ' (: || $world :)
+};
+
+declare function hw:helloworld($name as xs:string) as xs:string {
   fn:concat("hello ", $name, "!")
 };
+
+declare function hw:order-value($po as element(purchase-order))
+   as xs:double {
+      sum($po/order-item/(@price * @quantity))
+};
+
+declare function hw:hello_double($num as xs:string) as xs:double {
+  double:valueOf($num)
+};
+
+
+(:
+declare function hw:write_to_file($filename as xs:string) {
+  $file := fw:new($filename)
+  fw:write($file, "Hello World!")
+  fw:close($file) 
+  return xs:boolean(1)
+};
+:)
+
