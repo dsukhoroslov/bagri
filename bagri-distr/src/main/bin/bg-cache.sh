@@ -58,11 +58,9 @@ done
 
 export CLASSPATH
 
-backupdir="${apphome}/backup"
 logdir="${apphome}/logs/${nodeName}"
 rundir="${apphome}/run"
 
-mkdir -p "${backupdir}"
 mkdir -p "${logdir}"
 mkdir -p "${logdir}/gc"
 mkdir -p "${rundir}"

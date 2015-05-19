@@ -60,11 +60,9 @@ done
 
 export CLASSPATH
 
-backupdir="${apphome}/backup"
 logdir="${apphome}/logs"
 rundir="${apphome}/run"
 
-mkdir -p "${backupdir}"
 mkdir -p "${logdir}"
 mkdir -p "${rundir}"
 

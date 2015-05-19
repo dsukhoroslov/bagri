@@ -1,0 +1,50 @@
+{
+   "@id": "1500",
+   "@schemaLocation": "http://tpox-benchmark.com/security security.xsd",
+   "Symbol": "VFINX",
+   "Name": "Vanguard 500 Index Fund",
+   "ShortName": "Vanguard 500 Idx",
+   "SecurityType": "Stock Fund",
+   "SecurityInformation": {
+      "FundInformation": {
+         "FundFamily": "Fund Family",
+         "AssetGroup": "Asset Group",
+         "Category": {
+            "@Capitalization": "Large"
+         },
+         "ExpenseRatio": ".18",
+         "TotalAssets": "53000000000",
+         "MinInitialInvestment": "3000",
+         "MinSubsequentInvestment": "100"
+      },
+      "Description": {
+         "FundDescription": "The fund seeks to track the performance of a benchmark index that measures the investment return of large-capitalization stocks.\nThe fund employs a \"passive management\" or indexing investment approach designed to track the performance of the Standard & Poor's 500 Index, a widely recognized benchmark of U.S. stock market performance that is dominated by the stocks of large U.S. companies. The fund attempts to replicate the target index by investing all, or substantially all, of its assets in the stocks that make up the index, holding each stock in approximately the same proportion as its weighting within the index. \nThough the fund seeks to track the index, its performance typically will fall short by a small percentage representing operating costs. \nThe fund reserves the right to invest, to a limited extent, in stock futures and options contracts, warrants, convertible securities, and swap agreements, which are types of derivatives. It may use these investments for two reasons: to keep cash on hand to meet shareholder redemptions or other needs while simulating full investment in stocks or to reduce costs by buying futures instead of actual stocks when futures are cheaper. Losses (or gains) involving futures and options contracts can be substantial in part because a relatively small price movement in a contract may result in an immediate and substantial loss (or gain) for the fund. Similar risks exist for warrants, convertible securities, and swap agreements. For this reason, the fund will not use such investments for speculative purposes. Only a limited percentage of its assets may be committed to them. \nVanguard funds classified as moderate to aggressive are broadly diversified but are subject to wide fluctuations in share price because they hold virtually all of their assets in common stocks. In general, such funds are appropriate for investors who have a long investment horizon (ten years or longer), who are seeking growth in capital as a primary objective, and who are prepared to endure the sharp and sometimes prolonged declines in share prices that occur from time to time in the stock market. This price volatility is the trade-off for the potentially high returns that common stocks can provide. The level of current income produced by funds in this category ranges from moderate to very low.",
+         "Management": {
+            "Manager": "George U. Sauter Lead Manager since 05-Oct-87",
+            "#text": "Sauter is a managing director of The Vanguard Group, his employer since 1987. He has managed portfolio investments since 1987 and has worked in investment management since 1985."
+         }
+      }
+   },
+   "Price": {
+      "LastTrade": "102.77",
+      "Ask": "102.85",
+      "Bid": "102.63",
+      "Price50DayAvg": "95.24",
+      "Price200DayAvg": "97.12",
+      "PriceToday": {
+         "PreviousClose": "101.12",
+         "Open": "101.12",
+         "Low": "101.08",
+         "High": "103.04"
+      },
+      "Price52week": {
+         "Price52week-low": "78.11",
+         "Price52week-low-date": "2004-03-05",
+         "Price52week-high": "107.34",
+         "Price52week-high-date": "2003-07-19"
+      }
+   },
+   "PE": "21.1",
+   "Yield": "1.44",
+   "DivPerShare": "1.97"
+}

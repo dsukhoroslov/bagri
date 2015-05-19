@@ -4,10 +4,10 @@
 	xmlns:context="http://www.springframework.org/schema/context"
 	xmlns:util="http://www.springframework.org/schema/util"
 	xmlns:hz="http://www.hazelcast.com/schema/spring"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
-		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd
-		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.2.xsd
-		http://www.hazelcast.com/schema/spring http://www.hazelcast.com/schema/spring/hazelcast-spring-3.3.xsd">
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.1.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.1.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.1.xsd
+		http://www.hazelcast.com/schema/spring http://www.hazelcast.com/schema/spring/hazelcast-spring-3.4.xsd">
 
     <!-- Beans Declarations -->
     
@@ -31,6 +31,7 @@
 
 	<hz:hazelcast id="hzInstance">
 		<hz:config>
+			<!--hz:spring-aware/-->
 			<hz:instance-name>hzInstance</hz:instance-name>
 			<hz:group name="system" password="syspwd"/>
 			<hz:properties>
@@ -69,6 +70,7 @@
 
 	<hz:hazelcast id="dataInstance">
 		<hz:config>
+			<!--hz:spring-aware/-->
 			<hz:instance-name>dataInstance</hz:instance-name>
 			<hz:group name="sysData" password="datapwd"/>
 			<hz:properties>
@@ -85,6 +87,10 @@
 				</hz:join>
 			</hz:network>
 			<!--hz:executor-service name="sys-exec-pool" pool-size="${xdm.cache.threads.invocationScheme}" /-->
+
+			<hz:map name="modules">
+				<hz:map-store enabled="true" write-delay-seconds="10" initial-mode="EAGER" implementation="moduleCacheStore"/>
+			</hz:map>
 
 			<hz:map name="nodes">
 				<hz:map-store enabled="true" write-delay-seconds="10" initial-mode="EAGER" implementation="nodeCacheStore"/>
@@ -104,6 +110,7 @@
 			
 			<hz:serialization>
 				<hz:serializers>
+					<hz:serializer type-class="com.bagri.xdm.system.XDMModule" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMModuleSerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.system.XDMNode" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMNodeSerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.system.XDMSchema" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMSchemaSerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.system.XDMIndex" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMIndexSerializer"/>
@@ -115,6 +122,7 @@
 		</hz:config>
 	</hz:hazelcast>
 
+	<hz:map id="modules" name="modules" instance-ref="dataInstance"/>
 	<hz:map id="nodes" name="nodes" instance-ref="dataInstance"/>
 	<hz:map id="schemas" name="schemas" instance-ref="dataInstance"/>
 	<hz:map id="roles" name="roles" instance-ref="dataInstance"/>
@@ -122,12 +130,24 @@
 
 	<hz:executorService id="sys-exec-pool" name="sys-exec-pool" instance-ref="hzInstance"/>
 
+	<bean id="configService" class="com.bagri.xdm.cache.hazelcast.management.ConfigManagement">
+		<constructor-arg value="${xdm.config.filename}" />
+	</bean>
+
+	<bean id="moduleCacheStore" class="com.bagri.xdm.cache.hazelcast.store.system.ModuleCacheStore">
+		<property name="entityManagement" ref="configService"/>
+	</bean>
+
 	<bean id="schemaCacheStore" class="com.bagri.xdm.cache.hazelcast.store.system.SchemaCacheStore">
 		<property name="entityManagement" ref="configService"/>
 	</bean>
 
 	<bean id="nodeCacheStore" class="com.bagri.xdm.cache.hazelcast.store.system.NodeCacheStore">
 		<property name="entityManagement" ref="configService"/>
+	</bean>
+
+	<bean id="accessService" class="com.bagri.xdm.cache.hazelcast.management.AccessManagement">
+		<constructor-arg value="${xdm.access.filename}" />
 	</bean>
 
 	<bean id="roleCacheStore" class="com.bagri.xdm.cache.hazelcast.store.system.RoleCacheStore">
@@ -138,12 +158,12 @@
 		<property name="entityManagement" ref="accessService"/>
 	</bean>
 
-	<bean id="configService" class="com.bagri.xdm.cache.hazelcast.management.ConfigManagement">
-		<constructor-arg value="${xdm.config.filename}" />
-	</bean>
+	<bean id="xqCompiler" class="com.bagri.xquery.saxon.XQCompilerImpl"/>
 
-	<bean id="accessService" class="com.bagri.xdm.cache.hazelcast.management.AccessManagement">
-		<constructor-arg value="${xdm.access.filename}" />
+	<bean id="moduleService" class="com.bagri.xdm.cache.hazelcast.management.ModuleManagement">
+		<constructor-arg ref="dataInstance" />
+		<property name="entityCache" ref="modules"/>
+		<property name="XQCompiler" ref="xqCompiler"/>
 	</bean>
 
 	<bean id="clusterService" class="com.bagri.xdm.cache.hazelcast.management.ClusterManagement">
@@ -168,9 +188,9 @@
 		</property>
 	</bean>
 
-	<bean id="userService" class="com.bagri.xdm.cache.hazelcast.management.UserManagement">
-		<constructor-arg ref="dataInstance" />
-		<property name="entityCache" ref="users"/>
+	<bean id="topService" class="com.bagri.xdm.cache.hazelcast.management.TopologyManagement">
+		<constructor-arg ref="hzInstance" />
+		<property name="execService" ref="sys-exec-pool"/>
 	</bean>
 
 	<bean id="roleService" class="com.bagri.xdm.cache.hazelcast.management.RoleManagement">
@@ -178,9 +198,9 @@
 		<property name="entityCache" ref="roles"/>
 	</bean>
 
-	<bean id="topService" class="com.bagri.xdm.cache.hazelcast.management.TopologyManagement">
-		<constructor-arg ref="hzInstance" />
-		<property name="execService" ref="sys-exec-pool"/>
+	<bean id="userService" class="com.bagri.xdm.cache.hazelcast.management.UserManagement">
+		<constructor-arg ref="dataInstance" />
+		<property name="entityCache" ref="users"/>
 	</bean>
 
 </beans>

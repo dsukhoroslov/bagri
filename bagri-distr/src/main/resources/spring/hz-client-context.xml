@@ -2,8 +2,8 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:hz="http://www.hazelcast.com/schema/spring"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
-		http://www.hazelcast.com/schema/spring http://www.hazelcast.com/schema/spring/hazelcast-spring-3.3.xsd">
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.1.xsd
+		http://www.hazelcast.com/schema/spring http://www.hazelcast.com/schema/spring/hazelcast-spring-3.4.xsd">
 
     <!--import resource="classpath:applicationContext-hazelcast.xml" /-->
  
@@ -17,6 +17,7 @@
     </bean-->
  
  	<hz:client id="hzInstance">
+		<!--hz:spring-aware/-->
 		<hz:group name="${xdm.schema.name}" password="${xdm.schema.password}"/>
 	
 		<hz:properties>
@@ -29,17 +30,17 @@
 			<hz:socket-options buffer-size="128"/>
 		</hz:network>
  
-		<!--hz:security>
-			<hz:credentials>com.hazelcast.security.UsernamePasswordCredentials</hz:credentials>
-		</hz:security-->
+		<hz:security>
+			<hz:credentials>com.bagri.xdm.client.hazelcast.serialize.SecureCredentials</hz:credentials>
+		</hz:security>
 		
 		<hz:serialization>
 			<hz:data-serializable-factories>
 				<hz:data-serializable-factory factory-id="1" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory"/>
 			</hz:data-serializable-factories>
-			<!--hz:portable-factories>
-				<hz:portable-factory factory-id="1" class-name="com.bagri.xdm.access.hazelcast.pof.XDMPortableFactory"/>
-			</hz:portable-factories-->
+			<hz:portable-factories>
+				<hz:portable-factory factory-id="2" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMPortableFactory"/>
+			</hz:portable-factories>
 			<hz:serializers>
 				<!--hz:global-serializer class-name="com.hazelcast.nio.serialization.PortableSerializer"/-->
 				<hz:serializer type-class="com.bagri.common.query.Expression" class-name="com.bagri.xdm.client.hazelcast.serialize.ExpressionSerializer"/>
@@ -48,6 +49,7 @@
 				<hz:serializer type-class="com.bagri.common.query.ExpressionBuilder" class-name="com.bagri.xdm.client.hazelcast.serialize.ExpressionBuilderSerializer"/>
 				<hz:serializer type-class="com.bagri.common.query.PathBuilder" class-name="com.bagri.xdm.client.hazelcast.serialize.PathBuilderSerializer"/>
 				<hz:serializer type-class="com.bagri.common.query.ExpressionContainer" class-name="com.bagri.xdm.client.hazelcast.serialize.ExpressionContainerSerializer"/>
+				<hz:serializer type-class="com.bagri.common.query.QueryBuilder" class-name="com.bagri.xdm.client.hazelcast.serialize.QueryBuilderSerializer"/>
 				<hz:serializer type-class="com.bagri.xdm.domain.XDMElement" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMElementSerializer"/>
 				<hz:serializer type-class="com.bagri.xdm.domain.XDMElements" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMElementsSerializer"/>
 				<hz:serializer type-class="com.bagri.xdm.domain.XDMPath" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMPathSerializer"/>
@@ -57,6 +59,7 @@
 				<hz:serializer type-class="com.bagri.xdm.domain.XDMQuery" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMQuerySerializer"/>
 				<hz:serializer type-class="com.bagri.xdm.domain.XDMResults" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMResultsSerializer"/>
 				<hz:serializer type-class="com.bagri.xdm.domain.XDMIndexedValue" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMIndexedValueSerializer"/>
+				<hz:serializer type-class="com.bagri.xdm.domain.XDMTransaction" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMTransactionSerializer"/>
 				<hz:serializer type-class="javax.xml.xquery.XQItemType" implementation="xqItemTypeSerializer"/>
 				<hz:serializer type-class="javax.xml.xquery.XQItem" implementation="xqItemSerializer"/>
 				<hz:serializer type-class="javax.xml.xquery.XQSequence" implementation="xqSequenceSerializer"/>
@@ -106,11 +109,14 @@
 
 	<bean id="xdmManager" class="com.bagri.xdm.client.hazelcast.impl.DocumentManagementImpl"/>
 
+	<bean id="txManager" class="com.bagri.xdm.client.hazelcast.impl.TransactionManagementImpl"/>
+
 	<bean id="xdmRepo" class="com.bagri.xdm.client.hazelcast.impl.RepositoryImpl">
 		<constructor-arg ref="hzInstance" />
 		<property name="modelManagement" ref="xdmModel"/>
 		<property name="queryManagement" ref="xqManager"/>
 		<property name="documentManagement" ref="xdmManager"/>
+		<property name="txManagement" ref="txManager"/>
 	</bean>
 
 	<bean id="xqItemTypeSerializer" class="com.bagri.xdm.client.hazelcast.serialize.XQItemTypeSerializer">
