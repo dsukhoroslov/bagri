@@ -21,41 +21,31 @@ import net.sf.saxon.expr.instruct.UserFunctionParameter;
 import net.sf.saxon.functions.ExecutableFunctionLibrary;
 import net.sf.saxon.functions.FunctionLibrary;
 import net.sf.saxon.functions.FunctionLibraryList;
-import net.sf.saxon.functions.IntegratedFunctionLibrary;
+import net.sf.saxon.lib.ExtensionFunctionDefinition;
 import net.sf.saxon.lib.FeatureKeys;
 import net.sf.saxon.lib.ModuleURIResolver;
 import net.sf.saxon.lib.Validation;
 import net.sf.saxon.query.StaticQueryContext;
 import net.sf.saxon.query.XQueryExpression;
 import net.sf.saxon.trans.XPathException;
-import net.sf.saxon.value.SequenceType;
 
 import com.bagri.xdm.system.XDMFunction;
 import com.bagri.xdm.system.XDMLibrary;
 import com.bagri.xdm.system.XDMModule;
 import com.bagri.xquery.api.XQCompiler;
+import com.bagri.xquery.saxon.extension.StaticFunctionExtension;
 
-public class XQCompilerImpl implements XQCompiler, ErrorListener {
+public class XQCompilerImpl implements XQCompiler {
 	
 	private static final Logger logger = LoggerFactory.getLogger(XQCompilerImpl.class);
 	
 	private Properties props = new Properties();
 	
     private Configuration config;
-    private StaticQueryContext sqc;
 	private List<XDMLibrary> libraries = new ArrayList<>();
-    private List<TransformerException> errors = new ArrayList<>();
 	
     public XQCompilerImpl() {
-        config = Configuration.newConfiguration();
-        config.setHostLanguage(Configuration.XQUERY);
-        config.setSchemaValidationMode(Validation.STRIP);
-        //config.setConfigurationProperty(FeatureKeys.ALLOW_EXTERNAL_FUNCTIONS, Boolean.TRUE);
-        //list.
-        //config.setConfigurationProperty(FeatureKeys.PRE_EVALUATE_DOC_FUNCTION, Boolean.TRUE);
-        sqc = config.newStaticQueryContext();
-        sqc.setErrorListener(this);
-        //sqc.setCompileWithTracing(true);
+    	initializeConfig();
     }
 
 	@Override
@@ -72,10 +62,12 @@ public class XQCompilerImpl implements XQCompiler, ErrorListener {
 	public void compileQuery(String query) {
 		long stamp = System.currentTimeMillis();
 		logger.trace("compileQuery.enter; got query: {}", query);
-		clearErrors();
+		StaticQueryContext sqc = null;
 		try {
+		    sqc = prepareStaticContext(null);
 			XQueryExpression exp = sqc.compileQuery(query);
 		} catch (XPathException ex) {
+			List<TransformerException> errors = ((LocalErrorListener) sqc.getErrorListener()).getErrors();
 			StringBuffer buff = new StringBuffer();
 			for (TransformerException tex: errors) {
 				buff.append(tex.getMessageAndLocation()).append("\n");
@@ -94,22 +86,15 @@ public class XQCompilerImpl implements XQCompiler, ErrorListener {
 		long stamp = System.currentTimeMillis();
 		logger.trace("compileModule.enter; got module: {}", module);
 		XQueryExpression exp = getModuleExpression(module);
-		//lookupFunctions(exp.getExecutable().getFunctionLibrary());
 		stamp = System.currentTimeMillis() - stamp;
 		logger.trace("compileModule.exit; time taken: {}", stamp); 
-	}
-	
-	private void clearErrors() {
-		errors.clear();
 	}
 	
 	@Override
 	public List<String> getModuleFunctions(XDMModule module) {
 		long stamp = System.currentTimeMillis();
-		//module.
 		logger.trace("getModuleFunctions.enter; got module: {}", module);
 		XQueryExpression exp = getModuleExpression(module);
-		// sqc.getExecutable().setFunctionLibrary(extLibrary);
 		List<String> result = lookupFunctions(exp.getExecutable().getFunctionLibrary());
 		stamp = System.currentTimeMillis() - stamp;
 		logger.trace("getModuleFunctions.exit; time taken: {}; returning: {}", stamp, result);
@@ -122,7 +107,7 @@ public class XQCompilerImpl implements XQCompiler, ErrorListener {
 			String query = "import module namespace test=\"" + module.getNamespace() + 
 					"\" at \"" + module.getName() + "\";\n\n";
 			query += "1213";
-			sqc.setModuleURIResolver(new LocalModuleURIResolver(module.getBody()));
+		    StaticQueryContext sqc = prepareStaticContext(module.getBody());
 			logger.trace("getModuleExpression; compiling query: {}", query);
 			sqc.compileQuery(query);
 			return true;
@@ -135,26 +120,61 @@ public class XQCompilerImpl implements XQCompiler, ErrorListener {
 	public void setLibraries(Collection<XDMLibrary> libraries) {
 		this.libraries.clear();
 		this.libraries.addAll(libraries);
+		//config.registerExtensionFunction(function);
+		initializeConfig();
+	}
+	
+	private void initializeConfig() {
+		
+		logger.trace("initializeConfig.enter; current config: {}", config);
+        config = Configuration.newConfiguration();
+        config.setHostLanguage(Configuration.XQUERY);
+        config.setSchemaValidationMode(Validation.STRIP);
+        //config.setConfigurationProperty(FeatureKeys.ALLOW_EXTERNAL_FUNCTIONS, Boolean.TRUE);
+
+        if (libraries != null) {
+			for (XDMLibrary lib: libraries) {
+				for (XDMFunction func: lib.getFunctions()) {
+					try {
+						ExtensionFunctionDefinition efd = new StaticFunctionExtension(func);
+						logger.trace("initializeConfig; funtion {}.{} registered as {}", 
+								func.getClassName(), func.getMethod(), efd.getFunctionQName()); 
+						config.registerExtensionFunction(efd);
+					} catch (Exception ex) {
+						logger.warn("initializeConfig; error registering function {}:{}: {}; skipped", 
+								func.getClassName(), func.getMethod(), ex.getMessage());
+					}
+				}
+			}
+        }
+		logger.trace("initializeConfig.exit; new config: {}", config);
+	}
+	
+	private StaticQueryContext prepareStaticContext(String body) {
+		StaticQueryContext sqc = config.newStaticQueryContext();
+		sqc.setErrorListener(new LocalErrorListener());
+        //sqc.setCompileWithTracing(true);
+		if (body != null) {
+			sqc.setModuleURIResolver(new LocalModuleURIResolver(body));
+		}
+		return sqc;
 	}
 	
 	private XQueryExpression getModuleExpression(XDMModule module) {
 		//logger.trace("getModuleExpression.enter; got namespace: {}, name: {}, body: {}", namespace, name, body);
-		clearErrors();
+		String query = "import module namespace test=\"" + module.getNamespace() + 
+				"\" at \"" + module.getName() + "\";\n\n";
+		query += "1213";
+		StaticQueryContext sqc = null;
 		try {
 			//sqc.compileLibrary(query); - works in EE only
-			String query = "import module namespace test=\"" + module.getNamespace() + 
-					"\" at \"" + module.getName() + "\";\n\n";
-			query += "1213";
-			sqc.setModuleURIResolver(new LocalModuleURIResolver(module.getBody()));
+		    sqc = prepareStaticContext(module.getBody());
 			logger.trace("getModuleExpression; compiling query: {}", query);
 			//logger.trace("getModuleExpression.exit; time taken: {}", stamp);
-			
-			// TODO: register extension for each and every library/function..
-			// then think how to cache this info..
 			return sqc.compileQuery(query);
 			//sqc.getCompiledLibrary("test")...
 		} catch (XPathException ex) {
-			//IntegratedFunctionLibrary ifl = config.getIntegratedFunctionLibrary();
+			List<TransformerException> errors = ((LocalErrorListener) sqc.getErrorListener()).getErrors();
 			StringBuffer buff = new StringBuffer();
 			for (TransformerException tex: errors) {
 				buff.append(tex.getMessageAndLocation()).append("\n");
@@ -204,20 +224,29 @@ public class XQCompilerImpl implements XQCompiler, ErrorListener {
 		buff.append(function.getDeclaredResultType().toString());
 		return buff.toString();
 	}
+	
+	private class LocalErrorListener implements ErrorListener {
 
-	@Override
-	public void error(TransformerException txEx) throws TransformerException {
-		errors.add(txEx);
-	}
-
-	@Override
-	public void fatalError(TransformerException txEx) throws TransformerException {
-		errors.add(txEx);
-	}
-
-	@Override
-	public void warning(TransformerException txEx) throws TransformerException {
-		errors.add(txEx);
+	    private List<TransformerException> errors = new ArrayList<>();
+	    
+	    public List<TransformerException> getErrors() {
+	    	return errors;
+	    }
+		
+		@Override
+		public void error(TransformerException txEx) throws TransformerException {
+			errors.add(txEx);
+		}
+	
+		@Override
+		public void fatalError(TransformerException txEx) throws TransformerException {
+			errors.add(txEx);
+		}
+	
+		@Override
+		public void warning(TransformerException txEx) throws TransformerException {
+			errors.add(txEx);
+		}
 	}
 	
 	private class LocalModuleURIResolver implements ModuleURIResolver {

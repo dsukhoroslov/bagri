@@ -6,6 +6,8 @@ import java.util.List;
 
 import org.springframework.jmx.export.annotation.ManagedAttribute;
 import org.springframework.jmx.export.annotation.ManagedOperation;
+import org.springframework.jmx.export.annotation.ManagedOperationParameter;
+import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
 import com.bagri.xdm.system.XDMFunction;
@@ -65,14 +67,41 @@ public class LibraryManager extends EntityManager<XDMLibrary> {
 		return entityName;
 	}
 
-	@ManagedAttribute(description="Returns registered Library namespace")
-	public String getNamespace() {
-		return getEntity().getNamespace();
-	}
-
 	@ManagedAttribute(description="Returns Library version")
 	public int getVersion() {
 		return super.getVersion();
 	}
 	
+	@ManagedOperation(description="Adds a new Extension Function")
+	@ManagedOperationParameters({
+		@ManagedOperationParameter(name = "className", description = "A full class name"),
+		@ManagedOperationParameter(name = "prefix", description = "Namespace prefix"),
+		@ManagedOperationParameter(name = "description", description = "Textual function description, can be ommited"),
+		@ManagedOperationParameter(name = "signature", description = "Method signature: method-name(params...): result-type")})
+	public void addFunction(String className, String prefix, String description, String signature) {
+
+		logger.trace("addFunction.enter; className: {}; signature: {}", className, signature);
+		XDMFunction function = null;
+	    	//Object result = entityCache.executeOnKey(name, 
+	    	//		new LibraryCreator(JMXUtils.getCurrentUser(), fileName, namespace, description));
+			//return true;
+	    	//library = (XDMLibrary) result;
+		//return false;
+		logger.trace("addFunction.exit; function created: {}", function);
+	}
+	
+	@ManagedOperation(description="Removes an existing Extension Function")
+	@ManagedOperationParameters({
+		@ManagedOperationParameter(name = "className", description = "A full class name"),
+		@ManagedOperationParameter(name = "signature", description = "Method signature: method-name(params...): result-type")})
+	public void deleteFunction(String className, String signature) {
+		
+		logger.trace("deleteFunction.enter; className: {}; signature: {}", className, signature);
+		XDMFunction function = null;
+	    	//Object result = entityCache.executeOnKey(name, new LibraryRemover(Library.getVersion(), JMXUtils.getCurrentUser()));
+	    	//return result != null;
+		//return false;
+		logger.trace("deleteFunction.exit; function deleted");
+	}
+
 }

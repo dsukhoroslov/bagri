@@ -10,6 +10,9 @@ import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
 
 import com.bagri.xdm.system.XDMIdentity;
+import com.bagri.xdm.system.XDMIndex;
+import com.bagri.xdm.system.XDMLibrary;
+import com.bagri.xdm.system.XDMModule;
 import com.bagri.xdm.system.XDMNode;
 import com.bagri.xdm.system.XDMRole;
 import com.bagri.xdm.system.XDMSchema;
@@ -25,6 +28,9 @@ import com.bagri.xdm.system.XDMUser;
 @XmlSeeAlso({
     XDMNode.class,
     XDMSchema.class,
+    XDMModule.class,
+    XDMLibrary.class,
+    XDMIndex.class,
     //XDMIdentity.class,
     XDMRole.class,
     XDMUser.class

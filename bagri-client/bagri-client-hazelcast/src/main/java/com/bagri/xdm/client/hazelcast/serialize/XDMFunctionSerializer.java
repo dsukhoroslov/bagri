@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import com.bagri.xdm.system.XDMFunction;
 import com.bagri.xdm.system.XDMParameter;
+import com.bagri.xdm.system.XDMType;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.StreamSerializer;
@@ -24,7 +25,8 @@ public class XDMFunctionSerializer implements StreamSerializer<XDMFunction> {
 		XDMFunction xFunc = new XDMFunction(
 				in.readUTF(),
 				in.readUTF(),
-				in.readUTF(),
+				(XDMType) in.readObject(),
+				in.readUTF(), 
 				in.readUTF());
 		int cnt = in.readInt();
 		for (int i=0; i < cnt; i++) {
@@ -38,8 +40,9 @@ public class XDMFunctionSerializer implements StreamSerializer<XDMFunction> {
 	public void write(ObjectDataOutput out, XDMFunction xFunc) throws IOException {
 		out.writeUTF(xFunc.getClassName());
 		out.writeUTF(xFunc.getMethod());
-		out.writeUTF(xFunc.getResultClass());
+		out.writeObject(xFunc.getResult());
 		out.writeUTF(xFunc.getDescription());
+		out.writeUTF(xFunc.getPrefix());
 		out.writeInt(xFunc.getParameters().size());
 		for (XDMParameter xp: xFunc.getParameters()) {
 			out.writeObject(xp);

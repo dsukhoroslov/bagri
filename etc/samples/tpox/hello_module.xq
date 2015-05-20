@@ -1,6 +1,6 @@
 module namespace hw = "http://helloworld";
 (: declare namespace fw = "java:java.io.FileWriter"; :)
-declare namespace double="java.lang.Double";
+declare namespace dbl = "java.lang.Double";
 
 declare function hw:hello($world) {
  'Hello ' (: || $world :)
@@ -16,7 +16,7 @@ declare function hw:order-value($po as element(purchase-order))
 };
 
 declare function hw:hello_double($num as xs:string) as xs:double {
-  double:valueOf($num)
+  dbl:valueOf($num)
 };
 
 

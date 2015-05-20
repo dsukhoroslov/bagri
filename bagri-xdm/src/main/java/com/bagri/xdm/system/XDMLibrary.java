@@ -21,7 +21,6 @@ import com.bagri.xdm.common.XDMEntity;
 		"name", 
 		"fileName",
 		"description",
-		"namespace",
 		"enabled",
 		"functions"
 })
@@ -37,9 +36,6 @@ public class XDMLibrary extends XDMEntity {
 	@XmlElement(required = 	false)
 	private String description;
 		
-	@XmlElement(required = 	true)
-	private String namespace;
-
 	@XmlElement(required = false, defaultValue = "true")
 	private boolean enabled = true;
 
@@ -53,12 +49,11 @@ public class XDMLibrary extends XDMEntity {
 	}
 	
 	public XDMLibrary(int version, Date createdAt, String createdBy, String name, 
-			String fileName, String description, String namespace, boolean enabled) {
+			String fileName, String description, boolean enabled) {
 		super(version, createdAt, createdBy);
 		this.name = name;
 		this.fileName = fileName;
 		this.description = description;
-		this.namespace = namespace;
 		this.enabled = enabled;
 	}
 
@@ -74,10 +69,6 @@ public class XDMLibrary extends XDMEntity {
 		return description;
 	}
 	
-	public String getNamespace() {
-		return namespace;
-	}
-
 	public boolean isEnabled() {
 		return enabled;
 	}
@@ -103,7 +94,7 @@ public class XDMLibrary extends XDMEntity {
 		result.put("created by", getCreatedBy());
 		result.put("fileName", fileName);
 		result.put("description", description);
-		result.put("namespace", namespace);
+		result.put("functions", functions.size());
 		result.put("enabled", enabled);
 		return result;
 	}

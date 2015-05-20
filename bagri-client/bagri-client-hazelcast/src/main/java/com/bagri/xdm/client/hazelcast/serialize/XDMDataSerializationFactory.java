@@ -27,8 +27,9 @@ public class XDMDataSerializationFactory implements DataSerializableFactory {
 	public static final int cli_XDMIndex = 6;
 	public static final int cli_XDMModule = 7;
 	public static final int cli_XDMLibrary = 8;
-	public static final int cli_XDMFunction = 9;
-	public static final int cli_XDMParameter = 10;
+	public static final int cli_XDMType = 9;
+	public static final int cli_XDMFunction = 10;
+	public static final int cli_XDMParameter = 11;
 	
 	public static final int cli_XDMDocument = 50;
 	public static final int cli_XDMElement = 51; 

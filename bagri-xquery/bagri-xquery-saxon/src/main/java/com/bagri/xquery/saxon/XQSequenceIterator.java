@@ -96,7 +96,7 @@ public class XQSequenceIterator implements Iterator {
     	return BagriXQUtils.getXMLDuration(d.getStringValue(), type);
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings({ "rawtypes" })
 	private XQItemAccessor itemToXQItem(Item item) throws XPathException, XQException {
         if (item instanceof AtomicValue) {
         	int type;

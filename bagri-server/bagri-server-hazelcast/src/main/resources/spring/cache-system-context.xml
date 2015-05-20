@@ -42,6 +42,7 @@
 					<hz:portable-factory factory-id="1" class-name="com.bagri.xdm.process.hazelcast.pof.XDMPortableFactory"/>
 				</hz:portable-factories-->
 				<hz:serializers>
+					<hz:serializer type-class="com.bagri.xdm.system.XDMType" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMTypeSerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.system.XDMModule" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMModuleSerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.system.XDMLibrary" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMLibrarySerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.system.XDMFunction" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMFunctionSerializer"/>

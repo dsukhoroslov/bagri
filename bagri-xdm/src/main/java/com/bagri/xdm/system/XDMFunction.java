@@ -15,8 +15,9 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(namespace = "http://www.bagri.com/xdm/system", propOrder = {
 		"className",
 		"method",
-		"resultClass",
+		"result",
 		"description",
+		"prefix",
 		"parameters"
 })
 public class XDMFunction {
@@ -28,11 +29,14 @@ public class XDMFunction {
 	private String method;
 
 	@XmlElement(required = true)
-	private String resultClass;
+	private XDMType result;
 	
 	@XmlElement(required = false)
 	private String description;
-		
+
+	@XmlElement(required = true)
+	private String prefix;
+	
 	@XmlElement(name="parameter")
 	@XmlElementWrapper(name="parameters")
 	private List<XDMParameter> parameters = new ArrayList<XDMParameter>();
@@ -42,11 +46,12 @@ public class XDMFunction {
 		super();
 	}
 	
-	public XDMFunction(String className, String method, String resultClass, String description) {
+	public XDMFunction(String className, String method, XDMType result, String description, String prefix) {
 		this.className = className;
 		this.method = method;
-		this.resultClass = resultClass;
+		this.result = result;
 		this.description = description;
+		this.prefix = prefix;
 	}
 	
 	public String getClassName() {
@@ -57,12 +62,16 @@ public class XDMFunction {
 		return method;
 	}
 	
-	public String getResultClass() {
-		return resultClass;
+	public XDMType getResult() {
+		return result;
 	}
 	
 	public String getDescription() {
 		return description;
+	}
+	
+	public String getPrefix() {
+		return prefix;
 	}
 	
 	public List<XDMParameter> getParameters() {
@@ -70,17 +79,18 @@ public class XDMFunction {
 	}
 	
 	public String toString() {
-		StringBuffer buff = new StringBuffer();
+		StringBuffer buff = new StringBuffer(prefix).append(":");
 		buff.append(className).append(".");
 		buff.append(method).append("(");
-		int cnt = 0;
+		int idx = 0;
 		for (XDMParameter xp: parameters) {
-			if (cnt > 0) {
+			if (idx > 0) {
 				buff.append(", ");
 			}
 			buff.append(xp.getType()).append(" ").append(xp.getName());
+			idx++;
 		}
-		buff.append("): ").append(resultClass).append(";");
+		buff.append("): ").append(result.getType()).append(";");
 		return buff.toString();
 	}
 	

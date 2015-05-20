@@ -341,16 +341,35 @@
             <createdBy>SDV</createdBy>
             <!--fileName>null</fileName-->
             <description>The Standard Java Extension Library</description>
-            <namespace>http://java.lang</namespace>
             <enabled>true</enabled>
             <functions>
                 <function>
 		    <className>java.lang.Double</className>
-		    <method>asString</method>
-		    <resultClass>java.lang.String</resultClass>
+		    <method>valueOf</method>
+		    <result type="double" cardinality="one"/>
             	    <!--description>null</description-->
+		    <prefix>dbl</prefix>
             	    <parameters>
-                	<parameter name="value" type="double"/>
+                	<parameter name="value" type="string" cardinality="one"/>
+	    	    </parameters>
+	    	</function>
+                <function>
+		    <className>java.lang.Math</className>
+		    <method>abs</method>
+		    <result type="int" cardinality="one"/>
+		    <prefix>math</prefix>
+            	    <parameters>
+                	<parameter name="value" type="int" cardinality="one"/>
+	    	    </parameters>
+	    	</function>
+                <function>
+		    <className>java.lang.Math</className>
+		    <method>max</method>
+		    <result type="long" cardinality="one"/>
+		    <prefix>math</prefix>
+            	    <parameters>
+                	<parameter name="arg0" type="long" cardinality="one"/>
+                	<parameter name="arg1" type="long" cardinality="one"/>
 	    	    </parameters>
 	    	</function>
 	    </functions>

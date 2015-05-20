@@ -26,7 +26,6 @@ public class XDMLibrarySerializer extends XDMEntitySerializer implements StreamS
 				in.readUTF(),
 				in.readUTF(),
 				in.readUTF(),
-				in.readUTF(),
 				in.readBoolean());
 		int cnt = in.readInt();
 		for (int i=0; i < cnt; i++) {
@@ -42,7 +41,6 @@ public class XDMLibrarySerializer extends XDMEntitySerializer implements StreamS
 		out.writeUTF(xLibrary.getName());
 		out.writeUTF(xLibrary.getFileName());
 		out.writeUTF(xLibrary.getDescription());
-		out.writeUTF(xLibrary.getNamespace());
 		out.writeBoolean(xLibrary.isEnabled());
 		out.writeInt(xLibrary.getFunctions().size());
 		for (XDMFunction xf: xLibrary.getFunctions()) {

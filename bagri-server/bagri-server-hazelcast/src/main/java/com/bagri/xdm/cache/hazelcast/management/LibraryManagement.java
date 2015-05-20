@@ -13,6 +13,8 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
 import com.bagri.common.manage.JMXUtils;
+import com.bagri.xdm.cache.hazelcast.task.library.LibraryCreator;
+import com.bagri.xdm.cache.hazelcast.task.library.LibraryRemover;
 //import com.bagri.xdm.cache.hazelcast.task.Library.LibraryCreator;
 //import com.bagri.xdm.cache.hazelcast.task.Library.LibraryRemover;
 import com.bagri.xdm.system.XDMLibrary;
@@ -75,18 +77,17 @@ public class LibraryManagement extends EntityManagement<String, XDMLibrary> {
 	@ManagedOperation(description="Creates a new Extension Library")
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "name", description = "Library name to create"),
-		@ManagedOperationParameter(name = "fileName", description = "File for Library"),
-		@ManagedOperationParameter(name = "description", description = "Library description"),
-		@ManagedOperationParameter(name = "namespace", description = "Library namespace")})
-	public void addLibrary(String name, String fileName, String description, String namespace) {
+		@ManagedOperationParameter(name = "fileName", description = "Library file (JAR), can be ommited"),
+		@ManagedOperationParameter(name = "description", description = "Library description")})
+	public void addLibrary(String name, String fileName, String description) {
 
-		logger.trace("addLibrary.enter;");
+		logger.trace("addLibrary.enter; name: {}", name);
 		XDMLibrary library = null;
 		if (!entityCache.containsKey(name)) {
-	    	//Object result = entityCache.executeOnKey(name, 
-	    	//		new LibraryCreator(JMXUtils.getCurrentUser(), fileName, namespace, description));
+	    	Object result = entityCache.executeOnKey(name, 
+	    			new LibraryCreator(JMXUtils.getCurrentUser(), fileName, description));
 			//return true;
-	    	//library = (XDMLibrary) result;
+	    	library = (XDMLibrary) result;
 		}
 		//return false;
 		logger.trace("addLibrary.exit; library created: {}", library);
@@ -99,11 +100,11 @@ public class LibraryManagement extends EntityManagement<String, XDMLibrary> {
 		logger.trace("deleteLibrary.enter; name: {}", name);
 		XDMLibrary library = entityCache.get(name);
 		if (library != null) {
-	    	//Object result = entityCache.executeOnKey(name, new LibraryRemover(Library.getVersion(), JMXUtils.getCurrentUser()));
+	    	Object result = entityCache.executeOnKey(name, new LibraryRemover(library.getVersion(), JMXUtils.getCurrentUser()));
 	    	//return result != null;
 		}
 		//return false;
-		logger.trace("deleteLibrary.exit; Library deleted");
+		logger.trace("deleteLibrary.exit; library deleted");
 	}
 
 }
