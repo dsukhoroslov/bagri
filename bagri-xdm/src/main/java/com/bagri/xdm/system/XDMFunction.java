@@ -78,8 +78,9 @@ public class XDMFunction {
 		return parameters;
 	}
 	
-	public String toString() {
-		StringBuffer buff = new StringBuffer(prefix).append(":");
+	public String getSignature() {
+
+		StringBuffer buff = new StringBuffer();
 		buff.append(className).append(".");
 		buff.append(method).append("(");
 		int idx = 0;
@@ -87,11 +88,36 @@ public class XDMFunction {
 			if (idx > 0) {
 				buff.append(", ");
 			}
-			buff.append(xp.getType()).append(" ").append(xp.getName());
+			buff.append(xp.getName()).append(" ").append(xp.getType());
 			idx++;
 		}
 		buff.append("): ").append(result.getType()).append(";");
 		return buff.toString();
+		
+	}
+	
+	@Override
+	public int hashCode() {
+		return getSignature().hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		XDMFunction other = (XDMFunction) obj;
+		return getSignature().equals(other.getSignature());
+	}
+
+	public String toString() {
+		return prefix + ":" + getSignature();
 	}
 	
 }

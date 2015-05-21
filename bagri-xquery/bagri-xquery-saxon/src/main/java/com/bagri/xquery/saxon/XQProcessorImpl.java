@@ -219,6 +219,9 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
     	super.setRepository(xRepo);
         config.registerExtensionFunction(new StoreDocument(xRepo.getDocumentManagement()));
         config.registerExtensionFunction(new RemoveDocument(xRepo.getDocumentManagement()));
+        if (xRepo instanceof com.bagri.xdm.cache.api.XDMRepository) {
+        	XQCompilerImpl.registerExtensions(config, ((com.bagri.xdm.cache.api.XDMRepository) xRepo).getLibraries());
+        }
     }
     
 	//@Override

@@ -10,6 +10,9 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
+import com.bagri.common.manage.JMXUtils;
+import com.bagri.xdm.cache.hazelcast.task.EntityProcessor.Action;
+import com.bagri.xdm.cache.hazelcast.task.library.LibFunctionUpdater;
 import com.bagri.xdm.system.XDMFunction;
 import com.bagri.xdm.system.XDMLibrary;
 import com.bagri.xquery.api.XQCompiler;
@@ -81,12 +84,9 @@ public class LibraryManager extends EntityManager<XDMLibrary> {
 	public void addFunction(String className, String prefix, String description, String signature) {
 
 		logger.trace("addFunction.enter; className: {}; signature: {}", className, signature);
-		XDMFunction function = null;
-	    	//Object result = entityCache.executeOnKey(name, 
-	    	//		new LibraryCreator(JMXUtils.getCurrentUser(), fileName, namespace, description));
-			//return true;
-	    	//library = (XDMLibrary) result;
-		//return false;
+		XDMFunction function = (XDMFunction) entityCache.executeOnKey(entityName,  
+	    			new LibFunctionUpdater(getVersion(), JMXUtils.getCurrentUser(), className, prefix, description, signature, Action.add));
+		// notify existing sessions about library/function change ?!
 		logger.trace("addFunction.exit; function created: {}", function);
 	}
 	
@@ -97,11 +97,10 @@ public class LibraryManager extends EntityManager<XDMLibrary> {
 	public void deleteFunction(String className, String signature) {
 		
 		logger.trace("deleteFunction.enter; className: {}; signature: {}", className, signature);
-		XDMFunction function = null;
-	    	//Object result = entityCache.executeOnKey(name, new LibraryRemover(Library.getVersion(), JMXUtils.getCurrentUser()));
-	    	//return result != null;
-		//return false;
-		logger.trace("deleteFunction.exit; function deleted");
+		XDMFunction function = (XDMFunction) entityCache.executeOnKey(entityName,  
+    			new LibFunctionUpdater(getVersion(), JMXUtils.getCurrentUser(), className, "test", null, signature, Action.remove));
+		// notify existing sessions about library/function change ?!
+		logger.trace("deleteFunction.exit; function deleted: {}", function);
 	}
 
 }

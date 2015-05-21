@@ -6,6 +6,7 @@ import java.lang.reflect.Method;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.bagri.common.util.ReflectUtils;
 import com.bagri.xdm.system.XDMFunction;
 import com.bagri.xdm.system.XDMParameter;
 import com.bagri.xdm.system.XDMType;
@@ -19,6 +20,7 @@ import net.sf.saxon.om.StructuredQName;
 import net.sf.saxon.type.BuiltInAtomicType;
 import net.sf.saxon.type.ItemType;
 import net.sf.saxon.trans.XPathException;
+import net.sf.saxon.value.ObjectValue;
 import net.sf.saxon.value.SequenceType;
 
 @SuppressWarnings("rawtypes")
@@ -78,7 +80,7 @@ public class StaticFunctionExtension extends ExtensionFunctionDefinition {
 			}
 			
 			private Sequence object2Sequence(Object value) {
-				return null; //new Sequence();
+				return new ObjectValue(value); 
 			}
 
 			
@@ -105,7 +107,7 @@ public class StaticFunctionExtension extends ExtensionFunctionDefinition {
 		Class[] result = new Class[xdf.getParameters().size()];
 		int idx = 0;
 		for (XDMParameter xp: xdf.getParameters()) {
-			result[idx] = type2Class(xp.getType());
+			result[idx] = ReflectUtils.type2Class(xp.getType());
 			idx++;
 		}
 		return result;
@@ -140,19 +142,4 @@ public class StaticFunctionExtension extends ExtensionFunctionDefinition {
 		return BuiltInAtomicType.ANY_ATOMIC; 
 	}
 	
-	private static Class type2Class(String type) throws ClassNotFoundException {
-		switch (type) {
-			case "boolean": return boolean.class; 
-			case "byte": return byte.class; 
-			case "double": return double.class; 
-			case "float": return float.class; 
-			case "int": return int.class; 
-			case "integer": return int.class; 
-			case "long": return long.class; 
-			case "short": return short.class; 
-			case "string": return java.lang.String.class; 
-		}
-		return Class.forName(type);
-	}
-
 }

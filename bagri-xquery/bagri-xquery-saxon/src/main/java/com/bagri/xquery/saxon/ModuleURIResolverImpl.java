@@ -13,11 +13,9 @@ import org.slf4j.LoggerFactory;
 
 import com.bagri.xdm.cache.api.XDMRepository;
 import com.bagri.xdm.system.XDMModule;
-import com.bagri.xdm.system.XDMSchema;
 
 import net.sf.saxon.lib.ModuleURIResolver;
 import net.sf.saxon.trans.XPathException;
-import static com.bagri.xqj.BagriXQConstants.pn_baseURI;
 
 public class ModuleURIResolverImpl implements ModuleURIResolver {
 	
@@ -38,7 +36,6 @@ public class ModuleURIResolverImpl implements ModuleURIResolver {
 	@Override
 	public StreamSource[] resolve(String moduleURI, String baseURI,	String[] locations) throws XPathException {
 		logger.trace("resolve.enter; got module: {}, base: {}, locations: {}", moduleURI, baseURI, locations);
-		XDMSchema schema = repo.getSchema();
 		String moduleName;
 		if (locations.length > 0) {
 			// locations contains something to use..
@@ -48,7 +45,7 @@ public class ModuleURIResolverImpl implements ModuleURIResolver {
 			// moduleURI is the module namespace!
 			moduleName = moduleURI;
 		}
-		XDMModule module = null; //schema.getModule(moduleName);
+		XDMModule module = getModule(moduleName);
 		if (module != null) {
 			Reader mReader = new StringReader(module.getBody());
 			return new StreamSource[] {new StreamSource(mReader)};
@@ -57,6 +54,15 @@ public class ModuleURIResolverImpl implements ModuleURIResolver {
 			logger.warn("resolve.exit; no module found for name: {}", moduleName);
 		}
 		return new StreamSource[0];
+	}
+	
+	private XDMModule getModule(String moduleName) {
+		for (XDMModule module: repo.getModules()) {
+			if (moduleName.equals(module.getName())) {
+				return module;
+			}
+		}
+		return null;
 	}
 
 }

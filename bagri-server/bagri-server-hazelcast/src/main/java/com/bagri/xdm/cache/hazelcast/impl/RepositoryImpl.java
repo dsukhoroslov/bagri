@@ -1,6 +1,8 @@
 package com.bagri.xdm.cache.hazelcast.impl;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -18,6 +20,7 @@ import com.bagri.xdm.cache.api.XDMTransactionManagement;
 import com.bagri.xdm.client.common.impl.XDMRepositoryBase;
 import com.bagri.xdm.domain.XDMPath;
 import com.bagri.xdm.system.XDMIndex;
+import com.bagri.xdm.system.XDMLibrary;
 import com.bagri.xdm.system.XDMModule;
 import com.bagri.xdm.system.XDMSchema;
 import com.bagri.xqj.BagriXQDataFactory;
@@ -178,6 +181,14 @@ public class RepositoryImpl extends XDMRepositoryBase implements ApplicationCont
 
 	public void setIndexManagement(XDMIndexManagement indexMgr) {
 		this.indexMgr = indexMgr;
+	}
+	
+	public List<XDMLibrary> getLibraries() {
+		return Collections.emptyList(); 
+	}
+
+	public List<XDMModule> getModules() {
+		return Collections.emptyList(); 
 	}
 	
 	//@Override

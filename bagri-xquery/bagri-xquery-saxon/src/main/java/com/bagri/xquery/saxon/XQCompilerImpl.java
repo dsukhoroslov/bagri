@@ -133,21 +133,23 @@ public class XQCompilerImpl implements XQCompiler {
         //config.setConfigurationProperty(FeatureKeys.ALLOW_EXTERNAL_FUNCTIONS, Boolean.TRUE);
 
         if (libraries != null) {
-			for (XDMLibrary lib: libraries) {
-				for (XDMFunction func: lib.getFunctions()) {
-					try {
-						ExtensionFunctionDefinition efd = new StaticFunctionExtension(func);
-						logger.trace("initializeConfig; funtion {}.{} registered as {}", 
-								func.getClassName(), func.getMethod(), efd.getFunctionQName()); 
-						config.registerExtensionFunction(efd);
-					} catch (Exception ex) {
-						logger.warn("initializeConfig; error registering function {}:{}: {}; skipped", 
-								func.getClassName(), func.getMethod(), ex.getMessage());
-					}
-				}
-			}
+        	registerExtensions(config, libraries);
         }
 		logger.trace("initializeConfig.exit; new config: {}", config);
+	}
+	
+	static void registerExtensions(Configuration config, Collection<XDMLibrary> libraries) {
+		for (XDMLibrary lib: libraries) {
+			for (XDMFunction func: lib.getFunctions()) {
+				try {
+					ExtensionFunctionDefinition efd = new StaticFunctionExtension(func);
+					logger.trace("registerExtensions; funtion {} registered as {}", func.toString(), efd.getFunctionQName()); 
+					config.registerExtensionFunction(efd);
+				} catch (Exception ex) {
+					logger.warn("registerExtensions; error registering function {}: {}; skipped", func.toString(), ex.getMessage());
+				}
+			}
+		}
 	}
 	
 	private StaticQueryContext prepareStaticContext(String body) {
