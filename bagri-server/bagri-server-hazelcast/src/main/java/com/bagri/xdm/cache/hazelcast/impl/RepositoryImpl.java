@@ -26,9 +26,11 @@ import com.bagri.xdm.system.XDMSchema;
 import com.bagri.xqj.BagriXQDataFactory;
 import com.bagri.xquery.api.XQProcessor;
 import com.bagri.xquery.saxon.XQProcessorServer;
+import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.core.Client;
 import com.hazelcast.core.ClientListener;
 import com.hazelcast.core.DistributedObject;
+import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IQueue;
 
@@ -183,11 +185,33 @@ public class RepositoryImpl extends XDMRepositoryBase implements ApplicationCont
 		this.indexMgr = indexMgr;
 	}
 	
-	public List<XDMLibrary> getLibraries() {
+	public Collection<XDMLibrary> getLibraries() {
+		HazelcastInstance dataInstance = HazelcastClient.getHazelcastClientByName("dataInstance");
+		if (dataInstance == null) {
+			for (HazelcastInstance hz: HazelcastClient.getAllHazelcastClients()) {
+				logger.trace("getLibraries; see HZ instance: {}; {}", hz, hz.getName());
+				dataInstance = hz;
+			}
+		}
+		if (dataInstance != null) {
+			Map<String, XDMLibrary> libraries = dataInstance.getMap("libraries");
+			return libraries.values();
+		}
 		return Collections.emptyList(); 
 	}
 
-	public List<XDMModule> getModules() {
+	public Collection<XDMModule> getModules() {
+		HazelcastInstance dataInstance = Hazelcast.getHazelcastInstanceByName("dataInstance");
+		if (dataInstance == null) {
+			for (HazelcastInstance hz: HazelcastClient.getAllHazelcastClients()) {
+				logger.trace("getModules; see HZ instance: {}; {}", hz, hz.getName());
+				dataInstance = hz;
+			}
+		}
+		if (dataInstance != null) {
+			Map<String, XDMModule> modules = dataInstance.getMap("modules");
+			return modules.values();
+		}
 		return Collections.emptyList(); 
 	}
 	

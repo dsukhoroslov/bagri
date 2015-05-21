@@ -157,6 +157,6 @@ for $sec in fn:collection("/{http://tpox-benchmark.com/security}Security")/s:Sec
 return <Security>{hw:helloworld($sec/s:Name/text())}</Security>
 
 
-declare namespace double="java:java.lang.Double";
+declare namespace dbl="java.lang.Double";
 
-<a> {double:MAX_VALUE()} </a>
+<a> {dbl:valueOf('1.123')} </a>

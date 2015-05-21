@@ -1,6 +1,6 @@
 package com.bagri.xdm.cache.api;
 
-import java.util.List;
+import java.util.Collection;
 
 import com.bagri.xdm.system.XDMLibrary;
 import com.bagri.xdm.system.XDMModule;
@@ -12,7 +12,7 @@ public interface XDMRepository extends com.bagri.xdm.api.XDMRepository {
 	
 	XDMIndexManagement getIndexManagement();
 
-	List<XDMLibrary> getLibraries();
+	Collection<XDMLibrary> getLibraries();
 
-	List<XDMModule> getModules();
+	Collection<XDMModule> getModules();
 }

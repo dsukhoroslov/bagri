@@ -1,28 +1,20 @@
 package com.bagri.xquery.saxon;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
-import javax.xml.xquery.XQItem;
-
-import net.sf.saxon.dom.NodeOverNodeInfo;
 import net.sf.saxon.expr.Atomizer;
 import net.sf.saxon.expr.AxisExpression;
 import net.sf.saxon.expr.BinaryExpression;
 import net.sf.saxon.expr.Binding;
 import net.sf.saxon.expr.BindingReference;
 import net.sf.saxon.expr.BooleanExpression;
-import net.sf.saxon.expr.CastExpression;
 import net.sf.saxon.expr.Expression;
 import net.sf.saxon.expr.GeneralComparison10;
 import net.sf.saxon.expr.GeneralComparison20;
 import net.sf.saxon.expr.LetExpression;
 import net.sf.saxon.expr.Literal;
-import net.sf.saxon.expr.LocalVariableReference;
 import net.sf.saxon.expr.StringLiteral;
 import net.sf.saxon.expr.ValueComparison;
 import net.sf.saxon.expr.VariableReference;
@@ -33,34 +25,13 @@ import net.sf.saxon.expr.parser.Token;
 import net.sf.saxon.functions.Collection;
 import net.sf.saxon.lib.CollectionURIResolver;
 import net.sf.saxon.om.AxisInfo;
-import net.sf.saxon.om.GroundedValue;
 import net.sf.saxon.om.Item;
-import net.sf.saxon.om.NodeInfo;
 import net.sf.saxon.om.Sequence;
 import net.sf.saxon.om.SequenceIterator;
 import net.sf.saxon.om.StructuredQName;
 import net.sf.saxon.pattern.NodeTest;
 import net.sf.saxon.query.XQueryExpression;
 import net.sf.saxon.trans.XPathException;
-import net.sf.saxon.type.AtomicType;
-import net.sf.saxon.value.AtomicValue;
-import net.sf.saxon.value.Base64BinaryValue;
-import net.sf.saxon.value.BigIntegerValue;
-import net.sf.saxon.value.BooleanValue;
-import net.sf.saxon.value.CalendarValue;
-import net.sf.saxon.value.DecimalValue;
-import net.sf.saxon.value.DoubleValue;
-import net.sf.saxon.value.DurationValue;
-import net.sf.saxon.value.FloatValue;
-import net.sf.saxon.value.HexBinaryValue;
-import net.sf.saxon.value.Int64Value;
-import net.sf.saxon.value.ObjectValue;
-import net.sf.saxon.value.QualifiedNameValue;
-import net.sf.saxon.value.SaxonDuration;
-import net.sf.saxon.value.SaxonXMLGregorianCalendar;
-//import net.sf.saxon.xqj.SaxonDuration;
-//import net.sf.saxon.xqj.SaxonXMLGregorianCalendar;
-import static net.sf.saxon.om.StandardNames.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,9 +43,7 @@ import com.bagri.common.query.ExpressionContainer;
 import com.bagri.common.query.PathBuilder;
 import com.bagri.common.query.PathBuilder.PathSegment;
 import com.bagri.common.query.QueryBuilder;
-import com.bagri.xdm.api.XDMDocumentManagement;
 import com.bagri.xdm.api.XDMModelManagement;
-import com.bagri.xdm.api.XDMQueryManagement;
 import com.bagri.xdm.api.XDMRepository;
 
 public class CollectionURIResolverImpl implements CollectionURIResolver {
@@ -162,7 +131,7 @@ public class CollectionURIResolverImpl implements CollectionURIResolver {
 				if (item == null) {
 					break;
 				}
-				Object o = itemToObject(item);
+				Object o = SaxonUtils.itemToObject(item);
 				//logger.trace("getVariable; got item: {}", o);
 				result.add(o);
 			} 
@@ -449,97 +418,6 @@ public class CollectionURIResolverImpl implements CollectionURIResolver {
     	//}
     	
     	logger.trace("end: {}; path: {}", ex.getClass().getName(), path.getFullPath());
-    }
-    
-    private static Object itemToObject(Item item) throws XPathException {
-        if (item instanceof AtomicValue) {
-            AtomicValue p = ((AtomicValue)item);
-            int t = p.getItemType().getPrimitiveType();
-            switch (t) {
-                case XS_ANY_URI:
-                    return p.getStringValue();
-                case XS_BASE64_BINARY:
-                    return ((Base64BinaryValue)p).getBinaryValue();
-                case XS_BOOLEAN:
-                    return Boolean.valueOf(((BooleanValue)p).getBooleanValue());
-                case XS_DATE:
-                    return new SaxonXMLGregorianCalendar((CalendarValue)p);
-                case XS_DATE_TIME:
-                    return new SaxonXMLGregorianCalendar((CalendarValue)p);
-                case XS_DECIMAL:
-                    return ((DecimalValue)p).getDecimalValue();
-                case XS_DOUBLE:
-                    return new Double(((DoubleValue)p).getDoubleValue());
-                case XS_DURATION:
-                    return new SaxonDuration((DurationValue)p);
-                case XS_FLOAT:
-                    return new Float(((FloatValue)p).getFloatValue());
-                case XS_G_DAY:
-                case XS_G_MONTH:
-                case XS_G_MONTH_DAY:
-                case XS_G_YEAR:
-                case XS_G_YEAR_MONTH:
-                    return new SaxonXMLGregorianCalendar((CalendarValue)p);
-                case XS_HEX_BINARY:
-                    return ((HexBinaryValue)p).getBinaryValue();
-                case XS_INTEGER:
-                    if (p instanceof BigIntegerValue) {
-                        return ((BigIntegerValue)p).asBigInteger();
-                    } else {
-                        int sub = ((AtomicType)p.getItemType()).getFingerprint();
-                        switch (sub) {
-                            case XS_INTEGER:
-                            case XS_NEGATIVE_INTEGER:
-                            case XS_NON_NEGATIVE_INTEGER:
-                            case XS_NON_POSITIVE_INTEGER:
-                            case XS_POSITIVE_INTEGER:
-                            case XS_UNSIGNED_LONG:
-                                return BigInteger.valueOf(((Int64Value)p).longValue());
-                            case XS_BYTE:
-                                return Byte.valueOf((byte)((Int64Value)p).longValue());
-                            case XS_INT:
-                            case XS_UNSIGNED_SHORT:
-                                return Integer.valueOf((int)((Int64Value)p).longValue());
-                            case XS_LONG:
-                            case XS_UNSIGNED_INT:
-                                return Long.valueOf(((Int64Value)p).longValue());
-                            case XS_SHORT:
-                            case XS_UNSIGNED_BYTE:
-                                return Short.valueOf((short)((Int64Value)p).longValue());
-                            default:
-                                throw new XPathException("Unrecognized integer subtype " + sub);
-                        }
-                    }
-                case XS_QNAME:
-                    return ((QualifiedNameValue)p).toJaxpQName();
-                case XS_STRING:
-                case XS_UNTYPED_ATOMIC:
-                    return p.getStringValue();
-                case XS_TIME:
-                    return new SaxonXMLGregorianCalendar((CalendarValue)p);
-                case XS_DAY_TIME_DURATION:
-                    return new SaxonDuration((DurationValue)p);
-                case XS_YEAR_MONTH_DURATION:
-                    return new SaxonDuration((DurationValue)p);
-                default:
-                    throw new XPathException("unsupported type");
-            }
-        } else if (item instanceof NodeInfo) {
-            return NodeOverNodeInfo.wrap((NodeInfo)item);
-            //try {
-				//return QueryResult.serialize((NodeInfo)item);
-			//} catch (XPathException ex) {
-			//	throw new XQException(ex.getMessage());
-			//}
-        } else if (item instanceof ObjectValue) {
-        	Object value = ((ObjectValue) item).getObject();
-        	if (value instanceof XQItem) {
-        		//
-        		//return ((XQItem) value).getObject();
-        		return value;
-        	}
-        }
-        return item;
     }
     
 }

@@ -12,7 +12,7 @@ declare function hw:helloworld($name as xs:string) as xs:string {
 
 declare function hw:order-value($po as element(purchase-order))
    as xs:double {
-      sum($po/order-item/(@price * @quantity))
+      fn:sum($po/order-item/(@price * @quantity))
 };
 
 declare function hw:hello_double($num as xs:string) as xs:double {

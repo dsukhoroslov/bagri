@@ -220,7 +220,10 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
         config.registerExtensionFunction(new StoreDocument(xRepo.getDocumentManagement()));
         config.registerExtensionFunction(new RemoveDocument(xRepo.getDocumentManagement()));
         if (xRepo instanceof com.bagri.xdm.cache.api.XDMRepository) {
+        	logger.debug("setRepository; registering extensions"); 
         	XQCompilerImpl.registerExtensions(config, ((com.bagri.xdm.cache.api.XDMRepository) xRepo).getLibraries());
+        } else {
+        	logger.debug("setRepository; client side repo - has no access to extensions"); 
         }
     }
     

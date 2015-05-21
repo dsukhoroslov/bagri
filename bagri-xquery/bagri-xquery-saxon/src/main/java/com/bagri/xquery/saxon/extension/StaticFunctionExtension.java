@@ -3,23 +3,24 @@ package com.bagri.xquery.saxon.extension;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import javax.xml.xquery.XQException;
+import javax.xml.xquery.XQItem;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bagri.common.util.ReflectUtils;
 import com.bagri.xdm.system.XDMFunction;
 import com.bagri.xdm.system.XDMParameter;
-import com.bagri.xdm.system.XDMType;
 
-import net.sf.saxon.expr.StaticProperty;
+import static com.bagri.xquery.saxon.SaxonUtils.*;
 import net.sf.saxon.expr.XPathContext;
 import net.sf.saxon.lib.ExtensionFunctionCall;
 import net.sf.saxon.lib.ExtensionFunctionDefinition;
 import net.sf.saxon.om.Sequence;
 import net.sf.saxon.om.StructuredQName;
-import net.sf.saxon.type.BuiltInAtomicType;
-import net.sf.saxon.type.ItemType;
 import net.sf.saxon.trans.XPathException;
+import net.sf.saxon.type.BuiltInAtomicType;
 import net.sf.saxon.value.ObjectValue;
 import net.sf.saxon.value.SequenceType;
 
@@ -71,16 +72,17 @@ public class StaticFunctionExtension extends ExtensionFunctionDefinition {
 				Object[] result = new Object[args.length];
 				for (int i=0; i < args.length; i++) {
 					result[i] = sequence2Object(args[i]);
+					logger.trace("args2Params; args[{}]: {}:{}", i, result[i].getClass().getName(), result[i]);
 				}
 				return result;
 			}
 			
 			private Object sequence2Object(Sequence seq) throws XPathException {
-				return seq.iterate().next();
+				return itemToObject(seq.head()); 
 			}
 			
-			private Sequence object2Sequence(Object value) {
-				return new ObjectValue(value); 
+			private Sequence object2Sequence(Object value) throws XPathException {
+				return objectToItem(value, this.getExecutable().getConfiguration());
 			}
 
 			
@@ -91,6 +93,7 @@ public class StaticFunctionExtension extends ExtensionFunctionDefinition {
 					Class cls = Class.forName(xdf.getClassName());
 					Method m = cls.getMethod(xdf.getMethod(), params);
 					m.setAccessible(true);
+					logger.trace("call; invoking: {}; params: {}", m, params);
 					Object result = m.invoke(null, args2Params(arguments));
 					return object2Sequence(result);
 				} catch (ClassNotFoundException | NoSuchMethodException | SecurityException | 
@@ -111,35 +114,6 @@ public class StaticFunctionExtension extends ExtensionFunctionDefinition {
 			idx++;
 		}
 		return result;
-	}
-	
-	private static SequenceType type2Sequence(XDMType type) {
-		ItemType it = type2Item(type.getType());
-		int cardinality;
-		switch (type.getCardinality()) {
-			case one_or_more: cardinality = StaticProperty.ALLOWS_ONE_OR_MORE; break; 
-			case zero_or_one: cardinality = StaticProperty.ALLOWS_ZERO_OR_ONE; break; 
-			case zero_or_more: cardinality = StaticProperty.ALLOWS_ZERO_OR_MORE; break;
-			default: cardinality = StaticProperty.ALLOWS_ONE;  
-		}
-		return SequenceType.makeSequenceType(it, cardinality);
-	}
-	
-	private static ItemType type2Item(String type) {
-
-		// provide long switch here..
-		switch (type) {
-			case "boolean": return BuiltInAtomicType.BOOLEAN; 
-			case "byte": return BuiltInAtomicType.BYTE; 
-			case "double": return BuiltInAtomicType.DOUBLE; 
-			case "float": return BuiltInAtomicType.FLOAT; 
-			case "int": return BuiltInAtomicType.INT; 
-			case "integer": return BuiltInAtomicType.INTEGER; 
-			case "long": return BuiltInAtomicType.LONG; 
-			case "short": return BuiltInAtomicType.SHORT; 
-			case "string": return BuiltInAtomicType.STRING; 
-		}
-		return BuiltInAtomicType.ANY_ATOMIC; 
 	}
 	
 }
