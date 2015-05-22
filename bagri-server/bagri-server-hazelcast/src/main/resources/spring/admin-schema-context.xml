@@ -5,13 +5,13 @@
 	xmlns:hz="http://www.hazelcast.com/schema/spring"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.1.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.1.xsd
-		http://www.hazelcast.com/schema/spring http://www.hazelcast.com/schema/spring/hazelcast-spring-3.4.xsd">
+		http://www.hazelcast.com/schema/spring http://www.hazelcast.com/schema/spring/hazelcast-spring-3.5.xsd">
 
 	<context:property-placeholder ignore-unresolvable="true" location="classpath:/admin.properties" />
 	<context:annotation-config />
  
 	<hz:client id="hzInstance">
-		<!--hz:spring-aware/-->
+		<hz:spring-aware/>
 		<hz:group name="${xdm.schema.name}" password="${xdm.schema.password}"/>
 	
 		<!-- adjust connection settings properly: timeout, attempts cnt etc.

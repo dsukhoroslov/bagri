@@ -3,7 +3,7 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:hz="http://www.hazelcast.com/schema/spring"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.1.xsd
-		http://www.hazelcast.com/schema/spring http://www.hazelcast.com/schema/spring/hazelcast-spring-3.4.xsd">
+		http://www.hazelcast.com/schema/spring http://www.hazelcast.com/schema/spring/hazelcast-spring-3.5.xsd">
 
     <!--import resource="classpath:applicationContext-hazelcast.xml" /-->
  
@@ -17,7 +17,7 @@
     </bean-->
  
  	<hz:client id="hzInstance">
-		<!--hz:spring-aware/-->
+		<hz:spring-aware/>
 		<hz:group name="${xdm.schema.name}" password="${xdm.schema.password}"/>
 	
 		<hz:properties>
