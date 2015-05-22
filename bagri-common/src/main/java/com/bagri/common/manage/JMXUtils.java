@@ -236,7 +236,8 @@ public class JMXUtils {
 		return result;
 	}
     
-    public static CompositeData aggregateStats(CompositeData source, CompositeData target) {
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+	public static CompositeData aggregateStats(CompositeData source, CompositeData target) {
     	// source is not nullable
 		Set<String> keys = source.getCompositeType().keySet();
 		String[] names = keys.toArray(new String[keys.size()]);
@@ -250,23 +251,39 @@ public class JMXUtils {
 			}
     	} else {
     		Object[] trgVals = target.getAll(names);
-    		// should remove this loop/switch and aggregate at 
-    		// every concrete index inline..
-    		for (int i=0; i < names.length; i++) {
-    			trgVals[i] = aggregateValue(i, srcVals[i], trgVals[i]);
-    		}
+
+    		trgVals[idx_Failed] = (Integer) srcVals[idx_Failed] + (Integer) trgVals[idx_Failed];
+    		trgVals[idx_First] = ((Comparable) srcVals[idx_First]).compareTo((Comparable) trgVals[idx_First]) < 0 ? 
+    				srcVals[idx_First] : trgVals[idx_First];  
+    		trgVals[idx_Invoked] = (Integer) srcVals[idx_Invoked] + (Integer) trgVals[idx_Invoked];
+    		trgVals[idx_Last] = ((Comparable) srcVals[idx_Last]).compareTo((Comparable) trgVals[idx_Last]) > 0 ? 
+    				srcVals[idx_Last] : trgVals[idx_Last];  
+    		trgVals[idx_Max_Time] = ((Comparable) srcVals[idx_Max_Time]).compareTo((Comparable) trgVals[idx_Max_Time]) > 0 ?
+    				srcVals[idx_Max_Time] : trgVals[idx_Max_Time];
+    		trgVals[idx_Method] = srcVals[idx_Method];
+    		trgVals[idx_Min_Time] = ((Comparable) srcVals[idx_Min_Time]).compareTo((Comparable) trgVals[idx_Min_Time]) < 0 ?
+    				srcVals[idx_Min_Time] : trgVals[idx_Min_Time];
+    		trgVals[idx_Succeed] = (Integer) srcVals[idx_Succeed] + (Integer) trgVals[idx_Succeed];
+    		trgVals[idx_Sum_Time] = (Long) srcVals[idx_Sum_Time] + (Long) trgVals[idx_Sum_Time];
+    		
     		int cntInvoke = (Integer) trgVals[idx_Invoked];
     		long tmFirst = ((Date) trgVals[idx_First]).getTime();
     		long tmLast = ((Date) trgVals[idx_Last]).getTime();
+    		long tmMin = (Long) trgVals[idx_Min_Time];
     		long tmSum = (Long) trgVals[idx_Sum_Time];
     		if (cntInvoke > 0) {
    	        	double dSum = tmSum;
    	        	trgVals[idx_Avg_Time] = dSum/cntInvoke;
    				double dCnt = cntInvoke*1000;
-   				trgVals[idx_Throughput] = dCnt/(tmLast - tmFirst);
-   				trgVals[idx_Duration] = tmLast - tmFirst;
+				long tmDuration = tmLast - tmFirst + tmMin; //tmAvg;
+   				trgVals[idx_Throughput] = dCnt/tmDuration;
+   				trgVals[idx_Duration] = tmDuration;
+    		} else {
+   	        	trgVals[idx_Avg_Time] = 0.0d;
+   				trgVals[idx_Throughput] = 0.0d;
+   				trgVals[idx_Duration] = 0L;
     		}
-    		
+
 			try {
 				target = new CompositeDataSupport(source.getCompositeType(), names, trgVals);
 			} catch (OpenDataException ex) {
@@ -275,37 +292,6 @@ public class JMXUtils {
 			}
     	}
     	return target;
-    }
-    
-    private static Object aggregateValue(int idx, Object value1, Object value2) {
-        //logger.trace("aggregateValue. name: {}; v1: {}; v2: {}", name, value1, value2);
-    	switch (idx) {
-    		case idx_Duration: return 0L; 
-    		case idx_Failed: return (Integer) value1 + (Integer) value2;
-    		case idx_First: if (((Comparable) value1).compareTo((Comparable) value2) < 0) {
-            		return value1;
-        		}
-        		return value2;
-    		case idx_Invoked: return (Integer) value1 + (Integer) value2;
-    		case idx_Last: if (((Comparable) value1).compareTo((Comparable) value2) > 0) {
-            		return value1;
-        		}
-        		return value2;
-    		case idx_Max_Time: if (((Comparable) value1).compareTo((Comparable) value2) > 0) {
-            		return value1;
-        		}
-        		return value2;
-    		case idx_Method: return value1;
-    		case idx_Min_Time: if (((Comparable) value1).compareTo((Comparable) value2) < 0) {
-            		return value1;
-        		}
-        		return value2;
-    		case idx_Succeed: return (Integer) value1 + (Integer) value2;
-    		case idx_Sum_Time: return (Long) value1 + (Long) value2;
-        }
-		//case idx_Avg_Time: 
-        //case idx_Throughput:
-    	return 0.0d; 
     }
     
     public static CompositeData propsToComposite(String name, String desc, Properties props) {
