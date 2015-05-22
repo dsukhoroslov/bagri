@@ -284,11 +284,50 @@
             <version>1</version>
             <createdAt>2015-04-10T13:36:26.965+03:00</createdAt>
             <createdBy>SDV</createdBy>
-            <fileName>../data/tpox/hello_module.xq</fileName>
+            <fileName>../../etc/samples/tpox/hello_module.xq</fileName>
             <description>The Hello Test Module</description>
             <namespace>http://helloworld</namespace>
             <enabled>true</enabled>
         </module>
     </modules>
+    <libraries>
+        <library name="java_library">
+            <version>5</version>
+            <createdAt>2015-05-21T16:17:20.542+03:00</createdAt>
+            <createdBy>dsukhoroslov</createdBy>
+            <description>The Standard Java Extension Library</description>
+            <enabled>true</enabled>
+            <functions>
+                <function>
+                    <className>java.lang.Double</className>
+                    <method>valueOf</method>
+                    <result type="double" cardinality="one"/>
+                    <prefix>dbl</prefix>
+                    <parameters>
+                        <parameter name="value" type="string" cardinality="one"/>
+                    </parameters>
+                </function>
+                <function>
+                    <className>java.lang.Math</className>
+                    <method>abs</method>
+                    <result type="int" cardinality="one"/>
+                    <prefix>math</prefix>
+                    <parameters>
+                        <parameter name="value" type="int" cardinality="one"/>
+                    </parameters>
+                </function>
+                <function>
+                    <className>java.lang.Math</className>
+                    <method>max</method>
+                    <result type="long" cardinality="one"/>
+                    <prefix>math</prefix>
+                    <parameters>
+                        <parameter name="arg0" type="long" cardinality="one"/>
+                        <parameter name="arg1" type="long" cardinality="one"/>
+                    </parameters>
+                </function>
+            </functions>
+        </library>
+    </libraries>
 </ns2:config>
 
