@@ -274,9 +274,9 @@ public class JMXUtils {
     		if (cntInvoke > 0) {
    	        	double dSum = tmSum;
    	        	trgVals[idx_Avg_Time] = dSum/cntInvoke;
-   				double dCnt = cntInvoke*1000;
+   				double dCnt = 1000.0d;
 				long tmDuration = tmLast - tmFirst + tmMin; //tmAvg;
-   				trgVals[idx_Throughput] = dCnt/tmDuration;
+   				trgVals[idx_Throughput] = dCnt*cntInvoke/tmDuration;
    				trgVals[idx_Duration] = tmDuration;
     		} else {
    	        	trgVals[idx_Avg_Time] = 0.0d;

@@ -134,9 +134,9 @@ public class InvocationStatistics extends StatisticsCollector implements Statist
 				double dSum = tmSum;
 				double tmAvg = dSum/cntInvoked;
 				result.put(sn_Avg_Time, tmAvg);
-				double dCnt = cntInvoked*1000;
+				double dCnt = 1000.0d;
 				long tmDuration = tmLast - tmFirst + tmMin; //tmAvg;
-				result.put(sn_Throughput, dCnt/tmDuration);
+				result.put(sn_Throughput, dCnt*cntInvoked/tmDuration);
 				result.put(sn_Duration, tmDuration); //DateUtils.getDuration(tmLast - tmFirst));
 			} else {
 				result.put(sn_Min_Time, 0L);
