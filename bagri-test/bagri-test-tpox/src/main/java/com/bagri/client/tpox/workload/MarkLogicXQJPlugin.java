@@ -1,6 +1,7 @@
 package com.bagri.client.tpox.workload;
 
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQItem;
@@ -11,7 +12,7 @@ import com.xqj2.XQConnection2;
 
 public class MarkLogicXQJPlugin extends BagriXQJPlugin {
 
-	private static int cnt = 0;
+	private static AtomicInteger cnt = new AtomicInteger(0); 
 
 	@Override
 	protected int execCommand(String query, Map<String, Object> params) throws XQException {
@@ -26,8 +27,7 @@ public class MarkLogicXQJPlugin extends BagriXQJPlugin {
                 insertOptions = new MarkLogicXQInsertOptions();
             	insertOptions.setCollections(new String[] {collect});
             }
-            int idx = cnt++;
-            xqc.insertItem("doc" + idx + ".xml", item, insertOptions);
+            xqc.insertItem("doc" + cnt.getAndIncrement() + ".xml", item, insertOptions);
             return 1;
         	
         }
