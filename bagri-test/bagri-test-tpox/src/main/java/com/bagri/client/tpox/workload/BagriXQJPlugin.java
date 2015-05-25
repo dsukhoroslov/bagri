@@ -42,7 +42,9 @@ public class BagriXQJPlugin extends BagriTPoXPlugin {
 		
 	};
 	
-    //private XQConnection xqc;
+    protected XQConnection getConnection() {
+    	return xqc.get(); 
+    }
     
     public BagriXQJPlugin() {
     	String config = System.getProperty(xdm_spring_context);
@@ -57,9 +59,10 @@ public class BagriXQJPlugin extends BagriTPoXPlugin {
 	
 	@Override
 	public void close() throws SQLException {
-		logger.info("close; XQC: {}", xqc.get());
+		XQConnection conn = getConnection();
+		logger.info("close; XQC: {}", conn);
 		try {
-			xqc.get().close();
+			conn.close();
 		} catch (XQException ex) {
 			logger.error("close.error; " + ex, ex);
 			throw new SQLException(ex);
@@ -139,9 +142,9 @@ public class BagriXQJPlugin extends BagriTPoXPlugin {
 		return value;
 	}
     
-	private int execCommand(String query, Map<String, Object> params) throws XQException {
+	protected int execCommand(String query, Map<String, Object> params) throws XQException {
 		
-		XQExpression xqe = xqc.get().createExpression();
+		XQExpression xqe = getConnection().createExpression();
 	    for (Map.Entry<String, Object> e: params.entrySet()) {
 	    	if (e.getValue() instanceof Integer) {
 	    		xqe.bindInt(new QName(e.getKey()), (Integer) e.getValue(), null);
@@ -154,11 +157,11 @@ public class BagriXQJPlugin extends BagriTPoXPlugin {
 		return 1;
 	}
 	
-	private int execQuery(String query, Map<String, Object> params) throws XQException {
+	protected int execQuery(String query, Map<String, Object> params) throws XQException {
 
 		logger.trace("execQuery; query: {}; params: {}", query, params);
 		
-	    XQPreparedExpression xqpe = xqc.get().prepareExpression(query);
+	    XQPreparedExpression xqpe = getConnection().prepareExpression(query);
 	    for (Map.Entry<String, Object> e: params.entrySet()) {
 	    	if (e.getValue() instanceof Integer) {
 	    		xqpe.bindInt(new QName(e.getKey()), (Integer) e.getValue(), null);
