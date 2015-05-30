@@ -10,6 +10,7 @@ import com.bagri.xdm.domain.XDMElement;
 import com.bagri.xdm.system.XDMIndex;
 import com.bagri.xdm.system.XDMModule;
 import com.bagri.xdm.system.XDMSchema;
+import com.bagri.xdm.system.XDMTriggerDef;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.StreamSerializer;
@@ -37,11 +38,11 @@ public class XDMSchemaSerializer extends XDMEntitySerializer implements StreamSe
 			XDMIndex idx = in.readObject();
 			xSchema.addIndex(idx);
 		}
-		//size = in.readInt();
-		//for (int i=0; i < size; i++) {
-		//	XDMModule mdl = in.readObject();
-		//	xSchema.addModule(mdl);
-		//}
+		size = in.readInt();
+		for (int i=0; i < size; i++) {
+			XDMTriggerDef trg = in.readObject();
+			xSchema.addTrigger(trg);
+		}
 		return xSchema;
 	}
 
@@ -57,10 +58,10 @@ public class XDMSchemaSerializer extends XDMEntitySerializer implements StreamSe
 		for (XDMIndex index: xSchema.getIndexes()) {
 			out.writeObject(index);
 		}
-		//out.writeInt(xSchema.getModules().size());
-		//for (XDMModule module: xSchema.getModules()) {
-		//	out.writeObject(module);
-		//}
+		out.writeInt(xSchema.getTriggers().size());
+		for (XDMTriggerDef trigger: xSchema.getTriggers()) {
+			out.writeObject(trigger);
+		}
 	}
 
 }

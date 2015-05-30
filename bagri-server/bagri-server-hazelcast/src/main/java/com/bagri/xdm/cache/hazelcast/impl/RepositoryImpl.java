@@ -17,6 +17,7 @@ import com.bagri.xdm.api.XDMQueryManagement;
 import com.bagri.xdm.cache.api.XDMIndexManagement;
 import com.bagri.xdm.cache.api.XDMRepository;
 import com.bagri.xdm.cache.api.XDMTransactionManagement;
+import com.bagri.xdm.cache.api.XDMTriggerManagement;
 import com.bagri.xdm.client.common.impl.XDMRepositoryBase;
 import com.bagri.xdm.domain.XDMPath;
 import com.bagri.xdm.system.XDMIndex;
@@ -48,6 +49,7 @@ public class RepositoryImpl extends XDMRepositoryBase implements ApplicationCont
 	
 	private XDMSchema xdmSchema;
     private XDMIndexManagement indexMgr;
+    private XDMTriggerManagement triggerMgr;
     private ApplicationContext appContext;
     private HazelcastInstance hzInstance;
 	private Map<String, XQProcessor> processors = new ConcurrentHashMap<String, XQProcessor>();
@@ -183,6 +185,15 @@ public class RepositoryImpl extends XDMRepositoryBase implements ApplicationCont
 
 	public void setIndexManagement(XDMIndexManagement indexMgr) {
 		this.indexMgr = indexMgr;
+	}
+	
+	@Override
+	public XDMTriggerManagement getTriggerManagement() {
+		return triggerMgr;
+	}
+
+	public void setTriggerManagement(XDMTriggerManagement triggerMgr) {
+		this.triggerMgr = triggerMgr;
 	}
 	
 	public Collection<XDMLibrary> getLibraries() {

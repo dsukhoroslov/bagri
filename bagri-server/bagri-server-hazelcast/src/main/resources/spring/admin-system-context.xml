@@ -125,6 +125,7 @@
 					<hz:serializer type-class="com.bagri.xdm.system.XDMRole" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMRoleSerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.system.XDMUser" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMUserSerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.system.XDMPermission" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMPermissionSerializer"/>
+					<hz:serializer type-class="com.bagri.xdm.system.XDMTriggerDef" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMTriggerSerializer"/>
 				</hz:serializers>
 			</hz:serialization>
 		</hz:config>

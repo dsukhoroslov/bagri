@@ -25,8 +25,6 @@ import com.hazelcast.core.Member;
 @ManagedResource(description="Schema Indexes Management MBean")
 public class IndexManagement extends SchemaFeatureManagement {
 	
-	private SchemaManager schemaManager;
-
 	public IndexManagement(String schemaName) {
 		super(schemaName);
 	}
@@ -35,10 +33,6 @@ public class IndexManagement extends SchemaFeatureManagement {
 		return "IndexManagement";
 	}
 	
-	public void setSchemaManager(SchemaManager schemaManager) {
-		this.schemaManager = schemaManager;
-	}
-
 	@ManagedAttribute(description="Return indexes defined on Schema")
 	public TabularData getIndexes() {
 		// get XDMSchema somehow! then get its indexes and build TabularData

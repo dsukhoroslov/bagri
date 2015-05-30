@@ -12,6 +12,7 @@
             <props>
                 <prop key="serverName">${xdm.schema.host}</prop>
                 <prop key="port">${xdm.schema.port}</prop>
+                <prop key="mode">${xdm.schema.mode}</prop>
             </props>
         </property>
     </bean>

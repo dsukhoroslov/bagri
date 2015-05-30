@@ -111,7 +111,8 @@ public class XDMIndex extends XDMEntity {
 		XDMIndex other = (XDMIndex) obj;
 		return name.equals(other.name); 
 	}
-	
+
+	@Override
 	public Map<String, Object> toMap() {
 		Map<String, Object> result = new HashMap<>();
 		result.put("name", name);

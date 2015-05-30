@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workload name="queries" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="workload_properties.xsd">
+	<collections>
+		<collection name="security">
+			<files dir="/data/security" firstfileid="1" lastfileid="1" docsperfile="20833" fileprefix="batch-" filepostfix="xml.offset"/>
+		</collection>
+	</collections>
+	<transactions>
+
+		<!--transaction id="1" name="addSecurity" weight="100">
+			<java-plugin>com.bagri.client.tpox.workload.BagriXQJPlugin</java-plugin>
+			<parameters>
+				<parameter>
+					<constant value="storeDocument($s)" />
+				</parameter>
+				<parameter>
+					<constant value="false" />
+				</parameter>
+				<parameter>
+					<constant value="s" />
+				</parameter>
+				<parameter>
+					<constant value="document" />
+				</parameter>
+				<parameter>
+					<files collection="security"/>
+				</parameter>
+			</parameters>
+		</transaction-->
+
+		<transaction id="1" name="addSecurity" weight="100">
+			<java-plugin>com.bagri.client.tpox.workload.MarkLogicXQJPlugin</java-plugin>
+			<parameters>
+				<parameter>
+					<constant value="insertDocument" />
+				</parameter>
+				<parameter>
+					<constant value="false" />
+				</parameter>
+				<parameter>
+					<constant value="doc" />
+				</parameter>
+				<parameter>
+					<constant value="document" />
+				</parameter>
+				<parameter>
+					<files collection="security"/>
+				</parameter>
+			</parameters>
+		</transaction>
+	</transactions>
+</workload>
+
+

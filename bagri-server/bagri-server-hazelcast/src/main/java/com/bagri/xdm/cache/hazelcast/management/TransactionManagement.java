@@ -14,8 +14,6 @@ import com.bagri.xdm.cache.hazelcast.task.stats.StatisticsReseter;
 @ManagedResource(description="Schema Transactions Management MBean")
 public class TransactionManagement extends SchemaFeatureManagement {
 	
-	//private SchemaManager schemaManager;
-
 	public TransactionManagement(String schemaName) {
 		super(schemaName);
 	}
@@ -24,10 +22,6 @@ public class TransactionManagement extends SchemaFeatureManagement {
 		return "TransactionManagement";
 	}
 	
-	//public void setSchemaManager(SchemaManager schemaManager) {
-	//	this.schemaManager = schemaManager;
-	//}
-
 	@ManagedAttribute(description="Return aggregated transaction statistics")
 	public CompositeData getTxStatistics() {
 		return super.getTotalsStatistics(new StatisticTotalsCollector(schemaName, "txManager"));

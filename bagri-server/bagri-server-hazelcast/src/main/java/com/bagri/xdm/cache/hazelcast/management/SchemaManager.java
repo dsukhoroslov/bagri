@@ -27,6 +27,8 @@ import com.bagri.xdm.client.common.impl.XDMModelManagementBase;
 import com.bagri.xdm.system.XDMIndex;
 import com.bagri.xdm.system.XDMModule;
 import com.bagri.xdm.system.XDMSchema;
+import com.bagri.xdm.system.XDMTriggerDef;
+import com.bagri.xdm.system.XDMTriggerDef.Scope;
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.client.impl.HazelcastClientInstanceImpl;
 import com.hazelcast.core.HazelcastInstance;
@@ -292,22 +294,22 @@ public class SchemaManager extends EntityManager<XDMSchema> {
 		}
 		return false;
 	}
-/*
-	XDMModule addModule(String name, String fileName, String description, String text) {
-		XDMModule module = new XDMModule(1, new Date(), JMXUtils.getCurrentUser(), name, 
-				fileName, description, text, true);
+
+	XDMTriggerDef addTrigger(String library, String className, Scope scope) {
+		XDMTriggerDef trigger = new XDMTriggerDef(1, new Date(), JMXUtils.getCurrentUser(), library, 
+				className, scope, true);
 		XDMSchema schema = getEntity();
-		if (schema.addModule(module)) {
+		if (schema.addTrigger(trigger)) {
 			// store schema!
 			flushEntity(schema);
-			return module;
+			return trigger;
 		}
 		return null;
 	}
 	
-	boolean deleteModule(String name) {
+	boolean deleteTrigger(String className) {
 		XDMSchema schema = getEntity();
-		if (schema.removeModule(name) != null) {
+		if (schema.removeTrigger(className) != null) {
 			// store schema!
 			flushEntity(schema);
 			return true;
@@ -315,14 +317,14 @@ public class SchemaManager extends EntityManager<XDMSchema> {
 		return false;
 	}
 
-	boolean enableModule(String name, boolean enable) {
+	boolean enableTrigger(String className, boolean enable) {
 		XDMSchema schema = getEntity();
-		if (schema.enableModule(name, enable)) {
+		if (schema.enableTrigger(className, enable)) {
 			// store schema!
 			flushEntity(schema);
 			return true;
 		}
 		return false;
 	}
-*/	
+
 }

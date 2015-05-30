@@ -61,7 +61,7 @@
             <version>1.0.0</version>
             <scope>system</scope>
             <!--optional>false</optional-->
-            <systemPath>${project.basedir}/../../etc/lib/marklogic-xqj-1.0.0.jar</systemPath>
+            <systemPath>${project.basedir}/../../etc/lib/marklogic-xqj-1.1.0.jar</systemPath>
         </dependency>
 
         <!-- TPoX benchmark framework -->

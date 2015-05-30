@@ -78,7 +78,7 @@
 				<hz:near-cache time-to-live-seconds="0" max-idle-seconds="0" eviction-policy="LRU" 
 					max-size="0" invalidate-on-change="true" in-memory-format="OBJECT"/>
 			</hz:map>
-			<hz:map name="dict-module" in-memory-format="OBJECT" async-backup-count="${xdm.schema.dict.backup.async}" 
+			<hz:map name="dict-trigger" in-memory-format="OBJECT" async-backup-count="${xdm.schema.dict.backup.async}" 
 				backup-count="${xdm.schema.dict.backup.sync}" read-backup-data="${xdm.schema.dict.backup.read}">
 				<hz:near-cache time-to-live-seconds="0" max-idle-seconds="0" eviction-policy="LRU" 
 					max-size="0" invalidate-on-change="true" in-memory-format="OBJECT"/>
@@ -180,7 +180,7 @@
 					<hz:serializer type-class="com.bagri.xdm.domain.XDMIndexedValue" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMIndexedValueSerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.domain.XDMTransaction" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMTransactionSerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.system.XDMIndex" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMIndexSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.system.XDMModule" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMModuleSerializer"/>
+					<hz:serializer type-class="com.bagri.xdm.system.XDMTriggerDef" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMTriggerSerializer"/>
 					<hz:serializer type-class="javax.xml.xquery.XQItemType" implementation="xqItemTypeSerializer"/>
 					<hz:serializer type-class="javax.xml.xquery.XQItem" implementation="xqItemSerializer"/>
 					<hz:serializer type-class="javax.xml.xquery.XQSequence" implementation="xqSequenceSerializer"/>
@@ -210,7 +210,7 @@
 	<hz:map id="dict-path" name="dict-path" instance-ref="hzInstance" />
 	<hz:map id="dict-namespace" name="dict-namespace" instance-ref="hzInstance" />
 	<hz:map id="dict-index" name="dict-index" instance-ref="hzInstance" />
-	<hz:map id="dict-module" name="dict-module" instance-ref="hzInstance" />
+	<hz:map id="dict-trigger" name="dict-trigger" instance-ref="hzInstance" />
 
 	<hz:atomicLong id="xdm.document" name="xdm.document" instance-ref="hzInstance"/>
 	<!--hz:atomicLong id="xdm.element" name="xdm.element" instance-ref="hzInstance"/-->
@@ -256,6 +256,14 @@
 		<property name="statsQueue" ref="indexQueue"/>
 	</bean>
 
+	<bean id="triggerQueue" class="java.util.concurrent.ArrayBlockingQueue">
+		<constructor-arg value="1024" />
+	</bean>
+	<bean id="triggerStats" class="com.bagri.common.stats.UsageStatistics">
+		<constructor-arg value="trigger" />
+		<property name="statsQueue" ref="triggerQueue"/>
+	</bean>
+
 	<bean id="popManager" class="com.bagri.xdm.cache.hazelcast.management.PopulationManager">
 		<constructor-arg ref="hzInstance" />
 		<property name="schemaName" value="${xdm.schema.name}"/>
@@ -290,6 +298,14 @@
 		<property name="indexCache" ref="xdm-index"/>
 		<property name="modelManager" ref="mdlManager"/>
 		<property name="statsQueue" ref="indexQueue"/>
+	</bean>
+
+	<bean id="trManager" class="com.bagri.xdm.cache.hazelcast.impl.TriggerManagementImpl">
+		<property name="triggerDictionary" ref="dict-trigger"/>
+		<!--property name="execService" ref="xdm-exec-pool"/>
+		<property name="indexCache" ref="xdm-index"/>
+		<property name="modelManager" ref="mdlManager"/-->
+		<property name="statsQueue" ref="triggerQueue"/>
 	</bean>
 
 	<bean id="docManager" class="com.bagri.xdm.cache.hazelcast.impl.DocumentManagementImpl">
@@ -330,6 +346,7 @@
 		<property name="queryManagement" ref="queryManager"/>
 		<property name="documentManagement" ref="docManager"/>
    		<property name="indexManagement" ref="idxManager" />
+   		<property name="triggerManagement" ref="trManager" />
    		<property name="txManagement" ref="txManager" />
 	</bean>
 	

@@ -214,7 +214,10 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
         	    IndexManagement iMgr = ctx.getBean("indexManager", IndexManagement.class);
         	    iMgr.setSchemaManager(sMgr);
 				mbeanExporter.registerManagedResource(iMgr, iMgr.getObjectName());
-        	    ModelManagement mMgr = ctx.getBean("modelManager", ModelManagement.class);
+        	    TriggerManagement trMgr = ctx.getBean("triggerManager", TriggerManagement.class);
+        	    trMgr.setSchemaManager(sMgr);
+				mbeanExporter.registerManagedResource(trMgr, trMgr.getObjectName());
+				ModelManagement mMgr = ctx.getBean("modelManager", ModelManagement.class);
 				mbeanExporter.registerManagedResource(mMgr, mMgr.getObjectName());
         	    QueryManagement qMgr = ctx.getBean("queryManager", QueryManagement.class);
 				mbeanExporter.registerManagedResource(qMgr, qMgr.getObjectName());
@@ -246,6 +249,8 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
     				mbeanExporter.unregisterManagedResource(dMgr.getObjectName());
     				IndexManagement iMgr = ctx.getBean("indexManager", IndexManagement.class);
     				mbeanExporter.unregisterManagedResource(iMgr.getObjectName());
+    				TriggerManagement trMgr = ctx.getBean("triggerManager", TriggerManagement.class);
+    				mbeanExporter.unregisterManagedResource(trMgr.getObjectName());
     				ModelManagement mMgr = ctx.getBean("modelManager", ModelManagement.class);
     				mbeanExporter.unregisterManagedResource(mMgr.getObjectName());
     				QueryManagement qMgr = ctx.getBean("queryManager", QueryManagement.class);

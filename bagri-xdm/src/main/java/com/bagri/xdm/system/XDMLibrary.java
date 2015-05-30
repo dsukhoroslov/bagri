@@ -85,7 +85,8 @@ public class XDMLibrary extends XDMEntity {
 	public List<XDMFunction> getFunctions() {
 		return functions;
 	}
-	
+
+	@Override
 	public Map<String, Object> toMap() {
 		Map<String, Object> result = new HashMap<>();
 		result.put("name", name);

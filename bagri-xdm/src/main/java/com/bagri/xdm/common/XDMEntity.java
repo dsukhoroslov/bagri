@@ -1,6 +1,8 @@
 package com.bagri.xdm.common;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -73,6 +75,14 @@ public abstract class XDMEntity implements Versionable {
 		return createdBy;
 	}
 
+	public Map<String, Object> toMap() {
+		Map<String, Object> result = new HashMap<>();
+		result.put("version", getVersion());
+		result.put("created at", getCreatedAt().toString());
+		result.put("created by", getCreatedBy());
+		return result;
+	}
+	
 	@Override
 	public void updateVersion(String by) {
 		version++;

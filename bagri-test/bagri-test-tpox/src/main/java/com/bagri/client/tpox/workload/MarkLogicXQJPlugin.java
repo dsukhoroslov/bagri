@@ -29,7 +29,6 @@ public class MarkLogicXQJPlugin extends BagriXQJPlugin {
             }
             xqc.insertItem("doc" + cnt.getAndIncrement() + ".xml", item, insertOptions);
             return 1;
-        	
         }
         return super.execCommand(query, params);
 	}

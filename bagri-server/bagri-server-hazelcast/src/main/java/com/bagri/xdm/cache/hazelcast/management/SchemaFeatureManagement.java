@@ -1,6 +1,8 @@
 package com.bagri.xdm.cache.hazelcast.management;
 
+import java.util.Collection;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -21,6 +23,9 @@ import com.bagri.common.manage.JMXUtils;
 import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.cache.hazelcast.task.stats.StatisticSeriesCollector;
 import com.bagri.xdm.cache.hazelcast.task.stats.StatisticsReseter;
+import com.bagri.xdm.common.XDMEntity;
+import com.bagri.xdm.system.XDMSchema;
+import com.bagri.xdm.system.XDMTriggerDef;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.Member;
 
@@ -31,7 +36,8 @@ public abstract class SchemaFeatureManagement implements SelfNaming {
     protected String schemaName;
 	protected IExecutorService execService;
 	protected XDMModelManagement modelMgr;
-	
+	protected SchemaManager schemaManager;
+
     public SchemaFeatureManagement(String schemaName) {
     	this.schemaName = schemaName;
     }
@@ -47,6 +53,10 @@ public abstract class SchemaFeatureManagement implements SelfNaming {
 	
 	public void setModelManager(XDMModelManagement modelMgr) {
 		this.modelMgr = modelMgr;
+	}
+
+	public void setSchemaManager(SchemaManager schemaManager) {
+		this.schemaManager = schemaManager;
 	}
 	
 	protected abstract String getFeatureKind();
@@ -114,7 +124,31 @@ public abstract class SchemaFeatureManagement implements SelfNaming {
 		}
 		logger.trace("resetStatistics.exit; reset stats on {} nodes", cnt);
 	}
+	
+	protected Collection<XDMEntity> getSchemaFeatures(XDMSchema schema) {
+		return null;
+	}
 
+	protected TabularData getTabularFeatures(String name, String desc, String key) {
+
+		XDMSchema schema = schemaManager.getEntity();
+		Collection<XDMEntity> features = getSchemaFeatures(schema); 
+		if (features == null || features.size() == 0) {
+			return null;
+		}
+		
+        TabularData result = null;
+        for (XDMEntity feature: features) {
+            try {
+                Map<String, Object> def = feature.toMap();
+                CompositeData data = JMXUtils.mapToComposite(name, desc, def);
+                result = JMXUtils.compositeToTabular(name, desc, key, result, data);
+            } catch (Exception ex) {
+                logger.error("getTabularFeatures; error", ex);
+            }
+        }
+        return result;
+    }
 	
 	
 }

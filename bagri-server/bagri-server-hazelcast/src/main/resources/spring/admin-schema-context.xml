@@ -52,7 +52,7 @@
 				<hz:serializer type-class="com.bagri.xdm.domain.XDMIndexedValue" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMIndexedValueSerializer"/>
 				<hz:serializer type-class="com.bagri.xdm.domain.XDMTransaction" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMTransactionSerializer"/>
 				<hz:serializer type-class="com.bagri.xdm.system.XDMIndex" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMIndexSerializer"/>
-				<hz:serializer type-class="com.bagri.xdm.system.XDMModule" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMModuleSerializer"/>
+				<hz:serializer type-class="com.bagri.xdm.system.XDMTriggerDef" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMTriggerSerializer"/>
 				<hz:serializer type-class="javax.xml.xquery.XQItemType" implementation="xqItemTypeSerializer"/>
 				<hz:serializer type-class="javax.xml.xquery.XQItem" implementation="xqItemSerializer"/>
 				<hz:serializer type-class="javax.xml.xquery.XQSequence" implementation="xqSequenceSerializer"/>
@@ -65,7 +65,7 @@
 		
 		<hz:near-cache name="dict-path" in-memory-format="OBJECT" />
 		<hz:near-cache name="dict-index" in-memory-format="OBJECT" />
-		<hz:near-cache name="dict-module" in-memory-format="OBJECT" />
+		<hz:near-cache name="dict-trigger" in-memory-format="OBJECT" />
 		<hz:near-cache name="dict-namespace" in-memory-format="OBJECT" />
 		<hz:near-cache name="dict-document-type" in-memory-format="OBJECT" />
 		
@@ -77,7 +77,7 @@
 	<hz:map id="dict-path" name="dict-path" instance-ref="hzInstance" />
 	<hz:map id="dict-namespace" name="dict-namespace" instance-ref="hzInstance" />
 	<hz:map id="dict-index" name="dict-index" instance-ref="hzInstance" />
-	<hz:map id="dict-module" name="dict-module" instance-ref="hzInstance" />
+	<hz:map id="dict-trigger" name="dict-trigger" instance-ref="hzInstance" />
 
 	<hz:atomicLong id="xdm.document" name="xdm.document" instance-ref="hzInstance"/>
 	<!--hz:atomicLong id="xdm.element" name="xdm.element" instance-ref="hzInstance"/-->
@@ -185,6 +185,11 @@
 		<constructor-arg value="${xdm.schema.name}" />
 		<property name="execService" ref="xdm-exec-pool"/>
 		<property name="modelManager" ref="xdmModel"/>
+	</bean>
+
+	<bean id="triggerManager" class="com.bagri.xdm.cache.hazelcast.management.TriggerManagement">
+		<constructor-arg value="${xdm.schema.name}" />
+		<property name="execService" ref="xdm-exec-pool"/>
 	</bean>
 
 	<bean id="modelManager" class="com.bagri.xdm.cache.hazelcast.management.ModelManagement">

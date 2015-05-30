@@ -23,8 +23,8 @@ import com.bagri.xdm.common.XDMEntity;
 		"active", 
 		"description", 
 		"props",
-		"indexes" //,
-		//"modules"
+		"indexes",
+		"triggers"
 })
 public class XDMSchema extends XDMEntity {
 
@@ -46,9 +46,9 @@ public class XDMSchema extends XDMEntity {
 	@XmlElementWrapper(name="indexes")
 	private Set<XDMIndex> indexes = new HashSet<XDMIndex>();
 	
-	//@XmlElement(name="module")
-	//@XmlElementWrapper(name="modules")
-	//private Set<XDMModule> modules = new HashSet<XDMModule>();
+	@XmlElement(name="triggers")
+	@XmlElementWrapper(name="triggers")
+	private Set<XDMTriggerDef> triggers = new HashSet<XDMTriggerDef>();
 	
 	public XDMSchema() {
 		// we need it for JAXB
@@ -141,45 +141,45 @@ public class XDMSchema extends XDMEntity {
 		}
 		return null;
 	}
-/*	
-	public Set<XDMModule> getModules() {
-		return modules;
+	
+	public Set<XDMTriggerDef> getTriggers() {
+		return triggers;
 	}
 	
-	public boolean addModule(XDMModule module) {
-		return modules.add(module);
+	public boolean addTrigger(XDMTriggerDef trigger) {
+		return triggers.add(trigger);
 	}
 	
-	public boolean enableModule(String name, boolean enable) {
-		for (XDMModule module: modules) {
-			if (name.equals(module.getName())) {
-				return module.setEnabled(enable);
+	public boolean enableTrigger(String className, boolean enable) {
+		for (XDMTriggerDef trigger: triggers) {
+			if (name.equals(trigger.getClassName())) {
+				return trigger.setEnabled(enable);
 			}
 		}
 		return false;
 	}
 
-	public XDMModule getModule(String name) {
-		for (XDMModule module: modules) {
-			if (name.equals(module.getName())) {
-				return module;
+	public XDMTriggerDef getTrigger(String className) {
+		for (XDMTriggerDef trigger: triggers) {
+			if (name.equals(trigger.getClassName())) {
+				return trigger;
 			}
 		}
 		return null;
 	}
 
-	public XDMModule removeModule(String name) {
-		for (XDMModule module: modules) {
-			if (name.equals(module.getName())) {
-				if (modules.remove(module)) {
-					return module;
+	public XDMTriggerDef removeTrigger(String className) {
+		for (XDMTriggerDef trigger: triggers) {
+			if (name.equals(trigger.getClassName())) {
+				if (triggers.remove(trigger)) {
+					return trigger;
 				}
 				break;
 			}
 		}
 		return null;
 	}
-*/	
+	
 	@Override
 	public int hashCode() {
 		return 31 + name.hashCode();
@@ -205,10 +205,9 @@ public class XDMSchema extends XDMEntity {
 		return "XDMSchema [name=" + name + ", version=" + getVersion() + 
 			", description=" + description + ", active=" + active + 
 			", created at=" + getCreatedAt() + ", by=" + getCreatedBy() + 
-			", props=" + props + ", indexes=" + indexes + "]";
-			//", modules=" + modules + "]";
+			", props=" + props + ", indexes=" + indexes + 
+			", triggers=" + triggers + "]";
 	}
-	
 	
 }
 
