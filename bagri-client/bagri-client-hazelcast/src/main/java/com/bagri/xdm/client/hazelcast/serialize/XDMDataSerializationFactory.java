@@ -92,6 +92,8 @@ public class XDMDataSerializationFactory implements DataSerializableFactory {
 	public static final int cli_IndexValueTask = 140;
 	public static final int cli_DeindexValueTask = 141;
 	public static final int cli_XDMCleanQueryTask = 142;
+	public static final int cli_CreateTriggerTask = 143;
+	public static final int cli_RemoveTriggerTask = 144;
 	
 	@Override
 	public IdentifiedDataSerializable create(int typeId) {

@@ -1,5 +1,6 @@
 package com.bagri.xdm.cache.hazelcast.management;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -33,26 +34,14 @@ public class IndexManagement extends SchemaFeatureManagement {
 		return "IndexManagement";
 	}
 	
+	@Override
+	protected Collection getSchemaFeatures(XDMSchema schema) {
+		return schema.getIndexes();
+	}
+
 	@ManagedAttribute(description="Return indexes defined on Schema")
 	public TabularData getIndexes() {
-		// get XDMSchema somehow! then get its indexes and build TabularData
-		XDMSchema schema = schemaManager.getEntity();
-		Set<XDMIndex> indexes = schema.getIndexes();
-		if (indexes.size() == 0) {
-			return null;
-		}
-		
-        TabularData result = null;
-        for (XDMIndex index: indexes) {
-            try {
-                Map<String, Object> def = index.toMap();
-                CompositeData data = JMXUtils.mapToComposite("index", "Index definition", def);
-                result = JMXUtils.compositeToTabular("index", "Index definition", "name", result, data);
-            } catch (Exception ex) {
-                logger.error("getIndexes; error", ex);
-            }
-        }
-        return result;
+		return getTabularFeatures("index", "Index definition", "name");
     }
 	
 	@ManagedAttribute(description="Return aggregated index usage statistics, per index")

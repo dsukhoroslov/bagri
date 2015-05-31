@@ -18,6 +18,7 @@
     <modules>
         <module>bagri-samples-client</module>
         <module>bagri-samples-embedded</module>
+        <module>bagri-samples-ext</module>
     </modules>
 
     <dependencies>

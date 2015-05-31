@@ -179,11 +179,11 @@
                 </index>
             </indexes>
             <triggers>
-                <triggers library="java_library">
+                <triggers library="sample_trigger">
                     <version>1</version>
                     <createdAt>2015-05-30T02:25:21.887+03:00</createdAt>
                     <createdBy>Denis</createdBy>
-                    <className>my.trigger.class</className>
+                    <className>com.bagri.samples.ext.SampleTrigger</className>
                     <scope>before</scope>
                     <enabled>true</enabled>
                 </triggers>
@@ -385,6 +385,15 @@
                     </parameters>
                 </function>
             </functions>
+        </library>
+        <library name="sample_trigger">
+            <version>1</version>
+            <createdAt>2015-05-31T16:17:20.542+03:00</createdAt>
+            <createdBy>dsukhoroslov</createdBy>
+            <fileName>../../bagri-samples/bagri-samples-ext/target/bagri-samples-ext-0.4.1-SNAPSHOT.jar</fileName>
+            <description>Sample extension trigger Library</description>
+            <enabled>true</enabled>
+            <functions/>
         </library>
     </libraries>
 </ns2:config>

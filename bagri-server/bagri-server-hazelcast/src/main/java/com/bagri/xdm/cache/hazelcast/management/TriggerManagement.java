@@ -18,6 +18,8 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.xdm.cache.hazelcast.task.stats.StatisticSeriesCollector;
+import com.bagri.xdm.cache.hazelcast.task.trigger.TriggerCreator;
+import com.bagri.xdm.cache.hazelcast.task.trigger.TriggerRemover;
 import com.bagri.xdm.common.XDMEntity;
 import com.bagri.xdm.system.XDMTriggerDef;
 import com.bagri.xdm.system.XDMSchema;
@@ -85,18 +87,18 @@ public class TriggerManagement extends SchemaFeatureManagement {
 			throw new IllegalStateException("Trigger '" + className + "' in schema '" + schemaName + "' already registered");
 		}
 		
-		//IndexCreator task = new IndexCreator(index);
-		//Map<Member, Future<Boolean>> results = execService.submitToAllMembers(task);
+		TriggerCreator task = new TriggerCreator(trigger);
+		Map<Member, Future<Boolean>> results = execService.submitToAllMembers(task);
 		int cnt = 0;
-		//for (Map.Entry<Member, Future<Boolean>> entry: results.entrySet()) {
-		//	try {
-		//		if (entry.getValue().get()) {
-		//			cnt++;
-		//		}
-		//	} catch (InterruptedException | ExecutionException ex) {
-		//		logger.error("addIndex.error; ", ex);
-		//	}
-		//}
+		for (Map.Entry<Member, Future<Boolean>> entry: results.entrySet()) {
+			try {
+				if (entry.getValue().get()) {
+					cnt++;
+				}
+			} catch (InterruptedException | ExecutionException ex) {
+				logger.error("addIndex.error; ", ex);
+			}
+		}
 		stamp = System.currentTimeMillis() - stamp;
 		logger.trace("addTrigger.exit; trigger created on {} members; timeTaken: {}", cnt, stamp);
 	}
@@ -111,18 +113,18 @@ public class TriggerManagement extends SchemaFeatureManagement {
 			throw new IllegalStateException("Trigger '" + className + "' in schema '" + schemaName + "' does not exist");
 		}
 
-		//IndexRemover task = new IndexRemover(name);
-		//Map<Member, Future<Boolean>> results = execService.submitToAllMembers(task);
+		TriggerRemover task = new TriggerRemover(className);
+		Map<Member, Future<Boolean>> results = execService.submitToAllMembers(task);
 		int cnt = 0;
-		//for (Map.Entry<Member, Future<Boolean>> entry: results.entrySet()) {
-		//	try {
-		//		if (entry.getValue().get()) {
-		//			cnt++;
-		//		}
-		//	} catch (InterruptedException | ExecutionException ex) {
-		//		logger.error("dropIndex.error; ", ex);
-		//	}
-		//}
+		for (Map.Entry<Member, Future<Boolean>> entry: results.entrySet()) {
+			try {
+				if (entry.getValue().get()) {
+					cnt++;
+				}
+			} catch (InterruptedException | ExecutionException ex) {
+				logger.error("dropIndex.error; ", ex);
+			}
+		}
 		stamp = System.currentTimeMillis() - stamp;
 		logger.trace("dropTrigger.exit; trigger deleted on {} members; timeTaken: {}", cnt, stamp);
 	}

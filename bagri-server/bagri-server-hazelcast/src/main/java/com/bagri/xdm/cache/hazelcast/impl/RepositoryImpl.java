@@ -24,6 +24,7 @@ import com.bagri.xdm.system.XDMIndex;
 import com.bagri.xdm.system.XDMLibrary;
 import com.bagri.xdm.system.XDMModule;
 import com.bagri.xdm.system.XDMSchema;
+import com.bagri.xdm.system.XDMTriggerDef;
 import com.bagri.xqj.BagriXQDataFactory;
 import com.bagri.xquery.api.XQProcessor;
 import com.bagri.xquery.saxon.XQProcessorServer;
@@ -226,37 +227,28 @@ public class RepositoryImpl extends XDMRepositoryBase implements ApplicationCont
 		return Collections.emptyList(); 
 	}
 	
-	//@Override
-	//public XDMModuleManagement getModuleManagement() {
-	//	return moduleMgr;
-	//}
-
-	//public void setModuleManagement(XDMModuleManagement moduleMgr) {
-	//	this.moduleMgr = moduleMgr;
-	//}
-	
-	//public boolean addSchemaModule(XDMModule module) {
+	public boolean addSchemaTrigger(XDMTriggerDef trigger) {
 		
-	//	if (xdmSchema.addModule(module)) {
+		if (xdmSchema.addTrigger(trigger)) {
 			//XDMPath path = indexMgr.createIndex(index);
 			//DocumentManagementImpl docMgr = (DocumentManagementImpl) getDocumentManagement();
-	//		return true; //docMgr.indexElements(path.getTypeId(), path.getPathId()) > 0;
-	//	}
-	//	return false;
-	//}
+			return true; //docMgr.indexElements(path.getTypeId(), path.getPathId()) > 0;
+		}
+		return false;
+	}
 
-	//public boolean dropSchemaModule(String name) {
+	public boolean dropSchemaTrigger(String className) {
 		
-	//	XDMModule module = xdmSchema.removeModule(name);
-	//	if (module != null) {
+		XDMTriggerDef trigger = xdmSchema.removeTrigger(className);
+		if (trigger != null) {
 			//XDMPath path = indexMgr.deleteIndex(index);
 			//if (path != null) {
 			//	DocumentManagementImpl docMgr = (DocumentManagementImpl) getDocumentManagement();
-	//			return true; //docMgr.deindexElements(path.getTypeId(), path.getPathId()) > 0;
+				return true; //docMgr.deindexElements(path.getTypeId(), path.getPathId()) > 0;
 			//}
-	//	}
-	//	return false;
-	//}
+		}
+		return false;
+	}
 	
 }
 
