@@ -303,8 +303,8 @@
 	<bean id="trManager" class="com.bagri.xdm.cache.hazelcast.impl.TriggerManagementImpl">
 		<property name="triggerDictionary" ref="dict-trigger"/>
 		<!--property name="execService" ref="xdm-exec-pool"/>
-		<property name="indexCache" ref="xdm-index"/>
-		<property name="modelManager" ref="mdlManager"/-->
+		<property name="indexCache" ref="xdm-index"/-->
+		<property name="modelManager" ref="mdlManager"/>
 		<property name="statsQueue" ref="triggerQueue"/>
 	</bean>
 

@@ -152,6 +152,15 @@ public class RepositoryImpl extends XDMRepositoryBase implements ApplicationCont
 				indexMgr.createIndex(idx);
 			}
 		}
+		
+		// now init triggers..
+		Set<XDMTriggerDef> triggers = xdmSchema.getTriggers();
+		if (triggers.size() > 0) {
+			for (XDMTriggerDef trg: triggers) {
+				triggerMgr.createTrigger(trg);
+			}
+		}
+		
 	}
 	
 	public boolean addSchemaIndex(XDMIndex index) {
@@ -230,9 +239,7 @@ public class RepositoryImpl extends XDMRepositoryBase implements ApplicationCont
 	public boolean addSchemaTrigger(XDMTriggerDef trigger) {
 		
 		if (xdmSchema.addTrigger(trigger)) {
-			//XDMPath path = indexMgr.createIndex(index);
-			//DocumentManagementImpl docMgr = (DocumentManagementImpl) getDocumentManagement();
-			return true; //docMgr.indexElements(path.getTypeId(), path.getPathId()) > 0;
+			return triggerMgr.createTrigger(trigger);
 		}
 		return false;
 	}
@@ -241,11 +248,7 @@ public class RepositoryImpl extends XDMRepositoryBase implements ApplicationCont
 		
 		XDMTriggerDef trigger = xdmSchema.removeTrigger(className);
 		if (trigger != null) {
-			//XDMPath path = indexMgr.deleteIndex(index);
-			//if (path != null) {
-			//	DocumentManagementImpl docMgr = (DocumentManagementImpl) getDocumentManagement();
-				return true; //docMgr.deindexElements(path.getTypeId(), path.getPathId()) > 0;
-			//}
+			return triggerMgr.deleteTrigger(trigger);
 		}
 		return false;
 	}

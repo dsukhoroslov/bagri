@@ -20,14 +20,14 @@ public interface XDMTriggerManagement {
 	 * registers a new trigger
 	 * 
 	 */
-	void createTrigger(XDMTriggerDef trigger, XDMDocumentType docType);
+	boolean createTrigger(XDMTriggerDef trigger);
 	
 	/**
 	 * @param typeId
 	 * remove an existing trigger
 	 * 
 	 */
-	void deleteTrigger(XDMTriggerDef trigger, XDMDocumentType docType);
+	boolean deleteTrigger(XDMTriggerDef trigger);
 	
 
 }

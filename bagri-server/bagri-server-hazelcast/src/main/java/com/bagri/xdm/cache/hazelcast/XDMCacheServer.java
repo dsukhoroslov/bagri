@@ -156,8 +156,7 @@ public class XDMCacheServer {
 	            		HazelcastInstance schemaInstance = Hazelcast.getHazelcastInstanceByName(schemaName);
 		            	if (schemaInstance != null) {
 		            		//ApplicationContext schemaContext = (ApplicationContext) schemaInstance.getUserContext().get("appContext");
-		            		ApplicationContext schemaContext = (ApplicationContext) 
-		            				SpringContextHolder.getContext(schemaName, "appContext");
+		            		ApplicationContext schemaContext = (ApplicationContext) SpringContextHolder.getContext(schemaName, "appContext");
 		            		PopulationManager popManager = schemaContext.getBean("popManager", PopulationManager.class);
 		            		// we need to do it here, for local (just started) node only..
 		            		popManager.checkPopulation(schemaInstance.getCluster().getMembers().size());

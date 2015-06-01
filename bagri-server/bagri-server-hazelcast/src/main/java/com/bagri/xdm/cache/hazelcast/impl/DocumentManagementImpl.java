@@ -46,9 +46,9 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	
 	private RepositoryImpl repo;
     private HazelcastInstance hzInstance;
-    //private XDMQueryManagement queryManager;
     private IndexManagementImpl indexManager;
     private TransactionManagementImpl txManager;
+    private TriggerManagementImpl triggerManager;
 
     private IdGenerator<Long> docGen;
     private Map<XDMDocumentKey, Source> srcCache;
@@ -60,6 +60,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
     	this.repo = repo;
     	//this.model = repo.getModelManagement();
     	this.txManager = (TransactionManagementImpl) repo.getTxManagement();
+    	this.triggerManager = (TriggerManagementImpl) repo.getTriggerManagement();
     }
     
     IMap<XDMDocumentKey, String> getXmlCache() {
@@ -209,8 +210,10 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		if (docType >= 0) {
 			String user = JMXUtils.getCurrentUser();
 			XDMDocument doc = new XDMDocument(docKey.getDocumentId(), docKey.getVersion(), uri, docType, user, txManager.getCurrentTxId()); // + createdAt, encoding
+			triggerManager.applyTrigger(doc); // before
 			xddCache.set(docKey, doc);
 			xmlCache.set(docKey, xml);
+			//triggerManager.applyTrigger(doc); // after
 			logger.trace("createDocument.exit; returning: {}", doc);
 			return doc;
 		} else {

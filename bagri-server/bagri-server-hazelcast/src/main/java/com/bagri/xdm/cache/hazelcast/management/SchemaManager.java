@@ -295,9 +295,9 @@ public class SchemaManager extends EntityManager<XDMSchema> {
 		return false;
 	}
 
-	XDMTriggerDef addTrigger(String library, String className, Scope scope) {
+	XDMTriggerDef addTrigger(String library, String className, String docType, Scope scope) {
 		XDMTriggerDef trigger = new XDMTriggerDef(1, new Date(), JMXUtils.getCurrentUser(), library, 
-				className, scope, true);
+				className, docType, scope, true);
 		XDMSchema schema = getEntity();
 		if (schema.addTrigger(trigger)) {
 			// store schema!

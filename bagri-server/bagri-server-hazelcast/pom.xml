@@ -62,7 +62,6 @@
             <groupId>com.sdv.bagri</groupId>
             <artifactId>bagri-test-common</artifactId>
         </dependency>
-
         <dependency>
             <groupId>com.sdv.bagri</groupId>
             <artifactId>bagri-xqj</artifactId>
@@ -75,6 +74,12 @@
             <groupId>com.sdv.bagri</groupId>
             <artifactId>bagri-xquery-saxon</artifactId>
         </dependency>
+
+        <!--dependency>
+            <groupId>com.sdv.bagri</groupId>
+	    <artifactId>bagri-samples-ext</artifactId>
+	    <version>${project.version}</version>
+        </dependency-->
 
         <dependency>
             <groupId>javax.xml.xquery</groupId>

@@ -77,12 +77,14 @@ public class TriggerManagement extends SchemaFeatureManagement {
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "library", description = "Library with Trigger implementation"),
 		@ManagedOperationParameter(name = "className", description = "Trigger class name"),
+		@ManagedOperationParameter(name = "docType", description = "Document type to fire on"),
 		@ManagedOperationParameter(name = "scope", description = "Trigger scope")})
-	public void addTrigger(String library, String className, String scope) {
+	public void addTrigger(String library, String className, String docType, String scope) {
 
 		logger.trace("addTrigger.enter;");
 		long stamp = System.currentTimeMillis();
-		XDMTriggerDef trigger = schemaManager.addTrigger(library, className, Scope.valueOf(scope));
+		String type = (docType == null || docType.trim().length() == 0) ? null : docType;
+		XDMTriggerDef trigger = schemaManager.addTrigger(library, className, type, Scope.valueOf(scope));
 		if (trigger == null) {
 			throw new IllegalStateException("Trigger '" + className + "' in schema '" + schemaName + "' already registered");
 		}

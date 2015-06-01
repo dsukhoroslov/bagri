@@ -18,7 +18,8 @@ import com.bagri.xdm.common.XDMEntity;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(namespace = "http://www.bagri.com/xdm/system", propOrder = {
 		"library", 
-		"className", 
+		"className",
+		"docType",
 		"scope",
 		"enabled"
 })
@@ -35,11 +36,14 @@ public class XDMTriggerDef extends XDMEntity {
 		after
 	}
 	
-	@XmlAttribute(required = true)
+	@XmlElement(required = true)
 	private String library;
 		
 	@XmlElement(required = true)
 	private String className;
+
+	@XmlElement(required = false)
+	private String docType;
 
 	@XmlElement(required = true)
 	private Scope scope;
@@ -53,10 +57,11 @@ public class XDMTriggerDef extends XDMEntity {
 	}
 	
 	public XDMTriggerDef(int version, Date createdAt, String createdBy, String library, 
-			String className, Scope scope, boolean enabled) {
+			String className, String docType, Scope scope, boolean enabled) {
 		super(version, createdAt, createdBy);
 		this.library = library;
 		this.className = className;
+		this.docType = docType;
 		this.scope = scope;
 		this.enabled = enabled;
 	}
@@ -67,6 +72,10 @@ public class XDMTriggerDef extends XDMEntity {
 
 	public String getClassName() {
 		return className;
+	}
+
+	public String getDocType() {
+		return docType;
 	}
 
 	public Scope getScope() {
@@ -124,6 +133,7 @@ public class XDMTriggerDef extends XDMEntity {
 		result.put("created by", getCreatedBy());
 		result.put("library", library);
 		result.put("className", className);
+		result.put("docType", docType); // can be null!
 		result.put("scope", scope.name());
 		result.put("enabled", enabled);
 		return result;
@@ -132,7 +142,7 @@ public class XDMTriggerDef extends XDMEntity {
 	@Override
 	public String toString() {
 		return "XDMTriggerDef [library=" + library + ", className=" + className
-				+ ", scope=" + scope + ", enabled=" + enabled + "]";
+				+ ", docType=" + docType + ", scope=" + scope + ", enabled=" + enabled + "]";
 	}
 
 }

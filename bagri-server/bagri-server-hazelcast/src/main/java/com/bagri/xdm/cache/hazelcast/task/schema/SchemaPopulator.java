@@ -41,8 +41,9 @@ public class SchemaPopulator extends SchemaDenitiator {
 		HazelcastInstance hz = Hazelcast.getHazelcastInstanceByName(schemaName);
 		if (hz != null) {
 			try {
-				// @TODO: ensure that partitions migration has been already finished! 
+				// TODO: ensure that partitions migration has been already finished! 
 				result = populateSchema(hz);
+				// now can turn triggers on.. but we need it even without population..
 			} catch (Exception ex) {
 		    	logger.error("call.error; on Schema population", ex);
 			}

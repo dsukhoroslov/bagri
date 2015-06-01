@@ -25,6 +25,7 @@ public class XDMTriggerSerializer extends XDMEntitySerializer implements StreamS
 				(String) entity[2],
 				in.readUTF(),
 				in.readUTF(),
+				in.readUTF(),
 				Scope.valueOf(in.readUTF()),
 				in.readBoolean());
 		return xTrigger;
@@ -36,6 +37,7 @@ public class XDMTriggerSerializer extends XDMEntitySerializer implements StreamS
 		super.writeEntity(out, xTrigger);
 		out.writeUTF(xTrigger.getLibrary());
 		out.writeUTF(xTrigger.getClassName());
+		out.writeUTF(xTrigger.getDocType());
 		out.writeUTF(xTrigger.getScope().name());
 		out.writeBoolean(xTrigger.isEnabled());
 	}
