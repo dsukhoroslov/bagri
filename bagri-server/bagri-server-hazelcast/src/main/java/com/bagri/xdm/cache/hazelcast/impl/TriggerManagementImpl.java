@@ -16,7 +16,6 @@ import com.bagri.common.util.FileUtils;
 import com.bagri.xdm.cache.api.XDMTriggerManagement;
 import com.bagri.xdm.client.hazelcast.impl.ModelManagementImpl;
 import com.bagri.xdm.domain.XDMDocument;
-import com.bagri.xdm.domain.XDMDocumentType;
 import com.bagri.xdm.domain.XDMTrigger;
 import com.bagri.xdm.system.XDMTriggerDef;
 import com.bagri.xdm.system.XDMTriggerDef.Scope;
@@ -29,12 +28,8 @@ public class TriggerManagementImpl implements XDMTriggerManagement {
 	
 	private IMap<Integer, XDMTriggerDef> trgDict;
     private Map<Integer, XDMTrigger> triggers = new HashMap<>();
-    //private IMap<XDMIndexKey, XDMIndexedValue> idxCache;
-	//private IExecutorService execService;
-
-	//private XDMFactory factory;
+	private IExecutorService execService;
     private ModelManagementImpl mdlMgr;
-    
     private boolean enableStats = true;
 	private BlockingQueue<StatisticsEvent> queue;
 	
@@ -48,6 +43,10 @@ public class TriggerManagementImpl implements XDMTriggerManagement {
 	
 	public void setTriggerDictionary(IMap<Integer, XDMTriggerDef> trgDict) {
 		this.trgDict = trgDict;
+	}
+
+	public void setExecService(IExecutorService execService) {
+		this.execService = execService;
 	}
 	
     public void setStatsQueue(BlockingQueue<StatisticsEvent> queue) {
@@ -67,6 +66,14 @@ public class TriggerManagementImpl implements XDMTriggerManagement {
     	}
     }
 
+	private void updateStats(String name, boolean success, int count) {
+		if (enableStats) {
+			if (!queue.offer(new StatisticsEvent(name, success, count))) {
+				logger.warn("updateStats; queue is full!!");
+			}
+		}
+	}
+	
 	@Override
 	public boolean isTriggerRigistered(int typeId, Scope scope) {
 		// TODO Auto-generated method stub
