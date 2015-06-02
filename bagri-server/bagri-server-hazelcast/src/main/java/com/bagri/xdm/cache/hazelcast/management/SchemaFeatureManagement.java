@@ -66,6 +66,27 @@ public abstract class SchemaFeatureManagement implements SelfNaming {
 		return JMXUtils.getObjectName("type=Schema,name=" + schemaName + ",kind=" + getFeatureKind());
 	}
 
+	public TabularData getUsageStatistics(Callable<TabularData> statsTask) {
+		logger.trace("getUsageStatistics.enter; going to collect stats for schema: {}", schemaName);
+
+		int cnt = 0;
+		TabularData result = null;
+		Map<Member, Future<TabularData>> futures = execService.submitToAllMembers(statsTask);
+		for (Map.Entry<Member, Future<TabularData>> entry: futures.entrySet()) {
+			try {
+				TabularData stats = entry.getValue().get();
+				logger.trace("getUsageStatistics; got stats: {}, from member {}", stats, entry.getKey());
+				result = stats; //JMXUtils.aggregateStats(stats, result);
+				logger.trace("getUsageStatistics; got aggregated result: {}", result);
+				cnt++;
+			} catch (InterruptedException | ExecutionException ex) {
+				logger.error("getUsageStatistics.error: " + ex.getMessage(), ex);
+			}
+		}
+		logger.trace("getUsageStatistics.exit; got stats from {} nodes", cnt);
+		return result;
+	}
+
 	protected TabularData getSeriesStatistics(Callable<TabularData> statsTask) {
 		logger.trace("getSeriesStatistics.enter; going to collect stats for schema: {}", schemaName);
 

@@ -1,19 +1,22 @@
 package com.bagri.xdm.client.hazelcast.serialize;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
+import com.bagri.xdm.system.XDMTriggerAction;
 import com.bagri.xdm.system.XDMTriggerDef;
-import com.bagri.xdm.system.XDMTriggerDef.Scope;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.StreamSerializer;
 
-public class XDMTriggerSerializer extends XDMEntitySerializer implements StreamSerializer<XDMTriggerDef> {
+public class XDMTriggerDefSerializer extends XDMEntitySerializer implements StreamSerializer<XDMTriggerDef> {
 
 	@Override
 	public int getTypeId() {
-		return XDMDataSerializationFactory.cli_XDMTrigger;
+		return XDMDataSerializationFactory.cli_XDMTriggerDef;
 	}
 
 	@Override
@@ -26,8 +29,15 @@ public class XDMTriggerSerializer extends XDMEntitySerializer implements StreamS
 				in.readUTF(),
 				in.readUTF(),
 				in.readUTF(),
-				Scope.valueOf(in.readUTF()),
+				in.readBoolean(),
 				in.readBoolean());
+		int size = in.readInt();
+		List<XDMTriggerAction> actions = new ArrayList<>(size);
+		for (int i=0; i < size; i++) {
+			XDMTriggerAction xAction = in.readObject();
+			actions.add(xAction);
+		}
+		xTrigger.setActions(actions);
 		return xTrigger;
 	}
 
@@ -38,8 +48,12 @@ public class XDMTriggerSerializer extends XDMEntitySerializer implements StreamS
 		out.writeUTF(xTrigger.getLibrary());
 		out.writeUTF(xTrigger.getClassName());
 		out.writeUTF(xTrigger.getDocType());
-		out.writeUTF(xTrigger.getScope().name());
+		out.writeBoolean(xTrigger.isSynchronous());
 		out.writeBoolean(xTrigger.isEnabled());
+		out.writeInt(xTrigger.getActions().size());
+		for (XDMTriggerAction xAction: xTrigger.getActions()) {
+			out.writeObject(xAction);
+		}
 	}
 
 }

@@ -46,7 +46,7 @@ public class XDMSchema extends XDMEntity {
 	@XmlElementWrapper(name="indexes")
 	private Set<XDMIndex> indexes = new HashSet<XDMIndex>();
 	
-	@XmlElement(name="triggers")
+	@XmlElement(name="trigger")
 	@XmlElementWrapper(name="triggers")
 	private Set<XDMTriggerDef> triggers = new HashSet<XDMTriggerDef>();
 	

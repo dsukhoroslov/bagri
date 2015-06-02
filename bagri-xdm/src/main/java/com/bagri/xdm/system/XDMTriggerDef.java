@@ -1,16 +1,16 @@
 package com.bagri.xdm.system;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlEnum;
-import javax.xml.bind.annotation.XmlEnumValue;
-import javax.xml.bind.annotation.XmlID;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlType;
 
 import com.bagri.xdm.common.XDMEntity;
@@ -20,21 +20,11 @@ import com.bagri.xdm.common.XDMEntity;
 		"library", 
 		"className",
 		"docType",
-		"scope",
-		"enabled"
+		"synchronous",
+		"enabled",
+		"actions"
 })
 public class XDMTriggerDef extends XDMEntity {
-	
-	@XmlType(name = "Scope", namespace = "http://www.bagri.com/xdm/system")
-	@XmlEnum
-	public enum Scope {
-
-	    @XmlEnumValue("before")
-		before,
-
-	    @XmlEnumValue("after")
-		after
-	}
 	
 	@XmlElement(required = true)
 	private String library;
@@ -46,23 +36,27 @@ public class XDMTriggerDef extends XDMEntity {
 	private String docType;
 
 	@XmlElement(required = true)
-	private Scope scope;
+	private boolean synchronous;
 	
 	@XmlElement(required = false, defaultValue = "true")
 	private boolean enabled = true;
 
+	@XmlElement(name="action")
+	@XmlElementWrapper(name="actions")
+	private Set<XDMTriggerAction> actions = new HashSet<XDMTriggerAction>();
+	
 	public XDMTriggerDef() {
 		// for JAXB
 		super();
 	}
 	
 	public XDMTriggerDef(int version, Date createdAt, String createdBy, String library, 
-			String className, String docType, Scope scope, boolean enabled) {
+			String className, String docType, boolean synchronous, boolean enabled) {
 		super(version, createdAt, createdBy);
 		this.library = library;
 		this.className = className;
 		this.docType = docType;
-		this.scope = scope;
+		this.synchronous = synchronous;
 		this.enabled = enabled;
 	}
 
@@ -78,8 +72,8 @@ public class XDMTriggerDef extends XDMEntity {
 		return docType;
 	}
 
-	public Scope getScope() {
-		return scope;
+	public boolean isSynchronous() {
+		return synchronous;
 	}
 
 	public boolean isEnabled() {
@@ -95,6 +89,17 @@ public class XDMTriggerDef extends XDMEntity {
 		return false;
 	}
 
+	public Set<XDMTriggerAction> getActions() {
+		return actions;
+	}
+	
+	public void setActions(Collection<XDMTriggerAction> actions) {
+		this.actions.clear();
+		if (actions != null) {
+			this.actions.addAll(actions);
+		}
+	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -134,15 +139,17 @@ public class XDMTriggerDef extends XDMEntity {
 		result.put("library", library);
 		result.put("className", className);
 		result.put("docType", docType); // can be null!
-		result.put("scope", scope.name());
+		result.put("synchronous", synchronous); 
 		result.put("enabled", enabled);
+		result.put("actions", actions.toString());
 		return result;
 	}
 
 	@Override
 	public String toString() {
 		return "XDMTriggerDef [library=" + library + ", className=" + className
-				+ ", docType=" + docType + ", scope=" + scope + ", enabled=" + enabled + "]";
+				+ ", docType=" + docType + ", enabled=" + enabled
+				+ ", actions=" + actions.toString() + "]";
 	}
 
 }

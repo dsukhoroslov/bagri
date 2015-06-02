@@ -35,6 +35,8 @@ import com.bagri.xdm.domain.XDMElement;
 import com.bagri.xdm.domain.XDMElements;
 import com.bagri.xdm.domain.XDMParser;
 import com.bagri.xdm.domain.XDMPath;
+import com.bagri.xdm.system.XDMTriggerAction.Action;
+import com.bagri.xdm.system.XDMTriggerAction.Scope;
 import com.bagri.xquery.api.XQProcessor;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
@@ -210,10 +212,10 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		if (docType >= 0) {
 			String user = JMXUtils.getCurrentUser();
 			XDMDocument doc = new XDMDocument(docKey.getDocumentId(), docKey.getVersion(), uri, docType, user, txManager.getCurrentTxId()); // + createdAt, encoding
-			triggerManager.applyTrigger(doc); // before
+			triggerManager.applyTrigger(doc, Action.insert, Scope.before); 
 			xddCache.set(docKey, doc);
 			xmlCache.set(docKey, xml);
-			//triggerManager.applyTrigger(doc); // after
+			triggerManager.applyTrigger(doc, Action.insert, Scope.after); 
 			logger.trace("createDocument.exit; returning: {}", doc);
 			return doc;
 		} else {
@@ -299,8 +301,10 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	    XDMDocument doc = xddCache.remove(docId);
 	    if (doc != null) {
 	    	deleteDocumentElements(docId, doc.getTypeId());
+			triggerManager.applyTrigger(doc, Action.delete, Scope.before); 
 			xmlCache.delete(docId);
 			srcCache.remove(docId);
+			triggerManager.applyTrigger(doc, Action.delete, Scope.after); 
 	        removed = true;
 	    //} else { 
 		//	throw new IllegalStateException("Document Entry with id " + entry.getKey() + " not found");
@@ -487,8 +491,12 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	    boolean removed = false;
 	    if (doc != null) {
 			//String user = JMXUtils.getCurrentUser();
+			triggerManager.applyTrigger(doc, Action.delete, Scope.before); 
 	    	doc.finishDocument(txManager.getCurrentTxId()); //, user);
 	    	xddCache.put(factory.newXDMDocumentKey(docId), doc);
+			//xmlCache.delete(docId); ??
+			//srcCache.remove(docId); ??
+			triggerManager.applyTrigger(doc, Action.delete, Scope.after); 
 		    removed = true;
 	    }
 		logger.trace("removeDocument.exit; removed: {}", removed);

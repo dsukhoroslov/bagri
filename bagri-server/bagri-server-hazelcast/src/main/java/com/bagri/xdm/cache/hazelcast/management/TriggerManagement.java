@@ -2,12 +2,12 @@ package com.bagri.xdm.cache.hazelcast.management;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.StringTokenizer;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.TabularData;
 
 import org.springframework.jmx.export.annotation.ManagedAttribute;
@@ -16,14 +16,14 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
-import com.bagri.common.manage.JMXUtils;
 import com.bagri.xdm.cache.hazelcast.task.stats.StatisticSeriesCollector;
 import com.bagri.xdm.cache.hazelcast.task.trigger.TriggerCreator;
 import com.bagri.xdm.cache.hazelcast.task.trigger.TriggerRemover;
-import com.bagri.xdm.common.XDMEntity;
-import com.bagri.xdm.system.XDMTriggerDef;
 import com.bagri.xdm.system.XDMSchema;
-import com.bagri.xdm.system.XDMTriggerDef.Scope;
+import com.bagri.xdm.system.XDMTriggerAction;
+import com.bagri.xdm.system.XDMTriggerAction.Scope;
+import com.bagri.xdm.system.XDMTriggerDef;
+import com.bagri.xdm.system.XDMTriggerAction.Action;
 import com.hazelcast.core.Member;
 
 @ManagedResource(description="Schema Triggers Management MBean")
@@ -54,23 +54,7 @@ public class TriggerManagement extends SchemaFeatureManagement {
 	
 	@ManagedAttribute(description="Return aggregated trigger usage statistics, per trigger")
 	public TabularData getTriggerStatistics() {
-		//return super.getInvocationStatistics(new StatisticSeriesCollector(schemaName, "indexStats"));
-		
-		//StatisticSeriesCollector statsTask = new StatisticSeriesCollector(schemaName, "indexStats");
-		//int cnt = 0;
-		TabularData result = null;
-		//Map<Member, Future<TabularData>> futures = execService.submitToAllMembers(statsTask);
-		//for (Map.Entry<Member, Future<TabularData>> entry: futures.entrySet()) {
-		//	try {
-		//		TabularData stats = entry.getValue().get();
-		//		result = stats; //JMXUtils.aggregateStats(stats, result);
-		//		cnt++;
-		//	} catch (InterruptedException | ExecutionException ex) {
-		//		logger.error("getInvocationStatistics.error: " + ex.getMessage(), ex);
-		//	}
-		//}
-		//logger.trace("getInvocationStatistics.exit; got stats from {} nodes", cnt);
-		return result;
+		return super.getUsageStatistics(new StatisticSeriesCollector(schemaName, "triggerStats"));
 	}
 
 	@ManagedOperation(description="Creates a new Trigger")
@@ -78,13 +62,23 @@ public class TriggerManagement extends SchemaFeatureManagement {
 		@ManagedOperationParameter(name = "library", description = "Library with Trigger implementation"),
 		@ManagedOperationParameter(name = "className", description = "Trigger class name"),
 		@ManagedOperationParameter(name = "docType", description = "Document type to fire on"),
-		@ManagedOperationParameter(name = "scope", description = "Trigger scope")})
-	public void addTrigger(String library, String className, String docType, String scope) {
+		@ManagedOperationParameter(name = "synchronous", description = "Sync/Async trigger behaviour"),
+		@ManagedOperationParameter(name = "actions", description = "Triggered actions and scope")})
+	public void addTrigger(String library, String className, String docType, boolean synchronous, String actions) {
 
 		logger.trace("addTrigger.enter;");
 		long stamp = System.currentTimeMillis();
 		String type = (docType == null || docType.trim().length() == 0) ? null : docType;
-		XDMTriggerDef trigger = schemaManager.addTrigger(library, className, type, Scope.valueOf(scope));
+		
+		StringTokenizer st = new StringTokenizer(actions, " ,");
+		List<XDMTriggerAction> acts = new ArrayList<>();
+		while (st.hasMoreTokens()) {
+			String scope = st.nextToken();
+			String action = st.nextToken();
+			acts.add(new XDMTriggerAction(Action.valueOf(action), Scope.valueOf(scope)));
+		}
+		
+		XDMTriggerDef trigger = schemaManager.addTrigger(library, className, type, synchronous, acts);
 		if (trigger == null) {
 			throw new IllegalStateException("Trigger '" + className + "' in schema '" + schemaName + "' already registered");
 		}

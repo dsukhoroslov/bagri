@@ -27,8 +27,8 @@ import com.bagri.xdm.client.common.impl.XDMModelManagementBase;
 import com.bagri.xdm.system.XDMIndex;
 import com.bagri.xdm.system.XDMModule;
 import com.bagri.xdm.system.XDMSchema;
+import com.bagri.xdm.system.XDMTriggerAction;
 import com.bagri.xdm.system.XDMTriggerDef;
-import com.bagri.xdm.system.XDMTriggerDef.Scope;
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.client.impl.HazelcastClientInstanceImpl;
 import com.hazelcast.core.HazelcastInstance;
@@ -295,9 +295,10 @@ public class SchemaManager extends EntityManager<XDMSchema> {
 		return false;
 	}
 
-	XDMTriggerDef addTrigger(String library, String className, String docType, Scope scope) {
+	XDMTriggerDef addTrigger(String library, String className, String docType, boolean synchronous, Collection<XDMTriggerAction> actions) {
 		XDMTriggerDef trigger = new XDMTriggerDef(1, new Date(), JMXUtils.getCurrentUser(), library, 
-				className, docType, scope, true);
+				className, docType, synchronous, true);
+		trigger.setActions(actions);
 		XDMSchema schema = getEntity();
 		if (schema.addTrigger(trigger)) {
 			// store schema!
