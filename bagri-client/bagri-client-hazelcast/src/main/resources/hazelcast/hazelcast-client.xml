@@ -50,11 +50,19 @@
 		</serializers>
 	</serialization>
 
-	<load-balancer type="random"></load-balancer>
+	<!--load-balancer type="random"></load-balancer-->
 	 
-	<!--near-cache name="dict-path" in-memory-format="OBJECT" />
-	<near-cache name="dict-index" in-memory-format="OBJECT" />
-	<near-cache name="dict-namespace" in-memory-format="OBJECT" />
-	<near-cache name="dict-document-type" in-memory-format="OBJECT" /-->
+	<near-cache name="dict-path">
+		<in-memory-format>OBJECT</in-memory-format>
+	</near-cache>
+	<near-cache name="dict-index">
+		<in-memory-format>OBJECT</in-memory-format>
+	</near-cache>
+	<near-cache name="dict-namespace">
+		<in-memory-format>OBJECT</in-memory-format>
+	</near-cache>
+	<near-cache name="dict-document-type">
+		<in-memory-format>OBJECT</in-memory-format>
+	</near-cache>
 	
 </hazelcast-client>
