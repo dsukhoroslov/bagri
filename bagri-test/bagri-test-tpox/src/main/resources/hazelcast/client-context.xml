@@ -17,7 +17,7 @@
     </bean-->
  
 	<hz:client id="hzInstance">
-		<hz:group name="TPoX2" password="TPoX2"/>
+		<hz:group name="default" password="password"/>
 	
 		<hz:network smart-routing="true">
 			<hz:member>localhost:10500</hz:member>

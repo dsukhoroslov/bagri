@@ -133,12 +133,6 @@ public class TriggerManagementImpl implements XDMTriggerManagement {
 	}
 	
 	@Override
-	public boolean isTriggerRigistered(int typeId) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
 	public boolean createTrigger(XDMTriggerDef trigger) {
 		logger.trace("createTrigger.enter; trigger: {}", trigger);
 

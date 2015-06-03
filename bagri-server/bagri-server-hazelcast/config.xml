@@ -100,13 +100,13 @@
             </indexes>
             <triggers/>
         </schema>
-        <schema name="TPoX2" active="true">
+        <schema name="default" active="true">
             <version>1</version>
             <createdAt>2014-09-27T15:00:58.096+04:00</createdAt>
             <createdBy>SDV</createdBy>
             <description>TPoX: transient schema for TPoX-related tests; no persistent store</description>
             <properties>
-                <entry name="xdm.schema.password">TPoX2</entry>
+                <entry name="xdm.schema.password">password</entry>
                 <entry name="xdm.schema.data.backup.read">false</entry>
                 <entry name="xqj.schema.orderingMode">ORDERING_MODE_UNORDERED</entry>
                 <entry name="xdm.schema.trans.backup.async">0</entry>

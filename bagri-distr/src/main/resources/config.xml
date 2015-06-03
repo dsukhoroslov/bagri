@@ -100,7 +100,7 @@
                 </index>
             </indexes>
         </schema>
-        <schema name="TPoX2" active="true">
+        <schema name="default" active="true">
             <version>1</version>
             <createdAt>2014-09-27T15:00:58.096+04:00</createdAt>
             <createdBy>SDV</createdBy>
@@ -129,7 +129,7 @@
                 <entry name="xqj.schema.boundarySpacePolicy">BOUNDARY_SPACE_PRESERVE</entry>
                 <entry name="xdm.schema.store.schema.path"></entry>
                 <entry name="xqj.schema.defaultFunctionNamespace"></entry>
-                <entry name="xdm.schema.password">TPoX2</entry>
+                <entry name="xdm.schema.password">default</entry>
                 <entry name="xdm.schema.partition.count">971</entry>
                 <entry name="xdm.schema.population.size">1</entry>
                 <entry name="xdm.schema.buffer.size">128</entry>

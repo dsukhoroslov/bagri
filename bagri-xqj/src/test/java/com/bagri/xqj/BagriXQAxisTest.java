@@ -45,8 +45,8 @@ public class BagriXQAxisTest {
 
 		xqds = new BagriXQDataSource();
 	    xqds.setProperty(BagriXQDataSource.ADDRESS, "localhost:10500");
-	    xqds.setProperty(BagriXQDataSource.SCHEMA, "TPoX2");
-	    xqds.setProperty(BagriXQDataSource.PASSWORD, "TPoX2");
+	    xqds.setProperty(BagriXQDataSource.SCHEMA, "default");
+	    xqds.setProperty(BagriXQDataSource.PASSWORD, "password");
 	    xqds.setProperty(BagriXQDataSource.XQ_PROCESSOR, "com.bagri.xquery.saxon.XQProcessorClient");
 	    xqds.setProperty(BagriXQDataSource.XDM_REPOSITORY, "com.bagri.xdm.client.hazelcast.impl.RepositoryImpl");
 

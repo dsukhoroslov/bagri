@@ -25,8 +25,8 @@ public class TransactionManagementImplTest extends XDMManagementTest {
 		//System.setProperty("hazelcast.config", "hazelcast/hazelcast.xml");
 		System.setProperty(PN_SERVER_ADDRESS, "localhost:10500"); 
 		System.setProperty(PN_POOL_SIZE, "10");
-		System.setProperty(PN_SCHEMA_NAME, "admin");
-		System.setProperty(PN_SCHEMA_PASS, "admin");
+		System.setProperty(PN_SCHEMA_NAME, "default"); // admin/admin ??
+		System.setProperty(PN_SCHEMA_PASS, "password");
 		sampleRoot = "..\\..\\etc\\samples\\tpox\\";
 	}
 

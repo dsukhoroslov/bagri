@@ -32,11 +32,13 @@ public abstract class StatisticsCollector implements Runnable {
 	
     private final Logger logger;
 	
+    private String name;
 	private BlockingQueue<StatisticsEvent> queue =  null;
 	private Map<String, Statistics> stats = new HashMap<String, Statistics>();
 
 	public StatisticsCollector(String name) {
 		logger = LoggerFactory.getLogger(getClass().getName() + "[" + name + "]");
+		this.name = name;
 	}
 	
 	public Collection<String> getStatisticsNames() {
@@ -100,7 +102,7 @@ public abstract class StatisticsCollector implements Runnable {
 
 	@Override
 	public void run() {
-		logger.info("run; start"); 
+		logger.info("run.enter; starting [{}] stats collection", name); 
 		boolean running = true;
 		while (running) {
 			try {
@@ -115,13 +117,13 @@ public abstract class StatisticsCollector implements Runnable {
 				running = false;
 			}
 		}
-		logger.info("run; finish"); 
+		logger.info("run.exit; finished [{}] stats collection", name); 
 	}
 
 	public void setStatsQueue(BlockingQueue<StatisticsEvent> queue) {
 		if (this.queue == null) {
 			this.queue = queue;
-			Thread listener = new Thread(this);
+			Thread listener = new Thread(this, name);
 			listener.start();
 		} else {
 			logger.warn("setStatsQueue; stats queue is already assigned: {}", queue);

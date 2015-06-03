@@ -12,7 +12,7 @@ public class SampleTrigger implements XDMTrigger {
 	private static final transient Logger logger = LoggerFactory.getLogger(SampleTrigger.class);
 	
 	public boolean isSynchronous() {
-		return false; //true;
+		return true; //false;
 	}
 	
 	public void beforeInsert(XDMDocument doc, XDMRepository repo) {

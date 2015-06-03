@@ -21,8 +21,8 @@ public class DocumentManagementImplTest extends XDMDocumentManagementTest {
 		//System.setProperty("hazelcast.config", "hazelcast/hazelcast.xml");
 		System.setProperty(PN_SERVER_ADDRESS, "localhost:10500"); 
 		System.setProperty(PN_POOL_SIZE, "10");
-		System.setProperty(PN_SCHEMA_NAME, "TPoX2");
-		System.setProperty(PN_SCHEMA_PASS, "TPoX2");
+		System.setProperty(PN_SCHEMA_NAME, "default");
+		System.setProperty(PN_SCHEMA_PASS, "password");
 		sampleRoot = "..\\..\\etc\\samples\\tpox\\";
 	}
 

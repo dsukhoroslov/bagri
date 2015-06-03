@@ -15,7 +15,7 @@ set admin_addr=localhost:3330
 set schema_addr=localhost:10500
 rem set schema_addr=192.168.1.100:10500
 
-set schema=TPoX2
+set schema=default
 
 :start
 if "%java_home%"=="" (set java_exec=java) else (set java_exec=%java_home%\bin\java)

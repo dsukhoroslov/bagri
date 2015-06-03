@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <hazelcast-client xmlns="http://www.hazelcat.com/schema/client-config" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.hazelcast.com/schema/client-config http://www.hazelcast.com/schema/config/hazelcast-client-config-3.4.xsd"> 
+	xsi:schemaLocation="http://www.hazelcast.com/schema/client-config http://www.hazelcast.com/schema/config/hazelcast-client-config-3.5.xsd"> 
 	
 	<!--group>
 		<name>${username}</name>
@@ -10,7 +10,7 @@
 	<network>
 		<cluster-members>
 			<!-- default Hazelcast host/port -->
-			<!--address>localhost:5701</address-->
+			<address>localhost:5701</address>
 		</cluster-members>
 		<smart-routing>true</smart-routing>
 	</network>
@@ -52,9 +52,9 @@
 
 	<load-balancer type="random"></load-balancer>
 	 
-	<near-cache name="dict-path" in-memory-format="OBJECT" />
+	<!--near-cache name="dict-path" in-memory-format="OBJECT" />
 	<near-cache name="dict-index" in-memory-format="OBJECT" />
 	<near-cache name="dict-namespace" in-memory-format="OBJECT" />
-	<near-cache name="dict-document-type" in-memory-format="OBJECT" />
+	<near-cache name="dict-document-type" in-memory-format="OBJECT" /-->
 	
 </hazelcast-client>

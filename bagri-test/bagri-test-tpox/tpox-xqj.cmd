@@ -31,8 +31,8 @@ set java_opts=%java_opts% -Dxdm.spring.context=spring/tpox-client-context.xml
 
 rem set java_opts=%java_opts% -Dxdm.schema.members=192.168.1.100:10500
 set java_opts=%java_opts% -Dxdm.schema.members=localhost:10500
-set java_opts=%java_opts% -Dxdm.schema.name=TPoX2
-set java_opts=%java_opts% -Dxdm.schema.password=TPoX2
+set java_opts=%java_opts% -Dxdm.schema.name=default
+set java_opts=%java_opts% -Dxdm.schema.password=password
 set java_opts=%java_opts% -Dxdm.client.submitTo=any
 rem possible values are: member, owner, any
 
