@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl;
 import com.bagri.xdm.cache.hazelcast.management.ConfigManagement;
 import com.bagri.xdm.cache.hazelcast.management.PopulationManager;
 import com.bagri.xdm.cache.hazelcast.management.SchemaManagement;
@@ -38,6 +39,8 @@ import com.bagri.xdm.cache.hazelcast.security.BagriJMXAuthenticator;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaAdministrator;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaInitiator;
 import com.bagri.xdm.cache.hazelcast.util.SpringContextHolder;
+import com.bagri.xdm.system.XDMLibrary;
+import com.bagri.xdm.system.XDMModule;
 import com.bagri.xdm.system.XDMSchema;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
@@ -130,7 +133,9 @@ public class XDMCacheServer {
         //int clusterSize = systemInstance.getCluster().getMembers().size();
         String[] aSchemas = getMemberSchemas(local);
         
-        Map<String, XDMSchema> schemaCache;
+        Collection<XDMModule> cModules = null; 
+        Collection<XDMLibrary> cLibraries = null; 
+        Map<String, XDMSchema> schemaCache = null;
        	String confName = System.getProperty(xdm_config_filename);
        	if (confName != null) {
        		ConfigManagement cfg = new ConfigManagement(confName);
@@ -139,8 +144,8 @@ public class XDMCacheServer {
        		for (XDMSchema schema: cSchemas) {
        			schemaCache.put(schema.getName(), schema);
        	    }
-       	} else {
-       		schemaCache = null;
+       		cModules = (Collection<XDMModule>) cfg.getEntities(XDMModule.class);
+       		cLibraries = (Collection<XDMLibrary>) cfg.getEntities(XDMLibrary.class);
        	}
         
         for (String name: aSchemas) {
@@ -152,11 +157,11 @@ public class XDMCacheServer {
             	if (xSchema != null) {
             		initialized = initSchema(systemInstance, local, xSchema);
             		String store = xSchema.getProperty(xdm_schema_store_enabled);
+            		ApplicationContext schemaContext = (ApplicationContext) SpringContextHolder.getContext(schemaName, "appContext");
             		if ("true".equalsIgnoreCase(store)) {
 	            		HazelcastInstance schemaInstance = Hazelcast.getHazelcastInstanceByName(schemaName);
 		            	if (schemaInstance != null) {
 		            		//ApplicationContext schemaContext = (ApplicationContext) schemaInstance.getUserContext().get("appContext");
-		            		ApplicationContext schemaContext = (ApplicationContext) SpringContextHolder.getContext(schemaName, "appContext");
 		            		PopulationManager popManager = schemaContext.getBean("popManager", PopulationManager.class);
 		            		// we need to do it here, for local (just started) node only..
 		            		popManager.checkPopulation(schemaInstance.getCluster().getMembers().size());
@@ -164,6 +169,12 @@ public class XDMCacheServer {
 		            	} else {
 		            		logger.warn("initServerNode; cannot find HazelcastInstance for schema '{}'!", schemaName);
 		            	}
+            		}
+            		if (initialized) {
+            			// set modules and libraries
+            			RepositoryImpl xdmRepo = schemaContext.getBean("xdmRepo", RepositoryImpl.class);
+            			xdmRepo.setLibraries(cLibraries);
+            			xdmRepo.setModules(cModules);
             		}
             	}            	
            	}

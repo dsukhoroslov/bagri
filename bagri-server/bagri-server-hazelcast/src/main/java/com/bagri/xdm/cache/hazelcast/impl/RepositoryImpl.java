@@ -1,5 +1,6 @@
 package com.bagri.xdm.cache.hazelcast.impl;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -49,6 +50,8 @@ public class RepositoryImpl extends XDMRepositoryBase implements ApplicationCont
 	};
 	
 	private XDMSchema xdmSchema;
+	private Collection<XDMModule> xdmModules;
+	private Collection<XDMLibrary> xdmLibraries;
     private XDMIndexManagement indexMgr;
     private XDMTriggerManagement triggerMgr;
     private ApplicationContext appContext;
@@ -207,7 +210,11 @@ public class RepositoryImpl extends XDMRepositoryBase implements ApplicationCont
 	}
 	
 	public Collection<XDMLibrary> getLibraries() {
-		HazelcastInstance dataInstance = HazelcastClient.getHazelcastClientByName("dataInstance");
+		if (xdmLibraries != null) {
+			return xdmLibraries;
+		}
+		
+		HazelcastInstance dataInstance = hzInstance; //HazelcastClient.getHazelcastClientByName("hzInstance");
 		if (dataInstance == null) {
 			for (HazelcastInstance hz: HazelcastClient.getAllHazelcastClients()) {
 				logger.trace("getLibraries; see HZ instance: {}; {}", hz, hz.getName());
@@ -221,8 +228,18 @@ public class RepositoryImpl extends XDMRepositoryBase implements ApplicationCont
 		return Collections.emptyList(); 
 	}
 
+	public void setLibraries(Collection<XDMLibrary> cLibraries) {
+		if (cLibraries != null) {
+			xdmLibraries = new ArrayList<>(cLibraries);
+		}
+	}
+	
 	public Collection<XDMModule> getModules() {
-		HazelcastInstance dataInstance = Hazelcast.getHazelcastInstanceByName("dataInstance");
+		if (xdmModules != null) {
+			return xdmModules;
+		}
+		
+		HazelcastInstance dataInstance = hzInstance; //Hazelcast.getHazelcastInstanceByName("hzInstance");
 		if (dataInstance == null) {
 			for (HazelcastInstance hz: HazelcastClient.getAllHazelcastClients()) {
 				logger.trace("getModules; see HZ instance: {}; {}", hz, hz.getName());
@@ -234,6 +251,12 @@ public class RepositoryImpl extends XDMRepositoryBase implements ApplicationCont
 			return modules.values();
 		}
 		return Collections.emptyList(); 
+	}
+	
+	public void setModules(Collection<XDMModule> cModules) {
+		if (cModules != null) {
+			xdmModules = new ArrayList<>(cModules);
+		}
 	}
 	
 	public boolean addSchemaTrigger(XDMTriggerDef trigger) {
