@@ -23,7 +23,7 @@ set java_opts=%java_opts% -Dlog.name=tpox-client -Dhz.log.level=warn -Dxdm.log.l
 set java_opts=%java_opts% -Dxdm.spring.context=spring/tpox-xcc-context.xml
 
 rem ML XQJ mode: xdbc, conformance
-set java_opts=%java_opts% -Dxdm.schema.host=localhost -Dxdm.schema.port=8003 -Dxdm.schema.mode=xdbc
+set java_opts=%java_opts% -Dxdm.schema.host=localhost -Dxdm.schema.port=8003 -Dxdm.schema.name=TPoX
 set java_opts=%java_opts% -Dxdm.schema.username=admin
 set java_opts=%java_opts% -Dxdm.schema.password=admin
 
