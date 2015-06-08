@@ -63,6 +63,10 @@
             <!--optional>false</optional-->
             <systemPath>${project.basedir}/../../etc/lib/marklogic-xqj-1.1.0.jar</systemPath>
         </dependency>
+        <dependency>
+	    <groupId>com.marklogic</groupId>
+	    <artifactId>marklogic-xcc</artifactId>
+        </dependency>
 
         <!-- TPoX benchmark framework -->
         <dependency>

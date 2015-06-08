@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workload name="queries" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="workload_properties.xsd">
+	<collections>
+		<collection name="security">
+			<files dir="/data/security" firstfileid="1" lastfileid="1" docsperfile="20833" fileprefix="batch-" filepostfix="xml.offset"/>
+		</collection>
+	</collections>
+	<transactions>
+		<!--transaction id="1" name="addSecurity" weight="100">
+			<java-plugin>com.bagri.client.tpox.workload.BagriXQJPlugin</java-plugin>
+			<parameters>
+				<parameter>
+					<constant value="
+declare namespace bgdm=&quot;http://bagri.com/bagri-xdm&quot;;
+declare variable $sec external;
+
+for $id in bgdm:store-document($sec)
+return $id" />
+				</parameter>
+				<parameter>
+					<constant value="true" />
+				</parameter>
+				<parameter>
+					<constant value="sec" />
+				</parameter>
+				<parameter>
+					<constant value="document" />
+				</parameter>
+				<parameter>
+					<files collection="security"/>
+				</parameter>
+			</parameters>
+		</transaction-->
+
+		<transaction id="1" name="getSecurity" weight="50">
+			<java-plugin>com.bagri.client.tpox.workload.MarkLogicXCCPlugin</java-plugin>
+			<parameters>
+				<parameter>
+					<constant value="
+declare namespace s=&quot;http://tpox-benchmark.com/security&quot;;
+declare variable $sym external;
+
+for $sec in fn:collection(&quot;securities&quot;)/s:Security
+where $sec/s:Symbol=$sym
+return $sec" />
+				</parameter>
+				<parameter>
+					<constant value="true" />
+				</parameter>
+				<parameter>
+					<constant value="sym" />
+				</parameter>
+				<parameter>
+					<constant value="string" />
+				</parameter>
+				<parameter>
+					<file>input/security_symbols.txt</file>
+				</parameter>
+			</parameters>
+		</transaction>
+
+		<transaction id="2" name="getSecurityPrice" weight="50">
+			<java-plugin>com.bagri.client.tpox.workload.MarkLogicXCCPlugin</java-plugin>
+			<parameters>
+				<parameter>
+					<constant value="
+declare namespace s=&quot;http://tpox-benchmark.com/security&quot;;
+declare variable $sym external;
+
+for $sec in fn:collection(&quot;securities&quot;)/s:Security
+where $sec/s:Symbol=$sym
+return
+	&lt;print&gt;The open price of the security &quot;{$sec/s:Name/text()}&quot; is {$sec/s:Price/s:PriceToday/s:Open/text()} dollars&lt;/print&gt;" />
+				</parameter>
+				<parameter>
+					<constant value="true" />
+				</parameter>
+				<parameter>
+					<constant value="sym" />
+				</parameter>
+				<parameter>
+					<constant value="string" />
+				</parameter>
+				<parameter>
+					<file>input/security_symbols.txt</file>
+				</parameter>
+			</parameters>
+		</transaction>
+
+		<!--transaction id="3" name="searchSecurity" weight="20">
+			<java-plugin>com.bagri.client.tpox.workload.BagriXQJPlugin</java-plugin>
+			<parameters>
+
+				<parameter>
+					<constant value="
+declare default element namespace &quot;http://tpox-benchmark.com/security&quot;;
+declare variable $sect external;
+declare variable $pemin external;
+declare variable $pemax external;
+declare variable $yield external; 
+
+for $sec in fn:collection(&quot;/{http://tpox-benchmark.com/security}Security&quot;)/Security
+where $sec[SecurityInformation/*/Sector = $sect and PE[. >= $pemin and . &lt; $pemax] and Yield > $yield]
+
+return	&lt;Security&gt;
+	{$sec/Symbol}
+	{$sec/Name}
+	{$sec/SecurityType}
+	{$sec/SecurityInformation//Sector}
+	{$sec/PE}
+	{$sec/Yield}
+&lt;/Security&gt; " />
+				</parameter>
+				<parameter>
+					<constant value="true" />
+				</parameter>
+				<parameter>
+					<constant value="sect" />
+				</parameter>
+				<parameter>
+					<constant value="string" />
+				</parameter>
+				<parameter>
+					<file>input/security_sectors.txt</file>
+				</parameter>
+				<parameter>
+					<constant value="pemin" />
+				</parameter>
+				<parameter>
+					<constant value="int" />
+				</parameter>
+				<parameter>
+					<uniformint min="20" max="23" />
+				</parameter>
+				<parameter>
+					<constant value="pemax" />
+				</parameter>
+				<parameter>
+					<constant value="int" />
+				</parameter>
+				<parameter>
+					<uniformint min="25" max="27" />
+				</parameter>
+				<parameter>
+					<constant value="yield" />
+				</parameter>
+				<parameter>
+					<constant value="int" />
+				</parameter>
+				<parameter>
+					<uniformint min="4" max="6" />
+				</parameter>
+			</parameters>
+		</transaction-->
+	</transactions>
+</workload>
+

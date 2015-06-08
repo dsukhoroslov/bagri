@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workload name="queries" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="workload_properties.xsd">
+	<collections>
+		<collection name="security">
+			<files dir="/data/security" firstfileid="1" lastfileid="1" docsperfile="20833" fileprefix="batch-" filepostfix="xml.offset"/>
+		</collection>
+	</collections>
+	<transactions>
+
+		<transaction id="1" name="addSecurity" weight="100">
+			<java-plugin>com.bagri.client.tpox.workload.MarkLogicXCCPlugin</java-plugin>
+			<parameters>
+				<parameter>
+					<constant value="insertDocument" />
+				</parameter>
+				<parameter>
+					<constant value="false" />
+				</parameter>
+				<parameter>
+					<constant value="doc" />
+				</parameter>
+				<parameter>
+					<constant value="document" />
+				</parameter>
+				<parameter>
+					<files collection="security"/>
+				</parameter>
+				<parameter>
+					<constant value="prefix" />
+				</parameter>
+				<parameter>
+					<constant value="string" />
+				</parameter>
+				<parameter>
+					<constant value="security" />
+				</parameter>
+				<parameter>
+					<constant value="collect" />
+				</parameter>
+				<parameter>
+					<constant value="string" />
+				</parameter>
+				<parameter>
+					<constant value="securities" />
+				</parameter>
+			</parameters>
+		</transaction>
+
+		<!--transaction id="1" name="addSecurity" weight="100">
+			<java-plugin>com.bagri.client.tpox.workload.MarkLogicXCCPlugin</java-plugin>
+			<parameters>
+				<parameter>
+					<constant value="
+(: declare namespace bgdm=&quot;http://bagri.com/bagri-xdm&quot;; :)
+declare variable $sec external;
+declare variable $uri external;
+xdmp:document-insert($uri, $sec, xdmp:default-permissions(), &quot;securities&quot;)" />
+				</parameter>
+				<parameter>
+					<constant value="true" />
+				</parameter>
+				<parameter>
+					<constant value="sec" />
+				</parameter>
+				<parameter>
+					<constant value="document" />
+				</parameter>
+				<parameter>
+					<files collection="security"/>
+				</parameter>
+				<parameter>
+					<constant value="uri" />
+				</parameter>
+				<parameter>
+					<constant value="string" />
+				</parameter>
+				<parameter>
+					<constant value="sec + ..." />
+				</parameter>
+			</parameters>
+		</transaction-->
+	</transactions>
+</workload>
+
+

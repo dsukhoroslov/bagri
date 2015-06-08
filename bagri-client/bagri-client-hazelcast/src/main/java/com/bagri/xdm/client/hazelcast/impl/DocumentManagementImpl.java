@@ -11,10 +11,12 @@ import com.bagri.common.idgen.IdGenerator;
 import com.bagri.xdm.api.XDMDocumentManagement;
 import com.bagri.xdm.api.XDMTransactionManagement;
 import com.bagri.xdm.client.common.impl.XDMDocumentManagementBase;
+import com.bagri.xdm.client.hazelcast.data.DocumentKey;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentCreator;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentRemover;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentContentProvider;
 import com.bagri.xdm.common.XDMDataKey;
+import com.bagri.xdm.common.XDMDocumentKey;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMElements;
 import com.hazelcast.core.HazelcastInstance;
@@ -22,6 +24,7 @@ import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.IMap;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
+import com.sun.org.apache.bcel.internal.generic.NEW;
 
 public class DocumentManagementImpl extends XDMDocumentManagementBase implements XDMDocumentManagement {
 
@@ -71,7 +74,13 @@ public class DocumentManagementImpl extends XDMDocumentManagementBase implements
 
 	@Override
 	public XDMDocument getDocument(long docId) {
-		return xddCache.get(docId);
+		// do this via task/EP ??
+		XDMDocument doc = xddCache.get(new DocumentKey(docId));
+		if (doc == null) {
+			logger.trace("getDocument; can not get document for key: {}; cache size is: {}", 
+					docId, xddCache.size());
+		}
+		return doc;
 	}
 	
 	//@Override
@@ -132,8 +141,9 @@ public class DocumentManagementImpl extends XDMDocumentManagementBase implements
 		}
 		logger.trace("storeDocument.enter; docId: {}, uri: {}; xml: {}", docId, uri, xml.length());
 
-		if (docId == 0) {
-			docId = docGen.next();
+		if (docId == 0 && uri == null) {
+			//docId = docGen.next();
+			docId = XDMDocumentKey.toKey(docGen.next(), 1);
 		}
 		// todo: override existing document -> create a new version ?
 		

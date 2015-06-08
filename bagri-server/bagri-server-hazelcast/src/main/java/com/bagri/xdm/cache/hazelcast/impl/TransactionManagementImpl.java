@@ -71,7 +71,7 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 	public long beginTransaction(XDMTransactionIsolation txIsolation) {
 		logger.trace("beginTransaction.enter; txIsolation: {}", txIsolation); 
 		long txId = thTx.get();
-		if (txId > TX_NO) {
+		if (txId > TX_NO && txCache.containsKey(txId)) {
 			throw new IllegalStateException("nested transactions are not supported; current txId: " + txId);
 		}
 

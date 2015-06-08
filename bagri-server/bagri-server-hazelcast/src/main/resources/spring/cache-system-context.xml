@@ -28,16 +28,16 @@
 				<hz:join>
 					<hz:multicast enabled="false"/>
 					<hz:tcp-ip enabled="true" connection-timeout-seconds="10">
-						<hz:members>${xdm.cluster.members.all}</hz:members>
+						<hz:members>${xdm.cluster.admins}, ${xdm.cluster.servers}</hz:members>
 					</hz:tcp-ip>
 				</hz:join>
 			</hz:network>
 			<hz:partition-group enabled="true" group-type="CUSTOM">
 				<hz:member-group>
-  					<hz:interface>${xdm.cluster.admin}</hz:interface>
+  					<hz:interface>${xdm.cluster.admins}</hz:interface>
 				</hz:member-group>
 				<hz:member-group>
-  					<hz:interface>${xdm.cluster.members}</hz:interface>
+  					<hz:interface>${xdm.cluster.servers}</hz:interface>
 				</hz:member-group>
 			</hz:partition-group>			
 			<hz:executor-service name="sys-exec-pool" pool-size="${xdm.cluster.thread.pool}" />

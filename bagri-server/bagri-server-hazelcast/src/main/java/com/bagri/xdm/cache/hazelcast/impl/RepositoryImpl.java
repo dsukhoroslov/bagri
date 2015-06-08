@@ -131,7 +131,7 @@ public class RepositoryImpl extends XDMRepositoryBase implements ApplicationCont
 	private XQProcessor newXQProcessor() {
 		XQProcessor result = appContext.getBean(XQProcessor.class, this);
 		XDMQueryManagement qMgr = getQueryManagement();
-		result.setRepository(this);
+		//result.setRepository(this);
 		((BagriXQDataFactory) ((XQProcessorServer) result).getXQDataFactory()).setProcessor(result);
 		return result;
 	}
