@@ -35,8 +35,13 @@ public class BagriXQJPlugin extends BagriTPoXPlugin {
 		protected XQConnection initialValue() {
 	    	String config = System.getProperty(xdm_spring_context);
 			ApplicationContext context = new ClassPathXmlApplicationContext(config);
-			XQConnection xqc = context.getBean("xqConnection", XQConnection.class); 
-	    	logger.debug("initialValue; XQC: {}", xqc);
+			XQConnection xqc = context.getBean("xqConnection", XQConnection.class);
+			try {
+				xqc.getStaticContext().setQueryTimeout(60);
+			} catch (XQException ex) {
+		    	logger.error("initialValue.error; error setting timeout: ", ex);
+			}
+	    	logger.info("initialValue.exit; XQC: {}", xqc);
 			return xqc;
  		}
 		
@@ -117,31 +122,6 @@ public class BagriXQJPlugin extends BagriTPoXPlugin {
 		return result;
 	}
 	
-	private Object buildParam(String type, String value) {
-		if ("boolean".equals(type)) {
-			return new Boolean(value);
-		}
-		if ("byte".equals(type)) {
-			return new Byte(value);
-		}
-		if ("double".equals(type)) {
-			return new Double(value);
-		}
-		if ("int".equals(type)) {
-			return new Integer(value);
-		}
-		if ("float".equals(type)) {
-			return new Float(value);
-		}
-		if ("long".equals(type)) {
-			return new Long(value);
-		}
-		if ("short".equals(type)) {
-			return new Short(value);
-		}
-		return value;
-	}
-    
 	protected int execCommand(String query, Map<String, Object> params) throws XQException {
 		
 		XQExpression xqe = getConnection().createExpression();
@@ -174,6 +154,8 @@ public class BagriXQJPlugin extends BagriTPoXPlugin {
 	    while (xqs.next()) {
 	    	found = true;
 	    }
+	    xqs.close();
+	    xqpe.close();
 	    if (found) {
 	    	return 1;
 	    }

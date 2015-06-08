@@ -110,6 +110,9 @@
         <mongo.version>2.11.4</mongo.version>
         <thrift.version>0.8.0</thrift.version>
 
+	<marklogic.xcc.version>8.0.2</marklogic.xcc.version>
+	<marklogic.client.version>3.0.2</marklogic.client.version>
+
         <!--todo: never used, do we need it? -->
         <!-- Reporting cfg -->
         <!--<maven.plugins.cfg.dir>${project.basedir}/../etc/maven_plugins</maven.plugins.cfg.dir>-->
@@ -454,6 +457,17 @@
 		<version>${coherence-spring.version}</version>
             </dependency-->
 
+	    <dependency>
+		<groupId>com.marklogic</groupId>
+		<artifactId>marklogic-xcc</artifactId>
+		<version>${marklogic.xcc.version}</version>
+	    </dependency>
+	    <dependency>
+		<groupId>com.marklogic</groupId>
+		<artifactId>java-client-api</artifactId>
+		<version>${marklogic.client.version}</version>
+	    </dependency>
+
             <dependency>
                 <groupId>org.mongodb</groupId>
                 <artifactId>mongo-java-driver</artifactId>
@@ -593,12 +607,16 @@
 
     <repositories>
 
+	<repository>
+      	    <id>MarkLogic-releases</id>
+      	    <name>MarkLogic Releases</name>
+      	    <url>http://developer.marklogic.com/maven2</url>
+  	</repository>
         <!--repository for xqj2 artifact-->
         <repository>
             <id>xqj.net</id>
             <url>http://xqj.net/maven</url>
         </repository>
-
     </repositories>
 
 </project>

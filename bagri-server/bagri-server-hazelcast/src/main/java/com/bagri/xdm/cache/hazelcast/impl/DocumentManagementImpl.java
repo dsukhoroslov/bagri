@@ -1,6 +1,7 @@
 package com.bagri.xdm.cache.hazelcast.impl;
 
 import static com.bagri.xdm.client.common.XDMCacheConstants.PN_XDM_SCHEMA_POOL;
+import static com.bagri.xdm.api.XDMTransactionManagement.TX_NO;
 
 import java.io.IOException;
 import java.util.AbstractMap;
@@ -184,11 +185,11 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
     }
 	
 	private String getDataFormat() {
-		XQProcessor xqp = repo.getXQProcessor();
-		String format = xqp.getProperties().getProperty("xdm.document.format");
-		if (format != null) {
-			return format;
-		}
+		//XQProcessor xqp = repo.getXQProcessor();
+		//String format = xqp.getProperties().getProperty("xdm.document.format");
+		//if (format != null) {
+		//	return format;
+		//}
 		return XDMParser.df_xml;
 	}
     
@@ -483,17 +484,17 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	}
 
 	@Override
-	public void removeDocument(long docId) {
+	public void removeDocument(long docKey) {
 		//deleteDocument(new AbstractMap.SimpleEntry(docId, null));
 		
-		logger.trace("removeDocument.enter; docId: {}", docId);
-	    XDMDocument doc = getDocument(docId);
+		logger.trace("removeDocument.enter; docKey: {}", docKey);
+	    XDMDocument doc = getDocument(docKey);
 	    boolean removed = false;
-	    if (doc != null) {
+	    if (doc != null && doc.getTxFinish() == TX_NO) {
 			//String user = JMXUtils.getCurrentUser();
 			triggerManager.applyTrigger(doc, Action.delete, Scope.before); 
 	    	doc.finishDocument(txManager.getCurrentTxId()); //, user);
-	    	xddCache.put(factory.newXDMDocumentKey(docId), doc);
+	    	xddCache.put(factory.newXDMDocumentKey(docKey), doc);
 			//xmlCache.delete(docId); ??
 			//srcCache.remove(docId); ??
 			triggerManager.applyTrigger(doc, Action.delete, Scope.after); 

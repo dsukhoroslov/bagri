@@ -15,7 +15,7 @@ import net.sf.tpox.workload.transaction.javaplugin.GenericJavaClassPlugin;
 import net.sf.tpox.workload.util.WorkloadEnvironment;
 
 /**
- * @author Denis
+ * @author Denis Sukhoroslov
  *
  */
 public abstract class BagriTPoXPlugin implements GenericJavaClassPlugin {
@@ -41,5 +41,30 @@ public abstract class BagriTPoXPlugin implements GenericJavaClassPlugin {
 		//logger.trace("prepare; params: {}; name: {}", wp.getParameterMarkers(), wp.getWorkloadName());
 	}
 	
+	protected Object buildParam(String type, String value) {
+		if ("boolean".equals(type)) {
+			return new Boolean(value);
+		}
+		if ("byte".equals(type)) {
+			return new Byte(value);
+		}
+		if ("double".equals(type)) {
+			return new Double(value);
+		}
+		if ("int".equals(type)) {
+			return new Integer(value);
+		}
+		if ("float".equals(type)) {
+			return new Float(value);
+		}
+		if ("long".equals(type)) {
+			return new Long(value);
+		}
+		if ("short".equals(type)) {
+			return new Short(value);
+		}
+		return value;
+	}
+    
 
 }

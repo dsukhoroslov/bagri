@@ -27,7 +27,11 @@ public class MarkLogicXQJPlugin extends BagriXQJPlugin {
                 insertOptions = new MarkLogicXQInsertOptions();
             	insertOptions.setCollections(new String[] {collect});
             }
-            xqc.insertItem("doc" + cnt.getAndIncrement() + ".xml", item, insertOptions);
+            String prefix = (String) params.get("prefix");
+            if (prefix == null) {
+            	prefix = "doc";
+            }
+            xqc.insertItem(prefix + cnt.getAndIncrement() + ".xml", item, insertOptions);
             return 1;
         }
         return super.execCommand(query, params);
