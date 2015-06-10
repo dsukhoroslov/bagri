@@ -57,14 +57,30 @@ public class TriggerManagement extends SchemaFeatureManagement {
 		return super.getUsageStatistics(new StatisticSeriesCollector(schemaName, "triggerStats"));
 	}
 
-	@ManagedOperation(description="Creates a new Trigger")
+	@ManagedOperation(description="Creates a new Java Trigger")
 	@ManagedOperationParameters({
-		@ManagedOperationParameter(name = "library", description = "Library with Trigger implementation"),
+		@ManagedOperationParameter(name = "library", description = "Java Library with Trigger implementation"),
 		@ManagedOperationParameter(name = "className", description = "Trigger class name"),
 		@ManagedOperationParameter(name = "docType", description = "Document type to fire on"),
 		@ManagedOperationParameter(name = "synchronous", description = "Sync/Async trigger behaviour"),
 		@ManagedOperationParameter(name = "actions", description = "Triggered actions and scope")})
-	public void addTrigger(String library, String className, String docType, boolean synchronous, String actions) {
+	public void addJavaTrigger(String library, String className, String docType, boolean synchronous, String actions) {
+		addTrigger(true, library, className, docType, synchronous, actions);
+	}
+	
+	@ManagedOperation(description="Creates a new XQuery Trigger")
+	@ManagedOperationParameters({
+		@ManagedOperationParameter(name = "module", description = "XQuery Module with Trigger function"),
+		@ManagedOperationParameter(name = "function", description = "Trigger function name"),
+		@ManagedOperationParameter(name = "docType", description = "Document type to fire on"),
+		@ManagedOperationParameter(name = "synchronous", description = "Sync/Async trigger behaviour"),
+		@ManagedOperationParameter(name = "actions", description = "Triggered actions and scope")})
+	public void addXQueryTrigger(String module, String function, String docType, boolean synchronous, String actions) {
+		addTrigger(false, module, function, docType, synchronous, actions);
+	}
+	
+	private void addTrigger(boolean java, String container, String implementation, String docType, 
+			boolean synchronous, String actions) {
 
 		logger.trace("addTrigger.enter;");
 		long stamp = System.currentTimeMillis();
@@ -78,9 +94,9 @@ public class TriggerManagement extends SchemaFeatureManagement {
 			acts.add(new XDMTriggerAction(Action.valueOf(action), Scope.valueOf(scope)));
 		}
 		
-		XDMTriggerDef trigger = schemaManager.addTrigger(library, className, type, synchronous, acts);
+		XDMTriggerDef trigger = schemaManager.addTrigger(java, container, implementation, type, synchronous, acts);
 		if (trigger == null) {
-			throw new IllegalStateException("Trigger '" + className + "' in schema '" + schemaName + "' already registered");
+			throw new IllegalStateException("Trigger '" + implementation + "' in schema '" + schemaName + "' already registered");
 		}
 		
 		TriggerCreator task = new TriggerCreator(trigger);
@@ -92,7 +108,7 @@ public class TriggerManagement extends SchemaFeatureManagement {
 					cnt++;
 				}
 			} catch (InterruptedException | ExecutionException ex) {
-				logger.error("addIndex.error; ", ex);
+				logger.error("addTrigger.error; ", ex);
 			}
 		}
 		stamp = System.currentTimeMillis() - stamp;

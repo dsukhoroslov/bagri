@@ -35,8 +35,8 @@ public class DocumentStructureProvider extends DocumentAwareTask implements Call
 		super();
 	}
 	
-	public DocumentStructureProvider(long docId) {
-		super(docId, 0);
+	public DocumentStructureProvider(String clientId, long docId) {
+		super(clientId, docId, 0);
 	}
 
 	

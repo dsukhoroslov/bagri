@@ -150,27 +150,27 @@ public class XDMSchema extends XDMEntity {
 		return triggers.add(trigger);
 	}
 	
-	public boolean enableTrigger(String className, boolean enable) {
+	public boolean enableTrigger(String name, boolean enable) {
 		for (XDMTriggerDef trigger: triggers) {
-			if (name.equals(trigger.getClassName())) {
+			if (name.equals(trigger.getName())) {
 				return trigger.setEnabled(enable);
 			}
 		}
 		return false;
 	}
 
-	public XDMTriggerDef getTrigger(String className) {
+	public XDMTriggerDef getTrigger(String name) {
 		for (XDMTriggerDef trigger: triggers) {
-			if (name.equals(trigger.getClassName())) {
+			if (name.equals(trigger.getName())) {
 				return trigger;
 			}
 		}
 		return null;
 	}
 
-	public XDMTriggerDef removeTrigger(String className) {
+	public XDMTriggerDef removeTrigger(String name) {
 		for (XDMTriggerDef trigger: triggers) {
-			if (name.equals(trigger.getClassName())) {
+			if (name.equals(trigger.getName())) {
 				if (triggers.remove(trigger)) {
 					return trigger;
 				}

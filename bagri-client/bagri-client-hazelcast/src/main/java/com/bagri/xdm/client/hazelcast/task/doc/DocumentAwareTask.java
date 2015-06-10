@@ -11,6 +11,7 @@ import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
 public abstract class DocumentAwareTask implements PartitionAware<Long>, IdentifiedDataSerializable {
 	
+	protected String clientId;
 	protected long docId;
 	protected long txId;
 	
@@ -18,7 +19,8 @@ public abstract class DocumentAwareTask implements PartitionAware<Long>, Identif
 		//
 	}
 	
-	public DocumentAwareTask(long docId, long txId) {
+	public DocumentAwareTask(String clientId, long docId, long txId) {
+		this.clientId = clientId;
 		this.docId = docId;
 		this.txId = txId;
 	}
@@ -35,12 +37,14 @@ public abstract class DocumentAwareTask implements PartitionAware<Long>, Identif
 
 	@Override
 	public void readData(ObjectDataInput in) throws IOException {
+		clientId = in.readUTF();
 		docId = in.readLong();
 		txId = in.readLong();
 	}
 
 	@Override
 	public void writeData(ObjectDataOutput out) throws IOException {
+		out.writeUTF(clientId);
 		out.writeLong(docId);
 		out.writeLong(txId);
 	}

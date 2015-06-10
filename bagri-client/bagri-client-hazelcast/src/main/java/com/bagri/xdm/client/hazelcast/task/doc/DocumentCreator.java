@@ -19,8 +19,8 @@ public class DocumentCreator extends DocumentAwareTask implements Callable<XDMDo
 		super();
 	}
 
-	public DocumentCreator(long docId, long txId, String uri, String xml) {
-		super(docId, txId);
+	public DocumentCreator(String clientId, long docId, long txId, String uri, String xml) {
+		super(clientId, docId, txId);
 		this.uri = uri;
 		this.xml = xml;
 	}

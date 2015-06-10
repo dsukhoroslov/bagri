@@ -8,7 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.bagri.xdm.api.XDMDocumentManagement;
+import com.bagri.xdm.cache.api.XDMRepository;
 import com.bagri.xdm.cache.api.XDMTransactionManagement;
+import com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl;
 import com.bagri.xdm.domain.XDMDocument;
 import com.hazelcast.spring.context.SpringAware;
 
@@ -17,6 +19,7 @@ public class DocumentRemover extends com.bagri.xdm.client.hazelcast.task.doc.Doc
 
     private static final transient Logger logger = LoggerFactory.getLogger(DocumentRemover.class);
     
+	private transient XDMRepository repo;
 	private transient XDMDocumentManagement docMgr;
 	private transient XDMTransactionManagement txMgr;
     
@@ -33,9 +36,16 @@ public class DocumentRemover extends com.bagri.xdm.client.hazelcast.task.doc.Doc
 		logger.debug("setTxManager; got TxManager: {}", txMgr); 
 	}
 
+    @Autowired
+	public void setRepository(XDMRepository repo) {
+		this.repo = repo;
+		logger.debug("setRepository; got Repo: {}", repo); 
+	}
+
     @Override
 	public XDMDocument call() throws Exception {
     	
+    	((RepositoryImpl) repo).getXQProcessor(clientId);
     	txMgr.callInTransaction(txId, new Callable<Void>() {
     		
 	    	public Void call() {

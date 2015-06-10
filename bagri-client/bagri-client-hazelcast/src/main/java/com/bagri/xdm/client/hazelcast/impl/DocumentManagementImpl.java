@@ -109,7 +109,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementBase implements
 		logger.trace("getDocumentAsString.enter; got docId: {}", docId);
 		
 		String result = null;
-		DocumentContentProvider xp = new DocumentContentProvider(docId);
+		DocumentContentProvider xp = new DocumentContentProvider(repo.getClientId(), docId);
 		Future<String> future = execService.submitToKeyOwner(xp, docId);
 		try {
 			result = future.get();
@@ -142,12 +142,12 @@ public class DocumentManagementImpl extends XDMDocumentManagementBase implements
 		logger.trace("storeDocument.enter; docId: {}, uri: {}; xml: {}", docId, uri, xml.length());
 
 		if (docId == 0 && uri == null) {
-			//docId = docGen.next();
 			docId = XDMDocumentKey.toKey(docGen.next(), 1);
 		}
 		// todo: override existing document -> create a new version ?
 		
-		DocumentCreator task = new DocumentCreator(docId, repo.getTransactionId(), uri, xml);
+		DocumentCreator task = new DocumentCreator(repo.getClientId(), docId, 
+				repo.getTransactionId(), uri, xml);
 		Future<XDMDocument> future = execService.submitToKeyOwner(task, docId);
 		try {
 			XDMDocument result = future.get();
@@ -168,7 +168,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementBase implements
 		//XDMDocumentRemover proc = new XDMDocumentRemover();
 		//Object result = xddCache.executeOnKey(docId, proc);
 		
-		DocumentRemover task = new DocumentRemover(docId, repo.getTransactionId());
+		DocumentRemover task = new DocumentRemover(repo.getClientId(), docId, repo.getTransactionId());
 		Future<XDMDocument> future = execService.submitToKeyOwner(task, docId);
 		try {
 			XDMDocument result = future.get();

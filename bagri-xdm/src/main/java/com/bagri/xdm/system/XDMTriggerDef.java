@@ -17,21 +17,13 @@ import com.bagri.xdm.common.XDMEntity;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(namespace = "http://www.bagri.com/xdm/system", propOrder = {
-		"library", 
-		"className",
 		"docType",
 		"synchronous",
 		"enabled",
 		"actions"
 })
-public class XDMTriggerDef extends XDMEntity {
+public abstract class XDMTriggerDef extends XDMEntity {
 	
-	@XmlElement(required = true)
-	private String library;
-		
-	@XmlElement(required = true)
-	private String className;
-
 	@XmlElement(required = false)
 	private String docType;
 
@@ -50,23 +42,15 @@ public class XDMTriggerDef extends XDMEntity {
 		super();
 	}
 	
-	public XDMTriggerDef(int version, Date createdAt, String createdBy, String library, 
-			String className, String docType, boolean synchronous, boolean enabled) {
+	public XDMTriggerDef(int version, Date createdAt, String createdBy, String docType, 
+			boolean synchronous, boolean enabled) {
 		super(version, createdAt, createdBy);
-		this.library = library;
-		this.className = className;
 		this.docType = docType;
 		this.synchronous = synchronous;
 		this.enabled = enabled;
 	}
-
-	public String getLibrary() {
-		return library;
-	}
-
-	public String getClassName() {
-		return className;
-	}
+	
+	public abstract String getName();
 
 	public String getDocType() {
 		return docType;
@@ -101,55 +85,18 @@ public class XDMTriggerDef extends XDMEntity {
 	}
 	
 	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = prime + library.hashCode();
-		result = prime * result	+ className.hashCode();
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null) {
-			return false;
-		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
-		
-		XDMTriggerDef other = (XDMTriggerDef) obj;
-		if (!library.equals(other.library)) {
-			return false;
-		}
-		if (!className.equals(other.className)) {
-			return false;
-		}
-		return true;
-	}
-
-	@Override
 	public Map<String, Object> toMap() {
 		Map<String, Object> result = new HashMap<>();
 		result.put("version", getVersion());
 		result.put("created at", getCreatedAt().toString());
 		result.put("created by", getCreatedBy());
-		result.put("library", library);
-		result.put("className", className);
+		//result.put("library", library);
+		//result.put("className", className);
 		result.put("docType", docType); // can be null!
 		result.put("synchronous", synchronous); 
 		result.put("enabled", enabled);
 		result.put("actions", actions.toString());
 		return result;
-	}
-
-	@Override
-	public String toString() {
-		return "XDMTriggerDef [library=" + library + ", className=" + className
-				+ ", docType=" + docType + ", enabled=" + enabled
-				+ ", actions=" + actions.toString() + "]";
 	}
 
 }

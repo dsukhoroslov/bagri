@@ -98,7 +98,8 @@ public class DocumentManagement extends SchemaFeatureManagement {
 		@ManagedOperationParameter(name = "docId", description = "Internal Document identifier")})
 	public CompositeData getDocumentElements(long docId) {
 		//
-		DocumentStructureProvider task = new DocumentStructureProvider(docId);
+		//docManager.
+		DocumentStructureProvider task = new DocumentStructureProvider(null, docId); //??
 		Future<CompositeData> result = execService.submitToKeyOwner(task, docId);
 		try {
 			return result.get();

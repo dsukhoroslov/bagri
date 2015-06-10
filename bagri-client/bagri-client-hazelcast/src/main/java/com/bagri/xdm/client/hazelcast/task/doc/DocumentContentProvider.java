@@ -10,8 +10,8 @@ public class DocumentContentProvider extends DocumentAwareTask implements Callab
 		super();
 	}
 	
-	public DocumentContentProvider(long docId) {
-		super(docId, 0);
+	public DocumentContentProvider(String clientId, long docId) {
+		super(clientId, docId, 0);
 	}
 
 	@Override

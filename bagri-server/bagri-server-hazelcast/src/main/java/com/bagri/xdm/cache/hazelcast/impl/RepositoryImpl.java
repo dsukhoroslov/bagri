@@ -112,7 +112,7 @@ public class RepositoryImpl extends XDMRepositoryBase implements ApplicationCont
 		return getXQProcessor(clientId);
 	}
 	
-	XQProcessor getXQProcessor(String clientId) {
+	public XQProcessor getXQProcessor(String clientId) {
 		XQProcessor result;
 		if (clientId == null) {
 			result = newXQProcessor();

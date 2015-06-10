@@ -185,11 +185,11 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
     }
 	
 	private String getDataFormat() {
-		//XQProcessor xqp = repo.getXQProcessor();
-		//String format = xqp.getProperties().getProperty("xdm.document.format");
-		//if (format != null) {
-		//	return format;
-		//}
+		XQProcessor xqp = repo.getXQProcessor();
+		String format = xqp.getProperties().getProperty("xdm.document.format");
+		if (format != null) {
+			return format;
+		}
 		return XDMParser.df_xml;
 	}
     
@@ -402,7 +402,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 					xmlCache.set(docKey, xml);
 				}
 			} else {
-				DocumentContentProvider xp = new DocumentContentProvider(docId);
+				DocumentContentProvider xp = new DocumentContentProvider(null, docId); //??
 				IExecutorService execService = hzInstance.getExecutorService(PN_XDM_SCHEMA_POOL);
 				Future<String> future = execService.submitToKeyOwner(xp, docId);
 				try {

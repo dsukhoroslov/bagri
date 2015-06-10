@@ -21,10 +21,12 @@ import com.bagri.xdm.client.hazelcast.impl.IdGeneratorImpl;
 import com.bagri.xdm.client.hazelcast.impl.ModelManagementImpl;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMTrigger;
+import com.bagri.xdm.system.XDMJavaTrigger;
 import com.bagri.xdm.system.XDMTriggerAction;
 import com.bagri.xdm.system.XDMTriggerAction.Action;
 import com.bagri.xdm.system.XDMTriggerAction.Scope;
 import com.bagri.xdm.system.XDMTriggerDef;
+import com.bagri.xdm.system.XDMXQueryTrigger;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.IMap;
@@ -134,19 +136,27 @@ public class TriggerManagementImpl implements XDMTriggerManagement {
 	
 	@Override
 	public boolean createTrigger(XDMTriggerDef trigger) {
-		logger.trace("createTrigger.enter; trigger: {}", trigger);
 
+		if (trigger instanceof XDMJavaTrigger) {
+			return createJavaTrigger((XDMJavaTrigger) trigger);
+		}
+		return createXQueryTrigger((XDMXQueryTrigger) trigger);
+	}
+	
+	private boolean createJavaTrigger(XDMJavaTrigger trigger) {
+		logger.trace("createJavaTrigger.enter; trigger: {}", trigger);
+		
 		Class tc = null;
 		try {
 			tc = Class.forName(trigger.getClassName());
 		} catch (ClassNotFoundException ex) {
 			// load library dynamically..
-			logger.debug("createTrigger; ClassNotFound: {}, about to load library..", trigger.getClassName());
+			logger.debug("createJavaTrigger; ClassNotFound: {}, about to load library..", trigger.getClassName());
 			try {
 				addURL(FileUtils.path2url(trigger.getLibrary()));
 				tc = Class.forName(trigger.getClassName());
 			} catch (ClassNotFoundException | IOException ex2) {
-				logger.error("createTrigger.error; ", ex2);
+				logger.error("createJavaTrigger.error; ", ex2);
 			}
 		}
 		
@@ -158,15 +168,20 @@ public class TriggerManagementImpl implements XDMTriggerManagement {
 					String key = getTriggerKey(typeId, action.getAction(), action.getScope());
 					triggers.put(key, triggerImpl);
 				}
-				logger.trace("createTrigger.exit; trigger created: {}, for type: {}", triggerImpl, typeId);
+				logger.trace("createJavaTrigger.exit; trigger created: {}, for type: {}", triggerImpl, typeId);
 				return true;
 			} catch (InstantiationException | IllegalAccessException ex) {
-				logger.error("createTrigger.error; {}", ex);
+				logger.error("createJavaTrigger.error; {}", ex);
 			}
 		}
 		return false;
 	}
 
+	private boolean createXQueryTrigger(XDMXQueryTrigger trigger) {
+		logger.trace("createXQueryTrigger.enter; trigger: {}", trigger);
+		return false;
+	}
+	
 	@Override
 	public boolean deleteTrigger(XDMTriggerDef trigger) {
 		int cnt = 0;

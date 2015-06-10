@@ -25,10 +25,12 @@ import com.bagri.xdm.cache.hazelcast.task.schema.SchemaActivator;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaUpdater;
 import com.bagri.xdm.client.common.impl.XDMModelManagementBase;
 import com.bagri.xdm.system.XDMIndex;
+import com.bagri.xdm.system.XDMJavaTrigger;
 import com.bagri.xdm.system.XDMModule;
 import com.bagri.xdm.system.XDMSchema;
 import com.bagri.xdm.system.XDMTriggerAction;
 import com.bagri.xdm.system.XDMTriggerDef;
+import com.bagri.xdm.system.XDMXQueryTrigger;
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.client.impl.HazelcastClientInstanceImpl;
 import com.hazelcast.core.HazelcastInstance;
@@ -295,9 +297,16 @@ public class SchemaManager extends EntityManager<XDMSchema> {
 		return false;
 	}
 
-	XDMTriggerDef addTrigger(String library, String className, String docType, boolean synchronous, Collection<XDMTriggerAction> actions) {
-		XDMTriggerDef trigger = new XDMTriggerDef(1, new Date(), JMXUtils.getCurrentUser(), library, 
-				className, docType, synchronous, true);
+	XDMTriggerDef addTrigger(boolean java, String container, String implementation, String docType, 
+			boolean synchronous, Collection<XDMTriggerAction> actions) {
+		XDMTriggerDef trigger;
+		if (java) {
+			trigger = new XDMJavaTrigger(1, new Date(), JMXUtils.getCurrentUser(), container, 
+				 implementation, docType, synchronous, true);
+		} else {
+			trigger = new XDMXQueryTrigger(1, new Date(), JMXUtils.getCurrentUser(), container, 
+					 implementation, docType, synchronous, true);
+		}
 		trigger.setActions(actions);
 		XDMSchema schema = getEntity();
 		if (schema.addTrigger(trigger)) {
@@ -308,9 +317,9 @@ public class SchemaManager extends EntityManager<XDMSchema> {
 		return null;
 	}
 	
-	boolean deleteTrigger(String className) {
+	boolean deleteTrigger(String name) {
 		XDMSchema schema = getEntity();
-		if (schema.removeTrigger(className) != null) {
+		if (schema.removeTrigger(name) != null) {
 			// store schema!
 			flushEntity(schema);
 			return true;
@@ -318,9 +327,9 @@ public class SchemaManager extends EntityManager<XDMSchema> {
 		return false;
 	}
 
-	boolean enableTrigger(String className, boolean enable) {
+	boolean enableTrigger(String name, boolean enable) {
 		XDMSchema schema = getEntity();
-		if (schema.enableTrigger(className, enable)) {
+		if (schema.enableTrigger(name, enable)) {
 			// store schema!
 			flushEntity(schema);
 			return true;
