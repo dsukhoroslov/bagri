@@ -13,12 +13,14 @@ import javax.xml.bind.annotation.XmlType;
 
 import com.bagri.xdm.system.XDMIdentity;
 import com.bagri.xdm.system.XDMIndex;
+import com.bagri.xdm.system.XDMJavaTrigger;
 import com.bagri.xdm.system.XDMLibrary;
 import com.bagri.xdm.system.XDMModule;
 import com.bagri.xdm.system.XDMNode;
 import com.bagri.xdm.system.XDMRole;
 import com.bagri.xdm.system.XDMSchema;
 import com.bagri.xdm.system.XDMUser;
+import com.bagri.xdm.system.XDMXQueryTrigger;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 //@XmlType(namespace = "http://www.bagri.com/xdm/system",	propOrder = {
@@ -33,6 +35,8 @@ import com.bagri.xdm.system.XDMUser;
     XDMModule.class,
     XDMLibrary.class,
     XDMIndex.class,
+    XDMJavaTrigger.class,
+    XDMXQueryTrigger.class,
     //XDMIdentity.class,
     XDMRole.class,
     XDMUser.class

@@ -1,7 +1,6 @@
 package com.bagri.xdm.system;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -10,7 +9,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(namespace = "http://www.bagri.com/xdm/system", propOrder = {
+@XmlType(name="javatrigger", namespace = "http://www.bagri.com/xdm/system", propOrder = {
 		"library", 
 		"className"
 })
@@ -21,6 +20,11 @@ public class XDMJavaTrigger extends XDMTriggerDef {
 		
 	@XmlElement(required = true)
 	private String className;
+	
+	public XDMJavaTrigger() {
+		// for JAXB de-serialization
+		super();
+	}
 
 	public XDMJavaTrigger(int version, Date createdAt, String createdBy, String library, 
 			String className, String docType, boolean synchronous, boolean enabled) {

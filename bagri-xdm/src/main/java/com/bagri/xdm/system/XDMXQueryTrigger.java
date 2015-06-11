@@ -9,7 +9,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(namespace = "http://www.bagri.com/xdm/system", propOrder = {
+@XmlType(name="xqtrigger", namespace = "http://www.bagri.com/xdm/system", propOrder = {
 		"module", 
 		"function"
 })
@@ -20,6 +20,11 @@ public class XDMXQueryTrigger extends XDMTriggerDef {
 		
 	@XmlElement(required = true)
 	private String function;
+
+	public XDMXQueryTrigger() {
+		// for JAXB de-serialization
+		super();
+	}
 
 	public XDMXQueryTrigger(int version, Date createdAt, String createdBy, String module, 
 			String function, String docType, boolean synchronous, boolean enabled) {

@@ -277,12 +277,10 @@
                 </index>
             </indexes>
             <triggers>
-                <trigger>
+                <trigger xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns2:javatrigger">
                     <version>1</version>
                     <createdAt>2015-05-30T02:25:21.887+03:00</createdAt>
                     <createdBy>Denis</createdBy>
-                    <library>../../bagri-samples/bagri-samples-ext/target/bagri-samples-ext-0.4.1-SNAPSHOT.jar</library>
-                    <className>com.bagri.samples.ext.SampleTrigger</className>
                     <docType>/{http://tpox-benchmark.com/security}Security</docType>
                     <synchronous>true</synchronous>
                     <enabled>true</enabled>
@@ -290,6 +288,8 @@
                         <action scope="after" action="delete"/>
                         <action scope="before" action="insert"/>
                     </actions>
+                    <library>../../bagri-samples/bagri-samples-ext/target/bagri-samples-ext-0.4.1-SNAPSHOT.jar</library>
+                    <className>com.bagri.samples.ext.SampleTrigger</className>
                 </trigger>
             </triggers>
         </schema>
