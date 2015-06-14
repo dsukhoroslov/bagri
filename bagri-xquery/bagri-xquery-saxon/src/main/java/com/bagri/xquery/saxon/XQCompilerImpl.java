@@ -32,6 +32,7 @@ import net.sf.saxon.trans.XPathException;
 import com.bagri.xdm.system.XDMFunction;
 import com.bagri.xdm.system.XDMLibrary;
 import com.bagri.xdm.system.XDMModule;
+import com.bagri.xdm.system.XDMXQueryTrigger;
 import com.bagri.xquery.api.XQCompiler;
 import com.bagri.xquery.saxon.extension.StaticFunctionExtension;
 
@@ -57,6 +58,15 @@ public class XQCompilerImpl implements XQCompiler {
 	public void setProperty(String name, Object value) {
 		props.setProperty(name, value.toString());
 	}
+	
+	private String getError(StaticQueryContext sqc) {
+		List<TransformerException> errors = ((LocalErrorListener) sqc.getErrorListener()).getErrors();
+		StringBuffer buff = new StringBuffer();
+		for (TransformerException tex: errors) {
+			buff.append(tex.getMessageAndLocation()).append("\n");
+		}
+		return buff.toString();
+	}
 
 	@Override
 	public void compileQuery(String query) {
@@ -67,12 +77,7 @@ public class XQCompilerImpl implements XQCompiler {
 		    sqc = prepareStaticContext(null);
 			XQueryExpression exp = sqc.compileQuery(query);
 		} catch (XPathException ex) {
-			List<TransformerException> errors = ((LocalErrorListener) sqc.getErrorListener()).getErrors();
-			StringBuffer buff = new StringBuffer();
-			for (TransformerException tex: errors) {
-				buff.append(tex.getMessageAndLocation()).append("\n");
-			}
-			String error = buff.toString();
+			String error = getError(sqc);
 			//logger.error("compileQuery.error", ex);
 			logger.info("compileQuery.error; message: {}", error);
 			throw new RuntimeException(error);
@@ -88,6 +93,37 @@ public class XQCompilerImpl implements XQCompiler {
 		XQueryExpression exp = getModuleExpression(module);
 		stamp = System.currentTimeMillis() - stamp;
 		logger.trace("compileModule.exit; time taken: {}", stamp); 
+	}
+
+	@Override
+	public String compileTrigger(XDMModule module, XDMXQueryTrigger trigger) {
+		long stamp = System.currentTimeMillis();
+		logger.trace("compileTrigger.enter; got trigger: {}", trigger);
+		String prefix;
+		int idx = trigger.getFunction().indexOf(":");
+		if (idx > 0) {
+			prefix = trigger.getFunction().substring(0, idx);
+		} else {
+			prefix = "test";
+		}
+		String query = "import module namespace " + prefix + 
+				"=\"" + module.getNamespace() + 
+				"\" at \"" + module.getName() + "\";\n" +
+				"declare variable $doc external;\n\n" +
+				trigger.getFunction() + "($doc)\n"; 
+	    StaticQueryContext sqc = prepareStaticContext(module.getBody());
+		logger.trace("getModuleExpression; compiling query: {}", query);
+		try {
+			sqc.compileQuery(query);
+		} catch (XPathException ex) {
+			String error = getError(sqc);
+			//logger.error("compileQuery.error", ex);
+			logger.info("compileTrigger.error; message: {}", error);
+			query = null;
+		}
+		stamp = System.currentTimeMillis() - stamp;
+		logger.trace("compileTrigger.exit; time taken: {}", stamp);
+		return query;
 	}
 	
 	@Override
@@ -176,13 +212,7 @@ public class XQCompilerImpl implements XQCompiler {
 			return sqc.compileQuery(query);
 			//sqc.getCompiledLibrary("test")...
 		} catch (XPathException ex) {
-			List<TransformerException> errors = ((LocalErrorListener) sqc.getErrorListener()).getErrors();
-			StringBuffer buff = new StringBuffer();
-			for (TransformerException tex: errors) {
-				buff.append(tex.getMessageAndLocation()).append("\n");
-			}
-			String error = buff.toString();
-			//logger.error("compileQuery.error", ex);
+			String error = getError(sqc);
 			logger.info("getModuleExpression.error; message: {}", error);
 			throw new RuntimeException(error);
 		}

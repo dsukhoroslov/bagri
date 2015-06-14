@@ -149,6 +149,10 @@ public class RepositoryImpl extends XDMRepositoryBase implements ApplicationCont
 	public void setSchema(XDMSchema xdmSchema) {
 		// TODO: think about run-time updates..
 		this.xdmSchema = xdmSchema;
+		afterInit();
+	}
+	
+	public void afterInit() {
 		Set<XDMIndex> indexes = xdmSchema.getIndexes();
 		if (indexes.size() > 0) {
 			for (XDMIndex idx: indexes) {
@@ -163,7 +167,6 @@ public class RepositoryImpl extends XDMRepositoryBase implements ApplicationCont
 				triggerMgr.createTrigger(trg);
 			}
 		}
-		
 	}
 	
 	public boolean addSchemaIndex(XDMIndex index) {
@@ -207,6 +210,7 @@ public class RepositoryImpl extends XDMRepositoryBase implements ApplicationCont
 
 	public void setTriggerManagement(XDMTriggerManagement triggerMgr) {
 		this.triggerMgr = triggerMgr;
+		((TriggerManagementImpl) triggerMgr).setRepository(this);
 	}
 	
 	public Collection<XDMLibrary> getLibraries() {

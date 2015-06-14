@@ -17,8 +17,8 @@ import static com.bagri.common.util.FileUtils.*;
 
 public class ModuleCacheStore extends ConfigCacheStore<String, XDMModule> implements MapStore<String, XDMModule> {
 
-	@SuppressWarnings("unchecked")
 	@Override
+	@SuppressWarnings("unchecked")
 	protected Map<String, XDMModule> loadEntities() {
 		Collection<XDMModule> modules = (Collection<XDMModule>) cfg.getEntities(XDMModule.class); 
 		Map<String, XDMModule> result = new HashMap<String, XDMModule>(modules.size());
@@ -44,17 +44,13 @@ public class ModuleCacheStore extends ConfigCacheStore<String, XDMModule> implem
 		}
 	}
 	
-	private XDMModule loadModule(XDMModule module) {
+	public static XDMModule loadModule(XDMModule module) throws IOException {
 		if (module == null) {
 			return null;
 		}
 		
-		try {
-			String body = readTextFile(module.getFileName());
-			module.setBody(body);
-		} catch (IOException ex) {
-			logger.warn("loadModule.error", ex.getMessage());
-		}
+		String body = readTextFile(module.getFileName());
+		module.setBody(body);
 		return module;
 	}
 
@@ -69,14 +65,23 @@ public class ModuleCacheStore extends ConfigCacheStore<String, XDMModule> implem
 	@Override
 	public XDMModule load(String key) {
 		XDMModule module = super.load(key);
-		return loadModule(module);
+		try {
+			return loadModule(module);
+		} catch (IOException ex) {
+			logger.warn("load.error: {}; at key: {}", ex.getMessage(), key);
+		}
+		return null;
 	}
 
 	@Override
 	public Map<String, XDMModule> loadAll(Collection<String> keys) {
 		Map<String, XDMModule> result = super.loadAll(keys);
 		for (XDMModule module: result.values()) {
-			loadModule(module);
+			try {
+				loadModule(module);
+			} catch (IOException ex) {
+				logger.warn("loadAll.error: {}; at module: {}", ex.getMessage(), module);
+			}
 		}
 		return result;
 	}
@@ -95,6 +100,7 @@ public class ModuleCacheStore extends ConfigCacheStore<String, XDMModule> implem
 		}
 	}
 	
+	@Override
 	public void delete(String key) {
 		XDMModule module = entities.get(key);
 		super.delete(key);
@@ -103,6 +109,7 @@ public class ModuleCacheStore extends ConfigCacheStore<String, XDMModule> implem
 		}
 	}
 	
+	@Override
 	public void deleteAll(Collection<String> keys) {
 		List<XDMModule> modules = new ArrayList<>(keys.size());
 		for (String key: keys) {

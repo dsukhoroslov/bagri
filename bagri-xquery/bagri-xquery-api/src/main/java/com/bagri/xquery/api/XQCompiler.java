@@ -6,6 +6,7 @@ import java.util.Properties;
 
 import com.bagri.xdm.system.XDMLibrary;
 import com.bagri.xdm.system.XDMModule;
+import com.bagri.xdm.system.XDMXQueryTrigger;
 
 public interface XQCompiler {
 	
@@ -14,6 +15,7 @@ public interface XQCompiler {
 
     void compileQuery(String query);
     void compileModule(XDMModule module);
+	String compileTrigger(XDMModule module, XDMXQueryTrigger trigger);
     List<String> getModuleFunctions(XDMModule module);
 	boolean getModuleState(XDMModule module);
 	

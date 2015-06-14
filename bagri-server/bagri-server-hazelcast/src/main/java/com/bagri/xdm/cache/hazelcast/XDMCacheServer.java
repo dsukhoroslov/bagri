@@ -36,6 +36,7 @@ import com.bagri.xdm.cache.hazelcast.management.SchemaManagement;
 import com.bagri.xdm.cache.hazelcast.management.UserManagement;
 import com.bagri.xdm.cache.hazelcast.security.BagriJAASInvocationHandler;
 import com.bagri.xdm.cache.hazelcast.security.BagriJMXAuthenticator;
+import com.bagri.xdm.cache.hazelcast.store.system.ModuleCacheStore;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaAdministrator;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaInitiator;
 import com.bagri.xdm.cache.hazelcast.util.SpringContextHolder;
@@ -174,7 +175,15 @@ public class XDMCacheServer {
             			// set modules and libraries
             			RepositoryImpl xdmRepo = schemaContext.getBean("xdmRepo", RepositoryImpl.class);
             			xdmRepo.setLibraries(cLibraries);
+            			for (XDMModule module: cModules) {
+            				try {
+								ModuleCacheStore.loadModule(module);
+							} catch (IOException e) {
+			            		logger.warn("initServerNode; cannot load Module {} for schema '{}'!", module, schemaName);
+							}
+            			}
             			xdmRepo.setModules(cModules);
+            			xdmRepo.afterInit();
             		}
             	}            	
            	}

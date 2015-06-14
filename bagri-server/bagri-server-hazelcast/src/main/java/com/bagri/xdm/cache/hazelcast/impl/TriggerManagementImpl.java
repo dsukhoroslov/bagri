@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
@@ -22,11 +23,13 @@ import com.bagri.xdm.client.hazelcast.impl.ModelManagementImpl;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMTrigger;
 import com.bagri.xdm.system.XDMJavaTrigger;
+import com.bagri.xdm.system.XDMModule;
 import com.bagri.xdm.system.XDMTriggerAction;
 import com.bagri.xdm.system.XDMTriggerAction.Action;
 import com.bagri.xdm.system.XDMTriggerAction.Scope;
 import com.bagri.xdm.system.XDMTriggerDef;
 import com.bagri.xdm.system.XDMXQueryTrigger;
+import com.bagri.xquery.api.XQCompiler;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.IMap;
@@ -43,11 +46,20 @@ public class TriggerManagementImpl implements XDMTriggerManagement {
     private boolean enableStats = true;
 	private BlockingQueue<StatisticsEvent> queue;
 	private RepositoryImpl repo = null; //
+	private XQCompiler xqComp;
 	
 	public void setHzInstance(HazelcastInstance hzInstance) {
 		this.hzInstance = hzInstance;
 	}
 	
+    public void setRepository(RepositoryImpl repo) {
+    	this.repo = repo;
+    }
+    
+    public void setXQCompiler(XQCompiler xqComp) {
+    	this.xqComp = xqComp;
+    }
+
 	public void setModelManager(ModelManagementImpl mdlMgr) {
 		this.mdlMgr = mdlMgr;
 	}
@@ -136,15 +148,28 @@ public class TriggerManagementImpl implements XDMTriggerManagement {
 	
 	@Override
 	public boolean createTrigger(XDMTriggerDef trigger) {
-
+		logger.trace("createTrigger.enter; trigger: {}", trigger);
+		XDMTrigger impl;
 		if (trigger instanceof XDMJavaTrigger) {
-			return createJavaTrigger((XDMJavaTrigger) trigger);
+			impl = createJavaTrigger((XDMJavaTrigger) trigger);
+		} else {
+			impl = createXQueryTrigger((XDMXQueryTrigger) trigger);
 		}
-		return createXQueryTrigger((XDMXQueryTrigger) trigger);
+
+		boolean result = false;
+		if (impl != null) {
+			int typeId = getDocType(trigger);
+			for (XDMTriggerAction action: trigger.getActions()) {
+				String key = getTriggerKey(typeId, action.getAction(), action.getScope());
+				triggers.put(key, impl);
+			}
+			result = true;
+		}
+		logger.trace("createTrigger.exit; trigger created: {}", impl);
+		return result;
 	}
 	
-	private boolean createJavaTrigger(XDMJavaTrigger trigger) {
-		logger.trace("createJavaTrigger.enter; trigger: {}", trigger);
+	private XDMTrigger createJavaTrigger(XDMJavaTrigger trigger) {
 		
 		Class tc = null;
 		try {
@@ -163,23 +188,50 @@ public class TriggerManagementImpl implements XDMTriggerManagement {
 		if (tc != null) {
 			try {
 				XDMTrigger triggerImpl = (XDMTrigger) tc.newInstance();
-				int typeId = getDocType(trigger);
-				for (XDMTriggerAction action: trigger.getActions()) {
-					String key = getTriggerKey(typeId, action.getAction(), action.getScope());
-					triggers.put(key, triggerImpl);
-				}
-				logger.trace("createJavaTrigger.exit; trigger created: {}, for type: {}", triggerImpl, typeId);
-				return true;
+				return triggerImpl;
 			} catch (InstantiationException | IllegalAccessException ex) {
 				logger.error("createJavaTrigger.error; {}", ex);
 			}
 		}
-		return false;
+		return null;
 	}
 
-	private boolean createXQueryTrigger(XDMXQueryTrigger trigger) {
-		logger.trace("createXQueryTrigger.enter; trigger: {}", trigger);
-		return false;
+	private XDMTrigger createXQueryTrigger(XDMXQueryTrigger trigger) {
+		XDMModule module = getModule(trigger.getModule());
+		if (module == null) {
+			logger.info("createXQueryTrigger; not module found for name: {}, trigger registration failed",
+					trigger.getModule());
+			return null;
+		}
+		if (!module.isEnabled()) {
+			logger.info("createXQueryTrigger; module {} disabled, trigger registration failed",
+					trigger.getModule());
+			return null;
+		}
+		if (!xqComp.getModuleState(module)) {
+			logger.info("createXQueryTrigger; module {} is invalid, trigger registration failed",
+					trigger.getModule());
+			return null;
+		}
+		String query = xqComp.compileTrigger(module, trigger);
+		if (query == null) {
+			logger.info("createXQueryTrigger; trigger function {} is invalid, trigger registration failed",
+					trigger.getFunction());
+			return null;
+		}
+		XDMTrigger impl = new XQueryTriggerImpl(query);
+		return impl;
+	}
+	
+	private XDMModule getModule(String module) {
+		Collection<XDMModule> modules = repo.getModules();
+		for (XDMModule xModule: modules) {
+			if (module.equals(xModule.getName())) {
+				return xModule;
+			}
+		}
+		logger.trace("getModule; modules: {}", modules);
+		return null;
 	}
 	
 	@Override
