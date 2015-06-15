@@ -5,7 +5,7 @@
 
     <groupId>com.sdv.bagri</groupId>
     <artifactId>bagri</artifactId>
-    <version>0.4.1-SNAPSHOT</version>
+    <version>0.5.1-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>bagri</name>
     <!--shortDescription>An XML DB on top of Distributed Cache</shortDescription-->
@@ -120,8 +120,8 @@
         <!--DEFAULT MAVEN PLUGINS OVERRIDEN VERSIONS-->
         <!--must be greater than 2.2 cause of bug fixes-->
         <!--maven-assembly-plugin.version>2.4</maven-assembly-plugin.version-->
-        <maven-assembly-plugin.version>2.5.2</maven-assembly-plugin.version>
-        <maven-javadoc-plugin.version>2.10.1</maven-javadoc-plugin.version>
+        <maven-assembly-plugin.version>2.5.5</maven-assembly-plugin.version>
+        <maven-javadoc-plugin.version>2.10.3</maven-javadoc-plugin.version>
         <maven-source-plugin.version>2.2.1</maven-source-plugin.version>
 
         <maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>

@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.sdv.bagri</groupId>
         <artifactId>bagri</artifactId>
-        <version>0.4.1-SNAPSHOT</version>
+        <version>0.5.1-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
 
@@ -63,7 +63,7 @@
             <build>
                 <plugins>
 
-                    <plugin>
+                    <!--plugin>
                         <artifactId>maven-javadoc-plugin</artifactId>
                         <executions>
                             <execution>
@@ -72,16 +72,16 @@
                                 <goals>
                                     <goal>jar</goal>
                                 </goals>
-                                <configuration>
+                                <configuration-->
                                     <!-- switch on dependency-driven aggregation -->
-                                    <includeDependencySources>true</includeDependencySources>
+                                    <!--includeDependencySources>true</includeDependencySources>
 				    <includeTransitiveDependencySources>false</includeTransitiveDependencySources>
 
                                     <dependencySourceExcludes>
-                                        <dependencySourceExclude>com.sdv.bagri:bagri-server*</dependencySourceExclude>
+                                        <dependencySourceExclude>com.sdv.bagri:bagri-server*</dependencySourceExclude-->
                                         <!--dependencySourceExclude>com.sdv.bagri:bagri-test*</dependencySourceExclude-->
                                         <!--dependencySourceExclude>com.sdv.bagri:bagri-tools*</dependencySourceExclude-->
-                                    </dependencySourceExcludes>
+                                    <!--/dependencySourceExcludes>
 
                                     <doctitle>Bagri: XML DB on top of Distributed Cache</doctitle>
                                     <verbose>false</verbose>
@@ -94,7 +94,7 @@
                                 </configuration>
                             </execution>
                         </executions>
-                    </plugin>
+                    </plugin-->
 
                     <plugin>
                         <artifactId>maven-assembly-plugin</artifactId>

@@ -9,7 +9,6 @@ import java.util.concurrent.Future;
 
 import com.bagri.common.idgen.IdGenerator;
 import com.bagri.xdm.api.XDMDocumentManagement;
-import com.bagri.xdm.api.XDMTransactionManagement;
 import com.bagri.xdm.client.common.impl.XDMDocumentManagementBase;
 import com.bagri.xdm.client.hazelcast.data.DocumentKey;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentCreator;
@@ -24,7 +23,6 @@ import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.IMap;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
-import com.sun.org.apache.bcel.internal.generic.NEW;
 
 public class DocumentManagementImpl extends XDMDocumentManagementBase implements XDMDocumentManagement {
 

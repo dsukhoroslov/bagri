@@ -99,6 +99,7 @@
                     <enabled>true</enabled>
                 </index>
             </indexes>
+            <triggers/>
         </schema>
         <schema name="default" active="true">
             <version>1</version>
@@ -179,6 +180,35 @@
                     <enabled>true</enabled>
                 </index>
             </indexes>
+            <triggers>
+                <trigger xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns2:javatrigger">
+                    <version>1</version>
+                    <createdAt>2015-05-30T02:25:21.887+03:00</createdAt>
+                    <createdBy>Denis</createdBy>
+                    <docType>/{http://tpox-benchmark.com/security}Security</docType>
+                    <synchronous>true</synchronous>
+                    <enabled>true</enabled>
+                    <actions>
+                        <action scope="after" action="delete"/>
+                        <action scope="before" action="insert"/>
+                    </actions>
+                    <library>../../bagri-samples/bagri-samples-ext/target/bagri-samples-ext-0.5.1-SNAPSHOT.jar</library>
+                    <className>com.bagri.samples.ext.SampleTrigger</className>
+                </trigger>
+		<trigger xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns2:xqtrigger">
+                    <version>1</version>
+                    <createdAt>2015-06-11T09:44:20.184+03:00</createdAt>
+                    <createdBy>Denis</createdBy>
+                    <docType>/{http://tpox-benchmark.com/security}Security</docType>
+                    <synchronous>true</synchronous>
+                    <enabled>true</enabled>
+                    <actions>
+                        <action scope="before" action="delete"/>
+                    </actions>
+                    <module>trigger_module</module>
+                    <function>bgdm:before-delete-security</function>
+                </trigger>
+            </triggers>
         </schema>
         <schema name="XMark" active="true">
             <version>2</version>
@@ -228,6 +258,8 @@
                 <entry name="xdm.schema.query.backup.sync">0</entry>
                 <entry name="xdm.schema.query.backup.read">true</entry>
             </properties>
+            <indexes/>
+            <triggers/>
         </schema>
         <schema name="TPoX-J" active="true">
             <version>1</version>
@@ -277,6 +309,7 @@
                 <entry name="xdm.schema.partition.count">271</entry>
             </properties>
             <indexes/>
+            <triggers/>
         </schema>
     </schemas>
     <modules>
@@ -287,6 +320,15 @@
             <fileName>../../etc/samples/tpox/hello_module.xq</fileName>
             <description>The Hello Test Module</description>
             <namespace>http://helloworld</namespace>
+            <enabled>true</enabled>
+        </module>
+        <module name="trigger_module">
+            <version>1</version>
+            <createdAt>2015-06-10T13:36:26.965+03:00</createdAt>
+            <createdBy>SDV</createdBy>
+            <fileName>../../etc/samples/tpox/sample_triggers.xq</fileName>
+            <description>The Trigger Test Module</description>
+            <namespace>http://bagri.com/bagri-xdm</namespace>
             <enabled>true</enabled>
         </module>
     </modules>
@@ -327,6 +369,15 @@
                     </parameters>
                 </function>
             </functions>
+        </library>
+        <library name="sample_trigger">
+            <version>1</version>
+            <createdAt>2015-05-31T16:17:20.542+03:00</createdAt>
+            <createdBy>dsukhoroslov</createdBy>
+            <fileName>../../samples/bagri-samples-ext/target/bagri-samples-ext-0.5.1-SNAPSHOT.jar</fileName>
+            <description>Sample extension trigger Library</description>
+            <enabled>true</enabled>
+            <functions/>
         </library>
     </libraries>
 </ns2:config>

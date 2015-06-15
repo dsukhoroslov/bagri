@@ -1,5 +1,5 @@
-<component xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/component/1.1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/component/1.1.2 http://maven.apache.org/xsd/component-1.1.2.xsd">
+<component xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/component/1.1.3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/component/1.1.3 http://maven.apache.org/xsd/component-1.1.3.xsd">
 
     <dependencySets>
         <dependencySet>
@@ -27,6 +27,7 @@
 	    <includes>
             	<include>com.sdv.bagri:bagri-samples-client</include>
             	<include>com.sdv.bagri:bagri-samples-embedded</include>
+            	<include>com.sdv.bagri:bagri-samples-ext</include>
 	    </includes>
 	    <sources>
 		<outputDirectoryMapping>samples/${module.basedir.name}</outputDirectoryMapping>
@@ -97,7 +98,7 @@
             <outputDirectory>/config</outputDirectory>
             <includes>
                 <include>**/spring/*.*</include>
-                <include>**/*.*</include>
+                <include>*.*</include>
             </includes>
         </fileSet>
 
