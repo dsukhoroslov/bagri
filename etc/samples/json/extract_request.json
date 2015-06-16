@@ -1,0 +1,73 @@
+{
+  "extractRequest": {
+    "consumerId": "aoJISDUQ874EASDKLJAIODJAU4QW98UELDJ",
+    "dataModel": "BIM",
+    "dataView": "PARAGON.LEGAL_ENTITY",
+    "dataFields": ["ID", "LEGAL_NAME", "SHORT_NAME", "GROUP_ID", "PARENT_ID"],
+    "query": {
+      "type": "BinaryExpression",
+      "comparison": "AND",
+      "left": {
+        "type": "UnaryExpression",
+        "comparison": "IN",
+        "fieldName": "SHORT_NAME",
+	"value": ["ROYBANCANLDN", "BUNDBON", "DBAG_FXCCY"]
+      },
+      "right": {
+        "type": "UnaryExpression",
+        "comparison": "EQ",
+        "fieldName": "GROUP_ID",
+	"value": null
+      }
+    },
+    "timeStamp": "2015-06-01T23:59:00",
+    "override": [
+      {
+        "when": {
+          "type": "UnaryExpression",
+          "comparison": "EQ",
+          "fieldName": "SHORT_NAME",
+          "value": "BUNDBON"
+        },
+        "then": [
+          {
+            "type": "UnaryExpression",
+            "comparison": "EQ",
+            "fieldName": "ORG_ID",
+            "value": 915
+          },
+          {
+            "type": "UnaryExpression",
+            "comparison": "EQ",
+            "fieldName": "PARENT_ID",
+            "value": 157
+          }
+        ]
+      },
+      {
+        "when": {
+          "type": "BinaryExpression",
+          "comparison": "AND",
+          "left": {
+            "type": "UnaryExpression",
+            "comparison": "EQ",
+            "fieldName": "SHORT_NAME",
+            "value": "DBAG_FXCCY"
+          },
+          "right": {
+            "type": "UnaryExpression",
+            "comparison": "EQ",
+            "fieldName": "ORG_ID",
+            "value": null
+          }
+        },
+        "then": {
+          "type": "UnaryExpression",
+          "comparison": "EQ",
+          "fieldName": "ORG_ID",
+          "value": 157
+        }
+      }
+    ]
+  }
+}
