@@ -250,7 +250,7 @@
 		<property name="defaultProperties">
 			<props>
 				<prop key="xdm.schema.password"></prop>
-				<prop key="xdm.schema.members">${xdm.schema.default.members}</prop>
+				<!--prop key="xdm.schema.members">${xdm.schema.default.members}</prop-->
 				<prop key="xdm.schema.ports.first">${xdm.schema.default.ports.first}</prop>
 				<prop key="xdm.schema.ports.last">${xdm.schema.default.ports.last}</prop>
 				<prop key="xdm.schema.thread.pool">${xdm.schema.default.thread.pool}</prop>
