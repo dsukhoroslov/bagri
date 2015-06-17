@@ -26,7 +26,7 @@ set java_opts=-Xms%memory% -Xmx%memory%
 
 set java_opts=%java_opts% -Dhazelcast.logging.type=slf4j -Dlogback.configurationFile=hz-client-logging.xml
 set java_opts=%java_opts% -Dlog.name=tpox-client -Dhz.log.level=warn -Dxdm.log.level=info
-set java_opts=%java_opts% -Dxdm.spring.context=spring/tpox-client-context.xml
+set java_opts=%java_opts% -Dxdm.spring.context=spring/tpox-xqj-context.xml
 
 set java_opts=%java_opts% -Dxdm.schema.members=%schema_addr%
 set java_opts=%java_opts% -Dxdm.schema.name=%schema%
