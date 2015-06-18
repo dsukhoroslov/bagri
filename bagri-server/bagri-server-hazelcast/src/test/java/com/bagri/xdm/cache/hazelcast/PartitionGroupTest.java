@@ -22,12 +22,13 @@ public class PartitionGroupTest {
 	public void testPartitionGroups() throws Exception {
 	
 		String adminIP = "127.0.0.1";
-		String localIP = "10.249.143.189";
+		String localIP = "192.168.1.87";
 		
 		Config adminConfig = new Config();
 		adminConfig.getNetworkConfig().setPort(5781);
 		adminConfig.getNetworkConfig().setPortAutoIncrement(true);
 		NetworkConfig network = adminConfig.getNetworkConfig();
+		network.setPublicAddress(adminIP + ":5781");
 		JoinConfig join = network.getJoin();
 		join.getMulticastConfig().setEnabled(false);
 		join.getTcpIpConfig().addMember(adminIP).addMember(localIP).setEnabled(true);
@@ -50,6 +51,7 @@ public class PartitionGroupTest {
 		cacheConfig.getNetworkConfig().setPort(5781);
 		cacheConfig.getNetworkConfig().setPortAutoIncrement(true);
 		network = cacheConfig.getNetworkConfig();
+		network.setPublicAddress(localIP);
 		join = network.getJoin();
 		join.getMulticastConfig().setEnabled(false);
 		join.getTcpIpConfig().addMember(adminIP).addMember(localIP).setEnabled(true);

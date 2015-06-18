@@ -88,7 +88,7 @@ public class SchemaManager extends EntityManager<XDMSchema> {
 		}
 		HazelcastInstance hzInstance = clientContext.getBean("hzInstance", HazelcastInstance.class);
 		if (hzInstance instanceof HazelcastClientInstanceImpl) {
-			Collection<MemberImpl> members = ((HazelcastClientInstanceImpl) hzInstance).getClientClusterService().getMemberList();
+			Collection<Member> members = ((HazelcastClientInstanceImpl) hzInstance).getClientClusterService().getMemberList();
 			String[] result = new String[members.size()];
 			int idx = 0;
 			for (Member member: members) {
