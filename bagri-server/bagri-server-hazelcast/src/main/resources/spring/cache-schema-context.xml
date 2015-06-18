@@ -18,6 +18,7 @@
 			<hz:spring-aware/>
 			<hz:instance-name>${xdm.schema.name}</hz:instance-name>
 			<hz:group name="${xdm.schema.name}" password="${xdm.schema.password}"/>
+			<hz:management-center url="http://localhost:8080/mancenter" enabled="true"/>
 			<hz:properties>
 				<hz:property name="hazelcast.jmx">true</hz:property>
 				<hz:property name="hazelcast.jmx.detailed">true</hz:property>
