@@ -87,9 +87,9 @@
         <json.ri.version>1.0.4</json.ri.version>
         <jackson.version>2.5.2</jackson.version>
 
-        <!--mockito.version>1.8.5</mockito.version-->
-        <!--mockito.version>1.9.0-rc1</mockito.version-->
-        <junit.version>4.10</junit.version>
+        <junit.version>4.11</junit.version>
+        <hamcrest.version>1.3</hamcrest.version>
+        <!--mockito.version>1.10.19</mockito.version-->
 
         <slf4j.version>1.7.5</slf4j.version>
         <logback.version>1.0.13</logback.version>
@@ -390,12 +390,6 @@
 
             <!-- Dependencies for unit tests -->
             <dependency>
-                <groupId>junit</groupId>
-                <artifactId>junit</artifactId>
-                <version>${junit.version}</version>
-                <!--scope>test</scope-->
-            </dependency>
-            <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-test</artifactId>
                 <version>${spring.version}</version>
@@ -438,6 +432,20 @@
                 <groupId>com.hazelcast</groupId>
                 <artifactId>hazelcast-all</artifactId>
                 <version>${hazelcast.version}</version>
+                <exclusions>
+                    <exclusion>
+		        <groupId>net.sourceforge.findbugs</groupId>
+		        <artifactId>annotations</artifactId>
+                    </exclusion>
+                    <exclusion>
+		        <groupId>com.eclipsesource.minimal-json</groupId>
+		        <artifactId>minimal-json</artifactId>
+                    </exclusion>
+                    <exclusion>
+		        <groupId>org.freemarker</groupId>
+		        <artifactId>freemarker</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <!-- Oracle dependencies -->
@@ -478,6 +486,39 @@
                 <artifactId>libthrift</artifactId>
                 <version>${thrift.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>${junit.version}</version>
+                <!--scope>test</scope-->
+                <exclusions>
+                    <exclusion>
+                        <artifactId>hamcrest-core</artifactId>
+                        <groupId>org.hamcrest</groupId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.hamcrest</groupId>
+                <artifactId>hamcrest-library</artifactId>
+                <version>${hamcrest.version}</version>
+                <scope>compile</scope>
+            </dependency>
+
+            <!--dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-core</artifactId>
+                <version>${mockito.version}</version>
+                <scope>compile</scope>
+                <exclusions>
+                    <exclusion>
+                        <artifactId>hamcrest-core</artifactId>
+                        <groupId>org.hamcrest</groupId>
+                    </exclusion>
+                </exclusions>
+            </dependency-->
 
         </dependencies>
     </dependencyManagement>
