@@ -19,7 +19,7 @@ public class DocumentIdsProvider extends com.bagri.xdm.client.hazelcast.task.que
     private static final transient Logger logger = LoggerFactory.getLogger(DocumentIdsProvider.class);
     
 	private transient XDMQueryManagement queryMgr;
-	private transient XDMTransactionManagement txMgr;
+	//private transient XDMTransactionManagement txMgr;
     
     @Autowired
     @Qualifier("queryProxy")
@@ -28,21 +28,21 @@ public class DocumentIdsProvider extends com.bagri.xdm.client.hazelcast.task.que
 		logger.debug("setQueryManager; got QueryManager: {}", queryMgr); 
 	}
     
-    @Autowired
-	public void setTxManager(XDMTransactionManagement txMgr) {
-		this.txMgr = txMgr;
-		logger.debug("setTxManager; got TxManager: {}", txMgr); 
-	}
+    //@Autowired
+	//public void setTxManager(XDMTransactionManagement txMgr) {
+	//	this.txMgr = txMgr;
+	//	logger.debug("setTxManager; got TxManager: {}", txMgr); 
+	//}
 
     @Override
 	public Collection<Long> call() throws Exception {
     	
-    	return txMgr.callInTransaction(txId, new Callable<Collection<Long>>() {
+    	//return txMgr.callInTransaction(txId, true, new Callable<Collection<Long>>() {
     		
-	    	public Collection<Long> call() {
+	    //	public Collection<Long> call() {
 	        	return queryMgr.getDocumentIDs(exp);
-	    	}
-    	});
+	    //	}
+    	//});
 	}
 
 }

@@ -5,6 +5,7 @@ import com.bagri.common.query.QueryBuilder;
 public class XDMQuery {
 	
 	private String query;
+	private boolean readOnly;
 	private Object xqExpression;
 	private QueryBuilder xdmQuery;
 	
@@ -12,15 +13,19 @@ public class XDMQuery {
 		//
 	}
 	
-	public XDMQuery(String query, Object xqExpression, QueryBuilder xdmQuery) {
-		super();
+	public XDMQuery(String query, boolean readOnly, Object xqExpression, QueryBuilder xdmQuery) {
 		this.query = query;
+		this.readOnly = readOnly;
 		this.xqExpression = xqExpression;
 		this.xdmQuery = xdmQuery;
 	}
 
 	public String getQuery() {
 		return query;
+	}
+	
+	public boolean isReadOnly() {
+		return readOnly;
 	}
 
 	public Object getXqExpression() {
@@ -53,8 +58,8 @@ public class XDMQuery {
 
 	@Override
 	public String toString() {
-		return "XDMQuery [query=" + query + ", xqExpression=" + xqExpression
-				+ ", xdmQuery=" + xdmQuery + "]";
+		return "XDMQuery [query=" + query + ", readOnly=" + readOnly + 
+				", xqExpression=" + xqExpression + ", xdmQuery=" + xdmQuery + "]";
 	}
 	
 	

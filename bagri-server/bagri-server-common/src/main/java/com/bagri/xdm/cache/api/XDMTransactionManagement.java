@@ -4,5 +4,5 @@ import java.util.concurrent.Callable;
 
 public interface XDMTransactionManagement extends com.bagri.xdm.api.XDMTransactionManagement {
 
-	<V> V callInTransaction(long txId, Callable<V> call);	
+	<V> V callInTransaction(long txId, boolean readOnly, Callable<V> call);	
 }

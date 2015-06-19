@@ -283,7 +283,7 @@
                     <createdBy>Denis</createdBy>
                     <docType>/{http://tpox-benchmark.com/security}Security</docType>
                     <synchronous>true</synchronous>
-                    <enabled>false</enabled>
+                    <enabled>true</enabled>
                     <actions>
                         <action scope="after" action="delete"/>
                         <action scope="before" action="insert"/>
@@ -297,7 +297,7 @@
                     <createdBy>Denis</createdBy>
                     <docType>/{http://tpox-benchmark.com/security}Security</docType>
                     <synchronous>true</synchronous>
-                    <enabled>false</enabled>
+                    <enabled>true</enabled>
                     <actions>
                         <action scope="before" action="delete"/>
                     </actions>

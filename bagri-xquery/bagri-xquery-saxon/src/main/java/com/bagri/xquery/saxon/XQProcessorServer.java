@@ -146,7 +146,7 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
    	    XDMQueryManagement qMgr = (XDMQueryManagement) getQueryManagement();
    	    XDMQuery xQuery = qMgr.getQuery(query);
    	    boolean cacheable = false;
-
+   	    boolean readOnly = true;
 	    //logger.trace("execQuery; module resolver: {}", config.getModuleURIResolver());
 	    sqc.setModuleURIResolver(config.getModuleURIResolver());
    	    
@@ -165,11 +165,9 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 		        // got exception: can't serialize XQueryExpression properly
 		        //getXQManager().addExpression(query, xqExp);
 
+		        cacheable = true; 
 	    	    // HOWTO: distinguish a query from command utilizing external function (store, remove)?
-		        cacheable = !xqExp.getExpression().getExpressionName().startsWith(BagriXQConstants.bg_schema);
-	        	//logger.trace("execQuery; isSubtree: {}; isVacuous: {}; isUpdating: {}", 
-	        	//		xqExp.getExpression().isSubtreeExpression(), xqExp.getExpression().isVacuousExpression(), 
-	        	//		xqExp.getExpression().isUpdatingExpression());
+		        readOnly = !xqExp.getExpression().getExpressionName().startsWith(BagriXQConstants.bg_schema);
 
 	        	bcr.setExpression(xqExp);
 	        	bcr.setQuery(null);
@@ -188,13 +186,14 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 	        	// the following call to xqExp.iterate causes old BCR from the expression's config to be used!
 	        	xqExp.getExecutable().setConfiguration(config);
     	    }
-	        
+	        readOnly |= !xqExp.getExpression().isUpdatingExpression();
+    	    
 	        stamp = System.currentTimeMillis() - stamp;
 		    logger.trace("execQuery; xQuery: {}; time taken: {}", xQuery, stamp);
 		    stamp = System.currentTimeMillis();
 	        SequenceIterator<Item> itr = xqExp.iterator(dqc);
 	        if (bcr.getQuery() != null && cacheable) {
-	        	qMgr.addQuery(query, xqExp, bcr.getQuery());
+	        	qMgr.addQuery(query, readOnly, xqExp, bcr.getQuery());
 	        } else {
 	        	// cache just xqExp
 		        //qMgr.addExpression(query, xqExp);

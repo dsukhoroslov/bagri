@@ -19,7 +19,7 @@ public class XMLBuilder extends com.bagri.xdm.client.hazelcast.task.query.XMLBui
     private static final transient Logger logger = LoggerFactory.getLogger(XMLBuilder.class);
 	    
 	private transient XDMQueryManagement queryMgr;
-	private transient XDMTransactionManagement txMgr;
+	//private transient XDMTransactionManagement txMgr;
     
     @Autowired
     @Qualifier("queryProxy")
@@ -28,21 +28,21 @@ public class XMLBuilder extends com.bagri.xdm.client.hazelcast.task.query.XMLBui
 		logger.debug("setQueryManager; got QueryManager: {}", queryMgr); 
 	}
 	    
-    @Autowired
-	public void setTxManager(XDMTransactionManagement txMgr) {
-		this.txMgr = txMgr;
-		logger.debug("setTxManager; got TxManager: {}", txMgr); 
-	}
+    //@Autowired
+	//public void setTxManager(XDMTransactionManagement txMgr) {
+	//	this.txMgr = txMgr;
+	//	logger.debug("setTxManager; got TxManager: {}", txMgr); 
+	//}
 
     @Override
 	public Collection<String> call() throws Exception {
 
-    	return txMgr.callInTransaction(txId, new Callable<Collection<String>>() {
+    	//return txMgr.callInTransaction(txId, true, new Callable<Collection<String>>() {
     		
-	    	public Collection<String> call() {
+	    //	public Collection<String> call() {
 	        	return queryMgr.getXML(exp, template, params);
-	    	}
-    	});
+	    //	}
+    	//});
 	}
 
 }

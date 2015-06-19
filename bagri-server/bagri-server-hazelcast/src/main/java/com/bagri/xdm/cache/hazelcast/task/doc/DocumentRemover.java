@@ -46,7 +46,7 @@ public class DocumentRemover extends com.bagri.xdm.client.hazelcast.task.doc.Doc
 	public XDMDocument call() throws Exception {
     	
     	((RepositoryImpl) repo).getXQProcessor(clientId);
-    	txMgr.callInTransaction(txId, new Callable<Void>() {
+    	txMgr.callInTransaction(txId, false, new Callable<Void>() {
     		
 	    	public Void call() {
 	    		docMgr.removeDocument(docId);

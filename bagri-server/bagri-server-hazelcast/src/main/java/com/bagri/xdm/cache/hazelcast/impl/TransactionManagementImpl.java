@@ -126,21 +126,29 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 			// current tx;
 			return true;
 		}
-		// can not be null!
-		XDMTransaction xTx = txCache.get(cTx);
-		if (xTx == null) {
-			throw new IllegalStateException("Can not find current Transaction with txId " + cTx + "; txId: " + txId);
-		}
 
-		// current tx is not finished yet!
-		if (xTx.getTxState() != XDMTransactionState.started) {
-			throw new IllegalStateException("Current Transaction is already " + xTx.getTxState());
-		}
-			
-		XDMTransactionIsolation txIsolation = xTx.getTxIsolation(); 
-		if (txIsolation == XDMTransactionIsolation.dirtyRead) {
-			// current tx is dirtyRead, can see not-committed tx results
-			return true;
+		XDMTransaction xTx;
+		XDMTransactionIsolation txIsolation;
+		if (cTx != TX_NO) {
+			// can not be null!
+			xTx = txCache.get(cTx);
+			if (xTx == null) {
+				throw new IllegalStateException("Can not find current Transaction with txId " + cTx + "; txId: " + txId);
+			}
+	
+			// current tx is already finished!
+			if (xTx.getTxState() != XDMTransactionState.started) {
+				throw new IllegalStateException("Current Transaction is already " + xTx.getTxState());
+			}
+				
+			txIsolation = xTx.getTxIsolation(); 
+			if (txIsolation == XDMTransactionIsolation.dirtyRead) {
+				// current tx is dirtyRead, can see not-committed tx results
+				return true;
+			}
+		} else {
+			// default isolation level
+			txIsolation = XDMTransactionIsolation.readCommited;
 		}
 		
 		xTx = txCache.get(txId);
@@ -163,26 +171,32 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 	}
 	
 	@Override
-	public <V> V callInTransaction(long txId, Callable<V> call) {
+	public <V> V callInTransaction(long txId, boolean readOnly, Callable<V> call) {
 		
 		logger.trace("callInTransaction.enter; got txId: {}", txId);
 		boolean autoCommit = txId == TX_NO; 
 		if (autoCommit) {
-			txId = beginTransaction();
+			// do not begin tx if it is read-only!
+			if (!readOnly) {
+				txId = beginTransaction();
+			}
 		} else {
 			thTx.set(txId);
 		}
+		readOnly = txId == TX_NO;
 		
 		try {
 			V result = call.call();
 			// handle ResultCursor with failure = true!
 			if (result instanceof ResultCursor) {
 				if (((ResultCursor) result).isFailure()) {
-					rollbackTransaction(txId);
+					if (!readOnly) {
+						rollbackTransaction(txId);
+					}
 					autoCommit = false;
 				}
 			}
-			if (autoCommit) {
+			if (autoCommit && !readOnly) {
 				commitTransaction(txId);
 			}
 			logger.trace("callInTransaction.exit; returning: {}", result);
@@ -190,7 +204,9 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 		} catch (Exception ex) {
 			logger.error("callInTransaction.error; in transaction: " + txId, ex);
 			// even for non autoCommit ?!
-			rollbackTransaction(txId);
+			if (!readOnly) {
+				rollbackTransaction(txId);
+			}
 			throw new RuntimeException(ex);
 		}
 	}

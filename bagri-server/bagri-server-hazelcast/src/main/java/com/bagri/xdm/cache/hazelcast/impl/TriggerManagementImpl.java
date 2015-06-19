@@ -149,23 +149,25 @@ public class TriggerManagementImpl implements XDMTriggerManagement {
 	@Override
 	public boolean createTrigger(XDMTriggerDef trigger) {
 		logger.trace("createTrigger.enter; trigger: {}", trigger);
-		XDMTrigger impl;
-		if (trigger instanceof XDMJavaTrigger) {
-			impl = createJavaTrigger((XDMJavaTrigger) trigger);
-		} else {
-			impl = createXQueryTrigger((XDMXQueryTrigger) trigger);
-		}
-
 		boolean result = false;
-		if (impl != null) {
-			int typeId = getDocType(trigger);
-			for (XDMTriggerAction action: trigger.getActions()) {
-				String key = getTriggerKey(typeId, action.getAction(), action.getScope());
-				triggers.put(key, impl);
+		if (trigger.isEnabled()) {
+			XDMTrigger impl;
+			if (trigger instanceof XDMJavaTrigger) {
+				impl = createJavaTrigger((XDMJavaTrigger) trigger);
+			} else {
+				impl = createXQueryTrigger((XDMXQueryTrigger) trigger);
 			}
-			result = true;
+	
+			if (impl != null) {
+				int typeId = getDocType(trigger);
+				for (XDMTriggerAction action: trigger.getActions()) {
+					String key = getTriggerKey(typeId, action.getAction(), action.getScope());
+					triggers.put(key, impl);
+				}
+				result = true;
+			}
 		}
-		logger.trace("createTrigger.exit; trigger created: {}", impl);
+		logger.trace("createTrigger.exit; returning: {}", result);
 		return result;
 	}
 	

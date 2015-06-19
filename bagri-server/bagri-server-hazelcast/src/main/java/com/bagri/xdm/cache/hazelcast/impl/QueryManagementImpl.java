@@ -124,13 +124,13 @@ public class QueryManagementImpl implements XDMQueryManagement {
 	}
 
 	@Override
-	public boolean addQuery(String query, Object xqExpression, QueryBuilder xdmQuery) {
+	public boolean addQuery(String query, boolean readOnly, Object xqExpression, QueryBuilder xdmQuery) {
 		Integer qCode = getQueryKey(query);
 		logger.trace("addQuery.enter; got code: {}; query cache size: {}", qCode, xQueries.size());
 		boolean result = false;
 		//if (xqCache.tryLock(qCode)) {
 		//	try {
-		result = xQueries.put(qCode, new XDMQuery(query, xqExpression, xdmQuery)) == null;
+		result = xQueries.put(qCode, new XDMQuery(query, readOnly, xqExpression, xdmQuery)) == null;
 		//		xqObjects.put(qCode, xqExpression);
 		//	} finally {
 		//		xqCache.unlock(qCode);
@@ -141,7 +141,7 @@ public class QueryManagementImpl implements XDMQueryManagement {
 	}
 
 	@Override
-	public void addExpression(String query, Object xqExpression) {
+	public void addExpression(String query, boolean readOnly, Object xqExpression) {
 		Integer qCode = getQueryKey(query);
 		logger.trace("addExpression.enter; got code: {}; query cache size: {}", qCode, xQueries.size());
 		QueryBuilder xdmQuery = null;
@@ -149,7 +149,7 @@ public class QueryManagementImpl implements XDMQueryManagement {
 		if (xQuery != null) {
 			xdmQuery = xQuery.getXdmQuery(); 
 		}
-		xQuery = new XDMQuery(query, xqExpression, xdmQuery);
+		xQuery = new XDMQuery(query, readOnly, xqExpression, xdmQuery);
 		//if (xqCache.tryLock(qCode)) {
 		//	try {
 		xQueries.put(qCode, xQuery);
@@ -163,7 +163,7 @@ public class QueryManagementImpl implements XDMQueryManagement {
 	}
 
 	@Override
-	public void addExpression(String query, QueryBuilder xdmQuery) {
+	public void addExpression(String query, boolean readOnly, QueryBuilder xdmQuery) {
 		Integer qCode = getQueryKey(query);
 		logger.trace("addExpression.enter; got code: {}; query cache size: {}", qCode, xQueries.size());
 		Object xqExpression = null;
@@ -171,7 +171,7 @@ public class QueryManagementImpl implements XDMQueryManagement {
 		if (xQuery != null) {
 			xqExpression = xQuery.getXqExpression(); 
 		}
-		xQuery = new XDMQuery(query, xqExpression, xdmQuery);
+		xQuery = new XDMQuery(query, readOnly, xqExpression, xdmQuery);
 		//if (xqCache.tryLock(qCode)) {
 		//	try {
 		xQueries.put(qCode, xQuery);
@@ -421,6 +421,19 @@ public class QueryManagementImpl implements XDMQueryManagement {
 			return docMgr.buildDocument(new HashSet<Long>(docIds), template, params);
 		}
 		return Collections.EMPTY_LIST;
+	}
+	
+	@Override
+	public boolean isReadOnlyQuery(String query) {
+
+		XDMQuery xQuery = this.getQuery(query);
+		if (xQuery == null) {
+			//not cached yet, returning true, just to be safe
+			return true;
+			// calc it via xqp...
+			//XQProcessor xqp = repo.getXQProcessor(clientId);
+		}
+		return xQuery.isReadOnly();
 	}
 
 	@Override

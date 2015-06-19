@@ -218,13 +218,7 @@ public class RepositoryImpl extends XDMRepositoryBase implements ApplicationCont
 			return xdmLibraries;
 		}
 		
-		HazelcastInstance dataInstance = hzInstance; //HazelcastClient.getHazelcastClientByName("hzInstance");
-		if (dataInstance == null) {
-			for (HazelcastInstance hz: HazelcastClient.getAllHazelcastClients()) {
-				logger.trace("getLibraries; see HZ instance: {}; {}", hz, hz.getName());
-				dataInstance = hz;
-			}
-		}
+		HazelcastInstance dataInstance = Hazelcast.getHazelcastInstanceByName("hzInstance");
 		if (dataInstance != null) {
 			Map<String, XDMLibrary> libraries = dataInstance.getMap("libraries");
 			return libraries.values();
@@ -243,13 +237,7 @@ public class RepositoryImpl extends XDMRepositoryBase implements ApplicationCont
 			return xdmModules;
 		}
 		
-		HazelcastInstance dataInstance = hzInstance; //Hazelcast.getHazelcastInstanceByName("hzInstance");
-		if (dataInstance == null) {
-			for (HazelcastInstance hz: HazelcastClient.getAllHazelcastClients()) {
-				logger.trace("getModules; see HZ instance: {}; {}", hz, hz.getName());
-				dataInstance = hz;
-			}
-		}
+		HazelcastInstance dataInstance = Hazelcast.getHazelcastInstanceByName("hzInstance");
 		if (dataInstance != null) {
 			Map<String, XDMModule> modules = dataInstance.getMap("modules");
 			return modules.values();

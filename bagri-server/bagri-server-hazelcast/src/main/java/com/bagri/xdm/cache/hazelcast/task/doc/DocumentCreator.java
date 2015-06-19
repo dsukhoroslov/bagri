@@ -46,7 +46,7 @@ public class DocumentCreator extends com.bagri.xdm.client.hazelcast.task.doc.Doc
 	public XDMDocument call() throws Exception {
 
     	((RepositoryImpl) repo).getXQProcessor(clientId);
-    	return txMgr.callInTransaction(txId, new Callable<XDMDocument>() {
+    	return txMgr.callInTransaction(txId, false, new Callable<XDMDocument>() {
     		
 	    	public XDMDocument call() {
 	    		return docMgr.storeDocumentFromString(docId, uri, xml);

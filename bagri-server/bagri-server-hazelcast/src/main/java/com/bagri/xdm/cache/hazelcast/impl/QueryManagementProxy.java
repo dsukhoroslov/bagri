@@ -7,7 +7,7 @@ import com.bagri.common.stats.StatisticsEvent;
 import com.bagri.common.stats.InvocationStatistics;
 import com.bagri.common.stats.InvocationStatsHandler;
 import com.bagri.common.stats.watch.StopWatch;
-import com.bagri.xdm.api.XDMQueryManagement;
+import com.bagri.xdm.cache.api.XDMQueryManagement;
 
 public class QueryManagementProxy extends InvocationStatsHandler {
 	
