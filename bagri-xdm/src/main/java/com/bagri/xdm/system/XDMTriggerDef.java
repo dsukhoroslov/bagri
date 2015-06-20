@@ -20,6 +20,7 @@ import com.bagri.xdm.common.XDMEntity;
 		"docType",
 		"synchronous",
 		"enabled",
+		"index",
 		"actions"
 })
 public abstract class XDMTriggerDef extends XDMEntity {
@@ -33,6 +34,9 @@ public abstract class XDMTriggerDef extends XDMEntity {
 	@XmlElement(required = false, defaultValue = "true")
 	private boolean enabled = true;
 
+	@XmlElement(required = true)
+	private int index;
+	
 	@XmlElement(name="action")
 	@XmlElementWrapper(name="actions")
 	private Set<XDMTriggerAction> actions = new HashSet<XDMTriggerAction>();
@@ -43,11 +47,12 @@ public abstract class XDMTriggerDef extends XDMEntity {
 	}
 	
 	public XDMTriggerDef(int version, Date createdAt, String createdBy, String docType, 
-			boolean synchronous, boolean enabled) {
+			boolean synchronous, boolean enabled, int index) {
 		super(version, createdAt, createdBy);
 		this.docType = docType;
 		this.synchronous = synchronous;
 		this.enabled = enabled;
+		this.index = index;
 	}
 	
 	public abstract String getName();
@@ -72,6 +77,14 @@ public abstract class XDMTriggerDef extends XDMEntity {
 		}
 		return false;
 	}
+	
+	public int getIndex() {
+		return index;
+	}
+	
+	public void setIndex(int index) {
+		this.index = index;
+	}
 
 	public Set<XDMTriggerAction> getActions() {
 		return actions;
@@ -95,6 +108,7 @@ public abstract class XDMTriggerDef extends XDMEntity {
 		result.put("docType", docType); // can be null!
 		result.put("synchronous", synchronous); 
 		result.put("enabled", enabled);
+		result.put("index", index);
 		result.put("actions", actions.toString());
 		return result;
 	}

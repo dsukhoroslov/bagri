@@ -27,8 +27,8 @@ public class XDMJavaTrigger extends XDMTriggerDef {
 	}
 
 	public XDMJavaTrigger(int version, Date createdAt, String createdBy, String library, 
-			String className, String docType, boolean synchronous, boolean enabled) {
-		super(version, createdAt, createdBy, docType, synchronous, enabled);
+			String className, String docType, boolean synchronous, boolean enabled, int index) {
+		super(version, createdAt, createdBy, docType, synchronous, enabled, index);
 		this.library = library;
 		this.className = className;
 	}

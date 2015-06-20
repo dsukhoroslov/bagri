@@ -46,10 +46,10 @@ public class XDMConfigTest {
 				"description", true);
 		schema.addIndex(index);
 		XDMTriggerDef javaTrigger = new XDMJavaTrigger(1, new Date(), "test", "sample_library", 
-				"my.class.Name", "/{http://tpox-benchmark.com/security}Security", true, true);
+				"my.class.Name", "/{http://tpox-benchmark.com/security}Security", true, true, 0);
 		schema.addTrigger(javaTrigger);
 		XDMTriggerDef xqTrigger = new XDMXQueryTrigger(1, new Date(), "test", "sample_module", 
-				"trg:function", "/{http://tpox-benchmark.com/security}Security", true, true);
+				"trg:function", "/{http://tpox-benchmark.com/security}Security", true, true, 1);
 		schema.addTrigger(xqTrigger);
 		XDMConfig config = new XDMConfig();
 		config.getSchemas().add(schema);

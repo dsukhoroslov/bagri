@@ -31,11 +31,6 @@ public class XQueryTriggerImpl implements XDMTrigger {
 	}
 
 	@Override
-	public boolean isSynchronous() {
-		return true;
-	}
-
-	@Override
 	public void beforeInsert(XDMDocument doc, XDMRepository repo) {
 		runTrigger(doc, (RepositoryImpl) repo);
 	} 

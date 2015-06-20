@@ -23,9 +23,10 @@ public class XDMXQueryTriggerSerializer extends XDMTriggerDefSerializer implemen
 		Object[] fields = super.readTrigger(in);
 		String module = in.readUTF();
 		String function = in.readUTF();
-		XDMXQueryTrigger xTrigger = new XDMXQueryTrigger((int) fields[0], (Date) fields[1], (String) fields[2],
-				module, function, (String) fields[3], (Boolean) fields[4], (Boolean) fields[5]);
-		xTrigger.setActions((Collection<XDMTriggerAction>) fields[6]);
+		XDMXQueryTrigger xTrigger = new XDMXQueryTrigger((int) fields[0], (Date) fields[1], 
+				(String) fields[2],	module, function, (String) fields[3], (Boolean) fields[4], 
+				(Boolean) fields[5], (Integer) fields[6]);
+		xTrigger.setActions((Collection<XDMTriggerAction>) fields[7]);
 		return xTrigger; 
 	}
 

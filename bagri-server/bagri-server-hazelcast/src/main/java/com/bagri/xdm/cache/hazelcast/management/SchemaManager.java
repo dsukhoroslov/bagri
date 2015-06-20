@@ -298,14 +298,14 @@ public class SchemaManager extends EntityManager<XDMSchema> {
 	}
 
 	XDMTriggerDef addTrigger(boolean java, String container, String implementation, String docType, 
-			boolean synchronous, Collection<XDMTriggerAction> actions) {
+			boolean synchronous, Collection<XDMTriggerAction> actions, int index) {
 		XDMTriggerDef trigger;
 		if (java) {
 			trigger = new XDMJavaTrigger(1, new Date(), JMXUtils.getCurrentUser(), container, 
-				 implementation, docType, synchronous, true);
+				 implementation, docType, synchronous, true, index);
 		} else {
 			trigger = new XDMXQueryTrigger(1, new Date(), JMXUtils.getCurrentUser(), container, 
-					 implementation, docType, synchronous, true);
+					 implementation, docType, synchronous, true, index);
 		}
 		trigger.setActions(actions);
 		XDMSchema schema = getEntity();

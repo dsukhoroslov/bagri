@@ -4,7 +4,6 @@ import com.bagri.xdm.api.XDMRepository;
 
 public interface XDMTrigger {
 
-	boolean isSynchronous();
 	void beforeInsert(XDMDocument doc, XDMRepository repo);
 	void afterInsert(XDMDocument doc, XDMRepository repo);
 	void beforeUpdate(XDMDocument doc, XDMRepository repo);

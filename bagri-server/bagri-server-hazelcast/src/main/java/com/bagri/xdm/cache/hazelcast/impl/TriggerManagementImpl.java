@@ -9,6 +9,8 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 
@@ -23,6 +25,7 @@ import com.bagri.xdm.client.hazelcast.impl.ModelManagementImpl;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMTrigger;
 import com.bagri.xdm.system.XDMJavaTrigger;
+import com.bagri.xdm.system.XDMLibrary;
 import com.bagri.xdm.system.XDMModule;
 import com.bagri.xdm.system.XDMTriggerAction;
 import com.bagri.xdm.system.XDMTriggerAction.Action;
@@ -40,7 +43,7 @@ public class TriggerManagementImpl implements XDMTriggerManagement {
 
 	private HazelcastInstance hzInstance;
 	private IMap<Integer, XDMTriggerDef> trgDict;
-    private Map<String, XDMTrigger> triggers = new HashMap<>();
+    private Map<String, List<TriggerContainer>> triggers = new HashMap<>();
 	private IExecutorService execService;
     private ModelManagementImpl mdlMgr;
     private boolean enableStats = true;
@@ -91,22 +94,24 @@ public class TriggerManagementImpl implements XDMTriggerManagement {
     void applyTrigger(final XDMDocument xDoc, final Action action, final Scope scope) {
     	//
 		String key = getTriggerKey(xDoc.getTypeId(), action, scope);
-    	final XDMTrigger trigger = triggers.get(key);
-    	if (trigger != null) {
-			logger.trace("applyTrigger; about to fire trigger on document: {}", xDoc);
-			
-			if (trigger.isSynchronous()) {
-				runTrigger(action, scope, xDoc, trigger);
-			} else {
-				execService.submitToMember(new Runnable() {
-
-					@Override
-					public void run() {
-						runTrigger(action, scope, xDoc, trigger);
-					}
-					
-				}, hzInstance.getCluster().getLocalMember(), null);
-			}
+    	List<TriggerContainer> impls = triggers.get(key);
+    	if (impls != null) {
+    		for (TriggerContainer impl: impls) {
+				logger.trace("applyTrigger; about to fire trigger {}, on document: {}", impl, key);
+				final XDMTrigger trigger = impl.getImplementation(); 
+				if (impl.isSynchronous()) {
+					runTrigger(action, scope, xDoc, trigger);
+				} else {
+					execService.submitToMember(new Runnable() {
+	
+						@Override
+						public void run() {
+							runTrigger(action, scope, xDoc, trigger);
+						}
+						
+					}, hzInstance.getCluster().getLocalMember(), null);
+				}
+    		}
     	}
     }
     
@@ -162,9 +167,22 @@ public class TriggerManagementImpl implements XDMTriggerManagement {
 				int typeId = getDocType(trigger);
 				for (XDMTriggerAction action: trigger.getActions()) {
 					String key = getTriggerKey(typeId, action.getAction(), action.getScope());
-					triggers.put(key, impl);
+					List<TriggerContainer> impls = triggers.get(key);
+					if (impls == null) {
+						impls = new LinkedList<>();
+						triggers.put(key, impls);
+					}
+					int index = trigger.getIndex(); 
+					if (index > impls.size()) {
+						logger.warn("createTrigger; wrong trigger index specified: {}, when size is: {}", 
+								index, impls.size());
+						index = impls.size();
+					}
+					TriggerContainer cont = new TriggerContainer(index, trigger.isSynchronous(), impl);
+					impls.add(index, cont);
 				}
 				result = true;
+				logger.trace("createTrigger; registered so far: {}", triggers);
 			}
 		}
 		logger.trace("createTrigger.exit; returning: {}", result);
@@ -172,6 +190,17 @@ public class TriggerManagementImpl implements XDMTriggerManagement {
 	}
 	
 	private XDMTrigger createJavaTrigger(XDMJavaTrigger trigger) {
+		XDMLibrary library = getLibrary(trigger.getLibrary());
+		if (library == null) {
+			logger.info("createJavaTrigger; not library found for name: {}, trigger registration failed",
+					trigger.getLibrary());
+			return null;
+		}
+		if (!library.isEnabled()) {
+			logger.info("createJavaTrigger; library {} disabled, trigger registration failed",
+					trigger.getLibrary());
+			return null;
+		}
 		
 		Class tc = null;
 		try {
@@ -180,7 +209,7 @@ public class TriggerManagementImpl implements XDMTriggerManagement {
 			// load library dynamically..
 			logger.debug("createJavaTrigger; ClassNotFound: {}, about to load library..", trigger.getClassName());
 			try {
-				addURL(FileUtils.path2url(trigger.getLibrary()));
+				addURL(FileUtils.path2url(library.getFileName()));
 				tc = Class.forName(trigger.getClassName());
 			} catch (ClassNotFoundException | IOException ex2) {
 				logger.error("createJavaTrigger.error; ", ex2);
@@ -225,6 +254,17 @@ public class TriggerManagementImpl implements XDMTriggerManagement {
 		return impl;
 	}
 	
+	private XDMLibrary getLibrary(String library) {
+		Collection<XDMLibrary> libraries = repo.getLibraries();
+		for (XDMLibrary xLib: libraries) {
+			if (library.equals(xLib.getName())) {
+				return xLib;
+			}
+		}
+		logger.trace("getLibrary; libraries: {}", libraries);
+		return null;
+	}
+
 	private XDMModule getModule(String module) {
 		Collection<XDMModule> modules = repo.getModules();
 		for (XDMModule xModule: modules) {
@@ -242,8 +282,9 @@ public class TriggerManagementImpl implements XDMTriggerManagement {
 		int typeId = getDocType(trigger);
 		for (XDMTriggerAction action: trigger.getActions()) {
 			String key = getTriggerKey(typeId, action.getAction(), action.getScope());
-			XDMTrigger trgImpl = triggers.remove(key);
-			if (trgImpl != null) {
+			List<TriggerContainer> impls = triggers.get(key);
+			if (impls != null) {
+				impls.remove(trigger.getIndex());
 				cnt++;
 			}
 		}

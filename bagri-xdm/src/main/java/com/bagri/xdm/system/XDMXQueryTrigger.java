@@ -27,8 +27,8 @@ public class XDMXQueryTrigger extends XDMTriggerDef {
 	}
 
 	public XDMXQueryTrigger(int version, Date createdAt, String createdBy, String module, 
-			String function, String docType, boolean synchronous, boolean enabled) {
-		super(version, createdAt, createdBy, docType, synchronous, enabled);
+			String function, String docType, boolean synchronous, boolean enabled, int index) {
+		super(version, createdAt, createdBy, docType, synchronous, enabled, index);
 		this.module = module;
 		this.function = function;
 	}

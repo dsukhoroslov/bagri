@@ -23,9 +23,10 @@ public class XDMJavaTriggerSerializer extends XDMTriggerDefSerializer implements
 		Object[] fields = super.readTrigger(in);
 		String library = in.readUTF();
 		String className = in.readUTF();
-		XDMJavaTrigger xTrigger = new XDMJavaTrigger((int) fields[0], (Date) fields[1], (String) fields[2],
-				library, className, (String) fields[3], (Boolean) fields[4], (Boolean) fields[5]);
-		xTrigger.setActions((Collection<XDMTriggerAction>) fields[6]);
+		XDMJavaTrigger xTrigger = new XDMJavaTrigger((int) fields[0], (Date) fields[1], 
+				(String) fields[2],	library, className, (String) fields[3], (Boolean) fields[4], 
+				(Boolean) fields[5], (Integer) fields[6]);
+		xTrigger.setActions((Collection<XDMTriggerAction>) fields[7]);
 		return xTrigger; 
 	}
 

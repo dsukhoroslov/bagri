@@ -12,6 +12,7 @@ import java.rmi.registry.LocateRegistry;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -137,17 +138,21 @@ public class XDMCacheServer {
         Collection<XDMModule> cModules = null; 
         Collection<XDMLibrary> cLibraries = null; 
         Map<String, XDMSchema> schemaCache = null;
-       	String confName = System.getProperty(xdm_config_filename);
-       	if (confName != null) {
-       		ConfigManagement cfg = new ConfigManagement(confName);
-       		Collection<XDMSchema> cSchemas = (Collection<XDMSchema>) cfg.getEntities(XDMSchema.class); 
-   			schemaCache = new HashMap<String, XDMSchema>(cSchemas.size());
-       		for (XDMSchema schema: cSchemas) {
-       			schemaCache.put(schema.getName(), schema);
-       	    }
-       		cModules = (Collection<XDMModule>) cfg.getEntities(XDMModule.class);
-       		cLibraries = (Collection<XDMLibrary>) cfg.getEntities(XDMLibrary.class);
-       	}
+        
+        Set<Member> admins = getAdmins(systemInstance);
+        if (admins.size() == 0) {
+	       	String confName = System.getProperty(xdm_config_filename);
+	       	if (confName != null) {
+	       		ConfigManagement cfg = new ConfigManagement(confName);
+	       		Collection<XDMSchema> cSchemas = (Collection<XDMSchema>) cfg.getEntities(XDMSchema.class); 
+	   			schemaCache = new HashMap<String, XDMSchema>(cSchemas.size());
+	       		for (XDMSchema schema: cSchemas) {
+	       			schemaCache.put(schema.getName(), schema);
+	       	    }
+	       		cModules = (Collection<XDMModule>) cfg.getEntities(XDMModule.class);
+	       		cLibraries = (Collection<XDMLibrary>) cfg.getEntities(XDMLibrary.class);
+	       	}
+        }
         
         for (String name: aSchemas) {
           	String schemaName = name.trim();
@@ -188,32 +193,47 @@ public class XDMCacheServer {
             	}            	
            	}
        		// notify admin node about new schema Member
-           	notifyAdmins(systemInstance, local, schemaName, initialized);
+       		if (admins.size() > 0) {
+       			notifyAdmins(systemInstance, local, schemaName, initialized);
+       		}
     	}
     }
     
-    private static void notifyAdmins(HazelcastInstance hzInstance, Member local, String schemaName, boolean initialized) {
+    private static void notifyAdmins(HazelcastInstance sysInstance, Member local, String schemaName, boolean initialized) {
 
     	int cnt = 0;
-		IExecutorService execService = hzInstance.getExecutorService(PN_XDM_SYSTEM_POOL);
+		IExecutorService execService = sysInstance.getExecutorService(PN_XDM_SYSTEM_POOL);
+        Set<Member> admins = getAdmins(sysInstance);
+
+		// notify admin about new schema node (local)
+		// hzInstance -> system instance, SchemaManagement is in its context
+		// submit task to init member in admin..
+		SchemaAdministrator adminTask = new SchemaAdministrator(schemaName, !initialized, local.getUuid());
+       	Map<Member, Future<Boolean>> result = execService.submitToMembers(adminTask, admins);
+        
+        for (Map.Entry<Member, Future<Boolean>> e: result.entrySet()) {
+   	       	try {
+   				if (e.getValue().get()) {
+   					cnt++;
+   				} else {
+   					logger.info("notifyAdmins; failed admin notification on member {}", e.getKey()); 
+   				}
+   			} catch (InterruptedException | ExecutionException ex) {
+   				logger.error("notifyAdmins.error; ", ex);
+   	        }
+    	}
+		logger.debug("notifyAdmins; notified {} admin nodes out of {} admins", cnt, admins.size());
+    }
+    
+    private static Set<Member> getAdmins(HazelcastInstance hzInstance) {
+    	Set<Member> admins = new HashSet<>();
     	Set<Member> members = hzInstance.getCluster().getMembers();
     	for (Member member: members) {
     		if (isAdminRole(member.getStringAttribute(xdm_cluster_node_role))) {
-    			// notify admin about new schema node (local)
-    			// hzInstance -> system instance, SchemaManagement is in its context
-    			// submit task to init member in admin..
-    			SchemaAdministrator adminTask = new SchemaAdministrator(schemaName, !initialized, local.getUuid());
-    	       	Future<Boolean> result = execService.submitToMember(adminTask, member);
-    	       	try {
-    				if (result.get()) {
-    					cnt++;
-    				}
-    			} catch (InterruptedException | ExecutionException ex) {
-    				logger.error("notifyAdmins.error; ", ex);
-    	        }
+    			admins.add(member);
     		}
     	}
-		logger.debug("notifyAdmins; notified {} admin nodes out of {} members", cnt, members.size());
+    	return admins;
     }
     
     private static boolean initSchema(HazelcastInstance hzInstance, Member member, XDMSchema schema) {
