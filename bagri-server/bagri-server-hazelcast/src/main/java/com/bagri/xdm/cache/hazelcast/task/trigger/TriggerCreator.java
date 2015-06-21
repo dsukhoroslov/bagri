@@ -20,7 +20,7 @@ import com.hazelcast.spring.context.SpringAware;
 @SpringAware
 public class TriggerCreator implements Callable<Boolean>, IdentifiedDataSerializable { 
 	
-	protected final transient Logger logger = LoggerFactory.getLogger(getClass());
+	private static final transient Logger logger = LoggerFactory.getLogger(TriggerCreator.class);
 	
 	private XDMTriggerDef trigger;
 	private transient RepositoryImpl xdmRepo;
@@ -36,7 +36,6 @@ public class TriggerCreator implements Callable<Boolean>, IdentifiedDataSerializ
     @Autowired
 	public void setXDMRepository(RepositoryImpl xdmRepo) {
 		this.xdmRepo = xdmRepo;
-		logger.trace("setXDMRepository; got Repository: {}", xdmRepo); 
 	}
 	
 	@Override

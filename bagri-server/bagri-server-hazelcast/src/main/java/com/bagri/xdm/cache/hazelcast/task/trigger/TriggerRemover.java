@@ -17,7 +17,7 @@ import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
 public class TriggerRemover implements Callable<Boolean>, IdentifiedDataSerializable { 
 	
-	protected final transient Logger logger = LoggerFactory.getLogger(getClass());
+	private static final transient Logger logger = LoggerFactory.getLogger(TriggerRemover.class);
 	
 	private String trigger;
 	private transient RepositoryImpl xdmRepo;
@@ -33,7 +33,6 @@ public class TriggerRemover implements Callable<Boolean>, IdentifiedDataSerializ
     @Autowired
 	public void setXDMRepository(RepositoryImpl xdmRepo) {
 		this.xdmRepo = xdmRepo;
-		logger.trace("setXDMRepository; got Repository: {}", xdmRepo); 
 	}
 	
 	@Override

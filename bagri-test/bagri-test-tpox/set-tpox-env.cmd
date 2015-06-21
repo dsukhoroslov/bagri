@@ -16,6 +16,8 @@ set admin_addr=localhost:3330
 set schema_addr=localhost:10500
 rem set schema_addr=192.168.1.100:10500
 
+set login=admin
+set password=password
 set schema=default
 
 :start

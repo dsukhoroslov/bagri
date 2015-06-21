@@ -17,8 +17,6 @@ import com.hazelcast.spring.context.SpringAware;
 @SpringAware
 public class DocumentCreator extends com.bagri.xdm.client.hazelcast.task.doc.DocumentCreator {
 
-	private static final transient Logger logger = LoggerFactory.getLogger(DocumentCreator.class);
-    
 	private transient XDMRepository repo;
 	private transient XDMDocumentManagement docMgr;
 	private transient XDMTransactionManagement txMgr;
@@ -27,19 +25,16 @@ public class DocumentCreator extends com.bagri.xdm.client.hazelcast.task.doc.Doc
     @Qualifier("docProxy")
 	public void setDocManager(XDMDocumentManagement docMgr) {
 		this.docMgr = docMgr;
-		logger.debug("setDocManager; got DocumentManager: {}", docMgr); 
 	}
     
     @Autowired
 	public void setTxManager(XDMTransactionManagement txMgr) {
 		this.txMgr = txMgr;
-		logger.debug("setTxManager; got TxManager: {}", txMgr); 
 	}
 
     @Autowired
 	public void setRepository(XDMRepository repo) {
 		this.repo = repo;
-		logger.debug("setRepository; got Repo: {}", repo); 
 	}
 
     @Override

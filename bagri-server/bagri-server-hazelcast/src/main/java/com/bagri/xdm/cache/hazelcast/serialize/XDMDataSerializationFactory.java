@@ -27,6 +27,9 @@ import com.bagri.xdm.cache.hazelcast.task.schema.SchemaStatsAggregator;
 import com.bagri.xdm.cache.hazelcast.task.stats.StatisticSeriesCollector;
 import com.bagri.xdm.cache.hazelcast.task.stats.StatisticTotalsCollector;
 import com.bagri.xdm.cache.hazelcast.task.stats.StatisticsReseter;
+import com.bagri.xdm.cache.hazelcast.task.trigger.TriggerCreator;
+import com.bagri.xdm.cache.hazelcast.task.trigger.TriggerRemover;
+import com.bagri.xdm.cache.hazelcast.task.trigger.TriggerRunner;
 import com.bagri.xdm.cache.hazelcast.task.tx.TransactionAborter;
 import com.bagri.xdm.cache.hazelcast.task.tx.TransactionCommiter;
 import com.bagri.xdm.cache.hazelcast.task.tx.TransactionStarter;
@@ -68,6 +71,9 @@ public class XDMDataSerializationFactory extends com.bagri.xdm.client.hazelcast.
 			case cli_RemoveIndexTask: return new IndexRemover();
 			case cli_IndexValueTask: return new ValueIndexator();
 			case cli_XDMCleanQueryTask:  return new SchemaQueryCleaner();
+			case cli_CreateTriggerTask: return new TriggerCreator(); 
+			case cli_RemoveTriggerTask: return new TriggerRemover(); 
+			case cli_RunTriggerTask: return new TriggerRunner(); 
 		}
 		return super.create(typeId);
 	}

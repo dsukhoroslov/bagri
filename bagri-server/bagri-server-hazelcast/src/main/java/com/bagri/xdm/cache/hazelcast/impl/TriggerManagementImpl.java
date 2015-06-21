@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import com.bagri.common.stats.StatisticsEvent;
 import com.bagri.common.util.FileUtils;
 import com.bagri.xdm.cache.api.XDMTriggerManagement;
+import com.bagri.xdm.cache.hazelcast.task.trigger.TriggerRunner;
 import com.bagri.xdm.client.hazelcast.impl.IdGeneratorImpl;
 import com.bagri.xdm.client.hazelcast.impl.ModelManagementImpl;
 import com.bagri.xdm.domain.XDMDocument;
@@ -88,7 +89,7 @@ public class TriggerManagementImpl implements XDMTriggerManagement {
     }
     
     private String getTriggerKey(int typeId, Action action, Scope scope) {
-    	return "" + typeId + ":" + action.name() + ":" + scope.name();
+    	return "" + typeId + ":" + scope.name() + ":" + action.name();
     }
     
     void applyTrigger(final XDMDocument xDoc, final Action action, final Scope scope) {
@@ -102,17 +103,21 @@ public class TriggerManagementImpl implements XDMTriggerManagement {
 				if (impl.isSynchronous()) {
 					runTrigger(action, scope, xDoc, trigger);
 				} else {
-					execService.submitToMember(new Runnable() {
-	
-						@Override
-						public void run() {
-							runTrigger(action, scope, xDoc, trigger);
-						}
-						
-					}, hzInstance.getCluster().getLocalMember(), null);
+					execService.submitToMember(new TriggerRunner(action, scope, impl.getIndex(), xDoc),					
+							hzInstance.getCluster().getLocalMember(), null);
 				}
     		}
     	}
+    }
+
+    public void runTrigger(Action action, Scope scope, XDMDocument xDoc, int index) {
+
+		String key = getTriggerKey(xDoc.getTypeId(), action, scope);
+    	List<TriggerContainer> impls = triggers.get(key);
+    	if (impls != null) {
+    		TriggerContainer impl = impls.get(index);
+    		runTrigger(action, scope, xDoc, impl.getImplementation());
+    	}    	
     }
     
     private void runTrigger(Action action, Scope scope, XDMDocument xDoc, XDMTrigger trigger) {
@@ -316,5 +321,5 @@ public class TriggerManagementImpl implements XDMTriggerManagement {
 	        throw new IOException("Error, could not add URL to system classloader", ex);
 	    }        
 	}
-	
+
 }
