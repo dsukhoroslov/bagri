@@ -1,0 +1,157 @@
+<task>
+    <!--param key="jmx.address">localhost:3330</param>
+    <param key="jmx.login">admin</param>
+    <param key="jmx.password">${password}</param-->
+    <invoke>
+	<mbean>com.bagri.xdm:type=Schema,name=default,kind=ModelManagement</mbean>
+	<method>registerSchema</method>
+	<arguments>
+	    <argument index="0">
+		<type>java.lang.String</type>
+		<value>../../etc/samples/tpox/security.xsd</value>
+	    </argument>
+	</arguments>
+    </invoke>
+    <invoke>
+	<mbean>com.bagri.xdm:type=Schema,name=default,kind=ModelManagement</mbean>
+	<method>registerSchema</method>
+	<arguments>
+	    <argument index="0">
+		<type>java.lang.String</type>
+		<value>../../etc/samples/tpox/custacc.xsd</value>
+	    </argument>
+	</arguments>
+    </invoke>
+    <delay>5000</delay>
+    <invoke>
+	<mbean>com.bagri.xdm:type=Schema,name=default,kind=IndexManagement</mbean>
+	<method>addIndex</method>
+	<arguments>
+	    <argument index="0">
+		<type>java.lang.String</type>
+		<value>IDX_Customer_id</value>
+	    </argument>
+	    <argument index="1">
+		<type>java.lang.String</type>
+		<value>/{http://tpox-benchmark.com/custacc}Customer/@id</value>
+	    </argument>
+	    <argument index="2">
+		<type>java.lang.String</type>
+		<value>/{http://tpox-benchmark.com/custacc}Customer</value>
+	    </argument>
+	    <argument index="3">
+		<type>boolean</type>
+		<value>true</value>
+	    </argument>
+	    <argument index="4">
+		<type>java.lang.String</type>
+		<value>Customer id</value>
+	    </argument>
+	</arguments>
+    </invoke>
+    <invoke>
+	<mbean>com.bagri.xdm:type=Schema,name=default,kind=IndexManagement</mbean>
+	<method>addIndex</method>
+	<arguments>
+	    <argument index="0">
+		<type>java.lang.String</type>
+		<value>IDX_Customer_id</value>
+	    </argument>
+	    <argument index="1">
+		<type>java.lang.String</type>
+		<value>/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}Symbol/text()</value>
+	    </argument>
+	    <argument index="2">
+		<type>java.lang.String</type>
+		<value>/{http://tpox-benchmark.com/security}Security</value>
+	    </argument>
+	    <argument index="3">
+		<type>boolean</type>
+		<value>true</value>
+	    </argument>
+	    <argument index="4">
+		<type>java.lang.String</type>
+		<value>Security Symbol</value>
+	    </argument>
+	</arguments>
+    </invoke>
+    <invoke>
+	<mbean>com.bagri.xdm:type=Schema,name=default,kind=IndexManagement</mbean>
+	<method>addIndex</method>
+	<arguments>
+	    <argument index="0">
+		<type>java.lang.String</type>
+		<value>IDX_Customer_id</value>
+	    </argument>
+	    <argument index="1">
+		<type>java.lang.String</type>
+		<value>/{http://www.fixprotocol.org/FIXML-4-4}FIXML/{http://www.fixprotocol.org/FIXML-4-4}Order/@ID</value>
+	    </argument>
+	    <argument index="2">
+		<type>java.lang.String</type>
+		<value>/{http://www.fixprotocol.org/FIXML-4-4}FIXML</value>
+	    </argument>
+	    <argument index="3">
+		<type>boolean</type>
+		<value>true</value>
+	    </argument>
+	    <argument index="4">
+		<type>java.lang.String</type>
+		<value>Order ID</value>
+	    </argument>
+	</arguments>
+    </invoke>
+    <delay>5000</delay>
+    <invoke>
+	<mbean>com.bagri.xdm:type=Schema,name=default,kind=TriggerManagement</mbean>
+	<method>addJavaTrigger</method>
+	<arguments>
+	    <argument index="0">
+		<type>java.lang.String</type>
+		<value>trigger_library</value>
+	    </argument>
+	    <argument index="1">
+		<type>java.lang.String</type>
+		<value>com.bagri.samples.ext.SampleTrigger</value>
+	    </argument>
+	    <argument index="2">
+		<type>java.lang.String</type>
+		<value>/{http://tpox-benchmark.com/security}Security</value>
+	    </argument>
+	    <argument index="3">
+		<type>boolean</type>
+		<value>true</value>
+	    </argument>
+	    <argument index="4">
+		<type>java.lang.String</type>
+		<value>after delete, before insert</value>
+	    </argument>
+	</arguments>
+    </invoke>
+    <invoke>
+	<mbean>com.bagri.xdm:type=Schema,name=default,kind=TriggerManagement</mbean>
+	<method>addXQueryTrigger</method>
+	<arguments>
+	    <argument index="0">
+		<type>java.lang.String</type>
+		<value>trigger_module</value>
+	    </argument>
+	    <argument index="1">
+		<type>java.lang.String</type>
+		<value>bgdm:before-delete-security</value>
+	    </argument>
+	    <argument index="2">
+		<type>java.lang.String</type>
+		<value>/{http://tpox-benchmark.com/security}Security</value>
+	    </argument>
+	    <argument index="3">
+		<type>boolean</type>
+		<value>false</value>
+	    </argument>
+	    <argument index="4">
+		<type>java.lang.String</type>
+		<value>before delete</value>
+	    </argument>
+	</arguments>
+    </invoke>
+</task>
