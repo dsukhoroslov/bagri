@@ -112,6 +112,10 @@ public class RepositoryImpl extends XDMRepositoryBase implements ApplicationCont
 		return getXQProcessor(clientId);
 	}
 	
+	String getCurrentClientId() {
+		return thClient.get();
+	}
+	
 	public XQProcessor getXQProcessor(String clientId) {
 		XQProcessor result;
 		if (clientId == null) {

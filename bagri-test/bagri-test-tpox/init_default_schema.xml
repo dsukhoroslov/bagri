@@ -1,26 +1,26 @@
-<task>
+<ns2:script xmlns:ns2="http://www.bagri.com/xdm/system">    
     <!--param key="jmx.address">localhost:3330</param>
     <param key="jmx.login">admin</param>
     <param key="jmx.password">${password}</param-->
     <invoke>
-	<mbean>com.bagri.xdm:type=Schema,name=default,kind=ModelManagement</mbean>
-	<method>registerSchema</method>
-	<arguments>
-	    <argument index="0">
-		<type>java.lang.String</type>
-		<value>../../etc/samples/tpox/security.xsd</value>
-	    </argument>
-	</arguments>
+        <mbean>com.bagri.xdm:type=Schema,name=default,kind=ModelManagement</mbean>
+        <method>registerSchema</method>
+        <arguments>
+            <argument index="0">
+                <type>java.lang.String</type>
+                <value>../../etc/samples/tpox/security.xsd</value>
+            </argument>
+        </arguments>
     </invoke>
     <invoke>
-	<mbean>com.bagri.xdm:type=Schema,name=default,kind=ModelManagement</mbean>
-	<method>registerSchema</method>
-	<arguments>
-	    <argument index="0">
-		<type>java.lang.String</type>
+        <mbean>com.bagri.xdm:type=Schema,name=default,kind=ModelManagement</mbean>
+        <method>registerSchema</method>
+        <arguments>
+            <argument index="0">
+                <type>java.lang.String</type>
 		<value>../../etc/samples/tpox/custacc.xsd</value>
-	    </argument>
-	</arguments>
+            </argument>
+        </arguments>
     </invoke>
     <delay>5000</delay>
     <invoke>
@@ -55,7 +55,7 @@
 	<arguments>
 	    <argument index="0">
 		<type>java.lang.String</type>
-		<value>IDX_Customer_id</value>
+		<value>IDX_Customer_Symbol</value>
 	    </argument>
 	    <argument index="1">
 		<type>java.lang.String</type>
@@ -81,7 +81,7 @@
 	<arguments>
 	    <argument index="0">
 		<type>java.lang.String</type>
-		<value>IDX_Customer_id</value>
+		<value>IDX_Order_ID</value>
 	    </argument>
 	    <argument index="1">
 		<type>java.lang.String</type>
@@ -101,7 +101,7 @@
 	    </argument>
 	</arguments>
     </invoke>
-    <delay>5000</delay>
+    <!--delay>5000</delay>
     <invoke>
 	<mbean>com.bagri.xdm:type=Schema,name=default,kind=TriggerManagement</mbean>
 	<method>addJavaTrigger</method>
@@ -153,5 +153,5 @@
 		<value>before delete</value>
 	    </argument>
 	</arguments>
-    </invoke>
-</task>
+    </invoke-->
+</ns2:script>

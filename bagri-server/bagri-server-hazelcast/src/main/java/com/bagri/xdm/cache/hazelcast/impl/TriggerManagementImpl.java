@@ -103,19 +103,21 @@ public class TriggerManagementImpl implements XDMTriggerManagement {
 				if (impl.isSynchronous()) {
 					runTrigger(action, scope, xDoc, trigger);
 				} else {
-					execService.submitToMember(new TriggerRunner(action, scope, impl.getIndex(), xDoc),					
-							hzInstance.getCluster().getLocalMember(), null);
+					String clientId = repo.getCurrentClientId();
+					execService.submitToMember(new TriggerRunner(action, scope, impl.getIndex(), xDoc, clientId),					
+							hzInstance.getCluster().getLocalMember()); 
 				}
     		}
     	}
     }
 
-    public void runTrigger(Action action, Scope scope, XDMDocument xDoc, int index) {
+    public void runTrigger(Action action, Scope scope, XDMDocument xDoc, int index, String clientId) {
 
 		String key = getTriggerKey(xDoc.getTypeId(), action, scope);
     	List<TriggerContainer> impls = triggers.get(key);
     	if (impls != null) {
     		TriggerContainer impl = impls.get(index);
+    		repo.getXQProcessor(clientId);
     		runTrigger(action, scope, xDoc, impl.getImplementation());
     	}    	
     }

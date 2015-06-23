@@ -492,12 +492,12 @@
                 <artifactId>junit</artifactId>
                 <version>${junit.version}</version>
                 <!--scope>test</scope-->
-                <exclusions>
+                <!--exclusions>
                     <exclusion>
                         <artifactId>hamcrest-core</artifactId>
                         <groupId>org.hamcrest</groupId>
                     </exclusion>
-                </exclusions>
+                </exclusions-->
             </dependency>
 
             <dependency>

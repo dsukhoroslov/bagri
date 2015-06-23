@@ -244,7 +244,7 @@
                 <entry name="xdm.schema.query.backup.read">true</entry>
                 <entry name="xdm.schema.partition.count">271</entry>
             </properties>
-            <indexes>
+            <!--indexes>
                 <index name="IDX_Customer_id">
                     <version>1</version>
                     <createdAt>2015-01-25T13:36:26.965+03:00</createdAt>
@@ -306,7 +306,7 @@
                     <module>trigger_module</module>
                     <function>bgdm:before-delete-security</function>
                 </trigger>
-            </triggers>
+            </triggers-->
         </schema>
         <schema name="XMark" active="true">
             <version>2</version>

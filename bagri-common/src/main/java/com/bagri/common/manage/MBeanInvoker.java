@@ -1,7 +1,9 @@
 package com.bagri.common.manage;
 
 import java.io.Closeable;
+import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.util.HashMap;
 
 import javax.management.AttributeNotFoundException;
@@ -14,47 +16,35 @@ import javax.management.ReflectionException;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Unmarshaller;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.bagri.common.util.ReflectUtils;
+
 public class MBeanInvoker implements Closeable {
 
     private static final Logger logger = LoggerFactory.getLogger(MBeanInvoker.class);
-	//private String jmxAddress;
+
     private MBeanServerConnection mbsc;
     private JMXConnector jmxc;
+	private JMXScript script;
     
     public static void main(String[] args) {
 		String address = args[0];
 		String login = args[1];
 		String password = args[2];
-		try (MBeanInvoker mbi = new MBeanInvoker(address, login, password)) {
-			String mbean = args[3];
-			int size = args.length - 4;
-			if (size == 1) {
-				// get attribute.. what for??
-				String attr = args[4];
-				mbi.getAttribute(mbean, attr);
-			} else if (size > 1) {
-				String method = args[4];
-				size = size/2;
-				String[] params = new String[size];
-				String[] types = new String[size];
-				for (int i=0; i < size; i++) {
-					params[i] = args[i*2 + 5];
-					types[i] = args[i*2 + 6];
-				}
-				mbi.invoke(mbean, method, params, types);
-			} else {
-				// throw ex..
-			}
+		String file = args[3];
+		try (MBeanInvoker mbi = new MBeanInvoker(address, login, password, file)) {
+			mbi.run();
 		} catch (Exception ex) {
 			logger.error("main.error", ex);
 		}
     }
 	
-	public MBeanInvoker(String jmxAddress, String login, String password) throws Exception {
+	public MBeanInvoker(String jmxAddress, String login, String password, String fileName) throws Exception {
 		//this.jmxAddress = jmxAddress;
         String url = "service:jmx:rmi:///jndi/rmi://" + jmxAddress + "/jmxrmi";
         HashMap environment = new HashMap();
@@ -62,11 +52,42 @@ public class MBeanInvoker implements Closeable {
         jmxc = JMXConnectorFactory.connect(new JMXServiceURL(url), environment);
         mbsc = jmxc.getMBeanServerConnection();
 		logger.debug("<init>", "connected to MBean server at: {}", jmxAddress);
+		
+		JAXBContext jc = JAXBContext.newInstance(JMXScript.class);
+        Unmarshaller unmarshaller = jc.createUnmarshaller();
+        File file = new File(fileName);
+		script = (JMXScript) unmarshaller.unmarshal(file); 
 	}
 
 	@Override
 	public void close() throws IOException {
 		jmxc.close();
+	}
+	
+	public void run() throws Exception {
+		for (Object task: script.getTasks()) {
+			if (task instanceof JMXInvoke) {
+				JMXInvoke invoke = (JMXInvoke) task;
+				Object[] args = new Object[invoke.getArguments().size()];
+				String[] types = new String[args.length];
+				int idx = 0;
+				logger.trace("run; invoke arguments: {}", invoke.getArguments().size());
+				for (JMXArgument arg: invoke.getArguments()) {
+					args[idx] = getValue(arg);
+					types[idx] = arg.getType();
+					idx++;
+				}
+				invoke(invoke.getMBean(), invoke.getMethod(), args, types);
+			} else if (task instanceof Integer) {
+				Thread.sleep((Integer) task);
+			}
+		}
+	}
+	
+	private Object getValue(JMXArgument arg) throws Exception {
+		Class cls = ReflectUtils.type2Wrapper(arg.getType());
+		Constructor c = cls.getConstructor(String.class);
+		return c.newInstance(arg.getValue());
 	}
 	
 	public Object getAttribute(String mbName, String aName) throws Exception {
@@ -75,7 +96,7 @@ public class MBeanInvoker implements Closeable {
 	}
 	
 	public Object invoke(String mbName, String mName, Object[] args, String[] types) throws Exception {
-		logger.trace("invoke.enter; MBean: {}; method: {}; args: {}; types: {}", mbName, mName, args, types);
+		logger.debug("invoke.enter; MBean: {}; method: {}; args: {}; types: {}", mbName, mName, args, types);
         ObjectName oName = new ObjectName(mbName); 
 		return mbsc.invoke(oName, mName, args, types);
 	}

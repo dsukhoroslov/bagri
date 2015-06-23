@@ -10,7 +10,7 @@ public class XDMElement implements Comparable<XDMElement> {
 
 	private long elementId;
 	private long parentId;
-	private String value;
+	private String value = null;
 	// transient path
 	//private String path;
 	//private int positionInParent;

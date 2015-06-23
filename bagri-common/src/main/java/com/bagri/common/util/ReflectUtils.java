@@ -17,4 +17,17 @@ public class ReflectUtils {
 		return Class.forName(type);
 	}
 	
+	public static Class type2Wrapper(String type) throws ClassNotFoundException {
+		switch (type) {
+			case "boolean": return Boolean.class; 
+			case "byte": return Byte.class; 
+			case "char": return Character.class; 
+			case "double": return Double.class; 
+			case "float": return Float.class; 
+			case "int": return Integer.class; 
+			case "long": return Long.class; 
+			case "short": return Short.class; 
+		}
+		return Class.forName(type);
+	}
 }

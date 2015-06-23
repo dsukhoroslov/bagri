@@ -21,7 +21,7 @@ import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFacto
 import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.factoryId;
 
 @SpringAware
-public class TriggerRunner implements Runnable, IdentifiedDataSerializable { //Callable<Void>
+public class TriggerRunner implements Callable<Void>, IdentifiedDataSerializable { //Runnable
 
 	private static final transient Logger logger = LoggerFactory.getLogger(TriggerRunner.class);
 
@@ -29,17 +29,19 @@ public class TriggerRunner implements Runnable, IdentifiedDataSerializable { //C
 	private Scope scope;
 	private int index;
 	private XDMDocument xDoc;
+	private String clientId;
 	private TriggerManagementImpl trManager;
 
 	public TriggerRunner() {
 		// for de-ser
 	}
 	
-	public TriggerRunner(Action action, Scope scope, int index, XDMDocument xDoc) {
+	public TriggerRunner(Action action, Scope scope, int index, XDMDocument xDoc, String clientId) {
 		this.action = action;
 		this.scope = scope;
 		this.index = index;
 		this.xDoc = xDoc;
+		this.clientId = clientId;
 	}
 		
     @Autowired
@@ -48,13 +50,13 @@ public class TriggerRunner implements Runnable, IdentifiedDataSerializable { //C
     }
     
 	@Override
-	public void run() { //call() {
+	public Void call() {
 		try {
-			trManager.runTrigger(action, scope, xDoc, index);
+			trManager.runTrigger(action, scope, xDoc, index, clientId);
 		} catch (Throwable ex) {
 			logger.error("runTrigger.error", ex);
 		}
-		//return null;
+		return null;
 	}
 	
 	@Override
@@ -70,9 +72,10 @@ public class TriggerRunner implements Runnable, IdentifiedDataSerializable { //C
 	@Override
 	public void readData(ObjectDataInput in) throws IOException {
 		action = Action.valueOf(in.readUTF());
-		scope = scope.valueOf(in.readUTF());
+		scope = Scope.valueOf(in.readUTF());
 		index = in.readInt();
 		xDoc = in.readObject();
+		clientId = in.readUTF();
 	}
 
 	@Override
@@ -81,6 +84,7 @@ public class TriggerRunner implements Runnable, IdentifiedDataSerializable { //C
 		out.writeUTF(scope.name());
 		out.writeInt(index);
 		out.writeObject(xDoc);
+		out.writeUTF(clientId);
 	}
 
 }

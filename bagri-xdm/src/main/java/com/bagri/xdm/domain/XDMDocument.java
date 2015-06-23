@@ -35,11 +35,11 @@ public class XDMDocument implements Versionable { //extends XDMEntity {
 		this.documentKey = toKey(documentId, version);
 		this.uri = uri;
 		this.typeId = typeId;
-		this.encoding = encoding;
 		this.txStart = txStart;
 		this.txFinish = txFinish;
 		this.createdAt = createdAt.getTime();
-		this.createdBy = createdBy;
+		this.createdBy = createdBy.intern();
+		this.encoding = encoding.intern();
 	}
 
 	/**
