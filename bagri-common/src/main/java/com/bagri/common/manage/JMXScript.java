@@ -17,8 +17,8 @@ public class JMXScript {
 	
 	@XmlElements(value = { 
 			@XmlElement(name="invoke", type=JMXInvoke.class),
-            //@XmlElement(name="get-attribute", type=JMXGetAttribute.class),
-            //@XmlElement(name="set-attribute", type=JMXSetAttribute.class),
+            @XmlElement(name="get-attribute", type=JMXGetAttribute.class),
+            @XmlElement(name="set-attribute", type=JMXSetAttribute.class),
             @XmlElement(name="delay", type=Integer.class)
     })	
 	private List<Object> tasks = new ArrayList<>();

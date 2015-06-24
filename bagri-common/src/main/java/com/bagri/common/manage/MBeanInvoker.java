@@ -6,13 +6,9 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.util.HashMap;
 
-import javax.management.AttributeNotFoundException;
-import javax.management.InstanceNotFoundException;
-import javax.management.MBeanException;
+import javax.management.Attribute;
 import javax.management.MBeanServerConnection;
-import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
-import javax.management.ReflectionException;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
@@ -44,10 +40,11 @@ public class MBeanInvoker implements Closeable {
 		}
     }
 	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public MBeanInvoker(String jmxAddress, String login, String password, String fileName) throws Exception {
 		//this.jmxAddress = jmxAddress;
         String url = "service:jmx:rmi:///jndi/rmi://" + jmxAddress + "/jmxrmi";
-        HashMap environment = new HashMap();
+		HashMap environment = new HashMap();
         environment.put(JMXConnector.CREDENTIALS, new String[] {login, password});
         jmxc = JMXConnectorFactory.connect(new JMXServiceURL(url), environment);
         mbsc = jmxc.getMBeanServerConnection();
@@ -71,13 +68,20 @@ public class MBeanInvoker implements Closeable {
 				Object[] args = new Object[invoke.getArguments().size()];
 				String[] types = new String[args.length];
 				int idx = 0;
-				logger.trace("run; invoke arguments: {}", invoke.getArguments().size());
 				for (JMXArgument arg: invoke.getArguments()) {
 					args[idx] = getValue(arg);
 					types[idx] = arg.getType();
 					idx++;
 				}
 				invoke(invoke.getMBean(), invoke.getMethod(), args, types);
+			} else if (task instanceof JMXGetAttribute) {
+				JMXGetAttribute get = (JMXGetAttribute) task;
+				Object o = getAttribute(get.getMBean(), get.getAttribute());
+				logger.debug("run; got attribute: {}", o);
+			} else if (task instanceof JMXSetAttribute) {
+				JMXSetAttribute set = (JMXSetAttribute) task;
+				setAttribute(set.getMBean(), set.getAttribute(), set.getValue());
+				//logger.debug("run; got attribute: {}", o);
 			} else if (task instanceof Integer) {
 				Thread.sleep((Integer) task);
 			}
@@ -85,8 +89,8 @@ public class MBeanInvoker implements Closeable {
 	}
 	
 	private Object getValue(JMXArgument arg) throws Exception {
-		Class cls = ReflectUtils.type2Wrapper(arg.getType());
-		Constructor c = cls.getConstructor(String.class);
+		Class<?> cls = ReflectUtils.type2Wrapper(arg.getType());
+		Constructor<?> c = cls.getConstructor(String.class);
 		return c.newInstance(arg.getValue());
 	}
 	
@@ -99,6 +103,12 @@ public class MBeanInvoker implements Closeable {
 		logger.debug("invoke.enter; MBean: {}; method: {}; args: {}; types: {}", mbName, mName, args, types);
         ObjectName oName = new ObjectName(mbName); 
 		return mbsc.invoke(oName, mName, args, types);
+	}
+	
+	public void setAttribute(String mbName, String aName, Object value) throws Exception {
+        ObjectName oName = new ObjectName(mbName);
+        Attribute  attr = new Attribute(aName, value);
+		mbsc.setAttribute(oName, attr);
 	}
 
 }
