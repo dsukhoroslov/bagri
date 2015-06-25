@@ -6,6 +6,8 @@ public interface XDMRepository {
 	
 	//XDMAccessManagement getAccessManagement();
 	
+	XDMBindingManagement getBindingManagement();
+	
 	XDMDocumentManagement getDocumentManagement();
 	
 	XDMModelManagement getModelManagement();

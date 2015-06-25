@@ -149,14 +149,11 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 
 	private void initializeServices() {
 		execService = hzClient.getExecutorService(PN_XDM_SCHEMA_POOL);
-		DocumentManagementImpl docMgr = new DocumentManagementImpl();
-		setDocumentManagement(docMgr);
-		QueryManagementImpl queryMgr = new QueryManagementImpl();
-		setQueryManagement(queryMgr);
-		ModelManagementImpl modelMgr = new ModelManagementImpl(hzClient);
-		setModelManagement(modelMgr);
-		TransactionManagementImpl txMgr = new TransactionManagementImpl();
-		setTxManagement(txMgr);
+		setBindingManagement(new BindingManagementImpl());
+		setDocumentManagement(new DocumentManagementImpl());
+		setQueryManagement(new QueryManagementImpl());
+		setModelManagement(new ModelManagementImpl(hzClient));
+		setTxManagement(new TransactionManagementImpl());
 	}
 
 	@Override
