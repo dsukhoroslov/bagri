@@ -14,6 +14,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
+import com.bagri.xdm.api.XDMBindingManagement;
 import com.bagri.xdm.api.XDMQueryManagement;
 import com.bagri.xdm.cache.api.XDMIndexManagement;
 import com.bagri.xdm.cache.api.XDMRepository;
@@ -271,6 +272,13 @@ public class RepositoryImpl extends XDMRepositoryBase implements ApplicationCont
 		}
 		return false;
 	}
+	
+	@Override
+	public void setBindingManagement(XDMBindingManagement bindMgr) {
+		super.setBindingManagement(bindMgr);
+		((BindingManagementImpl) bindMgr).setRepository(this);
+	}
+
 	
 }
 

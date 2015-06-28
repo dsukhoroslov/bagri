@@ -1,68 +1,70 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<hazelcast-client xmlns="http://www.hazelcat.com/schema/client-config" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<!-- 
+<hazelcast-client xmlns="http://www.hazelcat.com/schema/client-config" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
 	xsi:schemaLocation="http://www.hazelcast.com/schema/client-config http://www.hazelcast.com/schema/config/hazelcast-client-config-3.5.xsd"> 
-	
+ -->
+<hz:hazelcast-client xmlns:hz="http://www.hazelcast.com/schema/client-config" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.hazelcast.com/schema/client-config hazelcast-client-config-3.5.xsd">	
 	<!--group>
 		<name>${username}</name>
 		<password>${password}</password>
 	</group-->
 
-	<network>
-		<cluster-members>
-			<!-- default Hazelcast host/port -->
-			<address>localhost:5701</address>
-		</cluster-members>
-		<smart-routing>true</smart-routing>
-	</network>
+	<hz:network>
+		<hz:cluster-members>
+			<hz:address>localhost:5701</hz:address>
+		</hz:cluster-members>
+		<hz:smart-routing>false</hz:smart-routing>
+	</hz:network>
 
-	<executor-pool-size>10</executor-pool-size>
+	<hz:executor-pool-size>10</hz:executor-pool-size>
 
 	<!--security>
 		<credentials>com.hazelcast.security.UsernamePasswordCredentials</credentials>
 	</security-->
 
-	<serialization>
-		<data-serializable-factories>
-			<data-serializable-factory factory-id="1">com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory</data-serializable-factory>
-		</data-serializable-factories>
-		<portable-factories>
-			<portable-factory factory-id="2">com.bagri.xdm.client.hazelcast.serialize.XDMPortableFactory</portable-factory>
-		</portable-factories>
-		<serializers>
+	<hz:serialization>
+		<hz:data-serializable-factories>
+			<hz:data-serializable-factory factory-id="1">com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory</hz:data-serializable-factory>
+		</hz:data-serializable-factories>
+		<hz:portable-factories>
+			<hz:portable-factory factory-id="2">com.bagri.xdm.client.hazelcast.serialize.XDMPortableFactory</hz:portable-factory>
+		</hz:portable-factories>
+		<hz:serializers>
 			<!--hz:global-serializer class-name="com.hazelcast.nio.serialization.PortableSerializer"/-->
-			<serializer type-class="com.bagri.common.query.Expression" class-name="com.bagri.xdm.client.hazelcast.serialize.ExpressionSerializer"/>
-			<serializer type-class="com.bagri.common.query.PathExpression" class-name="com.bagri.xdm.client.hazelcast.serialize.ExpressionSerializer"/>
-			<serializer type-class="com.bagri.common.query.BinaryExpression" class-name="com.bagri.xdm.client.hazelcast.serialize.ExpressionSerializer"/>
-			<serializer type-class="com.bagri.common.query.ExpressionBuilder" class-name="com.bagri.xdm.client.hazelcast.serialize.ExpressionBuilderSerializer"/>
-			<serializer type-class="com.bagri.common.query.PathBuilder" class-name="com.bagri.xdm.client.hazelcast.serialize.PathBuilderSerializer"/>
-			<serializer type-class="com.bagri.common.query.ExpressionContainer" class-name="com.bagri.xdm.client.hazelcast.serialize.ExpressionContainerSerializer"/>
-			<serializer type-class="com.bagri.common.query.QueryBuilder" class-name="com.bagri.xdm.client.hazelcast.serialize.QueryBuilderSerializer"/>
-			<serializer type-class="com.bagri.xdm.domain.XDMElement" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMElementSerializer"/>
-			<serializer type-class="com.bagri.xdm.domain.XDMElements" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMElementsSerializer"/>
-			<serializer type-class="com.bagri.xdm.domain.XDMPath" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMPathSerializer"/>
-			<serializer type-class="com.bagri.xdm.domain.XDMDocument" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMDocumentSerializer"/>
-			<serializer type-class="com.bagri.xdm.domain.XDMDocumentType" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMDocumentTypeSerializer"/>
-			<serializer type-class="com.bagri.xdm.domain.XDMNamespace" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMNamespaceSerializer"/>
-			<serializer type-class="com.bagri.xdm.domain.XDMQuery" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMQuerySerializer"/>
-			<serializer type-class="com.bagri.xdm.domain.XDMResults" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMResultsSerializer"/>
-			<serializer type-class="com.bagri.xdm.domain.XDMIndexedValue" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMIndexedValueSerializer"/>
-			<serializer type-class="com.bagri.xdm.domain.XDMTransaction" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMTransactionSerializer"/>
-		</serializers>
-	</serialization>
+			<hz:serializer type-class="com.bagri.common.query.Expression" class-name="com.bagri.xdm.client.hazelcast.serialize.ExpressionSerializer"/>
+			<hz:serializer type-class="com.bagri.common.query.PathExpression" class-name="com.bagri.xdm.client.hazelcast.serialize.ExpressionSerializer"/>
+			<hz:serializer type-class="com.bagri.common.query.BinaryExpression" class-name="com.bagri.xdm.client.hazelcast.serialize.ExpressionSerializer"/>
+			<hz:serializer type-class="com.bagri.common.query.ExpressionBuilder" class-name="com.bagri.xdm.client.hazelcast.serialize.ExpressionBuilderSerializer"/>
+			<hz:serializer type-class="com.bagri.common.query.PathBuilder" class-name="com.bagri.xdm.client.hazelcast.serialize.PathBuilderSerializer"/>
+			<hz:serializer type-class="com.bagri.common.query.ExpressionContainer" class-name="com.bagri.xdm.client.hazelcast.serialize.ExpressionContainerSerializer"/>
+			<hz:serializer type-class="com.bagri.common.query.QueryBuilder" class-name="com.bagri.xdm.client.hazelcast.serialize.QueryBuilderSerializer"/>
+			<hz:serializer type-class="com.bagri.xdm.domain.XDMElement" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMElementSerializer"/>
+			<hz:serializer type-class="com.bagri.xdm.domain.XDMElements" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMElementsSerializer"/>
+			<hz:serializer type-class="com.bagri.xdm.domain.XDMPath" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMPathSerializer"/>
+			<hz:serializer type-class="com.bagri.xdm.domain.XDMDocument" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMDocumentSerializer"/>
+			<hz:serializer type-class="com.bagri.xdm.domain.XDMDocumentType" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMDocumentTypeSerializer"/>
+			<hz:serializer type-class="com.bagri.xdm.domain.XDMNamespace" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMNamespaceSerializer"/>
+			<hz:serializer type-class="com.bagri.xdm.domain.XDMQuery" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMQuerySerializer"/>
+			<hz:serializer type-class="com.bagri.xdm.domain.XDMResults" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMResultsSerializer"/>
+			<hz:serializer type-class="com.bagri.xdm.domain.XDMIndexedValue" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMIndexedValueSerializer"/>
+			<hz:serializer type-class="com.bagri.xdm.domain.XDMTransaction" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMTransactionSerializer"/>
+		</hz:serializers>
+	</hz:serialization>
 
 	<!--load-balancer type="random"></load-balancer-->
 	 
-	<near-cache name="dict-path">
-		<in-memory-format>OBJECT</in-memory-format>
-	</near-cache>
-	<near-cache name="dict-index">
-		<in-memory-format>OBJECT</in-memory-format>
-	</near-cache>
-	<near-cache name="dict-namespace">
-		<in-memory-format>OBJECT</in-memory-format>
-	</near-cache>
-	<near-cache name="dict-document-type">
-		<in-memory-format>OBJECT</in-memory-format>
-	</near-cache>
+	<hz:near-cache name="dict-path">
+		<hz:in-memory-format>OBJECT</hz:in-memory-format>
+	</hz:near-cache>
+	<hz:near-cache name="dict-index">
+		<hz:in-memory-format>OBJECT</hz:in-memory-format>
+	</hz:near-cache>
+	<hz:near-cache name="dict-namespace">
+		<hz:in-memory-format>OBJECT</hz:in-memory-format>
+	</hz:near-cache>
+	<hz:near-cache name="dict-document-type">
+		<hz:in-memory-format>OBJECT</hz:in-memory-format>
+	</hz:near-cache>
 	
-</hazelcast-client>
+</hz:hazelcast-client>

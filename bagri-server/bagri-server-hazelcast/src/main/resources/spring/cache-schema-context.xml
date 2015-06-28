@@ -284,6 +284,10 @@
 	<bean id="xqSequenceSerializer" class="com.bagri.xdm.client.hazelcast.serialize.XQSequenceSerializer">
     		<property name="XQDataFactory" ref="xqFactory" />
 	</bean>
+
+	<bean id="bindManager" class="com.bagri.xdm.cache.hazelcast.impl.BindingManagementImpl">
+		<!--property name="namespaceCache" ref="dict-namespace"/-->
+	</bean>
     
 	<bean id="mdlManager" class="com.bagri.xdm.client.hazelcast.impl.ModelManagementImpl">
 		<property name="namespaceCache" ref="dict-namespace"/>
@@ -349,6 +353,7 @@
 
 	<bean id="xdmRepo" class="com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl">
 		<property name="hzInstance" ref="hzInstance"/>
+		<property name="bindingManagement" ref="bindManager"/>
 		<property name="modelManagement" ref="mdlManager"/>
 		<property name="queryManagement" ref="queryManager"/>
 		<property name="documentManagement" ref="docManager"/>

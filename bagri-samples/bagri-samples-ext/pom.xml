@@ -47,4 +47,66 @@
 
     </dependencies>
 
+    <build>
+        <plugins>
+	    <plugin>
+        	<groupId>org.jvnet.jaxb2.maven2</groupId>
+        	<artifactId>maven-jaxb2-plugin</artifactId>
+		<!--version>0.7.4</version-->
+        	<executions>
+          	    <execution>
+            		<goals>
+              		    <goal>generate</goal>
+            		</goals>
+          	    </execution>
+        	</executions>
+		<!--configuration-->
+			<!-- Changes the default schema directory -->
+			<!--schemaDirectory>src/main/xsd</schemaDirectory>
+			<bindingDirectory>src/main/xsd</bindingDirectory>
+			<generateDirectory>target/generated-sources</generateDirectory-->
+
+			<!--schemaIncludes>
+				<schemaInclude>tpml_1_2.xsd</schemaInclude>
+				<schemaInclude>tpevent_1_0.xsd</schemaInclude>
+				<schemaInclude>clientPayload_0_0_1.xsd</schemaInclude>
+			</schemaIncludes>
+			<bindingIncludes>
+				<bindingInclude>binding.xjb</bindingInclude>
+			</bindingIncludes>
+			<episode>false</episode>
+			<verbose>true</verbose>
+		</configuration-->
+      	    </plugin>
+
+        <!--plugin>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-xjc-plugin</artifactId>
+            <version>2.7.0</version>
+            <configuration>
+                <extensions>
+                    <extension>org.apache.cxf.xjcplugins:cxf-xjc-dv:2.7.0</extension>
+                </extensions>
+            </configuration>
+            <executions>
+                <execution>
+                    <id>generate-sources</id>
+                    <phase>generate-sources</phase>
+                    <goals>
+                        <goal>xsdtojava</goal>
+                    </goals>
+                    <configuration>
+                        <sourceRoot>${project.build.directory}/generated-sources</sourceRoot>
+                        <xsdOptions>
+                            <xsdOption>
+                                <xsd>${project.basedir}/src/main/resources/xsd/security.xsd</xsd>
+                                <bindingFile>${project.basedir}/src/main/resources/xsd/binding.xjb</bindingFile>
+                            </xsdOption>
+                        </xsdOptions>
+                    </configuration>
+                </execution>
+            </executions>
+        </plugin-->
+        </plugins>
+    </build>
 </project>

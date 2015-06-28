@@ -81,8 +81,7 @@
         <xqj2.version>0.2.0</xqj2.version>
         <xerses.version>2.11.0</xerses.version>
         <saxon.version>9.5.1-8</saxon.version>
-        <!--saxon.version>9.5.1-3</saxon.version-->
-        <!--saxon.version>9.6.0-1</saxon.version-->
+        <!--saxon.version>9.6.0-6</saxon.version-->
         <json.version>1.0</json.version>
         <json.ri.version>1.0.4</json.ri.version>
         <jackson.version>2.5.2</jackson.version>

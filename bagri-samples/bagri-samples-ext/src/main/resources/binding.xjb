@@ -1,0 +1,30 @@
+<jxb:bindings
+	version="1.0"
+	xmlns:jxb = "http://java.sun.com/xml/ns/jaxb"
+	xmlns:xs = "http://www.w3.org/2001/XMLSchema"
+	xs:schemaLocation = "http://java.sun.com/xml/ns/jaxb http://java.sun.com/xml/ns/jaxb/bindingschema_2_0.xsd">
+
+	<jxb:globalBindings localScoping="toplevel">
+	    <jxb:serializable />
+            <!--jxb:javaType
+                    name="java.util.Date"
+                    xmlType="xs:date"
+                    parseMethod="com.db.cpg.ccs.binder.DataTypeBinder.parseDate"
+                    printMethod="com.db.cpg.ccs.binder.DataTypeBinder.printDate"/>
+            <jxb:javaType
+                    name="java.util.Date"
+                    xmlType="xs:dateTime"
+                    parseMethod="com.db.cpg.ccs.binder.DataTypeBinder.parseDateTime"
+                    printMethod="com.db.cpg.ccs.binder.DataTypeBinder.printDateTime"/-->
+	</jxb:globalBindings>
+
+	<!--jxb:bindings
+		schemaLocation = "ird_swap_model.xsd"
+		node = "/xs:schema">
+	
+		<jxb:schemaBindings>
+			<jxb:package name = "com.db.schemas.x.irdswap"/>
+		</jxb:schemaBindings>
+	</jxb:bindings-->
+
+</jxb:bindings>

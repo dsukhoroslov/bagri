@@ -244,7 +244,7 @@
                 <entry name="xdm.schema.query.backup.read">true</entry>
                 <entry name="xdm.schema.partition.count">271</entry>
             </properties>
-            <!--indexes>
+            <indexes>
                 <index name="IDX_Customer_id">
                     <version>1</version>
                     <createdAt>2015-01-25T13:36:26.965+03:00</createdAt>
@@ -292,6 +292,20 @@
                     <library>trigger_library</library>
                     <className>com.bagri.samples.ext.SampleTrigger</className>
                 </trigger>
+                <trigger xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns2:javatrigger">
+                    <version>1</version>
+                    <createdAt>2015-06-27T02:25:21.887+03:00</createdAt>
+                    <createdBy>Denis</createdBy>
+                    <docType>/{http://tpox-benchmark.com/security}Security</docType>
+                    <synchronous>true</synchronous>
+                    <enabled>true</enabled>
+                    <index>1</index>
+                    <actions>
+                        <action scope="after" action="insert"/>
+                    </actions>
+                    <library>trigger_library</library>
+                    <className>com.bagri.samples.ext.SecurityTrigger</className>
+                </trigger>
 		<trigger xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns2:xqtrigger">
                     <version>1</version>
                     <createdAt>2015-06-11T09:44:20.184+03:00</createdAt>
@@ -306,7 +320,7 @@
                     <module>trigger_module</module>
                     <function>bgdm:before-delete-security</function>
                 </trigger>
-            </triggers-->
+            </triggers>
         </schema>
         <schema name="XMark" active="true">
             <version>2</version>
