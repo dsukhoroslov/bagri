@@ -60,7 +60,7 @@
             		</goals>
           	    </execution>
         	</executions>
-		<!--configuration-->
+		<configuration>
 			<!-- Changes the default schema directory -->
 			<!--schemaDirectory>src/main/xsd</schemaDirectory>
 			<bindingDirectory>src/main/xsd</bindingDirectory>
@@ -73,10 +73,10 @@
 			</schemaIncludes>
 			<bindingIncludes>
 				<bindingInclude>binding.xjb</bindingInclude>
-			</bindingIncludes>
+			</bindingIncludes-->
 			<episode>false</episode>
 			<verbose>true</verbose>
-		</configuration-->
+		</configuration>
       	    </plugin>
 
         <!--plugin>

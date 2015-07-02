@@ -7,12 +7,19 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlSchema;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -218,6 +225,7 @@ public class TriggerManagementImpl implements XDMTriggerManagement {
 			try {
 				addURL(FileUtils.path2url(library.getFileName()));
 				tc = Class.forName(trigger.getClassName());
+				introspectLibrary(library.getFileName());
 			} catch (ClassNotFoundException | IOException ex2) {
 				logger.error("createJavaTrigger.error; ", ex2);
 			}
@@ -322,6 +330,41 @@ public class TriggerManagementImpl implements XDMTriggerManagement {
 	    } catch (Throwable ex) {
 	        throw new IOException("Error, could not add URL to system classloader", ex);
 	    }        
+	}
+	
+	private void introspectLibrary(String libName) throws IOException {
+		
+		Map<String, Class> classes = new HashMap<>();
+		Map<String, String> packages = new HashMap<>();
+
+	    try (JarFile jar = new JarFile(libName)) {
+		    for (Enumeration<JarEntry> entries = jar.entries(); entries.hasMoreElements();) {
+		        JarEntry entry = entries.nextElement();
+		        String file = entry.getName();
+		        //logger.trace("introspectLibrary; entry: {}", entry); 
+		        if (file.endsWith(".class")) {
+		            String classname = file.replace('/', '.').substring(0, file.length() - 6);
+		            try {
+		                Class<?> cls = Class.forName(classname);
+		                XmlRootElement aRoot = cls.getAnnotation(XmlRootElement.class);
+		                if (aRoot != null) {
+		                	classes.put(cls.getName(), cls);
+		        	        logger.trace("introspectLibrary; added class: {} for path: {}:{}", 
+		        	        		cls.getName(), aRoot.namespace(), aRoot.name());
+		                } else {
+		                	XmlSchema aSchema = cls.getAnnotation(XmlSchema.class);
+		                	if (aSchema != null) {
+			        	        packages.put(cls.getPackage().getName(), aSchema.namespace());
+			        	        logger.trace("introspectLibrary; added namespace: {} for package: {}", 
+			        	        		aSchema.namespace(), cls.getPackage().getName());
+		                	}
+		                }
+		            } catch (Throwable ex) {
+		                logger.error("introspectLibrary.error", ex);
+		            }
+		        }
+		    }
+	    }
 	}
 
 }
