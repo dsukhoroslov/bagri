@@ -15,6 +15,7 @@
 			<hz:address>localhost:5701</hz:address>
 		</hz:cluster-members>
 		<hz:smart-routing>false</hz:smart-routing>
+		<hz:connection-timeout>60000</hz:connection-timeout>
 	</hz:network>
 
 	<hz:executor-pool-size>10</hz:executor-pool-size>

@@ -2,7 +2,6 @@ package com.bagri.xqj;
 
 import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.util.Map;
 import java.util.Properties;
@@ -14,7 +13,6 @@ import javax.xml.xquery.XQException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bagri.xdm.api.XDMDocumentManagement;
 import com.bagri.xdm.api.XDMRepository;
 import com.bagri.xquery.api.XQProcessor;
 
@@ -34,14 +32,17 @@ public class BagriXQDataSource implements XQDataSource {
 	public static final String USER = "user";
 	public static final String PASSWORD = "password";
 	public static final String ADDRESS = "address";
+	public static final String BATCH_SIZE = "batchSize";
+	public static final String LOGIN_TIMEOUT = "loginTimeout";
+	public static final String QUERY_TIMEOUT = "queryTimeout";
 	public static final String TRANSACTIONAL = "transactional";
-	
+
+	public static final String XQ_DATA_FACTORY = "xqDataFactory";
 	public static final String XQ_PROCESSOR = "query.processor";
 	public static final String XDM_REPOSITORY = "xdm.repository";
 	
 	// TODO: make some relevant writer which will do logging
 	private PrintWriter writer;
-	private int timeout = 100;
 	private Properties properties = new Properties();
 	
 	// DataSource initialization: init query processor
@@ -55,8 +56,12 @@ public class BagriXQDataSource implements XQDataSource {
 		//properties.put(PORT, "5701");
 		properties.put(ADDRESS, "localhost:5701");
 		properties.put(USER, "anonymous");
-		properties.put(PASSWORD, "syspwd");
-		properties.put(SCHEMA, "system");
+		properties.put(PASSWORD, "password");
+		properties.put(SCHEMA, "default");
+		properties.put(BATCH_SIZE, "0");
+		properties.put(LOGIN_TIMEOUT, "0");
+		properties.put(QUERY_TIMEOUT, "0");
+		properties.put(TRANSACTIONAL, "false");
 		properties.put(XQ_PROCESSOR, ""); //"com.bagri.xquery.saxon.BagriXQProcessor"); //Proxy
 		properties.put(XDM_REPOSITORY, ""); //"com.bagri.xdm.client.hazelcast.impl.RepositoryImpl"); 
 	}
@@ -66,7 +71,7 @@ public class BagriXQDataSource implements XQDataSource {
 		
 		String address = getAddress();
 		logger.trace("getConnection. creating new connection for address: {}", address);
-		return initConnection(address, timeout);
+		return initConnection(address);
 	}
 	
 	@Override
@@ -74,7 +79,7 @@ public class BagriXQDataSource implements XQDataSource {
 		
 		// will work only if the Connection provided is an 
 		// another connection to the underlying cache
-		throw new XQException("method not supported"); //return null;
+		throw new XQException("method not supported"); 
 	}
 	
 	@Override
@@ -84,7 +89,7 @@ public class BagriXQDataSource implements XQDataSource {
 		logger.trace("getConnection. creating new connection for address: {}; user: {}", address, username);
 		properties.put(USER, username);
 		properties.put(PASSWORD, password);
-		return initConnection(address, timeout);
+		return initConnection(address);
 	}
 
 	private String getAddress() {
@@ -132,7 +137,7 @@ public class BagriXQDataSource implements XQDataSource {
 				Constructor init = procClass.getConstructor(Properties.class);
 				if (init != null) {
 					Properties props = new Properties(properties);
-					props.put("xqDataFactory", connect);
+					props.put(XQ_DATA_FACTORY, connect);
 					return init.newInstance(props);
 				}
 			} catch (Exception ex) {
@@ -146,18 +151,15 @@ public class BagriXQDataSource implements XQDataSource {
 		} catch (InstantiationException | IllegalAccessException ex) { 
 			throw new XQException("Cannot instantiate " + className + ". Exception: " + ex.getMessage());
 		}
-		
 	}
 	
-	private XQConnection initConnection(String address, int timeout) throws XQException {
+	private XQConnection initConnection(String address) throws XQException {
 
 		BagriXQConnection connect = new BagriXQConnection(address, getTransactional());
 		if (connect.getProcessor() == null) {
 			Object xqp = makeInstance(XQ_PROCESSOR);
 			if (xqp != null) {
 				if (xqp instanceof XQProcessor) {
-					//Object xdm = makeInstance(XDM_MANAGER);
-					// TODO: init/connect within timeout..
 					Object xdm = initRepository(connect);
 					if (xdm != null) {
 						if (xdm instanceof XDMRepository) {
@@ -187,7 +189,7 @@ public class BagriXQDataSource implements XQDataSource {
 	@Override
 	public int getLoginTimeout() throws XQException {
 		
-		return timeout;
+		return Integer.parseInt(properties.getProperty(LOGIN_TIMEOUT));
 	}
 
 	@Override
@@ -220,7 +222,7 @@ public class BagriXQDataSource implements XQDataSource {
 	@Override
 	public void setLoginTimeout(int timeout) throws XQException {
 		
-		this.timeout = timeout;
+		properties.setProperty(LOGIN_TIMEOUT, String.valueOf(timeout));
 	}
 
 	@Override

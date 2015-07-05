@@ -16,6 +16,9 @@ import javax.xml.xquery.XQMetaData;
 import javax.xml.xquery.XQPreparedExpression;
 import javax.xml.xquery.XQStaticContext;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.bagri.common.util.XMLUtils;
 import com.bagri.xdm.api.XDMTransactionManagement;
 
@@ -23,6 +26,8 @@ import static com.bagri.xdm.api.XDMTransactionManagement.TX_NO;
 import static com.bagri.xqj.BagriXQConstants.ex_null_context;
 
 public class BagriXQConnection extends BagriXQDataFactory implements XQConnection {
+	
+    private static final Logger logger = LoggerFactory.getLogger(BagriXQConnection.class);
 	
 	private long txId;
 	private boolean autoCommit = true; // default value
@@ -83,7 +88,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 		
 		getProcessor().getRepository().close();
 		closed = true;
-        logger.debug("close.");
+		logger.debug("close.");
 	}
 
 	@Override

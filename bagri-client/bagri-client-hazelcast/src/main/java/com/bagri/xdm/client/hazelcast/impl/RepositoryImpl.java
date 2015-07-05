@@ -52,7 +52,15 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 	public static final String PN_SCHEMA_PASS = "hz.schema.password";
 	public static final String PN_SERVER_ADDRESS = "hz.server.address";
 	public static final String PN_CLIENT_SMART = "hz.client.smart";
-    
+	
+	//public static final String PN_DATA_FACTORY = "xdm.data.factory";
+	public static final String PN_CLIENT_ID = "clientId";
+	public static final String PN_TX_ID = "txId";
+	public static final String PN_BATCH_SIZE = "batchSize";
+	public static final String PN_LOGIN_TIMEOUT = "loginTimeout";
+	public static final String PN_QUERY_TIMEOUT = "queryTimeout";
+	public static final String PN_CLIENT_SUBMITTO = "xdm.client.submitTo";
+
 	private String clientId;
 	private String schemaName;
 	
@@ -106,6 +114,7 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 		String password = props.getProperty(PN_SCHEMA_PASS);
 		String address = props.getProperty(PN_SERVER_ADDRESS);
 		String smart = props.getProperty(PN_CLIENT_SMART);
+		String timeout = props.getProperty(PN_LOGIN_TIMEOUT);
 		InputStream in = DocumentManagementImpl.class.getResourceAsStream("/hazelcast/hazelcast-client.xml");
 		ClientConfig config = new XmlClientConfigBuilder(in).build();
 		config.getGroupConfig().setName(schema);
@@ -113,6 +122,12 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 		config.getNetworkConfig().addAddress(address);
 		if (smart != null) {
 			config.getNetworkConfig().setSmartRouting(smart.equalsIgnoreCase("true"));
+		}
+		if (timeout != null) {
+			int tm = Integer.parseInt(timeout); // login timeout in seconds
+			if (tm > 0) {
+				config.getNetworkConfig().setConnectionTimeout(tm*1000);
+			}
 		}
 		
 		//config.setProperty("hazelcast.logging.type", "slf4j");
@@ -217,19 +232,11 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 	
 	Iterator execXQuery(boolean isQuery, String query, Map bindings, Properties props) { //throws Exception {
 		
-		//if (logger.isTraceEnabled()) {
-		//	for (Object o: bindings.entrySet()) {
-		//		Map.Entry e = (Map.Entry) o;
-		//		logger.trace("execXQuery.binding; {}:{}; {}:{}", e.getKey().getClass().getName(),
-		//				e.getKey(), e.getValue().getClass().getName(), e.getValue());
-		//	}
-		//}
+		//props.put(PN_BATCH_SIZE, "5");
+		props.put(PN_CLIENT_ID, clientId);
+		props.put(PN_TX_ID, String.valueOf(getTransactionId()));
 		
-		//props.put("batchSize", "5");
-		props.put("clientId", clientId);
-		props.put("txId", String.valueOf(getTransactionId()));
-		
-		String runOn = System.getProperty("xdm.client.submitTo", "any");
+		String runOn = System.getProperty(PN_CLIENT_SUBMITTO, "any");
 		
 		XQCommandExecutor task = new XQCommandExecutor(isQuery, schemaName, query, bindings, props);
 		Future<ResultCursor> future;
@@ -249,8 +256,8 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 		}
 
 		Iterator result = null;
-		long timeout = Long.parseLong(props.getProperty("timeout", "0"));
-		int fetchSize = Integer.parseInt(props.getProperty("batchSize", "0"));
+		long timeout = Long.parseLong(props.getProperty(PN_QUERY_TIMEOUT, "0"));
+		int fetchSize = Integer.parseInt(props.getProperty(PN_BATCH_SIZE, "0"));
 		try {
 			//if (cursor != null) {
 			//	cursor.close(false);

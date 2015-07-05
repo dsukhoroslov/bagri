@@ -19,8 +19,6 @@ import com.bagri.xquery.api.XQProcessor;
 
 public class IterableXQSequence extends BagriXQSequence {
 	
-	//private static Logger log = LoggerFactory.getLogger(IterableXQSequence.class);
-	
 	private Iterator iterator;
 	private boolean accessed;
 	
@@ -29,7 +27,6 @@ public class IterableXQSequence extends BagriXQSequence {
 		super(xqFactory, xqProcessor);
 		this.iterator = iterator;
 		accessed = false;
-		//log.info("<init>. got iterator: {}", iterator);
 	}
 	
 	protected void checkAccess(boolean checkPosition) throws XQException {
@@ -289,7 +286,6 @@ public class IterableXQSequence extends BagriXQSequence {
 		if (isClosed()) {
 			throw new XQException("Sequence is closed");
 		}
-		//log.trace("next. iterator: {}", iterator);
 		if (iterator.hasNext()) {
 			Object current = iterator.next();
 			if (current instanceof BagriXQItem) {

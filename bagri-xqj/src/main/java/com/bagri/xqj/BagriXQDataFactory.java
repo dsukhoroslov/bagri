@@ -25,8 +25,6 @@ import javax.xml.xquery.XQSequence;
 import javax.xml.xquery.XQSequenceType;
 
 import org.apache.xerces.util.XMLChar;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
 
 import com.bagri.common.util.XMLUtils;
@@ -34,14 +32,12 @@ import com.bagri.xquery.api.XQProcessor;
 
 public class BagriXQDataFactory implements XQDataFactory {
 
-	protected final Logger logger;
-	
 	protected boolean closed = false;
 	private XQProcessor xqProcessor;
 	
-    public BagriXQDataFactory() {
-    	logger = LoggerFactory.getLogger(getClass().getName());
-    }
+	public BagriXQDataFactory() {
+		//
+	}
     
 	public XQProcessor getProcessor() {
 		return this.xqProcessor;
@@ -49,7 +45,6 @@ public class BagriXQDataFactory implements XQDataFactory {
 	
 	public void setProcessor(XQProcessor xqProcessor) {
 		this.xqProcessor = xqProcessor;
-        logger.debug("setProcessor; got processor: {}", xqProcessor);
 	}
     
 	@Override

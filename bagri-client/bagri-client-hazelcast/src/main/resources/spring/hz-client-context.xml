@@ -24,7 +24,7 @@
 			<hz:property name="hazelcast.logging.type">slf4j</hz:property>
 		</hz:properties>
 
-		<hz:network smart-routing="false">
+		<hz:network connection-timeout="60000" smart-routing="false">
 			<hz:member>${xdm.schema.members}</hz:member>
 			<!--hz:socket-options buffer-size="${xdm.schema.buffer.size}"/-->
 			<hz:socket-options buffer-size="128"/>

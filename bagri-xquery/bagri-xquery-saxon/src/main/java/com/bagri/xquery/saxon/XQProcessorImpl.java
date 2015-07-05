@@ -79,7 +79,6 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
         sqc = config.newStaticQueryContext();
         // supported in Saxon-EE only
         //sqc.setUpdatingEnabled(true);
-        //sqc.setl
 	    dqc = new DynamicQueryContext(config);
         dqc.setApplyFunctionConversionRulesToExternalVariables(false);
         //sqc. cvr = new StandardObjectConverter();
@@ -109,18 +108,18 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
 	public boolean isFeatureSupported(int feature) {
 		
 		switch (feature) {
-			case xqf_Update: 
-			case xqf_Serialization: 
-			case xqf_Transaction: return true;
-
-			case xqf_XQueryX: 
-			case xqf_Full_Axis:
-			case xqf_Schema_Import:
-			case xqf_Schema_Validation:
 			case xqf_Module:
+			case xqf_Update: 
+			case xqf_Full_Axis:
+			case xqf_Serialization: 
 			case xqf_Static_Typing:
 			case xqf_Static_Typing_Extensions:
-			case xqf_XQuery_Encoding_Decl:
+			case xqf_Transaction: 
+			case xqf_XQuery_Encoding_Decl: return true;
+
+			case xqf_XQueryX: 
+			case xqf_Schema_Import:
+			case xqf_Schema_Validation:
 			case xqf_User_Defined_XML_Schema_Type:
 		
 			case xqf_XQuery_Update_Facility: 

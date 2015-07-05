@@ -157,6 +157,7 @@ for $sec in fn:collection("/{http://tpox-benchmark.com/security}Security")/s:Sec
 return <Security>{hw:helloworld($sec/s:Name/text())}</Security>
 
 
+xquery version "1.0" encoding "ISO-8859-1";
 declare namespace dbl="java.lang.Double";
 
 <a> {dbl:valueOf('1.123')} </a>
