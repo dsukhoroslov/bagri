@@ -1,6 +1,7 @@
 package com.bagri.xdm.cache.hazelcast.impl;
 
 import static com.bagri.xdm.api.XDMTransactionManagement.TX_NO;
+import static com.bagri.xqj.BagriXQConstants.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -453,8 +454,8 @@ public class QueryManagementImpl implements XDMQueryManagement {
 		logger.trace("execXQCommand.enter; query: {}, command: {}; bindings: {}", isQuery, xqCmd, bindings);
 		ResultCursor result = null;
 		Iterator iter = null;
-		String clientId = props.getProperty("clientId");
-		int batchSize = Integer.parseInt(props.getProperty("batchSize", "0"));
+		String clientId = props.getProperty(pn_client_id);
+		int batchSize = Integer.parseInt(props.getProperty(pn_fetch_size, "0"));
 		try {
 			//if (isQuery) {
 			//	iter = queryManager.getQueryResults(xqCmd, bindings, props);

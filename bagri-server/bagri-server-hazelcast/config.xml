@@ -241,7 +241,7 @@
                 <entry name="xqj.schema.defaultElementTypeNamespace">http://www.w3.org/2001/XMLSchema</entry>
                 <entry name="xqj.schema.copyNamespacesModeInherit">1</entry>
                 <entry name="xqj.schema.defaultOrderForEmptySequences">2</entry>
-                <entry name="xqj.schema.defaultCollationUri"></entry>
+                <entry name="xqj.schema.defaultCollationUri">http://www.w3.org/2005/xpath-functions/collation/codepoint</entry>
                 <entry name="xqj.schema.constructionMode">1</entry>
             </properties>
             <indexes>

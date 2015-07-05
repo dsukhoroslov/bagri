@@ -1,11 +1,23 @@
 package com.bagri.xqj;
 
-import javax.xml.xquery.XQException;
-
 public class BagriXQConstants {
 
 	public static final String xs_prefix = "xs";
 	public static final String xs_ns = "http://www.w3.org/2001/XMLSchema";
+
+	public static final String pn_schema_name = "xdm.schema.name";
+	public static final String pn_server_address = "xdm.schema.address";
+	public static final String pn_schema_user = "xdm.schema.user";
+	public static final String pn_schema_password = "xdm.schema.password";
+	//public static final String pn_pool_size = "xdm.schema.poolSize";
+
+	public static final String pn_client_smart = "xdm.client.smart";
+	public static final String pn_data_factory = "xdm.client.dataFactory";
+	public static final String pn_client_id = "xdm.client.id";
+	public static final String pn_tx_id = "xdm.client.txId";
+	public static final String pn_fetch_size = "xdm.client.fetchSize";
+	public static final String pn_login_timeout = "xdm.client.loginTimeout";
+	public static final String pn_client_submitTo = "xdm.client.submitTo";
 	
 	public static final String pn_baseURI = "xqj.schema.baseUri";
 	public static final String pn_constructionMode = "xqj.schema.constructionMode";

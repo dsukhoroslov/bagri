@@ -24,8 +24,6 @@ import javax.xml.xquery.XQPreparedExpression;
 import javax.xml.xquery.XQSequence;
 import javax.xml.xquery.XQStaticContext;
 
-import junit.framework.Assert;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -73,7 +71,7 @@ public class BagriXQItemAccessorTest {
 	    xqs.next();
 		try {
 			xqs.getByte();
-			Assert.fail("A-XQIA-1.1: conversion to byte should fail");
+			fail("A-XQIA-1.1: conversion to byte should fail");
 		} catch (XQException e) {
 		    // Expect an XQException
 		}
@@ -83,10 +81,10 @@ public class BagriXQItemAccessorTest {
 	    xqs = xqe.executeQuery("xs:byte('1')");
 	    //try {
 	    	//xqs.getByte();
-	    	//Assert.fail("A-XQIA-1.2: getXXX() should fail when not positioned on an item");
+	    	//fail("A-XQIA-1.2: getXXX() should fail when not positioned on an item");
 	    xqs.next();
 	    Object o = xqs.getObject();
-	        Assert.assertTrue("expected Byte but got " + o.getClass().getName(), o instanceof Byte);
+	        assertTrue("expected Byte but got " + o.getClass().getName(), o instanceof Byte);
 	    //} catch (XQException e) {
 	    	// Expect an XQException
 	    //}
@@ -96,13 +94,13 @@ public class BagriXQItemAccessorTest {
 	    try {
 	    	xqpe.bindByte(new QName("v"), (byte)1, xqc.createAtomicType(XQItemType.XQBASETYPE_INTEGER));
 	    } catch (XQException e) {
-	    	Assert.fail("A-XQDC-1.7: bindByte() failed with message: " + e.getMessage());
+	    	fail("A-XQDC-1.7: bindByte() failed with message: " + e.getMessage());
 	    }
 	    xqs = xqpe.executeQuery();
 	    xqs.next();
-	    Assert.assertEquals("A-XQDC-1.7: Successful bindXXX.", XQItemType.XQITEMKIND_ATOMIC, xqs.getItemType().getItemKind());
-	    Assert.assertEquals("A-XQDC-1.7: Successful bindXXX.", XQItemType.XQBASETYPE_INTEGER, xqs.getItemType().getBaseType());
-	    Assert.assertEquals("A-XQDC-1.7: Successful bindXXX.", "1", xqs.getAtomicValue());
+	    assertEquals("A-XQDC-1.7: Successful bindXXX.", XQItemType.XQITEMKIND_ATOMIC, xqs.getItemType().getItemKind());
+	    assertEquals("A-XQDC-1.7: Successful bindXXX.", XQItemType.XQBASETYPE_INTEGER, xqs.getItemType().getBaseType());
+	    assertEquals("A-XQDC-1.7: Successful bindXXX.", "1", xqs.getAtomicValue());
 	    xqpe.close(); 
 	}
 
@@ -113,15 +111,15 @@ public class BagriXQItemAccessorTest {
 	    XQSequence xqs = xqe.executeQuery("xs:int('1'), 10.0");
 	    xqs.next();
 	    try {
-	    	Assert.assertEquals("A-XQIA-1.6: getInt on xs:int failed", 1, xqs.getInt());
+	    	assertEquals("A-XQIA-1.6: getInt on xs:int failed", 1, xqs.getInt());
 	    } catch (XQException e) {
-	    	Assert.fail("A-XQIA-1.6: getInt on xs:int failed with message: " + e.getMessage());
+	    	fail("A-XQIA-1.6: getInt on xs:int failed with message: " + e.getMessage());
 	    }
 	    xqs.next();
 	    try {
-	    	Assert.assertEquals("A-XQIA-1.6: getInt on xs:decimal failed", 10, xqs.getInt());
+	    	assertEquals("A-XQIA-1.6: getInt on xs:decimal failed", 10, xqs.getInt());
 	    } catch (XQException e) {
-	    	Assert.fail("A-XQIA-1.6: getInt on xs:decimal failed with message: " + e.getMessage());
+	    	fail("A-XQIA-1.6: getInt on xs:decimal failed with message: " + e.getMessage());
 	    }
 	    xqe.close();
 	}
@@ -133,13 +131,13 @@ public class BagriXQItemAccessorTest {
 	    try {
 	    	xqpe.bindDouble(new QName("v"), 1d, xqc.createAtomicType(XQItemType.XQBASETYPE_DOUBLE));
 	    } catch (XQException e) {
-	    	Assert.fail("A-XQDC-1.7: bindDouble() failed with message: " + e.getMessage());
+	    	fail("A-XQDC-1.7: bindDouble() failed with message: " + e.getMessage());
 	    }
 	    XQSequence xqs = xqpe.executeQuery();
 	    xqs.next();
-	    Assert.assertEquals("A-XQDC-1.7: Successful bindXXX.", XQItemType.XQITEMKIND_ATOMIC, xqs.getItemType().getItemKind());
-	    Assert.assertEquals("A-XQDC-1.7: Successful bindXXX.", XQItemType.XQBASETYPE_DOUBLE, xqs.getItemType().getBaseType());
-	    Assert.assertTrue("A-XQDC-1.7: Successful bindXXX.", 1d == xqs.getDouble());
+	    assertEquals("A-XQDC-1.7: Successful bindXXX.", XQItemType.XQITEMKIND_ATOMIC, xqs.getItemType().getItemKind());
+	    assertEquals("A-XQDC-1.7: Successful bindXXX.", XQItemType.XQBASETYPE_DOUBLE, xqs.getItemType().getBaseType());
+	    assertTrue("A-XQDC-1.7: Successful bindXXX.", 1d == xqs.getDouble());
 	    xqpe.close(); 
 	}
 
@@ -167,10 +165,10 @@ public class BagriXQItemAccessorTest {
 		String query = "<e>Hello world!</e>";
 		XQExpression xqe = xqc.createExpression();
 	    XQSequence xqs = xqe.executeQuery(query);
-	    Assert.assertTrue(xqs.next());
+	    assertTrue(xqs.next());
 	    String value = xqs.getItemAsString(null);
 		xqe.close();
-		Assert.assertEquals(query, value);
+		assertEquals(query, value);
 	}
 
 	@Test
@@ -187,17 +185,17 @@ public class BagriXQItemAccessorTest {
 	    XQPreparedExpression xqpe = xqc.prepareExpression("declare variable $v external; $v");
 	    xqpe.bindString(new QName("v"), "Hello world!", xqc.createAtomicType(XQItemType.XQBASETYPE_STRING));
 	    XQSequence xqs = xqpe.executeQuery();
-	    Assert.assertTrue(xqs.next());
-	    Assert.assertEquals("Hello world!", xqs.getAtomicValue());
+	    assertTrue(xqs.next());
+	    assertEquals("Hello world!", xqs.getAtomicValue());
 	    xqpe.close();
 	    
 	    xqpe = xqc.prepareExpression("declare variable $v external; $v");
 	    xqpe.bindString(new QName("v"), "Hello", xqc.createAtomicType(XQItemType.XQBASETYPE_NCNAME));
 	    xqs = xqpe.executeQuery();
 	    xqs.next();
-	    Assert.assertEquals("A-XQDC-1.7: Successful bindXXX.", XQItemType.XQITEMKIND_ATOMIC, xqs.getItemType().getItemKind());
-	    Assert.assertEquals("A-XQDC-1.7: Successful bindXXX.", XQItemType.XQBASETYPE_NCNAME, xqs.getItemType().getBaseType());
-	    Assert.assertEquals("A-XQDC-1.7: Successful bindXXX.", "Hello", xqs.getObject());
+	    assertEquals("A-XQDC-1.7: Successful bindXXX.", XQItemType.XQITEMKIND_ATOMIC, xqs.getItemType().getItemKind());
+	    assertEquals("A-XQDC-1.7: Successful bindXXX.", XQItemType.XQBASETYPE_NCNAME, xqs.getItemType().getBaseType());
+	    assertEquals("A-XQDC-1.7: Successful bindXXX.", "Hello", xqs.getObject());
 	    xqpe.close(); 
 	}
 	
@@ -207,9 +205,9 @@ public class BagriXQItemAccessorTest {
 	    XQExpression  xqe = xqc.createExpression();
 	    XQSequence xqs = xqe.executeQuery("1,2");
 	    boolean b = xqs.next();
-	    Assert.assertEquals("A-XQS-18.1: next() failed", true, b);
+	    assertEquals("A-XQS-18.1: next() failed", true, b);
 	    int type = xqs.getInt();
-	    Assert.assertEquals("A-XQS-18.1: next() failed", 1, type);
+	    assertEquals("A-XQS-18.1: next() failed", 1, type);
 	}
 	
 	@Test
@@ -222,33 +220,33 @@ public class BagriXQItemAccessorTest {
 	    try {
 	    	node = xqs.getNode();
 	    } catch (XQException e) {
-	    	Assert.fail("A-XQIA-3.1: getNode on element() failed with message: " + e.getMessage());
+	    	fail("A-XQIA-3.1: getNode on element() failed with message: " + e.getMessage());
 	    }
-	    Assert.assertEquals("A-XQIA-3.1: getNode on element() failed", true, node instanceof Element);
-	    Assert.assertEquals("A-XQIA-3.1: getNode on element() failed", "e", node.getLocalName());
+	    assertEquals("A-XQIA-3.1: getNode on element() failed", true, node instanceof Element);
+	    assertEquals("A-XQIA-3.1: getNode on element() failed", "e", node.getLocalName());
 	    xqs.next();
 	    try {
 	    	node = xqs.getNode();
 	    } catch (XQException e) {
-	    	Assert.fail("A-XQIA-3.1: getNode on attribute() failed with message: " + e.getMessage());
+	    	fail("A-XQIA-3.1: getNode on attribute() failed with message: " + e.getMessage());
 	    }
-	    Assert.assertEquals("A-XQIA-3.1: getNode on attribute() failed", true, node instanceof Attr);
-	    Assert.assertEquals("A-XQIA-3.1: getNode on attribute() failed", "a", node.getLocalName());
+	    assertEquals("A-XQIA-3.1: getNode on attribute() failed", true, node instanceof Attr);
+	    assertEquals("A-XQIA-3.1: getNode on attribute() failed", "a", node.getLocalName());
 	    xqe.close();
 	    
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder parser = factory.newDocumentBuilder();
         Document document = parser.parse(new InputSource(new StringReader("<e>Hello world!</e>")));
-	    //Assert.assertEquals("getLocalName on element() failed", "e", document.getDocumentElement().getLocalName());
+	    //assertEquals("getLocalName on element() failed", "e", document.getDocumentElement().getLocalName());
 
         XQItem xqi = null;
         try {
         	xqi = xqc.createItemFromNode(document, null);
         } catch (XQException e) {
-        	Assert.fail("A-XQDF-1.5: createItemFromNode() failed with message: " + e.getMessage());
+        	fail("A-XQDF-1.5: createItemFromNode() failed with message: " + e.getMessage());
         }
         String result = xqi.getItemAsString(null);
-        Assert.assertTrue("A-XQDF-1.5: Expects serialized result contains '<e>Hello world!</e>', but it is '" + result + "'", result.indexOf("<e>Hello world!</e>") != -1);
+        assertTrue("A-XQDF-1.5: Expects serialized result contains '<e>Hello world!</e>', but it is '" + result + "'", result.indexOf("<e>Hello world!</e>") != -1);
 	}
 	
 	@Test
@@ -261,14 +259,14 @@ public class BagriXQItemAccessorTest {
 	    XQSequence xqs = xqe.executeQuery("'Hello world!'");
 	    xqs.next();
 	    try {
-	    	Assert.assertEquals("A-XQIA-7.3: instanceOf failed", true, xqs.instanceOf(xqstringtype));
+	    	assertEquals("A-XQIA-7.3: instanceOf failed", true, xqs.instanceOf(xqstringtype));
 	    } catch (XQException e) {
-	    	Assert.fail("A-XQIA-7.3: instanceOf() failed with message: " + e.getMessage());
+	    	fail("A-XQIA-7.3: instanceOf() failed with message: " + e.getMessage());
 	    }
 	    try {
-	    	Assert.assertEquals("A-XQIA-7.4: instanceOf failed", false, xqs.instanceOf(xqinttype));
+	    	assertEquals("A-XQIA-7.4: instanceOf failed", false, xqs.instanceOf(xqinttype));
 	    } catch (XQException e) {
-	    	Assert.fail("A-XQIA-7.4: instanceOf() failed with message: " + e.getMessage());
+	    	fail("A-XQIA-7.4: instanceOf() failed with message: " + e.getMessage());
 	    }
 	    xqe.close();
 	}
@@ -276,8 +274,8 @@ public class BagriXQItemAccessorTest {
 	@Test
 	public void testItemType() throws XQException {
 	    XQItemType xqtype = xqc.createDocumentType() ;
-	    Assert.assertFalse("A-XQIT-8.1: isAnonymousType() reports if the type is anonymous.", xqtype.isAnonymousType());
-	    Assert.assertFalse("A-XQIT-9.1: isElementNillable() reports if the element is nillable.", xqtype.isElementNillable());
+	    assertFalse("A-XQIT-8.1: isAnonymousType() reports if the type is anonymous.", xqtype.isAnonymousType());
+	    assertFalse("A-XQIT-9.1: isElementNillable() reports if the element is nillable.", xqtype.isElementNillable());
 	    //xqtype.getPIName();
 	}
 	
@@ -288,7 +286,7 @@ public class BagriXQItemAccessorTest {
 	    xqs.next();
 	    try {
 	    	xqs.getItemAsString(new Properties());
-	    	Assert.fail("A-XQIA-8.1: serialization process fails when sequence contains a top-level attribute");
+	    	fail("A-XQIA-8.1: serialization process fails when sequence contains a top-level attribute");
 	    } catch (XQException xq) {
 	    	// Expect an XQException
 	    } catch (Exception ex) {
@@ -383,7 +381,6 @@ public class BagriXQItemAccessorTest {
 
 		xqe = xqc.createExpression();
 		xqe_temp = xqc.createExpression();
-		//xqs_temp = xqe_temp.executeQuery("xs:dayTimeDuration('PT5H')");
 		xqs_temp = xqe_temp.executeQuery("xs:dayTimeDuration('PT5H'), "
 										+ "xs:yearMonthDuration('P1M'), " 
 										+ "xs:date('2000-12-31'),"
@@ -630,7 +627,7 @@ public class BagriXQItemAccessorTest {
 	    xqs.next();
 	    try {
 	      xqs.getNodeUri();
-	      Assert.fail("A-XQIA-5.1: getNodeUri() should fail if current item is not a node");
+	      fail("A-XQIA-5.1: getNodeUri() should fail if current item is not a node");
 	    } catch (XQException e) {
 	      // Expect an XQException
 	    }
@@ -640,7 +637,7 @@ public class BagriXQItemAccessorTest {
 	    xqs = xqe.executeQuery("<e/>");
 	    try {
 	      xqs.getNodeUri();
-	      Assert.fail("A-XQIA-5.2: getNodeUri() should fail when not positioned on an item");
+	      fail("A-XQIA-5.2: getNodeUri() should fail when not positioned on an item");
 	    } catch (XQException e) {
 	      // Expect an XQException
 	    }
@@ -652,7 +649,7 @@ public class BagriXQItemAccessorTest {
 	    xqs.close();
 	    try {
 	      xqs.getNodeUri();
-	      Assert.fail("A-XQIA-5.3: closed item accessor supports getNodeUri()");
+	      fail("A-XQIA-5.3: closed item accessor supports getNodeUri()");
 	    } catch (XQException e) {
 	      // Expect an XQException
 	    }
@@ -664,7 +661,7 @@ public class BagriXQItemAccessorTest {
 	    try {
 	      xqs.getNodeUri(); // returned value is implementation defined
 	    } catch (XQException e) {
-	      Assert.fail("A-XQIA-5.4: getNodeUri() failed with message: " + e.getMessage());
+	      fail("A-XQIA-5.4: getNodeUri() failed with message: " + e.getMessage());
 	    }
 	    xqe.close();
 		    
@@ -675,7 +672,7 @@ public class BagriXQItemAccessorTest {
 	    try {
 	      xqs.getNodeUri(); // returned value is implementation defined
 	    } catch (XQException e) {
-	      Assert.fail("A-XQIA-5.5: getNodeUri() failed with message: " + e.getMessage());
+	      fail("A-XQIA-5.5: getNodeUri() failed with message: " + e.getMessage());
 	    }
 	    xqe.close();
 	}

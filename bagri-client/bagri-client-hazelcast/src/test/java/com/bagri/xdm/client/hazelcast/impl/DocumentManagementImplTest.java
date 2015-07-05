@@ -1,6 +1,6 @@
 package com.bagri.xdm.client.hazelcast.impl;
 
-import static com.bagri.xdm.client.hazelcast.impl.RepositoryImpl.*;
+import static com.bagri.xqj.BagriXQConstants.*;
 
 import java.io.IOException;
 
@@ -20,10 +20,10 @@ public class DocumentManagementImplTest extends XDMDocumentManagementTest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		//System.setProperty("hazelcast.config", "hazelcast/hazelcast.xml");
-		System.setProperty(PN_SERVER_ADDRESS, "localhost:10500"); 
-		System.setProperty(PN_POOL_SIZE, "10");
-		System.setProperty(PN_SCHEMA_NAME, "default");
-		System.setProperty(PN_SCHEMA_PASS, "password");
+		System.setProperty(pn_server_address, "localhost:10500"); 
+		//System.setProperty(PN_POOL_SIZE, "10");
+		System.setProperty(pn_schema_name, "default");
+		System.setProperty(pn_schema_password, "password");
 		sampleRoot = "..\\..\\etc\\samples\\tpox\\";
 	}
 

@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.StringTokenizer;
 
 import javax.xml.namespace.QName;
 import javax.xml.transform.OutputKeys;
@@ -48,6 +49,7 @@ import net.sf.saxon.query.QueryResult;
 import net.sf.saxon.query.StaticQueryContext;
 import net.sf.saxon.query.XQueryExpression;
 import net.sf.saxon.trans.XPathException;
+import net.sf.saxon.value.DecimalValue;
 import net.sf.saxon.value.ObjectValue;
 
 import com.bagri.common.util.XMLUtils;
@@ -112,8 +114,6 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
 			case xqf_Update: 
 			case xqf_Full_Axis:
 			case xqf_Serialization: 
-			case xqf_Static_Typing:
-			case xqf_Static_Typing_Extensions:
 			case xqf_Transaction: 
 			case xqf_XQuery_Encoding_Decl: return true;
 
@@ -121,7 +121,11 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
 			case xqf_Schema_Import:
 			case xqf_Schema_Validation:
 			case xqf_User_Defined_XML_Schema_Type:
-		
+			// next two not supported by Saxon itself :(
+			case xqf_Static_Typing:
+			case xqf_Static_Typing_Extensions:
+				
+			// next four from MetaData2 interface
 			case xqf_XQuery_Update_Facility: 
 			case xqf_XQuery_Full_Text:
 			case xqf_XQuery_30:
@@ -131,84 +135,108 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
 	}
     
     protected void setStaticContext(StaticQueryContext sqc, XQStaticContext ctx) throws XQException {
-    	sqc.setBaseURI(ctx.getBaseURI());
     	// !!
         sqc.setSchemaAware(false);
+    	sqc.setBaseURI(ctx.getBaseURI());
+    	//ctx.getBindingMode()
+    	sqc.setPreserveBoundarySpace(ctx.getBoundarySpacePolicy() == BOUNDARY_SPACE_PRESERVE);
     	if (ctx.getConstructionMode() == CONSTRUCTION_MODE_PRESERVE) {
     		sqc.setConstructionMode(Validation.PRESERVE);
     	} else {
     		sqc.setConstructionMode(Validation.STRIP);
     	}
-    	sqc.setPreserveBoundarySpace(ctx.getBoundarySpacePolicy() == BOUNDARY_SPACE_PRESERVE);
+    	// ctx.getContextItemStaticType() -> contextItemStaticType
+        //if (contextItemStaticType != null) {
+        //    sqc.setRequiredContextItemType(contextItemStaticType.getSaxonItemType());
+        //}
+    	sqc.setInheritNamespaces(ctx.getCopyNamespacesModeInherit() == COPY_NAMESPACES_MODE_INHERIT);
+    	sqc.setPreserveNamespaces(ctx.getCopyNamespacesModePreserve() == COPY_NAMESPACES_MODE_PRESERVE);
+    	sqc.declareDefaultCollation(ctx.getDefaultCollation());
     	sqc.setDefaultElementNamespace(ctx.getDefaultElementTypeNamespace());
     	sqc.setDefaultFunctionNamespace(ctx.getDefaultFunctionNamespace());
         //sqc.setEmptyLeast(emptyLeast);
-    	sqc.setInheritNamespaces(ctx.getCopyNamespacesModeInherit() == COPY_NAMESPACES_MODE_INHERIT);
-    	sqc.setPreserveNamespaces(ctx.getCopyNamespacesModePreserve() == COPY_NAMESPACES_MODE_PRESERVE);
     	sqc.clearNamespaces();
     	String[] prefixes = ctx.getNamespacePrefixes();
     	for (String prefix: prefixes) {
     		sqc.declareNamespace(prefix, ctx.getNamespaceURI(prefix));
     	}
-    	sqc.declareDefaultCollation(ctx.getDefaultCollation());
-    	//...
-
-    	// ctx.getContextItemStaticType() -> contextItemStaticType
-        //if (contextItemStaticType != null) {
-        //    sqc.setRequiredContextItemType(contextItemStaticType.getSaxonItemType());
-        //}
+    	//ctx.getDefaultOrderForEmptySequences()
+    	//ctx.getHoldability()
+    	//ctx.getOrderingMode()
+    	if (ctx.getQueryLanguageTypeAndVersion() == LANGTYPE_XQUERY) {
+    		sqc.setLanguageVersion(new DecimalValue(1L)); // change to 3L
+    	}
+    	//ctx.getQueryTimeout()
+    	//ctx.getScrollability()
     }
     
     protected void setStaticContext(StaticQueryContext sqc, Properties props) throws XQException {
 		logger.trace("setStaticContext.enter; got props: {}", props);
-    	//String baseUri = props.getProperty(pn_baseURI);
-    	//if (baseUri != null && baseUri.length() > 0) {
-    		sqc.setBaseURI(props.getProperty(pn_baseURI));
-    	//}
        	// !!
         sqc.setSchemaAware(false);
-        if (String.valueOf(CONSTRUCTION_MODE_PRESERVE).equals(props.getProperty(pn_constructionMode))) {
+   		sqc.setBaseURI(props.getProperty(pn_baseURI));
+    	//props.getProperty(pn_bindingMode)
+    	sqc.setPreserveBoundarySpace(String.valueOf(BOUNDARY_SPACE_PRESERVE).equals(props.getProperty(pn_boundarySpacePolicy)));
+   		if (String.valueOf(CONSTRUCTION_MODE_PRESERVE).equals(props.getProperty(pn_constructionMode))) {
     		sqc.setConstructionMode(Validation.PRESERVE);
     	} else {
     		sqc.setConstructionMode(Validation.STRIP);
         }
-    	sqc.setPreserveBoundarySpace(String.valueOf(BOUNDARY_SPACE_PRESERVE).equals(props.getProperty(pn_boundarySpacePolicy)));
-        sqc.setDefaultElementNamespace(props.getProperty(pn_defaultElementTypeNamespace, ""));
-    	sqc.setDefaultFunctionNamespace(props.getProperty(pn_defaultFunctionNamespace, ""));
-        //sqc.setEmptyLeast(emptyLeast);
-    	sqc.setInheritNamespaces(String.valueOf(COPY_NAMESPACES_MODE_INHERIT).equals(props.getProperty(pn_copyNamespacesModeInherit)));
-    	sqc.setPreserveNamespaces(String.valueOf(COPY_NAMESPACES_MODE_PRESERVE).equals(props.getProperty(pn_copyNamespacesModePreserve)));
-    	sqc.clearNamespaces();
-    	Map<String, String> namespaces = (Map<String, String>) props.get(pn_defaultNamespaces);
-    	if (namespaces != null) {
-    		for (Map.Entry<String, String> e: namespaces.entrySet()) {
-    			sqc.declareNamespace(e.getKey(), e.getValue());
-    		}
-    	}
-    	sqc.declareDefaultCollation(props.getProperty(pn_defaultCollationUri, ""));
-		logger.trace("setStaticContext.exit; built context: {}; base URI: {}", sqc, sqc.getBaseURI());
-    	//...
-    	
     	// ctx.getContextItemStaticType() -> contextItemStaticType
         //if (contextItemStaticType != null) {
         //    sqc.setRequiredContextItemType(contextItemStaticType.getSaxonItemType());
         //}
+    	sqc.declareDefaultCollation(props.getProperty(pn_defaultCollationUri));
+   		sqc.setDefaultElementNamespace(props.getProperty(pn_defaultElementTypeNamespace));
+    	sqc.setDefaultFunctionNamespace(props.getProperty(pn_defaultFunctionNamespace));
+        //sqc.setEmptyLeast(emptyLeast);
+    	sqc.setInheritNamespaces(String.valueOf(COPY_NAMESPACES_MODE_INHERIT).equals(props.getProperty(pn_copyNamespacesModeInherit)));
+    	sqc.setPreserveNamespaces(String.valueOf(COPY_NAMESPACES_MODE_PRESERVE).equals(props.getProperty(pn_copyNamespacesModePreserve)));
+    	sqc.clearNamespaces();
+    	String namespaces = props.getProperty(pn_defaultNamespaces, "");
+    	StringTokenizer st = new StringTokenizer(namespaces, " ");
+    	while (st.hasMoreTokens()) {
+    		String namespace = st.nextToken();
+    		int idx = namespace.indexOf(":");
+   			sqc.declareNamespace(namespace.substring(0, idx), namespace.substring(idx + 1));
+    	}
+    	//props.getProperty(pn_defaultOrderForEmptySequences)
+    	//props.getProperty(pn_holdability)
+    	//props.getProperty(pn_orderingMode)
+    	if (String.valueOf(LANGTYPE_XQUERY).equals(props.getProperty(pn_queryLanguageTypeAndVersion))) {
+    		sqc.setLanguageVersion(new DecimalValue(1L)); // change to 3L
+    	}
+    	//props.getProperty(pn_queryTimeout)
+    	//props.getProperty(pn_scrollability)
+   		logger.trace("setStaticContext.exit; built context: {}; base URI: {}", sqc, sqc.getBaseURI());
     }
 
     protected Properties contextToProps(XQStaticContext ctx) throws XQException {
     	Properties result = new Properties();
     	result.put(pn_baseURI, ctx.getBaseURI());
-    	result.put(pn_defaultElementTypeNamespace, ctx.getDefaultElementTypeNamespace());
-    	result.put(pn_defaultFunctionNamespace, ctx.getDefaultFunctionNamespace());
-    	result.put(pn_defaultCollationUri, ctx.getDefaultCollation());
-    	result.put(pn_copyNamespacesModeInherit, ctx.getCopyNamespacesModeInherit() == COPY_NAMESPACES_MODE_INHERIT);
-    	result.put(pn_copyNamespacesModePreserve, ctx.getCopyNamespacesModePreserve() == COPY_NAMESPACES_MODE_PRESERVE);
-    	
-    	Map<String, String> namespaces = new HashMap<String, String>();
-    	for (String prefix: ctx.getNamespacePrefixes()) {
-    		namespaces.put(prefix, ctx.getNamespaceURI(prefix));
+    	result.setProperty(pn_bindingMode, String.valueOf(ctx.getBindingMode()));
+    	result.setProperty(pn_boundarySpacePolicy, String.valueOf(ctx.getBoundarySpacePolicy()));
+    	result.setProperty(pn_constructionMode, String.valueOf(ctx.getConstructionMode()));
+    	//ctx.getContextItemStaticType()
+    	result.setProperty(pn_copyNamespacesModeInherit, String.valueOf(ctx.getCopyNamespacesModeInherit()));
+    	result.setProperty(pn_copyNamespacesModePreserve, String.valueOf(ctx.getCopyNamespacesModePreserve()));
+    	result.setProperty(pn_defaultCollationUri, ctx.getDefaultCollation());
+    	result.setProperty(pn_defaultElementTypeNamespace, ctx.getDefaultElementTypeNamespace());
+    	result.setProperty(pn_defaultFunctionNamespace, ctx.getDefaultFunctionNamespace());
+    	if (ctx.getNamespacePrefixes().length > 0) {
+    		StringBuffer namespaces = new StringBuffer();
+    		for (String prefix: ctx.getNamespacePrefixes()) {
+    			namespaces.append(prefix).append(":").append(ctx.getNamespaceURI(prefix));
+    			namespaces.append(" ");
+    		}
+    		result.put(pn_defaultNamespaces, namespaces.toString());
     	}
-    	result.put(pn_defaultNamespaces, namespaces);
+    	result.setProperty(pn_defaultOrderForEmptySequences, String.valueOf(ctx.getDefaultOrderForEmptySequences()));
+    	result.setProperty(pn_holdability, String.valueOf(ctx.getHoldability()));
+    	result.setProperty(pn_orderingMode, String.valueOf(ctx.getOrderingMode()));
+    	result.setProperty(pn_queryLanguageTypeAndVersion, String.valueOf(ctx.getQueryLanguageTypeAndVersion()));
+    	result.setProperty(pn_queryTimeout, String.valueOf(ctx.getQueryTimeout()));
+    	result.setProperty(pn_scrollability, String.valueOf(ctx.getScrollability()));
     	return result;
     }
 

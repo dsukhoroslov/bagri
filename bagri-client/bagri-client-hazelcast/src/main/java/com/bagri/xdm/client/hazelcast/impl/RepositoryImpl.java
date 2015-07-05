@@ -3,6 +3,7 @@ package com.bagri.xdm.client.hazelcast.impl;
 import static com.bagri.common.util.PropUtils.getSystemProperty;
 import static com.bagri.common.util.PropUtils.setProperty;
 import static com.bagri.xdm.client.common.XDMCacheConstants.PN_XDM_SCHEMA_POOL;
+import static com.bagri.xqj.BagriXQConstants.*;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -24,7 +25,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bagri.xdm.api.XDMDocumentManagement;
-import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.api.XDMQueryManagement;
 import com.bagri.xdm.api.XDMRepository;
 import com.bagri.xdm.api.XDMTransactionManagement;
@@ -37,7 +37,6 @@ import com.bagri.xdm.client.hazelcast.task.query.XQCommandExecutor;
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.client.config.XmlClientConfigBuilder;
-import com.hazelcast.config.ClasspathXmlConfig;
 import com.hazelcast.config.SerializerConfig;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
@@ -47,20 +46,6 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 	
     private final static Logger logger = LoggerFactory.getLogger(RepositoryImpl.class);
 	
-	public static final String PN_POOL_SIZE = "hz.pool.size";
-	public static final String PN_SCHEMA_NAME = "hz.schema.name";
-	public static final String PN_SCHEMA_PASS = "hz.schema.password";
-	public static final String PN_SERVER_ADDRESS = "hz.server.address";
-	public static final String PN_CLIENT_SMART = "hz.client.smart";
-	
-	//public static final String PN_DATA_FACTORY = "xdm.data.factory";
-	public static final String PN_CLIENT_ID = "clientId";
-	public static final String PN_TX_ID = "txId";
-	public static final String PN_BATCH_SIZE = "batchSize";
-	public static final String PN_LOGIN_TIMEOUT = "loginTimeout";
-	public static final String PN_QUERY_TIMEOUT = "queryTimeout";
-	public static final String PN_CLIENT_SUBMITTO = "xdm.client.submitTo";
-
 	private String clientId;
 	private String schemaName;
 	
@@ -87,20 +72,24 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 	
 	private static Properties getSystemProps() {
 		Properties props = new Properties();
-		props.setProperty(PN_SCHEMA_NAME, getSystemProperty(PN_SCHEMA_NAME, "schema"));
-		props.setProperty(PN_SCHEMA_PASS, getSystemProperty(PN_SCHEMA_PASS, "password"));
-		props.setProperty(PN_SERVER_ADDRESS, getSystemProperty(PN_SERVER_ADDRESS, "address"));
-		props.setProperty(PN_CLIENT_SMART, getSystemProperty(PN_CLIENT_SMART, "false"));
+		props.setProperty(pn_schema_name, getSystemProperty(pn_schema_name, "schema"));
+		props.setProperty(pn_server_address, getSystemProperty(pn_server_address, "address"));
+		props.setProperty(pn_schema_user, getSystemProperty(pn_schema_user, "user"));
+		props.setProperty(pn_schema_password, getSystemProperty(pn_schema_password, "password"));
+		props.setProperty(pn_client_smart, getSystemProperty(pn_client_smart, "smart"));
+		props.setProperty(pn_login_timeout, getSystemProperty(pn_login_timeout, "loginTimeout"));
 		return props;
 	}
 	
 	private static Properties getConvertedProps(Properties original) {
 		Properties props = new Properties();
-		setProperty(original, props, PN_SCHEMA_NAME, "schema");
-		setProperty(original, props, PN_SCHEMA_PASS, "password");
-		setProperty(original, props, PN_SERVER_ADDRESS, "address");
-		setProperty(original, props, PN_CLIENT_SMART, "false");
-		props.put("xqDataFactory", original.get("xqDataFactory"));
+		setProperty(original, props, pn_schema_name, "schema");
+		setProperty(original, props, pn_server_address, "address");
+		setProperty(original, props, pn_schema_user, "user");
+		setProperty(original, props, pn_schema_password, "password");
+		setProperty(original, props, pn_client_smart, "smart");
+		setProperty(original, props, pn_login_timeout, "loginTimeout");
+		props.put(pn_data_factory, original.get(pn_data_factory));
 		return props;
 	}
 	
@@ -110,11 +99,12 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 	}
 	
 	private void initializeHazelcast(Properties props) {
-		String schema = props.getProperty(PN_SCHEMA_NAME);
-		String password = props.getProperty(PN_SCHEMA_PASS);
-		String address = props.getProperty(PN_SERVER_ADDRESS);
-		String smart = props.getProperty(PN_CLIENT_SMART);
-		String timeout = props.getProperty(PN_LOGIN_TIMEOUT);
+		String schema = props.getProperty(pn_schema_name);
+		String address = props.getProperty(pn_server_address);
+		String user = props.getProperty(pn_schema_user);
+		String password = props.getProperty(pn_schema_password);
+		String smart = props.getProperty(pn_client_smart);
+		String timeout = props.getProperty(pn_login_timeout);
 		InputStream in = DocumentManagementImpl.class.getResourceAsStream("/hazelcast/hazelcast-client.xml");
 		ClientConfig config = new XmlClientConfigBuilder(in).build();
 		config.getGroupConfig().setName(schema);
@@ -132,11 +122,12 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 		
 		//config.setProperty("hazelcast.logging.type", "slf4j");
 		//UsernamePasswordCredentials creds = new UsernamePasswordCredentials(schema, password);
-		SecureCredentials creds = new SecureCredentials(schema, password);
+		//SecureCredentials creds = new SecureCredentials(schema, password);
+		SecureCredentials creds = new SecureCredentials(user, password);
 		config.getSecurityConfig().setCredentials(creds);
 		config.setCredentials(creds);
 			
-		XQDataFactory xqFactory = (XQDataFactory) props.get("xqDataFactory");
+		XQDataFactory xqFactory = (XQDataFactory) props.get(pn_data_factory);
 		if (xqFactory != null) {
 			XQItemTypeSerializer xqits = new XQItemTypeSerializer();
 			xqits.setXQDataFactory(xqFactory);
@@ -233,10 +224,10 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 	Iterator execXQuery(boolean isQuery, String query, Map bindings, Properties props) { //throws Exception {
 		
 		//props.put(PN_BATCH_SIZE, "5");
-		props.put(PN_CLIENT_ID, clientId);
-		props.put(PN_TX_ID, String.valueOf(getTransactionId()));
+		props.put(pn_client_id, clientId);
+		props.put(pn_tx_id, String.valueOf(getTransactionId()));
 		
-		String runOn = System.getProperty(PN_CLIENT_SUBMITTO, "any");
+		String runOn = System.getProperty(pn_client_submitTo, "any");
 		
 		XQCommandExecutor task = new XQCommandExecutor(isQuery, schemaName, query, bindings, props);
 		Future<ResultCursor> future;
@@ -256,8 +247,8 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 		}
 
 		Iterator result = null;
-		long timeout = Long.parseLong(props.getProperty(PN_QUERY_TIMEOUT, "0"));
-		int fetchSize = Integer.parseInt(props.getProperty(PN_BATCH_SIZE, "0"));
+		long timeout = Long.parseLong(props.getProperty(pn_queryTimeout, "0"));
+		int fetchSize = Integer.parseInt(props.getProperty(pn_fetch_size, "0"));
 		try {
 			//if (cursor != null) {
 			//	cursor.close(false);

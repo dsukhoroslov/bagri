@@ -13,11 +13,10 @@ import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQExpression;
 import javax.xml.xquery.XQItem;
 import javax.xml.xquery.XQItemType;
+import javax.xml.xquery.XQMetaData;
 import javax.xml.xquery.XQPreparedExpression;
 import javax.xml.xquery.XQSequence;
 import javax.xml.xquery.XQStaticContext;
-
-import junit.framework.Assert;
 
 import org.junit.After;
 import org.junit.Before;
@@ -53,7 +52,7 @@ public class BagriXQSequenceTest {
 	    xqs.close();
 	    try {
 	    	xqs.getItem();
-	    	Assert.fail("A-XQS-1.2: closed sequence supports getItem()");
+	    	fail("A-XQS-1.2: closed sequence supports getItem()");
 	    } catch (XQException e) {
 	    	// Expect an XQException
 	    }
@@ -73,9 +72,9 @@ public class BagriXQSequenceTest {
 	    try {
 	    	xqs.writeSequence(result, prop);
 	    } catch (XQException e) {
-	    	Assert.fail("A-XQS-24.1: writeSequence failed with message: " + e.getMessage());
+	    	fail("A-XQS-24.1: writeSequence failed with message: " + e.getMessage());
 	    }
-	    Assert.assertTrue("A-XQS-24.1: Expects serialized result contains '<e>Hello world!</e>', but it is '" + result.toString() + "'", result.toString().indexOf("<e>Hello world!</e>") != -1);
+	    assertTrue("A-XQS-24.1: Expects serialized result contains '<e>Hello world!</e>', but it is '" + result.toString() + "'", result.toString().indexOf("<e>Hello world!</e>") != -1);
 	    xqe.close();
 	}
 	
@@ -88,7 +87,7 @@ public class BagriXQSequenceTest {
 	    xqs.getItem();
 	    try {
 	    	xqs.getBoolean();
-	    	Assert.fail("A-XQIA-1.4: SCROLLTYPE_FORWARD_ONLY sequence supports getting item twice()");
+	    	fail("A-XQIA-1.4: SCROLLTYPE_FORWARD_ONLY sequence supports getting item twice()");
 	    } catch (XQException e) {
 	      // Expect an XQException
 	    }
@@ -113,17 +112,17 @@ public class BagriXQSequenceTest {
 	    	// Expect an XQException
 	    }   
 	    if (failed)
-	    	Assert.fail("A-XQDF-1.3: The conversion is subject to the following constraints. Either it fails with an XQException, either it is successful in which case it must result in an instance of XDT.");    
+	    	fail("A-XQDF-1.3: The conversion is subject to the following constraints. Either it fails with an XQException, either it is successful in which case it must result in an instance of XDT.");    
 
 	    XQItem xqi = null;
 	    try {
 	    	XQSequence xqs = xqe.executeQuery("<e>Hello world!</e>");
 	    	xqi = xqc.createItemFromDocument(xqs.getSequenceAsStream(), null);
 	    } catch (XQException e) {
-	    	Assert.fail("A-XQDF-1.5: createItemFromDocument() failed with message: " + e.getMessage());
+	    	fail("A-XQDF-1.5: createItemFromDocument() failed with message: " + e.getMessage());
 	    }
 	    String result = xqi.getItemAsString(null);
-	    Assert.assertTrue("A-XQDF-1.5: Expects serialized result contains '<e>Hello world!</e>', but it is '" + result + "'", result.indexOf("<e>Hello world!</e>") != -1);
+	    assertTrue("A-XQDF-1.5: Expects serialized result contains '<e>Hello world!</e>', but it is '" + result + "'", result.indexOf("<e>Hello world!</e>") != -1);
 	    xqe.close();
 	}
 	
@@ -141,7 +140,7 @@ public class BagriXQSequenceTest {
 		xqpe.close();
 		try {
 		    xqpe.bindSequence(new QName("v"), xqs);
-		    Assert.fail("A-XQDC-1.1: bindSequence() throws an XQException when the dynamic context is in closed state.");
+		    fail("A-XQDC-1.1: bindSequence() throws an XQException when the dynamic context is in closed state.");
 		} catch (XQException e) {
 		    // Expect an XQException
 		}
@@ -150,7 +149,7 @@ public class BagriXQSequenceTest {
 		xqpe = xqc.prepareExpression("declare variable $v external; $v");
 		try {
 		    xqpe.bindSequence(null, xqs);
-		    Assert.fail("A-XQDC-1.2: null argument is invalid and throws an XQException.");
+		    fail("A-XQDC-1.2: null argument is invalid and throws an XQException.");
 		} catch (XQException e) {
 		    // Expect an XQException
 		}    
@@ -160,7 +159,7 @@ public class BagriXQSequenceTest {
 		xqpe = xqc.prepareExpression("declare variable $v external; $v");
 		try {
 		    xqpe.bindSequence(new QName("foo"), xqs);
-		    Assert.fail("A-XQDC-1.5: The bound variable must be declared external in the prepared expression.");
+		    fail("A-XQDC-1.5: The bound variable must be declared external in the prepared expression.");
 		} catch (XQException e) {
 		    // Expect an XQException
 		}  
@@ -171,7 +170,7 @@ public class BagriXQSequenceTest {
 		try {
 		    xqpe.bindSequence(new QName("v"), xqs);
 		    xqpe.executeQuery().getSequenceAsString(null);
-		    Assert.fail("A-XQDC-1.6: The dynamic type of the bound value is not compatible with the static type of the variable and must fail.");
+		    fail("A-XQDC-1.6: The dynamic type of the bound value is not compatible with the static type of the variable and must fail.");
 		} catch (XQException e) {
 		    // Expect an XQException
 		}    
@@ -182,18 +181,18 @@ public class BagriXQSequenceTest {
 		try {
 		    xqpe.bindSequence(new QName("v"),xqs);
 		} catch (XQException e) {
-		    Assert.fail("A-XQDC-1.7: bindSequence() failed with message: " + e.getMessage());
+		    fail("A-XQDC-1.7: bindSequence() failed with message: " + e.getMessage());
 		}
 		XQSequence xqs2 = xqpe.executeQuery();
 		xqs2.next();
-		Assert.assertEquals("A-XQDC-1.7: Successful bindXXX.", "Hello world!", xqs2.getAtomicValue());
+		assertEquals("A-XQDC-1.7: Successful bindXXX.", "Hello world!", xqs2.getAtomicValue());
 		xqpe.close();
 		    
 		xqs.close();
 		xqpe = xqc.prepareExpression("declare variable $v as xs:decimal external; $v");
 		try {
 		    xqpe.bindSequence(new QName("v"), xqs);
-		    Assert.fail("A-XQDC-1.8: Passing a closed XQItem or XQSequence object as argument must result in an XQException.");
+		    fail("A-XQDC-1.8: Passing a closed XQItem or XQSequence object as argument must result in an XQException.");
 		} catch (XQException e) {
 		    // Expect an XQException
 		}    
@@ -210,10 +209,10 @@ public class BagriXQSequenceTest {
 	    try {
 	    	xqsresult = xqc.createSequence(xqs);
 	    } catch (XQException e) {
-	    	Assert.fail("A-XQDF-1.5: createSequence() failed with message: " + e.getMessage());
+	    	fail("A-XQDF-1.5: createSequence() failed with message: " + e.getMessage());
 	    }
 	    String result = xqsresult.getSequenceAsString(null);
-	    Assert.assertTrue("A-XQDF-1.5: Expects serialized result contains 'Hello world!', but it is '" + result + "'", result.indexOf("Hello world!") != -1);
+	    assertTrue("A-XQDF-1.5: Expects serialized result contains 'Hello world!', but it is '" + result + "'", result.indexOf("Hello world!") != -1);
 	}
 	
 	@Test
@@ -352,5 +351,29 @@ public class BagriXQSequenceTest {
 								+ result + "'",	result.indexOf("<e>Hello world!</e>") != -1);
 		xqpe.close();
 	}
-	
+
+	@Test
+	public void testStaticTypingSupport() throws XQException {
+
+		XQMetaData xqmd = xqc.getMetaData();
+		boolean supportsStaticTyping = true;
+
+		try {
+			supportsStaticTyping = xqmd.isStaticTypingFeatureSupported();
+		} catch (XQException e) {
+			fail("A-XQMD-1.2: XQMetaData method failed with message: " + e.getMessage());
+		}
+
+		if (supportsStaticTyping) {
+			try {
+				// According to the XQuery Formal Semantics, the following query
+				// must result in a static type error.
+				xqc.prepareExpression("declare variable $v as item() external; $v + 1");
+				fail("A-XQMD-4.1: XQMetaData reports support for static typing feature, successfully generate a static type error.");
+			} catch (XQException e) {
+				// Expect an xQException
+			}
+		}
+	}
+
 }

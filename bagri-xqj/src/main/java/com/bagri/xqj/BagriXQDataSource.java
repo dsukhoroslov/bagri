@@ -1,5 +1,7 @@
 package com.bagri.xqj;
 
+import static com.bagri.xqj.BagriXQConstants.*;
+
 import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
 import java.sql.Connection;
@@ -32,12 +34,11 @@ public class BagriXQDataSource implements XQDataSource {
 	public static final String USER = "user";
 	public static final String PASSWORD = "password";
 	public static final String ADDRESS = "address";
-	public static final String BATCH_SIZE = "batchSize";
-	public static final String LOGIN_TIMEOUT = "loginTimeout";
-	public static final String QUERY_TIMEOUT = "queryTimeout";
+	//public static final String BATCH_SIZE = "batchSize";
+	//public static final String LOGIN_TIMEOUT = "loginTimeout";
 	public static final String TRANSACTIONAL = "transactional";
 
-	public static final String XQ_DATA_FACTORY = "xqDataFactory";
+	//public static final String XQ_DATA_FACTORY = "xqDataFactory";
 	public static final String XQ_PROCESSOR = "query.processor";
 	public static final String XDM_REPOSITORY = "xdm.repository";
 	
@@ -58,10 +59,9 @@ public class BagriXQDataSource implements XQDataSource {
 		properties.put(USER, "anonymous");
 		properties.put(PASSWORD, "password");
 		properties.put(SCHEMA, "default");
-		properties.put(BATCH_SIZE, "0");
-		properties.put(LOGIN_TIMEOUT, "0");
-		properties.put(QUERY_TIMEOUT, "0");
 		properties.put(TRANSACTIONAL, "false");
+		properties.put(pn_fetch_size, "0");
+		properties.put(pn_login_timeout, "0");
 		properties.put(XQ_PROCESSOR, ""); //"com.bagri.xquery.saxon.BagriXQProcessor"); //Proxy
 		properties.put(XDM_REPOSITORY, ""); //"com.bagri.xdm.client.hazelcast.impl.RepositoryImpl"); 
 	}
@@ -137,7 +137,7 @@ public class BagriXQDataSource implements XQDataSource {
 				Constructor init = procClass.getConstructor(Properties.class);
 				if (init != null) {
 					Properties props = new Properties(properties);
-					props.put(XQ_DATA_FACTORY, connect);
+					props.put(pn_data_factory, connect);
 					return init.newInstance(props);
 				}
 			} catch (Exception ex) {
@@ -189,7 +189,7 @@ public class BagriXQDataSource implements XQDataSource {
 	@Override
 	public int getLoginTimeout() throws XQException {
 		
-		return Integer.parseInt(properties.getProperty(LOGIN_TIMEOUT));
+		return Integer.parseInt(properties.getProperty(pn_login_timeout));
 	}
 
 	@Override
@@ -222,7 +222,7 @@ public class BagriXQDataSource implements XQDataSource {
 	@Override
 	public void setLoginTimeout(int timeout) throws XQException {
 		
-		properties.setProperty(LOGIN_TIMEOUT, String.valueOf(timeout));
+		properties.setProperty(pn_login_timeout, String.valueOf(timeout));
 	}
 
 	@Override

@@ -1,6 +1,6 @@
 package com.bagri.xqj;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.io.IOException;
 
@@ -14,8 +14,6 @@ import javax.xml.xquery.XQItemType;
 import javax.xml.xquery.XQPreparedExpression;
 import javax.xml.xquery.XQResultSequence;
 import javax.xml.xquery.XQSequence;
-
-import junit.framework.Assert;
 
 import org.junit.Before;
 import org.junit.Ignore;
@@ -43,26 +41,39 @@ public class BagriXQDataSourceTest {
 	@Test
 	public void getConnectionTest() throws XQException {
 		XQConnection conn = xqds.getConnection();
-		Assert.assertNotNull(conn);
-		Assert.assertFalse(conn.isClosed());
+		assertNotNull(conn);
+		assertFalse(conn.isClosed());
 		conn.close();
-		Assert.assertTrue(conn.isClosed());
+		assertTrue(conn.isClosed());
 	}
 
-	//@Test
+	@Test
+	@Ignore
 	public void getConnectionWithCredentialsTest() throws XQException {
     	String username = "test";
 		String password = "test";
 		XQConnection conn = xqds.getConnection(username, password);
-		Assert.assertNotNull(conn);
-		Assert.assertFalse(conn.isClosed());
+		assertNull(conn);
+		//assertFalse(conn.isClosed());
+	}
+	
+	@Test
+	@Ignore
+	public void testLoginTimeout() throws XQException {
+		xqds.setLoginTimeout(1);
+		XQConnection conn = xqds.getConnection();
+		assertNull(conn);
+		xqds.setLoginTimeout(5);
+		conn = xqds.getConnection();
+		assertNotNull(conn);
+		conn.close();
 	}
 
 	@Test
 	@Ignore
 	public void testQuerySecurity() throws XQException {
 		XQConnection xqc = xqds.getConnection();
-		Assert.assertNotNull(xqc);
+		assertNotNull(xqc);
 		
 		String query = "declare namespace s=\"http://tpox-benchmark.com/security\";\n" +
 			"declare variable $v external;\n" + // $v\n" +
@@ -75,7 +86,7 @@ public class BagriXQDataSourceTest {
 	    XQPreparedExpression xqpe = xqc.prepareExpression(query);
 	    xqpe.bindString(new QName("v"), "IBM", null);
 	    XQResultSequence xqs = xqpe.executeQuery();
-	    Assert.assertTrue(xqs.next());
+	    assertTrue(xqs.next());
 	}
 
 	@Test
@@ -105,7 +116,7 @@ public class BagriXQDataSourceTest {
 	    XQConnection xqc = xqds.getConnection();
 		try {
 			xqc.createItemFromDocument((String)null, null, null);
-		    junit.framework.Assert.fail("A-XQDF-1.2: null argument is invalid and throws an XQException.");
+		    fail("A-XQDF-1.2: null argument is invalid and throws an XQException.");
 		} catch (XQException e) {
 			// Expect an XQException
 		}    
@@ -125,13 +136,13 @@ public class BagriXQDataSourceTest {
 		    // Expect an XQException
 		}   
 		if (failed) {
-			junit.framework.Assert.fail("A-XQDF-1.3: The conversion is subject to the following constraints. "
-					+ "Either it fails with an XQException, either it is successful in which case it must result in an instance of XDT.");
+			fail("A-XQDF-1.3: The conversion is subject to the following constraints. " +
+					"Either it fails with an XQException, either it is successful in which case it must result in an instance of XDT.");
 		}
 
 		try {
 			XQItem xqitem = xqc.createItemFromDocument("<e>", null, null);
-		    junit.framework.Assert.fail("A-XQDF-1.4: The conversion of the value to an XDM instance must fail.");
+		    fail("A-XQDF-1.4: The conversion of the value to an XDM instance must fail.");
 		} catch (XQException e) {
 		    // Expect an XQException
 		}    
@@ -140,10 +151,10 @@ public class BagriXQDataSourceTest {
 		try {
 		    xqi = xqc.createItemFromDocument("<e>Hello world!</e>", null, null);
 		} catch (XQException e) {
-		    junit.framework.Assert.fail("A-XQDF-1.5: createItemFromDocument() failed with message: " + e.getMessage());
+		    fail("A-XQDF-1.5: createItemFromDocument() failed with message: " + e.getMessage());
 		}
 		String result = xqi.getItemAsString(null);
-		junit.framework.Assert.assertTrue("A-XQDF-1.5: Expects serialized result contains '<e>Hello world!</e>', but it is '" 
+		assertTrue("A-XQDF-1.5: Expects serialized result contains '<e>Hello world!</e>', but it is '" 
 					+ result + "'", result.indexOf("<e>Hello world!</e>") != -1);
 	}
 }

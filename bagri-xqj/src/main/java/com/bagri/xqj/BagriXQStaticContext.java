@@ -321,6 +321,7 @@ public class BagriXQStaticContext implements XQStaticContext {
 		if (langType != LANGTYPE_XQUERY && langType != LANGTYPE_XQUERYX) {
 			throw new XQException("Wrong language type and version value: " + langType);
 		}  
+		// we do not support XQueryX, don't see how it can be set.. 
 		this.queryLanguageTypeAndVersion = langType;
 	}
 	
