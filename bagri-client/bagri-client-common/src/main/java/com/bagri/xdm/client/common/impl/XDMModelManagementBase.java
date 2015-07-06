@@ -444,7 +444,7 @@ public abstract class XDMModelManagementBase implements XDMModelManagement {
 		StringList sl = model.getNamespaces();
 		for (Object ns: sl) {
 			String prefix = translateNamespace((String) ns);
-			logger.trace("namespace: {}; {}", ns, prefix);
+			logger.trace("processModel; namespace: {}; {}", ns, prefix);
 		}
 		
 		XSNamedMap elts = model.getComponents(XSConstants.ELEMENT_DECLARATION);
@@ -464,6 +464,7 @@ public abstract class XDMModelManagementBase implements XDMModelManagement {
 				subs.add(xsElement);
 			}
 		}
+		logger.trace("processModel; got substitutions: {}", substitutions.size());
 		
 		// process top-level elements
 		for (Object o: elts.entrySet()) {
@@ -476,8 +477,8 @@ public abstract class XDMModelManagementBase implements XDMModelManagement {
 				// register document type..
 				//dict.translatePath(docType, root, XDMNodeKind.document); ??
 				
-				Map<XSComplexTypeDefinition, Integer> loops = new HashMap<XSComplexTypeDefinition, Integer>();
-				processElement(docType, "", xsElement, substitutions, loops);
+				List<XSElementDeclaration> parents = new ArrayList<>(4);
+				processElement(docType, "", xsElement, substitutions, parents);
 				normalizeDocumentType(docType);
 			}
 		}
@@ -487,35 +488,32 @@ public abstract class XDMModelManagementBase implements XDMModelManagement {
 
 	private void processElement(int docType, String path, XSElementDeclaration xsElement, 
 			Map<String, List<XSElementDeclaration>> substitutions,
-			Map<XSComplexTypeDefinition, Integer> loops) {
+			List<XSElementDeclaration> parents) {
 		
 		if (!xsElement.getAbstract()) {
 			path += "/{" + xsElement.getNamespace() + "}" + xsElement.getName();
 			translatePath(docType, path, XDMNodeKind.element);
-			logger.trace("\telement: {}; type: {}", path, xsElement.getType());
+			logger.trace("processElement; element: {}; type: {}", path, xsElement.getType());
 		}
 		
 		List<XSElementDeclaration> subs = substitutions.get(xsElement.getName());
+		logger.trace("processElement; got {} substitutions for element: {}", subs == null ? 0 : subs.size(), xsElement.getName());
 		if (subs != null) {
 			for (XSElementDeclaration sub: subs) {
-				processElement(docType, path, sub, substitutions, loops);
+				processElement(docType, path, sub, substitutions, parents);
 			}
 		}
 
+		if (parents.contains(xsElement)) {
+			return;
+		}
+		parents.add(xsElement);
+		
 		if (xsElement.getTypeDefinition().getTypeCategory() == XSTypeDefinition.COMPLEX_TYPE) {
 
 			XSComplexTypeDefinition ctd = (XSComplexTypeDefinition) xsElement.getTypeDefinition();
 			
-			// todo: process derivations..?
-			
-			Integer cnt = loops.get(ctd);
-			if (cnt == null) {
-				loops.put(ctd, 1);
-			} else if (cnt > 1) {
-				return;
-			} else {
-				loops.put(ctd, cnt + 1); 
-			}
+			// TODO: process derivations..?
 
 			// element's attributes
 		    XSObjectList xsAttrList = ctd.getAttributeUses();
@@ -523,21 +521,22 @@ public abstract class XDMModelManagementBase implements XDMModelManagement {
 		        processAttribute(docType, path, (XSAttributeUse) xsAttrList.item(i));
 		    }
 		      
-			processParticle(docType, path, ctd.getParticle(), substitutions, loops);
+			processParticle(docType, path, ctd.getParticle(), substitutions, parents);
 
 			if (ctd.getContentType() == XSComplexTypeDefinition.CONTENTTYPE_SIMPLE || 
 					ctd.getContentType() == XSComplexTypeDefinition.CONTENTTYPE_MIXED) {
 				path += "/text()";
 				translatePath(docType, path, XDMNodeKind.text);
-				logger.trace("\tcomplex text: {}; type: {}", path, ctd.getBaseType());
+				logger.trace("processElement; complex text: {}; type: {}", path, ctd.getBaseType());
 			}
 		} else { //if (xsElementDecl.getTypeDefinition().getTypeCategory() == XSTypeDefinition.SIMPLE_TYPE) {
 			XSSimpleTypeDefinition std = (XSSimpleTypeDefinition) xsElement.getTypeDefinition();
 			path += "/text()";
 			translatePath(docType, path, XDMNodeKind.text);
-			logger.trace("\tsimple text: {}; type: {}", path, std.getBaseType());
+			logger.trace("processElement; simple text: {}; type: {}", path, std.getBaseType());
 		}
 		
+		parents.remove(xsElement);
 	}
 
 	
@@ -553,7 +552,7 @@ public abstract class XDMModelManagementBase implements XDMModelManagement {
 	 */
 	private void processParticle(int docType, String path, XSParticle xsParticle, 
 			Map<String, List<XSElementDeclaration>> substitutions,
-			Map<XSComplexTypeDefinition, Integer> loops) {
+			List<XSElementDeclaration> parents) {
 		
 		if (xsParticle == null) {
 			return;
@@ -564,7 +563,7 @@ public abstract class XDMModelManagementBase implements XDMModelManagement {
 	    switch (xsTerm.getType()) {
 	      case XSConstants.ELEMENT_DECLARATION:
 
-	        processElement(docType, path, (XSElementDeclaration) xsTerm, substitutions, loops);
+	        processElement(docType, path, (XSElementDeclaration) xsTerm, substitutions, parents);
 	        break;
 
 	      case XSConstants.MODEL_GROUP:
@@ -578,7 +577,7 @@ public abstract class XDMModelManagementBase implements XDMModelManagement {
 	        XSObjectList xsParticleList = xsGroup.getParticles();
 	        for (int i = 0; i < xsParticleList.getLength(); i ++) {
 	        	XSParticle xsp = (XSParticle) xsParticleList.item(i);
-	        	processParticle(docType, path, xsp, substitutions, loops);
+	        	processParticle(docType, path, xsp, substitutions, parents);
 	        }
 
 	        //...
