@@ -76,6 +76,7 @@ public abstract class SchemaFeatureManagement implements SelfNaming {
 			try {
 				TabularData stats = entry.getValue().get();
 				logger.trace("getUsageStatistics; got stats: {}, from member {}", stats, entry.getKey());
+				// TODO: provide new/common aggregation utility for usage stats!
 				result = stats; //JMXUtils.aggregateStats(stats, result);
 				logger.trace("getUsageStatistics; got aggregated result: {}", result);
 				cnt++;

@@ -18,6 +18,7 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.xdm.cache.hazelcast.task.index.IndexCreator;
 import com.bagri.xdm.cache.hazelcast.task.index.IndexRemover;
+import com.bagri.xdm.cache.hazelcast.task.index.IndexStatsCollector;
 import com.bagri.xdm.cache.hazelcast.task.stats.StatisticSeriesCollector;
 import com.bagri.xdm.system.XDMIndex;
 import com.bagri.xdm.system.XDMSchema;
@@ -43,9 +44,14 @@ public class IndexManagement extends SchemaFeatureManagement {
 	public TabularData getIndexes() {
 		return getTabularFeatures("index", "Index definition", "name");
     }
+
+	@ManagedAttribute(description="Return aggregated index statistics, per index")
+	public TabularData getIndexStatistics() {
+		return super.getUsageStatistics(new IndexStatsCollector());
+	}
 	
 	@ManagedAttribute(description="Return aggregated index usage statistics, per index")
-	public TabularData getIndexStatistics() {
+	public TabularData getUsageStatistics() {
 		return super.getUsageStatistics(new StatisticSeriesCollector(schemaName, "indexStats"));
 	}
 

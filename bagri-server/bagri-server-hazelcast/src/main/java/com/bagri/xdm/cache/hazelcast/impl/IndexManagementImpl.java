@@ -1,6 +1,7 @@
 package com.bagri.xdm.cache.hazelcast.impl;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -12,6 +13,7 @@ import javax.management.openmbean.TabularData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.bagri.common.manage.JMXUtils;
 import com.bagri.common.stats.StatisticsEvent;
 import com.bagri.common.stats.StatisticsProvider;
 import com.bagri.common.stats.UsageStatistics;
@@ -208,6 +210,42 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 				logger.warn("updateStats; queue is full!!");
 			}
 		}
+	}
+	
+	public TabularData getIndexStats() {
+
+		Set<XDMIndexKey> keys = idxCache.localKeySet();
+		Map<XDMIndexKey, XDMIndexedValue> locals = idxCache.getAll(keys);
+		
+        TabularData result = null;
+		for (XDMIndex idx: idxDict.values()) {
+            Map<String, Object> stats = new HashMap<>();
+            stats.put("index", idx.getName());
+            stats.put("path", idx.getPath());
+    		XDMPath xPath = getPathForIndex(idx);
+    		long size = 0;
+    		int count = 0;
+    		int unique = 0;
+    		for (Map.Entry<XDMIndexKey, XDMIndexedValue> e: locals.entrySet()) {
+    			if (e.getKey().getPathId() == xPath.getPathId()) {
+    				count += e.getValue().getCount();
+    				unique++;
+    				size += 32;
+    			}
+    		}
+    		stats.put("indexed documents", count);
+    		stats.put("distinct values", unique);
+    		stats.put("consumed size", size);
+            
+            try {
+                CompositeData data = JMXUtils.mapToComposite("Name", "Header", stats);
+                result = JMXUtils.compositeToTabular("Name", "Header", "index", result, data);
+            } catch (Exception ex) {
+                logger.error("getIndexStats; error", ex);
+            }
+			
+		}
+        return result;
 	}
 	
 	@Override
