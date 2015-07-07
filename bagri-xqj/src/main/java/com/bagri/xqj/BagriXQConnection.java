@@ -35,7 +35,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 	private BagriXQMetaData metaData;
 	private BagriXQStaticContext context;
 	
-	public BagriXQConnection(String address) {
+	BagriXQConnection(String address) {
 
 		metaData = new BagriXQMetaData(this, null);
 		context = new BagriXQStaticContext();
@@ -46,14 +46,14 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 		}
 	}
 
-	public BagriXQConnection(String address, boolean transactional) {
+	BagriXQConnection(String address, boolean transactional) {
 
 		metaData = new BagriXQMetaData(this, null);
 		context = new BagriXQStaticContext();
 		this.transactional = transactional;
 	}
 
-	public BagriXQConnection(String address, String username, String password) {
+	BagriXQConnection(String address, String username) {
 
 		metaData = new BagriXQMetaData(this, username);
 		context = new BagriXQStaticContext();
@@ -64,7 +64,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 		}
 	}
 	
-	public BagriXQConnection(String address, String username, String password, boolean transactional) {
+	BagriXQConnection(String address, String username, boolean transactional) {
 
 		metaData = new BagriXQMetaData(this, username);
 		context = new BagriXQStaticContext();
@@ -81,6 +81,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 		if (transactional) {
 			if (autoCommit) {
 				getTxManager().commitTransaction(txId);
+				txId = TX_NO;
 			} else {
 				// ??
 			}

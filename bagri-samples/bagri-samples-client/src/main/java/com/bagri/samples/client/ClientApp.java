@@ -25,6 +25,8 @@ public class ClientApp {
 	public static void main(String[] args) throws XQException {
 		
 		//System.setProperty("xdm.schema.members", "localhost:10600");
+		System.setProperty("logback.configurationFile", "hz-client-logging.xml");
+		System.setProperty("xdm.log.level", "trace");
 		//
 		context = new ClassPathXmlApplicationContext("spring/xqj-client-context.xml");
 		XQConnection xqc = context.getBean("xqConnection", XQConnection.class);
@@ -207,8 +209,7 @@ public class ClientApp {
 	}
 
 	public long storeSecQuery() throws XQException {
-		//return storeXmlDocument("security5621.xml");
-		return storeXmlDocument("person.json");
+		return storeXmlDocument("security5621.xml");
 	}
 	
 	private long storeXmlDocument(String fileName) throws XQException {
@@ -223,7 +224,7 @@ public class ClientApp {
 
 		String query = "declare namespace bgdm=\"http://bagri.com/bagri-xdm\";\n" +
 				"declare variable $sec external;\n" + 
-				"declare option bgdm:document-format \"JSON\";\n\n" + 
+				//"declare option bgdm:document-format \"JSON\";\n\n" + 
 				//"return bgdm:store-document($sec)\n";
 				"for $id in bgdm:store-document($sec)\n" +
 				"return $id\n";

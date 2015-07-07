@@ -30,7 +30,7 @@ public class BagriXQStaticContext implements XQStaticContext {
 	private int queryTimeout = 0;
 	private BagriXQItemType type = null;
 	
-	public BagriXQStaticContext() {
+	BagriXQStaticContext() {
 		//
 		namespaces.put("xml", "http://www.w3.org/XML/1998/namespace");
 		namespaces.put("xs", "http://www.w3.org/2001/XMLSchema");
@@ -39,7 +39,7 @@ public class BagriXQStaticContext implements XQStaticContext {
 		namespaces.put("local", "http://www.w3.org/2005/xquery-local-functions");
 	}
 	
-	public BagriXQStaticContext(XQStaticContext from) {
+	BagriXQStaticContext(XQStaticContext from) {
 		try {
 			copyFrom(from);
 		} catch (XQException ex) {

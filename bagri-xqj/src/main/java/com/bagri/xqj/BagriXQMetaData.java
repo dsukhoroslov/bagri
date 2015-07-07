@@ -20,7 +20,7 @@ public class BagriXQMetaData implements XQMetaData, XQMetaData2 {
 	private String userName;
 	private BagriXQConnection connect;
 	
-	private BagriXQMetaData(String userName) {
+	BagriXQMetaData(String userName) {
 		this.userName = userName;
 	}
 

@@ -41,6 +41,7 @@ import com.hazelcast.config.SerializerConfig;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.Member;
+import com.hazelcast.security.Credentials;
 
 public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 	
@@ -66,7 +67,9 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 		com.hazelcast.client.impl.HazelcastClientProxy proxy = (com.hazelcast.client.impl.HazelcastClientProxy) hzClient;
 		schemaName = proxy.getClientConfig().getGroupConfig().getName();
 		clientId = proxy.getLocalEndpoint().getUuid();
-		logger.trace("<init>; connected to HZ server as: {}; {}", clientId, proxy);
+		logger.debug("<init>; connected to HZ server as: {}; {}", clientId, proxy);
+		Credentials creds = proxy.getClientConfig().getSecurityConfig().getCredentials();
+		logger.debug("<init>; with credentials: {}", creds);
 		initializeServices();
 	}
 	

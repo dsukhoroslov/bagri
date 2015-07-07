@@ -94,7 +94,7 @@
 	
 	<!--bean id="xdmFactory" class="com.bagri.xdm.cache.hazelcast.impl.XDMFactoryImpl" /-->
 
-	<bean id="xdmModel" class="com.bagri.xdm.client.hazelcast.impl.ModelManagementImpl">
+	<bean id="mdlManager" class="com.bagri.xdm.client.hazelcast.impl.ModelManagementImpl">
 		<property name="namespaceCache" ref="dict-namespace"/>
 		<property name="pathCache" ref="dict-path"/>
 		<property name="typeCache" ref="dict-document-type"/>
@@ -107,15 +107,15 @@
 		<!--property name="repository" ref="xdmRepo"/-->
 	</bean>
 
-	<bean id="xdmManager" class="com.bagri.xdm.client.hazelcast.impl.DocumentManagementImpl"/>
+	<bean id="docManager" class="com.bagri.xdm.client.hazelcast.impl.DocumentManagementImpl"/>
 
 	<bean id="txManager" class="com.bagri.xdm.client.hazelcast.impl.TransactionManagementImpl"/>
 
 	<bean id="xdmRepo" class="com.bagri.xdm.client.hazelcast.impl.RepositoryImpl">
 		<constructor-arg ref="hzInstance" />
-		<property name="modelManagement" ref="xdmModel"/>
+		<property name="modelManagement" ref="mdlManager"/>
 		<property name="queryManagement" ref="xqManager"/>
-		<property name="documentManagement" ref="xdmManager"/>
+		<property name="documentManagement" ref="docManager"/>
 		<property name="txManagement" ref="txManager"/>
 	</bean>
 

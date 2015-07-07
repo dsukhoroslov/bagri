@@ -40,16 +40,16 @@ public class XQCommandExecutor extends com.bagri.xdm.client.hazelcast.task.query
 		
     	long txId = XDMTransactionManagement.TX_NO;
     	String id = context.getProperty(pn_tx_id);
-		if (id != null) {
+    	if (id == null || "0".equals(id)) {
+    		if (queryMgr.isReadOnlyQuery(command)) {
+    			if (isQuery) {
+    				return (ResultCursor) queryMgr.executeXQuery(command, bindings, context);
+    			} else {
+    				return (ResultCursor) queryMgr.executeXCommand(command, bindings, context);
+    			}
+    		}
+		} else {
 			txId = Long.parseLong(id);
-		}
-		boolean readOnly = queryMgr.isReadOnlyQuery(command);
-		if (readOnly) {
-			if (isQuery) {
-				return (ResultCursor) queryMgr.executeXQuery(command, bindings, context);
-			} else {
-		        return (ResultCursor) queryMgr.executeXCommand(command, bindings, context);
-			}
 		}
 		
     	return txMgr.callInTransaction(txId, false, new Callable<ResultCursor>() {

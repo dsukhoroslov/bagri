@@ -21,7 +21,7 @@
 	<hz:executor-pool-size>10</hz:executor-pool-size>
 
 	<!--security>
-		<credentials>com.hazelcast.security.UsernamePasswordCredentials</credentials>
+		<credentials>com.bagri.xdm.client.hazelcast.serialize.SecureCredentials</credentials>
 	</security-->
 
 	<hz:serialization>

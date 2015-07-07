@@ -31,7 +31,7 @@ public class BagriXQDynamicContext implements XQDynamicContext {
 	private Set<QName> varNames = new HashSet<QName>();
 	private Map<QName, XQItemAccessor> bindings = new HashMap<QName, XQItemAccessor>();
 
-	public BagriXQDynamicContext() {
+	BagriXQDynamicContext() {
 		//
 	}
 	

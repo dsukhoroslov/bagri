@@ -429,8 +429,8 @@ public class QueryManagementImpl implements XDMQueryManagement {
 
 		XDMQuery xQuery = this.getQuery(query);
 		if (xQuery == null) {
-			//not cached yet, returning true, just to be safe
-			return true;
+			//not cached yet, returning false, just to be safe..
+			return false;
 			// calc it via xqp...
 			//XQProcessor xqp = repo.getXQProcessor(clientId);
 		}
