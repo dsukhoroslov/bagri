@@ -2,16 +2,6 @@
     <!--param key="jmx.address">localhost:3330</param>
     <param key="jmx.login">admin</param>
     <param key="jmx.password">${password}</param-->
-    <invoke>
-        <mbean>com.bagri.xdm:type=Schema,name=default,kind=ModelManagement</mbean>
-        <method>registerSchema</method>
-        <arguments>
-            <argument index="0">
-                <type>java.lang.String</type>
-                <value>../../etc/samples/tpox/security.xsd</value>
-            </argument>
-        </arguments>
-    </invoke>
     <!--invoke>
         <mbean>com.bagri.xdm:type=Schema,name=default,kind=ModelManagement</mbean>
         <method>registerSchema</method>
@@ -22,7 +12,7 @@
             </argument>
         </arguments>
     </invoke-->
-    <delay>5000</delay>
+    <!--delay>5000</delay-->
     <!--invoke>
 	<mbean>com.bagri.xdm:type=Schema,name=default,kind=IndexManagement</mbean>
 	<method>addIndex</method>
@@ -74,6 +64,17 @@
 		<value>Security Symbol</value>
 	    </argument>
 	</arguments>
+    </invoke>
+    <delay>5000</delay>
+    <invoke>
+        <mbean>com.bagri.xdm:type=Schema,name=default,kind=ModelManagement</mbean>
+        <method>registerSchema</method>
+        <arguments>
+            <argument index="0">
+                <type>java.lang.String</type>
+                <value>../../etc/samples/tpox/security.xsd</value>
+            </argument>
+        </arguments>
     </invoke>
     <!--invoke>
 	<mbean>com.bagri.xdm:type=Schema,name=default,kind=IndexManagement</mbean>
