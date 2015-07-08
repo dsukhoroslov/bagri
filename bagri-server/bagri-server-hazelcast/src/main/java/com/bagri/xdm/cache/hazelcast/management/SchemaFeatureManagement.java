@@ -20,6 +20,7 @@ import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.naming.SelfNaming;
 
 import com.bagri.common.manage.JMXUtils;
+import com.bagri.common.manage.StatsAggregator;
 import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.cache.hazelcast.task.stats.StatisticSeriesCollector;
 import com.bagri.xdm.cache.hazelcast.task.stats.StatisticsReseter;
@@ -37,6 +38,7 @@ public abstract class SchemaFeatureManagement implements SelfNaming {
 	protected IExecutorService execService;
 	protected XDMModelManagement modelMgr;
 	protected SchemaManager schemaManager;
+	protected StatsAggregator aggregator;
 
     public SchemaFeatureManagement(String schemaName) {
     	this.schemaName = schemaName;
@@ -58,6 +60,10 @@ public abstract class SchemaFeatureManagement implements SelfNaming {
 	public void setSchemaManager(SchemaManager schemaManager) {
 		this.schemaManager = schemaManager;
 	}
+
+    public void setStatsAggregator(StatsAggregator aggregator) {
+    	this.aggregator = aggregator;
+    }
 	
 	protected abstract String getFeatureKind();
 
@@ -66,7 +72,7 @@ public abstract class SchemaFeatureManagement implements SelfNaming {
 		return JMXUtils.getObjectName("type=Schema,name=" + schemaName + ",kind=" + getFeatureKind());
 	}
 
-	public TabularData getUsageStatistics(Callable<TabularData> statsTask) {
+	public TabularData getUsageStatistics(Callable<TabularData> statsTask, StatsAggregator aggregator) {
 		logger.trace("getUsageStatistics.enter; going to collect stats for schema: {}", schemaName);
 
 		int cnt = 0;
@@ -76,8 +82,7 @@ public abstract class SchemaFeatureManagement implements SelfNaming {
 			try {
 				TabularData stats = entry.getValue().get();
 				logger.trace("getUsageStatistics; got stats: {}, from member {}", stats, entry.getKey());
-				// TODO: provide new/common aggregation utility for usage stats!
-				result = stats; //JMXUtils.aggregateStats(stats, result);
+				result = JMXUtils.aggregateStats(stats, result, aggregator);
 				logger.trace("getUsageStatistics; got aggregated result: {}", result);
 				cnt++;
 			} catch (InterruptedException | ExecutionException ex) {
@@ -88,7 +93,7 @@ public abstract class SchemaFeatureManagement implements SelfNaming {
 		return result;
 	}
 
-	protected TabularData getSeriesStatistics(Callable<TabularData> statsTask) {
+	protected TabularData getSeriesStatistics(Callable<TabularData> statsTask, StatsAggregator aggregator) {
 		logger.trace("getSeriesStatistics.enter; going to collect stats for schema: {}", schemaName);
 
 		int cnt = 0;
@@ -98,7 +103,7 @@ public abstract class SchemaFeatureManagement implements SelfNaming {
 			try {
 				TabularData stats = entry.getValue().get();
 				logger.trace("getSeriesStatistics; got stats: {}, from member {}", stats, entry.getKey());
-				result = JMXUtils.aggregateStats(stats, result);
+				result = JMXUtils.aggregateStats(stats, result, aggregator);
 				logger.trace("getSeriesStatistics; got aggregated result: {}", result);
 				cnt++;
 			} catch (InterruptedException | ExecutionException ex) {
@@ -109,7 +114,7 @@ public abstract class SchemaFeatureManagement implements SelfNaming {
 		return result;
 	}
 	
-	protected CompositeData getTotalsStatistics(Callable<CompositeData> statsTask) {
+	protected CompositeData getTotalsStatistics(Callable<CompositeData> statsTask, StatsAggregator aggregator) {
 		logger.trace("getTotalsStatistics.enter; going to collect stats for schema: {}", schemaName);
 
 		int cnt = 0;
@@ -119,7 +124,7 @@ public abstract class SchemaFeatureManagement implements SelfNaming {
 			try {
 				CompositeData stats = entry.getValue().get();
 				logger.trace("getTotalsStatistics; got stats: {}, from member {}", stats, entry.getKey());
-				result = JMXUtils.aggregateStats(stats, result);
+				result = JMXUtils.aggregateStats(stats, result, aggregator);
 				logger.trace("getTotalsStatistics; got aggregated result: {}", result);
 				cnt++;
 			} catch (InterruptedException | ExecutionException ex) {

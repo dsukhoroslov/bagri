@@ -16,16 +16,22 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
 import com.bagri.common.manage.JMXUtils;
+import com.bagri.common.manage.StatsAggregator;
 import com.bagri.xdm.cache.hazelcast.task.index.IndexCreator;
 import com.bagri.xdm.cache.hazelcast.task.index.IndexRemover;
 import com.bagri.xdm.cache.hazelcast.task.index.IndexStatsCollector;
 import com.bagri.xdm.cache.hazelcast.task.stats.StatisticSeriesCollector;
+import com.bagri.xdm.common.XDMIndexKey;
+import com.bagri.xdm.domain.XDMIndexedValue;
+import com.bagri.xdm.domain.XDMPath;
 import com.bagri.xdm.system.XDMIndex;
 import com.bagri.xdm.system.XDMSchema;
 import com.hazelcast.core.Member;
 
 @ManagedResource(description="Schema Indexes Management MBean")
 public class IndexManagement extends SchemaFeatureManagement {
+	
+	private StatsAggregator isAggregator = new IndexStatsAggregator();
 	
 	public IndexManagement(String schemaName) {
 		super(schemaName);
@@ -34,6 +40,10 @@ public class IndexManagement extends SchemaFeatureManagement {
 	protected String getFeatureKind() {
 		return "IndexManagement";
 	}
+	
+    public void setStatsAggregator(StatsAggregator aggregator) {
+    	this.aggregator = aggregator;
+    }
 	
 	@Override
 	protected Collection getSchemaFeatures(XDMSchema schema) {
@@ -47,12 +57,12 @@ public class IndexManagement extends SchemaFeatureManagement {
 
 	@ManagedAttribute(description="Return aggregated index statistics, per index")
 	public TabularData getIndexStatistics() {
-		return super.getUsageStatistics(new IndexStatsCollector());
+		return super.getUsageStatistics(new IndexStatsCollector(), isAggregator);
 	}
 	
 	@ManagedAttribute(description="Return aggregated index usage statistics, per index")
 	public TabularData getUsageStatistics() {
-		return super.getUsageStatistics(new StatisticSeriesCollector(schemaName, "indexStats"));
+		return super.getUsageStatistics(new StatisticSeriesCollector(schemaName, "indexStats"), aggregator);
 	}
 
 	@ManagedOperation(description="Creates a new Index")
@@ -129,6 +139,20 @@ public class IndexManagement extends SchemaFeatureManagement {
 	@ManagedOperationParameters({@ManagedOperationParameter(name = "name", description = "Index to rebuild")})
 	public void rebuildIndex(String name) {
 		// not implemented yet
+	}
+	
+	private static class IndexStatsAggregator implements StatsAggregator {
+
+		@Override
+		public Object[] aggregateStats(Object[] source, Object[] target) {
+			target[0] = (Long) source[0] + (Long) target[0]; // "consumed size"
+			target[1] = (Integer) source[1] + (Integer) target[1]; // "distinct values"
+			target[2] = source[2]; // "index"
+			target[3] = (Integer) source[3] + (Integer) target[3]; // "indexed documents"
+			target[4] = source[4]; // "path"
+			return target;
+		}
+		
 	}
 
 }

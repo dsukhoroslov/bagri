@@ -24,10 +24,12 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
+import com.bagri.common.manage.StatsAggregator;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaQueryCleaner;
 import com.bagri.xdm.cache.hazelcast.task.stats.StatisticSeriesCollector;
 import com.bagri.xdm.cache.hazelcast.task.stats.StatisticsReseter;
 import com.bagri.xdm.client.common.impl.XDMModelManagementBase;
+import com.bagri.xdm.client.hazelcast.impl.DocumentManagementImpl;
 import com.bagri.xdm.domain.XDMDocumentType;
 import com.hazelcast.core.Member;
 
@@ -44,7 +46,7 @@ public class QueryManagement extends SchemaFeatureManagement {
     	super(schemaName);
     }
 
-	public void setXQConnection(XQConnection xqConn) {
+    public void setXQConnection(XQConnection xqConn) {
 		this.xqConn = xqConn;
 	}
 	
@@ -105,7 +107,7 @@ public class QueryManagement extends SchemaFeatureManagement {
 
 	@ManagedAttribute(description="Returns aggregated QueryManagement invocation statistics, per method")
 	public TabularData getInvocationStatistics() {
-		return super.getSeriesStatistics(new StatisticSeriesCollector(schemaName, "queryStats"));
+		return super.getSeriesStatistics(new StatisticSeriesCollector(schemaName, "queryStats"), aggregator);
 	}
 	
 	@ManagedOperation(description="Reset QueryManagement invocation statistics")

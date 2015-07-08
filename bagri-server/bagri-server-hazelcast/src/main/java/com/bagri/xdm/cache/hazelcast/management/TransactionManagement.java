@@ -24,12 +24,12 @@ public class TransactionManagement extends SchemaFeatureManagement {
 	
 	@ManagedAttribute(description="Return aggregated transaction statistics")
 	public CompositeData getTxStatistics() {
-		return super.getTotalsStatistics(new StatisticTotalsCollector(schemaName, "txManager"));
+		return super.getTotalsStatistics(new StatisticTotalsCollector(schemaName, "txManager"), aggregator);
 	}
 	
 	@ManagedAttribute(description="Return in-flight transactions")
 	public TabularData getInFlightTransactions() {
-		return super.getSeriesStatistics(new StatisticSeriesCollector(schemaName, "txManager"));
+		return super.getSeriesStatistics(new StatisticSeriesCollector(schemaName, "txManager"), aggregator);
 	}
 
 	@ManagedOperation(description="Reset TransactionManagement statistics")

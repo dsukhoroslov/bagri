@@ -19,6 +19,7 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
 import com.bagri.common.manage.JMXUtils;
+import com.bagri.common.manage.StatsAggregator;
 import com.bagri.common.util.FileUtils;
 import com.bagri.xdm.cache.hazelcast.task.doc.DocumentStructureProvider;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaDocCleaner;
@@ -210,7 +211,7 @@ public class DocumentManagement extends SchemaFeatureManagement {
 
 	@ManagedAttribute(description="Returns aggregated DocumentManagement invocation statistics, per method")
 	public TabularData getInvocationStatistics() {
-		return super.getSeriesStatistics(new StatisticSeriesCollector(schemaName, "docStats"));
+		return super.getSeriesStatistics(new StatisticSeriesCollector(schemaName, "docStats"), aggregator);
 	}
 	
 	@ManagedOperation(description="Reset DocumentManagement invocation statistics")

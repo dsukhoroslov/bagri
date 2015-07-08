@@ -16,6 +16,7 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
+import com.bagri.common.manage.StatsAggregator;
 import com.bagri.xdm.cache.hazelcast.task.stats.StatisticSeriesCollector;
 import com.bagri.xdm.cache.hazelcast.task.trigger.TriggerCreator;
 import com.bagri.xdm.cache.hazelcast.task.trigger.TriggerRemover;
@@ -36,7 +37,7 @@ public class TriggerManagement extends SchemaFeatureManagement {
 	protected String getFeatureKind() {
 		return "TriggerManagement";
 	}
-	
+
 	@Override
 	protected Collection getSchemaFeatures(XDMSchema schema) {
 		return schema.getTriggers();
@@ -54,7 +55,7 @@ public class TriggerManagement extends SchemaFeatureManagement {
 	
 	@ManagedAttribute(description="Return aggregated trigger usage statistics, per trigger")
 	public TabularData getTriggerStatistics() {
-		return super.getUsageStatistics(new StatisticSeriesCollector(schemaName, "triggerStats"));
+		return super.getUsageStatistics(new StatisticSeriesCollector(schemaName, "triggerStats"), aggregator);
 	}
 
 	@ManagedOperation(description="Creates a new Java Trigger")

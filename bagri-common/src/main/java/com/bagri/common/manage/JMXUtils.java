@@ -212,7 +212,7 @@ public class JMXUtils {
     }
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public static TabularData aggregateStats(TabularData source, TabularData target) {
+	public static TabularData aggregateStats(TabularData source, TabularData target, StatsAggregator aggregator) {
     	// source is not nullable
         logger.debug("aggregateStats.enter; got source: {}", source);
         if (source == null) {
@@ -228,7 +228,7 @@ public class JMXUtils {
     	} else {
        		for (List key: keys) {
        			Object[] index = key.toArray();
-       			CompositeData aggr = aggregateStats(source.get(index), target.get(index));
+       			CompositeData aggr = aggregateStats(source.get(index), target.get(index), aggregator);
        			result.put(aggr);
         	}
     	}
@@ -237,7 +237,7 @@ public class JMXUtils {
 	}
     
     @SuppressWarnings({ "rawtypes", "unchecked" })
-	public static CompositeData aggregateStats(CompositeData source, CompositeData target) {
+	public static CompositeData aggregateStats(CompositeData source, CompositeData target, StatsAggregator aggregator) {
     	// source is not nullable
 		Set<String> keys = source.getCompositeType().keySet();
 		String[] names = keys.toArray(new String[keys.size()]);
@@ -250,40 +250,7 @@ public class JMXUtils {
                 return null;
 			}
     	} else {
-    		Object[] trgVals = target.getAll(names);
-
-    		trgVals[idx_Failed] = (Integer) srcVals[idx_Failed] + (Integer) trgVals[idx_Failed];
-    		trgVals[idx_First] = ((Comparable) srcVals[idx_First]).compareTo((Comparable) trgVals[idx_First]) < 0 ? 
-    				srcVals[idx_First] : trgVals[idx_First];  
-    		trgVals[idx_Invoked] = (Integer) srcVals[idx_Invoked] + (Integer) trgVals[idx_Invoked];
-    		trgVals[idx_Last] = ((Comparable) srcVals[idx_Last]).compareTo((Comparable) trgVals[idx_Last]) > 0 ? 
-    				srcVals[idx_Last] : trgVals[idx_Last];  
-    		trgVals[idx_Max_Time] = ((Comparable) srcVals[idx_Max_Time]).compareTo((Comparable) trgVals[idx_Max_Time]) > 0 ?
-    				srcVals[idx_Max_Time] : trgVals[idx_Max_Time];
-    		trgVals[idx_Method] = srcVals[idx_Method];
-    		trgVals[idx_Min_Time] = ((Comparable) srcVals[idx_Min_Time]).compareTo((Comparable) trgVals[idx_Min_Time]) < 0 ?
-    				srcVals[idx_Min_Time] : trgVals[idx_Min_Time];
-    		trgVals[idx_Succeed] = (Integer) srcVals[idx_Succeed] + (Integer) trgVals[idx_Succeed];
-    		trgVals[idx_Sum_Time] = (Long) srcVals[idx_Sum_Time] + (Long) trgVals[idx_Sum_Time];
-    		
-    		int cntInvoke = (Integer) trgVals[idx_Invoked];
-    		long tmFirst = ((Date) trgVals[idx_First]).getTime();
-    		long tmLast = ((Date) trgVals[idx_Last]).getTime();
-    		long tmMin = (Long) trgVals[idx_Min_Time];
-    		long tmSum = (Long) trgVals[idx_Sum_Time];
-    		if (cntInvoke > 0) {
-   	        	double dSum = tmSum;
-   	        	trgVals[idx_Avg_Time] = dSum/cntInvoke;
-   				double dCnt = 1000.0d;
-				long tmDuration = tmLast - tmFirst + tmMin; //tmAvg;
-   				trgVals[idx_Throughput] = dCnt*cntInvoke/tmDuration;
-   				trgVals[idx_Duration] = tmDuration;
-    		} else {
-   	        	trgVals[idx_Avg_Time] = 0.0d;
-   				trgVals[idx_Throughput] = 0.0d;
-   				trgVals[idx_Duration] = 0L;
-    		}
-
+    		Object[] trgVals = aggregator.aggregateStats(srcVals, target.getAll(names));
 			try {
 				target = new CompositeDataSupport(source.getCompositeType(), names, trgVals);
 			} catch (OpenDataException ex) {
