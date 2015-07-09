@@ -99,6 +99,7 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 		// well, one get is better :)
 		// how near cache does works on cache miss!? does is go to 
 		// original cache? 
+		// shouldn't we also check index.isEnabled() here?
 		return idxDict.get(pathId) != null;
 		//return pathId == 2;
 	}
@@ -152,6 +153,8 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 			} 
 			xidx.addDocumentId(docId);
 			idxCache.put(xid, xidx);
+			
+			// collect static index stats right here?
 			
 			// it works asynch. but major time is taken in isPathIndexed method..
 			//ValueIndexator indexator = new ValueIndexator(docId);
@@ -230,7 +233,8 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
     			if (e.getKey().getPathId() == xPath.getPathId()) {
     				count += e.getValue().getCount();
     				unique++;
-    				size += 32;
+    				size += 8 + 8 + 8 + //sizeof(e.getKey().getValue()) 
+    						8 + 8 + e.getValue().getCount() * 16;
     			}
     		}
     		stats.put("indexed documents", count);
