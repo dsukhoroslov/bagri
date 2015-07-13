@@ -42,8 +42,8 @@ public class XDMConfigTest {
 		props.setProperty("xdm.schema.password", "test");
 		XDMSchema schema = new XDMSchema(1, new Date(), "test", "Test", "description", false, props);
 		XDMIndex index = new XDMIndex(1, new Date(), "test", "idx_test", 
-				"/{http://tpox-benchmark.com/security}Security", "/Security/Symbol", true, 
-				"description", true);
+				"/{http://tpox-benchmark.com/security}Security", "/Security/Symbol", "xs:string", 
+				true, false, true, "description", true);
 		schema.addIndex(index);
 		XDMTriggerDef javaTrigger = new XDMJavaTrigger(1, new Date(), "test", "sample_library", 
 				"my.class.Name", "/{http://tpox-benchmark.com/security}Security", true, true, 0);

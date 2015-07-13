@@ -25,6 +25,9 @@ public class XDMIndexSerializer extends XDMEntitySerializer implements StreamSer
 				in.readUTF(),
 				in.readUTF(),
 				in.readUTF(),
+				in.readUTF(),
+				in.readBoolean(),
+				in.readBoolean(),
 				in.readBoolean(),
 				in.readUTF(),
 				in.readBoolean());
@@ -38,6 +41,9 @@ public class XDMIndexSerializer extends XDMEntitySerializer implements StreamSer
 		out.writeUTF(xIndex.getName());
 		out.writeUTF(xIndex.getDocumentType());
 		out.writeUTF(xIndex.getPath());
+		out.writeUTF(xIndex.getDataType());
+		out.writeBoolean(xIndex.isCaseSensitive());
+		out.writeBoolean(xIndex.isRange());
 		out.writeBoolean(xIndex.isUnique());
 		out.writeUTF(xIndex.getDescription());
 		out.writeBoolean(xIndex.isEnabled());

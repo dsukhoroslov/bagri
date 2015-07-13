@@ -68,15 +68,19 @@ public class IndexManagement extends SchemaFeatureManagement {
 	@ManagedOperation(description="Creates a new Index")
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "name", description = "Index name to create"),
-		@ManagedOperationParameter(name = "path", description = "XPath to index"),
 		@ManagedOperationParameter(name = "docType", description = "Root path for document type"),
+		@ManagedOperationParameter(name = "path", description = "XPath to index"),
+		@ManagedOperationParameter(name = "dataType", description = "Indexed value data type"),
+		@ManagedOperationParameter(name = "caseSensitive", description = "Is index case-sensitive"),
+		@ManagedOperationParameter(name = "range", description = "Is index supports range search"),
 		@ManagedOperationParameter(name = "unique", description = "Is index unique"),
 		@ManagedOperationParameter(name = "description", description = "Index description")})
-	public void addIndex(String name, String path, String docType, boolean unique, String description) {
+	public void addIndex(String name, String docType, String path, String dataType, boolean caseSensitive,
+			boolean range, boolean unique, String description) {
 
 		logger.trace("addIndex.enter;");
 		long stamp = System.currentTimeMillis();
-		XDMIndex index = schemaManager.addIndex(name, path, docType, unique, description);
+		XDMIndex index = schemaManager.addIndex(name, docType, path, dataType, caseSensitive, range, unique, description);
 		if (index == null) {
 			throw new IllegalStateException("Index '" + name + "' in schema '" + schemaName + "' already exists");
 		}
