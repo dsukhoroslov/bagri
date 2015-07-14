@@ -8,15 +8,8 @@ import java.util.Set;
  * @author Denis Sukhoroslov: dsukhoroslov@gmail.com
  * @version 0.3
  */
-public class XDMIndexedValue { //implements Serializable {
+public class XDMIndexedValue { 
 
-	/**
-	 * 
-	 */
-	//private static final long serialVersionUID = 7780583844744846834L;
-	
-	//private int pathId;
-	//private Object value;
 	private Set<Long> docIds = new HashSet<Long>();
 
 	public XDMIndexedValue() {
@@ -29,8 +22,6 @@ public class XDMIndexedValue { //implements Serializable {
 	
 	public XDMIndexedValue(Collection<Long> docIds) {
 		this();
-		//this.path = path;
-		//this.value = value;
 		if (docIds != null) {
 			for (Long docId: docIds) {
 				addDocumentId(docId);
@@ -38,19 +29,9 @@ public class XDMIndexedValue { //implements Serializable {
 		}
 	}
 
-	/**
-	 * @return the path
-	 */
-	//public int getPathId() {
-	//	return path;
-	//}
-
-	/**
-	 * @return the value
-	 */
-	//public Object getValue() {
-	//	return value;
-	//}
+	public int getCount() {
+		return docIds.size();
+	}
 
 	/**
 	 * @return the documentIds
@@ -66,9 +47,10 @@ public class XDMIndexedValue { //implements Serializable {
 	public boolean removeDocumentId(long docId) {
 		return docIds.remove(docId);
 	}
-	
-	public int getCount() {
-		return docIds.size();
+
+	@Override
+	public String toString() {
+		return "XDMIndexedValue [docIds=" + docIds + "]";
 	}
 	
 }
