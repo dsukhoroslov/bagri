@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 
@@ -15,25 +16,32 @@ import org.slf4j.LoggerFactory;
 
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.common.stats.StatisticsEvent;
-import com.bagri.common.stats.StatisticsProvider;
-import com.bagri.common.stats.UsageStatistics;
 import com.bagri.xdm.cache.api.XDMIndexManagement;
 import com.bagri.xdm.cache.hazelcast.task.index.ValueIndexator;
 import com.bagri.xdm.client.hazelcast.impl.ModelManagementImpl;
+import com.bagri.xdm.common.XDMDataKey;
 import com.bagri.xdm.common.XDMFactory;
 import com.bagri.xdm.common.XDMIndexKey;
+import com.bagri.xdm.domain.XDMElements;
 import com.bagri.xdm.domain.XDMIndexedValue;
 import com.bagri.xdm.domain.XDMNodeKind;
 import com.bagri.xdm.domain.XDMPath;
 import com.bagri.xdm.system.XDMIndex;
+import com.hazelcast.core.EntryEvent;
+import com.hazelcast.core.EntryListener;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.IMap;
+import com.hazelcast.core.MapEvent;
+import com.hazelcast.map.listener.EntryAddedListener;
+import com.hazelcast.map.listener.MapListener;
+import com.hazelcast.query.Predicate;
 
-public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsProvider {
+public class IndexManagementImpl implements XDMIndexManagement, EntryAddedListener, Predicate<XDMDataKey, XDMElements> { //, StatisticsProvider {
 	
 	private static final transient Logger logger = LoggerFactory.getLogger(IndexManagementImpl.class);
 	private IMap<Integer, XDMIndex> idxDict;
     private IMap<XDMIndexKey, XDMIndexedValue> idxCache;
+    private IMap<XDMDataKey, XDMElements> xdmCache;
 	private IExecutorService execService;
 
 	private XDMFactory factory;
@@ -62,12 +70,16 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
     	return idxCache;
     }
 
+    public void setDataCache(IMap<XDMDataKey, XDMElements> xdmCache) {
+    	this.xdmCache = xdmCache;
+    }
+    
 	public void setIndexDictionary(IMap<Integer, XDMIndex> idxDict) {
 		this.idxDict = idxDict;
 	}
 	
-    public void setIndexCache(IMap<XDMIndexKey, XDMIndexedValue> cache) {
-    	this.idxCache = cache;
+    public void setIndexCache(IMap<XDMIndexKey, XDMIndexedValue> idxCache) {
+    	this.idxCache = idxCache;
     }
     
     public void setStatsQueue(BlockingQueue<StatisticsEvent> queue) {
@@ -117,6 +129,11 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 		XDMPath xPath = getPathForIndex(index);
 		idxDict.putIfAbsent(xPath.getPathId(), index);
 		//indexStats.initStats(index.getName());
+		if (index.isRange()) {
+			// register listener ..
+			String uuid = xdmCache.addEntryListener(this, this, false);
+			logger.trace("createIndex; registered listener {} for range index {}", uuid, index.getName());
+		}
 		return xPath;
 	}
 	
@@ -130,6 +147,9 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 		//return null;
 		idxDict.remove(xPath.getPathId());
 		//indexStats.deleteStats(index.getName());
+		if (index.isRange()) {
+			// unregister listener ..
+		}
 		return xPath;
 	}
 	
@@ -143,16 +163,40 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 	}
 	
 	public void addIndex(long docId, int pathId, Object value) {
-		// add index; better to do this asynchronously!
-		if (isPathIndexed(pathId) && value != null) {
-			XDMIndexKey xid = factory.newXDMIndexKey(pathId, value);
+		// add index !
+		if (value != null) {
+			XDMIndex idx = idxDict.get(pathId);
+			if (idx == null) {
+				return;
+			}
 			
+			// TODO: get data type in some other way..
+			if (!idx.isCaseSensitive() && "xs:string".equals(idx.getDataType())) {
+				value = ((String) value).toLowerCase();
+			}
+
+			XDMIndexKey xid = factory.newXDMIndexKey(pathId, value);
 			XDMIndexedValue xidx = idxCache.get(xid);
-			if (xidx == null) {
+			if (idx.isUnique()) {
+				// check xidx.docIds - update document UC..
+				if (xidx != null) {
+					throw new IllegalStateException("unique index '" + idx.getName() + "' violated for docId: " + docId + ", pathId: " + pathId + ", value: " + value);
+				}
+
 				xidx = new XDMIndexedValue(docId);
-			} 
-			xidx.addDocumentId(docId);
-			idxCache.put(xid, xidx);
+				xidx = idxCache.putIfAbsent(xid, xidx);
+				if (xidx != null) {
+					// but what if it is not commited yet!?
+					throw new IllegalStateException("unique index '" + idx.getName() + "' violated for docId: " + docId + ", pathId: " + pathId + ", value: " + value);
+				}
+			} else {
+				if (xidx == null) {
+					xidx = new XDMIndexedValue(docId);
+				} else { 
+					xidx.addDocumentId(docId);
+				}
+				idxCache.put(xid, xidx);
+			}
 			
 			// collect static index stats right here?
 			
@@ -256,6 +300,54 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 	public boolean rebuildIndex(int pathId) {
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+/*	
+	@Override
+	public void entryAdded(EntryEvent event) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void entryUpdated(EntryEvent event) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void entryRemoved(EntryEvent event) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void entryEvicted(EntryEvent event) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mapCleared(MapEvent event) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mapEvicted(MapEvent event) {
+		// TODO Auto-generated method stub
+		
+	}
+*/
+	@Override
+	public boolean apply(Entry<XDMDataKey, XDMElements> mapEntry) {
+		return idxDict.containsKey(mapEntry.getKey().getPathId());
+	}
+
+	@Override
+	public void entryAdded(EntryEvent event) {
+		// TODO Auto-generated method stub
+		logger.trace("entryAdded; got event: {}", event);
 	}
 
 }

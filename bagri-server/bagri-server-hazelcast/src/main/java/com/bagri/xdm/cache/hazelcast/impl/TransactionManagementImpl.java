@@ -28,6 +28,7 @@ import com.bagri.xdm.common.XDMTransactionIsolation;
 import com.bagri.xdm.common.XDMTransactionState;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMTransaction;
+import com.hazelcast.core.Cluster;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.query.Predicate;
@@ -51,11 +52,13 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 	private AtomicLong cntRolled = new AtomicLong(0);
     
     //private HazelcastInstance hzInstance;
+	private Cluster cluster;
 	private IdGenerator<Long> txGen;
 	private IMap<Long, XDMTransaction> txCache; 
 
 	public void setHzInstance(HazelcastInstance hzInstance) {
 		//this.hzInstance = hzInstance;
+		cluster = hzInstance.getCluster();
 		txCache = hzInstance.getMap(CN_XDM_TRANSACTION);
 		txGen = new IdGeneratorImpl(hzInstance.getAtomicLong(SQN_TRANSACTION));
 	}
@@ -77,7 +80,7 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 
 		txId = txGen.next();
 		// TODO: do this via EntryProcessor?
-		XDMTransaction xTx = new XDMTransaction(txId, System.currentTimeMillis(), 0, 
+		XDMTransaction xTx = new XDMTransaction(txId, cluster.getClusterTime(), 0, 
 				JMXUtils.getCurrentUser(), txIsolation, XDMTransactionState.started);
 		txCache.set(txId, xTx);
 		thTx.set(txId);
@@ -92,7 +95,7 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 		// TODO: do this via EntryProcessor?
 		XDMTransaction xTx = txCache.get(txId);
 		if (xTx != null) {
-			xTx.finish(true);
+			xTx.finish(true, cluster.getClusterTime());
 			txCache.set(txId, xTx);
 		} else {
 			throw new IllegalStateException("No transaction found for TXID: " + txId);
@@ -109,7 +112,7 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 		// TODO: do this via EntryProcessor?
 		XDMTransaction xTx = txCache.get(txId);
 		if (xTx != null) {
-			xTx.finish(false);
+			xTx.finish(false, cluster.getClusterTime());
 			txCache.set(txId, xTx);
 		} else {
 			throw new IllegalStateException("No transaction found for TXID: " + txId);

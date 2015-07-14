@@ -303,6 +303,7 @@
 		<property name="execService" ref="xdm-exec-pool"/>
 		<property name="indexDictionary" ref="dict-index"/>
 		<property name="indexCache" ref="xdm-index"/>
+		<property name="dataCache" ref="xdm-element"/>
 		<property name="modelManager" ref="mdlManager"/>
 		<property name="statsQueue" ref="indexQueue"/>
 	</bean>
