@@ -15,6 +15,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.xdm.api.test.XDMManagementTest;
+import com.bagri.xdm.domain.XDMNodeKind;
 import com.bagri.xdm.system.XDMIndex;
 import com.bagri.xdm.system.XDMSchema;
 
@@ -51,6 +52,13 @@ public class UniqueIndexManagementTest extends XDMManagementTest {
 				"/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}Symbol/text()", "xs:string", true, true, true,  
 				"Security Symbol", true);
 		xdmRepo.addSchemaIndex(index);
+		
+		int docType = xdmRepo.getModelManagement().translateDocumentType("/{http://tpox-benchmark.com/security}Security");
+		int pathId = xdmRepo.getModelManagement().translatePath(docType, 
+				"/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}Symbol/text()", XDMNodeKind.text).getPathId();
+		if (!xdmRepo.getIndexManagement().isPathIndexed(pathId)) {
+			System.out.println("path not indexed!!");
+		}
 	}
 
 	@Test
