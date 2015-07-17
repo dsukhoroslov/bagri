@@ -20,6 +20,7 @@ import com.bagri.xdm.cache.api.XDMIndexManagement;
 import com.bagri.xdm.cache.hazelcast.task.index.ValueIndexator;
 import com.bagri.xdm.client.hazelcast.impl.ModelManagementImpl;
 import com.bagri.xdm.common.XDMDataKey;
+import com.bagri.xdm.common.XDMDocumentKey;
 import com.bagri.xdm.common.XDMFactory;
 import com.bagri.xdm.common.XDMIndexKey;
 import com.bagri.xdm.domain.XDMElements;
@@ -35,6 +36,7 @@ import com.hazelcast.core.MapEvent;
 import com.hazelcast.map.listener.EntryAddedListener;
 import com.hazelcast.map.listener.MapListener;
 import com.hazelcast.query.Predicate;
+import com.hazelcast.query.Predicates;
 
 public class IndexManagementImpl implements XDMIndexManagement, EntryAddedListener, Predicate<XDMDataKey, XDMElements> { //, StatisticsProvider {
 	
@@ -178,16 +180,23 @@ public class IndexManagementImpl implements XDMIndexManagement, EntryAddedListen
 			XDMIndexKey xid = factory.newXDMIndexKey(pathId, value);
 			XDMIndexedValue xidx = idxCache.get(xid);
 			if (idx.isUnique()) {
+				long id = XDMDocumentKey.toDocumentId(docId);
 				// check xidx.docIds - update document UC..
 				if (xidx != null) {
-					throw new IllegalStateException("unique index '" + idx.getName() + "' violated for docId: " + docId + ", pathId: " + pathId + ", value: " + value);
+					long currId = xidx.getDocumentIds().iterator().next();
+					if (id != XDMDocumentKey.toDocumentId(currId)) {
+						throw new IllegalStateException("unique index '" + idx.getName() + "' violated for docId: " + docId + ", pathId: " + pathId + ", value: " + value);
+					}
 				}
 
 				xidx = new XDMIndexedValue(docId);
 				xidx = idxCache.putIfAbsent(xid, xidx);
 				if (xidx != null) {
 					// but what if it is not commited yet!?
-					throw new IllegalStateException("unique index '" + idx.getName() + "' violated for docId: " + docId + ", pathId: " + pathId + ", value: " + value);
+					long currId = xidx.getDocumentIds().iterator().next();
+					if (id != XDMDocumentKey.toDocumentId(currId)) {
+						throw new IllegalStateException("unique index '" + idx.getName() + "' violated for docId: " + docId + ", pathId: " + pathId + ", value: " + value);
+					}
 				}
 			} else {
 				if (xidx == null) {
@@ -249,6 +258,16 @@ public class IndexManagementImpl implements XDMIndexManagement, EntryAddedListen
 		updateStats(idx.getName(), true, xidv.size());
 		updateStats(idx.getName(), false, keys.size() - xidv.size());
 		return ids;
+	}
+	
+	public Collection<Integer> getTypeIndexes(int docType, boolean uniqueOnly) {
+		String root = mdlMgr.getDocumentRoot(docType);
+		Predicate p = Predicates.equal("documentType", root);
+		if (uniqueOnly) {
+			Predicate u = Predicates.equal("unique", true);
+			p = Predicates.and(p, u);
+		}
+		return idxDict.keySet(p);
 	}
 	
 	private void updateStats(String name, boolean success, int count) {

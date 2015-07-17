@@ -478,6 +478,11 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		    	doc.finishDocument(txManager.getCurrentTxId());
 		    	//deleteDocumentElements(docId, doc.getTypeId());
 		    	docKey = factory.newXDMDocumentKey(doc.getDocumentId(), doc.getVersion() + 1);
+		    	// delete unique index here..
+		    	Collection<Integer> pathIds = indexManager.getTypeIndexes(doc.getTypeId(), true);
+		    	for (int pathId: pathIds) {
+			    	deindexElements(doc.getTypeId(), pathId);
+		    	}
 		    }
 		}
 	    return createDocument(new AbstractMap.SimpleEntry(docKey, null), uri, xml);
