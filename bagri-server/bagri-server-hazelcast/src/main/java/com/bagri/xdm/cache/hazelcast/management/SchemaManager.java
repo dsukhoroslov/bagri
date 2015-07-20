@@ -267,8 +267,9 @@ public class SchemaManager extends EntityManager<XDMSchema> {
 
 	XDMIndex addIndex(String name, String docType, String path, String dataType, boolean caseSensitive, boolean range, 
 			boolean unique, String description) {
-		XDMIndex index = new XDMIndex(1, new Date(), JMXUtils.getCurrentUser(), name, docType, path, dataType, 
-				caseSensitive, range, unique, description, true);
+		String typePath = schemaDictionary.normalizePath(docType);
+		XDMIndex index = new XDMIndex(1, new Date(), JMXUtils.getCurrentUser(), name, docType, typePath, 
+				path, dataType, caseSensitive, range, unique, description, true);
 		XDMSchema schema = getEntity();
 		if (schema.addIndex(index)) {
 			// store schema!

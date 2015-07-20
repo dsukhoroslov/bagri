@@ -6,7 +6,9 @@ import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFacto
 import java.io.IOException;
 import java.util.Map.Entry;
 
+import com.bagri.xdm.api.XDMTransactionManagement;
 import com.bagri.xdm.common.XDMIndexKey;
+import com.bagri.xdm.domain.XDMIndexedDocument;
 import com.bagri.xdm.domain.XDMIndexedValue;
 import com.hazelcast.map.EntryBackupProcessor;
 import com.hazelcast.map.EntryProcessor;
@@ -46,9 +48,9 @@ public class ValueIndexator implements EntryProcessor<XDMIndexKey, XDMIndexedVal
 	public Object process(Entry<XDMIndexKey, XDMIndexedValue> entry) {
 		XDMIndexedValue index = entry.getValue(); 
 		if (index == null) {
-			index = new XDMIndexedValue(docId);
+			index = new XDMIndexedDocument(entry.getKey().getPathId(), entry.getKey().getValue(), docId);
 		} else {
-			index.addDocumentId(docId);
+			index.addDocument(docId, XDMTransactionManagement.TX_NO);
 		}
 		entry.setValue(index);
 		return null;

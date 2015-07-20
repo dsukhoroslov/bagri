@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.common.stats.StatisticsEvent;
+import com.bagri.xdm.api.XDMTransactionManagement;
 import com.bagri.xdm.cache.api.XDMIndexManagement;
 import com.bagri.xdm.cache.hazelcast.task.index.ValueIndexator;
 import com.bagri.xdm.client.hazelcast.impl.ModelManagementImpl;
@@ -24,9 +25,11 @@ import com.bagri.xdm.common.XDMDocumentKey;
 import com.bagri.xdm.common.XDMFactory;
 import com.bagri.xdm.common.XDMIndexKey;
 import com.bagri.xdm.domain.XDMElements;
+import com.bagri.xdm.domain.XDMIndexedDocument;
 import com.bagri.xdm.domain.XDMIndexedValue;
 import com.bagri.xdm.domain.XDMNodeKind;
 import com.bagri.xdm.domain.XDMPath;
+import com.bagri.xdm.domain.XDMUniqueDocument;
 import com.bagri.xdm.system.XDMIndex;
 import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.EntryListener;
@@ -42,7 +45,7 @@ public class IndexManagementImpl implements XDMIndexManagement, EntryAddedListen
 	
 	private static final transient Logger logger = LoggerFactory.getLogger(IndexManagementImpl.class);
 	private IMap<Integer, XDMIndex> idxDict;
-    private IMap<XDMIndexKey, XDMIndexedValue> idxCache;
+    private IMap<XDMIndexKey, XDMIndexedValue<?>> idxCache;
     private IMap<XDMDataKey, XDMElements> xdmCache;
 	private IExecutorService execService;
 
@@ -68,7 +71,7 @@ public class IndexManagementImpl implements XDMIndexManagement, EntryAddedListen
 		return idxDict;
 	}
 	
-    IMap<XDMIndexKey, XDMIndexedValue> getIndexCache() {
+    IMap<XDMIndexKey, XDMIndexedValue<?>> getIndexCache() {
     	return idxCache;
     }
 
@@ -80,7 +83,7 @@ public class IndexManagementImpl implements XDMIndexManagement, EntryAddedListen
 		this.idxDict = idxDict;
 	}
 	
-    public void setIndexCache(IMap<XDMIndexKey, XDMIndexedValue> idxCache) {
+    public void setIndexCache(IMap<XDMIndexKey, XDMIndexedValue<?>> idxCache) {
     	this.idxCache = idxCache;
     }
     
@@ -133,8 +136,8 @@ public class IndexManagementImpl implements XDMIndexManagement, EntryAddedListen
 		//indexStats.initStats(index.getName());
 		if (index.isRange()) {
 			// register listener ..
-			String uuid = xdmCache.addEntryListener(this, this, false);
-			logger.trace("createIndex; registered listener {} for range index {}", uuid, index.getName());
+			//String uuid = xdmCache.addEntryListener(this, this, false);
+			//logger.trace("createIndex; registered listener {} for range index {}", uuid, index.getName());
 		}
 		return xPath;
 	}
@@ -183,26 +186,26 @@ public class IndexManagementImpl implements XDMIndexManagement, EntryAddedListen
 				long id = XDMDocumentKey.toDocumentId(docId);
 				// check xidx.docIds - update document UC..
 				if (xidx != null) {
-					long currId = xidx.getDocumentIds().iterator().next();
+					long currId = xidx.getDocumentId();
 					if (id != XDMDocumentKey.toDocumentId(currId)) {
 						throw new IllegalStateException("unique index '" + idx.getName() + "' violated for docId: " + docId + ", pathId: " + pathId + ", value: " + value);
 					}
 				}
 
-				xidx = new XDMIndexedValue(docId);
+				xidx = new XDMUniqueDocument(pathId, value, docId);
 				xidx = idxCache.putIfAbsent(xid, xidx);
 				if (xidx != null) {
 					// but what if it is not commited yet!?
-					long currId = xidx.getDocumentIds().iterator().next();
+					long currId = xidx.getDocumentId();
 					if (id != XDMDocumentKey.toDocumentId(currId)) {
 						throw new IllegalStateException("unique index '" + idx.getName() + "' violated for docId: " + docId + ", pathId: " + pathId + ", value: " + value);
 					}
 				}
 			} else {
 				if (xidx == null) {
-					xidx = new XDMIndexedValue(docId);
+					xidx = new XDMIndexedDocument(pathId, value, docId);
 				} else { 
-					xidx.addDocumentId(docId);
+					xidx.addDocument(docId, XDMTransactionManagement.TX_NO);
 				}
 				idxCache.put(xid, xidx);
 			}
@@ -221,11 +224,15 @@ public class IndexManagementImpl implements XDMIndexManagement, EntryAddedListen
 		// will have collisions here when two threads change/delete the same index!
 		// but not for unique index!
 		XDMIndexedValue xIdx = idxCache.get(iKey);
-		if (xIdx != null && xIdx.removeDocumentId(docId)) {
-			if (xIdx.getCount() > 0) {
-				idxCache.put(iKey, xIdx);
-			} else {
- 				idxCache.delete(iKey);
+		if (xIdx != null) {
+			// get current txId..
+			long txId = XDMTransactionManagement.TX_NO;
+			if (xIdx.removeDocument(docId, txId)) {
+				if (xIdx.getCount() > 0) {
+					idxCache.put(iKey, xIdx);
+				} else {
+	 				idxCache.delete(iKey);
+				}
 			}
 		}
 	}
@@ -250,7 +257,7 @@ public class IndexManagementImpl implements XDMIndexManagement, EntryAddedListen
 		for (Object value: values) {
 			keys.add(factory.newXDMIndexKey(pathId, value));
 		}
-		Map<XDMIndexKey, XDMIndexedValue> xidv = idxCache.getAll(keys);
+		Map<XDMIndexKey, XDMIndexedValue<?>> xidv = idxCache.getAll(keys);
 		Set<Long> ids = new HashSet<>(xidv.size());
 		for (XDMIndexedValue value: xidv.values()) {
 			ids.addAll(value.getDocumentIds());
@@ -262,7 +269,7 @@ public class IndexManagementImpl implements XDMIndexManagement, EntryAddedListen
 	
 	public Collection<Integer> getTypeIndexes(int docType, boolean uniqueOnly) {
 		String root = mdlMgr.getDocumentRoot(docType);
-		Predicate p = Predicates.equal("documentType", root);
+		Predicate p = Predicates.equal("typePath", root);
 		if (uniqueOnly) {
 			Predicate u = Predicates.equal("unique", true);
 			p = Predicates.and(p, u);
@@ -281,7 +288,7 @@ public class IndexManagementImpl implements XDMIndexManagement, EntryAddedListen
 	public TabularData getIndexStats() {
 
 		Set<XDMIndexKey> keys = idxCache.localKeySet();
-		Map<XDMIndexKey, XDMIndexedValue> locals = idxCache.getAll(keys);
+		Map<XDMIndexKey, XDMIndexedValue<?>> locals = idxCache.getAll(keys);
 		
         TabularData result = null;
 		for (XDMIndex idx: idxDict.values()) {
@@ -292,7 +299,7 @@ public class IndexManagementImpl implements XDMIndexManagement, EntryAddedListen
     		long size = 0;
     		int count = 0;
     		int unique = 0;
-    		for (Map.Entry<XDMIndexKey, XDMIndexedValue> e: locals.entrySet()) {
+    		for (Map.Entry<XDMIndexKey, XDMIndexedValue<?>> e: locals.entrySet()) {
     			if (e.getKey().getPathId() == xPath.getPathId()) {
     				count += e.getValue().getCount();
     				unique++;

@@ -6,51 +6,45 @@ import java.util.Set;
 
 /**
  * @author Denis Sukhoroslov: dsukhoroslov@gmail.com
- * @version 0.3
+ * @version 0.5
  */
-public class XDMIndexedValue { 
+public abstract class XDMIndexedValue<V> { 
 
-	private Set<Long> docIds = new HashSet<Long>();
-
-	public XDMIndexedValue() {
-	}
-
-	public XDMIndexedValue(long docId) {
-		this();
-		addDocumentId(docId);
-	}
+	protected int pathId;
+	protected V value;
 	
-	public XDMIndexedValue(Collection<Long> docIds) {
-		this();
+	public XDMIndexedValue() {
+		// de-ser
+	}
+
+	public XDMIndexedValue(int pathId, V value, long docId) {
+		this.pathId = pathId;
+		this.value = value;
+		addDocument(docId, 0);
+	}
+
+	public XDMIndexedValue(int pathId, V value, Collection<Long> docIds) {
+		this.pathId = pathId;
+		this.value = value;
 		if (docIds != null) {
 			for (Long docId: docIds) {
-				addDocumentId(docId);
+				addDocument(docId, 0);
 			}
 		}
 	}
-
-	public int getCount() {
-		return docIds.size();
-	}
-
-	/**
-	 * @return the documentIds
-	 */
-	public Set<Long> getDocumentIds() {
-		return docIds;
-	}
-
-	public boolean addDocumentId(long docId) {
-		return docIds.add(docId);
+	
+	public int getPathId() {
+		return pathId;
 	}
 	
-	public boolean removeDocumentId(long docId) {
-		return docIds.remove(docId);
-	}
-
-	@Override
-	public String toString() {
-		return "XDMIndexedValue [docIds=" + docIds + "]";
+	public V getValue() {
+		return value;
 	}
 	
+	public abstract int getCount();
+	public abstract long getDocumentId();
+	public abstract Set<Long> getDocumentIds();
+	public abstract boolean addDocument(long docId, long txId);
+	public abstract boolean removeDocument(long docId, long txId);
+
 }

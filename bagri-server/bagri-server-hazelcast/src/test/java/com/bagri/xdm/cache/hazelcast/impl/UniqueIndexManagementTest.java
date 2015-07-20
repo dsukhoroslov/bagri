@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Date;
 
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
@@ -49,9 +50,10 @@ public class UniqueIndexManagementTest extends XDMManagementTest {
 			schema = new XDMSchema(1, new java.util.Date(), "test", "test", "test schema", true, null);
 			xdmRepo.setSchema(schema);
 		}
+		String typePath = getModelManagement().normalizePath("/{http://tpox-benchmark.com/security}Security");
 		XDMIndex index = new XDMIndex(1, new Date(), JMXUtils.getCurrentUser(), "IDX_Security_Symbol", "/{http://tpox-benchmark.com/security}Security", 
-				"/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}Symbol/text()", "xs:string", true, true, true,  
-				"Security Symbol", true);
+				typePath, "/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}Symbol/text()", "xs:string", true, true, 
+				true, "Security Symbol", true);
 		xdmRepo.addSchemaIndex(index);
 		
 		int docType = xdmRepo.getModelManagement().translateDocumentType("/{http://tpox-benchmark.com/security}Security");
@@ -62,6 +64,14 @@ public class UniqueIndexManagementTest extends XDMManagementTest {
 		}
 	}
 
+	@After
+	public void tearDown() throws Exception {
+		// remove documents here!
+		//getTxManagement().
+		removeDocumentsTest();
+		//Assert.assertTrue(((IndexManagementImpl) ((RepositoryImpl) xRepo).getIndexManagement()).getIndexCache().size() == 0);
+	}
+	
 	@Test
 	public void uniqueDocumentCreateTest() throws IOException {
 		long txId = xRepo.getTxManagement().beginTransaction();
@@ -75,13 +85,13 @@ public class UniqueIndexManagementTest extends XDMManagementTest {
 			//throw new 
 		} catch (Exception ex) {
 			// anticipated ex..
+			xRepo.getTxManagement().rollbackTransaction(txId);
 		}
 		
 		Collection<String> sec = getSecurity("IBM");
 		Assert.assertNotNull(sec);
 		Assert.assertTrue("expected 1 but got " + sec.size() + " test documents", sec.size() == 1);
 	}
-	
 
 	@Test
 	public void uniqueDocumentUpdateTest() throws IOException {
@@ -111,7 +121,6 @@ public class UniqueIndexManagementTest extends XDMManagementTest {
 		Assert.assertTrue("expected 1 but got " + sec.size() + " test documents", sec.size() == 1);
 	}
 	
-
 	@Test
 	public void twoDocumentsUpdateTest() throws IOException {
 

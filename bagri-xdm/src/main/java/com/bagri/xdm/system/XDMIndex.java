@@ -9,6 +9,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlID;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 
 import com.bagri.xdm.common.XDMEntity;
@@ -33,6 +34,9 @@ public class XDMIndex extends XDMEntity {
 		
 	@XmlElement(required = true)
 	private String docType;
+	
+	@XmlTransient
+	private String typePath;
 
 	@XmlElement(required = true)
 	private String path;
@@ -61,11 +65,12 @@ public class XDMIndex extends XDMEntity {
 	}
 	
 	public XDMIndex(int version, Date createdAt, String createdBy, String name, 
-			String docType, String path, String dataType, boolean caseSensitive, boolean range, boolean unique, 
+			String docType, String typePath, String path, String dataType, boolean caseSensitive, boolean range, boolean unique, 
 			String description, boolean enabled) {
 		super(version, createdAt, createdBy);
 		this.name = name;
 		this.docType = docType;
+		this.typePath = typePath;
 		this.path = path;
 		this.dataType = dataType;
 		this.caseSensitive = caseSensitive;
@@ -85,6 +90,10 @@ public class XDMIndex extends XDMEntity {
 	
 	public String getDocumentType() {
 		return docType;
+	}
+
+	public String getTypePath() {
+		return typePath;
 	}
 
 	public String getPath() {
