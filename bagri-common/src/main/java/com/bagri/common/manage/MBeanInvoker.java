@@ -90,8 +90,7 @@ public class MBeanInvoker implements Closeable {
 	
 	private Object getValue(JMXArgument arg) throws Exception {
 		Class<?> cls = ReflectUtils.type2Wrapper(arg.getType());
-		Constructor<?> c = cls.getConstructor(String.class);
-		return c.newInstance(arg.getValue());
+		return ReflectUtils.getValue(cls, arg.getValue());
 	}
 	
 	public Object getAttribute(String mbName, String aName) throws Exception {

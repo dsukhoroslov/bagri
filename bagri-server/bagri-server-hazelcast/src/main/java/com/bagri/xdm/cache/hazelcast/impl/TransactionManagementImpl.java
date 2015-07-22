@@ -173,6 +173,13 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 		return thTx.get(); 
 	}
 	
+	void flushCurrentTx() {
+		long txId = getCurrentTxId();
+		if (txId > TX_NO) {
+			rollbackTransaction(txId);
+		}
+	}
+	
 	@Override
 	public <V> V callInTransaction(long txId, boolean readOnly, Callable<V> call) {
 		

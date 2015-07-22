@@ -19,6 +19,7 @@ import com.bagri.common.manage.JMXUtils;
 import com.bagri.common.query.Comparison;
 import com.bagri.common.query.PathExpression;
 import com.bagri.common.stats.StatisticsEvent;
+import com.bagri.common.util.ReflectUtils;
 import com.bagri.xdm.api.XDMTransactionManagement;
 import com.bagri.xdm.cache.api.XDMIndexManagement;
 import com.bagri.xdm.cache.hazelcast.task.index.ValueIndexator;
@@ -175,6 +176,31 @@ public class IndexManagementImpl implements XDMIndexManagement, EntryAddedListen
 		return xPath;
 	}
 	
+	private Class getDataType(String dataType) {
+		int pos = dataType.indexOf(":");
+		if (pos > 0) {
+			String prefix = dataType.substring(0,  pos);
+			dataType = dataType.substring(pos + 1);
+			if (!prefix.equals("xs")) {
+				// custom type ?
+			}
+		}
+		switch (dataType) {
+			case "boolean": return Boolean.class;
+			case "byte": return Byte.class;
+			case "char": return Character.class;
+			case "date": 
+			case "dateTime": return java.util.Date.class; 
+			case "double": return Double.class;
+			case "float": return Float.class;
+			case "int":
+			case "integer": return Integer.class;
+			case "long": return Long.class;
+			case "short": return Short.class;
+		}
+		return String.class;
+	}
+	
 	public void addIndex(long docId, int pathId, Object value) {
 		// add index !
 		if (value != null) {
@@ -183,11 +209,21 @@ public class IndexManagementImpl implements XDMIndexManagement, EntryAddedListen
 				return;
 			}
 			
-			// TODO: get data type in some other way..
-			if (!idx.isCaseSensitive() && "xs:string".equals(idx.getDataType())) {
-				value = ((String) value).toLowerCase();
+			Class dataType = getDataType(idx.getDataType());
+			if ("java.lang.String".equals(dataType.getName())) {
+				if (!idx.isCaseSensitive()) {
+					value = ((String) value).toLowerCase();
+				}
+			} else {
+				// convert value..
+				try {
+					value = ReflectUtils.getValue(dataType, (String) value);
+				} catch (Exception ex) {
+					// just log error and use old value
+					logger.error("addIndex.error: " + ex, ex);
+				}
 			}
-
+			
 			XDMIndexKey xid = factory.newXDMIndexKey(pathId, value);
 			XDMIndexedValue xidx = idxCache.get(xid);
 			if (idx.isUnique()) {
@@ -269,7 +305,7 @@ public class IndexManagementImpl implements XDMIndexManagement, EntryAddedListen
 					value = values.iterator().next();
 				}
 			}
-			value = value.toString();
+			//value = value.toString();
 			if (value instanceof Comparable) {
 				Predicate vp;
 				XDMIndex idx = idxDict.get(pathId);
