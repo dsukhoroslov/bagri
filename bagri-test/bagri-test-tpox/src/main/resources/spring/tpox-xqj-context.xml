@@ -14,6 +14,16 @@
     	<property name="XQDataFactory" ref="xqConnection" />
     </bean>
 
+    <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+        <property name="targetObject" ref="xqProcessor" />
+        <property name="targetMethod" value="setRepository" />
+        <property name="arguments">
+            <list>
+                <ref local="xdmRepo" />
+            </list>
+        </property>
+    </bean>
+
     <bean id="xqDataSource" class="com.bagri.xqj.BagriXQDataSource">
         <property name="properties">
             <props>
@@ -25,15 +35,15 @@
     </bean>
 
     <bean id="xqConnection" factory-bean="xqDataSource" factory-method="getConnection">
-    	<property name="processor" ref="xqProcessor" />
+    	<!--property name="processor" ref="xqProcessor" /-->
     </bean>
     
     <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-        <property name="targetObject" ref="xqProcessor" />
-        <property name="targetMethod" value="setRepository" />
+        <property name="targetObject" ref="xqConnection" />
+        <property name="targetMethod" value="setProcessor" />
         <property name="arguments">
             <list>
-                <ref local="xdmRepo" />
+                <ref local="xqProcessor" />
             </list>
         </property>
     </bean>

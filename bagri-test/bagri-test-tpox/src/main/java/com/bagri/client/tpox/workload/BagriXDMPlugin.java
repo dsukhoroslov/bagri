@@ -8,6 +8,8 @@ import java.util.Collection;
 import net.sf.tpox.workload.parameter.ActualParamInfo;
 import net.sf.tpox.workload.transaction.Transaction;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -17,16 +19,19 @@ import com.bagri.xdm.domain.XDMDocument;
 
 public class BagriXDMPlugin extends BagriTPoXPlugin {
 
-	private ThreadLocal<TPoXQueryManagerTest> xqmt = new ThreadLocal<TPoXQueryManagerTest>() {
+    private static final transient Logger logger = LoggerFactory.getLogger(BagriXDMPlugin.class);
+	
+	private static final ThreadLocal<TPoXQueryManagerTest> xqmt = new ThreadLocal<TPoXQueryManagerTest>() {
 		
 		@Override
 		protected TPoXQueryManagerTest initialValue() {
-	    	String config = System.getProperty(xdm_spring_context);
+			//synchronized (context) {
 			ApplicationContext context = new ClassPathXmlApplicationContext(config);
 			XDMRepository xdm = context.getBean("xdmRepository", XDMRepository.class);
 			TPoXQueryManagerTest xqmt = new TPoXQueryManagerTest(xdm);
-	    	logger.debug("initialValue; XDM: {}", xdm);
+			logger.debug("initialValue; XDM: {}", xdm);
 			return xqmt;
+			//}
  		}
 		
 	};
@@ -35,14 +40,7 @@ public class BagriXDMPlugin extends BagriTPoXPlugin {
     //private XDMDocumentManagerTest xdmt;
     
     public BagriXDMPlugin() {
-    	String config = System.getProperty(xdm_spring_context);
-    	logger.debug("<init>. Spring context: {}", config);
-    	if (config != null) {
-    	    //ApplicationContext context = new ClassPathXmlApplicationContext(config);
-    		//xdm = context.getBean("xdmManager", XDMDocumentManagement.class);
-    		//xdmt = new TPoXDocumentManagerTest(xdm);
-    	}
-		//logger.trace("<init>. DataManager: {}", xdm);
+    	super();
     }
 	
 	@Override
@@ -142,7 +140,7 @@ public class BagriXDMPlugin extends BagriTPoXPlugin {
 		return result;
 	}
 	
-	private class TPoXQueryManagerTest extends XDMQueryManagementTest {
+	private static class TPoXQueryManagerTest extends XDMQueryManagementTest {
 		
 		TPoXQueryManagerTest(XDMRepository xRepo) {
 			this.xRepo = xRepo;

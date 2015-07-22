@@ -28,21 +28,26 @@ import net.sf.tpox.workload.parameter.Parameter;
 import net.sf.tpox.workload.transaction.Transaction;
 import net.xqj.marklogic.MarkLogicXQInsertOptions;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public class MarkLogicXCCPlugin extends BagriTPoXPlugin {
 	
-	private static AtomicInteger cnt = new AtomicInteger(0); 
-	private ThreadLocal<ContentSource> xcc = new ThreadLocal<ContentSource>() {
+    private static final transient Logger logger = LoggerFactory.getLogger(MarkLogicXCCPlugin.class);
+	private static final AtomicInteger cnt = new AtomicInteger(0);
+	
+	private static final ThreadLocal<ContentSource> xcc = new ThreadLocal<ContentSource>() {
 		
 		@Override
 		protected ContentSource initialValue() {
-	    	String config = System.getProperty(xdm_spring_context);
+			//synchronized (context) {
 			ApplicationContext context = new ClassPathXmlApplicationContext(config);
 			ContentSource xcc = context.getBean("xccContentSource", ContentSource.class);
-	    	logger.info("initialValue.exit; XCC: {}", xcc);
+			logger.info("initialValue.exit; XCC: {}", xcc);
 			return xcc;
+			//}
  		}
 		
 	};
@@ -52,8 +57,8 @@ public class MarkLogicXCCPlugin extends BagriTPoXPlugin {
     }
     
     public MarkLogicXCCPlugin() {
-    	String config = System.getProperty(xdm_spring_context);
-    	logger.debug("<init>. Spring context: {}", config);
+    	super();
+    	//logger.debug("<init>. Spring context: {}", config);
     }
 	
 

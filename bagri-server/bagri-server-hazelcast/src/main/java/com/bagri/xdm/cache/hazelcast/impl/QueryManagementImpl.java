@@ -277,21 +277,8 @@ public class QueryManagementImpl implements XDMQueryManagement {
    		//	logger.error("queryPathKeys", ex);
    		//}
 
-		if (pathId > 0 && Comparison.EQ.equals(pex.getCompType()) && idxMgr.isIndexEnabled(pathId)) {
-			Set<Long> docIds;
-			if (value instanceof Collection) {
-				Collection values = (Collection) value;
-				if (values.size() == 0) {
-					return Collections.emptySet();
-				}
-				if (values.size() == 1) {
-					docIds = idxMgr.getIndexedDocuments(pathId, values.iterator().next().toString());
-				} else {
-					docIds = idxMgr.getIndexedDocuments(pathId, (Iterable) value);
-				}
-			} else {
-				docIds = idxMgr.getIndexedDocuments(pathId, value.toString());
-			} 
+		if (pathId > 0 && idxMgr.isIndexEnabled(pathId)) {
+			Set<Long> docIds = idxMgr.getIndexedDocuments(pathId, pex, value);
 			logger.trace("queryPathKeys; search for index - got ids: {}", docIds); 
 			if (docIds != null) {
 				docIds = (Set<Long>) checkDocumentsCommited(docIds);
@@ -306,7 +293,7 @@ public class QueryManagementImpl implements XDMQueryManagement {
 				logger.trace("queryPathKeys.exit; returning {} indexed keys", result.size()); 
 				return result;
 			} else {
-				return Collections.emptySet();
+				//fallback to full scan below..
 			}
 		}
 
@@ -411,11 +398,11 @@ public class QueryManagementImpl implements XDMQueryManagement {
 	@Override
 	public Collection<String> getXML(ExpressionContainer query, String template, Map params) {
 		long txId = 0;
-		if (txMgr.getCurrentTxId() == 0) {
+		if (txMgr.getCurrentTxId() == TX_NO) {
 			txId = txMgr.beginTransaction();
 		}
 		Collection<Long> docIds = getDocumentIDs(query);
-		if (txId > 0) {
+		if (txId > TX_NO) {
 			txMgr.commitTransaction(txId);
 		}
 		if (docIds.size() > 0) {

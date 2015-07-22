@@ -8,11 +8,11 @@
     <context:property-placeholder ignore-resource-not-found="true"/>
 
     <bean id="xccContentSource" class="com.marklogic.xcc.ContentSourceFactory" factory-method="newContentSource">
-	<constructor-arg index="0" value="${xdm.schema.host}"/>
-	<constructor-arg index="1" value="${xdm.schema.port}"/>
-	<constructor-arg index="2" value="${xdm.schema.username}"/>
-	<constructor-arg index="3" value="${xdm.schema.password}"/>
-	<constructor-arg index="4" value="${xdm.schema.name}"/>
+		<constructor-arg index="0" value="${xdm.schema.host}"/>
+		<constructor-arg index="1" value="${xdm.schema.port}"/>
+		<constructor-arg index="2" value="${xdm.schema.username}"/>
+		<constructor-arg index="3" value="${xdm.schema.password}"/>
+		<constructor-arg index="4" value="${xdm.schema.name}"/>
     </bean>
     
 </beans>

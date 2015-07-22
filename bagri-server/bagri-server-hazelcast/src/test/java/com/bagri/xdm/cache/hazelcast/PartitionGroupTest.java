@@ -2,7 +2,7 @@ package com.bagri.xdm.cache.hazelcast;
 
 import java.util.Set;
 
-import junit.framework.Assert;
+import static org.junit.Assert.*;
 
 import org.junit.Test;
 
@@ -31,6 +31,7 @@ public class PartitionGroupTest {
 		network.setPublicAddress(adminIP + ":5781");
 		JoinConfig join = network.getJoin();
 		join.getMulticastConfig().setEnabled(false);
+		join.getTcpIpConfig().setEnabled(true);
 		join.getTcpIpConfig().addMember(adminIP).addMember(localIP).setEnabled(true);
 		PartitionGroupConfig partitionGroupConfig = adminConfig.getPartitionGroupConfig();
 		partitionGroupConfig.setEnabled(true).setGroupType(MemberGroupType.CUSTOM);
@@ -72,7 +73,7 @@ public class PartitionGroupTest {
 		IMap<Long, String> cacheMap = cache.getMap("test");
 		keys = cacheMap.localKeySet();
 		System.out.println("cache keys size is: " + keys.size());
-		Assert.assertTrue(keys.size() == 0);
+		assertTrue(keys.size() == 0);
 	}	
 	
 	

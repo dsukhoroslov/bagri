@@ -1,6 +1,7 @@
 package com.bagri.xdm.cache.hazelcast.impl;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -15,6 +16,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bagri.common.manage.JMXUtils;
+import com.bagri.common.query.Comparison;
+import com.bagri.common.query.PathExpression;
 import com.bagri.common.stats.StatisticsEvent;
 import com.bagri.xdm.api.XDMTransactionManagement;
 import com.bagri.xdm.cache.api.XDMIndexManagement;
@@ -51,6 +54,7 @@ public class IndexManagementImpl implements XDMIndexManagement, EntryAddedListen
 
 	private XDMFactory factory;
     private ModelManagementImpl mdlMgr;
+    private TransactionManagementImpl txMgr;
     
     private boolean enableStats = true;
 	private BlockingQueue<StatisticsEvent> queue;
@@ -97,6 +101,10 @@ public class IndexManagementImpl implements XDMIndexManagement, EntryAddedListen
 
     public void setExecService(IExecutorService execService) {
 		this.execService = execService;
+	}
+
+	public void setTxManager(TransactionManagementImpl txMgr) {
+		this.txMgr = txMgr;
 	}
     
 	public void setModelManager(ModelManagementImpl mdlMgr) {
@@ -225,8 +233,7 @@ public class IndexManagementImpl implements XDMIndexManagement, EntryAddedListen
 		// but not for unique index!
 		XDMIndexedValue xIdx = idxCache.get(iKey);
 		if (xIdx != null) {
-			// get current txId..
-			long txId = XDMTransactionManagement.TX_NO;
+			long txId = txMgr.getCurrentTxId();
 			if (xIdx.removeDocument(docId, txId)) {
 				if (xIdx.getCount() > 0) {
 					idxCache.put(iKey, xIdx);
@@ -237,7 +244,72 @@ public class IndexManagementImpl implements XDMIndexManagement, EntryAddedListen
 		}
 	}
 	
-	public Set<Long> getIndexedDocuments(int pathId, String value) {
+	public Set<Long> getIndexedDocuments(int pathId, PathExpression pex, Object value) {
+		if (Comparison.EQ.equals(pex.getCompType())) {
+			if (value instanceof Collection) {
+				Collection values = (Collection) value;
+				if (values.size() == 0) {
+					return Collections.emptySet();
+				}
+				if (values.size() == 1) {
+					return getIndexedDocuments(pathId, values.iterator().next().toString());
+				} else {
+					return getIndexedDocuments(pathId, (Iterable) value);
+				}
+			} else {
+				return getIndexedDocuments(pathId, value.toString());
+			}
+		} else {
+			if (value instanceof Collection) {
+				Collection values = (Collection) value;
+				if (values.size() == 0) {
+					return Collections.emptySet();
+				}
+				if (values.size() == 1) {
+					value = values.iterator().next();
+				}
+			}
+			value = value.toString();
+			if (value instanceof Comparable) {
+				Predicate vp;
+				XDMIndex idx = idxDict.get(pathId);
+				Comparable comp = (Comparable) value;
+				switch (pex.getCompType()) {
+					case GT: {
+						vp = Predicates.greaterThan("value", comp);
+						break;
+					}
+					case GE: {
+						vp = Predicates.greaterEqual("value", comp);
+						break;
+					}
+					case LE: {
+						vp = Predicates.lessThan("value", comp);
+						break;
+					}
+					case LT: {
+						vp = Predicates.lessEqual("value", comp);
+						break;
+					}
+					default: vp = null;
+				}
+				if (vp != null) {
+					Collection<XDMIndexedValue<?>> result = 
+							idxCache.values(Predicates.and(Predicates.equal("pathId", pathId), vp));
+					Set<Long> ids = new HashSet<>(result.size());
+					for (XDMIndexedValue val: result) {
+						ids.addAll(val.getDocumentIds());
+					}
+					updateStats(idx.getName(), true, result.size());
+					//updateStats(idx.getName(), false, keys.size() - xidv.size());
+					return ids;
+				}
+			}
+		}
+		return null;
+	}
+	
+	private Set<Long> getIndexedDocuments(int pathId, String value) {
 		XDMIndex idx = idxDict.get(pathId);
 		// can't be null ?!
 		XDMIndexKey idxk = factory.newXDMIndexKey(pathId, value);
@@ -250,7 +322,7 @@ public class IndexManagementImpl implements XDMIndexManagement, EntryAddedListen
 		return null;
 	}
 	
-	public Set<Long> getIndexedDocuments(int pathId, Iterable values) {
+	private Set<Long> getIndexedDocuments(int pathId, Iterable values) {
 		XDMIndex idx = idxDict.get(pathId);
 		// can't be null ?!
 		Set<XDMIndexKey> keys = new HashSet<>();

@@ -32,7 +32,7 @@ return $id" />
 			</parameters>
 		</transaction-->
 
-		<transaction id="1" name="getSecurity" weight="50">
+		<!--transaction id="1" name="getSecurity" weight="50">
 			<java-plugin>com.bagri.client.tpox.workload.BagriXQJPlugin</java-plugin>
 			<parameters>
 				<parameter>
@@ -85,9 +85,9 @@ return
 					<file>input/security_symbols.txt</file>
 				</parameter>
 			</parameters>
-		</transaction>
+		</transaction-->
 
-		<!--transaction id="3" name="searchSecurity" weight="20">
+		<transaction id="3" name="searchSecurity" weight="100">
 			<java-plugin>com.bagri.client.tpox.workload.BagriXQJPlugin</java-plugin>
 			<parameters>
 
@@ -100,7 +100,7 @@ declare variable $pemax external;
 declare variable $yield external; 
 
 for $sec in fn:collection(&quot;/{http://tpox-benchmark.com/security}Security&quot;)/Security
-where $sec[SecurityInformation/*/Sector = $sect and PE[. >= $pemin and . &lt; $pemax] and Yield > $yield]
+where $sec[SecurityInformation/*/Sector = $sect and PE[. &gt;= $pemin and . &lt; $pemax] and Yield &gt; $yield]
 
 return	&lt;Security&gt;
 	{$sec/Symbol}
@@ -151,7 +151,8 @@ return	&lt;Security&gt;
 					<uniformint min="4" max="6" />
 				</parameter>
 			</parameters>
-		</transaction-->
+		</transaction>
+
 	</transactions>
 </workload>
 

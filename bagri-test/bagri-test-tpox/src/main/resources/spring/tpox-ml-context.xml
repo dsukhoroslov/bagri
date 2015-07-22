@@ -18,8 +18,8 @@
     </bean>
 
     <bean id="xqConnection" factory-bean="xqDataSource" factory-method="getConnection">
-	<constructor-arg index="0" value="${xdm.schema.username}"/>
-	<constructor-arg index="1" value="${xdm.schema.password}"/>
+		<constructor-arg index="0" value="${xdm.schema.username}"/>
+		<constructor-arg index="1" value="${xdm.schema.password}"/>
     </bean>
     
 </beans>

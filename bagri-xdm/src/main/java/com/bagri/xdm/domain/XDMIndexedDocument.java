@@ -13,11 +13,17 @@ public class XDMIndexedDocument<V> extends XDMIndexedValue<V> {
 	}
 
 	public XDMIndexedDocument(int pathId, V value, long docId) {
-		super();
+		super(pathId, value);
+		addDocument(docId, 0);
 	}
 
 	public XDMIndexedDocument(int pathId, V value, Collection<Long> docIds) {
-		super();
+		super(pathId, value);
+		if (docIds != null) {
+			for (Long docId: docIds) {
+				addDocument(docId, 0);
+			}
+		}
 	}
 
 	@Override

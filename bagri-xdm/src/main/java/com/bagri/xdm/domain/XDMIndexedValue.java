@@ -17,22 +17,11 @@ public abstract class XDMIndexedValue<V> {
 		// de-ser
 	}
 
-	public XDMIndexedValue(int pathId, V value, long docId) {
+	public XDMIndexedValue(int pathId, V value) {
 		this.pathId = pathId;
 		this.value = value;
-		addDocument(docId, 0);
 	}
 
-	public XDMIndexedValue(int pathId, V value, Collection<Long> docIds) {
-		this.pathId = pathId;
-		this.value = value;
-		if (docIds != null) {
-			for (Long docId: docIds) {
-				addDocument(docId, 0);
-			}
-		}
-	}
-	
 	public int getPathId() {
 		return pathId;
 	}

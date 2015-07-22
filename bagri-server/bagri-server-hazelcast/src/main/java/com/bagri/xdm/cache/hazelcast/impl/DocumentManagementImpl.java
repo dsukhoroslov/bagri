@@ -285,6 +285,19 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		}
 		return cnt;
 	}
+
+	private int deindexElements(long docKey, int pathId) {
+		int cnt = 0;
+		XDMDataKey xdk = factory.newXDMDataKey(docKey, pathId);
+		XDMElements elts = xdmCache.get(xdk);
+		if (elts != null) {
+			for (XDMElement elt: elts.getElements()) {
+				indexManager.dropIndex(docKey, pathId, elt.getValue());
+				cnt++;
+			}
+		}
+		return cnt;
+	}
 	
 	@SuppressWarnings("unchecked")
 	private Set<XDMDocumentKey> getDocumentsOfType(int docType) {
@@ -477,11 +490,12 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		    	// we must finish old Document and create a new one!
 		    	doc.finishDocument(txManager.getCurrentTxId());
 		    	//deleteDocumentElements(docId, doc.getTypeId());
+		    	//xddCache.put(docKey, doc);
 		    	docKey = factory.newXDMDocumentKey(doc.getDocumentId(), doc.getVersion() + 1);
 		    	// delete unique index here..
 		    	Collection<Integer> pathIds = indexManager.getTypeIndexes(doc.getTypeId(), true);
 		    	for (int pathId: pathIds) {
-			    	deindexElements(doc.getTypeId(), pathId);
+			    	deindexElements(doc.getDocumentKey(), pathId);
 		    	}
 		    }
 		}
@@ -499,10 +513,15 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 			//String user = JMXUtils.getCurrentUser();
 			triggerManager.applyTrigger(doc, Action.delete, Scope.before); 
 	    	doc.finishDocument(txManager.getCurrentTxId()); //, user);
+	    	//xddCache.put(docKey, doc);
 	    	xddCache.put(factory.newXDMDocumentKey(docKey), doc);
 			//xmlCache.delete(docId); ??
 			//srcCache.remove(docId); ??
-			triggerManager.applyTrigger(doc, Action.delete, Scope.after); 
+	    	Collection<Integer> pathIds = indexManager.getTypeIndexes(doc.getTypeId(), true);
+	    	for (int pathId: pathIds) {
+		    	deindexElements(doc.getDocumentKey(), pathId);
+	    	}
+	    	triggerManager.applyTrigger(doc, Action.delete, Scope.after); 
 		    removed = true;
 	    }
 		logger.trace("removeDocument.exit; removed: {}", removed);

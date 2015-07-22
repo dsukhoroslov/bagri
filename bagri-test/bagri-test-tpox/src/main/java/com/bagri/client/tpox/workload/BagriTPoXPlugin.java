@@ -9,10 +9,14 @@ import java.util.Random;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import net.sf.tpox.workload.core.WorkloadProcessor;
 import net.sf.tpox.workload.transaction.javaplugin.GenericJavaClassPlugin;
 import net.sf.tpox.workload.util.WorkloadEnvironment;
+
+import static com.bagri.common.config.XDMConfigConstants.xdm_spring_context;
 
 /**
  * @author Denis Sukhoroslov
@@ -20,7 +24,10 @@ import net.sf.tpox.workload.util.WorkloadEnvironment;
  */
 public abstract class BagriTPoXPlugin implements GenericJavaClassPlugin {
 	
-    protected final transient Logger logger = LoggerFactory.getLogger(getClass());
+    //protected final transient Logger logger = LoggerFactory.getLogger(getClass());
+	
+	protected static final String config = System.getProperty(xdm_spring_context);
+	//protected static final ApplicationContext context = new ClassPathXmlApplicationContext(config);
 	
     protected WorkloadProcessor wp;
     protected WorkloadEnvironment we;
@@ -30,8 +37,8 @@ public abstract class BagriTPoXPlugin implements GenericJavaClassPlugin {
 	public void prepare(int transNum, WorkloadProcessor workloadProcessor, WorkloadEnvironment workloadEnvironment,
 			Connection con, int verbosityLevel, Random userRandomNumGenerator) throws SQLException {
 		
-		logger.debug("prepare.enter; transNum: {}; WP: {}; WE: {}; Connection: {}; Level: {}; Random: {}",
-				new Object[] {transNum, workloadProcessor, workloadEnvironment, con, verbosityLevel, userRandomNumGenerator});
+		//logger.debug("prepare.enter; transNum: {}; WP: {}; WE: {}; Connection: {}; Level: {}; Random: {}",
+		//		new Object[] {transNum, workloadProcessor, workloadEnvironment, con, verbosityLevel, userRandomNumGenerator});
 		
 		this.wp = workloadProcessor;
 		this.we = workloadEnvironment;

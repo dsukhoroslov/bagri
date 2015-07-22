@@ -6,6 +6,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.bagri.xdm.api.XDMTransactionManagement;
+
 import static com.bagri.xdm.api.XDMTransactionManagement.TX_NO;
 
 
@@ -18,16 +20,29 @@ public class XDMUniqueDocument<V> extends XDMIndexedValue<V> {
 	}
 	
 	public XDMUniqueDocument(int pathId, V value, long docId) {
-		super();
+		super(pathId, value);
+		addDocument(docId, TX_NO);
 	}
 
 	public XDMUniqueDocument(int pathId, V value, Collection<Long> docIds) {
-		super();
+		super(pathId, value);
+		if (docIds != null) {
+			for (Long docId: docIds) {
+				addDocument(docId, TX_NO);
+			}
+		}
 	}
 
 	@Override
 	public int getCount() {
-		return 1;
+		int cnt = 0;
+		for (int i=docs.size() - 1; i >=0; i--) {
+			XDMUniqueValue doc = docs.get(i);
+			if (doc.getTxFinish() == TX_NO) {
+				cnt++;
+			}
+		}
+		return cnt;
 	}
 	
 	@Override

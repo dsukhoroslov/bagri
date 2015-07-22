@@ -122,6 +122,10 @@
 						<hz:property name="xdm.schema.store.type">${xdm.schema.store.type}</hz:property>
 					</hz:properties>
 				</hz:map-store-->
+				<hz:indexes>
+					<hz:index attribute="pathId"/>
+					<hz:index attribute="value" ordered="true"/>
+				</hz:indexes>
 			</hz:map>
 
 			<hz:map name="xdm-transaction" in-memory-format="BINARY" async-backup-count="${xdm.schema.trans.backup.async}" 
@@ -308,6 +312,7 @@
 		<property name="dataCache" ref="xdm-element"/>
 		<property name="modelManager" ref="mdlManager"/>
 		<property name="statsQueue" ref="indexQueue"/>
+		<property name="txManager" ref="txManager"/>
 	</bean>
 
 	<bean id="xqCompiler" class="com.bagri.xquery.saxon.XQCompilerImpl"/>

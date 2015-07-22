@@ -16,61 +16,50 @@ import net.sf.tpox.workload.parameter.ActualParamInfo;
 import net.sf.tpox.workload.parameter.Parameter;
 import net.sf.tpox.workload.transaction.Transaction;
 
-
-
-//import org.slf4j.Logger;
-//import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import static com.bagri.common.config.XDMConfigConstants.xdm_spring_context;
-
 public class BagriXQJPlugin extends BagriTPoXPlugin {
 
-    //ApplicationContext context; // = new ClassPathXmlApplicationContext(config);
+	private static final Logger logger = LoggerFactory.getLogger(BagriXQJPlugin.class);
 	
-	private ThreadLocal<XQConnection> xqc = new ThreadLocal<XQConnection>() {
+    private static final ThreadLocal<XQConnection> xqc = new ThreadLocal<XQConnection>() {
 		
-		@Override
-		protected XQConnection initialValue() {
-	    	String config = System.getProperty(xdm_spring_context);
-			ApplicationContext context = new ClassPathXmlApplicationContext(config);
-			XQConnection xqc = context.getBean("xqConnection", XQConnection.class);
-			try {
-				xqc.getStaticContext().setQueryTimeout(60);
-			} catch (XQException ex) {
-		    	logger.error("initialValue.error; error setting timeout: ", ex);
-			}
-	    	logger.info("initialValue.exit; XQC: {}", xqc);
-			return xqc;
- 		}
-		
-	};
+    	@Override
+    	protected XQConnection initialValue() {
+    		//synchronized (context) {
+    		ApplicationContext context = new ClassPathXmlApplicationContext(config);
+    		XQConnection xqc = context.getBean("xqConnection", XQConnection.class);
+    		logger.info("initialValue.exit; XQC: {}", xqc);
+    		return xqc;
+    		//}
+    	}
+    };
 	
     protected XQConnection getConnection() {
     	return xqc.get(); 
     }
     
     public BagriXQJPlugin() {
-    	String config = System.getProperty(xdm_spring_context);
-    	logger.debug("<init>. Spring context: {}", config);
-    	if (config != null) {
-    	    //ApplicationContext 
-    	    //context = new ClassPathXmlApplicationContext(config);
-    		//xqc = context.getBean("xqConnection", XQConnection.class);
-    	}
+    	super();
 		//logger.trace("<init>. XQConnection: {}", xqc);
     }
 	
 	@Override
 	public void close() throws SQLException {
 		XQConnection conn = getConnection();
-		logger.info("close; XQC: {}", conn);
-		try {
-			conn.close();
-		} catch (XQException ex) {
-			logger.error("close.error; " + ex, ex);
-			throw new SQLException(ex);
+		if (!conn.isClosed()) {
+			logger.info("close; XQC: {}", conn);
+			try {
+				conn.close();
+			} catch (XQException ex) {
+				logger.error("close.error; " + ex, ex);
+				throw new SQLException(ex);
+			}
+		} else {
+			logger.debug("close; XQC is already closed: {}", conn);
 		}
 	}
 
