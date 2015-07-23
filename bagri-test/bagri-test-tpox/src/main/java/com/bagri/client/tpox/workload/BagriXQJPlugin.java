@@ -7,6 +7,7 @@ import java.util.Vector;
 
 import javax.xml.namespace.QName;
 import javax.xml.xquery.XQConnection;
+import javax.xml.xquery.XQDynamicContext;
 import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQExpression;
 import javax.xml.xquery.XQPreparedExpression;
@@ -111,16 +112,32 @@ public class BagriXQJPlugin extends BagriTPoXPlugin {
 		return result;
 	}
 	
-	protected int execCommand(String query, Map<String, Object> params) throws XQException {
-		
-		XQExpression xqe = getConnection().createExpression();
+	private void bindParams(Map<String, Object> params, XQDynamicContext xqe) throws XQException {
 	    for (Map.Entry<String, Object> e: params.entrySet()) {
-	    	if (e.getValue() instanceof Integer) {
-	    		xqe.bindInt(new QName(e.getKey()), (Integer) e.getValue(), null);
+	    	if (e.getValue() instanceof Boolean) {
+	    		xqe.bindBoolean(new QName(e.getKey()), (Boolean) e.getValue(), null);
+	    	} else if (e.getValue() instanceof Byte) {
+		    	xqe.bindByte(new QName(e.getKey()), (Byte) e.getValue(), null);
+	    	} else if (e.getValue() instanceof Double) {
+		    	xqe.bindDouble(new QName(e.getKey()), (Double) e.getValue(), null);
+	    	} else if (e.getValue() instanceof Float) {
+		    	xqe.bindFloat(new QName(e.getKey()), (Float) e.getValue(), null);
+	    	} else if (e.getValue() instanceof Integer) {
+		    	xqe.bindInt(new QName(e.getKey()), (Integer) e.getValue(), null);
+	    	} else if (e.getValue() instanceof Long) {
+		    	xqe.bindLong(new QName(e.getKey()), (Long) e.getValue(), null);
+	    	} else if (e.getValue() instanceof Short) {
+		    	xqe.bindShort(new QName(e.getKey()), (Short) e.getValue(), null);
 	    	} else {
 	    		xqe.bindString(new QName(e.getKey()), e.getValue().toString(), null);
 	    	}
 	    }
+	}
+	
+	protected int execCommand(String query, Map<String, Object> params) throws XQException {
+		
+		XQExpression xqe = getConnection().createExpression();
+		bindParams(params, xqe);
 	    xqe.executeCommand(query);
 	    // do next somehow!
 		return 1;
@@ -128,27 +145,18 @@ public class BagriXQJPlugin extends BagriTPoXPlugin {
 	
 	protected int execQuery(String query, Map<String, Object> params) throws XQException {
 
-		logger.trace("execQuery; query: {}; params: {}", query, params);
+		//logger.trace("execQuery; query: {}; params: {}", query, params);
 		
 	    XQPreparedExpression xqpe = getConnection().prepareExpression(query);
-	    for (Map.Entry<String, Object> e: params.entrySet()) {
-	    	if (e.getValue() instanceof Integer) {
-	    		xqpe.bindInt(new QName(e.getKey()), (Integer) e.getValue(), null);
-	    	} else {
-	    		xqpe.bindString(new QName(e.getKey()), e.getValue().toString(), null);
-	    	}
-	    }
+		bindParams(params, xqpe);
 	    XQResultSequence xqs = xqpe.executeQuery();
-	    boolean found = false;
+	    int cnt = 0;
 	    while (xqs.next()) {
-	    	found = true;
+	    	cnt++;
 	    }
 	    xqs.close();
 	    xqpe.close();
-	    if (found) {
-	    	return 1;
-	    }
-	    return 0;
+	    return cnt;
 	}
 	
 }

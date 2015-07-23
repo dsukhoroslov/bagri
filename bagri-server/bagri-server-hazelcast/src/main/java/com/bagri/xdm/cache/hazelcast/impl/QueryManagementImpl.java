@@ -438,7 +438,8 @@ public class QueryManagementImpl implements XDMQueryManagement {
 
 	private Iterator execXQCommand(boolean isQuery, String xqCmd, Map bindings, Properties props) {
 
-		logger.trace("execXQCommand.enter; query: {}, command: {}; bindings: {}", isQuery, xqCmd, bindings);
+		logger.trace("execXQCommand.enter; query: {}, command: {}; bindings: {}; properties: {}", 
+				isQuery, xqCmd, bindings, props);
 		ResultCursor result = null;
 		Iterator iter = null;
 		String clientId = props.getProperty(pn_client_id);

@@ -223,6 +223,7 @@ public class IndexManagementImpl implements XDMIndexManagement, EntryAddedListen
 					logger.error("addIndex.error: " + ex, ex);
 				}
 			}
+			logger.trace("addIndex; index: {}, dataType: {}, value: {}", idx, dataType, value);
 			
 			XDMIndexKey xid = factory.newXDMIndexKey(pathId, value);
 			XDMIndexedValue xidx = idxCache.get(xid);
@@ -355,7 +356,7 @@ public class IndexManagementImpl implements XDMIndexManagement, EntryAddedListen
 			return xidv.getDocumentIds();
 		}
 		updateStats(idx.getName(), false, 1);
-		return null;
+		return Collections.emptySet();
 	}
 	
 	private Set<Long> getIndexedDocuments(int pathId, Iterable values) {

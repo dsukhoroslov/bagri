@@ -100,7 +100,7 @@ public class BagriXQDataSource implements XQDataSource {
 		return address; 
 	}
 	
-	private boolean getTransactional() {
+	private boolean isTransactional() {
 		String transactional = properties.getProperty(TRANSACTIONAL);
 		return ("true".equalsIgnoreCase(transactional));
 	}
@@ -155,7 +155,7 @@ public class BagriXQDataSource implements XQDataSource {
 	
 	private XQConnection initConnection(String address) throws XQException {
 
-		BagriXQConnection connect = new BagriXQConnection(address, getTransactional());
+		BagriXQConnection connect = new BagriXQConnection(address, isTransactional());
 		if (connect.getProcessor() == null) {
 			Object xqp = makeInstance(XQ_PROCESSOR);
 			if (xqp != null) {

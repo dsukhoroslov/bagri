@@ -21,10 +21,20 @@ import com.bagri.xquery.api.XQProcessor;
 
 public class XQProcessorClient extends XQProcessorImpl implements XQProcessor {
 	
+	private Properties collectProperties(XQStaticContext ctx) throws XQException {
+		Properties props = contextToProps(ctx);
+		for (String name: properties.stringPropertyNames()) {
+			if (!props.containsKey(name)) {
+				props.setProperty(name, properties.getProperty(name));
+			}
+		}
+		return props;
+	}
+	
 	@Override
 	public Iterator executeXCommand(String command, Map<QName, XQItemAccessor> bindings, XQStaticContext ctx) throws XQException {
 		
-		return executeXCommand(command, bindings, contextToProps(ctx));
+		return executeXCommand(command, bindings, collectProperties(ctx));
 	}
 
 	@Override
@@ -42,7 +52,7 @@ public class XQProcessorClient extends XQProcessorImpl implements XQProcessor {
 	@Override
 	public Iterator executeXQuery(String query, XQStaticContext ctx) throws XQException {
 
-		return executeXQuery(query, contextToProps(ctx));
+		return executeXQuery(query, collectProperties(ctx));
 	}
 
 	@Override
@@ -61,6 +71,7 @@ public class XQProcessorClient extends XQProcessorImpl implements XQProcessor {
     	try {
     		return qMgr.executeXQuery(query, bindings, props);
     	} catch (RuntimeException ex) {
+    		logger.error("executeXQuery.error;", ex);
     		throw new XQException(ex.getMessage());
     	}
 	}

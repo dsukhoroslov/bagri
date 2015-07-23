@@ -174,10 +174,10 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
 		logger.trace("setStaticContext.enter; got props: {}", props);
        	// !!
         sqc.setSchemaAware(false);
-   		sqc.setBaseURI(props.getProperty(pn_baseURI));
+   		sqc.setBaseURI(props.getProperty(pn_baseURI, ""));
     	//props.getProperty(pn_bindingMode)
-    	sqc.setPreserveBoundarySpace(String.valueOf(BOUNDARY_SPACE_PRESERVE).equals(props.getProperty(pn_boundarySpacePolicy)));
-   		if (String.valueOf(CONSTRUCTION_MODE_PRESERVE).equals(props.getProperty(pn_constructionMode))) {
+    	sqc.setPreserveBoundarySpace(String.valueOf(BOUNDARY_SPACE_PRESERVE).equals(props.getProperty(pn_boundarySpacePolicy, "1")));
+   		if (String.valueOf(CONSTRUCTION_MODE_PRESERVE).equals(props.getProperty(pn_constructionMode, "1"))) {
     		sqc.setConstructionMode(Validation.PRESERVE);
     	} else {
     		sqc.setConstructionMode(Validation.STRIP);
@@ -186,12 +186,12 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
         //if (contextItemStaticType != null) {
         //    sqc.setRequiredContextItemType(contextItemStaticType.getSaxonItemType());
         //}
-    	sqc.declareDefaultCollation(props.getProperty(pn_defaultCollationUri));
-   		sqc.setDefaultElementNamespace(props.getProperty(pn_defaultElementTypeNamespace));
-    	sqc.setDefaultFunctionNamespace(props.getProperty(pn_defaultFunctionNamespace));
+    	sqc.declareDefaultCollation(props.getProperty(pn_defaultCollationUri, dc_ns));
+   		sqc.setDefaultElementNamespace(props.getProperty(pn_defaultElementTypeNamespace, xs_ns));
+    	sqc.setDefaultFunctionNamespace(props.getProperty(pn_defaultFunctionNamespace, df_ns));
         //sqc.setEmptyLeast(emptyLeast);
-    	sqc.setInheritNamespaces(String.valueOf(COPY_NAMESPACES_MODE_INHERIT).equals(props.getProperty(pn_copyNamespacesModeInherit)));
-    	sqc.setPreserveNamespaces(String.valueOf(COPY_NAMESPACES_MODE_PRESERVE).equals(props.getProperty(pn_copyNamespacesModePreserve)));
+    	sqc.setInheritNamespaces(String.valueOf(COPY_NAMESPACES_MODE_INHERIT).equals(props.getProperty(pn_copyNamespacesModeInherit, "1")));
+    	sqc.setPreserveNamespaces(String.valueOf(COPY_NAMESPACES_MODE_PRESERVE).equals(props.getProperty(pn_copyNamespacesModePreserve, "1")));
     	sqc.clearNamespaces();
     	String namespaces = props.getProperty(pn_defaultNamespaces, "");
     	StringTokenizer st = new StringTokenizer(namespaces, " ");
@@ -203,7 +203,7 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
     	//props.getProperty(pn_defaultOrderForEmptySequences)
     	//props.getProperty(pn_holdability)
     	//props.getProperty(pn_orderingMode)
-    	if (String.valueOf(LANGTYPE_XQUERY).equals(props.getProperty(pn_queryLanguageTypeAndVersion))) {
+    	if (String.valueOf(LANGTYPE_XQUERY).equals(props.getProperty(pn_queryLanguageTypeAndVersion, "1"))) {
     		sqc.setLanguageVersion(new DecimalValue(1L)); // change to 3L
     	}
     	//props.getProperty(pn_queryTimeout)

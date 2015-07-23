@@ -11,7 +11,11 @@
     <import resource="classpath:spring/hz-client-context.xml"/>
 
     <bean id="xqProcessor" class="com.bagri.xquery.saxon.XQProcessorClient">
-    	<!--property name="xdmManager" ref="xdmManager" /-->
+        <property name="properties">
+            <props>
+                <prop key="xdm.client.fetchSize">1</prop>
+            </props>
+        </property>
     	<property name="XQDataFactory" ref="xqConnection" />
     </bean>
 

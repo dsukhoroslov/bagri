@@ -53,7 +53,7 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 	private ResultCursor cursor;
 	private HazelcastInstance hzClient;
 	private IExecutorService execService;
-
+	
 	public RepositoryImpl() {
 		initializeFromProperties(getSystemProps());
 	}
@@ -86,11 +86,13 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 	
 	private static Properties getConvertedProps(Properties original) {
 		Properties props = new Properties();
-		setProperty(original, props, pn_schema_name, "schema");
 		setProperty(original, props, pn_server_address, "address");
+		setProperty(original, props, pn_schema_name, "schema");
 		setProperty(original, props, pn_schema_user, "user");
 		setProperty(original, props, pn_schema_password, "password");
 		setProperty(original, props, pn_client_smart, "smart");
+		//setProperty(original, props, pn_client_submitTo, "any");
+		//setProperty(original, props, pn_fetch_size, "0");
 		setProperty(original, props, pn_login_timeout, "loginTimeout");
 		props.put(pn_data_factory, original.get(pn_data_factory));
 		return props;
@@ -227,10 +229,12 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 	Iterator execXQuery(boolean isQuery, String query, Map bindings, Properties props) { //throws Exception {
 		
 		//props.put(PN_BATCH_SIZE, "5");
-		props.put(pn_client_id, clientId);
-		props.put(pn_tx_id, String.valueOf(getTransactionId()));
+		props.setProperty(pn_client_id, clientId);
+		props.setProperty(pn_tx_id, String.valueOf(getTransactionId()));
+		//props.setProperty(pn_fetch_size, fetchSize);
+		//props.setProperty(pn_client_submitTo, submitTo);
 		
-		String runOn = System.getProperty(pn_client_submitTo, "any");
+		String runOn = props.getProperty(pn_client_submitTo, "any");
 		
 		XQCommandExecutor task = new XQCommandExecutor(isQuery, schemaName, query, bindings, props);
 		Future<ResultCursor> future;

@@ -34,8 +34,11 @@ set java_opts=%java_opts% -Dxdm.spring.context=spring/tpox-xqj-context.xml
 set java_opts=%java_opts% -Dxdm.schema.members=%schema_addr%
 set java_opts=%java_opts% -Dxdm.schema.name=%schema%
 set java_opts=%java_opts% -Dxdm.schema.password=password
-set java_opts=%java_opts% -Dxdm.client.submitTo=any
+
 rem possible values are: member, owner, any
+rem set java_opts=%java_opts% -Dxdm.client.submitTo=any
+
+set java_opts=%java_opts% -Duser.country=US -Duser.language=en
 
 exit /b
 

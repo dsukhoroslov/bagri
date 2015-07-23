@@ -157,17 +157,14 @@ public class MarkLogicXCCPlugin extends BagriTPoXPlugin {
 			request.setVariable(ValueFactory.newVariable (name, value));
 	    }
 		ResultSequence rs = xss.submitRequest(request);		
-	    boolean found = false;
+	    int cnt = 0;
 	    while (rs.hasNext()) {
 	    	rs.next();
-	    	found = true;
+	    	cnt++;
 	    }
 	    rs.close();
 	    xss.close();
-	    if (found) {
-	    	return 1;
-	    }
-	    return 0;
+	    return cnt;
 	}
 
 }

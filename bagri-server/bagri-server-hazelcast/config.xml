@@ -266,13 +266,13 @@
                     <description>Security Symbol</description>
                     <enabled>true</enabled>
                 </index>
-                <index name="IDX_Security_PE">
+                <!--index name="IDX_Security_PE">
                     <version>1</version>
                     <createdAt>2015-07-21T13:36:26.965+03:00</createdAt>
                     <createdBy>SDV</createdBy>
                     <docType>/{http://tpox-benchmark.com/security}Security</docType>
                     <path>/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}PE/text()</path>
-		    <dataType>xs:double</dataType>
+		    <dataType>xs:float</dataType>
                     <range>true</range>
                     <unique>false</unique>
                     <description>Security PE</description>
@@ -284,12 +284,12 @@
                     <createdBy>SDV</createdBy>
                     <docType>/{http://tpox-benchmark.com/security}Security</docType>
                     <path>/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}Yield/text()</path>
-		    <dataType>xs:double</dataType>
+		    <dataType>xs:float</dataType>
                     <range>true</range>
                     <unique>false</unique>
                     <description>Security Yield</description>
                     <enabled>true</enabled>
-                </index>
+                </index-->
                 <index name="IDX_Order_ID">
                     <version>1</version>
                     <createdAt>2015-01-25T13:36:26.965+03:00</createdAt>

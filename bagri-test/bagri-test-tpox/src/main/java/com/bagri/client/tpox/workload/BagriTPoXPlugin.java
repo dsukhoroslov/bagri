@@ -5,6 +5,7 @@ package com.bagri.client.tpox.workload;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Locale;
 import java.util.Random;
 
 import org.slf4j.Logger;
@@ -15,7 +16,6 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import net.sf.tpox.workload.core.WorkloadProcessor;
 import net.sf.tpox.workload.transaction.javaplugin.GenericJavaClassPlugin;
 import net.sf.tpox.workload.util.WorkloadEnvironment;
-
 import static com.bagri.common.config.XDMConfigConstants.xdm_spring_context;
 
 /**
@@ -54,6 +54,9 @@ public abstract class BagriTPoXPlugin implements GenericJavaClassPlugin {
 		}
 		if ("byte".equals(type)) {
 			return new Byte(value);
+		}
+		if ("char".equals(type)) {
+			return new Character(value.charAt(0));
 		}
 		if ("double".equals(type)) {
 			return new Double(value);
