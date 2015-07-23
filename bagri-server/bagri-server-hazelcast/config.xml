@@ -256,7 +256,7 @@
                     <description>Customer id</description>
                     <enabled>false</enabled>
                 </index>
-                <index name="IDX_Security_Symbol">
+                <!--index name="IDX_Security_Symbol">
                     <version>1</version>
                     <createdAt>2015-01-25T13:36:26.965+03:00</createdAt>
                     <createdBy>SDV</createdBy>
@@ -264,9 +264,9 @@
                     <path>/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}Symbol/text()</path>
                     <unique>true</unique>
                     <description>Security Symbol</description>
-                    <enabled>true</enabled>
-                </index>
-                <!--index name="IDX_Security_PE">
+                    <enabled>false</enabled>
+                </index-->
+                <index name="IDX_Security_PE">
                     <version>1</version>
                     <createdAt>2015-07-21T13:36:26.965+03:00</createdAt>
                     <createdBy>SDV</createdBy>
@@ -289,7 +289,7 @@
                     <unique>false</unique>
                     <description>Security Yield</description>
                     <enabled>true</enabled>
-                </index-->
+                </index>
                 <index name="IDX_Order_ID">
                     <version>1</version>
                     <createdAt>2015-01-25T13:36:26.965+03:00</createdAt>

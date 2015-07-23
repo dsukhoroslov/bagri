@@ -39,16 +39,16 @@ public class ClientApp {
 			long id = client.storeSecQuery();
 			//long id = client.storeXmlDocument("axis.xml");
 			//System.out.println("document stored; id: " + id);
-			found = client.runPriceQuery("IBM"); //IBM; VFINX; PTTAX
+			//found = client.runPriceQuery("IBM"); //IBM; VFINX; PTTAX
 			//found &= client.runPriceQuery("IBM"); //IBM; VFINX; PTTAX
-			found &= client.runSecQuery("IBM");
+			//found &= client.runSecQuery("IBM");
 			//found &= client.runSecQuery("IBM");
 			//found &= client.runPriceQuery("IBM");
 			//client.runPriceQuery();
 			//found = client.runSecQuery();
 			//client.runSecQuery();
 			//found = client.searchSecQuery();
-			//found = client.searchSecQueryParams();
+			found = client.searchSecQueryParams();
 			//client.searchSecQueryParams();
 			//found = client.runAxisQuery();
 			client.removeSecCommand(id);
@@ -159,12 +159,9 @@ public class ClientApp {
 
 	    XQPreparedExpression xqpe = xqc.prepareExpression(query);
 	    xqpe.bindString(new QName("sect"), "Technology", null);
-	    //xqpe.bindFloat(new QName("pemin"), 25,  null);
-	    //xqpe.bindFloat(new QName("pemax"), 28,  null);
-	    //xqpe.bindFloat(new QName("yield"), 0,  null);
-	    xqpe.bindInt(new QName("pemin"), 25,  null);
-	    xqpe.bindInt(new QName("pemax"), 28,  null);
-	    xqpe.bindInt(new QName("yield"), 0,  null);
+	    xqpe.bindFloat(new QName("pemax"), 25.0f, null);
+	    xqpe.bindFloat(new QName("pemin"), 28.0f, null);
+	    xqpe.bindFloat(new QName("yield"), 0.0f, null);
 	    XQResultSequence xqs = xqpe.executeQuery();
 
 	    int cnt = 0;

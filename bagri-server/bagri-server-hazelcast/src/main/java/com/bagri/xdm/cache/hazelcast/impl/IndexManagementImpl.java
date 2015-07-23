@@ -331,14 +331,16 @@ public class IndexManagementImpl implements XDMIndexManagement, EntryAddedListen
 					default: vp = null;
 				}
 				if (vp != null) {
-					Collection<XDMIndexedValue<?>> result = 
-							idxCache.values(Predicates.and(Predicates.equal("pathId", pathId), vp));
+					Collection<XDMIndexedValue<?>> result = idxCache.values(Predicates.and(Predicates.equal("pathId", pathId), vp));
 					Set<Long> ids = new HashSet<>(result.size());
-					for (XDMIndexedValue val: result) {
-						ids.addAll(val.getDocumentIds());
+					if (result.size() > 0) {
+						for (XDMIndexedValue val: result) {
+							ids.addAll(val.getDocumentIds());
+						}
+						updateStats(idx.getName(), true, 1);
+					} else {
+						updateStats(idx.getName(), false, 1);
 					}
-					updateStats(idx.getName(), true, result.size());
-					//updateStats(idx.getName(), false, keys.size() - xidv.size());
 					return ids;
 				}
 			}
