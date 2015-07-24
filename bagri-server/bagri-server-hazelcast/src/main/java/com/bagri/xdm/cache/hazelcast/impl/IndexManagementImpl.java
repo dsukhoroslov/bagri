@@ -1,5 +1,6 @@
 package com.bagri.xdm.cache.hazelcast.impl;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -7,6 +8,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.concurrent.BlockingQueue;
 
 import javax.management.openmbean.CompositeData;
@@ -52,6 +55,7 @@ public class IndexManagementImpl implements XDMIndexManagement, EntryAddedListen
     private IMap<XDMIndexKey, XDMIndexedValue<?>> idxCache;
     private IMap<XDMDataKey, XDMElements> xdmCache;
 	private IExecutorService execService;
+	private Map<Integer, TreeMap<Comparable, Integer>> rangeIndex = new HashMap<>();
 
 	private XDMFactory factory;
     private ModelManagementImpl mdlMgr;
@@ -144,9 +148,8 @@ public class IndexManagementImpl implements XDMIndexManagement, EntryAddedListen
 		idxDict.putIfAbsent(xPath.getPathId(), index);
 		//indexStats.initStats(index.getName());
 		if (index.isRange()) {
-			// register listener ..
-			//String uuid = xdmCache.addEntryListener(this, this, false);
-			//logger.trace("createIndex; registered listener {} for range index {}", uuid, index.getName());
+			rangeIndex.put(xPath.getPathId(), new TreeMap<Comparable, Integer>());
+			logger.trace("createIndex; registered range index path: {}", index.getName());
 		}
 		return xPath;
 	}
@@ -162,7 +165,8 @@ public class IndexManagementImpl implements XDMIndexManagement, EntryAddedListen
 		idxDict.remove(xPath.getPathId());
 		//indexStats.deleteStats(index.getName());
 		if (index.isRange()) {
-			// unregister listener ..
+			rangeIndex.remove(xPath.getPathId());
+			logger.trace("deleteIndex; unregistered range index path: {}", index.getName());
 		}
 		return xPath;
 	}
@@ -210,7 +214,7 @@ public class IndexManagementImpl implements XDMIndexManagement, EntryAddedListen
 			}
 			
 			Class dataType = getDataType(idx.getDataType());
-			if ("java.lang.String".equals(dataType.getName())) {
+			if (dataType.isInstance("String")) {
 				if (!idx.isCaseSensitive()) {
 					value = ((String) value).toLowerCase();
 				}
@@ -253,6 +257,14 @@ public class IndexManagementImpl implements XDMIndexManagement, EntryAddedListen
 					xidx.addDocument(docId, XDMTransactionManagement.TX_NO);
 				}
 				idxCache.put(xid, xidx);
+				TreeMap<Comparable, Integer> range = rangeIndex.get(pathId);
+				Integer count = range.get(value);
+				if (count == null) {
+					count = 1;
+				} else {
+					count++;
+				}
+				range.put((Comparable) value, count);
 			}
 			
 			// collect static index stats right here?
@@ -277,24 +289,37 @@ public class IndexManagementImpl implements XDMIndexManagement, EntryAddedListen
 				} else {
 	 				idxCache.delete(iKey);
 				}
+				TreeMap<Comparable, Integer> range = rangeIndex.get(pathId);
+				Integer count = range.get(value);
+				if (count != null) {
+					count++;
+					if (count > 0) {
+						range.put((Comparable) value, count);
+					} else {
+						range.remove(value);
+					}
+				}
 			}
 		}
 	}
 	
 	public Set<Long> getIndexedDocuments(int pathId, PathExpression pex, Object value) {
+		logger.trace("getIndexedDocuments.enter; pathId: {}, PEx: {}, value: {}", pathId, pex, value);
+		Set<Long> result = null;
 		if (Comparison.EQ.equals(pex.getCompType())) {
 			if (value instanceof Collection) {
 				Collection values = (Collection) value;
 				if (values.size() == 0) {
-					return Collections.emptySet();
-				}
-				if (values.size() == 1) {
-					return getIndexedDocuments(pathId, values.iterator().next().toString());
+					result = Collections.emptySet();
 				} else {
-					return getIndexedDocuments(pathId, (Iterable) value);
+					if (values.size() == 1) {
+						result = getIndexedDocuments(pathId, values.iterator().next().toString());
+					} else {
+						result = getIndexedDocuments(pathId, (Iterable) value);
+					}
 				}
 			} else {
-				return getIndexedDocuments(pathId, value.toString());
+				result = getIndexedDocuments(pathId, value.toString());
 			}
 		} else {
 			if (value instanceof Collection) {
@@ -308,44 +333,52 @@ public class IndexManagementImpl implements XDMIndexManagement, EntryAddedListen
 			}
 			//value = value.toString();
 			if (value instanceof Comparable) {
-				Predicate vp;
 				XDMIndex idx = idxDict.get(pathId);
-				Comparable comp = (Comparable) value;
-				switch (pex.getCompType()) {
-					case GT: {
-						vp = Predicates.greaterThan("value", comp);
-						break;
+				if (idx.isRange()) {
+					Comparable comp = (Comparable) value;
+					TreeMap<Comparable, Integer> range = rangeIndex.get(pathId);
+					Map<Comparable, Integer> subRange;
+					switch (pex.getCompType()) {
+						case GT: {
+							subRange = range.tailMap(comp);
+							break;
+						}
+						case GE: {
+							subRange = range.tailMap(comp, true);
+							break;
+						}
+						case LE: {
+							subRange = range.headMap(comp, true);
+							break;
+						}
+						case LT: {
+							subRange = range.headMap(comp);
+							break;
+						}
+						default: subRange = Collections.emptyMap();
 					}
-					case GE: {
-						vp = Predicates.greaterEqual("value", comp);
-						break;
+					logger.trace("getIndexedDocuments; got subRange of length {}", subRange.size());
+					Set<XDMIndexKey> keys = new HashSet<>(subRange.size());
+					for (Object o: subRange.keySet()) {
+						keys.add(factory.newXDMIndexKey(pathId, o));
 					}
-					case LE: {
-						vp = Predicates.lessThan("value", comp);
-						break;
-					}
-					case LT: {
-						vp = Predicates.lessEqual("value", comp);
-						break;
-					}
-					default: vp = null;
-				}
-				if (vp != null) {
-					Collection<XDMIndexedValue<?>> result = idxCache.values(Predicates.and(Predicates.equal("pathId", pathId), vp));
-					Set<Long> ids = new HashSet<>(result.size());
-					if (result.size() > 0) {
-						for (XDMIndexedValue val: result) {
-							ids.addAll(val.getDocumentIds());
+					Map<XDMIndexKey, XDMIndexedValue<?>> values = idxCache.getAll(keys);
+					result = new HashSet<>(values.size());
+					if (values.size() > 0) {
+						for (XDMIndexedValue val: values.values()) {
+							result.addAll(val.getDocumentIds());
 						}
 						updateStats(idx.getName(), true, 1);
 					} else {
 						updateStats(idx.getName(), false, 1);
 					}
-					return ids;
 				}
+			} else {
+				logger.trace("getIndexedDocuments; value is not comparable: {}", value.getClass());
 			}
 		}
-		return null;
+		logger.trace("getIndexedDocuments.exit; returning: {}", result == null ? null : result.size());
+		return result;
 	}
 	
 	private Set<Long> getIndexedDocuments(int pathId, String value) {
