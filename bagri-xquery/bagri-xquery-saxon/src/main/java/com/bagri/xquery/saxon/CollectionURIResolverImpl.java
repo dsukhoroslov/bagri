@@ -334,7 +334,7 @@ public class CollectionURIResolverImpl implements CollectionURIResolver {
     	
     	if (ex instanceof GeneralComparison10 || ex instanceof GeneralComparison20 || ex instanceof ValueComparison) {
     		BinaryExpression be = (BinaryExpression) ex;
-    		//int varIdx = 0;
+    		int varIdx = 0;
     		Object value = null;
     		String pName = null;
     		for (Expression e: be.getOperands()) {
@@ -364,7 +364,7 @@ public class CollectionURIResolverImpl implements CollectionURIResolver {
     				value = getValues(((Literal) e).getValue()); 
     				break;
     			}
-    			//varIdx++;
+    			varIdx++;
     		}
     		Comparison compType = getComparison(be.getOperator());
     		if (compType == null) {
@@ -375,10 +375,10 @@ public class CollectionURIResolverImpl implements CollectionURIResolver {
             	// thrown in case of join. have to think about this..
     	    	//throw new IllegalStateException("Unexpected expression: " + ex);
     		} //else {
-    			// semse we do not need this workaround any more..
-    			//if (varIdx == 0) {
-    			//	compType = Comparison.negate(compType);
-    			//}
+    			// semse we still need this workaround ..
+    			if (varIdx == 0) {
+    				compType = Comparison.negate(compType);
+    			}
     			//if (currentType == collectType) {
     				//value = normalizeValue(value);
     			ExpressionContainer exCont = query.getContainer(currentType);

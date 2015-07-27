@@ -24,14 +24,7 @@ public class PathExpression extends Expression {
 	public String getRegex() {
 		// depends on axis...
 		if (isRegex()) {
-			// todo: the regex must match only ONE element between SecurityInformation and Sector !!
-			//String regex = "^/" + prefix + ":Security/" + prefix + ":SecurityInformation/.*/" + prefix + ":Sector/text\\(\\)$";
-			String fPath = path.getFullPath();
-			int idx = fPath.indexOf("/*/");
-			String regex = "^" + fPath.substring(0, idx + 1) + ".*" + fPath.substring(idx + 2) + "$";
-			regex = regex.replace("(", "\\(");
-			regex = regex.replace(")", "\\)");
-			return regex;
+			return PathBuilder.regexFromPath(path.getFullPath());
 		}
 		return null;
 	}

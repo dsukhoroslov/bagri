@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.Properties;
 
 import javax.xml.namespace.QName;
+import javax.xml.transform.Result;
+import javax.xml.transform.stream.StreamResult;
 import javax.xml.xquery.XQDataFactory;
 import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQItemAccessor;
@@ -192,6 +194,8 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 		    logger.trace("execQuery; xQuery: {}; time taken: {}", xQuery, stamp);
 		    stamp = System.currentTimeMillis();
 	        SequenceIterator<Item> itr = xqExp.iterator(dqc);
+	        //Result r = new StreamResult();
+	        //xqExp.run(dqc, r, null);
 	        if (bcr.getQuery() != null && cacheable) {
 	        	qMgr.addQuery(query, readOnly, xqExp, bcr.getQuery());
 	        } else {

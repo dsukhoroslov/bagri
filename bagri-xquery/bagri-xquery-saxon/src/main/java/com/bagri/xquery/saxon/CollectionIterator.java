@@ -103,7 +103,7 @@ public class CollectionIterator implements SequenceIterator<Item>,
 
 	@Override
 	public int getProperties() {
-		return GROUNDED | LAST_POSITION_FINDER | LOOKAHEAD;
+		return 0; //GROUNDED | LAST_POSITION_FINDER | LOOKAHEAD;
 	}
 
 	@Override

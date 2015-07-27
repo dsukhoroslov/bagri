@@ -21,6 +21,9 @@ import java.util.Map;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.xml.namespace.QName;
+import javax.xml.xquery.XQDynamicContext;
+import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQItem;
 
 import net.sf.tpox.workload.parameter.ActualParamInfo;
@@ -141,24 +144,40 @@ public class MarkLogicXCCPlugin extends BagriTPoXPlugin {
 		return 0;
 	}
 	
-	protected int execQuery(String query, Map<String, Object> params) throws RequestException {
-		
-		ContentSource xcs = getContentSource();
-		Session xss = xcs.newSession();
-		Request request = xss.newAdhocQuery(query);
+	private void bindParams(Map<String, Object> params, Request request) { //throws RequestException {
 	    for (Map.Entry<String, Object> e: params.entrySet()) {
 			XName name = new XName(e.getKey());
 	    	XdmValue value;
-	    	if (e.getValue() instanceof Integer) {
+	    	if (e.getValue() instanceof Boolean) {
+	    		value = ValueFactory.newXSBoolean((Boolean) e.getValue());
+	    	//} else if (e.getValue() instanceof Byte) {
+	    	//	value = ValueFactory.new
+	    	//} else if (e.getValue() instanceof Double) {
+		    //	xqe.bindDouble(new QName(e.getKey()), (Double) e.getValue(), null);
+	    	//} else if (e.getValue() instanceof Float) {
+		    //	xqe.bindFloat(new QName(e.getKey()), (Float) e.getValue(), null);
+	    	} else if (e.getValue() instanceof Integer) {
 				value = ValueFactory.newXSInteger((Integer) e.getValue());
+	    	} else if (e.getValue() instanceof Long) {
+	    		value = ValueFactory.newXSInteger((Long) e.getValue());
+	    	//} else if (e.getValue() instanceof Short) {
+		    //	xqe.bindShort(new QName(e.getKey()), (Short) e.getValue(), null);
 	    	} else {
 				value = ValueFactory.newXSString(e.getValue().toString());
 	    	}
 			request.setVariable(ValueFactory.newVariable (name, value));
 	    }
+	}
+	
+	protected int execQuery(String query, Map<String, Object> params) throws RequestException {
+		
+		ContentSource xcs = getContentSource();
+		Session xss = xcs.newSession();
+		Request request = xss.newAdhocQuery(query);
+		bindParams(params, request);
 		ResultSequence rs = xss.submitRequest(request);		
 	    int cnt = 0;
-	    while (rs.hasNext()) {
+	    while (rs.hasNext() && cnt < 1) {
 	    	rs.next();
 	    	cnt++;
 	    }

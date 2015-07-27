@@ -57,6 +57,20 @@ public class PathBuilder {
 	public String toString() {
 		return getFullPath();
 	}
+
+	public static boolean isRegexPath(String path) {
+		return path.contains("*");
+	}
+	
+	public static String regexFromPath(String path) {
+		// todo: the regex must match only ONE element between SecurityInformation and Sector !!
+		//String regex = "^/" + prefix + ":Security/" + prefix + ":SecurityInformation/.*/" + prefix + ":Sector/text\\(\\)$";
+		int idx = path.indexOf("/*/");
+		String regex = "^" + path.substring(0, idx + 1) + ".*" + path.substring(idx + 2) + "$";
+		regex = regex.replace("(", "\\(");
+		regex = regex.replace(")", "\\)");
+		return regex;
+	}
 	
 	public class PathSegment {
 

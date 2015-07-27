@@ -17,14 +17,14 @@ public interface XDMIndexManagement {
 	 * registers a new index
 	 * 
 	 */
-	XDMPath createIndex(XDMIndex index);
+	XDMPath[] createIndex(XDMIndex index);
 	
 	/**
 	 * @param typeId
 	 * remove an existing index
 	 * 
 	 */
-	XDMPath deleteIndex(XDMIndex index);
+	XDMPath[] deleteIndex(XDMIndex index);
 
 
 	boolean rebuildIndex(int pathId);

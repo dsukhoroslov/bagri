@@ -14,12 +14,15 @@ import java.util.concurrent.BlockingQueue;
 
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.TabularData;
+import javax.xml.xquery.XQException;
+import javax.xml.xquery.XQItem;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.common.query.Comparison;
+import com.bagri.common.query.PathBuilder;
 import com.bagri.common.query.PathExpression;
 import com.bagri.common.stats.StatisticsEvent;
 import com.bagri.common.util.ReflectUtils;
@@ -143,41 +146,57 @@ public class IndexManagementImpl implements XDMIndexManagement, EntryAddedListen
 	}
 	
 	@Override
-	public XDMPath createIndex(XDMIndex index) {
-		XDMPath xPath = getPathForIndex(index);
-		idxDict.putIfAbsent(xPath.getPathId(), index);
-		//indexStats.initStats(index.getName());
-		if (index.isRange()) {
-			rangeIndex.put(xPath.getPathId(), new TreeMap<Comparable, Integer>());
-			logger.trace("createIndex; registered range index path: {}", index.getName());
+	public XDMPath[] createIndex(XDMIndex index) {
+		Set<Integer> paths = getPathsForIndex(index);
+		XDMPath[] result = new XDMPath[paths.size()];
+		int idx = 0;
+		for (Integer pathId: paths) {
+			idxDict.putIfAbsent(pathId, index);
+			//indexStats.initStats(index.getName());
+			if (index.isRange()) {
+				rangeIndex.put(pathId, new TreeMap<Comparable, Integer>());
+				logger.trace("createIndex; registered range index path: {}", index.getName());
+			}
+			result[idx] = mdlMgr.getPath(pathId);
+			idx++;
 		}
-		return xPath;
+		return result;
 	}
 	
 	@Override
-	public XDMPath deleteIndex(XDMIndex index) {
+	public XDMPath[] deleteIndex(XDMIndex index) {
 		// we must not do translate here!
-		XDMPath xPath = getPathForIndex(index);
-		//if (idxDict.remove(xPath.getPathId()) != null) {
-		//	return xPath;
-		//}
-		//return null;
-		idxDict.remove(xPath.getPathId());
-		//indexStats.deleteStats(index.getName());
-		if (index.isRange()) {
-			rangeIndex.remove(xPath.getPathId());
-			logger.trace("deleteIndex; unregistered range index path: {}", index.getName());
+		Set<Integer> paths = getPathsForIndex(index);
+		XDMPath[] result = new XDMPath[paths.size()];
+		int idx = 0;
+		for (Integer pathId: paths) {
+			idxDict.remove(pathId);
+			//indexStats.deleteStats(index.getName());
+			if (index.isRange()) {
+				rangeIndex.remove(pathId);
+				logger.trace("deleteIndex; unregistered range index path: {}", index.getName());
+			}
+			result[idx] = mdlMgr.getPath(pathId);
+			idx++;
 		}
-		return xPath;
+		return result;
 	}
 	
-	private XDMPath getPathForIndex(XDMIndex index) {
+	private Set<Integer> getPathsForIndex(XDMIndex index) {
 		int docType = mdlMgr.translateDocumentType(index.getDocumentType());
 		String path = index.getPath();
-		XDMNodeKind kind = path.endsWith("/text()") ? XDMNodeKind.text : XDMNodeKind.attribute;
-		XDMPath xPath = mdlMgr.translatePath(docType, path, kind);
-		logger.trace("getPathForIndex; returning: {}", xPath);
-		return xPath;
+		//XDMNodeKind kind = path.endsWith("/text()") ? XDMNodeKind.text : XDMNodeKind.attribute;
+		Set<Integer> result;
+		if (PathBuilder.isRegexPath(path)) {
+			path = mdlMgr.normalizePath(path);
+			result = mdlMgr.translatePathFromRegex(docType, PathBuilder.regexFromPath(path));
+		} else {
+			XDMPath xPath = mdlMgr.translatePath(docType, path, XDMNodeKind.fromPath(path));
+			result = new HashSet<>(1);
+			result.add(xPath.getPathId());
+		}
+		logger.trace("getPathsForIndex; returning {} for index {}", result, index);
+		return result;
 	}
 	
 	private Class getDataType(String dataType) {
@@ -257,14 +276,16 @@ public class IndexManagementImpl implements XDMIndexManagement, EntryAddedListen
 					xidx.addDocument(docId, XDMTransactionManagement.TX_NO);
 				}
 				idxCache.put(xid, xidx);
-				TreeMap<Comparable, Integer> range = rangeIndex.get(pathId);
-				Integer count = range.get(value);
-				if (count == null) {
-					count = 1;
-				} else {
-					count++;
+				if (idx.isRange()) {
+					TreeMap<Comparable, Integer> range = rangeIndex.get(pathId);
+					Integer count = range.get(value);
+					if (count == null) {
+						count = 1;
+					} else {
+						count++;
+					}
+					range.put((Comparable) value, count);
 				}
-				range.put((Comparable) value, count);
 			}
 			
 			// collect static index stats right here?
@@ -290,13 +311,15 @@ public class IndexManagementImpl implements XDMIndexManagement, EntryAddedListen
 	 				idxCache.delete(iKey);
 				}
 				TreeMap<Comparable, Integer> range = rangeIndex.get(pathId);
-				Integer count = range.get(value);
-				if (count != null) {
-					count++;
-					if (count > 0) {
-						range.put((Comparable) value, count);
-					} else {
-						range.remove(value);
+				if (range != null) {
+					Integer count = range.get(value);
+					if (count != null) {
+						count++;
+						if (count > 0) {
+							range.put((Comparable) value, count);
+						} else {
+							range.remove(value);
+						}
 					}
 				}
 			}
@@ -329,6 +352,14 @@ public class IndexManagementImpl implements XDMIndexManagement, EntryAddedListen
 				}
 				if (values.size() == 1) {
 					value = values.iterator().next();
+				}
+			} 
+			if (value instanceof XQItem) {
+				try {
+					value = ((XQItem) value).getObject();
+				} catch (XQException ex) {
+					logger.error("getIndexedDocuments.error", ex);
+					value = value.toString();
 				}
 			}
 			//value = value.toString();
@@ -439,12 +470,12 @@ public class IndexManagementImpl implements XDMIndexManagement, EntryAddedListen
             Map<String, Object> stats = new HashMap<>();
             stats.put("index", idx.getName());
             stats.put("path", idx.getPath());
-    		XDMPath xPath = getPathForIndex(idx);
+    		Set<Integer> paths = getPathsForIndex(idx);
     		long size = 0;
     		int count = 0;
     		int unique = 0;
     		for (Map.Entry<XDMIndexKey, XDMIndexedValue<?>> e: locals.entrySet()) {
-    			if (e.getKey().getPathId() == xPath.getPathId()) {
+    			if (paths.contains(e.getKey().getPathId())) {
     				count += e.getValue().getCount();
     				unique++;
     				size += 8 + 8 + 8 + //sizeof(e.getKey().getValue()) 
