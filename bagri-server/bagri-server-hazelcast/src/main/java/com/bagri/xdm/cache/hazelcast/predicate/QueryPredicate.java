@@ -1,6 +1,6 @@
 package com.bagri.xdm.cache.hazelcast.predicate;
 
-import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_ApplyQueryTask;
+import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_QueryPredicate;
 import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.factoryId;
 
 import java.io.IOException;
@@ -46,7 +46,7 @@ public class QueryPredicate implements Predicate<XDMDataKey, XDMElements>, Ident
 	
 	@Override
 	public int getId() {
-		return cli_ApplyQueryTask;
+		return cli_QueryPredicate;
 	}
 
 	@Override

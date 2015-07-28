@@ -18,7 +18,7 @@
 declare namespace bgdm=&quot;http://bagri.com/bagri-xdm&quot;;
 declare variable $doc external;
 
-for $id in bgdm:store-document($doc)
+let $id := bgdm:store-document($doc)
 return $id" />
 				</parameter>
 				<parameter>

@@ -15,6 +15,7 @@ import javax.xml.xquery.XQSequence;
 
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import com.bagri.xdm.domain.XDMDocument;
 import com.hazelcast.core.HazelcastInstance;
 
 public class ClientApp {
@@ -61,13 +62,6 @@ public class ClientApp {
 	    }
 
 	    //context.close();
-	    
-		//try { 
-		//	client.runPriceQuery();
-		//} catch (XQException ex) {
-			// expected empty result
-		//	System.out.println("no document found - correct");
-		//}
 	}
 	
 	public ClientApp(XQConnection xqc) {
@@ -220,21 +214,22 @@ public class ClientApp {
 		}
 
 		String query = "declare namespace bgdm=\"http://bagri.com/bagri-xdm\";\n" +
-				"declare variable $sec external;\n" + 
+				"declare variable $xml external;\n" + 
 				//"declare option bgdm:document-format \"JSON\";\n\n" + 
-				//"return bgdm:store-document($sec)\n";
-				"for $id in bgdm:store-document($sec)\n" +
+				"let $id := bgdm:store-document($xml)\n" +
 				"return $id\n";
 
 	    XQPreparedExpression xqpe = xqc.prepareExpression(query);
-	    xqpe.bindString(new QName("sec"), xml, xqc.createAtomicType(XQItemType.XQBASETYPE_STRING));
+	    xqpe.bindString(new QName("xml"), xml, xqc.createAtomicType(XQItemType.XQBASETYPE_STRING));
 	    XQSequence xqs = xqpe.executeQuery();
 	    if (xqs.next()) {
-	    	long result = xqs.getLong();
+	    	long id = xqs.getLong();
 		    xqpe.close();
-		    return result;
+		    xqs.close();
+		    return id;
 	    } else {
 	    	xqpe.close();
+	    	xqs.close();
 	    	throw new XQException("no response from store-document function");
 	    }
 	}

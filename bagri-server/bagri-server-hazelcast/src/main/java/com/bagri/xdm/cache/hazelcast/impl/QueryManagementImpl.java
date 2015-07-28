@@ -15,6 +15,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.xml.namespace.QName;
+import javax.xml.xquery.XQException;
+import javax.xml.xquery.XQItem;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +30,7 @@ import com.bagri.common.query.PathExpression;
 import com.bagri.common.query.QueryBuilder;
 import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.cache.api.XDMQueryManagement;
+import com.bagri.xdm.cache.hazelcast.predicate.DocsAwarePredicate;
 import com.bagri.xdm.cache.hazelcast.predicate.QueryPredicate;
 import com.bagri.xdm.client.hazelcast.data.QueryParamsKey;
 import com.bagri.xdm.client.hazelcast.impl.ResultCursor;
@@ -305,26 +308,30 @@ public class QueryManagementImpl implements XDMQueryManagement {
 			return result;
 		}
 
-		QueryPredicate qp;
 		if (value instanceof Collection) {
 			Collection values = (Collection) value;
 			if (values.size() == 0) {
 				return Collections.emptySet();
 			}
 			if (values.size() == 1) {
-		   		qp = new QueryPredicate(pex, values.iterator().next());
-			} else {
-				qp = new QueryPredicate(pex, value);
+				value = values.iterator().next();
 			}
-		} else {
-	   		qp = new QueryPredicate(pex, value);
+		} 
+		if (value instanceof XQItem) {
+			try {
+				value = ((XQItem) value).getObject();
+			} catch (XQException ex) {
+				logger.error("getIndexedDocuments.error", ex);
+				value = value.toString();
+			}
 		}
 
-		Predicate<XDMDataKey, XDMElements> f = Predicates.and(pp, qp);
-   		Set<XDMDataKey> xdmKeys = xdmCache.keySet(f);
-		logger.trace("queryPathKeys; got {} query results", xdmKeys.size()); 
-		result = new HashSet<Long>(xdmKeys.size());
 		if (found == null) {
+			QueryPredicate qp = new QueryPredicate(pex, value);
+			Predicate<XDMDataKey, XDMElements> f = Predicates.and(pp, qp);
+	   		Set<XDMDataKey> xdmKeys = xdmCache.keySet(f);
+			logger.trace("queryPathKeys; got {} query results", xdmKeys.size()); 
+			result = new HashSet<Long>(xdmKeys.size());
 			for (XDMDataKey key: xdmKeys) {
 				long docId = key.getDocumentId();
 				if (checkDocumentCommited(docId)) {
@@ -332,11 +339,14 @@ public class QueryManagementImpl implements XDMQueryManagement {
 				}
 			}
 		} else {
+			QueryPredicate qp = new DocsAwarePredicate(pex, value, found);
+			Predicate<XDMDataKey, XDMElements> f = Predicates.and(pp, qp);
+	   		Set<XDMDataKey> xdmKeys = xdmCache.keySet(f);
+			logger.trace("queryPathKeys; got {} docs aware query results", xdmKeys.size()); 
+			result = new HashSet<Long>(xdmKeys.size());
 			for (XDMDataKey key: xdmKeys) {
 				long docId = key.getDocumentId();
-				if (found.contains(docId)) {
-					result.add(docId);
-				}
+				result.add(docId);
 			}
 		}
 		logger.trace("queryPathKeys.exit; returning {} keys", result.size()); 

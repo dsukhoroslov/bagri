@@ -11,6 +11,7 @@ import com.marklogic.xcc.ResultSequence;
 import com.marklogic.xcc.Session;
 import com.marklogic.xcc.ValueFactory;
 import com.marklogic.xcc.exceptions.RequestException;
+import com.marklogic.xcc.types.ValueType;
 import com.marklogic.xcc.types.XName;
 import com.marklogic.xcc.types.XdmValue;
 import com.xqj2.XQConnection2;
@@ -150,22 +151,22 @@ public class MarkLogicXCCPlugin extends BagriTPoXPlugin {
 	    	XdmValue value;
 	    	if (e.getValue() instanceof Boolean) {
 	    		value = ValueFactory.newXSBoolean((Boolean) e.getValue());
-	    	//} else if (e.getValue() instanceof Byte) {
-	    	//	value = ValueFactory.new
-	    	//} else if (e.getValue() instanceof Double) {
-		    //	xqe.bindDouble(new QName(e.getKey()), (Double) e.getValue(), null);
-	    	//} else if (e.getValue() instanceof Float) {
-		    //	xqe.bindFloat(new QName(e.getKey()), (Float) e.getValue(), null);
+	    	} else if (e.getValue() instanceof Byte) {
+	    		value = ValueFactory.newXSInteger((Byte) e.getValue());
+	    	} else if (e.getValue() instanceof Double) {
+	    		value = ValueFactory.newValue(ValueType.XS_DOUBLE, (Double) e.getValue());
+	    	} else if (e.getValue() instanceof Float) {
+	    		value = ValueFactory.newValue(ValueType.XS_FLOAT, (Float) e.getValue());
 	    	} else if (e.getValue() instanceof Integer) {
 				value = ValueFactory.newXSInteger((Integer) e.getValue());
 	    	} else if (e.getValue() instanceof Long) {
 	    		value = ValueFactory.newXSInteger((Long) e.getValue());
-	    	//} else if (e.getValue() instanceof Short) {
-		    //	xqe.bindShort(new QName(e.getKey()), (Short) e.getValue(), null);
+	    	} else if (e.getValue() instanceof Short) {
+	    		value = ValueFactory.newXSInteger((Short) e.getValue());
 	    	} else {
 				value = ValueFactory.newXSString(e.getValue().toString());
 	    	}
-			request.setVariable(ValueFactory.newVariable (name, value));
+			request.setVariable(ValueFactory.newVariable(name, value));
 	    }
 	}
 	

@@ -61,7 +61,8 @@ import static com.bagri.xqj.BagriXQConstants.*;
 import com.bagri.xqj.BagriXQUtils;
 import com.bagri.xquery.api.XQProcessorBase;
 import com.bagri.xquery.saxon.extension.RemoveDocument;
-import com.bagri.xquery.saxon.extension.StoreDocument;
+import com.bagri.xquery.saxon.extension.StoreDocumentWithId;
+import com.bagri.xquery.saxon.extension.StoreDocumentWithUri;
 
 public abstract class XQProcessorImpl extends XQProcessorBase {
 
@@ -244,7 +245,8 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
     public void setRepository(XDMRepository xRepo) {
     	//config.setConfigurationProperty("xdm", mgr);
     	super.setRepository(xRepo);
-        config.registerExtensionFunction(new StoreDocument(xRepo.getDocumentManagement()));
+        config.registerExtensionFunction(new StoreDocumentWithId(xRepo.getDocumentManagement()));
+        config.registerExtensionFunction(new StoreDocumentWithUri(xRepo.getDocumentManagement()));
         config.registerExtensionFunction(new RemoveDocument(xRepo.getDocumentManagement()));
         if (xRepo instanceof com.bagri.xdm.cache.api.XDMRepository) {
         	logger.debug("setRepository; registering extensions"); 

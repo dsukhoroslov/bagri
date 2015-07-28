@@ -14,7 +14,7 @@
 declare namespace bgdm=&quot;http://bagri.com/bagri-xdm&quot;;
 declare variable $sec external;
 
-for $id in bgdm:store-document($sec)
+let $id := bgdm:store-document($sec)
 return $id" />
 				</parameter>
 				<parameter>
@@ -127,28 +127,28 @@ return	&lt;Security&gt;
 					<constant value="pemin" />
 				</parameter>
 				<parameter>
-					<constant value="int" />
+					<constant value="float" />
 				</parameter>
 				<parameter>
-					<uniform_int min="5" max="15" />
+					<uniform_dec min="5.0" max="15.0" />
 				</parameter>
 				<parameter>
 					<constant value="pemax" />
 				</parameter>
 				<parameter>
-					<constant value="int" />
+					<constant value="float" />
 				</parameter>
 				<parameter>
-					<uniform_int min="25" max="40" />
+					<uniform_dec min="25.0" max="40.0" />
 				</parameter>
 				<parameter>
 					<constant value="yield" />
 				</parameter>
 				<parameter>
-					<constant value="int" />
+					<constant value="float" />
 				</parameter>
 				<parameter>
-					<uniform_int min="0" max="7" />
+					<uniform_dec min="0.1" max="7.0" />
 				</parameter>
 			</parameters>
 		</transaction>
