@@ -3,9 +3,7 @@ package com.bagri.xdm.client.hazelcast.serialize;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 import com.bagri.xdm.domain.XDMUniqueDocument;
 import com.bagri.xdm.domain.XDMUniqueValue;
@@ -27,7 +25,7 @@ public class XDMUniqueDocumentSerializer implements StreamSerializer<XDMUniqueDo
 	@Override
 	public XDMUniqueDocument read(ObjectDataInput in) throws IOException {
 		
-		XDMUniqueDocument xIndex = new XDMUniqueDocument(in.readInt(), in.readObject(), null);
+		XDMUniqueDocument xIndex = new XDMUniqueDocument();
 		int size = in.readInt();
 		List<XDMUniqueValue> vals = new ArrayList<>(size);
 		for (int i=0; i < size; i++) {
@@ -41,8 +39,6 @@ public class XDMUniqueDocumentSerializer implements StreamSerializer<XDMUniqueDo
 	@Override
 	public void write(ObjectDataOutput out, XDMUniqueDocument xIndex) throws IOException {
 		
-		out.writeInt(xIndex.getPathId());
-		out.writeObject(xIndex.getValue());
 		Collection<XDMUniqueValue> vals = xIndex.getDocumentValues();
 		out.writeInt(vals.size());
 		for (XDMUniqueValue val: vals) {

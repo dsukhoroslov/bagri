@@ -55,7 +55,7 @@ public class IndexManagementImpl implements XDMIndexManagement, EntryAddedListen
 	
 	private static final transient Logger logger = LoggerFactory.getLogger(IndexManagementImpl.class);
 	private IMap<Integer, XDMIndex> idxDict;
-    private IMap<XDMIndexKey, XDMIndexedValue<?>> idxCache;
+    private IMap<XDMIndexKey, XDMIndexedValue> idxCache;
     private IMap<XDMDataKey, XDMElements> xdmCache;
 	private IExecutorService execService;
 	private Map<Integer, TreeMap<Comparable, Integer>> rangeIndex = new HashMap<>();
@@ -83,7 +83,7 @@ public class IndexManagementImpl implements XDMIndexManagement, EntryAddedListen
 		return idxDict;
 	}
 	
-    IMap<XDMIndexKey, XDMIndexedValue<?>> getIndexCache() {
+    IMap<XDMIndexKey, XDMIndexedValue> getIndexCache() {
     	return idxCache;
     }
 
@@ -95,7 +95,7 @@ public class IndexManagementImpl implements XDMIndexManagement, EntryAddedListen
 		this.idxDict = idxDict;
 	}
 	
-    public void setIndexCache(IMap<XDMIndexKey, XDMIndexedValue<?>> idxCache) {
+    public void setIndexCache(IMap<XDMIndexKey, XDMIndexedValue> idxCache) {
     	this.idxCache = idxCache;
     }
     
@@ -260,7 +260,7 @@ public class IndexManagementImpl implements XDMIndexManagement, EntryAddedListen
 					}
 				}
 
-				xidx = new XDMUniqueDocument(pathId, value, docId);
+				xidx = new XDMUniqueDocument(docId);
 				xidx = idxCache.putIfAbsent(xid, xidx);
 				if (xidx != null) {
 					// but what if it is not commited yet!?
@@ -271,7 +271,7 @@ public class IndexManagementImpl implements XDMIndexManagement, EntryAddedListen
 				}
 			} else {
 				if (xidx == null) {
-					xidx = new XDMIndexedDocument(pathId, value, docId);
+					xidx = new XDMIndexedDocument(docId);
 				} else { 
 					xidx.addDocument(docId, XDMTransactionManagement.TX_NO);
 				}
@@ -393,7 +393,7 @@ public class IndexManagementImpl implements XDMIndexManagement, EntryAddedListen
 					for (Object o: subRange.keySet()) {
 						keys.add(factory.newXDMIndexKey(pathId, o));
 					}
-					Map<XDMIndexKey, XDMIndexedValue<?>> values = idxCache.getAll(keys);
+					Map<XDMIndexKey, XDMIndexedValue> values = idxCache.getAll(keys);
 					result = new HashSet<>(values.size());
 					if (values.size() > 0) {
 						for (XDMIndexedValue val: values.values()) {
@@ -432,7 +432,7 @@ public class IndexManagementImpl implements XDMIndexManagement, EntryAddedListen
 		for (Object value: values) {
 			keys.add(factory.newXDMIndexKey(pathId, value));
 		}
-		Map<XDMIndexKey, XDMIndexedValue<?>> xidv = idxCache.getAll(keys);
+		Map<XDMIndexKey, XDMIndexedValue> xidv = idxCache.getAll(keys);
 		Set<Long> ids = new HashSet<>(xidv.size());
 		for (XDMIndexedValue value: xidv.values()) {
 			ids.addAll(value.getDocumentIds());
@@ -463,7 +463,7 @@ public class IndexManagementImpl implements XDMIndexManagement, EntryAddedListen
 	public TabularData getIndexStats() {
 
 		Set<XDMIndexKey> keys = idxCache.localKeySet();
-		Map<XDMIndexKey, XDMIndexedValue<?>> locals = idxCache.getAll(keys);
+		Map<XDMIndexKey, XDMIndexedValue> locals = idxCache.getAll(keys);
 		
         TabularData result = null;
 		for (XDMIndex idx: idxDict.values()) {
@@ -474,7 +474,7 @@ public class IndexManagementImpl implements XDMIndexManagement, EntryAddedListen
     		long size = 0;
     		int count = 0;
     		int unique = 0;
-    		for (Map.Entry<XDMIndexKey, XDMIndexedValue<?>> e: locals.entrySet()) {
+    		for (Map.Entry<XDMIndexKey, XDMIndexedValue> e: locals.entrySet()) {
     			if (paths.contains(e.getKey().getPathId())) {
     				count += e.getValue().getCount();
     				unique++;

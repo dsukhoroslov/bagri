@@ -4,7 +4,9 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-public class XDMIndexedDocument<V> extends XDMIndexedValue<V> {
+import static com.bagri.xdm.api.XDMTransactionManagement.TX_NO;
+
+public class XDMIndexedDocument extends XDMIndexedValue {
 	
 	private Set<Long> docIds = new HashSet<Long>();
 
@@ -12,16 +14,16 @@ public class XDMIndexedDocument<V> extends XDMIndexedValue<V> {
 		super();
 	}
 
-	public XDMIndexedDocument(int pathId, V value, long docId) {
-		super(pathId, value);
-		addDocument(docId, 0);
+	public XDMIndexedDocument(long docId) {
+		super();
+		addDocument(docId, TX_NO);
 	}
 
-	public XDMIndexedDocument(int pathId, V value, Collection<Long> docIds) {
-		super(pathId, value);
+	public XDMIndexedDocument(Collection<Long> docIds) {
+		super();
 		if (docIds != null) {
 			for (Long docId: docIds) {
-				addDocument(docId, 0);
+				addDocument(docId, TX_NO);
 			}
 		}
 	}
@@ -59,7 +61,7 @@ public class XDMIndexedDocument<V> extends XDMIndexedValue<V> {
 
 	@Override
 	public String toString() {
-		return "XDMIndexedValue [pathId=" + pathId + "; value=" + value + "; docIds=" + docIds + "]";
+		return "XDMIndexedValue [docIds=" + docIds + "]";
 	}
 
 }

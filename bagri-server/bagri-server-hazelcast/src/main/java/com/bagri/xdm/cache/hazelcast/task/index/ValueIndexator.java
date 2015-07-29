@@ -48,7 +48,7 @@ public class ValueIndexator implements EntryProcessor<XDMIndexKey, XDMIndexedVal
 	public Object process(Entry<XDMIndexKey, XDMIndexedValue> entry) {
 		XDMIndexedValue index = entry.getValue(); 
 		if (index == null) {
-			index = new XDMIndexedDocument(entry.getKey().getPathId(), entry.getKey().getValue(), docId);
+			index = new XDMIndexedDocument(docId);
 		} else {
 			index.addDocument(docId, XDMTransactionManagement.TX_NO);
 		}

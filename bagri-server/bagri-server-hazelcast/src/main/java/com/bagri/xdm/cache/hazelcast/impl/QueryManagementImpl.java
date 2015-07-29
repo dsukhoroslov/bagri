@@ -288,7 +288,8 @@ public class QueryManagementImpl implements XDMQueryManagement {
 				logger.trace("queryPathKeys; search for index - got ids: {}", docIds == null ? null : docIds.size()); 
 				if (docIds != null) {
 					if (found == null) {
-						result.addAll(checkDocumentsCommited(docIds));
+						//result.addAll(checkDocumentsCommited(docIds));
+						result.addAll(docIds);
 					} else {
 						found.retainAll(docIds);
 						result = found;
@@ -334,9 +335,9 @@ public class QueryManagementImpl implements XDMQueryManagement {
 			result = new HashSet<Long>(xdmKeys.size());
 			for (XDMDataKey key: xdmKeys) {
 				long docId = key.getDocumentId();
-				if (checkDocumentCommited(docId)) {
+				//if (checkDocumentCommited(docId)) {
 					result.add(docId);
-				}
+				//}
 			}
 		} else {
 			QueryPredicate qp = new DocsAwarePredicate(pex, value, found);
@@ -376,7 +377,8 @@ public class QueryManagementImpl implements XDMQueryManagement {
 	public Collection<Long> getDocumentIDs(ExpressionContainer query) {
 		ExpressionBuilder exp = query.getExpression();
 		if (exp.getRoot() != null) {
-			return queryKeys(null, query, exp.getRoot());
+			Set<Long> ids = queryKeys(null, query, exp.getRoot()); 
+			return checkDocumentsCommited(ids);
 		}
 		logger.info("getDocumentIDs; got rootless path: {}", query); 
 		// can we use local keySet only !?

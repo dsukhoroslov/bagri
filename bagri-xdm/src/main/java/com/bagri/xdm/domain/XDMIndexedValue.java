@@ -8,28 +8,12 @@ import java.util.Set;
  * @author Denis Sukhoroslov: dsukhoroslov@gmail.com
  * @version 0.5
  */
-public abstract class XDMIndexedValue<V> { 
+public abstract class XDMIndexedValue { 
 
-	protected int pathId;
-	protected V value;
-	
 	public XDMIndexedValue() {
 		// de-ser
 	}
 
-	public XDMIndexedValue(int pathId, V value) {
-		this.pathId = pathId;
-		this.value = value;
-	}
-
-	public int getPathId() {
-		return pathId;
-	}
-	
-	public V getValue() {
-		return value;
-	}
-	
 	public abstract int getCount();
 	public abstract long getDocumentId();
 	public abstract Set<Long> getDocumentIds();
