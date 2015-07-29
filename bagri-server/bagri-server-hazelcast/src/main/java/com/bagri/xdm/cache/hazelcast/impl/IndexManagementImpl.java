@@ -5,12 +5,15 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.BlockingQueue;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.TabularData;
@@ -59,6 +62,7 @@ public class IndexManagementImpl implements XDMIndexManagement, EntryAddedListen
     private IMap<XDMDataKey, XDMElements> xdmCache;
 	private IExecutorService execService;
 	private Map<Integer, TreeMap<Comparable, Integer>> rangeIndex = new HashMap<>();
+	private Map<XDMIndex, Pattern> patterns = new HashMap<>();
 
 	private XDMFactory factory;
     private ModelManagementImpl mdlMgr;
@@ -160,6 +164,10 @@ public class IndexManagementImpl implements XDMIndexManagement, EntryAddedListen
 			result[idx] = mdlMgr.getPath(pathId);
 			idx++;
 		}
+		if (isPatternIndex(index)) {
+			String path = mdlMgr.normalizePath(index.getPath());
+			patterns.put(index, Pattern.compile(PathBuilder.regexFromPath(path)));
+		}
 		return result;
 	}
 	
@@ -179,13 +187,13 @@ public class IndexManagementImpl implements XDMIndexManagement, EntryAddedListen
 			result[idx] = mdlMgr.getPath(pathId);
 			idx++;
 		}
+		patterns.remove(index);
 		return result;
 	}
 	
 	private Set<Integer> getPathsForIndex(XDMIndex index) {
 		int docType = mdlMgr.translateDocumentType(index.getDocumentType());
 		String path = index.getPath();
-		//XDMNodeKind kind = path.endsWith("/text()") ? XDMNodeKind.text : XDMNodeKind.attribute;
 		Set<Integer> result;
 		if (PathBuilder.isRegexPath(path)) {
 			path = mdlMgr.normalizePath(path);
@@ -197,6 +205,10 @@ public class IndexManagementImpl implements XDMIndexManagement, EntryAddedListen
 		}
 		logger.trace("getPathsForIndex; returning {} for index {}", result, index);
 		return result;
+	}
+	
+	private boolean isPatternIndex(XDMIndex index) {
+		return PathBuilder.isRegexPath(index.getPath());
 	}
 	
 	private Class getDataType(String dataType) {
@@ -224,14 +236,42 @@ public class IndexManagementImpl implements XDMIndexManagement, EntryAddedListen
 		return String.class;
 	}
 	
-	public void addIndex(long docId, int pathId, Object value) {
-		// add index !
+	private Collection<XDMIndex> getPathIndexes(int pathId, String path) {
+		Set<XDMIndex> result = new HashSet<>();
+		for (Map.Entry<XDMIndex, Pattern> e: patterns.entrySet()) {
+			Matcher m = e.getValue().matcher(path);
+			boolean match = m.matches(); 
+			if (match) {
+				result.add(e.getKey());
+				idxDict.putIfAbsent(pathId, e.getKey());
+			}
+			logger.trace("getPathIndexes; pattern {} {}matched for path {}", e.getValue().pattern(), match ? "" : "not ", path);
+		}
+		XDMIndex idx = idxDict.get(pathId);
+		if (idx != null) {
+			result.add(idx);
+		}
+		return result;
+	}
+	
+	public void addIndex(long docId, int pathId, String path, Object value) {
+
+		// shouldn't we index NULL values too? create special NULL class for this..
 		if (value != null) {
-			XDMIndex idx = idxDict.get(pathId);
-			if (idx == null) {
+			Collection<XDMIndex> indexes = getPathIndexes(pathId, path);
+			if (indexes.isEmpty()) {
 				return;
 			}
 			
+			for (XDMIndex idx: indexes) {
+				indexPath(idx, docId, pathId, value);
+			}
+		}
+	}
+	
+	private void indexPath(XDMIndex idx, long docId, int pathId, Object value) {
+
+		if (value != null) {
 			Class dataType = getDataType(idx.getDataType());
 			if (dataType.isInstance("String")) {
 				if (!idx.isCaseSensitive()) {
@@ -243,10 +283,10 @@ public class IndexManagementImpl implements XDMIndexManagement, EntryAddedListen
 					value = ReflectUtils.getValue(dataType, (String) value);
 				} catch (Exception ex) {
 					// just log error and use old value
-					logger.error("addIndex.error: " + ex, ex);
+					logger.error("indexPath.error: " + ex, ex);
 				}
 			}
-			logger.trace("addIndex; index: {}, dataType: {}, value: {}", idx, dataType, value);
+			logger.trace("indexPath; index: {}, dataType: {}, value: {}", idx, dataType, value);
 			
 			XDMIndexKey xid = factory.newXDMIndexKey(pathId, value);
 			XDMIndexedValue xidx = idxCache.get(xid);
@@ -287,6 +327,10 @@ public class IndexManagementImpl implements XDMIndexManagement, EntryAddedListen
 					range.put((Comparable) value, count);
 				}
 			}
+
+			//if (isPatternIndex(idx)) {
+			//	logger.info("indexPath; indexed pattern: {}, dataType: {}, value: {}", idx, dataType, value);
+			//}
 			
 			// collect static index stats right here?
 			
@@ -294,6 +338,8 @@ public class IndexManagementImpl implements XDMIndexManagement, EntryAddedListen
 			//ValueIndexator indexator = new ValueIndexator(docId);
 			//idxCache.submitToKey(xid, indexator);
 			//logger.trace("addIndex; index submit for key {}", xid);
+		} else {
+			// shouldn't we index NULL values too? create special NULL class for this..
 		}
 	}
 	
@@ -352,7 +398,10 @@ public class IndexManagementImpl implements XDMIndexManagement, EntryAddedListen
 				}
 				if (values.size() == 1) {
 					value = values.iterator().next();
+				} else {
+					// CompType must be IN !
 				}
+				
 			} 
 			if (value instanceof XQItem) {
 				try {
@@ -465,34 +514,44 @@ public class IndexManagementImpl implements XDMIndexManagement, EntryAddedListen
 		Set<XDMIndexKey> keys = idxCache.localKeySet();
 		Map<XDMIndexKey, XDMIndexedValue> locals = idxCache.getAll(keys);
 		
-        TabularData result = null;
-		for (XDMIndex idx: idxDict.values()) {
-            Map<String, Object> stats = new HashMap<>();
-            stats.put("index", idx.getName());
-            stats.put("path", idx.getPath());
-    		Set<Integer> paths = getPathsForIndex(idx);
+        Map<String, Map<String, Object>> map = new HashMap<>(idxDict.size());
+		for (Map.Entry<Integer, XDMIndex> eIdx: idxDict.entrySet()) {
+			XDMIndex idx = eIdx.getValue();
     		long size = 0;
     		int count = 0;
     		int unique = 0;
-    		for (Map.Entry<XDMIndexKey, XDMIndexedValue> e: locals.entrySet()) {
-    			if (paths.contains(e.getKey().getPathId())) {
-    				count += e.getValue().getCount();
-    				unique++;
+            Map<String, Object> stats = map.get(idx.getName());
+            if (stats == null) {
+            	stats = new HashMap<>();
+            	stats.put("index", idx.getName());
+            	stats.put("path", idx.getPath());
+            	map.put(idx.getName(), stats);
+            } else {
+        		size = (Long) stats.get("consumed size");
+        		count = (Integer) stats.get("indexed documents");
+        		unique = (Integer) stats.get("distinct values");
+            }
+    		for (Map.Entry<XDMIndexKey, XDMIndexedValue> eVal: locals.entrySet()) {
+    			if (eVal.getKey().getPathId() == eIdx.getKey()) {
+    				count += eVal.getValue().getCount();
+    				unique++; // not sure this is correct in case of the same value but for different path!
     				size += 8 + 8 + 8 + //sizeof(e.getKey().getValue()) 
-    						8 + 8 + e.getValue().getCount() * 16;
+    						8 + 8 + eVal.getValue().getCount() * 16;
     			}
     		}
     		stats.put("indexed documents", count);
     		stats.put("distinct values", unique);
     		stats.put("consumed size", size);
+		}
             
+        TabularData result = null;
+		for (Map.Entry<String, Map<String, Object>> e: map.entrySet()) {
             try {
-                CompositeData data = JMXUtils.mapToComposite("Name", "Header", stats);
+                CompositeData data = JMXUtils.mapToComposite("Name", "Header", e.getValue());
                 result = JMXUtils.compositeToTabular("Name", "Header", "index", result, data);
             } catch (Exception ex) {
                 logger.error("getIndexStats; error", ex);
             }
-			
 		}
         return result;
 	}

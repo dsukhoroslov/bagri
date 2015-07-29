@@ -1,0 +1,28 @@
+{
+  "extractResponse": {
+    "responseId": "a8098c1a-f86e-11da-bd1a-00112444be1e",
+    "dataRow": [
+      {
+        "ID": 330711, 
+        "LEGAL_NAME": "INVESTEC BANK PLC", 
+        "SHORT_NAME": "ROYBANCANLDN", 
+        "GROUP_ID": 7748639, 
+        "PARENT_ID": 1112311
+      },
+      {
+        "ID": 344211, 
+        "LEGAL_NAME": "KBC BANK N.V.", 
+        "SHORT_NAME": "BUNDBON", 
+        "GROUP_ID": 1119681, 
+        "PARENT_ID": 157
+      },
+      {
+        "ID": 398781, 
+        "LEGAL_NAME": "RABOBANK NEDERLAND", 
+        "SHORT_NAME": "DBAG_FXCCY", 
+        "GROUP_ID": 799, 
+        "PARENT_ID": 799
+      }
+    ]
+  }
+}                          
