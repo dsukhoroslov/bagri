@@ -295,7 +295,7 @@ public class IndexManagementImpl implements XDMIndexManagement, EntryAddedListen
 				// check xidx.docIds - update document UC..
 				if (xidx != null) {
 					long currId = xidx.getDocumentId();
-					if (id != XDMDocumentKey.toDocumentId(currId)) {
+					if (currId > 0 && id != XDMDocumentKey.toDocumentId(currId)) {
 						throw new IllegalStateException("unique index '" + idx.getName() + "' violated for docId: " + docId + ", pathId: " + pathId + ", value: " + value);
 					}
 				}

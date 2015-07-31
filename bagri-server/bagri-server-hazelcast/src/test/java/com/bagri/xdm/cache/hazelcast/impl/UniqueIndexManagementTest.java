@@ -122,6 +122,49 @@ public class UniqueIndexManagementTest extends XDMManagementTest {
 	}
 	
 	@Test
+	public void uniqueDocumentRollbackTest() throws IOException {
+		
+		long txId = getTxManagement().beginTransaction();
+		XDMDocument doc = createDocumentTest(sampleRoot + getFileName("security1500.xml"));
+		Assert.assertNotNull(doc);
+		Assert.assertTrue(doc.getTxStart() == txId);
+		ids.add(doc.getDocumentKey());
+		getTxManagement().rollbackTransaction(txId);
+		
+		txId = getTxManagement().beginTransaction();
+		doc = createDocumentTest(sampleRoot + getFileName("security1500.xml"));
+		Assert.assertNotNull(doc);
+		ids.add(doc.getDocumentKey());
+		getTxManagement().commitTransaction(txId);
+		
+		Collection<String> sec = getSecurity("VFINX");
+		Assert.assertNotNull(sec);
+		Assert.assertTrue("expected 1 but got " + sec.size() + " test documents", sec.size() == 1);
+	}
+	
+	@Test
+	public void uniqueDocumentDeleteTest() throws IOException {
+		
+		long txId = getTxManagement().beginTransaction();
+		XDMDocument doc = createDocumentTest(sampleRoot + getFileName("security1500.xml"));
+		Assert.assertNotNull(doc);
+		Assert.assertTrue(doc.getTxStart() == txId);
+		ids.add(doc.getDocumentKey());
+		getTxManagement().commitTransaction(txId);
+
+		txId = getTxManagement().beginTransaction();
+		removeDocumentTest(doc.getDocumentKey());
+		doc = createDocumentTest(sampleRoot + getFileName("security1500.xml"));
+		Assert.assertNotNull(doc);
+		ids.add(doc.getDocumentKey());
+		getTxManagement().commitTransaction(txId);
+		
+		Collection<String> sec = getSecurity("VFINX");
+		Assert.assertNotNull(sec);
+		Assert.assertTrue("expected 1 but got " + sec.size() + " test documents", sec.size() == 1);
+	}
+	
+	@Test
 	public void twoDocumentsUpdateTest() throws IOException {
 
 		long txId = getTxManagement().beginTransaction();
