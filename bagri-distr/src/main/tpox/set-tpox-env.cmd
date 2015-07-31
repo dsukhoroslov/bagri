@@ -34,4 +34,6 @@ set java_opts=%java_opts% -Dxdm.schema.password=password
 set java_opts=%java_opts% -Dxdm.client.submitTo=any
 rem possible values are: member, owner, any
 
+set java_opts=%java_opts% -Duser.country=US -Duser.language=en
+
 exit /b

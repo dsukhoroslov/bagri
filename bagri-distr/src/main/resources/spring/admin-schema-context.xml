@@ -49,7 +49,9 @@
 				<hz:serializer type-class="com.bagri.xdm.domain.XDMNamespace" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMNamespaceSerializer"/>
 				<hz:serializer type-class="com.bagri.xdm.domain.XDMQuery" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMQuerySerializer"/>
 				<hz:serializer type-class="com.bagri.xdm.domain.XDMResults" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMResultsSerializer"/>
-				<hz:serializer type-class="com.bagri.xdm.domain.XDMIndexedValue" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMIndexedValueSerializer"/>
+				<hz:serializer type-class="com.bagri.xdm.domain.XDMIndexedDocument" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMIndexedDocumentSerializer"/>
+				<hz:serializer type-class="com.bagri.xdm.domain.XDMUniqueDocument" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMUniqueDocumentSerializer"/>
+				<hz:serializer type-class="com.bagri.xdm.domain.XDMUniqueValue" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMUniqueValueSerializer"/>
 				<hz:serializer type-class="com.bagri.xdm.domain.XDMTransaction" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMTransactionSerializer"/>
 				<hz:serializer type-class="com.bagri.xdm.system.XDMIndex" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMIndexSerializer"/>
 				<hz:serializer type-class="com.bagri.xdm.system.XDMTriggerAction" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMTriggerActionSerializer"/>
@@ -176,8 +178,13 @@
     		<property name="XQDataFactory" ref="xqConnection" />
 	</bean>
 
+	<bean id="invocationStatsAggregator" class="com.bagri.common.stats.InvocationStatsAggregator"/>
+
+	<bean id="usageStatsAggregator" class="com.bagri.common.stats.UsageStatsAggregator"/>
+
 	<bean id="docManager" class="com.bagri.xdm.cache.hazelcast.management.DocumentManagement">
 		<constructor-arg value="${xdm.schema.name}" />
+		<property name="statsAggregator" ref="invocationStatsAggregator"/>
 		<property name="execService" ref="xdm-exec-pool"/>
 		<property name="documentManager" ref="xdmManager"/>
 		<property name="modelManager" ref="xdmModel"/>
@@ -185,12 +192,14 @@
 
 	<bean id="indexManager" class="com.bagri.xdm.cache.hazelcast.management.IndexManagement">
 		<constructor-arg value="${xdm.schema.name}" />
+		<property name="statsAggregator" ref="usageStatsAggregator"/>
 		<property name="execService" ref="xdm-exec-pool"/>
 		<property name="modelManager" ref="xdmModel"/>
 	</bean>
 
 	<bean id="triggerManager" class="com.bagri.xdm.cache.hazelcast.management.TriggerManagement">
 		<constructor-arg value="${xdm.schema.name}" />
+		<property name="statsAggregator" ref="usageStatsAggregator"/>
 		<property name="execService" ref="xdm-exec-pool"/>
 	</bean>
 
@@ -202,6 +211,7 @@
 
 	<bean id="queryManager" class="com.bagri.xdm.cache.hazelcast.management.QueryManagement">
 		<constructor-arg value="${xdm.schema.name}" />
+		<property name="statsAggregator" ref="invocationStatsAggregator"/>
 		<property name="execService" ref="xdm-exec-pool"/>
 		<property name="modelManager" ref="xdmModel"/>
 		<property name="XQConnection" ref="xqConnection"/>
@@ -209,6 +219,7 @@
 
 	<bean id="transManager" class="com.bagri.xdm.cache.hazelcast.management.TransactionManagement">
 		<constructor-arg value="${xdm.schema.name}" />
+		<property name="statsAggregator" ref="invocationStatsAggregator"/>
 		<property name="execService" ref="xdm-exec-pool"/>
 	</bean>
 

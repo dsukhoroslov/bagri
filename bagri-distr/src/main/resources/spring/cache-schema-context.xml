@@ -18,6 +18,7 @@
 			<hz:spring-aware/>
 			<hz:instance-name>${xdm.schema.name}</hz:instance-name>
 			<hz:group name="${xdm.schema.name}" password="${xdm.schema.password}"/>
+			<hz:management-center url="http://localhost:8080/mancenter" enabled="true"/>
 			<hz:properties>
 				<hz:property name="hazelcast.jmx">true</hz:property>
 				<hz:property name="hazelcast.jmx.detailed">true</hz:property>
@@ -121,6 +122,10 @@
 						<hz:property name="xdm.schema.store.type">${xdm.schema.store.type}</hz:property>
 					</hz:properties>
 				</hz:map-store-->
+				<!--hz:indexes>
+					<hz:index attribute="pathId"/>
+					<hz:index attribute="value" ordered="true"/>
+				</hz:indexes-->
 			</hz:map>
 
 			<hz:map name="xdm-transaction" in-memory-format="BINARY" async-backup-count="${xdm.schema.trans.backup.async}" 
@@ -177,7 +182,9 @@
 					<hz:serializer type-class="com.bagri.xdm.domain.XDMNamespace" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMNamespaceSerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.domain.XDMQuery" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMQuerySerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.domain.XDMResults" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMResultsSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.domain.XDMIndexedValue" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMIndexedValueSerializer"/>
+					<hz:serializer type-class="com.bagri.xdm.domain.XDMIndexedDocument" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMIndexedDocumentSerializer"/>
+					<hz:serializer type-class="com.bagri.xdm.domain.XDMUniqueDocument" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMUniqueDocumentSerializer"/>
+					<hz:serializer type-class="com.bagri.xdm.domain.XDMUniqueValue" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMUniqueValueSerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.domain.XDMTransaction" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMTransactionSerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.system.XDMIndex" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMIndexSerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.system.XDMTriggerAction" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMTriggerActionSerializer"/>
@@ -283,6 +290,10 @@
 	<bean id="xqSequenceSerializer" class="com.bagri.xdm.client.hazelcast.serialize.XQSequenceSerializer">
     		<property name="XQDataFactory" ref="xqFactory" />
 	</bean>
+
+	<bean id="bindManager" class="com.bagri.xdm.cache.hazelcast.impl.BindingManagementImpl">
+		<!--property name="namespaceCache" ref="dict-namespace"/-->
+	</bean>
     
 	<bean id="mdlManager" class="com.bagri.xdm.client.hazelcast.impl.ModelManagementImpl">
 		<property name="namespaceCache" ref="dict-namespace"/>
@@ -298,8 +309,10 @@
 		<property name="execService" ref="xdm-exec-pool"/>
 		<property name="indexDictionary" ref="dict-index"/>
 		<property name="indexCache" ref="xdm-index"/>
+		<property name="dataCache" ref="xdm-element"/>
 		<property name="modelManager" ref="mdlManager"/>
 		<property name="statsQueue" ref="indexQueue"/>
+		<property name="txManager" ref="txManager"/>
 	</bean>
 
 	<bean id="xqCompiler" class="com.bagri.xquery.saxon.XQCompilerImpl"/>
@@ -348,6 +361,7 @@
 
 	<bean id="xdmRepo" class="com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl">
 		<property name="hzInstance" ref="hzInstance"/>
+		<property name="bindingManagement" ref="bindManager"/>
 		<property name="modelManagement" ref="mdlManager"/>
 		<property name="queryManagement" ref="queryManager"/>
 		<property name="documentManagement" ref="docManager"/>

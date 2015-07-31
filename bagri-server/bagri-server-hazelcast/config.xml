@@ -276,27 +276,7 @@
                     <description>Security Sector</description>
                     <enabled>true</enabled>
                 </index>
-                <!--index name="IDX_Security_Stock_Sector">
-                    <version>1</version>
-                    <createdAt>2015-01-25T13:36:26.965+03:00</createdAt>
-                    <createdBy>SDV</createdBy>
-                    <docType>/{http://tpox-benchmark.com/security}Security</docType>
-                    <path>/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}SecurityInformation/{http://tpox-benchmark.com/security}StockInformation/{http://tpox-benchmark.com/security}Sector/text()</path>
-                    <unique>false</unique>
-                    <description>Security Stock Sector</description>
-                    <enabled>true</enabled>
-                </index>
-                <index name="IDX_Security_Fund_Sector">
-                    <version>1</version>
-                    <createdAt>2015-01-25T13:36:26.965+03:00</createdAt>
-                    <createdBy>SDV</createdBy>
-                    <docType>/{http://tpox-benchmark.com/security}Security</docType>
-                    <path>/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}SecurityInformation/{http://tpox-benchmark.com/security}FundInformation/{http://tpox-benchmark.com/security}Sector/text()</path>
-                    <unique>false</unique>
-                    <description>Security Fund Sector</description>
-                    <enabled>true</enabled>
-                </index-->
-                <index name="IDX_Security_PE">
+                <!--index name="IDX_Security_PE">
                     <version>1</version>
                     <createdAt>2015-07-21T13:36:26.965+03:00</createdAt>
                     <createdBy>SDV</createdBy>
@@ -307,7 +287,7 @@
                     <unique>false</unique>
                     <description>Security PE</description>
                     <enabled>true</enabled>
-                </index>
+                </index-->
                 <index name="IDX_Security_Yield">
                     <version>1</version>
                     <createdAt>2015-07-21T13:36:26.965+03:00</createdAt>

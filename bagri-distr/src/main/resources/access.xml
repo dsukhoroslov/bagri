@@ -28,10 +28,14 @@
             <createdAt>2014-05-29T19:29:00.944+04:00</createdAt>
             <createdBy>dsukhoroslov</createdBy>
             <permissions>
-                <permission resource="com.bagri.xdm:name=*,type=Schema">read execute modify</permission>
-                <permission resource="com.bagri.xdm:type=Schema,name=*,kind=DocumentManagement">read execute modify</permission>
-                <permission resource="com.bagri.xdm:type=Schema,name=*,kind=QueryManagement">read execute modify</permission>
-                <permission resource="com.bagri.xdm:type=Management,name=SchemaManagement">read execute modify</permission>
+                <permission resource="com.bagri.xdm:type=Schema,name=*,kind=ModelManagement">modify read execute</permission>
+                <permission resource="com.bagri.xdm:type=Schema,name=*,kind=IndexManagement">modify read execute</permission>
+                <permission resource="com.bagri.xdm:type=Schema,name=*,kind=QueryManagement">modify read execute</permission>
+                <permission resource="com.bagri.xdm:type=Schema,name=*,kind=DocumentManagement">modify read execute</permission>
+                <permission resource="com.bagri.xdm:type=Schema,name=*,kind=TriggerManagement">modify read execute</permission>
+                <permission resource="com.bagri.xdm:type=Schema,name=*,kind=TransactionManagement">modify read execute</permission>
+                <permission resource="com.bagri.xdm:type=Management,name=SchemaManagement">modify read execute</permission>
+                <permission resource="com.bagri.xdm:name=*,type=Schema">modify read execute</permission>
             </permissions>
             <includedRoles></includedRoles>
             <description>management access to all SchemaManagement operations</description>
