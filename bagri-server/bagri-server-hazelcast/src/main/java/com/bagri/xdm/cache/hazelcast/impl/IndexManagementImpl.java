@@ -1,5 +1,7 @@
 package com.bagri.xdm.cache.hazelcast.impl;
 
+import static com.bagri.xdm.api.XDMTransactionManagement.TX_NO;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -43,6 +45,7 @@ import com.bagri.xdm.domain.XDMIndexedValue;
 import com.bagri.xdm.domain.XDMNodeKind;
 import com.bagri.xdm.domain.XDMPath;
 import com.bagri.xdm.domain.XDMUniqueDocument;
+import com.bagri.xdm.domain.XDMUniqueValue;
 import com.bagri.xdm.system.XDMIndex;
 import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.EntryListener;
@@ -54,7 +57,7 @@ import com.hazelcast.map.listener.MapListener;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
 
-public class IndexManagementImpl implements XDMIndexManagement, EntryAddedListener, Predicate<XDMDataKey, XDMElements> { //, StatisticsProvider {
+public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsProvider {
 	
 	private static final transient Logger logger = LoggerFactory.getLogger(IndexManagementImpl.class);
 	private IMap<Integer, XDMIndex> idxDict;
@@ -292,22 +295,17 @@ public class IndexManagementImpl implements XDMIndexManagement, EntryAddedListen
 			XDMIndexedValue xidx = idxCache.get(xid);
 			if (idx.isUnique()) {
 				long id = XDMDocumentKey.toDocumentId(docId);
-				// check xidx.docIds - update document UC..
-				if (xidx != null) {
-					long currId = xidx.getDocumentId();
-					if (currId > 0 && id != XDMDocumentKey.toDocumentId(currId)) {
-						throw new IllegalStateException("unique index '" + idx.getName() + "' violated for docId: " + docId + ", pathId: " + pathId + ", value: " + value);
-					}
+				if (!checkUniquiness((XDMUniqueDocument) xidx, id)) {
+					throw new IllegalStateException("unique index '" + idx.getName() + "' violated for docId: " + docId + ", pathId: " + pathId + ", value: " + value);
 				}
 
-				xidx = new XDMUniqueDocument(docId);
-				xidx = idxCache.putIfAbsent(xid, xidx);
-				if (xidx != null) {
-					// but what if it is not commited yet!?
-					long currId = xidx.getDocumentId();
-					if (id != XDMDocumentKey.toDocumentId(currId)) {
-						throw new IllegalStateException("unique index '" + idx.getName() + "' violated for docId: " + docId + ", pathId: " + pathId + ", value: " + value);
-					}
+				if (xidx == null) {
+					xidx = new XDMUniqueDocument();
+				}
+				xidx.addDocument(docId, txMgr.getCurrentTxId());
+				xidx = idxCache.put(xid, xidx);
+				if (!checkUniquiness((XDMUniqueDocument) xidx, id)) {
+					throw new IllegalStateException("unique index '" + idx.getName() + "' violated for docId: " + docId + ", pathId: " + pathId + ", value: " + value);
 				}
 			} else {
 				if (xidx == null) {
@@ -315,7 +313,7 @@ public class IndexManagementImpl implements XDMIndexManagement, EntryAddedListen
 				} else { 
 					xidx.addDocument(docId, XDMTransactionManagement.TX_NO);
 				}
-				idxCache.put(xid, xidx);
+				idxCache.set(xid, xidx);
 				if (idx.isRange()) {
 					TreeMap<Comparable, Integer> range = rangeIndex.get(pathId);
 					Integer count = range.get(value);
@@ -341,6 +339,36 @@ public class IndexManagementImpl implements XDMIndexManagement, EntryAddedListen
 		} else {
 			// shouldn't we index NULL values too? create special NULL class for this..
 		}
+	}
+
+	private boolean checkUniquiness(XDMUniqueDocument uidx, long docId) {
+		//long id = XDMDocumentKey.toDocumentId(docId);
+		// check xidx.docIds - update document UC..
+		if (uidx != null) {
+			Collection<XDMUniqueValue> ids = uidx.getDocumentValues();
+			for (XDMUniqueValue uv: ids) {
+				if (uv.getTxFinish() > TX_NO) {
+					if (txMgr.isTxVisible(uv.getTxFinish())) {
+						// rolledBack, ok
+					} else {
+						// finish is not visible yet! should we lock and wait here??
+					}
+				} else {
+					if (txMgr.isTxVisible(uv.getTxStart())) {
+						// unique index violation
+						return false;
+					} else {
+						// start is not visible yet! it can be current tx.. should we lock?
+					}
+				}
+			}
+
+			//long currId = xidx.getDocumentId();
+			//if (currId > 0 && id != XDMDocumentKey.toDocumentId(currId)) {
+			//	throw new IllegalStateException("unique index '" + idx.getName() + "' violated for docId: " + docId + ", pathId: " + pathId + ", value: " + value);
+			//}
+		}
+		return true;
 	}
 	
 	public void dropIndex(long docId, int pathId, Object value) {
@@ -560,54 +588,6 @@ public class IndexManagementImpl implements XDMIndexManagement, EntryAddedListen
 	public boolean rebuildIndex(int pathId) {
 		// TODO Auto-generated method stub
 		return false;
-	}
-
-/*	
-	@Override
-	public void entryAdded(EntryEvent event) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void entryUpdated(EntryEvent event) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void entryRemoved(EntryEvent event) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void entryEvicted(EntryEvent event) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void mapCleared(MapEvent event) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void mapEvicted(MapEvent event) {
-		// TODO Auto-generated method stub
-		
-	}
-*/
-	@Override
-	public boolean apply(Entry<XDMDataKey, XDMElements> mapEntry) {
-		return idxDict.containsKey(mapEntry.getKey().getPathId());
-	}
-
-	@Override
-	public void entryAdded(EntryEvent event) {
-		// TODO Auto-generated method stub
-		logger.trace("entryAdded; got event: {}", event);
 	}
 
 }

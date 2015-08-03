@@ -82,7 +82,7 @@ public class UniqueIndexManagementTest extends XDMManagementTest {
 		try {
 			ids.add(createDocumentTest(sampleRoot + getFileName("security5621.xml")).getDocumentKey());
 			xRepo.getTxManagement().commitTransaction(txId);
-			//throw new 
+			Assert.assertFalse("expected unique index vialation exception", true);
 		} catch (Exception ex) {
 			// anticipated ex..
 			xRepo.getTxManagement().rollbackTransaction(txId);
