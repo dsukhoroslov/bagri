@@ -4,6 +4,7 @@ import static com.bagri.common.config.XDMConfigConstants.xdm_config_properties_f
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.concurrent.CountDownLatch;
 
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -13,6 +14,7 @@ import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.bagri.xdm.api.test.XDMManagementTest;
+import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMPath;
 
 public class TransactionManagementImplTest extends XDMManagementTest {
@@ -70,6 +72,117 @@ public class TransactionManagementImplTest extends XDMManagementTest {
 		sec = getSecurity("PTTAX");
 		Assert.assertNotNull(sec);
 		Assert.assertTrue(sec.size() == 0);
+	}
+
+	@Test
+	public void concurrentUpdateTransactionTest() throws Exception {
+		long txId = getTxManagement().beginTransaction();
+		XDMDocument doc = createDocumentTest(sampleRoot + getFileName("security1500.xml"));
+		Assert.assertNotNull(doc);
+		Assert.assertTrue(doc.getTxStart() == txId);
+		ids.add(doc.getDocumentKey());
+		getTxManagement().commitTransaction(txId);
+		final String uri = doc.getUri();
+		final CountDownLatch cdl = new CountDownLatch(2);
+
+		Thread th1 = new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				
+				long txId = getTxManagement().beginTransaction();
+				XDMDocument doc = null;
+				try {
+					doc = updateDocumentTest(0, uri, sampleRoot + getFileName("security5621.xml"));
+					getTxManagement().commitTransaction(txId);
+					if (doc != null) {
+						ids.add(doc.getDocumentKey());
+					}
+				} catch (IOException ex) {
+				}
+				cdl.countDown();
+			}
+		});
+
+		Thread th2 = new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				
+				long txId = getTxManagement().beginTransaction();
+				XDMDocument doc = null;
+				try {
+					doc = updateDocumentTest(0, uri, sampleRoot + getFileName("security9012.xml"));
+					getTxManagement().commitTransaction(txId);
+					if (doc != null) {
+						ids.add(doc.getDocumentKey());
+					}
+				} catch (IOException ex) {
+				}
+				cdl.countDown();
+			}
+		});
+		
+		th1.start();
+		th2.start();
+		cdl.await();
+		Assert.assertFalse("expected less than 3 docs commited", ids.size() == 3);
+	}	
+
+	@Test
+	public void timeoutTransactionTest() throws Exception {
+		long txId = getTxManagement().beginTransaction();
+		XDMDocument doc = createDocumentTest(sampleRoot + getFileName("security1500.xml"));
+		Assert.assertNotNull(doc);
+		Assert.assertTrue(doc.getTxStart() == txId);
+		ids.add(doc.getDocumentKey());
+		getTxManagement().commitTransaction(txId);
+		final String uri = doc.getUri();
+		final CountDownLatch cdl = new CountDownLatch(2);
+		getTxManagement().setTransactionTimeout(10);
+
+		Thread th1 = new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				
+				long txId = getTxManagement().beginTransaction();
+				XDMDocument doc = null;
+				try {
+					doc = updateDocumentTest(0, uri, sampleRoot + getFileName("security5621.xml"));
+					getTxManagement().commitTransaction(txId);
+					if (doc != null) {
+						ids.add(doc.getDocumentKey());
+					}
+				} catch (Exception ex) {
+				}
+				cdl.countDown();
+			}
+		});
+
+		Thread th2 = new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				
+				long txId = getTxManagement().beginTransaction();
+				XDMDocument doc = null;
+				try {
+					doc = updateDocumentTest(0, uri, sampleRoot + getFileName("security9012.xml"));
+					getTxManagement().commitTransaction(txId);
+					if (doc != null) {
+						ids.add(doc.getDocumentKey());
+					}
+				} catch (Exception ex) {
+				}
+				cdl.countDown();
+			}
+		});
+		
+		th1.start();
+		th2.start();
+		cdl.await();
+		Assert.assertFalse("expected less than 3 docs commited", ids.size() == 3);
 	}
 	
 }

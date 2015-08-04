@@ -18,6 +18,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.Source;
@@ -213,10 +214,11 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		if (docType >= 0) {
 			String user = JMXUtils.getCurrentUser();
 			XDMDocument doc = new XDMDocument(docKey.getDocumentId(), docKey.getVersion(), uri, docType, user, txManager.getCurrentTxId()); // + createdAt, encoding
-			triggerManager.applyTrigger(doc, Action.insert, Scope.before); 
+			Action action = docKey.getVersion() == 0 ? Action.insert : Action.update;
+			triggerManager.applyTrigger(doc, action, Scope.before); 
 			xddCache.set(docKey, doc);
 			xmlCache.set(docKey, xml);
-			triggerManager.applyTrigger(doc, Action.insert, Scope.after); 
+			triggerManager.applyTrigger(doc, action, Scope.after); 
 			logger.trace("createDocument.exit; returning: {}", doc);
 			return doc;
 		} else {
@@ -485,22 +487,51 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		}
 		
 		XDMDocumentKey docKey = factory.newXDMDocumentKey(docId);
-		if (update) {
-		    XDMDocument doc = xddCache.get(docKey);
-		    if (doc != null) {
-		    	// we must finish old Document and create a new one!
-		    	doc.finishDocument(txManager.getCurrentTxId());
-		    	//deleteDocumentElements(docId, doc.getTypeId());
-		    	//xddCache.put(docKey, doc);
-		    	docKey = factory.newXDMDocumentKey(doc.getDocumentId(), doc.getVersion() + 1);
-		    	// delete unique index here..
-		    	Collection<Integer> pathIds = indexManager.getTypeIndexes(doc.getTypeId(), true);
-		    	for (int pathId: pathIds) {
-			    	deindexElements(doc.getDocumentKey(), pathId);
-		    	}
-		    }
+		boolean locked = false;
+		try {
+			// use Tx timeout value!
+			long timeout = txManager.getTransactionTimeout();
+			if (timeout > 0) {
+				locked = xddCache.tryLock(docKey, timeout, TimeUnit.MILLISECONDS);
+			} else {
+				locked = xddCache.tryLock(docKey);
+			}
+			if (locked) {
+				XDMDocumentKey newKey = docKey;
+				if (update) {
+				    XDMDocument doc = xddCache.get(newKey);
+				    if (doc != null) {
+				    	if (doc.getTxFinish() > TX_NO && txManager.isTxVisible(doc.getTxFinish())) {
+				    		throw new IllegalStateException("Document with ID: " + doc.getDocumentId() + ", version: " + doc.getVersion() + " has been concurrently updated");
+				    	}
+				    	logger.trace("storeDocumentFromString; going to update document: {}", doc);
+				    	// we must finish old Document and create a new one!
+				    	doc.finishDocument(txManager.getCurrentTxId());
+				    	//deleteDocumentElements(docId, doc.getTypeId());
+				    	xddCache.put(docKey, doc);
+				    	newKey = factory.newXDMDocumentKey(doc.getDocumentId(), doc.getVersion() + 1);
+				    	// delete unique index here..
+				    	Collection<Integer> pathIds = indexManager.getTypeIndexes(doc.getTypeId(), true);
+				    	for (int pathId: pathIds) {
+					    	deindexElements(doc.getDocumentKey(), pathId);
+				    	}
+				    }
+				}
+			    return createDocument(new AbstractMap.SimpleEntry(newKey, null), uri, xml);
+			} else {
+	    		throw new IllegalStateException("Was not able to aquire lock on Document: " + docKey + ", timed out");
+			}
+		} catch (Exception ex) {
+			logger.error("storeDocumentFromString.error; docId: " + docId, ex);
+			if (ex instanceof IllegalStateException) {
+				throw (IllegalStateException) ex;
+			}
+			return null;
+		} finally {
+			if (locked) {
+				xddCache.unlock(docKey);
+			}
 		}
-	    return createDocument(new AbstractMap.SimpleEntry(docKey, null), uri, xml);
 	}
 
 	@Override

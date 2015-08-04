@@ -358,7 +358,7 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 						// unique index violation
 						return false;
 					} else {
-						// start is not visible yet! it can be current tx.. should we lock?
+						// start is not visible yet! thus it is not yet commited.. should we lock?
 					}
 				}
 			}

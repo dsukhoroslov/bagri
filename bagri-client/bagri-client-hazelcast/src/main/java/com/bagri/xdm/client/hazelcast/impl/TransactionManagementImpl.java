@@ -20,6 +20,7 @@ public class TransactionManagementImpl implements XDMTransactionManagement {
 	
     private static final Logger logger = LoggerFactory.getLogger(TransactionManagementImpl.class);
 	
+    private long txTimeout = 0;
 	private IExecutorService execService;
     private long txId = 0;
     private String clientId = null;
@@ -30,6 +31,14 @@ public class TransactionManagementImpl implements XDMTransactionManagement {
 		clientId = repo.getClientId();
 	}
 
+	public long getTransactionTimeout() {
+		return txTimeout;
+	}
+	
+	public void setTransactionTimeout(long timeout) {
+		this.txTimeout = timeout;
+	}
+	
 	@Override
 	public long beginTransaction() {
 		// TODO: get default value from session config!

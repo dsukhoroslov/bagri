@@ -15,4 +15,7 @@ public interface XDMTransactionManagement {
 	
 	void rollbackTransaction(long txId);
 
+	long getTransactionTimeout();
+	
+	void setTransactionTimeout(long timeout);
 }

@@ -56,6 +56,8 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 	private IdGenerator<Long> txGen;
 	private IMap<Long, XDMTransaction> txCache; 
 
+	private long txTimeout = 0;
+	
 	public void setHzInstance(HazelcastInstance hzInstance) {
 		//this.hzInstance = hzInstance;
 		cluster = hzInstance.getCluster();
@@ -63,6 +65,13 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 		txGen = new IdGeneratorImpl(hzInstance.getAtomicLong(SQN_TRANSACTION));
 	}
 	
+	public long getTransactionTimeout() {
+		return txTimeout;
+	}
+	
+	public void setTransactionTimeout(long timeout) {
+		this.txTimeout = timeout;
+	}
 	
 	@Override
 	public long beginTransaction() {
