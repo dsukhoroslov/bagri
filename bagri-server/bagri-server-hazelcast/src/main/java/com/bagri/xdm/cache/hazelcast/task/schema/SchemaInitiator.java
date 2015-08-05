@@ -1,7 +1,7 @@
 package com.bagri.xdm.cache.hazelcast.task.schema;
 
 import static com.bagri.common.config.XDMConfigConstants.xdm_schema_name;
-import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_XDMInitSchemaTask;
+import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_InitSchemaTask;
 import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.factoryId;
 
 import java.io.IOException;
@@ -76,7 +76,7 @@ public class SchemaInitiator implements Callable<Boolean>, IdentifiedDataSeriali
 	
 	@Override
 	public int getId() {
-		return cli_XDMInitSchemaTask;
+		return cli_InitSchemaTask;
 	}
 
 	@Override

@@ -1,6 +1,6 @@
 package com.bagri.xdm.cache.hazelcast.task.node;
 
-import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_XDMGetNodeInfoTask;
+import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_GetNodeInfoTask;
 import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.factoryId;
 
 import java.io.IOException;
@@ -48,7 +48,7 @@ public class NodeInfoProvider implements Callable<CompositeData>, IdentifiedData
 
 	@Override
 	public int getId() {
-		return cli_XDMGetNodeInfoTask;
+		return cli_GetNodeInfoTask;
 	}
 
 	@Override

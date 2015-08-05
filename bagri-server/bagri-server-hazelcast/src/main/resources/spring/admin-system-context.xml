@@ -256,6 +256,7 @@
 				<prop key="xdm.schema.ports.last">${xdm.schema.default.ports.last}</prop>
 				<prop key="xdm.schema.thread.pool">${xdm.schema.default.thread.pool}</prop>
 				<prop key="xdm.schema.store.type">${xdm.schema.default.store.type}</prop>
+				<prop key="xdm.schema.transaction.timeout">${xdm.schema.default.transaction.timeout}</prop>
 			</props>
 		</property>
 	</bean>

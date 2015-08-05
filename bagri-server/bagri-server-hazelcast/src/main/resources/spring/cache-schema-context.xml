@@ -342,6 +342,7 @@
 
 	<bean id="txManager" class="com.bagri.xdm.cache.hazelcast.impl.TransactionManagementImpl">
 		<property name="hzInstance" ref="hzInstance"/>
+		<property name="transactionTimeout" value="${xdm.schema.transaction.timeout}"/>
 	</bean>
 	
 	<bean id="accManager" class="com.bagri.xdm.cache.hazelcast.impl.AccessManagementImpl">

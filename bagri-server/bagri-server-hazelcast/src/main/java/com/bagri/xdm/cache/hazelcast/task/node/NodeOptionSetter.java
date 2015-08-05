@@ -2,7 +2,7 @@ package com.bagri.xdm.cache.hazelcast.task.node;
 
 import static com.bagri.common.config.XDMConfigConstants.xdm_config_path;
 import static com.bagri.common.config.XDMConfigConstants.xdm_config_properties_file;
-import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_XDMSetNodeOptionTask;
+import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_SetNodeOptionTask;
 import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.factoryId;
 
 import java.io.IOException;
@@ -80,7 +80,7 @@ public class NodeOptionSetter implements Callable<Boolean>, IdentifiedDataSerial
 
 	@Override
 	public int getId() {
-		return cli_XDMSetNodeOptionTask;
+		return cli_SetNodeOptionTask;
 	}
 
 	@Override

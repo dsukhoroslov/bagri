@@ -1,7 +1,7 @@
 package com.bagri.xdm.cache.hazelcast.task.schema;
 
 import static com.bagri.xdm.client.common.XDMCacheConstants.*;
-import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_XDMCleanSchemaTask;
+import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_CleanSchemaTask;
 
 import java.io.IOException;
 import java.util.concurrent.Callable;
@@ -56,7 +56,7 @@ public class SchemaDocCleaner extends SchemaProcessingTask implements Callable<B
 
 	@Override
 	public int getId() {
-		return cli_XDMCleanSchemaTask;
+		return cli_CleanSchemaTask;
 	}
 
 	@Override

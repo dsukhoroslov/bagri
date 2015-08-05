@@ -1,6 +1,6 @@
 package com.bagri.xdm.client.hazelcast.data;
 
-import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_XDMQueryParamsKey;
+import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_QueryParamsKey;
 import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.factoryId;
 
 import java.io.IOException;
@@ -33,7 +33,7 @@ public class QueryParamsKey extends XDMResultsKey implements IdentifiedDataSeria
 
 	@Override
 	public int getId() {
-		return cli_XDMQueryParamsKey;
+		return cli_QueryParamsKey;
 	}
 
 	@Override

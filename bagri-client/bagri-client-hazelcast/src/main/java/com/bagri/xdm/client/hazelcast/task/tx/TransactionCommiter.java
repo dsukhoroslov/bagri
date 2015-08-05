@@ -1,6 +1,6 @@
 package com.bagri.xdm.client.hazelcast.task.tx;
 
-import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_XDMCommitTransactionTask;
+import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_CommitTransactionTask;
 
 import java.io.IOException;
 import java.util.concurrent.Callable;
@@ -23,7 +23,7 @@ public class TransactionCommiter extends ClientAwareTask implements Callable<Boo
 
 	@Override
 	public int getId() {
-		return cli_XDMCommitTransactionTask;
+		return cli_CommitTransactionTask;
 	}
 
 	@Override

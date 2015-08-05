@@ -1,6 +1,6 @@
 package com.bagri.xdm.cache.hazelcast.task.schema;
 
-import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_XDMDenitSchemaTask;
+import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_DenitSchemaTask;
 import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.factoryId;
 
 import java.io.IOException;
@@ -49,7 +49,7 @@ public class SchemaDenitiator extends SchemaProcessingTask implements Callable<B
 
 	@Override
 	public int getId() {
-		return cli_XDMDenitSchemaTask;
+		return cli_DenitSchemaTask;
 	}
 
 }

@@ -1,6 +1,6 @@
 package com.bagri.xdm.cache.hazelcast.task.schema;
 
-import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_XDMSchemaMemberTask;
+import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_SchemaMemberTask;
 
 import java.util.concurrent.Callable;
 
@@ -31,8 +31,7 @@ public class SchemaMemberExtractor extends SchemaProcessingTask implements Calla
 
 	@Override
 	public int getId() {
-		return cli_XDMSchemaMemberTask;
+		return cli_SchemaMemberTask;
 	}
-
 
 }

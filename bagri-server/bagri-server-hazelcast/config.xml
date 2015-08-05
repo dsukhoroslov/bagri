@@ -50,6 +50,7 @@
                 <entry name="xdm.schema.data.backup.sync">0</entry>
                 <entry name="xdm.schema.query.backup.read">true</entry>
                 <entry name="xdm.schema.partition.count">271</entry>
+		<entry name="xdm.schema.transaction.timeout">0</entry>
                 <entry name="xqj.schema.baseUri">file:///C:/Work/Bagri/git/bagri/etc/samples/json/</entry>
                 <entry name="xqj.schema.orderingMode">2</entry>
                 <entry name="xqj.schema.queryLanguageTypeAndVersion">1</entry>
@@ -99,6 +100,7 @@
                 <entry name="xdm.schema.data.backup.sync">0</entry>
                 <entry name="xdm.schema.partition.count">157</entry>
                 <entry name="xdm.schema.query.backup.read">true</entry>
+		<entry name="xdm.schema.transaction.timeout">0</entry>
                 <entry name="xqj.schema.baseUri">file:///C:/Work/Bagri/git/bagri/etc/samples/xdm/</entry>
                 <entry name="xqj.schema.orderingMode">2</entry>
                 <entry name="xqj.schema.queryLanguageTypeAndVersion">1</entry>
@@ -148,6 +150,7 @@
                 <entry name="xdm.schema.data.backup.sync">0</entry>
                 <entry name="xdm.schema.query.backup.read">true</entry>
                 <entry name="xdm.schema.partition.count">271</entry>
+		<entry name="xdm.schema.transaction.timeout">0</entry>
                 <entry name="xqj.schema.baseUri">file:///C:/Work/Bagri/git/bagri/etc/samples/tpox/</entry>
                 <entry name="xqj.schema.orderingMode">2</entry>
                 <entry name="xqj.schema.queryLanguageTypeAndVersion">1</entry>
@@ -227,6 +230,7 @@
                 <entry name="xdm.schema.members">localhost</entry>
                 <entry name="xdm.schema.data.backup.sync">0</entry>
                 <entry name="xdm.schema.query.backup.read">true</entry>
+		<entry name="xdm.schema.transaction.timeout">60000</entry>
                 <entry name="xdm.schema.partition.count">271</entry>
                 <entry name="xqj.schema.baseUri">file:///C:/Work/Bagri/git/bagri/etc/samples/tpox2/</entry>
                 <entry name="xqj.schema.orderingMode">2</entry>
@@ -388,6 +392,7 @@
                 <entry name="xdm.schema.data.backup.sync">0</entry>
                 <entry name="xdm.schema.query.backup.read">true</entry>
                 <entry name="xdm.schema.partition.count">271</entry>
+		<entry name="xdm.schema.transaction.timeout">0</entry>
                 <entry name="xqj.schema.baseUri">file:///C:/Work/Bagri/git/bagri/etc/samples/xmark/</entry>
                 <entry name="xqj.schema.orderingMode">2</entry>
                 <entry name="xqj.schema.queryLanguageTypeAndVersion">1</entry>

@@ -1,7 +1,7 @@
 package com.bagri.xdm.cache.hazelcast.task.schema;
 
 import static com.bagri.xdm.client.common.XDMCacheConstants.CN_XDM_DOCUMENT;
-import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_XDMPopulateSchemaTask;
+import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_PopulateSchemaTask;
 
 import java.util.Iterator;
 import java.util.Properties;
@@ -82,7 +82,7 @@ public class SchemaPopulator extends SchemaDenitiator {
 	
 	@Override
 	public int getId() {
-		return cli_XDMPopulateSchemaTask;
+		return cli_PopulateSchemaTask;
 	}
 
 }

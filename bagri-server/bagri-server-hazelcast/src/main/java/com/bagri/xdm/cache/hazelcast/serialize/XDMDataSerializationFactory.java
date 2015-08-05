@@ -34,6 +34,7 @@ import com.bagri.xdm.cache.hazelcast.task.trigger.TriggerRunner;
 import com.bagri.xdm.cache.hazelcast.task.tx.TransactionAborter;
 import com.bagri.xdm.cache.hazelcast.task.tx.TransactionCommiter;
 import com.bagri.xdm.cache.hazelcast.task.tx.TransactionStarter;
+//import com.bagri.xdm.client.hazelcast.task.doc.DocumentProcessor;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
 public class XDMDataSerializationFactory extends com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory {
@@ -42,36 +43,37 @@ public class XDMDataSerializationFactory extends com.bagri.xdm.client.hazelcast.
 	public IdentifiedDataSerializable create(int typeId) {
 		
 		switch (typeId) {
-			case cli_XDMCreateDocumentTask: return new DocumentCreator();
-			case cli_XDMRemoveDocumentTask: return new DocumentRemover();
-			case cli_XDMBeginTransactionTask: return new TransactionStarter(); 
-			case cli_XDMCommitTransactionTask: return new TransactionCommiter();
-			case cli_XDMRollbackTransactionTask: return new TransactionAborter();
-			case cli_XDMInitSchemaTask: return new SchemaInitiator();
-			case cli_XDMDenitSchemaTask: return new SchemaDenitiator();
-			case cli_XDMCleanSchemaTask: return new SchemaDocCleaner();
-			case cli_XDMSchemaAdminTask: return new SchemaAdministrator();
-			case cli_XDMSchemaMemberTask: return new SchemaMemberExtractor();
-			case cli_XDMPopulateSchemaTask: return new SchemaPopulator();
+			//case cli_ProcessDocumentTask: return new DocumentProcessor();
+			case cli_CreateDocumentTask: return new DocumentCreator();
+			case cli_RemoveDocumentTask: return new DocumentRemover();
+			case cli_BeginTransactionTask: return new TransactionStarter(); 
+			case cli_CommitTransactionTask: return new TransactionCommiter();
+			case cli_RollbackTransactionTask: return new TransactionAborter();
+			case cli_InitSchemaTask: return new SchemaInitiator();
+			case cli_DenitSchemaTask: return new SchemaDenitiator();
+			case cli_CleanSchemaTask: return new SchemaDocCleaner();
+			case cli_SchemaAdminTask: return new SchemaAdministrator();
+			case cli_SchemaMemberTask: return new SchemaMemberExtractor();
+			case cli_PopulateSchemaTask: return new SchemaPopulator();
 			case cli_ProvideDocumentUrisTask: return new DocumentUrisProvider(); 
 			case cli_ProvideDocumentIdsTask: return new DocumentIdsProvider(); 
 			case cli_ProvideDocumentContentTask: return new DocumentContentProvider();
 			case cli_ProvideDocumentStructureTask: return new DocumentStructureProvider();
 			case cli_BuildQueryXMLTask: return new XMLBuilder();
-			case cli_XDMExecXQCommandTask: return new XQCommandExecutor();
+			case cli_ExecXQCommandTask: return new XQCommandExecutor();
 			case cli_CollectStatisticSeriesTask: return new StatisticSeriesCollector();
 			case cli_CollectStatisticTotalsTask: return new StatisticTotalsCollector();
 			case cli_ResetStatisticsTask: return new StatisticsReseter();
 			case cli_ProcessQueryTask: return new QueryProcessor();
 			case cli_ApplyQueryTask: return new QueryPredicate();
 			case cli_KillNodeTask: return new NodeKiller();
-			case cli_XDMSetNodeOptionTask: return new NodeOptionSetter();
-			case cli_XDMAggregateSchemaInfoTask: return new SchemaStatsAggregator();
-			case cli_XDMGetNodeInfoTask: return new NodeInfoProvider();
+			case cli_SetNodeOptionTask: return new NodeOptionSetter();
+			case cli_AggregateSchemaInfoTask: return new SchemaStatsAggregator();
+			case cli_GetNodeInfoTask: return new NodeInfoProvider();
 			case cli_CreateIndexTask: return new IndexCreator();
 			case cli_RemoveIndexTask: return new IndexRemover();
 			case cli_IndexValueTask: return new ValueIndexator();
-			case cli_XDMCleanQueryTask:  return new SchemaQueryCleaner();
+			case cli_CleanQueryTask:  return new SchemaQueryCleaner();
 			case cli_CreateTriggerTask: return new TriggerCreator(); 
 			case cli_RemoveTriggerTask: return new TriggerRemover(); 
 			case cli_RunTriggerTask: return new TriggerRunner(); 

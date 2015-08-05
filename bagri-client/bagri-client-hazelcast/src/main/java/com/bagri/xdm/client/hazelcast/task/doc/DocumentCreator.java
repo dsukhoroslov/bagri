@@ -1,6 +1,6 @@
 package com.bagri.xdm.client.hazelcast.task.doc;
 
-import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_XDMCreateDocumentTask;
+import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_CreateDocumentTask;
 
 import java.io.IOException;
 import java.util.concurrent.Callable;
@@ -32,7 +32,7 @@ public class DocumentCreator extends DocumentAwareTask implements Callable<XDMDo
 
 	@Override
 	public int getId() {
-		return cli_XDMCreateDocumentTask;
+		return cli_CreateDocumentTask;
 	}
 
 	@Override

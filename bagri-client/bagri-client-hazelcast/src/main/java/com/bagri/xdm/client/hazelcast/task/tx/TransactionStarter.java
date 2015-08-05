@@ -1,6 +1,6 @@
 package com.bagri.xdm.client.hazelcast.task.tx;
 
-import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_XDMBeginTransactionTask;
+import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_BeginTransactionTask;
 
 import java.io.IOException;
 import java.util.concurrent.Callable;
@@ -24,7 +24,7 @@ public class TransactionStarter extends ClientAwareTask implements Callable<Long
 
 	@Override
 	public int getId() {
-		return cli_XDMBeginTransactionTask;
+		return cli_BeginTransactionTask;
 	}
 
 	@Override

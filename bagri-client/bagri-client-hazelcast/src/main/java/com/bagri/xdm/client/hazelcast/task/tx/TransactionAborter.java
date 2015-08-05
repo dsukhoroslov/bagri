@@ -1,6 +1,6 @@
 package com.bagri.xdm.client.hazelcast.task.tx;
 
-import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_XDMRollbackTransactionTask;
+import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_RollbackTransactionTask;
 
 import java.io.IOException;
 import java.util.concurrent.Callable;
@@ -23,7 +23,7 @@ public class TransactionAborter extends ClientAwareTask implements Callable<Bool
 
 	@Override
 	public int getId() {
-		return cli_XDMRollbackTransactionTask;
+		return cli_RollbackTransactionTask;
 	}
 
 	@Override

@@ -1,11 +1,10 @@
 package com.bagri.xdm.client.hazelcast.task.query;
 
-import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_XDMExecXQCommandTask;
+import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_ExecXQCommandTask;
 import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.factoryId;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Callable;
@@ -38,20 +37,17 @@ public class XQCommandExecutor implements Callable<ResultCursor>, IdentifiedData
 
 	@Override
 	public ResultCursor call() throws Exception {
-		
 		return null;
 	}
 	
 	@Override
 	public int getFactoryId() {
-		
 		return factoryId;
 	}
 	
 	@Override
 	public int getId() {
-		
-		return cli_XDMExecXQCommandTask;
+		return cli_ExecXQCommandTask;
 	}
 
 	@Override

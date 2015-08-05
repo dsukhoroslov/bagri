@@ -3,6 +3,7 @@ package com.bagri.xdm.client.hazelcast.serialize;
 import com.bagri.xdm.client.hazelcast.data.QueryParamsKey;
 import com.bagri.xdm.client.hazelcast.impl.ResultCursor;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentCreator;
+import com.bagri.xdm.client.hazelcast.task.doc.DocumentProcessor;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentRemover;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentContentProvider;
 import com.bagri.xdm.client.hazelcast.task.query.DocumentIdsProvider;
@@ -64,41 +65,42 @@ public class XDMDataSerializationFactory implements DataSerializableFactory {
 	public static final int cli_DocsAwarePredicate = 87;
 	
 	public static final int cli_XQCursor = 90;
-	public static final int cli_XDMQueryParamsKey = 91; 
+	public static final int cli_QueryParamsKey = 91; 
 
-	public static final int cli_XDMCreateDocumentTask = 110; 
-	public static final int cli_XDMRemoveDocumentTask = 111;
+	public static final int cli_ProcessDocumentTask = 109; 
+	public static final int cli_CreateDocumentTask = 110; 
+	public static final int cli_RemoveDocumentTask = 111;
 
-	public static final int cli_XDMBeginTransactionTask = 112; 
-	public static final int cli_XDMCommitTransactionTask = 113;
-	public static final int cli_XDMRollbackTransactionTask = 114;
+	public static final int cli_BeginTransactionTask = 112; 
+	public static final int cli_CommitTransactionTask = 113;
+	public static final int cli_RollbackTransactionTask = 114;
 	
-	public static final int cli_XDMInitSchemaTask = 117;
-	public static final int cli_XDMDenitSchemaTask = 118;
-	public static final int cli_XDMSchemaAdminTask = 119;
-	public static final int cli_XDMSchemaMemberTask = 120;
-	public static final int cli_XDMCleanSchemaTask = 121;
-	public static final int cli_XDMPopulateSchemaTask = 122;
+	public static final int cli_InitSchemaTask = 117;
+	public static final int cli_DenitSchemaTask = 118;
+	public static final int cli_SchemaAdminTask = 119;
+	public static final int cli_SchemaMemberTask = 120;
+	public static final int cli_CleanSchemaTask = 121;
+	public static final int cli_PopulateSchemaTask = 122;
 	public static final int cli_ProvideDocumentUrisTask = 123;
 	public static final int cli_ProvideDocumentIdsTask = 124;
 	public static final int cli_ProvideDocumentContentTask = 125;
 	public static final int cli_ProvideDocumentStructureTask = 126;
 	public static final int cli_BuildQueryXMLTask = 127;
-	public static final int cli_XDMExecXQCommandTask = 128;
+	public static final int cli_ExecXQCommandTask = 128;
 	public static final int cli_CollectStatisticSeriesTask = 129;
 	public static final int cli_CollectStatisticTotalsTask = 130;
 	public static final int cli_ResetStatisticsTask = 131;
 	public static final int cli_ProcessQueryTask = 132;
 	public static final int cli_ApplyQueryTask = 133;
 	public static final int cli_KillNodeTask = 134;
-	public static final int cli_XDMSetNodeOptionTask = 135;
-	public static final int cli_XDMAggregateSchemaInfoTask = 136;
-	public static final int cli_XDMGetNodeInfoTask = 137;
+	public static final int cli_SetNodeOptionTask = 135;
+	public static final int cli_AggregateSchemaInfoTask = 136;
+	public static final int cli_GetNodeInfoTask = 137;
 	public static final int cli_CreateIndexTask = 138;
 	public static final int cli_RemoveIndexTask = 139;
 	public static final int cli_IndexValueTask = 140;
 	public static final int cli_DeindexValueTask = 141;
-	public static final int cli_XDMCleanQueryTask = 142;
+	public static final int cli_CleanQueryTask = 142;
 	public static final int cli_CreateTriggerTask = 143;
 	public static final int cli_RemoveTriggerTask = 144;
 	public static final int cli_RunTriggerTask = 145;
@@ -108,16 +110,17 @@ public class XDMDataSerializationFactory implements DataSerializableFactory {
 	public IdentifiedDataSerializable create(int typeId) {
 		switch (typeId) {
 			case cli_XQCursor: return new ResultCursor();
-			case cli_XDMQueryParamsKey: return new QueryParamsKey();
-			case cli_XDMCreateDocumentTask: return new DocumentCreator();
-			case cli_XDMRemoveDocumentTask: return new DocumentRemover();
-			case cli_XDMBeginTransactionTask: return new TransactionStarter(); 
-			case cli_XDMCommitTransactionTask: return new TransactionCommiter();
-			case cli_XDMRollbackTransactionTask: return new TransactionAborter();
+			case cli_QueryParamsKey: return new QueryParamsKey();
+			case cli_ProcessDocumentTask: return new DocumentProcessor();
+			case cli_CreateDocumentTask: return new DocumentCreator();
+			case cli_RemoveDocumentTask: return new DocumentRemover();
+			case cli_BeginTransactionTask: return new TransactionStarter(); 
+			case cli_CommitTransactionTask: return new TransactionCommiter();
+			case cli_RollbackTransactionTask: return new TransactionAborter();
 			case cli_ProvideDocumentUrisTask: return new DocumentUrisProvider(); 
 			case cli_ProvideDocumentIdsTask: return new DocumentIdsProvider(); 
 			case cli_ProvideDocumentContentTask: return new DocumentContentProvider();
-			case cli_XDMExecXQCommandTask: return new XQCommandExecutor();
+			case cli_ExecXQCommandTask: return new XQCommandExecutor();
 			case cli_BuildQueryXMLTask: return new XMLBuilder();
 		}
 		return null;

@@ -1,0 +1,370 @@
+<ns2:script xmlns:ns2="http://www.bagri.com/xdm/system">    
+    <!--param key="jmx.address">localhost:3330</param>
+    <param key="jmx.login">admin</param>
+    <param key="jmx.password">${password}</param-->
+    <!--invoke>
+        <mbean>com.bagri.xdm:type=Schema,name=default,kind=ModelManagement</mbean>
+        <method>registerSchema</method>
+        <arguments>
+            <argument index="0">
+                <type>java.lang.String</type>
+		<value>../../etc/samples/tpox/custacc.xsd</value>
+            </argument>
+        </arguments>
+    </invoke-->
+    <!--delay>5000</delay-->
+    <!--invoke>
+	<mbean>com.bagri.xdm:type=Schema,name=default,kind=IndexManagement</mbean>
+	<method>addIndex</method>
+	<arguments>
+	    <argument index="0">
+		<type>java.lang.String</type>
+		<value>IDX_Customer_id</value>
+	    </argument>
+	    <argument index="1">
+		<type>java.lang.String</type>
+		<value>/{http://tpox-benchmark.com/custacc}Customer</value>
+	    </argument>
+	    <argument index="2">
+		<type>java.lang.String</type>
+		<value>/{http://tpox-benchmark.com/custacc}Customer/@id</value>
+	    </argument>
+	    <argument index="3">
+		<type>java.lang.String</type>
+		<value>xs:integer</value>
+	    </argument>
+	    <argument index="4">
+		<type>boolean</type>
+		<value>true</value>
+	    </argument>
+	    <argument index="5">
+		<type>boolean</type>
+		<value>false</value>
+	    </argument>
+	    <argument index="6">
+		<type>boolean</type>
+		<value>true</value>
+	    </argument>
+	    <argument index="7">
+		<type>java.lang.String</type>
+		<value>Customer id</value>
+	    </argument>
+	</arguments>
+    </invoke-->
+    <invoke>
+	<mbean>com.bagri.xdm:type=Schema,name=default,kind=IndexManagement</mbean>
+	<method>addIndex</method>
+	<arguments>
+	    <argument index="0">
+		<type>java.lang.String</type>
+		<value>IDX_Security_Symbol</value>
+	    </argument>
+	    <argument index="1">
+		<type>java.lang.String</type>
+		<value>/{http://tpox-benchmark.com/security}Security</value>
+	    </argument>
+	    <argument index="2">
+		<type>java.lang.String</type>
+		<value>/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}Symbol/text()</value>
+	    </argument>
+	    <argument index="3">
+		<type>java.lang.String</type>
+		<value>xs:string</value>
+	    </argument>
+	    <argument index="4">
+		<type>boolean</type>
+		<value>true</value>
+	    </argument>
+	    <argument index="5">
+		<type>boolean</type>
+		<value>false</value>
+	    </argument>
+	    <argument index="6">
+		<type>boolean</type>
+		<value>true</value>
+	    </argument>
+	    <argument index="7">
+		<type>java.lang.String</type>
+		<value>Security Symbol</value>
+	    </argument>
+	</arguments>
+    </invoke>
+    <delay>5000</delay>
+    <invoke>
+        <mbean>com.bagri.xdm:type=Schema,name=default,kind=ModelManagement</mbean>
+        <method>registerSchema</method>
+        <arguments>
+            <argument index="0">
+                <type>java.lang.String</type>
+                <value>../../etc/samples/tpox/security.xsd</value>
+            </argument>
+        </arguments>
+    </invoke>
+    <!--invoke>
+	<mbean>com.bagri.xdm:type=Schema,name=default,kind=IndexManagement</mbean>
+	<method>addIndex</method>
+	<arguments>
+	    <argument index="0">
+		<type>java.lang.String</type>
+		<value>IDX_Order_ID</value>
+	    </argument>
+	    <argument index="1">
+		<type>java.lang.String</type>
+		<value>/{http://www.fixprotocol.org/FIXML-4-4}FIXML</value>
+	    </argument>
+	    <argument index="2">
+		<type>java.lang.String</type>
+		<value>/{http://www.fixprotocol.org/FIXML-4-4}FIXML/{http://www.fixprotocol.org/FIXML-4-4}Order/@ID</value>
+	    </argument>
+	    <argument index="3">
+		<type>java.lang.String</type>
+		<value>xs:int</value>
+	    </argument>
+	    <argument index="4">
+		<type>boolean</type>
+		<value>true</value>
+	    </argument>
+	    <argument index="5">
+		<type>boolean</type>
+		<value>false</value>
+	    </argument>
+	    <argument index="6">
+		<type>boolean</type>
+		<value>true</value>
+	    </argument>
+	    <argument index="7">
+		<type>java.lang.String</type>
+		<value>Order ID</value>
+	    </argument>
+	</arguments>
+    </invoke-->
+    <!--delay>5000</delay>
+    <invoke>
+	<mbean>com.bagri.xdm:type=Schema,name=default,kind=TriggerManagement</mbean>
+	<method>addJavaTrigger</method>
+	<arguments>
+	    <argument index="0">
+		<type>java.lang.String</type>
+		<value>trigger_library</value>
+	    </argument>
+	    <argument index="1">
+		<type>java.lang.String</type>
+		<value>com.bagri.samples.ext.SampleTrigger</value>
+	    </argument>
+	    <argument index="2">
+		<type>java.lang.String</type>
+		<value>/{http://tpox-benchmark.com/security}Security</value>
+	    </argument>
+	    <argument index="3">
+		<type>boolean</type>
+		<value>true</value>
+	    </argument>
+	    <argument index="4">
+		<type>java.lang.String</type>
+		<value>after delete, before insert</value>
+	    </argument>
+	</arguments>
+    </invoke>
+    <invoke>
+	<mbean>com.bagri.xdm:type=Schema,name=default,kind=TriggerManagement</mbean>
+	<method>addXQueryTrigger</method>
+	<arguments>
+	    <argument index="0">
+		<type>java.lang.String</type>
+		<value>trigger_module</value>
+	    </argument>
+	    <argument index="1">
+		<type>java.lang.String</type>
+		<value>bgdm:before-delete-security</value>
+	    </argument>
+	    <argument index="2">
+		<type>java.lang.String</type>
+		<value>/{http://tpox-benchmark.com/security}Security</value>
+	    </argument>
+	    <argument index="3">
+		<type>boolean</type>
+		<value>false</value>
+	    </argument>
+	    <argument index="4">
+		<type>java.lang.String</type>
+		<value>before delete</value>
+	    </argument>
+	</arguments>
+    </invoke-->
+</ns2:script>
+
+
+
+<!-- 171 path (from 20832 documents):
+
+2: /ns2:Security/ns2:Symbol/text() (text)
+5:  (document)
+10: /comment() (comment)
+14: /ns2:Security (element)
+19: /ns2:Security/#xsi (namespace)
+24: /ns2:Security/#ns2 (namespace)
+30: /ns2:Security/@id (attribute)
+34: /ns2:Security/@xsi:schemaLocation (attribute)
+37: /ns2:Security/ns2:Symbol (element)
+40: /ns2:Security/ns2:Name (element)
+44: /ns2:Security/ns2:Name/text() (text)
+45: /ns2:Security/ns2:ShortName (element)
+49: /ns2:Security/ns2:ShortName/text() (text)
+52: /ns2:Security/ns2:SecurityType (element)
+53: /ns2:Security/ns2:SecurityType/text() (text)
+56: /ns2:Security/ns2:SecurityInformation (element)
+61: /ns2:Security/ns2:SecurityInformation/ns2:StockInformation (element)
+65: /ns2:Security/ns2:SecurityInformation/ns2:StockInformation/ns2:Sector (element)
+71: /ns2:Security/ns2:SecurityInformation/ns2:StockInformation/ns2:Sector/text() (text)
+76: /ns2:Security/ns2:SecurityInformation/ns2:StockInformation/ns2:Industry (element)
+80: /ns2:Security/ns2:SecurityInformation/ns2:StockInformation/ns2:Industry/text() (text)
+82: /ns2:Security/ns2:SecurityInformation/ns2:StockInformation/ns2:Category (element)
+84: /ns2:Security/ns2:SecurityInformation/ns2:StockInformation/ns2:Category/@Class (attribute)
+87: /ns2:Security/ns2:SecurityInformation/ns2:StockInformation/ns2:Category/@Capitalization (attribute)
+91: /ns2:Security/ns2:SecurityInformation/ns2:StockInformation/ns2:OutstShares (element)
+96: /ns2:Security/ns2:SecurityInformation/ns2:StockInformation/ns2:OutstShares/text() (text)
+101: /ns2:Security/ns2:SecurityInformation/ns2:Description (element)
+106: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:BusinessSummary (element)
+111: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:BusinessSummary/ns2:Holdings (element)
+112: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:BusinessSummary/ns2:Rating (element)
+113: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:BusinessSummary/ns2:Keyword (element)
+115: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:BusinessSummary/ns2:Index (element)
+116: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:BusinessSummary/ns2:Manager (element)
+117: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:BusinessSummary/ns2:Cost (element)
+118: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:BusinessSummary/ns2:Rating/text() (text)
+119: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:BusinessSummary/ns2:Competitor (element)
+121: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:BusinessSummary/ns2:Holdings/text() (text)
+122: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:BusinessSummary/ns2:Manager/text() (text)
+123: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:BusinessSummary/ns2:Index/text() (text)
+124: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:BusinessSummary/ns2:Keyword/text() (text)
+125: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:BusinessSummary/ns2:Assets (element)
+126: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:BusinessSummary/ns2:Cost/text() (text)
+127: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:BusinessSummary/ns2:Competitor/text() (text)
+128: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:BusinessSummary/ns2:Strategy (element)
+130: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:BusinessSummary/ns2:Risk (element)
+131: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:BusinessSummary/ns2:Assets/text() (text)
+132: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:BusinessSummary/ns2:Product (element)
+133: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:BusinessSummary/ns2:Strategy/text() (text)
+134: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:BusinessSummary/ns2:Risk/text() (text)
+135: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:BusinessSummary/ns2:Dividend (element)
+137: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:BusinessSummary/ns2:Product/text() (text)
+139: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:BusinessSummary/text() (text)
+140: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:BusinessSummary/ns2:Dividend/text() (text)
+142: /ns2:Security/ns2:Price (element)
+145: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:BusinessSummary/ns2:CEO (element)
+146: /ns2:Security/ns2:Price/ns2:LastTrade (element)
+149: /ns2:Security/ns2:Price/ns2:LastTrade/text() (text)
+154: /ns2:Security/ns2:Price/ns2:Ask (element)
+159: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:BusinessSummary/ns2:CEO/text() (text)
+160: /ns2:Security/ns2:Price/ns2:Ask/text() (text)
+166: /ns2:Security/ns2:Price/ns2:Bid (element)
+169: /ns2:Security/ns2:Price/ns2:Bid/text() (text)
+172: /ns2:Security/ns2:Price/ns2:Price50DayAvg (element)
+176: /ns2:Security/ns2:Price/ns2:Price50DayAvg/text() (text)
+181: /ns2:Security/ns2:Price/ns2:Price200DayAvg (element)
+187: /ns2:Security/ns2:Price/ns2:Price200DayAvg/text() (text)
+188: /ns2:Security/ns2:Price/ns2:PriceToday (element)
+194: /ns2:Security/ns2:Price/ns2:PriceToday/ns2:PreviousClose (element)
+199: /ns2:Security/ns2:Price/ns2:PriceToday/ns2:PreviousClose/text() (text)
+203: /ns2:Security/ns2:Price/ns2:PriceToday/ns2:Open (element)
+209: /ns2:Security/ns2:Price/ns2:PriceToday/ns2:Open/text() (text)
+213: /ns2:Security/ns2:Price/ns2:PriceToday/ns2:High (element)
+217: /ns2:Security/ns2:Price/ns2:PriceToday/ns2:High/text() (text)
+221: /ns2:Security/ns2:Price/ns2:PriceToday/ns2:Low (element)
+226: /ns2:Security/ns2:Price/ns2:PriceToday/ns2:Low/text() (text)
+227: /ns2:Security/ns2:Price/ns2:Price52week (element)
+232: /ns2:Security/ns2:Price/ns2:Price52week/ns2:Price52week-low (element)
+236: /ns2:Security/ns2:Price/ns2:Price52week/ns2:Price52week-low/text() (text)
+239: /ns2:Security/ns2:Price/ns2:Price52week/ns2:Price52week-low-date (element)
+243: /ns2:Security/ns2:Price/ns2:Price52week/ns2:Price52week-low-date/text() (text)
+249: /ns2:Security/ns2:Price/ns2:Price52week/ns2:Price52week-high (element)
+254: /ns2:Security/ns2:Price/ns2:Price52week/ns2:Price52week-high/text() (text)
+260: /ns2:Security/ns2:Price/ns2:Price52week/ns2:Price52week-high-date (element)
+265: /ns2:Security/ns2:Price/ns2:Price52week/ns2:Price52week-high-date/text() (text)
+268: /ns2:Security/ns2:PE (element)
+271: /ns2:Security/ns2:PE/text() (text)
+277: /ns2:Security/ns2:Yield (element)
+283: /ns2:Security/ns2:Yield/text() (text)
+286: /ns2:Security/ns2:DivPerShare (element)
+292: /ns2:Security/ns2:DivPerShare/text() (text)
+293: /ns2:Security/ns2:SecurityInformation/ns2:FundInformation (element)
+295: /ns2:Security/ns2:SecurityInformation/ns2:FundInformation/ns2:FundFamily (element)
+296: /ns2:Security/ns2:SecurityInformation/ns2:FundInformation/ns2:FundFamily/text() (text)
+297: /ns2:Security/ns2:SecurityInformation/ns2:FundInformation/ns2:Industry (element)
+298: /ns2:Security/ns2:SecurityInformation/ns2:FundInformation/ns2:Sector (element)
+299: /ns2:Security/ns2:SecurityInformation/ns2:FundInformation/ns2:Sector/text() (text)
+300: /ns2:Security/ns2:SecurityInformation/ns2:FundInformation/ns2:Industry/text() (text)
+302: /ns2:Security/ns2:SecurityInformation/ns2:FundInformation/ns2:AssetGroup (element)
+303: /ns2:Security/ns2:SecurityInformation/ns2:FundInformation/ns2:AssetGroup/text() (text)
+304: /ns2:Security/ns2:SecurityInformation/ns2:FundInformation/ns2:Category (element)
+305: /ns2:Security/ns2:SecurityInformation/ns2:FundInformation/ns2:Category/@Class (attribute)
+306: /ns2:Security/ns2:SecurityInformation/ns2:FundInformation/ns2:Category/@Capitalization (attribute)
+307: /ns2:Security/ns2:SecurityInformation/ns2:FundInformation/ns2:FixedIncome (element)
+308: /ns2:Security/ns2:SecurityInformation/ns2:FundInformation/ns2:ExpenseRatio (element)
+310: /ns2:Security/ns2:SecurityInformation/ns2:FundInformation/ns2:ExpenseRatio/text() (text)
+311: /ns2:Security/ns2:SecurityInformation/ns2:FundInformation/ns2:FixedIncome/@Quality (attribute)
+312: /ns2:Security/ns2:SecurityInformation/ns2:FundInformation/ns2:TotalAssets (element)
+313: /ns2:Security/ns2:SecurityInformation/ns2:FundInformation/ns2:TotalAssets/text() (text)
+314: /ns2:Security/ns2:SecurityInformation/ns2:FundInformation/ns2:FixedIncome/@Duration (attribute)
+315: /ns2:Security/ns2:SecurityInformation/ns2:FundInformation/ns2:MinInitialInvestment (element)
+316: /ns2:Security/ns2:SecurityInformation/ns2:FundInformation/ns2:MinInitialInvestment/text() (text)
+317: /ns2:Security/ns2:SecurityInformation/ns2:FundInformation/ns2:MinSubsequentInvestment (element)
+318: /ns2:Security/ns2:SecurityInformation/ns2:FundInformation/ns2:MinSubsequentInvestment/text() (text)
+319: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:FundDescription (element)
+320: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:FundDescription/ns2:Dividend (element)
+321: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:FundDescription/ns2:Dividend/text() (text)
+322: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:FundDescription/ns2:Risk (element)
+323: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:FundDescription/ns2:Keyword (element)
+324: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:FundDescription/ns2:Risk/text() (text)
+325: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:FundDescription/ns2:Strategy (element)
+326: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:FundDescription/ns2:Keyword/text() (text)
+327: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:FundDescription/ns2:Holdings (element)
+328: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:FundDescription/ns2:Strategy/text() (text)
+329: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:FundDescription/ns2:CEO (element)
+330: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:FundDescription/ns2:Holdings/text() (text)
+331: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:FundDescription/ns2:Cost (element)
+332: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:FundDescription/ns2:Manager (element)
+333: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:FundDescription/ns2:CEO/text() (text)
+334: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:FundDescription/ns2:Competitor (element)
+335: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:FundDescription/text() (text)
+336: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:FundDescription/ns2:Cost/text() (text)
+337: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:FundDescription/ns2:Manager/text() (text)
+338: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:FundDescription/ns2:Assets (element)
+339: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:FundDescription/ns2:Competitor/text() (text)
+340: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:Management (element)
+341: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:Management/ns2:Manager (element)
+342: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:Management/ns2:Assets (element)
+343: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:FundDescription/ns2:Assets/text() (text)
+344: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:FundDescription/ns2:Index (element)
+345: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:FundDescription/ns2:Index/text() (text)
+346: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:Management/ns2:Cost (element)
+347: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:Management/ns2:Strategy (element)
+348: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:Management/ns2:Manager/text() (text)
+349: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:Management/ns2:Assets/text() (text)
+350: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:FundDescription/ns2:Rating (element)
+351: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:FundDescription/ns2:Product (element)
+353: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:Management/ns2:Cost/text() (text)
+354: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:FundDescription/ns2:Product/text() (text)
+355: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:Management/ns2:Strategy/text() (text)
+356: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:Management/ns2:Product (element)
+357: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:Management/ns2:Rating (element)
+358: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:Management/ns2:Index (element)
+359: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:FundDescription/ns2:Rating/text() (text)
+360: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:Management/ns2:CEO (element)
+361: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:Management/ns2:Index/text() (text)
+362: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:Management/ns2:Holdings (element)
+363: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:Management/ns2:CEO/text() (text)
+364: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:Management/ns2:Rating/text() (text)
+365: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:Management/ns2:Product/text() (text)
+366: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:Management/text() (text)
+367: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:Management/ns2:Risk (element)
+369: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:Management/ns2:Holdings/text() (text)
+370: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:Management/ns2:Keyword (element)
+371: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:Management/ns2:Risk/text() (text)
+372: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:Management/ns2:Keyword/text() (text)
+373: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:Management/ns2:Dividend (element)
+374: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:Management/ns2:Dividend/text() (text)
+375: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:Management/ns2:Competitor (element)
+376: /ns2:Security/ns2:SecurityInformation/ns2:Description/ns2:Management/ns2:Competitor/text() (text)
+
+-->
