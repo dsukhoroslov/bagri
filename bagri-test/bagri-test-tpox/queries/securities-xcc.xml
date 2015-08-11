@@ -32,7 +32,7 @@ return $id" />
 			</parameters>
 		</transaction-->
 
-		<!--transaction id="1" name="getSecurity" weight="50">
+		<transaction id="1" name="getSecurity" weight="35">
 			<java-plugin>com.bagri.client.tpox.workload.MarkLogicXCCPlugin</java-plugin>
 			<parameters>
 				<parameter>
@@ -59,7 +59,7 @@ return $sec" />
 			</parameters>
 		</transaction>
 
-		<transaction id="2" name="getSecurityPrice" weight="50">
+		<transaction id="2" name="getSecurityPrice" weight="35">
 			<java-plugin>com.bagri.client.tpox.workload.MarkLogicXCCPlugin</java-plugin>
 			<parameters>
 				<parameter>
@@ -85,9 +85,9 @@ return
 					<file>input/security_symbols.txt</file>
 				</parameter>
 			</parameters>
-		</transaction-->
+		</transaction>
 
-		<transaction id="3" name="searchSecurity" weight="100">
+		<transaction id="3" name="searchSecurity" weight="30">
 			<java-plugin>com.bagri.client.tpox.workload.MarkLogicXCCPlugin</java-plugin>
 			<parameters>
 

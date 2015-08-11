@@ -14,12 +14,17 @@ import javax.xml.xquery.XQItem;
 import javax.xml.xquery.XQItemAccessor;
 import javax.xml.xquery.XQItemType;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.saxon.dom.NodeOverNodeInfo;
+import net.sf.saxon.expr.LastPositionFinder;
 import net.sf.saxon.om.Item;
 import net.sf.saxon.om.NodeInfo;
 import net.sf.saxon.om.Sequence;
 import net.sf.saxon.om.SequenceIterator;
 import net.sf.saxon.om.StandardNames;
+import net.sf.saxon.query.XQueryExpression;
 import net.sf.saxon.trans.XPathException;
 import net.sf.saxon.type.AtomicType;
 import net.sf.saxon.value.AtomicValue;
@@ -39,6 +44,8 @@ import net.sf.saxon.value.QualifiedNameValue;
 import com.bagri.xqj.BagriXQUtils;
 
 public class XQSequenceIterator implements Iterator {
+
+	private static final Logger logger = LoggerFactory.getLogger(XQSequenceIterator.class);
 	
 	private XQDataFactory xqFactory;
 	private SequenceIterator iter;
@@ -53,6 +60,20 @@ public class XQSequenceIterator implements Iterator {
 			//
 		}
 	}
+	
+	public int getFullSize() {
+		if ((iter.getProperties() & SequenceIterator.LAST_POSITION_FINDER) != 0) {
+			try {
+				return ((LastPositionFinder) iter).getLength();
+			} catch (XPathException ex) {
+				logger.error("getFullSize; error", ex);
+			}
+		//} else {
+			//logger.info("getFullSIze; props: {}; iter: {}", iter.getProperties(), iter);
+			// iter is of type XQueryExpression.ErrorReportingIterator
+		}
+		return -1;
+	}
 
 	@Override
 	public boolean hasNext() {
@@ -65,18 +86,17 @@ public class XQSequenceIterator implements Iterator {
 		try {
 			next = iter.next();
 		} catch (XPathException ex) {
-			//
 			// throw Runtime ex?
-			// todo: log it, at least..
+			logger.error("next 1;", ex);
 		}
 		
 		if (item != null) {
 			try {
 				return itemToXQItem(item);
-			} catch (XPathException e) {
-				// todo: log it, at least..
-			} catch (XQException e) {
-				// todo: log it, at least..
+			} catch (XPathException ex) {
+				logger.error("next 2;", ex);
+			} catch (XQException ex) {
+				logger.error("next 3;", ex);
 			}
 		}
 		return null;
@@ -286,12 +306,7 @@ public class XQSequenceIterator implements Iterator {
         } else if (item instanceof Sequence) {
         	Sequence sq = (Sequence) item;
         	SequenceIterator itr = sq.iterate();
-        	//List list = new ArrayList();
-        	//for (Item itm = itr.next(); itm != null;) {
-        	//	list.add(itemToXQItem(itm));
-        	//}
-        	//xqFactory.createSequence(list.iterator());
-        	xqFactory.createSequence(new XQSequenceIterator(xqFactory, itr));
+        	return xqFactory.createSequence(new XQSequenceIterator(xqFactory, itr));
         }
         return null; //item.;
     }

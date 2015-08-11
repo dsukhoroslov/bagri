@@ -107,14 +107,9 @@ public class QueryManagementImpl implements XDMQueryManagement {
 
 		long stamp = System.currentTimeMillis();
 		logger.trace("executeXCommand.enter; command: {}; bindings: {}; context: {}", command, bindings, props);
-		//try {
-			Iterator result = repo.execXQuery(false, command, bindings, props);
-			logger.trace("executeXCommand.exit; time taken: {}; returning: {}", System.currentTimeMillis() - stamp, result);
-			return result;
-		//} catch (Exception ex) {
-		//	logger.warn("executeXCommand.error; time taken: {}; exception: {}", System.currentTimeMillis() - stamp, ex);
-		//}
-		//return null; 
+		Iterator result = repo.execXQuery(false, command, bindings, props);
+		logger.trace("executeXCommand.exit; time taken: {}; returning: {}", System.currentTimeMillis() - stamp, result);
+		return result;
 	}
 
 	@Override
@@ -122,15 +117,9 @@ public class QueryManagementImpl implements XDMQueryManagement {
 
 		long stamp = System.currentTimeMillis();
 		logger.trace("executeXQuery.enter; query: {}; bindings: {}; context: {}", query, bindings, props);
-		//try {
-			Iterator result = repo.execXQuery(true, query, bindings, props);
-			logger.trace("executeXQuery.exit; time taken: {}; returning: {}", System.currentTimeMillis() - stamp, result);
-			return result; 
-		//} catch (Exception ex) {
-		//	logger.warn("executeXQuery.error; time taken: {}; exception: {}", System.currentTimeMillis() - stamp, ex);
-		//	ex.printStackTrace();
-		//}
-		//return null; 
+		Iterator result = repo.execXQuery(true, query, bindings, props);
+		logger.trace("executeXQuery.exit; time taken: {}; returning: {}", System.currentTimeMillis() - stamp, result);
+		return result; 
 	}
 	
 	@Override

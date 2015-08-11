@@ -3,20 +3,16 @@
  */
 package com.bagri.client.tpox.workload;
 
+import static com.bagri.common.config.XDMConfigConstants.xdm_spring_context;
+import static com.bagri.xqj.BagriXQConstants.pn_client_fetchSize;
+
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Locale;
 import java.util.Random;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import net.sf.tpox.workload.core.WorkloadProcessor;
 import net.sf.tpox.workload.transaction.javaplugin.GenericJavaClassPlugin;
 import net.sf.tpox.workload.util.WorkloadEnvironment;
-import static com.bagri.common.config.XDMConfigConstants.xdm_spring_context;
 
 /**
  * @author Denis Sukhoroslov
@@ -28,6 +24,8 @@ public abstract class BagriTPoXPlugin implements GenericJavaClassPlugin {
 	
 	protected static final String config = System.getProperty(xdm_spring_context);
 	//protected static final ApplicationContext context = new ClassPathXmlApplicationContext(config);
+	
+	protected static final int fetchSize = Integer.parseInt(System.getProperty(pn_client_fetchSize, "0"));
 	
     protected WorkloadProcessor wp;
     protected WorkloadEnvironment we;

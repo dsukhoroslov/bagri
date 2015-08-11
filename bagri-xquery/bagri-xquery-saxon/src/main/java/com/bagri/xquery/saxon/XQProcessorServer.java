@@ -41,6 +41,7 @@ import com.bagri.xquery.api.XQProcessor;
 
 public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 	
+	private Iterator results;
     private CollectionURIResolverImpl bcr;
     
     private static NamePool defNamePool = new NamePool();
@@ -243,6 +244,15 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
         return execQuery(query);
 	}
 	
+	@Override
+	public Iterator getResults() {
+		return results;
+	}
+
+	@Override
+	public void setResults(Iterator itr) {
+		this.results = itr;
+	}
 	
 	private void serializeResults(SequenceIterator results) throws XQException {
 		
@@ -259,6 +269,6 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 		}
 		
 	}
-	
+
 }
 

@@ -104,7 +104,7 @@ public class RepositoryImpl extends XDMRepositoryBase implements ApplicationCont
 				qName, destroyed ? "destroyed" : "skipped", client.getSocketAddress(), sizeBefore, sizeAfter); 
 	}
 	
-	HazelcastInstance getHzInstance() {
+	public HazelcastInstance getHzInstance() {
 		return hzInstance;
 	}
 

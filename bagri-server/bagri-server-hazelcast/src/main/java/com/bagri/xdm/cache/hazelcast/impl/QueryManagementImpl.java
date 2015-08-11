@@ -45,6 +45,7 @@ import com.bagri.xdm.domain.XDMQuery;
 import com.bagri.xdm.domain.XDMResults;
 import com.bagri.xquery.api.XQProcessor;
 import com.bagri.xquery.saxon.ExceptionIterator;
+import com.bagri.xquery.saxon.XQSequenceIterator;
 import com.hazelcast.core.IMap;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
@@ -462,14 +463,15 @@ public class QueryManagementImpl implements XDMQueryManagement {
 		ResultCursor result = null;
 		Iterator iter = null;
 		String clientId = props.getProperty(pn_client_id);
-		int batchSize = Integer.parseInt(props.getProperty(pn_fetch_size, "0"));
+		int batchSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, "0"));
 		try {
 			//if (isQuery) {
 			//	iter = queryManager.getQueryResults(xqCmd, bindings, props);
 			//}
 			
+			XQProcessor xqp = repo.getXQProcessor(clientId);
+			xqp.setResults(null);
 			if (iter == null) {
-				XQProcessor xqp = repo.getXQProcessor(clientId);
 				for (Object o: bindings.entrySet()) {
 					Map.Entry<QName, Object> var = (Map.Entry<QName, Object>) o; 
 					xqp.bindVariable(var.getKey(), var.getValue());
@@ -485,28 +487,27 @@ public class QueryManagementImpl implements XDMQueryManagement {
 					Map.Entry<QName, Object> var = (Map.Entry<QName, Object>) o; 
 					xqp.unbindVariable(var.getKey());
 				}
-				
+
 			//	iter = queryManager.addQueryResults(xqCmd, bindings, props, iter);
 			}
 			result = createCursor(clientId, batchSize, iter, false);
+			xqp.setResults(result);
 		} catch (Throwable ex) {
 			logger.error("execXQCommand.error;", ex);
-			result = createCursor(clientId, batchSize, new ExceptionIterator(ex), true);
+			result = createCursor(clientId, 0, new ExceptionIterator(ex), true);
 		}
 		logger.trace("execXQCommand.exit; returning: {}, for client: {}", result, clientId);
 		return result;
 	}
 
 	private ResultCursor createCursor(String clientId, int batchSize, Iterator iter, boolean failure) {
-		final ResultCursor xqCursor = new ResultCursor(clientId, batchSize, iter, failure);
+		int size = ResultCursor.UNKNOWN;
+		if (iter instanceof XQSequenceIterator) {
+			size = ((XQSequenceIterator) iter).getFullSize();
+		}
+		final ResultCursor xqCursor = new ResultCursor(clientId, batchSize, iter, size, failure);
 		
-		// TODO: put everything to the queue - can be too slow!
-		// think of async solution..
-		// profile: it takes 3.19 ms to serialize!
-		// another profile session: 13 ms spent in toData conversion!
-		// 12.5 ms: SaxonXQProcessor.convertToString -> net.sf.saxon.query.QueryResult.serializeSequence (11 ms)
-
-		// but async serialization takes even more time! because of the thread context switch, most probably
+		// async serialization takes even more time! because of the thread context switch, most probably
 		//IExecutorService execService = hzInstance.getExecutorService(PN_XDM_SCHEMA_POOL);
 		//execService.execute(new Runnable() {
 		//	@Override

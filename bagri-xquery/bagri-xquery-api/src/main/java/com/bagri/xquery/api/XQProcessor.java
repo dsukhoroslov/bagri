@@ -17,6 +17,9 @@ public interface XQProcessor extends QueryProcessor {
     Iterator executeXCommand(String command, Map<QName, XQItemAccessor> bindings, 
     		Properties props) throws XQException;
 
+    Iterator getResults();
+    void setResults(Iterator itr);
+    
     // Saxon specific conversion
     // TODO: move this out of the interface!
 	String convertToString(Object item) throws XQException;

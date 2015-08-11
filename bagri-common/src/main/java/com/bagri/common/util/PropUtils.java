@@ -35,5 +35,15 @@ public class PropUtils {
 		}
 	}
 	
+	public static void setProperty(Properties target, String name, String fallback) {
+		String prop = System.getProperty(name);
+		if (prop == null) {
+			prop = fallback;
+		}
+		
+		if (prop != null) {
+			target.setProperty(name, prop);
+		}
+	}
 	
 }

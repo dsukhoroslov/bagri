@@ -76,6 +76,16 @@ public class XQProcessorClient extends XQProcessorImpl implements XQProcessor {
     	}
 	}
 
+	@Override
+	public Iterator getResults() {
+		return null;
+	}
+
+	@Override
+	public void setResults(Iterator itr) {
+		// no-op
+	}
+
 	//@Override
 	//public Collection<QName> prepareXQuery(String query, XQStaticContext ctx) throws XQException {
 	//	return null;

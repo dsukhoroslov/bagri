@@ -13,7 +13,7 @@
     <bean id="xqProcessor" class="com.bagri.xquery.saxon.XQProcessorClient">
         <property name="properties">
             <props>
-                <prop key="xdm.client.fetchSize">1</prop>
+                <prop key="xdm.client.fetchSize">5</prop>
             </props>
         </property>
     	<property name="XQDataFactory" ref="xqConnection" />

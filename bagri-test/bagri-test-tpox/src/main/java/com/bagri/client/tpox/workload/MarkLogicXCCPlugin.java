@@ -1,7 +1,5 @@
 package com.bagri.client.tpox.workload;
 
-import static com.bagri.common.config.XDMConfigConstants.xdm_spring_context;
-
 import com.marklogic.xcc.Content;
 import com.marklogic.xcc.ContentCreateOptions;
 import com.marklogic.xcc.ContentFactory;
@@ -14,18 +12,12 @@ import com.marklogic.xcc.exceptions.RequestException;
 import com.marklogic.xcc.types.ValueType;
 import com.marklogic.xcc.types.XName;
 import com.marklogic.xcc.types.XdmValue;
-import com.xqj2.XQConnection2;
 
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import javax.xml.namespace.QName;
-import javax.xml.xquery.XQDynamicContext;
-import javax.xml.xquery.XQException;
-import javax.xml.xquery.XQItem;
 
 import net.sf.tpox.workload.parameter.ActualParamInfo;
 import net.sf.tpox.workload.parameter.Parameter;
@@ -174,13 +166,21 @@ public class MarkLogicXCCPlugin extends BagriTPoXPlugin {
 		
 		ContentSource xcs = getContentSource();
 		Session xss = xcs.newSession();
+		//xss.getDefaultRequestOptions().setResultBufferSize(fetchSize);
 		Request request = xss.newAdhocQuery(query);
 		bindParams(params, request);
 		ResultSequence rs = xss.submitRequest(request);		
 	    int cnt = 0;
-	    while (rs.hasNext() && cnt < 1) {
-	    	rs.next();
-	    	cnt++;
+	    if (fetchSize > 0) {
+	    	while (rs.hasNext() && cnt < fetchSize) {
+	    		rs.next();
+	    		cnt++;
+	    	}
+	    } else {
+	    	while (rs.hasNext()) {
+	    		rs.next();
+	    		cnt++;
+	    	}
 	    }
 	    rs.close();
 	    xss.close();

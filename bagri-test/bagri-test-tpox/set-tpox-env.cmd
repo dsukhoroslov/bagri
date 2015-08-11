@@ -9,7 +9,7 @@ set app_home=.
 
 rem specify the JVM heap size
 rem set memory=1024m
-set memory=256m
+set memory=1024m
 
 rem specify schema and admin hosts:ports
 set admin_addr=localhost:3330
@@ -36,7 +36,8 @@ set java_opts=%java_opts% -Dxdm.schema.name=%schema%
 set java_opts=%java_opts% -Dxdm.schema.password=password
 
 rem possible values are: member, owner, any
-rem set java_opts=%java_opts% -Dxdm.client.submitTo=any
+set java_opts=%java_opts% -Dxdm.client.submitTo=any
+set java_opts=%java_opts% -Dxdm.client.fetchSize=1
 
 set java_opts=%java_opts% -Duser.country=US -Duser.language=en
 

@@ -1,8 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- 
-<hazelcast-client xmlns="http://www.hazelcat.com/schema/client-config" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-	xsi:schemaLocation="http://www.hazelcast.com/schema/client-config http://www.hazelcast.com/schema/config/hazelcast-client-config-3.5.xsd"> 
- -->
 <hz:hazelcast-client xmlns:hz="http://www.hazelcast.com/schema/client-config" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.hazelcast.com/schema/client-config hazelcast-client-config-3.5.xsd">	
 	<!--group>
@@ -12,10 +8,10 @@
 
 	<hz:network>
 		<hz:cluster-members>
-			<hz:address>localhost:5701</hz:address>
+			<hz:address>localhost:10500</hz:address>
 		</hz:cluster-members>
 		<hz:smart-routing>false</hz:smart-routing>
-		<hz:connection-timeout>60000</hz:connection-timeout>
+		<!--hz:connection-timeout>60000</hz:connection-timeout-->
 	</hz:network>
 
 	<hz:executor-pool-size>10</hz:executor-pool-size>

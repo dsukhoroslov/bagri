@@ -151,8 +151,14 @@ public class BagriXQJPlugin extends BagriTPoXPlugin {
 		bindParams(params, xqpe);
 	    XQResultSequence xqs = xqpe.executeQuery();
 	    int cnt = 0;
-	    while (xqs.next()) {
-	    	cnt++;
+	    if (fetchSize > 0) {
+	    	while (xqs.next() && cnt < fetchSize) {
+	    		cnt++;
+	    	}
+	    } else {
+	    	while (xqs.next()) {
+	    		cnt++;
+	    	}
 	    }
 	    xqs.close();
 	    xqpe.close();

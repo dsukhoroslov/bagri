@@ -1,6 +1,6 @@
 package com.bagri.xdm.cache.hazelcast.task.query;
 
-import static com.bagri.xqj.BagriXQConstants.pn_tx_id;
+import static com.bagri.xqj.BagriXQConstants.pn_client_txId;
 
 import java.util.concurrent.Callable;
 
@@ -39,7 +39,7 @@ public class XQCommandExecutor extends com.bagri.xdm.client.hazelcast.task.query
 	public ResultCursor call() throws Exception {
 		
     	long txId = XDMTransactionManagement.TX_NO;
-    	String id = context.getProperty(pn_tx_id);
+    	String id = context.getProperty(pn_client_txId);
     	if (id == null || "0".equals(id)) {
     		if (queryMgr.isReadOnlyQuery(command)) {
     			if (isQuery) {

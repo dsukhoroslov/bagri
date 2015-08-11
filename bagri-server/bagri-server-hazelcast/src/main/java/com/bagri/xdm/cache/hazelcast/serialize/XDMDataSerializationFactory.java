@@ -15,6 +15,7 @@ import com.bagri.xdm.cache.hazelcast.task.node.NodeOptionSetter;
 import com.bagri.xdm.cache.hazelcast.task.query.DocumentIdsProvider;
 import com.bagri.xdm.cache.hazelcast.task.query.DocumentUrisProvider;
 import com.bagri.xdm.cache.hazelcast.task.query.QueryProcessor;
+import com.bagri.xdm.cache.hazelcast.task.query.ResultFetcher;
 import com.bagri.xdm.cache.hazelcast.task.query.XMLBuilder;
 import com.bagri.xdm.cache.hazelcast.task.query.XQCommandExecutor;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaAdministrator;
@@ -49,6 +50,7 @@ public class XDMDataSerializationFactory extends com.bagri.xdm.client.hazelcast.
 			case cli_BeginTransactionTask: return new TransactionStarter(); 
 			case cli_CommitTransactionTask: return new TransactionCommiter();
 			case cli_RollbackTransactionTask: return new TransactionAborter();
+			case cli_FetchResultsTask: return new ResultFetcher();
 			case cli_InitSchemaTask: return new SchemaInitiator();
 			case cli_DenitSchemaTask: return new SchemaDenitiator();
 			case cli_CleanSchemaTask: return new SchemaDocCleaner();

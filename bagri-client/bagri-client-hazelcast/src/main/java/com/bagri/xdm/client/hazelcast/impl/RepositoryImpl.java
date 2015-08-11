@@ -75,12 +75,12 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 	
 	private static Properties getSystemProps() {
 		Properties props = new Properties();
-		props.setProperty(pn_schema_name, getSystemProperty(pn_schema_name, "schema"));
-		props.setProperty(pn_server_address, getSystemProperty(pn_server_address, "address"));
-		props.setProperty(pn_schema_user, getSystemProperty(pn_schema_user, "user"));
-		props.setProperty(pn_schema_password, getSystemProperty(pn_schema_password, "password"));
-		props.setProperty(pn_client_smart, getSystemProperty(pn_client_smart, "smart"));
-		props.setProperty(pn_login_timeout, getSystemProperty(pn_login_timeout, "loginTimeout"));
+		setProperty(props, pn_schema_name, null); // "schema"
+		setProperty(props, pn_server_address, null); //"address"
+		setProperty(props, pn_schema_user, null); //"user"
+		setProperty(props, pn_schema_password, null); //"password"
+		setProperty(props, pn_client_smart, null); //"smart"
+		setProperty(props, pn_client_loginTimeout, null); //"loginTimeout"
 		return props;
 	}
 	
@@ -93,7 +93,7 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 		setProperty(original, props, pn_client_smart, "smart");
 		//setProperty(original, props, pn_client_submitTo, "any");
 		//setProperty(original, props, pn_fetch_size, "0");
-		setProperty(original, props, pn_login_timeout, "loginTimeout");
+		setProperty(original, props, pn_client_loginTimeout, "loginTimeout");
 		props.put(pn_data_factory, original.get(pn_data_factory));
 		return props;
 	}
@@ -109,7 +109,7 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 		String user = props.getProperty(pn_schema_user);
 		String password = props.getProperty(pn_schema_password);
 		String smart = props.getProperty(pn_client_smart);
-		String timeout = props.getProperty(pn_login_timeout);
+		String timeout = props.getProperty(pn_client_loginTimeout);
 		InputStream in = DocumentManagementImpl.class.getResourceAsStream("/hazelcast/hazelcast-client.xml");
 		ClientConfig config = new XmlClientConfigBuilder(in).build();
 		config.getGroupConfig().setName(schema);
@@ -150,8 +150,13 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 					new SerializerConfig().setTypeClass(XQSequence.class).setImplementation(xqss));
 		}
 		logger.debug("initializeHazelcast; config: {}", config);
-		hzClient = HazelcastClient.newHazelcastClient(config);
-		//logger.debug("initializeHazelcast; got HZ: {}", hzInstance);
+		try {
+			hzClient = HazelcastClient.newHazelcastClient(config);
+			//logger.debug("initializeHazelcast; got HZ: {}", hzInstance);
+		} catch (Throwable ex) {
+			logger.error("initializeHazelcast.error", ex);
+			throw ex;
+		}
 		com.hazelcast.client.impl.HazelcastClientProxy proxy = (com.hazelcast.client.impl.HazelcastClientProxy) hzClient; 
 		schemaName = proxy.getClientConfig().getGroupConfig().getName();
 		clientId = proxy.getLocalEndpoint().getUuid();
@@ -230,7 +235,7 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 		
 		//props.put(PN_BATCH_SIZE, "5");
 		props.setProperty(pn_client_id, clientId);
-		props.setProperty(pn_tx_id, String.valueOf(getTransactionId()));
+		props.setProperty(pn_client_txId, String.valueOf(getTransactionId()));
 		//props.setProperty(pn_fetch_size, fetchSize);
 		//props.setProperty(pn_client_submitTo, submitTo);
 		
@@ -238,24 +243,20 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 		
 		XQCommandExecutor task = new XQCommandExecutor(isQuery, schemaName, query, bindings, props);
 		Future<ResultCursor> future;
-		if (isQuery) {
-			if ("owner".equals(runOn)) {
-				int key = getQueryManagement().getQueryKey(query);
-				future = execService.submitToKeyOwner(task, key);
-			} else if ("member".equals(runOn)) {
-				int key = getQueryManagement().getQueryKey(query);
-				Member member = hzClient.getPartitionService().getPartition(key).getOwner();
-				future = execService.submitToMember(task, member);
-			} else {
-				future = execService.submit(task);
-			}
+		if ("owner".equals(runOn)) {
+			int key = getQueryManagement().getQueryKey(query);
+			future = execService.submitToKeyOwner(task, key);
+		} else if ("member".equals(runOn)) {
+			int key = getQueryManagement().getQueryKey(query);
+			Member member = hzClient.getPartitionService().getPartition(key).getOwner();
+			future = execService.submitToMember(task, member);
 		} else {
 			future = execService.submit(task);
 		}
 
 		Iterator result = null;
 		long timeout = Long.parseLong(props.getProperty(pn_queryTimeout, "0"));
-		int fetchSize = Integer.parseInt(props.getProperty(pn_fetch_size, "0"));
+		int fetchSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, "0"));
 		try {
 			//if (cursor != null) {
 			//	cursor.close(false);

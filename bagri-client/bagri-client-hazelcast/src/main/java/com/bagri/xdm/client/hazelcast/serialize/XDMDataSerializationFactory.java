@@ -8,6 +8,7 @@ import com.bagri.xdm.client.hazelcast.task.doc.DocumentRemover;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentContentProvider;
 import com.bagri.xdm.client.hazelcast.task.query.DocumentIdsProvider;
 import com.bagri.xdm.client.hazelcast.task.query.DocumentUrisProvider;
+import com.bagri.xdm.client.hazelcast.task.query.ResultFetcher;
 import com.bagri.xdm.client.hazelcast.task.query.XMLBuilder;
 import com.bagri.xdm.client.hazelcast.task.query.XQCommandExecutor;
 import com.bagri.xdm.client.hazelcast.task.tx.TransactionAborter;
@@ -74,6 +75,8 @@ public class XDMDataSerializationFactory implements DataSerializableFactory {
 	public static final int cli_BeginTransactionTask = 112; 
 	public static final int cli_CommitTransactionTask = 113;
 	public static final int cli_RollbackTransactionTask = 114;
+
+	public static final int cli_FetchResultsTask = 115;
 	
 	public static final int cli_InitSchemaTask = 117;
 	public static final int cli_DenitSchemaTask = 118;
@@ -117,6 +120,7 @@ public class XDMDataSerializationFactory implements DataSerializableFactory {
 			case cli_BeginTransactionTask: return new TransactionStarter(); 
 			case cli_CommitTransactionTask: return new TransactionCommiter();
 			case cli_RollbackTransactionTask: return new TransactionAborter();
+			case cli_FetchResultsTask: return new ResultFetcher();
 			case cli_ProvideDocumentUrisTask: return new DocumentUrisProvider(); 
 			case cli_ProvideDocumentIdsTask: return new DocumentIdsProvider(); 
 			case cli_ProvideDocumentContentTask: return new DocumentContentProvider();

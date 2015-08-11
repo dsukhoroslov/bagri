@@ -37,7 +37,7 @@ public class ClientApp {
 		boolean found = false;
 		try {
 			//client.storeSecCommand();
-			long id = client.storeSecQuery();
+			//long id = client.storeSecQuery();
 			//long id = client.storeXmlDocument("axis.xml");
 			//System.out.println("document stored; id: " + id);
 			//found = client.runPriceQuery("IBM"); //IBM; VFINX; PTTAX
@@ -52,7 +52,7 @@ public class ClientApp {
 			found = client.searchSecQueryParams();
 			//client.searchSecQueryParams();
 			//found = client.runAxisQuery();
-			client.removeSecCommand(id);
+			//client.removeSecCommand(id);
 		} catch (XQException e) {
 			e.printStackTrace();
 		}
@@ -153,13 +153,14 @@ public class ClientApp {
 
 	    XQPreparedExpression xqpe = xqc.prepareExpression(query);
 	    xqpe.bindString(new QName("sect"), "Technology", null);
-	    xqpe.bindFloat(new QName("pemax"), 25.0f, null);
-	    xqpe.bindFloat(new QName("pemin"), 28.0f, null);
+	    xqpe.bindFloat(new QName("pemin"), 25.0f, null);
+	    xqpe.bindFloat(new QName("pemax"), 28.0f, null);
 	    xqpe.bindFloat(new QName("yield"), 0.0f, null);
 	    XQResultSequence xqs = xqpe.executeQuery();
 
 	    int cnt = 0;
 	    while (xqs.next()) {
+			//System.out.println(xqs.getItemAsString(null));
 	    	cnt++;
 	    }
 	    System.out.println("Got " + cnt + " results");
