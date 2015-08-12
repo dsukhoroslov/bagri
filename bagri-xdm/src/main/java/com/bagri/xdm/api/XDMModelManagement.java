@@ -108,7 +108,7 @@ public interface XDMModelManagement {
 	 */
 	void normalizeDocumentType(int typeId);
 
-	void registerSchema(String schema);
-	void registerSchemaUri(String schemaUri);
+	void registerSchema(String schema) throws XDMException;
+	void registerSchemaUri(String schemaUri) throws XDMException;
 	
 }

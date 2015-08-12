@@ -8,6 +8,7 @@ import java.util.concurrent.Future;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMTransactionManagement;
 import com.bagri.xdm.client.hazelcast.task.tx.TransactionAborter;
 import com.bagri.xdm.client.hazelcast.task.tx.TransactionCommiter;
@@ -35,18 +36,21 @@ public class TransactionManagementImpl implements XDMTransactionManagement {
 		return txTimeout;
 	}
 	
-	public void setTransactionTimeout(long timeout) {
+	public void setTransactionTimeout(long timeout) throws XDMException {
+		if (timeout < 0) {
+			throw new XDMException("negative timeout value is not supported");
+		}
 		this.txTimeout = timeout;
 	}
 	
 	@Override
-	public long beginTransaction() {
+	public long beginTransaction() throws XDMException {
 		// TODO: get default value from session config!
 		return beginTransaction(XDMTransactionIsolation.readCommited);
 	}
 	
 	@Override
-	public long beginTransaction(XDMTransactionIsolation txIsolation) {
+	public long beginTransaction(XDMTransactionIsolation txIsolation) throws XDMException {
 		logger.trace("beginTransaction.enter; current txId: {}", txId); 
 		if (txId != 0) {
 			// commit or throw ex?
@@ -60,13 +64,14 @@ public class TransactionManagementImpl implements XDMTransactionManagement {
 			txId = future.get();
 		} catch (InterruptedException | ExecutionException ex) {
 			logger.error("beginTransaction; error getting result", ex);
+			throw new XDMException(ex);
 		}
 		logger.trace("beginTransaction.exit; returnig txId: {}", txId); 
 		return txId;
 	}
 
 	@Override
-	public void commitTransaction(long txId) {
+	public void commitTransaction(long txId) throws XDMException {
 		logger.trace("commitTransaction.enter; current txId: {}", this.txId);
 		if (this.txId == 0) {
 			// throw ex?
@@ -82,12 +87,13 @@ public class TransactionManagementImpl implements XDMTransactionManagement {
 			this.txId = 0;
 		} catch (InterruptedException | ExecutionException ex) {
 			logger.error("commitTransaction; error getting result", ex);
+			throw new XDMException(ex);
 		}
 		logger.trace("commitTransaction.exit; commited: {}", result); 
 	}
 
 	@Override
-	public void rollbackTransaction(long txId) {
+	public void rollbackTransaction(long txId) throws XDMException {
 		logger.trace("rollbackTransaction.enter; current txId: {}", this.txId);
 		if (this.txId == 0) {
 			// throw ex?
@@ -103,6 +109,7 @@ public class TransactionManagementImpl implements XDMTransactionManagement {
 			this.txId = 0;
 		} catch (InterruptedException | ExecutionException ex) {
 			logger.error("rollbackTransaction; error getting result", ex);
+			throw new XDMException(ex);
 		}
 		logger.trace("rollbackTransaction.exit; rolled back: {}", result); 
 	}

@@ -17,13 +17,13 @@ public abstract class XDMModelManagementTest extends XDMManagementTest {
 
 	//protected XDMModelManagement mDictionary;
 	
-	public void registerSecuritySchemaTest() throws IOException { 
+	public void registerSecuritySchemaTest() throws Exception { 
 		//String schema = sampleRoot + "security.xsd";
 		String schema = readTextFile(sampleRoot + "security.xsd");
 		getModelManagement().registerSchema(schema);
 	}
 	
-	public void registerCustaccSchemaTest() throws IOException { 
+	public void registerCustaccSchemaTest() throws Exception { 
 		//String schema = sampleRoot + "custacc.xsd";
 		String schema = readTextFile(sampleRoot + "custacc.xsd");
 		getModelManagement().registerSchema(schema);
@@ -48,7 +48,7 @@ public abstract class XDMModelManagementTest extends XDMManagementTest {
 	}
 
 	@Test
-	public void registerSecurityPathTest() throws IOException {
+	public void registerSecurityPathTest() throws Exception {
 		registerSecuritySchemaTest();
 		Collection<XDMPath> sec = getSecurityPath();
 		Assert.assertNotNull(sec);
@@ -56,7 +56,7 @@ public abstract class XDMModelManagementTest extends XDMManagementTest {
 	}
 
 	@Test
-	public void registerCustomerPathTest() throws IOException {
+	public void registerCustomerPathTest() throws Exception {
 		registerCustaccSchemaTest();
 		Collection<XDMPath> sec = getCustomerPath();
 		Assert.assertNotNull(sec);

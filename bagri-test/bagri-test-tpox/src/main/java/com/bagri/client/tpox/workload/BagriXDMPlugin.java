@@ -62,80 +62,84 @@ public class BagriXDMPlugin extends BagriTPoXPlugin {
 		Transaction tx = wp.getTransaction(transNo);
 		int result = 0;
 		logger.trace("execute.enter; transaction: {}; ", tx.getTransName());
-		switch (tx.getTransName()) {
-			case "addDocument": {
-				String xml = null;
-				ActualParamInfo param = wp.getParamMarkerActualValue(transNo, 0, rand);
-				if (param != null) {
-					xml = new String(param.getDocument());
-				}
-				xqmt.get().storeDocument(xml);
-				result = 1;
-				break;
-			}
-			case "getSecurity": {
-				ActualParamInfo param = wp.getParamMarkerActualValue(transNo, 0, rand);
-				String symbol = param.getActualValue();
-				Collection<String> sec = xqmt.get().getSecurity(symbol);
-				if (sec != null && !sec.isEmpty()) {
+		try {
+			switch (tx.getTransName()) {
+				case "addDocument": {
+					String xml = null;
+					ActualParamInfo param = wp.getParamMarkerActualValue(transNo, 0, rand);
+					if (param != null) {
+						xml = new String(param.getDocument());
+					}
+					xqmt.get().storeDocument(xml);
 					result = 1;
+					break;
 				}
-				break;
-			}
-			case "getSecurityPrice": {
-				ActualParamInfo param = wp.getParamMarkerActualValue(transNo, 0, rand);
-				String symbol = param.getActualValue();
-				Collection<String> sec = xqmt.get().getPrice(symbol);
-				if (sec != null && !sec.isEmpty()) {
-					result = 1;
+				case "getSecurity": {
+					ActualParamInfo param = wp.getParamMarkerActualValue(transNo, 0, rand);
+					String symbol = param.getActualValue();
+					Collection<String> sec = xqmt.get().getSecurity(symbol);
+					if (sec != null && !sec.isEmpty()) {
+						result = 1;
+					}
+					break;
 				}
-				break;
-			}
-			case "searchSecurity": {
-				ActualParamInfo param = wp.getParamMarkerActualValue(transNo, 0, rand);
-				String sector = param.getActualValue();
-				param = wp.getParamMarkerActualValue(transNo, 1, rand);
-				int peMin = Integer.valueOf(param.getActualValue());
-				param = wp.getParamMarkerActualValue(transNo, 2, rand);
-				int peMax = Integer.valueOf(param.getActualValue());
-				param = wp.getParamMarkerActualValue(transNo, 3, rand);
-				int yieldMin = Integer.valueOf(param.getActualValue());
-				Collection<String> sec = xqmt.get().searchSecurity(sector, peMin, peMax, yieldMin);
-				if (sec != null && !sec.isEmpty()) {
-					result = 1;
+				case "getSecurityPrice": {
+					ActualParamInfo param = wp.getParamMarkerActualValue(transNo, 0, rand);
+					String symbol = param.getActualValue();
+					Collection<String> sec = xqmt.get().getPrice(symbol);
+					if (sec != null && !sec.isEmpty()) {
+						result = 1;
+					}
+					break;
 				}
-				break;
-			}
-			case "getOrder": {
-				ActualParamInfo param = wp.getParamMarkerActualValue(transNo, 0, rand);
-				String id = param.getActualValue();
-				Collection<String> sec = xqmt.get().getOrder(id);
-				if (sec != null && !sec.isEmpty()) {
-					result = 1;
+				case "searchSecurity": {
+					ActualParamInfo param = wp.getParamMarkerActualValue(transNo, 0, rand);
+					String sector = param.getActualValue();
+					param = wp.getParamMarkerActualValue(transNo, 1, rand);
+					int peMin = Integer.valueOf(param.getActualValue());
+					param = wp.getParamMarkerActualValue(transNo, 2, rand);
+					int peMax = Integer.valueOf(param.getActualValue());
+					param = wp.getParamMarkerActualValue(transNo, 3, rand);
+					int yieldMin = Integer.valueOf(param.getActualValue());
+					Collection<String> sec = xqmt.get().searchSecurity(sector, peMin, peMax, yieldMin);
+					if (sec != null && !sec.isEmpty()) {
+						result = 1;
+					}
+					break;
 				}
-				break;
-			}
-			case "getCustomerProfile": {
-				ActualParamInfo param = wp.getParamMarkerActualValue(transNo, 0, rand);
-				String id = param.getActualValue();
-				Collection<String> sec = xqmt.get().getCustomerProfile(id);
-				if (sec != null && !sec.isEmpty()) {
-					result = 1;
+				case "getOrder": {
+					ActualParamInfo param = wp.getParamMarkerActualValue(transNo, 0, rand);
+					String id = param.getActualValue();
+					Collection<String> sec = xqmt.get().getOrder(id);
+					if (sec != null && !sec.isEmpty()) {
+						result = 1;
+					}
+					break;
 				}
-				break;
-			}
-			case "getCustomerAccounts": {
-				ActualParamInfo param = wp.getParamMarkerActualValue(transNo, 0, rand);
-				String id = param.getActualValue();
-				Collection<String> sec = xqmt.get().getCustomerAccounts(id);
-				if (sec != null && !sec.isEmpty()) {
-					result = 1;
+				case "getCustomerProfile": {
+					ActualParamInfo param = wp.getParamMarkerActualValue(transNo, 0, rand);
+					String id = param.getActualValue();
+					Collection<String> sec = xqmt.get().getCustomerProfile(id);
+					if (sec != null && !sec.isEmpty()) {
+						result = 1;
+					}
+					break;
 				}
-				break;
+				case "getCustomerAccounts": {
+					ActualParamInfo param = wp.getParamMarkerActualValue(transNo, 0, rand);
+					String id = param.getActualValue();
+					Collection<String> sec = xqmt.get().getCustomerAccounts(id);
+					if (sec != null && !sec.isEmpty()) {
+						result = 1;
+					}
+					break;
+				}
+				default: {
+					logger.debug("execute; unknown command: {}", tx.getTransName());
+				}
 			}
-			default: {
-				logger.debug("execute; unknown command: {}", tx.getTransName());
-			}
+		} catch (Exception ex) {
+			throw new SQLException(ex);
 		}
 		logger.trace("execute.exit; returning: {}", result);
 		return result;
@@ -151,12 +155,8 @@ public class BagriXDMPlugin extends BagriTPoXPlugin {
 			xRepo.close();
 		}
 		
-		XDMDocument storeDocument(String xml) {
-			try {
-				return xRepo.getDocumentManagement().storeDocumentFromString(0, null, xml);
-			} catch (XDMException ex) {
-				return null;
-			}
+		XDMDocument storeDocument(String xml) throws Exception {
+			return xRepo.getDocumentManagement().storeDocumentFromString(0, null, xml);
 		}
 		
 	}

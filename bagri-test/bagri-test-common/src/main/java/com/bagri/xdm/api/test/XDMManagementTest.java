@@ -46,7 +46,7 @@ public abstract class XDMManagementTest {
 		return xRepo.getTxManagement();
 	}
 
-	public Collection<String> getSecurity(String symbol) {
+	public Collection<String> getSecurity(String symbol) throws Exception {
 		String prefix = getModelManagement().getNamespacePrefix("http://tpox-benchmark.com/security"); 
 		int docType = getModelManagement().getDocumentType("/" + prefix + ":Security");
 		PathBuilder path = new PathBuilder().

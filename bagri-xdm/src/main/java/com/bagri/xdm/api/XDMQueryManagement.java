@@ -16,13 +16,13 @@ import com.bagri.xdm.domain.XDMQuery;
  */
 public interface XDMQueryManagement {
 	
-	Iterator executeXCommand(String command, Map bindings, Properties props);
-	Iterator executeXQuery(String query, Map bindings, Properties props);
+	Iterator executeXCommand(String command, Map bindings, Properties props) throws XDMException;
+	Iterator executeXQuery(String query, Map bindings, Properties props) throws XDMException;
 	
-	Collection<String> getXML(ExpressionContainer query, String template, Map params);
+	Collection<String> getXML(ExpressionContainer query, String template, Map params) throws XDMException;
 
-	Collection<Long> getDocumentIDs(ExpressionContainer query);
-	Collection<String> getDocumentURIs(ExpressionContainer query);
+	Collection<Long> getDocumentIDs(ExpressionContainer query) throws XDMException;
+	Collection<String> getDocumentURIs(ExpressionContainer query) throws XDMException;
 	
 	int getQueryKey(String query); 
 	

@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import com.bagri.common.query.ExpressionBuilder;
 import com.bagri.common.query.ExpressionContainer;
+import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMQueryManagement;
 import com.bagri.xdm.client.hazelcast.task.query.DocumentIdsProvider;
 import com.bagri.xdm.client.hazelcast.task.query.DocumentUrisProvider;
@@ -40,7 +41,7 @@ public class QueryManagementImpl implements XDMQueryManagement {
 	}
 	
 	@Override
-	public Collection<String> getDocumentURIs(ExpressionContainer query) {
+	public Collection<String> getDocumentURIs(ExpressionContainer query) throws XDMException {
 
 		long stamp = System.currentTimeMillis();
 		logger.trace("getDocumentURIs.enter; query: {}", query);
@@ -59,7 +60,7 @@ public class QueryManagementImpl implements XDMQueryManagement {
 	}
 	
 	@Override
-	public Collection<Long> getDocumentIDs(ExpressionContainer query) {
+	public Collection<Long> getDocumentIDs(ExpressionContainer query) throws XDMException {
 
 		long stamp = System.currentTimeMillis();
 		logger.trace("getDocumentIDs.enter; query: {}", query);
@@ -78,7 +79,7 @@ public class QueryManagementImpl implements XDMQueryManagement {
 	}
 	
 	@Override
-	public Collection<String> getXML(ExpressionContainer query, String template, Map params) {
+	public Collection<String> getXML(ExpressionContainer query, String template, Map params) throws XDMException {
 		long stamp = System.currentTimeMillis();
 		logger.trace("getXML.enter; got query: {}; template: {}; params: {}", query, template, params);
 		
@@ -103,7 +104,7 @@ public class QueryManagementImpl implements XDMQueryManagement {
 	}
 	
 	@Override
-	public Iterator executeXCommand(String command, Map bindings, Properties props) {
+	public Iterator executeXCommand(String command, Map bindings, Properties props) throws XDMException {
 
 		long stamp = System.currentTimeMillis();
 		logger.trace("executeXCommand.enter; command: {}; bindings: {}; context: {}", command, bindings, props);
@@ -113,7 +114,7 @@ public class QueryManagementImpl implements XDMQueryManagement {
 	}
 
 	@Override
-	public Iterator executeXQuery(String query, Map bindings, Properties props) {
+	public Iterator executeXQuery(String query, Map bindings, Properties props) throws XDMException {
 
 		long stamp = System.currentTimeMillis();
 		logger.trace("executeXQuery.enter; query: {}; bindings: {}; context: {}", query, bindings, props);

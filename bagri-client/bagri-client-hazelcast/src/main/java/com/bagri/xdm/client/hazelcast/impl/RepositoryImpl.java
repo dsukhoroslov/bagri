@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bagri.xdm.api.XDMDocumentManagement;
+import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMQueryManagement;
 import com.bagri.xdm.api.XDMRepository;
 import com.bagri.xdm.api.XDMTransactionManagement;
@@ -231,7 +232,7 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 		return ((TransactionManagementImpl) this.getTxManagement()).getTxId();
 	}
 	
-	Iterator execXQuery(boolean isQuery, String query, Map bindings, Properties props) { //throws Exception {
+	Iterator execXQuery(boolean isQuery, String query, Map bindings, Properties props) throws XDMException {
 		
 		//props.put(PN_BATCH_SIZE, "5");
 		props.setProperty(pn_client_id, clientId);
@@ -278,7 +279,7 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 					while (cursor.hasNext()) {
 						Object err = cursor.next();
 						if (err instanceof String) {
-							throw new RuntimeException((String) err);
+							throw new XDMException((String) err);
 						}
 					}
 				}

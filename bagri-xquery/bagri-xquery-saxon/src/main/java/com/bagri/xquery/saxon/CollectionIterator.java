@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bagri.common.query.ExpressionContainer;
+import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMQueryManagement;
 
 
@@ -47,8 +48,13 @@ public class CollectionIterator implements SequenceIterator<Item>,
 		this.query = query;
 	}
 	
-	private void loadData() {
-		docIds = queryMgr.getDocumentIDs(query);
+	private void loadData() throws XPathException {
+		try {
+			docIds = queryMgr.getDocumentIDs(query);
+		} catch (XDMException ex) {
+			logger.error("loadData.error;", ex);
+			throw new XPathException(ex);
+		}
 		logger.trace("loadData; got {} document ids", docIds.size());
 		iter = docIds.iterator();
 	}

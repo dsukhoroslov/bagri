@@ -12,6 +12,7 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
+import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.client.common.impl.XDMModelManagementBase;
 import com.bagri.xdm.domain.XDMDocumentType;
 import com.bagri.xdm.domain.XDMNamespace;
@@ -76,9 +77,14 @@ public class ModelManagement extends SchemaFeatureManagement {
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "schemaFile", description = "A full path to XSD file to register")})
 	public int registerSchema(String schemaFile) {
-		int size = ((XDMModelManagementBase) modelMgr).getDocumentTypes().size(); 
-		modelMgr.registerSchemaUri(schemaFile);
-		return ((XDMModelManagementBase) modelMgr).getDocumentTypes().size() - size;
+		int size = ((XDMModelManagementBase) modelMgr).getDocumentTypes().size();
+		try {
+			modelMgr.registerSchemaUri(schemaFile);
+			return ((XDMModelManagementBase) modelMgr).getDocumentTypes().size() - size;
+		} catch (XDMException ex) {
+			logger.error("registerSchema.error:", ex);
+		}
+		return 0;
 	}
 	
 	@ManagedOperation(description="Register Schemas")

@@ -7,15 +7,15 @@ public interface XDMTransactionManagement {
 	public static final long TX_NO = 0L;
 	public static final long TX_INIT = 1L;
 	
-	long beginTransaction();
+	long beginTransaction() throws XDMException;
 
-	long beginTransaction(XDMTransactionIsolation txIsolation);
+	long beginTransaction(XDMTransactionIsolation txIsolation) throws XDMException;
 	
-	void commitTransaction(long txId);
+	void commitTransaction(long txId) throws XDMException;
 	
-	void rollbackTransaction(long txId);
+	void rollbackTransaction(long txId) throws XDMException;
 
 	long getTransactionTimeout();
 	
-	void setTransactionTimeout(long timeout);
+	void setTransactionTimeout(long timeout) throws XDMException;
 }

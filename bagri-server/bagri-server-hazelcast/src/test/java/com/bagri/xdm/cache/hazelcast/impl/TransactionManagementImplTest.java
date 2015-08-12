@@ -129,10 +129,9 @@ public class TransactionManagementImplTest extends XDMManagementTest {
 			@Override
 			public void run() {
 				
-				long txId = getTxManagement().beginTransaction();
-				XDMDocument doc = null;
 				try {
-					doc = updateDocumentTest(0, uri, sampleRoot + getFileName("security5621.xml"));
+					long txId = getTxManagement().beginTransaction();
+					XDMDocument doc = updateDocumentTest(0, uri, sampleRoot + getFileName("security5621.xml"));
 					getTxManagement().commitTransaction(txId);
 					if (doc != null) {
 						ids.add(doc.getDocumentKey());
@@ -148,10 +147,9 @@ public class TransactionManagementImplTest extends XDMManagementTest {
 			@Override
 			public void run() {
 				
-				long txId = getTxManagement().beginTransaction();
-				XDMDocument doc = null;
 				try {
-					doc = updateDocumentTest(0, uri, sampleRoot + getFileName("security9012.xml"));
+					long txId = getTxManagement().beginTransaction();
+					XDMDocument doc = updateDocumentTest(0, uri, sampleRoot + getFileName("security9012.xml"));
 					getTxManagement().commitTransaction(txId);
 					if (doc != null) {
 						ids.add(doc.getDocumentKey());
@@ -184,10 +182,9 @@ public class TransactionManagementImplTest extends XDMManagementTest {
 			@Override
 			public void run() {
 				
-				long txId = getTxManagement().beginTransaction();
-				XDMDocument doc = null;
 				try {
-					doc = updateDocumentTest(0, uri, sampleRoot + getFileName("security5621.xml"));
+					long txId = getTxManagement().beginTransaction();
+					XDMDocument doc = updateDocumentTest(0, uri, sampleRoot + getFileName("security5621.xml"));
 					getTxManagement().rollbackTransaction(txId);
 					if (doc != null) {
 						ids.add(doc.getDocumentKey());
@@ -203,10 +200,9 @@ public class TransactionManagementImplTest extends XDMManagementTest {
 			@Override
 			public void run() {
 				
-				long txId = getTxManagement().beginTransaction();
-				XDMDocument doc = null;
 				try {
-					doc = updateDocumentTest(0, uri, sampleRoot + getFileName("security9012.xml"));
+					long txId = getTxManagement().beginTransaction();
+					XDMDocument doc = updateDocumentTest(0, uri, sampleRoot + getFileName("security9012.xml"));
 					getTxManagement().commitTransaction(txId);
 					if (doc != null) {
 						ids.add(doc.getDocumentKey());
@@ -242,10 +238,9 @@ public class TransactionManagementImplTest extends XDMManagementTest {
 			@Override
 			public void run() {
 				
-				long txId = getTxManagement().beginTransaction();
-				XDMDocument doc = null;
 				try {
-					doc = updateDocumentTest(0, uri, sampleRoot + getFileName("security5621.xml"));
+					long txId = getTxManagement().beginTransaction();
+					XDMDocument doc = updateDocumentTest(0, uri, sampleRoot + getFileName("security5621.xml"));
 					getTxManagement().commitTransaction(txId);
 					if (doc != null) {
 						ids.add(doc.getDocumentKey());
@@ -261,10 +256,9 @@ public class TransactionManagementImplTest extends XDMManagementTest {
 			@Override
 			public void run() {
 				
-				long txId = getTxManagement().beginTransaction();
-				XDMDocument doc = null;
 				try {
-					doc = updateDocumentTest(0, uri, sampleRoot + getFileName("security9012.xml"));
+					long txId = getTxManagement().beginTransaction();
+					XDMDocument doc = updateDocumentTest(0, uri, sampleRoot + getFileName("security9012.xml"));
 					getTxManagement().commitTransaction(txId);
 					if (doc != null) {
 						ids.add(doc.getDocumentKey());

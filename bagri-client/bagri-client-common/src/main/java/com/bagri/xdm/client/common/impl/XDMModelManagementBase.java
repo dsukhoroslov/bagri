@@ -34,6 +34,7 @@ import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSInput;
 
 import com.bagri.common.idgen.IdGenerator;
+import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.domain.XDMDocumentType;
 import com.bagri.xdm.domain.XDMNamespace;
@@ -400,7 +401,7 @@ public abstract class XDMModelManagementBase implements XDMModelManagement {
 
 	
 	@Override
-	public void registerSchema(String schema) {
+	public void registerSchema(String schema) throws XDMException {
 		
 		XSImplementation impl = (XSImplementation)
 				new DOMXSImplementationSourceImpl().getDOMImplementation("XS-Loader LS");
@@ -426,7 +427,7 @@ public abstract class XDMModelManagementBase implements XDMModelManagement {
 	}
 
 	@Override
-	public void registerSchemaUri(String schemaUri) {
+	public void registerSchemaUri(String schemaUri) throws XDMException {
 
 		//XSImplementation impl = (XSImplementation)
 		//		(new DOMXSImplementationSourceImpl()	).getDOMImplementation ("XS-Loader");

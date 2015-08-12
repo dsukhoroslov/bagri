@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
+import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.cache.api.XDMQueryManagement;
 import com.bagri.xdm.cache.api.XDMTransactionManagement;
 import com.bagri.xdm.client.hazelcast.impl.ResultCursor;
@@ -54,7 +55,7 @@ public class XQCommandExecutor extends com.bagri.xdm.client.hazelcast.task.query
 		
     	return txMgr.callInTransaction(txId, false, new Callable<ResultCursor>() {
     		
-	    	public ResultCursor call() {
+	    	public ResultCursor call() throws XDMException {
 				if (isQuery) {
 					return (ResultCursor) queryMgr.executeXQuery(command, bindings, context);
 				} else {

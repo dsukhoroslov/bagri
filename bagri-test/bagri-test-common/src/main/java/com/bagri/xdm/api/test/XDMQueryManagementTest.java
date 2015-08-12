@@ -15,7 +15,7 @@ import com.bagri.common.query.PathBuilder;
 
 public class XDMQueryManagementTest extends XDMManagementTest {
 
-	public Collection<String> getPrice(String symbol) {
+	public Collection<String> getPrice(String symbol) throws Exception {
 		String prefix = getModelManagement().getNamespacePrefix("http://tpox-benchmark.com/security"); 
 		int docType = getModelManagement().getDocumentType("/" + prefix + ":Security");
 		PathBuilder path = new PathBuilder().
@@ -30,7 +30,7 @@ public class XDMQueryManagementTest extends XDMManagementTest {
 		return getQueryManagement().getXML(ec, "<print>The open price of the security \":name\" is :price dollars</print>", params);
 	}
 	
-	public Collection<String> getOrder(String id) {
+	public Collection<String> getOrder(String id) throws Exception {
 		String prefix = getModelManagement().getNamespacePrefix("http://www.fixprotocol.org/FIXML-4-4"); 
 		int docType = getModelManagement().getDocumentType("/" + prefix + ":FIXML"); // /" + prefix + ":Order");
 		PathBuilder path = new PathBuilder().
@@ -44,7 +44,7 @@ public class XDMQueryManagementTest extends XDMManagementTest {
 		return getQueryManagement().getXML(ec, ":order", params);
 	}
 	
-	public Collection<String> getCustomerProfile(String id) {
+	public Collection<String> getCustomerProfile(String id) throws Exception {
 		String prefix = getModelManagement().getNamespacePrefix("http://tpox-benchmark.com/custacc"); 
 		int docType = getModelManagement().getDocumentType("/" + prefix + ":Customer");
 		PathBuilder path = new PathBuilder().
@@ -73,7 +73,7 @@ public class XDMQueryManagementTest extends XDMManagementTest {
 		return getQueryManagement().getXML(ec, template, params);
 	}
 	
-	public Collection<String> getCustomerAccounts(String id) {
+	public Collection<String> getCustomerAccounts(String id) throws Exception {
 		String prefix = getModelManagement().getNamespacePrefix("http://tpox-benchmark.com/custacc"); 
 		int docType = getModelManagement().getDocumentType("/" + prefix + ":Customer");
 		PathBuilder path = new PathBuilder().
@@ -103,7 +103,7 @@ public class XDMQueryManagementTest extends XDMManagementTest {
 		return getQueryManagement().getXML(ec, template, params);
 	}
 	
-	public Collection<String> searchSecurity(String sector, float peMin, float peMax, float yieldMin) {
+	public Collection<String> searchSecurity(String sector, float peMin, float peMax, float yieldMin) throws Exception {
 
 		String prefix = getModelManagement().getNamespacePrefix("http://tpox-benchmark.com/security"); 
 		int docType = getModelManagement().getDocumentType("/" + prefix + ":Security");

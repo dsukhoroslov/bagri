@@ -6,6 +6,7 @@ import java.io.Reader;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
 import javax.xml.namespace.QName;
 import javax.xml.xquery.XQConnection;
@@ -20,7 +21,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bagri.common.util.XMLUtils;
+import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMTransactionManagement;
+import com.bagri.xdm.domain.XDMDocument;
 
 import static com.bagri.xdm.api.XDMTransactionManagement.TX_NO;
 import static com.bagri.xqj.BagriXQConstants.ex_null_context;
@@ -80,7 +83,11 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 		
 		if (transactional) {
 			if (autoCommit) {
-				getTxManager().commitTransaction(txId);
+				try {
+					getTxManager().commitTransaction(txId);
+				} catch (XDMException ex) {
+					throw new XQException(ex.getMessage());
+				}
 				txId = TX_NO;
 			} else {
 				// ??
@@ -118,7 +125,11 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 		}
 
 		if (transactional) {
-			getTxManager().commitTransaction(txId);
+			try {
+				getTxManager().commitTransaction(txId);
+			} catch (XDMException ex) {
+				throw new XQException(ex.getMessage());
+			}
 			txId = TX_NO;
 		}
 	}
@@ -143,7 +154,11 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 		}
 
 		if (transactional) {
-			getTxManager().rollbackTransaction(txId);
+			try {
+				getTxManager().rollbackTransaction(txId);
+			} catch (XDMException ex) {
+				throw new XQException(ex.getMessage());
+			}
 			txId = TX_NO;
 		}
 	}
@@ -157,7 +172,11 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 		}
 		if (transactional) {
 			if (!this.autoCommit) {
-				getTxManager().commitTransaction(txId);
+				try {
+					getTxManager().commitTransaction(txId);
+				} catch (XDMException ex) {
+					throw new XQException(ex.getMessage());
+				}
 				txId = TX_NO;
 			}
 		}
@@ -327,26 +346,21 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 		executeCommand(cmd, bindings, context); 
 	}
 	
-	public void executeCommand(String cmd, Map<QName, XQItemAccessor> bindings, 
-			XQStaticContext ctx) throws XQException {
+	public void executeCommand(final String cmd, final Map<QName, XQItemAccessor> bindings, 
+			final XQStaticContext ctx) throws XQException {
 		
 		checkConnection();
 		if (transactional) {
-			if (autoCommit || txId == TX_NO) {
-				txId = getTxManager().beginTransaction();
-			}
 			try {
-				getProcessor().executeXCommand(cmd, bindings, ctx);
-				if (autoCommit && txId != TX_NO) {
-					getTxManager().commitTransaction(txId);
-					txId = TX_NO;
-				}
-			} catch (Throwable ex) {
-				if (txId != TX_NO) {
-					getTxManager().rollbackTransaction(txId);
-					txId = TX_NO;
-				}
-				throw ex;
+				executeInTransaction(new Callable<Void>() {
+					@Override
+			    	public Void call() throws XQException {
+						getProcessor().executeXCommand(cmd, bindings, ctx);
+						return null;
+			    	}
+				});
+			} catch (XDMException ex) {
+				throw new XQException(ex.getMessage());
 			}
 		} else {
 			getProcessor().executeXCommand(cmd, bindings, ctx);
@@ -358,26 +372,20 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 		return executeQuery(query, context); //this.getStaticContext());
 	}
 	
-	public Iterator executeQuery(String query, XQStaticContext ctx) throws XQException {
+	public Iterator executeQuery(final String query, final XQStaticContext ctx) throws XQException {
 		
 		checkConnection();
 		Iterator result = null;
 		if (transactional) {
-			if (autoCommit || txId == TX_NO) {
-				txId = getTxManager().beginTransaction();
-			}
 			try {
-				result = getProcessor().executeXQuery(query, ctx);
-				if (autoCommit && txId != TX_NO) {
-					getTxManager().commitTransaction(txId);
-					txId = TX_NO;
-				}
-			} catch (Throwable ex) {
-				if (txId != TX_NO) {
-					getTxManager().rollbackTransaction(txId);
-					txId = TX_NO;
-				}
-				throw ex;
+				executeInTransaction(new Callable<Iterator>() {
+					@Override
+			    	public Iterator call() throws XQException {
+						return getProcessor().executeXQuery(query, ctx);
+			    	}
+				});
+			} catch (XDMException ex) {
+				throw new XQException(ex.getMessage());
 			}
 		} else {
 			result = getProcessor().executeXQuery(query, ctx);
@@ -387,6 +395,29 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 			throw new XQException("got no response");
 		}
 		return result;
+	}
+	
+	private <V> V executeInTransaction(Callable<V> executor) throws XDMException {
+		if (autoCommit || txId == TX_NO) {
+			txId = getTxManager().beginTransaction();
+		}
+		try {
+			V result = executor.call(); 
+			if (autoCommit && txId != TX_NO) {
+				getTxManager().commitTransaction(txId);
+				txId = TX_NO;
+			}
+			return result;
+		} catch (Throwable ex) {
+			if (txId != TX_NO) {
+				getTxManager().rollbackTransaction(txId);
+				txId = TX_NO;
+			}
+			if (ex instanceof XDMException) {
+				throw (XDMException) ex;
+			}
+			throw new XDMException(ex);
+		}
 	}
 	
 	public void prepareQuery(BagriXQPreparedExpression exp) throws XQException {
