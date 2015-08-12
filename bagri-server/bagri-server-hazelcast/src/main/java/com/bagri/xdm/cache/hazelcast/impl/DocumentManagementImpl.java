@@ -25,6 +25,7 @@ import javax.xml.transform.Source;
 
 import com.bagri.common.idgen.IdGenerator;
 import com.bagri.common.manage.JMXUtils;
+import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.cache.common.XDMDocumentManagementServer;
 import com.bagri.xdm.client.common.impl.XDMModelManagementBase;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentContentProvider;
@@ -179,7 +180,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
     }
     
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public XDMDocument createDocument(String uri, String xml) {
+	public XDMDocument createDocument(String uri, String xml) throws XDMException {
     	
 		XDMDocumentKey docKey = factory.newXDMDocumentKey(docGen.next(), 1); 
 		return createDocument(new AbstractMap.SimpleEntry(docKey, null), uri, xml);
@@ -195,7 +196,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	}
     
 	//@Override
-	public XDMDocument createDocument(Entry<XDMDocumentKey, XDMDocument> entry, String uri, String xml) {
+	public XDMDocument createDocument(Entry<XDMDocumentKey, XDMDocument> entry, String uri, String xml) throws XDMException {
 		logger.trace("createDocument.enter; entry: {}", entry);
 
 		// TODO: move this out & refactor ?
@@ -206,7 +207,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 			data = parser.parse(xml);
 		} catch (IOException ex) {
 			logger.debug("createDocument.error", ex); 
-			throw new IllegalArgumentException(ex);
+			throw new XDMException(ex);
 		}
 
 		XDMDocumentKey docKey = entry.getKey();
@@ -222,12 +223,12 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 			logger.trace("createDocument.exit; returning: {}", doc);
 			return doc;
 		} else {
-			logger.warn("createDocument.exit; the document is not valid as it has no root element, returning null");
-			return null;
+			logger.warn("createDocument.exit; the document is not valid as it has no root element");
+			throw new XDMException("invalid document");
 		}
 	}
 	
-	public int loadElements(long docKey, List<XDMData> data) {
+	public int loadElements(long docKey, List<XDMData> data) throws XDMException {
 		
 		long stamp = System.currentTimeMillis();
 		XDMData root = getDataRoot(data);
@@ -256,7 +257,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		return XDMModelManagementBase.WRONG_PATH;
 	}
 	
-	int indexElements(int docType, int pathId) {
+	int indexElements(int docType, int pathId) throws XDMException {
 		Set<XDMDocumentKey> docKeys = getDocumentsOfType(docType);
 		String path = model.getPath(pathId).getPath();
 		int cnt = 0;
@@ -310,7 +311,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	}
 	
 	//@Override
-	public void deleteDocument(Entry<Long, XDMDocument> entry) {
+	public void deleteDocument(Entry<Long, XDMDocument> entry) throws XDMException {
 
 		Long docId = entry.getKey();
 		logger.trace("deleteDocument.enter; docId: {}", docId);
@@ -396,7 +397,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	}
 	
 	@Override
-	public String getDocumentAsString(long docId) {
+	public String getDocumentAsString(long docId) throws XDMException {
 		XDMDocumentKey docKey = factory.newXDMDocumentKey(docId);
 		String xml = xmlCache.get(docKey);
 		if (xml == null) {
@@ -425,7 +426,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 					xml = future.get();
 				} catch (InterruptedException | ExecutionException ex) {
 					logger.error("getDocumentAsString; error getting result", ex);
-					// rethrow ex?
+					throw new XDMException(ex);
 				}
 			}
 		}
@@ -444,14 +445,14 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	}
 	
 	//@Override
-	public XDMDocument storeDocumentFromString(String xml) {
+	public XDMDocument storeDocumentFromString(String xml) throws XDMException {
 
 	    return storeDocumentFromString(0, null, xml);
 	}
 
 	@Override
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public XDMDocument storeDocumentFromString(long docId, String uri, String xml) {
+	public XDMDocument storeDocumentFromString(long docId, String uri, String xml) throws XDMException {
 		// create new document version ??
 		// what if we want to pass here correct URI ??
 		logger.trace("storeDocumentFromString.enter; docId: {}; uri: {}; xml: {}", docId, uri, xml.length());
@@ -481,28 +482,21 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 					// otherwise we'll get a situation when two different Documents
 					// are stored in the same file.
 					// what if they point to different versions of the same document!?
-					throw new IllegalArgumentException("Document with URI '" + uri + "' already exists; docId: " + existingId);
+					throw new XDMException("Document with URI '" + uri + "' already exists; docId: " + existingId);
 				}
 			}
 		}
 		
 		XDMDocumentKey docKey = factory.newXDMDocumentKey(docId);
-		boolean locked = false;
-		try {
-			// use Tx timeout value!
-			long timeout = txManager.getTransactionTimeout();
-			if (timeout > 0) {
-				locked = xddCache.tryLock(docKey, timeout, TimeUnit.MILLISECONDS);
-			} else {
-				locked = xddCache.tryLock(docKey);
-			}
-			if (locked) {
+		boolean locked = lockDocument(docKey);
+		if (locked) {
+			try {
 				XDMDocumentKey newKey = docKey;
 				if (update) {
 				    XDMDocument doc = xddCache.get(newKey);
 				    if (doc != null) {
 				    	if (doc.getTxFinish() > TX_NO && txManager.isTxVisible(doc.getTxFinish())) {
-				    		throw new IllegalStateException("Document with ID: " + doc.getDocumentId() + ", version: " + doc.getVersion() + " has been concurrently updated");
+				    		throw new XDMException("Document with ID: " + doc.getDocumentId() + ", version: " + doc.getVersion() + " has been concurrently updated");
 				    	}
 				    	logger.trace("storeDocumentFromString; going to update document: {}", doc);
 				    	// we must finish old Document and create a new one!
@@ -515,33 +509,31 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 				    	for (int pathId: pathIds) {
 					    	deindexElements(doc.getDocumentKey(), pathId);
 				    	}
+				    	// shouldn't we lock the newKey too?
 				    }
 				}
 			    return createDocument(new AbstractMap.SimpleEntry(newKey, null), uri, xml);
-			} else {
-	    		throw new IllegalStateException("Was not able to aquire lock on Document: " + docKey + ", timed out");
+			} catch (XDMException ex) {
+				throw ex;
+			} catch (Exception ex) {
+				logger.error("storeDocumentFromString.error; docId: " + docId, ex);
+				throw new XDMException(ex);
+			} finally {
+				unlockDocument(docKey);
 			}
-		} catch (Exception ex) {
-			logger.error("storeDocumentFromString.error; docId: " + docId, ex);
-			if (ex instanceof IllegalStateException) {
-				throw (IllegalStateException) ex;
-			}
-			return null;
-		} finally {
-			if (locked) {
-				xddCache.unlock(docKey);
-			}
+		} else {
+    		throw new XDMException("Was not able to aquire lock on Document: " + docKey + ", timed out");
 		}
 	}
 
 	@Override
-	public void removeDocument(long docKey) {
+	public void removeDocument(long docKey) throws XDMException {
 		//deleteDocument(new AbstractMap.SimpleEntry(docId, null));
 		
 		logger.trace("removeDocument.enter; docKey: {}", docKey);
 	    XDMDocument doc = getDocument(docKey);
 	    boolean removed = false;
-	    if (doc != null && doc.getTxFinish() == TX_NO) {
+	    if (doc != null && (doc.getTxFinish() == TX_NO || !txManager.isTxVisible(doc.getTxFinish()))) {
 			//String user = JMXUtils.getCurrentUser();
 			triggerManager.applyTrigger(doc, Action.delete, Scope.before); 
 	    	doc.finishDocument(txManager.getCurrentTxId()); //, user);
@@ -559,5 +551,26 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		logger.trace("removeDocument.exit; removed: {}", removed);
 	}
 
+	private boolean lockDocument(XDMDocumentKey docKey) { //throws XDMException {
+		
+		boolean locked = false;
+		long timeout = txManager.getTransactionTimeout();
+		if (timeout > 0) {
+			try {
+				locked = xddCache.tryLock(docKey, timeout, TimeUnit.MILLISECONDS);
+			} catch (InterruptedException ex) {
+				logger.error("lockDocument.error", ex);
+				//throw new XDMException(ex);
+			}
+		} else {
+			locked = xddCache.tryLock(docKey);
+		}
+		return locked;
+	}
+
+	private void unlockDocument(XDMDocumentKey docKey) {
+
+		xddCache.unlock(docKey);
+	}
 	
 }

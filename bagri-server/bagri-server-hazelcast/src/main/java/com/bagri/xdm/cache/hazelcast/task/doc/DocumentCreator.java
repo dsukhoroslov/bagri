@@ -43,7 +43,7 @@ public class DocumentCreator extends com.bagri.xdm.client.hazelcast.task.doc.Doc
     	((RepositoryImpl) repo).getXQProcessor(clientId);
     	return txMgr.callInTransaction(txId, false, new Callable<XDMDocument>() {
     		
-	    	public XDMDocument call() {
+	    	public XDMDocument call() throws Exception {
 	    		return docMgr.storeDocumentFromString(docId, uri, xml);
 	    	}
     	});

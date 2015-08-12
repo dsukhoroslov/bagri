@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.concurrent.CountDownLatch;
 
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
@@ -42,8 +43,13 @@ public class TransactionManagementImplTest extends XDMManagementTest {
 		xRepo = context.getBean(RepositoryImpl.class);
 	}
 
+	@After
+	public void tearDown() throws Exception {
+		removeDocumentsTest();
+	}
+
 	@Test
-	public void rollbackTransactionTest() throws IOException {
+	public void rollbackTransactionTest() throws Exception {
 		long txId = xRepo.getTxManagement().beginTransaction();
 		storeSecurityTest();
 
@@ -131,7 +137,7 @@ public class TransactionManagementImplTest extends XDMManagementTest {
 					if (doc != null) {
 						ids.add(doc.getDocumentKey());
 					}
-				} catch (IOException ex) {
+				} catch (Exception ex) {
 				}
 				cdl.countDown();
 			}
@@ -150,7 +156,7 @@ public class TransactionManagementImplTest extends XDMManagementTest {
 					if (doc != null) {
 						ids.add(doc.getDocumentKey());
 					}
-				} catch (IOException ex) {
+				} catch (Exception ex) {
 				}
 				cdl.countDown();
 			}
@@ -186,7 +192,7 @@ public class TransactionManagementImplTest extends XDMManagementTest {
 					if (doc != null) {
 						ids.add(doc.getDocumentKey());
 					}
-				} catch (IOException ex) {
+				} catch (Exception ex) {
 				}
 				cdl.countDown();
 			}
@@ -205,7 +211,7 @@ public class TransactionManagementImplTest extends XDMManagementTest {
 					if (doc != null) {
 						ids.add(doc.getDocumentKey());
 					}
-				} catch (IOException ex) {
+				} catch (Exception ex) {
 				}
 				cdl.countDown();
 			}

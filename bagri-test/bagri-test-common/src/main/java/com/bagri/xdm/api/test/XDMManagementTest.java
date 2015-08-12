@@ -60,7 +60,7 @@ public abstract class XDMManagementTest {
 		return getQueryManagement().getXML(ec, ":sec", params);
 	}
 	
-	protected void removeDocumentsTest() { 
+	protected void removeDocumentsTest() throws Exception {
 		long txId =  getTxManagement().beginTransaction();
 		for (Long id: ids) {
 			getDocManagement().removeDocument(id);
@@ -69,21 +69,21 @@ public abstract class XDMManagementTest {
 		getTxManagement().commitTransaction(txId);
 	}
 	
-	public XDMDocument createDocumentTest(String fileName) throws IOException {
+	public XDMDocument createDocumentTest(String fileName) throws Exception {
 		String xml = readTextFile(fileName);
 		return getDocManagement().storeDocumentFromString(0, null, xml);
 	}
 	
-	public XDMDocument updateDocumentTest(long docId, String uri, String fileName) throws IOException {
+	public XDMDocument updateDocumentTest(long docId, String uri, String fileName) throws Exception {
 		String xml = readTextFile(fileName);
 		return getDocManagement().storeDocumentFromString(docId, uri, xml);
 	}
 
-	public void removeDocumentTest(long docId) { //throws IOException {
+	public void removeDocumentTest(long docId) throws Exception {
 		getDocManagement().removeDocument(docId);
 	}
 
-	public void storeSecurityTest() throws IOException {
+	public void storeSecurityTest() throws Exception {
 		long txId = 0;
 		try {
 			txId = getTxManagement().beginTransaction();
@@ -98,7 +98,7 @@ public abstract class XDMManagementTest {
 		}
 	}
 	
-	public void storeOrderTest() throws IOException {
+	public void storeOrderTest() throws Exception {
 		long txId = 0;
 		try {
 			txId = getTxManagement().beginTransaction();
@@ -112,7 +112,7 @@ public abstract class XDMManagementTest {
 		}
 	}
 	
-	public void storeCustomerTest() throws IOException {
+	public void storeCustomerTest() throws Exception {
 		long txId = 0;
 		try {
 			txId = getTxManagement().beginTransaction();

@@ -10,12 +10,13 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.domain.XDMDocument;
 
 public abstract class XDMDocumentManagementTest extends XDMManagementTest {
 
 	@Test
-	public void createSecurityTest() throws IOException {
+	public void createSecurityTest() throws Exception {
 		
 		long txId = getTxManagement().beginTransaction();
 		XDMDocument doc = createDocumentTest(sampleRoot + getFileName("security1500.xml"));
@@ -27,7 +28,7 @@ public abstract class XDMDocumentManagementTest extends XDMManagementTest {
 	}
 	
 	@Test
-	public void updateSecurityTest() throws IOException {
+	public void updateSecurityTest() throws Exception {
 		
 		long txId = getTxManagement().beginTransaction();
 		XDMDocument doc = createDocumentTest(sampleRoot + getFileName("security1500.xml"));
@@ -64,7 +65,7 @@ public abstract class XDMDocumentManagementTest extends XDMManagementTest {
 	}
 	
 	@Test
-	public void removeSecurityTest() throws IOException {
+	public void removeSecurityTest() throws Exception {
 		
 		long txId = getTxManagement().beginTransaction();
 		XDMDocument doc = createDocumentTest(sampleRoot + getFileName("security1500.xml"));

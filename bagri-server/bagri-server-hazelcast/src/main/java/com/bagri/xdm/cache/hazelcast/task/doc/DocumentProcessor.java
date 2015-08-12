@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.bagri.xdm.api.XDMDocumentManagement;
+import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.cache.api.XDMRepository;
 import com.bagri.xdm.cache.api.XDMTransactionManagement;
 import com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl;
@@ -45,13 +46,17 @@ public class DocumentProcessor extends com.bagri.xdm.client.hazelcast.task.doc.D
 
 		// TODO: rewrite it to get use of entry
     	((RepositoryImpl) repo).getXQProcessor(clientId);
-    	return txMgr.callInTransaction(txId, false, new Callable<XDMDocument>() {
-    		
-	    	public XDMDocument call() {
-	    		return docMgr.storeDocumentFromString(docId, uri, xml);
-	    	}
-    	});
-		//return null;
+    	try {
+	    	return txMgr.callInTransaction(txId, false, new Callable<XDMDocument>() {
+	    		
+		    	public XDMDocument call() throws Exception {
+		    		return docMgr.storeDocumentFromString(docId, uri, xml);
+		    	}
+	    	});
+    	} catch (XDMException ex) {
+    		// log it ?
+    	}
+		return null;
 	}
     
 }

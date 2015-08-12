@@ -9,6 +9,7 @@ import net.sf.saxon.value.SequenceType;
 import net.sf.saxon.value.StringValue;
 
 import com.bagri.xdm.api.XDMDocumentManagement;
+import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.domain.XDMDocument;
 
 public class StoreDocumentWithId extends DocumentFunctionExtension {
@@ -47,10 +48,15 @@ public class StoreDocumentWithId extends DocumentFunctionExtension {
 				if (arguments.length > 1) {
 					docId = Long.parseLong(arguments[1].head().getStringValue());
 				}
-				// validate document ?
-				XDMDocument doc = xdm.storeDocumentFromString(docId, null, xml);
-				//return new Int64Value(doc.getDocumentId());
-				return new StringValue(doc.getUri());
+
+				try {
+					// validate document ?
+					XDMDocument doc = xdm.storeDocumentFromString(docId, null, xml);
+					//return new Int64Value(doc.getDocumentId());
+					return new StringValue(doc.getUri());
+				} catch (XDMException ex) {
+					throw new XPathException(ex);
+				}
 			}
 
 			// think to override it, get ctx and take document-format option from it somehow

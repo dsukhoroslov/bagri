@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bagri.xdm.api.XDMBindingManagement;
+import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMRepository;
 
 public class BindingManagementImpl implements XDMBindingManagement {
@@ -26,13 +27,13 @@ public class BindingManagementImpl implements XDMBindingManagement {
 	}	
 
 	@Override
-	public <T> T getDocumentBinding(long docId) {
+	public <T> T getDocumentBinding(long docId) throws XDMException {
 		
 		return null;
 	}
 
 	@Override
-	public <T> T getDocumentBinding(long docId, Class<T> type) {
+	public <T> T getDocumentBinding(long docId, Class<T> type) throws XDMException {
 		
 		logger.trace("getDocumentBinding.enter; docId: {}; type: {}", docId, type);
 		Object result = null;
@@ -45,6 +46,7 @@ public class BindingManagementImpl implements XDMBindingManagement {
 	        	result = unmarshaller.unmarshal(new StringReader(xml));
 	        } catch (JAXBException ex) {
 	        	logger.error("getDocumentBinding.error", ex);
+	        	throw new XDMException(ex);
 	        }
 		}
 		logger.trace("getDocumentBinding.exit; returning: {}", result);
@@ -52,7 +54,7 @@ public class BindingManagementImpl implements XDMBindingManagement {
 	}
 
 	@Override
-	public void setDocumentBinding(Object value) {
+	public void setDocumentBinding(Object value) throws XDMException {
 		
 		logger.trace("setDocumentBinding.enter; value: {}", value);
         try {
@@ -68,6 +70,7 @@ public class BindingManagementImpl implements XDMBindingManagement {
         	repo.getDocumentManagement().storeDocumentFromString(0, null, xml);
         } catch (JAXBException | IOException ex) {
         	logger.error("setDocumentBinding.error", ex);
+        	throw new XDMException(ex);
         }
 		logger.trace("setDocumentBinding.exit;");
 	}

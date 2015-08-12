@@ -30,6 +30,7 @@ import static com.bagri.common.config.XDMConfigConstants.xdm_schema_store_type;
 
 import com.bagri.common.util.FileUtils;
 import com.bagri.xdm.api.XDMDocumentManagement;
+import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.api.XDMTransactionManagement;
 import com.bagri.xdm.cache.hazelcast.impl.DocumentManagementImpl;
@@ -140,7 +141,7 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<XDMDoc
 		        				TX_INIT, TX_NO,	new Date(Files.getLastModifiedTime(path).toMillis()), 
 								Files.getOwner(path).getName(),	def_encoding);
         			}
-				} catch (IOException ex) {
+				} catch (IOException | XDMException ex) {
 					logger.error("loadDocument.error", ex);
 				}
 	    	}
@@ -239,11 +240,11 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<XDMDoc
 			// update existing document - put a new version
 		}
 		
-		String xml = docMgr.getDocumentAsString(key.getKey());
 		try {
+			String xml = docMgr.getDocumentAsString(key.getKey());
 			FileUtils.writeTextFile(data.uri, xml);
 			logger.trace("store.exit; stored as: {}; length: {}", data.uri, xml.length());
-		} catch (IOException ex) {
+		} catch (IOException | XDMException ex) {
 			logger.error("store.error; exception on store document: " + ex.getMessage(), ex);
 		}
 	}

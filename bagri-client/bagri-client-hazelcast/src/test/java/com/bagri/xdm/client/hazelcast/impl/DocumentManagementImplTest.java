@@ -55,7 +55,7 @@ public class DocumentManagementImplTest extends XDMDocumentManagementTest {
 	}
 	
 	@Test
-	public void storeDocumentsTest() throws IOException {
+	public void storeDocumentsTest() throws Exception {
 		storeSecurityTest();
 		storeOrderTest();
 		storeCustomerTest();

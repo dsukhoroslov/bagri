@@ -7,8 +7,10 @@ import net.sf.saxon.trans.XPathException;
 import net.sf.saxon.value.Int64Value;
 import net.sf.saxon.value.ObjectValue;
 import net.sf.saxon.value.SequenceType;
+import net.sf.saxon.value.StringValue;
 
 import com.bagri.xdm.api.XDMDocumentManagement;
+import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.domain.XDMDocument;
 
 public class StoreDocumentWithUri extends DocumentFunctionExtension {
@@ -47,10 +49,15 @@ public class StoreDocumentWithUri extends DocumentFunctionExtension {
 				if (arguments.length > 1) {
 					uri = arguments[1].head().getStringValue();
 				}
-				// validate document ?
-				XDMDocument doc = xdm.storeDocumentFromString(0, uri, xml);
-				return new Int64Value(doc.getDocumentId());
-				//return new ObjectValue(doc);
+				
+				try {
+					// validate document ?
+					XDMDocument doc = xdm.storeDocumentFromString(0, uri, xml);
+					return new Int64Value(doc.getDocumentId());
+					//return new ObjectValue(doc);
+				} catch (XDMException ex) {
+					throw new XPathException(ex);
+				}
 			}
 
 			// think to override it, get ctx and take document-format option from it somehow

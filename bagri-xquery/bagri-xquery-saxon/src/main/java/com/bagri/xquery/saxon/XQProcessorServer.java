@@ -31,6 +31,7 @@ import com.bagri.common.query.ExpressionContainer;
 import com.bagri.common.query.QueryBuilder;
 //import com.bagri.xdm.access.api.XDMDocumentManagementServer;
 import com.bagri.xdm.api.XDMDocumentManagement;
+import com.bagri.xdm.api.XDMException;
 //import com.bagri.xdm.api.XDMQueryManagement;
 import com.bagri.xdm.api.XDMRepository;
 import com.bagri.xdm.cache.api.XDMQueryManagement;
@@ -94,50 +95,53 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 	public Iterator executeXCommand(String command, Map<QName, XQItemAccessor> bindings, Properties props) throws XQException {
 		
 	    XDMDocumentManagement dMgr = getRepository().getDocumentManagement();
-	    
-		if (command.startsWith("storeDocument")) {
-			if (bindings.size() == 0) {
-				throw new XQException("document not provided");
-			}
-			
-			XQItemAccessor item;
-			if (bindings.size() > 1) {
-				QName dName = new QName("doc");
-				item = bindings.get(dName);
-				if (item == null) {
+	    try {
+			if (command.startsWith("storeDocument")) {
+				if (bindings.size() == 0) {
 					throw new XQException("document not provided");
 				}
-			} else {
-				item = bindings.entrySet().iterator().next().getValue();
-			}
-			String xml = item.getItemAsString(null);
-			// validate document ?
-			// add/pass other params ?!
-			XDMDocument doc = dMgr.storeDocumentFromString(0, null, xml);
-			return Collections.singletonList(doc).iterator();
-			//return Collections.emptyIterator();
-		} else if (command.startsWith("removeDocument")) {
-
-			if (bindings.size() == 0) {
-				throw new XQException("document uri not provided");
-			}
-			
-			XQItemAccessor item;
-			if (bindings.size() > 1) {
-				QName dName = new QName("docId");
-				item = bindings.get(dName);
-				if (item == null) {
-					throw new XQException("document ID not provided");
+				
+				XQItemAccessor item;
+				if (bindings.size() > 1) {
+					QName dName = new QName("doc");
+					item = bindings.get(dName);
+					if (item == null) {
+						throw new XQException("document not provided");
+					}
+				} else {
+					item = bindings.entrySet().iterator().next().getValue();
 				}
+				String xml = item.getItemAsString(null);
+				// validate document ?
+				// add/pass other params ?!
+				XDMDocument doc = dMgr.storeDocumentFromString(0, null, xml);
+				return Collections.singletonList(doc).iterator();
+				//return Collections.emptyIterator();
+			} else if (command.startsWith("removeDocument")) {
+	
+				if (bindings.size() == 0) {
+					throw new XQException("document uri not provided");
+				}
+				
+				XQItemAccessor item;
+				if (bindings.size() > 1) {
+					QName dName = new QName("docId");
+					item = bindings.get(dName);
+					if (item == null) {
+						throw new XQException("document ID not provided");
+					}
+				} else {
+					item = bindings.entrySet().iterator().next().getValue();
+				}
+				long docId = item.getLong();
+				dMgr.removeDocument(docId);
+				return Collections.emptyIterator(); 
 			} else {
-				item = bindings.entrySet().iterator().next().getValue();
+				throw new XQException("unknown command: " + command);
 			}
-			long docId = item.getLong();
-			dMgr.removeDocument(docId);
-			return Collections.emptyIterator(); 
-		} else {
-			throw new XQException("unknown command: " + command);
-		}
+	    } catch (XDMException ex) {
+	    	throw new XQException(ex.getMessage());
+	    }
 	}
 	
 	private Iterator execQuery(String query) throws XQException {

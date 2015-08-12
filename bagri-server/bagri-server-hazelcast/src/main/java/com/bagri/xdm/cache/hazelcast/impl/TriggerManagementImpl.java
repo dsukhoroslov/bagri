@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import com.bagri.common.stats.StatisticsEvent;
 import com.bagri.common.util.FileUtils;
+import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.cache.api.XDMTriggerManagement;
 import com.bagri.xdm.cache.hazelcast.task.trigger.TriggerRunner;
 import com.bagri.xdm.client.hazelcast.impl.IdGeneratorImpl;
@@ -99,7 +100,7 @@ public class TriggerManagementImpl implements XDMTriggerManagement {
     	return "" + typeId + ":" + scope.name() + ":" + action.name();
     }
     
-    void applyTrigger(final XDMDocument xDoc, final Action action, final Scope scope) {
+    void applyTrigger(final XDMDocument xDoc, final Action action, final Scope scope) throws XDMException {
     	//
 		String key = getTriggerKey(xDoc.getTypeId(), action, scope);
     	List<TriggerContainer> impls = triggers.get(key);
@@ -118,7 +119,7 @@ public class TriggerManagementImpl implements XDMTriggerManagement {
     	}
     }
 
-    public void runTrigger(Action action, Scope scope, XDMDocument xDoc, int index, String clientId) {
+    public void runTrigger(Action action, Scope scope, XDMDocument xDoc, int index, String clientId) throws XDMException {
 
 		String key = getTriggerKey(xDoc.getTypeId(), action, scope);
     	List<TriggerContainer> impls = triggers.get(key);
@@ -129,7 +130,7 @@ public class TriggerManagementImpl implements XDMTriggerManagement {
     	}    	
     }
     
-    private void runTrigger(Action action, Scope scope, XDMDocument xDoc, XDMTrigger trigger) {
+    private void runTrigger(Action action, Scope scope, XDMDocument xDoc, XDMTrigger trigger) throws XDMException {
 		String trName = scope + " " + action;
 		try {
 			if (scope == Scope.before) {

@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
 import com.bagri.common.util.XMLUtils;
+import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMRepository;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMTrigger;
@@ -31,36 +32,36 @@ public class XQueryTriggerImpl implements XDMTrigger {
 	}
 
 	@Override
-	public void beforeInsert(XDMDocument doc, XDMRepository repo) {
+	public void beforeInsert(XDMDocument doc, XDMRepository repo) throws XDMException {
 		runTrigger(doc, (RepositoryImpl) repo);
 	} 
 
 	@Override
-	public void afterInsert(XDMDocument doc, XDMRepository repo) {
+	public void afterInsert(XDMDocument doc, XDMRepository repo) throws XDMException {
 		runTrigger(doc, (RepositoryImpl) repo);
 	}
 
 	@Override
-	public void beforeUpdate(XDMDocument doc, XDMRepository repo) {
+	public void beforeUpdate(XDMDocument doc, XDMRepository repo) throws XDMException {
 		runTrigger(doc, (RepositoryImpl) repo);
 	}
 
 	@Override
-	public void afterUpdate(XDMDocument doc, XDMRepository repo) {
+	public void afterUpdate(XDMDocument doc, XDMRepository repo) throws XDMException {
 		runTrigger(doc, (RepositoryImpl) repo);
 	}
 
 	@Override
-	public void beforeDelete(XDMDocument doc, XDMRepository repo) {
+	public void beforeDelete(XDMDocument doc, XDMRepository repo) throws XDMException {
 		runTrigger(doc, (RepositoryImpl) repo);
 	}
 
 	@Override
-	public void afterDelete(XDMDocument doc, XDMRepository repo) {
+	public void afterDelete(XDMDocument doc, XDMRepository repo) throws XDMException {
 		runTrigger(doc, (RepositoryImpl) repo);
 	}
 	
-	private void runTrigger(XDMDocument doc, RepositoryImpl repo) {
+	private void runTrigger(XDMDocument doc, RepositoryImpl repo) throws XDMException {
 		XQProcessor xqp = repo.getXQProcessor();
 		QName var = new QName("doc");
 		try {
@@ -79,6 +80,7 @@ public class XQueryTriggerImpl implements XDMTrigger {
 			xqp.unbindVariable(var);
 		} catch (XQException | IOException ex) {
 			logger.error("runTrigger.error", ex); 
+			throw new XDMException(ex);
 		}
 	}
 

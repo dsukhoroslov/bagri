@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMRepository;
 import com.bagri.xdm.api.test.XDMQueryManagementTest;
 import com.bagri.xdm.domain.XDMDocument;
@@ -151,7 +152,11 @@ public class BagriXDMPlugin extends BagriTPoXPlugin {
 		}
 		
 		XDMDocument storeDocument(String xml) {
-			return xRepo.getDocumentManagement().storeDocumentFromString(0, null, xml);
+			try {
+				return xRepo.getDocumentManagement().storeDocumentFromString(0, null, xml);
+			} catch (XDMException ex) {
+				return null;
+			}
 		}
 		
 	}

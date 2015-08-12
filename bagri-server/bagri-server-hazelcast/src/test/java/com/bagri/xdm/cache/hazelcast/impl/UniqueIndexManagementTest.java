@@ -73,7 +73,7 @@ public class UniqueIndexManagementTest extends XDMManagementTest {
 	}
 	
 	@Test
-	public void uniqueDocumentCreateTest() throws IOException {
+	public void uniqueDocumentCreateTest() throws Exception {
 		long txId = xRepo.getTxManagement().beginTransaction();
 		ids.add(createDocumentTest(sampleRoot + getFileName("security5621.xml")).getDocumentKey());
 		xRepo.getTxManagement().commitTransaction(txId);
@@ -94,7 +94,7 @@ public class UniqueIndexManagementTest extends XDMManagementTest {
 	}
 
 	@Test
-	public void uniqueDocumentUpdateTest() throws IOException {
+	public void uniqueDocumentUpdateTest() throws Exception {
 		
 		long txId = getTxManagement().beginTransaction();
 		XDMDocument doc = createDocumentTest(sampleRoot + getFileName("security1500.xml"));
@@ -122,7 +122,7 @@ public class UniqueIndexManagementTest extends XDMManagementTest {
 	}
 	
 	@Test
-	public void uniqueDocumentRollbackTest() throws IOException {
+	public void uniqueDocumentRollbackTest() throws Exception {
 		
 		long txId = getTxManagement().beginTransaction();
 		XDMDocument doc = createDocumentTest(sampleRoot + getFileName("security1500.xml"));
@@ -143,7 +143,7 @@ public class UniqueIndexManagementTest extends XDMManagementTest {
 	}
 	
 	@Test
-	public void uniqueDocumentDeleteTest() throws IOException {
+	public void uniqueDocumentDeleteTest() throws Exception {
 		
 		long txId = getTxManagement().beginTransaction();
 		XDMDocument doc = createDocumentTest(sampleRoot + getFileName("security1500.xml"));
@@ -165,7 +165,7 @@ public class UniqueIndexManagementTest extends XDMManagementTest {
 	}
 	
 	@Test
-	public void twoDocumentsUpdateTest() throws IOException {
+	public void twoDocumentsUpdateTest() throws Exception {
 
 		long txId = getTxManagement().beginTransaction();
 		XDMDocument doc = createDocumentTest(sampleRoot + getFileName("security9012.xml"));

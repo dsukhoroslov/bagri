@@ -31,6 +31,7 @@ import com.bagri.common.query.PathBuilder;
 import com.bagri.common.query.PathExpression;
 import com.bagri.common.stats.StatisticsEvent;
 import com.bagri.common.util.ReflectUtils;
+import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMTransactionManagement;
 import com.bagri.xdm.cache.api.XDMIndexManagement;
 import com.bagri.xdm.cache.hazelcast.task.index.ValueIndexator;
@@ -257,7 +258,7 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 		return result;
 	}
 	
-	public void addIndex(long docId, int pathId, String path, Object value) {
+	public void addIndex(long docId, int pathId, String path, Object value) throws XDMException {
 
 		// shouldn't we index NULL values too? create special NULL class for this..
 		if (value != null) {
@@ -272,7 +273,7 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 		}
 	}
 	
-	private void indexPath(XDMIndex idx, long docId, int pathId, Object value) {
+	private void indexPath(XDMIndex idx, long docId, int pathId, Object value) throws XDMException {
 
 		if (value != null) {
 			Class dataType = getDataType(idx.getDataType());
@@ -296,7 +297,7 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 			if (idx.isUnique()) {
 				long id = XDMDocumentKey.toDocumentId(docId);
 				if (!checkUniquiness((XDMUniqueDocument) xidx, id)) {
-					throw new IllegalStateException("unique index '" + idx.getName() + "' violated for docId: " + docId + ", pathId: " + pathId + ", value: " + value);
+					throw new XDMException("unique index '" + idx.getName() + "' violated for docId: " + docId + ", pathId: " + pathId + ", value: " + value);
 				}
 
 				if (xidx == null) {
@@ -305,7 +306,7 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 				xidx.addDocument(docId, txMgr.getCurrentTxId());
 				xidx = idxCache.put(xid, xidx);
 				if (!checkUniquiness((XDMUniqueDocument) xidx, id)) {
-					throw new IllegalStateException("unique index '" + idx.getName() + "' violated for docId: " + docId + ", pathId: " + pathId + ", value: " + value);
+					throw new XDMException("unique index '" + idx.getName() + "' violated for docId: " + docId + ", pathId: " + pathId + ", value: " + value);
 				}
 			} else {
 				if (xidx == null) {
@@ -365,7 +366,7 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 
 			//long currId = xidx.getDocumentId();
 			//if (currId > 0 && id != XDMDocumentKey.toDocumentId(currId)) {
-			//	throw new IllegalStateException("unique index '" + idx.getName() + "' violated for docId: " + docId + ", pathId: " + pathId + ", value: " + value);
+			//	throw new XDMException("unique index '" + idx.getName() + "' violated for docId: " + docId + ", pathId: " + pathId + ", value: " + value);
 			//}
 		}
 		return true;

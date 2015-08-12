@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import com.bagri.common.util.FileUtils;
 import com.bagri.xdm.api.XDMDocumentManagement;
+import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMRepository;
 
 import static com.bagri.xqj.BagriXQConstants.bg_schema;
@@ -92,9 +93,14 @@ public class SourceResolverImpl implements SourceResolver, ExternalObjectModel {
 		// move this processing to a node (member)
 		// the document belongs to
 		logger.debug("resolveSource; looking for documentId: {}", docId);
-		// another bottleneck! takes 6.73 ms, even to get XML from cache! !?
-		String content = repo.getDocumentManagement().getDocumentAsString(docId);
-		//content = content.replaceAll("&", "&amp;");
+		String content;
+		try {
+			// another bottleneck! takes 6.73 ms, even to get XML from cache! !?
+			content = repo.getDocumentManagement().getDocumentAsString(docId);
+			//content = content.replaceAll("&", "&amp;");
+		} catch (XDMException ex) {
+			throw new XPathException(ex);
+		}
 		 
 		if (content != null && content.trim().length() > 0) {
 			logger.trace("resolveSource; got content: {}", content.length());

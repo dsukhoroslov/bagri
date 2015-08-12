@@ -15,6 +15,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
 import com.bagri.xdm.api.XDMBindingManagement;
+import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMQueryManagement;
 import com.bagri.xdm.cache.api.XDMIndexManagement;
 import com.bagri.xdm.cache.api.XDMRepository;
@@ -181,11 +182,15 @@ public class RepositoryImpl extends XDMRepositoryBase implements ApplicationCont
 			DocumentManagementImpl docMgr = (DocumentManagementImpl) getDocumentManagement();
 			int cnt = 0;
 			for (XDMPath xPath: paths) {
-				cnt += docMgr.indexElements(xPath.getTypeId(), xPath.getPathId());
+				try {
+					cnt += docMgr.indexElements(xPath.getTypeId(), xPath.getPathId());
+				} catch (XDMException ex) {
+					logger.warn("addSchemaIndex.error; index: " + index, ex);
+				}
 			}
 			return cnt > 0;
 		}
-		logger.info("call; index {} already exists! do we need to index values?", index);
+		logger.info("addSchemaIndex; index {} already exists! do we need to index values?", index);
 		return false;
 	}
 
@@ -201,7 +206,7 @@ public class RepositoryImpl extends XDMRepositoryBase implements ApplicationCont
 			}
 			return cnt > 0;
 		}
-		logger.info("call; index {} does not exist?", index);
+		logger.info("dropSchemaIndex; index {} does not exist?", index);
 		return false;
 	}
 	

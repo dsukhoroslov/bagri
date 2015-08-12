@@ -7,6 +7,7 @@ import net.sf.saxon.trans.XPathException;
 import net.sf.saxon.value.SequenceType;
 
 import com.bagri.xdm.api.XDMDocumentManagement;
+import com.bagri.xdm.api.XDMException;
 
 public class RemoveDocument extends DocumentFunctionExtension {
 	
@@ -38,7 +39,11 @@ public class RemoveDocument extends DocumentFunctionExtension {
 			public Sequence call(XPathContext context, Sequence[] arguments) throws XPathException {
 				
 				String docId = arguments[0].head().getStringValue();
-				xdm.removeDocument(Long.parseLong(docId));
+				try {
+					xdm.removeDocument(Long.parseLong(docId));
+				} catch (XDMException ex) {
+					throw new XPathException(ex);
+				}
 				return null; //new Int64Value(doc.getDocumentId());
 			}
         };

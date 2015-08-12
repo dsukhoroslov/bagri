@@ -52,7 +52,7 @@ public class TransactionManagementImplTest extends XDMManagementTest {
 	}
 	
 	@Test
-	public void rollbackTransactionTest() throws IOException {
+	public void rollbackTransactionTest() throws Exception {
 		long txId = xRepo.getTxManagement().beginTransaction();
 		try {
 			storeSecurityTest();

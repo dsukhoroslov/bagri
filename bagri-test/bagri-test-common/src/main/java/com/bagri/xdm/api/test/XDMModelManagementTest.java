@@ -64,7 +64,7 @@ public abstract class XDMModelManagementTest extends XDMManagementTest {
 	}
 
 	@Test
-	public void getSecurityPathTest() throws IOException {
+	public void getSecurityPathTest() throws Exception {
 		storeSecurityTest();
 		Collection<XDMPath> sec = getSecurityPath();
 		Assert.assertNotNull(sec);
@@ -72,7 +72,7 @@ public abstract class XDMModelManagementTest extends XDMManagementTest {
 	}
 
 	@Test
-	public void getCustomerPathTest() throws IOException {
+	public void getCustomerPathTest() throws Exception {
 		storeCustomerTest();
 		Collection<XDMPath> sec = getCustomerPath();
 		Assert.assertNotNull(sec);

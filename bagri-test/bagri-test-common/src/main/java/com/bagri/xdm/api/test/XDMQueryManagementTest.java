@@ -160,7 +160,7 @@ public class XDMQueryManagementTest extends XDMManagementTest {
 	}
 	
 	@Test
-	public void getPriceTest() throws IOException {
+	public void getPriceTest() throws Exception {
 		storeSecurityTest();
 
 		Collection<String> sec = getPrice("VFINX");
@@ -177,7 +177,7 @@ public class XDMQueryManagementTest extends XDMManagementTest {
 	}
 
 	@Test
-	public void getSecurityTest() throws IOException {
+	public void getSecurityTest() throws Exception {
 		storeSecurityTest();
 
 		Collection<String> sec = getSecurity("VFINX");
@@ -194,7 +194,7 @@ public class XDMQueryManagementTest extends XDMManagementTest {
 	}
 
 	@Test
-	public void searchSecurityTest() throws IOException {
+	public void searchSecurityTest() throws Exception {
 		storeSecurityTest();
 
 		Collection<String> sec = searchSecurity("Technology", 25, 28, 0);
@@ -211,7 +211,7 @@ public class XDMQueryManagementTest extends XDMManagementTest {
 	}
 
 	@Test
-	public void getOrderTest() throws IOException {
+	public void getOrderTest() throws Exception {
 		storeOrderTest();
 		Collection<String> sec = getOrder("103404");
 		Assert.assertNotNull(sec);
@@ -222,7 +222,7 @@ public class XDMQueryManagementTest extends XDMManagementTest {
 	}
 
 	@Test
-	public void getCustomerProfileTest() throws IOException {
+	public void getCustomerProfileTest() throws Exception {
 		storeCustomerTest();
 		Collection<String> sec = getCustomerProfile("1011");
 		Assert.assertNotNull(sec);
@@ -230,7 +230,7 @@ public class XDMQueryManagementTest extends XDMManagementTest {
 	}
 
 	@Test
-	public void getCustomerAccountsTest() throws IOException {
+	public void getCustomerAccountsTest() throws Exception {
 		storeCustomerTest();
 		Collection<String> sec = getCustomerAccounts("1011");
 		Assert.assertNotNull(sec);
