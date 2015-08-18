@@ -1,6 +1,6 @@
-package com.bagri.xqj;
+package com.bagri.xdm.common;
 
-public class BagriXQConstants {
+public class XDMConstants {
 
 	public static final String xs_prefix = "xs";
 	public static final String xs_ns = "http://www.w3.org/2001/XMLSchema";

@@ -1,5 +1,8 @@
 package com.bagri.xdm.system;
 
+import static com.bagri.xdm.common.XDMConstants.xs_ns;
+import static com.bagri.xdm.common.XDMConstants.xs_prefix;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -11,6 +14,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlID;
 import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
+import javax.xml.namespace.QName;
 
 import com.bagri.xdm.common.XDMEntity;
 
@@ -41,8 +45,8 @@ public class XDMIndex extends XDMEntity {
 	@XmlElement(required = true)
 	private String path;
 
-	@XmlElement(required = false, defaultValue = "xs:string")
-	private String dataType = "xs:string";
+	@XmlElement(required = true)
+	private QName dataType;
 
 	@XmlElement(required = false, defaultValue = "true")
 	private boolean caseSensitive = true;
@@ -65,7 +69,7 @@ public class XDMIndex extends XDMEntity {
 	}
 	
 	public XDMIndex(int version, Date createdAt, String createdBy, String name, 
-			String docType, String typePath, String path, String dataType, boolean caseSensitive, boolean range, boolean unique, 
+			String docType, String typePath, String path, QName dataType, boolean caseSensitive, boolean range, boolean unique, 
 			String description, boolean enabled) {
 		super(version, createdAt, createdBy);
 		this.name = name;
@@ -100,7 +104,7 @@ public class XDMIndex extends XDMEntity {
 		return path;
 	}
 	
-	public String getDataType() {
+	public QName getDataType() {
 		return dataType;
 	}
 	
@@ -158,7 +162,7 @@ public class XDMIndex extends XDMEntity {
 		result.put("created by", getCreatedBy());
 		result.put("document type", docType);
 		result.put("path", path);
-		result.put("data type", dataType);
+		result.put("data type", dataType.toString());
 		result.put("case sensitive", caseSensitive);
 		result.put("range", range);
 		result.put("unique", unique);

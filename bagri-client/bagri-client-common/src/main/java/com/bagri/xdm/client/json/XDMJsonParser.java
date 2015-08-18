@@ -14,12 +14,15 @@ import javax.json.Json;
 import javax.json.stream.JsonParser;
 import javax.json.stream.JsonParser.Event;
 import javax.json.stream.JsonParserFactory;
+import javax.xml.xquery.XQItemType;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.client.parser.XDMDataParser;
+import com.bagri.xdm.domain.XDMCardinality;
 import com.bagri.xdm.domain.XDMData;
 import com.bagri.xdm.domain.XDMElement;
 import com.bagri.xdm.domain.XDMNodeKind;
@@ -42,7 +45,7 @@ public class XDMJsonParser extends XDMDataParser implements XDMParser {
 		factory = Json.createParserFactory(params);
 	}
 	
-	public static List<XDMData> parseDocument(XDMModelManagement dictionary, String json) throws IOException {
+	public static List<XDMData> parseDocument(XDMModelManagement dictionary, String json) throws IOException, XDMException {
 		XDMJsonParser parser = new XDMJsonParser(dictionary);
 		return parser.parse(json);
 	}
@@ -52,21 +55,21 @@ public class XDMJsonParser extends XDMDataParser implements XDMParser {
 	}
 
 	@Override
-	public List<XDMData> parse(String json) throws IOException { 
+	public List<XDMData> parse(String json) throws IOException, XDMException { 
 		try (Reader reader = new StringReader(json)) {
 			return parse(reader);
 		}
 	}
 	
 	@Override
-	public List<XDMData> parse(File file) throws IOException {
+	public List<XDMData> parse(File file) throws IOException, XDMException {
 		try (Reader reader = new FileReader(file)) {
 			return parse(reader);
 		}
 	}
 	
 	@Override
-	public List<XDMData> parse(InputStream stream) throws IOException {
+	public List<XDMData> parse(InputStream stream) throws IOException, XDMException {
 
 		try (JsonParser parser = factory.createParser(stream)) {
 			return parse(parser);
@@ -74,14 +77,14 @@ public class XDMJsonParser extends XDMDataParser implements XDMParser {
 	}
 	
 	@Override
-	public List<XDMData> parse(Reader reader) throws IOException {
+	public List<XDMData> parse(Reader reader) throws IOException, XDMException {
 		
 		try (JsonParser parser = factory.createParser(reader)) {
 			return parse(parser);
 		}
 	}
 
-	public List<XDMData> parse(JsonParser parser) throws IOException {
+	public List<XDMData> parse(JsonParser parser) throws IOException, XDMException {
 		
 		logger.trace("parse.enter; parser: {}", parser);
 		
@@ -97,7 +100,7 @@ public class XDMJsonParser extends XDMDataParser implements XDMParser {
 		return result;
 	}
 	
-	private void processEvent(JsonParser parser) throws IOException { //, XMLStreamException {
+	private void processEvent(JsonParser parser) throws IOException, XDMException { //, XMLStreamException {
 
 		JsonParser.Event event = parser.next();
 		if (event == Event.VALUE_STRING || event == Event.VALUE_NUMBER) {
@@ -158,11 +161,11 @@ public class XDMJsonParser extends XDMDataParser implements XDMParser {
 		return null;
 	}
 
-	private void processDocument(String name) {
+	private void processDocument(String name) throws XDMException {
 
 		String root = "/" + (name == null ? "" : name);
 		docType = dict.translateDocumentType(root);
-		XDMPath path = dict.translatePath(docType, "", XDMNodeKind.document);
+		XDMPath path = dict.translatePath(docType, "", XDMNodeKind.document, XQItemType.XQBASETYPE_ANYTYPE, XDMCardinality.onlyOne);
 		XDMElement start = new XDMElement();
 		start.setElementId(elementId++);
 		//start.setParentId(0); // -1 ?
@@ -186,7 +189,7 @@ public class XDMJsonParser extends XDMDataParser implements XDMParser {
 		}
 	}
 	
-	private void processStartElement(String name) {
+	private void processStartElement(String name) throws XDMException {
 		
 		XDMData parent = getTopData();
 		if (!name.equals(parent.getName())) {
@@ -194,15 +197,15 @@ public class XDMJsonParser extends XDMDataParser implements XDMParser {
 			if (isAttribute(name)) {
 				name = name.substring(1);
 				if (name.startsWith("xmlns")) {
-					current = addData(parent, XDMNodeKind.namespace, "/#" + name, null);
+					current = addData(parent, XDMNodeKind.namespace, "/#" + name, null, XQItemType.XQBASETYPE_QNAME, XDMCardinality.zeroOrOne);
 				} else {
-					current = addData(parent, XDMNodeKind.attribute, "/@" + name, null);
+					current = addData(parent, XDMNodeKind.attribute, "/@" + name, null, XQItemType.XQBASETYPE_ANYATOMICTYPE, XDMCardinality.zeroOrOne);
 				}
 			} else if (name.equals("#text")) {
 				//dataStack.add(null);
 				current = new XDMData(null, null);  
 			} else {
-				current = addData(parent, XDMNodeKind.element, "/" + name, null); 
+				current = addData(parent, XDMNodeKind.element, "/" + name, null, XQItemType.XQBASETYPE_ANYTYPE, XDMCardinality.zeroOrOne); 
 			}
 			if (current != null) {
 				dataStack.add(current);
@@ -217,7 +220,7 @@ public class XDMJsonParser extends XDMDataParser implements XDMParser {
 		}
 	}
 
-	private void processValueElement(String value) {
+	private void processValueElement(String value) throws XDMException {
 		
 		//value = value.replaceAll("&", "&amp;");
 	
@@ -228,7 +231,8 @@ public class XDMJsonParser extends XDMDataParser implements XDMParser {
 			current = getTopData();
 		}
 		if (current.getNodeKind() == XDMNodeKind.element) {
-			addData(current, XDMNodeKind.text, "/text()", value);
+			addData(current, XDMNodeKind.text, "/text()", value, XQItemType.XQBASETYPE_ANYATOMICTYPE, 
+					isArray ? XDMCardinality.zeroOrMany : XDMCardinality.zeroOrOne);
 		//} else if (current.getNodeKind() == XDMNodeKind.text) {
 		//	current.getElement().setValue(value);
 		} else {

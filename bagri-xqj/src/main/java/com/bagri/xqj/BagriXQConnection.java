@@ -26,7 +26,7 @@ import com.bagri.xdm.api.XDMTransactionManagement;
 import com.bagri.xdm.domain.XDMDocument;
 
 import static com.bagri.xdm.api.XDMTransactionManagement.TX_NO;
-import static com.bagri.xqj.BagriXQConstants.ex_null_context;
+import static com.bagri.xdm.common.XDMConstants.ex_null_context;
 
 public class BagriXQConnection extends BagriXQDataFactory implements XQConnection {
 	
@@ -416,7 +416,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 			if (ex instanceof XDMException) {
 				throw (XDMException) ex;
 			}
-			throw new XDMException(ex);
+			throw new XDMException(ex, XDMException.ecTransaction);
 		}
 	}
 	

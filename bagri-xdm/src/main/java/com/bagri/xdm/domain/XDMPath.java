@@ -16,9 +16,10 @@ public class XDMPath implements Comparable<XDMPath> { //implements Serializable 
 	private int pathId;
 	private int parentId;
 	private int postId;
-	
 	// the type constant from javax.xml.xquery.XQItemType.*
-	//private int dataType;
+	// change it to QName?
+	private int dataType;
+	private XDMCardinality cardinality = XDMCardinality.zeroOrOne;
 	
 	// cache it!
 	private String name = null; 
@@ -27,7 +28,8 @@ public class XDMPath implements Comparable<XDMPath> { //implements Serializable 
 		super();
 	}
 	
-	public XDMPath(String path, int typeId, XDMNodeKind kind, int pathId, int parentId, int postId) {
+	public XDMPath(String path, int typeId, XDMNodeKind kind, int pathId, int parentId, int postId, 
+			int dataType, XDMCardinality cardinality) {
 		super();
 		this.path = path;
 		this.typeId = typeId;
@@ -35,6 +37,21 @@ public class XDMPath implements Comparable<XDMPath> { //implements Serializable 
 		this.pathId = pathId;
 		this.parentId = parentId;
 		this.postId = postId;
+		this.dataType = dataType;
+		if (cardinality != null) {
+			this.cardinality = cardinality;
+		}
+	}
+	
+	public XDMCardinality getCardinality() {
+		return cardinality;
+	}
+	
+	/*
+	 * return XQJ data type
+	 */
+	public int getDataType() {
+		return dataType;
 	}
 	
 	/**
@@ -160,7 +177,8 @@ public class XDMPath implements Comparable<XDMPath> { //implements Serializable 
 	public String toString() {
 		return "XDMPath [path=" + path + ", pathId=" + pathId + ", typeId="
 				+ typeId + ", kind=" + kind + ", parentId=" + parentId
-				+ ", postId=" + postId + "]";
+				+ ", postId=" + postId + ", dataType=" + dataType
+				+ ", cardinality=" + cardinality.toString() + "]";
 	}
 
 	@Override
@@ -169,6 +187,4 @@ public class XDMPath implements Comparable<XDMPath> { //implements Serializable 
 		return this.pathId - other.pathId;
 	}
 	
-	
-
 }

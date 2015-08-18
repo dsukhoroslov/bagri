@@ -207,7 +207,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 			data = parser.parse(xml);
 		} catch (IOException ex) {
 			logger.debug("createDocument.error", ex); 
-			throw new XDMException(ex);
+			throw new XDMException(ex, XDMException.ecInOut);
 		}
 
 		XDMDocumentKey docKey = entry.getKey();
@@ -224,7 +224,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 			return doc;
 		} else {
 			logger.warn("createDocument.exit; the document is not valid as it has no root element");
-			throw new XDMException("invalid document");
+			throw new XDMException("invalid document", XDMException.ecDocument);
 		}
 	}
 	
@@ -426,7 +426,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 					xml = future.get();
 				} catch (InterruptedException | ExecutionException ex) {
 					logger.error("getDocumentAsString; error getting result", ex);
-					throw new XDMException(ex);
+					throw new XDMException(ex, XDMException.ecDocument);
 				}
 			}
 		}
@@ -482,7 +482,8 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 					// otherwise we'll get a situation when two different Documents
 					// are stored in the same file.
 					// what if they point to different versions of the same document!?
-					throw new XDMException("Document with URI '" + uri + "' already exists; docId: " + existingId);
+					throw new XDMException("Document with URI '" + uri + "' already exists; docId: " + 
+							existingId, XDMException.ecDocument);
 				}
 			}
 		}
@@ -496,7 +497,9 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 				    XDMDocument doc = xddCache.get(newKey);
 				    if (doc != null) {
 				    	if (doc.getTxFinish() > TX_NO && txManager.isTxVisible(doc.getTxFinish())) {
-				    		throw new XDMException("Document with ID: " + doc.getDocumentId() + ", version: " + doc.getVersion() + " has been concurrently updated");
+				    		throw new XDMException("Document with ID: " + doc.getDocumentId() + 
+				    				", version: " + doc.getVersion() + " has been concurrently updated", 
+				    				XDMException.ecDocument);
 				    	}
 				    	logger.trace("storeDocumentFromString; going to update document: {}", doc);
 				    	// we must finish old Document and create a new one!
@@ -517,12 +520,13 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 				throw ex;
 			} catch (Exception ex) {
 				logger.error("storeDocumentFromString.error; docId: " + docId, ex);
-				throw new XDMException(ex);
+				throw new XDMException(ex, XDMException.ecDocument);
 			} finally {
 				unlockDocument(docKey);
 			}
 		} else {
-    		throw new XDMException("Was not able to aquire lock on Document: " + docKey + ", timed out");
+    		throw new XDMException("Was not able to aquire lock on Document: " + docKey + 
+    				", timed out", XDMException.ecDocument);
 		}
 	}
 

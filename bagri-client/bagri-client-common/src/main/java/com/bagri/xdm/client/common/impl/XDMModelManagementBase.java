@@ -11,6 +11,9 @@ import java.util.Stack;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 
+import javax.xml.namespace.QName;
+import javax.xml.xquery.XQItemType;
+
 import org.apache.xerces.dom.DOMXSImplementationSourceImpl;
 import org.apache.xerces.impl.xs.XSImplementationImpl;
 import org.apache.xerces.xs.StringList;
@@ -36,10 +39,14 @@ import org.w3c.dom.ls.LSInput;
 import com.bagri.common.idgen.IdGenerator;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMModelManagement;
+import com.bagri.xdm.domain.XDMCardinality;
 import com.bagri.xdm.domain.XDMDocumentType;
 import com.bagri.xdm.domain.XDMNamespace;
 import com.bagri.xdm.domain.XDMNodeKind;
 import com.bagri.xdm.domain.XDMPath;
+
+import static com.bagri.xdm.common.XDMConstants.xs_ns;
+import static com.bagri.xqj.BagriXQUtils.getBaseTypeForTypeName;
 
 public abstract class XDMModelManagementBase implements XDMModelManagement {
 	
@@ -129,21 +136,13 @@ public abstract class XDMModelManagementBase implements XDMModelManagement {
 		return result;
 	}
 
-	//protected int getDictionaryPath(int typeId, String path) {
-		//getLogger().trace("getDictionaryPath.enter; goth path: {}", path);
-
-		//String result = null;
-	//	XDMPath xpath = getPathCache().get(path);
-	//	if (xpath != null) {
-			//result = String.valueOf(xpath.getPathId());
-	//		return xpath.getPathId();
-	//	}
-		//getLogger().trace("getDictionaryPath.exit; returning: {}", result);
-	//	return WRONG_PATH; //result;
-	//}
+	@Override
+	public XDMPath getPath(String path) {
+		return getPathCache().get(normalizePath(path));
+	}
     
 	@Override
-	public XDMPath translatePath(int typeId, String path, XDMNodeKind kind) {
+	public XDMPath translatePath(int typeId, String path, XDMNodeKind kind, int dataType, XDMCardinality cardinality) throws XDMException {
 		// "/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}Name/text()"
 		
 		//getLogger().trace("translatePath.enter; goth path: {}", path);
@@ -154,7 +153,7 @@ public abstract class XDMModelManagementBase implements XDMModelManagement {
 		
 			path = normalizePath(path);
 		}
-		XDMPath result = addDictionaryPath(typeId, path, kind); 
+		XDMPath result = addDictionaryPath(typeId, path, kind, dataType, cardinality); 
 		//getLogger().trace("translatePath.exit; returning: {}", result);
 		return result;
 	}
@@ -206,6 +205,7 @@ public abstract class XDMModelManagementBase implements XDMModelManagement {
 			if (getLogger().isTraceEnabled()) {
 				getLogger().trace("getDocumentTypeId; type not found; keys: {}; types: {}", 
 						getTypeCache().keySet(), getTypeCache().values());
+				// throw XDMException ?
 			}
 		}
 		getLogger().trace("getDocumentTypeId.exit; returning: {}", result);
@@ -236,18 +236,20 @@ public abstract class XDMModelManagementBase implements XDMModelManagement {
 		return result;
 	}
 
-	protected XDMPath addDictionaryPath(int typeId, String path, XDMNodeKind kind) {
+	protected XDMPath addDictionaryPath(int typeId, String path, XDMNodeKind kind, 
+			int dataType, XDMCardinality cardinality) throws XDMException {
 		//getLogger().trace("addDictionaryPath.enter; goth path: {}", path);
 
 		XDMPath xpath = getPathCache().get(path);
 		if (xpath == null) {
 			int pathId = getPathGen().next().intValue();
-			xpath = new XDMPath(path, typeId, kind, pathId, 0, pathId); // specify parentId, postId at normalization phase
+			xpath = new XDMPath(path, typeId, kind, pathId, 0, pathId, dataType, cardinality); // specify parentId, postId at normalization phase
 			XDMPath xp2 = putIfAbsent(getPathCache(), path, xpath);
 			if (xp2.getPathId() == pathId) {
 				XDMDocumentType type = getDocumentTypeById(typeId);
 				if (type == null) {
-					throw new IllegalStateException("document type for typeId " + typeId + " is not registered yet");
+					throw new XDMException("document type for typeId " + typeId + " is not registered yet",
+							XDMException.ecModel);
 				}
 				if (type.isNormalized()) {
 					type.setNormalized(false);
@@ -263,14 +265,14 @@ public abstract class XDMModelManagementBase implements XDMModelManagement {
 	}
 
 	@Override
-	public void normalizeDocumentType(int typeId) {
+	public void normalizeDocumentType(int typeId) throws XDMException {
 
 		// TODO: do this via EntryProcessor ?
 		getLogger().trace("normalizeDocumentType.enter; got typeId: {}", typeId);
 
 		XDMDocumentType type = getDocumentTypeById(typeId);
 		if (type == null) {
-			throw new IllegalStateException("type ID \"" + typeId + "\" not registered yet");
+			throw new XDMException("type ID \"" + typeId + "\" not registered yet", XDMException.ecModel);
 		}
 		
 		if (type.isNormalized()) {
@@ -415,7 +417,7 @@ public abstract class XDMModelManagementBase implements XDMModelManagement {
 	}
 
 	//@Override
-	public void registerSchemas(String schemasUri) {
+	public void registerSchemas(String schemasUri) throws XDMException {
 
 		XSImplementation impl = (XSImplementation)
 				new DOMXSImplementationSourceImpl().getDOMImplementation("XS-Loader LS");
@@ -439,7 +441,7 @@ public abstract class XDMModelManagementBase implements XDMModelManagement {
 	}
 
 	@SuppressWarnings("rawtypes")
-	private List<XDMPath> processModel(XSModel model) {
+	private List<XDMPath> processModel(XSModel model) throws XDMException {
 		
 		// register namespaces
 		StringList sl = model.getNamespaces();
@@ -479,7 +481,7 @@ public abstract class XDMModelManagementBase implements XDMModelManagement {
 				//dict.translatePath(docType, root, XDMNodeKind.document); ??
 				
 				List<XSElementDeclaration> parents = new ArrayList<>(4);
-				processElement(docType, "", xsElement, substitutions, parents);
+				processElement(docType, "", xsElement, substitutions, parents, 1, 1);
 				normalizeDocumentType(docType);
 			}
 		}
@@ -489,19 +491,20 @@ public abstract class XDMModelManagementBase implements XDMModelManagement {
 
 	private void processElement(int docType, String path, XSElementDeclaration xsElement, 
 			Map<String, List<XSElementDeclaration>> substitutions,
-			List<XSElementDeclaration> parents) {
+			List<XSElementDeclaration> parents, int minOccurence, int maxOccurence) throws XDMException {
 		
 		if (!xsElement.getAbstract()) {
 			path += "/{" + xsElement.getNamespace() + "}" + xsElement.getName();
-			translatePath(docType, path, XDMNodeKind.element);
-			logger.trace("processElement; element: {}; type: {}", path, xsElement.getType());
+			XDMPath xp = translatePath(docType, path, XDMNodeKind.element, XQItemType.XQBASETYPE_ANYTYPE, 
+					XDMCardinality.getCardinality(minOccurence, maxOccurence));
+			logger.trace("processElement; element: {}; type: {}; got XDMPath: {}", path, xsElement.getTypeDefinition(), xp);
 		}
 		
 		List<XSElementDeclaration> subs = substitutions.get(xsElement.getName());
 		logger.trace("processElement; got {} substitutions for element: {}", subs == null ? 0 : subs.size(), xsElement.getName());
 		if (subs != null) {
 			for (XSElementDeclaration sub: subs) {
-				processElement(docType, path, sub, substitutions, parents);
+				processElement(docType, path, sub, substitutions, parents, minOccurence, maxOccurence);
 			}
 		}
 
@@ -527,33 +530,46 @@ public abstract class XDMModelManagementBase implements XDMModelManagement {
 			if (ctd.getContentType() == XSComplexTypeDefinition.CONTENTTYPE_SIMPLE || 
 					ctd.getContentType() == XSComplexTypeDefinition.CONTENTTYPE_MIXED) {
 				path += "/text()";
-				translatePath(docType, path, XDMNodeKind.text);
-				logger.trace("processElement; complex text: {}; type: {}", path, ctd.getBaseType());
+				int dataType = XQItemType.XQBASETYPE_ANYTYPE;
+				XSSimpleTypeDefinition std = ctd.getSimpleType();
+				if (std != null) {
+					dataType = getBaseType(std); 
+				}
+				XDMPath xp = translatePath(docType, path, XDMNodeKind.text, dataType, 
+						XDMCardinality.getCardinality(minOccurence, maxOccurence));
+				logger.trace("processElement; complex text: {}; type: {}; got XDMPath: {}", 
+						path, ctd.getBaseType(), xp);
 			}
 		} else { //if (xsElementDecl.getTypeDefinition().getTypeCategory() == XSTypeDefinition.SIMPLE_TYPE) {
 			XSSimpleTypeDefinition std = (XSSimpleTypeDefinition) xsElement.getTypeDefinition();
 			path += "/text()";
-			translatePath(docType, path, XDMNodeKind.text);
-			logger.trace("processElement; simple text: {}; type: {}", path, std.getBaseType());
+			XDMPath xp = translatePath(docType, path, XDMNodeKind.text, getBaseType(std), 
+					XDMCardinality.getCardinality(minOccurence, maxOccurence));
+			logger.trace("processElement; simple text: {}; type: {}; got XDMPath: {}", path, std, xp); 
 		}
 		
 		parents.remove(xsElement);
 	}
 
 	
-    private void processAttribute(int docType, String path, XSAttributeUse xsAttribute) {
+    private void processAttribute(int docType, String path, XSAttributeUse xsAttribute) throws XDMException {
     	
 	    path += "/@" + xsAttribute.getAttrDeclaration().getName();
-		translatePath(docType, path, XDMNodeKind.attribute);
-		logger.trace("\tattribute: {}", path);
+	    XSSimpleTypeDefinition std = xsAttribute.getAttrDeclaration().getTypeDefinition();
+	    XDMCardinality cardinality = XDMCardinality.getCardinality(
+	    		xsAttribute.getRequired() ? 1 : 0,
+	    		std.getVariety() == XSSimpleTypeDefinition.VARIETY_LIST ? -1 : 1);
+		XDMPath xp = translatePath(docType, path, XDMNodeKind.attribute, getBaseType(std), cardinality);
+		logger.trace("processAttribute; attribute: {}; type: {}; got XDMPath: {}", path, std, xp); 
     }
 	
 	/**
 	 * Process particle
+	 * @throws XDMException 
 	 */
 	private void processParticle(int docType, String path, XSParticle xsParticle, 
 			Map<String, List<XSElementDeclaration>> substitutions,
-			List<XSElementDeclaration> parents) {
+			List<XSElementDeclaration> parents) throws XDMException {
 		
 		if (xsParticle == null) {
 			return;
@@ -564,31 +580,42 @@ public abstract class XDMModelManagementBase implements XDMModelManagement {
 	    switch (xsTerm.getType()) {
 	      case XSConstants.ELEMENT_DECLARATION:
 
-	        processElement(docType, path, (XSElementDeclaration) xsTerm, substitutions, parents);
-	        break;
+	    	  processElement(docType, path, (XSElementDeclaration) xsTerm, substitutions, parents, 
+	        		xsParticle.getMinOccurs(), xsParticle.getMaxOccurs());
+	    	  break;
 
 	      case XSConstants.MODEL_GROUP:
 
-	        // this is one of the globally defined groups 
-	        // (found in top-level declarations)
+	    	  // this is one of the globally defined groups 
+	    	  // (found in top-level declarations)
 
-	        XSModelGroup xsGroup = (XSModelGroup) xsTerm;
-
-	        // it also consists of particles
-	        XSObjectList xsParticleList = xsGroup.getParticles();
-	        for (int i = 0; i < xsParticleList.getLength(); i ++) {
-	        	XSParticle xsp = (XSParticle) xsParticleList.item(i);
-	        	processParticle(docType, path, xsp, substitutions, parents);
-	        }
-
-	        //...
-	        break;
+	    	  XSModelGroup xsGroup = (XSModelGroup) xsTerm;
+	
+		      // it also consists of particles
+		      XSObjectList xsParticleList = xsGroup.getParticles();
+		      for (int i = 0; i < xsParticleList.getLength(); i ++) {
+		    	  XSParticle xsp = (XSParticle) xsParticleList.item(i);
+		    	  processParticle(docType, path, xsp, substitutions, parents);
+		      }
+	
+		      //...
+		      break;
 
 	      case XSConstants.WILDCARD:
 
-	        //...
-	        break;
+	          //...
+	          break;
 	    }
+	}
+	
+	private int getBaseType(XSTypeDefinition std) {
+		if (xs_ns.equals(std.getNamespace())) {
+			QName qn = new QName(std.getNamespace(), std.getName());
+			int type = getBaseTypeForTypeName(qn);
+			logger.trace("getBaseType; returning {} for type {}", type, std.getName());
+			return type;
+		}
+		return getBaseType(std.getBaseType());
 	}
 	
 	public Collection<XDMDocumentType> getDocumentTypes() {

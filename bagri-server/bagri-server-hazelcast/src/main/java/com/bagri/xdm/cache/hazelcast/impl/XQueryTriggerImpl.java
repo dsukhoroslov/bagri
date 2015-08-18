@@ -78,9 +78,10 @@ public class XQueryTriggerImpl implements XDMTrigger {
 				}
 			}
 			xqp.unbindVariable(var);
-		} catch (XQException | IOException ex) {
-			logger.error("runTrigger.error", ex); 
-			throw new XDMException(ex);
+		} catch (IOException ex) {
+			throw new XDMException(ex, XDMException.ecInOut);
+		} catch (XQException ex) {
+			throw new XDMException(ex, XDMException.ecQuery);
 		}
 	}
 

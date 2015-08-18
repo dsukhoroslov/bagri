@@ -9,6 +9,7 @@ import java.util.Properties;
 import java.util.Set;
 
 import javax.management.openmbean.CompositeData;
+import javax.xml.namespace.QName;
 
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.jmx.export.annotation.ManagedAttribute;
@@ -39,6 +40,8 @@ import com.hazelcast.instance.MemberImpl;
 
 import static com.bagri.common.config.XDMConfigConstants.xdm_schema_store_enabled;
 import static com.bagri.common.config.XDMConfigConstants.xdm_schema_store_type;
+import static com.bagri.xdm.common.XDMConstants.xs_ns;
+import static com.bagri.xdm.common.XDMConstants.xs_prefix;
 
 @ManagedResource(description="Schema Manager MBean")
 //public class SchemaManager extends XDMSchemaManagerBase implements SelfNaming {
@@ -269,7 +272,7 @@ public class SchemaManager extends EntityManager<XDMSchema> {
 			boolean unique, String description) {
 		String typePath = schemaDictionary.normalizePath(docType);
 		XDMIndex index = new XDMIndex(1, new Date(), JMXUtils.getCurrentUser(), name, docType, typePath, 
-				path, dataType, caseSensitive, range, unique, description, true);
+				path, new QName(xs_ns, dataType, xs_prefix), caseSensitive, range, unique, description, true);
 		XDMSchema schema = getEntity();
 		if (schema.addIndex(index)) {
 			// store schema!

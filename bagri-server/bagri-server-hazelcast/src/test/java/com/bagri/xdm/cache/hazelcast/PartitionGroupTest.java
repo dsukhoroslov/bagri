@@ -4,6 +4,7 @@ import java.util.Set;
 
 import static org.junit.Assert.*;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.hazelcast.config.Config;
@@ -19,6 +20,7 @@ import com.hazelcast.core.IMap;
 public class PartitionGroupTest {
 
 	@Test
+	@Ignore
 	public void testPartitionGroups() throws Exception {
 	
 		String adminIP = "127.0.0.1";

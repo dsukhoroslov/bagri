@@ -40,6 +40,7 @@ import com.bagri.xdm.common.XDMDataKey;
 import com.bagri.xdm.common.XDMDocumentKey;
 import com.bagri.xdm.common.XDMFactory;
 import com.bagri.xdm.common.XDMIndexKey;
+import com.bagri.xdm.domain.XDMCardinality;
 import com.bagri.xdm.domain.XDMElements;
 import com.bagri.xdm.domain.XDMIndexedDocument;
 import com.bagri.xdm.domain.XDMIndexedValue;
@@ -48,6 +49,7 @@ import com.bagri.xdm.domain.XDMPath;
 import com.bagri.xdm.domain.XDMUniqueDocument;
 import com.bagri.xdm.domain.XDMUniqueValue;
 import com.bagri.xdm.system.XDMIndex;
+import com.bagri.xqj.BagriXQUtils;
 import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.EntryListener;
 import com.hazelcast.core.IExecutorService;
@@ -154,7 +156,7 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 	}
 	
 	@Override
-	public XDMPath[] createIndex(XDMIndex index) {
+	public XDMPath[] createIndex(XDMIndex index) throws XDMException {
 		Set<Integer> paths = getPathsForIndex(index);
 		XDMPath[] result = new XDMPath[paths.size()];
 		int idx = 0;
@@ -176,7 +178,7 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 	}
 	
 	@Override
-	public XDMPath[] deleteIndex(XDMIndex index) {
+	public XDMPath[] deleteIndex(XDMIndex index) throws XDMException {
 		// we must not do translate here!
 		Set<Integer> paths = getPathsForIndex(index);
 		XDMPath[] result = new XDMPath[paths.size()];
@@ -195,7 +197,7 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 		return result;
 	}
 	
-	private Set<Integer> getPathsForIndex(XDMIndex index) {
+	private Set<Integer> getPathsForIndex(XDMIndex index) throws XDMException {
 		int docType = mdlMgr.translateDocumentType(index.getDocumentType());
 		String path = index.getPath();
 		Set<Integer> result;
@@ -203,7 +205,8 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 			path = mdlMgr.normalizePath(path);
 			result = mdlMgr.translatePathFromRegex(docType, PathBuilder.regexFromPath(path));
 		} else {
-			XDMPath xPath = mdlMgr.translatePath(docType, path, XDMNodeKind.fromPath(path));
+			int dataType = BagriXQUtils.getBaseTypeForTypeName(index.getDataType());
+			XDMPath xPath = mdlMgr.translatePath(docType, path, XDMNodeKind.fromPath(path), dataType, XDMCardinality.zeroOrOne);
 			result = new HashSet<>(1);
 			result.add(xPath.getPathId());
 		}
@@ -276,7 +279,7 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 	private void indexPath(XDMIndex idx, long docId, int pathId, Object value) throws XDMException {
 
 		if (value != null) {
-			Class dataType = getDataType(idx.getDataType());
+			Class dataType = getDataType(idx.getDataType().getLocalPart());
 			if (dataType.isInstance("String")) {
 				if (!idx.isCaseSensitive()) {
 					value = ((String) value).toLowerCase();
@@ -297,7 +300,8 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 			if (idx.isUnique()) {
 				long id = XDMDocumentKey.toDocumentId(docId);
 				if (!checkUniquiness((XDMUniqueDocument) xidx, id)) {
-					throw new XDMException("unique index '" + idx.getName() + "' violated for docId: " + docId + ", pathId: " + pathId + ", value: " + value);
+					throw new XDMException("unique index '" + idx.getName() + "' violated for docId: " + 
+							docId + ", pathId: " + pathId + ", value: " + value, XDMException.ecIndex);
 				}
 
 				if (xidx == null) {
@@ -306,7 +310,8 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 				xidx.addDocument(docId, txMgr.getCurrentTxId());
 				xidx = idxCache.put(xid, xidx);
 				if (!checkUniquiness((XDMUniqueDocument) xidx, id)) {
-					throw new XDMException("unique index '" + idx.getName() + "' violated for docId: " + docId + ", pathId: " + pathId + ", value: " + value);
+					throw new XDMException("unique index '" + idx.getName() + "' violated for docId: " + 
+							docId + ", pathId: " + pathId + ", value: " + value, XDMException.ecIndex);
 				}
 			} else {
 				if (xidx == null) {

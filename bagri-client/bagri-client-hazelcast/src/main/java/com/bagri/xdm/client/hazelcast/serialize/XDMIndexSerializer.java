@@ -3,6 +3,8 @@ package com.bagri.xdm.client.hazelcast.serialize;
 import java.io.IOException;
 import java.util.Date;
 
+import javax.xml.namespace.QName;
+
 import com.bagri.xdm.system.XDMIndex;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
@@ -26,7 +28,7 @@ public class XDMIndexSerializer extends XDMEntitySerializer implements StreamSer
 				in.readUTF(),
 				in.readUTF(),
 				in.readUTF(),
-				in.readUTF(),
+				QName.valueOf(in.readUTF()),
 				in.readBoolean(),
 				in.readBoolean(),
 				in.readBoolean(),
@@ -43,7 +45,7 @@ public class XDMIndexSerializer extends XDMEntitySerializer implements StreamSer
 		out.writeUTF(xIndex.getDocumentType());
 		out.writeUTF(xIndex.getTypePath());
 		out.writeUTF(xIndex.getPath());
-		out.writeUTF(xIndex.getDataType());
+		out.writeUTF(xIndex.getDataType().toString());
 		out.writeBoolean(xIndex.isCaseSensitive());
 		out.writeBoolean(xIndex.isRange());
 		out.writeBoolean(xIndex.isUnique());

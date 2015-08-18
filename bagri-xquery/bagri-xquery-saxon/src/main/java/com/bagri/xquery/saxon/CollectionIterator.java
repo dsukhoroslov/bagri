@@ -1,6 +1,6 @@
 package com.bagri.xquery.saxon;
 
-import static com.bagri.xqj.BagriXQConstants.bg_schema;
+import static com.bagri.xdm.common.XDMConstants.bg_schema;
 
 import java.util.ArrayList;
 import java.util.Collection;

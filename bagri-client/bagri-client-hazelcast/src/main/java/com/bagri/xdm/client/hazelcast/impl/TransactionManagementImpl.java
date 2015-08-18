@@ -38,7 +38,7 @@ public class TransactionManagementImpl implements XDMTransactionManagement {
 	
 	public void setTransactionTimeout(long timeout) throws XDMException {
 		if (timeout < 0) {
-			throw new XDMException("negative timeout value is not supported");
+			throw new XDMException("negative timeout value is not supported", XDMException.ecTransaction);
 		}
 		this.txTimeout = timeout;
 	}
@@ -64,7 +64,7 @@ public class TransactionManagementImpl implements XDMTransactionManagement {
 			txId = future.get();
 		} catch (InterruptedException | ExecutionException ex) {
 			logger.error("beginTransaction; error getting result", ex);
-			throw new XDMException(ex);
+			throw new XDMException(ex, XDMException.ecTransaction);
 		}
 		logger.trace("beginTransaction.exit; returnig txId: {}", txId); 
 		return txId;
@@ -87,7 +87,7 @@ public class TransactionManagementImpl implements XDMTransactionManagement {
 			this.txId = 0;
 		} catch (InterruptedException | ExecutionException ex) {
 			logger.error("commitTransaction; error getting result", ex);
-			throw new XDMException(ex);
+			throw new XDMException(ex, XDMException.ecTransaction);
 		}
 		logger.trace("commitTransaction.exit; commited: {}", result); 
 	}
@@ -109,7 +109,7 @@ public class TransactionManagementImpl implements XDMTransactionManagement {
 			this.txId = 0;
 		} catch (InterruptedException | ExecutionException ex) {
 			logger.error("rollbackTransaction; error getting result", ex);
-			throw new XDMException(ex);
+			throw new XDMException(ex, XDMException.ecTransaction);
 		}
 		logger.trace("rollbackTransaction.exit; rolled back: {}", result); 
 	}

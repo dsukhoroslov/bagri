@@ -35,16 +35,19 @@ public abstract class XDMModelManagementTest extends XDMManagementTest {
 	//	mDictionary.registerSchema(schema);
 	//}
 	
-	public Collection<XDMPath> getSecurityPath() {
-		String prefix = getModelManagement().getNamespacePrefix("http://tpox-benchmark.com/security"); 
-		int docType = getModelManagement().getDocumentType("/" + prefix + ":Security");
+	protected Collection<XDMPath> getPath(String namespace, String template) {
+		String prefix = getModelManagement().getNamespacePrefix(namespace);
+		String path = String.format(template, prefix);
+		int docType = getModelManagement().getDocumentType(path);
 		return getModelManagement().getTypePaths(docType);
 	}
 	
+	public Collection<XDMPath> getSecurityPath() {
+		return getPath("http://tpox-benchmark.com/security", "/%s:Security");
+	}
+	
 	public Collection<XDMPath> getCustomerPath() {
-		String prefix = getModelManagement().getNamespacePrefix("http://tpox-benchmark.com/custacc"); 
-		int docType = getModelManagement().getDocumentType("/" + prefix + ":Customer");
-		return getModelManagement().getTypePaths(docType);
+		return getPath("http://tpox-benchmark.com/custacc", "/%s:Customer");
 	}
 
 	@Test

@@ -7,7 +7,9 @@ import java.util.Stack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMModelManagement;
+import com.bagri.xdm.domain.XDMCardinality;
 import com.bagri.xdm.domain.XDMData;
 import com.bagri.xdm.domain.XDMElement;
 import com.bagri.xdm.domain.XDMNodeKind;
@@ -27,14 +29,14 @@ public abstract class XDMDataParser {
 		this.dict = dict;
 	}
 	
-	protected XDMData addData(XDMData parent, XDMNodeKind kind, String name, String value) {
+	protected XDMData addData(XDMData parent, XDMNodeKind kind, String name, String value, int dataType, XDMCardinality cardinality) throws XDMException {
 		logger.trace("addData.enter; name: {}; kind: {}; value: {}; parent: {}", name, kind, value, parent);
 		XDMElement xElt = new XDMElement();
 		xElt.setElementId(elementId++);
 		xElt.setParentId(parent.getElementId());
 		String path = parent.getPath() + name;
 		xElt.setValue(value);
-		XDMPath xPath = dict.translatePath(docType, path, kind);
+		XDMPath xPath = dict.translatePath(docType, path, kind, dataType, cardinality);
 		XDMData xData = new XDMData(xPath, xElt);
 		dataList.add(xData);
 		return xData;

@@ -1,7 +1,7 @@
 package com.bagri.xquery.saxon.extension;
 
-import static com.bagri.xqj.BagriXQConstants.bg_ns;
-import static com.bagri.xqj.BagriXQConstants.bg_schema;
+import static com.bagri.xdm.common.XDMConstants.bg_ns;
+import static com.bagri.xdm.common.XDMConstants.bg_schema;
 import net.sf.saxon.lib.ExtensionFunctionDefinition;
 import net.sf.saxon.om.StructuredQName;
 

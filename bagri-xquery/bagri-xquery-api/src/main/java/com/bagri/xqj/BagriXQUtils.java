@@ -1,7 +1,7 @@
 package com.bagri.xqj;
 
-import static com.bagri.xqj.BagriXQConstants.xs_ns;
-import static com.bagri.xqj.BagriXQConstants.xs_prefix;
+import static com.bagri.xdm.common.XDMConstants.xs_ns;
+import static com.bagri.xdm.common.XDMConstants.xs_prefix;
 import static javax.xml.xquery.XQItemType.XQBASETYPE_ANYATOMICTYPE;
 import static javax.xml.xquery.XQItemType.XQBASETYPE_ANYSIMPLETYPE;
 import static javax.xml.xquery.XQItemType.XQBASETYPE_ANYTYPE;
@@ -127,7 +127,7 @@ public class BagriXQUtils {
     		case XQBASETYPE_NAME: return new QName(xs_ns, "Name", xs_prefix);
     		case XQBASETYPE_NCNAME: return new QName(xs_ns, "NCName", xs_prefix);
     		case XQBASETYPE_NEGATIVE_INTEGER: return new QName(xs_ns, "negativeInteger", xs_prefix);
-    		case XQBASETYPE_NMTOKEN: return new QName(xs_ns, "NMToken", xs_prefix);
+    		case XQBASETYPE_NMTOKEN: return new QName(xs_ns, "NMTOKEN", xs_prefix);
     		case XQBASETYPE_NMTOKENS: return new QName(xs_ns, "NMTOKENS", xs_prefix);
     		case XQBASETYPE_NONNEGATIVE_INTEGER: return new QName(xs_ns, "nonNegativeInteger", xs_prefix);
     		case XQBASETYPE_NONPOSITIVE_INTEGER: return new QName(xs_ns, "nonPositiveInteger", xs_prefix);
@@ -149,7 +149,67 @@ public class BagriXQUtils {
     	}
     	return null;
     }
-        
+
+	public static int getBaseTypeForTypeName(QName typeName) {
+		if (xs_ns.equals(typeName.getNamespaceURI())) {
+			switch (typeName.getLocalPart()) {
+				case "anyAtomicType": return XQBASETYPE_ANYATOMICTYPE;
+				case "anySimpleType": return XQBASETYPE_ANYSIMPLETYPE;
+				case "anyType": return XQBASETYPE_ANYTYPE;
+				case "anyURI": return XQBASETYPE_ANYURI;
+				case "base64Binary": return XQBASETYPE_BASE64BINARY;
+				case "boolean": return XQBASETYPE_BOOLEAN;
+				case "byte": return XQBASETYPE_BYTE;
+				case "date": return XQBASETYPE_DATE;
+				case "dateTime": return XQBASETYPE_DATETIME; 
+	    		case "dayTimeDuration": return XQBASETYPE_DAYTIMEDURATION;
+	    		case "decimal": return XQBASETYPE_DECIMAL;
+	    		case "double": return XQBASETYPE_DOUBLE;
+	    		case "duration": return XQBASETYPE_DURATION;
+	    		case "ENTITIES": return XQBASETYPE_ENTITIES;
+	    		case "ENTITY": return XQBASETYPE_ENTITY;
+	    		case "float": return XQBASETYPE_FLOAT;
+	    		case "gDay": return XQBASETYPE_GDAY;
+	    		case "gMonth": return XQBASETYPE_GMONTH;
+	    		case "gMonthDay": return XQBASETYPE_GMONTHDAY;
+	    		case "gYear": return XQBASETYPE_GYEAR;
+	    		case "gYearMonth": return XQBASETYPE_GYEARMONTH;
+	    		case "hexBinary": return XQBASETYPE_HEXBINARY;
+	    		case "ID": return XQBASETYPE_ID;
+	    		case "IDREF": return XQBASETYPE_IDREF;
+	    		case "IDREFS": return XQBASETYPE_IDREFS;
+	    		case "int": return XQBASETYPE_INT;
+	    		case "integer": return XQBASETYPE_INTEGER;
+	    		case "language": return XQBASETYPE_LANGUAGE;
+	    		case "long": return XQBASETYPE_LONG;
+	    		case "Name": return XQBASETYPE_NAME;
+	    		case "NCName": return XQBASETYPE_NCNAME;
+	    		case "negativeInteger": return XQBASETYPE_NEGATIVE_INTEGER;
+	    		case "NMTOKEN": return XQBASETYPE_NMTOKEN;
+	    		case "NMTOKENS": return XQBASETYPE_NMTOKENS;
+	    		case "nonNegativeInteger": return XQBASETYPE_NONNEGATIVE_INTEGER;
+	    		case "nonPositiveInteger": return XQBASETYPE_NONPOSITIVE_INTEGER;
+	    		case "normalizedString": return XQBASETYPE_NORMALIZED_STRING;
+	    		case "NOTATION": return XQBASETYPE_NOTATION;
+	    		case "positiveInteger": return XQBASETYPE_POSITIVE_INTEGER;
+	    		case "QName": return XQBASETYPE_QNAME;
+	    		case "short": return XQBASETYPE_SHORT;
+	    		case "string": return XQBASETYPE_STRING;
+	    		case "time": return XQBASETYPE_TIME;
+	    		case "token": return XQBASETYPE_TOKEN;
+	    		case "unsignedByte": return XQBASETYPE_UNSIGNED_BYTE;
+	    		case "unsignedInt": return XQBASETYPE_UNSIGNED_INT;
+	    		case "unsignedLong": return XQBASETYPE_UNSIGNED_LONG;
+	    		case "unsignedShort": return XQBASETYPE_UNSIGNED_SHORT;
+	    		case "untyped": return XQBASETYPE_UNTYPED;
+	    		case "untypedAtomic": return XQBASETYPE_UNTYPEDATOMIC;
+	    		case "yearMonthDuration": return XQBASETYPE_YEARMONTHDURATION;
+			}
+			return XQBASETYPE_STRING;
+		}
+		return XQBASETYPE_ANYTYPE;
+	}
+    
     public static boolean isAtomicType(int type) {
     	return type >= XQBASETYPE_ANYATOMICTYPE && type <= XQBASETYPE_ENTITY; 
     }
@@ -418,52 +478,6 @@ public class BagriXQUtils {
 		}
 
 		return factory.createAtomicType(baseType, getTypeName(baseType), null);
-/*		
-	    public static final int 	XQBASETYPE_UNTYPED 	1
-	    public static final int 	XQBASETYPE_ANYTYPE 	2
-	    public static final int 	XQBASETYPE_ANYSIMPLETYPE 	3
-
-	    public static final int 	XQBASETYPE_ANYATOMICTYPE 	4
-	    public static final int 	XQBASETYPE_UNTYPEDATOMIC 	5
-	    public static final int 	XQBASETYPE_DAYTIMEDURATION 	6
-	    public static final int 	XQBASETYPE_YEARMONTHDURATION 	7
-	    public static final int 	XQBASETYPE_ANYURI 	8
-	    public static final int 	XQBASETYPE_BASE64BINARY 	9
-	    public static final int 	XQBASETYPE_DATE 	11
-	    public static final int 	XQBASETYPE_DATETIME 	16
-	    public static final int 	XQBASETYPE_DECIMAL 	17
-	    public static final int 	XQBASETYPE_DURATION 	19
-	    public static final int 	XQBASETYPE_GDAY 	21
-	    public static final int 	XQBASETYPE_GMONTH 	22
-	    public static final int 	XQBASETYPE_GMONTHDAY 	23
-	    public static final int 	XQBASETYPE_GYEAR 	24
-	    public static final int 	XQBASETYPE_GYEARMONTH 	25
-	    public static final int 	XQBASETYPE_HEXBINARY 	26
-	    public static final int 	XQBASETYPE_NOTATION 	27
-	    public static final int 	XQBASETYPE_QNAME 	28
-	    public static final int 	XQBASETYPE_TIME 	30
-	    public static final int 	XQBASETYPE_NONPOSITIVE_INTEGER 	32
-	    public static final int 	XQBASETYPE_NONNEGATIVE_INTEGER 	33
-	    public static final int 	XQBASETYPE_NEGATIVE_INTEGER 	34
-	    public static final int 	XQBASETYPE_POSITIVE_INTEGER 	35
-	    public static final int 	XQBASETYPE_UNSIGNED_LONG 	36
-	    public static final int 	XQBASETYPE_UNSIGNED_INT 	37
-	    public static final int 	XQBASETYPE_UNSIGNED_SHORT 	38
-	    public static final int 	XQBASETYPE_UNSIGNED_BYTE 	39
-	    public static final int 	XQBASETYPE_NORMALIZED_STRING 	40
-	    public static final int 	XQBASETYPE_TOKEN 	41
-	    public static final int 	XQBASETYPE_LANGUAGE 	42
-	    public static final int 	XQBASETYPE_NAME 	43
-	    public static final int 	XQBASETYPE_NCNAME 	44
-	    public static final int 	XQBASETYPE_NMTOKEN 	45
-	    public static final int 	XQBASETYPE_ID 	46
-	    public static final int 	XQBASETYPE_IDREF 	47
-	    public static final int 	XQBASETYPE_ENTITY 	48
-	    
-	    public static final int 	XQBASETYPE_IDREFS 	49
-	    public static final int 	XQBASETYPE_ENTITIES 	50
-	    public static final int 	XQBASETYPE_NMTOKENS 	51
-*/		
 	}
 
     
@@ -527,5 +541,5 @@ public class BagriXQUtils {
 				return factory.createNodeType();
 		}
 	}
-	
+
 }

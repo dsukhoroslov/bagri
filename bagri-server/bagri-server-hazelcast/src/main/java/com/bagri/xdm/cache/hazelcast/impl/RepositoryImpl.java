@@ -162,7 +162,11 @@ public class RepositoryImpl extends XDMRepositoryBase implements ApplicationCont
 		Set<XDMIndex> indexes = xdmSchema.getIndexes();
 		if (indexes.size() > 0) {
 			for (XDMIndex idx: indexes) {
-				indexMgr.createIndex(idx);
+				try {
+					indexMgr.createIndex(idx);
+				} catch (XDMException ex) {
+					logger.warn("afterInit.error; index: " + idx, ex);
+				}
 			}
 		}
 		
@@ -178,7 +182,14 @@ public class RepositoryImpl extends XDMRepositoryBase implements ApplicationCont
 	public boolean addSchemaIndex(XDMIndex index) {
 		
 		if (xdmSchema.addIndex(index)) {
-			XDMPath[] paths = indexMgr.createIndex(index);
+			XDMPath[] paths;
+			try {
+				paths = indexMgr.createIndex(index);
+			} catch (XDMException ex) {
+				logger.warn("addSchemaIndex.error; index: " + index, ex);
+				return false;
+			}
+			
 			DocumentManagementImpl docMgr = (DocumentManagementImpl) getDocumentManagement();
 			int cnt = 0;
 			for (XDMPath xPath: paths) {
@@ -188,7 +199,7 @@ public class RepositoryImpl extends XDMRepositoryBase implements ApplicationCont
 					logger.warn("addSchemaIndex.error; index: " + index, ex);
 				}
 			}
-			return cnt > 0;
+			return paths.length > 0;
 		}
 		logger.info("addSchemaIndex; index {} already exists! do we need to index values?", index);
 		return false;
@@ -198,7 +209,14 @@ public class RepositoryImpl extends XDMRepositoryBase implements ApplicationCont
 		
 		XDMIndex index = xdmSchema.removeIndex(name);
 		if (index != null) {
-			XDMPath[] paths = indexMgr.deleteIndex(index);
+			XDMPath[] paths;
+			try {
+				paths = indexMgr.deleteIndex(index);
+			} catch (XDMException ex) {
+				logger.warn("addSchemaIndex.error; index: " + index, ex);
+				return false;
+			}
+			
 			DocumentManagementImpl docMgr = (DocumentManagementImpl) getDocumentManagement();
 			int cnt = 0;
 			for (XDMPath xPath: paths) {

@@ -35,9 +35,9 @@ import com.bagri.xdm.api.XDMException;
 //import com.bagri.xdm.api.XDMQueryManagement;
 import com.bagri.xdm.api.XDMRepository;
 import com.bagri.xdm.cache.api.XDMQueryManagement;
+import com.bagri.xdm.common.XDMConstants;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMQuery;
-import com.bagri.xqj.BagriXQConstants;
 import com.bagri.xquery.api.XQProcessor;
 
 public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
@@ -174,7 +174,7 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 
 		        cacheable = true; 
 	    	    // HOWTO: distinguish a query from command utilizing external function (store, remove)?
-		        readOnly = !xqExp.getExpression().getExpressionName().startsWith(BagriXQConstants.bg_schema);
+		        readOnly = !xqExp.getExpression().getExpressionName().startsWith(XDMConstants.bg_schema);
 
 	        	bcr.setExpression(xqExp);
 	        	bcr.setQuery(null);
@@ -226,6 +226,8 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 	            			xpe.getLocator().getLineNumber(), xpe.getLocator().getColumnNumber(), 0);
 	            	}
         		}
+        	} else if (ex instanceof XDMException) {
+        		xqe = new XQException(ex.getMessage(), String.valueOf(((XDMException) ex).getErrorCode()));
         	} else {
         		xqe = new XQException(ex.getMessage());
         	}

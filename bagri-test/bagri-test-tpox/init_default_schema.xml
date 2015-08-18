@@ -51,6 +51,17 @@
 	    </argument>
 	</arguments>
     </invoke-->
+    <!--invoke>
+        <mbean>com.bagri.xdm:type=Schema,name=default,kind=ModelManagement</mbean>
+        <method>registerSchema</method>
+        <arguments>
+            <argument index="0">
+                <type>java.lang.String</type>
+                <value>../../etc/samples/tpox/security.xsd</value>
+            </argument>
+        </arguments>
+    </invoke>
+    <delay>5000</delay-->
     <invoke>
 	<mbean>com.bagri.xdm:type=Schema,name=default,kind=IndexManagement</mbean>
 	<method>addIndex</method>
@@ -89,16 +100,81 @@
 	    </argument>
 	</arguments>
     </invoke>
-    <delay>5000</delay>
     <invoke>
-        <mbean>com.bagri.xdm:type=Schema,name=default,kind=ModelManagement</mbean>
-        <method>registerSchema</method>
-        <arguments>
-            <argument index="0">
-                <type>java.lang.String</type>
-                <value>../../etc/samples/tpox/security.xsd</value>
-            </argument>
-        </arguments>
+	<mbean>com.bagri.xdm:type=Schema,name=default,kind=IndexManagement</mbean>
+	<method>addIndex</method>
+	<arguments>
+	    <argument index="0">
+		<type>java.lang.String</type>
+		<value>IDX_Security_Sector</value>
+	    </argument>
+	    <argument index="1">
+		<type>java.lang.String</type>
+		<value>/{http://tpox-benchmark.com/security}Security</value>
+	    </argument>
+	    <argument index="2">
+		<type>java.lang.String</type>
+		<value>/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}SecurityInformation/*/{http://tpox-benchmark.com/security}Sector/text()</value>
+	    </argument>
+	    <argument index="3">
+		<type>java.lang.String</type>
+		<value>xs:string</value>
+	    </argument>
+	    <argument index="4">
+		<type>boolean</type>
+		<value>true</value>
+	    </argument>
+	    <argument index="5">
+		<type>boolean</type>
+		<value>false</value>
+	    </argument>
+	    <argument index="6">
+		<type>boolean</type>
+		<value>false</value>
+	    </argument>
+	    <argument index="7">
+		<type>java.lang.String</type>
+		<value>Security Sector</value>
+	    </argument>
+	</arguments>
+    </invoke>
+    <invoke>
+	<mbean>com.bagri.xdm:type=Schema,name=default,kind=IndexManagement</mbean>
+	<method>addIndex</method>
+	<arguments>
+	    <argument index="0">
+		<type>java.lang.String</type>
+		<value>IDX_Security_Yield</value>
+	    </argument>
+	    <argument index="1">
+		<type>java.lang.String</type>
+		<value>/{http://tpox-benchmark.com/security}Security</value>
+	    </argument>
+	    <argument index="2">
+		<type>java.lang.String</type>
+		<value>/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}Yield/text()</value>
+	    </argument>
+	    <argument index="3">
+		<type>java.lang.String</type>
+		<value>xs:float</value>
+	    </argument>
+	    <argument index="4">
+		<type>boolean</type>
+		<value>false</value>
+	    </argument>
+	    <argument index="5">
+		<type>boolean</type>
+		<value>true</value>
+	    </argument>
+	    <argument index="6">
+		<type>boolean</type>
+		<value>false</value>
+	    </argument>
+	    <argument index="7">
+		<type>java.lang.String</type>
+		<value>Security Yield</value>
+	    </argument>
+	</arguments>
     </invoke>
     <!--invoke>
 	<mbean>com.bagri.xdm:type=Schema,name=default,kind=IndexManagement</mbean>
@@ -138,8 +214,8 @@
 	    </argument>
 	</arguments>
     </invoke-->
-    <!--delay>5000</delay>
-    <invoke>
+    <delay>3000</delay>
+    <!--invoke>
 	<mbean>com.bagri.xdm:type=Schema,name=default,kind=TriggerManagement</mbean>
 	<method>addJavaTrigger</method>
 	<arguments>

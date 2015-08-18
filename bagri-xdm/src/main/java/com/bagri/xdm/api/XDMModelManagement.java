@@ -3,6 +3,7 @@ package com.bagri.xdm.api;
 import java.util.Collection;
 import java.util.Set;
 
+import com.bagri.xdm.domain.XDMCardinality;
 import com.bagri.xdm.domain.XDMNodeKind;
 import com.bagri.xdm.domain.XDMPath;
 
@@ -48,8 +49,9 @@ public interface XDMModelManagement {
 	 * to int pathId;
 	 * 
 	 * registers new pathId if it is not registered yet;  
+	 * @throws XDMException 
 	 */
-	XDMPath translatePath(int typeId, String path, XDMNodeKind kind);
+	XDMPath translatePath(int typeId, String path, XDMNodeKind kind, int dataType, XDMCardinality cardinality) throws XDMException;
 	
 	/**
 	 * translates regex expression like "^/ns0:Security/ns0:SecurityInformation/.(*)/ns0:Sector/text\\(\\)$";
@@ -69,6 +71,13 @@ public interface XDMModelManagement {
 	 */
 	Set<Integer> getPathElements(int typeId, String root);
 	
+	/**
+	 * search for registered full node path like "/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}Name/text()"
+	 * 
+	 * returns found XDMPath, false otherwise  
+	 */
+	XDMPath getPath(String path); 
+
 	/**
 	 * return XDM path instance by pathId provided;
 	 * 
@@ -106,7 +115,7 @@ public interface XDMModelManagement {
 	 * 
 	 * @param typeId
 	 */
-	void normalizeDocumentType(int typeId);
+	void normalizeDocumentType(int typeId) throws XDMException;
 
 	void registerSchema(String schema) throws XDMException;
 	void registerSchemaUri(String schemaUri) throws XDMException;

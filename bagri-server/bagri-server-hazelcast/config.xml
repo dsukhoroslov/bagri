@@ -174,6 +174,7 @@
                     <createdBy>SDV</createdBy>
                     <docType>/{http://tpox-benchmark.com/custacc}Customer</docType>
                     <path>/{http://tpox-benchmark.com/custacc}Customer/@id</path>
+                    <dataType xmlns:xs="http://www.w3.org/2001/XMLSchema">xs:string</dataType>
                     <unique>true</unique>
                     <description>Customer id</description>
                     <enabled>true</enabled>
@@ -184,6 +185,7 @@
                     <createdBy>SDV</createdBy>
                     <docType>/{http://tpox-benchmark.com/security}Security</docType>
                     <path>/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}Symbol/text()</path>
+                    <dataType xmlns:xs="http://www.w3.org/2001/XMLSchema">xs:string</dataType>
                     <unique>true</unique>
                     <description>Security Symbol</description>
                     <enabled>true</enabled>
@@ -194,6 +196,7 @@
                     <createdBy>SDV</createdBy>
                     <docType>/{http://www.fixprotocol.org/FIXML-4-4}FIXML</docType>
                     <path>/{http://www.fixprotocol.org/FIXML-4-4}FIXML/{http://www.fixprotocol.org/FIXML-4-4}Order/@ID</path>
+                    <dataType xmlns:xs="http://www.w3.org/2001/XMLSchema">xs:string</dataType>
                     <unique>true</unique>
                     <description>Order ID</description>
                     <enabled>true</enabled>
@@ -249,23 +252,24 @@
                 <entry name="xqj.schema.constructionMode">1</entry>
             </properties>
             <indexes>
-                <index name="IDX_Customer_id">
+                <!--index name="IDX_Customer_id">
                     <version>1</version>
                     <createdAt>2015-01-25T13:36:26.965+03:00</createdAt>
                     <createdBy>SDV</createdBy>
                     <docType>/{http://tpox-benchmark.com/custacc}Customer</docType>
                     <path>/{http://tpox-benchmark.com/custacc}Customer/@id</path>
-		    <dataType>xs:integer</dataType>
+                    <dataType xmlns:xs="http://www.w3.org/2001/XMLSchema">xs:integer</dataType>
                     <unique>true</unique>
                     <description>Customer id</description>
                     <enabled>false</enabled>
-                </index>
+                </index-->
                 <index name="IDX_Security_Symbol">
                     <version>1</version>
                     <createdAt>2015-01-25T13:36:26.965+03:00</createdAt>
                     <createdBy>SDV</createdBy>
                     <docType>/{http://tpox-benchmark.com/security}Security</docType>
                     <path>/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}Symbol/text()</path>
+                    <dataType xmlns:xs="http://www.w3.org/2001/XMLSchema">xs:string</dataType>
                     <unique>true</unique>
                     <description>Security Symbol</description>
                     <enabled>true</enabled>
@@ -276,6 +280,7 @@
                     <createdBy>SDV</createdBy>
                     <docType>/{http://tpox-benchmark.com/security}Security</docType>
                     <path>/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}SecurityInformation/*/{http://tpox-benchmark.com/security}Sector/text()</path>
+                    <dataType xmlns:xs="http://www.w3.org/2001/XMLSchema">xs:string</dataType>
                     <unique>false</unique>
                     <description>Security Sector</description>
                     <enabled>true</enabled>
@@ -286,7 +291,7 @@
                     <createdBy>SDV</createdBy>
                     <docType>/{http://tpox-benchmark.com/security}Security</docType>
                     <path>/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}PE/text()</path>
-		    <dataType>xs:float</dataType>
+                    <dataType xmlns:xs="http://www.w3.org/2001/XMLSchema">xs:float</dataType>
                     <range>true</range>
                     <unique>false</unique>
                     <description>Security PE</description>
@@ -298,23 +303,23 @@
                     <createdBy>SDV</createdBy>
                     <docType>/{http://tpox-benchmark.com/security}Security</docType>
                     <path>/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}Yield/text()</path>
-		    <dataType>xs:float</dataType>
+                    <dataType xmlns:xs="http://www.w3.org/2001/XMLSchema">xs:float</dataType>
                     <range>true</range>
                     <unique>false</unique>
                     <description>Security Yield</description>
                     <enabled>true</enabled>
                 </index>
-                <index name="IDX_Order_ID">
+                <!--index name="IDX_Order_ID">
                     <version>1</version>
                     <createdAt>2015-01-25T13:36:26.965+03:00</createdAt>
                     <createdBy>SDV</createdBy>
                     <docType>/{http://www.fixprotocol.org/FIXML-4-4}FIXML</docType>
                     <path>/{http://www.fixprotocol.org/FIXML-4-4}FIXML/{http://www.fixprotocol.org/FIXML-4-4}Order/@ID</path>
-		    <dataType>xs:int</dataType>
+                    <dataType xmlns:xs="http://www.w3.org/2001/XMLSchema">xs:int</dataType>
                     <unique>true</unique>
                     <description>Order ID</description>
                     <enabled>false</enabled>
-                </index>
+                </index-->
             </indexes>
             <triggers>
                 <!--trigger xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns2:javatrigger">

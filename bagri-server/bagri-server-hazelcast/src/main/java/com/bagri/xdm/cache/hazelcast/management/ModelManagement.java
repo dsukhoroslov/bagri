@@ -18,6 +18,8 @@ import com.bagri.xdm.domain.XDMDocumentType;
 import com.bagri.xdm.domain.XDMNamespace;
 import com.bagri.xdm.domain.XDMPath;
 
+import static com.bagri.xqj.BagriXQUtils.getTypeName;
+
 @ManagedResource(description="Model Management MBean")
 public class ModelManagement extends SchemaFeatureManagement {
 
@@ -63,7 +65,7 @@ public class ModelManagement extends SchemaFeatureManagement {
 		int idx = 0;
 		for (XDMPath path: paths) {
 			result[idx++] = "" + path.getPathId() + ": " + path.getPath() + 
-					" (" + path.getNodeKind() + ")";
+					" (" + path.getNodeKind() + ":" + getTypeName(path.getDataType()) + ")";
 		}
 		return result;
 	}
@@ -92,8 +94,13 @@ public class ModelManagement extends SchemaFeatureManagement {
 		@ManagedOperationParameter(name = "schemaCatalog", description = "A full path to the directory containing XSD files to register")})
 	public int registerSchemas(String schemasCatalog) {
 		int size = ((XDMModelManagementBase) modelMgr).getDocumentTypes().size(); 
-		((XDMModelManagementBase) modelMgr).registerSchemas(schemasCatalog);
-		return ((XDMModelManagementBase) modelMgr).getDocumentTypes().size() - size;
+		try {
+			((XDMModelManagementBase) modelMgr).registerSchemas(schemasCatalog);
+			return ((XDMModelManagementBase) modelMgr).getDocumentTypes().size() - size;
+		} catch (XDMException ex) {
+			logger.error("registerSchemas.error:", ex);
+		}
+		return 0;
 	}
 	
 	

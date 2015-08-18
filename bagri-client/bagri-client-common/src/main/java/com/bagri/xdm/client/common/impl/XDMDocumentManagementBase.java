@@ -39,7 +39,7 @@ public abstract class XDMDocumentManagementBase {
 			try {
 				return new ByteArrayInputStream(xml.getBytes(def_encoding));
 			} catch (UnsupportedEncodingException ex) {
-				throw new XDMException(ex);
+				throw new XDMException(ex, XDMException.ecInOut);
 			}
 		}
 		return null;
@@ -51,7 +51,7 @@ public abstract class XDMDocumentManagementBase {
 			return storeDocumentFromString(docId, uri, xml);
 		} catch (IOException ex) {
 			logger.error("storeDocumentFromSource.error; " + ex.getMessage(), ex);
-			throw new XDMException(ex);
+			throw new XDMException(ex, XDMException.ecInOut);
 		}
 	}
 	
@@ -60,7 +60,7 @@ public abstract class XDMDocumentManagementBase {
 			String xml = XMLUtils.textToString(stream);
 			return storeDocumentFromString(docId, uri, xml);
 		} catch (IOException ex) {
-			throw new XDMException(ex);
+			throw new XDMException(ex, XDMException.ecInOut);
 		}
 	}
 

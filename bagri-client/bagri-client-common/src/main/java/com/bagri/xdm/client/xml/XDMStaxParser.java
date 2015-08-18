@@ -24,12 +24,15 @@ import javax.xml.stream.events.StartDocument;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 import javax.xml.transform.Source;
+import javax.xml.xquery.XQItemType;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.client.parser.XDMDataParser;
+import com.bagri.xdm.domain.XDMCardinality;
 import com.bagri.xdm.domain.XDMData;
 import com.bagri.xdm.domain.XDMElement;
 import com.bagri.xdm.domain.XDMNodeKind;
@@ -43,7 +46,7 @@ public class XDMStaxParser extends XDMDataParser implements XDMParser {
 	private StringBuilder chars;
 	private List<XMLEvent> firstEvents;
 
-	public static List<XDMData> parseDocument(XDMModelManagement dictionary, String xml) throws IOException, XMLStreamException {
+	public static List<XDMData> parseDocument(XDMModelManagement dictionary, String xml) throws IOException, XMLStreamException, XDMException {
 		XDMStaxParser parser = new XDMStaxParser(dictionary);
 		return parser.parse(xml);
 	}
@@ -53,21 +56,21 @@ public class XDMStaxParser extends XDMDataParser implements XDMParser {
 	}
 
 	@Override
-	public List<XDMData> parse(String xml) throws IOException {
+	public List<XDMData> parse(String xml) throws IOException, XDMException {
 		try (Reader reader = new StringReader(xml)) {
 			return parse(reader);
 		}
 	}
 	
 	@Override
-	public List<XDMData> parse(File file) throws IOException {
+	public List<XDMData> parse(File file) throws IOException, XDMException {
 		try (Reader reader = new FileReader(file)) {
 			return parse(reader);
 		}
 	}
 	
 	@Override
-	public List<XDMData> parse(InputStream stream) throws IOException {
+	public List<XDMData> parse(InputStream stream) throws IOException, XDMException {
 		
 		XMLEventReader eventReader = null;
 		try {
@@ -85,7 +88,7 @@ public class XDMStaxParser extends XDMDataParser implements XDMParser {
 	}
 	
 	@Override
-	public List<XDMData> parse(Reader reader) throws IOException {
+	public List<XDMData> parse(Reader reader) throws IOException, XDMException {
 		
 		XMLEventReader eventReader = null;
 		try {
@@ -102,7 +105,7 @@ public class XDMStaxParser extends XDMDataParser implements XDMParser {
 		}
 	}
 	
-	public List<XDMData> parse(Source source) throws IOException {
+	public List<XDMData> parse(Source source) throws IOException, XDMException {
 		
 		XMLEventReader eventReader = null;
 		try {
@@ -119,7 +122,7 @@ public class XDMStaxParser extends XDMDataParser implements XDMParser {
 		}
 	}
 	
-	public List<XDMData> parse(XMLEventReader eventReader) throws IOException {
+	public List<XDMData> parse(XMLEventReader eventReader) throws IOException, XDMException {
 		
 		init();
 		while (eventReader.hasNext()) {
@@ -136,7 +139,7 @@ public class XDMStaxParser extends XDMDataParser implements XDMParser {
 		return result;
 	}
 	
-	private void processEvent(XMLEvent xmlEvent) {
+	private void processEvent(XMLEvent xmlEvent) throws XDMException {
 		
 		//logger.trace("event: {}; type: {}; docType: {}", xmlEvent, xmlEvent.getEventType(), docType);
 		if (docType < 0) {
@@ -192,40 +195,40 @@ public class XDMStaxParser extends XDMDataParser implements XDMParser {
 		chars = new StringBuilder();
 	}
 	
-	private void processDocument(StartDocument document) {
+	private void processDocument(StartDocument document) throws XDMException {
 
 		//logger.trace("document: {}", document);
 		XDMElement start = new XDMElement();
 		start.setElementId(elementId++);
 		//start.setParentId(0); // -1 ?
-		XDMPath path = dict.translatePath(docType, "", XDMNodeKind.document);
+		XDMPath path = dict.translatePath(docType, "", XDMNodeKind.document, XQItemType.XQBASETYPE_ANYTYPE, XDMCardinality.onlyOne);
 		XDMData data = new XDMData(path, start);
 		dataStack.add(data);
 		dataList.add(data);
 	}
 
 	@SuppressWarnings("unchecked")
-	private void processStartElement(StartElement element) {
+	private void processStartElement(StartElement element) throws XDMException {
 		
 		XDMData parent = dataStack.peek();
-		XDMData current = addData(parent, XDMNodeKind.element, "/" + element.getName(), null); 
+		XDMData current = addData(parent, XDMNodeKind.element, "/" + element.getName(), null, XQItemType.XQBASETYPE_ANYTYPE, XDMCardinality.zeroOrOne); 
 		dataStack.add(current);
 
 		for (Iterator<Namespace> itr = element.getNamespaces(); itr.hasNext();) {
 			Namespace ns = itr.next();
 			// TODO: process default namespace properly
 			String prefix = dict.translateNamespace(ns.getValue(), ns.getName().getLocalPart());
-			addData(current, XDMNodeKind.namespace, "/#" + prefix, ns.getValue()); 
+			addData(current, XDMNodeKind.namespace, "/#" + prefix, ns.getValue(), XQItemType.XQBASETYPE_QNAME, XDMCardinality.onlyOne); 
 		}
 
 		for (Iterator<Attribute> itr = element.getAttributes(); itr.hasNext();) {
 			Attribute a = itr.next();
 			// TODO: process additional (not registered yet) namespaces properly
-			addData(current, XDMNodeKind.attribute, "/@" + a.getName(), a.getValue()); //.trim());
+			addData(current, XDMNodeKind.attribute, "/@" + a.getName(), a.getValue(), XQItemType.XQBASETYPE_ANYATOMICTYPE, XDMCardinality.onlyOne); //.trim());
 		}
 	}
 
-	private void processEndElement(EndElement element) {
+	private void processEndElement(EndElement element) throws XDMException {
 
 		XDMData current = dataStack.pop();
 		if (chars.length() > 0) {
@@ -234,7 +237,7 @@ public class XDMStaxParser extends XDMDataParser implements XDMParser {
 			content = content.replaceAll("&", "&amp;");
 			// trim left/right ? this is schema-dependent. trim if schema-type 
 			// is xs:token, for instance..
-			XDMData text = addData(current, XDMNodeKind.text, "/text()", content); 
+			XDMData text = addData(current, XDMNodeKind.text, "/text()", content, XQItemType.XQBASETYPE_ANYATOMICTYPE, XDMCardinality.zeroOrOne); 
 			chars.delete(0, chars.length());
 			//logger.trace("text: {}", text);
 		}
@@ -247,10 +250,10 @@ public class XDMStaxParser extends XDMDataParser implements XDMParser {
 		}
 	}
 
-	private void processComment(Comment comment) {
+	private void processComment(Comment comment) throws XDMException {
 
 		//logger.trace("comment: {}", comment);
-		addData(dataStack.peek(), XDMNodeKind.comment, "/comment()", comment.getText());
+		addData(dataStack.peek(), XDMNodeKind.comment, "/comment()", comment.getText(), XQItemType.XQBASETYPE_ANYTYPE, XDMCardinality.zeroOrOne);
 	}
 
 	private void processAttribute(Attribute attribute) {
@@ -258,13 +261,13 @@ public class XDMStaxParser extends XDMDataParser implements XDMParser {
 		logger.trace("attribute: {}", attribute);
 	}
 
-	private void processPI(ProcessingInstruction pi) {
+	private void processPI(ProcessingInstruction pi) throws XDMException {
 
 		//For a processing-instruction node: processing-instruction(local)[position] where local is the name 
 		//of the processing instruction node and position is an integer representing the position of the selected 
 		//node among its like-named processing-instruction node siblings
 		
-		XDMData piData = addData(dataStack.peek(), XDMNodeKind.pi, "/?" + pi.getTarget(), pi.getData());
+		XDMData piData = addData(dataStack.peek(), XDMNodeKind.pi, "/?" + pi.getTarget(), pi.getData(), XQItemType.XQBASETYPE_ANYTYPE, XDMCardinality.zeroOrOne);
 		//logger.trace("piData: {}; target: {}", piData, pi.getTarget());
 	}
 

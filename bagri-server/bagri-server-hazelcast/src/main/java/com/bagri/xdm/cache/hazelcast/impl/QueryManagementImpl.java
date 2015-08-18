@@ -1,7 +1,7 @@
 package com.bagri.xdm.cache.hazelcast.impl;
 
 import static com.bagri.xdm.api.XDMTransactionManagement.TX_NO;
-import static com.bagri.xqj.BagriXQConstants.*;
+import static com.bagri.xdm.common.XDMConstants.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -17,6 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.xml.namespace.QName;
 import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQItem;
+import javax.xml.xquery.XQItemType;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +29,7 @@ import com.bagri.common.query.ExpressionBuilder;
 import com.bagri.common.query.ExpressionContainer;
 import com.bagri.common.query.PathExpression;
 import com.bagri.common.query.QueryBuilder;
+import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.cache.api.XDMQueryManagement;
 import com.bagri.xdm.cache.hazelcast.predicate.DocsAwarePredicate;
@@ -37,6 +39,7 @@ import com.bagri.xdm.client.hazelcast.impl.ResultCursor;
 import com.bagri.xdm.common.XDMDataKey;
 import com.bagri.xdm.common.XDMDocumentKey;
 import com.bagri.xdm.common.XDMResultsKey;
+import com.bagri.xdm.domain.XDMCardinality;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMElements;
 import com.bagri.xdm.domain.XDMNodeKind;
@@ -223,7 +226,7 @@ public class QueryManagementImpl implements XDMQueryManagement {
 		xQueries.clear();
 	}
 	
-	public Set<Long> queryKeys(Set<Long> found, ExpressionContainer ec, Expression ex) {
+	public Set<Long> queryKeys(Set<Long> found, ExpressionContainer ec, Expression ex) throws XDMException {
 		if (ex instanceof BinaryExpression) {
 			BinaryExpression be = (BinaryExpression) ex;
 			Set<Long> leftKeys = queryKeys(found, ec, be.getLeft());
@@ -246,29 +249,32 @@ public class QueryManagementImpl implements XDMQueryManagement {
 		return queryPathKeys(found, pex, ec.getParam(pex));
 	}
 
-	protected Set<Long> queryPathKeys(Set<Long> found, PathExpression pex, Object value) {
+	protected Set<Long> queryPathKeys(Set<Long> found, PathExpression pex, Object value) throws XDMException {
 
 		logger.trace("queryPathKeys.enter; found: {}; value: {}", (found == null ? "null" : found.size()), value); 
 		Predicate pp = null;
 		Set<Integer> paths;
 		if (pex.isRegex()) {
+			// TODO: do not create new path here!
 			paths = model.translatePathFromRegex(pex.getDocType(), pex.getRegex());
 			logger.trace("queryPathKeys; regex: {}; pathIds: {}", pex.getRegex(), paths);
 			if (paths.size() > 0) {
-				// ?? use all of them !
 				pp = Predicates.in("pathId", paths.toArray(new Integer[paths.size()]));
 			}
 		} else {
 			String path = pex.getFullPath();
 			logger.trace("queryPathKeys; path: {}; comparison: {}", path, pex.getCompType());
-			XDMPath xPath = model.translatePath(pex.getDocType(), path, XDMNodeKind.fromPath(path));
-			pp = Predicates.equal("pathId", xPath.getPathId());
+			XDMPath xPath = model.getPath(path);
 			paths = new HashSet<>(1);
-			paths.add(xPath.getPathId());
+			if (xPath != null) {
+				pp = Predicates.equal("pathId", xPath.getPathId());
+				paths.add(xPath.getPathId());
+			}
 		}
 		
 		if (paths.size() == 0) {
-			throw new IllegalArgumentException("Path not found for expression: " + pex);
+			logger.info("queryPathKeys; got query on unknown path: {}", pex); 
+			return Collections.emptySet();
 		}
 		
    		//try {
@@ -375,7 +381,7 @@ public class QueryManagementImpl implements XDMQueryManagement {
 	}
 	
 	@Override
-	public Collection<Long> getDocumentIDs(ExpressionContainer query) {
+	public Collection<Long> getDocumentIDs(ExpressionContainer query) throws XDMException {
 		ExpressionBuilder exp = query.getExpression();
 		if (exp.getRoot() != null) {
 			Set<Long> ids = queryKeys(null, query, exp.getRoot()); 
@@ -398,7 +404,7 @@ public class QueryManagementImpl implements XDMQueryManagement {
 	//}
 	
 	@Override
-	public Collection<String> getDocumentURIs(ExpressionContainer query) {
+	public Collection<String> getDocumentURIs(ExpressionContainer query) throws XDMException {
 		// TODO: remove this method completely, or
 		// make reverse cache..? or, make URI from docId somehow..
 		Collection<Long> ids = getDocumentIDs(query);
@@ -416,7 +422,7 @@ public class QueryManagementImpl implements XDMQueryManagement {
 	}
 
 	@Override
-	public Collection<String> getXML(ExpressionContainer query, String template, Map params) {
+	public Collection<String> getXML(ExpressionContainer query, String template, Map params) throws XDMException {
 		long txId = 0;
 		if (txMgr.getCurrentTxId() == TX_NO) {
 			txId = txMgr.beginTransaction();

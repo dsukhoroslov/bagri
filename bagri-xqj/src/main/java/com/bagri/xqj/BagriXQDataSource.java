@@ -1,6 +1,6 @@
 package com.bagri.xqj;
 
-import static com.bagri.xqj.BagriXQConstants.*;
+import static com.bagri.xdm.common.XDMConstants.*;
 
 import java.io.PrintWriter;
 import java.lang.reflect.Constructor;

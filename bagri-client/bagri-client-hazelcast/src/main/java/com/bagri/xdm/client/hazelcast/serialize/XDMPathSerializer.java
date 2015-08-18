@@ -2,6 +2,7 @@ package com.bagri.xdm.client.hazelcast.serialize;
 
 import java.io.IOException;
 
+import com.bagri.xdm.domain.XDMCardinality;
 import com.bagri.xdm.domain.XDMNodeKind;
 import com.bagri.xdm.domain.XDMPath;
 import com.hazelcast.nio.ObjectDataInput;
@@ -28,7 +29,11 @@ public class XDMPathSerializer implements StreamSerializer<XDMPath> {
 				XDMNodeKind.valueOf(in.readUTF()),
 				in.readInt(),
 				in.readInt(),
-				in.readInt());
+				in.readInt(),
+				in.readInt(),
+				XDMCardinality.getCardinality(
+						in.readInt(), 
+						in.readInt()));
 	}
 
 	@Override
@@ -40,6 +45,9 @@ public class XDMPathSerializer implements StreamSerializer<XDMPath> {
 		out.writeInt(xPath.getPathId());
 		out.writeInt(xPath.getParentId());
 		out.writeInt(xPath.getPostId());
+		out.writeInt(xPath.getDataType());
+		out.writeInt(xPath.getCardinality().getLowBound());
+		out.writeInt(xPath.getCardinality().getHighBound());
 	}
 
 }

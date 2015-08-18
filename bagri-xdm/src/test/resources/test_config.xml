@@ -41,10 +41,24 @@
 					<createdAt>2015-01-25T13:36:26.965+03:00</createdAt>
 					<createdBy>SDV</createdBy>
 					<docType>/{http://tpox-benchmark.com/security}Security</docType>
-					<path>/Security/Symbol</path>
+                    <path>/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}Symbol/text()</path>
+                    <dataType xmlns:xs="http://www.w3.org/2001/XMLSchema">xs:string</dataType>
 					<unique>true</unique>
 					<description>description</description>
+                    <enabled>true</enabled>
 				</index>
+                <index name="IDX_Security_Yield">
+                    <version>1</version>
+                    <createdAt>2015-07-21T13:36:26.965+03:00</createdAt>
+                    <createdBy>SDV</createdBy>
+                    <docType>/{http://tpox-benchmark.com/security}Security</docType>
+                    <path>/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}Yield/text()</path>
+                    <dataType xmlns:xs="http://www.w3.org/2001/XMLSchema">xs:float</dataType>
+                    <range>true</range>
+                    <unique>false</unique>
+                    <description>Security Yield</description>
+                    <enabled>true</enabled>
+                </index>
 			</indexes>
 		</schema>
 	</schemas>

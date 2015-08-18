@@ -1,6 +1,6 @@
 package com.bagri.xqj;
 
-import static com.bagri.xqj.BagriXQConstants.ex_connection_closed;
+import static com.bagri.xdm.common.XDMConstants.ex_connection_closed;
 import static com.bagri.xqj.BagriXQUtils.getTypeName;
 import static com.bagri.xqj.BagriXQUtils.isAtomicType;
 import static javax.xml.xquery.XQItemType.*;

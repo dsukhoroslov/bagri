@@ -45,8 +45,7 @@ public class BindingManagementImpl implements XDMBindingManagement {
 	        	Unmarshaller unmarshaller = jc.createUnmarshaller();
 	        	result = unmarshaller.unmarshal(new StringReader(xml));
 	        } catch (JAXBException ex) {
-	        	logger.error("getDocumentBinding.error", ex);
-	        	throw new XDMException(ex);
+	        	throw new XDMException(ex, XDMException.ecBinding);
 	        }
 		}
 		logger.trace("getDocumentBinding.exit; returning: {}", result);
@@ -68,9 +67,10 @@ public class BindingManagementImpl implements XDMBindingManagement {
         	writer.close();
         	// TODO: get docId/uri from value somehow?
         	repo.getDocumentManagement().storeDocumentFromString(0, null, xml);
-        } catch (JAXBException | IOException ex) {
-        	logger.error("setDocumentBinding.error", ex);
-        	throw new XDMException(ex);
+        } catch (JAXBException ex) {
+        	throw new XDMException(ex, XDMException.ecBinding);
+        } catch (IOException ex) {
+        	throw new XDMException(ex, XDMException.ecInOut);
         }
 		logger.trace("setDocumentBinding.exit;");
 	}

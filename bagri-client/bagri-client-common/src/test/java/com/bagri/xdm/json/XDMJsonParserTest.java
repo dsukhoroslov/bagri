@@ -8,6 +8,7 @@ import java.util.List;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.client.json.XDMJaksonParser;
 import com.bagri.xdm.client.json.XDMJsonParser;
@@ -60,7 +61,7 @@ public class XDMJsonParserTest {
 
 
 	@Test
-	public void testParse() {
+	public void testParse() throws IOException, XDMException {
 		XDMModelManagement dict = null; //new ModelManagementImpl();
 		XDMJsonParser parser = new XDMJsonParser(dict);
 		//String json = 
@@ -69,13 +70,9 @@ public class XDMJsonParserTest {
 		//"\t\"age\":29,\n" +
 		//"\t\"messages\":[\"msg 1\",\"msg 2\",\"msg 3\"]\n" +
 		//"}";
-		try {
-			List<XDMData> elts = parser.parse(json);
-			assertNotNull(elts);
-			assertTrue(elts.size() > 0);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		List<XDMData> elts = parser.parse(json);
+		assertNotNull(elts);
+		assertTrue(elts.size() > 0);
 	}
 	
 }

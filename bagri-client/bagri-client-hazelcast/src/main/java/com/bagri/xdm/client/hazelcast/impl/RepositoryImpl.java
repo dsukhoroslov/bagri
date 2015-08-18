@@ -3,7 +3,7 @@ package com.bagri.xdm.client.hazelcast.impl;
 import static com.bagri.common.util.PropUtils.getSystemProperty;
 import static com.bagri.common.util.PropUtils.setProperty;
 import static com.bagri.xdm.client.common.XDMCacheConstants.PN_XDM_SCHEMA_POOL;
-import static com.bagri.xqj.BagriXQConstants.*;
+import static com.bagri.xdm.common.XDMConstants.*;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -279,7 +279,8 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 					while (cursor.hasNext()) {
 						Object err = cursor.next();
 						if (err instanceof String) {
-							throw new XDMException((String) err);
+							// get error code from cursor too! 
+							throw new XDMException((String) err, XDMException.ecUnknown);
 						}
 					}
 				}

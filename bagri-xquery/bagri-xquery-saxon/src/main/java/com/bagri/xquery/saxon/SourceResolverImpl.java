@@ -20,7 +20,7 @@ import com.bagri.xdm.api.XDMDocumentManagement;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMRepository;
 
-import static com.bagri.xqj.BagriXQConstants.bg_schema;
+import static com.bagri.xdm.common.XDMConstants.bg_schema;
 import net.sf.saxon.Configuration;
 import net.sf.saxon.event.Receiver;
 import net.sf.saxon.expr.JPConverter;

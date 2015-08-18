@@ -1,17 +1,11 @@
 package com.bagri.xdm.domain;
 
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-public class XDMDocumentType { //implements Serializable {
-	
-	/**
-	 * 
-	 */
-	//private static final long serialVersionUID = 7751396606546961425L;
+public class XDMDocumentType { 
 	
 	private int typeId;
 	private String rootPath;
@@ -54,6 +48,7 @@ public class XDMDocumentType { //implements Serializable {
 	public void setNormalized(boolean normalized) {
 		this.normalized = normalized;
 	}
+	
 	/**
 	 * @return the schemas
 	 */
@@ -85,6 +80,5 @@ public class XDMDocumentType { //implements Serializable {
 		return "XDMDocumentType [typeId=" + typeId + ", rootPath=" + rootPath
 				+ ", schemas=" + schemas + "]";
 	}
-
 
 }

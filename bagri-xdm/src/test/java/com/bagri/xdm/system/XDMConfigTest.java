@@ -1,5 +1,7 @@
 package com.bagri.xdm.system;
 
+import static com.bagri.xdm.common.XDMConstants.xs_ns;
+import static com.bagri.xdm.common.XDMConstants.xs_prefix;
 import static org.junit.Assert.*;
 
 import java.io.File;
@@ -12,6 +14,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.SchemaOutputResolver;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.namespace.QName;
 import javax.xml.transform.Result;
 
 import org.junit.Test;
@@ -33,6 +36,16 @@ public class XDMConfigTest {
         assertTrue(config.getNodes().size() == 0);
         assertTrue(config.getSchemas().size() == 2);
         assertTrue(config.getModules().size() == 0);
+        XDMSchema test = config.getSchemas().get(1);
+        assertTrue(test.getIndexes().size() == 2);
+        XDMIndex index = test.getIndex("idx_test"); 
+        assertNotNull(index);
+        assertNotNull(index.getDataType());
+        assertEquals("string", index.getDataType().getLocalPart());
+        index = test.getIndex("IDX_Security_Yield"); 
+        assertNotNull(index);
+        assertNotNull(index.getDataType());
+        assertEquals("float", index.getDataType().getLocalPart());
     }
 	
 	@Test
@@ -43,7 +56,7 @@ public class XDMConfigTest {
 		XDMSchema schema = new XDMSchema(1, new Date(), "test", "Test", "description", false, props);
 		XDMIndex index = new XDMIndex(1, new Date(), "test", "idx_test",  
 				"/{http://tpox-benchmark.com/security}Security", "/Security", "/Security/Symbol",
-				"xs:string", true, false, true, "description", true);
+				new QName(xs_ns, "string", xs_prefix), true, false, true, "description", true);
 		schema.addIndex(index);
 		XDMTriggerDef javaTrigger = new XDMJavaTrigger(1, new Date(), "test", "sample_library", 
 				"my.class.Name", "/{http://tpox-benchmark.com/security}Security", true, true, 0);

@@ -56,7 +56,7 @@ import com.bagri.common.util.XMLUtils;
 import com.bagri.xdm.api.XDMDocumentManagement;
 import com.bagri.xdm.api.XDMRepository;
 
-import static com.bagri.xqj.BagriXQConstants.*;
+import static com.bagri.xdm.common.XDMConstants.*;
 
 import com.bagri.xqj.BagriXQUtils;
 import com.bagri.xquery.api.XQProcessorBase;

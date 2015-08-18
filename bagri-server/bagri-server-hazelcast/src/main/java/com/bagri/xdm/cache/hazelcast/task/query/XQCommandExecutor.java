@@ -1,6 +1,6 @@
 package com.bagri.xdm.cache.hazelcast.task.query;
 
-import static com.bagri.xqj.BagriXQConstants.pn_client_txId;
+import static com.bagri.xdm.common.XDMConstants.pn_client_txId;
 
 import java.util.concurrent.Callable;
 

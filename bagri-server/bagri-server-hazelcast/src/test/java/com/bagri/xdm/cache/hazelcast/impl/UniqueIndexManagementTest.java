@@ -1,10 +1,15 @@
 package com.bagri.xdm.cache.hazelcast.impl;
 
 import static com.bagri.common.config.XDMConfigConstants.xdm_config_properties_file;
+import static com.bagri.xdm.common.XDMConstants.xs_ns;
+import static com.bagri.xdm.common.XDMConstants.xs_prefix;
 
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Date;
+
+import javax.xml.namespace.QName;
+import javax.xml.xquery.XQItemType;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -16,6 +21,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.xdm.api.test.XDMManagementTest;
+import com.bagri.xdm.domain.XDMCardinality;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMNodeKind;
 import com.bagri.xdm.system.XDMIndex;
@@ -52,13 +58,14 @@ public class UniqueIndexManagementTest extends XDMManagementTest {
 		}
 		String typePath = getModelManagement().normalizePath("/{http://tpox-benchmark.com/security}Security");
 		XDMIndex index = new XDMIndex(1, new Date(), JMXUtils.getCurrentUser(), "IDX_Security_Symbol", "/{http://tpox-benchmark.com/security}Security", 
-				typePath, "/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}Symbol/text()", "xs:string", true, true, 
-				true, "Security Symbol", true);
+				typePath, "/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}Symbol/text()", new QName(xs_ns, "string", xs_prefix),
+				true, true, true, "Security Symbol", true);
 		xdmRepo.addSchemaIndex(index);
 		
 		int docType = xdmRepo.getModelManagement().translateDocumentType("/{http://tpox-benchmark.com/security}Security");
 		int pathId = xdmRepo.getModelManagement().translatePath(docType, 
-				"/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}Symbol/text()", XDMNodeKind.text).getPathId();
+				"/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}Symbol/text()", 
+				XDMNodeKind.text, XQItemType.XQBASETYPE_STRING, XDMCardinality.onlyOne).getPathId();
 		if (!xdmRepo.getIndexManagement().isPathIndexed(pathId)) {
 			System.out.println("path not indexed!!");
 		}

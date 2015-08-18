@@ -47,6 +47,7 @@ public abstract class EntityManagement<String, E extends XDMEntity> implements E
 		logger.trace("afterPropertiesSet.enter");
         Set<String> names = entityCache.keySet();
         for (String name: names) {
+        	logger.trace("afterPropertiesSet; initiating entity: {}", name);
         	initEntityManager(name);
         }
 		logger.trace("afterPropertiesSet.exit; initiated {} entity managers", names.size());

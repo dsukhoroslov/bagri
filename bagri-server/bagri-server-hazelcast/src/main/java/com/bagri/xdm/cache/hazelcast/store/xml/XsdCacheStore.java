@@ -7,6 +7,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.client.common.impl.XDMModelManagementBase;
 import com.hazelcast.core.MapStore;
@@ -39,7 +40,11 @@ public class XsdCacheStore extends XmlCacheStore implements MapStore {
 		if (schemaDictionary == null) {
 			logger.debug("loadAllKeys; dictionary is not set yet.");
 		} else {
-			((XDMModelManagementBase) schemaDictionary).registerSchemas(getDataPath());
+			try {
+				((XDMModelManagementBase) schemaDictionary).registerSchemas(getDataPath());
+			} catch (XDMException ex) {
+				logger.error("loadAllKeys.error:", ex);
+			}
 		}
 		return null;
 	}

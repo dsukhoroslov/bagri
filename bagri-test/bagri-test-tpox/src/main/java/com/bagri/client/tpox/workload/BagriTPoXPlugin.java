@@ -4,7 +4,7 @@
 package com.bagri.client.tpox.workload;
 
 import static com.bagri.common.config.XDMConfigConstants.xdm_spring_context;
-import static com.bagri.xqj.BagriXQConstants.pn_client_fetchSize;
+import static com.bagri.xdm.common.XDMConstants.pn_client_fetchSize;
 
 import java.sql.Connection;
 import java.sql.SQLException;
