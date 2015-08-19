@@ -24,6 +24,8 @@ public interface XDMQueryManagement {
 	Collection<Long> getDocumentIDs(ExpressionContainer query) throws XDMException;
 	Collection<String> getDocumentURIs(ExpressionContainer query) throws XDMException;
 	
+	void cancelExecution() throws XDMException;
+	
 	int getQueryKey(String query); 
 	
 }

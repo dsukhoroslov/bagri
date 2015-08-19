@@ -22,15 +22,14 @@ import com.bagri.xquery.api.XQProcessor;
 
 public class XQProcessorClient extends XQProcessorImpl implements XQProcessor {
 	
-	private Properties collectProperties(XQStaticContext ctx) throws XQException {
-		Properties props = contextToProps(ctx);
-		for (String name: properties.stringPropertyNames()) {
-			if (!props.containsKey(name)) {
-				props.setProperty(name, properties.getProperty(name));
-			}
+	@Override
+    public void cancelExecution() throws XQException {
+		try {
+			getQueryManagement().cancelExecution();
+		} catch (XDMException ex) {
+			throw new XQException(ex.getMessage(), ex.getVendorCode());
 		}
-		return props;
-	}
+    }
 	
 	@Override
 	public Iterator executeXCommand(String command, Map<QName, XQItemAccessor> bindings, XQStaticContext ctx) throws XQException {
@@ -46,7 +45,7 @@ public class XQProcessorClient extends XQProcessorImpl implements XQProcessor {
     	try {
     		return qMgr.executeXCommand(command, bindings, props);
     	} catch (XDMException ex) {
-    		throw new XQException(ex.getMessage());
+    		throw new XQException(ex.getMessage(), ex.getVendorCode());
     	}
 	}
 
@@ -72,8 +71,7 @@ public class XQProcessorClient extends XQProcessorImpl implements XQProcessor {
     	try {
     		return qMgr.executeXQuery(query, bindings, props);
     	} catch (XDMException ex) {
-    		logger.error("executeXQuery.error;", ex);
-    		throw new XQException(ex.getMessage());
+    		throw new XQException(ex.getMessage(), ex.getVendorCode());
     	}
 	}
 
@@ -92,4 +90,14 @@ public class XQProcessorClient extends XQProcessorImpl implements XQProcessor {
 	//	return null;
 	//}
 
+	private Properties collectProperties(XQStaticContext ctx) throws XQException {
+		Properties props = contextToProps(ctx);
+		for (String name: properties.stringPropertyNames()) {
+			if (!props.containsKey(name)) {
+				props.setProperty(name, properties.getProperty(name));
+			}
+		}
+		return props;
+	}
+	
 }

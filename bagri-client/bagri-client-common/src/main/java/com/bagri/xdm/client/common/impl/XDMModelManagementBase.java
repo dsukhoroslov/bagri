@@ -478,7 +478,16 @@ public abstract class XDMModelManagementBase implements XDMModelManagement {
 				String root = "/{" + xsElement.getNamespace() + "}" + xsElement.getName();
 				int docType = translateDocumentType(root);
 				// register document type..
-				//dict.translatePath(docType, root, XDMNodeKind.document); ??
+				XDMPath xp = translatePath(docType, "", XDMNodeKind.document, XQItemType.XQBASETYPE_ANYTYPE, XDMCardinality.onlyOne); 
+				logger.trace("processModel; document type: {}; got XDMPath: {}", docType, xp);
+				
+				String prefix = translateNamespace(xsElement.getNamespace());
+				// target namespace -> default
+				translatePath(docType, "/#xmlns", XDMNodeKind.namespace, XQItemType.XQBASETYPE_QNAME, XDMCardinality.onlyOne); 
+
+				// add these two??
+				//xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+				//xsi:schemaLocation="http://tpox-benchmark.com/security security.xsd">
 				
 				List<XSElementDeclaration> parents = new ArrayList<>(4);
 				processElement(docType, "", xsElement, substitutions, parents, 1, 1);

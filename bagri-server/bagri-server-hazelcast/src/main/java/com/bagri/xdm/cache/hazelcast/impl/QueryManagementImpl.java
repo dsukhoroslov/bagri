@@ -423,6 +423,9 @@ public class QueryManagementImpl implements XDMQueryManagement {
 
 	@Override
 	public Collection<String> getXML(ExpressionContainer query, String template, Map params) throws XDMException {
+		
+		// TODO: get rid of transaction management here! 
+		// it is here for easier tests management only!
 		long txId = 0;
 		if (txMgr.getCurrentTxId() == TX_NO) {
 			txId = txMgr.beginTransaction();
@@ -450,6 +453,11 @@ public class QueryManagementImpl implements XDMQueryManagement {
 		return xQuery.isReadOnly();
 	}
 
+	@Override
+	public void cancelExecution() throws XDMException {
+		// no-op on the server side
+	}
+	
 	@Override
 	public Iterator executeXCommand(String command, Map bindings, Properties props) {
 		

@@ -20,6 +20,7 @@ public interface XQProcessor extends QueryProcessor {
     Iterator getResults();
     void setResults(Iterator itr);
     
+    void cancelExecution() throws XQException;
     // Saxon specific conversion
     // TODO: move this out of the interface!
 	String convertToString(Object item) throws XQException;

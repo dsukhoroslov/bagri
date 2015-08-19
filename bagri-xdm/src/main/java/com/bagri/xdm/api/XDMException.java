@@ -37,4 +37,8 @@ public class XDMException extends Exception {
 	public int getErrorCode() {
 		return errorCode;
 	}
+	
+	public String getVendorCode() {
+		return String.valueOf(errorCode);
+	}
 }

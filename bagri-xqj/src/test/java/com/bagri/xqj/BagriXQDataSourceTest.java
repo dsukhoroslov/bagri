@@ -3,8 +3,10 @@ package com.bagri.xqj;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
+import java.util.concurrent.TimeoutException;
 
 import javax.xml.namespace.QName;
+import javax.xml.xquery.XQCancelledException;
 import javax.xml.xquery.XQConnection;
 import javax.xml.xquery.XQDataSource;
 import javax.xml.xquery.XQException;
@@ -55,6 +57,7 @@ public class BagriXQDataSourceTest {
 		XQConnection conn = xqds.getConnection(username, password);
 		assertNull(conn);
 		//assertFalse(conn.isClosed());
+		//conn.close();
 	}
 	
 	@Test
@@ -70,25 +73,109 @@ public class BagriXQDataSourceTest {
 	}
 
 	@Test
-	@Ignore
-	public void testQuerySecurity() throws XQException {
+	public void testQueryCancel() throws XQException {
+
 		XQConnection xqc = xqds.getConnection();
 		assertNotNull(xqc);
+		assertFalse(xqc.isClosed());
 		
 		String query = "declare namespace s=\"http://tpox-benchmark.com/security\";\n" +
-			"declare variable $v external;\n" + // $v\n" +
-			//"for $sec in fn:doc(\"sdoc\")/s:Security\n" +
+			"declare variable $v external;\n" + 
 			"for $sec in fn:collection(\"http://tpox-benchmark.com/security\")/s:Security\n" +
-	  		"where $sec/s:Symbol=$v\n" + //'IBM'\n" +
+	  		"where $sec/s:Symbol=$v\n" + 
 			"return\n" +   
 			"\t<print>The open price of the security \"{$sec/s:Name/text()}\" is {$sec/s:Price/s:PriceToday/s:Open/text()} dollars</print>\n";
 
-	    XQPreparedExpression xqpe = xqc.prepareExpression(query);
+	    final XQPreparedExpression xqpe = xqc.prepareExpression(query);
 	    xqpe.bindString(new QName("v"), "IBM", null);
-	    XQResultSequence xqs = xqpe.executeQuery();
-	    assertTrue(xqs.next());
+	    
+		Thread th1 = new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				try {
+					Thread.sleep(5);
+					xqpe.cancel();
+				} catch (Exception ex) {
+					//
+				}
+			}
+		});
+		th1.start();
+
+		try {
+			XQResultSequence xqs = xqpe.executeQuery();
+		    assertFalse(xqs.next());
+		    xqs.close();
+		} catch (XQCancelledException ex) {
+			// unticipated ex
+		}
+		xqpe.close();
+		xqc.close();
 	}
 
+	@Test
+	public void testQueryTimeout() throws XQException {
+
+		XQConnection xqc = xqds.getConnection();
+		assertNotNull(xqc);
+		assertFalse(xqc.isClosed());
+		xqc.getStaticContext().setQueryTimeout(1); // 1 sec timeout - too high!
+
+		String dName = "..\\etc\\samples\\tpox\\";
+		String xml;
+		try {
+			xml = readTextFile(dName + "security5621.xml");
+		} catch (IOException ex) {
+			throw new XQException(ex.getMessage());
+		}
+		
+		String query = "declare namespace bgdm=\"http://bagri.com/bagri-xdm\";\n" +
+				"declare variable $xml external;\n" + 
+				"let $id := bgdm:store-document($xml)\n" +
+				"return $id\n";
+
+	    XQPreparedExpression xqpe = xqc.prepareExpression(query);
+	    xqpe.bindString(new QName("xml"), xml, xqc.createAtomicType(XQItemType.XQBASETYPE_STRING));
+	    XQSequence xqs = xqpe.executeQuery();
+	    assertTrue(xqs.next());
+	    xqs.close();
+	    xqpe.close();
+		
+		query = "declare default element namespace \"http://tpox-benchmark.com/security\";\n" +
+				"declare variable $sect external;\n" + 
+				"declare variable $pemin external;\n" +
+				"declare variable $pemax external;\n" + 
+				"declare variable $yield external;\n" + 
+				"for $sec in fn:collection(\"/{http://tpox-benchmark.com/security}Security\")/Security\n" +
+		  		"where $sec[SecurityInformation/*/Sector = $sect and PE[. >= $pemin and . < $pemax] and Yield > $yield]\n" +
+				"return	<Security>\n" +	
+				"\t{$sec/Symbol}\n" +
+				"\t{$sec/Name}\n" +
+				"\t{$sec/SecurityType}\n" +
+				"\t{$sec/SecurityInformation//Sector}\n" +
+				"\t{$sec/PE}\n" +
+				"\t{$sec/Yield}\n" +
+				"</Security>";
+
+		xqpe = xqc.prepareExpression(query);
+		xqpe.bindString(new QName("sect"), "Technology", null);
+		xqpe.bindFloat(new QName("pemin"), 25.0f, null);
+		xqpe.bindFloat(new QName("pemax"), 28.0f, null);
+		xqpe.bindFloat(new QName("yield"), 0.0f, null);
+		
+		try {
+			xqs = xqpe.executeQuery();
+			assertFalse(xqs.next());
+		} catch (XQException ex) {
+			// must be timeout exception
+			assertTrue(ex.getCause() != null && ex.getCause() instanceof TimeoutException);
+		}
+		xqs.close();
+		xqpe.close();
+		xqc.close();
+	}
+	
 	@Test
 	public void testStoreSecurity() throws XQException {
 

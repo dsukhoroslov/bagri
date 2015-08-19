@@ -58,6 +58,7 @@ public class BagriXQDynamicContext implements XQDynamicContext {
 		if (isClosed()) {
 			throw new XQException("Connection is closed");
 		}
+		connection.cancel();
 	}
 
 	public boolean isClosed() {

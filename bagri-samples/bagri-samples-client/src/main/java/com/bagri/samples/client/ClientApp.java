@@ -37,7 +37,7 @@ public class ClientApp {
 		boolean found = false;
 		try {
 			//client.storeSecCommand();
-			//long id = client.storeSecQuery();
+			long id = client.storeSecQuery();
 			//long id = client.storeXmlDocument("axis.xml");
 			//System.out.println("document stored; id: " + id);
 			//found = client.runPriceQuery("IBM"); //IBM; VFINX; PTTAX
@@ -52,7 +52,7 @@ public class ClientApp {
 			found = client.searchSecQueryParams();
 			//client.searchSecQueryParams();
 			//found = client.runAxisQuery();
-			//client.removeSecCommand(id);
+			client.removeSecCommand(id);
 		} catch (XQException e) {
 			e.printStackTrace();
 		}
@@ -141,7 +141,6 @@ public class ClientApp {
 			"declare variable $yield external;\n" + 
 			"for $sec in fn:collection(\"/{http://tpox-benchmark.com/security}Security\")/Security\n" +
 	  		"where $sec[SecurityInformation/*/Sector = $sect and PE[. >= $pemin and . < $pemax] and Yield > $yield]\n" +
-	  		//"where $sec[SecurityInformation/*/Sector = $sect and PE[. >= xs:decimal($pemin) and . < xs:decimal($pemax)] and Yield > xs:decimal($yield)]\n" +
 			"return	<Security>\n" +	
 			"\t{$sec/Symbol}\n" +
 			"\t{$sec/Name}\n" +

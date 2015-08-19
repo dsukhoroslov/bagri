@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 
 import javax.xml.namespace.QName;
+import javax.xml.xquery.XQCancelledException;
 import javax.xml.xquery.XQConnection;
 import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQExpression;
@@ -33,6 +34,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
     private static final Logger logger = LoggerFactory.getLogger(BagriXQConnection.class);
 	
 	private long txId;
+	private boolean cancelled = false;
 	private boolean autoCommit = true; // default value
 	private boolean transactional = true; // default value
 	private BagriXQMetaData metaData;
@@ -74,19 +76,24 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 		this.transactional = transactional;
 	}
 	
+	void cancel() throws XQException {
+
+		//checkConnection();
+		cancelled = true;
+		// interrupt any current request.. 
+		getProcessor().cancelExecution();
+	}
+	
 	@Override
 	public void close() throws XQException {
 		
-		//if (isClosed()) {
-		//	throw new XQException("Connection is already closed");
-		//}
-		
+		//checkConnection();
 		if (transactional) {
 			if (autoCommit) {
 				try {
 					getTxManager().commitTransaction(txId);
 				} catch (XDMException ex) {
-					throw new XQException(ex.getMessage());
+					throw new XQException(ex.getMessage(), ex.getVendorCode());
 				}
 				txId = TX_NO;
 			} else {
@@ -128,7 +135,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 			try {
 				getTxManager().commitTransaction(txId);
 			} catch (XDMException ex) {
-				throw new XQException(ex.getMessage());
+				throw new XQException(ex.getMessage(), ex.getVendorCode());
 			}
 			txId = TX_NO;
 		}
@@ -157,7 +164,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 			try {
 				getTxManager().rollbackTransaction(txId);
 			} catch (XDMException ex) {
-				throw new XQException(ex.getMessage());
+				throw new XQException(ex.getMessage(), ex.getVendorCode());
 			}
 			txId = TX_NO;
 		}
@@ -175,7 +182,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 				try {
 					getTxManager().commitTransaction(txId);
 				} catch (XDMException ex) {
-					throw new XQException(ex.getMessage());
+					throw new XQException(ex.getMessage(), ex.getVendorCode());
 				}
 				txId = TX_NO;
 			}
@@ -203,7 +210,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 	public XQStaticContext getStaticContext() throws XQException {
 		
 		checkConnection();
-		return context; //new BagriXQStaticContext(context);
+		return context; 
 	}
 
 	@Override
@@ -350,20 +357,27 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 			final XQStaticContext ctx) throws XQException {
 		
 		checkConnection();
-		if (transactional) {
-			try {
-				executeInTransaction(new Callable<Void>() {
-					@Override
-			    	public Void call() throws XQException {
-						getProcessor().executeXCommand(cmd, bindings, ctx);
-						return null;
-			    	}
-				});
-			} catch (XDMException ex) {
-				throw new XQException(ex.getMessage());
+		cancelled = false;
+		try {
+			if (transactional) {
+				try {
+					executeInTransaction(new Callable<Void>() {
+						@Override
+				    	public Void call() throws XQException {
+							getProcessor().executeXCommand(cmd, bindings, ctx);
+							return null;
+				    	}
+					});
+				} catch (XDMException ex) {
+					throw new XQException(ex.getMessage(), ex.getVendorCode());
+				}
+			} else {
+				getProcessor().executeXCommand(cmd, bindings, ctx);
 			}
-		} else {
-			getProcessor().executeXCommand(cmd, bindings, ctx);
+		} finally {
+			if (cancelled) {
+				throw new XQCancelledException(null, null, null, -1, -1, -1, null, null, null);
+			}
 		}
 	}
 
@@ -376,19 +390,26 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 		
 		checkConnection();
 		Iterator result = null;
-		if (transactional) {
-			try {
-				executeInTransaction(new Callable<Iterator>() {
-					@Override
-			    	public Iterator call() throws XQException {
-						return getProcessor().executeXQuery(query, ctx);
-			    	}
-				});
-			} catch (XDMException ex) {
-				throw new XQException(ex.getMessage());
+		cancelled = false;
+		try {
+			if (transactional) {
+				try {
+					executeInTransaction(new Callable<Iterator>() {
+						@Override
+				    	public Iterator call() throws XQException {
+							return getProcessor().executeXQuery(query, ctx);
+				    	}
+					});
+				} catch (XDMException ex) {
+					throw new XQException(ex.getMessage(), ex.getVendorCode());
+				}
+			} else {
+				result = getProcessor().executeXQuery(query, ctx);
 			}
-		} else {
-			result = getProcessor().executeXQuery(query, ctx);
+		} finally {
+			if (cancelled) {
+				throw new XQCancelledException(null, null, null, -1, -1, -1, null, null, null);
+			}
 		}
 		
 		if (result == null) {

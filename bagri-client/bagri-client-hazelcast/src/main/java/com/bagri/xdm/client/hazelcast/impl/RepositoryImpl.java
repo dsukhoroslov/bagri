@@ -1,20 +1,16 @@
 package com.bagri.xdm.client.hazelcast.impl;
 
-import static com.bagri.common.util.PropUtils.getSystemProperty;
 import static com.bagri.common.util.PropUtils.setProperty;
-import static com.bagri.xdm.client.common.XDMCacheConstants.PN_XDM_SCHEMA_POOL;
-import static com.bagri.xdm.common.XDMConstants.*;
+import static com.bagri.xdm.common.XDMConstants.pn_client_loginTimeout;
+import static com.bagri.xdm.common.XDMConstants.pn_client_smart;
+import static com.bagri.xdm.common.XDMConstants.pn_data_factory;
+import static com.bagri.xdm.common.XDMConstants.pn_schema_name;
+import static com.bagri.xdm.common.XDMConstants.pn_schema_password;
+import static com.bagri.xdm.common.XDMConstants.pn_schema_user;
+import static com.bagri.xdm.common.XDMConstants.pn_server_address;
 
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 import java.util.Properties;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import javax.xml.xquery.XQDataFactory;
 import javax.xml.xquery.XQItem;
@@ -25,7 +21,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bagri.xdm.api.XDMDocumentManagement;
-import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMQueryManagement;
 import com.bagri.xdm.api.XDMRepository;
 import com.bagri.xdm.api.XDMTransactionManagement;
@@ -34,14 +29,11 @@ import com.bagri.xdm.client.hazelcast.serialize.SecureCredentials;
 import com.bagri.xdm.client.hazelcast.serialize.XQItemSerializer;
 import com.bagri.xdm.client.hazelcast.serialize.XQItemTypeSerializer;
 import com.bagri.xdm.client.hazelcast.serialize.XQSequenceSerializer;
-import com.bagri.xdm.client.hazelcast.task.query.XQCommandExecutor;
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.client.config.XmlClientConfigBuilder;
 import com.hazelcast.config.SerializerConfig;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IExecutorService;
-import com.hazelcast.core.Member;
 import com.hazelcast.security.Credentials;
 
 public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
@@ -51,9 +43,9 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 	private String clientId;
 	private String schemaName;
 	
-	private ResultCursor cursor;
+	//private ResultCursor cursor;
 	private HazelcastInstance hzClient;
-	private IExecutorService execService;
+	//private IExecutorService execService;
 	
 	public RepositoryImpl() {
 		initializeFromProperties(getSystemProps());
@@ -165,7 +157,7 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 	}
 
 	private void initializeServices() {
-		execService = hzClient.getExecutorService(PN_XDM_SCHEMA_POOL);
+		//execService = hzClient.getExecutorService(PN_XDM_SCHEMA_POOL);
 		setBindingManagement(new BindingManagementImpl());
 		setDocumentManagement(new DocumentManagementImpl());
 		setQueryManagement(new QueryManagementImpl());
@@ -227,87 +219,13 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 	String getClientId() {
 		return clientId;
 	}
+	
+	String getSchemaName() {
+		return schemaName;
+	}
 
 	long getTransactionId() {
 		return ((TransactionManagementImpl) this.getTxManagement()).getTxId();
 	}
 	
-	Iterator execXQuery(boolean isQuery, String query, Map bindings, Properties props) throws XDMException {
-		
-		//props.put(PN_BATCH_SIZE, "5");
-		props.setProperty(pn_client_id, clientId);
-		props.setProperty(pn_client_txId, String.valueOf(getTransactionId()));
-		//props.setProperty(pn_fetch_size, fetchSize);
-		//props.setProperty(pn_client_submitTo, submitTo);
-		
-		String runOn = props.getProperty(pn_client_submitTo, "any");
-		
-		XQCommandExecutor task = new XQCommandExecutor(isQuery, schemaName, query, bindings, props);
-		Future<ResultCursor> future;
-		if ("owner".equals(runOn)) {
-			int key = getQueryManagement().getQueryKey(query);
-			future = execService.submitToKeyOwner(task, key);
-		} else if ("member".equals(runOn)) {
-			int key = getQueryManagement().getQueryKey(query);
-			Member member = hzClient.getPartitionService().getPartition(key).getOwner();
-			future = execService.submitToMember(task, member);
-		} else {
-			future = execService.submit(task);
-		}
-
-		Iterator result = null;
-		long timeout = Long.parseLong(props.getProperty(pn_queryTimeout, "0"));
-		int fetchSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, "0"));
-		try {
-			//if (cursor != null) {
-			//	cursor.close(false);
-			//}
-			
-			if (timeout > 0) {
-				cursor = future.get(timeout, TimeUnit.SECONDS);
-			} else {
-				cursor = future.get();
-			}
-			
-			logger.trace("execXQuery; got cursor: {}", cursor);
-			if (cursor != null) {
-				cursor.deserialize(hzClient);
-
-				if (cursor.isFailure()) {
-					//Exception ex = (Exception) cursor.next();
-					//throw ex;
-					while (cursor.hasNext()) {
-						Object err = cursor.next();
-						if (err instanceof String) {
-							// get error code from cursor too! 
-							throw new XDMException((String) err, XDMException.ecUnknown);
-						}
-					}
-				}
-			}
-			
-			if (fetchSize == 0) {
-				result = extractFromCursor(cursor);
-			} else {
-				result = cursor;
-			}
-		} catch (TimeoutException ex) {
-			future.cancel(true);
-			logger.warn("execXQuery.error; query timed out", ex);
-		} catch (InterruptedException | ExecutionException ex) {
-			// cancel future ??
-			logger.error("execXQuery.error; error getting result", ex);
-		}
-		return result; 
-	}
-	
-	private Iterator extractFromCursor(ResultCursor cursor) {
-		List result = new ArrayList();
-		while (cursor.hasNext()) {
-			result.add(cursor.next());
-		}
-		return result.iterator();
-	}
-
-
 }

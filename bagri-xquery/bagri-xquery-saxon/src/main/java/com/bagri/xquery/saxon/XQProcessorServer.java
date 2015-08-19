@@ -65,7 +65,12 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
     	setRepository(xRepo);
     }
 
-    @Override
+	@Override
+    public void cancelExecution() throws XQException {
+	    logger.info("cancelExecution; not implemented on the server side.");
+    }
+
+	@Override
     public void setRepository(XDMRepository xRepo) {
     	super.setRepository(xRepo);
     	//CollectionURIResolver old = bcr;
@@ -273,7 +278,6 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 		} catch (XPathException ex) {
 			throw new XQException(ex.getMessage());
 		}
-		
 	}
 
 }
