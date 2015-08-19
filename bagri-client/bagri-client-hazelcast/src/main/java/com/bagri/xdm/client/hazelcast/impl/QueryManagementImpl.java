@@ -201,7 +201,7 @@ public class QueryManagementImpl implements XDMQueryManagement {
 		T result;
 		try {
 			if (timeout > 0) {
-				result = future.get(timeout, TimeUnit.SECONDS);
+				result = future.get(timeout, TimeUnit.MILLISECONDS); // SECONDS);
 			} else {
 				result = future.get();
 			}
@@ -209,15 +209,17 @@ public class QueryManagementImpl implements XDMQueryManagement {
 		} catch (TimeoutException ex) {
 			logger.warn("getResults.timeout; request timed out after {}; cancelled: {}", timeout, future.isCancelled());
 			future.cancel(true);
-			throw new XDMException(ex, XDMException.ecQuery);
+			throw new XDMException(ex, XDMException.ecTimeout);
 		} catch (InterruptedException | ExecutionException ex) {
+			int errorCode = XDMException.ecQuery;
 			if (ex.getCause() != null && ex.getCause() instanceof CancellationException) {
+				errorCode = XDMException.ecCancel;
 				logger.warn("getResults.interrupted; request cancelled: {}", future.isCancelled());
 			} else {
 				future.cancel(false); 
 				logger.error("getResults.error; error getting result", ex);
 			}
-			throw new XDMException(ex, XDMException.ecQuery);
+			throw new XDMException(ex, errorCode);
 		}
 	}
 	

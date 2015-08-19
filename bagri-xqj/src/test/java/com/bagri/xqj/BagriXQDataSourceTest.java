@@ -21,6 +21,8 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import com.bagri.xdm.api.XDMException;
+
 import static com.bagri.common.util.FileUtils.readTextFile;
 
 public class BagriXQDataSourceTest {
@@ -120,7 +122,6 @@ public class BagriXQDataSourceTest {
 		XQConnection xqc = xqds.getConnection();
 		assertNotNull(xqc);
 		assertFalse(xqc.isClosed());
-		xqc.getStaticContext().setQueryTimeout(1); // 1 sec timeout - too high!
 
 		String dName = "..\\etc\\samples\\tpox\\";
 		String xml;
@@ -142,6 +143,7 @@ public class BagriXQDataSourceTest {
 	    xqs.close();
 	    xqpe.close();
 		
+		xqc.getStaticContext().setQueryTimeout(3); // 1 sec timeout
 		query = "declare default element namespace \"http://tpox-benchmark.com/security\";\n" +
 				"declare variable $sect external;\n" + 
 				"declare variable $pemin external;\n" +
@@ -169,7 +171,7 @@ public class BagriXQDataSourceTest {
 			assertFalse(xqs.next());
 		} catch (XQException ex) {
 			// must be timeout exception
-			assertTrue(ex.getCause() != null && ex.getCause() instanceof TimeoutException);
+			assertTrue(XDMException.ecTimeout == Integer.parseInt(ex.getVendorCode()));
 		}
 		xqs.close();
 		xqpe.close();
