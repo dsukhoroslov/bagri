@@ -19,19 +19,15 @@ public class IterableXQResultSequence extends IterableXQSequence implements XQRe
 
 	@Override
 	public XQConnection getConnection() throws XQException {
-		
-		if (isClosed()) {
-			throw new XQException("Sequence is closed");
-		}
+
+		checkSequence();
 		return expression.connection;
 	}
 	
 	@Override
 	public XQItem getItem() throws XQException {
 		
-		if (isClosed()) {
-			throw new XQException("Sequence is closed");
-		}
+		checkSequence();
 		//checkAccess();
 		super.getItem();
 		return new BagriXQResultItem(type, value, this);

@@ -45,6 +45,9 @@ public class XMLUtils {
 	}
 
 	public static String textToString(Reader xquery) throws IOException {
+		if (xquery == null) {
+			throw new IOException("Provided reader is null");
+		}
 		StringBuilder sb = new StringBuilder();
 		BufferedReader br = new BufferedReader(xquery);
 		String NL = System.getProperty("line.separator");
@@ -61,6 +64,9 @@ public class XMLUtils {
 	}
 
 	public static String textToString(InputStream stream) throws IOException {
+		if (stream == null) {
+			throw new IOException("Provided stream is null");
+		}
 		Reader r = new InputStreamReader(stream); 
 		return textToString(r);
 	}

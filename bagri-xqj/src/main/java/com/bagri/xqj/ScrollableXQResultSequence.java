@@ -19,9 +19,7 @@ public class ScrollableXQResultSequence extends ScrollableXQSequence implements	
 	@Override
 	public XQConnection getConnection() throws XQException {
 		
-		if (isClosed()) {
-			throw new XQException("Sequence is closed");
-		}
+		checkSequence();
 		return expression.connection;
 	}
 	

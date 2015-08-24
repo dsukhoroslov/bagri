@@ -24,10 +24,11 @@ import org.slf4j.LoggerFactory;
 import com.bagri.common.util.XMLUtils;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMTransactionManagement;
-import com.bagri.xdm.domain.XDMDocument;
 
 import static com.bagri.xdm.api.XDMTransactionManagement.TX_NO;
-import static com.bagri.xdm.common.XDMConstants.ex_null_context;
+import static com.bagri.xqj.BagriXQErrors.ex_null_context;
+import static com.bagri.xqj.BagriXQUtils.throwXQException; 
+
 
 public class BagriXQConnection extends BagriXQDataFactory implements XQConnection {
 	
@@ -93,7 +94,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 				try {
 					getTxManager().commitTransaction(txId);
 				} catch (XDMException ex) {
-					throw new XQException(ex.getMessage(), ex.getVendorCode());
+					throwXQException(ex); 
 				}
 				txId = TX_NO;
 			} else {
@@ -135,7 +136,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 			try {
 				getTxManager().commitTransaction(txId);
 			} catch (XDMException ex) {
-				throw new XQException(ex.getMessage(), ex.getVendorCode());
+				throwXQException(ex);
 			}
 			txId = TX_NO;
 		}
@@ -164,7 +165,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 			try {
 				getTxManager().rollbackTransaction(txId);
 			} catch (XDMException ex) {
-				throw new XQException(ex.getMessage(), ex.getVendorCode());
+				throwXQException(ex);
 			}
 			txId = TX_NO;
 		}
@@ -182,7 +183,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 				try {
 					getTxManager().commitTransaction(txId);
 				} catch (XDMException ex) {
-					throw new XQException(ex.getMessage(), ex.getVendorCode());
+					throwXQException(ex);
 				}
 				txId = TX_NO;
 			}
@@ -236,41 +237,25 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 	@Override
 	public XQPreparedExpression prepareExpression(Reader xquery) throws XQException {
 
-		checkConnection();
-		if (xquery == null) {
-			throw new XQException("Provided xquery reader is null");
-		}
-		
-		BagriXQPreparedExpression exp = new BagriXQPreparedExpression(this);
-		String query;
+		String query = null;
 		try {
 			query = XMLUtils.textToString(xquery);
 		} catch (IOException ex) {
-			throw new XQException(ex.getMessage());
+			throwXQException(ex);
 		}
-		exp.setXQuery(query);
-		prepareQuery(exp);
-		return exp;
+		return prepareExpression(query);
 	}
 
 	@Override
 	public XQPreparedExpression prepareExpression(InputStream xquery) throws XQException {
 
-		checkConnection();
-		if (xquery == null) {
-			throw new XQException("Provided xquery stream is null");
-		}
-
-		BagriXQPreparedExpression exp = new BagriXQPreparedExpression(this);
-		String query;
+		String query = null;
 		try {
 			query = XMLUtils.textToString(xquery);
 		} catch (IOException ex) {
-			throw new XQException(ex.getMessage());
+			throwXQException(ex);
 		}
-		exp.setXQuery(query);
-		prepareQuery(exp);
-		return exp;
+		return prepareExpression(query);
 	}
 
 	@Override
@@ -293,47 +278,25 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 	@Override
 	public XQPreparedExpression prepareExpression(Reader xquery, XQStaticContext context) throws XQException {
 
-		checkConnection();
-		if (context == null) {
-			throw new XQException(ex_null_context);
-		}
-		if (xquery == null) {
-			throw new XQException("Provided xquery reader is null");
-		}
-
-		BagriXQPreparedExpression exp = new BagriXQPreparedExpression(this, context);
-		String query;
+		String query = null;
 		try {
 			query = XMLUtils.textToString(xquery);
 		} catch (IOException ex) {
-			throw new XQException(ex.getMessage());
+			throwXQException(ex);
 		}
-		exp.setXQuery(query);
-		prepareQuery(exp, context);
-		return exp;
+		return prepareExpression(query, context);
 	}
 
 	@Override
 	public XQPreparedExpression prepareExpression(InputStream xquery, XQStaticContext context) throws XQException {
 
-		checkConnection();
-		if (context == null) {
-			throw new XQException(ex_null_context);
-		}
-		if (xquery == null) {
-			throw new XQException("Provided xquery stream is null");
-		}
-
-		BagriXQPreparedExpression exp = new BagriXQPreparedExpression(this, context);
-		String query;
+		String query = null;
 		try {
 			query = XMLUtils.textToString(xquery);
 		} catch (IOException ex) {
-			throw new XQException(ex.getMessage());
+			throwXQException(ex);
 		}
-		exp.setXQuery(query);
-		prepareQuery(exp, context);
-		return exp;
+		return prepareExpression(query, context);
 	}
 
 	@Override
@@ -369,7 +332,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 				    	}
 					});
 				} catch (XDMException ex) {
-					throw new XQException(ex.getMessage(), ex.getVendorCode());
+					throwXQException(ex);
 				}
 			} else {
 				getProcessor().executeXCommand(cmd, bindings, ctx);
@@ -401,7 +364,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 				    	}
 					});
 				} catch (XDMException ex) {
-					throw new XQException(ex.getMessage(), ex.getVendorCode());
+					throwXQException(ex);
 				}
 			} else {
 				result = getProcessor().executeXQuery(query, ctx);

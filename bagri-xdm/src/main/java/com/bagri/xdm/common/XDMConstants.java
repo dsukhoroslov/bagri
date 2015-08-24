@@ -43,9 +43,6 @@ public class XDMConstants {
 	public static final String dc_ns = "http://www.w3.org/2005/xpath-functions/collation/codepoint";
 	public static final String df_ns = "http://www.w3.org/2005/xpath-functions";
 	
-	public static final String ex_connection_closed = "Connection is closed";
-	public static final String ex_null_context = "Context is null";
-
 	// XQJ MetaData feature constants
 	public static final int xqf_Update = 1;
 	public static final int xqf_XQueryX = 2;

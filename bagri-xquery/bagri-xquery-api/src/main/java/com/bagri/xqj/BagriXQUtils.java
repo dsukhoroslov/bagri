@@ -82,6 +82,8 @@ import javax.xml.xquery.XQItemType;
 import org.apache.xerces.util.XMLChar;
 import org.w3c.dom.Node;
 
+import com.bagri.xdm.api.XDMException;
+
 public class BagriXQUtils {
 	
 	private static DatatypeFactory dtFactory;
@@ -542,4 +544,16 @@ public class BagriXQUtils {
 		}
 	}
 
+	public static void throwXQException(Exception ex) throws XQException {
+		XQException xqe = new XQException(ex.getMessage());
+		xqe.initCause(ex);
+		throw xqe;
+	}
+
+	public static void throwXQException(XDMException ex) throws XQException {
+		XQException xqe = new XQException(ex.getMessage(), ex.getVendorCode());
+		// not sure we have to do this..
+		xqe.initCause(ex);
+		throw xqe;
+	}
 }

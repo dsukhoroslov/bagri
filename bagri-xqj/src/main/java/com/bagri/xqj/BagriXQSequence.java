@@ -1,5 +1,7 @@
 package com.bagri.xqj;
 
+import static com.bagri.xqj.BagriXQErrors.ex_sequence_closed;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Writer;
@@ -143,5 +145,11 @@ public abstract class BagriXQSequence extends BagriXQItemAccessor implements XQS
 		}
 	}
 
+	void checkSequence() throws XQException {
+		
+		if (isClosed()) {
+			throw new XQException(ex_sequence_closed);
+		}
+	}
 	
 }

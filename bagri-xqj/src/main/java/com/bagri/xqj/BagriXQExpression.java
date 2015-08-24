@@ -46,24 +46,17 @@ public class BagriXQExpression extends BagriXQDynamicContext implements XQExpres
 	@Override
 	public void executeCommand(Reader cmd) throws XQException {
 		
-		if (isClosed()) {
-			throw new XQException("Connection is closed");
-		}
-		if (cmd == null) {
-			throw new XQException("Provided command reader is null");
-		}
-		
 		String str;
 		try {
 			str = XMLUtils.textToString(cmd);
 		} catch (IOException ex) {
 			throw new XQException(ex.getMessage());
 		}
-
-		connection.executeCommand(str, getBindings());
+		executeCommand(str);
 	}
 
 	@Override
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public XQResultSequence executeQuery(String query) throws XQException {
 		
 		if (isClosed()) {
@@ -85,51 +78,25 @@ public class BagriXQExpression extends BagriXQDynamicContext implements XQExpres
 	@Override
 	public XQResultSequence executeQuery(Reader query) throws XQException {
 		
-		if (isClosed()) {
-			throw new XQException("Connection is closed");
-		}
-		if (query == null) {
-			throw new XQException("Provided query reader is null");
-		}
-
-		// run it...
 		String str;
 		try {
 			str = XMLUtils.textToString(query);
 		} catch (IOException ex) {
 			throw new XQException(ex.getMessage());
 		}
-		Iterator result = connection.executeQuery(str);
-
-		if (context.getScrollability() == XQConstants.SCROLLTYPE_SCROLLABLE) {
-			return new ScrollableXQResultSequence(this, copyIterator(result));
-		}
-		return new IterableXQResultSequence(this, result);
+		return executeQuery(str);
 	}
 
 	@Override
 	public XQResultSequence executeQuery(InputStream query) throws XQException {
 		
-		if (isClosed()) {
-			throw new XQException("Connection is closed");
-		}
-		if (query == null) {
-			throw new XQException("Provided query stream is null");
-		}
-		
-		// run it...
 		String str;
 		try {
 			str = XMLUtils.textToString(query);
 		} catch (IOException ex) {
 			throw new XQException(ex.getMessage());
 		}
-		Iterator result = connection.executeQuery(str);
-
-		if (context.getScrollability() == XQConstants.SCROLLTYPE_SCROLLABLE) {
-			return new ScrollableXQResultSequence(this, copyIterator(result));
-		}
-		return new IterableXQResultSequence(this, result);
+		return executeQuery(str);
 	}
 	
 }

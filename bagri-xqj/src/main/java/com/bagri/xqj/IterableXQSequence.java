@@ -1,5 +1,7 @@
 package com.bagri.xqj;
 
+import static com.bagri.xqj.BagriXQErrors.ex_sequence_not_scrollable;
+
 import java.io.OutputStream;
 import java.io.Writer;
 import java.net.URI;
@@ -42,31 +44,31 @@ public class IterableXQSequence extends BagriXQSequence {
 	@Override
 	public boolean absolute(int itempos) throws XQException {
 
-		throw new XQException("Sequence is not scrollable");
+		throw new XQException(ex_sequence_not_scrollable);
 	}
 
 	@Override
 	public void afterLast() throws XQException {
 		
-		throw new XQException("Sequence is not scrollable");
+		throw new XQException(ex_sequence_not_scrollable);
 	}
 
 	@Override
 	public void beforeFirst() throws XQException {
 		
-		throw new XQException("Sequence is not scrollable");
+		throw new XQException(ex_sequence_not_scrollable);
 	}
 
 	@Override
 	public int count() throws XQException {
 		
-		throw new XQException("Sequence is not scrollable");
+		throw new XQException(ex_sequence_not_scrollable);
 	}
 
 	@Override
 	public boolean first() throws XQException {
 		
-		throw new XQException("Sequence is not scrollable");
+		throw new XQException(ex_sequence_not_scrollable);
 	}
 
 	@Override
@@ -209,7 +211,7 @@ public class IterableXQSequence extends BagriXQSequence {
 	@Override
 	public int getPosition() throws XQException {
 		
-		throw new XQException("Sequence is not scrollable");
+		throw new XQException(ex_sequence_not_scrollable);
 	}
 
 	@Override
@@ -235,57 +237,51 @@ public class IterableXQSequence extends BagriXQSequence {
 	@Override
 	public boolean isAfterLast() throws XQException {
 		
-		throw new XQException("Sequence is not scrollable");
+		throw new XQException(ex_sequence_not_scrollable);
 	}
 
 	@Override
 	public boolean isBeforeFirst() throws XQException {
 		
-		throw new XQException("Sequence is not scrollable");
+		throw new XQException(ex_sequence_not_scrollable);
 	}
 
 	@Override
 	public boolean isFirst() throws XQException {
 		
-		throw new XQException("Sequence is not scrollable");
+		throw new XQException(ex_sequence_not_scrollable);
 	}
 
 	@Override
 	public boolean isLast() throws XQException {
 		
-		throw new XQException("Sequence is not scrollable");
+		throw new XQException(ex_sequence_not_scrollable);
 	}
 
 	@Override
 	public boolean isOnItem() throws XQException {
 		
-		if (isClosed()) {
-			throw new XQException("Sequence is closed");
-		}
+		checkSequence();
 		return positioned; 
 	}
 
 	@Override
 	public boolean isScrollable() throws XQException {
 		
-		if (isClosed()) {
-			throw new XQException("Sequence is closed");
-		}
+		checkSequence();
 		return false;
 	}
 
 	@Override
 	public boolean last() throws XQException {
 		
-		throw new XQException("Sequence is not scrollable");
+		throw new XQException(ex_sequence_not_scrollable);
 	}
 
 	@Override
 	public boolean next() throws XQException {
 		
-		if (isClosed()) {
-			throw new XQException("Sequence is closed");
-		}
+		checkSequence();
 		if (iterator.hasNext()) {
 			Object current = iterator.next();
 			if (current instanceof BagriXQItem) {
@@ -305,13 +301,13 @@ public class IterableXQSequence extends BagriXQSequence {
 	@Override
 	public boolean previous() throws XQException {
 		
-		throw new XQException("Sequence is not scrollable");
+		throw new XQException(ex_sequence_not_scrollable);
 	}
 
 	@Override
 	public boolean relative(int itempos) throws XQException {
 		
-		throw new XQException("Sequence is not scrollable");
+		throw new XQException(ex_sequence_not_scrollable);
 	}
 
 	@Override
