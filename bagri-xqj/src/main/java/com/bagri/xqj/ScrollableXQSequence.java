@@ -1,5 +1,7 @@
 package com.bagri.xqj;
 
+import static com.bagri.xqj.BagriXQErrors.ex_sequence_closed;
+
 import java.util.List;
 
 import javax.xml.xquery.XQException;
@@ -20,7 +22,7 @@ public class ScrollableXQSequence extends BagriXQSequence implements XQSequence 
 	}
 	
 	private void setCurrent() throws XQException {
-		// @TODO: construct XQItemType properly..
+		// TODO: construct XQItemType properly..?
 		if (position > 0 && position <= sequence.size()) {
 			Object current = sequence.get(position - 1); 
 			if (current instanceof XQItem) {
@@ -37,7 +39,7 @@ public class ScrollableXQSequence extends BagriXQSequence implements XQSequence 
 	@Override
 	public boolean absolute(int itempos) throws XQException {
 		
-		checkSequence();
+		checkState(ex_sequence_closed);
 		if (sequence.size() > 0) {
 			if (itempos >= 0) {
 				position = itempos;
@@ -58,7 +60,7 @@ public class ScrollableXQSequence extends BagriXQSequence implements XQSequence 
 	@Override
 	public void afterLast() throws XQException {
 		
-		checkSequence();
+		checkState(ex_sequence_closed);
 		position = sequence.size() + 1;
 		setCurrent();
 	}
@@ -66,7 +68,7 @@ public class ScrollableXQSequence extends BagriXQSequence implements XQSequence 
 	@Override
 	public void beforeFirst() throws XQException {
 		
-		checkSequence();
+		checkState(ex_sequence_closed);
 		position = 0;
 		setCurrent();
 	}
@@ -82,7 +84,7 @@ public class ScrollableXQSequence extends BagriXQSequence implements XQSequence 
 	@Override
 	public int count() throws XQException {
 		
-		checkSequence();
+		checkState(ex_sequence_closed);
 		return sequence.size();
 	}
 
@@ -98,28 +100,28 @@ public class ScrollableXQSequence extends BagriXQSequence implements XQSequence 
 	@Override
 	public int getPosition() throws XQException {
 		
-		checkSequence();
+		checkState(ex_sequence_closed);
 		return position;
 	}
 
 	@Override
 	public boolean isOnItem() throws XQException {
 		
-		checkSequence();
+		checkState(ex_sequence_closed);
 		return position > 0 && position <= sequence.size();
 	}
 
 	@Override
 	public boolean isScrollable() throws XQException {
 		
-		checkSequence();
+		checkState(ex_sequence_closed);
 		return true;
 	}
 
 	@Override
 	public boolean first() throws XQException {
 		
-		checkSequence();
+		checkState(ex_sequence_closed);
 		if (sequence.size() > 0) {
 			position = 1;
 			setCurrent();
@@ -131,35 +133,35 @@ public class ScrollableXQSequence extends BagriXQSequence implements XQSequence 
 	@Override
 	public boolean isAfterLast() throws XQException {
 
-		checkSequence();
+		checkState(ex_sequence_closed);
 		return position > sequence.size(); //sequence.size() > 0 && position == sequence.size() - 1;
 	}
 
 	@Override
 	public boolean isBeforeFirst() throws XQException {
 
-		checkSequence();
+		checkState(ex_sequence_closed);
 		return position == 0 && sequence.size() > 0;
 	}
 
 	@Override
 	public boolean isFirst() throws XQException {
 
-		checkSequence();
+		checkState(ex_sequence_closed);
 		return position == 1;
 	}
 
 	@Override
 	public boolean isLast() throws XQException {
 		
-		checkSequence();
+		checkState(ex_sequence_closed);
 		return position == sequence.size();
 	}
 
 	@Override
 	public boolean last() throws XQException {
 		
-		checkSequence();
+		checkState(ex_sequence_closed);
 		if (sequence.size() > 0) {
 			position = sequence.size();
 			setCurrent();
@@ -171,7 +173,7 @@ public class ScrollableXQSequence extends BagriXQSequence implements XQSequence 
 	@Override
 	public boolean next() throws XQException {
 
-		checkSequence();
+		checkState(ex_sequence_closed);
 		position++;
 		if (position <= sequence.size() && sequence.size() > 0) {
 			setCurrent();
@@ -183,7 +185,7 @@ public class ScrollableXQSequence extends BagriXQSequence implements XQSequence 
 	@Override
 	public boolean previous() throws XQException {
 
-		checkSequence();
+		checkState(ex_sequence_closed);
 		position--;
 		if (position > 0 && sequence.size() > 0) {
 			setCurrent();
@@ -195,7 +197,7 @@ public class ScrollableXQSequence extends BagriXQSequence implements XQSequence 
 	@Override
 	public boolean relative(int itempos) throws XQException {
 		
-		checkSequence();
+		checkState(ex_sequence_closed);
 		if (sequence.size() > 0) {
 			position += itempos;
 			if (position < 0) {

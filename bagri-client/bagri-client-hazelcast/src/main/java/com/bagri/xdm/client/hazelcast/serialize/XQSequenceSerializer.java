@@ -59,6 +59,7 @@ public class XQSequenceSerializer implements StreamSerializer<XQSequence> {
 			boolean typeSerialized = false;
 			List list = new ArrayList();
 			while (sequence.next()) {
+				// what if sequence contains different types ?!
 				if (!typeSerialized) {
 					type = sequence.getItemType();
 					out.writeObject(type);

@@ -1,5 +1,6 @@
 package com.bagri.xqj;
 
+//import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
@@ -25,7 +26,9 @@ import com.bagri.common.util.XMLUtils;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMTransactionManagement;
 
+import static com.bagri.xdm.api.XDMException.ecTransWrongState;
 import static com.bagri.xdm.api.XDMTransactionManagement.TX_NO;
+import static com.bagri.xqj.BagriXQErrors.ex_connection_closed;
 import static com.bagri.xqj.BagriXQErrors.ex_null_context;
 import static com.bagri.xqj.BagriXQUtils.throwXQException; 
 
@@ -79,7 +82,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 	
 	void cancel() throws XQException {
 
-		//checkConnection();
+		//checkState();
 		cancelled = true;
 		// interrupt any current request.. 
 		getProcessor().cancelExecution();
@@ -88,7 +91,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 	@Override
 	public void close() throws XQException {
 		
-		//checkConnection();
+		//checkState();
 		if (transactional) {
 			if (autoCommit) {
 				try {
@@ -110,14 +113,14 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 	@Override
 	public XQExpression createExpression() throws XQException {
 		
-		checkConnection();
+		checkState(ex_connection_closed);
 		return new BagriXQExpression(this);
 	}
 
 	@Override
 	public XQExpression createExpression(XQStaticContext context) throws XQException {
 		
-		checkConnection();
+		checkState(ex_connection_closed);
 		if (context == null) {
 			throw new XQException(ex_null_context);
 		}
@@ -127,9 +130,9 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 	@Override
 	public void commit() throws XQException {
 
-		checkConnection();
+		checkState(ex_connection_closed);
 		if (autoCommit) {
-	        throw new XQException("The connection is in AutoCommit state, nothing to commit explicitly.");
+	        throw new XQException("The connection is in AutoCommit state, nothing to commit explicitly.", String.valueOf(ecTransWrongState));
 		}
 
 		if (transactional) {
@@ -145,7 +148,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 	@Override
 	public boolean getAutoCommit() throws XQException {
 		
-		checkConnection();
+		checkState(ex_connection_closed);
 		return autoCommit;
 	}
 
@@ -156,9 +159,9 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 	@Override
 	public void rollback() throws XQException {
 		
-		checkConnection();
+		checkState(ex_connection_closed);
 		if (autoCommit) {
-	        throw new XQException("The connection is in AutoCommit state, nothing to rollback explicitly.");
+	        throw new XQException("The connection is in AutoCommit state, nothing to rollback explicitly.", String.valueOf(ecTransWrongState));
 		}
 
 		if (transactional) {
@@ -174,7 +177,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 	@Override
 	public void setAutoCommit(boolean autoCommit) throws XQException {
 
-		checkConnection();
+		checkState(ex_connection_closed);
 		if (this.autoCommit == autoCommit) {
 			return;
 		}
@@ -203,14 +206,14 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 	@Override
 	public XQMetaData getMetaData() throws XQException {
 		
-		checkConnection();
+		checkState(ex_connection_closed);
 		return metaData;
 	}
 
 	@Override
 	public XQStaticContext getStaticContext() throws XQException {
 		
-		checkConnection();
+		checkState(ex_connection_closed);
 		return context; 
 	}
 
@@ -223,9 +226,9 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 	@Override
 	public XQPreparedExpression prepareExpression(String xquery) throws XQException {
 		
-		checkConnection();
+		checkState(ex_connection_closed);
 		if (xquery == null) {
-			throw new XQException("Provided xquery is null");
+			throw new XQException("Provided query is null");
 		}
 		
 		BagriXQPreparedExpression exp = new BagriXQPreparedExpression(this);
@@ -261,12 +264,12 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 	@Override
 	public XQPreparedExpression prepareExpression(String xquery, XQStaticContext context) throws XQException {
 
-		checkConnection();
+		checkState(ex_connection_closed);
 		if (context == null) {
 			throw new XQException(ex_null_context);
 		}
 		if (xquery == null) {
-			throw new XQException("Provided xquery is null");
+			throw new XQException("Provided query is null");
 		}
 
 		BagriXQPreparedExpression exp = new BagriXQPreparedExpression(this, context);
@@ -302,7 +305,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 	@Override
 	public void setStaticContext(XQStaticContext context) throws XQException {
 		
-		checkConnection();
+		checkState(ex_connection_closed);
 		if (context == null) {
 			throw new XQException(ex_null_context);
 		}
@@ -319,7 +322,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 	public void executeCommand(final String cmd, final Map<QName, XQItemAccessor> bindings, 
 			final XQStaticContext ctx) throws XQException {
 		
-		checkConnection();
+		checkState(ex_connection_closed);
 		cancelled = false;
 		try {
 			if (transactional) {
@@ -344,14 +347,16 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 		}
 	}
 
+	@SuppressWarnings("rawtypes")
 	public Iterator executeQuery(String query) throws XQException {
 		
 		return executeQuery(query, context); //this.getStaticContext());
 	}
 	
+	@SuppressWarnings("rawtypes")
 	public Iterator executeQuery(final String query, final XQStaticContext ctx) throws XQException {
 		
-		checkConnection();
+		checkState(ex_connection_closed);
 		Iterator result = null;
 		cancelled = false;
 		try {
@@ -411,7 +416,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 	
 	public void prepareQuery(BagriXQPreparedExpression exp, XQStaticContext ctx) throws XQException {
 		
-		checkConnection();
+		checkState(ex_connection_closed);
 		Collection<QName> vars = getProcessor().prepareXQuery(exp.getXQuery(), ctx);
 		exp.setVarNames(vars);
 	}
@@ -423,4 +428,5 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 	void unbindVariable(QName varName) throws XQException {
 		getProcessor().unbindVariable(varName);
 	}
+	
 }

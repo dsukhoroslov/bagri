@@ -1,13 +1,15 @@
 package com.bagri.xdm.cache.hazelcast.impl;
 
+import static com.bagri.xdm.api.XDMException.ecTransaction;
+import static com.bagri.xdm.api.XDMException.ecTransNoNested;
+import static com.bagri.xdm.api.XDMException.ecTransNotFound;
+import static com.bagri.xdm.api.XDMException.ecTransWrongState;
 import static com.bagri.xdm.client.common.XDMCacheConstants.CN_XDM_TRANSACTION;
 import static com.bagri.xdm.client.common.XDMCacheConstants.SQN_TRANSACTION;
 
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -20,13 +22,11 @@ import org.slf4j.LoggerFactory;
 import com.bagri.common.idgen.IdGenerator;
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.common.stats.StatisticsProvider;
-import com.bagri.common.stats.StatisticsCollector.Statistics;
+import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.cache.api.XDMTransactionManagement;
 import com.bagri.xdm.client.hazelcast.impl.IdGeneratorImpl;
-import com.bagri.xdm.client.hazelcast.impl.ResultCursor;
 import com.bagri.xdm.common.XDMTransactionIsolation;
 import com.bagri.xdm.common.XDMTransactionState;
-import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMTransaction;
 import com.hazelcast.core.Cluster;
 import com.hazelcast.core.HazelcastInstance;
@@ -69,22 +69,22 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 		return txTimeout;
 	}
 	
-	public void setTransactionTimeout(long timeout) {
+	public void setTransactionTimeout(long timeout) throws XDMException {
 		this.txTimeout = timeout;
 	}
 	
 	@Override
-	public long beginTransaction() {
+	public long beginTransaction() throws XDMException {
 		// get default isolation level from some config..
 		return beginTransaction(XDMTransactionIsolation.readCommited);
 	}
 
 	@Override
-	public long beginTransaction(XDMTransactionIsolation txIsolation) {
+	public long beginTransaction(XDMTransactionIsolation txIsolation) throws XDMException {
 		logger.trace("beginTransaction.enter; txIsolation: {}", txIsolation); 
 		long txId = thTx.get();
 		if (txId > TX_NO && txCache.containsKey(txId)) {
-			throw new IllegalStateException("nested transactions are not supported; current txId: " + txId);
+			throw new XDMException("nested transactions are not supported; current txId: " + txId, ecTransNoNested);
 		}
 
 		txId = txGen.next();
@@ -99,7 +99,7 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 	}
 
 	@Override
-	public void commitTransaction(long txId) {
+	public void commitTransaction(long txId) throws XDMException {
 		logger.trace("commitTransaction.enter; got txId: {}", txId); 
 		// TODO: do this via EntryProcessor?
 		XDMTransaction xTx = txCache.get(txId);
@@ -107,7 +107,7 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 			xTx.finish(true, cluster.getClusterTime());
 			txCache.set(txId, xTx);
 		} else {
-			throw new IllegalStateException("No transaction found for TXID: " + txId);
+			throw new XDMException("no transaction found for TXID: " + txId, ecTransNotFound);
 		}
 		txCache.delete(txId);
 		thTx.set(TX_NO);
@@ -116,7 +116,7 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 	}
 
 	@Override
-	public void rollbackTransaction(long txId) {
+	public void rollbackTransaction(long txId) throws XDMException {
 		logger.trace("rollbackTransaction.enter; got txId: {}", txId); 
 		// TODO: do this via EntryProcessor?
 		XDMTransaction xTx = txCache.get(txId);
@@ -124,7 +124,7 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 			xTx.finish(false, cluster.getClusterTime());
 			txCache.set(txId, xTx);
 		} else {
-			throw new IllegalStateException("No transaction found for TXID: " + txId);
+			throw new XDMException("No transaction found for TXID: " + txId, ecTransNotFound);
 		}
 		// do not delete rolled back tx for a while
 		thTx.set(TX_NO);
@@ -132,7 +132,7 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 		logger.trace("rollbackTransaction.exit; tx: {}", xTx); 
 	}
 	
-	boolean isTxVisible(long txId) {
+	boolean isTxVisible(long txId) throws XDMException {
 		long cTx = getCurrentTxId();
 		if (txId == cTx) {
 			// current tx;
@@ -145,12 +145,12 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 			// can not be null!
 			xTx = txCache.get(cTx);
 			if (xTx == null) {
-				throw new IllegalStateException("Can not find current Transaction with txId " + cTx + "; txId: " + txId);
+				throw new XDMException("Can not find current Transaction with txId " + cTx + "; txId: " + txId, ecTransNotFound);
 			}
 	
 			// current tx is already finished!
 			if (xTx.getTxState() != XDMTransactionState.started) {
-				throw new IllegalStateException("Current Transaction is already " + xTx.getTxState());
+				throw new XDMException("Current Transaction is already " + xTx.getTxState(), ecTransWrongState);
 			}
 				
 			txIsolation = xTx.getTxIsolation(); 
@@ -182,7 +182,7 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 		return thTx.get(); 
 	}
 	
-	void flushCurrentTx() {
+	void flushCurrentTx() throws XDMException {
 		long txId = getCurrentTxId();
 		if (txId > TX_NO) {
 			rollbackTransaction(txId);
@@ -190,7 +190,7 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 	}
 	
 	@Override
-	public <V> V callInTransaction(long txId, boolean readOnly, Callable<V> call) {
+	public <V> V callInTransaction(long txId, boolean readOnly, Callable<V> call) throws XDMException {
 		
 		logger.trace("callInTransaction.enter; got txId: {}", txId);
 		boolean autoCommit = txId == TX_NO; 
@@ -206,15 +206,6 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 		
 		try {
 			V result = call.call();
-			// handle ResultCursor with failure = true!
-			if (result instanceof ResultCursor) {
-				if (((ResultCursor) result).isFailure()) {
-					if (!readOnly) {
-						rollbackTransaction(txId);
-					}
-					autoCommit = false;
-				}
-			}
 			if (autoCommit && !readOnly) {
 				commitTransaction(txId);
 			}
@@ -226,7 +217,10 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 			if (!readOnly) {
 				rollbackTransaction(txId);
 			}
-			throw new RuntimeException(ex);
+			if (ex instanceof XDMException) {
+				throw (XDMException) ex;
+			}
+			throw new XDMException(ex, XDMException.ecTransaction);
 		}
 	}
 

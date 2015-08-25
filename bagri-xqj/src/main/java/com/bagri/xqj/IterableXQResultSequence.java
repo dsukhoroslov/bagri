@@ -1,5 +1,7 @@
 package com.bagri.xqj;
 
+import static com.bagri.xqj.BagriXQErrors.ex_sequence_closed;
+
 import java.util.Iterator;
 
 import javax.xml.xquery.XQConnection;
@@ -20,14 +22,14 @@ public class IterableXQResultSequence extends IterableXQSequence implements XQRe
 	@Override
 	public XQConnection getConnection() throws XQException {
 
-		checkSequence();
+		checkState(ex_sequence_closed);
 		return expression.connection;
 	}
 	
 	@Override
 	public XQItem getItem() throws XQException {
 		
-		checkSequence();
+		checkState(ex_sequence_closed);
 		//checkAccess();
 		super.getItem();
 		return new BagriXQResultItem(type, value, this);

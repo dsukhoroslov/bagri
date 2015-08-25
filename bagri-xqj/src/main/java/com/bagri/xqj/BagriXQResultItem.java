@@ -1,5 +1,7 @@
 package com.bagri.xqj;
 
+import static com.bagri.xqj.BagriXQErrors.ex_item_closed;
+
 import javax.xml.xquery.XQConnection;
 import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQItemType;
@@ -24,9 +26,7 @@ public class BagriXQResultItem extends BagriXQItem implements XQResultItem {
 	@Override
 	public XQConnection getConnection() throws XQException {
 		
-		if (isClosed()) {
-			throw new XQException("ResultItem is closed");
-		}
+		checkState(ex_item_closed);
 		return parent.getConnection();
 	}
 	

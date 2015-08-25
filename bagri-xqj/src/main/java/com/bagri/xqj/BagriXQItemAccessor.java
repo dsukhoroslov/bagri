@@ -15,6 +15,7 @@ import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQItemAccessor;
 import javax.xml.xquery.XQItemType;
 
+import static com.bagri.xqj.BagriXQErrors.ex_item_closed;
 import static javax.xml.xquery.XQItemType.*;
 
 import org.w3c.dom.Node;
@@ -23,12 +24,11 @@ import org.xml.sax.ContentHandler;
 import com.bagri.common.util.XMLUtils;
 import com.bagri.xquery.api.XQProcessor;
 
-public abstract class BagriXQItemAccessor implements XQItemAccessor {
+public abstract class BagriXQItemAccessor extends BagriXQCloseable implements XQItemAccessor {
 	
 	protected XQItemType type;
 	protected Object value;
 	protected boolean positioned = false;
-	private boolean closed;
 	
 	private XQProcessor xqProcessor;
 
@@ -36,15 +36,9 @@ public abstract class BagriXQItemAccessor implements XQItemAccessor {
 		this.xqProcessor = xqProcessor;
 	}
 	
-	public void close() throws XQException {
-		
-		closed = true;
-	}
-
-	public boolean isClosed() {
-		
-		return closed; // || parent.isClosed() 
-	}
+	//public boolean isClosed() {
+	//	return closed; // || parent.isClosed() 
+	//}
 
 	protected void setCurrent(XQItemType type, Object value) {
 		this.type = type;
@@ -59,9 +53,7 @@ public abstract class BagriXQItemAccessor implements XQItemAccessor {
 	@Override
 	public boolean getBoolean() throws XQException {
 		
-		if (closed) {
-			throw new XQException("Item is closed");
-		}
+		checkState(ex_item_closed);
 		if (type == null) {
 			throw new XQException("ItemType is null");
 		}
@@ -137,18 +129,14 @@ public abstract class BagriXQItemAccessor implements XQItemAccessor {
 	@Override
 	public byte getByte() throws XQException {
 		
-		if (closed) {
-			throw new XQException("Item is closed");
-		}
+		checkState(ex_item_closed);
 		return (byte) convertDecimal(Byte.MIN_VALUE, Byte.MAX_VALUE, "byte");
 	}
 
 	@Override
 	public double getDouble() throws XQException {
 		
-		if (closed) {
-			throw new XQException("Item is closed");
-		}
+		checkState(ex_item_closed);
 		if (type.getBaseType() == XQBASETYPE_DOUBLE) {
 			return (Double) value;
 		}
@@ -161,9 +149,7 @@ public abstract class BagriXQItemAccessor implements XQItemAccessor {
 	@Override
 	public float getFloat() throws XQException {
 		
-		if (closed) {
-			throw new XQException("Item is closed");
-		}
+		checkState(ex_item_closed);
 		if (type.getBaseType() == XQBASETYPE_FLOAT) {
 			return (Float) value;
 		}
@@ -176,9 +162,7 @@ public abstract class BagriXQItemAccessor implements XQItemAccessor {
 	@Override
 	public int getInt() throws XQException {
 		
-		if (closed) {
-			throw new XQException("Item is closed");
-		}
+		checkState(ex_item_closed);
 		return (int) convertDecimal(Integer.MIN_VALUE, Integer.MAX_VALUE, "int");
 	}
 
@@ -200,26 +184,20 @@ public abstract class BagriXQItemAccessor implements XQItemAccessor {
 		if (closed) {
 			throw new XQException("Item is closed");
 		}
-		
 		return xqProcessor.convertToString(value);
 	}
 
 	@Override
 	public long getLong() throws XQException {
 
-		if (closed) {
-			throw new XQException("Item is closed");
-		}
+		checkState(ex_item_closed);
 		return (long) convertDecimal(Long.MIN_VALUE, Long.MAX_VALUE, "long");
 	}
 
 	@Override
 	public Node getNode() throws XQException {
 
-		if (closed) {
-			throw new XQException("Item is closed");
-		}
-		
+		checkState(ex_item_closed);
 		switch (type.getItemKind()) {
 			case XQITEMKIND_ATTRIBUTE: 
 			case XQITEMKIND_SCHEMA_ATTRIBUTE: return (org.w3c.dom.Attr) value;
@@ -266,7 +244,6 @@ public abstract class BagriXQItemAccessor implements XQItemAccessor {
 		if (closed) {
 			throw new XQException("Item is closed");
 		}
-		
 		try {
 			return XMLUtils.stringToStream(getItemAsString(null));
 		} catch (IOException ex) {
@@ -276,10 +253,10 @@ public abstract class BagriXQItemAccessor implements XQItemAccessor {
 
 	@Override
 	public String getItemAsString(Properties props) throws XQException {
+		
 		if (closed) {
 			throw new XQException("Item is closed");
 		}
-		
         //if (props == null) {
         //    props = new Properties();
         //} else {
@@ -294,18 +271,14 @@ public abstract class BagriXQItemAccessor implements XQItemAccessor {
 	@Override
 	public short getShort() throws XQException {
 		
-		if (closed) {
-			throw new XQException("Item is closed");
-		}
+		checkState(ex_item_closed);
 		return (short) convertDecimal(Short.MIN_VALUE, Short.MAX_VALUE, "short");
 	}
 
 	@Override
 	public boolean instanceOf(XQItemType type) throws XQException {
 		
-		if (closed) {
-			throw new XQException("Item is closed");
-		}
+		checkState(ex_item_closed);
 		if (!positioned) {
 			throw new XQException("not positioned on the Item");
 		}
@@ -318,11 +291,9 @@ public abstract class BagriXQItemAccessor implements XQItemAccessor {
 	@Override
 	public void writeItem(OutputStream os, Properties props) throws XQException {
 
+		checkState(ex_item_closed);
 		if (os == null) {
 			throw new XQException("Provided OutputStream is null");
-		}
-		if (closed) {
-			throw new XQException("Item is closed");
 		}
 
 		String result = getItemAsString(props);
@@ -336,11 +307,9 @@ public abstract class BagriXQItemAccessor implements XQItemAccessor {
 	@Override
 	public void writeItem(Writer ow, Properties props) throws XQException {
 
+		checkState(ex_item_closed);
 		if (ow == null) {
 			throw new XQException("Provided Writer is null");
-		}
-		if (closed) {
-			throw new XQException("Item is closed");
 		}
 		
 		try {
@@ -353,11 +322,9 @@ public abstract class BagriXQItemAccessor implements XQItemAccessor {
 	@Override
 	public void writeItemToSAX(ContentHandler saxhdlr) throws XQException {
 
+		checkState(ex_item_closed);
 		if (saxhdlr == null) {
 			throw new XQException("Provided ContextHandler is null");
-		}
-		if (closed) {
-			throw new XQException("Item is closed");
 		}
 		
 		try {
@@ -370,11 +337,9 @@ public abstract class BagriXQItemAccessor implements XQItemAccessor {
 	@Override
 	public void writeItemToResult(Result result) throws XQException {
 
+		checkState(ex_item_closed);
 		if (result == null) {
 			throw new XQException("Provided Result is null");
-		}
-		if (closed) {
-			throw new XQException("Item is closed");
 		}
 		
 		try {
@@ -383,5 +348,12 @@ public abstract class BagriXQItemAccessor implements XQItemAccessor {
 			throw new XQException(ex.getMessage());
 		}
 	}
+	
+	//void checkState() throws XQException {
+	//	if (closed) {
+	//		throw new XQException(ex_item_closed);
+	//	}
+	//}
+	
 
 }

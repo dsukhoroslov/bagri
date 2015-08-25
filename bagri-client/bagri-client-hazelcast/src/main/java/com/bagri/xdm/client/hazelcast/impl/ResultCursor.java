@@ -33,7 +33,7 @@ public class ResultCursor implements Iterator<Object>, IdentifiedDataSerializabl
 
 	private String clientId;
 	private String memberId;
-	private boolean failure;
+	//private boolean failure;
 	private int batchSize;
 	private int queueSize;
 	private int position;
@@ -55,13 +55,12 @@ public class ResultCursor implements Iterator<Object>, IdentifiedDataSerializabl
 		this.batchSize = batchSize;
 		this.iter = iter;
 		this.queueSize = UNKNOWN;
-		this.failure = false;
+		//this.failure = false;
 	}
 
-	public ResultCursor(String clientId, int batchSize, Iterator<Object> iter, int queueSize, boolean failure) {
+	public ResultCursor(String clientId, int batchSize, Iterator<Object> iter, int queueSize) {
 		this(clientId, batchSize, iter);
 		this.queueSize = queueSize;
-		this.failure = failure;
 	}
 
 	private IQueue<Object> getQueue() {
@@ -134,10 +133,6 @@ public class ResultCursor implements Iterator<Object>, IdentifiedDataSerializabl
 		return queueSize;
 	}
 	
-	public boolean isFailure() {
-		return failure;
-	}
-	
 	@Override
 	public boolean hasNext() {
 		boolean result = current != null;
@@ -195,8 +190,8 @@ public class ResultCursor implements Iterator<Object>, IdentifiedDataSerializabl
 	@Override
 	public String toString() {
 		return "ResultCursor [clientId=" + clientId + ", memberId=" + memberId + 
-			", isFailure=" + failure + ", queueSize=" + queueSize + 
-			", position=" + position + ", batchSize=" + batchSize + "]";
+			", queueSize=" + queueSize + ", position=" + position + 
+			", batchSize=" + batchSize + "]";
 	}
 
 	@Override
@@ -212,7 +207,6 @@ public class ResultCursor implements Iterator<Object>, IdentifiedDataSerializabl
 	@Override
 	public void readData(ObjectDataInput in) throws IOException {
 		clientId = in.readUTF();
-		failure = in.readBoolean();
 		queueSize = in.readInt();
 		memberId = in.readUTF();
 		batchSize = in.readInt();
@@ -221,7 +215,6 @@ public class ResultCursor implements Iterator<Object>, IdentifiedDataSerializabl
 	@Override
 	public void writeData(ObjectDataOutput out) throws IOException {
 		out.writeUTF(clientId);
-		out.writeBoolean(failure);
 		out.writeInt(queueSize);
 		out.writeUTF(memberId);
 		out.writeInt(batchSize);

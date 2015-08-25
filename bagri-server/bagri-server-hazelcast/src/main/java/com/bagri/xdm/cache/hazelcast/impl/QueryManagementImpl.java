@@ -361,7 +361,7 @@ public class QueryManagementImpl implements XDMQueryManagement {
 		return result;
 	}
 
-	private boolean checkDocumentCommited(long docId) {
+	private boolean checkDocumentCommited(long docId) throws XDMException {
 		XDMDocument doc = docMgr.getDocument(docId);
 		if (doc.getTxFinish() > TX_NO && txMgr.isTxVisible(doc.getTxFinish())) {
 			return false;
@@ -369,7 +369,7 @@ public class QueryManagementImpl implements XDMQueryManagement {
 		return txMgr.isTxVisible(doc.getTxStart());
 	}
 	
-	private Collection<Long> checkDocumentsCommited(Collection<Long> docIds) {
+	private Collection<Long> checkDocumentsCommited(Collection<Long> docIds) throws XDMException {
 		Iterator<Long> itr = docIds.iterator();
 		while (itr.hasNext()) {
 			long docId = itr.next();
@@ -459,18 +459,18 @@ public class QueryManagementImpl implements XDMQueryManagement {
 	}
 	
 	@Override
-	public Iterator executeXCommand(String command, Map bindings, Properties props) {
+	public Iterator executeXCommand(String command, Map bindings, Properties props) throws XDMException {
 		
 		return execXQCommand(false, command, bindings, props);
 	}
 
 	@Override
-	public Iterator executeXQuery(String query, Map bindings, Properties props) {
+	public Iterator executeXQuery(String query, Map bindings, Properties props) throws XDMException {
 
 		return execXQCommand(true, query, bindings, props);
 	}
 
-	private Iterator execXQCommand(boolean isQuery, String xqCmd, Map bindings, Properties props) {
+	private Iterator execXQCommand(boolean isQuery, String xqCmd, Map bindings, Properties props) throws XDMException {
 
 		logger.trace("execXQCommand.enter; query: {}, command: {}; bindings: {}; properties: {}", 
 				isQuery, xqCmd, bindings, props);
@@ -504,22 +504,23 @@ public class QueryManagementImpl implements XDMQueryManagement {
 
 			//	iter = queryManager.addQueryResults(xqCmd, bindings, props, iter);
 			}
-			result = createCursor(clientId, batchSize, iter, false);
+			result = createCursor(clientId, batchSize, iter);
 			xqp.setResults(result);
-		} catch (Throwable ex) {
-			logger.error("execXQCommand.error;", ex);
-			result = createCursor(clientId, 0, new ExceptionIterator(ex), true);
+		} catch (XQException ex) {
+		//	logger.error("execXQCommand.error;", ex);
+			//result = createCursor(clientId, 0, new ExceptionIterator(ex), true);
+			throw new XDMException(ex.getMessage(), XDMException.ecQuery);
 		}
 		logger.trace("execXQCommand.exit; returning: {}, for client: {}", result, clientId);
 		return result;
 	}
 
-	private ResultCursor createCursor(String clientId, int batchSize, Iterator iter, boolean failure) {
+	private ResultCursor createCursor(String clientId, int batchSize, Iterator iter) {
 		int size = ResultCursor.UNKNOWN;
 		if (iter instanceof XQSequenceIterator) {
 			size = ((XQSequenceIterator) iter).getFullSize();
 		}
-		final ResultCursor xqCursor = new ResultCursor(clientId, batchSize, iter, size, failure);
+		final ResultCursor xqCursor = new ResultCursor(clientId, batchSize, iter, size);
 		
 		// async serialization takes even more time! because of the thread context switch, most probably
 		//IExecutorService execService = hzInstance.getExecutorService(PN_XDM_SCHEMA_POOL);

@@ -1,5 +1,7 @@
 package com.bagri.xqj;
 
+import static com.bagri.xqj.BagriXQErrors.ex_expression_closed;
+
 import java.io.InputStream;
 import java.io.Reader;
 import java.util.Collection;
@@ -22,11 +24,10 @@ import javax.xml.xquery.XQStaticContext;
 
 import org.w3c.dom.Node;
 
-public class BagriXQDynamicContext implements XQDynamicContext {
+public class BagriXQDynamicContext extends BagriXQCloseable implements XQDynamicContext {
 	
 	protected XQStaticContext context;
 	protected BagriXQConnection connection;
-	private boolean closed = false;
 	private TimeZone timeZone;
 	private Set<QName> varNames = new HashSet<QName>();
 	private Map<QName, XQItemAccessor> bindings = new HashMap<QName, XQItemAccessor>();
@@ -55,9 +56,7 @@ public class BagriXQDynamicContext implements XQDynamicContext {
 
 	public void cancel() throws XQException {
 		
-		if (isClosed()) {
-			throw new XQException("Connection is closed");
-		}
+		checkState(ex_expression_closed);
 		connection.cancel();
 	}
 
@@ -69,7 +68,7 @@ public class BagriXQDynamicContext implements XQDynamicContext {
 		if (connection != null) {
 			return connection.isClosed();
 		}
-		return false; //closed;
+		return false; 
 	}
 
 	public void close() throws XQException {
@@ -97,9 +96,7 @@ public class BagriXQDynamicContext implements XQDynamicContext {
 	
 	protected void bindXQItemAccessor(QName varName, BagriXQItemAccessor value) throws XQException {
 		
-		if (isClosed()) {
-			throw new XQException("Connection is closed");
-		}
+		checkState(ex_expression_closed);
 		if (varName == null) {
 			throw new XQException("varName is null");
 		}
@@ -213,26 +210,20 @@ public class BagriXQDynamicContext implements XQDynamicContext {
 	@Override
 	public TimeZone getImplicitTimeZone() throws XQException {
 		
-		if (isClosed()) {
-			throw new XQException("Connection is closed");
-		}
+		checkState(ex_expression_closed);
 		return timeZone;
 	}
 
 	public XQStaticContext getStaticContext() throws XQException {
 		
-		if (isClosed()) {
-			throw new XQException("Connection is closed");
-		}
+		checkState(ex_expression_closed);
 		return new BagriXQStaticContext(context);
 	}
 	
 	@Override
 	public void setImplicitTimeZone(TimeZone implicitTimeZone) throws XQException {
 		
-		if (isClosed()) {
-			throw new XQException("Connection is closed");
-		}
+		checkState(ex_expression_closed);
 		this.timeZone = implicitTimeZone;
 	}
 	

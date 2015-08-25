@@ -21,7 +21,7 @@ public class BagriXQSequenceIterator implements Iterator {
 			if (sequence.isScrollable()) {
 				return !(sequence.isLast() || sequence.isAfterLast());
 			}
-		} catch (XQException e) {
+		} catch (XQException ex) {
 			
 			//e.printStackTrace();
 		}
@@ -37,7 +37,7 @@ public class BagriXQSequenceIterator implements Iterator {
 			} else {
 				isLast = false;
 			}
-		} catch (XQException e) {
+		} catch (XQException ex) {
 			
 			// e.printStackTrace();
 		}
@@ -47,7 +47,7 @@ public class BagriXQSequenceIterator implements Iterator {
 	@Override
 	public void remove() {
 		
-		throw new IllegalStateException("Remove is not supported");
+		throw new UnsupportedOperationException("Remove is not supported");
 	}
 
 }

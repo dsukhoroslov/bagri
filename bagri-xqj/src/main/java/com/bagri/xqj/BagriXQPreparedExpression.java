@@ -1,6 +1,7 @@
 package com.bagri.xqj;
 
 import static com.bagri.common.util.CollectionUtils.copyIterator;
+import static com.bagri.xqj.BagriXQErrors.ex_expression_closed;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -66,12 +67,8 @@ public class BagriXQPreparedExpression extends BagriXQDynamicContext implements	
 	@Override
 	public XQResultSequence executeQuery() throws XQException {
 
-		if (isClosed()) {
-			throw new XQException("Expression is closed");
-		}
-		// run it...
+		checkState(ex_expression_closed);
 		Iterator result = connection.executeQuery(xquery, context); //this.getStaticContext());
-		
 		if (context.getScrollability() == XQConstants.SCROLLTYPE_SCROLLABLE) {
 			return new ScrollableXQResultSequence(this, copyIterator(result));
 		}
@@ -81,18 +78,14 @@ public class BagriXQPreparedExpression extends BagriXQDynamicContext implements	
 	@Override
 	public QName[] getAllExternalVariables() throws XQException {
 
-		if (isClosed()) {
-			throw new XQException("Expression is closed");
-		}
+		checkState(ex_expression_closed);
 		return getVarNames().toArray(new QName[0]);
 	}
 
 	@Override
 	public QName[] getAllUnboundExternalVariables() throws XQException {
 
-		if (isClosed()) {
-			throw new XQException("Expression is closed");
-		}
+		checkState(ex_expression_closed);
 		Set<QName> vars = getVarNames();
 		Set<QName> bound = getBindings().keySet();
 		List<QName> delta = new ArrayList<QName>(vars.size() - bound.size());
@@ -107,19 +100,14 @@ public class BagriXQPreparedExpression extends BagriXQDynamicContext implements	
 	@Override
 	public XQSequenceType getStaticResultType() throws XQException {
 
-		if (isClosed()) {
-			throw new XQException("Expression is closed");
-		}
-		//
+		checkState(ex_expression_closed);
 		return new BagriXQSequenceType(connection.createItemType(), OCC_ZERO_OR_MORE);
 	}
 
 	@Override
 	public XQSequenceType getStaticVariableType(QName name) throws XQException {
 
-		if (isClosed()) {
-			throw new XQException("Expression is closed");
-		}
+		checkState(ex_expression_closed);
 		if (name == null) {
 			throw new XQException("name is null");
 		}

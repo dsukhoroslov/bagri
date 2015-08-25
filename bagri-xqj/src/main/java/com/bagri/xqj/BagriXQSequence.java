@@ -31,19 +31,14 @@ public abstract class BagriXQSequence extends BagriXQItemAccessor implements XQS
 	@Override
 	public XQItem getItem() throws XQException {
 		
-		if (isClosed()) {
-			throw new XQException("Sequence is closed");
-		}
+		checkState(ex_sequence_closed);
 		return new BagriXQItem(getXQProcessor(), type, value);
 	}
 
 	@Override
 	public XMLStreamReader getSequenceAsStream() throws XQException {
 
-		if (isClosed()) {
-			throw new XQException("Sequence is closed");
-		}
-		
+		checkState(ex_sequence_closed);
 		try {
 			return XMLUtils.stringToStream(getSequenceAsString(null));
 		} catch (IOException ex) {
@@ -54,9 +49,7 @@ public abstract class BagriXQSequence extends BagriXQItemAccessor implements XQS
 	@Override
 	public String getSequenceAsString(Properties props) throws XQException {
 
-		if (isClosed()) {
-			throw new XQException("Sequence is closed");
-		}
+		checkState(ex_sequence_closed);
         
 		// TODO: do this via xqProcessor.serializeSequence(...);
 		
@@ -79,9 +72,7 @@ public abstract class BagriXQSequence extends BagriXQItemAccessor implements XQS
 	@Override
 	public void writeSequence(OutputStream os, Properties props) throws XQException {
 
-		if (isClosed()) {
-			throw new XQException("Sequence is closed");
-		}
+		checkState(ex_sequence_closed);
 		if (os == null) {
 			throw new XQException("Provided OutputStream is null");
 		}
@@ -97,9 +88,7 @@ public abstract class BagriXQSequence extends BagriXQItemAccessor implements XQS
 	@Override
 	public void writeSequence(Writer ow, Properties props) throws XQException {
 		
-		if (isClosed()) {
-			throw new XQException("Sequence is closed");
-		}
+		checkState(ex_sequence_closed);
 		if (ow == null) {
 			throw new XQException("Provided Writer is null");
 		}
@@ -114,9 +103,7 @@ public abstract class BagriXQSequence extends BagriXQItemAccessor implements XQS
 	@Override
 	public void writeSequenceToSAX(ContentHandler saxhdlr) throws XQException {
 
-		if (isClosed()) {
-			throw new XQException("Sequence is closed");
-		}
+		checkState(ex_sequence_closed);
 		if (saxhdlr == null) {
 			throw new XQException("Provided ContextHandler is null");
 		}
@@ -131,9 +118,7 @@ public abstract class BagriXQSequence extends BagriXQItemAccessor implements XQS
 	@Override
 	public void writeSequenceToResult(Result result) throws XQException {
 		
-		if (isClosed()) {
-			throw new XQException("Sequence is closed");
-		}
+		checkState(ex_sequence_closed);
 		if (result == null) {
 			throw new XQException("Provided Result is null");
 		}
@@ -145,11 +130,4 @@ public abstract class BagriXQSequence extends BagriXQItemAccessor implements XQS
 		}
 	}
 
-	void checkSequence() throws XQException {
-		
-		if (isClosed()) {
-			throw new XQException(ex_sequence_closed);
-		}
-	}
-	
 }

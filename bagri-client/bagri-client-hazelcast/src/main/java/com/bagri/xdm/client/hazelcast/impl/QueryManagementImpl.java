@@ -175,15 +175,15 @@ public class QueryManagementImpl implements XDMQueryManagement {
 		logger.trace("execXQuery; got cursor: {}", cursor);
 		if (cursor != null) {
 			cursor.deserialize(repo.getHazelcastClient());
-			if (cursor.isFailure()) {
-				while (cursor.hasNext()) {
-					Object err = cursor.next();
-					if (err instanceof String) {
+			//if (cursor.isFailure()) {
+			//	while (cursor.hasNext()) {
+			//		Object err = cursor.next();
+			//		if (err instanceof String) {
 						// get error code from cursor too! 
-						throw new XDMException((String) err, XDMException.ecUnknown);
-					}
-				}
-			}
+			//			throw new XDMException((String) err, XDMException.ecUnknown);
+			//		}
+			//	}
+			//}
 		}
 			
 		Iterator result;
@@ -209,11 +209,11 @@ public class QueryManagementImpl implements XDMQueryManagement {
 		} catch (TimeoutException ex) {
 			logger.warn("getResults.timeout; request timed out after {}; cancelled: {}", timeout, future.isCancelled());
 			future.cancel(true);
-			throw new XDMException(ex, XDMException.ecTimeout);
+			throw new XDMException(ex, XDMException.ecQueryTimeout);
 		} catch (InterruptedException | ExecutionException ex) {
 			int errorCode = XDMException.ecQuery;
 			if (ex.getCause() != null && ex.getCause() instanceof CancellationException) {
-				errorCode = XDMException.ecCancel;
+				errorCode = XDMException.ecQueryCancel;
 				logger.warn("getResults.interrupted; request cancelled: {}", future.isCancelled());
 			} else {
 				future.cancel(false); 

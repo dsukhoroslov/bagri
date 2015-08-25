@@ -1,5 +1,6 @@
 package com.bagri.xqj;
 
+import static com.bagri.xqj.BagriXQErrors.ex_sequence_closed;
 import static com.bagri.xqj.BagriXQErrors.ex_sequence_not_scrollable;
 
 import java.io.OutputStream;
@@ -261,14 +262,14 @@ public class IterableXQSequence extends BagriXQSequence {
 	@Override
 	public boolean isOnItem() throws XQException {
 		
-		checkSequence();
+		checkState(ex_sequence_closed);
 		return positioned; 
 	}
 
 	@Override
 	public boolean isScrollable() throws XQException {
 		
-		checkSequence();
+		checkState(ex_sequence_closed);
 		return false;
 	}
 
@@ -281,7 +282,7 @@ public class IterableXQSequence extends BagriXQSequence {
 	@Override
 	public boolean next() throws XQException {
 		
-		checkSequence();
+		checkState(ex_sequence_closed);
 		if (iterator.hasNext()) {
 			Object current = iterator.next();
 			if (current instanceof BagriXQItem) {

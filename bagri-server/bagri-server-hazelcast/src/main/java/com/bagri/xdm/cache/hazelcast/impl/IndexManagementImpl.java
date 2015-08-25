@@ -347,7 +347,7 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 		}
 	}
 
-	private boolean checkUniquiness(XDMUniqueDocument uidx, long docId) {
+	private boolean checkUniquiness(XDMUniqueDocument uidx, long docId) throws XDMException {
 		//long id = XDMDocumentKey.toDocumentId(docId);
 		// check xidx.docIds - update document UC..
 		if (uidx != null) {

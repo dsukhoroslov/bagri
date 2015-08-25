@@ -1,6 +1,7 @@
 package com.bagri.xqj;
 
 import static com.bagri.xdm.common.XDMConstants.*;
+import static com.bagri.xqj.BagriXQErrors.ex_connection_closed;
 
 import java.nio.charset.Charset;
 import java.util.Map;
@@ -32,196 +33,197 @@ public class BagriXQMetaData implements XQMetaData, XQMetaData2 {
 	@Override
 	public int getProductMajorVersion() throws XQException {
 		
-		connect.checkConnection();
+		connect.checkState(ex_connection_closed);
 		return 0;
 	}
 
 	@Override
 	public int getProductMinorVersion() throws XQException {
 		
-		connect.checkConnection();
+		connect.checkState(ex_connection_closed);
 		return 5;
 	}
 
 	@Override
 	public String getProductName() throws XQException {
 		
-		connect.checkConnection();
+		connect.checkState(ex_connection_closed);
 		return "bagri-xqj";
 	}
 
 	@Override
 	public String getUserName() throws XQException {
 		
-		connect.checkConnection();
+		connect.checkState(ex_connection_closed);
 		return userName;
 	}
 
 	@Override
 	public int getMaxExpressionLength() throws XQException {
 		
-		connect.checkConnection();
+		connect.checkState(ex_connection_closed);
 		return max_expression_length;
 	}
 
 	@Override
 	public int getMaxUserNameLength() throws XQException {
 		
-		connect.checkConnection();
+		connect.checkState(ex_connection_closed);
 		return max_user_name_length;
 	}
 
 	@Override
 	public String getProductVersion() throws XQException {
 		
-		connect.checkConnection();
+		connect.checkState(ex_connection_closed);
+		// TODO: use some global constant for this
 		return "0.5.1";
 	}
 
 	@Override
 	public int getXQJMajorVersion() throws XQException {
 		
-		connect.checkConnection();
+		connect.checkState(ex_connection_closed);
 		return 1;
 	}
 
 	@Override
 	public int getXQJMinorVersion() throws XQException {
 		
-		connect.checkConnection();
+		connect.checkState(ex_connection_closed);
 		return 0;
 	}
 
 	@Override
 	public String getXQJVersion() throws XQException {
 		
-		connect.checkConnection();
+		connect.checkState(ex_connection_closed);
 		return "1.0";
 	}
 
 	@Override
 	public int getXQJ2MajorVersion() throws XQException {
 
-		connect.checkConnection();
+		connect.checkState(ex_connection_closed);
 		return 1;
 	}
 
 	@Override
 	public int getXQJ2MinorVersion() throws XQException {
 		
-		connect.checkConnection();
+		connect.checkState(ex_connection_closed);
 		return 0;
 	}
 
 	@Override
 	public String getXQJ2Version() throws XQException {
 		
-		connect.checkConnection();
+		connect.checkState(ex_connection_closed);
 		return "1.0";
 	}
 
 	@Override
 	public boolean isReadOnly() throws XQException {
 		
-		connect.checkConnection();
+		connect.checkState(ex_connection_closed);
 		return !connect.getProcessor().isFeatureSupported(xqf_Update);
 	}
 
 	@Override
 	public boolean isXQueryUpdateFacilitySupported() throws XQException {
 		
-		connect.checkConnection();
+		connect.checkState(ex_connection_closed);
 		return connect.getProcessor().isFeatureSupported(xqf_XQuery_Update_Facility);
 	}
 
 	@Override
 	public boolean isXQueryFullTextSupported() throws XQException {
 		
-		connect.checkConnection();
+		connect.checkState(ex_connection_closed);
 		return connect.getProcessor().isFeatureSupported(xqf_XQuery_Full_Text);
 	}
 
 	@Override
 	public boolean isXQuery30Supported() throws XQException {
 		
-		connect.checkConnection();
+		connect.checkState(ex_connection_closed);
 		return connect.getProcessor().isFeatureSupported(xqf_XQuery_30);
 	}
 
 	@Override
 	public boolean isXQueryXSupported() throws XQException {
 		
-		connect.checkConnection();
+		connect.checkState(ex_connection_closed);
 		return connect.getProcessor().isFeatureSupported(xqf_XQueryX);
 	}
 
 	@Override
 	public boolean isTransactionSupported() throws XQException {
 		
-		connect.checkConnection();
+		connect.checkState(ex_connection_closed);
 		return connect.getProcessor().isFeatureSupported(xqf_Transaction);
 	}
 
 	@Override
 	public boolean isSchemaImportFeatureSupported() throws XQException {
 		
-		connect.checkConnection();
+		connect.checkState(ex_connection_closed);
 		return connect.getProcessor().isFeatureSupported(xqf_Schema_Import);
 	}
 
 	@Override
 	public boolean isSchemaValidationFeatureSupported() throws XQException {
 		
-		connect.checkConnection();
+		connect.checkState(ex_connection_closed);
 		return connect.getProcessor().isFeatureSupported(xqf_Schema_Validation);
 	}
 
 	@Override
 	public boolean isFullAxisFeatureSupported() throws XQException {
 		
-		connect.checkConnection();
+		connect.checkState(ex_connection_closed);
 		return connect.getProcessor().isFeatureSupported(xqf_Full_Axis);
 	}
 
 	@Override
 	public boolean isModuleFeatureSupported() throws XQException {
 		
-		connect.checkConnection();
+		connect.checkState(ex_connection_closed);
 		return connect.getProcessor().isFeatureSupported(xqf_Module);
 	}
 
 	@Override
 	public boolean isSerializationFeatureSupported() throws XQException {
 		
-		connect.checkConnection();
+		connect.checkState(ex_connection_closed);
 		return connect.getProcessor().isFeatureSupported(xqf_Serialization);
 	}
 
 	@Override
 	public boolean isStaticTypingFeatureSupported() throws XQException {
 		
-		connect.checkConnection();
+		connect.checkState(ex_connection_closed);
 		return connect.getProcessor().isFeatureSupported(xqf_Static_Typing);
 	}
 
 	@Override
 	public boolean isStaticTypingExtensionsSupported() throws XQException {
 		
-		connect.checkConnection();
+		connect.checkState(ex_connection_closed);
 		return connect.getProcessor().isFeatureSupported(xqf_Static_Typing_Extensions);
 	}
 
 	@Override
 	public boolean isXQueryEncodingDeclSupported() throws XQException {
 		
-		connect.checkConnection();
+		connect.checkState(ex_connection_closed);
 		return connect.getProcessor().isFeatureSupported(xqf_XQuery_Encoding_Decl);
 	}
 
 	@Override
 	public Set<String> getSupportedXQueryEncodings() throws XQException {
 		
-		connect.checkConnection();
+		connect.checkState(ex_connection_closed);
 		if (encodings == null) {
 			// TODO: client and server side encodings can be different!
 			Map<String, Charset> supported = Charset.availableCharsets();
@@ -236,7 +238,7 @@ public class BagriXQMetaData implements XQMetaData, XQMetaData2 {
 		if (encodings == null) {
 			getSupportedXQueryEncodings();
 		} else {
-			connect.checkConnection();
+			connect.checkState(ex_connection_closed);
 		}
 		return encodings.contains(encoding);
 	}
@@ -244,21 +246,21 @@ public class BagriXQMetaData implements XQMetaData, XQMetaData2 {
 	@Override
 	public boolean isUserDefinedXMLSchemaTypeSupported() throws XQException {
 		
-		connect.checkConnection();
+		connect.checkState(ex_connection_closed);
 		return connect.getProcessor().isFeatureSupported(xqf_User_Defined_XML_Schema_Type);
 	}
 
 	@Override
 	public boolean isXASupported() throws XQException {
 
-		connect.checkConnection();
+		connect.checkState(ex_connection_closed);
 		return connect.getProcessor().isFeatureSupported(xqf_XA);
 	}
 
 	@Override
 	public boolean wasCreatedFromJDBCConnection() throws XQException {
 		
-		connect.checkConnection();
+		connect.checkState(ex_connection_closed);
 		return false;
 	}
 

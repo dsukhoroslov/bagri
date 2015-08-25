@@ -2,6 +2,7 @@ package com.bagri.xqj;
 
 //import static com.bagri.xqj.BagriXQConstants.ex_connection_closed;
 import static com.bagri.common.util.CollectionUtils.copyIterator;
+import static com.bagri.xqj.BagriXQErrors.ex_expression_closed;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,9 +35,7 @@ public class BagriXQExpression extends BagriXQDynamicContext implements XQExpres
 	@Override
 	public void executeCommand(String cmd) throws XQException {
 		
-		if (isClosed()) {
-			throw new XQException("Connection is closed");
-		}
+		checkState(ex_expression_closed);
 		if (cmd == null) {
 			throw new XQException("Provided command is null");
 		}
@@ -59,9 +58,7 @@ public class BagriXQExpression extends BagriXQDynamicContext implements XQExpres
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public XQResultSequence executeQuery(String query) throws XQException {
 		
-		if (isClosed()) {
-			throw new XQException("Connection is closed");
-		}
+		checkState(ex_expression_closed);
 		if (query == null) {
 			throw new XQException("Provided query is null");
 		}

@@ -171,7 +171,7 @@ public class BagriXQDataSourceTest {
 			assertFalse(xqs.next());
 		} catch (XQException ex) {
 			// must be timeout exception
-			assertTrue(XDMException.ecTimeout == Integer.parseInt(ex.getVendorCode()));
+			assertTrue(XDMException.ecQueryTimeout == Integer.parseInt(ex.getVendorCode()));
 		}
 		xqs.close();
 		xqpe.close();

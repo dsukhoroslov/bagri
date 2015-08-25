@@ -1,5 +1,7 @@
 package com.bagri.xqj;
 
+import static com.bagri.xqj.BagriXQErrors.ex_sequence_closed;
+
 import java.util.List;
 
 import javax.xml.xquery.XQConnection;
@@ -19,7 +21,7 @@ public class ScrollableXQResultSequence extends ScrollableXQSequence implements	
 	@Override
 	public XQConnection getConnection() throws XQException {
 		
-		checkSequence();
+		checkState(ex_sequence_closed);
 		return expression.connection;
 	}
 	
