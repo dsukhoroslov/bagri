@@ -509,7 +509,8 @@ public class QueryManagementImpl implements XDMQueryManagement {
 		} catch (XQException ex) {
 		//	logger.error("execXQCommand.error;", ex);
 			//result = createCursor(clientId, 0, new ExceptionIterator(ex), true);
-			throw new XDMException(ex.getMessage(), XDMException.ecQuery);
+			//throw new XDMException(ex.getMessage(), XDMException.ecQuery);
+			throw new XDMException(ex, XDMException.ecQuery);
 		}
 		logger.trace("execXQCommand.exit; returning: {}, for client: {}", result, clientId);
 		return result;

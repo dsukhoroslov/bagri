@@ -1,6 +1,5 @@
 package com.bagri.xqj;
 
-//import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
@@ -30,7 +29,7 @@ import static com.bagri.xdm.api.XDMException.ecTransWrongState;
 import static com.bagri.xdm.api.XDMTransactionManagement.TX_NO;
 import static com.bagri.xqj.BagriXQErrors.ex_connection_closed;
 import static com.bagri.xqj.BagriXQErrors.ex_null_context;
-import static com.bagri.xqj.BagriXQUtils.throwXQException; 
+import static com.bagri.xqj.BagriXQUtils.getXQException;
 
 
 public class BagriXQConnection extends BagriXQDataFactory implements XQConnection {
@@ -97,7 +96,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 				try {
 					getTxManager().commitTransaction(txId);
 				} catch (XDMException ex) {
-					throwXQException(ex); 
+		    		throw getXQException(ex);
 				}
 				txId = TX_NO;
 			} else {
@@ -139,7 +138,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 			try {
 				getTxManager().commitTransaction(txId);
 			} catch (XDMException ex) {
-				throwXQException(ex);
+	    		throw getXQException(ex);
 			}
 			txId = TX_NO;
 		}
@@ -168,7 +167,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 			try {
 				getTxManager().rollbackTransaction(txId);
 			} catch (XDMException ex) {
-				throwXQException(ex);
+	    		throw getXQException(ex);
 			}
 			txId = TX_NO;
 		}
@@ -186,7 +185,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 				try {
 					getTxManager().commitTransaction(txId);
 				} catch (XDMException ex) {
-					throwXQException(ex);
+		    		throw getXQException(ex);
 				}
 				txId = TX_NO;
 			}
@@ -244,7 +243,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 		try {
 			query = XMLUtils.textToString(xquery);
 		} catch (IOException ex) {
-			throwXQException(ex);
+    		throw getXQException(ex);
 		}
 		return prepareExpression(query);
 	}
@@ -256,7 +255,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 		try {
 			query = XMLUtils.textToString(xquery);
 		} catch (IOException ex) {
-			throwXQException(ex);
+    		throw getXQException(ex);
 		}
 		return prepareExpression(query);
 	}
@@ -285,7 +284,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 		try {
 			query = XMLUtils.textToString(xquery);
 		} catch (IOException ex) {
-			throwXQException(ex);
+    		throw getXQException(ex);
 		}
 		return prepareExpression(query, context);
 	}
@@ -297,7 +296,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 		try {
 			query = XMLUtils.textToString(xquery);
 		} catch (IOException ex) {
-			throwXQException(ex);
+    		throw getXQException(ex);
 		}
 		return prepareExpression(query, context);
 	}
@@ -335,7 +334,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 				    	}
 					});
 				} catch (XDMException ex) {
-					throwXQException(ex);
+		    		throw getXQException(ex);
 				}
 			} else {
 				getProcessor().executeXCommand(cmd, bindings, ctx);
@@ -369,7 +368,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 				    	}
 					});
 				} catch (XDMException ex) {
-					throwXQException(ex);
+		    		throw getXQException(ex);
 				}
 			} else {
 				result = getProcessor().executeXQuery(query, ctx);
@@ -386,7 +385,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 		return result;
 	}
 	
-	private <V> V executeInTransaction(Callable<V> executor) throws XDMException {
+	private <V> V executeInTransaction(Callable<V> executor) throws XDMException, XQException {
 		if (autoCommit || txId == TX_NO) {
 			txId = getTxManager().beginTransaction();
 		}
@@ -401,6 +400,9 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 			if (txId != TX_NO) {
 				getTxManager().rollbackTransaction(txId);
 				txId = TX_NO;
+			}
+			if (ex instanceof XQException) {
+				throw (XQException) ex;
 			}
 			if (ex instanceof XDMException) {
 				throw (XDMException) ex;

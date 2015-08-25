@@ -544,16 +544,21 @@ public class BagriXQUtils {
 		}
 	}
 
-	public static void throwXQException(Exception ex) throws XQException {
-		XQException xqe = new XQException(ex.getMessage());
+	public static XQException getXQException(Throwable ex) {
+
+		int errorCode = 0;
+		Throwable init = ex;
+		while (ex != null) {
+			if (ex instanceof XQException) {
+				return (XQException) ex;
+			} else if (errorCode == 0 && ex instanceof XDMException) {
+				errorCode = ((XDMException) ex).getErrorCode();
+			}
+			ex = ex.getCause();
+		}
+		XQException xqe = new XQException(init.getMessage(), String.valueOf(errorCode));
 		xqe.initCause(ex);
-		throw xqe;
+		return xqe;
 	}
 
-	public static void throwXQException(XDMException ex) throws XQException {
-		XQException xqe = new XQException(ex.getMessage(), ex.getVendorCode());
-		// not sure we have to do this..
-		xqe.initCause(ex);
-		throw xqe;
-	}
 }

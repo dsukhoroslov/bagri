@@ -232,11 +232,12 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 	            	}
         		}
         	} else if (ex instanceof XDMException) {
-        		xqe = new XQException(ex.getMessage(), String.valueOf(((XDMException) ex).getErrorCode()));
+        		xqe = new XQException(ex.getMessage(), ((XDMException) ex).getVendorCode());
         	} else {
         		xqe = new XQException(ex.getMessage());
         	}
-        	xqe.initCause(ex);
+        	// issues with not-serializable staff from Saxon exceptions..
+        	//xqe.initCause(ex);
         	throw xqe;
         }
 	}

@@ -1,6 +1,5 @@
 package com.bagri.xquery.saxon;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -14,11 +13,11 @@ import javax.xml.xquery.XQStaticContext;
 import net.sf.saxon.expr.instruct.GlobalParameterSet;
 import net.sf.saxon.om.StructuredQName;
 
-import com.bagri.xdm.api.XDMDocumentManagement;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMQueryManagement;
-import com.bagri.xqj.BagriXQUtils;
 import com.bagri.xquery.api.XQProcessor;
+
+import static com.bagri.xqj.BagriXQUtils.getXQException;
 
 public class XQProcessorClient extends XQProcessorImpl implements XQProcessor {
 	
@@ -27,7 +26,7 @@ public class XQProcessorClient extends XQProcessorImpl implements XQProcessor {
 		try {
 			getQueryManagement().cancelExecution();
 		} catch (XDMException ex) {
-			throw new XQException(ex.getMessage(), ex.getVendorCode());
+    		throw getXQException(ex);
 		}
     }
 	
@@ -45,7 +44,7 @@ public class XQProcessorClient extends XQProcessorImpl implements XQProcessor {
     	try {
     		return qMgr.executeXCommand(command, bindings, props);
     	} catch (XDMException ex) {
-    		throw new XQException(ex.getMessage(), ex.getVendorCode());
+    		throw getXQException(ex);
     	}
 	}
 
@@ -71,7 +70,7 @@ public class XQProcessorClient extends XQProcessorImpl implements XQProcessor {
     	try {
     		return qMgr.executeXQuery(query, bindings, props);
     	} catch (XDMException ex) {
-    		throw new XQException(ex.getMessage(), ex.getVendorCode());
+    		throw getXQException(ex);
     	}
 	}
 

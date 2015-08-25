@@ -218,6 +218,13 @@ public class QueryManagementImpl implements XDMQueryManagement {
 			} else {
 				future.cancel(false); 
 				logger.error("getResults.error; error getting result", ex);
+				Throwable err = ex;
+				while (err.getCause() != null) {
+					err = err.getCause();
+					if (err instanceof XDMException) {
+						throw (XDMException) err;
+					}
+				}
 			}
 			throw new XDMException(ex, errorCode);
 		}
