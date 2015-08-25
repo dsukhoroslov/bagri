@@ -44,14 +44,14 @@ public class XMLUtils {
 		dbFactory.setNamespaceAware(true);
 	}
 
-	public static String textToString(Reader xquery) throws IOException {
-		if (xquery == null) {
+	public static String textToString(Reader text) throws IOException {
+		if (text == null) {
 			throw new IOException("Provided reader is null");
 		}
 		StringBuilder sb = new StringBuilder();
-		BufferedReader br = new BufferedReader(xquery);
+		BufferedReader br = new BufferedReader(text);
 		String NL = System.getProperty("line.separator");
-		String line = null;
+		String line;
 		try {
 			while((line = br.readLine()) != null) {
 				sb.append(line).append(NL);
@@ -63,12 +63,16 @@ public class XMLUtils {
 		return sb.toString();
 	}
 
-	public static String textToString(InputStream stream) throws IOException {
-		if (stream == null) {
+	public static String textToString(InputStream text) throws IOException {
+		if (text == null) {
 			throw new IOException("Provided stream is null");
 		}
-		Reader r = new InputStreamReader(stream); 
-		return textToString(r);
+		Reader r = new InputStreamReader(text);
+		try {
+			return textToString(r);
+		} finally {
+			r.close();
+		}
 	}
 	
 	public static Document textToDocument(String text) throws IOException {

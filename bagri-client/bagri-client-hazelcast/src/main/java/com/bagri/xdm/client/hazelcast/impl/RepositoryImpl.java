@@ -79,8 +79,8 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 	
 	private static Properties getConvertedProps(Properties original) {
 		Properties props = new Properties();
-		setProperty(original, props, pn_server_address, "address");
 		setProperty(original, props, pn_schema_name, "schema");
+		setProperty(original, props, pn_server_address, "address");
 		setProperty(original, props, pn_schema_user, "user");
 		setProperty(original, props, pn_schema_password, "password");
 		setProperty(original, props, pn_client_smart, "smart");
@@ -99,7 +99,7 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 	private void initializeHazelcast(Properties props) {
 		String schema = props.getProperty(pn_schema_name);
 		String address = props.getProperty(pn_server_address);
-		String user = props.getProperty(pn_schema_user);
+		String user = props.getProperty(pn_schema_user, schema);
 		String password = props.getProperty(pn_schema_password);
 		String smart = props.getProperty(pn_client_smart);
 		String timeout = props.getProperty(pn_client_loginTimeout);
@@ -120,7 +120,6 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 		
 		//config.setProperty("hazelcast.logging.type", "slf4j");
 		//UsernamePasswordCredentials creds = new UsernamePasswordCredentials(schema, password);
-		//SecureCredentials creds = new SecureCredentials(schema, password);
 		SecureCredentials creds = new SecureCredentials(user, password);
 		config.getSecurityConfig().setCredentials(creds);
 		config.setCredentials(creds);

@@ -8,16 +8,26 @@
     <context:property-placeholder ignore-unresolvable="true" location="classpath:/xqj-client.properties" />
 
     <!--import resource="classpath:spring/coh-client-context.xml"/-->
-    <import resource="classpath:spring/hz-client-context.xml"/>
+    <!--import resource="classpath:spring/hz-client-context.xml"/-->
+    
+	<!--bean id="xdmRepo" class="com.bagri.xdm.client.hazelcast.impl.RepositoryImpl">
+		<constructor-arg>
+            <props>
+                <prop key="address">${xdm.schema.members}</prop>
+                <prop key="schema">${xdm.schema.name}</prop>
+                <prop key="password">${xdm.schema.password}</prop>
+            </props>
+		</constructor-arg>
+    </bean-->
 
-    <bean id="xqProcessor" class="com.bagri.xquery.saxon.XQProcessorClient">
+    <!--bean id="xqProcessor" class="com.bagri.xquery.saxon.XQProcessorClient">
         <property name="properties">
             <props>
                 <prop key="xdm.client.fetchSize">5</prop>
             </props>
         </property>
     	<property name="XQDataFactory" ref="xqConnection" />
-    </bean>
+    </bean-->
 
     <bean id="xqDataSource" class="com.bagri.xqj.BagriXQDataSource">
         <property name="properties">
@@ -25,15 +35,17 @@
                 <prop key="address">${xdm.schema.members}</prop>
                 <prop key="schema">${xdm.schema.name}</prop>
                 <prop key="password">${xdm.schema.password}</prop>
+                <prop key="query.processor">com.bagri.xquery.saxon.XQProcessorClient</prop>
+                <prop key="xdm.repository">com.bagri.xdm.client.hazelcast.impl.RepositoryImpl</prop>
             </props>
         </property>
     </bean>
 
     <bean id="xqConnection" factory-bean="xqDataSource" factory-method="getConnection">
-    	<property name="processor" ref="xqProcessor" />
+    	<!--property name="processor" ref="xqProcessor" /-->
     </bean>
     
-    <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+    <!--bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
         <property name="targetObject" ref="xqProcessor" />
 		<property name="targetMethod" value="setRepository" />
 		<property name="arguments">
@@ -41,6 +53,6 @@
 				<ref bean="xdmRepo" />
 			</list>
 		</property>
-    </bean>
+    </bean-->
     
 </beans>
