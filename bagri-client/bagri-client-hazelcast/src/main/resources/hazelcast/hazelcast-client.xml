@@ -2,8 +2,8 @@
 <hz:hazelcast-client xmlns:hz="http://www.hazelcast.com/schema/client-config" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.hazelcast.com/schema/client-config hazelcast-client-config-3.5.xsd">	
 	<!--group>
-		<name>${username}</name>
-		<password>${password}</password>
+		<name>{username}</name>
+		<password>{password}</password>
 	</group-->
 
 	<hz:network>

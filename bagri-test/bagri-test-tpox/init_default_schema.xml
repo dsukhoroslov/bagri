@@ -51,7 +51,7 @@
 	    </argument>
 	</arguments>
     </invoke-->
-    <!--invoke>
+    <invoke>
         <mbean>com.bagri.xdm:type=Schema,name=default,kind=ModelManagement</mbean>
         <method>registerSchema</method>
         <arguments>
@@ -61,7 +61,7 @@
             </argument>
         </arguments>
     </invoke>
-    <delay>5000</delay-->
+    <delay>5000</delay>
     <invoke>
 	<mbean>com.bagri.xdm:type=Schema,name=default,kind=IndexManagement</mbean>
 	<method>addIndex</method>

@@ -27,12 +27,16 @@ if "%java_home%"=="" (set java_exec=java) else (set java_exec=%java_home%\bin\ja
 
 set java_opts=-Xms%memory% -Xmx%memory% 
 
+rem set java_opts=%java_opts% -Dtangosol.coherence.proxy.address=localhost
+rem set java_opts=%java_opts% -Dtangosol.coherence.proxy.port=21000
+
 set java_opts=%java_opts% -Dhazelcast.logging.type=slf4j -Dlogback.configurationFile=hz-client-logging.xml
 set java_opts=%java_opts% -Dlog.name=tpox-client -Dhz.log.level=warn -Dxdm.log.level=info
 set java_opts=%java_opts% -Dxdm.spring.context=spring/tpox-xqj-context.xml
 
 set java_opts=%java_opts% -Dxdm.schema.members=%schema_addr%
 set java_opts=%java_opts% -Dxdm.schema.name=%schema%
+set java_opts=%java_opts% -Dxdm.schema.user=guest
 set java_opts=%java_opts% -Dxdm.schema.password=password
 
 rem possible values are: member, owner, any

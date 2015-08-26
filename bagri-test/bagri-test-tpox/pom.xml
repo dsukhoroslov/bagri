@@ -173,7 +173,7 @@
                                             <sysproperty key="logback.configurationFile" value="tpox-logging.xml"/>
                                             <!--sysproperty key="tangosol.coherence.proxy.address" value="linbox.sdv.home"/>
                                             <sysproperty key="tangosol.coherence.proxy.port" value="17000"/-->
-                                            <sysproperty key="xdm.spring.context" value="hazelcast/client-context.xml"/>
+                                            <sysproperty key="xdm.spring.context" value="hazelcast/tpox-client-cache-context.xml"/>
                                             <classpath>
                                                 <path refid="maven.compile.classpath"/>
                                                 <path refid="maven.runtime.classpath"/>

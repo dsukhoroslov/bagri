@@ -84,8 +84,6 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 		setProperty(original, props, pn_schema_user, "user");
 		setProperty(original, props, pn_schema_password, "password");
 		setProperty(original, props, pn_client_smart, "smart");
-		//setProperty(original, props, pn_client_submitTo, "any");
-		//setProperty(original, props, pn_fetch_size, "0");
 		setProperty(original, props, pn_client_loginTimeout, "loginTimeout");
 		props.put(pn_data_factory, original.get(pn_data_factory));
 		return props;
@@ -99,7 +97,7 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 	private void initializeHazelcast(Properties props) {
 		String schema = props.getProperty(pn_schema_name);
 		String address = props.getProperty(pn_server_address);
-		String user = props.getProperty(pn_schema_user, schema);
+		String user = props.getProperty(pn_schema_user);
 		String password = props.getProperty(pn_schema_password);
 		String smart = props.getProperty(pn_client_smart);
 		String timeout = props.getProperty(pn_client_loginTimeout);
