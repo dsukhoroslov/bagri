@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <hz:hazelcast-client xmlns:hz="http://www.hazelcast.com/schema/client-config" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.hazelcast.com/schema/client-config hazelcast-client-config-3.5.xsd">	
+	
 	<!--group>
 		<name>{username}</name>
 		<password>{password}</password>
@@ -11,10 +12,14 @@
 			<hz:address>localhost:10500</hz:address>
 		</hz:cluster-members>
 		<hz:smart-routing>false</hz:smart-routing>
-		<!--hz:connection-timeout>60000</hz:connection-timeout-->
+		<hz:connection-timeout>20000</hz:connection-timeout>
+		<hz:connection-attempt-limit>1</hz:connection-attempt-limit>
+		<hz:socket-options>
+			<hz:buffer-size>48</hz:buffer-size>
+		</hz:socket-options>
 	</hz:network>
 
-	<hz:executor-pool-size>10</hz:executor-pool-size>
+	<hz:executor-pool-size>16</hz:executor-pool-size>
 
 	<!--security>
 		<credentials>com.bagri.xdm.client.hazelcast.serialize.SecureCredentials</credentials>
@@ -56,9 +61,9 @@
 	<hz:near-cache name="dict-path">
 		<hz:in-memory-format>OBJECT</hz:in-memory-format>
 	</hz:near-cache>
-	<hz:near-cache name="dict-index">
+	<!--hz:near-cache name="dict-index">
 		<hz:in-memory-format>OBJECT</hz:in-memory-format>
-	</hz:near-cache>
+	</hz:near-cache-->
 	<hz:near-cache name="dict-namespace">
 		<hz:in-memory-format>OBJECT</hz:in-memory-format>
 	</hz:near-cache>

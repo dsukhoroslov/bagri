@@ -1,15 +1,10 @@
 package com.bagri.xdm.client.hazelcast.impl;
 
 import static com.bagri.common.util.PropUtils.setProperty;
-import static com.bagri.xdm.common.XDMConstants.pn_client_loginTimeout;
-import static com.bagri.xdm.common.XDMConstants.pn_client_smart;
-import static com.bagri.xdm.common.XDMConstants.pn_data_factory;
-import static com.bagri.xdm.common.XDMConstants.pn_schema_name;
-import static com.bagri.xdm.common.XDMConstants.pn_schema_password;
-import static com.bagri.xdm.common.XDMConstants.pn_schema_user;
-import static com.bagri.xdm.common.XDMConstants.pn_server_address;
+import static com.bagri.xdm.common.XDMConstants.*;
 
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Properties;
 
 import javax.xml.xquery.XQDataFactory;
@@ -42,10 +37,7 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 	
 	private String clientId;
 	private String schemaName;
-	
-	//private ResultCursor cursor;
 	private HazelcastInstance hzClient;
-	//private IExecutorService execService;
 	
 	public RepositoryImpl() {
 		initializeFromProperties(getSystemProps());
@@ -74,6 +66,8 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 		setProperty(props, pn_schema_password, null); //"password"
 		setProperty(props, pn_client_smart, null); //"smart"
 		setProperty(props, pn_client_loginTimeout, null); //"loginTimeout"
+		setProperty(props, pn_client_bufferSize, null); 
+		setProperty(props, pn_client_connectAttempts, null); 
 		return props;
 	}
 	
@@ -85,6 +79,8 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 		setProperty(original, props, pn_schema_password, "password");
 		setProperty(original, props, pn_client_smart, "smart");
 		setProperty(original, props, pn_client_loginTimeout, "loginTimeout");
+		setProperty(original, props, pn_client_bufferSize, null); 
+		setProperty(original, props, pn_client_connectAttempts, null); 
 		props.put(pn_data_factory, original.get(pn_data_factory));
 		return props;
 	}
@@ -101,13 +97,23 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 		String password = props.getProperty(pn_schema_password);
 		String smart = props.getProperty(pn_client_smart);
 		String timeout = props.getProperty(pn_client_loginTimeout);
+		String buffer = props.getProperty(pn_client_bufferSize); 
+		String attempts = props.getProperty(pn_client_connectAttempts); 
+
 		InputStream in = DocumentManagementImpl.class.getResourceAsStream("/hazelcast/hazelcast-client.xml");
 		ClientConfig config = new XmlClientConfigBuilder(in).build();
 		config.getGroupConfig().setName(schema);
 		config.getGroupConfig().setPassword(password);
-		config.getNetworkConfig().addAddress(address);
+		String[] members = address.split(",");
+		config.getNetworkConfig().setAddresses(Arrays.asList(members));
 		if (smart != null) {
 			config.getNetworkConfig().setSmartRouting(smart.equalsIgnoreCase("true"));
+		}
+		if (attempts != null) {
+			int count = Integer.parseInt(attempts);
+			if (count > 0) {
+				config.getNetworkConfig().setConnectionAttemptLimit(count);
+			}
 		}
 		if (timeout != null) {
 			int tm = Integer.parseInt(timeout); // login timeout in seconds
@@ -115,9 +121,14 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 				config.getNetworkConfig().setConnectionTimeout(tm*1000);
 			}
 		}
+		if (buffer != null) {
+			int size = Integer.parseInt(buffer);
+			if (size > 0) {
+				config.getNetworkConfig().getSocketOptions().setBufferSize(size);
+			}
+		}
 		
-		//config.setProperty("hazelcast.logging.type", "slf4j");
-		//UsernamePasswordCredentials creds = new UsernamePasswordCredentials(schema, password);
+		config.setProperty("hazelcast.logging.type", "slf4j");
 		SecureCredentials creds = new SecureCredentials(user, password);
 		config.getSecurityConfig().setCredentials(creds);
 		config.setCredentials(creds);

@@ -11,6 +11,9 @@ import org.springframework.beans.factory.InitializingBean;
 import com.bagri.common.security.Encryptor;
 import com.bagri.xdm.api.XDMAccessManagement;
 import com.bagri.xdm.system.XDMModule;
+import com.bagri.xdm.system.XDMPermission;
+import com.bagri.xdm.system.XDMPermission.Permission;
+import com.bagri.xdm.system.XDMPermissionAware;
 import com.bagri.xdm.system.XDMRole;
 import com.bagri.xdm.system.XDMUser;
 import com.hazelcast.core.Hazelcast;
@@ -26,7 +29,6 @@ public class AccessManagementImpl implements XDMAccessManagement, InitializingBe
 	
 	private Map<String, XDMRole> roles = new HashMap<>();
 	private Map<String, XDMUser> users = new HashMap<>();
-	
 	
 	@Override
 	public void afterPropertiesSet() throws Exception {
@@ -74,6 +76,7 @@ public class AccessManagementImpl implements XDMAccessManagement, InitializingBe
 	@Override
 	public boolean authenticate(String username, String password) {
 		logger.trace("authenticate; user: {}, password: {}", username, password);
+		// TODO: do we need this check any more?
 		if (username.equals(schemaName) && password.equals(schemaPass)) {
 			return true;
 		}
@@ -81,11 +84,39 @@ public class AccessManagementImpl implements XDMAccessManagement, InitializingBe
 		XDMUser user = users.get(username);
 		if (user != null) {
 			String pwd = Encryptor.encrypt(password);
-			return pwd.equals(user.getPassword());
-			// TODO: check permissions against this particular schema!
+			if (pwd.equals(user.getPassword())) {
+				Boolean granted = checkSchemaAccess(user);
+				if (granted != null) {
+					return granted;
+				}
+			}
 		}
 		// throw NotFound exception?
 		return false;
+	}
+	
+	private Boolean checkSchemaAccess(XDMPermissionAware test) {
+		String schema = "com.bagri.xdm:name=" + schemaName + ",type=Schema";
+		XDMPermission perm = test.getPermissions().get(schema);
+		if (perm != null) {
+			return perm.hasPermission(Permission.read);
+		}
+		schema = "com.bagri.xdm:name=*,type=Schema";
+		perm = test.getPermissions().get(schema);
+		if (perm != null) {
+			return perm.hasPermission(Permission.read);
+		}
+		
+		for (String role: test.getIncludedRoles()) {
+			XDMRole xdmr = roles.get(role);
+			if (xdmr != null) {
+				Boolean check = checkSchemaAccess(xdmr);
+				if (check != null) {
+					return check;
+				}
+			}
+		}
+		return null;
 	}
 
 }

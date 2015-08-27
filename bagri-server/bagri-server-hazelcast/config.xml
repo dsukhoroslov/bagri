@@ -208,7 +208,7 @@
             <version>1</version>
             <createdAt>2014-09-27T15:00:58.096+04:00</createdAt>
             <createdBy>SDV</createdBy>
-            <description>TPoX: transient schema for TPoX-related tests; no persistent store</description>
+            <description>default schema for test and demo purpose</description>
             <properties>
                 <entry name="xdm.schema.password">password</entry>
                 <entry name="xdm.schema.data.backup.read">false</entry>

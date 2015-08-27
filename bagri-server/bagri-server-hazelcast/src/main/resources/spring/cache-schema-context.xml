@@ -52,12 +52,12 @@
 			<hz:map name="dict-namespace" in-memory-format="OBJECT"  async-backup-count="${xdm.schema.dict.backup.async}" 
 				backup-count="${xdm.schema.dict.backup.sync}" read-backup-data="${xdm.schema.dict.backup.read}">
 				<hz:near-cache time-to-live-seconds="0" max-idle-seconds="0" eviction-policy="LRU" 
-					max-size="0" invalidate-on-change="true" in-memory-format="OBJECT"/>
+					max-size="0" invalidate-on-change="true" in-memory-format="OBJECT" cache-local-entries="false"/>
 			</hz:map>
 			<hz:map name="dict-path" in-memory-format="OBJECT" async-backup-count="${xdm.schema.dict.backup.async}" 
 				backup-count="${xdm.schema.dict.backup.sync}" read-backup-data="${xdm.schema.dict.backup.read}">
 				<hz:near-cache time-to-live-seconds="0" max-idle-seconds="0" eviction-policy="LRU" 
-					max-size="0" invalidate-on-change="true" in-memory-format="OBJECT"/>
+					max-size="0" invalidate-on-change="true" in-memory-format="OBJECT" cache-local-entries="false"/>
 				<hz:indexes>
 					<hz:index attribute="typeId"/>
 					<hz:index attribute="pathId" ordered="true"/>
@@ -66,7 +66,7 @@
 			<hz:map name="dict-index" in-memory-format="OBJECT" async-backup-count="${xdm.schema.dict.backup.async}" 
 				backup-count="${xdm.schema.dict.backup.sync}" read-backup-data="${xdm.schema.dict.backup.read}">
 				<hz:near-cache time-to-live-seconds="0" max-idle-seconds="0" eviction-policy="LRU" 
-					max-size="0" invalidate-on-change="true" in-memory-format="OBJECT"/>
+					max-size="0" invalidate-on-change="true" in-memory-format="OBJECT" cache-local-entries="false"/>
 			</hz:map>
 			<hz:map name="dict-document-type" in-memory-format="OBJECT" async-backup-count="${xdm.schema.dict.backup.async}" 
 				backup-count="${xdm.schema.dict.backup.sync}" read-backup-data="${xdm.schema.dict.backup.read}">
@@ -77,12 +77,12 @@
 					</hz:properties>
 				</hz:map-store-->
 				<hz:near-cache time-to-live-seconds="0" max-idle-seconds="0" eviction-policy="LRU" 
-					max-size="0" invalidate-on-change="true" in-memory-format="OBJECT"/>
+					max-size="0" invalidate-on-change="true" in-memory-format="OBJECT" cache-local-entries="false"/>
 			</hz:map>
 			<hz:map name="dict-trigger" in-memory-format="OBJECT" async-backup-count="${xdm.schema.dict.backup.async}" 
 				backup-count="${xdm.schema.dict.backup.sync}" read-backup-data="${xdm.schema.dict.backup.read}">
 				<hz:near-cache time-to-live-seconds="0" max-idle-seconds="0" eviction-policy="LRU" 
-					max-size="0" invalidate-on-change="true" in-memory-format="OBJECT"/>
+					max-size="0" invalidate-on-change="true" in-memory-format="OBJECT" cache-local-entries="false"/>
 			</hz:map>
 			
 			<hz:map name="xdm-document" in-memory-format="OBJECT" async-backup-count="${xdm.schema.data.backup.async}" 
@@ -130,7 +130,7 @@
 
 			<hz:map name="xdm-transaction" in-memory-format="BINARY" async-backup-count="${xdm.schema.trans.backup.async}" 
 				backup-count="${xdm.schema.trans.backup.sync}" read-backup-data="${xdm.schema.trans.backup.read}">
-				<!-- mast persist transaction log... 
+				<!-- must persist transaction log... 
 				<hz:map-store enabled="true" write-delay-seconds="10" factory-implementation="xdmStoreFactory">
 					<hz:properties>
 						<hz:property name="xdm.schema.name">${xdm.schema.name}</hz:property>

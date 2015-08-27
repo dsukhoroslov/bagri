@@ -91,7 +91,9 @@
             <version>2</version>
             <createdAt>2015-08-26T02:03:03.214+03:00</createdAt>
             <createdBy>Denis</createdBy>
-            <permissions/>
+            <permissions>
+                <!--permission resource="com.bagri.xdm:name=default,type=Schema">read modify</permission-->
+            </permissions>
             <includedRoles>GuestRole</includedRoles>
             <password>5f4dcc3b5aa765d61d8327deb882cf99</password>
         </user>
