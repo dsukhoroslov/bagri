@@ -1,5 +1,8 @@
 package com.bagri.xdm.cache.hazelcast.task.schema;
 
+import static com.bagri.common.security.Encryptor.encrypt;
+import static com.bagri.xdm.common.XDMConstants.pn_schema_password;
+
 import java.io.IOException;
 import java.util.Date;
 import java.util.Map.Entry;
@@ -32,6 +35,10 @@ public class SchemaCreator extends SchemaProcessor implements DataSerializable {
 		logger.debug("process.enter; entry: {}", entry); 
 		if (entry.getValue() == null) {
 			String schemaName = entry.getKey();
+			String pwd = properties.getProperty(pn_schema_password);
+			if (pwd != null) {
+				properties.setProperty(pn_schema_password, encrypt(pwd));
+			}
 			XDMSchema schema = new XDMSchema(getVersion(), new Date(), getAdmin(), schemaName, 
 					description, true, properties);
 			if (initSchemaInCluster(schema) == 0) {

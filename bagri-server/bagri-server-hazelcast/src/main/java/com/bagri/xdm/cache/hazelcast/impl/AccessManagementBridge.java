@@ -8,9 +8,7 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 
-import com.bagri.common.security.Encryptor;
 import com.bagri.xdm.cache.hazelcast.management.AccessManagement;
 import com.bagri.xdm.system.XDMPermission;
 import com.bagri.xdm.system.XDMPermission.Permission;
@@ -18,9 +16,7 @@ import com.bagri.xdm.system.XDMPermissionAware;
 import com.bagri.xdm.system.XDMRole;
 import com.bagri.xdm.system.XDMUser;
 import com.hazelcast.core.EntryEvent;
-import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.HazelcastInstanceAware;
 import com.hazelcast.core.IMap;
 import com.hazelcast.map.listener.EntryAddedListener;
 import com.hazelcast.map.listener.EntryRemovedListener;
@@ -77,13 +73,12 @@ public class AccessManagementBridge { //implements HazelcastInstanceAware {
 	}
 	
 	public Boolean authenticate(String schemaname, String username, String password) {
-		logger.trace("authenticate.enter; user: {}, password: {}", username, password == null ? null : "*****");
+		logger.trace("authenticate.enter; user: {}, password: {}", username, password);
 		Boolean result = null;
 		// check username/password against access DB
 		XDMUser user = users.get(username);
 		if (user != null) {
-			String pwd = Encryptor.encrypt(password);
-			if (pwd.equals(user.getPassword())) {
+			if (password.equals(user.getPassword())) {
 				Boolean granted = checkSchemaAccess(user, schemaname);
 				if (granted != null) {
 					result = granted;

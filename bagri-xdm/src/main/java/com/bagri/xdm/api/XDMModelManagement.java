@@ -3,7 +3,7 @@ package com.bagri.xdm.api;
 import java.util.Collection;
 import java.util.Set;
 
-import com.bagri.xdm.domain.XDMCardinality;
+import com.bagri.xdm.domain.XDMOccurence;
 import com.bagri.xdm.domain.XDMNodeKind;
 import com.bagri.xdm.domain.XDMPath;
 
@@ -51,7 +51,7 @@ public interface XDMModelManagement {
 	 * registers new pathId if it is not registered yet;  
 	 * @throws XDMException 
 	 */
-	XDMPath translatePath(int typeId, String path, XDMNodeKind kind, int dataType, XDMCardinality cardinality) throws XDMException;
+	XDMPath translatePath(int typeId, String path, XDMNodeKind kind, int dataType, XDMOccurence cardinality) throws XDMException;
 	
 	/**
 	 * translates regex expression like "^/ns0:Security/ns0:SecurityInformation/.(*)/ns0:Sector/text\\(\\)$";

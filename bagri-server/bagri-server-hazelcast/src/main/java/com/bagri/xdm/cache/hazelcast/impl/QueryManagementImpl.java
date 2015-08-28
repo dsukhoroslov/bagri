@@ -39,7 +39,7 @@ import com.bagri.xdm.client.hazelcast.impl.ResultCursor;
 import com.bagri.xdm.common.XDMDataKey;
 import com.bagri.xdm.common.XDMDocumentKey;
 import com.bagri.xdm.common.XDMResultsKey;
-import com.bagri.xdm.domain.XDMCardinality;
+import com.bagri.xdm.domain.XDMOccurence;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMElements;
 import com.bagri.xdm.domain.XDMNodeKind;

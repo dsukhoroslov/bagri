@@ -40,7 +40,7 @@ import com.bagri.xdm.common.XDMDataKey;
 import com.bagri.xdm.common.XDMDocumentKey;
 import com.bagri.xdm.common.XDMFactory;
 import com.bagri.xdm.common.XDMIndexKey;
-import com.bagri.xdm.domain.XDMCardinality;
+import com.bagri.xdm.domain.XDMOccurence;
 import com.bagri.xdm.domain.XDMElements;
 import com.bagri.xdm.domain.XDMIndexedDocument;
 import com.bagri.xdm.domain.XDMIndexedValue;
@@ -206,7 +206,7 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 			result = mdlMgr.translatePathFromRegex(docType, PathBuilder.regexFromPath(path));
 		} else {
 			int dataType = BagriXQUtils.getBaseTypeForTypeName(index.getDataType());
-			XDMPath xPath = mdlMgr.translatePath(docType, path, XDMNodeKind.fromPath(path), dataType, XDMCardinality.zeroOrOne);
+			XDMPath xPath = mdlMgr.translatePath(docType, path, XDMNodeKind.fromPath(path), dataType, XDMOccurence.zeroOrOne);
 			result = new HashSet<>(1);
 			result.add(xPath.getPathId());
 		}

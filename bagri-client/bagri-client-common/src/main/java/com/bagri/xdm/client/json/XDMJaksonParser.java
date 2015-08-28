@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.client.parser.XDMDataParser;
-import com.bagri.xdm.domain.XDMCardinality;
+import com.bagri.xdm.domain.XDMOccurence;
 import com.bagri.xdm.domain.XDMData;
 import com.bagri.xdm.domain.XDMElement;
 import com.bagri.xdm.domain.XDMNodeKind;
@@ -140,7 +140,7 @@ public class XDMJaksonParser extends XDMDataParser implements XDMParser {
 
 		String root = "/" + (name == null ? "" : name);
 		docType = dict.translateDocumentType(root);
-		XDMPath path = dict.translatePath(docType, "", XDMNodeKind.document, XQItemType.XQBASETYPE_ANYTYPE, XDMCardinality.onlyOne); 
+		XDMPath path = dict.translatePath(docType, "", XDMNodeKind.document, XQItemType.XQBASETYPE_ANYTYPE, XDMOccurence.onlyOne); 
 		XDMElement start = new XDMElement();
 		start.setElementId(elementId++);
 		//start.setParentId(0); // -1 ?
@@ -161,7 +161,7 @@ public class XDMJaksonParser extends XDMDataParser implements XDMParser {
 				// add marker
 				dataStack.add(null);
 			} else if (!name.equals(parent.getName())) {
-				XDMData current = addData(parent, XDMNodeKind.element, "/" + name, null, XQItemType.XQBASETYPE_ANYTYPE, XDMCardinality.zeroOrOne); 
+				XDMData current = addData(parent, XDMNodeKind.element, "/" + name, null, XQItemType.XQBASETYPE_ANYTYPE, XDMOccurence.zeroOrOne); 
 				dataStack.add(current);
 			}
 		}
@@ -182,14 +182,14 @@ public class XDMJaksonParser extends XDMDataParser implements XDMParser {
 				// use XDMJsonParser.getTopData instead ?
 				current = dataStack.elementAt(dataStack.size() - 2);
 			}
-			addData(current, XDMNodeKind.text, "/text()", value, XQItemType.XQBASETYPE_ANYATOMICTYPE, XDMCardinality.zeroOrOne);
+			addData(current, XDMNodeKind.text, "/text()", value, XQItemType.XQBASETYPE_ANYATOMICTYPE, XDMOccurence.zeroOrOne);
 		} else if (isAttribute(name)) {
 			XDMData current = dataStack.peek(); 
 			name = name.substring(1);
 			if (name.startsWith("xmlns")) {
-				addData(current, XDMNodeKind.namespace, "/#" + name, value, XQItemType.XQBASETYPE_QNAME, XDMCardinality.onlyOne);
+				addData(current, XDMNodeKind.namespace, "/#" + name, value, XQItemType.XQBASETYPE_QNAME, XDMOccurence.onlyOne);
 			} else {
-				addData(current, XDMNodeKind.attribute, "/@" + name, value, XQItemType.XQBASETYPE_ANYATOMICTYPE, XDMCardinality.zeroOrOne);
+				addData(current, XDMNodeKind.attribute, "/@" + name, value, XQItemType.XQBASETYPE_ANYATOMICTYPE, XDMOccurence.zeroOrOne);
 			}
 		} else {
 			XDMData current = dataStack.pop();
@@ -197,7 +197,7 @@ public class XDMJaksonParser extends XDMDataParser implements XDMParser {
 				// #text
 				current = dataStack.peek(); 
 			}
-			addData(current, XDMNodeKind.text, "/text()", value, XQItemType.XQBASETYPE_ANYATOMICTYPE, XDMCardinality.zeroOrOne);
+			addData(current, XDMNodeKind.text, "/text()", value, XQItemType.XQBASETYPE_ANYATOMICTYPE, XDMOccurence.zeroOrOne);
 		}
 	}
 	

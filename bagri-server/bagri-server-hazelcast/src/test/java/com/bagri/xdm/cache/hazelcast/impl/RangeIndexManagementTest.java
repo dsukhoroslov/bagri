@@ -17,7 +17,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.xdm.api.test.XDMQueryManagementTest;
-import com.bagri.xdm.domain.XDMCardinality;
+import com.bagri.xdm.domain.XDMOccurence;
 import com.bagri.xdm.domain.XDMNodeKind;
 import com.bagri.xdm.system.XDMIndex;
 import com.bagri.xdm.system.XDMSchema;
@@ -60,7 +60,7 @@ public class RangeIndexManagementTest extends XDMQueryManagementTest {
 		int docType = xdmRepo.getModelManagement().translateDocumentType("/{http://tpox-benchmark.com/security}Security");
 		int pathId = xdmRepo.getModelManagement().translatePath(docType, 
 				"/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}PE/text()", 
-				XDMNodeKind.text, XQItemType.XQBASETYPE_DOUBLE, XDMCardinality.onlyOne).getPathId();
+				XDMNodeKind.text, XQItemType.XQBASETYPE_DOUBLE, XDMOccurence.onlyOne).getPathId();
 		if (!xdmRepo.getIndexManagement().isPathIndexed(pathId)) {
 			System.out.println("path not indexed!!");
 		}

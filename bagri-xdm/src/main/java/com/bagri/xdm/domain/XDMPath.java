@@ -19,7 +19,7 @@ public class XDMPath implements Comparable<XDMPath> { //implements Serializable 
 	// the type constant from javax.xml.xquery.XQItemType.*
 	// change it to QName?
 	private int dataType;
-	private XDMCardinality cardinality = XDMCardinality.zeroOrOne;
+	private XDMOccurence cardinality = XDMOccurence.zeroOrOne;
 	
 	// cache it!
 	private String name = null; 
@@ -29,7 +29,7 @@ public class XDMPath implements Comparable<XDMPath> { //implements Serializable 
 	}
 	
 	public XDMPath(String path, int typeId, XDMNodeKind kind, int pathId, int parentId, int postId, 
-			int dataType, XDMCardinality cardinality) {
+			int dataType, XDMOccurence cardinality) {
 		super();
 		this.path = path;
 		this.typeId = typeId;
@@ -43,7 +43,7 @@ public class XDMPath implements Comparable<XDMPath> { //implements Serializable 
 		}
 	}
 	
-	public XDMCardinality getCardinality() {
+	public XDMOccurence getCardinality() {
 		return cardinality;
 	}
 	

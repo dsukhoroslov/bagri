@@ -21,7 +21,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.xdm.api.test.XDMManagementTest;
-import com.bagri.xdm.domain.XDMCardinality;
+import com.bagri.xdm.domain.XDMOccurence;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMNodeKind;
 import com.bagri.xdm.system.XDMIndex;
@@ -65,7 +65,7 @@ public class UniqueIndexManagementTest extends XDMManagementTest {
 		int docType = xdmRepo.getModelManagement().translateDocumentType("/{http://tpox-benchmark.com/security}Security");
 		int pathId = xdmRepo.getModelManagement().translatePath(docType, 
 				"/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}Symbol/text()", 
-				XDMNodeKind.text, XQItemType.XQBASETYPE_STRING, XDMCardinality.onlyOne).getPathId();
+				XDMNodeKind.text, XQItemType.XQBASETYPE_STRING, XDMOccurence.onlyOne).getPathId();
 		if (!xdmRepo.getIndexManagement().isPathIndexed(pathId)) {
 			System.out.println("path not indexed!!");
 		}

@@ -1,5 +1,7 @@
 package com.bagri.xdm.cache.hazelcast.impl;
 
+import static com.bagri.common.security.Encryptor.encrypt;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -44,17 +46,17 @@ public class AccessManagementImpl implements XDMAccessManagement, InitializingBe
 	@Override
 	public boolean authenticate(String username, String password) {
 		Boolean result = null;
+		password = encrypt(password);
 		if (bridge != null) {
 			result = bridge.authenticate(schemaName, username, password);
 		}
 		// TODO: do we need this check any more?
 		if (result == null) {
-			// encrypt pwd..
 			if (username.equals(schemaName) && password.equals(schemaPass)) {
-				return true;
+				result = true;
 			}
 		}
-		return false;
+		return result;
 	}
 
 	

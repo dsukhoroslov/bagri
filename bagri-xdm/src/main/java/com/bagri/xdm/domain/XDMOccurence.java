@@ -1,21 +1,21 @@
 package com.bagri.xdm.domain;
 
-public class XDMCardinality {
+public class XDMOccurence {
 	
-	public static final XDMCardinality zeroOrOne = new XDMCardinality(0, 1);
-	public static final XDMCardinality zeroOrMany = new XDMCardinality(0, -1);
-	public static final XDMCardinality onlyOne = new XDMCardinality(1, 1);
-	public static final XDMCardinality oneOrMany = new XDMCardinality(1, -1);
+	public static final XDMOccurence zeroOrOne = new XDMOccurence(0, 1);
+	public static final XDMOccurence zeroOrMany = new XDMOccurence(0, -1);
+	public static final XDMOccurence onlyOne = new XDMOccurence(1, 1);
+	public static final XDMOccurence oneOrMany = new XDMOccurence(1, -1);
 	
 	private int low;
 	private int high;
 	
-	private XDMCardinality(int low, int high) {
+	private XDMOccurence(int low, int high) {
 		this.low = low;
 		this.high = high;
 	}
 	
-	public static XDMCardinality getCardinality(int low, int high) {
+	public static XDMOccurence getOccurence(int low, int high) {
 		if (low == 0) {
 			if (high == 1) {
 				return zeroOrOne;
@@ -31,7 +31,7 @@ public class XDMCardinality {
 				return oneOrMany;
 			}
 		}
-		return new XDMCardinality(low, high);
+		return new XDMOccurence(low, high);
 	}
 	
 	public int getLowBound() {
@@ -46,14 +46,18 @@ public class XDMCardinality {
 		return high > 1;
 	}
 	
-	public boolean isOptional() {
-		return low == 0;
+	public boolean isConstant() {
+		return low == high;
 	}
-
+	
 	public boolean isMandatory() {
 		return low > 0;
 	}
 	
+	public boolean isOptional() {
+		return low == 0;
+	}
+
 	public boolean isSingle() {
 		return high == 1;
 	}

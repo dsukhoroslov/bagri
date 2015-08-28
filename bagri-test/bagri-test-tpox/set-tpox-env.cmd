@@ -36,7 +36,7 @@ set java_opts=%java_opts% -Dxdm.spring.context=spring/tpox-xqj-context.xml
 
 set java_opts=%java_opts% -Dxdm.schema.members=%schema_addr%
 set java_opts=%java_opts% -Dxdm.schema.name=%schema%
-set java_opts=%java_opts% -Dxdm.schema.user=guest2
+set java_opts=%java_opts% -Dxdm.schema.user=guest
 set java_opts=%java_opts% -Dxdm.schema.password=password
 
 rem possible values are: member, owner, any

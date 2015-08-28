@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMModelManagement;
-import com.bagri.xdm.domain.XDMCardinality;
+import com.bagri.xdm.domain.XDMOccurence;
 import com.bagri.xdm.domain.XDMData;
 import com.bagri.xdm.domain.XDMElement;
 import com.bagri.xdm.domain.XDMNodeKind;
@@ -29,7 +29,7 @@ public abstract class XDMDataParser {
 		this.dict = dict;
 	}
 	
-	protected XDMData addData(XDMData parent, XDMNodeKind kind, String name, String value, int dataType, XDMCardinality cardinality) throws XDMException {
+	protected XDMData addData(XDMData parent, XDMNodeKind kind, String name, String value, int dataType, XDMOccurence cardinality) throws XDMException {
 		logger.trace("addData.enter; name: {}; kind: {}; value: {}; parent: {}", name, kind, value, parent);
 		XDMElement xElt = new XDMElement();
 		xElt.setElementId(elementId++);

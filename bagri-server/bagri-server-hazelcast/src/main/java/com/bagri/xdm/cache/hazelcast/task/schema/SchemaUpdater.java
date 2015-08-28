@@ -1,5 +1,8 @@
 package com.bagri.xdm.cache.hazelcast.task.schema;
 
+import static com.bagri.common.security.Encryptor.encrypt;
+import static com.bagri.xdm.common.XDMConstants.pn_schema_password;
+
 import java.io.IOException;
 import java.util.Properties;
 import java.util.Map.Entry;
@@ -38,10 +41,18 @@ public class SchemaUpdater extends SchemaProcessor implements DataSerializable {
 				}
 				
 				if (override) {
+					String pwd = properties.getProperty(pn_schema_password);
+					if (pwd != null) {
+						properties.setProperty(pn_schema_password, encrypt(pwd));
+					}
 					schema.setProperties(properties);
 				} else {
 					for (String name: properties.stringPropertyNames()) {
-						schema.setProperty(name, properties.getProperty(name));
+						String value = properties.getProperty(name);
+						if (pn_schema_password.equals(name)) {
+							value = encrypt(value);
+						}
+						schema.setProperty(name, value);
 					}
 				}
 				
