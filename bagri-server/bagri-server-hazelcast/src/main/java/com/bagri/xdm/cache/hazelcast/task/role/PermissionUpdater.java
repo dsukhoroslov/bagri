@@ -18,7 +18,7 @@ import com.hazelcast.nio.ObjectDataOutput;
 public class PermissionUpdater extends EntityProcessor implements EntryProcessor<String, XDMPermissionAware>, 
 	EntryBackupProcessor<String, XDMPermissionAware> {
 
-	private static final transient Logger logger = LoggerFactory.getLogger(RoleUpdater.class);
+	private static final transient Logger logger = LoggerFactory.getLogger(PermissionUpdater.class);
 
 	private Action action;
 	private String resource;

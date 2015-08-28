@@ -47,7 +47,6 @@ import com.bagri.xdm.domain.XDMPath;
 import com.bagri.xdm.domain.XDMQuery;
 import com.bagri.xdm.domain.XDMResults;
 import com.bagri.xquery.api.XQProcessor;
-import com.bagri.xquery.saxon.ExceptionIterator;
 import com.bagri.xquery.saxon.XQSequenceIterator;
 import com.hazelcast.core.IMap;
 import com.hazelcast.query.Predicate;

@@ -30,10 +30,16 @@ set java_opts=%java_opts% -Dxdm.spring.context=spring/tpox-xqj-context.xml
 
 set java_opts=%java_opts% -Dxdm.schema.members=%schema_addr%
 set java_opts=%java_opts% -Dxdm.schema.name=%schema%
+set java_opts=%java_opts% -Dxdm.schema.user=guest
 set java_opts=%java_opts% -Dxdm.schema.password=password
-set java_opts=%java_opts% -Dxdm.client.submitTo=any
+
 rem possible values are: member, owner, any
+set java_opts=%java_opts% -Dxdm.client.submitTo=any
+set java_opts=%java_opts% -Dxdm.client.bufferSize=128
+set java_opts=%java_opts% -Dxdm.client.fetchSize=1
+set java_opts=%java_opts% -Dxdm.client.connectAttempts=2
 
 set java_opts=%java_opts% -Duser.country=US -Duser.language=en
 
 exit /b
+

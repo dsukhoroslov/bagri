@@ -75,5 +75,9 @@
 	</hz:hazelcast>
 
 	<hz:executorService id="sys-exec-pool" name="sys-exec-pool" instance-ref="hzInstance"/>
+	
+	<bean id="accBridge" class="com.bagri.xdm.cache.hazelcast.impl.AccessManagementBridge">
+		<property name="hazelcastInstance" ref="hzInstance"/>
+	</bean>
 
 </beans>

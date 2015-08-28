@@ -257,6 +257,7 @@
                                             <sysproperty key="xdm.config.context.file" value="spring/cache-system-context.xml"/>
 					    <sysproperty key="xdm.config.properties.file" value="${props.name}.properties"/>
 					    <sysproperty key="xdm.config.filename" value="config.xml"/>
+					    <sysproperty key="xdm.access.filename" value="access.xml"/>
                                             <classpath>
                                                 <path refid="maven.compile.classpath"/>
                                                 <path refid="maven.runtime.classpath"/>

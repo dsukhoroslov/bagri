@@ -62,6 +62,7 @@ public class XDMCacheServer {
     	
         context = new ClassPathXmlApplicationContext(contextPath);
         HazelcastInstance hz = context.getBean("hzInstance", HazelcastInstance.class);
+        hz.getUserContext().put("context", context);
     	Member local = hz.getCluster().getLocalMember();
         String name = local.getStringAttribute(xdm_cluster_node_name);
         String role = local.getStringAttribute(xdm_cluster_node_role);

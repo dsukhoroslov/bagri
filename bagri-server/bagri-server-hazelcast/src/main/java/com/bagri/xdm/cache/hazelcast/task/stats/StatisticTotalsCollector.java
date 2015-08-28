@@ -7,7 +7,9 @@ import java.util.concurrent.Callable;
 import javax.management.openmbean.CompositeData;
 
 import com.bagri.common.stats.StatisticsProvider;
+import com.hazelcast.spring.context.SpringAware;
 
+@SpringAware
 public class StatisticTotalsCollector extends StatisticsTask implements Callable<CompositeData>  {
 
 	

@@ -6,8 +6,8 @@
             <createdAt>2014-05-29T19:28:38.920+04:00</createdAt>
             <createdBy>dsukhoroslov</createdBy>
             <permissions>
-                <permission resource="com.bagri.xdm:type=Management,name=ClusterManagement">modify execute read</permission>
-                <permission resource="com.bagri.xdm:name=*,type=Node">modify execute read</permission>
+                <permission resource="com.bagri.xdm:type=Management,name=ClusterManagement">execute modify read</permission>
+                <permission resource="com.bagri.xdm:name=*,type=Node">execute modify read</permission>
             </permissions>
             <includedRoles></includedRoles>
             <description>management access to all ClusterManagement operations</description>
@@ -17,14 +17,14 @@
             <createdAt>2014-05-29T19:29:00.944+04:00</createdAt>
             <createdBy>dsukhoroslov</createdBy>
             <permissions>
-                <permission resource="com.bagri.xdm:type=Schema,name=*,kind=TransactionManagement">modify execute read</permission>
-                <permission resource="com.bagri.xdm:type=Schema,name=*,kind=TriggerManagement">modify execute read</permission>
-                <permission resource="com.bagri.xdm:name=*,type=Schema">modify execute read</permission>
-                <permission resource="com.bagri.xdm:type=Management,name=SchemaManagement">modify execute read</permission>
-                <permission resource="com.bagri.xdm:type=Schema,name=*,kind=ModelManagement">modify execute read</permission>
-                <permission resource="com.bagri.xdm:type=Schema,name=*,kind=QueryManagement">modify execute read</permission>
-                <permission resource="com.bagri.xdm:type=Schema,name=*,kind=IndexManagement">modify execute read</permission>
-                <permission resource="com.bagri.xdm:type=Schema,name=*,kind=DocumentManagement">modify execute read</permission>
+                <permission resource="com.bagri.xdm:type=Schema,name=*,kind=TransactionManagement">execute modify read</permission>
+                <permission resource="com.bagri.xdm:type=Schema,name=*,kind=TriggerManagement">execute modify read</permission>
+                <permission resource="com.bagri.xdm:name=*,type=Schema">execute modify read</permission>
+                <permission resource="com.bagri.xdm:type=Management,name=SchemaManagement">execute modify read</permission>
+                <permission resource="com.bagri.xdm:type=Schema,name=*,kind=ModelManagement">execute modify read</permission>
+                <permission resource="com.bagri.xdm:type=Schema,name=*,kind=QueryManagement">execute modify read</permission>
+                <permission resource="com.bagri.xdm:type=Schema,name=*,kind=IndexManagement">execute modify read</permission>
+                <permission resource="com.bagri.xdm:type=Schema,name=*,kind=DocumentManagement">execute modify read</permission>
             </permissions>
             <includedRoles></includedRoles>
             <description>management access to all SchemaManagement operations</description>
@@ -34,8 +34,8 @@
             <createdAt>2014-05-29T19:26:58.463+04:00</createdAt>
             <createdBy>dsukhoroslov</createdBy>
             <permissions>
-                <permission resource="com.bagri.xdm:type=Management,name=RoleManagement">modify execute read</permission>
-                <permission resource="com.bagri.xdm:name=*,type=Role">modify execute read</permission>
+                <permission resource="com.bagri.xdm:type=Management,name=RoleManagement">execute modify read</permission>
+                <permission resource="com.bagri.xdm:name=*,type=Role">execute modify read</permission>
             </permissions>
             <includedRoles></includedRoles>
             <description>management access to all SchemaManagement operations</description>
@@ -45,8 +45,8 @@
             <createdAt>2014-05-29T19:29:19.858+04:00</createdAt>
             <createdBy>dsukhoroslov</createdBy>
             <permissions>
-                <permission resource="com.bagri.xdm:type=Management,name=UserManagement">modify execute read</permission>
-                <permission resource="com.bagri.xdm:name=*,type=User">modify execute read</permission>
+                <permission resource="com.bagri.xdm:type=Management,name=UserManagement">execute modify read</permission>
+                <permission resource="com.bagri.xdm:name=*,type=User">execute modify read</permission>
             </permissions>
             <includedRoles></includedRoles>
             <description>management access to all UserManagement operations</description>
@@ -88,11 +88,11 @@
             <password>5f4dcc3b5aa765d61d8327deb882cf99</password>
         </user>
         <user login="guest" active="true">
-            <version>2</version>
-            <createdAt>2015-08-26T02:03:03.214+03:00</createdAt>
+            <version>4</version>
+            <createdAt>2015-08-28T10:41:29.003+03:00</createdAt>
             <createdBy>Denis</createdBy>
             <permissions>
-                <!--permission resource="com.bagri.xdm:name=default,type=Schema">read modify</permission-->
+                <permission resource="com.bagri.xdm:name=default,type=Schema">read</permission>
             </permissions>
             <includedRoles>GuestRole</includedRoles>
             <password>5f4dcc3b5aa765d61d8327deb882cf99</password>
