@@ -14,6 +14,7 @@ public class XDMException extends Exception {
 	public static final int ecInOut = 40000;
 	public static final int ecModel = 50000;
 	public static final int ecIndex = 60000;
+	public static final int ecIndexUnique = 60001;
 	public static final int ecQuery = 70000;
 	public static final int ecQueryTimeout = 70001;
 	public static final int ecQueryCancel = 70002;

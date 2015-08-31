@@ -285,7 +285,8 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 					value = ((String) value).toLowerCase();
 				}
 			} else {
-				// convert value..
+				// TODO: convert value when XDMPath.dataType != idx.dataType only
+				// in other cases just use value as is
 				try {
 					value = ReflectUtils.getValue(dataType, (String) value);
 				} catch (Exception ex) {
@@ -301,7 +302,7 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 				long id = XDMDocumentKey.toDocumentId(docId);
 				if (!checkUniquiness((XDMUniqueDocument) xidx, id)) {
 					throw new XDMException("unique index '" + idx.getName() + "' violated for docId: " + 
-							docId + ", pathId: " + pathId + ", value: " + value, XDMException.ecIndex);
+							docId + ", pathId: " + pathId + ", value: " + value, XDMException.ecIndexUnique);
 				}
 
 				if (xidx == null) {
@@ -309,9 +310,10 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 				}
 				xidx.addDocument(docId, txMgr.getCurrentTxId());
 				xidx = idxCache.put(xid, xidx);
+				// why it is done second time here??
 				if (!checkUniquiness((XDMUniqueDocument) xidx, id)) {
 					throw new XDMException("unique index '" + idx.getName() + "' violated for docId: " + 
-							docId + ", pathId: " + pathId + ", value: " + value, XDMException.ecIndex);
+							docId + ", pathId: " + pathId + ", value: " + value, XDMException.ecIndexUnique);
 				}
 			} else {
 				if (xidx == null) {

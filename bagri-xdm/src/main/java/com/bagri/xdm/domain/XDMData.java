@@ -38,7 +38,7 @@ public class XDMData implements Comparable<XDMData> {
     	return path.getPathId();
     }
     	
-    public String getValue() {
+    public Object getValue() {
     	return element.getValue();
     }
     

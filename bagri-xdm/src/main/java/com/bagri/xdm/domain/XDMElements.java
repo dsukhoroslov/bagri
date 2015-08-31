@@ -92,30 +92,6 @@ public class XDMElements {
     
     private boolean applyValue(PathExpression pex, Object value) {
 
-        // @TODO: add doctype and compare the real
-        // pex value, not its String representation
-       
-        //String field = "value";
-        //Object value = pex.getValue().toString();
-  	
-        //if (value instanceof Integer) {
-        //     field = "asInt";
-        //} else if (value instanceof Long) {
-        //     field = "asLong";
-        //} else if (value instanceof Boolean) {
-        //     field = "asBoolean";
-        //} else if (value instanceof Byte) {
-        //     field = "asByte";
-        //} else if (value instanceof Short) {
-        //     field = "asShort";
-        //} else if (value instanceof Float) {
-        //     field = "asFloat";
-        //} else if (value instanceof Double) {
-        //     field = "asDouble";
-        //} else {
-        //     value = value.toString();
-        //}
-
     	String val = value.toString();
         if (elementRef instanceof XDMElement) {
         	return compareValue(pex.getCompType(), val, ((XDMElement) elementRef).getValue());
@@ -124,9 +100,10 @@ public class XDMElements {
         }
     }
     
-    private boolean compareValue(Comparison comp, String value1, String value2) {
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+	private boolean compareValue(Comparison comp, Object value1, Object value2) {
 
-    	int result = value2.compareTo(value1);
+    	int result = ((Comparable) value2).compareTo((Comparable) value1);
     	switch (comp) {
 	        case EQ: return result == 0;
 	        case NE: return result != 0;

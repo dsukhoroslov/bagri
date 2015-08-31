@@ -52,9 +52,7 @@ public class AccessManagementImpl implements XDMAccessManagement, InitializingBe
 		}
 		// TODO: do we need this check any more?
 		if (result == null) {
-			if (username.equals(schemaName) && password.equals(schemaPass)) {
-				result = true;
-			}
+			result = username.equals(schemaName) && password.equals(schemaPass);
 		}
 		return result;
 	}

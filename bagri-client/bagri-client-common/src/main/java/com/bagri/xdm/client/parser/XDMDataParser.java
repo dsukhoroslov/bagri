@@ -35,6 +35,7 @@ public abstract class XDMDataParser {
 		xElt.setElementId(elementId++);
 		xElt.setParentId(parent.getElementId());
 		String path = parent.getPath() + name;
+		// TODO: convert value to dataType here!
 		xElt.setValue(value);
 		XDMPath xPath = dict.translatePath(docType, path, kind, dataType, cardinality);
 		XDMData xData = new XDMData(xPath, xElt);

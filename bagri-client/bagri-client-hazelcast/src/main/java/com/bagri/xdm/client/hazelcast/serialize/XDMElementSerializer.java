@@ -25,16 +25,16 @@ public class XDMElementSerializer implements StreamSerializer<XDMElement> {
 		XDMElement xData = new XDMElement(
 				in.readLong(),
 				in.readLong(),
-				in.readUTF());
+				in.readObject());
 		return xData;
 	}
 
 	@Override
-	public void write(ObjectDataOutput out, XDMElement xData) throws IOException {
+	public void write(ObjectDataOutput out, XDMElement xElt) throws IOException {
 		
-		out.writeLong(xData.getElementId());
-		out.writeLong(xData.getParentId());
-		out.writeUTF(xData.getValue());
+		out.writeLong(xElt.getElementId());
+		out.writeLong(xElt.getParentId());
+		out.writeObject(xElt.getValue());
 	}
 
 }

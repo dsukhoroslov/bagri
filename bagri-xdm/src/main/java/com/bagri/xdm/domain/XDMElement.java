@@ -6,11 +6,11 @@ import java.io.Serializable;
  * @author Denis Sukhoroslov: dsukhoroslov@gmail.com
  * @version 0.1
  */
-public class XDMElement implements Comparable<XDMElement> { 
+public class XDMElement { //implements Comparable<XDMElement> { 
 
 	private long elementId;
 	private long parentId;
-	private String value = null;
+	private Object value = null;
 	// transient path
 	//private String path;
 	//private int positionInParent;
@@ -19,7 +19,7 @@ public class XDMElement implements Comparable<XDMElement> {
 		//
 	}
 	
-	public XDMElement(long elementId, long parentId, String value) {
+	public XDMElement(long elementId, long parentId, Object value) {
 		super();
 		this.elementId = elementId;
 		this.parentId = parentId;
@@ -71,53 +71,105 @@ public class XDMElement implements Comparable<XDMElement> {
 	/**
 	 * @return the value
 	 */
-	public String getValue() {
+	public Object getValue() {
 		return value;
 	}
 
 	/**
 	 * @param value the value to set
 	 */
-	public void setValue(String value) {
+	public void setValue(Object value) {
 		this.value = value;
 	}
 	
 	public int asInt() {
-		return Integer.valueOf(value);
+		if (value == null) {
+			return 0; //NaN;
+		}
+		if (value instanceof Integer) {
+			return (Integer) value;
+		}
+		return Integer.valueOf(value.toString());
 	}
 	
 	public long asLong() {
-		return Long.valueOf(value);
+		if (value == null) {
+			return 0; //NaN;
+		}
+		if (value instanceof Long) {
+			return (Long) value;
+		}
+		return Long.valueOf(value.toString());
 	}
 	
 	public boolean asBoolean() {
-		return Boolean.valueOf(value);
+		if (value == null) {
+			return false; //NaN;
+		}
+		if (value instanceof Boolean) {
+			return (Boolean) value;
+		}
+		return Boolean.valueOf(value.toString());
 	}
 	
 	public byte asByte() {
-		return Byte.valueOf(value);
+		if (value == null) {
+			return 0; //NaN;
+		}
+		if (value instanceof Byte) {
+			return (Byte) value;
+		}
+		return Byte.valueOf(value.toString());
 	}
 	
 	public short asShort() {
-		return Short.valueOf(value);
+		if (value == null) {
+			return 0; //NaN;
+		}
+		if (value instanceof Short) {
+			return (Short) value;
+		}
+		return Short.valueOf(value.toString());
 	}
 	
 	public float asFloat() {
-		return Float.valueOf(value);
+		if (value == null) {
+			return Float.NaN;
+		}
+		if (value instanceof Float) {
+			return (Float) value;
+		}
+		return Float.valueOf(value.toString());
 	}
 	
 	public double asDouble() {
-		return Double.valueOf(value);
+		if (value == null) {
+			return Double.NaN;
+		}
+		if (value instanceof Double) {
+			return (Double) value;
+		}
+		return Double.valueOf(value.toString());
+	}
+	
+	public String asString() {
+		if (value == null) {
+			return null;
+		}
+		if (value instanceof String) {
+			return (String) value;
+		}
+		return value.toString();
 	}
 	
 	//public Date asDate() {
 	//	
 	//}
 
-	@Override
-	public int compareTo(XDMElement other) {
-		return (int) (this.elementId - other.elementId);
-	}
+	//@Override
+	//public int compareTo(XDMElement other) {
+	//	return (int) (this.elementId - other.elementId);
+	//}
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
