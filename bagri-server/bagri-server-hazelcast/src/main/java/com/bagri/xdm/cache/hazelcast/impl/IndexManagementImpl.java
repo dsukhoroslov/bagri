@@ -1,6 +1,7 @@
 package com.bagri.xdm.cache.hazelcast.impl;
 
 import static com.bagri.xdm.api.XDMTransactionManagement.TX_NO;
+import static com.bagri.xqj.BagriXQUtils.getAtomicValue;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -285,13 +286,16 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 					value = ((String) value).toLowerCase();
 				}
 			} else {
-				// TODO: convert value when XDMPath.dataType != idx.dataType only
-				// in other cases just use value as is
-				try {
-					value = ReflectUtils.getValue(dataType, (String) value);
-				} catch (Exception ex) {
-					// just log error and use old value
-					logger.error("indexPath.error: " + ex, ex);
+				XDMPath xPath = mdlMgr.getPath(pathId);
+				int baseType = BagriXQUtils.getBaseTypeForTypeName(idx.getDataType());
+				if (xPath.getDataType() != baseType) {
+					try {
+						//value = ReflectUtils.getValue(dataType, (String) value);
+						value = getAtomicValue(baseType, value.toString());
+					} catch (Exception ex) {
+						// just log error and use old value
+						logger.error("indexPath.error: " + ex, ex);
+					}
 				}
 			}
 			logger.trace("indexPath; index: {}, dataType: {}, value: {}", idx, dataType, value);
@@ -471,6 +475,7 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 							subRange = range.headMap(comp);
 							break;
 						}
+						// TODO: implement other comparisons!
 						default: subRange = Collections.emptyMap();
 					}
 					logger.trace("getIndexedDocuments; got subRange of length {}", subRange.size());

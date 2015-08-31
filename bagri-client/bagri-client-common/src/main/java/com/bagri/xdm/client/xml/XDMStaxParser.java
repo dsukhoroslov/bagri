@@ -26,9 +26,6 @@ import javax.xml.stream.events.XMLEvent;
 import javax.xml.transform.Source;
 import javax.xml.xquery.XQItemType;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.client.parser.XDMDataParser;

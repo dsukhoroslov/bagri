@@ -35,6 +35,8 @@ import org.xml.sax.SAXException;
 import static com.bagri.common.util.FileUtils.def_encoding;
 
 public class XMLUtils {
+
+	private static final String EOL = System.getProperty("line.separator");
 	
 	private static final DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();  
 	private static final XMLInputFactory xiFactory = XMLInputFactory.newInstance();
@@ -48,17 +50,13 @@ public class XMLUtils {
 		if (text == null) {
 			throw new IOException("Provided reader is null");
 		}
-		StringBuilder sb = new StringBuilder();
-		BufferedReader br = new BufferedReader(text);
-		String NL = System.getProperty("line.separator");
 		String line;
-		try {
+		StringBuilder sb = new StringBuilder();
+		try (BufferedReader br = new BufferedReader(text)) {
 			while((line = br.readLine()) != null) {
-				sb.append(line).append(NL);
+				sb.append(line).append(EOL);
             }
 			sb.deleteCharAt(sb.length() - 1);
-		} finally {
-			br.close();
 		}
 		return sb.toString();
 	}
@@ -67,11 +65,8 @@ public class XMLUtils {
 		if (text == null) {
 			throw new IOException("Provided stream is null");
 		}
-		Reader r = new InputStreamReader(text);
-		try {
+		try (Reader r = new InputStreamReader(text)) {
 			return textToString(r);
-		} finally {
-			r.close();
 		}
 	}
 	
@@ -79,7 +74,6 @@ public class XMLUtils {
 		
 		try {
 			DocumentBuilder builder = dbFactory.newDocumentBuilder();
-	        //return builder.parse(new InputSource(new ByteArrayInputStream(xml.getBytes("utf-8"))));  
 	        return builder.parse(new ByteArrayInputStream(text.getBytes(def_encoding)));  
 		} catch (ParserConfigurationException | SAXException ex) {
 			throw new IOException(ex); 
@@ -109,8 +103,7 @@ public class XMLUtils {
 	public static XMLStreamReader stringToStream(String content) throws IOException {
 		
 		//get Reader connected to XML input from somewhere..?
-		Reader reader = new StringReader(content);
-	    try {
+	    try (Reader reader = new StringReader(content)) {
 			return xiFactory.createXMLStreamReader(reader);
 		} catch (XMLStreamException ex) {
 			throw new IOException(ex); 
@@ -125,7 +118,7 @@ public class XMLUtils {
 	    	trans.setOutputProperty(OutputKeys.INDENT, "yes");
 			Writer writer = new StringWriter();
 			trans.transform(source, new StreamResult(writer));
-			writer.flush();
+			writer.close();
 			return writer.toString();
 		} catch (TransformerException ex) {
 			throw new IOException(ex); 
@@ -147,5 +140,6 @@ public class XMLUtils {
 			throw new IOException(ex); 
 		}  
 	}
+	
 
 }

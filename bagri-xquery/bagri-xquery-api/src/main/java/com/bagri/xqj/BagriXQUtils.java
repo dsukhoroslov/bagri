@@ -79,6 +79,7 @@ import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQItem;
 import javax.xml.xquery.XQItemType;
 
+import org.apache.xerces.impl.dv.util.Base64;
 import org.apache.xerces.util.XMLChar;
 import org.w3c.dom.Node;
 
@@ -151,6 +152,63 @@ public class BagriXQUtils {
     	}
     	return null;
     }
+    
+	public static Object getAtomicValue(int baseType, String value) {
+    	switch (baseType) {
+			case XQBASETYPE_ANYATOMICTYPE: return value;
+			case XQBASETYPE_ANYSIMPLETYPE: return value;
+			case XQBASETYPE_ANYTYPE: return value;
+			case XQBASETYPE_ANYURI: return URI.create(value);
+			case XQBASETYPE_BASE64BINARY: return Base64.encode(value.getBytes());
+			case XQBASETYPE_BOOLEAN: return new Boolean(value);
+			case XQBASETYPE_BYTE: return new Byte(value);
+			case XQBASETYPE_DATE: return dtFactory.newXMLGregorianCalendar(value);
+			case XQBASETYPE_DATETIME: return dtFactory.newXMLGregorianCalendar(value);
+			case XQBASETYPE_DAYTIMEDURATION: return dtFactory.newDurationDayTime(value); 
+			case XQBASETYPE_DECIMAL: return new BigDecimal(value);
+			case XQBASETYPE_DOUBLE: return new Double(value);
+			case XQBASETYPE_DURATION: return dtFactory.newDuration(value); 
+			case XQBASETYPE_ENTITIES: return value;
+			case XQBASETYPE_ENTITY: return value;
+			case XQBASETYPE_FLOAT: return new Float(value);
+			case XQBASETYPE_GDAY: return dtFactory.newXMLGregorianCalendar(value);
+			case XQBASETYPE_GMONTH: return dtFactory.newXMLGregorianCalendar(value);
+			case XQBASETYPE_GMONTHDAY: return dtFactory.newXMLGregorianCalendar(value);
+			case XQBASETYPE_GYEAR: return dtFactory.newXMLGregorianCalendar(value);
+			case XQBASETYPE_GYEARMONTH: return dtFactory.newXMLGregorianCalendar(value);
+			case XQBASETYPE_HEXBINARY: return Base64.encode(value.getBytes());
+			case XQBASETYPE_ID: return value;
+			case XQBASETYPE_IDREF: return value;
+			case XQBASETYPE_IDREFS: return value;
+			case XQBASETYPE_INT: return new Integer(value);
+			case XQBASETYPE_INTEGER: return new BigInteger(value);
+			case XQBASETYPE_LANGUAGE: return value;
+			case XQBASETYPE_LONG: return new Long(value);
+			case XQBASETYPE_NAME: return value;
+			case XQBASETYPE_NCNAME: return value;
+			case XQBASETYPE_NEGATIVE_INTEGER: return new BigInteger(value);
+			case XQBASETYPE_NMTOKEN: return value;
+			case XQBASETYPE_NMTOKENS: return value;
+			case XQBASETYPE_NONNEGATIVE_INTEGER: return new BigInteger(value);
+			case XQBASETYPE_NONPOSITIVE_INTEGER: return new BigInteger(value);
+			case XQBASETYPE_NORMALIZED_STRING: return value;
+			case XQBASETYPE_NOTATION: return value;
+			case XQBASETYPE_POSITIVE_INTEGER: return new BigInteger(value);
+			case XQBASETYPE_QNAME: return new QName(value);
+			case XQBASETYPE_SHORT: return new Short(value);
+			case XQBASETYPE_STRING: return value;
+			case XQBASETYPE_TIME: return dtFactory.newXMLGregorianCalendar(value);
+			case XQBASETYPE_TOKEN: return value;
+			case XQBASETYPE_UNSIGNED_BYTE: return new Byte(value);
+			case XQBASETYPE_UNSIGNED_INT: return new Integer(value);
+			case XQBASETYPE_UNSIGNED_LONG: return new Long(value);
+			case XQBASETYPE_UNSIGNED_SHORT: return new Short(value);
+			case XQBASETYPE_UNTYPED: return value;
+			case XQBASETYPE_UNTYPEDATOMIC: return value;
+			case XQBASETYPE_YEARMONTHDURATION: return dtFactory.newDurationYearMonth(value);
+		}
+		return null;
+	}
 
 	public static int getBaseTypeForTypeName(QName typeName) {
 		if (xs_ns.equals(typeName.getNamespaceURI())) {

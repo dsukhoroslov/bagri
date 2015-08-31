@@ -15,6 +15,8 @@ import com.bagri.xdm.domain.XDMElement;
 import com.bagri.xdm.domain.XDMNodeKind;
 import com.bagri.xdm.domain.XDMPath;
 
+import static com.bagri.xqj.BagriXQUtils.getAtomicValue; 
+
 public abstract class XDMDataParser {
 
 	protected final Logger logger = LoggerFactory.getLogger(getClass());
@@ -35,8 +37,7 @@ public abstract class XDMDataParser {
 		xElt.setElementId(elementId++);
 		xElt.setParentId(parent.getElementId());
 		String path = parent.getPath() + name;
-		// TODO: convert value to dataType here!
-		xElt.setValue(value);
+		xElt.setValue(getAtomicValue(dataType, value));
 		XDMPath xPath = dict.translatePath(docType, path, kind, dataType, cardinality);
 		XDMData xData = new XDMData(xPath, xElt);
 		dataList.add(xData);

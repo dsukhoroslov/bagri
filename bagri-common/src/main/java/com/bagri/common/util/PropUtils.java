@@ -5,10 +5,12 @@ import java.io.StringReader;
 import java.util.Properties;
 
 public class PropUtils {
+	
+	private static final String EOL = System.getProperty("line.separator");
 
 	public static Properties propsFromString(String properties) throws IOException {
 		Properties props = new Properties();
-		properties = properties.replaceAll(";", "\n\r");
+		properties = properties.replaceAll(";", EOL);
 		props.load(new StringReader(properties));
 		return props;
 	}
