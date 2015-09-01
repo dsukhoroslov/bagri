@@ -96,11 +96,11 @@ public class BagriXDMPlugin extends BagriTPoXPlugin {
 					ActualParamInfo param = wp.getParamMarkerActualValue(transNo, 0, rand);
 					String sector = param.getActualValue();
 					param = wp.getParamMarkerActualValue(transNo, 1, rand);
-					int peMin = Integer.valueOf(param.getActualValue());
+					float peMin = Float.valueOf(param.getActualValue());
 					param = wp.getParamMarkerActualValue(transNo, 2, rand);
-					int peMax = Integer.valueOf(param.getActualValue());
+					float peMax = Float.valueOf(param.getActualValue());
 					param = wp.getParamMarkerActualValue(transNo, 3, rand);
-					int yieldMin = Integer.valueOf(param.getActualValue());
+					float yieldMin = Float.valueOf(param.getActualValue());
 					Collection<String> sec = xqmt.get().searchSecurity(sector, peMin, peMax, yieldMin);
 					if (sec != null && !sec.isEmpty()) {
 						result = 1;

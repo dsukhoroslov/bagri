@@ -1,6 +1,9 @@
 package com.bagri.samples.client;
 
 import static com.bagri.common.util.FileUtils.readTextFile;
+import static com.bagri.xdm.common.XDMConstants.xs_ns;
+import static com.bagri.xdm.common.XDMConstants.xs_prefix;
+import static com.bagri.xqj.BagriXQUtils.getBaseTypeForTypeName;
 
 import java.io.IOException;
 
@@ -37,22 +40,22 @@ public class ClientApp {
 		boolean found = false;
 		try {
 			//client.storeSecCommand();
-			long id = client.storeSecQuery();
+			//long id = client.storeSecQuery();
 			//long id = client.storeXmlDocument("axis.xml");
 			//System.out.println("document stored; id: " + id);
 			//found = client.runPriceQuery("IBM"); //IBM; VFINX; PTTAX
 			//found &= client.runPriceQuery("IBM"); //IBM; VFINX; PTTAX
-			//found &= client.runSecQuery("IBM");
+			found = client.runSecQuery("IBM");
 			//found &= client.runSecQuery("IBM");
 			//found &= client.runPriceQuery("IBM");
 			//client.runPriceQuery();
 			//found = client.runSecQuery();
 			//client.runSecQuery();
 			//found = client.searchSecQuery();
-			found = client.searchSecQueryParams();
+			//found = client.searchSecQueryParams();
 			//client.searchSecQueryParams();
 			//found = client.runAxisQuery();
-			client.removeSecCommand(id);
+			//client.removeSecCommand(id);
 		} catch (XQException e) {
 			e.printStackTrace();
 		}
@@ -151,10 +154,15 @@ public class ClientApp {
 			"</Security>";
 
 	    XQPreparedExpression xqpe = xqc.prepareExpression(query);
-	    xqpe.bindString(new QName("sect"), "Technology", null);
+	    xqpe.bindString(new QName("sect"), "Technology", null); 
 	    xqpe.bindFloat(new QName("pemin"), 25.0f, null);
 	    xqpe.bindFloat(new QName("pemax"), 28.0f, null);
-	    xqpe.bindFloat(new QName("yield"), 0.0f, null);
+	    xqpe.bindFloat(new QName("yield"), 0.1f, null);
+    	//QName typeName = new QName(xs_ns, "xs:decimal", xs_prefix);
+		//int baseType = getBaseTypeForTypeName(typeName);
+		//XQItemType type = xqc.createAtomicType(baseType, typeName, null);
+		//xqpe.bindAtomicValue(new QName("yield"), "0.1", type);
+	    
 	    XQResultSequence xqs = xqpe.executeQuery();
 
 	    int cnt = 0;

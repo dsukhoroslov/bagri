@@ -10,6 +10,9 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Random;
 
+import com.bagri.xdm.system.XDMCardinality;
+import com.bagri.xdm.system.XDMParameter;
+
 import net.sf.tpox.workload.core.WorkloadProcessor;
 import net.sf.tpox.workload.transaction.javaplugin.GenericJavaClassPlugin;
 import net.sf.tpox.workload.util.WorkloadEnvironment;
@@ -46,7 +49,11 @@ public abstract class BagriTPoXPlugin implements GenericJavaClassPlugin {
 		//logger.trace("prepare; params: {}; name: {}", wp.getParameterMarkers(), wp.getWorkloadName());
 	}
 	
-	protected Object buildParam(String type, String value) {
+	protected XDMParameter buildParam(String type, String value) {
+		return new XDMParameter(value, type, XDMCardinality.one);
+		//int baseType = getBaseTypeForTypeName(new QName(xs_ns, type, xs_prefix));
+		//return getAtomicValue(baseType, value);
+		/*
 		if ("boolean".equals(type)) {
 			return new Boolean(value);
 		}
@@ -72,6 +79,7 @@ public abstract class BagriTPoXPlugin implements GenericJavaClassPlugin {
 			return new Short(value);
 		}
 		return value;
+		*/
 	}
     
 

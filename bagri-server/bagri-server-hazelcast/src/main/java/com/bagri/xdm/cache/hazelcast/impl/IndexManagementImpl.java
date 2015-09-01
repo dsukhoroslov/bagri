@@ -1,7 +1,7 @@
 package com.bagri.xdm.cache.hazelcast.impl;
 
 import static com.bagri.xdm.api.XDMTransactionManagement.TX_NO;
-import static com.bagri.xqj.BagriXQUtils.getAtomicValue;
+import static com.bagri.xqj.BagriXQUtils.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -218,32 +218,7 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 	private boolean isPatternIndex(XDMIndex index) {
 		return PathBuilder.isRegexPath(index.getPath());
 	}
-	
-	private Class getDataType(String dataType) {
-		int pos = dataType.indexOf(":");
-		if (pos > 0) {
-			String prefix = dataType.substring(0,  pos);
-			dataType = dataType.substring(pos + 1);
-			if (!prefix.equals("xs")) {
-				// custom type ?
-			}
-		}
-		switch (dataType) {
-			case "boolean": return Boolean.class;
-			case "byte": return Byte.class;
-			case "char": return Character.class;
-			case "date": 
-			case "dateTime": return java.util.Date.class; 
-			case "double": return Double.class;
-			case "float": return Float.class;
-			case "int":
-			case "integer": return Integer.class;
-			case "long": return Long.class;
-			case "short": return Short.class;
-		}
-		return String.class;
-	}
-	
+
 	private Collection<XDMIndex> getPathIndexes(int pathId, String path) {
 		Set<XDMIndex> result = new HashSet<>();
 		for (Map.Entry<XDMIndex, Pattern> e: patterns.entrySet()) {
@@ -279,78 +254,76 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 	
 	private void indexPath(XDMIndex idx, long docId, int pathId, Object value) throws XDMException {
 
-		if (value != null) {
-			Class dataType = getDataType(idx.getDataType().getLocalPart());
-			if (dataType.isInstance("String")) {
-				if (!idx.isCaseSensitive()) {
-					value = ((String) value).toLowerCase();
-				}
-			} else {
-				XDMPath xPath = mdlMgr.getPath(pathId);
-				int baseType = BagriXQUtils.getBaseTypeForTypeName(idx.getDataType());
-				if (xPath.getDataType() != baseType) {
-					try {
-						//value = ReflectUtils.getValue(dataType, (String) value);
-						value = getAtomicValue(baseType, value.toString());
-					} catch (Exception ex) {
-						// just log error and use old value
-						logger.error("indexPath.error: " + ex, ex);
-					}
-				}
+		int baseType = getBaseTypeForTypeName(idx.getDataType());
+		if (isStringTypeCompatible(baseType)) {
+			value = value.toString();
+			if (!idx.isCaseSensitive()) {
+				value = ((String) value).toLowerCase();
 			}
-			logger.trace("indexPath; index: {}, dataType: {}, value: {}", idx, dataType, value);
-			
-			XDMIndexKey xid = factory.newXDMIndexKey(pathId, value);
-			XDMIndexedValue xidx = idxCache.get(xid);
-			if (idx.isUnique()) {
-				long id = XDMDocumentKey.toDocumentId(docId);
-				if (!checkUniquiness((XDMUniqueDocument) xidx, id)) {
-					throw new XDMException("unique index '" + idx.getName() + "' violated for docId: " + 
-							docId + ", pathId: " + pathId + ", value: " + value, XDMException.ecIndexUnique);
-				}
-
-				if (xidx == null) {
-					xidx = new XDMUniqueDocument();
-				}
-				xidx.addDocument(docId, txMgr.getCurrentTxId());
-				xidx = idxCache.put(xid, xidx);
-				// why it is done second time here??
-				if (!checkUniquiness((XDMUniqueDocument) xidx, id)) {
-					throw new XDMException("unique index '" + idx.getName() + "' violated for docId: " + 
-							docId + ", pathId: " + pathId + ", value: " + value, XDMException.ecIndexUnique);
-				}
-			} else {
-				if (xidx == null) {
-					xidx = new XDMIndexedDocument(docId);
-				} else { 
-					xidx.addDocument(docId, XDMTransactionManagement.TX_NO);
-				}
-				idxCache.set(xid, xidx);
-				if (idx.isRange()) {
-					TreeMap<Comparable, Integer> range = rangeIndex.get(pathId);
-					Integer count = range.get(value);
-					if (count == null) {
-						count = 1;
-					} else {
-						count++;
-					}
-					range.put((Comparable) value, count);
-				}
-			}
-
-			//if (isPatternIndex(idx)) {
-			//	logger.info("indexPath; indexed pattern: {}, dataType: {}, value: {}", idx, dataType, value);
-			//}
-			
-			// collect static index stats right here?
-			
-			// it works asynch. but major time is taken in isPathIndexed method..
-			//ValueIndexator indexator = new ValueIndexator(docId);
-			//idxCache.submitToKey(xid, indexator);
-			//logger.trace("addIndex; index submit for key {}", xid);
 		} else {
-			// shouldn't we index NULL values too? create special NULL class for this..
+			XDMPath xPath = mdlMgr.getPath(pathId);
+			if (xPath.getDataType() != baseType) {
+				logger.info("indexPath; index [{}] and path [{}] types are not compatible; value: {}", 
+						baseType, xPath.getDataType(), value);
+				try {
+					// conversion from path type to index type
+					value = getAtomicValue(baseType, value.toString());
+				} catch (Exception ex) {
+					// just log error and use old value
+					logger.error("indexPath.error: " + ex, ex);
+				}
+			}
 		}
+		logger.trace("indexPath; index: {}, baseType: {}, value: {}", idx, baseType, value);
+			
+		XDMIndexKey xid = factory.newXDMIndexKey(pathId, value);
+		XDMIndexedValue xidx = idxCache.get(xid);
+		if (idx.isUnique()) {
+			long id = XDMDocumentKey.toDocumentId(docId);
+			if (!checkUniquiness((XDMUniqueDocument) xidx, id)) {
+				throw new XDMException("unique index '" + idx.getName() + "' violated for docId: " + 
+						docId + ", pathId: " + pathId + ", value: " + value, XDMException.ecIndexUnique);
+			}
+
+			if (xidx == null) {
+				xidx = new XDMUniqueDocument();
+			}
+			xidx.addDocument(docId, txMgr.getCurrentTxId());
+			xidx = idxCache.put(xid, xidx);
+			// why it is done second time here??
+			if (!checkUniquiness((XDMUniqueDocument) xidx, id)) {
+				throw new XDMException("unique index '" + idx.getName() + "' violated for docId: " + 
+						docId + ", pathId: " + pathId + ", value: " + value, XDMException.ecIndexUnique);
+			}
+		} else {
+			if (xidx == null) {
+				xidx = new XDMIndexedDocument(docId);
+			} else { 
+				xidx.addDocument(docId, XDMTransactionManagement.TX_NO);
+			}
+			idxCache.set(xid, xidx);
+			if (idx.isRange()) {
+				TreeMap<Comparable, Integer> range = rangeIndex.get(pathId);
+				Integer count = range.get(value);
+				if (count == null) {
+					count = 1;
+				} else {
+					count++;
+				}
+				range.put((Comparable) value, count);
+			}
+		}
+
+		//if (isPatternIndex(idx)) {
+		//	logger.info("indexPath; indexed pattern: {}, dataType: {}, value: {}", idx, dataType, value);
+		//}
+			
+		// collect static index stats right here?
+			
+		// it works asynch. but major time is taken in isPathIndexed method..
+		//ValueIndexator indexator = new ValueIndexator(docId);
+		//idxCache.submitToKey(xid, indexator);
+		//logger.trace("addIndex; index submit for key {}", xid);
 	}
 
 	private boolean checkUniquiness(XDMUniqueDocument uidx, long docId) throws XDMException {
@@ -412,47 +385,46 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 		}
 	}
 	
+	private Object adjustSearchValue(Object value) {
+		if (value instanceof Collection) {
+			Collection values = (Collection) value;
+			if (values.size() == 0) {
+				return null;
+			}
+			if (values.size() == 1) {
+				value = values.iterator().next();
+			} else {
+				// CompType must be IN !
+			}
+		} 
+		if (value instanceof XQItem) {
+			try {
+				value = ((XQItem) value).getObject();
+			} catch (XQException ex) {
+				logger.error("adjustSearchValue.error", ex);
+				value = value.toString();
+			}
+		}
+		return value;
+	}
+	
 	public Set<Long> getIndexedDocuments(int pathId, PathExpression pex, Object value) {
 		logger.trace("getIndexedDocuments.enter; pathId: {}, PEx: {}, value: {}", pathId, pex, value);
 		Set<Long> result = null;
 		if (Comparison.EQ.equals(pex.getCompType())) {
-			if (value instanceof Collection) {
-				Collection values = (Collection) value;
-				if (values.size() == 0) {
-					result = Collections.emptySet();
-				} else {
-					if (values.size() == 1) {
-						result = getIndexedDocuments(pathId, values.iterator().next().toString());
-					} else {
-						result = getIndexedDocuments(pathId, (Iterable) value);
-					}
-				}
+			value = adjustSearchValue(value);
+			if (value == null) {
+				result = Collections.emptySet();
+			} else if (value instanceof Collection) {
+				result = getIndexedDocuments(pathId, (Iterable) value);
 			} else {
-				result = getIndexedDocuments(pathId, value.toString());
+				result = getIndexedDocuments(pathId, value);
 			}
 		} else {
-			if (value instanceof Collection) {
-				Collection values = (Collection) value;
-				if (values.size() == 0) {
-					return Collections.emptySet();
-				}
-				if (values.size() == 1) {
-					value = values.iterator().next();
-				} else {
-					// CompType must be IN !
-				}
-				
-			} 
-			if (value instanceof XQItem) {
-				try {
-					value = ((XQItem) value).getObject();
-				} catch (XQException ex) {
-					logger.error("getIndexedDocuments.error", ex);
-					value = value.toString();
-				}
-			}
-			//value = value.toString();
-			if (value instanceof Comparable) {
+			value = adjustSearchValue(value);
+			if (value == null) {
+				result = Collections.emptySet();
+			} else if (value instanceof Comparable) {
 				XDMIndex idx = idxDict.get(pathId);
 				if (idx.isRange()) {
 					Comparable comp = (Comparable) value;
@@ -502,7 +474,7 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 		return result;
 	}
 	
-	private Set<Long> getIndexedDocuments(int pathId, String value) {
+	private Set<Long> getIndexedDocuments(int pathId, Object value) {
 		XDMIndex idx = idxDict.get(pathId);
 		// can't be null ?!
 		XDMIndexKey idxk = factory.newXDMIndexKey(pathId, value);

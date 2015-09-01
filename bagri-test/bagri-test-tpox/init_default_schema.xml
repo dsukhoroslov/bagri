@@ -156,7 +156,7 @@
 	    </argument>
 	    <argument index="3">
 		<type>java.lang.String</type>
-		<value>xs:float</value>
+		<value>xs:decimal</value>
 	    </argument>
 	    <argument index="4">
 		<type>boolean</type>

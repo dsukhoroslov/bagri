@@ -1,145 +1,142 @@
 package com.bagri.xdm.domain;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.TreeSet;
 
 import com.bagri.common.query.Comparison;
 import com.bagri.common.query.PathExpression;
 
 public class XDMElements {
-	 
-    //private long documentId;
-    private int pathId;
-    //private XDMNodeKind kind;
-    //private String name;
-   
-    private Object elementRef;
-    //private Map<Long, XDMElement> elements = new HashMap<Long, XDMElement>();
-    //private TreeMap<Object, Long> values = new TreeMap<Object, Long>();
-   
-    public XDMElements() {
-          //
-    }
-   
-    public XDMElements(int pathId, Map<Long, XDMElement> elements) {
-          this.pathId = pathId;
-          setElements(elements);
-    }
 
-    @SuppressWarnings("unchecked")
+	// private long documentId;
+	private int pathId;
+	// private XDMNodeKind kind;
+	// private String name;
+
+	private Object elementRef;
+
+	// private Map<Long, XDMElement> elements = new HashMap<Long, XDMElement>();
+	// private TreeMap<Object, Long> values = new TreeMap<Object, Long>();
+
+	public XDMElements() {
+		//
+	}
+
+	public XDMElements(int pathId, Map<Long, XDMElement> elements) {
+		this.pathId = pathId;
+		setElements(elements);
+	}
+
+	@SuppressWarnings("unchecked")
 	public void addElement(XDMElement element) {
-          if (elementRef == null) {
-                 elementRef = element;
-                 return;
-          }
-          if (elementRef instanceof XDMElement) {
-                 XDMElement oldElement = (XDMElement) elementRef;
-                 elementRef = new TreeSet<XDMElement>();
-                 ((Set<XDMElement>) elementRef).add(oldElement);
-          }
-          ((Set<XDMElement>) elementRef).add(element);
-          //if (element.getValue() != null) {
-          //     values.put(element.getValue(), element.getElementId());
-          //} // put null as some special object (static)
-    }
-   
-    @SuppressWarnings("unchecked")
+		if (elementRef == null) {
+			elementRef = element;
+			return;
+		}
+		if (elementRef instanceof XDMElement) {
+			XDMElement oldElement = (XDMElement) elementRef;
+			elementRef = new TreeSet<XDMElement>();
+			((Set<XDMElement>) elementRef).add(oldElement);
+		}
+		((Set<XDMElement>) elementRef).add(element);
+		// if (element.getValue() != null) {
+		// values.put(element.getValue(), element.getElementId());
+		// } // put null as some special object (static)
+	}
+
+	@SuppressWarnings("unchecked")
 	public Collection<XDMElement> getElements() {
-          if (elementRef == null) {
-        	  return Collections.emptyList();
-          }
-          if (elementRef instanceof XDMElement) {
-        	  Set<XDMElement> elements = new TreeSet<XDMElement>();
-        	  elements.add((XDMElement) elementRef);
-              return elements;
-          }
-          return (Set<XDMElement>) elementRef;
-    }
-   
-    public int getPathId() {
-          return pathId;
-    }
-   
-    public void setElements(Map<Long, XDMElement> elements) {
-          elementRef = null;
-          if (elements != null && elements.size() > 0) {
-        	  for (XDMElement elt: elements.values()) {
-        		  addElement(elt);
-        	  }
-          }
-    }
+		if (elementRef == null) {
+			return Collections.emptyList();
+		}
+		if (elementRef instanceof XDMElement) {
+			Set<XDMElement> elements = new TreeSet<XDMElement>();
+			elements.add((XDMElement) elementRef);
+			return elements;
+		}
+		return (Set<XDMElement>) elementRef;
+	}
 
-    public boolean apply(PathExpression pex, Object value) {
+	public int getPathId() {
+		return pathId;
+	}
 
-    	if (value instanceof Collection) {
-    		for (Object val: (Collection) value) {
-    			if (applyValue(pex, val)) {
-    				return true;
-    			}
-    		}
-    		return false;
-    	} else {
-        	return applyValue(pex, value);
-        }
-    }
-    
-    private boolean applyValue(PathExpression pex, Object value) {
+	public void setElements(Map<Long, XDMElement> elements) {
+		elementRef = null;
+		if (elements != null && elements.size() > 0) {
+			for (XDMElement elt : elements.values()) {
+				addElement(elt);
+			}
+		}
+	}
 
-    	String val = value.toString();
-        if (elementRef instanceof XDMElement) {
-        	return compareValue(pex.getCompType(), val, ((XDMElement) elementRef).getValue());
-        } else {
-        	return compareValues(pex.getCompType(), val, (Set<XDMElement>) elementRef);
-        }
-    }
-    
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+	public boolean apply(PathExpression pex, Object value) {
+
+		if (value instanceof Collection) {
+			for (Object val : (Collection) value) {
+				if (applyValue(pex, val)) {
+					return true;
+				}
+			}
+			return false;
+		} else {
+			return applyValue(pex, value);
+		}
+	}
+
+	private boolean applyValue(PathExpression pex, Object value) {
+
+		String val = value.toString();
+		if (elementRef instanceof XDMElement) {
+			return compareValue(pex.getCompType(), val, ((XDMElement) elementRef).getValue());
+		} else {
+			return compareValues(pex.getCompType(), val, (Set<XDMElement>) elementRef);
+		}
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private boolean compareValue(Comparison comp, Object value1, Object value2) {
 
-    	int result = ((Comparable) value2).compareTo((Comparable) value1);
-    	switch (comp) {
-	        case EQ: return result == 0;
-	        case NE: return result != 0;
-	        case LE: return result <= 0;
-	        case LT: return result < 0;
-	        case GE: return result >= 0;
-	        case GT: return result > 0;
-	        default: return false;
-        }
-    }
+		int result = ((Comparable) value2).compareTo((Comparable) value1);
+		switch (comp) {
+			case EQ: return result == 0;
+			case NE: return result != 0;
+			case LE: return result <= 0;
+			case LT: return result < 0;
+			case GE: return result >= 0;
+			case GT: return result > 0;
+			default: return false;
+		}
+	}
 
-    @SuppressWarnings("unchecked")
+	@SuppressWarnings("unchecked")
 	private boolean compareValues(Comparison comp, String value, Set<XDMElement> elements) {
 
-    	// can we prevent this copy somehow?
-        TreeSet values = new TreeSet();
-        for (XDMElement element: elements) {
-        	if (element.getValue() != null) {
-        		values.add(element.getValue());
-        	}
-        }
-    	
-        switch (comp) {
-	        case EQ: return values.contains(value);
-	        case NE: return !values.contains(value);
-	        case LE: return values.floor(value) != null;
-	        case LT: return values.lower(value) != null;
-	        case GE: return values.ceiling(value) != null;
-	        case GT: return values.higher(value) != null;
-	        default: return false;
-        }
-    }
-    
-    @Override
-    public String toString() {
-          return "XDMElements [pathId=" + pathId + ", elementRef=" + elementRef + "]";
-    }
-   
+		// can we prevent this copy somehow?
+		TreeSet values = new TreeSet();
+		for (XDMElement element : elements) {
+			if (element.getValue() != null) {
+				values.add(element.getValue());
+			}
+		}
+
+		switch (comp) {
+			case EQ: return values.contains(value);
+			case NE: return !values.contains(value);
+			case LE: return values.floor(value) != null;
+			case LT: return values.lower(value) != null;
+			case GE: return values.ceiling(value) != null;
+			case GT: return values.higher(value) != null;
+			default: return false;
+		}
+	}
+
+	@Override
+	public String toString() {
+		return "XDMElements [pathId=" + pathId + ", elementRef=" + elementRef + "]";
+	}
+
 }

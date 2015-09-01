@@ -303,7 +303,7 @@
                     <createdBy>SDV</createdBy>
                     <docType>/{http://tpox-benchmark.com/security}Security</docType>
                     <path>/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}Yield/text()</path>
-                    <dataType xmlns:xs="http://www.w3.org/2001/XMLSchema">xs:float</dataType>
+                    <dataType xmlns:xs="http://www.w3.org/2001/XMLSchema">xs:decimal</dataType>
                     <range>true</range>
                     <unique>false</unique>
                     <description>Security Yield</description>

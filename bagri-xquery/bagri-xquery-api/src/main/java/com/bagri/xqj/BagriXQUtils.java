@@ -283,10 +283,23 @@ public class BagriXQUtils {
 	
 	public static boolean isNodeNameSupported(int kind) {
 		return kind == XQITEMKIND_DOCUMENT_ELEMENT || kind ==  XQITEMKIND_DOCUMENT_SCHEMA_ELEMENT 
-			|| kind ==  XQITEMKIND_ELEMENT || kind == XQITEMKIND_SCHEMA_ELEMENT 
-			|| kind == XQITEMKIND_ATTRIBUTE || kind == XQITEMKIND_SCHEMA_ATTRIBUTE; 
+				|| kind ==  XQITEMKIND_ELEMENT || kind == XQITEMKIND_SCHEMA_ELEMENT 
+				|| kind == XQITEMKIND_ATTRIBUTE || kind == XQITEMKIND_SCHEMA_ATTRIBUTE; 
 	}
-	
+
+    public static boolean isStringTypeCompatible(int baseType) {
+    	return baseType == XQBASETYPE_ANYATOMICTYPE || baseType == XQBASETYPE_ANYSIMPLETYPE
+    			|| baseType == XQBASETYPE_ANYTYPE || baseType == XQBASETYPE_ENTITIES
+    			|| baseType == XQBASETYPE_ENTITY || baseType == XQBASETYPE_ID
+    			|| baseType == XQBASETYPE_IDREF || baseType == XQBASETYPE_IDREF
+    			|| baseType == XQBASETYPE_LANGUAGE || baseType == XQBASETYPE_NAME
+    			|| baseType == XQBASETYPE_NCNAME || baseType == XQBASETYPE_NMTOKEN
+    			|| baseType == XQBASETYPE_NMTOKENS || baseType ==  XQBASETYPE_NORMALIZED_STRING
+    			|| baseType == XQBASETYPE_NOTATION || baseType == XQBASETYPE_STRING
+    			|| baseType == XQBASETYPE_TOKEN || baseType == XQBASETYPE_UNTYPED
+    			|| baseType == XQBASETYPE_UNTYPEDATOMIC;
+    }
+    
     public static boolean isTypeValueCompatible(int baseType, Object value) {
     	String sval = value.toString();
     	switch (baseType) {
@@ -540,7 +553,6 @@ public class BagriXQUtils {
 		return factory.createAtomicType(baseType, getTypeName(baseType), null);
 	}
 
-    
 	public static XMLGregorianCalendar getXMLCalendar(GregorianCalendar gc, int cType) { 
     	switch (cType) {
     		case XQItemType.XQBASETYPE_DATE:

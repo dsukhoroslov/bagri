@@ -294,7 +294,6 @@ public class QueryManagementImpl implements XDMQueryManagement {
 				logger.trace("queryPathKeys; search for index - got ids: {}", docIds == null ? null : docIds.size()); 
 				if (docIds != null) {
 					if (found == null) {
-						//result.addAll(checkDocumentsCommited(docIds));
 						result.addAll(docIds);
 					} else {
 						found.retainAll(docIds);
@@ -341,9 +340,7 @@ public class QueryManagementImpl implements XDMQueryManagement {
 			result = new HashSet<Long>(xdmKeys.size());
 			for (XDMDataKey key: xdmKeys) {
 				long docId = key.getDocumentId();
-				//if (checkDocumentCommited(docId)) {
-					result.add(docId);
-				//}
+				result.add(docId);
 			}
 		} else {
 			QueryPredicate qp = new DocsAwarePredicate(pex, value, found);

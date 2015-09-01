@@ -6,7 +6,7 @@ import java.io.Serializable;
  * @author Denis Sukhoroslov: dsukhoroslov@gmail.com
  * @version 0.1
  */
-public class XDMElement { //implements Comparable<XDMElement> { 
+public class XDMElement implements Comparable<XDMElement> { 
 
 	private long elementId;
 	private long parentId;
@@ -166,10 +166,10 @@ public class XDMElement { //implements Comparable<XDMElement> {
 	//	
 	//}
 
-	//@Override
-	//public int compareTo(XDMElement other) {
-	//	return (int) (this.elementId - other.elementId);
-	//}
+	@Override
+	public int compareTo(XDMElement other) {
+		return (int) (this.elementId - other.elementId);
+	}
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()

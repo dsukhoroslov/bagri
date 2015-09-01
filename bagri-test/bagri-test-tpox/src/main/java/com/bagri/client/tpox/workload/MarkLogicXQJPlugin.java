@@ -10,24 +10,26 @@ import net.xqj.marklogic.MarkLogicXQInsertOptions;
 
 import com.xqj2.XQConnection2;
 
+import com.bagri.xdm.system.XDMParameter;
+
 public class MarkLogicXQJPlugin extends BagriXQJPlugin {
 
 	private static AtomicInteger cnt = new AtomicInteger(0); 
 
 	@Override
-	protected int execCommand(String query, Map<String, Object> params) throws XQException {
+	protected int execCommand(String query, Map<String, XDMParameter> params) throws XQException {
 		
         if ("insertDocument".equals(query)) {
             XQConnection2 xqc = (XQConnection2) getConnection();
-            String doc = (String) params.get("doc");
+            String doc = ((XDMParameter) params.get("doc")).getName();
             XQItem item = xqc.createItemFromDocument(doc, null, null);
             MarkLogicXQInsertOptions insertOptions = null;
-            String collect = (String) params.get("collect");
+            String collect = ((XDMParameter) params.get("collect")).getName();
             if (collect != null) {
                 insertOptions = new MarkLogicXQInsertOptions();
             	insertOptions.setCollections(new String[] {collect});
             }
-            String prefix = (String) params.get("prefix");
+            String prefix = ((XDMParameter) params.get("prefix")).getName();
             if (prefix == null) {
             	prefix = "doc";
             }

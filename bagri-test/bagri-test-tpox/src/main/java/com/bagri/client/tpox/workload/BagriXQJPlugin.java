@@ -1,5 +1,10 @@
 package com.bagri.client.tpox.workload;
 
+import static com.bagri.xdm.common.XDMConstants.xs_ns;
+import static com.bagri.xdm.common.XDMConstants.xs_prefix;
+import static com.bagri.xqj.BagriXQUtils.*;
+
+import java.net.URI;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
@@ -10,6 +15,7 @@ import javax.xml.xquery.XQConnection;
 import javax.xml.xquery.XQDynamicContext;
 import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQExpression;
+import javax.xml.xquery.XQItemType;
 import javax.xml.xquery.XQPreparedExpression;
 import javax.xml.xquery.XQResultSequence;
 
@@ -21,6 +27,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+import com.bagri.xdm.system.XDMParameter;
 
 public class BagriXQJPlugin extends BagriTPoXPlugin {
 
@@ -78,7 +86,7 @@ public class BagriXQJPlugin extends BagriTPoXPlugin {
 		String query = param.getActualValue();
 		param = wp.getParamMarkerActualValue(transNo, 1, rand);
 		boolean isQuery = Boolean.parseBoolean(param.getActualValue());
-		Map<String, Object> vars = new HashMap<String, Object>(size);
+		Map<String, XDMParameter> vars = new HashMap<>(size);
 		String value;
 		
 		//logger.debug("execute; size: {}; rand: {}; transNo: {}", size, rand, transNo);
@@ -112,29 +120,34 @@ public class BagriXQJPlugin extends BagriTPoXPlugin {
 		return result;
 	}
 	
-	private void bindParams(Map<String, Object> params, XQDynamicContext xqe) throws XQException {
-	    for (Map.Entry<String, Object> e: params.entrySet()) {
-	    	if (e.getValue() instanceof Boolean) {
-	    		xqe.bindBoolean(new QName(e.getKey()), (Boolean) e.getValue(), null);
-	    	} else if (e.getValue() instanceof Byte) {
-		    	xqe.bindByte(new QName(e.getKey()), (Byte) e.getValue(), null);
-	    	} else if (e.getValue() instanceof Double) {
-		    	xqe.bindDouble(new QName(e.getKey()), (Double) e.getValue(), null);
-	    	} else if (e.getValue() instanceof Float) {
-		    	xqe.bindFloat(new QName(e.getKey()), (Float) e.getValue(), null);
-	    	} else if (e.getValue() instanceof Integer) {
-		    	xqe.bindInt(new QName(e.getKey()), (Integer) e.getValue(), null);
-	    	} else if (e.getValue() instanceof Long) {
-		    	xqe.bindLong(new QName(e.getKey()), (Long) e.getValue(), null);
-	    	} else if (e.getValue() instanceof Short) {
-		    	xqe.bindShort(new QName(e.getKey()), (Short) e.getValue(), null);
-	    	} else {
-	    		xqe.bindString(new QName(e.getKey()), e.getValue().toString(), null);
-	    	}
+	private void bindParams(Map<String, XDMParameter> params, XQDynamicContext xqe) throws XQException {
+	    for (Map.Entry<String, XDMParameter> e: params.entrySet()) {
+	    	XDMParameter param = e.getValue();
+	    	QName typeName = new QName(xs_ns, param.getType(), xs_prefix);
+			int baseType = getBaseTypeForTypeName(typeName);
+			XQItemType type = getConnection().createAtomicType(baseType, typeName, null);
+			xqe.bindAtomicValue(new QName(e.getKey()), param.getName(), type);
+	    	//if (e.getValue() instanceof Boolean) {
+	    	//	xqe.bindBoolean(new QName(e.getKey()), (Boolean) e.getValue(), null);
+	    	//} else if (e.getValue() instanceof Byte) {
+		    //	xqe.bindByte(new QName(e.getKey()), (Byte) e.getValue(), null);
+	    	//} else if (e.getValue() instanceof Double) {
+		    //	xqe.bindDouble(new QName(e.getKey()), (Double) e.getValue(), null);
+	    	//} else if (e.getValue() instanceof Float) {
+		    //	xqe.bindFloat(new QName(e.getKey()), (Float) e.getValue(), null);
+	    	//} else if (e.getValue() instanceof Integer) {
+		    //	xqe.bindInt(new QName(e.getKey()), (Integer) e.getValue(), null);
+	    	//} else if (e.getValue() instanceof Long) {
+		    //	xqe.bindLong(new QName(e.getKey()), (Long) e.getValue(), null);
+	    	//} else if (e.getValue() instanceof Short) {
+		    //	xqe.bindShort(new QName(e.getKey()), (Short) e.getValue(), null);
+	    	//} else {
+	    	//	xqe.bindString(new QName(e.getKey()), e.getValue().toString(), null);
+	    	//}
 	    }
 	}
 	
-	protected int execCommand(String query, Map<String, Object> params) throws XQException {
+	protected int execCommand(String query, Map<String, XDMParameter> params) throws XQException {
 		
 		XQExpression xqe = getConnection().createExpression();
 		bindParams(params, xqe);
@@ -143,7 +156,7 @@ public class BagriXQJPlugin extends BagriTPoXPlugin {
 		return 1;
 	}
 	
-	protected int execQuery(String query, Map<String, Object> params) throws XQException {
+	protected int execQuery(String query, Map<String, XDMParameter> params) throws XQException {
 
 		//logger.trace("execQuery; query: {}; params: {}", query, params);
 		
