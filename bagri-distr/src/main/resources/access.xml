@@ -59,12 +59,12 @@
             <includedRoles>UserManagement NodeManagement SchemaManagement RoleManagement</includedRoles>
             <description>admin: can do everything</description>
         </role>
-        <role name="TestRole">
+        <role name="GuestRole">
             <version>3</version>
             <createdAt>2014-05-27T00:36:16.320+04:00</createdAt>
             <createdBy>Denis</createdBy>
             <permissions>
-                <permission resource="resource3">modify</permission>
+                <permission resource="com.bagri.xdm:name=*,type=Schema">read</permission>
             </permissions>
             <includedRoles></includedRoles>
             <description>Description</description>
@@ -77,6 +77,16 @@
             <createdBy>admin</createdBy>
             <permissions/>
             <includedRoles>AdminRole</includedRoles>
+            <password>5f4dcc3b5aa765d61d8327deb882cf99</password>
+        </user>
+        <user login="guest" active="true">
+            <version>4</version>
+            <createdAt>2015-08-28T10:41:29.003+03:00</createdAt>
+            <createdBy>Denis</createdBy>
+            <permissions>
+                <permission resource="com.bagri.xdm:name=default,type=Schema">read</permission>
+            </permissions>
+            <includedRoles>GuestRole</includedRoles>
             <password>5f4dcc3b5aa765d61d8327deb882cf99</password>
         </user>
     </users>
