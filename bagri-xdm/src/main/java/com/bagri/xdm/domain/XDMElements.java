@@ -9,6 +9,14 @@ import java.util.TreeSet;
 import com.bagri.common.query.Comparison;
 import com.bagri.common.query.PathExpression;
 
+
+/**
+ * Container for XDM elements.
+ *  
+ * @author Denis Sukhoroslov
+ * @since 06.2014 
+ * @version 0.3
+ */
 public class XDMElements {
 
 	// private long documentId;

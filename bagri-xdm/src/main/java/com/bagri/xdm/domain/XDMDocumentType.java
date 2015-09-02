@@ -5,12 +5,21 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Represents XDM document meta-data.
+ *  
+ * @author Denis Sukhoroslov
+ * @since 05.2013 
+ * @version 0.2
+ */
 public class XDMDocumentType { 
 	
 	private int typeId;
 	private String rootPath;
 	private boolean normalized = false;
-	private Set<XDMNamespace> schemas = new HashSet<XDMNamespace>();
+	private int fragmentationLimit = 0;
+	private Set<Long> fragments = new HashSet<>();
+	private Set<String> schemas = new HashSet<>();
 	
 	public XDMDocumentType() {
 		//
@@ -52,7 +61,7 @@ public class XDMDocumentType {
 	/**
 	 * @return the schemas
 	 */
-	public Collection<XDMNamespace> getSchemas() {
+	public Collection<String> getSchemas() {
 		return Collections.unmodifiableCollection(schemas);
 	}
 	
@@ -60,16 +69,16 @@ public class XDMDocumentType {
 	 * adds new schema
 	 * @return boolean
 	 */
-	public boolean addSchema(XDMNamespace schema) {
-		return schemas.add(schema);
+	public boolean addSchema(String schemaUri) {
+		return schemas.add(schemaUri);
 	}
 
 	/**
 	 * removes schema
 	 * @return boolean
 	 */
-	public boolean removeSchema(XDMNamespace schema) {
-		return schemas.remove(schema);
+	public boolean removeSchema(String schemaUri) {
+		return schemas.remove(schemaUri);
 	}
 
 	/* (non-Javadoc)

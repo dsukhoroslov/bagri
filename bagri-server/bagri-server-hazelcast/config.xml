@@ -67,6 +67,7 @@
                 <entry name="xqj.schema.defaultCollationUri"></entry>
                 <entry name="xqj.schema.constructionMode">1</entry>
             </properties>
+            <fragments/>
             <indexes/>
             <triggers/>
         </schema>
@@ -117,6 +118,7 @@
                 <entry name="xqj.schema.defaultCollationUri"></entry>
                 <entry name="xqj.schema.constructionMode">1</entry>
             </properties>
+            <fragments/>
             <indexes/>
             <triggers/>
         </schema>
@@ -167,6 +169,7 @@
                 <entry name="xqj.schema.defaultCollationUri"></entry>
                 <entry name="xqj.schema.constructionMode">1</entry>
             </properties>
+            <fragments/>
             <indexes>
                 <index name="IDX_Customer_id">
                     <version>1</version>
@@ -251,6 +254,7 @@
                 <entry name="xqj.schema.defaultCollationUri">http://www.w3.org/2005/xpath-functions/collation/codepoint</entry>
                 <entry name="xqj.schema.constructionMode">1</entry>
             </properties>
+            <fragments/>
             <indexes>
                 <!--index name="IDX_Customer_id">
                     <version>1</version>
@@ -414,6 +418,17 @@
                 <entry name="xqj.schema.defaultCollationUri"></entry>
                 <entry name="xqj.schema.constructionMode">1</entry>
             </properties>
+            <fragments>
+                <fragment name="FRA_Region_Item">
+                    <version>1</version>
+                    <createdAt>2015-09-02T10:05:26.965+03:00</createdAt>
+                    <createdBy>SDV</createdBy>
+                    <docType>/site</docType>
+                    <path>/site/region/*/item</path>
+                    <description>Auction Region Item</description>
+                    <enabled>true</enabled>
+                </fragment>
+            </fragments>
             <indexes/>
             <triggers/>
         </schema>

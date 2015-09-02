@@ -7,6 +7,13 @@ import com.bagri.xdm.common.Versionable;
 import static com.bagri.xdm.common.XDMDocumentKey.*;
 import static com.bagri.common.util.FileUtils.def_encoding;
 
+/**
+ * Represents XDM document instance: container for XDM elements.
+ *  
+ * @author Denis Sukhoroslov
+ * @since 05.2013 
+ * @version 0.2
+ */
 public class XDMDocument implements Versionable { //extends XDMEntity { 
 
 	private long documentKey;
@@ -106,6 +113,10 @@ public class XDMDocument implements Versionable { //extends XDMEntity {
 	@Override
 	public String getCreatedBy() {
 		return createdBy;
+	}
+	
+	public long[] getFragments() {
+		return new long[] {documentKey};
 	}
 
 	@Override

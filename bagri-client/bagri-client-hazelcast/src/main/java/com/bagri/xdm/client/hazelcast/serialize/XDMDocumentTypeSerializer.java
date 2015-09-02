@@ -27,10 +27,8 @@ public class XDMDocumentTypeSerializer implements StreamSerializer<XDMDocumentTy
 		
 		XDMDocumentType xType = new XDMDocumentType(in.readInt(), in.readUTF());
 		xType.setNormalized(in.readBoolean());
-		//Set<XDMNamespace> schemas = new HashSet<XDMNamespace>();
-		//in.readCollection(3, schemas);
-		Collection<XDMNamespace> schemas = in.readObject();
-		for (XDMNamespace schema: schemas) {
+		Collection<String> schemas = in.readObject();
+		for (String schema: schemas) {
 			xType.addSchema(schema);
 		}
 		return xType;

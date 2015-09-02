@@ -23,6 +23,7 @@ import com.bagri.xdm.common.XDMEntity;
 		"active", 
 		"description", 
 		"props",
+		"fragments",
 		"indexes",
 		"triggers"
 })
@@ -42,13 +43,17 @@ public class XDMSchema extends XDMEntity {
 	@XmlJavaTypeAdapter(XDMEntriesAdapter.class)
 	private Properties props = new Properties();
 	
+	@XmlElement(name="fragment")
+	@XmlElementWrapper(name="fragments")
+	private Set<XDMFragment> fragments = new HashSet<>();
+	
 	@XmlElement(name="index")
 	@XmlElementWrapper(name="indexes")
-	private Set<XDMIndex> indexes = new HashSet<XDMIndex>();
+	private Set<XDMIndex> indexes = new HashSet<>();
 	
 	@XmlElement(name="trigger")
 	@XmlElementWrapper(name="triggers")
-	private Set<XDMTriggerDef> triggers = new HashSet<XDMTriggerDef>();
+	private Set<XDMTriggerDef> triggers = new HashSet<>();
 	
 	public XDMSchema() {
 		// we need it for JAXB
@@ -102,6 +107,44 @@ public class XDMSchema extends XDMEntity {
 		if (props != null) {
 			this.props.putAll(props);
 		}
+	}
+	
+	public Set<XDMFragment> getFragments() {
+		return fragments;
+	}
+	
+	public boolean addFragment(XDMFragment fragment) {
+		return fragments.add(fragment);
+	}
+	
+	public boolean enableFragment(String name, boolean enable) {
+		for (XDMFragment fragment: fragments) {
+			if (name.equals(fragment.getName())) {
+				return fragment.setEnabled(enable);
+			}
+		}
+		return false;
+	}
+
+	public XDMFragment getFragment(String name) {
+		for (XDMFragment fragment: fragments) {
+			if (name.equals(fragment.getName())) {
+				return fragment;
+			}
+		}
+		return null;
+	}
+
+	public XDMFragment removeFragment(String name) {
+		for (XDMFragment fragment: fragments) {
+			if (name.equals(fragment.getName())) {
+				if (fragments.remove(fragment)) {
+					return fragment;
+				}
+				break;
+			}
+		}
+		return null;
 	}
 	
 	public Set<XDMIndex> getIndexes() {
@@ -206,7 +249,7 @@ public class XDMSchema extends XDMEntity {
 			", description=" + description + ", active=" + active + 
 			", created at=" + getCreatedAt() + ", by=" + getCreatedBy() + 
 			", props=" + props + ", indexes=" + indexes + 
-			", triggers=" + triggers + "]";
+			", triggers=" + triggers + ", fragments=" + fragments + "]";
 	}
 	
 }

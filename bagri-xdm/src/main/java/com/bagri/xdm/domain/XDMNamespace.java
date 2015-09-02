@@ -1,13 +1,13 @@
 package com.bagri.xdm.domain;
 
-//import java.io.Serializable;
-
-public class XDMNamespace { //implements Serializable {
-	
-	/**
-	 * 
-	 */
-	//private static final long serialVersionUID = 2680172281322841801L;
+/**
+ * Contains information about XDM namespace.
+ *  
+ * @author Denis Sukhoroslov
+ * @since 05.2013 
+ * @version 0.1
+ */
+public class XDMNamespace { 
 	
 	private String uri;
 	private String prefix;

@@ -1,9 +1,11 @@
 package com.bagri.xdm.domain;
 
-import java.io.Serializable;
 
 /**
- * @author Denis Sukhoroslov: dsukhoroslov@gmail.com
+ * Contains XDM value.
+ *  
+ * @author Denis Sukhoroslov
+ * @since 05.2013 
  * @version 0.1
  */
 public class XDMElement implements Comparable<XDMElement> { 
