@@ -17,6 +17,7 @@ import com.bagri.xdm.client.common.impl.XDMModelManagementBase;
 import com.bagri.xdm.domain.XDMDocumentType;
 import com.bagri.xdm.domain.XDMNamespace;
 import com.bagri.xdm.domain.XDMPath;
+import com.bagri.xdm.system.XDMSchema;
 
 import static com.bagri.xqj.BagriXQUtils.getTypeName;
 
@@ -31,6 +32,11 @@ public class ModelManagement extends SchemaFeatureManagement {
 	protected String getFeatureKind() {
 		return "ModelManagement";
 	}
+	
+	@Override
+	protected Collection getSchemaFeatures(XDMSchema schema) {
+		return schema.getFragments();
+	}
 
 	@ManagedAttribute(description="Return Document Types registered in the Schema")
 	public String[] getDocumentTypes() {
@@ -44,6 +50,11 @@ public class ModelManagement extends SchemaFeatureManagement {
 		return result;
 	}
 
+	@ManagedAttribute(description="Return Fragments registered in the Schema")
+	public TabularData getFragments() {
+		return getTabularFeatures("fragment", "Fragment definition", "name");
+	}
+	
 	@ManagedAttribute(description="Return Namespaces registered in the Schema")
 	public String[] getNamespaces() {
 		Collection<XDMNamespace> nss = ((XDMModelManagementBase) modelMgr).getNamespaces();

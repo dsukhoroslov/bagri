@@ -425,7 +425,43 @@
                     <createdBy>SDV</createdBy>
                     <docType>/site</docType>
                     <path>/site/region/*/item</path>
-                    <description>Auction Region Item</description>
+                    <description>Auction Region Items</description>
+                    <enabled>true</enabled>
+                </fragment>
+                <fragment name="FRA_Categories_Category">
+                    <version>1</version>
+                    <createdAt>2015-09-02T19:05:26.965+03:00</createdAt>
+                    <createdBy>SDV</createdBy>
+                    <docType>/site</docType>
+                    <path>/site/categories/category</path>
+                    <description>Auction Categories</description>
+                    <enabled>true</enabled>
+                </fragment>
+                <fragment name="FRA_People_Person">
+                    <version>1</version>
+                    <createdAt>2015-09-02T19:06:26.965+03:00</createdAt>
+                    <createdBy>SDV</createdBy>
+                    <docType>/site</docType>
+                    <path>/site/people/person</path>
+                    <description>Auction Peoples</description>
+                    <enabled>true</enabled>
+                </fragment>
+                <fragment name="FRA_Open_Auctions">
+                    <version>1</version>
+                    <createdAt>2015-09-02T19:07:26.965+03:00</createdAt>
+                    <createdBy>SDV</createdBy>
+                    <docType>/site</docType>
+                    <path>/site/open_auctions/open_auction</path>
+                    <description>Open Auctions</description>
+                    <enabled>true</enabled>
+                </fragment>
+                <fragment name="FRA_Closed_Auctions">
+                    <version>1</version>
+                    <createdAt>2015-09-02T19:08:26.965+03:00</createdAt>
+                    <createdBy>SDV</createdBy>
+                    <docType>/site</docType>
+                    <path>/site/closed_auctions/closed_auction</path>
+                    <description>Closed Auctions</description>
                     <enabled>true</enabled>
                 </fragment>
             </fragments>
