@@ -1,5 +1,7 @@
 package com.bagri.client.tpox.workload;
 
+import com.bagri.xdm.system.XDMCardinality;
+import com.bagri.xdm.system.XDMParameter;
 import com.marklogic.xcc.Content;
 import com.marklogic.xcc.ContentCreateOptions;
 import com.marklogic.xcc.ContentFactory;
@@ -95,7 +97,7 @@ public class MarkLogicXCCPlugin extends BagriTPoXPlugin {
 				} else {
 					value = param.getActualValue();
 				}
-				vars.put(name, buildParam(type, value));
+				vars.put(name, buildMLParam(type, value));
 			}
 			logger.trace("execute; query: {}; params: {}", query, vars);
 		
@@ -111,6 +113,36 @@ public class MarkLogicXCCPlugin extends BagriTPoXPlugin {
 		}
 		
 		return result;
+	}
+	
+	protected Object buildMLParam(String type, String value) {
+		//return new XDMParameter(value, type, XDMCardinality.one);
+		
+		if ("boolean".equals(type)) {
+			return new Boolean(value);
+		}
+		if ("byte".equals(type)) {
+			return new Byte(value);
+		}
+		if ("char".equals(type)) {
+			return new Character(value.charAt(0));
+		}
+		if ("double".equals(type)) {
+			return new Double(value);
+		}
+		if ("int".equals(type)) {
+			return new Integer(value);
+		}
+		if ("float".equals(type)) {
+			return new Float(value);
+		}
+		if ("long".equals(type)) {
+			return new Long(value);
+		}
+		if ("short".equals(type)) {
+			return new Short(value);
+		}
+		return value;
 	}
 	
 	protected int execCommand(String command, Map<String, Object> params) throws RequestException {

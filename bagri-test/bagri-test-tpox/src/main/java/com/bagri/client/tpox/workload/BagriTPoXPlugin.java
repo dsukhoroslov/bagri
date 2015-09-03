@@ -51,35 +51,6 @@ public abstract class BagriTPoXPlugin implements GenericJavaClassPlugin {
 	
 	protected XDMParameter buildParam(String type, String value) {
 		return new XDMParameter(value, type, XDMCardinality.one);
-		//int baseType = getBaseTypeForTypeName(new QName(xs_ns, type, xs_prefix));
-		//return getAtomicValue(baseType, value);
-		/*
-		if ("boolean".equals(type)) {
-			return new Boolean(value);
-		}
-		if ("byte".equals(type)) {
-			return new Byte(value);
-		}
-		if ("char".equals(type)) {
-			return new Character(value.charAt(0));
-		}
-		if ("double".equals(type)) {
-			return new Double(value);
-		}
-		if ("int".equals(type)) {
-			return new Integer(value);
-		}
-		if ("float".equals(type)) {
-			return new Float(value);
-		}
-		if ("long".equals(type)) {
-			return new Long(value);
-		}
-		if ("short".equals(type)) {
-			return new Short(value);
-		}
-		return value;
-		*/
 	}
     
 

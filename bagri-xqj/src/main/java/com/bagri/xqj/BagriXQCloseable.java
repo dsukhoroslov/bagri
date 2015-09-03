@@ -2,7 +2,7 @@ package com.bagri.xqj;
 
 import javax.xml.xquery.XQException;
 
-public abstract class BagriXQCloseable {
+public abstract class BagriXQCloseable implements AutoCloseable {
 	
 	protected boolean closed = false;
 	
@@ -10,6 +10,7 @@ public abstract class BagriXQCloseable {
 		return closed;
 	}
 	
+	@Override
 	public void close() throws XQException {
 		closed = true;
 	}
