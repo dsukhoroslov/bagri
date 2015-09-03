@@ -1,5 +1,12 @@
 package com.bagri.xdm.domain;
 
+/**
+ * Combines XDM Element and its Path together. Transient temporary object.
+ *  
+ * @author Denis Sukhoroslov
+ * @since 06.2014 
+ * @version 0.2
+ */
 public class XDMData implements Comparable<XDMData> {
     	
    	private XDMPath path;
@@ -38,6 +45,10 @@ public class XDMData implements Comparable<XDMData> {
     	return path.getPathId();
     }
     	
+    public int getPostId() {
+    	return path.getPostId();
+    }
+    
     public Object getValue() {
     	return element.getValue();
     }

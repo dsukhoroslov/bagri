@@ -98,11 +98,8 @@ public abstract class XDMTriggerDef extends XDMEntity {
 	}
 	
 	@Override
-	public Map<String, Object> toMap() {
-		Map<String, Object> result = new HashMap<>();
-		result.put("version", getVersion());
-		result.put("created at", getCreatedAt().toString());
-		result.put("created by", getCreatedBy());
+	public Map<String, Object> convert() {
+		Map<String, Object> result = super.convert();
 		//result.put("library", library);
 		//result.put("className", className);
 		result.put("docType", docType); // can be null!

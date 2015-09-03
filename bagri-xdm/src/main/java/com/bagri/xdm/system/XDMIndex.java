@@ -151,12 +151,9 @@ public class XDMIndex extends XDMEntity {
 	}
 
 	@Override
-	public Map<String, Object> toMap() {
-		Map<String, Object> result = new HashMap<>();
+	public Map<String, Object> convert() {
+		Map<String, Object> result = super.convert();
 		result.put("name", name);
-		result.put("version", getVersion());
-		result.put("created at", getCreatedAt().toString());
-		result.put("created by", getCreatedBy());
 		result.put("document type", docType);
 		result.put("path", path);
 		result.put("data type", dataType.toString());

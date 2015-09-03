@@ -41,7 +41,7 @@ import com.bagri.xdm.system.XDMXQueryTrigger;
     XDMRole.class,
     XDMUser.class
 })
-public abstract class XDMEntity implements Versionable {
+public abstract class XDMEntity implements Convertable<Map<String, Object>>, Versionable {
 	
 	@XmlElement(required = true)
 	private int version;
@@ -79,7 +79,8 @@ public abstract class XDMEntity implements Versionable {
 		return createdBy;
 	}
 
-	public Map<String, Object> toMap() {
+	@Override
+	public Map<String, Object> convert() {
 		Map<String, Object> result = new HashMap<>();
 		result.put("version", getVersion());
 		result.put("created at", getCreatedAt().toString());

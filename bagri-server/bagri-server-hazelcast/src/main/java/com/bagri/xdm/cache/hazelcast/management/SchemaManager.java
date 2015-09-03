@@ -25,6 +25,7 @@ import com.bagri.xdm.cache.common.XDMDocumentManagementServer;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaActivator;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaUpdater;
 import com.bagri.xdm.client.common.impl.XDMModelManagementBase;
+import com.bagri.xdm.system.XDMFragment;
 import com.bagri.xdm.system.XDMIndex;
 import com.bagri.xdm.system.XDMJavaTrigger;
 import com.bagri.xdm.system.XDMModule;
@@ -266,6 +267,39 @@ public class SchemaManager extends EntityManager<XDMSchema> {
 			nMgr.addSchema(entityName);
 		}
 		// throw ex for wrong node name?
+	}
+
+	XDMFragment addFragment(String name, String docType, String path, String description) {
+		//String typePath = schemaDictionary.normalizePath(docType);
+		XDMFragment fragment = new XDMFragment(1, new Date(), JMXUtils.getCurrentUser(), name, docType, //typePath, 
+				path, description, true);
+		XDMSchema schema = getEntity();
+		if (schema.addFragment(fragment)) {
+			// store schema!
+			flushEntity(schema);
+			return fragment;
+		}
+		return null;
+	}
+	
+	boolean deleteFragment(String name) {
+		XDMSchema schema = getEntity();
+		if (schema.removeFragment(name) != null) {
+			// store schema!
+			flushEntity(schema);
+			return true;
+		}
+		return false;
+	}
+
+	boolean enableFragment(String name, boolean enable) {
+		XDMSchema schema = getEntity();
+		if (schema.enableFragment(name, enable)) {
+			// store schema!
+			flushEntity(schema);
+			return true;
+		}
+		return false;
 	}
 
 	XDMIndex addIndex(String name, String docType, String path, String dataType, boolean caseSensitive, boolean range, 

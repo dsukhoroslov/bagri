@@ -167,7 +167,7 @@ public abstract class SchemaFeatureManagement implements SelfNaming {
         TabularData result = null;
         for (XDMEntity feature: features) {
             try {
-                Map<String, Object> def = feature.toMap();
+                Map<String, Object> def = feature.convert();
                 CompositeData data = JMXUtils.mapToComposite(name, desc, def);
                 result = JMXUtils.compositeToTabular(name, desc, key, result, data);
             } catch (Exception ex) {

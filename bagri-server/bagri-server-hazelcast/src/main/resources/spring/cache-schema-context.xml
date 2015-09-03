@@ -222,7 +222,6 @@
 	<hz:map id="dict-trigger" name="dict-trigger" instance-ref="hzInstance" />
 
 	<hz:atomicLong id="xdm.document" name="xdm.document" instance-ref="hzInstance"/>
-	<!--hz:atomicLong id="xdm.element" name="xdm.element" instance-ref="hzInstance"/-->
 	<hz:atomicLong id="xdm.path" name="xdm.path" instance-ref="hzInstance"/>
 	<hz:atomicLong id="xdm.namespace" name="xdm.namespace" instance-ref="hzInstance"/>
 	<hz:atomicLong id="xdm.doctype" name="xdm.doctype" instance-ref="hzInstance"/>

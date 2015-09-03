@@ -1,7 +1,11 @@
 package com.bagri.xdm.domain;
 
+import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
+import com.bagri.xdm.common.Convertable;
 import com.bagri.xdm.common.Versionable;
 
 import static com.bagri.xdm.common.XDMDocumentKey.*;
@@ -14,7 +18,7 @@ import static com.bagri.common.util.FileUtils.def_encoding;
  * @since 05.2013 
  * @version 0.2
  */
-public class XDMDocument implements Versionable { //extends XDMEntity { 
+public class XDMDocument implements Convertable<Map<String, Object>>, Versionable { //extends XDMEntity { 
 
 	private long documentKey;
 	private String uri;
@@ -132,6 +136,24 @@ public class XDMDocument implements Versionable { //extends XDMEntity {
 		//updateVersion(by);
 	}
 
+	@Override
+	public Map<String, Object> convert() {
+		Map<String, Object> result = new HashMap<>();
+		result.put("key", documentKey);
+		result.put("id", getDocumentId());
+		result.put("version", getVersion());
+		result.put("uri", uri);
+		result.put("type", typeId);
+		result.put("encoding", encoding);
+		result.put("txStart", txStart);
+		result.put("txFinish", txFinish);
+		result.put("created at", getCreatedAt().toString());
+		result.put("created by", createdBy);
+		result.put("fragments", Arrays.toString(getFragments()));
+		return result;
+	}
+
+	
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */

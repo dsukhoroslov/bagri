@@ -76,8 +76,8 @@ public class XDMXQueryTrigger extends XDMTriggerDef {
 	}
 
 	@Override
-	public Map<String, Object> toMap() {
-		Map<String, Object> result = super.toMap();
+	public Map<String, Object> convert() {
+		Map<String, Object> result = super.convert();
 		result.put("module", module);
 		result.put("function", function);
 		return result;

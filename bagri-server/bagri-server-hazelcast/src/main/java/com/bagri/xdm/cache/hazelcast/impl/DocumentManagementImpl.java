@@ -1,5 +1,6 @@
 package com.bagri.xdm.cache.hazelcast.impl;
 
+import static com.bagri.common.query.PathBuilder.*;
 import static com.bagri.xdm.client.common.XDMCacheConstants.PN_XDM_SCHEMA_POOL;
 import static com.bagri.xdm.api.XDMTransactionManagement.TX_NO;
 
@@ -20,7 +21,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.Source;
 
 import com.bagri.common.idgen.IdGenerator;
@@ -29,7 +29,6 @@ import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.cache.common.XDMDocumentManagementServer;
 import com.bagri.xdm.client.common.impl.XDMModelManagementBase;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentContentProvider;
-import com.bagri.xdm.client.xml.XDMStaxParser;
 import com.bagri.xdm.common.XDMDataKey;
 import com.bagri.xdm.common.XDMDocumentKey;
 import com.bagri.xdm.domain.XDMData;
@@ -38,6 +37,7 @@ import com.bagri.xdm.domain.XDMElement;
 import com.bagri.xdm.domain.XDMElements;
 import com.bagri.xdm.domain.XDMParser;
 import com.bagri.xdm.domain.XDMPath;
+import com.bagri.xdm.system.XDMFragment;
 import com.bagri.xdm.system.XDMTriggerAction.Action;
 import com.bagri.xdm.system.XDMTriggerAction.Scope;
 import com.bagri.xquery.api.XQProcessor;
@@ -234,10 +234,40 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		XDMData root = getDataRoot(data);
 		if (root != null) {
 			int docType = model.translateDocumentType(root.getPath());
+			// normalize it ASAP !?
+			model.normalizeDocumentType(docType);
 			Map<XDMDataKey, XDMElements> elements = new HashMap<XDMDataKey, XDMElements>(data.size());
 			
+			Set<Integer> fragments = new HashSet<>();
+			for (XDMFragment fragment: repo.getSchema().getFragments()) {
+				int fType = model.getDocumentType(fragment.getDocumentType());
+				if (fType == docType) {
+					XDMPath path = model.getPath(fragment.getPath());
+					if (path != null) {
+						fragments.add(path.getPathId());
+					} else if (isRegexPath(fragment.getPath())) {
+						String nPath = model.normalizePath(fragment.getPath());
+						fragments.addAll(model.translatePathFromRegex(docType, regexFromPath(nPath)));
+					} else {	
+						logger.info("loadElements; path not found for fragment: {}; docType: {} ({})", 
+								fragment, root.getPath(), docType);
+					}
+				}
+			}
+			logger.info("loadElements; fragments found: {}; for docType: {} ({})", 
+					fragments, root.getPath(), docType);
+			
+			long fraPath = docKey;
+			long fraPost = 0;
 			for (XDMData xdm: data) {
-				XDMDataKey xdk = factory.newXDMDataKey(docKey, xdm.getPathId());
+				if (fragments.contains(xdm.getPathId())) {
+					fraPath = docGen.next();
+					fraPost = xdm.getPostId();
+				} else if (fraPost > 0 && xdm.getPathId() > fraPost) {
+					fraPath = docKey;
+					fraPost = 0;
+				}
+				XDMDataKey xdk = factory.newXDMDataKey(fraPath, xdm.getPathId());
 				XDMElements xdes = elements.get(xdk);
 				if (xdes == null) {
 					xdes = new XDMElements(xdk.getPathId(), null);
@@ -251,7 +281,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 			stamp = System.currentTimeMillis() - stamp;
 			logger.trace("loadElements; cached {} elements for docKey: {}; time taken: {}", 
 					elements.size(), docKey, stamp);
-			model.normalizeDocumentType(docType);
+			//model.normalizeDocumentType(docType);
 			return docType;
 		}
 		return XDMModelManagementBase.WRONG_PATH;
@@ -371,13 +401,13 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	
 	//@Override
 	@SuppressWarnings("unchecked")
-	public Long getDocumentId(String uri) {
+	public long getDocumentId(String uri) {
 		// the txFinish can be > 0, but not committed yet!
    		Predicate<XDMDocumentKey, XDMDocument> f = Predicates.and(Predicates.equal("uri", uri), 
    				Predicates.equal("txFinish", 0L));
 		Set<XDMDocumentKey> docKeys = xddCache.keySet(f);
 		if (docKeys.size() == 0) {
-			return null;
+			return 0L;
 		}
 
 		// should also check if doc's start transaction is committed..
@@ -392,8 +422,17 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 
 	@Override
 	public Iterator<Long> getDocumentIds(String pattern) {
-		// TODO: implement it
-		return null;
+		// TODO: implement it properly
+		logger.info("getDocumentIds.enter; got pattern: {}", pattern);
+		long docId = getDocumentId(pattern);
+		Collection<Long> result;
+		if (docId == 0) {
+			result = Collections.emptyList();
+		} else {
+			result = Collections.singletonList(docId);
+		}
+		logger.info("getDocumentIds.exit; returning: {}", result);
+		return result.iterator();
 	}
 	
 	@Override

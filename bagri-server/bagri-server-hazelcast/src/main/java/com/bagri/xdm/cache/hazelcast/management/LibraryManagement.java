@@ -64,7 +64,7 @@ public class LibraryManagement extends EntityManagement<String, XDMLibrary> {
         TabularData result = null;
         for (XDMLibrary library: libraries) {
             try {
-                Map<String, Object> def = library.toMap();
+                Map<String, Object> def = library.convert();
                 CompositeData data = JMXUtils.mapToComposite("library", "Library definition", def);
                 result = JMXUtils.compositeToTabular("library", "Library definition", "name", result, data);
             } catch (Exception ex) {

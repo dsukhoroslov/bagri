@@ -3,6 +3,9 @@ package com.bagri.xdm.cache.hazelcast.management;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import javax.management.openmbean.TabularData;
 
@@ -13,11 +16,16 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
 import com.bagri.xdm.api.XDMException;
+import com.bagri.xdm.cache.hazelcast.task.index.IndexCreator;
+import com.bagri.xdm.cache.hazelcast.task.index.IndexRemover;
 import com.bagri.xdm.client.common.impl.XDMModelManagementBase;
 import com.bagri.xdm.domain.XDMDocumentType;
 import com.bagri.xdm.domain.XDMNamespace;
 import com.bagri.xdm.domain.XDMPath;
+import com.bagri.xdm.system.XDMFragment;
+import com.bagri.xdm.system.XDMIndex;
 import com.bagri.xdm.system.XDMSchema;
+import com.hazelcast.core.Member;
 
 import static com.bagri.xqj.BagriXQUtils.getTypeName;
 
@@ -65,6 +73,53 @@ public class ModelManagement extends SchemaFeatureManagement {
 		}
 		Arrays.sort(result);
 		return result;
+	}
+	
+	@ManagedOperation(description="Adds a new Document Fragment")
+	@ManagedOperationParameters({
+		@ManagedOperationParameter(name = "name", description = "Fragment name to create"),
+		@ManagedOperationParameter(name = "docType", description = "Root path for document type"),
+		@ManagedOperationParameter(name = "path", description = "XPath to Fragment"),
+		@ManagedOperationParameter(name = "description", description = "Index description")})
+	public void addFragment(String name, String docType, String path, String description) {
+
+		logger.trace("addFragment.enter;");
+		long stamp = System.currentTimeMillis();
+		XDMFragment fragment = schemaManager.addFragment(name, docType, path, description);
+		if (fragment == null) {
+			throw new IllegalStateException("Fragment '" + name + "' in schema '" + schemaName + "' already exists");
+		}
+		
+		int cnt = 0;
+		stamp = System.currentTimeMillis() - stamp;
+		logger.trace("addFragment.exit; fragment added on {} members; timeTaken: {}", cnt, stamp);
+	}
+	
+	@ManagedOperation(description="Removes an existing Fragment")
+	@ManagedOperationParameters({@ManagedOperationParameter(name = "name", description = "Fragment name to remove")})
+	public void removeFragment(String name) {
+		
+		logger.trace("removeFragment.enter;");
+		long stamp = System.currentTimeMillis();
+		if (!schemaManager.deleteFragment(name)) {
+			throw new IllegalStateException("Fragment '" + name + "' in schema '" + schemaName + "' does not exist");
+		}
+
+		int cnt = 0;
+		stamp = System.currentTimeMillis() - stamp;
+		logger.trace("removeFragment.exit; fragment deleted on {} members; timeTaken: {}", cnt, stamp);
+	}
+
+	@ManagedOperation(description="Enables/Disables an existing Fragment")
+	@ManagedOperationParameters({
+		@ManagedOperationParameter(name = "name", description = "Fragment name to enable/disable"),
+		@ManagedOperationParameter(name = "enable", description = "enable/disable fragment")})
+	public void enableFragment(String name, boolean enable) {
+		
+		if (!schemaManager.enableFragment(name, enable)) {
+			throw new IllegalStateException("Fragment '" + name + "' in schema '" + schemaName + 
+					"' does not exist or already " + (enable ? "enabled" : "disabled"));
+		}
 	}
 	
 	@ManagedOperation(description="Return all unique paths for the document type provided")

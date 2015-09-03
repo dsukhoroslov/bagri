@@ -424,7 +424,7 @@
                     <createdAt>2015-09-02T10:05:26.965+03:00</createdAt>
                     <createdBy>SDV</createdBy>
                     <docType>/site</docType>
-                    <path>/site/region/*/item</path>
+                    <path>/site/regions/*/item</path>
                     <description>Auction Region Items</description>
                     <enabled>true</enabled>
                 </fragment>

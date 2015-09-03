@@ -94,7 +94,7 @@ public class DocumentManagement extends SchemaFeatureManagement {
 		return null;
 	}
 
-	@ManagedOperation(description="Returns Document Elements")
+	@ManagedOperation(description="Return Document Elements")
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "docId", description = "Internal Document identifier")})
 	public CompositeData getDocumentElements(long docId) {
@@ -109,8 +109,18 @@ public class DocumentManagement extends SchemaFeatureManagement {
 			return null; //new String[] {"Error: " + ex.getMessage()}; 
 		}
 	}
+
+	@ManagedOperation(description="Return Document Fields")
+	@ManagedOperationParameters({
+		@ManagedOperationParameter(name = "docId", description = "Internal Document identifier")})
+	public CompositeData getDocumentInfo(long docId) {
+		
+		XDMDocument doc = docManager.getDocument(docId);
+        Map<String, Object> docInfo = doc.convert();
+        return JMXUtils.mapToComposite("document", "Document Info", docInfo);
+	}
 	
-	@ManagedOperation(description="Returns Document XML")
+	@ManagedOperation(description="Return Document XML")
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "docId", description = "Internal Document identifier")})
 	public String getDocumentXML(long docId) {
