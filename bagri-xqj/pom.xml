@@ -37,10 +37,6 @@
             <groupId>javax.xml.xquery</groupId>
             <artifactId>xqj-api</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.xqj2</groupId>
-            <artifactId>xqj2</artifactId>
-        </dependency>
 
         <!-- Dependencies for logging -->
         <dependency>

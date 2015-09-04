@@ -46,10 +46,6 @@
             <!--optional>false</optional-->
             <systemPath>${project.basedir}/../../etc/lib/xqj-tck-1.0.jar</systemPath>
         </dependency>
-        <dependency>
-            <groupId>com.xqj2</groupId>
-            <artifactId>xqj2</artifactId>
-        </dependency>
 
         <!-- Dependencies for logging -->
         <dependency>

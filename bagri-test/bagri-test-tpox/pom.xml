@@ -54,6 +54,11 @@
             <!--scope>runtime</scope-->
         </dependency>
 
+        <dependency>
+            <groupId>com.xqj2</groupId>
+            <artifactId>xqj2</artifactId>
+        </dependency>
+
         <!-- MarkLogic XQJ driver -->
         <dependency>
             <groupId>et.xqj</groupId>
