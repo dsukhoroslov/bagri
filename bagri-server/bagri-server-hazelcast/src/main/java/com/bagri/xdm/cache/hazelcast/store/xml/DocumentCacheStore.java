@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import static com.bagri.common.util.FileUtils.def_encoding;
 import static com.bagri.common.config.XDMConfigConstants.xdm_schema_store_type;
 
+import com.bagri.common.manage.JMXUtils;
 import com.bagri.common.util.FileUtils;
 import com.bagri.xdm.api.XDMDocumentManagement;
 import com.bagri.xdm.api.XDMException;
@@ -42,6 +43,7 @@ import com.bagri.xdm.common.XDMFactory;
 import com.bagri.xdm.domain.XDMData;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMElements;
+import com.bagri.xdm.domain.XDMFragmentedDocument;
 import com.bagri.xdm.domain.XDMNodeKind;
 import com.bagri.xdm.domain.XDMParser;
 import com.hazelcast.core.HazelcastInstance;
@@ -119,8 +121,8 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<XDMDoc
 		return path.toAbsolutePath().normalize().toString();
 	}
 	
-    private XDMDocument loadDocument(XDMDocumentKey docId) {
-		DocumentDataHolder ddh = docKeys.get(docId);
+    private XDMDocument loadDocument(XDMDocumentKey docKey) {
+		DocumentDataHolder ddh = docKeys.get(docKey);
 		if (ddh != null) {
 			Path path = Paths.get(ddh.uri);
 	    	if (Files.exists(path)) {
@@ -131,16 +133,33 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<XDMDoc
         			String xml = FileUtils.readTextFile(ddh.uri);
     	    		XDMParser parser = docMgr.getXdmFactory().newXDMParser(dataFormat, schemaDict);
         			//List<XDMData> data = parser.parse(new File(ddh.uri));
-        			List<XDMData> data = parser.parse(xml);         			
-        			int docType = docMgr.loadElements(docId.getKey(), data); 
-        			if (docType >= 0) {
+        			List<XDMData> data = parser.parse(xml);         		
+
+        			List<Long> fragments = docMgr.loadElements(docKey.getKey(), data); 
+        			if (fragments == null) {
+        				logger.warn("loadDocument.exit; the document is not valid as it has no root element");
+        				//throw new XDMException("invalid document", XDMException.ecDocument);
+        			} else {
+	        			int docType = fragments.get(0).intValue();
         				ddh.docType = docType;
-						xmlCache.set(docId, xml);
+						xmlCache.set(docKey, xml);
+	        			XDMDocument doc;
 						// can make a fake population TX with id = 1! 
-		        		return new XDMDocument(docId.getDocumentId(), defVersion, uri, docType, 
-		        				TX_INIT, TX_NO,	new Date(Files.getLastModifiedTime(path).toMillis()), 
-								Files.getOwner(path).getName(),	def_encoding);
-        			}
+	        			if (fragments.size() == 1) {
+	        				doc = new XDMDocument(docKey.getDocumentId(), docKey.getVersion(), uri, docType, TX_INIT, TX_NO,
+	        					new Date(Files.getLastModifiedTime(path).toMillis()), Files.getOwner(path).getName(), def_encoding);
+	        			} else {
+	        				doc = new XDMFragmentedDocument(docKey.getDocumentId(), docKey.getVersion(), uri, docType, TX_INIT, TX_NO,	
+	        					new Date(Files.getLastModifiedTime(path).toMillis()), Files.getOwner(path).getName(), def_encoding);
+	        				long[] fa = new long[fragments.size()];
+	        				fa[0] = docKey.getKey();
+	        				for (int i=1; i < fragments.size(); i++) {
+	        					fa[i] = fragments.get(i);
+	        				}
+	        				((XDMFragmentedDocument) doc).setFragments(fa);
+	        			}
+	        			return doc;
+        			}        			
 				} catch (IOException | XDMException ex) {
 					logger.error("loadDocument.error", ex);
 				}

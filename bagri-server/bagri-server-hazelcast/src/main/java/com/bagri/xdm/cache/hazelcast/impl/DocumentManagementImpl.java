@@ -35,6 +35,7 @@ import com.bagri.xdm.domain.XDMData;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMElement;
 import com.bagri.xdm.domain.XDMElements;
+import com.bagri.xdm.domain.XDMFragmentedDocument;
 import com.bagri.xdm.domain.XDMParser;
 import com.bagri.xdm.domain.XDMPath;
 import com.bagri.xdm.system.XDMFragment;
@@ -211,24 +212,35 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		}
 
 		XDMDocumentKey docKey = entry.getKey();
-		int docType = loadElements(docKey.getKey(), data); 
-		if (docType >= 0) {
-			String user = JMXUtils.getCurrentUser();
-			XDMDocument doc = new XDMDocument(docKey.getDocumentId(), docKey.getVersion(), uri, docType, user, txManager.getCurrentTxId()); // + createdAt, encoding
-			Action action = docKey.getVersion() == 0 ? Action.insert : Action.update;
-			triggerManager.applyTrigger(doc, action, Scope.before); 
-			xddCache.set(docKey, doc);
-			xmlCache.set(docKey, xml);
-			triggerManager.applyTrigger(doc, action, Scope.after); 
-			logger.trace("createDocument.exit; returning: {}", doc);
-			return doc;
-		} else {
+		List<Long> fragments = loadElements(docKey.getKey(), data); 
+		if (fragments == null) {
 			logger.warn("createDocument.exit; the document is not valid as it has no root element");
 			throw new XDMException("invalid document", XDMException.ecDocument);
+		} 
+		int docType = fragments.get(0).intValue();
+		String user = JMXUtils.getCurrentUser();
+		XDMDocument doc;
+		if (fragments.size() == 1) {
+			doc = new XDMDocument(docKey.getDocumentId(), docKey.getVersion(), uri, docType, user, txManager.getCurrentTxId());
+		} else {
+			doc = new XDMFragmentedDocument(docKey.getDocumentId(), docKey.getVersion(), uri, docType, user, txManager.getCurrentTxId());
+			long[] fa = new long[fragments.size()];
+			fa[0] = docKey.getKey();
+			for (int i=1; i < fragments.size(); i++) {
+				fa[i] = fragments.get(i);
+			}
+			((XDMFragmentedDocument) doc).setFragments(fa);
 		}
+		Action action = docKey.getVersion() == 0 ? Action.insert : Action.update;
+		triggerManager.applyTrigger(doc, action, Scope.before); 
+		xddCache.set(docKey, doc);
+		xmlCache.set(docKey, xml);
+		triggerManager.applyTrigger(doc, action, Scope.after); 
+		logger.trace("createDocument.exit; returning: {}", doc);
+		return doc;
 	}
 	
-	public int loadElements(long docKey, List<XDMData> data) throws XDMException {
+	public List<Long> loadElements(long docKey, List<XDMData> data) throws XDMException {
 		
 		long stamp = System.currentTimeMillis();
 		XDMData root = getDataRoot(data);
@@ -254,14 +266,21 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 					}
 				}
 			}
-			logger.info("loadElements; fragments found: {}; for docType: {} ({})", 
-					fragments, root.getPath(), docType);
+			logger.info("loadElements; fragments found: {}; for docType: {} ({}); docKey: {}", 
+					fragments, root.getPath(), docType, docKey);
 			
 			long fraPath = docKey;
 			long fraPost = 0;
+			int size = 1;
+			if (fragments.size() > 0) {
+				size = data.size() / fragments.size();
+			}
+			List<Long> result = new ArrayList<>(size);
+			result.add(new Long(docType));
 			for (XDMData xdm: data) {
 				if (fragments.contains(xdm.getPathId())) {
 					fraPath = docGen.next();
+					result.add(fraPath);
 					fraPost = xdm.getPostId();
 				} else if (fraPost > 0 && xdm.getPathId() > fraPost) {
 					fraPath = docKey;
@@ -279,12 +298,12 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 			xdmCache.putAll(elements);
 			
 			stamp = System.currentTimeMillis() - stamp;
-			logger.trace("loadElements; cached {} elements for docKey: {}; time taken: {}", 
-					elements.size(), docKey, stamp);
+			logger.info("loadElements; cached {} elements for docKey: {}; fragments: {}; time taken: {}", 
+					elements.size(), docKey, result.size(), stamp);
 			//model.normalizeDocumentType(docType);
-			return docType;
+			return result;
 		}
-		return XDMModelManagementBase.WRONG_PATH;
+		return null;
 	}
 	
 	int indexElements(int docType, int pathId) throws XDMException {
@@ -421,15 +440,17 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public Iterator<Long> getDocumentIds(String pattern) {
-		// TODO: implement it properly
 		logger.info("getDocumentIds.enter; got pattern: {}", pattern);
-		long docId = getDocumentId(pattern);
-		Collection<Long> result;
-		if (docId == 0) {
-			result = Collections.emptyList();
-		} else {
-			result = Collections.singletonList(docId);
+   		Predicate<XDMDocumentKey, XDMDocument> f = Predicates.and(Predicates.regex("uri", pattern), 
+   				Predicates.equal("txFinish", 0L));
+		Set<XDMDocumentKey> docKeys = xddCache.keySet(f);
+
+		// should also check if doc's start transaction is committed..
+		List<Long> result = new ArrayList<>(docKeys.size());
+		for (XDMDocumentKey docKey: docKeys) {
+			result.add(docKey.getKey());
 		}
 		logger.info("getDocumentIds.exit; returning: {}", result);
 		return result.iterator();

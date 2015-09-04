@@ -375,13 +375,13 @@ public class CollectionURIResolverImpl implements CollectionURIResolver {
             	// thrown in case of join. have to think about this..
     	    	//throw new IllegalStateException("Unexpected expression: " + ex);
     		} //else {
-    			// semse we still need this workaround ..
+    			// it seems we still need this workaround ..
     			if (varIdx == 0) {
     				compType = Comparison.negate(compType);
     			}
     			//if (currentType == collectType) {
     				//value = normalizeValue(value);
-    			ExpressionContainer exCont = query.getContainer(currentType);
+    				ExpressionContainer exCont = query.getContainer(currentType);
     				exIndex = exCont.addExpression(currentType, compType, path, pName, value);
     				logger.trace("iterate; added path expression at index: {}", exIndex);
     				setParentPath(exCont.getExpression(), exIndex, path);

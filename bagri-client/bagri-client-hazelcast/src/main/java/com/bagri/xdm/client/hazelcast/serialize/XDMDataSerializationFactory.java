@@ -51,6 +51,7 @@ public class XDMDataSerializationFactory implements DataSerializableFactory {
 	public static final int cli_XDMUniqueDocument = 61;
 	public static final int cli_XDMUniqueValue = 62;
 	public static final int cli_XDMTransaction = 63;
+	public static final int cli_XDMFragmentedDocument = 64;
 
 	public static final int cli_XQItemType = 75;
 	public static final int cli_XQItem = 76;

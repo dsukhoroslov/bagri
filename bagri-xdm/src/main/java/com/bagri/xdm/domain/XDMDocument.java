@@ -149,7 +149,7 @@ public class XDMDocument implements Convertable<Map<String, Object>>, Versionabl
 		result.put("txFinish", txFinish);
 		result.put("created at", getCreatedAt().toString());
 		result.put("created by", createdBy);
-		result.put("fragments", Arrays.toString(getFragments()));
+		result.put("fragments", getFragments().length);
 		return result;
 	}
 

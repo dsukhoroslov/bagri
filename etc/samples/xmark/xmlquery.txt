@@ -1,3 +1,5 @@
+C:/Work/Bagri/git/bagri/etc/samples/xmark/auction.xml
+
 
 -- Q1.Return the name of the person with ID `person0'.
 
