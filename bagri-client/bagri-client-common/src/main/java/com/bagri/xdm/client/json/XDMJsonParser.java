@@ -197,7 +197,7 @@ public class XDMJsonParser extends XDMDataParser implements XDMParser {
 			if (isAttribute(name)) {
 				name = name.substring(1);
 				if (name.startsWith("xmlns")) {
-					current = addData(parent, XDMNodeKind.namespace, "/#" + name, null, XQItemType.XQBASETYPE_QNAME, XDMOccurence.zeroOrOne);
+					current = addData(parent, XDMNodeKind.namespace, "/#" + name, null, XQItemType.XQBASETYPE_STRING, XDMOccurence.zeroOrOne);
 				} else {
 					current = addData(parent, XDMNodeKind.attribute, "/@" + name, null, XQItemType.XQBASETYPE_ANYATOMICTYPE, XDMOccurence.zeroOrOne);
 				}

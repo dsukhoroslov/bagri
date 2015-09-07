@@ -274,7 +274,8 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 				}
 			}
 		}
-		logger.trace("indexPath; index: {}, baseType: {}, value: {}", idx, baseType, value);
+		logger.trace("indexPath; index: {}, baseType: {}, value: {}({})", idx, baseType, 
+				value.getClass().getName(), value);
 			
 		XDMIndexKey xid = factory.newXDMIndexKey(pathId, value);
 		XDMIndexedValue xidx = idxCache.get(xid);
@@ -556,7 +557,7 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
     		stats.put("distinct values", unique);
     		stats.put("consumed size", size);
 		}
-            
+        
         TabularData result = null;
 		for (Map.Entry<String, Map<String, Object>> e: map.entrySet()) {
             try {

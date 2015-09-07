@@ -10,6 +10,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.bagri.xdm.api.test.XDMQueryManagementTest;
 import com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl;
+import com.bagri.xdm.system.XDMSchema;
 
 public class QueryManagementImplTest extends XDMQueryManagementTest {
 
@@ -34,6 +35,12 @@ public class QueryManagementImplTest extends XDMQueryManagementTest {
 	@Before
 	public void setUp() throws Exception {
 		xRepo = context.getBean(RepositoryImpl.class);
+		RepositoryImpl xdmRepo = (RepositoryImpl) xRepo; 
+		XDMSchema schema = xdmRepo.getSchema();
+		if (schema == null) {
+			schema = new XDMSchema(1, new java.util.Date(), "test", "test", "test schema", true, null);
+			xdmRepo.setSchema(schema);
+		}
 	}
 
 	@After

@@ -14,6 +14,7 @@ import com.bagri.common.query.Comparison;
 import com.bagri.common.query.ExpressionContainer;
 import com.bagri.common.query.PathBuilder;
 import com.bagri.xdm.api.XDMDocumentManagement;
+import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.api.XDMQueryManagement;
 import com.bagri.xdm.api.XDMRepository;
@@ -87,8 +88,10 @@ public abstract class XDMManagementTest {
 		long txId = 0;
 		try {
 			txId = getTxManagement().beginTransaction();
-		} catch (IllegalStateException ex) {
-			// make it checkable; anticipated exception
+		} catch (XDMException ex) {
+			if (ex.getErrorCode() != XDMException.ecTransNoNested) {
+				throw ex;
+			}
 		}
 		ids.add(createDocumentTest(sampleRoot + getFileName("security1500.xml")).getDocumentKey());
 		ids.add(createDocumentTest(sampleRoot + getFileName("security5621.xml")).getDocumentKey());
@@ -102,8 +105,10 @@ public abstract class XDMManagementTest {
 		long txId = 0;
 		try {
 			txId = getTxManagement().beginTransaction();
-		} catch (IllegalStateException ex) {
-			// make it checkable; anticipated exception
+		} catch (XDMException ex) {
+			if (ex.getErrorCode() != XDMException.ecTransNoNested) {
+				throw ex;
+			}
 		}
 		ids.add(createDocumentTest(sampleRoot + getFileName("order123.xml")).getDocumentKey());
 		ids.add(createDocumentTest(sampleRoot + getFileName("order654.xml")).getDocumentKey());
@@ -116,8 +121,10 @@ public abstract class XDMManagementTest {
 		long txId = 0;
 		try {
 			txId = getTxManagement().beginTransaction();
-		} catch (IllegalStateException ex) {
-			// make it checkable; anticipated exception
+		} catch (XDMException ex) {
+			if (ex.getErrorCode() != XDMException.ecTransNoNested) {
+				throw ex;
+			}
 		}
 		ids.add(createDocumentTest(sampleRoot + getFileName("custacc.xml")).getDocumentKey());
 		if (txId > 0) {

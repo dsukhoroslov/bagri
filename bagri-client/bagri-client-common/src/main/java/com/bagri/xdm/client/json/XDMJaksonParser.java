@@ -187,7 +187,7 @@ public class XDMJaksonParser extends XDMDataParser implements XDMParser {
 			XDMData current = dataStack.peek(); 
 			name = name.substring(1);
 			if (name.startsWith("xmlns")) {
-				addData(current, XDMNodeKind.namespace, "/#" + name, value, XQItemType.XQBASETYPE_QNAME, XDMOccurence.onlyOne);
+				addData(current, XDMNodeKind.namespace, "/#" + name, value, XQItemType.XQBASETYPE_STRING, XDMOccurence.onlyOne);
 			} else {
 				addData(current, XDMNodeKind.attribute, "/@" + name, value, XQItemType.XQBASETYPE_ANYATOMICTYPE, XDMOccurence.zeroOrOne);
 			}

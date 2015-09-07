@@ -35,9 +35,7 @@ public abstract class InvocationStatsHandler implements InvocationHandler {
         Throwable ex = null;
         boolean failed = false;
         stopWatch.start();
-        //long stamp = System.currentTimeMillis(); //nanoTime();
         try {
-            //result = method.invoke(proxy, args);
             result = method.invoke(target, args);
         } catch (InvocationTargetException ite) {
             failed = true;
@@ -50,7 +48,6 @@ public abstract class InvocationStatsHandler implements InvocationHandler {
             failed = true;
             ex = t;
         }
-        //stamp = System.currentTimeMillis() - stamp;
         long stamp = stopWatch.stop();
         if (!queue.offer(new StatisticsEvent(name, !failed, stamp))) {
         	logger.warn("invoke: the queue is full!!");

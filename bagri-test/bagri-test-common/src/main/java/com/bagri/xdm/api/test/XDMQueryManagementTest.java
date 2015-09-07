@@ -1,6 +1,7 @@
 package com.bagri.xdm.api.test;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -122,13 +123,13 @@ public class XDMQueryManagementTest extends XDMManagementTest {
 				addPathSegment(AxisType.CHILD, prefix, "PE");
 		ec.addExpression(docType, Comparison.AND, path);
 		path.addPathSegment(AxisType.CHILD, null, "text()");
-		ec.addExpression(docType, Comparison.GE, path, "$peMin", peMin);
-		ec.addExpression(docType, Comparison.LT, path, "$peMax", peMax);
+		ec.addExpression(docType, Comparison.GE, path, "$peMin", new BigDecimal(peMin));
+		ec.addExpression(docType, Comparison.LT, path, "$peMax", new BigDecimal(peMax));
 		path = new PathBuilder().
 				addPathSegment(AxisType.CHILD, prefix, "Security").
 				addPathSegment(AxisType.CHILD, prefix, "Yield").
 				addPathSegment(AxisType.CHILD, null, "text()");
-		ec.addExpression(docType, Comparison.GT, path, "$yMin", yieldMin);
+		ec.addExpression(docType, Comparison.GT, path, "$yMin", new BigDecimal(yieldMin));
 
         String template = "<Security>\n" +
 				"\t:symbol" + 

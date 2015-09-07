@@ -22,9 +22,11 @@ public class AccessManagementImpl implements XDMAccessManagement, InitializingBe
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		HazelcastInstance sysInstance = Hazelcast.getHazelcastInstanceByName("hzInstance");
-		ApplicationContext context = (ApplicationContext) sysInstance.getUserContext().get("context");
-		bridge = context.getBean(AccessManagementBridge.class);
-		logger.trace("afterPropertiesSet; got bridge: {}", bridge);
+		if (sysInstance != null) {
+			ApplicationContext context = (ApplicationContext) sysInstance.getUserContext().get("context");
+			bridge = context.getBean(AccessManagementBridge.class);
+			logger.trace("afterPropertiesSet; got bridge: {}", bridge);
+		}
 	}
 	
 	public String getSchemaName() {

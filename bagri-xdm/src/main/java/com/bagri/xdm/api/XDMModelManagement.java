@@ -51,7 +51,7 @@ public interface XDMModelManagement {
 	 * registers new pathId if it is not registered yet;  
 	 * @throws XDMException 
 	 */
-	XDMPath translatePath(int typeId, String path, XDMNodeKind kind, int dataType, XDMOccurence cardinality) throws XDMException;
+	XDMPath translatePath(int typeId, String path, XDMNodeKind kind, int dataType, XDMOccurence occurence) throws XDMException;
 	
 	/**
 	 * translates regex expression like "^/ns0:Security/ns0:SecurityInformation/.(*)/ns0:Sector/text\\(\\)$";

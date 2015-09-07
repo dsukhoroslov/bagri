@@ -1,14 +1,14 @@
 package com.bagri.xdm.domain;
 
-//import java.io.Serializable;
-//import static javax.xml.xquery.XQItemType.*
 
+/**
+ * Meta-data for XDM elements.
+ *  
+ * @author Denis Sukhoroslov
+ * @since 05.2013 
+ * @version 0.3
+ */
 public class XDMPath implements Comparable<XDMPath> { //implements Serializable {
-	
-	/**
-	 * 
-	 */
-	//private static final long serialVersionUID = -2761432259956491362L;
 	
 	private String path;
 	private int typeId;
@@ -19,7 +19,7 @@ public class XDMPath implements Comparable<XDMPath> { //implements Serializable 
 	// the type constant from javax.xml.xquery.XQItemType.*
 	// change it to QName?
 	private int dataType;
-	private XDMOccurence cardinality = XDMOccurence.zeroOrOne;
+	private XDMOccurence occurence = XDMOccurence.zeroOrOne;
 	
 	// cache it!
 	private String name = null; 
@@ -29,7 +29,7 @@ public class XDMPath implements Comparable<XDMPath> { //implements Serializable 
 	}
 	
 	public XDMPath(String path, int typeId, XDMNodeKind kind, int pathId, int parentId, int postId, 
-			int dataType, XDMOccurence cardinality) {
+			int dataType, XDMOccurence occurence) {
 		super();
 		this.path = path;
 		this.typeId = typeId;
@@ -38,13 +38,13 @@ public class XDMPath implements Comparable<XDMPath> { //implements Serializable 
 		this.parentId = parentId;
 		this.postId = postId;
 		this.dataType = dataType;
-		if (cardinality != null) {
-			this.cardinality = cardinality;
+		if (occurence != null) {
+			this.occurence = occurence;
 		}
 	}
 	
-	public XDMOccurence getCardinality() {
-		return cardinality;
+	public XDMOccurence getOccurence() {
+		return occurence;
 	}
 	
 	/*
@@ -178,7 +178,7 @@ public class XDMPath implements Comparable<XDMPath> { //implements Serializable 
 		return "XDMPath [path=" + path + ", pathId=" + pathId + ", typeId="
 				+ typeId + ", kind=" + kind + ", parentId=" + parentId
 				+ ", postId=" + postId + ", dataType=" + dataType
-				+ ", cardinality=" + cardinality.toString() + "]";
+				+ ", occurence=" + occurence.toString() + "]";
 	}
 
 	@Override

@@ -142,7 +142,7 @@ public abstract class XDMModelManagementBase implements XDMModelManagement {
 	}
     
 	@Override
-	public XDMPath translatePath(int typeId, String path, XDMNodeKind kind, int dataType, XDMOccurence cardinality) throws XDMException {
+	public XDMPath translatePath(int typeId, String path, XDMNodeKind kind, int dataType, XDMOccurence occurence) throws XDMException {
 		// "/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}Name/text()"
 		
 		//getLogger().trace("translatePath.enter; goth path: {}", path);
@@ -153,7 +153,7 @@ public abstract class XDMModelManagementBase implements XDMModelManagement {
 		
 			path = normalizePath(path);
 		}
-		XDMPath result = addDictionaryPath(typeId, path, kind, dataType, cardinality); 
+		XDMPath result = addDictionaryPath(typeId, path, kind, dataType, occurence); 
 		//getLogger().trace("translatePath.exit; returning: {}", result);
 		return result;
 	}
@@ -237,13 +237,13 @@ public abstract class XDMModelManagementBase implements XDMModelManagement {
 	}
 
 	protected XDMPath addDictionaryPath(int typeId, String path, XDMNodeKind kind, 
-			int dataType, XDMOccurence cardinality) throws XDMException {
+			int dataType, XDMOccurence occurence) throws XDMException {
 		//getLogger().trace("addDictionaryPath.enter; goth path: {}", path);
 
 		XDMPath xpath = getPathCache().get(path);
 		if (xpath == null) {
 			int pathId = getPathGen().next().intValue();
-			xpath = new XDMPath(path, typeId, kind, pathId, 0, pathId, dataType, cardinality); // specify parentId, postId at normalization phase
+			xpath = new XDMPath(path, typeId, kind, pathId, 0, pathId, dataType, occurence); // specify parentId, postId at normalization phase
 			XDMPath xp2 = putIfAbsent(getPathCache(), path, xpath);
 			if (xp2.getPathId() == pathId) {
 				XDMDocumentType type = getDocumentTypeById(typeId);
@@ -565,10 +565,10 @@ public abstract class XDMModelManagementBase implements XDMModelManagement {
     	
 	    path += "/@" + xsAttribute.getAttrDeclaration().getName();
 	    XSSimpleTypeDefinition std = xsAttribute.getAttrDeclaration().getTypeDefinition();
-	    XDMOccurence cardinality = XDMOccurence.getOccurence(
+	    XDMOccurence occurence = XDMOccurence.getOccurence(
 	    		xsAttribute.getRequired() ? 1 : 0,
 	    		std.getVariety() == XSSimpleTypeDefinition.VARIETY_LIST ? -1 : 1);
-		XDMPath xp = translatePath(docType, path, XDMNodeKind.attribute, getBaseType(std), cardinality);
+		XDMPath xp = translatePath(docType, path, XDMNodeKind.attribute, getBaseType(std), occurence);
 		logger.trace("processAttribute; attribute: {}; type: {}; got XDMPath: {}", path, std, xp); 
     }
 	

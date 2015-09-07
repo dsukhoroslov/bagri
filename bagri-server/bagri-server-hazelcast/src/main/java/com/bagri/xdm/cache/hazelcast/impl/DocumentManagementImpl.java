@@ -129,7 +129,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 				for (Map.Entry<String, String> param: params.entrySet()) {
 					String key = param.getKey();
 					XDMDocument doc = xddCache.get(docKey);
-					String str = buildElement(xdmCache, param.getValue(), doc.getDocumentKey(), doc.getTypeId());
+					String str = buildElement(xdmCache, param.getValue(), doc.getFragments(), doc.getTypeId());
 					while (true) {
 						int idx = buff.indexOf(key);
 				        //logger.trace("aggregate; searching key: {} in buff: {}; result: {}", new Object[] {key, buff, idx});
@@ -152,16 +152,18 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
         return result;
 	}
     
-    private Set<XDMDataKey> getDocumentElementKeys(String path, long docKey, int docType) {
+    private Set<XDMDataKey> getDocumentElementKeys(String path, long[] fragments, int docType) {
     	Set<Integer> parts = model.getPathElements(docType, path);
-    	Set<XDMDataKey> keys = new HashSet<XDMDataKey>(parts.size());
+    	Set<XDMDataKey> keys = new HashSet<XDMDataKey>(parts.size()*fragments.length);
     	// not all the path keys exists as data key for particular document!
-    	for (Integer part: parts) {
-    		keys.add(factory.newXDMDataKey(docKey, part));
+    	for (long docKey: fragments) {
+	    	for (Integer part: parts) {
+	    		keys.add(factory.newXDMDataKey(docKey, part));
+	    	}
     	}
     	return keys;
     }
-
+    
     public Collection<XDMElements> getDocumentElements(long docId) {
 		XDMDocument doc = getDocument(docId);
 		if (doc == null) {
@@ -169,14 +171,15 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		}
 
 		int typeId = doc.getTypeId();
-		Set<XDMDataKey> keys = getDocumentElementKeys(model.getDocumentRoot(typeId), docId, typeId);
+		Set<XDMDataKey> keys = getDocumentElementKeys(model.getDocumentRoot(typeId), 
+				doc.getFragments(), typeId);
 		Map<XDMDataKey, XDMElements> elements = xdmCache.getAll(keys);
 		return elements.values();
     }
     
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private String buildElement(IMap dataMap, String path, long docId, int docType) {
-    	Set<XDMDataKey> xdKeys = getDocumentElementKeys(path, docId, docType);
+	private String buildElement(IMap dataMap, String path, long[] fragments, int docType) {
+    	Set<XDMDataKey> xdKeys = getDocumentElementKeys(path, fragments, docType);
        	return buildXml(dataMap.getAll(xdKeys));
     }
     
@@ -367,19 +370,20 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	    boolean removed = false;
 	    XDMDocument doc = xddCache.remove(docId);
 	    if (doc != null) {
-	    	deleteDocumentElements(docId, doc.getTypeId());
+	    	deleteDocumentElements(doc.getFragments(), doc.getTypeId());
 			triggerManager.applyTrigger(doc, Action.delete, Scope.before); 
 			xmlCache.delete(docId);
 			srcCache.remove(docId);
 			triggerManager.applyTrigger(doc, Action.delete, Scope.after); 
 	        removed = true;
-	    //} else { 
-		//	throw new IllegalStateException("Document Entry with id " + entry.getKey() + " not found");
+	    } else { 
+			throw new XDMException("Document Entry with id " + entry.getKey() + " not found", 
+					XDMException.ecDocument);
 	    }
 		logger.trace("deleteDocument.exit; removed: {}", removed);
 	}
 	
-	private void deleteDocumentElements(long docId, int typeId) {
+	private void deleteDocumentElements(long[] fragments, int typeId) {
 
     	int cnt = 0;
     	//Set<XDMDataKey> localKeys = xdmCache.localKeySet();
@@ -387,22 +391,24 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		logger.trace("deleteDocumentElements; got {} possible paths to remove; xdmCache size: {}", 
 				allPaths.size(), xdmCache.size());
 		int iCnt = 0;
-        for (XDMPath path: allPaths) {
-        	int pathId = path.getPathId();
-        	XDMDataKey dKey = factory.newXDMDataKey(docId, pathId);
-        	if (indexManager.isPathIndexed(pathId)) {
-	       		XDMElements elts = xdmCache.remove(dKey);
-	       		if (elts != null) {
-	       			for (XDMElement elt: elts.getElements()) {
-	       				indexManager.dropIndex(docId, pathId, elt.getValue());
-	       				iCnt++;
-	       			}
-	       		}
-        	} else {
-        		xdmCache.delete(dKey);
-        	}
-   			cnt++;
-        }
+		for (long docId: fragments) {
+	        for (XDMPath path: allPaths) {
+	        	int pathId = path.getPathId();
+	        	XDMDataKey dKey = factory.newXDMDataKey(docId, pathId);
+	        	if (indexManager.isPathIndexed(pathId)) {
+		       		XDMElements elts = xdmCache.remove(dKey);
+		       		if (elts != null) {
+		       			for (XDMElement elt: elts.getElements()) {
+		       				indexManager.dropIndex(docId, pathId, elt.getValue());
+		       				iCnt++;
+		       			}
+		       		}
+	        	} else {
+	        		xdmCache.delete(dKey);
+	        	}
+	   			cnt++;
+	        }
+		}
 		logger.trace("deleteDocumentElements; deleted keys: {}; indexes: {}; xdmCache size after delete: {}",
 				cnt, iCnt, xdmCache.size());
 	}

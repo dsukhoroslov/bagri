@@ -53,17 +53,17 @@ public class RangeIndexManagementTest extends XDMQueryManagementTest {
 		}
 		String typePath = getModelManagement().normalizePath("/{http://tpox-benchmark.com/security}Security");
 		XDMIndex index = new XDMIndex(1, new Date(), JMXUtils.getCurrentUser(), "IDX_Security_PE", "/{http://tpox-benchmark.com/security}Security", 
-				typePath, "/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}PE/text()", new QName(xs_ns, "float", xs_prefix), 
+				typePath, "/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}PE/text()", new QName(xs_ns, "decimal", xs_prefix), 
 				true, true, false, "Security PE", true);
 		xdmRepo.addSchemaIndex(index);
 		
-		int docType = xdmRepo.getModelManagement().translateDocumentType("/{http://tpox-benchmark.com/security}Security");
-		int pathId = xdmRepo.getModelManagement().translatePath(docType, 
-				"/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}PE/text()", 
-				XDMNodeKind.text, XQItemType.XQBASETYPE_DOUBLE, XDMOccurence.onlyOne).getPathId();
-		if (!xdmRepo.getIndexManagement().isPathIndexed(pathId)) {
-			System.out.println("path not indexed!!");
-		}
+		///int docType = xdmRepo.getModelManagement().translateDocumentType("/{http://tpox-benchmark.com/security}Security");
+		//int pathId = xdmRepo.getModelManagement().translatePath(docType, 
+		//		"/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}PE/text()", 
+		//		XDMNodeKind.text, XQItemType.XQBASETYPE_DOUBLE, XDMOccurence.onlyOne).getPathId();
+		//if (!xdmRepo.getIndexManagement().isPathIndexed(pathId)) {
+		//	System.out.println("path not indexed!!");
+		//}
 	}
 
 	@After

@@ -31,14 +31,14 @@ public abstract class XDMDataParser {
 		this.dict = dict;
 	}
 	
-	protected XDMData addData(XDMData parent, XDMNodeKind kind, String name, String value, int dataType, XDMOccurence cardinality) throws XDMException {
+	protected XDMData addData(XDMData parent, XDMNodeKind kind, String name, String value, int dataType, XDMOccurence occurence) throws XDMException {
 		logger.trace("addData.enter; name: {}; kind: {}; value: {}; parent: {}", name, kind, value, parent);
 		XDMElement xElt = new XDMElement();
 		xElt.setElementId(elementId++);
 		xElt.setParentId(parent.getElementId());
 		String path = parent.getPath() + name;
-		xElt.setValue(getAtomicValue(dataType, value));
-		XDMPath xPath = dict.translatePath(docType, path, kind, dataType, cardinality);
+		XDMPath xPath = dict.translatePath(docType, path, kind, dataType, occurence);
+		xElt.setValue(getAtomicValue(xPath.getDataType(), value));
 		XDMData xData = new XDMData(xPath, xElt);
 		dataList.add(xData);
 		return xData;

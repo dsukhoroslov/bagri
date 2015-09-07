@@ -9,6 +9,7 @@ import org.junit.BeforeClass;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.bagri.xdm.api.test.XDMDocumentManagementTest;
+import com.bagri.xdm.system.XDMSchema;
 import com.bagri.xquery.api.XQProcessor;
 
 public class JsonDocumentManagementTest extends XDMDocumentManagementTest {
@@ -34,8 +35,14 @@ public class JsonDocumentManagementTest extends XDMDocumentManagementTest {
 	@Before
 	public void setUp() throws Exception {
 		xRepo = context.getBean(RepositoryImpl.class);
+		RepositoryImpl xdmRepo = (RepositoryImpl) xRepo; 
+		XDMSchema schema = xdmRepo.getSchema();
+		if (schema == null) {
+			schema = new XDMSchema(1, new java.util.Date(), "test", "test", "test schema", true, null);
+			xdmRepo.setSchema(schema);
+		}
 		// set xdm.document.format to JSON !
-		XQProcessor xqp = ((RepositoryImpl) xRepo).getXQProcessor("test_client");
+		XQProcessor xqp = xdmRepo.getXQProcessor("test_client");
 		xqp.getProperties().setProperty("xdm.document.format", "JSON");
 	}
 

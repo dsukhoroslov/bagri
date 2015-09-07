@@ -46,8 +46,8 @@ public class XDMPathSerializer implements StreamSerializer<XDMPath> {
 		out.writeInt(xPath.getParentId());
 		out.writeInt(xPath.getPostId());
 		out.writeInt(xPath.getDataType());
-		out.writeInt(xPath.getCardinality().getLowBound());
-		out.writeInt(xPath.getCardinality().getHighBound());
+		out.writeInt(xPath.getOccurence().getLowBound());
+		out.writeInt(xPath.getOccurence().getHighBound());
 	}
 
 }
