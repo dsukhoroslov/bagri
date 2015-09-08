@@ -84,7 +84,7 @@ public class XDMElements {
 	public boolean apply(PathExpression pex, Object value) {
 
 		if (value instanceof Collection) {
-			for (Object val : (Collection) value) {
+			for (Object val: (Collection) value) {
 				if (applyValue(pex, val)) {
 					return true;
 				}
@@ -97,11 +97,11 @@ public class XDMElements {
 
 	private boolean applyValue(PathExpression pex, Object value) {
 
-		String val = value.toString();
+		//String val = value.toString();
 		if (elementRef instanceof XDMElement) {
-			return compareValue(pex.getCompType(), val, ((XDMElement) elementRef).getValue());
+			return compareValue(pex.getCompType(), value, ((XDMElement) elementRef).getValue());
 		} else {
-			return compareValues(pex.getCompType(), val, (Set<XDMElement>) elementRef);
+			return compareValues(pex.getCompType(), value, (Set<XDMElement>) elementRef);
 		}
 	}
 
@@ -121,25 +121,30 @@ public class XDMElements {
 	}
 
 	@SuppressWarnings("unchecked")
-	private boolean compareValues(Comparison comp, String value, Set<XDMElement> elements) {
+	private boolean compareValues(Comparison comp, Object value, Set<XDMElement> elements) {
 
 		// can we prevent this copy somehow?
-		TreeSet values = new TreeSet();
+		// yes!!
+		//TreeSet values = new TreeSet();
 		for (XDMElement element : elements) {
 			if (element.getValue() != null) {
-				values.add(element.getValue());
+				//values.add(element.getValue());
+				if (compareValue(comp, value, element.getValue())) {
+					return true;
+				}
 			}
 		}
+		return false;
 
-		switch (comp) {
-			case EQ: return values.contains(value);
-			case NE: return !values.contains(value);
-			case LE: return values.floor(value) != null;
-			case LT: return values.lower(value) != null;
-			case GE: return values.ceiling(value) != null;
-			case GT: return values.higher(value) != null;
-			default: return false;
-		}
+		//switch (comp) {
+		//	case EQ: return values.contains(value);
+		//	case NE: return !values.contains(value);
+		//	case LE: return values.floor(value) != null;
+		//	case LT: return values.lower(value) != null;
+		//	case GE: return values.ceiling(value) != null;
+		//	case GT: return values.higher(value) != null;
+		//	default: return false;
+		//}
 	}
 
 	@Override

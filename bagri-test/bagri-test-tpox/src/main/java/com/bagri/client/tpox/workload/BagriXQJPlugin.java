@@ -126,7 +126,8 @@ public class BagriXQJPlugin extends BagriTPoXPlugin {
 	    	QName typeName = new QName(xs_ns, param.getType(), xs_prefix);
 			int baseType = getBaseTypeForTypeName(typeName);
 			XQItemType type = getConnection().createAtomicType(baseType, typeName, null);
-			xqe.bindAtomicValue(new QName(e.getKey()), param.getName(), type);
+			//xqe.bindAtomicValue(new QName(e.getKey()), param.getName(), type);
+			xqe.bindObject(new QName(e.getKey()), getAtomicValue(baseType, param.getName()), type);
 	    	//if (e.getValue() instanceof Boolean) {
 	    	//	xqe.bindBoolean(new QName(e.getKey()), (Boolean) e.getValue(), null);
 	    	//} else if (e.getValue() instanceof Byte) {

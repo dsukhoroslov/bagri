@@ -257,7 +257,7 @@ public class CollectionURIResolverImpl implements CollectionURIResolver {
     	
     }
 	
-    private void iterate(Expression ex /*, PathBuilder path*/) throws XPathException {
+    private void iterate(Expression ex) throws XPathException {
     	logger.trace("start: {}; path: {}", ex.getClass().getName(), ex); 
 
     	PathBuilder path = currentPath;
@@ -312,11 +312,11 @@ public class CollectionURIResolverImpl implements CollectionURIResolver {
     		if (compType != null) {
     			//if (currentType == collectType) {
     			ExpressionContainer exCont = query.getContainer(currentType);
-    				exIndex = exCont.addExpression(currentType, compType, path);
-    				logger.trace("iterate; added expression at index: {}", exIndex);
+    			exIndex = exCont.addExpression(currentType, compType, path);
+    			logger.trace("iterate; added expression at index: {}", exIndex);
     			//}
     		} else {
-    	    	throw new IllegalStateException("Unexpected expression: " + ex);
+    	    	throw new XPathException("Unknown comparison type for expression: " + ex, ex);
     		}
     	}
 
@@ -369,10 +369,10 @@ public class CollectionURIResolverImpl implements CollectionURIResolver {
     		Comparison compType = getComparison(be.getOperator());
     		if (compType == null) {
             	logger.debug("iterate; can't get comparison from {}", be);
-    	    	throw new IllegalStateException("Unexpected expression: " + ex);
+    	    	throw new XPathException("Unknown comparison type for expression: " + be, be);
     		} else if (value == null) {
             	logger.debug("iterate; can't get value from {}; operands: {}", be, be.getOperands());
-            	// thrown in case of join. have to think about this..
+            	// TODO: the join use case. have to think about this..
     	    	//throw new IllegalStateException("Unexpected expression: " + ex);
     		} //else {
     			// it seems we still need this workaround ..

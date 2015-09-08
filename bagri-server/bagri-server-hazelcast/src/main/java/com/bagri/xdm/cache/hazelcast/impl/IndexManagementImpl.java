@@ -252,8 +252,7 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 		}
 	}
 	
-	private void indexPath(XDMIndex idx, long docId, int pathId, Object value) throws XDMException {
-
+	private Object getIndexedValue(XDMIndex idx, int pathId, Object value) {
 		int baseType = getBaseTypeForTypeName(idx.getDataType());
 		if (isStringTypeCompatible(baseType)) {
 			value = value.toString();
@@ -263,19 +262,24 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 		} else {
 			XDMPath xPath = mdlMgr.getPath(pathId);
 			if (xPath.getDataType() != baseType) {
-				logger.info("indexPath; index [{}] and path [{}] types are not compatible; value: {}", 
-						baseType, xPath.getDataType(), value);
+				logger.info("getIndexedValue; index [{}] and path [{}] types are not compatible; value: {}({})", 
+						baseType, xPath.getDataType(), value.getClass().getName(), value);
 				try {
 					// conversion from path type to index type
 					value = getAtomicValue(baseType, value.toString());
 				} catch (Exception ex) {
 					// just log error and use old value
-					logger.error("indexPath.error: " + ex, ex);
+					logger.error("getIndexedValue.error: " + ex, ex);
 				}
 			}
 		}
-		logger.trace("indexPath; index: {}, baseType: {}, value: {}({})", idx, baseType, 
-				value.getClass().getName(), value);
+		return value;
+	}
+	
+	private void indexPath(XDMIndex idx, long docId, int pathId, Object value) throws XDMException {
+
+		value = getIndexedValue(idx, pathId, value);
+		logger.trace("indexPath; index: {}, value: {}({})", idx, value.getClass().getName(), value);
 			
 		XDMIndexKey xid = factory.newXDMIndexKey(pathId, value);
 		XDMIndexedValue xidx = idxCache.get(xid);
@@ -386,86 +390,56 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 		}
 	}
 	
-	private Object adjustSearchValue(Object value) {
-		if (value instanceof Collection) {
-			Collection values = (Collection) value;
-			if (values.size() == 0) {
-				return null;
-			}
-			if (values.size() == 1) {
-				value = values.iterator().next();
-			} else {
-				// CompType must be IN !
-			}
-		} 
-		if (value instanceof XQItem) {
-			try {
-				value = ((XQItem) value).getObject();
-			} catch (XQException ex) {
-				logger.error("adjustSearchValue.error", ex);
-				value = value.toString();
-			}
-		}
-		return value;
-	}
-	
 	public Set<Long> getIndexedDocuments(int pathId, PathExpression pex, Object value) {
 		logger.trace("getIndexedDocuments.enter; pathId: {}, PEx: {}, value: {}", pathId, pex, value);
 		Set<Long> result = null;
 		if (Comparison.EQ.equals(pex.getCompType())) {
-			value = adjustSearchValue(value);
-			if (value == null) {
-				result = Collections.emptySet();
-			} else if (value instanceof Collection) {
+			if (value instanceof Collection) {
 				result = getIndexedDocuments(pathId, (Iterable) value);
 			} else {
 				result = getIndexedDocuments(pathId, value);
 			}
 		} else {
-			value = adjustSearchValue(value);
-			if (value == null) {
-				result = Collections.emptySet();
-			} else if (value instanceof Comparable) {
-				XDMIndex idx = idxDict.get(pathId);
-				if (idx.isRange()) {
-					Comparable comp = (Comparable) value;
-					TreeMap<Comparable, Integer> range = rangeIndex.get(pathId);
-					Map<Comparable, Integer> subRange;
-					switch (pex.getCompType()) {
-						case GT: {
-							subRange = range.tailMap(comp);
-							break;
-						}
-						case GE: {
-							subRange = range.tailMap(comp, true);
-							break;
-						}
-						case LE: {
-							subRange = range.headMap(comp, true);
-							break;
-						}
-						case LT: {
-							subRange = range.headMap(comp);
-							break;
-						}
-						// TODO: implement other comparisons!
-						default: subRange = Collections.emptyMap();
+			XDMIndex idx = idxDict.get(pathId);
+			value = getIndexedValue(idx, pathId, value);				
+			if (idx.isRange() && value instanceof Comparable) {
+				Comparable comp = (Comparable) value;
+				TreeMap<Comparable, Integer> range = rangeIndex.get(pathId);
+				Map<Comparable, Integer> subRange;
+				switch (pex.getCompType()) {
+					case GT: {
+						subRange = range.tailMap(comp);
+						break;
 					}
-					logger.trace("getIndexedDocuments; got subRange of length {}", subRange.size());
-					Set<XDMIndexKey> keys = new HashSet<>(subRange.size());
-					for (Object o: subRange.keySet()) {
-						keys.add(factory.newXDMIndexKey(pathId, o));
+					case GE: {
+						subRange = range.tailMap(comp, true);
+						break;
 					}
-					Map<XDMIndexKey, XDMIndexedValue> values = idxCache.getAll(keys);
-					result = new HashSet<>(values.size());
-					if (values.size() > 0) {
-						for (XDMIndexedValue val: values.values()) {
-							result.addAll(val.getDocumentIds());
-						}
-						updateStats(idx.getName(), true, 1);
-					} else {
-						updateStats(idx.getName(), false, 1);
+					case LE: {
+						subRange = range.headMap(comp, true);
+						break;
 					}
+					case LT: {
+						subRange = range.headMap(comp);
+						break;
+					}
+					// TODO: implement other comparisons!
+					default: subRange = Collections.emptyMap();
+				}
+				logger.trace("getIndexedDocuments; got subRange of length {}", subRange.size());
+				Set<XDMIndexKey> keys = new HashSet<>(subRange.size());
+				for (Object o: subRange.keySet()) {
+					keys.add(factory.newXDMIndexKey(pathId, o));
+				}
+				Map<XDMIndexKey, XDMIndexedValue> values = idxCache.getAll(keys);
+				result = new HashSet<>(values.size());
+				if (values.size() > 0) {
+					for (XDMIndexedValue val: values.values()) {
+						result.addAll(val.getDocumentIds());
+					}
+					updateStats(idx.getName(), true, 1);
+				} else {
+					updateStats(idx.getName(), false, 1);
 				}
 			} else {
 				logger.trace("getIndexedDocuments; value is not comparable: {}", value.getClass());

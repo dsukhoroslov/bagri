@@ -2,6 +2,9 @@ package com.bagri.xdm.cache.hazelcast.impl;
 
 import static com.bagri.xdm.api.XDMTransactionManagement.TX_NO;
 import static com.bagri.xdm.common.XDMConstants.*;
+import static com.bagri.xqj.BagriXQUtils.getAtomicValue;
+import static com.bagri.xqj.BagriXQUtils.getBaseTypeForTypeName;
+import static com.bagri.xqj.BagriXQUtils.isStringTypeCompatible;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -248,49 +251,82 @@ public class QueryManagementImpl implements XDMQueryManagement {
 		return queryPathKeys(found, pex, ec.getParam(pex));
 	}
 
+	private Object adjustSearchValue(Object value, int pathType) {
+		int valType = XQItemType.XQBASETYPE_ANYTYPE;
+		if (value instanceof Collection) {
+			Collection values = (Collection) value;
+			if (values.size() == 0) {
+				return null;
+			}
+			if (values.size() == 1) {
+				value = values.iterator().next();
+			} else {
+				// CompType must be IN !
+			}
+		} 
+		if (value instanceof XQItem) {
+			try {
+				valType = ((XQItem) value).getItemType().getBaseType();
+				value = ((XQItem) value).getObject();
+			} catch (XQException ex) {
+				logger.error("adjustSearchValue.error getting XQItem", ex);
+				value = value.toString();
+				valType = XQItemType.XQBASETYPE_STRING;
+			}
+		}
+		
+		if (pathType != valType) {
+			if (isStringTypeCompatible(pathType)) {
+				value = value.toString();
+			} else {				
+				// conversion from value type to path type
+				value = getAtomicValue(pathType, value.toString());
+			}
+		}
+		return value;
+	}
+
 	protected Set<Long> queryPathKeys(Set<Long> found, PathExpression pex, Object value) throws XDMException {
 
-		logger.trace("queryPathKeys.enter; found: {}; value: {}", (found == null ? "null" : found.size()), value); 
+		logger.trace("queryPathKeys.enter; found: {}; value: {}", (found == null ? "null" : found.size()), value);
 		Predicate pp = null;
-		Set<Integer> paths;
+		XDMPath xPath = null;
+		Set<Integer> paths = null;
 		if (pex.isRegex()) {
 			// TODO: do not create new path here!
 			paths = model.translatePathFromRegex(pex.getDocType(), pex.getRegex());
 			logger.trace("queryPathKeys; regex: {}; pathIds: {}", pex.getRegex(), paths);
 			if (paths.size() > 0) {
-				pp = Predicates.in("pathId", paths.toArray(new Integer[paths.size()]));
+				Integer[] pa = paths.toArray(new Integer[paths.size()]); 
+				pp = Predicates.in("pathId", pa);
+				xPath = model.getPath(pa[0]);
 			}
 		} else {
 			String path = pex.getFullPath();
 			logger.trace("queryPathKeys; path: {}; comparison: {}", path, pex.getCompType());
-			XDMPath xPath = model.getPath(path);
-			paths = new HashSet<>(1);
+			xPath = model.getPath(path);
 			if (xPath != null) {
+				paths = new HashSet<>(1);
 				pp = Predicates.equal("pathId", xPath.getPathId());
 				paths.add(xPath.getPathId());
 			}
 		}
 		
-		if (paths.size() == 0) {
+		if (xPath == null) {
 			logger.info("queryPathKeys; got query on unknown path: {}", pex); 
 			return Collections.emptySet();
 		}
+		Object newVal = adjustSearchValue(value, xPath.getDataType());
+		if (newVal == null) {
+			logger.info("queryPathKeys; got query on empty value sequence: {}", value); 
+			return Collections.emptySet();
+		}
+		logger.trace("queryPathKeys; adjusted value: {}({})", newVal.getClass().getName(), newVal); 
 		
-   		//try {
-		//	long stamp = System.currentTimeMillis(); 
-	   	//	Supplier<XDMDataKey, XDMElements, Object> supplier = Supplier.fromKeyPredicate(new DataKeyPredicate(pathId));
-	   	//	Aggregation<XDMDataKey, Object, Long> aggregation = Aggregations.count();
-	   	//	Long count = xdmCache.aggregate(supplier, aggregation);
-	   	//	stamp = System.currentTimeMillis() - stamp;
-		//	logger.info("queryPathKeys; got {} aggregation results; time taken: {}", count, stamp); 
-   		//} catch (Throwable ex) {
-   		//	logger.error("queryPathKeys", ex);
-   		//}
-
 		Set<Long> result = new HashSet<>();
 		for (Integer pathId: paths) {
 			if (idxMgr.isIndexEnabled(pathId)) {
-				Set<Long> docIds = idxMgr.getIndexedDocuments(pathId, pex, value);
+				Set<Long> docIds = idxMgr.getIndexedDocuments(pathId, pex, newVal);
 				logger.trace("queryPathKeys; search for index - got ids: {}", docIds == null ? null : docIds.size()); 
 				if (docIds != null) {
 					if (found == null) {
@@ -314,44 +350,18 @@ public class QueryManagementImpl implements XDMQueryManagement {
 			return result;
 		}
 
-		if (value instanceof Collection) {
-			Collection values = (Collection) value;
-			if (values.size() == 0) {
-				return Collections.emptySet();
-			}
-			if (values.size() == 1) {
-				value = values.iterator().next();
-			}
-		} 
-		if (value instanceof XQItem) {
-			try {
-				value = ((XQItem) value).getObject();
-			} catch (XQException ex) {
-				logger.error("getIndexedDocuments.error", ex);
-				value = value.toString();
-			}
-		}
-
+		QueryPredicate qp;
 		if (found == null) {
-			QueryPredicate qp = new QueryPredicate(pex, value);
-			Predicate<XDMDataKey, XDMElements> f = Predicates.and(pp, qp);
-	   		Set<XDMDataKey> xdmKeys = xdmCache.keySet(f);
-			logger.trace("queryPathKeys; got {} query results", xdmKeys.size()); 
-			result = new HashSet<Long>(xdmKeys.size());
-			for (XDMDataKey key: xdmKeys) {
-				long docId = key.getDocumentId();
-				result.add(docId);
-			}
+			qp = new QueryPredicate(pex, newVal);
 		} else {
-			QueryPredicate qp = new DocsAwarePredicate(pex, value, found);
-			Predicate<XDMDataKey, XDMElements> f = Predicates.and(pp, qp);
-	   		Set<XDMDataKey> xdmKeys = xdmCache.keySet(f);
-			logger.trace("queryPathKeys; got {} docs aware query results", xdmKeys.size()); 
-			result = new HashSet<Long>(xdmKeys.size());
-			for (XDMDataKey key: xdmKeys) {
-				long docId = key.getDocumentId();
-				result.add(docId);
-			}
+			qp = new DocsAwarePredicate(pex, newVal, found);
+		}			
+		Predicate<XDMDataKey, XDMElements> f = Predicates.and(pp, qp);
+	   	Set<XDMDataKey> xdmKeys = xdmCache.keySet(f);
+		logger.trace("queryPathKeys; got {} query results", xdmKeys.size()); 
+		result = new HashSet<>(xdmKeys.size());
+		for (XDMDataKey key: xdmKeys) {
+			result.add(key.getDocumentId());
 		}
 		logger.trace("queryPathKeys.exit; returning {} keys", result.size()); 
 		return result;
@@ -470,6 +480,14 @@ public class QueryManagementImpl implements XDMQueryManagement {
 
 		logger.trace("execXQCommand.enter; query: {}, command: {}; bindings: {}; properties: {}", 
 				isQuery, xqCmd, bindings, props);
+		//if (logger.isTraceEnabled()) {
+		//	for (Object o: bindings.entrySet()) {
+		//		Map.Entry<QName, Object> var = (Map.Entry<QName, Object>) o;
+		//		Object val = var.getValue();
+		//		logger.trace("execXQCommand; key:{}, value: {}({})", var.getKey(), 
+		//				val == null ? null : val.getClass().getName(), val);
+		//	}
+		//}
 		ResultCursor result = null;
 		Iterator iter = null;
 		String clientId = props.getProperty(pn_client_id);
@@ -532,5 +550,17 @@ public class QueryManagementImpl implements XDMQueryManagement {
 		return xqCursor;
 	}
 
-	
 }
+
+
+	//try {
+//	long stamp = System.currentTimeMillis(); 
+	//	Supplier<XDMDataKey, XDMElements, Object> supplier = Supplier.fromKeyPredicate(new DataKeyPredicate(pathId));
+	//	Aggregation<XDMDataKey, Object, Long> aggregation = Aggregations.count();
+	//	Long count = xdmCache.aggregate(supplier, aggregation);
+	//	stamp = System.currentTimeMillis() - stamp;
+//	logger.info("queryPathKeys; got {} aggregation results; time taken: {}", count, stamp); 
+	//} catch (Throwable ex) {
+	//	logger.error("queryPathKeys", ex);
+	//}
+

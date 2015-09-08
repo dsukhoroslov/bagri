@@ -51,7 +51,7 @@ return $sec" />
 					<constant value="sym" />
 				</parameter>
 				<parameter>
-					<constant value="xs:string" />
+					<constant value="string" />
 				</parameter>
 				<parameter>
 					<file>input/security_symbols.txt</file>
@@ -79,7 +79,7 @@ return
 					<constant value="sym" />
 				</parameter>
 				<parameter>
-					<constant value="xs:string" />
+					<constant value="string" />
 				</parameter>
 				<parameter>
 					<file>input/security_symbols.txt</file>
@@ -118,7 +118,7 @@ return	&lt;Security&gt;
 					<constant value="sect" />
 				</parameter>
 				<parameter>
-					<constant value="xs:string" />
+					<constant value="string" />
 				</parameter>
 				<parameter>
 					<file>input/security_sectors.txt</file>
@@ -127,7 +127,7 @@ return	&lt;Security&gt;
 					<constant value="pemin" />
 				</parameter>
 				<parameter>
-					<constant value="xs:float" />
+					<constant value="decimal" />
 				</parameter>
 				<parameter>
 					<uniform_dec min="5.0" max="15.0" />
@@ -136,7 +136,7 @@ return	&lt;Security&gt;
 					<constant value="pemax" />
 				</parameter>
 				<parameter>
-					<constant value="xs:float" />
+					<constant value="decimal" />
 				</parameter>
 				<parameter>
 					<uniform_dec min="25.0" max="40.0" />
@@ -145,7 +145,7 @@ return	&lt;Security&gt;
 					<constant value="yield" />
 				</parameter>
 				<parameter>
-					<constant value="xs:float" />
+					<constant value="decimal" />
 				</parameter>
 				<parameter>
 					<uniform_dec min="0.1" max="7.0" />

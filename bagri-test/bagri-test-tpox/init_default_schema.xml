@@ -31,7 +31,7 @@
 	    </argument>
 	    <argument index="3">
 		<type>java.lang.String</type>
-		<value>xs:integer</value>
+		<value>integer</value>
 	    </argument>
 	    <argument index="4">
 		<type>boolean</type>
@@ -80,7 +80,7 @@
 	    </argument>
 	    <argument index="3">
 		<type>java.lang.String</type>
-		<value>xs:string</value>
+		<value>string</value>
 	    </argument>
 	    <argument index="4">
 		<type>boolean</type>
@@ -118,7 +118,7 @@
 	    </argument>
 	    <argument index="3">
 		<type>java.lang.String</type>
-		<value>xs:string</value>
+		<value>string</value>
 	    </argument>
 	    <argument index="4">
 		<type>boolean</type>
@@ -156,7 +156,7 @@
 	    </argument>
 	    <argument index="3">
 		<type>java.lang.String</type>
-		<value>xs:decimal</value>
+		<value>decimal</value>
 	    </argument>
 	    <argument index="4">
 		<type>boolean</type>
@@ -194,7 +194,7 @@
 	    </argument>
 	    <argument index="3">
 		<type>java.lang.String</type>
-		<value>xs:int</value>
+		<value>string</value>
 	    </argument>
 	    <argument index="4">
 		<type>boolean</type>

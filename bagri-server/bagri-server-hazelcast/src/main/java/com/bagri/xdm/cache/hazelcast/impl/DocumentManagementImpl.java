@@ -269,7 +269,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 					}
 				}
 			}
-			logger.info("loadElements; fragments found: {}; for docType: {} ({}); docKey: {}", 
+			logger.debug("loadElements; fragments found: {}; for docType: {} ({}); docKey: {}", 
 					fragments, root.getPath(), docType, docKey);
 			
 			long fraPath = docKey;
@@ -301,7 +301,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 			xdmCache.putAll(elements);
 			
 			stamp = System.currentTimeMillis() - stamp;
-			logger.info("loadElements; cached {} elements for docKey: {}; fragments: {}; time taken: {}", 
+			logger.debug("loadElements; cached {} elements for docKey: {}; fragments: {}; time taken: {}", 
 					elements.size(), docKey, result.size(), stamp);
 			//model.normalizeDocumentType(docType);
 			return result;

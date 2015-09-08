@@ -43,16 +43,16 @@ public class ClientApp {
 			//long id = client.storeSecQuery();
 			//long id = client.storeXmlDocument("axis.xml");
 			//System.out.println("document stored; id: " + id);
-			//found = client.runPriceQuery("IBM"); //IBM; VFINX; PTTAX
-			//found &= client.runPriceQuery("IBM"); //IBM; VFINX; PTTAX
-			found = client.runSecQuery("IBM");
-			//found &= client.runSecQuery("IBM");
+			//found = client.runPriceQuery("IBM"); 
 			//found &= client.runPriceQuery("IBM");
+			//found = client.runSecQuery("IBM");
+			//found &= client.runSecQuery("VFINX");
+			//found &= client.runPriceQuery("PTTAX");
 			//client.runPriceQuery();
 			//found = client.runSecQuery();
 			//client.runSecQuery();
 			//found = client.searchSecQuery();
-			//found = client.searchSecQueryParams();
+			found = client.searchSecQueryParams();
 			//client.searchSecQueryParams();
 			//found = client.runAxisQuery();
 			//client.removeSecCommand(id);
@@ -155,13 +155,16 @@ public class ClientApp {
 
 	    XQPreparedExpression xqpe = xqc.prepareExpression(query);
 	    xqpe.bindString(new QName("sect"), "Technology", null); 
-	    xqpe.bindFloat(new QName("pemin"), 25.0f, null);
-	    xqpe.bindFloat(new QName("pemax"), 28.0f, null);
-	    xqpe.bindFloat(new QName("yield"), 0.1f, null);
-    	//QName typeName = new QName(xs_ns, "xs:decimal", xs_prefix);
-		//int baseType = getBaseTypeForTypeName(typeName);
-		//XQItemType type = xqc.createAtomicType(baseType, typeName, null);
-		//xqpe.bindAtomicValue(new QName("yield"), "0.1", type);
+    	QName typeName = new QName(xs_ns, "decimal", xs_prefix);
+		int baseType = getBaseTypeForTypeName(typeName);
+		XQItemType type = xqc.createAtomicType(baseType, typeName, null);
+	    //xqpe.bindFloat(new QName("pemin"), 25.0f, null);
+	    //xqpe.bindFloat(new QName("pemax"), 28.0f, null);
+	    //xqpe.bindFloat(new QName("yield"), 0.1f, null);
+		xqpe.bindObject(new QName("pemin"), new java.math.BigDecimal("25.0"), type);
+		xqpe.bindObject(new QName("pemax"), new java.math.BigDecimal("28.0"), type);
+		xqpe.bindObject(new QName("yield"), new java.math.BigDecimal("0.1"), type);
+		//xqpe.b
 	    
 	    XQResultSequence xqs = xqpe.executeQuery();
 

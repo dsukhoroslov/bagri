@@ -65,8 +65,11 @@ public class DocumentStructureProvider extends DocumentAwareTask implements Call
 				if (idx > 0) {
 					buff.append(", ");
 				}
-				buff.append("\"").append(elt.getValue()).append("\"");
-				idx++;
+				Object value = elt.getValue(); 
+				if (value != null) {
+					buff.append(value.getClass().getName()).append("(").append(elt.getValue()).append(")");
+					idx++;
+				}
 			}
 			buff.append("]");
 			tree.put(String.format("(%05d) %s", path.getPathId(), path.getPath()), buff.toString());
