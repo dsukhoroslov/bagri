@@ -128,14 +128,17 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 				StringBuilder buff = new StringBuilder(template);
 				for (Map.Entry<String, String> param: params.entrySet()) {
 					String key = param.getKey();
+					String path = param.getValue();
 					XDMDocument doc = xddCache.get(docKey);
-					String str = buildElement(xdmCache, param.getValue(), doc.getFragments(), doc.getTypeId());
+					String xml = xmlCache.get(docKey);
+					if (xml == null) {
+				        logger.trace("buildDocument; no content found for doc key: {}", docKey);
+						xml = buildElement(path, doc.getFragments(), doc.getTypeId());
+					}
 					while (true) {
 						int idx = buff.indexOf(key);
-				        //logger.trace("aggregate; searching key: {} in buff: {}; result: {}", new Object[] {key, buff, idx});
 						if (idx < 0) break;
-						buff.replace(idx, idx + key.length(), str);
-				        //logger.trace("aggregate; replaced key: {} with {}", key, str);
+						buff.replace(idx, idx + key.length(), xml);
 					}
 				}
 				result.add(buff.toString());
@@ -178,9 +181,9 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
     }
     
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private String buildElement(IMap dataMap, String path, long[] fragments, int docType) {
+	private String buildElement(String path, long[] fragments, int docType) {
     	Set<XDMDataKey> xdKeys = getDocumentElementKeys(path, fragments, docType);
-       	return buildXml(dataMap.getAll(xdKeys));
+       	return buildXml(xdmCache.getAll(xdKeys));
     }
     
 	@SuppressWarnings({ "rawtypes", "unchecked" })

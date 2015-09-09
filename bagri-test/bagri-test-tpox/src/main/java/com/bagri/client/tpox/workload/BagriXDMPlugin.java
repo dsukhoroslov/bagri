@@ -1,7 +1,5 @@
 package com.bagri.client.tpox.workload;
 
-import static com.bagri.common.config.XDMConfigConstants.xdm_spring_context;
-
 import java.sql.SQLException;
 import java.util.Collection;
 
@@ -13,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMRepository;
 import com.bagri.xdm.api.test.XDMQueryManagementTest;
 import com.bagri.xdm.domain.XDMDocument;
@@ -28,9 +25,9 @@ public class BagriXDMPlugin extends BagriTPoXPlugin {
 		protected TPoXQueryManagerTest initialValue() {
 			//synchronized (context) {
 			ApplicationContext context = new ClassPathXmlApplicationContext(config);
-			XDMRepository xdm = context.getBean("xdmRepository", XDMRepository.class);
+			XDMRepository xdm = context.getBean("xdmRepo", XDMRepository.class);
 			TPoXQueryManagerTest xqmt = new TPoXQueryManagerTest(xdm);
-			logger.debug("initialValue; XDM: {}", xdm);
+			logger.info("initialValue.exit; XDM: {}", xdm);
 			return xqmt;
 			//}
  		}

@@ -25,42 +25,13 @@
         <entry key="xdm.client.loginTimeout">
             <value type="java.lang.String">0</value>
         </entry>
-        <entry key="xdm.client.dataFactory">
+        <!--entry key="xdm.client.dataFactory">
            	<ref bean="xqConnection"/>
-        </entry>
+        </entry-->
     </util:map>
 
-    <bean id="xqDataSource" class="com.bagri.xqj.BagriXQDataSource"/>
-
-    <bean id="xqConnection" factory-bean="xqDataSource" factory-method="getConnection">
-    	<!--property name="processor" ref="xqProcessor" /-->
-    </bean>
-    
     <bean id="xdmRepo" class="com.bagri.xdm.client.hazelcast.impl.RepositoryImpl">
 	<constructor-arg ref="xdmProps"/>
-    </bean>
-
-    <!--import resource="classpath:spring/hz-client-context.xml"/-->
-
-    <bean id="xqProcessor" class="com.bagri.xquery.saxon.XQProcessorClient">
-        <property name="properties">
-            <props>
-                <prop key="xdm.client.fetchSize">${xdm.client.fetchSize}</prop>
-                <prop key="xdm.client.submitTo">${xdm.client.submitTo}</prop>
-            </props>
-        </property>
-    	<property name="repository" ref="xdmRepo" />
-    	<property name="XQDataFactory" ref="xqConnection" />
-    </bean>
-
-    <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-        <property name="targetObject" ref="xqConnection" />
-        <property name="targetMethod" value="setProcessor" />
-        <property name="arguments">
-            <list>
-                <ref bean="xqProcessor" />
-            </list>
-        </property>
     </bean>
 
 </beans>

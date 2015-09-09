@@ -80,8 +80,11 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 		setProperty(original, props, pn_client_smart, "smart");
 		setProperty(original, props, pn_client_loginTimeout, "loginTimeout");
 		setProperty(original, props, pn_client_bufferSize, null); 
-		setProperty(original, props, pn_client_connectAttempts, null); 
-		props.put(pn_data_factory, original.get(pn_data_factory));
+		setProperty(original, props, pn_client_connectAttempts, null);
+		Object factory = original.get(pn_data_factory);
+		if (factory != null) {
+			props.put(pn_data_factory, factory);
+		}
 		return props;
 	}
 	

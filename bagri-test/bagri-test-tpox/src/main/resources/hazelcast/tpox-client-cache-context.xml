@@ -1,20 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
 	xmlns:hz="http://www.hazelcast.com/schema/spring"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.1.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.1.xsd
 		http://www.hazelcast.com/schema/spring http://www.hazelcast.com/schema/spring/hazelcast-spring-3.5.xsd">
 
-    <!--import resource="classpath:applicationContext-hazelcast.xml" /-->
- 
-    <!-- Beans Declaration -->
-    <!--bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-        <property name="locations">
-            <list>
-                <value>classpath:/hazelcast-config.properties</value>
-            </list>
-        </property>
-    </bean-->
+    <context:property-placeholder ignore-resource-not-found="true"/>
  
  	<hz:client id="hzInstance">
 		<hz:spring-aware/>
@@ -62,9 +55,9 @@
 				<hz:serializer type-class="com.bagri.xdm.domain.XDMUniqueDocument" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMUniqueDocumentSerializer"/>
 				<hz:serializer type-class="com.bagri.xdm.domain.XDMUniqueValue" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMUniqueValueSerializer"/>
 				<hz:serializer type-class="com.bagri.xdm.domain.XDMTransaction" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMTransactionSerializer"/>
-				<hz:serializer type-class="javax.xml.xquery.XQItemType" implementation="xqItemTypeSerializer"/>
+				<!--hz:serializer type-class="javax.xml.xquery.XQItemType" implementation="xqItemTypeSerializer"/>
 				<hz:serializer type-class="javax.xml.xquery.XQItem" implementation="xqItemSerializer"/>
-				<hz:serializer type-class="javax.xml.xquery.XQSequence" implementation="xqSequenceSerializer"/>
+				<hz:serializer type-class="javax.xml.xquery.XQSequence" implementation="xqSequenceSerializer"/-->
 			</hz:serializers>
 		</hz:serialization>
 
@@ -121,7 +114,7 @@
 		<property name="txManagement" ref="txManager"/>
 	</bean>
 
-	<bean id="xqItemTypeSerializer" class="com.bagri.xdm.client.hazelcast.serialize.XQItemTypeSerializer">
+	<!--bean id="xqItemTypeSerializer" class="com.bagri.xdm.client.hazelcast.serialize.XQItemTypeSerializer">
 		<property name="XQDataFactory" ref="xqConnection" />
 	</bean>
 
@@ -131,6 +124,6 @@
 	
 	<bean id="xqSequenceSerializer" class="com.bagri.xdm.client.hazelcast.serialize.XQSequenceSerializer">
 		<property name="XQDataFactory" ref="xqConnection" />
-	</bean>
+	</bean-->
 	
 </beans>

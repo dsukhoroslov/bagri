@@ -5,6 +5,8 @@ setlocal
 
 call set-tpox-env.cmd
 
+set java_opts=%java_opts% -Dxdm.spring.context=spring/tpox-xdm-context.xml
+
 rem insert securities to the cache
 "%java_exec%" -server -showversion %java_opts% -cp "%app_home%\target\*;%app_home%\target\lib\*" net.sf.tpox.workload.core.WorkloadDriver -w queries/insSecurity.xml -tr 2604 -u 8
 
