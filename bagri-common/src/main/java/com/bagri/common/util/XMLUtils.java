@@ -103,9 +103,12 @@ public class XMLUtils {
 	public static XMLStreamReader stringToStream(String content) throws IOException {
 		
 		//get Reader connected to XML input from somewhere..?
-	    try (Reader reader = new StringReader(content)) {
+		// note: we can not close this reader as it is used further
+		Reader reader = new StringReader(content);
+	    try {
 			return xiFactory.createXMLStreamReader(reader);
 		} catch (XMLStreamException ex) {
+			reader.close();
 			throw new IOException(ex); 
 		}
 	}
