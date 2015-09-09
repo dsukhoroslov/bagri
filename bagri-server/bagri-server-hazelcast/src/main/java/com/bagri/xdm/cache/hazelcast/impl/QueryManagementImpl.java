@@ -325,22 +325,17 @@ public class QueryManagementImpl implements XDMQueryManagement {
 		
 		Set<Long> result = new HashSet<>();
 		for (Integer pathId: paths) {
-			if (idxMgr.isIndexEnabled(pathId)) {
-				Set<Long> docIds = idxMgr.getIndexedDocuments(pathId, pex, newVal);
-				logger.trace("queryPathKeys; search for index - got ids: {}", docIds == null ? null : docIds.size()); 
-				if (docIds != null) {
-					if (found == null) {
-						result.addAll(docIds);
-					} else {
-						found.retainAll(docIds);
-						result = found;
-					}
+			Set<Long> docIds = idxMgr.getIndexedDocuments(pathId, pex, newVal);
+			logger.trace("queryPathKeys; search for index - got ids: {}", docIds == null ? null : docIds.size()); 
+			if (docIds != null) {
+				if (found == null) {
+					result.addAll(docIds);
 				} else {
-					//fallback to full scan below..
-					result = null;
-					break;
+					found.retainAll(docIds);
+					result = found;
 				}
 			} else {
+				//fallback to full scan below..
 				result = null;
 				break;
 			}
@@ -443,7 +438,7 @@ public class QueryManagementImpl implements XDMQueryManagement {
 		if (docIds.size() > 0) {
 			return docMgr.buildDocument(new HashSet<Long>(docIds), template, params);
 		}
-		return Collections.EMPTY_LIST;
+		return Collections.emptyList();
 	}
 	
 	@Override
@@ -480,14 +475,6 @@ public class QueryManagementImpl implements XDMQueryManagement {
 
 		logger.trace("execXQCommand.enter; query: {}, command: {}; bindings: {}; properties: {}", 
 				isQuery, xqCmd, bindings, props);
-		//if (logger.isTraceEnabled()) {
-		//	for (Object o: bindings.entrySet()) {
-		//		Map.Entry<QName, Object> var = (Map.Entry<QName, Object>) o;
-		//		Object val = var.getValue();
-		//		logger.trace("execXQCommand; key:{}, value: {}({})", var.getKey(), 
-		//				val == null ? null : val.getClass().getName(), val);
-		//	}
-		//}
 		ResultCursor result = null;
 		Iterator iter = null;
 		String clientId = props.getProperty(pn_client_id);
@@ -522,8 +509,6 @@ public class QueryManagementImpl implements XDMQueryManagement {
 			xqp.setResults(result);
 		} catch (XQException ex) {
 		//	logger.error("execXQCommand.error;", ex);
-			//result = createCursor(clientId, 0, new ExceptionIterator(ex), true);
-			//throw new XDMException(ex.getMessage(), XDMException.ecQuery);
 			throw new XDMException(ex, XDMException.ecQuery);
 		}
 		logger.trace("execXQCommand.exit; returning: {}, for client: {}", result, clientId);
