@@ -44,9 +44,10 @@ public class BagriXDMPlugin extends BagriTPoXPlugin {
 	@Override
 	public void close() throws SQLException {
 		//xdm.close();
-		logger.info("close; XQMT: {}", xqmt.get());
+		TPoXQueryManagerTest test = xqmt.get();
+		logger.info("close; XDM: {}", test.getRepository());
 		try {
-			xqmt.get().close();
+			test.close();
 		} catch (Exception ex) {
 			logger.error("close.error; " + ex, ex);
 			throw new SQLException(ex);
@@ -59,6 +60,7 @@ public class BagriXDMPlugin extends BagriTPoXPlugin {
 		Transaction tx = wp.getTransaction(transNo);
 		int result = 0;
 		logger.trace("execute.enter; transaction: {}; ", tx.getTransName());
+		TPoXQueryManagerTest test = xqmt.get();
 		try {
 			switch (tx.getTransName()) {
 				case "addDocument": {
@@ -67,14 +69,14 @@ public class BagriXDMPlugin extends BagriTPoXPlugin {
 					if (param != null) {
 						xml = new String(param.getDocument());
 					}
-					xqmt.get().storeDocument(xml);
+					test.storeDocument(xml);
 					result = 1;
 					break;
 				}
 				case "getSecurity": {
 					ActualParamInfo param = wp.getParamMarkerActualValue(transNo, 0, rand);
 					String symbol = param.getActualValue();
-					Collection<String> sec = xqmt.get().getSecurity(symbol);
+					Collection<String> sec = test.getSecurity(symbol);
 					if (sec != null && !sec.isEmpty()) {
 						result = 1;
 					}
@@ -83,7 +85,7 @@ public class BagriXDMPlugin extends BagriTPoXPlugin {
 				case "getSecurityPrice": {
 					ActualParamInfo param = wp.getParamMarkerActualValue(transNo, 0, rand);
 					String symbol = param.getActualValue();
-					Collection<String> sec = xqmt.get().getPrice(symbol);
+					Collection<String> sec = test.getPrice(symbol);
 					if (sec != null && !sec.isEmpty()) {
 						result = 1;
 					}
@@ -98,7 +100,7 @@ public class BagriXDMPlugin extends BagriTPoXPlugin {
 					float peMax = Float.valueOf(param.getActualValue());
 					param = wp.getParamMarkerActualValue(transNo, 3, rand);
 					float yieldMin = Float.valueOf(param.getActualValue());
-					Collection<String> sec = xqmt.get().searchSecurity(sector, peMin, peMax, yieldMin);
+					Collection<String> sec = test.searchSecurity(sector, peMin, peMax, yieldMin);
 					if (sec != null && !sec.isEmpty()) {
 						result = 1;
 					}
@@ -107,7 +109,7 @@ public class BagriXDMPlugin extends BagriTPoXPlugin {
 				case "getOrder": {
 					ActualParamInfo param = wp.getParamMarkerActualValue(transNo, 0, rand);
 					String id = param.getActualValue();
-					Collection<String> sec = xqmt.get().getOrder(id);
+					Collection<String> sec = test.getOrder(id);
 					if (sec != null && !sec.isEmpty()) {
 						result = 1;
 					}
@@ -116,7 +118,7 @@ public class BagriXDMPlugin extends BagriTPoXPlugin {
 				case "getCustomerProfile": {
 					ActualParamInfo param = wp.getParamMarkerActualValue(transNo, 0, rand);
 					String id = param.getActualValue();
-					Collection<String> sec = xqmt.get().getCustomerProfile(id);
+					Collection<String> sec = test.getCustomerProfile(id);
 					if (sec != null && !sec.isEmpty()) {
 						result = 1;
 					}
@@ -125,7 +127,7 @@ public class BagriXDMPlugin extends BagriTPoXPlugin {
 				case "getCustomerAccounts": {
 					ActualParamInfo param = wp.getParamMarkerActualValue(transNo, 0, rand);
 					String id = param.getActualValue();
-					Collection<String> sec = xqmt.get().getCustomerAccounts(id);
+					Collection<String> sec = test.getCustomerAccounts(id);
 					if (sec != null && !sec.isEmpty()) {
 						result = 1;
 					}
@@ -150,6 +152,10 @@ public class BagriXDMPlugin extends BagriTPoXPlugin {
 		
 		void close() {
 			xRepo.close();
+		}
+		
+		XDMRepository getRepository() {
+			return xRepo;
 		}
 		
 		XDMDocument storeDocument(String xml) throws Exception {
