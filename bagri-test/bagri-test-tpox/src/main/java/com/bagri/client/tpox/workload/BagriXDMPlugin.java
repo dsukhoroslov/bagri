@@ -2,6 +2,7 @@ package com.bagri.client.tpox.workload;
 
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.Map;
 
 import net.sf.tpox.workload.parameter.ActualParamInfo;
 import net.sf.tpox.workload.transaction.Transaction;
@@ -13,7 +14,9 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.bagri.xdm.api.XDMRepository;
 import com.bagri.xdm.api.test.XDMQueryManagementTest;
+import com.bagri.xdm.client.hazelcast.impl.RepositoryImpl;
 import com.bagri.xdm.domain.XDMDocument;
+import com.bagri.xdm.system.XDMParameter;
 
 public class BagriXDMPlugin extends BagriTPoXPlugin {
 
@@ -23,20 +26,14 @@ public class BagriXDMPlugin extends BagriTPoXPlugin {
 		
 		@Override
 		protected TPoXQueryManagerTest initialValue() {
-			//synchronized (context) {
-			ApplicationContext context = new ClassPathXmlApplicationContext(config);
-			XDMRepository xdm = context.getBean("xdmRepo", XDMRepository.class);
+			XDMRepository xdm = new RepositoryImpl();
 			TPoXQueryManagerTest xqmt = new TPoXQueryManagerTest(xdm);
 			logger.info("initialValue.exit; XDM: {}", xdm);
 			return xqmt;
-			//}
  		}
 		
 	};
 	
-    //private XDMDocumentManagement xdm;
-    //private XDMDocumentManagerTest xdmt;
-    
     public BagriXDMPlugin() {
     	super();
     }
@@ -69,16 +66,17 @@ public class BagriXDMPlugin extends BagriTPoXPlugin {
 					if (param != null) {
 						xml = new String(param.getDocument());
 					}
-					test.storeDocument(xml);
-					result = 1;
+					if (test.storeDocument(xml) != null) { 
+						result = 1;
+					}
 					break;
 				}
 				case "getSecurity": {
 					ActualParamInfo param = wp.getParamMarkerActualValue(transNo, 0, rand);
 					String symbol = param.getActualValue();
 					Collection<String> sec = test.getSecurity(symbol);
-					if (sec != null && !sec.isEmpty()) {
-						result = 1;
+					if (sec != null) {
+						result = sec.size();
 					}
 					break;
 				}
@@ -86,8 +84,8 @@ public class BagriXDMPlugin extends BagriTPoXPlugin {
 					ActualParamInfo param = wp.getParamMarkerActualValue(transNo, 0, rand);
 					String symbol = param.getActualValue();
 					Collection<String> sec = test.getPrice(symbol);
-					if (sec != null && !sec.isEmpty()) {
-						result = 1;
+					if (sec != null) {
+						result = sec.size();
 					}
 					break;
 				}
@@ -101,8 +99,8 @@ public class BagriXDMPlugin extends BagriTPoXPlugin {
 					param = wp.getParamMarkerActualValue(transNo, 3, rand);
 					float yieldMin = Float.valueOf(param.getActualValue());
 					Collection<String> sec = test.searchSecurity(sector, peMin, peMax, yieldMin);
-					if (sec != null && !sec.isEmpty()) {
-						result = 1;
+					if (sec != null) {
+						result = sec.size();
 					}
 					break;
 				}
@@ -110,8 +108,8 @@ public class BagriXDMPlugin extends BagriTPoXPlugin {
 					ActualParamInfo param = wp.getParamMarkerActualValue(transNo, 0, rand);
 					String id = param.getActualValue();
 					Collection<String> sec = test.getOrder(id);
-					if (sec != null && !sec.isEmpty()) {
-						result = 1;
+					if (sec != null) {
+						result = sec.size();
 					}
 					break;
 				}
@@ -119,8 +117,8 @@ public class BagriXDMPlugin extends BagriTPoXPlugin {
 					ActualParamInfo param = wp.getParamMarkerActualValue(transNo, 0, rand);
 					String id = param.getActualValue();
 					Collection<String> sec = test.getCustomerProfile(id);
-					if (sec != null && !sec.isEmpty()) {
-						result = 1;
+					if (sec != null) {
+						result = sec.size();
 					}
 					break;
 				}
@@ -128,8 +126,8 @@ public class BagriXDMPlugin extends BagriTPoXPlugin {
 					ActualParamInfo param = wp.getParamMarkerActualValue(transNo, 0, rand);
 					String id = param.getActualValue();
 					Collection<String> sec = test.getCustomerAccounts(id);
-					if (sec != null && !sec.isEmpty()) {
-						result = 1;
+					if (sec != null) {
+						result = sec.size();
 					}
 					break;
 				}
@@ -137,7 +135,8 @@ public class BagriXDMPlugin extends BagriTPoXPlugin {
 					logger.debug("execute; unknown command: {}", tx.getTransName());
 				}
 			}
-		} catch (Exception ex) {
+		} catch (Throwable ex) {
+			logger.error("execute.error", ex);
 			throw new SQLException(ex);
 		}
 		logger.trace("execute.exit; returning: {}", result);
@@ -162,6 +161,23 @@ public class BagriXDMPlugin extends BagriTPoXPlugin {
 			return xRepo.getDocumentManagement().storeDocumentFromString(0, null, xml);
 		}
 		
+	}
+
+	@Override
+	protected int execCommand(String command, Map<String, XDMParameter> params) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	protected int execQuery(String query, Map<String, XDMParameter> params) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	protected Logger getLogger() {
+		return logger;
 	}
 
 }

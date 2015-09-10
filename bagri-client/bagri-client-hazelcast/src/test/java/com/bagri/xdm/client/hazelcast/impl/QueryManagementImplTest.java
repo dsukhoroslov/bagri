@@ -1,25 +1,20 @@
 package com.bagri.xdm.client.hazelcast.impl;
 
-import static com.bagri.xdm.common.XDMConstants.*;
-
-import java.io.IOException;
+import static com.bagri.xdm.common.XDMConstants.pn_schema_address;
+import static com.bagri.xdm.common.XDMConstants.pn_schema_name;
+import static com.bagri.xdm.common.XDMConstants.pn_schema_password;
+import static com.bagri.xdm.common.XDMConstants.pn_schema_user;
 
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
 
-import com.bagri.xdm.api.test.ServerLauncher;
-import com.bagri.xdm.api.test.XDMDocumentManagementTest;
+import com.bagri.xdm.api.test.XDMQueryManagementTest;
 import com.hazelcast.core.Hazelcast;
 
-public class DocumentManagementImplTest extends XDMDocumentManagementTest {
-	
-	private static ServerLauncher launcher;
-	private static final String srvDir = "C:\\Work\\Bagri\\git\\bagri\\bagri-server\\bagri-server-hazelcast";
-	
+public class QueryManagementImplTest extends XDMQueryManagementTest {
+
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		//launcher = new ServerLauncher("second", null, srvDir);
@@ -54,11 +49,5 @@ public class DocumentManagementImplTest extends XDMDocumentManagementTest {
 		xRepo.close();
 	}
 	
-	@Test
-	public void storeDocumentsTest() throws Exception {
-		storeSecurityTest();
-		storeOrderTest();
-		storeCustomerTest();
-	}
-
+	
 }

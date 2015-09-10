@@ -34,7 +34,8 @@ set java_opts=%java_opts% -Dhazelcast.logging.type=slf4j -Dlogback.configuration
 set java_opts=%java_opts% -Dlog.name=tpox-client -Dhz.log.level=warn -Dxdm.log.level=info
 set java_opts=%java_opts% -Dxdm.spring.context=spring/tpox-xqj-context.xml
 
-set java_opts=%java_opts% -Dxdm.schema.members=%schema_addr%
+rem set java_opts=%java_opts% -Dxdm.schema.members=%schema_addr%
+set java_opts=%java_opts% -Dxdm.schema.address=%schema_addr%
 set java_opts=%java_opts% -Dxdm.schema.name=%schema%
 set java_opts=%java_opts% -Dxdm.schema.user=guest
 set java_opts=%java_opts% -Dxdm.schema.password=password

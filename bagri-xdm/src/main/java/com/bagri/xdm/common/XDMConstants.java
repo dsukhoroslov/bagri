@@ -5,8 +5,10 @@ public class XDMConstants {
 	public static final String xs_prefix = "xs";
 	public static final String xs_ns = "http://www.w3.org/2001/XMLSchema";
 
+	public static final String pn_schema_address = "xdm.schema.address";
+	public static final String pn_schema_host = "xdm.schema.host";
+	public static final String pn_schema_port = "xdm.schema.port";
 	public static final String pn_schema_name = "xdm.schema.name";
-	public static final String pn_server_address = "xdm.schema.address";
 	public static final String pn_schema_user = "xdm.schema.user";
 	public static final String pn_schema_password = "xdm.schema.password";
 	//public static final String pn_pool_size = "xdm.schema.poolSize";

@@ -121,6 +121,8 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		long stamp = System.currentTimeMillis();
         Collection<String> result = new ArrayList<String>(docIds.size());
 		
+        int typeId = -1;
+        String root = null;
 		for (Iterator<Long> itr = docIds.iterator(); itr.hasNext(); ) {
 			//Long docId = itr.next();
 			XDMDocumentKey docKey = factory.newXDMDocumentKey(itr.next());
@@ -130,15 +132,24 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 					String key = param.getKey();
 					String path = param.getValue();
 					XDMDocument doc = xddCache.get(docKey);
-					String xml = xmlCache.get(docKey);
+					if (doc.getTypeId() != typeId) {
+						typeId = doc.getTypeId();
+						root = model.getDocumentRoot(typeId); 
+					}
+					String xml = null;
+					if (path.equals(root)) {
+						xml = xmlCache.get(docKey);
+					}
 					if (xml == null) {
 				        logger.trace("buildDocument; no content found for doc key: {}", docKey);
 						xml = buildElement(path, doc.getFragments(), doc.getTypeId());
 					}
+					int pos = 0;
 					while (true) {
-						int idx = buff.indexOf(key);
+						int idx = buff.indexOf(key, pos);
 						if (idx < 0) break;
 						buff.replace(idx, idx + key.length(), xml);
+						pos = idx + xml.length();
 					}
 				}
 				result.add(buff.toString());

@@ -61,7 +61,7 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 	private static Properties getSystemProps() {
 		Properties props = new Properties();
 		setProperty(props, pn_schema_name, null); // "schema"
-		setProperty(props, pn_server_address, null); //"address"
+		setProperty(props, pn_schema_address, null); //"address"
 		setProperty(props, pn_schema_user, null); //"user"
 		setProperty(props, pn_schema_password, null); //"password"
 		setProperty(props, pn_client_smart, null); //"smart"
@@ -74,7 +74,7 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 	private static Properties getConvertedProps(Properties original) {
 		Properties props = new Properties();
 		setProperty(original, props, pn_schema_name, "schema");
-		setProperty(original, props, pn_server_address, "address");
+		setProperty(original, props, pn_schema_address, "address");
 		setProperty(original, props, pn_schema_user, "user");
 		setProperty(original, props, pn_schema_password, "password");
 		setProperty(original, props, pn_client_smart, "smart");
@@ -95,7 +95,7 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 	
 	private void initializeHazelcast(Properties props) {
 		String schema = props.getProperty(pn_schema_name);
-		String address = props.getProperty(pn_server_address);
+		String address = props.getProperty(pn_schema_address);
 		String user = props.getProperty(pn_schema_user);
 		String password = props.getProperty(pn_schema_password);
 		String smart = props.getProperty(pn_client_smart);
@@ -175,6 +175,11 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 		setModelManagement(new ModelManagementImpl(hzClient));
 		setTxManagement(new TransactionManagementImpl());
 	}
+	
+	@Override
+	public int hashCode() {
+		return clientId.hashCode();
+	}
 
 	@Override
 	public void setDocumentManagement(XDMDocumentManagement docMgr) {
@@ -221,6 +226,11 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 			logger.info("close; an attempt to close not-running client!");
 		}
 		logger.trace("close.exit;");
+	}
+	
+	@Override
+	public String toString() {
+		return "RepositoryImpl[" + clientId + "]";
 	}
 	
 	HazelcastInstance getHazelcastClient() {

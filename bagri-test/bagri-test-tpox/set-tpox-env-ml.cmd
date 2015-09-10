@@ -24,7 +24,7 @@ set java_opts=%java_opts% -Dxdm.spring.context=spring/tpox-xcc-context.xml
 
 rem ML XQJ mode: xdbc, conformance
 set java_opts=%java_opts% -Dxdm.schema.host=localhost -Dxdm.schema.port=8003 -Dxdm.schema.name=Documents
-set java_opts=%java_opts% -Dxdm.schema.username=admin
+set java_opts=%java_opts% -Dxdm.schema.user=admin
 set java_opts=%java_opts% -Dxdm.schema.password=admin
 
 set java_opts=%java_opts% -Dxdm.client.fetchSize=1

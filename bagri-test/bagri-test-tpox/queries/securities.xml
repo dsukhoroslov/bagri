@@ -40,13 +40,13 @@
 					<file>input/security_sectors.txt</file>
 				</parameter>
 				<parameter>
-					<uniformint min="20" max="23" />
+					<uniformint min="20" max="23"/>
 				</parameter>
 				<parameter>
-					<uniformint min="25" max="27" />
+					<uniformint min="25" max="27"/>
 				</parameter>
 				<parameter>
-					<uniformint min="4" max="6" />
+					<uniformint min="4" max="6"/>
 				</parameter>
 			</parameters>
 		</transaction>

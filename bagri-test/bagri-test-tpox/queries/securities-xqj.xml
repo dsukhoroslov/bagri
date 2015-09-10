@@ -32,7 +32,7 @@ return $id" />
 			</parameters>
 		</transaction-->
 
-		<transaction id="1" name="getSecurity" weight="35">
+		<transaction id="1" name="getSecurity" weight="50">
 			<java-plugin>com.bagri.client.tpox.workload.BagriXQJPlugin</java-plugin>
 			<parameters>
 				<parameter>
@@ -59,7 +59,7 @@ return $sec" />
 			</parameters>
 		</transaction>
 
-		<transaction id="2" name="getSecurityPrice" weight="35">
+		<transaction id="2" name="getSecurityPrice" weight="50">
 			<java-plugin>com.bagri.client.tpox.workload.BagriXQJPlugin</java-plugin>
 			<parameters>
 				<parameter>
@@ -87,7 +87,7 @@ return
 			</parameters>
 		</transaction>
 
-		<transaction id="3" name="searchSecurity" weight="30">
+		<!--transaction id="3" name="searchSecurity" weight="30">
 			<java-plugin>com.bagri.client.tpox.workload.BagriXQJPlugin</java-plugin>
 			<parameters>
 
@@ -151,7 +151,7 @@ return	&lt;Security&gt;
 					<uniform_dec min="0.1" max="7.0" />
 				</parameter>
 			</parameters>
-		</transaction>
+		</transaction-->
 
 	</transactions>
 </workload>

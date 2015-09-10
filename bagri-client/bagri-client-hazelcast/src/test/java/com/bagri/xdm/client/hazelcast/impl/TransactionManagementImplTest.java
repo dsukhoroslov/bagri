@@ -26,9 +26,9 @@ public class TransactionManagementImplTest extends XDMManagementTest {
 		launcher = new ServerLauncher("second", null, srvDir);
 		launcher.startServer();
 
-		System.setProperty(pn_server_address, "localhost:10500"); 
+		System.setProperty(pn_schema_address, "localhost:10500"); 
 		System.setProperty(pn_schema_name, "default"); 
-		System.setProperty(pn_schema_user, "test");
+		System.setProperty(pn_schema_user, "guest");
 		System.setProperty(pn_schema_password, "password");
 		sampleRoot = "..\\..\\etc\\samples\\tpox\\";
 	}
