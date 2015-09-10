@@ -386,6 +386,7 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 						}
 					}
 				}
+				logger.trace("dropIndex; dropped index for docKey: {}, pathId: {}, value: {}", docId, pathId, value);
 			}
 		}
 	}
@@ -489,7 +490,9 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 			Predicate u = Predicates.equal("unique", true);
 			p = Predicates.and(p, u);
 		}
-		return idxDict.keySet(p);
+		Collection<Integer> result = idxDict.keySet(p);
+		logger.trace("getTypeIndexes.exit; returning {} path for type: {}, unique: {}", result.size(), docType, uniqueOnly);
+		return result;
 	}
 	
 	private void updateStats(String name, boolean success, int count) {

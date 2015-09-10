@@ -15,6 +15,7 @@ import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
+@SuppressWarnings("serial")
 public class QueryProcessor implements EntryProcessor<XDMDataKey, XDMElements>, IdentifiedDataSerializable { 
 	
 	//private static final transient Logger logger = LoggerFactory.getLogger(QueryProcessor.class);

@@ -389,6 +389,8 @@ public class QueryManagementImpl implements XDMQueryManagement {
 			return checkDocumentsCommited(ids);
 		}
 		logger.info("getDocumentIDs; got rootless path: {}", query); 
+		
+		// fallback to full IDs set. not too good...
 		// can we use local keySet only !?
 		List<Long> result = new ArrayList<Long>(xddCache.keySet().size());
 		for (XDMDocumentKey docKey: xddCache.keySet()) {
@@ -409,7 +411,7 @@ public class QueryManagementImpl implements XDMQueryManagement {
 		// TODO: remove this method completely, or
 		// make reverse cache..? or, make URI from docId somehow..
 		Collection<Long> ids = getDocumentIDs(query);
-		Set<XDMDocumentKey> keys = new HashSet<XDMDocumentKey>(ids.size());
+		Set<XDMDocumentKey> keys = new HashSet<>(ids.size());
 		for (Long id: ids) {
 			keys.add(docMgr.getXdmFactory().newXDMDocumentKey(id));
 		}
@@ -427,16 +429,16 @@ public class QueryManagementImpl implements XDMQueryManagement {
 		
 		// TODO: get rid of transaction management here! 
 		// it is here for easier tests management only!
-		long txId = 0;
-		if (txMgr.getCurrentTxId() == TX_NO) {
-			txId = txMgr.beginTransaction();
-		}
+		//long txId = 0;
+		//if (txMgr.getCurrentTxId() == TX_NO) {
+		//	txId = txMgr.beginTransaction();
+		//}
 		Collection<Long> docIds = getDocumentIDs(query);
-		if (txId > TX_NO) {
-			txMgr.commitTransaction(txId);
-		}
+		//if (txId > TX_NO) {
+		//	txMgr.commitTransaction(txId);
+		//}
 		if (docIds.size() > 0) {
-			return docMgr.buildDocument(new HashSet<Long>(docIds), template, params);
+			return docMgr.buildDocument(new HashSet<>(docIds), template, params);
 		}
 		return Collections.emptyList();
 	}

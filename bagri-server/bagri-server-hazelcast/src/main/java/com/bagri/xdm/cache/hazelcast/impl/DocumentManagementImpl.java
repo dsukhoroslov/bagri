@@ -366,6 +366,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 				cnt++;
 			}
 		}
+		logger.trace("deindexElements.exit; deindexed elements: {} for docKey: {}, pathId: {}", cnt, docKey, pathId);
 		return cnt;
 	}
 	

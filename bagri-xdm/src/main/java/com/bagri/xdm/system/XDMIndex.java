@@ -168,10 +168,12 @@ public class XDMIndex extends XDMEntity {
 	@Override
 	public String toString() {
 		return "XDMIndex [name=" + name + ", version=" + getVersion()
-				+ ", docType=" + docType + ", path=" + path + ", dataType=" + dataType
-				+ ", caseSensitive=" + caseSensitive + ", range=" + range + ", unique=" + unique
-				+ ", created at=" + getCreatedAt() + ", by=" + getCreatedBy()
-				+ ", description=" + description + ", enabled=" + enabled + "]";
+				+ ", docType=" + docType + ", typePath=" + typePath
+				+ ", path=" + path + ", dataType=" + dataType
+				+ ", caseSensitive=" + caseSensitive + ", range=" + range
+				+ ", unique=" + unique + ", created at=" + getCreatedAt()
+				+ ", by=" + getCreatedBy() + ", description=" + description
+				+ ", enabled=" + enabled + "]";
 	}
 	
 }

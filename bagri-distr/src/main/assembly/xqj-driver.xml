@@ -33,7 +33,7 @@
             	    <include>ch.qos.logback:logback-classic</include>
             	    <include>ch.qos.logback:logback-core</include>
             	    <include>net.sf.saxon:Saxon-HE</include>
-            	    <include>com.xqj2:xqj2</include>
+            	    <!--include>com.xqj2:xqj2</include-->
 	    	</includes>
         	<unpack>true</unpack>
 	    </binaries>

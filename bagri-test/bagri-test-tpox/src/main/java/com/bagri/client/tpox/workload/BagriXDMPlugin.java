@@ -9,8 +9,6 @@ import net.sf.tpox.workload.transaction.Transaction;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.bagri.xdm.api.XDMRepository;
 import com.bagri.xdm.api.test.XDMQueryManagementTest;
@@ -143,6 +141,23 @@ public class BagriXDMPlugin extends BagriTPoXPlugin {
 		return result;
 	}
 	
+	@Override
+	protected int execCommand(String command, Map<String, XDMParameter> params) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	protected int execQuery(String query, Map<String, XDMParameter> params) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	protected Logger getLogger() {
+		return logger;
+	}
+
 	private static class TPoXQueryManagerTest extends XDMQueryManagementTest {
 		
 		TPoXQueryManagerTest(XDMRepository xRepo) {
@@ -161,23 +176,6 @@ public class BagriXDMPlugin extends BagriTPoXPlugin {
 			return xRepo.getDocumentManagement().storeDocumentFromString(0, null, xml);
 		}
 		
-	}
-
-	@Override
-	protected int execCommand(String command, Map<String, XDMParameter> params) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	protected int execQuery(String query, Map<String, XDMParameter> params) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	protected Logger getLogger() {
-		return logger;
 	}
 
 }

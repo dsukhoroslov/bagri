@@ -2,6 +2,13 @@ package com.bagri.client.tpox.workload;
 
 import static com.bagri.xdm.common.XDMConstants.*;
 
+import java.sql.SQLException;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.bagri.xdm.system.XDMParameter;
 import com.marklogic.xcc.Content;
 import com.marklogic.xcc.ContentCreateOptions;
@@ -16,20 +23,6 @@ import com.marklogic.xcc.exceptions.RequestException;
 import com.marklogic.xcc.types.ValueType;
 import com.marklogic.xcc.types.XName;
 import com.marklogic.xcc.types.XdmValue;
-
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Vector;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import net.sf.tpox.workload.parameter.ActualParamInfo;
-import net.sf.tpox.workload.parameter.Parameter;
-import net.sf.tpox.workload.transaction.Transaction;
-import net.xqj.marklogic.MarkLogicXQInsertOptions;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class MarkLogicXCCPlugin extends BagriTPoXPlugin {
 	

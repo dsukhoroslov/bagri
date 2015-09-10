@@ -3,7 +3,6 @@
  */
 package com.bagri.client.tpox.workload;
 
-import static com.bagri.common.config.XDMConfigConstants.xdm_spring_context;
 import static com.bagri.xdm.common.XDMConstants.pn_client_fetchSize;
 
 import java.sql.Connection;
@@ -14,7 +13,6 @@ import java.util.Random;
 import java.util.Vector;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.bagri.xdm.system.XDMCardinality;
 import com.bagri.xdm.system.XDMParameter;
@@ -48,6 +46,7 @@ public abstract class BagriTPoXPlugin implements GenericJavaClassPlugin {
 		this.wp = workloadProcessor;
 		this.we = workloadEnvironment;
 		this.rand = userRandomNumGenerator;
+		// TODO: we receive a new Random for each thread/user instance. should we keep them per thread?
 		
 		//logger.trace("prepare; transactions: {}; types: {}", wp.getTransactions(), wp.getTransactionTypes());
 		//logger.trace("prepare; params: {}; name: {}", wp.getParameterMarkers(), wp.getWorkloadName());

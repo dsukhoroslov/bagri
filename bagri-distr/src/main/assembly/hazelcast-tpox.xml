@@ -71,5 +71,12 @@
                 <include>tpox-workload-2.1.jar</include>
             </includes>
         </fileSet>
+        <fileSet>
+            <directory>../etc/lib</directory>
+            <outputDirectory>/lib</outputDirectory>
+            <includes>
+                <include>xqj2-0.2.0.jar</include>
+            </includes>
+        </fileSet>
     </fileSets>
 </assembly>  

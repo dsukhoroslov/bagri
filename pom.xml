@@ -78,7 +78,7 @@
         <oracle.ucp.version>11.2.0.1.0</oracle.ucp.version-->
 
         <xqj.version>1.0</xqj.version>
-        <xqj2.version>0.2.0</xqj2.version>
+        <!--xqj2.version>0.2.0</xqj2.version-->
         <xerses.version>2.11.0</xerses.version>
         <saxon.version>9.5.1-8</saxon.version>
         <!--saxon.version>9.6.0-6</saxon.version-->
@@ -307,11 +307,11 @@
                 <artifactId>xqj-api</artifactId>
                 <version>${xqj.version}</version>
             </dependency>
-            <dependency>
+            <!--dependency>
                 <groupId>com.xqj2</groupId>
                 <artifactId>xqj2</artifactId>
                 <version>${xqj2.version}</version>
-            </dependency>
+            </dependency-->
             <dependency>
                 <groupId>net.sf.saxon</groupId>
                 <artifactId>Saxon-HE</artifactId>
@@ -653,10 +653,10 @@
       	    <url>http://developer.marklogic.com/maven2</url>
   	</repository>
         <!--repository for xqj2 artifact-->
-        <repository>
+        <!--repository>
             <id>xqj.net</id>
             <url>http://xqj.net/maven</url>
-        </repository>
+        </repository-->
 	<!-- Hazelcast snapshot repository -->
 	<repository>
 	    <id>sonatype-snapshots</id>
