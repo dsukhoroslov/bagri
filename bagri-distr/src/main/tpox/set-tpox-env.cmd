@@ -15,6 +15,8 @@ set admin_addr=localhost:3330
 set schema_addr=localhost:10500
 rem set schema_addr=192.168.1.100:10500
 
+set login=admin
+set password=password
 set schema=default
 
 :start
@@ -26,9 +28,8 @@ set java_opts=-Xms%memory% -Xmx%memory%
 
 set java_opts=%java_opts% -Dhazelcast.logging.type=slf4j -Dlogback.configurationFile=hz-client-logging.xml
 set java_opts=%java_opts% -Dlog.name=tpox-client -Dhz.log.level=warn -Dxdm.log.level=info
-set java_opts=%java_opts% -Dxdm.spring.context=spring/tpox-xqj-context.xml
 
-set java_opts=%java_opts% -Dxdm.schema.members=%schema_addr%
+set java_opts=%java_opts% -Dxdm.schema.address=%schema_addr%
 set java_opts=%java_opts% -Dxdm.schema.name=%schema%
 set java_opts=%java_opts% -Dxdm.schema.user=guest
 set java_opts=%java_opts% -Dxdm.schema.password=password
@@ -42,4 +43,3 @@ set java_opts=%java_opts% -Dxdm.client.connectAttempts=2
 set java_opts=%java_opts% -Duser.country=US -Duser.language=en
 
 exit /b
-

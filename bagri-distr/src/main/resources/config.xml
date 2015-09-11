@@ -68,7 +68,21 @@
                 <entry name="xqj.schema.defaultCollationUri">http://www.w3.org/2005/xpath-functions/collation/codepoint</entry>
                 <entry name="xqj.schema.constructionMode">1</entry>
             </properties>
+            <fragments/>
             <indexes>
+                <index name="IDX_Customer_id">
+                    <version>1</version>
+                    <createdAt>2015-01-25T13:36:26.965+03:00</createdAt>
+                    <createdBy>SDV</createdBy>
+                    <docType>/{http://tpox-benchmark.com/custacc}Customer</docType>
+                    <path>/{http://tpox-benchmark.com/custacc}Customer/@id</path>
+                    <dataType xmlns:xs="http://www.w3.org/2001/XMLSchema">xs:string</dataType>
+                    <caseSensitive>true</caseSensitive>
+                    <range>false</range>
+                    <unique>true</unique>
+                    <description>Customer id</description>
+                    <enabled>true</enabled>
+                </index>
                 <index name="IDX_Security_Symbol">
                     <version>1</version>
                     <createdAt>2015-01-25T13:36:26.965+03:00</createdAt>
@@ -76,19 +90,10 @@
                     <docType>/{http://tpox-benchmark.com/security}Security</docType>
                     <path>/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}Symbol/text()</path>
                     <dataType xmlns:xs="http://www.w3.org/2001/XMLSchema">xs:string</dataType>
+                    <caseSensitive>true</caseSensitive>
+                    <range>false</range>
                     <unique>true</unique>
                     <description>Security Symbol</description>
-                    <enabled>true</enabled>
-                </index>
-                <index name="IDX_Customer_id">
-                    <version>1</version>
-                    <createdAt>2015-01-25T13:36:26.965+03:00</createdAt>
-                    <createdBy>SDV</createdBy>
-                    <docType>/{http://tpox-benchmark.com/custacc}Customer</docType>
-                    <path>/{http://tpox-benchmark.com/custacc}Customer/@id</path>
-                    <dataType xmlns:xs="http://www.w3.org/2001/XMLSchema">xs:integer</dataType>
-                    <unique>true</unique>
-                    <description>Customer id</description>
                     <enabled>true</enabled>
                 </index>
                 <index name="IDX_Order_ID">
@@ -97,7 +102,9 @@
                     <createdBy>SDV</createdBy>
                     <docType>/{http://www.fixprotocol.org/FIXML-4-4}FIXML</docType>
                     <path>/{http://www.fixprotocol.org/FIXML-4-4}FIXML/{http://www.fixprotocol.org/FIXML-4-4}Order/@ID</path>
-                    <dataType xmlns:xs="http://www.w3.org/2001/XMLSchema">xs:int</dataType>
+                    <dataType xmlns:xs="http://www.w3.org/2001/XMLSchema">xs:string</dataType>
+                    <caseSensitive>true</caseSensitive>
+                    <range>false</range>
                     <unique>true</unique>
                     <description>Order ID</description>
                     <enabled>true</enabled>
@@ -109,69 +116,88 @@
             <version>1</version>
             <createdAt>2014-09-27T15:00:58.096+04:00</createdAt>
             <createdBy>SDV</createdBy>
-            <description>TPoX: transient schema for TPoX-related tests; no persistent store</description>
+            <description>default schema for test and demo purpose</description>
             <properties>
-                <entry name="xdm.schema.ports.first">10500</entry>
-                <entry name="xdm.schema.ports.last">10600</entry>
-                <!--entry name="xdm.schema.members">192.168.1.50, 192.168.1.100, 192.168.1.200</entry-->
-                <entry name="xdm.schema.members">localhost</entry>
-                <entry name="xdm.schema.thread.pool">32</entry>
-                <entry name="xdm.schema.store.data.path">../../data</entry>
-                <entry name="xdm.schema.store.type">NONE</entry>
-                <entry name="xdm.schema.store.schema.path"></entry>
-                <entry name="xdm.schema.password">password</entry>
-                <entry name="xdm.schema.partition.count">971</entry>
-                <entry name="xdm.schema.population.size">1</entry>
-                <entry name="xdm.schema.buffer.size">128</entry>
-                <entry name="xdm.schema.store.enabled">true</entry>
-                <entry name="xdm.schema.trans.backup.async">0</entry>
-                <entry name="xdm.schema.trans.backup.sync">1</entry>
-                <entry name="xdm.schema.trans.backup.read">false</entry>
+                <entry name="xdm.schema.password">5f4dcc3b5aa765d61d8327deb882cf99</entry>
                 <entry name="xdm.schema.data.backup.read">false</entry>
-                <entry name="xdm.schema.data.backup.async">1</entry>
-                <entry name="xdm.schema.data.backup.sync">0</entry>
-                <entry name="xdm.schema.dict.backup.sync">0</entry>
-                <entry name="xdm.schema.dict.backup.async">1</entry>
-                <entry name="xdm.schema.dict.backup.read">true</entry>
-                <entry name="xdm.schema.query.backup.async">0</entry>
-                <entry name="xdm.schema.query.backup.sync">0</entry>
-                <entry name="xdm.schema.query.backup.read">true</entry>
-		<entry name="xdm.schema.transaction.timeout">60000</entry>
-                <entry name="xqj.schema.baseUri">file:///../data/</entry>
                 <entry name="xqj.schema.orderingMode">2</entry>
+                <entry name="xdm.schema.trans.backup.async">0</entry>
+                <entry name="xdm.schema.store.enabled">false</entry>
                 <entry name="xqj.schema.queryLanguageTypeAndVersion">1</entry>
                 <entry name="xqj.schema.bindingMode">0</entry>
+                <entry name="xdm.schema.transaction.timeout">60000</entry>
+                <entry name="xdm.schema.thread.pool">32</entry>
                 <entry name="xqj.schema.boundarySpacePolicy">1</entry>
+                <entry name="xdm.schema.ports.first">10500</entry>
                 <entry name="xqj.schema.scrollability">1</entry>
                 <entry name="xqj.schema.holdability">2</entry>
+                <entry name="xdm.schema.store.type">NONE</entry>
                 <entry name="xqj.schema.copyNamespacesModePreserve">1</entry>
                 <entry name="xqj.schema.queryTimeout">0</entry>
                 <entry name="xqj.schema.defaultFunctionNamespace">http://www.w3.org/2005/xpath-functions</entry>
+                <entry name="xdm.schema.ports.last">10600</entry>
+                <entry name="xdm.schema.population.size">1</entry>
                 <entry name="xqj.schema.defaultElementTypeNamespace">http://www.w3.org/2001/XMLSchema</entry>
+                <entry name="xdm.schema.data.backup.async">1</entry>
+                <entry name="xdm.schema.store.data.path">../../data</entry>
                 <entry name="xqj.schema.copyNamespacesModeInherit">1</entry>
+                <entry name="xdm.schema.dict.backup.sync">0</entry>
+                <entry name="xqj.schema.baseUri">file:///../data/</entry>
+                <entry name="xdm.schema.trans.backup.sync">1</entry>
+                <entry name="xdm.schema.store.schema.path"></entry>
                 <entry name="xqj.schema.defaultOrderForEmptySequences">2</entry>
+                <entry name="xdm.schema.query.backup.sync">0</entry>
+                <entry name="xdm.schema.buffer.size">128</entry>
+                <entry name="xdm.schema.dict.backup.async">1</entry>
+                <entry name="xdm.schema.dict.backup.read">true</entry>
+                <entry name="xdm.schema.trans.backup.read">false</entry>
                 <entry name="xqj.schema.defaultCollationUri">http://www.w3.org/2005/xpath-functions/collation/codepoint</entry>
+                <entry name="xdm.schema.query.backup.async">0</entry>
+                <!--entry name="xdm.schema.members">192.168.1.50, 192.168.1.100, 192.168.1.200</entry-->
+                <entry name="xdm.schema.members">localhost</entry>
+                <entry name="xdm.schema.data.backup.sync">0</entry>
                 <entry name="xqj.schema.constructionMode">1</entry>
+                <entry name="xdm.schema.partition.count">271</entry>
+                <!--entry name="xdm.schema.partition.count">971</entry-->
+                <entry name="xdm.schema.query.backup.read">true</entry>
             </properties>
+            <fragments/>
             <indexes>
                 <index name="IDX_Security_Symbol">
                     <version>1</version>
-                    <createdAt>2015-01-25T13:36:26.965+03:00</createdAt>
-                    <createdBy>SDV</createdBy>
+                    <createdAt>2015-09-09T08:37:00.611+03:00</createdAt>
+                    <createdBy>admin</createdBy>
                     <docType>/{http://tpox-benchmark.com/security}Security</docType>
                     <path>/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}Symbol/text()</path>
                     <dataType xmlns:xs="http://www.w3.org/2001/XMLSchema">xs:string</dataType>
+                    <caseSensitive>true</caseSensitive>
+                    <range>false</range>
                     <unique>true</unique>
                     <description>Security Symbol</description>
                     <enabled>true</enabled>
                 </index>
+                <index name="IDX_Security_Yield">
+                    <version>1</version>
+                    <createdAt>2015-09-09T08:37:00.686+03:00</createdAt>
+                    <createdBy>admin</createdBy>
+                    <docType>/{http://tpox-benchmark.com/security}Security</docType>
+                    <path>/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}Yield/text()</path>
+                    <dataType xmlns:xs="http://www.w3.org/2001/XMLSchema">xs:decimal</dataType>
+                    <caseSensitive>false</caseSensitive>
+                    <range>true</range>
+                    <unique>false</unique>
+                    <description>Security Yield</description>
+                    <enabled>true</enabled>
+                </index>
                 <index name="IDX_Security_Sector">
                     <version>1</version>
-                    <createdAt>2015-01-25T13:36:26.965+03:00</createdAt>
-                    <createdBy>SDV</createdBy>
+                    <createdAt>2015-09-09T08:37:00.652+03:00</createdAt>
+                    <createdBy>admin</createdBy>
                     <docType>/{http://tpox-benchmark.com/security}Security</docType>
                     <path>/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}SecurityInformation/*/{http://tpox-benchmark.com/security}Sector/text()</path>
                     <dataType xmlns:xs="http://www.w3.org/2001/XMLSchema">xs:string</dataType>
+                    <caseSensitive>true</caseSensitive>
+                    <range>false</range>
                     <unique>false</unique>
                     <description>Security Sector</description>
                     <enabled>true</enabled>
@@ -182,24 +208,12 @@
                     <createdBy>SDV</createdBy>
                     <docType>/{http://tpox-benchmark.com/security}Security</docType>
                     <path>/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}PE/text()</path>
-		    <dataType>xs:float</dataType>
+		    <dataType>xs:decimal</dataType>
                     <range>true</range>
                     <unique>false</unique>
                     <description>Security PE</description>
                     <enabled>true</enabled>
                 </index-->
-                <index name="IDX_Security_Yield">
-                    <version>1</version>
-                    <createdAt>2015-07-21T13:36:26.965+03:00</createdAt>
-                    <createdBy>SDV</createdBy>
-                    <docType>/{http://tpox-benchmark.com/security}Security</docType>
-                    <path>/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}Yield/text()</path>
-                    <dataType xmlns:xs="http://www.w3.org/2001/XMLSchema">xs:decimal</dataType>
-                    <range>true</range>
-                    <unique>false</unique>
-                    <description>Security Yield</description>
-                    <enabled>true</enabled>
-                </index>
                 <index name="IDX_Customer_id">
                     <version>1</version>
                     <createdAt>2015-01-25T13:36:26.965+03:00</createdAt>
@@ -217,7 +231,7 @@
                     <createdBy>SDV</createdBy>
                     <docType>/{http://www.fixprotocol.org/FIXML-4-4}FIXML</docType>
                     <path>/{http://www.fixprotocol.org/FIXML-4-4}FIXML/{http://www.fixprotocol.org/FIXML-4-4}Order/@ID</path>
-                    <dataType xmlns:xs="http://www.w3.org/2001/XMLSchema">xs:int</dataType>
+                    <dataType xmlns:xs="http://www.w3.org/2001/XMLSchema">xs:string</dataType>
                     <unique>true</unique>
                     <description>Order ID</description>
                     <enabled>true</enabled>
@@ -318,6 +332,53 @@
                 <entry name="xqj.schema.defaultCollationUri">http://www.w3.org/2005/xpath-functions/collation/codepoint</entry>
                 <entry name="xqj.schema.constructionMode">1</entry>
             </properties>
+            <fragments>
+                <fragment name="FRA_Categories_Category">
+                    <version>1</version>
+                    <createdAt>2015-09-02T19:05:26.965+03:00</createdAt>
+                    <createdBy>SDV</createdBy>
+                    <docType>/site</docType>
+                    <path>/site/categories/category</path>
+                    <description>Auction Categories</description>
+                    <enabled>true</enabled>
+                </fragment>
+                <fragment name="FRA_People_Person">
+                    <version>1</version>
+                    <createdAt>2015-09-02T19:06:26.965+03:00</createdAt>
+                    <createdBy>SDV</createdBy>
+                    <docType>/site</docType>
+                    <path>/site/people/person</path>
+                    <description>Auction Peoples</description>
+                    <enabled>true</enabled>
+                </fragment>
+                <fragment name="FRA_Open_Auctions">
+                    <version>1</version>
+                    <createdAt>2015-09-02T19:07:26.965+03:00</createdAt>
+                    <createdBy>SDV</createdBy>
+                    <docType>/site</docType>
+                    <path>/site/open_auctions/open_auction</path>
+                    <description>Open Auctions</description>
+                    <enabled>true</enabled>
+                </fragment>
+                <fragment name="FRA_Closed_Auctions">
+                    <version>1</version>
+                    <createdAt>2015-09-02T19:08:26.965+03:00</createdAt>
+                    <createdBy>SDV</createdBy>
+                    <docType>/site</docType>
+                    <path>/site/closed_auctions/closed_auction</path>
+                    <description>Closed Auctions</description>
+                    <enabled>true</enabled>
+                </fragment>
+                <fragment name="FRA_Region_Item">
+                    <version>1</version>
+                    <createdAt>2015-09-02T10:05:26.965+03:00</createdAt>
+                    <createdBy>SDV</createdBy>
+                    <docType>/site</docType>
+                    <path>/site/regions/*/item</path>
+                    <description>Auction Region Items</description>
+                    <enabled>true</enabled>
+                </fragment>
+            </fragments>
             <indexes/>
             <triggers/>
         </schema>
@@ -369,6 +430,7 @@
                 <entry name="xqj.schema.defaultCollationUri">http://www.w3.org/2005/xpath-functions/collation/codepoint</entry>
                 <entry name="xqj.schema.constructionMode">1</entry>
             </properties>
+            <fragments/>
             <indexes/>
             <triggers/>
         </schema>

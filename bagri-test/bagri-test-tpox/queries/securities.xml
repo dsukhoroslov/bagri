@@ -15,7 +15,7 @@
 			</parameters>
 		</transaction-->
 
-		<transaction id="2" name="getSecurity" weight="35">
+		<transaction id="2" name="getSecurity" weight="50">
 			<java-plugin>com.bagri.client.tpox.workload.BagriXDMPlugin</java-plugin>
 			<parameters>
 				<parameter>
@@ -24,7 +24,7 @@
 			</parameters>
 		</transaction>
 
-		<transaction id="3" name="getSecurityPrice" weight="35">
+		<transaction id="3" name="getSecurityPrice" weight="50">
 			<java-plugin>com.bagri.client.tpox.workload.BagriXDMPlugin</java-plugin>
 			<parameters>
 				<parameter>
@@ -33,7 +33,7 @@
 			</parameters>
 		</transaction>
 
-		<transaction id="4" name="searchSecurity" weight="30">
+		<!--transaction id="4" name="searchSecurity" weight="30">
 			<java-plugin>com.bagri.client.tpox.workload.BagriXDMPlugin</java-plugin>
 			<parameters>
 				<parameter>
@@ -49,7 +49,7 @@
 					<uniformint min="4" max="6"/>
 				</parameter>
 			</parameters>
-		</transaction>
+		</transaction-->
 	</transactions>
 </workload>
 

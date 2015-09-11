@@ -26,6 +26,8 @@
 				<hz:property name="hazelcast.rest.enabled">false</hz:property>
 				<hz:property name="hazelcast.memcache.enabled">false</hz:property>
 				<hz:property name="hazelcast.partition.count">${xdm.schema.partition.count}</hz:property>
+				<hz:property name="hazelcast.operation.thread.count">${xdm.schema.thread.pool}</hz:property>
+				<hz:property name="hazelcast.operation.generic.thread.count">${xdm.schema.thread.pool}</hz:property>
 				<hz:property name="hazelcast.socket.send.buffer.size">${xdm.schema.buffer.size}</hz:property>
 				<hz:property name="hazelcast.socket.receive.buffer.size">${xdm.schema.buffer.size}</hz:property>
 				<!--hz:property name="hazelcast.operation.thread.count">271</hz:property-->
@@ -186,6 +188,7 @@
 					<hz:serializer type-class="com.bagri.xdm.domain.XDMUniqueDocument" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMUniqueDocumentSerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.domain.XDMUniqueValue" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMUniqueValueSerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.domain.XDMTransaction" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMTransactionSerializer"/>
+					<hz:serializer type-class="com.bagri.xdm.domain.XDMFragmentedDocument" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMFragmentedDocumentSerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.system.XDMIndex" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMIndexSerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.system.XDMTriggerAction" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMTriggerActionSerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.system.XDMJavaTrigger" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMJavaTriggerSerializer"/>
@@ -222,7 +225,6 @@
 	<hz:map id="dict-trigger" name="dict-trigger" instance-ref="hzInstance" />
 
 	<hz:atomicLong id="xdm.document" name="xdm.document" instance-ref="hzInstance"/>
-	<!--hz:atomicLong id="xdm.element" name="xdm.element" instance-ref="hzInstance"/-->
 	<hz:atomicLong id="xdm.path" name="xdm.path" instance-ref="hzInstance"/>
 	<hz:atomicLong id="xdm.namespace" name="xdm.namespace" instance-ref="hzInstance"/>
 	<hz:atomicLong id="xdm.doctype" name="xdm.doctype" instance-ref="hzInstance"/>
