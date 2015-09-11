@@ -2,6 +2,7 @@ package net.sf.tpox.databaseoperations;
 
 import java.io.FileWriter;
 import java.sql.Connection;
+import java.util.Arrays;
 import java.util.Random;
 import java.util.Vector;
 
@@ -18,7 +19,18 @@ public class DatabaseOperations implements GenericDatabaseOperations {
 
     private static final transient Logger logger = LoggerFactory.getLogger(DatabaseOperations.class);
     
-    //private CoherenceDataManager cdm;
+    private static int numOfTrans;
+    
+	public static final ThreadLocal<int[]> errors = new ThreadLocal<int[]>() {
+		
+		@Override
+		protected int[] initialValue() {
+			int[] ea = new int[numOfTrans];
+			Arrays.fill(ea, 0);
+			return ea; 
+		}
+		
+	};
     
 	public DatabaseOperations(WorkloadProcessor workloadProcessor,
 			WorkloadEnvironment workloadEnvironment, String databaseSystem,
@@ -30,6 +42,9 @@ public class DatabaseOperations implements GenericDatabaseOperations {
 		logger.debug("<init>. WP: {}; WE: {}; DBS: {}; dbName: {}; schema: {}; host: {}; port: {}; user: {}; pwd: {}; level: {}; numTrans: {}",
 				new Object[] {workloadProcessor, workloadEnvironment, databaseSystem, databaseName, 
 					schema, host, port, userID, password, verbosityLevel, numOfTransactions});
+		
+		numOfTrans = numOfTransactions;
+		errors.get();
 		
 		if (host != null) {
 			System.setProperty("tangosol.coherence.proxy.address", host);
@@ -66,57 +81,57 @@ public class DatabaseOperations implements GenericDatabaseOperations {
 	
 	@Override
 	public void closeConnection() {
-		logger.trace("closeConnection");
+		//logger.trace("closeConnection");
 	}
 
 	@Override
 	public void closePreparedStatements() {
-		logger.trace("closePreparedStatements");
+		//logger.trace("closePreparedStatements");
 	}
 
 	@Override
 	public void commitChanges() {
-		logger.trace("commitChanges");
+		//logger.trace("commitChanges");
 	}
 
 	@Override
 	public void establishConnection() {
-		logger.trace("establishConnection");
+		//logger.trace("establishConnection");
 	}
 
 	@Override
 	public int executeTransaction(Vector<String> transactionStatements, int transNum) {
-		logger.trace("executeTransaction.enter; stmts: {}; transNo: {}", transactionStatements, transNum);
+		//logger.trace("executeTransaction.enter; stmts: {}; transNo: {}", transactionStatements, transNum);
 		return 0;
 	}
 
 	@Override
 	public Connection getConnection() {
-		logger.trace("getConnection.enter");
+		//logger.trace("getConnection.enter");
 		return null;
 	}
 
 	@Override
 	public int getDeadlocksForTransaction(int transNum) {
-		logger.trace("getDeadlocksForTransaction.enter; transNum: {}", transNum);
-		return 0;
+		//logger.trace("getDeadlocksForTransaction.enter; transNum: {}", transNum);
+		return errors.get()[transNum];
 	}
 
 	@Override
 	public Vector<Integer>[] getParameterMarkerCounts() {
-		logger.trace("getParameterMarkerCounts");
+		//logger.trace("getParameterMarkerCounts");
 		return null;
 	}
 
 	@Override
 	public String getTextForDisplayingLastActualValues() {
-		logger.trace("getTextForDisplayingLastActualValues");
+		//logger.trace("getTextForDisplayingLastActualValues");
 		return null;
 	}
 
 	@Override
 	public void prepareStatements() {
-		logger.trace("prepareStatements");
+		//logger.trace("prepareStatements");
 	}
 
 }

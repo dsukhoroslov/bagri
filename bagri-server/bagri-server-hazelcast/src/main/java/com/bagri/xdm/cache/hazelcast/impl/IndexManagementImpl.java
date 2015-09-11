@@ -120,6 +120,16 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
     	this.enableStats = enable;
     }
 
+    public void setRepository(RepositoryImpl repo) {
+    	//this.repo = repo;
+    	//this.model = repo.getModelManagement();
+    	//this.docMgr = (DocumentManagementImpl) repo.getDocumentManagement();
+    	//this.txMgr = (TransactionManagementImpl) repo.getTxManagement();
+    	//this.xddCache = docMgr.getDocumentCache();
+    	//this.xdmCache = docMgr.getElementCache();
+    	//docMgr.setRepository(repo);
+    }
+
     public void setExecService(IExecutorService execService) {
 		this.execService = execService;
 	}

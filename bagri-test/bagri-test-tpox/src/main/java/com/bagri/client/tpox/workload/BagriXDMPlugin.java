@@ -4,6 +4,7 @@ import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Map;
 
+import net.sf.tpox.databaseoperations.DatabaseOperations;
 import net.sf.tpox.workload.parameter.ActualParamInfo;
 import net.sf.tpox.workload.transaction.Transaction;
 
@@ -40,7 +41,7 @@ public class BagriXDMPlugin extends BagriTPoXPlugin {
 	public void close() throws SQLException {
 		//xdm.close();
 		TPoXQueryManagerTest test = xqmt.get();
-		logger.info("close; XDM: {}", test.getRepository());
+		logger.info("close; XDM: {}; hit count: {}; miss count: {}; overfetch count: {}", test.getRepository(), cntHit, cntMiss, cntOvf);
 		try {
 			test.close();
 		} catch (Exception ex) {
@@ -56,6 +57,7 @@ public class BagriXDMPlugin extends BagriTPoXPlugin {
 		int result = 0;
 		logger.trace("execute.enter; transaction: {}; ", tx.getTransName());
 		TPoXQueryManagerTest test = xqmt.get();
+		int err = 0;
 		try {
 			switch (tx.getTransName()) {
 				case "addDocument": {
@@ -134,10 +136,17 @@ public class BagriXDMPlugin extends BagriTPoXPlugin {
 				}
 			}
 		} catch (Throwable ex) {
-			logger.error("execute.error", ex);
-			throw new SQLException(ex);
+			getLogger().info("execute.error", ex.getMessage());
+			// just swallow it, in order to work further
+			err = 1;
 		}
+		DatabaseOperations.errors.get()[transNo] = err; 
 		logger.trace("execute.exit; returning: {}", result);
+		if (result > 0) {
+			cntHit++;
+		} else {
+			cntMiss++;
+		}
 		return result;
 	}
 	

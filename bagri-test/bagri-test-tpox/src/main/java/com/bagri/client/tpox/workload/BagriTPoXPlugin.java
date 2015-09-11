@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import com.bagri.xdm.system.XDMCardinality;
 import com.bagri.xdm.system.XDMParameter;
 
+import net.sf.tpox.databaseoperations.DatabaseOperations;
 import net.sf.tpox.workload.core.WorkloadProcessor;
 import net.sf.tpox.workload.parameter.ActualParamInfo;
 import net.sf.tpox.workload.parameter.Parameter;
@@ -35,6 +36,10 @@ public abstract class BagriTPoXPlugin implements GenericJavaClassPlugin {
     protected WorkloadProcessor wp;
     protected WorkloadEnvironment we;
     protected Random rand;
+    
+    protected int cntHit = 0;
+    protected int cntMiss = 0;
+    protected int cntOvf = 0;
 	
 	@Override
 	public void prepare(int transNum, WorkloadProcessor workloadProcessor, WorkloadEnvironment workloadEnvironment,
@@ -73,6 +78,7 @@ public abstract class BagriTPoXPlugin implements GenericJavaClassPlugin {
 		Map<String, XDMParameter> vars = new HashMap<>(size);
 		String value;
 		
+		int err = 0;
 		//logger.debug("execute; size: {}; rand: {}; transNo: {}", size, rand, transNo);
 		try {
 			for (int i=0; i < size; i++) {
@@ -96,10 +102,20 @@ public abstract class BagriTPoXPlugin implements GenericJavaClassPlugin {
 				result = execCommand(query, vars);
 			}
 		} catch (Throwable ex) {
-			getLogger().error("execute.error", ex);
-			throw new SQLException(ex);
+			// just swallow it, in order to work further
+			getLogger().info("execute.error", ex.getMessage());
+			err = 1;
 		}
+		DatabaseOperations.errors.get()[transNo] = err; 
 		getLogger().trace("execute.exit; returning: {}", result);
+		if (result > 0) {
+			cntHit++;
+			if (result > fetchSize) {
+				cntOvf++;
+			}
+		} else {
+			cntMiss++;
+		}
 		return result;
 	}
 	

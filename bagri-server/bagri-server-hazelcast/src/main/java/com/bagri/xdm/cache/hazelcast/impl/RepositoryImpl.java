@@ -65,57 +65,61 @@ public class RepositoryImpl extends XDMRepositoryBase implements ApplicationCont
 		this.appContext = context;
 	}
 
+	public HazelcastInstance getHzInstance() {
+		return hzInstance;
+	}
+
     //@Autowired
 	public void setHzInstance(HazelcastInstance hzInstance) {
 		this.hzInstance = hzInstance;
 		hzInstance.getClientService().addClientListener(this);
 		logger.debug("setHzInstange; got instance: {}", hzInstance.getName()); 
 	}
-	
+
 	@Override
-	public void clientConnected(Client client) {
-		logger.trace("clientConnected.enter; client: {}", client); 
-		// create queue
-		IQueue queue = hzInstance.getQueue("client:" + client.getUuid());
-		// create/cache new XQProcessor
-		XQProcessor proc = getXQProcessor(client.getUuid());
-		logger.trace("clientConnected.exit; queue {} created for client: {}; XQProcessor: {}", 
-				queue.getName(), client.getSocketAddress(), proc);
+	public void setBindingManagement(XDMBindingManagement bindMgr) {
+		super.setBindingManagement(bindMgr);
+		((BindingManagementImpl) bindMgr).setRepository(this);
 	}
 
 	@Override
-	public void clientDisconnected(Client client) {
-		logger.trace("clientDisconnected.enter; client: {}", client);
-		String qName = "client:" + client.getUuid();
-		boolean destroyed = false;
-		Collection<DistributedObject> all = hzInstance.getDistributedObjects();
-		int sizeBefore = all.size();
-		for (DistributedObject obj: all) {
-			if (qName.equals(obj.getName())) {
-				// remove queue
-				IQueue queue = hzInstance.getQueue(qName);
-				queue.destroy();
-				destroyed = true;
-				break;
-			}
-		}
-		int sizeAfter = hzInstance.getDistributedObjects().size(); 
-		XQProcessor proc = processors.remove(client.getUuid());
-		logger.trace("clientDisconnected.exit; queue {} {} for client: {}; size before: {}, after: {}", 
-				qName, destroyed ? "destroyed" : "skipped", client.getSocketAddress(), sizeBefore, sizeAfter); 
-	}
-	
-	public HazelcastInstance getHzInstance() {
-		return hzInstance;
+	public XDMIndexManagement getIndexManagement() {
+		return indexMgr;
 	}
 
-	XQProcessor getXQProcessor() {
-		String clientId = thClient.get();
-		return getXQProcessor(clientId);
+	public void setIndexManagement(XDMIndexManagement indexMgr) {
+		this.indexMgr = indexMgr;
+		((IndexManagementImpl) indexMgr).setRepository(this);
+	}
+	
+	@Override
+	public XDMTriggerManagement getTriggerManagement() {
+		return triggerMgr;
+	}
+
+	public void setTriggerManagement(XDMTriggerManagement triggerMgr) {
+		this.triggerMgr = triggerMgr;
+		((TriggerManagementImpl) triggerMgr).setRepository(this);
+	}
+	
+	@Override
+	public XDMSchema getSchema() {
+		return xdmSchema;
+	}
+	
+	public void setSchema(XDMSchema xdmSchema) {
+		// TODO: think about run-time updates..
+		this.xdmSchema = xdmSchema;
+		afterInit();
 	}
 	
 	String getCurrentClientId() {
 		return thClient.get();
+	}
+	
+	XQProcessor getXQProcessor() {
+		String clientId = thClient.get();
+		return getXQProcessor(clientId);
 	}
 	
 	public XQProcessor getXQProcessor(String clientId) {
@@ -147,15 +151,42 @@ public class RepositoryImpl extends XDMRepositoryBase implements ApplicationCont
 		// TODO: disconnect all clients ?
 	}
 
-	@Override
-	public XDMSchema getSchema() {
-		return xdmSchema;
+	public Collection<XDMLibrary> getLibraries() {
+		if (xdmLibraries != null) {
+			return xdmLibraries;
+		}
+		
+		HazelcastInstance dataInstance = Hazelcast.getHazelcastInstanceByName("hzInstance");
+		if (dataInstance != null) {
+			Map<String, XDMLibrary> libraries = dataInstance.getMap("libraries");
+			return libraries.values();
+		}
+		return Collections.emptyList(); 
+	}
+
+	public void setLibraries(Collection<XDMLibrary> cLibraries) {
+		if (cLibraries != null) {
+			xdmLibraries = new ArrayList<>(cLibraries);
+		}
 	}
 	
-	public void setSchema(XDMSchema xdmSchema) {
-		// TODO: think about run-time updates..
-		this.xdmSchema = xdmSchema;
-		afterInit();
+	public Collection<XDMModule> getModules() {
+		if (xdmModules != null) {
+			return xdmModules;
+		}
+		
+		HazelcastInstance dataInstance = Hazelcast.getHazelcastInstanceByName("hzInstance");
+		if (dataInstance != null) {
+			Map<String, XDMModule> modules = dataInstance.getMap("modules");
+			return modules.values();
+		}
+		return Collections.emptyList(); 
+	}
+	
+	public void setModules(Collection<XDMModule> cModules) {
+		if (cModules != null) {
+			xdmModules = new ArrayList<>(cModules);
+		}
 	}
 	
 	public void afterInit() {
@@ -228,63 +259,6 @@ public class RepositoryImpl extends XDMRepositoryBase implements ApplicationCont
 		return false;
 	}
 	
-	@Override
-	public XDMIndexManagement getIndexManagement() {
-		return indexMgr;
-	}
-
-	public void setIndexManagement(XDMIndexManagement indexMgr) {
-		this.indexMgr = indexMgr;
-	}
-	
-	@Override
-	public XDMTriggerManagement getTriggerManagement() {
-		return triggerMgr;
-	}
-
-	public void setTriggerManagement(XDMTriggerManagement triggerMgr) {
-		this.triggerMgr = triggerMgr;
-		((TriggerManagementImpl) triggerMgr).setRepository(this);
-	}
-	
-	public Collection<XDMLibrary> getLibraries() {
-		if (xdmLibraries != null) {
-			return xdmLibraries;
-		}
-		
-		HazelcastInstance dataInstance = Hazelcast.getHazelcastInstanceByName("hzInstance");
-		if (dataInstance != null) {
-			Map<String, XDMLibrary> libraries = dataInstance.getMap("libraries");
-			return libraries.values();
-		}
-		return Collections.emptyList(); 
-	}
-
-	public void setLibraries(Collection<XDMLibrary> cLibraries) {
-		if (cLibraries != null) {
-			xdmLibraries = new ArrayList<>(cLibraries);
-		}
-	}
-	
-	public Collection<XDMModule> getModules() {
-		if (xdmModules != null) {
-			return xdmModules;
-		}
-		
-		HazelcastInstance dataInstance = Hazelcast.getHazelcastInstanceByName("hzInstance");
-		if (dataInstance != null) {
-			Map<String, XDMModule> modules = dataInstance.getMap("modules");
-			return modules.values();
-		}
-		return Collections.emptyList(); 
-	}
-	
-	public void setModules(Collection<XDMModule> cModules) {
-		if (cModules != null) {
-			xdmModules = new ArrayList<>(cModules);
-		}
-	}
-	
 	public boolean addSchemaTrigger(XDMTriggerDef trigger) {
 		
 		if (xdmSchema.addTrigger(trigger)) {
@@ -303,11 +277,37 @@ public class RepositoryImpl extends XDMRepositoryBase implements ApplicationCont
 	}
 	
 	@Override
-	public void setBindingManagement(XDMBindingManagement bindMgr) {
-		super.setBindingManagement(bindMgr);
-		((BindingManagementImpl) bindMgr).setRepository(this);
+	public void clientConnected(Client client) {
+		logger.trace("clientConnected.enter; client: {}", client); 
+		// create queue
+		IQueue queue = hzInstance.getQueue("client:" + client.getUuid());
+		// create/cache new XQProcessor
+		XQProcessor proc = getXQProcessor(client.getUuid());
+		logger.trace("clientConnected.exit; queue {} created for client: {}; XQProcessor: {}", 
+				queue.getName(), client.getSocketAddress(), proc);
 	}
 
+	@Override
+	public void clientDisconnected(Client client) {
+		logger.trace("clientDisconnected.enter; client: {}", client);
+		String qName = "client:" + client.getUuid();
+		boolean destroyed = false;
+		Collection<DistributedObject> all = hzInstance.getDistributedObjects();
+		int sizeBefore = all.size();
+		for (DistributedObject obj: all) {
+			if (qName.equals(obj.getName())) {
+				// remove queue
+				IQueue queue = hzInstance.getQueue(qName);
+				queue.destroy();
+				destroyed = true;
+				break;
+			}
+		}
+		int sizeAfter = hzInstance.getDistributedObjects().size(); 
+		XQProcessor proc = processors.remove(client.getUuid());
+		logger.trace("clientDisconnected.exit; queue {} {} for client: {}; size before: {}, after: {}", 
+				qName, destroyed ? "destroyed" : "skipped", client.getSocketAddress(), sizeBefore, sizeAfter); 
+	}
 	
 }
 

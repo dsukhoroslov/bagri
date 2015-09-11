@@ -2,7 +2,6 @@ package com.bagri.xdm.api.test;
 
 import static com.bagri.common.util.FileUtils.readTextFile;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -46,6 +45,18 @@ public abstract class XDMManagementTest {
 	protected XDMTransactionManagement getTxManagement() {
 		return xRepo.getTxManagement();
 	}
+	
+	// TODO: think on how this can be generalized!
+	// need to have some kind of XDMServerManagementTest!
+	//protected void initRepo(ApplicationContext ctx) {
+	//	xRepo = ctx.getBean(XDMRepository.class);
+	//	RepositoryImpl xdmRepo = (RepositoryImpl) xRepo; 
+	//	XDMSchema schema = xdmRepo.getSchema();
+	//	if (schema == null) {
+	//		schema = new XDMSchema(1, new java.util.Date(), "test", "test", "test schema", true, null);
+	//		xdmRepo.setSchema(schema);
+	//	}
+	//}
 
 	public Collection<String> getSecurity(String symbol) throws Exception {
 		String prefix = getModelManagement().getNamespacePrefix("http://tpox-benchmark.com/security"); 

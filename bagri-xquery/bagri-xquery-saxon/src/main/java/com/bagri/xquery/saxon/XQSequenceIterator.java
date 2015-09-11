@@ -68,11 +68,11 @@ public class XQSequenceIterator implements Iterator {
 			} catch (XPathException ex) {
 				logger.error("getFullSize; error", ex);
 			}
-		//} else {
-			//logger.info("getFullSIze; props: {}; iter: {}", iter.getProperties(), iter);
-			// iter is of type XQueryExpression.ErrorReportingIterator
 		}
-		return -1;
+		if (next == null) {
+			return 0;
+		}
+		return -1; // ONE_OR_MORE
 	}
 
 	@Override
