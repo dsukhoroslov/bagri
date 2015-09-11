@@ -23,8 +23,8 @@ public class TransactionManagementImplTest extends XDMManagementTest {
 	
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		launcher = new ServerLauncher("second", null, srvDir);
-		launcher.startServer();
+		//launcher = new ServerLauncher("second", null, srvDir);
+		//launcher.startServer();
 
 		System.setProperty(pn_schema_address, "localhost:10500"); 
 		System.setProperty(pn_schema_name, "default"); 
@@ -36,7 +36,7 @@ public class TransactionManagementImplTest extends XDMManagementTest {
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
 		Hazelcast.shutdownAll();
-		launcher.stopServer();
+		//launcher.stopServer();
 	}
 
 	@Before

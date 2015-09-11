@@ -315,6 +315,7 @@
 		<property name="modelManager" ref="mdlManager"/>
 		<property name="statsQueue" ref="indexQueue"/>
 		<property name="txManager" ref="txManager"/>
+		<property name="documentManager" ref="docManager"/>
 	</bean>
 
 	<bean id="xqCompiler" class="com.bagri.xquery.saxon.XQCompilerImpl"/>

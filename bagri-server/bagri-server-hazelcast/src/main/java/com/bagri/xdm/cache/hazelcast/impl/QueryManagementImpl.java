@@ -63,7 +63,7 @@ public class QueryManagementImpl implements XDMQueryManagement {
 	private XDMModelManagement model;
     private IndexManagementImpl idxMgr;
 	private DocumentManagementImpl docMgr;
-	private TransactionManagementImpl txMgr;
+	//private TransactionManagementImpl txMgr;
 	
     private IMap<Integer, XDMQuery> xqCache;
     private IMap<XDMResultsKey, XDMResults> xrCache;
@@ -80,7 +80,7 @@ public class QueryManagementImpl implements XDMQueryManagement {
     	this.repo = repo;
     	this.model = repo.getModelManagement();
     	this.docMgr = (DocumentManagementImpl) repo.getDocumentManagement();
-    	this.txMgr = (TransactionManagementImpl) repo.getTxManagement();
+    	//this.txMgr = (TransactionManagementImpl) repo.getTxManagement();
     	this.xddCache = docMgr.getDocumentCache();
     	this.xdmCache = docMgr.getElementCache();
     	docMgr.setRepository(repo);
@@ -362,19 +362,11 @@ public class QueryManagementImpl implements XDMQueryManagement {
 		return result;
 	}
 
-	private boolean checkDocumentCommited(long docId) throws XDMException {
-		XDMDocument doc = docMgr.getDocument(docId);
-		if (doc.getTxFinish() > TX_NO && txMgr.isTxVisible(doc.getTxFinish())) {
-			return false;
-		}
-		return txMgr.isTxVisible(doc.getTxStart());
-	}
-	
 	private Collection<Long> checkDocumentsCommited(Collection<Long> docIds) throws XDMException {
 		Iterator<Long> itr = docIds.iterator();
 		while (itr.hasNext()) {
 			long docId = itr.next();
-			if (!checkDocumentCommited(docId)) {
+			if (!docMgr.checkDocumentCommited(docId)) {
 				itr.remove();
 			}
 		}
@@ -395,7 +387,7 @@ public class QueryManagementImpl implements XDMQueryManagement {
 		List<Long> result = new ArrayList<Long>(xddCache.keySet().size());
 		for (XDMDocumentKey docKey: xddCache.keySet()) {
 			// we must provide only visible docIds!
-			if (checkDocumentCommited(docKey.getKey())) {
+			if (docMgr.checkDocumentCommited(docKey.getKey())) {
 				result.add(docKey.getKey());
 			}
 		}

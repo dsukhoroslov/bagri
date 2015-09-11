@@ -41,6 +41,7 @@ import com.bagri.xdm.common.XDMDataKey;
 import com.bagri.xdm.common.XDMDocumentKey;
 import com.bagri.xdm.common.XDMFactory;
 import com.bagri.xdm.common.XDMIndexKey;
+import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMOccurence;
 import com.bagri.xdm.domain.XDMElements;
 import com.bagri.xdm.domain.XDMIndexedDocument;
@@ -73,6 +74,7 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 
 	private XDMFactory factory;
     private ModelManagementImpl mdlMgr;
+	private DocumentManagementImpl docMgr;
     private TransactionManagementImpl txMgr;
     
     private boolean enableStats = true;
@@ -122,12 +124,16 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 		this.execService = execService;
 	}
 
-	public void setTxManager(TransactionManagementImpl txMgr) {
-		this.txMgr = txMgr;
+	public void setDocumentManager(DocumentManagementImpl docMgr) {
+		this.docMgr = docMgr;
 	}
     
 	public void setModelManager(ModelManagementImpl mdlMgr) {
 		this.mdlMgr = mdlMgr;
+	}
+    
+	public void setTxManager(TransactionManagementImpl txMgr) {
+		this.txMgr = txMgr;
 	}
     
 	@Override
@@ -337,18 +343,20 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 		if (uidx != null) {
 			Collection<XDMUniqueValue> ids = uidx.getDocumentValues();
 			for (XDMUniqueValue uv: ids) {
-				if (uv.getTxFinish() > TX_NO) {
-					if (txMgr.isTxVisible(uv.getTxFinish())) {
-						// rolledBack, ok
+				if (docMgr.checkDocumentCommited(uv.getDocumentId())) {
+					if (uv.getTxFinish() > TX_NO) {
+						if (txMgr.isTxVisible(uv.getTxFinish())) {
+							// rolledBack, ok
+						} else {
+							// finish is not visible yet! should we lock and wait here??
+						}
 					} else {
-						// finish is not visible yet! should we lock and wait here??
-					}
-				} else {
-					if (txMgr.isTxVisible(uv.getTxStart())) {
-						// unique index violation
-						return false;
-					} else {
-						// start is not visible yet! thus it is not yet commited.. should we lock?
+						if (txMgr.isTxVisible(uv.getTxStart())) {
+							// unique index violation
+							return false;
+						} else {
+							// start is not visible yet! thus it is not yet commited.. should we lock?
+						}
 					}
 				}
 			}

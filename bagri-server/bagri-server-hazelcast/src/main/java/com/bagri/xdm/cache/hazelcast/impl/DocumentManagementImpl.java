@@ -191,6 +191,17 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		return elements.values();
     }
     
+	public boolean checkDocumentCommited(long docId) throws XDMException {
+		XDMDocument doc = getDocument(docId);
+		if (doc != null) {
+			if (doc.getTxFinish() > TX_NO && txManager.isTxVisible(doc.getTxFinish())) {
+				return false;
+			}
+			return txManager.isTxVisible(doc.getTxStart());
+		}
+		return false;
+	}
+	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private String buildElement(String path, long[] fragments, int docType) {
     	Set<XDMDataKey> xdKeys = getDocumentElementKeys(path, fragments, docType);
