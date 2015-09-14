@@ -6,7 +6,8 @@ public class StatisticsEvent {
 		
 		delete,
 		use,
-		invoke;
+		invoke,
+		index;
 		
 	}
 	
@@ -15,6 +16,7 @@ public class StatisticsEvent {
 	private boolean success;
 	private long duration;
 	private long timeStamp;
+	private boolean unique;
 	
 	public StatisticsEvent(String name, EventType type) {
 		this.name = name;
@@ -45,6 +47,15 @@ public class StatisticsEvent {
 		this.timeStamp = timeStamp;
 		this.type = EventType.use;
 	}
+
+	public StatisticsEvent(String name, boolean add, int count, int size, boolean unique) {
+		this.name = name;
+		this.success = add;
+		this.duration = count;
+		this.timeStamp = size;
+		this.unique = unique;
+		this.type = EventType.index;
+	}
 	
 	public String getName() {
 		return name;
@@ -52,6 +63,10 @@ public class StatisticsEvent {
 	
 	public boolean isSuccess() {
 		return success;
+	}
+	
+	public boolean isUnique() {
+		return unique;
 	}
 	
 	public long getDuration() {
@@ -62,7 +77,7 @@ public class StatisticsEvent {
 	}
 	
 	public int getCount() {
-		if (type == EventType.use) {
+		if (type == EventType.use || type == EventType.index) {
 			return (int) duration;
 		}
 		return 0;
@@ -73,9 +88,19 @@ public class StatisticsEvent {
 	}
 	
 	public long getTimestamp() {
-		return timeStamp;
+		if (type == EventType.invoke || type == EventType.use) {
+			return timeStamp;
+		}
+		return 0;
 	}
 
+	public long getSize() {
+		if (type == EventType.index) {
+			return timeStamp;
+		}
+		return 0;
+	}
+	
 	@Override
 	public String toString() {
 		return "StatisticsEvent [name=" + name + ", type=" + type + 

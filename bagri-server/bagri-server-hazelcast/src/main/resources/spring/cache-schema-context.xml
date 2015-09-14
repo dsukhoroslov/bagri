@@ -262,7 +262,7 @@
 	<bean id="indexQueue" class="java.util.concurrent.ArrayBlockingQueue">
 		<constructor-arg value="1024" />
 	</bean>
-	<bean id="indexStats" class="com.bagri.common.stats.UsageStatistics">
+	<bean id="indexStats" class="com.bagri.xdm.cache.hazelcast.impl.IndexStatistics">
 		<constructor-arg value="index" />
 		<property name="statsQueue" ref="indexQueue"/>
 	</bean>
@@ -308,10 +308,9 @@
 
 	<bean id="idxManager" class="com.bagri.xdm.cache.hazelcast.impl.IndexManagementImpl">
 		<property name="xdmFactory" ref="xdmFactory"/>
-		<property name="execService" ref="xdm-exec-pool"/>
+		<!--property name="execService" ref="xdm-exec-pool"/-->
 		<property name="indexDictionary" ref="dict-index"/>
 		<property name="indexCache" ref="xdm-index"/>
-		<property name="dataCache" ref="xdm-element"/>
 		<property name="modelManager" ref="mdlManager"/>
 		<property name="statsQueue" ref="indexQueue"/>
 		<property name="txManager" ref="txManager"/>

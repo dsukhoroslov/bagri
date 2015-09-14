@@ -2,11 +2,9 @@ package com.bagri.xdm.cache.hazelcast.management;
 
 import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.TabularData;
 
 import org.springframework.jmx.export.annotation.ManagedAttribute;
@@ -15,23 +13,16 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
-import com.bagri.common.manage.JMXUtils;
 import com.bagri.common.manage.StatsAggregator;
 import com.bagri.xdm.cache.hazelcast.task.index.IndexCreator;
 import com.bagri.xdm.cache.hazelcast.task.index.IndexRemover;
-import com.bagri.xdm.cache.hazelcast.task.index.IndexStatsCollector;
 import com.bagri.xdm.cache.hazelcast.task.stats.StatisticSeriesCollector;
-import com.bagri.xdm.common.XDMIndexKey;
-import com.bagri.xdm.domain.XDMIndexedValue;
-import com.bagri.xdm.domain.XDMPath;
 import com.bagri.xdm.system.XDMIndex;
 import com.bagri.xdm.system.XDMSchema;
 import com.hazelcast.core.Member;
 
 @ManagedResource(description="Schema Indexes Management MBean")
 public class IndexManagement extends SchemaFeatureManagement {
-	
-	private StatsAggregator isAggregator = new IndexStatsAggregator();
 	
 	public IndexManagement(String schemaName) {
 		super(schemaName);
@@ -55,11 +46,6 @@ public class IndexManagement extends SchemaFeatureManagement {
 		return getTabularFeatures("index", "Index definition", "name");
     }
 
-	@ManagedAttribute(description="Return aggregated index statistics, per index")
-	public TabularData getIndexStatistics() {
-		return super.getUsageStatistics(new IndexStatsCollector(), isAggregator);
-	}
-	
 	@ManagedAttribute(description="Return aggregated index usage statistics, per index")
 	public TabularData getUsageStatistics() {
 		return super.getUsageStatistics(new StatisticSeriesCollector(schemaName, "indexStats"), aggregator);
@@ -145,18 +131,5 @@ public class IndexManagement extends SchemaFeatureManagement {
 		// not implemented yet
 	}
 	
-	private static class IndexStatsAggregator implements StatsAggregator {
-
-		@Override
-		public Object[] aggregateStats(Object[] source, Object[] target) {
-			target[0] = (Long) source[0] + (Long) target[0]; // "consumed size"
-			target[1] = (Integer) source[1] + (Integer) target[1]; // "distinct values"
-			target[2] = source[2]; // "index"
-			target[3] = (Integer) source[3] + (Integer) target[3]; // "indexed documents"
-			target[4] = source[4]; // "path"
-			return target;
-		}
-		
-	}
 
 }

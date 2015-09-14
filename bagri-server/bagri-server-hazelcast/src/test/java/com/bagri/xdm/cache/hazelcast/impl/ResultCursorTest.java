@@ -18,6 +18,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.test.XDMManagementTest;
 import com.bagri.xdm.client.hazelcast.impl.ResultCursor;
 import com.bagri.xdm.system.XDMSchema;
@@ -114,4 +115,56 @@ public class ResultCursorTest extends XDMManagementTest {
 		assertFalse(rc.hasNext());
 	}
 
+	@Test
+	public void fetchSecuritiesTest() throws Exception {
+		storeSecurityTest();
+		final QueryManagementImpl qm = (QueryManagementImpl) getQueryManagement();
+		final String query = "declare namespace s=\"http://tpox-benchmark.com/security\";\n" +
+				"declare variable $sym external;\n" + 
+				"for $sec in fn:collection(\"/{http://tpox-benchmark.com/security}Security\")/s:Security\n" +
+		  		"where $sec/s:Symbol=$sym\n" + 
+				"return $sec\n";
+		final Properties props = new Properties();
+		props.setProperty(pn_client_fetchSize, "1");
+		props.setProperty(pn_client_id, "dummy");
+		
+		Thread th1 = new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				Map<QName, Object> bindings = new HashMap<>();
+				bindings.put(new QName("sym"), "IBM");
+				ResultCursor rc;
+				try {
+					rc = (ResultCursor) qm.executeXQuery(query, bindings, props);
+					rc.deserialize(((RepositoryImpl) xRepo).getHzInstance());
+					assertTrue(rc.hasNext());
+					assertNotNull(rc.next());
+					assertFalse(rc.hasNext());
+				} catch (XDMException ex) {
+					assertTrue(ex.getMessage(), false);
+				}
+			}
+		});
+
+		Thread th2 = new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				Map<QName, Object> bindings = new HashMap<>();
+				bindings.put(new QName("sym"), "VFINX");
+				ResultCursor rc;
+				try {
+					rc = (ResultCursor) qm.executeXQuery(query, bindings, props);
+					rc.deserialize(((RepositoryImpl) xRepo).getHzInstance());
+					assertTrue(rc.hasNext());
+					assertNotNull(rc.next());
+					assertFalse(rc.hasNext());
+				} catch (XDMException ex) {
+					assertTrue(ex.getMessage(), false);
+				}
+			}
+		});
+		
+	}
 }

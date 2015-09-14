@@ -33,7 +33,7 @@ public class UsageStatistics extends StatisticsCollector implements StatisticsPr
 		return new ResourceUsageStatistics();
 	}
 	
-	private class ResourceUsageStatistics implements Statistics {
+	protected class ResourceUsageStatistics implements Statistics {
 
 		// stats names
 		//public static final String sn_Avg_Time = "Avg time";

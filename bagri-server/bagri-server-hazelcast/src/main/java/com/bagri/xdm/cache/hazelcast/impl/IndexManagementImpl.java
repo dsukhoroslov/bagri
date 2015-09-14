@@ -1,27 +1,23 @@
 package com.bagri.xdm.cache.hazelcast.impl;
 
 import static com.bagri.xdm.api.XDMTransactionManagement.TX_NO;
-import static com.bagri.xqj.BagriXQUtils.*;
+import static com.bagri.xqj.BagriXQUtils.getAtomicValue;
+import static com.bagri.xqj.BagriXQUtils.getBaseTypeForTypeName;
+import static com.bagri.xqj.BagriXQUtils.isStringTypeCompatible;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
 import java.util.concurrent.BlockingQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.TabularData;
-import javax.xml.xquery.XQException;
-import javax.xml.xquery.XQItem;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,34 +27,24 @@ import com.bagri.common.query.Comparison;
 import com.bagri.common.query.PathBuilder;
 import com.bagri.common.query.PathExpression;
 import com.bagri.common.stats.StatisticsEvent;
-import com.bagri.common.util.ReflectUtils;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMTransactionManagement;
 import com.bagri.xdm.cache.api.XDMIndexManagement;
-import com.bagri.xdm.cache.hazelcast.task.index.ValueIndexator;
 import com.bagri.xdm.client.hazelcast.impl.ModelManagementImpl;
-import com.bagri.xdm.common.XDMDataKey;
 import com.bagri.xdm.common.XDMDocumentKey;
 import com.bagri.xdm.common.XDMFactory;
 import com.bagri.xdm.common.XDMIndexKey;
-import com.bagri.xdm.domain.XDMDocument;
-import com.bagri.xdm.domain.XDMOccurence;
-import com.bagri.xdm.domain.XDMElements;
 import com.bagri.xdm.domain.XDMIndexedDocument;
 import com.bagri.xdm.domain.XDMIndexedValue;
 import com.bagri.xdm.domain.XDMNodeKind;
+import com.bagri.xdm.domain.XDMOccurence;
 import com.bagri.xdm.domain.XDMPath;
 import com.bagri.xdm.domain.XDMUniqueDocument;
 import com.bagri.xdm.domain.XDMUniqueValue;
 import com.bagri.xdm.system.XDMIndex;
 import com.bagri.xqj.BagriXQUtils;
-import com.hazelcast.core.EntryEvent;
-import com.hazelcast.core.EntryListener;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.IMap;
-import com.hazelcast.core.MapEvent;
-import com.hazelcast.map.listener.EntryAddedListener;
-import com.hazelcast.map.listener.MapListener;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
 
@@ -67,8 +53,7 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 	private static final transient Logger logger = LoggerFactory.getLogger(IndexManagementImpl.class);
 	private IMap<Integer, XDMIndex> idxDict;
     private IMap<XDMIndexKey, XDMIndexedValue> idxCache;
-    private IMap<XDMDataKey, XDMElements> xdmCache;
-	private IExecutorService execService;
+	//private IExecutorService execService;
 	private Map<Integer, TreeMap<Comparable, Integer>> rangeIndex = new HashMap<>();
 	private Map<XDMIndex, Pattern> patterns = new HashMap<>();
 
@@ -100,9 +85,9 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
     	return idxCache;
     }
 
-    public void setDataCache(IMap<XDMDataKey, XDMElements> xdmCache) {
-    	this.xdmCache = xdmCache;
-    }
+    //public void setDataCache(IMap<XDMDataKey, XDMElements> xdmCache) {
+    //	this.xdmCache = xdmCache;
+    //}
     
 	public void setIndexDictionary(IMap<Integer, XDMIndex> idxDict) {
 		this.idxDict = idxDict;
@@ -130,9 +115,9 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
     	//docMgr.setRepository(repo);
     }
 
-    public void setExecService(IExecutorService execService) {
-		this.execService = execService;
-	}
+    //public void setExecService(IExecutorService execService) {
+	//	this.execService = execService;
+	//}
 
 	public void setDocumentManager(DocumentManagementImpl docMgr) {
 		this.docMgr = docMgr;
@@ -292,11 +277,18 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 		return value;
 	}
 	
+	private int getIndexedValueSize(XDMIndexedValue ixVal) {
+		return 8 + 8 + 8 + //sizeof(e.getKey().getValue()) 
+				8 + 8 + 16; //xidx.getCount() * 16;
+	}
+	
 	private void indexPath(XDMIndex idx, long docId, int pathId, Object value) throws XDMException {
 
 		value = getIndexedValue(idx, pathId, value);
 		logger.trace("indexPath; index: {}, value: {}({})", idx, value.getClass().getName(), value);
 			
+		int oldCount = 0;
+		boolean first = false;
 		XDMIndexKey xid = factory.newXDMIndexKey(pathId, value);
 		XDMIndexedValue xidx = idxCache.get(xid);
 		if (idx.isUnique()) {
@@ -308,18 +300,24 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 
 			if (xidx == null) {
 				xidx = new XDMUniqueDocument();
+				first = true;
+			} else {
+				oldCount = xidx.getCount();
 			}
 			xidx.addDocument(docId, txMgr.getCurrentTxId());
-			xidx = idxCache.put(xid, xidx);
-			// why it is done second time here??
-			if (!checkUniquiness((XDMUniqueDocument) xidx, id)) {
+			XDMIndexedValue xidx2 = idxCache.put(xid, xidx);
+			// why it is done second time here? because it can be new xidx!
+			if (!checkUniquiness((XDMUniqueDocument) xidx2, id)) {
+				// shouldn't we delete just created xidx then ?
 				throw new XDMException("unique index '" + idx.getName() + "' violated for docId: " + 
 						docId + ", pathId: " + pathId + ", value: " + value, XDMException.ecIndexUnique);
 			}
 		} else {
 			if (xidx == null) {
 				xidx = new XDMIndexedDocument(docId);
+				first = true;
 			} else { 
+				oldCount = xidx.getCount();
 				xidx.addDocument(docId, XDMTransactionManagement.TX_NO);
 			}
 			idxCache.set(xid, xidx);
@@ -334,12 +332,11 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 				range.put((Comparable) value, count);
 			}
 		}
-
+		updateStats(idx.getName(), true, first, xidx.getCount() - oldCount, getIndexedValueSize(xidx));
+		
 		//if (isPatternIndex(idx)) {
 		//	logger.info("indexPath; indexed pattern: {}, dataType: {}, value: {}", idx, dataType, value);
 		//}
-			
-		// collect static index stats right here?
 			
 		// it works asynch. but major time is taken in isPathIndexed method..
 		//ValueIndexator indexator = new ValueIndexator(docId);
@@ -386,12 +383,17 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 		XDMIndexedValue xIdx = idxCache.get(iKey);
 		if (xIdx != null) {
 			long txId = txMgr.getCurrentTxId();
+			int oldCount = xIdx.getCount(); 
 			if (xIdx.removeDocument(docId, txId)) {
+				boolean last = false;
 				if (xIdx.getCount() > 0) {
 					idxCache.put(iKey, xIdx);
 				} else {
 	 				idxCache.delete(iKey);
+	 				last = true;
 				}
+				XDMIndex idx = idxDict.get(pathId);
+				updateStats(idx.getName(), false, last, oldCount - xIdx.getCount(), getIndexedValueSize(xIdx));
 				TreeMap<Comparable, Integer> range = rangeIndex.get(pathId);
 				if (range != null) {
 					Integer count = range.get(value);
@@ -520,52 +522,13 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 			}
 		}
 	}
-	
-	public TabularData getIndexStats() {
 
-		Set<XDMIndexKey> keys = idxCache.localKeySet();
-		Map<XDMIndexKey, XDMIndexedValue> locals = idxCache.getAll(keys);
-		
-        Map<String, Map<String, Object>> map = new HashMap<>(idxDict.size());
-		for (Map.Entry<Integer, XDMIndex> eIdx: idxDict.entrySet()) {
-			XDMIndex idx = eIdx.getValue();
-    		long size = 0;
-    		int count = 0;
-    		int unique = 0;
-            Map<String, Object> stats = map.get(idx.getName());
-            if (stats == null) {
-            	stats = new HashMap<>();
-            	stats.put("index", idx.getName());
-            	stats.put("path", idx.getPath());
-            	map.put(idx.getName(), stats);
-            } else {
-        		size = (Long) stats.get("consumed size");
-        		count = (Integer) stats.get("indexed documents");
-        		unique = (Integer) stats.get("distinct values");
-            }
-    		for (Map.Entry<XDMIndexKey, XDMIndexedValue> eVal: locals.entrySet()) {
-    			if (eVal.getKey().getPathId() == eIdx.getKey()) {
-    				count += eVal.getValue().getCount();
-    				unique++; // not sure this is correct in case of the same value but for different path!
-    				size += 8 + 8 + 8 + //sizeof(e.getKey().getValue()) 
-    						8 + 8 + eVal.getValue().getCount() * 16;
-    			}
-    		}
-    		stats.put("indexed documents", count);
-    		stats.put("distinct values", unique);
-    		stats.put("consumed size", size);
+	private void updateStats(String name, boolean add, boolean unique, int count, int size) {
+		if (enableStats) {
+			if (!queue.offer(new StatisticsEvent(name, add, count, size, unique))) {
+				logger.warn("updateIndexStats; queue is full!!");
+			}
 		}
-        
-        TabularData result = null;
-		for (Map.Entry<String, Map<String, Object>> e: map.entrySet()) {
-            try {
-                CompositeData data = JMXUtils.mapToComposite("Name", "Header", e.getValue());
-                result = JMXUtils.compositeToTabular("Name", "Header", "index", result, data);
-            } catch (Exception ex) {
-                logger.error("getIndexStats; error", ex);
-            }
-		}
-        return result;
 	}
 	
 	@Override
