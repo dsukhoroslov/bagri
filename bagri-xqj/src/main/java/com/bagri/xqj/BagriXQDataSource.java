@@ -1,5 +1,6 @@
 package com.bagri.xqj;
 
+import static com.bagri.common.util.PropUtils.setProperty;
 import static com.bagri.xdm.common.XDMConstants.*;
 
 import java.io.PrintWriter;
@@ -61,7 +62,9 @@ public class BagriXQDataSource implements XQDataSource {
 		properties.put(SCHEMA, "default");
 		properties.put(TRANSACTIONAL, "false");
 		properties.put(pn_client_fetchSize, "0");
-		properties.put(pn_client_loginTimeout, "0");
+		properties.put(pn_client_loginTimeout, "30");
+		properties.put(pn_client_bufferSize, "32"); 
+		properties.put(pn_client_connectAttempts, "3");
 		properties.put(XQ_PROCESSOR, ""); //"com.bagri.xquery.saxon.BagriXQProcessor"); //Proxy
 		properties.put(XDM_REPOSITORY, ""); //"com.bagri.xdm.client.hazelcast.impl.RepositoryImpl"); 
 	}
@@ -142,7 +145,7 @@ public class BagriXQDataSource implements XQDataSource {
 				}
 			} catch (Exception ex) {
 				logger.error("initRepository. error creating Repository of type " + className + 
-						"with Properties. Falling back to default constructor", ex);
+						" with Properties. Falling back to default constructor", ex);
 			}
 			
 			return procClass.newInstance(); 
