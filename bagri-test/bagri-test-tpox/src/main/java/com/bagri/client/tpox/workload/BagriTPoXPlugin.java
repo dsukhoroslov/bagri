@@ -103,7 +103,7 @@ public abstract class BagriTPoXPlugin implements GenericJavaClassPlugin {
 			}
 		} catch (Throwable ex) {
 			// just swallow it, in order to work further
-			getLogger().info("execute.error", ex.getMessage());
+			getLogger().error("execute.error", ex);
 			err = 1;
 		}
 		DatabaseOperations.errors.get()[transNo] = err; 

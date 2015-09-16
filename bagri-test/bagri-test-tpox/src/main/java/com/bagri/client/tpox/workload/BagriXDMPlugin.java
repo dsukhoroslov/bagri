@@ -136,7 +136,7 @@ public class BagriXDMPlugin extends BagriTPoXPlugin {
 				}
 			}
 		} catch (Throwable ex) {
-			getLogger().info("execute.error", ex.getMessage());
+			getLogger().error("execute.error", ex);
 			// just swallow it, in order to work further
 			err = 1;
 		}
