@@ -109,6 +109,7 @@ public class XDMDataSerializationFactory implements DataSerializableFactory {
 	public static final int cli_CreateTriggerTask = 143;
 	public static final int cli_RemoveTriggerTask = 144;
 	public static final int cli_RunTriggerTask = 145;
+	public static final int cli_RegisterModelTask = 146;
 	
 	@Override
 	public IdentifiedDataSerializable create(int typeId) {

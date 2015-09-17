@@ -18,6 +18,7 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.cache.hazelcast.task.index.IndexCreator;
 import com.bagri.xdm.cache.hazelcast.task.index.IndexRemover;
+import com.bagri.xdm.cache.hazelcast.task.model.ModelRegistrator;
 import com.bagri.xdm.client.common.impl.XDMModelManagementBase;
 import com.bagri.xdm.domain.XDMDocumentType;
 import com.bagri.xdm.domain.XDMNamespace;
@@ -145,14 +146,28 @@ public class ModelManagement extends SchemaFeatureManagement {
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "schemaFile", description = "A full path to XSD file to register")})
 	public int registerSchema(String schemaFile) {
-		int size = ((XDMModelManagementBase) modelMgr).getDocumentTypes().size();
+		//int size = ((XDMModelManagementBase) modelMgr).getDocumentTypes().size();
+		//try {
+		//	modelMgr.registerSchemaUri(schemaFile);
+		//	return ((XDMModelManagementBase) modelMgr).getDocumentTypes().size() - size;
+		//} catch (XDMException ex) {
+		//	logger.error("registerSchema.error:", ex);
+		//}
+		//return 0;
+		
+		logger.trace("registerSchema.enter;");
+		long stamp = System.currentTimeMillis();
+		ModelRegistrator task = new ModelRegistrator(schemaFile);
+		Future<Integer> result = execService.submit(task);
+		int cnt = 0;
 		try {
-			modelMgr.registerSchemaUri(schemaFile);
-			return ((XDMModelManagementBase) modelMgr).getDocumentTypes().size() - size;
-		} catch (XDMException ex) {
-			logger.error("registerSchema.error:", ex);
+			cnt = result.get();
+		} catch (InterruptedException | ExecutionException ex) {
+			logger.error("", ex);
 		}
-		return 0;
+		stamp = System.currentTimeMillis() - stamp;
+		logger.trace("registerSchema.exit; returning: {}; timeTaken: {}", cnt, stamp);
+		return cnt;
 	}
 	
 	@ManagedOperation(description="Register Schemas")

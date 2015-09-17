@@ -14,7 +14,6 @@ import com.bagri.common.idgen.IdGenerator;
 import com.bagri.xdm.client.common.impl.XDMModelManagementBase;
 import com.bagri.xdm.domain.XDMDocumentType;
 import com.bagri.xdm.domain.XDMNamespace;
-import com.bagri.xdm.domain.XDMNodeKind;
 import com.bagri.xdm.domain.XDMPath;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IAtomicLong;
@@ -24,9 +23,9 @@ import com.hazelcast.query.Predicates;
 
 public class ModelManagementImpl extends XDMModelManagementBase { 
 
-	private IMap<String, XDMPath> pathCache;
-	private IMap<String, XDMNamespace> nsCache;
-	private IMap<String, XDMDocumentType> typeCache;
+	protected IMap<String, XDMPath> pathCache;
+	protected IMap<String, XDMNamespace> nsCache;
+	protected IMap<String, XDMDocumentType> typeCache;
 	private IdGenerator<Long> nsGen;
 	private IdGenerator<Long> pathGen;
 	private IdGenerator<Long> typeGen;

@@ -26,11 +26,10 @@
 				<hz:property name="hazelcast.rest.enabled">false</hz:property>
 				<hz:property name="hazelcast.memcache.enabled">false</hz:property>
 				<hz:property name="hazelcast.partition.count">${xdm.schema.partition.count}</hz:property>
-				<hz:property name="hazelcast.operation.thread.count">${xdm.schema.thread.pool}</hz:property>
-				<hz:property name="hazelcast.operation.generic.thread.count">${xdm.schema.thread.pool}</hz:property>
+				<!--hz:property name="hazelcast.operation.thread.count">${xdm.schema.thread.pool}</hz:property>
+				<hz:property name="hazelcast.operation.generic.thread.count">${xdm.schema.thread.pool}</hz:property-->
 				<hz:property name="hazelcast.socket.send.buffer.size">${xdm.schema.buffer.size}</hz:property>
 				<hz:property name="hazelcast.socket.receive.buffer.size">${xdm.schema.buffer.size}</hz:property>
-				<!--hz:property name="hazelcast.operation.thread.count">271</hz:property-->
 				<!--hz:property name="hazelcast.initial.min.cluster.size">${xdm.schema.population.size}</hz:property-->
 			</hz:properties>
 			<hz:network port="${xdm.schema.ports.first}" port-auto-increment="true">
@@ -60,10 +59,10 @@
 				backup-count="${xdm.schema.dict.backup.sync}" read-backup-data="${xdm.schema.dict.backup.read}">
 				<hz:near-cache time-to-live-seconds="0" max-idle-seconds="0" eviction-policy="LRU" 
 					max-size="0" invalidate-on-change="true" in-memory-format="OBJECT" cache-local-entries="false"/>
-				<hz:indexes>
+				<!--hz:indexes>
 					<hz:index attribute="typeId"/>
 					<hz:index attribute="pathId" ordered="true"/>
-				</hz:indexes>
+				</hz:indexes-->
 			</hz:map>
 			<hz:map name="dict-index" in-memory-format="OBJECT" async-backup-count="${xdm.schema.dict.backup.async}" 
 				backup-count="${xdm.schema.dict.backup.sync}" read-backup-data="${xdm.schema.dict.backup.read}">
@@ -275,12 +274,6 @@
 		<property name="statsQueue" ref="triggerQueue"/>
 	</bean>
 
-	<bean id="popManager" class="com.bagri.xdm.cache.hazelcast.management.PopulationManager">
-		<constructor-arg ref="hzInstance" />
-		<property name="schemaName" value="${xdm.schema.name}"/>
-		<property name="populationSize" value="${xdm.schema.population.size}"/>
-	</bean>
-
 	<bean id="xqItemTypeSerializer" class="com.bagri.xdm.client.hazelcast.serialize.XQItemTypeSerializer">
    		<property name="XQDataFactory" ref="xqFactory" />
 	</bean>
@@ -293,11 +286,19 @@
     		<property name="XQDataFactory" ref="xqFactory" />
 	</bean>
 
+	<bean id="xqCompiler" class="com.bagri.xquery.saxon.XQCompilerImpl"/>
+
+	<bean id="popManager" class="com.bagri.xdm.cache.hazelcast.management.PopulationManager">
+		<constructor-arg ref="hzInstance" />
+		<property name="schemaName" value="${xdm.schema.name}"/>
+		<property name="populationSize" value="${xdm.schema.population.size}"/>
+	</bean>
+
 	<bean id="bindManager" class="com.bagri.xdm.cache.hazelcast.impl.BindingManagementImpl">
 		<!--property name="namespaceCache" ref="dict-namespace"/-->
 	</bean>
     
-	<bean id="mdlManager" class="com.bagri.xdm.client.hazelcast.impl.ModelManagementImpl">
+	<bean id="mdlManager" class="com.bagri.xdm.cache.hazelcast.impl.ModelManagementImpl">
 		<property name="namespaceCache" ref="dict-namespace"/>
 		<property name="pathCache" ref="dict-path"/>
 		<property name="typeCache" ref="dict-document-type"/>
@@ -316,8 +317,6 @@
 		<property name="txManager" ref="txManager"/>
 		<property name="documentManager" ref="docManager"/>
 	</bean>
-
-	<bean id="xqCompiler" class="com.bagri.xquery.saxon.XQCompilerImpl"/>
 
 	<bean id="trManager" class="com.bagri.xdm.cache.hazelcast.impl.TriggerManagementImpl">
 		<property name="triggerDictionary" ref="dict-trigger"/>

@@ -40,9 +40,18 @@ public class BagriXQJPlugin extends BagriTPoXPlugin {
 		    xqds.setProperty(PASSWORD, System.getProperty(pn_schema_password));
 		    xqds.setProperty(XQ_PROCESSOR, "com.bagri.xquery.saxon.XQProcessorClient");
 		    xqds.setProperty(XDM_REPOSITORY, "com.bagri.xdm.client.hazelcast.impl.RepositoryImpl");
-		    xqds.setProperty(pn_client_loginTimeout, System.getProperty(pn_client_loginTimeout));
-		    xqds.setProperty(pn_client_bufferSize, System.getProperty(pn_client_bufferSize));
-		    xqds.setProperty(pn_client_connectAttempts, System.getProperty(pn_client_connectAttempts));
+		    String value = System.getProperty(pn_client_loginTimeout);
+		    if (value != null) {
+		    	xqds.setProperty(pn_client_loginTimeout, value);
+		    }
+		    value = System.getProperty(pn_client_bufferSize);
+		    if (value != null) {
+		    	xqds.setProperty(pn_client_bufferSize, value);
+		    }
+		    value = System.getProperty(pn_client_connectAttempts);
+		    if (value != null) {
+		    	xqds.setProperty(pn_client_connectAttempts, value);
+		    }
 		} catch (XQException ex) {
 			logger.error("", ex);
 		}

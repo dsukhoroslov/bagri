@@ -90,13 +90,16 @@ public class StatisticsCollector {
 	public String getStatistics(String kind, String method) throws Exception {
         ObjectName mName = new ObjectName("com.bagri.xdm:type=Schema,name=" + schema + ",kind=" + kind); 
 		TabularData data = (TabularData) mbsc.getAttribute(mName, "InvocationStatistics");
-		CompositeData stats = data.get(new String[] {method});
-		StringBuffer buff = new StringBuffer();
-		for (String key: stats.getCompositeType().keySet()) {
-			buff.append(key).append("=").append(stats.get(key));
-			buff.append("; ");
+		if (data != null) {
+			CompositeData stats = data.get(new String[] {method});
+			StringBuffer buff = new StringBuffer();
+			for (String key: stats.getCompositeType().keySet()) {
+				buff.append(key).append("=").append(stats.get(key));
+				buff.append("; ");
+			}
+			return buff.toString();
 		}
-		return buff.toString();
+		return "";
 	}
 	
 	public void resetStatistics(String kind) throws Exception {
