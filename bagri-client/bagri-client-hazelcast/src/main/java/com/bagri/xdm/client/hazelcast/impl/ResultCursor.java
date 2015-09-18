@@ -25,6 +25,7 @@ import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
 public class ResultCursor implements Iterator<Object>, IdentifiedDataSerializable, MemberSelector {
 	
+	public static final int ONE = 1;
 	public static final int EMPTY = 0;
 	public static final int ONE_OR_MORE = -1;
 	public static final int UNKNOWN = -2;
@@ -83,19 +84,21 @@ public class ResultCursor implements Iterator<Object>, IdentifiedDataSerializabl
 		queue = getQueue();
 		int size = 0;
 		if (batchSize > 0) {
-			for (int i = 0; i < batchSize && iter.hasNext(); i++) {
-				addNext();
+			for (int i = 0; i < batchSize && addNext(); i++) {
 				size++;
 			}
 			if (queueSize < EMPTY) {
 				if (size > 0) {
-					queueSize = ONE_OR_MORE;
+					if (iter.hasNext()) {
+						queueSize = ONE_OR_MORE;
+					} else {
+						queueSize = ONE; 
+					}
 				} else {
 					queueSize = EMPTY;
 				}
 			} else if (size > queueSize) {
-				logger.info("serialize; declared and current batch queue sizes do not match: {}/{}", 
-						queueSize, size);
+				logger.info("serialize; declared and current batch queue sizes do not match: {}/{}", queueSize, size);
 				//queueSize = size; ?? 
 			}
 		} else {
@@ -106,23 +109,26 @@ public class ResultCursor implements Iterator<Object>, IdentifiedDataSerializabl
 			if (queueSize < EMPTY) {
 				queueSize = size;
 			} else if (size != queueSize) {
-				logger.info("serialize; declared and current queue sizes do not match: {}/{}", 
-						queueSize, size);
+				logger.info("serialize; declared and current queue sizes do not match: {}/{}", queueSize, size);
 			}
 		}
 		return size;
 	}
 	
-	private void addNext() {
-		Object o = iter.next();
-		logger.trace("addNext; next: {}", o);
-		if (o != null) {
-			if (queue.offer(o)) {
-				position++;
-			} else {
-				logger.warn("addNext; queue is full!");
+	private boolean addNext() {
+		if (iter.hasNext()) {
+			Object o = iter.next();
+			logger.trace("addNext; next: {}", o);
+			if (o != null) {
+				if (queue.offer(o)) {
+					position++;
+					return true;
+				} else {
+					logger.warn("addNext; queue is full!");
+				}
 			}
 		}
+		return false;
 	}
 	
 	public String getClientId() {
@@ -138,8 +144,7 @@ public class ResultCursor implements Iterator<Object>, IdentifiedDataSerializabl
 		boolean result = current != null;
 		if (!result) {
 			if (position < queueSize || ((queueSize < EMPTY) && (position % batchSize) == 0)) {
-				logger.debug("hasNext; got end of the queue; position: {}; queueSize: {}", 
-						position, queueSize);
+				logger.debug("hasNext; got end of the queue; position: {}; queueSize: {}", position, queueSize);
 				// request next batch from server side..
 				IExecutorService exec = hzi.getExecutorService(PN_XDM_SCHEMA_POOL);
 				Future<Boolean> fetcher = exec.submit(new ResultFetcher(clientId), this);
@@ -147,6 +152,9 @@ public class ResultCursor implements Iterator<Object>, IdentifiedDataSerializabl
 					if (fetcher.get()) {
 						current = queue.poll();
 						result = current != null;
+						if (!result && position < queueSize) {
+							logger.warn("hasNext; declared and fetched queue sizes do not match: {}/{}", queueSize, position);
+						}
 					}
 				} catch (InterruptedException | ExecutionException ex) {
 					logger.error("hasNext.error", ex); 

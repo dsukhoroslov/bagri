@@ -298,7 +298,8 @@
 		<!--property name="namespaceCache" ref="dict-namespace"/-->
 	</bean>
     
-	<bean id="mdlManager" class="com.bagri.xdm.cache.hazelcast.impl.ModelManagementImpl">
+	<bean id="mdlManager" class="com.bagri.xdm.client.hazelcast.impl.ModelManagementImpl">
+	<!--bean id="mdlManager" class="com.bagri.xdm.cache.hazelcast.impl.ModelManagementImpl"-->
 		<property name="namespaceCache" ref="dict-namespace"/>
 		<property name="pathCache" ref="dict-path"/>
 		<property name="typeCache" ref="dict-document-type"/>

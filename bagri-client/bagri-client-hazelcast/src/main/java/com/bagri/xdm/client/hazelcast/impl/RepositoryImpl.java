@@ -103,7 +103,7 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 		String buffer = props.getProperty(pn_client_bufferSize); 
 		String attempts = props.getProperty(pn_client_connectAttempts); 
 
-		InputStream in = DocumentManagementImpl.class.getResourceAsStream("/hazelcast/hazelcast-client.xml");
+		InputStream in = getClass().getResourceAsStream("/hazelcast/hazelcast-client.xml");
 		ClientConfig config = new XmlClientConfigBuilder(in).build();
 		config.getGroupConfig().setName(schema);
 		config.getGroupConfig().setPassword(password);

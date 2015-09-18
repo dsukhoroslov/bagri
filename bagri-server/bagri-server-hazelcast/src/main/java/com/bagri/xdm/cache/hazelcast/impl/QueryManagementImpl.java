@@ -419,16 +419,7 @@ public class QueryManagementImpl implements XDMQueryManagement {
 	@Override
 	public Collection<String> getXML(ExpressionContainer query, String template, Map params) throws XDMException {
 		
-		// TODO: get rid of transaction management here! 
-		// it is here for easier tests management only!
-		//long txId = 0;
-		//if (txMgr.getCurrentTxId() == TX_NO) {
-		//	txId = txMgr.beginTransaction();
-		//}
 		Collection<Long> docIds = getDocumentIDs(query);
-		//if (txId > TX_NO) {
-		//	txMgr.commitTransaction(txId);
-		//}
 		if (docIds.size() > 0) {
 			return docMgr.buildDocument(new HashSet<>(docIds), template, params);
 		}
@@ -525,7 +516,10 @@ public class QueryManagementImpl implements XDMQueryManagement {
 		//	}
 		//});
 		
-		xqCursor.serialize(repo.getHzInstance());
+		int count = xqCursor.serialize(repo.getHzInstance());
+		if (count == 0) {
+			logger.info("createCursor; returning empty cursor for client {}", clientId);
+		}
 		return xqCursor;
 	}
 

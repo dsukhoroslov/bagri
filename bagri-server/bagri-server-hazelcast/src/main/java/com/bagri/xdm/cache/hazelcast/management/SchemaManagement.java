@@ -166,18 +166,6 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
 		return mgr;
 	}
 
-	private void adjustConnectionProps(Properties props) {
-		String members = props.getProperty(xdm_schema_members);
-		String[] servers = members.split(", ");
-		if (servers.length > 0) {
-			String port = props.getProperty(xdm_schema_ports_first);
-			if (port != null) {
-				props.setProperty(xdm_schema_members, servers[0] + ":" + port);
-			}
-		}
-		logger.debug("adjustConnectionProps; members: {}", props.getProperty(xdm_schema_members));
-	}
-	
 	public HazelcastInstance initSchema(String schemaName, Properties props) {
     	logger.debug("initSchema.enter; schema: {}; properties: {}", schemaName, props);
     	
@@ -186,52 +174,57 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
         	logger.debug("initSchema; schema {} already initialized", schemaName);
     		return ctx.getBean("hzInstance", HazelcastInstance.class);
     	}
-    	
-    	adjustConnectionProps(props);
+
     	props.setProperty(xdm_schema_name, schemaName);
-    	PropertiesPropertySource pps = new PropertiesPropertySource(schemaName, props);
+		String port = props.getProperty(xdm_schema_ports_first);
+    	String members = props.getProperty(xdm_schema_members);
+    	String[] servers = members.split(", ");
+    	for (int i=0; i < servers.length; i++) {
+   			props.setProperty(xdm_schema_members, servers[i] + ":" + port);
+   			PropertiesPropertySource pps = new PropertiesPropertySource(schemaName, props);
     	
-    	try {
-    		ctx = new ClassPathXmlApplicationContext();
-    		ctx.getEnvironment().getPropertySources().addFirst(pps);
-            //String contextPath = System.getProperty(xdm_config_context_file);
-    		//ctx.setConfigLocation(contextPath);
-    		ctx.setConfigLocation("spring/admin-schema-context.xml");
-    		ctx.refresh();
-    		
-    		ctxCache.put(schemaName, ctx);
-    		HazelcastInstance hz = ctx.getBean("hzInstance", HazelcastInstance.class);
-    		//hz.getUserContext().put("appContext", ctx);
-    		//hz.getConfig().getSecurityConfig().setEnabled(true);
-    	    XDMModelManagement schemaDict = ctx.getBean("xdmModel", XDMModelManagement.class);
-    	    SchemaManager sMgr = (SchemaManager) mgrCache.get(schemaName);
-       	    if (sMgr != null) {
-       	    	sMgr.setClientContext(ctx);
-       	    	sMgr.setSchemaDictionary(schemaDict);
-       	    	
-        	    DocumentManagement dMgr = ctx.getBean("docManager", DocumentManagement.class);
-				mbeanExporter.registerManagedResource(dMgr, dMgr.getObjectName());
-        	    IndexManagement iMgr = ctx.getBean("indexManager", IndexManagement.class);
-        	    iMgr.setSchemaManager(sMgr);
-				mbeanExporter.registerManagedResource(iMgr, iMgr.getObjectName());
-        	    TriggerManagement trMgr = ctx.getBean("triggerManager", TriggerManagement.class);
-        	    trMgr.setSchemaManager(sMgr);
-				mbeanExporter.registerManagedResource(trMgr, trMgr.getObjectName());
-				ModelManagement mMgr = ctx.getBean("modelManager", ModelManagement.class);
-        	    mMgr.setSchemaManager(sMgr);
-				mbeanExporter.registerManagedResource(mMgr, mMgr.getObjectName());
-        	    QueryManagement qMgr = ctx.getBean("queryManager", QueryManagement.class);
-				mbeanExporter.registerManagedResource(qMgr, qMgr.getObjectName());
-				TransactionManagement tMgr = ctx.getBean("transManager", TransactionManagement.class);
-				mbeanExporter.registerManagedResource(tMgr, tMgr.getObjectName());
-       	    }
-       	    
-    		logger.debug("initSchema.exit; client schema {} started on instance: {}", schemaName, hz);
-    		return hz;
-    	} catch (Exception ex) {
-    		logger.error("initSchema.error; " + ex.getMessage(), ex);
-    		return null;
+	    	try {
+	    		ctx = new ClassPathXmlApplicationContext();
+	    		ctx.getEnvironment().getPropertySources().addFirst(pps);
+	            //String contextPath = System.getProperty(xdm_config_context_file);
+	    		//ctx.setConfigLocation(contextPath);
+	    		ctx.setConfigLocation("spring/admin-schema-context.xml");
+	    		ctx.refresh();
+	    		
+	    		ctxCache.put(schemaName, ctx);
+	    		HazelcastInstance hz = ctx.getBean("hzInstance", HazelcastInstance.class);
+	    		//hz.getUserContext().put("appContext", ctx);
+	    		//hz.getConfig().getSecurityConfig().setEnabled(true);
+	    	    XDMModelManagement schemaDict = ctx.getBean("xdmModel", XDMModelManagement.class);
+	    	    SchemaManager sMgr = (SchemaManager) mgrCache.get(schemaName);
+	       	    if (sMgr != null) {
+	       	    	sMgr.setClientContext(ctx);
+	       	    	sMgr.setSchemaDictionary(schemaDict);
+	       	    	
+	        	    DocumentManagement dMgr = ctx.getBean("docManager", DocumentManagement.class);
+					mbeanExporter.registerManagedResource(dMgr, dMgr.getObjectName());
+	        	    IndexManagement iMgr = ctx.getBean("indexManager", IndexManagement.class);
+	        	    iMgr.setSchemaManager(sMgr);
+					mbeanExporter.registerManagedResource(iMgr, iMgr.getObjectName());
+	        	    TriggerManagement trMgr = ctx.getBean("triggerManager", TriggerManagement.class);
+	        	    trMgr.setSchemaManager(sMgr);
+					mbeanExporter.registerManagedResource(trMgr, trMgr.getObjectName());
+					ModelManagement mMgr = ctx.getBean("modelManager", ModelManagement.class);
+	        	    mMgr.setSchemaManager(sMgr);
+					mbeanExporter.registerManagedResource(mMgr, mMgr.getObjectName());
+	        	    QueryManagement qMgr = ctx.getBean("queryManager", QueryManagement.class);
+					mbeanExporter.registerManagedResource(qMgr, qMgr.getObjectName());
+					TransactionManagement tMgr = ctx.getBean("transManager", TransactionManagement.class);
+					mbeanExporter.registerManagedResource(tMgr, tMgr.getObjectName());
+	       	    }
+	       	    
+	    		logger.debug("initSchema.exit; client schema {} started on instance: {}", schemaName, hz);
+	    		return hz;
+	    	} catch (Exception ex) {
+	    		logger.error("initSchema.error; " + ex.getMessage(), ex);
+	    	}
     	}
+		return null;
 	}
 	
 	public boolean denitSchema(String schemaName, Set<Member> members) {
@@ -296,12 +289,14 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
 	public int initMember(final Member member) {
 		
 		// get schemas; for each schema registered on this member
+
 		int cnt = 0;
 		String[] aSchemas = getMemberSchemas(member);
 		for (String name: aSchemas) {
 			XDMSchema schema = entityCache.get(name);
 			if (schema != null) {
-				HazelcastInstance hzClient = initSchema(schema.getName(), schema.getProperties());
+				Properties props = schema.getProperties();
+				HazelcastInstance hzClient = initSchema(schema.getName(), props);
 				if (hzClient != null) {
 					cnt++;
 					Future<String> future = execService.submitToMember(new SchemaMemberExtractor(name), member);

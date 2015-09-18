@@ -84,8 +84,8 @@ public abstract class XDMModelManagementBase implements XDMModelManagement {
 	protected abstract Set getTypedPathEntries(int typeId);
 	protected abstract Set getTypedPathWithRegex(String regex, int typeId);
 	
-	@Override
-	public String normalizePath(String path) {
+	//@Override
+	public String normalizePathOld(String path) {
 		//getLogger().trace("normalizePath.enter; goth path: {}", path);
 		// profile: it takes 1.13 ms!
 		// TODO: optimize it!
@@ -112,7 +112,31 @@ public abstract class XDMModelManagementBase implements XDMModelManagement {
 		//getLogger().trace("normalizePath.exit; returning: {}", result);
 		return result;
 	}
-
+	
+	@Override
+	public String normalizePath(String path) {
+		StringBuffer buff = new StringBuffer();
+		int pos = 0, end;
+		char brace = '{';
+		boolean isNamespace = false;
+		while ((end = path.indexOf(brace, pos)) >= 0) {
+            String segment = path.substring(pos, end);
+            pos = end + 1;
+			if (isNamespace) {
+				isNamespace = false;
+				brace = '{';
+				String ns = translateNamespace(segment);
+				buff.append(ns).append(":");
+			} else {
+				isNamespace = true;
+				brace = '}';
+				buff.append(segment);
+			}
+		}
+		buff.append(path.substring(pos));
+		return buff.toString();
+	}
+	
 	@Override
 	public String translateNamespace(String namespace) {
 		
