@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import com.bagri.xdm.domain.XDMPath;
 import com.hazelcast.core.EntryEvent;
@@ -18,8 +20,8 @@ import com.hazelcast.map.listener.MapEvictedListener;
 
 public class ModelManagementImpl extends com.bagri.xdm.client.hazelcast.impl.ModelManagementImpl {
 	
-	private Map<Integer, XDMPath> cachePath = new HashMap<>();
-	private Map<Integer, Set<XDMPath>> cacheType = new HashMap<>();
+	private ConcurrentMap<Integer, XDMPath> cachePath = new ConcurrentHashMap<>();
+	private ConcurrentMap<Integer, Set<XDMPath>> cacheType = new ConcurrentHashMap<>();
 
 	public ModelManagementImpl() {
 		super();
@@ -37,12 +39,28 @@ public class ModelManagementImpl extends com.bagri.xdm.client.hazelcast.impl.Mod
 	
 	@Override
 	public XDMPath getPath(int pathId) {
-		return cachePath.get(pathId);
+		XDMPath result = cachePath.get(pathId);
+		if (result == null) {
+			result = super.getPath(pathId);
+			if (result != null) {
+				cachePath.putIfAbsent(pathId, result);
+			}
+		}
+		return result;
 	}
 	
 	@Override
 	public Collection<XDMPath> getTypePaths(int typeId) {
-		return cacheType.get(typeId);
+		Collection<XDMPath> result = cacheType.get(typeId);
+		if (result == null) {
+			result = super.getTypePaths(typeId);
+			if (result != null) {
+				Set<XDMPath> paths = new HashSet<>(result);
+				paths = new HashSet<>();
+				cacheType.putIfAbsent(typeId, paths);
+			}
+		}
+		return result;
 	}
 	
 	//@Override
@@ -75,7 +93,17 @@ public class ModelManagementImpl extends com.bagri.xdm.client.hazelcast.impl.Mod
 		
 		@Override
 		public void entryUpdated(EntryEvent<String, XDMPath> event) {
-			entryAdded(event);
+			XDMPath path = event.getValue();
+			cachePath.put(path.getPathId(), path);
+			Set<XDMPath> paths = cacheType.get(path.getTypeId());
+			if (paths == null) {
+				paths = new HashSet<>();
+				Set<XDMPath> paths2 = cacheType.putIfAbsent(path.getTypeId(), paths);
+				if (paths2 != null) {
+					paths = paths2;
+				}
+			}
+			paths.add(path);
 		}
 
 		@Override
@@ -91,11 +119,14 @@ public class ModelManagementImpl extends com.bagri.xdm.client.hazelcast.impl.Mod
 		@Override
 		public void entryAdded(EntryEvent<String, XDMPath> event) {
 			XDMPath path = event.getValue();
-			cachePath.put(path.getPathId(), path);
+			cachePath.putIfAbsent(path.getPathId(), path);
 			Set<XDMPath> paths = cacheType.get(path.getTypeId());
 			if (paths == null) {
 				paths = new HashSet<>();
-				cacheType.put(path.getTypeId(), paths);
+				Set<XDMPath> paths2 = cacheType.putIfAbsent(path.getTypeId(), paths);
+				if (paths2 != null) {
+					paths = paths2;
+				}
 			}
 			paths.add(path);
 		}

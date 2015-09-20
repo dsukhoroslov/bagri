@@ -4,6 +4,8 @@ public interface XDMRepository {
 	
 	void close();
 	
+	String getClientId();
+	
 	//XDMAccessManagement getAccessManagement();
 	
 	XDMBindingManagement getBindingManagement();

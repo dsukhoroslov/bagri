@@ -77,7 +77,7 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 		setProperty(original, props, pn_schema_address, "address");
 		setProperty(original, props, pn_schema_user, "user");
 		setProperty(original, props, pn_schema_password, "password");
-		setProperty(original, props, pn_client_smart, "smart");
+		//setProperty(original, props, pn_client_smart, "smart");
 		setProperty(original, props, pn_client_loginTimeout, "loginTimeout");
 		setProperty(original, props, pn_client_bufferSize, null); 
 		setProperty(original, props, pn_client_connectAttempts, null);
@@ -85,6 +85,7 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 		if (factory != null) {
 			props.put(pn_data_factory, factory);
 		}
+		setProperty(props, pn_client_smart, null); //"smart"
 		return props;
 	}
 	
@@ -229,16 +230,17 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 	}
 	
 	@Override
+	public String getClientId() {
+		return clientId;
+	}
+	
+	@Override
 	public String toString() {
 		return "RepositoryImpl[" + clientId + "]";
 	}
 	
 	HazelcastInstance getHazelcastClient() {
 		return hzClient;
-	}
-	
-	String getClientId() {
-		return clientId;
 	}
 	
 	String getSchemaName() {

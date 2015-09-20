@@ -103,6 +103,11 @@ public class RepositoryImpl extends XDMRepositoryBase implements ApplicationCont
 	}
 	
 	@Override
+	public String getClientId() {
+		return thClient.get();
+	}
+	
+	@Override
 	public XDMSchema getSchema() {
 		return xdmSchema;
 	}
@@ -111,10 +116,6 @@ public class RepositoryImpl extends XDMRepositoryBase implements ApplicationCont
 		// TODO: think about run-time updates..
 		this.xdmSchema = xdmSchema;
 		afterInit();
-	}
-	
-	String getCurrentClientId() {
-		return thClient.get();
 	}
 	
 	XQProcessor getXQProcessor() {

@@ -115,6 +115,12 @@ public class QueryManagement extends SchemaFeatureManagement {
 		super.resetStatistics(new StatisticsReseter(schemaName, "queryStats")); 
 	}
 
+	@ManagedAttribute(description="Return aggregated query usage statistics, per cached query")
+	public TabularData getQueryCacheStatistics() {
+		return super.getUsageStatistics(new StatisticSeriesCollector(schemaName, "queryCacheStats"), aggregator);
+	}
+
+	
 	@Override
 	protected String getFeatureKind() {
 		return "QueryManagement";

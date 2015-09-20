@@ -1,9 +1,8 @@
 package com.bagri.xdm.cache.hazelcast.impl;
 
-import static com.bagri.xdm.api.XDMTransactionManagement.TX_NO;
-import static com.bagri.xdm.common.XDMConstants.*;
+import static com.bagri.xdm.common.XDMConstants.pn_client_fetchSize;
+import static com.bagri.xdm.common.XDMConstants.pn_client_id;
 import static com.bagri.xqj.BagriXQUtils.getAtomicValue;
-import static com.bagri.xqj.BagriXQUtils.getBaseTypeForTypeName;
 import static com.bagri.xqj.BagriXQUtils.isStringTypeCompatible;
 
 import java.util.ArrayList;
@@ -15,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.xml.namespace.QName;
@@ -32,6 +32,7 @@ import com.bagri.common.query.ExpressionBuilder;
 import com.bagri.common.query.ExpressionContainer;
 import com.bagri.common.query.PathExpression;
 import com.bagri.common.query.QueryBuilder;
+import com.bagri.common.stats.StatisticsEvent;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.cache.api.XDMQueryManagement;
@@ -42,16 +43,15 @@ import com.bagri.xdm.client.hazelcast.impl.ResultCursor;
 import com.bagri.xdm.common.XDMDataKey;
 import com.bagri.xdm.common.XDMDocumentKey;
 import com.bagri.xdm.common.XDMResultsKey;
-import com.bagri.xdm.domain.XDMOccurence;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMElements;
-import com.bagri.xdm.domain.XDMNodeKind;
 import com.bagri.xdm.domain.XDMPath;
 import com.bagri.xdm.domain.XDMQuery;
 import com.bagri.xdm.domain.XDMResults;
 import com.bagri.xquery.api.XQProcessor;
 import com.bagri.xquery.saxon.XQSequenceIterator;
 import com.hazelcast.core.IMap;
+import com.hazelcast.core.ReplicatedMap;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
 
@@ -64,13 +64,16 @@ public class QueryManagementImpl implements XDMQueryManagement {
     private IndexManagementImpl idxMgr;
 	private DocumentManagementImpl docMgr;
 	//private TransactionManagementImpl txMgr;
+    private boolean enableStats = true;
+	private BlockingQueue<StatisticsEvent> queue;
 	
-    private IMap<Integer, XDMQuery> xqCache;
+    private ReplicatedMap<Integer, XDMQuery> xqCache;
+    //private IMap<Integer, XDMQuery> xqCache;
     private IMap<XDMResultsKey, XDMResults> xrCache;
-    private Map<Integer, XDMQuery> xQueries = new ConcurrentHashMap<Integer, XDMQuery>();
+    //private Map<Integer, XDMQuery> xQueries = new ConcurrentHashMap<Integer, XDMQuery>();
     
-	private IMap<XDMDocumentKey, XDMDocument> xddCache;
     private IMap<XDMDataKey, XDMElements> xdmCache;
+	private IMap<XDMDocumentKey, XDMDocument> xddCache;
     
     public QueryManagementImpl() {
     	logger.info("<init>; query cache initialized");
@@ -86,7 +89,8 @@ public class QueryManagementImpl implements XDMQueryManagement {
     	docMgr.setRepository(repo);
     }
 
-    public void setQueryCache(IMap<Integer, XDMQuery> cache) {
+    public void setQueryCache(ReplicatedMap<Integer, XDMQuery> cache) {
+    //public void setQueryCache(IMap<Integer, XDMQuery> cache) {
     	this.xqCache = cache;
     }
     
@@ -96,6 +100,14 @@ public class QueryManagementImpl implements XDMQueryManagement {
     
     public void setIndexManager(IndexManagementImpl indexManager) {
     	this.idxMgr = indexManager;
+    }
+    
+    public void setStatsQueue(BlockingQueue<StatisticsEvent> queue) {
+    	this.queue = queue;
+    }
+
+    public void setStatsEnabled(boolean enable) {
+    	this.enableStats = enable;
     }
     
     
@@ -116,53 +128,44 @@ public class QueryManagementImpl implements XDMQueryManagement {
 		return result;
 	}
 
-	//public abstract ExpressionBuilder getQuery(String query, Map bindings);
-	
 	@Override
 	public XDMQuery getQuery(String query) {
 		Integer qCode = getQueryKey(query);
-		logger.trace("getQuery.enter; got code: {}; query cache size: {}", qCode, xQueries.size());
-		XDMQuery result = xQueries.get(qCode);
-		//if (result != null) {
-		//	Object xqExpression = xqObjects.get(qCode);
-		//	if (xqExpression != null) {
-		//		result = new XDMQuery(query, xqExpression, result.getXdmExpression());
-		//	}
-		//}
+		//XDMQuery result = xQueries.get(qCode);
+		XDMQuery result = xqCache.get(qCode);
+		if (result != null) {
+		//	result = xqCache.get(qCode);
+		//} else {
+			result = result.clone();
+		}
+		updateStats(query, result != null, 1);
 		logger.trace("getQuery.exit; returning {}", result);
 		return result;
 	}
 
 	@Override
-	public boolean addQuery(String query, boolean readOnly, Object xqExpression, QueryBuilder xdmQuery) {
+	public boolean addQuery(String query, boolean readOnly, QueryBuilder xdmQuery) {
 		Integer qCode = getQueryKey(query);
-		logger.trace("addQuery.enter; got code: {}; query cache size: {}", qCode, xQueries.size());
-		boolean result = false;
-		//if (xqCache.tryLock(qCode)) {
-		//	try {
-		result = xQueries.put(qCode, new XDMQuery(query, readOnly, xqExpression, xdmQuery)) == null;
-		//		xqObjects.put(qCode, xqExpression);
-		//	} finally {
-		//		xqCache.unlock(qCode);
-		//	}
-		//}
+		//logger.trace("addQuery.enter; got code: {}; query cache size: {}", qCode, xQueries.size());
+		//boolean result = xqCache.putIfAbsent(qCode, new XDMQuery(query, readOnly, xdmQuery)) == null;
+		boolean result = xqCache.put(qCode, new XDMQuery(query, readOnly, xdmQuery)) == null;
 		logger.trace("addQuery.exit; returning: {}", result);
 		return result;
 	}
 
-	@Override
-	public void addExpression(String query, boolean readOnly, Object xqExpression) {
-		Integer qCode = getQueryKey(query);
-		logger.trace("addExpression.enter; got code: {}; query cache size: {}", qCode, xQueries.size());
-		QueryBuilder xdmQuery = null;
-		XDMQuery xQuery = xQueries.get(qCode);
-		if (xQuery != null) {
-			xdmQuery = xQuery.getXdmQuery(); 
-		}
-		xQuery = new XDMQuery(query, readOnly, xqExpression, xdmQuery);
+	//@Override
+	//public void addExpression(String query, boolean readOnly, Object xqExpression) {
+	//	Integer qCode = getQueryKey(query);
+	//	logger.trace("addExpression.enter; got code: {}; query cache size: {}", qCode, xQueries.size());
+	//	QueryBuilder xdmQuery = null;
+	//	XDMQuery xQuery = xQueries.get(qCode);
+	//	if (xQuery != null) {
+	//		xdmQuery = xQuery.getXdmQuery(); 
+	//	}
+	//	xQuery = new XDMQuery(query, readOnly, xqExpression, xdmQuery);
 		//if (xqCache.tryLock(qCode)) {
 		//	try {
-		xQueries.put(qCode, xQuery);
+	//	xQueries.put(qCode, xQuery);
 		//		xqObjects.put(qCode, xqExpression);
 		//	} finally {
 		//		xqCache.unlock(qCode);
@@ -170,27 +173,27 @@ public class QueryManagementImpl implements XDMQueryManagement {
 		//} else {
 		//	xqObjects.put(qCode, xqExpression);
 		//}
-	}
+	//}
 
-	@Override
-	public void addExpression(String query, boolean readOnly, QueryBuilder xdmQuery) {
-		Integer qCode = getQueryKey(query);
-		logger.trace("addExpression.enter; got code: {}; query cache size: {}", qCode, xQueries.size());
-		Object xqExpression = null;
-		XDMQuery xQuery = xQueries.get(qCode);
-		if (xQuery != null) {
-			xqExpression = xQuery.getXqExpression(); 
-		}
-		xQuery = new XDMQuery(query, readOnly, xqExpression, xdmQuery);
+	//@Override
+	//public void addExpression(String query, boolean readOnly, QueryBuilder xdmQuery) {
+	//	Integer qCode = getQueryKey(query);
+	//	logger.trace("addExpression.enter; got code: {}; query cache size: {}", qCode, xQueries.size());
+	//	Object xqExpression = null;
+	//	XDMQuery xQuery = xQueries.get(qCode);
+	//	if (xQuery != null) {
+	//		xqExpression = xQuery.getXqExpression(); 
+	//	}
+	//	xQuery = new XDMQuery(query, readOnly, xqExpression, xdmQuery);
 		//if (xqCache.tryLock(qCode)) {
 		//	try {
-		xQueries.put(qCode, xQuery);
+	//	xQueries.put(qCode, xQuery);
 		//		xqObjects.put(qCode, xqExpression);
 		//	} finally {
 		//		xqCache.unlock(qCode);
 		//	}
 		//}
-	}
+	//}
 	
 	private QueryParamsKey getResultsKey(String query, Map<String, Object> params) {
 		// should we check query ache first ??
@@ -223,9 +226,17 @@ public class QueryManagementImpl implements XDMQueryManagement {
 
 	@Override
 	public void clearCache() {
-		xqCache.evictAll();
+		xqCache.clear(); //evictAll();
 		xrCache.evictAll();
-		xQueries.clear();
+		//xQueries.clear();
+	}
+	
+	private void updateStats(String name, boolean success, int count) {
+		if (enableStats) {
+			if (!queue.offer(new StatisticsEvent(name, success, count))) {
+				logger.warn("updateStats; queue is full!!");
+			}
+		}
 	}
 	
 	public Set<Long> queryKeys(Set<Long> found, ExpressionContainer ec, Expression ex) throws XDMException {
@@ -429,7 +440,9 @@ public class QueryManagementImpl implements XDMQueryManagement {
 	@Override
 	public boolean isReadOnlyQuery(String query) {
 
-		XDMQuery xQuery = this.getQuery(query);
+		Integer qCode = getQueryKey(query);
+		XDMQuery xQuery = xqCache.get(qCode);
+		//XDMQuery xQuery = this.getQuery(query);
 		if (xQuery == null) {
 			//not cached yet, returning false, just to be safe..
 			return false;
@@ -493,7 +506,6 @@ public class QueryManagementImpl implements XDMQueryManagement {
 			result = createCursor(clientId, batchSize, iter);
 			xqp.setResults(result);
 		} catch (XQException ex) {
-		//	logger.error("execXQCommand.error;", ex);
 			throw new XDMException(ex, XDMException.ecQuery);
 		}
 		logger.trace("execXQCommand.exit; returning: {}, for client: {}", result, clientId);
@@ -517,9 +529,6 @@ public class QueryManagementImpl implements XDMQueryManagement {
 		//});
 		
 		int count = xqCursor.serialize(repo.getHzInstance());
-		if (count == 0) {
-			logger.info("createCursor; returning empty cursor for client {}", clientId);
-		}
 		return xqCursor;
 	}
 

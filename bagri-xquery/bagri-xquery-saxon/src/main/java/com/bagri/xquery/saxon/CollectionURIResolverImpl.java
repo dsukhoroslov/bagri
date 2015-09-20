@@ -68,13 +68,13 @@ public class CollectionURIResolverImpl implements CollectionURIResolver {
     }
     
     QueryBuilder getQuery() {
-    	// should return Container's copy!
+    	// should return Container's copy!?
     	return query;
     }
     
     void setQuery(QueryBuilder query) {
-    	// copy it!
-		logger.trace("setQuery. got: {}", query);
+    	// copy it! already copied, actually
+		logger.trace("setQuery. got: {}; this: {}", query, this);
     	this.query = query;
     }
 
@@ -105,7 +105,7 @@ public class CollectionURIResolverImpl implements CollectionURIResolver {
 			iterateParams(exp.getExpression());
 		}
 		stamp = System.currentTimeMillis() - stamp;
-		logger.debug("resolve; time taken: {}; query: {}", stamp, query); 
+		logger.debug("resolve; time taken: {}; query: {}; this: {}", stamp, query, this); 
 
 		// provide builder's copy here.
 		ExpressionContainer exCont = query.getContainer(collectType);

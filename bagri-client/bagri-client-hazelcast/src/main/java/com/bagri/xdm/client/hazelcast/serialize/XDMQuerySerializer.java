@@ -23,7 +23,6 @@ public class XDMQuerySerializer implements StreamSerializer<XDMQuery> {
 	public XDMQuery read(ObjectDataInput in) throws IOException {
 		return new XDMQuery(in.readUTF(),
 				in.readBoolean(),
-				null, //in.readObject(),
 				(QueryBuilder) in.readObject());
 	}
 
@@ -31,7 +30,6 @@ public class XDMQuerySerializer implements StreamSerializer<XDMQuery> {
 	public void write(ObjectDataOutput out, XDMQuery xQuery) throws IOException {
 		out.writeUTF(xQuery.getQuery());
 		out.writeBoolean(xQuery.isReadOnly());
-		//out.writeObject(xQuery.getXqExpression());
 		out.writeObject(xQuery.getXdmQuery());
 	}
 

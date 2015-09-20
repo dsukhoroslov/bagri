@@ -41,7 +41,7 @@ public class BagriXDMPlugin extends BagriTPoXPlugin {
 	public void close() throws SQLException {
 		//xdm.close();
 		TPoXQueryManagerTest test = xqmt.get();
-		logger.info("close; XDM: {}; hit count: {}; miss count: {}; overfetch count: {}", test.getRepository(), cntHit, cntMiss, cntOvf);
+		logger.info("close; XDM: {}", test.getRepository());
 		try {
 			test.close();
 		} catch (Exception ex) {
@@ -142,11 +142,6 @@ public class BagriXDMPlugin extends BagriTPoXPlugin {
 		}
 		DatabaseOperations.errors.get()[transNo] = err; 
 		logger.trace("execute.exit; returning: {}", result);
-		if (result > 0) {
-			cntHit++;
-		} else {
-			cntMiss++;
-		}
 		return result;
 	}
 	

@@ -3,7 +3,7 @@ package com.bagri.common.query;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ExpressionContainer {
+public class ExpressionContainer implements Cloneable {
 	
 	private ExpressionBuilder eBuilder;
 	private Map<String, Object> params;
@@ -16,6 +16,11 @@ public class ExpressionContainer {
 	public ExpressionContainer(ExpressionBuilder eBuilder, Map<String, Object> params) {
 		this.eBuilder = eBuilder;
 		this.params = params;
+	}
+	
+	@Override
+	public ExpressionContainer clone() {
+		return new ExpressionContainer(eBuilder, new HashMap<>(params));
 	}
 
 	public ExpressionBuilder getExpression() {

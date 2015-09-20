@@ -111,7 +111,7 @@ public class TriggerManagementImpl implements XDMTriggerManagement {
 				if (impl.isSynchronous()) {
 					runTrigger(action, scope, xDoc, trigger);
 				} else {
-					String clientId = repo.getCurrentClientId();
+					String clientId = repo.getClientId();
 					execService.submitToMember(new TriggerRunner(action, scope, impl.getIndex(), xDoc, clientId),					
 							hzInstance.getCluster().getLocalMember()); 
 				}

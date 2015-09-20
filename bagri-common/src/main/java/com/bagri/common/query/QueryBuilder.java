@@ -6,7 +6,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class QueryBuilder {
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class QueryBuilder implements Cloneable {
+
+    private static final Logger logger = LoggerFactory.getLogger(QueryBuilder.class);
 	
 	private Map<Integer, ExpressionContainer> containers = new HashMap<>();
 	
@@ -16,6 +21,11 @@ public class QueryBuilder {
 	
 	public QueryBuilder(Collection<ExpressionContainer> containers) {
 		setContainers(containers);
+	}
+	
+	@Override
+	public QueryBuilder clone() {
+		return new QueryBuilder(containers.values());
 	}
 	
 	public void addContainer(ExpressionContainer container) {
@@ -40,7 +50,7 @@ public class QueryBuilder {
 		this.containers.clear();
 		if (containers != null) {
 			for (ExpressionContainer ec: containers) {
-				addContainer(ec);
+				addContainer(ec.clone());
 			}
 		}
 	}
@@ -77,6 +87,7 @@ public class QueryBuilder {
 	}
 	
 	public void resetParams(Map<String, Object> params) {
+		logger.trace("resetParams; this: {}; got params: {}", this, params);
 		for (ExpressionContainer exCont: containers.values()) {
 			exCont.resetParams(params);
 		}
@@ -84,7 +95,7 @@ public class QueryBuilder {
 
 	@Override
 	public String toString() {
-		return "QueryBuilder [" + containers + "]";
+		return super.toString() + " [" + containers + "]";
 	}
 	
 }

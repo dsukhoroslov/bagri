@@ -57,7 +57,7 @@ public class MarkLogicXCCPlugin extends BagriTPoXPlugin {
 	@Override
 	public void close() throws SQLException {
 		ContentSource xcs = getContentSource();
-		logger.info("close; XCC: {}; hit count: {}; miss count: {}; overfetch count: {}", xcs, cntHit, cntMiss, cntOvf);
+		logger.info("close; XCC: {}", xcs);
 		xcs.getConnectionProvider().shutdown(null);
 	}
 

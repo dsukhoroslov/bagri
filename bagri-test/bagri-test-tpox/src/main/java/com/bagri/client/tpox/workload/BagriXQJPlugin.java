@@ -86,7 +86,7 @@ public class BagriXQJPlugin extends BagriTPoXPlugin {
 	public void close() throws SQLException {
 		XQConnection conn = getConnection();
 		if (!conn.isClosed()) {
-			logger.info("close; XQC: {}; hit count: {}; miss count: {}; overfetch count: {}", conn, cntHit, cntMiss, cntOvf);
+			logger.info("close; XQC: {}", conn);
 			try {
 				conn.close();
 			} catch (XQException ex) {

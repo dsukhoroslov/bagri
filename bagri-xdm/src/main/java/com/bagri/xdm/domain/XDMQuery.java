@@ -2,22 +2,25 @@ package com.bagri.xdm.domain;
 
 import com.bagri.common.query.QueryBuilder;
 
-public class XDMQuery {
+public class XDMQuery implements Cloneable {
 	
 	private String query;
 	private boolean readOnly;
-	private Object xqExpression;
 	private QueryBuilder xdmQuery;
 	
 	public XDMQuery() {
 		//
 	}
 	
-	public XDMQuery(String query, boolean readOnly, Object xqExpression, QueryBuilder xdmQuery) {
+	public XDMQuery(String query, boolean readOnly, QueryBuilder xdmQuery) {
 		this.query = query;
 		this.readOnly = readOnly;
-		this.xqExpression = xqExpression;
 		this.xdmQuery = xdmQuery;
+	}
+	
+	@Override
+	public XDMQuery clone() {
+		return new XDMQuery(query, readOnly, xdmQuery.clone());
 	}
 
 	public String getQuery() {
@@ -26,10 +29,6 @@ public class XDMQuery {
 	
 	public boolean isReadOnly() {
 		return readOnly;
-	}
-
-	public Object getXqExpression() {
-		return xqExpression;
 	}
 
 	public QueryBuilder getXdmQuery() {
@@ -59,7 +58,7 @@ public class XDMQuery {
 	@Override
 	public String toString() {
 		return "XDMQuery [query=" + query + ", readOnly=" + readOnly + 
-				", xqExpression=" + xqExpression + ", xdmQuery=" + xdmQuery + "]";
+				", xdmQuery=" + xdmQuery + "]";
 	}
 	
 	

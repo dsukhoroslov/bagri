@@ -4,6 +4,7 @@ import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
@@ -44,6 +45,7 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 	
 	private Iterator results;
     private CollectionURIResolverImpl bcr;
+    private Map<Integer, XQueryExpression> queries = new HashMap<>();
     
     private static NamePool defNamePool = new NamePool();
     private static DocumentNumberAllocator defDocNumberAllocator = new DocumentNumberAllocator();
@@ -149,11 +151,10 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 	    }
 	}
 	
-	private Iterator execQuery(String query) throws XQException {
+	private Iterator execQuery(final String query) throws XQException {
 	    logger.trace("execQuery.enter; this: {}", this);
 		
 		long stamp = System.currentTimeMillis();
-   	    XQueryExpression xqExp = null;
    	    
    	    XDMQueryManagement qMgr = (XDMQueryManagement) getQueryManagement();
    	    XDMQuery xQuery = qMgr.getQuery(query);
@@ -168,36 +169,31 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 		    logger.trace("execQuery; set document format: {}", "JSON");
 	    }
 	    
+	    Integer qKey = qMgr.getQueryKey(query);
+   	    XQueryExpression xqExp = queries.get(qKey);
    	    try {
-    	    if (xQuery == null) {
+        	if (xqExp == null) {
 		        xqExp = sqc.compileQuery(query);
 		        if (logger.isTraceEnabled()) {
 		        	logger.trace("execQuery; query: \n{}", explainQuery(xqExp));
 		        }
-		        // got exception: can't serialize XQueryExpression properly
-		        //getXQManager().addExpression(query, xqExp);
-
-		        cacheable = true; 
 	    	    // HOWTO: distinguish a query from command utilizing external function (store, remove)?
 		        readOnly = !xqExp.getExpression().getExpressionName().startsWith(XDMConstants.bg_schema);
-
-	        	bcr.setExpression(xqExp);
+	        	queries.put(qKey, xqExp);
+        	}
+   	    	
+    	    if (xQuery == null) {
+		        cacheable = true; 
 	        	bcr.setQuery(null);
 	        } else {
-	        	// cacheable = false; -> don't want to rewrite already cached xqExp/xdmExp
-    	    	xqExp = (XQueryExpression) xQuery.getXqExpression();
-	        	bcr.setExpression(xqExp);
-    	    	Map params = getParams();
+	        	Map params = getParams();
     	    	QueryBuilder xdmQuery = xQuery.getXdmQuery();
     	    	if (!(params == null || params.isEmpty())) {
         	    	xdmQuery.resetParams(params);
     	    	}
 	    		bcr.setQuery(xdmQuery);
-
-	    		// xqExp was created in another instance of XQProcesser, with different Configuration and BCR.
-	        	// the following call to xqExp.iterate causes old BCR from the expression's config to be used!
-	        	xqExp.getExecutable().setConfiguration(config);
     	    }
+        	bcr.setExpression(xqExp);
 	        readOnly |= !xqExp.getExpression().isUpdatingExpression();
     	    
 	        stamp = System.currentTimeMillis() - stamp;
@@ -207,10 +203,7 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 	        //Result r = new StreamResult();
 	        //xqExp.run(dqc, r, null);
 	        if (bcr.getQuery() != null && cacheable) {
-	        	qMgr.addQuery(query, readOnly, xqExp, bcr.getQuery());
-	        } else {
-	        	// cache just xqExp
-		        //qMgr.addExpression(query, xqExp);
+	        	qMgr.addQuery(query, readOnly, bcr.getQuery());
 	        }
 	        stamp = System.currentTimeMillis() - stamp;
 		    logger.trace("execQuery.exit; iterator props: {}; time taken: {}", itr.getProperties(), stamp);
@@ -264,6 +257,11 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 	@Override
 	public void setResults(Iterator itr) {
 		this.results = itr;
+	}
+	
+	@Override
+	public String toString() {
+		return "XQProcessorServer[" + getRepository().getClientId() + "]";
 	}
 	
 	private void serializeResults(SequenceIterator results) throws XQException {

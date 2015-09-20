@@ -37,10 +37,6 @@ public abstract class BagriTPoXPlugin implements GenericJavaClassPlugin {
     protected WorkloadEnvironment we;
     protected Random rand;
     
-    protected int cntHit = 0;
-    protected int cntMiss = 0;
-    protected int cntOvf = 0;
-	
 	@Override
 	public void prepare(int transNum, WorkloadProcessor workloadProcessor, WorkloadEnvironment workloadEnvironment,
 			Connection con, int verbosityLevel, Random userRandomNumGenerator) throws SQLException {
@@ -108,14 +104,6 @@ public abstract class BagriTPoXPlugin implements GenericJavaClassPlugin {
 		}
 		DatabaseOperations.errors.get()[transNo] = err; 
 		getLogger().trace("execute.exit; returning: {}", result);
-		if (result > 0) {
-			cntHit++;
-			if (result > fetchSize) {
-				cntOvf++;
-			}
-		} else {
-			cntMiss++;
-		}
 		return result;
 	}
 	
