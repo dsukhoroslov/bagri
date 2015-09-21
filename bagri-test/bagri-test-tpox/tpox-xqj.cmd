@@ -13,7 +13,7 @@ rem security documents  (because 83 * 251 = 20833). 4166*5 = 3472*6 = 2976*7 = 2
 
                                       
 rem "%java_exec%" -server -showversion %java_opts% -cp "%app_home%\target\lib\*;%app_home%\target\*" net.sf.tpox.workload.core.WorkloadDriver -w queries/queries-xqj.xml -u 10 %*
-"%java_exec%" -server -showversion %java_opts% -cp "%app_home%\target\*;%app_home%\target\lib\*" net.sf.tpox.workload.core.WorkloadDriver -w queries/insSecurity-xqj.xml -tr 2083 -u 10 %*
+"%java_exec%" -server -showversion %java_opts% -cp "%app_home%\target\*;%app_home%\target\lib\*" net.sf.tpox.workload.core.WorkloadDriver -w queries/XQJ/insSecurity.xml -tr 2083 -u 10 %*
 
 goto exit
 

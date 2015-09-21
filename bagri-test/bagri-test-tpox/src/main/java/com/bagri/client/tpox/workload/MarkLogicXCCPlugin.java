@@ -80,7 +80,8 @@ public class MarkLogicXCCPlugin extends BagriTPoXPlugin {
         	Content content = ContentFactory.newContent(uri, doc, options);
     		ContentSource xcs = getContentSource();
     		Session xss = xcs.newSession();
-        	xss.insertContent(content);        	
+        	xss.insertContent(content);       
+        	xss.close();
             return 1;
         }
 		return 0;

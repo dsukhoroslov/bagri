@@ -18,12 +18,10 @@ rem get insert statistics
 rem "%java_exec%" -server %java_opts% -cp "%app_home%\target\*;%app_home%\target\lib\*" com.bagri.client.tpox.StatisticsCollector %admin_addr% %schema% QueryManagement executeXQuery InsertSecurities ./stats.txt false
 
 rem perform queries looping by user count
-for /l %%x in (5, 1, 10) do (
-	echo %%x
-	"%java_exec%" -server %java_opts% -cp "%app_home%\target\*;%app_home%\target\lib\*" net.sf.tpox.workload.core.WorkloadDriver -w queries/XCC/securities.xml -u %%x
+for /l %%x in (5, 15, 200) do (
+     "%java_exec%" -server %java_opts% -cp "%app_home%\target\*;%app_home%\target\lib\*" net.sf.tpox.workload.core.WorkloadDriver -v 1 -pc 95 -cl 99 -w queries/XCC/securities.xml -u %%x
 )
 
-rem 	"%java_exec%" -server %java_opts% -cp "%app_home%\target\*;%app_home%\target\lib\*" com.bagri.client.tpox.StatisticsCollector %admin_addr% %schema% QueryManagement executeXQuery Users=%%x ./stats.txt false
 
 goto exit
 

@@ -30,7 +30,7 @@ rem set java_opts=%java_opts% -Dtangosol.coherence.management=all -Dtangosol.coh
 set java_opts=%java_opts% -Dlogback.configurationFile=ch-client-logging.xml
 set java_opts=%java_opts% -Dxdm.data.manager=Hazelcast
 
-"%java_exec%" -server -showversion %java_opts% -cp "%app_home%\target\lib\*;%app_home%\target\*" net.sf.tpox.workload.core.WorkloadDriver -u 25 -w queries/queries.xml %*
+"%java_exec%" -server -showversion %java_opts% -cp "%app_home%\target\lib\*;%app_home%\target\*" net.sf.tpox.workload.core.WorkloadDriver -u 25 -w queries/XDM/queries.xml %*
 
 goto exit
 

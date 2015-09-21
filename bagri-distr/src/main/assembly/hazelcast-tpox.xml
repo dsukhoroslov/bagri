@@ -25,7 +25,7 @@
             		<outputDirectory>/tpox</outputDirectory>
             		<includes>
 	                    <include>**/input/*.*</include>
-               		    <include>**/queries/*.*</include>
+               		    <include>**/queries/**</include>
 		        </includes>
           	    </fileSet>
         	</fileSets>
@@ -58,10 +58,7 @@
             <outputDirectory>/tpox</outputDirectory>
             <lineEnding>windows</lineEnding>
             <includes>
-                <include>set-tpox-env.cmd</include>
-                <include>tpox-xdm-*.cmd</include>
-                <include>tpox-xqj-*.cmd</include>
-                <include>*.txt</include>
+                <include>*.*</include>
             </includes>
         </fileSet>
 

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workload name="queries" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="workload_properties.xsd">
+	<collections>
+		<collection name="order">
+			<files dir="/data/order" firstfileid="1" lastfileid="1" docsperfile="100000" fileprefix="batch-" filepostfix="xml.offset"/>
+		</collection>
+		<collection name="orderids">
+			<ids first="103282" last="203281" />
+		</collection>
+	</collections>
+
+	<transactions>
+		<transaction id="1" name="getOrder" weight="100">
+			<java-plugin>com.bagri.client.tpox.workload.MarkLogicXCCPlugin</java-plugin>
+			<parameters>
+				<parameter>
+					<constant value="
+declare namespace o=&quot;http://www.fixprotocol.org/FIXML-4-4&quot;;
+declare variable $ID external;
+
+for $ord in fn:collection(&quot;orders&quot;)/o:FIXML
+where $ord/o:Order/@ID=$ID
+return $ord/o:Order" />
+				</parameter>
+				<parameter>
+					<constant value="true" />
+				</parameter>
+				<parameter>
+					<constant value="ID" />
+				</parameter>
+				<parameter>
+					<constant value="string" />
+				</parameter>
+				<parameter>
+					<ids collection="orderids" />
+				</parameter>
+			</parameters>
+		</transaction>
+	</transactions>
+</workload>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workload name="insertOrders" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="workload_properties.xsd">
+	<collections>
+		<collection name="order">
+			<files dir="/data/order" firstfileid="1" lastfileid="1" docsperfile="100000" fileprefix="batch-" filepostfix="xml.offset"/>
+		</collection>
+	</collections>
+	<transactions>
+
+		<transaction id="1" name="addOrder" weight="100">
+			<java-plugin>com.bagri.client.tpox.workload.MarkLogicXCCPlugin</java-plugin>
+			<parameters>
+				<parameter>
+					<constant value="insertDocument" />
+				</parameter>
+				<parameter>
+					<constant value="false" />
+				</parameter>
+				<parameter>
+					<constant value="doc" />
+				</parameter>
+				<parameter>
+					<constant value="document" />
+				</parameter>
+				<parameter>
+					<files collection="order"/>
+				</parameter>
+				<parameter>
+					<constant value="prefix" />
+				</parameter>
+				<parameter>
+					<constant value="string" />
+				</parameter>
+				<parameter>
+					<constant value="order" />
+				</parameter>
+				<parameter>
+					<constant value="collect" />
+				</parameter>
+				<parameter>
+					<constant value="string" />
+				</parameter>
+				<parameter>
+					<constant value="orders" />
+				</parameter>
+			</parameters>
+		</transaction>
+
+	</transactions>
+</workload>
