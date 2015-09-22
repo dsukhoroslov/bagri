@@ -8,7 +8,7 @@ package com.bagri.xdm.domain;
  * @since 05.2013 
  * @version 0.3
  */
-public class XDMPath implements Comparable<XDMPath> { //implements Serializable {
+public class XDMPath implements Comparable<XDMPath> { 
 	
 	private String path;
 	private int typeId;

@@ -160,6 +160,7 @@ public class ModelManagementImpl extends XDMModelManagementBase {
 	//}
 
 	@Override
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	protected boolean lock(Map cache, Object key) {
 		try {
 			return ((IMap) cache).tryLock(key, timeout, TimeUnit.MILLISECONDS);
@@ -170,6 +171,7 @@ public class ModelManagementImpl extends XDMModelManagementBase {
 	}
 
 	@Override
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	protected void unlock(Map cache, Object key) {
 		((IMap) cache).unlock(key);
 	}
@@ -186,29 +188,4 @@ public class ModelManagementImpl extends XDMModelManagementBase {
 		return val2;
 	}
 
-	//@Override
-	//public void registerSchema(String schema) {
-	//	
-	//	long stamp = System.currentTimeMillis();
-	//	getLogger().trace("registerSchema.enter; schema: {}", schema);
-	//	
-	//	SchemaRegistrator task = new SchemaRegistrator(schema);
-	//	Future<Integer> future = execService.submitToKeyOwner(task, 0);
-	//	getLogger().trace("registerSchema; the task submit; feature: {}", future);
-	//	Integer result;
-	//	try {
-	//		result = future.get();
-	//		getLogger().trace("registerSchema.exit; time taken: {}; returning: {}", System.currentTimeMillis() - stamp, result);
-	//		//return (XDMDocument) result;
-	//	} catch (Throwable ex) {
-	//		getLogger().error("registerSchema: ", ex);
-	//	}
-	//}
-
-	//@Override
-	//public void registerSchemaUri(String schemaUri) {
-	//	// TODO Auto-generated method stub
-	//	
-	//}
-	
 }

@@ -217,9 +217,9 @@ public abstract class XDMModelManagementBase implements XDMModelManagement {
 	@Override
 	public int getDocumentType(String root) {
 		// 
-		getLogger().trace("getDocumentTypeId.enter; got path: {}", root);
+		getLogger().trace("getDocumentType.enter; got path: {}", root);
 		root = normalizePath(root);
-		getLogger().trace("getDocumentTypeId; normalized path: {}", root);
+		getLogger().trace("getDocumentType; normalized path: {}", root);
 
 		int result = WRONG_PATH;
 		XDMDocumentType xdt = getTypeCache().get(root);
@@ -227,12 +227,12 @@ public abstract class XDMModelManagementBase implements XDMModelManagement {
 			result = xdt.getTypeId();
 		} else {
 			if (getLogger().isTraceEnabled()) {
-				getLogger().trace("getDocumentTypeId; type not found; keys: {}; types: {}", 
+				getLogger().trace("getDocumentType; type not found; keys: {}; types: {}", 
 						getTypeCache().keySet(), getTypeCache().values());
 				// throw XDMException ?
 			}
 		}
-		getLogger().trace("getDocumentTypeId.exit; returning: {}", result);
+		getLogger().trace("getDocumentType.exit; returning: {}", result);
 		return result;
 	}
 	
