@@ -5,7 +5,7 @@ rem set TPoX HOME properly!
 
 if "%TPOX_HOME%"=="" set TPOX_HOME=C:\Work\Bagri\TPoX
 
-set app_home=.
+set app_home=../
 
 rem specify the JVM heap size
 set memory=1024m

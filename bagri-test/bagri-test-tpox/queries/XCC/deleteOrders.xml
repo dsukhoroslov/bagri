@@ -50,7 +50,9 @@
 			<java-plugin>com.bagri.client.tpox.workload.MarkLogicXCCPlugin</java-plugin>
 			<parameters>
 				<parameter>
-					<constant value="xdmp:collection-delete(&quot;orders&quot;)" />
+					<constant value="
+declare namespace xdmp=&quot;http://marklogic.com/xdmp&quot;;
+xdmp:collection-delete(&quot;orders&quot;)" />
 				</parameter>
 				<parameter>
 					<constant value="true" />

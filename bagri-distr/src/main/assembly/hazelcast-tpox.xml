@@ -36,6 +36,7 @@
                     <include>*:bagri-test-common:*</include>
                     <include>*:bagri-test-tpox:*</include>
                     <include>*:commons-cli:*</include>
+                    <include>*:marklogic-xcc:*</include>
 	        </includes>
 		<unpack>false</unpack>
 	    </binaries>
