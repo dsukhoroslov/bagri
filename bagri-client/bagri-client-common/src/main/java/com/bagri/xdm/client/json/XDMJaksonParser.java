@@ -30,7 +30,7 @@ public class XDMJaksonParser extends XDMDataParser implements XDMParser {
 	
 	private static JsonFactory factory = new JsonFactory();
 
-	public static List<XDMData> parseDocument(XDMModelManagement dictionary, String json) throws IOException, XDMException {
+	public static List<XDMData> parseDocument(XDMModelManagement dictionary, String json) throws XDMException {
 		XDMJaksonParser parser = new XDMJaksonParser(dictionary);
 		return parser.parse(json);
 	}
@@ -40,54 +40,74 @@ public class XDMJaksonParser extends XDMDataParser implements XDMParser {
 	}
 
 	@Override
-	public List<XDMData> parse(String json) throws IOException, XDMException { 
+	public List<XDMData> parse(String json) throws XDMException { 
 		try (Reader reader = new StringReader(json)) {
 			return parse(reader);
+		} catch (IOException ex) {
+			throw new XDMException(ex, XDMException.ecInOut);
 		}
 	}
 	
 	@Override
-	public List<XDMData> parse(File file) throws IOException, XDMException {
+	public List<XDMData> parse(File file) throws XDMException {
 		try (Reader reader = new FileReader(file)) {
 			return parse(reader);
+		} catch (IOException ex) {
+			throw new XDMException(ex, XDMException.ecInOut);
 		}
 	}
 	
 	@Override
-	public List<XDMData> parse(InputStream stream) throws IOException, XDMException {
+	public List<XDMData> parse(InputStream stream) throws XDMException {
 		
 		JsonParser jParser = null;
 		try {
 			jParser = factory.createParser(stream);	
 			return parse(jParser);
+		} catch (IOException ex) {
+			throw new XDMException(ex, XDMException.ecInOut);
 		} finally {
 			if (jParser != null) {
-				jParser.close();
+				try {
+					jParser.close();
+				} catch (IOException ex) {
+					// just log it..
+				}
 			}
 		}
 	}
 	
 	@Override
-	public List<XDMData> parse(Reader reader) throws IOException, XDMException {
+	public List<XDMData> parse(Reader reader) throws XDMException {
 		
 		JsonParser jParser = null;
 		try {
 			jParser = factory.createParser(reader);	
 			return parse(jParser);
+		} catch (IOException ex) {
+			throw new XDMException(ex, XDMException.ecInOut);
 		} finally {
 			if (jParser != null) {
-				jParser.close();
+				try {
+					jParser.close();
+				} catch (IOException ex) {
+					// just log it..
+				}
 			}
 		}
 	}
 
-	public List<XDMData> parse(JsonParser parser) throws IOException, XDMException {
+	public List<XDMData> parse(JsonParser parser) throws XDMException {
 		
 		logger.trace("parse.enter; context: {}; schema: {}", parser.getParsingContext(), parser.getSchema());
 		
 		init();
-		while (parser.nextToken() != null) {
-			processToken(parser);
+		try {
+			while (parser.nextToken() != null) {
+				processToken(parser);
+			}
+		} catch (IOException ex) {
+			throw new XDMException(ex, XDMException.ecInOut);
 		}
 		cleanup();
 

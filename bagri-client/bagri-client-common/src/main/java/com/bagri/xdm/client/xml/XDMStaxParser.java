@@ -43,7 +43,7 @@ public class XDMStaxParser extends XDMDataParser implements XDMParser {
 	private StringBuilder chars;
 	private List<XMLEvent> firstEvents;
 
-	public static List<XDMData> parseDocument(XDMModelManagement dictionary, String xml) throws IOException, XMLStreamException, XDMException {
+	public static List<XDMData> parseDocument(XDMModelManagement dictionary, String xml) throws XMLStreamException, XDMException {
 		XDMStaxParser parser = new XDMStaxParser(dictionary);
 		return parser.parse(xml);
 	}
@@ -53,21 +53,25 @@ public class XDMStaxParser extends XDMDataParser implements XDMParser {
 	}
 
 	@Override
-	public List<XDMData> parse(String xml) throws IOException, XDMException {
+	public List<XDMData> parse(String xml) throws XDMException {
 		try (Reader reader = new StringReader(xml)) {
 			return parse(reader);
+		} catch (IOException ex) {
+			throw new XDMException(ex, XDMException.ecInOut);
 		}
 	}
 	
 	@Override
-	public List<XDMData> parse(File file) throws IOException, XDMException {
+	public List<XDMData> parse(File file) throws XDMException {
 		try (Reader reader = new FileReader(file)) {
 			return parse(reader);
+		} catch (IOException ex) {
+			throw new XDMException(ex, XDMException.ecInOut);
 		}
 	}
 	
 	@Override
-	public List<XDMData> parse(InputStream stream) throws IOException, XDMException {
+	public List<XDMData> parse(InputStream stream) throws XDMException {
 		
 		XMLEventReader eventReader = null;
 		try {
@@ -80,12 +84,12 @@ public class XDMStaxParser extends XDMDataParser implements XDMParser {
 				}
 			}
 		} catch (XMLStreamException ex) {
-			throw new IOException(ex);
+			throw new XDMException(ex, XDMException.ecInOut);
 		}
 	}
 	
 	@Override
-	public List<XDMData> parse(Reader reader) throws IOException, XDMException {
+	public List<XDMData> parse(Reader reader) throws XDMException {
 		
 		XMLEventReader eventReader = null;
 		try {
@@ -98,11 +102,11 @@ public class XDMStaxParser extends XDMDataParser implements XDMParser {
 				}
 			}
 		} catch (XMLStreamException ex) {
-			throw new IOException(ex);
+			throw new XDMException(ex, XDMException.ecInOut);
 		}
 	}
 	
-	public List<XDMData> parse(Source source) throws IOException, XDMException {
+	public List<XDMData> parse(Source source) throws XDMException {
 		
 		XMLEventReader eventReader = null;
 		try {
@@ -115,18 +119,18 @@ public class XDMStaxParser extends XDMDataParser implements XDMParser {
 				}
 			}
 		} catch (XMLStreamException ex) {
-			throw new IOException(ex);
+			throw new XDMException(ex, XDMException.ecInOut);
 		}
 	}
 	
-	public List<XDMData> parse(XMLEventReader eventReader) throws IOException, XDMException {
+	public List<XDMData> parse(XMLEventReader eventReader) throws XDMException {
 		
 		init();
 		while (eventReader.hasNext()) {
 			try {
 				processEvent(eventReader.nextEvent());
 			} catch (XMLStreamException ex) {
-				throw new IOException(ex);
+				throw new XDMException(ex, XDMException.ecInOut);
 			}
 		}
 		cleanup();

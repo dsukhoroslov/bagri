@@ -232,12 +232,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		String dataFormat = getDataFormat();
 		XDMParser parser = factory.newXDMParser(dataFormat, model);
 		List<XDMData> data;
-		try {
-			data = parser.parse(xml);
-		} catch (IOException ex) {
-			logger.debug("createDocument.error", ex); 
-			throw new XDMException(ex, XDMException.ecInOut);
-		}
+		data = parser.parse(xml);
 
 		XDMDocumentKey docKey = entry.getKey();
 		List<Long> fragments = loadElements(docKey.getKey(), data); 

@@ -55,21 +55,25 @@ public class XDMJsonParser extends XDMDataParser implements XDMParser {
 	}
 
 	@Override
-	public List<XDMData> parse(String json) throws IOException, XDMException { 
+	public List<XDMData> parse(String json) throws XDMException { 
 		try (Reader reader = new StringReader(json)) {
 			return parse(reader);
+		} catch (IOException ex) {
+			throw new XDMException(ex, XDMException.ecInOut);
 		}
 	}
 	
 	@Override
-	public List<XDMData> parse(File file) throws IOException, XDMException {
+	public List<XDMData> parse(File file) throws XDMException {
 		try (Reader reader = new FileReader(file)) {
 			return parse(reader);
+		} catch (IOException ex) {
+			throw new XDMException(ex, XDMException.ecInOut);
 		}
 	}
 	
 	@Override
-	public List<XDMData> parse(InputStream stream) throws IOException, XDMException {
+	public List<XDMData> parse(InputStream stream) throws XDMException {
 
 		try (JsonParser parser = factory.createParser(stream)) {
 			return parse(parser);
@@ -77,14 +81,14 @@ public class XDMJsonParser extends XDMDataParser implements XDMParser {
 	}
 	
 	@Override
-	public List<XDMData> parse(Reader reader) throws IOException, XDMException {
+	public List<XDMData> parse(Reader reader) throws XDMException {
 		
 		try (JsonParser parser = factory.createParser(reader)) {
 			return parse(parser);
 		}
 	}
 
-	public List<XDMData> parse(JsonParser parser) throws IOException, XDMException {
+	public List<XDMData> parse(JsonParser parser) throws XDMException {
 		
 		logger.trace("parse.enter; parser: {}", parser);
 		
@@ -100,7 +104,7 @@ public class XDMJsonParser extends XDMDataParser implements XDMParser {
 		return result;
 	}
 	
-	private void processEvent(JsonParser parser) throws IOException, XDMException { //, XMLStreamException {
+	private void processEvent(JsonParser parser) throws XDMException { //, XMLStreamException {
 
 		JsonParser.Event event = parser.next();
 		if (event == Event.VALUE_STRING || event == Event.VALUE_NUMBER) {
