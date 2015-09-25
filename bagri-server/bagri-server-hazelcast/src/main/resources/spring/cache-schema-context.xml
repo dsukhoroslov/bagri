@@ -227,7 +227,8 @@
 	<hz:map id="dict-index" name="dict-index" instance-ref="hzInstance" />
 	<hz:map id="dict-trigger" name="dict-trigger" instance-ref="hzInstance" />
 
-	<hz:atomicLong id="xdm.document" name="xdm.document" instance-ref="hzInstance"/>
+	<hz:idGenerator id="xdm.document" name="xdm.document" instance-ref="hzInstance"/>
+	<!--hz:atomicLong id="xdm.document" name="xdm.document" instance-ref="hzInstance"/-->
 	<hz:atomicLong id="xdm.path" name="xdm.path" instance-ref="hzInstance"/>
 	<hz:atomicLong id="xdm.namespace" name="xdm.namespace" instance-ref="hzInstance"/>
 	<hz:atomicLong id="xdm.doctype" name="xdm.doctype" instance-ref="hzInstance"/>
@@ -239,7 +240,10 @@
 
 	<bean id="xdmStoreFactory" class="com.bagri.xdm.cache.hazelcast.store.XDMMapStoreFactory"/>
 
-	<bean id="docGen" class="com.bagri.xdm.client.hazelcast.impl.IdGeneratorImpl">
+	<!--bean id="docGen" class="com.bagri.xdm.client.hazelcast.impl.IdGeneratorImpl">
+		<constructor-arg ref="xdm.document" />
+	</bean-->
+	<bean id="docGen" class="com.bagri.xdm.client.hazelcast.impl.HzGeneratorImpl">
 		<constructor-arg ref="xdm.document" />
 	</bean>
 
