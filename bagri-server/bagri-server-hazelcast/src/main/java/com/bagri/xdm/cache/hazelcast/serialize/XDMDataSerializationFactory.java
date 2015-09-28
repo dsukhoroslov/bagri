@@ -1,5 +1,6 @@
 package com.bagri.xdm.cache.hazelcast.serialize;
 
+import com.bagri.xdm.cache.hazelcast.predicate.DocsAwarePredicate;
 import com.bagri.xdm.cache.hazelcast.predicate.QueryPredicate;
 import com.bagri.xdm.cache.hazelcast.task.doc.DocumentCreator;
 import com.bagri.xdm.cache.hazelcast.task.doc.DocumentRemover;
@@ -45,6 +46,8 @@ public class XDMDataSerializationFactory extends com.bagri.xdm.client.hazelcast.
 		
 		switch (typeId) {
 			//case cli_ProcessDocumentTask: return new DocumentProcessor();
+			case cli_QueryPredicate: return new QueryPredicate();
+			case cli_DocsAwarePredicate: return new DocsAwarePredicate();
 			case cli_CreateDocumentTask: return new DocumentCreator();
 			case cli_RemoveDocumentTask: return new DocumentRemover();
 			case cli_BeginTransactionTask: return new TransactionStarter(); 
