@@ -45,13 +45,14 @@ import com.bagri.xdm.system.XDMIndex;
 import com.bagri.xqj.BagriXQUtils;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.IMap;
+import com.hazelcast.core.ReplicatedMap;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
 
 public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsProvider {
 	
 	private static final transient Logger logger = LoggerFactory.getLogger(IndexManagementImpl.class);
-	private IMap<Integer, XDMIndex> idxDict;
+	private ReplicatedMap<Integer, XDMIndex> idxDict;
     private IMap<XDMIndexKey, XDMIndexedValue> idxCache;
 	//private IExecutorService execService;
 	private Map<Integer, TreeMap<Comparable, Integer>> rangeIndex = new HashMap<>();
@@ -89,7 +90,7 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
     //	this.xdmCache = xdmCache;
     //}
     
-	public void setIndexDictionary(IMap<Integer, XDMIndex> idxDict) {
+	public void setIndexDictionary(ReplicatedMap<Integer, XDMIndex> idxDict) {
 		this.idxDict = idxDict;
 	}
 	
@@ -163,7 +164,8 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 		XDMPath[] result = new XDMPath[paths.size()];
 		int idx = 0;
 		for (Integer pathId: paths) {
-			idxDict.putIfAbsent(pathId, index);
+			//idxDict.putIfAbsent(pathId, index);
+			idxDict.put(pathId, index);
 			//indexStats.initStats(index.getName());
 			if (index.isRange()) {
 				rangeIndex.put(pathId, new TreeMap<Comparable, Integer>());
@@ -222,18 +224,21 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 
 	private Collection<XDMIndex> getPathIndexes(int pathId, String path) {
 		Set<XDMIndex> result = new HashSet<>();
-		for (Map.Entry<XDMIndex, Pattern> e: patterns.entrySet()) {
-			Matcher m = e.getValue().matcher(path);
-			boolean match = m.matches(); 
-			if (match) {
-				result.add(e.getKey());
-				idxDict.putIfAbsent(pathId, e.getKey());
-			}
-			logger.trace("getPathIndexes; pattern {} {}matched for path {}", e.getValue().pattern(), match ? "" : "not ", path);
-		}
 		XDMIndex idx = idxDict.get(pathId);
 		if (idx != null) {
 			result.add(idx);
+		} else {
+			for (Map.Entry<XDMIndex, Pattern> e: patterns.entrySet()) {
+				Matcher m = e.getValue().matcher(path);
+				boolean match = m.matches(); 
+				if (match) {
+					result.add(e.getKey());
+					// TODO: do we put multiple indexes for the same path?! think about it..
+					idxDict.put(pathId, e.getKey());
+					result.add(e.getKey());
+				}
+				logger.trace("getPathIndexes; pattern {} {}matched for path {}", e.getValue().pattern(), match ? "" : "not ", path);
+			}
 		}
 		return result;
 	}
@@ -505,12 +510,22 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 	
 	public Collection<Integer> getTypeIndexes(int docType, boolean uniqueOnly) {
 		String root = mdlMgr.getDocumentRoot(docType);
-		Predicate p = Predicates.equal("typePath", root);
-		if (uniqueOnly) {
-			Predicate u = Predicates.equal("unique", true);
-			p = Predicates.and(p, u);
+		//Predicate p = Predicates.equal("typePath", root);
+		//if (uniqueOnly) {
+		//	Predicate u = Predicates.equal("unique", true);
+		//	p = Predicates.and(p, u);
+		//}
+		Collection<Integer> result = new HashSet<>(); //idxDict.keySet(p);
+		for (Map.Entry<Integer, XDMIndex> e: idxDict.entrySet()) {
+			if (root.equals(e.getValue().getTypePath())) {
+				if (uniqueOnly) {
+					if (!e.getValue().isUnique()) {
+						continue;
+					}
+				}
+				result.add(e.getKey());
+			}
 		}
-		Collection<Integer> result = idxDict.keySet(p);
 		logger.trace("getTypeIndexes.exit; returning {} path for type: {}, unique: {}", result.size(), docType, uniqueOnly);
 		return result;
 	}

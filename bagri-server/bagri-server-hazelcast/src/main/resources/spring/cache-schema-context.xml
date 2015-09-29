@@ -64,11 +64,12 @@
 					<hz:index attribute="pathId" ordered="true"/>
 				</hz:indexes-->
 			</hz:map>
-			<hz:map name="dict-index" in-memory-format="OBJECT" async-backup-count="${xdm.schema.dict.backup.async}" 
+			<!--hz:map name="dict-index" in-memory-format="OBJECT" async-backup-count="${xdm.schema.dict.backup.async}" 
 				backup-count="${xdm.schema.dict.backup.sync}" read-backup-data="${xdm.schema.dict.backup.read}">
 				<hz:near-cache time-to-live-seconds="0" max-idle-seconds="0" eviction-policy="LRU" 
 					max-size="0" invalidate-on-change="true" in-memory-format="OBJECT" cache-local-entries="false"/>
-			</hz:map>
+			</hz:map-->
+			
 			<hz:map name="dict-document-type" in-memory-format="OBJECT" async-backup-count="${xdm.schema.dict.backup.async}" 
 				backup-count="${xdm.schema.dict.backup.sync}" read-backup-data="${xdm.schema.dict.backup.read}">
 				<!--hz:map-store enabled="true" write-delay-seconds="10" factory-implementation="xdmStoreFactory">
@@ -161,6 +162,7 @@
 					 max-size="10" eviction-percentage="10">
 			</hz:map>
 			<hz:replicatedmap name="xdm-query" in-memory-format="OBJECT" replication-delay-millis="0"/>
+			<hz:replicatedmap name="dict-index" in-memory-format="OBJECT" replication-delay-millis="0"/>
 			
 			<hz:serialization>
 				<hz:data-serializable-factories>
@@ -224,7 +226,8 @@
 	<hz:map id="dict-document-type" name="dict-document-type" instance-ref="hzInstance" />
 	<hz:map id="dict-path" name="dict-path" instance-ref="hzInstance" />
 	<hz:map id="dict-namespace" name="dict-namespace" instance-ref="hzInstance" />
-	<hz:map id="dict-index" name="dict-index" instance-ref="hzInstance" />
+	<!--hz:map id="dict-index" name="dict-index" instance-ref="hzInstance" /-->
+	<hz:replicatedMap id="dict-index" name="dict-index" instance-ref="hzInstance" />
 	<hz:map id="dict-trigger" name="dict-trigger" instance-ref="hzInstance" />
 
 	<hz:idGenerator id="xdm.document" name="xdm.document" instance-ref="hzInstance"/>
