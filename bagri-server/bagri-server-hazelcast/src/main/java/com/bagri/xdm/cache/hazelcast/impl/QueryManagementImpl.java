@@ -243,18 +243,18 @@ public class QueryManagementImpl implements XDMQueryManagement {
 		if (ex instanceof BinaryExpression) {
 			BinaryExpression be = (BinaryExpression) ex;
 			Set<Long> leftKeys = queryKeys(found, ec, be.getLeft());
-			if (Comparison.AND.equals(be.getCompType())) {
+			if (Comparison.AND == be.getCompType()) {
 				if (leftKeys.isEmpty()) {
 					return leftKeys;
 				}
 				Set<Long> rightKeys = queryKeys(leftKeys, ec, be.getRight());
 				return rightKeys;
-			} else if (Comparison.OR.equals(be.getCompType())) {
+			} else if (Comparison.OR == be.getCompType()) {
 				Set<Long> rightKeys = queryKeys(found, ec, be.getRight());
 				leftKeys.addAll(rightKeys);
 				return leftKeys;
 			} else {
-				throw new IllegalArgumentException("Wrong BinaryExpression type: " + be.getCompType());
+				throw new XDMException("Wrong BinaryExpression type: " + be.getCompType(), XDMException.ecQuery);
 			}
 		}
 		

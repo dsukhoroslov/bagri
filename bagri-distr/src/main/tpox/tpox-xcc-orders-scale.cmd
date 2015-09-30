@@ -11,7 +11,7 @@ for /l %%x in (10, 10, 100) do (
 	echo !count!0
 	"%java_exec%" -server %java_opts% -cp "%app_home%\config\*;%app_home%\lib\*" net.sf.tpox.workload.core.WorkloadDriver -w queries/XCC/insOrder.xml -tr !count! -u 10
 
-	"%java_exec%" -server %java_opts% -cp "%app_home%\config\*;%app_home%\lib\*" net.sf.tpox.workload.core.WorkloadDriver -w queries/XCC/orders-%%x.xml -u 100
+	"%java_exec%" -server %java_opts% -cp "%app_home%\config\*;%app_home%\lib\*" net.sf.tpox.workload.core.WorkloadDriver -w queries/XCC/orders-%%x.xml -u 100 -r 10
 
 	"%java_exec%" -server %java_opts% -cp "%app_home%\config\*;%app_home%\lib\*" net.sf.tpox.workload.core.WorkloadDriver -w queries/XCC/deleteOrders.xml -tr 1
 )

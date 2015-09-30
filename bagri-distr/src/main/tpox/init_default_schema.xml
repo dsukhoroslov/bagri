@@ -8,7 +8,7 @@
         <arguments>
             <argument index="0">
                 <type>java.lang.String</type>
-		<value>../../etc/samples/tpox/custacc.xsd</value>
+		<value>../data/tpox/custacc.xsd</value>
             </argument>
         </arguments>
     </invoke-->

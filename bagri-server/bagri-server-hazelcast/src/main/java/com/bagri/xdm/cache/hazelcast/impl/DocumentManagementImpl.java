@@ -192,6 +192,12 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
     }
     
 	public boolean checkDocumentCommited(long docId) throws XDMException {
+		
+		// TODO: make this behavior configurable! 
+		if (txManager.getCurrentTxId() == TX_NO) {
+			return xddCache.containsKey(factory.newXDMDocumentKey(docId));
+		}
+		
 		XDMDocument doc = getDocument(docId);
 		if (doc != null) {
 			if (doc.getTxFinish() > TX_NO && txManager.isTxVisible(doc.getTxFinish())) {

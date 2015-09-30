@@ -18,12 +18,14 @@ import com.bagri.xdm.domain.XDMPath;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IAtomicLong;
 import com.hazelcast.core.IMap;
+import com.hazelcast.core.ReplicatedMap;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
 
 public class ModelManagementImpl extends XDMModelManagementBase { 
 
 	protected IMap<String, XDMPath> pathCache;
+	//protected ReplicatedMap<String, XDMNamespace> nsCache;
 	protected IMap<String, XDMNamespace> nsCache;
 	protected IMap<String, XDMDocumentType> typeCache;
 	private IdGenerator<Long> nsGen;
