@@ -66,7 +66,6 @@
 		</hz:proxy-factories-->
 		
 		<hz:near-cache name="dict-path" in-memory-format="OBJECT" />
-		<hz:near-cache name="dict-index" in-memory-format="OBJECT" />
 		<hz:near-cache name="dict-namespace" in-memory-format="OBJECT" />
 		<hz:near-cache name="dict-document-type" in-memory-format="OBJECT" />
 		
@@ -76,7 +75,6 @@
 	<hz:map id="xdm-element" name="xdm-element" instance-ref="hzInstance" />
 	<hz:map id="dict-document-type" name="dict-document-type" instance-ref="hzInstance" />
 	<hz:map id="dict-path" name="dict-path" instance-ref="hzInstance" />
-	<hz:map id="dict-index" name="dict-index" instance-ref="hzInstance" />
 	<hz:map id="dict-namespace" name="dict-namespace" instance-ref="hzInstance" />
 
 	<hz:atomicLong id="xdm.document" name="xdm.document" instance-ref="hzInstance"/>

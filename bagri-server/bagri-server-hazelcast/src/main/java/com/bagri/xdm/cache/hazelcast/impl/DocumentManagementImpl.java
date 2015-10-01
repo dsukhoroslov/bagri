@@ -194,6 +194,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	public boolean checkDocumentCommited(long docId) throws XDMException {
 		
 		// TODO: make this behavior configurable! 
+		// check if any docs were removed
 		if (txManager.getCurrentTxId() == TX_NO) {
 			return xddCache.containsKey(factory.newXDMDocumentKey(docId));
 		}
@@ -493,6 +494,8 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	public String getDocumentAsString(long docId) throws XDMException {
 		XDMDocumentKey docKey = factory.newXDMDocumentKey(docId);
 		String xml = xmlCache.get(docKey);
+		// very expensive operation!!
+		//logger.trace("getDocumentAsString; xml cache stats: {}", xmlCache.getLocalMapStats());
 		if (xml == null) {
 			XDMDocument doc = getDocument(docKey);
 			if (doc == null) {

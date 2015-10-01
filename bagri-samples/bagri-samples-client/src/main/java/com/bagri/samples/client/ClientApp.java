@@ -40,19 +40,16 @@ public class ClientApp {
 		boolean found = false;
 		try {
 			//client.storeSecCommand();
-			//long id = client.storeSecQuery();
+			long id = client.storeSecQuery();
 			//long id = client.storeXmlDocument("axis.xml");
 			//System.out.println("document stored; id: " + id);
 			//found = client.runPriceQuery("IBM"); 
 			//found &= client.runPriceQuery("IBM");
-			//found = client.runSecQuery("IBM");
+			found = client.runSecQuery("IBM");
 			//found &= client.runSecQuery("VFINX");
 			//found &= client.runPriceQuery("PTTAX");
-			//client.runPriceQuery();
-			//found = client.runSecQuery();
-			//client.runSecQuery();
 			//found = client.searchSecQuery();
-			found = client.searchSecQueryParams();
+			//found = client.searchSecQueryParams();
 			//client.searchSecQueryParams();
 			//found = client.runAxisQuery();
 			//client.removeSecCommand(id);
