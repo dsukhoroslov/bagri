@@ -33,6 +33,9 @@ public abstract class BagriXQItemAccessor extends BagriXQCloseable implements XQ
 	private XQProcessor xqProcessor;
 
 	BagriXQItemAccessor(XQProcessor xqProcessor) {
+		if (xqProcessor == null) {
+			throw new NullPointerException("Got NULL processor at initialization!");
+		}
 		this.xqProcessor = xqProcessor;
 	}
 	

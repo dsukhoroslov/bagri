@@ -26,6 +26,8 @@ import com.bagri.common.query.ExpressionBuilder;
 import com.bagri.common.query.ExpressionContainer;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMQueryManagement;
+import com.bagri.xdm.client.common.impl.QueryManagementBase;
+import com.bagri.xdm.client.hazelcast.data.QueryParamsKey;
 import com.bagri.xdm.client.hazelcast.task.query.DocumentIdsProvider;
 import com.bagri.xdm.client.hazelcast.task.query.DocumentUrisProvider;
 import com.bagri.xdm.client.hazelcast.task.query.XMLBuilder;
@@ -34,7 +36,7 @@ import com.bagri.xdm.domain.XDMQuery;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.Member;
 
-public class QueryManagementImpl implements XDMQueryManagement {
+public class QueryManagementImpl extends QueryManagementBase implements XDMQueryManagement {
 	
     private final static Logger logger = LoggerFactory.getLogger(QueryManagementImpl.class);
 	
@@ -136,12 +138,6 @@ public class QueryManagementImpl implements XDMQueryManagement {
 		return result; 
 	}
 	
-	@Override
-	public int getQueryKey(String query) {
-		// TODO: implement it via cifer ...
-		return query.hashCode();
-	}
-
 	private Iterator execXQuery(boolean isQuery, String query, Map bindings, Properties props) throws XDMException {
 		
 		props.setProperty(pn_client_id, repo.getClientId());
@@ -155,10 +151,10 @@ public class QueryManagementImpl implements XDMQueryManagement {
 		XQCommandExecutor task = new XQCommandExecutor(isQuery, schemaName, query, bindings, props);
 		Future<ResultCursor> future;
 		if ("owner".equals(runOn)) {
-			int key = getQueryKey(query);
+			QueryParamsKey key = new QueryParamsKey(getQueryKey(query), getParamsKey(bindings));
 			future = execService.submitToKeyOwner(task, key);
 		} else if ("member".equals(runOn)) {
-			int key = getQueryKey(query);
+			QueryParamsKey key = new QueryParamsKey(getQueryKey(query), getParamsKey(bindings));
 			Member member = repo.getHazelcastClient().getPartitionService().getPartition(key).getOwner();
 			future = execService.submitToMember(task, member);
 		} else {
@@ -175,15 +171,6 @@ public class QueryManagementImpl implements XDMQueryManagement {
 		logger.trace("execXQuery; got cursor: {}", cursor);
 		if (cursor != null) {
 			cursor.deserialize(repo.getHazelcastClient());
-			//if (cursor.isFailure()) {
-			//	while (cursor.hasNext()) {
-			//		Object err = cursor.next();
-			//		if (err instanceof String) {
-						// get error code from cursor too! 
-			//			throw new XDMException((String) err, XDMException.ecUnknown);
-			//		}
-			//	}
-			//}
 		}
 			
 		Iterator result;
@@ -191,6 +178,7 @@ public class QueryManagementImpl implements XDMQueryManagement {
 		if (fetchSize == 0) {
 			result = extractFromCursor(cursor);
 		} else {
+			// possible memory leak with non-closed cursors !?
 			result = cursor;
 		}
 		return result; 

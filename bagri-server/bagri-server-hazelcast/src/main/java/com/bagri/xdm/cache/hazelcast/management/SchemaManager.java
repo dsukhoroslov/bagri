@@ -24,7 +24,7 @@ import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.cache.common.XDMDocumentManagementServer;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaActivator;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaUpdater;
-import com.bagri.xdm.client.common.impl.XDMModelManagementBase;
+import com.bagri.xdm.client.common.impl.ModelManagementBase;
 import com.bagri.xdm.system.XDMFragment;
 import com.bagri.xdm.system.XDMIndex;
 import com.bagri.xdm.system.XDMJavaTrigger;

@@ -9,7 +9,7 @@ import java.util.concurrent.Future;
 
 import com.bagri.common.idgen.IdGenerator;
 import com.bagri.xdm.api.XDMDocumentManagement;
-import com.bagri.xdm.client.common.impl.XDMDocumentManagementBase;
+import com.bagri.xdm.client.common.impl.DocumentManagementBase;
 import com.bagri.xdm.client.hazelcast.data.DocumentKey;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentCreator;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentRemover;
@@ -24,7 +24,7 @@ import com.hazelcast.core.IMap;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
 
-public class DocumentManagementImpl extends XDMDocumentManagementBase implements XDMDocumentManagement {
+public class DocumentManagementImpl extends DocumentManagementBase implements XDMDocumentManagement {
 
 	private IMap<Long, XDMDocument> xddCache;
 	private IMap<XDMDataKey, XDMElements> xdmCache;

@@ -626,7 +626,7 @@ public class BagriXQUtils {
 			}
 			ex = ex.getCause();
 		}
-		XQException xqe = new XQException(init.getMessage(), String.valueOf(errorCode));
+		XQException xqe = new XQException(init.getMessage() == null ? "null" : init.getMessage(), String.valueOf(errorCode));
 		xqe.initCause(ex);
 		return xqe;
 	}

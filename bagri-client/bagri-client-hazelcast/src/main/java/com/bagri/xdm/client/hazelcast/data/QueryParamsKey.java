@@ -11,7 +11,7 @@ import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
-public class QueryParamsKey extends XDMResultsKey implements IdentifiedDataSerializable, PartitionAware<Integer> { 
+public class QueryParamsKey extends XDMResultsKey implements IdentifiedDataSerializable { //, PartitionAware<Integer> { 
 
 	public QueryParamsKey() {
 		super();
@@ -21,10 +21,10 @@ public class QueryParamsKey extends XDMResultsKey implements IdentifiedDataSeria
 		super(queryHash, paramsHash);
 	}
 
-	@Override
-	public Integer getPartitionKey() {
-		return queryHash;
-	}
+	//@Override
+	//public Integer getPartitionKey() {
+	//	return queryHash;
+	//}
 
 	@Override
 	public int getFactoryId() {

@@ -12,7 +12,7 @@ import java.util.concurrent.Callable;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.bagri.xdm.api.XDMModelManagement;
-import com.bagri.xdm.client.common.impl.XDMModelManagementBase;
+import com.bagri.xdm.client.common.impl.ModelManagementBase;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
@@ -39,14 +39,14 @@ public class ModelRegistrator implements Callable<Integer>, IdentifiedDataSerial
 
 	@Override
 	public Integer call() throws Exception {
-		int size = ((XDMModelManagementBase) modelMgr).getDocumentTypes().size();
+		int size = ((ModelManagementBase) modelMgr).getDocumentTypes().size();
 		//Path path = Paths.get(schemaFile, null);
 		//if (Files.isDirectory(path, null)) {
 			modelMgr.registerSchemaUri(schemaFile);			
 		//} else {
 		//	modelMgr.registerSchemaUri(schemaFile);
 		//}
-		return ((XDMModelManagementBase) modelMgr).getDocumentTypes().size() - size;
+		return ((ModelManagementBase) modelMgr).getDocumentTypes().size() - size;
 	}
 
 	@Override

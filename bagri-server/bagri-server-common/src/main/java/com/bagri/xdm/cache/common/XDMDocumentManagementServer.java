@@ -7,7 +7,7 @@ import java.util.Set;
 
 import com.bagri.xdm.api.XDMDocumentManagement;
 import com.bagri.xdm.api.XDMModelManagement;
-import com.bagri.xdm.client.common.impl.XDMDocumentManagementBase;
+import com.bagri.xdm.client.common.impl.DocumentManagementBase;
 import com.bagri.xdm.client.xml.XmlBuilder;
 import com.bagri.xdm.common.XDMDataKey;
 import com.bagri.xdm.common.XDMFactory;
@@ -15,7 +15,7 @@ import com.bagri.xdm.domain.XDMData;
 import com.bagri.xdm.domain.XDMElements;
 import com.bagri.xdm.domain.XDMNodeKind;
 
-public abstract class XDMDocumentManagementServer extends XDMDocumentManagementBase implements XDMDocumentManagement {
+public abstract class XDMDocumentManagementServer extends DocumentManagementBase implements XDMDocumentManagement {
 
 	protected XDMFactory factory;
 	protected XDMModelManagement model;

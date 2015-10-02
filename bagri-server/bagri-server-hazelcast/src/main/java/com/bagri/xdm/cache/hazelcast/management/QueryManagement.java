@@ -28,7 +28,7 @@ import com.bagri.common.manage.StatsAggregator;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaQueryCleaner;
 import com.bagri.xdm.cache.hazelcast.task.stats.StatisticSeriesCollector;
 import com.bagri.xdm.cache.hazelcast.task.stats.StatisticsReseter;
-import com.bagri.xdm.client.common.impl.XDMModelManagementBase;
+import com.bagri.xdm.client.common.impl.ModelManagementBase;
 import com.bagri.xdm.client.hazelcast.impl.DocumentManagementImpl;
 import com.bagri.xdm.domain.XDMDocumentType;
 import com.hazelcast.core.Member;

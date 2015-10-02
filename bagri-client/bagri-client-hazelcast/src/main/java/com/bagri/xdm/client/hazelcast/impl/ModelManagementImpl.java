@@ -11,7 +11,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import com.bagri.common.idgen.IdGenerator;
-import com.bagri.xdm.client.common.impl.XDMModelManagementBase;
+import com.bagri.xdm.client.common.impl.ModelManagementBase;
 import com.bagri.xdm.domain.XDMDocumentType;
 import com.bagri.xdm.domain.XDMNamespace;
 import com.bagri.xdm.domain.XDMPath;
@@ -22,7 +22,7 @@ import com.hazelcast.core.ReplicatedMap;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
 
-public class ModelManagementImpl extends XDMModelManagementBase { 
+public class ModelManagementImpl extends ModelManagementBase { 
 
 	protected IMap<String, XDMPath> pathCache;
 	//protected ReplicatedMap<String, XDMNamespace> nsCache;

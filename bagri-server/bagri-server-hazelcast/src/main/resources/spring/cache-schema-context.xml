@@ -204,6 +204,12 @@
 			</hz:serialization>
 
 			<!--hz:security enabled="true">
+				<hz:member-credentials-factory implementation="" class-name="">
+					<hz:properties>
+						<hz:property name="property3">value3</hz:property>
+					</hz:properties>
+				</hz:member-credentials-factory>
+			
 				<hz:client-login-modules>
 					<hz:login-module class-name="com.bagri.xdm.cache.hazelcast.security.BagriLoginModule" usage="REQUIRED">
 						<hz:properties>
@@ -280,7 +286,7 @@
 	<bean id="queryCacheQueue" class="java.util.concurrent.ArrayBlockingQueue">
 		<constructor-arg value="1024" />
 	</bean>
-	<bean id="queryCacheStats" class="com.bagri.common.stats.UsageStatistics">
+	<bean id="queryCacheStats" class="com.bagri.xdm.cache.hazelcast.impl.QueryStatistics">
 		<constructor-arg value="queryCache" />
 		<property name="statsQueue" ref="queryCacheQueue"/>
 	</bean>

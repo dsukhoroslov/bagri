@@ -48,14 +48,14 @@ import com.bagri.xdm.domain.XDMPath;
 import static com.bagri.xdm.common.XDMConstants.xs_ns;
 import static com.bagri.xqj.BagriXQUtils.getBaseTypeForTypeName;
 
-public abstract class XDMModelManagementBase implements XDMModelManagement {
+public abstract class ModelManagementBase implements XDMModelManagement {
 	
 	public static final int WRONG_PATH = -1;
 	
     private final Logger logger; 
     protected static final long timeout = 100; // 100ms to wait for lock..
 	
-	public XDMModelManagementBase() {
+	public ModelManagementBase() {
 		this.logger = LoggerFactory.getLogger(this.getClass());
 		//initialize();
 	}

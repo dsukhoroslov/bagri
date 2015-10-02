@@ -38,6 +38,7 @@ import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.cache.api.XDMQueryManagement;
 import com.bagri.xdm.cache.hazelcast.predicate.DocsAwarePredicate;
 import com.bagri.xdm.cache.hazelcast.predicate.QueryPredicate;
+import com.bagri.xdm.client.common.impl.QueryManagementBase;
 import com.bagri.xdm.client.hazelcast.data.QueryParamsKey;
 import com.bagri.xdm.client.hazelcast.impl.ResultCursor;
 import com.bagri.xdm.common.XDMDataKey;
@@ -55,7 +56,7 @@ import com.hazelcast.core.ReplicatedMap;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
 
-public class QueryManagementImpl implements XDMQueryManagement {
+public class QueryManagementImpl extends QueryManagementBase implements XDMQueryManagement {
 	
 	private static final transient Logger logger = LoggerFactory.getLogger(QueryManagementImpl.class);
 	
@@ -70,7 +71,7 @@ public class QueryManagementImpl implements XDMQueryManagement {
     private ReplicatedMap<Integer, XDMQuery> xqCache;
     //private IMap<Integer, XDMQuery> xqCache;
     private IMap<XDMResultsKey, XDMResults> xrCache;
-    //private Map<Integer, XDMQuery> xQueries = new ConcurrentHashMap<Integer, XDMQuery>();
+    private Map<XDMResultsKey, XDMResults> xResults = new ConcurrentHashMap<>();
     
     private IMap<XDMDataKey, XDMElements> xdmCache;
 	private IMap<XDMDocumentKey, XDMDocument> xddCache;
@@ -111,25 +112,6 @@ public class QueryManagementImpl implements XDMQueryManagement {
     }
     
     
-    // can inherit from some top ..
-    @Override
-    public int getQueryKey(String query) {
-    	// will use cifer hash later..
-    	return query.hashCode();
-    }
-    
-	private long getParamsKey(Map<String, Object> params) {
-		//final int prime = 31;
-		//int result = params.size();
-		//for (Map.Entry param: params.entrySet()) {
-		//	result = prime * result	+ param.getKey().hashCode();
-		//	result = prime * result + param.getValue().hashCode();
-		//}
-		int result = params.toString().hashCode();
-		logger.trace("getParamsKey; returning key: {} for params: {}", result, params);
-		return result;
-	}
-
 	@Override
 	public XDMQuery getQuery(String query) {
 		Integer qCode = getQueryKey(query);
@@ -155,48 +137,6 @@ public class QueryManagementImpl implements XDMQueryManagement {
 		return result;
 	}
 
-	//@Override
-	//public void addExpression(String query, boolean readOnly, Object xqExpression) {
-	//	Integer qCode = getQueryKey(query);
-	//	logger.trace("addExpression.enter; got code: {}; query cache size: {}", qCode, xQueries.size());
-	//	QueryBuilder xdmQuery = null;
-	//	XDMQuery xQuery = xQueries.get(qCode);
-	//	if (xQuery != null) {
-	//		xdmQuery = xQuery.getXdmQuery(); 
-	//	}
-	//	xQuery = new XDMQuery(query, readOnly, xqExpression, xdmQuery);
-		//if (xqCache.tryLock(qCode)) {
-		//	try {
-	//	xQueries.put(qCode, xQuery);
-		//		xqObjects.put(qCode, xqExpression);
-		//	} finally {
-		//		xqCache.unlock(qCode);
-		//	}
-		//} else {
-		//	xqObjects.put(qCode, xqExpression);
-		//}
-	//}
-
-	//@Override
-	//public void addExpression(String query, boolean readOnly, QueryBuilder xdmQuery) {
-	//	Integer qCode = getQueryKey(query);
-	//	logger.trace("addExpression.enter; got code: {}; query cache size: {}", qCode, xQueries.size());
-	//	Object xqExpression = null;
-	//	XDMQuery xQuery = xQueries.get(qCode);
-	//	if (xQuery != null) {
-	//		xqExpression = xQuery.getXqExpression(); 
-	//	}
-	//	xQuery = new XDMQuery(query, readOnly, xqExpression, xdmQuery);
-		//if (xqCache.tryLock(qCode)) {
-		//	try {
-	//	xQueries.put(qCode, xQuery);
-		//		xqObjects.put(qCode, xqExpression);
-		//	} finally {
-		//		xqCache.unlock(qCode);
-		//	}
-		//}
-	//}
-	
 	private QueryParamsKey getResultsKey(String query, Map<String, Object> params) {
 		// should we check query cache first ??
 		return new QueryParamsKey(getQueryKey(query), getParamsKey(params));
@@ -206,10 +146,14 @@ public class QueryManagementImpl implements XDMQueryManagement {
 	public Iterator getQueryResults(String query, Map<String, Object> params, Properties props) {
 		QueryParamsKey qpKey = getResultsKey(query, params);
 		logger.trace("getQueryResults; got result key: {}", qpKey);
-		XDMResults xqr = xrCache.get(qpKey); 
+		//XDMResults xqr = xrCache.get(qpKey);
+		XDMResults xqr = xResults.get(qpKey);
 		Iterator result = null;
 		if (xqr != null) {
 			result = xqr.getResults().iterator();
+			updateStats(query, 0, 1);
+		} else {
+			updateStats(query, 0, -1);
 		}
 		logger.trace("getQueryResults; returning: {}", result);
 		return result;
@@ -218,14 +162,16 @@ public class QueryManagementImpl implements XDMQueryManagement {
 	@Override
 	public Iterator addQueryResults(String query, Map<String, Object> params, Properties props, Iterator results) {
 		QueryParamsKey qpKey = getResultsKey(query, params);
-		// TODO: think about lazy solution..
+		// TODO: think about lazy solution... EntryProcessor? or, try local Map?
 		List resList = new ArrayList();
 		while (results.hasNext()) {
 			resList.add(results.next());
 		}
-		XDMResults xqr = new XDMResults(params, Collections.EMPTY_LIST, resList);
+		XDMResults xqr = new XDMResults(params, Collections.<Long> emptyList(), resList);
 		//XDMResults oldRes = 
-		xrCache.putAsync(qpKey, xqr);
+		//xrCache.putAsync(qpKey, xqr);
+		xResults.put(qpKey, xqr);
+		updateStats(query, 1, 0);
 		logger.trace("addQueryResults; stored results: {} for key: {}", xqr, qpKey);
 		return xqr.getResults().iterator();
 	}
@@ -234,13 +180,21 @@ public class QueryManagementImpl implements XDMQueryManagement {
 	public void clearCache() {
 		xqCache.clear(); //evictAll();
 		xrCache.evictAll();
-		//xQueries.clear();
+		xResults.clear();
 	}
 	
 	private void updateStats(String name, boolean success, int count) {
 		if (enableStats) {
 			if (!queue.offer(new StatisticsEvent(name, success, count))) {
 				logger.warn("updateStats; queue is full!!");
+			}
+		}
+	}
+	
+	private void updateStats(String name, int results, int hits) {
+		if (enableStats) {
+			if (!queue.offer(new StatisticsEvent(name, hits > 0, results, 0, true))) {
+				logger.warn("updateQueryStats; queue is full!!");
 			}
 		}
 	}
@@ -510,6 +464,8 @@ public class QueryManagementImpl implements XDMQueryManagement {
 					xqp.unbindVariable(var.getKey());
 				}
 
+				//XDMQuery xquery = xqCache.get(qCode);
+				//if (xquery != null && xquery.isReadOnly()) {
 				if (xqCache.containsKey(qCode)) {
 					iter = addQueryResults(xqCmd, bindings, props, iter);
 				}

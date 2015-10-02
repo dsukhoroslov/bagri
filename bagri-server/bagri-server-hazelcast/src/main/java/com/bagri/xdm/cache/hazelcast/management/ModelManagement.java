@@ -19,7 +19,7 @@ import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.cache.hazelcast.task.index.IndexCreator;
 import com.bagri.xdm.cache.hazelcast.task.index.IndexRemover;
 import com.bagri.xdm.cache.hazelcast.task.model.ModelRegistrator;
-import com.bagri.xdm.client.common.impl.XDMModelManagementBase;
+import com.bagri.xdm.client.common.impl.ModelManagementBase;
 import com.bagri.xdm.domain.XDMDocumentType;
 import com.bagri.xdm.domain.XDMNamespace;
 import com.bagri.xdm.domain.XDMPath;
@@ -49,7 +49,7 @@ public class ModelManagement extends SchemaFeatureManagement {
 
 	@ManagedAttribute(description="Return Document Types registered in the Schema")
 	public String[] getDocumentTypes() {
-		Collection<XDMDocumentType> types = ((XDMModelManagementBase) modelMgr).getDocumentTypes();
+		Collection<XDMDocumentType> types = ((ModelManagementBase) modelMgr).getDocumentTypes();
 		String[] result = new String[types.size()];
 		int idx = 0;
 		for (XDMDocumentType type: types) {
@@ -66,7 +66,7 @@ public class ModelManagement extends SchemaFeatureManagement {
 	
 	@ManagedAttribute(description="Return Namespaces registered in the Schema")
 	public String[] getNamespaces() {
-		Collection<XDMNamespace> nss = ((XDMModelManagementBase) modelMgr).getNamespaces();
+		Collection<XDMNamespace> nss = ((ModelManagementBase) modelMgr).getNamespaces();
 		String[] result = new String[nss.size()];
 		int idx = 0;
 		for (XDMNamespace ns: nss) {
@@ -174,10 +174,10 @@ public class ModelManagement extends SchemaFeatureManagement {
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "schemaCatalog", description = "A full path to the directory containing XSD files to register")})
 	public int registerSchemas(String schemasCatalog) {
-		int size = ((XDMModelManagementBase) modelMgr).getDocumentTypes().size(); 
+		int size = ((ModelManagementBase) modelMgr).getDocumentTypes().size(); 
 		try {
-			((XDMModelManagementBase) modelMgr).registerSchemas(schemasCatalog);
-			return ((XDMModelManagementBase) modelMgr).getDocumentTypes().size() - size;
+			((ModelManagementBase) modelMgr).registerSchemas(schemasCatalog);
+			return ((ModelManagementBase) modelMgr).getDocumentTypes().size() - size;
 		} catch (XDMException ex) {
 			logger.error("registerSchemas.error:", ex);
 		}

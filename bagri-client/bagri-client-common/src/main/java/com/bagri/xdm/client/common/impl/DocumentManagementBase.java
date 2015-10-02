@@ -18,7 +18,7 @@ import com.bagri.common.util.XMLUtils;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.domain.XDMDocument;
 
-public abstract class XDMDocumentManagementBase {
+public abstract class DocumentManagementBase {
 	
     protected final transient Logger logger = LoggerFactory.getLogger(getClass());
 	
