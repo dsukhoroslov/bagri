@@ -119,12 +119,14 @@ public class QueryManagementImpl implements XDMQueryManagement {
     }
     
 	private long getParamsKey(Map<String, Object> params) {
-		final int prime = 31;
-		int result = params.size();
-		for (Map.Entry param: params.entrySet()) {
-			result = prime * result	+ param.getKey().hashCode();
-			result = prime * result + param.getValue().hashCode();
-		}
+		//final int prime = 31;
+		//int result = params.size();
+		//for (Map.Entry param: params.entrySet()) {
+		//	result = prime * result	+ param.getKey().hashCode();
+		//	result = prime * result + param.getValue().hashCode();
+		//}
+		int result = params.toString().hashCode();
+		logger.trace("getParamsKey; returning key: {} for params: {}", result, params);
 		return result;
 	}
 
@@ -196,18 +198,21 @@ public class QueryManagementImpl implements XDMQueryManagement {
 	//}
 	
 	private QueryParamsKey getResultsKey(String query, Map<String, Object> params) {
-		// should we check query ache first ??
+		// should we check query cache first ??
 		return new QueryParamsKey(getQueryKey(query), getParamsKey(params));
 	}
 
 	@Override
 	public Iterator getQueryResults(String query, Map<String, Object> params, Properties props) {
 		QueryParamsKey qpKey = getResultsKey(query, params);
+		logger.trace("getQueryResults; got result key: {}", qpKey);
 		XDMResults xqr = xrCache.get(qpKey); 
+		Iterator result = null;
 		if (xqr != null) {
-			return xqr.getResults().iterator();
+			result = xqr.getResults().iterator();
 		}
-		return null;
+		logger.trace("getQueryResults; returning: {}", result);
+		return result;
 	}
 	
 	@Override
@@ -221,6 +226,7 @@ public class QueryManagementImpl implements XDMQueryManagement {
 		XDMResults xqr = new XDMResults(params, Collections.EMPTY_LIST, resList);
 		//XDMResults oldRes = 
 		xrCache.putAsync(qpKey, xqr);
+		logger.trace("addQueryResults; stored results: {} for key: {}", xqr, qpKey);
 		return xqr.getResults().iterator();
 	}
 
@@ -473,14 +479,17 @@ public class QueryManagementImpl implements XDMQueryManagement {
 
 		logger.trace("execXQCommand.enter; query: {}, command: {}; bindings: {}; properties: {}", 
 				isQuery, xqCmd, bindings, props);
-		ResultCursor result = null;
 		Iterator iter = null;
+		ResultCursor result = null;
 		String clientId = props.getProperty(pn_client_id);
 		int batchSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, "0"));
 		try {
-			//if (isQuery) {
-			//	iter = queryManager.getQueryResults(xqCmd, bindings, props);
-			//}
+			int qCode = getQueryKey(xqCmd);
+			if (isQuery) {
+				if (xqCache.containsKey(qCode)) {
+					iter = getQueryResults(xqCmd, bindings, props);
+				}
+			}
 			
 			XQProcessor xqp = repo.getXQProcessor(clientId);
 			xqp.setResults(null);
@@ -501,7 +510,9 @@ public class QueryManagementImpl implements XDMQueryManagement {
 					xqp.unbindVariable(var.getKey());
 				}
 
-			//	iter = queryManager.addQueryResults(xqCmd, bindings, props, iter);
+				if (xqCache.containsKey(qCode)) {
+					iter = addQueryResults(xqCmd, bindings, props, iter);
+				}
 			}
 			result = createCursor(clientId, batchSize, iter);
 			xqp.setResults(result);
