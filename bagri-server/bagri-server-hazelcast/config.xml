@@ -133,6 +133,7 @@
                 <entry name="xdm.schema.trans.backup.async">0</entry>
                 <entry name="xdm.schema.store.enabled">true</entry>
                 <entry name="xdm.schema.thread.pool">16</entry>
+                <entry name="xdm.schema.test.mode">true</entry>
                 <entry name="xdm.schema.ports.first">10000</entry>
                 <entry name="xdm.schema.store.type">XML</entry>
                 <entry name="xdm.schema.ports.last">10100</entry>

@@ -3,6 +3,7 @@ package com.bagri.xdm.client.hazelcast.serialize;
 import java.io.IOException;
 import java.net.URI;
 
+import javax.validation.constraints.NotNull;
 import javax.xml.namespace.QName;
 import javax.xml.xquery.XQDataFactory;
 import javax.xml.xquery.XQException;
@@ -28,7 +29,7 @@ public class XQItemTypeSerializer implements StreamSerializer<XQItemType> {
 		return xqFactory;
 	}
 
-	public void setXQDataFactory(XQDataFactory xqDataFactory) {
+	public void setXQDataFactory(@NotNull XQDataFactory xqDataFactory) {
 		this.xqFactory = xqDataFactory;
 	}
     

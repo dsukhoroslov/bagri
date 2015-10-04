@@ -97,6 +97,7 @@
 
         <!--<jmxri.version>1.2.1</jmxri.version>-->
 
+	<validation.version>1.1.0.Final</validation.version>
         <antlr.version>3.2</antlr.version>
         <jcache.version>1.0.0</jcache.version>
         <!--hazelcast.version>3.4.2</hazelcast.version-->
@@ -411,6 +412,11 @@
                 <artifactId>cache-ri-impl</artifactId>
                 <version>${jcache.ri.version}</version>
             </dependency-->
+	    <dependency>
+		<groupId>javax.validation</groupId>
+		<artifactId>validation-api</artifactId>
+		<version>${validation.version}</version>
+	    </dependency>
 
             <!--dependency>
                 <groupId>com.hazelcast</groupId>

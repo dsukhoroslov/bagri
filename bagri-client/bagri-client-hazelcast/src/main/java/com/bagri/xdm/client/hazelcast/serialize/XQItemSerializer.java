@@ -5,6 +5,8 @@ import static javax.xml.xquery.XQItemType.*;
 import java.io.IOException;
 import java.util.GregorianCalendar;
 
+import javax.validation.constraints.NotNull;
+
 import javax.xml.datatype.Duration;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
@@ -37,7 +39,7 @@ public class XQItemSerializer implements StreamSerializer<XQItem> {
 		return xqFactory;
 	}
 
-	public void setXQDataFactory(XQDataFactory xqDataFactory) {
+	public void setXQDataFactory(@NotNull XQDataFactory xqDataFactory) {
 		this.xqFactory = xqDataFactory;
 	}
 

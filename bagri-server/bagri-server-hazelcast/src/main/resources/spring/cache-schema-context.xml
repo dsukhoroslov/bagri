@@ -386,6 +386,7 @@
 		<property name="statsQueue" ref="queryCacheQueue"/>
    		<property name="repository" ref="xdmRepo" />
    		<property name="indexManager" ref="idxManager" />
+   		<property name="testMode" value="${xdm.schema.test.mode}" />
 	</bean>
 
 	<bean id="xdmRepo" class="com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl">

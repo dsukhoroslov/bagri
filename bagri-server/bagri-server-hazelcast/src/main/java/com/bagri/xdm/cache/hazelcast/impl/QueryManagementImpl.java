@@ -76,6 +76,8 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
     private IMap<XDMDataKey, XDMElements> xdmCache;
 	private IMap<XDMDocumentKey, XDMDocument> xddCache;
     
+	private boolean testMode = false; 
+	
     public QueryManagementImpl() {
     	logger.info("<init>; query cache initialized");
     }
@@ -109,6 +111,10 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 
     public void setStatsEnabled(boolean enable) {
     	this.enableStats = enable;
+    }
+    
+    public void setTestMode(boolean testMode) {
+    	this.testMode = testMode;
     }
     
     
@@ -400,6 +406,10 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 	@Override
 	public boolean isReadOnlyQuery(String query) {
 
+		if (testMode) {
+			return true;
+		}
+		
 		Integer qCode = getQueryKey(query);
 		XDMQuery xQuery = xqCache.get(qCode);
 		//XDMQuery xQuery = this.getQuery(query);
@@ -438,36 +448,40 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 		String clientId = props.getProperty(pn_client_id);
 		int batchSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, "0"));
 		try {
-			int qCode = getQueryKey(xqCmd);
-			if (isQuery) {
-				if (xqCache.containsKey(qCode)) {
-					iter = getQueryResults(xqCmd, bindings, props);
-				}
-			}
-			
 			XQProcessor xqp = repo.getXQProcessor(clientId);
-			xqp.setResults(null);
-			if (iter == null) {
-				for (Object o: bindings.entrySet()) {
-					Map.Entry<QName, Object> var = (Map.Entry<QName, Object>) o; 
-					xqp.bindVariable(var.getKey(), var.getValue());
-				}
-				
+			if (testMode) {
+				iter = Collections.emptyIterator();
+			} else {
+				int qCode = getQueryKey(xqCmd);
 				if (isQuery) {
-					iter = xqp.executeXQuery(xqCmd, props);
-				} else {
-					iter = xqp.executeXCommand(xqCmd, bindings, props);
+					if (xqCache.containsKey(qCode)) {
+						iter = getQueryResults(xqCmd, bindings, props);
+					}
 				}
 				
-				for (Object o: bindings.entrySet()) {
-					Map.Entry<QName, Object> var = (Map.Entry<QName, Object>) o; 
-					xqp.unbindVariable(var.getKey());
-				}
-
-				//XDMQuery xquery = xqCache.get(qCode);
-				//if (xquery != null && xquery.isReadOnly()) {
-				if (xqCache.containsKey(qCode)) {
-					iter = addQueryResults(xqCmd, bindings, props, iter);
+				xqp.setResults(null);
+				if (iter == null) {
+					for (Object o: bindings.entrySet()) {
+						Map.Entry<QName, Object> var = (Map.Entry<QName, Object>) o; 
+						xqp.bindVariable(var.getKey(), var.getValue());
+					}
+					
+					if (isQuery) {
+						iter = xqp.executeXQuery(xqCmd, props);
+					} else {
+						iter = xqp.executeXCommand(xqCmd, bindings, props);
+					}
+					
+					for (Object o: bindings.entrySet()) {
+						Map.Entry<QName, Object> var = (Map.Entry<QName, Object>) o; 
+						xqp.unbindVariable(var.getKey());
+					}
+	
+					//XDMQuery xquery = xqCache.get(qCode);
+					//if (xquery != null && xquery.isReadOnly()) {
+					if (xqCache.containsKey(qCode)) {
+						iter = addQueryResults(xqCmd, bindings, props, iter);
+					}
 				}
 			}
 			result = createCursor(clientId, batchSize, iter);

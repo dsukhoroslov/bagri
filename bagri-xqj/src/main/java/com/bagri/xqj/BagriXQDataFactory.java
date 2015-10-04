@@ -43,6 +43,7 @@ public class BagriXQDataFactory extends BagriXQCloseable implements XQDataFactor
 	}
 	
 	public void setProcessor(XQProcessor xqProcessor) {
+		// must be not null!
 		this.xqProcessor = xqProcessor;
 	}
     

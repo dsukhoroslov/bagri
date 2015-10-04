@@ -58,6 +58,10 @@
             <groupId>javax.xml.xquery</groupId>
             <artifactId>xqj-api</artifactId>
         </dependency>
+	<dependency>
+	    <groupId>javax.validation</groupId>
+	    <artifactId>validation-api</artifactId>
+	</dependency>
 
         <!-- Spring framework -->
         <!--dependency>
