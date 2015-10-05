@@ -26,8 +26,8 @@
 				<hz:property name="hazelcast.rest.enabled">false</hz:property>
 				<hz:property name="hazelcast.memcache.enabled">false</hz:property>
 				<hz:property name="hazelcast.partition.count">${xdm.schema.partition.count}</hz:property>
-				<!--hz:property name="hazelcast.operation.thread.count">${xdm.schema.thread.pool}</hz:property>
-				<hz:property name="hazelcast.operation.generic.thread.count">${xdm.schema.thread.pool}</hz:property-->
+				<hz:property name="hazelcast.operation.thread.count">${xdm.schema.thread.pool}</hz:property>
+				<hz:property name="hazelcast.operation.generic.thread.count">${xdm.schema.thread.pool}</hz:property>
 				<hz:property name="hazelcast.socket.send.buffer.size">${xdm.schema.buffer.size}</hz:property>
 				<hz:property name="hazelcast.socket.receive.buffer.size">${xdm.schema.buffer.size}</hz:property>
 				<!--hz:property name="hazelcast.initial.min.cluster.size">${xdm.schema.population.size}</hz:property-->
@@ -286,7 +286,7 @@
 	<bean id="queryCacheQueue" class="java.util.concurrent.ArrayBlockingQueue">
 		<constructor-arg value="1024" />
 	</bean>
-	<bean id="queryCacheStats" class="com.bagri.common.stats.UsageStatistics">
+	<bean id="queryCacheStats" class="com.bagri.xdm.cache.hazelcast.impl.QueryStatistics">
 		<constructor-arg value="queryCache" />
 		<property name="statsQueue" ref="queryCacheQueue"/>
 	</bean>
@@ -386,6 +386,7 @@
 		<property name="statsQueue" ref="queryCacheQueue"/>
    		<property name="repository" ref="xdmRepo" />
    		<property name="indexManager" ref="idxManager" />
+   		<property name="testMode" value="${xdm.schema.test.mode}" />
 	</bean>
 
 	<bean id="xdmRepo" class="com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl">

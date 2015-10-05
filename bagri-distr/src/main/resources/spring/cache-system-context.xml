@@ -23,6 +23,8 @@
 				<hz:property name="hazelcast.jmx.detailed">true</hz:property>
 				<hz:property name="hazelcast.logging.type">slf4j</hz:property>
 				<!--hz:property name="hazelcast.partition.count">3</hz:property-->				
+				<hz:property name="hazelcast.operation.thread.count">${xdm.cluster.thread.pool}</hz:property>
+				<hz:property name="hazelcast.operation.generic.thread.count">${xdm.cluster.thread.pool}</hz:property>
 			</hz:properties>
 			<hz:network public-address="${xdm.cluster.member}" port="${xdm.cluster.port}" port-auto-increment="true">
 				<hz:join>
@@ -41,6 +43,9 @@
 				</hz:member-group>
 			</hz:partition-group>			
 			<hz:executor-service name="sys-exec-pool" pool-size="${xdm.cluster.thread.pool}" />
+			<hz:executor-service name="hz:async" pool-size="${xdm.cluster.thread.pool}" />
+			<hz:executor-service name="hz:client" pool-size="${xdm.cluster.thread.pool}" />
+			<hz:executor-service name="hz:query" pool-size="${xdm.cluster.thread.pool}" />
 
 			<hz:serialization>
 				<hz:data-serializable-factories>

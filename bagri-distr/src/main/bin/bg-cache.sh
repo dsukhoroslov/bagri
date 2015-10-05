@@ -39,22 +39,6 @@ libdir="${java_apphome}${file_separator}lib"
 CLASSPATH="${java_apphome}${file_separator}config"
 CLASSPATH="${CLASSPATH}${path_separator}${libdir}${file_separator}*"
 
-#append_to_classpath() {
-#        if [ $# -ne 1 ]
-#        then
-#                echo "${BASH_SOURCE[0]}:${BASH_LINENO[0]}: ${FUNCNAME[0]}($@): exactly one argument required."
-#                return 1
-#        fi
-#
-#        CLASSPATH="${CLASSPATH}${path_separator}${libdir}${file_separator}$1"
-#        return 0
-#}
-
-#for library in `find ${libdir} -type f -name '*\.jar' | xargs -n1 basename`
-#do
-#        append_to_classpath "${library}"
-#done
-
 . "${apphome}/bin/${appname}.conf"
 
 export CLASSPATH

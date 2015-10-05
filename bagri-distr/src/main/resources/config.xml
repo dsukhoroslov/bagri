@@ -31,6 +31,7 @@
                 <!--entry name="xdm.schema.members">192.168.1.50, 192.168.1.100, 192.168.1.200</entry-->
                 <entry name="xdm.schema.members">localhost</entry>
                 <entry name="xdm.schema.thread.pool">16</entry>
+                <entry name="xdm.schema.test.mode">false</entry>
                 <entry name="xdm.schema.store.data.path">../data/tpox</entry>
                 <entry name="xdm.schema.store.type">XML</entry>
                 <entry name="xdm.schema.store.schema.path"></entry>
@@ -124,6 +125,7 @@
                 <entry name="xdm.schema.trans.backup.async">0</entry>
                 <entry name="xdm.schema.store.enabled">false</entry>
                 <entry name="xqj.schema.queryLanguageTypeAndVersion">1</entry>
+                <entry name="xdm.schema.test.mode">false</entry>
                 <entry name="xqj.schema.bindingMode">0</entry>
                 <entry name="xdm.schema.transaction.timeout">60000</entry>
                 <entry name="xdm.schema.thread.pool">32</entry>
@@ -294,6 +296,7 @@
                 <!--entry name="xdm.schema.members">192.168.1.50, 192.168.1.100, 192.168.1.200</entry-->
                 <!--entry name="xdm.schema.members">192.168.1.100</entry-->
                 <entry name="xdm.schema.members">localhost</entry>
+                <entry name="xdm.schema.test.mode">false</entry>
                 <entry name="xdm.schema.thread.pool">10</entry>
                 <entry name="xdm.schema.store.data.path">../data/xmark</entry>
                 <entry name="xdm.schema.store.type">XML</entry>
@@ -402,6 +405,7 @@
                 <entry name="xdm.schema.query.backup.sync">0</entry>
                 <entry name="xdm.schema.query.backup.read">true</entry>
                 <entry name="xdm.schema.password">TPoX-J</entry>
+                <entry name="xdm.schema.test.mode">false</entry>
                 <entry name="xdm.schema.thread.pool">8</entry>
                 <entry name="xdm.schema.store.type">JSON</entry>
                 <entry name="xdm.schema.ports.first">10700</entry>

@@ -47,6 +47,8 @@ public class ClientApp {
 			//found &= client.runPriceQuery("IBM");
 			found = client.runSecQuery("IBM");
 			//found &= client.runSecQuery("VFINX");
+			found = client.runSecQuery("IBM");
+			found = client.runSecQuery("IBM");
 			//found &= client.runPriceQuery("PTTAX");
 			//found = client.searchSecQuery();
 			//found = client.searchSecQueryParams();
