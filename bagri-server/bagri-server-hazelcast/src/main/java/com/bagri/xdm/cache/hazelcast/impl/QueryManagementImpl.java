@@ -40,6 +40,7 @@ import com.bagri.xdm.cache.hazelcast.predicate.DocsAwarePredicate;
 import com.bagri.xdm.cache.hazelcast.predicate.QueryPredicate;
 import com.bagri.xdm.client.common.impl.QueryManagementBase;
 import com.bagri.xdm.client.hazelcast.data.QueryParamsKey;
+import com.bagri.xdm.client.hazelcast.impl.FixedCursor;
 import com.bagri.xdm.client.hazelcast.impl.ResultCursor;
 import com.bagri.xdm.common.XDMDataKey;
 import com.bagri.xdm.common.XDMDocumentKey;
@@ -502,7 +503,16 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 		if (iter instanceof XQSequenceIterator) {
 			size = ((XQSequenceIterator) iter).getFullSize();
 		}
-		final ResultCursor xqCursor = new ResultCursor(clientId, batchSize, iter, size);
+		final ResultCursor xqCursor;
+		if (batchSize == 1) {
+			if (iter.hasNext()) {
+				xqCursor = new FixedCursor(clientId, batchSize, iter.next());
+			} else {
+				xqCursor = new FixedCursor(clientId, batchSize, null);
+			}
+		} else {
+			xqCursor = new ResultCursor(clientId, batchSize, iter, size);
+		}
 		
 		// async serialization takes even more time! because of the thread context switch, most probably
 		//IExecutorService execService = hzInstance.getExecutorService(PN_XDM_SCHEMA_POOL);

@@ -6,6 +6,7 @@ import static com.bagri.xqj.BagriXQUtils.*;
 import static com.bagri.xqj.BagriXQDataSource.*;
 
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.Map;
 
 import javax.xml.namespace.QName;
@@ -86,7 +87,7 @@ public class BagriXQJPlugin extends BagriTPoXPlugin {
 	public void close() throws SQLException {
 		XQConnection conn = getConnection();
 		if (!conn.isClosed()) {
-			logger.info("close; XQC: {}", conn);
+			logger.info("close; XQC: {}; stats: {}", conn, Arrays.toString(stats.get()));
 			try {
 				conn.close();
 			} catch (XQException ex) {
@@ -123,10 +124,14 @@ public class BagriXQJPlugin extends BagriTPoXPlugin {
 	@Override
 	protected int execQuery(String query, Map<String, XDMParameter> params) throws XQException {
 
+		long stamp = System.currentTimeMillis();
 	    XQPreparedExpression xqpe = getConnection().prepareExpression(query);
 		bindParams(params, xqpe);
+		long stamp2 = System.currentTimeMillis();
 	    XQResultSequence xqs = xqpe.executeQuery();
+	    stats.get()[3] += System.currentTimeMillis() - stamp2; 
 	    int cnt = 0;
+	    stamp2 = System.currentTimeMillis();
 	    if (fetchSize > 0) {
 	    	while (xqs.next() && cnt < fetchSize) {
 	    		cnt++;
@@ -136,8 +141,10 @@ public class BagriXQJPlugin extends BagriTPoXPlugin {
 	    		cnt++;
 	    	}
 	    }
+	    stats.get()[4] += System.currentTimeMillis() - stamp2; 
 	    xqs.close();
 	    xqpe.close();
+	    stats.get()[2] += System.currentTimeMillis() - stamp; 
 	    return cnt;
 	}
 

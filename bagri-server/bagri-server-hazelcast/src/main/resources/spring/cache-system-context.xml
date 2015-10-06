@@ -26,7 +26,7 @@
 				<hz:property name="hazelcast.operation.thread.count">${xdm.cluster.thread.pool}</hz:property>
 				<hz:property name="hazelcast.operation.generic.thread.count">${xdm.cluster.thread.pool}</hz:property>
 			</hz:properties>
-			<hz:network public-address="${xdm.cluster.member}" port="${xdm.cluster.port}" port-auto-increment="true">
+			<hz:network port="${xdm.cluster.port}" port-auto-increment="true">
 				<hz:join>
 					<hz:multicast enabled="false"/>
 					<hz:tcp-ip enabled="true" connection-timeout-seconds="10">
@@ -34,7 +34,7 @@
 					</hz:tcp-ip>
 				</hz:join>
 			</hz:network>
-			<hz:partition-group enabled="true" group-type="CUSTOM">
+			<hz:partition-group enabled="false" group-type="CUSTOM">
 				<hz:member-group>
   					<hz:interface>${xdm.cluster.admins}</hz:interface>
 				</hz:member-group>

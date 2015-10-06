@@ -37,7 +37,7 @@ public class ResultCursor implements Iterator<Object>, IdentifiedDataSerializabl
 	//private boolean failure;
 	private int batchSize;
 	private int queueSize;
-	private int position;
+	protected int position;
 	private IQueue<Object> queue;
 	private HazelcastInstance hzi;
 

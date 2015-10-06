@@ -12,6 +12,9 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Vector;
 
+import javax.xml.xquery.XQPreparedExpression;
+import javax.xml.xquery.XQResultSequence;
+
 import org.slf4j.Logger;
 
 import com.bagri.xdm.system.XDMCardinality;
@@ -37,6 +40,16 @@ public abstract class BagriTPoXPlugin implements GenericJavaClassPlugin {
     protected WorkloadEnvironment we;
     protected Random rand;
     
+    protected static final ThreadLocal<long[]> stats = new ThreadLocal<long[]>() {
+
+    	@Override
+    	protected long[] initialValue() {
+    		return new long[5];
+    	}
+    	
+    };
+    
+    
 	@Override
 	public void prepare(int transNum, WorkloadProcessor workloadProcessor, WorkloadEnvironment workloadEnvironment,
 			Connection con, int verbosityLevel, Random userRandomNumGenerator) throws SQLException {
@@ -59,6 +72,10 @@ public abstract class BagriTPoXPlugin implements GenericJavaClassPlugin {
     
 	@Override
 	public int execute() throws SQLException {
+		
+		stats.get()[0]++;
+		long stamp = System.currentTimeMillis();
+		
 		int transNo = wp.getNextTransNumToExecute(rand);
 		Transaction tx = wp.getTransaction(transNo);
 		int result = 0; 
@@ -104,6 +121,7 @@ public abstract class BagriTPoXPlugin implements GenericJavaClassPlugin {
 		}
 		DatabaseOperations.errors.get()[transNo] = err; 
 		getLogger().trace("execute.exit; returning: {}", result);
+	    stats.get()[1] += System.currentTimeMillis() - stamp; 
 		return result;
 	}
 	
