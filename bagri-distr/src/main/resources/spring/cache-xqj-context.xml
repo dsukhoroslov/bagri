@@ -34,22 +34,10 @@
 	</bean>
 	
 	<bean id="xqFactory" class="com.bagri.xqj.BagriXQDataFactory">
-    		<!--property name="processor" ref="xqProcessor" /-->
+    	<property name="processor" ref="xqProcessor" />
 	</bean>
 
-    <!--bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-        <property name="targetObject" ref="xqProcessor" />
-        <property name="targetMethod" value="setXdmManager" />
-        <property name="arguments">
-            <list>
-                <ref local="docManager" />
-            </list>
-        </property>
-    </bean-->
-    
 	<bean id="xqProcessor" class="com.bagri.xquery.saxon.XQProcessorServer" lazy-init="true" scope="prototype">
-		<!--property name="xdmManager" ref="xdmManager" /-->
-		<!--property name="XQManager" ref="queryManager" /-->
 		<property name="XQDataFactory" ref="xqFactory" />
 		<property name="properties">
 			<props>
