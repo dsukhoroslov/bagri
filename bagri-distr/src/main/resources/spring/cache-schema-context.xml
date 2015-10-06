@@ -48,9 +48,9 @@
 			<hz:executor-service name="hz:async" pool-size="${xdm.schema.thread.pool}" />
 			<hz:executor-service name="hz:query" pool-size="${xdm.schema.thread.pool}" />
 			
-			<hz:queue name="client:*" backup-count="1" />
+			<hz:queue name="client:*" async-backup-count="0" backup-count="0" />
 			
-			<hz:map name="dict-namespace" in-memory-format="OBJECT"  async-backup-count="${xdm.schema.dict.backup.async}" 
+			<hz:map name="dict-namespace" in-memory-format="OBJECT" async-backup-count="${xdm.schema.dict.backup.async}" 
 				backup-count="${xdm.schema.dict.backup.sync}" read-backup-data="${xdm.schema.dict.backup.read}">
 				<hz:near-cache time-to-live-seconds="0" max-idle-seconds="0" eviction-policy="LRU" 
 					max-size="0" invalidate-on-change="true" in-memory-format="OBJECT" cache-local-entries="false"/>

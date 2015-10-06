@@ -133,7 +133,6 @@
 	</bean>
 
 	<bean id="xqProcessor" class="com.bagri.xquery.saxon.XQProcessorClient">
-	    <!--property name="xdmManager" ref="xdmManager" /-->
 	    <property name="XQDataFactory" ref="xqConnection" />
 		<!--property name="properties">
 			<props>
