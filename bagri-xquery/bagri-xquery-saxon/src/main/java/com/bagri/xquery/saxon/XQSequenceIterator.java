@@ -6,6 +6,7 @@ import java.util.GregorianCalendar;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.validation.constraints.NotNull;
 import javax.xml.datatype.Duration;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.xquery.XQDataFactory;
@@ -51,7 +52,7 @@ public class XQSequenceIterator implements Iterator {
 	private SequenceIterator iter;
 	private Item next;
 	
-	public XQSequenceIterator(XQDataFactory xqFactory, SequenceIterator iter) {
+	public XQSequenceIterator(@NotNull XQDataFactory xqFactory, @NotNull SequenceIterator iter) {
 		this.xqFactory = xqFactory;
 		this.iter = iter;
 		try {

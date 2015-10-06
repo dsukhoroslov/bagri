@@ -71,7 +71,8 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
     private ReplicatedMap<Integer, XDMQuery> xqCache;
     //private IMap<Integer, XDMQuery> xqCache;
     private IMap<XDMResultsKey, XDMResults> xrCache;
-    private Map<XDMResultsKey, XDMResults> xResults = new ConcurrentHashMap<>();
+    //private Map<XDMResultsKey, XDMResults> xResults = new ConcurrentHashMap<>();
+    private Map<Long, XDMResults> xResults = new ConcurrentHashMap<>();
     
     private IMap<XDMDataKey, XDMElements> xdmCache;
 	private IMap<XDMDocumentKey, XDMDocument> xddCache;
@@ -143,19 +144,21 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 		return result;
 	}
 
-	private QueryParamsKey getResultsKey(String query, Map<String, Object> params) {
+	//private QueryParamsKey getResultsKey(String query, Map<String, Object> params) {
 		// should we check query cache first ??
-		return new QueryParamsKey(getQueryKey(query), getParamsKey(params));
-	}
+	//	return new QueryParamsKey(getQueryKey(query), getParamsKey(params));
+	//}
 
 	@Override
 	public Iterator getQueryResults(String query, Map<String, Object> params, Properties props) {
-		QueryParamsKey qpKey = getResultsKey(query, params);
+		//QueryParamsKey qpKey = getResultsKey(query, params);
+		long qpKey = getResultsKey(query, params);
 		logger.trace("getQueryResults; got result key: {}", qpKey);
 		//XDMResults xqr = xrCache.get(qpKey);
 		XDMResults xqr = xResults.get(qpKey);
 		Iterator result = null;
 		if (xqr != null) {
+			//
 			result = xqr.getResults().iterator();
 			updateStats(query, 0, 1);
 		} else {
@@ -167,7 +170,8 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 	
 	@Override
 	public Iterator addQueryResults(String query, Map<String, Object> params, Properties props, Iterator results) {
-		QueryParamsKey qpKey = getResultsKey(query, params);
+		//QueryParamsKey qpKey = getResultsKey(query, params);
+		long qpKey = getResultsKey(query, params);
 		// TODO: think about lazy solution... EntryProcessor? or, try local Map?
 		List resList = new ArrayList();
 		while (results.hasNext()) {

@@ -151,10 +151,12 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 		XQCommandExecutor task = new XQCommandExecutor(isQuery, schemaName, query, bindings, props);
 		Future<ResultCursor> future;
 		if ("owner".equals(runOn)) {
-			QueryParamsKey key = new QueryParamsKey(getQueryKey(query), getParamsKey(bindings));
+			//QueryParamsKey key = new QueryParamsKey(getQueryKey(query), getParamsKey(bindings));
+			long key = getResultsKey(query, bindings);
 			future = execService.submitToKeyOwner(task, key);
 		} else if ("member".equals(runOn)) {
-			QueryParamsKey key = new QueryParamsKey(getQueryKey(query), getParamsKey(bindings));
+			//QueryParamsKey key = new QueryParamsKey(getQueryKey(query), getParamsKey(bindings));
+			long key = getResultsKey(query, bindings);
 			Member member = repo.getHazelcastClient().getPartitionService().getPartition(key).getOwner();
 			future = execService.submitToMember(task, member);
 		} else {

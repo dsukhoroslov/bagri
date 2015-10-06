@@ -1,8 +1,47 @@
 package com.bagri.xquery.saxon;
 
+import static com.bagri.xdm.common.XDMConstants.dc_ns;
+import static com.bagri.xdm.common.XDMConstants.df_ns;
+import static com.bagri.xdm.common.XDMConstants.pn_baseURI;
+import static com.bagri.xdm.common.XDMConstants.pn_bindingMode;
+import static com.bagri.xdm.common.XDMConstants.pn_boundarySpacePolicy;
+import static com.bagri.xdm.common.XDMConstants.pn_constructionMode;
+import static com.bagri.xdm.common.XDMConstants.pn_copyNamespacesModeInherit;
+import static com.bagri.xdm.common.XDMConstants.pn_copyNamespacesModePreserve;
+import static com.bagri.xdm.common.XDMConstants.pn_defaultCollationUri;
+import static com.bagri.xdm.common.XDMConstants.pn_defaultElementTypeNamespace;
+import static com.bagri.xdm.common.XDMConstants.pn_defaultFunctionNamespace;
+import static com.bagri.xdm.common.XDMConstants.pn_defaultNamespaces;
+import static com.bagri.xdm.common.XDMConstants.pn_defaultOrderForEmptySequences;
+import static com.bagri.xdm.common.XDMConstants.pn_holdability;
+import static com.bagri.xdm.common.XDMConstants.pn_orderingMode;
+import static com.bagri.xdm.common.XDMConstants.pn_queryLanguageTypeAndVersion;
+import static com.bagri.xdm.common.XDMConstants.pn_queryTimeout;
+import static com.bagri.xdm.common.XDMConstants.pn_scrollability;
+import static com.bagri.xdm.common.XDMConstants.xqf_Full_Axis;
+import static com.bagri.xdm.common.XDMConstants.xqf_Module;
+import static com.bagri.xdm.common.XDMConstants.xqf_Schema_Import;
+import static com.bagri.xdm.common.XDMConstants.xqf_Schema_Validation;
+import static com.bagri.xdm.common.XDMConstants.xqf_Serialization;
+import static com.bagri.xdm.common.XDMConstants.xqf_Static_Typing;
+import static com.bagri.xdm.common.XDMConstants.xqf_Static_Typing_Extensions;
+import static com.bagri.xdm.common.XDMConstants.xqf_Transaction;
+import static com.bagri.xdm.common.XDMConstants.xqf_Update;
+import static com.bagri.xdm.common.XDMConstants.xqf_User_Defined_XML_Schema_Type;
+import static com.bagri.xdm.common.XDMConstants.xqf_XA;
+import static com.bagri.xdm.common.XDMConstants.xqf_XQueryX;
+import static com.bagri.xdm.common.XDMConstants.xqf_XQuery_30;
+import static com.bagri.xdm.common.XDMConstants.xqf_XQuery_Encoding_Decl;
+import static com.bagri.xdm.common.XDMConstants.xqf_XQuery_Full_Text;
+import static com.bagri.xdm.common.XDMConstants.xqf_XQuery_Update_Facility;
+import static com.bagri.xdm.common.XDMConstants.xs_ns;
+import static javax.xml.xquery.XQConstants.BOUNDARY_SPACE_PRESERVE;
+import static javax.xml.xquery.XQConstants.CONSTRUCTION_MODE_PRESERVE;
+import static javax.xml.xquery.XQConstants.COPY_NAMESPACES_MODE_INHERIT;
+import static javax.xml.xquery.XQConstants.COPY_NAMESPACES_MODE_PRESERVE;
+import static javax.xml.xquery.XQConstants.LANGTYPE_XQUERY;
+
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.StringWriter;
 import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.HashMap;
@@ -15,33 +54,16 @@ import java.util.Set;
 import java.util.StringTokenizer;
 
 import javax.xml.namespace.QName;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-
-import static javax.xml.xquery.XQConstants.*;
-
-import javax.xml.xquery.XQConstants;
-import javax.xml.xquery.XQDataFactory;
 import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQItem;
 import javax.xml.xquery.XQSequence;
 import javax.xml.xquery.XQStaticContext;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.w3c.dom.Node;
 
 import net.sf.saxon.Configuration;
 import net.sf.saxon.dom.NodeOverNodeInfo;
 import net.sf.saxon.expr.JPConverter;
 import net.sf.saxon.expr.instruct.GlobalParameterSet;
 import net.sf.saxon.expr.instruct.GlobalVariable;
-import net.sf.saxon.functions.FunctionLibraryList;
-import net.sf.saxon.lib.FeatureKeys;
 import net.sf.saxon.lib.Validation;
 import net.sf.saxon.om.StructuredQName;
 import net.sf.saxon.query.DynamicQueryContext;
@@ -52,13 +74,10 @@ import net.sf.saxon.trans.XPathException;
 import net.sf.saxon.value.DecimalValue;
 import net.sf.saxon.value.ObjectValue;
 
+import org.w3c.dom.Node;
+
 import com.bagri.common.util.XMLUtils;
-import com.bagri.xdm.api.XDMDocumentManagement;
 import com.bagri.xdm.api.XDMRepository;
-
-import static com.bagri.xdm.common.XDMConstants.*;
-
-import com.bagri.xqj.BagriXQUtils;
 import com.bagri.xquery.api.XQProcessorBase;
 import com.bagri.xquery.saxon.extension.RemoveDocument;
 import com.bagri.xquery.saxon.extension.StoreDocumentWithId;

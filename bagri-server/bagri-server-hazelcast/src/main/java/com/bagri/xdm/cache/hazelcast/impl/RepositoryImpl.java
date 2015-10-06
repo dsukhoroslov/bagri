@@ -43,6 +43,8 @@ public class RepositoryImpl extends XDMRepositoryBase implements ApplicationCont
 
 	private static final transient Logger logger = LoggerFactory.getLogger(RepositoryImpl.class);
 	
+	//private static RepositoryImpl instance;
+	
 	private ThreadLocal<String> thClient = new ThreadLocal<String>() {
 		
 		@Override
@@ -59,7 +61,7 @@ public class RepositoryImpl extends XDMRepositoryBase implements ApplicationCont
     private ApplicationContext appContext;
     private HazelcastInstance hzInstance;
 	private Map<String, XQProcessor> processors = new ConcurrentHashMap<String, XQProcessor>();
-
+	
 	@Override
 	public void setApplicationContext(ApplicationContext context) throws BeansException {
 		this.appContext = context;
@@ -73,8 +75,13 @@ public class RepositoryImpl extends XDMRepositoryBase implements ApplicationCont
 	public void setHzInstance(HazelcastInstance hzInstance) {
 		this.hzInstance = hzInstance;
 		hzInstance.getClientService().addClientListener(this);
-		logger.debug("setHzInstange; got instance: {}", hzInstance.getName()); 
+		logger.debug("setHzInstange; got instance: {}", hzInstance.getName());
+		//instance = this;
 	}
+	
+	//public static RepositoryImpl getInstance() {
+	//	return instance;
+	//}
 
 	@Override
 	public void setBindingManagement(XDMBindingManagement bindMgr) {
@@ -135,15 +142,15 @@ public class RepositoryImpl extends XDMRepositoryBase implements ApplicationCont
 				processors.put(clientId, result);
 			}
 		}
-		logger.trace("getXQProcessor; returning: {}", result);
+		logger.trace("getXQProcessor; returning: {}, factory: {}, repo: {}", 
+				result, result.getXQDataFactory(), result.getRepository());
 		return result;
 	}
 	
 	private XQProcessor newXQProcessor() {
 		XQProcessor result = appContext.getBean(XQProcessor.class, this);
-		XDMQueryManagement qMgr = getQueryManagement();
+		//XDMQueryManagement qMgr = getQueryManagement();
 		//result.setRepository(this);
-		((BagriXQDataFactory) ((XQProcessorServer) result).getXQDataFactory()).setProcessor(result);
 		return result;
 	}
 	
@@ -298,8 +305,9 @@ public class RepositoryImpl extends XDMRepositoryBase implements ApplicationCont
 		for (DistributedObject obj: all) {
 			if (qName.equals(obj.getName())) {
 				// remove queue
-				IQueue queue = hzInstance.getQueue(qName);
-				queue.destroy();
+				//IQueue queue = hzInstance.getQueue(qName);
+				//queue.destroy();
+				obj.destroy();
 				destroyed = true;
 				break;
 			}

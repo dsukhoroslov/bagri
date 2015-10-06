@@ -9,7 +9,7 @@ public class QueryManagementBase {
     	return query.hashCode();
     }
     
-	public long getParamsKey(Map<String, Object> params) {
+	public int getParamsKey(Map<String, Object> params) {
 		//final int prime = 31;
 		//int result = params.size();
 		//for (Map.Entry param: params.entrySet()) {
@@ -21,5 +21,11 @@ public class QueryManagementBase {
 		return result;
 	}
 
-	
+	public long getResultsKey(String query, Map<String, Object> params) {
+		int highKey = getQueryKey(query);
+		int lowKey = getParamsKey(params);
+		long result = (((long) highKey) << 32) | (lowKey & 0xffffffffL);
+		return result;
+	}
+
 }
