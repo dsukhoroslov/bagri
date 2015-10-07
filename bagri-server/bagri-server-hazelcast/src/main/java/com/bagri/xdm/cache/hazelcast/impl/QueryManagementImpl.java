@@ -71,7 +71,7 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 	
     private ReplicatedMap<Integer, XDMQuery> xqCache;
     //private IMap<Integer, XDMQuery> xqCache;
-    private IMap<XDMResultsKey, XDMResults> xrCache;
+    private IMap<Long, XDMResults> xrCache;
     //private Map<XDMResultsKey, XDMResults> xResults = new ConcurrentHashMap<>();
     private Map<Long, XDMResults> xResults = new ConcurrentHashMap<>();
     
@@ -99,7 +99,7 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
     	this.xqCache = cache;
     }
     
-    public void setResultCache(IMap<XDMResultsKey, XDMResults> cache) {
+    public void setResultCache(IMap<Long, XDMResults> cache) {
     	this.xrCache = cache;
     }
     
@@ -155,8 +155,8 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 		//QueryParamsKey qpKey = getResultsKey(query, params);
 		long qpKey = getResultsKey(query, params);
 		logger.trace("getQueryResults; got result key: {}", qpKey);
-		//XDMResults xqr = xrCache.get(qpKey);
-		XDMResults xqr = xResults.get(qpKey);
+		XDMResults xqr = xrCache.get(qpKey);
+		//XDMResults xqr = xResults.get(qpKey);
 		Iterator result = null;
 		if (xqr != null) {
 			//
@@ -180,8 +180,8 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 		}
 		XDMResults xqr = new XDMResults(params, Collections.<Long> emptyList(), resList);
 		//XDMResults oldRes = 
-		//xrCache.putAsync(qpKey, xqr);
-		xResults.put(qpKey, xqr);
+		xrCache.putAsync(qpKey, xqr);
+		//xResults.put(qpKey, xqr);
 		updateStats(query, 1, 0);
 		logger.trace("addQueryResults; stored results: {} for key: {}", xqr, qpKey);
 		return xqr.getResults().iterator();

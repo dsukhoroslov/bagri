@@ -81,6 +81,7 @@ public class XDMDataSerializationFactory implements DataSerializableFactory {
 	public static final int cli_RollbackTransactionTask = 114;
 
 	public static final int cli_FetchResultsTask = 115;
+	public static final int cli_ProcessXQCommandTask = 116;
 	
 	public static final int cli_InitSchemaTask = 117;
 	public static final int cli_DenitSchemaTask = 118;

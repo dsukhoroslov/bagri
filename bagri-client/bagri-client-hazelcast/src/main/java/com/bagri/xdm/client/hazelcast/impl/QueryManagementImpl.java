@@ -1,6 +1,7 @@
 package com.bagri.xdm.client.hazelcast.impl;
 
 import static com.bagri.xdm.client.common.XDMCacheConstants.PN_XDM_SCHEMA_POOL;
+import static com.bagri.xdm.client.common.XDMCacheConstants.CN_XDM_RESULT;
 import static com.bagri.xdm.common.XDMConstants.pn_client_fetchSize;
 import static com.bagri.xdm.common.XDMConstants.pn_client_id;
 import static com.bagri.xdm.common.XDMConstants.pn_client_submitTo;
@@ -33,7 +34,9 @@ import com.bagri.xdm.client.hazelcast.task.query.DocumentUrisProvider;
 import com.bagri.xdm.client.hazelcast.task.query.XMLBuilder;
 import com.bagri.xdm.client.hazelcast.task.query.XQCommandExecutor;
 import com.bagri.xdm.domain.XDMQuery;
+import com.bagri.xdm.domain.XDMResults;
 import com.hazelcast.core.IExecutorService;
+import com.hazelcast.core.IMap;
 import com.hazelcast.core.Member;
 
 public class QueryManagementImpl extends QueryManagementBase implements XDMQueryManagement {
@@ -43,7 +46,8 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
     private RepositoryImpl repo;
 	private IExecutorService execService;
     private Future execution = null; 
-	
+    private IMap<Long, XDMResults> resCache;
+    
 	public QueryManagementImpl() {
 		// what should we do here? 
 	}
@@ -51,6 +55,7 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 	void initialize(RepositoryImpl repo) {
 		this.repo = repo;
 		execService = repo.getHazelcastClient().getExecutorService(PN_XDM_SCHEMA_POOL);
+		resCache = repo.getHazelcastClient().getMap(CN_XDM_RESULT);
 	}
 	
 	@Override
@@ -147,16 +152,20 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 		
 		String runOn = props.getProperty(pn_client_submitTo, "any");
 		String schemaName = repo.getSchemaName();
+
+		long key = getResultsKey(query, bindings);
+		XDMResults res = resCache.get(key);
+		if (res != null) {
+			return res.getResults().iterator();
+		}
 		
 		XQCommandExecutor task = new XQCommandExecutor(isQuery, schemaName, query, bindings, props);
 		Future<ResultCursor> future;
-		if ("owner".equals(runOn)) {
+		if ("owner".equalsIgnoreCase(runOn)) {
 			//QueryParamsKey key = new QueryParamsKey(getQueryKey(query), getParamsKey(bindings));
-			long key = getResultsKey(query, bindings);
 			future = execService.submitToKeyOwner(task, key);
-		} else if ("member".equals(runOn)) {
+		} else if ("member".equalsIgnoreCase(runOn)) {
 			//QueryParamsKey key = new QueryParamsKey(getQueryKey(query), getParamsKey(bindings));
-			long key = getResultsKey(query, bindings);
 			Member member = repo.getHazelcastClient().getPartitionService().getPartition(key).getOwner();
 			future = execService.submitToMember(task, member);
 		} else {
