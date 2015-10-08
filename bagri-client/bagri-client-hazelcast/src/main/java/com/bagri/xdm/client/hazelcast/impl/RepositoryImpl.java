@@ -67,7 +67,8 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 		setProperty(props, pn_client_smart, null); //"smart"
 		setProperty(props, pn_client_loginTimeout, null); //"loginTimeout"
 		setProperty(props, pn_client_bufferSize, null); 
-		setProperty(props, pn_client_connectAttempts, null); 
+		setProperty(props, pn_client_connectAttempts, "3"); 
+		setProperty(props, pn_client_poolSize, "5");
 		return props;
 	}
 	
@@ -77,7 +78,6 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 		setProperty(original, props, pn_schema_address, "address");
 		setProperty(original, props, pn_schema_user, "user");
 		setProperty(original, props, pn_schema_password, "password");
-		//setProperty(original, props, pn_client_smart, "smart");
 		setProperty(original, props, pn_client_loginTimeout, "loginTimeout");
 		setProperty(original, props, pn_client_bufferSize, null); 
 		setProperty(original, props, pn_client_connectAttempts, null);
@@ -85,7 +85,8 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 		if (factory != null) {
 			props.put(pn_data_factory, factory);
 		}
-		setProperty(props, pn_client_smart, null); //"smart"
+		setProperty(props, pn_client_smart, null); 
+		setProperty(props, pn_client_poolSize, null);
 		return props;
 	}
 	
@@ -103,6 +104,7 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 		String timeout = props.getProperty(pn_client_loginTimeout);
 		String buffer = props.getProperty(pn_client_bufferSize); 
 		String attempts = props.getProperty(pn_client_connectAttempts); 
+		String pool = props.getProperty(pn_client_poolSize); 
 
 		InputStream in = getClass().getResourceAsStream("/hazelcast/hazelcast-client.xml");
 		ClientConfig config = new XmlClientConfigBuilder(in).build();
@@ -129,6 +131,12 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 			int size = Integer.parseInt(buffer);
 			if (size > 0) {
 				config.getNetworkConfig().getSocketOptions().setBufferSize(size);
+			}
+		}
+		if (pool != null) {
+			int size = Integer.parseInt(pool);
+			if (size > 0) {
+				config.setExecutorPoolSize(size);
 			}
 		}
 		

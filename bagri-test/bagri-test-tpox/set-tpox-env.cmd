@@ -33,18 +33,21 @@ rem set java_opts=%java_opts% -Dtangosol.coherence.proxy.port=21000
 set java_opts=%java_opts% -Dhazelcast.logging.type=slf4j -Dlogback.configurationFile=hz-client-logging.xml
 set java_opts=%java_opts% -Dlog.name=tpox-client -Dhz.log.level=warn -Dxdm.log.level=info
 
+set java_opts=%java_opts% -Dhazelcast.client.event.thread.count=1
+
 set java_opts=%java_opts% -Dxdm.schema.address=%schema_addr%
 set java_opts=%java_opts% -Dxdm.schema.name=%schema%
 set java_opts=%java_opts% -Dxdm.schema.user=guest
 set java_opts=%java_opts% -Dxdm.schema.password=password
 
 rem possible values are: member, owner, any
-set java_opts=%java_opts% -Dxdm.client.submitTo=any
+set java_opts=%java_opts% -Dxdm.client.submitTo=owner
 set java_opts=%java_opts% -Dxdm.client.bufferSize=32
 set java_opts=%java_opts% -Dxdm.client.fetchSize=1
 set java_opts=%java_opts% -Dxdm.client.connectAttempts=3
 set java_opts=%java_opts% -Dxdm.client.loginTimeout=30
-set java_opts=%java_opts% -Dxdm.client.smart=true
+set java_opts=%java_opts% -Dxdm.client.smart=false
+set java_opts=%java_opts% -Dxdm.client.poolSize=1
 
 set java_opts=%java_opts% -Duser.country=US -Duser.language=en
 

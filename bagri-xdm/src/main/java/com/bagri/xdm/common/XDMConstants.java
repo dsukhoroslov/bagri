@@ -23,6 +23,7 @@ public class XDMConstants {
 	public static final String pn_data_factory = "xdm.client.dataFactory";
 	public static final String pn_client_bufferSize = "xdm.client.bufferSize";
 	public static final String pn_client_connectAttempts = "xdm.client.connectAttempts";
+	public static final String pn_client_poolSize = "xdm.client.poolSize";
 	
 	public static final String pn_baseURI = "xqj.schema.baseUri";
 	public static final String pn_constructionMode = "xqj.schema.constructionMode";
