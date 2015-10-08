@@ -4,7 +4,8 @@ public class XDMCacheConstants {
 
     /**
      * XDM Document cache
-     * Key: Long; Value: com.bagri.xdm.XDMDocument
+     * Key: DocumentKey; 
+     * Value: com.bagri.xdm.XDMDocument
      * CacheStore: no
      * Mapped as: no
      */
@@ -12,7 +13,8 @@ public class XDMCacheConstants {
 
     /**
       * XDM Data cache
-      * Key: DataDocumentKey; Value: com.bagri.xdm.XDMData
+      * Key: DataDocumentKey; 
+      * Value: com.bagri.xdm.XDMData
       * CacheStore: no
       * Mapped as: no
       */
@@ -20,7 +22,8 @@ public class XDMCacheConstants {
 
     /**
      * XDM Index cache
-     * Key: PathIndexKey; Value: com.bagri.xdm.XDMIndexedValue
+     * Key: PathIndexKey; 
+     * Value: com.bagri.xdm.XDMIndexedValue
      * CacheStore: no
      * Mapped as: no
      */
@@ -45,7 +48,7 @@ public class XDMCacheConstants {
 
     /**
      * XDM Query cache
-     * Key: Long; query hash 
+     * Key: Integer; query hash 
      * Value: com.bagri.xdm.XDMQuery
      * CacheStore: no
      * Mapped as: no
@@ -54,7 +57,7 @@ public class XDMCacheConstants {
 
     /**
      * XDM Result cache
-     * Key: Long; query hash 
+     * Key: Long; query/params hash 
      * Value: com.bagri.xdm.XDMResult
      * CacheStore: no
      * Mapped as: no
@@ -70,6 +73,15 @@ public class XDMCacheConstants {
      */
 	public static final String CN_XDM_TRANSACTION = "xdm-transaction";
 	
+    /**
+     * XDM Client cache
+     * Key: String; 
+     * Value: java.util.Properties
+     * CacheStore: no
+     * Mapped as: no
+     */
+	public static final String CN_XDM_CLIENT = "xdm-client";
+
     /**
      * XDM Namespace cache
      * Key: String (NS URI); Value: com.bagri.xdm.XDMNamespace
@@ -95,8 +107,9 @@ public class XDMCacheConstants {
 	public static final String CN_XDM_INDEX_DICT = "dict-index";
 
     /**
-     * XDM Document cache
-     * Key: Long; Value: com.bagri.xdm.XDMDocument
+     * XDM Document type cache
+     * Key: String; 
+     * Value: com.bagri.xdm.XDMDocumentType
      * CacheStore: no
      * Mapped as: no
      */

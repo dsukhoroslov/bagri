@@ -6,6 +6,7 @@ import static com.bagri.xdm.common.XDMConstants.*;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Properties;
+import java.util.UUID;
 
 import javax.xml.xquery.XQDataFactory;
 import javax.xml.xquery.XQItem;
@@ -37,6 +38,7 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 	
 	private String clientId;
 	private String schemaName;
+	private ClientManagementImpl clientMgr;
 	private HazelcastInstance hzClient;
 	
 	public RepositoryImpl() {
@@ -91,91 +93,14 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 	}
 	
 	private void initializeFromProperties(Properties props) {
-		initializeHazelcast(props);
+		clientMgr = new ClientManagementImpl();
+		clientId = UUID.randomUUID().toString();
+		hzClient = clientMgr.connect(clientId, props);
+		com.hazelcast.client.impl.HazelcastClientProxy proxy = (com.hazelcast.client.impl.HazelcastClientProxy) hzClient; 
+		schemaName = proxy.getClientConfig().getGroupConfig().getName();
 		initializeServices();
 	}
 	
-	private void initializeHazelcast(Properties props) {
-		String schema = props.getProperty(pn_schema_name);
-		String address = props.getProperty(pn_schema_address);
-		String user = props.getProperty(pn_schema_user);
-		String password = props.getProperty(pn_schema_password);
-		String smart = props.getProperty(pn_client_smart);
-		String timeout = props.getProperty(pn_client_loginTimeout);
-		String buffer = props.getProperty(pn_client_bufferSize); 
-		String attempts = props.getProperty(pn_client_connectAttempts); 
-		String pool = props.getProperty(pn_client_poolSize); 
-
-		InputStream in = getClass().getResourceAsStream("/hazelcast/hazelcast-client.xml");
-		ClientConfig config = new XmlClientConfigBuilder(in).build();
-		config.getGroupConfig().setName(schema);
-		config.getGroupConfig().setPassword(password);
-		String[] members = address.split(",");
-		config.getNetworkConfig().setAddresses(Arrays.asList(members));
-		if (smart != null) {
-			config.getNetworkConfig().setSmartRouting(smart.equalsIgnoreCase("true"));
-		}
-		if (attempts != null) {
-			int count = Integer.parseInt(attempts);
-			if (count > 0) {
-				config.getNetworkConfig().setConnectionAttemptLimit(count);
-			}
-		}
-		if (timeout != null) {
-			int tm = Integer.parseInt(timeout); // login timeout in seconds
-			if (tm > 0) {
-				config.getNetworkConfig().setConnectionTimeout(tm*1000);
-			}
-		}
-		if (buffer != null) {
-			int size = Integer.parseInt(buffer);
-			if (size > 0) {
-				config.getNetworkConfig().getSocketOptions().setBufferSize(size);
-			}
-		}
-		if (pool != null) {
-			int size = Integer.parseInt(pool);
-			if (size > 0) {
-				config.setExecutorPoolSize(size);
-			}
-		}
-		
-		config.setProperty("hazelcast.logging.type", "slf4j");
-		SecureCredentials creds = new SecureCredentials(user, password);
-		config.getSecurityConfig().setCredentials(creds);
-		config.setCredentials(creds);
-			
-		XQDataFactory xqFactory = (XQDataFactory) props.get(pn_data_factory);
-		if (xqFactory != null) {
-			XQItemTypeSerializer xqits = new XQItemTypeSerializer();
-			xqits.setXQDataFactory(xqFactory);
-			config.getSerializationConfig().getSerializerConfigs().add(
-					new SerializerConfig().setTypeClass(XQItemType.class).setImplementation(xqits));
-
-			XQItemSerializer xqis = new XQItemSerializer();
-			xqis.setXQDataFactory(xqFactory);
-			config.getSerializationConfig().getSerializerConfigs().add(
-					new SerializerConfig().setTypeClass(XQItem.class).setImplementation(xqis));
-				
-			XQSequenceSerializer xqss = new XQSequenceSerializer();
-			xqss.setXQDataFactory(xqFactory);
-			config.getSerializationConfig().getSerializerConfigs().add(
-					new SerializerConfig().setTypeClass(XQSequence.class).setImplementation(xqss));
-		}
-		logger.debug("initializeHazelcast; config: {}", config);
-		try {
-			hzClient = HazelcastClient.newHazelcastClient(config);
-			//logger.debug("initializeHazelcast; got HZ: {}", hzInstance);
-		} catch (Throwable ex) {
-			logger.error("initializeHazelcast.error", ex);
-			throw ex;
-		}
-		com.hazelcast.client.impl.HazelcastClientProxy proxy = (com.hazelcast.client.impl.HazelcastClientProxy) hzClient; 
-		schemaName = proxy.getClientConfig().getGroupConfig().getName();
-		clientId = proxy.getLocalEndpoint().getUuid();
-		logger.trace("initializeHazelcast; connected to HZ server as: {}", clientId);
-	}
-
 	private void initializeServices() {
 		//execService = hzClient.getExecutorService(PN_XDM_SCHEMA_POOL);
 		setBindingManagement(new BindingManagementImpl());
@@ -211,29 +136,7 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 	@Override
 	public void close() {
 		logger.trace("close.enter;");
-		if (hzClient.getLifecycleService().isRunning()) {
-			//try {
-			//	Thread.sleep(1000);
-			//} catch (InterruptedException ex) {
-			//	logger.info("close; interrupted: {}", ex);
-			//}
-		
-			// destroy result queue!?
-			//if (cursor != null) {
-			//	cursor.close(true);
-			//}
-			
-			//List<Runnable> lostTasks = execService.shutdownNow();
-			//if (lostTasks != null && lostTasks.size() > 0) {
-			//	logger.info("close; {} tasks were lost in executor service queue", lostTasks.size());
-			//}
-			
-			hzClient.getLifecycleService().shutdown();
-			// probably, should do something like this:
-			//execService.awaitTermination(100, TimeUnit.SECONDS);
-		} else {
-			logger.info("close; an attempt to close not-running client!");
-		}
+		clientMgr.disconnect(clientId);
 		logger.trace("close.exit;");
 	}
 	
