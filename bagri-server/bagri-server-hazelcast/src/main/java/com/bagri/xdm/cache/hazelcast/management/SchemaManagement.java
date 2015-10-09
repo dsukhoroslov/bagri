@@ -13,8 +13,10 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.management.openmbean.CompositeData;
 
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.env.PropertiesPropertySource;
+import org.springframework.jmx.export.MBeanExportException;
 import org.springframework.jmx.export.annotation.ManagedAttribute;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedOperationParameter;
@@ -165,7 +167,7 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
 		mgr.setEntityCache(entityCache);
 		return mgr;
 	}
-
+	
 	public HazelcastInstance initSchema(String schemaName, Properties props) {
     	logger.debug("initSchema.enter; schema: {}; properties: {}", schemaName, props);
     	
@@ -200,22 +202,7 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
 	       	    if (sMgr != null) {
 	       	    	sMgr.setClientContext(ctx);
 	       	    	sMgr.setSchemaDictionary(schemaDict);
-	       	    	
-	        	    DocumentManagement dMgr = ctx.getBean("docManager", DocumentManagement.class);
-					mbeanExporter.registerManagedResource(dMgr, dMgr.getObjectName());
-	        	    IndexManagement iMgr = ctx.getBean("indexManager", IndexManagement.class);
-	        	    iMgr.setSchemaManager(sMgr);
-					mbeanExporter.registerManagedResource(iMgr, iMgr.getObjectName());
-	        	    TriggerManagement trMgr = ctx.getBean("triggerManager", TriggerManagement.class);
-	        	    trMgr.setSchemaManager(sMgr);
-					mbeanExporter.registerManagedResource(trMgr, trMgr.getObjectName());
-					ModelManagement mMgr = ctx.getBean("modelManager", ModelManagement.class);
-	        	    mMgr.setSchemaManager(sMgr);
-					mbeanExporter.registerManagedResource(mMgr, mMgr.getObjectName());
-	        	    QueryManagement qMgr = ctx.getBean("queryManager", QueryManagement.class);
-					mbeanExporter.registerManagedResource(qMgr, qMgr.getObjectName());
-					TransactionManagement tMgr = ctx.getBean("transManager", TransactionManagement.class);
-					mbeanExporter.registerManagedResource(tMgr, tMgr.getObjectName());
+	       	    	registerFeatureManagers(ctx, sMgr);
 	       	    }
 	       	    
 	    		logger.debug("initSchema.exit; client schema {} started on instance: {}", schemaName, hz);
@@ -239,19 +226,7 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
     		if (!isSchemaActive(schemaName, members)) {
        		//if (size == 0) {
     			try {
-    				DocumentManagement dMgr = ctx.getBean("docManager", DocumentManagement.class);
-    				mbeanExporter.unregisterManagedResource(dMgr.getObjectName());
-    				IndexManagement iMgr = ctx.getBean("indexManager", IndexManagement.class);
-    				mbeanExporter.unregisterManagedResource(iMgr.getObjectName());
-    				TriggerManagement trMgr = ctx.getBean("triggerManager", TriggerManagement.class);
-    				mbeanExporter.unregisterManagedResource(trMgr.getObjectName());
-    				ModelManagement mMgr = ctx.getBean("modelManager", ModelManagement.class);
-    				mbeanExporter.unregisterManagedResource(mMgr.getObjectName());
-    				QueryManagement qMgr = ctx.getBean("queryManager", QueryManagement.class);
-    				mbeanExporter.unregisterManagedResource(qMgr.getObjectName());
-    				TransactionManagement tMgr = ctx.getBean("transManager", TransactionManagement.class);
-    				mbeanExporter.unregisterManagedResource(tMgr.getObjectName());
-    				
+    				unregisterFeatureManagers(ctx);
     				hzClient.shutdown();
 
         			ctx.close();
@@ -270,6 +245,41 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
 		return result;
 	}
 	
+	private void registerFeatureManagers(ApplicationContext ctx, SchemaManager sMgr) throws MBeanExportException, MalformedObjectNameException {
+	    ClientManagement cMgr = ctx.getBean("clientManager", ClientManagement.class);
+		mbeanExporter.registerManagedResource(cMgr, cMgr.getObjectName());
+	    DocumentManagement dMgr = ctx.getBean("docManager", DocumentManagement.class);
+		mbeanExporter.registerManagedResource(dMgr, dMgr.getObjectName());
+	    IndexManagement iMgr = ctx.getBean("indexManager", IndexManagement.class);
+	    iMgr.setSchemaManager(sMgr);
+		mbeanExporter.registerManagedResource(iMgr, iMgr.getObjectName());
+	    TriggerManagement trMgr = ctx.getBean("triggerManager", TriggerManagement.class);
+	    trMgr.setSchemaManager(sMgr);
+		mbeanExporter.registerManagedResource(trMgr, trMgr.getObjectName());
+		ModelManagement mMgr = ctx.getBean("modelManager", ModelManagement.class);
+	    mMgr.setSchemaManager(sMgr);
+		mbeanExporter.registerManagedResource(mMgr, mMgr.getObjectName());
+	    QueryManagement qMgr = ctx.getBean("queryManager", QueryManagement.class);
+		mbeanExporter.registerManagedResource(qMgr, qMgr.getObjectName());
+		TransactionManagement tMgr = ctx.getBean("transManager", TransactionManagement.class);
+		mbeanExporter.registerManagedResource(tMgr, tMgr.getObjectName());
+	}
+	
+	private void unregisterFeatureManagers(ApplicationContext ctx) throws MalformedObjectNameException {
+		DocumentManagement dMgr = ctx.getBean("docManager", DocumentManagement.class);
+		mbeanExporter.unregisterManagedResource(dMgr.getObjectName());
+		IndexManagement iMgr = ctx.getBean("indexManager", IndexManagement.class);
+		mbeanExporter.unregisterManagedResource(iMgr.getObjectName());
+		TriggerManagement trMgr = ctx.getBean("triggerManager", TriggerManagement.class);
+		mbeanExporter.unregisterManagedResource(trMgr.getObjectName());
+		ModelManagement mMgr = ctx.getBean("modelManager", ModelManagement.class);
+		mbeanExporter.unregisterManagedResource(mMgr.getObjectName());
+		QueryManagement qMgr = ctx.getBean("queryManager", QueryManagement.class);
+		mbeanExporter.unregisterManagedResource(qMgr.getObjectName());
+		TransactionManagement tMgr = ctx.getBean("transManager", TransactionManagement.class);
+		mbeanExporter.unregisterManagedResource(tMgr.getObjectName());
+	}
+
 	private boolean isSchemaActive(String schemaName, Set<Member> members) {
 
 		// does not work via cluster size for some reason..

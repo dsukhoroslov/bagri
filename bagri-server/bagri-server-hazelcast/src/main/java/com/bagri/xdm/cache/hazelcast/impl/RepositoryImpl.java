@@ -15,6 +15,7 @@ import org.springframework.context.ApplicationContextAware;
 
 import com.bagri.xdm.api.XDMBindingManagement;
 import com.bagri.xdm.api.XDMException;
+import com.bagri.xdm.cache.api.XDMClientManagement;
 import com.bagri.xdm.cache.api.XDMIndexManagement;
 import com.bagri.xdm.cache.api.XDMRepository;
 import com.bagri.xdm.cache.api.XDMTriggerManagement;
@@ -33,11 +34,9 @@ import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IQueue;
 
-public class RepositoryImpl extends XDMRepositoryBase implements ApplicationContextAware, ClientListener, XDMRepository {
+public class RepositoryImpl extends XDMRepositoryBase implements ApplicationContextAware, XDMRepository {
 
 	private static final transient Logger logger = LoggerFactory.getLogger(RepositoryImpl.class);
-	
-	//private static RepositoryImpl instance;
 	
 	private ThreadLocal<String> thClient = new ThreadLocal<String>() {
 		
@@ -50,6 +49,7 @@ public class RepositoryImpl extends XDMRepositoryBase implements ApplicationCont
 	private XDMSchema xdmSchema;
 	private Collection<XDMModule> xdmModules;
 	private Collection<XDMLibrary> xdmLibraries;
+    private XDMClientManagement clientMgr;
     private XDMIndexManagement indexMgr;
     private XDMTriggerManagement triggerMgr;
     private ApplicationContext appContext;
@@ -68,21 +68,25 @@ public class RepositoryImpl extends XDMRepositoryBase implements ApplicationCont
     //@Autowired
 	public void setHzInstance(HazelcastInstance hzInstance) {
 		this.hzInstance = hzInstance;
-		hzInstance.getClientService().addClientListener(this);
 		logger.debug("setHzInstange; got instance: {}", hzInstance.getName());
-		//instance = this;
 	}
 	
-	//public static RepositoryImpl getInstance() {
-	//	return instance;
-	//}
-
 	@Override
 	public void setBindingManagement(XDMBindingManagement bindMgr) {
 		super.setBindingManagement(bindMgr);
 		((BindingManagementImpl) bindMgr).setRepository(this);
 	}
 
+	@Override
+	public XDMClientManagement getClientManagement() {
+		return clientMgr;
+	}
+	
+	public void setClientManagement(XDMClientManagement clientMgr) {
+		this.clientMgr = clientMgr;
+		((ClientManagementImpl) clientMgr).setRepository(this);
+	}
+	
 	@Override
 	public XDMIndexManagement getIndexManagement() {
 		return indexMgr;
@@ -277,40 +281,7 @@ public class RepositoryImpl extends XDMRepositoryBase implements ApplicationCont
 		}
 		return false;
 	}
-	
-	@Override
-	public void clientConnected(Client client) {
-		logger.trace("clientConnected.enter; client: {}", client); 
-		// create queue
-		IQueue queue = hzInstance.getQueue("client:" + client.getUuid());
-		// create/cache new XQProcessor
-		XQProcessor proc = getXQProcessor(client.getUuid());
-		logger.trace("clientConnected.exit; queue {} created for client: {}; XQProcessor: {}", 
-				queue.getName(), client.getSocketAddress(), proc);
-	}
 
-	@Override
-	public void clientDisconnected(Client client) {
-		logger.trace("clientDisconnected.enter; client: {}", client);
-		String qName = "client:" + client.getUuid();
-		boolean destroyed = false;
-		Collection<DistributedObject> all = hzInstance.getDistributedObjects();
-		int sizeBefore = all.size();
-		for (DistributedObject obj: all) {
-			if (qName.equals(obj.getName())) {
-				// remove queue
-				//IQueue queue = hzInstance.getQueue(qName);
-				//queue.destroy();
-				obj.destroy();
-				destroyed = true;
-				break;
-			}
-		}
-		int sizeAfter = hzInstance.getDistributedObjects().size(); 
-		XQProcessor proc = processors.remove(client.getUuid());
-		logger.trace("clientDisconnected.exit; queue {} {} for client: {}; size before: {}, after: {}", 
-				qName, destroyed ? "destroyed" : "skipped", client.getSocketAddress(), sizeBefore, sizeAfter); 
-	}
 	
 }
 

@@ -10,6 +10,8 @@ public interface XDMRepository extends com.bagri.xdm.api.XDMRepository {
 	
 	XDMSchema getSchema();
 	
+	XDMClientManagement getClientManagement();
+	
 	XDMIndexManagement getIndexManagement();
 	
 	XDMTriggerManagement getTriggerManagement();

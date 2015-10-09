@@ -182,6 +182,10 @@
 
 	<bean id="usageStatsAggregator" class="com.bagri.common.stats.UsageStatsAggregator"/>
 
+	<bean id="clientManager" class="com.bagri.xdm.cache.hazelcast.management.ClientManagement">
+		<constructor-arg value="${xdm.schema.name}" />
+	</bean>
+
 	<bean id="docManager" class="com.bagri.xdm.cache.hazelcast.management.DocumentManagement">
 		<constructor-arg value="${xdm.schema.name}" />
 		<property name="statsAggregator" ref="invocationStatsAggregator"/>

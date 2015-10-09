@@ -46,7 +46,7 @@
 				<hz:property name="xdm.cluster.node.role">${xdm.cluster.node.role}</hz:property>
 				<hz:property name="xdm.cluster.node.schemas">${xdm.cluster.node.schemas}</hz:property-->
 			</hz:properties>
-			<hz:network public-address="${xdm.cluster.member}:${xdm.cluster.port}" port="${xdm.cluster.port}" port-auto-increment="true">
+			<hz:network port="${xdm.cluster.port}" port-auto-increment="true">
 				<hz:join>
 					<hz:multicast enabled="false"/>
 					<hz:tcp-ip enabled="true" connection-timeout-seconds="10">
@@ -54,7 +54,7 @@
 					</hz:tcp-ip>
 				</hz:join>
 			</hz:network>
-			<hz:partition-group enabled="true" group-type="CUSTOM">
+			<hz:partition-group enabled="false" group-type="CUSTOM">
 				<hz:member-group>
   					<hz:interface>${xdm.cluster.admins}</hz:interface>
 				</hz:member-group>
