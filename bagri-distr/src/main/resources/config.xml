@@ -160,7 +160,6 @@
                 <entry name="xdm.schema.data.backup.sync">0</entry>
                 <entry name="xqj.schema.constructionMode">1</entry>
                 <entry name="xdm.schema.partition.count">271</entry>
-                <!--entry name="xdm.schema.partition.count">971</entry-->
                 <entry name="xdm.schema.query.backup.read">true</entry>
             </properties>
             <fragments/>

@@ -63,11 +63,11 @@
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
+        <!--dependency>
             <groupId>com.sdv.bagri</groupId>
             <artifactId>bagri-client-hazelcast</artifactId>
             <scope>test</scope>
-        </dependency>
+        </dependency-->
     </dependencies>
 
 </project>

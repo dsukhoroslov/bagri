@@ -163,6 +163,9 @@ public class BagriXQDataSource implements XQDataSource {
 			Object xqp = makeInstance(XQ_PROCESSOR);
 			if (xqp != null) {
 				if (xqp instanceof XQProcessor) {
+					connect.setProcessor((XQProcessor) xqp);
+					((XQProcessor) xqp).setXQDataFactory(connect);
+
 					Object xdm = initRepository(connect);
 					if (xdm != null) {
 						if (xdm instanceof XDMRepository) {
@@ -172,8 +175,6 @@ public class BagriXQDataSource implements XQDataSource {
 									properties.getProperty(XDM_REPOSITORY));
 						}
 					}						
-					connect.setProcessor((XQProcessor) xqp);
-					((XQProcessor) xqp).setXQDataFactory(connect);
 				} else {
 					throw new XQException("Specified XQ Processor class does not implement XQProcessor interface: " + 
 							properties.getProperty(XQ_PROCESSOR));

@@ -22,6 +22,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.xml.xquery.XQDataFactory;
+import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQItem;
 import javax.xml.xquery.XQItemType;
 import javax.xml.xquery.XQSequence;
@@ -33,6 +34,8 @@ import com.bagri.xdm.client.hazelcast.serialize.SecureCredentials;
 import com.bagri.xdm.client.hazelcast.serialize.XQItemSerializer;
 import com.bagri.xdm.client.hazelcast.serialize.XQItemTypeSerializer;
 import com.bagri.xdm.client.hazelcast.serialize.XQSequenceSerializer;
+import com.bagri.xqj.BagriXQDataFactory;
+import com.bagri.xquery.api.XQProcessor;
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.client.config.XmlClientConfigBuilder;
@@ -44,7 +47,7 @@ public class ClientManagementImpl {
 	
     private final static Logger logger = LoggerFactory.getLogger(ClientManagementImpl.class);
 	
-    private final static Map<String, ClientContainer> clients = new HashMap<>();
+    private final static Map<String, ClientContainer> clients = new ConcurrentHashMap<>();
 
     public HazelcastInstance connect(String clientId, Properties props) {
     	String cKey = getConnectKey(props);
@@ -161,24 +164,30 @@ public class ClientManagementImpl {
 		SecureCredentials creds = new SecureCredentials(user, password);
 		config.getSecurityConfig().setCredentials(creds);
 		config.setCredentials(creds);
-			
-		XQDataFactory xqFactory = (XQDataFactory) props.get(pn_data_factory);
-		if (xqFactory != null) {
-			XQItemTypeSerializer xqits = new XQItemTypeSerializer();
-			xqits.setXQDataFactory(xqFactory);
-			config.getSerializationConfig().getSerializerConfigs().add(
-					new SerializerConfig().setTypeClass(XQItemType.class).setImplementation(xqits));
 
-			XQItemSerializer xqis = new XQItemSerializer();
-			xqis.setXQDataFactory(xqFactory);
-			config.getSerializationConfig().getSerializerConfigs().add(
-					new SerializerConfig().setTypeClass(XQItem.class).setImplementation(xqis));
-				
-			XQSequenceSerializer xqss = new XQSequenceSerializer();
-			xqss.setXQDataFactory(xqFactory);
-			config.getSerializationConfig().getSerializerConfigs().add(
-					new SerializerConfig().setTypeClass(XQSequence.class).setImplementation(xqss));
+		XQProcessor proc = null;
+		BagriXQDataFactory xqFactory = (BagriXQDataFactory) props.get(pn_data_factory);
+		if (xqFactory != null) {
+			proc = xqFactory.getProcessor();
 		}
+		xqFactory = new BagriXQDataFactory();
+		xqFactory.setProcessor(proc);
+		
+		XQItemTypeSerializer xqits = new XQItemTypeSerializer();
+		xqits.setXQDataFactory(xqFactory);
+		config.getSerializationConfig().getSerializerConfigs().add(
+				new SerializerConfig().setTypeClass(XQItemType.class).setImplementation(xqits));
+
+		XQItemSerializer xqis = new XQItemSerializer();
+		xqis.setXQDataFactory(xqFactory);
+		config.getSerializationConfig().getSerializerConfigs().add(
+				new SerializerConfig().setTypeClass(XQItem.class).setImplementation(xqis));
+			
+		XQSequenceSerializer xqss = new XQSequenceSerializer();
+		xqss.setXQDataFactory(xqFactory);
+		config.getSerializationConfig().getSerializerConfigs().add(
+				new SerializerConfig().setTypeClass(XQSequence.class).setImplementation(xqss));
+		
 		logger.debug("initializeHazelcast; config: {}", config);
 		HazelcastInstance hzClient;
 		try {
@@ -191,7 +200,6 @@ public class ClientManagementImpl {
 		return hzClient;
 	}
 
-	
 	private class ClientContainer {
 		
 		private String clientKey;
@@ -201,7 +209,6 @@ public class ClientManagementImpl {
 		ClientContainer(String clientKey, HazelcastInstance hzInstance) {
 			this.clientKey = clientKey;
 			this.hzInstance = hzInstance;
-			//clients.add(clientId);
 		}
 		
 		boolean addClient(String clientId) {

@@ -12,8 +12,8 @@ set memory=2048m
 
 rem specify schema and admin hosts:ports
 set admin_addr=localhost:3330
-set schema_addr=localhost:10500
-rem set schema_addr=192.168.1.100:10500
+rem set schema_addr=localhost:10500
+set schema_addr=10.249.143.8:10500
 
 set login=admin
 set password=password
@@ -29,6 +29,8 @@ set java_opts=-Xms%memory% -Xmx%memory%
 set java_opts=%java_opts% -Dhazelcast.logging.type=slf4j -Dlogback.configurationFile=hz-client-logging.xml
 set java_opts=%java_opts% -Dlog.name=tpox-client -Dhz.log.level=warn -Dxdm.log.level=info
 
+set java_opts=%java_opts% -Dhazelcast.client.event.thread.count=1
+
 set java_opts=%java_opts% -Dxdm.schema.address=%schema_addr%
 set java_opts=%java_opts% -Dxdm.schema.name=%schema%
 set java_opts=%java_opts% -Dxdm.schema.user=guest
@@ -41,6 +43,7 @@ set java_opts=%java_opts% -Dxdm.client.fetchSize=1
 set java_opts=%java_opts% -Dxdm.client.connectAttempts=3
 set java_opts=%java_opts% -Dxdm.client.loginTimeout=30
 set java_opts=%java_opts% -Dxdm.client.smart=false
+set java_opts=%java_opts% -Dxdm.client.poolSize=200
 
 set java_opts=%java_opts% -Duser.country=US -Duser.language=en
 

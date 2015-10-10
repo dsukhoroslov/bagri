@@ -11,7 +11,7 @@
 
     <artifactId>bagri-client-hazelcast</artifactId>
     <name>bagri-client-hazelcast</name>
-    <description>BagRi XDM Access Layer: Hazelcast Implementation</description>
+    <description>BagRi XDM Client: Hazelcast Implementation</description>
 
     <dependencies>
 
@@ -27,10 +27,10 @@
             <groupId>com.sdv.bagri</groupId>
             <artifactId>bagri-client-common</artifactId>
         </dependency>
-        <!--dependency>
+        <dependency>
             <groupId>com.sdv.bagri</groupId>
             <artifactId>bagri-xqj</artifactId>
-        </dependency-->
+        </dependency>
         <dependency>
             <groupId>com.sdv.bagri</groupId>
             <artifactId>bagri-xquery-api</artifactId>
@@ -45,14 +45,6 @@
             <groupId>com.hazelcast</groupId>
             <artifactId>hazelcast-all</artifactId>
         </dependency>
-        <!--dependency>
-            <groupId>com.hazelcast</groupId>
-            <artifactId>hazelcast-client</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.hazelcast</groupId>
-            <artifactId>hazelcast-spring</artifactId>
-        </dependency-->
 
         <dependency>
             <groupId>javax.xml.xquery</groupId>
@@ -62,12 +54,6 @@
 	    <groupId>javax.validation</groupId>
 	    <artifactId>validation-api</artifactId>
 	</dependency>
-
-        <!-- Spring framework -->
-        <!--dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
-        </dependency-->
 
         <!-- Dependencies for logging -->
         <dependency>
@@ -96,31 +82,5 @@
         </dependency>
 
     </dependencies>
-
-    <!--build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <version>${maven-dependency-plugin.version}</version>
-                <executions>
-                    <execution>
-                        <id>copy-dependencies</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>copy-dependencies</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
-                            <overWriteReleases>true</overWriteReleases>
-                            <overWriteSnapshots>true</overWriteSnapshots>
-                            <overWriteIfNewer>true</overWriteIfNewer>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-        </plugins>
-    </build-->
 
 </project>

@@ -1,7 +1,7 @@
 package com.bagri.xdm.client.hazelcast.impl;
 
-import static com.bagri.xdm.client.common.XDMCacheConstants.PN_XDM_SCHEMA_POOL;
 import static com.bagri.xdm.client.common.XDMCacheConstants.CN_XDM_RESULT;
+import static com.bagri.xdm.client.common.XDMCacheConstants.PN_XDM_SCHEMA_POOL;
 import static com.bagri.xdm.common.XDMConstants.pn_client_fetchSize;
 import static com.bagri.xdm.common.XDMConstants.pn_client_id;
 import static com.bagri.xdm.common.XDMConstants.pn_client_submitTo;
@@ -23,17 +23,14 @@ import java.util.concurrent.TimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bagri.common.query.ExpressionBuilder;
 import com.bagri.common.query.ExpressionContainer;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMQueryManagement;
 import com.bagri.xdm.client.common.impl.QueryManagementBase;
-import com.bagri.xdm.client.hazelcast.data.QueryParamsKey;
 import com.bagri.xdm.client.hazelcast.task.query.DocumentIdsProvider;
 import com.bagri.xdm.client.hazelcast.task.query.DocumentUrisProvider;
 import com.bagri.xdm.client.hazelcast.task.query.XMLBuilder;
 import com.bagri.xdm.client.hazelcast.task.query.XQCommandExecutor;
-import com.bagri.xdm.domain.XDMQuery;
 import com.bagri.xdm.domain.XDMResults;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.IMap;
@@ -144,28 +141,26 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 	}
 	
 	private Iterator execXQuery(boolean isQuery, String query, Map bindings, Properties props) throws XDMException {
+
+		//QueryParamsKey key = new QueryParamsKey(getQueryKey(query), getParamsKey(bindings));
+		long key = getResultsKey(query, bindings);
+		XDMResults res = resCache.get(key);
+		if (res != null) {
+			logger.trace("execXQuery; got cached results: {}", res);
+			return res.getResults().iterator();
+		}
 		
 		props.setProperty(pn_client_id, repo.getClientId());
 		props.setProperty(pn_client_txId, String.valueOf(repo.getTransactionId()));
-		//props.setProperty(pn_fetch_size, fetchSize);
-		//props.setProperty(pn_client_submitTo, submitTo);
 		
 		String runOn = props.getProperty(pn_client_submitTo, "any");
 		String schemaName = repo.getSchemaName();
 
-		long key = getResultsKey(query, bindings);
-		XDMResults res = resCache.get(key);
-		if (res != null) {
-			return res.getResults().iterator();
-		}
-		
 		XQCommandExecutor task = new XQCommandExecutor(isQuery, schemaName, query, bindings, props);
 		Future<ResultCursor> future;
 		if ("owner".equalsIgnoreCase(runOn)) {
-			//QueryParamsKey key = new QueryParamsKey(getQueryKey(query), getParamsKey(bindings));
 			future = execService.submitToKeyOwner(task, key);
 		} else if ("member".equalsIgnoreCase(runOn)) {
-			//QueryParamsKey key = new QueryParamsKey(getQueryKey(query), getParamsKey(bindings));
 			Member member = repo.getHazelcastClient().getPartitionService().getPartition(key).getOwner();
 			future = execService.submitToMember(task, member);
 		} else {
