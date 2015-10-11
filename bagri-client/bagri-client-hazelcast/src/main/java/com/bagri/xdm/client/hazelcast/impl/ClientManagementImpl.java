@@ -47,61 +47,66 @@ public class ClientManagementImpl {
 	
     private final static Logger logger = LoggerFactory.getLogger(ClientManagementImpl.class);
 	
-    private final static Map<String, ClientContainer> clients = new ConcurrentHashMap<>();
+    private final static Map<String, ClientContainer> clients = new HashMap<>();
 
     public HazelcastInstance connect(String clientId, Properties props) {
     	String cKey = getConnectKey(props);
-    	ClientContainer cc = clients.get(cKey);
-    	if (cc == null) {
-    		synchronized (clients) {
-    			cc = clients.get(cKey);
-    			if (cc == null) {
-    				HazelcastInstance hzClient = initializeHazelcast(props);
-    				cc = new ClientContainer(cKey, hzClient);
-    				clients.put(cKey, cc);
-					logger.info("connect; new HZ instance created: {}", hzClient);
-    			} else {
-    				// authenticate();
-    			}
-    		}
-    	} else {
-    		// authenticate();
-    	}
-    	HazelcastInstance hzClient = cc.hzInstance; 
-    	if (cc.addClient(clientId)) {
-    		IMap<String, Properties> clientProps = hzClient.getMap(CN_XDM_CLIENT);
-    		props.remove(pn_data_factory);
-    		clientProps.set(clientId, props);
-			logger.trace("connect; got new connection for clientId: {}", clientId);
-    	} else {
-			logger.info("connect; got existing connection for clientId: {}", clientId);
-    	}
-    	return hzClient;
+		synchronized (clients) {
+			ClientContainer cc = clients.get(cKey);
+   			if (cc == null) {
+   				HazelcastInstance hzClient = initializeHazelcast(props);
+   				cc = new ClientContainer(cKey, hzClient);
+   				clients.put(cKey, cc);
+				logger.info("connect; new HZ instance created: {}", hzClient);
+   			} else {
+   				// authenticate();
+   			}
+
+   	    	HazelcastInstance hzClient = cc.hzInstance; 
+   	    	if (cc.addClient(clientId)) {
+   	    		IMap<String, Properties> clientProps = hzClient.getMap(CN_XDM_CLIENT);
+   	    		props.remove(pn_data_factory);
+   	    		clientProps.set(clientId, props);
+   				logger.trace("connect; got new connection for clientId: {}", clientId);
+   	    	} else {
+   				logger.info("connect; got existing connection for clientId: {}", clientId);
+   	    	}
+   	    	return hzClient;
+		}
     }
     
     public void disconnect(String clientId) {
     	synchronized (clients) {
         	ClientContainer found = null;
 	    	for (ClientContainer cc: clients.values()) {
+				logger.trace("disconnect; disconnecting: {}; current clients: {}", clientId, cc.getSize());
 	    		if (cc.removeClient(clientId)) {
 	        		IMap<String, Properties> clientProps = cc.hzInstance.getMap(CN_XDM_CLIENT);
 	        		clientProps.delete(clientId);
 	    			logger.trace("disconnect; clientId {} successfuly disconnected", clientId);
 	    			found = cc;
 	        		break;
+	    		} else {
+	    			logger.info("disconnect; container don't see client ID: {}; existing: {}", clientId, cc.getClients());
 	    		}
 	    	}
 	
-	    	if (found != null && found.isEmpty()) {
-				if (found.hzInstance.getLifecycleService().isRunning()) {
-					logger.info("disconnect; going to close HZ instance: {}", found.hzInstance);
-					found.hzInstance.getLifecycleService().shutdown();
-					// probably, should do something like this:
-					//execService.awaitTermination(100, TimeUnit.SECONDS);
-					clients.remove(found.clientKey);
-				} else {
-					logger.info("disconnect; an attempt to close not-running client!");
+	    	if (found != null) {
+	    		if (found.isEmpty()) {
+					if (found.hzInstance.getLifecycleService().isRunning()) {
+						logger.info("disconnect; going to close HZ instance: {}", found.hzInstance);
+						found.hzInstance.getLifecycleService().shutdown();
+						// probably, should do something like this:
+						//execService.awaitTermination(100, TimeUnit.SECONDS);
+						clients.remove(found.clientKey);
+					} else {
+						logger.info("disconnect; an attempt to close not-running client!");
+					}
+	    		} else  {
+					logger.trace("disconnect; disconnected: {}; remaining clients: {}", clientId, found.getSize());
 				}
+	    	} else {
+	    		logger.info("disconnect; can not find container for client: {}", clientId);
 	    	}
     	}
     }
@@ -204,7 +209,7 @@ public class ClientManagementImpl {
 		
 		private String clientKey;
 		private HazelcastInstance hzInstance;
-		private Set<String> clients = new HashSet<>();
+		private Set<String> clientIds = new HashSet<>();
 		
 		ClientContainer(String clientKey, HazelcastInstance hzInstance) {
 			this.clientKey = clientKey;
@@ -212,15 +217,23 @@ public class ClientManagementImpl {
 		}
 		
 		boolean addClient(String clientId) {
-			return clients.add(clientId);
+			return clientIds.add(clientId);
+		}
+		
+		Set<String> getClients() {
+			return clientIds;
+		}
+		
+		int getSize() {
+			return clientIds.size();
 		}
 		
 		boolean isEmpty() {
-			return clients.isEmpty();
+			return clientIds.isEmpty();
 		}
 		
 		boolean removeClient(String clientId) {
-			return clients.remove(clientId);
+			return clientIds.remove(clientId);
 		}
 		
 	}
