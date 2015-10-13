@@ -15,7 +15,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.xml.namespace.QName;
 import javax.xml.xquery.XQException;
@@ -71,15 +70,20 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 	private BlockingQueue<StatisticsEvent> queue;
 	
     private ReplicatedMap<Integer, XDMQuery> xqCache;
-    //private IMap<Integer, XDMQuery> xqCache;
     private IMap<Long, XDMResults> xrCache;
-    //private Map<XDMResultsKey, XDMResults> xResults = new ConcurrentHashMap<>();
-    private Map<Long, XDMResults> xResults = new ConcurrentHashMap<>();
     
     private IMap<XDMDataKey, XDMElements> xdmCache;
 	private IMap<XDMDocumentKey, XDMDocument> xddCache;
     
 	private boolean testMode = false; 
+
+	private ThreadLocal<QueryExecContext> thContext = new ThreadLocal<QueryExecContext>() {
+		
+		@Override
+		protected QueryExecContext initialValue() {
+			return new QueryExecContext();
+ 		}
+	};
 	
     public QueryManagementImpl() {
     	logger.info("<init>; query cache initialized");
@@ -138,18 +142,49 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 
 	@Override
 	public boolean addQuery(String query, boolean readOnly, QueryBuilder xdmQuery) {
-		Integer qCode = getQueryKey(query);
+		Integer qKey = getQueryKey(query);
 		//logger.trace("addQuery.enter; got code: {}; query cache size: {}", qCode, xQueries.size());
 		//boolean result = xqCache.putIfAbsent(qCode, new XDMQuery(query, readOnly, xdmQuery)) == null;
-		boolean result = xqCache.put(qCode, new XDMQuery(query, readOnly, xdmQuery)) == null;
+		boolean result = xqCache.put(qKey, new XDMQuery(query, readOnly, xdmQuery)) == null;
 		logger.trace("addQuery.exit; returning: {}", result);
 		return result;
 	}
-
-	//private QueryParamsKey getResultsKey(String query, Map<String, Object> params) {
-		// should we check query cache first ??
-	//	return new QueryParamsKey(getQueryKey(query), getParamsKey(params));
-	//}
+	
+	public void removeQueries(Set<Integer> qKeys) {
+		for (Integer qKey: qKeys) {
+			xqCache.remove(qKey);
+		}
+	}
+	
+	public Set<Integer> getQueriesForPaths(Collection<Integer> pathIds, boolean checkIndexed) {
+		logger.trace("getQueriesForPaths.enter; got pathIds: {}; query cache size: {}", pathIds, xqCache.size());
+		Set<Integer> result = new HashSet<>();
+		for (Map.Entry<Integer, XDMQuery> e: xqCache.entrySet()) {
+			for (ExpressionContainer ec: e.getValue().getXdmQuery().getContainers()) {
+				boolean foundPath = false;
+				for (Expression ex: ec.getExpression().getExpressions()) {
+					if (!foundPath && ex.isCached()) {
+						QueriedPath qp = ((PathExpression) ex).getCachedPath();
+						if (checkIndexed && !qp.isIndexed()) {
+							continue;
+						}
+						for (Integer pid: pathIds) {
+							if (qp.getPathIds().contains(pid)) {
+								foundPath = true;
+								break;
+							}
+						}
+					}
+				}
+				if (foundPath) {
+					result.add(e.getKey());
+					break;
+				}
+			}
+		}
+		logger.trace("getQueriesForPaths.exit; returning: {}", result);
+		return result;
+	}
 
 	@Override
 	public Iterator getQueryResults(String query, Map<String, Object> params, Properties props) {
@@ -179,7 +214,8 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 		while (results.hasNext()) {
 			resList.add(results.next());
 		}
-		XDMResults xqr = new XDMResults(params, Collections.<Long> emptyList(), resList);
+		QueryExecContext ctx = thContext.get();
+		XDMResults xqr = new XDMResults(params, ctx.getDocIds(), resList);
 		//XDMResults oldRes = 
 		xrCache.putAsync(qpKey, xqr);
 		//xResults.put(qpKey, xqr);
@@ -192,7 +228,6 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 	public void clearCache() {
 		xqCache.clear(); //evictAll();
 		xrCache.evictAll();
-		xResults.clear();
 	}
 	
 	private void updateStats(String name, boolean success, int count) {
@@ -381,8 +416,10 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 	public Collection<Long> getDocumentIDs(ExpressionContainer query) throws XDMException {
 		ExpressionBuilder exp = query.getExpression();
 		if (exp.getRoot() != null) {
-			Set<Long> ids = queryKeys(null, query, exp.getRoot()); 
-			return checkDocumentsCommited(ids);
+			Set<Long> ids = queryKeys(null, query, exp.getRoot());
+			Collection<Long> result = checkDocumentsCommited(ids);
+			thContext.get().setDocIds(result);
+			return result;
 		}
 		logger.info("getDocumentIDs; got rootless path: {}", query); 
 		
@@ -395,6 +432,7 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 				result.add(docKey.getKey());
 			}
 		}
+		// I don't want to cache all docIds here in result
 		return result;
 	}
 
@@ -488,6 +526,9 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 				
 				xqp.setResults(null);
 				if (iter == null) {
+					QueryExecContext ctx = thContext.get();
+					ctx.clear();
+					
 					for (Object o: bindings.entrySet()) {
 						Map.Entry<QName, Object> var = (Map.Entry<QName, Object>) o; 
 						xqp.bindVariable(var.getKey(), var.getValue());
@@ -547,6 +588,27 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 		
 		int count = xqCursor.serialize(repo.getHzInstance());
 		return xqCursor;
+	}
+	
+	private class QueryExecContext {
+		
+		private Collection<Long> docIds;
+		
+		void clear() {
+			this.docIds = null;
+		}
+		
+		Collection<Long> getDocIds() {
+			if (docIds == null) {
+				return Collections.emptyList();
+			}
+			return docIds;
+		}
+		
+		void setDocIds(Collection<Long> docIds) {
+			this.docIds = docIds;
+		}
+		
 	}
 
 }

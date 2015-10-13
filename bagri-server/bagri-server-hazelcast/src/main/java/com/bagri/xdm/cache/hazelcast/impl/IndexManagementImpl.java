@@ -182,7 +182,7 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 	}
 	
 	@Override
-	public XDMPath[] deleteIndex(XDMIndex index) throws XDMException {
+	public XDMPath[] dropIndex(XDMIndex index) throws XDMException {
 		// we must not do translate here!
 		Set<Integer> paths = getPathsForIndex(index);
 		XDMPath[] result = new XDMPath[paths.size()];
@@ -381,7 +381,7 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 		return true;
 	}
 	
-	public void dropIndex(long docId, int pathId, Object value) {
+	public void removeIndex(long docId, int pathId, Object value) {
 		XDMIndexKey iKey = factory.newXDMIndexKey(pathId, value);
 		// will have collisions here when two threads change/delete the same index!
 		// but not for unique index!

@@ -3,6 +3,7 @@ package com.bagri.xdm.cache.hazelcast.impl;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -248,7 +249,7 @@ public class RepositoryImpl extends XDMRepositoryBase implements ApplicationCont
 		if (index != null) {
 			XDMPath[] paths;
 			try {
-				paths = indexMgr.deleteIndex(index);
+				paths = indexMgr.dropIndex(index);
 			} catch (XDMException ex) {
 				logger.warn("addSchemaIndex.error; index: " + index, ex);
 				return false;
@@ -256,9 +257,18 @@ public class RepositoryImpl extends XDMRepositoryBase implements ApplicationCont
 			
 			DocumentManagementImpl docMgr = (DocumentManagementImpl) getDocumentManagement();
 			int cnt = 0;
+			List<Integer> pathIds = new ArrayList<>(paths.length);
 			for (XDMPath xPath: paths) {
+				pathIds.add(xPath.getPathId());
 				cnt += docMgr.deindexElements(xPath.getTypeId(), xPath.getPathId());
 			}
+
+			QueryManagementImpl queryMgr = (QueryManagementImpl) getQueryManagement();
+			Set<Integer> qKeys = queryMgr.getQueriesForPaths(pathIds, true);
+			if (!qKeys.isEmpty()) {
+				queryMgr.removeQueries(qKeys);
+			}
+			
 			return cnt > 0;
 		}
 		logger.info("dropSchemaIndex; index {} does not exist?", index);

@@ -1,11 +1,14 @@
 package com.bagri.xdm.client.hazelcast.serialize;
 
+import static com.bagri.common.util.CollectionUtils.*; 
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.bagri.common.util.CollectionUtils;
 import com.bagri.xdm.domain.XDMResults;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
@@ -29,11 +32,7 @@ public class XDMResultsSerializer implements StreamSerializer<XDMResults> {
 		for (int i=0; i < size; i++) {
 			params.put(in.readUTF(), in.readObject());
 		}
-		size = in.readInt();
-		List<Long> docIds = new ArrayList<Long>(size);
-		for (int i=0; i < size; i++) {
-			docIds.add(in.readLong());
-		}
+		List<Long> docIds = toLongList(in.readLongArray());
 		size = in.readInt();
 		List results = new ArrayList(size);
 		for (int i=0; i < size; i++) {
@@ -49,10 +48,7 @@ public class XDMResultsSerializer implements StreamSerializer<XDMResults> {
 			out.writeUTF(e.getKey().toString());
 			out.writeObject(e.getValue());
 		}
-		out.writeInt(xreslts.getDocIds().size());
-		for (Long docId: xreslts.getDocIds()) {
-			out.writeLong(docId);
-		}
+		out.writeLongArray(toLongArray(xreslts.getDocIds()));
 		out.writeInt(xreslts.getResults().size());
 		for (Object o: xreslts.getResults()) {
 			out.writeObject(o);

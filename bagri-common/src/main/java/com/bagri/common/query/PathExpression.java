@@ -21,7 +21,8 @@ public class PathExpression extends Expression {
 	public QueriedPath getCachedPath() {
 		return cachedPath;
 	}
-	
+
+	@Override
 	public boolean isCached() {
 		return cachedPath != null;
 	}

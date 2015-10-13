@@ -27,7 +27,7 @@ public interface XDMIndexManagement {
 	 * @throws XDMException 
 	 * 
 	 */
-	XDMPath[] deleteIndex(XDMIndex index) throws XDMException;
+	XDMPath[] dropIndex(XDMIndex index) throws XDMException;
 
 
 	boolean rebuildIndex(int pathId);

@@ -195,9 +195,9 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		
 		// TODO: make this behavior configurable! 
 		// check if any docs were removed
-		if (txManager.getCurrentTxId() == TX_NO) {
-			return xddCache.containsKey(factory.newXDMDocumentKey(docId));
-		}
+		//if (txManager.getCurrentTxId() == TX_NO) {
+		//	return xddCache.containsKey(factory.newXDMDocumentKey(docId));
+		//}
 		
 		XDMDocument doc = getDocument(docId);
 		if (doc != null) {
@@ -361,7 +361,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 			XDMElements elts = xdmCache.get(xdk);
 			if (elts != null) {
 				for (XDMElement elt: elts.getElements()) {
-					indexManager.dropIndex(docKey.getKey(), pathId, elt.getValue());
+					indexManager.removeIndex(docKey.getKey(), pathId, elt.getValue());
 					cnt++;
 				}
 			}
@@ -375,7 +375,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		XDMElements elts = xdmCache.get(xdk);
 		if (elts != null) {
 			for (XDMElement elt: elts.getElements()) {
-				indexManager.dropIndex(docKey, pathId, elt.getValue());
+				indexManager.removeIndex(docKey, pathId, elt.getValue());
 				cnt++;
 			}
 		}
@@ -427,7 +427,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		       		XDMElements elts = xdmCache.remove(dKey);
 		       		if (elts != null) {
 		       			for (XDMElement elt: elts.getElements()) {
-		       				indexManager.dropIndex(docId, pathId, elt.getValue());
+		       				indexManager.removeIndex(docId, pathId, elt.getValue());
 		       				iCnt++;
 		       			}
 		       		}

@@ -28,6 +28,10 @@ public class Expression {
 		return path.getFullPath();
 	}
 	
+	public boolean isCached() {
+		return false;
+	}
+	
 	//public void addPath(String add) {
 	//	this.path += add;
 	//}
