@@ -50,7 +50,7 @@ public class PathBuilder {
 	}
 	
 	public void setPath(PathBuilder source) {
-		this.segments = new ArrayList(source.segments);
+		this.segments = new ArrayList<>(source.segments);
 	}
 	
 	@Override

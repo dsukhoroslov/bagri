@@ -31,6 +31,7 @@ import com.bagri.common.query.Expression;
 import com.bagri.common.query.ExpressionBuilder;
 import com.bagri.common.query.ExpressionContainer;
 import com.bagri.common.query.PathExpression;
+import com.bagri.common.query.QueriedPath;
 import com.bagri.common.query.QueryBuilder;
 import com.bagri.common.stats.StatisticsEvent;
 import com.bagri.xdm.api.XDMException;
@@ -272,33 +273,44 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 
 		logger.trace("queryPathKeys.enter; found: {}; value: {}", (found == null ? "null" : found.size()), value);
 		Predicate pp = null;
-		XDMPath xPath = null;
+		int dataType = 0;
+		boolean indexed = true;
 		Set<Integer> paths = null;
-		if (pex.isRegex()) {
-			// TODO: do not create new path here!
-			paths = model.translatePathFromRegex(pex.getDocType(), pex.getRegex());
-			logger.trace("queryPathKeys; regex: {}; pathIds: {}", pex.getRegex(), paths);
-			if (paths.size() > 0) {
-				Integer[] pa = paths.toArray(new Integer[paths.size()]); 
-				pp = Predicates.in("pathId", pa);
-				xPath = model.getPath(pa[0]);
-			}
+		boolean cached = pex.isCached();
+		if (cached) {
+			QueriedPath qPath = pex.getCachedPath();
+			dataType = qPath.getDataType();
+			indexed = qPath.isIndexed();
+			paths = new HashSet<>(qPath.getPathIds());
 		} else {
-			String path = pex.getFullPath();
-			logger.trace("queryPathKeys; path: {}; comparison: {}", path, pex.getCompType());
-			xPath = model.getPath(path);
-			if (xPath != null) {
-				paths = new HashSet<>(1);
-				pp = Predicates.equal("pathId", xPath.getPathId());
-				paths.add(xPath.getPathId());
+			if (pex.isRegex()) {
+				// TODO: do not create new path here!
+				paths = model.translatePathFromRegex(pex.getDocType(), pex.getRegex());
+				logger.trace("queryPathKeys; regex: {}; pathIds: {}", pex.getRegex(), paths);
+				if (paths.size() > 0) {
+					Integer[] pa = paths.toArray(new Integer[paths.size()]); 
+					pp = Predicates.in("pathId", pa);
+					XDMPath xPath = model.getPath(pa[0]);
+					dataType = xPath.getDataType();
+				}
+			} else {
+				String path = pex.getFullPath();
+				logger.trace("queryPathKeys; path: {}; comparison: {}", path, pex.getCompType());
+				XDMPath xPath = model.getPath(path);
+				if (xPath != null) {
+					paths = new HashSet<>(1);
+					pp = Predicates.equal("pathId", xPath.getPathId());
+					paths.add(xPath.getPathId());
+					dataType = xPath.getDataType();
+				}
 			}
 		}
 		
-		if (xPath == null) {
+		if (paths == null || paths.isEmpty()) {
 			logger.info("queryPathKeys; got query on unknown path: {}", pex); 
 			return Collections.emptySet();
 		}
-		Object newVal = adjustSearchValue(value, xPath.getDataType());
+		Object newVal = adjustSearchValue(value, dataType);
 		if (newVal == null) {
 			logger.info("queryPathKeys; got query on empty value sequence: {}", value); 
 			return Collections.emptySet();
@@ -306,27 +318,34 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 		logger.trace("queryPathKeys; adjusted value: {}({})", newVal.getClass().getName(), newVal); 
 		
 		Set<Long> result = new HashSet<>();
-		for (Integer pathId: paths) {
-			Set<Long> docIds = idxMgr.getIndexedDocuments(pathId, pex, newVal);
-			logger.trace("queryPathKeys; search for index - got ids: {}", docIds == null ? null : docIds.size()); 
-			if (docIds != null) {
-				if (found == null) {
-					result.addAll(docIds);
+		if (indexed) {
+			for (Integer pathId: paths) {
+				Set<Long> docIds = idxMgr.getIndexedDocuments(pathId, pex, newVal);
+				logger.trace("queryPathKeys; search for index - got ids: {}", docIds == null ? null : docIds.size()); 
+				if (docIds != null) {
+					if (found == null) {
+						result.addAll(docIds);
+					} else {
+						found.retainAll(docIds);
+						result = found;
+					}
 				} else {
-					found.retainAll(docIds);
-					result = found;
+					//fallback to full scan below..
+					result = null;
+					break;
 				}
-			} else {
-				//fallback to full scan below..
-				result = null;
-				break;
 			}
+		
+			if (result != null) {
+				logger.trace("queryPathKeys.exit; returning {} indexed keys", result.size());
+				if (!cached) {
+					pex.setCachedPath(dataType, indexed, paths);
+				}
+				return result;
+			}
+			indexed = false;
 		}
-		if (result != null) {
-			logger.trace("queryPathKeys.exit; returning {} indexed keys", result.size()); 
-			return result;
-		}
-
+		
 		QueryPredicate qp;
 		if (found == null) {
 			qp = new QueryPredicate(pex, newVal);
@@ -341,6 +360,9 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 			result.add(key.getDocumentId());
 		}
 		logger.trace("queryPathKeys.exit; returning {} keys", result.size()); 
+		if (!cached) {
+			pex.setCachedPath(dataType, indexed, paths);
+		}
 		return result;
 	}
 

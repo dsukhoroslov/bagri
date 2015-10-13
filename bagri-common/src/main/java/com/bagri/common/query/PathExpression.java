@@ -1,12 +1,29 @@
 package com.bagri.common.query;
 
+import java.util.Collection;
+
 public class PathExpression extends Expression {
 	
 	private String paramName;
+	private QueriedPath cachedPath;
 	
 	public PathExpression(int docType, Comparison compType, PathBuilder path, String paramName) {
 		super(docType, compType, path);
 		this.paramName = paramName;
+	}
+
+	public PathExpression(int docType, Comparison compType, PathBuilder path, String paramName, 
+			QueriedPath cachedPath) {
+		this(docType, compType, path, paramName);
+		this.cachedPath = cachedPath;
+	}
+	
+	public QueriedPath getCachedPath() {
+		return cachedPath;
+	}
+	
+	public boolean isCached() {
+		return cachedPath != null;
 	}
 	
 	public String getParamName() {
@@ -29,10 +46,15 @@ public class PathExpression extends Expression {
 		return null;
 	}
 	
+	public void setCachedPath(int dataType, boolean indexed, Collection<Integer> pathIds) {
+		this.cachedPath = new QueriedPath(dataType, indexed, pathIds);
+	}
+	
 	@Override
 	public String toString() {
 		return "PathExpression [path=" + path + ", param=" + paramName
-				+ ", docType=" + docType + ", compType=" + compType + "]";
+				+ ", docType=" + docType + ", compType=" + compType
+				+ ", cachedPath=" + cachedPath + "]";
 	}
 	
 

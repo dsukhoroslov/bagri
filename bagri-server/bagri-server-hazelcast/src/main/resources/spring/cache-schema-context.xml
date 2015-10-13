@@ -261,6 +261,14 @@
 	<bean id="mTicker" class="com.bagri.common.stats.watch.MillisTicker"/>
 	<bean id="nTicker" class="com.bagri.common.stats.watch.NanosTicker"/>
 
+	<bean id="clientQueue" class="java.util.concurrent.ArrayBlockingQueue">
+		<constructor-arg value="1024" />
+	</bean>
+	<bean id="clientStats" class="com.bagri.common.stats.InvocationStatistics">
+		<constructor-arg value="clients" />
+		<property name="statsQueue" ref="clientQueue"/>
+	</bean>
+
 	<bean id="docQueue" class="java.util.concurrent.ArrayBlockingQueue">
 		<constructor-arg value="1024" />
 	</bean>
@@ -321,6 +329,11 @@
 		<property name="populationSize" value="${xdm.schema.population.size}"/>
 	</bean>
 
+	<bean id="accManager" class="com.bagri.xdm.cache.hazelcast.impl.AccessManagementImpl">
+		<property name="schemaName" value="${xdm.schema.name}"/>
+		<property name="schemaPass" value="${xdm.schema.password}"/>
+	</bean>
+
 	<bean id="bindManager" class="com.bagri.xdm.cache.hazelcast.impl.BindingManagementImpl">
 		<!--property name="namespaceCache" ref="dict-namespace"/-->
 	</bean>
@@ -328,39 +341,9 @@
 	<bean id="clientManager" class="com.bagri.xdm.cache.hazelcast.impl.ClientManagementImpl">
 		<property name="clientsCache" ref="xdm-client"/>
 		<property name="hzInstance" ref="hzInstance"/>
+		<property name="statsQueue" ref="clientQueue"/>
 	</bean>
     
-	<!--bean id="mdlManager" class="com.bagri.xdm.client.hazelcast.impl.ModelManagementImpl"-->
-	<bean id="mdlManager" class="com.bagri.xdm.cache.hazelcast.impl.ModelManagementImpl">
-		<property name="namespaceCache" ref="dict-namespace"/>
-		<property name="pathCache" ref="dict-path"/>
-		<property name="typeCache" ref="dict-document-type"/>
-		<property name="namespaceGen" ref="xdm.namespace"/>
-		<property name="pathGen" ref="xdm.path"/>
-		<property name="typeGen" ref="xdm.doctype"/>
-	</bean>
-
-	<bean id="idxManager" class="com.bagri.xdm.cache.hazelcast.impl.IndexManagementImpl">
-		<property name="xdmFactory" ref="xdmFactory"/>
-		<!--property name="execService" ref="xdm-exec-pool"/-->
-		<property name="indexDictionary" ref="dict-index"/>
-		<property name="indexCache" ref="xdm-index"/>
-		<property name="modelManager" ref="mdlManager"/>
-		<property name="statsQueue" ref="indexQueue"/>
-		<property name="txManager" ref="txManager"/>
-		<property name="documentManager" ref="docManager"/>
-	</bean>
-
-	<bean id="trManager" class="com.bagri.xdm.cache.hazelcast.impl.TriggerManagementImpl">
-		<property name="triggerDictionary" ref="dict-trigger"/>
-		<property name="execService" ref="xdm-exec-pool"/>
-		<property name="modelManager" ref="mdlManager"/>
-		<property name="statsQueue" ref="triggerQueue"/>
-		<property name="hzInstance" ref="hzInstance"/>
-   		<!--property name="repository" ref="xdmRepo" /-->
-		<property name="XQCompiler" ref="xqCompiler"/>
-	</bean>
-
 	<bean id="docManager" class="com.bagri.xdm.cache.hazelcast.impl.DocumentManagementImpl">
 		<property name="documentIdGenerator" ref="docGen"/>
 		<property name="hzInstance" ref="hzInstance"/>
@@ -374,14 +357,25 @@
    		<!--property name="repository" ref="xdmRepo" /-->
 	</bean>
 
-	<bean id="txManager" class="com.bagri.xdm.cache.hazelcast.impl.TransactionManagementImpl">
-		<property name="hzInstance" ref="hzInstance"/>
-		<property name="transactionTimeout" value="${xdm.schema.transaction.timeout}"/>
+	<bean id="idxManager" class="com.bagri.xdm.cache.hazelcast.impl.IndexManagementImpl">
+		<property name="xdmFactory" ref="xdmFactory"/>
+		<!--property name="execService" ref="xdm-exec-pool"/-->
+		<property name="indexDictionary" ref="dict-index"/>
+		<property name="indexCache" ref="xdm-index"/>
+		<property name="modelManager" ref="mdlManager"/>
+		<property name="statsQueue" ref="indexQueue"/>
+		<property name="txManager" ref="txManager"/>
+		<property name="documentManager" ref="docManager"/>
 	</bean>
-	
-	<bean id="accManager" class="com.bagri.xdm.cache.hazelcast.impl.AccessManagementImpl">
-		<property name="schemaName" value="${xdm.schema.name}"/>
-		<property name="schemaPass" value="${xdm.schema.password}"/>
+
+	<!--bean id="mdlManager" class="com.bagri.xdm.client.hazelcast.impl.ModelManagementImpl"-->
+	<bean id="mdlManager" class="com.bagri.xdm.cache.hazelcast.impl.ModelManagementImpl">
+		<property name="namespaceCache" ref="dict-namespace"/>
+		<property name="pathCache" ref="dict-path"/>
+		<property name="typeCache" ref="dict-document-type"/>
+		<property name="namespaceGen" ref="xdm.namespace"/>
+		<property name="pathGen" ref="xdm.path"/>
+		<property name="typeGen" ref="xdm.doctype"/>
 	</bean>
 
 	<bean id="queryManager" class="com.bagri.xdm.cache.hazelcast.impl.QueryManagementImpl">
@@ -396,6 +390,21 @@
    		<property name="testMode" value="${xdm.schema.test.mode}" />
 	</bean>
 
+	<bean id="trManager" class="com.bagri.xdm.cache.hazelcast.impl.TriggerManagementImpl">
+		<property name="triggerDictionary" ref="dict-trigger"/>
+		<property name="execService" ref="xdm-exec-pool"/>
+		<property name="modelManager" ref="mdlManager"/>
+		<property name="statsQueue" ref="triggerQueue"/>
+		<property name="hzInstance" ref="hzInstance"/>
+   		<!--property name="repository" ref="xdmRepo" /-->
+		<property name="XQCompiler" ref="xqCompiler"/>
+	</bean>
+
+	<bean id="txManager" class="com.bagri.xdm.cache.hazelcast.impl.TransactionManagementImpl">
+		<property name="hzInstance" ref="hzInstance"/>
+		<property name="transactionTimeout" value="${xdm.schema.transaction.timeout}"/>
+	</bean>
+	
 	<bean id="xdmRepo" class="com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl">
 		<property name="hzInstance" ref="hzInstance"/>
 		<property name="clientManagement" ref="clientManager"/>

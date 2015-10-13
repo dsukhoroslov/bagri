@@ -3,10 +3,12 @@ package com.bagri.xdm.cache.hazelcast.impl;
 import java.util.Collection;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.BlockingQueue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.bagri.common.stats.StatisticsEvent;
 import com.bagri.xdm.cache.api.XDMClientManagement;
 import com.hazelcast.core.DistributedObject;
 import com.hazelcast.core.EntryEvent;
@@ -23,6 +25,9 @@ public class ClientManagementImpl implements XDMClientManagement, EntryListener<
     private HazelcastInstance hzInstance;
 	private IMap<String, Properties> clientsCache;
 	
+    private boolean enableStats = true;
+	private BlockingQueue<StatisticsEvent> queue;
+	
 	public void setHzInstance(HazelcastInstance hzInstance) {
 		this.hzInstance = hzInstance;
 		logger.debug("setHzInstange; got instance: {}", hzInstance.getName());
@@ -38,6 +43,22 @@ public class ClientManagementImpl implements XDMClientManagement, EntryListener<
     	this.repo = repo;
     }	
 	
+    public void setStatsQueue(BlockingQueue<StatisticsEvent> queue) {
+    	this.queue = queue;
+    }
+
+    public void setStatsEnabled(boolean enable) {
+    	this.enableStats = enable;
+    }
+
+	private void updateStats(String name, boolean success, long duration) {
+		if (enableStats) {
+			if (!queue.offer(new StatisticsEvent(name, success, duration))) {
+				logger.warn("updateStats; queue is full!!");
+			}
+		}
+	}
+    
 	@Override
 	public String[] getClients() {
 		Set<String> clients = clientsCache.keySet(); 
