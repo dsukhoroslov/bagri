@@ -39,6 +39,7 @@ import com.bagri.xdm.cache.api.XDMQueryManagement;
 import com.bagri.xdm.cache.hazelcast.predicate.DocsAwarePredicate;
 import com.bagri.xdm.cache.hazelcast.predicate.QueryPredicate;
 import com.bagri.xdm.cache.hazelcast.predicate.ResultsDocPredicate;
+import com.bagri.xdm.cache.hazelcast.predicate.ResultsQueryPredicate;
 import com.bagri.xdm.client.common.impl.QueryManagementBase;
 import com.bagri.xdm.client.hazelcast.data.QueryParamsKey;
 import com.bagri.xdm.client.hazelcast.impl.FixedCursor;
@@ -158,6 +159,7 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 	}
 	
 	public Set<Integer> getQueriesForPaths(Collection<Integer> pathIds, boolean checkIndexed) {
+		// TODO: also specify: do we care about unique indexes or not..
 		logger.trace("getQueriesForPaths.enter; got pathIds: {}; query cache size: {}", pathIds, xqCache.size());
 		Set<Integer> result = new HashSet<>();
 		for (Map.Entry<Integer, XDMQuery> e: xqCache.entrySet()) {
@@ -235,6 +237,16 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 		logger.trace("removeQueryResults.exit; deleted {} results for docId: {}", rdKeys.size(), docId);
 	}
 
+	public void removeQueryResults(Collection<Integer> queryIds) {
+		logger.trace("removeQueryResults.enter; got queryIds: {}; result cache size: {}", queryIds, xrCache.size());
+		Predicate rqp = new ResultsQueryPredicate(queryIds);
+		Set<Long> rqKeys = xrCache.keySet(rqp);
+		for (Long rqKey: rqKeys) {
+			xrCache.delete(rqKey);
+		}
+		logger.trace("removeQueryResults.exit; deleted {} results", rqKeys.size());
+	}
+	
 	@Override
 	public void clearCache() {
 		xqCache.clear(); //evictAll();

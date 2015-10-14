@@ -244,7 +244,8 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		data = parser.parse(xml);
 
 		XDMDocumentKey docKey = entry.getKey();
-		List<Long> fragments = loadElements(docKey.getKey(), data); 
+		Object[] ids = loadElements(docKey.getKey(), data);
+		List<Long> fragments = (List<Long>) ids[0];
 		if (fragments == null) {
 			logger.warn("createDocument.exit; the document is not valid as it has no root element");
 			throw new XDMException("invalid document", XDMException.ecDocument);
@@ -269,10 +270,18 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		xmlCache.set(docKey, xml);
 		triggerManager.applyTrigger(doc, action, Scope.after); 
 		logger.trace("createDocument.exit; returning: {}", doc);
+
+		// invalidate cached query results
+		Set<Integer> paths = (Set<Integer>) ids[1];
+		Set<Integer> qKeys = ((QueryManagementImpl) repo.getQueryManagement()).getQueriesForPaths(paths, false);
+		if (!qKeys.isEmpty()) {
+			((QueryManagementImpl) repo.getQueryManagement()).removeQueryResults(qKeys);
+		}
+		
 		return doc;
 	}
 	
-	public List<Long> loadElements(long docKey, List<XDMData> data) throws XDMException {
+	public Object[] loadElements(long docKey, List<XDMData> data) throws XDMException {
 		
 		long stamp = System.currentTimeMillis();
 		XDMData root = getDataRoot(data);
@@ -307,17 +316,20 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 			if (fragments.size() > 0) {
 				size = data.size() / fragments.size();
 			}
-			List<Long> result = new ArrayList<>(size);
-			result.add(new Long(docType));
+			Set<Integer> pathIds = new HashSet<>(size);
+			List<Long> fragIds = new ArrayList<>(size);
+			fragIds.add(new Long(docType));
 			for (XDMData xdm: data) {
 				if (fragments.contains(xdm.getPathId())) {
+					// TODO: why don't we shift it?
 					fraPath = docGen.next();
-					result.add(fraPath);
+					fragIds.add(fraPath);
 					fraPost = xdm.getPostId();
 				} else if (fraPost > 0 && xdm.getPathId() > fraPost) {
 					fraPath = docKey;
 					fraPost = 0;
 				}
+				pathIds.add(xdm.getPathId());
 				XDMDataKey xdk = factory.newXDMDataKey(fraPath, xdm.getPathId());
 				XDMElements xdes = elements.get(xdk);
 				if (xdes == null) {
@@ -331,8 +343,11 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 			
 			stamp = System.currentTimeMillis() - stamp;
 			logger.debug("loadElements; cached {} elements for docKey: {}; fragments: {}; time taken: {}", 
-					elements.size(), docKey, result.size(), stamp);
+					elements.size(), docKey, fragIds.size(), stamp);
 			//model.normalizeDocumentType(docType);
+			Object[] result = new Object[2];
+			result[0] = fragIds;
+			result[1] = pathIds;
 			return result;
 		}
 		return null;

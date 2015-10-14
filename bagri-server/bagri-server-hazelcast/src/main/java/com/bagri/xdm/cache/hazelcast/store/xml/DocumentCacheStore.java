@@ -135,7 +135,8 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<XDMDoc
         			//List<XDMData> data = parser.parse(new File(ddh.uri));
         			List<XDMData> data = parser.parse(xml);         		
 
-        			List<Long> fragments = docMgr.loadElements(docKey.getKey(), data); 
+        			Object[] ids = docMgr.loadElements(docKey.getKey(), data);
+        			List<Long> fragments = (List<Long>) ids[0];  
         			if (fragments == null) {
         				logger.warn("loadDocument.exit; the document is not valid as it has no root element");
         				//throw new XDMException("invalid document", XDMException.ecDocument);
@@ -159,7 +160,7 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<XDMDoc
 	        				((XDMFragmentedDocument) doc).setFragments(fa);
 	        			}
 	        			return doc;
-        			}        			
+        			}
 				} catch (IOException | XDMException ex) {
 					logger.error("loadDocument.error", ex);
 				}
