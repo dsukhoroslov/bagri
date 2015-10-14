@@ -101,7 +101,7 @@
         <antlr.version>3.2</antlr.version>
         <jcache.version>1.0.0</jcache.version>
         <!--hazelcast.version>3.4.2</hazelcast.version-->
-        <hazelcast.version>3.5.2</hazelcast.version>
+        <hazelcast.version>3.5.3</hazelcast.version>
         <coherence.version>3.7.1.10</coherence.version>
         <!--coherence.version>12.1.2-0-0</coherence.version-->
         <coherence-common.version>11.1.0</coherence-common.version>
@@ -261,42 +261,6 @@
                 <artifactId>spring-core</artifactId>
                 <version>${spring.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-jdbc</artifactId>
-                <version>${spring.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>commons-logging</groupId>
-                        <artifactId>commons-logging</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.data</groupId>
-                <artifactId>spring-data-mongodb</artifactId>
-                <version>${spring.mongo.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.data</groupId>
-                <artifactId>spring-data-hadoop</artifactId>
-                <version>${spring.hadoop.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>asm</groupId>
-                        <artifactId>asm</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.servlet</groupId>
-                        <artifactId>servet-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.xml.stream</groupId>
-                        <artifactId>stax-api</artifactId>
-                    </exclusion>
-                    <!-- we must exclude here much more.. -->
-                </exclusions>
-            </dependency>
 
             <dependency>
                 <groupId>xerces</groupId>
@@ -418,26 +382,11 @@
 		<version>${validation.version}</version>
 	    </dependency>
 
-            <!--dependency>
-                <groupId>com.hazelcast</groupId>
-                <artifactId>hazelcast</artifactId>
-                <version>${hazelcast.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.hazelcast</groupId>
-                <artifactId>hazelcast-client</artifactId>
-                <version>${hazelcast.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.hazelcast</groupId>
-                <artifactId>hazelcast-spring</artifactId>
-                <version>${hazelcast.version}</version>
-            </dependency-->
             <dependency>
                 <groupId>com.hazelcast</groupId>
                 <artifactId>hazelcast-all</artifactId>
                 <version>${hazelcast.version}</version>
-                <exclusions>
+                <!--exclusions>
                     <exclusion>
 		        <groupId>net.sourceforge.findbugs</groupId>
 		        <artifactId>annotations</artifactId>
@@ -450,7 +399,7 @@
 		        <groupId>org.freemarker</groupId>
 		        <artifactId>freemarker</artifactId>
                     </exclusion>
-                </exclusions>
+                </exclusions-->
             </dependency>
 
             <!-- Oracle dependencies -->
@@ -481,6 +430,43 @@
 		<version>${marklogic.client.version}</version>
 	    </dependency>
 
+            <!-- Dependencies for various storage options -->
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-jdbc</artifactId>
+                <version>${spring.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.data</groupId>
+                <artifactId>spring-data-mongodb</artifactId>
+                <version>${spring.mongo.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.data</groupId>
+                <artifactId>spring-data-hadoop</artifactId>
+                <version>${spring.hadoop.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>asm</groupId>
+                        <artifactId>asm</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.servlet</groupId>
+                        <artifactId>servet-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.xml.stream</groupId>
+                        <artifactId>stax-api</artifactId>
+                    </exclusion>
+                    <!-- we must exclude here much more.. -->
+                </exclusions>
+            </dependency>
             <dependency>
                 <groupId>org.mongodb</groupId>
                 <artifactId>mongo-java-driver</artifactId>

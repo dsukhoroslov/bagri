@@ -206,6 +206,10 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		}
 		return false;
 	}
+
+	public XDMDocumentKey nextDocumentKey() {
+		return factory.newXDMDocumentKey(docGen.next(), 1);
+	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private String buildElement(String path, long[] fragments, int docType) {
@@ -216,7 +220,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public XDMDocument createDocument(String uri, String xml) throws XDMException {
     	
-		XDMDocumentKey docKey = factory.newXDMDocumentKey(docGen.next(), 1); 
+		XDMDocumentKey docKey = nextDocumentKey(); 
 		return createDocument(new AbstractMap.SimpleEntry(docKey, null), uri, xml);
     }
 	

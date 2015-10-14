@@ -76,15 +76,15 @@
 		
 	</hz:client>
 	
-	<hz:map id="xdm-document" name="xdm-document" instance-ref="hzInstance" />
-	<hz:map id="xdm-element" name="xdm-element" instance-ref="hzInstance" />
+	<!--hz:map id="xdm-document" name="xdm-document" instance-ref="hzInstance" />
+	<hz:map id="xdm-element" name="xdm-element" instance-ref="hzInstance" /-->
 	<hz:map id="dict-document-type" name="dict-document-type" instance-ref="hzInstance" />
 	<hz:map id="dict-path" name="dict-path" instance-ref="hzInstance" />
 	<hz:map id="dict-namespace" name="dict-namespace" instance-ref="hzInstance" />
 	<!--hz:map id="dict-index" name="dict-index" instance-ref="hzInstance" /-->
 	<hz:map id="dict-trigger" name="dict-trigger" instance-ref="hzInstance" />
 
-	<hz:atomicLong id="xdm.document" name="xdm.document" instance-ref="hzInstance"/>
+	<!--hz:atomicLong id="xdm.document" name="xdm.document" instance-ref="hzInstance"/-->
 	<!--hz:atomicLong id="xdm.element" name="xdm.element" instance-ref="hzInstance"/-->
 	<hz:atomicLong id="xdm.path" name="xdm.path" instance-ref="hzInstance"/>
 	<hz:atomicLong id="xdm.namespace" name="xdm.namespace" instance-ref="hzInstance"/>

@@ -212,21 +212,18 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<XDMDoc
 		Path root = Paths.get(getDataPath());
 		try {
 			docKeys.clear();
-			List<Path> files = new ArrayList<Path>();
+			List<Path> files = new ArrayList<>();
 			processPathFiles(root, files);
 			Collections.sort(files);
-			long docId = 0;
+			XDMDocumentKey docKey; 
 			PartitionService ps = hzInstance.getPartitionService();
 			for (Path path: files) {
-				if (ps.getPartition(docId).getOwner().localMember()) {
-					XDMDocumentKey docKey = docMgr.getXdmFactory().newXDMDocumentKey(docId);
+				docKey = docMgr.nextDocumentKey();
+				if (ps.getPartition(docKey).getOwner().localMember()) {
 					docKeys.put(docKey, new DocumentDataHolder(normalizePath(path)));
 				}
-				docId++;
 			}
 			docIds = new HashSet<XDMDocumentKey>(docKeys.keySet());
-			// TODO: set DocumentIdGenerator to the current docId
-			// ...
 		} catch (IOException ex) {
 			logger.error("loadAllKeys.error;", ex);
 		}

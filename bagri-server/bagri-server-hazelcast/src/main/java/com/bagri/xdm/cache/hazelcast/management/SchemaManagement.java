@@ -266,6 +266,8 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
 	}
 	
 	private void unregisterFeatureManagers(ApplicationContext ctx) throws MalformedObjectNameException {
+		ClientManagement cMgr = ctx.getBean("clientManager", ClientManagement.class);
+		mbeanExporter.unregisterManagedResource(cMgr.getObjectName());
 		DocumentManagement dMgr = ctx.getBean("docManager", DocumentManagement.class);
 		mbeanExporter.unregisterManagedResource(dMgr.getObjectName());
 		IndexManagement iMgr = ctx.getBean("indexManager", IndexManagement.class);

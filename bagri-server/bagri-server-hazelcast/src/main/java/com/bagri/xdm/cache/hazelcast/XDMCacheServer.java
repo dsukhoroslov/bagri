@@ -132,7 +132,8 @@ public class XDMCacheServer {
 		}
 	}
 
-    private static void initServerNode(HazelcastInstance systemInstance, Member local) {
+    @SuppressWarnings("unchecked")
+	private static void initServerNode(HazelcastInstance systemInstance, Member local) {
         //int clusterSize = systemInstance.getCluster().getMembers().size();
         String[] aSchemas = getMemberSchemas(local);
         

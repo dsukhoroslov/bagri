@@ -4,6 +4,7 @@ import static com.bagri.xdm.client.common.XDMCacheConstants.PN_XDM_SYSTEM_POOL;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
 
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaPopulator;
 import com.hazelcast.core.HazelcastInstance;
@@ -45,7 +46,7 @@ public class PopulationManager implements MembershipListener, MigrationListener 
     public void setPopulationSize(int populationSize) {
     	this.populationSize = populationSize;
     }
-    
+
     public void checkPopulation(int currentSize) {
     	if (populationSize == currentSize) {
     		logger.debug("checkPopulation; starting population on cluster size: {}", currentSize);

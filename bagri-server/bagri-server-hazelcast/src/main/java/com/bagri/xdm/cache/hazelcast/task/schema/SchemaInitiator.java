@@ -14,6 +14,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.env.PropertiesPropertySource;
 
 import com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl;
+import com.bagri.xdm.cache.hazelcast.management.PopulationManager;
 import com.bagri.xdm.cache.hazelcast.util.SpringContextHolder;
 import com.bagri.xdm.system.XDMSchema;
 import com.hazelcast.core.Hazelcast;
@@ -67,6 +68,10 @@ public class SchemaInitiator implements Callable<Boolean>, IdentifiedDataSeriali
 			RepositoryImpl xdmRepo = ctx.getBean("xdmRepo", RepositoryImpl.class);
 			xdmRepo.setSchema(schema);
     		logger.debug("initSchema.exit; schema {} started on instance: {}", schemaName, hz);
+    		
+    		PopulationManager popManager = ctx.getBean("popManager", PopulationManager.class);
+    		popManager.checkPopulation(hz.getCluster().getMembers().size());
+    		
     		return true;
     	} catch (Exception ex) {
     		logger.error("initSchema.error; " + ex.getMessage(), ex);
