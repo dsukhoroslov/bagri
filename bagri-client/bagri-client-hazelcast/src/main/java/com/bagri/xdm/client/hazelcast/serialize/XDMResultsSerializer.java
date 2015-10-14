@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.namespace.QName;
+
 import com.bagri.common.util.CollectionUtils;
 import com.bagri.xdm.domain.XDMResults;
 import com.hazelcast.nio.ObjectDataInput;
@@ -28,9 +30,9 @@ public class XDMResultsSerializer implements StreamSerializer<XDMResults> {
 	@Override
 	public XDMResults read(ObjectDataInput in) throws IOException {
 		int size = in.readInt();
-		Map<String, Object> params = new HashMap<String, Object>(size);
+		Map<QName, Object> params = new HashMap<QName, Object>(size);
 		for (int i=0; i < size; i++) {
-			params.put(in.readUTF(), in.readObject());
+			params.put((QName) in.readObject(), in.readObject());
 		}
 		List<Long> docIds = toLongList(in.readLongArray());
 		size = in.readInt();
@@ -45,7 +47,7 @@ public class XDMResultsSerializer implements StreamSerializer<XDMResults> {
 	public void write(ObjectDataOutput out, XDMResults xreslts) throws IOException {
 		out.writeInt(xreslts.getParams().size());
 		for (Map.Entry e: xreslts.getParams().entrySet()) {
-			out.writeUTF(e.getKey().toString());
+			out.writeObject(e.getKey());
 			out.writeObject(e.getValue());
 		}
 		out.writeLongArray(toLongArray(xreslts.getDocIds()));

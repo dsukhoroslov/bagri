@@ -114,7 +114,7 @@ public class BagriXQPreparedExpression extends BagriXQDynamicContext implements	
 		if (getVarNames().contains(name)) {
 			// where can I get var type??
 			XQItemType type;
-			XQItemAccessor acc = getBindings().get(name);
+			XQItemAccessor acc = (XQItemAccessor) getBindings().get(name);
 			if (acc != null) {
 				type = acc.getItemType();
 			} else {

@@ -4,7 +4,6 @@ import static com.bagri.common.query.PathBuilder.*;
 import static com.bagri.xdm.client.common.XDMCacheConstants.PN_XDM_SCHEMA_POOL;
 import static com.bagri.xdm.api.XDMTransactionManagement.TX_NO;
 
-import java.io.IOException;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -27,7 +26,6 @@ import com.bagri.common.idgen.IdGenerator;
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.cache.common.XDMDocumentManagementServer;
-import com.bagri.xdm.client.common.impl.ModelManagementBase;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentContentProvider;
 import com.bagri.xdm.common.XDMDataKey;
 import com.bagri.xdm.common.XDMDocumentKey;
@@ -600,6 +598,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 				    	logger.trace("storeDocumentFromString; going to update document: {}", doc);
 				    	// we must finish old Document and create a new one!
 				    	doc.finishDocument(txManager.getCurrentTxId());
+				    	((QueryManagementImpl) repo.getQueryManagement()).removeQueryResults(newKey.getKey());
 				    	//deleteDocumentElements(docId, doc.getTypeId());
 				    	xddCache.put(docKey, doc);
 				    	newKey = factory.newXDMDocumentKey(doc.getDocumentId(), doc.getVersion() + 1);
@@ -645,6 +644,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	    	for (int pathId: pathIds) {
 		    	deindexElements(doc.getDocumentKey(), pathId);
 	    	}
+	    	((QueryManagementImpl) repo.getQueryManagement()).removeQueryResults(docKey);
 	    	triggerManager.applyTrigger(doc, Action.delete, Scope.after); 
 		    removed = true;
 	    }

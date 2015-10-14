@@ -2,6 +2,8 @@ package com.bagri.xdm.client.common.impl;
 
 import java.util.Map;
 
+import javax.xml.namespace.QName;
+
 public class QueryManagementBase {
 
     public int getQueryKey(String query) {
@@ -9,7 +11,7 @@ public class QueryManagementBase {
     	return query.hashCode();
     }
     
-	public int getParamsKey(Map<String, Object> params) {
+	public int getParamsKey(Map<QName, Object> params) {
 		//final int prime = 31;
 		//int result = params.size();
 		//for (Map.Entry param: params.entrySet()) {
@@ -21,7 +23,7 @@ public class QueryManagementBase {
 		return result;
 	}
 
-	public long getResultsKey(String query, Map<String, Object> params) {
+	public long getResultsKey(String query, Map<QName, Object> params) {
 		int highKey = getQueryKey(query);
 		int lowKey = getParamsKey(params);
 		long result = (((long) highKey) << 32) | (lowKey & 0xffffffffL);

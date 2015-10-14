@@ -38,6 +38,7 @@ import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.cache.api.XDMQueryManagement;
 import com.bagri.xdm.cache.hazelcast.predicate.DocsAwarePredicate;
 import com.bagri.xdm.cache.hazelcast.predicate.QueryPredicate;
+import com.bagri.xdm.cache.hazelcast.predicate.ResultsDocPredicate;
 import com.bagri.xdm.client.common.impl.QueryManagementBase;
 import com.bagri.xdm.client.hazelcast.data.QueryParamsKey;
 import com.bagri.xdm.client.hazelcast.impl.FixedCursor;
@@ -187,7 +188,7 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 	}
 
 	@Override
-	public Iterator getQueryResults(String query, Map<String, Object> params, Properties props) {
+	public Iterator getQueryResults(String query, Map<QName, Object> params, Properties props) {
 		//QueryParamsKey qpKey = getResultsKey(query, params);
 		long qpKey = getResultsKey(query, params);
 		logger.trace("getQueryResults; got result key: {}", qpKey);
@@ -206,7 +207,7 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 	}
 	
 	@Override
-	public Iterator addQueryResults(String query, Map<String, Object> params, Properties props, Iterator results) {
+	public Iterator addQueryResults(String query, Map<QName, Object> params, Properties props, Iterator results) {
 		//QueryParamsKey qpKey = getResultsKey(query, params);
 		long qpKey = getResultsKey(query, params);
 		// TODO: think about lazy solution... EntryProcessor? or, try local Map?
@@ -222,6 +223,16 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 		updateStats(query, 1, 0);
 		logger.trace("addQueryResults; stored results: {} for key: {}", xqr, qpKey);
 		return xqr.getResults().iterator();
+	}
+	
+	public void removeQueryResults(long docId) {
+		logger.trace("removeQueryResults.enter; got docId: {}; result cache size: {}", docId, xrCache.size());
+		Predicate rdp = new ResultsDocPredicate(docId);
+		Set<Long> rdKeys = xrCache.keySet(rdp);
+		for (Long rdKey: rdKeys) {
+			xrCache.delete(rdKey);
+		}
+		logger.trace("removeQueryResults.exit; deleted {} results for docId: {}", rdKeys.size(), docId);
 	}
 
 	@Override
@@ -504,7 +515,7 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 		return execXQCommand(true, query, bindings, props);
 	}
 
-	private Iterator execXQCommand(boolean isQuery, String xqCmd, Map bindings, Properties props) throws XDMException {
+	private Iterator execXQCommand(boolean isQuery, String xqCmd, Map<QName, Object> bindings, Properties props) throws XDMException {
 
 		logger.trace("execXQCommand.enter; query: {}, command: {}; bindings: {}; properties: {}", 
 				isQuery, xqCmd, bindings, props);

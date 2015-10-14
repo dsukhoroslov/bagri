@@ -313,12 +313,12 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 		}
 	}
 
-	public void executeCommand(String cmd, Map<QName, XQItemAccessor> bindings) throws XQException {
+	public void executeCommand(String cmd, Map<QName, Object> bindings) throws XQException {
 		
 		executeCommand(cmd, bindings, context); 
 	}
 	
-	public void executeCommand(final String cmd, final Map<QName, XQItemAccessor> bindings, 
+	public void executeCommand(final String cmd, final Map<QName, Object> bindings, 
 			final XQStaticContext ctx) throws XQException {
 		
 		checkState(ex_connection_closed);

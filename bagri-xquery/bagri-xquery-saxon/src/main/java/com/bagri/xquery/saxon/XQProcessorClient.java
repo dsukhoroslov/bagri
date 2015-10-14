@@ -31,13 +31,13 @@ public class XQProcessorClient extends XQProcessorImpl implements XQProcessor {
     }
 	
 	@Override
-	public Iterator executeXCommand(String command, Map<QName, XQItemAccessor> bindings, XQStaticContext ctx) throws XQException {
+	public Iterator executeXCommand(String command, Map<QName, Object> bindings, XQStaticContext ctx) throws XQException {
 		
 		return executeXCommand(command, bindings, collectProperties(ctx));
 	}
 
 	@Override
-	public Iterator executeXCommand(String command, Map<QName, XQItemAccessor> bindings, Properties props) throws XQException {
+	public Iterator executeXCommand(String command, Map<QName, Object> bindings, Properties props) throws XQException {
 		
     	//logger.trace("executeXCommand.enter; command: {}", command);
     	XDMQueryManagement qMgr = getQueryManagement();

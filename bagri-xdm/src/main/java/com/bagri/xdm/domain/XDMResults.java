@@ -1,12 +1,13 @@
 package com.bagri.xdm.domain;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
+
+import javax.xml.namespace.QName;
 
 public class XDMResults {
 	
-	private Map<String, Object> params;
+	private Map<QName, Object> params;
 	private Collection<Long> docIds;
 	private Collection<Object> results;
 	
@@ -14,14 +15,14 @@ public class XDMResults {
 		//
 	}
 	
-	public XDMResults(Map<String, Object> params, Collection<Long> docIds, Collection<Object> results) {
+	public XDMResults(Map<QName, Object> params, Collection<Long> docIds, Collection<Object> results) {
 		//super();
 		this.params = params;
 		this.docIds = docIds;
 		this.results = results;
 	}
 
-	public Map<String, Object> getParams() {
+	public Map<QName, Object> getParams() {
 		return params;
 	}
 

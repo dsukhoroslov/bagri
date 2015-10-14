@@ -92,32 +92,33 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
     //}
 
     @Override
-	public Iterator executeXCommand(String command, Map<QName, XQItemAccessor> bindings, XQStaticContext ctx) throws XQException {
+	public Iterator executeXCommand(String command, Map<QName, Object> bindings, XQStaticContext ctx) throws XQException {
 		
         //setStaticContext(sqc, ctx);
 		return executeXCommand(command, bindings, (Properties) null);
 	}
+    
+    private XQItemAccessor getBoundItem(Map<QName, Object> bindings, String varName) throws XQException {
+		if (bindings.size() == 0) {
+			throw new XQException("bindings not provided");
+		}
+
+    	XQItemAccessor item;
+		QName bName = new QName(varName);
+		item = (XQItemAccessor) bindings.get(bName);
+		if (item == null) {
+			throw new XQException("variable '" + varName + "' not bound");
+		}
+    	return item;
+    }
 	
 	@Override
-	public Iterator executeXCommand(String command, Map<QName, XQItemAccessor> bindings, Properties props) throws XQException {
+	public Iterator executeXCommand(String command, Map<QName, Object> bindings, Properties props) throws XQException {
 		
 	    XDMDocumentManagement dMgr = getRepository().getDocumentManagement();
 	    try {
 			if (command.startsWith("storeDocument")) {
-				if (bindings.size() == 0) {
-					throw new XQException("document not provided");
-				}
-				
-				XQItemAccessor item;
-				if (bindings.size() > 1) {
-					QName dName = new QName("doc");
-					item = bindings.get(dName);
-					if (item == null) {
-						throw new XQException("document not provided");
-					}
-				} else {
-					item = bindings.entrySet().iterator().next().getValue();
-				}
+				XQItemAccessor item = getBoundItem(bindings, "doc");
 				String xml = item.getItemAsString(null);
 				// validate document ?
 				// add/pass other params ?!
@@ -125,21 +126,7 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 				return Collections.singletonList(doc).iterator();
 				//return Collections.emptyIterator();
 			} else if (command.startsWith("removeDocument")) {
-	
-				if (bindings.size() == 0) {
-					throw new XQException("document uri not provided");
-				}
-				
-				XQItemAccessor item;
-				if (bindings.size() > 1) {
-					QName dName = new QName("docId");
-					item = bindings.get(dName);
-					if (item == null) {
-						throw new XQException("document ID not provided");
-					}
-				} else {
-					item = bindings.entrySet().iterator().next().getValue();
-				}
+				XQItemAccessor item = getBoundItem(bindings, "docId");
 				long docId = item.getLong();
 				dMgr.removeDocument(docId);
 				return Collections.emptyIterator(); 

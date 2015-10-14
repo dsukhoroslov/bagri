@@ -6,19 +6,18 @@ import java.util.Properties;
 
 import javax.xml.namespace.QName;
 import javax.xml.xquery.XQException;
-import javax.xml.xquery.XQItemAccessor;
 import javax.xml.xquery.XQStaticContext;
 
 public interface XQProcessor extends QueryProcessor {
 
-	Iterator executeXCommand(String command, Map<QName, XQItemAccessor> bindings, 
+	Iterator<?> executeXCommand(String command, Map<QName, Object> bindings, 
 			XQStaticContext ctx) throws XQException;
 	
-    Iterator executeXCommand(String command, Map<QName, XQItemAccessor> bindings, 
+    Iterator<?> executeXCommand(String command, Map<QName, Object> bindings, 
     		Properties props) throws XQException;
 
-    Iterator getResults();
-    void setResults(Iterator itr);
+    Iterator<?> getResults();
+    void setResults(Iterator<?> itr);
     
     void cancelExecution() throws XQException;
     // Saxon specific conversion

@@ -67,6 +67,7 @@ public class XDMDataSerializationFactory implements DataSerializableFactory {
 
 	public static final int cli_QueryPredicate = 86;
 	public static final int cli_DocsAwarePredicate = 87;
+	public static final int cli_ResultsDocPredicate = 88;
 	
 	public static final int cli_XQCursor = 90;
 	public static final int cli_QueryParamsKey = 91; 

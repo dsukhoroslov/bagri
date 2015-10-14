@@ -30,7 +30,7 @@ public class BagriXQDynamicContext extends BagriXQCloseable implements XQDynamic
 	protected BagriXQConnection connection;
 	private TimeZone timeZone;
 	private Set<QName> varNames = new HashSet<QName>();
-	private Map<QName, XQItemAccessor> bindings = new HashMap<QName, XQItemAccessor>();
+	private Map<QName, Object> bindings = new HashMap<QName, Object>();
 
 	BagriXQDynamicContext() {
 		//
@@ -203,7 +203,7 @@ public class BagriXQDynamicContext extends BagriXQCloseable implements XQDynamic
 		bindItem(varName, connection.createItemFromShort(value, type));
 	}
 	
-	protected Map<QName, XQItemAccessor> getBindings() {
+	protected Map<QName, Object> getBindings() {
 		return bindings; 
 	}
 
