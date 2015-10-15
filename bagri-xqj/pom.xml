@@ -70,4 +70,74 @@
         </dependency-->
     </dependencies>
 
+    <build>
+	<plugins>
+	    <plugin>
+		<groupId>org.apache.maven.plugins</groupId>
+		<artifactId>maven-surefire-plugin</artifactId>
+		<configuration>
+		    <skipTests>true</skipTests>
+		</configuration>
+	    </plugin>
+
+	    <!--plugin>
+		<groupId>org.codehaus.mojo</groupId>
+		<artifactId>exec-maven-plugin</artifactId>
+		<executions>
+		    <execution>
+			<phase>test</phase>
+			<goals>
+			    <goal>java</goal>
+			</goals>
+		    </execution>
+		</executions>
+		<configuration>
+		    <includeProjectDependencies>true</includeProjectDependencies>
+		    <includePluginDependencies>true</includePluginDependencies>
+		    <executableDependency>
+			<groupId>javax.xml.xquery</groupId>
+			<artifactId>xqj-tck</artifactId>
+		    </executableDependency>
+		    <mainClass>com.oracle.xqj.tck.AllTests</mainClass>
+		    <systemProperties>
+			<systemProperty>
+			    <key>com.oracle.xqj.tck.datasource</key>
+			    <value>tck.properties</value>
+			</systemProperty>
+			<systemProperty>
+			    <key>logback.configurationFile</key>
+			    <value>hz-client-logging.xml</value>
+			</systemProperty>
+			<systemProperty>
+			    <key>hazelcast.logging.type</key>
+			    <value>slf4j</value>
+			</systemProperty>
+			<systemProperty>
+			    <key>hz.log.level</key>
+			    <value>ERROR</value>
+			</systemProperty>
+			<systemProperty>
+			    <key>xdm.log.level</key>
+			    <value>OFF</value>
+			</systemProperty>
+			<systemProperty>
+			    <key>log.name</key>
+			    <value>xqj-tck</value>
+			</systemProperty>
+		    </systemProperties>
+		</configuration>
+		<dependencies>
+		    <dependency>
+			<groupId>javax.xml.xquery</groupId>
+			<artifactId>xqj-tck</artifactId>
+			<version>1.0</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/../etc/lib/xqj-tck-1.0.jar</systemPath>
+		    </dependency>
+		</dependencies>
+	    </plugin-->
+
+	</plugins>
+    </build>
+
 </project>

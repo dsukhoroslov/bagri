@@ -52,7 +52,8 @@ public class ModelManagementImpl extends com.bagri.xdm.client.hazelcast.impl.Mod
 	@Override
 	public Collection<XDMPath> getTypePaths(int typeId) {
 		Collection<XDMPath> result = cacheType.get(typeId);
-		if (result == null) {
+		// TODO: think why the result is empty? happens from ModelManagementImplTest only?
+		if (result == null || result.isEmpty()) {
 			result = super.getTypePaths(typeId);
 			if (result != null) {
 				Set<XDMPath> paths = new HashSet<>(result);

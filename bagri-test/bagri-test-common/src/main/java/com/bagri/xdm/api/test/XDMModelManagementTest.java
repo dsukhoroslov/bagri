@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.Collection;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.bagri.xdm.api.XDMDocumentManagement;
@@ -67,6 +68,7 @@ public abstract class XDMModelManagementTest extends XDMManagementTest {
 	}
 
 	@Test
+	//@Ignore
 	public void getSecurityPathTest() throws Exception {
 		storeSecurityTest();
 		Collection<XDMPath> sec = getSecurityPath();
@@ -75,6 +77,7 @@ public abstract class XDMModelManagementTest extends XDMManagementTest {
 	}
 
 	@Test
+	//@Ignore
 	public void getCustomerPathTest() throws Exception {
 		storeCustomerTest();
 		Collection<XDMPath> sec = getCustomerPath();

@@ -193,7 +193,7 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 	public Iterator getQueryResults(String query, Map<QName, Object> params, Properties props) {
 		//QueryParamsKey qpKey = getResultsKey(query, params);
 		long qpKey = getResultsKey(query, params);
-		logger.trace("getQueryResults; got result key: {}", qpKey);
+		logger.trace("getQueryResults; got result key: {}; parts: {}", qpKey, getResultsKeyParts(qpKey));
 		XDMResults xqr = xrCache.get(qpKey);
 		//XDMResults xqr = xResults.get(qpKey);
 		Iterator result = null;

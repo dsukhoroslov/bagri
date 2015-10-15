@@ -18,7 +18,10 @@ import com.hazelcast.query.Predicate;
 
 public class ResultsQueryPredicate implements Predicate<Long, XDMResults>, IdentifiedDataSerializable { 
 	
-	//private static final transient Logger logger = LoggerFactory.getLogger(ResultsDocPredicate.class);
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3453742834708403277L;
 	
 	private Set<Integer> queryIds = new HashSet<>();
 	
@@ -42,7 +45,8 @@ public class ResultsQueryPredicate implements Predicate<Long, XDMResults>, Ident
 
 	@Override
 	public boolean apply(Entry<Long, XDMResults> resEntry) {
-		Integer queryKey = resEntry.getKey().intValue();
+		long resultKey = resEntry.getKey();
+		Integer queryKey = (int) (resultKey >> 32);
 		return queryIds.contains(queryKey);
 	}
 	

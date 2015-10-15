@@ -30,4 +30,7 @@ public class QueryManagementBase {
 		return result;
 	}
 
+	public int[] getResultsKeyParts(long resultKey) {
+		return new int[] {(int) resultKey, (int) (resultKey >> 32)};
+	}	
 }
