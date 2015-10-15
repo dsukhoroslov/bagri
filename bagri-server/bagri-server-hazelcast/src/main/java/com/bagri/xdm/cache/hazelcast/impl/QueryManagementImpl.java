@@ -610,6 +610,7 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 		//});
 		
 		int count = xqCursor.serialize(repo.getHzInstance());
+		logger.trace("createCursor.exit; serialized: {} results", count);
 		return xqCursor;
 	}
 	

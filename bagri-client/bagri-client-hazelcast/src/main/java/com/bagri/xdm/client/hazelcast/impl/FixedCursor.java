@@ -56,6 +56,12 @@ public class FixedCursor extends ResultCursor {
 	}
 
 	@Override
+	public String toString() {
+		return "FixedCursor [clientId=" + getClientId() + ", queueSize=" + queueSize + 
+			", position=" + position + ", batchSize=" + batchSize + ", value=" + value + "]";
+	}
+
+	@Override
 	public void readData(ObjectDataInput in) throws IOException {
 		super.readData(in);
 		value = in.readObject();

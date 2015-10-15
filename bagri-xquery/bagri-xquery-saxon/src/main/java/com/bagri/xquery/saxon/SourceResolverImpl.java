@@ -58,7 +58,7 @@ public class SourceResolverImpl implements SourceResolver, ExternalObjectModel {
 	public Source resolveSource(Source source, Configuration config) throws XPathException {
 		logger.trace("resolveSource. source: {}; config: {}", source.getSystemId(), config);
 		
-		Long docId;
+		Long docId = null;
 		String original = source.getSystemId();
 
 		// TODO: use config.getSystemURIResolver() !
@@ -75,8 +75,15 @@ public class SourceResolverImpl implements SourceResolver, ExternalObjectModel {
 			}
 			logger.debug("resolveSource; not a native schema {}, trying uri: {}", uri.getScheme(), src); 
 			Iterator<Long> ids = repo.getDocumentManagement().getDocumentIds(src);
-			docId = ids.next();
+			if (ids.hasNext()) {
+				docId = ids.next();
+			}
 			// check for null ?
+		}
+		
+		// throw ex for null docId ?
+		if (docId == null) {
+			throw new XPathException("cannot resolve document for URI: " +  uri);
 		}
 
 		//Source src = mgr.getDocumentAsSource(docId);
