@@ -3,6 +3,7 @@ package com.bagri.xdm.cache.hazelcast.impl;
 import static com.bagri.common.config.XDMConfigConstants.xdm_config_properties_file;
 import static com.bagri.xdm.common.XDMConstants.pn_client_fetchSize;
 import static com.bagri.xdm.common.XDMConstants.pn_client_id;
+import static com.bagri.xdm.common.XDMConstants.pn_baseURI;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -51,6 +52,7 @@ public class QueryManagementImplTest extends XDMQueryManagementTest {
 		XDMSchema schema = xdmRepo.getSchema();
 		if (schema == null) {
 			schema = new XDMSchema(1, new java.util.Date(), "test", "test", "test schema", true, null);
+			schema.setProperty(pn_baseURI, sampleRoot);
 			xdmRepo.setSchema(schema);
 		}
 	}
@@ -117,6 +119,22 @@ public class QueryManagementImplTest extends XDMQueryManagementTest {
 		props.setProperty(pn_client_id, "1");
 		props.setProperty(pn_client_fetchSize, "0");
 		Iterator itr = xRepo.getQueryManagement().executeXQuery(query, bindings, props);
+		Assert.assertNotNull(itr);
+		((ResultCursor) itr).deserialize(((RepositoryImpl) xRepo).getHzInstance());
+		Assert.assertTrue(itr.hasNext());
+
+		query = "declare namespace s=\"http://tpox-benchmark.com/security\";\n" +
+				"for $sec in fn:doc(\"65537.xml\")/s:Security\n" +
+				"return $sec\n";
+		itr = xRepo.getQueryManagement().executeXQuery(query, bindings, props);
+		Assert.assertNotNull(itr);
+		((ResultCursor) itr).deserialize(((RepositoryImpl) xRepo).getHzInstance());
+		Assert.assertTrue(itr.hasNext());
+		
+		query = "declare namespace s=\"http://tpox-benchmark.com/security\";\n" +
+				"for $sec in fn:doc(\"131073.xml\")/s:Security\n" +
+				"return $sec\n";
+		itr = xRepo.getQueryManagement().executeXQuery(query, bindings, props);
 		Assert.assertNotNull(itr);
 		((ResultCursor) itr).deserialize(((RepositoryImpl) xRepo).getHzInstance());
 		Assert.assertTrue(itr.hasNext());

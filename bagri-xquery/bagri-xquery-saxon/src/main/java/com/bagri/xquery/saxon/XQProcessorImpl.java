@@ -194,37 +194,66 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
 		logger.trace("setStaticContext.enter; got props: {}", props);
        	// !!
         sqc.setSchemaAware(false);
-   		sqc.setBaseURI(props.getProperty(pn_baseURI, ""));
+        String value = props.getProperty(pn_baseURI);
+        if (value != null && value.length() > 0) {
+        	sqc.setBaseURI(value);
+        }
     	//props.getProperty(pn_bindingMode)
-    	sqc.setPreserveBoundarySpace(String.valueOf(BOUNDARY_SPACE_PRESERVE).equals(props.getProperty(pn_boundarySpacePolicy, "1")));
-   		if (String.valueOf(CONSTRUCTION_MODE_PRESERVE).equals(props.getProperty(pn_constructionMode, "1"))) {
-    		sqc.setConstructionMode(Validation.PRESERVE);
-    	} else {
-    		sqc.setConstructionMode(Validation.STRIP);
+        value = props.getProperty(pn_boundarySpacePolicy);
+        if (value != null) {
+        	sqc.setPreserveBoundarySpace(String.valueOf(BOUNDARY_SPACE_PRESERVE).equals(value));
+        }
+        value = props.getProperty(pn_constructionMode);
+        if (value != null) {
+        	if (String.valueOf(CONSTRUCTION_MODE_PRESERVE).equals(value)) {
+        		sqc.setConstructionMode(Validation.PRESERVE);
+        	} else {
+        		sqc.setConstructionMode(Validation.STRIP);
+        	}
         }
     	// ctx.getContextItemStaticType() -> contextItemStaticType
         //if (contextItemStaticType != null) {
         //    sqc.setRequiredContextItemType(contextItemStaticType.getSaxonItemType());
         //}
-    	sqc.declareDefaultCollation(props.getProperty(pn_defaultCollationUri, dc_ns));
-   		sqc.setDefaultElementNamespace(props.getProperty(pn_defaultElementTypeNamespace, xs_ns));
-    	sqc.setDefaultFunctionNamespace(props.getProperty(pn_defaultFunctionNamespace, df_ns));
+        value = props.getProperty(pn_defaultCollationUri);
+        if (value != null) {
+        	sqc.declareDefaultCollation(value);
+        }
+        value = props.getProperty(pn_defaultElementTypeNamespace);
+        if (value != null) {
+        	sqc.setDefaultElementNamespace(value);
+        }
+        value = props.getProperty(pn_defaultFunctionNamespace);
+        if (value != null) {
+        	sqc.setDefaultFunctionNamespace(value);
+        }
         //sqc.setEmptyLeast(emptyLeast);
-    	sqc.setInheritNamespaces(String.valueOf(COPY_NAMESPACES_MODE_INHERIT).equals(props.getProperty(pn_copyNamespacesModeInherit, "1")));
-    	sqc.setPreserveNamespaces(String.valueOf(COPY_NAMESPACES_MODE_PRESERVE).equals(props.getProperty(pn_copyNamespacesModePreserve, "1")));
-    	sqc.clearNamespaces();
-    	String namespaces = props.getProperty(pn_defaultNamespaces, "");
-    	StringTokenizer st = new StringTokenizer(namespaces, " ");
-    	while (st.hasMoreTokens()) {
-    		String namespace = st.nextToken();
-    		int idx = namespace.indexOf(":");
-   			sqc.declareNamespace(namespace.substring(0, idx), namespace.substring(idx + 1));
+        value = props.getProperty(pn_copyNamespacesModeInherit);
+        if (value != null) {
+        	sqc.setInheritNamespaces(String.valueOf(COPY_NAMESPACES_MODE_INHERIT).equals(value));
+        }
+        value = props.getProperty(pn_copyNamespacesModePreserve);
+        if (value != null) {
+        	sqc.setPreserveNamespaces(String.valueOf(COPY_NAMESPACES_MODE_PRESERVE).equals(value));
+        }
+        value = props.getProperty(pn_defaultNamespaces);
+        if (value != null) {
+        	sqc.clearNamespaces();
+        	StringTokenizer st = new StringTokenizer(value, " ");
+        	while (st.hasMoreTokens()) {
+        		String namespace = st.nextToken();
+        		int idx = namespace.indexOf(":");
+        		sqc.declareNamespace(namespace.substring(0, idx), namespace.substring(idx + 1));
+        	}
     	}
     	//props.getProperty(pn_defaultOrderForEmptySequences)
     	//props.getProperty(pn_holdability)
     	//props.getProperty(pn_orderingMode)
-    	if (String.valueOf(LANGTYPE_XQUERY).equals(props.getProperty(pn_queryLanguageTypeAndVersion, "1"))) {
-    		sqc.setLanguageVersion(new DecimalValue(1L)); // change to 3L
+        value = props.getProperty(pn_queryLanguageTypeAndVersion);
+        if (value != null) {
+        	if (String.valueOf(LANGTYPE_XQUERY).equals(value)) {
+        		sqc.setLanguageVersion(new DecimalValue(1L)); // change to 3L
+        	}
     	}
     	//props.getProperty(pn_queryTimeout)
     	//props.getProperty(pn_scrollability)

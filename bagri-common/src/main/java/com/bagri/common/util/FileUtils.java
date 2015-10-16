@@ -74,6 +74,7 @@ public class FileUtils {
         return f.toURI().toURL();
     }
 
-	
-	
+	public static String getPathName(String path) {
+		return Paths.get(URI.create(path)).getFileName().toString();
+	}
 }
