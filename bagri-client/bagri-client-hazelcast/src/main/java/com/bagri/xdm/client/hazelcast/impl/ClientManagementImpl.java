@@ -39,6 +39,7 @@ import com.bagri.xquery.api.XQProcessor;
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.client.config.XmlClientConfigBuilder;
+import com.hazelcast.client.impl.HazelcastClientProxy;
 import com.hazelcast.config.SerializerConfig;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
@@ -59,7 +60,7 @@ public class ClientManagementImpl {
    				clients.put(cKey, cc);
 				logger.info("connect; new HZ instance created: {}", hzClient);
    			} else {
-   				// authenticate();
+   				// check password -> authenticate();
    			}
 
    	    	HazelcastInstance hzClient = cc.hzInstance; 
@@ -74,6 +75,44 @@ public class ClientManagementImpl {
    	    	return hzClient;
 		}
     }
+
+    public void connect(String clientId, HazelcastClientProxy hzProxy) {
+    	String cKey = getConnectKey(hzProxy);
+		synchronized (clients) {
+			ClientContainer cc = clients.get(cKey);
+   			if (cc == null) {
+   				cc = new ClientContainer(cKey, hzProxy);
+   				clients.put(cKey, cc);
+				logger.info("connect; new container created for HZ instance: {}", hzProxy);
+   			} else {
+   				// check password -> authenticate();
+   			}
+   			
+   	    	HazelcastInstance hzClient = cc.hzInstance; 
+   	    	if (cc.addClient(clientId)) {
+   	    		//IMap<String, Properties> clientProps = hzClient.getMap(CN_XDM_CLIENT);
+   	    		//props.remove(pn_data_factory);
+   	    		//clientProps.set(clientId, props);
+   				logger.trace("connect; got new connection for clientId: {}", clientId);
+   	    	} else {
+   				logger.info("connect; got existing connection for clientId: {}", clientId);
+   	    	}
+		}
+    }
+    
+    //private void addClient(ClientContainer cc, String clientId) {
+
+    //	HazelcastInstance hzClient = cc.hzInstance; 
+    //	if (cc.addClient(clientId)) {
+    //		IMap<String, Properties> clientProps = hzClient.getMap(CN_XDM_CLIENT);
+    //		props.remove(pn_data_factory);
+    //		clientProps.set(clientId, props);
+	//		logger.trace("connect; got new connection for clientId: {}", clientId);
+    //	} else {
+	//		logger.info("connect; got existing connection for clientId: {}", clientId);
+    //	}
+    //	
+    //}
     
     public void disconnect(String clientId) {
     	synchronized (clients) {
@@ -111,6 +150,15 @@ public class ClientManagementImpl {
     	}
     }
     
+    public String getUserName(String clientId) {
+    	ClientContainer cc = getClientContainer(clientId);
+    	if (cc == null) {
+    		return null;
+    	}
+    	String[] parts = cc.clientKey.split("::");
+    	return parts[2];
+    }
+    
     private String getConnectKey(Properties props) {
 		String schema = props.getProperty(pn_schema_name);
 		String address = props.getProperty(pn_schema_address);
@@ -118,6 +166,24 @@ public class ClientManagementImpl {
 		String smart = props.getProperty(pn_client_smart);
 		String buffer = props.getProperty(pn_client_bufferSize); 
 		return schema + "::" + address + "::" + user + "::" + smart + "::" + buffer;
+    }
+
+    private String getConnectKey(HazelcastClientProxy hzProxy) {
+    	ClientConfig config = hzProxy.getClientConfig(); 
+    	return config.getGroupConfig().getName() + "::" +
+    		   config.getNetworkConfig().getAddresses().toString() + "::" +
+    		   "admin::" +
+    		   config.getNetworkConfig().isSmartRouting() + "::" + 
+    		   config.getNetworkConfig().getSocketOptions().getBufferSize();
+    }
+    
+    private ClientContainer getClientContainer(String clientId) {
+    	for (ClientContainer cc: clients.values()) {
+    		if (cc.hasClient(clientId)) {
+    			return cc;
+    		}
+    	}
+    	return null;
     }
     
 	private HazelcastInstance initializeHazelcast(Properties props) {
@@ -226,6 +292,10 @@ public class ClientManagementImpl {
 		
 		int getSize() {
 			return clientIds.size();
+		}
+
+		boolean hasClient(String clientId) {
+			return clientIds.contains(clientId);
 		}
 		
 		boolean isEmpty() {

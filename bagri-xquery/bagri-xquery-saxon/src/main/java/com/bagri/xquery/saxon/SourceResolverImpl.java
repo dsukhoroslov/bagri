@@ -83,7 +83,7 @@ public class SourceResolverImpl implements SourceResolver, ExternalObjectModel {
 				ids = repo.getDocumentManagement().getDocumentIds(src);
 				if (ids.hasNext()) {
 					docId = ids.next();
-				}				
+				}
 			}
 		}
 		

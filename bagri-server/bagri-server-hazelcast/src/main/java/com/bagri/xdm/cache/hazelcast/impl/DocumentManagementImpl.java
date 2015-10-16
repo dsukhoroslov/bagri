@@ -251,7 +251,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 			throw new XDMException("invalid document", XDMException.ecDocument);
 		} 
 		int docType = fragments.get(0).intValue();
-		String user = JMXUtils.getCurrentUser();
+		String user = repo.getUserName();
 		XDMDocument doc;
 		if (fragments.size() == 1) {
 			doc = new XDMDocument(docKey.getDocumentId(), docKey.getVersion(), uri, docType, user, txManager.getCurrentTxId());
@@ -570,6 +570,9 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		// what if we want to pass here correct URI ??
 		logger.trace("storeDocumentFromString.enter; docId: {}; uri: {}; xml: {}", docId, uri, xml.length());
 
+		// TODO: content can be in JSON or some other format!
+		// get dataFormat and build uri extension appropriately
+		
 		boolean update = false;
 		if (docId == 0) {
 			if (uri == null) {

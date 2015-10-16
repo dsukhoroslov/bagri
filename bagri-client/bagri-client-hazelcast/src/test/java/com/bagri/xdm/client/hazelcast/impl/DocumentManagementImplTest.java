@@ -1,6 +1,7 @@
 package com.bagri.xdm.client.hazelcast.impl;
 
 import static com.bagri.xdm.common.XDMConstants.*;
+import static org.junit.Assert.*;
 
 import java.io.IOException;
 
@@ -13,6 +14,7 @@ import org.junit.Test;
 
 import com.bagri.xdm.api.test.ServerLauncher;
 import com.bagri.xdm.api.test.XDMDocumentManagementTest;
+import com.bagri.xdm.domain.XDMDocument;
 import com.hazelcast.core.Hazelcast;
 
 public class DocumentManagementImplTest extends XDMDocumentManagementTest {
@@ -61,4 +63,15 @@ public class DocumentManagementImplTest extends XDMDocumentManagementTest {
 		storeCustomerTest();
 	}
 
+	@Test
+	public void documentPropertiesTest() throws Exception {
+		XDMDocument doc = createDocumentTest(sampleRoot + getFileName("security1500.xml"));
+		ids.add(doc.getDocumentKey());
+		assertEquals(doc.getCreatedBy(), "guest");
+		assertEquals(doc.getFragments().length, 1);
+		//assertEquals(doc.getTxStart(), 1);
+		assertEquals(doc.getTxFinish(), 0);
+		assertEquals(doc.getVersion(), 1);
+	}
+	
 }

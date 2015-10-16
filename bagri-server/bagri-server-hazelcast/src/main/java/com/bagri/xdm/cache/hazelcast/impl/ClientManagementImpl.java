@@ -1,5 +1,7 @@
 package com.bagri.xdm.cache.hazelcast.impl;
 
+import static com.bagri.xdm.common.XDMConstants.pn_schema_user;
+
 import java.util.Collection;
 import java.util.Properties;
 import java.util.Set;
@@ -65,6 +67,24 @@ public class ClientManagementImpl implements XDMClientManagement, EntryListener<
 		return clients.toArray(new String[clients.size()]);
 	}
 
+	@Override
+	public String getCurrentUser() {
+		String result = null;
+		String clientId = repo.getClientId();
+		if (clientId != null) {
+			Properties props = clientsCache.get(clientId);
+			if (props != null) {
+				result = props.getProperty(pn_schema_user);
+			}
+		}
+		return result;
+	}
+	
+	@Override
+	public Properties getClientProperties(String clientId) {
+		return clientsCache.get(clientId);
+	}
+	
 	@Override
 	public void entryAdded(EntryEvent<String, Properties> event) {
 		// TODO Auto-generated method stub

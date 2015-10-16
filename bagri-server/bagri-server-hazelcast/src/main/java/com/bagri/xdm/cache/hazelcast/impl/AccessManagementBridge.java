@@ -22,14 +22,13 @@ import com.hazelcast.map.listener.EntryAddedListener;
 import com.hazelcast.map.listener.EntryRemovedListener;
 import com.hazelcast.map.listener.EntryUpdatedListener;
 
-public class AccessManagementBridge { //implements HazelcastInstanceAware {
+public class AccessManagementBridge {
 
 	private static final transient Logger logger = LoggerFactory.getLogger(AccessManagementBridge.class);
 	
 	private Map<String, XDMRole> roles = new HashMap<>();
 	private Map<String, XDMUser> users = new HashMap<>();
 
-	//@Override
 	public void setHazelcastInstance(HazelcastInstance hzInstance) {
 		logger.trace("setHazelcastInstance.enter");
 		if (hzInstance != null) {
@@ -116,7 +115,7 @@ public class AccessManagementBridge { //implements HazelcastInstanceAware {
 		return null;
 	}
 
-	private static class EntityListener implements 	EntryAddedListener<String, XDMPermissionAware>, 
+	private static class EntityListener implements EntryAddedListener<String, XDMPermissionAware>, 
 		EntryUpdatedListener<String, XDMPermissionAware>, EntryRemovedListener<String, XDMPermissionAware> { 
 
 		private final Map<String, XDMPermissionAware> cache;

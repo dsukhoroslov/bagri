@@ -91,6 +91,7 @@ public class CollectionURIResolverImpl implements CollectionURIResolver {
 
 		if (href == null) {
 			// means default collection: all schema documents
+			collectType = -1;
 			currentType = -1;
 		} else {
 			collectType = getCollectionType(href);
@@ -375,18 +376,21 @@ public class CollectionURIResolverImpl implements CollectionURIResolver {
             	// TODO: the join use case. have to think about this..
     	    	//throw new IllegalStateException("Unexpected expression: " + ex);
     		} //else {
-    			// it seems we still need this workaround ..
-    			if (varIdx == 0) {
-    				compType = Comparison.negate(compType);
-    			}
-    			//if (currentType == collectType) {
-    				//value = normalizeValue(value);
-    				ExpressionContainer exCont = query.getContainer(currentType);
-    				exIndex = exCont.addExpression(currentType, compType, path, pName, value);
-    				logger.trace("iterate; added path expression at index: {}", exIndex);
-    				setParentPath(exCont.getExpression(), exIndex, path);
-    			//}
-    		//}
+
+    		// it seems we still need this workaround ..
+    		if (varIdx == 0) {
+    			compType = Comparison.negate(compType);
+    		}
+    			
+   			ExpressionContainer exCont = query.getContainer(currentType);
+   			if (exCont == null) {
+   				// not sure is it ok for currentType = -1!
+	        	exCont = new ExpressionContainer();
+	        	query.addContainer(currentType, exCont);
+   			}
+   			exIndex = exCont.addExpression(currentType, compType, path, pName, value);
+   			logger.trace("iterate; added path expression at index: {}", exIndex);
+   			setParentPath(exCont.getExpression(), exIndex, path);
     	}  
 
     	if (ex instanceof BooleanExpression) {

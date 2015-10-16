@@ -52,7 +52,7 @@ public class RangeIndexManagementTest extends XDMQueryManagementTest {
 			xdmRepo.setSchema(schema);
 		}
 		String typePath = getModelManagement().normalizePath("/{http://tpox-benchmark.com/security}Security");
-		XDMIndex index = new XDMIndex(1, new Date(), JMXUtils.getCurrentUser(), "IDX_Security_PE", "/{http://tpox-benchmark.com/security}Security", 
+		XDMIndex index = new XDMIndex(1, new Date(), xRepo.getUserName(), "IDX_Security_PE", "/{http://tpox-benchmark.com/security}Security", 
 				typePath, "/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}PE/text()", new QName(xs_ns, "decimal", xs_prefix), 
 				true, true, false, "Security PE", true);
 		xdmRepo.addSchemaIndex(index);

@@ -57,7 +57,7 @@ public class UniqueIndexManagementTest extends XDMManagementTest {
 			xdmRepo.setSchema(schema);
 		}
 		String typePath = getModelManagement().normalizePath("/{http://tpox-benchmark.com/security}Security");
-		XDMIndex index = new XDMIndex(1, new Date(), JMXUtils.getCurrentUser(), "IDX_Security_Symbol", "/{http://tpox-benchmark.com/security}Security", 
+		XDMIndex index = new XDMIndex(1, new Date(), xRepo.getUserName(), "IDX_Security_Symbol", "/{http://tpox-benchmark.com/security}Security", 
 				typePath, "/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}Symbol/text()", new QName(xs_ns, "string", xs_prefix),
 				true, true, true, "Security Symbol", true);
 		xdmRepo.addSchemaIndex(index);

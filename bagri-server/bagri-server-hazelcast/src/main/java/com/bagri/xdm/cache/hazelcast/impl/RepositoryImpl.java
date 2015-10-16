@@ -14,8 +14,10 @@ import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
+import com.bagri.common.manage.JMXUtils;
 import com.bagri.xdm.api.XDMBindingManagement;
 import com.bagri.xdm.api.XDMException;
+import com.bagri.xdm.api.XDMTransactionManagement;
 import com.bagri.xdm.cache.api.XDMClientManagement;
 import com.bagri.xdm.cache.api.XDMIndexManagement;
 import com.bagri.xdm.cache.api.XDMRepository;
@@ -99,6 +101,12 @@ public class RepositoryImpl extends XDMRepositoryBase implements ApplicationCont
 	}
 	
 	@Override
+	public void setTxManagement(XDMTransactionManagement txMgr) {
+		super.setTxManagement(txMgr);
+		((TransactionManagementImpl) txMgr).setRepository(this);
+	}
+
+	@Override
 	public XDMTriggerManagement getTriggerManagement() {
 		return triggerMgr;
 	}
@@ -111,6 +119,15 @@ public class RepositoryImpl extends XDMRepositoryBase implements ApplicationCont
 	@Override
 	public String getClientId() {
 		return thClient.get();
+	}
+	
+	@Override
+	public String getUserName() {
+		String user = clientMgr.getCurrentUser();
+		if (user == null) {
+			user = JMXUtils.getCurrentUser();
+		}
+		return user;
 	}
 	
 	@Override

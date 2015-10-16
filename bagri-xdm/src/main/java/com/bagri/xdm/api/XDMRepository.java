@@ -5,6 +5,8 @@ public interface XDMRepository {
 	void close();
 	
 	String getClientId();
+
+	String getUserName();
 	
 	//XDMAccessManagement getAccessManagement();
 	

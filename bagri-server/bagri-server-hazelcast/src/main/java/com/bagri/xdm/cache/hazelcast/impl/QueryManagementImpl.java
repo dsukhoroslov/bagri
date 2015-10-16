@@ -437,17 +437,19 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 	
 	@Override
 	public Collection<Long> getDocumentIDs(ExpressionContainer query) throws XDMException {
-		ExpressionBuilder exp = query.getExpression();
-		if (exp.getRoot() != null) {
-			Set<Long> ids = queryKeys(null, query, exp.getRoot());
-			Collection<Long> result = checkDocumentsCommited(ids);
-			thContext.get().setDocIds(result);
-			return result;
+		if (query != null) {
+			ExpressionBuilder exp = query.getExpression();
+			if (exp != null && exp.getRoot() != null) {
+				Set<Long> ids = queryKeys(null, query, exp.getRoot());
+				Collection<Long> result = checkDocumentsCommited(ids);
+				thContext.get().setDocIds(result);
+				return result;
+			}
 		}
 		logger.info("getDocumentIDs; got rootless path: {}", query); 
 		
-		// fallback to full IDs set. not too good...
-		// can we use local keySet only !?
+		// fallback to full IDs set: default collection over all documents. not too good...
+		// how could we distribute it over cache nodes? can we use local keySet only !?
 		List<Long> result = new ArrayList<Long>(xddCache.keySet().size());
 		for (XDMDocumentKey docKey: xddCache.keySet()) {
 			// we must provide only visible docIds!

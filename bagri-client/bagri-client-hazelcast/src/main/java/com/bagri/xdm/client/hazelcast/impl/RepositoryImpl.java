@@ -53,10 +53,13 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 		this.hzClient = hzInstance;
 		com.hazelcast.client.impl.HazelcastClientProxy proxy = (com.hazelcast.client.impl.HazelcastClientProxy) hzClient;
 		schemaName = proxy.getClientConfig().getGroupConfig().getName();
-		clientId = proxy.getLocalEndpoint().getUuid();
+		//clientId = proxy.getLocalEndpoint().getUuid();
+
+		clientMgr = new ClientManagementImpl();
+		clientId = UUID.randomUUID().toString();
+		clientMgr.connect(clientId, proxy);
+		
 		logger.debug("<init>; connected to HZ server as: {}; {}", clientId, proxy);
-		Credentials creds = proxy.getClientConfig().getSecurityConfig().getCredentials();
-		logger.debug("<init>; with credentials: {}", creds);
 		initializeServices();
 	}
 	
@@ -143,6 +146,11 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 	@Override
 	public String getClientId() {
 		return clientId;
+	}
+	
+	@Override
+	public String getUserName() {
+		return clientMgr.getUserName(clientId);
 	}
 	
 	@Override

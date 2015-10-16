@@ -51,12 +51,17 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 	private AtomicLong cntCommited = new AtomicLong(0);
 	private AtomicLong cntRolled = new AtomicLong(0);
     
+	private RepositoryImpl repo;
     //private HazelcastInstance hzInstance;
 	private Cluster cluster;
 	private IdGenerator<Long> txGen;
 	private IMap<Long, XDMTransaction> txCache; 
 
 	private long txTimeout = 0;
+	
+    public void setRepository(RepositoryImpl repo) {
+    	this.repo = repo;
+    }
 	
 	public void setHzInstance(HazelcastInstance hzInstance) {
 		//this.hzInstance = hzInstance;
@@ -89,8 +94,7 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 
 		txId = txGen.next();
 		// TODO: do this via EntryProcessor?
-		XDMTransaction xTx = new XDMTransaction(txId, cluster.getClusterTime(), 0, 
-				JMXUtils.getCurrentUser(), txIsolation, XDMTransactionState.started);
+		XDMTransaction xTx = new XDMTransaction(txId, cluster.getClusterTime(), 0, repo.getUserName(), txIsolation, XDMTransactionState.started);
 		txCache.set(txId, xTx);
 		thTx.set(txId);
 		cntStarted.incrementAndGet();

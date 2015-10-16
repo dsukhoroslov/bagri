@@ -19,7 +19,7 @@
 		<hz:network smart-routing="true">
 			<hz:member>${xdm.schema.members}</hz:member>
 			<!--hz:socket-options buffer-size="${xdm.schema.buffer.size}"/-->
-			<hz:socket-options buffer-size="128"/>
+			<hz:socket-options buffer-size="32"/>
 		</hz:network>
 		
 		<hz:security>
