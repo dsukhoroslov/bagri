@@ -61,7 +61,7 @@ public abstract class BagriXQSequence extends BagriXQItemAccessor implements XQS
 		while (hasNext) {
 			buff.append(this.getItemAsString(props));
 			if (next()) {
-				buff.append(" ");
+				buff.append("\n");
 			} else {
 				hasNext = false;
 			}

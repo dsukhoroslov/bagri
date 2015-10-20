@@ -173,7 +173,7 @@ public abstract class BagriXQItemAccessor extends BagriXQCloseable implements XQ
 	public XQItemType getItemType() throws XQException {
 		
 		if (closed) {
-			throw new XQException("Item is closed");
+			throw new XQException(ex_item_closed);
 		}
 		if (!positioned) {
 			throw new XQException("not positioned on the Item");
@@ -185,7 +185,7 @@ public abstract class BagriXQItemAccessor extends BagriXQCloseable implements XQ
 	public String getAtomicValue() throws XQException {
 
 		if (closed) {
-			throw new XQException("Item is closed");
+			throw new XQException(ex_item_closed);
 		}
 		return xqProcessor.convertToString(value);
 	}
@@ -236,7 +236,7 @@ public abstract class BagriXQItemAccessor extends BagriXQCloseable implements XQ
 	public Object getObject() throws XQException {
 		
 		if (closed) {
-			throw new XQException("Item is closed");
+			throw new XQException(ex_item_closed);
 		}
 		return value;
 	}
@@ -245,7 +245,7 @@ public abstract class BagriXQItemAccessor extends BagriXQCloseable implements XQ
 	public XMLStreamReader getItemAsStream() throws XQException {
 		
 		if (closed) {
-			throw new XQException("Item is closed");
+			throw new XQException(ex_item_closed);
 		}
 		try {
 			return XMLUtils.stringToStream(getItemAsString(null));
@@ -258,7 +258,7 @@ public abstract class BagriXQItemAccessor extends BagriXQCloseable implements XQ
 	public String getItemAsString(Properties props) throws XQException {
 		
 		if (closed) {
-			throw new XQException("Item is closed");
+			throw new XQException(ex_item_closed);
 		}
         //if (props == null) {
         //    props = new Properties();
