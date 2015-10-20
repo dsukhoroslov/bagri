@@ -23,6 +23,7 @@ import com.bagri.xdm.common.XDMEntity;
 		"active", 
 		"description", 
 		"props",
+		"collections",
 		"fragments",
 		"indexes",
 		"triggers"
@@ -42,6 +43,10 @@ public class XDMSchema extends XDMEntity {
 	@XmlElement(name = "properties")
 	@XmlJavaTypeAdapter(XDMEntriesAdapter.class)
 	private Properties props = new Properties();
+	
+	@XmlElement(name="collection")
+	@XmlElementWrapper(name="collections")
+	private Set<XDMCollection> collections = new HashSet<>();
 	
 	@XmlElement(name="fragment")
 	@XmlElementWrapper(name="fragments")
@@ -107,6 +112,44 @@ public class XDMSchema extends XDMEntity {
 		if (props != null) {
 			this.props.putAll(props);
 		}
+	}
+	
+	public Set<XDMCollection> getCollections() {
+		return collections;
+	}
+	
+	public boolean addCollection(XDMCollection collection) {
+		return collections.add(collection);
+	}
+	
+	public boolean enableCollection(String name, boolean enable) {
+		for (XDMCollection collection: collections) {
+			if (name.equals(collection.getName())) {
+				return collection.setEnabled(enable);
+			}
+		}
+		return false;
+	}
+
+	public XDMCollection getCollection(String name) {
+		for (XDMCollection collection: collections) {
+			if (name.equals(collection.getName())) {
+				return collection;
+			}
+		}
+		return null;
+	}
+
+	public XDMCollection removeCollection(String name) {
+		for (XDMCollection collection: collections) {
+			if (name.equals(collection.getName())) {
+				if (collections.remove(collection)) {
+					return collection;
+				}
+				break;
+			}
+		}
+		return null;
 	}
 	
 	public Set<XDMFragment> getFragments() {
@@ -249,7 +292,8 @@ public class XDMSchema extends XDMEntity {
 			", description=" + description + ", active=" + active + 
 			", created at=" + getCreatedAt() + ", by=" + getCreatedBy() + 
 			", props=" + props + ", indexes=" + indexes + 
-			", triggers=" + triggers + ", fragments=" + fragments + "]";
+			", triggers=" + triggers + ", fragments=" + fragments + 
+			", collections=" + collections + "]";
 	}
 	
 }

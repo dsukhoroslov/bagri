@@ -37,6 +37,7 @@ public class XDMDataSerializationFactory implements DataSerializableFactory {
 	public static final int cli_XDMJavaTrigger = 13;
 	public static final int cli_XDMXQueryTrigger = 14;
 	public static final int cli_XDMFragment = 15;
+	public static final int cli_XDMCollection = 16;
 	
 	public static final int cli_XDMDocument = 50;
 	public static final int cli_XDMElement = 51; 

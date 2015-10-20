@@ -11,6 +11,8 @@ import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
 
+import com.bagri.xdm.system.XDMCollection;
+import com.bagri.xdm.system.XDMFragment;
 import com.bagri.xdm.system.XDMIdentity;
 import com.bagri.xdm.system.XDMIndex;
 import com.bagri.xdm.system.XDMJavaTrigger;
@@ -34,6 +36,8 @@ import com.bagri.xdm.system.XDMXQueryTrigger;
     XDMSchema.class,
     XDMModule.class,
     XDMLibrary.class,
+    XDMCollection.class,
+    XDMFragment.class,
     XDMIndex.class,
     XDMJavaTrigger.class,
     XDMXQueryTrigger.class,
@@ -82,9 +86,9 @@ public abstract class XDMEntity implements Convertable<Map<String, Object>>, Ver
 	@Override
 	public Map<String, Object> convert() {
 		Map<String, Object> result = new HashMap<>();
-		result.put("version", getVersion());
-		result.put("created at", getCreatedAt().toString());
-		result.put("created by", getCreatedBy());
+		result.put("version", version);
+		result.put("created at", createdAt.toString());
+		result.put("created by", createdBy);
 		return result;
 	}
 	

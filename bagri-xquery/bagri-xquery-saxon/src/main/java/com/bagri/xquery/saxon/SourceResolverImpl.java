@@ -117,6 +117,7 @@ public class SourceResolverImpl implements SourceResolver, ExternalObjectModel {
 		if (content != null && content.trim().length() > 0) {
 			logger.trace("resolveSource; got content: {}", content.length());
 			StreamSource ss = new StreamSource(new StringReader(content));
+			ss.setSystemId(original);
 			// bottleneck! takes 15 ms. Cache DocumentInfo in Saxon instead! 
 			//NodeInfo doc = config.buildDocument(ss);
 			//mgr.storeDocumentSource(docId, doc);
