@@ -1,6 +1,10 @@
-package com.bagri.xdm.cache.hazelcast.management;
+package com.bagri.xdm.cache.hazelcast.impl;
 
 import static com.bagri.xdm.client.common.XDMCacheConstants.PN_XDM_SYSTEM_POOL;
+import static com.bagri.common.config.XDMConfigConstants.xdm_schema_name;
+import static com.bagri.common.config.XDMConfigConstants.xdm_schema_population_size;
+
+import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,45 +17,50 @@ import com.hazelcast.core.MembershipEvent;
 import com.hazelcast.core.MembershipListener;
 import com.hazelcast.core.MigrationEvent;
 import com.hazelcast.core.MigrationListener;
-import com.hazelcast.spring.context.SpringAware;
+import com.hazelcast.partition.PartitionLostEvent;
+import com.hazelcast.partition.PartitionLostListener;
+import com.hazelcast.spi.ManagedService;
+import com.hazelcast.spi.NodeEngine;
 
-@SpringAware
-public class PopulationManager implements MembershipListener, MigrationListener { //, NodeAware, HazelcastInstanceAware {
+public class PopulationManagementImpl implements ManagedService, 
+	MembershipListener, MigrationListener, PartitionLostListener { 
 
-    private static final transient Logger logger = LoggerFactory.getLogger(PopulationManager.class);
+    private static final transient Logger logger = LoggerFactory.getLogger(PopulationManagementImpl.class);
 
     private String schemaName;
     private int populationSize;
-    private HazelcastInstance hzInstance;
+    private NodeEngine nodeEngine;
     
-    public PopulationManager(HazelcastInstance hzInstance) {
-    	this.hzInstance = hzInstance;
-    	hzInstance.getCluster().addMembershipListener(this);
-    	hzInstance.getPartitionService().addMigrationListener(this);
-    	
-    	//ManagedContext ctx = hzInstance.getConfig().getManagedContext();
-    	//logger.debug("<init>; HZ: {}; Context: {}", hzInstance, ctx);
-    	//if (ctx != null) {
-    	//	ctx.initialize(this);
-        //	logger.debug("<init>; Node initialized: {}", node);
-    	//}
-    	//hzInstance = Hazelcast.getHazelcastInstanceByName(hzInstance.getName());
-    	//logger.debug("<init>; second HZ: {}; Class: {}", hzInstance, hzInstance.getClass().getName());
-    }
+	@Override
+	public void init(NodeEngine nodeEngine, Properties properties) {
+		logger.info("init; got properties: {}", properties); 
+		this.nodeEngine = nodeEngine;
+		this.schemaName = properties.getProperty(xdm_schema_name);
+		this.populationSize = Integer.parseInt(properties.getProperty(xdm_schema_population_size));
+		
+		nodeEngine.getHazelcastInstance().getCluster().addMembershipListener(this);
+		nodeEngine.getPartitionService().addMigrationListener(this);
+		nodeEngine.getPartitionService().addPartitionLostListener(this);
+		nodeEngine.getHazelcastInstance().getUserContext().put("popManager", this);
+	}
 
-    public void setSchemaName(String schemaName) {
-    	this.schemaName = schemaName;
-    }
+	@Override
+	public void reset() {
+		logger.info("reset"); 
+	}
+
+	@Override
+	public void shutdown(boolean terminate) {
+		logger.info("shutdown; terminate: {}", terminate); 
+	}
+
     
-    public void setPopulationSize(int populationSize) {
-    	this.populationSize = populationSize;
-    }
-
     public void checkPopulation(int currentSize) {
     	if (populationSize == currentSize) {
     		logger.debug("checkPopulation; starting population on cluster size: {}", currentSize);
     		SchemaPopulator pop = new SchemaPopulator(schemaName);
-    		hzInstance.getExecutorService(PN_XDM_SYSTEM_POOL).submitToMember(pop, hzInstance.getCluster().getLocalMember());
+    		nodeEngine.getHazelcastInstance().getExecutorService(PN_XDM_SYSTEM_POOL).submitToMember(pop, 
+    				nodeEngine.getLocalMember());
     	} else {
     		logger.debug("checkPopulation; cluster size ({}) does not match configured population size ({}), skipping population",
     				currentSize, populationSize);
@@ -100,5 +109,11 @@ public class PopulationManager implements MembershipListener, MigrationListener 
 	public void migrationFinalized(MigrationEvent migrationEvent) {
 		logger.trace("migrationFinalized; event: {}", migrationEvent);
 	}
+
+	@Override
+	public void partitionLost(PartitionLostEvent event) {
+		logger.info("partitionLost; event: {}", event);
+	}
+
 
 }

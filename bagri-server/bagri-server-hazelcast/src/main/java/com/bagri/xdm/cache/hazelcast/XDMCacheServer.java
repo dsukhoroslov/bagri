@@ -30,9 +30,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import com.bagri.xdm.cache.hazelcast.impl.PopulationManagementImpl;
 import com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl;
 import com.bagri.xdm.cache.hazelcast.management.ConfigManagement;
-import com.bagri.xdm.cache.hazelcast.management.PopulationManager;
 import com.bagri.xdm.cache.hazelcast.management.SchemaManagement;
 import com.bagri.xdm.cache.hazelcast.management.UserManagement;
 import com.bagri.xdm.cache.hazelcast.security.BagriJAASInvocationHandler;
@@ -170,7 +170,7 @@ public class XDMCacheServer {
 	            		HazelcastInstance schemaInstance = Hazelcast.getHazelcastInstanceByName(schemaName);
 		            	if (schemaInstance != null) {
 		            		//ApplicationContext schemaContext = (ApplicationContext) schemaInstance.getUserContext().get("appContext");
-		            		PopulationManager popManager = schemaContext.getBean("popManager", PopulationManager.class);
+		            		PopulationManagementImpl popManager = schemaContext.getBean("popManager", PopulationManagementImpl.class);
 		            		// we need to do it here, for local (just started) node only..
 		            		popManager.checkPopulation(schemaInstance.getCluster().getMembers().size());
 		            		//logger.debug("initServerNode; started population for schema '{}' here..", schemaName);

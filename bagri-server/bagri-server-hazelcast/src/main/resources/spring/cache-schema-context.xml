@@ -219,6 +219,19 @@
 					</hz:login-module>
 				</hz:client-login-modules>
 			</hz:security-->
+
+			<hz:services enable-defaults="true">
+				<hz:service enabled="true">
+					<hz:name>PopulationService</hz:name>
+					<hz:class-name>com.bagri.xdm.cache.hazelcast.impl.PopulationManagementImpl</hz:class-name>
+					<hz:properties>
+						<hz:property name="xdm.schema.name">${xdm.schema.name}</hz:property>
+						<hz:property name="xdm.schema.population.size">${xdm.schema.population.size}</hz:property>
+					</hz:properties>
+					<!--hz:configuration parser="MyParser">
+					</hz:configuration-->
+				</hz:service>
+			</hz:services>
 		</hz:config>
 	</hz:hazelcast>
 
@@ -323,11 +336,11 @@
 
 	<bean id="xqCompiler" class="com.bagri.xquery.saxon.XQCompilerImpl"/>
 
-	<bean id="popManager" class="com.bagri.xdm.cache.hazelcast.management.PopulationManager">
+	<!--bean id="popManager" class="com.bagri.xdm.cache.hazelcast.management.PopulationManager">
 		<constructor-arg ref="hzInstance" />
 		<property name="schemaName" value="${xdm.schema.name}"/>
 		<property name="populationSize" value="${xdm.schema.population.size}"/>
-	</bean>
+	</bean-->
 
 	<bean id="accManager" class="com.bagri.xdm.cache.hazelcast.impl.AccessManagementImpl">
 		<property name="schemaName" value="${xdm.schema.name}"/>
