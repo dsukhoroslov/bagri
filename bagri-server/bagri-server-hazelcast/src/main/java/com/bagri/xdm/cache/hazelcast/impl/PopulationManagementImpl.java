@@ -1,6 +1,6 @@
 package com.bagri.xdm.cache.hazelcast.impl;
 
-import static com.bagri.xdm.client.common.XDMCacheConstants.PN_XDM_SYSTEM_POOL;
+import static com.bagri.xdm.client.common.XDMCacheConstants.PN_XDM_SCHEMA_POOL;
 import static com.bagri.common.config.XDMConfigConstants.xdm_schema_name;
 import static com.bagri.common.config.XDMConfigConstants.xdm_schema_population_size;
 
@@ -59,7 +59,7 @@ public class PopulationManagementImpl implements ManagedService,
     	if (populationSize == currentSize) {
     		logger.debug("checkPopulation; starting population on cluster size: {}", currentSize);
     		SchemaPopulator pop = new SchemaPopulator(schemaName);
-    		nodeEngine.getHazelcastInstance().getExecutorService(PN_XDM_SYSTEM_POOL).submitToMember(pop, 
+    		nodeEngine.getHazelcastInstance().getExecutorService(PN_XDM_SCHEMA_POOL).submitToMember(pop, 
     				nodeEngine.getLocalMember());
     	} else {
     		logger.debug("checkPopulation; cluster size ({}) does not match configured population size ({}), skipping population",

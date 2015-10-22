@@ -164,20 +164,20 @@ public class XDMCacheServer {
             	XDMSchema xSchema = schemaCache.get(schemaName);
             	if (xSchema != null) {
             		initialized = initSchema(systemInstance, local, xSchema);
-            		String store = xSchema.getProperty(xdm_schema_store_enabled);
+            		//String store = xSchema.getProperty(xdm_schema_store_enabled);
             		ApplicationContext schemaContext = (ApplicationContext) SpringContextHolder.getContext(schemaName, "appContext");
-            		if ("true".equalsIgnoreCase(store)) {
-	            		HazelcastInstance schemaInstance = Hazelcast.getHazelcastInstanceByName(schemaName);
-		            	if (schemaInstance != null) {
+            		//if ("true".equalsIgnoreCase(store)) {
+	            	//	HazelcastInstance schemaInstance = Hazelcast.getHazelcastInstanceByName(schemaName);
+		            //	if (schemaInstance != null) {
 		            		//ApplicationContext schemaContext = (ApplicationContext) schemaInstance.getUserContext().get("appContext");
-		            		PopulationManagementImpl popManager = schemaContext.getBean("popManager", PopulationManagementImpl.class);
+		            //		PopulationManagementImpl popManager = schemaContext.getBean("popManager", PopulationManagementImpl.class);
 		            		// we need to do it here, for local (just started) node only..
-		            		popManager.checkPopulation(schemaInstance.getCluster().getMembers().size());
+		            //		popManager.checkPopulation(schemaInstance.getCluster().getMembers().size());
 		            		//logger.debug("initServerNode; started population for schema '{}' here..", schemaName);
-		            	} else {
-		            		logger.warn("initServerNode; cannot find HazelcastInstance for schema '{}'!", schemaName);
-		            	}
-            		}
+		            //	} else {
+		            //		logger.warn("initServerNode; cannot find HazelcastInstance for schema '{}'!", schemaName);
+		            //	}
+            		//}
             		if (initialized) {
             			// set modules and libraries
             			RepositoryImpl xdmRepo = schemaContext.getBean("xdmRepo", RepositoryImpl.class);
