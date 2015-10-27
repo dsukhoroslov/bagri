@@ -27,6 +27,7 @@
         <run.jvm.args3>-XX:+PrintGC -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+HeapDumpOnOutOfMemoryError -Xloggc:./logs/gc/gc.log</run.jvm.args3>
 	<props.name>first</props.name>
 	<log.level>info</log.level>
+	<node.instance>0</node.instance>
 
         <!-- Build info -->
         <maven.build.timestamp.format>yyyyMMddHHmm</maven.build.timestamp.format>
@@ -244,6 +245,7 @@
                                             <jvmarg line="-Xms3g -Xmx6g ${run.jvm.args0} ${run.jvm.args1} ${run.jvm.args2} ${run.jvm.args3}"/>
                                             <sysproperty key="node.logdir" value="./logs"/>
                                             <sysproperty key="node.name" value="first"/>
+                                            <sysproperty key="xdm.node.instance" value="${node.instance}"/>
                                             <!--sysproperty key="com.sun.management.jmxremote" value="true"/>
                                             <sysproperty key="com.sun.management.jmxremote.authenticate" value="false"/>
                                             <sysproperty key="com.sun.management.jmxremote.ssl" value="false"/-->

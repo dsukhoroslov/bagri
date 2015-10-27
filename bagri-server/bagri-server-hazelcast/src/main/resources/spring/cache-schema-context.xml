@@ -117,13 +117,6 @@
 			</hz:map>
 			<hz:map name="xdm-index" in-memory-format="OBJECT" async-backup-count="${xdm.schema.data.backup.async}" 
 				backup-count="${xdm.schema.data.backup.sync}" read-backup-data="${xdm.schema.data.backup.read}">
-				<!-- think about store indexes persistently... but not necessarily
-				<hz:map-store enabled="true" write-delay-seconds="10" factory-implementation="xdmStoreFactory">
-					<hz:properties>
-						<hz:property name="xdm.schema.name">${xdm.schema.name}</hz:property>
-						<hz:property name="xdm.schema.store.type">${xdm.schema.store.type}</hz:property>
-					</hz:properties>
-				</hz:map-store-->
 				<!--hz:indexes>
 					<hz:index attribute="pathId"/>
 					<hz:index attribute="value" ordered="true"/>
@@ -132,19 +125,21 @@
 
 			<hz:map name="xdm-transaction" in-memory-format="BINARY" async-backup-count="${xdm.schema.trans.backup.async}" 
 				backup-count="${xdm.schema.trans.backup.sync}" read-backup-data="${xdm.schema.trans.backup.read}">
-				<!-- must persist transaction log... 
-				<hz:map-store enabled="true" write-delay-seconds="10" factory-implementation="xdmStoreFactory">
+				<!-- must persist transaction log... --> 
+				<hz:map-store enabled="${xdm.schema.store.enabled}" write-delay-seconds="1" initial-mode="EAGER" write-coalescing="true" class-name="com.bagri.xdm.cache.hazelcast.store.TransactionCacheStore">
 					<hz:properties>
+						<hz:property name="xdm.node.instance">${xdm.node.instance}</hz:property>
 						<hz:property name="xdm.schema.name">${xdm.schema.name}</hz:property>
-						<hz:property name="xdm.schema.store.type">${xdm.schema.store.type}</hz:property>
+	    				<hz:property name="xdm.schema.store.data.path">${xdm.schema.store.data.path}</hz:property>
 					</hz:properties>
-				</hz:map-store-->
+				</hz:map-store>
 				<hz:indexes>
 					<hz:index attribute="txState"/>
 				</hz:indexes>
 			</hz:map>
 
 			<hz:map name="xdm-client" in-memory-format="BINARY" async-backup-count="0" backup-count="1"/>
+			
 			<hz:map name="xdm-xml" in-memory-format="BINARY" async-backup-count="${xdm.schema.query.backup.async}" 
 					 backup-count="${xdm.schema.query.backup.sync}" read-backup-data="${xdm.schema.query.backup.read}"
 					 eviction-policy="LRU" time-to-live-seconds="0" max-size-policy="USED_HEAP_PERCENTAGE" 
