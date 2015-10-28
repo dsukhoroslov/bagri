@@ -54,8 +54,8 @@ public class PopulationManagementImpl implements ManagedService,
 		logger.info("shutdown; terminate: {}", terminate); 
 	}
 
-    
-    public void checkPopulation(int currentSize) {
+
+	public void checkPopulation(int currentSize) {
     	if (populationSize == currentSize) {
     		logger.debug("checkPopulation; starting population on cluster size: {}", currentSize);
     		SchemaPopulator pop = new SchemaPopulator(schemaName);
@@ -66,6 +66,10 @@ public class PopulationManagementImpl implements ManagedService,
     				currentSize, populationSize);
     	}
     }
+	
+	public ManagedService getHzService(String serviceName, String instanceName) {
+		return nodeEngine.getHazelcastInstance().getDistributedObject(serviceName, instanceName);
+	}
 	
 	@Override
 	public void memberAdded(MembershipEvent membershipEvent) {

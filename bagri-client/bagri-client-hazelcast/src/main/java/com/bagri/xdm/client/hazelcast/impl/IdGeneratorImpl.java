@@ -2,6 +2,7 @@ package com.bagri.xdm.client.hazelcast.impl;
 
 import com.bagri.common.idgen.IdGenerator;
 import com.hazelcast.core.IAtomicLong;
+import com.hazelcast.core.IFunction;
 
 public class IdGeneratorImpl implements IdGenerator<Long> {
 	
@@ -9,6 +10,24 @@ public class IdGeneratorImpl implements IdGenerator<Long> {
 
 	public IdGeneratorImpl(IAtomicLong idGen) {
 		this.idGen = idGen;
+	}
+	
+	@Override
+	public boolean adjust(final Long newValue) {
+		
+		long changed = idGen.alterAndGet(new IFunction<Long, Long>() {
+
+			@Override
+			public Long apply(Long input) {
+				if (input < newValue) {
+					input = newValue;
+					return newValue;
+				}
+				return input;
+			}
+			
+		});
+		return changed == newValue;
 	}
 
 	@Override

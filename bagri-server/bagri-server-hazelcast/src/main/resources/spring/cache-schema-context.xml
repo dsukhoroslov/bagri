@@ -126,7 +126,7 @@
 			<hz:map name="xdm-transaction" in-memory-format="BINARY" async-backup-count="${xdm.schema.trans.backup.async}" 
 				backup-count="${xdm.schema.trans.backup.sync}" read-backup-data="${xdm.schema.trans.backup.read}">
 				<!-- must persist transaction log... --> 
-				<hz:map-store enabled="${xdm.schema.store.enabled}" write-delay-seconds="1" initial-mode="EAGER" write-coalescing="true" class-name="com.bagri.xdm.cache.hazelcast.store.TransactionCacheStore">
+				<hz:map-store enabled="${xdm.schema.store.enabled}" write-delay-seconds="1" initial-mode="EAGER" class-name="com.bagri.xdm.cache.hazelcast.store.TransactionCacheStore">
 					<hz:properties>
 						<hz:property name="xdm.node.instance">${xdm.node.instance}</hz:property>
 						<hz:property name="xdm.schema.name">${xdm.schema.name}</hz:property>
@@ -409,7 +409,7 @@
 	</bean>
 
 	<bean id="txManager" class="com.bagri.xdm.cache.hazelcast.impl.TransactionManagementImpl">
-		<property name="hzInstance" ref="hzInstance"/>
+		<!--property name="hzInstance" ref="hzInstance"/-->
 		<property name="transactionTimeout" value="${xdm.schema.transaction.timeout}"/>
 	</bean>
 	
@@ -424,5 +424,5 @@
    		<property name="triggerManagement" ref="trManager" />
    		<property name="txManagement" ref="txManager" />
 	</bean>
-	
+
 </beans>

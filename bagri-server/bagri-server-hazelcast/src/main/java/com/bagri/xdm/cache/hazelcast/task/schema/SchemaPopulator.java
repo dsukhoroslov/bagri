@@ -12,6 +12,7 @@ import org.springframework.context.ApplicationContext;
 import com.bagri.xdm.api.XDMDocumentManagement;
 import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.cache.hazelcast.impl.DocumentManagementImpl;
+import com.bagri.xdm.cache.hazelcast.impl.TransactionManagementImpl;
 import com.bagri.xdm.cache.hazelcast.impl.XDMFactoryImpl;
 import com.bagri.xdm.cache.hazelcast.util.SpringContextHolder;
 import com.bagri.xdm.domain.XDMDocument;
@@ -58,7 +59,11 @@ public class SchemaPopulator extends SchemaDenitiator {
 
 		ApplicationContext schemaCtx = (ApplicationContext) SpringContextHolder.getContext(schemaName, "appContext");
 		ApplicationContext storeCtx = (ApplicationContext) SpringContextHolder.getContext(schemaName, "storeContext");
-    	
+
+		// adjusting tx idGen!
+		TransactionManagementImpl txMgr = schemaCtx.getBean("txManager", TransactionManagementImpl.class);
+		txMgr.adjustTxCounter();
+		
 		if (storeCtx == null) {
 			// schema configured with no persistent store
 	    	logger.trace("populateSchema.exit; No persistent store configured");

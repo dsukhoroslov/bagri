@@ -8,8 +8,10 @@ import static com.bagri.xdm.client.common.XDMCacheConstants.CN_XDM_TRANSACTION;
 import static com.bagri.xdm.client.common.XDMCacheConstants.SQN_TRANSACTION;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -61,6 +63,7 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 	
     public void setRepository(RepositoryImpl repo) {
     	this.repo = repo;
+    	setHzInstance(repo.getHzInstance());
     }
 	
 	public void setHzInstance(HazelcastInstance hzInstance) {
@@ -76,6 +79,15 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 	
 	public void setTransactionTimeout(long timeout) throws XDMException {
 		this.txTimeout = timeout;
+	}
+	
+	public void adjustTxCounter() {
+		Set<Long> ids = txCache.localKeySet();
+		if (ids.size() > 0) {
+			Long maxId = Collections.max(ids);
+			boolean adjusted = txGen.adjust(maxId);
+			logger.info("adjustTxCounter; found maxTxId: {}; adjusted: {}", maxId, adjusted);
+		}
 	}
 	
 	@Override

@@ -19,6 +19,17 @@ public class SimpleIdGenerator implements IdGenerator<Long> {
 	}
 	
 	@Override
+	public boolean adjust(Long newValue) {
+		synchronized (id) {
+			if (id.get() < newValue) {
+				id.set(newValue);
+				return true;
+			}
+		}
+		return false;
+	}
+
+	@Override
 	public Long next() {
 		return id.incrementAndGet();
 	}
@@ -32,6 +43,7 @@ public class SimpleIdGenerator implements IdGenerator<Long> {
 		}
 		return result; 
 	}
+
 
 }
 
