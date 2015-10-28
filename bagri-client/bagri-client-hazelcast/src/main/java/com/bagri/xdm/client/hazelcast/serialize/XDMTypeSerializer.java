@@ -22,14 +22,14 @@ public class XDMTypeSerializer implements StreamSerializer<XDMType> {
 	@Override
 	public XDMType read(ObjectDataInput in) throws IOException {
 		XDMType xType = new XDMType(in.readUTF(),
-				XDMCardinality.valueOf(in.readUTF()));
+				XDMCardinality.values()[in.readInt()]);
 		return xType;
 	}
 
 	@Override
 	public void write(ObjectDataOutput out, XDMType xType) throws IOException {
 		out.writeUTF(xType.getType());
-		out.writeUTF(xType.getCardinality().name());
+		out.writeInt(xType.getCardinality().ordinal());
 	}
 
 

@@ -25,7 +25,7 @@ public class XDMParameterSerializer implements StreamSerializer<XDMParameter> {
 		XDMParameter xParam = new XDMParameter(
 				in.readUTF(),
 				in.readUTF(),
-				XDMCardinality.valueOf(in.readUTF()));
+				XDMCardinality.values()[in.readInt()]);
 		return xParam;
 	}
 
@@ -33,7 +33,7 @@ public class XDMParameterSerializer implements StreamSerializer<XDMParameter> {
 	public void write(ObjectDataOutput out, XDMParameter xParam) throws IOException {
 		out.writeUTF(xParam.getName());
 		out.writeUTF(xParam.getType());
-		out.writeUTF(xParam.getCardinality().name());
+		out.writeInt(xParam.getCardinality().ordinal());
 	}
 
 }

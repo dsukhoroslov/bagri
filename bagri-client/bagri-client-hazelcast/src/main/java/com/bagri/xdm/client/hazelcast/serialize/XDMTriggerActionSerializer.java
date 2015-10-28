@@ -24,15 +24,15 @@ public class XDMTriggerActionSerializer implements StreamSerializer<XDMTriggerAc
 	@Override
 	public XDMTriggerAction read(ObjectDataInput in) throws IOException {
 		XDMTriggerAction xAction = new XDMTriggerAction(
-				Action.valueOf(in.readUTF()),
-				Scope.valueOf(in.readUTF()));
+				Action.values()[in.readInt()],
+				Scope.values()[in.readInt()]);
 		return xAction;
 	}
 
 	@Override
 	public void write(ObjectDataOutput out, XDMTriggerAction xAction) throws IOException {
-		out.writeUTF(xAction.getAction().name());
-		out.writeUTF(xAction.getScope().name());
+		out.writeInt(xAction.getAction().ordinal());
+		out.writeInt(xAction.getScope().ordinal());
 	}
 
 

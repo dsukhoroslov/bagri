@@ -26,10 +26,9 @@ public class ExpressionSerializer implements StreamSerializer<Expression> {
 	@Override
 	public Expression read(ObjectDataInput in) throws IOException {
 		int docType = in.readInt();
-		String comp = in.readUTF();
-		Comparison compType = Comparison.valueOf(comp);
+		Comparison compType = Comparison.values()[in.readInt()];
 		PathBuilder path = in.readObject();
-		if (compType.isBinary(compType)) {
+		if (Comparison.isBinary(compType)) {
 			return new BinaryExpression(docType, compType, path);
 		} else {
 			return new PathExpression(docType, compType, path, in.readUTF(), 
@@ -40,7 +39,7 @@ public class ExpressionSerializer implements StreamSerializer<Expression> {
 	@Override
 	public void write(ObjectDataOutput out, Expression exp) throws IOException {
 		out.writeInt(exp.getDocType());
-		out.writeUTF(exp.getCompType().name());
+		out.writeInt(exp.getCompType().ordinal());
 		out.writeObject(exp.getPath());
 		if (exp instanceof PathExpression) {
 			out.writeUTF(((PathExpression) exp).getParamName());

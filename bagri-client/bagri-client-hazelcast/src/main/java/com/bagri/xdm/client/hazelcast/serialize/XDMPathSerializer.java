@@ -26,7 +26,7 @@ public class XDMPathSerializer implements StreamSerializer<XDMPath> {
 		return new XDMPath(
 				in.readUTF(),
 				in.readInt(),
-				XDMNodeKind.valueOf(in.readUTF()),
+				XDMNodeKind.values()[in.readInt()],
 				in.readInt(),
 				in.readInt(),
 				in.readInt(),
@@ -41,7 +41,7 @@ public class XDMPathSerializer implements StreamSerializer<XDMPath> {
 		
 		out.writeUTF(xPath.getPath());
 		out.writeInt(xPath.getTypeId());
-		out.writeUTF(xPath.getNodeKind().name());
+		out.writeInt(xPath.getNodeKind().ordinal());
 		out.writeInt(xPath.getPathId());
 		out.writeInt(xPath.getParentId());
 		out.writeInt(xPath.getPostId());

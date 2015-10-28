@@ -27,8 +27,8 @@ public class XDMTransactionSerializer implements StreamSerializer<XDMTransaction
 				in.readLong(),
 				in.readLong(),
 				in.readUTF(),
-				XDMTransactionIsolation.valueOf(in.readUTF()),
-				XDMTransactionState.valueOf(in.readUTF()));
+				XDMTransactionIsolation.values()[in.readInt()],
+				XDMTransactionState.values()[in.readInt()]);
 	}
 
 	@Override
@@ -38,8 +38,8 @@ public class XDMTransactionSerializer implements StreamSerializer<XDMTransaction
 		out.writeLong(xTrans.getStartedAt());
 		out.writeLong(xTrans.getFinishedAt());
 		out.writeUTF(xTrans.getStartedBy());
-		out.writeUTF(xTrans.getTxIsolation().name());
-		out.writeUTF(xTrans.getTxState().name());
+		out.writeInt(xTrans.getTxIsolation().ordinal());
+		out.writeInt(xTrans.getTxState().ordinal());
 	}
 
 }
