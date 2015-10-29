@@ -17,9 +17,9 @@
         <level value="${hz.log.level:-info}"/>
     </logger>
 
-    <logger name="com.bagri.xdm.cache.hazelcast.store.TransactionCacheStore">
+    <!--logger name="com.bagri.xdm.cache.hazelcast.store.TransactionCacheStore">
         <level value="trace"/>
-    </logger>
+    </logger-->
 
     <!--root>
         <level value="debug"/>

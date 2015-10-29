@@ -643,7 +643,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 			}
 		} else {
     		throw new XDMException("Was not able to aquire lock on Document: " + docKey + 
-    				", timed out", XDMException.ecDocument);
+    				", timeout: " + txManager.getTransactionTimeout(), XDMException.ecDocument);
 		}
 	}
 

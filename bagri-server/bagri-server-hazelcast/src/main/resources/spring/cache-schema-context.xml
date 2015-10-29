@@ -131,6 +131,7 @@
 						<hz:property name="xdm.node.instance">${xdm.node.instance}</hz:property>
 						<hz:property name="xdm.schema.name">${xdm.schema.name}</hz:property>
 	    				<hz:property name="xdm.schema.store.data.path">${xdm.schema.store.data.path}</hz:property>
+	    				<hz:property name="xdm.schema.store.tx.buffer.size">${xdm.schema.store.tx.buffer.size}</hz:property>
 					</hz:properties>
 				</hz:map-store>
 				<hz:indexes>

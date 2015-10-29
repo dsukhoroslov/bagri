@@ -120,12 +120,12 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 		// TODO: do this via EntryProcessor?
 		XDMTransaction xTx = txCache.get(txId);
 		if (xTx != null) {
-			xTx.finish(true, cluster.getClusterTime());
-			txCache.set(txId, xTx);
+			//xTx.finish(true, cluster.getClusterTime());
+			//txCache.set(txId, xTx);
+			txCache.delete(txId);
 		} else {
 			throw new XDMException("no transaction found for TXID: " + txId, ecTransNotFound);
 		}
-		txCache.delete(txId);
 		thTx.set(TX_NO);
 		cntCommited.incrementAndGet();
 		logger.trace("commitTransaction.exit; tx: {}", xTx); 

@@ -29,6 +29,7 @@
                 <entry name="xdm.schema.password">TPoX-J</entry>
                 <entry name="xdm.schema.data.backup.read">false</entry>
                 <entry name="xdm.schema.trans.backup.async">0</entry>
+                <entry name="xdm.schema.store.tx.buffer.size">1024</entry>
                 <entry name="xdm.schema.store.enabled">true</entry>
                 <entry name="xdm.schema.thread.pool">8</entry>
                 <entry name="xdm.schema.test.mode">false</entry>
@@ -79,6 +80,7 @@
             <description>Catalog: schema from XDM spec</description>
             <properties>
                 <entry name="xdm.schema.password">XDM</entry>
+                <entry name="xdm.schema.store.tx.buffer.size">1024</entry>
                 <entry name="xdm.schema.data.backup.read">false</entry>
                 <entry name="xdm.schema.trans.backup.async">0</entry>
                 <entry name="xdm.schema.store.enabled">true</entry>
@@ -147,6 +149,7 @@
                 <entry name="xdm.schema.store.schema.path">C:\Work\Bagri\git\bagri\etc\samples\tpox</entry>
                 <entry name="xdm.schema.query.backup.sync">0</entry>
                 <entry name="xdm.schema.buffer.size">64</entry>
+                <entry name="xdm.schema.store.tx.buffer.size">2048</entry>
                 <entry name="xdm.schema.dict.backup.async">1</entry>
                 <entry name="xdm.schema.dict.backup.read">true</entry>
                 <entry name="xdm.schema.trans.backup.read">false</entry>
@@ -219,11 +222,12 @@
                 <entry name="xdm.schema.password">5f4dcc3b5aa765d61d8327deb882cf99</entry>
                 <entry name="xdm.schema.data.backup.read">false</entry>
                 <entry name="xdm.schema.trans.backup.async">0</entry>
-                <entry name="xdm.schema.store.enabled">false</entry>
+                <entry name="xdm.schema.store.enabled">true</entry>
+                <entry name="xdm.schema.store.tx.buffer.size">2048</entry>
                 <entry name="xdm.schema.thread.pool">16</entry>
                 <entry name="xdm.schema.test.mode">false</entry>
                 <entry name="xdm.schema.ports.first">10500</entry>
-                <entry name="xdm.schema.store.type">NONE</entry>
+                <entry name="xdm.schema.store.type">XML</entry>
                 <entry name="xdm.schema.ports.last">10600</entry>
                 <entry name="xdm.schema.population.size">1</entry>
                 <entry name="xdm.schema.data.backup.async">1</entry>
@@ -411,6 +415,7 @@
                 <entry name="xdm.schema.data.backup.read">false</entry>
                 <entry name="xdm.schema.trans.backup.async">0</entry>
                 <entry name="xdm.schema.store.enabled">true</entry>
+                <entry name="xdm.schema.store.tx.buffer.size">2048</entry>
                 <entry name="xdm.schema.thread.pool">10</entry>
                 <entry name="xdm.schema.test.mode">false</entry>
                 <entry name="xdm.schema.ports.first">20000</entry>

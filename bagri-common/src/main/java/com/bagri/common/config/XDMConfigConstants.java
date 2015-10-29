@@ -24,5 +24,6 @@ public class XDMConfigConstants {
     public static final String xdm_schema_store_enabled = "xdm.schema.store.enabled";
     public static final String xdm_schema_store_data_path = "xdm.schema.store.data.path";
     public static final String xdm_schema_population_size = "xdm.schema.population.size";
+    public static final String xdm_schema_store_tx_buffer_size = "xdm.schema.store.tx.buffer.size";
 
 }

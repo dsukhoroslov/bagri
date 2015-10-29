@@ -2,12 +2,14 @@ package com.bagri.xdm.cache.hazelcast.store;
 
 import static com.bagri.common.config.XDMConfigConstants.xdm_schema_name;
 import static com.bagri.common.config.XDMConfigConstants.xdm_schema_store_data_path;
+import static com.bagri.common.config.XDMConfigConstants.xdm_schema_store_tx_buffer_size;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
+import java.util.BitSet;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,10 +18,7 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
 
-import com.bagri.xdm.cache.hazelcast.impl.TransactionManagementImpl;
-import com.bagri.xdm.cache.hazelcast.util.SpringContextHolder;
 import com.bagri.xdm.common.XDMTransactionIsolation;
 import com.bagri.xdm.common.XDMTransactionState;
 import com.bagri.xdm.domain.XDMTransaction;
@@ -30,8 +29,12 @@ import com.hazelcast.core.MapStore;
 public class TransactionCacheStore implements MapStore<Long, XDMTransaction>, MapLoaderLifecycleSupport {
 
     private static final Logger logger = LoggerFactory.getLogger(TransactionCacheStore.class);
+	private static final int byLen = 38;
+	private static final int txLen = 64;
+	private static final int szOff = 4;
 
-    private int txCount = 0;
+    private int bSize = 2048;
+	private BitSet bits;
     private FileChannel fc;
     private String schemaName;
     private MappedByteBuffer buff;
@@ -59,33 +62,36 @@ public class TransactionCacheStore implements MapStore<Long, XDMTransaction>, Ma
 		if (nodeNum == null) {
 			nodeNum = "0";
 		}
-	    int size = 4096;
-		String buffSize = properties.getProperty("xdm.tx.buffer.size");
+		String buffSize = properties.getProperty(xdm_schema_store_tx_buffer_size);
 		if (buffSize != null) {
-			size = Integer.parseInt(buffSize);
+			bSize = Integer.parseInt(buffSize);
 		}
 		String fileName = getTxLogFile(dataPath, nodeNum);
-		logger.info("init; opening tx log from file: {}; buffer size: {}", fileName, size);
-		
+		logger.info("init; opening tx log from file: {}; buffer size: {} tx", fileName, bSize);
+
+		bits = new BitSet(bSize);
+		int size = bit2pos(bSize);
 		RandomAccessFile raf;
 		try {
 			raf = new RandomAccessFile(fileName, "rw");
 			if (raf.length() > 0) {
 				logger.info("init; opened tx log with length: {}", raf.length());
+				// not sure we have to do this..
 				if (raf.length() > size) {
 					size = (int) raf.length();
 				}
 			}
+		    int txCount = 0;
 			fc = raf.getChannel();
 			buff = fc.map(MapMode.READ_WRITE, 0, size);
-			//buff.flip();
 			if (raf.length() > 0) {
 				txCount = buff.getInt();
 				transactions = new HashMap<>(txCount);
 			} else {
 				transactions = new HashMap<>();
 			}
-			logger.info("init; tx buffer is {}loaded; tx count: {}", buff.isLoaded() ? "" : "NOT ", txCount);
+			logger.info("init; tx buffer initialized; tx count: {}", txCount);
+			loadTransactions(txCount);
 		} catch (IOException ex) {
 			logger.error("init.error", ex);
 		}
@@ -103,12 +109,32 @@ public class TransactionCacheStore implements MapStore<Long, XDMTransaction>, Ma
 		}
 	}
 	
-	public int getStoredCount() {
-		return txCount;
+	private void loadTransactions(int txCount) {
+		logger.trace("loadTransactions.enter; txCount: {}", txCount);
+		int idx = 0;
+		int tidx = 0;
+		bits.clear();
+		transactions.clear();
+		buff.position(szOff);
+		while (tidx < txCount) {
+			int pos = buff.position();
+			// read just state here!
+			XDMTransaction xtx = readTx();
+			if (XDMTransactionState.commited != xtx.getTxState()) {
+				transactions.put(xtx.getTxId(), (long) pos);
+				bits.set(idx);
+				tidx++;
+			}
+			idx++;
+		}
+		buff.position(nextBit()); 
+		logger.trace("loadTransactions.exit; transactions: {}; bits: {}", transactions.size(), bits);
 	}
 	
-	public int getStoredSize() {
-		return transactions.size();
+	public int getStoredCount() {
+		int count = bits.cardinality();
+		logger.trace("getStoredCount; returning: {}", count);
+		return count;
 	}
 	
 	@Override
@@ -145,18 +171,8 @@ public class TransactionCacheStore implements MapStore<Long, XDMTransaction>, Ma
 	@Override
 	public Set<Long> loadAllKeys() {
 		logger.trace("loadAllKeys.enter;");
-		int idx = 0;
-		while (idx < txCount) {
-			int pos = buff.position();
-			// read just state here!
-			XDMTransaction xtx = readTx();
-			if (XDMTransactionState.commited != xtx.getTxState()) {
-				transactions.put(xtx.getTxId(), (long) pos);
-				idx++;
-			}
-		}
 		Set<Long> result = transactions.keySet(); 
-		logger.trace("loadAllKeys.exit; returning: {}", result);
+		logger.trace("loadAllKeys.exit; returning: {} for tx count: {}", result, bits.cardinality());
 		return result;
 	}
 	
@@ -165,11 +181,12 @@ public class TransactionCacheStore implements MapStore<Long, XDMTransaction>, Ma
 		logger.trace("delete.enter; key: {}", key);
 		Long position = transactions.remove(key);
 		if (position != null) {
-			buff.put(position.intValue(), (byte) XDMTransactionState.commited.ordinal());
-			txCount--;
-			buff.putInt(0, txCount);
+			int pos = position.intValue();
+			bits.clear(pos2bit(pos));
+			buff.put(pos, (byte) XDMTransactionState.commited.ordinal());
+			buff.putInt(0, bits.cardinality());
 		}
-		logger.trace("delete.exit; deleted: {}", position != null);
+		logger.trace("delete.exit; deleted: {}; tx count: {}", position != null, bits.cardinality());
 	}
 
 	@Override
@@ -179,32 +196,35 @@ public class TransactionCacheStore implements MapStore<Long, XDMTransaction>, Ma
 		for (Long key: keys) {
 			Long position = transactions.remove(key);
 			if (position != null) {
-				buff.put(position.intValue(), (byte) XDMTransactionState.commited.ordinal());
-				txCount--;
-				buff.putInt(0, txCount);
+				int pos = position.intValue();
+				bits.clear(pos2bit(pos));
+				buff.put(pos, (byte) XDMTransactionState.commited.ordinal());
+				buff.putInt(0, bits.cardinality());
 				cnt++;
 			}
 		}
-		logger.trace("deleteAll.exit; deleted: {}", cnt);
+		logger.trace("deleteAll.exit; deleted: {}; tx count: {}", cnt, bits.cardinality());
 	}
 	
 	@Override
 	public void store(Long key, XDMTransaction value) {
 		logger.trace("store.enter; key: {}; value: {}", key, value);
-		long position;
-		//try {
-			//position = fc.position();
-			position = buff.position();
-			if (transactions.put(key, position) == null) {
-				txCount++;
-				buff.putInt(0, txCount);
-			}
-			writeTx(value);
-		//} catch (IOException ex) {
-		//	logger.error("store.error", ex);
-		//	position = -1;
-		//}
-		logger.trace("store.exit; stored tx {} at position: {}", key, position);
+		int pos;
+		Long position = transactions.get(key);
+		if (position == null) {
+			int bit = nextBit();
+			pos = bit2pos(bit);
+			//logger.trace("store; got pos: {}; bits: {}", pos, bits);
+			position = new Long(pos);
+			bits.set(bit);
+			transactions.put(key, position);
+			buff.putInt(0, bits.cardinality());
+		} else {
+			pos = position.intValue();
+		}
+		buff.position(pos);
+		writeTx(value);
+		logger.trace("store.exit; stored tx {} at position: {}; tx count: {}", key, position, bits.cardinality());
 	}
 
 	@Override
@@ -212,26 +232,41 @@ public class TransactionCacheStore implements MapStore<Long, XDMTransaction>, Ma
 		logger.trace("storeAll.enter; entries: {}", entries);
 		int cnt = 0;
 		for (Map.Entry<Long, XDMTransaction> xtx: entries.entrySet()) {
-			long position;
-			//try {
-				//position = fc.position();
-				position = buff.position();
-				if (transactions.put(xtx.getKey(), position) == null) {
-					txCount++;
-					buff.putInt(0, txCount);
-				}
-				writeTx(xtx.getValue());
-				cnt++;
-			//} catch (IOException ex) {
-			//	logger.error("storeAll.error", ex);
-			//}
+			int pos;
+			Long position = transactions.get(xtx.getKey());
+			if (position == null) {
+				int bit = nextBit();
+				pos = bit2pos(bit);
+				position = new Long(pos);
+				bits.set(bit);
+				transactions.put(xtx.getKey(), position);
+				buff.putInt(0, bits.cardinality());
+			} else {
+				pos = position.intValue();
+			}
+			buff.position(pos);
+			writeTx(xtx.getValue());
+			cnt++;
 		}
-		logger.trace("store.exit; stored {} transactions for {} entries", cnt, entries.size());
+		logger.trace("store.exit; stored {} transactions for {} entries; tx count: {}", cnt, entries.size(), bits.cardinality());
+	}
+
+	private int nextBit() {
+		int bit = bits.nextClearBit(0);
+		if (bit > bSize) {
+			logger.warn("nextBit; the buffer exceeds configured size: {}; next is: {}", bSize, bit);
+		}
+		return bit;
 	}
 	
-	private static final int byLen = 38;
-	private static final int txLen = 64;
-
+	private int bit2pos(int bit) {
+		return bit*txLen + szOff;
+	}
+	
+	private int pos2bit(int pos) {
+		return (pos - szOff)/txLen;
+	}
+	
 	private XDMTransaction readTx() {
 		XDMTransactionState state = XDMTransactionState.values()[buff.get()];
 		long id = buff.getLong();
