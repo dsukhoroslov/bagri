@@ -1,6 +1,7 @@
 package com.bagri.xdm.cache.hazelcast.task.schema;
 
 import static com.bagri.xdm.client.common.XDMCacheConstants.CN_XDM_DOCUMENT;
+import static com.bagri.xdm.client.common.XDMCacheConstants.CN_XDM_TRANSACTION;
 import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_PopulateSchemaTask;
 
 import java.util.Iterator;
@@ -16,6 +17,7 @@ import com.bagri.xdm.cache.hazelcast.impl.TransactionManagementImpl;
 import com.bagri.xdm.cache.hazelcast.impl.XDMFactoryImpl;
 import com.bagri.xdm.cache.hazelcast.util.SpringContextHolder;
 import com.bagri.xdm.domain.XDMDocument;
+import com.bagri.xdm.domain.XDMTransaction;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
@@ -58,12 +60,12 @@ public class SchemaPopulator extends SchemaDenitiator {
     	logger.trace("populateSchema.enter; HZ instance: {}", hz);
 
 		ApplicationContext schemaCtx = (ApplicationContext) SpringContextHolder.getContext(schemaName, "appContext");
-		ApplicationContext storeCtx = (ApplicationContext) SpringContextHolder.getContext(schemaName, "storeContext");
+		if (schemaCtx == null) {
+	    	logger.trace("populateSchema.exit; No Spring Context initialized yet");
+			return false;
+		}
 
-		// adjusting tx idGen!
-		TransactionManagementImpl txMgr = schemaCtx.getBean("txManager", TransactionManagementImpl.class);
-		txMgr.adjustTxCounter();
-		
+		ApplicationContext storeCtx = (ApplicationContext) SpringContextHolder.getContext(schemaName, "storeContext");
 		if (storeCtx == null) {
 			// schema configured with no persistent store
 	    	logger.trace("populateSchema.exit; No persistent store configured");
@@ -82,7 +84,16 @@ public class SchemaPopulator extends SchemaDenitiator {
 		IMap<Long, XDMDocument> xddCache = hz.getMap(CN_XDM_DOCUMENT);
 		xddCache.loadAll(false);
     	logger.trace("populateSchema; documents size after loadAll: {}", xddCache.size());
-		return true;
+
+		IMap<Long, XDMTransaction> xtxCache = hz.getMap(CN_XDM_TRANSACTION);
+		xtxCache.loadAll(false);
+    	logger.trace("populateSchema; transactions size after loadAll: {}", xtxCache.size());
+
+    	// adjusting tx idGen!
+		TransactionManagementImpl txMgr = schemaCtx.getBean("txManager", TransactionManagementImpl.class);
+		txMgr.adjustTxCounter();
+    	
+    	return true;
 	}
 	
 	@Override

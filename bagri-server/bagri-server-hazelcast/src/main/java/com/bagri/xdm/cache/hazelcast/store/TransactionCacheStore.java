@@ -37,6 +37,7 @@ public class TransactionCacheStore implements MapStore<Long, XDMTransaction>, Ma
 	private BitSet bits;
     private FileChannel fc;
     private String schemaName;
+	private RandomAccessFile raf;
     private MappedByteBuffer buff;
     private Map<Long, Long> transactions;
     
@@ -71,7 +72,6 @@ public class TransactionCacheStore implements MapStore<Long, XDMTransaction>, Ma
 
 		bits = new BitSet(bSize);
 		int size = bit2pos(bSize);
-		RandomAccessFile raf;
 		try {
 			raf = new RandomAccessFile(fileName, "rw");
 			if (raf.length() > 0) {
@@ -94,7 +94,9 @@ public class TransactionCacheStore implements MapStore<Long, XDMTransaction>, Ma
 			loadTransactions(txCount);
 		} catch (IOException ex) {
 			logger.error("init.error", ex);
+			throw new RuntimeException("Cannot initialize Transaction Store", ex);
 		}
+		
 		instance = this;
 	}
 
@@ -104,6 +106,7 @@ public class TransactionCacheStore implements MapStore<Long, XDMTransaction>, Ma
 		try {
 			//buff.compact();
 			fc.close();
+			raf.close();
 		} catch (IOException ex) {
 			logger.error("destroy.error", ex);
 		}

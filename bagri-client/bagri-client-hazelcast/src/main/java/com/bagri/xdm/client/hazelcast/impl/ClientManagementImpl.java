@@ -1,5 +1,6 @@
 package com.bagri.xdm.client.hazelcast.impl;
 
+import static com.bagri.common.security.Encryptor.encrypt;
 import static com.bagri.xdm.client.common.XDMCacheConstants.CN_XDM_CLIENT;
 import static com.bagri.xdm.common.XDMConstants.pn_client_bufferSize;
 import static com.bagri.xdm.common.XDMConstants.pn_client_connectAttempts;
@@ -197,6 +198,8 @@ public class ClientManagementImpl {
 		String attempts = props.getProperty(pn_client_connectAttempts); 
 		String pool = props.getProperty(pn_client_poolSize); 
 
+		//password = encrypt(password);
+		
 		InputStream in = getClass().getResourceAsStream("/hazelcast/hazelcast-client.xml");
 		ClientConfig config = new XmlClientConfigBuilder(in).build();
 		config.getGroupConfig().setName(schema);
@@ -232,8 +235,9 @@ public class ClientManagementImpl {
 		}
 		
 		config.setProperty("hazelcast.logging.type", "slf4j");
-		SecureCredentials creds = new SecureCredentials(user, password);
-		config.getSecurityConfig().setCredentials(creds);
+		//SecureCredentials creds = new SecureCredentials(user, password);
+		SecureCredentials creds = new SecureCredentials(schema, password);
+		//config.getSecurityConfig().setCredentials(creds);
 		config.setCredentials(creds);
 
 		XQProcessor proc = null;

@@ -21,6 +21,7 @@ import com.hazelcast.core.IMap;
 import com.hazelcast.core.ReplicatedMap;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
+import com.hazelcast.query.impl.predicates.RegexPredicate;
 
 public class ModelManagementImpl extends ModelManagementBase { 
 
@@ -152,7 +153,7 @@ public class ModelManagementImpl extends ModelManagementBase {
 	protected Set getTypedPathWithRegex(String regex, int typeId) {
 		//Filter f = new AndFilter(new RegexFilter(new KeyExtractor(IdentityExtractor.INSTANCE), regex), 
 		//		new EqualsFilter("getTypeId", typeId));
-		Predicate f = Predicates.and(new Predicates.RegexPredicate("path", regex), Predicates.equal("typeId", typeId));
+		Predicate f = Predicates.and(new RegexPredicate("path", regex), Predicates.equal("typeId", typeId));
 		Set<Map.Entry<String, XDMPath>> entries = pathCache.entrySet(f);
 		return entries;
 	}

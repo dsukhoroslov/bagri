@@ -56,7 +56,7 @@ public class PopulationManagementImpl implements ManagedService,
 
 
 	public void checkPopulation(int currentSize) {
-    	if (populationSize == currentSize) {
+    	if (populationSize <= currentSize) {
     		logger.debug("checkPopulation; starting population on cluster size: {}", currentSize);
     		SchemaPopulator pop = new SchemaPopulator(schemaName);
     		nodeEngine.getHazelcastInstance().getExecutorService(PN_XDM_SCHEMA_POOL).submitToMember(pop, 
@@ -73,7 +73,7 @@ public class PopulationManagementImpl implements ManagedService,
 	
 	@Override
 	public void memberAdded(MembershipEvent membershipEvent) {
-		logger.trace("memberAdded; event: {}", membershipEvent);
+		logger.info("memberAdded; event: {}", membershipEvent);
 		//if (membershipEvent.getMember().localMember()) {
 			checkPopulation(membershipEvent.getMembers().size());
 		//}

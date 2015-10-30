@@ -3,8 +3,6 @@ package com.bagri.xdm.client.hazelcast.serialize;
 import static com.bagri.common.util.CollectionUtils.*; 
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import com.bagri.common.query.QueriedPath;
 import com.hazelcast.nio.ObjectDataInput;
