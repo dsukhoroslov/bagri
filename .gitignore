@@ -5,6 +5,7 @@
 logs/
 output/
 target/
+etc/samples/tpox2/
 .settings/
 .classpath
 .project

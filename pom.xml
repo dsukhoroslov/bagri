@@ -22,7 +22,7 @@
     <scm>
         <connection>scm:git:git://github.com/dsukhoroslov/bagri.git</connection>
         <developerConnection>scm:git:git@github.com:dsukhoroslov/bagri.git</developerConnection>
-        <url>https://github.com/dsukhoroslob/bagri/</url>
+        <url>https://github.com/dsukhoroslov/bagri/</url>
     </scm>
     <developers>
         <developer>
@@ -119,14 +119,21 @@
 
         <!--DEFAULT MAVEN PLUGINS OVERRIDEN VERSIONS-->
         <!--must be greater than 2.2 cause of bug fixes-->
-        <!--maven-assembly-plugin.version>2.4</maven-assembly-plugin.version-->
         <maven-assembly-plugin.version>2.5.5</maven-assembly-plugin.version>
         <maven-javadoc-plugin.version>2.10.3</maven-javadoc-plugin.version>
         <maven-source-plugin.version>2.2.1</maven-source-plugin.version>
+        <maven-jar-plugin.version>2.5</maven-jar-plugin.version>
 
         <maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
         <maven-surefire-plugin.version>2.18.1</maven-surefire-plugin.version>
 	<exec-maven-plugin.version>1.4.0</exec-maven-plugin.version>
+
+        <cobertura-maven-plugin.version>2.7</cobertura-maven-plugin.version>
+        <findbugs-maven-plugin.version>3.0.0</findbugs-maven-plugin.version>
+        <maven-checkstyle-plugin.version>2.17</maven-checkstyle-plugin.version>
+	<maven-project-info-reports-plugin.version>2.8.1</maven-project-info-reports-plugin.version>
+        <!-- Reporting cfg -->
+        <maven.plugins.cfg.dir>${project.basedir}/../etc</maven.plugins.cfg.dir>
     </properties>
 
     <dependencyManagement>
@@ -600,47 +607,117 @@
             </plugin-->
 
             <!--todo: are we really using these plugins?-->
-            <!--<plugin>-->
-            <!--<artifactId>maven-failsafe-plugin</artifactId>-->
-            <!--<version>${maven-failsafe-plugin.version}</version>-->
-            <!--</plugin>-->
-            <!--<plugin>-->
-            <!--<groupId>org.codehaus.mojo</groupId>-->
-            <!--<artifactId>findbugs-maven-plugin</artifactId>-->
-            <!--<version>${findbugs-maven-plugin.version}</version>-->
-            <!--<configuration>-->
-            <!--<findbugsXmlOutput>true</findbugsXmlOutput>-->
-            <!--<xmlOutput>true</xmlOutput>-->
-            <!--<excludeFilterFile>${maven.plugins.cfg.dir}/findbugs/findbugs-exclude.xml</excludeFilterFile>-->
-            <!--<xmlOutputDirectory>${project.build.directory}/site/findbugs</xmlOutputDirectory>-->
-            <!--</configuration>-->
-            <!--</plugin>-->
-            <!--<plugin>-->
-            <!--<groupId>org.codehaus.mojo</groupId>-->
-            <!--<artifactId>cobertura-maven-plugin</artifactId>-->
-            <!--<version>${cobertura-maven-plugin.version}</version>-->
-            <!--<configuration>-->
-            <!--<formats>-->
-            <!--<format>html</format>-->
-            <!--<format>xml</format>-->
-            <!--</formats>-->
-            <!--</configuration>-->
-            <!--</plugin>-->
-            <!--<plugin>-->
-            <!--<groupId>org.apache.maven.plugins</groupId>-->
-            <!--<artifactId>maven-checkstyle-plugin</artifactId>-->
-            <!--<version>${maven-checkstyle-plugin.version}</version>-->
-            <!--<configuration>-->
-            <!--<configLocation>${maven.plugins.cfg.dir}/check_style/customized_checks.xml</configLocation>-->
-            <!--<suppressionsLocation>${maven.plugins.cfg.dir}/check_style/checkstyle_suppressions.xml-->
-            <!--</suppressionsLocation>-->
-            <!--</configuration>-->
-            <!--</plugin>-->
+            <!--plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>findbugs-maven-plugin</artifactId>
+                <version>${findbugs-maven-plugin.version}</version>
+                <configuration>
+                    <findbugsXmlOutput>true</findbugsXmlOutput>
+                    <xmlOutput>true</xmlOutput>
+                    <excludeFilterFile>${maven.plugins.cfg.dir}/findbugs/findbugs-exclude.xml</excludeFilterFile>
+                    <xmlOutputDirectory>${project.build.directory}/site/findbugs</xmlOutputDirectory>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>cobertura-maven-plugin</artifactId>
+                <version>${cobertura-maven-plugin.version}</version>
+                <configuration>
+                    <formats>
+                        <format>html</format>
+                        <format>xml</format>
+                    </formats>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>${maven-checkstyle-plugin.version}</version>
+                <configuration>
+                    <configLocation>${maven.plugins.cfg.dir}/check_style/customized_checks.xml</configLocation>
+                    <suppressionsLocation>${maven.plugins.cfg.dir}/check_style/checkstyle_suppressions.xml
+                    </suppressionsLocation>
+                </configuration>
+            </plugin-->
 
         </plugins>
 
     </build>
 
+  <reporting>
+    <plugins>
+
+      <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-project-info-reports-plugin</artifactId>
+          <version>${maven-project-info-reports-plugin.version}</version>
+          <!--configuration>
+              <webAccessUrl>https://github.com/dsukhoroslov/bagri/</webAccessUrl>
+              <anonymousConnection>scm:git:git://github.com/dsukhoroslov/bagri.git</anonymousConnection>
+              <developerConnection>scm:git:git@github.com:dsukhoroslov/bagri.git</developerConnection>
+          </configuration-->
+      </plugin>
+
+      <!--plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>cobertura-maven-plugin</artifactId>
+          <version>${cobertura-maven-plugin.version}</version>
+          <configuration>
+	      <instrumentation>
+                  <ignores>
+                      <ignore>com.bagri.xquery.rex.*</ignore>
+                  </ignores>
+                  <excludes>
+                      <exclude>com/bagri/visualvm/**/*.class</exclude>
+                  </excludes>
+              </instrumentation>
+              <formats>
+                  <format>html</format-->
+                  <!--format>xml</format-->
+              <!--/formats>
+  	      <aggregate>true</aggregate>
+          </configuration>
+          <reportSets>
+              <reportSet>
+                  <reports>
+                      <report>cobertura</report>
+                  </reports>
+              </reportSet>
+          </reportSets>
+      </plugin-->
+
+      <!--plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>findbugs-maven-plugin</artifactId>
+        <version>${findbugs-maven-plugin.version}</version>
+                <configuration>
+                    <findbugsXmlOutput>true</findbugsXmlOutput>
+                    <xmlOutput>true</xmlOutput>
+                    <excludeFilterFile>${maven.plugins.cfg.dir}/findbugs/findbugs-exclude.xml</excludeFilterFile>
+                    <xmlOutputDirectory>${project.build.directory}/site/findbugs</xmlOutputDirectory>
+                </configuration>
+      </plugin>
+
+      <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-checkstyle-plugin</artifactId>
+          <version>${maven-checkstyle-plugin.version}</version>
+                <configuration>
+                    <configLocation>${maven.plugins.cfg.dir}/check_style/customized_checks.xml</configLocation>
+                    <suppressionsLocation>${maven.plugins.cfg.dir}/check_style/checkstyle_suppressions.xml
+                    </suppressionsLocation>
+                </configuration>
+          <reportSets>
+            <reportSet>
+              <reports>
+                <report>checkstyle</report>
+              </reports>
+            </reportSet>
+          </reportSets>
+      </plugin-->
+
+    </plugins>
+  </reporting>
 
     <repositories>
 

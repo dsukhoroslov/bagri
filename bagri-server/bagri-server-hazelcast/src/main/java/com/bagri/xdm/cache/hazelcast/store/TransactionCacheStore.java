@@ -131,7 +131,7 @@ public class TransactionCacheStore implements MapStore<Long, XDMTransaction>, Ma
 			idx++;
 		}
 		buff.position(nextBit()); 
-		logger.trace("loadTransactions.exit; transactions: {}; bits: {}", transactions.size(), bits);
+		logger.info("loadTransactions.exit; transactions: {}; bits: {}", transactions, bits);
 	}
 	
 	public int getStoredCount() {
@@ -146,9 +146,10 @@ public class TransactionCacheStore implements MapStore<Long, XDMTransaction>, Ma
 		XDMTransaction result = null;
 		Long position = transactions.get(key);
 		if (position != null) {
-			// read tx from file..
-			buff.position(position.intValue());
-			result = readTx();
+			synchronized (buff) {
+				buff.position(position.intValue());
+				result = readTx();
+			}
 		}
 		logger.trace("load.exit; returning: {}", result);
 		return result;
@@ -158,13 +159,14 @@ public class TransactionCacheStore implements MapStore<Long, XDMTransaction>, Ma
 	public Map<Long, XDMTransaction> loadAll(Collection<Long> keys) {
 		logger.trace("loadAll.enter; keys: {}", keys);
 		Map<Long, XDMTransaction> result = new HashMap<>(keys.size());
-		for (Long key: keys) {
-			Long position = transactions.get(key);
-			if (position != null) {
-				// read tx from file..
-				buff.position(position.intValue());
-				XDMTransaction xtx = readTx();
-				result.put(key, xtx);
+		synchronized (buff) {
+			for (Long key: keys) {
+				Long position = transactions.get(key);
+				if (position != null) {
+					buff.position(position.intValue());
+					XDMTransaction xtx = readTx();
+					result.put(key, xtx);
+				}
 			}
 		}
 		logger.trace("loadAll.exit; returning: {}", result);

@@ -13,6 +13,8 @@ public interface XDMRepository {
 	XDMBindingManagement getBindingManagement();
 	
 	XDMDocumentManagement getDocumentManagement();
+
+	XDMHealthManagement getHealthManagement();
 	
 	XDMModelManagement getModelManagement();
 

@@ -2,6 +2,7 @@ package com.bagri.xdm.client.common.impl;
 
 import com.bagri.xdm.api.XDMBindingManagement;
 import com.bagri.xdm.api.XDMDocumentManagement;
+import com.bagri.xdm.api.XDMHealthManagement;
 import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.api.XDMQueryManagement;
 import com.bagri.xdm.api.XDMTransactionManagement;
@@ -10,6 +11,7 @@ public class XDMRepositoryBase {
 	
 	private XDMBindingManagement bindMgr;
 	private XDMDocumentManagement docMgr;
+	private XDMHealthManagement healthMgr;
 	private XDMModelManagement modelMgr;
 	private XDMQueryManagement queryMgr;
 	private XDMTransactionManagement txMgr;
@@ -28,6 +30,14 @@ public class XDMRepositoryBase {
 	
 	public void setDocumentManagement(XDMDocumentManagement docMgr) {
 		this.docMgr = docMgr;
+	}
+
+	public XDMHealthManagement getHealthManagement() {
+		return healthMgr;
+	}
+	
+	public void setHealthManagement(XDMHealthManagement healthMgr) {
+		this.healthMgr = healthMgr;
 	}
 
 	public XDMModelManagement getModelManagement() {
