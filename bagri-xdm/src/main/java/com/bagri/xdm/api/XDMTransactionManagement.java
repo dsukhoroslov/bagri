@@ -1,6 +1,5 @@
 package com.bagri.xdm.api;
 
-import com.bagri.xdm.common.XDMTransactionIsolation;
 
 public interface XDMTransactionManagement {
 	

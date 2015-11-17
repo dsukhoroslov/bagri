@@ -9,11 +9,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bagri.xdm.api.XDMException;
+import com.bagri.xdm.api.XDMTransactionIsolation;
 import com.bagri.xdm.api.XDMTransactionManagement;
 import com.bagri.xdm.client.hazelcast.task.tx.TransactionAborter;
 import com.bagri.xdm.client.hazelcast.task.tx.TransactionCommiter;
 import com.bagri.xdm.client.hazelcast.task.tx.TransactionStarter;
-import com.bagri.xdm.common.XDMTransactionIsolation;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
 
@@ -21,12 +21,14 @@ public class TransactionManagementImpl implements XDMTransactionManagement {
 	
     private static final Logger logger = LoggerFactory.getLogger(TransactionManagementImpl.class);
 	
-    private long txTimeout = 0;
-	private IExecutorService execService;
     private long txId = 0;
+    private long txTimeout = 0;
     private String clientId = null;
+    private RepositoryImpl repo;
+	private IExecutorService execService;
 
 	void initialize(RepositoryImpl repo) {
+		this.repo = repo;
 		HazelcastInstance hzClient = repo.getHazelcastClient();
 		execService = hzClient.getExecutorService(PN_XDM_SCHEMA_POOL);
 		clientId = repo.getClientId();
@@ -51,13 +53,13 @@ public class TransactionManagementImpl implements XDMTransactionManagement {
 	
 	@Override
 	public long beginTransaction(XDMTransactionIsolation txIsolation) throws XDMException {
-		logger.trace("beginTransaction.enter; current txId: {}", txId); 
+		logger.trace("beginTransaction.enter; current txId: {}", txId);
+		repo.getHealthManagement().checkClusterState();
+		
 		if (txId != 0) {
-			// commit or throw ex?
-			return 0;
+			throw new XDMException("Nested client transactions are not supported", XDMException.ecTransNoNested);
 		}
 
-		//String clientId = ""; //get ClientId somehow..
 		TransactionStarter txs = new TransactionStarter(clientId, txIsolation);
 		Future<Long> future = execService.submitToKeyOwner(txs, clientId);
 		try {
@@ -73,13 +75,12 @@ public class TransactionManagementImpl implements XDMTransactionManagement {
 	@Override
 	public void commitTransaction(long txId) throws XDMException {
 		logger.trace("commitTransaction.enter; current txId: {}", this.txId);
-		if (this.txId == 0) {
-			// throw ex?
-			return;
+		if (this.txId != txId) {
+			throw new XDMException("Wrong transaction id: " + txId + "; current txId is: " + this.txId, 
+					XDMException.ecTransWrongState);
 		}
 
 		boolean result = false;
-		//String clientId = ""; //get ClientId somehow..
 		TransactionCommiter txc = new TransactionCommiter(clientId, this.txId);
 		Future<Boolean> future = execService.submitToKeyOwner(txc, clientId);
 		try {
@@ -95,13 +96,12 @@ public class TransactionManagementImpl implements XDMTransactionManagement {
 	@Override
 	public void rollbackTransaction(long txId) throws XDMException {
 		logger.trace("rollbackTransaction.enter; current txId: {}", this.txId);
-		if (this.txId == 0) {
-			// throw ex?
-			return;
+		if (this.txId != txId) {
+			throw new XDMException("Wrong transaction id: " + txId + "; current txId is: " + this.txId, 
+					XDMException.ecTransWrongState);
 		}
 
 		boolean result = false;
-		//String clientId = ""; //get ClientId somehow..
 		TransactionAborter txa = new TransactionAborter(clientId, this.txId);
 		Future<Boolean> future = execService.submitToKeyOwner(txa, clientId);
 		try {

@@ -21,6 +21,7 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.common.manage.StatsAggregator;
 import com.bagri.common.util.FileUtils;
+import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.cache.hazelcast.task.doc.DocumentStructureProvider;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaDocCleaner;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaStatsAggregator;
@@ -114,18 +115,26 @@ public class DocumentManagement extends SchemaFeatureManagement {
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "docId", description = "Internal Document identifier")})
 	public CompositeData getDocumentInfo(long docId) {
-		
-		XDMDocument doc = docManager.getDocument(docId);
-        Map<String, Object> docInfo = doc.convert();
-        return JMXUtils.mapToComposite("document", "Document Info", docInfo);
+		try {
+			XDMDocument doc = docManager.getDocument(docId);
+	        Map<String, Object> docInfo = doc.convert();
+	        return JMXUtils.mapToComposite("document", "Document Info", docInfo);
+		} catch (XDMException ex) {
+			logger.error("getDocumentInfo.error: " + ex.getMessage(), ex);
+		}
+		return null;
 	}
 	
 	@ManagedOperation(description="Return Document XML")
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "docId", description = "Internal Document identifier")})
 	public String getDocumentXML(long docId) {
-		//
-		return docManager.getDocumentAsString(docId);
+		try {
+			return docManager.getDocumentAsString(docId);
+		} catch (XDMException ex) {
+			logger.error("getDocumentXML.error: " + ex.getMessage(), ex);
+		}
+		return null;
 	}
 
 	@ManagedOperation(description="delete all Schema documents")
@@ -158,7 +167,7 @@ public class DocumentManagement extends SchemaFeatureManagement {
 			String xml = FileUtils.readTextFile(docFile);
 			XDMDocument doc = docManager.storeDocumentFromString(0, uri, xml);
 			return doc.getDocumentKey();
-		} catch (IOException ex) {
+		} catch (IOException | XDMException ex) {
 			logger.error("registerDocument.error: " + ex.getMessage(), ex);
 		}
 		return 0;
@@ -175,7 +184,7 @@ public class DocumentManagement extends SchemaFeatureManagement {
 			String xml = FileUtils.readTextFile(docFile);
 			XDMDocument doc = docManager.storeDocumentFromString(docId, uri, xml);
 			return doc.getDocumentKey();
-		} catch (IOException ex) {
+		} catch (IOException | XDMException ex) {
 			logger.error("updateDocument.error: " + ex.getMessage(), ex);
 		}
 		return 0;

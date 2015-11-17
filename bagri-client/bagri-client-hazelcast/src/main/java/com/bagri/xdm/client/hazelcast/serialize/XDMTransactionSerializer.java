@@ -2,8 +2,8 @@ package com.bagri.xdm.client.hazelcast.serialize;
 
 import java.io.IOException;
 
-import com.bagri.xdm.common.XDMTransactionIsolation;
-import com.bagri.xdm.common.XDMTransactionState;
+import com.bagri.xdm.api.XDMTransactionIsolation;
+import com.bagri.xdm.api.XDMTransactionState;
 import com.bagri.xdm.domain.XDMTransaction;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;

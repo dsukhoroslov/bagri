@@ -5,8 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.bagri.common.util.DateUtils;
-import com.bagri.xdm.common.XDMTransactionIsolation;
-import com.bagri.xdm.common.XDMTransactionState;
+import com.bagri.xdm.api.XDMTransactionIsolation;
+import com.bagri.xdm.api.XDMTransactionState;
 
 public class XDMTransaction {
 	

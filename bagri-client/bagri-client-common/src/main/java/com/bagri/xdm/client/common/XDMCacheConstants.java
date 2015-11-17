@@ -30,14 +30,6 @@ public class XDMCacheConstants {
 	public static final String CN_XDM_INDEX = "xdm-index";
 
     /**
-     * XDM Path-Value cache
-     * Key: PathValueDocumentKey; Value: com.bagri.xdm.XDMIndex<String>
-     * CacheStore: no
-     * Mapped as: no
-     */
-	//public static final String CN_XDM_PATH_VALUE_INDEX = "xdm-path-value-index";
-	
-    /**
      * XDM XML cache
      * Key: Long; documentId 
      * Value: String (XML)
@@ -122,7 +114,12 @@ public class XDMCacheConstants {
     public static final String SQN_DOCTYPE = "xdm.doctype";
     //public static final String SQN_ELEMENT = "xdm.element";
     public static final String SQN_TRANSACTION = "xdm.transaction";
-    
+
+    // Executor pool names
 	public static final String PN_XDM_SCHEMA_POOL = "xdm-exec-pool";
 	public static final String PN_XDM_SYSTEM_POOL = "sys-exec-pool";
+
+    // Topic names
+	public static final String TPN_XDM_HEALTH = "xdm-health";
+
 }

@@ -9,6 +9,7 @@ import java.util.concurrent.Future;
 
 import com.bagri.common.idgen.IdGenerator;
 import com.bagri.xdm.api.XDMDocumentManagement;
+import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.client.common.impl.DocumentManagementBase;
 import com.bagri.xdm.client.hazelcast.data.DocumentKey;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentCreator;
@@ -71,12 +72,14 @@ public class DocumentManagementImpl extends DocumentManagementBase implements XD
 	}
 
 	@Override
-	public XDMDocument getDocument(long docId) {
+	public XDMDocument getDocument(long docId) throws XDMException {
 		// do this via task/EP ??
 		XDMDocument doc = xddCache.get(new DocumentKey(docId));
 		if (doc == null) {
 			logger.trace("getDocument; can not get document for key: {}; cache size is: {}", 
 					docId, xddCache.size());
+			// throw ex?
+			repo.getHealthManagement().checkClusterState();
 		}
 		return doc;
 	}
@@ -89,7 +92,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements XD
 		if (docKeys.size() == 0) {
 			return null;
 		}
-		// todo: check if too many docs ??
+		// TODO: check if too many docs ??
 		return docKeys.iterator().next();
 	}
 	
@@ -100,10 +103,9 @@ public class DocumentManagementImpl extends DocumentManagementBase implements XD
 	}
 	
 	@Override
-	public String getDocumentAsString(long docId) {
+	public String getDocumentAsString(long docId) throws XDMException {
 		// actually, I can try just get it from XML cache!
 		
-		long stamp = System.currentTimeMillis();
 		logger.trace("getDocumentAsString.enter; got docId: {}", docId);
 		
 		String result = null;
@@ -111,38 +113,31 @@ public class DocumentManagementImpl extends DocumentManagementBase implements XD
 		Future<String> future = execService.submitToKeyOwner(xp, docId);
 		try {
 			result = future.get();
+			logger.trace("getDocumentAsString.exit; got template results: {}", 
+					result == null ? 0 : result.length());
+			return result;
 		} catch (InterruptedException | ExecutionException ex) {
 			logger.error("getDocumentAsString; error getting result", ex);
+			throw new XDMException(ex, XDMException.ecDocument);
 		}
-		stamp = System.currentTimeMillis() - stamp;
-		logger.trace("getDocumentAsString.exit; got template results: {}; time taken {}", 
-				result == null ? 0 : result.length(), stamp);
-		return result;
 	}
 
-	public XDMDocument storeDocument(String xml) {
+	public XDMDocument storeDocument(String xml) throws XDMException {
 
 		return storeDocumentFromString(0, null, xml);
 	}
 
-	//public XDMDocument storeDocument(String uri, String xml) {
-	//
-	//	long docId = docGen.next();
-	//	return storeDocument(docId, uri, xml);
-	//}
-
 	@Override
-	public XDMDocument storeDocumentFromString(long docId, String uri, String xml) {
+	public XDMDocument storeDocumentFromString(long docId, String uri, String xml) throws XDMException {
 		
 		if (xml == null) {
-			throw new IllegalArgumentException("XML can not be null");
+			throw new XDMException("Document content can not be null", XDMException.ecDocument);
 		}
 		logger.trace("storeDocument.enter; docId: {}, uri: {}; xml: {}", docId, uri, xml.length());
 
 		if (docId == 0 && uri == null) {
 			docId = XDMDocumentKey.toKey(docGen.next(), 1);
 		}
-		// todo: override existing document -> create a new version ?
 		
 		DocumentCreator task = new DocumentCreator(repo.getClientId(), docId, 
 				repo.getTransactionId(), uri, xml);
@@ -154,12 +149,12 @@ public class DocumentManagementImpl extends DocumentManagementBase implements XD
 		} catch (InterruptedException | ExecutionException ex) {
 			// the document could be stored anyway..
 			logger.error("storeDocument.error", ex);
+			throw new XDMException(ex, XDMException.ecDocument);
 		}
-		return null;
 	}
 	
 	@Override
-	public void removeDocument(long docId) {
+	public void removeDocument(long docId) throws XDMException {
 		
 		long stamp = System.currentTimeMillis();
 		logger.trace("removeDocument.enter; docId: {}", docId);
@@ -174,6 +169,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements XD
 			//return (XDMDocument) result;
 		} catch (InterruptedException | ExecutionException ex) {
 			logger.error("removeDocument.error: ", ex);
+			throw new XDMException(ex, XDMException.ecDocument);
 		}
 	}
 

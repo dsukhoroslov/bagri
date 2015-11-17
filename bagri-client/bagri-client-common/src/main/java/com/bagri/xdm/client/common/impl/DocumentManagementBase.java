@@ -50,7 +50,7 @@ public abstract class DocumentManagementBase {
 			String xml = XMLUtils.sourceToString(source);
 			return storeDocumentFromString(docId, uri, xml);
 		} catch (IOException ex) {
-			logger.error("storeDocumentFromSource.error; " + ex.getMessage(), ex);
+			logger.error("storeDocumentFromSource.error", ex);
 			throw new XDMException(ex, XDMException.ecInOut);
 		}
 	}
@@ -60,6 +60,7 @@ public abstract class DocumentManagementBase {
 			String xml = XMLUtils.textToString(stream);
 			return storeDocumentFromString(docId, uri, xml);
 		} catch (IOException ex) {
+			logger.error("storeDocumentFromStream.error", ex);
 			throw new XDMException(ex, XDMException.ecInOut);
 		}
 	}

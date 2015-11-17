@@ -23,6 +23,7 @@ public class XDMException extends Exception {
 	public static final int ecTransTimeout = 80002;
 	public static final int ecTransNotFound = 80003;
 	public static final int ecTransNoNested = 80004;
+	public static final int ecHealth = 90000;
 	
 	private int errorCode;
 	

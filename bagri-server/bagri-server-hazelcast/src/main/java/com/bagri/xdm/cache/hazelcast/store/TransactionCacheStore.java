@@ -19,8 +19,8 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bagri.xdm.common.XDMTransactionIsolation;
-import com.bagri.xdm.common.XDMTransactionState;
+import com.bagri.xdm.api.XDMTransactionIsolation;
+import com.bagri.xdm.api.XDMTransactionState;
 import com.bagri.xdm.domain.XDMTransaction;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.MapLoaderLifecycleSupport;

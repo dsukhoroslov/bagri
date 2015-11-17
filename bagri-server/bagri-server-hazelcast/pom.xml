@@ -25,7 +25,7 @@
 	<!-- -XX:+UseCMSInitiatingOccupancyOnly -XX:CMSInitiatingOccupancyFraction=70 -->
 	<!-- -XX:GCLogFileSize=50M -XX:NumberOfGCLogFiles=10 -XX:+UseGCLogFileRotation -->
         <run.jvm.args3>-XX:+PrintGC -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+HeapDumpOnOutOfMemoryError -Xloggc:./logs/gc/gc.log</run.jvm.args3>
-	<props.name>first</props.name>
+	<profile>first</profile>
 	<log.level>info</log.level>
 	<node.instance>0</node.instance>
 
@@ -254,7 +254,7 @@
                                             <sysproperty key="xdm.log.level" value="${log.level}"/>
                                             <sysproperty key="xdm.config.path" value="src/main/resources"/>
                                             <sysproperty key="xdm.config.context.file" value="spring/cache-system-context.xml"/>
-					    <sysproperty key="xdm.config.properties.file" value="${props.name}.properties"/>
+					    <sysproperty key="xdm.config.properties.file" value="${profile}.properties"/>
 					    <sysproperty key="xdm.config.filename" value="config.xml"/>
 					    <sysproperty key="xdm.access.filename" value="access.xml"/>
                                             <classpath>

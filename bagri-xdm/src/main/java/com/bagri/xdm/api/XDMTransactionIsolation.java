@@ -1,4 +1,4 @@
-package com.bagri.xdm.common;
+package com.bagri.xdm.api;
 
 public enum XDMTransactionIsolation {
 	
