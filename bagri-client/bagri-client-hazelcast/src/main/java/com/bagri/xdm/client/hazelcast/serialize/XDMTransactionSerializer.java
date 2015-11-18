@@ -23,12 +23,14 @@ public class XDMTransactionSerializer implements StreamSerializer<XDMTransaction
 	@Override
 	public XDMTransaction read(ObjectDataInput in) throws IOException {
 		
-		return new XDMTransaction(in.readLong(),
+		XDMTransaction xTrans = new XDMTransaction(in.readLong(),
 				in.readLong(),
 				in.readLong(),
 				in.readUTF(),
 				XDMTransactionIsolation.values()[in.readInt()],
 				XDMTransactionState.values()[in.readInt()]);
+		xTrans.updateCounters(in.readInt(), in.readInt(), in.readInt());
+		return xTrans;
 	}
 
 	@Override
@@ -40,6 +42,9 @@ public class XDMTransactionSerializer implements StreamSerializer<XDMTransaction
 		out.writeUTF(xTrans.getStartedBy());
 		out.writeInt(xTrans.getTxIsolation().ordinal());
 		out.writeInt(xTrans.getTxState().ordinal());
+		out.writeInt(xTrans.getDocsCreated());
+		out.writeInt(xTrans.getDocsUpdated());
+		out.writeInt(xTrans.getDocsDeleted());
 	}
 
 }

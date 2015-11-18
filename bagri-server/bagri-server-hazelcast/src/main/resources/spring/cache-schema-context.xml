@@ -327,11 +327,11 @@
 	</bean>
 
 	<bean id="xqItemSerializer" class="com.bagri.xdm.client.hazelcast.serialize.XQItemSerializer">
-    		<property name="XQDataFactory" ref="xqFactory" />
+    	<property name="XQDataFactory" ref="xqFactory" />
 	</bean>
 	
 	<bean id="xqSequenceSerializer" class="com.bagri.xdm.client.hazelcast.serialize.XQSequenceSerializer">
-    		<property name="XQDataFactory" ref="xqFactory" />
+    	<property name="XQDataFactory" ref="xqFactory" />
 	</bean>
 
 	<bean id="xqCompiler" class="com.bagri.xquery.saxon.XQCompilerImpl"/>
@@ -370,7 +370,7 @@
    		<!--property name="repository" ref="xdmRepo" /-->
 	</bean>
 
-	<bean id="healthManager" class="com.bagri.xdm.client.hazelcast.impl.HealthManagementImpl">
+	<bean id="healthManager" class="com.bagri.xdm.cache.hazelcast.impl.HealthManagementImpl">
 		<constructor-arg ref="hzInstance" />
 	</bean>
 

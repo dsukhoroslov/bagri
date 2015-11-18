@@ -1,6 +1,5 @@
 package com.bagri.xdm.cache.hazelcast.impl;
 
-import static com.bagri.xdm.api.XDMException.ecTransaction;
 import static com.bagri.xdm.api.XDMException.ecTransNoNested;
 import static com.bagri.xdm.api.XDMException.ecTransNotFound;
 import static com.bagri.xdm.api.XDMException.ecTransWrongState;
@@ -202,6 +201,21 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 		long txId = getCurrentTxId();
 		if (txId > TX_NO) {
 			rollbackTransaction(txId);
+		}
+	}
+	
+	void updateCounters(int created, int updated, int deleted) throws XDMException {
+		long txId = getCurrentTxId();
+		if (txId > TX_NO) {
+			XDMTransaction xTx = txCache.get(txId);
+			if (xTx != null) {
+				xTx.updateCounters(created, updated, deleted);
+				txCache.set(txId, xTx);
+			} else {
+				throw new XDMException("no transaction found for TXID: " + txId, ecTransNotFound);
+			}
+		} else {
+			throw new XDMException("not in transaction", ecTransWrongState);
 		}
 	}
 	

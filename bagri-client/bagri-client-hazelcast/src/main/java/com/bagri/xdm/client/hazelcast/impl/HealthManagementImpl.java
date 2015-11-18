@@ -20,6 +20,10 @@ public class HealthManagementImpl implements XDMHealthManagement, MessageListene
 	private XDMHealthState state = XDMHealthState.bad;
 	private Map<Integer, XDMHealthChangeListener> listeners = new HashMap<>();
 	
+	public HealthManagementImpl() {
+		super();
+	}
+	
 	public HealthManagementImpl(HazelcastInstance hzInstance) {
 		this.hzInstance = hzInstance;
 		ITopic<XDMHealthState> hTopic = hzInstance.getTopic(TPN_XDM_HEALTH);
@@ -50,7 +54,7 @@ public class HealthManagementImpl implements XDMHealthManagement, MessageListene
 	
 	@Override
 	public void addHealthChangeListener(XDMHealthChangeListener listener) {
-		listeners.put(listener.hashCode(), listener);		
+		listeners.put(listener.hashCode(), listener);
 	}
 
 	@Override

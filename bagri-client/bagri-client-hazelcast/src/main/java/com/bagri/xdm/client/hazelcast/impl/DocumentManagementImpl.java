@@ -133,22 +133,22 @@ public class DocumentManagementImpl extends DocumentManagementBase implements XD
 		if (xml == null) {
 			throw new XDMException("Document content can not be null", XDMException.ecDocument);
 		}
-		logger.trace("storeDocument.enter; docId: {}, uri: {}; xml: {}", docId, uri, xml.length());
+		logger.trace("storeDocumentFromString.enter; docId: {}, uri: {}; xml: {}", docId, uri, xml.length());
+		repo.getHealthManagement().checkClusterState();
 
 		if (docId == 0 && uri == null) {
 			docId = XDMDocumentKey.toKey(docGen.next(), 1);
 		}
 		
-		DocumentCreator task = new DocumentCreator(repo.getClientId(), docId, 
-				repo.getTransactionId(), uri, xml);
+		DocumentCreator task = new DocumentCreator(repo.getClientId(), docId, repo.getTransactionId(), uri, xml);
 		Future<XDMDocument> future = execService.submitToKeyOwner(task, docId);
 		try {
 			XDMDocument result = future.get();
-			logger.trace("storeDocument.exit; returning: {}", result);
+			logger.trace("storeDocumentFromString.exit; returning: {}", result);
 			return (XDMDocument) result;
 		} catch (InterruptedException | ExecutionException ex) {
 			// the document could be stored anyway..
-			logger.error("storeDocument.error", ex);
+			logger.error("storeDocumentFromString.error", ex);
 			throw new XDMException(ex, XDMException.ecDocument);
 		}
 	}
@@ -156,8 +156,8 @@ public class DocumentManagementImpl extends DocumentManagementBase implements XD
 	@Override
 	public void removeDocument(long docId) throws XDMException {
 		
-		long stamp = System.currentTimeMillis();
 		logger.trace("removeDocument.enter; docId: {}", docId);
+		repo.getHealthManagement().checkClusterState();
 		//XDMDocumentRemover proc = new XDMDocumentRemover();
 		//Object result = xddCache.executeOnKey(docId, proc);
 		
@@ -165,7 +165,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements XD
 		Future<XDMDocument> future = execService.submitToKeyOwner(task, docId);
 		try {
 			XDMDocument result = future.get();
-			logger.trace("removeDocument.exit; time taken: {}; returning: {}", System.currentTimeMillis() - stamp, result);
+			logger.trace("removeDocument.exit; returning: {}", result);
 			//return (XDMDocument) result;
 		} catch (InterruptedException | ExecutionException ex) {
 			logger.error("removeDocument.error: ", ex);

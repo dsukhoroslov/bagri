@@ -29,7 +29,7 @@ import com.hazelcast.core.MapStore;
 public class TransactionCacheStore implements MapStore<Long, XDMTransaction>, MapLoaderLifecycleSupport {
 
     private static final Logger logger = LoggerFactory.getLogger(TransactionCacheStore.class);
-	private static final int byLen = 38;
+	private static final int byLen = 26;
 	private static final int txLen = 64;
 	private static final int szOff = 4;
 
@@ -278,14 +278,16 @@ public class TransactionCacheStore implements MapStore<Long, XDMTransaction>, Ma
 		long start = buff.getLong();
 		long finish = buff.getLong();
 		XDMTransactionIsolation isol = XDMTransactionIsolation.values()[buff.get()];
-		byte[] by38 = new byte[byLen];
-		buff.get(by38);
+		byte[] by26 = new byte[byLen];
+		buff.get(by26);
 		int sz = 0;
-		while (sz < byLen && by38[sz] > 0) {
+		while (sz < byLen && by26[sz] > 0) {
 			sz++;
 		}
-		String owner = new String(by38, 0, sz);
-		return new XDMTransaction(id, start, finish, owner, isol, state);  
+		String owner = new String(by26, 0, sz);
+		XDMTransaction xtx = new XDMTransaction(id, start, finish, owner, isol, state);
+		xtx.updateCounters(buff.getInt(), buff.getInt(), buff.getInt());
+		return xtx;
 	}
 
 	private void writeTx(XDMTransaction xtx) {
@@ -294,12 +296,15 @@ public class TransactionCacheStore implements MapStore<Long, XDMTransaction>, Ma
 		buff.putLong(xtx.getStartedAt());
 		buff.putLong(xtx.getFinishedAt());
 		buff.put((byte) xtx.getTxIsolation().ordinal());
+		buff.putInt(xtx.getDocsCreated());
+		buff.putInt(xtx.getDocsUpdated());
+		buff.putInt(xtx.getDocsDeleted());
 		byte[] by = xtx.getStartedBy().getBytes();
-		byte[] by38 = new byte[byLen];
+		byte[] by26 = new byte[byLen];
 		for (int i=0; i < by.length; i++) {
-			by38[i] = by[i];
+			by26[i] = by[i];
 		}
-		buff.put(by38);
+		buff.put(by26);
 		//buff.force();
 	}
 

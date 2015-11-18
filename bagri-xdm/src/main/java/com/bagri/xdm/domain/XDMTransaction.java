@@ -17,6 +17,9 @@ public class XDMTransaction {
 	private String startedBy;
 	private XDMTransactionState txState;
 	private XDMTransactionIsolation txIsolation;
+	private int docsCreated = 0;
+	private int docsUpdated = 0;
+	private int docsDeleted = 0;
 
 	public XDMTransaction() {
 		//
@@ -38,6 +41,18 @@ public class XDMTransaction {
 		this.startedBy = startedBy;
 		this.txIsolation = txIsolation;
 		this.txState = txState;
+	}
+	
+	public int getDocsCreated() {
+		return docsCreated;
+	}
+	
+	public int getDocsUpdated() {
+		return docsUpdated;
+	}
+	
+	public int getDocsDeleted() {
+		return docsDeleted;
 	}
 	
 	public long getTxId() {
@@ -76,15 +91,30 @@ public class XDMTransaction {
 			this.txState = XDMTransactionState.rolledback;
 		}
 	}
+	
+	public void updateCounters(int created, int updated, int deleted) {
+		docsCreated += created;
+		docsUpdated += updated;
+		docsDeleted += deleted;
+	}
 
 	public Map<String, Object> toMap() {
 		Map<String, Object> result = new HashMap<>();
 		result.put("txId", txId);
 		result.put("started at", new Date(startedAt).toString());
 		result.put("started by", startedBy);
-		result.put("duration", DateUtils.getDuration(System.currentTimeMillis() - startedAt));
+		long finished;
+		if (finishedAt > 0) {
+			finished = finishedAt;
+		} else {
+			finished = System.currentTimeMillis();
+		}
+		result.put("duration", DateUtils.getDuration(finished - startedAt));
 		result.put("isolation", txIsolation.toString());
 		result.put("state", txState.toString());
+		result.put("docs created", docsCreated);
+		result.put("docs updated", docsUpdated);
+		result.put("docs deleted", docsDeleted);
 		return result;
 	}
 
@@ -92,8 +122,9 @@ public class XDMTransaction {
 	public String toString() {
 		return "XDMTransaction [txId=" + txId + ", startedAt=" + startedAt
 				+ ", finishedAt=" + finishedAt + ", startedBy=" + startedBy
-				+ ", txIsolation=" + txIsolation + ", txState=" + txState + "]";
+				+ ", txIsolation=" + txIsolation + ", txState=" + txState
+				+ ", docsCreated=" + docsCreated + ", docsUpdated=" + docsUpdated
+				+ ", docsDeleted=" + docsDeleted + "]";
 	}
 	
-
 }

@@ -632,7 +632,13 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 				    	// shouldn't we lock the newKey too?
 				    }
 				}
-			    return createDocument(new AbstractMap.SimpleEntry(newKey, null), uri, xml);
+				XDMDocument result = createDocument(new AbstractMap.SimpleEntry(newKey, null), uri, xml);
+				if (update) {
+					txManager.updateCounters(0, 1, 0);
+				} else {
+					txManager.updateCounters(1, 0, 0);
+				}
+			    return result;
 			} catch (XDMException ex) {
 				throw ex;
 			} catch (Exception ex) {
@@ -668,6 +674,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	    	}
 	    	((QueryManagementImpl) repo.getQueryManagement()).removeQueryResults(docKey);
 	    	triggerManager.applyTrigger(doc, Action.delete, Scope.after); 
+		    txManager.updateCounters(0, 0, 1);
 		    removed = true;
 	    }
 		logger.trace("removeDocument.exit; removed: {}", removed);
