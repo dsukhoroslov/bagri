@@ -1,5 +1,5 @@
 ## bagri project
-================
+-----------------
 
 ### XML DB on top of distributed cache.
 
@@ -16,3 +16,6 @@ Consists of the following Maven modules:
 * bagri-tools - Tools/Plugings, e.g. Bagri VisualVM Plugin
 * bagri-distr - distributive package
 * etc - additional libs, sample data, etc...
+ 
+
+For more details visit our [Wiki pages](https://github.com/dsukhoroslov/bagri/wiki)
