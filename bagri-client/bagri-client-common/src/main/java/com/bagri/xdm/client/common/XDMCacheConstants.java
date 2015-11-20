@@ -121,5 +121,6 @@ public class XDMCacheConstants {
 
     // Topic names
 	public static final String TPN_XDM_HEALTH = "xdm-health";
-
+	public static final String TPN_XDM_COUNTERS = "xdm-counters";
+	
 }

@@ -5,7 +5,7 @@
 	xmlns:hz="http://www.hazelcast.com/schema/spring"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.1.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.1.xsd
-		http://www.hazelcast.com/schema/spring http://www.hazelcast.com/schema/spring/hazelcast-spring-3.6.xsd">
+		http://www.hazelcast.com/schema/spring http://www.hazelcast.com/schema/spring/hazelcast-spring-3.5.xsd">
 
 	<!--import resource="classpath:spring/xml-context.xml" /-->
  
@@ -160,6 +160,7 @@
 			</hz:map>
 			
 			<hz:topic name="xdm-health"/>
+			<hz:topic name="xdm-counters"/>
 			
 			<hz:replicatedmap name="xdm-query" in-memory-format="OBJECT" replication-delay-millis="0"/>
 			<hz:replicatedmap name="dict-index" in-memory-format="OBJECT" replication-delay-millis="0"/>
@@ -194,6 +195,7 @@
 					<hz:serializer type-class="com.bagri.xdm.domain.XDMUniqueValue" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMUniqueValueSerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.domain.XDMTransaction" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMTransactionSerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.domain.XDMFragmentedDocument" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMFragmentedDocumentSerializer"/>
+					<hz:serializer type-class="com.bagri.xdm.domain.XDMCounter" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMCounterSerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.system.XDMIndex" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMIndexSerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.system.XDMTriggerAction" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMTriggerActionSerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.system.XDMJavaTrigger" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMJavaTriggerSerializer"/>
@@ -429,7 +431,7 @@
 		<property name="modelManagement" ref="mdlManager"/>
 		<property name="queryManagement" ref="queryManager"/>
 		<property name="documentManagement" ref="docManager"/>
-		<property name="healthManagement" ref="healthManager"/>
+		<!--property name="healthManagement" ref="healthManager"/-->
    		<property name="indexManagement" ref="idxManager" />
    		<property name="triggerManagement" ref="trManager" />
    		<property name="txManagement" ref="txManager" />

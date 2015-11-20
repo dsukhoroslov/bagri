@@ -5,6 +5,7 @@ import static com.bagri.xdm.api.XDMException.ecTransNotFound;
 import static com.bagri.xdm.api.XDMException.ecTransWrongState;
 import static com.bagri.xdm.client.common.XDMCacheConstants.CN_XDM_TRANSACTION;
 import static com.bagri.xdm.client.common.XDMCacheConstants.SQN_TRANSACTION;
+import static com.bagri.xdm.client.common.XDMCacheConstants.TPN_XDM_COUNTERS;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -24,14 +25,17 @@ import com.bagri.common.idgen.IdGenerator;
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.common.stats.StatisticsProvider;
 import com.bagri.xdm.api.XDMException;
+import com.bagri.xdm.api.XDMHealthState;
 import com.bagri.xdm.api.XDMTransactionIsolation;
 import com.bagri.xdm.api.XDMTransactionState;
 import com.bagri.xdm.cache.api.XDMTransactionManagement;
 import com.bagri.xdm.client.hazelcast.impl.IdGeneratorImpl;
+import com.bagri.xdm.domain.XDMCounter;
 import com.bagri.xdm.domain.XDMTransaction;
 import com.hazelcast.core.Cluster;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
+import com.hazelcast.core.ITopic;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
 
@@ -56,6 +60,7 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
     //private HazelcastInstance hzInstance;
 	private Cluster cluster;
 	private IdGenerator<Long> txGen;
+	private ITopic<XDMCounter> cTopic;
 	private IMap<Long, XDMTransaction> txCache; 
 
 	private long txTimeout = 0;
@@ -70,6 +75,7 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 		cluster = hzInstance.getCluster();
 		txCache = hzInstance.getMap(CN_XDM_TRANSACTION);
 		txGen = new IdGeneratorImpl(hzInstance.getAtomicLong(SQN_TRANSACTION));
+		cTopic = hzInstance.getTopic(TPN_XDM_COUNTERS);
 	}
 	
 	public long getTransactionTimeout() {
@@ -127,6 +133,7 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 		}
 		thTx.set(TX_NO);
 		cntCommited.incrementAndGet();
+		cTopic.publish(new XDMCounter(true, xTx.getDocsCreated(), xTx.getDocsUpdated(), xTx.getDocsDeleted()));
 		logger.trace("commitTransaction.exit; tx: {}", xTx); 
 	}
 
@@ -144,6 +151,7 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 		// do not delete rolled back tx for a while
 		thTx.set(TX_NO);
 		cntRolled.incrementAndGet();
+		cTopic.publish(new XDMCounter(false, xTx.getDocsCreated(), xTx.getDocsUpdated(), xTx.getDocsDeleted()));
 		logger.trace("rollbackTransaction.exit; tx: {}", xTx); 
 	}
 	

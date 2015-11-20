@@ -3,6 +3,9 @@ package com.bagri.xdm.client.hazelcast.impl;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import static com.bagri.xdm.client.common.XDMCacheConstants.TPN_XDM_HEALTH;
 
 import com.bagri.xdm.api.XDMException;
@@ -16,8 +19,10 @@ import com.hazelcast.core.MessageListener;
 
 public class HealthManagementImpl implements XDMHealthManagement, MessageListener<XDMHealthState> {
 
+    private final static Logger logger = LoggerFactory.getLogger(HealthManagementImpl.class);
+	
 	private HazelcastInstance hzInstance;
-	private XDMHealthState state = XDMHealthState.bad;
+	private XDMHealthState state = XDMHealthState.good;
 	private Map<Integer, XDMHealthChangeListener> listeners = new HashMap<>();
 	
 	public HealthManagementImpl() {
@@ -65,10 +70,14 @@ public class HealthManagementImpl implements XDMHealthManagement, MessageListene
 	@Override
 	public void onMessage(Message<XDMHealthState> message) {
 		XDMHealthState newState = message.getMessageObject();
-		for (XDMHealthChangeListener list: listeners.values()) {
-			list.onHealthStateChange(newState);
+		if (state != newState) {
+			for (XDMHealthChangeListener list: listeners.values()) {
+				list.onHealthStateChange(newState);
+			}
+			logger.debug("onMessage; health state changed from {} to {}; listeners notified: {}", 
+					state, newState, listeners.size()); 
 		}
-		this.state = newState;
+		state = newState;
 	}
 
 
