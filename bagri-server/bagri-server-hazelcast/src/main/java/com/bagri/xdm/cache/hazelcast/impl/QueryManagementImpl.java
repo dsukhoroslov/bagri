@@ -340,6 +340,12 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 			dataType = qPath.getDataType();
 			indexed = qPath.isIndexed();
 			paths = new HashSet<>(qPath.getPathIds());
+			if (paths.size() > 1) {
+				Integer[] pa = paths.toArray(new Integer[paths.size()]); 
+				pp = Predicates.in("pathId", pa);
+			} else {
+				pp = Predicates.equal("pathId", paths.iterator().next());
+			}
 		} else {
 			if (pex.isRegex()) {
 				// TODO: do not create new path here!

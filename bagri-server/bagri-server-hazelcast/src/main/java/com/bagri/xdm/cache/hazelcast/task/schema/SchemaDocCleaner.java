@@ -6,6 +6,10 @@ import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFacto
 import java.io.IOException;
 import java.util.concurrent.Callable;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.bagri.xdm.cache.api.XDMQueryManagement;
+import com.bagri.xdm.cache.hazelcast.impl.HealthManagementImpl;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
@@ -17,6 +21,7 @@ import com.hazelcast.spring.context.SpringAware;
 public class SchemaDocCleaner extends SchemaProcessingTask implements Callable<Boolean> {
 	
 	private boolean evictOnly;
+	private HealthManagementImpl hMgr;
 	
 	public SchemaDocCleaner() {
 		super();
@@ -25,6 +30,11 @@ public class SchemaDocCleaner extends SchemaProcessingTask implements Callable<B
 	public SchemaDocCleaner(String schemaName, boolean evictOnly) {
 		super(schemaName);
 		this.evictOnly = evictOnly;
+	}
+	
+    @Autowired
+	public void setHealthManagement(HealthManagementImpl hMgr) {
+		this.hMgr = hMgr;
 	}
 
 	@Override
@@ -38,6 +48,9 @@ public class SchemaDocCleaner extends SchemaProcessingTask implements Callable<B
 			cleanCache(hz, CN_XDM_DOCUMENT);
 			cleanCache(hz, CN_XDM_ELEMENT);
 			cleanCache(hz, CN_XDM_INDEX);
+			cleanCache(hz, CN_XDM_QUERY);
+			cleanCache(hz, CN_XDM_RESULT);
+			hMgr.clearState();
 			System.gc();
 			result = true;
 		}

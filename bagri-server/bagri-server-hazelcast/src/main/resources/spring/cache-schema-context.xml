@@ -374,6 +374,8 @@
 
 	<bean id="healthManager" class="com.bagri.xdm.cache.hazelcast.impl.HealthManagementImpl">
 		<constructor-arg ref="hzInstance" />
+		<property name="lowThreshold" value="${xdm.schema.health.threshold.low}"/>
+		<property name="highThreshold" value="${xdm.schema.health.threshold.high}"/>
 	</bean>
 
 	<bean id="idxManager" class="com.bagri.xdm.cache.hazelcast.impl.IndexManagementImpl">

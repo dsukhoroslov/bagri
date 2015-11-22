@@ -26,6 +26,9 @@ public class HealthManagementImpl implements MessageListener<XDMCounter>, Partit
 	private ITopic<XDMHealthState> hTopic;
 	private IMap<XDMDocumentKey, XDMDocument> xddCache;
 	
+	private int thLow = 10;
+	private int thHigh = 0;
+	
 	private int cntActive = 0;
 	private int cntInactive = 0;
 	
@@ -35,6 +38,14 @@ public class HealthManagementImpl implements MessageListener<XDMCounter>, Partit
 	
 	public HealthManagementImpl(HazelcastInstance hzInstance) {
 		initialize(hzInstance);
+	}
+	
+	public void setLowThreshold(int thLow) {
+		this.thLow = thLow;
+	}
+	
+	public void setHighThreshold(int thHigh) {
+		this.thHigh = thHigh;
 	}
 
 	private void initialize(HazelcastInstance hzInstance) {
@@ -47,26 +58,34 @@ public class HealthManagementImpl implements MessageListener<XDMCounter>, Partit
 	}
 	
 	private void updateState(XDMCounter counter) {
-		cntActive += counter.getCreated();
-		cntActive -= counter.getDeleted();
-		cntInactive += counter.getUpdated();
-		cntInactive += counter.getDeleted()*2;
+		if (counter.isCommit()) {
+			cntActive += counter.getCreated();
+			cntActive -= counter.getDeleted();
+			cntInactive += counter.getUpdated();
+			cntInactive += counter.getDeleted()*2;
+		} else {
+			cntInactive += counter.getCreated();
+			cntInactive += counter.getUpdated();
+			cntInactive += counter.getDeleted();
+		}
+		checkState();
+	}
+	
+	private void checkState() {
 		int docSize = xddCache.size();
-		logger.trace("updateStats; active count: {}; inactive count: {}; cache size: {}", 
+		logger.trace("checkStats; active count: {}; inactive count: {}; cache size: {}", 
 				cntActive, cntInactive, docSize);
 		int fullSize = cntActive + cntInactive;
 		XDMHealthState hState;
-		if (docSize == fullSize) {
-			hState = XDMHealthState.good; 
+		if (fullSize < docSize - thLow) {
+			hState = XDMHealthState.bad;
+		} else if (fullSize > docSize + thHigh) {
+			hState = XDMHealthState.ugly;
 		} else {
-			if (fullSize < docSize) {
-				hState = XDMHealthState.bad;
-			} else {
-				hState = XDMHealthState.ugly;
-			}
-			if ((docSize - fullSize > 10) || (fullSize > docSize)) { 			
-				logger.info("updateState; the state is: {}; fullSize: {}; docSize: {}", hState, fullSize, docSize);
-			}
+			hState = XDMHealthState.good; 
+		} 
+		if (hState != XDMHealthState.good) { 			
+			logger.info("checkState; the state is: {}; fullSize: {}; docSize: {}", hState, fullSize, docSize);
 		}
 		hTopic.publish(hState);
 	}
@@ -80,7 +99,13 @@ public class HealthManagementImpl implements MessageListener<XDMCounter>, Partit
 	@Override
 	public void partitionLost(PartitionLostEvent event) {
 		logger.trace("partitionLost; event: {}", event); 
-		//updateState(message.getMessageObject());
+		checkState();
+	}
+	
+	public void clearState() {
+		cntActive = 0;
+		cntInactive = 0;
+		hTopic.publish(XDMHealthState.good);
 	}
 
 /*		

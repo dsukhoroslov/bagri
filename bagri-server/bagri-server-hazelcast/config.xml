@@ -53,6 +53,8 @@
                 <entry name="xdm.schema.query.backup.read">true</entry>
                 <entry name="xdm.schema.partition.count">271</entry>
 		<entry name="xdm.schema.transaction.timeout">0</entry>
+                <entry name="xdm.schema.health.threshold.low">25</entry>
+                <entry name="xdm.schema.health.threshold.high">0</entry>
                 <entry name="xqj.schema.baseUri">file:///C:/Work/Bagri/git/bagri/etc/samples/json/</entry>
                 <entry name="xqj.schema.orderingMode">2</entry>
                 <entry name="xqj.schema.queryLanguageTypeAndVersion">1</entry>
@@ -106,6 +108,8 @@
                 <entry name="xdm.schema.partition.count">157</entry>
                 <entry name="xdm.schema.query.backup.read">true</entry>
 		<entry name="xdm.schema.transaction.timeout">0</entry>
+                <entry name="xdm.schema.health.threshold.low">25</entry>
+                <entry name="xdm.schema.health.threshold.high">0</entry>
                 <entry name="xqj.schema.baseUri">file:///C:/Work/Bagri/git/bagri/etc/samples/xdm/</entry>
                 <entry name="xqj.schema.orderingMode">2</entry>
                 <entry name="xqj.schema.queryLanguageTypeAndVersion">1</entry>
@@ -159,6 +163,8 @@
                 <entry name="xdm.schema.query.backup.read">true</entry>
                 <entry name="xdm.schema.partition.count">271</entry>
 		<entry name="xdm.schema.transaction.timeout">0</entry>
+                <entry name="xdm.schema.health.threshold.low">25</entry>
+                <entry name="xdm.schema.health.threshold.high">0</entry>
                 <entry name="xqj.schema.baseUri">file:///C:/Work/Bagri/git/bagri/etc/samples/tpox/</entry>
                 <entry name="xqj.schema.orderingMode">2</entry>
                 <entry name="xqj.schema.queryLanguageTypeAndVersion">1</entry>
@@ -247,6 +253,8 @@
                 <entry name="xdm.schema.query.backup.read">true</entry>
 		<entry name="xdm.schema.transaction.timeout">60000</entry>
                 <entry name="xdm.schema.partition.count">271</entry>
+                <entry name="xdm.schema.health.threshold.low">25</entry>
+                <entry name="xdm.schema.health.threshold.high">0</entry>
                 <entry name="xqj.schema.baseUri">file:///C:/Work/Bagri/git/bagri/etc/samples/tpox2/</entry>
                 <entry name="xqj.schema.orderingMode">2</entry>
                 <entry name="xqj.schema.queryLanguageTypeAndVersion">1</entry>
@@ -291,17 +299,17 @@
             </collections>
             <fragments/>
             <indexes>
-                <!--index name="IDX_Customer_id">
+                <index name="IDX_Customer_id">
                     <version>1</version>
                     <createdAt>2015-01-25T13:36:26.965+03:00</createdAt>
                     <createdBy>SDV</createdBy>
                     <docType>/{http://tpox-benchmark.com/custacc}Customer</docType>
                     <path>/{http://tpox-benchmark.com/custacc}Customer/@id</path>
-                    <dataType xmlns:xs="http://www.w3.org/2001/XMLSchema">xs:integer</dataType>
+                    <dataType xmlns:xs="http://www.w3.org/2001/XMLSchema">xs:string</dataType>
                     <unique>true</unique>
                     <description>Customer id</description>
                     <enabled>false</enabled>
-                </index-->
+                </index>
                 <index name="IDX_Security_Symbol">
                     <version>1</version>
                     <createdAt>2015-01-25T13:36:26.965+03:00</createdAt>
@@ -348,17 +356,17 @@
                     <description>Security Yield</description>
                     <enabled>true</enabled>
                 </index>
-                <!--index name="IDX_Order_ID">
+                <index name="IDX_Order_ID">
                     <version>1</version>
                     <createdAt>2015-01-25T13:36:26.965+03:00</createdAt>
                     <createdBy>SDV</createdBy>
                     <docType>/{http://www.fixprotocol.org/FIXML-4-4}FIXML</docType>
                     <path>/{http://www.fixprotocol.org/FIXML-4-4}FIXML/{http://www.fixprotocol.org/FIXML-4-4}Order/@ID</path>
-                    <dataType xmlns:xs="http://www.w3.org/2001/XMLSchema">xs:int</dataType>
+                    <dataType xmlns:xs="http://www.w3.org/2001/XMLSchema">xs:string</dataType>
                     <unique>true</unique>
                     <description>Order ID</description>
-                    <enabled>false</enabled>
-                </index-->
+                    <enabled>true</enabled>
+                </index>
             </indexes>
             <triggers>
                 <!--trigger xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns2:javatrigger">
@@ -439,6 +447,8 @@
                 <entry name="xdm.schema.query.backup.read">true</entry>
                 <entry name="xdm.schema.partition.count">271</entry>
 		<entry name="xdm.schema.transaction.timeout">0</entry>
+                <entry name="xdm.schema.health.threshold.low">25</entry>
+                <entry name="xdm.schema.health.threshold.high">0</entry>
                 <entry name="xqj.schema.baseUri">file:///C:/Work/Bagri/git/bagri/etc/samples/xmark/</entry>
                 <entry name="xqj.schema.orderingMode">2</entry>
                 <entry name="xqj.schema.queryLanguageTypeAndVersion">1</entry>
