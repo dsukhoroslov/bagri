@@ -1,6 +1,7 @@
 package com.bagri.xdm.cache.hazelcast.impl;
 
 import static com.bagri.common.config.XDMConfigConstants.xdm_config_properties_file;
+import static com.bagri.common.config.XDMConfigConstants.xdm_node_instance;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -21,6 +22,7 @@ public class DocumentManagementImplTest extends XDMDocumentManagementTest {
 		sampleRoot = "..\\..\\etc\\samples\\tpox\\";
 		System.setProperty("hz.log.level", "info");
 		//System.setProperty("xdm.log.level", "trace");
+		System.setProperty(xdm_node_instance, "0");
 		System.setProperty("logback.configurationFile", "hz-logging.xml");
 		System.setProperty(xdm_config_properties_file, "test.properties");
 		context = new ClassPathXmlApplicationContext("spring/cache-xqj-context.xml");

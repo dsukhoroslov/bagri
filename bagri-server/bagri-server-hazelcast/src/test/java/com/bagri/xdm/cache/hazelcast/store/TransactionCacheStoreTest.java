@@ -2,10 +2,8 @@ package com.bagri.xdm.cache.hazelcast.store;
 
 import static com.bagri.common.config.XDMConfigConstants.xdm_config_properties_file;
 import static com.bagri.common.config.XDMConfigConstants.xdm_schema_store_data_path;
+import static com.bagri.common.config.XDMConfigConstants.xdm_node_instance;
 
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.BitSet;
 import java.util.Collection;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
@@ -18,14 +16,12 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import com.bagri.common.util.FileUtils;
 import com.bagri.common.util.PropUtils;
 import com.bagri.xdm.api.test.XDMManagementTest;
-import com.bagri.xdm.cache.hazelcast.impl.PopulationManagementImpl;
 import com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl;
 import com.bagri.xdm.cache.hazelcast.impl.TransactionManagementImpl;
 import com.bagri.xdm.system.XDMSchema;
-import com.hazelcast.map.impl.MapService;
-import com.hazelcast.spi.ManagedService;
 
 public class TransactionCacheStoreTest extends XDMManagementTest {
 
@@ -38,7 +34,7 @@ public class TransactionCacheStoreTest extends XDMManagementTest {
 		sampleRoot = "..\\..\\etc\\samples\\tpox\\";
 		System.setProperty("hz.log.level", "info");
 		System.setProperty("xdm.log.level", "info");
-		System.setProperty("xdm.node.instance", "0");
+		System.setProperty(xdm_node_instance, "0");
 		System.setProperty("logback.configurationFile", "hz-logging.xml");
 		System.setProperty(xdm_config_properties_file, "store.properties");
 		context = new ClassPathXmlApplicationContext("spring/cache-xqj-context.xml");
@@ -75,14 +71,8 @@ public class TransactionCacheStoreTest extends XDMManagementTest {
 		RepositoryImpl xdmRepo = (RepositoryImpl) xRepo; 
 		XDMSchema schema = xdmRepo.getSchema();
 		String dataPath = schema.getProperty(xdm_schema_store_data_path);
-		if (dataPath == null) {
-			dataPath = "";
-		}
-		String nodeNum = System.getProperty("xdm.node.instance");
-		if (nodeNum == null) {
-			nodeNum = "0";
-		}
-		txFileName = TransactionCacheStore.getTxLogFile(dataPath, nodeNum);
+		String nodeNum = System.getProperty(xdm_node_instance);
+		txFileName = FileUtils.buildStoreFileName(dataPath, nodeNum, "txlog");
 	}
 
 	@Test

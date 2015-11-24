@@ -227,8 +227,11 @@
 					<hz:name>PopulationService</hz:name>
 					<hz:class-name>com.bagri.xdm.cache.hazelcast.impl.PopulationManagementImpl</hz:class-name>
 					<hz:properties>
+						<hz:property name="xdm.node.instance">${xdm.node.instance}</hz:property>
 						<hz:property name="xdm.schema.name">${xdm.schema.name}</hz:property>
 						<hz:property name="xdm.schema.population.size">${xdm.schema.population.size}</hz:property>
+	    				<hz:property name="xdm.schema.population.buffer.size">${xdm.schema.population.buffer.size}</hz:property>
+	    				<hz:property name="xdm.schema.store.data.path">${xdm.schema.store.data.path}</hz:property>
 					</hz:properties>
 					<!--hz:configuration parser="MyParser">
 					</hz:configuration-->

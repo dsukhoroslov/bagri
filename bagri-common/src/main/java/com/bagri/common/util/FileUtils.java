@@ -1,5 +1,9 @@
 package com.bagri.common.util;
 
+import static com.bagri.common.config.XDMConfigConstants.xdm_node_instance;
+import static com.bagri.common.config.XDMConfigConstants.xdm_schema_population_buffer_size;
+import static com.bagri.common.config.XDMConfigConstants.xdm_schema_store_data_path;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -77,4 +81,17 @@ public class FileUtils {
 	public static String getPathName(String path) {
 		return Paths.get(URI.create(path)).getFileName().toString();
 	}
+
+	public static String buildStoreFileName(String dataPath, String nodeNum, String storeName) {
+		if (dataPath == null) {
+			dataPath = "";
+		} else {
+			dataPath += "/";
+		}
+		if (nodeNum == null) {
+			nodeNum = "0";
+		}
+		return dataPath + storeName + nodeNum + ".xdb";
+	}
+	
 }

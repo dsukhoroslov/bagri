@@ -98,7 +98,7 @@ public class HealthManagementImpl implements MessageListener<XDMCounter>, Partit
 
 	@Override
 	public void partitionLost(PartitionLostEvent event) {
-		logger.trace("partitionLost; event: {}", event); 
+		logger.info("partitionLost; event: {}", event); 
 		checkState();
 	}
 	

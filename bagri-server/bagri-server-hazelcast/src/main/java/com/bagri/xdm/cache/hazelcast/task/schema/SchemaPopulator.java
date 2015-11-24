@@ -7,6 +7,7 @@ import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFacto
 import java.util.Iterator;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.Callable;
 
 import org.springframework.context.ApplicationContext;
 
@@ -26,7 +27,7 @@ import com.hazelcast.core.MapLoaderLifecycleSupport;
 import com.hazelcast.core.Partition;
 import com.hazelcast.core.PartitionService;
 
-public class SchemaPopulator extends SchemaDenitiator {
+public class SchemaPopulator extends SchemaProcessingTask implements Callable<Boolean> {
 	
 	public SchemaPopulator() {
 		super();
@@ -42,6 +43,7 @@ public class SchemaPopulator extends SchemaDenitiator {
     	boolean result = false;
 		// get hzInstance and close it...
 		HazelcastInstance hz = Hazelcast.getHazelcastInstanceByName(schemaName);
+		//hz = hzInstance;
 		if (hz != null) {
 			try {
 				// TODO: ensure that partitions migration has been already finished! 
@@ -57,18 +59,21 @@ public class SchemaPopulator extends SchemaDenitiator {
 
 	private boolean populateSchema(HazelcastInstance hz) {
 
-    	logger.trace("populateSchema.enter; HZ instance: {}", hz);
+    	logger.debug("populateSchema.enter; HZ instance: {}", hz);
 
 		ApplicationContext schemaCtx = (ApplicationContext) SpringContextHolder.getContext(schemaName, "appContext");
+		//if (schemaCtx == null) {
+		//	schemaCtx = (ApplicationContext) hz.getUserContext().get("appContext");
+		//}
 		if (schemaCtx == null) {
-	    	logger.trace("populateSchema.exit; No Spring Context initialized yet");
+	    	logger.debug("populateSchema.exit; No Spring Context initialized yet");
 			return false;
 		}
 
 		ApplicationContext storeCtx = (ApplicationContext) SpringContextHolder.getContext(schemaName, "storeContext");
 		if (storeCtx == null) {
 			// schema configured with no persistent store
-	    	logger.trace("populateSchema.exit; No persistent store configured");
+	    	logger.debug("populateSchema.exit; No persistent store configured");
 			return false;
 		}
 		

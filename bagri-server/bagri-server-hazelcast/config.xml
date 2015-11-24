@@ -237,6 +237,7 @@
                 <entry name="xdm.schema.store.type">XML</entry>
                 <entry name="xdm.schema.ports.last">10600</entry>
                 <entry name="xdm.schema.population.size">1</entry>
+                <entry name="xdm.schema.population.buffer.size">4096</entry>
                 <entry name="xdm.schema.data.backup.async">1</entry>
                 <entry name="xdm.schema.store.data.path">../../etc/samples/tpox2</entry>
                 <entry name="xdm.schema.dict.backup.sync">0</entry>

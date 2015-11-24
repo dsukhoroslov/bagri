@@ -13,7 +13,9 @@ public class XDMConfigConstants {
     public static final String xdm_config_path = "xdm.config.path";
     public static final String xdm_config_context_file = "xdm.config.context.file";
     public static final String xdm_config_properties_file = "xdm.config.properties.file";
-	
+
+    public static final String xdm_node_instance = "xdm.node.instance";
+    
     public static final String xdm_spring_context = "xdm.spring.context";
     
     public static final String xdm_schema_name = "xdm.schema.name";
@@ -23,7 +25,8 @@ public class XDMConfigConstants {
     public static final String xdm_schema_store_type = "xdm.schema.store.type";
     public static final String xdm_schema_store_enabled = "xdm.schema.store.enabled";
     public static final String xdm_schema_store_data_path = "xdm.schema.store.data.path";
-    public static final String xdm_schema_population_size = "xdm.schema.population.size";
     public static final String xdm_schema_store_tx_buffer_size = "xdm.schema.store.tx.buffer.size";
+    public static final String xdm_schema_population_size = "xdm.schema.population.size";
+    public static final String xdm_schema_population_buffer_size = "xdm.schema.population.buffer.size";
 
 }

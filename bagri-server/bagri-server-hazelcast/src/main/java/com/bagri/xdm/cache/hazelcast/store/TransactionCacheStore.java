@@ -3,6 +3,7 @@ package com.bagri.xdm.cache.hazelcast.store;
 import static com.bagri.common.config.XDMConfigConstants.xdm_schema_name;
 import static com.bagri.common.config.XDMConfigConstants.xdm_schema_store_data_path;
 import static com.bagri.common.config.XDMConfigConstants.xdm_schema_store_tx_buffer_size;
+import static com.bagri.common.util.FileUtils.buildStoreFileName;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -45,29 +46,17 @@ public class TransactionCacheStore implements MapStore<Long, XDMTransaction>, Ma
     // MapStore instance will be found
     static TransactionCacheStore instance;
     
-    static String getTxLogFile(String dataPath, String nodeNum) {
-		return dataPath + "txlog" + nodeNum + ".xdb";
-    }
-    
 	@Override
 	public void init(HazelcastInstance hazelcastInstance, Properties properties, String mapName) {
 		logger.trace("init.enter; properties: {}", properties);
 		schemaName = properties.getProperty(xdm_schema_name);
 		String dataPath = properties.getProperty(xdm_schema_store_data_path);
-		if (dataPath == null) {
-			dataPath = "";
-		} else {
-			dataPath += "/";
-		}
 		String nodeNum = properties.getProperty("xdm.node.instance");
-		if (nodeNum == null) {
-			nodeNum = "0";
-		}
+		String fileName = buildStoreFileName(dataPath, nodeNum, "txlog");
 		String buffSize = properties.getProperty(xdm_schema_store_tx_buffer_size);
 		if (buffSize != null) {
 			bSize = Integer.parseInt(buffSize);
 		}
-		String fileName = getTxLogFile(dataPath, nodeNum);
 		logger.info("init; opening tx log from file: {}; buffer size: {} tx", fileName, bSize);
 
 		bits = new BitSet(bSize);
