@@ -49,6 +49,7 @@ public class RepositoryImpl extends XDMRepositoryBase implements ApplicationCont
  		}
 	};
 	
+	private String instanceNum;
 	private XDMSchema xdmSchema;
 	private Collection<XDMModule> xdmModules;
 	private Collection<XDMLibrary> xdmLibraries;
@@ -67,7 +68,7 @@ public class RepositoryImpl extends XDMRepositoryBase implements ApplicationCont
 	public HazelcastInstance getHzInstance() {
 		return hzInstance;
 	}
-
+	
     //@Autowired
 	public void setHzInstance(HazelcastInstance hzInstance) {
 		this.hzInstance = hzInstance;

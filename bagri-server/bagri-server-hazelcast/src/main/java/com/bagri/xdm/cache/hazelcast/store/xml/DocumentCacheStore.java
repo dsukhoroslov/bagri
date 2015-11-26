@@ -35,6 +35,7 @@ import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.api.XDMTransactionManagement;
 import com.bagri.xdm.cache.hazelcast.impl.DocumentManagementImpl;
+import com.bagri.xdm.cache.hazelcast.impl.PopulationManagementImpl;
 import com.bagri.xdm.client.common.XDMCacheConstants;
 import com.bagri.xdm.client.xml.XDMStaxParser;
 import com.bagri.xdm.common.XDMDataKey;
@@ -70,6 +71,7 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<XDMDoc
 	//private XDMFactory keyFactory;
     private DocumentManagementImpl docMgr;
     private XDMModelManagement schemaDict;
+    private PopulationManagementImpl popManager;
     private IMap<XDMDocumentKey, String> xmlCache;
     //private IMap<XDMDataKey, XDMElements> xdmCache;
     
@@ -77,6 +79,7 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<XDMDoc
 	public void init(HazelcastInstance hazelcastInstance, Properties properties, String mapName) {
 		logger.trace("init.enter; properties: {}", properties);
 		hzInstance = hazelcastInstance;
+		popManager = (PopulationManagementImpl) hzInstance.getUserContext().get("popManager");
 		//dataPath = (String) properties.get("dataPath");
 		//keyFactory = (XDMFactory) properties.get("keyFactory");
 		docMgr = (DocumentManagementImpl) properties.get("xdmManager");
@@ -122,15 +125,21 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<XDMDoc
 	}
 	
     private XDMDocument loadDocument(XDMDocumentKey docKey) {
-		DocumentDataHolder ddh = docKeys.get(docKey);
+    	XDMDocument doc = popManager.getDocument(docKey.getKey());
+    	DocumentDataHolder ddh = null;
+    	if (doc != null) {
+        	ddh = new DocumentDataHolder(doc.getUri(), doc.getTypeId());
+    	} else {
+    		ddh = docKeys.get(docKey);
+    	}
 		if (ddh != null) {
-			Path path = Paths.get(ddh.uri);
+    		String uri = getDataPath() + "/" + ddh.uri;
+			Path path = Paths.get(uri);
 	    	if (Files.exists(path)) {
-	    		String uri = normalizePath(path);
-	    		path = Paths.get(uri);
-	    		uri = path.toUri().toString();
+	    		//path = Paths.get(uri);
+	    		//uri = path.toUri().toString();
         		try {
-        			String xml = FileUtils.readTextFile(ddh.uri);
+        			String xml = FileUtils.readTextFile(uri);
     	    		XDMParser parser = docMgr.getXdmFactory().newXDMParser(dataFormat, schemaDict);
         			//List<XDMData> data = parser.parse(new File(ddh.uri));
         			List<XDMData> data = parser.parse(xml);         		
@@ -144,14 +153,14 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<XDMDoc
 	        			int docType = fragments.get(0).intValue();
         				ddh.docType = docType;
 						xmlCache.set(docKey, xml);
-	        			XDMDocument doc;
+	        			//XDMDocument doc;
 						// can make a fake population TX with id = 1! 
 	        			if (fragments.size() == 1) {
-	        				doc = new XDMDocument(docKey.getDocumentId(), docKey.getVersion(), uri, docType, TX_INIT, TX_NO,
-	        					new Date(Files.getLastModifiedTime(path).toMillis()), Files.getOwner(path).getName(), def_encoding);
+	        				//doc = new XDMDocument(docKey.getDocumentId(), docKey.getVersion(), ddh.uri, docType, TX_INIT, TX_NO,
+	        				//	new Date(Files.getLastModifiedTime(path).toMillis()), Files.getOwner(path).getName(), def_encoding);
 	        			} else {
-	        				doc = new XDMFragmentedDocument(docKey.getDocumentId(), docKey.getVersion(), uri, docType, TX_INIT, TX_NO,	
-	        					new Date(Files.getLastModifiedTime(path).toMillis()), Files.getOwner(path).getName(), def_encoding);
+	        				doc = new XDMFragmentedDocument(docKey.getDocumentId(), docKey.getVersion(), doc.getUri(), doc.getTypeId(), 
+	        						doc.getTxStart(), doc.getTxFinish(), doc.getCreatedAt(), doc.getCreatedBy(), doc.getEncoding());	
 	        				long[] fa = new long[fragments.size()];
 	        				fa[0] = docKey.getKey();
 	        				for (int i=1; i < fragments.size(); i++) {
@@ -209,8 +218,13 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<XDMDoc
 		}
 		
 		logger.trace("loadAllKeys.enter;");
-	    Set<XDMDocumentKey> docIds = null;
-		Path root = Paths.get(getDataPath());
+		Set<XDMDocumentKey> docIds = popManager.getDocumentKeys();
+		if (docIds != null) {
+			logger.trace("loadAllKeys.exit; returning from PopulationManager: {}", docIds);
+			return docIds;
+		}
+	    
+	    Path root = Paths.get(getDataPath());
 		try {
 			docKeys.clear();
 			List<Path> files = new ArrayList<>();
@@ -321,6 +335,11 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<XDMDoc
 			this.uri = uri;
 		}
 
+		DocumentDataHolder(String uri, int docTYpe) {
+			this.uri = uri;
+			this.docType = docType;
+		}
+		
 		@Override
 		public String toString() {
 			return "DocumentDataHolder [uri=" + uri + ", docType=" + docType + "]";

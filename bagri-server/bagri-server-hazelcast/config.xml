@@ -229,7 +229,7 @@
                 <!--entry name="xdm.schema.password">password</entry-->
                 <entry name="xdm.schema.data.backup.read">false</entry>
                 <entry name="xdm.schema.trans.backup.async">0</entry>
-                <entry name="xdm.schema.store.enabled">false</entry>
+                <entry name="xdm.schema.store.enabled">true</entry>
                 <entry name="xdm.schema.store.tx.buffer.size">2048</entry>
                 <entry name="xdm.schema.thread.pool">16</entry>
                 <entry name="xdm.schema.test.mode">false</entry>
@@ -237,7 +237,7 @@
                 <entry name="xdm.schema.store.type">XML</entry>
                 <entry name="xdm.schema.ports.last">10600</entry>
                 <entry name="xdm.schema.population.size">1</entry>
-                <entry name="xdm.schema.population.buffer.size">4096</entry>
+                <entry name="xdm.schema.population.buffer.size">21000</entry>
                 <entry name="xdm.schema.data.backup.async">1</entry>
                 <entry name="xdm.schema.store.data.path">../../etc/samples/tpox2</entry>
                 <entry name="xdm.schema.dict.backup.sync">0</entry>

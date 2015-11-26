@@ -134,8 +134,22 @@ public class XDMCacheServer {
 
     @SuppressWarnings("unchecked")
 	private static void initServerNode(HazelcastInstance systemInstance, Member local) {
-        //int clusterSize = systemInstance.getCluster().getMembers().size();
-        String[] aSchemas = getMemberSchemas(local);
+
+		//check that new node has unique instance num..
+        String instanceNum = local.getStringAttribute(xdm_node_instance);
+        if (instanceNum == null) {
+        	instanceNum = "0";
+        }
+        
+    	Set<Member> members = systemInstance.getCluster().getMembers();
+    	for (Member member: members) {
+    		if (!local.getUuid().equals(member.getUuid()) && !isAdminRole(member.getStringAttribute(xdm_cluster_node_role))) {
+    			if (instanceNum.equals(member.getStringAttribute(xdm_node_instance))) {
+    				logger.error("The node with instance no '{}' already exists: {}; stopping application.", instanceNum, member.getUuid());
+    				System.exit(1);
+    			}
+    		}
+    	}
         
         Collection<XDMModule> cModules = null; 
         Collection<XDMLibrary> cLibraries = null; 
@@ -155,6 +169,8 @@ public class XDMCacheServer {
 	       		cLibraries = (Collection<XDMLibrary>) cfg.getEntities(XDMLibrary.class);
 	       	}
         }
+
+        String[] aSchemas = getMemberSchemas(local);
         
         for (String name: aSchemas) {
           	String schemaName = name.trim();
@@ -166,18 +182,6 @@ public class XDMCacheServer {
             		initialized = initSchema(systemInstance, local, xSchema);
             		//String store = xSchema.getProperty(xdm_schema_store_enabled);
             		ApplicationContext schemaContext = (ApplicationContext) SpringContextHolder.getContext(schemaName, "appContext");
-            		//if ("true".equalsIgnoreCase(store)) {
-	            	//	HazelcastInstance schemaInstance = Hazelcast.getHazelcastInstanceByName(schemaName);
-		            //	if (schemaInstance != null) {
-		            		//ApplicationContext schemaContext = (ApplicationContext) schemaInstance.getUserContext().get("appContext");
-		            //		PopulationManagementImpl popManager = schemaContext.getBean("popManager", PopulationManagementImpl.class);
-		            		// we need to do it here, for local (just started) node only..
-		            //		popManager.checkPopulation(schemaInstance.getCluster().getMembers().size());
-		            		//logger.debug("initServerNode; started population for schema '{}' here..", schemaName);
-		            //	} else {
-		            //		logger.warn("initServerNode; cannot find HazelcastInstance for schema '{}'!", schemaName);
-		            //	}
-            		//}
             		if (initialized) {
             			// set modules and libraries
             			RepositoryImpl xdmRepo = schemaContext.getBean("xdmRepo", RepositoryImpl.class);
