@@ -98,14 +98,6 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<XDMDoc
 		// do nothing
 	}
     
-	//Map<Long, DocumentDataHolder> getDocumentKeys() {
-	//	return docKeys;
-	//}
-	
-    //public void setDataPath(String dataPath) {
-    //	this.dataPath = dataPath;
-    //}
-    
 	private void processPathFiles(Path root, List<Path> files) throws IOException {
 		String ext = "*." + dataFormat.toLowerCase();
 		try (DirectoryStream<Path> stream = Files.newDirectoryStream(root, ext)) {
@@ -198,7 +190,7 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<XDMDoc
 
 	@Override
 	public Map<XDMDocumentKey, XDMDocument> loadAll(Collection<XDMDocumentKey> keys) {
-		logger.trace("loadAll.enter; keys: {}; Cluster size: {}", keys, hzInstance.getCluster().getMembers().size());
+		logger.debug("loadAll.enter; keys: {}; Cluster size: {}", keys.size(), hzInstance.getCluster().getMembers().size());
 		Map<XDMDocumentKey, XDMDocument> result = new HashMap<XDMDocumentKey, XDMDocument>(keys.size());
 	    for (XDMDocumentKey key: keys) {
 	    	XDMDocument doc = loadDocument(key);
@@ -206,7 +198,7 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<XDMDoc
 	    		result.put(key, doc);
 	    	}
 	    }
-		logger.trace("loadAll.exit; returning: {}", result);
+		logger.debug("loadAll.exit; returning: {} documents", result.size());
 		return result;
 	}
 

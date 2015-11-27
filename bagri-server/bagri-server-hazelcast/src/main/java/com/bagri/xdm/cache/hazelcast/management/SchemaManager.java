@@ -23,6 +23,7 @@ import com.bagri.common.util.PropUtils;
 import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.cache.common.XDMDocumentManagementServer;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaActivator;
+import com.bagri.xdm.cache.hazelcast.task.schema.SchemaPopulator;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaUpdater;
 import com.bagri.xdm.client.common.impl.ModelManagementBase;
 import com.bagri.xdm.system.XDMFragment;
@@ -41,6 +42,7 @@ import com.hazelcast.instance.MemberImpl;
 
 import static com.bagri.common.config.XDMConfigConstants.xdm_schema_store_enabled;
 import static com.bagri.common.config.XDMConfigConstants.xdm_schema_store_type;
+import static com.bagri.xdm.client.common.XDMCacheConstants.PN_XDM_SCHEMA_POOL;
 import static com.bagri.xdm.common.XDMConstants.xs_ns;
 import static com.bagri.xdm.common.XDMConstants.xs_prefix;
 
@@ -267,6 +269,17 @@ public class SchemaManager extends EntityManager<XDMSchema> {
 			nMgr.addSchema(entityName);
 		}
 		// throw ex for wrong node name?
+	}
+	
+	@ManagedOperation(description="Initiates schema population process")
+	public void populateSchema() {
+		if ("NONE".equals(getPersistenceType())) {
+			// throw ex?
+			return;
+		}
+		SchemaPopulator pop = new SchemaPopulator(entityName);
+		HazelcastInstance hzInstance = clientContext.getBean("hzInstance", HazelcastInstance.class);
+		hzInstance.getExecutorService(PN_XDM_SCHEMA_POOL).submitToAllMembers(pop);
 	}
 
 	XDMFragment addFragment(String name, String docType, String path, String description) {

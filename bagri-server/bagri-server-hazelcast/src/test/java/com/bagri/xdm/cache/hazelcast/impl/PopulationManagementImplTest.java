@@ -1,5 +1,6 @@
 package com.bagri.xdm.cache.hazelcast.impl;
 
+import static com.bagri.xdm.cache.hazelcast.util.SpringContextHolder.*;
 import static com.bagri.common.config.XDMConfigConstants.xdm_config_properties_file;
 import static com.bagri.common.config.XDMConfigConstants.xdm_node_instance;
 import static com.bagri.common.config.XDMConfigConstants.xdm_schema_store_data_path;
@@ -17,7 +18,6 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.bagri.common.util.PropUtils;
 import com.bagri.xdm.api.test.XDMManagementTest;
-import com.bagri.xdm.cache.hazelcast.util.SpringContextHolder;
 import com.bagri.xdm.system.XDMSchema;
 
 public class PopulationManagementImplTest extends XDMManagementTest {
@@ -55,7 +55,7 @@ public class PopulationManagementImplTest extends XDMManagementTest {
 			Properties props = PropUtils.propsFromFile("src/test/resources/store.properties");
 			schema.setProperties(props);
 			xdmRepo.setSchema(schema);
-			SpringContextHolder.setContext(schema.getName(), "appContext", context);
+			setContext(schema.getName(), schema_context, context);
 			((TransactionManagementImpl) xdmRepo.getTxManagement()).adjustTxCounter();
     		popManager = (PopulationManagementImpl) xdmRepo.getHzInstance().getUserContext().get("popManager");
     		popManager.checkPopulation(1);

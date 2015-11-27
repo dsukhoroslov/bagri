@@ -1,21 +1,14 @@
 package com.bagri.xdm.cache.hazelcast.task.schema;
 
 import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_DenitSchemaTask;
-import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.factoryId;
+import static com.bagri.xdm.cache.hazelcast.util.SpringContextHolder.*;
 
-import java.io.IOException;
 import java.util.concurrent.Callable;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 
-import com.bagri.xdm.cache.hazelcast.util.SpringContextHolder;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.nio.ObjectDataInput;
-import com.hazelcast.nio.ObjectDataOutput;
-import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 import com.hazelcast.spring.context.SpringAware;
 
 @SpringAware
@@ -38,8 +31,7 @@ public class SchemaDenitiator extends SchemaProcessingTask implements Callable<B
 		// get hzInstance and close it...
 		HazelcastInstance hz = Hazelcast.getHazelcastInstanceByName(schemaName);
 		if (hz != null) {
-			ConfigurableApplicationContext ctx = (ConfigurableApplicationContext) 
-					SpringContextHolder.getContext(schemaName, "appContext");
+			ConfigurableApplicationContext ctx = (ConfigurableApplicationContext) getContext(schemaName, schema_context);
 			ctx.close();
 			result = true;
 		}

@@ -14,16 +14,15 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.env.PropertySource;
 
 import static com.bagri.common.config.XDMConfigConstants.*;
+import static com.bagri.xdm.cache.hazelcast.util.SpringContextHolder.*;
 import static com.bagri.xdm.client.common.XDMCacheConstants.*;
 
 import com.bagri.xdm.cache.hazelcast.store.xml.DocumentCacheStore;
 import com.bagri.xdm.cache.hazelcast.store.xml.XsdCacheStore;
-import com.bagri.xdm.cache.hazelcast.util.SpringContextHolder;
 import com.bagri.xdm.cache.store.DataStore;
 import com.hazelcast.core.MapLoader;
 import com.hazelcast.core.MapStore;
 import com.hazelcast.core.MapStoreFactory;
-//import com.hazelcast.spring.mongodb.MongoMapStore;
 
 public class XDMMapStoreFactory implements ApplicationContextAware, MapStoreFactory {
 	
@@ -84,7 +83,7 @@ public class XDMMapStoreFactory implements ApplicationContextAware, MapStoreFact
 					// deadlocks here
 					//HazelcastInstance hz = parentCtx.getBean("hzInstance", HazelcastInstance.class);
 		    		//hz.getUserContext().put("storeContext", ctx);
-					SpringContextHolder.setAbsentContext(schemaName, "storeContext", ctx);
+					setAbsentContext(schemaName, store_context, ctx);
 					
 					if (st_mongo.equals(type)) {
 						if (CN_XDM_ELEMENT.equals(mapName)) {

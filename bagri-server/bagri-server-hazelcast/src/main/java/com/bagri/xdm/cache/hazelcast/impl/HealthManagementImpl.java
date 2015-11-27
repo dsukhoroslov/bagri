@@ -98,7 +98,7 @@ public class HealthManagementImpl implements MessageListener<XDMCounter>, Partit
 
 	@Override
 	public void partitionLost(PartitionLostEvent event) {
-		logger.info("partitionLost; event: {}", event); 
+		logger.debug("partitionLost; event: {}", event); 
 		checkState();
 	}
 	
@@ -108,6 +108,12 @@ public class HealthManagementImpl implements MessageListener<XDMCounter>, Partit
 		hTopic.publish(XDMHealthState.good);
 	}
 
+	public void initState(int docActive, int docInactive) {
+		cntActive = docActive;
+		cntInactive = docInactive;
+		checkState();
+	}
+	
 /*		
 	@Override
 	public void checkClusterState() throws XDMException {

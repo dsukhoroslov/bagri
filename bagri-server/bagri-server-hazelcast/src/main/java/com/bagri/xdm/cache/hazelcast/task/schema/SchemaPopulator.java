@@ -1,22 +1,19 @@
 package com.bagri.xdm.cache.hazelcast.task.schema;
 
+import static com.bagri.xdm.cache.hazelcast.util.SpringContextHolder.*;
 import static com.bagri.xdm.client.common.XDMCacheConstants.CN_XDM_DOCUMENT;
 import static com.bagri.xdm.client.common.XDMCacheConstants.CN_XDM_TRANSACTION;
 import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_PopulateSchemaTask;
 
-import java.util.Iterator;
 import java.util.Properties;
-import java.util.Set;
 import java.util.concurrent.Callable;
 
 import org.springframework.context.ApplicationContext;
 
-import com.bagri.xdm.api.XDMDocumentManagement;
 import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.cache.hazelcast.impl.DocumentManagementImpl;
 import com.bagri.xdm.cache.hazelcast.impl.TransactionManagementImpl;
 import com.bagri.xdm.cache.hazelcast.impl.XDMFactoryImpl;
-import com.bagri.xdm.cache.hazelcast.util.SpringContextHolder;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMTransaction;
 import com.hazelcast.core.Hazelcast;
@@ -61,7 +58,7 @@ public class SchemaPopulator extends SchemaProcessingTask implements Callable<Bo
 
     	logger.debug("populateSchema.enter; HZ instance: {}", hz);
 
-		ApplicationContext schemaCtx = (ApplicationContext) SpringContextHolder.getContext(schemaName, "appContext");
+		ApplicationContext schemaCtx = (ApplicationContext) getContext(schemaName, schema_context);
 		//if (schemaCtx == null) {
 		//	schemaCtx = (ApplicationContext) hz.getUserContext().get("appContext");
 		//}
@@ -70,7 +67,7 @@ public class SchemaPopulator extends SchemaProcessingTask implements Callable<Bo
 			return false;
 		}
 
-		ApplicationContext storeCtx = (ApplicationContext) SpringContextHolder.getContext(schemaName, "storeContext");
+		ApplicationContext storeCtx = (ApplicationContext) getContext(schemaName, store_context);
 		if (storeCtx == null) {
 			// schema configured with no persistent store
 	    	logger.debug("populateSchema.exit; No persistent store configured");

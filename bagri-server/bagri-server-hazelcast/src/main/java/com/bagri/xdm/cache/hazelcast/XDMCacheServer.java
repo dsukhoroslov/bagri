@@ -2,6 +2,7 @@ package com.bagri.xdm.cache.hazelcast;
 
 import static com.bagri.common.config.XDMConfigConstants.*;
 import static com.bagri.xdm.cache.hazelcast.util.HazelcastUtils.getMemberSchemas;
+import static com.bagri.xdm.cache.hazelcast.util.SpringContextHolder.*;
 import static com.bagri.xdm.client.common.XDMCacheConstants.PN_XDM_SYSTEM_POOL;
 
 import java.io.IOException;
@@ -40,7 +41,6 @@ import com.bagri.xdm.cache.hazelcast.security.BagriJMXAuthenticator;
 import com.bagri.xdm.cache.hazelcast.store.system.ModuleCacheStore;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaAdministrator;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaInitiator;
-import com.bagri.xdm.cache.hazelcast.util.SpringContextHolder;
 import com.bagri.xdm.system.XDMLibrary;
 import com.bagri.xdm.system.XDMModule;
 import com.bagri.xdm.system.XDMSchema;
@@ -181,7 +181,7 @@ public class XDMCacheServer {
             	if (xSchema != null) {
             		initialized = initSchema(systemInstance, local, xSchema);
             		//String store = xSchema.getProperty(xdm_schema_store_enabled);
-            		ApplicationContext schemaContext = (ApplicationContext) SpringContextHolder.getContext(schemaName, "appContext");
+            		ApplicationContext schemaContext = (ApplicationContext) getContext(schemaName, schema_context);
             		if (initialized) {
             			// set modules and libraries
             			RepositoryImpl xdmRepo = schemaContext.getBean("xdmRepo", RepositoryImpl.class);

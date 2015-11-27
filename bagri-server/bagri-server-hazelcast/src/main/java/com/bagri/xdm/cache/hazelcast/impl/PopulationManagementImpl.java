@@ -1,9 +1,10 @@
 package com.bagri.xdm.cache.hazelcast.impl;
 
-import static com.bagri.xdm.common.XDMDocumentKey.*;
-import static com.bagri.xdm.client.common.XDMCacheConstants.*;
 import static com.bagri.common.config.XDMConfigConstants.*;
 import static com.bagri.common.util.FileUtils.buildStoreFileName;
+import static com.bagri.xdm.common.XDMDocumentKey.*;
+import static com.bagri.xdm.client.common.XDMCacheConstants.*;
+import static com.bagri.xdm.cache.hazelcast.util.SpringContextHolder.*;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -121,6 +122,7 @@ public class PopulationManagementImpl implements ManagedService,
 
 	public void checkPopulation(int currentSize) {
 		logger.info("checkPopulation; populationSize: {}; currentSize: {}", populationSize, currentSize);
+		readCatalog(catalog);
     	if (populationSize == currentSize && xddCache.size() == 0) {
     		SchemaPopulator pop = new SchemaPopulator(schemaName);
     		nodeEngine.getHazelcastInstance().getExecutorService(PN_XDM_SCHEMA_POOL).submitToMember(pop, nodeEngine.getLocalMember());
@@ -158,7 +160,7 @@ public class PopulationManagementImpl implements ManagedService,
 	
 	private XDMFactory getXDMFactory() {
 		if (xFactory == null) {
-			ApplicationContext schemaCtx = (ApplicationContext) SpringContextHolder.getContext(schemaName, "appContext");
+			ApplicationContext schemaCtx = (ApplicationContext) getContext(schemaName, schema_context);
 			xFactory = schemaCtx.getBean("xdmFactory", XDMFactory.class);
 		}
 		return xFactory;
@@ -175,7 +177,7 @@ public class PopulationManagementImpl implements ManagedService,
 			xtxCache = nodeEngine.getHazelcastInstance().getMap(CN_XDM_TRANSACTION);
 			xddCache = nodeEngine.getHazelcastInstance().getMap(CN_XDM_DOCUMENT);
 			cTopic = nodeEngine.getHazelcastInstance().getTopic(TPN_XDM_COUNTERS);
-			readCatalog(catalog);
+			//readCatalog(catalog);
 			// too early
 			//checkPopulation(nodeEngine.getClusterService().getSize());
 		} else if (LifecycleState.SHUTTING_DOWN == event.getState()) {
@@ -304,12 +306,17 @@ public class PopulationManagementImpl implements ManagedService,
 	}
 
 	private void readCatalog(String fileName) {
+		if (buff != null) {
+			logger.info("readCatalog; the doc buffer has been already initialized");
+			return;
+		}
+		
 		int size = bSize*szDoc; 
 		try {
 			boolean newFile = true;
 			raf = new RandomAccessFile(fileName, "rw");
 			if (raf.length() > 0) {
-				logger.info("init; opened catalog with length: {}", raf.length());
+				logger.info("readCatalog; opened catalog with length: {}", raf.length());
 				if (raf.length() > size) {
 					size += (int) raf.length();
 				}
@@ -322,16 +329,21 @@ public class PopulationManagementImpl implements ManagedService,
 			if (newFile) {
 				buff.position(szInt);
 				documents = new HashMap<>();
-				logger.info("readCatalog; an empty doc buffer initialized; going to load documents from cache");
+				logger.info("readCatalog; an empty doc buffer initialized, going to load documents from cache");
 				actCount = loadDocuments();
+				docCount = xddCache.size();
 			} else {
 				docCount = buff.getInt();
 				documents = new HashMap<>(docCount);
-				logger.info("readCatalog; doc buffer initialized; doc count: {}; going to read documents from file", docCount);
+				logger.info("readCatalog; doc buffer initialized, going to read {} documents from file", docCount);
 				actCount = readDocuments(docCount);
-				cTopic.publish(new XDMCounter(true, actCount, docCount - actCount, 0));
 			}
-			logger.info("readCatalog; documents loaded; active count: {}", actCount);
+			// only local HM should be notified!
+			//cTopic.publish(new XDMCounter(true, actCount, docCount - actCount, 0));
+			ApplicationContext schemaCtx = (ApplicationContext) getContext(schemaName, schema_context);
+			HealthManagementImpl hMgr = schemaCtx.getBean(HealthManagementImpl.class);
+			hMgr.initState(actCount, docCount - actCount);
+			logger.info("readCatalog; active documents: {}, out of total: {}", actCount, docCount);
 		} catch (IOException ex) {
 			logger.error("init.error", ex);
 			throw new RuntimeException("Cannot read catalog", ex);

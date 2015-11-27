@@ -3,6 +3,7 @@ package com.bagri.xdm.cache.hazelcast.task.schema;
 import static com.bagri.common.config.XDMConfigConstants.xdm_schema_name;
 import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_InitSchemaTask;
 import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.factoryId;
+import static com.bagri.xdm.cache.hazelcast.util.SpringContextHolder.*;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -15,7 +16,6 @@ import org.springframework.core.env.PropertiesPropertySource;
 
 import com.bagri.xdm.cache.hazelcast.impl.PopulationManagementImpl;
 import com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl;
-import com.bagri.xdm.cache.hazelcast.util.SpringContextHolder;
 import com.bagri.xdm.system.XDMSchema;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
@@ -63,7 +63,7 @@ public class SchemaInitiator implements Callable<Boolean>, IdentifiedDataSeriali
 
     		hz = ctx.getBean("hzInstance", HazelcastInstance.class);
     		//hz.getConfig().getSecurityConfig().setEnabled(true);
-			SpringContextHolder.setContext(schemaName, "appContext", ctx);
+			setContext(schemaName, schema_context, ctx);
 			
 			RepositoryImpl xdmRepo = ctx.getBean("xdmRepo", RepositoryImpl.class);
 			xdmRepo.setSchema(schema);
