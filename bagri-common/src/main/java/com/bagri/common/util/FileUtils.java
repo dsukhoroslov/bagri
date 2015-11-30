@@ -94,4 +94,20 @@ public class FileUtils {
 		return dataPath + storeName + nodeNum + ".xdb";
 	}
 	
+	public static String buildSectionFileName(String dataPath, String nodeNum, String storeName, int section) {
+		if (dataPath == null) {
+			dataPath = "";
+		} else {
+			dataPath += "/";
+		}
+		if (nodeNum == null) {
+			nodeNum = "0";
+		}
+		return dataPath + storeName + nodeNum + "_" + section + ".xdb";
+	}
+
+	public static String getStoreFileMask(String nodeNum, String storeName) {
+		return storeName + nodeNum + "_[0-9][0-9].xdb"; 
+	}
+	
 }

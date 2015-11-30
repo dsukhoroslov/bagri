@@ -22,6 +22,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 
+import com.bagri.xdm.cache.hazelcast.store.DocumentMemoryStore;
+import com.bagri.xdm.cache.hazelcast.store.MemoryMappedStore;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaPopulator;
 import com.bagri.xdm.cache.hazelcast.util.SpringContextHolder;
 import com.bagri.xdm.common.XDMDocumentKey;
@@ -73,15 +75,10 @@ public class PopulationManagementImpl implements ManagedService,
     private XDMFactory xFactory;
 	private ITopic<XDMCounter> cTopic;
 	private IMap<Long, XDMTransaction> xtxCache;
-	private IMap<XDMDocumentKey, XDMDocument> xddCache;
+	//private IMap<XDMDocumentKey, XDMDocument> xddCache;
+	private IMap xddCache;
+	private DocumentMemoryStore docStore;
 
-	private String catalog;
-    private int bSize = 2048;
-    private FileChannel fc;
-	private RandomAccessFile raf;
-    private MappedByteBuffer buff;
-    private Map<Long, Long> documents;
-    
 	@Override
 	public void init(NodeEngine nodeEngine, Properties properties) {
 		logger.info("init; got properties: {}", properties); 
@@ -90,12 +87,13 @@ public class PopulationManagementImpl implements ManagedService,
 		this.populationSize = Integer.parseInt(properties.getProperty(xdm_schema_population_size));
 		String dataPath = properties.getProperty(xdm_schema_store_data_path);
 		String nodeNum = properties.getProperty(xdm_node_instance);
-		catalog = buildStoreFileName(dataPath, nodeNum, "catalog");
-		String buffSize = properties.getProperty(xdm_schema_population_buffer_size);
-		if (buffSize != null) {
-			this.bSize = Integer.parseInt(buffSize);
+		int buffSize = 2048*100;
+		String bSize = properties.getProperty(xdm_schema_population_buffer_size);
+		if (bSize != null) {
+			buffSize = Integer.parseInt(bSize);
 		}
-		logger.info("init; will open catalog from file: {}; buffer size: {} docs", catalog, bSize);
+		logger.info("init; will open doc store from path: {}; instance: {}; buffer size: {} docs", dataPath, nodeNum, buffSize);
+		docStore = new DocumentMemoryStore(dataPath, nodeNum, buffSize);
 		
 		nodeEngine.getPartitionService().addMigrationListener(this);
 		nodeEngine.getHazelcastInstance().getCluster().addMembershipListener(this);
@@ -111,18 +109,12 @@ public class PopulationManagementImpl implements ManagedService,
 	@Override
 	public void shutdown(boolean terminate) {
 		logger.info("shutdown; terminate: {}", terminate);
-		try {
-			//buff.compact();
-			fc.close();
-			raf.close();
-		} catch (IOException ex) {
-			logger.error("shutdown.error", ex);
-		}
+		docStore.close();
 	}
 
 	public void checkPopulation(int currentSize) {
 		logger.info("checkPopulation; populationSize: {}; currentSize: {}", populationSize, currentSize);
-		readCatalog(catalog);
+		docStore.init(xddCache);
     	if (populationSize == currentSize && xddCache.size() == 0) {
     		SchemaPopulator pop = new SchemaPopulator(schemaName);
     		nodeEngine.getHazelcastInstance().getExecutorService(PN_XDM_SCHEMA_POOL).submitToMember(pop, nodeEngine.getLocalMember());
@@ -131,13 +123,13 @@ public class PopulationManagementImpl implements ManagedService,
     }
 	
 	public int getDocumentCount() {
-		return documents.size();
+		return 0; //documents.size();
 	}
 	
 	public Set<XDMDocumentKey> getDocumentKeys() {
 		Set<XDMDocumentKey> result = new HashSet<>();
 		XDMFactory factory = getXDMFactory();
-		for (Long docKey: documents.keySet()) {
+		for (Long docKey: docStore.getEntryKeys()) {
 			XDMDocumentKey key = factory.newXDMDocumentKey(docKey);
 			result.add(key);
 		}
@@ -146,16 +138,7 @@ public class PopulationManagementImpl implements ManagedService,
 	}
 	
 	public XDMDocument getDocument(Long docKey) {
-		Long pos = documents.get(docKey);
-		XDMDocument result = null;
-		if (pos != null) {
-			synchronized (buff) {
-				buff.position(pos.intValue());
-				result = readDocument();
-				//buff.reset();
-			}
-		}
-		return result;
+		return docStore.getEntry(docKey);
 	}
 	
 	private XDMFactory getXDMFactory() {
@@ -246,48 +229,15 @@ public class PopulationManagementImpl implements ManagedService,
 	@Override
 	public void entryAdded(EntryEvent<XDMDocumentKey, XDMDocument> event) {
 		logger.trace("entryAdded.enter; event: {}", event);
-		Long key = event.getKey().getKey();
-		if (documents.containsKey(key)) {
-			logger.debug("entryAdded; document already exists: {}", event.getKey());
-		} else {
-			synchronized (buff) {
-				long pos = buff.position();
-				documents.put(key, pos);
-				buff.putInt(0, documents.size());
-				buff.reset();
-				writeDocument(event.getValue());
-				buff.mark();
-			}
-		}
-		logger.trace("entryAdded.exit; documents: {}", documents.size());
+		boolean added = docStore.putEntry(event.getKey().getKey(), event.getValue(), false);
+		logger.trace("entryAdded.exit; added: {}", added);
 	}
 
 	@Override
 	public void entryUpdated(EntryEvent<XDMDocumentKey, XDMDocument> event) {
-		logger.trace("entryUpdated; event: {}", event);
-		Long pos = documents.get(event.getKey().getKey());
-		if (pos != null) {
-			buff.position(pos.intValue());
-			long txFinish = event.getValue().getTxFinish(); 
-			if (txFinish > 0) {
-				buff.putLong(txFinish);
-			} else {
-				// just mark the doc as inactive
-				synchronized (buff) {
-					buff.putLong(-1);
-					buff.reset();
-				//entryAdded(event);
-					long pos2 = buff.position();
-					documents.put(event.getKey().getKey(), pos2);
-					buff.putInt(0, documents.size());
-					buff.reset();
-					writeDocument(event.getValue());
-					buff.mark();
-				}
-			}
-		} else {
-			logger.info("entryUpdated; unknown document: {}", event.getKey());
-		}
+		logger.trace("entryUpdated.enter; event: {}", event);
+		boolean updated = docStore.putEntry(event.getKey().getKey(), event.getValue(), true);
+		logger.trace("entryUpdated.exit; updated: {}", updated);
 	}
 
 	@Override
@@ -303,136 +253,6 @@ public class PopulationManagementImpl implements ManagedService,
 	@Override
 	public void entryMerged(EntryEvent<XDMDocumentKey, XDMDocument> event) {
 		logger.trace("entryMerged; event: {}", event);
-	}
-
-	private void readCatalog(String fileName) {
-		if (buff != null) {
-			logger.info("readCatalog; the doc buffer has been already initialized");
-			return;
-		}
-		
-		int size = bSize*szDoc; 
-		try {
-			boolean newFile = true;
-			raf = new RandomAccessFile(fileName, "rw");
-			if (raf.length() > 0) {
-				logger.info("readCatalog; opened catalog with length: {}", raf.length());
-				if (raf.length() > size) {
-					size += (int) raf.length();
-				}
-				newFile = false;
-			}
-		    int docCount = 0;
-		    int actCount = 0;
-			fc = raf.getChannel();
-			buff = fc.map(MapMode.READ_WRITE, 0, size);
-			if (newFile) {
-				buff.position(szInt);
-				documents = new HashMap<>();
-				logger.info("readCatalog; an empty doc buffer initialized, going to load documents from cache");
-				actCount = loadDocuments();
-				docCount = xddCache.size();
-			} else {
-				docCount = buff.getInt();
-				documents = new HashMap<>(docCount);
-				logger.info("readCatalog; doc buffer initialized, going to read {} documents from file", docCount);
-				actCount = readDocuments(docCount);
-			}
-			// only local HM should be notified!
-			//cTopic.publish(new XDMCounter(true, actCount, docCount - actCount, 0));
-			ApplicationContext schemaCtx = (ApplicationContext) getContext(schemaName, schema_context);
-			HealthManagementImpl hMgr = schemaCtx.getBean(HealthManagementImpl.class);
-			hMgr.initState(actCount, docCount - actCount);
-			logger.info("readCatalog; active documents: {}, out of total: {}", actCount, docCount);
-		} catch (IOException ex) {
-			logger.error("init.error", ex);
-			throw new RuntimeException("Cannot read catalog", ex);
-		}
-	}
-
-	private int readDocuments(int docCount) {
-		logger.trace("readDocuments.enter; docCount: {}", docCount);
-		int idx = 0;
-		int actCount = 0;
-		documents.clear();
-		//buff.position(szInt);
-		while (idx < docCount) {
-			int pos = buff.position();
-			XDMDocument xdoc = readDocument();
-			documents.put(xdoc.getDocumentKey(), (long) pos);
-			idx++;
-			if (xdoc.getTxFinish() == 0) {
-				actCount++;
-			}
-		}
-		//buff.position(nextBit()); 
-		buff.mark();
-		logger.trace("readDocuments.exit; active docs: {}; documents: {}", actCount, documents);
-		return actCount;
-	}
-	
-	private int loadDocuments() {
-		logger.trace("loadDocuments.enter; docCount: {}", xddCache.size());
-		int actCount = 0;
-		synchronized (buff) {
-			for (XDMDocument xdoc: xddCache.values()) {
-				long pos = buff.position();
-				documents.put(xdoc.getDocumentKey(), pos);
-				writeDocument(xdoc);
-				if (xdoc.getTxFinish() == 0) {
-					actCount++;
-				}
-			}
-			buff.putInt(0, documents.size());
-			buff.mark();
-		}
-		logger.trace("loadDocuments.exit; active docs: {}; documents: {}", actCount, documents);
-		return actCount;
-	}
-	
-	private XDMDocument readDocument() {
-		long txFinish = buff.getLong();
-		long docKey = buff.getLong();
-		String uri = getString(buff);
-		int typeId = buff.getInt();
-		long txStart = buff.getLong();
-		Date createdAt = new Date(buff.getLong());
-		String createdBy = getString(buff);
-		String encoding = getString(buff);
-		long documentId = toDocumentId(docKey);
-		int version = toVersion(docKey);
-		// collections
-		return new XDMDocument(documentId, version, uri, typeId, txStart, txFinish, createdAt, createdBy, encoding);
-	}
-
-	private void writeDocument(XDMDocument xdoc) {
-		if (buff.remaining() < szDoc) {
-			// extend it somehow...
-			logger.info("writeDocument; remaining: {}, capacity: {}, limit: {}", buff.remaining(), buff.capacity(), buff.limit());
-			//buff.
-		}
-		buff.putLong(xdoc.getTxFinish());
-		buff.putLong(xdoc.getDocumentKey());
-		putString(buff, xdoc.getUri());
-		buff.putInt(xdoc.getTypeId());
-		buff.putLong(xdoc.getTxStart());
-		buff.putLong(xdoc.getCreatedAt().getTime());
-		putString(buff, xdoc.getCreatedBy());
-		putString(buff, xdoc.getEncoding());
-		// collections
-	}
-	
-	private String getString(MappedByteBuffer buff) {
-		int len = buff.getInt();
-		byte[] str = new byte[len];
-		buff.get(str);
-		return new String(str);
-	}
-
-	private void putString(MappedByteBuffer buff, String val) {
-		byte[] str = val.getBytes();
-		buff.putInt(str.length);
-		buff.put(str);
 	}
 
 }
