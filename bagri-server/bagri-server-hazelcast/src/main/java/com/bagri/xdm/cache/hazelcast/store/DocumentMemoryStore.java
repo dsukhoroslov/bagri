@@ -27,11 +27,6 @@ public class DocumentMemoryStore extends MemoryMappedStore<Long, XDMDocument> {
 	@Override
 	public void init(IMap<Long, XDMDocument> cache) {
 
-		if (initialized) {
-			logger.info("init; the document store has been already initialized");
-			return;
-		}
-
 	    int docCount = 0;
 	    int actCount = 0;
 		boolean found = false;
@@ -79,21 +74,27 @@ public class DocumentMemoryStore extends MemoryMappedStore<Long, XDMDocument> {
 		}
 		logger.info("init; active documents: {}, out of total: {}", actCount, docCount);
 		initialized = true;
-
-		// only local HM should be notified!
-		//cTopic.publish(new XDMCounter(true, actCount, docCount - actCount, 0));
-		//ApplicationContext schemaCtx = (ApplicationContext) getContext(schemaName, schema_context);
-		//HealthManagementImpl hMgr = schemaCtx.getBean(HealthManagementImpl.class);
-		//hMgr.initState(actCount, docCount - actCount);
 	}
-
+	
+	public boolean isActivated() {
+		return initialized;
+	}
+	
+	public int getActiveEntryCount() {
+		return cntActive.get();
+	}
+	
+	public int getFullEntryCount() {
+		return pointers.size();
+	}
+	
 	@Override
-	public Long getEntryKey(XDMDocument entry) {
+	protected Long getEntryKey(XDMDocument entry) {
 		return entry.getDocumentKey();
 	}
 
 	@Override
-	public int getEntrySize(XDMDocument entry) {
+	protected int getEntrySize(XDMDocument entry) {
 		return 4*8 // 4 long's 
 			+ 4 // 1 int
 			+ entry.getUri().getBytes().length + 4 // uri size
@@ -102,12 +103,12 @@ public class DocumentMemoryStore extends MemoryMappedStore<Long, XDMDocument> {
 	}
 	
 	@Override
-	public boolean isEntryActive(XDMDocument entry) {
+	protected boolean isEntryActive(XDMDocument entry) {
 		return entry.getTxFinish() == XDMTransactionManagement.TX_NO;
 	}
 
 	@Override
-	public XDMDocument readEntry(MappedByteBuffer buff) {
+	protected XDMDocument readEntry(MappedByteBuffer buff) {
 		long txFinish = buff.getLong();
 		long docKey = buff.getLong();
 		String uri = getString(buff);
@@ -123,11 +124,11 @@ public class DocumentMemoryStore extends MemoryMappedStore<Long, XDMDocument> {
 	}
 
 	@Override
-	public void writeEntry(MappedByteBuffer buff, XDMDocument entry) {
-		if (buff.remaining() < getEntrySize(entry)) {
+	protected void writeEntry(MappedByteBuffer buff, XDMDocument entry) {
+		//if (buff.remaining() < getEntrySize(entry)) {
 			//logger.info("writeDocument; remaining: {}, capacity: {}, limit: {}", buff.remaining(), buff.capacity(), buff.limit());
 			//buff.
-		}
+		//}
 		buff.putLong(entry.getTxFinish());
 		buff.putLong(entry.getDocumentKey());
 		putString(buff, entry.getUri());
@@ -140,22 +141,18 @@ public class DocumentMemoryStore extends MemoryMappedStore<Long, XDMDocument> {
 	}
 
 	@Override
+	protected void deactivateEntry(MappedByteBuffer buff, XDMDocument entry) {
+		if (entry.getTxFinish() > XDMTransactionManagement.TX_NO) {
+			buff.putLong(entry.getTxFinish());
+		} else {
+			buff.putLong(-1); // make some const for this..
+		}
+	}
+	
+	@Override
 	protected String getBufferName(int section) {
 		return buildSectionFileName(dataPath, nodeNum, "catalog", section);
 	}
-	
+
 }
 
-
-//public XDMDocument getDocument(Long docKey) {
-//	Long pos = documents.get(docKey);
-//	XDMDocument result = null;
-//	if (pos != null) {
-//		synchronized (buff) {
-//			buff.position(pos.intValue());
-//			result = readDocument();
-			//buff.reset();
-//		}
-//	}
-//	return result;
-//}

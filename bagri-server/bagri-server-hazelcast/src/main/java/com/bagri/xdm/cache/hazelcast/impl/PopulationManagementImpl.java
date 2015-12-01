@@ -1,20 +1,10 @@
 package com.bagri.xdm.cache.hazelcast.impl;
 
 import static com.bagri.common.config.XDMConfigConstants.*;
-import static com.bagri.common.util.FileUtils.buildStoreFileName;
-import static com.bagri.xdm.common.XDMDocumentKey.*;
 import static com.bagri.xdm.client.common.XDMCacheConstants.*;
 import static com.bagri.xdm.cache.hazelcast.util.SpringContextHolder.*;
 
-import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.nio.MappedByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileChannel.MapMode;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -23,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 
 import com.bagri.xdm.cache.hazelcast.store.DocumentMemoryStore;
-import com.bagri.xdm.cache.hazelcast.store.MemoryMappedStore;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaPopulator;
 import com.bagri.xdm.cache.hazelcast.util.SpringContextHolder;
 import com.bagri.xdm.common.XDMDocumentKey;
@@ -65,8 +54,6 @@ public class PopulationManagementImpl implements ManagedService,
 	EntryMergedListener<XDMDocumentKey, XDMDocument>  { 
 
     private static final transient Logger logger = LoggerFactory.getLogger(PopulationManagementImpl.class);
-	private static final int szInt = 4;
-	private static final int szDoc = 100; // document record size is raughly 100 bytes
 
     private String schemaName;
     private int populationSize;
@@ -114,7 +101,7 @@ public class PopulationManagementImpl implements ManagedService,
 
 	public void checkPopulation(int currentSize) {
 		logger.info("checkPopulation; populationSize: {}; currentSize: {}", populationSize, currentSize);
-		docStore.init(xddCache);
+		activateDocStore();
     	if (populationSize == currentSize && xddCache.size() == 0) {
     		SchemaPopulator pop = new SchemaPopulator(schemaName);
     		nodeEngine.getHazelcastInstance().getExecutorService(PN_XDM_SCHEMA_POOL).submitToMember(pop, nodeEngine.getLocalMember());
@@ -122,8 +109,12 @@ public class PopulationManagementImpl implements ManagedService,
 		xddCache.addEntryListener(this, true);
     }
 	
+	public XDMDocument getDocument(Long docKey) {
+		return docStore.getEntry(docKey);
+	}
+	
 	public int getDocumentCount() {
-		return 0; //documents.size();
+		return docStore.getFullEntryCount();
 	}
 	
 	public Set<XDMDocumentKey> getDocumentKeys() {
@@ -137,8 +128,22 @@ public class PopulationManagementImpl implements ManagedService,
 		return result;
 	}
 	
-	public XDMDocument getDocument(Long docKey) {
-		return docStore.getEntry(docKey);
+	private void activateDocStore() {
+
+		if (docStore.isActivated()) {
+			logger.info("activateDocStore; the document store has been already activated");
+			return;
+		}
+
+		docStore.init(xddCache);
+
+		// only local HM should be notified!
+		//cTopic.publish(new XDMCounter(true, actCount, docCount - actCount, 0));
+		ApplicationContext schemaCtx = (ApplicationContext) getContext(schemaName, schema_context);
+		HealthManagementImpl hMgr = schemaCtx.getBean(HealthManagementImpl.class);
+		int actCount = docStore.getActiveEntryCount();
+		int docCount = docStore.getFullEntryCount();
+		hMgr.initState(actCount, docCount - actCount);
 	}
 	
 	private XDMFactory getXDMFactory() {
