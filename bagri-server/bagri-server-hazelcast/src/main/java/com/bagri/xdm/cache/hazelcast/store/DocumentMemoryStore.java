@@ -2,15 +2,19 @@ package com.bagri.xdm.cache.hazelcast.store;
 
 import static com.bagri.xdm.common.XDMDocumentKey.*;
 import static com.bagri.common.util.FileUtils.getStoreFileMask;
+import static com.bagri.common.util.FileUtils.buildSectionFileName;
 
 import java.io.IOException;
 import java.nio.MappedByteBuffer;
 import java.nio.file.DirectoryStream;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.util.Date;
 
+import com.bagri.xdm.api.XDMTransactionManagement;
 import com.bagri.xdm.domain.XDMDocument;
 import com.hazelcast.core.IMap;
 
@@ -33,25 +37,38 @@ public class DocumentMemoryStore extends MemoryMappedStore<Long, XDMDocument> {
 		boolean found = false;
 		Path root = Paths.get(dataPath);
 		String mask = getStoreFileMask(nodeNum, "catalog");
+		final PathMatcher matcher = FileSystems.getDefault().getPathMatcher(mask);
+		DirectoryStream.Filter<Path> filter = new DirectoryStream.Filter<Path>() {
+			@Override
+			public boolean accept(Path path) throws IOException {
+				return matcher.matches(path.getFileName());
+			}
+		};
 
-		try (DirectoryStream<Path> stream = Files.newDirectoryStream(root, mask)) {
+		try (DirectoryStream<Path> stream = Files.newDirectoryStream(root, filter)) {
 		    for (Path path: stream) {
-		        if (Files.isDirectory(path)) {
-		            // don't go deeper
-		        } else {
-		    		//logger.trace("processPathFiles; path: {}; uri: {}", path.toString(), path.toUri().toString());
-		        	String fileName = path.toString();
-		        	int section = 0; //get it from fileName
-		        	FileBuffer fb = initBuffer(fileName, section);
-					int count = fb.buff.getInt(0);
-					logger.info("init; buffer {} initialized, going to read {} documents from file: {}", section, count, fileName);
-					actCount = readEntries(fb);
-					docCount += count;
-		        	found = true;
-		        }
+	    		//logger.trace("processPathFiles; path: {}; uri: {}", path.toString(), path.toUri().toString());
+	        	String fileName = path.toString();
+	        	int section = getSection(path.getFileName().toString()); 
+	        	FileBuffer fb = initBuffer(fileName, section);
+				int count = fb.buff.getInt(0);
+				logger.info("init; buffer {} initialized, going to read {} documents from file: {}", section, count, fileName);
+				actCount += readEntries(fb);
+				docCount += count;
+	        	found = true;
 		    }
 		} catch (IOException ex) {
-			logger.error("init; ", ex);
+			logger.error("init; error reading catalog:", ex);
+		}
+		
+		if (!found) {
+			int section = 0;
+			String fileName = getBufferName(section);
+			try {
+				initBuffer(fileName, section);
+			} catch (IOException ex) {
+				logger.error("init; error initializing catalog:", ex);
+			}
 		}
 		
 		// now synch it with cache anyway, regardless of found files or not
@@ -82,6 +99,11 @@ public class DocumentMemoryStore extends MemoryMappedStore<Long, XDMDocument> {
 			+ entry.getUri().getBytes().length + 4 // uri size
 			+ entry.getCreatedBy().getBytes().length + 4 // createdBy size
 			+ entry.getEncoding().getBytes().length + 4; // encoding size
+	}
+	
+	@Override
+	public boolean isEntryActive(XDMDocument entry) {
+		return entry.getTxFinish() == XDMTransactionManagement.TX_NO;
 	}
 
 	@Override
@@ -117,6 +139,11 @@ public class DocumentMemoryStore extends MemoryMappedStore<Long, XDMDocument> {
 		// collections
 	}
 
+	@Override
+	protected String getBufferName(int section) {
+		return buildSectionFileName(dataPath, nodeNum, "catalog", section);
+	}
+	
 }
 
 

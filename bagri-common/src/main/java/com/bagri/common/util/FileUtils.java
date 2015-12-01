@@ -107,7 +107,7 @@ public class FileUtils {
 	}
 
 	public static String getStoreFileMask(String nodeNum, String storeName) {
-		return storeName + nodeNum + "_[0-9][0-9].xdb"; 
+		return "regex:" + storeName + nodeNum + "_\\d{1,2}\\.xdb"; 
 	}
 	
 }
