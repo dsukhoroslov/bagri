@@ -64,7 +64,7 @@
         <jdk.version>1.7</jdk.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <spring.version>4.1.1.RELEASE</spring.version>
+        <spring.version>4.2.3.RELEASE</spring.version>
         <spring.mongo.version>1.4.2.RELEASE</spring.mongo.version>
         <spring.hadoop.version>1.0.2.RELEASE</spring.hadoop.version>
 
@@ -100,8 +100,8 @@
 	<validation.version>1.1.0.Final</validation.version>
         <antlr.version>3.2</antlr.version>
         <jcache.version>1.0.0</jcache.version>
-        <hazelcast.version>3.5.4</hazelcast.version>
-        <!--hazelcast.version>3.6-EA</hazelcast.version-->
+        <!--hazelcast.version>3.5.4</hazelcast.version-->
+        <hazelcast.version>3.6-EA2</hazelcast.version>
         <coherence.version>3.7.1.10</coherence.version>
         <!--coherence.version>12.1.2-0-0</coherence.version-->
         <coherence-common.version>11.1.0</coherence-common.version>
