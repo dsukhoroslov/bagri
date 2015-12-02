@@ -54,7 +54,7 @@ public class XDMConfigTest {
 		Properties props = new Properties();
 		props.setProperty("xdm.schema.password", "test");
 		XDMSchema schema = new XDMSchema(1, new Date(), "test", "Test", "description", false, props);
-		XDMCollection collection = new XDMCollection(1, new Date(), "test", "cln_security",  
+		XDMCollection collection = new XDMCollection(1, new Date(), "test", 1, "cln_security",  
 				"/{http://tpox-benchmark.com/security}Security", "description", true);
 		schema.addCollection(collection);
 		XDMIndex index = new XDMIndex(1, new Date(), "test", "idx_test",  

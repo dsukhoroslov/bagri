@@ -66,7 +66,9 @@ public class QueryCacheManagementTest extends XDMManagementTest {
 
 	@Test
 	public void invalidateQueryCacheTest() throws Exception {
+		long txId = xRepo.getTxManagement().beginTransaction();
 		storeSecurityTest();
+		xRepo.getTxManagement().commitTransaction(txId);
 		String query = "declare namespace s=\"http://tpox-benchmark.com/security\";\n" +
 			"declare variable $sym external;\n" + 
 			"for $sec in fn:collection(\"/{http://tpox-benchmark.com/security}Security\")/s:Security\n" +
@@ -86,7 +88,9 @@ public class QueryCacheManagementTest extends XDMManagementTest {
 		Assert.assertNotNull(itr);
 		Assert.assertTrue(itr.hasNext());
 		
+		txId = xRepo.getTxManagement().beginTransaction();
 		removeDocumentTest(1); 
+		xRepo.getTxManagement().commitTransaction(txId);
 		//updateDocumentTest(0, null, sampleRoot + getFileName("security5621.xml"));
 		// here we must have 0 result cached
 		itr = ((QueryManagementImpl) xRepo.getQueryManagement()).getQueryResults(query, bindings, props);		
@@ -96,8 +100,10 @@ public class QueryCacheManagementTest extends XDMManagementTest {
 
 	@Test
 	public void invalidateResultCacheTest() throws Exception {
+		long txId = xRepo.getTxManagement().beginTransaction();
 		createDocumentTest(sampleRoot + getFileName("security1500.xml"));
 		createDocumentTest(sampleRoot + getFileName("security5621.xml"));
+		xRepo.getTxManagement().commitTransaction(txId);
 		String query = "declare default element namespace \"http://tpox-benchmark.com/security\";\n" +
 			"declare variable $sect external;\n" + 
 			"declare variable $pemin external;\n" +
@@ -131,7 +137,9 @@ public class QueryCacheManagementTest extends XDMManagementTest {
 		Assert.assertNotNull(itr);
 		Assert.assertTrue(itr.hasNext());
 		
+		txId = xRepo.getTxManagement().beginTransaction();
 		createDocumentTest(sampleRoot + getFileName("security9012.xml"));
+		xRepo.getTxManagement().commitTransaction(txId);
 		// here we must have 0 result cached
 		itr = ((QueryManagementImpl) xRepo.getQueryManagement()).getQueryResults(query, bindings, props);		
 		Assert.assertNull(itr);

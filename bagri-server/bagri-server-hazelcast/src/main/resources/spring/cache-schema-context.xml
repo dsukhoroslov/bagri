@@ -237,6 +237,12 @@
 					</hz:configuration-->
 				</hz:service>
 			</hz:services>
+
+			<!--hz:quorum name="xdmQuorum" enabled="true">
+				<hz:quorum-size>2</hz:quorum-size>
+				<hz:quorum-type>READ_WRITE</hz:quorum-type>
+				<hz:quorum-function-class-name>com.bagri.xdm.cache.hazelcast.impl.HealthCheckFunction</hz:quorum-function-class-name>
+			</hz:quorum-->
 		</hz:config>
 	</hz:hazelcast>
 

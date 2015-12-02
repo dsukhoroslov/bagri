@@ -22,6 +22,7 @@ public class XDMCollectionSerializer extends XDMEntitySerializer implements Stre
 				(int) entity[0],
 				(Date) entity[1],
 				(String) entity[2],
+				in.readInt(),
 				in.readUTF(),
 				in.readUTF(),
 				in.readUTF(),
@@ -32,6 +33,7 @@ public class XDMCollectionSerializer extends XDMEntitySerializer implements Stre
 	@Override
 	public void write(ObjectDataOutput out, XDMCollection xCollection) throws IOException {
 		super.writeEntity(out, xCollection);
+		out.writeInt(xCollection.getId());
 		out.writeUTF(xCollection.getName());
 		out.writeUTF(xCollection.getDocumentType());
 		out.writeUTF(xCollection.getDescription());

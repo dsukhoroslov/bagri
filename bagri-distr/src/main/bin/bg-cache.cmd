@@ -43,6 +43,7 @@ set java_opts=%java_opts% -Dxdm.config.context.file=spring/cache-system-context.
 set java_opts=%java_opts% -Dxdm.config.properties.file=%node_name%.properties
 set java_opts=%java_opts% -Dxdm.config.filename=../config/config.xml
 set java_opts=%java_opts% -Dxdm.access.filename=../config/access.xml
+set java_opts=%java_opts% -Dxdm.node.instance=%node_num%
 
 rem specify JMX options
 set java_opts=%java_opts% -Dcom.sun.management.jmxremote.authenticate=false

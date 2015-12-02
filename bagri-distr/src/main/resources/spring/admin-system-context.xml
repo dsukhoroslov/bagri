@@ -42,9 +42,6 @@
 				<!--hz:property name="hazelcast.partition.count">3</hz:property-->				
 				<!--hz:property name=“hazelcast.partitioning.strategy.class">...</hz:property-->
 				<hz:property name="xdm.cluster.admin.port">${xdm.cluster.admin.port}</hz:property>
-				<!--hz:property name="xdm.cluster.node.name">${xdm.cluster.node.name}</hz:property>
-				<hz:property name="xdm.cluster.node.role">${xdm.cluster.node.role}</hz:property>
-				<hz:property name="xdm.cluster.node.schemas">${xdm.cluster.node.schemas}</hz:property-->
 			</hz:properties>
 			<hz:network port="${xdm.cluster.port}" port-auto-increment="true">
 				<hz:join>
@@ -103,6 +100,7 @@
 					<hz:serializer type-class="com.bagri.xdm.system.XDMParameter" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMParameterSerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.system.XDMNode" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMNodeSerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.system.XDMSchema" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMSchemaSerializer"/>
+					<hz:serializer type-class="com.bagri.xdm.system.XDMCollection" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMCollectionSerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.system.XDMFragment" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMFragmentSerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.system.XDMIndex" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMIndexSerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.system.XDMRole" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMRoleSerializer"/>

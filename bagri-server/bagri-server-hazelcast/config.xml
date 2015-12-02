@@ -244,7 +244,7 @@
                 <entry name="xdm.schema.trans.backup.sync">1</entry>
                 <entry name="xdm.schema.store.schema.path"></entry>
                 <entry name="xdm.schema.query.backup.sync">0</entry>
-                <entry name="xdm.schema.buffer.size">128</entry>
+                <entry name="xdm.schema.buffer.size">64</entry>
                 <entry name="xdm.schema.dict.backup.async">1</entry>
                 <entry name="xdm.schema.dict.backup.read">true</entry>
                 <entry name="xdm.schema.trans.backup.read">false</entry>
@@ -273,7 +273,7 @@
                 <entry name="xqj.schema.constructionMode">1</entry>
             </properties>
             <collections>
-                <collection name="CLN_Security">
+                <collection id="1" name="CLN_Security">
                     <version>1</version>
                     <createdAt>2015-10-20T01:01:26.965+03:00</createdAt>
                     <createdBy>SDV</createdBy>
@@ -281,7 +281,7 @@
                     <description>All security documents</description>
                     <enabled>true</enabled>
                 </collection>
-                <collection name="CLN_Customer">
+                <collection id="2" name="CLN_Customer">
                     <version>1</version>
                     <createdAt>2015-10-20T01:01:26.965+03:00</createdAt>
                     <createdBy>SDV</createdBy>
@@ -289,7 +289,7 @@
                     <description>All customer documents</description>
                     <enabled>true</enabled>
                 </collection>
-                <collection name="CLN_Order">
+                <collection id="3" name="CLN_Order">
                     <version>1</version>
                     <createdAt>2015-10-20T01:01:26.965+03:00</createdAt>
                     <createdBy>SDV</createdBy>
