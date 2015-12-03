@@ -21,7 +21,7 @@ import com.bagri.xdm.common.XDMEntity;
 		"enabled"
 })
 public class XDMCollection extends XDMEntity {
-
+	
 	@XmlAttribute(required = true)
 	private int id;
 		

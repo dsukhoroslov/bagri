@@ -3,6 +3,7 @@ package com.bagri.xdm.cache.hazelcast.impl;
 import static com.bagri.common.query.PathBuilder.*;
 import static com.bagri.xdm.client.common.XDMCacheConstants.PN_XDM_SCHEMA_POOL;
 import static com.bagri.xdm.api.XDMTransactionManagement.TX_NO;
+import static com.bagri.xdm.domain.XDMDocument.dvFirst;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -208,7 +209,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	}
 
 	public XDMDocumentKey nextDocumentKey() {
-		return factory.newXDMDocumentKey(docGen.next(), 1);
+		return factory.newXDMDocumentKey(docGen.next(), dvFirst);
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -264,7 +265,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 			}
 			((XDMFragmentedDocument) doc).setFragments(fa);
 		}
-		Action action = docKey.getVersion() == 0 ? Action.insert : Action.update;
+		Action action = docKey.getVersion() == dvFirst ? Action.insert : Action.update;
 		triggerManager.applyTrigger(doc, action, Scope.before); 
 		xddCache.set(docKey, doc);
 		xmlCache.set(docKey, xml);
@@ -576,7 +577,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		boolean update = false;
 		if (docId == 0) {
 			if (uri == null) {
-				docId = XDMDocumentKey.toKey(docGen.next(), 1);
+				docId = XDMDocumentKey.toKey(docGen.next(), dvFirst);
 				uri = "" + docId + ".xml";
 			} else {
 				Long existingId = getDocumentId(uri);
@@ -584,7 +585,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 					docId = existingId;
 					update = true;
 				} else {
-					docId = XDMDocumentKey.toKey(docGen.next(), 1);
+					docId = XDMDocumentKey.toKey(docGen.next(), dvFirst);
 				}
 			}
 		} else {

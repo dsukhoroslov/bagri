@@ -67,11 +67,15 @@ public class SchemaInitiator implements Callable<Boolean>, IdentifiedDataSeriali
 			
 			RepositoryImpl xdmRepo = ctx.getBean("xdmRepo", RepositoryImpl.class);
 			xdmRepo.setSchema(schema);
-    		logger.debug("initSchema.exit; schema {} started on instance: {}", schemaName, hz);
+    		logger.debug("initSchema; schema {} started on instance: {}", schemaName, hz);
     		
     		//PopulationManagementImpl popManager = ctx.getBean("popManager", PopulationManagementImpl.class);
     		PopulationManagementImpl popManager = (PopulationManagementImpl) hz.getUserContext().get("popManager");
-    		popManager.checkPopulation(hz.getCluster().getMembers().size());
+    		if (popManager != null) {
+    			popManager.checkPopulation(hz.getCluster().getMembers().size());
+    		} else {
+    			logger.debug("initSchema.exit; population for schema {} is disabled", schemaName);
+    		}
     		
     		return true;
     	} catch (Exception ex) {

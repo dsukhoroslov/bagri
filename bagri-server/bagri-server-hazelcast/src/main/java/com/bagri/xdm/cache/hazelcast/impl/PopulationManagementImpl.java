@@ -55,6 +55,7 @@ public class PopulationManagementImpl implements ManagedService,
 
     private static final transient Logger logger = LoggerFactory.getLogger(PopulationManagementImpl.class);
 
+    private boolean enabled;
     private String schemaName;
     private int populationSize;
     private NodeEngine nodeEngine;
@@ -72,6 +73,7 @@ public class PopulationManagementImpl implements ManagedService,
 		this.nodeEngine = nodeEngine;
 		this.schemaName = properties.getProperty(xdm_schema_name);
 		this.populationSize = Integer.parseInt(properties.getProperty(xdm_schema_population_size));
+		this.enabled = Boolean.parseBoolean(properties.getProperty(xdm_schema_store_enabled));
 		String dataPath = properties.getProperty(xdm_schema_store_data_path);
 		String nodeNum = properties.getProperty(xdm_node_instance);
 		int buffSize = 2048*100;
@@ -79,13 +81,17 @@ public class PopulationManagementImpl implements ManagedService,
 		if (bSize != null) {
 			buffSize = Integer.parseInt(bSize);
 		}
-		logger.info("init; will open doc store from path: {}; instance: {}; buffer size: {} docs", dataPath, nodeNum, buffSize);
-		docStore = new DocumentMemoryStore(dataPath, nodeNum, buffSize);
-		
-		nodeEngine.getPartitionService().addMigrationListener(this);
-		nodeEngine.getHazelcastInstance().getCluster().addMembershipListener(this);
-		nodeEngine.getHazelcastInstance().getLifecycleService().addLifecycleListener(this);
-		nodeEngine.getHazelcastInstance().getUserContext().put("popManager", this);
+		if (enabled) {
+			logger.info("init; will open doc store from path: {}; instance: {}; buffer size: {} docs", dataPath, nodeNum, buffSize);
+			docStore = new DocumentMemoryStore(dataPath, nodeNum, buffSize);
+			
+			nodeEngine.getPartitionService().addMigrationListener(this);
+			nodeEngine.getHazelcastInstance().getCluster().addMembershipListener(this);
+			nodeEngine.getHazelcastInstance().getLifecycleService().addLifecycleListener(this);
+			nodeEngine.getHazelcastInstance().getUserContext().put("popManager", this);
+		} else {
+			logger.info("init; persistent store is disabled");
+		}
 	}
 	
 	@Override
@@ -96,28 +102,36 @@ public class PopulationManagementImpl implements ManagedService,
 	@Override
 	public void shutdown(boolean terminate) {
 		logger.info("shutdown; terminate: {}", terminate);
-		docStore.close();
+		if (enabled) {
+			docStore.close();
+		}
 	}
 
 	public void checkPopulation(int currentSize) {
 		logger.info("checkPopulation; populationSize: {}; currentSize: {}", populationSize, currentSize);
-		activateDocStore();
+		if (enabled) {
+			activateDocStore();
+			xddCache.addEntryListener(this, true);
+		}
     	if (populationSize == currentSize && xddCache.size() == 0) {
     		SchemaPopulator pop = new SchemaPopulator(schemaName);
     		nodeEngine.getHazelcastInstance().getExecutorService(PN_XDM_SCHEMA_POOL).submitToMember(pop, nodeEngine.getLocalMember());
     	}
-		xddCache.addEntryListener(this, true);
     }
 	
 	public XDMDocument getDocument(Long docKey) {
-		return docStore.getEntry(docKey);
+		return enabled ? docStore.getEntry(docKey) : null;
 	}
 	
 	public int getDocumentCount() {
-		return docStore.getFullEntryCount();
+		return enabled ? docStore.getFullEntryCount() : 0;
 	}
 	
 	public Set<XDMDocumentKey> getDocumentKeys() {
+		if (enabled) {
+			return null;
+		}
+		
 		Set<XDMDocumentKey> result = new HashSet<>();
 		XDMFactory factory = getXDMFactory();
 		for (Long docKey: docStore.getEntryKeys()) {
@@ -188,7 +202,7 @@ public class PopulationManagementImpl implements ManagedService,
 
 	@Override
 	public void memberRemoved(MembershipEvent membershipEvent) {
-		logger.trace("memberRemoved; event: {}; docs size: {}", membershipEvent, xddCache.size());
+		logger.info("memberRemoved; event: {}; docs size: {}", membershipEvent, xddCache.size());
 	}
 
 	@Override
@@ -198,27 +212,27 @@ public class PopulationManagementImpl implements ManagedService,
 
 	@Override
 	public void migrationStarted(MigrationEvent migrationEvent) {
-		logger.trace("migrationStarted; event: {}; docs size: {}", migrationEvent); //, xddCache.size());
+		logger.info("migrationStarted; event: {}; docs size: {}", migrationEvent); //, xddCache.size());
 	}
 
 	@Override
 	public void migrationCompleted(MigrationEvent migrationEvent) {
-		logger.trace("migrationCompleted; event: {}; docs size: {}", migrationEvent); //), xddCache.size());
+		logger.info("migrationCompleted; event: {}; docs size: {}", migrationEvent); //), xddCache.size());
 	}
 
 	@Override
 	public void migrationFailed(MigrationEvent migrationEvent) {
-		logger.trace("migrationFailed; event: {}; docs size: {}", migrationEvent); //, xddCache.size());
+		logger.info("migrationFailed; event: {}; docs size: {}", migrationEvent); //, xddCache.size());
 	}
 
 	//@Override
 	public void migrationInitialized(MigrationEvent migrationEvent) {
-		logger.trace("migrationInitialized; event: {}", migrationEvent);
+		logger.info("migrationInitialized; event: {}", migrationEvent);
 	}
 
 	//@Override
 	public void migrationFinalized(MigrationEvent migrationEvent) {
-		logger.trace("migrationFinalized; event: {}", migrationEvent);
+		logger.info("migrationFinalized; event: {}", migrationEvent);
 	}
 
 	@Override

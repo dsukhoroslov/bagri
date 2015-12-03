@@ -106,7 +106,7 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<XDMDoc
 		            processPathFiles(path, files);
 		        } else {
 		    		//logger.trace("processPathFiles; path: {}; uri: {}", path.toString(), path.toUri().toString());
-		            files.add(path);
+		            files.add(path.getFileName());
 		        }
 		    }
 		}
@@ -223,12 +223,13 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<XDMDoc
 			processPathFiles(root, files);
 			Collections.sort(files);
 			XDMDocumentKey docKey; 
-			PartitionService ps = hzInstance.getPartitionService();
+			//PartitionService ps = hzInstance.getPartitionService();
 			for (Path path: files) {
 				docKey = docMgr.nextDocumentKey();
-				if (ps.getPartition(docKey).getOwner().localMember()) {
-					docKeys.put(docKey, new DocumentDataHolder(normalizePath(path)));
-				}
+				//if (ps.getPartition(docKey).getOwner().localMember()) {
+					//docKeys.put(docKey, new DocumentDataHolder(normalizePath(path)));
+					docKeys.put(docKey, new DocumentDataHolder(path.toString()));
+				//}
 			}
 			docIds = new HashSet<XDMDocumentKey>(docKeys.keySet());
 		} catch (IOException ex) {
@@ -249,14 +250,15 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<XDMDoc
 		DocumentDataHolder data = docKeys.get(key);
 		if (data == null) {
 			// create a new document
-			Path path = Paths.get(value.getUri());
-			logger.trace("store; going to create new file {} at {}", path, getDataPath());
-			if (!path.isAbsolute()) {
-				Path root = Paths.get(getDataPath());
-				path = root.resolve(path);
-			}
-    		String uri = normalizePath(path);
-			logger.trace("store; got path: {}; uri: {}", path, uri);
+			//Path path = Paths.get(value.getUri());
+			//logger.trace("store; going to create new file {} at {}", path, getDataPath());
+			//if (!path.isAbsolute()) {
+			//	Path root = Paths.get(getDataPath());
+			//	path = root.resolve(path);
+			//}
+    		//String uri = normalizePath(path);
+			String uri = value.getUri();
+			//logger.trace("store; got path: {}; uri: {}", path, uri);
     		data = new DocumentDataHolder(uri);
 			docKeys.put(key, data);
 		} else {
