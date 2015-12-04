@@ -37,6 +37,7 @@ import com.bagri.xdm.domain.XDMElements;
 import com.bagri.xdm.domain.XDMFragmentedDocument;
 import com.bagri.xdm.domain.XDMParser;
 import com.bagri.xdm.domain.XDMPath;
+import com.bagri.xdm.system.XDMCollection;
 import com.bagri.xdm.system.XDMFragment;
 import com.bagri.xdm.system.XDMTriggerAction.Action;
 import com.bagri.xdm.system.XDMTriggerAction.Scope;
@@ -233,6 +234,19 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		}
 		return XDMParser.df_xml;
 	}
+	
+	private int getDocTypeCollection(String docPath) {
+		for (XDMCollection collect: repo.getSchema().getCollections()) {
+			String cPath = collect.getDocumentType();
+			if (cPath != null && docPath.equals(cPath)) {
+				logger.trace("getDocTypeCollection; returning {} for docPath {}", collect.getId(), docPath);
+				return collect.getId();
+			}
+		}
+		logger.trace("getDocTypeCollection; no collection found for path {}; collections: {}", 
+				docPath, repo.getSchema().getCollections().size());
+		return -1;
+	}
     
 	//@Override
 	public XDMDocument createDocument(Entry<XDMDocumentKey, XDMDocument> entry, String uri, String xml) throws XDMException {
@@ -265,6 +279,13 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 			}
 			((XDMFragmentedDocument) doc).setFragments(fa);
 		}
+		// TODO: get collection by docType; improve this!
+		XDMData root = getDataRoot(data);
+		int cId = getDocTypeCollection(root.getPath());
+		if (cId >= 0) {
+			doc.addCollection(cId);
+		}
+		
 		Action action = docKey.getVersion() == dvFirst ? Action.insert : Action.update;
 		triggerManager.applyTrigger(doc, action, Scope.before); 
 		xddCache.set(docKey, doc);

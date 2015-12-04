@@ -81,7 +81,7 @@ public class ModelManagement extends SchemaFeatureManagement {
 		@ManagedOperationParameter(name = "name", description = "Fragment name to create"),
 		@ManagedOperationParameter(name = "docType", description = "Root path for document type"),
 		@ManagedOperationParameter(name = "path", description = "XPath to Fragment"),
-		@ManagedOperationParameter(name = "description", description = "Index description")})
+		@ManagedOperationParameter(name = "description", description = "Fragment description")})
 	public void addFragment(String name, String docType, String path, String description) {
 
 		logger.trace("addFragment.enter;");

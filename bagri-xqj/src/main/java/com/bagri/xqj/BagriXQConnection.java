@@ -341,7 +341,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 			}
 		} finally {
 			if (cancelled) {
-				throw new XQCancelledException(null, null, null, -1, -1, -1, null, null, null);
+				throw new XQCancelledException("Command execution has been cancelled", null, null, -1, -1, -1, null, null, null);
 			}
 		}
 	}
@@ -375,7 +375,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 			}
 		} finally {
 			if (cancelled) {
-				throw new XQCancelledException(null, null, null, -1, -1, -1, null, null, null);
+				throw new XQCancelledException("Query execution has been cancelled", null, null, -1, -1, -1, null, null, null);
 			}
 		}
 		

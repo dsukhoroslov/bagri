@@ -26,6 +26,7 @@ import com.bagri.xdm.cache.hazelcast.task.schema.SchemaActivator;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaPopulator;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaUpdater;
 import com.bagri.xdm.client.common.impl.ModelManagementBase;
+import com.bagri.xdm.system.XDMCollection;
 import com.bagri.xdm.system.XDMFragment;
 import com.bagri.xdm.system.XDMIndex;
 import com.bagri.xdm.system.XDMJavaTrigger;
@@ -280,6 +281,44 @@ public class SchemaManager extends EntityManager<XDMSchema> {
 		SchemaPopulator pop = new SchemaPopulator(entityName);
 		HazelcastInstance hzInstance = clientContext.getBean("hzInstance", HazelcastInstance.class);
 		hzInstance.getExecutorService(PN_XDM_SCHEMA_POOL).submitToAllMembers(pop);
+	}
+
+	XDMCollection addCollection(String name, String docType, String description) {
+		XDMSchema schema = getEntity();
+		int id = 0; 
+		for (XDMCollection collect: schema.getCollections()) {
+			if (collect.getId() > id) {
+				id = collect.getId(); 
+			}
+		}
+		id++;
+		XDMCollection collection = new XDMCollection(1, new Date(), JMXUtils.getCurrentUser(), id, name, docType, description, true);
+		if (schema.addCollection(collection)) {
+			// store schema!
+			flushEntity(schema);
+			return collection;
+		}
+		return null;
+	}
+	
+	boolean deleteCollection(String name) {
+		XDMSchema schema = getEntity();
+		if (schema.removeCollection(name) != null) {
+			// store schema!
+			flushEntity(schema);
+			return true;
+		}
+		return false;
+	}
+
+	boolean enableCollection(String name, boolean enable) {
+		XDMSchema schema = getEntity();
+		if (schema.enableCollection(name, enable)) {
+			// store schema!
+			flushEntity(schema);
+			return true;
+		}
+		return false;
 	}
 
 	XDMFragment addFragment(String name, String docType, String path, String description) {

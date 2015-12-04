@@ -158,6 +158,7 @@ public abstract class SchemaFeatureManagement implements SelfNaming {
 
 	protected TabularData getTabularFeatures(String name, String desc, String key) {
 
+		logger.trace("getTabularFeatures.enter; schemaManager: {}", schemaManager);
 		XDMSchema schema = schemaManager.getEntity();
 		Collection<XDMEntity> features = getSchemaFeatures(schema); 
 		if (features == null || features.size() == 0) {

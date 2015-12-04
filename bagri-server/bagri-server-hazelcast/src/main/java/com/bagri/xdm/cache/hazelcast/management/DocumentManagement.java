@@ -5,6 +5,7 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -28,7 +29,10 @@ import com.bagri.xdm.cache.hazelcast.task.schema.SchemaStatsAggregator;
 import com.bagri.xdm.cache.hazelcast.task.stats.StatisticSeriesCollector;
 import com.bagri.xdm.cache.hazelcast.task.stats.StatisticsReseter;
 import com.bagri.xdm.client.hazelcast.impl.DocumentManagementImpl;
+import com.bagri.xdm.common.XDMEntity;
 import com.bagri.xdm.domain.XDMDocument;
+import com.bagri.xdm.system.XDMCollection;
+import com.bagri.xdm.system.XDMSchema;
 import com.hazelcast.core.Member;
 
 @ManagedResource(description="Schema Documents Management MBean")
@@ -137,6 +141,62 @@ public class DocumentManagement extends SchemaFeatureManagement {
 		return null;
 	}
 
+	@Override
+	protected Collection getSchemaFeatures(XDMSchema schema) {
+		return schema.getCollections();
+	}
+
+	@ManagedAttribute(description="Return Collections registered in the Schema")
+	public TabularData getCollections() {
+		return getTabularFeatures("collection", "Collection definition", "name");
+	}
+	
+	@ManagedOperation(description="Creates a new Collection")
+	@ManagedOperationParameters({
+		@ManagedOperationParameter(name = "name", description = "Collection name to create"),
+		@ManagedOperationParameter(name = "docType", description = "Root path for document type, if needed"),
+		@ManagedOperationParameter(name = "description", description = "Collection description")})
+	public void addCollection(String name, String docType, String description) {
+
+		logger.trace("addCollection.enter;");
+		long stamp = System.currentTimeMillis();
+		XDMCollection collect = schemaManager.addCollection(name, docType, description);
+		if (collect == null) {
+			throw new IllegalStateException("Collection '" + name + "' in schema '" + schemaName + "' already exists");
+		}
+		
+		int cnt = 0;
+		stamp = System.currentTimeMillis() - stamp;
+		logger.trace("addCollection.exit; collection added on {} members; timeTaken: {}", cnt, stamp);
+	}
+	
+	@ManagedOperation(description="Removes an existing Collection")
+	@ManagedOperationParameters({@ManagedOperationParameter(name = "name", description = "Collection name to remove")})
+	public void removeCollection(String name) {
+		
+		logger.trace("removeCollection.enter;");
+		long stamp = System.currentTimeMillis();
+		if (!schemaManager.deleteCollection(name)) {
+			throw new IllegalStateException("Collection '" + name + "' in schema '" + schemaName + "' does not exist");
+		}
+
+		int cnt = 0;
+		stamp = System.currentTimeMillis() - stamp;
+		logger.trace("removeCollection.exit; collection deleted on {} members; timeTaken: {}", cnt, stamp);
+	}
+
+	@ManagedOperation(description="Enables/Disables an existing Collection")
+	@ManagedOperationParameters({
+		@ManagedOperationParameter(name = "name", description = "Collection name to enable/disable"),
+		@ManagedOperationParameter(name = "enable", description = "enable/disable collection")})
+	public void enableCollection(String name, boolean enable) {
+		
+		if (!schemaManager.enableCollection(name, enable)) {
+			throw new IllegalStateException("Collection '" + name + "' in schema '" + schemaName + 
+					"' does not exist or already " + (enable ? "enabled" : "disabled"));
+		}
+	}
+	
 	@ManagedOperation(description="delete all Schema documents")
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "evictOnly", description = "Delete from Cache or from Cache and CacheStore too")})

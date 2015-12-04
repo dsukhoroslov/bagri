@@ -247,8 +247,10 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
 	
 	private void registerFeatureManagers(ApplicationContext ctx, SchemaManager sMgr) throws MBeanExportException, MalformedObjectNameException {
 	    ClientManagement cMgr = ctx.getBean("clientManager", ClientManagement.class);
+	    cMgr.setSchemaManager(sMgr);
 		mbeanExporter.registerManagedResource(cMgr, cMgr.getObjectName());
 	    DocumentManagement dMgr = ctx.getBean("docManager", DocumentManagement.class);
+	    dMgr.setSchemaManager(sMgr);
 		mbeanExporter.registerManagedResource(dMgr, dMgr.getObjectName());
 	    IndexManagement iMgr = ctx.getBean("indexManager", IndexManagement.class);
 	    iMgr.setSchemaManager(sMgr);
@@ -260,8 +262,10 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
 	    mMgr.setSchemaManager(sMgr);
 		mbeanExporter.registerManagedResource(mMgr, mMgr.getObjectName());
 	    QueryManagement qMgr = ctx.getBean("queryManager", QueryManagement.class);
+	    qMgr.setSchemaManager(sMgr);
 		mbeanExporter.registerManagedResource(qMgr, qMgr.getObjectName());
 		TransactionManagement tMgr = ctx.getBean("transManager", TransactionManagement.class);
+	    tMgr.setSchemaManager(sMgr);
 		mbeanExporter.registerManagedResource(tMgr, tMgr.getObjectName());
 	}
 	
