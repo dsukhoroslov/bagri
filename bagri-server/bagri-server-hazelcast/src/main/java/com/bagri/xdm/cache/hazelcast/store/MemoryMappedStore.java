@@ -237,6 +237,23 @@ public abstract class MemoryMappedStore<K, E> {
 		return pointer & 0x0000003F;
 	}
 
+	protected int[] getIntArray(MappedByteBuffer buff) {
+		int len = buff.getInt();
+		int[] val = new int[len];
+		for (int i=0; i < len; i++) {
+			val[i] = buff.getInt();
+		}
+		return val;
+	}
+
+	protected void putIntArray(MappedByteBuffer buff, int[] val) {
+		buff.putInt(val.length);
+		for (int i=0; i < val.length; i++) {
+			buff.putInt(val[i]);
+		}
+	}
+    
+	
 	protected String getString(MappedByteBuffer buff) {
 		int len = buff.getInt();
 		//if (len > 100) {

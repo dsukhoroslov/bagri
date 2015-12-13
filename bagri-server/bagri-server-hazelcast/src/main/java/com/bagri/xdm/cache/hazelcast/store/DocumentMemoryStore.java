@@ -119,8 +119,9 @@ public class DocumentMemoryStore extends MemoryMappedStore<Long, XDMDocument> {
 		String encoding = getString(buff);
 		long documentId = toDocumentId(docKey);
 		int version = toVersion(docKey);
-		// collections
-		return new XDMDocument(documentId, version, uri, typeId, txStart, txFinish, createdAt, createdBy, encoding);
+		XDMDocument result = new XDMDocument(documentId, version, uri, typeId, txStart, txFinish, createdAt, createdBy, encoding);
+		result.setCollections(getIntArray(buff));
+		return result;
 	}
 
 	@Override
@@ -137,7 +138,7 @@ public class DocumentMemoryStore extends MemoryMappedStore<Long, XDMDocument> {
 		buff.putLong(entry.getCreatedAt().getTime());
 		putString(buff, entry.getCreatedBy());
 		putString(buff, entry.getEncoding());
-		// collections
+		putIntArray(buff, entry.getCollections());
 	}
 
 	@Override
