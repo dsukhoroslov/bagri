@@ -4,6 +4,7 @@ import static com.bagri.common.config.XDMConfigConstants.xdm_schema_name;
 import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_InitSchemaTask;
 import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.factoryId;
 import static com.bagri.xdm.cache.hazelcast.util.SpringContextHolder.*;
+import static com.bagri.xdm.cache.hazelcast.util.HazelcastUtils.hz_instance;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -61,7 +62,7 @@ public class SchemaInitiator implements Callable<Boolean>, IdentifiedDataSeriali
     		ctx.setConfigLocation("spring/cache-xqj-context.xml");
     		ctx.refresh();
 
-    		hz = ctx.getBean("hzInstance", HazelcastInstance.class);
+    		hz = ctx.getBean(hz_instance, HazelcastInstance.class);
     		//hz.getConfig().getSecurityConfig().setEnabled(true);
 			setContext(schemaName, schema_context, ctx);
 			

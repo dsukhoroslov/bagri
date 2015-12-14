@@ -1,5 +1,7 @@
 package com.bagri.xdm.cache.hazelcast.impl;
 
+import static com.bagri.xdm.cache.hazelcast.util.HazelcastUtils.hz_instance;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -181,7 +183,7 @@ public class RepositoryImpl extends XDMRepositoryBase implements ApplicationCont
 			return xdmLibraries;
 		}
 		
-		HazelcastInstance dataInstance = Hazelcast.getHazelcastInstanceByName("hzInstance");
+		HazelcastInstance dataInstance = Hazelcast.getHazelcastInstanceByName(hz_instance);
 		if (dataInstance != null) {
 			Map<String, XDMLibrary> libraries = dataInstance.getMap("libraries");
 			return libraries.values();
@@ -200,7 +202,7 @@ public class RepositoryImpl extends XDMRepositoryBase implements ApplicationCont
 			return xdmModules;
 		}
 		
-		HazelcastInstance dataInstance = Hazelcast.getHazelcastInstanceByName("hzInstance");
+		HazelcastInstance dataInstance = Hazelcast.getHazelcastInstanceByName(hz_instance);
 		if (dataInstance != null) {
 			Map<String, XDMModule> modules = dataInstance.getMap("modules");
 			return modules.values();

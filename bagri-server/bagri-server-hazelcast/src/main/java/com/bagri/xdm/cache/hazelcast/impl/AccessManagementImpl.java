@@ -1,6 +1,7 @@
 package com.bagri.xdm.cache.hazelcast.impl;
 
 import static com.bagri.common.security.Encryptor.encrypt;
+import static com.bagri.xdm.cache.hazelcast.util.HazelcastUtils.hz_instance;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +22,7 @@ public class AccessManagementImpl implements XDMAccessManagement, InitializingBe
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		HazelcastInstance sysInstance = Hazelcast.getHazelcastInstanceByName("hzInstance");
+		HazelcastInstance sysInstance = Hazelcast.getHazelcastInstanceByName(hz_instance);
 		if (sysInstance != null) {
 			ApplicationContext context = (ApplicationContext) sysInstance.getUserContext().get("context");
 			bridge = context.getBean(AccessManagementBridge.class);

@@ -3,6 +3,7 @@ package com.bagri.xdm.cache.hazelcast;
 import static com.bagri.common.config.XDMConfigConstants.*;
 import static com.bagri.xdm.cache.hazelcast.util.HazelcastUtils.getMemberSchemas;
 import static com.bagri.xdm.cache.hazelcast.util.SpringContextHolder.*;
+import static com.bagri.xdm.cache.hazelcast.util.HazelcastUtils.hz_instance;
 import static com.bagri.xdm.client.common.XDMCacheConstants.PN_XDM_SYSTEM_POOL;
 
 import java.io.IOException;
@@ -57,7 +58,7 @@ public class XDMCacheServer {
         logger.info("Starting XDM node with Context [{}]", contextPath);
     	
         context = new ClassPathXmlApplicationContext(contextPath);
-        HazelcastInstance hz = context.getBean("hzInstance", HazelcastInstance.class);
+        HazelcastInstance hz = context.getBean(hz_instance, HazelcastInstance.class);
         hz.getUserContext().put("context", context);
     	Member local = hz.getCluster().getLocalMember();
         String name = local.getStringAttribute(xdm_cluster_node_name);

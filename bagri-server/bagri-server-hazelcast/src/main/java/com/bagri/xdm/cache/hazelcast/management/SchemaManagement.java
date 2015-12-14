@@ -1,5 +1,7 @@
 package com.bagri.xdm.cache.hazelcast.management;
 
+import static com.bagri.xdm.cache.hazelcast.util.HazelcastUtils.hz_instance;
+
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
@@ -174,7 +176,7 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
     	ClassPathXmlApplicationContext ctx = ctxCache.get(schemaName);
     	if (ctx != null) {
         	logger.debug("initSchema; schema {} already initialized", schemaName);
-    		return ctx.getBean("hzInstance", HazelcastInstance.class);
+    		return ctx.getBean(hz_instance, HazelcastInstance.class);
     	}
 
     	props.setProperty(xdm_schema_name, schemaName);
@@ -194,7 +196,7 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
 	    		ctx.refresh();
 	    		
 	    		ctxCache.put(schemaName, ctx);
-	    		HazelcastInstance hz = ctx.getBean("hzInstance", HazelcastInstance.class);
+	    		HazelcastInstance hz = ctx.getBean(hz_instance, HazelcastInstance.class);
 	    		//hz.getUserContext().put("appContext", ctx);
 	    		//hz.getConfig().getSecurityConfig().setEnabled(true);
 	    	    XDMModelManagement schemaDict = ctx.getBean("xdmModel", XDMModelManagement.class);
@@ -221,7 +223,7 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
     	// do this if we don't have schema nodes any more!
     	ClassPathXmlApplicationContext ctx = ctxCache.get(schemaName);
     	if (ctx != null) {
-    		HazelcastInstance hzClient = ctx.getBean("hzInstance", HazelcastInstance.class);
+    		HazelcastInstance hzClient = ctx.getBean(hz_instance, HazelcastInstance.class);
     		//int size = hzClient.getCluster().getMembers().size();
     		if (!isSchemaActive(schemaName, members)) {
        		//if (size == 0) {

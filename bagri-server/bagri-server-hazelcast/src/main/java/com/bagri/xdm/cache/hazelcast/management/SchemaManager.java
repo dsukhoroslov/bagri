@@ -1,10 +1,8 @@
 package com.bagri.xdm.cache.hazelcast.management;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
@@ -46,6 +44,7 @@ import static com.bagri.common.config.XDMConfigConstants.xdm_schema_store_type;
 import static com.bagri.xdm.client.common.XDMCacheConstants.PN_XDM_SCHEMA_POOL;
 import static com.bagri.xdm.common.XDMConstants.xs_ns;
 import static com.bagri.xdm.common.XDMConstants.xs_prefix;
+import static com.bagri.xdm.cache.hazelcast.util.HazelcastUtils.hz_instance;
 
 @ManagedResource(description="Schema Manager MBean")
 //public class SchemaManager extends XDMSchemaManagerBase implements SelfNaming {
@@ -93,7 +92,7 @@ public class SchemaManager extends EntityManager<XDMSchema> {
 		if (clientContext == null) {
 			return new String[0];
 		}
-		HazelcastInstance hzInstance = clientContext.getBean("hzInstance", HazelcastInstance.class);
+		HazelcastInstance hzInstance = clientContext.getBean(hz_instance, HazelcastInstance.class);
 		if (hzInstance instanceof HazelcastClientInstanceImpl) {
 			Collection<Member> members = ((HazelcastClientInstanceImpl) hzInstance).getClientClusterService().getMemberList();
 			String[] result = new String[members.size()];
@@ -279,7 +278,7 @@ public class SchemaManager extends EntityManager<XDMSchema> {
 			return;
 		}
 		SchemaPopulator pop = new SchemaPopulator(entityName);
-		HazelcastInstance hzInstance = clientContext.getBean("hzInstance", HazelcastInstance.class);
+		HazelcastInstance hzInstance = clientContext.getBean(hz_instance, HazelcastInstance.class);
 		hzInstance.getExecutorService(PN_XDM_SCHEMA_POOL).submitToAllMembers(pop);
 	}
 
