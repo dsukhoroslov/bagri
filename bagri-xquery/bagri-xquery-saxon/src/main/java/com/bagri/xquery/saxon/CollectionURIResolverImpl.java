@@ -121,6 +121,7 @@ public class CollectionURIResolverImpl implements CollectionURIResolver {
 		XDMModelManagement dict = repo.getModelManagement();
 		String root = dict.normalizePath(uri);
 		return dict.getDocumentType(root);
+		// TODO: return collection id instead!
 	}
 	
 	private Object getValues(Sequence sq) throws XPathException {

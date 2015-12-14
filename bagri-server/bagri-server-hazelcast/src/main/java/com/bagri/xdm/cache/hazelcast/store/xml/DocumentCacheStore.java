@@ -1,9 +1,11 @@
 package com.bagri.xdm.cache.hazelcast.store.xml;
 
-import java.io.File;
-import java.io.FileNotFoundException;
+import static com.bagri.common.config.XDMConfigConstants.xdm_schema_store_type;
+import static com.bagri.common.util.FileUtils.def_encoding;
+import static com.bagri.xdm.api.XDMTransactionManagement.TX_INIT;
+import static com.bagri.xdm.api.XDMTransactionManagement.TX_NO;
+
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -14,48 +16,29 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import javax.xml.stream.XMLStreamException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static com.bagri.common.util.FileUtils.def_encoding;
-import static com.bagri.common.config.XDMConfigConstants.xdm_schema_store_type;
-
-import com.bagri.common.manage.JMXUtils;
 import com.bagri.common.util.FileUtils;
-import com.bagri.xdm.api.XDMDocumentManagement;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMModelManagement;
-import com.bagri.xdm.api.XDMTransactionManagement;
 import com.bagri.xdm.cache.hazelcast.impl.DocumentManagementImpl;
 import com.bagri.xdm.cache.hazelcast.impl.PopulationManagementImpl;
 import com.bagri.xdm.client.common.XDMCacheConstants;
-import com.bagri.xdm.client.xml.XDMStaxParser;
-import com.bagri.xdm.common.XDMDataKey;
 import com.bagri.xdm.common.XDMDocumentKey;
-import com.bagri.xdm.common.XDMFactory;
 import com.bagri.xdm.domain.XDMData;
 import com.bagri.xdm.domain.XDMDocument;
-import com.bagri.xdm.domain.XDMElements;
 import com.bagri.xdm.domain.XDMFragmentedDocument;
-import com.bagri.xdm.domain.XDMNodeKind;
 import com.bagri.xdm.domain.XDMParser;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
-import com.hazelcast.core.IdGenerator;
 import com.hazelcast.core.MapLoaderLifecycleSupport;
 import com.hazelcast.core.MapStore;
-import com.hazelcast.core.PartitionService;
-
-import static com.bagri.xdm.api.XDMTransactionManagement.TX_NO;
-import static com.bagri.xdm.api.XDMTransactionManagement.TX_INIT;
 
 public class DocumentCacheStore extends XmlCacheStore implements MapStore<XDMDocumentKey, XDMDocument>, MapLoaderLifecycleSupport {
 
@@ -145,14 +128,24 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<XDMDoc
 	        			int docType = fragments.get(0).intValue();
         				ddh.docType = docType;
 						xmlCache.set(docKey, xml);
-	        			//XDMDocument doc;
 						// can make a fake population TX with id = 1! 
 	        			if (fragments.size() == 1) {
-	        				//doc = new XDMDocument(docKey.getDocumentId(), docKey.getVersion(), ddh.uri, docType, TX_INIT, TX_NO,
-	        				//	new Date(Files.getLastModifiedTime(path).toMillis()), Files.getOwner(path).getName(), def_encoding);
+	        				if (doc == null) {
+	        					doc = new XDMDocument(docKey.getDocumentId(), docKey.getVersion(), ddh.uri, docType, TX_INIT, TX_NO,
+	        							new Date(Files.getLastModifiedTime(path).toMillis()), Files.getOwner(path).getName(), def_encoding);
+	    	        			docMgr.checkDefaultDocumentCollection(doc);
+	        				}
 	        			} else {
-	        				doc = new XDMFragmentedDocument(docKey.getDocumentId(), docKey.getVersion(), doc.getUri(), doc.getTypeId(), 
-	        						doc.getTxStart(), doc.getTxFinish(), doc.getCreatedAt(), doc.getCreatedBy(), doc.getEncoding());	
+	        				if (doc == null) {
+	        					doc = new XDMFragmentedDocument(docKey.getDocumentId(), docKey.getVersion(), ddh.uri, docType, TX_INIT, TX_NO,
+	        							new Date(Files.getLastModifiedTime(path).toMillis()), Files.getOwner(path).getName(), def_encoding);
+	    	        			docMgr.checkDefaultDocumentCollection(doc);
+	        				} else {
+	        					XDMDocument fdoc = new XDMFragmentedDocument(docKey.getDocumentId(), docKey.getVersion(), doc.getUri(), doc.getTypeId(), 
+		        						doc.getTxStart(), doc.getTxFinish(), doc.getCreatedAt(), doc.getCreatedBy(), doc.getEncoding());
+	        					fdoc.setCollections(doc.getCollections());
+	        					doc = fdoc;
+	        				}
 	        				long[] fa = new long[fragments.size()];
 	        				fa[0] = docKey.getKey();
 	        				for (int i=1; i < fragments.size(); i++) {
@@ -169,16 +162,6 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<XDMDoc
 		}
     	return null;
     }
-    
-	private XDMData getDataRoot(List<XDMData> elements) {
-
-		for (XDMData data: elements) {
-			if (data.getNodeKind() == XDMNodeKind.element) {
-				return data;
-			}
-		}
-		return null;
-	}
     
 	@Override
 	public XDMDocument load(XDMDocumentKey key) {

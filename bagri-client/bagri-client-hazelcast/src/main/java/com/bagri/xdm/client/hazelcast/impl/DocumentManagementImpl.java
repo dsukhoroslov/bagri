@@ -173,4 +173,23 @@ public class DocumentManagementImpl extends DocumentManagementBase implements XD
 		}
 	}
 
+	@Override
+	public void removeCollectionDocuments(int collectId) throws XDMException {
+		//
+		// how properly locate docs?
+		// should it be synch or asynch? 
+	}
+	
+	@Override
+	public void addDocumentsToCollections(long[] docIds, int[] collectIds) {
+		//
+		// see above!
+	}
+
+	@Override
+	public void removeDocumentsFromCollections(long[] docIds, int[] collectIds) {
+		//
+		// see above!
+	}
+	
 }

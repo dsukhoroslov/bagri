@@ -44,8 +44,7 @@ public abstract class XDMDocumentManagementServer extends DocumentManagementBase
 	//public abstract Source getDocumentSource(long docId);
 	//public abstract void putDocumentSource(long docId, Source source);
 
-	protected XDMData getDataRoot(List<XDMData> elements) {
-
+	public XDMData getDataRoot(List<XDMData> elements) {
 		for (XDMData data: elements) {
 			if (data.getNodeKind() == XDMNodeKind.element) {
 				return data;

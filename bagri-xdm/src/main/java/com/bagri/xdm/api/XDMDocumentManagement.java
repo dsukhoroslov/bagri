@@ -41,11 +41,15 @@ public interface XDMDocumentManagement {
 	 * @param xml: Document's XML representation, can not be null
 	 * @return XDMDocument: created or overridden (versioned) Document
 	 */
-	XDMDocument storeDocumentFromString(long docId, String uri, String xml) throws XDMException;
+	XDMDocument storeDocumentFromString(long docId, String uri, String content) throws XDMException;
 	XDMDocument storeDocumentFromSource(long docId, String uri, Source source) throws XDMException;
 	XDMDocument storeDocumentFromStream(long docId, String uri, InputStream stream) throws XDMException;
 	// todo: add methods to store document from Document, Reader, XMLStreamReader
 	
 	void removeDocument(long docId) throws XDMException;
+	void removeCollectionDocuments(int collectId) throws XDMException;
+	
+	void addDocumentsToCollections(long[] docIds, int[] collectIds);
+	void removeDocumentsFromCollections(long[] docIds, int[] collectIds);
 
 }
