@@ -5,10 +5,15 @@
 logs/
 output/
 target/
-etc/samples/tpox2/
 .settings/
 .classpath
 .project
+
+# test generated xml files #
+etc/samples/tpox2/
+
+# catalog files #
+*.xdb
 
 # Idea Files #
 *.iml

@@ -4,6 +4,7 @@ import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFacto
 
 import java.io.IOException;
 
+import com.bagri.xdm.common.XDMDocumentKey;
 import com.hazelcast.core.PartitionAware;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
@@ -27,7 +28,7 @@ public abstract class DocumentAwareTask implements PartitionAware<Long>, Identif
 
 	@Override
 	public Long getPartitionKey() {
-		return docId;
+		return XDMDocumentKey.toDocumentId(docId);
 	}
 
 	@Override
