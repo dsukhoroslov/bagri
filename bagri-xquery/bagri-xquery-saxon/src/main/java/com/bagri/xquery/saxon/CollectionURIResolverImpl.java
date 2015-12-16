@@ -45,6 +45,9 @@ import com.bagri.common.query.PathBuilder.PathSegment;
 import com.bagri.common.query.QueryBuilder;
 import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.api.XDMRepository;
+import com.bagri.xdm.client.common.impl.ModelManagementBase;
+import com.bagri.xdm.system.XDMCollection;
+import com.bagri.xdm.system.XDMSchema;
 
 public class CollectionURIResolverImpl implements CollectionURIResolver {
 
@@ -94,7 +97,7 @@ public class CollectionURIResolverImpl implements CollectionURIResolver {
 			collectType = -1;
 			currentType = -1;
 		} else {
-			collectType = getCollectionType(href);
+			collectType = getCollectionId(href);
 			currentType = 0;
 		}
 
@@ -117,11 +120,16 @@ public class CollectionURIResolverImpl implements CollectionURIResolver {
 		return iter;
 	}
 	
-	private int getCollectionType(String uri) {
-		XDMModelManagement dict = repo.getModelManagement();
-		String root = dict.normalizePath(uri);
-		return dict.getDocumentType(root);
-		// TODO: return collection id instead!
+	private int getCollectionId(String uri) {
+		XDMSchema schema = ((com.bagri.xdm.cache.api.XDMRepository) repo).getSchema();
+		XDMCollection cln = schema.getCollection(uri);
+		if (cln != null) {
+			return cln.getId();
+		}
+		return ModelManagementBase.WRONG_PATH;
+		//XDMModelManagement dict = repo.getModelManagement();
+		//String root = dict.normalizePath(uri);
+		//return dict.getDocumentType(root);
 	}
 	
 	private Object getValues(Sequence sq) throws XPathException {
@@ -273,7 +281,7 @@ public class CollectionURIResolverImpl implements CollectionURIResolver {
     		for (Expression e: clx.getArguments()) {
     			if (e instanceof StringLiteral) {
     				String uri = ((StringLiteral) e).getStringValue();
-    				currentType = getCollectionType(uri);
+    				currentType = getCollectionId(uri);
     	        	logger.trace("iterate; set docType: {} for uri: {}", currentType, uri);
     	        	currentPath = new PathBuilder();
     	        	path = currentPath;

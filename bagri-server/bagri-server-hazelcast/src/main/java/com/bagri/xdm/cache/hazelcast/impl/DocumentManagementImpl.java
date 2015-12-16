@@ -193,6 +193,27 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		return elements.values();
     }
     
+	public boolean checkDocumentCollectionCommited(long docId, int clnId) throws XDMException {
+		
+		// TODO: make this behavior configurable! 
+		// check if any docs were removed
+		//if (txManager.getCurrentTxId() == TX_NO) {
+		//	return xddCache.containsKey(factory.newXDMDocumentKey(docId));
+		//}
+		
+		XDMDocument doc = getDocument(docId);
+		if (doc != null) {
+			if (Arrays.binarySearch(doc.getCollections(), clnId) < 0) {
+				return false;
+			}
+			if (doc.getTxFinish() > TX_NO && txManager.isTxVisible(doc.getTxFinish())) {
+				return false;
+			}
+			return txManager.isTxVisible(doc.getTxStart());
+		}
+		return false;
+	}
+
 	public boolean checkDocumentCommited(long docId) throws XDMException {
 		
 		// TODO: make this behavior configurable! 
@@ -221,13 +242,6 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
        	return buildXml(xdmCache.getAll(xdKeys));
     }
     
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public XDMDocument createDocument(String uri, String xml) throws XDMException {
-    	
-		XDMDocumentKey docKey = nextDocumentKey(); 
-		return createDocument(new AbstractMap.SimpleEntry(docKey, null), uri, xml);
-    }
-	
 	private String getDataFormat() {
 		XQProcessor xqp = repo.getXQProcessor();
 		String format = xqp.getProperties().getProperty("xdm.document.format");
@@ -258,6 +272,13 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		}
 	}
     
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public XDMDocument createDocument(String uri, String xml) throws XDMException {
+    	
+		XDMDocumentKey docKey = nextDocumentKey(); 
+		return createDocument(new AbstractMap.SimpleEntry(docKey, null), uri, xml);
+    }
+	
 	//@Override
 	public XDMDocument createDocument(Entry<XDMDocumentKey, XDMDocument> entry, String uri, String xml) throws XDMException {
 		logger.trace("createDocument.enter; entry: {}", entry);

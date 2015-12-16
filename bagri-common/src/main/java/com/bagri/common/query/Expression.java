@@ -2,18 +2,18 @@ package com.bagri.common.query;
 
 public class Expression {
 
-	protected int docType;
+	protected int clnId;
 	protected PathBuilder path; 
 	protected Comparison compType;
 	
-	public Expression(int docType, Comparison compType, PathBuilder path) {
-		this.docType = docType;
+	public Expression(int clnId, Comparison compType, PathBuilder path) {
+		this.clnId = clnId;
 		this.compType = compType;
 		this.path = new PathBuilder(path);
 	}
 	
-	public int getDocType() {
-		return this.docType;
+	public int getCollectionId() {
+		return this.clnId;
 	}
 	
 	public Comparison getCompType() {

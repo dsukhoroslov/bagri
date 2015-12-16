@@ -297,6 +297,24 @@ public class DocumentManagement extends SchemaFeatureManagement {
 	public void resetStatistics() {
 		super.resetStatistics(new StatisticsReseter(schemaName, "docStats")); 
 	}
+	
+	@ManagedOperation(description="Add Document to Collection")
+	@ManagedOperationParameters({
+		@ManagedOperationParameter(name = "docId", description = "Document identifier"),
+		@ManagedOperationParameter(name = "collectId", description = "Collection identifier")})
+	public boolean addDocumentToCollection(long docId, int collectId) {
+		docManager.addDocumentsToCollections(new long[] {docId}, new int[] {collectId});
+		return true;
+	}
+
+	@ManagedOperation(description="Remove Document from Collection")
+	@ManagedOperationParameters({
+		@ManagedOperationParameter(name = "docId", description = "Document identifier"),
+		@ManagedOperationParameter(name = "collectId", description = "Collection identifier")})
+	public boolean removeDocumentFromCollection(long docId, int collectId) {
+		docManager.removeDocumentsFromCollections(new long[] {docId}, new int[] {collectId});
+		return true;
+	}
 
 	@Override
 	protected String getFeatureKind() {

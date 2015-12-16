@@ -348,8 +348,8 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 			}
 		} else {
 			if (pex.isRegex()) {
-				// TODO: do not create new path here!
-				paths = model.translatePathFromRegex(pex.getDocType(), pex.getRegex());
+				// pass "any" docType here..
+				paths = model.translatePathFromRegex(0, pex.getRegex());
 				logger.trace("queryPathKeys; regex: {}; pathIds: {}", pex.getRegex(), paths);
 				if (paths.size() > 0) {
 					Integer[] pa = paths.toArray(new Integer[paths.size()]); 
@@ -430,12 +430,21 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 		return result;
 	}
 
-	private Collection<Long> checkDocumentsCommited(Collection<Long> docIds) throws XDMException {
+	private Collection<Long> checkDocumentsCommited(Collection<Long> docIds, int clnId) throws XDMException {
 		Iterator<Long> itr = docIds.iterator();
-		while (itr.hasNext()) {
-			long docId = itr.next();
-			if (!docMgr.checkDocumentCommited(docId)) {
-				itr.remove();
+		if (clnId > 0) {
+			while (itr.hasNext()) {
+				long docId = itr.next();
+				if (!docMgr.checkDocumentCollectionCommited(docId, clnId)) {
+					itr.remove();
+				}
+			}
+		} else {
+			while (itr.hasNext()) {
+				long docId = itr.next();
+				if (!docMgr.checkDocumentCommited(docId)) {
+					itr.remove();
+				}
 			}
 		}
 		return docIds;
@@ -446,8 +455,11 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 		if (query != null) {
 			ExpressionBuilder exp = query.getExpression();
 			if (exp != null && exp.getRoot() != null) {
+				// TODO: check stats for exp.getRoot().getCollectionId(), 
+				// build 'found' set here if collectionId is selective enough
 				Set<Long> ids = queryKeys(null, query, exp.getRoot());
-				Collection<Long> result = checkDocumentsCommited(ids);
+				// otherwise filter out documents with wrong collectionIds here
+				Collection<Long> result = checkDocumentsCommited(ids, exp.getRoot().getCollectionId());
 				thContext.get().setDocIds(result);
 				return result;
 			}

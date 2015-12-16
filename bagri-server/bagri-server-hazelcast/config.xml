@@ -256,7 +256,7 @@
                 <!--entry name="xdm.schema.password">password</entry-->
                 <entry name="xdm.schema.data.backup.read">false</entry>
                 <entry name="xdm.schema.trans.backup.async">0</entry>
-                <entry name="xdm.schema.store.enabled">true</entry>
+                <entry name="xdm.schema.store.enabled">false</entry>
                 <entry name="xdm.schema.store.tx.buffer.size">2048</entry>
                 <entry name="xdm.schema.thread.pool">16</entry>
                 <entry name="xdm.schema.test.mode">false</entry>
