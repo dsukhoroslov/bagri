@@ -107,7 +107,7 @@ public class XDMCollection extends XDMEntity {
 		Map<String, Object> result = super.convert();
 		result.put("id", id);
 		result.put("name", name);
-		result.put("document type", docType);
+		result.put("document type", docType == null ? "" : docType);
 		result.put("description", description);
 		result.put("enabled", enabled);
 		return result;

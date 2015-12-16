@@ -2,7 +2,10 @@ package com.bagri.xdm.client.hazelcast.impl;
 
 import static com.bagri.xdm.client.common.XDMCacheConstants.*;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -14,6 +17,7 @@ import com.bagri.xdm.client.common.impl.DocumentManagementBase;
 import com.bagri.xdm.client.hazelcast.data.DocumentKey;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentCreator;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentRemover;
+import com.bagri.xdm.client.hazelcast.task.doc.DocumentCollectionUpdater;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentContentProvider;
 import com.bagri.xdm.common.XDMDataKey;
 import com.bagri.xdm.common.XDMDocumentKey;
@@ -22,6 +26,7 @@ import com.bagri.xdm.domain.XDMElements;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.IMap;
+import com.hazelcast.core.Member;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
 
@@ -97,7 +102,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements XD
 	}
 	
 	@Override
-	public Iterator<Long> getDocumentIds(String pattern) {
+	public Collection<Long> getDocumentIds(String pattern) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -174,6 +179,12 @@ public class DocumentManagementImpl extends DocumentManagementBase implements XD
 	}
 
 	@Override
+	public Collection<Long> getCollectionDocumentIds(int collectId) {
+		//
+		return null;
+	}
+	
+	@Override
 	public void removeCollectionDocuments(int collectId) throws XDMException {
 		//
 		// how properly locate docs?
@@ -181,15 +192,37 @@ public class DocumentManagementImpl extends DocumentManagementBase implements XD
 	}
 	
 	@Override
-	public void addDocumentsToCollections(long[] docIds, int[] collectIds) {
+	public int addDocumentToCollections(long docId, int[] collectIds) {
 		//
-		// see above!
+		logger.trace("addDocumentsToCollections.enter; docId: {}, collectIds: {}", docId, Arrays.toString(collectIds));
+		//repo.getHealthManagement().checkClusterState();
+		int cnt = updateDocumentCollections(true, docId, collectIds);
+		logger.trace("addDocumentsToCollections.exit; processed: {}", cnt);
+		return cnt;
 	}
 
 	@Override
-	public void removeDocumentsFromCollections(long[] docIds, int[] collectIds) {
+	public int removeDocumentFromCollections(long docId, int[] collectIds) {
 		//
-		// see above!
+		logger.trace("removeDocumentsFromCollections.enter; docId: {}, collectIds: {}", docId, Arrays.toString(collectIds));
+		//repo.getHealthManagement().checkClusterState();
+		int cnt = updateDocumentCollections(false, docId, collectIds);
+		logger.trace("removeDocumentsFromCollections.exit; processed: {}", cnt);
+		return cnt;
+	}
+	
+	private int updateDocumentCollections(boolean add, long docId, int[] collectIds) {
+		
+		DocumentCollectionUpdater task = new DocumentCollectionUpdater(repo.getClientId(), add, docId, collectIds);
+		Future<Integer> result = execService.submitToKeyOwner(task, docId);
+		int cnt = 0;
+		try {
+			cnt = result.get();
+		} catch (InterruptedException | ExecutionException ex) {
+			logger.error("updateDocumentsCollections.error: ", ex);
+			//throw new XDMException(ex, XDMException.ecDocument);
+		}
+		return cnt;
 	}
 	
 }

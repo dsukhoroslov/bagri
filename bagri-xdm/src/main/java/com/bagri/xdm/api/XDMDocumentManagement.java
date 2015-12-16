@@ -23,8 +23,9 @@ public interface XDMDocumentManagement {
 	//String getDocumentAsString(String uri);
 	//void removeDocument(String uri);
 
-	Iterator<Long> getDocumentIds(String pattern); // throws XDMException;
-	//Iterator<XDMDocument> getDocuments(String pattern);
+	Collection<Long> getDocumentIds(String pattern); // throws XDMException;
+	//Collection<XDMDocument> getDocuments(String pattern);
+	Collection<Long> getCollectionDocumentIds(int collectId); // throws XDMException;
 	
 	XDMDocument getDocument(long docId) throws XDMException;
 
@@ -49,7 +50,7 @@ public interface XDMDocumentManagement {
 	void removeDocument(long docId) throws XDMException;
 	void removeCollectionDocuments(int collectId) throws XDMException;
 	
-	void addDocumentsToCollections(long[] docIds, int[] collectIds);
-	void removeDocumentsFromCollections(long[] docIds, int[] collectIds);
+	int addDocumentToCollections(long docId, int[] collectIds);
+	int removeDocumentFromCollections(long docId, int[] collectIds);
 
 }

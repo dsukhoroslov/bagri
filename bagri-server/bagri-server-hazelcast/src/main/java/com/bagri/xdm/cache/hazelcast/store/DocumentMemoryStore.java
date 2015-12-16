@@ -46,7 +46,7 @@ public class DocumentMemoryStore extends MemoryMappedStore<Long, XDMDocument> {
 	        	String fileName = path.toString();
 	        	int section = getSection(path.getFileName().toString()); 
 	        	FileBuffer fb = initBuffer(fileName, section);
-				int count = fb.buff.getInt(0);
+				int count = fb.getCount();
 				logger.info("init; buffer {} initialized, going to read {} documents from file: {}", section, count, fileName);
 				actCount += readEntries(fb);
 				docCount += count;

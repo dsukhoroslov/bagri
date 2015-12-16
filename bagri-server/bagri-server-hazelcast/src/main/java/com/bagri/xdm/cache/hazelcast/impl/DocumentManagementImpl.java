@@ -28,6 +28,8 @@ import com.bagri.common.idgen.IdGenerator;
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.cache.common.XDMDocumentManagementServer;
+import com.bagri.xdm.cache.hazelcast.predicate.CollectionPredicate;
+import com.bagri.xdm.cache.hazelcast.predicate.ResultsDocPredicate;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentContentProvider;
 import com.bagri.xdm.common.XDMDataKey;
 import com.bagri.xdm.common.XDMDocumentKey;
@@ -539,7 +541,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public Iterator<Long> getDocumentIds(String pattern) {
+	public Collection<Long> getDocumentIds(String pattern) {
 		logger.info("getDocumentIds.enter; got pattern: {}", pattern);
    		Predicate<XDMDocumentKey, XDMDocument> f = Predicates.and(Predicates.regex("uri", pattern), 
    				Predicates.equal("txFinish", 0L));
@@ -550,8 +552,8 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		for (XDMDocumentKey docKey: docKeys) {
 			result.add(docKey.getKey());
 		}
-		logger.info("getDocumentIds.exit; returning: {}", result);
-		return result.iterator();
+		logger.info("getDocumentIds.exit; returning: {}", result.size());
+		return result;
 	}
 	
 	@Override
@@ -728,59 +730,83 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	}
 
 	@Override
-	public void removeCollectionDocuments(int collectId) throws XDMException {
-		logger.trace("removeCollectionDocuments.enter; collectId: {}", collectId);
-		// get documents for collect Id!
-		Collection<XDMDocumentKey> docKeys = Collections.emptyList(); //
+	public Collection<Long> getCollectionDocumentIds(int collectId) {
+		//
+		Predicate clp = new CollectionPredicate(collectId);
+		Set<XDMDocumentKey> docKeys = xddCache.keySet(clp);
+		List<Long> result = new ArrayList<>(docKeys.size());
 		for (XDMDocumentKey key: docKeys) {
-			removeDocument(key.getKey());
+			result.add(key.getKey());
 		}
+		return result;
 	}
 	
 	@Override
-	public void addDocumentsToCollections(long[] docIds, int[] collectIds) {
-		logger.trace("addDocumentsToCollections.enter; got docIds: {}; collectIds: {}", Arrays.toString(docIds), Arrays.toString(collectIds));
+	public void removeCollectionDocuments(int collectId) throws XDMException {
+		logger.trace("removeCollectionDocuments.enter; collectId: {}", collectId);
+		int cnt = 0;
+		Collection<Long> docKeys = getCollectionDocumentIds(collectId);
+		for (Long docKey: docKeys) {
+			removeDocument(docKey);
+			cnt++;
+		}
+		logger.trace("removeCollectionDocuments.exit; removed: {}", cnt);
+	}
+	
+	@Override
+	public int addDocumentToCollections(long docKey, int[] collectIds) {
+		logger.trace("addDocumentsToCollections.enter; got docKey: {}; collectIds: {}", docKey, Arrays.toString(collectIds));
 		int addCount = 0;
 		int dblCount = 0;
 		int unkCount = 0;
-		for (long docId: docIds) {
-			XDMDocument doc = getDocument(docId);
-			if (doc != null) {
-				for (int collectId: collectIds) {
+		XDMDocument doc = getDocument(docKey);
+		if (doc != null) {
+			XDMSchema schema = repo.getSchema();
+			for (int collectId: collectIds) {
+				if (schema.hasCollection(collectId)) {
 					if (doc.addCollection(collectId)) {
 						addCount++;
 					} else {
 						dblCount++;
 					}
+				} else {
+					unkCount++;
 				}
-			} else {
-				unkCount++;
 			}
+			if (addCount > 0) {
+				xddCache.put(factory.newXDMDocumentKey(docKey), doc);
+			}
+		} else {
+			unkCount++;
 		}
 		logger.trace("addDocumentsToCollections.exit; added: {}; duplicates: {}; unknown: {}", addCount, dblCount, unkCount);
+		return addCount;
 	}
 
 	@Override
-	public void removeDocumentsFromCollections(long[] docIds, int[] collectIds) {
-		logger.trace("removeDocumentsFromCollections.enter; got docIds: {}; collectIds: {}", Arrays.toString(docIds), Arrays.toString(collectIds));
+	public int removeDocumentFromCollections(long docKey, int[] collectIds) {
+		logger.trace("removeDocumentsFromCollections.enter; got docKey: {}; collectIds: {}", docKey, Arrays.toString(collectIds));
 		int remCount = 0;
 		int dblCount = 0;
 		int unkCount = 0;
-		for (long docId: docIds) {
-			XDMDocument doc = getDocument(docId);
-			if (doc != null) {
-				for (int collectId: collectIds) {
-					if (doc.removeCollection(collectId)) {
-						remCount++;
-					} else {
-						dblCount++;
-					}
+		XDMDocument doc = getDocument(docKey);
+		if (doc != null) {
+			// here we'll remove any collections, even not existing ones..
+			for (int collectId: collectIds) {
+				if (doc.removeCollection(collectId)) {
+					remCount++;
+				} else {
+					dblCount++;
 				}
-			} else {
-				unkCount++;
 			}
+			if (remCount > 0) {
+				xddCache.put(factory.newXDMDocumentKey(docKey), doc);
+			}
+		} else {
+			unkCount++;
 		}
 		logger.trace("removeDocumentsFromCollections.exit; removed: {}; duplicates: {}; unknown: {}", remCount, dblCount, unkCount);
+		return remCount;
 	}
 	
 	private boolean lockDocument(XDMDocumentKey docKey) { //throws XDMException {

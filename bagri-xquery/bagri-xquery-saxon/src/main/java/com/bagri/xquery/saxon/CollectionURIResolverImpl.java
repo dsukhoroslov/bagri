@@ -126,6 +126,7 @@ public class CollectionURIResolverImpl implements CollectionURIResolver {
 		if (cln != null) {
 			return cln.getId();
 		}
+		logger.info("getCollectionId; no collection found for uri: {}; collections: {}", uri, schema.getCollections());
 		return ModelManagementBase.WRONG_PATH;
 		//XDMModelManagement dict = repo.getModelManagement();
 		//String root = dict.normalizePath(uri);
@@ -282,7 +283,7 @@ public class CollectionURIResolverImpl implements CollectionURIResolver {
     			if (e instanceof StringLiteral) {
     				String uri = ((StringLiteral) e).getStringValue();
     				currentType = getCollectionId(uri);
-    	        	logger.trace("iterate; set docType: {} for uri: {}", currentType, uri);
+    	        	logger.trace("iterate; set collectionId: {} for uri: {}", currentType, uri);
     	        	currentPath = new PathBuilder();
     	        	path = currentPath;
     	        	ExpressionContainer exCont = new ExpressionContainer();
@@ -419,16 +420,13 @@ public class CollectionURIResolverImpl implements CollectionURIResolver {
     		}
     	}
     	
-    	//if (ex instanceof VariableReference) {
-    	//	VariableReference var = (VariableReference) ex;
-    	//	if (var.getBinding() instanceof GeneralVariable) {
-   		//		Expression ex2 = ((XQueryExpression) var.getContainer()).getExpression(); 
-   		//		String vName = ex2.getObjectName().getClarkName();
-   		//		String pName = ((GeneralVariable) var.getBinding()).getVariableQName().getLocalPart();
-       	//		logger.trace("iterate; got var: {}, with name: {}", pName, vName);
-       	//		vars.put(vName, pName);
-    	//	}
-    	//}
+    	if (ex instanceof Collection) {
+   			ExpressionContainer exCont = query.getContainer(currentType);
+    		//logger.trace("iterate; ", exCont.getExpression().getRoot());
+   			if (exCont.getExpression().getRoot() == null) {
+   				exCont.addExpression(currentType);
+   			}
+    	}    	
     	
     	logger.trace("end: {}; path: {}", ex.getClass().getName(), path.getFullPath());
     }

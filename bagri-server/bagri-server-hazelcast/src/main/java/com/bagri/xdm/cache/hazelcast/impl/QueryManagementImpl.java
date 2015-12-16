@@ -24,6 +24,7 @@ import javax.xml.xquery.XQItemType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.bagri.common.query.AlwaysExpression;
 import com.bagri.common.query.BinaryExpression;
 import com.bagri.common.query.Comparison;
 import com.bagri.common.query.Expression;
@@ -286,6 +287,12 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 			} else {
 				throw new XDMException("Wrong BinaryExpression type: " + be.getCompType(), XDMException.ecQuery);
 			}
+		}
+		
+		if (ex instanceof AlwaysExpression) {
+			AlwaysExpression ae = (AlwaysExpression) ex;
+			Collection<Long> docKeys = docMgr.getCollectionDocumentIds(ae.getCollectionId());
+			return new HashSet<Long>(docKeys);
 		}
 		
 		PathExpression pex = (PathExpression) ex;

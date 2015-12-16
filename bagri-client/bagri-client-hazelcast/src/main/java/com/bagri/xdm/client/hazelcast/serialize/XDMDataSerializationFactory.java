@@ -6,6 +6,7 @@ import com.bagri.xdm.client.hazelcast.impl.ResultCursor;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentCreator;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentProcessor;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentRemover;
+import com.bagri.xdm.client.hazelcast.task.doc.DocumentCollectionUpdater;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentContentProvider;
 import com.bagri.xdm.client.hazelcast.task.query.DocumentIdsProvider;
 import com.bagri.xdm.client.hazelcast.task.query.DocumentUrisProvider;
@@ -71,11 +72,12 @@ public class XDMDataSerializationFactory implements DataSerializableFactory {
 	public static final int cli_DocsAwarePredicate = 87;
 	public static final int cli_ResultsDocPredicate = 88;
 	public static final int cli_ResultsQueryPredicate = 89;
-	
 	public static final int cli_XQCursor = 90;
 	public static final int cli_QueryParamsKey = 91; 
 	public static final int cli_XQFixedCursor = 92;
+	public static final int cli_CollectionPredicate = 93;
 
+	public static final int cli_UpdateDocumentCollectionTask = 108; 
 	public static final int cli_ProcessDocumentTask = 109; 
 	public static final int cli_CreateDocumentTask = 110; 
 	public static final int cli_RemoveDocumentTask = 111;
@@ -124,6 +126,7 @@ public class XDMDataSerializationFactory implements DataSerializableFactory {
 			case cli_XQCursor: return new ResultCursor();
 			case cli_QueryParamsKey: return new QueryParamsKey();
 			case cli_XQFixedCursor: return new FixedCursor();
+			case cli_UpdateDocumentCollectionTask: return new DocumentCollectionUpdater();
 			case cli_ProcessDocumentTask: return new DocumentProcessor();
 			case cli_CreateDocumentTask: return new DocumentCreator();
 			case cli_RemoveDocumentTask: return new DocumentRemover();

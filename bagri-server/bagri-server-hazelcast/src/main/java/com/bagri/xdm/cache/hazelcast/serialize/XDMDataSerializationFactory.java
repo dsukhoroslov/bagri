@@ -1,9 +1,13 @@
 package com.bagri.xdm.cache.hazelcast.serialize;
 
+import com.bagri.xdm.cache.hazelcast.predicate.CollectionPredicate;
 import com.bagri.xdm.cache.hazelcast.predicate.DocsAwarePredicate;
 import com.bagri.xdm.cache.hazelcast.predicate.QueryPredicate;
+import com.bagri.xdm.cache.hazelcast.predicate.ResultsDocPredicate;
+import com.bagri.xdm.cache.hazelcast.predicate.ResultsQueryPredicate;
 import com.bagri.xdm.cache.hazelcast.task.doc.DocumentCreator;
 import com.bagri.xdm.cache.hazelcast.task.doc.DocumentRemover;
+import com.bagri.xdm.cache.hazelcast.task.doc.DocumentCollectionUpdater;
 import com.bagri.xdm.cache.hazelcast.task.doc.DocumentContentProvider;
 import com.bagri.xdm.cache.hazelcast.task.doc.DocumentStructureProvider;
 import com.bagri.xdm.cache.hazelcast.task.index.IndexCreator;
@@ -48,6 +52,10 @@ public class XDMDataSerializationFactory extends com.bagri.xdm.client.hazelcast.
 			//case cli_ProcessDocumentTask: return new DocumentProcessor();
 			case cli_QueryPredicate: return new QueryPredicate();
 			case cli_DocsAwarePredicate: return new DocsAwarePredicate();
+			case cli_ResultsDocPredicate: return new ResultsDocPredicate();
+			case cli_ResultsQueryPredicate: return new ResultsQueryPredicate();
+			case cli_CollectionPredicate: return new CollectionPredicate();
+			case cli_UpdateDocumentCollectionTask: return new DocumentCollectionUpdater();
 			case cli_CreateDocumentTask: return new DocumentCreator();
 			case cli_RemoveDocumentTask: return new DocumentRemover();
 			case cli_BeginTransactionTask: return new TransactionStarter(); 

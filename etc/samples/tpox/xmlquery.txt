@@ -1,3 +1,8 @@
+for $doc in fn:collection("CLN_Custom")
+(: where $sec/s:Symbol='IBM' :)
+return $doc
+
+
 declare namespace s="http://tpox-benchmark.com/security";
 (: declare variable $sym external; :)
 for $sec in fn:collection("CLN_Security")/s:Security

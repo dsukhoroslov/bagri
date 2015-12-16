@@ -302,18 +302,26 @@ public class DocumentManagement extends SchemaFeatureManagement {
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "docId", description = "Document identifier"),
 		@ManagedOperationParameter(name = "collectId", description = "Collection identifier")})
-	public boolean addDocumentToCollection(long docId, int collectId) {
-		docManager.addDocumentsToCollections(new long[] {docId}, new int[] {collectId});
-		return true;
+	public int addDocumentToCollection(long docId, String clnName) {
+		XDMCollection cln = this.schemaManager.getEntity().getCollection(clnName);
+		if (cln != null) {
+			return docManager.addDocumentToCollections(docId, new int[] {cln.getId()});
+		}
+		logger.info("addDocumentToCollection; no collection found for name: {}", clnName);
+		return 0;
 	}
 
 	@ManagedOperation(description="Remove Document from Collection")
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "docId", description = "Document identifier"),
 		@ManagedOperationParameter(name = "collectId", description = "Collection identifier")})
-	public boolean removeDocumentFromCollection(long docId, int collectId) {
-		docManager.removeDocumentsFromCollections(new long[] {docId}, new int[] {collectId});
-		return true;
+	public int removeDocumentFromCollection(long docId, String clnName) {
+		XDMCollection cln = this.schemaManager.getEntity().getCollection(clnName);
+		if (cln != null) {
+			return docManager.removeDocumentFromCollections(docId, new int[] {cln.getId()});
+		}
+		logger.info("removeDocumentFromCollection; no collection found for name: {}", clnName);
+		return 0;
 	}
 
 	@Override

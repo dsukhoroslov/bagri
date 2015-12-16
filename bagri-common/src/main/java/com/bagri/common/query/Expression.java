@@ -9,7 +9,9 @@ public class Expression {
 	public Expression(int clnId, Comparison compType, PathBuilder path) {
 		this.clnId = clnId;
 		this.compType = compType;
-		this.path = new PathBuilder(path);
+		if (path != null) {
+			this.path = new PathBuilder(path);
+		}
 	}
 	
 	public int getCollectionId() {

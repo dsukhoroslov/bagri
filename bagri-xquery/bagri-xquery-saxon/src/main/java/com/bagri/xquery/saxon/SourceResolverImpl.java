@@ -74,15 +74,15 @@ public class SourceResolverImpl implements SourceResolver, ExternalObjectModel {
 				src = FileUtils.path2Uri(src);
 			}
 			logger.debug("resolveSource; not a native schema {}, trying full uri: {}", uri.getScheme(), src); 
-			Iterator<Long> ids = repo.getDocumentManagement().getDocumentIds(src);
-			if (ids.hasNext()) {
-				docId = ids.next();
+			Collection<Long> ids = repo.getDocumentManagement().getDocumentIds(src);
+			if (ids.size() > 0) {
+				docId = ids.iterator().next();
 			} else if ("file".equals(uri.getScheme())) { 
 				src = FileUtils.getPathName(src);
 				logger.debug("resolveSource; got no results; trying name uri: {}", src); 
 				ids = repo.getDocumentManagement().getDocumentIds(src);
-				if (ids.hasNext()) {
-					docId = ids.next();
+				if (ids.size() > 0) {
+					docId = ids.iterator().next();
 				}
 			}
 		}

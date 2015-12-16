@@ -27,6 +27,10 @@ public class ExpressionContainer implements Cloneable {
 		return this.eBuilder;
 	}
 	
+	public int addExpression(int clnId) {
+		return eBuilder.addExpression(new AlwaysExpression(clnId));
+	}
+	
 	public int addExpression(int clnId, Comparison compType, PathBuilder path) {
 		return eBuilder.addExpression(clnId, compType, path, null);
 	}

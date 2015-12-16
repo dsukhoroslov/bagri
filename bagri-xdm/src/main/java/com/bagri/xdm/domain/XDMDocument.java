@@ -151,6 +151,10 @@ public class XDMDocument implements Convertable<Map<String, Object>>, Versionabl
 		return result;
 	}
 	
+	public boolean hasCollection(int collectId) {
+		return collections.get(collectId);
+	}
+	
 	public boolean addCollection(int collectId) {
 		if (!collections.get(collectId)) {
 			collections.set(collectId);
@@ -206,7 +210,9 @@ public class XDMDocument implements Convertable<Map<String, Object>>, Versionabl
 		return "XDMDocument [documentId=" + getDocumentId() + ", version=" + getVersion()
 				+ ", uri=" + uri + ", typeId=" + typeId + ", createdAt=" + getCreatedAt()
 				+ ", createdBy=" + createdBy + ", encoding=" + encoding
-				+ ", txStart=" + txStart + ", txFinish=" + txFinish + "]";
+				+ ", txStart=" + txStart + ", txFinish=" + txFinish
+				+ ", number of fragments=" + getFragments().length
+				+ ", collections=" + Arrays.toString(getCollections()) + "]";
 	}
 
 	

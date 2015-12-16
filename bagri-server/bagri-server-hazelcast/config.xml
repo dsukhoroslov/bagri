@@ -207,6 +207,14 @@
                     <description>All order documents</description>
                     <enabled>true</enabled>
                 </collection>
+                <collection id="4" name="CLN_Custom">
+                    <version>1</version>
+                    <createdAt>2015-10-20T01:01:26.965+03:00</createdAt>
+                    <createdBy>SDV</createdBy>
+                    <!--docType></docType-->
+                    <description>Custom collection</description>
+                    <enabled>true</enabled>
+                </collection>
             </collections>
             <fragments/>
             <indexes>

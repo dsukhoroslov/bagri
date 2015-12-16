@@ -99,10 +99,15 @@ public abstract class MemoryMappedStore<K, E> {
 			int sect = toSection(pointer);
 			int pos = toPosition(pointer);
 			fb = buffers.get(sect);
-			fb.buff.position(pos);
-			//mark entry as inactive..
-		    deactivateEntry(fb.buff, entry);
-			cntActive.decrementAndGet();
+			fb.lock();
+			try {
+				fb.buff.position(pos);
+				//mark entry as inactive..
+				deactivateEntry(fb.buff, entry);
+				cntActive.decrementAndGet();
+			} finally {
+				fb.unlock();
+			}
 		} else {
 			if (expectExists) {
 				// not exists, but expected
@@ -113,7 +118,7 @@ public abstract class MemoryMappedStore<K, E> {
 
 		fb = getLockedBuffer(entry);
 		try {
-			fb.buff.reset();
+			fb.reset();
 			int pos = fb.buff.position();
 			int point = toPointer(pos, fb.section);
 			pointers.put(key, point);
@@ -121,7 +126,7 @@ public abstract class MemoryMappedStore<K, E> {
 			cnt++;
 			fb.buff.putInt(0, cnt);
 			writeEntry(fb.buff, entry);
-			fb.buff.mark();
+			fb.setTail();
 			if (isEntryActive(entry)) {
 				cntActive.incrementAndGet();
 			}
@@ -144,8 +149,7 @@ public abstract class MemoryMappedStore<K, E> {
         if (expected != section) {
         	logger.warn("initBuffer; added buffer at the wrong position: {}; expected: {}", expected, section);
         }
-        fb.buff.position(szInt);
-        fb.buff.mark();
+        fb.reset();
 		return fb;
 	}
 	
@@ -166,7 +170,7 @@ public abstract class MemoryMappedStore<K, E> {
 				actCount++;
 			}
 		}
-		fb.buff.mark();
+		fb.setTail();
 		logger.trace("readEntries.exit; active entries: {}; pointers: {}", actCount, pointers.size());
 		cntActive.addAndGet(actCount);
 		return actCount;
@@ -191,16 +195,16 @@ public abstract class MemoryMappedStore<K, E> {
 			}
 			cnt++;
 			if (fb.buff.remaining() < getEntrySize(entry)) {
+				fb.setTail();
 				fb.buff.putInt(0, cnt);
-				fb.buff.mark();
 				fb.unlock();
 				fb = null;
 				cnt = 0;
 			}
 		}
 		if (fb != null) {
+			fb.setTail();
 			fb.buff.putInt(0, cnt);
-			fb.buff.mark();
 			fb.unlock();
 		}
 		logger.trace("loadEntries.exit; active entries: {}; pointers: {}", actCount, pointers.size());
@@ -273,11 +277,12 @@ public abstract class MemoryMappedStore<K, E> {
     
     protected class FileBuffer {
 
+    	private int tail;
     	private int section;
     	private Lock lock;
         private FileChannel fc;
     	private RandomAccessFile raf;
-        protected MappedByteBuffer buff;
+        private MappedByteBuffer buff;
         
         FileBuffer(String fileName, int size, int section) throws IOException {
         	this.raf = new RandomAccessFile(fileName, "rw");
@@ -286,12 +291,29 @@ public abstract class MemoryMappedStore<K, E> {
     		this.buff = fc.map(MapMode.READ_WRITE, 0, size);
         	// get section from filename ?
         	this.section = section;
-        	this.lock = new ReentrantLock(); //true ?  
+        	this.lock = new ReentrantLock(); //true ?
+        	this.tail = szInt;
         }
         
         void close() throws IOException {
    			fc.close();
    			raf.close();
+        }
+        
+        int getCount() {
+			return buff.getInt(0);
+        }
+        
+        //int getTail() {
+        //	return tail;
+        //}
+        
+        void setTail() {
+        	tail = buff.position();
+        }
+        
+        void reset() {
+        	buff.position(tail);
         }
 
         void lock() {

@@ -139,6 +139,15 @@ public class XDMSchema extends XDMEntity {
 		}
 		return null;
 	}
+	
+	public boolean hasCollection(int collectId) {
+		for (XDMCollection collection: collections) {
+			if (collectId == collection.getId()) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 	public XDMCollection removeCollection(String name) {
 		for (XDMCollection collection: collections) {
