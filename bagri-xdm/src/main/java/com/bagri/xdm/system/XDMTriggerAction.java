@@ -38,8 +38,15 @@ public class XDMTriggerAction {
 	    @XmlEnumValue("delete")
 		delete,
 
-	    @XmlEnumValue("commit")
-		commit
+	    @XmlEnumValue("begin")
+		begin,
+
+		@XmlEnumValue("commit")
+		commit,
+		
+	    @XmlEnumValue("rollback")
+		rollback
+		
 	}
 	
 	@XmlAttribute(required = true)

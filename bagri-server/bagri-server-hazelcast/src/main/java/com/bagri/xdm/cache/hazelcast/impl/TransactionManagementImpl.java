@@ -32,6 +32,8 @@ import com.bagri.xdm.cache.api.XDMTransactionManagement;
 import com.bagri.xdm.client.hazelcast.impl.IdGeneratorImpl;
 import com.bagri.xdm.domain.XDMCounter;
 import com.bagri.xdm.domain.XDMTransaction;
+import com.bagri.xdm.system.XDMTriggerAction.Action;
+import com.bagri.xdm.system.XDMTriggerAction.Scope;
 import com.hazelcast.core.Cluster;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
@@ -62,11 +64,13 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 	private IdGenerator<Long> txGen;
 	private ITopic<XDMCounter> cTopic;
 	private IMap<Long, XDMTransaction> txCache; 
+    private TriggerManagementImpl triggerManager;
 
 	private long txTimeout = 0;
 	
     public void setRepository(RepositoryImpl repo) {
     	this.repo = repo;
+    	triggerManager = (TriggerManagementImpl) repo.getTriggerManagement();
     	setHzInstance(repo.getHzInstance());
     }
 	
@@ -112,9 +116,11 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 		txId = txGen.next();
 		// TODO: do this via EntryProcessor?
 		XDMTransaction xTx = new XDMTransaction(txId, cluster.getClusterTime(), 0, repo.getUserName(), txIsolation, XDMTransactionState.started);
+		triggerManager.applyTrigger(xTx, Action.begin, Scope.before); 
 		txCache.set(txId, xTx);
 		thTx.set(txId);
 		cntStarted.incrementAndGet();
+		triggerManager.applyTrigger(xTx, Action.begin, Scope.after); 
 		logger.trace("beginTransaction.exit; started tx: {}; returning: {}", xTx, txId); 
 		return txId;
 	}
@@ -127,12 +133,14 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 		if (xTx != null) {
 			//xTx.finish(true, cluster.getClusterTime());
 			//txCache.set(txId, xTx);
+			triggerManager.applyTrigger(xTx, Action.commit, Scope.before); 
 			txCache.delete(txId);
 		} else {
 			throw new XDMException("no transaction found for TXID: " + txId, ecTransNotFound);
 		}
 		thTx.set(TX_NO);
 		cntCommited.incrementAndGet();
+		triggerManager.applyTrigger(xTx, Action.commit, Scope.after); 
 		cTopic.publish(new XDMCounter(true, xTx.getDocsCreated(), xTx.getDocsUpdated(), xTx.getDocsDeleted()));
 		logger.trace("commitTransaction.exit; tx: {}", xTx); 
 	}
@@ -143,6 +151,7 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 		// TODO: do this via EntryProcessor?
 		XDMTransaction xTx = txCache.get(txId);
 		if (xTx != null) {
+			triggerManager.applyTrigger(xTx, Action.rollback, Scope.before); 
 			xTx.finish(false, cluster.getClusterTime());
 			txCache.set(txId, xTx);
 		} else {
@@ -151,6 +160,7 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 		// do not delete rolled back tx for a while
 		thTx.set(TX_NO);
 		cntRolled.incrementAndGet();
+		triggerManager.applyTrigger(xTx, Action.rollback, Scope.after); 
 		cTopic.publish(new XDMCounter(false, xTx.getDocsCreated(), xTx.getDocsUpdated(), xTx.getDocsDeleted()));
 		logger.trace("rollbackTransaction.exit; tx: {}", xTx); 
 	}

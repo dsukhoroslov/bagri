@@ -95,9 +95,9 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<XDMDoc
 		}
 	}
 
-	private String normalizePath(Path path) {
-		return path.toAbsolutePath().normalize().toString();
-	}
+	//private String normalizePath(Path path) {
+	//	return path.toAbsolutePath().normalize().toString();
+	//}
 	
     private XDMDocument loadDocument(XDMDocumentKey docKey) {
     	XDMDocument doc = popManager.getDocument(docKey.getKey());
@@ -107,6 +107,7 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<XDMDoc
     	} else {
     		ddh = docKeys.get(docKey);
     	}
+    	// TODO: load XML content for active documents only!
 		if (ddh != null) {
     		String uri = getDataPath() + "/" + ddh.uri;
 			Path path = Paths.get(uri);
@@ -157,6 +158,7 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<XDMDoc
         			}
 				} catch (IOException | XDMException ex) {
 					logger.error("loadDocument.error", ex);
+					// notify popManager about this?!
 				}
 	    	}
 		}
@@ -209,10 +211,7 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<XDMDoc
 			//PartitionService ps = hzInstance.getPartitionService();
 			for (Path path: files) {
 				docKey = docMgr.nextDocumentKey();
-				//if (ps.getPartition(docKey).getOwner().localMember()) {
-					//docKeys.put(docKey, new DocumentDataHolder(normalizePath(path)));
-					docKeys.put(docKey, new DocumentDataHolder(path.toString()));
-				//}
+				docKeys.put(docKey, new DocumentDataHolder(path.toString()));
 			}
 			docIds = new HashSet<XDMDocumentKey>(docKeys.keySet());
 		} catch (IOException ex) {
@@ -233,12 +232,6 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<XDMDoc
 		DocumentDataHolder data = docKeys.get(key);
 		if (data == null) {
 			// create a new document
-			//Path path = Paths.get(value.getUri());
-			//logger.trace("store; going to create new file {} at {}", path, getDataPath());
-			//if (!path.isAbsolute()) {
-			//	Path root = Paths.get(getDataPath());
-			//	path = root.resolve(path);
-			//}
     		//String uri = normalizePath(path);
 			String uri = value.getUri();
 			//logger.trace("store; got path: {}; uri: {}", path, uri);
@@ -312,7 +305,7 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<XDMDoc
 			this.uri = uri;
 		}
 
-		DocumentDataHolder(String uri, int docTYpe) {
+		DocumentDataHolder(String uri, int docType) {
 			this.uri = uri;
 			this.docType = docType;
 		}
