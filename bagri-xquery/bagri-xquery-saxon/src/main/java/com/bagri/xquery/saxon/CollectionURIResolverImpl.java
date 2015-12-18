@@ -43,7 +43,6 @@ import com.bagri.common.query.ExpressionContainer;
 import com.bagri.common.query.PathBuilder;
 import com.bagri.common.query.PathBuilder.PathSegment;
 import com.bagri.common.query.QueryBuilder;
-import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.api.XDMRepository;
 import com.bagri.xdm.client.common.impl.ModelManagementBase;
 import com.bagri.xdm.system.XDMCollection;

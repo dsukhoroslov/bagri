@@ -11,6 +11,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.bagri.xdm.api.XDMException;
+import com.bagri.xdm.common.XDMDocumentId;
 import com.bagri.xdm.domain.XDMDocument;
 
 public abstract class XDMDocumentManagementTest extends XDMManagementTest {
@@ -79,7 +80,7 @@ public abstract class XDMDocumentManagementTest extends XDMManagementTest {
 		
 		long txId2 = getTxManagement().beginTransaction();
 		removeDocumentTest(docKey);
-		doc = getDocManagement().getDocument(docKey);
+		doc = getDocManagement().getDocument(new XDMDocumentId(docKey));
 		Assert.assertNotNull(doc);
 		Assert.assertTrue(doc.getTxStart() == txId);
 		Assert.assertTrue(doc.getTxFinish() == txId2);

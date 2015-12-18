@@ -131,7 +131,7 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 		// TODO: do this via EntryProcessor?
 		XDMTransaction xTx = txCache.get(txId);
 		if (xTx != null) {
-			//xTx.finish(true, cluster.getClusterTime());
+			xTx.finish(true, cluster.getClusterTime());
 			//txCache.set(txId, xTx);
 			triggerManager.applyTrigger(xTx, Action.commit, Scope.before); 
 			txCache.delete(txId);
@@ -142,6 +142,7 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 		cntCommited.incrementAndGet();
 		triggerManager.applyTrigger(xTx, Action.commit, Scope.after); 
 		cTopic.publish(new XDMCounter(true, xTx.getDocsCreated(), xTx.getDocsUpdated(), xTx.getDocsDeleted()));
+		cleanAffectedDocuments(xTx);
 		logger.trace("commitTransaction.exit; tx: {}", xTx); 
 	}
 
@@ -153,6 +154,7 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 		if (xTx != null) {
 			triggerManager.applyTrigger(xTx, Action.rollback, Scope.before); 
 			xTx.finish(false, cluster.getClusterTime());
+			// may be we can delete it now, if we perform the clean below?
 			txCache.set(txId, xTx);
 		} else {
 			throw new XDMException("No transaction found for TXID: " + txId, ecTransNotFound);
@@ -162,7 +164,19 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 		cntRolled.incrementAndGet();
 		triggerManager.applyTrigger(xTx, Action.rollback, Scope.after); 
 		cTopic.publish(new XDMCounter(false, xTx.getDocsCreated(), xTx.getDocsUpdated(), xTx.getDocsDeleted()));
+		cleanAffectedDocuments(xTx);
 		logger.trace("rollbackTransaction.exit; tx: {}", xTx); 
+	}
+	
+	private void cleanAffectedDocuments(XDMTransaction xtx) {
+		// on commit: 
+		//	inserted - do nothing; 
+		//	updated - delete previous version elements, xml and indices, invalidate results (?); 
+		//	deleted - the same as for update;
+		// on rollback: 
+		//	inserted - delete docs with elements, xml and indices, not sure about results;
+		//	updated - restore previous doc version (set txFinish to 0), delete new doc version as above;
+		//	deleted - the same as for update;
 	}
 	
 	boolean isTxVisible(long txId) throws XDMException {

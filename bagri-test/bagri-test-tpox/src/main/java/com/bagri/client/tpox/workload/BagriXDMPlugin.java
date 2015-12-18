@@ -177,7 +177,7 @@ public class BagriXDMPlugin extends BagriTPoXPlugin {
 		}
 		
 		XDMDocument storeDocument(String xml) throws Exception {
-			return xRepo.getDocumentManagement().storeDocumentFromString(0, null, xml);
+			return xRepo.getDocumentManagement().storeDocumentFromString(null, xml, null);
 		}
 		
 	}

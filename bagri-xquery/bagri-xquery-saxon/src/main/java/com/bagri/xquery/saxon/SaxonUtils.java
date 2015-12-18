@@ -12,7 +12,9 @@ import javax.xml.stream.XMLStreamReader;
 import javax.xml.transform.Source;
 import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQItem;
+import javax.xml.xquery.XQItemAccessor;
 import javax.xml.xquery.XQItemType;
+import javax.xml.xquery.XQSequence;
 
 import org.w3c.dom.Attr;
 import org.w3c.dom.Comment;
@@ -37,8 +39,10 @@ import net.sf.saxon.evpull.StaxToEventBridge;
 import net.sf.saxon.expr.EarlyEvaluationContext;
 import net.sf.saxon.expr.JPConverter;
 import net.sf.saxon.expr.StaticProperty;
+import net.sf.saxon.expr.XPathContext;
 import net.sf.saxon.om.Item;
 import net.sf.saxon.om.NodeInfo;
+import net.sf.saxon.om.Sequence;
 import net.sf.saxon.om.SequenceTool;
 import net.sf.saxon.trans.XPathException;
 import net.sf.saxon.tree.tiny.TinyBuilder;
@@ -49,6 +53,8 @@ import net.sf.saxon.value.*;
 //import net.sf.saxon.xqj.SaxonDuration;
 //import net.sf.saxon.xqj.SaxonXMLGregorianCalendar;
 import static net.sf.saxon.om.StandardNames.*;
+import static com.bagri.xquery.saxon.SaxonUtils.convertToItem;
+import static com.bagri.xquery.saxon.SaxonUtils.getAtomicType;
 import static javax.xml.xquery.XQItemType.*;
 
 public class SaxonUtils {
@@ -359,6 +365,14 @@ public class SaxonUtils {
 	    }
     	return null;
     }
+    
+	public static Item convertXQItem(XQItem xqItem, Configuration config) throws XQException, XPathException {
+		BuiltInAtomicType type = getAtomicType(xqItem.getItemType());
+		if (type == null) {
+			return convertToItem(xqItem.getObject(), config, xqItem.getItemType().getItemKind());
+		}
+		return convertToItem(xqItem.getObject(), config, type);
+	}
     
 	public static BuiltInAtomicType getAtomicType(XQItemType type) throws XQException {
 		

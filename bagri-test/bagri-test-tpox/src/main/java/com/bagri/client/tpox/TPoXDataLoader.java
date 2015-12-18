@@ -22,6 +22,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import com.bagri.xdm.api.XDMDocumentManagement;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.client.hazelcast.impl.DocumentManagementImpl;
+import com.bagri.xdm.common.XDMDocumentId;
 import com.bagri.xdm.domain.XDMDocument;
 
 import static com.bagri.xdm.client.common.XDMCacheConstants.*;
@@ -128,7 +129,7 @@ public class TPoXDataLoader {
 	private String storeDocument(String uri, String xml) {
 
 		try {
-			XDMDocument doc = xdmMgr.storeDocumentFromString(0, uri, xml);
+			XDMDocument doc = xdmMgr.storeDocumentFromString(new XDMDocumentId(uri), xml, null);
 			//logger.trace("storeDocument.exit; result: {}", result);
 			return doc.getUri();
 		} catch (XDMException ex) {

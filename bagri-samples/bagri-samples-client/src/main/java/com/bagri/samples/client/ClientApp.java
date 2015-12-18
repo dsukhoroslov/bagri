@@ -6,6 +6,8 @@ import static com.bagri.xdm.common.XDMConstants.xs_prefix;
 import static com.bagri.xqj.BagriXQUtils.getBaseTypeForTypeName;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.namespace.QName;
 import javax.xml.xquery.XQConnection;
@@ -15,6 +17,7 @@ import javax.xml.xquery.XQItemType;
 import javax.xml.xquery.XQPreparedExpression;
 import javax.xml.xquery.XQResultSequence;
 import javax.xml.xquery.XQSequence;
+import javax.xml.xquery.XQSequenceType;
 
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -47,8 +50,8 @@ public class ClientApp {
 			//found &= client.runPriceQuery("IBM");
 			found = client.runSecQuery("IBM");
 			//found &= client.runSecQuery("VFINX");
-			found = client.runSecQuery("IBM");
-			found = client.runSecQuery("IBM");
+			//found = client.runSecQuery("IBM");
+			//found = client.runSecQuery("IBM");
 			//found &= client.runPriceQuery("PTTAX");
 			//found = client.searchSecQuery();
 			//found = client.searchSecQueryParams();
@@ -74,7 +77,7 @@ public class ClientApp {
 		
 		String query = "declare namespace s=\"http://tpox-benchmark.com/security\";\n" +
 			"declare variable $sym external;\n" + 
-			"for $sec in fn:collection(\"/{http://tpox-benchmark.com/security}Security\")/s:Security\n" +
+			"for $sec in fn:collection(\"CLN_Security\")/s:Security\n" +
 	  		"where $sec/s:Symbol=$sym\n" + 
 			"return\n" +   
 			"\t<print>The open price of the security \"{$sec/s:Name/text()}\" is {$sec/s:Price/s:PriceToday/s:Open/text()} dollars</print>\n";
@@ -94,7 +97,7 @@ public class ClientApp {
 		
 		String query = "declare namespace s=\"http://tpox-benchmark.com/security\";\n" +
 			"declare variable $sym external;\n" + 
-			"for $sec in fn:collection(\"/{http://tpox-benchmark.com/security}Security\")/s:Security\n" +
+			"for $sec in fn:collection(\"CLN_Security\")/s:Security\n" +
 	  		"where $sec/s:Symbol=$sym\n" + 
 			"return $sec\n";
 
@@ -112,7 +115,7 @@ public class ClientApp {
 	public boolean searchSecQuery() throws XQException {
 		
 		String query = "declare default element namespace \"http://tpox-benchmark.com/security\";\n" +
-			"for $sec in fn:collection(\"/{http://tpox-benchmark.com/security}Security\")/Security\n" +
+			"for $sec in fn:collection(\"CLN_Security\")/s:Security\n" +
 	  		"where $sec[SecurityInformation/*/Sector = 'Technology' and PE[. >= xs:decimal('25') and . < xs:decimal('28.0')] and Yield > xs:decimal('0')]\n" +			
 			"return	<Security>\n" +	
 			"\t{$sec/Symbol}\n" +
@@ -141,7 +144,7 @@ public class ClientApp {
 			"declare variable $pemin external;\n" +
 			"declare variable $pemax external;\n" + 
 			"declare variable $yield external;\n" + 
-			"for $sec in fn:collection(\"/{http://tpox-benchmark.com/security}Security\")/Security\n" +
+			"for $sec in fn:collection(\"CLN_Security\")/s:Security\n" +
 	  		"where $sec[SecurityInformation/*/Sector = $sect and PE[. >= $pemin and . < $pemax] and Yield > $yield]\n" +
 			"return	<Security>\n" +	
 			"\t{$sec/Symbol}\n" +
@@ -225,12 +228,24 @@ public class ClientApp {
 
 		String query = "declare namespace bgdm=\"http://bagri.com/bagri-xdm\";\n" +
 				"declare variable $xml external;\n" + 
+				"declare variable $docIds external;\n" + 
+				"declare variable $props external;\n" + 
 				//"declare option bgdm:document-format \"JSON\";\n\n" + 
-				"let $id := bgdm:store-document($xml)\n" +
+				"let $id := bgdm:store-document($docIds, $xml, $props)\n" +
 				"return $id\n";
 
 	    XQPreparedExpression xqpe = xqc.prepareExpression(query);
+	    List docIds = new ArrayList(4);
+	    docIds.add(new Long(0));
+	    //docIds.add(new Long(1));
+	    //docIds.add(new Integer(1));
+	    docIds.add("65538.xml");
+	    xqpe.bindSequence(new QName("docIds"), xqc.createSequence(docIds.iterator()));
 	    xqpe.bindString(new QName("xml"), xml, xqc.createAtomicType(XQItemType.XQBASETYPE_STRING));
+	    List<String> props = new ArrayList<>(4);
+	    props.add("data-format=xml");
+	    props.add("collections=CLN_Custom, CLN_Security");
+	    xqpe.bindSequence(new QName("props"), xqc.createSequence(props.iterator()));
 	    XQSequence xqs = xqpe.executeQuery();
 	    if (xqs.next()) {
 	    	long id = xqs.getLong();

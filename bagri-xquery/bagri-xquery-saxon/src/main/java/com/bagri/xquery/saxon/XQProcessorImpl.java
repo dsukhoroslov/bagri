@@ -1,7 +1,5 @@
 package com.bagri.xquery.saxon;
 
-import static com.bagri.xdm.common.XDMConstants.dc_ns;
-import static com.bagri.xdm.common.XDMConstants.df_ns;
 import static com.bagri.xdm.common.XDMConstants.pn_baseURI;
 import static com.bagri.xdm.common.XDMConstants.pn_bindingMode;
 import static com.bagri.xdm.common.XDMConstants.pn_boundarySpacePolicy;
@@ -34,7 +32,6 @@ import static com.bagri.xdm.common.XDMConstants.xqf_XQuery_30;
 import static com.bagri.xdm.common.XDMConstants.xqf_XQuery_Encoding_Decl;
 import static com.bagri.xdm.common.XDMConstants.xqf_XQuery_Full_Text;
 import static com.bagri.xdm.common.XDMConstants.xqf_XQuery_Update_Facility;
-import static com.bagri.xdm.common.XDMConstants.xs_ns;
 import static javax.xml.xquery.XQConstants.BOUNDARY_SPACE_PRESERVE;
 import static javax.xml.xquery.XQConstants.CONSTRUCTION_MODE_PRESERVE;
 import static javax.xml.xquery.XQConstants.COPY_NAMESPACES_MODE_INHERIT;
@@ -59,6 +56,14 @@ import javax.xml.xquery.XQItem;
 import javax.xml.xquery.XQSequence;
 import javax.xml.xquery.XQStaticContext;
 
+import org.w3c.dom.Node;
+
+import com.bagri.common.util.XMLUtils;
+import com.bagri.xdm.api.XDMRepository;
+import com.bagri.xquery.api.XQProcessorBase;
+import com.bagri.xquery.saxon.extension.RemoveDocument;
+import com.bagri.xquery.saxon.extension.StoreDocument;
+
 import net.sf.saxon.Configuration;
 import net.sf.saxon.dom.NodeOverNodeInfo;
 import net.sf.saxon.expr.JPConverter;
@@ -73,15 +78,6 @@ import net.sf.saxon.query.XQueryExpression;
 import net.sf.saxon.trans.XPathException;
 import net.sf.saxon.value.DecimalValue;
 import net.sf.saxon.value.ObjectValue;
-
-import org.w3c.dom.Node;
-
-import com.bagri.common.util.XMLUtils;
-import com.bagri.xdm.api.XDMRepository;
-import com.bagri.xquery.api.XQProcessorBase;
-import com.bagri.xquery.saxon.extension.RemoveDocument;
-import com.bagri.xquery.saxon.extension.StoreDocumentWithId;
-import com.bagri.xquery.saxon.extension.StoreDocumentWithUri;
 
 public abstract class XQProcessorImpl extends XQProcessorBase {
 
@@ -293,8 +289,7 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
     public void setRepository(XDMRepository xRepo) {
     	//config.setConfigurationProperty("xdm", mgr);
     	super.setRepository(xRepo);
-        config.registerExtensionFunction(new StoreDocumentWithId(xRepo.getDocumentManagement()));
-        config.registerExtensionFunction(new StoreDocumentWithUri(xRepo.getDocumentManagement()));
+        config.registerExtensionFunction(new StoreDocument(xRepo.getDocumentManagement()));
         config.registerExtensionFunction(new RemoveDocument(xRepo.getDocumentManagement()));
         if (xRepo instanceof com.bagri.xdm.cache.api.XDMRepository) {
         	logger.debug("setRepository; registering extensions"); 

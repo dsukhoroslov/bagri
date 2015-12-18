@@ -18,6 +18,7 @@ import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.api.XDMQueryManagement;
 import com.bagri.xdm.api.XDMRepository;
 import com.bagri.xdm.api.XDMTransactionManagement;
+import com.bagri.xdm.common.XDMDocumentId;
 import com.bagri.xdm.domain.XDMDocument;
 
 public abstract class XDMManagementTest {
@@ -74,8 +75,8 @@ public abstract class XDMManagementTest {
 	
 	protected void removeDocumentsTest() throws Exception {
 		long txId =  getTxManagement().beginTransaction();
-		for (Long id: ids) {
-			getDocManagement().removeDocument(id);
+		for (Long key: ids) {
+			getDocManagement().removeDocument(new XDMDocumentId(key));
 		}
 		ids.clear();
 		getTxManagement().commitTransaction(txId);
@@ -83,16 +84,16 @@ public abstract class XDMManagementTest {
 	
 	public XDMDocument createDocumentTest(String fileName) throws Exception {
 		String xml = readTextFile(fileName);
-		return getDocManagement().storeDocumentFromString(0, null, xml);
+		return getDocManagement().storeDocumentFromString(null, xml, null);
 	}
 	
-	public XDMDocument updateDocumentTest(long docId, String uri, String fileName) throws Exception {
+	public XDMDocument updateDocumentTest(long docKey, String uri, String fileName) throws Exception {
 		String xml = readTextFile(fileName);
-		return getDocManagement().storeDocumentFromString(docId, uri, xml);
+		return getDocManagement().storeDocumentFromString(new XDMDocumentId(docKey, uri), xml, null);
 	}
 
-	public void removeDocumentTest(long docId) throws Exception {
-		getDocManagement().removeDocument(docId);
+	public void removeDocumentTest(long docKey) throws Exception {
+		getDocManagement().removeDocument(new XDMDocumentId(docKey));
 	}
 
 	public void storeSecurityTest() throws Exception {

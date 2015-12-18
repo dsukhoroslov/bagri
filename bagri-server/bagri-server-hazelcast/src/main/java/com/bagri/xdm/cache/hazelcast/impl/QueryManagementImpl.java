@@ -54,7 +54,7 @@ import com.bagri.xdm.domain.XDMPath;
 import com.bagri.xdm.domain.XDMQuery;
 import com.bagri.xdm.domain.XDMResults;
 import com.bagri.xquery.api.XQProcessor;
-import com.bagri.xquery.saxon.XQSequenceIterator;
+import com.bagri.xquery.saxon.XQIterator;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.ReplicatedMap;
 import com.hazelcast.query.Predicate;
@@ -613,8 +613,8 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 
 	private ResultCursor createCursor(String clientId, int batchSize, Iterator iter) {
 		int size = ResultCursor.UNKNOWN;
-		if (iter instanceof XQSequenceIterator) {
-			size = ((XQSequenceIterator) iter).getFullSize();
+		if (iter instanceof XQIterator) {
+			size = ((XQIterator) iter).getFullSize();
 		}
 		final ResultCursor xqCursor;
 		if (batchSize == 1) {

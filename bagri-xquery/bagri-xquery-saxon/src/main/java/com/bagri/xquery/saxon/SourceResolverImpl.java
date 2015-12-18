@@ -19,6 +19,7 @@ import com.bagri.common.util.FileUtils;
 import com.bagri.xdm.api.XDMDocumentManagement;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMRepository;
+import com.bagri.xdm.common.XDMDocumentId;
 
 import static com.bagri.xdm.common.XDMConstants.bg_schema;
 import net.sf.saxon.Configuration;
@@ -58,7 +59,7 @@ public class SourceResolverImpl implements SourceResolver, ExternalObjectModel {
 	public Source resolveSource(Source source, Configuration config) throws XPathException {
 		logger.trace("resolveSource. source: {}; config: {}", source.getSystemId(), config);
 		
-		Long docId = null;
+		XDMDocumentId docId = null;
 		String original = source.getSystemId();
 
 		// TODO: use config.getSystemURIResolver() !
@@ -67,17 +68,18 @@ public class SourceResolverImpl implements SourceResolver, ExternalObjectModel {
 		logger.trace("resolveSource. got {} URI: {}", uri.isAbsolute() ? "absolute" : "relative", uri);
 		if (bg_schema.equals(uri.getScheme())) {
 			// skip leading "/"
-			docId = Long.parseLong(uri.getPath().substring(1));
+			docId = new XDMDocumentId(Long.parseLong(uri.getPath().substring(1)));
 		} else {
 			String src = original;
 			if ("file".equals(uri.getScheme())) { 
 				src = FileUtils.path2Uri(src);
 			}
 			logger.debug("resolveSource; not a native schema {}, trying full uri: {}", uri.getScheme(), src); 
-			Collection<Long> ids = repo.getDocumentManagement().getDocumentIds(src);
+			Collection<XDMDocumentId> ids = repo.getDocumentManagement().getDocumentIds(src);
 			if (ids.size() > 0) {
 				docId = ids.iterator().next();
-			} else if ("file".equals(uri.getScheme())) { 
+			} else if ("file".equals(uri.getScheme())) {
+				// TODO: why we do this second time??
 				src = FileUtils.getPathName(src);
 				logger.debug("resolveSource; got no results; trying name uri: {}", src); 
 				ids = repo.getDocumentManagement().getDocumentIds(src);

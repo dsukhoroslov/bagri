@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -20,6 +21,7 @@ import com.bagri.xdm.client.hazelcast.task.doc.DocumentRemover;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentCollectionUpdater;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentContentProvider;
 import com.bagri.xdm.common.XDMDataKey;
+import com.bagri.xdm.common.XDMDocumentId;
 import com.bagri.xdm.common.XDMDocumentKey;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMElements;
@@ -77,10 +79,11 @@ public class DocumentManagementImpl extends DocumentManagementBase implements XD
 	}
 
 	@Override
-	public XDMDocument getDocument(long docId) throws XDMException {
+	public XDMDocument getDocument(XDMDocumentId docId) throws XDMException {
 		// do this via task/EP ??
-		XDMDocument doc = xddCache.get(new DocumentKey(docId));
+		XDMDocument doc = xddCache.get(new DocumentKey(docId.getDocumentKey()));
 		if (doc == null) {
+			// get it via URI?
 			logger.trace("getDocument; can not get document for key: {}; cache size is: {}", 
 					docId, xddCache.size());
 			// throw ex?
@@ -102,13 +105,13 @@ public class DocumentManagementImpl extends DocumentManagementBase implements XD
 	}
 	
 	@Override
-	public Collection<Long> getDocumentIds(String pattern) {
+	public Collection<XDMDocumentId> getDocumentIds(String pattern) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 	
 	@Override
-	public String getDocumentAsString(long docId) throws XDMException {
+	public String getDocumentAsString(XDMDocumentId docId) throws XDMException {
 		// actually, I can try just get it from XML cache!
 		
 		logger.trace("getDocumentAsString.enter; got docId: {}", docId);
@@ -129,20 +132,20 @@ public class DocumentManagementImpl extends DocumentManagementBase implements XD
 
 	public XDMDocument storeDocument(String xml) throws XDMException {
 
-		return storeDocumentFromString(0, null, xml);
+		return storeDocumentFromString(null, xml, null);
 	}
 
 	@Override
-	public XDMDocument storeDocumentFromString(long docId, String uri, String xml) throws XDMException {
+	public XDMDocument storeDocumentFromString(XDMDocumentId docId, String xml, Properties props) throws XDMException {
 		
 		if (xml == null) {
 			throw new XDMException("Document content can not be null", XDMException.ecDocument);
 		}
-		logger.trace("storeDocumentFromString.enter; docId: {}, uri: {}; xml: {}", docId, uri, xml.length());
+		logger.trace("storeDocumentFromString.enter; docId: {}; xml: {}", docId, xml.length());
 		repo.getHealthManagement().checkClusterState();
 
-		if (docId == 0 && uri == null) {
-			docId = XDMDocumentKey.toKey(docGen.next(), 1);
+		if (docId == null) {
+			docId = new XDMDocumentId(docGen.next(), 1);
 		}
 		
 		DocumentCreator task = new DocumentCreator(repo.getClientId(), docId, repo.getTransactionId(), uri, xml);
@@ -159,7 +162,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements XD
 	}
 	
 	@Override
-	public void removeDocument(long docId) throws XDMException {
+	public void removeDocument(XDMDocumentId docId) throws XDMException {
 		
 		logger.trace("removeDocument.enter; docId: {}", docId);
 		repo.getHealthManagement().checkClusterState();
@@ -179,7 +182,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements XD
 	}
 
 	@Override
-	public Collection<Long> getCollectionDocumentIds(int collectId) {
+	public Collection<XDMDocumentId> getCollectionDocumentIds(int collectId) {
 		//
 		return null;
 	}
@@ -192,7 +195,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements XD
 	}
 	
 	@Override
-	public int addDocumentToCollections(long docId, int[] collectIds) {
+	public int addDocumentToCollections(XDMDocumentId docId, int[] collectIds) {
 		//
 		logger.trace("addDocumentsToCollections.enter; docId: {}, collectIds: {}", docId, Arrays.toString(collectIds));
 		//repo.getHealthManagement().checkClusterState();
@@ -202,7 +205,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements XD
 	}
 
 	@Override
-	public int removeDocumentFromCollections(long docId, int[] collectIds) {
+	public int removeDocumentFromCollections(XDMDocumentId docId, int[] collectIds) {
 		//
 		logger.trace("removeDocumentsFromCollections.enter; docId: {}, collectIds: {}", docId, Arrays.toString(collectIds));
 		//repo.getHealthManagement().checkClusterState();
@@ -211,7 +214,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements XD
 		return cnt;
 	}
 	
-	private int updateDocumentCollections(boolean add, long docId, int[] collectIds) {
+	private int updateDocumentCollections(boolean add, XDMDocumentId docId, int[] collectIds) {
 		
 		DocumentCollectionUpdater task = new DocumentCollectionUpdater(repo.getClientId(), add, docId, collectIds);
 		Future<Integer> result = execService.submitToKeyOwner(task, docId);

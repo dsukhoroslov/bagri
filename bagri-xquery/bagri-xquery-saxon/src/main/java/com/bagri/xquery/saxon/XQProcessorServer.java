@@ -37,6 +37,7 @@ import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMRepository;
 import com.bagri.xdm.cache.api.XDMQueryManagement;
 import com.bagri.xdm.common.XDMConstants;
+import com.bagri.xdm.common.XDMDocumentId;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMQuery;
 import com.bagri.xquery.api.XQProcessor;
@@ -122,13 +123,13 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 				String xml = item.getItemAsString(null);
 				// validate document ?
 				// add/pass other params ?!
-				XDMDocument doc = dMgr.storeDocumentFromString(0, null, xml);
+				XDMDocument doc = dMgr.storeDocumentFromString(null, xml, null);
 				return Collections.singletonList(doc).iterator();
 				//return Collections.emptyIterator();
 			} else if (command.startsWith("removeDocument")) {
-				XQItemAccessor item = getBoundItem(bindings, "docId");
-				long docId = item.getLong();
-				dMgr.removeDocument(docId);
+				XQItemAccessor item = getBoundItem(bindings, "docKey");
+				long docKey = item.getLong();
+				dMgr.removeDocument(new XDMDocumentId(docKey));
 				return Collections.emptyIterator(); 
 			} else {
 				throw new XQException("unknown command: " + command);
@@ -195,7 +196,7 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 	        stamp = System.currentTimeMillis() - stamp;
 		    logger.trace("execQuery.exit; iterator props: {}; time taken: {}", itr.getProperties(), stamp);
 		    //serializeResults(itr);
-	        return new XQSequenceIterator(getXQDataFactory(), itr); 
+	        return new XQIterator(getXQDataFactory(), itr); 
         } catch (Throwable ex) {
         	logger.error("execQuery.error: ", ex);
         	XQException xqe;
