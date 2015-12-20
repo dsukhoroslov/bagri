@@ -1,11 +1,12 @@
 package com.bagri.xdm.client.hazelcast.impl;
 
-import static com.bagri.xdm.client.common.XDMCacheConstants.*;
+import static com.bagri.xdm.client.common.XDMCacheConstants.CN_XDM_DOCUMENT;
+import static com.bagri.xdm.client.common.XDMCacheConstants.CN_XDM_ELEMENT;
+import static com.bagri.xdm.client.common.XDMCacheConstants.PN_XDM_SCHEMA_POOL;
+import static com.bagri.xdm.client.common.XDMCacheConstants.SQN_DOCUMENT;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Iterator;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -16,19 +17,17 @@ import com.bagri.xdm.api.XDMDocumentManagement;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.client.common.impl.DocumentManagementBase;
 import com.bagri.xdm.client.hazelcast.data.DocumentKey;
-import com.bagri.xdm.client.hazelcast.task.doc.DocumentCreator;
-import com.bagri.xdm.client.hazelcast.task.doc.DocumentRemover;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentCollectionUpdater;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentContentProvider;
+import com.bagri.xdm.client.hazelcast.task.doc.DocumentCreator;
+import com.bagri.xdm.client.hazelcast.task.doc.DocumentRemover;
 import com.bagri.xdm.common.XDMDataKey;
 import com.bagri.xdm.common.XDMDocumentId;
-import com.bagri.xdm.common.XDMDocumentKey;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMElements;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.IMap;
-import com.hazelcast.core.Member;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
 
@@ -117,7 +116,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements XD
 		logger.trace("getDocumentAsString.enter; got docId: {}", docId);
 		
 		String result = null;
-		DocumentContentProvider xp = new DocumentContentProvider(repo.getClientId(), docId);
+		DocumentContentProvider xp = new DocumentContentProvider(docId, repo.getClientId());
 		Future<String> future = execService.submitToKeyOwner(xp, docId);
 		try {
 			result = future.get();
@@ -148,7 +147,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements XD
 			docId = new XDMDocumentId(docGen.next(), 1);
 		}
 		
-		DocumentCreator task = new DocumentCreator(repo.getClientId(), docId, repo.getTransactionId(), uri, xml);
+		DocumentCreator task = new DocumentCreator(docId, repo.getClientId(), repo.getTransactionId(), xml, props);
 		Future<XDMDocument> future = execService.submitToKeyOwner(task, docId);
 		try {
 			XDMDocument result = future.get();
@@ -169,7 +168,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements XD
 		//XDMDocumentRemover proc = new XDMDocumentRemover();
 		//Object result = xddCache.executeOnKey(docId, proc);
 		
-		DocumentRemover task = new DocumentRemover(repo.getClientId(), docId, repo.getTransactionId());
+		DocumentRemover task = new DocumentRemover(docId, repo.getClientId(), repo.getTransactionId());
 		Future<XDMDocument> future = execService.submitToKeyOwner(task, docId);
 		try {
 			XDMDocument result = future.get();
@@ -199,7 +198,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements XD
 		//
 		logger.trace("addDocumentsToCollections.enter; docId: {}, collectIds: {}", docId, Arrays.toString(collectIds));
 		//repo.getHealthManagement().checkClusterState();
-		int cnt = updateDocumentCollections(true, docId, collectIds);
+		int cnt = updateDocumentCollections(docId, true, collectIds);
 		logger.trace("addDocumentsToCollections.exit; processed: {}", cnt);
 		return cnt;
 	}
@@ -209,14 +208,14 @@ public class DocumentManagementImpl extends DocumentManagementBase implements XD
 		//
 		logger.trace("removeDocumentsFromCollections.enter; docId: {}, collectIds: {}", docId, Arrays.toString(collectIds));
 		//repo.getHealthManagement().checkClusterState();
-		int cnt = updateDocumentCollections(false, docId, collectIds);
+		int cnt = updateDocumentCollections(docId, false, collectIds);
 		logger.trace("removeDocumentsFromCollections.exit; processed: {}", cnt);
 		return cnt;
 	}
 	
-	private int updateDocumentCollections(boolean add, XDMDocumentId docId, int[] collectIds) {
+	private int updateDocumentCollections(XDMDocumentId docId, boolean add, int[] collectIds) {
 		
-		DocumentCollectionUpdater task = new DocumentCollectionUpdater(repo.getClientId(), add, docId, collectIds);
+		DocumentCollectionUpdater task = new DocumentCollectionUpdater(docId, repo.getClientId(), add, collectIds);
 		Future<Integer> result = execService.submitToKeyOwner(task, docId);
 		int cnt = 0;
 		try {

@@ -94,7 +94,7 @@ public class CollectionURIResolverImpl implements CollectionURIResolver {
 		if (href == null) {
 			// means default collection: all schema documents
 			collectType = -1;
-			currentType = -1;
+			currentType = 0; //-1;
 		} else {
 			collectType = getCollectionId(href);
 			currentType = 0;
@@ -103,6 +103,7 @@ public class CollectionURIResolverImpl implements CollectionURIResolver {
 		if (query == null) {
 			query = new QueryBuilder();
 			currentPath = new PathBuilder();
+        	query.addContainer(currentType, new ExpressionContainer());
 			iterate(exp.getExpression()); 
 		} else if (query.hasEmptyParams()) {
 			iterateParams(exp.getExpression());
@@ -392,11 +393,11 @@ public class CollectionURIResolverImpl implements CollectionURIResolver {
     		}
     			
    			ExpressionContainer exCont = query.getContainer(currentType);
-   			if (exCont == null) {
+   			//if (exCont == null) {
    				// not sure is it ok for currentType = -1!
-	        	exCont = new ExpressionContainer();
-	        	query.addContainer(currentType, exCont);
-   			}
+	        //	exCont = new ExpressionContainer();
+	        //	query.addContainer(currentType, exCont);
+   			//}
    			exIndex = exCont.addExpression(currentType, compType, path, pName, value);
    			logger.trace("iterate; added path expression at index: {}", exIndex);
    			setParentPath(exCont.getExpression(), exIndex, path);
@@ -421,7 +422,7 @@ public class CollectionURIResolverImpl implements CollectionURIResolver {
     	
     	if (ex instanceof Collection) {
    			ExpressionContainer exCont = query.getContainer(currentType);
-    		//logger.trace("iterate; ", exCont.getExpression().getRoot());
+    		logger.trace("iterate; cType: {}; exCont: {}", currentType, exCont);
    			if (exCont.getExpression().getRoot() == null) {
    				exCont.addExpression(currentType);
    			}

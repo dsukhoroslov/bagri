@@ -20,6 +20,7 @@ import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.cache.hazelcast.impl.DocumentManagementImpl;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentAwareTask;
 import com.bagri.xdm.common.XDMDataKey;
+import com.bagri.xdm.common.XDMDocumentId;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMElement;
 import com.bagri.xdm.domain.XDMElements;
@@ -35,8 +36,8 @@ public class DocumentStructureProvider extends DocumentAwareTask implements Call
 		super();
 	}
 	
-	public DocumentStructureProvider(String clientId, long docId) {
-		super(clientId, docId, 0);
+	public DocumentStructureProvider(XDMDocumentId docId, String clientId) {
+		super(docId, clientId, 0);
 	}
 
 	
@@ -49,7 +50,7 @@ public class DocumentStructureProvider extends DocumentAwareTask implements Call
 	@Override
 	public CompositeData call() throws Exception {
 		
-    	Collection<XDMElements> elements = docMgr.getDocumentElements(docId);
+    	Collection<XDMElements> elements = docMgr.getDocumentElements(docId.getDocumentKey());
     	if (elements == null) {
     		return null;
     	}

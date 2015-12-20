@@ -20,9 +20,9 @@ public class DocumentCollectionUpdater extends com.bagri.xdm.client.hazelcast.ta
     @Override
 	public Integer call() throws Exception {
     	if (add) {
-    		return docMgr.addDocumentToCollections(docKey, collectIds);
+    		return docMgr.addDocumentToCollections(docId, collectIds);
     	} else {
-    		return docMgr.removeDocumentFromCollections(docKey, collectIds);
+    		return docMgr.removeDocumentFromCollections(docId, collectIds);
     	}    	
 	}
 

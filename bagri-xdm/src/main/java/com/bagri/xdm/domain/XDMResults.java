@@ -33,6 +33,11 @@ public class XDMResults {
 	public Collection<Object> getResults() {
 		return results;
 	}
+
+	@Override
+	public String toString() {
+		return "XDMResults [params=" + params + ", docIds=" + docIds + ", results=" + results + "]";
+	}
 	
 
 }

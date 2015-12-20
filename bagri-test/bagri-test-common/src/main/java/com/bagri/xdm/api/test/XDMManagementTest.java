@@ -61,7 +61,7 @@ public abstract class XDMManagementTest {
 
 	public Collection<String> getSecurity(String symbol) throws Exception {
 		String prefix = getModelManagement().getNamespacePrefix("http://tpox-benchmark.com/security"); 
-		int docType = getModelManagement().getDocumentType("/" + prefix + ":Security");
+		int docType = 0; //getModelManagement().getDocumentType("/" + prefix + ":Security");
 		PathBuilder path = new PathBuilder().
 				addPathSegment(AxisType.CHILD, prefix, "Security").
 				addPathSegment(AxisType.CHILD, prefix, "Symbol").

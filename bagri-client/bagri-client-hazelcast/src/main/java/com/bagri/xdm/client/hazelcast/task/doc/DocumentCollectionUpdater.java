@@ -5,23 +5,22 @@ import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFacto
 import java.io.IOException;
 import java.util.concurrent.Callable;
 
+import com.bagri.xdm.common.XDMDocumentId;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 
 public class DocumentCollectionUpdater extends DocumentAwareTask implements Callable<Integer> {
 	
 	protected boolean add;
-	protected long docKey;
 	protected int[] collectIds;
 	
 	public DocumentCollectionUpdater() {
 		super();
 	}
 	
-	public DocumentCollectionUpdater(String clientId, boolean add, long docKey, int[] collectIds) {
-		super(clientId, docKey, 0);
+	public DocumentCollectionUpdater(XDMDocumentId docId, String clientId, boolean add, int[] collectIds) {
+		super(docId, clientId, 0);
 		this.add = add;
-		this.docKey = docKey;
 		this.collectIds = collectIds;
 	}
 
@@ -39,7 +38,6 @@ public class DocumentCollectionUpdater extends DocumentAwareTask implements Call
 	public void readData(ObjectDataInput in) throws IOException {
 		super.readData(in);
 		add = in.readBoolean();
-		docKey = in.readLong();
 		collectIds = in.readIntArray();
 	}
 
@@ -47,7 +45,6 @@ public class DocumentCollectionUpdater extends DocumentAwareTask implements Call
 	public void writeData(ObjectDataOutput out) throws IOException {
 		super.writeData(out);
 		out.writeBoolean(add);
-		out.writeLong(docKey);
 		out.writeIntArray(collectIds);
 	}
 

@@ -30,6 +30,7 @@ import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.cache.hazelcast.impl.DocumentManagementImpl;
 import com.bagri.xdm.cache.hazelcast.impl.PopulationManagementImpl;
 import com.bagri.xdm.client.common.XDMCacheConstants;
+import com.bagri.xdm.common.XDMDocumentId;
 import com.bagri.xdm.common.XDMDocumentKey;
 import com.bagri.xdm.domain.XDMData;
 import com.bagri.xdm.domain.XDMDocument;
@@ -242,7 +243,7 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<XDMDoc
 		}
 		
 		try {
-			String xml = docMgr.getDocumentAsString(key.getKey());
+			String xml = docMgr.getDocumentAsString(new XDMDocumentId(key.getKey()));
 			FileUtils.writeTextFile(data.uri, xml);
 			logger.trace("store.exit; stored as: {}; length: {}", data.uri, xml.length());
 		} catch (IOException | XDMException ex) {

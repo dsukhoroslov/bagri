@@ -18,7 +18,7 @@ public class XDMQueryManagementTest extends XDMManagementTest {
 
 	public Collection<String> getPrice(String symbol) throws Exception {
 		String prefix = getModelManagement().getNamespacePrefix("http://tpox-benchmark.com/security"); 
-		int docType = getModelManagement().getDocumentType("/" + prefix + ":Security");
+		int docType = 0; //getModelManagement().getDocumentType("/" + prefix + ":Security");
 		PathBuilder path = new PathBuilder().
 				addPathSegment(AxisType.CHILD, prefix, "Security").
 				addPathSegment(AxisType.CHILD, prefix, "Symbol").
@@ -33,7 +33,7 @@ public class XDMQueryManagementTest extends XDMManagementTest {
 	
 	public Collection<String> getOrder(String id) throws Exception {
 		String prefix = getModelManagement().getNamespacePrefix("http://www.fixprotocol.org/FIXML-4-4"); 
-		int docType = getModelManagement().getDocumentType("/" + prefix + ":FIXML"); // /" + prefix + ":Order");
+		int docType = 0; //getModelManagement().getDocumentType("/" + prefix + ":FIXML"); // /" + prefix + ":Order");
 		PathBuilder path = new PathBuilder().
 				addPathSegment(AxisType.CHILD, prefix, "FIXML").
 				addPathSegment(AxisType.CHILD, prefix, "Order").
@@ -47,7 +47,7 @@ public class XDMQueryManagementTest extends XDMManagementTest {
 	
 	public Collection<String> getCustomerProfile(String id) throws Exception {
 		String prefix = getModelManagement().getNamespacePrefix("http://tpox-benchmark.com/custacc"); 
-		int docType = getModelManagement().getDocumentType("/" + prefix + ":Customer");
+		int docType = 0; //getModelManagement().getDocumentType("/" + prefix + ":Customer");
 		PathBuilder path = new PathBuilder().
 				addPathSegment(AxisType.CHILD, prefix, "Customer").
 				addPathSegment(AxisType.ATTRIBUTE, null, "id");
@@ -76,7 +76,7 @@ public class XDMQueryManagementTest extends XDMManagementTest {
 	
 	public Collection<String> getCustomerAccounts(String id) throws Exception {
 		String prefix = getModelManagement().getNamespacePrefix("http://tpox-benchmark.com/custacc"); 
-		int docType = getModelManagement().getDocumentType("/" + prefix + ":Customer");
+		int docType = 0; //getModelManagement().getDocumentType("/" + prefix + ":Customer");
 		PathBuilder path = new PathBuilder().
 				addPathSegment(AxisType.CHILD, prefix, "Customer").
 				addPathSegment(AxisType.ATTRIBUTE, null, "id");
@@ -107,7 +107,7 @@ public class XDMQueryManagementTest extends XDMManagementTest {
 	public Collection<String> searchSecurity(String sector, float peMin, float peMax, float yieldMin) throws Exception {
 
 		String prefix = getModelManagement().getNamespacePrefix("http://tpox-benchmark.com/security"); 
-		int docType = getModelManagement().getDocumentType("/" + prefix + ":Security");
+		int docType = 0; //getModelManagement().getDocumentType("/" + prefix + ":Security");
 		PathBuilder path = new PathBuilder().
 				addPathSegment(AxisType.CHILD, prefix, "Security");
 		ExpressionContainer ec = new ExpressionContainer();

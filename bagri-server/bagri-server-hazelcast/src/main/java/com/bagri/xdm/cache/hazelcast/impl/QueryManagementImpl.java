@@ -199,26 +199,28 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 		//XDMResults xqr = xResults.get(qpKey);
 		Iterator result = null;
 		if (xqr != null) {
-			//
 			result = xqr.getResults().iterator();
 			updateStats(query, 0, 1);
 		} else {
 			updateStats(query, 0, -1);
 		}
-		logger.trace("getQueryResults; returning: {}", result);
+		logger.trace("getQueryResults; returning: {}", xqr);
 		return result;
 	}
 	
 	@Override
 	public Iterator addQueryResults(String query, Map<QName, Object> params, Properties props, Iterator results) {
 		//QueryParamsKey qpKey = getResultsKey(query, params);
+		QueryExecContext ctx = thContext.get();
+		if (ctx.getDocIds().size() == 0) {
+			return results;
+		}
 		long qpKey = getResultsKey(query, params);
 		// TODO: think about lazy solution... EntryProcessor? or, try local Map?
 		List resList = new ArrayList();
 		while (results.hasNext()) {
 			resList.add(results.next());
 		}
-		QueryExecContext ctx = thContext.get();
 		XDMResults xqr = new XDMResults(params, ctx.getDocIds(), resList);
 		//XDMResults oldRes = 
 		xrCache.putAsync(qpKey, xqr);
@@ -291,7 +293,7 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 		
 		if (ex instanceof AlwaysExpression) {
 			AlwaysExpression ae = (AlwaysExpression) ex;
-			Collection<Long> docKeys = docMgr.getCollectionDocumentIds(ae.getCollectionId());
+			Collection<Long> docKeys = docMgr.getCollectionDocumentKeys(ae.getCollectionId());
 			return new HashSet<Long>(docKeys);
 		}
 		

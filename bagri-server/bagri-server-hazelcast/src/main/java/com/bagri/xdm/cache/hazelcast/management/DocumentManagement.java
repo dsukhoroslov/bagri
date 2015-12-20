@@ -1,5 +1,7 @@
 package com.bagri.xdm.cache.hazelcast.management;
 
+import static com.bagri.common.util.PropUtils.propsFromString;
+
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -20,7 +22,6 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
 import com.bagri.common.manage.JMXUtils;
-import com.bagri.common.manage.StatsAggregator;
 import com.bagri.common.util.FileUtils;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.cache.hazelcast.task.doc.DocumentStructureProvider;
@@ -29,7 +30,7 @@ import com.bagri.xdm.cache.hazelcast.task.schema.SchemaStatsAggregator;
 import com.bagri.xdm.cache.hazelcast.task.stats.StatisticSeriesCollector;
 import com.bagri.xdm.cache.hazelcast.task.stats.StatisticsReseter;
 import com.bagri.xdm.client.hazelcast.impl.DocumentManagementImpl;
-import com.bagri.xdm.common.XDMEntity;
+import com.bagri.xdm.common.XDMDocumentId;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.system.XDMCollection;
 import com.bagri.xdm.system.XDMSchema;
@@ -105,7 +106,7 @@ public class DocumentManagement extends SchemaFeatureManagement {
 	public CompositeData getDocumentElements(long docId) {
 		//
 		//docManager.
-		DocumentStructureProvider task = new DocumentStructureProvider(null, docId); //??
+		DocumentStructureProvider task = new DocumentStructureProvider(new XDMDocumentId(docId), null); //??
 		Future<CompositeData> result = execService.submitToKeyOwner(task, docId);
 		try {
 			return result.get();
@@ -120,7 +121,7 @@ public class DocumentManagement extends SchemaFeatureManagement {
 		@ManagedOperationParameter(name = "docId", description = "Internal Document identifier")})
 	public CompositeData getDocumentInfo(long docId) {
 		try {
-			XDMDocument doc = docManager.getDocument(docId);
+			XDMDocument doc = docManager.getDocument(new XDMDocumentId(docId));
 	        Map<String, Object> docInfo = doc.convert();
 	        return JMXUtils.mapToComposite("document", "Document Info", docInfo);
 		} catch (XDMException ex) {
@@ -134,7 +135,7 @@ public class DocumentManagement extends SchemaFeatureManagement {
 		@ManagedOperationParameter(name = "docId", description = "Internal Document identifier")})
 	public String getDocumentXML(long docId) {
 		try {
-			return docManager.getDocumentAsString(docId);
+			return docManager.getDocumentAsString(new XDMDocumentId(docId));
 		} catch (XDMException ex) {
 			logger.error("getDocumentXML.error: " + ex.getMessage(), ex);
 		}
@@ -222,10 +223,10 @@ public class DocumentManagement extends SchemaFeatureManagement {
 		@ManagedOperationParameter(name = "docFile", description = "A full path to XML file to register")})
 	public long registerDocument(String docFile) {
 		
-		String uri = "file:///" + docFile;
+		String uri = Paths.get(docFile).getFileName().toString(); 
 		try {
 			String xml = FileUtils.readTextFile(docFile);
-			XDMDocument doc = docManager.storeDocumentFromString(0, uri, xml);
+			XDMDocument doc = docManager.storeDocumentFromString(new XDMDocumentId(uri), xml, null);
 			return doc.getDocumentKey();
 		} catch (IOException | XDMException ex) {
 			logger.error("registerDocument.error: " + ex.getMessage(), ex);
@@ -237,12 +238,13 @@ public class DocumentManagement extends SchemaFeatureManagement {
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "docId", description = "Registered Document identifier"),
 		@ManagedOperationParameter(name = "uri", description = "A new uri for the file or null"),
-		@ManagedOperationParameter(name = "docFile", description = "A full path to XML file to register")})
-	public long updateDocument(long docId, String uri, String docFile) {
+		@ManagedOperationParameter(name = "docFile", description = "A full path to XML file to register"),
+		@ManagedOperationParameter(name = "properties", description = "A list of properties separated by ';'")})
+	public long updateDocument(long docId, String uri, String docFile, String properties) {
 
 		try {
 			String xml = FileUtils.readTextFile(docFile);
-			XDMDocument doc = docManager.storeDocumentFromString(docId, uri, xml);
+			XDMDocument doc = docManager.storeDocumentFromString(new XDMDocumentId(docId, uri), xml, propsFromString(properties));
 			return doc.getDocumentKey();
 		} catch (IOException | XDMException ex) {
 			logger.error("updateDocument.error: " + ex.getMessage(), ex);
@@ -256,7 +258,7 @@ public class DocumentManagement extends SchemaFeatureManagement {
 	public boolean removeDocument(long docId) {
 		
 		try {
-			docManager.removeDocument(docId);
+			docManager.removeDocument(new XDMDocumentId(docId));
 			return true;
 		} catch (Exception ex) {
 			logger.error("removeDocument.error: " + ex.getMessage(), ex);
@@ -305,7 +307,7 @@ public class DocumentManagement extends SchemaFeatureManagement {
 	public int addDocumentToCollection(long docId, String clnName) {
 		XDMCollection cln = this.schemaManager.getEntity().getCollection(clnName);
 		if (cln != null) {
-			return docManager.addDocumentToCollections(docId, new int[] {cln.getId()});
+			return docManager.addDocumentToCollections(new XDMDocumentId(docId), new int[] {cln.getId()});
 		}
 		logger.info("addDocumentToCollection; no collection found for name: {}", clnName);
 		return 0;
@@ -318,7 +320,7 @@ public class DocumentManagement extends SchemaFeatureManagement {
 	public int removeDocumentFromCollection(long docId, String clnName) {
 		XDMCollection cln = this.schemaManager.getEntity().getCollection(clnName);
 		if (cln != null) {
-			return docManager.removeDocumentFromCollections(docId, new int[] {cln.getId()});
+			return docManager.removeDocumentFromCollections(new XDMDocumentId(docId), new int[] {cln.getId()});
 		}
 		logger.info("removeDocumentFromCollection; no collection found for name: {}", clnName);
 		return 0;
