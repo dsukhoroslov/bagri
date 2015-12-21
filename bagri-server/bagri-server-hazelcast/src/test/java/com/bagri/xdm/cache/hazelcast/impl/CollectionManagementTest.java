@@ -1,27 +1,28 @@
 package com.bagri.xdm.cache.hazelcast.impl;
 
 import static com.bagri.common.config.XDMConfigConstants.xdm_config_properties_file;
-import static com.bagri.common.config.XDMConfigConstants.xdm_document_data_format;
 
-import java.util.Properties;
+import java.util.Date;
 
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import com.bagri.xdm.api.test.XDMDocumentManagementTest;
+import com.bagri.common.manage.JMXUtils;
+import com.bagri.xdm.api.test.XDMManagementTest;
+import com.bagri.xdm.system.XDMCollection;
 import com.bagri.xdm.system.XDMSchema;
-import com.bagri.xquery.api.XQProcessor;
 
-public class JsonDocumentManagementTest extends XDMDocumentManagementTest {
-	
+public class CollectionManagementTest extends XDMManagementTest {
+
     private static ClassPathXmlApplicationContext context;
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		sampleRoot = "..\\..\\etc\\samples\\json\\";
+		sampleRoot = "..\\..\\etc\\samples\\tpox\\";
 		System.setProperty("hz.log.level", "info");
 		//System.setProperty("xdm.log.level", "trace");
 		System.setProperty("logback.configurationFile", "hz-logging.xml");
@@ -43,27 +44,18 @@ public class JsonDocumentManagementTest extends XDMDocumentManagementTest {
 		if (schema == null) {
 			schema = new XDMSchema(1, new java.util.Date(), "test", "test", "test schema", true, null);
 			xdmRepo.setSchema(schema);
+			XDMCollection collection = new XDMCollection(1, new Date(), JMXUtils.getCurrentUser(), 
+					1, "CLN_Security", "/{http://tpox-benchmark.com/security}Security", "securities", true);
+			schema.addCollection(collection);
 		}
-		// set xdm.document.format to JSON !
-		//XQProcessor xqp = xdmRepo.getXQProcessor("test_client");
-		//xqp.getProperties().setProperty("xdm.document.format", "JSON");
 	}
 
 	@After
 	public void tearDown() throws Exception {
-		// remove documents here!
 		removeDocumentsTest();
 	}
 
-	protected String getFileName(String original) {
-		return original.substring(0, original.indexOf(".")) + ".json";
-	}
-	
-	protected Properties getDocumentProperties() {
-		Properties props = new Properties();
-		props.setProperty(xdm_document_data_format, "json");
-		return props;
-	}
+	//@Test
 
-	
+
 }

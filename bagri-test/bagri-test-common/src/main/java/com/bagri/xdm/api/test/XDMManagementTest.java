@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import com.bagri.common.query.AxisType;
 import com.bagri.common.query.Comparison;
@@ -29,6 +30,10 @@ public abstract class XDMManagementTest {
 	
 	protected String getFileName(String original) {
 		return original;
+	}
+	
+	protected Properties getDocumentProperties() {
+		return null;
 	}
 	
 	protected XDMDocumentManagement getDocManagement() {
@@ -84,12 +89,14 @@ public abstract class XDMManagementTest {
 	
 	public XDMDocument createDocumentTest(String fileName) throws Exception {
 		String xml = readTextFile(fileName);
-		return getDocManagement().storeDocumentFromString(null, xml, null);
+		Properties props = getDocumentProperties();
+		return getDocManagement().storeDocumentFromString(null, xml, props);
 	}
 	
 	public XDMDocument updateDocumentTest(long docKey, String uri, String fileName) throws Exception {
 		String xml = readTextFile(fileName);
-		return getDocManagement().storeDocumentFromString(new XDMDocumentId(docKey, uri), xml, null);
+		Properties props = getDocumentProperties();
+		return getDocManagement().storeDocumentFromString(new XDMDocumentId(docKey, uri), xml, props);
 	}
 
 	public void removeDocumentTest(long docKey) throws Exception {

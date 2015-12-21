@@ -1,6 +1,5 @@
 package com.bagri.xquery.saxon;
 
-import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Collections;
@@ -10,25 +9,11 @@ import java.util.Map;
 import java.util.Properties;
 
 import javax.xml.namespace.QName;
-import javax.xml.transform.Result;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.xquery.XQDataFactory;
 import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQItemAccessor;
 import javax.xml.xquery.XQQueryException;
 import javax.xml.xquery.XQStaticContext;
 
-import net.sf.saxon.lib.ModuleURIResolver;
-import net.sf.saxon.om.Item;
-import net.sf.saxon.om.NamePool;
-import net.sf.saxon.om.SequenceIterator;
-import net.sf.saxon.query.QueryResult;
-import net.sf.saxon.query.XQueryExpression;
-import net.sf.saxon.trans.XPathException;
-import net.sf.saxon.tree.util.DocumentNumberAllocator;
-
-import com.bagri.common.query.ExpressionBuilder;
-import com.bagri.common.query.ExpressionContainer;
 import com.bagri.common.query.QueryBuilder;
 //import com.bagri.xdm.access.api.XDMDocumentManagementServer;
 import com.bagri.xdm.api.XDMDocumentManagement;
@@ -41,6 +26,15 @@ import com.bagri.xdm.common.XDMDocumentId;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMQuery;
 import com.bagri.xquery.api.XQProcessor;
+
+import net.sf.saxon.lib.ModuleURIResolver;
+import net.sf.saxon.om.Item;
+import net.sf.saxon.om.NamePool;
+import net.sf.saxon.om.SequenceIterator;
+import net.sf.saxon.query.QueryResult;
+import net.sf.saxon.query.XQueryExpression;
+import net.sf.saxon.trans.XPathException;
+import net.sf.saxon.tree.util.DocumentNumberAllocator;
 
 public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 	
@@ -152,10 +146,10 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 	    sqc.setModuleURIResolver(config.getModuleURIResolver());
    	    
 	    //check query and get 
-	    if (query.indexOf("declare option bgdm:document-format \"JSON\"") > 0) {
-	    	properties.setProperty("xdm.document.format", "JSON");
-		    logger.trace("execQuery; set document format: {}", "JSON");
-	    }
+	    //if (query.indexOf("declare option bgdm:document-format \"JSON\"") > 0) {
+	    //	properties.setProperty("xdm.document.format", "JSON");
+	    //	logger.trace("execQuery; set document format: {}", "JSON");
+	    //}
 	    
 	    Integer qKey = qMgr.getQueryKey(query);
    	    XQueryExpression xqExp = queries.get(qKey);
