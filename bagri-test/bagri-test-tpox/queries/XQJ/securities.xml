@@ -40,7 +40,7 @@ return $id" />
 declare namespace s=&quot;http://tpox-benchmark.com/security&quot;;
 declare variable $sym external;
 
-for $sec in fn:collection(&quot;/{http://tpox-benchmark.com/security}Security&quot;)/s:Security
+for $sec in fn:collection(&quot;CLN_Security&quot;)/s:Security
 where $sec/s:Symbol=$sym
 return $sec" />
 				</parameter>
@@ -67,7 +67,7 @@ return $sec" />
 declare namespace s=&quot;http://tpox-benchmark.com/security&quot;;
 declare variable $sym external;
 
-for $sec in fn:collection(&quot;/{http://tpox-benchmark.com/security}Security&quot;)/s:Security
+for $sec in fn:collection(&quot;CLN_Security&quot;)/s:Security
 where $sec/s:Symbol=$sym
 return
 	&lt;print&gt;The open price of the security &quot;{$sec/s:Name/text()}&quot; is {$sec/s:Price/s:PriceToday/s:Open/text()} dollars&lt;/print&gt;" />

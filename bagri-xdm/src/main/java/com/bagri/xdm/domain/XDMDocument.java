@@ -152,6 +152,7 @@ public class XDMDocument implements Convertable<Map<String, Object>>, Versionabl
 	}
 	
 	public boolean hasCollection(int collectId) {
+		if (collectId < 0) return false;
 		return collections.get(collectId);
 	}
 	
