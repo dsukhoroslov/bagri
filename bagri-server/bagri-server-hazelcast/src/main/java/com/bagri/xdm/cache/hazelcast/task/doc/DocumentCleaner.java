@@ -50,7 +50,7 @@ public class DocumentCleaner implements Callable<XDMTransaction>, IdentifiedData
 		//	inserted - delete docs with elements, xml and indices, not sure about results;
 		//	updated - restore previous doc version (set txFinish to 0), delete new doc version as above;
 		//	deleted - the same as for update;
-		XDMTransaction result = new XDMTransaction(xTx.getTxId(), xTx.getStartedAt(), xTx.getStartedBy());
+		XDMTransaction result = new XDMTransaction(xTx.getTxId(), xTx.getStartedAt(), xTx.getFinishedAt(), xTx.getStartedBy(), xTx.getTxIsolation(), xTx.getTxState());
 		// adjust cleaned counters; updateCounters(created, updated, deleted);
 		result.updateCounters(0, 0, 0);
 		return result;
