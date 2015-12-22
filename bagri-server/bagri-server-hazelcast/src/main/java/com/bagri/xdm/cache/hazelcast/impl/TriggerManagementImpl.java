@@ -121,7 +121,8 @@ public class TriggerManagementImpl implements XDMTriggerManagement {
     }
 
     void applyTrigger(final XDMTransaction xTx, final Action action, final Scope scope) throws XDMException {
-    	// TODO: imoplement me!
+    	// TODO: implement me!
+    	// before/after begin/commit/rollback transaction
     }
     
     public void runTrigger(Action action, Scope scope, XDMDocument xDoc, int index, String clientId) throws XDMException {

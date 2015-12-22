@@ -78,6 +78,7 @@ public class XDMDataSerializationFactory implements DataSerializableFactory {
 	public static final int cli_XQFixedCursor = 92;
 	public static final int cli_CollectionPredicate = 93;
 
+	public static final int cli_CleanTxDocumentsTask = 107; 
 	public static final int cli_UpdateDocumentCollectionTask = 108; 
 	public static final int cli_ProcessDocumentTask = 109; 
 	public static final int cli_CreateDocumentTask = 110; 
