@@ -122,20 +122,19 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
     	return keys;
     }
     
-    public Collection<XDMElements> getDocumentElements(long docId) {
-		XDMDocument doc = getDocument(docId);
+    public Collection<XDMElements> getDocumentElements(long docKey) {
+		XDMDocument doc = getDocument(docKey);
 		if (doc == null) {
 			return null;
 		}
 
 		int typeId = doc.getTypeId();
-		Set<XDMDataKey> keys = getDocumentElementKeys(model.getDocumentRoot(typeId), 
-				doc.getFragments(), typeId);
+		Set<XDMDataKey> keys = getDocumentElementKeys(model.getDocumentRoot(typeId), doc.getFragments(), typeId);
 		Map<XDMDataKey, XDMElements> elements = xdmCache.getAll(keys);
 		return elements.values();
     }
     
-	public boolean checkDocumentCollectionCommited(long docId, int clnId) throws XDMException {
+	public boolean checkDocumentCollectionCommited(long docKey, int clnId) throws XDMException {
 		
 		// TODO: make this behavior configurable! 
 		// check if any docs were removed
@@ -143,9 +142,9 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		//	return xddCache.containsKey(factory.newXDMDocumentKey(docId));
 		//}
 		
-		XDMDocument doc = getDocument(docId);
+		XDMDocument doc = getDocument(docKey);
 		if (doc != null) {
-			if (Arrays.binarySearch(doc.getCollections(), clnId) < 0) {
+			if (!doc.hasCollection(clnId)) {
 				return false;
 			}
 			if (doc.getTxFinish() > TX_NO && txManager.isTxVisible(doc.getTxFinish())) {
@@ -156,7 +155,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		return false;
 	}
 
-	public boolean checkDocumentCommited(long docId) throws XDMException {
+	public boolean checkDocumentCommited(long docKey) throws XDMException {
 		
 		// TODO: make this behavior configurable! 
 		// check if any docs were removed
@@ -164,7 +163,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		//	return xddCache.containsKey(factory.newXDMDocumentKey(docId));
 		//}
 		
-		XDMDocument doc = getDocument(docId);
+		XDMDocument doc = getDocument(docKey);
 		if (doc != null) {
 			if (doc.getTxFinish() > TX_NO && txManager.isTxVisible(doc.getTxFinish())) {
 				return false;
@@ -277,7 +276,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public long getDocumentId(String uri) {
+	private long getDocumentId(String uri) {
 		// the txFinish can be > 0, but not committed yet!
    		Predicate<XDMDocumentKey, XDMDocument> f = Predicates.and(Predicates.equal("uri", uri), 
    				Predicates.equal("txFinish", 0L));
@@ -314,14 +313,14 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	}
 	
 	@Override
-	public Collection<String> buildDocument(Set<Long> docIds, String template, Map<String, String> params) {
-        logger.trace("buildDocument.enter; docIds: {}", docIds.size());
+	public Collection<String> buildDocument(Set<Long> docKeys, String template, Map<String, String> params) {
+        logger.trace("buildDocument.enter; docKeys: {}", docKeys.size());
 		long stamp = System.currentTimeMillis();
-        Collection<String> result = new ArrayList<String>(docIds.size());
+        Collection<String> result = new ArrayList<String>(docKeys.size());
 		
         int typeId = -1;
         String root = null;
-		for (Iterator<Long> itr = docIds.iterator(); itr.hasNext(); ) {
+		for (Iterator<Long> itr = docKeys.iterator(); itr.hasNext(); ) {
 			//Long docId = itr.next();
 			XDMDocumentKey docKey = factory.newXDMDocumentKey(itr.next());
 			if (hzInstance.getPartitionService().getPartition(docKey).getOwner().localMember()) {
@@ -624,9 +623,9 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 				if (docId.getDocumentUri() == null) {
 					docId = new XDMDocumentId(docId.getDocumentKey(), docId.getDocumentKey() + "." + ext);
 				} else {
-					Long existingId = getDocumentId(docId.getDocumentUri());
+					long existingId = getDocumentId(docId.getDocumentUri());
 					// shouldn't we check here if document with docId exists?
-					if (existingId != null && existingId != docId.getDocumentKey()) {
+					if (existingId > 0 && existingId != docId.getDocumentKey()) {
 						// otherwise we'll get a situation when two different Documents
 						// are stored in the same file.
 						// what if they point to different versions of the same document!?
@@ -654,15 +653,10 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 				    	// we must finish old Document and create a new one!
 						triggerManager.applyTrigger(doc, Action.update, Scope.before);
 				    	doc.finishDocument(txManager.getCurrentTxId());
+				    	// do this asynch after tx?
 				    	((QueryManagementImpl) repo.getQueryManagement()).removeQueryResults(newKey.getKey());
 				    	xddCache.put(docKey, doc);
 				    	newKey = factory.newXDMDocumentKey(doc.getDocumentId(), doc.getVersion() + 1);
-				    	//deleteDocumentElements(docId, doc.getTypeId());
-				    	// delete unique index here..? or, later?!
-				    	Collection<Integer> pathIds = indexManager.getTypeIndexes(doc.getTypeId(), true);
-				    	for (int pathId: pathIds) {
-					    	deindexElements(doc.getDocumentKey(), pathId);
-				    	}
 				    	// shouldn't we lock the newKey too?
 				    }
 				}
@@ -691,30 +685,59 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	@Override
 	public void removeDocument(XDMDocumentId docId) throws XDMException {
 		logger.trace("removeDocument.enter; docId: {}", docId);
-	    XDMDocument doc = getDocument(docId);
-	    boolean removed = false;
-	    if (doc != null && (doc.getTxFinish() == TX_NO || !txManager.isTxVisible(doc.getTxFinish()))) {
-			//String user = JMXUtils.getCurrentUser();
-			triggerManager.applyTrigger(doc, Action.delete, Scope.before); 
-	    	doc.finishDocument(txManager.getCurrentTxId()); //, user);
-	    	XDMDocumentKey docKey = factory.newXDMDocumentKey(doc.getDocumentKey()); // doc.getDocumentId(), doc.getVersion() + 1);
-	    	xddCache.put(docKey, doc);
-	    	
-	    	// TODO: do this later, after tx commit!
-	    	//Collection<Integer> pathIds = indexManager.getTypeIndexes(doc.getTypeId(), true);
-	    	//for (int pathId: pathIds) {
-		    //	deindexElements(doc.getDocumentKey(), pathId);
-	    	//}
-			//xmlCache.delete(docId);
-			//srcCache.remove(docId);
-	    	//deleteDocumentElements(doc.getFragments(), doc.getTypeId());
-	    	
-	    	((QueryManagementImpl) repo.getQueryManagement()).removeQueryResults(doc.getDocumentKey());
-	    	triggerManager.applyTrigger(doc, Action.delete, Scope.after); 
-	    	txManager.updateCounters(0, 0, 1);
-		    removed = true;
+	    XDMDocumentKey docKey = getDocumentKey(docId);
+	    if (docKey == null) {
+    		throw new XDMException("Cannot find Document by ID: " + docId, XDMException.ecDocument);
 	    }
+	    
+	    boolean removed = false;
+		boolean locked = lockDocument(docKey);
+		if (locked) {
+			try {
+			    XDMDocument doc = getDocument(docKey);
+			    if (doc != null && (doc.getTxFinish() == TX_NO || !txManager.isTxVisible(doc.getTxFinish()))) {
+					triggerManager.applyTrigger(doc, Action.delete, Scope.before); 
+			    	doc.finishDocument(txManager.getCurrentTxId()); 
+			    	xddCache.put(docKey, doc);
+			    	((QueryManagementImpl) repo.getQueryManagement()).removeQueryResults(doc.getDocumentKey());
+			    	triggerManager.applyTrigger(doc, Action.delete, Scope.after); 
+			    	txManager.updateCounters(0, 0, 1);
+				    removed = true;
+			    }
+			} catch (XDMException ex) {
+				throw ex;
+			} catch (Exception ex) {
+				logger.error("removeDocument.error; docId: " + docId, ex);
+				throw new XDMException(ex, XDMException.ecDocument);
+			} finally {
+				unlockDocument(docKey);
+			}
+		} else {
+    		throw new XDMException("Was not able to aquire lock on Document: " + docKey + 
+    				", timeout: " + txManager.getTransactionTimeout(), XDMException.ecDocument);
+		}
 		logger.trace("removeDocument.exit; removed: {}", removed);
+	}
+	
+	public void cleanDocument(XDMDocumentKey docKey, boolean complete) {
+		logger.trace("cleanDocument.enter; docKey: {}, complete: {}", docKey, complete);
+	    XDMDocument doc = getDocument(docKey);
+	    boolean cleaned = false;
+	    if (doc != null) {
+			xmlCache.delete(docKey);
+			srcCache.remove(docKey);
+	    	deleteDocumentElements(doc.getFragments(), doc.getTypeId());
+	    	Collection<Integer> pathIds = indexManager.getTypeIndexes(doc.getTypeId(), true);
+	    	for (int pathId: pathIds) {
+	    		deindexElements(docKey.getKey(), pathId);
+	    	}
+	    	if (complete) {
+	    		xddCache.delete(docKey);
+	    	}
+	    	cleaned = true;
+	    }
+    	((QueryManagementImpl) repo.getQueryManagement()).removeQueryResults(docKey.getKey());
+		logger.trace("cleanDocument.exit; cleaned: {}", cleaned);
 	}
 
 	private void deleteDocumentElements(long[] fragments, int typeId) {
@@ -747,6 +770,18 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 				cnt, iCnt, xdmCache.size());
 	}
 
+	public void rollbackDocument(XDMDocumentKey docKey) {
+		logger.trace("rollbackDocument.enter; docKey: {}", docKey);
+		boolean rolled = false;
+	    XDMDocument doc = getDocument(docKey);
+	    if (doc != null) {
+	    	doc.finishDocument(TX_NO);
+	    	xddCache.set(docKey, doc);
+	    	rolled = true;
+	    }
+		logger.trace("rollbackDocument.exit; rolled back: {}", rolled);
+	}
+	
 	@Override
 	public Collection<XDMDocumentId> getCollectionDocumentIds(int collectId) {
 		//

@@ -38,7 +38,7 @@ public class RangeIndexManagementTest extends XDMQueryManagementTest {
 
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
-		//Hazelcast.shutdownAll();
+		Thread.sleep(3000);
 		context.close();
 	}
 

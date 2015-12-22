@@ -140,7 +140,8 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 		if (xTx != null) {
 			triggerManager.applyTrigger(xTx, Action.commit, Scope.before); 
 			xTx.finish(true, cluster.getClusterTime());
-			txCache.delete(txId);
+			//txCache.delete(txId);
+			txCache.set(txId, xTx);
 		} else {
 			throw new XDMException("no transaction found for TXID: " + txId, ecTransNotFound);
 		}
@@ -164,13 +165,11 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 		} else {
 			throw new XDMException("No transaction found for TXID: " + txId, ecTransNotFound);
 		}
-		// do not delete rolled back xTx for a while
 		thTx.set(TX_NO);
 		cntRolled.incrementAndGet();
 		triggerManager.applyTrigger(xTx, Action.rollback, Scope.after); 
 		cTopic.publish(new XDMCounter(false, xTx.getDocsCreated(), xTx.getDocsUpdated(), xTx.getDocsDeleted()));
 		cleanAffectedDocuments(xTx);
-		// we can delete xTx after the cleanup above finishes
 		logger.trace("rollbackTransaction.exit; tx: {}", xTx); 
 	}
 	
@@ -350,25 +349,21 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 			}
 		}
 		if (txClean != null) {
-			if (txClean.getTxState() == XDMTransactionState.commited) {
-				logger.debug("onComplete; got complete response for commited tx: {}", txClean);
-			} else {
+			//if (txClean.getTxState() == XDMTransactionState.commited) {
+			//	logger.debug("onComplete; got complete response for commited tx: {}", txClean);
+			//} else {
 				XDMTransaction txSource = txCache.get(txClean.getTxId());
 				if (txSource != null) {
-					if (txSource.getDocsCreated() != txClean.getDocsCreated()) {
-						logger.info("onComplete; not all created documents cleaned; expected: {}, cleaned: {}", txSource.getDocsCreated(), txClean.getDocsCreated());
-					}
-					if (txSource.getDocsUpdated() != txClean.getDocsUpdated()) {
-						logger.info("onComplete; not all updated documents cleaned; expected: {}, cleaned: {}", txSource.getDocsUpdated(), txClean.getDocsUpdated());
-					}
-					if (txSource.getDocsDeleted() != txClean.getDocsDeleted()) {
-						logger.info("onComplete; not all deleted documents cleaned; expected: {}, cleaned: {}", txSource.getDocsDeleted(), txClean.getDocsDeleted());
+					if (txSource.getDocsCreated() != txClean.getDocsCreated() ||
+						txSource.getDocsUpdated() != txClean.getDocsUpdated() ||
+						txSource.getDocsDeleted() != txClean.getDocsDeleted()) {
+						logger.info("onComplete; wrong number of cleaned documents; expected: {}, reported: {}", txSource, txClean);
 					}
 					txCache.delete(txClean.getTxId());
 				} else {
 					logger.info("onComplete; got complete response for unknown tx: {}", txClean);
 				}
-			}
+			//}
 		} else {
 			logger.info("onComplete; got empty complete response");
 		}

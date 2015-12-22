@@ -96,6 +96,7 @@
 					</hz:properties>
 				</hz:map-store>
 				<hz:indexes>
+					<hz:index attribute="txStart"/>
 					<hz:index attribute="txFinish"/>
 					<hz:index attribute="typeId"/>
 					<hz:index attribute="uri"/>
