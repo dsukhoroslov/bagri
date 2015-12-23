@@ -6,6 +6,7 @@ import com.bagri.xdm.client.hazelcast.impl.ResultCursor;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentCreator;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentProcessor;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentRemover;
+import com.bagri.xdm.client.hazelcast.task.auth.UserAuthenticator;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentCollectionUpdater;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentContentProvider;
 import com.bagri.xdm.client.hazelcast.task.query.DocumentIdsProvider;
@@ -121,6 +122,7 @@ public class XDMDataSerializationFactory implements DataSerializableFactory {
 	public static final int cli_RemoveTriggerTask = 144;
 	public static final int cli_RunTriggerTask = 145;
 	public static final int cli_RegisterModelTask = 146;
+	public static final int cli_AuthenticateTask = 147;
 	
 	@Override
 	public IdentifiedDataSerializable create(int typeId) {
@@ -141,6 +143,7 @@ public class XDMDataSerializationFactory implements DataSerializableFactory {
 			case cli_ProvideDocumentContentTask: return new DocumentContentProvider();
 			case cli_ExecXQCommandTask: return new XQCommandExecutor();
 			case cli_BuildQueryXMLTask: return new XMLBuilder();
+			case cli_AuthenticateTask: return new UserAuthenticator();
 		}
 		return null;
 	}

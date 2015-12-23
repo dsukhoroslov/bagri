@@ -7,6 +7,7 @@ import com.bagri.xdm.cache.hazelcast.predicate.ResultsDocPredicate;
 import com.bagri.xdm.cache.hazelcast.predicate.ResultsQueryPredicate;
 import com.bagri.xdm.cache.hazelcast.task.doc.DocumentCreator;
 import com.bagri.xdm.cache.hazelcast.task.doc.DocumentRemover;
+import com.bagri.xdm.cache.hazelcast.task.auth.UserAuthenticator;
 import com.bagri.xdm.cache.hazelcast.task.doc.DocumentCleaner;
 import com.bagri.xdm.cache.hazelcast.task.doc.DocumentCollectionUpdater;
 import com.bagri.xdm.cache.hazelcast.task.doc.DocumentContentProvider;
@@ -93,6 +94,7 @@ public class XDMDataSerializationFactory extends com.bagri.xdm.client.hazelcast.
 			case cli_RemoveTriggerTask: return new TriggerRemover(); 
 			case cli_RunTriggerTask: return new TriggerRunner(); 
 			case cli_RegisterModelTask: return new ModelRegistrator();
+			case cli_AuthenticateTask: return new UserAuthenticator();
 		}
 		return super.create(typeId);
 	}

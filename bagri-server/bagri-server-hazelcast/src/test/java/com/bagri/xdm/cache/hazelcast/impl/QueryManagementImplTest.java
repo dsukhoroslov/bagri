@@ -68,76 +68,42 @@ public class QueryManagementImplTest extends XDMQueryManagementTest {
 	public void selectDocumentTest() throws Exception {
 		
 		storeSecurityTest();
-		String query = "declare namespace s=\"http://tpox-benchmark.com/security\";\n" +
-				"for $sec in fn:doc(\"bgdm:/1\")/s:Security\n" +
-		  		//"where $sec/s:Symbol=$sym\n" + 
-				"return $sec\n";
 		Map<QName, Object> bindings = new HashMap<>();
 		//bindings.put(new QName("sym"), "VFINX");
 		Properties props = new Properties();
 		props.setProperty(pn_client_id, "1");
 		props.setProperty(pn_client_fetchSize, "0");
-		Iterator itr = xRepo.getQueryManagement().executeXQuery(query, bindings, props);
-		Assert.assertNotNull(itr);
-		((ResultCursor) itr).deserialize(((RepositoryImpl) xRepo).getHzInstance());
-		Assert.assertTrue(itr.hasNext());
-
-		//query = "declare namespace s=\"http://tpox-benchmark.com/security\";\n" +
-		//		"for $sec in fn:doc(\"bgdm:/2\")/s:Security\n" +
-		//		"return $sec\n";
-		//itr = xRepo.getQueryManagement().executeXQuery(query, bindings, props);
-		//Assert.assertNull(itr);
-
-		query = "declare namespace s=\"http://tpox-benchmark.com/security\";\n" +
-				"for $sec in fn:doc(\"bgdm:/65537\")/s:Security\n" +
+		for (Long id: ids) {
+			String query = "declare namespace s=\"http://tpox-benchmark.com/security\";\n" +
+				"for $sec in fn:doc(\"bgdm:/" + id + "\")/s:Security\n" +
+		  		//"where $sec/s:Symbol=$sym\n" + 
 				"return $sec\n";
-		itr = xRepo.getQueryManagement().executeXQuery(query, bindings, props);
-		Assert.assertNotNull(itr);
-		((ResultCursor) itr).deserialize(((RepositoryImpl) xRepo).getHzInstance());
-		Assert.assertTrue(itr.hasNext());
-		
-		query = "declare namespace s=\"http://tpox-benchmark.com/security\";\n" +
-				"for $sec in fn:doc(\"bgdm:/131073\")/s:Security\n" +
-				"return $sec\n";
-		itr = xRepo.getQueryManagement().executeXQuery(query, bindings, props);
-		Assert.assertNotNull(itr);
-		((ResultCursor) itr).deserialize(((RepositoryImpl) xRepo).getHzInstance());
-		Assert.assertTrue(itr.hasNext());
+			Iterator itr = xRepo.getQueryManagement().executeXQuery(query, bindings, props);
+			Assert.assertNotNull(itr);
+			((ResultCursor) itr).deserialize(((RepositoryImpl) xRepo).getHzInstance());
+			Assert.assertTrue(itr.hasNext());
+		}
 	}
 
 	@Test
 	public void selectDocumentByUriTest() throws Exception {
 		
 		storeSecurityTest();
-		String query = "declare namespace s=\"http://tpox-benchmark.com/security\";\n" +
-				"for $sec in fn:doc(\"1.xml\")/s:Security\n" +
-		  		//"where $sec/s:Symbol=$sym\n" + 
-				"return $sec\n";
 		Map<QName, Object> bindings = new HashMap<>();
 		//bindings.put(new QName("sym"), "VFINX");
 		Properties props = new Properties();
 		props.setProperty(pn_client_id, "1");
 		props.setProperty(pn_client_fetchSize, "0");
-		Iterator itr = xRepo.getQueryManagement().executeXQuery(query, bindings, props);
-		Assert.assertNotNull(itr);
-		((ResultCursor) itr).deserialize(((RepositoryImpl) xRepo).getHzInstance());
-		Assert.assertTrue(itr.hasNext());
-
-		query = "declare namespace s=\"http://tpox-benchmark.com/security\";\n" +
-				"for $sec in fn:doc(\"65537.xml\")/s:Security\n" +
+		for (Long id: ids) {
+			String query = "declare namespace s=\"http://tpox-benchmark.com/security\";\n" +
+				"for $sec in fn:doc(\"" + id + ".xml\")/s:Security\n" +
+		  		//"where $sec/s:Symbol=$sym\n" + 
 				"return $sec\n";
-		itr = xRepo.getQueryManagement().executeXQuery(query, bindings, props);
-		Assert.assertNotNull(itr);
-		((ResultCursor) itr).deserialize(((RepositoryImpl) xRepo).getHzInstance());
-		Assert.assertTrue(itr.hasNext());
-		
-		query = "declare namespace s=\"http://tpox-benchmark.com/security\";\n" +
-				"for $sec in fn:doc(\"131073.xml\")/s:Security\n" +
-				"return $sec\n";
-		itr = xRepo.getQueryManagement().executeXQuery(query, bindings, props);
-		Assert.assertNotNull(itr);
-		((ResultCursor) itr).deserialize(((RepositoryImpl) xRepo).getHzInstance());
-		Assert.assertTrue(itr.hasNext());
+			Iterator itr = xRepo.getQueryManagement().executeXQuery(query, bindings, props);
+			Assert.assertNotNull(itr);
+			((ResultCursor) itr).deserialize(((RepositoryImpl) xRepo).getHzInstance());
+			Assert.assertTrue(itr.hasNext());
+		}
 	}
 	
 }

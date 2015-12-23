@@ -1,6 +1,5 @@
 package com.bagri.xdm.client.hazelcast.impl;
 
-import static com.bagri.common.security.Encryptor.encrypt;
 import static com.bagri.xdm.client.common.XDMCacheConstants.CN_XDM_CLIENT;
 import static com.bagri.xdm.common.XDMConstants.pn_client_bufferSize;
 import static com.bagri.xdm.common.XDMConstants.pn_client_connectAttempts;
@@ -20,10 +19,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
-import javax.xml.xquery.XQDataFactory;
-import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQItem;
 import javax.xml.xquery.XQItemType;
 import javax.xml.xquery.XQSequence;

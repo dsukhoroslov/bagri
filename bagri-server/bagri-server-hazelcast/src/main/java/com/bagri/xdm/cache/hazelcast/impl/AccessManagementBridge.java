@@ -78,10 +78,7 @@ public class AccessManagementBridge {
 		XDMUser user = users.get(username);
 		if (user != null) {
 			if (password.equals(user.getPassword())) {
-				Boolean granted = checkSchemaAccess(user, schemaname);
-				if (granted != null) {
-					result = granted;
-				}
+				result = checkSchemaPermission(user, schemaname, Permission.read);
 			} else {
 				result = false;
 			}
@@ -90,69 +87,37 @@ public class AccessManagementBridge {
 		logger.trace("authenticate.exit; returning: {}", result);
 		return result;
 	}
-	
-	public boolean getSchemaPermissions(String schemaName, String userName, Permission permName) {
-		//
-		XDMUser user = users.get(userName);
+
+	public Boolean hasPermission(String schemaname, String username, Permission perm) {
+		logger.trace("hasPermission.enter; schema: {}, user: {}, permission: {}", schemaname, username, perm);
+		Boolean result = null;
+		XDMUser user = users.get(username);
 		if (user != null) {
-			XDMPermission result = getSchemaPermissions(user, schemaName);
-			return result.hasPermission(permName);
+			result = checkSchemaPermission(user, schemaname, perm);
 		}
-		return false;
-	}
-
-	private XDMPermission getSchemaPermissions(XDMPermissionAware test, String schemaName) {
-		String schema = "com.bagri.xdm:name=" + schemaName + ",type=Schema";
-		XDMPermission result = new XDMPermission();
-		XDMPermission perm = test.getPermissions().get(schema);
-		if (perm != null) {
-			result.addPermissions(perm.getPermissions());
-		}
-		if (result.getPermissions().size() == XDMPermission.Permission.values().length) {
-			return result;
-		}
-
-		schema = "com.bagri.xdm:name=*,type=Schema";
-		perm = test.getPermissions().get(schema);
-		if (perm != null) {
-			result.addPermissions(perm.getPermissions());
-		}
-		if (result.getPermissions().size() == XDMPermission.Permission.values().length) {
-			return result;
-		}
-		
-		for (String role: test.getIncludedRoles()) {
-			XDMRole xdmr = roles.get(role);
-			if (xdmr != null) {
-				perm = getSchemaPermissions(xdmr, schemaName);
-				result.addPermissions(perm.getPermissions());
-				if (result.getPermissions().size() == XDMPermission.Permission.values().length) {
-					return result;
-				}
-			}
-		}
-		
+		// throw NotFound exception?
+		logger.trace("hasPermission.exit; returning: {}", result);
 		return result;
 	}
 	
-	private Boolean checkSchemaAccess(XDMPermissionAware test, String schemaName) {
+	private Boolean checkSchemaPermission(XDMPermissionAware test, String schemaName, Permission check) {
 		String schema = "com.bagri.xdm:name=" + schemaName + ",type=Schema";
 		XDMPermission perm = test.getPermissions().get(schema);
 		if (perm != null) {
-			return perm.hasPermission(Permission.read);
+			return perm.hasPermission(check);
 		}
 		schema = "com.bagri.xdm:name=*,type=Schema";
 		perm = test.getPermissions().get(schema);
 		if (perm != null) {
-			return perm.hasPermission(Permission.read);
+			return perm.hasPermission(check);
 		}
 		
 		for (String role: test.getIncludedRoles()) {
 			XDMRole xdmr = roles.get(role);
 			if (xdmr != null) {
-				Boolean check = checkSchemaAccess(xdmr, schemaName);
-				if (check != null) {
-					return check;
+				Boolean result = checkSchemaPermission(xdmr, schemaName, check);
+				if (result != null) {
+					return result;
 				}
 			}
 		}

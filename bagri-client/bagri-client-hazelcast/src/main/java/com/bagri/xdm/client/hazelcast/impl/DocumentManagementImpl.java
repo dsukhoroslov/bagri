@@ -135,19 +135,19 @@ public class DocumentManagementImpl extends DocumentManagementBase implements XD
 	}
 
 	@Override
-	public XDMDocument storeDocumentFromString(XDMDocumentId docId, String xml, Properties props) throws XDMException {
+	public XDMDocument storeDocumentFromString(XDMDocumentId docId, String content, Properties props) throws XDMException {
 		
-		if (xml == null) {
+		if (content == null) {
 			throw new XDMException("Document content can not be null", XDMException.ecDocument);
 		}
-		logger.trace("storeDocumentFromString.enter; docId: {}; xml: {}", docId, xml.length());
+		logger.trace("storeDocumentFromString.enter; docId: {}; content: {}", docId, content.length());
 		repo.getHealthManagement().checkClusterState();
 
 		if (docId == null) {
 			docId = new XDMDocumentId(docGen.next(), 1);
 		}
 		
-		DocumentCreator task = new DocumentCreator(docId, repo.getClientId(), repo.getTransactionId(), xml, props);
+		DocumentCreator task = new DocumentCreator(docId, repo.getClientId(), repo.getTransactionId(), content, props);
 		Future<XDMDocument> future = execService.submitToKeyOwner(task, docId);
 		try {
 			XDMDocument result = future.get();

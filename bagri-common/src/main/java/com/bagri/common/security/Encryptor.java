@@ -35,4 +35,25 @@ public class Encryptor {
 		}
     }
     
+
+    public static String encrypt(String value, String salt) { 
+
+		try {
+	        MessageDigest digest = MessageDigest.getInstance(DA_MD5);
+	        digest.update(salt.getBytes());
+	        digest.update(value.getBytes(def_encoding));
+	        byte[] hash = digest.digest();	        
+            StringBuffer hexString = new StringBuffer(2*hash.length);
+            for (byte b: hash) {
+                hexString.append(String.format("%02x", b&0xff));
+            }
+            return hexString.toString();
+		} catch (NoSuchAlgorithmException e) {
+			//e.printStackTrace();
+			return null;
+		} catch (UnsupportedEncodingException e) {
+			//e.printStackTrace();
+			return null;
+		}
+    }
 }

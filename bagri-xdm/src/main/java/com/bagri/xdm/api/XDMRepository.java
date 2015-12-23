@@ -8,7 +8,7 @@ public interface XDMRepository {
 
 	String getUserName();
 	
-	//XDMAccessManagement getAccessManagement();
+	XDMAccessManagement getAccessManagement();
 	
 	XDMBindingManagement getBindingManagement();
 	

@@ -440,6 +440,7 @@
 	
 	<bean id="xdmRepo" class="com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl">
 		<property name="hzInstance" ref="hzInstance"/>
+		<property name="accessManagement" ref="accManager"/>
 		<property name="bindingManagement" ref="bindManager"/>
 		<property name="clientManagement" ref="clientManager"/>
 		<property name="modelManagement" ref="mdlManager"/>
