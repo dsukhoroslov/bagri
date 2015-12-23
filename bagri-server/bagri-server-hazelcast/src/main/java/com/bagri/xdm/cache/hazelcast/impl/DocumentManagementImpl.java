@@ -44,7 +44,6 @@ import com.bagri.xdm.system.XDMFragment;
 import com.bagri.xdm.system.XDMSchema;
 import com.bagri.xdm.system.XDMTriggerAction.Action;
 import com.bagri.xdm.system.XDMTriggerAction.Scope;
-import com.bagri.xquery.api.XQProcessor;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.IMap;
@@ -363,7 +362,6 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
         return result;
 	}
     
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private String buildElement(String path, long[] fragments, int docType) {
     	Set<XDMDataKey> xdKeys = getDocumentElementKeys(path, fragments, docType);
        	return buildXml(xdmCache.getAll(xdKeys));
@@ -377,6 +375,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 			logger.info("getDocumentAsString; can not construct valid DocumentKey ID: {}", docId);
 			return null;
 		}
+
 		String xml = xmlCache.get(docKey);
 		// very expensive operation!!
 		//logger.trace("getDocumentAsString; xml cache stats: {}", xmlCache.getLocalMapStats());
@@ -461,6 +460,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		return result;
 	}
     
+	@SuppressWarnings("unchecked")
 	public XDMDocument createDocument(XDMDocumentId docId, String content, Properties props) throws XDMException {
 		logger.trace("createDocument.enter; docId: {}; props: {}", docId, props);
 		// TODO: move this out & refactor ?
@@ -598,7 +598,6 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	}
 	
 	@Override
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public XDMDocument storeDocumentFromString(XDMDocumentId docId, String xml, Properties props) throws XDMException {
 		logger.trace("storeDocumentFromString.enter; docId: {}; xml: {}; props: {}", docId, xml.length(), props);
 		String ext = getDataFormat(props).toLowerCase();
@@ -687,7 +686,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		logger.trace("removeDocument.enter; docId: {}", docId);
 	    XDMDocumentKey docKey = getDocumentKey(docId);
 	    if (docKey == null) {
-    		throw new XDMException("Cannot find Document by ID: " + docId, XDMException.ecDocument);
+    		throw new XDMException("No document found for document Id: " + docId, XDMException.ecDocument);
 	    }
 	    
 	    boolean removed = false;
@@ -785,7 +784,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	@Override
 	public Collection<XDMDocumentId> getCollectionDocumentIds(int collectId) {
 		//
-		Predicate clp = new CollectionPredicate(collectId);
+		Predicate<XDMDocumentKey, XDMDocument> clp = new CollectionPredicate(collectId);
 		Set<XDMDocumentKey> docKeys = xddCache.keySet(clp);
 		List<XDMDocumentId> result = new ArrayList<>(docKeys.size());
 		for (XDMDocumentKey key: docKeys) {
@@ -796,7 +795,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 
 	Collection<Long> getCollectionDocumentKeys(int collectId) {
 		//
-		Predicate clp = new CollectionPredicate(collectId);
+		Predicate<XDMDocumentKey, XDMDocument> clp = new CollectionPredicate(collectId);
 		Set<XDMDocumentKey> docKeys = xddCache.keySet(clp);
 		List<Long> result = new ArrayList<>(docKeys.size());
 		for (XDMDocumentKey key: docKeys) {

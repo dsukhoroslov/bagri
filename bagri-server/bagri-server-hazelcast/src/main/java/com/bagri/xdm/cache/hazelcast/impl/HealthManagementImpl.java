@@ -62,11 +62,9 @@ public class HealthManagementImpl implements MessageListener<XDMCounter>, Partit
 			cntActive += counter.getCreated();
 			cntActive -= counter.getDeleted();
 			cntInactive += counter.getUpdated();
-			cntInactive += counter.getDeleted()*2;
+			cntInactive += counter.getDeleted(); 
 		} else {
-			cntInactive += counter.getCreated();
-			cntInactive += counter.getUpdated();
-			cntInactive += counter.getDeleted();
+			// nothing will change, all garbage will be compensated
 		}
 		checkState();
 	}
@@ -85,7 +83,7 @@ public class HealthManagementImpl implements MessageListener<XDMCounter>, Partit
 			hState = XDMHealthState.good; 
 		} 
 		if (hState != XDMHealthState.good) { 			
-			logger.info("checkState; the state is: {}; fullSize: {}; docSize: {}", hState, fullSize, docSize);
+			logger.info("checkState; the state is: {}; expected size: {}; cache size: {}", hState, fullSize, docSize);
 		}
 		hTopic.publish(hState);
 	}

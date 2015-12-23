@@ -1,5 +1,6 @@
 package com.bagri.xdm.cache.hazelcast.task.doc;
 
+import java.util.Properties;
 import java.util.concurrent.Callable;
 
 import org.slf4j.Logger;
@@ -8,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.bagri.xdm.api.XDMDocumentManagement;
+import com.bagri.xdm.cache.api.XDMClientManagement;
 import com.bagri.xdm.cache.api.XDMRepository;
 import com.bagri.xdm.cache.api.XDMTransactionManagement;
 import com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl;
@@ -17,7 +19,9 @@ import com.hazelcast.spring.context.SpringAware;
 @SpringAware
 public class DocumentCreator extends com.bagri.xdm.client.hazelcast.task.doc.DocumentCreator {
 
-	private transient XDMRepository repo;
+	private static final transient Logger logger = LoggerFactory.getLogger(DocumentCreator.class);
+	
+	private transient RepositoryImpl repo;
 	private transient XDMDocumentManagement docMgr;
 	private transient XDMTransactionManagement txMgr;
     
@@ -33,14 +37,19 @@ public class DocumentCreator extends com.bagri.xdm.client.hazelcast.task.doc.Doc
 	}
 
     @Autowired
-	public void setRepository(XDMRepository repo) {
+	public void setRepository(RepositoryImpl repo) {
 		this.repo = repo;
 	}
 
     @Override
 	public XDMDocument call() throws Exception {
 
-    	((RepositoryImpl) repo).getXQProcessor(clientId);
+    	XDMClientManagement clientMgr = repo.getClientManagement();
+    	String user = clientMgr.getCurrentUser();
+    	//repo.
+    	
+    	repo.getXQProcessor(clientId);
+    	
     	return txMgr.callInTransaction(txId, false, new Callable<XDMDocument>() {
     		
 	    	public XDMDocument call() throws Exception {

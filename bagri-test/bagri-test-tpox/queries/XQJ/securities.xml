@@ -99,7 +99,7 @@ declare variable $pemin external;
 declare variable $pemax external;
 declare variable $yield external; 
 
-for $sec in fn:collection(&quot;/{http://tpox-benchmark.com/security}Security&quot;)/Security
+for $sec in fn:collection(&quot;CLN_Security&quot;)/Security
 where $sec[SecurityInformation/*/Sector = $sect and PE[. &gt;= $pemin and . &lt; $pemax] and Yield &gt; $yield]
 
 return	&lt;Security&gt;

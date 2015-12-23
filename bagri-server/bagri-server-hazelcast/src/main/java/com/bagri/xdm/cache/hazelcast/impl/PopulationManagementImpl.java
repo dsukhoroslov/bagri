@@ -14,18 +14,14 @@ import org.springframework.context.ApplicationContext;
 
 import com.bagri.xdm.cache.hazelcast.store.DocumentMemoryStore;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaPopulator;
-import com.bagri.xdm.cache.hazelcast.util.SpringContextHolder;
 import com.bagri.xdm.common.XDMDocumentKey;
 import com.bagri.xdm.common.XDMFactory;
-import com.bagri.xdm.domain.XDMCounter;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMTransaction;
 import com.hazelcast.core.EntryEvent;
-import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.LifecycleEvent;
 import com.hazelcast.core.LifecycleEvent.LifecycleState;
-import com.hazelcast.core.ITopic;
 import com.hazelcast.core.LifecycleListener;
 import com.hazelcast.core.MapEvent;
 import com.hazelcast.core.MemberAttributeEvent;
@@ -61,7 +57,6 @@ public class PopulationManagementImpl implements ManagedService,
     private NodeEngine nodeEngine;
 
     private XDMFactory xFactory;
-	private ITopic<XDMCounter> cTopic;
 	private IMap<Long, XDMTransaction> xtxCache;
 	//private IMap<XDMDocumentKey, XDMDocument> xddCache;
 	private IMap xddCache;
@@ -128,15 +123,14 @@ public class PopulationManagementImpl implements ManagedService,
 	}
 	
 	public Set<XDMDocumentKey> getDocumentKeys() {
-		if (enabled) {
+		if (!enabled) {
 			return null;
 		}
 		
 		Set<XDMDocumentKey> result = new HashSet<>();
 		XDMFactory factory = getXDMFactory();
 		for (Long docKey: docStore.getEntryKeys()) {
-			XDMDocumentKey key = factory.newXDMDocumentKey(docKey);
-			result.add(key);
+			result.add(factory.newXDMDocumentKey(docKey));
 		}
 		logger.info("getDocumentKeys; returning {} keys", result.size());
 		return result;
@@ -152,7 +146,6 @@ public class PopulationManagementImpl implements ManagedService,
 		docStore.init(xddCache);
 
 		// only local HM should be notified!
-		//cTopic.publish(new XDMCounter(true, actCount, docCount - actCount, 0));
 		ApplicationContext schemaCtx = (ApplicationContext) getContext(schemaName, schema_context);
 		HealthManagementImpl hMgr = schemaCtx.getBean(HealthManagementImpl.class);
 		int actCount = docStore.getActiveEntryCount();
@@ -178,7 +171,6 @@ public class PopulationManagementImpl implements ManagedService,
 		if (LifecycleState.STARTED == event.getState()) {
 			xtxCache = nodeEngine.getHazelcastInstance().getMap(CN_XDM_TRANSACTION);
 			xddCache = nodeEngine.getHazelcastInstance().getMap(CN_XDM_DOCUMENT);
-			cTopic = nodeEngine.getHazelcastInstance().getTopic(TPN_XDM_COUNTERS);
 			//readCatalog(catalog);
 			// too early
 			//checkPopulation(nodeEngine.getClusterService().getSize());
@@ -261,7 +253,9 @@ public class PopulationManagementImpl implements ManagedService,
 
 	@Override
 	public void entryRemoved(EntryEvent<XDMDocumentKey, XDMDocument> event) {
-		logger.trace("entryRemoved; event: {}", event);
+		logger.trace("entryRemoved.enter; event: {}", event);
+		boolean removed = docStore.clearEntry(event.getKey().getKey(), event.getValue(), true);
+		logger.trace("entryRemoved.exit; removed: {}", removed);
 	}
 
 	@Override

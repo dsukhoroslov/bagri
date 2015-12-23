@@ -104,12 +104,16 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<XDMDoc
     	XDMDocument doc = popManager.getDocument(docKey.getKey());
     	DocumentDataHolder ddh = null;
     	if (doc != null) {
+    		if (doc.getTxFinish() > TX_NO) {
+    			// no need to load content for inactive docs
+    			return doc;
+    		}
         	ddh = new DocumentDataHolder(doc.getUri(), doc.getTypeId());
     	} else {
     		ddh = docKeys.get(docKey);
     	}
-    	// TODO: load XML content for active documents only!
-		if (ddh != null) {
+
+    	if (ddh != null) {
     		String uri = getDataPath() + "/" + ddh.uri;
 			Path path = Paths.get(uri);
 	    	if (Files.exists(path)) {
@@ -209,7 +213,6 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<XDMDoc
 			processPathFiles(root, files);
 			Collections.sort(files);
 			XDMDocumentKey docKey; 
-			//PartitionService ps = hzInstance.getPartitionService();
 			for (Path path: files) {
 				docKey = docMgr.nextDocumentKey();
 				docKeys.put(docKey, new DocumentDataHolder(path.toString()));

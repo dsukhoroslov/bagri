@@ -1,5 +1,7 @@
 package com.bagri.samples.client;
 
+import static com.bagri.common.config.XDMConfigConstants.xdm_document_collections;
+import static com.bagri.common.config.XDMConfigConstants.xdm_document_data_format;
 import static com.bagri.common.util.FileUtils.readTextFile;
 import static com.bagri.xdm.common.XDMConstants.xs_ns;
 import static com.bagri.xdm.common.XDMConstants.xs_prefix;
@@ -231,20 +233,20 @@ public class ClientApp {
 				"declare variable $docIds external;\n" + 
 				"declare variable $props external;\n" + 
 				//"declare option bgdm:document-format \"JSON\";\n\n" + 
-				"let $id := bgdm:store-document($docIds, $xml, $props)\n" +
+				"let $id := bgdm:store-document($xml, $docIds, $props)\n" +
 				"return $id\n";
 
 	    XQPreparedExpression xqpe = xqc.prepareExpression(query);
+	    xqpe.bindString(new QName("xml"), xml, xqc.createAtomicType(XQItemType.XQBASETYPE_STRING));
 	    List docIds = new ArrayList(4);
 	    docIds.add(new Long(0));
 	    //docIds.add(new Long(1));
 	    //docIds.add(new Integer(1));
 	    docIds.add("65538.xml");
 	    xqpe.bindSequence(new QName("docIds"), xqc.createSequence(docIds.iterator()));
-	    xqpe.bindString(new QName("xml"), xml, xqc.createAtomicType(XQItemType.XQBASETYPE_STRING));
 	    List<String> props = new ArrayList<>(4);
-	    props.add("data-format=xml");
-	    props.add("collections=CLN_Custom, CLN_Security");
+	    props.add(xdm_document_data_format + "=xml");
+	    props.add(xdm_document_collections + "=CLN_Custom, CLN_Security");
 	    xqpe.bindSequence(new QName("props"), xqc.createSequence(props.iterator()));
 	    XQSequence xqs = xqpe.executeQuery();
 	    if (xqs.next()) {

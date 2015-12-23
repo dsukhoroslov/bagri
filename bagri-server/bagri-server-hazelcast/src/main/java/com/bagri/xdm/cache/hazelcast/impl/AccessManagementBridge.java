@@ -91,6 +91,50 @@ public class AccessManagementBridge {
 		return result;
 	}
 	
+	public boolean getSchemaPermissions(String schemaName, String userName, Permission permName) {
+		//
+		XDMUser user = users.get(userName);
+		if (user != null) {
+			XDMPermission result = getSchemaPermissions(user, schemaName);
+			return result.hasPermission(permName);
+		}
+		return false;
+	}
+
+	private XDMPermission getSchemaPermissions(XDMPermissionAware test, String schemaName) {
+		String schema = "com.bagri.xdm:name=" + schemaName + ",type=Schema";
+		XDMPermission result = new XDMPermission();
+		XDMPermission perm = test.getPermissions().get(schema);
+		if (perm != null) {
+			result.addPermissions(perm.getPermissions());
+		}
+		if (result.getPermissions().size() == XDMPermission.Permission.values().length) {
+			return result;
+		}
+
+		schema = "com.bagri.xdm:name=*,type=Schema";
+		perm = test.getPermissions().get(schema);
+		if (perm != null) {
+			result.addPermissions(perm.getPermissions());
+		}
+		if (result.getPermissions().size() == XDMPermission.Permission.values().length) {
+			return result;
+		}
+		
+		for (String role: test.getIncludedRoles()) {
+			XDMRole xdmr = roles.get(role);
+			if (xdmr != null) {
+				perm = getSchemaPermissions(xdmr, schemaName);
+				result.addPermissions(perm.getPermissions());
+				if (result.getPermissions().size() == XDMPermission.Permission.values().length) {
+					return result;
+				}
+			}
+		}
+		
+		return result;
+	}
+	
 	private Boolean checkSchemaAccess(XDMPermissionAware test, String schemaName) {
 		String schema = "com.bagri.xdm:name=" + schemaName + ",type=Schema";
 		XDMPermission perm = test.getPermissions().get(schema);

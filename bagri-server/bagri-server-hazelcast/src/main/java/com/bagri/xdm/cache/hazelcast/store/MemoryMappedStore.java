@@ -87,36 +87,12 @@ public abstract class MemoryMappedStore<K, E> {
 	}
 	
 	public boolean putEntry(K key, E entry, boolean expectExists) {
-		FileBuffer fb;
-		Integer pointer = pointers.get(key);
-		if (pointer != null) {
-			if (!expectExists) {
-				// already exists, but not expected
-				logger.debug("putEntry; entry already exists, but not expected; key: {}", key);
-				return false;
-			}
-
-			int sect = toSection(pointer);
-			int pos = toPosition(pointer);
-			fb = buffers.get(sect);
-			fb.lock();
-			try {
-				fb.buff.position(pos);
-				//mark entry as inactive..
-				deactivateEntry(fb.buff, entry);
-				cntActive.decrementAndGet();
-			} finally {
-				fb.unlock();
-			}
-		} else {
-			if (expectExists) {
-				// not exists, but expected
-				logger.debug("putEntry; entry not found, but expected; key: {}", key);
-				return false;
-			}
+		boolean result = clearEntry(key, entry, expectExists);
+		if (!result) {
+			return false;
 		}
-
-		fb = getLockedBuffer(entry);
+		
+		FileBuffer fb = getLockedBuffer(entry);
 		try {
 			fb.reset();
 			int pos = fb.buff.position();
@@ -132,6 +108,37 @@ public abstract class MemoryMappedStore<K, E> {
 			}
 		} finally {
 			fb.unlock();
+		}
+		return true;
+	}
+	
+	public boolean clearEntry(K key, E entry, boolean expectExists) {
+		Integer pointer = pointers.get(key);
+		if (pointer != null) {
+			if (!expectExists) {
+				// already exists, but not expected
+				logger.debug("clearEntry; entry already exists, but not expected; key: {}", key);
+				return false;
+			}
+
+			int sect = toSection(pointer);
+			int pos = toPosition(pointer);
+			FileBuffer fb = buffers.get(sect);
+			fb.lock();
+			try {
+				fb.buff.position(pos);
+				//mark entry as inactive..
+				deactivateEntry(fb.buff, entry);
+				cntActive.decrementAndGet();
+			} finally {
+				fb.unlock();
+			}
+		} else {
+			if (expectExists) {
+				// not exists, but expected
+				logger.debug("clearEntry; entry not found, but expected; key: {}", key);
+				return false;
+			}
 		}
 		return true;
 	}
