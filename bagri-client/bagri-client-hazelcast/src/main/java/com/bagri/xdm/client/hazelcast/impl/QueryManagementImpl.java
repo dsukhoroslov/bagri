@@ -70,7 +70,7 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 
 		long stamp = System.currentTimeMillis();
 		logger.trace("getDocumentURIs.enter; query: {}", query);
-		DocumentUrisProvider task = new DocumentUrisProvider(query, repo.getTransactionId());
+		DocumentUrisProvider task = new DocumentUrisProvider(repo.getClientId(), repo.getTransactionId(), query);
 		Future<Collection<String>> future = execService.submit(task);
 		execution = future;
 		Collection<String> result = getResults(future, 0);
@@ -84,7 +84,7 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 
 		long stamp = System.currentTimeMillis();
 		logger.trace("getDocumentIDs.enter; query: {}", query);
-		DocumentIdsProvider task = new DocumentIdsProvider(query, repo.getTransactionId());
+		DocumentIdsProvider task = new DocumentIdsProvider(repo.getClientId(), repo.getTransactionId(), query);
 		Future<Collection<Long>> future = execService.submit(task);
 		execution = future;
 		Collection<Long> result = getResults(future, 0);
@@ -98,7 +98,7 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 		long stamp = System.currentTimeMillis();
 		logger.trace("getXML.enter; got query: {}; template: {}; params: {}", query, template, params);
 		
-		XMLBuilder xb = new XMLBuilder(query, repo.getTransactionId(), template, params);
+		XMLBuilder xb = new XMLBuilder(repo.getClientId(), repo.getTransactionId(), query, template, params);
 		// decide about execution member via additional properties!
 		Map<Member, Future<Collection<String>>> result = execService.submitToAllMembers(xb);
 		execution = null; //!?

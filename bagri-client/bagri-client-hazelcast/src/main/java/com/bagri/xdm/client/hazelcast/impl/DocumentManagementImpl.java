@@ -116,7 +116,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements XD
 		logger.trace("getDocumentAsString.enter; got docId: {}", docId);
 		
 		String result = null;
-		DocumentContentProvider xp = new DocumentContentProvider(docId, repo.getClientId());
+		DocumentContentProvider xp = new DocumentContentProvider(repo.getClientId(), docId);
 		Future<String> future = execService.submitToKeyOwner(xp, docId);
 		try {
 			result = future.get();
@@ -147,7 +147,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements XD
 			docId = new XDMDocumentId(docGen.next(), 1);
 		}
 		
-		DocumentCreator task = new DocumentCreator(docId, repo.getClientId(), repo.getTransactionId(), content, props);
+		DocumentCreator task = new DocumentCreator(repo.getClientId(), repo.getTransactionId(), docId, content, props);
 		Future<XDMDocument> future = execService.submitToKeyOwner(task, docId);
 		try {
 			XDMDocument result = future.get();
@@ -168,7 +168,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements XD
 		//XDMDocumentRemover proc = new XDMDocumentRemover();
 		//Object result = xddCache.executeOnKey(docId, proc);
 		
-		DocumentRemover task = new DocumentRemover(docId, repo.getClientId(), repo.getTransactionId());
+		DocumentRemover task = new DocumentRemover(repo.getClientId(), repo.getTransactionId(), docId);
 		Future<XDMDocument> future = execService.submitToKeyOwner(task, docId);
 		try {
 			XDMDocument result = future.get();
@@ -215,7 +215,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements XD
 	
 	private int updateDocumentCollections(XDMDocumentId docId, boolean add, int[] collectIds) {
 		
-		DocumentCollectionUpdater task = new DocumentCollectionUpdater(docId, repo.getClientId(), add, collectIds);
+		DocumentCollectionUpdater task = new DocumentCollectionUpdater(repo.getClientId(), docId, add, collectIds);
 		Future<Integer> result = execService.submitToKeyOwner(task, docId);
 		int cnt = 0;
 		try {

@@ -12,8 +12,8 @@ public class DocumentContentProvider extends DocumentAwareTask implements Callab
 		super();
 	}
 	
-	public DocumentContentProvider(XDMDocumentId docId, String clientId) {
-		super(docId, clientId, 0);
+	public DocumentContentProvider(String clientId, XDMDocumentId docId) {
+		super(clientId, 0, docId);
 	}
 
 	@Override

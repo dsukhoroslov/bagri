@@ -398,7 +398,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 					xmlCache.set(docKey, xml);
 				}
 			} else {
-				DocumentContentProvider xp = new DocumentContentProvider(docId, null); //??
+				DocumentContentProvider xp = new DocumentContentProvider(repo.getClientId(), docId); //??
 				IExecutorService execService = hzInstance.getExecutorService(PN_XDM_SCHEMA_POOL);
 				Future<String> future = execService.submitToKeyOwner(xp, docId);
 				try {

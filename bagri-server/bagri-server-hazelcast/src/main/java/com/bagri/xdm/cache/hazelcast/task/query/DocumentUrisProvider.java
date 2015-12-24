@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.bagri.xdm.api.XDMQueryManagement;
+import com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl;
+import com.bagri.xdm.system.XDMPermission.Permission;
 import com.hazelcast.spring.context.SpringAware;
 
 @SpringAware
@@ -20,8 +22,15 @@ public class DocumentUrisProvider extends com.bagri.xdm.client.hazelcast.task.qu
 		//logger.debug("setQueryManager; got QueryManager: {}", queryMgr); 
 	}
 	    
-	@Override
+    @Autowired
+	public void setRepository(RepositoryImpl repo) {
+		this.repo = repo;
+	}
+
+    @Override
 	public Collection<String> call() throws Exception {
+    	((RepositoryImpl) repo).getXQProcessor(clientId);
+    	checkPermission(Permission.read);
        	return queryMgr.getDocumentURIs(exp);
 	}
 

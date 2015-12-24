@@ -106,7 +106,7 @@ public class DocumentManagement extends SchemaFeatureManagement {
 	public CompositeData getDocumentElements(long docId) {
 		//
 		//docManager.
-		DocumentStructureProvider task = new DocumentStructureProvider(new XDMDocumentId(docId), null); //??
+		DocumentStructureProvider task = new DocumentStructureProvider(null, new XDMDocumentId(docId)); //??
 		Future<CompositeData> result = execService.submitToKeyOwner(task, docId);
 		try {
 			return result.get();

@@ -20,11 +20,14 @@ import com.bagri.xdm.api.XDMDocumentManagement;
 import com.bagri.xdm.api.XDMException;
 //import com.bagri.xdm.api.XDMQueryManagement;
 import com.bagri.xdm.api.XDMRepository;
+import com.bagri.xdm.cache.api.XDMAccessManagement;
+import com.bagri.xdm.cache.api.XDMClientManagement;
 import com.bagri.xdm.cache.api.XDMQueryManagement;
 import com.bagri.xdm.common.XDMConstants;
 import com.bagri.xdm.common.XDMDocumentId;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMQuery;
+import com.bagri.xdm.system.XDMPermission.Permission;
 import com.bagri.xquery.api.XQProcessor;
 
 import net.sf.saxon.lib.ModuleURIResolver;
@@ -150,6 +153,7 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 	    //	properties.setProperty("xdm.document.format", "JSON");
 	    //	logger.trace("execQuery; set document format: {}", "JSON");
 	    //}
+	    // actually, I pass document format option in properties..
 	    
 	    Integer qKey = qMgr.getQueryKey(query);
    	    XQueryExpression xqExp = queries.get(qKey);
@@ -162,11 +166,12 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 	    	    // HOWTO: distinguish a query from command utilizing external function (store, remove)?
 		        readOnly = !xqExp.getExpression().getExpressionName().startsWith(XDMConstants.bg_schema);
 	        	queries.put(qKey, xqExp);
-        	}
+        	} 
    	    	
     	    if (xQuery == null) {
 		        cacheable = true; 
 	        	bcr.setQuery(null);
+		        readOnly |= !xqExp.getExpression().isUpdatingExpression();
 	        } else {
 	        	Map params = getParams();
     	    	QueryBuilder xdmQuery = xQuery.getXdmQuery();
@@ -174,10 +179,21 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
         	    	xdmQuery.resetParams(params);
     	    	}
 	    		bcr.setQuery(xdmQuery);
+	    		readOnly = xQuery.isReadOnly();
     	    }
         	bcr.setExpression(xqExp);
-	        readOnly |= !xqExp.getExpression().isUpdatingExpression();
-    	    
+
+        	String user = getRepository().getUserName();
+        	if (readOnly) {
+        		if (!((XDMAccessManagement) getRepository().getAccessManagement()).hasPermission(user, Permission.read)) {
+        			throw new XDMException("User " + user + " has no permission to read documents", XDMException.ecAccess);
+        		}
+        	} else {
+        		if (!((XDMAccessManagement) getRepository().getAccessManagement()).hasPermission(user, Permission.modify)) {
+        			throw new XDMException("User " + user + " has no permission to create/update/delete documents", XDMException.ecAccess);
+        		}
+        	}
+        	
 	        stamp = System.currentTimeMillis() - stamp;
 		    logger.trace("execQuery; xQuery: {}; time taken: {}", xQuery, stamp);
 		    stamp = System.currentTimeMillis();

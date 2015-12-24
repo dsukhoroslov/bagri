@@ -21,7 +21,6 @@ public class DocumentProcessor extends com.bagri.xdm.client.hazelcast.task.doc.D
 
 	private static final transient Logger logger = LoggerFactory.getLogger(DocumentProcessor.class);
 	
-	private transient XDMRepository repo;
 	private transient XDMDocumentManagement docMgr;
 	private transient XDMTransactionManagement txMgr;
     
@@ -50,7 +49,7 @@ public class DocumentProcessor extends com.bagri.xdm.client.hazelcast.task.doc.D
 	    	return txMgr.callInTransaction(txId, false, new Callable<XDMDocument>() {
 	    		
 		    	public XDMDocument call() throws Exception {
-		    		return docMgr.storeDocumentFromString(docId, xml, props);
+		    		return docMgr.storeDocumentFromString(docId, content, props);
 		    	}
 	    	});
     	} catch (XDMException ex) {

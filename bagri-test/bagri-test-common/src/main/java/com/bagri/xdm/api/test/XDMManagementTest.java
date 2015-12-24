@@ -2,6 +2,7 @@ package com.bagri.xdm.api.test;
 
 import static com.bagri.common.util.FileUtils.readTextFile;
 
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -30,6 +31,10 @@ public abstract class XDMManagementTest {
 	
 	protected String getFileName(String original) {
 		return original;
+	}
+	
+	protected String getUri(String fileName) {
+		return Paths.get(fileName).getFileName().toString();
 	}
 	
 	protected Properties getDocumentProperties() {
@@ -90,7 +95,7 @@ public abstract class XDMManagementTest {
 	public XDMDocument createDocumentTest(String fileName) throws Exception {
 		String xml = readTextFile(fileName);
 		Properties props = getDocumentProperties();
-		return getDocManagement().storeDocumentFromString(null, xml, props);
+		return getDocManagement().storeDocumentFromString(new XDMDocumentId(getUri(fileName)), xml, props);
 	}
 	
 	public XDMDocument updateDocumentTest(long docKey, String uri, String fileName) throws Exception {

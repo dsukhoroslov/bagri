@@ -14,16 +14,16 @@ import com.hazelcast.nio.ObjectDataOutput;
 
 public class DocumentCreator extends DocumentAwareTask implements Callable<XDMDocument> {
 
-	protected String xml;
+	protected String content;
 	protected Properties props;
 
 	public DocumentCreator() {
 		super();
 	}
 
-	public DocumentCreator(XDMDocumentId docId, String clientId, long txId, String xml, Properties props) {
-		super(docId, clientId, txId);
-		this.xml = xml;
+	public DocumentCreator(String clientId, long txId, XDMDocumentId docId, String content, Properties props) {
+		super(clientId, txId, docId);
+		this.content = content;
 		this.props = props;
 	}
 
@@ -40,14 +40,14 @@ public class DocumentCreator extends DocumentAwareTask implements Callable<XDMDo
 	@Override
 	public void readData(ObjectDataInput in) throws IOException {
 		super.readData(in);
-		xml = in.readUTF();
+		content = in.readUTF();
 		props = in.readObject();
 	}
 
 	@Override
 	public void writeData(ObjectDataOutput out) throws IOException {
 		super.writeData(out);
-		out.writeUTF(xml);
+		out.writeUTF(content);
 		out.writeObject(props);
 	}
 

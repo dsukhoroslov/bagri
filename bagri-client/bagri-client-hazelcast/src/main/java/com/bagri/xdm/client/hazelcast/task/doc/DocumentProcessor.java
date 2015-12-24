@@ -21,16 +21,16 @@ public class DocumentProcessor extends DocumentAwareTask
 	 */
 	private static final long serialVersionUID = -3225722672696011111L;
 	
-	protected String xml;
+	protected String content;
 	protected Properties props;
 
 	public DocumentProcessor() {
 		super();
 	}
 
-	public DocumentProcessor(XDMDocumentId docId, String clientId, long txId, String xml, Properties props) {
-		super(docId, clientId, txId);
-		this.xml = xml;
+	public DocumentProcessor(String clientId, long txId, XDMDocumentId docId, String content, Properties props) {
+		super(clientId, txId, docId);
+		this.content = content;
 		this.props = props;
 	}
 	
@@ -57,14 +57,14 @@ public class DocumentProcessor extends DocumentAwareTask
 	@Override
 	public void readData(ObjectDataInput in) throws IOException {
 		super.readData(in);
-		xml = in.readUTF();
+		content = in.readUTF();
 		props = in.readObject();
 	}
 
 	@Override
 	public void writeData(ObjectDataOutput out) throws IOException {
 		super.writeData(out);
-		out.writeUTF(xml);
+		out.writeUTF(content);
 		out.writeObject(props);
 	}
 

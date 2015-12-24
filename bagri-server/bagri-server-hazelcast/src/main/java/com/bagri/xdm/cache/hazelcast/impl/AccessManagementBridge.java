@@ -103,13 +103,13 @@ public class AccessManagementBridge {
 	private Boolean checkSchemaPermission(XDMPermissionAware test, String schemaName, Permission check) {
 		String schema = "com.bagri.xdm:name=" + schemaName + ",type=Schema";
 		XDMPermission perm = test.getPermissions().get(schema);
-		if (perm != null) {
-			return perm.hasPermission(check);
+		if (perm != null && perm.hasPermission(check)) {
+			return true;
 		}
 		schema = "com.bagri.xdm:name=*,type=Schema";
 		perm = test.getPermissions().get(schema);
-		if (perm != null) {
-			return perm.hasPermission(check);
+		if (perm != null && perm.hasPermission(check)) {
+			return true;
 		}
 		
 		for (String role: test.getIncludedRoles()) {

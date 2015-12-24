@@ -13,8 +13,8 @@ public class DocumentIdsProvider extends ResultBuilder implements Callable<Colle
 		super();
 	}
 	
-	public DocumentIdsProvider(ExpressionContainer exp, long txId) {
-		super(exp, txId);
+	public DocumentIdsProvider(String clientId, long txId, ExpressionContainer exp) {
+		super(clientId, txId, exp);
 	}
 
 	@Override
