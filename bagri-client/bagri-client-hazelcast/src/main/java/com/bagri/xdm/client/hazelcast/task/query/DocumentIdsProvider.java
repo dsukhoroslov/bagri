@@ -8,23 +8,17 @@ import java.util.Properties;
 import java.util.concurrent.Callable;
 
 import com.bagri.common.query.ExpressionContainer;
+import com.bagri.xdm.client.hazelcast.task.QueryAwareTask;
 import com.bagri.xdm.common.XDMDocumentId;
 
-public class DocumentIdsProvider extends ResultBuilder implements Callable<Collection<XDMDocumentId>> {
-	
-	protected String query;
-	protected Map bindings;
-	protected Properties props;
+public class DocumentIdsProvider extends QueryAwareTask implements Callable<Collection<XDMDocumentId>> {
 	
 	public DocumentIdsProvider() {
 		super();
 	}
 	
 	public DocumentIdsProvider(String clientId, long txId, String query, Map bindings, Properties props) {
-		super(clientId, txId, null);
-		this.query = query;
-		this.bindings = bindings;
-		this.props = props;
+		super(clientId, txId, query, bindings, props);
 	}
 
 	@Override

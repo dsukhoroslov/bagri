@@ -1,7 +1,10 @@
 package com.bagri.client.tpox.workload;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import net.sf.tpox.databaseoperations.DatabaseOperations;
@@ -12,7 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bagri.xdm.api.XDMRepository;
-import com.bagri.xdm.api.test.XDMQueryManagementTest;
+import com.bagri.xdm.api.test.ClientQueryManagementTest;
 import com.bagri.xdm.client.hazelcast.impl.RepositoryImpl;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.system.XDMParameter;
@@ -74,7 +77,7 @@ public class BagriXDMPlugin extends BagriTPoXPlugin {
 				case "getSecurity": {
 					ActualParamInfo param = wp.getParamMarkerActualValue(transNo, 0, rand);
 					String symbol = param.getActualValue();
-					Collection<String> sec = test.getSecurity(symbol);
+					Collection<String> sec = toCollection(test.getSecurity(symbol));
 					if (sec != null) {
 						result = sec.size();
 					}
@@ -83,7 +86,7 @@ public class BagriXDMPlugin extends BagriTPoXPlugin {
 				case "getSecurityPrice": {
 					ActualParamInfo param = wp.getParamMarkerActualValue(transNo, 0, rand);
 					String symbol = param.getActualValue();
-					Collection<String> sec = test.getPrice(symbol);
+					Collection<String> sec = toCollection(test.getPrice(symbol));
 					if (sec != null) {
 						result = sec.size();
 					}
@@ -98,7 +101,7 @@ public class BagriXDMPlugin extends BagriTPoXPlugin {
 					float peMax = Float.valueOf(param.getActualValue());
 					param = wp.getParamMarkerActualValue(transNo, 3, rand);
 					float yieldMin = Float.valueOf(param.getActualValue());
-					Collection<String> sec = test.searchSecurity(sector, peMin, peMax, yieldMin);
+					Collection<String> sec = toCollection(test.searchSecurity(sector, peMin, peMax, yieldMin));
 					if (sec != null) {
 						result = sec.size();
 					}
@@ -107,7 +110,7 @@ public class BagriXDMPlugin extends BagriTPoXPlugin {
 				case "getOrder": {
 					ActualParamInfo param = wp.getParamMarkerActualValue(transNo, 0, rand);
 					String id = param.getActualValue();
-					Collection<String> sec = test.getOrder(id);
+					Collection<String> sec = toCollection(test.getOrder(id));
 					if (sec != null) {
 						result = sec.size();
 					}
@@ -116,7 +119,7 @@ public class BagriXDMPlugin extends BagriTPoXPlugin {
 				case "getCustomerProfile": {
 					ActualParamInfo param = wp.getParamMarkerActualValue(transNo, 0, rand);
 					String id = param.getActualValue();
-					Collection<String> sec = test.getCustomerProfile(id);
+					Collection<String> sec = toCollection(test.getCustomerProfile(id));
 					if (sec != null) {
 						result = sec.size();
 					}
@@ -125,7 +128,7 @@ public class BagriXDMPlugin extends BagriTPoXPlugin {
 				case "getCustomerAccounts": {
 					ActualParamInfo param = wp.getParamMarkerActualValue(transNo, 0, rand);
 					String id = param.getActualValue();
-					Collection<String> sec = test.getCustomerAccounts(id);
+					Collection<String> sec = toCollection(test.getCustomerAccounts(id));
 					if (sec != null) {
 						result = sec.size();
 					}
@@ -161,8 +164,19 @@ public class BagriXDMPlugin extends BagriTPoXPlugin {
 	protected Logger getLogger() {
 		return logger;
 	}
+	
+	private Collection<String> toCollection(Iterator<?> iter) {
+		if (iter == null) {
+			return null;
+		}
+		List<String> result = new ArrayList<>();
+		while (iter.hasNext()) {
+			result.add(iter.next().toString());
+		}
+		return result;
+	}
 
-	private static class TPoXQueryManagerTest extends XDMQueryManagementTest {
+	private static class TPoXQueryManagerTest extends ClientQueryManagementTest {
 		
 		TPoXQueryManagerTest(XDMRepository xRepo) {
 			this.xRepo = xRepo;

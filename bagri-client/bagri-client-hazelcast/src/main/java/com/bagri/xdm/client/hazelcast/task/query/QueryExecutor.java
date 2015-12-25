@@ -1,35 +1,22 @@
 package com.bagri.xdm.client.hazelcast.task.query;
 
-import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_ExecXQCommandTask;
-import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.factoryId;
+import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_ExecQueryTask;
 
-import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 
 import com.bagri.xdm.client.hazelcast.impl.ResultCursor;
-import com.hazelcast.nio.ObjectDataInput;
-import com.hazelcast.nio.ObjectDataOutput;
-import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
+import com.bagri.xdm.client.hazelcast.task.QueryAwareTask;
 
-public class QueryExecutor implements Callable<ResultCursor>, IdentifiedDataSerializable {
+public class QueryExecutor extends QueryAwareTask implements Callable<ResultCursor> {
 
-	protected String schemaName;
-	protected String query;
-	protected Map<Object, Object> bindings;
-	protected Properties context;
-	
 	public QueryExecutor() {
-		// for de-serialization
+		super();
 	}
 	
-	public QueryExecutor(String schemaName, String query, Map bindings, Properties context) {
-		this.schemaName = schemaName;
-		this.query = query;
-		this.bindings = bindings;
-		this.context = context;
+	public QueryExecutor(String clientId, long txId, String query, Map bindings, Properties context) {
+		super(clientId, txId, query, bindings, context);
 	}
 
 	@Override
@@ -38,38 +25,8 @@ public class QueryExecutor implements Callable<ResultCursor>, IdentifiedDataSeri
 	}
 	
 	@Override
-	public int getFactoryId() {
-		return factoryId;
-	}
-	
-	@Override
 	public int getId() {
-		return cli_ExecXQCommandTask;
+		return cli_ExecQueryTask;
 	}
 
-	@Override
-	public void readData(ObjectDataInput in) throws IOException {
-		schemaName = in.readUTF();
-		query = in.readUTF();
-		//bindings = in.readObject();
-		int size = in.readInt();
-		bindings = new HashMap<Object, Object>(size);
-		for (int i=0; i < size; i++) {
-			bindings.put(in.readObject(), in.readObject());
-		}
-		context = in.readObject();
-	}
-
-	@Override
-	public void writeData(ObjectDataOutput out) throws IOException {
-		out.writeUTF(schemaName);
-		out.writeUTF(query);
-		//out.writeObject(bindings);
-		out.writeInt(bindings.size());
-		for (Map.Entry<Object, Object> bind: bindings.entrySet()) {
-			out.writeObject(bind.getKey());
-			out.writeObject(bind.getValue());
-		}
-		out.writeObject(context);
-	}
 }

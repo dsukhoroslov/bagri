@@ -1,9 +1,11 @@
 package com.bagri.xdm.client.hazelcast.impl;
 
-import static com.bagri.xdm.common.XDMConstants.*;
+import static com.bagri.xdm.common.XDMConstants.pn_schema_address;
+import static com.bagri.xdm.common.XDMConstants.pn_schema_name;
+import static com.bagri.xdm.common.XDMConstants.pn_schema_password;
+import static com.bagri.xdm.common.XDMConstants.pn_schema_user;
 
-import java.io.IOException;
-import java.util.Collection;
+import java.util.Iterator;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -12,11 +14,11 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.bagri.xdm.api.test.ClientQueryManagementTest;
 import com.bagri.xdm.api.test.ServerLauncher;
-import com.bagri.xdm.api.test.XDMManagementTest;
 import com.hazelcast.core.Hazelcast;
 
-public class TransactionManagementImplTest extends XDMManagementTest {
+public class TransactionManagementImplTest extends ClientQueryManagementTest {
 
 	private static ServerLauncher launcher;
 	private static final String srvDir = "C:\\Work\\Bagri\\git\\bagri\\bagri-server\\bagri-server-hazelcast";
@@ -57,32 +59,32 @@ public class TransactionManagementImplTest extends XDMManagementTest {
 		try {
 			storeSecurityTest();
 	
-			Collection<String> sec = getSecurity("VFINX");
+			Iterator<?> sec = getSecurity("VFINX");
 			Assert.assertNotNull(sec);
-			Assert.assertTrue(sec.size() > 0);
+			Assert.assertTrue(sec.hasNext());
 	
 			sec = getSecurity("IBM");
 			Assert.assertNotNull(sec);
-			Assert.assertTrue(sec.size() > 0);
+			Assert.assertTrue(sec.hasNext());
 	
 			sec = getSecurity("PTTAX");
 			Assert.assertNotNull(sec);
-			Assert.assertTrue(sec.size() > 0);
+			Assert.assertTrue(sec.hasNext());
 	
 			xRepo.getTxManagement().rollbackTransaction(txId);
 			txId = 0;
 			
 			sec = getSecurity("VFINX");
 			Assert.assertNotNull(sec);
-			Assert.assertTrue(sec.size() == 0);
+			Assert.assertFalse(sec.hasNext());
 	
 			sec = getSecurity("IBM");
 			Assert.assertNotNull(sec);
-			Assert.assertTrue(sec.size() == 0);
+			Assert.assertFalse(sec.hasNext());
 	
 			sec = getSecurity("PTTAX");
 			Assert.assertNotNull(sec);
-			Assert.assertTrue(sec.size() == 0);
+			Assert.assertFalse(sec.hasNext());
 		} finally {
 			if (txId > 0) {
 				xRepo.getTxManagement().rollbackTransaction(txId);

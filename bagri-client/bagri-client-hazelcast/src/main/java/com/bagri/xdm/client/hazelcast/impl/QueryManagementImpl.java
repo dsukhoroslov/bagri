@@ -28,7 +28,6 @@ import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMQueryManagement;
 import com.bagri.xdm.client.common.impl.QueryManagementBase;
 import com.bagri.xdm.client.hazelcast.task.query.DocumentIdsProvider;
-import com.bagri.xdm.client.hazelcast.task.query.DocumentUrisProvider;
 import com.bagri.xdm.client.hazelcast.task.query.XMLBuilder;
 import com.bagri.xdm.client.hazelcast.task.query.QueryExecutor;
 import com.bagri.xdm.common.XDMDocumentId;
@@ -134,14 +133,14 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 			return res.getResults().iterator();
 		}
 		
-		props.setProperty(pn_client_id, repo.getClientId());
-		props.setProperty(pn_client_txId, String.valueOf(repo.getTransactionId()));
+		//props.setProperty(pn_client_id, repo.getClientId());
+		//props.setProperty(pn_client_txId, String.valueOf(repo.getTransactionId()));
 		
 		String runOn = props.getProperty(pn_client_submitTo, "any");
-		String schemaName = repo.getSchemaName();
+		//String schemaName = repo.getSchemaName();
 
 		boolean isQuery = true;
-		QueryExecutor task = new QueryExecutor(schemaName, query, bindings, props);
+		QueryExecutor task = new QueryExecutor(repo.getClientId(), repo.getTransactionId(), query, bindings, props);
 		Future<ResultCursor> future;
 		if ("owner".equalsIgnoreCase(runOn)) {
 			future = execService.submitToKeyOwner(task, key);

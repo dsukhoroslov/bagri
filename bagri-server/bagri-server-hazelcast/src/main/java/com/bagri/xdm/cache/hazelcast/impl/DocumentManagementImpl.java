@@ -297,7 +297,9 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	@Override
 	@SuppressWarnings("unchecked")
 	public Collection<XDMDocumentId> getDocumentIds(String pattern) {
-		logger.info("getDocumentIds.enter; got pattern: {}", pattern);
+		// TODO: search by uri only so far;
+		// implement other search types: by dates, owner, etc..
+		logger.trace("getDocumentIds.enter; got pattern: {}", pattern);
    		Predicate<XDMDocumentKey, XDMDocument> f = Predicates.and(Predicates.regex("uri", pattern), 
    				Predicates.equal("txFinish", 0L));
 		Set<XDMDocumentKey> docKeys = xddCache.keySet(f);
@@ -307,7 +309,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		for (XDMDocumentKey docKey: docKeys) {
 			result.add(new XDMDocumentId(docKey.getKey()));
 		}
-		logger.info("getDocumentIds.exit; returning: {}", result.size());
+		logger.trace("getDocumentIds.exit; returning: {}", result.size());
 		return result;
 	}
 	

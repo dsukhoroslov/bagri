@@ -25,6 +25,8 @@ public class XDMConstants {
 	public static final String pn_client_connectAttempts = "xdm.client.connectAttempts";
 	public static final String pn_client_poolSize = "xdm.client.poolSize";
 	
+	public static final String pn_query_command = "xdm.query.command";
+	
 	public static final String pn_baseURI = "xqj.schema.baseUri";
 	public static final String pn_constructionMode = "xqj.schema.constructionMode";
 	public static final String pn_defaultCollationUri="xqj.schema.defaultCollationUri";

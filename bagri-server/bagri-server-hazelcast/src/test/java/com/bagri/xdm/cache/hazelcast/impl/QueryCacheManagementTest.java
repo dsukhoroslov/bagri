@@ -86,7 +86,7 @@ public class QueryCacheManagementTest extends XDMManagementTest {
 		Properties props = new Properties();
 		props.setProperty(pn_client_id, "1");
 		props.setProperty(pn_client_fetchSize, "1");
-		Iterator itr = xRepo.getQueryManagement().executeXQuery(query, bindings, props);
+		Iterator itr = xRepo.getQueryManagement().executeQuery(query, bindings, props);
 		Assert.assertNotNull(itr);
 		//((ResultCursor) itr).deserialize(((RepositoryImpl) xRepo).getHzInstance());
 		Assert.assertTrue(itr.hasNext());
@@ -136,7 +136,7 @@ public class QueryCacheManagementTest extends XDMManagementTest {
 		Properties props = new Properties();
 		props.setProperty(pn_client_id, "2");
 		props.setProperty(pn_client_fetchSize, "1");
-		Iterator itr = xRepo.getQueryManagement().executeXQuery(query, bindings, props);
+		Iterator itr = xRepo.getQueryManagement().executeQuery(query, bindings, props);
 		Assert.assertNotNull(itr);
 		//((ResultCursor) itr).deserialize(((RepositoryImpl) xRepo).getHzInstance());
 		Assert.assertTrue(itr.hasNext());

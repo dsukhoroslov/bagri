@@ -71,17 +71,18 @@ public class SourceResolverImpl implements SourceResolver, ExternalObjectModel {
 			docId = new XDMDocumentId(Long.parseLong(uri.getPath().substring(1)));
 		} else {
 			String src = original;
-			if ("file".equals(uri.getScheme())) { 
-				src = FileUtils.path2Uri(src);
+			if ("file".equals(uri.getScheme())) {
+				// here we search by fileName
+				src = FileUtils.getPathName(src);
 			}
-			logger.debug("resolveSource; not a native schema {}, trying full uri: {}", uri.getScheme(), src); 
+			logger.debug("resolveSource; not a native schema {}, trying short uri: {}", uri.getScheme(), src); 
 			Collection<XDMDocumentId> ids = repo.getDocumentManagement().getDocumentIds(src);
 			if (ids.size() > 0) {
 				docId = ids.iterator().next();
 			} else if ("file".equals(uri.getScheme())) {
-				// TODO: why we do this second time??
-				src = FileUtils.getPathName(src);
-				logger.debug("resolveSource; got no results; trying name uri: {}", src); 
+				// here we search by full name
+				src = FileUtils.path2Uri(src);
+				logger.debug("resolveSource; got no results; trying full uri: {}", src); 
 				ids = repo.getDocumentManagement().getDocumentIds(src);
 				if (ids.size() > 0) {
 					docId = ids.iterator().next();

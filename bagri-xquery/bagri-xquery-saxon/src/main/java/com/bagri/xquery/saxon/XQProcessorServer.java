@@ -183,17 +183,6 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
     	    }
         	bcr.setExpression(xqExp);
 
-        	String user = getRepository().getUserName();
-        	if (readOnly) {
-        		if (!((XDMAccessManagement) getRepository().getAccessManagement()).hasPermission(user, Permission.read)) {
-        			throw new XDMException("User " + user + " has no permission to read documents", XDMException.ecAccess);
-        		}
-        	} else {
-        		if (!((XDMAccessManagement) getRepository().getAccessManagement()).hasPermission(user, Permission.modify)) {
-        			throw new XDMException("User " + user + " has no permission to create/update/delete documents", XDMException.ecAccess);
-        		}
-        	}
-        	
 	        stamp = System.currentTimeMillis() - stamp;
 		    logger.trace("execQuery; xQuery: {}; time taken: {}", xQuery, stamp);
 		    stamp = System.currentTimeMillis();

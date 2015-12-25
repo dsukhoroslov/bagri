@@ -69,20 +69,6 @@ public abstract class XDMManagementTest {
 	//	}
 	//}
 
-	public Collection<String> getSecurity(String symbol) throws Exception {
-		String prefix = getModelManagement().getNamespacePrefix("http://tpox-benchmark.com/security"); 
-		int docType = 0; //getModelManagement().getDocumentType("/" + prefix + ":Security");
-		PathBuilder path = new PathBuilder().
-				addPathSegment(AxisType.CHILD, prefix, "Security").
-				addPathSegment(AxisType.CHILD, prefix, "Symbol").
-				addPathSegment(AxisType.CHILD, null, "text()");
-		ExpressionContainer ec = new ExpressionContainer();
-		ec.addExpression(docType, Comparison.EQ, path, "$sym", symbol);
-		Map<String, String> params = new HashMap<String, String>();
-		params.put(":sec", "/" + prefix + ":Security");
-		return getQueryManagement().getXML(ec, ":sec", params);
-	}
-	
 	protected void removeDocumentsTest() throws Exception {
 		long txId =  getTxManagement().beginTransaction();
 		for (Long key: ids) {

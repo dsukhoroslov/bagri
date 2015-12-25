@@ -5,6 +5,8 @@ import static com.bagri.common.config.XDMConfigConstants.xdm_schema_store_data_p
 import static com.bagri.common.config.XDMConfigConstants.xdm_node_instance;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 
@@ -16,9 +18,14 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import com.bagri.common.query.AxisType;
+import com.bagri.common.query.Comparison;
+import com.bagri.common.query.ExpressionContainer;
+import com.bagri.common.query.PathBuilder;
 import com.bagri.common.util.FileUtils;
 import com.bagri.common.util.PropUtils;
 import com.bagri.xdm.api.test.XDMManagementTest;
+import com.bagri.xdm.cache.api.XDMQueryManagement;
 import com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl;
 import com.bagri.xdm.cache.hazelcast.impl.TransactionManagementImpl;
 import com.bagri.xdm.system.XDMSchema;
@@ -74,6 +81,21 @@ public class TransactionCacheStoreTest extends XDMManagementTest {
 		txFileName = FileUtils.buildStoreFileName(dataPath, nodeNum, "txlog");
 	}
 
+	public Collection<String> getSecurity(String symbol) throws Exception {
+		String prefix = getModelManagement().getNamespacePrefix("http://tpox-benchmark.com/security"); 
+		int docType = 0; //getModelManagement().getDocumentType("/" + prefix + ":Security");
+		PathBuilder path = new PathBuilder().
+				addPathSegment(AxisType.CHILD, prefix, "Security").
+				addPathSegment(AxisType.CHILD, prefix, "Symbol").
+				addPathSegment(AxisType.CHILD, null, "text()");
+		ExpressionContainer ec = new ExpressionContainer();
+		ec.addExpression(docType, Comparison.EQ, path, "$sym", symbol);
+		Map<String, String> params = new HashMap<String, String>();
+		params.put(":sec", "/" + prefix + ":Security");
+		return ((XDMQueryManagement) getQueryManagement()).getContent(ec, ":sec", params);
+	}
+	
+	
 	@Test
 	public void bulkTransactionTest() throws Exception {
 		

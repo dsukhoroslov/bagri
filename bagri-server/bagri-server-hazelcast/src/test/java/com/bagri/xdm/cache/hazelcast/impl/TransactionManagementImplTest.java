@@ -4,6 +4,8 @@ import static com.bagri.common.config.XDMConfigConstants.xdm_config_properties_f
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
 import org.junit.After;
@@ -14,7 +16,12 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import com.bagri.common.query.AxisType;
+import com.bagri.common.query.Comparison;
+import com.bagri.common.query.ExpressionContainer;
+import com.bagri.common.query.PathBuilder;
 import com.bagri.xdm.api.test.XDMManagementTest;
+import com.bagri.xdm.cache.api.XDMQueryManagement;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMPath;
 import com.bagri.xdm.system.XDMSchema;
@@ -55,6 +62,21 @@ public class TransactionManagementImplTest extends XDMManagementTest {
 		removeDocumentsTest();
 	}
 
+	public Collection<String> getSecurity(String symbol) throws Exception {
+		String prefix = getModelManagement().getNamespacePrefix("http://tpox-benchmark.com/security"); 
+		int docType = 0; //getModelManagement().getDocumentType("/" + prefix + ":Security");
+		PathBuilder path = new PathBuilder().
+				addPathSegment(AxisType.CHILD, prefix, "Security").
+				addPathSegment(AxisType.CHILD, prefix, "Symbol").
+				addPathSegment(AxisType.CHILD, null, "text()");
+		ExpressionContainer ec = new ExpressionContainer();
+		ec.addExpression(docType, Comparison.EQ, path, "$sym", symbol);
+		Map<String, String> params = new HashMap<String, String>();
+		params.put(":sec", "/" + prefix + ":Security");
+		return ((XDMQueryManagement) getQueryManagement()).getContent(ec, ":sec", params);
+	}
+	
+	
 	@Test
 	public void rollbackTransactionTest() throws Exception {
 		long txId = xRepo.getTxManagement().beginTransaction();

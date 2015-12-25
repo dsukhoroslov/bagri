@@ -2,6 +2,7 @@ package com.bagri.xdm.cache.hazelcast.impl;
 
 import static com.bagri.xdm.common.XDMConstants.pn_client_fetchSize;
 import static com.bagri.xdm.common.XDMConstants.pn_client_id;
+import static com.bagri.xdm.common.XDMConstants.pn_query_command;
 import static com.bagri.xqj.BagriXQUtils.getAtomicValue;
 import static com.bagri.xqj.BagriXQUtils.isStringTypeCompatible;
 
@@ -46,6 +47,7 @@ import com.bagri.xdm.client.hazelcast.data.QueryParamsKey;
 import com.bagri.xdm.client.hazelcast.impl.FixedCursor;
 import com.bagri.xdm.client.hazelcast.impl.ResultCursor;
 import com.bagri.xdm.common.XDMDataKey;
+import com.bagri.xdm.common.XDMDocumentId;
 import com.bagri.xdm.common.XDMDocumentKey;
 import com.bagri.xdm.common.XDMResultsKey;
 import com.bagri.xdm.domain.XDMDocument;
@@ -458,9 +460,18 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 		}
 		return docIds;
 	}
-	
+
 	@Override
-	public Collection<Long> getDocumentIDs(ExpressionContainer query) throws XDMException {
+	public Collection<String> getContent(ExpressionContainer query, String template, Map params) throws XDMException {
+		
+		Collection<Long> docIds = getDocumentIds(query);
+		if (docIds.size() > 0) {
+			return docMgr.buildDocument(new HashSet<>(docIds), template, params);
+		}
+		return Collections.emptyList();
+	}
+	
+	public Collection<Long> getDocumentIds(ExpressionContainer query) throws XDMException {
 		if (query != null) {
 			ExpressionBuilder exp = query.getExpression();
 			if (exp != null && exp.getRoot() != null) {
@@ -473,7 +484,7 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 				return result;
 			}
 		}
-		logger.info("getDocumentIDs; got rootless path: {}", query); 
+		logger.info("getDocumentIds; got rootless path: {}", query); 
 		
 		// fallback to full IDs set: default collection over all documents. not too good...
 		// how could we distribute it over cache nodes? can we use local keySet only !?
@@ -488,36 +499,23 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 		return result;
 	}
 
-	//private Collection<XDMDocumentKey> getDocumentKeys(ExpressionContainer query) {
-	//	return null;
-	//}
-	
 	@Override
-	public Collection<String> getDocumentURIs(ExpressionContainer query) throws XDMException {
-		// TODO: remove this method completely, or
-		// make reverse cache..? or, make URI from docId somehow..
-		Collection<Long> ids = getDocumentIDs(query);
-		Set<XDMDocumentKey> keys = new HashSet<>(ids.size());
-		for (Long id: ids) {
-			keys.add(docMgr.getXdmFactory().newXDMDocumentKey(id));
+	public Collection<XDMDocumentId> getDocumentIds(String query, Map bindings, Properties props) throws XDMException {
+		logger.trace("getDocumentIds.enter; query: {}, command: {}; bindings: {}; properties: {}", query, bindings, props);
+		List<XDMDocumentId> result = null;
+		try {
+			Iterator iter = runQuery(query, bindings, props);
+			Collection<Long> ids = thContext.get().getDocIds();
+			result = new ArrayList<>(ids.size());
+			for (Long id: ids) {
+				// TODO: get uri from doc somehow..
+				result.add(new XDMDocumentId(id));
+			}
+		} catch (XQException ex) {
+			throw new XDMException(ex, XDMException.ecQuery);
 		}
-		Set<String> result = new HashSet<String>(ids.size());
-		// TODO: better to do this via EP or aggregator?
-		Map<XDMDocumentKey, XDMDocument> docs = xddCache.getAll(keys);
-		for (XDMDocument doc: docs.values()) {
-			result.add(doc.getUri());
-		}
+		logger.trace("getDocumentIds.exit; returning: {}", result);
 		return result;
-	}
-
-	@Override
-	public Collection<String> getXML(ExpressionContainer query, String template, Map params) throws XDMException {
-		
-		Collection<Long> docIds = getDocumentIDs(query);
-		if (docIds.size() > 0) {
-			return docMgr.buildDocument(new HashSet<>(docIds), template, params);
-		}
-		return Collections.emptyList();
 	}
 	
 	@Override
@@ -544,66 +542,17 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 		// no-op on the server side
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
-	public Iterator executeXCommand(String command, Map bindings, Properties props) throws XDMException {
-		
-		return execXQCommand(false, command, bindings, props);
-	}
+	public Iterator executeQuery(String query, Map bindings, Properties props) throws XDMException {
 
-	@Override
-	public Iterator executeXQuery(String query, Map bindings, Properties props) throws XDMException {
-
-		return execXQCommand(true, query, bindings, props);
-	}
-
-	private Iterator execXQCommand(boolean isQuery, String xqCmd, Map<QName, Object> bindings, Properties props) throws XDMException {
-
-		logger.trace("execXQCommand.enter; query: {}, command: {}; bindings: {}; properties: {}", 
-				isQuery, xqCmd, bindings, props);
-		Iterator iter = null;
+		logger.trace("executeQuery.enter; query: {}, command: {}; bindings: {}; properties: {}", query, bindings, props);
 		ResultCursor result = null;
 		String clientId = props.getProperty(pn_client_id);
 		int batchSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, "0"));
 		try {
 			XQProcessor xqp = repo.getXQProcessor(clientId);
-			if (testMode) {
-				iter = Collections.emptyIterator();
-			} else {
-				int qCode = getQueryKey(xqCmd);
-				if (isQuery) {
-					if (xqCache.containsKey(qCode)) {
-						iter = getQueryResults(xqCmd, bindings, props);
-					}
-				}
-				
-				xqp.setResults(null);
-				if (iter == null) {
-					QueryExecContext ctx = thContext.get();
-					ctx.clear();
-					
-					for (Object o: bindings.entrySet()) {
-						Map.Entry<QName, Object> var = (Map.Entry<QName, Object>) o; 
-						xqp.bindVariable(var.getKey(), var.getValue());
-					}
-					
-					if (isQuery) {
-						iter = xqp.executeXQuery(xqCmd, props);
-					} else {
-						iter = xqp.executeXCommand(xqCmd, bindings, props);
-					}
-					
-					for (Object o: bindings.entrySet()) {
-						Map.Entry<QName, Object> var = (Map.Entry<QName, Object>) o; 
-						xqp.unbindVariable(var.getKey());
-					}
-	
-					//XDMQuery xquery = xqCache.get(qCode);
-					//if (xquery != null && xquery.isReadOnly()) {
-					if (xqCache.containsKey(qCode)) {
-						iter = addQueryResults(xqCmd, bindings, props, iter);
-					}
-				}
-			}
+			Iterator iter = runQuery(query, bindings, props);
 			result = createCursor(clientId, batchSize, iter);
 			xqp.setResults(result);
 		} catch (XQException ex) {
@@ -611,6 +560,53 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 		}
 		logger.trace("execXQCommand.exit; returning: {}, for client: {}", result, clientId);
 		return result;
+	}
+	
+	private Iterator runQuery(String query, Map bindings, Properties props) throws XQException {
+		
+		Iterator iter = null;
+		String clientId = props.getProperty(pn_client_id);
+		boolean isQuery = "false".equalsIgnoreCase(props.getProperty(pn_query_command, "false"));
+		XQProcessor xqp = repo.getXQProcessor(clientId);
+		if (testMode) {
+			iter = Collections.emptyIterator();
+		} else {
+			int qCode = getQueryKey(query);
+			if (isQuery) {
+				if (xqCache.containsKey(qCode)) {
+					iter = getQueryResults(query, bindings, props);
+				}
+			}
+			
+			xqp.setResults(null);
+			if (iter == null) {
+				QueryExecContext ctx = thContext.get();
+				ctx.clear();
+				
+				for (Object o: bindings.entrySet()) {
+					Map.Entry<QName, Object> var = (Map.Entry<QName, Object>) o; 
+					xqp.bindVariable(var.getKey(), var.getValue());
+				}
+				
+				if (isQuery) {
+					iter = xqp.executeXQuery(query, props);
+				} else {
+					iter = xqp.executeXCommand(query, bindings, props);
+				}
+				
+				for (Object o: bindings.entrySet()) {
+					Map.Entry<QName, Object> var = (Map.Entry<QName, Object>) o; 
+					xqp.unbindVariable(var.getKey());
+				}
+
+				//XDMQuery xquery = xqCache.get(qCode);
+				//if (xquery != null && xquery.isReadOnly()) {
+				if (xqCache.containsKey(qCode)) {
+					iter = addQueryResults(query, bindings, props, iter);
+				}
+			}
+		}
+		return iter;
 	}
 
 	private ResultCursor createCursor(String clientId, int batchSize, Iterator iter) {
