@@ -44,6 +44,7 @@ import com.bagri.common.query.PathBuilder;
 import com.bagri.common.query.PathBuilder.PathSegment;
 import com.bagri.common.query.QueryBuilder;
 import com.bagri.xdm.api.XDMRepository;
+import com.bagri.xdm.cache.api.XDMQueryManagement;
 import com.bagri.xdm.client.common.impl.ModelManagementBase;
 import com.bagri.xdm.system.XDMCollection;
 import com.bagri.xdm.system.XDMSchema;
@@ -120,7 +121,7 @@ public class CollectionURIResolverImpl implements CollectionURIResolver {
 		
 		// provide builder's copy here.
 		exCont = query.getContainer(collectType);
-		CollectionIterator iter = new CollectionIterator(repo.getQueryManagement(), exCont);
+		CollectionIterator iter = new CollectionIterator((XDMQueryManagement) repo.getQueryManagement(), exCont);
 		logger.trace("resolve. xdm: {}; returning iter: {} for collection type: {}", repo, iter, collectType);
 		return iter;
 	}

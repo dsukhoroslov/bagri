@@ -30,7 +30,8 @@ import com.bagri.xdm.client.common.impl.QueryManagementBase;
 import com.bagri.xdm.client.hazelcast.task.query.DocumentIdsProvider;
 import com.bagri.xdm.client.hazelcast.task.query.DocumentUrisProvider;
 import com.bagri.xdm.client.hazelcast.task.query.XMLBuilder;
-import com.bagri.xdm.client.hazelcast.task.query.XQCommandExecutor;
+import com.bagri.xdm.client.hazelcast.task.query.QueryExecutor;
+import com.bagri.xdm.common.XDMDocumentId;
 import com.bagri.xdm.domain.XDMResults;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.IMap;
@@ -65,83 +66,66 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 		}
 	}
 	
-	@Override
-	public Collection<String> getDocumentURIs(ExpressionContainer query) throws XDMException {
+	//@Override
+	//public Collection<String> getDocumentURIs(ExpressionContainer query) throws XDMException {
 
-		long stamp = System.currentTimeMillis();
-		logger.trace("getDocumentURIs.enter; query: {}", query);
-		DocumentUrisProvider task = new DocumentUrisProvider(repo.getClientId(), repo.getTransactionId(), query);
-		Future<Collection<String>> future = execService.submit(task);
-		execution = future;
-		Collection<String> result = getResults(future, 0);
-		stamp = System.currentTimeMillis() - stamp;
-		logger.trace("getDocumentURIs.exit; time taken: {}; returning: {}", stamp, result);
-		return result;
-	}
+	//	long stamp = System.currentTimeMillis();
+	//	logger.trace("getDocumentURIs.enter; query: {}", query);
+	//	DocumentUrisProvider task = new DocumentUrisProvider(repo.getClientId(), repo.getTransactionId(), query);
+	//	Future<Collection<String>> future = execService.submit(task);
+	//	execution = future;
+	//	Collection<String> result = getResults(future, 0);
+	//	stamp = System.currentTimeMillis() - stamp;
+	//	logger.trace("getDocumentURIs.exit; time taken: {}; returning: {}", stamp, result);
+	//	return result;
+	//}
 	
 	@Override
-	public Collection<Long> getDocumentIDs(ExpressionContainer query) throws XDMException {
+	public Collection<XDMDocumentId> getDocumentIds(String query, Map bindings, Properties props) throws XDMException {
 
 		long stamp = System.currentTimeMillis();
 		logger.trace("getDocumentIDs.enter; query: {}", query);
-		DocumentIdsProvider task = new DocumentIdsProvider(repo.getClientId(), repo.getTransactionId(), query);
-		Future<Collection<Long>> future = execService.submit(task);
+		DocumentIdsProvider task = new DocumentIdsProvider(repo.getClientId(), repo.getTransactionId(), query, bindings, props);
+		Future<Collection<XDMDocumentId>> future = execService.submit(task);
 		execution = future;
-		Collection<Long> result = getResults(future, 0);
+		Collection<XDMDocumentId> result = getResults(future, 0);
 		stamp = System.currentTimeMillis() - stamp;
 		logger.trace("getDocumentIDs.exit; time taken: {}; returning: {}", stamp, result);
 		return result;
 	}
 	
-	@Override
-	public Collection<String> getXML(ExpressionContainer query, String template, Map params) throws XDMException {
-		long stamp = System.currentTimeMillis();
-		logger.trace("getXML.enter; got query: {}; template: {}; params: {}", query, template, params);
+	//@Override
+	//public Collection<String> getXML(ExpressionContainer query, String template, Map params) throws XDMException {
+	//	long stamp = System.currentTimeMillis();
+	//	logger.trace("getXML.enter; got query: {}; template: {}; params: {}", query, template, params);
 		
-		XMLBuilder xb = new XMLBuilder(repo.getClientId(), repo.getTransactionId(), query, template, params);
+	//	XMLBuilder xb = new XMLBuilder(repo.getClientId(), repo.getTransactionId(), query, template, params);
 		// decide about execution member via additional properties!
-		Map<Member, Future<Collection<String>>> result = execService.submitToAllMembers(xb);
-		execution = null; //!?
+	//	Map<Member, Future<Collection<String>>> result = execService.submitToAllMembers(xb);
+	//	execution = null; //!?
 
-		Collection<String> xmls = new ArrayList<String>();
-		for (Future<Collection<String>> future: result.values()) {
-			try {
-				Collection<String> c = future.get();
-				if (c.isEmpty()) {
-					continue;
-				}
-				xmls.addAll(c);
-			} catch (InterruptedException | ExecutionException ex) {
-				logger.error("getXML; error getting result", ex);
-			}
-		}
-		stamp = System.currentTimeMillis() - stamp;
-		logger.trace("getXML.exit; got query results: {}; time taken {}", xmls.size(), stamp);
-		return xmls;
-	}
+	//	Collection<String> xmls = new ArrayList<String>();
+	//	for (Future<Collection<String>> future: result.values()) {
+	//		try {
+	//			Collection<String> c = future.get();
+	//			if (c.isEmpty()) {
+	//				continue;
+	//			}
+	//			xmls.addAll(c);
+	//		} catch (InterruptedException | ExecutionException ex) {
+	//			logger.error("getXML; error getting result", ex);
+	//		}
+	//	}
+	//	stamp = System.currentTimeMillis() - stamp;
+	//	logger.trace("getXML.exit; got query results: {}; time taken {}", xmls.size(), stamp);
+	//	return xmls;
+	//}
 	
 	@Override
-	public Iterator executeXCommand(String command, Map bindings, Properties props) throws XDMException {
+	public Iterator executeQuery(String query, Map bindings, Properties props) throws XDMException {
 
 		long stamp = System.currentTimeMillis();
-		logger.trace("executeXCommand.enter; command: {}; bindings: {}; context: {}", command, bindings, props);
-		Iterator result = execXQuery(false, command, bindings, props);
-		logger.trace("executeXCommand.exit; time taken: {}; returning: {}", System.currentTimeMillis() - stamp, result);
-		return result;
-	}
-
-	@Override
-	public Iterator executeXQuery(String query, Map bindings, Properties props) throws XDMException {
-
-		long stamp = System.currentTimeMillis();
-		logger.trace("executeXQuery.enter; query: {}; bindings: {}; context: {}", query, bindings, props);
-		Iterator result = execXQuery(true, query, bindings, props);
-		logger.trace("executeXQuery.exit; time taken: {}; returning: {}", System.currentTimeMillis() - stamp, result);
-		return result; 
-	}
-	
-	private Iterator execXQuery(boolean isQuery, String query, Map bindings, Properties props) throws XDMException {
-
+		logger.trace("executeQuery.enter; query: {}; bindings: {}; context: {}", query, bindings, props);
 		//QueryParamsKey key = new QueryParamsKey(getQueryKey(query), getParamsKey(bindings));
 		long key = getResultsKey(query, bindings);
 		XDMResults res = resCache.get(key);
@@ -156,7 +140,8 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 		String runOn = props.getProperty(pn_client_submitTo, "any");
 		String schemaName = repo.getSchemaName();
 
-		XQCommandExecutor task = new XQCommandExecutor(isQuery, schemaName, query, bindings, props);
+		boolean isQuery = true;
+		QueryExecutor task = new QueryExecutor(schemaName, query, bindings, props);
 		Future<ResultCursor> future;
 		if ("owner".equalsIgnoreCase(runOn)) {
 			future = execService.submitToKeyOwner(task, key);
@@ -187,6 +172,7 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 			// possible memory leak with non-closed cursors !?
 			result = cursor;
 		}
+		logger.trace("executeQuery.exit; time taken: {}; returning: {}", System.currentTimeMillis() - stamp, result);
 		return result; 
 	}
 	

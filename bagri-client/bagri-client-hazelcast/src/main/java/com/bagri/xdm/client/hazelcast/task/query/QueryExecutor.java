@@ -14,23 +14,20 @@ import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
-public class XQCommandExecutor implements Callable<ResultCursor>, IdentifiedDataSerializable {
+public class QueryExecutor implements Callable<ResultCursor>, IdentifiedDataSerializable {
 
-	protected boolean isQuery;
 	protected String schemaName;
-	protected String command;
+	protected String query;
 	protected Map<Object, Object> bindings;
 	protected Properties context;
 	
-	public XQCommandExecutor() {
+	public QueryExecutor() {
 		// for de-serialization
 	}
 	
-	public XQCommandExecutor(boolean isQuery, String schemaName, String command, 
-			Map bindings, Properties context) {
-		this.isQuery = isQuery;
+	public QueryExecutor(String schemaName, String query, Map bindings, Properties context) {
 		this.schemaName = schemaName;
-		this.command = command;
+		this.query = query;
 		this.bindings = bindings;
 		this.context = context;
 	}
@@ -52,9 +49,8 @@ public class XQCommandExecutor implements Callable<ResultCursor>, IdentifiedData
 
 	@Override
 	public void readData(ObjectDataInput in) throws IOException {
-		isQuery = in.readBoolean();
 		schemaName = in.readUTF();
-		command = in.readUTF();
+		query = in.readUTF();
 		//bindings = in.readObject();
 		int size = in.readInt();
 		bindings = new HashMap<Object, Object>(size);
@@ -66,9 +62,8 @@ public class XQCommandExecutor implements Callable<ResultCursor>, IdentifiedData
 
 	@Override
 	public void writeData(ObjectDataOutput out) throws IOException {
-		out.writeBoolean(isQuery);
 		out.writeUTF(schemaName);
-		out.writeUTF(command);
+		out.writeUTF(query);
 		//out.writeObject(bindings);
 		out.writeInt(bindings.size());
 		for (Map.Entry<Object, Object> bind: bindings.entrySet()) {

@@ -31,7 +31,7 @@ public class DocumentUrisProvider extends com.bagri.xdm.client.hazelcast.task.qu
 	public Collection<String> call() throws Exception {
     	((RepositoryImpl) repo).getXQProcessor(clientId);
     	checkPermission(Permission.read);
-       	return queryMgr.getDocumentURIs(exp);
+       	return null; //queryMgr.getDocumentURIs(exp);
 	}
 
 }

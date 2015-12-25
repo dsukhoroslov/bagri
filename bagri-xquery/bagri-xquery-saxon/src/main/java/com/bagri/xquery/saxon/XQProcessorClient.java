@@ -40,9 +40,10 @@ public class XQProcessorClient extends XQProcessorImpl implements XQProcessor {
 	public Iterator executeXCommand(String command, Map<QName, Object> bindings, Properties props) throws XQException {
 		
     	//logger.trace("executeXCommand.enter; command: {}", command);
+		props = ensureProperty(props, "xdm.query.command", "true");
     	XDMQueryManagement qMgr = getQueryManagement();
     	try {
-    		return qMgr.executeXCommand(command, bindings, props);
+    		return qMgr.executeQuery(command, bindings, props);
     	} catch (XDMException ex) {
     		throw getXQException(ex);
     	}
@@ -58,6 +59,7 @@ public class XQProcessorClient extends XQProcessorImpl implements XQProcessor {
 	public Iterator executeXQuery(String query, Properties props) throws XQException {
 
     	//logger.trace("executeXQuery.enter; query: {}", query);
+		props = ensureProperty(props, "xdm.query.command", "false");
     	XDMQueryManagement qMgr = getQueryManagement();
     	GlobalParameterSet params = dqc.getParameters();
     	Map bindings = new HashMap<QName, Object>(params.getNumberOfKeys());
@@ -68,7 +70,7 @@ public class XQProcessorClient extends XQProcessorImpl implements XQProcessor {
     	//logger.trace("executeXQuery; bindings: {}", bindings);
     	
     	try {
-    		return qMgr.executeXQuery(query, bindings, props);
+    		return qMgr.executeQuery(query, bindings, props);
     	} catch (XDMException ex) {
     		throw getXQException(ex);
     	}
@@ -96,6 +98,14 @@ public class XQProcessorClient extends XQProcessorImpl implements XQProcessor {
 				props.setProperty(name, properties.getProperty(name));
 			}
 		}
+		return props;
+	}
+	
+	private Properties ensureProperty(Properties props, String key, String value) {
+		if (props == null) {
+			props = new Properties();
+		}
+		props.setProperty(key, value);
 		return props;
 	}
 	

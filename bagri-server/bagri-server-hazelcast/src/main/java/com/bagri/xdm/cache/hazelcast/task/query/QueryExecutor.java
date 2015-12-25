@@ -20,7 +20,7 @@ import com.bagri.xdm.client.hazelcast.impl.ResultCursor;
 //import com.hazelcast.spring.context.SpringAware;
 
 //@SpringAware
-public class XQCommandExecutor extends com.bagri.xdm.client.hazelcast.task.query.XQCommandExecutor {
+public class QueryExecutor extends com.bagri.xdm.client.hazelcast.task.query.QueryExecutor {
 
 	//private static final transient Logger logger = LoggerFactory.getLogger(XQCommandExecutor.class);
     
@@ -50,12 +50,8 @@ public class XQCommandExecutor extends com.bagri.xdm.client.hazelcast.task.query
     	long txId = XDMTransactionManagement.TX_NO;
     	String id = context.getProperty(pn_client_txId);
     	if (id == null || "0".equals(id)) {
-    		if (queryMgr.isReadOnlyQuery(command)) {
-    			if (isQuery) {
-    				return (ResultCursor) queryMgr.executeXQuery(command, bindings, context);
-    			} else {
-    				return (ResultCursor) queryMgr.executeXCommand(command, bindings, context);
-    			}
+    		if (queryMgr.isReadOnlyQuery(query)) {
+   				return (ResultCursor) queryMgr.executeQuery(query, bindings, context);
     		}
 		} else {
 			txId = Long.parseLong(id);
@@ -64,11 +60,7 @@ public class XQCommandExecutor extends com.bagri.xdm.client.hazelcast.task.query
     	return txMgr.callInTransaction(txId, false, new Callable<ResultCursor>() {
     		
 	    	public ResultCursor call() throws XDMException {
-				if (isQuery) {
-					return (ResultCursor) queryMgr.executeXQuery(command, bindings, context);
-				} else {
-			        return (ResultCursor) queryMgr.executeXCommand(command, bindings, context);
-				}
+				return (ResultCursor) queryMgr.executeQuery(query, bindings, context);
 	    	}
     	});
     }

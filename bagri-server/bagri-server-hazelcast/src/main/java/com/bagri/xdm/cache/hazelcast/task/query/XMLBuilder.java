@@ -30,7 +30,7 @@ public class XMLBuilder extends com.bagri.xdm.client.hazelcast.task.query.XMLBui
 	public Collection<String> call() throws Exception {
     	((RepositoryImpl) repo).getXQProcessor(clientId);
     	checkPermission(Permission.read);
-   		return queryMgr.getXML(exp, template, params);
+   		return null; //queryMgr.getXML(exp, template, params);
 	}
 
 

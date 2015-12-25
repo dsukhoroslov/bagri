@@ -13,7 +13,7 @@ import com.bagri.xdm.client.hazelcast.task.query.DocumentIdsProvider;
 import com.bagri.xdm.client.hazelcast.task.query.DocumentUrisProvider;
 import com.bagri.xdm.client.hazelcast.task.query.ResultFetcher;
 import com.bagri.xdm.client.hazelcast.task.query.XMLBuilder;
-import com.bagri.xdm.client.hazelcast.task.query.XQCommandExecutor;
+import com.bagri.xdm.client.hazelcast.task.query.QueryExecutor;
 import com.bagri.xdm.client.hazelcast.task.tx.TransactionAborter;
 import com.bagri.xdm.client.hazelcast.task.tx.TransactionCommiter;
 import com.bagri.xdm.client.hazelcast.task.tx.TransactionStarter;
@@ -141,7 +141,7 @@ public class XDMDataSerializationFactory implements DataSerializableFactory {
 			case cli_ProvideDocumentUrisTask: return new DocumentUrisProvider(); 
 			case cli_ProvideDocumentIdsTask: return new DocumentIdsProvider(); 
 			case cli_ProvideDocumentContentTask: return new DocumentContentProvider();
-			case cli_ExecXQCommandTask: return new XQCommandExecutor();
+			case cli_ExecXQCommandTask: return new QueryExecutor();
 			case cli_BuildQueryXMLTask: return new XMLBuilder();
 			case cli_AuthenticateTask: return new UserAuthenticator();
 		}

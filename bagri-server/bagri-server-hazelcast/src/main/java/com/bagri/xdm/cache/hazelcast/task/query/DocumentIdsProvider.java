@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.bagri.xdm.api.XDMQueryManagement;
 import com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl;
+import com.bagri.xdm.common.XDMDocumentId;
 import com.bagri.xdm.system.XDMPermission.Permission;
 import com.hazelcast.spring.context.SpringAware;
 
@@ -28,10 +29,10 @@ public class DocumentIdsProvider extends com.bagri.xdm.client.hazelcast.task.que
 	}
 
     @Override
-	public Collection<Long> call() throws Exception {
+	public Collection<XDMDocumentId> call() throws Exception {
     	((RepositoryImpl) repo).getXQProcessor(clientId);
     	checkPermission(Permission.read);
-       	return queryMgr.getDocumentIDs(exp);
+       	return queryMgr.getDocumentIds(query, bindings, props);
 	}
 
 }

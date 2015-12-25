@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import com.bagri.common.query.ExpressionContainer;
 import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.api.XDMQueryManagement;
+import com.bagri.xdm.cache.api.XDMQueryManagement;
 
 
 public class CollectionIterator implements SequenceIterator<Item>, 
@@ -50,7 +50,7 @@ public class CollectionIterator implements SequenceIterator<Item>,
 	
 	private void loadData() throws XPathException {
 		try {
-			docIds = queryMgr.getDocumentIDs(query);
+			docIds = queryMgr.getDocumentIds(query);
 		} catch (XDMException ex) {
 			logger.error("loadData.error;", ex);
 			throw new XPathException(ex);
