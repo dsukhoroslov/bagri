@@ -133,7 +133,7 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 			return res.getResults().iterator();
 		}
 		
-		//props.setProperty(pn_client_id, repo.getClientId());
+		props.setProperty(pn_client_id, repo.getClientId());
 		//props.setProperty(pn_client_txId, String.valueOf(repo.getTransactionId()));
 		
 		String runOn = props.getProperty(pn_client_submitTo, "any");
