@@ -21,16 +21,6 @@
    		</constructor-arg>
 	</bean>
 	
-	<bean id="queryProxy" class="com.bagri.xdm.cache.hazelcast.impl.QueryManagementProxy" factory-method="newQMProxy">
-		<constructor-arg index="0" ref="queryManager" />
-		<constructor-arg index="1" ref="queryQueue" />
-   		<constructor-arg index="2">
-   			<bean class="com.bagri.common.stats.watch.ThreadedStopWatch">
-				<property name="ticker" ref="mTicker" />
-   			</bean>
-   		</constructor-arg>
-	</bean>
-	
 	<bean id="xqFactory" class="com.bagri.xqj.BagriXQDataFactory">
     	<property name="processor" ref="xqProcessor" />
 	</bean>

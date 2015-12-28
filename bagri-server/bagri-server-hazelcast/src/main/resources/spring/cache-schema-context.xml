@@ -421,6 +421,12 @@
    		<property name="repository" ref="xdmRepo" />
    		<property name="indexManager" ref="idxManager" />
    		<property name="testMode" value="${xdm.schema.test.mode}" />
+		<property name="timeQueue" ref="queryQueue"/>
+		<property name="stopWatch">
+   			<bean class="com.bagri.common.stats.watch.ThreadedStopWatch">
+				<property name="ticker" ref="mTicker" />
+   			</bean>
+		</property>
 	</bean>
 
 	<bean id="trManager" class="com.bagri.xdm.cache.hazelcast.impl.TriggerManagementImpl">

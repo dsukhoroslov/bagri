@@ -4,10 +4,7 @@ import static com.bagri.xdm.api.XDMTransactionManagement.TX_NO;
 
 import java.util.concurrent.Callable;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.cache.api.XDMQueryManagement;
@@ -25,7 +22,6 @@ public class QueryExecutor extends com.bagri.xdm.client.hazelcast.task.query.Que
 	private transient XDMQueryManagement queryMgr;
     
     @Autowired
-    @Qualifier("queryProxy") //queryProxy //queryManager
 	public void setQueryManager(XDMQueryManagement queryMgr) {
 		this.queryMgr = queryMgr;
 	}

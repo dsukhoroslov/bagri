@@ -6,6 +6,7 @@ import static com.bagri.xdm.common.XDMConstants.pn_query_command;
 import static com.bagri.xqj.BagriXQUtils.getAtomicValue;
 import static com.bagri.xqj.BagriXQUtils.isStringTypeCompatible;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -35,6 +36,7 @@ import com.bagri.common.query.PathExpression;
 import com.bagri.common.query.QueriedPath;
 import com.bagri.common.query.QueryBuilder;
 import com.bagri.common.stats.StatisticsEvent;
+import com.bagri.common.stats.watch.StopWatch;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.cache.api.XDMQueryManagement;
@@ -80,6 +82,9 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
     private IMap<XDMDataKey, XDMElements> xdmCache;
 	private IMap<XDMDocumentKey, XDMDocument> xddCache;
     
+	private StopWatch stopWatch;
+	private BlockingQueue<StatisticsEvent> timeQueue;
+	
 	private boolean testMode = false; 
 
 	private ThreadLocal<QueryExecContext> thContext = new ThreadLocal<QueryExecContext>() {
@@ -129,7 +134,14 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
     	this.testMode = testMode;
     }
     
-    
+	public void setStopWatch(StopWatch stopWatch) {
+		this.stopWatch = stopWatch;
+	}
+	
+    public void setTimeQueue(BlockingQueue<StatisticsEvent> timeQueue) {
+    	this.timeQueue = timeQueue;
+    }
+
 	@Override
 	public XDMQuery getQuery(String query) {
 		Integer qCode = getQueryKey(query);
@@ -564,48 +576,68 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 	
 	private Iterator runQuery(String query, Map params, Properties props) throws XQException {
 		
+		
+        Throwable ex = null;
+        boolean failed = false;
+        stopWatch.start();
+		
 		Iterator iter = null;
 		String clientId = props.getProperty(pn_client_id);
 		boolean isQuery = "false".equalsIgnoreCase(props.getProperty(pn_query_command, "false"));
 		XQProcessor xqp = repo.getXQProcessor(clientId);
-		if (testMode) {
-			iter = Collections.emptyIterator();
-		} else {
-			int qCode = getQueryKey(query);
-			if (isQuery) {
-				if (xqCache.containsKey(qCode)) {
-					iter = getQueryResults(query, params, props);
+
+		try {
+			if (testMode) {
+				iter = Collections.emptyIterator();
+			} else {
+				int qCode = getQueryKey(query);
+				if (isQuery) {
+					if (xqCache.containsKey(qCode)) {
+						iter = getQueryResults(query, params, props);
+					}
+				}
+				
+				xqp.setResults(null);
+				if (iter == null) {
+					QueryExecContext ctx = thContext.get();
+					ctx.clear();
+					
+					for (Object o: params.entrySet()) {
+						Map.Entry<QName, Object> var = (Map.Entry<QName, Object>) o; 
+						xqp.bindVariable(var.getKey(), var.getValue());
+					}
+					
+					if (isQuery) {
+						iter = xqp.executeXQuery(query, props);
+					} else {
+						iter = xqp.executeXCommand(query, params, props);
+					}
+					
+					for (Object o: params.entrySet()) {
+						Map.Entry<QName, Object> var = (Map.Entry<QName, Object>) o; 
+						xqp.unbindVariable(var.getKey());
+					}
+	
+					//XDMQuery xquery = xqCache.get(qCode);
+					//if (xquery != null && xquery.isReadOnly()) {
+					if (xqCache.containsKey(qCode)) {
+						iter = addQueryResults(query, params, props, iter);
+					}
 				}
 			}
 			
-			xqp.setResults(null);
-			if (iter == null) {
-				QueryExecContext ctx = thContext.get();
-				ctx.clear();
-				
-				for (Object o: params.entrySet()) {
-					Map.Entry<QName, Object> var = (Map.Entry<QName, Object>) o; 
-					xqp.bindVariable(var.getKey(), var.getValue());
-				}
-				
-				if (isQuery) {
-					iter = xqp.executeXQuery(query, props);
-				} else {
-					iter = xqp.executeXCommand(query, params, props);
-				}
-				
-				for (Object o: params.entrySet()) {
-					Map.Entry<QName, Object> var = (Map.Entry<QName, Object>) o; 
-					xqp.unbindVariable(var.getKey());
-				}
-
-				//XDMQuery xquery = xqCache.get(qCode);
-				//if (xquery != null && xquery.isReadOnly()) {
-				if (xqCache.containsKey(qCode)) {
-					iter = addQueryResults(query, params, props, iter);
-				}
-			}
-		}
+        } catch (Throwable t) {
+            failed = true;
+            ex = t;
+        }
+        long stamp = stopWatch.stop();
+        if (!timeQueue.offer(new StatisticsEvent(query, !failed, stamp))) {
+        	logger.warn("invoke: the timeQueue is full!!");
+        }
+        if (failed) {
+            throw new XQException(ex.getMessage());
+        }
+			
 		return iter;
 	}
 

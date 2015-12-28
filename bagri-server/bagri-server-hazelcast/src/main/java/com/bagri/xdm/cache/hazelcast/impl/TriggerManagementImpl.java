@@ -1,8 +1,5 @@
 package com.bagri.xdm.cache.hazelcast.impl;
 
-import static com.bagri.xdm.client.common.XDMCacheConstants.CN_XDM_TRANSACTION;
-import static com.bagri.xdm.client.common.XDMCacheConstants.SQN_TRANSACTION;
-
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URL;
