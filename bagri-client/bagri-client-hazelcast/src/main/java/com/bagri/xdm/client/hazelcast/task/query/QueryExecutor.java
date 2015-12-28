@@ -15,8 +15,8 @@ public class QueryExecutor extends QueryAwareTask implements Callable<ResultCurs
 		super();
 	}
 	
-	public QueryExecutor(String clientId, long txId, String query, Map bindings, Properties context) {
-		super(clientId, txId, query, bindings, context);
+	public QueryExecutor(String clientId, long txId, String query, Map params, Properties context) {
+		super(clientId, txId, query, params, context);
 	}
 
 	@Override

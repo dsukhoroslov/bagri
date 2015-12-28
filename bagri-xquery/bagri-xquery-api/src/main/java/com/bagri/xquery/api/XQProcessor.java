@@ -10,11 +10,9 @@ import javax.xml.xquery.XQStaticContext;
 
 public interface XQProcessor extends QueryProcessor {
 
-	Iterator<?> executeXCommand(String command, Map<QName, Object> bindings, 
-			XQStaticContext ctx) throws XQException;
+	Iterator<?> executeXCommand(String command, Map<QName, Object> params, XQStaticContext ctx) throws XQException;
 	
-    Iterator<?> executeXCommand(String command, Map<QName, Object> bindings, 
-    		Properties props) throws XQException;
+    Iterator<?> executeXCommand(String command, Map<QName, Object> params, Properties props) throws XQException;
 
     Iterator<?> getResults();
     void setResults(Iterator<?> itr);

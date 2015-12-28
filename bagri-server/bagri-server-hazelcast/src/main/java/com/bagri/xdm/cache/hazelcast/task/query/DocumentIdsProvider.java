@@ -32,7 +32,7 @@ public class DocumentIdsProvider extends com.bagri.xdm.client.hazelcast.task.que
 	public Collection<XDMDocumentId> call() throws Exception {
     	((RepositoryImpl) repo).getXQProcessor(clientId);
     	checkPermission(Permission.read);
-       	return queryMgr.getDocumentIds(query, bindings, context);
+       	return queryMgr.getDocumentIds(query, params, context);
 	}
 
 }

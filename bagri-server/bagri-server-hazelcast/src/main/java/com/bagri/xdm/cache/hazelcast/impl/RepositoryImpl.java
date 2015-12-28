@@ -127,6 +127,7 @@ public class RepositoryImpl extends XDMRepositoryBase implements ApplicationCont
 	@Override
 	public String getUserName() {
 		String user = clientMgr.getCurrentUser();
+		//logger.info("getUserName; user: {}", user); 
 		if (user == null) {
 			user = JMXUtils.getCurrentUser();
 		}

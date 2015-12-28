@@ -14,8 +14,8 @@ import com.bagri.xdm.common.XDMDocumentId;
  */
 public interface XDMQueryManagement {
 	
-	Iterator<?> executeQuery(String query, Map bindings, Properties props) throws XDMException;
-	Collection<XDMDocumentId> getDocumentIds(String query, Map bindings, Properties props) throws XDMException;
+	Iterator<?> executeQuery(String query, Map params, Properties props) throws XDMException;
+	Collection<XDMDocumentId> getDocumentIds(String query, Map params, Properties props) throws XDMException;
 	
 	void cancelExecution() throws XDMException;
 	

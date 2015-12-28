@@ -55,7 +55,7 @@ public class ClientManagementImpl {
    				HazelcastInstance hzClient = initializeHazelcast(props);
    				cc = new ClientContainer(cKey, hzClient);
    				clients.put(cKey, cc);
-				logger.info("connect; new HZ instance created: {}", hzClient);
+				logger.info("connect; new HZ instance created for clientId: {}", clientId);
    			} else {
    				// check password -> authenticate();
    			}
@@ -80,7 +80,7 @@ public class ClientManagementImpl {
    			if (cc == null) {
    				cc = new ClientContainer(cKey, hzProxy);
    				clients.put(cKey, cc);
-				logger.info("connect; new container created for HZ instance: {}", hzProxy);
+				logger.info("connect; new container created for clientId: {}", clientId);
    			} else {
    				// check password -> authenticate();
    			}

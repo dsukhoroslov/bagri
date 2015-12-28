@@ -20,14 +20,11 @@ import com.bagri.xdm.api.XDMDocumentManagement;
 import com.bagri.xdm.api.XDMException;
 //import com.bagri.xdm.api.XDMQueryManagement;
 import com.bagri.xdm.api.XDMRepository;
-import com.bagri.xdm.cache.api.XDMAccessManagement;
-import com.bagri.xdm.cache.api.XDMClientManagement;
 import com.bagri.xdm.cache.api.XDMQueryManagement;
 import com.bagri.xdm.common.XDMConstants;
 import com.bagri.xdm.common.XDMDocumentId;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMQuery;
-import com.bagri.xdm.system.XDMPermission.Permission;
 import com.bagri.xquery.api.XQProcessor;
 
 import net.sf.saxon.lib.ModuleURIResolver;
@@ -111,12 +108,12 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
     }
 	
 	@Override
-	public Iterator executeXCommand(String command, Map<QName, Object> bindings, Properties props) throws XQException {
+	public Iterator executeXCommand(String command, Map<QName, Object> params, Properties props) throws XQException {
 		
 	    XDMDocumentManagement dMgr = getRepository().getDocumentManagement();
 	    try {
 			if (command.startsWith("storeDocument")) {
-				XQItemAccessor item = getBoundItem(bindings, "doc");
+				XQItemAccessor item = getBoundItem(params, "doc");
 				String xml = item.getItemAsString(null);
 				// validate document ?
 				// add/pass other params ?!
@@ -124,7 +121,7 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 				return Collections.singletonList(doc).iterator();
 				//return Collections.emptyIterator();
 			} else if (command.startsWith("removeDocument")) {
-				XQItemAccessor item = getBoundItem(bindings, "docKey");
+				XQItemAccessor item = getBoundItem(params, "docKey");
 				long docKey = item.getLong();
 				dMgr.removeDocument(new XDMDocumentId(docKey));
 				return Collections.emptyIterator(); 

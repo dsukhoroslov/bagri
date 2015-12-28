@@ -500,11 +500,11 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 	}
 
 	@Override
-	public Collection<XDMDocumentId> getDocumentIds(String query, Map bindings, Properties props) throws XDMException {
-		logger.trace("getDocumentIds.enter; query: {}, command: {}; bindings: {}; properties: {}", query, bindings, props);
+	public Collection<XDMDocumentId> getDocumentIds(String query, Map params, Properties props) throws XDMException {
+		logger.trace("getDocumentIds.enter; query: {}, command: {}; params: {}; properties: {}", query, params, props);
 		List<XDMDocumentId> result = null;
 		try {
-			Iterator iter = runQuery(query, bindings, props);
+			Iterator iter = runQuery(query, params, props);
 			Collection<Long> ids = thContext.get().getDocIds();
 			result = new ArrayList<>(ids.size());
 			for (Long id: ids) {
@@ -544,15 +544,15 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public Iterator executeQuery(String query, Map bindings, Properties props) throws XDMException {
+	public Iterator executeQuery(String query, Map params, Properties props) throws XDMException {
 
-		logger.trace("executeQuery.enter; query: {}, command: {}; bindings: {}; properties: {}", query, bindings, props);
+		logger.trace("executeQuery.enter; query: {}, command: {}; params: {}; properties: {}", query, params, props);
 		ResultCursor result = null;
 		String clientId = props.getProperty(pn_client_id);
 		int batchSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, "0"));
 		try {
 			XQProcessor xqp = repo.getXQProcessor(clientId);
-			Iterator iter = runQuery(query, bindings, props);
+			Iterator iter = runQuery(query, params, props);
 			result = createCursor(clientId, batchSize, iter);
 			xqp.setResults(result);
 		} catch (XQException ex) {
@@ -562,7 +562,7 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 		return result;
 	}
 	
-	private Iterator runQuery(String query, Map bindings, Properties props) throws XQException {
+	private Iterator runQuery(String query, Map params, Properties props) throws XQException {
 		
 		Iterator iter = null;
 		String clientId = props.getProperty(pn_client_id);
@@ -574,7 +574,7 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 			int qCode = getQueryKey(query);
 			if (isQuery) {
 				if (xqCache.containsKey(qCode)) {
-					iter = getQueryResults(query, bindings, props);
+					iter = getQueryResults(query, params, props);
 				}
 			}
 			
@@ -583,7 +583,7 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 				QueryExecContext ctx = thContext.get();
 				ctx.clear();
 				
-				for (Object o: bindings.entrySet()) {
+				for (Object o: params.entrySet()) {
 					Map.Entry<QName, Object> var = (Map.Entry<QName, Object>) o; 
 					xqp.bindVariable(var.getKey(), var.getValue());
 				}
@@ -591,10 +591,10 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 				if (isQuery) {
 					iter = xqp.executeXQuery(query, props);
 				} else {
-					iter = xqp.executeXCommand(query, bindings, props);
+					iter = xqp.executeXCommand(query, params, props);
 				}
 				
-				for (Object o: bindings.entrySet()) {
+				for (Object o: params.entrySet()) {
 					Map.Entry<QName, Object> var = (Map.Entry<QName, Object>) o; 
 					xqp.unbindVariable(var.getKey());
 				}
@@ -602,7 +602,7 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 				//XDMQuery xquery = xqCache.get(qCode);
 				//if (xquery != null && xquery.isReadOnly()) {
 				if (xqCache.containsKey(qCode)) {
-					iter = addQueryResults(query, bindings, props, iter);
+					iter = addQueryResults(query, params, props, iter);
 				}
 			}
 		}

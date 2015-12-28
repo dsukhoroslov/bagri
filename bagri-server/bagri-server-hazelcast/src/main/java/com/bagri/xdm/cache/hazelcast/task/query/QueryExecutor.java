@@ -4,6 +4,8 @@ import static com.bagri.xdm.api.XDMTransactionManagement.TX_NO;
 
 import java.util.concurrent.Callable;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
@@ -18,6 +20,8 @@ import com.hazelcast.spring.context.SpringAware;
 @SpringAware
 public class QueryExecutor extends com.bagri.xdm.client.hazelcast.task.query.QueryExecutor {
 
+	//private static final transient Logger logger = LoggerFactory.getLogger(QueryExecutor.class);
+	
 	private transient XDMQueryManagement queryMgr;
     
     @Autowired
@@ -33,6 +37,8 @@ public class QueryExecutor extends com.bagri.xdm.client.hazelcast.task.query.Que
 
     @Override
 	public ResultCursor call() throws Exception {
+    	
+    	//logger.info("call; clientId: {}", clientId);
 
     	boolean readOnly = queryMgr.isReadOnlyQuery(query);
     	((RepositoryImpl) repo).getXQProcessor(clientId);
@@ -43,13 +49,13 @@ public class QueryExecutor extends com.bagri.xdm.client.hazelcast.task.query.Que
     	}
 
     	if (txId == TX_NO && readOnly) {
-			return (ResultCursor) queryMgr.executeQuery(query, bindings, context);
+			return (ResultCursor) queryMgr.executeQuery(query, params, context);
     	}
 
     	return ((XDMTransactionManagement) repo.getTxManagement()).callInTransaction(txId, false, new Callable<ResultCursor>() {
     		
 	    	public ResultCursor call() throws XDMException {
-				return (ResultCursor) queryMgr.executeQuery(query, bindings, context);
+				return (ResultCursor) queryMgr.executeQuery(query, params, context);
 	    	}
     	});
     }

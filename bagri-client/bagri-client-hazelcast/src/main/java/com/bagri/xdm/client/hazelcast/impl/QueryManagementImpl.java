@@ -121,12 +121,12 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 	//}
 	
 	@Override
-	public Iterator executeQuery(String query, Map bindings, Properties props) throws XDMException {
+	public Iterator executeQuery(String query, Map params, Properties props) throws XDMException {
 
 		long stamp = System.currentTimeMillis();
-		logger.trace("executeQuery.enter; query: {}; bindings: {}; context: {}", query, bindings, props);
+		logger.trace("executeQuery.enter; query: {}; bindings: {}; context: {}", query, params, props);
 		//QueryParamsKey key = new QueryParamsKey(getQueryKey(query), getParamsKey(bindings));
-		long key = getResultsKey(query, bindings);
+		long key = getResultsKey(query, params);
 		XDMResults res = resCache.get(key);
 		if (res != null) {
 			logger.trace("execXQuery; got cached results: {}", res);
@@ -140,7 +140,7 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 		//String schemaName = repo.getSchemaName();
 
 		boolean isQuery = true;
-		QueryExecutor task = new QueryExecutor(repo.getClientId(), repo.getTransactionId(), query, bindings, props);
+		QueryExecutor task = new QueryExecutor(repo.getClientId(), repo.getTransactionId(), query, params, props);
 		Future<ResultCursor> future;
 		if ("owner".equalsIgnoreCase(runOn)) {
 			future = execService.submitToKeyOwner(task, key);
