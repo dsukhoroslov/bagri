@@ -528,16 +528,17 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		xmlCache.set(docKey, content);
 		triggerManager.applyTrigger(doc, action, Scope.after);
 
-		// update statistics
-		for (String cln: clns) {
-			updateStats(cln, true, data.size(), doc.getFragments().length);
-		}
-		
 		// invalidate cached query results
 		Set<Integer> paths = (Set<Integer>) ids[1];
 		Set<Integer> qKeys = ((QueryManagementImpl) repo.getQueryManagement()).getQueriesForPaths(paths, false);
 		if (!qKeys.isEmpty()) {
 			((QueryManagementImpl) repo.getQueryManagement()).removeQueryResults(qKeys);
+		}
+
+		// update statistics
+		for (String cln: clns) {
+			//updateStats(cln, true, data.size(), doc.getFragments().length);
+			updateStats(cln, true, paths.size(), doc.getFragments().length);
 		}
 		
 		logger.trace("createDocument.exit; returning: {}", doc);

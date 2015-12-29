@@ -21,7 +21,7 @@ public class XDMData implements Comparable<XDMData> {
     	return element;
     }
 
-    public long getElementId() {
+    public int getElementId() {
     	return element.getElementId();
     }
     	
@@ -33,7 +33,7 @@ public class XDMData implements Comparable<XDMData> {
     	return path.getNodeKind();
     }
     	
-    public long getParentId() {
+    public int getParentId() {
     	return element.getParentId();
     }
     

@@ -41,6 +41,7 @@ import com.hazelcast.core.Member;
 public class QueryManagement extends SchemaFeatureManagement {
 	
     private XQConnection xqConn;
+	private StatsAggregator qcAggregator;
     
     public QueryManagement(String schemaName) {
     	super(schemaName);
@@ -117,7 +118,27 @@ public class QueryManagement extends SchemaFeatureManagement {
 
 	@ManagedAttribute(description="Return aggregated query usage statistics, per cached query")
 	public TabularData getQueryCacheStatistics() {
-		return super.getUsageStatistics(new StatisticSeriesCollector(schemaName, "queryCacheStats"), aggregator);
+		if (qcAggregator == null) {
+			qcAggregator = new StatsAggregator() {
+
+				@Override
+				public Object[] aggregateStats(Object[] source, Object[] target) {
+					target[0] = (Integer) source[0] + (Integer) target[0]; // accessed
+					target[1] = (Integer) source[1] + (Integer) target[1]; // cached results
+					target[2] = ((Comparable) source[2]).compareTo((Comparable) target[2]) < 0 ? source[2] : target[2]; // first  
+					target[3] = (Integer) source[3] + (Integer) target[3]; // hits
+					target[4] = ((Comparable) source[4]).compareTo((Comparable) target[4]) > 0 ? source[4] : target[4]; // last  
+					target[5] = (Integer) source[5] + (Integer) target[5]; // miss
+					target[6] = source[6]; // query
+					target[7] = (Integer) source[7] + (Integer) target[7]; // result hits
+					target[8] = (Integer) source[8] + (Integer) target[8]; // result miss
+					return target;
+				}
+				
+			};
+		}
+		
+		return super.getUsageStatistics(new StatisticSeriesCollector(schemaName, "queryCacheStats"), qcAggregator);
 	}
 
 	

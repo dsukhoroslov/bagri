@@ -18,7 +18,10 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.common.util.PropUtils;
+import com.bagri.xdm.api.XDMHealthChangeListener;
+import com.bagri.xdm.api.XDMHealthState;
 import com.bagri.xdm.api.XDMModelManagement;
+import com.bagri.xdm.api.XDMRepository;
 import com.bagri.xdm.cache.common.XDMDocumentManagementServer;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaActivator;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaPopulator;
@@ -48,14 +51,14 @@ import static com.bagri.xdm.cache.hazelcast.util.HazelcastUtils.hz_instance;
 
 @ManagedResource(description="Schema Manager MBean")
 //public class SchemaManager extends XDMSchemaManagerBase implements SelfNaming {
-public class SchemaManager extends EntityManager<XDMSchema> {
+public class SchemaManager extends EntityManager<XDMSchema> implements XDMHealthChangeListener {
 
     private static final String state_ok = "working";
     private static final String state_fail = "inactive";
 
+    private XDMRepository xdmRepo;
     private SchemaManagement parent;
-	protected XDMDocumentManagementServer docManager;
-	protected XDMModelManagement schemaDictionary;
+    private XDMHealthState hState;
 	private ClassPathXmlApplicationContext clientContext;
     
 	public SchemaManager() {
@@ -69,22 +72,13 @@ public class SchemaManager extends EntityManager<XDMSchema> {
 	
 	public void setClientContext(ClassPathXmlApplicationContext clientContext) {
 		this.clientContext = clientContext;
+		setRepository(clientContext.getBean(XDMRepository.class));
 	}
 	
-	public XDMDocumentManagementServer getDocumentManager() {
-		return docManager;
-	}
-	
-	public void setDocumentManager(XDMDocumentManagementServer docManager) {
-		this.docManager = docManager;
-	}
-	
-	public XDMModelManagement getSchemaDictionary() {
-		return schemaDictionary;
-	}
-	
-	public void setSchemaDictionary(XDMModelManagement schemaDictionary) {
-		this.schemaDictionary = schemaDictionary;
+	public void setRepository(XDMRepository xdmRepo) {
+		this.xdmRepo = xdmRepo;
+		this.hState = xdmRepo.getHealthManagement().getHealthState();
+		xdmRepo.getHealthManagement().addHealthChangeListener(this);
 	}
 	
 	@ManagedAttribute(description="Returns active schema nodes")
@@ -135,6 +129,14 @@ public class SchemaManager extends EntityManager<XDMSchema> {
 			return "NONE";
 		}
 		return result;
+	}
+
+	@ManagedAttribute(description="Returns Schema health state")
+	public String getHealthState() {
+		if (hState != null) {
+			return hState.toString();
+		}
+		return state_fail;
 	}
 
 	@ManagedAttribute(description="Returns registered Schema name")
@@ -355,7 +357,7 @@ public class SchemaManager extends EntityManager<XDMSchema> {
 
 	XDMIndex addIndex(String name, String docType, String path, String dataType, boolean caseSensitive, boolean range, 
 			boolean unique, String description) {
-		String typePath = schemaDictionary.normalizePath(docType);
+		String typePath = xdmRepo.getModelManagement().normalizePath(docType);
 		XDMIndex index = new XDMIndex(1, new Date(), JMXUtils.getCurrentUser(), name, docType, typePath, 
 				path, new QName(xs_ns, dataType, xs_prefix), caseSensitive, range, unique, description, true);
 		XDMSchema schema = getEntity();
@@ -425,6 +427,11 @@ public class SchemaManager extends EntityManager<XDMSchema> {
 			return true;
 		}
 		return false;
+	}
+
+	@Override
+	public void onHealthStateChange(XDMHealthState newState) {
+		this.hState = newState;
 	}
 
 }

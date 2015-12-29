@@ -25,7 +25,7 @@ public abstract class XDMDataParser {
 	protected Stack<XDMData> dataStack;
 	protected XDMModelManagement dict;
 	protected int docType = -1;
-	protected long elementId;
+	protected int elementId;
 	
 	protected XDMDataParser(XDMModelManagement dict) {
 		this.dict = dict;

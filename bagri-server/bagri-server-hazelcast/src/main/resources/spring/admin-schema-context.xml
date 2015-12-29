@@ -190,7 +190,7 @@
 
 	<bean id="docManager" class="com.bagri.xdm.cache.hazelcast.management.DocumentManagement">
 		<constructor-arg value="${xdm.schema.name}" />
-		<property name="statsAggregator" ref="invocationStatsAggregator"/>
+		<!--property name="statsAggregator" ref="invocationStatsAggregator"/-->
 		<property name="execService" ref="xdm-exec-pool"/>
 		<property name="documentManager" ref="xdmManager"/>
 		<property name="modelManager" ref="xdmModel"/>

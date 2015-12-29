@@ -22,6 +22,8 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
 import com.bagri.common.manage.JMXUtils;
+import com.bagri.common.manage.StatsAggregator;
+import com.bagri.common.stats.InvocationStatsAggregator;
 import com.bagri.common.util.FileUtils;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.cache.hazelcast.task.doc.DocumentStructureProvider;
@@ -274,6 +276,25 @@ public class DocumentManagement extends SchemaFeatureManagement {
 
 	@ManagedAttribute(description="Returns aggregated DocumentManagement invocation statistics, per method")
 	public TabularData getCollectionStatistics() {
+		if (aggregator == null) {
+			aggregator = new StatsAggregator() {
+
+				@Override
+				public Object[] aggregateStats(Object[] source, Object[] target) {
+					target[2] = source[2]; // collection
+					target[3] = (Long) source[3] + (Long) target[3]; // size
+					target[4] = (Integer) source[4] + (Integer) target[4]; // number of docs  
+					target[5] = (Integer) source[5] + (Integer) target[5]; // number of elts
+					target[6] = (Integer) source[6] + (Integer) target[6]; // number of fragments
+					double size = (Long) target[3]; 
+					target[0] = size/(Integer) target[4]; // avg in bytes
+					size = (Integer) target[5]; 
+					target[1] = size/(Integer) target[4]; // avg in elts  
+					return target;
+				}
+				
+			};
+		}
 		return super.getSeriesStatistics(new StatisticSeriesCollector(schemaName, "docStats"), aggregator);
 	}
 	

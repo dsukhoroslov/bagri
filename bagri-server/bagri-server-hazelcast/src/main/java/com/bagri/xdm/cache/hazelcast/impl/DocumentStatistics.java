@@ -1,5 +1,6 @@
 package com.bagri.xdm.cache.hazelcast.impl;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import com.bagri.common.stats.StatisticsEvent;
@@ -17,8 +18,9 @@ public class DocumentStatistics extends UsageStatistics {
 		return new DocUsageStatistics();
 	}
 	
-	private class DocUsageStatistics extends ResourceUsageStatistics {
+	private class DocUsageStatistics implements Statistics {
 		
+		private long size;
 		private int count;
 		private int elements;
 		private int fragments;
@@ -40,10 +42,17 @@ public class DocumentStatistics extends UsageStatistics {
 
 		@Override
 		public Map<String, Object> toMap() {
-			Map<String, Object> result = super.toMap();
+			Map<String, Object> result = new HashMap<String, Object>(4);
+    		result.put("Consumed size", size);
     		result.put("Number of documents", count);
     		result.put("Number of elements", elements);
     		result.put("Number of fragments", fragments);
+			double dSize = size;
+			double sAvg = dSize/count;
+    		result.put("Avg size (bytes)", sAvg);
+			dSize = elements;
+			sAvg = dSize/count;
+    		result.put("Avg size (elmts)", sAvg);
 			return result;
 		}
 
@@ -54,14 +63,22 @@ public class DocumentStatistics extends UsageStatistics {
 					count++;
 					elements += event.getSize();
 					fragments += event.getCount();
+					size += calcElementsSize((int) event.getSize());
 				} else {
 					count--;
 					elements -= event.getSize();
 					fragments -= event.getCount();
+					size -= calcElementsSize((int) event.getSize());
 				}
-			} else {
-				super.update(event);
+			//} else {
+			//	super.update(event);
 			}
+		}
+		
+		private long calcElementsSize(int count) {
+			return count * ((8 + 8 + 4) // size of key
+					+ (8 + 4 + 8) // size of value (XDMElements, not accurate!)
+					+ (4 + 4 + 8)); // size of XDMElement
 		}
 		
 	}
