@@ -299,7 +299,7 @@
 	<bean id="docQueue" class="java.util.concurrent.ArrayBlockingQueue">
 		<constructor-arg value="1024" />
 	</bean>
-	<bean id="docStats" class="com.bagri.common.stats.InvocationStatistics">
+	<bean id="docStats" class="com.bagri.xdm.cache.hazelcast.impl.DocumentStatistics">
 		<constructor-arg value="docs" />
 		<property name="statsQueue" ref="docQueue"/>
 	</bean>
@@ -380,6 +380,7 @@
 		<property name="xmlCache" ref="xdm-xml"/>
 		<property name="modelManager" ref="mdlManager"/>
 		<property name="indexManager" ref="idxManager"/>
+		<property name="statsQueue" ref="docQueue"/>
 		<!--property name="txManager" ref="txManager"/-->
    		<!--property name="repository" ref="xdmRepo" /-->
 	</bean>

@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -25,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 import javax.xml.transform.Source;
 
 import com.bagri.common.idgen.IdGenerator;
+import com.bagri.common.stats.StatisticsEvent;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.cache.common.XDMDocumentManagementServer;
 import com.bagri.xdm.cache.hazelcast.predicate.CollectionPredicate;
@@ -64,6 +66,9 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	private IMap<XDMDocumentKey, XDMDocument> xddCache;
     private IMap<XDMDataKey, XDMElements> xdmCache;
 
+    private boolean enableStats = true;
+	private BlockingQueue<StatisticsEvent> queue;
+    
     public void setRepository(RepositoryImpl repo) {
     	this.repo = repo;
     	//this.model = repo.getModelManagement();
@@ -108,6 +113,15 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
     public void setIndexManager(IndexManagementImpl indexManager) {
     	this.indexManager = indexManager;
     }
+    
+    public void setStatsQueue(BlockingQueue<StatisticsEvent> queue) {
+    	this.queue = queue;
+    }
+
+    public void setStatsEnabled(boolean enable) {
+    	this.enableStats = enable;
+    }
+    
     
     private Set<XDMDataKey> getDocumentElementKeys(String path, long[] fragments, int docType) {
     	Set<Integer> parts = model.getPathElements(docType, path);
@@ -420,29 +434,31 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		return srcCache.get(factory.newXDMDocumentKey(docId.getDocumentKey()));
 	}
 	
-	private int getTypedCollection(XDMSchema schema, String typePath) {
+	private XDMCollection getTypedCollection(XDMSchema schema, String typePath) {
 		for (XDMCollection collect: schema.getCollections()) {
 			String cPath = collect.getDocumentType();
 			// TODO: very inefficient to normalize collections over and over again!
 			cPath = model.normalizePath(cPath);
 			if (cPath != null && typePath.equals(cPath)) {
-				return collect.getId();
+				return collect;
 			}
 		}
-		return -1;
+		return null;
 	}
 	
-	public void checkDefaultDocumentCollection(XDMDocument doc) {
+	public String checkDefaultDocumentCollection(XDMDocument doc) {
 		String typePath = model.getDocumentRoot(doc.getTypeId());
-		int cId = getTypedCollection(repo.getSchema(), typePath);
-		logger.trace("checkDefaultDocumentCollection; got collection Id: {} for typePath: {}", cId, typePath);
-		if (cId >= 0) {
-			doc.addCollection(cId);
+		XDMCollection cln = getTypedCollection(repo.getSchema(), typePath);
+		logger.trace("checkDefaultDocumentCollection; got collection: {} for typePath: {}", cln, typePath);
+		if (cln != null) {
+			doc.addCollection(cln.getId());
+			return cln.getName();
 		}
+		return null;
 	}
 	
-	private boolean checkDocumentCollections(XDMDocument doc, Properties props) {
-		boolean result = false;
+	private List<String> checkDocumentCollections(XDMDocument doc, Properties props) {
+		List<String> result = new ArrayList<>();
 		if (props != null) {
 			String prop = props.getProperty(xdm_document_collections);
 			if (prop != null) {
@@ -453,7 +469,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 						logger.trace("checkDocumentCollections; got collection: {} for name: {}", cln, clName);
 						if (cln != null) {
 							doc.addCollection(cln.getId());
-							result = true;
+							result.add(clName);
 						}
 					}
 				}
@@ -468,8 +484,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		// TODO: move this out & refactor ?
 		String dataFormat = getDataFormat(props).toUpperCase();
 		XDMParser parser = factory.newXDMParser(dataFormat, model);
-		List<XDMData> data;
-		data = parser.parse(content);
+		List<XDMData> data = parser.parse(content);
 
 		XDMDocumentKey docKey = factory.newXDMDocumentKey(docId.getDocumentKey());
 		Object[] ids = loadElements(docKey.getKey(), data);
@@ -493,8 +508,12 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 			((XDMFragmentedDocument) doc).setFragments(fa);
 		}
 
-		if (!checkDocumentCollections(doc, props)) {
-			checkDefaultDocumentCollection(doc);
+		List<String> clns = checkDocumentCollections(doc, props); 
+		if (clns.size() == 0) {
+			String cln = checkDefaultDocumentCollection(doc);
+			if (cln != null) {
+				clns.add(cln);
+			}
 		}
 		
 		Action action;
@@ -507,9 +526,13 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		}
 		xddCache.set(docKey, doc);
 		xmlCache.set(docKey, content);
-		triggerManager.applyTrigger(doc, action, Scope.after); 
-		logger.trace("createDocument.exit; returning: {}", doc);
+		triggerManager.applyTrigger(doc, action, Scope.after);
 
+		// update statistics
+		for (String cln: clns) {
+			updateStats(cln, true, data.size(), doc.getFragments().length);
+		}
+		
 		// invalidate cached query results
 		Set<Integer> paths = (Set<Integer>) ids[1];
 		Set<Integer> qKeys = ((QueryManagementImpl) repo.getQueryManagement()).getQueriesForPaths(paths, false);
@@ -517,6 +540,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 			((QueryManagementImpl) repo.getQueryManagement()).removeQueryResults(qKeys);
 		}
 		
+		logger.trace("createDocument.exit; returning: {}", doc);
 		return doc;
 	}
 	
@@ -727,7 +751,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	    if (doc != null) {
 			xmlCache.delete(docKey);
 			srcCache.remove(docKey);
-	    	deleteDocumentElements(doc.getFragments(), doc.getTypeId());
+	    	int size = deleteDocumentElements(doc.getFragments(), doc.getTypeId());
 	    	Collection<Integer> pathIds = indexManager.getTypeIndexes(doc.getTypeId(), true);
 	    	for (int pathId: pathIds) {
 	    		deindexElements(docKey.getKey(), pathId);
@@ -736,12 +760,19 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	    		xddCache.delete(docKey);
 	    	}
 	    	cleaned = true;
+	    	
+			// update statistics
+			for (XDMCollection cln: repo.getSchema().getCollections()) {
+				if (doc.hasCollection(cln.getId())) { 
+					updateStats(cln.getName(), false, size, doc.getFragments().length);
+				}
+			}
 	    }
     	((QueryManagementImpl) repo.getQueryManagement()).removeQueryResults(docKey.getKey());
 		logger.trace("cleanDocument.exit; cleaned: {}", cleaned);
 	}
 
-	private void deleteDocumentElements(long[] fragments, int typeId) {
+	private int deleteDocumentElements(long[] fragments, int typeId) {
 
     	int cnt = 0;
     	//Set<XDMDataKey> localKeys = xdmCache.localKeySet();
@@ -769,6 +800,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		}
 		logger.trace("deleteDocumentElements; deleted keys: {}; indexes: {}; xdmCache size after delete: {}",
 				cnt, iCnt, xdmCache.size());
+		return cnt;
 	}
 
 	public void rollbackDocument(XDMDocumentKey docKey) {
@@ -894,6 +926,14 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	private void unlockDocument(XDMDocumentKey docKey) {
 
 		xddCache.unlock(docKey);
+	}
+
+	private void updateStats(String name, boolean add, int elements, int fragments) {
+		if (enableStats) {
+			if (!queue.offer(new StatisticsEvent(name, add, fragments, elements))) {
+				logger.warn("updateStats; queue is full!!");
+			}
+		}
 	}
 	
 }

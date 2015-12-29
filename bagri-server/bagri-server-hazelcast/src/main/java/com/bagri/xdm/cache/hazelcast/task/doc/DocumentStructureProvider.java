@@ -10,7 +10,6 @@ import java.util.concurrent.Callable;
 import javax.management.openmbean.CompositeData;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.xdm.api.XDMModelManagement;
@@ -36,7 +35,6 @@ public class DocumentStructureProvider extends DocumentAwareTask implements Call
 	}
 
     @Autowired
-    @Qualifier("docManager")
 	public void setDocManager(DocumentManagementImpl docMgr) {
 		this.docMgr = docMgr;
 	}

@@ -54,21 +54,9 @@ public class DocumentManagement extends SchemaFeatureManagement {
 		return docManager.getXddSize(); 
 	}
     
-	@ManagedAttribute(description="Returns Schema size in documents, per document type")
-	public CompositeData getTypedDocumentCount() {
-		Map<Integer, Integer> counts = null; //((HazelcastDocumentServer) docManager).getTypeDocuments();
-		return null;
-	}
-    
 	@ManagedAttribute(description="Returns Schema size in elements")
 	public Integer getElementCount() {
 		return docManager.getXdmSize(); 
-	}
-    
-	@ManagedAttribute(description="Returns Schema size in elements, per document type")
-	public CompositeData getTypedElementCount() {
-		Map<Integer, Integer> counts = null; //((HazelcastDocumentServer) docManager).getTypeElements();
-		return null;
 	}
     
 	@ManagedAttribute(description="Returns Schema size in bytes")
@@ -94,12 +82,6 @@ public class DocumentManagement extends SchemaFeatureManagement {
     	return fullSize;
 	}
     
-	@ManagedAttribute(description="Returns Schema size in bytes, per document type")
-	public CompositeData getTypedSchemaSize() {
-		Map<Integer, Long> counts = null; //((HazelcastDocumentServer) docManager).getTypeSchemaSize();
-		return null;
-	}
-
 	@ManagedOperation(description="Return Document Elements")
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "docId", description = "Internal Document identifier")})
@@ -291,7 +273,7 @@ public class DocumentManagement extends SchemaFeatureManagement {
 	}
 
 	@ManagedAttribute(description="Returns aggregated DocumentManagement invocation statistics, per method")
-	public TabularData getInvocationStatistics() {
+	public TabularData getCollectionStatistics() {
 		return super.getSeriesStatistics(new StatisticSeriesCollector(schemaName, "docStats"), aggregator);
 	}
 	
