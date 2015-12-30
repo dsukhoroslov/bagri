@@ -52,14 +52,6 @@ public class DocumentManagementImpl extends DocumentManagementBase implements XD
 	//	logger.debug("loadCache; cache: {}, time taken: {}", cache, System.currentTimeMillis() - stamp);
 	//}
 	
-    public int getXddSize() {
-    	return xddCache.size();
-    }
-    
-    public int getXdmSize() {
-    	return xdmCache.size();
-    }
-    
 	IMap<XDMDataKey, XDMElements> getDataCache() {
 		return xdmCache;
 	}

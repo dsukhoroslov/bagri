@@ -3,6 +3,9 @@ package com.bagri.xdm.cache.hazelcast.impl;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.management.openmbean.CompositeData;
+
+import com.bagri.common.manage.JMXUtils;
 import com.bagri.common.stats.StatisticsEvent;
 import com.bagri.common.stats.UsageStatistics;
 import com.bagri.common.stats.StatisticsEvent.EventType;
@@ -17,6 +20,20 @@ public class DocumentStatistics extends UsageStatistics {
 	protected Statistics createStatistics(String name) {
 		return new DocUsageStatistics();
 	}
+
+	@Override
+	public CompositeData getStatisticTotals() {
+		DocUsageStatistics result = new DocUsageStatistics();
+        for (Map.Entry<String, Statistics> entry: stats.entrySet()) {
+            DocUsageStatistics sts = (DocUsageStatistics) entry.getValue();
+            result.size += sts.size;
+            result.count += sts.count;
+            result.elements += sts.elements;
+            result.fragments += sts.fragments;
+        }
+        return JMXUtils.mapToComposite(name, "DocsStats", result.toMap());
+	}
+	
 	
 	private class DocUsageStatistics implements Statistics {
 		

@@ -112,6 +112,9 @@ public class HealthManagementImpl implements MessageListener<XDMCounter>, Partit
 		checkState();
 	}
 	
+	public int[] getCounters() {
+		return new int[] {cntActive, cntInactive};
+	}
 /*		
 	@Override
 	public void checkClusterState() throws XDMException {

@@ -23,13 +23,12 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.common.manage.StatsAggregator;
-import com.bagri.common.stats.InvocationStatsAggregator;
 import com.bagri.common.util.FileUtils;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.cache.hazelcast.task.doc.DocumentStructureProvider;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaDocCleaner;
-import com.bagri.xdm.cache.hazelcast.task.schema.SchemaStatsAggregator;
 import com.bagri.xdm.cache.hazelcast.task.stats.StatisticSeriesCollector;
+import com.bagri.xdm.cache.hazelcast.task.stats.StatisticTotalsCollector;
 import com.bagri.xdm.cache.hazelcast.task.stats.StatisticsReseter;
 import com.bagri.xdm.client.hazelcast.impl.DocumentManagementImpl;
 import com.bagri.xdm.common.XDMDocumentId;
@@ -41,6 +40,7 @@ import com.hazelcast.core.Member;
 @ManagedResource(description="Schema Documents Management MBean")
 public class DocumentManagement extends SchemaFeatureManagement {
 
+	private CompositeData docTotals = null;
 	private DocumentManagementImpl docManager;
     
     public DocumentManagement(String schemaName) {
@@ -50,38 +50,54 @@ public class DocumentManagement extends SchemaFeatureManagement {
 	public void setDocumentManager(DocumentManagementImpl docManager) {
 		this.docManager = docManager;
 	}
+
+	private void initAggregator() {
+		if (aggregator == null) {
+			aggregator = new StatsAggregator() {
+
+				@Override
+				public Object[] aggregateStats(Object[] source, Object[] target) {
+					target[2] = source[2]; // collection
+					target[3] = (Long) source[3] + (Long) target[3]; // size
+					target[4] = (Integer) source[4] + (Integer) target[4]; // number of docs  
+					target[5] = (Integer) source[5] + (Integer) target[5]; // number of elts
+					target[6] = (Integer) source[6] + (Integer) target[6]; // number of fragments
+					double size = (Long) target[3]; 
+					target[0] = size/(Integer) target[4]; // avg in bytes
+					size = (Integer) target[5]; 
+					target[1] = size/(Integer) target[4]; // avg in elts  
+					return target;
+				}
+				
+			};
+		}
+	}
+	
+	private void collectTotals() {
+		initAggregator();
+		docTotals = super.getTotalsStatistics(new StatisticTotalsCollector(schemaName, "docStats"), aggregator);
+	}
 	
 	@ManagedAttribute(description="Returns Schema size in documents")
 	public Integer getDocumentCount() {
-		return docManager.getXddSize(); 
+		collectTotals();
+		return (Integer) docTotals.get("Number of documents"); 
 	}
     
 	@ManagedAttribute(description="Returns Schema size in elements")
 	public Integer getElementCount() {
-		return docManager.getXdmSize(); 
+		if (docTotals == null) {
+			collectTotals();
+		}
+		return (Integer) docTotals.get("Number of elements"); 
 	}
     
 	@ManagedAttribute(description="Returns Schema size in bytes")
 	public Long getSchemaSize() {
-		//return docManager.getSchemaSize(); 
-	
-		long stamp = System.currentTimeMillis();
-		logger.trace("getSchemaSize.enter;");
-		
-		SchemaStatsAggregator task = new SchemaStatsAggregator();
-		Map<Member, Future<Long>> results = execService.submitToAllMembers(task);
-		long fullSize = 0;
-		for (Map.Entry<Member, Future<Long>> entry: results.entrySet()) {
-			try {
-				Long size = entry.getValue().get();
-				fullSize += size;
-			} catch (InterruptedException | ExecutionException ex) {
-				logger.error("getSchemaSize.error; ", ex);
-			}
+		if (docTotals == null) {
+			collectTotals();
 		}
-		stamp = System.currentTimeMillis() - stamp;
-		logger.trace("getSchemaSize.exit; returning: {}; timeTaken: {}", fullSize, stamp);
-    	return fullSize;
+		return (Long) docTotals.get("Consumed size"); 
 	}
     
 	@ManagedOperation(description="Return Document Elements")
@@ -276,25 +292,7 @@ public class DocumentManagement extends SchemaFeatureManagement {
 
 	@ManagedAttribute(description="Returns aggregated DocumentManagement invocation statistics, per method")
 	public TabularData getCollectionStatistics() {
-		if (aggregator == null) {
-			aggregator = new StatsAggregator() {
-
-				@Override
-				public Object[] aggregateStats(Object[] source, Object[] target) {
-					target[2] = source[2]; // collection
-					target[3] = (Long) source[3] + (Long) target[3]; // size
-					target[4] = (Integer) source[4] + (Integer) target[4]; // number of docs  
-					target[5] = (Integer) source[5] + (Integer) target[5]; // number of elts
-					target[6] = (Integer) source[6] + (Integer) target[6]; // number of fragments
-					double size = (Long) target[3]; 
-					target[0] = size/(Integer) target[4]; // avg in bytes
-					size = (Integer) target[5]; 
-					target[1] = size/(Integer) target[4]; // avg in elts  
-					return target;
-				}
-				
-			};
-		}
+		initAggregator();
 		return super.getSeriesStatistics(new StatisticSeriesCollector(schemaName, "docStats"), aggregator);
 	}
 	

@@ -14,6 +14,7 @@ import java.util.concurrent.Future;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.management.openmbean.CompositeData;
+import javax.management.openmbean.TabularData;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -33,6 +34,7 @@ import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaCreator;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaMemberExtractor;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaRemover;
+import com.bagri.xdm.cache.hazelcast.task.stats.StatisticSeriesCollector;
 import com.bagri.xdm.common.StringStringKey;
 import com.bagri.xdm.system.XDMNode;
 import com.bagri.xdm.system.XDMSchema;
@@ -55,7 +57,6 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
 	private ClusterManagement srvCluster;
 	
 	private Properties defaults; 
-	private Map<StringStringKey, String> memberMap = new HashMap<StringStringKey, String>();
     private Map<String, ClassPathXmlApplicationContext> ctxCache = new HashMap<String, ClassPathXmlApplicationContext>(); 
 
     public SchemaManagement(HazelcastInstance hzInstance) {
@@ -325,18 +326,6 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
 						logger.error("initMember.error 1; ", ex);
 						continue;
 					}
-					
-					memberMap.put(new StringStringKey(member.getUuid(), name), uuid);
-						
-					try {
-						DocumentManager dMgr = new DocumentManager(hzClient, name, uuid); 
-						mbeanExporter.registerManagedResource(dMgr, dMgr.getObjectName());
-
-						QueryManager qMgr = new QueryManager(name, uuid); 
-						mbeanExporter.registerManagedResource(qMgr, qMgr.getObjectName());
-					} catch (MalformedObjectNameException ex) {
-						logger.error("initMember.error 2; ", ex);
-					}
 				}
 			} else {
 				logger.info("initMember.error; no schema found for name: {}; " + 
@@ -357,25 +346,6 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
 				if (denitSchema(name, members)) {
 					cnt++;
 					logger.debug("memberRemoved; Schema {} de-initialized on node {}", name, member);
-				}
-				
-				// we de-register mbeans for removed member
-				String uuid = memberMap.get(new StringStringKey(member.getUuid(), name));
-				if (uuid != null) {
-					try {
-						ObjectName queryName = JMXUtils.getObjectName("type=Schema,name=" + name + 
-								",kind=QueryManagement,node=" + uuid);
-						mbeanExporter.unregisterManagedResource(queryName);
-		
-						ObjectName docName = JMXUtils.getObjectName("type=Schema,name=" + name + 
-								",kind=DocumentManagement,node=" + uuid);
-						mbeanExporter.unregisterManagedResource(docName);
-					} catch (MalformedObjectNameException ex) {
-						logger.error("denitMember.error; ", ex);
-					}
-				} else {
-					logger.info("denitMember; can't get member '{}:{}' mapping, skipping de-registration", 
-							member.getUuid(), name);
 				}
 			}
 		}

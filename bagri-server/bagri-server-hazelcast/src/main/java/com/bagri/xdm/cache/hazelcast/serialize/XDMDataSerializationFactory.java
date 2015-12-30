@@ -26,6 +26,7 @@ import com.bagri.xdm.cache.hazelcast.task.query.XMLBuilder;
 import com.bagri.xdm.cache.hazelcast.task.query.QueryExecutor;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaAdministrator;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaDocCleaner;
+import com.bagri.xdm.cache.hazelcast.task.schema.SchemaHealthAggregator;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaDenitiator;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaInitiator;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaMemberExtractor;
@@ -93,6 +94,7 @@ public class XDMDataSerializationFactory extends com.bagri.xdm.client.hazelcast.
 			case cli_RunTriggerTask: return new TriggerRunner(); 
 			case cli_RegisterModelTask: return new ModelRegistrator();
 			case cli_AuthenticateTask: return new UserAuthenticator();
+			case cli_AggregateSchemaHealthTask: return new SchemaHealthAggregator();
 		}
 		return super.create(typeId);
 	}

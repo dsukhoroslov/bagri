@@ -32,9 +32,9 @@ public abstract class StatisticsCollector implements Runnable {
 	
     private final Logger logger;
 	
-    private String name;
+    protected String name;
 	private BlockingQueue<StatisticsEvent> queue =  null;
-	private Map<String, Statistics> stats = new HashMap<String, Statistics>();
+	protected Map<String, Statistics> stats = new HashMap<>();
 
 	public StatisticsCollector(String name) {
 		logger = LoggerFactory.getLogger(getClass().getName() + "[" + name + "]");
@@ -61,9 +61,9 @@ public abstract class StatisticsCollector implements Runnable {
             	String desc = entry.getValue().getDescription();
             	String name = entry.getValue().getName();
             	String header = entry.getValue().getHeader();
-                Map<String, Object> stats = entry.getValue().toMap();
-                stats.put(header, entry.getKey());
-                CompositeData data = JMXUtils.mapToComposite(name, desc, stats);
+                Map<String, Object> sts = entry.getValue().toMap();
+                sts.put(header, entry.getKey());
+                CompositeData data = JMXUtils.mapToComposite(name, desc, sts);
                 result = JMXUtils.compositeToTabular(name, desc, header, result, data);
             } catch (Exception ex) {
                 logger.error("getStatisticSeries; error", ex);
