@@ -1,11 +1,13 @@
 package com.bagri.xdm.cache.hazelcast.task.library;
 
+import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_DeleteLibraryTask;
+
 import java.util.Map.Entry;
 
 import com.bagri.xdm.system.XDMLibrary;
-import com.hazelcast.nio.serialization.DataSerializable;
+import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
-public class LibraryRemover extends LibraryProcessor implements DataSerializable {
+public class LibraryRemover extends LibraryProcessor implements IdentifiedDataSerializable {
 
 	public LibraryRemover() {
 		//
@@ -33,5 +35,10 @@ public class LibraryRemover extends LibraryProcessor implements DataSerializable
 		return null;
 	}	
 
+	@Override
+	public int getId() {
+		return cli_DeleteLibraryTask;
+	}
+	
 
 }

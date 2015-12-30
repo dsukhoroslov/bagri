@@ -1,5 +1,7 @@
 package com.bagri.xdm.cache.hazelcast.task.role;
 
+import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_CreateRoleTask;
+
 import java.io.IOException;
 import java.util.Date;
 import java.util.Map.Entry;
@@ -7,11 +9,15 @@ import java.util.Map.Entry;
 import com.bagri.xdm.system.XDMRole;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
-import com.hazelcast.nio.serialization.DataSerializable;
+import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
-public class RoleCreator extends RoleProcessor implements DataSerializable {
+public class RoleCreator extends RoleProcessor implements IdentifiedDataSerializable {
 	
 	private String description;
+	
+	public RoleCreator() {
+		// de-ser
+	}
 
 	public RoleCreator(String admin, String description) {
 		super(1, admin);
@@ -32,6 +38,11 @@ public class RoleCreator extends RoleProcessor implements DataSerializable {
 	}
 
 	@Override
+	public int getId() {
+		return cli_CreateRoleTask;
+	}
+	
+	@Override
 	public void readData(ObjectDataInput in) throws IOException {
 		super.readData(in);
 		description = in.readUTF();
@@ -42,5 +53,6 @@ public class RoleCreator extends RoleProcessor implements DataSerializable {
 		super.writeData(out);
 		out.writeUTF(description);
 	}
+
 
 }

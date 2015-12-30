@@ -1,16 +1,18 @@
 package com.bagri.xdm.cache.hazelcast.task.schema;
 
+import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_DeleteSchemaTask;
+
 import java.io.IOException;
 import java.util.Map.Entry;
 
 import com.bagri.xdm.system.XDMSchema;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
-import com.hazelcast.nio.serialization.DataSerializable;
+import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 import com.hazelcast.spring.context.SpringAware;
 
 @SpringAware
-public class SchemaRemover extends SchemaProcessor implements DataSerializable {
+public class SchemaRemover extends SchemaProcessor implements IdentifiedDataSerializable {
 	
 	public SchemaRemover() {
 		//
@@ -43,5 +45,12 @@ public class SchemaRemover extends SchemaProcessor implements DataSerializable {
 		} 
 		return null;
 	}	
+	
+	@Override
+	public int getId() {
+		return cli_DeleteSchemaTask;
+	}
+	
+	
 	
 }

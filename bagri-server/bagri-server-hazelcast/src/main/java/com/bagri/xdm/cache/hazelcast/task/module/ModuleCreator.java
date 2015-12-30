@@ -1,5 +1,7 @@
 package com.bagri.xdm.cache.hazelcast.task.module;
 
+import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_CreateModuleTask;
+
 import java.io.IOException;
 import java.util.Date;
 import java.util.Map.Entry;
@@ -8,13 +10,17 @@ import java.util.Map.Entry;
 import com.bagri.xdm.system.XDMModule;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
-import com.hazelcast.nio.serialization.DataSerializable;
+import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
-public class ModuleCreator extends ModuleProcessor implements DataSerializable {
+public class ModuleCreator extends ModuleProcessor implements IdentifiedDataSerializable {
 	
 	private String fileName;
 	private String namespace;
 	private String description;
+	
+	public ModuleCreator() {
+		// de-ser
+	}
 
 	public ModuleCreator(String admin, String fileName, String namespace, String description) {
 		super(1, admin);
@@ -38,6 +44,11 @@ public class ModuleCreator extends ModuleProcessor implements DataSerializable {
 		return null;
 	}
 
+	@Override
+	public int getId() {
+		return cli_CreateModuleTask;
+	}
+	
 	@Override
 	public void readData(ObjectDataInput in) throws IOException {
 		super.readData(in);

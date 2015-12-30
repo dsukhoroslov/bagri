@@ -1,5 +1,7 @@
 package com.bagri.xdm.cache.hazelcast.task.role;
 
+import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_UpdateRolePermissionsTask;
+
 import java.io.IOException;
 import java.util.Map.Entry;
 
@@ -7,22 +9,26 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bagri.xdm.cache.hazelcast.task.EntityProcessor;
-import com.bagri.xdm.system.XDMPermission;
-import com.bagri.xdm.system.XDMPermissionAware;
 import com.bagri.xdm.system.XDMPermission.Permission;
+import com.bagri.xdm.system.XDMPermissionAware;
 import com.hazelcast.map.EntryBackupProcessor;
 import com.hazelcast.map.EntryProcessor;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
+import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
 public class PermissionUpdater extends EntityProcessor implements EntryProcessor<String, XDMPermissionAware>, 
-	EntryBackupProcessor<String, XDMPermissionAware> {
+	EntryBackupProcessor<String, XDMPermissionAware>, IdentifiedDataSerializable {
 
 	private static final transient Logger logger = LoggerFactory.getLogger(PermissionUpdater.class);
 
 	private Action action;
 	private String resource;
 	private String[] permissions;
+	
+	public PermissionUpdater() {
+		// de-ser
+	}
 	
 	public PermissionUpdater(int version, String admin, String resource, String[] permissions, Action action) {
 		super(version, admin);
@@ -79,6 +85,11 @@ public class PermissionUpdater extends EntityProcessor implements EntryProcessor
 		return null;
 	}
 
+	@Override
+	public int getId() {
+		return cli_UpdateRolePermissionsTask;
+	}
+	
 	@Override
 	public void readData(ObjectDataInput in) throws IOException {
 		super.readData(in);

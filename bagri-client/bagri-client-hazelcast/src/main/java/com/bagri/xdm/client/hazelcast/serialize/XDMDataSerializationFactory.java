@@ -124,6 +124,31 @@ public class XDMDataSerializationFactory implements DataSerializableFactory {
 	public static final int cli_AuthenticateTask = 147;
 	public static final int cli_AggregateSchemaHealthTask = 148;
 	
+	public static final int cli_CreateRoleTask = 150;
+	public static final int cli_UpdateRoleTask = 151;
+	public static final int cli_DeleteRoleTask = 152;
+	public static final int cli_UpdateRolePermissionsTask = 153;
+	
+	public static final int cli_CreateLibraryTask = 155;
+	public static final int cli_UpdateLibraryTask = 156;
+	public static final int cli_DeleteLibraryTask = 157;
+
+	public static final int cli_CreateModuleTask = 160;
+	public static final int cli_DeleteModuleTask = 161;
+
+	public static final int cli_CreateNodeTask = 165;
+	public static final int cli_UpdateNodeTask = 166;
+	public static final int cli_DeleteNodeTask = 167;
+	
+	public static final int cli_CreateUserTask = 170;
+	public static final int cli_UpdateUserTask = 171;
+	public static final int cli_DeleteUserTask = 172;
+
+	public static final int cli_CreateSchemaTask = 175;
+	public static final int cli_UpdateSchemaTask = 176;
+	public static final int cli_DeleteSchemaTask = 177;
+	public static final int cli_ActivateSchemaTask = 178;
+	
 	@Override
 	public IdentifiedDataSerializable create(int typeId) {
 		switch (typeId) {

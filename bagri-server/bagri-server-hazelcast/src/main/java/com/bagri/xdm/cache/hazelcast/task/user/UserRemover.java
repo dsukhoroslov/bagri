@@ -1,11 +1,13 @@
 package com.bagri.xdm.cache.hazelcast.task.user;
 
+import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_DeleteUserTask;
+
 import java.util.Map.Entry;
 
 import com.bagri.xdm.system.XDMUser;
-import com.hazelcast.nio.serialization.DataSerializable;
+import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
-public class UserRemover extends UserProcessor implements DataSerializable {
+public class UserRemover extends UserProcessor implements IdentifiedDataSerializable {
 
 	public UserRemover() {
 		//
@@ -33,5 +35,9 @@ public class UserRemover extends UserProcessor implements DataSerializable {
 		return null;
 	}	
 	
+	@Override
+	public int getId() {
+		return cli_DeleteUserTask;
+	}
 	
 }

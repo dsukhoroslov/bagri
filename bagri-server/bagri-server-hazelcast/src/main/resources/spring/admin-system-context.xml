@@ -51,14 +51,14 @@
 					</hz:tcp-ip>
 				</hz:join>
 			</hz:network>
-			<hz:partition-group enabled="false" group-type="CUSTOM">
+			<!--hz:partition-group enabled="false" group-type="CUSTOM">
 				<hz:member-group>
   					<hz:interface>${xdm.cluster.admins}</hz:interface>
 				</hz:member-group>
 				<hz:member-group>
   					<hz:interface>${xdm.cluster.servers}</hz:interface>
 				</hz:member-group>
-			</hz:partition-group>			
+			</hz:partition-group-->			
 			<hz:executor-service name="sys-exec-pool" pool-size="${xdm.cluster.thread.pool}" />
 
 			<hz:map name="modules">

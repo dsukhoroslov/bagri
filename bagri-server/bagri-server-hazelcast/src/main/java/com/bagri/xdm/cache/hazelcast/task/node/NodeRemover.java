@@ -1,11 +1,13 @@
 package com.bagri.xdm.cache.hazelcast.task.node;
 
+import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_DeleteNodeTask;
+
 import java.util.Map.Entry;
 
 import com.bagri.xdm.system.XDMNode;
-import com.hazelcast.nio.serialization.DataSerializable;
+import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
-public class NodeRemover extends NodeProcessor implements DataSerializable {
+public class NodeRemover extends NodeProcessor implements IdentifiedDataSerializable {
 
 	public NodeRemover() {
 		//
@@ -32,5 +34,10 @@ public class NodeRemover extends NodeProcessor implements DataSerializable {
 		} 
 		return null;
 	}	
+	
+	@Override
+	public int getId() {
+		return cli_DeleteNodeTask;
+	}
 	
 }
