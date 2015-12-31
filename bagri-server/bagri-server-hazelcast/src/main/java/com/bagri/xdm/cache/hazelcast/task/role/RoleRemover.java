@@ -5,7 +5,6 @@ import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFacto
 import java.util.Map.Entry;
 
 import com.bagri.xdm.system.XDMRole;
-import com.hazelcast.nio.serialization.DataSerializable;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
 public class RoleRemover extends RoleProcessor implements IdentifiedDataSerializable {

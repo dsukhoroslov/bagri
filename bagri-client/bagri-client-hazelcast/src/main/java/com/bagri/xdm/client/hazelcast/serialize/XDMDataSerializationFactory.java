@@ -1,5 +1,8 @@
 package com.bagri.xdm.client.hazelcast.serialize;
 
+import com.bagri.xdm.client.hazelcast.data.DocumentKey;
+import com.bagri.xdm.client.hazelcast.data.DocumentPathKey;
+import com.bagri.xdm.client.hazelcast.data.PathIndexKey;
 import com.bagri.xdm.client.hazelcast.data.QueryParamsKey;
 import com.bagri.xdm.client.hazelcast.impl.FixedCursor;
 import com.bagri.xdm.client.hazelcast.impl.ResultCursor;
@@ -73,10 +76,15 @@ public class XDMDataSerializationFactory implements DataSerializableFactory {
 	public static final int cli_DocsAwarePredicate = 87;
 	public static final int cli_ResultsDocPredicate = 88;
 	public static final int cli_ResultsQueryPredicate = 89;
-	public static final int cli_XQCursor = 90;
-	public static final int cli_QueryParamsKey = 91; 
+	public static final int cli_CollectionPredicate = 90;
+	
+	public static final int cli_XQCursor = 91;
 	public static final int cli_XQFixedCursor = 92;
-	public static final int cli_CollectionPredicate = 93;
+	
+	public static final int cli_DocumentKey = 95; 
+	public static final int cli_DocumentPathKey = 96; 
+	public static final int cli_PathIndexKey = 97; 
+	public static final int cli_QueryParamsKey = 98; 
 
 	public static final int cli_CleanTxDocumentsTask = 107; 
 	public static final int cli_UpdateDocumentCollectionTask = 108; 
@@ -153,6 +161,9 @@ public class XDMDataSerializationFactory implements DataSerializableFactory {
 	public IdentifiedDataSerializable create(int typeId) {
 		switch (typeId) {
 			case cli_XQCursor: return new ResultCursor();
+			case cli_DocumentKey: return new DocumentKey(); 
+			case cli_DocumentPathKey: return new DocumentPathKey(); 
+			case cli_PathIndexKey: return new PathIndexKey(); 
 			case cli_QueryParamsKey: return new QueryParamsKey();
 			case cli_XQFixedCursor: return new FixedCursor();
 			case cli_UpdateDocumentCollectionTask: return new DocumentCollectionUpdater();
