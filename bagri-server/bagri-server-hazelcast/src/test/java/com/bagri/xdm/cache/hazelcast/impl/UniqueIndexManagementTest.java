@@ -95,7 +95,7 @@ public class UniqueIndexManagementTest extends XDMManagementTest {
 				addPathSegment(AxisType.CHILD, null, "text()");
 		ExpressionContainer ec = new ExpressionContainer();
 		ec.addExpression(docType, Comparison.EQ, path, "$sym", symbol);
-		Map<String, String> params = new HashMap<String, String>();
+		Map<String, String> params = new HashMap<>();
 		params.put(":sec", "/" + prefix + ":Security");
 		return ((XDMQueryManagement) getQueryManagement()).getContent(ec, ":sec", params);
 	}
@@ -108,15 +108,21 @@ public class UniqueIndexManagementTest extends XDMManagementTest {
 		xRepo.getTxManagement().commitTransaction(txId);
 
 		txId = xRepo.getTxManagement().beginTransaction();
+		// this is an update because filename -> uri is the same, 
+		// thus no unique index violation expected
+		ids.add(createDocumentTest(sampleRoot + getFileName("security5621.xml")).getDocumentKey());
+		xRepo.getTxManagement().commitTransaction(txId);
+
+		txId = xRepo.getTxManagement().beginTransaction();
 		try {
-			ids.add(createDocumentTest(sampleRoot + getFileName("security5621.xml")).getDocumentKey());
+			ids.add(updateDocumentTest(0, "security1500.xml", sampleRoot + getFileName("security5621.xml")).getDocumentKey());			
 			xRepo.getTxManagement().commitTransaction(txId);
 			Assert.assertFalse("expected unique index vialation exception", true);
 		} catch (Exception ex) {
 			// anticipated ex..
 			xRepo.getTxManagement().rollbackTransaction(txId);
 		}
-		
+			
 		Collection<String> sec = getSecurity("IBM");
 		Assert.assertNotNull(sec);
 		Assert.assertTrue("expected 1 but got " + sec.size() + " test documents", sec.size() == 1);

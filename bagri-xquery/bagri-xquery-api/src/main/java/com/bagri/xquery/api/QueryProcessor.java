@@ -22,8 +22,8 @@ public interface QueryProcessor {
 	boolean isFeatureSupported(int feature);
     
     Collection<QName> prepareXQuery(String query, XQStaticContext ctx) throws XQException;
-    Iterator executeXQuery(String query, XQStaticContext ctx) throws XQException;
-    Iterator executeXQuery(String query, Properties props) throws XQException;
+    Iterator<?> executeXQuery(String query, XQStaticContext ctx) throws XQException;
+    Iterator<?> executeXQuery(String query, Properties props) throws XQException;
     void bindVariable(QName varName, Object var) throws XQException;
     void unbindVariable(QName varName) throws XQException;
 	

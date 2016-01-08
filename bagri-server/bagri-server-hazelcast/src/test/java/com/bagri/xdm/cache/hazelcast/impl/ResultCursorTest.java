@@ -80,15 +80,15 @@ public class ResultCursorTest extends XDMManagementTest {
 				"\t{$sec/PE}\n" +
 				"\t{$sec/Yield}\n" +
 				"</Security>";
-		Map<QName, Object> bindings = new HashMap<>();
-		bindings.put(new QName("sect"), "Technology");
-	    bindings.put(new QName("pemin"), 25.0f);
-	    bindings.put(new QName("pemax"), 28.0f);
-	    bindings.put(new QName("yield"), 0.1f);
+		Map<QName, Object> params = new HashMap<>();
+		params.put(new QName("sect"), "Technology");
+	    params.put(new QName("pemin"), 25.0f);
+	    params.put(new QName("pemax"), 28.0f);
+	    params.put(new QName("yield"), 0.1f);
 		Properties props = new Properties();
 		props.setProperty(pn_client_fetchSize, "1");
 		props.setProperty(pn_client_id, "dummy");
-		ResultCursor rc = (ResultCursor) qm.executeQuery(query, bindings, props);
+		ResultCursor rc = (ResultCursor) qm.executeQuery(query, params, props);
 		rc.deserialize(((RepositoryImpl) xRepo).getHzInstance());
 		assertTrue(rc.hasNext());
 		assertNotNull(rc.next());
@@ -105,12 +105,12 @@ public class ResultCursorTest extends XDMManagementTest {
 				"for $sec in fn:collection()/s:Security\n" +
 		  		"where $sec/s:Symbol=$sym\n" + 
 				"return $sec\n";
-		Map<QName, Object> bindings = new HashMap<>();
-		bindings.put(new QName("sym"), "IBM");
+		Map<QName, Object> params = new HashMap<>();
+		params.put(new QName("sym"), "IBM");
 		Properties props = new Properties();
 		props.setProperty(pn_client_fetchSize, "1");
 		props.setProperty(pn_client_id, "dummy");
-		ResultCursor rc = (ResultCursor) qm.executeQuery(query, bindings, props);
+		ResultCursor rc = (ResultCursor) qm.executeQuery(query, params, props);
 		rc.deserialize(((RepositoryImpl) xRepo).getHzInstance());
 		assertTrue(rc.hasNext());
 		assertNotNull(rc.next());
@@ -135,11 +135,11 @@ public class ResultCursorTest extends XDMManagementTest {
 
 			@Override
 			public void run() {
-				Map<QName, Object> bindings = new HashMap<>();
-				bindings.put(new QName("sym"), "IBM");
+				Map<QName, Object> params = new HashMap<>();
+				params.put(new QName("sym"), "IBM");
 				ResultCursor rc;
 				try {
-					rc = (ResultCursor) qm.executeQuery(query, bindings, props);
+					rc = (ResultCursor) qm.executeQuery(query, params, props);
 					rc.deserialize(((RepositoryImpl) xRepo).getHzInstance());
 					assertTrue(rc.hasNext());
 					assertNotNull(rc.next());
@@ -154,11 +154,11 @@ public class ResultCursorTest extends XDMManagementTest {
 
 			@Override
 			public void run() {
-				Map<QName, Object> bindings = new HashMap<>();
-				bindings.put(new QName("sym"), "VFINX");
+				Map<QName, Object> params = new HashMap<>();
+				params.put(new QName("sym"), "VFINX");
 				ResultCursor rc;
 				try {
-					rc = (ResultCursor) qm.executeQuery(query, bindings, props);
+					rc = (ResultCursor) qm.executeQuery(query, params, props);
 					rc.deserialize(((RepositoryImpl) xRepo).getHzInstance());
 					assertTrue(rc.hasNext());
 					assertNotNull(rc.next());

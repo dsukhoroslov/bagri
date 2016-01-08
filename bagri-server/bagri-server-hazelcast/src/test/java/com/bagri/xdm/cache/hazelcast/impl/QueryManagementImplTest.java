@@ -309,7 +309,7 @@ public class QueryManagementImplTest extends XDMManagementTest {
 	public void selectDocumentByIdTest() throws Exception {
 		
 		storeSecurityTest();
-		Map<QName, Object> bindings = new HashMap<>();
+		Map<QName, Object> params = new HashMap<>();
 		Properties props = new Properties();
 		props.setProperty(pn_client_id, "1");
 		props.setProperty(pn_client_fetchSize, "0");
@@ -317,7 +317,7 @@ public class QueryManagementImplTest extends XDMManagementTest {
 			String query = "declare namespace s=\"http://tpox-benchmark.com/security\";\n" +
 				"for $sec in fn:doc(\"bgdm:/" + id + "\")/s:Security\n" +
 				"return $sec\n";
-			Iterator itr = xRepo.getQueryManagement().executeQuery(query, bindings, props);
+			Iterator itr = xRepo.getQueryManagement().executeQuery(query, params, props);
 			Assert.assertNotNull(itr);
 			((ResultCursor) itr).deserialize(((RepositoryImpl) xRepo).getHzInstance());
 			Assert.assertTrue(itr.hasNext());
@@ -328,7 +328,7 @@ public class QueryManagementImplTest extends XDMManagementTest {
 	public void selectDocumentByUriTest() throws Exception {
 		
 		storeSecurityTest();
-		Map<QName, Object> bindings = new HashMap<>();
+		Map<QName, Object> params = new HashMap<>();
 		Properties props = new Properties();
 		props.setProperty(pn_client_id, "1");
 		props.setProperty(pn_client_fetchSize, "0");
@@ -337,7 +337,7 @@ public class QueryManagementImplTest extends XDMManagementTest {
 			String query = "declare namespace s=\"http://tpox-benchmark.com/security\";\n" +
 				"for $sec in fn:doc(\"" + uri + "\")/s:Security\n" +
 				"return $sec\n";
-			Iterator itr = xRepo.getQueryManagement().executeQuery(query, bindings, props);
+			Iterator itr = xRepo.getQueryManagement().executeQuery(query, params, props);
 			Assert.assertNotNull(itr);
 			((ResultCursor) itr).deserialize(((RepositoryImpl) xRepo).getHzInstance());
 			Assert.assertTrue(itr.hasNext());

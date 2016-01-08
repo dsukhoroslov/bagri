@@ -87,7 +87,11 @@ public abstract class XDMManagementTest {
 	public XDMDocument updateDocumentTest(long docKey, String uri, String fileName) throws Exception {
 		String xml = readTextFile(fileName);
 		Properties props = getDocumentProperties();
-		return getDocManagement().storeDocumentFromString(new XDMDocumentId(docKey, uri), xml, props);
+		XDMDocumentId docId = null;
+		if (docKey != 0 || uri != null) {
+			docId = new XDMDocumentId(docKey, uri);
+		}
+		return getDocManagement().storeDocumentFromString(docId, xml, props);
 	}
 
 	public void removeDocumentTest(long docKey) throws Exception {

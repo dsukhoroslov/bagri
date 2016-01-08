@@ -205,13 +205,13 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 	}
 
 	@Override
-	public Iterator getQueryResults(String query, Map<QName, Object> params, Properties props) {
+	public Iterator<?> getQueryResults(String query, Map<QName, Object> params, Properties props) {
 		//QueryParamsKey qpKey = getResultsKey(query, params);
 		long qpKey = getResultsKey(query, params);
 		logger.trace("getQueryResults; got result key: {}; parts: {}", qpKey, getResultsKeyParts(qpKey));
 		XDMResults xqr = xrCache.get(qpKey);
 		//XDMResults xqr = xResults.get(qpKey);
-		Iterator result = null;
+		Iterator<?> result = null;
 		if (xqr != null) {
 			result = xqr.getResults().iterator();
 			updateStats(query, 0, 1);
@@ -223,7 +223,7 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 	}
 	
 	@Override
-	public Iterator addQueryResults(String query, Map<QName, Object> params, Properties props, Iterator results) {
+	public Iterator<?> addQueryResults(String query, Map<QName, Object> params, Properties props, Iterator<?> results) {
 		//QueryParamsKey qpKey = getResultsKey(query, params);
 		QueryExecContext ctx = thContext.get();
 		if (ctx.getDocIds().size() == 0) {
@@ -231,7 +231,7 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 		}
 		long qpKey = getResultsKey(query, params);
 		// TODO: think about lazy solution... EntryProcessor? or, try local Map?
-		List resList = new ArrayList();
+		List<Object> resList = new ArrayList<>();
 		while (results.hasNext()) {
 			resList.add(results.next());
 		}
@@ -512,11 +512,11 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 	}
 
 	@Override
-	public Collection<XDMDocumentId> getDocumentIds(String query, Map params, Properties props) throws XDMException {
+	public Collection<XDMDocumentId> getDocumentIds(String query, Map<QName, Object> params, Properties props) throws XDMException {
 		logger.trace("getDocumentIds.enter; query: {}, command: {}; params: {}; properties: {}", query, params, props);
 		List<XDMDocumentId> result = null;
 		try {
-			Iterator iter = runQuery(query, params, props);
+			Iterator<?> iter = runQuery(query, params, props);
 			Collection<Long> ids = thContext.get().getDocIds();
 			result = new ArrayList<>(ids.size());
 			for (Long id: ids) {
@@ -556,7 +556,7 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public Iterator executeQuery(String query, Map params, Properties props) throws XDMException {
+	public Iterator<?> executeQuery(String query, Map<QName, Object> params, Properties props) throws XDMException {
 
 		logger.trace("executeQuery.enter; query: {}, command: {}; params: {}; properties: {}", query, params, props);
 		ResultCursor result = null;
@@ -564,7 +564,7 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 		int batchSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, "0"));
 		try {
 			XQProcessor xqp = repo.getXQProcessor(clientId);
-			Iterator iter = runQuery(query, params, props);
+			Iterator<?> iter = runQuery(query, params, props);
 			result = createCursor(clientId, batchSize, iter);
 			xqp.setResults(result);
 		} catch (XQException ex) {
@@ -574,14 +574,14 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 		return result;
 	}
 	
-	private Iterator runQuery(String query, Map params, Properties props) throws XQException {
+	private Iterator<?> runQuery(String query, Map<QName, Object> params, Properties props) throws XQException {
 		
 		
         Throwable ex = null;
         boolean failed = false;
         stopWatch.start();
 		
-		Iterator iter = null;
+		Iterator<?> iter = null;
 		String clientId = props.getProperty(pn_client_id);
 		boolean isQuery = "false".equalsIgnoreCase(props.getProperty(pn_query_command, "false"));
 		XQProcessor xqp = repo.getXQProcessor(clientId);
@@ -602,8 +602,7 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 					QueryExecContext ctx = thContext.get();
 					ctx.clear();
 					
-					for (Object o: params.entrySet()) {
-						Map.Entry<QName, Object> var = (Map.Entry<QName, Object>) o; 
+					for (Map.Entry<QName, Object> var: params.entrySet()) {
 						xqp.bindVariable(var.getKey(), var.getValue());
 					}
 					
@@ -613,8 +612,7 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 						iter = xqp.executeXCommand(query, params, props);
 					}
 					
-					for (Object o: params.entrySet()) {
-						Map.Entry<QName, Object> var = (Map.Entry<QName, Object>) o; 
+					for (Map.Entry<QName, Object> var: params.entrySet()) {
 						xqp.unbindVariable(var.getKey());
 					}
 	

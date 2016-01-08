@@ -127,6 +127,10 @@ public class PopulationManagementImpl implements ManagedService,
 			return null;
 		}
 		
+		if (docStore.getEntryKeys().size() == 0) {
+			return null;
+		}
+		
 		Set<XDMDocumentKey> result = new HashSet<>();
 		XDMFactory factory = getXDMFactory();
 		for (Long docKey: docStore.getEntryKeys()) {

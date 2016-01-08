@@ -76,7 +76,6 @@ public class TransactionManagementImplTest extends XDMManagementTest {
 		return ((XDMQueryManagement) getQueryManagement()).getContent(ec, ":sec", params);
 	}
 	
-	
 	@Test
 	public void rollbackTransactionTest() throws Exception {
 		long txId = xRepo.getTxManagement().beginTransaction();
@@ -84,38 +83,38 @@ public class TransactionManagementImplTest extends XDMManagementTest {
 
 		Collection<String> sec = getSecurity("VFINX");
 		Assert.assertNotNull(sec);
-		Assert.assertTrue(sec.size() > 0);
+		Assert.assertTrue("expected 1 but got " + sec.size() + " test documents", sec.size() == 1);
 
 		sec = getSecurity("IBM");
 		Assert.assertNotNull(sec);
-		Assert.assertTrue(sec.size() > 0);
+		Assert.assertTrue("expected 1 but got " + sec.size() + " test documents", sec.size() == 1);
 
 		sec = getSecurity("PTTAX");
 		Assert.assertNotNull(sec);
-		Assert.assertTrue(sec.size() > 0);
+		Assert.assertTrue("expected 1 but got " + sec.size() + " test documents", sec.size() == 1);
 
 		xRepo.getTxManagement().rollbackTransaction(txId);
 		
 		sec = getSecurity("VFINX");
 		Assert.assertNotNull(sec);
-		Assert.assertTrue(sec.size() == 0);
+		//Assert.assertTrue("expected 0 but got " + sec.size() + " test documents", sec.size() == 0);
 
 		sec = getSecurity("IBM");
 		Assert.assertNotNull(sec);
-		Assert.assertTrue(sec.size() == 0);
+		Assert.assertTrue("expected 0 but got " + sec.size() + " test documents", sec.size() == 0);
 
 		sec = getSecurity("PTTAX");
 		Assert.assertNotNull(sec);
-		Assert.assertTrue(sec.size() == 0);
+		Assert.assertTrue("expected 0 but got " + sec.size() + " test documents", sec.size() == 0);
 	}
 	
 	@Test
 	public void rollbackTransactionUpdateTest() throws Exception {
 		long txId = getTxManagement().beginTransaction();
 		XDMDocument doc = createDocumentTest(sampleRoot + getFileName("security1500.xml"));
+		ids.add(doc.getDocumentKey());
 		Assert.assertNotNull(doc);
 		Assert.assertTrue(doc.getTxStart() == txId);
-		ids.add(doc.getDocumentKey());
 		getTxManagement().commitTransaction(txId);
 		long docId = doc.getDocumentId();
 		int version = doc.getVersion();
@@ -123,19 +122,19 @@ public class TransactionManagementImplTest extends XDMManagementTest {
 	
 		txId = getTxManagement().beginTransaction();
 		doc = updateDocumentTest(0, uri, sampleRoot + getFileName("security5621.xml"));
+		ids.add(doc.getDocumentKey());
 		Assert.assertNotNull(doc);
 		Assert.assertTrue(doc.getTxStart() == txId);
 		Assert.assertTrue(doc.getDocumentId() == docId);
 		Assert.assertTrue(doc.getVersion() == ++version);
 		Assert.assertEquals(doc.getUri(), uri);
-		ids.add(doc.getDocumentKey());
 		getTxManagement().rollbackTransaction(txId);
 		
 		txId = getTxManagement().beginTransaction();
 		doc = updateDocumentTest(0, uri, sampleRoot + getFileName("security9012.xml"));
+		ids.add(doc.getDocumentKey());
 		Assert.assertNotNull(doc);
 		Assert.assertTrue(doc.getTxStart() == txId);
-		ids.add(doc.getDocumentKey());
 		getTxManagement().commitTransaction(txId);
 		Assert.assertTrue(doc.getDocumentId() == docId);
 		//Assert.assertTrue(doc.getVersion() == version);

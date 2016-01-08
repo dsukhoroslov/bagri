@@ -37,6 +37,7 @@
                 <entry name="xdm.schema.store.type">JSON</entry>
                 <entry name="xdm.schema.ports.last">10800</entry>
                 <entry name="xdm.schema.population.size">1</entry>
+                <entry name="xdm.schema.population.buffer.size">100000</entry>
                 <entry name="xdm.schema.data.backup.async">1</entry>
                 <entry name="xdm.schema.store.data.path">../../etc/samples/json</entry>
                 <entry name="xdm.schema.dict.backup.sync">0</entry>
@@ -92,6 +93,7 @@
                 <entry name="xdm.schema.store.type">XML</entry>
                 <entry name="xdm.schema.ports.last">10060</entry>
                 <entry name="xdm.schema.population.size">1</entry>
+                <entry name="xdm.schema.population.buffer.size">100000</entry>
                 <entry name="xdm.schema.data.backup.async">1</entry>
                 <entry name="xdm.schema.store.data.path">../../etc/samples/xdm</entry>
                 <entry name="xdm.schema.dict.backup.sync">0</entry>
@@ -468,6 +470,7 @@
                 <entry name="xdm.schema.store.type">XML</entry>
                 <entry name="xdm.schema.ports.last">20010</entry>
                 <entry name="xdm.schema.population.size">1</entry>
+                <entry name="xdm.schema.population.buffer.size">100000</entry>
                 <entry name="xdm.schema.data.backup.async">1</entry>
                 <entry name="xdm.schema.store.data.path">../../etc/samples/xmark</entry>
                 <entry name="xdm.schema.dict.backup.sync">0</entry>

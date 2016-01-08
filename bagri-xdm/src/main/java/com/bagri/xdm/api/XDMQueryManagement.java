@@ -5,6 +5,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
+import javax.xml.namespace.QName;
+
 import com.bagri.xdm.common.XDMDocumentId;
 
 /**
@@ -14,8 +16,8 @@ import com.bagri.xdm.common.XDMDocumentId;
  */
 public interface XDMQueryManagement {
 	
-	Iterator<?> executeQuery(String query, Map params, Properties props) throws XDMException;
-	Collection<XDMDocumentId> getDocumentIds(String query, Map params, Properties props) throws XDMException;
+	Iterator<?> executeQuery(String query, Map<QName, Object> params, Properties props) throws XDMException;
+	Collection<XDMDocumentId> getDocumentIds(String query, Map<QName, Object> params, Properties props) throws XDMException;
 	
 	void cancelExecution() throws XDMException;
 	

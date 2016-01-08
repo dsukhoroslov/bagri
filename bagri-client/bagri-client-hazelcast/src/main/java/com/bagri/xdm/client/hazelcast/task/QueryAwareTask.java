@@ -5,20 +5,22 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import javax.xml.namespace.QName;
+
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 
 public abstract class QueryAwareTask extends TransactionAwareTask {
 
 	protected String query;
-	protected Map<Object, Object> params;
+	protected Map<QName, Object> params;
 	protected Properties context;
 	
 	public QueryAwareTask() {
 		super();
 	}
 	
-	public QueryAwareTask(String clientId, long txId, String query, Map params, Properties context) {
+	public QueryAwareTask(String clientId, long txId, String query, Map<QName, Object> params, Properties context) {
 		super(clientId, txId);
 		this.query = query;
 		this.params = params;
@@ -31,9 +33,9 @@ public abstract class QueryAwareTask extends TransactionAwareTask {
 		query = in.readUTF();
 		//params = in.readObject();
 		int size = in.readInt();
-		params = new HashMap<Object, Object>(size);
+		params = new HashMap<>(size);
 		for (int i=0; i < size; i++) {
-			params.put(in.readObject(), in.readObject());
+			params.put((QName) in.readObject(), in.readObject());
 		}
 		context = in.readObject();
 	}
@@ -44,7 +46,7 @@ public abstract class QueryAwareTask extends TransactionAwareTask {
 		out.writeUTF(query);
 		//out.writeObject(params);
 		out.writeInt(params.size());
-		for (Map.Entry<Object, Object> param: params.entrySet()) {
+		for (Map.Entry<QName, Object> param: params.entrySet()) {
 			out.writeObject(param.getKey());
 			out.writeObject(param.getValue());
 		}

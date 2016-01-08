@@ -81,17 +81,17 @@ public class QueryCacheManagementTest extends XDMManagementTest {
 			//"for $sec in fn:collection()/s:Security\n" +
 	  		"where $sec/s:Symbol=$sym\n" + 
 			"return $sec\n";
-		Map<QName, Object> bindings = new HashMap<>();
-		bindings.put(new QName("sym"), "VFINX");
+		Map<QName, Object> params = new HashMap<>();
+		params.put(new QName("sym"), "VFINX");
 		Properties props = new Properties();
 		props.setProperty(pn_client_id, "1");
 		props.setProperty(pn_client_fetchSize, "1");
-		Iterator itr = xRepo.getQueryManagement().executeQuery(query, bindings, props);
+		Iterator itr = xRepo.getQueryManagement().executeQuery(query, params, props);
 		Assert.assertNotNull(itr);
 		//((ResultCursor) itr).deserialize(((RepositoryImpl) xRepo).getHzInstance());
 		Assert.assertTrue(itr.hasNext());
 		// here we must have 1 result cached
-		itr = ((QueryManagementImpl) xRepo.getQueryManagement()).getQueryResults(query, bindings, props);		
+		itr = ((QueryManagementImpl) xRepo.getQueryManagement()).getQueryResults(query, params, props);		
 		Assert.assertNotNull(itr);
 		Assert.assertTrue(itr.hasNext());
 		
@@ -100,7 +100,7 @@ public class QueryCacheManagementTest extends XDMManagementTest {
 		xRepo.getTxManagement().commitTransaction(txId);
 		//updateDocumentTest(0, null, sampleRoot + getFileName("security5621.xml"));
 		// here we must have 0 result cached
-		itr = ((QueryManagementImpl) xRepo.getQueryManagement()).getQueryResults(query, bindings, props);		
+		itr = ((QueryManagementImpl) xRepo.getQueryManagement()).getQueryResults(query, params, props);		
 		Assert.assertNull(itr);
 		//Assert.assertFalse(itr.hasNext());
 	}
@@ -127,21 +127,21 @@ public class QueryCacheManagementTest extends XDMManagementTest {
 			"\t{$sec/PE}\n" +
 			"\t{$sec/Yield}\n" +
 			"</Security>";
-		Map<QName, Object> bindings = new HashMap<>();
-		bindings.put(new QName("sect"), "Technology"); 
-		bindings.put(new QName("pemin"), new java.math.BigDecimal("25.0"));
-		bindings.put(new QName("pemax"), new java.math.BigDecimal("28.0"));
-		bindings.put(new QName("yield"), new java.math.BigDecimal("0.1"));
+		Map<QName, Object> params = new HashMap<>();
+		params.put(new QName("sect"), "Technology"); 
+		params.put(new QName("pemin"), new java.math.BigDecimal("25.0"));
+		params.put(new QName("pemax"), new java.math.BigDecimal("28.0"));
+		params.put(new QName("yield"), new java.math.BigDecimal("0.1"));
 		
 		Properties props = new Properties();
 		props.setProperty(pn_client_id, "2");
 		props.setProperty(pn_client_fetchSize, "1");
-		Iterator itr = xRepo.getQueryManagement().executeQuery(query, bindings, props);
+		Iterator itr = xRepo.getQueryManagement().executeQuery(query, params, props);
 		Assert.assertNotNull(itr);
 		//((ResultCursor) itr).deserialize(((RepositoryImpl) xRepo).getHzInstance());
 		Assert.assertTrue(itr.hasNext());
 		// here we must have 1 result cached
-		itr = ((QueryManagementImpl) xRepo.getQueryManagement()).getQueryResults(query, bindings, props);		
+		itr = ((QueryManagementImpl) xRepo.getQueryManagement()).getQueryResults(query, params, props);		
 		Assert.assertNotNull(itr);
 		Assert.assertTrue(itr.hasNext());
 		
@@ -150,7 +150,7 @@ public class QueryCacheManagementTest extends XDMManagementTest {
 		xRepo.getTxManagement().commitTransaction(txId);
 		// here we must have 0 result cached
 		// but there is no code to do this!
-		itr = ((QueryManagementImpl) xRepo.getQueryManagement()).getQueryResults(query, bindings, props);		
+		itr = ((QueryManagementImpl) xRepo.getQueryManagement()).getQueryResults(query, params, props);		
 		//Assert.assertNull(itr);
 		//Assert.assertFalse(itr.hasNext());
 	}
