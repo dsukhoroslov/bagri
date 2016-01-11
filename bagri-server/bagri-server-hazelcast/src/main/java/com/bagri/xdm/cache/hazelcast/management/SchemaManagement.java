@@ -94,7 +94,7 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
 	}
 	
 	public void setDefaultProperties(Properties defaults) {
-		this.defaults = defaults;
+		this.defaults = new Properties(defaults);
 	}
 	
 	@ManagedAttribute(description="Registered Schema Names")
@@ -171,13 +171,13 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
 		return mgr;
 	}
 	
-	public HazelcastInstance initSchema(String schemaName, Properties props) {
+	public boolean initSchema(String schemaName, Properties props) {
     	logger.debug("initSchema.enter; schema: {}; properties: {}", schemaName, props);
     	
     	ClassPathXmlApplicationContext ctx = ctxCache.get(schemaName);
     	if (ctx != null) {
         	logger.debug("initSchema; schema {} already initialized", schemaName);
-    		return ctx.getBean(hz_instance, HazelcastInstance.class);
+    		return true; //ctx.getBean(hz_instance, HazelcastInstance.class);
     	}
 
     	props.setProperty(xdm_schema_name, schemaName);
@@ -197,24 +197,22 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
 	    		ctx.refresh();
 	    		
 	    		ctxCache.put(schemaName, ctx);
-	    		HazelcastInstance hz = ctx.getBean(hz_instance, HazelcastInstance.class);
+	    		//HazelcastInstance hz = ctx.getBean(hz_instance, HazelcastInstance.class);
 	    		//hz.getUserContext().put("appContext", ctx);
 	    		//hz.getConfig().getSecurityConfig().setEnabled(true);
-	    	    //XDMModelManagement schemaDict = ctx.getBean("xdmModel", XDMModelManagement.class);
 	    	    SchemaManager sMgr = (SchemaManager) mgrCache.get(schemaName);
 	       	    if (sMgr != null) {
 	       	    	sMgr.setClientContext(ctx);
-	       	    	//sMgr.setSchemaDictionary(schemaDict);
 	       	    	registerFeatureManagers(ctx, sMgr);
 	       	    }
 	       	    
-	    		logger.debug("initSchema.exit; client schema {} started on instance: {}", schemaName, hz);
-	    		return hz;
+	    		logger.debug("initSchema.exit; client schema {} started", schemaName);
+	    		return true;
 	    	} catch (Exception ex) {
 	    		logger.error("initSchema.error; " + ex.getMessage(), ex);
 	    	}
     	}
-		return null;
+		return false;
 	}
 	
 	public boolean denitSchema(String schemaName, Set<Member> members) {
@@ -224,13 +222,13 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
     	// do this if we don't have schema nodes any more!
     	ClassPathXmlApplicationContext ctx = ctxCache.get(schemaName);
     	if (ctx != null) {
-    		HazelcastInstance hzClient = ctx.getBean(hz_instance, HazelcastInstance.class);
+    		//HazelcastInstance hzClient = ctx.getBean(hz_instance, HazelcastInstance.class);
     		//int size = hzClient.getCluster().getMembers().size();
     		if (!isSchemaActive(schemaName, members)) {
        		//if (size == 0) {
     			try {
     				unregisterFeatureManagers(ctx);
-    				hzClient.shutdown();
+    				//hzClient.shutdown();
 
         			ctx.close();
         			ctxCache.remove(schemaName);
@@ -315,8 +313,7 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
 			XDMSchema schema = entityCache.get(name);
 			if (schema != null) {
 				Properties props = schema.getProperties();
-				HazelcastInstance hzClient = initSchema(schema.getName(), props);
-				if (hzClient != null) {
+				if (initSchema(schema.getName(), props)) {
 					cnt++;
 					Future<String> future = execService.submitToMember(new SchemaMemberExtractor(name), member);
 					String uuid;

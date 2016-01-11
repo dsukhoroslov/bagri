@@ -20,6 +20,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import javax.xml.namespace.QName;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,26 +67,12 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 		}
 	}
 	
-	//@Override
-	//public Collection<String> getDocumentURIs(ExpressionContainer query) throws XDMException {
-
-	//	long stamp = System.currentTimeMillis();
-	//	logger.trace("getDocumentURIs.enter; query: {}", query);
-	//	DocumentUrisProvider task = new DocumentUrisProvider(repo.getClientId(), repo.getTransactionId(), query);
-	//	Future<Collection<String>> future = execService.submit(task);
-	//	execution = future;
-	//	Collection<String> result = getResults(future, 0);
-	//	stamp = System.currentTimeMillis() - stamp;
-	//	logger.trace("getDocumentURIs.exit; time taken: {}; returning: {}", stamp, result);
-	//	return result;
-	//}
-	
 	@Override
-	public Collection<XDMDocumentId> getDocumentIds(String query, Map bindings, Properties props) throws XDMException {
+	public Collection<XDMDocumentId> getDocumentIds(String query, Map<QName, Object> params, Properties props) throws XDMException {
 
 		long stamp = System.currentTimeMillis();
 		logger.trace("getDocumentIDs.enter; query: {}", query);
-		DocumentIdsProvider task = new DocumentIdsProvider(repo.getClientId(), repo.getTransactionId(), query, bindings, props);
+		DocumentIdsProvider task = new DocumentIdsProvider(repo.getClientId(), repo.getTransactionId(), query, params, props);
 		Future<Collection<XDMDocumentId>> future = execService.submit(task);
 		execution = future;
 		Collection<XDMDocumentId> result = getResults(future, 0);
@@ -93,35 +81,8 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 		return result;
 	}
 	
-	//@Override
-	//public Collection<String> getXML(ExpressionContainer query, String template, Map params) throws XDMException {
-	//	long stamp = System.currentTimeMillis();
-	//	logger.trace("getXML.enter; got query: {}; template: {}; params: {}", query, template, params);
-		
-	//	XMLBuilder xb = new XMLBuilder(repo.getClientId(), repo.getTransactionId(), query, template, params);
-		// decide about execution member via additional properties!
-	//	Map<Member, Future<Collection<String>>> result = execService.submitToAllMembers(xb);
-	//	execution = null; //!?
-
-	//	Collection<String> xmls = new ArrayList<String>();
-	//	for (Future<Collection<String>> future: result.values()) {
-	//		try {
-	//			Collection<String> c = future.get();
-	//			if (c.isEmpty()) {
-	//				continue;
-	//			}
-	//			xmls.addAll(c);
-	//		} catch (InterruptedException | ExecutionException ex) {
-	//			logger.error("getXML; error getting result", ex);
-	//		}
-	//	}
-	//	stamp = System.currentTimeMillis() - stamp;
-	//	logger.trace("getXML.exit; got query results: {}; time taken {}", xmls.size(), stamp);
-	//	return xmls;
-	//}
-	
 	@Override
-	public Iterator executeQuery(String query, Map params, Properties props) throws XDMException {
+	public Iterator executeQuery(String query, Map<QName, Object> params, Properties props) throws XDMException {
 
 		long stamp = System.currentTimeMillis();
 		logger.trace("executeQuery.enter; query: {}; bindings: {}; context: {}", query, params, props);
@@ -209,6 +170,7 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 		}
 	}
 	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private Iterator extractFromCursor(ResultCursor cursor) {
 		List result = new ArrayList(cursor.getQueueSize());
 		while (cursor.hasNext()) {

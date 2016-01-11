@@ -43,40 +43,31 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 	private BagriXQMetaData metaData;
 	private BagriXQStaticContext context;
 	
-	BagriXQConnection(String address) {
-
-		metaData = new BagriXQMetaData(this, null);
-		context = new BagriXQStaticContext();
-		try {
-			transactional = metaData.isTransactionSupported();
-		} catch (XQException ex) {
-			transactional = false;
-		}
+	BagriXQConnection() {
+		this(null, null);
 	}
 
-	BagriXQConnection(String address, boolean transactional) {
-
-		metaData = new BagriXQMetaData(this, null);
-		context = new BagriXQStaticContext();
-		this.transactional = transactional;
-	}
-
-	BagriXQConnection(String address, String username) {
-
-		metaData = new BagriXQMetaData(this, username);
-		context = new BagriXQStaticContext();
-		try {
-			transactional = metaData.isTransactionSupported();
-		} catch (XQException ex) {
-			transactional = false;
-		}
+	BagriXQConnection(String username) {
+		this(username, null);
 	}
 	
-	BagriXQConnection(String address, String username, boolean transactional) {
+	BagriXQConnection(boolean transactional) {
+		this(null, transactional);
+	}
 
+	BagriXQConnection(String username, Boolean transactional) {
+		super();
 		metaData = new BagriXQMetaData(this, username);
 		context = new BagriXQStaticContext();
-		this.transactional = transactional;
+		if (transactional == null) {
+			try {
+				this.transactional = metaData.isTransactionSupported();
+			} catch (XQException ex) {
+				this.transactional = false;
+			}
+		} else {
+			this.transactional = transactional;
+		}
 	}
 	
 	void cancel() throws XQException {

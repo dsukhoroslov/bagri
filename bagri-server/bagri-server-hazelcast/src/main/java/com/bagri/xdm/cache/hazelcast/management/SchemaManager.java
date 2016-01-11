@@ -92,24 +92,18 @@ public class SchemaManager extends EntityManager<XDMSchema> implements XDMHealth
 		if (clientContext == null) {
 			return new String[0];
 		}
-		//HazelcastInstance hzInstance = clientContext.getBean(hz_instance, HazelcastInstance.class);
+		Collection<Member> members;
 		if (hzInstance instanceof HazelcastClientInstanceImpl) {
-			Collection<Member> members = ((HazelcastClientInstanceImpl) hzInstance).getClientClusterService().getMemberList();
-			String[] result = new String[members.size()];
-			int idx = 0;
-			for (Member member: members) {
-				result[idx++] = member.getSocketAddress().toString();
-			}
-			return result;
+			members = ((HazelcastClientInstanceImpl) hzInstance).getClientClusterService().getMemberList();
 		} else {
-			Set<Member> members = hzInstance.getCluster().getMembers();
-			String[] result = new String[members.size()];
-			int idx = 0;
-			for (Member member: members) {
-				result[idx++] = member.getSocketAddress().toString();
-			}
-			return result;
+			members = hzInstance.getCluster().getMembers();
 		}
+		String[] result = new String[members.size()];
+		int idx = 0;
+		for (Member member: members) {
+			result[idx++] = member.getSocketAddress().toString();
+		}
+		return result;
 	}
 
 	@ManagedAttribute(description="Returns short Schema description")

@@ -124,8 +124,12 @@
 	<bean id="xqDataSource" class="com.bagri.xqj.BagriXQDataSource">
 	    <property name="properties">
 		<props>
-		    <prop key="address">${xdm.schema.members}</prop>
-		    <prop key="schema">${xdm.schema.name}</prop>
+                    <prop key="address">${xdm.schema.members}</prop>
+                    <prop key="schema">${xdm.schema.name}</prop>
+                    <prop key="user">${xdm.schema.user}</prop>
+                    <prop key="password">${xdm.schema.password}</prop>
+                    <!--prop key="query.processor">com.bagri.xquery.saxon.XQProcessorClient</prop>
+                    <prop key="xdm.repository">com.bagri.xdm.client.hazelcast.impl.RepositoryImpl</prop-->
 		</props>
 	    </property>
 	</bean>
