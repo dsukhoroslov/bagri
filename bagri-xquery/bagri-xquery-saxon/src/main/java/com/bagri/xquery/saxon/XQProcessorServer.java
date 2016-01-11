@@ -38,7 +38,7 @@ import net.sf.saxon.tree.util.DocumentNumberAllocator;
 
 public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 	
-	private Iterator results;
+	private Iterator<?> results;
     private CollectionURIResolverImpl bcr;
     private Map<Integer, XQueryExpression> queries = new HashMap<>();
     
@@ -87,7 +87,7 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
     //}
 
     @Override
-	public Iterator executeXCommand(String command, Map<QName, Object> bindings, XQStaticContext ctx) throws XQException {
+	public Iterator<?> executeXCommand(String command, Map<QName, Object> bindings, XQStaticContext ctx) throws XQException {
 		
         //setStaticContext(sqc, ctx);
 		return executeXCommand(command, bindings, (Properties) null);
@@ -108,7 +108,7 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
     }
 	
 	@Override
-	public Iterator executeXCommand(String command, Map<QName, Object> params, Properties props) throws XQException {
+	public Iterator<?> executeXCommand(String command, Map<QName, Object> params, Properties props) throws XQException {
 		
 	    XDMDocumentManagement dMgr = getRepository().getDocumentManagement();
 	    try {
@@ -133,7 +133,7 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 	    }
 	}
 	
-	private Iterator execQuery(final String query) throws XQException {
+	private Iterator<?> execQuery(final String query) throws XQException {
 	    logger.trace("execQuery.enter; this: {}", this);
 		
 		long stamp = System.currentTimeMillis();
@@ -220,26 +220,26 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 	}
     
 	@Override
-    public Iterator executeXQuery(String query, XQStaticContext ctx) throws XQException {
+    public Iterator<?> executeXQuery(String query, XQStaticContext ctx) throws XQException {
 
         setStaticContext(sqc, ctx);
         return execQuery(query);
     }
     
 	@Override
-    public Iterator executeXQuery(String query, Properties props) throws XQException {
+    public Iterator<?> executeXQuery(String query, Properties props) throws XQException {
 
 		setStaticContext(sqc, props);
         return execQuery(query);
 	}
 	
 	@Override
-	public Iterator getResults() {
+	public Iterator<?> getResults() {
 		return results;
 	}
 
 	@Override
-	public void setResults(Iterator itr) {
+	public void setResults(Iterator<?> itr) {
 		this.results = itr;
 	}
 	

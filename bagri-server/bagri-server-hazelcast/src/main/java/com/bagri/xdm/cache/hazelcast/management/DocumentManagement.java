@@ -24,13 +24,13 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.common.manage.StatsAggregator;
 import com.bagri.common.util.FileUtils;
+import com.bagri.xdm.api.XDMDocumentManagement;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.cache.hazelcast.task.doc.DocumentStructureProvider;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaDocCleaner;
 import com.bagri.xdm.cache.hazelcast.task.stats.StatisticSeriesCollector;
 import com.bagri.xdm.cache.hazelcast.task.stats.StatisticTotalsCollector;
 import com.bagri.xdm.cache.hazelcast.task.stats.StatisticsReseter;
-import com.bagri.xdm.client.hazelcast.impl.DocumentManagementImpl;
 import com.bagri.xdm.common.XDMDocumentId;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.system.XDMCollection;
@@ -41,15 +41,17 @@ import com.hazelcast.core.Member;
 public class DocumentManagement extends SchemaFeatureManagement {
 
 	private CompositeData docTotals = null;
-	private DocumentManagementImpl docManager;
+	private XDMDocumentManagement docManager;
     
     public DocumentManagement(String schemaName) {
     	super(schemaName);
     }
 
-	public void setDocumentManager(DocumentManagementImpl docManager) {
-		this.docManager = docManager;
-	}
+    @Override
+	public void setSchemaManager(SchemaManager schemaManager) {
+    	super.setSchemaManager(schemaManager);
+		this.docManager = schemaManager.getRepository().getDocumentManagement();
+    }
 
 	private void initAggregator() {
 		if (aggregator == null) {

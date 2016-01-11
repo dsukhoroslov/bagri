@@ -32,6 +32,7 @@ public class XDMFragmentedDocumentSerializer extends XDMDocumentSerializer {
 				new java.util.Date(in.readLong()),
 				in.readUTF(),
 				in.readUTF());
+		xDoc.setCollections(in.readIntArray());
 		long[] fras = in.readLongArray();
 		logger.info("read; fragments: {}", fras.length);
 		if (fras.length > 0) {
@@ -51,3 +52,5 @@ public class XDMFragmentedDocumentSerializer extends XDMDocumentSerializer {
 	
 
 }
+
+

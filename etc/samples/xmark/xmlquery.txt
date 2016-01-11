@@ -15,7 +15,6 @@ return <increase>{$b/bidder[1]/increase/text()}</increase>
 -- Q3. Return the IDs of all open auctions whose current
 --     increase is at least twice as high as the initial increase.
 
-declare base-uri "file:///C:/Work/Bagri/git/bagri/etc/samples/xmark/";
 let $auction := doc("auction.xml") return
 for $b in $auction/site/open_auctions/open_auction
 where zero-or-one($b/bidder[1]/increase/text()) * 2 <= $b/bidder[last()]/increase/text()
@@ -153,6 +152,17 @@ for $i in $auction/site//item
 where contains(string(exactly-one($i/description)), "gold")
 return $i/name/text()
 
+-- got Exception here:
+java.lang.ArrayIndexOutOfBoundsException: 2
+     at net.sf.saxon.functions.CollatingFunction.getCollator(CollatingFunction.java:192) ~[Saxon-HE-9.5.1-8.jar:na]
+     at net.sf.saxon.functions.Contains.effectiveBooleanValue(Contains.java:62) ~[Saxon-HE-9.5.1-8.jar:na]
+     at net.sf.saxon.expr.FilterIterator$NonNumeric.matches(FilterIterator.java:205) ~[Saxon-HE-9.5.1-8.jar:na]
+     at net.sf.saxon.expr.FilterIterator.getNextMatchingItem(FilterIterator.java:87) ~[Saxon-HE-9.5.1-8.jar:na]
+     at net.sf.saxon.expr.FilterIterator.next(FilterIterator.java:66) ~[Saxon-HE-9.5.1-8.jar:na]
+     at net.sf.saxon.expr.MappingIterator.next(MappingIterator.java:60) ~[Saxon-HE-9.5.1-8.jar:na]
+     at net.sf.saxon.query.XQueryExpression$ErrorReportingIterator.next(XQueryExpression.java:941) ~[Saxon-HE-9.5.1-8.jar:na]
+     at com.bagri.xquery.saxon.XQIterator.<init>(XQIterator.java:59) ~[bagri-xquery-saxon-0.5.1-SNAPSHOT.jar:na]     
+
 -- Q15. Print the keywords in emphasis in annotations of closed auctions.
 
 let $auction := doc("auction.xml") return
@@ -210,6 +220,23 @@ for $b in $auction/site/regions//item
 let $k := $b/name/text()
 order by zero-or-one($b/location) ascending empty greatest
 return <item name="{$k}">{$b/location/text()}</item>
+
+     [java] Error on line 5 column 1 of file:///C:/Work/Bagri/git/bagri/etc/samples/xmark/:
+     [java]   XQST0076 XQuery static error near #...ending empty greatest return <#:
+     [java]     Unknown collation ''
+     [java] 2016-01-12 01:47:47.354 [cached16] ERROR com.bagri.xquery.saxon.XQProcessorServer - execQuery.error:
+     [java] net.sf.saxon.trans.XPathException: Unknown collation ''
+     [java]     at net.sf.saxon.query.QueryParser.grumble(QueryParser.java:459) ~[Saxon-HE-9.5.1-8.jar:na]
+     [java]     at net.sf.saxon.expr.parser.ExpressionParser.grumble(ExpressionParser.java:229) ~[Saxon-HE-9.5.1-8.jar:na]
+     [java]     at net.sf.saxon.query.QueryParser.parseFLWORExpression(QueryParser.java:2152) ~[Saxon-HE-9.5.1-8.jar:na]
+     [java]     at net.sf.saxon.expr.parser.ExpressionParser.parseExprSingle(ExpressionParser.java:502) ~[Saxon-HE-9.5.1-8.jar:na]
+     [java]     at net.sf.saxon.query.QueryParser.parseFLWORExpression(QueryParser.java:2170) ~[Saxon-HE-9.5.1-8.jar:na]
+     [java]     at net.sf.saxon.expr.parser.ExpressionParser.parseExprSingle(ExpressionParser.java:502) ~[Saxon-HE-9.5.1-8.jar:na]
+     [java]     at net.sf.saxon.expr.parser.ExpressionParser.parseExpression(ExpressionParser.java:467) ~[Saxon-HE-9.5.1-8.jar:na]
+     [java]     at net.sf.saxon.query.QueryParser.parseQuery(QueryParser.java:365) ~[Saxon-HE-9.5.1-8.jar:na]
+     [java]     at net.sf.saxon.query.QueryParser.makeXQueryExpression(QueryParser.java:168) ~[Saxon-HE-9.5.1-8.jar:na]
+     [java]     at net.sf.saxon.query.StaticQueryContext.compileQuery(StaticQueryContext.java:526) ~[Saxon-HE-9.5.1-8.jar:na]
+     [java]     at com.bagri.xquery.saxon.XQProcessorServer.execQuery(XQProcessorServer.java:159) [bagri-xquery-saxon-0.5.1-SNAPSHOT.jar:na]
 
 -- Q20. Group customers by their
 --      income and output the cardinality of each group.

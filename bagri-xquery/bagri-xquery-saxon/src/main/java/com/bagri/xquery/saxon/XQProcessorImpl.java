@@ -351,8 +351,9 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
 		//logger.trace("unbindVariable.exit; numberOfKeys: {}", dqc.getParameters().getNumberOfKeys());
     }
     
+    // why it is not <QName, Object> ??
     protected Map<String, Object> getParams() {
-    	Map<String, Object> params = new HashMap<String, Object>(dqc.getParameters().getNumberOfKeys());
+    	Map<String, Object> params = new HashMap<>(dqc.getParameters().getNumberOfKeys());
     	GlobalParameterSet pset = dqc.getParameters();
     	for (StructuredQName name: pset.getKeys()) {
     		params.put(name.getClarkName(), pset.get(name));

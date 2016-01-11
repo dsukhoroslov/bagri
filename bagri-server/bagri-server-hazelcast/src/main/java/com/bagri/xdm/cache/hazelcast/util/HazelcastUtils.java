@@ -5,13 +5,11 @@ import java.util.Set;
 import org.springframework.context.ApplicationContext;
 
 import com.bagri.common.config.XDMConfigConstants;
-import com.bagri.xdm.system.XDMNode;
+import com.hazelcast.client.HazelcastClient;
+import com.hazelcast.client.impl.HazelcastClientProxy;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.Member;
-import com.hazelcast.instance.HazelcastInstanceImpl;
-import com.hazelcast.instance.HazelcastInstanceProxy;
-import com.hazelcast.instance.Node;
 
 public class HazelcastUtils {
 	
@@ -70,7 +68,30 @@ public class HazelcastUtils {
 		return new String[0];
 	}
 
-	
+	public static HazelcastInstance getHazelcastClientByName(String name) {
+		HazelcastInstance hzClient = HazelcastClient.getHazelcastClientByName(name);
+		if (hzClient == null) {
+			for (HazelcastInstance hz: HazelcastClient.getAllHazelcastClients()) {
+				if (name.equals(hz.getName())) {
+					hzClient = hz;
+					break;
+				}
+				//if (name.equals(hz.getConfig().getInstanceName())) {
+				//	hzClient = hz;
+				//	break;
+				//}
+			}
+		}
+		if (hzClient == null) {
+			for (HazelcastInstance hz: HazelcastClient.getAllHazelcastClients()) {
+				if (name.equals(((HazelcastClientProxy) hz).getClientConfig().getGroupConfig().getName())) {
+					hzClient = hz;
+					break;
+				}
+			}
+		}
+		return hzClient;
+	}
 
     //public static Node getNode(HazelcastInstance hz) {
     //    HazelcastInstanceImpl impl = getHazelcastInstanceImpl(hz);

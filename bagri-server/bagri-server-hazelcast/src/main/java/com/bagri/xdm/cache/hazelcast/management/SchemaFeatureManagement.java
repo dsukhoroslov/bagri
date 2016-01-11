@@ -2,7 +2,6 @@ package com.bagri.xdm.cache.hazelcast.management;
 
 import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -11,22 +10,19 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.TabularData;
-import javax.xml.xquery.XQConnection;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jmx.export.annotation.ManagedAttribute;
-import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.naming.SelfNaming;
 
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.common.manage.StatsAggregator;
 import com.bagri.xdm.api.XDMModelManagement;
-import com.bagri.xdm.cache.hazelcast.task.stats.StatisticSeriesCollector;
-import com.bagri.xdm.cache.hazelcast.task.stats.StatisticsReseter;
+import com.bagri.xdm.client.common.XDMCacheConstants;
 import com.bagri.xdm.common.XDMEntity;
 import com.bagri.xdm.system.XDMSchema;
-import com.bagri.xdm.system.XDMTriggerDef;
+import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.Member;
 
@@ -40,7 +36,7 @@ public abstract class SchemaFeatureManagement implements SelfNaming {
 	protected SchemaManager schemaManager;
 	protected StatsAggregator aggregator;
 
-    public SchemaFeatureManagement(String schemaName) {
+	public SchemaFeatureManagement(String schemaName) {
     	this.schemaName = schemaName;
     }
 
@@ -49,16 +45,11 @@ public abstract class SchemaFeatureManagement implements SelfNaming {
 		return schemaName;
 	}
 	
-	public void setExecService(IExecutorService execService) {
-		this.execService = execService;
-	}
-	
-	public void setModelManager(XDMModelManagement modelMgr) {
-		this.modelMgr = modelMgr;
-	}
-
 	public void setSchemaManager(SchemaManager schemaManager) {
 		this.schemaManager = schemaManager;
+		HazelcastInstance hzClient = schemaManager.getHazelcastClient();
+		execService = hzClient.getExecutorService(XDMCacheConstants.PN_XDM_SCHEMA_POOL);
+		modelMgr = schemaManager.getRepository().getModelManagement();
 	}
 
     public void setStatsAggregator(StatsAggregator aggregator) {

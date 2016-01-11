@@ -15,6 +15,9 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.TabularData;
+import javax.xml.xquery.XQConnection;
+import javax.xml.xquery.XQDataSource;
+import javax.xml.xquery.XQException;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -202,7 +205,15 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
 	    		//hz.getConfig().getSecurityConfig().setEnabled(true);
 	    	    SchemaManager sMgr = (SchemaManager) mgrCache.get(schemaName);
 	       	    if (sMgr != null) {
-	       	    	sMgr.setClientContext(ctx);
+	       		    XQDataSource xqds = ctx.getBean("xqDataSource", XQDataSource.class);
+	       		    // TODO: get them from some context..
+	       		    String username = "admin";
+	       		    String password = "password";
+       		    	XQConnection xqConn = xqds.getConnection(username, password);
+	       		    QueryManagement qMgr = ctx.getBean("queryManager", QueryManagement.class);
+       		    	qMgr.setXQConnection(xqConn);
+
+       		    	sMgr.setClientContext(ctx);
 	       	    	registerFeatureManagers(ctx, sMgr);
 	       	    }
 	       	    

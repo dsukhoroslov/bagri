@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.env.PropertiesPropertySource;
 
+import com.bagri.xdm.cache.api.XDMRepository;
 import com.bagri.xdm.cache.hazelcast.impl.PopulationManagementImpl;
 import com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl;
 import com.bagri.xdm.system.XDMSchema;
@@ -66,7 +67,7 @@ public class SchemaInitiator implements Callable<Boolean>, IdentifiedDataSeriali
     		//hz.getConfig().getSecurityConfig().setEnabled(true);
 			setContext(schemaName, schema_context, ctx);
 			
-			RepositoryImpl xdmRepo = ctx.getBean("xdmRepo", RepositoryImpl.class);
+			RepositoryImpl xdmRepo = ctx.getBean(XDMRepository.bean_id, RepositoryImpl.class);
 			xdmRepo.setSchema(schema);
     		logger.debug("initSchema; schema {} started on instance: {}", schemaName, hz);
     		

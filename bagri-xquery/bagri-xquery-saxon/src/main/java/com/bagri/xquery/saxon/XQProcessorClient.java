@@ -31,13 +31,13 @@ public class XQProcessorClient extends XQProcessorImpl implements XQProcessor {
     }
 	
 	@Override
-	public Iterator executeXCommand(String command, Map<QName, Object> params, XQStaticContext ctx) throws XQException {
+	public Iterator<?> executeXCommand(String command, Map<QName, Object> params, XQStaticContext ctx) throws XQException {
 		
 		return executeXCommand(command, params, collectProperties(ctx));
 	}
 
 	@Override
-	public Iterator executeXCommand(String command, Map<QName, Object> params, Properties props) throws XQException {
+	public Iterator<?> executeXCommand(String command, Map<QName, Object> params, Properties props) throws XQException {
 		
     	//logger.trace("executeXCommand.enter; command: {}", command);
 		props = ensureProperty(props, pn_query_command, "true");
@@ -50,19 +50,19 @@ public class XQProcessorClient extends XQProcessorImpl implements XQProcessor {
 	}
 
 	@Override
-	public Iterator executeXQuery(String query, XQStaticContext ctx) throws XQException {
+	public Iterator<?> executeXQuery(String query, XQStaticContext ctx) throws XQException {
 
 		return executeXQuery(query, collectProperties(ctx));
 	}
 
 	@Override
-	public Iterator executeXQuery(String query, Properties props) throws XQException {
+	public Iterator<?> executeXQuery(String query, Properties props) throws XQException {
 
     	//logger.trace("executeXQuery.enter; query: {}", query);
 		props = ensureProperty(props, pn_query_command, "false");
     	XDMQueryManagement qMgr = getQueryManagement();
     	GlobalParameterSet params = dqc.getParameters();
-    	Map bindings = new HashMap<QName, Object>(params.getNumberOfKeys());
+    	Map<QName, Object> bindings = new HashMap<>(params.getNumberOfKeys());
     	for (StructuredQName qName: params.getKeys()) {
     		QName vName = new QName(qName.getURI(), qName.getLocalPart(), qName.getPrefix()); 
     		bindings.put(vName, params.get(qName));
@@ -77,12 +77,12 @@ public class XQProcessorClient extends XQProcessorImpl implements XQProcessor {
 	}
 
 	@Override
-	public Iterator getResults() {
+	public Iterator<?> getResults() {
 		return null;
 	}
 
 	@Override
-	public void setResults(Iterator itr) {
+	public void setResults(Iterator<?> itr) {
 		// no-op
 	}
 

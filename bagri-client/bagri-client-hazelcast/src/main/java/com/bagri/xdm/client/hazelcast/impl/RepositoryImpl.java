@@ -113,6 +113,7 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 		setModelManagement(new ModelManagementImpl(hzClient));
 		setQueryManagement(new QueryManagementImpl());
 		setTxManagement(new TransactionManagementImpl());
+		hzClient.getUserContext().put(bean_id, this);
 	}
 	
 	@Override

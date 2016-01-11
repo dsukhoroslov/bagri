@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import com.bagri.xdm.api.XDMRepository;
 import com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl;
 import com.bagri.xdm.cache.hazelcast.management.ConfigManagement;
 import com.bagri.xdm.cache.hazelcast.management.SchemaManagement;
@@ -181,7 +182,7 @@ public class XDMCacheServer {
             		ApplicationContext schemaContext = (ApplicationContext) getContext(schemaName, schema_context);
             		if (initialized) {
             			// set modules and libraries
-            			RepositoryImpl xdmRepo = schemaContext.getBean("xdmRepo", RepositoryImpl.class);
+            			RepositoryImpl xdmRepo = schemaContext.getBean(XDMRepository.bean_id, RepositoryImpl.class);
             			xdmRepo.setLibraries(cLibraries);
             			for (XDMModule module: cModules) {
             				try {
