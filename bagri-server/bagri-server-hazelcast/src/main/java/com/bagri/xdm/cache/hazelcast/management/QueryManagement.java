@@ -38,7 +38,7 @@ import com.hazelcast.core.Member;
  */
 @ManagedResource(description="(X)Query Management MBean")
 public class QueryManagement extends SchemaFeatureManagement {
-
+	
 	private int fetchSize = 0;
 	private int queryTimeout = 0;
     private XQConnection xqConn;

@@ -31,15 +31,10 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 
 import com.bagri.common.config.XDMConfigConstants;
 import com.bagri.common.manage.JMXUtils;
-import com.bagri.common.util.FileUtils;
 import com.bagri.common.util.PropUtils;
-import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaCreator;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaMemberExtractor;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaRemover;
-import com.bagri.xdm.cache.hazelcast.task.stats.StatisticSeriesCollector;
-import com.bagri.xdm.common.StringStringKey;
-import com.bagri.xdm.system.XDMNode;
 import com.bagri.xdm.system.XDMSchema;
 import com.hazelcast.cluster.MemberAttributeOperationType;
 import com.hazelcast.core.HazelcastInstance;
@@ -58,6 +53,7 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
 	
 	private IExecutorService execService;
 	private ClusterManagement srvCluster;
+	private UserManagement srvUser;
 	
 	private Properties defaults; 
     private Map<String, ClassPathXmlApplicationContext> ctxCache = new HashMap<String, ClassPathXmlApplicationContext>(); 
@@ -77,6 +73,10 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
 	
     public void setExecService(IExecutorService execService) {
     	this.execService = execService;
+    }
+	
+    public void setUserService(UserManagement srvUser) {
+    	this.srvUser = srvUser;
     }
 	
 	public String getDefaultProperty(String name) {
@@ -205,14 +205,7 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
 	    		//hz.getConfig().getSecurityConfig().setEnabled(true);
 	    	    SchemaManager sMgr = (SchemaManager) mgrCache.get(schemaName);
 	       	    if (sMgr != null) {
-	       		    XQDataSource xqds = ctx.getBean("xqDataSource", XQDataSource.class);
-	       		    // TODO: get them from some context..
-	       		    String username = "admin";
-	       		    String password = "password";
-       		    	XQConnection xqConn = xqds.getConnection(username, password);
-	       		    QueryManagement qMgr = ctx.getBean("queryManager", QueryManagement.class);
-       		    	qMgr.setXQConnection(xqConn);
-
+	       	    	setupXQConnection(ctx);
        		    	sMgr.setClientContext(ctx);
 	       	    	registerFeatureManagers(ctx, sMgr);
 	       	    }
@@ -224,6 +217,19 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
 	    	}
     	}
 		return false;
+	}
+	
+	private void setupXQConnection(ApplicationContext ctx) throws XQException {
+		XQDataSource xqds = ctx.getBean("xqDataSource", XQDataSource.class);
+		String username = JMXUtils.getCurrentUser();
+		String password = srvUser.getUserPassword(username);
+		if (password == null) {
+			throw new XQException("no credentials found for user " + username);
+		}
+		
+		XQConnection xqConn = xqds.getConnection(username, password);
+		QueryManagement qMgr = ctx.getBean("queryManager", QueryManagement.class);
+	    qMgr.setXQConnection(xqConn);
 	}
 	
 	public boolean denitSchema(String schemaName, Set<Member> members) {

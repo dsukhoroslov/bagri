@@ -71,7 +71,7 @@
         </role>
     </roles>
     <users>
-        <user login="SDV" active="true">
+        <user login="Denis" active="true">
             <version>1</version>
             <createdAt>2014-05-23T09:42:49.630+04:00</createdAt>
             <createdBy>admin</createdBy>

@@ -27,6 +27,7 @@ import javax.xml.xquery.XQSequence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.bagri.common.manage.JMXUtils;
 import com.bagri.xdm.client.hazelcast.serialize.SecureCredentials;
 import com.bagri.xdm.client.hazelcast.serialize.XQItemSerializer;
 import com.bagri.xdm.client.hazelcast.serialize.XQItemTypeSerializer;
@@ -169,7 +170,8 @@ public class ClientManagementImpl {
     	ClientConfig config = hzProxy.getClientConfig(); 
     	return config.getGroupConfig().getName() + "::" +
     		   config.getNetworkConfig().getAddresses().toString() + "::" +
-    		   "admin::" +
+    		   //"admin::" +
+    		   JMXUtils.getCurrentUser() + "::" +
     		   config.getNetworkConfig().isSmartRouting() + "::" + 
     		   config.getNetworkConfig().getSocketOptions().getBufferSize();
     }
@@ -231,8 +233,8 @@ public class ClientManagementImpl {
 		}
 		
 		config.setProperty("hazelcast.logging.type", "slf4j");
-		//SecureCredentials creds = new SecureCredentials(user, password);
-		SecureCredentials creds = new SecureCredentials(schema, password);
+		SecureCredentials creds = new SecureCredentials(user, password);
+		//SecureCredentials creds = new SecureCredentials(schema, password);
 		//config.getSecurityConfig().setCredentials(creds);
 		config.setCredentials(creds);
 
