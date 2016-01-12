@@ -117,15 +117,19 @@ public class ClientManagementImpl {
         	ClientContainer found = null;
 	    	for (ClientContainer cc: clients.values()) {
 				logger.trace("disconnect; disconnecting: {}; current clients: {}", clientId, cc.getSize());
-	    		if (cc.removeClient(clientId)) {
-	        		IMap<String, Properties> clientProps = cc.hzInstance.getMap(CN_XDM_CLIENT);
-	        		clientProps.delete(clientId);
-	    			logger.trace("disconnect; clientId {} successfuly disconnected", clientId);
-	    			found = cc;
-	        		break;
-	    		} else {
-	    			logger.info("disconnect; container don't see client ID: {}; existing: {}", clientId, cc.getClients());
-	    		}
+				try {
+		    		if (cc.removeClient(clientId)) {
+		    			found = cc;
+		        		IMap<String, Properties> clientProps = cc.hzInstance.getMap(CN_XDM_CLIENT);
+		        		clientProps.delete(clientId);
+		    			logger.trace("disconnect; clientId {} successfuly disconnected", clientId);
+		        		break;
+		    		} else {
+		    			logger.info("disconnect; container don't see client ID: {}; existing: {}", clientId, cc.getClients());
+		    		}
+				} catch (Exception ex) {
+					logger.info("disconnect; it seems the server has been stopped already");
+				}
 	    	}
 	
 	    	if (found != null) {
@@ -135,10 +139,10 @@ public class ClientManagementImpl {
 						found.hzInstance.getLifecycleService().shutdown();
 						// probably, should do something like this:
 						//execService.awaitTermination(100, TimeUnit.SECONDS);
-						clients.remove(found.clientKey);
 					} else {
 						logger.info("disconnect; an attempt to close not-running client!");
 					}
+					clients.remove(found.clientKey);
 	    		} else  {
 					logger.trace("disconnect; disconnected: {}; remaining clients: {}", clientId, found.getSize());
 				}

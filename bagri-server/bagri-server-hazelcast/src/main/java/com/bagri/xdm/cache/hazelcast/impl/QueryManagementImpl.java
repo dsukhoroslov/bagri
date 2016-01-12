@@ -244,6 +244,13 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 		return xqr.getResults().iterator();
 	}
 	
+	public void invalidateQueryResults(Set<Integer> paths) {
+		Set<Integer> qKeys = getQueriesForPaths(paths, false);
+		if (!qKeys.isEmpty()) {
+			removeQueryResults(qKeys);
+		}
+	}
+	
 	public void removeQueryResults(long docId) {
 		logger.trace("removeQueryResults.enter; got docId: {}; result cache size: {}", docId, xrCache.size());
 		Predicate rdp = new ResultsDocPredicate(docId);

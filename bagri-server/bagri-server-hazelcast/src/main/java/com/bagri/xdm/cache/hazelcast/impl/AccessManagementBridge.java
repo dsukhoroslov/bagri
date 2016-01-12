@@ -9,6 +9,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.bagri.common.security.Encryptor;
 import com.bagri.xdm.cache.hazelcast.management.AccessManagement;
 import com.bagri.xdm.system.XDMPermission;
 import com.bagri.xdm.system.XDMPermission.Permission;
@@ -77,11 +78,13 @@ public class AccessManagementBridge {
 		// check username/password against access DB
 		XDMUser user = users.get(username);
 		if (user != null) {
-			if (password.equals(user.getPassword())) {
-				result = checkSchemaPermission(user, schemaname, Permission.read);
-			} else {
-				result = false;
-			}
+			boolean auth = password.equals(user.getPassword()); 
+			if (!auth) {
+				// try double-encrypted pwd
+				String pwd = Encryptor.encrypt(user.getPassword());
+				auth = password.equals(pwd);
+			} 
+			result = auth && checkSchemaPermission(user, schemaname, Permission.read);
 		}
 		// throw NotFound exception?
 		logger.trace("authenticate.exit; returning: {}", result);

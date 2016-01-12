@@ -159,6 +159,9 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<XDMDoc
 	        				}
 	        				((XDMFragmentedDocument) doc).setFragments(fa);
 	        			}
+	        			//Set<Integer> paths = (Set<Integer>) ids[1];
+	        			docMgr.updateDocumentStats(doc, doc.getCollections(), true, data.size());
+	        			//int cnt = docMgr.updateDocumentStats(doc, doc.getCollections(), true, paths.size());
 	        			return doc;
         			}
 				} catch (IOException | XDMException ex) {

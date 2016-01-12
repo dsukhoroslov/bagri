@@ -504,6 +504,16 @@
                 <entry name="xqj.schema.defaultCollationUri"></entry>
                 <entry name="xqj.schema.constructionMode">1</entry>
             </properties>
+	    <collections>
+                <collection id="1" name="CLN_Site">
+                    <version>1</version>
+                    <createdAt>2016-01-12T01:01:26.965+03:00</createdAt>
+                    <createdBy>Denis</createdBy>
+                    <docType>/site</docType>
+                    <description>site documents</description>
+                    <enabled>true</enabled>
+                </collection>
+	    </collections>
             <fragments>
                 <fragment name="FRA_Region_Item">
                     <version>1</version>

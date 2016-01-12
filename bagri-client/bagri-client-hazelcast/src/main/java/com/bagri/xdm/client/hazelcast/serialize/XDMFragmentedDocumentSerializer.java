@@ -2,17 +2,12 @@ package com.bagri.xdm.client.hazelcast.serialize;
 
 import java.io.IOException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMFragmentedDocument;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 
 public class XDMFragmentedDocumentSerializer extends XDMDocumentSerializer {
-	
-    private static final Logger logger = LoggerFactory.getLogger(XDMFragmentedDocumentSerializer.class);
 	
 	@Override
 	public int getTypeId() {
@@ -33,11 +28,7 @@ public class XDMFragmentedDocumentSerializer extends XDMDocumentSerializer {
 				in.readUTF(),
 				in.readUTF());
 		xDoc.setCollections(in.readIntArray());
-		long[] fras = in.readLongArray();
-		logger.info("read; fragments: {}", fras.length);
-		if (fras.length > 0) {
-			xDoc.setFragments(fras);
-		}
+		xDoc.setFragments(in.readLongArray());
 		return xDoc;
 	}
 
@@ -45,9 +36,7 @@ public class XDMFragmentedDocumentSerializer extends XDMDocumentSerializer {
 	public void write(ObjectDataOutput out, XDMDocument xDoc) throws IOException {
 
 		super.write(out, xDoc);
-		long[] fras = xDoc.getFragments();
-		logger.info("write; fragments: {}", fras.length); 
-		out.writeLongArray(fras);
+		out.writeLongArray(xDoc.getFragments());
 	}
 	
 

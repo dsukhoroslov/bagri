@@ -216,7 +216,7 @@
                                             <sysproperty key="java.security.auth.login.config"
                                                          value="${project.basedir}/src/main/resources/jaas.config"/-->
                                             <sysproperty key="logback.configurationFile" value="hz-logging.xml"/>
-                                            <sysproperty key="xdm.log.level" value="trace"/>
+                                            <sysproperty key="xdm.log.level" value="debug"/>
                                             <sysproperty key="xdm.config.path" value="src/main/resources"/>
                                             <sysproperty key="xdm.config.context.file" value="spring/admin-system-context.xml"/>
 					    <sysproperty key="xdm.config.properties.file" value="admin.properties"/>

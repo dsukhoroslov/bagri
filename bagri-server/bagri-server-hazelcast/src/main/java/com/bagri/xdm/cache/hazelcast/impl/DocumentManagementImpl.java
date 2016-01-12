@@ -530,15 +530,12 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 
 		// invalidate cached query results
 		Set<Integer> paths = (Set<Integer>) ids[1];
-		Set<Integer> qKeys = ((QueryManagementImpl) repo.getQueryManagement()).getQueriesForPaths(paths, false);
-		if (!qKeys.isEmpty()) {
-			((QueryManagementImpl) repo.getQueryManagement()).removeQueryResults(qKeys);
-		}
+		((QueryManagementImpl) repo.getQueryManagement()).invalidateQueryResults(paths);
 
 		// update statistics
 		for (String cln: clns) {
-			//updateStats(cln, true, data.size(), doc.getFragments().length);
-			updateStats(cln, true, paths.size(), doc.getFragments().length);
+			updateStats(cln, true, data.size(), doc.getFragments().length);
+			//updateStats(cln, true, paths.size(), doc.getFragments().length);
 		}
 		
 		logger.trace("createDocument.exit; returning: {}", doc);
@@ -855,20 +852,20 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	public int addDocumentToCollections(XDMDocumentId docId, int[] collectIds) {
 		logger.trace("addDocumentsToCollections.enter; got docId: {}; collectIds: {}", docId, Arrays.toString(collectIds));
 		int addCount = 0;
-		int dblCount = 0;
 		int unkCount = 0;
 		XDMDocument doc = getDocument(docId);
 		if (doc != null) {
-			XDMSchema schema = repo.getSchema();
-			for (int collectId: collectIds) {
-				if (schema.hasCollection(collectId)) {
-					if (doc.addCollection(collectId)) {
-						addCount++;
-					} else {
-						dblCount++;
+			// TODO: cache size in the doc itself?
+			int size = 0;
+			for (XDMCollection cln: repo.getSchema().getCollections()) {
+				for (int collectId: collectIds) {
+					if (collectId == cln.getId()) {
+						if (doc.addCollection(collectId)) {
+							addCount++;
+							updateStats(cln.getName(), true, size, doc.getFragments().length);
+						}						
+						break;
 					}
-				} else {
-					unkCount++;
 				}
 			}
 			if (addCount > 0) {
@@ -877,7 +874,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		} else {
 			unkCount++;
 		}
-		logger.trace("addDocumentsToCollections.exit; added: {}; duplicates: {}; unknown: {}", addCount, dblCount, unkCount);
+		logger.trace("addDocumentsToCollections.exit; added: {}; unknown: {}", addCount, unkCount);
 		return addCount;
 	}
 
@@ -885,16 +882,19 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	public int removeDocumentFromCollections(XDMDocumentId docId, int[] collectIds) {
 		logger.trace("removeDocumentsFromCollections.enter; got docId: {}; collectIds: {}", docId, Arrays.toString(collectIds));
 		int remCount = 0;
-		int dblCount = 0;
 		int unkCount = 0;
 		XDMDocument doc = getDocument(docId);
 		if (doc != null) {
-			// here we'll remove any collections, even not existing ones..
-			for (int collectId: collectIds) {
-				if (doc.removeCollection(collectId)) {
-					remCount++;
-				} else {
-					dblCount++;
+			int size = 0;
+			for (XDMCollection cln: repo.getSchema().getCollections()) {
+				for (int collectId: collectIds) {
+					if (collectId == cln.getId()) {
+						if (doc.removeCollection(collectId)) {
+							remCount++;
+							updateStats(cln.getName(), false, size, doc.getFragments().length);
+						}
+						break;
+					}
 				}
 			}
 			if (remCount > 0) {
@@ -903,7 +903,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		} else {
 			unkCount++;
 		}
-		logger.trace("removeDocumentsFromCollections.exit; removed: {}; duplicates: {}; unknown: {}", remCount, dblCount, unkCount);
+		logger.trace("removeDocumentsFromCollections.exit; removed: {}; unknown: {}", remCount, unkCount);
 		return remCount;
 	}
 	
@@ -935,6 +935,20 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 				logger.warn("updateStats; queue is full!!");
 			}
 		}
+	}
+
+	public int updateDocumentStats(XDMDocument doc, int[] collectIds, boolean add, int size) {
+		int cnt = 0;
+		for (XDMCollection cln: repo.getSchema().getCollections()) {
+			for (int collectId: collectIds) {
+				if (collectId == cln.getId()) {
+					updateStats(cln.getName(), add, size, doc.getFragments().length);
+					cnt++;
+					break;
+				}
+			}
+		}
+		return cnt;
 	}
 	
 }
