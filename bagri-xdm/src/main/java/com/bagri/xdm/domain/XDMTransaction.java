@@ -38,7 +38,7 @@ public class XDMTransaction {
 		this.txId = txId;
 		this.startedAt = startedAt;
 		this.finishedAt = finishedAt;
-		this.startedBy = startedBy;
+		this.startedBy = startedBy.intern();
 		this.txIsolation = txIsolation;
 		this.txState = txState;
 	}
