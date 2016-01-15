@@ -18,7 +18,7 @@ import static com.bagri.common.util.FileUtils.def_encoding;
  *  
  * @author Denis Sukhoroslov
  * @since 05.2013 
- * @version 0.2
+ * @version 0.5
  */
 public class XDMDocument implements Convertable<Map<String, Object>>, Versionable { //extends XDMEntity {
 	

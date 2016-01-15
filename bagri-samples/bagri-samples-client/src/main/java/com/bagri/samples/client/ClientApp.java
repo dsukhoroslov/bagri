@@ -50,10 +50,8 @@ public class ClientApp {
 			//System.out.println("document stored; id: " + id);
 			//found = client.runPriceQuery("IBM"); 
 			//found &= client.runPriceQuery("IBM");
-			found = client.runSecQuery("IBM");
+			found = true; //client.runSecQuery("IBM");
 			//found &= client.runSecQuery("VFINX");
-			//found = client.runSecQuery("IBM");
-			//found = client.runSecQuery("IBM");
 			//found &= client.runPriceQuery("PTTAX");
 			//found = client.searchSecQuery();
 			//found = client.searchSecQueryParams();

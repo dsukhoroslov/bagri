@@ -110,7 +110,8 @@ public class PopulationManagementImpl implements ManagedService,
 		}
     	if (populationSize == currentSize && xddCache.size() == 0) {
     		SchemaPopulator pop = new SchemaPopulator(schemaName);
-    		nodeEngine.getHazelcastInstance().getExecutorService(PN_XDM_SCHEMA_POOL).submitToMember(pop, nodeEngine.getLocalMember());
+    		//nodeEngine.getHazelcastInstance().getExecutorService(PN_XDM_SCHEMA_POOL).submitToMember(pop, nodeEngine.getLocalMember());
+    		nodeEngine.getHazelcastInstance().getExecutorService(PN_XDM_SCHEMA_POOL).submitToAllMembers(pop); 
     	}
     }
 	

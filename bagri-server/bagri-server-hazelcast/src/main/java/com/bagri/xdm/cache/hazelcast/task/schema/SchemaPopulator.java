@@ -76,12 +76,12 @@ public class SchemaPopulator extends SchemaProcessingTask implements Callable<Bo
 		
 		MapLoader docCacheStore = storeCtx.getBean("docCacheStore", MapLoader.class);
 		
-		Properties props = new Properties();
+		//Properties props = new Properties();
 		//props.put("documentIdGenerator", schemaCtx.getBean("xdm.document"));
-		props.put("keyFactory", schemaCtx.getBean(XDMFactoryImpl.class));
-		props.put("xdmModel", schemaCtx.getBean(XDMModelManagement.class));
-		props.put("xdmManager", schemaCtx.getBean(DocumentManagementImpl.class));
-		((MapLoaderLifecycleSupport) docCacheStore).init(hz, props, CN_XDM_DOCUMENT);
+		//props.put("keyFactory", schemaCtx.getBean(XDMFactoryImpl.class));
+		//props.put("xdmModel", schemaCtx.getBean(XDMModelManagement.class));
+		//props.put("xdmManager", schemaCtx.getBean(DocumentManagementImpl.class));
+		//((MapLoaderLifecycleSupport) docCacheStore).init(hz, props, CN_XDM_DOCUMENT);
 		
 		IMap<Long, XDMDocument> xddCache = hz.getMap(CN_XDM_DOCUMENT);
 		xddCache.loadAll(false);
