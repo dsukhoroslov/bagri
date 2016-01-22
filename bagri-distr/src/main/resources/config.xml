@@ -73,6 +73,40 @@
                 <entry name="xqj.schema.defaultCollationUri">http://www.w3.org/2005/xpath-functions/collation/codepoint</entry>
                 <entry name="xqj.schema.constructionMode">1</entry>
             </properties>
+            <collections>
+                <collection id="1" name="CLN_Security">
+                    <version>1</version>
+                    <createdAt>2015-10-20T01:01:26.965+03:00</createdAt>
+                    <createdBy>SDV</createdBy>
+                    <docType>/{http://tpox-benchmark.com/security}Security</docType>
+                    <description>All security documents</description>
+                    <enabled>true</enabled>
+                </collection>
+                <collection id="2" name="CLN_Customer">
+                    <version>1</version>
+                    <createdAt>2015-10-20T01:01:26.965+03:00</createdAt>
+                    <createdBy>SDV</createdBy>
+                    <docType>/{http://tpox-benchmark.com/custacc}Customer</docType>
+                    <description>All customer documents</description>
+                    <enabled>true</enabled>
+                </collection>
+                <collection id="3" name="CLN_Order">
+                    <version>1</version>
+                    <createdAt>2015-10-20T01:01:26.965+03:00</createdAt>
+                    <createdBy>SDV</createdBy>
+                    <docType>/{http://www.fixprotocol.org/FIXML-4-4}FIXML</docType>
+                    <description>All order documents</description>
+                    <enabled>true</enabled>
+                </collection>
+                <collection id="4" name="CLN_Custom">
+                    <version>1</version>
+                    <createdAt>2015-10-20T01:01:26.965+03:00</createdAt>
+                    <createdBy>SDV</createdBy>
+                    <!--docType></docType-->
+                    <description>Custom collection</description>
+                    <enabled>true</enabled>
+                </collection>
+            </collections>
             <fragments/>
             <indexes>
                 <index name="IDX_Customer_id">
@@ -137,7 +171,7 @@
                 <entry name="xdm.schema.ports.first">10500</entry>
                 <entry name="xqj.schema.scrollability">1</entry>
                 <entry name="xqj.schema.holdability">2</entry>
-                <entry name="xdm.schema.store.type">NONE</entry>
+                <entry name="xdm.schema.store.type">XML</entry>
                 <entry name="xqj.schema.copyNamespacesModePreserve">1</entry>
                 <entry name="xqj.schema.queryTimeout">0</entry>
                 <entry name="xqj.schema.defaultFunctionNamespace">http://www.w3.org/2005/xpath-functions</entry>

@@ -111,6 +111,13 @@ public class XDMUniqueDocument extends XDMIndexedValue {
 		return "XDMUniqueDocumeny [docs=" + docs + "]";
 	}
 
+	@Override
+	public int getSize() {
+		// have no idea how much memory ArrayList takes!
+		return Long.SIZE / Byte.SIZE // List ref
+			+ (4 * Long.SIZE / Byte.SIZE) * docs.size();
+	}
+	
 }
 
 

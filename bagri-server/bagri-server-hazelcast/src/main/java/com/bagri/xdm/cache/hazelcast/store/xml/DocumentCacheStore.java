@@ -50,9 +50,8 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<XDMDoc
     private static final Logger logger = LoggerFactory.getLogger(DocumentCacheStore.class);
     
     private HazelcastInstance hzInstance;
-    private Map<XDMDocumentKey, String> docKeys = new HashMap<>();
+    private Map<XDMDocumentKey, String> uris = new HashMap<>();
     
-    private boolean hasKeys = false;
     private String schemaName;
 	//private String dataPath;
     private String dataFormat = XDMParser.df_xml;
@@ -113,8 +112,8 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<XDMDoc
 
     @SuppressWarnings("unchecked")
 	private XDMDocument loadDocument(XDMDocumentKey docKey) {
-    	XDMDocument doc = popManager.getDocument(docKey.getKey());
     	String docUri = null;
+    	XDMDocument doc = popManager.getDocument(docKey.getKey());
     	if (doc != null) {
     		if (doc.getTxFinish() > TX_NO) {
     			// no need to load content for inactive docs
@@ -122,8 +121,9 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<XDMDoc
     		}
         	docUri = doc.getUri();
     	} else {
-    		docUri = docKeys.get(docKey);
+    		docUri = uris.get(docKey);
     	}
+		//logger.info("loadDocument; got uri: {} for key: {}; uris: {}", docUri, docKey, uris.size());
 
     	if (docUri != null) {
     		docUri = getFullUri(docUri);
@@ -185,6 +185,7 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<XDMDoc
 	@Override
 	public XDMDocument load(XDMDocumentKey key) {
 		logger.trace("load.enter; key: {}", key);
+		ensureDocumentManager();
     	XDMDocument result = loadDocument(key);
 		logger.trace("load.exit; returning: {}", result);
 		return result;
@@ -193,17 +194,15 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<XDMDoc
 	@Override
 	public Map<XDMDocumentKey, XDMDocument> loadAll(Collection<XDMDocumentKey> keys) {
 		logger.debug("loadAll.enter; keys: {}; Cluster size: {}", keys.size(), hzInstance.getCluster().getMembers().size());
-		if (!hasKeys) {
-			loadAllKeys();
-		}
-		Map<XDMDocumentKey, XDMDocument> result = new HashMap<XDMDocumentKey, XDMDocument>(keys.size());
+		ensureDocumentManager();
+		Map<XDMDocumentKey, XDMDocument> result = new HashMap<>(keys.size());
 	    for (XDMDocumentKey key: keys) {
 	    	XDMDocument doc = loadDocument(key);
 	    	if (doc != null) {
 	    		result.put(key, doc);
 	    	}
 	    }
-		logger.info("loadAll.exit; returning: {} documents for keys: {}", result.size(), keys.size());
+		logger.debug("loadAll.exit; returning: {} documents for keys: {}", result.size(), keys.size());
 		return result;
 	}
 
@@ -223,31 +222,29 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<XDMDoc
 			} else {
 				logger.info("loadAllKeys.exit; returning keys from PopulationManager: {}", docIds.size());
 			}
-			hasKeys = true;
 			return docIds;
 		}
 	    
 	    Path root = Paths.get(getDataPath());
 		try {
-			docKeys.clear();
+			uris.clear();
 			List<Path> files = new ArrayList<>();
 			processPathFiles(root, files);
 			Collections.sort(files);
 			XDMDocumentKey docKey; 
 			for (Path path: files) {
 				docKey = docMgr.nextDocumentKey();
-				docKeys.put(docKey, path.toString());
+				uris.put(docKey, path.toString());
 			}
-			docIds = new HashSet<XDMDocumentKey>(docKeys.keySet());
+			docIds = new HashSet<XDMDocumentKey>(uris.keySet());
 		} catch (IOException ex) {
 			logger.error("loadAllKeys.error;", ex);
 		}
 		if (logger.isTraceEnabled()) {
-			logger.trace("loadAllKeys.exit; returning: {}; docKeys: {}", docIds, docKeys);
+			logger.trace("loadAllKeys.exit; returning: {}; docKeys: {}", docIds, uris);
 		} else {
 			logger.info("loadAllKeys.exit; returning keys: {}", docIds.size());
 		}
-		hasKeys = true;
 		return docIds;
 	}
 	
@@ -260,12 +257,12 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<XDMDoc
 			return;
 		}
 		
-		String docUri = docKeys.get(key);
+		String docUri = uris.get(key);
 		if (docUri == null) {
 			// create a new document
 			//logger.trace("store; got path: {}; uri: {}", path, uri);
 			docUri = value.getUri();
-			docKeys.put(key, docUri);
+			uris.put(key, docUri);
 		} else {
 			// update existing document - put a new version
 		}
@@ -294,7 +291,7 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<XDMDoc
 	public void delete(XDMDocumentKey key) {
 		logger.trace("delete.enter; key: {}", key);
     	boolean result = false;
-		String docUri = docKeys.get(key);
+		String docUri = uris.get(key);
 		if (docUri != null) {
 			docUri = getFullUri(docUri);
 	    	Path path = Paths.get(docUri);
@@ -312,7 +309,7 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<XDMDoc
 		logger.trace("deleteAll.enter; keys: {}", keys.size());
 		int deleted = 0;
 		for (XDMDocumentKey key: keys) {
-			String docUri = docKeys.get(key);
+			String docUri = uris.get(key);
 			if (docUri != null) {
 				docUri = getFullUri(docUri);
 		    	Path path = Paths.get(docUri);

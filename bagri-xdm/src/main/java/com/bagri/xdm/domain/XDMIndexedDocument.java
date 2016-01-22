@@ -8,7 +8,7 @@ import static com.bagri.xdm.api.XDMTransactionManagement.TX_NO;
 
 public class XDMIndexedDocument extends XDMIndexedValue {
 	
-	private Set<Long> docIds = new HashSet<Long>();
+	private Set<Long> docIds = new HashSet<>();
 
 	public XDMIndexedDocument() {
 		super();
@@ -62,6 +62,13 @@ public class XDMIndexedDocument extends XDMIndexedValue {
 	@Override
 	public String toString() {
 		return "XDMIndexedValue [docIds=" + docIds + "]";
+	}
+
+	@Override
+	public int getSize() {
+		// have no idea how much memory HashSet takes!
+		return Long.SIZE / Byte.SIZE // Set ref
+			+ (2 * Long.SIZE / Byte.SIZE) * docIds.size();
 	}
 
 }

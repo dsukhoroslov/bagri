@@ -96,6 +96,7 @@
 					</hz:properties>
 				</hz:map-store>
 				<hz:indexes>
+					<hz:index attribute="txStart"/>
 					<hz:index attribute="txFinish"/>
 					<hz:index attribute="typeId"/>
 					<hz:index attribute="uri"/>
@@ -182,6 +183,7 @@
 					<hz:serializer type-class="com.bagri.common.query.ExpressionContainer" class-name="com.bagri.xdm.client.hazelcast.serialize.ExpressionContainerSerializer"/>
 					<hz:serializer type-class="com.bagri.common.query.QueryBuilder" class-name="com.bagri.xdm.client.hazelcast.serialize.QueryBuilderSerializer"/>
 					<hz:serializer type-class="com.bagri.common.query.QueriedPath" class-name="com.bagri.xdm.client.hazelcast.serialize.QueriedPathSerializer"/>
+					<hz:serializer type-class="com.bagri.xdm.common.XDMDocumentId" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMDocumentIdSerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.domain.XDMElement" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMElementSerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.domain.XDMElements" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMElementsSerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.domain.XDMPath" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMPathSerializer"/>
@@ -230,8 +232,8 @@
 						<hz:property name="xdm.node.instance">${xdm.node.instance}</hz:property>
 						<hz:property name="xdm.schema.name">${xdm.schema.name}</hz:property>
 						<hz:property name="xdm.schema.population.size">${xdm.schema.population.size}</hz:property>
-	    					<hz:property name="xdm.schema.population.buffer.size">${xdm.schema.population.buffer.size}</hz:property>
-	    					<hz:property name="xdm.schema.store.data.path">${xdm.schema.store.data.path}</hz:property>
+	    				<hz:property name="xdm.schema.population.buffer.size">${xdm.schema.population.buffer.size}</hz:property>
+	    				<hz:property name="xdm.schema.store.data.path">${xdm.schema.store.data.path}</hz:property>
 						<hz:property name="xdm.schema.store.enabled">${xdm.schema.store.enabled}</hz:property>
 					</hz:properties>
 					<!--hz:configuration parser="MyParser">
@@ -297,7 +299,7 @@
 	<bean id="docQueue" class="java.util.concurrent.ArrayBlockingQueue">
 		<constructor-arg value="1024" />
 	</bean>
-	<bean id="docStats" class="com.bagri.common.stats.InvocationStatistics">
+	<bean id="docStats" class="com.bagri.xdm.cache.hazelcast.impl.DocumentStatistics">
 		<constructor-arg value="docs" />
 		<property name="statsQueue" ref="docQueue"/>
 	</bean>
@@ -378,6 +380,7 @@
 		<property name="xmlCache" ref="xdm-xml"/>
 		<property name="modelManager" ref="mdlManager"/>
 		<property name="indexManager" ref="idxManager"/>
+		<property name="statsQueue" ref="docQueue"/>
 		<!--property name="txManager" ref="txManager"/-->
    		<!--property name="repository" ref="xdmRepo" /-->
 	</bean>
@@ -419,6 +422,12 @@
    		<property name="repository" ref="xdmRepo" />
    		<property name="indexManager" ref="idxManager" />
    		<property name="testMode" value="${xdm.schema.test.mode}" />
+		<property name="timeQueue" ref="queryQueue"/>
+		<property name="stopWatch">
+   			<bean class="com.bagri.common.stats.watch.ThreadedStopWatch">
+				<property name="ticker" ref="mTicker" />
+   			</bean>
+		</property>
 	</bean>
 
 	<bean id="trManager" class="com.bagri.xdm.cache.hazelcast.impl.TriggerManagementImpl">
@@ -438,6 +447,7 @@
 	
 	<bean id="xdmRepo" class="com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl">
 		<property name="hzInstance" ref="hzInstance"/>
+		<property name="accessManagement" ref="accManager"/>
 		<property name="bindingManagement" ref="bindManager"/>
 		<property name="clientManagement" ref="clientManager"/>
 		<property name="modelManagement" ref="mdlManager"/>
