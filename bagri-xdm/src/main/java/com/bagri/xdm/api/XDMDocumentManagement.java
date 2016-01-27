@@ -26,6 +26,9 @@ public interface XDMDocumentManagement {
 	
 	XDMDocument getDocument(XDMDocumentId docId) throws XDMException;
 
+	Object getDocumentAsBean(XDMDocumentId docId) throws XDMException;
+	Map<String, Object> getDocumentAsMap(XDMDocumentId docId) throws XDMException;
+	
 	String getDocumentAsString(XDMDocumentId docId) throws XDMException;
 	Source getDocumentAsSource(XDMDocumentId docId) throws XDMException;
 	InputStream getDocumentAsSream(XDMDocumentId docId) throws XDMException;
@@ -39,6 +42,9 @@ public interface XDMDocumentManagement {
 	 * @param xml: Document's XML representation, can not be null
 	 * @return XDMDocument: created or overridden (versioned) Document
 	 */
+	XDMDocument storeDocumentFromBean(XDMDocumentId docId, Object bean, Properties props) throws XDMException;
+	XDMDocument storeDocumentFromMap(XDMDocumentId docId, Map<String, Object> fields, Properties props) throws XDMException;
+
 	XDMDocument storeDocumentFromString(XDMDocumentId docId, String content, Properties props) throws XDMException;
 	XDMDocument storeDocumentFromSource(XDMDocumentId docId, Source source, Properties props) throws XDMException;
 	XDMDocument storeDocumentFromStream(XDMDocumentId docId, InputStream stream, Properties props) throws XDMException;

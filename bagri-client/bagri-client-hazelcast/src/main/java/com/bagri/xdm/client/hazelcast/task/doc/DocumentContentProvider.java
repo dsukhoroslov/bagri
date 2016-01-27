@@ -13,7 +13,7 @@ public class DocumentContentProvider extends DocumentAwareTask implements Callab
 	}
 	
 	public DocumentContentProvider(String clientId, XDMDocumentId docId) {
-		super(clientId, 0, docId);
+		super(clientId, 0, docId, null);
 	}
 
 	@Override

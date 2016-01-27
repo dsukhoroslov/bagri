@@ -1,4 +1,4 @@
-package com.bagri.xdm.domain;
+package com.bagri.xdm.common;
 
 import java.io.File;
 import java.io.IOException;
@@ -7,6 +7,7 @@ import java.io.Reader;
 import java.util.List;
 
 import com.bagri.xdm.api.XDMException;
+import com.bagri.xdm.domain.XDMData;
 
 public interface XDMParser {
 	

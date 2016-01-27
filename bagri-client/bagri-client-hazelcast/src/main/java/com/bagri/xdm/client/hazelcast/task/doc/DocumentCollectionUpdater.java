@@ -19,7 +19,7 @@ public class DocumentCollectionUpdater extends DocumentAwareTask implements Call
 	}
 	
 	public DocumentCollectionUpdater(String clientId, XDMDocumentId docId, boolean add, int[] collectIds) {
-		super(clientId, 0, docId);
+		super(clientId, 0, docId, null);
 		this.add = add;
 		this.collectIds = collectIds;
 	}

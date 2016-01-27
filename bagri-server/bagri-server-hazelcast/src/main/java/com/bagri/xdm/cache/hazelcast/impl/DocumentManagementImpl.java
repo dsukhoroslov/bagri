@@ -34,12 +34,12 @@ import com.bagri.xdm.client.hazelcast.task.doc.DocumentContentProvider;
 import com.bagri.xdm.common.XDMDataKey;
 import com.bagri.xdm.common.XDMDocumentId;
 import com.bagri.xdm.common.XDMDocumentKey;
+import com.bagri.xdm.common.XDMParser;
 import com.bagri.xdm.domain.XDMData;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMElement;
 import com.bagri.xdm.domain.XDMElements;
 import com.bagri.xdm.domain.XDMFragmentedDocument;
-import com.bagri.xdm.domain.XDMParser;
 import com.bagri.xdm.domain.XDMPath;
 import com.bagri.xdm.system.XDMCollection;
 import com.bagri.xdm.system.XDMFragment;
@@ -384,6 +384,18 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
     }
     
 	@Override
+	public Object getDocumentAsBean(XDMDocumentId docId) throws XDMException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Map<String, Object> getDocumentAsMap(XDMDocumentId docId) throws XDMException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
 	public String getDocumentAsString(XDMDocumentId docId) throws XDMException {
 		XDMDocumentKey docKey = getDocumentKey(docId);
 		if (docKey == null) {
@@ -611,6 +623,19 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 			result[1] = pathIds;
 			return result;
 		}
+		return null;
+	}
+	
+	@Override
+	public XDMDocument storeDocumentFromBean(XDMDocumentId docId, Object bean, Properties props) throws XDMException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public XDMDocument storeDocumentFromMap(XDMDocumentId docId, Map<String, Object> fields, Properties props)
+			throws XDMException {
+		// TODO Auto-generated method stub
 		return null;
 	}
 	
@@ -950,5 +975,5 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		}
 		return cnt;
 	}
-	
+
 }

@@ -31,7 +31,7 @@ public class DocumentStructureProvider extends DocumentAwareTask implements Call
 	}
 	
 	public DocumentStructureProvider(String clientId, XDMDocumentId docId) {
-		super(clientId, 0, docId);
+		super(clientId, 0, docId, null);
 	}
 
     @Autowired

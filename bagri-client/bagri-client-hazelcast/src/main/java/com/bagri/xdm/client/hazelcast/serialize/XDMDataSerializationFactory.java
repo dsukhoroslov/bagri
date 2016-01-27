@@ -7,9 +7,11 @@ import com.bagri.xdm.client.hazelcast.data.QueryParamsKey;
 import com.bagri.xdm.client.hazelcast.impl.FixedCursor;
 import com.bagri.xdm.client.hazelcast.impl.ResultCursor;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentCreator;
+import com.bagri.xdm.client.hazelcast.task.doc.DocumentMapCreator;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentProcessor;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentRemover;
 import com.bagri.xdm.client.hazelcast.task.auth.UserAuthenticator;
+import com.bagri.xdm.client.hazelcast.task.doc.DocumentBeanCreator;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentCollectionUpdater;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentContentProvider;
 import com.bagri.xdm.client.hazelcast.task.query.DocumentIdsProvider;
@@ -86,6 +88,11 @@ public class XDMDataSerializationFactory implements DataSerializableFactory {
 	public static final int cli_PathIndexKey = 97; 
 	public static final int cli_QueryParamsKey = 98; 
 
+	public static final int cli_GetBeanDocumentTask = 103;
+	public static final int cli_GetMapDocumentTask = 104; 
+	public static final int cli_CreateBeanDocumentTask = 105;
+	public static final int cli_CreateMapDocumentTask = 106; 
+	
 	public static final int cli_CleanTxDocumentsTask = 107; 
 	public static final int cli_UpdateDocumentCollectionTask = 108; 
 	public static final int cli_ProcessDocumentTask = 109; 
@@ -168,6 +175,10 @@ public class XDMDataSerializationFactory implements DataSerializableFactory {
 			case cli_XQFixedCursor: return new FixedCursor();
 			case cli_UpdateDocumentCollectionTask: return new DocumentCollectionUpdater();
 			case cli_ProcessDocumentTask: return new DocumentProcessor();
+			//case cli_GetBeanDocumentTask = 103;
+			//case cli_GetMapDocumentTask = 104; 
+			case cli_CreateBeanDocumentTask: return new DocumentBeanCreator();
+			case cli_CreateMapDocumentTask: return new DocumentMapCreator();
 			case cli_CreateDocumentTask: return new DocumentCreator();
 			case cli_RemoveDocumentTask: return new DocumentRemover();
 			case cli_BeginTransactionTask: return new TransactionStarter(); 

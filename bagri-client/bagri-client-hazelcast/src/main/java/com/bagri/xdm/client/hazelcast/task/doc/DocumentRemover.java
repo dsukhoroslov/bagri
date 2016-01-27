@@ -14,7 +14,7 @@ public class DocumentRemover extends DocumentAwareTask implements Callable<XDMDo
 	}
 
 	public DocumentRemover(String clientId, long txId, XDMDocumentId docId) {
-		super(clientId, txId, docId);
+		super(clientId, txId, docId, null);
 	}
 
 	@Override
