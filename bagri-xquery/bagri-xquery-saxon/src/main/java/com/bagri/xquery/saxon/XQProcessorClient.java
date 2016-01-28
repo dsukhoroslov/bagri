@@ -1,5 +1,6 @@
 package com.bagri.xquery.saxon;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -77,6 +78,17 @@ public class XQProcessorClient extends XQProcessorImpl implements XQProcessor {
 	}
 
 	@Override
+    public Collection<QName> prepareXQuery(String query, XQStaticContext ctx) throws XQException {
+    	XDMQueryManagement qMgr = getQueryManagement();
+    	Collection<String> names = qMgr.prepareQuery(query);
+    	if (names != null) {
+    		return getParamNames(names);
+    	}
+    	return super.prepareXQuery(query, ctx);
+	}
+
+
+	@Override
 	public Iterator<?> getResults() {
 		return null;
 	}
@@ -85,11 +97,6 @@ public class XQProcessorClient extends XQProcessorImpl implements XQProcessor {
 	public void setResults(Iterator<?> itr) {
 		// no-op
 	}
-
-	//@Override
-	//public Collection<QName> prepareXQuery(String query, XQStaticContext ctx) throws XQException {
-	//	return null;
-	//}
 
 	private Properties collectProperties(XQStaticContext ctx) throws XQException {
 		Properties props = contextToProps(ctx);

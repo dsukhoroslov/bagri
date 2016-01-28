@@ -1,6 +1,7 @@
 package com.bagri.xdm.client.hazelcast.impl;
 
 import static com.bagri.xdm.client.common.XDMCacheConstants.CN_XDM_RESULT;
+import static com.bagri.xdm.client.common.XDMCacheConstants.CN_XDM_QUERY;
 import static com.bagri.xdm.client.common.XDMCacheConstants.PN_XDM_SCHEMA_POOL;
 import static com.bagri.xdm.common.XDMConstants.pn_client_fetchSize;
 import static com.bagri.xdm.common.XDMConstants.pn_client_id;
@@ -33,10 +34,12 @@ import com.bagri.xdm.client.hazelcast.task.query.DocumentIdsProvider;
 import com.bagri.xdm.client.hazelcast.task.query.XMLBuilder;
 import com.bagri.xdm.client.hazelcast.task.query.QueryExecutor;
 import com.bagri.xdm.common.XDMDocumentId;
+import com.bagri.xdm.domain.XDMQuery;
 import com.bagri.xdm.domain.XDMResults;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.Member;
+import com.hazelcast.core.ReplicatedMap;
 
 public class QueryManagementImpl extends QueryManagementBase implements XDMQueryManagement {
 	
@@ -46,6 +49,7 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 	private IExecutorService execService;
     private Future execution = null; 
     private IMap<Long, XDMResults> resCache;
+    private ReplicatedMap<Integer, XDMQuery> xqCache;
     
 	public QueryManagementImpl() {
 		// what should we do here? 
@@ -55,6 +59,7 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 		this.repo = repo;
 		execService = repo.getHazelcastClient().getExecutorService(PN_XDM_SCHEMA_POOL);
 		resCache = repo.getHazelcastClient().getMap(CN_XDM_RESULT);
+		xqCache = repo.getHazelcastClient().getReplicatedMap(CN_XDM_QUERY);
 	}
 	
 	@Override
@@ -84,7 +89,6 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 	@Override
 	public Iterator executeQuery(String query, Map<QName, Object> params, Properties props) throws XDMException {
 
-		long stamp = System.currentTimeMillis();
 		logger.trace("executeQuery.enter; query: {}; bindings: {}; context: {}", query, params, props);
 		//QueryParamsKey key = new QueryParamsKey(getQueryKey(query), getParamsKey(bindings));
 		long key = getResultsKey(query, params);
@@ -132,7 +136,7 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 			// possible memory leak with non-closed cursors !?
 			result = cursor;
 		}
-		logger.trace("executeQuery.exit; time taken: {}; returning: {}", System.currentTimeMillis() - stamp, result);
+		logger.trace("executeQuery.exit; returning: {}", result);
 		return result; 
 	}
 	
@@ -178,4 +182,18 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 		}
 		return result.iterator();
 	}
+	
+	@Override
+	public Collection<String> prepareQuery(String query) { //throws XDMException {
+
+		logger.trace("prepareQuery.enter; query: {}", query);
+		Collection<String> result = null;
+		XDMQuery xq = xqCache.get(getQueryKey(query));
+		if (xq != null) {
+			result = xq.getXdmQuery().getParamNames();
+		}
+		logger.trace("prepareQuery.exit; returning: {}", query);
+		return result;
+	}
+	
 }

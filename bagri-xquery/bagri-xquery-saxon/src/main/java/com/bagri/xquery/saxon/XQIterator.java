@@ -1,12 +1,9 @@
 package com.bagri.xquery.saxon;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.Iterator;
-import java.util.List;
 
-import javax.validation.constraints.NotNull;
 import javax.xml.datatype.Duration;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.xquery.XQDataFactory;
@@ -52,7 +49,7 @@ public class XQIterator implements Iterator {
 	private SequenceIterator iter;
 	private Item next;
 	
-	public XQIterator(@NotNull XQDataFactory xqFactory, @NotNull SequenceIterator iter) {
+	public XQIterator(XQDataFactory xqFactory, SequenceIterator iter) {
 		this.xqFactory = xqFactory;
 		this.iter = iter;
 		try {

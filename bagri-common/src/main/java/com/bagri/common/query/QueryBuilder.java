@@ -55,6 +55,16 @@ public class QueryBuilder implements Cloneable {
 		}
 	}
 	
+	public Collection<String> getParamNames() {
+		List<String> result = new ArrayList<>();
+		for (ExpressionContainer exCont: containers.values()) {
+			for (Map.Entry<String, Object> param: exCont.getParams().entrySet()) {
+				result.add(param.getKey());
+			}
+		}
+		return result;
+	}
+	
 	public Collection<String> getEmptyParams() {
 		List<String> result = new ArrayList<>();
 		for (ExpressionContainer exCont: containers.values()) {

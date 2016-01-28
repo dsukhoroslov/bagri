@@ -697,6 +697,13 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 		
 	}
 
+	@Override
+	public Collection<String> prepareQuery(String query) {
+		// not used on the server side?
+		logger.info("prepareQuery; query: {}", query);
+		return null;
+	}
+
 }
 
 

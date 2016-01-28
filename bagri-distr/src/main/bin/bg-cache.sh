@@ -36,7 +36,7 @@ fi
 
 libdir="${java_apphome}${file_separator}lib"
 
-CLASSPATH="${java_apphome}${file_separator}config"
+CLASSPATH="${java_apphome}${file_separator}config${file_separator}*"
 CLASSPATH="${CLASSPATH}${path_separator}${libdir}${file_separator}*"
 
 . "${apphome}/bin/${appname}.conf"

@@ -1,12 +1,10 @@
 package com.bagri.xquery.api;
 
-import javax.validation.constraints.NotNull;
 import javax.xml.xquery.XQDataFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bagri.xdm.api.XDMDocumentManagement;
 import com.bagri.xdm.api.XDMQueryManagement;
 import com.bagri.xdm.api.XDMRepository;
 
@@ -29,14 +27,14 @@ public abstract class XQProcessorBase {
     	return xqFactory;
     }
 
-    public void setRepository(@NotNull XDMRepository xRepo) {
+    public void setRepository(XDMRepository xRepo) {
     	//config.setConfigurationProperty("xdm", mgr);
     	this.xRepo = xRepo;
     	logger.trace("setRepository; got Repo: {}", xRepo); 
     }
     
     //@Override
-    public void setXQDataFactory(@NotNull XQDataFactory xqFactory) {
+    public void setXQDataFactory(XQDataFactory xqFactory) {
     	this.xqFactory = xqFactory;
     }
     

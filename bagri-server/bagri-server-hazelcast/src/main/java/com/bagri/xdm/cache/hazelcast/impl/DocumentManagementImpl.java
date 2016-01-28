@@ -2,10 +2,12 @@ package com.bagri.xdm.cache.hazelcast.impl;
 
 import static com.bagri.common.query.PathBuilder.*;
 import static com.bagri.common.config.XDMConfigConstants.*;
+import static com.bagri.common.util.XMLUtils.*;
 import static com.bagri.xdm.client.common.XDMCacheConstants.PN_XDM_SCHEMA_POOL;
 import static com.bagri.xdm.api.XDMTransactionManagement.TX_NO;
 import static com.bagri.xdm.domain.XDMDocument.dvFirst;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -27,6 +29,7 @@ import javax.xml.transform.Source;
 
 import com.bagri.common.idgen.IdGenerator;
 import com.bagri.common.stats.StatisticsEvent;
+import com.bagri.common.util.XMLUtils;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.cache.common.XDMDocumentManagementServer;
 import com.bagri.xdm.cache.hazelcast.predicate.CollectionPredicate;
@@ -385,14 +388,18 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
     
 	@Override
 	public Object getDocumentAsBean(XDMDocumentId docId) throws XDMException {
-		// TODO Auto-generated method stub
-		return null;
+		String xml = getDocumentAsString(docId);
+		try {
+			return beanFromXML(xml);
+		} catch (IOException ex) {
+			throw new XDMException(ex.getMessage(), XDMException.ecInOut);
+		}
 	}
 
 	@Override
 	public Map<String, Object> getDocumentAsMap(XDMDocumentId docId) throws XDMException {
-		// TODO Auto-generated method stub
-		return null;
+		String xml = getDocumentAsString(docId);
+		return mapFromXML(xml);
 	}
 
 	@Override
@@ -628,15 +635,34 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	
 	@Override
 	public XDMDocument storeDocumentFromBean(XDMDocumentId docId, Object bean, Properties props) throws XDMException {
-		// TODO Auto-generated method stub
-		return null;
+		try {
+			String xml = beanToXML(bean);
+			if (xml == null || xml.trim().length() == 0) {
+				throw new XDMException("Can not convert bean [" + bean + "] to XML", XDMException.ecDocument);
+			}
+			logger.trace("storeDocumentFromBean; converted bean: {}", xml); 
+			
+			if (props != null) {
+				props.setProperty(xdm_document_data_format, XDMParser.df_xml);
+			}
+			return storeDocumentFromString(docId, xml, props);
+		} catch (IOException ex) {
+			throw new XDMException(ex.getMessage(), XDMException.ecInOut);
+		}
 	}
 
 	@Override
-	public XDMDocument storeDocumentFromMap(XDMDocumentId docId, Map<String, Object> fields, Properties props)
-			throws XDMException {
-		// TODO Auto-generated method stub
-		return null;
+	public XDMDocument storeDocumentFromMap(XDMDocumentId docId, Map<String, Object> fields, Properties props) throws XDMException {
+		String xml = mapToXML(fields);
+		if (xml == null || xml.trim().length() == 0) {
+			throw new XDMException("Can not convert map [" + fields + "] to XML", XDMException.ecDocument);
+		}
+		logger.trace("storeDocumentFromMap; converted map: {}", xml); 
+		
+		if (props != null) {
+			props.setProperty(xdm_document_data_format, XDMParser.df_xml);
+		}
+		return storeDocumentFromString(docId, xml, props);
 	}
 	
 	// TODO: implementation of the ..source methods is wrong!?

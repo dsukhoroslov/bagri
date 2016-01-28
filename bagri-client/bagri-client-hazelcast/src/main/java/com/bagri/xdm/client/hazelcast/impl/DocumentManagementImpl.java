@@ -5,6 +5,7 @@ import static com.bagri.xdm.client.common.XDMCacheConstants.CN_XDM_ELEMENT;
 import static com.bagri.xdm.client.common.XDMCacheConstants.PN_XDM_SCHEMA_POOL;
 import static com.bagri.xdm.client.common.XDMCacheConstants.SQN_DOCUMENT;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
@@ -15,6 +16,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import com.bagri.common.idgen.IdGenerator;
+import com.bagri.common.util.XMLUtils;
 import com.bagri.xdm.api.XDMDocumentManagement;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.client.common.impl.DocumentManagementBase;
@@ -107,13 +109,23 @@ public class DocumentManagementImpl extends DocumentManagementBase implements XD
 	
 	@Override
 	public Object getDocumentAsBean(XDMDocumentId docId) throws XDMException {
-		// TODO Auto-generated method stub
+		String xml = getDocumentAsString(docId);
+		if (xml != null) {
+			try {
+				return XMLUtils.beanFromXML(xml);
+			} catch (IOException ex) {
+				throw new XDMException(ex.getMessage(), XDMException.ecInOut);
+			}
+		}
 		return null;
 	}
 
 	@Override
 	public Map<String, Object> getDocumentAsMap(XDMDocumentId docId) throws XDMException {
-		// TODO Auto-generated method stub
+		String xml = getDocumentAsString(docId);
+		if (xml != null) {
+			return XMLUtils.mapFromXML(xml);
+		}
 		return null;
 	}
 

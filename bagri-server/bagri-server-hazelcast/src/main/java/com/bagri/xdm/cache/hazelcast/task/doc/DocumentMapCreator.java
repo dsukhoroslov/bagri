@@ -10,7 +10,9 @@ import com.bagri.xdm.cache.api.XDMTransactionManagement;
 import com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.system.XDMPermission.Permission;
+import com.hazelcast.spring.context.SpringAware;
 
+@SpringAware
 public class DocumentMapCreator extends com.bagri.xdm.client.hazelcast.task.doc.DocumentMapCreator {
 
 	private transient XDMDocumentManagement docMgr;

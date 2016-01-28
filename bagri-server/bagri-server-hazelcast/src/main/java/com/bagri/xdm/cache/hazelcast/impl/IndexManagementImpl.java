@@ -146,7 +146,8 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 		// how near cache does works on cache miss!? does is go to 
 		// original cache? 
 		// shouldn't we also check index.isEnabled() here?
-		return idxDict.get(pathId) != null;
+		//return idxDict.get(pathId) != null;
+		return idxDict.containsKey(pathId);
 		//return pathId == 2;
 	}
 

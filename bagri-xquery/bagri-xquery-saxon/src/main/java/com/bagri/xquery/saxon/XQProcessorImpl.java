@@ -40,6 +40,7 @@ import static javax.xml.xquery.XQConstants.LANGTYPE_XQUERY;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -325,33 +326,19 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
 		}
 	}
 	
-	//public XQItemType getItemType(Object item) throws XQException {
-	//	XQItemType type = null;
-	//	if (item instanceof AtomicValue) {
-	//		int base = BagriJPConverter.getBaseType((AtomicValue) item);
-     //     	type = new BagriXQItemType(base, XQItemType.XQITEMKIND_ATOMIC, null, 
-    //      			BagriXQDataFactory.getTypeName(base), false, null);
-	//	}
-	//	return type;
-	//}
-
 	//@Override
     public void bindVariable(QName varName, Object var) throws XQException {
-		//if (var instanceof XQItem) {
-		//	var = ((XQItem) var).getObject();
-		//	var = convertToItem(var);
-		//}
-        dqc.setParameter(getClarkName(varName), var);
+    	dqc.setParameter(varName.toString(), var);
     }
     
 	//@Override
     public void unbindVariable(QName varName) throws XQException {
-		//logger.trace("unbindVariable.enter; numberOfKeys: {}; unbind: {}", dqc.getParameters().getNumberOfKeys(), varName);
-        dqc.setParameter(getClarkName(varName), null);
-		//logger.trace("unbindVariable.exit; numberOfKeys: {}", dqc.getParameters().getNumberOfKeys());
+    	// QName.toString produce ClarkName
+        dqc.setParameter(varName.toString(), null);
     }
     
     // why it is not <QName, Object> ??
+    // because it is used in QueryBuilder where params identified by plain Strings
     protected Map<String, Object> getParams() {
     	Map<String, Object> params = new HashMap<>(dqc.getParameters().getNumberOfKeys());
     	GlobalParameterSet pset = dqc.getParameters();
@@ -361,11 +348,15 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
     	return params;
     }
     
-    private static String getClarkName(QName qname) {
-        String uri = qname.getNamespaceURI();
-        return "{" + (uri == null ? "" : uri) + "}" + qname.getLocalPart();
+    protected Collection<QName> getParamNames(Collection<String> pNames) {
+    	List<QName> result = new ArrayList<>(pNames.size());
+    	for (String pName: pNames) {
+    		// it should be a ClarkName as a result of conversion above
+    		result.add(QName.valueOf(pName));
+    	}
+    	return result;
     }
-
+    
     protected String explainQuery(XQueryExpression exp) throws XPathException {
     	ByteArrayOutputStream baos = new ByteArrayOutputStream();
         exp.getExpression().explain(baos);
@@ -373,6 +364,7 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
         return res;
     }
 
+    // this is for test only?
     public void parseXQuery(String query) throws XQException {
 
         try {

@@ -78,7 +78,7 @@
         <oracle.ucp.version>11.2.0.1.0</oracle.ucp.version-->
 
         <xqj.version>1.0</xqj.version>
-        <!--xqj2.version>0.2.0</xqj2.version-->
+        <xstream.version>1.4.8</xstream.version>
         <xerses.version>2.11.0</xerses.version>
         <saxon.version>9.5.1-8</saxon.version>
         <!--saxon.version>9.6.0-6</saxon.version-->
@@ -97,7 +97,6 @@
 
         <!--<jmxri.version>1.2.1</jmxri.version>-->
 
-	<validation.version>1.1.0.Final</validation.version>
         <antlr.version>3.2</antlr.version>
         <jcache.version>1.0.0</jcache.version>
         <hazelcast.version>3.5.4</hazelcast.version>
@@ -269,6 +268,11 @@
                 <version>${spring.version}</version>
             </dependency>
 
+	    <dependency>
+	    	<groupId>com.thoughtworks.xstream</groupId>
+	    	<artifactId>xstream</artifactId>
+                <version>${xstream.version}</version>
+	    </dependency>
             <dependency>
                 <groupId>xerces</groupId>
                 <artifactId>xercesImpl</artifactId>
@@ -383,11 +387,6 @@
                 <artifactId>cache-ri-impl</artifactId>
                 <version>${jcache.ri.version}</version>
             </dependency-->
-	    <dependency>
-		<groupId>javax.validation</groupId>
-		<artifactId>validation-api</artifactId>
-		<version>${validation.version}</version>
-	    </dependency>
 
             <dependency>
                 <groupId>com.hazelcast</groupId>

@@ -21,6 +21,7 @@ public interface XDMQueryManagement {
 	
 	void cancelExecution() throws XDMException;
 	
+	Collection<String> prepareQuery(String query); //throws XDMException;
 	int getQueryKey(String query); 
 	
 }
