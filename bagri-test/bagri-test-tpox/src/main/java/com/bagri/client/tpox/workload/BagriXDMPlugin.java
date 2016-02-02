@@ -1,11 +1,29 @@
 package com.bagri.client.tpox.workload;
 
+import static com.bagri.xdm.common.XDMConstants.pn_client_bufferSize;
+import static com.bagri.xdm.common.XDMConstants.pn_client_connectAttempts;
+import static com.bagri.xdm.common.XDMConstants.pn_client_loginTimeout;
+import static com.bagri.xdm.common.XDMConstants.pn_schema_address;
+import static com.bagri.xdm.common.XDMConstants.pn_schema_name;
+import static com.bagri.xdm.common.XDMConstants.pn_schema_password;
+import static com.bagri.xdm.common.XDMConstants.pn_schema_user;
+import static com.bagri.xqj.BagriXQDataSource.ADDRESS;
+import static com.bagri.xqj.BagriXQDataSource.PASSWORD;
+import static com.bagri.xqj.BagriXQDataSource.SCHEMA;
+import static com.bagri.xqj.BagriXQDataSource.USER;
+import static com.bagri.xqj.BagriXQDataSource.XDM_REPOSITORY;
+import static com.bagri.xqj.BagriXQDataSource.XQ_PROCESSOR;
+
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import javax.xml.xquery.XQConnection;
+import javax.xml.xquery.XQDataSource;
+import javax.xml.xquery.XQException;
 
 import net.sf.tpox.databaseoperations.DatabaseOperations;
 import net.sf.tpox.workload.parameter.ActualParamInfo;
@@ -19,19 +37,55 @@ import com.bagri.xdm.api.test.ClientQueryManagementTest;
 import com.bagri.xdm.client.hazelcast.impl.RepositoryImpl;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.system.XDMParameter;
+import com.bagri.xqj.BagriXQDataFactory;
+import com.bagri.xqj.BagriXQDataSource;
 
 public class BagriXDMPlugin extends BagriTPoXPlugin {
 
     private static final transient Logger logger = LoggerFactory.getLogger(BagriXDMPlugin.class);
 	
+	private static final XQDataSource xqds; 
+	
+	static {
+		xqds = new BagriXQDataSource();
+		try {
+		    xqds.setProperty(ADDRESS, System.getProperty(pn_schema_address));
+		    xqds.setProperty(SCHEMA, System.getProperty(pn_schema_name));
+		    xqds.setProperty(USER, System.getProperty(pn_schema_user));
+		    xqds.setProperty(PASSWORD, System.getProperty(pn_schema_password));
+		    xqds.setProperty(XQ_PROCESSOR, "com.bagri.xquery.saxon.XQProcessorClient");
+		    xqds.setProperty(XDM_REPOSITORY, "com.bagri.xdm.client.hazelcast.impl.RepositoryImpl");
+		    String value = System.getProperty(pn_client_loginTimeout);
+		    if (value != null) {
+		    	xqds.setProperty(pn_client_loginTimeout, value);
+		    }
+		    value = System.getProperty(pn_client_bufferSize);
+		    if (value != null) {
+		    	xqds.setProperty(pn_client_bufferSize, value);
+		    }
+		    value = System.getProperty(pn_client_connectAttempts);
+		    if (value != null) {
+		    	xqds.setProperty(pn_client_connectAttempts, value);
+		    }
+		} catch (XQException ex) {
+			logger.error("", ex);
+		}
+	}
+    
 	private static final ThreadLocal<TPoXQueryManagerTest> xqmt = new ThreadLocal<TPoXQueryManagerTest>() {
 		
 		@Override
 		protected TPoXQueryManagerTest initialValue() {
-			XDMRepository xdm = new RepositoryImpl();
-			TPoXQueryManagerTest xqmt = new TPoXQueryManagerTest(xdm);
-			logger.info("initialValue.exit; XDM: {}", xdm);
-			return xqmt;
+			try {
+				XQConnection xqc = xqds.getConnection();
+				XDMRepository xdm = ((BagriXQDataFactory) xqc).getProcessor().getRepository(); 
+				TPoXQueryManagerTest xqmt = new TPoXQueryManagerTest(xdm);
+				logger.info("initialValue.exit; XDM: {}", xdm);
+				return xqmt;
+    		} catch (XQException ex) {
+    			logger.error("", ex);
+    			return null;
+    		}
  		}
 		
 	};
@@ -39,7 +93,7 @@ public class BagriXDMPlugin extends BagriTPoXPlugin {
     public BagriXDMPlugin() {
     	super();
     }
-	
+
 	@Override
 	public void close() throws SQLException {
 		//xdm.close();

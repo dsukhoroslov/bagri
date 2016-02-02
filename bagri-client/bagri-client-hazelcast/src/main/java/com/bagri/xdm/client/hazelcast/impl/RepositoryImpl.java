@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bagri.xdm.api.XDMDocumentManagement;
+import com.bagri.xdm.api.XDMHealthCheckState;
 import com.bagri.xdm.api.XDMQueryManagement;
 import com.bagri.xdm.api.XDMRepository;
 import com.bagri.xdm.api.XDMTransactionManagement;
@@ -60,7 +61,7 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 		clientMgr.connect(clientId, proxy);
 		
 		logger.debug("<init>; connected to HZ server as: {}; {}", clientId, proxy);
-		initializeServices();
+		initializeServices(null);
 	}
 	
 	private static Properties getSystemProps() {
@@ -74,6 +75,7 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 		setProperty(props, pn_client_bufferSize, null); 
 		setProperty(props, pn_client_connectAttempts, "3"); 
 		setProperty(props, pn_client_poolSize, "5");
+		setProperty(props, pn_client_healthCheck, null);
 		return props;
 	}
 	
@@ -92,6 +94,7 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 		}
 		setProperty(props, pn_client_smart, null); 
 		setProperty(props, pn_client_poolSize, null);
+		setProperty(props, pn_client_healthCheck, null);
 		return props;
 	}
 	
@@ -101,15 +104,21 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 		hzClient = clientMgr.connect(clientId, props);
 		com.hazelcast.client.impl.HazelcastClientProxy proxy = (com.hazelcast.client.impl.HazelcastClientProxy) hzClient; 
 		schemaName = proxy.getClientConfig().getGroupConfig().getName();
-		initializeServices();
+		initializeServices(props);
 	}
 	
-	private void initializeServices() {
+	private void initializeServices(Properties props) {
 		//execService = hzClient.getExecutorService(PN_XDM_SCHEMA_POOL);
 		setAccessManagement(new AccessManagementImpl());
 		setBindingManagement(new BindingManagementImpl());
 		setDocumentManagement(new DocumentManagementImpl());
 		setHealthManagement(new HealthManagementImpl(hzClient));
+		if (props != null) {
+			String value = props.getProperty("pn_client_healthCheck");
+			if (value != null) {
+				getHealthManagement().setCheckSate(XDMHealthCheckState.valueOf(value));
+			}
+		}
 		setModelManagement(new ModelManagementImpl(hzClient));
 		setQueryManagement(new QueryManagementImpl());
 		setTxManagement(new TransactionManagementImpl());

@@ -55,24 +55,6 @@
         </dependency>
 
         <dependency>
-            <groupId>com.xqj2</groupId>
-            <artifactId>xqj2</artifactId>
-            <version>0.2.0</version>
-            <scope>system</scope>
-            <!--optional>false</optional-->
-            <systemPath>${project.basedir}/../../etc/lib/xqj2-0.2.0.jar</systemPath>
-        </dependency>
-
-        <!-- MarkLogic XQJ driver -->
-        <dependency>
-            <groupId>et.xqj</groupId>
-            <artifactId>marklogic-xqj</artifactId>
-            <version>1.0.0</version>
-            <scope>system</scope>
-            <!--optional>false</optional-->
-            <systemPath>${project.basedir}/../../etc/lib/marklogic-xqj-1.1.0.jar</systemPath>
-        </dependency>
-        <dependency>
 	    <groupId>com.marklogic</groupId>
 	    <artifactId>marklogic-xcc</artifactId>
         </dependency>
@@ -85,12 +67,6 @@
             <scope>system</scope>
             <!--optional>false</optional-->
             <systemPath>${project.basedir}/../../etc/lib/tpox-workload-2.1.jar</systemPath>
-        </dependency>
-
-        <!-- Spring framework -->
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
         </dependency>
 
         <dependency>
@@ -137,7 +113,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
-                <!--<version>${maven-dependency-plugin.version}</version>-->
                 <executions>
                     <execution>
                         <id>copy-dependencies</id>
@@ -154,7 +129,6 @@
                     </execution>
                 </executions>
             </plugin>
-
         </plugins>
     </build>
 

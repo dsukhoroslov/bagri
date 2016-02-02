@@ -123,7 +123,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements XD
 	@Override
 	public Map<String, Object> getDocumentAsMap(XDMDocumentId docId) throws XDMException {
 		String xml = getDocumentAsString(docId);
-		if (xml != null) {
+		if (xml != null && xml.trim().length() > 0) {
 			return XMLUtils.mapFromXML(xml);
 		}
 		return null;
@@ -155,6 +155,9 @@ public class DocumentManagementImpl extends DocumentManagementBase implements XD
 			throw new XDMException("Document bean can not be null", XDMException.ecDocument);
 		}
 		logger.trace("storeDocumentFromMap.enter; bean: {}", bean);
+		//if (docId == null) {
+		//	docId = new XDMDocumentId(docGen.next(), 1);
+		//}
 		
 		DocumentBeanCreator task = new DocumentBeanCreator(repo.getClientId(), repo.getTransactionId(), docId, props, bean);
 		return storeDocument(docId, props, task);
@@ -166,6 +169,9 @@ public class DocumentManagementImpl extends DocumentManagementBase implements XD
 			throw new XDMException("Document fields map can not be null", XDMException.ecDocument);
 		}
 		logger.trace("storeDocumentFromMap.enter; field size: {}", fields.size());
+		//if (docId == null) {
+		//	docId = new XDMDocumentId(docGen.next(), 1);
+		//}
 		
 		DocumentMapCreator task = new DocumentMapCreator(repo.getClientId(), repo.getTransactionId(), docId, props, fields);
 		return storeDocument(docId, props, task);
@@ -177,6 +183,9 @@ public class DocumentManagementImpl extends DocumentManagementBase implements XD
 			throw new XDMException("Document content can not be null", XDMException.ecDocument);
 		}
 		logger.trace("storeDocumentFromString.enter; content length: {}", content.length());
+		//if (docId == null) {
+		//	docId = new XDMDocumentId(docGen.next(), 1);
+		//}
 		
 		DocumentCreator task = new DocumentCreator(repo.getClientId(), repo.getTransactionId(), docId, props, content);
 		return storeDocument(docId, props, task);
@@ -185,12 +194,12 @@ public class DocumentManagementImpl extends DocumentManagementBase implements XD
 	public XDMDocument storeDocument(XDMDocumentId docId, Properties props, Callable<XDMDocument> creator) throws XDMException {
 		logger.trace("storeDocument.enter; docId: {}; props: {}", docId, props);
 		repo.getHealthManagement().checkClusterState();
-
-		if (docId == null) {
-			docId = new XDMDocumentId(docGen.next(), 1);
+		Long key = repo.getTransactionId();
+		if (docId != null) {
+			key = docId.getDocumentId();
 		}
 		
-		Future<XDMDocument> future = execService.submitToKeyOwner(creator, docId);
+		Future<XDMDocument> future = execService.submitToKeyOwner(creator, key);
 		try {
 			XDMDocument result = future.get();
 			logger.trace("storeDocument.exit; returning: {}", result);

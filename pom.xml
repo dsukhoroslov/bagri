@@ -108,6 +108,7 @@
         <!--coherence-spring.version>1.0.0</coherence-spring.version-->
         <mongo.version>2.11.4</mongo.version>
         <thrift.version>0.8.0</thrift.version>
+	<ycsb.version>0.7.0-SNAPSHOT</ycsb.version>
 
 	<marklogic.xcc.version>8.0.2</marklogic.xcc.version>
 	<marklogic.client.version>3.0.2</marklogic.client.version>
@@ -503,6 +504,12 @@
                 <version>${hamcrest.version}</version>
                 <scope>compile</scope>
             </dependency>
+	    <dependency>
+            	<groupId>com.yahoo.ycsb</groupId>
+            	<artifactId>core</artifactId>
+            	<version>${ycsb.version}</version>
+            	<!--scope>provided</scope-->
+	    </dependency>
 
             <!--dependency>
                 <groupId>org.mockito</groupId>

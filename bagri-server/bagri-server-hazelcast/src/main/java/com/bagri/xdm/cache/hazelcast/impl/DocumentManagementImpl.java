@@ -339,14 +339,18 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
         int typeId = -1;
         String root = null;
 		for (Iterator<Long> itr = docKeys.iterator(); itr.hasNext(); ) {
-			//Long docId = itr.next();
 			XDMDocumentKey docKey = factory.newXDMDocumentKey(itr.next());
 			if (hzInstance.getPartitionService().getPartition(docKey).getOwner().localMember()) {
+				XDMDocument doc = xddCache.get(docKey);
+				if (doc == null) {
+					logger.info("buildDocument; lost document for key {}", docKey);
+					continue;
+				}
+
 				StringBuilder buff = new StringBuilder(template);
 				for (Map.Entry<String, String> param: params.entrySet()) {
 					String key = param.getKey();
 					String path = param.getValue();
-					XDMDocument doc = xddCache.get(docKey);
 					if (doc.getTypeId() != typeId) {
 						typeId = doc.getTypeId();
 						root = model.getDocumentRoot(typeId); 
@@ -693,7 +697,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 					docId = new XDMDocumentId(docGen.next(), dvFirst, docId.getDocumentUri());
 				}
 			} else {
-				update = true;
+				//update = true;
 				if (docId.getDocumentUri() == null) {
 					docId = new XDMDocumentId(docId.getDocumentKey(), docId.getDocumentKey() + "." + ext);
 				} else {
@@ -707,6 +711,8 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 							existingId, XDMException.ecDocument);
 					}
 				}
+				XDMDocumentKey docKey = factory.newXDMDocumentKey(docId.getDocumentKey());
+				update = xddCache.containsKey(docKey);
 			}
 		}
 		

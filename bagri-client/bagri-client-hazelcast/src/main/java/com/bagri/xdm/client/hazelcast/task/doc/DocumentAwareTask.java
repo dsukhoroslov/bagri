@@ -21,13 +21,19 @@ public abstract class DocumentAwareTask extends TransactionAwareTask implements 
 	
 	public DocumentAwareTask(String clientId, long txId, XDMDocumentId docId, Properties props) {
 		super(clientId, txId);
+		//if (docId == null) {
+		//	throw new IllegalArgumentException("<init>: docId must be not null");
+		//}
 		this.docId = docId;
 		this.props = props;
 	}
 
 	@Override
 	public Long getPartitionKey() {
-		return docId.getDocumentId();
+		if (docId != null) {
+			return docId.getDocumentId();
+		}
+		return this.txId;
 	}
 
 	@Override

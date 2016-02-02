@@ -12,8 +12,6 @@ import java.util.concurrent.Executors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 
 //import com.bagri.xdm.access.coherence.impl.CoherenceDocumentManager;
@@ -21,7 +19,9 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.bagri.xdm.api.XDMDocumentManagement;
 import com.bagri.xdm.api.XDMException;
+import com.bagri.xdm.api.XDMRepository;
 import com.bagri.xdm.client.hazelcast.impl.DocumentManagementImpl;
+import com.bagri.xdm.client.hazelcast.impl.RepositoryImpl;
 import com.bagri.xdm.common.XDMDocumentId;
 import com.bagri.xdm.domain.XDMDocument;
 
@@ -32,7 +32,7 @@ public class TPoXDataLoader {
     private static final Logger logger = LoggerFactory.getLogger(TPoXDataLoader.class);
 	
 	private ExecutorService exec;
-	private XDMDocumentManagement xdmMgr;
+	private XDMRepository xRepo;
 	
 	public static void main(String[] args) {
 
@@ -53,20 +53,9 @@ public class TPoXDataLoader {
 	}
 	
 	public void initialize(int poolSize) {
-    	String config = System.getProperty("xdm.spring.context");
-    	if (config != null) {
-    	    ApplicationContext context = new ClassPathXmlApplicationContext(config);
-    		xdmMgr = context.getBean("xdmManager", XDMDocumentManagement.class);
-    	//} else {
-	//    	if ("Hazelcast".equalsIgnoreCase(System.getProperty("xdm.data.manager"))) {
-	//    		xdmMgr = new HazelcastDocumentManager();
-	//    	} else {
-	//    		xdmMgr = new CoherenceDocumentManager();
-	//    	}
-    	}
-		
+   		xRepo = new RepositoryImpl();
 		exec = Executors.newFixedThreadPool(poolSize);
-		logger.trace("initialize; got xdmManager: {}", xdmMgr);
+		logger.trace("initialize; got repository: {}", xRepo);
 	}
 	
 	public int process(String folder, String header) throws NumberFormatException, IOException {
@@ -129,7 +118,7 @@ public class TPoXDataLoader {
 	private String storeDocument(String uri, String xml) {
 
 		try {
-			XDMDocument doc = xdmMgr.storeDocumentFromString(new XDMDocumentId(uri), xml, null);
+			XDMDocument doc = xRepo.getDocumentManagement().storeDocumentFromString(new XDMDocumentId(uri), xml, null);
 			//logger.trace("storeDocument.exit; result: {}", result);
 			return doc.getUri();
 		} catch (XDMException ex) {
