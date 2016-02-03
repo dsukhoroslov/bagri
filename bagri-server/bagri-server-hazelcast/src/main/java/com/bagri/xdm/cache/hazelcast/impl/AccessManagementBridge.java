@@ -18,27 +18,29 @@ import com.bagri.xdm.system.XDMUser;
 import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
+import com.hazelcast.core.Member;
+import com.hazelcast.core.MemberAttributeEvent;
+import com.hazelcast.core.MembershipEvent;
+import com.hazelcast.core.MembershipListener;
 import com.hazelcast.map.listener.EntryAddedListener;
 import com.hazelcast.map.listener.EntryRemovedListener;
 import com.hazelcast.map.listener.EntryUpdatedListener;
 
-public class AccessManagementBridge {
+public class AccessManagementBridge implements MembershipListener {
 
 	private static final transient Logger logger = LoggerFactory.getLogger(AccessManagementBridge.class);
-	
+
+	private HazelcastInstance hzInstance;
 	private Map<String, XDMRole> roles = new HashMap<>();
 	private Map<String, XDMUser> users = new HashMap<>();
 
 	public void setHazelcastInstance(HazelcastInstance hzInstance) {
 		logger.trace("setHazelcastInstance.enter");
-		if (hzInstance != null) {
-			IMap<String, XDMRole> rCache = hzInstance.getMap("roles");
-			setRoles(rCache);
-			rCache.addEntryListener(new EntityListener(roles), true);
-			IMap<String, XDMUser> uCache = hzInstance.getMap("users");
-			setUsers(uCache);
-			uCache.addEntryListener(new EntityListener(users), true);
-		} 
+		this.hzInstance = hzInstance;
+		//if (hzInstance != null) {
+			hzInstance.getCluster().addMembershipListener(this);
+			setupCaches();
+		//} 
 		if (roles.size() == 0 && users.size() == 0) {
 			// started as standalone server
 	       	String confName = System.getProperty(xdm_access_filename);
@@ -57,17 +59,29 @@ public class AccessManagementBridge {
 		logger.trace("setHazelcastInstance.exit; initiated roles: {}; users {}", roles.size(), users.size());
 	}
 	
-	private void setRoles(Map<String, XDMRole> roles) {
-		this.roles.clear();
-		if (roles != null) {
-			this.roles.putAll(roles);
+	public void setupCaches() {
+		boolean lite = true;
+		for (Member m: hzInstance.getCluster().getMembers()) {
+			if (!m.isLiteMember()) {
+				lite = false;
+				break;
+			}
+		}
+		if (!lite) {
+			IMap<String, XDMRole> rCache = hzInstance.getMap("roles");
+			copyCache(rCache, roles);
+			rCache.addEntryListener(new EntityListener(roles), true);
+			IMap<String, XDMUser> uCache = hzInstance.getMap("users");
+			copyCache(uCache, users);
+			uCache.addEntryListener(new EntityListener(users), true);
 		}
 	}
 	
-	private void setUsers(Map<String, XDMUser> users) {
-		this.users.clear();
-		if (users != null) {
-			this.users.putAll(users);
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private void copyCache(Map source, Map target) {
+		target.clear();
+		if (source != null) {
+			target.putAll(source);
 		}
 	}
 	
@@ -115,6 +129,21 @@ public class AccessManagementBridge {
 		return null;
 	}
 
+	@Override
+	public void memberAdded(MembershipEvent membershipEvent) {
+		setupCaches();
+	}
+
+	@Override
+	public void memberRemoved(MembershipEvent membershipEvent) {
+		// no-op ?
+	}
+
+	@Override
+	public void memberAttributeChanged(MemberAttributeEvent memberAttributeEvent) {
+		// no-op
+	}
+
 	private static class EntityListener implements EntryAddedListener<String, XDMPermissionAware>, 
 		EntryUpdatedListener<String, XDMPermissionAware>, EntryRemovedListener<String, XDMPermissionAware> { 
 
@@ -144,5 +173,4 @@ public class AccessManagementBridge {
 	
 	}
 
-	
 }
