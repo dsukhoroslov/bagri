@@ -7,5 +7,5 @@ AutoUpdate-Show-In-Client: true
 OpenIDE-Module: com.bagri.visualvm.manager
 OpenIDE-Module-Install: com/bagri/visualvm/manager/Installer.class
 OpenIDE-Module-Localizing-Bundle: com/bagri/visualvm/manager/Bundle.properties
-OpenIDE-Module-Specification-Version: 0.5.1
+OpenIDE-Module-Specification-Version: 0.6.1
 OpenIDE-Module-Requires: org.openide.modules.ModuleFormat1

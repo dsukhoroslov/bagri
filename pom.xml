@@ -5,7 +5,7 @@
 
     <groupId>com.sdv.bagri</groupId>
     <artifactId>bagri</artifactId>
-    <version>0.5.1-SNAPSHOT</version>
+    <version>0.6.1-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>bagri</name>
     <!--shortDescription>An XML DB on top of Distributed Cache</shortDescription-->

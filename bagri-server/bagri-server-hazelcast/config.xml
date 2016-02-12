@@ -683,7 +683,7 @@
             <version>1</version>
             <createdAt>2015-05-31T16:17:20.542+03:00</createdAt>
             <createdBy>dsukhoroslov</createdBy>
-            <fileName>../../bagri-samples/bagri-samples-ext/target/bagri-samples-ext-0.5.1-SNAPSHOT.jar</fileName>
+            <fileName>../../bagri-samples/bagri-samples-ext/target/bagri-samples-ext-0.6.1-SNAPSHOT.jar</fileName>
             <description>Sample extension trigger Library</description>
             <enabled>true</enabled>
             <functions/>

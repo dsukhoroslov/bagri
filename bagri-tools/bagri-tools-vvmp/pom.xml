@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.sdv.bagri</groupId>
         <artifactId>bagri-tools</artifactId>
-        <version>0.5.1-SNAPSHOT</version>
+        <version>0.6.1-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
 

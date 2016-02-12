@@ -68,7 +68,7 @@ public class BagriXQMetaData implements XQMetaData { //, XQMetaData2 {
 	public String getProductVersion() throws XQException {
 		connect.checkState(ex_connection_closed);
 		// TODO: use some global constant for this
-		return "0.5.1";
+		return "0.6.1";
 	}
 
 	@Override
