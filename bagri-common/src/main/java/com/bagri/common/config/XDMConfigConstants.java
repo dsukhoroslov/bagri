@@ -29,4 +29,7 @@ public class XDMConfigConstants {
     public static final String xdm_schema_population_size = "xdm.schema.population.size";
     public static final String xdm_schema_population_buffer_size = "xdm.schema.population.buffer.size";
 
+    public static final String xdm_document_collections = "xdm.document.collections";
+    public static final String xdm_document_data_format = "xdm.document.data.format";
+    
 }

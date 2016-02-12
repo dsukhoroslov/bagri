@@ -2,23 +2,18 @@ package com.bagri.xdm.client.hazelcast.task.tx;
 
 import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_RollbackTransactionTask;
 
-import java.io.IOException;
 import java.util.concurrent.Callable;
 
-import com.hazelcast.nio.ObjectDataInput;
-import com.hazelcast.nio.ObjectDataOutput;
+import com.bagri.xdm.client.hazelcast.task.TransactionAwareTask;
 
-public class TransactionAborter extends ClientAwareTask implements Callable<Boolean> {
-	
-	protected long txId;
+public class TransactionAborter extends TransactionAwareTask implements Callable<Boolean> {
 	
 	public TransactionAborter() {
 		super();
 	}
 
 	public TransactionAborter(String clientId, long txId) {
-		super(clientId);
-		this.txId = txId;
+		super(clientId, txId);
 	}
 
 	@Override
@@ -31,17 +26,4 @@ public class TransactionAborter extends ClientAwareTask implements Callable<Bool
 		return null;
 	}
 
-	@Override
-	public void readData(ObjectDataInput in) throws IOException {
-		super.readData(in);
-		txId = in.readLong();
-	}
-
-	@Override
-	public void writeData(ObjectDataOutput out) throws IOException {
-		super.writeData(out);
-		out.writeLong(txId);
-	}
-
-	
 }

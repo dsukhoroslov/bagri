@@ -11,7 +11,7 @@
     
 	<bean id="docCacheStore" class="com.bagri.xdm.cache.hazelcast.store.xml.DocumentCacheStore">
 	    <property name="dataPath" value="${xdm.schema.store.data.path}" />
-	    <!--property name="documentIdGenerator" ref="xdm.document"/-->
+	    <!--property name="documentManager" ref="docManager"/-->
 	</bean>
 
 	<bean id="xsdCacheStore" class="com.bagri.xdm.cache.hazelcast.store.xml.XsdCacheStore">

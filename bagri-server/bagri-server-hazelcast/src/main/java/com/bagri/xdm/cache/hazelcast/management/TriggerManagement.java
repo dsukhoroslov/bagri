@@ -98,7 +98,7 @@ public class TriggerManagement extends SchemaFeatureManagement {
 		int index = schemaManager.getEntity().getTriggers().size();
 		XDMTriggerDef trigger = schemaManager.addTrigger(java, container, implementation, type, synchronous, acts, index);
 		if (trigger == null) {
-			throw new IllegalStateException("Trigger '" + implementation + "' in schema '" + schemaName + "' already registered");
+			throw new IllegalArgumentException("Trigger '" + implementation + "' in schema '" + schemaName + "' already registered");
 		}
 		
 		TriggerCreator task = new TriggerCreator(trigger);

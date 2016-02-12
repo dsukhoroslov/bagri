@@ -1,6 +1,5 @@
 package com.bagri.xdm.client.hazelcast.impl;
 
-import static com.bagri.common.security.Encryptor.encrypt;
 import static com.bagri.xdm.client.common.XDMCacheConstants.CN_XDM_CLIENT;
 import static com.bagri.xdm.common.XDMConstants.pn_client_bufferSize;
 import static com.bagri.xdm.common.XDMConstants.pn_client_connectAttempts;
@@ -20,10 +19,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
-import javax.xml.xquery.XQDataFactory;
-import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQItem;
 import javax.xml.xquery.XQItemType;
 import javax.xml.xquery.XQSequence;
@@ -31,6 +27,7 @@ import javax.xml.xquery.XQSequence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.bagri.common.manage.JMXUtils;
 import com.bagri.xdm.client.hazelcast.serialize.SecureCredentials;
 import com.bagri.xdm.client.hazelcast.serialize.XQItemSerializer;
 import com.bagri.xdm.client.hazelcast.serialize.XQItemTypeSerializer;
@@ -59,7 +56,7 @@ public class ClientManagementImpl {
    				HazelcastInstance hzClient = initializeHazelcast(props);
    				cc = new ClientContainer(cKey, hzClient);
    				clients.put(cKey, cc);
-				logger.info("connect; new HZ instance created: {}", hzClient);
+				logger.info("connect; new HZ instance created for clientId: {}", clientId);
    			} else {
    				// check password -> authenticate();
    			}
@@ -84,7 +81,7 @@ public class ClientManagementImpl {
    			if (cc == null) {
    				cc = new ClientContainer(cKey, hzProxy);
    				clients.put(cKey, cc);
-				logger.info("connect; new container created for HZ instance: {}", hzProxy);
+				logger.info("connect; new container created for clientId: {}", clientId);
    			} else {
    				// check password -> authenticate();
    			}
@@ -120,15 +117,19 @@ public class ClientManagementImpl {
         	ClientContainer found = null;
 	    	for (ClientContainer cc: clients.values()) {
 				logger.trace("disconnect; disconnecting: {}; current clients: {}", clientId, cc.getSize());
-	    		if (cc.removeClient(clientId)) {
-	        		IMap<String, Properties> clientProps = cc.hzInstance.getMap(CN_XDM_CLIENT);
-	        		clientProps.delete(clientId);
-	    			logger.trace("disconnect; clientId {} successfuly disconnected", clientId);
-	    			found = cc;
-	        		break;
-	    		} else {
-	    			logger.info("disconnect; container don't see client ID: {}; existing: {}", clientId, cc.getClients());
-	    		}
+				try {
+		    		if (cc.removeClient(clientId)) {
+		    			found = cc;
+		        		IMap<String, Properties> clientProps = cc.hzInstance.getMap(CN_XDM_CLIENT);
+		        		clientProps.delete(clientId);
+		    			logger.trace("disconnect; clientId {} successfuly disconnected", clientId);
+		        		break;
+		    		} else {
+		    			logger.info("disconnect; container don't see client ID: {}; existing: {}", clientId, cc.getClients());
+		    		}
+				} catch (Exception ex) {
+					logger.info("disconnect; it seems the server has been stopped already");
+				}
 	    	}
 	
 	    	if (found != null) {
@@ -138,10 +139,10 @@ public class ClientManagementImpl {
 						found.hzInstance.getLifecycleService().shutdown();
 						// probably, should do something like this:
 						//execService.awaitTermination(100, TimeUnit.SECONDS);
-						clients.remove(found.clientKey);
 					} else {
 						logger.info("disconnect; an attempt to close not-running client!");
 					}
+					clients.remove(found.clientKey);
 	    		} else  {
 					logger.trace("disconnect; disconnected: {}; remaining clients: {}", clientId, found.getSize());
 				}
@@ -173,7 +174,8 @@ public class ClientManagementImpl {
     	ClientConfig config = hzProxy.getClientConfig(); 
     	return config.getGroupConfig().getName() + "::" +
     		   config.getNetworkConfig().getAddresses().toString() + "::" +
-    		   "admin::" +
+    		   //"admin::" +
+    		   JMXUtils.getCurrentUser() + "::" +
     		   config.getNetworkConfig().isSmartRouting() + "::" + 
     		   config.getNetworkConfig().getSocketOptions().getBufferSize();
     }
@@ -235,8 +237,8 @@ public class ClientManagementImpl {
 		}
 		
 		config.setProperty("hazelcast.logging.type", "slf4j");
-		//SecureCredentials creds = new SecureCredentials(user, password);
-		SecureCredentials creds = new SecureCredentials(schema, password);
+		SecureCredentials creds = new SecureCredentials(user, password);
+		//SecureCredentials creds = new SecureCredentials(schema, password);
 		//config.getSecurityConfig().setCredentials(creds);
 		config.setCredentials(creds);
 

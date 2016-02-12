@@ -5,8 +5,8 @@ public class BinaryExpression extends Expression {
 	private Expression left;
 	private Expression right;
 
-	public BinaryExpression(int docType, Comparison compType, PathBuilder path) {
-		super(docType, compType, path);
+	public BinaryExpression(int clnId, Comparison compType, PathBuilder path) {
+		super(clnId, compType, path);
 	}
 	
 	public Expression getLeft() {
@@ -27,7 +27,7 @@ public class BinaryExpression extends Expression {
 
 	@Override
 	public String toString() {
-		return "BinaryExpression [docType=" + docType + ", compType=" + compType + 
+		return "BinaryExpression [collectId=" + clnId + ", compType=" + compType + 
 				", path=" + path + ", left=" + left + ", right=" + right + "]";
 	}
 

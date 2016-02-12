@@ -25,7 +25,6 @@ public class QueryPredicate implements Predicate<XDMDataKey, XDMElements>, Ident
 	private static final long serialVersionUID = -2796783159287994964L;
 
 	private static final transient Logger logger = LoggerFactory.getLogger(QueryPredicate.class);
-	//private Set<String> threads = new HashSet<String>();
 	
 	private PathExpression pex;
 	private Object value;

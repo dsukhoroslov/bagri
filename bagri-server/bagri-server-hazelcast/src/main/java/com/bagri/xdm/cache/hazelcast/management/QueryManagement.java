@@ -3,9 +3,10 @@
  */
 package com.bagri.xdm.cache.hazelcast.management;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Iterator;
+import static com.bagri.xdm.common.XDMConstants.pn_client_fetchSize;
+import static com.bagri.xdm.common.XDMConstants.pn_client_submitTo;
+import static com.bagri.xdm.common.XDMConstants.pn_queryTimeout;
+
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -28,9 +29,7 @@ import com.bagri.common.manage.StatsAggregator;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaQueryCleaner;
 import com.bagri.xdm.cache.hazelcast.task.stats.StatisticSeriesCollector;
 import com.bagri.xdm.cache.hazelcast.task.stats.StatisticsReseter;
-import com.bagri.xdm.client.common.impl.ModelManagementBase;
-import com.bagri.xdm.client.hazelcast.impl.DocumentManagementImpl;
-import com.bagri.xdm.domain.XDMDocumentType;
+import com.bagri.xqj.BagriXQConnection;
 import com.hazelcast.core.Member;
 
 /**
@@ -40,7 +39,10 @@ import com.hazelcast.core.Member;
 @ManagedResource(description="(X)Query Management MBean")
 public class QueryManagement extends SchemaFeatureManagement {
 	
+	private int fetchSize = 0;
+	private int queryTimeout = 0;
     private XQConnection xqConn;
+	private StatsAggregator qcAggregator;
     
     public QueryManagement(String schemaName) {
     	super(schemaName);
@@ -50,6 +52,11 @@ public class QueryManagement extends SchemaFeatureManagement {
 		this.xqConn = xqConn;
 	}
 	
+	@Override
+	protected String getFeatureKind() {
+		return "QueryManagement";
+	}
+
 	@ManagedOperation(description="clear Query cache")
 	public boolean clear() {
 		
@@ -74,6 +81,7 @@ public class QueryManagement extends SchemaFeatureManagement {
 	public String runQuery(String query) {
 		XQExpression xqExp;
 		try {
+		    setQueryProperties();
 			xqExp = xqConn.createExpression();
 		    XQResultSequence xqSec = xqExp.executeQuery(query);
 		    return xqSec.getSequenceAsString(null);
@@ -91,6 +99,7 @@ public class QueryManagement extends SchemaFeatureManagement {
 	public String runPreparedQuery(String query, Map<String, Object> bindings) {
 		XQPreparedExpression xqExp;
 		try {
+		    setQueryProperties();
 		    xqExp = xqConn.prepareExpression(query);
 		    // TODO: bind params properly..
 		    for (Map.Entry<String, Object> e: bindings.entrySet()) {
@@ -105,6 +114,11 @@ public class QueryManagement extends SchemaFeatureManagement {
 		}
 	}
 
+	private void setQueryProperties() {
+		((BagriXQConnection) xqConn).getProcessor().getProperties().setProperty(pn_client_fetchSize, String.valueOf(fetchSize));
+		((BagriXQConnection) xqConn).getProcessor().getProperties().setProperty(pn_queryTimeout, String.valueOf(queryTimeout));
+	}	
+	
 	@ManagedAttribute(description="Returns aggregated QueryManagement invocation statistics, per method")
 	public TabularData getInvocationStatistics() {
 		return super.getSeriesStatistics(new StatisticSeriesCollector(schemaName, "queryStats"), aggregator);
@@ -117,13 +131,48 @@ public class QueryManagement extends SchemaFeatureManagement {
 
 	@ManagedAttribute(description="Return aggregated query usage statistics, per cached query")
 	public TabularData getQueryCacheStatistics() {
-		return super.getUsageStatistics(new StatisticSeriesCollector(schemaName, "queryCacheStats"), aggregator);
+		if (qcAggregator == null) {
+			qcAggregator = new StatsAggregator() {
+
+				@Override
+				@SuppressWarnings({ "unchecked", "rawtypes" })
+				public Object[] aggregateStats(Object[] source, Object[] target) {
+					target[0] = (Integer) source[0] + (Integer) target[0]; // accessed
+					target[1] = (Integer) source[1] + (Integer) target[1]; // cached results
+					target[2] = ((Comparable) source[2]).compareTo((Comparable) target[2]) < 0 ? source[2] : target[2]; // first  
+					target[3] = (Integer) source[3] + (Integer) target[3]; // hits
+					target[4] = ((Comparable) source[4]).compareTo((Comparable) target[4]) > 0 ? source[4] : target[4]; // last  
+					target[5] = (Integer) source[5] + (Integer) target[5]; // miss
+					target[6] = source[6]; // query
+					target[7] = (Integer) source[7] + (Integer) target[7]; // result hits
+					target[8] = (Integer) source[8] + (Integer) target[8]; // result miss
+					return target;
+				}
+				
+			};
+		}
+		
+		return super.getUsageStatistics(new StatisticSeriesCollector(schemaName, "queryCacheStats"), qcAggregator);
 	}
 
+	@ManagedAttribute(description="Returns query fetch size limit in records. 0 means no limit")
+	public int getFetchSize() {
+		return fetchSize;
+	}
 	
-	@Override
-	protected String getFeatureKind() {
-		return "QueryManagement";
+	@ManagedAttribute(description="Set query fetch size limit in records. 0 means no limit")
+	public void setFetchSize(int fetchSize) {
+		this.fetchSize = fetchSize;
 	}
-
+	
+	@ManagedAttribute(description="Returns query timeoit in seconds. 0 means no timeout")
+	public int getQueryTimeout() {
+		return queryTimeout;
+	}
+	
+	@ManagedAttribute(description="Set query timeout in seconds. 0 means no timeout")
+	public void setQueryTimeout(int queryTimeout) {
+		this.queryTimeout = queryTimeout;
+	}
+	
 }

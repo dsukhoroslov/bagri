@@ -29,17 +29,17 @@ public class QueryBuilder implements Cloneable {
 	}
 	
 	public void addContainer(ExpressionContainer container) {
-		int docType = container.getExpression().getRoot().getDocType();
-		addContainer(docType, container);
+		int clnId = container.getExpression().getRoot().getCollectionId();
+		addContainer(clnId, container);
 	}
 	
-	public void addContainer(int docType, ExpressionContainer container) {
-		ExpressionContainer oldValue = containers.put(docType, container);
+	public void addContainer(int clnId, ExpressionContainer container) {
+		ExpressionContainer oldValue = containers.put(clnId, container);
 		//
 	}
 
-	public ExpressionContainer getContainer(int docType) {
-		return containers.get(docType);
+	public ExpressionContainer getContainer(int clnId) {
+		return containers.get(clnId);
 	}
 	
 	public Collection<ExpressionContainer> getContainers() {
@@ -53,6 +53,16 @@ public class QueryBuilder implements Cloneable {
 				addContainer(ec.clone());
 			}
 		}
+	}
+	
+	public Collection<String> getParamNames() {
+		List<String> result = new ArrayList<>();
+		for (ExpressionContainer exCont: containers.values()) {
+			for (Map.Entry<String, Object> param: exCont.getParams().entrySet()) {
+				result.add(param.getKey());
+			}
+		}
+		return result;
 	}
 	
 	public Collection<String> getEmptyParams() {

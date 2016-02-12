@@ -53,6 +53,10 @@
                 <entry name="xdm.schema.query.backup.sync">0</entry>
                 <entry name="xdm.schema.query.backup.read">true</entry>
 		<entry name="xdm.schema.transaction.timeout">60000</entry>
+                <entry name="xdm.schema.health.threshold.low">25</entry>
+                <entry name="xdm.schema.health.threshold.high">0</entry>
+                <entry name="xdm.schema.store.tx.buffer.size">2048</entry>
+                <entry name="xdm.schema.population.buffer.size">1000000</entry>
                 <entry name="xqj.schema.baseUri">file:///../data/tpox/</entry>
                 <entry name="xqj.schema.orderingMode">2</entry>
                 <entry name="xqj.schema.queryLanguageTypeAndVersion">1</entry>
@@ -69,6 +73,40 @@
                 <entry name="xqj.schema.defaultCollationUri">http://www.w3.org/2005/xpath-functions/collation/codepoint</entry>
                 <entry name="xqj.schema.constructionMode">1</entry>
             </properties>
+            <collections>
+                <collection id="1" name="CLN_Security">
+                    <version>1</version>
+                    <createdAt>2015-10-20T01:01:26.965+03:00</createdAt>
+                    <createdBy>SDV</createdBy>
+                    <docType>/{http://tpox-benchmark.com/security}Security</docType>
+                    <description>All security documents</description>
+                    <enabled>true</enabled>
+                </collection>
+                <collection id="2" name="CLN_Customer">
+                    <version>1</version>
+                    <createdAt>2015-10-20T01:01:26.965+03:00</createdAt>
+                    <createdBy>SDV</createdBy>
+                    <docType>/{http://tpox-benchmark.com/custacc}Customer</docType>
+                    <description>All customer documents</description>
+                    <enabled>true</enabled>
+                </collection>
+                <collection id="3" name="CLN_Order">
+                    <version>1</version>
+                    <createdAt>2015-10-20T01:01:26.965+03:00</createdAt>
+                    <createdBy>SDV</createdBy>
+                    <docType>/{http://www.fixprotocol.org/FIXML-4-4}FIXML</docType>
+                    <description>All order documents</description>
+                    <enabled>true</enabled>
+                </collection>
+                <collection id="4" name="CLN_Custom">
+                    <version>1</version>
+                    <createdAt>2015-10-20T01:01:26.965+03:00</createdAt>
+                    <createdBy>SDV</createdBy>
+                    <!--docType></docType-->
+                    <description>Custom collection</description>
+                    <enabled>true</enabled>
+                </collection>
+            </collections>
             <fragments/>
             <indexes>
                 <index name="IDX_Customer_id">
@@ -133,7 +171,7 @@
                 <entry name="xdm.schema.ports.first">10500</entry>
                 <entry name="xqj.schema.scrollability">1</entry>
                 <entry name="xqj.schema.holdability">2</entry>
-                <entry name="xdm.schema.store.type">NONE</entry>
+                <entry name="xdm.schema.store.type">XML</entry>
                 <entry name="xqj.schema.copyNamespacesModePreserve">1</entry>
                 <entry name="xqj.schema.queryTimeout">0</entry>
                 <entry name="xqj.schema.defaultFunctionNamespace">http://www.w3.org/2005/xpath-functions</entry>
@@ -141,7 +179,7 @@
                 <entry name="xdm.schema.population.size">1</entry>
                 <entry name="xqj.schema.defaultElementTypeNamespace">http://www.w3.org/2001/XMLSchema</entry>
                 <entry name="xdm.schema.data.backup.async">1</entry>
-                <entry name="xdm.schema.store.data.path">../../data</entry>
+                <entry name="xdm.schema.store.data.path">../data</entry>
                 <entry name="xqj.schema.copyNamespacesModeInherit">1</entry>
                 <entry name="xdm.schema.dict.backup.sync">0</entry>
                 <entry name="xqj.schema.baseUri">file:///../data/</entry>
@@ -161,7 +199,37 @@
                 <entry name="xqj.schema.constructionMode">1</entry>
                 <entry name="xdm.schema.partition.count">271</entry>
                 <entry name="xdm.schema.query.backup.read">true</entry>
+                <entry name="xdm.schema.health.threshold.low">25</entry>
+                <entry name="xdm.schema.health.threshold.high">0</entry>
+                <entry name="xdm.schema.store.tx.buffer.size">2048</entry>
+                <entry name="xdm.schema.population.buffer.size">1000000</entry>
             </properties>
+            <collections>
+                <collection id="1" name="CLN_Security">
+                    <version>1</version>
+                    <createdAt>2015-10-20T01:01:26.965+03:00</createdAt>
+                    <createdBy>SDV</createdBy>
+                    <docType>/{http://tpox-benchmark.com/security}Security</docType>
+                    <description>All security documents</description>
+                    <enabled>true</enabled>
+                </collection>
+                <collection id="2" name="CLN_Customer">
+                    <version>1</version>
+                    <createdAt>2015-10-20T01:01:26.965+03:00</createdAt>
+                    <createdBy>SDV</createdBy>
+                    <docType>/{http://tpox-benchmark.com/custacc}Customer</docType>
+                    <description>All customer documents</description>
+                    <enabled>true</enabled>
+                </collection>
+                <collection id="3" name="CLN_Order">
+                    <version>1</version>
+                    <createdAt>2015-10-20T01:01:26.965+03:00</createdAt>
+                    <createdBy>SDV</createdBy>
+                    <docType>/{http://www.fixprotocol.org/FIXML-4-4}FIXML</docType>
+                    <description>All order documents</description>
+                    <enabled>true</enabled>
+                </collection>
+            </collections>
             <fragments/>
             <indexes>
                 <index name="IDX_Security_Symbol">
@@ -318,6 +386,10 @@
                 <entry name="xdm.schema.query.backup.sync">0</entry>
                 <entry name="xdm.schema.query.backup.read">true</entry>
 		<entry name="xdm.schema.transaction.timeout">60000</entry>
+                <entry name="xdm.schema.health.threshold.low">25</entry>
+                <entry name="xdm.schema.health.threshold.high">0</entry>
+                <entry name="xdm.schema.store.tx.buffer.size">2048</entry>
+                <entry name="xdm.schema.population.buffer.size">1000000</entry>
                 <entry name="xqj.schema.baseUri">file:///../data/xmark/</entry>
                 <entry name="xqj.schema.orderingMode">2</entry>
                 <entry name="xqj.schema.queryLanguageTypeAndVersion">1</entry>
@@ -417,6 +489,10 @@
                 <entry name="xdm.schema.buffer.size">128</entry>
                 <entry name="xdm.schema.partition.count">271</entry>
 		<entry name="xdm.schema.transaction.timeout">60000</entry>
+                <entry name="xdm.schema.health.threshold.low">25</entry>
+                <entry name="xdm.schema.health.threshold.high">0</entry>
+                <entry name="xdm.schema.store.tx.buffer.size">2048</entry>
+                <entry name="xdm.schema.population.buffer.size">1000000</entry>
                 <entry name="xqj.schema.baseUri">file:///../data/json/</entry>
                 <entry name="xqj.schema.orderingMode">2</entry>
                 <entry name="xqj.schema.queryLanguageTypeAndVersion">1</entry>
@@ -431,6 +507,62 @@
                 <entry name="xqj.schema.copyNamespacesModeInherit">1</entry>
                 <entry name="xqj.schema.defaultOrderForEmptySequences">2</entry>
                 <entry name="xqj.schema.defaultCollationUri">http://www.w3.org/2005/xpath-functions/collation/codepoint</entry>
+                <entry name="xqj.schema.constructionMode">1</entry>
+            </properties>
+            <fragments/>
+            <indexes/>
+            <triggers/>
+        </schema>
+        <schema name="YCSB" active="true">
+            <version>1</version>
+            <createdAt>2016-01-26T21:30:58.096+04:00</createdAt>
+            <createdBy>SDV</createdBy>
+            <description>Schema for YCSB Benchmark</description>
+            <properties>
+                <entry name="xdm.schema.password">YCSB</entry>
+                <entry name="xdm.schema.store.tx.buffer.size">1024</entry>
+                <entry name="xdm.schema.data.backup.read">false</entry>
+                <entry name="xdm.schema.trans.backup.async">0</entry>
+                <entry name="xdm.schema.store.enabled">false</entry>
+                <entry name="xdm.schema.thread.pool">10</entry>
+                <entry name="xdm.schema.test.mode">false</entry>
+                <entry name="xdm.schema.ports.first">10150</entry>
+                <entry name="xdm.schema.store.type">XML</entry>
+                <entry name="xdm.schema.ports.last">10160</entry>
+                <entry name="xdm.schema.population.size">1</entry>
+                <entry name="xdm.schema.population.buffer.size">1000000</entry>
+                <entry name="xdm.schema.data.backup.async">1</entry>
+                <entry name="xdm.schema.store.data.path">../../data/ycsb</entry>
+                <entry name="xdm.schema.dict.backup.sync">0</entry>
+                <entry name="xdm.schema.trans.backup.sync">1</entry>
+                <entry name="xdm.schema.store.schema.path">../../data/ycsb</entry>
+                <entry name="xdm.schema.query.backup.sync">0</entry>
+                <entry name="xdm.schema.buffer.size">16</entry>
+                <entry name="xdm.schema.dict.backup.async">1</entry>
+                <entry name="xdm.schema.dict.backup.read">true</entry>
+                <entry name="xdm.schema.trans.backup.read">false</entry>
+                <entry name="xdm.schema.query.backup.async">0</entry>
+                <entry name="xdm.schema.members">localhost</entry>
+                <entry name="xdm.schema.data.backup.sync">0</entry>
+                <entry name="xdm.schema.partition.count">157</entry>
+                <entry name="xdm.schema.query.backup.read">true</entry>
+		<entry name="xdm.schema.transaction.timeout">0</entry>
+                <entry name="xdm.schema.health.threshold.low">25</entry>
+                <entry name="xdm.schema.health.threshold.high">0</entry>
+                <entry name="xqj.schema.baseUri">file:///../data/ycsb/</entry>
+                <entry name="xqj.schema.orderingMode">2</entry>
+                <entry name="xqj.schema.queryLanguageTypeAndVersion">1</entry>
+                <entry name="xqj.schema.bindingMode">0</entry>
+                <entry name="xqj.schema.boundarySpacePolicy">1</entry>
+                <entry name="xqj.schema.scrollability">1</entry>
+                <entry name="xqj.schema.holdability">2</entry>
+                <entry name="xqj.schema.copyNamespacesModePreserve">1</entry>
+                <entry name="xqj.schema.queryTimeout">0</entry>
+                <entry name="xqj.schema.defaultFunctionNamespace"></entry>
+                <entry name="xqj.schema.defaultElementTypeNamespace"></entry>
+                <entry name="xqj.schema.copyNamespacesModeInherit">1</entry>
+                <entry name="xqj.schema.defaultOrderForEmptySequences">2</entry>
+                <entry name="xqj.schema.defaultCollationUri"></entry>
                 <entry name="xqj.schema.constructionMode">1</entry>
             </properties>
             <fragments/>

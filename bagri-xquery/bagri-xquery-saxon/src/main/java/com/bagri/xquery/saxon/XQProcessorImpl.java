@@ -1,7 +1,5 @@
 package com.bagri.xquery.saxon;
 
-import static com.bagri.xdm.common.XDMConstants.dc_ns;
-import static com.bagri.xdm.common.XDMConstants.df_ns;
 import static com.bagri.xdm.common.XDMConstants.pn_baseURI;
 import static com.bagri.xdm.common.XDMConstants.pn_bindingMode;
 import static com.bagri.xdm.common.XDMConstants.pn_boundarySpacePolicy;
@@ -34,7 +32,6 @@ import static com.bagri.xdm.common.XDMConstants.xqf_XQuery_30;
 import static com.bagri.xdm.common.XDMConstants.xqf_XQuery_Encoding_Decl;
 import static com.bagri.xdm.common.XDMConstants.xqf_XQuery_Full_Text;
 import static com.bagri.xdm.common.XDMConstants.xqf_XQuery_Update_Facility;
-import static com.bagri.xdm.common.XDMConstants.xs_ns;
 import static javax.xml.xquery.XQConstants.BOUNDARY_SPACE_PRESERVE;
 import static javax.xml.xquery.XQConstants.CONSTRUCTION_MODE_PRESERVE;
 import static javax.xml.xquery.XQConstants.COPY_NAMESPACES_MODE_INHERIT;
@@ -43,6 +40,7 @@ import static javax.xml.xquery.XQConstants.LANGTYPE_XQUERY;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -59,6 +57,14 @@ import javax.xml.xquery.XQItem;
 import javax.xml.xquery.XQSequence;
 import javax.xml.xquery.XQStaticContext;
 
+import org.w3c.dom.Node;
+
+import com.bagri.common.util.XMLUtils;
+import com.bagri.xdm.api.XDMRepository;
+import com.bagri.xquery.api.XQProcessorBase;
+import com.bagri.xquery.saxon.extension.RemoveDocument;
+import com.bagri.xquery.saxon.extension.StoreDocument;
+
 import net.sf.saxon.Configuration;
 import net.sf.saxon.dom.NodeOverNodeInfo;
 import net.sf.saxon.expr.JPConverter;
@@ -73,15 +79,6 @@ import net.sf.saxon.query.XQueryExpression;
 import net.sf.saxon.trans.XPathException;
 import net.sf.saxon.value.DecimalValue;
 import net.sf.saxon.value.ObjectValue;
-
-import org.w3c.dom.Node;
-
-import com.bagri.common.util.XMLUtils;
-import com.bagri.xdm.api.XDMRepository;
-import com.bagri.xquery.api.XQProcessorBase;
-import com.bagri.xquery.saxon.extension.RemoveDocument;
-import com.bagri.xquery.saxon.extension.StoreDocumentWithId;
-import com.bagri.xquery.saxon.extension.StoreDocumentWithUri;
 
 public abstract class XQProcessorImpl extends XQProcessorBase {
 
@@ -293,8 +290,7 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
     public void setRepository(XDMRepository xRepo) {
     	//config.setConfigurationProperty("xdm", mgr);
     	super.setRepository(xRepo);
-        config.registerExtensionFunction(new StoreDocumentWithId(xRepo.getDocumentManagement()));
-        config.registerExtensionFunction(new StoreDocumentWithUri(xRepo.getDocumentManagement()));
+        config.registerExtensionFunction(new StoreDocument(xRepo.getDocumentManagement()));
         config.registerExtensionFunction(new RemoveDocument(xRepo.getDocumentManagement()));
         if (xRepo instanceof com.bagri.xdm.cache.api.XDMRepository) {
         	logger.debug("setRepository; registering extensions"); 
@@ -330,34 +326,21 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
 		}
 	}
 	
-	//public XQItemType getItemType(Object item) throws XQException {
-	//	XQItemType type = null;
-	//	if (item instanceof AtomicValue) {
-	//		int base = BagriJPConverter.getBaseType((AtomicValue) item);
-     //     	type = new BagriXQItemType(base, XQItemType.XQITEMKIND_ATOMIC, null, 
-    //      			BagriXQDataFactory.getTypeName(base), false, null);
-	//	}
-	//	return type;
-	//}
-
 	//@Override
     public void bindVariable(QName varName, Object var) throws XQException {
-		//if (var instanceof XQItem) {
-		//	var = ((XQItem) var).getObject();
-		//	var = convertToItem(var);
-		//}
-        dqc.setParameter(getClarkName(varName), var);
+    	dqc.setParameter(varName.toString(), var);
     }
     
 	//@Override
     public void unbindVariable(QName varName) throws XQException {
-		//logger.trace("unbindVariable.enter; numberOfKeys: {}; unbind: {}", dqc.getParameters().getNumberOfKeys(), varName);
-        dqc.setParameter(getClarkName(varName), null);
-		//logger.trace("unbindVariable.exit; numberOfKeys: {}", dqc.getParameters().getNumberOfKeys());
+    	// QName.toString produce ClarkName
+        dqc.setParameter(varName.toString(), null);
     }
     
+    // why it is not <QName, Object> ??
+    // because it is used in QueryBuilder where params identified by plain Strings
     protected Map<String, Object> getParams() {
-    	Map<String, Object> params = new HashMap<String, Object>(dqc.getParameters().getNumberOfKeys());
+    	Map<String, Object> params = new HashMap<>(dqc.getParameters().getNumberOfKeys());
     	GlobalParameterSet pset = dqc.getParameters();
     	for (StructuredQName name: pset.getKeys()) {
     		params.put(name.getClarkName(), pset.get(name));
@@ -365,11 +348,15 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
     	return params;
     }
     
-    private static String getClarkName(QName qname) {
-        String uri = qname.getNamespaceURI();
-        return "{" + (uri == null ? "" : uri) + "}" + qname.getLocalPart();
+    protected Collection<QName> getParamNames(Collection<String> pNames) {
+    	List<QName> result = new ArrayList<>(pNames.size());
+    	for (String pName: pNames) {
+    		// it should be a ClarkName as a result of conversion above
+    		result.add(QName.valueOf(pName));
+    	}
+    	return result;
     }
-
+    
     protected String explainQuery(XQueryExpression exp) throws XPathException {
     	ByteArrayOutputStream baos = new ByteArrayOutputStream();
         exp.getExpression().explain(baos);
@@ -377,6 +364,7 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
         return res;
     }
 
+    // this is for test only?
     public void parseXQuery(String query) throws XQException {
 
         try {

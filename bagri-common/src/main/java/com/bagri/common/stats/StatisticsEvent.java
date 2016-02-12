@@ -95,7 +95,7 @@ public class StatisticsEvent {
 	}
 
 	public long getSize() {
-		if (type == EventType.index) {
+		if (type == EventType.index || type == EventType.use) {
 			return timeStamp;
 		}
 		return 0;

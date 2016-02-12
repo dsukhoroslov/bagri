@@ -2,7 +2,6 @@ package com.bagri.xdm.cache.hazelcast.impl;
 
 import java.io.IOException;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Properties;
 
 import javax.xml.namespace.QName;
@@ -17,6 +16,7 @@ import org.w3c.dom.Document;
 import com.bagri.common.util.XMLUtils;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMRepository;
+import com.bagri.xdm.common.XDMDocumentId;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMTrigger;
 import com.bagri.xquery.api.XQProcessor;
@@ -65,7 +65,7 @@ public class XQueryTriggerImpl implements XDMTrigger {
 		XQProcessor xqp = repo.getXQProcessor();
 		QName var = new QName("doc");
 		try {
-			String xml = repo.getDocumentManagement().getDocumentAsString(doc.getDocumentKey());
+			String xml = repo.getDocumentManagement().getDocumentAsString(new XDMDocumentId(doc.getDocumentKey()));
 			Document xDoc = XMLUtils.textToDocument(xml);
 			XQDataFactory xqFactory = xqp.getXQDataFactory();
 			XQItem item = xqFactory.createItemFromNode(xDoc, xqFactory.createDocumentType());

@@ -11,26 +11,6 @@
 	<context:property-placeholder ignore-unresolvable="true" location="classpath:/${xdm.config.properties.file}" />
 	<context:annotation-config />
 	
-	<bean id="docProxy" class="com.bagri.xdm.cache.hazelcast.impl.DocumentManagementProxy" factory-method="newDMProxy">
-		<constructor-arg index="0" ref="docManager" />
-		<constructor-arg index="1" ref="docQueue" />
-   		<constructor-arg index="2">
-   			<bean class="com.bagri.common.stats.watch.SimpleStopWatch">
-				<constructor-arg ref="mTicker" />
-   			</bean>
-   		</constructor-arg>
-	</bean>
-	
-	<bean id="queryProxy" class="com.bagri.xdm.cache.hazelcast.impl.QueryManagementProxy" factory-method="newQMProxy">
-		<constructor-arg index="0" ref="queryManager" />
-		<constructor-arg index="1" ref="queryQueue" />
-   		<constructor-arg index="2">
-   			<bean class="com.bagri.common.stats.watch.ThreadedStopWatch">
-				<property name="ticker" ref="mTicker" />
-   			</bean>
-   		</constructor-arg>
-	</bean>
-	
 	<bean id="xqFactory" class="com.bagri.xqj.BagriXQDataFactory">
     	<property name="processor" ref="xqProcessor" />
 	</bean>

@@ -73,6 +73,7 @@ public class ClientManagementImpl implements XDMClientManagement, EntryListener<
 		String clientId = repo.getClientId();
 		if (clientId != null) {
 			Properties props = clientsCache.get(clientId);
+			//logger.info("getCurrentUser; props: {}", props);
 			if (props != null) {
 				result = props.getProperty(pn_schema_user);
 			}

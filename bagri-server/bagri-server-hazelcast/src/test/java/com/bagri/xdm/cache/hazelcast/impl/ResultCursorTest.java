@@ -39,7 +39,7 @@ public class ResultCursorTest extends XDMManagementTest {
 
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
-		//Hazelcast.shutdownAll();
+		Thread.sleep(3000);
 		context.close();
 	}
 
@@ -69,7 +69,8 @@ public class ResultCursorTest extends XDMManagementTest {
 				"declare variable $pemin external;\n" +
 				"declare variable $pemax external;\n" + 
 				"declare variable $yield external;\n" + 
-				"for $sec in fn:collection(\"/{http://tpox-benchmark.com/security}Security\")/Security\n" +
+				//"for $sec in fn:collection(\"/{http://tpox-benchmark.com/security}Security\")/Security\n" +
+				"for $sec in fn:collection()/Security\n" +
 		  		"where $sec[SecurityInformation/*/Sector = $sect and PE[. >= $pemin and . < $pemax] and Yield > $yield]\n" +
 				"return	<Security>\n" +	
 				"\t{$sec/Symbol}\n" +
@@ -79,15 +80,15 @@ public class ResultCursorTest extends XDMManagementTest {
 				"\t{$sec/PE}\n" +
 				"\t{$sec/Yield}\n" +
 				"</Security>";
-		Map<QName, Object> bindings = new HashMap<>();
-		bindings.put(new QName("sect"), "Technology");
-	    bindings.put(new QName("pemin"), 25.0f);
-	    bindings.put(new QName("pemax"), 28.0f);
-	    bindings.put(new QName("yield"), 0.1f);
+		Map<QName, Object> params = new HashMap<>();
+		params.put(new QName("sect"), "Technology");
+	    params.put(new QName("pemin"), 25.0f);
+	    params.put(new QName("pemax"), 28.0f);
+	    params.put(new QName("yield"), 0.1f);
 		Properties props = new Properties();
 		props.setProperty(pn_client_fetchSize, "1");
 		props.setProperty(pn_client_id, "dummy");
-		ResultCursor rc = (ResultCursor) qm.executeXQuery(query, bindings, props);
+		ResultCursor rc = (ResultCursor) qm.executeQuery(query, params, props);
 		rc.deserialize(((RepositoryImpl) xRepo).getHzInstance());
 		assertTrue(rc.hasNext());
 		assertNotNull(rc.next());
@@ -100,15 +101,16 @@ public class ResultCursorTest extends XDMManagementTest {
 		QueryManagementImpl qm = (QueryManagementImpl) getQueryManagement();
 		String query = "declare namespace s=\"http://tpox-benchmark.com/security\";\n" +
 				"declare variable $sym external;\n" + 
-				"for $sec in fn:collection(\"/{http://tpox-benchmark.com/security}Security\")/s:Security\n" +
+				//"for $sec in fn:collection(\"/{http://tpox-benchmark.com/security}Security\")/s:Security\n" +
+				"for $sec in fn:collection()/s:Security\n" +
 		  		"where $sec/s:Symbol=$sym\n" + 
 				"return $sec\n";
-		Map<QName, Object> bindings = new HashMap<>();
-		bindings.put(new QName("sym"), "IBM");
+		Map<QName, Object> params = new HashMap<>();
+		params.put(new QName("sym"), "IBM");
 		Properties props = new Properties();
 		props.setProperty(pn_client_fetchSize, "1");
 		props.setProperty(pn_client_id, "dummy");
-		ResultCursor rc = (ResultCursor) qm.executeXQuery(query, bindings, props);
+		ResultCursor rc = (ResultCursor) qm.executeQuery(query, params, props);
 		rc.deserialize(((RepositoryImpl) xRepo).getHzInstance());
 		assertTrue(rc.hasNext());
 		assertNotNull(rc.next());
@@ -121,7 +123,8 @@ public class ResultCursorTest extends XDMManagementTest {
 		final QueryManagementImpl qm = (QueryManagementImpl) getQueryManagement();
 		final String query = "declare namespace s=\"http://tpox-benchmark.com/security\";\n" +
 				"declare variable $sym external;\n" + 
-				"for $sec in fn:collection(\"/{http://tpox-benchmark.com/security}Security\")/s:Security\n" +
+				//"for $sec in fn:collection(\"/{http://tpox-benchmark.com/security}Security\")/s:Security\n" +
+				"for $sec in fn:collection()/s:Security\n" +
 		  		"where $sec/s:Symbol=$sym\n" + 
 				"return $sec\n";
 		final Properties props = new Properties();
@@ -132,11 +135,11 @@ public class ResultCursorTest extends XDMManagementTest {
 
 			@Override
 			public void run() {
-				Map<QName, Object> bindings = new HashMap<>();
-				bindings.put(new QName("sym"), "IBM");
+				Map<QName, Object> params = new HashMap<>();
+				params.put(new QName("sym"), "IBM");
 				ResultCursor rc;
 				try {
-					rc = (ResultCursor) qm.executeXQuery(query, bindings, props);
+					rc = (ResultCursor) qm.executeQuery(query, params, props);
 					rc.deserialize(((RepositoryImpl) xRepo).getHzInstance());
 					assertTrue(rc.hasNext());
 					assertNotNull(rc.next());
@@ -151,11 +154,11 @@ public class ResultCursorTest extends XDMManagementTest {
 
 			@Override
 			public void run() {
-				Map<QName, Object> bindings = new HashMap<>();
-				bindings.put(new QName("sym"), "VFINX");
+				Map<QName, Object> params = new HashMap<>();
+				params.put(new QName("sym"), "VFINX");
 				ResultCursor rc;
 				try {
-					rc = (ResultCursor) qm.executeXQuery(query, bindings, props);
+					rc = (ResultCursor) qm.executeQuery(query, params, props);
 					rc.deserialize(((RepositoryImpl) xRepo).getHzInstance());
 					assertTrue(rc.hasNext());
 					assertNotNull(rc.next());

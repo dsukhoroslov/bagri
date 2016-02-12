@@ -10,173 +10,18 @@
 	<context:property-placeholder ignore-unresolvable="true" location="classpath:/admin.properties" />
 	<context:annotation-config />
  
-	<hz:client id="hzInstance">
-		<hz:spring-aware/>
-		<hz:group name="${xdm.schema.name}" password="${xdm.schema.password}"/>
-	
-		<!-- adjust connection settings properly: timeout, attempts cnt etc.
-		 	inject them from external property source? -->
-		<hz:network smart-routing="true">
-			<hz:member>${xdm.schema.members}</hz:member>
-			<!--hz:socket-options buffer-size="${xdm.schema.buffer.size}"/-->
-			<hz:socket-options buffer-size="32"/>
-		</hz:network>
-		
-		<hz:security>
-			<hz:credentials>com.bagri.xdm.client.hazelcast.serialize.SecureCredentials</hz:credentials>
-		</hz:security>
-	
-		<hz:serialization>
-			<hz:data-serializable-factories>
-				<hz:data-serializable-factory factory-id="1" class-name="com.bagri.xdm.cache.hazelcast.serialize.XDMDataSerializationFactory"/>
-			</hz:data-serializable-factories>
-			<hz:portable-factories>
-				<hz:portable-factory factory-id="2" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMPortableFactory"/>
-			</hz:portable-factories>
-			<hz:serializers>
-				<hz:serializer type-class="com.bagri.common.query.Expression" class-name="com.bagri.xdm.client.hazelcast.serialize.ExpressionSerializer"/>
-				<hz:serializer type-class="com.bagri.common.query.PathExpression" class-name="com.bagri.xdm.client.hazelcast.serialize.ExpressionSerializer"/>
-				<hz:serializer type-class="com.bagri.common.query.BinaryExpression" class-name="com.bagri.xdm.client.hazelcast.serialize.ExpressionSerializer"/>
-				<hz:serializer type-class="com.bagri.common.query.ExpressionBuilder" class-name="com.bagri.xdm.client.hazelcast.serialize.ExpressionBuilderSerializer"/>
-				<hz:serializer type-class="com.bagri.common.query.PathBuilder" class-name="com.bagri.xdm.client.hazelcast.serialize.PathBuilderSerializer"/>
-				<hz:serializer type-class="com.bagri.common.query.ExpressionContainer" class-name="com.bagri.xdm.client.hazelcast.serialize.ExpressionContainerSerializer"/>
-				<hz:serializer type-class="com.bagri.common.query.QueryBuilder" class-name="com.bagri.xdm.client.hazelcast.serialize.QueryBuilderSerializer"/>
-				<hz:serializer type-class="com.bagri.common.query.QueriedPath" class-name="com.bagri.xdm.client.hazelcast.serialize.QueriedPathSerializer"/>
-				<hz:serializer type-class="com.bagri.xdm.domain.XDMElement" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMElementSerializer"/>
-				<hz:serializer type-class="com.bagri.xdm.domain.XDMElements" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMElementsSerializer"/>
-				<hz:serializer type-class="com.bagri.xdm.domain.XDMPath" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMPathSerializer"/>
-				<hz:serializer type-class="com.bagri.xdm.domain.XDMDocument" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMDocumentSerializer"/>
-				<hz:serializer type-class="com.bagri.xdm.domain.XDMDocumentType" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMDocumentTypeSerializer"/>
-				<hz:serializer type-class="com.bagri.xdm.domain.XDMNamespace" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMNamespaceSerializer"/>
-				<hz:serializer type-class="com.bagri.xdm.domain.XDMQuery" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMQuerySerializer"/>
-				<hz:serializer type-class="com.bagri.xdm.domain.XDMResults" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMResultsSerializer"/>
-				<hz:serializer type-class="com.bagri.xdm.domain.XDMIndexedDocument" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMIndexedDocumentSerializer"/>
-				<hz:serializer type-class="com.bagri.xdm.domain.XDMUniqueDocument" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMUniqueDocumentSerializer"/>
-				<hz:serializer type-class="com.bagri.xdm.domain.XDMUniqueValue" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMUniqueValueSerializer"/>
-				<hz:serializer type-class="com.bagri.xdm.domain.XDMTransaction" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMTransactionSerializer"/>
-				<hz:serializer type-class="com.bagri.xdm.domain.XDMFragmentedDocument" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMFragmentedDocumentSerializer"/>
-				<hz:serializer type-class="com.bagri.xdm.system.XDMIndex" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMIndexSerializer"/>
-				<hz:serializer type-class="com.bagri.xdm.system.XDMTriggerAction" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMTriggerActionSerializer"/>
-				<hz:serializer type-class="com.bagri.xdm.system.XDMJavaTrigger" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMJavaTriggerSerializer"/>
-				<hz:serializer type-class="com.bagri.xdm.system.XDMXQueryTrigger" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMXQueryTriggerSerializer"/>
-				<hz:serializer type-class="javax.xml.xquery.XQItemType" implementation="xqItemTypeSerializer"/>
-				<hz:serializer type-class="javax.xml.xquery.XQItem" implementation="xqItemSerializer"/>
-				<hz:serializer type-class="javax.xml.xquery.XQSequence" implementation="xqSequenceSerializer"/>
-			</hz:serializers>
-		</hz:serialization>
-
-		<!--hz:proxy-factories>
-			<hz:proxy-factory service=""/>
-		</hz:proxy-factories-->
-		
-		<hz:near-cache name="dict-path" in-memory-format="OBJECT" />
-		<!--hz:near-cache name="dict-index" in-memory-format="OBJECT" /-->
-		<hz:near-cache name="dict-trigger" in-memory-format="OBJECT" />
-		<hz:near-cache name="dict-namespace" in-memory-format="OBJECT" />
-		<hz:near-cache name="dict-document-type" in-memory-format="OBJECT" />
-		
-	</hz:client>
-	
-	<!--hz:map id="xdm-document" name="xdm-document" instance-ref="hzInstance" />
-	<hz:map id="xdm-element" name="xdm-element" instance-ref="hzInstance" /-->
-	<hz:map id="dict-document-type" name="dict-document-type" instance-ref="hzInstance" />
-	<hz:map id="dict-path" name="dict-path" instance-ref="hzInstance" />
-	<hz:map id="dict-namespace" name="dict-namespace" instance-ref="hzInstance" />
-	<!--hz:map id="dict-index" name="dict-index" instance-ref="hzInstance" /-->
-	<hz:map id="dict-trigger" name="dict-trigger" instance-ref="hzInstance" />
-
-	<!--hz:atomicLong id="xdm.document" name="xdm.document" instance-ref="hzInstance"/-->
-	<!--hz:atomicLong id="xdm.element" name="xdm.element" instance-ref="hzInstance"/-->
-	<hz:atomicLong id="xdm.path" name="xdm.path" instance-ref="hzInstance"/>
-	<hz:atomicLong id="xdm.namespace" name="xdm.namespace" instance-ref="hzInstance"/>
-	<hz:atomicLong id="xdm.doctype" name="xdm.doctype" instance-ref="hzInstance"/>
-	
-	<hz:executorService id="xdm-exec-pool" name="xdm-exec-pool" instance-ref="hzInstance"/>
-	
-	<bean id="xdmFactory" class="com.bagri.xdm.cache.hazelcast.impl.XDMFactoryImpl" />
-
-	<bean id="xdmModel" class="com.bagri.xdm.client.hazelcast.impl.ModelManagementImpl">
-		<property name="namespaceCache" ref="dict-namespace"/>
-		<property name="pathCache" ref="dict-path"/>
-		<property name="typeCache" ref="dict-document-type"/>
-		<property name="namespaceGen" ref="xdm.namespace"/>
-		<property name="pathGen" ref="xdm.path"/>
-		<property name="typeGen" ref="xdm.doctype"/>
-	</bean>
-
-	<bean id="xqManager" class="com.bagri.xdm.client.hazelcast.impl.QueryManagementImpl">
-		<!--property name="repository" ref="xdmRepo"/-->
-	</bean>
-
-	<bean id="xdmManager" class="com.bagri.xdm.client.hazelcast.impl.DocumentManagementImpl"/>
-	
-	<bean id="txManager" class="com.bagri.xdm.client.hazelcast.impl.TransactionManagementImpl"/>
-
-	<bean id="xdmRepo" class="com.bagri.xdm.client.hazelcast.impl.RepositoryImpl">
-		<constructor-arg ref="hzInstance" />
-		<property name="modelManagement" ref="xdmModel"/>
-		<property name="queryManagement" ref="xqManager"/>
-		<property name="documentManagement" ref="xdmManager"/>
-		<property name="txManagement" ref="txManager"/>
-	</bean>
+	<!--bean id="xdmFactory" class="com.bagri.xdm.cache.hazelcast.impl.XDMFactoryImpl" /-->
 
 	<bean id="xqDataSource" class="com.bagri.xqj.BagriXQDataSource">
 	    <property name="properties">
-		<props>
-		    <prop key="address">${xdm.schema.members}</prop>
-		    <prop key="schema">${xdm.schema.name}</prop>
-		</props>
-	    </property>
-	</bean>
-
-	<bean id="xqConnection" factory-bean="xqDataSource" factory-method="getConnection">
-	    <property name="processor" ref="xqProcessor" />
-	</bean>
-
-	<bean id="xqProcessor" class="com.bagri.xquery.saxon.XQProcessorClient">
-	    <property name="XQDataFactory" ref="xqConnection" />
-		<!--property name="properties">
-			<props>
-				<prop key="xqj.schema.baseUri">${xqj.schema.baseUri}</prop>
-				<prop key="xqj.schema.constructionMode">${xqj.schema.constructionMode}</prop>
-				<prop key="xqj.schema.defaultCollationUri">${xqj.schema.defaultCollationUri}</prop>
-				<prop key="xqj.schema.defaultElementTypeNamespace">${xqj.schema.defaultElementTypeNamespace}</prop>
-				<prop key="xqj.schema.defaultFunctionNamespace">${xqj.schema.defaultFunctionNamespace}</prop>
-				<prop key="xqj.schema.orderingMode">${xqj.schema.orderingMode}</prop>
-				<prop key="xqj.schema.defaultOrderForEmptySequences">${xqj.schema.defaultOrderForEmptySequences}</prop>
-				<prop key="xqj.schema.boundarySpacePolicy">${xqj.schema.boundarySpacePolicy}</prop>
-				<prop key="xqj.schema.copyNamespacesModePreserve">${xqj.schema.copyNamespacesModePreserve}</prop>
-				<prop key="xqj.schema.copyNamespacesModeInherit">${xqj.schema.copyNamespacesModeInherit}</prop>
-				<prop key="xqj.schema.bindingMode">${xqj.schema.bindingMode}</prop>
-				<prop key="xqj.schema.queryLanguageTypeAndVersion">${xqj.schema.queryLanguageTypeAndVersion}</prop>
-				<prop key="xqj.schema.holdability">${xqj.schema.holdability}</prop>
-				<prop key="xqj.schema.scrollability">${xqj.schema.scrollability}</prop>
-				<prop key="xqj.schema.queryTimeout">${xqj.schema.queryTimeout}</prop-->
-				<!--prop key="xqj.schema.defaultNamespaces">${xqj.schema.defaultNamespaces}</prop-->
-			<!--/props>
-		</property-->
-	</bean>
-
-	<bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-		<property name="targetObject" ref="xqProcessor" />
-		<property name="targetMethod" value="setRepository" />
-		<property name="arguments">
-			<list>
-				<ref bean="xdmRepo" />
-			</list>
+		    <props>
+				<prop key="address">${xdm.schema.members}</prop>
+				<prop key="schema">${xdm.schema.name}</prop>
+				<!--prop key="xdm.client.fetchSize">${xdm.client.fetchSize}</prop-->
+				<prop key="query.processor">com.bagri.xquery.saxon.XQProcessorClient</prop>
+				<prop key="xdm.repository">com.bagri.xdm.client.hazelcast.impl.RepositoryImpl</prop>
+			</props>
 		</property>
-	</bean>
-    
-	<bean id="xqItemTypeSerializer" class="com.bagri.xdm.client.hazelcast.serialize.XQItemTypeSerializer">
-    		<property name="XQDataFactory" ref="xqConnection" />
-	</bean>
-
-	<bean id="xqItemSerializer" class="com.bagri.xdm.client.hazelcast.serialize.XQItemSerializer">
-    		<property name="XQDataFactory" ref="xqConnection" />
-	</bean>
-	
-	<bean id="xqSequenceSerializer" class="com.bagri.xdm.client.hazelcast.serialize.XQSequenceSerializer">
-    		<property name="XQDataFactory" ref="xqConnection" />
 	</bean>
 
 	<bean id="invocationStatsAggregator" class="com.bagri.common.stats.InvocationStatsAggregator"/>
@@ -189,43 +34,33 @@
 
 	<bean id="docManager" class="com.bagri.xdm.cache.hazelcast.management.DocumentManagement">
 		<constructor-arg value="${xdm.schema.name}" />
-		<property name="statsAggregator" ref="invocationStatsAggregator"/>
-		<property name="execService" ref="xdm-exec-pool"/>
-		<property name="documentManager" ref="xdmManager"/>
-		<property name="modelManager" ref="xdmModel"/>
+		<!--property name="statsAggregator" ref="invocationStatsAggregator"/-->
 	</bean>
 
 	<bean id="indexManager" class="com.bagri.xdm.cache.hazelcast.management.IndexManagement">
 		<constructor-arg value="${xdm.schema.name}" />
 		<property name="statsAggregator" ref="usageStatsAggregator"/>
-		<property name="execService" ref="xdm-exec-pool"/>
-		<property name="modelManager" ref="xdmModel"/>
 	</bean>
 
 	<bean id="triggerManager" class="com.bagri.xdm.cache.hazelcast.management.TriggerManagement">
 		<constructor-arg value="${xdm.schema.name}" />
 		<property name="statsAggregator" ref="usageStatsAggregator"/>
-		<property name="execService" ref="xdm-exec-pool"/>
 	</bean>
 
 	<bean id="modelManager" class="com.bagri.xdm.cache.hazelcast.management.ModelManagement">
 		<constructor-arg value="${xdm.schema.name}" />
-		<property name="execService" ref="xdm-exec-pool"/>
-		<property name="modelManager" ref="xdmModel"/>
 	</bean>
 
 	<bean id="queryManager" class="com.bagri.xdm.cache.hazelcast.management.QueryManagement">
 		<constructor-arg value="${xdm.schema.name}" />
 		<property name="statsAggregator" ref="invocationStatsAggregator"/>
-		<property name="execService" ref="xdm-exec-pool"/>
-		<property name="modelManager" ref="xdmModel"/>
-		<property name="XQConnection" ref="xqConnection"/>
+		<property name="fetchSize" value="${xdm.client.fetchSize}"/>
+		<property name="queryTimeout" value="${xqj.schema.queryTimeout}"/>
 	</bean>
 
 	<bean id="transManager" class="com.bagri.xdm.cache.hazelcast.management.TransactionManagement">
 		<constructor-arg value="${xdm.schema.name}" />
 		<property name="statsAggregator" ref="invocationStatsAggregator"/>
-		<property name="execService" ref="xdm-exec-pool"/>
 	</bean>
 
 	<!--bean id="popManager" class="com.bagri.xdm.cache.hazelcast.management.PopulationManagement">

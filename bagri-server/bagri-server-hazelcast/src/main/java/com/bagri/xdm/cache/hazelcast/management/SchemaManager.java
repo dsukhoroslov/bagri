@@ -1,14 +1,25 @@
 package com.bagri.xdm.cache.hazelcast.management;
 
+import static com.bagri.common.config.XDMConfigConstants.xdm_schema_store_enabled;
+import static com.bagri.common.config.XDMConfigConstants.xdm_schema_store_type;
+import static com.bagri.xdm.cache.hazelcast.util.HazelcastUtils.hz_instance;
+import static com.bagri.xdm.client.common.XDMCacheConstants.PN_XDM_SCHEMA_POOL;
+import static com.bagri.xdm.common.XDMConstants.xs_ns;
+import static com.bagri.xdm.common.XDMConstants.xs_prefix;
+
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import javax.management.openmbean.CompositeData;
+import javax.management.openmbean.OpenDataException;
+import javax.management.openmbean.TabularData;
 import javax.xml.namespace.QName;
 
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -19,44 +30,42 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
 import com.bagri.common.manage.JMXUtils;
+import com.bagri.common.stats.StatisticsCollector.Statistics;
 import com.bagri.common.util.PropUtils;
-import com.bagri.xdm.api.XDMModelManagement;
-import com.bagri.xdm.cache.common.XDMDocumentManagementServer;
+import com.bagri.xdm.api.XDMHealthChangeListener;
+import com.bagri.xdm.api.XDMHealthState;
+import com.bagri.xdm.api.XDMRepository;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaActivator;
+import com.bagri.xdm.cache.hazelcast.task.schema.SchemaHealthAggregator;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaPopulator;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaUpdater;
-import com.bagri.xdm.client.common.impl.ModelManagementBase;
+import com.bagri.xdm.cache.hazelcast.util.HazelcastUtils;
+import com.bagri.xdm.system.XDMCollection;
 import com.bagri.xdm.system.XDMFragment;
 import com.bagri.xdm.system.XDMIndex;
 import com.bagri.xdm.system.XDMJavaTrigger;
-import com.bagri.xdm.system.XDMModule;
 import com.bagri.xdm.system.XDMSchema;
 import com.bagri.xdm.system.XDMTriggerAction;
 import com.bagri.xdm.system.XDMTriggerDef;
 import com.bagri.xdm.system.XDMXQueryTrigger;
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.client.impl.HazelcastClientInstanceImpl;
+import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.Member;
-import com.hazelcast.instance.MemberImpl;
-
-import static com.bagri.common.config.XDMConfigConstants.xdm_schema_store_enabled;
-import static com.bagri.common.config.XDMConfigConstants.xdm_schema_store_type;
-import static com.bagri.xdm.client.common.XDMCacheConstants.PN_XDM_SCHEMA_POOL;
-import static com.bagri.xdm.common.XDMConstants.xs_ns;
-import static com.bagri.xdm.common.XDMConstants.xs_prefix;
 
 @ManagedResource(description="Schema Manager MBean")
-//public class SchemaManager extends XDMSchemaManagerBase implements SelfNaming {
-public class SchemaManager extends EntityManager<XDMSchema> {
+public class SchemaManager extends EntityManager<XDMSchema> implements XDMHealthChangeListener {
 
     private static final String state_ok = "working";
     private static final String state_fail = "inactive";
 
+    private XDMRepository xdmRepo;
     private SchemaManagement parent;
-	protected XDMDocumentManagementServer docManager;
-	protected XDMModelManagement schemaDictionary;
-	private ClassPathXmlApplicationContext clientContext;
+    private XDMHealthState hState;
+    private HazelcastInstance hzInstance;
+	private IExecutorService execService;
     
 	public SchemaManager() {
 		super();
@@ -67,49 +76,56 @@ public class SchemaManager extends EntityManager<XDMSchema> {
 		this.parent = parent;
 	}
 	
+	HazelcastInstance getHazelcastClient() {
+		return hzInstance;
+	}
+
+	XDMRepository getRepository() {
+		return xdmRepo;
+	}
+	
 	public void setClientContext(ClassPathXmlApplicationContext clientContext) {
-		this.clientContext = clientContext;
+		if (clientContext == null) {
+			if (xdmRepo != null) {
+				xdmRepo.getHealthManagement().removeHealthChangeListener(this);
+				xdmRepo.close();
+				xdmRepo = null;
+			}
+			execService = null;
+			hzInstance = null; // shutdown ?
+		} else {
+			//hzInstance = clientContext.getBean(hz_instance, HazelcastInstance.class);
+			hzInstance = HazelcastUtils.getHazelcastClientByName(entityName);
+			logger.trace("setClientContext; got HZ instance: {}, from {}", hzInstance, HazelcastClient.getAllHazelcastClients());
+			execService = hzInstance.getExecutorService(PN_XDM_SCHEMA_POOL);
+			//setRepository(clientContext.getBean(XDMRepository.class));
+			setRepository((XDMRepository) hzInstance.getUserContext().get(XDMRepository.bean_id));
+		}
 	}
 	
-	public XDMDocumentManagementServer getDocumentManager() {
-		return docManager;
-	}
-	
-	public void setDocumentManager(XDMDocumentManagementServer docManager) {
-		this.docManager = docManager;
-	}
-	
-	public XDMModelManagement getSchemaDictionary() {
-		return schemaDictionary;
-	}
-	
-	public void setSchemaDictionary(XDMModelManagement schemaDictionary) {
-		this.schemaDictionary = schemaDictionary;
+	void setRepository(XDMRepository xdmRepo) {
+		this.xdmRepo = xdmRepo;
+		this.hState = xdmRepo.getHealthManagement().getHealthState();
+		xdmRepo.getHealthManagement().addHealthChangeListener(this);
 	}
 	
 	@ManagedAttribute(description="Returns active schema nodes")
 	public String[] getActiveNodes() {
-		if (clientContext == null) {
+		if (hzInstance == null) {
 			return new String[0];
 		}
-		HazelcastInstance hzInstance = clientContext.getBean("hzInstance", HazelcastInstance.class);
+		Collection<Member> members;
 		if (hzInstance instanceof HazelcastClientInstanceImpl) {
-			Collection<Member> members = ((HazelcastClientInstanceImpl) hzInstance).getClientClusterService().getMemberList();
-			String[] result = new String[members.size()];
-			int idx = 0;
-			for (Member member: members) {
-				result[idx++] = member.getSocketAddress().toString();
-			}
-			return result;
+			members = ((HazelcastClientInstanceImpl) hzInstance).getClientClusterService().getMemberList();
 		} else {
-			Set<Member> members = hzInstance.getCluster().getMembers();
-			String[] result = new String[members.size()];
-			int idx = 0;
-			for (Member member: members) {
-				result[idx++] = member.getSocketAddress().toString();
-			}
-			return result;
+			members = hzInstance.getCluster().getMembers();
 		}
+		String[] result = new String[members.size()];
+		int idx = 0;
+		for (Member member: members) {
+			result[idx++] = member.getSocketAddress().toString();
+		}
+		return result;
 	}
 
 	@ManagedAttribute(description="Returns short Schema description")
@@ -137,6 +153,37 @@ public class SchemaManager extends EntityManager<XDMSchema> {
 		return result;
 	}
 
+	@ManagedAttribute(description="Returns Schema health state")
+	public String getHealthState() {
+		if (hState != null) {
+			return hState.toString();
+		}
+		return state_fail;
+	}
+
+	@ManagedAttribute(description="Returns HealthManagement statistics, per node")
+	public TabularData getHealthStatistics() {
+		logger.trace("getHealthStatistics.enter;");
+		int cnt = 0;
+		TabularData result = null;
+		Callable<CompositeData> task = new SchemaHealthAggregator();
+		Map<Member, Future<CompositeData>> futures = execService.submitToAllMembers(task);
+		
+		for (Map.Entry<Member, Future<CompositeData>> entry: futures.entrySet()) {
+			try {
+				CompositeData counters = entry.getValue().get();
+				logger.trace("getHealthStatistics; got counters: {}, from member {}", counters, entry.getKey());
+                result = JMXUtils.compositeToTabular("Health", "Desc", "Member", result, counters);
+				logger.trace("getHealthStatistics; got aggregated result: {}", result);
+				cnt++;
+			} catch (InterruptedException | ExecutionException | OpenDataException ex) {
+				logger.error("getHealthStatistics.error: " + ex.getMessage(), ex);
+			}
+		}
+		logger.trace("getHealthStatistics.exit; got stats from {} nodes", cnt);
+		return result;
+	}
+	
 	@ManagedAttribute(description="Returns registered Schema name")
 	public String getName() {
 		return entityName;
@@ -160,7 +207,7 @@ public class SchemaManager extends EntityManager<XDMSchema> {
 
 	@ManagedAttribute(description="Returns registered Schema state")
 	public String getState() {
-		if (clientContext == null) {
+		if (hzInstance == null) {
 			return state_fail;
 		}
 		return state_ok;
@@ -278,8 +325,47 @@ public class SchemaManager extends EntityManager<XDMSchema> {
 			return;
 		}
 		SchemaPopulator pop = new SchemaPopulator(entityName);
-		HazelcastInstance hzInstance = clientContext.getBean("hzInstance", HazelcastInstance.class);
-		hzInstance.getExecutorService(PN_XDM_SCHEMA_POOL).submitToAllMembers(pop);
+		//HazelcastInstance hzInstance = clientContext.getBean(hz_instance, HazelcastInstance.class);
+		//hzInstance.getExecutorService(PN_XDM_SCHEMA_POOL).submitToAllMembers(pop);
+		execService.submitToAllMembers(pop);
+	}
+
+	XDMCollection addCollection(String name, String docType, String description) {
+		XDMSchema schema = getEntity();
+		int id = 0; 
+		for (XDMCollection collect: schema.getCollections()) {
+			if (collect.getId() > id) {
+				id = collect.getId(); 
+			}
+		}
+		id++;
+		XDMCollection collection = new XDMCollection(1, new Date(), JMXUtils.getCurrentUser(), id, name, docType, description, true);
+		if (schema.addCollection(collection)) {
+			// store schema!
+			flushEntity(schema);
+			return collection;
+		}
+		return null;
+	}
+	
+	boolean deleteCollection(String name) {
+		XDMSchema schema = getEntity();
+		if (schema.removeCollection(name) != null) {
+			// store schema!
+			flushEntity(schema);
+			return true;
+		}
+		return false;
+	}
+
+	boolean enableCollection(String name, boolean enable) {
+		XDMSchema schema = getEntity();
+		if (schema.enableCollection(name, enable)) {
+			// store schema!
+			flushEntity(schema);
+			return true;
+		}
+		return false;
 	}
 
 	XDMFragment addFragment(String name, String docType, String path, String description) {
@@ -317,7 +403,7 @@ public class SchemaManager extends EntityManager<XDMSchema> {
 
 	XDMIndex addIndex(String name, String docType, String path, String dataType, boolean caseSensitive, boolean range, 
 			boolean unique, String description) {
-		String typePath = schemaDictionary.normalizePath(docType);
+		String typePath = xdmRepo.getModelManagement().normalizePath(docType);
 		XDMIndex index = new XDMIndex(1, new Date(), JMXUtils.getCurrentUser(), name, docType, typePath, 
 				path, new QName(xs_ns, dataType, xs_prefix), caseSensitive, range, unique, description, true);
 		XDMSchema schema = getEntity();
@@ -387,6 +473,11 @@ public class SchemaManager extends EntityManager<XDMSchema> {
 			return true;
 		}
 		return false;
+	}
+
+	@Override
+	public void onHealthStateChange(XDMHealthState newState) {
+		this.hState = newState;
 	}
 
 }

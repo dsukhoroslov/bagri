@@ -1,8 +1,5 @@
 package com.bagri.xdm.cache.hazelcast.impl;
 
-import static com.bagri.xdm.client.common.XDMCacheConstants.CN_XDM_TRANSACTION;
-import static com.bagri.xdm.client.common.XDMCacheConstants.SQN_TRANSACTION;
-
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -32,6 +29,7 @@ import com.bagri.xdm.cache.hazelcast.task.trigger.TriggerRunner;
 import com.bagri.xdm.client.hazelcast.impl.IdGeneratorImpl;
 import com.bagri.xdm.client.hazelcast.impl.ModelManagementImpl;
 import com.bagri.xdm.domain.XDMDocument;
+import com.bagri.xdm.domain.XDMTransaction;
 import com.bagri.xdm.domain.XDMTrigger;
 import com.bagri.xdm.system.XDMJavaTrigger;
 import com.bagri.xdm.system.XDMLibrary;
@@ -119,6 +117,11 @@ public class TriggerManagementImpl implements XDMTriggerManagement {
     	}
     }
 
+    void applyTrigger(final XDMTransaction xTx, final Action action, final Scope scope) throws XDMException {
+    	// TODO: implement me!
+    	// before/after begin/commit/rollback transaction
+    }
+    
     public void runTrigger(Action action, Scope scope, XDMDocument xDoc, int index, String clientId) throws XDMException {
 
 		String key = getTriggerKey(xDoc.getTypeId(), action, scope);

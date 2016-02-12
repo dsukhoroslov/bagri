@@ -2,13 +2,15 @@ package com.bagri.xdm.api;
 
 public interface XDMRepository {
 	
+	static String bean_id = "xdmRepo";
+	
 	void close();
 	
 	String getClientId();
 
 	String getUserName();
 	
-	//XDMAccessManagement getAccessManagement();
+	XDMAccessManagement getAccessManagement();
 	
 	XDMBindingManagement getBindingManagement();
 	

@@ -5,20 +5,18 @@ import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFacto
 import java.io.IOException;
 import java.util.concurrent.Callable;
 
+import com.bagri.xdm.client.hazelcast.task.TransactionAwareTask;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 
-public class TransactionCommiter extends ClientAwareTask implements Callable<Boolean> {
+public class TransactionCommiter extends TransactionAwareTask implements Callable<Boolean> {
 
-	protected long txId;
-	
 	public TransactionCommiter() {
 		super();
 	}
 
 	public TransactionCommiter(String clientId, long txId) {
-		super(clientId);
-		this.txId = txId;
+		super(clientId, txId);
 	}
 
 	@Override
@@ -31,16 +29,5 @@ public class TransactionCommiter extends ClientAwareTask implements Callable<Boo
 		return null;
 	}
 
-	@Override
-	public void readData(ObjectDataInput in) throws IOException {
-		super.readData(in);
-		txId = in.readLong();
-	}
-
-	@Override
-	public void writeData(ObjectDataOutput out) throws IOException {
-		super.writeData(out);
-		out.writeLong(txId);
-	}
 
 }

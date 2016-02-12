@@ -12,9 +12,6 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Vector;
 
-import javax.xml.xquery.XQPreparedExpression;
-import javax.xml.xquery.XQResultSequence;
-
 import org.slf4j.Logger;
 
 import com.bagri.xdm.system.XDMCardinality;

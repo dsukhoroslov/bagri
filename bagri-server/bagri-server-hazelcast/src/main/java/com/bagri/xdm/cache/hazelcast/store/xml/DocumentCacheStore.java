@@ -1,9 +1,14 @@
 package com.bagri.xdm.cache.hazelcast.store.xml;
 
-import java.io.File;
-import java.io.FileNotFoundException;
+import static com.bagri.common.config.XDMConfigConstants.xdm_schema_store_type;
+import static com.bagri.common.config.XDMConfigConstants.xdm_schema_name;
+import static com.bagri.common.util.FileUtils.def_encoding;
+import static com.bagri.xdm.api.XDMTransactionManagement.TX_INIT;
+import static com.bagri.xdm.api.XDMTransactionManagement.TX_NO;
+import static com.bagri.xdm.cache.hazelcast.util.SpringContextHolder.getContext;
+import static com.bagri.xdm.cache.hazelcast.util.SpringContextHolder.schema_context;
+
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -14,79 +19,55 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import javax.xml.stream.XMLStreamException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
 
-import static com.bagri.common.util.FileUtils.def_encoding;
-import static com.bagri.common.config.XDMConfigConstants.xdm_schema_store_type;
-
-import com.bagri.common.manage.JMXUtils;
 import com.bagri.common.util.FileUtils;
-import com.bagri.xdm.api.XDMDocumentManagement;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMModelManagement;
-import com.bagri.xdm.api.XDMTransactionManagement;
 import com.bagri.xdm.cache.hazelcast.impl.DocumentManagementImpl;
 import com.bagri.xdm.cache.hazelcast.impl.PopulationManagementImpl;
 import com.bagri.xdm.client.common.XDMCacheConstants;
-import com.bagri.xdm.client.xml.XDMStaxParser;
-import com.bagri.xdm.common.XDMDataKey;
+import com.bagri.xdm.common.XDMDocumentId;
 import com.bagri.xdm.common.XDMDocumentKey;
-import com.bagri.xdm.common.XDMFactory;
+import com.bagri.xdm.common.XDMParser;
 import com.bagri.xdm.domain.XDMData;
 import com.bagri.xdm.domain.XDMDocument;
-import com.bagri.xdm.domain.XDMElements;
 import com.bagri.xdm.domain.XDMFragmentedDocument;
-import com.bagri.xdm.domain.XDMNodeKind;
-import com.bagri.xdm.domain.XDMParser;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
-import com.hazelcast.core.IdGenerator;
 import com.hazelcast.core.MapLoaderLifecycleSupport;
 import com.hazelcast.core.MapStore;
-import com.hazelcast.core.PartitionService;
-
-import static com.bagri.xdm.api.XDMTransactionManagement.TX_NO;
-import static com.bagri.xdm.api.XDMTransactionManagement.TX_INIT;
 
 public class DocumentCacheStore extends XmlCacheStore implements MapStore<XDMDocumentKey, XDMDocument>, MapLoaderLifecycleSupport {
 
     private static final Logger logger = LoggerFactory.getLogger(DocumentCacheStore.class);
-    private static final int defVersion = 1;
     
     private HazelcastInstance hzInstance;
-    //private IdGenerator docGen;
-    private Map<XDMDocumentKey, DocumentDataHolder> docKeys = new HashMap<XDMDocumentKey, DocumentDataHolder>();
+    private Map<XDMDocumentKey, String> uris = new HashMap<>();
     
+    private String schemaName;
 	//private String dataPath;
     private String dataFormat = XDMParser.df_xml;
-	//private XDMFactory keyFactory;
     private DocumentManagementImpl docMgr;
     private XDMModelManagement schemaDict;
     private PopulationManagementImpl popManager;
+    // TODO: work with xmlCache via docMgr!
     private IMap<XDMDocumentKey, String> xmlCache;
-    //private IMap<XDMDataKey, XDMElements> xdmCache;
     
 	@Override
 	public void init(HazelcastInstance hazelcastInstance, Properties properties, String mapName) {
 		logger.trace("init.enter; properties: {}", properties);
 		hzInstance = hazelcastInstance;
 		popManager = (PopulationManagementImpl) hzInstance.getUserContext().get("popManager");
-		//dataPath = (String) properties.get("dataPath");
-		//keyFactory = (XDMFactory) properties.get("keyFactory");
-		docMgr = (DocumentManagementImpl) properties.get("xdmManager");
-		schemaDict = (XDMModelManagement) properties.get("xdmModel");
-		//schemaDict = docMgr.getSchemaDictionary();
+		schemaName = (String) properties.get(xdm_schema_name);
 		xmlCache = hzInstance.getMap(XDMCacheConstants.CN_XDM_XML);
-		//xdmCache = hzInstance.getMap(XDMCacheConstants.CN_XDM_ELEMENT);
 		String df = properties.getProperty(xdm_schema_store_type);
 		if (df != null) {
 			dataFormat = df;
@@ -97,6 +78,19 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<XDMDoc
 	public void destroy() {
 		// do nothing
 	}
+	
+	private synchronized void ensureDocumentManager() {
+		if (docMgr == null) {
+			ApplicationContext schemaCtx = (ApplicationContext) getContext(schemaName, schema_context);
+			if (schemaCtx != null) {
+				docMgr = schemaCtx.getBean(DocumentManagementImpl.class);
+				schemaDict = schemaCtx.getBean(XDMModelManagement.class);
+			} else {
+				logger.warn("ensureDocumentManager; can not get context for schema: {}", schemaName);
+			}
+			logger.info("ensureDocumentManager; mgr: {}", docMgr);
+		}
+	}
     
 	private void processPathFiles(Path root, List<Path> files) throws IOException {
 		String ext = "*." + dataFormat.toLowerCase();
@@ -106,32 +100,37 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<XDMDoc
 		            processPathFiles(path, files);
 		        } else {
 		    		//logger.trace("processPathFiles; path: {}; uri: {}", path.toString(), path.toUri().toString());
-		            files.add(path);
+		            files.add(path.getFileName());
 		        }
 		    }
 		}
 	}
-
-	private String normalizePath(Path path) {
-		return path.toAbsolutePath().normalize().toString();
-	}
 	
-    private XDMDocument loadDocument(XDMDocumentKey docKey) {
+	private String getFullUri(String fileName) {
+		return getDataPath() + "/" + fileName;
+	}
+
+    @SuppressWarnings("unchecked")
+	private XDMDocument loadDocument(XDMDocumentKey docKey) {
+    	String docUri = null;
     	XDMDocument doc = popManager.getDocument(docKey.getKey());
-    	DocumentDataHolder ddh = null;
     	if (doc != null) {
-        	ddh = new DocumentDataHolder(doc.getUri(), doc.getTypeId());
+    		if (doc.getTxFinish() > TX_NO) {
+    			// no need to load content for inactive docs
+    			return doc;
+    		}
+        	docUri = doc.getUri();
     	} else {
-    		ddh = docKeys.get(docKey);
+    		docUri = uris.get(docKey);
     	}
-		if (ddh != null) {
-    		String uri = getDataPath() + "/" + ddh.uri;
-			Path path = Paths.get(uri);
+		//logger.info("loadDocument; got uri: {} for key: {}; uris: {}", docUri, docKey, uris.size());
+
+    	if (docUri != null) {
+    		docUri = getFullUri(docUri);
+			Path path = Paths.get(docUri);
 	    	if (Files.exists(path)) {
-	    		//path = Paths.get(uri);
-	    		//uri = path.toUri().toString();
         		try {
-        			String xml = FileUtils.readTextFile(uri);
+        			String xml = FileUtils.readTextFile(docUri);
     	    		XDMParser parser = docMgr.getXdmFactory().newXDMParser(dataFormat, schemaDict);
         			//List<XDMData> data = parser.parse(new File(ddh.uri));
         			List<XDMData> data = parser.parse(xml);         		
@@ -143,16 +142,25 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<XDMDoc
         				//throw new XDMException("invalid document", XDMException.ecDocument);
         			} else {
 	        			int docType = fragments.get(0).intValue();
-        				ddh.docType = docType;
 						xmlCache.set(docKey, xml);
-	        			//XDMDocument doc;
 						// can make a fake population TX with id = 1! 
 	        			if (fragments.size() == 1) {
-	        				//doc = new XDMDocument(docKey.getDocumentId(), docKey.getVersion(), ddh.uri, docType, TX_INIT, TX_NO,
-	        				//	new Date(Files.getLastModifiedTime(path).toMillis()), Files.getOwner(path).getName(), def_encoding);
+	        				if (doc == null) {
+	        					doc = new XDMDocument(docKey.getDocumentId(), docKey.getVersion(), docUri, docType, TX_INIT, TX_NO,
+	        							new Date(Files.getLastModifiedTime(path).toMillis()), Files.getOwner(path).getName(), def_encoding);
+	    	        			docMgr.checkDefaultDocumentCollection(doc);
+	        				}
 	        			} else {
-	        				doc = new XDMFragmentedDocument(docKey.getDocumentId(), docKey.getVersion(), doc.getUri(), doc.getTypeId(), 
-	        						doc.getTxStart(), doc.getTxFinish(), doc.getCreatedAt(), doc.getCreatedBy(), doc.getEncoding());	
+	        				if (doc == null) {
+	        					doc = new XDMFragmentedDocument(docKey.getDocumentId(), docKey.getVersion(), docUri, docType, TX_INIT, TX_NO,
+	        							new Date(Files.getLastModifiedTime(path).toMillis()), Files.getOwner(path).getName(), def_encoding);
+	    	        			docMgr.checkDefaultDocumentCollection(doc);
+	        				} else {
+	        					XDMDocument fdoc = new XDMFragmentedDocument(docKey.getDocumentId(), docKey.getVersion(), doc.getUri(), doc.getTypeId(), 
+		        						doc.getTxStart(), doc.getTxFinish(), doc.getCreatedAt(), doc.getCreatedBy(), doc.getEncoding());
+	        					fdoc.setCollections(doc.getCollections());
+	        					doc = fdoc;
+	        				}
 	        				long[] fa = new long[fragments.size()];
 	        				fa[0] = docKey.getKey();
 	        				for (int i=1; i < fragments.size(); i++) {
@@ -160,29 +168,24 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<XDMDoc
 	        				}
 	        				((XDMFragmentedDocument) doc).setFragments(fa);
 	        			}
+	        			//Set<Integer> paths = (Set<Integer>) ids[1];
+	        			docMgr.updateDocumentStats(doc, doc.getCollections(), true, data.size());
+	        			//int cnt = docMgr.updateDocumentStats(doc, doc.getCollections(), true, paths.size());
 	        			return doc;
         			}
 				} catch (IOException | XDMException ex) {
 					logger.error("loadDocument.error", ex);
+					// TODO: notify popManager about this?!
 				}
 	    	}
 		}
     	return null;
     }
     
-	private XDMData getDataRoot(List<XDMData> elements) {
-
-		for (XDMData data: elements) {
-			if (data.getNodeKind() == XDMNodeKind.element) {
-				return data;
-			}
-		}
-		return null;
-	}
-    
 	@Override
 	public XDMDocument load(XDMDocumentKey key) {
 		logger.trace("load.enter; key: {}", key);
+		ensureDocumentManager();
     	XDMDocument result = loadDocument(key);
 		logger.trace("load.exit; returning: {}", result);
 		return result;
@@ -191,20 +194,22 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<XDMDoc
 	@Override
 	public Map<XDMDocumentKey, XDMDocument> loadAll(Collection<XDMDocumentKey> keys) {
 		logger.debug("loadAll.enter; keys: {}; Cluster size: {}", keys.size(), hzInstance.getCluster().getMembers().size());
-		Map<XDMDocumentKey, XDMDocument> result = new HashMap<XDMDocumentKey, XDMDocument>(keys.size());
+		ensureDocumentManager();
+		Map<XDMDocumentKey, XDMDocument> result = new HashMap<>(keys.size());
 	    for (XDMDocumentKey key: keys) {
 	    	XDMDocument doc = loadDocument(key);
 	    	if (doc != null) {
 	    		result.put(key, doc);
 	    	}
 	    }
-		logger.debug("loadAll.exit; returning: {} documents", result.size());
+		logger.debug("loadAll.exit; returning: {} documents for keys: {}", result.size(), keys.size());
 		return result;
 	}
 
 	@Override
 	public Set<XDMDocumentKey> loadAllKeys() {
-		if (schemaDict == null) {
+		ensureDocumentManager();
+		if (docMgr == null) {
 			logger.trace("loadAllKeys.enter; store is not ready yet, skipping population");
 			return null;
 		}
@@ -212,63 +217,64 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<XDMDoc
 		logger.trace("loadAllKeys.enter;");
 		Set<XDMDocumentKey> docIds = popManager.getDocumentKeys();
 		if (docIds != null) {
-			logger.trace("loadAllKeys.exit; returning from PopulationManager: {}", docIds);
+			if (logger.isTraceEnabled()) {
+				logger.trace("loadAllKeys.exit; returning from PopulationManager: {}", docIds);
+			} else {
+				logger.info("loadAllKeys.exit; returning keys from PopulationManager: {}", docIds.size());
+			}
 			return docIds;
 		}
 	    
 	    Path root = Paths.get(getDataPath());
 		try {
-			docKeys.clear();
+			uris.clear();
 			List<Path> files = new ArrayList<>();
 			processPathFiles(root, files);
 			Collections.sort(files);
 			XDMDocumentKey docKey; 
-			PartitionService ps = hzInstance.getPartitionService();
 			for (Path path: files) {
 				docKey = docMgr.nextDocumentKey();
-				if (ps.getPartition(docKey).getOwner().localMember()) {
-					docKeys.put(docKey, new DocumentDataHolder(normalizePath(path)));
-				}
+				uris.put(docKey, path.toString());
 			}
-			docIds = new HashSet<XDMDocumentKey>(docKeys.keySet());
+			docIds = new HashSet<XDMDocumentKey>(uris.keySet());
 		} catch (IOException ex) {
 			logger.error("loadAllKeys.error;", ex);
 		}
-		logger.trace("loadAllKeys.exit; returning: {}; docKeys: {}", docIds, docKeys);
+		if (logger.isTraceEnabled()) {
+			logger.trace("loadAllKeys.exit; returning: {}; docKeys: {}", docIds, uris);
+		} else {
+			logger.info("loadAllKeys.exit; returning keys: {}", docIds.size());
+		}
 		return docIds;
 	}
 	
 	@Override
 	public void store(XDMDocumentKey key, XDMDocument value) {
 		logger.trace("store.enter; key: {}; value: {}", key, value);
+		ensureDocumentManager();
 		if (docMgr == null) {
 			logger.trace("store; not ready yet, skipping store");
 			return;
 		}
 		
-		DocumentDataHolder data = docKeys.get(key);
-		if (data == null) {
+		String docUri = uris.get(key);
+		if (docUri == null) {
 			// create a new document
-			Path path = Paths.get(value.getUri());
-			logger.trace("store; going to create new file {} at {}", path, getDataPath());
-			if (!path.isAbsolute()) {
-				Path root = Paths.get(getDataPath());
-				path = root.resolve(path);
-			}
-    		String uri = normalizePath(path);
-			logger.trace("store; got path: {}; uri: {}", path, uri);
-    		data = new DocumentDataHolder(uri);
-			docKeys.put(key, data);
+			//logger.trace("store; got path: {}; uri: {}", path, uri);
+			docUri = value.getUri();
+			uris.put(key, docUri);
 		} else {
 			// update existing document - put a new version
 		}
 		
+		docUri = getFullUri(docUri);
 		try {
-			String xml = docMgr.getDocumentAsString(key.getKey());
-			FileUtils.writeTextFile(data.uri, xml);
-			logger.trace("store.exit; stored as: {}; length: {}", data.uri, xml.length());
+			String xml = docMgr.getDocumentAsString(new XDMDocumentId(key.getKey()));
+			FileUtils.writeTextFile(docUri, xml);
+			logger.trace("store.exit; stored as: {}; length: {}", docUri, xml.length());
 		} catch (IOException | XDMException ex) {
 			logger.error("store.error; exception on store document: " + ex.getMessage(), ex);
+			// rethrow it ?
 		}
 	}
 
@@ -285,9 +291,10 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<XDMDoc
 	public void delete(XDMDocumentKey key) {
 		logger.trace("delete.enter; key: {}", key);
     	boolean result = false;
-		DocumentDataHolder data = docKeys.get(key);
-		if (data != null) {
-	    	Path path = Paths.get(data.uri);
+		String docUri = uris.get(key);
+		if (docUri != null) {
+			docUri = getFullUri(docUri);
+	    	Path path = Paths.get(docUri);
 			try {
 				result = Files.deleteIfExists(path);
 			} catch (IOException ex) {
@@ -302,9 +309,10 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<XDMDoc
 		logger.trace("deleteAll.enter; keys: {}", keys.size());
 		int deleted = 0;
 		for (XDMDocumentKey key: keys) {
-			DocumentDataHolder data = docKeys.get(key);
-			if (data != null) {
-		    	Path path = Paths.get(data.uri);
+			String docUri = uris.get(key);
+			if (docUri != null) {
+				docUri = getFullUri(docUri);
+		    	Path path = Paths.get(docUri);
 				try {
 					if (Files.deleteIfExists(path)) {
 						deleted++;
@@ -317,25 +325,4 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<XDMDoc
 		logger.trace("deleteAll.exit; deleted: {}", deleted);
 	}
 	
-
-	private class DocumentDataHolder {
-
-		String uri;
-		int docType = 0;
-			
-		DocumentDataHolder(String uri) {
-			this.uri = uri;
-		}
-
-		DocumentDataHolder(String uri, int docTYpe) {
-			this.uri = uri;
-			this.docType = docType;
-		}
-		
-		@Override
-		public String toString() {
-			return "DocumentDataHolder [uri=" + uri + ", docType=" + docType + "]";
-		}
-		
-	}
 }

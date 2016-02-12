@@ -3,6 +3,7 @@ package com.bagri.xdm.cache.hazelcast;
 import static com.bagri.common.config.XDMConfigConstants.*;
 import static com.bagri.xdm.cache.hazelcast.util.HazelcastUtils.getMemberSchemas;
 import static com.bagri.xdm.cache.hazelcast.util.SpringContextHolder.*;
+import static com.bagri.xdm.cache.hazelcast.util.HazelcastUtils.hz_instance;
 import static com.bagri.xdm.client.common.XDMCacheConstants.PN_XDM_SYSTEM_POOL;
 
 import java.io.IOException;
@@ -10,11 +11,9 @@ import java.lang.management.ManagementFactory;
 import java.net.MalformedURLException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -31,7 +30,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import com.bagri.xdm.cache.hazelcast.impl.PopulationManagementImpl;
+import com.bagri.xdm.api.XDMRepository;
 import com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl;
 import com.bagri.xdm.cache.hazelcast.management.ConfigManagement;
 import com.bagri.xdm.cache.hazelcast.management.SchemaManagement;
@@ -44,7 +43,6 @@ import com.bagri.xdm.cache.hazelcast.task.schema.SchemaInitiator;
 import com.bagri.xdm.system.XDMLibrary;
 import com.bagri.xdm.system.XDMModule;
 import com.bagri.xdm.system.XDMSchema;
-import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.Member;
@@ -61,7 +59,7 @@ public class XDMCacheServer {
         logger.info("Starting XDM node with Context [{}]", contextPath);
     	
         context = new ClassPathXmlApplicationContext(contextPath);
-        HazelcastInstance hz = context.getBean("hzInstance", HazelcastInstance.class);
+        HazelcastInstance hz = context.getBean(hz_instance, HazelcastInstance.class);
         hz.getUserContext().put("context", context);
     	Member local = hz.getCluster().getLocalMember();
         String name = local.getStringAttribute(xdm_cluster_node_name);
@@ -184,7 +182,7 @@ public class XDMCacheServer {
             		ApplicationContext schemaContext = (ApplicationContext) getContext(schemaName, schema_context);
             		if (initialized) {
             			// set modules and libraries
-            			RepositoryImpl xdmRepo = schemaContext.getBean("xdmRepo", RepositoryImpl.class);
+            			RepositoryImpl xdmRepo = schemaContext.getBean(XDMRepository.bean_id, RepositoryImpl.class);
             			xdmRepo.setLibraries(cLibraries);
             			for (XDMModule module: cModules) {
             				try {

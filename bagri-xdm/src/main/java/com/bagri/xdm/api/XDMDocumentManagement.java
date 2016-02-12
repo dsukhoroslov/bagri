@@ -10,6 +10,7 @@ import javax.xml.transform.Source;
 
 import com.bagri.common.query.ExpressionBuilder;
 import com.bagri.common.query.ExpressionContainer;
+import com.bagri.xdm.common.XDMDocumentId;
 import com.bagri.xdm.domain.XDMDocument;
 
 /**
@@ -19,18 +20,18 @@ import com.bagri.xdm.domain.XDMDocument;
  */
 public interface XDMDocumentManagement {
 
-	//XDMDocument getDocument(String uri);
-	//String getDocumentAsString(String uri);
-	//void removeDocument(String uri);
-
-	Iterator<Long> getDocumentIds(String pattern); // throws XDMException;
-	//Iterator<XDMDocument> getDocuments(String pattern);
+	Collection<XDMDocumentId> getDocumentIds(String pattern); // throws XDMException;
+	//Collection<XDMDocument> getDocuments(String pattern);
+	Collection<XDMDocumentId> getCollectionDocumentIds(int collectId); // throws XDMException;
 	
-	XDMDocument getDocument(long docId) throws XDMException;
+	XDMDocument getDocument(XDMDocumentId docId) throws XDMException;
 
-	String getDocumentAsString(long docId) throws XDMException;
-	Source getDocumentAsSource(long docId) throws XDMException;
-	InputStream getDocumentAsSream(long docId) throws XDMException;
+	Object getDocumentAsBean(XDMDocumentId docId) throws XDMException;
+	Map<String, Object> getDocumentAsMap(XDMDocumentId docId) throws XDMException;
+	
+	String getDocumentAsString(XDMDocumentId docId) throws XDMException;
+	Source getDocumentAsSource(XDMDocumentId docId) throws XDMException;
+	InputStream getDocumentAsSream(XDMDocumentId docId) throws XDMException;
 	// todo: add methods to return document as Document, Reader, XMLStreamReader..
 	
 	/**
@@ -41,11 +42,18 @@ public interface XDMDocumentManagement {
 	 * @param xml: Document's XML representation, can not be null
 	 * @return XDMDocument: created or overridden (versioned) Document
 	 */
-	XDMDocument storeDocumentFromString(long docId, String uri, String xml) throws XDMException;
-	XDMDocument storeDocumentFromSource(long docId, String uri, Source source) throws XDMException;
-	XDMDocument storeDocumentFromStream(long docId, String uri, InputStream stream) throws XDMException;
+	XDMDocument storeDocumentFromBean(XDMDocumentId docId, Object bean, Properties props) throws XDMException;
+	XDMDocument storeDocumentFromMap(XDMDocumentId docId, Map<String, Object> fields, Properties props) throws XDMException;
+
+	XDMDocument storeDocumentFromString(XDMDocumentId docId, String content, Properties props) throws XDMException;
+	XDMDocument storeDocumentFromSource(XDMDocumentId docId, Source source, Properties props) throws XDMException;
+	XDMDocument storeDocumentFromStream(XDMDocumentId docId, InputStream stream, Properties props) throws XDMException;
 	// todo: add methods to store document from Document, Reader, XMLStreamReader
 	
-	void removeDocument(long docId) throws XDMException;
+	void removeDocument(XDMDocumentId docId) throws XDMException;
+	void removeCollectionDocuments(int collectId) throws XDMException;
+	
+	int addDocumentToCollections(XDMDocumentId docId, int[] collectIds);
+	int removeDocumentFromCollections(XDMDocumentId docId, int[] collectIds);
 
 }

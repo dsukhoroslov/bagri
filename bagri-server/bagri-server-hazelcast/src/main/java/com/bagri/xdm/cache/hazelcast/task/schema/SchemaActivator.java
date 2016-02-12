@@ -1,19 +1,18 @@
 package com.bagri.xdm.cache.hazelcast.task.schema;
 
+import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_ActivateSchemaTask;
+
 import java.io.IOException;
-import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.Future;
 
 import com.bagri.xdm.system.XDMSchema;
-import com.hazelcast.core.Member;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
-import com.hazelcast.nio.serialization.DataSerializable;
+import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 import com.hazelcast.spring.context.SpringAware;
 
 @SpringAware
-public class SchemaActivator extends SchemaProcessor implements DataSerializable {
+public class SchemaActivator extends SchemaProcessor implements IdentifiedDataSerializable {
 	
 	private boolean activate;
 	
@@ -65,6 +64,11 @@ public class SchemaActivator extends SchemaProcessor implements DataSerializable
 		return result;
 	}
 
+	@Override
+	public int getId() {
+		return cli_ActivateSchemaTask;
+	}
+	
 	@Override
 	public void readData(ObjectDataInput in) throws IOException {
 		super.readData(in);

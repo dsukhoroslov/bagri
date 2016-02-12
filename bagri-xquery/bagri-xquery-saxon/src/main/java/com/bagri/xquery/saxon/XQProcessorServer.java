@@ -1,6 +1,5 @@
 package com.bagri.xquery.saxon;
 
-import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Collections;
@@ -10,13 +9,23 @@ import java.util.Map;
 import java.util.Properties;
 
 import javax.xml.namespace.QName;
-import javax.xml.transform.Result;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.xquery.XQDataFactory;
 import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQItemAccessor;
 import javax.xml.xquery.XQQueryException;
 import javax.xml.xquery.XQStaticContext;
+
+import com.bagri.common.query.QueryBuilder;
+//import com.bagri.xdm.access.api.XDMDocumentManagementServer;
+import com.bagri.xdm.api.XDMDocumentManagement;
+import com.bagri.xdm.api.XDMException;
+//import com.bagri.xdm.api.XDMQueryManagement;
+import com.bagri.xdm.api.XDMRepository;
+import com.bagri.xdm.cache.api.XDMQueryManagement;
+import com.bagri.xdm.common.XDMConstants;
+import com.bagri.xdm.common.XDMDocumentId;
+import com.bagri.xdm.domain.XDMDocument;
+import com.bagri.xdm.domain.XDMQuery;
+import com.bagri.xquery.api.XQProcessor;
 
 import net.sf.saxon.lib.ModuleURIResolver;
 import net.sf.saxon.om.Item;
@@ -27,23 +36,9 @@ import net.sf.saxon.query.XQueryExpression;
 import net.sf.saxon.trans.XPathException;
 import net.sf.saxon.tree.util.DocumentNumberAllocator;
 
-import com.bagri.common.query.ExpressionBuilder;
-import com.bagri.common.query.ExpressionContainer;
-import com.bagri.common.query.QueryBuilder;
-//import com.bagri.xdm.access.api.XDMDocumentManagementServer;
-import com.bagri.xdm.api.XDMDocumentManagement;
-import com.bagri.xdm.api.XDMException;
-//import com.bagri.xdm.api.XDMQueryManagement;
-import com.bagri.xdm.api.XDMRepository;
-import com.bagri.xdm.cache.api.XDMQueryManagement;
-import com.bagri.xdm.common.XDMConstants;
-import com.bagri.xdm.domain.XDMDocument;
-import com.bagri.xdm.domain.XDMQuery;
-import com.bagri.xquery.api.XQProcessor;
-
 public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 	
-	private Iterator results;
+	private Iterator<?> results;
     private CollectionURIResolverImpl bcr;
     private Map<Integer, XQueryExpression> queries = new HashMap<>();
     
@@ -92,7 +87,7 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
     //}
 
     @Override
-	public Iterator executeXCommand(String command, Map<QName, Object> bindings, XQStaticContext ctx) throws XQException {
+	public Iterator<?> executeXCommand(String command, Map<QName, Object> bindings, XQStaticContext ctx) throws XQException {
 		
         //setStaticContext(sqc, ctx);
 		return executeXCommand(command, bindings, (Properties) null);
@@ -113,22 +108,22 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
     }
 	
 	@Override
-	public Iterator executeXCommand(String command, Map<QName, Object> bindings, Properties props) throws XQException {
+	public Iterator<?> executeXCommand(String command, Map<QName, Object> params, Properties props) throws XQException {
 		
 	    XDMDocumentManagement dMgr = getRepository().getDocumentManagement();
 	    try {
 			if (command.startsWith("storeDocument")) {
-				XQItemAccessor item = getBoundItem(bindings, "doc");
+				XQItemAccessor item = getBoundItem(params, "doc");
 				String xml = item.getItemAsString(null);
 				// validate document ?
 				// add/pass other params ?!
-				XDMDocument doc = dMgr.storeDocumentFromString(0, null, xml);
+				XDMDocument doc = dMgr.storeDocumentFromString(null, xml, null);
 				return Collections.singletonList(doc).iterator();
 				//return Collections.emptyIterator();
 			} else if (command.startsWith("removeDocument")) {
-				XQItemAccessor item = getBoundItem(bindings, "docId");
-				long docId = item.getLong();
-				dMgr.removeDocument(docId);
+				XQItemAccessor item = getBoundItem(params, "docKey");
+				long docKey = item.getLong();
+				dMgr.removeDocument(new XDMDocumentId(docKey));
 				return Collections.emptyIterator(); 
 			} else {
 				throw new XQException("unknown command: " + command);
@@ -138,7 +133,7 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 	    }
 	}
 	
-	private Iterator execQuery(final String query) throws XQException {
+	private Iterator<?> execQuery(final String query) throws XQException {
 	    logger.trace("execQuery.enter; this: {}", this);
 		
 		long stamp = System.currentTimeMillis();
@@ -151,10 +146,11 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 	    sqc.setModuleURIResolver(config.getModuleURIResolver());
    	    
 	    //check query and get 
-	    if (query.indexOf("declare option bgdm:document-format \"JSON\"") > 0) {
-	    	properties.setProperty("xdm.document.format", "JSON");
-		    logger.trace("execQuery; set document format: {}", "JSON");
-	    }
+	    //if (query.indexOf("declare option bgdm:document-format \"JSON\"") > 0) {
+	    //	properties.setProperty("xdm.document.format", "JSON");
+	    //	logger.trace("execQuery; set document format: {}", "JSON");
+	    //}
+	    // actually, I pass document format option in properties..
 	    
 	    Integer qKey = qMgr.getQueryKey(query);
    	    XQueryExpression xqExp = queries.get(qKey);
@@ -167,11 +163,12 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 	    	    // HOWTO: distinguish a query from command utilizing external function (store, remove)?
 		        readOnly = !xqExp.getExpression().getExpressionName().startsWith(XDMConstants.bg_schema);
 	        	queries.put(qKey, xqExp);
-        	}
+        	} 
    	    	
     	    if (xQuery == null) {
 		        cacheable = true; 
 	        	bcr.setQuery(null);
+		        readOnly |= !xqExp.getExpression().isUpdatingExpression();
 	        } else {
 	        	Map params = getParams();
     	    	QueryBuilder xdmQuery = xQuery.getXdmQuery();
@@ -179,10 +176,10 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
         	    	xdmQuery.resetParams(params);
     	    	}
 	    		bcr.setQuery(xdmQuery);
+	    		readOnly = xQuery.isReadOnly();
     	    }
         	bcr.setExpression(xqExp);
-	        readOnly |= !xqExp.getExpression().isUpdatingExpression();
-    	    
+
 	        stamp = System.currentTimeMillis() - stamp;
 		    logger.trace("execQuery; xQuery: {}; time taken: {}", xQuery, stamp);
 		    stamp = System.currentTimeMillis();
@@ -195,7 +192,7 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 	        stamp = System.currentTimeMillis() - stamp;
 		    logger.trace("execQuery.exit; iterator props: {}; time taken: {}", itr.getProperties(), stamp);
 		    //serializeResults(itr);
-	        return new XQSequenceIterator(getXQDataFactory(), itr); 
+	        return new XQIterator(getXQDataFactory(), itr); 
         } catch (Throwable ex) {
         	logger.error("execQuery.error: ", ex);
         	XQException xqe;
@@ -223,26 +220,26 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 	}
     
 	@Override
-    public Iterator executeXQuery(String query, XQStaticContext ctx) throws XQException {
+    public Iterator<?> executeXQuery(String query, XQStaticContext ctx) throws XQException {
 
         setStaticContext(sqc, ctx);
         return execQuery(query);
     }
     
 	@Override
-    public Iterator executeXQuery(String query, Properties props) throws XQException {
+    public Iterator<?> executeXQuery(String query, Properties props) throws XQException {
 
 		setStaticContext(sqc, props);
         return execQuery(query);
 	}
 	
 	@Override
-	public Iterator getResults() {
+	public Iterator<?> getResults() {
 		return results;
 	}
 
 	@Override
-	public void setResults(Iterator itr) {
+	public void setResults(Iterator<?> itr) {
 		this.results = itr;
 	}
 	

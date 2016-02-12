@@ -1,14 +1,14 @@
 package com.bagri.xdm.cache.hazelcast.task.library;
 
+import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_UpdateLibraryTask;
+
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.StringTokenizer;
 
 import com.bagri.common.util.ReflectUtils;
-import com.bagri.xdm.cache.hazelcast.task.EntityProcessor.Action;
 import com.bagri.xdm.system.XDMCardinality;
 import com.bagri.xdm.system.XDMFunction;
 import com.bagri.xdm.system.XDMLibrary;
@@ -16,15 +16,19 @@ import com.bagri.xdm.system.XDMParameter;
 import com.bagri.xdm.system.XDMType;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
-import com.hazelcast.nio.serialization.DataSerializable;
+import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
-public class LibFunctionUpdater extends LibraryProcessor implements DataSerializable {
+public class LibFunctionUpdater extends LibraryProcessor implements IdentifiedDataSerializable {
 
 	private Action action;
 	private String className;
 	private String prefix;
 	private String description;
 	private String signature;
+	
+	public LibFunctionUpdater() {
+		// de-ser
+	}
 	
 	
 	public LibFunctionUpdater(int version, String admin, String className, String prefix, String description, String signature, Action action) {
@@ -91,6 +95,11 @@ public class LibFunctionUpdater extends LibraryProcessor implements DataSerializ
 			logger.warn("buildFunction.error; can't parse signature: {}.{}; error: {}", className, signature, ex.getMessage()); 
 		}
 		return null;
+	}
+	
+	@Override
+	public int getId() {
+		return cli_UpdateLibraryTask;
 	}
 	
 	@Override

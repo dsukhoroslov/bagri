@@ -22,9 +22,14 @@ public class RemoveDocument extends DocumentFunctionExtension {
 
 	@Override
 	public SequenceType[] getArgumentTypes() {
-		return new SequenceType[] {SequenceType.SINGLE_NUMERIC, SequenceType.OPTIONAL_NUMERIC}; // or string ??
+		return new SequenceType[] {SequenceType.ATOMIC_SEQUENCE}; 
 	}
 
+	@Override 
+	public int getMaximumNumberOfArguments() { 
+		return 1; 
+	} 	
+	
 	@Override
 	public SequenceType getResultType(SequenceType[] suppliedArgumentTypes) {
 		return SequenceType.EMPTY_SEQUENCE;
@@ -38,9 +43,8 @@ public class RemoveDocument extends DocumentFunctionExtension {
 			@Override
 			public Sequence call(XPathContext context, Sequence[] arguments) throws XPathException {
 				
-				String docId = arguments[0].head().getStringValue();
 				try {
-					xdm.removeDocument(Long.parseLong(docId));
+					xdm.removeDocument(toDocumentId(arguments[0]));
 				} catch (XDMException ex) {
 					throw new XPathException(ex);
 				}

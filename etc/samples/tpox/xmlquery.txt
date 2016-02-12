@@ -1,6 +1,11 @@
+for $doc in fn:collection("CLN_Custom")
+(: where $sec/s:Symbol='IBM' :)
+return $doc
+
+
 declare namespace s="http://tpox-benchmark.com/security";
 (: declare variable $sym external; :)
-for $sec in fn:collection("/{http://tpox-benchmark.com/security}Security")/s:Security
+for $sec in fn:collection("CLN_Security")/s:Security
 where $sec/s:Symbol='IBM' (: $sym  IBM; VFINX; PTTAX  :)
 return 
 	<print>The open price of the security "{$sec/s:Name/text()}" is {$sec/s:Price/s:PriceToday/s:Open/text()} dollars</print>
@@ -9,7 +14,7 @@ return
 declare namespace s="http://tpox-benchmark.com/security";
 (: declare variable $sym external; :)
 
-for $sec in fn:collection("/{http://tpox-benchmark.com/security}Security")/s:Security
+for $sec in fn:collection("CLN_Security")/s:Security
 where $sec/s:Symbol='IBM' (: $sym :)
 return $sec
 		
@@ -20,7 +25,7 @@ declare variable $pemin external;
 declare variable $pemax external;
 declare variable $yield external; :)
 
-for $sec in fn:collection("/{http://tpox-benchmark.com/security}Security")/Security
+for $sec in fn:collection("CLN_Security")/Security
 (: where $sec[SecurityInformation/*/Sector = $sect and PE[. >= $pemin and . < $pemax] and Yield > $yield] :)
 where $sec[SecurityInformation/*/Sector = 'Technology' and PE[. >= xs:decimal('25') and . < xs:decimal('28.0')] and Yield > xs:decimal('0')]
 
@@ -35,7 +40,7 @@ return	<Security>
 
 
 declare default element namespace "http://tpox-benchmark.com/custacc";
-for $cust in fn:collection("/{http://tpox-benchmark.com/custacc}Customer")/Customer
+for $cust in fn:collection("CLN_Customer")/Customer
 where $cust/@id=1011
 return 
         <Customer_Profile CUSTOMERID="{$cust/@id}">
@@ -51,7 +56,7 @@ return
     
 declare default element namespace "http://tpox-benchmark.com/custacc";
 
-for $cust in fn:collection("/{http://tpox-benchmark.com/custacc}Customer")/Customer
+for $cust in fn:collection("CLN_Customer")/Customer
 where $cust/@id=1011
 return
 	<Customer>{$cust/@id}
@@ -73,7 +78,7 @@ return
 declare namespace o="http://www.fixprotocol.org/FIXML-4-4";
 (: declare variable $ID external; :)
 
-for $ord in fn:collection("/{http://www.fixprotocol.org/FIXML-4-4}FIXML")/o:FIXML
+for $ord in fn:collection("CLN_Order")/o:FIXML
 where $ord/o:Order/@ID=103404 (: 103404, 103935 :)
 return $ord/o:Order
 
@@ -81,8 +86,8 @@ return $ord/o:Order
 declare default element namespace "http://www.fixprotocol.org/FIXML-4-4";
 declare namespace s="http://tpox-benchmark.com/security";
 
-for $ord in fn:collection("/{http://www.fixprotocol.org/FIXML-4-4}FIXML")/FIXML/Order[@ID="103935"]
-for $sec in fn:collection("/{http://tpox-benchmark.com/security}Security")/s:Security[s:Symbol=$ord/Instrmt/@Sym/fn:string(.)]
+for $ord in fn:collection("CLN_Order")/FIXML/Order[@ID="103935"]
+for $sec in fn:collection("CLN_Security")/s:Security[s:Symbol=$ord/Instrmt/@Sym/fn:string(.)]
 return  
 	<Today_Order_Price ORDER_ID="{$ord/@ID}">
 	{xs:string($ord/OrdQty/@Qty*$sec/s:Price/s:PriceToday/s:Open)}
@@ -93,17 +98,18 @@ return
 declare default element namespace "http://www.fixprotocol.org/FIXML-4-4";
 declare namespace c="http://tpox-benchmark.com/custacc";
 
-for $ord in fn:collection("/{http://www.fixprotocol.org/FIXML-4-4}FIXML")/FIXML/Order
-for $cust in fn:collection("/{http://tpox-benchmark.com/custacc}Customer")/c:Customer[c:Accounts/c:Account/@id=$ord/@Acct/fn:string(.)]
+for $ord in fn:collection("CLN_Order")/FIXML/Order
+for $cust in fn:collection("CLN_Customer")/c:Customer[c:Accounts/c:Account/@id=$ord/@Acct/fn:string(.)]
 where $ord/OrdQty/@Cash<2000 and $cust/c:CountryOfResidence="Portugal" 
 return $cust/c:ShortNames/c:ShortName
 
 
+NO RESULT!!
 declare default element namespace "http://www.fixprotocol.org/FIXML-4-4";
 declare namespace c="http://tpox-benchmark.com/custacc";
 
-for $cust in fn:collection("/{http://tpox-benchmark.com/custacc}Customer")/c:Customer[c:Addresses/c:Address/c:PostalCode=56137] 
-for $ord in fn:collection("/{http://www.fixprotocol.org/FIXML-4-4}FIXML")/FIXML/Order[@Acct=$cust/c:Accounts/c:Account/@id/fn:string(.) and @Side="1"]
+for $cust in fn:collection("CLN_Customer")/c:Customer[c:Addresses/c:Address/c:PostalCode=56137] 
+for $ord in fn:collection("CLN_Order")/FIXML/Order[@Acct=$cust/c:Accounts/c:Account/@id/fn:string(.) and @Side="1"]
 (: order by $cust/c:Name/c:LastName/text() :)
 return 
 	<Customer>
@@ -111,13 +117,14 @@ return
 	</Customer>
 
 
+NO RESULT!
 declare default element namespace "http://www.fixprotocol.org/FIXML-4-4"; 
 declare namespace c="http://tpox-benchmark.com/custacc"; 
 
 let $orderprice :=
 
-for $cust in fn:collection("/{http://tpox-benchmark.com/custacc}Customer")/c:Customer[@id=1011]
-for $ord in fn:collection("/{http://www.fixprotocol.org/FIXML-4-4}FIXML")/FIXML/Order[@Acct=$cust/c:Accounts/c:Account/@id/fn:string(.)]
+for $cust in fn:collection("CLN_Customer")/c:Customer[@id=1011]
+for $ord in fn:collection("CLN_Order")/FIXML/Order[@Acct=$cust/c:Accounts/c:Account/@id/fn:string(.)]
 return $ord/OrdQty/@Cash
 
 return fn:max($orderprice)
@@ -128,31 +135,31 @@ declare namespace s="http://tpox-benchmark.com/security";
 declare namespace c="http://tpox-benchmark.com/custacc"; 
 
 let $order  := 
-	for $ss in fn:collection("/{http://tpox-benchmark.com/security}Security")/s:Security[s:SecurityInformation/s:StockInformation/s:Industry ="ComputerHardware"] 
-	for $ord in fn:collection("/{http://www.fixprotocol.org/FIXML-4-4}FIXML")/FIXML/Order[Instrmt/@Sym=$ss/s:Symbol/fn:string(.)] 
-	for $cs in fn:collection("/{http://tpox-benchmark.com/custacc}Customer")/c:Customer[c:Addresses/c:Address/c:State="California"]/c:Accounts/c:Account[@id=$ord/@Acct/fn:string(.)] 
+	for $ss in fn:collection("CLN_Security")/s:Security[s:SecurityInformation/s:StockInformation/s:Industry ="ComputerHardware"] 
+	for $ord in fn:collection("CLN_Order")/FIXML/Order[Instrmt/@Sym=$ss/s:Symbol/fn:string(.)] 
+	for $cs in fn:collection("CLN_Customer")/c:Customer[c:Addresses/c:Address/c:State="California"]/c:Accounts/c:Account[@id=$ord/@Acct/fn:string(.)] 
 	return $ord/OrdQty/@Cash
 return xs:string(fn:max($order))
 
 
-
+NO RESULTS!
 declare namespace s="http://tpox-benchmark.com/security"; 
 declare namespace c="http://tpox-benchmark.com/custacc"; 
 
-for $cust in fn:collection("/{http://tpox-benchmark.com/custacc}Customer")/c:Customer[@id=1011]
-for $sec in fn:collection("/{http://tpox-benchmark.com/security}Security")/s:Security[s:Symbol=$cust/c:Accounts/c:Account/c:Holdings/c:Position/c:Symbol/fn:string(.)] 
+for $cust in fn:collection("CLN_Customer")/c:Customer[@id=1011]
+for $sec in fn:collection("CLN_Security")/s:Security[s:Symbol=$cust/c:Accounts/c:Account/c:Holdings/c:Position/c:Symbol/fn:string(.)] 
 
 return <Security>{$sec/s:Name/text()}</Security>
 
 
-
+NO RESULT!
 xquery version "1.0";
 declare namespace s="http://tpox-benchmark.com/security"; 
 declare namespace c="http://tpox-benchmark.com/custacc"; 
 import module namespace hw="http://helloworld" at "hello_module";
 
-for $cust in fn:collection("/{http://tpox-benchmark.com/custacc}Customer")/c:Customer[@id=1011]
-for $sec in fn:collection("/{http://tpox-benchmark.com/security}Security")/s:Security[s:Symbol=$cust/c:Accounts/c:Account/c:Holdings/c:Position/c:Symbol/fn:string(.)] 
+for $cust in fn:collection("CLN_Customer")/c:Customer[@id=1011]
+for $sec in fn:collection("CLN_Security")/s:Security[s:Symbol=$cust/c:Accounts/c:Account/c:Holdings/c:Position/c:Symbol/fn:string(.)] 
 
 return <Security>{hw:helloworld($sec/s:Name/text())}</Security>
 

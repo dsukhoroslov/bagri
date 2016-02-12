@@ -1,6 +1,9 @@
 package com.bagri.xdm.cache.hazelcast.impl;
 
 import static com.bagri.common.config.XDMConfigConstants.xdm_config_properties_file;
+import static com.bagri.common.config.XDMConfigConstants.xdm_document_data_format;
+
+import java.util.Properties;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -28,7 +31,7 @@ public class JsonDocumentManagementTest extends XDMDocumentManagementTest {
 
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
-		//Hazelcast.shutdownAll();
+		Thread.sleep(3000);
 		context.close();
 	}
 
@@ -42,8 +45,8 @@ public class JsonDocumentManagementTest extends XDMDocumentManagementTest {
 			xdmRepo.setSchema(schema);
 		}
 		// set xdm.document.format to JSON !
-		XQProcessor xqp = xdmRepo.getXQProcessor("test_client");
-		xqp.getProperties().setProperty("xdm.document.format", "JSON");
+		//XQProcessor xqp = xdmRepo.getXQProcessor("test_client");
+		//xqp.getProperties().setProperty("xdm.document.format", "JSON");
 	}
 
 	@After
@@ -55,5 +58,12 @@ public class JsonDocumentManagementTest extends XDMDocumentManagementTest {
 	protected String getFileName(String original) {
 		return original.substring(0, original.indexOf(".")) + ".json";
 	}
+	
+	protected Properties getDocumentProperties() {
+		Properties props = new Properties();
+		props.setProperty(xdm_document_data_format, "json");
+		return props;
+	}
+
 	
 }

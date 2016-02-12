@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.concurrent.Callable;
 
 import com.bagri.xdm.api.XDMTransactionIsolation;
+import com.bagri.xdm.client.hazelcast.task.ClientAwareTask;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 

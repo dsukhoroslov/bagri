@@ -76,9 +76,10 @@ public class XDMRole extends XDMPermissionAware {
 
 	@Override
 	public String toString() {
-		return "XDMRole [name=" + name + ", description=" + description
-				+ ", permissions=" + getPermissions() + ", includedRoles="
-				+ getIncludedRoles() + "]";
+		return "XDMRole [name=" + name + ", version=" + this.getVersion()
+				+ ", created at=" + getCreatedAt() + ", by=" + getCreatedBy()
+				+ ", description=" + description + ", permissions=" + getPermissions()
+				+ ", includedRoles=" + getIncludedRoles() + "]";
 	}
 	
 	

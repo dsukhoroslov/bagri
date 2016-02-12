@@ -10,8 +10,8 @@ package com.bagri.xdm.domain;
  */
 public class XDMElement implements Comparable<XDMElement> { 
 
-	private long elementId;
-	private long parentId;
+	private int elementId;
+	private int parentId;
 	private Object value = null;
 	// transient path
 	//private String path;
@@ -21,7 +21,7 @@ public class XDMElement implements Comparable<XDMElement> {
 		//
 	}
 	
-	public XDMElement(long elementId, long parentId, Object value) {
+	public XDMElement(int elementId, int parentId, Object value) {
 		super();
 		this.elementId = elementId;
 		this.parentId = parentId;
@@ -31,28 +31,28 @@ public class XDMElement implements Comparable<XDMElement> {
 	/**
 	 * @return the id
 	 */
-	public long getElementId() {
+	public int getElementId() {
 		return elementId;
 	}
 
 	/**
 	 * @param elementId the element Id to set
 	 */
-	public void setElementId(long elementId) {
+	public void setElementId(int elementId) {
 		this.elementId = elementId;
 	}
 
 	/**
 	 * @return the parentId
 	 */
-	public long getParentId() {
+	public int getParentId() {
 		return parentId;
 	}
 
 	/**
 	 * @param parentId the parentId to set
 	 */
-	public void setParentId(long parentId) {
+	public void setParentId(int parentId) {
 		this.parentId = parentId;
 	}
 

@@ -7,6 +7,8 @@ import static com.bagri.xdm.common.XDMConstants.xs_prefix;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.xml.namespace.QName;
 import javax.xml.xquery.XQItemType;
@@ -20,7 +22,12 @@ import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.bagri.common.manage.JMXUtils;
+import com.bagri.common.query.AxisType;
+import com.bagri.common.query.Comparison;
+import com.bagri.common.query.ExpressionContainer;
+import com.bagri.common.query.PathBuilder;
 import com.bagri.xdm.api.test.XDMManagementTest;
+import com.bagri.xdm.cache.api.XDMQueryManagement;
 import com.bagri.xdm.domain.XDMOccurence;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMNodeKind;
@@ -43,7 +50,7 @@ public class UniqueIndexManagementTest extends XDMManagementTest {
 
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
-		//Hazelcast.shutdownAll();
+		Thread.sleep(3000);
 		context.close();
 	}
 
@@ -79,6 +86,21 @@ public class UniqueIndexManagementTest extends XDMManagementTest {
 		//Assert.assertTrue(((IndexManagementImpl) ((RepositoryImpl) xRepo).getIndexManagement()).getIndexCache().size() == 0);
 	}
 	
+	public Collection<String> getSecurity(String symbol) throws Exception {
+		String prefix = getModelManagement().getNamespacePrefix("http://tpox-benchmark.com/security"); 
+		int docType = 0; //getModelManagement().getDocumentType("/" + prefix + ":Security");
+		PathBuilder path = new PathBuilder().
+				addPathSegment(AxisType.CHILD, prefix, "Security").
+				addPathSegment(AxisType.CHILD, prefix, "Symbol").
+				addPathSegment(AxisType.CHILD, null, "text()");
+		ExpressionContainer ec = new ExpressionContainer();
+		ec.addExpression(docType, Comparison.EQ, path, "$sym", symbol);
+		Map<String, String> params = new HashMap<>();
+		params.put(":sec", "/" + prefix + ":Security");
+		return ((XDMQueryManagement) getQueryManagement()).getContent(ec, ":sec", params);
+	}
+	
+	
 	@Test
 	public void uniqueDocumentCreateTest() throws Exception {
 		long txId = xRepo.getTxManagement().beginTransaction();
@@ -86,15 +108,21 @@ public class UniqueIndexManagementTest extends XDMManagementTest {
 		xRepo.getTxManagement().commitTransaction(txId);
 
 		txId = xRepo.getTxManagement().beginTransaction();
+		// this is an update because filename -> uri is the same, 
+		// thus no unique index violation expected
+		ids.add(createDocumentTest(sampleRoot + getFileName("security5621.xml")).getDocumentKey());
+		xRepo.getTxManagement().commitTransaction(txId);
+
+		txId = xRepo.getTxManagement().beginTransaction();
 		try {
-			ids.add(createDocumentTest(sampleRoot + getFileName("security5621.xml")).getDocumentKey());
+			ids.add(updateDocumentTest(0, "security1500.xml", sampleRoot + getFileName("security5621.xml")).getDocumentKey());			
 			xRepo.getTxManagement().commitTransaction(txId);
 			Assert.assertFalse("expected unique index vialation exception", true);
 		} catch (Exception ex) {
 			// anticipated ex..
 			xRepo.getTxManagement().rollbackTransaction(txId);
 		}
-		
+			
 		Collection<String> sec = getSecurity("IBM");
 		Assert.assertNotNull(sec);
 		Assert.assertTrue("expected 1 but got " + sec.size() + " test documents", sec.size() == 1);

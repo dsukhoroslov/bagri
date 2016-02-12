@@ -1,20 +1,10 @@
 package com.bagri.xdm.cache.hazelcast.impl;
 
 import static com.bagri.common.config.XDMConfigConstants.*;
-import static com.bagri.common.util.FileUtils.buildStoreFileName;
-import static com.bagri.xdm.common.XDMDocumentKey.*;
 import static com.bagri.xdm.client.common.XDMCacheConstants.*;
 import static com.bagri.xdm.cache.hazelcast.util.SpringContextHolder.*;
 
-import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.nio.MappedByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileChannel.MapMode;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -23,20 +13,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 
 import com.bagri.xdm.cache.hazelcast.store.DocumentMemoryStore;
-import com.bagri.xdm.cache.hazelcast.store.MemoryMappedStore;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaPopulator;
-import com.bagri.xdm.cache.hazelcast.util.SpringContextHolder;
 import com.bagri.xdm.common.XDMDocumentKey;
 import com.bagri.xdm.common.XDMFactory;
-import com.bagri.xdm.domain.XDMCounter;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMTransaction;
 import com.hazelcast.core.EntryEvent;
-import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.LifecycleEvent;
 import com.hazelcast.core.LifecycleEvent.LifecycleState;
-import com.hazelcast.core.ITopic;
 import com.hazelcast.core.LifecycleListener;
 import com.hazelcast.core.MapEvent;
 import com.hazelcast.core.MemberAttributeEvent;
@@ -65,15 +50,13 @@ public class PopulationManagementImpl implements ManagedService,
 	EntryMergedListener<XDMDocumentKey, XDMDocument>  { 
 
     private static final transient Logger logger = LoggerFactory.getLogger(PopulationManagementImpl.class);
-	private static final int szInt = 4;
-	private static final int szDoc = 100; // document record size is raughly 100 bytes
 
+    private boolean enabled;
     private String schemaName;
     private int populationSize;
     private NodeEngine nodeEngine;
 
     private XDMFactory xFactory;
-	private ITopic<XDMCounter> cTopic;
 	private IMap<Long, XDMTransaction> xtxCache;
 	//private IMap<XDMDocumentKey, XDMDocument> xddCache;
 	private IMap xddCache;
@@ -85,6 +68,7 @@ public class PopulationManagementImpl implements ManagedService,
 		this.nodeEngine = nodeEngine;
 		this.schemaName = properties.getProperty(xdm_schema_name);
 		this.populationSize = Integer.parseInt(properties.getProperty(xdm_schema_population_size));
+		this.enabled = Boolean.parseBoolean(properties.getProperty(xdm_schema_store_enabled));
 		String dataPath = properties.getProperty(xdm_schema_store_data_path);
 		String nodeNum = properties.getProperty(xdm_node_instance);
 		int buffSize = 2048*100;
@@ -92,13 +76,17 @@ public class PopulationManagementImpl implements ManagedService,
 		if (bSize != null) {
 			buffSize = Integer.parseInt(bSize);
 		}
-		logger.info("init; will open doc store from path: {}; instance: {}; buffer size: {} docs", dataPath, nodeNum, buffSize);
-		docStore = new DocumentMemoryStore(dataPath, nodeNum, buffSize);
-		
-		nodeEngine.getPartitionService().addMigrationListener(this);
-		nodeEngine.getHazelcastInstance().getCluster().addMembershipListener(this);
-		nodeEngine.getHazelcastInstance().getLifecycleService().addLifecycleListener(this);
-		nodeEngine.getHazelcastInstance().getUserContext().put("popManager", this);
+		if (enabled) {
+			logger.info("init; will open doc store from path: {}; instance: {}; buffer size: {} docs", dataPath, nodeNum, buffSize);
+			docStore = new DocumentMemoryStore(dataPath, nodeNum, buffSize);
+			
+			nodeEngine.getPartitionService().addMigrationListener(this);
+			nodeEngine.getHazelcastInstance().getCluster().addMembershipListener(this);
+			nodeEngine.getHazelcastInstance().getLifecycleService().addLifecycleListener(this);
+			nodeEngine.getHazelcastInstance().getUserContext().put("popManager", this);
+		} else {
+			logger.info("init; persistent store is disabled");
+		}
 	}
 	
 	@Override
@@ -109,36 +97,65 @@ public class PopulationManagementImpl implements ManagedService,
 	@Override
 	public void shutdown(boolean terminate) {
 		logger.info("shutdown; terminate: {}", terminate);
-		docStore.close();
+		if (enabled) {
+			docStore.close();
+		}
 	}
 
 	public void checkPopulation(int currentSize) {
 		logger.info("checkPopulation; populationSize: {}; currentSize: {}", populationSize, currentSize);
-		docStore.init(xddCache);
+		if (enabled) {
+			activateDocStore();
+			xddCache.addEntryListener(this, true);
+		}
     	if (populationSize == currentSize && xddCache.size() == 0) {
     		SchemaPopulator pop = new SchemaPopulator(schemaName);
     		nodeEngine.getHazelcastInstance().getExecutorService(PN_XDM_SCHEMA_POOL).submitToMember(pop, nodeEngine.getLocalMember());
+    		//nodeEngine.getHazelcastInstance().getExecutorService(PN_XDM_SCHEMA_POOL).submitToAllMembers(pop); 
     	}
-		xddCache.addEntryListener(this, true);
     }
 	
+	public XDMDocument getDocument(Long docKey) {
+		return enabled ? docStore.getEntry(docKey) : null;
+	}
+	
 	public int getDocumentCount() {
-		return 0; //documents.size();
+		return enabled ? docStore.getFullEntryCount() : 0;
 	}
 	
 	public Set<XDMDocumentKey> getDocumentKeys() {
+		if (!enabled) {
+			return null;
+		}
+		
+		if (docStore.getEntryKeys().size() == 0) {
+			return null;
+		}
+		
 		Set<XDMDocumentKey> result = new HashSet<>();
 		XDMFactory factory = getXDMFactory();
 		for (Long docKey: docStore.getEntryKeys()) {
-			XDMDocumentKey key = factory.newXDMDocumentKey(docKey);
-			result.add(key);
+			result.add(factory.newXDMDocumentKey(docKey));
 		}
 		logger.info("getDocumentKeys; returning {} keys", result.size());
 		return result;
 	}
 	
-	public XDMDocument getDocument(Long docKey) {
-		return docStore.getEntry(docKey);
+	private void activateDocStore() {
+
+		if (docStore.isActivated()) {
+			logger.info("activateDocStore; the document store has been already activated");
+			return;
+		}
+
+		docStore.init(xddCache);
+
+		// only local HM should be notified!
+		ApplicationContext schemaCtx = (ApplicationContext) getContext(schemaName, schema_context);
+		HealthManagementImpl hMgr = schemaCtx.getBean(HealthManagementImpl.class);
+		int actCount = docStore.getActiveEntryCount();
+		int docCount = docStore.getFullEntryCount();
+		hMgr.initState(actCount, docCount - actCount);
 	}
 	
 	private XDMFactory getXDMFactory() {
@@ -159,7 +176,6 @@ public class PopulationManagementImpl implements ManagedService,
 		if (LifecycleState.STARTED == event.getState()) {
 			xtxCache = nodeEngine.getHazelcastInstance().getMap(CN_XDM_TRANSACTION);
 			xddCache = nodeEngine.getHazelcastInstance().getMap(CN_XDM_DOCUMENT);
-			cTopic = nodeEngine.getHazelcastInstance().getTopic(TPN_XDM_COUNTERS);
 			//readCatalog(catalog);
 			// too early
 			//checkPopulation(nodeEngine.getClusterService().getSize());
@@ -183,7 +199,7 @@ public class PopulationManagementImpl implements ManagedService,
 
 	@Override
 	public void memberRemoved(MembershipEvent membershipEvent) {
-		logger.trace("memberRemoved; event: {}; docs size: {}", membershipEvent, xddCache.size());
+		logger.info("memberRemoved; event: {}; docs size: {}", membershipEvent, xddCache.size());
 	}
 
 	@Override
@@ -193,27 +209,27 @@ public class PopulationManagementImpl implements ManagedService,
 
 	@Override
 	public void migrationStarted(MigrationEvent migrationEvent) {
-		logger.trace("migrationStarted; event: {}; docs size: {}", migrationEvent); //, xddCache.size());
+		logger.info("migrationStarted; event: {}; docs size: {}", migrationEvent); //, xddCache.size());
 	}
 
 	@Override
 	public void migrationCompleted(MigrationEvent migrationEvent) {
-		logger.trace("migrationCompleted; event: {}; docs size: {}", migrationEvent); //), xddCache.size());
+		logger.info("migrationCompleted; event: {}; docs size: {}", migrationEvent); //), xddCache.size());
 	}
 
 	@Override
 	public void migrationFailed(MigrationEvent migrationEvent) {
-		logger.trace("migrationFailed; event: {}; docs size: {}", migrationEvent); //, xddCache.size());
+		logger.info("migrationFailed; event: {}; docs size: {}", migrationEvent); //, xddCache.size());
 	}
 
 	//@Override
 	public void migrationInitialized(MigrationEvent migrationEvent) {
-		logger.trace("migrationInitialized; event: {}", migrationEvent);
+		logger.info("migrationInitialized; event: {}", migrationEvent);
 	}
 
 	//@Override
 	public void migrationFinalized(MigrationEvent migrationEvent) {
-		logger.trace("migrationFinalized; event: {}", migrationEvent);
+		logger.info("migrationFinalized; event: {}", migrationEvent);
 	}
 
 	@Override
@@ -242,7 +258,9 @@ public class PopulationManagementImpl implements ManagedService,
 
 	@Override
 	public void entryRemoved(EntryEvent<XDMDocumentKey, XDMDocument> event) {
-		logger.trace("entryRemoved; event: {}", event);
+		logger.trace("entryRemoved.enter; event: {}", event);
+		boolean removed = docStore.clearEntry(event.getKey().getKey(), event.getValue(), true);
+		logger.trace("entryRemoved.exit; removed: {}", removed);
 	}
 
 	@Override

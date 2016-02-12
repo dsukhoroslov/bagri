@@ -10,6 +10,9 @@ public interface XDMHealthManagement {
 	
 	XDMHealthState getHealthState();
 	
+	XDMHealthCheckState getCheckState();
+	void setCheckSate(XDMHealthCheckState state);
+	
 	//int getDocumentCount();
 	
 	void addHealthChangeListener(XDMHealthChangeListener listener);

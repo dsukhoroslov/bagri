@@ -1,14 +1,11 @@
 package com.bagri.xdm.cache.hazelcast.task.doc;
 
-import java.util.Collection;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.bagri.xdm.api.XDMDocumentManagement;
-import com.bagri.xdm.api.XDMQueryManagement;
+import com.bagri.xdm.cache.api.XDMRepository;
+import com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl;
+import com.bagri.xdm.system.XDMPermission.Permission;
 import com.hazelcast.spring.context.SpringAware;
 
 @SpringAware
@@ -17,13 +14,17 @@ public class DocumentContentProvider extends com.bagri.xdm.client.hazelcast.task
 	private transient XDMDocumentManagement docMgr;
     
     @Autowired
-    @Qualifier("docProxy")
-	public void setDocManager(XDMDocumentManagement docMgr) {
-		this.docMgr = docMgr;
+	public void setRepository(XDMRepository repo) {
+		this.repo = repo;
+		this.docMgr = repo.getDocumentManagement();
 	}
-	    
+
     @Override
 	public String call() throws Exception {
+    	
+    	((RepositoryImpl) repo).getXQProcessor(clientId);
+    	checkPermission(Permission.read);
+    	
 		return docMgr.getDocumentAsString(docId);
 	}
 }

@@ -20,8 +20,7 @@ public class XDMDocumentSerializer implements StreamSerializer<XDMDocument> {
 
 	@Override
 	public XDMDocument read(ObjectDataInput in) throws IOException {
-		
-		return new XDMDocument(
+		XDMDocument xDoc = new XDMDocument(
 				in.readLong(),
 				in.readInt(),
 				in.readUTF(),
@@ -31,11 +30,12 @@ public class XDMDocumentSerializer implements StreamSerializer<XDMDocument> {
 				new java.util.Date(in.readLong()),
 				in.readUTF(),
 				in.readUTF());
+		xDoc.setCollections(in.readIntArray());
+		return xDoc;
 	}
 
 	@Override
 	public void write(ObjectDataOutput out, XDMDocument xDoc) throws IOException {
-		
 		out.writeLong(xDoc.getDocumentId());
 		out.writeInt(xDoc.getVersion());
 		out.writeUTF(xDoc.getUri());
@@ -45,6 +45,7 @@ public class XDMDocumentSerializer implements StreamSerializer<XDMDocument> {
 		out.writeLong(xDoc.getCreatedAt().getTime());
 		out.writeUTF(xDoc.getCreatedBy());
 		out.writeUTF(xDoc.getEncoding());
+		out.writeIntArray(xDoc.getCollections());
 	}
 	
 }

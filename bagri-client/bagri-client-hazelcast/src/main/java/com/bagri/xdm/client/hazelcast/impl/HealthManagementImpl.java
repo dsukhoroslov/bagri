@@ -10,6 +10,7 @@ import static com.bagri.xdm.client.common.XDMCacheConstants.TPN_XDM_HEALTH;
 
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMHealthChangeListener;
+import com.bagri.xdm.api.XDMHealthCheckState;
 import com.bagri.xdm.api.XDMHealthManagement;
 import com.bagri.xdm.api.XDMHealthState;
 import com.hazelcast.core.HazelcastInstance;
@@ -23,6 +24,7 @@ public class HealthManagementImpl implements XDMHealthManagement, MessageListene
 	
 	private HazelcastInstance hzInstance;
 	private XDMHealthState state = XDMHealthState.good;
+	private XDMHealthCheckState checkState = XDMHealthCheckState.log;
 	private Map<Integer, XDMHealthChangeListener> listeners = new HashMap<>();
 	
 	public HealthManagementImpl() {
@@ -37,8 +39,15 @@ public class HealthManagementImpl implements XDMHealthManagement, MessageListene
 	}
 	
 	public void checkClusterState() throws XDMException {
-		if (!isClusterSafe()) {
-			throw new XDMException("System is not healthy", XDMException.ecHealth);
+		if (checkState != XDMHealthCheckState.skip) {
+			if (!isClusterSafe()) {
+				if (checkState == XDMHealthCheckState.raise) {
+					throw new XDMException("System is not healthy", XDMException.ecHealth);
+				} else {
+					// log unhealthy time here?
+					logger.warn("System is not healthy");
+				}
+			}
 		}
 	}
 	
@@ -55,6 +64,14 @@ public class HealthManagementImpl implements XDMHealthManagement, MessageListene
 	@Override
 	public XDMHealthState getHealthState() {
 		return state;
+	}
+	
+	public XDMHealthCheckState getCheckState() {
+		return checkState;
+	}
+	
+	public void setCheckSate(XDMHealthCheckState state) {
+		this.checkState = state;
 	}
 	
 	@Override

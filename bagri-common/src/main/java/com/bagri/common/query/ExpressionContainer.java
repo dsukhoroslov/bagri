@@ -27,16 +27,20 @@ public class ExpressionContainer implements Cloneable {
 		return this.eBuilder;
 	}
 	
-	public int addExpression(int docType, Comparison compType, PathBuilder path) {
-		return eBuilder.addExpression(docType, compType, path, null);
+	public int addExpression(int clnId) {
+		return eBuilder.addExpression(new AlwaysExpression(clnId));
 	}
 	
-	public int addExpression(int docType, Comparison compType, PathBuilder path, String param, Object value) {
+	public int addExpression(int clnId, Comparison compType, PathBuilder path) {
+		return eBuilder.addExpression(clnId, compType, path, null);
+	}
+	
+	public int addExpression(int clnId, Comparison compType, PathBuilder path, String param, Object value) {
 		if (param == null) {
 			param = "var" + params.size();
 		}
 		Object oldValue = params.put(param, value);
-		return eBuilder.addExpression(docType, compType, path, param);
+		return eBuilder.addExpression(clnId, compType, path, param);
 	}
 	
 	public Map<String, Object> getParams() {

@@ -40,7 +40,7 @@ public class PopulationManagementImplTest extends XDMManagementTest {
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
 		// give it a time to perform write-behind task
-		//Thread.sleep(3000);
+		Thread.sleep(3000);
 		//Assert.assertTrue("expected to delete tx log from " + txFileName, Files.deleteIfExists(Paths.get(txFileName)));
 		context.close();
 	}

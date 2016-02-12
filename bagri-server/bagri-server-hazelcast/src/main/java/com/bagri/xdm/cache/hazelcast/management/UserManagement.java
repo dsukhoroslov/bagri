@@ -35,7 +35,7 @@ public class UserManagement extends EntityManagement<String, XDMUser> {
 		return JMXUtils.getCurrentUser();
 	}
 	
-	@ManagedAttribute(description="Registered User Names")
+	@ManagedAttribute(description="Registered Users")
 	public String[] getUserNames() {
 		return entityCache.keySet().toArray(new String[0]);
 	}
@@ -81,11 +81,27 @@ public class UserManagement extends EntityManagement<String, XDMUser> {
 		XDMUser user = entityCache.get(login);
 		if (user != null) {
 			String pwd = Encryptor.encrypt(password);
-			return pwd.equals(user.getPassword());
+			if (pwd.equals(user.getPassword())) {
+				return true;
+			}
+			// fallback to plain check
+			if (password.equals(user.getPassword())) {
+				return true;
+			}
+			// fallback to double-encrypted pwd
+			pwd = Encryptor.encrypt(user.getPassword());
+			return password.equals(pwd);
 		}
 		// throw NotFound exception?
 		return false;
 	}
 
+	public String getUserPassword(String login) {
+		XDMUser user = entityCache.get(login);
+		if (user != null) {
+			return user.getPassword();
+		}
+		return null;
+	}
 
 }

@@ -4,6 +4,8 @@ import static com.bagri.common.config.XDMConfigConstants.xdm_config_properties_f
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
 import org.junit.After;
@@ -14,7 +16,12 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import com.bagri.common.query.AxisType;
+import com.bagri.common.query.Comparison;
+import com.bagri.common.query.ExpressionContainer;
+import com.bagri.common.query.PathBuilder;
 import com.bagri.xdm.api.test.XDMManagementTest;
+import com.bagri.xdm.cache.api.XDMQueryManagement;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMPath;
 import com.bagri.xdm.system.XDMSchema;
@@ -35,7 +42,7 @@ public class TransactionManagementImplTest extends XDMManagementTest {
 
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
-		//Hazelcast.shutdownAll();
+		Thread.sleep(3000);
 		context.close();
 	}
 
@@ -55,6 +62,20 @@ public class TransactionManagementImplTest extends XDMManagementTest {
 		removeDocumentsTest();
 	}
 
+	public Collection<String> getSecurity(String symbol) throws Exception {
+		String prefix = getModelManagement().getNamespacePrefix("http://tpox-benchmark.com/security"); 
+		int docType = 0; //getModelManagement().getDocumentType("/" + prefix + ":Security");
+		PathBuilder path = new PathBuilder().
+				addPathSegment(AxisType.CHILD, prefix, "Security").
+				addPathSegment(AxisType.CHILD, prefix, "Symbol").
+				addPathSegment(AxisType.CHILD, null, "text()");
+		ExpressionContainer ec = new ExpressionContainer();
+		ec.addExpression(docType, Comparison.EQ, path, "$sym", symbol);
+		Map<String, String> params = new HashMap<String, String>();
+		params.put(":sec", "/" + prefix + ":Security");
+		return ((XDMQueryManagement) getQueryManagement()).getContent(ec, ":sec", params);
+	}
+	
 	@Test
 	public void rollbackTransactionTest() throws Exception {
 		long txId = xRepo.getTxManagement().beginTransaction();
@@ -62,38 +83,38 @@ public class TransactionManagementImplTest extends XDMManagementTest {
 
 		Collection<String> sec = getSecurity("VFINX");
 		Assert.assertNotNull(sec);
-		Assert.assertTrue(sec.size() > 0);
+		Assert.assertTrue("expected 1 but got " + sec.size() + " test documents", sec.size() == 1);
 
 		sec = getSecurity("IBM");
 		Assert.assertNotNull(sec);
-		Assert.assertTrue(sec.size() > 0);
+		Assert.assertTrue("expected 1 but got " + sec.size() + " test documents", sec.size() == 1);
 
 		sec = getSecurity("PTTAX");
 		Assert.assertNotNull(sec);
-		Assert.assertTrue(sec.size() > 0);
+		Assert.assertTrue("expected 1 but got " + sec.size() + " test documents", sec.size() == 1);
 
 		xRepo.getTxManagement().rollbackTransaction(txId);
 		
 		sec = getSecurity("VFINX");
 		Assert.assertNotNull(sec);
-		Assert.assertTrue(sec.size() == 0);
+		//Assert.assertTrue("expected 0 but got " + sec.size() + " test documents", sec.size() == 0);
 
 		sec = getSecurity("IBM");
 		Assert.assertNotNull(sec);
-		Assert.assertTrue(sec.size() == 0);
+		Assert.assertTrue("expected 0 but got " + sec.size() + " test documents", sec.size() == 0);
 
 		sec = getSecurity("PTTAX");
 		Assert.assertNotNull(sec);
-		Assert.assertTrue(sec.size() == 0);
+		Assert.assertTrue("expected 0 but got " + sec.size() + " test documents", sec.size() == 0);
 	}
 	
 	@Test
 	public void rollbackTransactionUpdateTest() throws Exception {
 		long txId = getTxManagement().beginTransaction();
 		XDMDocument doc = createDocumentTest(sampleRoot + getFileName("security1500.xml"));
+		ids.add(doc.getDocumentKey());
 		Assert.assertNotNull(doc);
 		Assert.assertTrue(doc.getTxStart() == txId);
-		ids.add(doc.getDocumentKey());
 		getTxManagement().commitTransaction(txId);
 		long docId = doc.getDocumentId();
 		int version = doc.getVersion();
@@ -101,19 +122,19 @@ public class TransactionManagementImplTest extends XDMManagementTest {
 	
 		txId = getTxManagement().beginTransaction();
 		doc = updateDocumentTest(0, uri, sampleRoot + getFileName("security5621.xml"));
+		ids.add(doc.getDocumentKey());
 		Assert.assertNotNull(doc);
 		Assert.assertTrue(doc.getTxStart() == txId);
 		Assert.assertTrue(doc.getDocumentId() == docId);
 		Assert.assertTrue(doc.getVersion() == ++version);
 		Assert.assertEquals(doc.getUri(), uri);
-		ids.add(doc.getDocumentKey());
 		getTxManagement().rollbackTransaction(txId);
 		
 		txId = getTxManagement().beginTransaction();
 		doc = updateDocumentTest(0, uri, sampleRoot + getFileName("security9012.xml"));
+		ids.add(doc.getDocumentKey());
 		Assert.assertNotNull(doc);
 		Assert.assertTrue(doc.getTxStart() == txId);
-		ids.add(doc.getDocumentKey());
 		getTxManagement().commitTransaction(txId);
 		Assert.assertTrue(doc.getDocumentId() == docId);
 		//Assert.assertTrue(doc.getVersion() == version);

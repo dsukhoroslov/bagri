@@ -1,8 +1,6 @@
 package com.bagri.xdm.client.hazelcast.serialize;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMFragmentedDocument;
@@ -29,6 +27,7 @@ public class XDMFragmentedDocumentSerializer extends XDMDocumentSerializer {
 				new java.util.Date(in.readLong()),
 				in.readUTF(),
 				in.readUTF());
+		xDoc.setCollections(in.readIntArray());
 		xDoc.setFragments(in.readLongArray());
 		return xDoc;
 	}
@@ -42,3 +41,5 @@ public class XDMFragmentedDocumentSerializer extends XDMDocumentSerializer {
 	
 
 }
+
+

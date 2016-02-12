@@ -14,16 +14,8 @@
     <context:property-placeholder location="file:${xdm.config.path}/admin.properties" />
     <context:annotation-config />
 
-    <!--bean id="jmx.server" class="org.springframework.jmx.support.MBeanServerFactoryBean"
-                    p:locateExistingServerIfPossible="true"/-->
-    <!--context:mbean-server /-->
-
     <bean id="mbeanServer" class="java.lang.management.ManagementFactory" factory-method="getPlatformMBeanServer"/>
     <context:mbean-export server="mbeanServer" default-domain="com.bagri.xdm"/>
-    
-<!-- 
-    <context:mbean-export server="jmxServer" default-domain="com.bagri.xdm"/> registration="replaceExisting"
- -->
     
 	<bean id="authManager" class="com.bagri.xdm.cache.hazelcast.security.BagriJMXAuthenticator">
 		<property name="userManager" ref="userService"/>
@@ -51,14 +43,7 @@
 					</hz:tcp-ip>
 				</hz:join>
 			</hz:network>
-			<!--hz:partition-group enabled="false" group-type="CUSTOM">
-				<hz:member-group>
-  					<hz:interface>${xdm.cluster.admins}</hz:interface>
-				</hz:member-group>
-				<hz:member-group>
-  					<hz:interface>${xdm.cluster.servers}</hz:interface>
-				</hz:member-group>
-			</hz:partition-group-->			
+
 			<hz:executor-service name="sys-exec-pool" pool-size="${xdm.cluster.thread.pool}" />
 
 			<hz:map name="modules">
@@ -247,6 +232,7 @@
 		<property name="entityCache" ref="schemas"/>
 		<property name="clusterService" ref="clusterService"/>
 		<property name="execService" ref="sys-exec-pool"/>
+		<property name="userService" ref="userService"/>
 		<property name="defaultProperties">
 			<props>
 				<prop key="xdm.schema.password"></prop>
@@ -255,6 +241,11 @@
 				<prop key="xdm.schema.ports.last">${xdm.schema.default.ports.last}</prop>
 				<prop key="xdm.schema.thread.pool">${xdm.schema.default.thread.pool}</prop>
 				<prop key="xdm.schema.store.type">${xdm.schema.default.store.type}</prop>
+				<prop key="xdm.schema.store.tx.buffer.size">${xdm.schema.default.store.tx.buffer.size}</prop>
+				<prop key="xdm.schema.buffer.size">${xdm.schema.default.buffer.size}</prop>
+				<prop key="xdm.schema.partition.count">${xdm.schema.default.partition.count}</prop>
+				<prop key="xdm.schema.population.size">${xdm.schema.default.population.size}</prop>
+				<prop key="xdm.schema.population.buffer.size">${xdm.schema.default.population.buffer.size}</prop>
 				<prop key="xdm.schema.transaction.timeout">${xdm.schema.default.transaction.timeout}</prop>
 			</props>
 		</property>

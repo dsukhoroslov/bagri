@@ -1,11 +1,13 @@
 package com.bagri.xdm.cache.hazelcast.task.role;
 
+import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_DeleteRoleTask;
+
 import java.util.Map.Entry;
 
 import com.bagri.xdm.system.XDMRole;
-import com.hazelcast.nio.serialization.DataSerializable;
+import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
-public class RoleRemover extends RoleProcessor implements DataSerializable {
+public class RoleRemover extends RoleProcessor implements IdentifiedDataSerializable {
 
 	public RoleRemover() {
 		//
@@ -32,6 +34,11 @@ public class RoleRemover extends RoleProcessor implements DataSerializable {
 		} 
 		return null;
 	}	
+	
+	@Override
+	public int getId() {
+		return cli_DeleteRoleTask;
+	}
 	
 	
 }

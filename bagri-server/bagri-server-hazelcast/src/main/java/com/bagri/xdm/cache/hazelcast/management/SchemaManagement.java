@@ -1,5 +1,7 @@
 package com.bagri.xdm.cache.hazelcast.management;
 
+import static com.bagri.xdm.cache.hazelcast.util.HazelcastUtils.hz_instance;
+
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
@@ -12,6 +14,10 @@ import java.util.concurrent.Future;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.management.openmbean.CompositeData;
+import javax.management.openmbean.TabularData;
+import javax.xml.xquery.XQConnection;
+import javax.xml.xquery.XQDataSource;
+import javax.xml.xquery.XQException;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -25,14 +31,10 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 
 import com.bagri.common.config.XDMConfigConstants;
 import com.bagri.common.manage.JMXUtils;
-import com.bagri.common.util.FileUtils;
 import com.bagri.common.util.PropUtils;
-import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaCreator;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaMemberExtractor;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaRemover;
-import com.bagri.xdm.common.StringStringKey;
-import com.bagri.xdm.system.XDMNode;
 import com.bagri.xdm.system.XDMSchema;
 import com.hazelcast.cluster.MemberAttributeOperationType;
 import com.hazelcast.core.HazelcastInstance;
@@ -51,9 +53,9 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
 	
 	private IExecutorService execService;
 	private ClusterManagement srvCluster;
+	private UserManagement srvUser;
 	
 	private Properties defaults; 
-	private Map<StringStringKey, String> memberMap = new HashMap<StringStringKey, String>();
     private Map<String, ClassPathXmlApplicationContext> ctxCache = new HashMap<String, ClassPathXmlApplicationContext>(); 
 
     public SchemaManagement(HazelcastInstance hzInstance) {
@@ -71,6 +73,10 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
 	
     public void setExecService(IExecutorService execService) {
     	this.execService = execService;
+    }
+	
+    public void setUserService(UserManagement srvUser) {
+    	this.srvUser = srvUser;
     }
 	
 	public String getDefaultProperty(String name) {
@@ -91,7 +97,7 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
 	}
 	
 	public void setDefaultProperties(Properties defaults) {
-		this.defaults = defaults;
+		this.defaults = new Properties(defaults);
 	}
 	
 	@ManagedAttribute(description="Registered Schema Names")
@@ -168,13 +174,13 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
 		return mgr;
 	}
 	
-	public HazelcastInstance initSchema(String schemaName, Properties props) {
+	public boolean initSchema(String schemaName, Properties props) {
     	logger.debug("initSchema.enter; schema: {}; properties: {}", schemaName, props);
     	
     	ClassPathXmlApplicationContext ctx = ctxCache.get(schemaName);
     	if (ctx != null) {
         	logger.debug("initSchema; schema {} already initialized", schemaName);
-    		return ctx.getBean("hzInstance", HazelcastInstance.class);
+    		return true; //ctx.getBean(hz_instance, HazelcastInstance.class);
     	}
 
     	props.setProperty(xdm_schema_name, schemaName);
@@ -194,24 +200,36 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
 	    		ctx.refresh();
 	    		
 	    		ctxCache.put(schemaName, ctx);
-	    		HazelcastInstance hz = ctx.getBean("hzInstance", HazelcastInstance.class);
+	    		//HazelcastInstance hz = ctx.getBean(hz_instance, HazelcastInstance.class);
 	    		//hz.getUserContext().put("appContext", ctx);
 	    		//hz.getConfig().getSecurityConfig().setEnabled(true);
-	    	    XDMModelManagement schemaDict = ctx.getBean("xdmModel", XDMModelManagement.class);
 	    	    SchemaManager sMgr = (SchemaManager) mgrCache.get(schemaName);
 	       	    if (sMgr != null) {
-	       	    	sMgr.setClientContext(ctx);
-	       	    	sMgr.setSchemaDictionary(schemaDict);
+	       	    	setupXQConnection(ctx);
+       		    	sMgr.setClientContext(ctx);
 	       	    	registerFeatureManagers(ctx, sMgr);
 	       	    }
 	       	    
-	    		logger.debug("initSchema.exit; client schema {} started on instance: {}", schemaName, hz);
-	    		return hz;
+	    		logger.debug("initSchema.exit; client schema {} started", schemaName);
+	    		return true;
 	    	} catch (Exception ex) {
 	    		logger.error("initSchema.error; " + ex.getMessage(), ex);
 	    	}
     	}
-		return null;
+		return false;
+	}
+	
+	private void setupXQConnection(ApplicationContext ctx) throws XQException {
+		XQDataSource xqds = ctx.getBean("xqDataSource", XQDataSource.class);
+		String username = JMXUtils.getCurrentUser();
+		String password = srvUser.getUserPassword(username);
+		if (password == null) {
+			throw new XQException("no credentials found for user " + username);
+		}
+		
+		XQConnection xqConn = xqds.getConnection(username, password);
+		QueryManagement qMgr = ctx.getBean("queryManager", QueryManagement.class);
+	    qMgr.setXQConnection(xqConn);
 	}
 	
 	public boolean denitSchema(String schemaName, Set<Member> members) {
@@ -221,13 +239,13 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
     	// do this if we don't have schema nodes any more!
     	ClassPathXmlApplicationContext ctx = ctxCache.get(schemaName);
     	if (ctx != null) {
-    		HazelcastInstance hzClient = ctx.getBean("hzInstance", HazelcastInstance.class);
+    		//HazelcastInstance hzClient = ctx.getBean(hz_instance, HazelcastInstance.class);
     		//int size = hzClient.getCluster().getMembers().size();
     		if (!isSchemaActive(schemaName, members)) {
        		//if (size == 0) {
     			try {
     				unregisterFeatureManagers(ctx);
-    				hzClient.shutdown();
+    				//hzClient.shutdown();
 
         			ctx.close();
         			ctxCache.remove(schemaName);
@@ -247,8 +265,10 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
 	
 	private void registerFeatureManagers(ApplicationContext ctx, SchemaManager sMgr) throws MBeanExportException, MalformedObjectNameException {
 	    ClientManagement cMgr = ctx.getBean("clientManager", ClientManagement.class);
+	    cMgr.setSchemaManager(sMgr);
 		mbeanExporter.registerManagedResource(cMgr, cMgr.getObjectName());
 	    DocumentManagement dMgr = ctx.getBean("docManager", DocumentManagement.class);
+	    dMgr.setSchemaManager(sMgr);
 		mbeanExporter.registerManagedResource(dMgr, dMgr.getObjectName());
 	    IndexManagement iMgr = ctx.getBean("indexManager", IndexManagement.class);
 	    iMgr.setSchemaManager(sMgr);
@@ -260,8 +280,10 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
 	    mMgr.setSchemaManager(sMgr);
 		mbeanExporter.registerManagedResource(mMgr, mMgr.getObjectName());
 	    QueryManagement qMgr = ctx.getBean("queryManager", QueryManagement.class);
+	    qMgr.setSchemaManager(sMgr);
 		mbeanExporter.registerManagedResource(qMgr, qMgr.getObjectName());
 		TransactionManagement tMgr = ctx.getBean("transManager", TransactionManagement.class);
+	    tMgr.setSchemaManager(sMgr);
 		mbeanExporter.registerManagedResource(tMgr, tMgr.getObjectName());
 	}
 	
@@ -308,8 +330,7 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
 			XDMSchema schema = entityCache.get(name);
 			if (schema != null) {
 				Properties props = schema.getProperties();
-				HazelcastInstance hzClient = initSchema(schema.getName(), props);
-				if (hzClient != null) {
+				if (initSchema(schema.getName(), props)) {
 					cnt++;
 					Future<String> future = execService.submitToMember(new SchemaMemberExtractor(name), member);
 					String uuid;
@@ -318,18 +339,6 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
 					} catch (InterruptedException | ExecutionException ex) { // | TimeoutException ex) {
 						logger.error("initMember.error 1; ", ex);
 						continue;
-					}
-					
-					memberMap.put(new StringStringKey(member.getUuid(), name), uuid);
-						
-					try {
-						DocumentManager dMgr = new DocumentManager(hzClient, name, uuid); 
-						mbeanExporter.registerManagedResource(dMgr, dMgr.getObjectName());
-
-						QueryManager qMgr = new QueryManager(name, uuid); 
-						mbeanExporter.registerManagedResource(qMgr, qMgr.getObjectName());
-					} catch (MalformedObjectNameException ex) {
-						logger.error("initMember.error 2; ", ex);
 					}
 				}
 			} else {
@@ -351,25 +360,6 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
 				if (denitSchema(name, members)) {
 					cnt++;
 					logger.debug("memberRemoved; Schema {} de-initialized on node {}", name, member);
-				}
-				
-				// we de-register mbeans for removed member
-				String uuid = memberMap.get(new StringStringKey(member.getUuid(), name));
-				if (uuid != null) {
-					try {
-						ObjectName queryName = JMXUtils.getObjectName("type=Schema,name=" + name + 
-								",kind=QueryManagement,node=" + uuid);
-						mbeanExporter.unregisterManagedResource(queryName);
-		
-						ObjectName docName = JMXUtils.getObjectName("type=Schema,name=" + name + 
-								",kind=DocumentManagement,node=" + uuid);
-						mbeanExporter.unregisterManagedResource(docName);
-					} catch (MalformedObjectNameException ex) {
-						logger.error("denitMember.error; ", ex);
-					}
-				} else {
-					logger.info("denitMember; can't get member '{}:{}' mapping, skipping de-registration", 
-							member.getUuid(), name);
 				}
 			}
 		}

@@ -1,5 +1,7 @@
 package com.bagri.xdm.cache.hazelcast.task.node;
 
+import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_UpdateNodeTask;
+
 import java.io.IOException;
 import java.util.Properties;
 import java.util.Map.Entry;
@@ -7,9 +9,9 @@ import java.util.Map.Entry;
 import com.bagri.xdm.system.XDMNode;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
-import com.hazelcast.nio.serialization.DataSerializable;
+import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
-public class NodeUpdater extends NodeProcessor implements DataSerializable {
+public class NodeUpdater extends NodeProcessor implements IdentifiedDataSerializable {
 
 	private String comment;
 	private boolean override;
@@ -56,6 +58,11 @@ public class NodeUpdater extends NodeProcessor implements DataSerializable {
 		return null;
 	}
 
+	@Override
+	public int getId() {
+		return cli_UpdateNodeTask;
+	}
+	
 	@Override
 	public void readData(ObjectDataInput in) throws IOException {
 		super.readData(in);

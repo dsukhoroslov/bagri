@@ -8,11 +8,11 @@ import com.bagri.xdm.common.XDMDocumentKey;
 import com.hazelcast.core.PartitionAware;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
-import com.hazelcast.nio.serialization.DataSerializable;
+import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
 import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.*;
 
-public class DocumentPathKey extends XDMDataKey implements DataSerializable, //Portable, 
+public class DocumentPathKey extends XDMDataKey implements IdentifiedDataSerializable, //Portable, 
 	PartitionAware<Long> { //, Serializable {
 
 	/**
@@ -33,14 +33,14 @@ public class DocumentPathKey extends XDMDataKey implements DataSerializable, //P
 		return XDMDocumentKey.toDocumentId(documentId);
 	}
 
-	//@Override
-	public int getClassId() {
-		return cli_DataDocumentKey;
-	}
-
-	//@Override
+	@Override
 	public int getFactoryId() {
 		return factoryId;
+	}
+
+	@Override
+	public int getId() {
+		return cli_DocumentPathKey;
 	}
 
 	//@Override

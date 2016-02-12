@@ -2,10 +2,8 @@ package com.bagri.xdm.client.hazelcast.serialize;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
-import javax.validation.constraints.NotNull;
 import javax.xml.xquery.XQDataFactory;
 import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQItemType;
@@ -28,7 +26,7 @@ public class XQSequenceSerializer implements StreamSerializer<XQSequence> {
 		return xqFactory;
 	}
 
-	public void setXQDataFactory(@NotNull XQDataFactory xqDataFactory) {
+	public void setXQDataFactory(XQDataFactory xqDataFactory) {
 		this.xqFactory = xqDataFactory;
 	}
 

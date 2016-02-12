@@ -14,17 +14,21 @@ import com.bagri.xdm.common.XDMEntity;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(namespace = "http://www.bagri.com/xdm/system", propOrder = {
+		"id",
 		"name", 
 		"docType", 
 		"description",
 		"enabled"
 })
 public class XDMCollection extends XDMEntity {
-
+	
+	@XmlAttribute(required = true)
+	private int id;
+		
 	@XmlAttribute(required = true)
 	@XmlID
 	private String name;
-		
+
 	@XmlElement(required = false)
 	private String docType;
 	
@@ -39,13 +43,18 @@ public class XDMCollection extends XDMEntity {
 		super();
 	}
 	
-	public XDMCollection(int version, Date createdAt, String createdBy, String name, 
+	public XDMCollection(int version, Date createdAt, String createdBy, int id, String name, 
 			String docType, String description, boolean enabled) {
 		super(version, createdAt, createdBy);
+		this.id = id;
 		this.name = name;
 		this.docType = docType;
 		this.description = description;
 		this.enabled = enabled;
+	}
+
+	public int getId() {
+		return id;
 	}
 
 	public String getName() {
@@ -75,7 +84,7 @@ public class XDMCollection extends XDMEntity {
 
 	@Override
 	public int hashCode() {
-		return name.hashCode();
+		return id;
 	}
 
 	@Override
@@ -90,14 +99,15 @@ public class XDMCollection extends XDMEntity {
 			return false;
 		}
 		XDMCollection other = (XDMCollection) obj;
-		return name.equals(other.name); 
+		return id == other.id; 
 	}
 
 	@Override
 	public Map<String, Object> convert() {
 		Map<String, Object> result = super.convert();
+		result.put("id", id);
 		result.put("name", name);
-		result.put("document type", docType);
+		result.put("document type", docType == null ? "" : docType);
 		result.put("description", description);
 		result.put("enabled", enabled);
 		return result;
@@ -105,11 +115,10 @@ public class XDMCollection extends XDMEntity {
 
 	@Override
 	public String toString() {
-		return "XDMCollection [name=" + name + ", version=" + getVersion()
-				+ ", docType=" + docType + ", created at=" + getCreatedAt()
-				+ ", by=" + getCreatedBy() + ", description=" + description
-				+ ", enabled=" + enabled + "]";
+		return "XDMCollection [id=" + id + ", name=" + name
+				+ ", version=" + getVersion() + ", docType=" + docType
+				+ ", created at=" + getCreatedAt() + ", by=" + getCreatedBy()
+				+ ", description=" + description + ", enabled=" + enabled + "]";
 	}
-	
 	
 }

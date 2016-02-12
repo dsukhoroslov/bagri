@@ -146,7 +146,8 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 		// how near cache does works on cache miss!? does is go to 
 		// original cache? 
 		// shouldn't we also check index.isEnabled() here?
-		return idxDict.get(pathId) != null;
+		//return idxDict.get(pathId) != null;
+		return idxDict.containsKey(pathId);
 		//return pathId == 2;
 	}
 
@@ -282,11 +283,6 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 		return value;
 	}
 	
-	private int getIndexedValueSize(XDMIndexedValue ixVal) {
-		return 8 + 8 + 8 + //sizeof(e.getKey().getValue()) 
-				8 + 8 + 16; //xidx.getCount() * 16;
-	}
-	
 	private void indexPath(XDMIndex idx, long docId, int pathId, Object value) throws XDMException {
 
 		value = getIndexedValue(idx, pathId, value);
@@ -337,7 +333,7 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 				range.put((Comparable) value, count);
 			}
 		}
-		updateStats(idx.getName(), true, first, xidx.getCount() - oldCount, getIndexedValueSize(xidx));
+		updateStats(idx.getName(), true, first, xidx.getCount() - oldCount, xidx.getSize());
 		
 		//if (isPatternIndex(idx)) {
 		//	logger.info("indexPath; indexed pattern: {}, dataType: {}, value: {}", idx, dataType, value);
@@ -398,7 +394,7 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 	 				last = true;
 				}
 				XDMIndex idx = idxDict.get(pathId);
-				updateStats(idx.getName(), false, last, oldCount - xIdx.getCount(), getIndexedValueSize(xIdx));
+				updateStats(idx.getName(), false, last, oldCount - xIdx.getCount(), xIdx.getSize());
 				TreeMap<Comparable, Integer> range = rangeIndex.get(pathId);
 				if (range != null) {
 					Integer count = range.get(value);

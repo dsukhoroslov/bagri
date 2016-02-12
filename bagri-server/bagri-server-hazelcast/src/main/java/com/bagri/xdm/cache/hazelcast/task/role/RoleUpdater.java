@@ -1,5 +1,7 @@
 package com.bagri.xdm.cache.hazelcast.task.role;
 
+import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_UpdateRoleTask;
+
 import java.io.IOException;
 import java.util.Map.Entry;
 
@@ -13,14 +15,19 @@ import com.hazelcast.map.EntryBackupProcessor;
 import com.hazelcast.map.EntryProcessor;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
+import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
 public class RoleUpdater extends EntityProcessor implements EntryProcessor<String, XDMPermissionAware>, 
-	EntryBackupProcessor<String, XDMPermissionAware> {
+	EntryBackupProcessor<String, XDMPermissionAware>, IdentifiedDataSerializable {
 
 	private static final transient Logger logger = LoggerFactory.getLogger(RoleUpdater.class);
 	
 	private Action action;
 	private String[] roles;
+	
+	public RoleUpdater() {
+		// de-ser
+	}
 	
 	public RoleUpdater(int version, String admin, String[] roles, Action action) {
 		super(version, admin);
@@ -69,6 +76,11 @@ public class RoleUpdater extends EntityProcessor implements EntryProcessor<Strin
 			}
 		} 
 		return null;
+	}
+
+	@Override
+	public int getId() {
+		return cli_UpdateRoleTask;
 	}
 
 	@Override

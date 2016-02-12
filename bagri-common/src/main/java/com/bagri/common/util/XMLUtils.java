@@ -1,7 +1,12 @@
 package com.bagri.common.util;
 
+import java.beans.XMLDecoder;
+import java.beans.XMLEncoder;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -9,6 +14,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -31,6 +37,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.io.xml.StaxDriver;
 
 import static com.bagri.common.util.FileUtils.def_encoding;
 
@@ -75,6 +84,7 @@ public class XMLUtils {
 		try {
 			DocumentBuilder builder = dbFactory.newDocumentBuilder();
 	        return builder.parse(new ByteArrayInputStream(text.getBytes(def_encoding)));  
+	        // shouldn't we close IS above?
 		} catch (ParserConfigurationException | SAXException ex) {
 			throw new IOException(ex); 
 		}  
@@ -144,5 +154,31 @@ public class XMLUtils {
 		}  
 	}
 	
+	public static String beanToXML(Object bean) throws IOException {
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		XMLEncoder en = new XMLEncoder(new BufferedOutputStream(baos));
+		en.writeObject(bean);
+		en.close();
+		return new String(baos.toByteArray());
+	}
+
+	public static Object beanFromXML(String xml) throws IOException {
+		ByteArrayInputStream bais = new ByteArrayInputStream(xml.getBytes(def_encoding));  
+		XMLDecoder dc = new XMLDecoder(new BufferedInputStream(bais));
+		Object result = dc.readObject();
+	    dc.close();
+	    return result;
+	}
+	
+	public static String mapToXML(Map<String, Object> map) {
+		XStream xStream = new XStream(new StaxDriver());
+		xStream.alias("map", java.util.Map.class);
+		return xStream.toXML(map);
+	}
+	
+	public static Map<String, Object> mapFromXML(String xml) {
+		XStream xStream = new XStream(new StaxDriver());
+		return (Map<String, Object>) xStream.fromXML(xml);		
+	}
 
 }

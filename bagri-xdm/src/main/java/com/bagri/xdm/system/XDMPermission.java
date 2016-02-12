@@ -4,6 +4,7 @@
 package com.bagri.xdm.system;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -110,6 +111,10 @@ public class XDMPermission {
 	
 	public boolean addPermission(Permission permission) {
 		return perms.add(permission);
+	}
+
+	public boolean addPermissions(Collection<Permission> permissions) {
+		return perms.addAll(permissions);
 	}
 	
 	public boolean removePermission(Permission permission) {

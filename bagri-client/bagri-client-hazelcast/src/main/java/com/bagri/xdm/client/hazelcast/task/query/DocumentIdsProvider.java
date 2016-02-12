@@ -3,18 +3,21 @@ package com.bagri.xdm.client.hazelcast.task.query;
 import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_ProvideDocumentIdsTask;
 
 import java.util.Collection;
+import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.Callable;
 
-import com.bagri.common.query.ExpressionContainer;
+import com.bagri.xdm.client.hazelcast.task.QueryAwareTask;
+import com.bagri.xdm.common.XDMDocumentId;
 
-public class DocumentIdsProvider extends ResultBuilder implements Callable<Collection<Long>> {
+public class DocumentIdsProvider extends QueryAwareTask implements Callable<Collection<XDMDocumentId>> {
 	
 	public DocumentIdsProvider() {
 		super();
 	}
 	
-	public DocumentIdsProvider(ExpressionContainer exp, long txId) {
-		super(exp, txId);
+	public DocumentIdsProvider(String clientId, long txId, String query, Map params, Properties props) {
+		super(clientId, txId, query, params, props);
 	}
 
 	@Override
@@ -23,7 +26,7 @@ public class DocumentIdsProvider extends ResultBuilder implements Callable<Colle
 	}
 
 	@Override
-	public Collection<Long> call() throws Exception {
+	public Collection<XDMDocumentId> call() throws Exception {
 		return null;
 	}
 

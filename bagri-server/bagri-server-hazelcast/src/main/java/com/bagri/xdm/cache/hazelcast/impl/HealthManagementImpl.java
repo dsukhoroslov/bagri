@@ -2,6 +2,8 @@ package com.bagri.xdm.cache.hazelcast.impl;
 
 import static com.bagri.xdm.client.common.XDMCacheConstants.*;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,8 +31,10 @@ public class HealthManagementImpl implements MessageListener<XDMCounter>, Partit
 	private int thLow = 10;
 	private int thHigh = 0;
 	
-	private int cntActive = 0;
-	private int cntInactive = 0;
+	// TODO: would be better to have an internal atomic structure 
+	// which will update both fields in one atomic operation
+	private AtomicLong cntActive = new AtomicLong(0);
+	private AtomicLong cntInactive = new AtomicLong(0);
 	
 	public HealthManagementImpl() {
 		//super();
@@ -59,14 +63,10 @@ public class HealthManagementImpl implements MessageListener<XDMCounter>, Partit
 	
 	private void updateState(XDMCounter counter) {
 		if (counter.isCommit()) {
-			cntActive += counter.getCreated();
-			cntActive -= counter.getDeleted();
-			cntInactive += counter.getUpdated();
-			cntInactive += counter.getDeleted()*2;
+			cntActive.addAndGet(counter.getCreated() - counter.getDeleted());
+			cntInactive.addAndGet(counter.getUpdated() + counter.getDeleted()); 
 		} else {
-			cntInactive += counter.getCreated();
-			cntInactive += counter.getUpdated();
-			cntInactive += counter.getDeleted();
+			// nothing will change, all garbage will be compensated
 		}
 		checkState();
 	}
@@ -75,7 +75,7 @@ public class HealthManagementImpl implements MessageListener<XDMCounter>, Partit
 		int docSize = xddCache.size();
 		logger.trace("checkStats; active count: {}; inactive count: {}; cache size: {}", 
 				cntActive, cntInactive, docSize);
-		int fullSize = cntActive + cntInactive;
+		long fullSize = cntActive.get() + cntInactive.get();
 		XDMHealthState hState;
 		if (fullSize < docSize - thLow) {
 			hState = XDMHealthState.bad;
@@ -85,7 +85,7 @@ public class HealthManagementImpl implements MessageListener<XDMCounter>, Partit
 			hState = XDMHealthState.good; 
 		} 
 		if (hState != XDMHealthState.good) { 			
-			logger.info("checkState; the state is: {}; fullSize: {}; docSize: {}", hState, fullSize, docSize);
+			logger.info("checkState; the state is: {}; expected size: {}; cache size: {}", hState, fullSize, docSize);
 		}
 		hTopic.publish(hState);
 	}
@@ -103,17 +103,20 @@ public class HealthManagementImpl implements MessageListener<XDMCounter>, Partit
 	}
 	
 	public void clearState() {
-		cntActive = 0;
-		cntInactive = 0;
+		cntActive = new AtomicLong(0);
+		cntInactive = new AtomicLong(0);
 		hTopic.publish(XDMHealthState.good);
 	}
 
 	public void initState(int docActive, int docInactive) {
-		cntActive = docActive;
-		cntInactive = docInactive;
+		cntActive = new AtomicLong(docActive);
+		cntInactive = new AtomicLong(docInactive);
 		checkState();
 	}
 	
+	public int[] getCounters() {
+		return new int[] {cntActive.intValue(), cntInactive.intValue()};
+	}
 /*		
 	@Override
 	public void checkClusterState() throws XDMException {

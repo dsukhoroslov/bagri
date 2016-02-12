@@ -19,5 +19,6 @@ public abstract class XDMIndexedValue {
 	public abstract Set<Long> getDocumentIds();
 	public abstract boolean addDocument(long docId, long txId);
 	public abstract boolean removeDocument(long docId, long txId);
+	public abstract int getSize();
 
 }

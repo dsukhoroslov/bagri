@@ -4,6 +4,7 @@ import static com.bagri.xdm.api.XDMException.ecTransNoNested;
 import static com.bagri.xdm.api.XDMException.ecTransNotFound;
 import static com.bagri.xdm.api.XDMException.ecTransWrongState;
 import static com.bagri.xdm.client.common.XDMCacheConstants.CN_XDM_TRANSACTION;
+import static com.bagri.xdm.client.common.XDMCacheConstants.PN_XDM_SCHEMA_POOL;
 import static com.bagri.xdm.client.common.XDMCacheConstants.SQN_TRANSACTION;
 import static com.bagri.xdm.client.common.XDMCacheConstants.TPN_XDM_COUNTERS;
 
@@ -29,17 +30,23 @@ import com.bagri.xdm.api.XDMHealthState;
 import com.bagri.xdm.api.XDMTransactionIsolation;
 import com.bagri.xdm.api.XDMTransactionState;
 import com.bagri.xdm.cache.api.XDMTransactionManagement;
+import com.bagri.xdm.cache.hazelcast.task.doc.DocumentCleaner;
 import com.bagri.xdm.client.hazelcast.impl.IdGeneratorImpl;
 import com.bagri.xdm.domain.XDMCounter;
 import com.bagri.xdm.domain.XDMTransaction;
+import com.bagri.xdm.system.XDMTriggerAction.Action;
+import com.bagri.xdm.system.XDMTriggerAction.Scope;
 import com.hazelcast.core.Cluster;
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.ITopic;
+import com.hazelcast.core.Member;
+import com.hazelcast.core.MultiExecutionCallback;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
 
-public class TransactionManagementImpl implements XDMTransactionManagement, StatisticsProvider {
+public class TransactionManagementImpl implements XDMTransactionManagement, StatisticsProvider, MultiExecutionCallback {
 	
     private static final Logger logger = LoggerFactory.getLogger(TransactionManagementImpl.class);
 	
@@ -61,12 +68,15 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 	private Cluster cluster;
 	private IdGenerator<Long> txGen;
 	private ITopic<XDMCounter> cTopic;
+	private IExecutorService execService;
 	private IMap<Long, XDMTransaction> txCache; 
+    private TriggerManagementImpl triggerManager;
 
 	private long txTimeout = 0;
 	
     public void setRepository(RepositoryImpl repo) {
     	this.repo = repo;
+    	triggerManager = (TriggerManagementImpl) repo.getTriggerManagement();
     	setHzInstance(repo.getHzInstance());
     }
 	
@@ -76,6 +86,7 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 		txCache = hzInstance.getMap(CN_XDM_TRANSACTION);
 		txGen = new IdGeneratorImpl(hzInstance.getAtomicLong(SQN_TRANSACTION));
 		cTopic = hzInstance.getTopic(TPN_XDM_COUNTERS);
+		execService = hzInstance.getExecutorService(PN_XDM_SCHEMA_POOL);
 	}
 	
 	public long getTransactionTimeout() {
@@ -112,9 +123,11 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 		txId = txGen.next();
 		// TODO: do this via EntryProcessor?
 		XDMTransaction xTx = new XDMTransaction(txId, cluster.getClusterTime(), 0, repo.getUserName(), txIsolation, XDMTransactionState.started);
+		triggerManager.applyTrigger(xTx, Action.begin, Scope.before); 
 		txCache.set(txId, xTx);
 		thTx.set(txId);
 		cntStarted.incrementAndGet();
+		triggerManager.applyTrigger(xTx, Action.begin, Scope.after); 
 		logger.trace("beginTransaction.exit; started tx: {}; returning: {}", xTx, txId); 
 		return txId;
 	}
@@ -125,15 +138,18 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 		// TODO: do this via EntryProcessor?
 		XDMTransaction xTx = txCache.get(txId);
 		if (xTx != null) {
-			//xTx.finish(true, cluster.getClusterTime());
-			//txCache.set(txId, xTx);
-			txCache.delete(txId);
+			triggerManager.applyTrigger(xTx, Action.commit, Scope.before); 
+			xTx.finish(true, cluster.getClusterTime());
+			//txCache.delete(txId);
+			txCache.set(txId, xTx);
 		} else {
 			throw new XDMException("no transaction found for TXID: " + txId, ecTransNotFound);
 		}
 		thTx.set(TX_NO);
 		cntCommited.incrementAndGet();
+		triggerManager.applyTrigger(xTx, Action.commit, Scope.after); 
 		cTopic.publish(new XDMCounter(true, xTx.getDocsCreated(), xTx.getDocsUpdated(), xTx.getDocsDeleted()));
+		cleanAffectedDocuments(xTx);
 		logger.trace("commitTransaction.exit; tx: {}", xTx); 
 	}
 
@@ -143,16 +159,22 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 		// TODO: do this via EntryProcessor?
 		XDMTransaction xTx = txCache.get(txId);
 		if (xTx != null) {
+			triggerManager.applyTrigger(xTx, Action.rollback, Scope.before); 
 			xTx.finish(false, cluster.getClusterTime());
 			txCache.set(txId, xTx);
 		} else {
 			throw new XDMException("No transaction found for TXID: " + txId, ecTransNotFound);
 		}
-		// do not delete rolled back tx for a while
 		thTx.set(TX_NO);
 		cntRolled.incrementAndGet();
+		triggerManager.applyTrigger(xTx, Action.rollback, Scope.after); 
 		cTopic.publish(new XDMCounter(false, xTx.getDocsCreated(), xTx.getDocsUpdated(), xTx.getDocsDeleted()));
+		cleanAffectedDocuments(xTx);
 		logger.trace("rollbackTransaction.exit; tx: {}", xTx); 
+	}
+	
+	private void cleanAffectedDocuments(XDMTransaction xTx) {
+		execService.submitToAllMembers(new DocumentCleaner(xTx), this);
 	}
 	
 	boolean isTxVisible(long txId) throws XDMException {
@@ -302,12 +324,49 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
         return result;
 	}
 
-
 	@Override
 	public void resetStatistics() {
 		cntStarted = new AtomicLong(0);
 		cntCommited = new AtomicLong(0);
 		cntRolled = new AtomicLong(0);
+	}
+
+	@Override
+	public void onResponse(Member member, Object value) {
+        logger.trace("onResponse; got response: {} from member: {}", value, member);
+	}
+
+	@Override
+	public void onComplete(Map<Member, Object> values) {
+        logger.trace("onComplete; got values: {}", values);
+        XDMTransaction txClean = null;
+		for (Object value: values.values()) {
+			XDMTransaction tx = (XDMTransaction) value;
+			if (txClean == null) {
+				txClean = tx;
+			} else {
+				txClean.updateCounters(tx.getDocsCreated(), tx.getDocsUpdated(), tx.getDocsDeleted());
+			}
+		}
+		if (txClean != null) {
+			//if (txClean.getTxState() == XDMTransactionState.commited) {
+			//	logger.debug("onComplete; got complete response for commited tx: {}", txClean);
+			//} else {
+				XDMTransaction txSource = txCache.get(txClean.getTxId());
+				if (txSource != null) {
+					if (txSource.getDocsCreated() != txClean.getDocsCreated() ||
+						txSource.getDocsUpdated() != txClean.getDocsUpdated() ||
+						txSource.getDocsDeleted() != txClean.getDocsDeleted()) {
+						logger.info("onComplete; wrong number of cleaned documents; expected: {}, reported: {}", txSource, txClean);
+					}
+					txCache.delete(txClean.getTxId());
+				} else {
+					logger.info("onComplete; got complete response for unknown tx: {}", txClean);
+				}
+			//}
+		} else {
+			logger.info("onComplete; got empty complete response");
+		}
 	}
 
 }

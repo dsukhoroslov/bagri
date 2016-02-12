@@ -19,11 +19,14 @@ public class XDMConstants {
 	public static final String pn_client_smart = "xdm.client.smart";
 	public static final String pn_client_submitTo = "xdm.client.submitTo";
 	public static final String pn_client_fetchSize = "xdm.client.fetchSize";
+	public static final String pn_client_healthCheck = "xdm.client.healthCheck";
 	public static final String pn_client_loginTimeout = "xdm.client.loginTimeout";
 	public static final String pn_data_factory = "xdm.client.dataFactory";
 	public static final String pn_client_bufferSize = "xdm.client.bufferSize";
 	public static final String pn_client_connectAttempts = "xdm.client.connectAttempts";
 	public static final String pn_client_poolSize = "xdm.client.poolSize";
+	
+	public static final String pn_query_command = "xdm.query.command";
 	
 	public static final String pn_baseURI = "xqj.schema.baseUri";
 	public static final String pn_constructionMode = "xqj.schema.constructionMode";

@@ -2,7 +2,6 @@ package com.bagri.xdm.common;
 
 import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.domain.XDMElement;
-import com.bagri.xdm.domain.XDMParser;
 
 public interface XDMFactory {
 	

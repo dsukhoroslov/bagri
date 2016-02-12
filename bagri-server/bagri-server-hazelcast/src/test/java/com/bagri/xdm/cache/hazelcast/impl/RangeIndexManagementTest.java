@@ -7,7 +7,6 @@ import static com.bagri.xdm.common.XDMConstants.xs_prefix;
 import java.util.Date;
 
 import javax.xml.namespace.QName;
-import javax.xml.xquery.XQItemType;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -15,14 +14,11 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import com.bagri.common.manage.JMXUtils;
-import com.bagri.xdm.api.test.XDMQueryManagementTest;
-import com.bagri.xdm.domain.XDMOccurence;
-import com.bagri.xdm.domain.XDMNodeKind;
+import com.bagri.xdm.api.test.XDMManagementTest;
 import com.bagri.xdm.system.XDMIndex;
 import com.bagri.xdm.system.XDMSchema;
 
-public class RangeIndexManagementTest extends XDMQueryManagementTest {
+public class RangeIndexManagementTest extends XDMManagementTest {
 
     private static ClassPathXmlApplicationContext context;
 
@@ -38,7 +34,7 @@ public class RangeIndexManagementTest extends XDMQueryManagementTest {
 
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
-		//Hazelcast.shutdownAll();
+		Thread.sleep(3000);
 		context.close();
 	}
 

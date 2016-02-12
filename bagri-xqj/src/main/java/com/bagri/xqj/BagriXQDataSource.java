@@ -74,7 +74,7 @@ public class BagriXQDataSource implements XQDataSource {
 		
 		String address = getAddress();
 		logger.trace("getConnection. creating new connection for address: {}", address);
-		return initConnection(address);
+		return initConnection(null);
 	}
 	
 	@Override
@@ -92,7 +92,7 @@ public class BagriXQDataSource implements XQDataSource {
 		logger.trace("getConnection. creating new connection for address: {}; user: {}", address, username);
 		properties.put(USER, username);
 		properties.put(PASSWORD, password);
-		return initConnection(address);
+		return initConnection(username);
 	}
 
 	private String getAddress() {
@@ -156,9 +156,9 @@ public class BagriXQDataSource implements XQDataSource {
 		}
 	}
 	
-	private XQConnection initConnection(String address) throws XQException {
+	private XQConnection initConnection(String username) throws XQException {
 
-		BagriXQConnection connect = new BagriXQConnection(address, isTransactional());
+		BagriXQConnection connect = new BagriXQConnection(username, isTransactional());
 		if (connect.getProcessor() == null) {
 			Object xqp = makeInstance(XQ_PROCESSOR);
 			if (xqp != null) {

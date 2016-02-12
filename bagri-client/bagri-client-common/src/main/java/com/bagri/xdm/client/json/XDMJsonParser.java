@@ -22,11 +22,11 @@ import org.slf4j.LoggerFactory;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.client.parser.XDMDataParser;
+import com.bagri.xdm.common.XDMParser;
 import com.bagri.xdm.domain.XDMOccurence;
 import com.bagri.xdm.domain.XDMData;
 import com.bagri.xdm.domain.XDMElement;
 import com.bagri.xdm.domain.XDMNodeKind;
-import com.bagri.xdm.domain.XDMParser;
 import com.bagri.xdm.domain.XDMPath;
 
 public class XDMJsonParser extends XDMDataParser implements XDMParser {

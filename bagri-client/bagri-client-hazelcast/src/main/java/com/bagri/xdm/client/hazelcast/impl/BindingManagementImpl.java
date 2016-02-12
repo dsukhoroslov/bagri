@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import com.bagri.xdm.api.XDMBindingManagement;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMRepository;
+import com.bagri.xdm.common.XDMDocumentId;
 
 public class BindingManagementImpl implements XDMBindingManagement {
 	
@@ -27,13 +28,13 @@ public class BindingManagementImpl implements XDMBindingManagement {
 	}	
 
 	@Override
-	public <T> T getDocumentBinding(long docId) throws XDMException {
+	public <T> T getDocumentBinding(XDMDocumentId docId) throws XDMException {
 		
 		return null;
 	}
 
 	@Override
-	public <T> T getDocumentBinding(long docId, Class<T> type) throws XDMException {
+	public <T> T getDocumentBinding(XDMDocumentId docId, Class<T> type) throws XDMException {
 		
 		logger.trace("getDocumentBinding.enter; docId: {}; type: {}", docId, type);
 		Object result = null;
@@ -66,7 +67,7 @@ public class BindingManagementImpl implements XDMBindingManagement {
         	String xml = writer.getBuffer().toString();
         	writer.close();
         	// TODO: get docId/uri from value somehow?
-        	repo.getDocumentManagement().storeDocumentFromString(0, null, xml);
+        	repo.getDocumentManagement().storeDocumentFromString(null, xml, null);
         } catch (JAXBException ex) {
         	throw new XDMException(ex, XDMException.ecBinding);
         } catch (IOException ex) {

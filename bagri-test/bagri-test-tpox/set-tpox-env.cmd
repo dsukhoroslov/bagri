@@ -46,7 +46,7 @@ set java_opts=%java_opts% -Dxdm.client.bufferSize=32
 set java_opts=%java_opts% -Dxdm.client.fetchSize=1
 set java_opts=%java_opts% -Dxdm.client.connectAttempts=3
 set java_opts=%java_opts% -Dxdm.client.loginTimeout=30
-set java_opts=%java_opts% -Dxdm.client.smart=false
+set java_opts=%java_opts% -Dxdm.client.smart=true
 set java_opts=%java_opts% -Dxdm.client.poolSize=10
 
 set java_opts=%java_opts% -Duser.country=US -Duser.language=en

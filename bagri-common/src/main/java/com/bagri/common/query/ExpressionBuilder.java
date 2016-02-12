@@ -16,17 +16,17 @@ public class ExpressionBuilder {
 		return resolveCurrentParent();
 	}
 	
-	public int addExpression(int docType, Comparison compType, PathBuilder path, String param) {
+	public int addExpression(int clnId, Comparison compType, PathBuilder path, String param) {
 		Expression ex;
 		switch (compType) {
 			case AND:
 			case OR:
-				ex = new BinaryExpression(docType, compType, path);
+				ex = new BinaryExpression(clnId, compType, path);
 				break;
 			case NOT:
 				return -1;
 			default:
-				ex = new PathExpression(docType, compType, path, param);
+				ex = new PathExpression(clnId, compType, path, param);
 		}
 		return addExpression(ex);
 	}

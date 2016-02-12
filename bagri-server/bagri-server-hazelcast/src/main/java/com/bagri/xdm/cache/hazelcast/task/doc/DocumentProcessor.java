@@ -6,7 +6,6 @@ import java.util.concurrent.Callable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.bagri.xdm.api.XDMDocumentManagement;
 import com.bagri.xdm.api.XDMException;
@@ -21,24 +20,14 @@ public class DocumentProcessor extends com.bagri.xdm.client.hazelcast.task.doc.D
 
 	private static final transient Logger logger = LoggerFactory.getLogger(DocumentProcessor.class);
 	
-	private transient XDMRepository repo;
 	private transient XDMDocumentManagement docMgr;
 	private transient XDMTransactionManagement txMgr;
     
     @Autowired
-    @Qualifier("docProxy")
-	public void setDocManager(XDMDocumentManagement docMgr) {
-		this.docMgr = docMgr;
-	}
-    
-    @Autowired
-	public void setTxManager(XDMTransactionManagement txMgr) {
-		this.txMgr = txMgr;
-	}
-
-    @Autowired
 	public void setRepository(XDMRepository repo) {
 		this.repo = repo;
+		this.docMgr = repo.getDocumentManagement();
+		this.txMgr = (XDMTransactionManagement) repo.getTxManagement();
 	}
 	
 	@Override
@@ -50,7 +39,7 @@ public class DocumentProcessor extends com.bagri.xdm.client.hazelcast.task.doc.D
 	    	return txMgr.callInTransaction(txId, false, new Callable<XDMDocument>() {
 	    		
 		    	public XDMDocument call() throws Exception {
-		    		return docMgr.storeDocumentFromString(docId, uri, xml);
+		    		return docMgr.storeDocumentFromString(docId, content, props);
 		    	}
 	    	});
     	} catch (XDMException ex) {

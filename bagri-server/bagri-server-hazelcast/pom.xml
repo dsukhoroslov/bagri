@@ -216,7 +216,7 @@
                                             <sysproperty key="java.security.auth.login.config"
                                                          value="${project.basedir}/src/main/resources/jaas.config"/-->
                                             <sysproperty key="logback.configurationFile" value="hz-logging.xml"/>
-                                            <sysproperty key="xdm.log.level" value="trace"/>
+                                            <sysproperty key="xdm.log.level" value="debug"/>
                                             <sysproperty key="xdm.config.path" value="src/main/resources"/>
                                             <sysproperty key="xdm.config.context.file" value="spring/admin-system-context.xml"/>
 					    <sysproperty key="xdm.config.properties.file" value="admin.properties"/>
@@ -243,7 +243,7 @@
                                 <configuration>
                                     <tasks if="run-server">
                                         <java fork="true" classname="com.bagri.xdm.cache.hazelcast.XDMCacheServer">
-                                            <jvmarg line="-Xms3g -Xmx6g ${run.jvm.args0} ${run.jvm.args1} ${run.jvm.args2} ${run.jvm.args3}"/>
+                                            <jvmarg line="-Xms2g -Xmx4g ${run.jvm.args0} ${run.jvm.args1} ${run.jvm.args2} ${run.jvm.args3}"/>
                                             <sysproperty key="node.logdir" value="./logs"/>
                                             <sysproperty key="node.name" value="first"/>
                                             <sysproperty key="xdm.node.instance" value="${node.instance}"/>

@@ -71,9 +71,17 @@
         </role>
     </roles>
     <users>
-        <user login="SDV" active="true">
+        <user login="Denis" active="true">
             <version>1</version>
             <createdAt>2014-05-23T09:42:49.630+04:00</createdAt>
+            <createdBy>admin</createdBy>
+            <permissions/>
+            <includedRoles>AdminRole</includedRoles>
+            <password>07e3379a4942bbf67f06b72fbd748f1d</password>
+        </user>
+        <user login="dsukhoroslov" active="true">
+            <version>1</version>
+            <createdAt>2015-10-23T09:42:49.630+04:00</createdAt>
             <createdBy>admin</createdBy>
             <permissions/>
             <includedRoles>AdminRole</includedRoles>
@@ -92,7 +100,7 @@
             <createdAt>2015-08-28T10:41:29.003+03:00</createdAt>
             <createdBy>Denis</createdBy>
             <permissions>
-                <permission resource="com.bagri.xdm:name=default,type=Schema">read</permission>
+                <permission resource="com.bagri.xdm:name=*,type=Schema">modify</permission>
             </permissions>
             <includedRoles>GuestRole</includedRoles>
             <password>5f4dcc3b5aa765d61d8327deb882cf99</password>

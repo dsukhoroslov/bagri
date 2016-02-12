@@ -2,11 +2,13 @@ package com.bagri.xdm.api.test;
 
 import static com.bagri.common.util.FileUtils.readTextFile;
 
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import com.bagri.common.query.AxisType;
 import com.bagri.common.query.Comparison;
@@ -18,6 +20,7 @@ import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.api.XDMQueryManagement;
 import com.bagri.xdm.api.XDMRepository;
 import com.bagri.xdm.api.XDMTransactionManagement;
+import com.bagri.xdm.common.XDMDocumentId;
 import com.bagri.xdm.domain.XDMDocument;
 
 public abstract class XDMManagementTest {
@@ -28,6 +31,14 @@ public abstract class XDMManagementTest {
 	
 	protected String getFileName(String original) {
 		return original;
+	}
+	
+	protected String getUri(String fileName) {
+		return Paths.get(fileName).getFileName().toString();
+	}
+	
+	protected Properties getDocumentProperties() {
+		return null;
 	}
 	
 	protected XDMDocumentManagement getDocManagement() {
@@ -58,24 +69,10 @@ public abstract class XDMManagementTest {
 	//	}
 	//}
 
-	public Collection<String> getSecurity(String symbol) throws Exception {
-		String prefix = getModelManagement().getNamespacePrefix("http://tpox-benchmark.com/security"); 
-		int docType = getModelManagement().getDocumentType("/" + prefix + ":Security");
-		PathBuilder path = new PathBuilder().
-				addPathSegment(AxisType.CHILD, prefix, "Security").
-				addPathSegment(AxisType.CHILD, prefix, "Symbol").
-				addPathSegment(AxisType.CHILD, null, "text()");
-		ExpressionContainer ec = new ExpressionContainer();
-		ec.addExpression(docType, Comparison.EQ, path, "$sym", symbol);
-		Map<String, String> params = new HashMap<String, String>();
-		params.put(":sec", "/" + prefix + ":Security");
-		return getQueryManagement().getXML(ec, ":sec", params);
-	}
-	
 	protected void removeDocumentsTest() throws Exception {
 		long txId =  getTxManagement().beginTransaction();
-		for (Long id: ids) {
-			getDocManagement().removeDocument(id);
+		for (Long key: ids) {
+			getDocManagement().removeDocument(new XDMDocumentId(key));
 		}
 		ids.clear();
 		getTxManagement().commitTransaction(txId);
@@ -83,16 +80,22 @@ public abstract class XDMManagementTest {
 	
 	public XDMDocument createDocumentTest(String fileName) throws Exception {
 		String xml = readTextFile(fileName);
-		return getDocManagement().storeDocumentFromString(0, null, xml);
+		Properties props = getDocumentProperties();
+		return getDocManagement().storeDocumentFromString(new XDMDocumentId(getUri(fileName)), xml, props);
 	}
 	
-	public XDMDocument updateDocumentTest(long docId, String uri, String fileName) throws Exception {
+	public XDMDocument updateDocumentTest(long docKey, String uri, String fileName) throws Exception {
 		String xml = readTextFile(fileName);
-		return getDocManagement().storeDocumentFromString(docId, uri, xml);
+		Properties props = getDocumentProperties();
+		XDMDocumentId docId = null;
+		if (docKey != 0 || uri != null) {
+			docId = new XDMDocumentId(docKey, uri);
+		}
+		return getDocManagement().storeDocumentFromString(docId, xml, props);
 	}
 
-	public void removeDocumentTest(long docId) throws Exception {
-		getDocManagement().removeDocument(docId);
+	public void removeDocumentTest(long docKey) throws Exception {
+		getDocManagement().removeDocument(new XDMDocumentId(docKey));
 	}
 
 	public void storeSecurityTest() throws Exception {

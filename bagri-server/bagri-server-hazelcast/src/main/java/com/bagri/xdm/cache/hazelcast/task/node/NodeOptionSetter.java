@@ -4,6 +4,7 @@ import static com.bagri.common.config.XDMConfigConstants.xdm_config_path;
 import static com.bagri.common.config.XDMConfigConstants.xdm_config_properties_file;
 import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_SetNodeOptionTask;
 import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.factoryId;
+import static com.bagri.xdm.cache.hazelcast.util.HazelcastUtils.hz_instance;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -44,7 +45,7 @@ public class NodeOptionSetter implements Callable<Boolean>, IdentifiedDataSerial
 	@Override
 	public Boolean call() throws Exception {
 		logger.trace("call.enter;");
-		HazelcastInstance hzInstance = Hazelcast.getHazelcastInstanceByName("hzInstance");
+		HazelcastInstance hzInstance = Hazelcast.getHazelcastInstanceByName(hz_instance);
 		Member member = hzInstance.getCluster().getLocalMember();
 		boolean result = false;
 

@@ -4,6 +4,7 @@ import static com.bagri.common.config.XDMConfigConstants.xdm_schema_name;
 import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_InitSchemaTask;
 import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.factoryId;
 import static com.bagri.xdm.cache.hazelcast.util.SpringContextHolder.*;
+import static com.bagri.xdm.cache.hazelcast.util.HazelcastUtils.hz_instance;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -14,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.env.PropertiesPropertySource;
 
+import com.bagri.xdm.cache.api.XDMRepository;
 import com.bagri.xdm.cache.hazelcast.impl.PopulationManagementImpl;
 import com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl;
 import com.bagri.xdm.system.XDMSchema;
@@ -61,17 +63,21 @@ public class SchemaInitiator implements Callable<Boolean>, IdentifiedDataSeriali
     		ctx.setConfigLocation("spring/cache-xqj-context.xml");
     		ctx.refresh();
 
-    		hz = ctx.getBean("hzInstance", HazelcastInstance.class);
+    		hz = ctx.getBean(hz_instance, HazelcastInstance.class);
     		//hz.getConfig().getSecurityConfig().setEnabled(true);
 			setContext(schemaName, schema_context, ctx);
 			
-			RepositoryImpl xdmRepo = ctx.getBean("xdmRepo", RepositoryImpl.class);
+			RepositoryImpl xdmRepo = ctx.getBean(XDMRepository.bean_id, RepositoryImpl.class);
 			xdmRepo.setSchema(schema);
-    		logger.debug("initSchema.exit; schema {} started on instance: {}", schemaName, hz);
+    		logger.debug("initSchema; schema {} started on instance: {}", schemaName, hz);
     		
     		//PopulationManagementImpl popManager = ctx.getBean("popManager", PopulationManagementImpl.class);
     		PopulationManagementImpl popManager = (PopulationManagementImpl) hz.getUserContext().get("popManager");
-    		popManager.checkPopulation(hz.getCluster().getMembers().size());
+    		if (popManager != null) {
+    			popManager.checkPopulation(hz.getCluster().getMembers().size());
+    		} else {
+    			logger.debug("initSchema.exit; population for schema {} is disabled", schemaName);
+    		}
     		
     		return true;
     	} catch (Exception ex) {

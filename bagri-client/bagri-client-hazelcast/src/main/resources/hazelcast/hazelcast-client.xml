@@ -11,7 +11,7 @@
 		<hz:cluster-members>
 			<hz:address>localhost:10500</hz:address>
 		</hz:cluster-members>
-		<hz:smart-routing>false</hz:smart-routing>
+		<hz:smart-routing>true</hz:smart-routing>
 		<hz:connection-timeout>20000</hz:connection-timeout>
 		<hz:connection-attempt-limit>1</hz:connection-attempt-limit>
 		<hz:socket-options>
@@ -55,6 +55,7 @@
 			<hz:serializer type-class="com.bagri.xdm.domain.XDMUniqueValue" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMUniqueValueSerializer"/>
 			<hz:serializer type-class="com.bagri.xdm.domain.XDMTransaction" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMTransactionSerializer"/>
 			<hz:serializer type-class="com.bagri.xdm.domain.XDMFragmentedDocument" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMFragmentedDocumentSerializer"/>
+			<hz:serializer type-class="com.bagri.xdm.common.XDMDocumentId" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMDocumentIdSerializer"/>
 		</hz:serializers>
 	</hz:serialization>
 

@@ -7,14 +7,14 @@ public class PathExpression extends Expression {
 	private String paramName;
 	private QueriedPath cachedPath;
 	
-	public PathExpression(int docType, Comparison compType, PathBuilder path, String paramName) {
-		super(docType, compType, path);
+	public PathExpression(int clnId, Comparison compType, PathBuilder path, String paramName) {
+		super(clnId, compType, path);
 		this.paramName = paramName;
 	}
 
-	public PathExpression(int docType, Comparison compType, PathBuilder path, String paramName, 
+	public PathExpression(int clnId, Comparison compType, PathBuilder path, String paramName, 
 			QueriedPath cachedPath) {
-		this(docType, compType, path, paramName);
+		this(clnId, compType, path, paramName);
 		this.cachedPath = cachedPath;
 	}
 	
@@ -54,7 +54,7 @@ public class PathExpression extends Expression {
 	@Override
 	public String toString() {
 		return "PathExpression [path=" + path + ", param=" + paramName
-				+ ", docType=" + docType + ", compType=" + compType
+				+ ", collectId=" + clnId + ", compType=" + compType
 				+ ", cachedPath=" + cachedPath + "]";
 	}
 	

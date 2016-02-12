@@ -9,6 +9,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.bagri.common.security.Encryptor;
 import com.bagri.xdm.cache.hazelcast.management.AccessManagement;
 import com.bagri.xdm.system.XDMPermission;
 import com.bagri.xdm.system.XDMPermission.Permission;
@@ -77,38 +78,49 @@ public class AccessManagementBridge {
 		// check username/password against access DB
 		XDMUser user = users.get(username);
 		if (user != null) {
-			if (password.equals(user.getPassword())) {
-				Boolean granted = checkSchemaAccess(user, schemaname);
-				if (granted != null) {
-					result = granted;
-				}
-			} else {
-				result = false;
-			}
+			boolean auth = password.equals(user.getPassword()); 
+			if (!auth) {
+				// try double-encrypted pwd
+				String pwd = Encryptor.encrypt(user.getPassword());
+				auth = password.equals(pwd);
+			} 
+			result = auth && checkSchemaPermission(user, schemaname, Permission.read);
 		}
 		// throw NotFound exception?
 		logger.trace("authenticate.exit; returning: {}", result);
 		return result;
 	}
+
+	public Boolean hasPermission(String schemaname, String username, Permission perm) {
+		logger.trace("hasPermission.enter; schema: {}, user: {}, permission: {}", schemaname, username, perm);
+		Boolean result = null;
+		XDMUser user = users.get(username);
+		if (user != null) {
+			result = checkSchemaPermission(user, schemaname, perm);
+		}
+		// throw NotFound exception?
+		logger.trace("hasPermission.exit; returning: {}", result);
+		return result;
+	}
 	
-	private Boolean checkSchemaAccess(XDMPermissionAware test, String schemaName) {
+	private Boolean checkSchemaPermission(XDMPermissionAware test, String schemaName, Permission check) {
 		String schema = "com.bagri.xdm:name=" + schemaName + ",type=Schema";
 		XDMPermission perm = test.getPermissions().get(schema);
-		if (perm != null) {
-			return perm.hasPermission(Permission.read);
+		if (perm != null && perm.hasPermission(check)) {
+			return true;
 		}
 		schema = "com.bagri.xdm:name=*,type=Schema";
 		perm = test.getPermissions().get(schema);
-		if (perm != null) {
-			return perm.hasPermission(Permission.read);
+		if (perm != null && perm.hasPermission(check)) {
+			return true;
 		}
 		
 		for (String role: test.getIncludedRoles()) {
 			XDMRole xdmr = roles.get(role);
 			if (xdmr != null) {
-				Boolean check = checkSchemaAccess(xdmr, schemaName);
-				if (check != null) {
-					return check;
+				Boolean result = checkSchemaPermission(xdmr, schemaName, check);
+				if (result != null) {
+					return result;
 				}
 			}
 		}

@@ -2,36 +2,14 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:context="http://www.springframework.org/schema/context"
-	xmlns:hz="http://www.hazelcast.com/schema/spring"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.1.xsd
-		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.1.xsd
-		http://www.hazelcast.com/schema/spring http://www.hazelcast.com/schema/spring/hazelcast-spring-3.4.xsd">
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.1.xsd">
 
 	<import resource="classpath:spring/cache-schema-context.xml" />
  
 	<!-- Beans Declaration -->
 	<context:property-placeholder ignore-unresolvable="true" location="classpath:/${xdm.config.properties.file}" />
 	<context:annotation-config />
-	
-	<bean id="docProxy" class="com.bagri.xdm.cache.hazelcast.impl.DocumentManagementProxy" factory-method="newDMProxy">
-		<constructor-arg index="0" ref="docManager" />
-		<constructor-arg index="1" ref="docQueue" />
-   		<constructor-arg index="2">
-   			<bean class="com.bagri.common.stats.watch.SimpleStopWatch">
-				<constructor-arg ref="mTicker" />
-   			</bean>
-   		</constructor-arg>
-	</bean>
-	
-	<bean id="queryProxy" class="com.bagri.xdm.cache.hazelcast.impl.QueryManagementProxy" factory-method="newQMProxy">
-		<constructor-arg index="0" ref="queryManager" />
-		<constructor-arg index="1" ref="queryQueue" />
-   		<constructor-arg index="2">
-   			<bean class="com.bagri.common.stats.watch.ThreadedStopWatch">
-				<property name="ticker" ref="mTicker" />
-   			</bean>
-   		</constructor-arg>
-	</bean>
 	
 	<bean id="xqFactory" class="com.bagri.xqj.BagriXQDataFactory">
     	<property name="processor" ref="xqProcessor" />

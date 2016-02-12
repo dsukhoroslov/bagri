@@ -43,8 +43,11 @@ import com.bagri.common.query.ExpressionContainer;
 import com.bagri.common.query.PathBuilder;
 import com.bagri.common.query.PathBuilder.PathSegment;
 import com.bagri.common.query.QueryBuilder;
-import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.api.XDMRepository;
+import com.bagri.xdm.cache.api.XDMQueryManagement;
+import com.bagri.xdm.client.common.impl.ModelManagementBase;
+import com.bagri.xdm.system.XDMCollection;
+import com.bagri.xdm.system.XDMSchema;
 
 public class CollectionURIResolverImpl implements CollectionURIResolver {
 
@@ -56,7 +59,7 @@ public class CollectionURIResolverImpl implements CollectionURIResolver {
 	private static final Logger logger = LoggerFactory.getLogger(CollectionURIResolverImpl.class);
 
 	private PathBuilder currentPath;
-	private int collectType;
+	//private int collectType;
 	private int currentType;
     private XPathContext ctx;
     private XDMRepository repo;
@@ -89,18 +92,20 @@ public class CollectionURIResolverImpl implements CollectionURIResolver {
 		this.ctx = context;
 		long stamp = System.currentTimeMillis();
 
+		int collectType;
 		if (href == null) {
 			// means default collection: all schema documents
 			collectType = -1;
 			currentType = -1;
 		} else {
-			collectType = getCollectionType(href);
+			collectType = getCollectionId(href);
 			currentType = 0;
 		}
 
 		if (query == null) {
 			query = new QueryBuilder();
 			currentPath = new PathBuilder();
+        	//query.addContainer(currentType, new ExpressionContainer());
 			iterate(exp.getExpression()); 
 		} else if (query.hasEmptyParams()) {
 			iterateParams(exp.getExpression());
@@ -108,19 +113,30 @@ public class CollectionURIResolverImpl implements CollectionURIResolver {
 		stamp = System.currentTimeMillis() - stamp;
 		logger.debug("resolve; time taken: {}; query: {}; this: {}", stamp, query, this); 
 
+		ExpressionContainer exCont = getCurrentContainer();
+		if (exCont.getExpression().getRoot() == null) {
+			exCont.addExpression(currentType);
+   			logger.trace("resolve; added always expression for type: {}", currentType);
+		}
+		
 		// provide builder's copy here.
-		ExpressionContainer exCont = query.getContainer(collectType);
-		CollectionIterator iter = new CollectionIterator(repo.getQueryManagement(), exCont);
-
-		logger.trace("resolve. xdm: {}; returning iter: {} for collection type: {}", 
-				repo, iter, collectType);
+		exCont = query.getContainer(collectType);
+		CollectionIterator iter = new CollectionIterator((XDMQueryManagement) repo.getQueryManagement(), exCont);
+		logger.trace("resolve. xdm: {}; returning iter: {} for collection type: {}", repo, iter, collectType);
 		return iter;
 	}
 	
-	private int getCollectionType(String uri) {
-		XDMModelManagement dict = repo.getModelManagement();
-		String root = dict.normalizePath(uri);
-		return dict.getDocumentType(root);
+	private int getCollectionId(String uri) {
+		XDMSchema schema = ((com.bagri.xdm.cache.api.XDMRepository) repo).getSchema();
+		XDMCollection cln = schema.getCollection(uri);
+		if (cln != null) {
+			return cln.getId();
+		}
+		logger.info("getCollectionId; no collection found for uri: {}; collections: {}", uri, schema.getCollections());
+		return ModelManagementBase.WRONG_PATH;
+		//XDMModelManagement dict = repo.getModelManagement();
+		//String root = dict.normalizePath(uri);
+		//return dict.getDocumentType(root);
 	}
 	
 	private Object getValues(Sequence sq) throws XPathException {
@@ -272,8 +288,8 @@ public class CollectionURIResolverImpl implements CollectionURIResolver {
     		for (Expression e: clx.getArguments()) {
     			if (e instanceof StringLiteral) {
     				String uri = ((StringLiteral) e).getStringValue();
-    				currentType = getCollectionType(uri);
-    	        	logger.trace("iterate; set docType: {} for uri: {}", currentType, uri);
+    				currentType = getCollectionId(uri);
+    	        	logger.trace("iterate; set collectionId: {} for uri: {}", currentType, uri);
     	        	currentPath = new PathBuilder();
     	        	path = currentPath;
     	        	ExpressionContainer exCont = new ExpressionContainer();
@@ -312,7 +328,7 @@ public class CollectionURIResolverImpl implements CollectionURIResolver {
     		Comparison compType = getComparison(((BooleanExpression) ex).getOperator());
     		if (compType != null) {
     			//if (currentType == collectType) {
-    			ExpressionContainer exCont = query.getContainer(currentType);
+    			ExpressionContainer exCont = getCurrentContainer();
     			exIndex = exCont.addExpression(currentType, compType, path);
     			logger.trace("iterate; added expression at index: {}", exIndex);
     			//}
@@ -382,20 +398,17 @@ public class CollectionURIResolverImpl implements CollectionURIResolver {
     			compType = Comparison.negate(compType);
     		}
     			
-   			ExpressionContainer exCont = query.getContainer(currentType);
-   			if (exCont == null) {
-   				// not sure is it ok for currentType = -1!
-	        	exCont = new ExpressionContainer();
-	        	query.addContainer(currentType, exCont);
-   			}
+   			ExpressionContainer exCont = getCurrentContainer();
    			exIndex = exCont.addExpression(currentType, compType, path, pName, value);
    			logger.trace("iterate; added path expression at index: {}", exIndex);
    			setParentPath(exCont.getExpression(), exIndex, path);
+   			logger.trace("iterate; parent path {} set at index: {}", path, exIndex);
     	}  
 
     	if (ex instanceof BooleanExpression) {
-			ExpressionContainer exCont = query.getContainer(currentType);
+			ExpressionContainer exCont = getCurrentContainer();
     		setParentPath(exCont.getExpression(), exIndex, path);
+   			logger.trace("iterate; parent path {} set at index: {}", path, exIndex);
     	}
     	
     	if (ex instanceof Atomizer) {
@@ -410,18 +423,26 @@ public class CollectionURIResolverImpl implements CollectionURIResolver {
     		}
     	}
     	
-    	//if (ex instanceof VariableReference) {
-    	//	VariableReference var = (VariableReference) ex;
-    	//	if (var.getBinding() instanceof GeneralVariable) {
-   		//		Expression ex2 = ((XQueryExpression) var.getContainer()).getExpression(); 
-   		//		String vName = ex2.getObjectName().getClarkName();
-   		//		String pName = ((GeneralVariable) var.getBinding()).getVariableQName().getLocalPart();
-       	//		logger.trace("iterate; got var: {}, with name: {}", pName, vName);
-       	//		vars.put(vName, pName);
-    	//	}
-    	//}
+    	//if (ex instanceof Collection) {
+   		//	ExpressionContainer exCont = getCurrentContainer();
+   		//	if (exCont.getExpression().getRoot() == null) {
+   		//		exCont.addExpression(currentType);
+   	   	//		logger.trace("iterate; added always expression for type: {}", currentType);
+   		//	}
+    	//}    	
     	
     	logger.trace("end: {}; path: {}", ex.getClass().getName(), path.getFullPath());
+    }
+    
+    private ExpressionContainer getCurrentContainer() {
+		ExpressionContainer exCont = query.getContainer(currentType);
+		if (exCont == null) {
+			exCont = new ExpressionContainer();
+			// not sure is it ok for currentType = -1!
+			query.addContainer(currentType, exCont);
+    		logger.trace("getCurrentContainer; added new container {} for cType: {}", exCont, currentType);
+		}  
+    	return exCont;
     }
     
 }

@@ -2,25 +2,20 @@ package com.bagri.xdm.cache.hazelcast.task.doc;
 
 import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_ProvideDocumentStructureTask;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.concurrent.Callable;
 
 import javax.management.openmbean.CompositeData;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.cache.hazelcast.impl.DocumentManagementImpl;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentAwareTask;
-import com.bagri.xdm.common.XDMDataKey;
-import com.bagri.xdm.domain.XDMDocument;
+import com.bagri.xdm.common.XDMDocumentId;
 import com.bagri.xdm.domain.XDMElement;
 import com.bagri.xdm.domain.XDMElements;
 import com.bagri.xdm.domain.XDMPath;
@@ -35,13 +30,11 @@ public class DocumentStructureProvider extends DocumentAwareTask implements Call
 		super();
 	}
 	
-	public DocumentStructureProvider(String clientId, long docId) {
-		super(clientId, docId, 0);
+	public DocumentStructureProvider(String clientId, XDMDocumentId docId) {
+		super(clientId, 0, docId, null);
 	}
 
-	
     @Autowired
-    @Qualifier("docManager")
 	public void setDocManager(DocumentManagementImpl docMgr) {
 		this.docMgr = docMgr;
 	}
@@ -49,7 +42,7 @@ public class DocumentStructureProvider extends DocumentAwareTask implements Call
 	@Override
 	public CompositeData call() throws Exception {
 		
-    	Collection<XDMElements> elements = docMgr.getDocumentElements(docId);
+    	Collection<XDMElements> elements = docMgr.getDocumentElements(docId.getDocumentKey());
     	if (elements == null) {
     		return null;
     	}

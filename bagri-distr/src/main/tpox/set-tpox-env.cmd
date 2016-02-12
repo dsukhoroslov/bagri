@@ -12,8 +12,8 @@ set memory=2048m
 
 rem specify schema and admin hosts:ports
 set admin_addr=localhost:3330
-rem set schema_addr=localhost:10500
-set schema_addr=10.249.143.8:10500
+set schema_addr=localhost:10500
+rem set schema_addr=10.249.143.8:10500
 
 set login=admin
 set password=password
@@ -37,12 +37,12 @@ set java_opts=%java_opts% -Dxdm.schema.user=guest
 set java_opts=%java_opts% -Dxdm.schema.password=password
 
 rem possible values are: member, owner, any
-set java_opts=%java_opts% -Dxdm.client.submitTo=any
+set java_opts=%java_opts% -Dxdm.client.submitTo=owner
 set java_opts=%java_opts% -Dxdm.client.bufferSize=32
 set java_opts=%java_opts% -Dxdm.client.fetchSize=1
 set java_opts=%java_opts% -Dxdm.client.connectAttempts=3
 set java_opts=%java_opts% -Dxdm.client.loginTimeout=30
-set java_opts=%java_opts% -Dxdm.client.smart=false
+set java_opts=%java_opts% -Dxdm.client.smart=true
 set java_opts=%java_opts% -Dxdm.client.poolSize=200
 
 set java_opts=%java_opts% -Duser.country=US -Duser.language=en

@@ -1,5 +1,7 @@
 package com.bagri.xdm.cache.hazelcast.task.user;
 
+import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_CreateUserTask;
+
 import java.io.IOException;
 import java.util.Date;
 import java.util.Map.Entry;
@@ -8,11 +10,15 @@ import com.bagri.common.security.Encryptor;
 import com.bagri.xdm.system.XDMUser;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
-import com.hazelcast.nio.serialization.DataSerializable;
+import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
-public class UserCreator extends UserProcessor implements DataSerializable {
+public class UserCreator extends UserProcessor implements IdentifiedDataSerializable {
 	
 	private String password;
+	
+	public UserCreator() {
+		//de-ser
+	}
 
 	public UserCreator(String admin, String password) {
 		super(1, admin);
@@ -33,6 +39,11 @@ public class UserCreator extends UserProcessor implements DataSerializable {
 		return null;
 	}
 
+	@Override
+	public int getId() {
+		return cli_CreateUserTask;
+	}
+	
 	@Override
 	public void readData(ObjectDataInput in) throws IOException {
 		super.readData(in);

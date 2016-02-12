@@ -4,7 +4,9 @@ import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFacto
 
 import java.io.IOException;
 import java.util.Map.Entry;
+import java.util.Properties;
 
+import com.bagri.xdm.common.XDMDocumentId;
 import com.bagri.xdm.domain.XDMDocument;
 import com.hazelcast.map.EntryBackupProcessor;
 import com.hazelcast.map.EntryProcessor;
@@ -14,17 +16,20 @@ import com.hazelcast.nio.ObjectDataOutput;
 public class DocumentProcessor extends DocumentAwareTask 
 	implements EntryProcessor<Long, XDMDocument>, EntryBackupProcessor<Long, XDMDocument> {
 	
-	protected String uri;
-	protected String xml;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3225722672696011111L;
+	
+	protected String content;
 
 	public DocumentProcessor() {
 		super();
 	}
 
-	public DocumentProcessor(String clientId, long docId, long txId, String uri, String xml) {
-		super(clientId, docId, txId);
-		this.uri = uri;
-		this.xml = xml;
+	public DocumentProcessor(String clientId, long txId, XDMDocumentId docId, String content, Properties props) {
+		super(clientId, txId, docId, props);
+		this.content = content;
 	}
 	
 	@Override
@@ -50,15 +55,13 @@ public class DocumentProcessor extends DocumentAwareTask
 	@Override
 	public void readData(ObjectDataInput in) throws IOException {
 		super.readData(in);
-		uri = in.readUTF();
-		xml = in.readUTF();
+		content = in.readUTF();
 	}
 
 	@Override
 	public void writeData(ObjectDataOutput out) throws IOException {
 		super.writeData(out);
-		out.writeUTF(uri);
-		out.writeUTF(xml);
+		out.writeUTF(content);
 	}
 
 }

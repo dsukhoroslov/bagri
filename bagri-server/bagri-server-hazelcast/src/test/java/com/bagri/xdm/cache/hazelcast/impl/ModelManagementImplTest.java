@@ -29,6 +29,7 @@ public class ModelManagementImplTest extends XDMModelManagementTest {
 
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
+		Thread.sleep(3000);
 		context.close();
 	}
 

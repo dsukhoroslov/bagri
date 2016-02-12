@@ -1,5 +1,7 @@
 package com.bagri.xdm.cache.hazelcast.task.library;
 
+import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_CreateLibraryTask;
+
 import java.io.IOException;
 import java.util.Date;
 import java.util.Map.Entry;
@@ -7,12 +9,16 @@ import java.util.Map.Entry;
 import com.bagri.xdm.system.XDMLibrary;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
-import com.hazelcast.nio.serialization.DataSerializable;
+import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
-public class LibraryCreator extends LibraryProcessor implements DataSerializable {
+public class LibraryCreator extends LibraryProcessor implements IdentifiedDataSerializable {
 	
 	private String fileName;
 	private String description;
+	
+	public LibraryCreator() {
+		// de-ser
+	}
 
 	public LibraryCreator(String admin, String fileName, String description) {
 		super(1, admin);
@@ -35,6 +41,11 @@ public class LibraryCreator extends LibraryProcessor implements DataSerializable
 	}
 
 	@Override
+	public int getId() {
+		return cli_CreateLibraryTask;
+	}
+	
+	@Override
 	public void readData(ObjectDataInput in) throws IOException {
 		super.readData(in);
 		fileName = in.readUTF();
@@ -47,6 +58,5 @@ public class LibraryCreator extends LibraryProcessor implements DataSerializable
 		out.writeUTF(fileName);
 		out.writeUTF(description);
 	}
-
 
 }
