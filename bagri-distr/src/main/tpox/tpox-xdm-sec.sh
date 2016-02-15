@@ -38,14 +38,13 @@ export TPOX_HOME
 # security documents  (because 83 * 251 = 20833). 4166*5 = 3472*6 = 2976*7 = 2604*8 = 2314*9
 
 #insert securities to the cache
-$RUN_JAVA -server $JAVA_OPTS net.sf.tpox.workload.core.WorkloadDriver -w queries/XQJ/insSecurity.xml -tr 251 -u 83
+$RUN_JAVA -server $JAVA_OPTS net.sf.tpox.workload.core.WorkloadDriver -w queries/XDM/insSecurity.xml -tr 251 -u 83
 
 #rem perform queries loopig by user count
 a=5
 while [ $a -le 200 ]
 do
    echo $a
-   $RUN_JAVA -server $JAVA_OPTS net.sf.tpox.workload.core.WorkloadDriver -w queries/XQJ/securities.xml -u $a -r 10 -pc 95 -cl 99
+   $RUN_JAVA -server $JAVA_OPTS net.sf.tpox.workload.core.WorkloadDriver -w queries/XDM/securities.xml -u $a -r 10 -pc 95 -cl 99
    a=`expr $a + 15`
 done
-

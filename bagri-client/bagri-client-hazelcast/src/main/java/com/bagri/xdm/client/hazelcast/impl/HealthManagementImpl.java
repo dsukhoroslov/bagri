@@ -91,7 +91,7 @@ public class HealthManagementImpl implements XDMHealthManagement, MessageListene
 			for (XDMHealthChangeListener list: listeners.values()) {
 				list.onHealthStateChange(newState);
 			}
-			logger.debug("onMessage; health state changed from {} to {}; listeners notified: {}", 
+			logger.trace("onMessage; health state changed from {} to {}; listeners notified: {}", 
 					state, newState, listeners.size()); 
 		}
 		state = newState;

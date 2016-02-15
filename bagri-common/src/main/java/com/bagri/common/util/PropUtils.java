@@ -22,6 +22,13 @@ public class PropUtils {
 		return props;
 	}
 	
+	public static String getProperty(Properties props, String name, String fallback) {
+		if (props != null) {
+			return props.getProperty(name, fallback);
+		}
+		return fallback;
+	}
+	
 	public static String getSystemProperty(String name, String fallback) {
 		String prop = System.getProperty(name);
 		if (prop == null) {

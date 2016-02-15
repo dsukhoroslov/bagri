@@ -15,17 +15,30 @@ public class XDMConstants {
 
 	public static final String pn_client_id = "xdm.client.id";
 	public static final String pn_client_txId = "xdm.client.txId";
+	public static final String pn_client_txTimeout = "xdm.client.txTimeout";
 	
 	public static final String pn_client_smart = "xdm.client.smart";
-	public static final String pn_client_submitTo = "xdm.client.submitTo";
+	public static final String pn_client_bufferSize = "xdm.client.bufferSize";
+	public static final String pn_client_connectAttempts = "xdm.client.connectAttempts";
+	public static final String pn_client_poolSize = "xdm.client.poolSize";
+
 	public static final String pn_client_fetchSize = "xdm.client.fetchSize";
 	public static final String pn_client_healthCheck = "xdm.client.healthCheck";
 	public static final String pn_client_loginTimeout = "xdm.client.loginTimeout";
 	public static final String pn_data_factory = "xdm.client.dataFactory";
-	public static final String pn_client_bufferSize = "xdm.client.bufferSize";
-	public static final String pn_client_connectAttempts = "xdm.client.connectAttempts";
-	public static final String pn_client_poolSize = "xdm.client.poolSize";
 	
+	public static final String pn_client_queryCache = "xdm.client.queryCache";
+	public static final String pn_client_storeMode = "xdm.client.storeMode";
+	public static final String pn_client_submitTo = "xdm.client.submitTo";
+
+	public static final String pv_client_storeMode_insert = "insert";
+	public static final String pv_client_storeMode_update = "update";
+	public static final String pv_client_storeMode_merge = "merge";
+	
+	public static final String pv_client_submitTo_any = "any";
+	public static final String pv_client_submitTo_member = "member";
+	public static final String pv_client_submitTo_owner = "owner";
+
 	public static final String pn_query_command = "xdm.query.command";
 	
 	public static final String pn_baseURI = "xqj.schema.baseUri";

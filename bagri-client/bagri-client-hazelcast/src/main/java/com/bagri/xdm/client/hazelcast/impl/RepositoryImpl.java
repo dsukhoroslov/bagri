@@ -76,6 +76,8 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 		setProperty(props, pn_client_connectAttempts, "3"); 
 		setProperty(props, pn_client_poolSize, "5");
 		setProperty(props, pn_client_healthCheck, null);
+		setProperty(props, pn_client_queryCache, null);
+		setProperty(props, pn_client_txTimeout, null);
 		return props;
 	}
 	
@@ -95,6 +97,8 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 		setProperty(props, pn_client_smart, null); 
 		setProperty(props, pn_client_poolSize, null);
 		setProperty(props, pn_client_healthCheck, null);
+		setProperty(props, pn_client_queryCache, null);
+		setProperty(props, pn_client_txTimeout, null);
 		return props;
 	}
 	
@@ -113,16 +117,21 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 		setBindingManagement(new BindingManagementImpl());
 		setDocumentManagement(new DocumentManagementImpl());
 		setHealthManagement(new HealthManagementImpl(hzClient));
-		if (props != null) {
-			String value = props.getProperty("pn_client_healthCheck");
-			if (value != null) {
-				getHealthManagement().setCheckSate(XDMHealthCheckState.valueOf(value));
-			}
-		}
 		setModelManagement(new ModelManagementImpl(hzClient));
 		setQueryManagement(new QueryManagementImpl());
 		setTxManagement(new TransactionManagementImpl());
 		hzClient.getUserContext().put(bean_id, this);
+
+		if (props != null) {
+			String value = props.getProperty(pn_client_healthCheck);
+			if (value != null) {
+				getHealthManagement().setCheckSate(XDMHealthCheckState.valueOf(value));
+			}
+			value = props.getProperty(pn_client_queryCache);
+			if (value != null) {
+				((QueryManagementImpl) getQueryManagement()).setQueryCache(Boolean.parseBoolean(value));
+			}
+		}
 	}
 	
 	@Override

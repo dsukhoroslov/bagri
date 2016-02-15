@@ -3,11 +3,7 @@ package com.bagri.xdm.client.hazelcast.impl;
 import static com.bagri.xdm.client.common.XDMCacheConstants.CN_XDM_RESULT;
 import static com.bagri.xdm.client.common.XDMCacheConstants.CN_XDM_QUERY;
 import static com.bagri.xdm.client.common.XDMCacheConstants.PN_XDM_SCHEMA_POOL;
-import static com.bagri.xdm.common.XDMConstants.pn_client_fetchSize;
-import static com.bagri.xdm.common.XDMConstants.pn_client_id;
-import static com.bagri.xdm.common.XDMConstants.pn_client_submitTo;
-import static com.bagri.xdm.common.XDMConstants.pn_client_txId;
-import static com.bagri.xdm.common.XDMConstants.pn_queryTimeout;
+import static com.bagri.xdm.common.XDMConstants.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -26,12 +22,10 @@ import javax.xml.namespace.QName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bagri.common.query.ExpressionContainer;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMQueryManagement;
 import com.bagri.xdm.client.common.impl.QueryManagementBase;
 import com.bagri.xdm.client.hazelcast.task.query.DocumentIdsProvider;
-import com.bagri.xdm.client.hazelcast.task.query.XMLBuilder;
 import com.bagri.xdm.client.hazelcast.task.query.QueryExecutor;
 import com.bagri.xdm.common.XDMDocumentId;
 import com.bagri.xdm.domain.XDMQuery;
@@ -45,6 +39,7 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 	
     private final static Logger logger = LoggerFactory.getLogger(QueryManagementImpl.class);
 	
+    private boolean queryCache = true;
     private RepositoryImpl repo;
 	private IExecutorService execService;
     private Future execution = null; 
@@ -60,6 +55,10 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 		execService = repo.getHazelcastClient().getExecutorService(PN_XDM_SCHEMA_POOL);
 		resCache = repo.getHazelcastClient().getMap(CN_XDM_RESULT);
 		xqCache = repo.getHazelcastClient().getReplicatedMap(CN_XDM_QUERY);
+	}
+	
+	public void setQueryCache(boolean queryCache) {
+		this.queryCache = queryCache;
 	}
 	
 	@Override
@@ -90,26 +89,31 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 	public Iterator executeQuery(String query, Map<QName, Object> params, Properties props) throws XDMException {
 
 		logger.trace("executeQuery.enter; query: {}; bindings: {}; context: {}", query, params, props);
-		//QueryParamsKey key = new QueryParamsKey(getQueryKey(query), getParamsKey(bindings));
-		long key = getResultsKey(query, params);
-		XDMResults res = resCache.get(key);
-		if (res != null) {
-			logger.trace("execXQuery; got cached results: {}", res);
-			return res.getResults().iterator();
+		boolean useCache = this.queryCache; 
+		String qCache = props.getProperty(pn_client_queryCache);
+		if (qCache != null) {
+			useCache = Boolean.parseBoolean(qCache); 
 		}
-		
+		if (useCache) {
+			long key = getResultsKey(query, params);
+			XDMResults res = resCache.get(key);
+			if (res != null) {
+				logger.trace("execXQuery; got cached results: {}", res);
+				return res.getResults().iterator();
+			}
+		}
+
 		props.setProperty(pn_client_id, repo.getClientId());
 		//props.setProperty(pn_client_txId, String.valueOf(repo.getTransactionId()));
 		
-		String runOn = props.getProperty(pn_client_submitTo, "any");
-		//String schemaName = repo.getSchemaName();
-
+		long key = getQueryKey(query);
 		boolean isQuery = true;
 		QueryExecutor task = new QueryExecutor(repo.getClientId(), repo.getTransactionId(), query, params, props);
 		Future<ResultCursor> future;
-		if ("owner".equalsIgnoreCase(runOn)) {
+		String runOn = props.getProperty(pn_client_submitTo, pv_client_submitTo_any);
+		if (pv_client_submitTo_owner.equalsIgnoreCase(runOn)) {
 			future = execService.submitToKeyOwner(task, key);
-		} else if ("member".equalsIgnoreCase(runOn)) {
+		} else if (pv_client_submitTo_member.equalsIgnoreCase(runOn)) {
 			Member member = repo.getHazelcastClient().getPartitionService().getPartition(key).getOwner();
 			future = execService.submitToMember(task, member);
 		} else {

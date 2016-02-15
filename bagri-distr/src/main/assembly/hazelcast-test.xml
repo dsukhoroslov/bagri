@@ -70,8 +70,10 @@
             <directory>src/main/tpox</directory>
             <outputDirectory>/tpox</outputDirectory>
             <lineEnding>unix</lineEnding>
+            <fileMode>755</fileMode>
             <includes>
                 <include>*.sh</include>
+                <include>*.conf</include>
             </includes>
         </fileSet>
         <fileSet>
@@ -79,7 +81,7 @@
             <outputDirectory>/tpox</outputDirectory>
             <lineEnding>windows</lineEnding>
             <includes>
-                <include>*.*</include>
+                <include>*.cmd</include>
             </includes>
         </fileSet>
 
@@ -88,8 +90,10 @@
             <directory>src/main/ycsb</directory>
             <outputDirectory>/ycsb</outputDirectory>
             <lineEnding>unix</lineEnding>
+            <fileMode>755</fileMode>
             <includes>
                 <include>*.sh</include>
+                <include>*.conf</include>
             </includes>
         </fileSet>
         <fileSet>
@@ -97,7 +101,7 @@
             <outputDirectory>/ycsb</outputDirectory>
             <lineEnding>windows</lineEnding>
             <includes>
-                <include>*.*</include>
+                <include>*.cmd</include>
             </includes>
         </fileSet>
     </fileSets>

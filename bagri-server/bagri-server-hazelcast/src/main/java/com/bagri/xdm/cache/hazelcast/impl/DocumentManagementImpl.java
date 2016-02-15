@@ -6,6 +6,7 @@ import static com.bagri.common.util.XMLUtils.*;
 import static com.bagri.xdm.client.common.XDMCacheConstants.PN_XDM_SCHEMA_POOL;
 import static com.bagri.xdm.api.XDMTransactionManagement.TX_NO;
 import static com.bagri.xdm.domain.XDMDocument.dvFirst;
+import static com.bagri.xdm.common.XDMConstants.pn_client_txTimeout;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -29,6 +30,7 @@ import javax.xml.transform.Source;
 
 import com.bagri.common.idgen.IdGenerator;
 import com.bagri.common.stats.StatisticsEvent;
+import com.bagri.common.util.PropUtils;
 import com.bagri.common.util.XMLUtils;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.cache.common.XDMDocumentManagementServer;
@@ -190,13 +192,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	}
 
 	private String getDataFormat(Properties props) {
-		if (props != null) {
-			String format = props.getProperty(xdm_document_data_format);
-			if (format != null) {
-				return format;
-			}
-		}
-		return XDMParser.df_xml;
+		return PropUtils.getProperty(props, xdm_document_data_format, XDMParser.df_xml);
 	}
 	
 	int indexElements(int docType, int pathId) throws XDMException {
@@ -681,6 +677,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		logger.trace("storeDocumentFromString.enter; docId: {}; xml: {}; props: {}", docId, xml.length(), props);
 		String ext = getDataFormat(props).toLowerCase();
 		boolean update = false;
+		//String storeMode = PropUtils.getProperty(props, pn_client_storeMode, pv_client_storeMode_merge);
 		if (docId == null) {
 			long docKey = XDMDocumentKey.toKey(docGen.next(), dvFirst);
 			docId = new XDMDocumentId(docKey, docKey + "." + ext);
@@ -717,7 +714,13 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		}
 		
 		XDMDocumentKey docKey = factory.newXDMDocumentKey(docId.getDocumentKey());
-		boolean locked = lockDocument(docKey);
+
+		String value = PropUtils.getProperty(props, pn_client_txTimeout, null);
+		long timeout = txManager.getTransactionTimeout(); 
+		if (value != null) {
+			timeout = Long.parseLong(value);
+		}
+		boolean locked = lockDocument(docKey, timeout);
 		if (locked) {
 			try {
 				XDMDocumentKey newKey = docKey;
@@ -771,7 +774,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	    }
 	    
 	    boolean removed = false;
-		boolean locked = lockDocument(docKey);
+		boolean locked = lockDocument(docKey, txManager.getTransactionTimeout());
 		if (locked) {
 			try {
 			    XDMDocument doc = getDocument(docKey);
@@ -964,10 +967,9 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		return remCount;
 	}
 	
-	private boolean lockDocument(XDMDocumentKey docKey) { //throws XDMException {
+	private boolean lockDocument(XDMDocumentKey docKey, long timeout) { //throws XDMException {
 		
 		boolean locked = false;
-		long timeout = txManager.getTransactionTimeout();
 		if (timeout > 0) {
 			try {
 				locked = xddCache.tryLock(docKey, timeout, TimeUnit.MILLISECONDS);
