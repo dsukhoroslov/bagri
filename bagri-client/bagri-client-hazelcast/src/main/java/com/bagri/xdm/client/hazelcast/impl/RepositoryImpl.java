@@ -78,6 +78,7 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 		setProperty(props, pn_client_healthCheck, null);
 		setProperty(props, pn_client_queryCache, null);
 		setProperty(props, pn_client_txTimeout, null);
+		setProperty(props, pn_client_customAuth, null);
 		return props;
 	}
 	
@@ -90,15 +91,16 @@ public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
 		setProperty(original, props, pn_client_loginTimeout, "loginTimeout");
 		setProperty(original, props, pn_client_bufferSize, null); 
 		setProperty(original, props, pn_client_connectAttempts, null);
-		Object factory = original.get(pn_data_factory);
+		Object factory = original.get(pn_client_dataFactory);
 		if (factory != null) {
-			props.put(pn_data_factory, factory);
+			props.put(pn_client_dataFactory, factory);
 		}
 		setProperty(props, pn_client_smart, null); 
 		setProperty(props, pn_client_poolSize, null);
 		setProperty(props, pn_client_healthCheck, null);
 		setProperty(props, pn_client_queryCache, null);
 		setProperty(props, pn_client_txTimeout, null);
+		setProperty(props, pn_client_customAuth, null);
 		return props;
 	}
 	

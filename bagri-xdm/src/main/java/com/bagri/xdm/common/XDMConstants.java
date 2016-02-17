@@ -25,8 +25,9 @@ public class XDMConstants {
 	public static final String pn_client_fetchSize = "xdm.client.fetchSize";
 	public static final String pn_client_healthCheck = "xdm.client.healthCheck";
 	public static final String pn_client_loginTimeout = "xdm.client.loginTimeout";
-	public static final String pn_data_factory = "xdm.client.dataFactory";
+	public static final String pn_client_dataFactory = "xdm.client.dataFactory";
 	
+	public static final String pn_client_customAuth = "xdm.client.customAuth";
 	public static final String pn_client_queryCache = "xdm.client.queryCache";
 	public static final String pn_client_storeMode = "xdm.client.storeMode";
 	public static final String pn_client_submitTo = "xdm.client.submitTo";

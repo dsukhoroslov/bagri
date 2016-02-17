@@ -1,12 +1,7 @@
 package com.bagri.common.util;
 
-import java.beans.XMLDecoder;
-import java.beans.XMLEncoder;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -26,7 +21,6 @@ import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
@@ -48,13 +42,28 @@ public class XMLUtils {
 	private static final String EOL = System.getProperty("line.separator");
 	
 	private static final DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();  
-	private static final XMLInputFactory xiFactory = XMLInputFactory.newInstance();
 	private static final TransformerFactory transFactory = TransformerFactory.newInstance();  
-
+	private static final XMLInputFactory xiFactory = XMLInputFactory.newInstance();
+	private static final XStream xStream = new XStream(new StaxDriver());
+	
 	static {
 		dbFactory.setNamespaceAware(true);
+		xStream.alias("map", java.util.Map.class);
 	}
 
+	private static final ThreadLocal<DocumentBuilder> thDB = new ThreadLocal<DocumentBuilder>() {
+		
+		@Override
+		protected DocumentBuilder initialValue() {
+			try {
+				return dbFactory.newDocumentBuilder();
+			} catch (ParserConfigurationException ex) {
+				throw new RuntimeException(ex);
+			}
+ 		}
+		
+	};
+	
 	public static String textToString(Reader text) throws IOException {
 		if (text == null) {
 			throw new IOException("Provided reader is null");
@@ -80,18 +89,16 @@ public class XMLUtils {
 	}
 	
 	public static Document textToDocument(String text) throws IOException {
-		
+		DocumentBuilder builder = thDB.get();
 		try {
-			DocumentBuilder builder = dbFactory.newDocumentBuilder();
 	        return builder.parse(new ByteArrayInputStream(text.getBytes(def_encoding)));  
 	        // shouldn't we close IS above?
-		} catch (ParserConfigurationException | SAXException ex) {
+		} catch (SAXException ex) {
 			throw new IOException(ex); 
 		}  
 	}
 
 	public static Document textToDocument(InputStream text) throws IOException {
-		
 		try {
 			DocumentBuilder builder = dbFactory.newDocumentBuilder();
 	        return builder.parse(text);  
@@ -101,7 +108,6 @@ public class XMLUtils {
 	}
 
 	public static Document textToDocument(Reader text) throws IOException {
-		
 		try {
 			DocumentBuilder builder = dbFactory.newDocumentBuilder();
 	        return builder.parse(new InputSource(text));  
@@ -111,7 +117,6 @@ public class XMLUtils {
 	}
 	
 	public static XMLStreamReader stringToStream(String content) throws IOException {
-		
 		//get Reader connected to XML input from somewhere..?
 		// note: we can not close this reader as it is used further
 		Reader reader = new StringReader(content);
@@ -124,7 +129,6 @@ public class XMLUtils {
 	}
 	
 	public static String sourceToString(Source source) throws IOException { 
-		
 		try {
 			Transformer trans = transFactory.newTransformer();
 	    	trans.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
@@ -139,12 +143,10 @@ public class XMLUtils {
 	}
 	
 	public static String nodeToString(Node node) throws IOException {
-		
 		return sourceToString(new DOMSource(node));
 	}
 	
 	public static void stringToResult(String source, Result result) throws IOException {
-	
 		try {
 			Transformer trans = transFactory.newTransformer();  
 			StringReader reader = new StringReader(source);
@@ -155,29 +157,18 @@ public class XMLUtils {
 	}
 	
 	public static String beanToXML(Object bean) throws IOException {
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		XMLEncoder en = new XMLEncoder(new BufferedOutputStream(baos));
-		en.writeObject(bean);
-		en.close();
-		return new String(baos.toByteArray());
+		return xStream.toXML(bean);
 	}
 
 	public static Object beanFromXML(String xml) throws IOException {
-		ByteArrayInputStream bais = new ByteArrayInputStream(xml.getBytes(def_encoding));  
-		XMLDecoder dc = new XMLDecoder(new BufferedInputStream(bais));
-		Object result = dc.readObject();
-	    dc.close();
-	    return result;
+		return xStream.fromXML(xml);		
 	}
 	
 	public static String mapToXML(Map<String, Object> map) {
-		XStream xStream = new XStream(new StaxDriver());
-		xStream.alias("map", java.util.Map.class);
 		return xStream.toXML(map);
 	}
 	
 	public static Map<String, Object> mapFromXML(String xml) {
-		XStream xStream = new XStream(new StaxDriver());
 		return (Map<String, Object>) xStream.fromXML(xml);		
 	}
 

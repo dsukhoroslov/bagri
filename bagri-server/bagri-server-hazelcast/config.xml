@@ -318,8 +318,8 @@
             <createdBy>SDV</createdBy>
             <description>default schema for test and demo purpose</description>
             <properties>
-                <entry name="xdm.schema.password">5f4dcc3b5aa765d61d8327deb882cf99</entry>
-                <!--entry name="xdm.schema.password">password</entry-->
+                <entry name="xdm.schema.password">password</entry>
+                <!--entry name="xdm.schema.password">5f4dcc3b5aa765d61d8327deb882cf99</entry-->
                 <entry name="xdm.schema.data.backup.read">false</entry>
                 <entry name="xdm.schema.trans.backup.async">0</entry>
                 <entry name="xdm.schema.store.enabled">false</entry>

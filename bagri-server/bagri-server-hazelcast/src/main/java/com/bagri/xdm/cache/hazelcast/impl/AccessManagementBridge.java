@@ -38,12 +38,19 @@ public class AccessManagementBridge implements MembershipListener {
 	public void setHazelcastInstance(HazelcastInstance hzInstance) {
 		logger.trace("setHazelcastInstance.enter");
 		this.hzInstance = hzInstance;
-		//if (hzInstance != null) {
-			hzInstance.getCluster().addMembershipListener(this);
-			setupCaches();
-		//} 
-		if (roles.size() == 0 && users.size() == 0) {
-			// started as standalone server
+		hzInstance.getCluster().addMembershipListener(this);
+		setupCaches();
+	}
+	
+	public void setupCaches() {
+		boolean lite = true;
+		for (Member m: hzInstance.getCluster().getMembers()) {
+			if (!m.isLiteMember()) {
+				lite = false;
+				break;
+			}
+		}
+		if (lite) {
 	       	String confName = System.getProperty(xdm_access_filename);
 	       	if (confName != null) {
 	       		AccessManagement cfg = new AccessManagement(confName);
@@ -56,33 +63,19 @@ public class AccessManagementBridge implements MembershipListener {
 	       			users.put(user.getLogin(), user);
 	       	    }
 	       	}
+		} else {
+			copyCache(hzInstance.getMap("roles"), roles);
+			copyCache(hzInstance.getMap("users"), users);
 		}
-		logger.trace("setHazelcastInstance.exit; initiated roles: {}; users {}", roles.size(), users.size());
-	}
-	
-	public void setupCaches() {
-		boolean lite = true;
-		for (Member m: hzInstance.getCluster().getMembers()) {
-			if (!m.isLiteMember()) {
-				lite = false;
-				break;
-			}
-		}
-		if (!lite) {
-			IMap<String, XDMRole> rCache = hzInstance.getMap("roles");
-			copyCache(rCache, roles);
-			rCache.addEntryListener(new EntityListener(roles), true);
-			IMap<String, XDMUser> uCache = hzInstance.getMap("users");
-			copyCache(uCache, users);
-			uCache.addEntryListener(new EntityListener(users), true);
-		}
+		logger.trace("setupCaches.exit; lite: {}; initiated roles: {}; users {}", lite, roles.size(), users.size());
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private void copyCache(Map source, Map target) {
+	private void copyCache(IMap source, Map target) {
 		target.clear();
 		if (source != null) {
 			target.putAll(source);
+			source.addEntryListener(new EntityListener(target), true);
 		}
 	}
 	

@@ -6,7 +6,8 @@ import static com.bagri.xdm.common.XDMConstants.pn_client_connectAttempts;
 import static com.bagri.xdm.common.XDMConstants.pn_client_loginTimeout;
 import static com.bagri.xdm.common.XDMConstants.pn_client_poolSize;
 import static com.bagri.xdm.common.XDMConstants.pn_client_smart;
-import static com.bagri.xdm.common.XDMConstants.pn_data_factory;
+import static com.bagri.xdm.common.XDMConstants.pn_client_dataFactory;
+import static com.bagri.xdm.common.XDMConstants.pn_client_customAuth;
 import static com.bagri.xdm.common.XDMConstants.pn_schema_address;
 import static com.bagri.xdm.common.XDMConstants.pn_schema_name;
 import static com.bagri.xdm.common.XDMConstants.pn_schema_password;
@@ -64,7 +65,7 @@ public class ClientManagementImpl {
    	    	HazelcastInstance hzClient = cc.hzInstance; 
    	    	if (cc.addClient(clientId)) {
    	    		IMap<String, Properties> clientProps = hzClient.getMap(CN_XDM_CLIENT);
-   	    		props.remove(pn_data_factory);
+   	    		props.remove(pn_client_dataFactory);
    	    		clientProps.set(clientId, props);
    				logger.trace("connect; got new connection for clientId: {}", clientId);
    	    	} else {
@@ -199,6 +200,7 @@ public class ClientManagementImpl {
 		String buffer = props.getProperty(pn_client_bufferSize); 
 		String attempts = props.getProperty(pn_client_connectAttempts); 
 		String pool = props.getProperty(pn_client_poolSize); 
+		String custom = props.getProperty(pn_client_customAuth);
 
 		//password = encrypt(password);
 		
@@ -237,13 +239,17 @@ public class ClientManagementImpl {
 		}
 		
 		config.setProperty("hazelcast.logging.type", "slf4j");
-		SecureCredentials creds = new SecureCredentials(user, password);
-		//SecureCredentials creds = new SecureCredentials(schema, password);
-		//config.getSecurityConfig().setCredentials(creds);
-		config.setCredentials(creds);
+		
+		if (custom != null) {
+			if ("true".equalsIgnoreCase(custom)) {
+				SecureCredentials creds = new SecureCredentials(user, password);
+				//config.getSecurityConfig().setCredentials(creds);
+				config.setCredentials(creds);
+			}
+		}
 
 		XQProcessor proc = null;
-		BagriXQDataFactory xqFactory = (BagriXQDataFactory) props.get(pn_data_factory);
+		BagriXQDataFactory xqFactory = (BagriXQDataFactory) props.get(pn_client_dataFactory);
 		if (xqFactory != null) {
 			proc = xqFactory.getProcessor();
 		}

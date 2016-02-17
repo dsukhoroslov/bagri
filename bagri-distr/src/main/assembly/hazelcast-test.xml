@@ -37,6 +37,7 @@
                     <include>*:bagri-test-tpox:*</include>
                     <include>*:commons-cli:*</include>
                     <include>*:marklogic-xcc:*</include>
+                    <include>*:tpox-workload:*</include>
 	        </includes>
 		<unpack>false</unpack>
 	    </binaries>
@@ -73,6 +74,13 @@
             <fileMode>755</fileMode>
             <includes>
                 <include>*.sh</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>src/main/tpox</directory>
+            <outputDirectory>/tpox</outputDirectory>
+            <lineEnding>unix</lineEnding>
+            <includes>
                 <include>*.conf</include>
             </includes>
         </fileSet>
@@ -93,6 +101,13 @@
             <fileMode>755</fileMode>
             <includes>
                 <include>*.sh</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>src/main/ycsb</directory>
+            <outputDirectory>/ycsb</outputDirectory>
+            <lineEnding>unix</lineEnding>
+            <includes>
                 <include>*.conf</include>
             </includes>
         </fileSet>
