@@ -50,13 +50,17 @@ public class XQItemTypeSerializer implements StreamSerializer<XQItemType> {
 			QName typeName = null;
 			if (isBaseTypeSupported(kind)) {
 				baseType = in.readInt();
-				typeName = in.readObject();
+				typeName = readQName(in); // in.readObject();
 			}
 			QName nodeName = null;
 			if (isNodeNameSupported(kind)) { // || isPINameSupported(kind)) {
-				nodeName = in.readObject();
+				nodeName = readQName(in); //in.readObject();
 			}
-			URI schemaURI = in.readObject();
+			boolean exists = in.readBoolean();
+			URI schemaURI = null;
+			if (exists) {
+				schemaURI = URI.create(in.readUTF());
+			}
 			boolean nillable = in.readBoolean();
 			XQDataFactory xqFactory = getXQDataFactory();
 			if (baseType > 0) {
@@ -101,6 +105,23 @@ public class XQItemTypeSerializer implements StreamSerializer<XQItemType> {
 			throw new IOException(ex);
 		}
 	}
+	
+	private QName readQName(ObjectDataInput in) throws IOException {
+		boolean exists = in.readBoolean();
+		if (exists) {
+			return QName.valueOf(in.readUTF());
+		}
+		return null;
+	}
+	
+	private void writeQName(ObjectDataOutput out, QName name) throws IOException {
+		if (name == null) {
+			out.writeBoolean(false);
+		} else {
+			out.writeBoolean(true);
+			out.writeUTF(name.toString());
+		}
+	}
 
 	@Override
 	public void write(ObjectDataOutput out, XQItemType type) throws IOException {
@@ -109,12 +130,19 @@ public class XQItemTypeSerializer implements StreamSerializer<XQItemType> {
 			out.writeInt(kind);
 			if (isBaseTypeSupported(kind)) {
 				out.writeInt(type.getBaseType());
-				out.writeObject(type.getTypeName());
+				//out.writeObject(type.getTypeName());
+				writeQName(out, type.getTypeName());
 			}
 			if (isNodeNameSupported(kind)) { // || isPINameSupported(kind)) {
-				out.writeObject(type.getNodeName()); // can be issues with wildcards
+				//out.writeObject(type.getNodeName()); // can be issues with wildcards
+				writeQName(out, type.getNodeName());
 			}
-			out.writeObject(type.getSchemaURI());
+			if (type.getSchemaURI() == null) {
+				out.writeBoolean(false);
+			} else {
+				out.writeBoolean(true);
+				out.writeUTF(type.getSchemaURI().toString());
+			}
 			out.writeBoolean(type.isElementNillable());
 		} catch (XQException ex) {
 			throw new IOException(ex);
