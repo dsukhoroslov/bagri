@@ -28,6 +28,8 @@ public class HealthManagementImpl implements MessageListener<XDMCounter>, Partit
 	private ITopic<XDMHealthState> hTopic;
 	private IMap<XDMDocumentKey, XDMDocument> xddCache;
 	
+	private XDMHealthState healthState = XDMHealthState.good; 
+	
 	private int thLow = 10;
 	private int thHigh = 0;
 	
@@ -73,8 +75,7 @@ public class HealthManagementImpl implements MessageListener<XDMCounter>, Partit
 	
 	private void checkState() {
 		int docSize = xddCache.size();
-		logger.trace("checkStats; active count: {}; inactive count: {}; cache size: {}", 
-				cntActive, cntInactive, docSize);
+		logger.trace("checkStats; active count: {}; inactive count: {}; cache size: {}", cntActive, cntInactive, docSize);
 		long fullSize = cntActive.get() + cntInactive.get();
 		XDMHealthState hState;
 		if (fullSize < docSize - thLow) {
@@ -87,7 +88,30 @@ public class HealthManagementImpl implements MessageListener<XDMCounter>, Partit
 		if (hState != XDMHealthState.good) { 			
 			logger.info("checkState; the state is: {}; expected size: {}; cache size: {}", hState, fullSize, docSize);
 		}
-		hTopic.publish(hState);
+		if (healthState != hState) {
+			healthState = hState;
+			hTopic.publish(hState);
+		}
+	}
+	
+	public void clearState() {
+		cntActive = new AtomicLong(0);
+		cntInactive = new AtomicLong(0);
+		hTopic.publish(XDMHealthState.good);
+	}
+
+	public int[] getCounters() {
+		return new int[] {cntActive.intValue(), cntInactive.intValue()};
+	}
+	
+	public XDMHealthState getHealthState() {
+		return healthState;
+	}
+
+	public void initState(int docActive, int docInactive) {
+		cntActive = new AtomicLong(docActive);
+		cntInactive = new AtomicLong(docInactive);
+		checkState();
 	}
 	
 	@Override
@@ -102,21 +126,6 @@ public class HealthManagementImpl implements MessageListener<XDMCounter>, Partit
 		checkState();
 	}
 	
-	public void clearState() {
-		cntActive = new AtomicLong(0);
-		cntInactive = new AtomicLong(0);
-		hTopic.publish(XDMHealthState.good);
-	}
-
-	public void initState(int docActive, int docInactive) {
-		cntActive = new AtomicLong(docActive);
-		cntInactive = new AtomicLong(docInactive);
-		checkState();
-	}
-	
-	public int[] getCounters() {
-		return new int[] {cntActive.intValue(), cntInactive.intValue()};
-	}
 /*		
 	@Override
 	public void checkClusterState() throws XDMException {

@@ -56,6 +56,8 @@
 		<entry name="xdm.schema.transaction.timeout">0</entry>
                 <entry name="xdm.schema.health.threshold.low">25</entry>
                 <entry name="xdm.schema.health.threshold.high">0</entry>
+                <entry name="xdm.schema.query.parallel">true</entry>
+                <entry name="xdm.schema.partition.pool">32</entry>
                 <entry name="xqj.schema.baseUri">file:///C:/Work/Bagri/git/bagri/etc/samples/ycsb/</entry>
                 <entry name="xqj.schema.orderingMode">2</entry>
                 <entry name="xqj.schema.queryLanguageTypeAndVersion">1</entry>
@@ -112,6 +114,8 @@
 		<entry name="xdm.schema.transaction.timeout">0</entry>
                 <entry name="xdm.schema.health.threshold.low">25</entry>
                 <entry name="xdm.schema.health.threshold.high">0</entry>
+                <entry name="xdm.schema.query.parallel">true</entry>
+                <entry name="xdm.schema.partition.pool">32</entry>
                 <entry name="xqj.schema.baseUri">file:///C:/Work/Bagri/git/bagri/etc/samples/json/</entry>
                 <entry name="xqj.schema.orderingMode">2</entry>
                 <entry name="xqj.schema.queryLanguageTypeAndVersion">1</entry>
@@ -168,6 +172,8 @@
 		<entry name="xdm.schema.transaction.timeout">0</entry>
                 <entry name="xdm.schema.health.threshold.low">25</entry>
                 <entry name="xdm.schema.health.threshold.high">0</entry>
+                <entry name="xdm.schema.query.parallel">true</entry>
+                <entry name="xdm.schema.partition.pool">32</entry>
                 <entry name="xqj.schema.baseUri">file:///C:/Work/Bagri/git/bagri/etc/samples/xdm/</entry>
                 <entry name="xqj.schema.orderingMode">2</entry>
                 <entry name="xqj.schema.queryLanguageTypeAndVersion">1</entry>
@@ -224,6 +230,8 @@
 		<entry name="xdm.schema.transaction.timeout">0</entry>
                 <entry name="xdm.schema.health.threshold.low">25</entry>
                 <entry name="xdm.schema.health.threshold.high">0</entry>
+                <entry name="xdm.schema.query.parallel">true</entry>
+                <entry name="xdm.schema.partition.pool">32</entry>
                 <entry name="xqj.schema.baseUri">file:///C:/Work/Bagri/git/bagri/etc/samples/tpox/</entry>
                 <entry name="xqj.schema.orderingMode">2</entry>
                 <entry name="xqj.schema.queryLanguageTypeAndVersion">1</entry>
@@ -349,6 +357,8 @@
                 <entry name="xdm.schema.partition.count">271</entry>
                 <entry name="xdm.schema.health.threshold.low">25</entry>
                 <entry name="xdm.schema.health.threshold.high">0</entry>
+                <entry name="xdm.schema.query.parallel">true</entry>
+                <entry name="xdm.schema.partition.pool">32</entry>
                 <entry name="xqj.schema.baseUri">file:///C:/Work/Bagri/git/bagri/etc/samples/tpox2/</entry>
                 <entry name="xqj.schema.orderingMode">2</entry>
                 <entry name="xqj.schema.queryLanguageTypeAndVersion">1</entry>
@@ -544,6 +554,8 @@
 		<entry name="xdm.schema.transaction.timeout">0</entry>
                 <entry name="xdm.schema.health.threshold.low">25</entry>
                 <entry name="xdm.schema.health.threshold.high">0</entry>
+                <entry name="xdm.schema.query.parallel">true</entry>
+                <entry name="xdm.schema.partition.pool">32</entry>
                 <entry name="xqj.schema.baseUri">file:///C:/Work/Bagri/git/bagri/etc/samples/xmark/</entry>
                 <entry name="xqj.schema.orderingMode">2</entry>
                 <entry name="xqj.schema.queryLanguageTypeAndVersion">1</entry>

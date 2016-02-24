@@ -31,8 +31,6 @@
 				<hz:property name="hazelcast.jmx">true</hz:property>
 				<hz:property name="hazelcast.jmx.detailed">true</hz:property>
 				<hz:property name="hazelcast.logging.type">slf4j</hz:property>
-				<!--hz:property name="hazelcast.partition.count">3</hz:property-->				
-				<!--hz:property name=“hazelcast.partitioning.strategy.class">...</hz:property-->
 				<hz:property name="xdm.cluster.admin.port">${xdm.cluster.admin.port}</hz:property>
 			</hz:properties>
 			<hz:network port="${xdm.cluster.port}" port-auto-increment="true">
@@ -103,69 +101,6 @@
 			</hz:member-attributes>
 		</hz:config>
 	</hz:hazelcast>
-
-	<!--hz:hazelcast id="dataInstance">
-		<hz:config>
-			<hz:spring-aware/>
-			<hz:instance-name>dataInstance</hz:instance-name>
-			<hz:group name="sysData" password="datapwd"/>
-			<hz:properties>
-				<hz:property name="hazelcast.jmx">true</hz:property>
-				<hz:property name="hazelcast.jmx.detailed">true</hz:property>
-				<hz:property name="hazelcast.logging.type">slf4j</hz:property>
-			</hz:properties>
-			<hz:network port="${xdm.data.port}" port-auto-increment="true">
-				<hz:join>
-					<hz:multicast enabled="false"/>
-					<hz:tcp-ip enabled="true" connection-timeout-seconds="5">
-						<hz:members>${xdm.cluster.members}</hz:members>
-					</hz:tcp-ip>
-				</hz:join>
-			</hz:network>
-
-			<hz:map name="modules">
-				<hz:map-store enabled="true" write-delay-seconds="10" initial-mode="EAGER" implementation="moduleCacheStore"/>
-			</hz:map>
-
-			<hz:map name="libraries">
-				<hz:map-store enabled="true" write-delay-seconds="10" initial-mode="EAGER" implementation="libraryCacheStore"/>
-			</hz:map>
-
-			<hz:map name="nodes">
-				<hz:map-store enabled="true" write-delay-seconds="10" initial-mode="EAGER" implementation="nodeCacheStore"/>
-			</hz:map>
-			
-			<hz:map name="schemas">
-				<hz:map-store enabled="true" write-delay-seconds="10" initial-mode="EAGER" implementation="schemaCacheStore"/>
-			</hz:map>
-
-			<hz:map name="roles">
-				<hz:map-store enabled="true" write-delay-seconds="10" initial-mode="EAGER" implementation="roleCacheStore"/>
-			</hz:map>
-			
-			<hz:map name="users">
-				<hz:map-store enabled="true" write-delay-seconds="10" initial-mode="EAGER" implementation="userCacheStore"/>
-			</hz:map>
-			
-			<hz:serialization>
-				<hz:serializers>
-					<hz:serializer type-class="com.bagri.xdm.system.XDMType" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMTypeSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.system.XDMModule" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMModuleSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.system.XDMLibrary" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMLibrarySerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.system.XDMFunction" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMFunctionSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.system.XDMParameter" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMParameterSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.system.XDMNode" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMNodeSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.system.XDMSchema" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMSchemaSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.system.XDMIndex" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMIndexSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.system.XDMRole" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMRoleSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.system.XDMUser" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMUserSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.system.XDMPermission" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMPermissionSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.system.XDMTriggerDef" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMTriggerDefSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.system.XDMTriggerAction" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMTriggerActionSerializer"/>
-				</hz:serializers>
-			</hz:serialization>
-		</hz:config>
-	</hz:hazelcast-->
 
 	<hz:map id="modules" name="modules" instance-ref="hzInstance"/>
 	<hz:map id="libraries" name="libraries" instance-ref="hzInstance"/>

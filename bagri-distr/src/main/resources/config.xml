@@ -57,6 +57,8 @@
                 <entry name="xdm.schema.health.threshold.high">0</entry>
                 <entry name="xdm.schema.store.tx.buffer.size">2048</entry>
                 <entry name="xdm.schema.population.buffer.size">1000000</entry>
+                <entry name="xdm.schema.query.parallel">true</entry>
+                <entry name="xdm.schema.partition.pool">32</entry>
                 <entry name="xqj.schema.baseUri">file:///../data/tpox/</entry>
                 <entry name="xqj.schema.orderingMode">2</entry>
                 <entry name="xqj.schema.queryLanguageTypeAndVersion">1</entry>
@@ -199,10 +201,12 @@
                 <entry name="xqj.schema.constructionMode">1</entry>
                 <entry name="xdm.schema.partition.count">271</entry>
                 <entry name="xdm.schema.query.backup.read">true</entry>
-                <entry name="xdm.schema.health.threshold.low">25</entry>
-                <entry name="xdm.schema.health.threshold.high">0</entry>
+                <entry name="xdm.schema.health.threshold.low">250</entry>
+                <entry name="xdm.schema.health.threshold.high">100</entry>
                 <entry name="xdm.schema.store.tx.buffer.size">2048</entry>
                 <entry name="xdm.schema.population.buffer.size">1000000</entry>
+                <entry name="xdm.schema.query.parallel">true</entry>
+                <entry name="xdm.schema.partition.pool">128</entry>
             </properties>
             <collections>
                 <collection id="1" name="CLN_Security">
@@ -390,6 +394,8 @@
                 <entry name="xdm.schema.health.threshold.high">0</entry>
                 <entry name="xdm.schema.store.tx.buffer.size">2048</entry>
                 <entry name="xdm.schema.population.buffer.size">1000000</entry>
+                <entry name="xdm.schema.query.parallel">true</entry>
+                <entry name="xdm.schema.partition.pool">64</entry>
                 <entry name="xqj.schema.baseUri">file:///../data/xmark/</entry>
                 <entry name="xqj.schema.orderingMode">2</entry>
                 <entry name="xqj.schema.queryLanguageTypeAndVersion">1</entry>
@@ -493,6 +499,8 @@
                 <entry name="xdm.schema.health.threshold.high">0</entry>
                 <entry name="xdm.schema.store.tx.buffer.size">2048</entry>
                 <entry name="xdm.schema.population.buffer.size">1000000</entry>
+                <entry name="xdm.schema.query.parallel">false</entry>
+                <entry name="xdm.schema.partition.pool">32</entry>
                 <entry name="xqj.schema.baseUri">file:///../data/json/</entry>
                 <entry name="xqj.schema.orderingMode">2</entry>
                 <entry name="xqj.schema.queryLanguageTypeAndVersion">1</entry>
@@ -524,7 +532,7 @@
                 <entry name="xdm.schema.data.backup.read">false</entry>
                 <entry name="xdm.schema.trans.backup.async">0</entry>
                 <entry name="xdm.schema.store.enabled">false</entry>
-                <entry name="xdm.schema.thread.pool">10</entry>
+                <entry name="xdm.schema.thread.pool">32</entry>
                 <entry name="xdm.schema.test.mode">false</entry>
                 <entry name="xdm.schema.ports.first">10150</entry>
                 <entry name="xdm.schema.store.type">XML</entry>
@@ -549,6 +557,8 @@
 		<entry name="xdm.schema.transaction.timeout">0</entry>
                 <entry name="xdm.schema.health.threshold.low">25</entry>
                 <entry name="xdm.schema.health.threshold.high">0</entry>
+                <entry name="xdm.schema.query.parallel">true</entry>
+                <entry name="xdm.schema.partition.pool">128</entry>
                 <entry name="xqj.schema.baseUri">file:///../data/ycsb/</entry>
                 <entry name="xqj.schema.orderingMode">2</entry>
                 <entry name="xqj.schema.queryLanguageTypeAndVersion">1</entry>

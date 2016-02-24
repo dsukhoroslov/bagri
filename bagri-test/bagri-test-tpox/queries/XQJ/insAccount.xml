@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<workload name="insertOrders" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="workload_properties.xsd">
+<workload name="insertAccounts" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="workload_properties.xsd">
 	<collections>
-		<collection name="order">
-			<files dir="/data/order" firstfileid="1" lastfileid="2" docsperfile="500000" fileprefix="batch-" filepostfix="xml.offset"/>
+		<collection name="account">
+			<files dir="/data/account" firstfileid="1" lastfileid="1" docsperfile="50000" fileprefix="batch-" filepostfix="xml.offset"/>
 		</collection>
 	</collections>
 	<transactions>
@@ -28,7 +28,7 @@ return $id" />
 					<constant value="document" />
 				</parameter>
 				<parameter>
-					<files collection="order"/>
+					<files collection="account"/>
 				</parameter>
 			</parameters>
 		</transaction>
