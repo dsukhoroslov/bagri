@@ -7,27 +7,6 @@
 	</collections>
 	<transactions>
 
-		<!--transaction id="1" name="addSecurity" weight="100">
-			<java-plugin>com.bagri.client.tpox.workload.BagriXQJPlugin</java-plugin>
-			<parameters>
-				<parameter>
-					<constant value="storeDocument($s)" />
-				</parameter>
-				<parameter>
-					<constant value="false" />
-				</parameter>
-				<parameter>
-					<constant value="s" />
-				</parameter>
-				<parameter>
-					<constant value="document" />
-				</parameter>
-				<parameter>
-					<files collection="security"/>
-				</parameter>
-			</parameters>
-		</transaction-->
-
 		<transaction id="1" name="addSecurity" weight="100">
 			<java-plugin>com.bagri.client.tpox.workload.BagriXQJPlugin</java-plugin>
 			<parameters>

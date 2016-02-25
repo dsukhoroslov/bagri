@@ -92,12 +92,14 @@ public class StatisticsCollector {
 		TabularData data = (TabularData) mbsc.getAttribute(mName, "InvocationStatistics");
 		if (data != null) {
 			CompositeData stats = data.get(new String[] {method});
-			StringBuffer buff = new StringBuffer();
-			for (String key: stats.getCompositeType().keySet()) {
-				buff.append(key).append("=").append(stats.get(key));
-				buff.append("; ");
+			if (stats != null) {
+				StringBuffer buff = new StringBuffer();
+				for (String key: stats.getCompositeType().keySet()) {
+					buff.append(key).append("=").append(stats.get(key));
+					buff.append("; ");
+				}
+				return buff.toString();
 			}
-			return buff.toString();
 		}
 		return "";
 	}
