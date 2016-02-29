@@ -37,7 +37,7 @@
                     <include>*:bagri-test-tpox:*</include>
                     <include>*:commons-cli:*</include>
                     <include>*:marklogic-xcc:*</include>
-                    <include>*:tpox-workload:*</include>
+                    <!--include>*:tpox-workload:*</include-->
 	        </includes>
 		<unpack>false</unpack>
 	    </binaries>
@@ -66,6 +66,15 @@
     </moduleSets>
 
     <fileSets>
+        <!--tpox workload driver-->
+        <fileSet>
+            <directory>../etc/lib</directory>
+            <outputDirectory>/lib</outputDirectory>
+            <includes>
+                <include>tpox-workload-2.1.jar</include>
+            </includes>
+        </fileSet>
+
         <!--tpox exec files-->
         <fileSet>
             <directory>src/main/tpox</directory>

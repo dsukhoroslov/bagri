@@ -62,6 +62,8 @@ import org.w3c.dom.Node;
 import com.bagri.common.util.XMLUtils;
 import com.bagri.xdm.api.XDMRepository;
 import com.bagri.xquery.api.XQProcessorBase;
+import com.bagri.xquery.saxon.extension.GetDocument;
+import com.bagri.xquery.saxon.extension.RemoveCollectionDocuments;
 import com.bagri.xquery.saxon.extension.RemoveDocument;
 import com.bagri.xquery.saxon.extension.StoreDocument;
 
@@ -92,8 +94,6 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
         config = Configuration.newConfiguration();
         config.setHostLanguage(Configuration.XQUERY);
         config.setSchemaValidationMode(Validation.STRIP);
-        //FunctionLibraryList list;
-        //list.
         //config.setConfigurationProperty(FeatureKeys.PRE_EVALUATE_DOC_FUNCTION, Boolean.TRUE);
         sqc = config.newStaticQueryContext();
         // supported in Saxon-EE only
@@ -290,8 +290,10 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
     public void setRepository(XDMRepository xRepo) {
     	//config.setConfigurationProperty("xdm", mgr);
     	super.setRepository(xRepo);
-        config.registerExtensionFunction(new StoreDocument(xRepo.getDocumentManagement()));
+        config.registerExtensionFunction(new GetDocument(xRepo.getDocumentManagement()));
         config.registerExtensionFunction(new RemoveDocument(xRepo.getDocumentManagement()));
+        config.registerExtensionFunction(new StoreDocument(xRepo.getDocumentManagement()));
+        config.registerExtensionFunction(new RemoveCollectionDocuments(xRepo.getDocumentManagement()));
         if (xRepo instanceof com.bagri.xdm.cache.api.XDMRepository) {
         	logger.debug("setRepository; registering extensions"); 
         	XQCompilerImpl.registerExtensions(config, ((com.bagri.xdm.cache.api.XDMRepository) xRepo).getLibraries());

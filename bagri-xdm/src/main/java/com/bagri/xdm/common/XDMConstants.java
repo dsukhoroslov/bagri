@@ -62,6 +62,11 @@ public class XDMConstants {
 	public static final String bg_schema = "bgdm";
 	public static final String bg_ns = "http://bagri.com/bagri-xdm";
 	
+	public static final String cmd_get_document = "get-document";
+	public static final String cmd_remove_document = "remove-document";
+	public static final String cmd_remove_cln_documents = "remove-collection-documents";
+	public static final String cmd_store_document = "store-document";
+	
 	public static final String dc_ns = "http://www.w3.org/2005/xpath-functions/collation/codepoint";
 	public static final String df_ns = "http://www.w3.org/2005/xpath-functions";
 	

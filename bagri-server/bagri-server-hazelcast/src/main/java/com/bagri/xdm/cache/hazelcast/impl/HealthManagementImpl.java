@@ -85,12 +85,12 @@ public class HealthManagementImpl implements MessageListener<XDMCounter>, Partit
 		} else {
 			hState = XDMHealthState.good; 
 		} 
-		if (hState != XDMHealthState.good) { 			
-			logger.info("checkState; the state is: {}; expected size: {}; cache size: {}", hState, fullSize, docSize);
-		}
 		if (healthState != hState) {
 			healthState = hState;
 			hTopic.publish(hState);
+			if (healthState != XDMHealthState.good) { 			
+				logger.info("checkState; the state is: {}; expected size: {}; cache size: {}", hState, fullSize, docSize);
+			}
 		}
 	}
 	

@@ -44,6 +44,7 @@ set java_opts=%java_opts% -Dxdm.client.connectAttempts=3
 set java_opts=%java_opts% -Dxdm.client.loginTimeout=30
 set java_opts=%java_opts% -Dxdm.client.smart=true
 set java_opts=%java_opts% -Dxdm.client.poolSize=200
+set java_opts=%java_opts% -Dxdm.client.healthCheck=skip
 
 set java_opts=%java_opts% -Duser.country=US -Duser.language=en
 

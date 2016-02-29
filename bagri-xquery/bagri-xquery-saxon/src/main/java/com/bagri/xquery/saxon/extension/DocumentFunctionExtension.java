@@ -2,6 +2,9 @@ package com.bagri.xquery.saxon.extension;
 
 import static com.bagri.xdm.common.XDMConstants.bg_ns;
 import static com.bagri.xdm.common.XDMConstants.bg_schema;
+
+import java.util.Properties;
+
 import net.sf.saxon.lib.ExtensionFunctionDefinition;
 import net.sf.saxon.om.Item;
 import net.sf.saxon.om.Sequence;
@@ -59,5 +62,19 @@ public abstract class DocumentFunctionExtension extends ExtensionFunctionDefinit
 		}
 		return new XDMDocumentId(docKey, version, id.getStringValue());
 	}
+	
+	protected Properties toProperties(Sequence sq) throws XPathException {
+		SequenceIterator itr = sq.iterate();
+		Properties props = new Properties();
+		while (itr.next() != null) {
+			String prop = itr.current().getStringValue();
+			int pos = prop.indexOf("=");
+			if (pos > 0) {
+				props.setProperty(prop.substring(0, pos), prop.substring(pos + 1));
+			}
+		}
+		return props;
+	}
+	
 	
 }

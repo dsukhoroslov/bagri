@@ -28,7 +28,7 @@
             	    <include>com.sdv.bagri:bagri-xquery-api</include>
             	    <include>com.sdv.bagri:bagri-xquery-saxon</include>
             	    <!-- third-party modules -->
-            	    <include>com.hazelcast:hazelcast</include>
+            	    <include>com.hazelcast:hazelcast-all</include>
             	    <include>org.slf4j:slf4j-api</include>
             	    <include>ch.qos.logback:logback-classic</include>
             	    <include>ch.qos.logback:logback-core</include>

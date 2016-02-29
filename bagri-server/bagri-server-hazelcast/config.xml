@@ -26,7 +26,7 @@
             <createdBy>SDV</createdBy>
             <description>Schema for YCSB Benchmark</description>
             <properties>
-                <entry name="xdm.schema.password">YCSB</entry>
+                <entry name="xdm.schema.password">password</entry>
                 <entry name="xdm.schema.store.tx.buffer.size">1024</entry>
                 <entry name="xdm.schema.data.backup.read">false</entry>
                 <entry name="xdm.schema.trans.backup.async">0</entry>

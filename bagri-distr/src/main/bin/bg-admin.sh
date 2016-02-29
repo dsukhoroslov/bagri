@@ -9,9 +9,6 @@
 # JVM config parameters
 ##################################################
 
-jmx_port=3330
-
-
 appname="`basename $0`"
 appname=${appname/\.sh/}
 apphome="`cd \`dirname $0\`/.. && pwd && cd - >/dev/null`"
@@ -29,6 +26,11 @@ case "`uname -s`" in
                 ;;
 esac
 
+#echo ${appname}
+#echo ${apphome}
+
+jmx_port=3330
+nodeName=admin
 nodeNum=0
 if [ $# -gt 1 ]
 then
@@ -37,22 +39,23 @@ fi
 
 libdir="${java_apphome}${file_separator}lib"
 
-CLASSPATH="${java_apphome}${file_separator}config"
+CLASSPATH="${java_apphome}${file_separator}config${file_separator}*"
 CLASSPATH="${CLASSPATH}${path_separator}${libdir}${file_separator}*"
 
 export CLASSPATH
 
-. "${apphome}/bin/${appname}.conf"
+. "${apphome}/bin/bg-admin.conf"
 
-logdir="${apphome}/logs"
+logdir="${apphome}/logs/${nodeName}"
 rundir="${apphome}/run"
 
 mkdir -p "${logdir}"
+mkdir -p "${logdir}/gc"
 mkdir -p "${rundir}"
 
-stdoutfile="${logdir}/${appname}_${HOSTNAME}_${nodeNum}.out"
-stderrfile="${logdir}/${appname}_${HOSTNAME}_${nodeNum}.err"
-pidfile="${rundir}/${appname}_${HOSTNAME}_${nodeNum}.pid"
+stdoutfile="${logdir}/${appname}_${HOSTNAME}_node_${nodeNum}.out"
+stderrfile="${logdir}/${appname}_${HOSTNAME}_node_${nodeNum}.err"
+pidfile="${rundir}/${appname}_${HOSTNAME}_node_${nodeNum}.pid"
 
 #
 # Under Cygwin, ps itself won't return a nonzero code if PID is not found.
@@ -77,7 +80,7 @@ start() {
 
         JAVA_OPTS="${JAVA_OPTS} -showversion"
         JAVA_OPTS="${JAVA_OPTS} -server"
-        ${JAVA_HOME}/bin/java ${JAVA_OPTS} "${main}" </dev/null >>"${stdoutfile}" 2>>"${stderrfile}" &
+        ${JAVA_HOME}/bin/java ${JAVA_OPTS} com.bagri.xdm.cache.hazelcast.XDMCacheServer </dev/null >>"${stdoutfile}" 2>>"${stderrfile}" &
         echo $! >"${pidfile}"
 
         status

@@ -1,25 +1,26 @@
 package com.bagri.xquery.saxon.extension;
 
-import static com.bagri.xdm.common.XDMConstants.cmd_remove_document;
+import static com.bagri.xdm.common.XDMConstants.cmd_get_document;
+
+import com.bagri.xdm.api.XDMDocumentManagement;
+import com.bagri.xdm.api.XDMException;
 
 import net.sf.saxon.expr.XPathContext;
 import net.sf.saxon.lib.ExtensionFunctionCall;
 import net.sf.saxon.om.Sequence;
 import net.sf.saxon.trans.XPathException;
 import net.sf.saxon.value.SequenceType;
+import net.sf.saxon.value.StringValue;
 
-import com.bagri.xdm.api.XDMDocumentManagement;
-import com.bagri.xdm.api.XDMException;
-
-public class RemoveDocument extends DocumentFunctionExtension {
+public class GetDocument extends DocumentFunctionExtension {
 	
-	public RemoveDocument(XDMDocumentManagement xdm) {
+	public GetDocument(XDMDocumentManagement xdm) {
 		super(xdm);
 	}
 
 	@Override
 	public String getFunctionName() {
-		return cmd_remove_document;
+		return cmd_get_document;
 	}
 
 	@Override
@@ -34,7 +35,7 @@ public class RemoveDocument extends DocumentFunctionExtension {
 	
 	@Override
 	public SequenceType getResultType(SequenceType[] suppliedArgumentTypes) {
-		return SequenceType.EMPTY_SEQUENCE;
+		return SequenceType.SINGLE_STRING;
 	}
 
 	@Override
@@ -44,16 +45,18 @@ public class RemoveDocument extends DocumentFunctionExtension {
 
 			@Override
 			public Sequence call(XPathContext context, Sequence[] arguments) throws XPathException {
-				
+
+				String result = null;
 				try {
-					xdm.removeDocument(toDocumentId(arguments[0]));
+					result = xdm.getDocumentAsString(toDocumentId(arguments[1]));
 				} catch (XDMException ex) {
 					throw new XPathException(ex);
 				}
-				return null; //new Int64Value(doc.getDocumentId());
+				return new StringValue(result);
 			}
         };
 	} 
 }
+
 
 

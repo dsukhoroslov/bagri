@@ -272,7 +272,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 
     public XDMDocumentKey getDocumentKey(XDMDocumentId docId) {
 		long docKey; 
-		if (docId.getDocumentKey() > 0) {
+		if (docId.getVersion() > 0) {
 			docKey = docId.getDocumentKey(); 
 		} else {
 			docKey = getDocumentId(docId.getDocumentUri());
@@ -288,25 +288,35 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private long getDocumentId(String uri) {
+    private long getDocumentId(String uri) {
+		// new Predicate/EP
+        //Predicate<XDMDocumentKey, XDMDocument> f = new UriPredicate(1L, uri);
+        //Set<XDMDocumentKey> docKeys = xddCache.keySet(f);
+        //EntryProcessor ep = new UriPredicate(1L, uri);
+        //Map<XDMDocumentKey, Object> result = xddCache.executeOnEntries(ep);
+        //Set<XDMDocumentKey> docKeys = result.keySet();
+
 		// the txFinish can be > 0, but not committed yet!
-   		Predicate<XDMDocumentKey, XDMDocument> f = Predicates.and(Predicates.equal("uri", uri), 
-   				Predicates.equal("txFinish", 0L));
-		Set<XDMDocumentKey> docKeys = xddCache.keySet(f);
-		if (docKeys.size() == 0) {
-			return 0L;
-		}
+        Predicate<XDMDocumentKey, XDMDocument> f = Predicates.and(Predicates.equal("uri", uri), 
+              Predicates.equal("txFinish", 0L));
 
-		// should also check if doc's start transaction is committed..
-		long docId = 0;
-		for (XDMDocumentKey docKey: docKeys) {
-			if (docKey.getKey() > docId) {
-				docId = docKey.getKey();
-			}
-		}
-		return docId;
-	}
-
+        Set<XDMDocumentKey> docKeys = xddCache.keySet(f);
+        if (docKeys.size() == 0) {
+            return 0L;
+        }
+ 
+        // should also check if doc's start transaction is committed..
+        long docId = 0;
+        int version = 0;
+        for (XDMDocumentKey docKey: docKeys) {
+            if (docKey.getVersion() > version) {
+                docId = docKey.getKey();
+                version = docKey.getVersion();
+            }
+        }
+        return docId;
+    }
+ 	
 	@Override
 	@SuppressWarnings("unchecked")
 	public Collection<XDMDocumentId> getDocumentIds(String pattern) {
@@ -687,29 +697,37 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 					throw new XDMException("Empty Document ID passed", XDMException.ecDocument); 
 				}
 				long existingId = getDocumentId(docId.getDocumentUri());
-				if (existingId > 0) {
+				if (existingId != 0) {
 					docId = new XDMDocumentId(existingId, docId.getDocumentUri());
 					update = true;
 				} else {
 					docId = new XDMDocumentId(docGen.next(), dvFirst, docId.getDocumentUri());
 				}
 			} else {
-				//update = true;
 				if (docId.getDocumentUri() == null) {
 					docId = new XDMDocumentId(docId.getDocumentKey(), docId.getDocumentKey() + "." + ext);
 				} else {
-					long existingId = getDocumentId(docId.getDocumentUri());
-					// shouldn't we check here if document with docId exists?
-					if (existingId > 0 && existingId != docId.getDocumentKey()) {
-						// otherwise we'll get a situation when two different Documents
-						// are stored in the same file.
-						// what if they point to different versions of the same document!?
-						throw new XDMException("Document with URI '" + docId.getDocumentUri() + "' already exists; docId: " + 
-							existingId, XDMException.ecDocument);
+					if (docId.getVersion() == 0) {
+						long existingId = getDocumentId(docId.getDocumentUri());
+						if (existingId != 0) {
+							docId = new XDMDocumentId(existingId, docId.getDocumentUri());
+							update = true;
+						} else {
+							logger.info("storeDocumentFromString; can not find document for ID: {}", docId);
+						}
+						// shouldn't we check here if document with docId exists?
+						//if (existingId > 0 && existingId != docId.getDocumentKey()) {
+							// otherwise we'll get a situation when two different Documents
+							// are stored in the same file.
+							// what if they point to different versions of the same document!?
+						//	throw new XDMException("Document with URI '" + docId.getDocumentUri() + "' already exists; docId: " + 
+						//		existingId, XDMException.ecDocument);
+						//}
+					} else {
+						XDMDocumentKey docKey = factory.newXDMDocumentKey(docId.getDocumentKey());
+						update = xddCache.containsKey(docKey);
 					}
 				}
-				XDMDocumentKey docKey = factory.newXDMDocumentKey(docId.getDocumentKey());
-				update = xddCache.containsKey(docKey);
 			}
 		}
 		

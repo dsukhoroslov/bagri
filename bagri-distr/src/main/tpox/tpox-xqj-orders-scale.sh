@@ -32,15 +32,18 @@ export TPOX_HOME
 
 . "set-tpox-env.conf"
 
-#insert securities to the cache
-$RUN_JAVA -server $JAVA_OPTS net.sf.tpox.workload.core.WorkloadDriver -w queries/XQJ/insSecurity.xml -tr 251 -u 83
-
 #rem perform queries loopig by user count
-a=5
-while [ $a -le 200 ]
+a=10
+count=0
+while [ $a -le 100 ]
 do
-   echo $a
-   $RUN_JAVA -server $JAVA_OPTS net.sf.tpox.workload.core.WorkloadDriver -w queries/XQJ/securities.xml -u $a -r 10 -pc 95 -cl 99
-   a=`expr $a + 15`
+    echo $a
+    count=`expr $a \* 100`
+    $RUN_JAVA -server $JAVA_OPTS net.sf.tpox.workload.core.WorkloadDriver -w queries/XQJ/insOrder.xml -tr $count -u 100
+
+    $RUN_JAVA -server $JAVA_OPTS net.sf.tpox.workload.core.WorkloadDriver -w queries/XQJ/orders-100.xml -u 80 -r 10
+    $RUN_JAVA -server $JAVA_OPTS com.bagri.client.tpox.StatisticsCollector $admin_addr $schema QueryManagement executeXQuery Orders=${count}0 ./stats.txt true
+ 
+    a=`expr $a + 10`
 done
 

@@ -1,9 +1,8 @@
 package com.bagri.xquery.saxon.extension;
 
-import java.util.Properties;
+import static com.bagri.xdm.common.XDMConstants.cmd_store_document;
 
-import javax.xml.xquery.XQException;
-import javax.xml.xquery.XQSequence;
+import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,16 +14,14 @@ import com.bagri.xdm.domain.XDMDocument;
 
 import net.sf.saxon.expr.XPathContext;
 import net.sf.saxon.lib.ExtensionFunctionCall;
-import net.sf.saxon.om.Item;
 import net.sf.saxon.om.Sequence;
-import net.sf.saxon.om.SequenceIterator;
 import net.sf.saxon.trans.XPathException;
 import net.sf.saxon.value.Int64Value;
 import net.sf.saxon.value.SequenceType;
 
 public class StoreDocument extends DocumentFunctionExtension {
 
-	private static final Logger logger = LoggerFactory.getLogger(StoreDocument.class);
+	//private static final Logger logger = LoggerFactory.getLogger(StoreDocument.class);
 	
 	public StoreDocument(XDMDocumentManagement xdm) {
 		super(xdm);
@@ -32,7 +29,7 @@ public class StoreDocument extends DocumentFunctionExtension {
 
 	@Override
 	public String getFunctionName() {
-		return "store-document";
+		return cmd_store_document;
 	}
 
 	@Override
@@ -49,19 +46,6 @@ public class StoreDocument extends DocumentFunctionExtension {
 	public int getMaximumNumberOfArguments() { 
 		return 3; 
 	} 	
-	
-	private Properties toProperties(Sequence sq) throws XPathException {
-		SequenceIterator itr = sq.iterate();
-		Properties props = new Properties();
-		while (itr.next() != null) {
-			String prop = itr.current().getStringValue();
-			int pos = prop.indexOf("=");
-			if (pos > 0) {
-				props.setProperty(prop.substring(0, pos), prop.substring(pos + 1));
-			}
-		}
-		return props;
-	}
 	
 	@Override
 	public ExtensionFunctionCall makeCallExpression() {

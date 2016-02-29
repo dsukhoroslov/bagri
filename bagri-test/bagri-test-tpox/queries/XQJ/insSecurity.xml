@@ -7,7 +7,7 @@
 	</collections>
 	<transactions>
 
-		<transaction id="1" name="addSecurity" weight="100">
+		<!--transaction id="1" name="addSecurity" weight="100">
 			<java-plugin>com.bagri.client.tpox.workload.BagriXQJPlugin</java-plugin>
 			<parameters>
 				<parameter>
@@ -31,7 +31,38 @@ return $id" />
 					<files collection="security"/>
 				</parameter>
 			</parameters>
+		</transaction-->
+
+		<transaction id="1" name="addSecurity" weight="100">
+			<java-plugin>com.bagri.client.tpox.workload.BagriXQJPlugin</java-plugin>
+			<parameters>
+				<parameter>
+					<constant value="store-document" />
+				</parameter>
+				<parameter>
+					<constant value="false" />
+				</parameter>
+				<parameter>
+					<constant value="content" />
+				</parameter>
+				<parameter>
+					<constant value="document" />
+				</parameter>
+				<parameter>
+					<files collection="security"/>
+				</parameter>
+				<parameter>
+					<constant value="docId" />
+				</parameter>
+				<parameter>
+					<constant value="int" />
+				</parameter>
+				<parameter>
+					<sequence start="10000" step="1"/>
+				</parameter>
+			</parameters>
 		</transaction>
+
 	</transactions>
 </workload>
 

@@ -15,6 +15,7 @@ import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMRepository;
 import com.bagri.xdm.client.hazelcast.impl.RepositoryImpl;
 import com.bagri.xdm.common.XDMDocumentId;
+import com.hazelcast.util.HashUtil;
 import com.yahoo.ycsb.ByteIterator;
 import com.yahoo.ycsb.DB;
 import com.yahoo.ycsb.DBException;
@@ -40,9 +41,15 @@ public class BagriClient extends DB {
 	    xRepo.close();
 	}
 	
-	private XDMDocumentId buildId(final String key) {
-		String id = key.substring(4);
-		return new XDMDocumentId(Long.parseLong(id));
+	private XDMDocumentId buildId(final String key, final int version) {
+        //String id = key.substring(4);
+        //return new XDMDocumentId(Long.parseLong(id));
+        byte[] uri = key.getBytes();
+        long hash = HashUtil.MurmurHash3_x64_64(uri, 0, uri.length);
+        //hash &= ~0b1111111111;
+        //hash |= 0b1;
+        //return new XDMDocumentId(hash, key);
+		return new XDMDocumentId(hash, version, key);
 	}
 	
 	@Override
@@ -52,8 +59,7 @@ public class BagriClient extends DB {
 		Properties props = new Properties();
 		props.setProperty(xdm_document_collections, table);
 		//props.setProperty(xdm_document_data_format, "map");
-		//XDMDocumentId xid = new XDMDocumentId(0, key);
-		XDMDocumentId xid = buildId(key);
+		XDMDocumentId xid = buildId(key, 1);
 		HashMap fields = StringByteIterator.getStringMap(values);
 		try {
 			xRepo.getDocumentManagement().storeDocumentFromMap(xid, fields, props);
@@ -68,8 +74,7 @@ public class BagriClient extends DB {
 	public Status read(final String table, final String key, final Set<String> fields,
 			    final HashMap<String, ByteIterator> result) {
 		//logger.debug("read.enter; table: {}; startKey: {}; fields: {}",	new Object[] {table, key, fields});
-		//XDMDocumentId xid = new XDMDocumentId(0, key);
-		XDMDocumentId xid = buildId(key);
+		XDMDocumentId xid = buildId(key, 0);
 		try {
 			Map<String, Object> map = xRepo.getDocumentManagement().getDocumentAsMap(xid);
 			if (map == null) {
@@ -112,8 +117,7 @@ public class BagriClient extends DB {
 		Properties props = new Properties();
 		props.setProperty(xdm_document_collections, table);
 		//props.setProperty(xdm_document_data_format, "map");
-		//XDMDocumentId xid = new XDMDocumentId(0, key);
-		XDMDocumentId xid = buildId(key);
+		XDMDocumentId xid = buildId(key, 0);
 		HashMap fields = StringByteIterator.getStringMap(values);
 		try {
 			xRepo.getDocumentManagement().storeDocumentFromMap(xid, fields, props);
@@ -126,8 +130,7 @@ public class BagriClient extends DB {
 
 	@Override
 	public Status delete(final String table, final String key) {
-		//XDMDocumentId xid = new XDMDocumentId(0, key);
-		XDMDocumentId xid = buildId(key);
+		XDMDocumentId xid = buildId(key, 0);
 		try {
 			xRepo.getDocumentManagement().removeDocument(xid);
 			return Status.OK;

@@ -5,6 +5,7 @@ import javax.xml.xquery.XQDataFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.bagri.xdm.api.XDMDocumentManagement;
 import com.bagri.xdm.api.XDMQueryManagement;
 import com.bagri.xdm.api.XDMRepository;
 
@@ -19,6 +20,10 @@ public abstract class XQProcessorBase {
     	return xRepo;
     }
     
+    public XDMDocumentManagement getDocumentManagement() {
+    	return xRepo.getDocumentManagement();
+    }
+
     public XDMQueryManagement getQueryManagement() {
     	return xRepo.getQueryManagement();
     }
