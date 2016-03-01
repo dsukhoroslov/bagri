@@ -22,7 +22,8 @@
 				<hz:property name="hazelcast.jmx">true</hz:property>
 				<hz:property name="hazelcast.jmx.detailed">true</hz:property>
 				<hz:property name="hazelcast.logging.type">slf4j</hz:property>
-				<!--hz:property name="hazelcast.partition.count">3</hz:property-->				
+				<hz:property name="hazelcast.rest.enabled">false</hz:property>
+				<hz:property name="hazelcast.memcache.enabled">false</hz:property>
 				<hz:property name="hazelcast.operation.thread.count">${xdm.cluster.thread.pool}</hz:property>
 				<hz:property name="hazelcast.operation.generic.thread.count">${xdm.cluster.thread.pool}</hz:property>
 			</hz:properties>

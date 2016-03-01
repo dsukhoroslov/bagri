@@ -110,7 +110,7 @@
                 <permission resource="com.bagri.xdm:name=default,type=Schema">modify</permission>
             </permissions>
             <includedRoles>GuestRole</includedRoles>
-            <password>password</password>
+            <password>5f4dcc3b5aa765d61d8327deb882cf99</password>
         </user>
         <user login="guest" active="true">
             <version>4</version>

@@ -26,11 +26,13 @@
 			<hz:spring-aware/>
 			<hz:instance-name>hzInstance</hz:instance-name>
 			<hz:group name="system" password="syspwd"/>
-			<hz:management-center url="http://localhost:8080/mancenter" enabled="true"/>
+			<hz:management-center url="http://localhost:8080/mancenter" enabled="false"/>
 			<hz:properties>
 				<hz:property name="hazelcast.jmx">true</hz:property>
 				<hz:property name="hazelcast.jmx.detailed">true</hz:property>
 				<hz:property name="hazelcast.logging.type">slf4j</hz:property>
+				<hz:property name="hazelcast.rest.enabled">false</hz:property>
+				<hz:property name="hazelcast.memcache.enabled">false</hz:property>
 				<hz:property name="xdm.cluster.admin.port">${xdm.cluster.admin.port}</hz:property>
 			</hz:properties>
 			<hz:network port="${xdm.cluster.port}" port-auto-increment="true">

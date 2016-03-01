@@ -240,12 +240,10 @@ public class ClientManagementImpl {
 		
 		config.setProperty("hazelcast.logging.type", "slf4j");
 		
-		if (custom != null) {
-			if ("true".equalsIgnoreCase(custom)) {
-				SecureCredentials creds = new SecureCredentials(user, password);
-				//config.getSecurityConfig().setCredentials(creds);
-				config.setCredentials(creds);
-			}
+		if (custom == null || "true".equalsIgnoreCase(custom)) {
+			SecureCredentials creds = new SecureCredentials(user, password);
+			//config.getSecurityConfig().setCredentials(creds);
+			config.setCredentials(creds);
 		}
 
 		XQProcessor proc = null;
