@@ -38,6 +38,6 @@ requestdistribution=zipfian
 db=com.bagri.client.ycsb.BagriClient
 schema=YCSB
 address=192.168.1.100:10150,192.168.1.181:10150,192.168.1.202:10150
-user=guest
+user=bagri
 password=password
 loginTimeout=30

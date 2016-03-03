@@ -35,6 +35,7 @@ import com.bagri.common.util.XMLUtils;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.cache.common.XDMDocumentManagementServer;
 import com.bagri.xdm.cache.hazelcast.predicate.CollectionPredicate;
+import com.bagri.xdm.cache.hazelcast.predicate.UriPredicate;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentContentProvider;
 import com.bagri.xdm.common.XDMDataKey;
 import com.bagri.xdm.common.XDMDocumentId;
@@ -54,8 +55,10 @@ import com.bagri.xdm.system.XDMTriggerAction.Scope;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.IMap;
+import com.hazelcast.map.EntryProcessor;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
+import com.hazelcast.util.HashUtil;
 
 public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	
@@ -275,7 +278,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		if (docId.getVersion() > 0) {
 			docKey = docId.getDocumentKey(); 
 		} else {
-			docKey = getDocumentId(docId.getDocumentUri());
+			docKey = getDocumentKey(docId.getDocumentId(), docId.getDocumentUri());
 	    	if (docKey == 0) {
 	    		return null;
 	    	}
@@ -288,13 +291,20 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	}
 	
 	@SuppressWarnings("unchecked")
-    private long getDocumentId(String uri) {
+    private long getDocumentKey(long docId, String uri) {
 		// new Predicate/EP
         //Predicate<XDMDocumentKey, XDMDocument> f = new UriPredicate(1L, uri);
         //Set<XDMDocumentKey> docKeys = xddCache.keySet(f);
-        //EntryProcessor ep = new UriPredicate(1L, uri);
-        //Map<XDMDocumentKey, Object> result = xddCache.executeOnEntries(ep);
-        //Set<XDMDocumentKey> docKeys = result.keySet();
+        
+		if (docId > 0) {
+			EntryProcessor ep = new UriPredicate(docId, uri, factory, hzInstance);
+			XDMDocumentKey dk = factory.newXDMDocumentKey(docId, dvFirst);
+			Object result = xddCache.executeOnKey(dk, ep);
+			if (result != null) { 
+				return (Long) result;
+			}
+			return 0L;
+		}
 
 		// the txFinish can be > 0, but not committed yet!
         Predicate<XDMDocumentKey, XDMDocument> f = Predicates.and(Predicates.equal("uri", uri), 
@@ -306,7 +316,6 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
         }
  
         // should also check if doc's start transaction is committed..
-        long docId = 0;
         int version = 0;
         for (XDMDocumentKey docKey: docKeys) {
             if (docKey.getVersion() > version) {
@@ -399,6 +408,9 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	@Override
 	public Object getDocumentAsBean(XDMDocumentId docId) throws XDMException {
 		String xml = getDocumentAsString(docId);
+		if (xml == null) {
+			return null;
+		}
 		try {
 			return beanFromXML(xml);
 		} catch (IOException ex) {
@@ -409,6 +421,9 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	@Override
 	public Map<String, Object> getDocumentAsMap(XDMDocumentId docId) throws XDMException {
 		String xml = getDocumentAsString(docId);
+		if (xml == null) {
+			return null;
+		}
 		return mapFromXML(xml);
 	}
 
@@ -696,7 +711,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 				if (docId.getDocumentUri() == null) {
 					throw new XDMException("Empty Document ID passed", XDMException.ecDocument); 
 				}
-				long existingId = getDocumentId(docId.getDocumentUri());
+				long existingId = getDocumentKey(0, docId.getDocumentUri());
 				if (existingId != 0) {
 					docId = new XDMDocumentId(existingId, docId.getDocumentUri());
 					update = true;
@@ -708,7 +723,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 					docId = new XDMDocumentId(docId.getDocumentKey(), docId.getDocumentKey() + "." + ext);
 				} else {
 					if (docId.getVersion() == 0) {
-						long existingId = getDocumentId(docId.getDocumentUri());
+						long existingId = getDocumentKey(docId.getDocumentId(), docId.getDocumentUri());
 						if (existingId != 0) {
 							docId = new XDMDocumentId(existingId, docId.getDocumentUri());
 							update = true;

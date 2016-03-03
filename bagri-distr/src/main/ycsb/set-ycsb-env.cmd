@@ -18,7 +18,7 @@ if "%java_home%"=="" (set java_exec=java) else (set java_exec=%java_home%\bin\ja
 set java_opts=-Xms%memory% -Xmx%memory% 
 
 set java_opts=%java_opts% -Dhazelcast.logging.type=slf4j -Dlogback.configurationFile=hz-client-logging.xml
-set java_opts=%java_opts% -Dlog.name=tpox-client -Dhz.log.level=warn -Dxdm.log.level=info
+set java_opts=%java_opts% -Dlog.name=ycsb-client -Dhz.log.level=warn -Dxdm.log.level=info
 
 set java_opts=%java_opts% -Dhazelcast.client.event.thread.count=1
 

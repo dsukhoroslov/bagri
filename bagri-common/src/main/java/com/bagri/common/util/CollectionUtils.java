@@ -32,6 +32,12 @@ public class CollectionUtils {
 		}
 		return result;
 	}
+	
+	public static void fromLongArray(long[] source, Collection<Long> target) {
+		for (long id: source) {
+			target.add(id);
+		}
+	}
 
 	public static long[] toLongArray(Collection<Long> source) {
 		long[] result = new long[source.size()];

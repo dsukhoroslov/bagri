@@ -8,10 +8,12 @@ import com.bagri.xdm.client.hazelcast.impl.FixedCursor;
 import com.bagri.xdm.client.hazelcast.impl.ResultCursor;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentCreator;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentMapCreator;
+import com.bagri.xdm.client.hazelcast.task.doc.DocumentMapProvider;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentProcessor;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentRemover;
 import com.bagri.xdm.client.hazelcast.task.auth.UserAuthenticator;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentBeanCreator;
+import com.bagri.xdm.client.hazelcast.task.doc.DocumentBeanProvider;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentCollectionUpdater;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentContentProvider;
 import com.bagri.xdm.client.hazelcast.task.query.DocumentIdsProvider;
@@ -112,7 +114,7 @@ public class XDMDataSerializationFactory implements DataSerializableFactory {
 	public static final int cli_SchemaMemberTask = 120;
 	public static final int cli_CleanSchemaTask = 121;
 	public static final int cli_PopulateSchemaTask = 122;
-	//public static final int cli_ProvideDocumentUrisTask = 123;
+	public static final int cli_ProvideDocumentMapTask = 123;
 	public static final int cli_ProvideDocumentIdsTask = 124;
 	public static final int cli_ProvideDocumentContentTask = 125;
 	public static final int cli_ProvideDocumentStructureTask = 126;
@@ -138,6 +140,7 @@ public class XDMDataSerializationFactory implements DataSerializableFactory {
 	public static final int cli_RegisterModelTask = 146;
 	public static final int cli_AuthenticateTask = 147;
 	public static final int cli_AggregateSchemaHealthTask = 148;
+	public static final int cli_ProvideDocumentBeanTask = 149;
 	
 	public static final int cli_CreateRoleTask = 150;
 	public static final int cli_UpdateRoleTask = 151;
@@ -185,8 +188,10 @@ public class XDMDataSerializationFactory implements DataSerializableFactory {
 			case cli_CommitTransactionTask: return new TransactionCommiter();
 			case cli_RollbackTransactionTask: return new TransactionAborter();
 			case cli_FetchResultsTask: return new ResultFetcher();
+			case cli_ProvideDocumentMapTask: return new DocumentMapProvider();
 			case cli_ProvideDocumentIdsTask: return new DocumentIdsProvider(); 
 			case cli_ProvideDocumentContentTask: return new DocumentContentProvider();
+			case cli_ProvideDocumentBeanTask: return new DocumentBeanProvider();
 			case cli_ExecQueryTask: return new QueryExecutor();
 			//case cli_BuildQueryXMLTask: return new XMLBuilder();
 			case cli_AuthenticateTask: return new UserAuthenticator();
