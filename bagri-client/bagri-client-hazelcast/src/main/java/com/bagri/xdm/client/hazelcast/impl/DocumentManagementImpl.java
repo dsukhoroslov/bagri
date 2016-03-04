@@ -22,10 +22,12 @@ import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.client.common.impl.DocumentManagementBase;
 import com.bagri.xdm.client.hazelcast.data.DocumentKey;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentBeanCreator;
+import com.bagri.xdm.client.hazelcast.task.doc.DocumentBeanProvider;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentCollectionUpdater;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentContentProvider;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentCreator;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentMapCreator;
+import com.bagri.xdm.client.hazelcast.task.doc.DocumentMapProvider;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentRemover;
 import com.bagri.xdm.common.XDMDataKey;
 import com.bagri.xdm.common.XDMDocumentId;
@@ -109,32 +111,40 @@ public class DocumentManagementImpl extends DocumentManagementBase implements XD
 	
 	@Override
 	public Object getDocumentAsBean(XDMDocumentId docId) throws XDMException {
-		String xml = getDocumentAsString(docId);
-		if (xml != null) {
-			try {
-				return XMLUtils.beanFromXML(xml);
-			} catch (IOException ex) {
-				throw new XDMException(ex.getMessage(), XDMException.ecInOut);
-			}
+		logger.trace("getDocumentAsBean.enter; got docId: {}", docId);
+		Object result = null;
+		DocumentBeanProvider xp = new DocumentBeanProvider(repo.getClientId(), docId);
+		Future<Object> future = execService.submitToKeyOwner(xp, docId);
+		try {
+			result = future.get();
+			logger.trace("getDocumentAsBean.exit; got bean: {}", result);
+			return result;
+		} catch (InterruptedException | ExecutionException ex) {
+			logger.error("getDocumentAsBean; error getting result", ex);
+			throw new XDMException(ex, XDMException.ecDocument);
 		}
-		return null;
 	}
 
 	@Override
 	public Map<String, Object> getDocumentAsMap(XDMDocumentId docId) throws XDMException {
-		String xml = getDocumentAsString(docId);
-		if (xml != null && xml.trim().length() > 0) {
-			return XMLUtils.mapFromXML(xml);
+		logger.trace("getDocumentAsMap.enter; got docId: {}", docId);
+		Map<String, Object> result = null;
+		DocumentMapProvider xp = new DocumentMapProvider(repo.getClientId(), docId);
+		Future<Map<String, Object>> future = execService.submitToKeyOwner(xp, docId);
+		try {
+			result = future.get();
+			logger.trace("getDocumentAsMap.exit; got map: {}", result);
+			return result;
+		} catch (InterruptedException | ExecutionException ex) {
+			logger.error("getDocumentAsMap; error getting result", ex);
+			throw new XDMException(ex, XDMException.ecDocument);
 		}
-		return null;
 	}
 
 	@Override
 	public String getDocumentAsString(XDMDocumentId docId) throws XDMException {
 		// actually, I can try just get it from XML cache!
-		
 		logger.trace("getDocumentAsString.enter; got docId: {}", docId);
-		
 		String result = null;
 		DocumentContentProvider xp = new DocumentContentProvider(repo.getClientId(), docId);
 		Future<String> future = execService.submitToKeyOwner(xp, docId);
