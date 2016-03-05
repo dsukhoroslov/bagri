@@ -90,7 +90,7 @@ public class ClientManagementImpl {
    	    	HazelcastInstance hzClient = cc.hzInstance; 
    	    	if (cc.addClient(clientId)) {
    	    		//IMap<String, Properties> clientProps = hzClient.getMap(CN_XDM_CLIENT);
-   	    		//props.remove(pn_data_factory);
+   	    		//props.remove(pn_client_dataFactory);
    	    		//clientProps.set(clientId, props);
    				logger.trace("connect; got new connection for clientId: {}", clientId);
    	    	} else {
@@ -104,7 +104,7 @@ public class ClientManagementImpl {
     //	HazelcastInstance hzClient = cc.hzInstance; 
     //	if (cc.addClient(clientId)) {
     //		IMap<String, Properties> clientProps = hzClient.getMap(CN_XDM_CLIENT);
-    //		props.remove(pn_data_factory);
+    //		props.remove(pn_client_dataFactory);
     //		clientProps.set(clientId, props);
 	//		logger.trace("connect; got new connection for clientId: {}", clientId);
     //	} else {
