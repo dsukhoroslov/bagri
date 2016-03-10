@@ -68,7 +68,7 @@ public class StoreDocument extends DocumentFunctionExtension {
 				}
 				try {
 					XDMDocument doc = xdm.storeDocumentFromString(docId, xml, props);
-					return new Int64Value(doc.getDocumentId());
+					return new Int64Value(doc.getDocumentKey());
 					//return new ObjectValue(doc);
 				} catch (XDMException ex) {
 					throw new XPathException(ex);

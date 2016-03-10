@@ -6,6 +6,7 @@ import net.sf.saxon.expr.XPathContext;
 import net.sf.saxon.lib.ExtensionFunctionCall;
 import net.sf.saxon.om.Sequence;
 import net.sf.saxon.trans.XPathException;
+import net.sf.saxon.value.EmptySequence;
 import net.sf.saxon.value.SequenceType;
 
 import com.bagri.xdm.api.XDMDocumentManagement;
@@ -50,7 +51,7 @@ public class RemoveDocument extends DocumentFunctionExtension {
 				} catch (XDMException ex) {
 					throw new XPathException(ex);
 				}
-				return null; //new Int64Value(doc.getDocumentId());
+				return EmptySequence.getInstance();
 			}
         };
 	} 

@@ -726,18 +726,18 @@
   </reporting>
 
     <repositories>
-
+        <!-- for MarkLogic XCC client jar -->
 	<repository>
       	    <id>MarkLogic-releases</id>
       	    <name>MarkLogic Releases</name>
       	    <url>http://developer.marklogic.com/maven2</url>
   	</repository>
-        <!--repository for xqj2 artifact-->
-        <!--repository>
-            <id>xqj.net</id>
-            <url>http://xqj.net/maven</url>
-        </repository-->
-	<!-- Hazelcast snapshot repository -->
+        <!-- for XQJ API -->
+        <repository>
+            <id>spring-milestones</id>
+            <url>http://repo.spring.io/libs-milestone/</url>
+        </repository>
+        <!-- what it is for ?? -->
 	<repository>
 	    <id>sonatype-snapshots</id>
 	    <url>https://oss.sonatype.org/content/repositories/snapshots</url>
