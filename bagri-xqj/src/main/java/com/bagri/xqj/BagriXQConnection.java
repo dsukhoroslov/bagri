@@ -402,12 +402,12 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 		}
 	}
 	
-	public void prepareQuery(BagriXQPreparedExpression exp) throws XQException {
+	private void prepareQuery(BagriXQPreparedExpression exp) throws XQException {
 		
 		prepareQuery(exp, context); // this.getStaticContext());
 	}
 	
-	public void prepareQuery(BagriXQPreparedExpression exp, XQStaticContext ctx) throws XQException {
+	private void prepareQuery(BagriXQPreparedExpression exp, XQStaticContext ctx) throws XQException {
 		
 		checkState(ex_connection_closed);
 		Collection<QName> vars = getProcessor().prepareXQuery(exp.getXQuery(), ctx);

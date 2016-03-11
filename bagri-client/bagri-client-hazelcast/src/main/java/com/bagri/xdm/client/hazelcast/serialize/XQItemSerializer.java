@@ -48,7 +48,7 @@ public class XQItemSerializer implements StreamSerializer<XQItem> {
 
 	@Override
 	public void destroy() {
-		// TODO Auto-generated method stub
+		// nothing to destroy...
 	}
 
 	@Override
@@ -141,6 +141,8 @@ public class XQItemSerializer implements StreamSerializer<XQItem> {
 						}
 					}
 				} 
+				// TODO: find some better approach for XML results serialization
+				// current Xerces DOM parser is too slow!
 				case XQITEMKIND_DOCUMENT: {
 					String value = in.readUTF();
 					if (value != null && value.length() > 0) {
@@ -282,7 +284,8 @@ public class XQItemSerializer implements StreamSerializer<XQItem> {
 					}
 				}
 			} 
-			//
+			// TODO: try to find some other serialization mechanism
+			// for DOM objects..
 			switch (type.getItemKind()) {
 				case XQITEMKIND_DOCUMENT:
 				case XQITEMKIND_DOCUMENT_ELEMENT:

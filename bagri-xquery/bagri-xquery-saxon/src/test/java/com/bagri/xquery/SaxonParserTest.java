@@ -18,7 +18,6 @@ import javax.xml.xquery.XQPreparedExpression;
 import javax.xml.xquery.XQResultSequence;
 import javax.xml.xquery.XQSequence;
 
-import junit.framework.Assert;
 //import net.sf.saxon.xqj.SaxonXQDataSource;
 
 
@@ -76,15 +75,15 @@ public class SaxonParserTest {
 	    XQSequence xqs = xqe.executeQuery("xs:int('1'), 10.0");
 	    xqs.next();
 	    try {
-	    	Assert.assertEquals("A-XQIA-1.6: getInt on xs:int failed", 1, xqs.getInt());
+	    	assertEquals("A-XQIA-1.6: getInt on xs:int failed", 1, xqs.getInt());
 	    } catch (XQException e) {
-	    	Assert.fail("A-XQIA-1.6: getInt on xs:int failed with message: " + e.getMessage());
+	    	fail("A-XQIA-1.6: getInt on xs:int failed with message: " + e.getMessage());
 	    }
 	    xqs.next();
 	    try {
-	    	Assert.assertEquals("A-XQIA-1.6: getInt on xs:decimal failed", 10, xqs.getInt());
+	    	assertEquals("A-XQIA-1.6: getInt on xs:decimal failed", 10, xqs.getInt());
 	    } catch (XQException e) {
-	    	Assert.fail("A-XQIA-1.6: getInt on xs:decimal failed with message: " + e.getMessage());
+	    	fail("A-XQIA-1.6: getInt on xs:decimal failed with message: " + e.getMessage());
 	    }
 	    xqe.close();
 	}
@@ -119,7 +118,7 @@ public class SaxonParserTest {
 		XQSequence xqs = xqe.executeQuery("xs:byte('1')");
 	    xqs.next();
 	    Object o = xqs.getObject();
-        Assert.assertTrue(o instanceof Byte);
+        assertTrue(o instanceof Byte);
 	    xqe.close();
 	}
 	
@@ -131,17 +130,17 @@ public class SaxonParserTest {
 	    XQPreparedExpression xqpe = xqc.prepareExpression("declare variable $v external; $v");
 	    xqpe.bindString(new QName("v"), "Hello world!", xqc.createAtomicType(XQItemType.XQBASETYPE_STRING));
 	    XQSequence xqs = xqpe.executeQuery();
-	    Assert.assertTrue(xqs.next());
-	    Assert.assertEquals("Hello world!", xqs.getAtomicValue());
+	    assertTrue(xqs.next());
+	    assertEquals("Hello world!", xqs.getAtomicValue());
 	    xqpe.close();
 	    
 	    xqpe = xqc.prepareExpression("declare variable $v external; $v");
 	    xqpe.bindString(new QName("v"), "Hello", xqc.createAtomicType(XQItemType.XQBASETYPE_NCNAME));
 	    xqs = xqpe.executeQuery();
 	    xqs.next();
-	    Assert.assertEquals("A-XQDC-1.7: Successful bindXXX.", XQItemType.XQITEMKIND_ATOMIC, xqs.getItemType().getItemKind());
-	    Assert.assertEquals("A-XQDC-1.7: Successful bindXXX.", XQItemType.XQBASETYPE_NCNAME, xqs.getItemType().getBaseType());
-	    Assert.assertEquals("A-XQDC-1.7: Successful bindXXX.", "Hello", xqs.getObject());
+	    assertEquals("A-XQDC-1.7: Successful bindXXX.", XQItemType.XQITEMKIND_ATOMIC, xqs.getItemType().getItemKind());
+	    assertEquals("A-XQDC-1.7: Successful bindXXX.", XQItemType.XQBASETYPE_NCNAME, xqs.getItemType().getBaseType());
+	    assertEquals("A-XQDC-1.7: Successful bindXXX.", "Hello", xqs.getObject());
 	    xqpe.close(); 
 	}
 	
@@ -154,8 +153,7 @@ public class SaxonParserTest {
 
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder parser = factory.newDocumentBuilder();
-		Document document = parser.parse(new InputSource(new StringReader(
-				"<e>Hello world!</e>")));
+		Document document = parser.parse(new InputSource(new StringReader("<e>Hello world!</e>")));
 
 		xqpe = xqc.prepareExpression("declare variable $v external; $v");
 		xqpe.close();

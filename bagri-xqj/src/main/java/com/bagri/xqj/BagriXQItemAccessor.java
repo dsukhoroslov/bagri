@@ -187,7 +187,7 @@ public abstract class BagriXQItemAccessor extends BagriXQCloseable implements XQ
 		if (closed) {
 			throw new XQException(ex_item_closed);
 		}
-		return xqProcessor.convertToString(value);
+		return xqProcessor.convertToString(value, null);
 	}
 
 	@Override
@@ -268,7 +268,7 @@ public abstract class BagriXQItemAccessor extends BagriXQCloseable implements XQ
 		if (value == null) {
 			throw new XQException("Value is not accessible");
 		}
-		return xqProcessor.convertToString(value);
+		return xqProcessor.convertToString(value, props);
 	}
 
 	@Override

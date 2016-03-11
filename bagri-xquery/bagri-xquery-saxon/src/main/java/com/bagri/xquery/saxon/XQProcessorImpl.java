@@ -1,44 +1,13 @@
 package com.bagri.xquery.saxon;
 
-import static com.bagri.xdm.common.XDMConstants.pn_baseURI;
-import static com.bagri.xdm.common.XDMConstants.pn_bindingMode;
-import static com.bagri.xdm.common.XDMConstants.pn_boundarySpacePolicy;
-import static com.bagri.xdm.common.XDMConstants.pn_constructionMode;
-import static com.bagri.xdm.common.XDMConstants.pn_copyNamespacesModeInherit;
-import static com.bagri.xdm.common.XDMConstants.pn_copyNamespacesModePreserve;
-import static com.bagri.xdm.common.XDMConstants.pn_defaultCollationUri;
-import static com.bagri.xdm.common.XDMConstants.pn_defaultElementTypeNamespace;
-import static com.bagri.xdm.common.XDMConstants.pn_defaultFunctionNamespace;
-import static com.bagri.xdm.common.XDMConstants.pn_defaultNamespaces;
-import static com.bagri.xdm.common.XDMConstants.pn_defaultOrderForEmptySequences;
-import static com.bagri.xdm.common.XDMConstants.pn_holdability;
-import static com.bagri.xdm.common.XDMConstants.pn_orderingMode;
-import static com.bagri.xdm.common.XDMConstants.pn_queryLanguageTypeAndVersion;
-import static com.bagri.xdm.common.XDMConstants.pn_queryTimeout;
-import static com.bagri.xdm.common.XDMConstants.pn_scrollability;
-import static com.bagri.xdm.common.XDMConstants.xqf_Full_Axis;
-import static com.bagri.xdm.common.XDMConstants.xqf_Module;
-import static com.bagri.xdm.common.XDMConstants.xqf_Schema_Import;
-import static com.bagri.xdm.common.XDMConstants.xqf_Schema_Validation;
-import static com.bagri.xdm.common.XDMConstants.xqf_Serialization;
-import static com.bagri.xdm.common.XDMConstants.xqf_Static_Typing;
-import static com.bagri.xdm.common.XDMConstants.xqf_Static_Typing_Extensions;
-import static com.bagri.xdm.common.XDMConstants.xqf_Transaction;
-import static com.bagri.xdm.common.XDMConstants.xqf_Update;
-import static com.bagri.xdm.common.XDMConstants.xqf_User_Defined_XML_Schema_Type;
-import static com.bagri.xdm.common.XDMConstants.xqf_XA;
-import static com.bagri.xdm.common.XDMConstants.xqf_XQueryX;
-import static com.bagri.xdm.common.XDMConstants.xqf_XQuery_30;
-import static com.bagri.xdm.common.XDMConstants.xqf_XQuery_Encoding_Decl;
-import static com.bagri.xdm.common.XDMConstants.xqf_XQuery_Full_Text;
-import static com.bagri.xdm.common.XDMConstants.xqf_XQuery_Update_Facility;
-import static javax.xml.xquery.XQConstants.BOUNDARY_SPACE_PRESERVE;
-import static javax.xml.xquery.XQConstants.CONSTRUCTION_MODE_PRESERVE;
-import static javax.xml.xquery.XQConstants.COPY_NAMESPACES_MODE_INHERIT;
-import static javax.xml.xquery.XQConstants.COPY_NAMESPACES_MODE_PRESERVE;
-import static javax.xml.xquery.XQConstants.LANGTYPE_XQUERY;
+import static com.bagri.xdm.common.XDMConstants.*;
+import static javax.xml.xquery.XQConstants.*;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -52,12 +21,17 @@ import java.util.Set;
 import java.util.StringTokenizer;
 
 import javax.xml.namespace.QName;
+import javax.xml.transform.Source;
+import javax.xml.transform.sax.SAXSource;
+import javax.xml.transform.stream.StreamResult;
 import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQItem;
 import javax.xml.xquery.XQSequence;
 import javax.xml.xquery.XQStaticContext;
 
+import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+import org.xml.sax.InputSource;
 
 import com.bagri.common.util.XMLUtils;
 import com.bagri.xdm.api.XDMRepository;
@@ -68,11 +42,13 @@ import com.bagri.xquery.saxon.extension.RemoveDocument;
 import com.bagri.xquery.saxon.extension.StoreDocument;
 
 import net.sf.saxon.Configuration;
+import net.sf.saxon.dom.DocumentOverNodeInfo;
 import net.sf.saxon.dom.NodeOverNodeInfo;
 import net.sf.saxon.expr.JPConverter;
 import net.sf.saxon.expr.instruct.GlobalParameterSet;
 import net.sf.saxon.expr.instruct.GlobalVariable;
 import net.sf.saxon.lib.Validation;
+import net.sf.saxon.om.DocumentInfo;
 import net.sf.saxon.om.StructuredQName;
 import net.sf.saxon.query.DynamicQueryContext;
 import net.sf.saxon.query.QueryResult;
@@ -302,27 +278,48 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
         }
     }
     
+    public Document convertToDocument(String xml) throws XQException {
+    	
+    	String baseURI = sqc.getBaseURI(); 
+        StringReader sr = new StringReader(xml);
+        InputSource is = new InputSource(sr);
+        is.setSystemId(baseURI);
+        Source source = new SAXSource(is);
+        source.setSystemId(baseURI);
+        
+        try {
+        	DocumentInfo doc = config.buildDocument(source);
+        	return (Document) DocumentOverNodeInfo.wrap(doc);
+		} catch (XPathException ex) {
+			throw new XQException(ex.getMessage());
+		}
+    }
+    
 	//@Override
-	public String convertToString(Object item) throws XQException {
+	public String convertToString(Object item, Properties props) throws XQException {
 		
 		if (item instanceof NodeOverNodeInfo) {
 			try {
-				return QueryResult.serialize(((NodeOverNodeInfo) item).getUnderlyingNodeInfo());
-			} catch (XPathException ex) {
+				Writer writer = new StringWriter();
+				QueryResult.serialize(((NodeOverNodeInfo) item).getUnderlyingNodeInfo(), 
+						new StreamResult(writer), props);
+				writer.close();
+				return writer.toString();
+			} catch (IOException | XPathException ex) {
 				throw new XQException(ex.getMessage());
 			}
 		} else if (item instanceof Node) {
 			try {
-				return XMLUtils.nodeToString((Node) item);
+				return XMLUtils.nodeToString((Node) item, props);
 			} catch (Exception ex) {
 				throw new XQException(ex.getMessage());
 			} 
 		} else if (item instanceof ObjectValue) {
-			return convertToString(((ObjectValue) item).getObject());
+			return convertToString(((ObjectValue) item).getObject(), props);
 		} else if (item instanceof XQSequence) {
-			return ((XQSequence) item).getSequenceAsString(null);
+			return ((XQSequence) item).getSequenceAsString(props);
 		} else if (item instanceof XQItem) {
-			return ((XQItem) item).getItemAsString(null);
+			return ((XQItem) item).getItemAsString(props);
 		} else {
 			return item.toString();
 		}
@@ -392,17 +389,20 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
 	        	logger.trace("prepareXQuery; query: \n{}", explainQuery(exp));
 	        }
 	        
-	        Set<QName> result = new HashSet<QName>(exp.getExternalVariableNames().length);
-	        for (StructuredQName qname: exp.getExternalVariableNames()) {
-	        	result.add(qname.toJaxpQName());
-	        }
+	        //Set<QName> result = new HashSet<QName>(exp.getExternalVariableNames().length);
+	        //for (StructuredQName qname: exp.getExternalVariableNames()) {
+	        //	result.add(qname.toJaxpQName());
+	        //}
+        	//logger.info("prepareXQuery; result 1: {}", result);
 	        
-	        Iterator<GlobalVariable> itr = exp.getStaticContext().getGlobalVariables(); 
-	        while (itr.hasNext()) {
-	        	result.add(itr.next().getVariableQName().toJaxpQName());
-	        }
+	        //Iterator<GlobalVariable> itr = exp.getStaticContext().getGlobalVariables(); 
+	        //while (itr.hasNext()) {
+	        //	result.add(itr.next().getVariableQName().toJaxpQName());
+	        //}
+        	//logger.info("prepareXQuery; result 2: {}", result);
 
-	        itr = exp.getStaticContext().getModuleVariables(); 
+	        Set<QName> result = new HashSet<QName>();
+	        Iterator<GlobalVariable> itr = exp.getStaticContext().getModuleVariables(); 
 	        while (itr.hasNext()) {
 	        	result.add(itr.next().getVariableQName().toJaxpQName());
 	        }

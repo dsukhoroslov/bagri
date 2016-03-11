@@ -10,6 +10,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -21,6 +22,7 @@ import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
@@ -61,7 +63,33 @@ public class XMLUtils {
 				throw new RuntimeException(ex);
 			}
  		}
+
+		@Override
+		public DocumentBuilder get() {
+			DocumentBuilder result = super.get();
+			result.reset();
+			return result;
+ 		}
 		
+	};
+	
+	private static final ThreadLocal<Transformer> thTR = new ThreadLocal<Transformer>() {
+		
+		@Override
+		protected Transformer initialValue() {
+			try {
+				return transFactory.newTransformer();
+			} catch (TransformerConfigurationException ex) {
+				throw new RuntimeException(ex);
+			}
+ 		}
+		
+		@Override
+		public Transformer get() {
+			Transformer result = super.get();
+			result.reset();
+			return result;
+ 		}
 	};
 	
 	public static String textToString(Reader text) throws IOException {
@@ -99,19 +127,19 @@ public class XMLUtils {
 	}
 
 	public static Document textToDocument(InputStream text) throws IOException {
+		DocumentBuilder builder = thDB.get();
 		try {
-			DocumentBuilder builder = dbFactory.newDocumentBuilder();
 	        return builder.parse(text);  
-		} catch (ParserConfigurationException | SAXException ex) {
+		} catch (SAXException ex) {
 			throw new IOException(ex); 
 		}  
 	}
 
 	public static Document textToDocument(Reader text) throws IOException {
+		DocumentBuilder builder = thDB.get();
 		try {
-			DocumentBuilder builder = dbFactory.newDocumentBuilder();
 	        return builder.parse(new InputSource(text));  
-		} catch (ParserConfigurationException | SAXException ex) {
+		} catch (SAXException ex) {
 			throw new IOException(ex); 
 		}  
 	}
@@ -128,11 +156,15 @@ public class XMLUtils {
 		}
 	}
 	
-	public static String sourceToString(Source source) throws IOException { 
+	public static String sourceToString(Source source, Properties props) throws IOException { 
+		Transformer trans = thTR.get();
 		try {
-			Transformer trans = transFactory.newTransformer();
-	    	trans.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-	    	trans.setOutputProperty(OutputKeys.INDENT, "yes");
+			if (props != null) {
+				trans.setOutputProperties(props);
+			} else {
+				trans.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+				trans.setOutputProperty(OutputKeys.INDENT, "yes");
+			}
 			Writer writer = new StringWriter();
 			trans.transform(source, new StreamResult(writer));
 			writer.close();
@@ -142,13 +174,13 @@ public class XMLUtils {
 		}  
 	}
 	
-	public static String nodeToString(Node node) throws IOException {
-		return sourceToString(new DOMSource(node));
+	public static String nodeToString(Node node, Properties props) throws IOException {
+		return sourceToString(new DOMSource(node), props);
 	}
 	
 	public static void stringToResult(String source, Result result) throws IOException {
+		Transformer trans = thTR.get();
 		try {
-			Transformer trans = transFactory.newTransformer();  
 			StringReader reader = new StringReader(source);
 			trans.transform(new StreamSource(reader), result);
 		} catch (TransformerException ex) {

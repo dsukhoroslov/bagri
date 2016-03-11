@@ -12,6 +12,7 @@ import static javax.xml.xquery.XQConstants.*;
 
 public class BagriXQStaticContext implements XQStaticContext {
 
+	private String[] prefixes = null;
 	private Map<String, String> namespaces = new HashMap<String, String>(6);
 	private String defaultElementTypeNamespace = "http://www.w3.org/2001/XMLSchema";
 	private String defaultFunctionNamespace = "http://www.w3.org/2005/xpath-functions";
@@ -49,6 +50,7 @@ public class BagriXQStaticContext implements XQStaticContext {
 	
 	public void copyFrom(XQStaticContext from) throws XQException {
 
+		this.prefixes = null;
 		this.namespaces.clear();
 		for (String prefix: from.getNamespacePrefixes()) {
 			this.declareNamespace(prefix, from.getNamespaceURI(prefix));
@@ -74,7 +76,10 @@ public class BagriXQStaticContext implements XQStaticContext {
 	@Override
 	public String[] getNamespacePrefixes() {
 		
-		return namespaces.keySet().toArray(new String[namespaces.size()]);
+		if (prefixes == null) {
+			prefixes = namespaces.keySet().toArray(new String[namespaces.size()]); 
+		}
+		return prefixes;
 	}
 
 	@Override
@@ -100,6 +105,7 @@ public class BagriXQStaticContext implements XQStaticContext {
 		} else {
 			namespaces.put(prefix, uri);
 		}
+		prefixes = null;
 	}
 	
 	@Override

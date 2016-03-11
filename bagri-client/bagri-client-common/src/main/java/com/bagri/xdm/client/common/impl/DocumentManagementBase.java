@@ -49,7 +49,8 @@ public abstract class DocumentManagementBase {
 	
 	public XDMDocument storeDocumentFromSource(XDMDocumentId docId, Source source, Properties props) throws XDMException {
 		try {
-			String xml = XMLUtils.sourceToString(source);
+			// TODO: get serialization props only..
+			String xml = XMLUtils.sourceToString(source, null);
 			return storeDocumentFromString(docId, xml, props);
 		} catch (IOException ex) {
 			logger.error("storeDocumentFromSource.error", ex);

@@ -236,7 +236,7 @@ public class BagriXQDataFactory extends BagriXQCloseable implements XQDataFactor
 
 		String content;
 		try {
-			content = XMLUtils.sourceToString(new StAXSource(value));
+			content = XMLUtils.sourceToString(new StAXSource(value), null);
 		} catch (IOException ex) {
 			throw new XQException(ex.getMessage());
 		}
@@ -253,7 +253,7 @@ public class BagriXQDataFactory extends BagriXQCloseable implements XQDataFactor
 		
 		String content;
 		try {
-			content = XMLUtils.sourceToString(value);
+			content = XMLUtils.sourceToString(value, null);
 		} catch (IOException ex) {
 			throw new XQException(ex.getMessage());
 		}
@@ -297,13 +297,14 @@ public class BagriXQDataFactory extends BagriXQCloseable implements XQDataFactor
 		if (value == null) {
 			throw new XQException("value is null");
 		}
-		String s;
+		
+		String content;
 		try {
-			s = XMLUtils.textToString(value);
+			content = XMLUtils.textToString(value);
 		} catch (IOException ex) {
 			throw new XQException(ex.getMessage());
 		}
-		return createItemFromDocument(s, baseURI, type);
+		return createItemFromDocument(content, baseURI, type);
 	}
 
 	@Override
@@ -313,13 +314,14 @@ public class BagriXQDataFactory extends BagriXQCloseable implements XQDataFactor
 		if (value == null) {
 			throw new XQException("value is null");
 		}
-		String s;
+		
+		String content;
 		try {
-			s = XMLUtils.textToString(value);
+			content = XMLUtils.textToString(value);
 		} catch (IOException ex) {
 			throw new XQException(ex.getMessage());
 		}
-		return createItemFromDocument(s, baseURI, type);
+		return createItemFromDocument(content, baseURI, type);
 	}
 
 	@Override

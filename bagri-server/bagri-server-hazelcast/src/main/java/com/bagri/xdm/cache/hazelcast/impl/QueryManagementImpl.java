@@ -233,6 +233,9 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 		// TODO: think about lazy solution... EntryProcessor? or, try local Map?
 		List<Object> resList = new ArrayList<>();
 		while (results.hasNext()) {
+			//Object res = results.next();
+			//logger.info("addQueryResults; caching result: {}; {}", res == null ? "null" : res.getClass().getName(), res); 
+			//resList.add(res); 
 			resList.add(results.next());
 		}
 		XDMResults xqr = new XDMResults(params, ctx.getDocIds(), resList);
