@@ -94,9 +94,9 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 		if (qCache != null) {
 			useCache = Boolean.parseBoolean(qCache); 
 		}
+		long qKey = getResultsKey(query, params);
 		if (useCache) {
-			long key = getResultsKey(query, params);
-			XDMResults res = resCache.get(key);
+			XDMResults res = resCache.get(qKey);
 			if (res != null) {
 				logger.trace("execXQuery; got cached results: {}", res);
 				return res.getResults().iterator();
@@ -106,15 +106,14 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 		props.setProperty(pn_client_id, repo.getClientId());
 		//props.setProperty(pn_client_txId, String.valueOf(repo.getTransactionId()));
 		
-		long key = getQueryKey(query);
 		boolean isQuery = true;
 		QueryExecutor task = new QueryExecutor(repo.getClientId(), repo.getTransactionId(), query, params, props);
 		Future<ResultCursor> future;
 		String runOn = props.getProperty(pn_client_submitTo, pv_client_submitTo_any);
 		if (pv_client_submitTo_owner.equalsIgnoreCase(runOn)) {
-			future = execService.submitToKeyOwner(task, key);
+			future = execService.submitToKeyOwner(task, qKey);
 		} else if (pv_client_submitTo_member.equalsIgnoreCase(runOn)) {
-			Member member = repo.getHazelcastClient().getPartitionService().getPartition(key).getOwner();
+			Member member = repo.getHazelcastClient().getPartitionService().getPartition(qKey).getOwner();
 			future = execService.submitToMember(task, member);
 		} else {
 			future = execService.submit(task);
