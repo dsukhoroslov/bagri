@@ -67,6 +67,11 @@
             <groupId>com.sdv.bagri</groupId>
             <artifactId>bagri-client-hazelcast</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.hazelcast</groupId>
+            <artifactId>hazelcast-all</artifactId>
+            <scope>test</scope>
         </dependency-->
     </dependencies>
 

@@ -31,7 +31,6 @@ public class DocumentBeanCreator extends DocumentAwareTask implements Callable<X
 
 	@Override
 	public int getId() {
-		// TODO Auto-generated method stub
 		return cli_CreateBeanDocumentTask;
 	}
 

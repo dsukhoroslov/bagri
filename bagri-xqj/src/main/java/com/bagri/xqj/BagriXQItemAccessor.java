@@ -9,6 +9,7 @@ import java.net.URISyntaxException;
 import java.util.Properties;
 
 import javax.xml.stream.XMLStreamReader;
+import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Result;
 import javax.xml.transform.sax.SAXResult;
 import javax.xml.xquery.XQException;
@@ -64,6 +65,21 @@ public abstract class BagriXQItemAccessor extends BagriXQCloseable implements XQ
 			return (Boolean) value;
 		}
 		throw new XQException("ItemType is not boolean");
+	}
+	
+	protected Properties checkOutputProperties(Properties props) {
+        if (props == null) {
+            props = new Properties();
+        }
+        if (props.size() == 0) {
+            props.setProperty(OutputKeys.INDENT, "yes");
+            props.setProperty(OutputKeys.METHOD, "xml");
+            props.setProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+        //} else {
+    		// TODO: check for only serialization properties here?
+            //validateSerializationProperties(props, config);
+        }
+        return props;
 	}
 	
 	private long convertDecimal(long min, long max, String typeName) throws XQException {
@@ -184,10 +200,7 @@ public abstract class BagriXQItemAccessor extends BagriXQCloseable implements XQ
 	@Override
 	public String getAtomicValue() throws XQException {
 
-		if (closed) {
-			throw new XQException(ex_item_closed);
-		}
-		return xqProcessor.convertToString(value, null);
+		return getItemAsString(null);
 	}
 
 	@Override
@@ -260,14 +273,10 @@ public abstract class BagriXQItemAccessor extends BagriXQCloseable implements XQ
 		if (closed) {
 			throw new XQException(ex_item_closed);
 		}
-        //if (props == null) {
-        //    props = new Properties();
-        //} else {
-            //validateSerializationProperties(props, config);
-        //}
 		if (value == null) {
 			throw new XQException("Value is not accessible");
 		}
+		props = checkOutputProperties(props);
 		return xqProcessor.convertToString(value, props);
 	}
 

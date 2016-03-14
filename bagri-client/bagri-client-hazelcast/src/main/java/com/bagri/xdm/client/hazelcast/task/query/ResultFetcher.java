@@ -25,7 +25,6 @@ public class ResultFetcher extends ClientAwareTask implements Callable<Boolean>,
 
 	@Override
 	public Boolean call() throws Exception {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

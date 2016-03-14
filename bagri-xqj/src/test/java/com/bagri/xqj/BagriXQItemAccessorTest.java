@@ -294,6 +294,31 @@ public class BagriXQItemAccessorTest {
 		    fail("Expecting XQException, but got: " + ex.getMessage());
 	    }
 	    xqe.close();
+
+	    xqe = xqc.createExpression();
+	    xqs = xqe.executeQuery("<e>Hello world!</e>");
+	    xqs.next();
+	    String result = null;
+	    try {
+	    	result = xqs.getItemAsString(new Properties());
+		    System.out.println("first result: " + result);
+	    } catch (XQException e) {
+	    	fail("A-XQIA-10.1: getItemAsString failed with message: " + e.getMessage());
+	    }
+	    assertTrue("A-XQIA-10.1: Expects serialized result contains '<e>Hello world!</e>', but it is '" + result + "'", result.indexOf("<e>Hello world!</e>") != -1);
+	    xqe.close();
+
+	    xqe = xqc.createExpression();
+	    xqs = xqe.executeQuery("<e>Hello world!</e>");
+	    xqs.next();
+	    try {
+	    	String result2 = xqs.getItemAsString(null);
+		    System.out.println("second result: " + result2);
+	    	assertEquals("A-XQIA-10.2: null properties argument is equivalent to empty properties argument", result, result2);
+	    } catch (XQException e) {
+	    	fail("A-XQIA-10.2: getItemAsString failed with message: " + e.getMessage());
+	    }
+	    xqe.close();
 	}
 	
 	@Test

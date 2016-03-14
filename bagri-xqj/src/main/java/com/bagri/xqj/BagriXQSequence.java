@@ -27,7 +27,7 @@ public abstract class BagriXQSequence extends BagriXQItemAccessor implements XQS
 		super(xqProcessor);
 		this.xqFactory = xqFactory;
 	}
-
+	
 	@Override
 	public XQItem getItem() throws XQException {
 		
@@ -50,23 +50,8 @@ public abstract class BagriXQSequence extends BagriXQItemAccessor implements XQS
 	public String getSequenceAsString(Properties props) throws XQException {
 
 		checkState(ex_sequence_closed);
-        
-		// TODO: do this via xqProcessor.serializeSequence(...);
-		
-		StringBuffer buff = new StringBuffer();
-		boolean hasNext = isOnItem();
-		if (!hasNext) {
-			hasNext = next();
-		}
-		while (hasNext) {
-			buff.append(this.getItemAsString(props));
-			if (next()) {
-				buff.append("\n");
-			} else {
-				hasNext = false;
-			}
-		}
-        return buff.toString();
+        props = checkOutputProperties(props);
+		return getXQProcessor().convertToString(this, props);
 	}
 
 	@Override

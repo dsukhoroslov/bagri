@@ -49,6 +49,9 @@ import net.sf.saxon.expr.instruct.GlobalParameterSet;
 import net.sf.saxon.expr.instruct.GlobalVariable;
 import net.sf.saxon.lib.Validation;
 import net.sf.saxon.om.DocumentInfo;
+import net.sf.saxon.om.Item;
+import net.sf.saxon.om.SequenceIterator;
+import net.sf.saxon.om.SequenceTool;
 import net.sf.saxon.om.StructuredQName;
 import net.sf.saxon.query.DynamicQueryContext;
 import net.sf.saxon.query.QueryResult;
@@ -300,12 +303,15 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
 		
 		if (item instanceof NodeOverNodeInfo) {
 			try {
-				Writer writer = new StringWriter();
-				QueryResult.serialize(((NodeOverNodeInfo) item).getUnderlyingNodeInfo(), 
-						new StreamResult(writer), props);
-				writer.close();
-				return writer.toString();
-			} catch (IOException | XPathException ex) {
+				if (props == null) {
+					return QueryResult.serialize(((NodeOverNodeInfo) item).getUnderlyingNodeInfo()); 
+				} else {
+					Writer writer = new StringWriter();
+					QueryResult.serialize(((NodeOverNodeInfo) item).getUnderlyingNodeInfo(), new StreamResult(writer), props);
+					writer.close();
+					return writer.toString();
+				}
+			} catch (IOException | XPathException ex) {  
 				throw new XQException(ex.getMessage());
 			}
 		} else if (item instanceof Node) {
@@ -317,7 +323,16 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
 		} else if (item instanceof ObjectValue) {
 			return convertToString(((ObjectValue) item).getObject(), props);
 		} else if (item instanceof XQSequence) {
-			return ((XQSequence) item).getSequenceAsString(props);
+			//return ((XQSequence) item).getSequenceAsString(props);
+			Writer writer = new StringWriter();
+			SequenceIterator<Item> itr = new XQSequenceIterator((XQSequence) item, config);
+			try {
+				QueryResult.serializeSequence(itr, config, writer, props);
+				writer.close();
+			} catch (IOException | XPathException ex) {  
+				throw new XQException(ex.getMessage());
+			}
+			return writer.toString();
 		} else if (item instanceof XQItem) {
 			return ((XQItem) item).getItemAsString(props);
 		} else {

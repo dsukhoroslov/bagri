@@ -2,6 +2,7 @@ package com.bagri.xqj;
 
 import static com.bagri.xqj.BagriXQErrors.ex_sequence_closed;
 
+import java.util.Iterator;
 import java.util.List;
 
 import javax.xml.xquery.XQException;

@@ -106,4 +106,20 @@ public class TransactionManagement extends SchemaFeatureManagement {
 		}
 		return false;
 	}
+	
+	@ManagedAttribute(description="Returns transaction timeoit in miliseconds. 0 means no timeout")
+	public long getTransactionTimeout() {
+		return txMgr.getTransactionTimeout();
+	}
+	
+	@ManagedAttribute(description="Set transaction timeout in miliseconds. 0 means no timeout")
+	public void setTransactionTimeout(long txTimeout) {
+		try {
+			txMgr.setTransactionTimeout(txTimeout);
+		} catch (XDMException ex) {
+			logger.error("setTransactionTimeout.error: " + ex.getMessage(), ex);
+		}
+	}
+	
+
 }

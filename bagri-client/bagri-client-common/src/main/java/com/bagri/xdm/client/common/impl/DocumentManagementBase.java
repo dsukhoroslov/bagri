@@ -60,6 +60,7 @@ public abstract class DocumentManagementBase {
 	
 	public XDMDocument storeDocumentFromStream(XDMDocumentId docId, InputStream stream, Properties props) throws XDMException {
 		try {
+			// TODO: get serialization props only..
 			String xml = XMLUtils.textToString(stream);
 			return storeDocumentFromString(docId, xml, props);
 		} catch (IOException ex) {
