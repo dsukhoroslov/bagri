@@ -90,6 +90,9 @@ public class XDMDataSerializationFactory implements DataSerializableFactory {
 	public static final int cli_PathIndexKey = 97; 
 	public static final int cli_QueryParamsKey = 98; 
 
+	public static final int cli_ProvideCollectionDocumentsTask = 101;
+	public static final int cli_RemoveCollectionDocumentsTask = 102; 
+	
 	public static final int cli_GetBeanDocumentTask = 103;
 	public static final int cli_GetMapDocumentTask = 104; 
 	public static final int cli_CreateBeanDocumentTask = 105;

@@ -3,9 +3,7 @@ package com.bagri.xdm.cache.hazelcast.impl;
 import static com.bagri.common.config.XDMConfigConstants.xdm_config_properties_file;
 import static com.bagri.xdm.common.XDMConstants.pn_client_id;
 import static com.bagri.xdm.common.XDMConstants.pn_client_fetchSize;
-import static com.bagri.xdm.common.XDMConstants.xs_ns;
-import static com.bagri.xdm.common.XDMConstants.xs_prefix;
-import static com.bagri.xqj.BagriXQUtils.getBaseTypeForTypeName;
+import static org.junit.Assert.*;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -14,12 +12,9 @@ import java.util.Map;
 import java.util.Properties;
 
 import javax.xml.namespace.QName;
-import javax.xml.xquery.XQItemType;
-import javax.xml.xquery.XQPreparedExpression;
 
 import org.junit.After;
 import org.junit.AfterClass;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -27,7 +22,6 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.xdm.api.test.XDMManagementTest;
-import com.bagri.xdm.client.hazelcast.impl.ResultCursor;
 import com.bagri.xdm.system.XDMCollection;
 import com.bagri.xdm.system.XDMSchema;
 
@@ -87,13 +81,13 @@ public class QueryCacheManagementTest extends XDMManagementTest {
 		props.setProperty(pn_client_id, "1");
 		props.setProperty(pn_client_fetchSize, "1");
 		Iterator itr = xRepo.getQueryManagement().executeQuery(query, params, props);
-		Assert.assertNotNull(itr);
+		assertNotNull(itr);
 		//((ResultCursor) itr).deserialize(((RepositoryImpl) xRepo).getHzInstance());
-		Assert.assertTrue(itr.hasNext());
+		assertTrue(itr.hasNext());
 		// here we must have 1 result cached
 		itr = ((QueryManagementImpl) xRepo.getQueryManagement()).getQueryResults(query, params, props);		
-		Assert.assertNotNull(itr);
-		Assert.assertTrue(itr.hasNext());
+		assertNotNull(itr);
+		assertTrue(itr.hasNext());
 		
 		txId = xRepo.getTxManagement().beginTransaction();
 		removeDocumentTest(1); 
@@ -101,8 +95,8 @@ public class QueryCacheManagementTest extends XDMManagementTest {
 		//updateDocumentTest(0, null, sampleRoot + getFileName("security5621.xml"));
 		// here we must have 0 result cached
 		itr = ((QueryManagementImpl) xRepo.getQueryManagement()).getQueryResults(query, params, props);		
-		Assert.assertNull(itr);
-		//Assert.assertFalse(itr.hasNext());
+		assertNull(itr);
+		//assertFalse(itr.hasNext());
 	}
 
 	@Test
@@ -137,13 +131,13 @@ public class QueryCacheManagementTest extends XDMManagementTest {
 		props.setProperty(pn_client_id, "2");
 		props.setProperty(pn_client_fetchSize, "1");
 		Iterator itr = xRepo.getQueryManagement().executeQuery(query, params, props);
-		Assert.assertNotNull(itr);
+		assertNotNull(itr);
 		//((ResultCursor) itr).deserialize(((RepositoryImpl) xRepo).getHzInstance());
-		Assert.assertTrue(itr.hasNext());
+		assertTrue(itr.hasNext());
 		// here we must have 1 result cached
 		itr = ((QueryManagementImpl) xRepo.getQueryManagement()).getQueryResults(query, params, props);		
-		Assert.assertNotNull(itr);
-		Assert.assertTrue(itr.hasNext());
+		assertNotNull(itr);
+		assertTrue(itr.hasNext());
 		
 		txId = xRepo.getTxManagement().beginTransaction();
 		createDocumentTest(sampleRoot + getFileName("security9012.xml"));
@@ -151,8 +145,8 @@ public class QueryCacheManagementTest extends XDMManagementTest {
 		// here we must have 0 result cached
 		// but there is no code to do this!
 		itr = ((QueryManagementImpl) xRepo.getQueryManagement()).getQueryResults(query, params, props);		
-		//Assert.assertNull(itr);
-		//Assert.assertFalse(itr.hasNext());
+		//assertNull(itr);
+		//assertFalse(itr.hasNext());
 	}
 	
 }

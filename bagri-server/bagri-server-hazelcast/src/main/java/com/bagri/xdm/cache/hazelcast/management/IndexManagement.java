@@ -84,7 +84,7 @@ public class IndexManagement extends SchemaFeatureManagement {
 			}
 		}
 		stamp = System.currentTimeMillis() - stamp;
-		logger.trace("addIndex.exit; index created on {} members; timeTaken: {}", cnt, stamp);
+		logger.trace("addIndex.exit; index created on {} members; time Taken: {}", cnt, stamp);
 	}
 	
 	@ManagedOperation(description="Removes an existing Index")
@@ -110,7 +110,7 @@ public class IndexManagement extends SchemaFeatureManagement {
 			}
 		}
 		stamp = System.currentTimeMillis() - stamp;
-		logger.trace("dropIndex.exit; index deleted on {} members; timeTaken: {}", cnt, stamp);
+		logger.trace("dropIndex.exit; index deleted on {} members; time Taken: {}", cnt, stamp);
 	}
 
 	@ManagedOperation(description="Enables/Disables an existing Index")

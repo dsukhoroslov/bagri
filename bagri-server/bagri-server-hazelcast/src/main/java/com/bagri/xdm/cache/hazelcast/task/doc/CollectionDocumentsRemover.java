@@ -1,36 +1,41 @@
 package com.bagri.xdm.cache.hazelcast.task.doc;
 
+import java.util.concurrent.Callable;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.bagri.xdm.api.XDMDocumentManagement;
 import com.bagri.xdm.cache.api.XDMRepository;
+import com.bagri.xdm.cache.api.XDMTransactionManagement;
 import com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl;
 import com.bagri.xdm.system.XDMPermission.Permission;
 import com.hazelcast.spring.context.SpringAware;
 
 @SpringAware
-public class DocumentCollectionUpdater extends com.bagri.xdm.client.hazelcast.task.doc.DocumentCollectionUpdater {
+public class CollectionDocumentsRemover extends com.bagri.xdm.client.hazelcast.task.doc.CollectionDocumentsRemover {
 
 	private transient XDMDocumentManagement docMgr;
+	private transient XDMTransactionManagement txMgr;
     
     @Autowired
 	public void setRepository(XDMRepository repo) {
 		this.repo = repo;
 		this.docMgr = repo.getDocumentManagement();
+		this.txMgr = (XDMTransactionManagement) repo.getTxManagement();
 	}
 
     @Override
 	public Integer call() throws Exception {
-    	
+
     	((RepositoryImpl) repo).getXQProcessor(clientId);
     	checkPermission(Permission.modify);
     	
-    	if (add) {
-    		return docMgr.addDocumentToCollections(docId, collections);
-    	} else {
-    		return docMgr.removeDocumentFromCollections(docId, collections);
-    	}    	
+    	return txMgr.callInTransaction(txId, false, new Callable<Integer>() {
+    		
+	    	public Integer call() throws Exception {
+	    		return docMgr.removeCollectionDocuments(collection);
+	    	}
+    	});
 	}
-
 
 }

@@ -71,7 +71,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 
     private IdGenerator<Long> docGen;
     private Map<XDMDocumentKey, Source> srcCache;
-    private IMap<XDMDocumentKey, String> xmlCache;
+    private IMap<XDMDocumentKey, String> cntCache;
 	private IMap<XDMDocumentKey, XDMDocument> xddCache;
     private IMap<XDMDataKey, XDMElements> xdmCache;
 
@@ -85,8 +85,8 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
     	this.triggerManager = (TriggerManagementImpl) repo.getTriggerManagement();
     }
     
-    IMap<XDMDocumentKey, String> getXmlCache() {
-    	return xmlCache;
+    IMap<XDMDocumentKey, String> getContentCache() {
+    	return cntCache;
     }
 
     IMap<XDMDocumentKey, XDMDocument> getDocumentCache() {
@@ -109,8 +109,8 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
     	this.xdmCache = cache;
     }
 
-    public void setXmlCache(IMap<XDMDocumentKey, String> cache) {
-    	this.xmlCache = cache;
+    public void setContentCache(IMap<XDMDocumentKey, String> cache) {
+    	this.cntCache = cache;
     	this.srcCache = new ConcurrentHashMap<XDMDocumentKey, Source>();
     }
     
@@ -373,7 +373,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 					}
 					String xml = null;
 					if (path.equals(root)) {
-						xml = xmlCache.get(docKey);
+						xml = cntCache.get(docKey);
 					}
 					if (xml == null) {
 				        logger.trace("buildDocument; no content found for doc key: {}", docKey);
@@ -437,7 +437,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 			return null;
 		}
 
-		String xml = xmlCache.get(docKey);
+		String xml = cntCache.get(docKey);
 		// very expensive operation!!
 		//logger.trace("getDocumentAsString; xml cache stats: {}", xmlCache.getLocalMapStats());
 		if (xml == null) {
@@ -456,7 +456,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 				Collection<String> results = buildDocument(Collections.singleton(docId.getDocumentKey()), ":doc", params);
 				if (!results.isEmpty()) {
 					xml = results.iterator().next();
-					xmlCache.set(docKey, xml);
+					cntCache.set(docKey, xml);
 				}
 			} else {
 				DocumentContentProvider xp = new DocumentContentProvider(repo.getClientId(), docId); //??
@@ -570,7 +570,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 			// trigger has been already invoked in storeDocument..
 		}
 		xddCache.set(docKey, doc);
-		xmlCache.set(docKey, content);
+		cntCache.set(docKey, content);
 		triggerManager.applyTrigger(doc, action, Scope.after);
 
 		// invalidate cached query results
@@ -860,7 +860,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	    XDMDocument doc = getDocument(docKey);
 	    boolean cleaned = false;
 	    if (doc != null) {
-			xmlCache.delete(docKey);
+			cntCache.delete(docKey);
 			srcCache.remove(docKey);
 	    	int size = deleteDocumentElements(doc.getFragments(), doc.getTypeId());
 	    	Collection<Integer> pathIds = indexManager.getTypeIndexes(doc.getTypeId(), true);
@@ -927,10 +927,14 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	}
 	
 	@Override
-	public Collection<XDMDocumentId> getCollectionDocumentIds(int collectId) {
+	public Collection<XDMDocumentId> getCollectionDocumentIds(String collection) {
 		//
-		Predicate<XDMDocumentKey, XDMDocument> clp = new CollectionPredicate(collectId);
-		Set<XDMDocumentKey> docKeys = xddCache.keySet(clp);
+		XDMCollection cln = repo.getSchema().getCollection(collection);
+		if (cln == null) {
+			return null;
+		}
+		Predicate<XDMDocumentKey, XDMDocument> clp = new CollectionPredicate(cln.getId());
+		Set<XDMDocumentKey> docKeys = xddCache.localKeySet(clp);
 		List<XDMDocumentId> result = new ArrayList<>(docKeys.size());
 		for (XDMDocumentKey key: docKeys) {
 			result.add(new XDMDocumentId(key.getKey()));
@@ -941,6 +945,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	Collection<Long> getCollectionDocumentKeys(int collectId) {
 		//
 		Predicate<XDMDocumentKey, XDMDocument> clp = new CollectionPredicate(collectId);
+		// TODO: local or global keySet ?!
 		Set<XDMDocumentKey> docKeys = xddCache.keySet(clp);
 		List<Long> result = new ArrayList<>(docKeys.size());
 		for (XDMDocumentKey key: docKeys) {
@@ -950,20 +955,22 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	}
 	
 	@Override
-	public void removeCollectionDocuments(int collectId) throws XDMException {
-		logger.trace("removeCollectionDocuments.enter; collectId: {}", collectId);
+	public int removeCollectionDocuments(String collection) throws XDMException {
+		logger.trace("removeCollectionDocuments.enter; collection: {}", collection);
 		int cnt = 0;
-		Collection<XDMDocumentId> docIds = getCollectionDocumentIds(collectId);
+		// remove local documents only?!
+		Collection<XDMDocumentId> docIds = getCollectionDocumentIds(collection);
 		for (XDMDocumentId docId: docIds) {
 			removeDocument(docId);
 			cnt++;
 		}
 		logger.trace("removeCollectionDocuments.exit; removed: {}", cnt);
+		return cnt;
 	}
 	
 	@Override
-	public int addDocumentToCollections(XDMDocumentId docId, int[] collectIds) {
-		logger.trace("addDocumentsToCollections.enter; got docId: {}; collectIds: {}", docId, Arrays.toString(collectIds));
+	public int addDocumentToCollections(XDMDocumentId docId, String[] collections) {
+		logger.trace("addDocumentsToCollections.enter; got docId: {}; collectIds: {}", docId, Arrays.toString(collections));
 		int addCount = 0;
 		int unkCount = 0;
 		XDMDocument doc = getDocument(docId);
@@ -971,9 +978,9 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 			// TODO: cache size in the doc itself?
 			int size = 0;
 			for (XDMCollection cln: repo.getSchema().getCollections()) {
-				for (int collectId: collectIds) {
-					if (collectId == cln.getId()) {
-						if (doc.addCollection(collectId)) {
+				for (String collection: collections) {
+					if (collection.equals(cln.getName())) {
+						if (doc.addCollection(cln.getId())) {
 							addCount++;
 							updateStats(cln.getName(), true, size, doc.getFragments().length);
 						}						
@@ -992,17 +999,17 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	}
 
 	@Override
-	public int removeDocumentFromCollections(XDMDocumentId docId, int[] collectIds) {
-		logger.trace("removeDocumentsFromCollections.enter; got docId: {}; collectIds: {}", docId, Arrays.toString(collectIds));
+	public int removeDocumentFromCollections(XDMDocumentId docId, String[] collections) {
+		logger.trace("removeDocumentsFromCollections.enter; got docId: {}; collectIds: {}", docId, Arrays.toString(collections));
 		int remCount = 0;
 		int unkCount = 0;
 		XDMDocument doc = getDocument(docId);
 		if (doc != null) {
 			int size = 0;
 			for (XDMCollection cln: repo.getSchema().getCollections()) {
-				for (int collectId: collectIds) {
-					if (collectId == cln.getId()) {
-						if (doc.removeCollection(collectId)) {
+				for (String collection: collections) {
+					if (collection.equals(cln.getName())) {
+						if (doc.removeCollection(cln.getId())) {
 							remCount++;
 							updateStats(cln.getName(), false, size, doc.getFragments().length);
 						}

@@ -47,7 +47,7 @@ public class SchemaDocCleaner extends SchemaProcessingTask implements Callable<B
 		HazelcastInstance hz = Hazelcast.getHazelcastInstanceByName(schemaName);
 		if (hz != null) {
 			// get docs caches and clean them
-			cleanCache(hz, CN_XDM_XML);
+			cleanCache(hz, CN_XDM_CONTENT);
 			cleanCache(hz, CN_XDM_DOCUMENT);
 			cleanCache(hz, CN_XDM_ELEMENT);
 			cleanCache(hz, CN_XDM_INDEX);

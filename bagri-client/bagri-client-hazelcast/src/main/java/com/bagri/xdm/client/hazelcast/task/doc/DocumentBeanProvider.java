@@ -6,7 +6,7 @@ import java.util.concurrent.Callable;
 
 import com.bagri.xdm.common.XDMDocumentId;
 
-public class DocumentBeanProvider  extends DocumentAwareTask implements Callable<Object> {
+public class DocumentBeanProvider extends DocumentAwareTask implements Callable<Object> {
 	
 	public DocumentBeanProvider() {
 		super();

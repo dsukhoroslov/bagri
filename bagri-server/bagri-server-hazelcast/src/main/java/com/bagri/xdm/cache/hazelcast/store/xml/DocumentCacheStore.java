@@ -67,7 +67,7 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<XDMDoc
 		hzInstance = hazelcastInstance;
 		popManager = (PopulationManagementImpl) hzInstance.getUserContext().get("popManager");
 		schemaName = (String) properties.get(xdm_schema_name);
-		xmlCache = hzInstance.getMap(XDMCacheConstants.CN_XDM_XML);
+		xmlCache = hzInstance.getMap(XDMCacheConstants.CN_XDM_CONTENT);
 		String df = properties.getProperty(xdm_schema_store_type);
 		if (df != null) {
 			dataFormat = df;

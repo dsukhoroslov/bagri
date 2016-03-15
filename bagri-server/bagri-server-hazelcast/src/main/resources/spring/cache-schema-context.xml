@@ -7,8 +7,6 @@
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.2.xsd
 		http://www.hazelcast.com/schema/spring http://www.hazelcast.com/schema/spring/hazelcast-spring-3.6.xsd">
 
-	<!--import resource="classpath:spring/xml-context.xml" /-->
- 
 	<!-- Beans Declaration -->
 	<context:property-placeholder ignore-unresolvable="true" location="classpath:/${xdm.config.properties.file}" />
 	<context:annotation-config />
@@ -142,7 +140,7 @@
 
 			<hz:map name="xdm-client" in-memory-format="BINARY" async-backup-count="0" backup-count="1"/>
 			
-			<hz:map name="xdm-xml" in-memory-format="BINARY" async-backup-count="${xdm.schema.query.backup.async}" 
+			<hz:map name="xdm-content" in-memory-format="BINARY" async-backup-count="${xdm.schema.query.backup.async}" 
 					 backup-count="${xdm.schema.query.backup.sync}" read-backup-data="${xdm.schema.query.backup.read}"
 					 eviction-policy="LRU" time-to-live-seconds="0" max-size-policy="USED_HEAP_PERCENTAGE" 
 					 max-size="25" eviction-percentage="10">
@@ -250,7 +248,7 @@
 	</hz:hazelcast>
 
 	<hz:map id="xdm-client" name="xdm-client" instance-ref="hzInstance" />
-	<hz:map id="xdm-xml" name="xdm-xml" instance-ref="hzInstance" />
+	<hz:map id="xdm-content" name="xdm-content" instance-ref="hzInstance" />
 	<hz:replicatedMap id="xdm-query" name="xdm-query" instance-ref="hzInstance" />
 	<!--hz:map id="xdm-query" name="xdm-query" instance-ref="hzInstance" /-->
 	<hz:map id="xdm-result" name="xdm-result" instance-ref="hzInstance" />
@@ -377,7 +375,7 @@
 		<property name="xdmFactory" ref="xdmFactory"/>
 		<property name="xddCache" ref="xdm-document"/>
 		<property name="xdmCache" ref="xdm-element"/>
-		<property name="xmlCache" ref="xdm-xml"/>
+		<property name="contentCache" ref="xdm-content"/>
 		<property name="modelManager" ref="mdlManager"/>
 		<property name="indexManager" ref="idxManager"/>
 		<property name="statsQueue" ref="docQueue"/>

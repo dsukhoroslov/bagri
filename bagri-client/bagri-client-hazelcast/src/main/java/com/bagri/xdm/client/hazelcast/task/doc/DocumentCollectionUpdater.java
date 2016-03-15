@@ -12,16 +12,16 @@ import com.hazelcast.nio.ObjectDataOutput;
 public class DocumentCollectionUpdater extends DocumentAwareTask implements Callable<Integer> {
 	
 	protected boolean add;
-	protected int[] collectIds;
+	protected String[] collections;
 	
 	public DocumentCollectionUpdater() {
 		super();
 	}
 	
-	public DocumentCollectionUpdater(String clientId, XDMDocumentId docId, boolean add, int[] collectIds) {
+	public DocumentCollectionUpdater(String clientId, XDMDocumentId docId, boolean add, String[] collections) {
 		super(clientId, 0, docId, null);
 		this.add = add;
-		this.collectIds = collectIds;
+		this.collections = collections;
 	}
 
 	@Override
@@ -38,14 +38,14 @@ public class DocumentCollectionUpdater extends DocumentAwareTask implements Call
 	public void readData(ObjectDataInput in) throws IOException {
 		super.readData(in);
 		add = in.readBoolean();
-		collectIds = in.readIntArray();
+		collections = in.readUTFArray();
 	}
 
 	@Override
 	public void writeData(ObjectDataOutput out) throws IOException {
 		super.writeData(out);
 		out.writeBoolean(add);
-		out.writeIntArray(collectIds);
+		out.writeUTFArray(collections);
 	}
 
 }

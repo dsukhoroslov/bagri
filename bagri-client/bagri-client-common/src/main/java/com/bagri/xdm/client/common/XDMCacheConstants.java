@@ -36,7 +36,7 @@ public class XDMCacheConstants {
      * CacheStore: no
      * Mapped as: no
      */
-	public static final String CN_XDM_XML = "xdm-xml";
+	public static final String CN_XDM_CONTENT = "xdm-content";
 
     /**
      * XDM Query cache

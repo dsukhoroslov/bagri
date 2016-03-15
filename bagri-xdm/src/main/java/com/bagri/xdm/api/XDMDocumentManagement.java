@@ -22,7 +22,7 @@ public interface XDMDocumentManagement {
 
 	Collection<XDMDocumentId> getDocumentIds(String pattern); // throws XDMException;
 	//Collection<XDMDocument> getDocuments(String pattern);
-	Collection<XDMDocumentId> getCollectionDocumentIds(int collectId); // throws XDMException;
+	Collection<XDMDocumentId> getCollectionDocumentIds(String collection); // throws XDMException;
 	
 	XDMDocument getDocument(XDMDocumentId docId) throws XDMException;
 
@@ -51,9 +51,9 @@ public interface XDMDocumentManagement {
 	// todo: add methods to store document from Document, Reader, XMLStreamReader
 	
 	void removeDocument(XDMDocumentId docId) throws XDMException;
-	void removeCollectionDocuments(int collectId) throws XDMException;
+	int removeCollectionDocuments(String collection) throws XDMException;
 	
-	int addDocumentToCollections(XDMDocumentId docId, int[] collectIds);
-	int removeDocumentFromCollections(XDMDocumentId docId, int[] collectIds);
+	int addDocumentToCollections(XDMDocumentId docId, String[] collections);
+	int removeDocumentFromCollections(XDMDocumentId docId, String[] collections);
 
 }

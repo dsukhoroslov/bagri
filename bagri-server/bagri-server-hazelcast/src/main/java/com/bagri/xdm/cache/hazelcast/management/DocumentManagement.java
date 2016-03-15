@@ -310,7 +310,7 @@ public class DocumentManagement extends SchemaFeatureManagement {
 	public int addDocumentToCollection(long docId, String clnName) {
 		XDMCollection cln = this.schemaManager.getEntity().getCollection(clnName);
 		if (cln != null) {
-			return docManager.addDocumentToCollections(new XDMDocumentId(docId), new int[] {cln.getId()});
+			return docManager.addDocumentToCollections(new XDMDocumentId(docId), new String[] {clnName});
 		}
 		logger.info("addDocumentToCollection; no collection found for name: {}", clnName);
 		return 0;
@@ -323,7 +323,7 @@ public class DocumentManagement extends SchemaFeatureManagement {
 	public int removeDocumentFromCollection(long docId, String clnName) {
 		XDMCollection cln = this.schemaManager.getEntity().getCollection(clnName);
 		if (cln != null) {
-			return docManager.removeDocumentFromCollections(new XDMDocumentId(docId), new int[] {cln.getId()});
+			return docManager.removeDocumentFromCollections(new XDMDocumentId(docId), new String[] {clnName});
 		}
 		logger.info("removeDocumentFromCollection; no collection found for name: {}", clnName);
 		return 0;

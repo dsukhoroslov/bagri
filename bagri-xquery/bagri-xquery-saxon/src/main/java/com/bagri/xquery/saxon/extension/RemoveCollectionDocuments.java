@@ -45,10 +45,9 @@ public class RemoveCollectionDocuments extends DocumentFunctionExtension {
 			@Override
 			public Sequence call(XPathContext context, Sequence[] arguments) throws XPathException {
 				
-				// TODO: get clnId from args
-				int clnId = 0;
+				String collection = arguments[0].head().getStringValue();
 				try {
-					xdm.removeCollectionDocuments(clnId);
+					xdm.removeCollectionDocuments(collection);
 				} catch (XDMException ex) {
 					throw new XPathException(ex);
 				}
