@@ -1,7 +1,10 @@
 package com.bagri.xdm.common;
 
-public class XDMDocumentKey {
+public class XDMDocumentKey implements Comparable<XDMDocumentKey> {
 	
+	private static final int shift = 10;
+	private static final int _1023 = 0x00000000000003FF;
+
 	protected long key;
 	
 	public XDMDocumentKey() { 
@@ -17,7 +20,7 @@ public class XDMDocumentKey {
 	}
 	
 	public long getDocumentId() {
-		return key >> 16;
+		return toDocumentId(key); //key >> 16;
 	}
 	
 	public long getKey() {
@@ -25,7 +28,7 @@ public class XDMDocumentKey {
 	}
 
 	public int getVersion() {
-		return (int) key & 0x00000000000000FF;
+		return toVersion(key); //(int) key & 0x00000000000000FF;
 	}
 	
 	@Override
@@ -49,6 +52,24 @@ public class XDMDocumentKey {
 	}
 
 	public static long toKey(long docId, int version) {
+		long result = docId << shift;
+		return result | version;
+	}
+	//public static long toKey(long hash, int version) {
+	//	long result = hash & ~0b1111111111;
+	//	return result | version;
+	//}
+
+	public static long toDocumentId(long key) {
+		return key >> shift;
+	}
+	
+	public static int toVersion(long key) {
+		return (int) key & _1023;
+	}
+	
+/*	
+	public static long toKey(long docId, int version) {
 		long result = docId << 16;
 		return result | version;
 	}
@@ -60,11 +81,16 @@ public class XDMDocumentKey {
 	public static int toVersion(long key) {
 		return (int) key & 0x00000000000000FF;
 	}
-	
+*/	
 	@Override
 	public String toString() {
 		return "XDMDocumentKey [key=" + key + ", id="
 				+ getDocumentId() + ", version=" + getVersion() + "]";
+	}
+
+	@Override
+	public int compareTo(XDMDocumentKey otherKey) {
+		return Long.compare(key, otherKey.key);
 	}
 
 }

@@ -35,7 +35,7 @@ export TPOX_HOME
 #insert securities to the cache
 $RUN_JAVA -server $JAVA_OPTS net.sf.tpox.workload.core.WorkloadDriver -w queries/XQJ/insSecurity.xml -tr 251 -u 83
 
-#rem perform queries loopig by user count
+#rem perform queries looping by user count
 a=5
 while [ $a -le 200 ]
 do

@@ -1,6 +1,6 @@
 package com.bagri.xdm.common;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
@@ -11,8 +11,8 @@ public class XDMDocumentKeyTest {
 		
 		XDMDocumentKey key = new XDMDocumentKey(1, 0);
 		System.out.println(key);
-		assertTrue(key.getDocumentId() == 1L);
-		assertTrue(key.getVersion() == 0);
+		assertEquals(key.getDocumentId(), 1L);
+		assertEquals(key.getVersion(), 0);
 	}
 	
 	@Test
@@ -23,8 +23,8 @@ public class XDMDocumentKeyTest {
 		for (long l = 1; l < 1000000; l++) {
 			for (int i=1; i < 0xFF; i++) {
 				XDMDocumentKey key = new XDMDocumentKey(l, i);
-				assertTrue(key.getDocumentId() == l);
-				assertTrue(key.getVersion() == i);
+				assertEquals(key.getDocumentId(), l);
+				assertEquals(key.getVersion(), i);
 			}
 		}
 	}

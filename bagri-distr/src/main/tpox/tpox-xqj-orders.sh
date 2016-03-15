@@ -32,10 +32,12 @@ export TPOX_HOME
 
 . "set-tpox-env.conf"
 
+#insert orders to the cache
+$RUN_JAVA -server $JAVA_OPTS net.sf.tpox.workload.core.WorkloadDriver -w queries/XQJ/insOrder.xml -tr 5000 -u 50
 
-#rem perform queries loopig by user count
+#rem perform queries looping by user count
 a=5
-while [ $a -le 260 ]
+while [ $a -le 200 ]
 do
    echo $a
    $RUN_JAVA -server $JAVA_OPTS net.sf.tpox.workload.core.WorkloadDriver -w queries/XQJ/orders.xml -u $a -r 10 -pc 95 -cl 99

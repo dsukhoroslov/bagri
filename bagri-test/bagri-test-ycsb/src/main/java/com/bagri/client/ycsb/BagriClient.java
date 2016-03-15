@@ -1,6 +1,10 @@
 package com.bagri.client.ycsb;
 
 import static com.bagri.common.config.XDMConfigConstants.*;
+import static com.bagri.xdm.common.XDMConstants.pn_client_txTimeout;
+import static com.bagri.xdm.common.XDMConstants.pn_client_storeMode;
+import static com.bagri.xdm.common.XDMConstants.pv_client_storeMode_insert;
+import static com.bagri.xdm.common.XDMConstants.pv_client_storeMode_update;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -58,6 +62,7 @@ public class BagriClient extends DB {
 		//logger.debug("insert.enter; table: {}; startKey: {}; values: {}", new Object[] {table, key, values});
 		Properties props = new Properties();
 		props.setProperty(xdm_document_collections, table);
+		props.setProperty(pn_client_storeMode, pv_client_storeMode_insert);
 		//props.setProperty(xdm_document_data_format, "map");
 		XDMDocumentId xid = buildId(key, 1);
 		HashMap fields = StringByteIterator.getStringMap(values);
@@ -116,6 +121,8 @@ public class BagriClient extends DB {
 		//logger.debug("update.enter; table: {}; startKey: {}; values: {}", new Object[] {table, key, values});
 		Properties props = new Properties();
 		props.setProperty(xdm_document_collections, table);
+		props.setProperty(pn_client_storeMode, pv_client_storeMode_update);
+		props.setProperty(pn_client_txTimeout, "100");
 		//props.setProperty(xdm_document_data_format, "map");
 		XDMDocumentId xid = buildId(key, 0);
 		HashMap fields = StringByteIterator.getStringMap(values);

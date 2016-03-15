@@ -2,11 +2,11 @@
 
 if [ $JAVA_HOME ]
 then
-	echo "JAVA_HOME found at $JAVA_HOME"
-	RUN_JAVA=$JAVA_HOME/bin/java
+    echo "JAVA_HOME found at $JAVA_HOME"
+    RUN_JAVA=$JAVA_HOME/bin/java
 else
-	echo "JAVA_HOME environment variable not available."
-       RUN_JAVA=`which java 2>/dev/null`
+    echo "JAVA_HOME environment variable not available."
+    RUN_JAVA=`which java 2>/dev/null`
 fi
 
 if [ -z $RUN_JAVA ]
@@ -39,7 +39,7 @@ export TPOX_HOME
 $RUN_JAVA -server $JAVA_OPTS net.sf.tpox.workload.core.WorkloadDriver -w queries/XQJ/insSecurity.xml -u 83 -tr 251
 
 # insert orders to the cache
-$RUN_JAVA -server $JAVA_OPTS net.sf.tpox.workload.core.WorkloadDriver -w queries/XQJ/insOrder.xml -u 25 -tr 20000
+$RUN_JAVA -server $JAVA_OPTS net.sf.tpox.workload.core.WorkloadDriver -w queries/XQJ/insOrder.xml -u 50 -tr 20000
 
 # insert customers to the cache
 $RUN_JAVA -server $JAVA_OPTS net.sf.tpox.workload.core.WorkloadDriver -w queries/XQJ/insCustacc.xml -u 20 -tr 5000

@@ -43,7 +43,7 @@ return $id" />
 declare default element namespace &quot;http://tpox-benchmark.com/custacc&quot;;
 declare variable $id external;
 
-for $cust in fn:collection(&quot;/{http://tpox-benchmark.com/custacc}Customer&quot;)/Customer
+for $cust in fn:collection(&quot;CLN_Customer&quot;)/Customer
 where $cust/@id=$id
 return 
         &lt;Customer_Profile CUSTOMERID=&quot;{$cust/@id}&quot;&gt;
@@ -78,7 +78,7 @@ return
 declare default element namespace &quot;http://tpox-benchmark.com/custacc&quot;;
 declare variable $id external;
 
-for $cust in fn:collection(&quot;/{http://tpox-benchmark.com/custacc}Customer&quot;)/Customer
+for $cust in fn:collection(&quot;CLN_Customer&quot;)/Customer
 where $cust/@id=$id
 return
 	&lt;Customer&gt;{$cust/@id}

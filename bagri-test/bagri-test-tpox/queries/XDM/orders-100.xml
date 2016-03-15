@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workload name="queries" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="workload_properties.xsd">
+	<collections>
+		<collection name="orderids">
+			<ids first="103282" last="203281" />
+		</collection>
+	</collections>
+
+	<transactions>
+		<transaction id="1" name="getOrder" weight="100">
+			<java-plugin>com.bagri.client.tpox.workload.BagriXDMPlugin</java-plugin>
+			<parameters>
+				<parameter>
+					<ids collection="orderids" />
+				</parameter>
+			</parameters>
+		</transaction>
+	</transactions>
+</workload>
+

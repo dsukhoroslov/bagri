@@ -32,7 +32,7 @@ export TPOX_HOME
 
 . "set-tpox-env.conf"
 
-#rem perform queries loopig by user count
+#rem perform queries looping by user count
 a=10
 count=0
 while [ $a -le 100 ]

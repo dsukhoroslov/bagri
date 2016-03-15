@@ -52,6 +52,7 @@ public class XQProcessorClient extends XQProcessorImpl implements XQProcessor {
 			return new XDMDocumentId(uri.getAtomicValue());
 		}
 		if (uri == null) {
+			// TODO: for update version should be 0!
 			return new XDMDocumentId(docId.getLong(), 1);
 		}
 		return new XDMDocumentId(docId.getLong(), 1, uri.getAtomicValue());

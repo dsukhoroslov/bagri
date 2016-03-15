@@ -3,6 +3,7 @@ package com.bagri.xdm.cache.hazelcast.impl;
 import static com.bagri.common.query.PathBuilder.*;
 import static com.bagri.common.config.XDMConfigConstants.*;
 import static com.bagri.common.util.XMLUtils.*;
+import static com.bagri.xdm.common.XDMConstants.*;
 import static com.bagri.xdm.client.common.XDMCacheConstants.PN_XDM_SCHEMA_POOL;
 import static com.bagri.xdm.api.XDMTransactionManagement.TX_NO;
 import static com.bagri.xdm.domain.XDMDocument.dvFirst;
@@ -297,7 +298,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
         //Set<XDMDocumentKey> docKeys = xddCache.keySet(f);
         
 		if (docId > 0) {
-			EntryProcessor ep = new UriPredicate(docId, uri, factory, hzInstance);
+			EntryProcessor<XDMDocumentKey, XDMDocument> ep = new UriPredicate(docId, uri, factory, hzInstance);
 			XDMDocumentKey dk = factory.newXDMDocumentKey(docId, dvFirst);
 			Object result = xddCache.executeOnKey(dk, ep);
 			if (result != null) { 
@@ -702,8 +703,27 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		logger.trace("storeDocumentFromString.enter; docId: {}; xml: {}; props: {}", docId, xml.length(), props);
 		String ext = getDataFormat(props).toLowerCase();
 		boolean update = false;
-		//String storeMode = PropUtils.getProperty(props, pn_client_storeMode, pv_client_storeMode_merge);
+		String storeMode = PropUtils.getProperty(props, pn_client_storeMode, pv_client_storeMode_merge);
+/*		
+		XDMDocumentKey docKey = getDocumentKey(docId.getDocumentUri());
+		if (docKey == null)  {
+			if (pv_client_storeMode_update.equals(storeMode)) {
+				throw new XDMException("No document found for update. " +  docId, XDMException.ecDocument); 
+			}
+			docKey = factory.newXDMDocumentKey(docId.getDocumentKey(), dvFirst);
+		} else {
+			if (pv_client_storeMode_insert.equals(storeMode)) {
+				throw new XDMException("Document with URI '" + docId.getDocumentUri() + "' already exists; docKey: " + docKey, 
+						XDMException.ecDocument); 
+			}
+			//docKey = factory.newXDMDocumentKey(docId.getKey(), docKey.getVersion() + 1);
+			update = true;
+		}
+*/		
 		if (docId == null) {
+			if (pv_client_storeMode_update.equals(storeMode)) {
+				throw new XDMException("Empty Document ID passed for update", XDMException.ecDocument); 
+			}
 			long docKey = XDMDocumentKey.toKey(docGen.next(), dvFirst);
 			docId = new XDMDocumentId(docKey, docKey + "." + ext);
 		} else {
