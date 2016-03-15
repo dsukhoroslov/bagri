@@ -20,7 +20,7 @@ set java_opts=-Xms%memory% -Xmx%memory%
 set java_opts=%java_opts% -Dhazelcast.logging.type=slf4j -Dlogback.configurationFile=hz-client-logging.xml
 set java_opts=%java_opts% -Dlog.name=tpox-client -Dhz.log.level=warn -Dxdm.log.level=info
 
-set java_opts=%java_opts% -Dxdm.schema.host=10.249.143.8 -Dxdm.schema.port=8003 -Dxdm.schema.name=TPoX 
+set java_opts=%java_opts% -Dxdm.schema.host=192.168.1.139 -Dxdm.schema.port=8003 -Dxdm.schema.name=TPoX 
 set java_opts=%java_opts% -Dxdm.schema.user=admin
 set java_opts=%java_opts% -Dxdm.schema.password=password
 

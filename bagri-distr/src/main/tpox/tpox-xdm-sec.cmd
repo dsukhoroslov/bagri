@@ -11,7 +11,7 @@ rem security documents  (because 83 * 251 = 20833).
 
 
 rem insert securities to the cache
-"%java_exec%" -server -showversion %java_opts% -cp "%app_home%\config\*;%app_home%\lib\*" net.sf.tpox.workload.core.WorkloadDriver -w queries/XDM/insSecurity.xml -tr 2604 -u 8
+"%java_exec%" -server -showversion %java_opts% -cp "%app_home%\config\*;%app_home%\lib\*" net.sf.tpox.workload.core.WorkloadDriver -w queries/XDM/insSecurity.xml -u 83 -tr 251
 
 rem perform queries loopig by user count
 for /l %%x in (50, 10, 100) do (

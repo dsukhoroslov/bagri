@@ -14,8 +14,8 @@ public class XDMIndexKey {
 	    /**
 	     * Class constructor
 	     *
-	     * @param path	<T1>
-	     * @param index	<T2>
+	     * @param pathId <code>int</code>
+	     * @param value <code>Object</code>
 	     */
 	    public XDMIndexKey(int pathId, Object value) {
 	        this.pathId = pathId;
@@ -23,14 +23,14 @@ public class XDMIndexKey {
 	    }
 
 	    /**
-	     * @return path	<T1>
+	     * @return pathId	<code>int</code>
 	     */
 	    public int getPathId() {
 	        return pathId;
 	    }
 
 	    /**
-	     * @return value <T2>
+	     * @return value <code>Object</code>
 	     */
 	    public Object getValue() {
 	        return value;

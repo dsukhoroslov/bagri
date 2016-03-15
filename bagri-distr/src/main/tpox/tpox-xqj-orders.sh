@@ -2,17 +2,17 @@
 
 if [ $JAVA_HOME ]
 then
-	echo "JAVA_HOME found at $JAVA_HOME"
-	RUN_JAVA=$JAVA_HOME/bin/java
+    echo "JAVA_HOME found at $JAVA_HOME"
+    RUN_JAVA=$JAVA_HOME/bin/java
 else
-	echo "JAVA_HOME environment variable not available."
+    echo "JAVA_HOME environment variable not available."
     RUN_JAVA=`which java 2>/dev/null`
 fi
 
 if [ -z $RUN_JAVA ]
 then
     echo "JAVA could not be found in your system."
-    echo "please install Java 1.6 or higher!!!"
+    echo "please install Java 1.7 or higher!!!"
     exit 1
 fi
 

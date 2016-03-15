@@ -17,7 +17,7 @@ public interface XDMModelManagement {
 	
 	/**
 	 * performs translation from full namespace declaration to its prefix part:
-	 * http://tpox-benchmark.com/security -> ns0
+	 * http://tpox-benchmark.com/security -&gt; ns0
 	 * 
 	 * creates new prefix in case when new (not registered yet) namespace provided;
 	 */
@@ -26,7 +26,7 @@ public interface XDMModelManagement {
 	/**
 	 * 
 	 * @param namespace
-	 * @return namespace prefix: http://tpox-benchmark.com/security -> ns0
+	 * @return namespace prefix: http://tpox-benchmark.com/security -&gt; ns0
 	 */
 	String translateNamespace(String namespace);
 	
@@ -34,7 +34,7 @@ public interface XDMModelManagement {
 	 * 
 	 * @param namespace
 	 * @param prefix
-	 * @return namespace prefix: http://tpox-benchmark.com/security -> ns0
+	 * @return namespace prefix: http://tpox-benchmark.com/security -&gt; ns0
 	 */
 	String translateNamespace(String namespace, String prefix);
 

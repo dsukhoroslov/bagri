@@ -226,7 +226,7 @@ public class SaxonUtils {
      * Convert a Java object to a Saxon Item
      * @param value the Java object. If null is supplied, null is returned.
      * @return the corresponding Item
-     * @throws XQException
+     * @throws XPathException
      */
 	public static Item convertToItem(Object value, Configuration config, BuiltInAtomicType type) throws XPathException {
         if (value == null) {

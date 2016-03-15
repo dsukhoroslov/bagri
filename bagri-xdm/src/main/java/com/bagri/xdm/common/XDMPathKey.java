@@ -14,7 +14,7 @@ public class XDMPathKey<T> {
 	/**
 	 * Class constructor
 	 * 
-	 * @param path	<T>
+	 * @param path <code>T</code>
 	 * @param documentId long
 	 */
 	public XDMPathKey(T path, long documentId) {
@@ -23,7 +23,7 @@ public class XDMPathKey<T> {
 	}
 
 	/**
-	 * @return path <T>
+	 * @return path <code>T</code>
 	 */
 	public T getPath() {
 		return path;
