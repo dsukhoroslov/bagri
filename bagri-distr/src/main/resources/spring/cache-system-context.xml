@@ -11,7 +11,6 @@
     
 	<context:property-placeholder location="file:${xdm.config.path}/${xdm.config.properties.file}" />
 	<context:annotation-config />
-	<!--context:mbean-export default-domain="com.bagri.xdm"/-->
  
 	<hz:hazelcast id="hzInstance">
 		<hz:config>

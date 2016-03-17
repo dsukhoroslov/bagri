@@ -5,7 +5,7 @@
 setlocal
 
 rem specify application home
-set app_home=../
+set app_home=..\
 
 if "%java_home%"=="" (set java_exec=java) else (set java_exec=%java_home%\bin\java)
 

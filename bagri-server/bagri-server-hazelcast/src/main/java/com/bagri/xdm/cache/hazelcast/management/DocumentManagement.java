@@ -132,10 +132,10 @@ public class DocumentManagement extends SchemaFeatureManagement {
 		return null;
 	}
 	
-	@ManagedOperation(description="Return Document XML")
+	@ManagedOperation(description="Return Document Content")
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "docId", description = "Internal Document identifier")})
-	public String getDocumentXML(long docId) {
+	public String getDocumentContent(long docId) {
 		try {
 			return docManager.getDocumentAsString(new XDMDocumentId(docId));
 		} catch (XDMException ex) {

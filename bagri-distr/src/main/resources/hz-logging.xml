@@ -4,15 +4,6 @@
 
     <include file="../config/logging.xml"/>
 
-    <!--if condition='isDefined("node.name")'>
-        <then>
-            <property name="prefix" value="${node.name}"/>
-        </then>
-        <else>
-            <property name="prefix" value="xdm"/>
-        </else>
-    </if-->
-
     <logger name="com.hazelcast">
         <level value="${hz.log.level:-info}"/>
     </logger>

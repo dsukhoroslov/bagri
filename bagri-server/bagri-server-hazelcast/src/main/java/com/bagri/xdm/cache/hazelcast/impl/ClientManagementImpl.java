@@ -1,8 +1,8 @@
 package com.bagri.xdm.cache.hazelcast.impl;
 
 import static com.bagri.xdm.common.XDMConstants.pn_schema_user;
+import static com.bagri.xdm.common.XDMConstants.pn_client_memberId;
 
-import java.util.Collection;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
@@ -12,6 +12,9 @@ import org.slf4j.LoggerFactory;
 
 import com.bagri.common.stats.StatisticsEvent;
 import com.bagri.xdm.cache.api.XDMClientManagement;
+import com.bagri.xdm.cache.hazelcast.predicate.PropertyPredicate;
+import com.hazelcast.core.Client;
+import com.hazelcast.core.ClientListener;
 import com.hazelcast.core.DistributedObject;
 import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.EntryListener;
@@ -19,7 +22,7 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.MapEvent;
 
-public class ClientManagementImpl implements XDMClientManagement, EntryListener<String, Properties> {
+public class ClientManagementImpl implements XDMClientManagement, ClientListener, EntryListener<String, Properties> {
 	
 	private static final transient Logger logger = LoggerFactory.getLogger(ClientManagementImpl.class);
 	
@@ -32,13 +35,13 @@ public class ClientManagementImpl implements XDMClientManagement, EntryListener<
 	
 	public void setHzInstance(HazelcastInstance hzInstance) {
 		this.hzInstance = hzInstance;
+		hzInstance.getClientService().addClientListener(this);
 		logger.debug("setHzInstange; got instance: {}", hzInstance.getName());
 	}
 	
 	public void setClientsCache(IMap<String, Properties> clientsCache) {
 		this.clientsCache = clientsCache;
 		clientsCache.addEntryListener(this, false);
-		//hzInstance.getClientService().addClientListener(this);
 	}
 	
     public void setRepository(RepositoryImpl repo) {
@@ -87,43 +90,8 @@ public class ClientManagementImpl implements XDMClientManagement, EntryListener<
 	}
 	
 	@Override
-	public void entryAdded(EntryEvent<String, Properties> event) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void entryUpdated(EntryEvent<String, Properties> event) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void entryRemoved(EntryEvent<String, Properties> event) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void entryEvicted(EntryEvent<String, Properties> event) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void mapCleared(MapEvent event) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void mapEvicted(MapEvent event) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	//@Override
-	public void clientConnected(String clientId) {
+	public void clientConnected(Client client) {
+		String clientId = client.getUuid();
 		logger.trace("clientConnected.enter; client: {}", clientId); 
 		// create queue
 		//IQueue queue = hzInstance.getQueue("client:" + clientId);
@@ -133,28 +101,64 @@ public class ClientManagementImpl implements XDMClientManagement, EntryListener<
 		//		queue.getName(), clientId, proc);
 	}
 
-	//@Override
-	public void clientDisconnected(String clientId) {
+	@Override
+	public void clientDisconnected(Client client) {
+		String clientId = client.getUuid();
 		logger.trace("clientDisconnected.enter; client: {}", clientId);
-		String qName = "client:" + clientId;
-		boolean destroyed = false;
-		Collection<DistributedObject> all = hzInstance.getDistributedObjects();
-		int sizeBefore = all.size();
-		for (DistributedObject obj: all) {
-			if (qName.equals(obj.getName())) {
+		PropertyPredicate pp = new PropertyPredicate(pn_client_memberId, clientId);
+		Set<String> members = clientsCache.localKeySet(pp);
+		for (String member: members) {
+			clientsCache.delete(member);
+		}
+
+		//String qName = "client:" + clientId;
+		//boolean destroyed = false;
+		//Collection<DistributedObject> all = hzInstance.getDistributedObjects();
+		//int sizeBefore = all.size();
+		//for (DistributedObject obj: all) {
+		//	if (qName.equals(obj.getName())) {
 				// remove queue
 				//IQueue queue = hzInstance.getQueue(qName);
 				//queue.destroy();
-				obj.destroy();
-				destroyed = true;
-				break;
-			}
-		}
-		int sizeAfter = hzInstance.getDistributedObjects().size(); 
+		//		obj.destroy();
+		//		destroyed = true;
+		//		break;
+		//	}
+		//}
+		//int sizeAfter = hzInstance.getDistributedObjects().size(); 
 		//XQProcessor proc = processors.remove(client.getUuid());
-		logger.trace("clientDisconnected.exit; queue {} {} for client: {}; size before: {}, after: {}", 
-				qName, destroyed ? "destroyed" : "skipped", clientId, sizeBefore, sizeAfter); 
+		//logger.trace("clientDisconnected.exit; queue {} {} for client: {}; size before: {}, after: {}", 
+		//		qName, destroyed ? "destroyed" : "skipped", clientId, sizeBefore, sizeAfter); 
 	}
 
-	
+	@Override
+	public void entryAdded(EntryEvent<String, Properties> event) {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void entryUpdated(EntryEvent<String, Properties> event) {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void entryRemoved(EntryEvent<String, Properties> event) {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void entryEvicted(EntryEvent<String, Properties> event) {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void mapCleared(MapEvent event) {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void mapEvicted(MapEvent event) {
+		// TODO Auto-generated method stub
+	}
+
 }

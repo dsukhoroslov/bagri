@@ -1,7 +1,28 @@
 package com.bagri.xdm.cache.hazelcast.management;
 
+import static com.bagri.xdm.client.common.XDMCacheConstants.CN_XDM_CLIENT;
+import static com.bagri.xdm.common.XDMConstants.pn_schema_password;
+import static com.bagri.common.manage.JMXUtils.propsToComposite;
+import static com.bagri.common.manage.JMXUtils.compositeToTabular;
+
+import java.util.Collection;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+
+import javax.management.openmbean.CompositeData;
+import javax.management.openmbean.OpenDataException;
+import javax.management.openmbean.TabularData;
+
 import org.springframework.jmx.export.annotation.ManagedAttribute;
+import org.springframework.jmx.export.annotation.ManagedOperation;
+import org.springframework.jmx.export.annotation.ManagedOperationParameter;
+import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
+
+import com.bagri.xdm.cache.hazelcast.task.stats.StatisticsReseter;
+import com.hazelcast.client.impl.HazelcastClientProxy;
+import com.hazelcast.core.IMap;
 
 /**
  * @author Denis Sukhoroslov
@@ -10,9 +31,17 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 @ManagedResource(description="Clients Management MBean")
 public class ClientManagement extends SchemaFeatureManagement {
 
+	private IMap<String, Properties> clientCache;
+	
 	public ClientManagement(String schemaName) {
 		super(schemaName);
 	}
+	
+	@Override
+	public void setSchemaManager(SchemaManager schemaManager) {
+		super.setSchemaManager(schemaManager);
+		clientCache = schemaManager.getHazelcastClient().getMap(CN_XDM_CLIENT);
+	}	
 
 	@Override
 	protected String getFeatureKind() {
@@ -21,7 +50,45 @@ public class ClientManagement extends SchemaFeatureManagement {
 
 	@ManagedAttribute(description="Returns active clients count")
 	public Integer getClientCount() {
-		return 0; 
+		return clientCache.size(); 
 	}
+
+	@ManagedAttribute(description="Return client connection properties, per client")
+	public TabularData getClientProperties() {
+		TabularData result = null;
+   		HazelcastClientProxy hzProxy = (com.hazelcast.client.impl.HazelcastClientProxy) schemaManager.getHazelcastClient();
+		try {
+			for (Map.Entry<String, Properties> e: clientCache.entrySet()) {
+				Properties props = e.getValue();
+				props.setProperty("client", e.getKey());
+				props.remove(pn_schema_password);
+				CompositeData data = propsToComposite("clients", "client props", props);
+				result = compositeToTabular("clients", "client props", "client", result, data);
+			}
+		} catch (OpenDataException ex) {
+			logger.error("getClientProperties.error: ", ex);
+		}
+		return result;
+	}
+	
+	@ManagedAttribute(description="Return client activity statistics, per client")
+	public TabularData getClientStatistics() {
+		return null; //super.getUsageStatistics(new StatisticSeriesCollector(schemaName, "indexStats"), aggregator);
+	}
+
+	@ManagedOperation(description="Reset client activity statistics")
+	public void resetStatistics() {
+		//super.resetStatistics(new StatisticsReseter(schemaName, "txManager")); 
+	}
+
+	//@ManagedOperation(description="Disconnects active client")
+	//@ManagedOperationParameters({
+	//	@ManagedOperationParameter(name = "clientId", description = "Client identifier")})
+	//public boolean disconnectClient(String clientId) {
+		// not equals to kill node! just kill the particular client
+		// don't see how to implement this. must perform client.doShutdown on the client side..
+	//	return false; 
+	//}
+
 
 }

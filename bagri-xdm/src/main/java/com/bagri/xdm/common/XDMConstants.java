@@ -22,6 +22,9 @@ public class XDMConstants {
 	public static final String pn_client_connectAttempts = "xdm.client.connectAttempts";
 	public static final String pn_client_poolSize = "xdm.client.poolSize";
 
+	public static final String pn_client_connectedAt = "xdm.client.connectedAt"; 
+	public static final String pn_client_memberId = "xdm.client.member"; 
+
 	public static final String pn_client_fetchSize = "xdm.client.fetchSize";
 	public static final String pn_client_healthCheck = "xdm.client.healthCheck";
 	public static final String pn_client_loginTimeout = "xdm.client.loginTimeout";
@@ -39,7 +42,7 @@ public class XDMConstants {
 	public static final String pv_client_submitTo_any = "any";
 	public static final String pv_client_submitTo_member = "member";
 	public static final String pv_client_submitTo_owner = "owner";
-
+	
 	public static final String pn_query_command = "xdm.query.command";
 	
 	public static final String pn_baseURI = "xqj.schema.baseUri";

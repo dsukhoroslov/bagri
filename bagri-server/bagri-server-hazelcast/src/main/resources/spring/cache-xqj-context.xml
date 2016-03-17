@@ -5,10 +5,10 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.2.xsd">
 
-	<import resource="classpath:spring/cache-schema-context.xml" />
+	<import resource="file:${xdm.config.path}/spring/cache-schema-context.xml" />
  
 	<!-- Beans Declaration -->
-	<context:property-placeholder ignore-unresolvable="true" location="classpath:/${xdm.config.properties.file}" />
+	<context:property-placeholder ignore-unresolvable="true" location="file:${xdm.config.path}/${xdm.config.properties.file}" />
 	<context:annotation-config />
 	
 	<bean id="xqFactory" class="com.bagri.xqj.BagriXQDataFactory">

@@ -1,17 +1,7 @@
 package com.bagri.xdm.client.hazelcast.impl;
 
 import static com.bagri.xdm.client.common.XDMCacheConstants.CN_XDM_CLIENT;
-import static com.bagri.xdm.common.XDMConstants.pn_client_bufferSize;
-import static com.bagri.xdm.common.XDMConstants.pn_client_connectAttempts;
-import static com.bagri.xdm.common.XDMConstants.pn_client_loginTimeout;
-import static com.bagri.xdm.common.XDMConstants.pn_client_poolSize;
-import static com.bagri.xdm.common.XDMConstants.pn_client_smart;
-import static com.bagri.xdm.common.XDMConstants.pn_client_dataFactory;
-import static com.bagri.xdm.common.XDMConstants.pn_client_customAuth;
-import static com.bagri.xdm.common.XDMConstants.pn_schema_address;
-import static com.bagri.xdm.common.XDMConstants.pn_schema_name;
-import static com.bagri.xdm.common.XDMConstants.pn_schema_password;
-import static com.bagri.xdm.common.XDMConstants.pn_schema_user;
+import static com.bagri.xdm.common.XDMConstants.*;
 
 import java.io.InputStream;
 import java.util.Arrays;
@@ -59,13 +49,16 @@ public class ClientManagementImpl {
    				clients.put(cKey, cc);
 				logger.info("connect; new HZ instance created for clientId: {}", clientId);
    			} else {
-   				// check password -> authenticate();
+   				// TODO: check password -> authenticate();
    			}
 
    	    	HazelcastInstance hzClient = cc.hzInstance; 
    	    	if (cc.addClient(clientId)) {
    	    		IMap<String, Properties> clientProps = hzClient.getMap(CN_XDM_CLIENT);
    	    		props.remove(pn_client_dataFactory);
+   	    		com.hazelcast.client.impl.HazelcastClientProxy proxy = (com.hazelcast.client.impl.HazelcastClientProxy) hzClient; 
+   	    		props.setProperty(pn_client_memberId, proxy.client.getClientClusterService().getLocalClient().getUuid());
+   	    		props.setProperty(pn_client_connectedAt, new java.util.Date(proxy.getCluster().getClusterTime()).toString()); 
    	    		clientProps.set(clientId, props);
    				logger.trace("connect; got new connection for clientId: {}", clientId);
    	    	} else {

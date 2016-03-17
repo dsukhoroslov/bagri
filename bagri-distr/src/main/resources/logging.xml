@@ -53,23 +53,6 @@
         <level value="${xdm.log.level}"/>
     </logger>
 
-    <!--logger name="com.bagri.xdm.cache.factory">
-        <level value="${xdm.log.level}"/>
-    </logger-->
-
-    <!--logger name="com.bagri.xdm.cache.hazelcast.security.BagriJAASInvocationHandler">
-        <level value="debug"/>
-    </logger-->
-
-    <!--logger name="com.bagri.xdm.cache.hazelcast.store.DummyCacheStore"-->
-    <!--logger name="com.bagri.xdm.cache.hazelcast.store">
-        <level value="debug"/>
-    </logger-->
-
-    <!--logger name="com.bagri.xdm.cache.process.XDMDataProcessor">
-        <level value="debug"/>
-    </logger-->
-
     <logger name="org.springframework.core.env">
         <level value="info"/>
     </logger>
