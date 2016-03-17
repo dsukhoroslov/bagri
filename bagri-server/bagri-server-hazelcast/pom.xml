@@ -207,7 +207,7 @@
                                             <sysproperty key="node.logdir" value="./logs"/>
                                             <sysproperty key="node.name" value="admin"/>
                                             <sysproperty key="com.sun.management.jmxremote" value="true"/>
-                                            <!--sysproperty key="com.sun.management.jmxremote.port" value="3333"/>
+                                            <!--sysproperty key="com.sun.management.jmxremote.port" value="3340"/>
                                             <sysproperty key="com.sun.management.jmxremote.authenticate" value="true"/-->
                                             <!--sysproperty key="com.sun.management.jmxremote.password.file" value="${project.basedir}/src/main/resources/admins.password"/-->
                                             <sysproperty key="com.sun.management.jmxremote.ssl" value="false"/>
@@ -220,8 +220,8 @@
                                             <sysproperty key="xdm.config.path" value="src/main/resources"/>
                                             <sysproperty key="xdm.config.context.file" value="spring/admin-system-context.xml"/>
 					    <sysproperty key="xdm.config.properties.file" value="admin.properties"/>
-                                            <sysproperty key="xdm.cluster.node.name" value="admin"/>
-                                            <sysproperty key="xdm.cluster.node.role" value="admin"/>
+                                            <sysproperty key="xdm.config.filename" value="config.xml"/>
+                                            <sysproperty key="xdm.access.filename" value="access.xml"/>
                                             <sysproperty key="xdm.cluster.node.schemas" value=""/>
                                             <classpath>
                                                 <path refid="maven.compile.classpath"/>

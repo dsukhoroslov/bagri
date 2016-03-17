@@ -63,7 +63,7 @@ public class XDMConstants {
 	public static final String pn_defaultNamespaces = "xqj.schema.defaultNamespaces";
 	
 	public static final String bg_schema = "bgdm";
-	public static final String bg_ns = "http://bagri.com/bagri-xdm";
+	public static final String bg_ns = "http://bagridb.com/bagri-xdm";
 	
 	public static final String cmd_get_document = "get-document";
 	public static final String cmd_remove_document = "remove-document";

@@ -28,14 +28,14 @@ rem specify JVM GC logging
 set java_opts=%java_opts% -XX:+PrintGC -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+HeapDumpOnOutOfMemoryError 
 set java_opts=%java_opts% -Xloggc:..\logs\admin\gc\gc.log -XX:+UseGCLogFileRotation -XX:NumberOfGCLogFiles=10 -XX:GCLogFileSize=256M
    
-rem specify logging & XDM options
+rem specify logging & XDM options -Dxdm.cluster.node.name=admin 
 set java_opts=%java_opts% -Dnode.name=admin -Dnode.instance=%node_num%
 set java_opts=%java_opts% -Dnode.logdir=..\logs\admin -Dxdm.log.level=info
 set java_opts=%java_opts% -Dlogback.configurationFile=..\config\hz-logging.xml
 set java_opts=%java_opts% -Dxdm.config.path=..\config
-set java_opts=%java_opts% -Dxdm.config.context.file=spring\admin-system-context.xml
+set java_opts=%java_opts% -Dxdm.config.context.file=file:..\config\spring\admin-system-context.xml
 set java_opts=%java_opts% -Dxdm.config.properties.file=admin.properties
-set java_opts=%java_opts% -Dxdm.cluster.node.name=admin -Dxdm.cluster.node.role=admin -Dxdm.cluster.node.schemas=
+set java_opts=%java_opts% -Dxdm.cluster.node.role=admin -Dxdm.cluster.node.schemas=
 set java_opts=%java_opts% -Dxdm.config.filename=..\config\config.xml -Dxdm.access.filename=..\config\access.xml
 
 rem specify JMX options

@@ -23,21 +23,21 @@
 				<hz:property name="hazelcast.logging.type">slf4j</hz:property>
 				<hz:property name="hazelcast.rest.enabled">false</hz:property>
 				<hz:property name="hazelcast.memcache.enabled">false</hz:property>
-				<hz:property name="hazelcast.operation.thread.count">${xdm.cluster.thread.pool}</hz:property>
-				<hz:property name="hazelcast.operation.generic.thread.count">${xdm.cluster.thread.pool}</hz:property>
+				<hz:property name="hazelcast.operation.thread.count">${xdm.cluster.thread.pool:8}</hz:property>
+				<hz:property name="hazelcast.operation.generic.thread.count">${xdm.cluster.thread.pool:8}</hz:property>
 			</hz:properties>
-			<hz:network port="${xdm.cluster.port}" port-auto-increment="true">
+			<hz:network port="${xdm.cluster.port:3331}" port-auto-increment="true">
 				<hz:join>
 					<hz:multicast enabled="false"/>
 					<hz:tcp-ip enabled="true" connection-timeout-seconds="10">
-						<hz:members>${xdm.cluster.admins}, ${xdm.cluster.servers}</hz:members>
+						<hz:members>${xdm.cluster.admins:localhost}, ${xdm.cluster.servers:127.0.0.1}</hz:members>
 					</hz:tcp-ip>
 				</hz:join>
 			</hz:network>
-			<hz:executor-service name="sys-exec-pool" pool-size="${xdm.cluster.thread.pool}" />
-			<hz:executor-service name="hz:async" pool-size="${xdm.cluster.thread.pool}" />
-			<hz:executor-service name="hz:client" pool-size="${xdm.cluster.thread.pool}" />
-			<hz:executor-service name="hz:query" pool-size="${xdm.cluster.thread.pool}" />
+			<hz:executor-service name="sys-exec-pool" pool-size="${xdm.cluster.thread.pool:8}" />
+			<hz:executor-service name="hz:async" pool-size="${xdm.cluster.thread.pool:8}" />
+			<hz:executor-service name="hz:client" pool-size="${xdm.cluster.thread.pool:8}" />
+			<hz:executor-service name="hz:query" pool-size="${xdm.cluster.thread.pool:8}" />
 
 			<hz:serialization>
 				<hz:data-serializable-factories>
@@ -66,7 +66,7 @@
 				</hz:serializers>
 			</hz:serialization>
 			<hz:member-attributes>
-				<hz:attribute name="xdm.cluster.node.name">${xdm.cluster.node.name}</hz:attribute>
+				<hz:attribute name="xdm.cluster.node.name">${xdm.cluster.node.name:first}</hz:attribute>
 				<hz:attribute name="xdm.cluster.node.role">server</hz:attribute>
 				<hz:attribute name="xdm.cluster.node.schemas">${xdm.cluster.node.schemas}</hz:attribute>
 				<hz:attribute name="xdm.node.instance">${xdm.node.instance}</hz:attribute>

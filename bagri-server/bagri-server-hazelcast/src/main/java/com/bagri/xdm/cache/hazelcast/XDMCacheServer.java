@@ -117,7 +117,7 @@ public class XDMCacheServer {
 			logger.error("error starting JMX connector server: " + ex.getMessage(), ex);
 			throw new RuntimeException(ex);
 		}
-		logger.debug("JMX connector server started with attributes: {}", cs.getAttributes());
+		logger.info("JMX connector server started and listening on port: {}", xport);
     }
 
 	private static void lookupManagedNodes(HazelcastInstance hzInstance, ApplicationContext context) {
