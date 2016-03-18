@@ -7,7 +7,11 @@ import static com.bagri.xdm.common.XDMConstants.pn_client_fetchSize;
 import static com.bagri.xdm.common.XDMConstants.pn_client_submitTo;
 import static com.bagri.xdm.common.XDMConstants.pn_queryTimeout;
 
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -28,10 +32,14 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.common.manage.StatsAggregator;
+import com.bagri.xdm.api.XDMException;
+import com.bagri.xdm.api.XDMQueryManagement;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaQueryCleaner;
 import com.bagri.xdm.cache.hazelcast.task.stats.StatisticSeriesCollector;
 import com.bagri.xdm.cache.hazelcast.task.stats.StatisticsReseter;
+import com.bagri.xdm.client.common.XDMCacheConstants;
 import com.bagri.xqj.BagriXQConnection;
+import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.Member;
 
 /**
@@ -45,11 +53,19 @@ public class QueryManagement extends SchemaFeatureManagement {
 	private int queryTimeout = 0;
     private XQConnection xqConn;
 	private StatsAggregator qcAggregator;
+	private XDMQueryManagement queryMgr;
+	
     
     public QueryManagement(String schemaName) {
     	super(schemaName);
     }
 
+    @Override
+	public void setSchemaManager(SchemaManager schemaManager) {
+    	super.setSchemaManager(schemaManager);
+		queryMgr = schemaManager.getRepository().getQueryManagement();
+	}
+    
     public void setXQConnection(XQConnection xqConn) {
 		this.xqConn = xqConn;
 	}
@@ -106,20 +122,38 @@ public class QueryManagement extends SchemaFeatureManagement {
 		@ManagedOperationParameter(name = "query", description = "A query request provided in XQuery syntax"),
 		@ManagedOperationParameter(name = "useXQJ", description = "use XQJ (true) or XDM query interface")})
 	public String runQuery(String query, boolean useXQJ) {
-		XQExpression xqExp;
+		
+		String result = null;
 		try {
-		    setQueryProperties();
-			xqExp = xqConn.createExpression();
-		    XQResultSequence xqSec = xqExp.executeQuery(query);
-		    String result = xqSec.getSequenceAsString(null);
-		    xqSec.close();
-		    xqExp.close();
-		    return result;
-		} catch (XQException ex) {
+			if (useXQJ) {
+				Properties props = ((BagriXQConnection) xqConn).getProcessor().getProperties();
+			    setQueryProperties(props);
+			    XQExpression xqExp = xqConn.createExpression();
+			    XQResultSequence xqSec = xqExp.executeQuery(query);
+			    result = xqSec.getSequenceAsString(null);
+			    xqSec.close();
+			    xqExp.close();
+			    return result;
+			} else {
+				Properties props = new Properties();
+			    setQueryProperties(props);
+				Iterator itr = queryMgr.executeQuery(query, null, props);
+				result = extractResult(itr);
+			}	
+			return result;
+		} catch (XQException | XDMException ex) {
 			String error = "error executing XQuery: " + ex.getMessage();
 			logger.error(error, ex); 
 			return error;
 		}
+	}
+	
+	private String extractResult(Iterator itr) {
+		StringBuffer buff = new StringBuffer();
+		while (itr.hasNext()) {
+			buff.append(itr.next());
+		}
+		return buff.toString();
 	}
 
 	@ManagedOperation(description="Run XQuery. Returns string output specified by XQuery")
@@ -129,20 +163,32 @@ public class QueryManagement extends SchemaFeatureManagement {
 		@ManagedOperationParameter(name = "bindings", description = "A map of query parameters")})
 	public String runPreparedQuery(String query, boolean useXQJ, CompositeData bindings) {
 		logger.trace("runPreparedQuery.enter; got bindings: {}", bindings);
-		XQPreparedExpression xqpExp;
 		String result;
 		try {
-		    setQueryProperties();
-		    xqpExp = xqConn.prepareExpression(query);
-		    // TODO: bind params properly..
-		    for (String key: bindings.getCompositeType().keySet()) {
-		    	xqpExp.bindString(new QName(key), bindings.get(key).toString(), null); 
-		    }
-		    XQResultSequence xqSec = xqpExp.executeQuery();
-		    result = xqSec.getSequenceAsString(null);
-		    xqSec.close();
-		    xqpExp.close();
-		} catch (XQException ex) {
+			if (useXQJ) {
+				Properties props = ((BagriXQConnection) xqConn).getProcessor().getProperties();
+			    setQueryProperties(props);
+				XQPreparedExpression xqpExp = xqConn.prepareExpression(query);
+			    // TODO: bind params properly..
+			    for (String key: bindings.getCompositeType().keySet()) {
+			    	xqpExp.bindObject(new QName(key), bindings.get(key), null); 
+			    }
+			    XQResultSequence xqSec = xqpExp.executeQuery();
+			    result = xqSec.getSequenceAsString(null);
+			    xqSec.close();
+			    xqpExp.close();
+			} else {
+				Properties props = new Properties();
+			    setQueryProperties(props);
+				Set<String> keys = bindings.getCompositeType().keySet();
+				Map<QName, Object> params = new HashMap<>(keys.size()); 
+			    for (String key: keys) {
+			    	params.put(new QName(key), bindings.get(key)); 
+			    }
+				Iterator itr = queryMgr.executeQuery(query, params, props);
+				result = extractResult(itr);
+			}
+		} catch (XQException | XDMException ex) {
 			// TODO: return Exception in this case!
 			result = "error executing XQuery: " + ex.getMessage();
 			logger.error(result, ex); 
@@ -151,9 +197,9 @@ public class QueryManagement extends SchemaFeatureManagement {
 	    return result;
 	}
 
-	private void setQueryProperties() {
-		((BagriXQConnection) xqConn).getProcessor().getProperties().setProperty(pn_client_fetchSize, String.valueOf(fetchSize));
-		((BagriXQConnection) xqConn).getProcessor().getProperties().setProperty(pn_queryTimeout, String.valueOf(queryTimeout));
+	private void setQueryProperties(Properties props) {
+		props.setProperty(pn_client_fetchSize, String.valueOf(fetchSize));
+		props.setProperty(pn_queryTimeout, String.valueOf(queryTimeout));
 	}	
 	
 	@ManagedAttribute(description="Returns aggregated QueryManagement invocation statistics, per method")

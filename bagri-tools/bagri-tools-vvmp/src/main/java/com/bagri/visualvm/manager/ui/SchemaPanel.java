@@ -51,7 +51,8 @@ public class SchemaPanel extends JPanel {
     }
 
     private JPanel createSchemaDocumentsPanel() {
-        JPanel panel = new JPanel();
+        //JPanel panel = new JPanel();
+    	JPanel panel = new SimpleChartPanel(schemaService, eventBus);
         return panel;
     }
 

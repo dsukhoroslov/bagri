@@ -80,6 +80,22 @@
             <optional>false</optional>
             <systemPath>${project.basedir}/lib/com-sun-tools-visualvm-tools.jar</systemPath>
         </dependency>
+        <dependency>
+            <groupId>com.sun.tools</groupId>
+            <artifactId>visualvm-charts</artifactId>
+            <version>1.0.0</version>
+            <scope>system</scope>
+            <optional>false</optional>
+            <systemPath>${project.basedir}/lib/com-sun-tools-visualvm-charts.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.tools</groupId>
+            <artifactId>visualvm-uisupport</artifactId>
+            <version>1.0.0</version>
+            <scope>system</scope>
+            <optional>false</optional>
+            <systemPath>${project.basedir}/lib/com-sun-tools-visualvm-uisupport.jar</systemPath>
+        </dependency>
 
         <dependency>
             <groupId>com.sun</groupId>

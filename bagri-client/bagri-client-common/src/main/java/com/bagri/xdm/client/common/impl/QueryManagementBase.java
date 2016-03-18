@@ -18,6 +18,9 @@ public class QueryManagementBase {
 		//	result = prime * result	+ param.getKey().hashCode();
 		//	result = prime * result + param.getValue().hashCode();
 		//}
+		if (params == null) {
+			return 0;
+		}
 		int result = params.toString().hashCode();
 		//logger.trace("getParamsKey; returning key: {} for params: {}", result, params);
 		return result;
