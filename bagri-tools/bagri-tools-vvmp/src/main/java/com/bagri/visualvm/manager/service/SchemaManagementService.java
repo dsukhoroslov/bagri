@@ -5,6 +5,7 @@ import com.bagri.visualvm.manager.model.Schema;
 
 import javax.management.ObjectName;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 public interface SchemaManagementService {
@@ -17,5 +18,7 @@ public interface SchemaManagementService {
     Schema getSchema(ObjectName objectName) throws ServiceException;
     void saveSchema(Schema schema) throws ServiceException;
     void deleteSchema(Schema schema) throws ServiceException;
-    Object runQuery(Schema schema, String query) throws ServiceException;
+    List<String> parseQuery(Schema schema, String query) throws ServiceException;
+    Object runQuery(Schema schema, boolean direct, String query) throws ServiceException;
+    Object runQuery(Schema schema, boolean direct, String query, Map<String, Object> params) throws ServiceException;
 }

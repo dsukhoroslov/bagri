@@ -3,7 +3,8 @@ package com.bagri.visualvm.manager.model;
 import javax.management.ObjectName;
 import java.util.List;
 
-public class Node {
+public class Node implements Comparable<Node> {
+	
     private ObjectName objectName;
     private String name;
     private List<NodeOption> nodeOptions;
@@ -51,4 +52,9 @@ public class Node {
     public String toString() {
         return name;
     }
+
+	@Override
+	public int compareTo(Node other) {
+		return name.compareTo(other.name);
+	}
 }

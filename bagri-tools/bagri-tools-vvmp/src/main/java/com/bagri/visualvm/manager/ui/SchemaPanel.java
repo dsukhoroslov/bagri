@@ -6,6 +6,7 @@ import com.bagri.visualvm.manager.model.Schema;
 import com.bagri.visualvm.manager.model.SchemaManagement;
 import com.bagri.visualvm.manager.service.SchemaManagementService;
 import com.bagri.visualvm.manager.service.ServiceException;
+import com.bagri.visualvm.manager.util.ErrorUtil;
 
 import javax.swing.*;
 import javax.swing.text.DefaultEditorKit;
@@ -13,6 +14,8 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Map;
 import java.util.logging.Logger;
 
 public class SchemaPanel extends JPanel {
@@ -25,6 +28,8 @@ public class SchemaPanel extends JPanel {
     private XTable grid;
     private JTextArea query;
     private JTextArea queryResult;
+    private JRadioButton bXDM;
+    private JLabel lbTime;
 
     public SchemaPanel(SchemaManagementService schemaService, EventBus<ApplicationEvent> eventBus, Schema schema) {
         super(new GridLayout(1, 1));
@@ -53,6 +58,18 @@ public class SchemaPanel extends JPanel {
     private JPanel createSchemaQueryPanel() {
         JPanel panel = new JPanel(new BorderLayout());
         JToolBar queryToolbar = new JToolBar();
+        
+        // "Query type" switch
+        ButtonGroup queryGroup = new ButtonGroup();
+        bXDM = new JRadioButton("XDM");
+        bXDM.setSelected(true);
+        JRadioButton bXQJ = new JRadioButton("XQJ");
+        queryGroup.add(bXDM);
+        queryGroup.add(bXQJ);
+        queryToolbar.add(bXDM);
+        queryToolbar.add(bXQJ);
+        queryToolbar.addSeparator();
+
         // "Run Query" button
         JButton runQuery = new JButton("Run Query");
         runQuery.setToolTipText("Executes query");
@@ -60,7 +77,7 @@ public class SchemaPanel extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    Object result = schemaService.runQuery(schema, query.getText());
+                    Object result = schemaService.runQuery(schema, bXDM.isSelected(), query.getText());
                     queryResult.setText((null != result) ? result.toString() : "Null");
                 } catch (ServiceException e1) {
                     StringWriter sw = new StringWriter();
@@ -72,6 +89,24 @@ public class SchemaPanel extends JPanel {
         });
         queryToolbar.add(runQuery);
         queryToolbar.addSeparator();
+        
+        // "Bind Variables" button
+        JButton bindVars = new JButton("Bind Variables");
+        bindVars.setToolTipText("Parse query and starts binding dialog");
+        bindVars.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                onBindVariables();
+            }
+    	});
+        queryToolbar.add(bindVars);
+        queryToolbar.addSeparator();
+        
+        lbTime = new JLabel();
+        lbTime.setVisible(false);
+        queryToolbar.add(lbTime);
+        //queryToolbar.addSeparator();
+        
         queryToolbar.setFloatable(false);
         panel.add(queryToolbar, BorderLayout.PAGE_START);
         JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
@@ -132,6 +167,52 @@ public class SchemaPanel extends JPanel {
         return areaScrollPane;
     }
 
+    // --- Event Handlers --- //
+    private void onBindVariables() {
+		lbTime.setVisible(false);
+    	try {
+    		java.util.List<String> vars = schemaService.parseQuery(schema, query.getText());
+    		final BindQueryVarsDialog dlg = new BindQueryVarsDialog(vars, SchemaPanel.this);
+    		dlg.setSuccessListener(new ActionListener() {
+    			@Override
+	            public void actionPerformed(ActionEvent e) {
+	                SwingUtilities.invokeLater(new Runnable() {
+	                    @Override
+	                    public void run() {
+	                    	Map<String, Object> params = dlg.getBindings();
+	                    	LOGGER.finer("got params: " + params);
+	                    	long stamp = System.currentTimeMillis();
+                        	Object result;
+	                        try {
+	                        	if (params == null) {
+	                        		result = schemaService.runQuery(schema, bXDM.isSelected(), query.getText());
+	                        	} else {
+	                        		result = schemaService.runQuery(schema, bXDM.isSelected(), query.getText(), params);
+	                        	}
+	                        	stamp = System.currentTimeMillis() - stamp;
+	                        	lbTime.setText("Time taken: " + stamp + " ms");
+	                    		lbTime.setVisible(true);
+                        		queryResult.setText((null != result) ? result.toString() : "Null");
+	                        } catch (ServiceException ex) {
+	                            StringWriter sw = new StringWriter();
+	                            PrintWriter printWriter = new PrintWriter(sw);
+	                            ex.printStackTrace(printWriter);
+	                            queryResult.setText(sw.toString());
+	                        }
+	                        //eventBus.fireEvent(new ApplicationEvent(dlg, SchemaManagement.SCHEMA_STATE_CHANGED));
+	                    }
+	                });
+	            }
+	        });
+	        dlg.setVisible(true);
+    	} catch (ServiceException ex) {
+            StringWriter sw = new StringWriter();
+            PrintWriter printWriter = new PrintWriter(sw);
+            ex.printStackTrace(printWriter);
+            queryResult.setText(sw.toString());
+    	}
+    }
+    
     @Override
     public void setEnabled(boolean enabled) {
         super.setEnabled(enabled);

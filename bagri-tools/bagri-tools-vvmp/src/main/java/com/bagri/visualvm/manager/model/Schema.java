@@ -3,7 +3,8 @@ package com.bagri.visualvm.manager.model;
 import javax.management.ObjectName;
 import java.util.Properties;
 
-public class Schema {
+public class Schema implements Comparable<Schema> {
+	
     private ObjectName objectName;
     private String schemaName;
     private String description;
@@ -111,4 +112,9 @@ public class Schema {
     public int hashCode() {
         return schemaName.hashCode();
     }
+
+	@Override
+	public int compareTo(Schema other) {
+		return schemaName.compareTo(other.schemaName);
+	}
 }

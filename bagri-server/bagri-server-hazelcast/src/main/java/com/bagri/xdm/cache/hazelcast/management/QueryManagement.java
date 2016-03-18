@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.TabularData;
 import javax.xml.namespace.QName;
 import javax.xml.xquery.XQConnection;
@@ -25,6 +26,7 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
+import com.bagri.common.manage.JMXUtils;
 import com.bagri.common.manage.StatsAggregator;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaQueryCleaner;
 import com.bagri.xdm.cache.hazelcast.task.stats.StatisticSeriesCollector;
@@ -75,16 +77,44 @@ public class QueryManagement extends SchemaFeatureManagement {
 		return result;
 	}
 	    
-	@ManagedOperation(description="Run XQuery. Returns string output specified by XQuery")
+	@ManagedOperation(description="Parse XQuery. Return array of parameter names, if any")
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "query", description = "A query request provided in XQuery syntax")})
-	public String runQuery(String query) {
+	public String[] parseQuery(String query) {
+		XQPreparedExpression xqpExp = null;
+		try {
+			xqpExp = xqConn.prepareExpression(query);
+			QName[] vars = xqpExp.getAllExternalVariables();
+			String[] result = null;
+			if (vars != null) {
+				result = new String[vars.length];
+				for (int i=0; i < vars.length; i++) {
+					result[i] = vars[i].toString();
+				}
+			}
+			xqpExp.close();
+			return result;
+		} catch (XQException ex) {
+			String error = "error executing XQuery: " + ex.getMessage();
+			logger.error(error, ex); 
+			return new String[] {error};
+		} 
+	}
+
+	@ManagedOperation(description="Run XQuery. Returns string output specified by XQuery")
+	@ManagedOperationParameters({
+		@ManagedOperationParameter(name = "query", description = "A query request provided in XQuery syntax"),
+		@ManagedOperationParameter(name = "useXQJ", description = "use XQJ (true) or XDM query interface")})
+	public String runQuery(String query, boolean useXQJ) {
 		XQExpression xqExp;
 		try {
 		    setQueryProperties();
 			xqExp = xqConn.createExpression();
 		    XQResultSequence xqSec = xqExp.executeQuery(query);
-		    return xqSec.getSequenceAsString(null);
+		    String result = xqSec.getSequenceAsString(null);
+		    xqSec.close();
+		    xqExp.close();
+		    return result;
 		} catch (XQException ex) {
 			String error = "error executing XQuery: " + ex.getMessage();
 			logger.error(error, ex); 
@@ -95,23 +125,30 @@ public class QueryManagement extends SchemaFeatureManagement {
 	@ManagedOperation(description="Run XQuery. Returns string output specified by XQuery")
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "query", description = "A query request provided in XQuery syntax"),
+		@ManagedOperationParameter(name = "useXQJ", description = "use XQJ (true) or XDM query interface"),
 		@ManagedOperationParameter(name = "bindings", description = "A map of query parameters")})
-	public String runPreparedQuery(String query, Map<String, Object> bindings) {
-		XQPreparedExpression xqExp;
+	public String runPreparedQuery(String query, boolean useXQJ, CompositeData bindings) {
+		logger.trace("runPreparedQuery.enter; got bindings: {}", bindings);
+		XQPreparedExpression xqpExp;
+		String result;
 		try {
 		    setQueryProperties();
-		    xqExp = xqConn.prepareExpression(query);
+		    xqpExp = xqConn.prepareExpression(query);
 		    // TODO: bind params properly..
-		    for (Map.Entry<String, Object> e: bindings.entrySet()) {
-		    	xqExp.bindString(new QName(e.getKey()), e.getValue().toString(), null); 
+		    for (String key: bindings.getCompositeType().keySet()) {
+		    	xqpExp.bindString(new QName(key), bindings.get(key).toString(), null); 
 		    }
-		    XQResultSequence xqSec = xqExp.executeQuery();
-		    return xqSec.getSequenceAsString(null);
+		    XQResultSequence xqSec = xqpExp.executeQuery();
+		    result = xqSec.getSequenceAsString(null);
+		    xqSec.close();
+		    xqpExp.close();
 		} catch (XQException ex) {
-			String error = "error executing XQuery: " + ex.getMessage();
-			logger.error(error, ex); 
-			return error;
+			// TODO: return Exception in this case!
+			result = "error executing XQuery: " + ex.getMessage();
+			logger.error(result, ex); 
 		}
+		logger.trace("runPreparedQuery.exit; returning: {}", result);
+	    return result;
 	}
 
 	private void setQueryProperties() {

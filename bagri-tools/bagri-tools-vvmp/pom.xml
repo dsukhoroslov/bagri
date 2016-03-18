@@ -16,7 +16,8 @@
     <packaging>nbm</packaging>
     <organization>
       <name>Roman Orekhov</name>
-      <url>www.bagri.ru</url>
+      <!--name>Denis Sukhoroslov</name-->
+      <url>www.bagridb.com</url>
     </organization>
 
     <properties>
@@ -25,6 +26,11 @@
     </properties>
 
     <dependencies>
+        <!--dependency>
+            <groupId>com.sdv.bagri</groupId>
+            <artifactId>bagri-common</artifactId>
+        </dependency-->
+
         <dependency>
             <groupId>com.sun.tools</groupId>
             <artifactId>visualvm-core</artifactId>

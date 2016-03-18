@@ -4,6 +4,12 @@ import com.bagri.visualvm.manager.model.*;
 
 import javax.management.*;
 import javax.management.openmbean.CompositeData;
+import javax.management.openmbean.CompositeDataSupport;
+import javax.management.openmbean.CompositeType;
+import javax.management.openmbean.OpenDataException;
+import javax.management.openmbean.OpenType;
+import javax.management.openmbean.SimpleType;
+
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -346,12 +352,43 @@ public class DefaultServiceProvider implements UserManagementService, ClusterMan
     }
 
     @Override
-    public Object runQuery(Schema schema, String query) throws ServiceException {
+    public List<String> parseQuery(Schema schema, String query) throws ServiceException {
+        try {
+            Object vars = connection.invoke(new ObjectName("com.bagri.xdm:type=Schema,kind=QueryManagement,name=" + schema.getSchemaName())
+                    , "parseQuery"
+                    , new Object[] {query}
+                    , new String[] {String.class.getName()}
+            );
+            return Arrays.asList((String[]) vars);
+        } catch (Exception e) {
+            LOGGER.throwing(this.getClass().getName(), "parseQuery", e);
+            throw new ServiceException(e);
+        }
+    }
+
+    @Override
+    public Object runQuery(Schema schema, boolean direct, String query) throws ServiceException {
         try {
             Object res = connection.invoke(new ObjectName("com.bagri.xdm:type=Schema,kind=QueryManagement,name=" + schema.getSchemaName())
                     , "runQuery"
-                    , new Object[] {query}
-                    , new String[] {String.class.getName()}
+                    , new Object[] {query, !direct}
+                    , new String[] {String.class.getName(), boolean.class.getName()}
+            );
+            return res;
+        } catch (Exception e) {
+            LOGGER.throwing(this.getClass().getName(), "runQuery", e);
+            throw new ServiceException(e);
+        }
+    }
+
+    @Override
+    public Object runQuery(Schema schema, boolean direct, String query, Map<String, Object> params) throws ServiceException {
+        try {
+        	CompositeData bindings = mapToComposite("param", "desc", params);
+            Object res = connection.invoke(new ObjectName("com.bagri.xdm:type=Schema,kind=QueryManagement,name=" + schema.getSchemaName())
+                    , "runPreparedQuery"
+                    , new Object[] {query, !direct, bindings}
+                    , new String[] {String.class.getName(), boolean.class.getName(), CompositeData.class.getName()}
             );
             return res;
         } catch (Exception e) {
@@ -451,5 +488,74 @@ public class DefaultServiceProvider implements UserManagementService, ClusterMan
         return properties;
     }
 
+    private CompositeData mapToComposite(String name, String desc, Map<String, Object> map) {
+        if (map != null && !map.isEmpty()) {
+            try {
+                String[] names = new String[map.size()];
+                OpenType[] types = new OpenType[map.size()];
+                int idx = 0;
+                for (Map.Entry<String, Object> e : map.entrySet()) {
+                    names[idx] = e.getKey();
+                    types[idx] = getOpenType(e.getValue());
+                    idx++;
+                }
+                CompositeType type = new CompositeType(name, desc, names, names, types);
+                return new CompositeDataSupport(type, map);
+            } catch (OpenDataException ex) {
+                //logger.warn("statsToComposite. error: {}", ex.getMessage());
+            }
+        }
+        return null;
+    }
+
+    private static OpenType getOpenType(Object value) {
+        if (value == null) {
+            return SimpleType.VOID;
+        }
+        String name = value.getClass().getName();
+        //if (OpenType.ALLOWED_CLASSNAMES_LIST.contains(name)) {
+
+        if ("java.lang.Long".equals(name)) {
+            return SimpleType.LONG;
+        }
+        if ("java.lang.Integer".equals(name)) {
+            return SimpleType.INTEGER;
+        }
+        if ("java.lang.String".equals(name)) {
+            return SimpleType.STRING;
+        }
+        if ("java.lang.Double".equals(name)) {
+            return SimpleType.DOUBLE;
+        }
+        if ("java.lang.Float".equals(name)) {
+            return SimpleType.FLOAT;
+        }
+        if ("java.math.BigDecimal".equals(name)) {
+            return SimpleType.BIGDECIMAL;
+        }
+        if ("java.math.BigInteger".equals(name)) {
+            return SimpleType.BIGINTEGER;
+        }
+        if ("java.lang.Boolean".equals(name)) {
+            return SimpleType.BOOLEAN;
+        }
+        if ("java.lang.Byte".equals(name)) {
+            return SimpleType.BYTE;
+        }
+        if ("java.lang.Character".equals(name)) {
+            return SimpleType.CHARACTER;
+        }
+        if ("java.util.Date".equals(name)) {
+            return SimpleType.DATE;
+        }
+        if ("java.lang.Short".equals(name)) {
+            return SimpleType.SHORT;
+        }
+        //"javax.management.ObjectName",
+        //CompositeData.class.getName(),
+        //TabularData.class.getName()
+        //}
+        return null; // is it allowed ??
+    }
 
 }

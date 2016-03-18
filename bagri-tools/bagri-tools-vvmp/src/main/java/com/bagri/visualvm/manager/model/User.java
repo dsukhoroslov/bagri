@@ -1,6 +1,7 @@
 package com.bagri.visualvm.manager.model;
 
-public class User {
+public class User implements Comparable<User> {
+	
     private String userName;
     private boolean active;
 
@@ -28,4 +29,9 @@ public class User {
     public String toString() {
         return userName;
     }
+
+	@Override
+	public int compareTo(User other) {
+		return userName.compareTo(other.userName);
+	}
 }

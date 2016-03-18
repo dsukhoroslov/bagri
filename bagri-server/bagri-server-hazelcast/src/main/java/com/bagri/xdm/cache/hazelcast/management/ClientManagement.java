@@ -87,6 +87,7 @@ public class ClientManagement extends SchemaFeatureManagement {
 	//public boolean disconnectClient(String clientId) {
 		// not equals to kill node! just kill the particular client
 		// don't see how to implement this. must perform client.doShutdown on the client side..
+		// thus, client should listen on some command topic! 
 	//	return false; 
 	//}
 

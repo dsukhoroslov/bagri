@@ -8,6 +8,7 @@ import javax.swing.tree.*;
 import java.awt.*;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 
 import static com.bagri.visualvm.manager.util.Icons.*;
@@ -95,8 +96,10 @@ public class MainTreePanel extends JPanel {
         for (DefaultMutableTreeNode node :cached) {
             ((DefaultTreeModel) tree.getModel()).removeNodeFromParent(node);
         }
-        for (Node node: nodes) {
-            ((DefaultTreeModel) tree.getModel()).insertNodeInto(new DefaultMutableTreeNode(node), clusterManagement, 0);
+    	Collections.sort(nodes);
+        for (int i=0; i < nodes.size(); i++) {
+        	Node node = nodes.get(i);
+            ((DefaultTreeModel) tree.getModel()).insertNodeInto(new DefaultMutableTreeNode(node), clusterManagement, i);
         }
         for (int i = 0; i < tree.getRowCount(); i++) {
             tree.expandRow(i);
@@ -114,8 +117,10 @@ public class MainTreePanel extends JPanel {
         for (DefaultMutableTreeNode node :cached) {
             ((DefaultTreeModel) tree.getModel()).removeNodeFromParent(node);
         }
-        for (Schema schema : schemas) {
-            ((DefaultTreeModel) tree.getModel()).insertNodeInto(new DefaultMutableTreeNode(schema), schemaManagement, 0);
+    	Collections.sort(schemas);
+        for (int i=0; i < schemas.size(); i++) {
+        	 Schema schema = schemas.get(i);
+            ((DefaultTreeModel) tree.getModel()).insertNodeInto(new DefaultMutableTreeNode(schema), schemaManagement, i);
         }
         for (int i = 0; i < tree.getRowCount(); i++) {
             tree.expandRow(i);
@@ -123,6 +128,7 @@ public class MainTreePanel extends JPanel {
     }
 
     public void setUsers(String[] users) {
+    	// add them to the tree too??
         for (String userName: users) {
             userManagement.add(new DefaultMutableTreeNode(new User(userName)));
         }
