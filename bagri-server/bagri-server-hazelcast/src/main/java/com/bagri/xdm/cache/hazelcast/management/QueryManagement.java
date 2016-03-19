@@ -111,9 +111,8 @@ public class QueryManagement extends SchemaFeatureManagement {
 			xqpExp.close();
 			return result;
 		} catch (XQException ex) {
-			String error = "error executing XQuery: " + ex.getMessage();
-			logger.error(error, ex); 
-			return new String[] {error};
+			logger.error("parseQuery.error", ex); 
+			throw new RuntimeException(ex);
 		} 
 	}
 
@@ -142,9 +141,8 @@ public class QueryManagement extends SchemaFeatureManagement {
 			}	
 			return result;
 		} catch (XQException | XDMException ex) {
-			String error = "error executing XQuery: " + ex.getMessage();
-			logger.error(error, ex); 
-			return error;
+			logger.error("runQuery.error", ex); 
+			throw new RuntimeException(ex);
 		}
 	}
 	
@@ -189,9 +187,8 @@ public class QueryManagement extends SchemaFeatureManagement {
 				result = extractResult(itr);
 			}
 		} catch (XQException | XDMException ex) {
-			// TODO: return Exception in this case!
-			result = "error executing XQuery: " + ex.getMessage();
-			logger.error(result, ex); 
+			logger.error("runPreparedQuery.error", ex); 
+			throw new RuntimeException(ex);
 		}
 		logger.trace("runPreparedQuery.exit; returning: {}", result);
 	    return result;

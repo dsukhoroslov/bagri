@@ -75,6 +75,12 @@ public class DocumentManagement extends SchemaFeatureManagement {
 		}
 	}
 	
+	@ManagedAttribute(description="Returns Schema Totals")
+	public CompositeData getTotalCounts() {
+		collectTotals();
+		return docTotals;
+	}
+	
 	private void collectTotals() {
 		initAggregator();
 		docTotals = super.getTotalsStatistics(new StatisticTotalsCollector(schemaName, "docStats"), aggregator);

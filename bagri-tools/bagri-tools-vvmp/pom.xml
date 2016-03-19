@@ -74,6 +74,14 @@
         </dependency>
         <dependency>
             <groupId>com.sun.tools</groupId>
+            <artifactId>visualvm-application-views</artifactId>
+            <version>1.0.0</version>
+            <scope>system</scope>
+            <optional>false</optional>
+            <systemPath>${project.basedir}/lib/com-sun-tools-visualvm-application-views.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.tools</groupId>
             <artifactId>visualvm-tools</artifactId>
             <version>1.0.0</version>
             <scope>system</scope>

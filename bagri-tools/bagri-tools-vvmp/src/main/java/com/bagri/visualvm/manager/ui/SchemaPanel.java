@@ -16,6 +16,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Properties;
 import java.util.logging.Logger;
 
 public class SchemaPanel extends JPanel {
@@ -30,6 +31,7 @@ public class SchemaPanel extends JPanel {
     private JTextArea queryResult;
     private JRadioButton bXDM;
     private JLabel lbTime;
+    private Properties queryProps;
 
     public SchemaPanel(SchemaManagementService schemaService, EventBus<ApplicationEvent> eventBus, Schema schema) {
         super(new GridLayout(1, 1));
@@ -43,6 +45,9 @@ public class SchemaPanel extends JPanel {
         add(tabbedPane);
         tabbedPane.setBorder(BorderFactory.createEmptyBorder());
         setBorder(BorderFactory.createEmptyBorder());
+        
+        queryProps = new Properties();
+        queryProps.setProperty("xdm.client.fetchSize", "1000");
     }
 
     private JPanel createSchemaInfoPanel() {
@@ -52,7 +57,7 @@ public class SchemaPanel extends JPanel {
 
     private JPanel createSchemaDocumentsPanel() {
         //JPanel panel = new JPanel();
-    	JPanel panel = new SimpleChartPanel(schemaService, eventBus);
+    	JPanel panel = new SchemaMonitoringPanel(schema.getSchemaName(), schemaService, eventBus);
         return panel;
     }
 
@@ -78,8 +83,16 @@ public class SchemaPanel extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    Object result = schemaService.runQuery(schema, bXDM.isSelected(), query.getText());
-                    queryResult.setText((null != result) ? result.toString() : "Null");
+            		String qry = query.getText();
+            		if (qry != null && qry.trim().length() > 0) {
+	            		lbTime.setVisible(false);
+	                	long stamp = System.currentTimeMillis();
+	                    Object result = schemaService.runQuery(schema, bXDM.isSelected(), qry, queryProps);
+	                	stamp = System.currentTimeMillis() - stamp;
+	                	lbTime.setText("Time taken: " + stamp + " ms");
+	            		lbTime.setVisible(true);
+	                    queryResult.setText((null != result) ? result.toString() : "Null");
+            		}
                 } catch (ServiceException e1) {
                     StringWriter sw = new StringWriter();
                     PrintWriter printWriter = new PrintWriter(sw);
@@ -103,6 +116,18 @@ public class SchemaPanel extends JPanel {
         queryToolbar.add(bindVars);
         queryToolbar.addSeparator();
         
+        // "Query Properties" button
+        JButton queryProps = new JButton("Query Properties");
+        queryProps.setToolTipText("Set query processing properties");
+        queryProps.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                onQueryProperties();
+            }
+    	});
+        queryToolbar.add(queryProps);
+        queryToolbar.addSeparator();
+
         lbTime = new JLabel();
         lbTime.setVisible(false);
         queryToolbar.add(lbTime);
@@ -172,46 +197,67 @@ public class SchemaPanel extends JPanel {
     private void onBindVariables() {
 		lbTime.setVisible(false);
     	try {
-    		java.util.List<String> vars = schemaService.parseQuery(schema, query.getText());
-    		final BindQueryVarsDialog dlg = new BindQueryVarsDialog(vars, SchemaPanel.this);
-    		dlg.setSuccessListener(new ActionListener() {
-    			@Override
-	            public void actionPerformed(ActionEvent e) {
-	                SwingUtilities.invokeLater(new Runnable() {
-	                    @Override
-	                    public void run() {
-	                    	Map<String, Object> params = dlg.getBindings();
-	                    	LOGGER.finer("got params: " + params);
-	                    	long stamp = System.currentTimeMillis();
-                        	Object result;
-	                        try {
-	                        	if (params == null) {
-	                        		result = schemaService.runQuery(schema, bXDM.isSelected(), query.getText());
-	                        	} else {
-	                        		result = schemaService.runQuery(schema, bXDM.isSelected(), query.getText(), params);
-	                        	}
-	                        	stamp = System.currentTimeMillis() - stamp;
-	                        	lbTime.setText("Time taken: " + stamp + " ms");
-	                    		lbTime.setVisible(true);
-                        		queryResult.setText((null != result) ? result.toString() : "Null");
-	                        } catch (ServiceException ex) {
-	                            StringWriter sw = new StringWriter();
-	                            PrintWriter printWriter = new PrintWriter(sw);
-	                            ex.printStackTrace(printWriter);
-	                            queryResult.setText(sw.toString());
-	                        }
-	                        //eventBus.fireEvent(new ApplicationEvent(dlg, SchemaManagement.SCHEMA_STATE_CHANGED));
-	                    }
-	                });
-	            }
-	        });
-	        dlg.setVisible(true);
+    		final String qry = query.getText();
+    		if (qry != null && qry.trim().length() > 0) {
+	    		java.util.List<String> vars = schemaService.parseQuery(schema, qry);
+	    		final BindQueryVarsDialog dlg = new BindQueryVarsDialog(vars, SchemaPanel.this);
+	    		dlg.setSuccessListener(new ActionListener() {
+	    			@Override
+		            public void actionPerformed(ActionEvent e) {
+		                SwingUtilities.invokeLater(new Runnable() {
+		                    @Override
+		                    public void run() {
+		                    	Map<String, Object> params = dlg.getBindings();
+		                    	LOGGER.finer("got params: " + params);
+		                    	long stamp = System.currentTimeMillis();
+	                        	Object result;
+		                        try {
+		                        	if (params == null) {
+		                        		result = schemaService.runQuery(schema, bXDM.isSelected(), qry, queryProps);
+		                        	} else {
+		                        		result = schemaService.runQueryWithParams(schema, bXDM.isSelected(), qry, params, queryProps);
+		                        	}
+		                        	stamp = System.currentTimeMillis() - stamp;
+		                        	lbTime.setText("Time taken: " + stamp + " ms");
+		                    		lbTime.setVisible(true);
+	                        		queryResult.setText((null != result) ? result.toString() : "Null");
+		                        } catch (ServiceException ex) {
+		                            StringWriter sw = new StringWriter();
+		                            PrintWriter printWriter = new PrintWriter(sw);
+		                            ex.printStackTrace(printWriter);
+		                            queryResult.setText(sw.toString());
+		                        }
+		                        //eventBus.fireEvent(new ApplicationEvent(dlg, SchemaManagement.SCHEMA_STATE_CHANGED));
+		                    }
+		                });
+		            }
+		        });
+		        dlg.setVisible(true);
+    		}
     	} catch (ServiceException ex) {
             StringWriter sw = new StringWriter();
             PrintWriter printWriter = new PrintWriter(sw);
             ex.printStackTrace(printWriter);
             queryResult.setText(sw.toString());
     	}
+    }
+
+    private void onQueryProperties() {
+    	//
+		final EditPropertiesDialog dlg = new EditPropertiesDialog(queryProps, SchemaPanel.this);
+		dlg.setSuccessListener(new ActionListener() {
+			@Override
+            public void actionPerformed(ActionEvent e) {
+                SwingUtilities.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                    	queryProps.clear();
+                    	queryProps.putAll(dlg.getProperties());
+                    }
+                });
+			}
+		});
+        dlg.setVisible(true);
     }
     
     @Override

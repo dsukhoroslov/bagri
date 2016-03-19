@@ -367,7 +367,7 @@ public class DefaultServiceProvider implements UserManagementService, ClusterMan
     }
 
     @Override
-    public Object runQuery(Schema schema, boolean direct, String query) throws ServiceException {
+    public Object runQuery(Schema schema, boolean direct, String query, Properties props) throws ServiceException {
         try {
             Object res = connection.invoke(new ObjectName("com.bagri.xdm:type=Schema,kind=QueryManagement,name=" + schema.getSchemaName())
                     , "runQuery"
@@ -375,14 +375,14 @@ public class DefaultServiceProvider implements UserManagementService, ClusterMan
                     , new String[] {String.class.getName(), boolean.class.getName()}
             );
             return res;
-        } catch (Exception e) {
+        } catch (Throwable e) {
             LOGGER.throwing(this.getClass().getName(), "runQuery", e);
             throw new ServiceException(e);
         }
     }
 
     @Override
-    public Object runQuery(Schema schema, boolean direct, String query, Map<String, Object> params) throws ServiceException {
+    public Object runQueryWithParams(Schema schema, boolean direct, String query, Map<String, Object> params, Properties props) throws ServiceException {
         try {
         	CompositeData bindings = mapToComposite("param", "desc", params);
             Object res = connection.invoke(new ObjectName("com.bagri.xdm:type=Schema,kind=QueryManagement,name=" + schema.getSchemaName())
@@ -391,10 +391,46 @@ public class DefaultServiceProvider implements UserManagementService, ClusterMan
                     , new String[] {String.class.getName(), boolean.class.getName(), CompositeData.class.getName()}
             );
             return res;
-        } catch (Exception e) {
-            LOGGER.throwing(this.getClass().getName(), "runQuery", e);
+        } catch (Throwable e) {
+            LOGGER.throwing(this.getClass().getName(), "runQueryWithParams", e);
             throw new ServiceException(e);
         }
+    }
+    
+    @Override
+    public long[] getSchemaVolumeStatistics(String schemaName)  throws ServiceException {
+
+        try {
+            Object res = connection.invoke(new ObjectName("com.bagri.xdm:type=Schema,kind=DocumentManagement,name=" + schemaName)
+                    , "getTotalCounts"
+                    , new Object[] {}
+                    , null
+            );
+            CompositeData cd = (CompositeData) res;
+            return new long[] {(Integer) cd.get("Number of documents"), (Integer) cd.get("Number of elements"), (Long) cd.get("Consumed size")};
+        } catch (Exception e) {
+            LOGGER.throwing(this.getClass().getName(), "getSchemaVolumeStatistics", e);
+            throw new ServiceException(e);
+        }
+    	
+    }
+    
+    @Override
+    public long[] getSchemaTransactionStatistics(String schemaName)  throws ServiceException {
+    	
+        try {
+            Object res = connection.invoke(new ObjectName("com.bagri.xdm:type=Schema,kind=TransactionManagement,name=" + schemaName)
+                    , "getTxStatistics"
+                    , new Object[] {}
+                    , null
+            );
+            CompositeData cd = (CompositeData) res;
+            return new long[] {(Long) cd.get("Started"), (Long) cd.get("In Progress"), (Long) cd.get("Commited"), (Long) cd.get("Rolled Back")};
+        } catch (Exception e) {
+            LOGGER.throwing(this.getClass().getName(), "getSchemaTransactionStatistics", e);
+            throw new ServiceException(e);
+        }
+    	
     }
 
     private Schema extractSchema(ObjectInstance oi) {
