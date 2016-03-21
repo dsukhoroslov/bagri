@@ -146,7 +146,7 @@ public class EditPropertiesDialog extends JDialog {
         bp.add(cancelButton);
 
         //getContentPane().add(fieldsPanel, BorderLayout.PAGE_START);
-        getContentPane().add(propertiesPanel, BorderLayout.PAGE_START);
+        getContentPane().add(propertiesPanel, BorderLayout.CENTER); //PAGE_START);
         getContentPane().add(bp, BorderLayout.PAGE_END);
         setPreferredSize(new Dimension(280, 300));
         setMinimumSize(new Dimension(280, 300));
