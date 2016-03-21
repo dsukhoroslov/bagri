@@ -1,0 +1,8 @@
+<folder name="VisualVM">
+    <folder name="ExplorerPopupSelection">
+        <file name="com-bagri-visualvm-manager-BagriManagementAction.instance">
+            <attr name="SystemFileSystem.localizingBundle" stringvalue="com.bagri.visualvm.manager.Bundle"/>
+            <attr name="position" intvalue="3000"/>
+        </file>
+    </folder>
+</folder>
