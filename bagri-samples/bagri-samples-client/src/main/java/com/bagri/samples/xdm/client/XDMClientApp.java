@@ -9,6 +9,7 @@ import static com.bagri.xdm.common.XDMConstants.pn_schema_user;
 import java.util.Iterator;
 import java.util.Properties;
 
+import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQExpression;
 import javax.xml.xquery.XQResultSequence;
 
@@ -24,6 +25,7 @@ import com.bagri.xquery.saxon.XQProcessorClient;
 
 public class XDMClientApp implements BagriClientApp {
 	
+	private XQProcessor proc;
 	private XDMRepository xRepo;
 	
 	public static void main(String[] args) throws Exception {
@@ -43,7 +45,7 @@ public class XDMClientApp implements BagriClientApp {
 	}
 	
 	public XDMClientApp(Properties props) {
-		XQProcessor proc = new XQProcessorClient();
+		proc = new XQProcessorClient();
 		BagriXQDataFactory xqFactory = new BagriXQDataFactory();
 		xqFactory.setProcessor(proc);
 		props.put(pn_client_dataFactory,  xqFactory);
@@ -73,7 +75,21 @@ public class XDMClientApp implements BagriClientApp {
 	}
 	
 	@Override
-	public String queryDocument() throws XDMException {
+	public String queryDocumentByUri(String uri) throws XDMException, XQException {
+
+		String query = "for $doc in fn:doc(\"" + uri + "\")\n" +
+				"return $doc\n";
+
+		Iterator itr = xRepo.getQueryManagement().executeQuery(query, null, new Properties());
+	    String result = null;
+	    if (itr.hasNext()) {
+			result = proc.convertToString(itr.next(), null);
+	    }
+	    return result;
+	}
+	
+	@Override
+	public String queryDocumentFromCollection() throws XDMException, XQException {
 
 		String query = "for $doc in fn:collection()\n" +
 				"return $doc\n";
@@ -81,7 +97,7 @@ public class XDMClientApp implements BagriClientApp {
 		Iterator itr = xRepo.getQueryManagement().executeQuery(query, null, new Properties());
 	    String result = null;
 	    if (itr.hasNext()) {
-			result = itr.next().toString();
+			result = proc.convertToString(itr.next(), null);
 	    }
 	    return result;
 	}

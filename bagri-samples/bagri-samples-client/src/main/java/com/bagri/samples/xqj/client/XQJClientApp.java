@@ -13,6 +13,7 @@ import static com.bagri.xqj.BagriXQDataSource.XDM_REPOSITORY;
 import static com.bagri.xqj.BagriXQDataSource.XQ_PROCESSOR;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
@@ -98,7 +99,22 @@ public class XQJClientApp implements BagriClientApp {
 	}
 	
 	@Override
-	public String queryDocument() throws XQException {
+	public String queryDocumentByUri(String uri) throws XQException {
+
+		String query = "for $doc in fn:doc(\"" + uri + "\")\n" +
+				"return $doc\n";
+
+	    XQExpression xqe = xqConn.createExpression();
+	    XQResultSequence xqs = xqe.executeQuery(query);
+	    String result = null;
+	    if (xqs.next()) {
+			result = xqs.getItemAsString(null);
+	    }
+	    return result;
+	}
+	
+	@Override
+	public String queryDocumentFromCollection() throws XQException {
 
 		String query = "for $doc in fn:collection()\n" +
 				"return $doc\n";

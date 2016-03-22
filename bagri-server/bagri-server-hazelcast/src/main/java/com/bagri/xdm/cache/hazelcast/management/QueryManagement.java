@@ -38,6 +38,8 @@ import com.bagri.xdm.cache.hazelcast.task.schema.SchemaQueryCleaner;
 import com.bagri.xdm.cache.hazelcast.task.stats.StatisticSeriesCollector;
 import com.bagri.xdm.cache.hazelcast.task.stats.StatisticsReseter;
 import com.bagri.xdm.client.common.XDMCacheConstants;
+import com.bagri.xqj.BagriXQConnection;
+import com.bagri.xquery.api.XQProcessor;
 //import com.bagri.xdm.client.hazelcast.impl.RepositoryImpl;
 //import com.bagri.xdm.client.hazelcast.impl.ResultCursor;
 //import com.hazelcast.core.HazelcastInstance;
@@ -149,12 +151,13 @@ public class QueryManagement extends SchemaFeatureManagement {
 		}
 	}
 	
-	private String extractResult(Iterator itr) {
+	private String extractResult(Iterator itr) throws XQException {
 		StringBuffer buff = new StringBuffer();
 		//ResultCursor rc = (ResultCursor) itr;
 		//rc.deserialize(((RepositoryImpl) schemaManager.getRepository()).getHzInstance());
+		XQProcessor xqp = ((BagriXQConnection) xqConn).getProcessor();
 		while (itr.hasNext()) {
-			buff.append(itr.next());
+			buff.append(xqp.convertToString(itr.next(), null));
 		}
 		return buff.toString();
 	}

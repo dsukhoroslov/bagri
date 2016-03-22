@@ -5,9 +5,11 @@ import static com.bagri.common.config.XDMConfigConstants.xdm_config_properties_f
 import static com.bagri.xdm.common.XDMConstants.pn_client_fetchSize;
 import static com.bagri.xdm.common.XDMConstants.pn_client_id;
 import static com.bagri.xdm.common.XDMConstants.pn_baseURI;
+import static org.junit.Assert.*;
 
 import java.math.BigDecimal;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -23,6 +25,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import com.bagri.common.manage.JMXUtils;
 import com.bagri.common.query.AxisType;
 import com.bagri.common.query.Comparison;
 import com.bagri.common.query.ExpressionContainer;
@@ -31,7 +34,9 @@ import com.bagri.xdm.api.test.XDMManagementTest;
 import com.bagri.xdm.cache.api.XDMQueryManagement;
 import com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl;
 import com.bagri.xdm.client.hazelcast.impl.ResultCursor;
+import com.bagri.xdm.system.XDMCollection;
 import com.bagri.xdm.system.XDMSchema;
+import com.bagri.xquery.api.XQProcessor;
 
 public class QueryManagementImplTest extends XDMManagementTest {
 
@@ -64,6 +69,9 @@ public class QueryManagementImplTest extends XDMManagementTest {
 			schema = new XDMSchema(1, new java.util.Date(), "test", "test", "test schema", true, null);
 			schema.setProperty(pn_baseURI, sampleRoot);
 			xdmRepo.setSchema(schema);
+			XDMCollection collection = new XDMCollection(1, new Date(), JMXUtils.getCurrentUser(), 
+					1, "CLN_Security", "/{http://tpox-benchmark.com/security}Security", "securities", true);
+			schema.addCollection(collection);
 		}
 	}
 
@@ -345,6 +353,39 @@ public class QueryManagementImplTest extends XDMManagementTest {
 			((ResultCursor) itr).deserialize(((RepositoryImpl) xRepo).getHzInstance());
 			Assert.assertTrue(itr.hasNext());
 		}
+	}
+	
+	@Test
+	public void compareSequrityPriceTest() throws Exception {
+		storeSecurityTest();
+		String query = "declare namespace s=\"http://tpox-benchmark.com/security\";\n" +
+			"declare variable $sym external;\n" + 
+			//"for $sec in fn:collection(\"CLN_Security\")/s:Security\n" +
+			"for $sec in fn:collection()/s:Security\n" +
+	  		"where $sec/s:Symbol=$sym\n" + 
+			"return \n" +
+			"\t<print>The open price of the security \"{$sec/s:Name/text()}\" is {$sec/s:Price/s:PriceToday/s:Open/text()} dollars</print>";
+		Map<QName, Object> params = new HashMap<>();
+		params.put(new QName("sym"), "VFINX");
+		Properties props = new Properties();
+		props.setProperty(pn_client_id, "1");
+		props.setProperty(pn_client_fetchSize, "1");
+		Iterator itr = xRepo.getQueryManagement().executeQuery(query, params, props);
+		assertNotNull(itr);
+		//((ResultCursor) itr).deserialize(((RepositoryImpl) xRepo).getHzInstance());
+		assertTrue(itr.hasNext());
+		XQProcessor xqp = ((RepositoryImpl) xRepo).getXQProcessor();
+		Object result = itr.next();
+		assertNotNull(result);
+		String text = xqp.convertToString(result, null);
+		assertEquals("<print xmlns=\"http://www.w3.org/2001/XMLSchema\">The open price of the security \"Vanguard 500 Index Fund\" is 101.12 dollars</print>", text);
+		assertFalse(itr.hasNext());
+		props = new Properties();
+		props.setProperty(javax.xml.transform.OutputKeys.OMIT_XML_DECLARATION, "yes");
+		props.setProperty(javax.xml.transform.OutputKeys.INDENT, "yes");
+		props.setProperty(javax.xml.transform.OutputKeys.METHOD, "text");
+		text = xqp.convertToString(result, props);
+		assertEquals("The open price of the security \"Vanguard 500 Index Fund\" is 101.12 dollars", text);
 	}
 	
 }
