@@ -6,6 +6,8 @@ import org.openide.util.Utilities;
 
 public class BagriApplicationType extends ApplicationType {
 
+    public static final String BAGRI_MANAGER = "Bagri Manager";
+	
     protected final int appPID;
 
     public BagriApplicationType(int pid) {
@@ -14,7 +16,7 @@ public class BagriApplicationType extends ApplicationType {
 
     @Override
     public String getName() {
-        return "Bagri Manager";
+        return BAGRI_MANAGER;
     }
 
     @Override

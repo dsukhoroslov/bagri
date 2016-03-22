@@ -1,39 +1,28 @@
 package com.bagri.visualvm.manager;
 
-import com.bagri.visualvm.manager.event.ApplicationEvent;
-import com.bagri.visualvm.manager.event.EventHandler;
-import com.bagri.visualvm.manager.model.ColumnConfig;
-import com.bagri.visualvm.manager.model.DefaultGridRow;
-import com.bagri.visualvm.manager.model.GridDataLoader;
-import com.bagri.visualvm.manager.model.GridRow;
-import com.bagri.visualvm.manager.model.Schema;
-import com.bagri.visualvm.manager.model.SchemaManagement;
-import com.bagri.visualvm.manager.service.BagriServiceProvider;
-import com.bagri.visualvm.manager.service.ClusterManagementService;
-import com.bagri.visualvm.manager.service.DefaultServiceProvider;
-import com.bagri.visualvm.manager.service.SchemaManagementService;
-import com.bagri.visualvm.manager.service.ServiceException;
-import com.bagri.visualvm.manager.ui.BagriMainPanel;
-import com.bagri.visualvm.manager.ui.SchemaManagementPanel;
-import com.bagri.visualvm.manager.ui.XTable;
-import com.bagri.visualvm.manager.util.ErrorUtil;
-import com.sun.tools.visualvm.application.Application;
-import com.sun.tools.visualvm.core.ui.DataSourceViewPlugin;
-import com.sun.tools.visualvm.core.ui.components.DataViewComponent;
-import com.sun.tools.visualvm.core.ui.components.ScrollableContainer;
-import com.sun.tools.visualvm.tools.jmx.JmxModel;
-import com.sun.tools.visualvm.tools.jmx.JmxModelFactory;
-
 import java.awt.BorderLayout;
-import java.awt.GridLayout;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+
+import com.bagri.visualvm.manager.model.ColumnConfig;
+import com.bagri.visualvm.manager.model.DefaultGridRow;
+import com.bagri.visualvm.manager.model.GridDataLoader;
+import com.bagri.visualvm.manager.model.GridRow;
+import com.bagri.visualvm.manager.model.Schema;
+import com.bagri.visualvm.manager.service.BagriServiceProvider;
+import com.bagri.visualvm.manager.service.DefaultServiceProvider;
+import com.bagri.visualvm.manager.service.SchemaManagementService;
+import com.bagri.visualvm.manager.service.ServiceException;
+import com.bagri.visualvm.manager.ui.XTable;
+import com.sun.tools.visualvm.application.Application;
+import com.sun.tools.visualvm.core.ui.DataSourceViewPlugin;
+import com.sun.tools.visualvm.core.ui.components.DataViewComponent;
+import com.sun.tools.visualvm.tools.jmx.JmxModel;
+import com.sun.tools.visualvm.tools.jmx.JmxModelFactory;
 
 public class BagriOverview extends DataSourceViewPlugin {
 
@@ -139,7 +128,7 @@ public class BagriOverview extends DataSourceViewPlugin {
 	                    		for (String host: hosts) {
 	        	                    rows.add(new DefaultGridRow(schema.getObjectName(), new Object[] {
 	        	                    		""
-	        	                            , "\t" + host
+	        	                            , host
 	        	                            , ""
 	        	                            , ""
 	        	                            , ""

@@ -1,5 +1,7 @@
 package com.bagri.visualvm.manager;
 
+import static com.bagri.visualvm.manager.BagriApplicationType.BAGRI_MANAGER;
+
 import com.bagri.visualvm.manager.service.BagriServiceProvider;
 import com.bagri.visualvm.manager.service.DefaultServiceProvider;
 import com.bagri.visualvm.manager.ui.BagriMainPanel;
@@ -15,7 +17,6 @@ import javax.management.MBeanServerConnection;
 import javax.swing.*;
 
 public class BagriManagerView extends DataSourceView {
-    private static final String BAGRI_MANAGER = "Bagri Manager";
     private static final String NOT_CONNECTED = "Not Connected";
 
     private Application application;

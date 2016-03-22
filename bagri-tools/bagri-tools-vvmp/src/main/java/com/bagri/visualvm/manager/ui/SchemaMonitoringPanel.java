@@ -47,8 +47,8 @@ public class SchemaMonitoringPanel extends JPanel {
         
         //descriptor.setDetailsItems(new String[]{"Detail 1", "Detail 2", "Detail 3"});
         descriptor.setChartTitle("<html><font size='+1'><b>" + schemaName + " Statistics</b></font></html>");
-        descriptor.setXAxisDescription("<html>X Axis <i>[time]</i></html>");
-        descriptor.setYAxisDescription("<html>Y Axis <i>[units]</i></html>");
+        descriptor.setXAxisDescription("time");
+        descriptor.setYAxisDescription("units");
 
         chart = ChartFactory.createSimpleXYChart(descriptor);
 
