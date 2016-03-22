@@ -2,6 +2,7 @@ package com.bagri.visualvm.manager.model;
 
 public class SchemaManagement {
     public static final String SCHEMA_MANAGEMENT = "Schema Management";
+    public static final String SCHEMA_MONITORING = "Schema Monitoring";
     public static final String SCHEMA_DETAILS = " Details";
     public static final String DOCUMENT_MANAGEMENT = "Document Management";
     public static final String QUERY_MANAGEMENT = "Query Management";

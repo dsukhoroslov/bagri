@@ -178,7 +178,8 @@ public class QueryManagement extends SchemaFeatureManagement {
 				Set<String> keys = bindings.getCompositeType().keySet();
 				Map<QName, Object> params = new HashMap<>(keys.size()); 
 			    for (String key: keys) {
-			    	params.put(new QName(key), xqConn.createItemFromObject(bindings.get(key), null)); 
+			    	//params.put(new QName(key), xqConn.createItemFromObject(bindings.get(key), null)); 
+			    	params.put(new QName(key), bindings.get(key)); 
 			    }
 				Iterator itr = queryMgr.executeQuery(query, params, props);
 				result = extractResult(itr);
@@ -186,7 +187,6 @@ public class QueryManagement extends SchemaFeatureManagement {
 				//Properties props = ((BagriXQConnection) xqConn).getProcessor().getProperties();
 			    //setQueryProperties(props);
 				XQPreparedExpression xqpExp = xqConn.prepareExpression(query);
-			    // TODO: bind params properly..
 			    for (String key: bindings.getCompositeType().keySet()) {
 			    	xqpExp.bindObject(new QName(key), bindings.get(key), null); 
 			    }

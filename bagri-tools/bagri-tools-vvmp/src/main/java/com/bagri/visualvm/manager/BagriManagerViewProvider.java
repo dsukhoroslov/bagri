@@ -35,7 +35,7 @@ public class BagriManagerViewProvider extends DataSourceViewProvider<Application
         DataSourceViewsManager.sharedInstance().addViewProvider(instance, Application.class);
     }
 
-    static void unregister() {
+    static void uninitialize() {
         DataSourceViewsManager.sharedInstance().removeViewProvider(instance);
     }
 }

@@ -15,8 +15,7 @@
     <description>BagRi: VisualVM plugin</description>
     <packaging>nbm</packaging>
     <organization>
-      <name>Roman Orekhov</name>
-      <!--name>Denis Sukhoroslov</name-->
+      <name>Roman Orekhov, Denis Sukhoroslov</name>
       <url>www.bagridb.com</url>
     </organization>
 

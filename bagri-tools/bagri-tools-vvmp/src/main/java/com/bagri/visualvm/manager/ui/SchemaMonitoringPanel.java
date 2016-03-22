@@ -19,7 +19,7 @@ import com.sun.tools.visualvm.charts.SimpleXYChartSupport;
 public class SchemaMonitoringPanel extends JPanel {
 	
     private static final Logger LOGGER = Logger.getLogger(SchemaManagementPanel.class.getName());
-    private static final long SLEEP_TIME = 500;
+    private static final long SLEEP_TIME = 1000;
     private static final int VALUES_LIMIT = 150;
     
     private final SchemaManagementService schemaService;

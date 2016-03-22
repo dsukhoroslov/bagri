@@ -23,6 +23,7 @@ import static com.bagri.common.util.FileUtils.def_encoding;
 public class XDMDocument implements Convertable<Map<String, Object>>, Versionable { //extends XDMEntity {
 	
 	public static final int dvFirst = 1;
+	public static final int clnDefault = -1;
 
 	private long documentKey;
 	private String uri;

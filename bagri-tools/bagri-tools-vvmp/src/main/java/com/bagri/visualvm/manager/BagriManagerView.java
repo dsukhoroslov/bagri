@@ -1,5 +1,7 @@
 package com.bagri.visualvm.manager;
 
+import com.bagri.visualvm.manager.service.BagriServiceProvider;
+import com.bagri.visualvm.manager.service.DefaultServiceProvider;
 import com.bagri.visualvm.manager.ui.BagriMainPanel;
 import com.bagri.visualvm.manager.util.Icons;
 import com.sun.tools.visualvm.application.Application;
@@ -57,7 +59,8 @@ public class BagriManagerView extends DataSourceView {
 
             dvc.configureDetailsArea(new DataViewComponent.DetailsAreaConfiguration(BAGRI_MANAGER, false), DataViewComponent.TOP_LEFT); // NOI18N
 
-            mainPanel = new BagriMainPanel(mbsc);
+        	BagriServiceProvider bsp = DefaultServiceProvider.getInstance(mbsc);
+            mainPanel = new BagriMainPanel(bsp);
             jmx.addPropertyChangeListener(WeakListeners.propertyChange(mainPanel, jmx));
 
             dvc.addDetailsView(new DataViewComponent.DetailsView("", null, 10, mainPanel, null), DataViewComponent.TOP_LEFT); // NOI18N

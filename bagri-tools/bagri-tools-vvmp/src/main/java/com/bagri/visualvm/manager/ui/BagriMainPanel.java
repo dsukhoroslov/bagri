@@ -30,7 +30,8 @@ import java.util.HashMap;
 import java.util.logging.Logger;
 
 public class BagriMainPanel extends JPanel implements NotificationListener, PropertyChangeListener {
-    private static final Logger LOGGER = Logger.getLogger(BagriMainPanel.class.getName());
+
+	private static final Logger LOGGER = Logger.getLogger(BagriMainPanel.class.getName());
 
     private final MainTreePanel mainTree;
     private final JSplitPane splitPane;
@@ -45,33 +46,16 @@ public class BagriMainPanel extends JPanel implements NotificationListener, Prop
     // TODO: Remove cache entry if schema is deleted.
     private HashMap<String, SchemaPanel> schemaCache = new HashMap<String, SchemaPanel>();
 
-    public BagriMainPanel(MBeanServerConnection connection) {
+    public BagriMainPanel(BagriServiceProvider serviceProvider) {
         // Services
-        DefaultServiceProvider serviceProvider = new DefaultServiceProvider(connection);
-        userManagementService = serviceProvider;
-        clusterManagementService = serviceProvider;
-        schemaManagementService = serviceProvider;
-
-        // Register listener for MBean registration/unregistration
-        try {
-            connection.addNotificationListener(
-                    MBeanServerDelegate.DELEGATE_NAME,
-                    this,
-                    null,
-                    null);
-        } catch (InstanceNotFoundException e) {
-            // Should never happen because the MBeanServerDelegate
-            // is always present in any standard MBeanServer
-            //
-            LOGGER.throwing(BagriMainPanel.class.getName(), "BagriMainPanel", e);
-        } catch (IOException e) {
-            LOGGER.throwing(BagriMainPanel.class.getName(), "BagriMainPanel", e);
-        }
+        userManagementService = serviceProvider.getUserManagement();
+        clusterManagementService = serviceProvider.getClusterManagement();
+        schemaManagementService = serviceProvider.getSchemaManagement();
 
         setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 
         // Main tree
-        mainTree = createTree(connection, clusterManagementService);
+        mainTree = createTree(clusterManagementService);
         Dimension minimumSize = new Dimension(150, 100);//TODO: Move to constants
         JScrollPane treeScrollPane = new JScrollPane(mainTree);
         treeScrollPane.setMinimumSize(minimumSize);
@@ -124,7 +108,7 @@ public class BagriMainPanel extends JPanel implements NotificationListener, Prop
         return panel;
     }
 
-    private MainTreePanel createTree(MBeanServerConnection connection, ClusterManagementService clusterService) {
+    private MainTreePanel createTree(ClusterManagementService clusterService) {
         final MainTreePanel tree = new MainTreePanel();
         java.util.List<Node> nodes = null;
         try {
@@ -350,7 +334,6 @@ public class BagriMainPanel extends JPanel implements NotificationListener, Prop
         // Look and feel
         UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
 
-
         MBeanServerConnection mbsc = getMBeanServerConnection();
         Object o = null;
         try {
@@ -359,7 +342,8 @@ public class BagriMainPanel extends JPanel implements NotificationListener, Prop
             e.printStackTrace();
         }
         if (o != null) {
-            final BagriMainPanel panel = new BagriMainPanel(mbsc);
+        	BagriServiceProvider bsp = DefaultServiceProvider.getInstance(mbsc);
+            final BagriMainPanel panel = new BagriMainPanel(bsp);
             WindowListener windowAdapter = new WindowAdapter() {
                 public void windowClosing(WindowEvent e) {System.exit(0);}
             };

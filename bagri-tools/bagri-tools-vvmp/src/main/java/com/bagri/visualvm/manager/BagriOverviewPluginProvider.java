@@ -20,13 +20,11 @@ public class BagriOverviewPluginProvider extends DataSourceViewPluginProvider<Ap
     }
 
     static void initialize() {
-        ApplicationViewsSupport.sharedInstance().getOverviewView().
-                registerPluginProvider(new BagriOverviewPluginProvider());
+        ApplicationViewsSupport.sharedInstance().getOverviewView().registerPluginProvider(new BagriOverviewPluginProvider());
     }
 
     static void uninitialize() {
-        ApplicationViewsSupport.sharedInstance().getOverviewView().
-                unregisterPluginProvider(new BagriOverviewPluginProvider());
+        ApplicationViewsSupport.sharedInstance().getOverviewView().unregisterPluginProvider(new BagriOverviewPluginProvider());
     }
    
 }

@@ -29,6 +29,7 @@ public class BagriApplicationType extends ApplicationType {
 
     @Override
     public Image getIcon() {
+    	// TODO: add Bagri Icon here
         return Utilities.loadImage("com/sun/tools/visualvm/core/ui/resources/snapshot.png", true);
     }
 

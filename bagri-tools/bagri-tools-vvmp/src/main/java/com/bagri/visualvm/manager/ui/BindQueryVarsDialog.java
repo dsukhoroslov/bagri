@@ -8,11 +8,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
-import java.io.IOException;
 import java.lang.reflect.Constructor;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +28,7 @@ import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 
 import com.bagri.visualvm.manager.event.ApplicationEvent;
+import com.bagri.visualvm.manager.model.TypedValue;
 import com.bagri.visualvm.manager.util.WindowUtil;
 
 public class BindQueryVarsDialog extends JDialog {
@@ -42,7 +40,7 @@ public class BindQueryVarsDialog extends JDialog {
 	private JPanel ctrlPanel;
 	
 
-	public BindQueryVarsDialog(List<String> variables, JComponent owner) {
+	public BindQueryVarsDialog(List<String> variables, Map<String, TypedValue> bindings, JComponent owner) {
 		super(WindowUtil.getFrameForComponent(owner), true);
 		setTitle("Bind Query Variables");
 		ctrlPanel = new JPanel(new GridBagLayout());
@@ -68,8 +66,10 @@ public class BindQueryVarsDialog extends JDialog {
 		lbVarValue.setHorizontalAlignment(JLabel.CENTER);
 		ctrlPanel.add(lbVarValue, cs);
 
+		Collections.sort(variables);
 		for (int i=0; i < variables.size(); i++) {
 			String var = variables.get(i);
+			TypedValue oldVal = bindings.get(var);
 
 			JLabel lbVar = new JLabel(var + ": ");
 			cs.gridx = 0;
@@ -77,9 +77,8 @@ public class BindQueryVarsDialog extends JDialog {
 			lbVar.setToolTipText(var);
 			lbVar.setHorizontalAlignment(JLabel.RIGHT);
 			ctrlPanel.add(lbVar, cs);
-
+			
 			JComboBox<String> cbType = new JComboBox<>(types);
-			cbType.setSelectedItem("string");
 			cs.gridx = 1;
 			cs.gridy = i+1;
 			ctrlPanel.add(cbType, cs);
@@ -88,6 +87,13 @@ public class BindQueryVarsDialog extends JDialog {
 			cs.gridx = 2;
 			cs.gridy = i+1;
 			ctrlPanel.add(tfValue, cs);
+
+			if (oldVal == null) { 
+				cbType.setSelectedItem("string");
+			} else {
+				cbType.setSelectedItem(oldVal.getType());
+				tfValue.setText(oldVal.getValue().toString());
+			}
 		}
 		
 		JButton okButton = new JButton("Ok");
@@ -132,33 +138,22 @@ public class BindQueryVarsDialog extends JDialog {
 
 	}
 	
-	public Map<String, Object> getBindings() { //throws Exception {
+	public Map<String, TypedValue> getBindings() { //throws Exception {
 		Component[] comps = ctrlPanel.getComponents();
-		Map<String, Object> result = new HashMap<>();
+		Map<String, TypedValue> result = new HashMap<>();
 		for (int i=3; i < comps.length; i++) {
 			String name = ((JLabel) comps[i]).getToolTipText();
 			i++;
 			String type = (String) ((JComboBox) comps[i]).getSelectedItem();
 			i++;
 			String value = ((JTextField) comps[i]).getText();
-			if ("file".equals(type)) {
-				// read String from file..
-				try {
-					value = readTextFile(value);
-				} catch (IOException ex) {
-					// show error dialog!
-					throw new RuntimeException(ex);
-				}
-				result.put(name, value);
+			Class cls = type2Class(type);
+			if (cls.equals(String.class)) {
+				result.put(name, new TypedValue(type, value));
+			//} else if (cls.equals(java.util.Date.class)) {
+			//	new java.util.Date()
 			} else {
-				Class cls = type2Class(type);
-				if (cls.equals(String.class)) {
-					result.put(name, value);
-				//} else if (cls.equals(java.util.Date.class)) {
-				//	new java.util.Date()
-				} else {
-					result.put(name, getValue(cls, value));
-				}
+				result.put(name, new TypedValue(type, getValue(cls, value)));
 			}
 		}
 		return result;
@@ -192,17 +187,5 @@ public class BindQueryVarsDialog extends JDialog {
 			return value;
 		}
 	}
-	
-	private static String readTextFile(String fileName) throws IOException {
-	    Path path = Paths.get(fileName);
-	    StringBuilder text = new StringBuilder();
-	    try (Scanner scanner = new Scanner(path, "utf-8")) {
-	    	while (scanner.hasNextLine()) {
-	    		text.append(scanner.nextLine()).append("\n");
-	    	}      
-	   	}
-	    return text.toString();
-	}
-	
 	
 }

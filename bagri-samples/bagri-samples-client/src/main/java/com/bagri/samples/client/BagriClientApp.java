@@ -1,5 +1,7 @@
 package com.bagri.samples.client;
 
+import java.util.UUID;
+
 public interface BagriClientApp {
 	
 	void close() throws Exception;
@@ -18,7 +20,7 @@ public interface BagriClientApp {
 	
 		public void testClient(BagriClientApp client) throws Exception {
 			
-			String uri = "test_document";
+			String uri = UUID.randomUUID().toString(); // "test_document";
 			try {
 				String xml = "<content>XML Content</content>";
 				if (!client.createDocument(uri, xml)) {

@@ -174,6 +174,7 @@
 				<hz:serializers>
 					<!--hz:global-serializer class-name="com.hazelcast.nio.serialization.PortableSerializer"/-->
 					<hz:serializer type-class="com.bagri.common.query.Expression" class-name="com.bagri.xdm.client.hazelcast.serialize.ExpressionSerializer"/>
+					<hz:serializer type-class="com.bagri.common.query.AlwaysExpression" class-name="com.bagri.xdm.client.hazelcast.serialize.ExpressionSerializer"/>
 					<hz:serializer type-class="com.bagri.common.query.PathExpression" class-name="com.bagri.xdm.client.hazelcast.serialize.ExpressionSerializer"/>
 					<hz:serializer type-class="com.bagri.common.query.BinaryExpression" class-name="com.bagri.xdm.client.hazelcast.serialize.ExpressionSerializer"/>
 					<hz:serializer type-class="com.bagri.common.query.ExpressionBuilder" class-name="com.bagri.xdm.client.hazelcast.serialize.ExpressionBuilderSerializer"/>

@@ -7,6 +7,7 @@ import static com.bagri.xdm.common.XDMConstants.*;
 import static com.bagri.xdm.client.common.XDMCacheConstants.PN_XDM_SCHEMA_POOL;
 import static com.bagri.xdm.api.XDMTransactionManagement.TX_NO;
 import static com.bagri.xdm.domain.XDMDocument.dvFirst;
+import static com.bagri.xdm.domain.XDMDocument.clnDefault;
 import static com.bagri.xdm.common.XDMConstants.pn_client_txTimeout;
 
 import java.io.IOException;
@@ -944,9 +945,15 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 
 	Collection<Long> getCollectionDocumentKeys(int collectId) {
 		//
-		Predicate<XDMDocumentKey, XDMDocument> clp = new CollectionPredicate(collectId);
-		// TODO: local or global keySet ?!
-		Set<XDMDocumentKey> docKeys = xddCache.keySet(clp);
+		Set<XDMDocumentKey> docKeys;
+		if (collectId == clnDefault) {
+			// TODO: local or global keySet ?!
+			docKeys = xddCache.keySet();
+		} else {
+			Predicate<XDMDocumentKey, XDMDocument> clp = new CollectionPredicate(collectId);
+			// TODO: local or global keySet ?!
+			docKeys = xddCache.keySet(clp);
+		}
 		List<Long> result = new ArrayList<>(docKeys.size());
 		for (XDMDocumentKey key: docKeys) {
 			result.add(key.getKey());

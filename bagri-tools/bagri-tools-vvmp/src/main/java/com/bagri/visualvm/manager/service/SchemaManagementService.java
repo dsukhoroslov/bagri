@@ -24,5 +24,6 @@ public interface SchemaManagementService {
     Properties getQueryProperties(String schemaName) throws ServiceException;
     long[] getSchemaVolumeStatistics(String schemaName) throws ServiceException;
     long[] getSchemaTransactionStatistics(String schemaName) throws ServiceException;
+    List<String> getWorkingHosts(String schemaName) throws ServiceException;
 
 }

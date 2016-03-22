@@ -4,6 +4,7 @@ import com.bagri.visualvm.manager.event.ApplicationEvent;
 import com.bagri.visualvm.manager.event.EventBus;
 import com.bagri.visualvm.manager.model.Schema;
 import com.bagri.visualvm.manager.model.SchemaManagement;
+import com.bagri.visualvm.manager.model.TypedValue;
 import com.bagri.visualvm.manager.service.SchemaManagementService;
 import com.bagri.visualvm.manager.service.ServiceException;
 import com.bagri.visualvm.manager.util.ErrorUtil;
@@ -12,11 +13,16 @@ import javax.swing.*;
 import javax.swing.text.DefaultEditorKit;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Scanner;
 import java.util.logging.Logger;
 
 public class SchemaPanel extends JPanel {
@@ -32,6 +38,7 @@ public class SchemaPanel extends JPanel {
     private JRadioButton bXDM;
     private JLabel lbTime;
     private Properties queryProps;
+    private Map<String, TypedValue> bindings = new HashMap<>(); 
 
     public SchemaPanel(SchemaManagementService schemaService, EventBus<ApplicationEvent> eventBus, Schema schema) {
         super(new GridLayout(1, 1));
@@ -42,6 +49,7 @@ public class SchemaPanel extends JPanel {
         tabbedPane.addTab(schema.getSchemaName() + SchemaManagement.SCHEMA_DETAILS, createSchemaInfoPanel());
         tabbedPane.addTab(SchemaManagement.DOCUMENT_MANAGEMENT, createSchemaDocumentsPanel());
         tabbedPane.addTab(SchemaManagement.QUERY_MANAGEMENT, createSchemaQueryPanel());
+        tabbedPane.addTab(SchemaManagement.SCHEMA_MONITORING, createSchemaMonitoringPanel());
         add(tabbedPane);
         tabbedPane.setBorder(BorderFactory.createEmptyBorder());
         setBorder(BorderFactory.createEmptyBorder());
@@ -61,7 +69,11 @@ public class SchemaPanel extends JPanel {
     }
 
     private JPanel createSchemaDocumentsPanel() {
-        //JPanel panel = new JPanel();
+        JPanel panel = new JPanel();
+        return panel;
+    }
+
+    private JPanel createSchemaMonitoringPanel() {
     	JPanel panel = new SchemaMonitoringPanel(schema.getSchemaName(), schemaService, eventBus);
         return panel;
     }
@@ -83,42 +95,14 @@ public class SchemaPanel extends JPanel {
 
         // "Run Query" button
         JButton runQuery = new JButton("Run Query");
-        runQuery.setToolTipText("Executes query");
+        runQuery.setToolTipText("Bind params, execute query...");
         runQuery.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                try {
-            		String qry = query.getText();
-            		if (qry != null && qry.trim().length() > 0) {
-	            		lbTime.setVisible(false);
-	                	long stamp = System.currentTimeMillis();
-	                    Object result = schemaService.runQuery(schema, bXDM.isSelected(), qry, queryProps);
-	                	stamp = System.currentTimeMillis() - stamp;
-	                	lbTime.setText("Time taken: " + stamp + " ms");
-	            		lbTime.setVisible(true);
-	                    queryResult.setText((null != result) ? result.toString() : "Null");
-            		}
-                } catch (ServiceException e1) {
-                    StringWriter sw = new StringWriter();
-                    PrintWriter printWriter = new PrintWriter(sw);
-                    e1.printStackTrace(printWriter);
-                    queryResult.setText(sw.toString());
-                }
+                onRunQuery();
             }
         });
         queryToolbar.add(runQuery);
-        queryToolbar.addSeparator();
-        
-        // "Bind Variables" button
-        JButton bindVars = new JButton("Bind Variables");
-        bindVars.setToolTipText("Parse query and starts binding dialog");
-        bindVars.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                onBindVariables();
-            }
-    	});
-        queryToolbar.add(bindVars);
         queryToolbar.addSeparator();
         
         // "Query Properties" button
@@ -199,52 +183,86 @@ public class SchemaPanel extends JPanel {
     }
 
     // --- Event Handlers --- //
-    private void onBindVariables() {
-		lbTime.setVisible(false);
-    	try {
-    		final String qry = query.getText();
-    		if (qry != null && qry.trim().length() > 0) {
+    private void onRunQuery() {
+		final String qry = query.getText();
+		if (qry != null && qry.trim().length() > 0) {
+			lbTime.setVisible(false);
+			long stamp = System.currentTimeMillis();
+			try {
 	    		java.util.List<String> vars = schemaService.parseQuery(schema, qry);
-	    		final BindQueryVarsDialog dlg = new BindQueryVarsDialog(vars, SchemaPanel.this);
-	    		dlg.setSuccessListener(new ActionListener() {
-	    			@Override
-		            public void actionPerformed(ActionEvent e) {
-		                SwingUtilities.invokeLater(new Runnable() {
-		                    @Override
-		                    public void run() {
-		                    	Map<String, Object> params = dlg.getBindings();
-		                    	LOGGER.finer("got params: " + params);
-		                    	long stamp = System.currentTimeMillis();
-	                        	Object result;
-		                        try {
-		                        	if (params == null) {
-		                        		result = schemaService.runQuery(schema, bXDM.isSelected(), qry, queryProps);
-		                        	} else {
-		                        		result = schemaService.runQueryWithParams(schema, bXDM.isSelected(), qry, params, queryProps);
-		                        	}
-		                        	stamp = System.currentTimeMillis() - stamp;
-		                        	lbTime.setText("Time taken: " + stamp + " ms");
-		                    		lbTime.setVisible(true);
-	                        		queryResult.setText((null != result) ? result.toString() : "Null");
-		                        } catch (ServiceException ex) {
-		                            StringWriter sw = new StringWriter();
-		                            PrintWriter printWriter = new PrintWriter(sw);
-		                            ex.printStackTrace(printWriter);
-		                            queryResult.setText(sw.toString());
-		                        }
-		                        //eventBus.fireEvent(new ApplicationEvent(dlg, SchemaManagement.SCHEMA_STATE_CHANGED));
-		                    }
-		                });
-		            }
-		        });
-		        dlg.setVisible(true);
+            	final long pTime = System.currentTimeMillis() - stamp;
+	    		if (vars.size() > 0) {
+		    		final BindQueryVarsDialog dlg = new BindQueryVarsDialog(vars, bindings, SchemaPanel.this);
+		    		dlg.setSuccessListener(new ActionListener() {
+		    			@Override
+			            public void actionPerformed(ActionEvent e) {
+			                SwingUtilities.invokeLater(new Runnable() {
+			                    @Override
+			                    public void run() {
+			                    	Map<String, TypedValue> typedValues = dlg.getBindings();
+			                    	runQuery(pTime, typedValues);
+			                    	storeBindings(typedValues);
+			                    }
+			                });
+			            }
+			        });
+			        dlg.setVisible(true);
+	    		} else {
+	    			runQuery(pTime, null);
+	    		}
+			} catch (ServiceException ex) {
+				handleSErviceException(ex);
+			}
+		}
+    }
+    
+    private void runQuery(long pTime, Map<String, TypedValue> values) {
+    	
+    	Object result;
+    	long rTime = System.currentTimeMillis();
+    	String qry = query.getText();
+        try {
+        	if (values == null) {
+        		result = schemaService.runQuery(schema, bXDM.isSelected(), qry, queryProps);
+        	} else {
+            	Map<String, Object> params = converBindings(values);
+        		result = schemaService.runQueryWithParams(schema, bXDM.isSelected(), qry, params, queryProps);
+        	}
+        	rTime = System.currentTimeMillis() - rTime;
+        	lbTime.setText("Parse time: " + pTime + " ms; Query time: " + rTime + " ms");
+    		lbTime.setVisible(true);
+    		queryResult.setText((null != result) ? result.toString() : "Null");
+        } catch (ServiceException ex) {
+        	handleSErviceException(ex);
+        }
+    }
+    
+    private void handleSErviceException(ServiceException ex) {
+        StringWriter sw = new StringWriter();
+        PrintWriter printWriter = new PrintWriter(sw);
+        ex.printStackTrace(printWriter);
+        queryResult.setText(sw.toString());
+    }
+    
+    private Map<String, Object> converBindings(Map<String, TypedValue> typedValues) throws ServiceException {
+    	Map<String, Object> result = new HashMap<>(typedValues.size());
+    	for (Map.Entry<String, TypedValue> e: typedValues.entrySet()) {
+    		if ("file".equals(e.getValue().getType())) {
+    			try {
+    				String text = readTextFile(e.getValue().getValue().toString());
+    				result.put(e.getKey(), text);
+    			} catch (IOException ex) {
+    				throw new ServiceException(ex);
+    			}
+    		} else {
+    			result.put(e.getKey(), e.getValue().getValue());
     		}
-    	} catch (ServiceException ex) {
-            StringWriter sw = new StringWriter();
-            PrintWriter printWriter = new PrintWriter(sw);
-            ex.printStackTrace(printWriter);
-            queryResult.setText(sw.toString());
     	}
+    	return result;
+    }
+    
+    private void storeBindings(Map<String, TypedValue> typedValues) {
+    	bindings.putAll(typedValues);
     }
 
     private void onQueryProperties() {
@@ -291,4 +309,16 @@ public class SchemaPanel extends JPanel {
 //        }
     }
 
+	private static String readTextFile(String fileName) throws IOException {
+	    Path path = Paths.get(fileName);
+	    StringBuilder text = new StringBuilder();
+	    try (Scanner scanner = new Scanner(path, "utf-8")) {
+	    	while (scanner.hasNextLine()) {
+	    		text.append(scanner.nextLine()).append("\n");
+	    	}      
+	   	}
+	    return text.toString();
+	}
+	
+    
 }
