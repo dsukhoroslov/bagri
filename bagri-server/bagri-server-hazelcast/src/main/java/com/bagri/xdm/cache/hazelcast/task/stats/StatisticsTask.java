@@ -5,8 +5,8 @@ import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFacto
 
 import java.io.IOException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+//import org.slf4j.Logger;
+//import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 
 import com.bagri.common.stats.StatisticsProvider;
@@ -16,7 +16,7 @@ import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
 public abstract class StatisticsTask implements IdentifiedDataSerializable {
 
-	protected final transient Logger logger = LoggerFactory.getLogger(getClass());
+	//protected final transient Logger logger = LoggerFactory.getLogger(getClass());
 
 	private String schemaName;
 	private String statsName;
@@ -45,7 +45,7 @@ public abstract class StatisticsTask implements IdentifiedDataSerializable {
 	protected StatisticsProvider getStats() {
 		ApplicationContext ctx = (ApplicationContext) getContext(schemaName, schema_context);
 		StatisticsProvider stats = ctx.getBean(statsName, StatisticsProvider.class); 
-		logger.trace("getStats; returning: {}, for name: {}", stats, statsName);
+		//logger.trace("getStats; returning: {}, for name: {}", stats, statsName);
 		return stats;
 	}
 

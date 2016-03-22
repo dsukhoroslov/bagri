@@ -42,9 +42,9 @@ public class XQSequenceSerializer implements StreamSerializer<XQSequence> {
 	@Override
 	public XQSequence read(ObjectDataInput in) throws IOException {
 		try {
-			XQItemType type = in.readObject();
+			//XQItemType type = in.readObject();
 			List list = (List) in.readObject();
-			logger.trace("read; got type: {}; list: {}", type, list);
+			logger.trace("read; got list: {}", list);
 			return xqFactory.createSequence(list.iterator());
 		} catch (XQException ex) {
 			throw new IOException(ex);
@@ -61,7 +61,7 @@ public class XQSequenceSerializer implements StreamSerializer<XQSequence> {
 				// what if sequence contains different types ?!
 				if (!typeSerialized) {
 					type = sequence.getItemType();
-					out.writeObject(type);
+					//out.writeObject(type);
 					typeSerialized = true;
 				}
 				list.add(sequence.getItem());

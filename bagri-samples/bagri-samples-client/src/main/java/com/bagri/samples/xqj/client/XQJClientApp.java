@@ -20,12 +20,14 @@ import javax.xml.namespace.QName;
 import javax.xml.xquery.XQConnection;
 import javax.xml.xquery.XQDataSource;
 import javax.xml.xquery.XQException;
+import javax.xml.xquery.XQExpression;
 import javax.xml.xquery.XQItemType;
 import javax.xml.xquery.XQPreparedExpression;
 import javax.xml.xquery.XQResultSequence;
 import javax.xml.xquery.XQSequence;
 
 import com.bagri.samples.client.BagriClientApp;
+import com.bagri.xdm.api.XDMException;
 import com.bagri.xqj.BagriXQDataSource;
 
 public class XQJClientApp implements BagriClientApp {
@@ -63,19 +65,22 @@ public class XQJClientApp implements BagriClientApp {
 		this.xqConn = xqConn;
 	}
 	
+	@Override
 	public void close() throws XQException {
 		xqConn.close();
 	}
 	
+	@Override
 	public boolean createDocument(String uri, String content) throws XQException {
 		
 		long result = storeDocument(uri, content);
     	return result > 0;
 	}
 	
+	@Override
 	public String readDocument(String uri) throws XQException {
 		
-		String query = "declare namespace bgdm=\"http://bagri.com/bagri-xdm\";\n" +
+		String query = "declare namespace bgdm=\"http://bagridb.com/bagri-xdm\";\n" +
 				"declare variable $docIds external;\n" + 
 				"let $doc := bgdm:get-document($docIds)\n" +
 				"return $doc\n";
@@ -92,6 +97,22 @@ public class XQJClientApp implements BagriClientApp {
 	    return result;
 	}
 	
+	@Override
+	public String queryDocument() throws XQException {
+
+		String query = "for $doc in fn:collection()\n" +
+				"return $doc\n";
+
+	    XQExpression xqe = xqConn.createExpression();
+	    XQResultSequence xqs = xqe.executeQuery(query);
+	    String result = null;
+	    if (xqs.next()) {
+			result = xqs.getItemAsString(null);
+	    }
+	    return result;
+	}
+	
+	@Override
 	public boolean updateDocument(String uri, String content) throws XQException {
 
 		long result = storeDocument(uri, content);
@@ -99,9 +120,10 @@ public class XQJClientApp implements BagriClientApp {
     	return result > 1;
 	}
 	
+	@Override
 	public void deleteDocument(String uri) throws XQException {
 
-		String query = "declare namespace bgdm=\"http://bagri.com/bagri-xdm\";\n" +
+		String query = "declare namespace bgdm=\"http://bagridb.com/bagri-xdm\";\n" +
 				"declare variable $docIds external;\n" + 
 				"bgdm:remove-document($docIds)\n"; 
 
@@ -123,7 +145,7 @@ public class XQJClientApp implements BagriClientApp {
 
 	private long storeDocument(String uri, String content) throws XQException {
 		
-		String query = "declare namespace bgdm=\"http://bagri.com/bagri-xdm\";\n" +
+		String query = "declare namespace bgdm=\"http://bagridb.com/bagri-xdm\";\n" +
 				"declare variable $xml external;\n" + 
 				"declare variable $docIds external;\n" + 
 				"declare variable $props external;\n" + 

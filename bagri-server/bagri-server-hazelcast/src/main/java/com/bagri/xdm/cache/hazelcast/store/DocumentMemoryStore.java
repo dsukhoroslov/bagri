@@ -143,7 +143,9 @@ public class DocumentMemoryStore extends MemoryMappedStore<Long, XDMDocument> {
 
 	@Override
 	protected void deactivateEntry(MappedByteBuffer buff, XDMDocument entry) {
-		if (entry.getTxFinish() > XDMTransactionManagement.TX_NO) {
+		if (entry == null) {
+			logger.info("deactivateEntry; got null entry for some reason!"); 
+		} else if (entry.getTxFinish() > XDMTransactionManagement.TX_NO) {
 			buff.putLong(entry.getTxFinish());
 		} else {
 			buff.putLong(-1); // make some const for this..

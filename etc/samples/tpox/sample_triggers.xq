@@ -1,4 +1,4 @@
-module namespace bgdm = "http://bagri.com/bagri-xdm";
+module namespace bgdm = "http://bagridb.com/bagri-xdm";
 declare namespace s = "http://tpox-benchmark.com/security"; 
 
 

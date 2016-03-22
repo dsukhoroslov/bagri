@@ -21,7 +21,8 @@ public interface SchemaManagementService {
     List<String> parseQuery(Schema schema, String query) throws ServiceException;
     Object runQuery(Schema schema, boolean direct, String query, Properties props) throws ServiceException;
     Object runQueryWithParams(Schema schema, boolean direct, String query, Map<String, Object> params, Properties props) throws ServiceException;
-    long[] getSchemaVolumeStatistics(String schemaName)  throws ServiceException;
-    long[] getSchemaTransactionStatistics(String schemaName)  throws ServiceException;
+    Properties getQueryProperties(String schemaName) throws ServiceException;
+    long[] getSchemaVolumeStatistics(String schemaName) throws ServiceException;
+    long[] getSchemaTransactionStatistics(String schemaName) throws ServiceException;
 
 }

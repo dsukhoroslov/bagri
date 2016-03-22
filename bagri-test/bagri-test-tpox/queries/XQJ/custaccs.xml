@@ -14,7 +14,7 @@
 			<parameters>
 				<parameter>
 					<constant value="
-declare namespace bgdm=&quot;http://bagri.com/bagri-xdm&quot;;
+declare namespace bgdm=&quot;http://bagridb.com/bagri-xdm&quot;;
 declare variable $doc external;
 
 let $id := bgdm:store-document($doc)

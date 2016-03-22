@@ -596,7 +596,7 @@
             <createdBy>SDV</createdBy>
             <fileName>../data/tpox/sample_triggers.xq</fileName>
             <description>The Trigger Test Module</description>
-            <namespace>http://bagri.com/bagri-xdm</namespace>
+            <namespace>http://bagridb.com/bagri-xdm</namespace>
             <enabled>true</enabled>
         </module>
     </modules>

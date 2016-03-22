@@ -45,9 +45,14 @@ public class SchemaPanel extends JPanel {
         add(tabbedPane);
         tabbedPane.setBorder(BorderFactory.createEmptyBorder());
         setBorder(BorderFactory.createEmptyBorder());
-        
-        queryProps = new Properties();
-        queryProps.setProperty("xdm.client.fetchSize", "1000");
+
+        try {
+        	queryProps = schemaService.getQueryProperties(schema.getSchemaName());
+        } catch (ServiceException ex) {
+        	queryProps = new Properties();
+        	queryProps.setProperty("xdm.client.fetchSize", "1000");
+        	queryProps.setProperty("xqj.schema.queryTimeout", "0");
+        }
     }
 
     private JPanel createSchemaInfoPanel() {

@@ -2,6 +2,7 @@ package com.bagri.xdm.client.hazelcast.serialize;
 
 import java.io.IOException;
 
+import com.bagri.common.query.AlwaysExpression;
 import com.bagri.common.query.BinaryExpression;
 import com.bagri.common.query.Comparison;
 import com.bagri.common.query.Expression;
@@ -27,8 +28,12 @@ public class ExpressionSerializer implements StreamSerializer<Expression> {
 	public Expression read(ObjectDataInput in) throws IOException {
 		int clnId = in.readInt();
 		Comparison compType = Comparison.values()[in.readInt()];
+		byte type = in.readByte();
+		if (type == 0) {
+			return new AlwaysExpression(clnId);
+		} 
 		PathBuilder path = in.readObject();
-		if (Comparison.isBinary(compType)) {
+		if (type == 1) {
 			return new BinaryExpression(clnId, compType, path);
 		} else {
 			return new PathExpression(clnId, compType, path, in.readUTF(), 
@@ -40,8 +45,14 @@ public class ExpressionSerializer implements StreamSerializer<Expression> {
 	public void write(ObjectDataOutput out, Expression exp) throws IOException {
 		out.writeInt(exp.getCollectionId());
 		out.writeInt(exp.getCompType().ordinal());
-		out.writeObject(exp.getPath());
-		if (exp instanceof PathExpression) {
+		if (exp instanceof AlwaysExpression) {
+			out.writeByte(0);
+		} else if (exp instanceof BinaryExpression) {
+			out.writeByte(1);
+			out.writeObject(exp.getPath());
+		} else {
+			out.writeByte(2);
+			out.writeObject(exp.getPath());
 			out.writeUTF(((PathExpression) exp).getParamName());
 			out.writeObject(((PathExpression) exp).getCachedPath());
 		}

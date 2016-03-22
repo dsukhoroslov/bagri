@@ -8,11 +8,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
+import java.io.IOException;
 import java.lang.reflect.Constructor;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -31,7 +35,7 @@ import com.bagri.visualvm.manager.util.WindowUtil;
 
 public class BindQueryVarsDialog extends JDialog {
 
-	private static final String[] types = {"boolean", "byte", "date", "dateTime", "double", "float", "int", "long", "short", "string"};
+	private static final String[] types = {"boolean", "byte", "date", "dateTime", "double", "file", "float", "int", "long", "short", "string"};
 	
 	private static final KeyStroke ESCAPE_STROKE = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
 	private ActionListener successListener;
@@ -137,13 +141,24 @@ public class BindQueryVarsDialog extends JDialog {
 			String type = (String) ((JComboBox) comps[i]).getSelectedItem();
 			i++;
 			String value = ((JTextField) comps[i]).getText();
-			Class cls = type2Class(type);
-			if (cls.equals(String.class)) {
+			if ("file".equals(type)) {
+				// read String from file..
+				try {
+					value = readTextFile(value);
+				} catch (IOException ex) {
+					// show error dialog!
+					throw new RuntimeException(ex);
+				}
 				result.put(name, value);
-			//} else if (cls.equals(java.util.Date.class)) {
-			//	new java.util.Date()
 			} else {
-				result.put(name, getValue(cls, value));
+				Class cls = type2Class(type);
+				if (cls.equals(String.class)) {
+					result.put(name, value);
+				//} else if (cls.equals(java.util.Date.class)) {
+				//	new java.util.Date()
+				} else {
+					result.put(name, getValue(cls, value));
+				}
 			}
 		}
 		return result;
@@ -178,6 +193,16 @@ public class BindQueryVarsDialog extends JDialog {
 		}
 	}
 	
+	private static String readTextFile(String fileName) throws IOException {
+	    Path path = Paths.get(fileName);
+	    StringBuilder text = new StringBuilder();
+	    try (Scanner scanner = new Scanner(path, "utf-8")) {
+	    	while (scanner.hasNextLine()) {
+	    		text.append(scanner.nextLine()).append("\n");
+	    	}      
+	   	}
+	    return text.toString();
+	}
 	
 	
 }

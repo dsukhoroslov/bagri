@@ -16,13 +16,14 @@ public class EditPropertiesDialog extends JDialog {
     private JTextField schemaName;
     private JTextField description;
     private Schema original;
-    private Properties properties; // = new Properties();
+    private Properties properties;
     private ActionListener successListener;
     private XTable propertiesGrid;
 
     public EditPropertiesDialog(Properties props, final JComponent owner) {
         super(WindowUtil.getFrameForComponent(owner), "Edit Properties", true);
-        this.properties = props;
+        this.properties = new Properties();
+        properties.putAll(props);
         JPanel propertiesPanel = new JPanel(new BorderLayout());
         JToolBar toolBar = new JToolBar();
         // "Add Property" button

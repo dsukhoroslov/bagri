@@ -354,7 +354,7 @@ public class DefaultServiceProvider implements UserManagementService, ClusterMan
     @Override
     public List<String> parseQuery(Schema schema, String query) throws ServiceException {
         try {
-            Object vars = connection.invoke(new ObjectName("com.bagri.xdm:type=Schema,kind=QueryManagement,name=" + schema.getSchemaName())
+            Object vars = connection.invoke(getSchemaObjectName("QueryManagement", schema.getSchemaName())
                     , "parseQuery"
                     , new Object[] {query}
                     , new String[] {String.class.getName()}
@@ -369,10 +369,10 @@ public class DefaultServiceProvider implements UserManagementService, ClusterMan
     @Override
     public Object runQuery(Schema schema, boolean direct, String query, Properties props) throws ServiceException {
         try {
-            Object res = connection.invoke(new ObjectName("com.bagri.xdm:type=Schema,kind=QueryManagement,name=" + schema.getSchemaName())
+            Object res = connection.invoke(getSchemaObjectName("QueryManagement", schema.getSchemaName())
                     , "runQuery"
-                    , new Object[] {query, !direct}
-                    , new String[] {String.class.getName(), boolean.class.getName()}
+                    , new Object[] {query, direct, props}
+                    , new String[] {String.class.getName(), boolean.class.getName(), Properties.class.getName()}
             );
             return res;
         } catch (Throwable e) {
@@ -385,10 +385,10 @@ public class DefaultServiceProvider implements UserManagementService, ClusterMan
     public Object runQueryWithParams(Schema schema, boolean direct, String query, Map<String, Object> params, Properties props) throws ServiceException {
         try {
         	CompositeData bindings = mapToComposite("param", "desc", params);
-            Object res = connection.invoke(new ObjectName("com.bagri.xdm:type=Schema,kind=QueryManagement,name=" + schema.getSchemaName())
+            Object res = connection.invoke(getSchemaObjectName("QueryManagement", schema.getSchemaName())
                     , "runPreparedQuery"
-                    , new Object[] {query, !direct, bindings}
-                    , new String[] {String.class.getName(), boolean.class.getName(), CompositeData.class.getName()}
+                    , new Object[] {query, direct, bindings, props}
+                    , new String[] {String.class.getName(), boolean.class.getName(), CompositeData.class.getName(), Properties.class.getName()}
             );
             return res;
         } catch (Throwable e) {
@@ -396,34 +396,41 @@ public class DefaultServiceProvider implements UserManagementService, ClusterMan
             throw new ServiceException(e);
         }
     }
+
+    @Override
+    public Properties getQueryProperties(String schemaName) throws ServiceException {
+    	Properties props = new Properties();
+    	try {
+    		ObjectName on = getSchemaObjectName("QueryManagement", schemaName);
+    		Object value = connection.getAttribute(on, "FetchSize");
+    		props.setProperty("xdm.client.fetchSize", value.toString());
+    		value = connection.getAttribute(on, "QueryTimeout");
+    		props.setProperty("xqj.schema.queryTimeout", value.toString());
+    		return props;
+    	} catch (Exception ex) {
+            LOGGER.throwing(this.getClass().getName(), "getQueryProperties", ex);
+            throw new ServiceException(ex);
+    	}
+    }
     
     @Override
-    public long[] getSchemaVolumeStatistics(String schemaName)  throws ServiceException {
+    public long[] getSchemaVolumeStatistics(String schemaName) throws ServiceException {
 
         try {
-            Object res = connection.invoke(new ObjectName("com.bagri.xdm:type=Schema,kind=DocumentManagement,name=" + schemaName)
-                    , "getTotalCounts"
-                    , new Object[] {}
-                    , null
-            );
+            Object res = connection.getAttribute(getSchemaObjectName("DocumentManagement", schemaName), "TotalCounts");
             CompositeData cd = (CompositeData) res;
             return new long[] {(Integer) cd.get("Number of documents"), (Integer) cd.get("Number of elements"), (Long) cd.get("Consumed size")};
         } catch (Exception e) {
             LOGGER.throwing(this.getClass().getName(), "getSchemaVolumeStatistics", e);
             throw new ServiceException(e);
         }
-    	
     }
     
     @Override
-    public long[] getSchemaTransactionStatistics(String schemaName)  throws ServiceException {
+    public long[] getSchemaTransactionStatistics(String schemaName) throws ServiceException {
     	
         try {
-            Object res = connection.invoke(new ObjectName("com.bagri.xdm:type=Schema,kind=TransactionManagement,name=" + schemaName)
-                    , "getTxStatistics"
-                    , new Object[] {}
-                    , null
-            );
+            Object res = connection.getAttribute(getSchemaObjectName("TransactionManagement", schemaName), "TxStatistics");
             CompositeData cd = (CompositeData) res;
             return new long[] {(Long) cd.get("Started"), (Long) cd.get("In Progress"), (Long) cd.get("Commited"), (Long) cd.get("Rolled Back")};
         } catch (Exception e) {
@@ -431,6 +438,10 @@ public class DefaultServiceProvider implements UserManagementService, ClusterMan
             throw new ServiceException(e);
         }
     	
+    }
+    
+    private ObjectName getSchemaObjectName(String kind, String schemaName) throws MalformedObjectNameException {
+    	return new ObjectName("com.bagri.xdm:type=Schema,kind=" + kind + ",name=" + schemaName);
     }
 
     private Schema extractSchema(ObjectInstance oi) {
@@ -445,28 +456,28 @@ public class DefaultServiceProvider implements UserManagementService, ClusterMan
         CompositeData propertiesCd = null;
 
         try {
-            name = (String) connection.invoke(on, "getName", null, null);
+            name = (String) connection.getAttribute(on, "Name");
         } catch (Exception e) {/* Ignore it for now */}
         try {
-            description = (String) connection.invoke(on, "getDescription", null, null);
+            description = (String) connection.getAttribute(on, "Description");
         } catch (Exception e) {/* Ignore it for now */}
         try {
-            persistenceType = (String) connection.invoke(on, "getPersistenceType", null, null);
+            persistenceType = (String) connection.getAttribute(on, "PersistenceType");
         } catch (Exception e) {/* Ignore it for now */}
         try {
-            state = (String) connection.invoke(on, "getState", null, null);
+            state = (String) connection.getAttribute(on, "State");
         } catch (Exception e) {/* Ignore it for now */}
         try {
-            isActive = (Boolean) connection.invoke(on, "isActive", null, null);
+            isActive = (Boolean) connection.getAttribute(on, "Active");
         } catch (Exception e) {/* Ignore it for now */}
         try {
-            version = (Integer) connection.invoke(on, "getVersion", null, null);
+            version = (Integer) connection.getAttribute(on, "Version");
         } catch (Exception e) {/* Ignore it for now */}
         try {
-            registeredTypes = (String[]) connection.invoke(on, "getRegisteredTypes",null, null);
+            registeredTypes = (String[]) connection.getAttribute(on, "RegisteredTypes");
         } catch (Exception e) {/* Ignore it for now */}
         try {
-            propertiesCd = (CompositeData) connection.invoke(on, "getProperties", null, null);
+            propertiesCd = (CompositeData) connection.getAttribute(on, "Properties");
         } catch (Exception e) {/* Ignore it for now */}
 
         Schema schema = new Schema(name);

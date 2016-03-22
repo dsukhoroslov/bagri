@@ -25,7 +25,7 @@ public class BagriOverviewPluginProvider extends DataSourceViewPluginProvider<Ap
     }
 
     static void uninitialize() {
-        ApplicationViewsSupport.sharedInstance().getMonitorView().
+        ApplicationViewsSupport.sharedInstance().getOverviewView().
                 unregisterPluginProvider(new BagriOverviewPluginProvider());
     }
    

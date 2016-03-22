@@ -31,11 +31,12 @@ public abstract class QueryAwareTask extends TransactionAwareTask {
 	public void readData(ObjectDataInput in) throws IOException {
 		super.readData(in);
 		query = in.readUTF();
-		//params = in.readObject();
 		int size = in.readInt();
-		params = new HashMap<>(size);
-		for (int i=0; i < size; i++) {
-			params.put((QName) in.readObject(), in.readObject());
+		if (size > 0) {
+			params = new HashMap<>(size);
+			for (int i=0; i < size; i++) {
+				params.put((QName) in.readObject(), in.readObject());
+			}
 		}
 		context = in.readObject();
 	}
@@ -44,11 +45,14 @@ public abstract class QueryAwareTask extends TransactionAwareTask {
 	public void writeData(ObjectDataOutput out) throws IOException {
 		super.writeData(out);
 		out.writeUTF(query);
-		//out.writeObject(params);
-		out.writeInt(params.size());
-		for (Map.Entry<QName, Object> param: params.entrySet()) {
-			out.writeObject(param.getKey());
-			out.writeObject(param.getValue());
+		if (params == null) {
+			out.writeInt(0);
+		} else {
+			out.writeInt(params.size());
+			for (Map.Entry<QName, Object> param: params.entrySet()) {
+				out.writeObject(param.getKey());
+				out.writeObject(param.getValue());
+			}
 		}
 		out.writeObject(context);
 	}

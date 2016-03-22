@@ -139,7 +139,8 @@ public class BagriXQDataSource implements XQDataSource {
 			try {
 				Constructor init = procClass.getConstructor(Properties.class);
 				if (init != null) {
-					Properties props = new Properties(properties);
+					Properties props = new Properties(); //properties);
+					props.putAll(properties);
 					props.put(pn_client_dataFactory, connect);
 					return init.newInstance(props);
 				}

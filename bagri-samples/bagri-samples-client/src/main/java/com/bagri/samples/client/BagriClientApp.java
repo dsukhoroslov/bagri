@@ -7,6 +7,7 @@ public interface BagriClientApp {
 	String readDocument(String uri) throws Exception;
 	boolean updateDocument(String uri, String content) throws Exception;
 	void deleteDocument(String uri) throws Exception;
+	String queryDocument() throws Exception;
 	
 	interface Tester {
 		void testClient(BagriClientApp client) throws Exception;
@@ -33,6 +34,13 @@ public interface BagriClientApp {
 					System.out.println("got document: " + xml);
 				} else {
 					System.out.println("ERROR: document was not read");
+					return;
+				}
+				xml = client.queryDocument();
+				if (xml != null) {
+					System.out.println("got document: " + xml);
+				} else {
+					System.out.println("ERROR: document was not queried");
 					return;
 				}
 				client.deleteDocument(uri);

@@ -51,7 +51,7 @@
 			<parameters>
 				<parameter>
 					<constant value="
-(: declare namespace bgdm=&quot;http://bagri.com/bagri-xdm&quot;; :)
+(: declare namespace bgdm=&quot;http://bagridb.com/bagri-xdm&quot;; :)
 declare variable $sec external;
 declare variable $uri external;
 xdmp:document-insert($uri, $sec, xdmp:default-permissions(), &quot;securities&quot;)" />

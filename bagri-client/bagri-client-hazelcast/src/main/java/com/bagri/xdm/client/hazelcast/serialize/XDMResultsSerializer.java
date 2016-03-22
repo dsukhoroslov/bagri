@@ -30,9 +30,12 @@ public class XDMResultsSerializer implements StreamSerializer<XDMResults> {
 	@Override
 	public XDMResults read(ObjectDataInput in) throws IOException {
 		int size = in.readInt();
-		Map<QName, Object> params = new HashMap<QName, Object>(size);
-		for (int i=0; i < size; i++) {
-			params.put((QName) in.readObject(), in.readObject());
+		Map<QName, Object> params = null;
+		if (size > 0) {
+			params = new HashMap<QName, Object>(size);
+			for (int i=0; i < size; i++) {
+				params.put((QName) in.readObject(), in.readObject());
+			}
 		}
 		List<Long> docIds = toLongList(in.readLongArray());
 		size = in.readInt();
@@ -45,10 +48,14 @@ public class XDMResultsSerializer implements StreamSerializer<XDMResults> {
 
 	@Override
 	public void write(ObjectDataOutput out, XDMResults xreslts) throws IOException {
-		out.writeInt(xreslts.getParams().size());
-		for (Map.Entry e: xreslts.getParams().entrySet()) {
-			out.writeObject(e.getKey());
-			out.writeObject(e.getValue());
+		if (xreslts.getParams() == null) {
+			out.writeInt(0);
+		} else {
+			out.writeInt(xreslts.getParams().size());
+			for (Map.Entry e: xreslts.getParams().entrySet()) {
+				out.writeObject(e.getKey());
+				out.writeObject(e.getValue());
+			}
 		}
 		out.writeLongArray(toLongArray(xreslts.getDocIds()));
 		out.writeInt(xreslts.getResults().size());

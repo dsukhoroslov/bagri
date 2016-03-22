@@ -226,7 +226,7 @@ public class ClientApp {
 			throw new XQException(ex.getMessage());
 		}
 
-		String query = "declare namespace bgdm=\"http://bagri.com/bagri-xdm\";\n" +
+		String query = "declare namespace bgdm=\"http://bagridb.com/bagri-xdm\";\n" +
 				"declare variable $xml external;\n" + 
 				"declare variable $docIds external;\n" + 
 				"declare variable $props external;\n" + 

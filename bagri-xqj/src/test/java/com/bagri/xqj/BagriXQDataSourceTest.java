@@ -132,7 +132,7 @@ public class BagriXQDataSourceTest {
 			throw new XQException(ex.getMessage());
 		}
 		
-		String query = "declare namespace bgdm=\"http://bagri.com/bagri-xdm\";\n" +
+		String query = "declare namespace bgdm=\"http://bagridb.com/bagri-xdm\";\n" +
 				"declare variable $xml external;\n" + 
 				"let $id := bgdm:store-document($xml)\n" +
 				"return $id\n";

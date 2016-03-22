@@ -6,7 +6,11 @@ import static com.bagri.xdm.common.XDMConstants.pn_schema_name;
 import static com.bagri.xdm.common.XDMConstants.pn_schema_password;
 import static com.bagri.xdm.common.XDMConstants.pn_schema_user;
 
+import java.util.Iterator;
 import java.util.Properties;
+
+import javax.xml.xquery.XQExpression;
+import javax.xml.xquery.XQResultSequence;
 
 import com.bagri.samples.client.BagriClientApp;
 import com.bagri.xdm.api.XDMException;
@@ -50,26 +54,45 @@ public class XDMClientApp implements BagriClientApp {
 		this.xRepo = xRepo;
 	}
 	
+	@Override
 	public void close() { 
 		xRepo.close();
 	}
 	
+	@Override
 	public boolean createDocument(String uri, String content) throws XDMException {
 		
 		return storeDocument(uri, content) > 0;
 	}
 	
+	@Override
 	public String readDocument(String uri) throws XDMException {
 		
 		XDMDocumentId docId = new XDMDocumentId(uri);
 		return xRepo.getDocumentManagement().getDocumentAsString(docId);
 	}
 	
+	@Override
+	public String queryDocument() throws XDMException {
+
+		String query = "for $doc in fn:collection()\n" +
+				"return $doc\n";
+
+		Iterator itr = xRepo.getQueryManagement().executeQuery(query, null, new Properties());
+	    String result = null;
+	    if (itr.hasNext()) {
+			result = itr.next().toString();
+	    }
+	    return result;
+	}
+	
+	@Override
 	public boolean updateDocument(String uri, String content) throws XDMException {
 		
 		return storeDocument(uri, content) > 1;
 	}
 	
+	@Override
 	public void deleteDocument(String uri) throws XDMException {
 
 		XDMDocumentId docId = new XDMDocumentId(uri);

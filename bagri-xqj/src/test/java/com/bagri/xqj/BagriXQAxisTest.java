@@ -51,7 +51,7 @@ public class BagriXQAxisTest {
 	    xqds.setProperty(BagriXQDataSource.XQ_PROCESSOR, "com.bagri.xquery.saxon.XQProcessorClient");
 	    xqds.setProperty(BagriXQDataSource.XDM_REPOSITORY, "com.bagri.xdm.client.hazelcast.impl.RepositoryImpl");
 
-		String query = "declare namespace bgdm=\"http://bagri.com/bagri-xdm\";\n" +
+		String query = "declare namespace bgdm=\"http://bagridb.com/bagri-xdm\";\n" +
 				"declare variable $sec external;\n\n" + 
 				"for $id in bgdm:store-document($sec)\n" +
 				"return $id\n";

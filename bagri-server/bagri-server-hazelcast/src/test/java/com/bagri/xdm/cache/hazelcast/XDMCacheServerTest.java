@@ -32,9 +32,11 @@ public class XDMCacheServerTest {
 		System.setProperty("hz.log.level", "info");
 		System.setProperty("xdm.log.level", "trace");
 		System.setProperty("logback.configurationFile", "hz-logging.xml");
+		System.setProperty(xdm_access_filename, "access.xml");
 		System.setProperty(xdm_cluster_node_name, "admin");
 		System.setProperty(xdm_cluster_node_schemas, "");
 		System.setProperty(xdm_config_path, "src/main/resources");
+		System.setProperty(xdm_config_filename, "config.xml");
 		System.setProperty(xdm_config_context_file, adminCtx);
 		System.setProperty(xdm_config_properties_file, "admin.properties");
 		XDMCacheServer.main(null);

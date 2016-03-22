@@ -611,9 +611,11 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 				if (iter == null) {
 					QueryExecContext ctx = thContext.get();
 					ctx.clear();
-					
-					for (Map.Entry<QName, Object> var: params.entrySet()) {
-						xqp.bindVariable(var.getKey(), var.getValue());
+				
+					if (params != null) {
+						for (Map.Entry<QName, Object> var: params.entrySet()) {
+							xqp.bindVariable(var.getKey(), var.getValue());
+						}
 					}
 					
 					if (isQuery) {
@@ -622,8 +624,10 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 						iter = xqp.executeXCommand(query, params, props);
 					}
 					
-					for (Map.Entry<QName, Object> var: params.entrySet()) {
-						xqp.unbindVariable(var.getKey());
+					if (params != null) {
+						for (Map.Entry<QName, Object> var: params.entrySet()) {
+							xqp.unbindVariable(var.getKey());
+						}
 					}
 	
 					//XDMQuery xquery = xqCache.get(qCode);

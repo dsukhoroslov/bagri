@@ -210,7 +210,7 @@ public class EmbeddedApp {
 			throw new XQException(ex.getMessage());
 		}
 
-		String query = "declare namespace bgdm=\"http://bagri.com/bagri-xdm\";\n" +
+		String query = "declare namespace bgdm=\"http://bagridb.com/bagri-xdm\";\n" +
 				"declare variable $sec external;\n\n" + 
 				//"return bgdm:store-document($sec)\n";
 				"for $id in bgdm:store-document($sec)\n" +
