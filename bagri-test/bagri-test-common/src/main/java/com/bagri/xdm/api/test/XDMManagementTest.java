@@ -110,6 +110,7 @@ public abstract class XDMManagementTest {
 		ids.add(createDocumentTest(sampleRoot + getFileName("security1500.xml")).getDocumentKey());
 		ids.add(createDocumentTest(sampleRoot + getFileName("security5621.xml")).getDocumentKey());
 		ids.add(createDocumentTest(sampleRoot + getFileName("security9012.xml")).getDocumentKey());
+		ids.add(createDocumentTest(sampleRoot + getFileName("security29674.xml")).getDocumentKey());
 		if (txId > 0) {
 			getTxManagement().commitTransaction(txId);
 		}

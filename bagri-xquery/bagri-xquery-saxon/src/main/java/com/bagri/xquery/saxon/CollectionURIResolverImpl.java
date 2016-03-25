@@ -123,7 +123,7 @@ public class CollectionURIResolverImpl implements CollectionURIResolver {
 		// provide builder's copy here.
 		exCont = query.getContainer(collectType);
 		CollectionIterator iter = new CollectionIterator((XDMQueryManagement) repo.getQueryManagement(), exCont);
-		logger.trace("resolve. xdm: {}; returning iter: {} for collection type: {}", repo, iter, collectType);
+		logger.trace("resolve. returning iter: {} for collection type: {}", iter, collectType);
 		return iter;
 	}
 	
@@ -265,11 +265,17 @@ public class CollectionURIResolverImpl implements CollectionURIResolver {
     	if (ex instanceof VariableReference) {
     		VariableReference var = (VariableReference) ex;
     		if (var.getBinding() instanceof GeneralVariable) {
-   				Expression ex2 = ((XQueryExpression) var.getContainer()).getExpression(); 
-   				String vName = ex2.getObjectName().getClarkName();
-   				String pName = ((GeneralVariable) var.getBinding()).getVariableQName().getLocalPart();
-       			logger.trace("iterateParams; got var: {}, with name: {}", pName, vName);
-       			//vars.put(vName, pName);
+   				Expression ex2 = ((XQueryExpression) var.getContainer()).getExpression();
+   				if (ex2 == null) {
+   	       			logger.debug("iterateParams; got null expression for var: {}", var);
+   				} else if (ex2.getObjectName() == null) {
+   	       			logger.debug("iterateParams; got null object name for var: {}; ex: {}", var, ex2);
+   				} else {
+   					String vName = ex2.getObjectName().getClarkName();
+   					String pName = ((GeneralVariable) var.getBinding()).getVariableQName().getLocalPart();
+   					logger.trace("iterateParams; got var: {}, with name: {}", pName, vName);
+   					//vars.put(vName, pName);
+   				}
     		}
     	}
     	
@@ -395,7 +401,7 @@ public class CollectionURIResolverImpl implements CollectionURIResolver {
     		} //else {
 
     		// it seems we still need this workaround ..
-    		if (varIdx == 0) {
+    		if (varIdx == 0 && compType != Comparison.EQ) {
     			compType = Comparison.negate(compType);
     		}
     			

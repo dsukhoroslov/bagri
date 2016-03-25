@@ -238,6 +238,10 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 			//resList.add(res); 
 			resList.add(results.next());
 		}
+		if (resList.size() == 0) {
+			logger.warn("addQueryResults; got empty results but docs were found: {}", ctx.getDocIds());
+			return results;
+		}
 		XDMResults xqr = new XDMResults(params, ctx.getDocIds(), resList);
 		//XDMResults oldRes = 
 		xrCache.putAsync(qpKey, xqr);
