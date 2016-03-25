@@ -3,6 +3,7 @@
  */
 package com.bagri.xdm.cache.hazelcast.management;
 
+import static com.bagri.common.util.PropUtils.setProperty;
 import static com.bagri.xdm.common.XDMConstants.pn_client_fetchSize;
 import static com.bagri.xdm.common.XDMConstants.pn_client_submitTo;
 import static com.bagri.xdm.common.XDMConstants.pn_queryTimeout;
@@ -18,6 +19,7 @@ import java.util.concurrent.Future;
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.TabularData;
 import javax.xml.namespace.QName;
+import javax.xml.transform.OutputKeys;
 import javax.xml.xquery.XQConnection;
 import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQExpression;
@@ -95,6 +97,18 @@ public class QueryManagement extends SchemaFeatureManagement {
 		}
 		return result;
 	}
+	
+	@ManagedOperation(description="Cancel currently running query started from the same JMX connection")
+	public void cancelQuery() {
+		try {
+			// are we in exec state now?
+			XQProcessor xqp = ((BagriXQConnection) xqConn).getProcessor();
+			xqp.cancelExecution();
+		} catch (XQException ex) {
+			logger.error("cancelQuery.error", ex); 
+			throw new RuntimeException(ex.getMessage());
+		} 
+	}
 	    
 	@ManagedOperation(description="Parse XQuery. Return array of parameter names, if any")
 	@ManagedOperationParameters({
@@ -129,17 +143,12 @@ public class QueryManagement extends SchemaFeatureManagement {
 		String result = null;
 		try {
 			if (useXDM) {
-				//Properties props = new Properties();
-			    //setQueryProperties(props);
 				Iterator itr = queryMgr.executeQuery(query, null, props);
-				result = extractResult(itr);
+				result = extractResult(itr, props);
 			} else {
-				//Properties props = ((BagriXQConnection) xqConn).getProcessor().getProperties();
-			    //setQueryProperties(props);
 			    XQExpression xqExp = xqConn.createExpression();
 			    XQResultSequence xqSec = xqExp.executeQuery(query);
-			    // can use serialization props here!
-			    result = xqSec.getSequenceAsString(null);
+			    result = xqSec.getSequenceAsString(props);
 			    xqSec.close();
 			    xqExp.close();
 			    return result;
@@ -151,15 +160,40 @@ public class QueryManagement extends SchemaFeatureManagement {
 		}
 	}
 	
-	private String extractResult(Iterator itr) throws XQException {
+	private String extractResult(Iterator itr, Properties props) throws XQException {
 		StringBuffer buff = new StringBuffer();
 		//ResultCursor rc = (ResultCursor) itr;
 		//rc.deserialize(((RepositoryImpl) schemaManager.getRepository()).getHzInstance());
 		XQProcessor xqp = ((BagriXQConnection) xqConn).getProcessor();
-		while (itr.hasNext()) {
-			buff.append(xqp.convertToString(itr.next(), null));
+		Properties outProps = getOutputProperties(props);
+		int fSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, String.valueOf(fetchSize)));
+		if (fSize > 0) {
+			int cnt = 0;
+			while (itr.hasNext() && cnt < fSize) {
+				buff.append(xqp.convertToString(itr.next(), outProps));
+				cnt++;
+			}
+		} else {
+			while (itr.hasNext()) {
+				buff.append(xqp.convertToString(itr.next(), outProps));
+			}
 		}
 		return buff.toString();
+	}
+	
+	private Properties getOutputProperties(Properties source) {
+		Properties outProps = new Properties();
+		setProperty(source, outProps, OutputKeys.CDATA_SECTION_ELEMENTS, null);
+		setProperty(source, outProps, OutputKeys.DOCTYPE_PUBLIC, null);
+		setProperty(source, outProps, OutputKeys.DOCTYPE_SYSTEM, null);
+		setProperty(source, outProps, OutputKeys.ENCODING, null);
+		setProperty(source, outProps, OutputKeys.INDENT, null);
+		setProperty(source, outProps, OutputKeys.MEDIA_TYPE, null);
+		setProperty(source, outProps, OutputKeys.METHOD, null);
+		setProperty(source, outProps, OutputKeys.OMIT_XML_DECLARATION, null);
+		setProperty(source, outProps, OutputKeys.STANDALONE, null);
+		setProperty(source, outProps, OutputKeys.VERSION, null);
+		return outProps;
 	}
 
 	@ManagedOperation(description="Run XQuery. Returns string output specified by XQuery")
@@ -170,28 +204,28 @@ public class QueryManagement extends SchemaFeatureManagement {
 		@ManagedOperationParameter(name = "props", description = "Query processing properties")})
 	public String runPreparedQuery(String query, boolean useXDM, CompositeData bindings, Properties props) {
 		logger.trace("runPreparedQuery.enter; got bindings: {}, properties: {}", bindings, props);
+		
+		if (bindings == null) {
+			return runQuery(query, useXDM, props);
+		}
+		
 		String result;
 		try {
 			if (useXDM) {
-				//Properties props = new Properties();
-			    //setQueryProperties(props);
 				Set<String> keys = bindings.getCompositeType().keySet();
 				Map<QName, Object> params = new HashMap<>(keys.size()); 
 			    for (String key: keys) {
-			    	//params.put(new QName(key), xqConn.createItemFromObject(bindings.get(key), null)); 
 			    	params.put(new QName(key), bindings.get(key)); 
 			    }
 				Iterator itr = queryMgr.executeQuery(query, params, props);
-				result = extractResult(itr);
+				result = extractResult(itr, props);
 			} else {
-				//Properties props = ((BagriXQConnection) xqConn).getProcessor().getProperties();
-			    //setQueryProperties(props);
 				XQPreparedExpression xqpExp = xqConn.prepareExpression(query);
 			    for (String key: bindings.getCompositeType().keySet()) {
 			    	xqpExp.bindObject(new QName(key), bindings.get(key), null); 
 			    }
 			    XQResultSequence xqSec = xqpExp.executeQuery();
-			    result = xqSec.getSequenceAsString(null);
+			    result = xqSec.getSequenceAsString(props);
 			    xqSec.close();
 			    xqpExp.close();
 			}

@@ -290,9 +290,23 @@ public class ClusterServiceProvider implements ClusterManagementService, SchemaM
     }
 
     @Override
-    public List<String> parseQuery(Schema schema, String query) throws ServiceException {
+    public void cancelQuery(String schemaName) throws ServiceException {
         try {
-            Object vars = connection.invoke(getSchemaObjectName("QueryManagement", schema.getSchemaName())
+            Object vars = connection.invoke(getSchemaObjectName("QueryManagement", schemaName)
+                    , "cancelQuery"
+                    , null
+                    , null
+            );
+        } catch (Exception e) {
+            LOGGER.throwing(this.getClass().getName(), "parseQuery", e);
+            throw new ServiceException(e);
+        }
+    }
+    
+    @Override
+    public List<String> parseQuery(String schemaName, String query) throws ServiceException {
+        try {
+            Object vars = connection.invoke(getSchemaObjectName("QueryManagement", schemaName)
                     , "parseQuery"
                     , new Object[] {query}
                     , new String[] {String.class.getName()}
@@ -305,25 +319,13 @@ public class ClusterServiceProvider implements ClusterManagementService, SchemaM
     }
 
     @Override
-    public Object runQuery(Schema schema, boolean direct, String query, Properties props) throws ServiceException {
+    public Object runQuery(String schemaName, boolean direct, String query, Map<String, Object> params, Properties props) throws ServiceException {
         try {
-            Object res = connection.invoke(getSchemaObjectName("QueryManagement", schema.getSchemaName())
-                    , "runQuery"
-                    , new Object[] {query, direct, props}
-                    , new String[] {String.class.getName(), boolean.class.getName(), Properties.class.getName()}
-            );
-            return res;
-        } catch (Throwable e) {
-            LOGGER.throwing(this.getClass().getName(), "runQuery", e);
-            throw new ServiceException(e);
-        }
-    }
-
-    @Override
-    public Object runQueryWithParams(Schema schema, boolean direct, String query, Map<String, Object> params, Properties props) throws ServiceException {
-        try {
-        	CompositeData bindings = mapToComposite("param", "desc", params);
-            Object res = connection.invoke(getSchemaObjectName("QueryManagement", schema.getSchemaName())
+        	CompositeData bindings = null;
+        	if (params != null) {
+        		bindings = mapToComposite("param", "desc", params);
+        	}
+            Object res = connection.invoke(getSchemaObjectName("QueryManagement", schemaName)
                     , "runPreparedQuery"
                     , new Object[] {query, direct, bindings, props}
                     , new String[] {String.class.getName(), boolean.class.getName(), CompositeData.class.getName(), Properties.class.getName()}

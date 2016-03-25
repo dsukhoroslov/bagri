@@ -13,10 +13,7 @@ public class BagriOverviewPluginProvider extends DataSourceViewPluginProvider<Ap
     }
 
     protected boolean supportsPluginFor(Application application) {
-        if (ApplicationTypeFactory.getApplicationTypeFor(application) instanceof BagriApplicationType) {
-            return true;
-        }
-        return false;
+    	return BagriApplicationTypeProvider.isBargiAdminApp(application);
     }
 
     static void initialize() {

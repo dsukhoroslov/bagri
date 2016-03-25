@@ -1,11 +1,16 @@
 package com.bagri.visualvm.manager;
 
+import javax.management.MBeanServerConnection;
+import javax.management.ObjectName;
+
 import com.sun.tools.visualvm.application.Application;
 import com.sun.tools.visualvm.application.jvm.Jvm;
 import com.sun.tools.visualvm.application.type.ApplicationType;
 import com.sun.tools.visualvm.application.type.ApplicationTypeFactory;
 import com.sun.tools.visualvm.application.type.MainClassApplicationTypeFactory;
 import com.sun.tools.visualvm.application.views.ApplicationViewsSupport;
+import com.sun.tools.visualvm.tools.jmx.JmxModel;
+import com.sun.tools.visualvm.tools.jmx.JmxModelFactory;
 
 public class BagriApplicationTypeProvider extends MainClassApplicationTypeFactory {
 
@@ -29,5 +34,17 @@ public class BagriApplicationTypeProvider extends MainClassApplicationTypeFactor
         ApplicationTypeFactory.getDefault().unregisterProvider(INSTANCE);
     }
     
+    
+    static boolean isBargiAdminApp(Application application) {
+        JmxModel jmx = JmxModelFactory.getJmxModelFor(application);
+        MBeanServerConnection mbsc = jmx.getMBeanServerConnection();
+        Object o = null;
+        try {
+            o = mbsc.getObjectInstance(new ObjectName("com.bagri.xdm:type=Management,name=ClusterManagement"));
+        } catch (Exception e) {
+        }
+        return o != null;
+    }
+
 }
 

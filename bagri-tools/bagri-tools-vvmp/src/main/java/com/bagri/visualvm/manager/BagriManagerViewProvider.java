@@ -11,19 +11,12 @@ import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
 
 public class BagriManagerViewProvider extends DataSourceViewProvider<Application> {
-    private static DataSourceViewProvider instance = new BagriManagerViewProvider();
+
+	private static DataSourceViewProvider instance = new BagriManagerViewProvider();
 
     @Override
     protected boolean supportsViewFor(Application application) {
-        JmxModel jmx = JmxModelFactory.getJmxModelFor(application);
-        MBeanServerConnection mbsc = jmx.getMBeanServerConnection();
-        Object o = null;
-        try {
-            o = mbsc.getObjectInstance(new ObjectName("com.bagri.xdm:type=Management,name=ClusterManagement"));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return o != null;
+    	return BagriApplicationTypeProvider.isBargiAdminApp(application);
     }
 
     @Override
