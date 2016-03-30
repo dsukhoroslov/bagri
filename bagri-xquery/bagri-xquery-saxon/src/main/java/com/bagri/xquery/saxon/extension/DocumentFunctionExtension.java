@@ -42,7 +42,7 @@ public abstract class DocumentFunctionExtension extends ExtensionFunctionDefinit
 	} 	
 
 	protected XDMDocumentId toDocumentId(Sequence ids) throws XPathException {
-		SequenceIterator<? extends Item> itr = ids.iterate();
+		SequenceIterator itr = ids.iterate();
 		Item id = itr.next();
 		if (id instanceof StringValue) {
 			return new XDMDocumentId(id.getStringValue());
@@ -66,13 +66,18 @@ public abstract class DocumentFunctionExtension extends ExtensionFunctionDefinit
 	protected Properties toProperties(Sequence sq) throws XPathException {
 		SequenceIterator itr = sq.iterate();
 		Properties props = new Properties();
-		while (itr.next() != null) {
-			String prop = itr.current().getStringValue();
-			int pos = prop.indexOf("=");
-			if (pos > 0) {
-				props.setProperty(prop.substring(0, pos), prop.substring(pos + 1));
+		do {
+			Item item = itr.next();
+			if (item != null) {
+				String prop = item.getStringValue();
+				int pos = prop.indexOf("=");
+				if (pos > 0) {
+					props.setProperty(prop.substring(0, pos), prop.substring(pos + 1));
+				}
+			} else {
+				break;
 			}
-		}
+		} while (true);
 		return props;
 	}
 	

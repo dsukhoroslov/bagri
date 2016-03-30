@@ -14,6 +14,8 @@ import com.bagri.xdm.system.XDMFunction;
 import com.bagri.xdm.system.XDMParameter;
 
 import static com.bagri.xquery.saxon.SaxonUtils.*;
+
+import net.sf.saxon.Configuration;
 import net.sf.saxon.expr.XPathContext;
 import net.sf.saxon.lib.ExtensionFunctionCall;
 import net.sf.saxon.lib.ExtensionFunctionDefinition;
@@ -31,13 +33,15 @@ public class StaticFunctionExtension extends ExtensionFunctionDefinition {
 	
 	private XDMFunction xdf;
 	private Class[] params;
+	private Configuration config;
 	
 	public StaticFunctionExtension() {
 		// de-serialization ?
 	}
 	
-	public StaticFunctionExtension(XDMFunction xdf) throws ClassNotFoundException {
+	public StaticFunctionExtension(XDMFunction xdf, Configuration config) throws ClassNotFoundException {
 		this.xdf = xdf;
+		this.config = config;
 		params = buildParams();
 	}
 
@@ -82,7 +86,7 @@ public class StaticFunctionExtension extends ExtensionFunctionDefinition {
 			}
 			
 			private Sequence object2Sequence(Object value) throws XPathException {
-				return objectToItem(value, this.getExecutable().getConfiguration());
+				return objectToItem(value, StaticFunctionExtension.this.config);
 			}
 
 			

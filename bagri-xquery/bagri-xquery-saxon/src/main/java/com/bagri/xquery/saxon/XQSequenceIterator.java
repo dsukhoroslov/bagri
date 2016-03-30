@@ -15,7 +15,7 @@ import net.sf.saxon.om.Item;
 import net.sf.saxon.om.SequenceIterator;
 import net.sf.saxon.trans.XPathException;
 
-public class XQSequenceIterator implements SequenceIterator<Item> {
+public class XQSequenceIterator implements SequenceIterator {
 	
 	private static final Logger logger = LoggerFactory.getLogger(XQSequenceIterator.class);
 	
@@ -46,22 +46,22 @@ public class XQSequenceIterator implements SequenceIterator<Item> {
 		return null;
 	}
 
-	@Override
-	public Item current() {
-		try {
-			if (xqs.isOnItem()) {
-				return convertToItem(xqs.getItem());
-			}
-		} catch (XQException | XPathException ex) {
-			logger.error("current", ex);
-		}
-		return null;
-	}
+	//@Override
+	//public Item current() {
+	//	try {
+	//		if (xqs.isOnItem()) {
+	//			return convertToItem(xqs.getItem());
+	//		}
+	//	} catch (XQException | XPathException ex) {
+	//		logger.error("current", ex);
+	//	}
+	//	return null;
+	//}
 
-	@Override
-	public int position() {
-		return position;
-	}
+	//@Override
+	//public int position() {
+	//	return position;
+	//}
 
 	@Override
 	public void close() {
@@ -73,7 +73,7 @@ public class XQSequenceIterator implements SequenceIterator<Item> {
 	}
 
 	@Override
-	public SequenceIterator<Item> getAnother() throws XPathException {
+	public SequenceIterator getAnother() throws XPathException {
 		return null;
 	}
 

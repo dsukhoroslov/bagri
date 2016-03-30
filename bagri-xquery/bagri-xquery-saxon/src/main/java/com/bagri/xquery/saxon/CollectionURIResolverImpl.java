@@ -11,18 +11,20 @@ import net.sf.saxon.expr.Binding;
 import net.sf.saxon.expr.BindingReference;
 import net.sf.saxon.expr.BooleanExpression;
 import net.sf.saxon.expr.Expression;
+import net.sf.saxon.expr.FunctionCall;
 import net.sf.saxon.expr.GeneralComparison10;
 import net.sf.saxon.expr.GeneralComparison20;
 import net.sf.saxon.expr.LetExpression;
 import net.sf.saxon.expr.Literal;
+import net.sf.saxon.expr.Operand;
 import net.sf.saxon.expr.StringLiteral;
 import net.sf.saxon.expr.ValueComparison;
 import net.sf.saxon.expr.VariableReference;
 import net.sf.saxon.expr.XPathContext;
 import net.sf.saxon.expr.instruct.Block;
-import net.sf.saxon.expr.instruct.GeneralVariable;
+import net.sf.saxon.expr.instruct.GlobalVariable; //GeneralVariable;
 import net.sf.saxon.expr.parser.Token;
-import net.sf.saxon.functions.Collection;
+//import net.sf.saxon.functions.CollectionFn; //Collection;
 import net.sf.saxon.lib.CollectionURIResolver;
 import net.sf.saxon.om.AxisInfo;
 import net.sf.saxon.om.Item;
@@ -87,20 +89,29 @@ public class CollectionURIResolverImpl implements CollectionURIResolver {
 	}
 
 	@Override
-	public SequenceIterator<Item> resolve(String href, String base, XPathContext context) throws XPathException {
+	public SequenceIterator resolve(String href, String base, XPathContext context) throws XPathException {
 		
 		logger.trace("resolve. href: {}; base: {}; context: {}", href, base, context);
 		this.ctx = context;
 		long stamp = System.currentTimeMillis();
 
 		int collectType;
-		if (href == null) {
+		if (href == null || href.isEmpty()) {
 			// means default collection: all schema documents
 			collectType = XDMDocument.clnDefault;
 			currentType = XDMDocument.clnDefault;
 		} else {
+			if (base == null || base.isEmpty()) {
+				String[] parts = href.split("/");
+				if (parts.length > 0) {
+					href = parts[parts.length - 1];
+				}
+			} else if (href.startsWith(base)) {
+				href = href.substring(base.length());
+			}
 			collectType = getCollectionId(href);
 			currentType = 0;
+			logger.trace("resolve. got collection type: {} fro href {}", collectType, href);
 		}
 
 		if (query == null) {
@@ -121,7 +132,7 @@ public class CollectionURIResolverImpl implements CollectionURIResolver {
 		}
 		
 		// provide builder's copy here.
-		exCont = query.getContainer(collectType);
+		//exCont = query.getContainer(collectType);
 		CollectionIterator iter = new CollectionIterator((XDMQueryManagement) repo.getQueryManagement(), exCont);
 		logger.trace("resolve. returning iter: {} for collection type: {}", iter, collectType);
 		return iter;
@@ -217,10 +228,15 @@ public class CollectionURIResolverImpl implements CollectionURIResolver {
     		return;
     	}
     	
-    	Iterator<Expression> ie = ex.iterateSubExpressions();
-    	while (ie.hasNext()) {
-    		Expression e = ie.next();
-    		iterateParams(e); 
+    	//Iterator<Expression> ie = ex.iterateSubExpressions();
+    	//while (ie.hasNext()) {
+    	//	Expression e = ie.next();
+    	//	iterateParams(e); 
+    	//}
+    	Iterator<Operand> itr = ex.operands().iterator();
+    	while(itr.hasNext()) {
+    		Expression e = itr.next().getChildExpression(); // getExpression();
+    		iterateParams(e);
     	}
     	
     	if (ex instanceof GeneralComparison10 || ex instanceof GeneralComparison20 || ex instanceof ValueComparison) {
@@ -228,7 +244,9 @@ public class CollectionURIResolverImpl implements CollectionURIResolver {
     		//int varIdx = 0;
     		Object value = null;
     		String pName = null;
-    		for (Expression e: be.getOperands()) {
+    		//for (Expression e: be.getOperands()) {
+       		for (Operand o: be.operands()) {
+       			Expression e = o.getChildExpression();
     			if (e instanceof VariableReference) {
     				Binding bind = ((VariableReference) e).getBinding();
     				if (bind instanceof LetExpression) {
@@ -245,7 +263,8 @@ public class CollectionURIResolverImpl implements CollectionURIResolver {
     				if (pName == null) {
     					pName = bind.getVariableQName().getClarkName();
     				}
-    	    		value = getValues(ctx.evaluateLocalVariable(bind.getLocalSlotNumber()));
+    	    		//value = getValues(ctx.evaluateLocalVariable(bind.getLocalSlotNumber()));
+    	    		value = getValues(bind.evaluateVariable(ctx));
         			logger.trace("iterateParams; got reference: {}, value: {}", pName, value);
         			if (pName != null && value != null) {
         				query.setEmptyParam(pName, value);
@@ -262,22 +281,22 @@ public class CollectionURIResolverImpl implements CollectionURIResolver {
 			//logger.trace("iterateParams; added path expression at index: {}", exIndex);
     	}  
     	
-    	if (ex instanceof VariableReference) {
-    		VariableReference var = (VariableReference) ex;
-    		if (var.getBinding() instanceof GeneralVariable) {
-   				Expression ex2 = ((XQueryExpression) var.getContainer()).getExpression();
-   				if (ex2 == null) {
-   	       			logger.debug("iterateParams; got null expression for var: {}", var);
-   				} else if (ex2.getObjectName() == null) {
-   	       			logger.debug("iterateParams; got null object name for var: {}; ex: {}", var, ex2);
-   				} else {
-   					String vName = ex2.getObjectName().getClarkName();
-   					String pName = ((GeneralVariable) var.getBinding()).getVariableQName().getLocalPart();
-   					logger.trace("iterateParams; got var: {}, with name: {}", pName, vName);
+    	//if (ex instanceof VariableReference) {
+    	//	VariableReference var = (VariableReference) ex;
+    	//	if (var.getBinding() instanceof GeneralVariable) {
+   		//		Expression ex2 = ((XQueryExpression) var.getContainer()).getExpression();
+   		//		if (ex2 == null) {
+   	    //   			logger.debug("iterateParams; got null expression for var: {}", var);
+   		//		} else if (ex2.getObjectName() == null) {
+   	    //   			logger.debug("iterateParams; got null object name for var: {}; ex: {}", var, ex2);
+   		//		} else {
+   		//			String vName = ex2.getObjectName().getClarkName();
+   		//			String pName = ((GeneralVariable) var.getBinding()).getVariableQName().getLocalPart();
+   		//			logger.trace("iterateParams; got var: {}, with name: {}", pName, vName);
    					//vars.put(vName, pName);
-   				}
-    		}
-    	}
+   		//		}
+    	//	}
+    	//}
     	
     }
 	
@@ -290,20 +309,23 @@ public class CollectionURIResolverImpl implements CollectionURIResolver {
     		return;
     	}
     	
-    	if (ex instanceof Collection) {
-    		Collection clx = (Collection) ex;
-    		for (Expression e: clx.getArguments()) {
-    			if (e instanceof StringLiteral) {
-    				String uri = ((StringLiteral) e).getStringValue();
-    				currentType = getCollectionId(uri);
-    	        	logger.trace("iterate; set collectionId: {} for uri: {}", currentType, uri);
-    	        	currentPath = new PathBuilder();
-    	        	path = currentPath;
-    	        	ExpressionContainer exCont = new ExpressionContainer();
-    	        	query.addContainer(currentType, exCont);
-    				break;
-    			}
-    		}
+    	//if (ex instanceof Collection) {
+       	if (ex instanceof FunctionCall) {
+       		FunctionCall clx = (FunctionCall) ex;
+       		if ("fn:collection".equals(clx.getDisplayName())) {
+	    		for (Expression e: clx.getArguments()) {
+	    			if (e instanceof StringLiteral) {
+	    				String uri = ((StringLiteral) e).getStringValue();
+	    				currentType = getCollectionId(uri);
+	    	        	logger.trace("iterate; set collectionId: {} for uri: {}", currentType, uri);
+	    	        	currentPath = new PathBuilder();
+	    	        	path = currentPath;
+	    	        	ExpressionContainer exCont = new ExpressionContainer();
+	    	        	query.addContainer(currentType, exCont);
+	    				break;
+	    			}
+	    		}
+       		}
     	}
     	
     	if (ex instanceof AxisExpression) {
@@ -340,7 +362,7 @@ public class CollectionURIResolverImpl implements CollectionURIResolver {
     			logger.trace("iterate; added expression at index: {}", exIndex);
     			//}
     		} else {
-    	    	throw new XPathException("Unknown comparison type for expression: " + ex, ex);
+    	    	throw new XPathException("Unknown comparison type for expression: " + ex);
     		}
     	}
 
@@ -350,10 +372,15 @@ public class CollectionURIResolverImpl implements CollectionURIResolver {
     	//	logger.trace("iterate; let: {}", lName);
     	//}
     	
-    	Iterator<Expression> ie = ex.iterateSubExpressions();
-    	while (ie.hasNext()) {
-    		Expression e = ie.next();
-    		iterate(e); //, path); //, vars);
+    	//Iterator<Expression> ie = ex.iterateSubExpressions();
+    	//while (ie.hasNext()) {
+    	//	Expression e = ie.next();
+    	//	iterate(e); //, path); //, vars);
+    	//}
+    	Iterator<Operand> itr = ex.operands().iterator();
+    	while(itr.hasNext()) {
+    		Expression e = itr.next().getChildExpression(); //getExpression();
+    		iterate(e);
     	}
     	
     	if (ex instanceof GeneralComparison10 || ex instanceof GeneralComparison20 || ex instanceof ValueComparison) {
@@ -361,7 +388,9 @@ public class CollectionURIResolverImpl implements CollectionURIResolver {
     		int varIdx = 0;
     		Object value = null;
     		String pName = null;
-    		for (Expression e: be.getOperands()) {
+    		//for (Expression e: be.getOperands()) {
+       		for (Operand o: be.operands()) {
+       			Expression e = o.getChildExpression();
     			if (e instanceof VariableReference) {
     				Binding bind = ((VariableReference) e).getBinding();
     				if (bind instanceof LetExpression) {
@@ -378,7 +407,8 @@ public class CollectionURIResolverImpl implements CollectionURIResolver {
     				if (pName == null) {
     					pName = bind.getVariableQName().getClarkName();
     				}
-    	    		value = getValues(ctx.evaluateLocalVariable(bind.getLocalSlotNumber()));
+    	    		//value = getValues(ctx.evaluateLocalVariable(bind.getLocalSlotNumber()));
+    	    		value = getValues(bind.evaluateVariable(ctx));
         			logger.trace("iterate; got reference: {}, value: {}", pName, value);
     	    		break;
     			} else if (e instanceof StringLiteral) {
@@ -393,9 +423,9 @@ public class CollectionURIResolverImpl implements CollectionURIResolver {
     		Comparison compType = getComparison(be.getOperator());
     		if (compType == null) {
             	logger.debug("iterate; can't get comparison from {}", be);
-    	    	throw new XPathException("Unknown comparison type for expression: " + be, be);
+    	    	throw new XPathException("Unknown comparison type for expression: " + be);
     		} else if (value == null) {
-            	logger.debug("iterate; can't get value from {}; operands: {}", be, be.getOperands());
+            	logger.debug("iterate; can't get value from {}; operands: {}", be, be.operands());
             	// TODO: the join use case. have to think about this..
     	    	//throw new IllegalStateException("Unexpected expression: " + ex);
     		} //else {

@@ -5,8 +5,6 @@ import static com.bagri.common.config.XDMConfigConstants.xdm_config_properties_f
 import static com.bagri.xdm.common.XDMConstants.pn_baseURI;
 import static org.junit.Assert.*;
 
-import java.util.Date;
-import java.util.Iterator;
 import java.util.Properties;
 
 import org.junit.After;
@@ -35,7 +33,7 @@ public class SimpleQueryManagementTest extends XDMManagementTest {
 	public static void setUpBeforeClass() throws Exception {
 		sampleRoot = "..\\..\\etc\\samples\\tpox\\";
 		System.setProperty("hz.log.level", "info");
-		//System.setProperty("xdm.log.level", "trace");
+		System.setProperty("xdm.log.level", "trace");
 		System.setProperty("logback.configurationFile", "hz-logging.xml");
 		System.setProperty(xdm_config_properties_file, "test.properties");
 		System.setProperty(xdm_config_path, "src\\test\\resources");

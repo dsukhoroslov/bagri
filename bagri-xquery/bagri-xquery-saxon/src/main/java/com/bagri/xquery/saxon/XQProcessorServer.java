@@ -73,9 +73,11 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
     	//CollectionURIResolver old = bcr;
     	bcr = new CollectionURIResolverImpl(xRepo);
         config.setCollectionURIResolver(bcr);
+        config.setDefaultCollection("");
         SourceResolverImpl sResolver = new SourceResolverImpl(xRepo);
         config.setSourceResolver(sResolver);
         config.registerExternalObjectModel(sResolver);
+        config.setURIResolver(sResolver);
         ModuleURIResolver mResolver = new ModuleURIResolverImpl((com.bagri.xdm.cache.api.XDMRepository) xRepo);
         config.setModuleURIResolver(mResolver);
     }
@@ -183,7 +185,7 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 	        stamp = System.currentTimeMillis() - stamp;
 		    logger.trace("execQuery; xQuery: {}; time taken: {}", xQuery, stamp);
 		    stamp = System.currentTimeMillis();
-	        SequenceIterator<Item> itr = xqExp.iterator(dqc);
+	        SequenceIterator itr = xqExp.iterator(dqc);
 	        //Result r = new StreamResult();
 	        //xqExp.run(dqc, r, null);
 	        if (bcr.getQuery() != null && cacheable) {

@@ -80,7 +80,7 @@
         <xqj.version>1.0</xqj.version>
         <xstream.version>1.4.8</xstream.version>
         <xerses.version>2.11.0</xerses.version>
-        <saxon.version>9.5.1-8</saxon.version>
+        <saxon.version>9.7.0-4</saxon.version>
         <!--saxon.version>9.6.0-6</saxon.version-->
         <json.version>1.0</json.version>
         <json.ri.version>1.0.4</json.ri.version>

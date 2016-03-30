@@ -164,7 +164,7 @@ public class XQCompilerImpl implements XQCompiler {
 		
 		logger.trace("initializeConfig.enter; current config: {}", config);
         config = Configuration.newConfiguration();
-        config.setHostLanguage(Configuration.XQUERY);
+        //config.setHostLanguage(Configuration.XQUERY);
         config.setSchemaValidationMode(Validation.STRIP);
         //config.setConfigurationProperty(FeatureKeys.ALLOW_EXTERNAL_FUNCTIONS, Boolean.TRUE);
 
@@ -178,7 +178,7 @@ public class XQCompilerImpl implements XQCompiler {
 		for (XDMLibrary lib: libraries) {
 			for (XDMFunction func: lib.getFunctions()) {
 				try {
-					ExtensionFunctionDefinition efd = new StaticFunctionExtension(func);
+					ExtensionFunctionDefinition efd = new StaticFunctionExtension(func, config);
 					logger.trace("registerExtensions; funtion {} registered as {}", func.toString(), efd.getFunctionQName()); 
 					config.registerExtensionFunction(efd);
 				} catch (Exception ex) {

@@ -5,6 +5,7 @@ import static javax.xml.xquery.XQConstants.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -47,6 +48,8 @@ import net.sf.saxon.dom.NodeOverNodeInfo;
 import net.sf.saxon.expr.JPConverter;
 import net.sf.saxon.expr.instruct.GlobalParameterSet;
 import net.sf.saxon.expr.instruct.GlobalVariable;
+import net.sf.saxon.lib.Logger;
+import net.sf.saxon.lib.StandardLogger;
 import net.sf.saxon.lib.Validation;
 import net.sf.saxon.om.DocumentInfo;
 import net.sf.saxon.om.Item;
@@ -71,7 +74,7 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
     
     public XQProcessorImpl() {
         config = Configuration.newConfiguration();
-        config.setHostLanguage(Configuration.XQUERY);
+        //config.setHostLanguage(Configuration.XQUERY);
         config.setSchemaValidationMode(Validation.STRIP);
         //config.setConfigurationProperty(FeatureKeys.PRE_EVALUATE_DOC_FUNCTION, Boolean.TRUE);
         sqc = config.newStaticQueryContext();
@@ -80,7 +83,7 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
 	    dqc = new DynamicQueryContext(config);
         dqc.setApplyFunctionConversionRulesToExternalVariables(false);
         //sqc. cvr = new StandardObjectConverter();
-        JPConverter.allocate(XQItem.class, config);
+        JPConverter.allocate(XQItem.class, null, config);
         //BagriSourceResolver resolver = new BagriSourceResolver(null);
         //config.registerExternalObjectModel(resolver);
     }
@@ -160,7 +163,7 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
     	//ctx.getHoldability()
     	//ctx.getOrderingMode()
     	if (ctx.getQueryLanguageTypeAndVersion() == LANGTYPE_XQUERY) {
-    		sqc.setLanguageVersion(new DecimalValue(1L)); // change to 3L
+    		sqc.setLanguageVersion(31); // change to 3L
     	}
     	//ctx.getQueryTimeout()
     	//ctx.getScrollability()
@@ -228,7 +231,7 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
         value = props.getProperty(pn_queryLanguageTypeAndVersion);
         if (value != null) {
         	if (String.valueOf(LANGTYPE_XQUERY).equals(value)) {
-        		sqc.setLanguageVersion(new DecimalValue(1L)); // change to 3L
+        		sqc.setLanguageVersion(31); // change to 3L
         	}
     	}
     	//props.getProperty(pn_queryTimeout)
@@ -325,7 +328,7 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
 		} else if (item instanceof XQSequence) {
 			//return ((XQSequence) item).getSequenceAsString(props);
 			Writer writer = new StringWriter();
-			SequenceIterator<Item> itr = new XQSequenceIterator((XQSequence) item, config);
+			SequenceIterator itr = new XQSequenceIterator((XQSequence) item, config);
 			try {
 				QueryResult.serializeSequence(itr, config, writer, props);
 				writer.close();
@@ -342,13 +345,19 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
 	
 	//@Override
     public void bindVariable(QName varName, Object var) throws XQException {
-    	dqc.setParameter(varName.toString(), var);
+    	//dqc.setParameter(varName.toString(), var);
+        dqc.setParameter(getStructuredQName(varName), new ObjectValue(var));
     }
     
 	//@Override
     public void unbindVariable(QName varName) throws XQException {
     	// QName.toString produce ClarkName
-        dqc.setParameter(varName.toString(), null);
+        //dqc.setParameter(varName.toString(), null);
+        dqc.setParameter(getStructuredQName(varName), null);
+    }
+
+    private static StructuredQName getStructuredQName(QName qname) {
+    	return new StructuredQName(qname.getPrefix(), qname.getNamespaceURI(), qname.getLocalPart());
     }
     
     // why it is not <QName, Object> ??
@@ -373,8 +382,17 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
     
     protected String explainQuery(XQueryExpression exp) throws XPathException {
     	ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        exp.getExpression().explain(baos);
+    	PrintStream ps = new PrintStream(baos);
+    	Logger log = new StandardLogger(ps);
+        exp.getExpression().explain(log);
         String res = new String(baos.toByteArray(), Charset.defaultCharset());
+        log.close();
+        ps.close();
+        try {
+			baos.close();
+		} catch (IOException ex) {
+			throw new XPathException(ex);
+		}
         return res;
     }
 
@@ -417,11 +435,11 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
         	//logger.info("prepareXQuery; result 2: {}", result);
 
 	        Set<QName> result = new HashSet<QName>();
-	        Iterator<GlobalVariable> itr = exp.getStaticContext().getModuleVariables(); 
+	        //Iterator<GlobalVariable> itr = exp.getStaticContext().getModuleVariables();
+	        Iterator<GlobalVariable> itr = exp.getMainModule().getModuleVariables();
 	        while (itr.hasNext()) {
 	        	result.add(itr.next().getVariableQName().toJaxpQName());
 	        }
-	        
 	        return result; 
         } catch (XPathException ex) {
         	logger.error("prepareXQuery.error: ", ex);

@@ -1,6 +1,7 @@
 package com.bagri.xdm.client.hazelcast.task;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -51,7 +52,14 @@ public abstract class QueryAwareTask extends TransactionAwareTask {
 			out.writeInt(params.size());
 			for (Map.Entry<QName, Object> param: params.entrySet()) {
 				out.writeObject(param.getKey());
-				out.writeObject(param.getValue());
+				Object  v = param.getValue();
+				try {
+					Method m = v.getClass().getMethod("getObject", null);
+					v = m.invoke(v, null);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				out.writeObject(v); //param.getValue());
 			}
 		}
 		out.writeObject(context);

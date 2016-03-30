@@ -25,8 +25,8 @@ import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.cache.api.XDMQueryManagement;
 
 
-public class CollectionIterator implements SequenceIterator<Item>, 
-	GroundedIterator<Item>, LastPositionFinder<Item>, LookaheadIterator<Item> {
+public class CollectionIterator implements SequenceIterator, 
+	GroundedIterator, LastPositionFinder<Item>, LookaheadIterator {
 	
     private static final Logger logger = LoggerFactory.getLogger(CollectionIterator.class);
 	
@@ -79,17 +79,17 @@ public class CollectionIterator implements SequenceIterator<Item>,
 		return current;
 	}
 
-	@Override
-	public Item current() {
-		logger.trace("current; returning: {}", current);
-		return current;
-	}
+	//@Override
+	//public Item current() {
+	//	logger.trace("current; returning: {}", current);
+	//	return current;
+	//}
 
-	@Override
-	public int position() {
-		logger.trace("position; returning: {}", position);
-		return position;
-	}
+	//@Override
+	//public int position() {
+	//	logger.trace("position; returning: {}", position);
+	//	return position;
+	//}
 
 	@Override
 	public void close() {
@@ -101,7 +101,7 @@ public class CollectionIterator implements SequenceIterator<Item>,
 	}
 
 	@Override
-	public SequenceIterator<Item> getAnother() throws XPathException {
+	public SequenceIterator getAnother() throws XPathException {
 		// should reset iterator, probably!
 		logger.trace("getAnother; returning: {}", this);
 		return this; 
@@ -122,7 +122,7 @@ public class CollectionIterator implements SequenceIterator<Item>,
 			items.add(getCurrentItem(docId));
 		}
 		logger.trace("materialize.exit; returning list of {} items", items.size());
-		return new SequenceExtent<Item>(items);
+		return new SequenceExtent(items);
 	}
 
 	@Override

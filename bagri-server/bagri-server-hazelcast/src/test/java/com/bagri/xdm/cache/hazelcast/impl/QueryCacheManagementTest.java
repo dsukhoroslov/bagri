@@ -83,6 +83,9 @@ public class QueryCacheManagementTest extends XDMManagementTest {
 		Properties props = new Properties();
 		props.setProperty(pn_client_id, "1");
 		props.setProperty(pn_client_fetchSize, "1");
+		props.setProperty(javax.xml.transform.OutputKeys.OMIT_XML_DECLARATION, "yes");
+		props.setProperty(javax.xml.transform.OutputKeys.INDENT, "no");
+		props.setProperty(javax.xml.transform.OutputKeys.METHOD, "xml");
 		Iterator itr = xRepo.getQueryManagement().executeQuery(query, params, props);
 		assertNotNull(itr);
 		//((ResultCursor) itr).deserialize(((RepositoryImpl) xRepo).getHzInstance());
@@ -133,6 +136,9 @@ public class QueryCacheManagementTest extends XDMManagementTest {
 		Properties props = new Properties();
 		props.setProperty(pn_client_id, "2");
 		props.setProperty(pn_client_fetchSize, "1");
+		props.setProperty(javax.xml.transform.OutputKeys.OMIT_XML_DECLARATION, "yes");
+		props.setProperty(javax.xml.transform.OutputKeys.INDENT, "no");
+		props.setProperty(javax.xml.transform.OutputKeys.METHOD, "xml");
 		Iterator itr = xRepo.getQueryManagement().executeQuery(query, params, props);
 		assertNotNull(itr);
 		//((ResultCursor) itr).deserialize(((RepositoryImpl) xRepo).getHzInstance());

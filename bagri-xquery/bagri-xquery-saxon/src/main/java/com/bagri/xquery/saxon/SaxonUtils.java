@@ -206,11 +206,11 @@ public class SaxonUtils {
                 	if (val.endsWith("--")) {
                 		val = val.substring(0, val.length() - 2);
                 	}
-                    return GMonthValue.makeGMonthValue(val, config.getConversionRules()).asAtomic();
+                    return GMonthValue.makeGMonthValue(val).asAtomic();
                 } else if (gtype.equals(DatatypeConstants.GMONTHDAY)) {
-                    return GMonthDayValue.makeGMonthDayValue(value.toString(), config.getConversionRules()).asAtomic();
+                    return GMonthDayValue.makeGMonthDayValue(value.toString()).asAtomic();
                 } else if (gtype.equals(DatatypeConstants.GDAY)) {
-                    return GDayValue.makeGDayValue(value.toString(), config.getConversionRules()).asAtomic();
+                    return GDayValue.makeGDayValue(value.toString()).asAtomic();
                 } else {
                     throw new AssertionError("Unknown Gregorian date type");
                 }
@@ -285,17 +285,17 @@ public class SaxonUtils {
                 	if (val.endsWith("--")) {
                 		val = val.substring(0, val.length() - 2);
                 	}
-                    return GMonthValue.makeGMonthValue(val, config.getConversionRules()).asAtomic();
+                    return GMonthValue.makeGMonthValue(val).asAtomic();
                 } else if (gtype.equals(DatatypeConstants.GMONTHDAY)) {
-                    return GMonthDayValue.makeGMonthDayValue(value.toString(), config.getConversionRules()).asAtomic();
+                    return GMonthDayValue.makeGMonthDayValue(value.toString()).asAtomic();
                 } else if (gtype.equals(DatatypeConstants.GDAY)) {
-                    return GDayValue.makeGDayValue(value.toString(), config.getConversionRules()).asAtomic();
+                    return GDayValue.makeGDayValue(value.toString()).asAtomic();
                 } else {
                     throw new AssertionError("Unknown Gregorian date type");
                 }
             } else if (value instanceof QName) {
                 QName q = (QName)value;
-                return new QNameValue(q.getPrefix(), q.getNamespaceURI(), q.getLocalPart(), type, null);
+                return new QNameValue(q.getPrefix(), q.getNamespaceURI(), q.getLocalPart(), type);
                         //BuiltInAtomicType.QNAME, null);
             } else {
                 throw new XPathException("Java object cannot be converted to an XQuery value");
@@ -342,7 +342,7 @@ public class SaxonUtils {
 			        jp = DOMObjectModel.getInstance().getJPConverter(Node.class, config);
 			}
 	        //return Value.asItem(DOMObjectModel.getInstance().convertObjectToXPathValue(value, config));
-	        return SequenceTool.asItem(jp.convert(value, new EarlyEvaluationContext(config, null)));
+	        return SequenceTool.asItem(jp.convert(value, new EarlyEvaluationContext(config)));
 	    } else if (value instanceof Source) {
 	        // Saxon extension to the XQJ specification
 	        PipelineConfiguration pipe = config.makePipelineConfiguration();

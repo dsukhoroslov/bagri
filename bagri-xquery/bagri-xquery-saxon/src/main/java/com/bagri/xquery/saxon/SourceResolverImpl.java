@@ -10,6 +10,8 @@ import java.util.Iterator;
 
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.URIResolver;
 import javax.xml.transform.stream.StreamSource;
 
 import org.slf4j.Logger;
@@ -37,13 +39,8 @@ import net.sf.saxon.tree.tiny.TinyDocumentImpl;
  * @author Denis Sukhoroslov
  *
  */
-public class SourceResolverImpl implements SourceResolver, ExternalObjectModel {
+public class SourceResolverImpl implements URIResolver, SourceResolver, ExternalObjectModel {
 	
-    /**
-	 * need it because ExternalObjectModel extends Serializable
-	 */
-	private static final long serialVersionUID = 766503700601897539L;
-
 	private static final Logger logger = LoggerFactory.getLogger(SourceResolverImpl.class);
 	
     private XDMRepository repo;
@@ -52,6 +49,12 @@ public class SourceResolverImpl implements SourceResolver, ExternalObjectModel {
     	this.repo = repo;
     }
 	
+	@Override
+	public Source resolve(String arg0, String arg1) throws TransformerException {
+		logger.trace("resolve. arg0: {}; arg1: {}", arg0, arg1);
+		return resolveSource(new StreamSource(arg0), null);
+	}
+
 	/* (non-Javadoc)
 	 * @see net.sf.saxon.lib.SourceResolver#resolveSource(javax.xml.transform.Source, net.sf.saxon.Configuration)
 	 */
@@ -199,6 +202,12 @@ public class SourceResolverImpl implements SourceResolver, ExternalObjectModel {
 			}
 		}
 		logger.info("unravel.failed; source: {}; config: {}", source, config);
+		return null;
+	}
+
+	@Override
+	public String getDocumentClassName() {
+		// TODO Auto-generated method stub
 		return null;
 	}
 
