@@ -54,11 +54,6 @@ import com.bagri.xdm.system.XDMSchema;
 
 public class CollectionURIResolverImpl implements CollectionURIResolver {
 
-    /**
-	 * need it because CollectionURIResolver extends Serializable
-	 */
-	private static final long serialVersionUID = -3339879838382944740L;
-
 	private static final Logger logger = LoggerFactory.getLogger(CollectionURIResolverImpl.class);
 
 	private PathBuilder currentPath;

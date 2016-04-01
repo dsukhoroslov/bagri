@@ -27,6 +27,7 @@ import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMQuery;
 import com.bagri.xquery.api.XQProcessor;
 
+import net.sf.saxon.lib.CollectionFinder;
 import net.sf.saxon.lib.ModuleURIResolver;
 import net.sf.saxon.om.Item;
 import net.sf.saxon.om.NamePool;
@@ -39,7 +40,8 @@ import net.sf.saxon.tree.util.DocumentNumberAllocator;
 public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 	
 	private Iterator<?> results;
-    private CollectionURIResolverImpl bcr;
+    //private CollectionURIResolverImpl bcr;
+	private CollectionFinderImpl cFinder;
     private Map<Integer, XQueryExpression> queries = new HashMap<>();
     
     private static NamePool defNamePool = new NamePool();
@@ -71,8 +73,10 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
     public void setRepository(XDMRepository xRepo) {
     	super.setRepository(xRepo);
     	//CollectionURIResolver old = bcr;
-    	bcr = new CollectionURIResolverImpl(xRepo);
-        config.setCollectionURIResolver(bcr);
+    	//bcr = new CollectionURIResolverImpl(xRepo);
+        //config.setCollectionURIResolver(bcr);
+    	cFinder = new CollectionFinderImpl(xRepo);
+    	config.setCollectionFinder(cFinder);
         config.setDefaultCollection("");
         SourceResolverImpl sResolver = new SourceResolverImpl(xRepo);
         config.setSourceResolver(sResolver);
@@ -169,7 +173,7 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
    	    	
     	    if (xQuery == null) {
 		        cacheable = true; 
-	        	bcr.setQuery(null);
+	        	cFinder.setQuery(null);
 		        readOnly |= !xqExp.getExpression().isUpdatingExpression();
 	        } else {
 	        	Map params = getParams();
@@ -177,10 +181,10 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
     	    	if (!(params == null || params.isEmpty())) {
         	    	xdmQuery.resetParams(params);
     	    	}
-	    		bcr.setQuery(xdmQuery);
+	    		cFinder.setQuery(xdmQuery);
 	    		readOnly = xQuery.isReadOnly();
     	    }
-        	bcr.setExpression(xqExp);
+        	cFinder.setExpression(xqExp);
 
 	        stamp = System.currentTimeMillis() - stamp;
 		    logger.trace("execQuery; xQuery: {}; time taken: {}", xQuery, stamp);
@@ -188,8 +192,8 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 	        SequenceIterator itr = xqExp.iterator(dqc);
 	        //Result r = new StreamResult();
 	        //xqExp.run(dqc, r, null);
-	        if (bcr.getQuery() != null && cacheable) {
-	        	qMgr.addQuery(query, readOnly, bcr.getQuery());
+	        if (cFinder.getQuery() != null && cacheable) {
+	        	qMgr.addQuery(query, readOnly, cFinder.getQuery());
 	        }
 	        stamp = System.currentTimeMillis() - stamp;
 		    logger.trace("execQuery.exit; iterator props: {}; time taken: {}", itr.getProperties(), stamp);

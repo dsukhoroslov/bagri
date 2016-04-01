@@ -52,14 +52,15 @@ public abstract class QueryAwareTask extends TransactionAwareTask {
 			out.writeInt(params.size());
 			for (Map.Entry<QName, Object> param: params.entrySet()) {
 				out.writeObject(param.getKey());
-				Object  v = param.getValue();
-				try {
-					Method m = v.getClass().getMethod("getObject", null);
-					v = m.invoke(v, null);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-				out.writeObject(v); //param.getValue());
+				//Object  v = param.getValue();
+				//try {
+				//	Method m = v.getClass().getMethod("getObject", null);
+				//	v = m.invoke(v, null);
+				//} catch (Exception e) {
+				//	e.printStackTrace();
+				//}
+				//out.writeObject(v); 
+				out.writeObject(param.getValue());
 			}
 		}
 		out.writeObject(context);

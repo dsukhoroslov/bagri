@@ -366,7 +366,7 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
     	Map<String, Object> params = new HashMap<>(dqc.getParameters().getNumberOfKeys());
     	GlobalParameterSet pset = dqc.getParameters();
     	for (StructuredQName name: pset.getKeys()) {
-    		params.put(name.getClarkName(), pset.get(name));
+    		params.put(name.getClarkName(), ((ObjectValue) pset.get(name)).getObject());
     	}
     	return params;
     }
