@@ -5,6 +5,7 @@ import static com.bagri.xqj.BagriXQErrors.ex_expression_closed;
 import java.io.InputStream;
 import java.io.Reader;
 import java.util.Collection;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -34,13 +35,16 @@ public class BagriXQDynamicContext extends BagriXQCloseable implements XQDynamic
 
 	BagriXQDynamicContext() {
 		//
+        timeZone = new GregorianCalendar().getTimeZone();
 	}
 	
 	BagriXQDynamicContext(XQStaticContext context) {
+		this();
 		this.context = context;
 	}
 
 	BagriXQDynamicContext(BagriXQConnection connection) {
+		this();
 		this.connection = connection;
 		try {
 			this.context = connection.getStaticContext();
@@ -50,6 +54,7 @@ public class BagriXQDynamicContext extends BagriXQCloseable implements XQDynamic
 	}
 
 	BagriXQDynamicContext(BagriXQConnection connection, XQStaticContext context) {
+		this();
 		this.connection = connection;
 		this.context = context;
 	}
@@ -225,6 +230,13 @@ public class BagriXQDynamicContext extends BagriXQCloseable implements XQDynamic
 		
 		checkState(ex_expression_closed);
 		this.timeZone = implicitTimeZone;
+		// TODO: propagate timezone to the underlying XQuery processor
+        //GregorianCalendar now = new GregorianCalendar(implicitTimeZone);
+        //try {
+        //    getDynamicContext().setCurrentDateTime(new DateTimeValue(now, true));
+        //} catch (XPathException e) {
+        //    throw new XQException(e.getMessage());
+        //}
 	}
 	
 	protected Set<QName> getVarNames() {

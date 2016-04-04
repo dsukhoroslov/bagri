@@ -79,16 +79,14 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
         config = Configuration.newConfiguration();
         //config.setHostLanguage(Configuration.XQUERY);
         config.setSchemaValidationMode(Validation.STRIP);
-        //SerializerFactory sf = null;
-        //config.setSerializerFactory(sf);
         //config.setConfigurationProperty(FeatureKeys.PRE_EVALUATE_DOC_FUNCTION, Boolean.TRUE);
         sqc = config.newStaticQueryContext();
         // supported in Saxon-EE only
         //sqc.setUpdatingEnabled(true);
 	    dqc = new DynamicQueryContext(config);
-        //dqc.setApplyFunctionConversionRulesToExternalVariables(false);
+        dqc.setApplyFunctionConversionRulesToExternalVariables(false);
         //sqc. cvr = new StandardObjectConverter();
-        JPConverter.allocate(XQItem.class, null, config);
+        //JPConverter.allocate(XQItem.class, null, config);
         //BagriSourceResolver resolver = new BagriSourceResolver(null);
         //config.registerExternalObjectModel(resolver);
     }

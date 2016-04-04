@@ -39,7 +39,7 @@ import net.sf.saxon.tree.tiny.TinyDocumentImpl;
  * @author Denis Sukhoroslov
  *
  */
-public class SourceResolverImpl implements URIResolver, SourceResolver, ExternalObjectModel {
+public class SourceResolverImpl implements SourceResolver, URIResolver, ExternalObjectModel {
 	
 	private static final Logger logger = LoggerFactory.getLogger(SourceResolverImpl.class);
 	
@@ -50,9 +50,9 @@ public class SourceResolverImpl implements URIResolver, SourceResolver, External
     }
 	
 	@Override
-	public Source resolve(String arg0, String arg1) throws TransformerException {
-		logger.trace("resolve. arg0: {}; arg1: {}", arg0, arg1);
-		return resolveSource(new StreamSource(arg0), null);
+	public Source resolve(String href, String base) throws TransformerException {
+		logger.trace("resolve. href: {}; base: {}", href, base);
+		return resolveSource(new StreamSource(href), null);
 	}
 
 	/* (non-Javadoc)
@@ -65,8 +65,6 @@ public class SourceResolverImpl implements URIResolver, SourceResolver, External
 		XDMDocumentId docId = null;
 		String original = source.getSystemId();
 
-		// TODO: use config.getSystemURIResolver() !
-		
 		URI uri = URI.create(original);
 		logger.trace("resolveSource. got {} URI: {}", uri.isAbsolute() ? "absolute" : "relative", uri);
 		if (bg_schema.equals(uri.getScheme())) {

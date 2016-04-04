@@ -80,7 +80,7 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
         config.setDefaultCollection("");
         SourceResolverImpl sResolver = new SourceResolverImpl(xRepo);
         config.setSourceResolver(sResolver);
-        config.registerExternalObjectModel(sResolver);
+        //config.registerExternalObjectModel(sResolver);
         config.setURIResolver(sResolver);
         ModuleURIResolver mResolver = new ModuleURIResolverImpl((com.bagri.xdm.cache.api.XDMRepository) xRepo);
         config.setModuleURIResolver(mResolver);
@@ -151,20 +151,14 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 	    //logger.trace("execQuery; module resolver: {}", config.getModuleURIResolver());
 	    sqc.setModuleURIResolver(config.getModuleURIResolver());
    	    
-	    //check query and get 
-	    //if (query.indexOf("declare option bgdm:document-format \"JSON\"") > 0) {
-	    //	properties.setProperty("xdm.document.format", "JSON");
-	    //	logger.trace("execQuery; set document format: {}", "JSON");
-	    //}
-	    // actually, I pass document format option in properties..
-	    
 	    Integer qKey = qMgr.getQueryKey(query);
    	    XQueryExpression xqExp = queries.get(qKey);
    	    try {
         	if (xqExp == null) {
 		        xqExp = sqc.compileQuery(query);
 		        if (logger.isTraceEnabled()) {
-		        	logger.trace("execQuery; query: \n{}", explainQuery(xqExp));
+		        	logger.trace("execQuery; query: \n{}; \nexpression: {}", explainQuery(xqExp), 
+		        			xqExp.getExpression().getExpressionName());
 		        }
 	    	    // HOWTO: distinguish a query from command utilizing external function (store, remove)?
 		        readOnly = !xqExp.getExpression().getExpressionName().startsWith(XDMConstants.bg_schema);
@@ -198,7 +192,6 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 	        }
 	        stamp = System.currentTimeMillis() - stamp;
 		    logger.trace("execQuery.exit; iterator props: {}; time taken: {}", itr.getProperties(), stamp);
-		    //serializeResults(itr);
 	        return new XQIterator(getXQDataFactory(), itr); 
         } catch (Throwable ex) {
         	logger.error("execQuery.error: ", ex);
@@ -255,20 +248,5 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 		return "XQProcessorServer[" + getRepository().getClientId() + "]";
 	}
 	
-	private void serializeResults(SequenceIterator results) throws XQException {
-		
-		try {
-			//SequenceIterator iterator = (SequenceIterator) results; 
-			Writer writer = new StringWriter();
-			Properties props = new Properties();
-			props.setProperty("method", "text");
-			QueryResult.serializeSequence(results, config, writer, props);
-			logger.trace("serializeResults; serialized: {}", writer.toString());
-			//Reader reader = new StringReader();
-		} catch (XPathException ex) {
-			throw new XQException(ex.getMessage());
-		}
-	}
-
 }
 

@@ -43,7 +43,7 @@ import org.xml.sax.SAXException;
 import com.bagri.xquery.saxon.XQProcessorServer;
 import com.saxonica.xqj.SaxonXQDataSource;
 
-//@Ignore
+@Ignore
 public class SaxonParserTest {
 	
 	//private XQProcessorServer parser;
