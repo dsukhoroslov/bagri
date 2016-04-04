@@ -572,7 +572,7 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 	@Override
 	public Iterator<?> executeQuery(String query, Map<QName, Object> params, Properties props) throws XDMException {
 
-		logger.trace("executeQuery.enter; query: {}, command: {}; params: {}; properties: {}", query, params, props);
+		logger.trace("executeQuery.enter; query: {}; params: {}; properties: {}", query, params, props);
 		ResultCursor result = null;
 		String clientId = props.getProperty(pn_client_id);
 		int batchSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, "0"));
@@ -584,10 +584,17 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 		} catch (XQException ex) {
 			throw new XDMException(ex, XDMException.ecQuery);
 		}
-		logger.trace("execXQCommand.exit; returning: {}, for client: {}", result, clientId);
+		logger.trace("executeQuery.exit; returning: {}, for client: {}", result, clientId);
 		return result;
 	}
 	
+	@Override
+	public Collection<String> prepareQuery(String query) {
+		// not used on the server side?
+		logger.info("prepareQuery; query: {}", query);
+		return null;
+	}
+
 	private Iterator<?> runQuery(String query, Map<QName, Object> params, Properties props) throws XQException {
 		
 		
@@ -648,7 +655,7 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
         }
         long stamp = stopWatch.stop();
         if (!timeQueue.offer(new StatisticsEvent(query, !failed, stamp))) {
-        	logger.warn("invoke: the timeQueue is full!!");
+        	logger.warn("runQuery: the timeQueue is full!!");
         }
         if (failed) {
             throw new XQException(ex.getMessage());
@@ -706,13 +713,6 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 			this.docIds = docIds;
 		}
 		
-	}
-
-	@Override
-	public Collection<String> prepareQuery(String query) {
-		// not used on the server side?
-		logger.info("prepareQuery; query: {}", query);
-		return null;
 	}
 
 }

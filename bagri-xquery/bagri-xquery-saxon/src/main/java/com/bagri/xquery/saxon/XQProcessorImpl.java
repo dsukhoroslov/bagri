@@ -1,6 +1,7 @@
 package com.bagri.xquery.saxon;
 
 import static com.bagri.xdm.common.XDMConstants.*;
+import static com.bagri.xquery.saxon.SaxonUtils.*;
 import static javax.xml.xquery.XQConstants.*;
 
 import java.io.ByteArrayOutputStream;
@@ -35,6 +36,7 @@ import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 
 import com.bagri.common.util.XMLUtils;
+import com.bagri.xdm.api.XDMQueryManagement;
 import com.bagri.xdm.api.XDMRepository;
 import com.bagri.xquery.api.XQProcessorBase;
 import com.bagri.xquery.saxon.extension.GetDocument;
@@ -49,6 +51,7 @@ import net.sf.saxon.expr.JPConverter;
 import net.sf.saxon.expr.instruct.GlobalParameterSet;
 import net.sf.saxon.expr.instruct.GlobalVariable;
 import net.sf.saxon.lib.Logger;
+import net.sf.saxon.lib.SerializerFactory;
 import net.sf.saxon.lib.StandardLogger;
 import net.sf.saxon.lib.Validation;
 import net.sf.saxon.om.DocumentInfo;
@@ -76,12 +79,14 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
         config = Configuration.newConfiguration();
         //config.setHostLanguage(Configuration.XQUERY);
         config.setSchemaValidationMode(Validation.STRIP);
+        //SerializerFactory sf = null;
+        //config.setSerializerFactory(sf);
         //config.setConfigurationProperty(FeatureKeys.PRE_EVALUATE_DOC_FUNCTION, Boolean.TRUE);
         sqc = config.newStaticQueryContext();
         // supported in Saxon-EE only
         //sqc.setUpdatingEnabled(true);
 	    dqc = new DynamicQueryContext(config);
-        dqc.setApplyFunctionConversionRulesToExternalVariables(false);
+        //dqc.setApplyFunctionConversionRulesToExternalVariables(false);
         //sqc. cvr = new StandardObjectConverter();
         JPConverter.allocate(XQItem.class, null, config);
         //BagriSourceResolver resolver = new BagriSourceResolver(null);
@@ -346,7 +351,19 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
 	//@Override
     public void bindVariable(QName varName, Object var) throws XQException {
     	//dqc.setParameter(varName.toString(), var);
-        dqc.setParameter(getStructuredQName(varName), new ObjectValue(var));
+        //dqc.setParameter(getStructuredQName(varName), new ObjectValue(var));
+    	try {
+    		Item item;
+    		//JPConverter.FromObject.INSTANCE.convert(var, config.getConversionContext())
+    		if (var instanceof XQItem) {
+    			item = convertXQItem((XQItem) var, config);
+    		} else {
+    			item = objectToItem(var, config);
+    		}
+    		dqc.setParameter(getStructuredQName(varName), item);
+    	} catch (XPathException ex) {
+    		throw new XQException(ex.getMessage());
+    	}
     }
     
 	//@Override
@@ -362,13 +379,18 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
     
     // why it is not <QName, Object> ??
     // because it is used in QueryBuilder where params identified by plain Strings
-    protected Map<String, Object> getParams() {
-    	Map<String, Object> params = new HashMap<>(dqc.getParameters().getNumberOfKeys());
-    	GlobalParameterSet pset = dqc.getParameters();
-    	for (StructuredQName name: pset.getKeys()) {
-    		params.put(name.getClarkName(), ((ObjectValue) pset.get(name)).getObject());
+    protected Map<String, Object> getParams() throws XPathException {
+    	GlobalParameterSet params = dqc.getParameters();
+    	Map<String, Object> bindings = new HashMap<>(params.getNumberOfKeys());
+    	for (StructuredQName name: params.getKeys()) {
+    		//bindings.put(vName, params.get(qName));
+    		//bindings.put(vName, ((ObjectValue) params.get(qName)).getObject());
+    		Item item = (Item) params.get(name);
+    		Object value = itemToObject(item);
+    		bindings.put(name.getClarkName(), value);
+    		logger.trace("getParams; name: {}; item: {}; value: {}", name, item, value);
     	}
-    	return params;
+    	return bindings;
     }
     
     protected Collection<QName> getParamNames(Collection<String> pNames) {

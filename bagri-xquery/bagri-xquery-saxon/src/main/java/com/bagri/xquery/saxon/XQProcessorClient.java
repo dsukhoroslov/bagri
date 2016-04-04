@@ -15,7 +15,9 @@ import javax.xml.xquery.XQItem;
 import javax.xml.xquery.XQStaticContext;
 
 import net.sf.saxon.expr.instruct.GlobalParameterSet;
+import net.sf.saxon.om.Item;
 import net.sf.saxon.om.StructuredQName;
+import net.sf.saxon.trans.XPathException;
 import net.sf.saxon.value.ObjectValue;
 
 import com.bagri.xdm.api.XDMException;
@@ -23,6 +25,7 @@ import com.bagri.xdm.api.XDMQueryManagement;
 import com.bagri.xdm.common.XDMDocumentId;
 import com.bagri.xquery.api.XQProcessor;
 
+import static com.bagri.xquery.saxon.SaxonUtils.*;
 import static com.bagri.xdm.common.XDMConstants.*;
 import static com.bagri.xqj.BagriXQUtils.getXQException;
 
@@ -113,16 +116,18 @@ public class XQProcessorClient extends XQProcessorImpl implements XQProcessor {
     	XDMQueryManagement qMgr = getQueryManagement();
     	GlobalParameterSet params = dqc.getParameters();
     	Map<QName, Object> bindings = new HashMap<>(params.getNumberOfKeys());
-    	for (StructuredQName qName: params.getKeys()) {
-    		QName vName = new QName(qName.getURI(), qName.getLocalPart(), qName.getPrefix()); 
-    		//bindings.put(vName, params.get(qName));
-    		bindings.put(vName, ((ObjectValue) params.get(qName)).getObject());
-    	}
-    	//logger.trace("executeXQuery; bindings: {}", bindings);
     	
     	try {
+	    	for (StructuredQName qName: params.getKeys()) {
+	    		QName vName = new QName(qName.getURI(), qName.getLocalPart(), qName.getPrefix()); 
+	    		//bindings.put(vName, params.get(qName));
+	    		//bindings.put(vName, ((ObjectValue) params.get(qName)).getObject());
+	    		bindings.put(vName, itemToObject((Item) params.get(qName)));
+	    	}
+	    	//logger.trace("executeXQuery; bindings: {}", bindings);
+    	
     		return qMgr.executeQuery(query, bindings, props);
-    	} catch (XDMException ex) {
+    	} catch (XPathException | XDMException ex) {
     		throw getXQException(ex);
     	}
 	}

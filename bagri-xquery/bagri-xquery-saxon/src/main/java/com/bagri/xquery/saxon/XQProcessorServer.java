@@ -41,7 +41,7 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 	
 	private Iterator<?> results;
     //private CollectionURIResolverImpl bcr;
-	private CollectionFinderImpl cFinder;
+	private CollectionFinderImpl clnFinder;
     private Map<Integer, XQueryExpression> queries = new HashMap<>();
     
     private static NamePool defNamePool = new NamePool();
@@ -75,8 +75,8 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
     	//CollectionURIResolver old = bcr;
     	//bcr = new CollectionURIResolverImpl(xRepo);
         //config.setCollectionURIResolver(bcr);
-    	cFinder = new CollectionFinderImpl(xRepo);
-    	config.setCollectionFinder(cFinder);
+    	clnFinder = new CollectionFinderImpl(xRepo);
+    	config.setCollectionFinder(clnFinder);
         config.setDefaultCollection("");
         SourceResolverImpl sResolver = new SourceResolverImpl(xRepo);
         config.setSourceResolver(sResolver);
@@ -171,29 +171,30 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 	        	queries.put(qKey, xqExp);
         	} 
    	    	
+        	Map<String, Object> params = getParams();
     	    if (xQuery == null) {
 		        cacheable = true; 
-	        	cFinder.setQuery(null);
+	        	clnFinder.setQuery(null);
 		        readOnly |= !xqExp.getExpression().isUpdatingExpression();
 	        } else {
-	        	Map params = getParams();
+	        	//Map params = getParams();
     	    	QueryBuilder xdmQuery = xQuery.getXdmQuery();
     	    	if (!(params == null || params.isEmpty())) {
         	    	xdmQuery.resetParams(params);
     	    	}
-	    		cFinder.setQuery(xdmQuery);
+	    		clnFinder.setQuery(xdmQuery);
 	    		readOnly = xQuery.isReadOnly();
     	    }
-        	cFinder.setExpression(xqExp);
+        	clnFinder.setExpression(xqExp);
 
 	        stamp = System.currentTimeMillis() - stamp;
-		    logger.trace("execQuery; xQuery: {}; time taken: {}", xQuery, stamp);
+		    logger.trace("execQuery; xQuery: {}; params: {}; time taken: {}", xQuery, params, stamp);
 		    stamp = System.currentTimeMillis();
 	        SequenceIterator itr = xqExp.iterator(dqc);
 	        //Result r = new StreamResult();
 	        //xqExp.run(dqc, r, null);
-	        if (cFinder.getQuery() != null && cacheable) {
-	        	qMgr.addQuery(query, readOnly, cFinder.getQuery());
+	        if (clnFinder.getQuery() != null && cacheable) {
+	        	qMgr.addQuery(query, readOnly, clnFinder.getQuery());
 	        }
 	        stamp = System.currentTimeMillis() - stamp;
 		    logger.trace("execQuery.exit; iterator props: {}; time taken: {}", itr.getProperties(), stamp);
