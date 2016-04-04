@@ -383,10 +383,14 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
     	GlobalParameterSet params = dqc.getParameters();
     	Map<String, Object> bindings = new HashMap<>(params.getNumberOfKeys());
     	for (StructuredQName name: params.getKeys()) {
-    		//bindings.put(vName, params.get(qName));
-    		//bindings.put(vName, ((ObjectValue) params.get(qName)).getObject());
     		Item item = (Item) params.get(name);
-    		Object value = itemToObject(item);
+    		Object value;
+			try {
+				value = itemToObject(item);
+			} catch (XPathException ex) {
+				logger.info("getParams.error; can not convert item: {} of class: {}", item, item.getClass().getName());
+				throw ex;
+			}
     		bindings.put(name.getClarkName(), value);
     		logger.trace("getParams; name: {}; item: {}; value: {}", name, item, value);
     	}

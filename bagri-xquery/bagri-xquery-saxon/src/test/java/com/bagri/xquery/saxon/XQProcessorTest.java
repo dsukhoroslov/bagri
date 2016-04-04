@@ -3,6 +3,8 @@ package com.bagri.xquery.saxon;
 import static com.bagri.common.util.FileUtils.readTextFile;
 import static org.junit.Assert.*;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Iterator;
 import java.util.Properties;
 
@@ -76,16 +78,16 @@ public class XQProcessorTest {
 	}
 	
 	@Test
-	public void testQuery() throws XPathException, XQException {
+	public void testBindingQuery() throws XPathException, XQException {
 
         Configuration config = Configuration.newConfiguration();
         StaticQueryContext sqc = config.newStaticQueryContext();
    	    DynamicQueryContext dqc = new DynamicQueryContext(config);
         dqc.setApplyFunctionConversionRulesToExternalVariables(false);
 
-   	    XQueryExpression xqExp = sqc.compileQuery("declare variable $v external; $v instance of xs:boolean");
 		//dqc.setParameter(new StructuredQName("",  "", "v"), BooleanValue.get(true));
 		dqc.setParameter(new StructuredQName("",  "", "v"), SaxonUtils.objectToItem(Boolean.TRUE, config));
+   	    XQueryExpression xqExp = sqc.compileQuery("declare variable $v external; $v instance of xs:boolean");
         SequenceIterator itr = xqExp.iterator(dqc);
         Item item = itr.next();
    	    assertNotNull(item);
@@ -94,16 +96,96 @@ public class XQProcessorTest {
 		assertTrue(b);
 
 		dqc.clearParameters();
+		//dqc.setParameter(new StructuredQName("",  "", "v"), 
+		//		JPConverter.FromByte.INSTANCE.convert(new Byte((byte) 1), config.getConversionContext()));
+		dqc.setParameter(new StructuredQName("",  "", "v"), SaxonUtils.objectToItem(new Byte((byte) 1), config));
 		xqExp = sqc.compileQuery("declare variable $v external; $v instance of xs:byte");
-		//dqc.setParameter(new StructuredQName("",  "", "v"), SaxonUtils.objectToItem(new Byte((byte) 1), config));
-		dqc.setParameter(new StructuredQName("",  "", "v"), 
-				JPConverter.FromByte.INSTANCE.convert(new Byte((byte) 1), config.getConversionContext()));
         itr = xqExp.iterator(dqc);
         item = itr.next();
    	    assertNotNull(item);
    	    val = item.getStringValue();
 		b = Boolean.parseBoolean(val);
-		//assertTrue(b);
+		assertTrue(b);
+
+		dqc.clearParameters();
+		dqc.setParameter(new StructuredQName("",  "", "v"), SaxonUtils.objectToItem(new Float(1), config));
+		xqExp = sqc.compileQuery("declare variable $v external; $v instance of xs:float");
+        itr = xqExp.iterator(dqc);
+        item = itr.next();
+   	    assertNotNull(item);
+   	    val = item.getStringValue();
+		b = Boolean.parseBoolean(val);
+		assertTrue(b);
+		
+		dqc.clearParameters();
+		dqc.setParameter(new StructuredQName("",  "", "v"), SaxonUtils.objectToItem(new Double(1), config));
+		xqExp = sqc.compileQuery("declare variable $v external; $v instance of xs:double");
+        itr = xqExp.iterator(dqc);
+        item = itr.next();
+   	    assertNotNull(item);
+   	    val = item.getStringValue();
+		b = Boolean.parseBoolean(val);
+		assertTrue(b);
+
+		dqc.clearParameters();
+		dqc.setParameter(new StructuredQName("",  "", "v"), SaxonUtils.objectToItem(new Integer(1), config));
+		xqExp = sqc.compileQuery("declare variable $v external; $v instance of xs:int");
+        itr = xqExp.iterator(dqc);
+        item = itr.next();
+   	    assertNotNull(item);
+   	    val = item.getStringValue();
+		b = Boolean.parseBoolean(val);
+		assertTrue(b);
+
+		dqc.clearParameters();
+		dqc.setParameter(new StructuredQName("",  "", "v"), SaxonUtils.objectToItem(new Long(1), config));
+		xqExp = sqc.compileQuery("declare variable $v external; $v instance of xs:long");
+        itr = xqExp.iterator(dqc);
+        item = itr.next();
+   	    assertNotNull(item);
+   	    val = item.getStringValue();
+		b = Boolean.parseBoolean(val);
+		assertTrue(b);
+
+		dqc.clearParameters();
+		dqc.setParameter(new StructuredQName("",  "", "v"), SaxonUtils.objectToItem(new Short((short) 1), config));
+		xqExp = sqc.compileQuery("declare variable $v external; $v instance of xs:short");
+        itr = xqExp.iterator(dqc);
+        item = itr.next();
+   	    assertNotNull(item);
+   	    val = item.getStringValue();
+		b = Boolean.parseBoolean(val);
+		assertTrue(b);
+
+		dqc.clearParameters();
+		dqc.setParameter(new StructuredQName("",  "", "v"), SaxonUtils.objectToItem("Hello world!", config));
+		xqExp = sqc.compileQuery("declare variable $v external; $v instance of xs:string");
+        itr = xqExp.iterator(dqc);
+        item = itr.next();
+   	    assertNotNull(item);
+   	    val = item.getStringValue();
+		b = Boolean.parseBoolean(val);
+		assertTrue(b);
+
+		dqc.clearParameters();
+		dqc.setParameter(new StructuredQName("",  "", "v"), SaxonUtils.objectToItem(new BigDecimal("1"), config));
+		xqExp = sqc.compileQuery("declare variable $v external; $v instance of xs:decimal");
+        itr = xqExp.iterator(dqc);
+        item = itr.next();
+   	    assertNotNull(item);
+   	    val = item.getStringValue();
+		b = Boolean.parseBoolean(val);
+		assertTrue(b);
+
+		dqc.clearParameters();
+		dqc.setParameter(new StructuredQName("",  "", "v"), SaxonUtils.objectToItem(new BigInteger("1"), config));
+		xqExp = sqc.compileQuery("declare variable $v external; $v instance of xs:integer");
+        itr = xqExp.iterator(dqc);
+        item = itr.next();
+   	    assertNotNull(item);
+   	    val = item.getStringValue();
+		b = Boolean.parseBoolean(val);
+		assertTrue(b);
 	}
 
 }

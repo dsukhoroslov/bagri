@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import javax.xml.namespace.QName;
+import javax.xml.xquery.XQDataFactory;
 import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQItem;
 import javax.xml.xquery.XQStaticContext;
@@ -120,9 +121,8 @@ public class XQProcessorClient extends XQProcessorImpl implements XQProcessor {
     	try {
 	    	for (StructuredQName qName: params.getKeys()) {
 	    		QName vName = new QName(qName.getURI(), qName.getLocalPart(), qName.getPrefix()); 
-	    		//bindings.put(vName, params.get(qName));
-	    		//bindings.put(vName, ((ObjectValue) params.get(qName)).getObject());
-	    		bindings.put(vName, itemToObject((Item) params.get(qName)));
+	    		//bindings.put(vName, itemToObject((Item) params.get(qName)));
+	    		bindings.put(vName, itemToXQItem((Item) params.get(qName), this.getXQDataFactory()));
 	    	}
 	    	//logger.trace("executeXQuery; bindings: {}", bindings);
     	

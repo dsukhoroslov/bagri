@@ -71,14 +71,17 @@ public abstract class BagriXQItemAccessor extends BagriXQCloseable implements XQ
         if (props == null) {
             props = new Properties();
         }
-        if (props.size() == 0) {
+        if (!props.containsKey(OutputKeys.INDENT)) {
             props.setProperty(OutputKeys.INDENT, "yes");
-            props.setProperty(OutputKeys.METHOD, "xml");
-            props.setProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-        //} else {
-    		// TODO: check for only serialization properties here?
-            //validateSerializationProperties(props, config);
         }
+        if (!props.containsKey(OutputKeys.METHOD)) {
+            props.setProperty(OutputKeys.METHOD, "xml");
+        }
+        if (!props.containsKey(OutputKeys.OMIT_XML_DECLARATION)) {
+            props.setProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+        } 
+   		// TODO: check for only serialization properties here?
+        //validateSerializationProperties(props, config);
         return props;
 	}
 	

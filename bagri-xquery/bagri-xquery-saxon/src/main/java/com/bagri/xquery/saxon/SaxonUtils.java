@@ -3,6 +3,7 @@ package com.bagri.xquery.saxon;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.GregorianCalendar;
 
 import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.Duration;
@@ -10,6 +11,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.transform.Source;
+import javax.xml.xquery.XQDataFactory;
 import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQItem;
 import javax.xml.xquery.XQItemAccessor;
@@ -43,18 +45,17 @@ import net.sf.saxon.expr.XPathContext;
 import net.sf.saxon.om.Item;
 import net.sf.saxon.om.NodeInfo;
 import net.sf.saxon.om.Sequence;
+import net.sf.saxon.om.SequenceIterator;
 import net.sf.saxon.om.SequenceTool;
+import net.sf.saxon.om.StandardNames;
 import net.sf.saxon.trans.XPathException;
 import net.sf.saxon.tree.tiny.TinyBuilder;
 import net.sf.saxon.type.AtomicType;
 import net.sf.saxon.type.BuiltInAtomicType;
 import net.sf.saxon.type.ItemType;
 import net.sf.saxon.value.*;
-//import net.sf.saxon.xqj.SaxonDuration;
-//import net.sf.saxon.xqj.SaxonXMLGregorianCalendar;
+
 import static net.sf.saxon.om.StandardNames.*;
-import static com.bagri.xquery.saxon.SaxonUtils.convertToItem;
-import static com.bagri.xquery.saxon.SaxonUtils.getAtomicType;
 import static javax.xml.xquery.XQItemType.*;
 
 public class SaxonUtils {
@@ -65,6 +66,7 @@ public class SaxonUtils {
             int t = p.getItemType().getPrimitiveType();
             switch (t) {
                 case XS_ANY_URI:
+                case XS_ANY_ATOMIC_TYPE:
                     return p.getStringValue();
                 case XS_BASE64_BINARY:
                     return ((Base64BinaryValue)p).getBinaryValue();
@@ -130,7 +132,7 @@ public class SaxonUtils {
                 case XS_YEAR_MONTH_DURATION:
                     return new SaxonDuration((DurationValue)p);
                 default:
-                    throw new XPathException("unsupported type");
+                    throw new XPathException("unsupported type: " + t);
             }
         } else if (item instanceof NodeInfo) {
             return NodeOverNodeInfo.wrap((NodeInfo)item);
@@ -160,17 +162,17 @@ public class SaxonUtils {
             } else if (value instanceof byte[]) {
                 return new HexBinaryValue((byte[])value);
             } else if (value instanceof Byte) {
-                return new Int64Value(((Byte)value).byteValue()); //BuiltInAtomicType.BYTE, false);
+                return new Int64Value(((Byte)value).byteValue(), BuiltInAtomicType.BYTE, false);
             } else if (value instanceof Float) {
                 return new FloatValue(((Float)value).floatValue());
             } else if (value instanceof Double) {
                 return new DoubleValue(((Double)value).doubleValue());
             } else if (value instanceof Integer) {
-                return new Int64Value(((Integer)value).intValue()); //BuiltInAtomicType.INT, false);
+                return new Int64Value(((Integer)value).intValue(), BuiltInAtomicType.INT, false);
             } else if (value instanceof Long) {
-                return new Int64Value(((Long)value).longValue()); //BuiltInAtomicType.LONG, false);
+                return new Int64Value(((Long)value).longValue(), BuiltInAtomicType.LONG, false);
             } else if (value instanceof Short) {
-                return new Int64Value(((Short)value).shortValue()); //BuiltInAtomicType.SHORT, false);
+                return new Int64Value(((Short)value).shortValue(), BuiltInAtomicType.SHORT, false);
             } else if (value instanceof String) {
                 return new StringValue((String)value);
             } else if (value instanceof BigDecimal) {
@@ -464,6 +466,213 @@ public class SaxonUtils {
 		return BuiltInAtomicType.ANY_ATOMIC; 
 	}
 
+    private static XMLGregorianCalendar getCalendar(CalendarValue c, int cType) { //throws XPathException {
+    	GregorianCalendar cal = c.getCalendar(); 
+    	return BagriXQUtils.getXMLCalendar(cal, cType);
+    }
+
+    private static Duration getDuration(DurationValue d, int type) { //throws XPathException {
+    	return BagriXQUtils.getXMLDuration(d.getStringValue(), type);
+    }
+
+    @SuppressWarnings({ "rawtypes" })
+	public static XQItemAccessor itemToXQItem(Item item, XQDataFactory xqFactory) throws XPathException, XQException {
+        if (item instanceof AtomicValue) {
+        	int type;
+            Object value;
+        	
+            AtomicValue p = ((AtomicValue)item);
+            int t = p.getItemType().getPrimitiveType();
+            switch (t) {
+                case XS_ANY_URI:
+                    type = XQItemType.XQBASETYPE_ANYURI; 	
+                    value = p.getStringValue();
+                    break;
+                case XS_ANY_ATOMIC_TYPE:
+                    type = XQItemType.XQBASETYPE_ANYATOMICTYPE; 	
+                    value = p.getStringValue();
+                    break;
+                case XS_BASE64_BINARY:
+                    type = XQItemType.XQBASETYPE_BASE64BINARY;
+                    value = ((Base64BinaryValue)p).getBinaryValue();
+                    break;
+                case XS_BOOLEAN:
+                    type = XQItemType.XQBASETYPE_BOOLEAN;
+                    value = Boolean.valueOf(((BooleanValue)p).getBooleanValue());
+                    break;
+                case XS_DATE:
+                    type = XQItemType.XQBASETYPE_DATE;
+                    value = getCalendar((CalendarValue) p, XQItemType.XQBASETYPE_DATE);
+                    break;
+                case XS_TIME:
+                    type = XQItemType.XQBASETYPE_TIME;
+                    value = getCalendar((CalendarValue) p, XQItemType.XQBASETYPE_TIME);
+                    break;
+                case XS_DATE_TIME:
+                    type = XQItemType.XQBASETYPE_DATETIME;
+                    value = getCalendar((CalendarValue) p, XQItemType.XQBASETYPE_DATETIME);
+                    break;
+                case XS_DECIMAL:
+                    type = XQItemType.XQBASETYPE_DECIMAL;
+                    value = ((DecimalValue)p).getDecimalValue();
+                    break;
+                case XS_DOUBLE:
+                    type = XQItemType.XQBASETYPE_DOUBLE;
+                    value = ((DoubleValue)p).getDoubleValue();
+                    break;
+                case XS_DURATION:
+                    type = XQItemType.XQBASETYPE_DURATION;
+                    value = getDuration((DurationValue) p, type);
+                    break;
+                case XS_DAY_TIME_DURATION:
+                    type = XQItemType.XQBASETYPE_DAYTIMEDURATION;
+                    value = getDuration((DurationValue) p, type);
+                    break;
+                case XS_YEAR_MONTH_DURATION:
+                    type = XQItemType.XQBASETYPE_YEARMONTHDURATION;
+                    value = getDuration((DurationValue) p, type);
+                    break;
+                case XS_FLOAT:
+                    type = XQItemType.XQBASETYPE_FLOAT;
+                    value = ((FloatValue)p).getFloatValue();
+                    break;
+                case XS_G_DAY:
+                    type = XQItemType.XQBASETYPE_GDAY;
+                    value = getCalendar((CalendarValue) p, XQItemType.XQBASETYPE_GDAY);
+                    break;
+                case XS_G_MONTH:
+                    type = XQItemType.XQBASETYPE_GMONTH;
+                    value = getCalendar((CalendarValue) p, XQItemType.XQBASETYPE_GMONTH);
+                    break;
+                case XS_G_MONTH_DAY:
+                    type = XQItemType.XQBASETYPE_GMONTHDAY;
+                    value = getCalendar((CalendarValue) p, XQItemType.XQBASETYPE_GMONTHDAY);
+                    break;
+                case XS_G_YEAR:
+                    type = XQItemType.XQBASETYPE_GYEAR;
+                    value = getCalendar((CalendarValue) p, XQItemType.XQBASETYPE_GYEAR);
+                    break;
+                case XS_G_YEAR_MONTH:
+                    type = XQItemType.XQBASETYPE_GYEARMONTH;
+                    value = getCalendar((CalendarValue) p, XQItemType.XQBASETYPE_GYEARMONTH);
+                    break;
+                case XS_HEX_BINARY:
+                    type = XQItemType.XQBASETYPE_HEXBINARY;
+                    value = ((HexBinaryValue)p).getBinaryValue();
+                    break;
+                case XS_INTEGER:
+                    if (p instanceof BigIntegerValue) {
+                    	type = XQItemType.XQBASETYPE_INTEGER;
+                        value = ((BigIntegerValue)p).asBigInteger();
+                    } else {
+                        int sub = ((AtomicType)p.getItemType()).getFingerprint();
+                        switch (sub) {
+                            case XS_INTEGER:
+                            	type = XQItemType.XQBASETYPE_INTEGER;
+                                value = BigInteger.valueOf(((Int64Value)p).longValue());
+                                break;
+                            case XS_NEGATIVE_INTEGER:
+                            	type = XQItemType.XQBASETYPE_NEGATIVE_INTEGER;
+                                value = BigInteger.valueOf(((Int64Value)p).longValue());
+                                break;
+                            case XS_NON_NEGATIVE_INTEGER:
+                            	type = XQItemType.XQBASETYPE_NONNEGATIVE_INTEGER;
+                                value = BigInteger.valueOf(((Int64Value)p).longValue());
+                                break;
+                            case XS_NON_POSITIVE_INTEGER:
+                            	type = XQItemType.XQBASETYPE_NONPOSITIVE_INTEGER;
+                                value = BigInteger.valueOf(((Int64Value)p).longValue());
+                                break;
+                            case XS_POSITIVE_INTEGER:
+                            	type = XQItemType.XQBASETYPE_POSITIVE_INTEGER;
+                                value = BigInteger.valueOf(((Int64Value)p).longValue());
+                                break;
+                            case XS_UNSIGNED_LONG:
+                            	type = XQItemType.XQBASETYPE_UNSIGNED_LONG;
+                                value = BigInteger.valueOf(((Int64Value)p).longValue());
+                                break;
+                            case XS_BYTE:
+                            	type = XQItemType.XQBASETYPE_BYTE;
+                                value = Byte.valueOf(((Int64Value)p).getStringValue());
+                                break;
+                            case XS_INT:
+                            	type = XQItemType.XQBASETYPE_INT;
+                                value = Integer.valueOf((int)((Int64Value)p).longValue());
+                                break;
+                            case XS_UNSIGNED_SHORT:
+                            	type = XQItemType.XQBASETYPE_UNSIGNED_SHORT;
+                                value = Integer.valueOf((int)((Int64Value)p).longValue());
+                                break;
+                            case XS_LONG:
+                            	type = XQItemType.XQBASETYPE_LONG;
+                                value = Long.valueOf((int)((Int64Value)p).longValue());
+                                break;
+                            case XS_UNSIGNED_INT:
+                            	type = XQItemType.XQBASETYPE_UNSIGNED_INT;
+                                value = Long.valueOf((int)((Int64Value)p).longValue());
+                                break;
+                            case StandardNames.XS_SHORT:
+                            	type = XQItemType.XQBASETYPE_SHORT;
+                                value = Short.valueOf((short)((Int64Value)p).longValue());
+                                break;
+                            case XS_UNSIGNED_BYTE:
+                            	type = XQItemType.XQBASETYPE_UNSIGNED_BYTE;
+                                value = Short.valueOf((short)((Int64Value)p).longValue());
+                                break;
+                            default:
+                                throw new XPathException("Unrecognized integer subtype " + sub);
+                        }
+                    }
+                    break;
+                case XS_STRING:
+                    value = p.getStringValue();
+                    int sub = ((AtomicType)p.getItemType()).getFingerprint();
+                    switch (sub) {
+	                    case XS_NAME:
+	                    	type = XQItemType.XQBASETYPE_NAME;
+	                    	break;
+	                    case XS_NCNAME:
+	                    	type = XQItemType.XQBASETYPE_NCNAME;
+	                        break;
+	                    case XS_NMTOKEN:
+	                    	type = XQItemType.XQBASETYPE_NMTOKEN;
+	                    	break;
+	                    default:
+	                    	type = XQItemType.XQBASETYPE_STRING;
+                    }
+                    break;
+                case XS_QNAME:
+                	type = XQItemType.XQBASETYPE_QNAME;
+                    value = ((QualifiedNameValue)p).toJaxpQName();
+                    break;
+                case XS_UNTYPED_ATOMIC:
+                	type = XQItemType.XQBASETYPE_UNTYPEDATOMIC;
+                    value = p.getStringValue();
+                    break;
+                default:
+                    throw new XPathException("unsupported type: " + t);
+            }
+			XQItemType xqt = xqFactory.createAtomicType(type); 
+        	return xqFactory.createItemFromObject(value, xqt);
+        } else if (item instanceof NodeInfo) {
+        	org.w3c.dom.Node node = NodeOverNodeInfo.wrap((NodeInfo)item);
+        	XQItemType xqt = BagriXQUtils.getTypeForNode(xqFactory, node);
+        	return xqFactory.createItemFromNode(node, xqt);
+        } else if (item instanceof ObjectValue) {
+        	Object value = ((ObjectValue) item).getObject();
+        	if (value instanceof XQItem) { //Accessor) {
+        		return (XQItemAccessor) value;
+        	} else {
+            	XQItemType xqt = BagriXQUtils.getTypeForObject(xqFactory, value);
+            	return xqFactory.createItemFromObject(value, xqt);
+        	}
+        } else if (item instanceof Sequence) {
+        	Sequence sq = (Sequence) item;
+        	SequenceIterator itr = sq.iterate();
+        	return xqFactory.createSequence(new XQIterator(xqFactory, itr));
+        }
+        return null; //item.;
+    }
 
 	/*    
     public static int getBaseType(AtomicValue value) {
