@@ -345,7 +345,11 @@ public class CollectionFinderImpl implements CollectionFinder {
     					pName = bind.getVariableQName().getClarkName();
     				}
     	    		//value = getValues(ctx.evaluateLocalVariable(bind.getLocalSlotNumber()));
-    	    		value = getValues(bind.evaluateVariable(ctx));
+    				try {
+    					value = getValues(bind.evaluateVariable(ctx));
+    				} catch (NullPointerException ee) {
+    					value = null;
+    				}
         			logger.trace("iterate; got reference: {}, value: {}", pName, value);
     	    		break;
     			} else if (e instanceof StringLiteral) {

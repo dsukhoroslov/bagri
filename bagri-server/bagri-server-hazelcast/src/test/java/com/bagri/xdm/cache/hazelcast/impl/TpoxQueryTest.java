@@ -22,7 +22,7 @@ import com.bagri.xdm.client.hazelcast.impl.ResultCursor;
 import com.bagri.xdm.system.XDMSchema;
 import com.bagri.xquery.api.XQProcessor;
 
-@Ignore
+//@Ignore
 public class TpoxQueryTest extends ClientQueryManagementTest {
 
     private static ClassPathXmlApplicationContext context;
@@ -174,7 +174,7 @@ public class TpoxQueryTest extends ClientQueryManagementTest {
 	}
 
 	@Test
-	public void getOrderCustomers() throws Exception {
+	public void getOrderCustomersTest() throws Exception {
 		Iterator<?> sec = getOrderCustomers(2000, "Portugal");
 		assertNotNull(sec);
 		((ResultCursor) sec).deserialize(((RepositoryImpl) xRepo).getHzInstance());
