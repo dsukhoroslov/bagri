@@ -17,12 +17,11 @@ import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.bagri.xdm.api.test.ClientQueryManagementTest;
-import com.bagri.xdm.api.test.XDMManagementTest;
 import com.bagri.xdm.client.hazelcast.impl.ResultCursor;
 import com.bagri.xdm.system.XDMSchema;
 import com.bagri.xquery.api.XQProcessor;
 
-//@Ignore
+@Ignore
 public class TpoxQueryTest extends ClientQueryManagementTest {
 
     private static ClassPathXmlApplicationContext context;

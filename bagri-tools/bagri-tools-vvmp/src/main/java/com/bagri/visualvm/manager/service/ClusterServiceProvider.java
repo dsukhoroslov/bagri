@@ -298,7 +298,7 @@ public class ClusterServiceProvider implements ClusterManagementService, SchemaM
                     , null
             );
         } catch (Exception e) {
-            LOGGER.throwing(this.getClass().getName(), "parseQuery", e);
+            LOGGER.throwing(this.getClass().getName(), "cancelQuery", e);
             throw new ServiceException(e);
         }
     }
@@ -332,7 +332,7 @@ public class ClusterServiceProvider implements ClusterManagementService, SchemaM
             );
             return res;
         } catch (Throwable e) {
-            LOGGER.throwing(this.getClass().getName(), "runQueryWithParams", e);
+            LOGGER.throwing(this.getClass().getName(), "runQuery", e);
             throw new ServiceException(e);
         }
     }

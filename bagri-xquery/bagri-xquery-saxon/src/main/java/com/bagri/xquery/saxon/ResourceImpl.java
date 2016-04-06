@@ -25,12 +25,13 @@ public class ResourceImpl implements Resource {
 
 	@Override
 	public Item getItem(XPathContext context) throws XPathException {
-		return context.getConfiguration().buildDocument(docSrc); 
+		//return context.getConfiguration().buildDocument(docSrc);
+		return context.getConfiguration().buildDocumentTree(docSrc).getRootNode();
 	}
 
 	@Override
 	public String getContentType() {
-		return "application+xml"; // + json...
+		return "application/xml"; // + json...
 	}
 
 }

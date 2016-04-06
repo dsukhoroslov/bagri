@@ -1,0 +1,6 @@
+
+fn:xml-to-json(<map xmlns="http://www.w3.org/2005/xpath-functions">
+<array key="properties"><map><string key="think">Marks and Spencer, you've been tangoed</string></map></array></map>)
+
+
+fn:json-to-xml('{"properties":[{"think":"Marks and Spencer, you''ve been tangoed"}]}')

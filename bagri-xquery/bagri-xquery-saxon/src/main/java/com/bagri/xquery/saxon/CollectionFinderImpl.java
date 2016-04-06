@@ -98,7 +98,7 @@ public class CollectionFinderImpl implements CollectionFinder {
 			String[] parts = collectionURI.split("/");
 			String href = parts[parts.length - 1];
 			collectType = getCollectionId(href);
-			currentType = collectType; //0;
+			currentType = 0; //collectType; //0;
 			logger.trace("findCollection. got collection type: {} for href: {}", collectType, href);
 		}
 
@@ -120,7 +120,7 @@ public class CollectionFinderImpl implements CollectionFinder {
 		}
 		
 		// provide builder's copy here.
-		//exCont = query.getContainer(collectType);
+		exCont = query.getContainer(collectType);
 		ResourceCollection result = new ResourceCollectionImpl(collectionURI, repo, exCont); 
 		logger.trace("findCollection. returning result: {} for collection type: {}", result, collectType);
 		return result;
@@ -260,19 +260,28 @@ public class CollectionFinderImpl implements CollectionFinder {
     	//if (ex instanceof Collection) {
        	if (ex instanceof FunctionCall) {
        		FunctionCall clx = (FunctionCall) ex;
-       		if ("fn:collection".equals(clx.getDisplayName())) {
-	    		for (Expression e: clx.getArguments()) {
-	    			if (e instanceof StringLiteral) {
-	    				String uri = ((StringLiteral) e).getStringValue();
-	    				currentType = getCollectionId(uri);
-	    	        	logger.trace("iterate; set collectionId: {} for uri: {}", currentType, uri);
-	    	        	currentPath = new PathBuilder();
-	    	        	path = currentPath;
-	    	        	ExpressionContainer exCont = new ExpressionContainer();
-	    	        	query.addContainer(currentType, exCont);
-	    				break;
-	    			}
-	    		}
+       		if ("collection".equals(clx.getDisplayName())) {
+       			String collectUri = "";
+       			if (clx.getArity() > 0) {
+       				Expression arg = clx.getArg(0);
+       				if (arg instanceof StringLiteral) {
+       					collectUri = ((StringLiteral) arg).getStringValue();
+       				} else {
+       					// evaluate ?
+       					collectUri = arg.evaluateAsString(ctx).toString();
+       				}
+       			}
+
+       			int clnId = getCollectionId(collectUri);
+       			if (clnId < 0) {
+       				clnId = -1 * (query.getContainers().size() + 1); 
+       			}
+       			currentType = clnId;
+	    	    logger.trace("iterate; set collectionId: {} for uri: {}", currentType, collectUri);
+	    	    currentPath = new PathBuilder();
+	    	    path = currentPath;
+	    	    ExpressionContainer exCont = new ExpressionContainer();
+	    	    query.addContainer(currentType, exCont);
        		}
     	}
     	

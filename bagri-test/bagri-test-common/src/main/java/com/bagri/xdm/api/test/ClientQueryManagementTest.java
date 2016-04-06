@@ -223,8 +223,8 @@ public abstract class ClientQueryManagementTest extends XDMManagementTest {
 		String query = "declare namespace s=\"http://tpox-benchmark.com/security\";\n" + 
 				"declare namespace c=\"http://tpox-benchmark.com/custacc\";\n" +
 				"declare variable $id external;\n" +
-				"for $cust in fn:collection()/c:Customer[@id=$id]\n" +
-				"for $sec in fn:collection()/s:Security[s:Symbol=$cust/c:Accounts/c:Account/c:Holdings/c:Position/c:Symbol/fn:string(.)]\n" + 
+				"for $cust in fn:collection(\"CLN_Customer\")/c:Customer[@id=$id]\n" +
+				"for $sec in fn:collection(\"CLN_Security\")/s:Security[s:Symbol=$cust/c:Accounts/c:Account/c:Holdings/c:Position/c:Symbol/fn:string(.)]\n" + 
 				"return <Security>{$sec/s:Name/text()}</Security>";
 		Map<QName, Object> bindings = new HashMap<>();
 		bindings.put(new QName("id"), id);
