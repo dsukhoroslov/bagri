@@ -187,7 +187,7 @@ public class SourceResolverImpl implements SourceResolver, URIResolver, External
 		// unravel. source: net.sf.saxon.tree.tiny.TinyDocumentImpl@153; config: net.sf.saxon.Configuration@ce339b2
 		// thus, can move document resolution from resolve to this method
 		// but, what for ?
-		//logger.trace("unravel. source: {}; config: {}", source, config);
+		logger.trace("unravel. source: {}; config: {}", source, config);
 		if (source instanceof TinyDocumentImpl) {
 			TinyDocumentImpl doc = (TinyDocumentImpl) source;
 			doc.getTree().setConfiguration(config);

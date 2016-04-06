@@ -329,7 +329,11 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 		return queryPathKeys(found, pex, ec.getParam(pex));
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private Object adjustSearchValue(Object value, int pathType) {
+		if (value == null) {
+			return null;
+		}
 		int valType = XQItemType.XQBASETYPE_ANYTYPE;
 		if (value instanceof Collection) {
 			Collection values = (Collection) value;
@@ -340,6 +344,11 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 				value = values.iterator().next();
 			} else {
 				// CompType must be IN !
+				List newVals = new ArrayList(values.size());
+				for (Object val: values) {
+					newVals.add(adjustSearchValue(val, pathType));
+				}
+				return newVals;
 			}
 		} 
 		if (value instanceof XQItem) {

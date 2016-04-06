@@ -51,15 +51,10 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
     	super();
     	config.setNamePool(defNamePool);
     	config.setDocumentNumberAllocator(defDocNumberAllocator);
-        //BagriSourceResolver resolver = new BagriSourceResolver(null);
-        //config.registerExternalObjectModel(resolver);
     }
 
     public XQProcessorServer(XDMRepository xRepo) {
-    	//this();
-    	super();
-    	config.setNamePool(defNamePool);
-    	config.setDocumentNumberAllocator(defDocNumberAllocator);
+    	this();
     	logger.trace("<init>; got Repo: {}", xRepo);
     	setRepository(xRepo);
     }
@@ -80,7 +75,7 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
         config.setDefaultCollection("");
         SourceResolverImpl sResolver = new SourceResolverImpl(xRepo);
         config.setSourceResolver(sResolver);
-        //config.registerExternalObjectModel(sResolver);
+        config.registerExternalObjectModel(sResolver);
         config.setURIResolver(sResolver);
         ModuleURIResolver mResolver = new ModuleURIResolverImpl((com.bagri.xdm.cache.api.XDMRepository) xRepo);
         config.setModuleURIResolver(mResolver);

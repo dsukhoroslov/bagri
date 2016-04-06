@@ -86,7 +86,7 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
 	    dqc = new DynamicQueryContext(config);
         dqc.setApplyFunctionConversionRulesToExternalVariables(false);
         //sqc. cvr = new StandardObjectConverter();
-        //JPConverter.allocate(XQItem.class, null, config);
+        JPConverter.allocate(XQItem.class, null, config);
         //BagriSourceResolver resolver = new BagriSourceResolver(null);
         //config.registerExternalObjectModel(resolver);
     }

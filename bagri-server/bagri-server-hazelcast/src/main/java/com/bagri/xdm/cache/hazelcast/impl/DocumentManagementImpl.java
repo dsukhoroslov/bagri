@@ -341,7 +341,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		// should also check if doc's start transaction is committed..
 		List<XDMDocumentId> result = new ArrayList<>(docKeys.size());
 		for (XDMDocumentKey docKey: docKeys) {
-			result.add(new XDMDocumentId(docKey.getKey()));
+			result.add(new XDMDocumentId(docKey.getKey(), pattern));
 		}
 		logger.trace("getDocumentIds.exit; returning: {}", result.size());
 		return result;

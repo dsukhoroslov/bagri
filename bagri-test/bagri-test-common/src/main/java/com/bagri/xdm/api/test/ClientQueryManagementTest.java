@@ -135,8 +135,8 @@ public abstract class ClientQueryManagementTest extends XDMManagementTest {
 		String query = "declare default element namespace \"http://www.fixprotocol.org/FIXML-4-4\";\n" +
 				"declare namespace s=\"http://tpox-benchmark.com/security\";\n" +
 				"declare variable $ID external;\n" +
-				"for $ord in fn:collection()/FIXML/Order[@ID=$ID]\n" +
-				"for $sec in fn:collection()/s:Security[s:Symbol=$ord/Instrmt/@Sym/fn:string(.)]\n" +
+				"for $ord in fn:collection(\"CLN_Order\")/FIXML/Order[@ID=$ID]\n" +
+				"for $sec in fn:collection(\"CLN_Security\")/s:Security[s:Symbol=$ord/Instrmt/@Sym/fn:string(.)]\n" +
 				"return\n" +  
 				"\t<Today_Order_Price ORDER_ID=\"{$ord/@ID}\">\n" +
 				"\t\t{xs:string($ord/OrdQty/@Qty*$sec/s:Price/s:PriceToday/s:Open)}\n" +
@@ -152,8 +152,8 @@ public abstract class ClientQueryManagementTest extends XDMManagementTest {
 				"declare namespace c=\"http://tpox-benchmark.com/custacc\";\n" +
 				"declare variable $cash external;\n" +
 				"declare variable $country external;\n" +
-				"for $ord in fn:collection()/FIXML/Order\n" +
-				"for $cust in fn:collection()/c:Customer[c:Accounts/c:Account/@id=$ord/@Acct/fn:string(.)]\n" +
+				"for $ord in fn:collection(\"CLN_Order\")/FIXML/Order\n" +
+				"for $cust in fn:collection(\"CLN_Customer\")/c:Customer[c:Accounts/c:Account/@id=$ord/@Acct/fn:string(.)]\n" +
 				"where $ord/OrdQty/@Cash < $cash and $cust/c:CountryOfResidence = $country \n" + 
 				"return $cust/c:ShortNames/c:ShortName";
 		Map<QName, Object> bindings = new HashMap<>();
@@ -169,8 +169,8 @@ public abstract class ClientQueryManagementTest extends XDMManagementTest {
 				"declare variable $pcode external;\n" +
 				"declare variable $side external;\n" +
 				"declare variable $kind external;\n" +
-				"for $cust in fn:collection()/c:Customer[c:Addresses/c:Address/c:PostalCode=$pcode]\n" +
-				"for $ord in fn:collection()/FIXML/Order[@Acct=$cust/c:Accounts/c:Account/@id/fn:string(.) and @Side=$side]\n" +
+				"for $cust in fn:collection(\"CLN_Customer\")/c:Customer[c:Addresses/c:Address/c:PostalCode=$pcode]\n" +
+				"for $ord in fn:collection(\"CLN_Order\")/FIXML/Order[@Acct=$cust/c:Accounts/c:Account/@id/fn:string(.) and @Side=$side]\n" +
 				//(: order by $cust/c:Name/c:LastName/text() :)
 				"return\n" +
 				"\t<Customer>\n" +
@@ -190,8 +190,8 @@ public abstract class ClientQueryManagementTest extends XDMManagementTest {
 				"declare namespace c=\"http://tpox-benchmark.com/custacc\";\n" +
 				"declare variable $id external;\n" +
 				"let $orderprice := \n" +
-					"for $cust in fn:collection()/c:Customer[@id=$id]\n" +
-					"for $ord in fn:collection()/FIXML/Order[@Acct=$cust/c:Accounts/c:Account/@id/fn:string(.)]\n" +
+					"for $cust in fn:collection(\"CLN_Customer\")/c:Customer[@id=$id]\n" +
+					"for $ord in fn:collection(\"CLN_Order\")/FIXML/Order[@Acct=$cust/c:Accounts/c:Account/@id/fn:string(.)]\n" +
 					"return $ord/OrdQty/@Cash\n" +
 				"return fn:max($orderprice)";
 		Map<QName, Object> bindings = new HashMap<>();
@@ -207,9 +207,9 @@ public abstract class ClientQueryManagementTest extends XDMManagementTest {
 				"declare variable $industry external;\n" +
 				"declare variable $state external;\n" +
 				"let $order := \n" +
-						"for $ss in fn:collection()/s:Security[s:SecurityInformation/s:StockInformation/s:Industry = $industry]\n" + 
-						"for $ord in fn:collection()/FIXML/Order[Instrmt/@Sym=$ss/s:Symbol/fn:string(.)]\n" + 
-						"for $cs in fn:collection()/c:Customer[c:Addresses/c:Address/c:State = $state]/c:Accounts/c:Account[@id=$ord/@Acct/fn:string(.)]\n" + 
+						"for $ss in fn:collection(\"CLN_Security\")/s:Security[s:SecurityInformation/s:StockInformation/s:Industry = $industry]\n" + 
+						"for $ord in fn:collection(\"CLN_Order\")/FIXML/Order[Instrmt/@Sym=$ss/s:Symbol/fn:string(.)]\n" + 
+						"for $cs in fn:collection(\"CLN_Customer\")/c:Customer[c:Addresses/c:Address/c:State = $state]/c:Accounts/c:Account[@id=$ord/@Acct/fn:string(.)]\n" + 
 						"return $ord/OrdQty/@Cash\n" +
 				"return xs:string(fn:max($order))";
 		Map<QName, Object> bindings = new HashMap<>();

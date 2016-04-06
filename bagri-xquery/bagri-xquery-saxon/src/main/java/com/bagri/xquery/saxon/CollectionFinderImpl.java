@@ -98,7 +98,7 @@ public class CollectionFinderImpl implements CollectionFinder {
 			String[] parts = collectionURI.split("/");
 			String href = parts[parts.length - 1];
 			collectType = getCollectionId(href);
-			currentType = 0; //collectType; //0;
+			currentType = collectType; //0;
 			logger.trace("findCollection. got collection type: {} for href: {}", collectType, href);
 		}
 
@@ -237,7 +237,11 @@ public class CollectionFinderImpl implements CollectionFinder {
     					pName = bind.getVariableQName().getClarkName();
     				}
     	    		//value = getValues(ctx.evaluateLocalVariable(bind.getLocalSlotNumber()));
-    	    		value = getValues(bind.evaluateVariable(ctx));
+    				try {
+    					value = getValues(bind.evaluateVariable(ctx));
+    				} catch (NullPointerException ee) {
+    					value = null;
+    				}
         			logger.trace("iterateParams; got reference: {}, value: {}", pName, value);
         			if (pName != null && value != null) {
         				query.setEmptyParam(pName, value);
@@ -246,6 +250,7 @@ public class CollectionFinderImpl implements CollectionFinder {
     			}
     		}
     	}  
+
     }
 	
     private void iterate(Expression ex, XPathContext ctx) throws XPathException {
@@ -409,14 +414,6 @@ public class CollectionFinderImpl implements CollectionFinder {
     			}
     		}
     	}
-    	
-    	//if (ex instanceof Collection) {
-   		//	ExpressionContainer exCont = getCurrentContainer();
-   		//	if (exCont.getExpression().getRoot() == null) {
-   		//		exCont.addExpression(currentType);
-   	   	//		logger.trace("iterate; added always expression for type: {}", currentType);
-   		//	}
-    	//}    	
     	
     	logger.trace("end: {}; path: {}", ex.getClass().getName(), path.getFullPath());
     }
