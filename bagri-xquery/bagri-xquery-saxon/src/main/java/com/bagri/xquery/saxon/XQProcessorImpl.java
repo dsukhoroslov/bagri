@@ -77,8 +77,7 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
     
     public XQProcessorImpl() {
         config = Configuration.newConfiguration();
-        //config.setHostLanguage(Configuration.XQUERY);
-        config.setSchemaValidationMode(Validation.STRIP);
+        //config.setSchemaValidationMode(Validation.STRIP);
         //config.setConfigurationProperty(FeatureKeys.PRE_EVALUATE_DOC_FUNCTION, Boolean.TRUE);
         sqc = config.newStaticQueryContext();
         // supported in Saxon-EE only
@@ -86,9 +85,7 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
 	    dqc = new DynamicQueryContext(config);
         dqc.setApplyFunctionConversionRulesToExternalVariables(false);
         //sqc. cvr = new StandardObjectConverter();
-        JPConverter.allocate(XQItem.class, null, config);
-        //BagriSourceResolver resolver = new BagriSourceResolver(null);
-        //config.registerExternalObjectModel(resolver);
+        //JPConverter.allocate(XQItem.class, null, config);
     }
     
     public String getProperty(String propName) {
@@ -154,7 +151,8 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
     	sqc.setInheritNamespaces(ctx.getCopyNamespacesModeInherit() == COPY_NAMESPACES_MODE_INHERIT);
     	sqc.setPreserveNamespaces(ctx.getCopyNamespacesModePreserve() == COPY_NAMESPACES_MODE_PRESERVE);
     	sqc.declareDefaultCollation(ctx.getDefaultCollation());
-    	sqc.setDefaultElementNamespace(ctx.getDefaultElementTypeNamespace());
+    	// TODO: after set all XMark queries were broken!!! as they have no ns.
+    	//sqc.setDefaultElementNamespace(ctx.getDefaultElementTypeNamespace());
     	sqc.setDefaultFunctionNamespace(ctx.getDefaultFunctionNamespace());
         //sqc.setEmptyLeast(emptyLeast);
     	sqc.clearNamespaces();
@@ -166,7 +164,7 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
     	//ctx.getHoldability()
     	//ctx.getOrderingMode()
     	if (ctx.getQueryLanguageTypeAndVersion() == LANGTYPE_XQUERY) {
-    		sqc.setLanguageVersion(31); // change to 3L
+    		sqc.setLanguageVersion(saxon_xquery_version); 
     	}
     	//ctx.getQueryTimeout()
     	//ctx.getScrollability()
@@ -177,7 +175,7 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
        	// !!
         sqc.setSchemaAware(false);
         String value = props.getProperty(pn_baseURI);
-        if (value != null && value.length() > 0) {
+        if (value != null && !value.isEmpty()) {
         	sqc.setBaseURI(value);
         }
     	//props.getProperty(pn_bindingMode)
@@ -203,7 +201,9 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
         }
         value = props.getProperty(pn_defaultElementTypeNamespace);
         if (value != null) {
-        	sqc.setDefaultElementNamespace(value);
+        	// TODO: after set all XMark queries were broken!!! as they have no ns.
+        	logger.info("setStaticContext; current def ns: {}; new ns is: {}", sqc.getDefaultElementNamespace(), value);
+        	//sqc.setDefaultElementNamespace(value);
         }
         value = props.getProperty(pn_defaultFunctionNamespace);
         if (value != null) {
@@ -234,7 +234,7 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
         value = props.getProperty(pn_queryLanguageTypeAndVersion);
         if (value != null) {
         	if (String.valueOf(LANGTYPE_XQUERY).equals(value)) {
-        		sqc.setLanguageVersion(31); // change to 3L
+        		sqc.setLanguageVersion(saxon_xquery_version); 
         	}
     	}
     	//props.getProperty(pn_queryTimeout)
@@ -273,7 +273,6 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
 
     @Override
     public void setRepository(XDMRepository xRepo) {
-    	//config.setConfigurationProperty("xdm", mgr);
     	super.setRepository(xRepo);
         config.registerExtensionFunction(new GetDocument(xRepo.getDocumentManagement()));
         config.registerExtensionFunction(new RemoveDocument(xRepo.getDocumentManagement()));
@@ -352,7 +351,6 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
         //dqc.setParameter(getStructuredQName(varName), new ObjectValue(var));
     	try {
     		Item item;
-    		//JPConverter.FromObject.INSTANCE.convert(var, config.getConversionContext())
     		if (var instanceof XQItem) {
     			item = convertXQItem((XQItem) var, config);
     		} else {
@@ -383,12 +381,7 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
     	for (StructuredQName name: params.getKeys()) {
     		Item item = (Item) params.get(name);
     		Object value;
-			try {
-				value = itemToObject(item);
-			} catch (XPathException ex) {
-				logger.info("getParams.error; can not convert item: {} of class: {}", item, item.getClass().getName());
-				throw ex;
-			}
+			value = itemToObject(item);
     		bindings.put(name.getClarkName(), value);
     		logger.trace("getParams; name: {}; item: {}; value: {}", name, item, value);
     	}

@@ -19,11 +19,6 @@ import net.sf.saxon.trans.XPathException;
 
 public class ModuleURIResolverImpl implements ModuleURIResolver {
 	
-	/**
-	 * need it because ModuleURIResolver extends Serializable
-	 */
-	private static final long serialVersionUID = 7617313804143553770L;
-
 	private static final Logger logger = LoggerFactory.getLogger(ModuleURIResolverImpl.class);
 	
     private XDMRepository repo;

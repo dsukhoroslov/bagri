@@ -59,6 +59,8 @@ import static net.sf.saxon.om.StandardNames.*;
 import static javax.xml.xquery.XQItemType.*;
 
 public class SaxonUtils {
+	
+	public static final int saxon_xquery_version = 31;
 
     public static Object itemToObject(Item item) throws XPathException {
         if (item instanceof AtomicValue) {

@@ -1,7 +1,5 @@
 package com.bagri.xquery.saxon;
 
-import java.io.StringWriter;
-import java.io.Writer;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -15,10 +13,8 @@ import javax.xml.xquery.XQQueryException;
 import javax.xml.xquery.XQStaticContext;
 
 import com.bagri.common.query.QueryBuilder;
-//import com.bagri.xdm.access.api.XDMDocumentManagementServer;
 import com.bagri.xdm.api.XDMDocumentManagement;
 import com.bagri.xdm.api.XDMException;
-//import com.bagri.xdm.api.XDMQueryManagement;
 import com.bagri.xdm.api.XDMRepository;
 import com.bagri.xdm.cache.api.XDMQueryManagement;
 import com.bagri.xdm.common.XDMConstants;
@@ -40,7 +36,6 @@ import net.sf.saxon.tree.util.DocumentNumberAllocator;
 public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 	
 	private Iterator<?> results;
-    //private CollectionURIResolverImpl bcr;
 	private CollectionFinderImpl clnFinder;
     private Map<Integer, XQueryExpression> queries = new HashMap<>();
     
@@ -67,25 +62,16 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 	@Override
     public void setRepository(XDMRepository xRepo) {
     	super.setRepository(xRepo);
-    	//CollectionURIResolver old = bcr;
-    	//bcr = new CollectionURIResolverImpl(xRepo);
-        //config.setCollectionURIResolver(bcr);
     	clnFinder = new CollectionFinderImpl(xRepo);
     	config.setCollectionFinder(clnFinder);
         config.setDefaultCollection("");
         SourceResolverImpl sResolver = new SourceResolverImpl(xRepo);
         config.setSourceResolver(sResolver);
-        config.registerExternalObjectModel(sResolver);
+        //config.registerExternalObjectModel(sResolver);
         config.setURIResolver(sResolver);
         ModuleURIResolver mResolver = new ModuleURIResolverImpl((com.bagri.xdm.cache.api.XDMRepository) xRepo);
         config.setModuleURIResolver(mResolver);
     }
-
-    //@Override
-    //public void setXQDataFactory(XQDataFactory xqFactory) {
-    //	super.setXQDataFactory(xqFactory);
-    //	(BagriXQDataFactory) xqFactory
-    //}
 
     @Override
 	public Iterator<?> executeXCommand(String command, Map<QName, Object> bindings, XQStaticContext ctx) throws XQException {
@@ -144,7 +130,9 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
    	    boolean cacheable = false;
    	    boolean readOnly = true;
 	    //logger.trace("execQuery; module resolver: {}", config.getModuleURIResolver());
-	    sqc.setModuleURIResolver(config.getModuleURIResolver());
+
+	    //sqc = config.newStaticQueryContext();
+   	    sqc.setModuleURIResolver(config.getModuleURIResolver());
    	    
 	    Integer qKey = qMgr.getQueryKey(query);
    	    XQueryExpression xqExp = queries.get(qKey);

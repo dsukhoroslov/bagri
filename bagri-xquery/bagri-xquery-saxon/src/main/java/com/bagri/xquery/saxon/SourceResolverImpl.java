@@ -22,6 +22,7 @@ import com.bagri.xdm.api.XDMDocumentManagement;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMRepository;
 import com.bagri.xdm.common.XDMDocumentId;
+import com.bagri.xdm.domain.XDMDocument;
 
 import static com.bagri.xdm.common.XDMConstants.bg_schema;
 import net.sf.saxon.Configuration;
@@ -205,8 +206,7 @@ public class SourceResolverImpl implements SourceResolver, URIResolver, External
 
 	@Override
 	public String getDocumentClassName() {
-		// TODO Auto-generated method stub
-		return null;
+		return XDMDocument.class.getName();
 	}
 
 }

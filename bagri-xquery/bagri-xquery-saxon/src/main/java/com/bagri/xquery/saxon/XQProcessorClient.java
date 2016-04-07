@@ -1,34 +1,34 @@
 package com.bagri.xquery.saxon;
 
-import java.util.ArrayList;
+import static com.bagri.xdm.common.XDMConstants.cmd_get_document;
+import static com.bagri.xdm.common.XDMConstants.cmd_remove_cln_documents;
+import static com.bagri.xdm.common.XDMConstants.cmd_remove_document;
+import static com.bagri.xdm.common.XDMConstants.cmd_store_document;
+import static com.bagri.xdm.common.XDMConstants.pn_query_command;
+import static com.bagri.xqj.BagriXQUtils.getXQException;
+import static com.bagri.xquery.saxon.SaxonUtils.itemToXQItem;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
 import javax.xml.namespace.QName;
-import javax.xml.xquery.XQDataFactory;
 import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQItem;
 import javax.xml.xquery.XQStaticContext;
-
-import net.sf.saxon.expr.instruct.GlobalParameterSet;
-import net.sf.saxon.om.Item;
-import net.sf.saxon.om.StructuredQName;
-import net.sf.saxon.trans.XPathException;
-import net.sf.saxon.value.ObjectValue;
 
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMQueryManagement;
 import com.bagri.xdm.common.XDMDocumentId;
 import com.bagri.xquery.api.XQProcessor;
 
-import static com.bagri.xquery.saxon.SaxonUtils.*;
-import static com.bagri.xdm.common.XDMConstants.*;
-import static com.bagri.xqj.BagriXQUtils.getXQException;
+import net.sf.saxon.expr.instruct.GlobalParameterSet;
+import net.sf.saxon.om.Item;
+import net.sf.saxon.om.StructuredQName;
+import net.sf.saxon.trans.XPathException;
 
 public class XQProcessorClient extends XQProcessorImpl implements XQProcessor {
 	
