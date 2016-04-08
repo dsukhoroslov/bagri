@@ -14,7 +14,7 @@
             <createdAt>2014-06-11T02:15:20.792+04:00</createdAt>
             <createdBy>Denis</createdBy>
             <options>
-                <entry name="xdm.cluster.node.schemas">TPoX</entry>
+                <entry name="xdm.cluster.node.schemas">default</entry>
                 <entry name="xdm.cluster.node.role">server</entry>
             </options>
         </node>
@@ -181,10 +181,10 @@
                 <entry name="xdm.schema.population.size">1</entry>
                 <entry name="xqj.schema.defaultElementTypeNamespace">http://www.w3.org/2001/XMLSchema</entry>
                 <entry name="xdm.schema.data.backup.async">1</entry>
-                <entry name="xdm.schema.store.data.path">../data</entry>
+                <entry name="xdm.schema.store.data.path">../data/default</entry>
                 <entry name="xqj.schema.copyNamespacesModeInherit">1</entry>
                 <entry name="xdm.schema.dict.backup.sync">0</entry>
-                <entry name="xqj.schema.baseUri">file:///../data/</entry>
+                <entry name="xqj.schema.baseUri">file:///../data/default</entry>
                 <entry name="xdm.schema.trans.backup.sync">1</entry>
                 <entry name="xdm.schema.store.schema.path"></entry>
                 <entry name="xqj.schema.defaultOrderForEmptySequences">2</entry>
@@ -406,7 +406,7 @@
                 <entry name="xqj.schema.copyNamespacesModePreserve">1</entry>
                 <entry name="xqj.schema.queryTimeout">0</entry>
                 <entry name="xqj.schema.defaultFunctionNamespace">http://www.w3.org/2005/xpath-functions</entry>
-                <entry name="xqj.schema.defaultElementTypeNamespace">http://www.w3.org/2001/XMLSchema</entry>
+                <entry name="xqj.schema.defaultElementTypeNamespace"></entry>
                 <entry name="xqj.schema.copyNamespacesModeInherit">1</entry>
                 <entry name="xqj.schema.defaultOrderForEmptySequences">2</entry>
                 <entry name="xqj.schema.defaultCollationUri">http://www.w3.org/2005/xpath-functions/collation/codepoint</entry>

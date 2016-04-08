@@ -4,6 +4,7 @@ import static com.bagri.common.config.XDMConfigConstants.xdm_config_path;
 import static com.bagri.common.config.XDMConfigConstants.xdm_config_properties_file;
 import static com.bagri.xdm.common.XDMConstants.pn_client_fetchSize;
 import static com.bagri.xdm.common.XDMConstants.pn_client_id;
+import static com.bagri.xdm.common.XDMConstants.pn_defaultElementTypeNamespace;
 import static com.bagri.xdm.common.XDMConstants.pn_baseURI;
 import static org.junit.Assert.*;
 
@@ -370,6 +371,7 @@ public class QueryManagementImplTest extends XDMManagementTest {
 		Properties props = new Properties();
 		props.setProperty(pn_client_id, "1");
 		props.setProperty(pn_client_fetchSize, "1");
+		props.setProperty(pn_defaultElementTypeNamespace, "");
 		Iterator itr = xRepo.getQueryManagement().executeQuery(query, params, props);
 		assertNotNull(itr);
 		//((ResultCursor) itr).deserialize(((RepositoryImpl) xRepo).getHzInstance());
@@ -378,7 +380,8 @@ public class QueryManagementImplTest extends XDMManagementTest {
 		Object result = itr.next();
 		assertNotNull(result);
 		String text = xqp.convertToString(result, null);
-		assertEquals("<print xmlns=\"http://www.w3.org/2001/XMLSchema\">The open price of the security \"Vanguard 500 Index Fund\" is 101.12 dollars</print>", text);
+		//assertEquals("<print xmlns=\"http://www.w3.org/2001/XMLSchema\">The open price of the security \"Vanguard 500 Index Fund\" is 101.12 dollars</print>", text);
+		assertEquals("<print>The open price of the security \"Vanguard 500 Index Fund\" is 101.12 dollars</print>", text);
 		assertFalse(itr.hasNext());
 		props = new Properties();
 		props.setProperty(javax.xml.transform.OutputKeys.OMIT_XML_DECLARATION, "yes");

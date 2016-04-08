@@ -14,7 +14,7 @@
             <createdAt>2014-06-11T02:15:20.792+04:00</createdAt>
             <createdBy>Denis</createdBy>
             <options>
-                <entry name="xdm.cluster.node.schemas">TPoX</entry>
+                <entry name="xdm.cluster.node.schemas">default</entry>
                 <entry name="xdm.cluster.node.role">server</entry>
             </options>
         </node>
@@ -340,7 +340,7 @@
                 <entry name="xdm.schema.population.size">2</entry>
                 <entry name="xdm.schema.population.buffer.size">1000000</entry>
                 <entry name="xdm.schema.data.backup.async">1</entry>
-                <entry name="xdm.schema.store.data.path">../../etc/samples/tpox2</entry>
+                <entry name="xdm.schema.store.data.path">../../etc/samples/default</entry>
                 <entry name="xdm.schema.dict.backup.sync">0</entry>
                 <entry name="xdm.schema.trans.backup.sync">1</entry>
                 <entry name="xdm.schema.store.schema.path"></entry>
@@ -359,7 +359,7 @@
                 <entry name="xdm.schema.health.threshold.high">0</entry>
                 <entry name="xdm.schema.query.parallel">true</entry>
                 <entry name="xdm.schema.partition.pool">32</entry>
-                <entry name="xqj.schema.baseUri">file:///C:/Work/Bagri/git/bagri/etc/samples/tpox2/</entry>
+                <entry name="xqj.schema.baseUri">file:///C:/Work/Bagri/git/bagri/etc/samples/default/</entry>
                 <!--entry name="xqj.schema.baseUri"></entry-->
                 <entry name="xqj.schema.orderingMode">2</entry>
                 <entry name="xqj.schema.queryLanguageTypeAndVersion">1</entry>
@@ -567,7 +567,7 @@
                 <entry name="xqj.schema.copyNamespacesModePreserve">1</entry>
                 <entry name="xqj.schema.queryTimeout">0</entry>
                 <entry name="xqj.schema.defaultFunctionNamespace">http://www.w3.org/2005/xpath-functions</entry>
-                <entry name="xqj.schema.defaultElementTypeNamespace">http://www.w3.org/2001/XMLSchema</entry>
+                <entry name="xqj.schema.defaultElementTypeNamespace"></entry>
                 <entry name="xqj.schema.copyNamespacesModeInherit">1</entry>
                 <entry name="xqj.schema.defaultOrderForEmptySequences">2</entry>
                 <entry name="xqj.schema.defaultCollationUri"></entry>

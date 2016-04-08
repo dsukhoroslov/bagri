@@ -40,7 +40,7 @@ import net.sf.saxon.tree.tiny.TinyDocumentImpl;
  * @author Denis Sukhoroslov
  *
  */
-public class SourceResolverImpl implements SourceResolver, URIResolver, ExternalObjectModel {
+public class SourceResolverImpl implements SourceResolver, URIResolver {
 	
 	private static final Logger logger = LoggerFactory.getLogger(SourceResolverImpl.class);
 	
@@ -133,80 +133,6 @@ public class SourceResolverImpl implements SourceResolver, URIResolver, External
 		}
 		logger.trace("resolveSource. got empty content: '{}'", content);
 		return null;
-	}
-
-
-	@Override
-	public Receiver getDocumentBuilder(Result result) throws XPathException {
-		logger.trace("getDocumentBuilder. result: {}", result);
-		return null;
-	}
-
-
-	@Override
-	public String getIdentifyingURI() {
-		logger.trace("getIdentifyingURI"); 
-		return null;
-	}
-
-	private JPConverter jpc = null;
-
-	@Override
-	public JPConverter getJPConverter(Class sourceClass, Configuration config) {
-		if (jpc == null) { 
-			jpc = new JPConverterImpl();
-			logger.trace("getJPConverter. source: {}; new JPC instance: {}", sourceClass, jpc);
-		}
-		return jpc;
-	}
-
-
-	@Override
-	public PJConverter getNodeListCreator(Object node) {
-		logger.trace("getNodeListCreator. node: {}", node);
-		return null;
-	}
-
-
-	@Override
-	public PJConverter getPJConverter(Class targetClass) {
-		logger.trace("getPJConverter. target: {}", targetClass);
-		return null;
-	}
-
-
-	@Override
-	public boolean sendSource(Source source, Receiver receiver) throws XPathException {
-		logger.trace("sendSource. source: {}; receiver: {}", source, receiver);
-		return true;
-	}
-
-
-	@Override
-	public NodeInfo unravel(Source source, Configuration config) {
-		// invoked after every document resolution:
-		// unravel. source: net.sf.saxon.tree.tiny.TinyDocumentImpl@153; config: net.sf.saxon.Configuration@ce339b2
-		// thus, can move document resolution from resolve to this method
-		// but, what for ?
-		logger.trace("unravel. source: {}; config: {}", source, config);
-		if (source instanceof TinyDocumentImpl) {
-			TinyDocumentImpl doc = (TinyDocumentImpl) source;
-			doc.getTree().setConfiguration(config);
-			return doc;
-		} else if (source instanceof StreamSource) {
-			try {
-				return config.buildDocument(source);
-			} catch (XPathException ex) {
-				logger.error("unravel.error: " + ex.getMessage(), ex);
-			}
-		}
-		logger.info("unravel.failed; source: {}; config: {}", source, config);
-		return null;
-	}
-
-	@Override
-	public String getDocumentClassName() {
-		return XDMDocument.class.getName();
 	}
 
 }

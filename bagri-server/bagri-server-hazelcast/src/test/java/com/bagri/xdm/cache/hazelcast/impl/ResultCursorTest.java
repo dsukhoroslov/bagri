@@ -32,7 +32,7 @@ public class ResultCursorTest extends XDMManagementTest {
 	public static void setUpBeforeClass() throws Exception {
 		sampleRoot = "..\\..\\etc\\samples\\tpox\\";
 		System.setProperty("hz.log.level", "info");
-		//System.setProperty("xdm.log.level", "trace");
+		System.setProperty("xdm.log.level", "trace");
 		System.setProperty("logback.configurationFile", "hz-logging.xml");
 		System.setProperty(xdm_config_properties_file, "test.properties");
 		System.setProperty(xdm_config_path, "src\\test\\resources");
@@ -60,7 +60,7 @@ public class ResultCursorTest extends XDMManagementTest {
 	@After
 	public void tearDown() throws Exception {
 		// remove documents here!
-		removeDocumentsTest();
+		//removeDocumentsTest();
 	}
 
 	@Test

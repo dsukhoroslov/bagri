@@ -152,7 +152,7 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
     	sqc.setPreserveNamespaces(ctx.getCopyNamespacesModePreserve() == COPY_NAMESPACES_MODE_PRESERVE);
     	sqc.declareDefaultCollation(ctx.getDefaultCollation());
     	// TODO: after set all XMark queries were broken!!! as they have no ns.
-    	//sqc.setDefaultElementNamespace(ctx.getDefaultElementTypeNamespace());
+    	sqc.setDefaultElementNamespace(ctx.getDefaultElementTypeNamespace());
     	sqc.setDefaultFunctionNamespace(ctx.getDefaultFunctionNamespace());
         //sqc.setEmptyLeast(emptyLeast);
     	sqc.clearNamespaces();
@@ -202,8 +202,7 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
         value = props.getProperty(pn_defaultElementTypeNamespace);
         if (value != null) {
         	// TODO: after set all XMark queries were broken!!! as they have no ns.
-        	logger.info("setStaticContext; current def ns: {}; new ns is: {}", sqc.getDefaultElementNamespace(), value);
-        	//sqc.setDefaultElementNamespace(value);
+        	sqc.setDefaultElementNamespace(value);
         }
         value = props.getProperty(pn_defaultFunctionNamespace);
         if (value != null) {

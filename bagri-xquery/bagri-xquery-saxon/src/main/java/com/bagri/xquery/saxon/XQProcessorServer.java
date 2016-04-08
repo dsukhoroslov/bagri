@@ -130,8 +130,6 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
    	    boolean cacheable = false;
    	    boolean readOnly = true;
 	    //logger.trace("execQuery; module resolver: {}", config.getModuleURIResolver());
-
-	    //sqc = config.newStaticQueryContext();
    	    sqc.setModuleURIResolver(config.getModuleURIResolver());
    	    
 	    Integer qKey = qMgr.getQueryKey(query);
