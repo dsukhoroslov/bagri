@@ -380,12 +380,11 @@ public class QueryManagementImplTest extends XDMManagementTest {
 		Object result = itr.next();
 		assertNotNull(result);
 		String text = xqp.convertToString(result, null);
-		//assertEquals("<print xmlns=\"http://www.w3.org/2001/XMLSchema\">The open price of the security \"Vanguard 500 Index Fund\" is 101.12 dollars</print>", text);
 		assertEquals("<print>The open price of the security \"Vanguard 500 Index Fund\" is 101.12 dollars</print>", text);
 		assertFalse(itr.hasNext());
 		props = new Properties();
-		props.setProperty(javax.xml.transform.OutputKeys.OMIT_XML_DECLARATION, "yes");
-		props.setProperty(javax.xml.transform.OutputKeys.INDENT, "yes");
+		//props.setProperty(javax.xml.transform.OutputKeys.OMIT_XML_DECLARATION, "yes");
+		//props.setProperty(javax.xml.transform.OutputKeys.INDENT, "yes");
 		props.setProperty(javax.xml.transform.OutputKeys.METHOD, "text");
 		text = xqp.convertToString(result, props);
 		assertEquals("The open price of the security \"Vanguard 500 Index Fund\" is 101.12 dollars", text);

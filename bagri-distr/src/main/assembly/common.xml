@@ -98,7 +98,14 @@
             <outputDirectory>/config</outputDirectory>
             <includes>
                 <include>**/spring/*.*</include>
-                <include>*.*</include>
+                <include>access.xml</include>
+                <include>logging.xml</include>
+                <include>hz-logging.xml</include>
+                <include>admin.properties</include>
+                <include>first.properties</include>
+                <include>second.properties</include>
+                <include>third.properties</include>
+                <include>fourth.properties</include>
             </includes>
         </fileSet>
 

@@ -11,4 +11,16 @@
     <componentDescriptors>
         <componentDescriptor>common.xml</componentDescriptor>
     </componentDescriptors>
+
+    <fileSets>
+        <!--config files are copied from resources-->
+        <fileSet>
+            <directory>src/main/resources</directory>
+            <outputDirectory>/config</outputDirectory>
+            <includes>
+                <include>config.xml</include>
+            </includes>
+        </fileSet>
+    </fileSets>
+
 </assembly>  

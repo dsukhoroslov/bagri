@@ -1,5 +1,7 @@
 package com.bagri.xquery.saxon;
 
+import static com.bagri.xdm.common.XDMConstants.*;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -86,20 +88,17 @@ public class CollectionFinderImpl implements CollectionFinder {
 	public ResourceCollection findCollection(XPathContext context, String collectionURI) throws XPathException {
 
 		logger.trace("findCollection. context: {}; uri: {}", context, collectionURI);
-		
 		long stamp = System.currentTimeMillis();
 
-		int collectType;
+		int collectId;
 		if (collectionURI == null || collectionURI.isEmpty()) {
 			// means default collection: all schema documents
-			collectType = XDMDocument.clnDefault;
+			collectId = XDMDocument.clnDefault;
 			currentType = XDMDocument.clnDefault;
 		} else {
-			String[] parts = collectionURI.split("/");
-			String href = parts[parts.length - 1];
-			collectType = getCollectionId(href);
-			currentType = collectType; //0;
-			logger.trace("findCollection. got collection type: {} for href: {}", collectType, href);
+			collectId = getCollectionId(collectionURI, exp.getExpression().getStaticBaseURIString());
+			currentType = collectId; //0;
+			logger.trace("findCollection. got collection type: {} for uri: {}", collectId, collectionURI);
 		}
 
 		if (query == null) {
@@ -120,19 +119,24 @@ public class CollectionFinderImpl implements CollectionFinder {
 		}
 		
 		// provide builder's copy here.
-		exCont = query.getContainer(collectType);
+		exCont = query.getContainer(collectId);
 		ResourceCollection result = new ResourceCollectionImpl(collectionURI, repo, exCont); 
-		logger.trace("findCollection. returning result: {} for collection type: {}", result, collectType);
+		logger.trace("findCollection. returning result: {} for collection ID: {}", result, collectId);
 		return result;
 	}
 
-	private int getCollectionId(String uri) {
+	private int getCollectionId(String uri, String baseUri) {
 		XDMSchema schema = ((com.bagri.xdm.cache.api.XDMRepository) repo).getSchema();
+		//String baseUri = schema.getProperty(pn_baseURI);
+		//String baseUri = context.getConfiguration().getDefaultStaticQueryContext().getBaseURI();
+		if (baseUri != null && !baseUri.isEmpty() && uri.startsWith(baseUri)) {
+			uri = uri.substring(baseUri.length());
+		}
 		XDMCollection cln = schema.getCollection(uri);
 		if (cln != null) {
 			return cln.getId();
 		}
-		logger.info("getCollectionId; no collection found for uri: {}; collections: {}", uri, schema.getCollections());
+		logger.info("getCollectionId; no collection found for uri: {}; baseUri: {}, collections: {}", uri, baseUri, schema.getCollections());
 		return ModelManagementBase.WRONG_PATH;
 	}
 	
@@ -208,49 +212,63 @@ public class CollectionFinderImpl implements CollectionFinder {
     	
     	Iterator<Operand> itr = ex.operands().iterator();
     	while(itr.hasNext()) {
-    		Expression e = itr.next().getChildExpression(); // getExpression();
+    		Expression e = itr.next().getChildExpression(); 
     		iterateParams(e, ctx);
     	}
-    	
+
     	if (ex instanceof GeneralComparison10 || ex instanceof GeneralComparison20 || ex instanceof ValueComparison) {
     		BinaryExpression be = (BinaryExpression) ex;
-    		//int varIdx = 0;
     		Object value = null;
     		String pName = null;
-    		//for (Expression e: be.getOperands()) {
-       		for (Operand o: be.operands()) {
-       			Expression e = o.getChildExpression();
-    			if (e instanceof VariableReference) {
-    				Binding bind = ((VariableReference) e).getBinding();
-    				if (bind instanceof LetExpression) {
-    					Expression e2 = ((LetExpression) bind).getSequence();
-    					if (e2 instanceof Atomizer) {
-    			    		e2 = ((Atomizer) e2).getBaseExpression();
-    			    		if (e2 instanceof VariableReference) {
-    			    			// paired ref to the e
-    			    			pName = ((VariableReference) e2).getBinding().getVariableQName().getLocalPart(); 
-    			    		}
-    			    	}
-    				}
-    				
-    				if (pName == null) {
-    					pName = bind.getVariableQName().getClarkName();
-    				}
-    	    		//value = getValues(ctx.evaluateLocalVariable(bind.getLocalSlotNumber()));
-    				try {
-    					value = getValues(bind.evaluateVariable(ctx));
-    				} catch (NullPointerException ee) {
-    					value = null;
-    				}
-        			logger.trace("iterateParams; got reference: {}, value: {}", pName, value);
-        			if (pName != null && value != null) {
-        				query.setEmptyParam(pName, value);
-        			}
-    	    		break;
-    			}
-    		}
-    	}  
+    		Expression le = be.getLhsExpression();
 
+    		Comparison compType = getComparison(be.getOperator());
+    		if (compType == null) {
+            	logger.debug("iterate; can't get comparison from {}", be);
+    	    	throw new XPathException("Unknown comparison type for expression: " + be);
+    		} 
+
+    		Expression var;
+    		if (le instanceof VariableReference || le instanceof Literal) {
+    			compType = Comparison.negate(compType);
+    			var = le;
+    		} else {
+    			var = be.getRhsExpression();
+    		}
+    		
+   			if (var instanceof VariableReference) {
+   				Binding bind = ((VariableReference) var).getBinding();
+   				if (bind instanceof LetExpression) {
+   					Expression e2 = ((LetExpression) bind).getSequence();
+   					if (e2 instanceof Atomizer) {
+   			    		e2 = ((Atomizer) e2).getBaseExpression();
+   			    		if (e2 instanceof VariableReference) {
+   			    			// paired ref to the e
+   			    			pName = ((VariableReference) e2).getBinding().getVariableQName().getLocalPart(); 
+   			    		}
+   			    	}
+   				}
+    				
+   				if (pName == null) {
+   					pName = bind.getVariableQName().getClarkName();
+   				}
+   	    		//value = getValues(ctx.evaluateLocalVariable(bind.getLocalSlotNumber()));
+   				try {
+   					value = getValues(bind.evaluateVariable(ctx));
+   				} catch (NullPointerException ee) {
+   					value = null;
+   				}
+   			//} else if (var instanceof StringLiteral) {
+   			//	value = ((StringLiteral) var).getStringValue();
+   			//} else if (var instanceof Literal) {
+   			//	value = getValues(((Literal) var).getValue()); 
+   			}
+    			
+			logger.trace("iterateParams; got reference: {}, value: {}", pName, value);
+			if (pName != null && value != null) {
+				query.setEmptyParam(pName, value);
+			}
+    	}  
     }
 	
     private void iterate(Expression ex, XPathContext ctx) throws XPathException {
@@ -262,7 +280,6 @@ public class CollectionFinderImpl implements CollectionFinder {
     		return;
     	}
     	
-    	//if (ex instanceof Collection) {
        	if (ex instanceof FunctionCall) {
        		FunctionCall clx = (FunctionCall) ex;
        		if ("collection".equals(clx.getDisplayName())) {
@@ -277,7 +294,7 @@ public class CollectionFinderImpl implements CollectionFinder {
        				}
        			}
 
-       			int clnId = getCollectionId(collectUri);
+       			int clnId = getCollectionId(collectUri, ex.getStaticBaseURIString());
        			if (clnId < 0) {
        				clnId = -1 * (query.getContainers().size() + 1); 
        			}
@@ -330,65 +347,58 @@ public class CollectionFinderImpl implements CollectionFinder {
 
     	Iterator<Operand> itr = ex.operands().iterator();
     	while(itr.hasNext()) {
-    		Expression e = itr.next().getChildExpression(); //getExpression();
+    		Expression e = itr.next().getChildExpression(); 
     		iterate(e, ctx);
     	}
     	
     	if (ex instanceof GeneralComparison10 || ex instanceof GeneralComparison20 || ex instanceof ValueComparison) {
     		BinaryExpression be = (BinaryExpression) ex;
-    		int varIdx = 0;
     		Object value = null;
     		String pName = null;
-    		//for (Expression e: be.getOperands()) {
-       		for (Operand o: be.operands()) {
-       			Expression e = o.getChildExpression();
-    			if (e instanceof VariableReference) {
-    				Binding bind = ((VariableReference) e).getBinding();
-    				if (bind instanceof LetExpression) {
-    					Expression e2 = ((LetExpression) bind).getSequence();
-    					if (e2 instanceof Atomizer) {
-    			    		e2 = ((Atomizer) e2).getBaseExpression();
-    			    		if (e2 instanceof VariableReference) {
-    			    			// paired ref to the e
-    			    			pName = ((VariableReference) e2).getBinding().getVariableQName().getLocalPart(); 
-    			    		}
-    			    	}
-    				}
-    				
-    				if (pName == null) {
-    					pName = bind.getVariableQName().getClarkName();
-    				}
-    	    		//value = getValues(ctx.evaluateLocalVariable(bind.getLocalSlotNumber()));
-    				try {
-    					value = getValues(bind.evaluateVariable(ctx));
-    				} catch (NullPointerException ee) {
-    					value = null;
-    				}
-        			logger.trace("iterate; got reference: {}, value: {}", pName, value);
-    	    		break;
-    			} else if (e instanceof StringLiteral) {
-    				value = ((StringLiteral) e).getStringValue();
-    				break;
-    			} else if (e instanceof Literal) {
-    				value = getValues(((Literal) e).getValue()); 
-    				break;
-    			}
-    			varIdx++;
-    		}
+    		Expression le = be.getLhsExpression();
+
     		Comparison compType = getComparison(be.getOperator());
     		if (compType == null) {
             	logger.debug("iterate; can't get comparison from {}", be);
     	    	throw new XPathException("Unknown comparison type for expression: " + be);
-    		} else if (value == null) {
-            	logger.debug("iterate; can't get value from {}; operands: {}", be, be.operands());
-            	// TODO: the join use case. have to think about this..
-    	    	//throw new IllegalStateException("Unexpected expression: " + ex);
-    		} //else {
+    		} 
 
-    		// it seems we still need this workaround ..
-    		if (varIdx == 0 && compType != Comparison.EQ) {
-    			compType = Comparison.negate(compType);
+    		Expression var;
+    		if (le instanceof VariableReference || le instanceof Literal) {
+    			compType = Comparison.revert(compType);
+    			var = le;
+    		} else {
+    			var = be.getRhsExpression();
     		}
+    		
+   			if (var instanceof VariableReference) {
+   				Binding bind = ((VariableReference) var).getBinding();
+   				if (bind instanceof LetExpression) {
+   					Expression e2 = ((LetExpression) bind).getSequence();
+   					if (e2 instanceof Atomizer) {
+   			    		e2 = ((Atomizer) e2).getBaseExpression();
+   			    		if (e2 instanceof VariableReference) {
+   			    			// paired ref to the e
+   			    			pName = ((VariableReference) e2).getBinding().getVariableQName().getLocalPart(); 
+   			    		}
+   			    	}
+   				}
+    				
+   				if (pName == null) {
+   					pName = bind.getVariableQName().getClarkName();
+   				}
+   	    		//value = getValues(ctx.evaluateLocalVariable(bind.getLocalSlotNumber()));
+   				try {
+   					value = getValues(bind.evaluateVariable(ctx));
+   				} catch (NullPointerException ee) {
+   					value = null;
+   				}
+       			logger.trace("iterate; got reference: {}, value: {}", pName, value);
+   			} else if (var instanceof StringLiteral) {
+   				value = ((StringLiteral) var).getStringValue();
+   			} else if (var instanceof Literal) {
+   				value = getValues(((Literal) var).getValue()); 
+   			}
     			
    			ExpressionContainer exCont = getCurrentContainer();
    			exIndex = exCont.addExpression(currentType, compType, path, pName, value);

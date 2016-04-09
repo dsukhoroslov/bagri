@@ -60,7 +60,7 @@ public class ResultCursorTest extends XDMManagementTest {
 	@After
 	public void tearDown() throws Exception {
 		// remove documents here!
-		//removeDocumentsTest();
+		removeDocumentsTest();
 	}
 
 	@Test
@@ -72,8 +72,8 @@ public class ResultCursorTest extends XDMManagementTest {
 				"declare variable $pemin external;\n" +
 				"declare variable $pemax external;\n" + 
 				"declare variable $yield external;\n" + 
-				//"for $sec in fn:collection(\"/{http://tpox-benchmark.com/security}Security\")/Security\n" +
-				"for $sec in fn:collection()/Security\n" +
+				"for $sec in fn:collection(\"CLN_Security\")/Security\n" +
+				//"for $sec in fn:collection()/Security\n" +
 		  		"where $sec[SecurityInformation/*/Sector = $sect and PE[. >= $pemin and . < $pemax] and Yield > $yield]\n" +
 				"return	<Security>\n" +	
 				"\t{$sec/Symbol}\n" +
@@ -104,7 +104,7 @@ public class ResultCursorTest extends XDMManagementTest {
 		QueryManagementImpl qm = (QueryManagementImpl) getQueryManagement();
 		String query = "declare namespace s=\"http://tpox-benchmark.com/security\";\n" +
 				"declare variable $sym external;\n" + 
-				//"for $sec in fn:collection(\"/{http://tpox-benchmark.com/security}Security\")/s:Security\n" +
+				//"for $sec in fn:collection(\"CLN_Security\")/s:Security\n" +
 				"for $sec in fn:collection()/s:Security\n" +
 		  		"where $sec/s:Symbol=$sym\n" + 
 				"return $sec\n";
@@ -126,7 +126,7 @@ public class ResultCursorTest extends XDMManagementTest {
 		final QueryManagementImpl qm = (QueryManagementImpl) getQueryManagement();
 		final String query = "declare namespace s=\"http://tpox-benchmark.com/security\";\n" +
 				"declare variable $sym external;\n" + 
-				//"for $sec in fn:collection(\"/{http://tpox-benchmark.com/security}Security\")/s:Security\n" +
+				//"for $sec in fn:collection(\"CLN_Security\")/s:Security\n" +
 				"for $sec in fn:collection()/s:Security\n" +
 		  		"where $sec/s:Symbol=$sym\n" + 
 				"return $sec\n";

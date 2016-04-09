@@ -86,7 +86,7 @@
                                     <doctitle>Bagri: XML DB on top of Distributed Cache</doctitle>
                                     <verbose>false</verbose>
           			    <links>
-					<link>http://docs.hazelcast.org/docs/3.3/javadoc/</link>
+					<link>http://docs.hazelcast.org/docs/3.6/javadoc/</link>
 					<link>http://www.saxonica.com/documentation9.5/index.html#!javadoc</link>
           			    </links>				    
 

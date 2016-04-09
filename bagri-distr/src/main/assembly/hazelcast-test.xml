@@ -75,6 +75,22 @@
             </includes>
         </fileSet>
 
+        <!--config files are copied from resources-->
+        <fileSet>
+            <directory>src/main/resources/test</directory>
+            <outputDirectory>/config</outputDirectory>
+            <includes>
+                <include>config.xml</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>src/main/resources</directory>
+            <outputDirectory>/config</outputDirectory>
+            <includes>
+                <include>fifth.properties</include>
+            </includes>
+        </fileSet>
+
         <!--tpox exec files-->
         <fileSet>
             <directory>src/main/tpox</directory>

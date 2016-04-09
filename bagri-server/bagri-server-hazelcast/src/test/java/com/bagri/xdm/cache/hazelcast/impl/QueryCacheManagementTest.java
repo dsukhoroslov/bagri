@@ -2,6 +2,7 @@ package com.bagri.xdm.cache.hazelcast.impl;
 
 import static com.bagri.common.config.XDMConfigConstants.xdm_config_path;
 import static com.bagri.common.config.XDMConfigConstants.xdm_config_properties_file;
+//import static com.bagri.xdm.common.XDMConstants.pn_baseURI;
 import static com.bagri.xdm.common.XDMConstants.pn_client_id;
 import static com.bagri.xdm.common.XDMConstants.pn_client_fetchSize;
 import static org.junit.Assert.*;
@@ -75,7 +76,6 @@ public class QueryCacheManagementTest extends XDMManagementTest {
 		String query = "declare namespace s=\"http://tpox-benchmark.com/security\";\n" +
 			"declare variable $sym external;\n" + 
 			"for $sec in fn:collection(\"CLN_Security\")/s:Security\n" +
-			//"for $sec in fn:collection()/s:Security\n" +
 	  		"where $sec/s:Symbol=$sym\n" + 
 			"return $sec\n";
 		Map<QName, Object> params = new HashMap<>();
@@ -83,9 +83,6 @@ public class QueryCacheManagementTest extends XDMManagementTest {
 		Properties props = new Properties();
 		props.setProperty(pn_client_id, "1");
 		props.setProperty(pn_client_fetchSize, "1");
-		props.setProperty(javax.xml.transform.OutputKeys.OMIT_XML_DECLARATION, "yes");
-		props.setProperty(javax.xml.transform.OutputKeys.INDENT, "no");
-		props.setProperty(javax.xml.transform.OutputKeys.METHOD, "xml");
 		Iterator itr = xRepo.getQueryManagement().executeQuery(query, params, props);
 		assertNotNull(itr);
 		//((ResultCursor) itr).deserialize(((RepositoryImpl) xRepo).getHzInstance());
@@ -116,7 +113,6 @@ public class QueryCacheManagementTest extends XDMManagementTest {
 			"declare variable $pemin external;\n" +
 			"declare variable $pemax external;\n" + 
 			"declare variable $yield external;\n" + 
-			//"for $sec in fn:collection(\"/{http://tpox-benchmark.com/security}Security\")/Security\n" +
 			"for $sec in fn:collection(\"CLN_Security\")/Security\n" +
 		  	"where $sec[SecurityInformation/*/Sector = $sect and PE[. >= $pemin and . < $pemax] and Yield > $yield]\n" +
 			"return	<Security>\n" +	
@@ -136,9 +132,6 @@ public class QueryCacheManagementTest extends XDMManagementTest {
 		Properties props = new Properties();
 		props.setProperty(pn_client_id, "2");
 		props.setProperty(pn_client_fetchSize, "1");
-		props.setProperty(javax.xml.transform.OutputKeys.OMIT_XML_DECLARATION, "yes");
-		props.setProperty(javax.xml.transform.OutputKeys.INDENT, "no");
-		props.setProperty(javax.xml.transform.OutputKeys.METHOD, "xml");
 		Iterator itr = xRepo.getQueryManagement().executeQuery(query, params, props);
 		assertNotNull(itr);
 		//((ResultCursor) itr).deserialize(((RepositoryImpl) xRepo).getHzInstance());
@@ -154,7 +147,7 @@ public class QueryCacheManagementTest extends XDMManagementTest {
 		// here we must have 0 result cached
 		// but there is no code to do this!
 		itr = ((QueryManagementImpl) xRepo.getQueryManagement()).getQueryResults(query, params, props);		
-		//assertNull(itr);
+		assertNull(itr);
 		//assertFalse(itr.hasNext());
 	}
 	

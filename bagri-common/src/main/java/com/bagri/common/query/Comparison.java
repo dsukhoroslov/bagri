@@ -28,6 +28,18 @@ public enum Comparison {
 		}
 	}
 	
+	public static Comparison revert(Comparison comp) {
+		switch (comp) {
+			case EQ: return Comparison.EQ;
+			case NE: return Comparison.NE;
+			case LE: return Comparison.GE; 
+			case LT: return Comparison.GT; 
+			case GE: return Comparison.LE; 
+			case GT: return Comparison.LT; 
+			default: return comp;
+		}
+	}
+	
 	public static boolean isBinary(Comparison compType) {
 		switch (compType) {
 			case AND:
