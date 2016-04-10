@@ -16,6 +16,7 @@ import com.bagri.xdm.cache.hazelcast.task.library.LibFunctionUpdater;
 import com.bagri.xdm.system.XDMFunction;
 import com.bagri.xdm.system.XDMLibrary;
 import com.bagri.xquery.api.XQCompiler;
+import com.hazelcast.core.HazelcastInstance;
 
 @ManagedResource(description="Extension Library Manager MBean")
 public class LibraryManager extends EntityManager<XDMLibrary> { 
@@ -24,15 +25,11 @@ public class LibraryManager extends EntityManager<XDMLibrary> {
 	//private IExecutorService execService;
 
 	public LibraryManager() {
-		// default constructor
 		super();
 	}
     
-	public LibraryManager(String libraryName) {
-		super(libraryName);
-		//execService = hzInstance.getExecutorService(PN_XDM_SYSTEM_POOL);
-		//IMap<String, XDMNode> nodes = hzInstance.getMap("nodes"); 
-		//setEntityCache(nodes);
+	public LibraryManager(HazelcastInstance hzInstance, String libraryName) {
+		super(hzInstance, libraryName);
 	}
 
 	public void setXQCompiler(XQCompiler xqComp) {
@@ -85,7 +82,7 @@ public class LibraryManager extends EntityManager<XDMLibrary> {
 
 		logger.trace("addFunction.enter; className: {}; signature: {}", className, signature);
 		XDMFunction function = (XDMFunction) entityCache.executeOnKey(entityName,  
-	    			new LibFunctionUpdater(getVersion(), JMXUtils.getCurrentUser(), className, prefix, description, signature, Action.add));
+	    			new LibFunctionUpdater(getVersion(), getCurrentUser(), className, prefix, description, signature, Action.add));
 		// notify existing sessions about library/function change ?!
 		logger.trace("addFunction.exit; function created: {}", function);
 	}
@@ -98,7 +95,7 @@ public class LibraryManager extends EntityManager<XDMLibrary> {
 		
 		logger.trace("deleteFunction.enter; className: {}; signature: {}", className, signature);
 		XDMFunction function = (XDMFunction) entityCache.executeOnKey(entityName,  
-    			new LibFunctionUpdater(getVersion(), JMXUtils.getCurrentUser(), className, "test", null, signature, Action.remove));
+    			new LibFunctionUpdater(getVersion(), getCurrentUser(), className, "test", null, signature, Action.remove));
 		// notify existing sessions about library/function change ?!
 		logger.trace("deleteFunction.exit; function deleted: {}", function);
 	}

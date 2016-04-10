@@ -21,6 +21,7 @@ import com.bagri.xdm.cache.hazelcast.task.user.UserUpdater;
 import com.bagri.xdm.system.XDMPermission;
 import com.bagri.xdm.system.XDMRole;
 import com.bagri.xdm.system.XDMUser;
+import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 
 @ManagedResource(description="User Manager MBean")
@@ -32,8 +33,8 @@ public class UserManager extends PermissionAwareManager<XDMUser> {
 		super();
 	}
 
-	public UserManager(String userName) {
-		super(userName);
+	public UserManager(HazelcastInstance hzInstance, String userName) {
+		super(hzInstance, userName);
 	}
 	
 	public void setRoleCache(IMap<String, XDMRole> roleCache) {
@@ -122,7 +123,7 @@ public class UserManager extends PermissionAwareManager<XDMUser> {
 		XDMUser user = getEntity();
 		if (user != null) {
 	    	Object result = entityCache.executeOnKey(entityName, new UserUpdater(user.getVersion(), 
-	    			JMXUtils.getCurrentUser(), oldPassword, newPassword));
+	    			getCurrentUser(), oldPassword, newPassword));
 	    	logger.trace("changePassword; execution result: {}", result);
 	    	return result != null;
 		}

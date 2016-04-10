@@ -3,6 +3,10 @@
  */
 package com.bagri.xdm.cache.hazelcast.management;
 
+import static com.bagri.common.config.XDMConfigConstants.xdm_cluster_login;
+
+import javax.management.openmbean.TabularData;
+
 import org.springframework.jmx.export.annotation.ManagedAttribute;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedOperationParameter;
@@ -17,6 +21,7 @@ import com.bagri.xdm.system.XDMRole;
 import com.bagri.xdm.system.XDMUser;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
+import com.hazelcast.core.Member;
 
 /**
  * @author Denis Sukhoroslov email: dsukhoroslov@gmail.com
@@ -24,7 +29,7 @@ import com.hazelcast.core.IMap;
  */
 @ManagedResource(objectName="com.bagri.xdm:type=Management,name=UserManagement", 
 	description="User Management MBean")
-public class UserManagement extends EntityManagement<String, XDMUser> {
+public class UserManagement extends EntityManagement<XDMUser> {
 
 	public UserManagement(HazelcastInstance hzInstance) {
 		super(hzInstance);
@@ -32,13 +37,18 @@ public class UserManagement extends EntityManagement<String, XDMUser> {
 
 	@ManagedAttribute(description="Current User Name")
 	public String getCurrentUser() {
-		return JMXUtils.getCurrentUser();
+		return super.getCurrentUser();
 	}
 	
 	@ManagedAttribute(description="Registered Users")
 	public String[] getUserNames() {
-		return entityCache.keySet().toArray(new String[0]);
+		return getEntityNames();
 	}
+	
+	@ManagedAttribute(description="Return registered Users")
+	public TabularData getUsers() {
+		return getEntities("user", "User definition");
+    }
 	
 	@ManagedOperation(description="Create new User")
 	@ManagedOperationParameters({
@@ -47,7 +57,7 @@ public class UserManagement extends EntityManagement<String, XDMUser> {
 	public boolean addUser(String login, String password) {
 
 		if (!entityCache.containsKey(login)) {
-	    	Object result = entityCache.executeOnKey(login, new UserCreator(JMXUtils.getCurrentUser(), password));
+	    	Object result = entityCache.executeOnKey(login, new UserCreator(getCurrentUser(), password));
 	    	logger.debug("addUser; execution result: {}", result);
 			return true;
 		}
@@ -61,7 +71,7 @@ public class UserManagement extends EntityManagement<String, XDMUser> {
 		//return userCache.remove(login) != null;
 		XDMUser user = entityCache.get(login);
 		if (user != null) {
-	    	Object result = entityCache.executeOnKey(login, new UserRemover(user.getVersion(), JMXUtils.getCurrentUser()));
+	    	Object result = entityCache.executeOnKey(login, new UserRemover(user.getVersion(), getCurrentUser()));
 	    	logger.debug("deleteUser; execution result: {}", result);
 	    	return result != null;
 		}
@@ -70,7 +80,7 @@ public class UserManagement extends EntityManagement<String, XDMUser> {
 
 	@Override
 	protected EntityManager<XDMUser> createEntityManager(String userName) {
-		UserManager mgr = new UserManager(userName);
+		UserManager mgr = new UserManager(hzInstance, userName);
 		mgr.setEntityCache(entityCache);
 		IMap<String, XDMRole> roles = hzInstance.getMap("roles");
 		mgr.setRoleCache(roles);

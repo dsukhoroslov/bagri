@@ -78,7 +78,8 @@ public class XDMCacheServer {
     
     private static void initAdminNode(HazelcastInstance hzInstance) {
     	
-    	String xport = hzInstance.getConfig().getProperty(xdm_cluster_admin_port);
+    	//String xport = hzInstance.getConfig().getProperty(xdm_cluster_admin_port);
+    	String xport = ((Member) hzInstance.getLocalEndpoint()).getStringAttribute(xdm_cluster_admin_port);
     	int port = Integer.parseInt(xport);
     	JMXServiceURL url;
 		try {

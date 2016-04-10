@@ -64,20 +64,20 @@ public class SchemaManager extends EntityManager<XDMSchema> implements XDMHealth
     private XDMRepository xdmRepo;
     private SchemaManagement parent;
     private XDMHealthState hState;
-    private HazelcastInstance hzInstance;
 	private IExecutorService execService;
+	private HazelcastInstance schemaInstance;
     
 	public SchemaManager() {
 		super();
 	}
 
-	public SchemaManager(SchemaManagement parent, String schemaName) {
-		super(schemaName);
+	public SchemaManager(HazelcastInstance hzInstance, String schemaName, SchemaManagement parent) {
+		super(hzInstance, schemaName);
 		this.parent = parent;
 	}
 	
 	HazelcastInstance getHazelcastClient() {
-		return hzInstance;
+		return schemaInstance;
 	}
 
 	XDMRepository getRepository() {
@@ -92,14 +92,14 @@ public class SchemaManager extends EntityManager<XDMSchema> implements XDMHealth
 				xdmRepo = null;
 			}
 			execService = null;
-			hzInstance = null; // shutdown ?
+			schemaInstance = null; // shutdown ?
 		} else {
-			//hzInstance = clientContext.getBean(hz_instance, HazelcastInstance.class);
-			hzInstance = HazelcastUtils.getHazelcastClientByName(entityName);
-			logger.trace("setClientContext; got HZ instance: {}, from {}", hzInstance, HazelcastClient.getAllHazelcastClients());
-			execService = hzInstance.getExecutorService(PN_XDM_SCHEMA_POOL);
+			//schemaInstance = clientContext.getBean(hz_instance, HazelcastInstance.class);
+			schemaInstance = HazelcastUtils.getHazelcastClientByName(entityName);
+			logger.trace("setClientContext; got HZ instance: {}, from {}", schemaInstance, HazelcastClient.getAllHazelcastClients());
+			execService = schemaInstance.getExecutorService(PN_XDM_SCHEMA_POOL);
 			//setRepository(clientContext.getBean(XDMRepository.class));
-			setRepository((XDMRepository) hzInstance.getUserContext().get(XDMRepository.bean_id));
+			setRepository((XDMRepository) schemaInstance.getUserContext().get(XDMRepository.bean_id));
 		}
 	}
 	
@@ -111,14 +111,14 @@ public class SchemaManager extends EntityManager<XDMSchema> implements XDMHealth
 	
 	@ManagedAttribute(description="Returns active schema nodes")
 	public String[] getActiveNodes() {
-		if (hzInstance == null) {
+		if (schemaInstance == null) {
 			return new String[0];
 		}
 		Collection<Member> members;
-		if (hzInstance instanceof HazelcastClientInstanceImpl) {
-			members = ((HazelcastClientInstanceImpl) hzInstance).getClientClusterService().getMemberList();
+		if (schemaInstance instanceof HazelcastClientInstanceImpl) {
+			members = ((HazelcastClientInstanceImpl) schemaInstance).getClientClusterService().getMemberList();
 		} else {
-			members = hzInstance.getCluster().getMembers();
+			members = schemaInstance.getCluster().getMembers();
 		}
 		String[] result = new String[members.size()];
 		int idx = 0;
@@ -207,7 +207,7 @@ public class SchemaManager extends EntityManager<XDMSchema> implements XDMHealth
 
 	@ManagedAttribute(description="Returns registered Schema state")
 	public String getState() {
-		if (hzInstance == null) {
+		if (schemaInstance == null) {
 			return state_fail;
 		}
 		return state_ok;
@@ -221,7 +221,7 @@ public class SchemaManager extends EntityManager<XDMSchema> implements XDMHealth
 	public boolean activateSchema() {
 		XDMSchema schema = getEntity();
 		if (schema != null && !schema.isActive()) {
-			String user = JMXUtils.getCurrentUser();
+			String user = getCurrentUser();
 	    	Object result = entityCache.executeOnKey(entityName, new SchemaActivator(schema.getVersion(), user, true));
 	    	logger.trace("activateSchema; execution result: {}", result);
 	    	return result != null;
@@ -233,7 +233,7 @@ public class SchemaManager extends EntityManager<XDMSchema> implements XDMHealth
 	public boolean deactivateSchema() {
 		XDMSchema schema = getEntity();
 		if (schema != null && schema.isActive()) {
-			String user = JMXUtils.getCurrentUser();
+			String user = getCurrentUser();
 	    	Object result = entityCache.executeOnKey(entityName, new SchemaActivator(schema.getVersion(), user, false));
 	    	logger.trace("deactivateSchema; execution result: {}", result);
 	    	return result != null;
@@ -260,7 +260,7 @@ public class SchemaManager extends EntityManager<XDMSchema> implements XDMHealth
 			Properties props = new Properties();
 			props.setProperty(name, value);
 	    	Object result = entityCache.executeOnKey(entityName, new SchemaUpdater(schema.getVersion(), 
-	    			JMXUtils.getCurrentUser(), false, props));
+	    			getCurrentUser(), false, props));
 	    	logger.trace("setProperty; execution result: {}", result);
 		}
 	}
@@ -293,7 +293,7 @@ public class SchemaManager extends EntityManager<XDMSchema> implements XDMHealth
 			}
 			
 	    	Object result = entityCache.executeOnKey(entityName, new SchemaUpdater(schema.getVersion(), 
-	    			JMXUtils.getCurrentUser(), true, props));
+	    			getCurrentUser(), true, props));
 	    	logger.trace("updateProperties; execution result: {}", result);
 	    	return result != null;
 		}
@@ -325,8 +325,6 @@ public class SchemaManager extends EntityManager<XDMSchema> implements XDMHealth
 			return;
 		}
 		SchemaPopulator pop = new SchemaPopulator(entityName);
-		//HazelcastInstance hzInstance = clientContext.getBean(hz_instance, HazelcastInstance.class);
-		//hzInstance.getExecutorService(PN_XDM_SCHEMA_POOL).submitToAllMembers(pop);
 		execService.submitToAllMembers(pop);
 	}
 
@@ -339,7 +337,7 @@ public class SchemaManager extends EntityManager<XDMSchema> implements XDMHealth
 			}
 		}
 		id++;
-		XDMCollection collection = new XDMCollection(1, new Date(), JMXUtils.getCurrentUser(), id, name, docType, description, true);
+		XDMCollection collection = new XDMCollection(1, new Date(), getCurrentUser(), id, name, docType, description, true);
 		if (schema.addCollection(collection)) {
 			// store schema!
 			flushEntity(schema);
@@ -370,7 +368,7 @@ public class SchemaManager extends EntityManager<XDMSchema> implements XDMHealth
 
 	XDMFragment addFragment(String name, String docType, String path, String description) {
 		//String typePath = schemaDictionary.normalizePath(docType);
-		XDMFragment fragment = new XDMFragment(1, new Date(), JMXUtils.getCurrentUser(), name, docType, //typePath, 
+		XDMFragment fragment = new XDMFragment(1, new Date(), getCurrentUser(), name, docType, //typePath, 
 				path, description, true);
 		XDMSchema schema = getEntity();
 		if (schema.addFragment(fragment)) {
@@ -404,7 +402,7 @@ public class SchemaManager extends EntityManager<XDMSchema> implements XDMHealth
 	XDMIndex addIndex(String name, String docType, String path, String dataType, boolean caseSensitive, boolean range, 
 			boolean unique, String description) {
 		String typePath = xdmRepo.getModelManagement().normalizePath(docType);
-		XDMIndex index = new XDMIndex(1, new Date(), JMXUtils.getCurrentUser(), name, docType, typePath, 
+		XDMIndex index = new XDMIndex(1, new Date(), getCurrentUser(), name, docType, typePath, 
 				path, new QName(xs_ns, dataType, xs_prefix), caseSensitive, range, unique, description, true);
 		XDMSchema schema = getEntity();
 		if (schema.addIndex(index)) {
@@ -439,10 +437,10 @@ public class SchemaManager extends EntityManager<XDMSchema> implements XDMHealth
 			boolean synchronous, Collection<XDMTriggerAction> actions, int index) {
 		XDMTriggerDef trigger;
 		if (java) {
-			trigger = new XDMJavaTrigger(1, new Date(), JMXUtils.getCurrentUser(), container, 
+			trigger = new XDMJavaTrigger(1, new Date(), getCurrentUser(), container, 
 				 implementation, docType, synchronous, true, index);
 		} else {
-			trigger = new XDMXQueryTrigger(1, new Date(), JMXUtils.getCurrentUser(), container, 
+			trigger = new XDMXQueryTrigger(1, new Date(), getCurrentUser(), container, 
 					 implementation, docType, synchronous, true, index);
 		}
 		trigger.setActions(actions);

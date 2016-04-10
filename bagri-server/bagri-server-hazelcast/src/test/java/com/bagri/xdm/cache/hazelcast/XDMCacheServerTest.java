@@ -60,7 +60,7 @@ public class XDMCacheServerTest {
         assertTrue(containsDomain(domains, "com.bagri.xdm"));
         
         ObjectName name = new ObjectName("com.bagri.xdm:type=Management,name=ClusterManagement");
-        Object nodes = mbsc.getAttribute(name, "Nodes");
+        Object nodes = mbsc.getAttribute(name, "NodeNames");
         //System.out.println("got nodes: " + Arrays.toString((String[]) nodes));
         String[] sNodes = (String[]) nodes;
         assertTrue(sNodes.length > 0);

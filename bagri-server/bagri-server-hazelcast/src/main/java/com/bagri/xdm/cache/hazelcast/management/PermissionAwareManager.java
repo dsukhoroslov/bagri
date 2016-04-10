@@ -20,6 +20,7 @@ import com.bagri.xdm.system.XDMPermission;
 import com.bagri.xdm.system.XDMPermissionAware;
 import com.bagri.xdm.system.XDMPermission.Permission;
 import com.bagri.xdm.system.XDMRole;
+import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 
 public abstract class PermissionAwareManager<P extends XDMPermissionAware> extends EntityManager {
@@ -28,8 +29,8 @@ public abstract class PermissionAwareManager<P extends XDMPermissionAware> exten
 		super();
 	}
 	
-	public PermissionAwareManager(String entityName) {
-		super(entityName);
+	public PermissionAwareManager(HazelcastInstance hzInstance, String entityName) {
+		super(hzInstance, entityName);
 	}
 	
 	@Override
@@ -121,7 +122,7 @@ public abstract class PermissionAwareManager<P extends XDMPermissionAware> exten
 		P role = getEntity();
 		String[] aPerms = resolvePermissions(permissions);
 	    Object result = entityCache.executeOnKey(entityName, new PermissionUpdater(role.getVersion(), 
-	    		JMXUtils.getCurrentUser(), resource, aPerms, action));
+	    		getCurrentUser(), resource, aPerms, action));
 		return (P) result;
 	}
 	
@@ -167,7 +168,7 @@ public abstract class PermissionAwareManager<P extends XDMPermissionAware> exten
 		String[] aRoles = roles.split(" ");
 		P role = getEntity();
 	    Object result = entityCache.executeOnKey(entityName, new RoleUpdater(role.getVersion(), 
-	    		JMXUtils.getCurrentUser(), aRoles, action));
+	    		getCurrentUser(), aRoles, action));
 		return (P) result;
 	}
 	

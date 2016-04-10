@@ -2,6 +2,7 @@ package com.bagri.common.config;
 
 public class XDMConfigConstants {
 	
+	public static final String xdm_cluster_login = "xdm.cluster.login";
     public static final String xdm_cluster_node_name = "xdm.cluster.node.name";
     public static final String xdm_cluster_node_role = "xdm.cluster.node.role";
     public static final String xdm_cluster_node_size = "xdm.cluster.node.size";

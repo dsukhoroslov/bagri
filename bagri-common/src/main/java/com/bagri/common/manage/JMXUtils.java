@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import com.bagri.common.security.LocalSubject;
 
-import static com.bagri.common.stats.InvocationStatistics.*;
+//import static com.bagri.common.stats.InvocationStatistics.*;
 
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
@@ -33,7 +33,7 @@ import java.security.AccessController;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
+//import java.util.Date;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
@@ -128,17 +128,15 @@ public class JMXUtils {
 		return false;
 	}
 	
-	public static String getCurrentUser() {
+	public static String getSubjectUser() {
         AccessControlContext ctx = AccessController.getContext();
         Subject subj = Subject.getSubject(ctx);
         String result = null;
         if (subj == null) {
         	subj = LocalSubject.getSubject();
         }
-        logger.trace("getCurrentUser; subject: {}", subj);
-        if (subj == null) {
-        	result = System.getProperty("user.name");
-        } else {
+        logger.trace("getSubjectUser; subject: {}", subj);
+        if (subj != null) {
 	        Set<JMXPrincipal> sjp = subj.getPrincipals(JMXPrincipal.class);
 	        if (sjp != null && sjp.size() > 0) {
 	        	result = sjp.iterator().next().getName();
@@ -149,11 +147,25 @@ public class JMXUtils {
 		        }
 	        }
         }
+        logger.trace("getSubjectUser.exit; returning: {}", result);
+        return result;
+	}
+	
+	public static String getCurrentUser() {
+        String result = getSubjectUser();
         if (result == null) {
-        	result = "unknown";
+        	result = System.getProperty("user.name");
+            if (result == null) {
+            	result = "unknown";
+            }
         }
         logger.trace("getCurrentUser.exit; returning: {}", result);
         return result;
+	}
+
+	public static String getCurrentUser(String login) {
+        String result = getSubjectUser();
+        return result == null ? login : result;
 	}
 	
 	public static List<String> queryNames(String wildcard) {
@@ -174,22 +186,22 @@ public class JMXUtils {
     /**
      * @param name  Statistics name
      * @param desc  Statistics description
-     * @param map	Statistics name/value map
+     * @param def	Statistics name/value map
      * @return Composite data
      */
-    public static CompositeData mapToComposite(String name, String desc, Map<String, Object> map) {
-        if (map != null && !map.isEmpty()) {
+    public static CompositeData mapToComposite(String name, String desc, Map<String, Object> def) {
+        if (def != null && !def.isEmpty()) {
             try {
-                String[] names = new String[map.size()];
-                OpenType[] types = new OpenType[map.size()];
+                String[] names = new String[def.size()];
+                OpenType[] types = new OpenType[def.size()];
                 int idx = 0;
-                for (Map.Entry<String, Object> e : map.entrySet()) {
+                for (Map.Entry<String, Object> e : def.entrySet()) {
                     names[idx] = e.getKey();
                     types[idx] = getOpenType(e.getValue());
                     idx++;
                 }
                 CompositeType type = new CompositeType(name, desc, names, names, types);
-                return new CompositeDataSupport(type, map);
+                return new CompositeDataSupport(type, def);
             } catch (OpenDataException ex) {
                 logger.warn("statsToComposite. error: {}", ex.getMessage());
             }

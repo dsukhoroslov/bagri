@@ -94,7 +94,7 @@
         </role>
     </roles>
     <users>
-        <user login="Denis" active="true">
+        <!--user login="Denis" active="true">
             <version>1</version>
             <createdAt>2014-05-23T09:42:49.630+04:00</createdAt>
             <createdBy>admin</createdBy>
@@ -109,7 +109,7 @@
             <permissions/>
             <includedRoles>AdminRole</includedRoles>
             <password>07e3379a4942bbf67f06b72fbd748f1d</password>
-        </user>
+        </user-->
         <user login="admin" active="true">
             <version>2</version>
             <createdAt>2014-05-29T01:12:30.559+04:00</createdAt>

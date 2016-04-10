@@ -1,5 +1,7 @@
 package com.bagri.xdm.cache.hazelcast.management;
 
+import static com.bagri.common.config.XDMConfigConstants.xdm_cluster_login;
+
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
@@ -23,6 +25,7 @@ import com.bagri.xdm.system.XDMUser;
 import com.bagri.xquery.api.XQCompiler;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
+import com.hazelcast.core.Member;
 
 /**
  * @author Denis Sukhoroslov email: dsukhoroslov@gmail.com
@@ -30,7 +33,7 @@ import com.hazelcast.core.IMap;
  */
 @ManagedResource(objectName="com.bagri.xdm:type=Management,name=ModuleManagement", 
 	description="XQuery Module Management MBean")
-public class ModuleManagement extends EntityManagement<String, XDMModule> {
+public class ModuleManagement extends EntityManagement<XDMModule> {
 
 	private XQCompiler xqComp;
 	
@@ -44,7 +47,7 @@ public class ModuleManagement extends EntityManagement<String, XDMModule> {
 	
 	@Override
 	protected EntityManager<XDMModule> createEntityManager(String moduleName) {
-		ModuleManager mgr = new ModuleManager(moduleName);
+		ModuleManager mgr = new ModuleManager(hzInstance, moduleName);
 		mgr.setEntityCache(entityCache);
 		mgr.setXQCompiler(xqComp);
 		return mgr;
@@ -52,28 +55,12 @@ public class ModuleManagement extends EntityManagement<String, XDMModule> {
     
 	@ManagedAttribute(description="Return registered Module names")
 	public String[] getModuleNames() {
-		return entityCache.keySet().toArray(new String[0]);
+		return getEntityNames();
 	}
 
 	@ManagedAttribute(description="Return registered Modules")
 	public TabularData getModules() {
-		Collection<XDMModule> modules = entityCache.values();
-        logger.trace("getModules; modules: {}", modules);
-		if (modules.size() == 0) {
-			return null;
-		}
-		
-        TabularData result = null;
-        for (XDMModule module: modules) {
-            try {
-                Map<String, Object> def = module.toMap();
-                CompositeData data = JMXUtils.mapToComposite("module", "Module definition", def);
-                result = JMXUtils.compositeToTabular("module", "Module definition", "name", result, data);
-            } catch (Exception ex) {
-                logger.error("getModules; error", ex);
-            }
-        }
-        return result;
+		return getEntities("module", "Module definition");
     }
 	
 	@ManagedOperation(description="Creates a new Module")
@@ -87,8 +74,7 @@ public class ModuleManagement extends EntityManagement<String, XDMModule> {
 		logger.trace("addModule.enter;");
 		XDMModule module = null;
 		if (!entityCache.containsKey(name)) {
-	    	Object result = entityCache.executeOnKey(name, 
-	    			new ModuleCreator(JMXUtils.getCurrentUser(), fileName, namespace, description));
+	    	Object result = entityCache.executeOnKey(name, new ModuleCreator(getCurrentUser(), fileName, namespace, description));
 			//return true;
 	    	module = (XDMModule) result;
 		}
@@ -103,7 +89,7 @@ public class ModuleManagement extends EntityManagement<String, XDMModule> {
 		logger.trace("deleteModule.enter; name: {}", name);
 		XDMModule module = entityCache.get(name);
 		if (module != null) {
-	    	Object result = entityCache.executeOnKey(name, new ModuleRemover(module.getVersion(), JMXUtils.getCurrentUser()));
+	    	Object result = entityCache.executeOnKey(name, new ModuleRemover(module.getVersion(), getCurrentUser()));
 	    	//return result != null;
 		}
 		//return false;

@@ -1,5 +1,7 @@
 package com.bagri.xdm.cache.hazelcast.management;
 
+import static com.bagri.common.config.XDMConfigConstants.xdm_cluster_login;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -7,6 +9,8 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.management.MalformedObjectNameException;
+import javax.management.openmbean.CompositeData;
+import javax.management.openmbean.TabularData;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,16 +19,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jmx.export.MBeanExportException;
 import org.springframework.jmx.export.annotation.AnnotationMBeanExporter;
 
+import com.bagri.common.manage.JMXUtils;
 import com.bagri.xdm.common.XDMEntity;
-import com.bagri.xdm.system.XDMNode;
-import com.bagri.xdm.system.XDMUser;
 import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.EntryListener;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.MapEvent;
+import com.hazelcast.core.Member;
 
-public abstract class EntityManagement<String, E extends XDMEntity> implements EntryListener<String, E>, InitializingBean {
+public abstract class EntityManagement<E extends XDMEntity> implements EntryListener<String, E>, InitializingBean {
 	
     protected final transient Logger logger = LoggerFactory.getLogger(getClass());
 	
@@ -58,6 +62,10 @@ public abstract class EntityManagement<String, E extends XDMEntity> implements E
 		this.entityCache.addEntryListener(this, false);
 	}
 	
+	protected String getCurrentUser() {
+		return JMXUtils.getCurrentUser(((Member) hzInstance.getLocalEndpoint()).getStringAttribute(xdm_cluster_login));
+	}
+	
 	protected EntityManager<E> initEntityManager(String entityName) throws MalformedObjectNameException {
 		EntityManager<E> eMgr = null;
    	    if (!mgrCache.containsKey(entityName)) {
@@ -79,10 +87,29 @@ public abstract class EntityManagement<String, E extends XDMEntity> implements E
 		return mgrCache.get(entityName);
 	}
 	
-	//public String[] getEntityNames() {
-	//	Set<String> names = entityCache.keySet();
-	//	return names.toArray(new String[names.size()]);
-	//}
+	protected String[] getEntityNames() {
+		Set<String> names = entityCache.keySet();
+		return names.toArray(new String[names.size()]);
+	}
+	
+	protected TabularData getEntities(String name, String desc) {
+		Collection<E> entities = entityCache.values();
+		if (entities.size() == 0) {
+			return null;
+		}
+		
+        TabularData result = null;
+        for (XDMEntity entity: entities) {
+            try {
+                Map<String, Object> def = entity.convert();
+                CompositeData data = JMXUtils.mapToComposite(name, desc, def);
+                result = JMXUtils.compositeToTabular(name, desc, "name", result, data);
+            } catch (Exception ex) {
+                logger.error("getEntities; error", ex);
+            }
+        }
+        return result;
+    }
 	
 	@Override
 	public void entryAdded(EntryEvent<String, E> event) {

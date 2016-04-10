@@ -102,16 +102,6 @@
             <includedRoles>AdminRole</includedRoles>
             <password>5f4dcc3b5aa765d61d8327deb882cf99</password>
         </user>
-        <user login="bagri" active="true">
-            <version>2</version>
-            <createdAt>2014-05-29T01:12:30.559+04:00</createdAt>
-            <createdBy>admin</createdBy>
-            <permissions>
-                <permission resource="com.bagri.xdm:name=*,type=Schema">modify</permission>
-            </permissions>
-            <includedRoles>GuestRole</includedRoles>
-            <password>5f4dcc3b5aa765d61d8327deb882cf99</password>
-        </user>
         <user login="guest" active="true">
             <version>4</version>
             <createdAt>2015-08-28T10:41:29.003+03:00</createdAt>

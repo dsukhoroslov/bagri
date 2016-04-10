@@ -75,6 +75,14 @@ public class XDMRole extends XDMPermissionAware {
 	}
 
 	@Override
+	public Map<String, Object> convert() {
+		Map<String, Object> result = super.convert();
+		result.put("name", name);
+		result.put("description", description);
+		return result;
+	}
+	
+	@Override
 	public String toString() {
 		return "XDMRole [name=" + name + ", version=" + this.getVersion()
 				+ ", created at=" + getCreatedAt() + ", by=" + getCreatedBy()

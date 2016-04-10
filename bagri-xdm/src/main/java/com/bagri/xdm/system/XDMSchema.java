@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -293,6 +294,20 @@ public class XDMSchema extends XDMEntity {
 		}
 		XDMSchema other = (XDMSchema) obj;
 		return name.equals(other.name);
+	}
+
+	@Override
+	public Map<String, Object> convert() {
+		Map<String, Object> result = super.convert();
+		result.put("name", name);
+		result.put("active", active);
+		result.put("description", description);
+		result.put("props", props.size());
+		result.put("collections", collections.size());
+		result.put("fragments", fragments.size());
+		result.put("indexes", indexes.size());
+		result.put("triggers", triggers.size());
+		return result;
 	}
 
 	@Override

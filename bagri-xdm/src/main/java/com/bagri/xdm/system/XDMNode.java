@@ -1,6 +1,7 @@
 package com.bagri.xdm.system;
 
 import java.util.Date;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -118,6 +119,14 @@ public class XDMNode extends XDMEntity {
 			return false;
 		}
 		return true;
+	}
+
+	@Override
+	public Map<String, Object> convert() {
+		Map<String, Object> result = super.convert();
+		result.put("name", name);
+		//result.put("enabled", enabled);
+		return result;
 	}
 
 	/* (non-Javadoc)

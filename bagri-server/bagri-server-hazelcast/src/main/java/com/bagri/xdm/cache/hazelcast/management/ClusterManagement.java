@@ -1,8 +1,12 @@
 package com.bagri.xdm.cache.hazelcast.management;
 
+import static com.bagri.common.config.XDMConfigConstants.xdm_cluster_login;
+
 import java.io.IOException;
 import java.util.Properties;
 import java.util.Set;
+
+import javax.management.openmbean.TabularData;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.jmx.export.annotation.ManagedAttribute;
@@ -20,10 +24,11 @@ import com.bagri.xdm.cache.hazelcast.task.node.NodeRemover;
 import com.bagri.xdm.system.XDMNode;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.MapEvent;
+import com.hazelcast.core.Member;
 
 @ManagedResource(objectName="com.bagri.xdm:type=Management,name=ClusterManagement", 
 	description="Cluster Management MBean")
-public class ClusterManagement extends EntityManagement<String, XDMNode> {
+public class ClusterManagement extends EntityManagement<XDMNode> {
 	
 	//, XDMClusterManagement {
 
@@ -31,22 +36,26 @@ public class ClusterManagement extends EntityManagement<String, XDMNode> {
 		super(hzInstance);
 	}
 
+	@ManagedAttribute(description="The Nodes Attribute")
+	public String[] getNodeNames() {
+		return getEntityNames();
+	}
+
+	@ManagedAttribute(description="Return registered Nodes")
+	public TabularData getNodes() {
+		return getEntities("node", "Node definition");
+    }
+	
 	private boolean addNode(String name, Properties options) throws Exception {
 	
 		if (!entityCache.containsKey(name)) {
-	    	Object result = entityCache.executeOnKey(name, 
-	    			new NodeCreator(JMXUtils.getCurrentUser(), name, options));
+			Object result = entityCache.executeOnKey(name, new NodeCreator(getCurrentUser(), name, options));
 	    	logger.debug("addNode; execution result: {}", result);
 			return true;
 		}
 		return false;
 	}
 	
-	@ManagedAttribute(description="The Nodes Attribute")
-	public String[] getNodes() {
-		return entityCache.keySet().toArray(new String[0]);
-	}
-
 	@ManagedOperation(description="Add new Node")
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "name", description = "Node name"),
@@ -76,7 +85,7 @@ public class ClusterManagement extends EntityManagement<String, XDMNode> {
 	public boolean deleteNode(String name) {
 		XDMNode node = entityCache.get(name);
 		if (node != null) {
-	    	Object result = entityCache.executeOnKey(name, new NodeRemover(node.getVersion(), JMXUtils.getCurrentUser()));
+	    	Object result = entityCache.executeOnKey(name, new NodeRemover(node.getVersion(), getCurrentUser()));
 	    	logger.debug("deleteNode; execution result: {}", result);
 	    	return result != null;
 		}

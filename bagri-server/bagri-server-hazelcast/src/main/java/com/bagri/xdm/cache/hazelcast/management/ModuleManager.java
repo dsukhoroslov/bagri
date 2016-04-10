@@ -10,6 +10,7 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 
 import com.bagri.xdm.system.XDMModule;
 import com.bagri.xquery.api.XQCompiler;
+import com.hazelcast.core.HazelcastInstance;
 
 @ManagedResource(description="XQuery Module Manager MBean")
 public class ModuleManager extends EntityManager<XDMModule> { 
@@ -18,15 +19,11 @@ public class ModuleManager extends EntityManager<XDMModule> {
 	//private IExecutorService execService;
 
 	public ModuleManager() {
-		// default constructor
 		super();
 	}
     
-	public ModuleManager(String moduleName) {
-		super(moduleName);
-		//execService = hzInstance.getExecutorService(PN_XDM_SYSTEM_POOL);
-		//IMap<String, XDMNode> nodes = hzInstance.getMap("nodes"); 
-		//setEntityCache(nodes);
+	public ModuleManager(HazelcastInstance hzInstance, String moduleName) {
+		super(hzInstance, moduleName);
 	}
 
 	public void setXQCompiler(XQCompiler xqComp) {

@@ -13,6 +13,7 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.xdm.system.XDMPermission;
 import com.bagri.xdm.system.XDMRole;
+import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 
 @ManagedResource(description="Role Manager MBean")
@@ -22,8 +23,8 @@ public class RoleManager extends PermissionAwareManager<XDMRole> {
 		super();
 	}
 
-	public RoleManager(String roleName) {
-		super(roleName);
+	public RoleManager(HazelcastInstance hzInstance, String roleName) {
+		super(hzInstance, roleName);
 	}
 
 	@Override

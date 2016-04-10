@@ -1,5 +1,7 @@
 package com.bagri.xdm.cache.hazelcast.management;
 
+import static com.bagri.common.config.XDMConfigConstants.xdm_cluster_login;
+
 import java.util.Collection;
 import java.util.Map;
 
@@ -20,6 +22,7 @@ import com.bagri.xdm.cache.hazelcast.task.library.LibraryRemover;
 import com.bagri.xdm.system.XDMLibrary;
 import com.bagri.xquery.api.XQCompiler;
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.Member;
 
 /**
  * @author Denis Sukhoroslov email: dsukhoroslov@gmail.com
@@ -27,7 +30,7 @@ import com.hazelcast.core.HazelcastInstance;
  */
 @ManagedResource(objectName="com.bagri.xdm:type=Management,name=LibraryManagement", 
 	description="Extension Library Management MBean")
-public class LibraryManagement extends EntityManagement<String, XDMLibrary> {
+public class LibraryManagement extends EntityManagement<XDMLibrary> {
 
 	private XQCompiler xqComp;
 	
@@ -42,7 +45,7 @@ public class LibraryManagement extends EntityManagement<String, XDMLibrary> {
 	
 	@Override
 	protected EntityManager<XDMLibrary> createEntityManager(String libraryName) {
-		LibraryManager mgr = new LibraryManager(libraryName);
+		LibraryManager mgr = new LibraryManager(hzInstance, libraryName);
 		mgr.setEntityCache(entityCache);
 		mgr.setXQCompiler(xqComp);
 		return mgr;
@@ -50,28 +53,12 @@ public class LibraryManagement extends EntityManagement<String, XDMLibrary> {
     
 	@ManagedAttribute(description="Return registered Library names")
 	public String[] getLibraryNames() {
-		return entityCache.keySet().toArray(new String[0]);
+		return getEntityNames();
 	}
 
 	@ManagedAttribute(description="Return registered Libraries")
 	public TabularData getLibraries() {
-		Collection<XDMLibrary> libraries = entityCache.values();
-        logger.trace("getLibraries; libraries: {}", libraries);
-		if (libraries.size() == 0) {
-			return null;
-		}
-		
-        TabularData result = null;
-        for (XDMLibrary library: libraries) {
-            try {
-                Map<String, Object> def = library.convert();
-                CompositeData data = JMXUtils.mapToComposite("library", "Library definition", def);
-                result = JMXUtils.compositeToTabular("library", "Library definition", "name", result, data);
-            } catch (Exception ex) {
-                logger.error("getLibraries; error", ex);
-            }
-        }
-        return result;
+		return getEntities("library", "Library definition");
     }
 	
 	@ManagedOperation(description="Creates a new Extension Library")
@@ -84,8 +71,7 @@ public class LibraryManagement extends EntityManagement<String, XDMLibrary> {
 		logger.trace("addLibrary.enter; name: {}", name);
 		XDMLibrary library = null;
 		if (!entityCache.containsKey(name)) {
-	    	Object result = entityCache.executeOnKey(name, 
-	    			new LibraryCreator(JMXUtils.getCurrentUser(), fileName, description));
+	    	Object result = entityCache.executeOnKey(name, new LibraryCreator(getCurrentUser(), fileName, description));
 			//return true;
 	    	library = (XDMLibrary) result;
 		}
@@ -100,7 +86,7 @@ public class LibraryManagement extends EntityManagement<String, XDMLibrary> {
 		logger.trace("deleteLibrary.enter; name: {}", name);
 		XDMLibrary library = entityCache.get(name);
 		if (library != null) {
-	    	Object result = entityCache.executeOnKey(name, new LibraryRemover(library.getVersion(), JMXUtils.getCurrentUser()));
+	    	Object result = entityCache.executeOnKey(name, new LibraryRemover(library.getVersion(), getCurrentUser()));
 	    	//return result != null;
 		}
 		//return false;

@@ -104,4 +104,12 @@ public abstract class XDMPermissionAware extends XDMEntity {
 		return false;
 	}
 	
+	@Override
+	public Map<String, Object> convert() {
+		Map<String, Object> result = super.convert();
+		result.put("permissions", permissions.size());
+		result.put("includedRoles", includedRoles.size());
+		return result;
+	}
+	
 }

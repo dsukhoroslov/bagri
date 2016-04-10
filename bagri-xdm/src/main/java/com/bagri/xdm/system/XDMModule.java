@@ -117,12 +117,10 @@ public class XDMModule extends XDMEntity {
 		return name.equals(other.name); 
 	}
 	
-	public Map<String, Object> toMap() {
-		Map<String, Object> result = new HashMap<>();
+	@Override
+	public Map<String, Object> convert() {
+		Map<String, Object> result = super.convert();
 		result.put("name", name);
-		result.put("version", getVersion());
-		result.put("created at", getCreatedAt().toString());
-		result.put("created by", getCreatedBy());
 		result.put("fileName", fileName);
 		result.put("description", description);
 		result.put("namespace", namespace);

@@ -45,7 +45,7 @@ public class TopologyManagement implements InitializingBean, MembershipListener 
     
     private void registerMember(Member member) {
 		try {
-			TopologyManager tMgr = new TopologyManager(execService, member);
+			TopologyManager tMgr = new TopologyManager(hzInstance, execService, member);
 			mbeanExporter.registerManagedResource(tMgr, tMgr.getObjectName());
 		} catch (MalformedObjectNameException ex) {
 			logger.error("registerMember.error; ", ex);

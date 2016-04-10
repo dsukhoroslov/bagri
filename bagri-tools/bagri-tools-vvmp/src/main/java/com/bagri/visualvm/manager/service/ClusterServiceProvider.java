@@ -25,28 +25,28 @@ public class ClusterServiceProvider implements ClusterManagementService, SchemaM
     @Override
     public Node getNode(ObjectName on) throws ServiceException {
         try {
-            String name = (String) connection.invoke(on, "getName", null, null);
+            String name = (String) connection.getAttribute(on, "Name");
             String[] deployedSchemas = new String[0];
             CompositeData optionsCd = null;
             try {
-                deployedSchemas = (String[]) connection.invoke(on, "getDeployedSchemas",null, null);
+                deployedSchemas = (String[]) connection.getAttribute(on, "DeployedSchemas");
                 if (null == deployedSchemas) {
                     deployedSchemas = new String[0];
                 }
             } catch (Exception e) {
-                // Ignore it for now
+                LOGGER.throwing(this.getClass().getName(), "getNode.schemas", e);
             }
             try {
-                optionsCd = (CompositeData) connection.invoke(on, "getOptions", null, null);
+                optionsCd = (CompositeData) connection.getAttribute(on, "Options");
             } catch (Exception e) {
-                // Ignore it for now
+                LOGGER.throwing(this.getClass().getName(), "getNode.options", e);
             }
             Node node = new Node(on, name);
             node.setNodeOptions(convertCompositeToNodeOptions(optionsCd));
             node.setDeployedSchemas(Arrays.asList(deployedSchemas));
             return node;
         } catch (Exception e) {
-            LOGGER.throwing(this.getClass().getName(), "getNodes", e);
+            LOGGER.throwing(this.getClass().getName(), "getNode", e);
             throw new ServiceException(e);
         }
     }
@@ -57,26 +57,7 @@ public class ClusterServiceProvider implements ClusterManagementService, SchemaM
             Set<ObjectInstance> instances = connection.queryMBeans(new ObjectName("com.bagri.xdm:type=Node,name=*"), null);
             List<Node> nodes = new ArrayList<Node>();
             for (ObjectInstance instance : instances) {
-                ObjectName on = instance.getObjectName();
-                String name = (String) connection.invoke(on, "getName", null, null);
-                String[] deployedSchemas = new String[0];
-                CompositeData optionsCd = null;
-                try {
-                    deployedSchemas = (String[]) connection.invoke(on, "getDeployedSchemas",null, null);
-                    if (null == deployedSchemas) {
-                        deployedSchemas = new String[0];
-                    }
-                } catch (Exception e) {
-                    //Ignore it for now
-                }
-                try {
-                    optionsCd = (CompositeData) connection.invoke(on, "getOptions", null, null);
-                } catch (Exception e) {
-                    //Ignore it for now
-                }
-                Node node = new Node(on, name);
-                node.setNodeOptions(convertCompositeToNodeOptions(optionsCd));
-                node.setDeployedSchemas(Arrays.asList(deployedSchemas));
+                Node node = getNode(instance.getObjectName());
                 nodes.add(node);
             }
             return nodes;
@@ -90,7 +71,7 @@ public class ClusterServiceProvider implements ClusterManagementService, SchemaM
     public void saveNode(Node node) throws ServiceException {
         try {
             // TODO: What da hell, refactor it!!!. Define equals for NodeOption or inherit NodeOptions from Properties
-            List<NodeOption> existing = convertCompositeToNodeOptions((CompositeData) connection.invoke(node.getObjectName(), "getOptions", null, null));
+            List<NodeOption> existing = convertCompositeToNodeOptions((CompositeData) connection.getAttribute(node.getObjectName(), "Options"));
             List<String> toDelete = new ArrayList<String>();
             for (NodeOption option : existing) {
                 String key = option.getOptionName();
@@ -130,7 +111,7 @@ public class ClusterServiceProvider implements ClusterManagementService, SchemaM
         try {
             connection.invoke(new ObjectName("com.bagri.xdm:type=Management,name=ClusterManagement")
                     , "addNode"
-                    ,new Object[] {node.getName(), optionsStr}
+                    , new Object[] {node.getName(), optionsStr}
                     , new String[] {String.class.getName(), String.class.getName()});
         } catch (Exception e) {
             LOGGER.throwing(this.getClass().getName(), "addNode", e);
@@ -143,7 +124,7 @@ public class ClusterServiceProvider implements ClusterManagementService, SchemaM
         try {
             connection.invoke(new ObjectName("com.bagri.xdm:type=Management,name=ClusterManagement")
                     , "deleteNode"
-                    ,new Object[] {node.getName()}
+                    , new Object[] {node.getName()}
                     , new String[] {String.class.getName()});
         } catch (Exception e) {
             LOGGER.throwing(this.getClass().getName(), "deleteNode", e);

@@ -122,7 +122,14 @@ public class XDMUser extends XDMPermissionAware {
 		return true;
 	}
 
-
+	@Override
+	public Map<String, Object> convert() {
+		Map<String, Object> result = super.convert();
+		result.put("name", login);
+		result.put("active", active);
+		return result;
+	}
+	
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */

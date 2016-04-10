@@ -49,7 +49,7 @@ import static com.bagri.xdm.cache.hazelcast.util.HazelcastUtils.getMemberSchemas
 
 @ManagedResource(objectName="com.bagri.xdm:type=Management,name=SchemaManagement", 
 	description="Schema Management MBean")
-public class SchemaManagement extends EntityManagement<String, XDMSchema> implements MembershipListener { 
+public class SchemaManagement extends EntityManagement<XDMSchema> implements MembershipListener { 
 	
 	private IExecutorService execService;
 	private ClusterManagement srvCluster;
@@ -102,14 +102,20 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
 	
 	@ManagedAttribute(description="Registered Schema Names")
 	public String[] getSchemaNames() {
-		return entityCache.keySet().toArray(new String[0]);
+		return getEntityNames();
 	}
+	
+	@ManagedAttribute(description="Return registered Schemas")
+	public TabularData getSchemas() {
+		return getEntities("schema", "Schema definition");
+    }
+	
 	
 	public XDMSchema getSchema(String schemaName) {
 		return entityCache.get(schemaName);
 	}
 
-	public Collection<XDMSchema> getSchemas() {
+	public Collection<XDMSchema> getSchemas2() {
 		return super.getEntities();
 	}
 
@@ -148,7 +154,7 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
 		XDMSchema schema = null;
 		if (!entityCache.containsKey(schemaName)) {
 			// get current user from context...
-			String user = JMXUtils.getCurrentUser();
+			String user = srvUser.getCurrentUser();
 	    	Object result = entityCache.executeOnKey(schemaName, new SchemaCreator(user, description, props));
 	    	logger.debug("addSchema; execution result: {}", result);
 	    	schema = (XDMSchema) result;
@@ -159,7 +165,7 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
 	public XDMSchema deleteSchema(String schemaName) {
 		XDMSchema schema = entityCache.get(schemaName);
 		if (schema != null) {
-			String user = JMXUtils.getCurrentUser();
+			String user = srvUser.getCurrentUser();
 	    	Object result = entityCache.executeOnKey(schemaName, new SchemaRemover(schema.getVersion(), user));
 	    	logger.debug("deleteSchema; execution result: {}", result);
 	    	schema = (XDMSchema) result;
@@ -169,7 +175,7 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
 	
 	@Override
 	protected EntityManager<XDMSchema> createEntityManager(String schemaName) {
-		SchemaManager mgr = new SchemaManager(this, schemaName);
+		SchemaManager mgr = new SchemaManager(hzInstance, schemaName, this);
 		mgr.setEntityCache(entityCache);
 		return mgr;
 	}
@@ -221,7 +227,7 @@ public class SchemaManagement extends EntityManagement<String, XDMSchema> implem
 	
 	private void setupXQConnection(ApplicationContext ctx) throws XQException {
 		XQDataSource xqds = ctx.getBean("xqDataSource", XQDataSource.class);
-		String username = JMXUtils.getCurrentUser();
+		String username = srvUser.getCurrentUser();
 		String password = srvUser.getUserPassword(username);
 		if (password == null) {
 			throw new XQException("no credentials found for user " + username);

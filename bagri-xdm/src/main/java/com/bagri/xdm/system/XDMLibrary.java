@@ -90,7 +90,7 @@ public class XDMLibrary extends XDMEntity {
 	public Map<String, Object> convert() {
 		Map<String, Object> result = super.convert();
 		result.put("name", name);
-		result.put("fileName", fileName);
+		result.put("fileName", fileName == null ? "" : fileName);
 		result.put("description", description);
 		result.put("functions", functions.size());
 		result.put("enabled", enabled);

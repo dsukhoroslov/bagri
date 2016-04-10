@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
 
+import javax.management.openmbean.TabularData;
+
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.jmx.export.annotation.ManagedAttribute;
 import org.springframework.jmx.export.annotation.ManagedOperation;
@@ -26,7 +28,7 @@ import com.hazelcast.core.HazelcastInstance;
  */
 @ManagedResource(objectName="com.bagri.xdm:type=Management,name=RoleManagement", 
 	description="Role Management MBean")
-public class RoleManagement extends EntityManagement<String, XDMRole> {
+public class RoleManagement extends EntityManagement<XDMRole> {
 
 	public RoleManagement(HazelcastInstance hzInstance) {
 		//
@@ -35,8 +37,13 @@ public class RoleManagement extends EntityManagement<String, XDMRole> {
 
 	@ManagedAttribute(description="Registered Roles")
 	public String[] getRoleNames() {
-		return entityCache.keySet().toArray(new String[0]);
+		return getEntityNames();
 	}
+	
+	@ManagedAttribute(description="Return registered Roles")
+	public TabularData getRoles() {
+		return getEntities("role", "Role definition");
+    }
 	
 	@ManagedOperation(description="Create new Role")
 	@ManagedOperationParameters({
@@ -45,7 +52,7 @@ public class RoleManagement extends EntityManagement<String, XDMRole> {
 	public boolean addRole(String name, String description) {
 
 		if (!entityCache.containsKey(name)) {
-	    	Object result = entityCache.executeOnKey(name, new RoleCreator(JMXUtils.getCurrentUser(), description));
+	    	Object result = entityCache.executeOnKey(name, new RoleCreator(getCurrentUser(), description));
 	    	logger.debug("addRole; execution result: {}", result);
 			return true;
 		}
@@ -59,7 +66,7 @@ public class RoleManagement extends EntityManagement<String, XDMRole> {
 		//return userCache.remove(login) != null;
 		XDMRole role = entityCache.get(name);
 		if (role != null) {
-	    	Object result = entityCache.executeOnKey(name, new RoleRemover(role.getVersion(), JMXUtils.getCurrentUser()));
+	    	Object result = entityCache.executeOnKey(name, new RoleRemover(role.getVersion(), getCurrentUser()));
 	    	logger.debug("deleteRole; execution result: {}", result);
 	    	return result != null;
 		}
@@ -68,7 +75,7 @@ public class RoleManagement extends EntityManagement<String, XDMRole> {
 
 	@Override
 	protected EntityManager<XDMRole> createEntityManager(String roleName) {
-		RoleManager mgr = new RoleManager(roleName);
+		RoleManager mgr = new RoleManager(hzInstance, roleName);
 		mgr.setEntityCache(entityCache);
 		return mgr;
 	}

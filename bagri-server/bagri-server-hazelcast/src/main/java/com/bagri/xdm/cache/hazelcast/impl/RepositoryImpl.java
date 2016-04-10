@@ -129,7 +129,7 @@ public class RepositoryImpl extends XDMRepositoryBase implements ApplicationCont
 		String user = clientMgr.getCurrentUser();
 		//logger.info("getUserName; user: {}", user); 
 		if (user == null) {
-			user = JMXUtils.getCurrentUser();
+			user = "unknown";
 		}
 		return user;
 	}

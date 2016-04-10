@@ -32,9 +32,11 @@ import com.bagri.xdm.cache.hazelcast.task.node.NodeKiller;
 import com.bagri.xdm.cache.hazelcast.task.node.NodeOptionSetter;
 import com.bagri.xdm.cache.hazelcast.task.node.NodeInfoProvider.InfoType;
 import com.bagri.xdm.system.XDMNode;
+import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.Member;
 
+import static com.bagri.common.config.XDMConfigConstants.xdm_cluster_login;
 import static com.bagri.xdm.cache.hazelcast.util.HazelcastUtils.getMemberSchemas;
 
 @ManagedResource(description="Topology Manager MBean")
@@ -44,9 +46,10 @@ public class TopologyManager implements SelfNaming {
 	
 	private Member member;
 	private IExecutorService execService;
-	//private HazelcastInstance hzInstance; 
+	private HazelcastInstance hzInstance; 
 	
-	public TopologyManager(IExecutorService execService, Member member) {
+	public TopologyManager(HazelcastInstance hzInstance, IExecutorService execService, Member member) {
+		this.hzInstance = hzInstance;
 		this.execService = execService;
 		this.member = member;
 	}
@@ -168,7 +171,8 @@ public class TopologyManager implements SelfNaming {
 		props.put(name, value);
 		String nodeName = member.getStringAttribute(XDMConfigConstants.xdm_cluster_node_name);
 		logger.trace("setOption; nodeName: {}; options: {}", nodeName, props);
-		NodeOptionSetter setter = new NodeOptionSetter(JMXUtils.getCurrentUser(), 
+		String login = ((Member) hzInstance.getLocalEndpoint()).getStringAttribute(xdm_cluster_login);
+		NodeOptionSetter setter = new NodeOptionSetter(JMXUtils.getCurrentUser(login), 
 				"Option " + name + " set from JMX console", props);
 		Future<Boolean> result = execService.submitToMember(setter, member);
 		try {

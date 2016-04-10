@@ -1,5 +1,7 @@
 package com.bagri.xdm.cache.hazelcast.management;
 
+import static com.bagri.common.config.XDMConfigConstants.xdm_cluster_login;
+
 import java.util.Date;
 
 import javax.management.MalformedObjectNameException;
@@ -11,14 +13,16 @@ import org.springframework.jmx.export.naming.SelfNaming;
 
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.xdm.common.XDMEntity;
+import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
+import com.hazelcast.core.Member;
 
 public abstract class EntityManager<E extends XDMEntity> implements SelfNaming {
 
     protected final transient Logger logger = LoggerFactory.getLogger(getClass());
 
 	protected String entityName;
-    //private HazelcastInstance hzInstance;
+    protected HazelcastInstance hzInstance;
 	//private IExecutorService execService;
 	
 	//@Autowired
@@ -28,7 +32,8 @@ public abstract class EntityManager<E extends XDMEntity> implements SelfNaming {
 		//..
 	}
 
-	public EntityManager(String entityName) {
+	public EntityManager(HazelcastInstance hzInstance, String entityName) {
+		this.hzInstance = hzInstance;
 		this.entityName = entityName;
 	}
 
@@ -43,6 +48,10 @@ public abstract class EntityManager<E extends XDMEntity> implements SelfNaming {
 	public void setEntityCache(IMap<String, E> entityCache) {
 		this.entityCache = entityCache;
 	}
+	
+	//public void setHzInstance(HazelcastInstance hzInstance) {
+	//	this.hzInstance = hzInstance;
+	//}
 	
 	public String getEntityName() {
 		return entityName;
@@ -70,6 +79,9 @@ public abstract class EntityManager<E extends XDMEntity> implements SelfNaming {
 	}
 	
 	protected abstract String getEntityType();
-
+	
+	protected String getCurrentUser() {
+		return JMXUtils.getCurrentUser(((Member) hzInstance.getLocalEndpoint()).getStringAttribute(xdm_cluster_login));
+	}
 
 }

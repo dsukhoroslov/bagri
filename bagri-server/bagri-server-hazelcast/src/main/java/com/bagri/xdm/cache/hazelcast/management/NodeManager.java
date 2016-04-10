@@ -25,20 +25,14 @@ import com.hazelcast.core.Member;
 @ManagedResource(description="Cluster Node Manager MBean")
 public class NodeManager extends EntityManager<XDMNode> { 
 
-    private HazelcastInstance hzInstance;
 	//private IExecutorService execService;
 
 	public NodeManager() {
-		// default constructor
 		super();
 	}
     
 	public NodeManager(HazelcastInstance hzInstance, String nodeName) {
-		super(nodeName);
-		this.hzInstance = hzInstance;
-		//execService = hzInstance.getExecutorService(PN_XDM_SYSTEM_POOL);
-		//IMap<String, XDMNode> nodes = hzInstance.getMap("nodes"); 
-		//setEntityCache(nodes);
+		super(hzInstance, nodeName);
 	}
 	
 	@Override
@@ -101,7 +95,7 @@ public class NodeManager extends EntityManager<XDMNode> {
 			Properties opts = new Properties();
 			opts.setProperty(name, value);
 	    	Object result = entityCache.executeOnKey(entityName, new NodeUpdater(node.getVersion(), 
-	    			JMXUtils.getCurrentUser(), "Option " + name + " set from JMX console", false, opts));
+	    			getCurrentUser(), "Option " + name + " set from JMX console", false, opts));
 	    	logger.trace("setProperty; execution result: {}", result);
 		}
 	}
@@ -116,7 +110,7 @@ public class NodeManager extends EntityManager<XDMNode> {
 			Properties opts = node.getOptions();
 			opts.remove(name); // is it safe??
 	    	Object result = entityCache.executeOnKey(entityName, new NodeUpdater(node.getVersion(), 
-	    			JMXUtils.getCurrentUser(), "Option " + name + " removed from JMX console", true, opts));
+	    			getCurrentUser(), "Option " + name + " removed from JMX console", true, opts));
 	    	logger.trace("removeProperty; execution result: {}", result);
 		}
 	}

@@ -122,7 +122,6 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 	
 	private Iterator<?> execQuery(final String query) throws XQException {
 	    logger.trace("execQuery.enter; this: {}", this);
-		
 		long stamp = System.currentTimeMillis();
    	    
    	    XDMQueryManagement qMgr = (XDMQueryManagement) getQueryManagement();

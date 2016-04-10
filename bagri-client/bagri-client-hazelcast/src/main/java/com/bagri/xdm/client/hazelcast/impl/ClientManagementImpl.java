@@ -168,8 +168,8 @@ public class ClientManagementImpl {
     	ClientConfig config = hzProxy.getClientConfig(); 
     	return config.getGroupConfig().getName() + "::" +
     		   config.getNetworkConfig().getAddresses().toString() + "::" +
-    		   //"admin::" +
-    		   JMXUtils.getCurrentUser() + "::" +
+    		   //JMXUtils.getCurrentUser() + "::" +
+    		   config.getCredentials().getPrincipal() + "::" + 
     		   config.getNetworkConfig().isSmartRouting() + "::" + 
     		   config.getNetworkConfig().getSocketOptions().getBufferSize();
     }
