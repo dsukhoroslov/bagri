@@ -2,11 +2,16 @@ package com.bagri.visualvm.manager;
 
 import static com.bagri.visualvm.manager.BagriApplicationType.BAGRI_MANAGER;
 
+import java.awt.Component;
+import java.awt.Container;
+import java.util.logging.Logger;
+
 import com.bagri.visualvm.manager.service.BagriServiceProvider;
 import com.bagri.visualvm.manager.service.DefaultServiceProvider;
 import com.bagri.visualvm.manager.ui.BagriMainPanel;
 import com.bagri.visualvm.manager.util.Icons;
 import com.sun.tools.visualvm.application.Application;
+import com.sun.tools.visualvm.core.datasupport.DataRemovedListener;
 import com.sun.tools.visualvm.core.ui.DataSourceView;
 import com.sun.tools.visualvm.core.ui.components.DataViewComponent;
 import com.sun.tools.visualvm.tools.jmx.JmxModel;
@@ -16,20 +21,22 @@ import org.openide.util.WeakListeners;
 import javax.management.MBeanServerConnection;
 import javax.swing.*;
 
-public class BagriManagerView extends DataSourceView {
+public class BagriManagerView extends DataSourceView implements DataRemovedListener {
+	
+	private static final Logger LOGGER = Logger.getLogger(BagriManagerView.class.getName());
     private static final String NOT_CONNECTED = "Not Connected";
 
     private Application application;
-    private final MBeanServerConnection mbsc;
     private BagriMainPanel mainPanel;
+    private final MBeanServerConnection mbsc;
 
     public BagriManagerView(Application application) {
         super(application, BAGRI_MANAGER, Icons.MAIN_ICON.getImage(), 60, false);
         this.application = application;
         JmxModel jmx = JmxModelFactory.getJmxModelFor(application);
         this.mbsc = jmx.getMBeanServerConnection();
+        application.notifyWhenRemoved(this);
     }
-
 
     @Override
     protected void removed() {
@@ -68,4 +75,26 @@ public class BagriManagerView extends DataSourceView {
         }
         return dvc;
     }
+    
+    public void enableComponents(Container container, boolean enable) {
+        Component[] components = container.getComponents();
+        for (Component component : components) {
+            component.setEnabled(enable);
+            if (component instanceof Container) {
+                enableComponents((Container)component, enable);
+            }
+        }
+        container.setEnabled(false);
+    }    
+
+	@Override
+	public void dataRemoved(Object source) {
+		LOGGER.info("dataRemoved; got removed notification from source: " + source);
+		SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                enableComponents(mainPanel, false);
+            }
+        });
+	}
 }

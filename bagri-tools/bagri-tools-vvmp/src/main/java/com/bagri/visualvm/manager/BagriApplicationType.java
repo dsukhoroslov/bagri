@@ -7,16 +7,22 @@ import org.openide.util.Utilities;
 public class BagriApplicationType extends ApplicationType {
 
     public static final String BAGRI_MANAGER = "Bagri Manager";
+    public static final String BAGRI_SERVER = "Bagri Server";
 	
-    protected final int appPID;
+    private final int appPID;
+    private final boolean isAdmin;
 
-    public BagriApplicationType(int pid) {
+    public BagriApplicationType(int pid, boolean isAdmin) {
         appPID = pid;
+        this.isAdmin = isAdmin;
     }
 
     @Override
     public String getName() {
-        return BAGRI_MANAGER;
+    	if (isAdmin) {
+    		return BAGRI_MANAGER;
+    	}
+    	return BAGRI_SERVER;
     }
 
     @Override

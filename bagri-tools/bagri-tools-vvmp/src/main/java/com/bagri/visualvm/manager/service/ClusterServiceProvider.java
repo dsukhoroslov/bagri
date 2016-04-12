@@ -16,7 +16,9 @@ import java.util.logging.Logger;
 public class ClusterServiceProvider implements ClusterManagementService, SchemaManagementService {
     
 	private static final Logger LOGGER = Logger.getLogger(ClusterServiceProvider.class.getName());
-    final MBeanServerConnection connection;
+    private final MBeanServerConnection connection;
+    
+    private Map<String, DocumentManagementService> docMgrs = new HashMap<>();
 
     public ClusterServiceProvider(MBeanServerConnection connection) {
         this.connection = connection;
@@ -131,6 +133,16 @@ public class ClusterServiceProvider implements ClusterManagementService, SchemaM
             throw new ServiceException(e);
         }
     }
+
+	@Override
+	public DocumentManagementService getDocumentManagement(String schemaName) {
+		DocumentManagementService docMgr = docMgrs.get(schemaName);
+		if (docMgr == null) {
+			docMgr = new DocumentServiceProvider(connection, schemaName);
+			docMgrs.put(schemaName, docMgr);
+		}
+		return docMgr;
+	}
 
     @Override
     public List<Schema> getSchemas() throws ServiceException {

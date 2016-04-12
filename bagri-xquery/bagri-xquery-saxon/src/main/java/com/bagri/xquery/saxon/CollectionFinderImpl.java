@@ -127,8 +127,6 @@ public class CollectionFinderImpl implements CollectionFinder {
 
 	private int getCollectionId(String uri, String baseUri) {
 		XDMSchema schema = ((com.bagri.xdm.cache.api.XDMRepository) repo).getSchema();
-		//String baseUri = schema.getProperty(pn_baseURI);
-		//String baseUri = context.getConfiguration().getDefaultStaticQueryContext().getBaseURI();
 		if (baseUri != null && !baseUri.isEmpty() && uri.startsWith(baseUri)) {
 			uri = uri.substring(baseUri.length());
 		}

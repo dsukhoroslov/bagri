@@ -127,7 +127,9 @@ public class SchemaManagementPanel extends JPanel {
                     return null;
                 }
                 java.util.List<GridRow> rows = new ArrayList<GridRow>();
-                if (null == schemas) { return rows; }
+                if (null == schemas) { 
+                	return rows; 
+                }
                 for (Schema schema : schemas) {
                     rows.add(new DefaultGridRow(schema.getObjectName(), new Object[]{
                             schema.getSchemaName()

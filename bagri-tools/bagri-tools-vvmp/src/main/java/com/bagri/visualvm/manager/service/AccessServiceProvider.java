@@ -11,7 +11,7 @@ import com.bagri.visualvm.manager.model.User;
 public class AccessServiceProvider implements UserManagementService {
 	
     private static final Logger LOGGER = Logger.getLogger(ClusterServiceProvider.class.getName());
-    final MBeanServerConnection connection;
+    private final MBeanServerConnection connection;
 
     public AccessServiceProvider(MBeanServerConnection connection) {
         this.connection = connection;

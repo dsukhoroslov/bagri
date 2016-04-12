@@ -10,6 +10,8 @@ import java.util.Properties;
 
 public interface SchemaManagementService {
 
+	DocumentManagementService getDocumentManagement(String schemaName);
+	
     List<Schema> getSchemas() throws ServiceException;
     Properties getDefaultProperties() throws ServiceException;
     void setDefaultProperty(Property property) throws ServiceException;
