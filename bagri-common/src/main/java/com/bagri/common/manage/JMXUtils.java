@@ -215,7 +215,7 @@ public class JMXUtils {
             return source;
         }
         if (source == null) {
-        	TabularType type = new TabularType(name, desc, data.getCompositeType(),	new String[] {key});
+        	TabularType type = new TabularType(name, desc, data.getCompositeType(), new String[] {key});
         	source = new TabularDataSupport(type); 
         } 
         source.put(data);

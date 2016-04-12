@@ -929,16 +929,22 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	
 	@Override
 	public Collection<XDMDocumentId> getCollectionDocumentIds(String collection) {
-		//
-		XDMCollection cln = repo.getSchema().getCollection(collection);
-		if (cln == null) {
-			return null;
+		Set<XDMDocumentKey> docKeys;
+		if (collection == null) {
+			docKeys = xddCache.localKeySet();
+		} else {
+			XDMCollection cln = repo.getSchema().getCollection(collection);
+			if (cln == null) {
+				return null;
+			}
+			Predicate<XDMDocumentKey, XDMDocument> clp = new CollectionPredicate(cln.getId());
+			docKeys = xddCache.localKeySet(clp);
 		}
-		Predicate<XDMDocumentKey, XDMDocument> clp = new CollectionPredicate(cln.getId());
-		Set<XDMDocumentKey> docKeys = xddCache.localKeySet(clp);
-		List<XDMDocumentId> result = new ArrayList<>(docKeys.size());
-		for (XDMDocumentKey key: docKeys) {
-			result.add(new XDMDocumentId(key.getKey()));
+		// TODO: use props to fetch docs in batches. otherwise we can get OOM here!
+		Map<XDMDocumentKey, XDMDocument> docs = xddCache.getAll(docKeys);
+		List<XDMDocumentId> result = new ArrayList<>(docs.size());
+		for (XDMDocument doc: docs.values()) {
+			result.add(new XDMDocumentId(doc.getDocumentKey(), doc.getUri()));
 		}
 		return result;
 	}

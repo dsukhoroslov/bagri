@@ -1,5 +1,8 @@
 package com.bagri.visualvm.manager;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectInstance;
 import javax.management.ObjectName;
@@ -14,36 +17,38 @@ import com.sun.tools.visualvm.tools.jmx.JmxModelFactory;
 
 public class BagriApplicationTypeProvider extends MainClassApplicationTypeFactory {
 
-	private static BagriApplicationTypeProvider INSTANCE = new BagriApplicationTypeProvider();
+	private static BagriApplicationTypeProvider instance = new BagriApplicationTypeProvider();
 
+	private Set<Application> admins = new HashSet<>();
+	
     @Override
     public ApplicationType createApplicationTypeFor(Application app, Jvm jvm, String mainClass) {
-
         if ("com.bagri.xdm.cache.hazelcast.XDMCacheServer".equals(mainClass)) {
-        	boolean isAdmin = isBargiAdminApp(app); 
+        	String role = jvm.getSystemProperties().getProperty("xdm.cluster.node.role", "");
+        	boolean isAdmin = "admin".equalsIgnoreCase(role);
+        	if (isAdmin) {
+        		admins.add(app);
+        	}
             return new BagriApplicationType(app.getPid(), isAdmin);
         }
         return null;
     }
+    
+    private boolean isAdminApp(Application app) {
+    	return admins.contains(app);
+    }
 
     static void initialize() {
-        ApplicationTypeFactory.getDefault().registerProvider(INSTANCE);
+        ApplicationTypeFactory.getDefault().registerProvider(instance);
     }
 
     static void uninitialize() {
-        ApplicationTypeFactory.getDefault().unregisterProvider(INSTANCE);
+        ApplicationTypeFactory.getDefault().unregisterProvider(instance);
     }
     
     
     static boolean isBargiAdminApp(Application application) {
-        ObjectInstance oi = null;
-        try {
-            JmxModel jmx = JmxModelFactory.getJmxModelFor(application);
-            MBeanServerConnection mbsc = jmx.getMBeanServerConnection();
-            oi = mbsc.getObjectInstance(new ObjectName("com.bagri.xdm:type=Management,name=ClusterManagement"));
-        } catch (Exception e) {
-        }
-        return oi != null;
+    	return instance.isAdminApp(application);
     }
 
 }

@@ -12,7 +12,7 @@ import javax.management.ObjectName;
 
 public class BagriManagerViewProvider extends DataSourceViewProvider<Application> {
 
-	private static DataSourceViewProvider instance = new BagriManagerViewProvider();
+	private static BagriManagerViewProvider instance = new BagriManagerViewProvider();
 
     @Override
     protected boolean supportsViewFor(Application application) {

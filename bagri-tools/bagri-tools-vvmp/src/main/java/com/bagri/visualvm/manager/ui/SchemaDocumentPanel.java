@@ -1,26 +1,41 @@
 package com.bagri.visualvm.manager.ui;
 
+import static com.bagri.visualvm.manager.util.Icons.COLLECTION_ICON;
+import static com.bagri.visualvm.manager.util.Icons.DOCUMENT_ICON;
+
 import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
 
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.JTextArea;
 import javax.swing.JToolBar;
 import javax.swing.JTree;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
 
 import com.bagri.visualvm.manager.event.ApplicationEvent;
 import com.bagri.visualvm.manager.event.EventBus;
 import com.bagri.visualvm.manager.model.Collection;
+import com.bagri.visualvm.manager.model.Document;
 import com.bagri.visualvm.manager.service.DocumentManagementService;
 import com.bagri.visualvm.manager.service.SchemaManagementService;
 import com.bagri.visualvm.manager.service.ServiceException;
@@ -33,6 +48,8 @@ public class SchemaDocumentPanel extends JPanel {
     private final EventBus<ApplicationEvent> eventBus;
     private final String schemaName; 
 
+    private JTextArea contentArea;
+    
     public SchemaDocumentPanel(String schemaName, SchemaManagementService schemaService, EventBus<ApplicationEvent> eventBus) {
     	super(new BorderLayout());
         this.schemaName = schemaName;
@@ -150,11 +167,12 @@ public class SchemaDocumentPanel extends JPanel {
     	JPanel treePanel = new JPanel(new BorderLayout());
     	
     	JTree tree = new JTree();
-        //tree.setCellRenderer(new TreeCellRenderer());
+        tree.setCellRenderer(new DocTreeCellRenderer());
         DefaultMutableTreeNode root = new DefaultMutableTreeNode(schemaName);
         DefaultMutableTreeNode all = new DefaultMutableTreeNode("All Documents");
         root.add(all);
         // fill all docs tree...
+        fillCollectionDocuments(all, null);
 
         List<Collection> collections = null;
         try {
@@ -167,23 +185,93 @@ public class SchemaDocumentPanel extends JPanel {
         	Collections.sort(collections);
         	for (Collection collection: collections) {
                 DefaultMutableTreeNode cln = new DefaultMutableTreeNode(collection);
-                root.add(cln); 
-                //LOGGER.info("Collection: " + collection);
+                root.add(cln);
+                fillCollectionDocuments(cln, collection.getName());
         	}
         }
         tree.setModel(new DefaultTreeModel(root, false));
         tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+        tree.setShowsRootHandles(true);
         tree.setRootVisible(false);
-        tree.expandRow(0);
         if (collections == null) {
-        	tree.expandRow(1);
-    	}
-        treePanel.add(add(new JScrollPane(tree)));
+        	tree.expandRow(0);
+        }
+        tree.addTreeSelectionListener(new TreeSelectionListener() {
+            @Override
+            public void valueChanged(TreeSelectionEvent e) {
+            	DefaultMutableTreeNode node = (DefaultMutableTreeNode) e.getPath().getLastPathComponent();
+                if (node == null) return;
+
+                //int dividerLocation = splitPane.getDividerLocation();
+                Object nodeInfo = node.getUserObject();
+                if (nodeInfo instanceof Document) {
+                	String uri = ((Document) nodeInfo).getUri(); 
+                	selectDocument(uri);
+                //    splitPane.setRightComponent(getUserManagementView());
+                //} else if (nodeInfo instanceof ClusterManagement) {
+                //    splitPane.setRightComponent(getClusterManagementPanel());
+                //} else if (nodeInfo instanceof Node) {
+                }
+                //splitPane.setDividerLocation(dividerLocation);
+            }
+        });
+        
+        treePanel.add(new JScrollPane(tree));
     	return treePanel;
     }
     
+    private void handleServiceException(Exception ex) {
+        StringWriter sw = new StringWriter();
+        PrintWriter printWriter = new PrintWriter(sw);
+        ex.printStackTrace(printWriter);
+        contentArea.setText(sw.toString());
+    }
+    
+    private void selectDocument(String uri) {
+    	
+    	try {
+			Document doc = docMgr.getDocument(uri);
+	    	String content = docMgr.getDocumentContent(uri);
+	    	contentArea.setText(content);
+	    	contentArea.setCaretPosition(0);
+    	} catch (ServiceException ex) {
+    		handleServiceException(ex);
+    	}
+    }
+    
+    private void fillCollectionDocuments(DefaultMutableTreeNode clNode, String clName) {
+    	
+        LOGGER.info("fillCollectionDocuments; going to populate collection: " + clName);
+        try {
+            List<Document> documents = docMgr.getDocuments(clName);
+            LOGGER.info("fillCollectionDocuments; got documents: " + documents);
+        	Collections.sort(documents);
+            for (Document document: documents) {
+                DefaultMutableTreeNode doc = new DefaultMutableTreeNode(document);
+                clNode.add(doc);
+            }
+		} catch (ServiceException ex) {
+            LOGGER.throwing(this.getClass().getName(), "fillCollectionDocuments", ex);
+		}
+    }
+    
     private JPanel createDocumentManagmenetPanel() {
-    	return new JPanel(new BorderLayout());
+    	JPanel mgrPanel = new JPanel(new BorderLayout());
+        JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+        splitPane.setDividerLocation(300);
+        JPanel infoPanel = new JPanel(new BorderLayout());
+        infoPanel.setBorder(BorderFactory.createTitledBorder("document"));
+        splitPane.setTopComponent(infoPanel);
+        contentArea = new JTextArea();
+        contentArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
+        JScrollPane areaScrollPane = new JScrollPane(contentArea);
+        areaScrollPane.setPreferredSize(new Dimension(500, 150));
+        areaScrollPane.setMinimumSize(new Dimension(500, 150));
+        contentArea.setEditable(false);
+        contentArea.setCaretPosition(0);
+        splitPane.setBottomComponent(areaScrollPane);
+        mgrPanel.add(splitPane, BorderLayout.CENTER);
+    	return mgrPanel;
     }
 
     // --- Event Handlers --- //
@@ -191,4 +279,30 @@ public class SchemaDocumentPanel extends JPanel {
     	// ...
     }
 
+    
+    private class DocTreeCellRenderer extends DefaultTreeCellRenderer {
+
+        @Override
+        public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean expanded, boolean leaf, int row, boolean hasFocus) {
+            super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
+            ImageIcon icon = getTreeIcon(value);
+            if (null != icon) {
+                setIcon(icon);
+            }
+            return this;
+        }
+
+        private ImageIcon getTreeIcon(Object value) {
+            DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) value;
+            Object valueObject = treeNode.getUserObject();
+            if (valueObject instanceof Collection) {
+                return COLLECTION_ICON;
+            }
+            if (valueObject instanceof Document) {
+                return DOCUMENT_ICON;
+            }
+            return null;
+        }
+    }
+    
 }

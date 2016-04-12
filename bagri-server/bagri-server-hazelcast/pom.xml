@@ -207,14 +207,7 @@
                                             <sysproperty key="node.logdir" value="./logs"/>
                                             <sysproperty key="node.name" value="admin"/>
                                             <sysproperty key="com.sun.management.jmxremote" value="true"/>
-                                            <!--sysproperty key="com.sun.management.jmxremote.port" value="3340"/>
-                                            <sysproperty key="com.sun.management.jmxremote.authenticate" value="true"/-->
-                                            <!--sysproperty key="com.sun.management.jmxremote.password.file" value="${project.basedir}/src/main/resources/admins.password"/-->
                                             <sysproperty key="com.sun.management.jmxremote.ssl" value="false"/>
-                                            <!--sysproperty key="com.sun.management.jmxremote.login.config"
-                                                         value="BagriLoginConfig"/>
-                                            <sysproperty key="java.security.auth.login.config"
-                                                         value="${project.basedir}/src/main/resources/jaas.config"/-->
                                             <sysproperty key="logback.configurationFile" value="hz-logging.xml"/>
                                             <sysproperty key="xdm.log.level" value="debug"/>
                                             <sysproperty key="xdm.config.path" value="src/main/resources"/>
@@ -222,6 +215,7 @@
 					    <sysproperty key="xdm.config.properties.file" value="admin.properties"/>
                                             <sysproperty key="xdm.config.filename" value="config.xml"/>
                                             <sysproperty key="xdm.access.filename" value="access.xml"/>
+                                            <sysproperty key="xdm.cluster.node.role" value="admin"/>
                                             <sysproperty key="xdm.cluster.node.schemas" value=""/>
                                             <classpath>
                                                 <path refid="maven.compile.classpath"/>
@@ -247,9 +241,6 @@
                                             <sysproperty key="node.logdir" value="./logs"/>
                                             <sysproperty key="node.name" value="first"/>
                                             <sysproperty key="xdm.node.instance" value="${node.instance}"/>
-                                            <!--sysproperty key="com.sun.management.jmxremote" value="true"/>
-                                            <sysproperty key="com.sun.management.jmxremote.authenticate" value="false"/>
-                                            <sysproperty key="com.sun.management.jmxremote.ssl" value="false"/-->
                                             <sysproperty key="logback.configurationFile" value="hz-logging.xml"/>
                                             <sysproperty key="xdm.log.level" value="${log.level}"/>
                                             <sysproperty key="xdm.config.path" value="src/main/resources"/>

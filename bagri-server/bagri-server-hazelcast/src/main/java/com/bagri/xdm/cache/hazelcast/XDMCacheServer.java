@@ -258,7 +258,7 @@ public class XDMCacheServer {
 	}
     
     private static boolean isAdminRole(String role) {
-        return "admin".equals(role);
+        return "admin".equalsIgnoreCase(role);
     }
     
 }

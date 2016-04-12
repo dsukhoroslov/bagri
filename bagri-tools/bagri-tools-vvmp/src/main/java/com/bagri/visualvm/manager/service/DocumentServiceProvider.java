@@ -1,12 +1,17 @@
 package com.bagri.visualvm.manager.service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import javax.management.InstanceNotFoundException;
+import javax.management.MBeanException;
 import javax.management.MBeanServerConnection;
+import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+import javax.management.ReflectionException;
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.TabularData;
 
@@ -39,12 +44,10 @@ public class DocumentServiceProvider implements DocumentManagementService {
         	for (List key: keys) {
         		Object[] index = key.toArray();
            		CompositeData clnData = clns.get(index);
-           		LOGGER.info("clnData: " + clnData);
         		CompositeData stsData = null;
                 if (stats != null) {
             		stsData = stats.get(index);
                 }
-        		LOGGER.info("stsData: " + stsData);
         		Collection cln;
                 if (stsData != null) {
             		cln = new Collection((String) clnData.get("name"), (String) clnData.get("description"), (String) clnData.get("created at"), 
@@ -85,8 +88,26 @@ public class DocumentServiceProvider implements DocumentManagementService {
 
 	@Override
 	public List<Document> getDocuments(String collection) throws ServiceException {
-		// TODO Auto-generated method stub
-		return null;
+        List<Document> result = new ArrayList<>();
+        try {
+            Object res = connection.invoke(new ObjectName("com.bagri.xdm:type=Schema,name=" + schema + ",kind=DocumentManagement"), 
+            		"getCollectionDocuments", new Object[] {collection, null}, new String[] {String.class.getName(), String.class.getName()});
+    		LOGGER.info("got ids: " + res + " for collection " + collection);
+            if (res != null) {
+            	TabularData ids = (TabularData) res;
+            	Set<List> keys = (Set<List>) ids.keySet();
+            	for (List key: keys) {
+            		Object[] index = key.toArray();
+            		CompositeData idData = ids.get(index);
+            		LOGGER.info("idData: " + idData);
+            		result.add(new Document((Long) idData.get("docKey"), (String) idData.get("uri")));
+            	}
+        	}
+            return result;
+        } catch (Exception e) {
+            LOGGER.throwing(this.getClass().getName(), "getDocuments", e);
+            throw new ServiceException(e);
+        }
 	}
 
 	@Override
@@ -103,13 +124,21 @@ public class DocumentServiceProvider implements DocumentManagementService {
 
 	@Override
 	public String getDocumentContent(String uri) throws ServiceException {
-		// TODO Auto-generated method stub
-		return null;
+        try {
+			return (String) connection.invoke(getDocMgrObjectName(schema), "getDocumentContent", new Object[] {uri}, new String[] {String.class.getName()});
+		} catch (Exception ex) {
+            LOGGER.throwing(this.getClass().getName(), "getDocumentContent", ex);
+            throw new ServiceException(ex);
+		}
 	}
 
 	@Override
 	public void deleteDocument(String uri) throws ServiceException {
 		// TODO Auto-generated method stub	
+	}
+	
+	private ObjectName getDocMgrObjectName(String schemaName) throws MalformedObjectNameException {
+		return new ObjectName("com.bagri.xdm:type=Schema,name=" + schemaName + ",kind=DocumentManagement");
 	}
 
 }

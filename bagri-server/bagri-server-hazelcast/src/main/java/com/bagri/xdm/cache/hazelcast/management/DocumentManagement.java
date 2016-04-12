@@ -9,11 +9,19 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import javax.management.openmbean.CompositeData;
+import javax.management.openmbean.CompositeDataSupport;
+import javax.management.openmbean.CompositeType;
+import javax.management.openmbean.OpenDataException;
+import javax.management.openmbean.OpenType;
+import javax.management.openmbean.SimpleType;
 import javax.management.openmbean.TabularData;
+import javax.management.openmbean.TabularDataSupport;
+import javax.management.openmbean.TabularType;
 
 import org.springframework.jmx.export.annotation.ManagedAttribute;
 import org.springframework.jmx.export.annotation.ManagedOperation;
@@ -46,6 +54,11 @@ public class DocumentManagement extends SchemaFeatureManagement {
     public DocumentManagement(String schemaName) {
     	super(schemaName);
     }
+
+	@Override
+	protected String getFeatureKind() {
+		return "DocumentManagement";
+	}
 
     @Override
 	public void setSchemaManager(SchemaManager schemaManager) {
@@ -126,10 +139,10 @@ public class DocumentManagement extends SchemaFeatureManagement {
 
 	@ManagedOperation(description="Return Document Fields")
 	@ManagedOperationParameters({
-		@ManagedOperationParameter(name = "docId", description = "Internal Document identifier")})
-	public CompositeData getDocumentInfo(long docId) {
+		@ManagedOperationParameter(name = "uri", description = "Document identifier")})
+	public CompositeData getDocumentInfo(String uri) {
 		try {
-			XDMDocument doc = docManager.getDocument(new XDMDocumentId(docId));
+			XDMDocument doc = docManager.getDocument(new XDMDocumentId(uri));
 	        Map<String, Object> docInfo = doc.convert();
 	        return JMXUtils.mapToComposite("document", "Document Info", docInfo);
 		} catch (XDMException ex) {
@@ -140,10 +153,10 @@ public class DocumentManagement extends SchemaFeatureManagement {
 	
 	@ManagedOperation(description="Return Document Content")
 	@ManagedOperationParameters({
-		@ManagedOperationParameter(name = "docId", description = "Internal Document identifier")})
-	public String getDocumentContent(long docId) {
+		@ManagedOperationParameter(name = "uri", description = "Document identifier")})
+	public String getDocumentContent(String uri) {
 		try {
-			return docManager.getDocumentAsString(new XDMDocumentId(docId));
+			return docManager.getDocumentAsString(new XDMDocumentId(uri));
 		} catch (XDMException ex) {
 			logger.error("getDocumentXML.error: " + ex.getMessage(), ex);
 		}
@@ -292,7 +305,7 @@ public class DocumentManagement extends SchemaFeatureManagement {
 	
 	@ManagedOperation(description="Register Documents")
 	@ManagedOperationParameters({
-		@ManagedOperationParameter(name = "catalog", description = "A full path to the directory containing XML files to register")})
+		@ManagedOperationParameter(name = "catalog", description = "A full path to directory containing XML files to register")})
 	public int registerDocuments(String path) {
 		Path catalog = Paths.get(path);
 		return processFilesInCatalog(catalog);	
@@ -312,7 +325,7 @@ public class DocumentManagement extends SchemaFeatureManagement {
 	@ManagedOperation(description="Add Document to Collection")
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "docId", description = "Document identifier"),
-		@ManagedOperationParameter(name = "collectId", description = "Collection identifier")})
+		@ManagedOperationParameter(name = "clnName", description = "Collection name")})
 	public int addDocumentToCollection(long docId, String clnName) {
 		XDMCollection cln = this.schemaManager.getEntity().getCollection(clnName);
 		if (cln != null) {
@@ -325,7 +338,7 @@ public class DocumentManagement extends SchemaFeatureManagement {
 	@ManagedOperation(description="Remove Document from Collection")
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "docId", description = "Document identifier"),
-		@ManagedOperationParameter(name = "collectId", description = "Collection identifier")})
+		@ManagedOperationParameter(name = "clnName", description = "Collection name")})
 	public int removeDocumentFromCollection(long docId, String clnName) {
 		XDMCollection cln = this.schemaManager.getEntity().getCollection(clnName);
 		if (cln != null) {
@@ -335,8 +348,39 @@ public class DocumentManagement extends SchemaFeatureManagement {
 		return 0;
 	}
 
-	@Override
-	protected String getFeatureKind() {
-		return "DocumentManagement";
+	@ManagedOperation(description="Return Documents which belongs to Collection")
+	@ManagedOperationParameters({
+		@ManagedOperationParameter(name = "clnName", description = "Collection name"),
+		@ManagedOperationParameter(name = "props", description = "Comma-separated list of fetch properties")})
+	public TabularData getCollectionDocuments(String clName, String props) {
+		if (clName != null) {
+			XDMCollection cln = this.schemaManager.getEntity().getCollection(clName);
+			if (cln == null) {
+				logger.info("getCollectionDocuments; got unknown collection: {}", clName);
+				return null;
+			}
+		}
+
+		Collection<XDMDocumentId> ids = docManager.getCollectionDocumentIds(clName);
+		logger.debug("getCollectionDocuments; got {} ids for collection {}", ids.size(), clName);
+        String[] names = new String[] {"docKey", "uri"};
+        OpenType[] types = new OpenType[] {SimpleType.LONG, SimpleType.STRING};
+        int size = 0;
+		TabularData result = null;
+		try {
+            CompositeType type = new CompositeType("docId", "docId", names, names, types);
+        	TabularType type2 = new TabularType("docIds", "docIds", type, new String[] {"uri"});
+    		result = new TabularDataSupport(type2); 
+        	for (XDMDocumentId docId: ids) {
+        		Object[] values = new Object[] {docId.getDocumentKey(), docId.getDocumentUri()};
+        		result.put(new CompositeDataSupport(type, names, values));
+        	}
+			size = result.size();
+		} catch (OpenDataException ex) {
+			logger.error("getCollectionDocuments.error: ", ex);
+		}
+		logger.debug("getCollectionDocuments; returning {} ids", size);
+		return result;
 	}
+
 }

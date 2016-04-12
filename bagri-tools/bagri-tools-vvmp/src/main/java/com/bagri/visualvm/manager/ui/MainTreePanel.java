@@ -86,20 +86,23 @@ public class MainTreePanel extends JPanel {
     }
 
     public void setNodes(java.util.List<Node> nodes) {
-        Enumeration children = clusterManagement.children();
+        //Enumeration children = clusterManagement.children();
         // create cached collection
-        ArrayList<DefaultMutableTreeNode> cached = new ArrayList<DefaultMutableTreeNode>();
-        while (children.hasMoreElements()) {
-            DefaultMutableTreeNode child = (DefaultMutableTreeNode)children.nextElement();
-            cached.add(child);
-        }
-        for (DefaultMutableTreeNode node :cached) {
-            ((DefaultTreeModel) tree.getModel()).removeNodeFromParent(node);
-        }
+        //ArrayList<DefaultMutableTreeNode> cached = new ArrayList<DefaultMutableTreeNode>();
+        //while (children.hasMoreElements()) {
+        //    DefaultMutableTreeNode child = (DefaultMutableTreeNode)children.nextElement();
+        //    cached.add(child);
+        //}
+        //for (DefaultMutableTreeNode node :cached) {
+        //    ((DefaultTreeModel) tree.getModel()).removeNodeFromParent(node);
+        //}
+    	clusterManagement.removeAllChildren();
+    	
     	Collections.sort(nodes);
         for (int i=0; i < nodes.size(); i++) {
         	Node node = nodes.get(i);
-            ((DefaultTreeModel) tree.getModel()).insertNodeInto(new DefaultMutableTreeNode(node), clusterManagement, i);
+            //((DefaultTreeModel) tree.getModel()).insertNodeInto(new DefaultMutableTreeNode(node), clusterManagement, i);
+        	clusterManagement.add(new DefaultMutableTreeNode(node));
         }
         for (int i = 0; i < tree.getRowCount(); i++) {
             tree.expandRow(i);
@@ -107,20 +110,23 @@ public class MainTreePanel extends JPanel {
     }
 
     public void setSchemas(java.util.List<Schema> schemas) {
-        Enumeration children = schemaManagement.children();
+        //Enumeration children = schemaManagement.children();
         // create cached collection
-        ArrayList<DefaultMutableTreeNode> cached = new ArrayList<DefaultMutableTreeNode>();
-        while (children.hasMoreElements()) {
-            DefaultMutableTreeNode child = (DefaultMutableTreeNode)children.nextElement();
-            cached.add(child);
-        }
-        for (DefaultMutableTreeNode node :cached) {
-            ((DefaultTreeModel) tree.getModel()).removeNodeFromParent(node);
-        }
+        //ArrayList<DefaultMutableTreeNode> cached = new ArrayList<DefaultMutableTreeNode>();
+        //while (children.hasMoreElements()) {
+        //    DefaultMutableTreeNode child = (DefaultMutableTreeNode) children.nextElement();
+        //    cached.add(child);
+        //}
+        //for (DefaultMutableTreeNode node : cached) {
+        //    ((DefaultTreeModel) tree.getModel()).removeNodeFromParent(node);
+        //}
+    	schemaManagement.removeAllChildren();
+    	
     	Collections.sort(schemas);
         for (int i=0; i < schemas.size(); i++) {
-        	 Schema schema = schemas.get(i);
-            ((DefaultTreeModel) tree.getModel()).insertNodeInto(new DefaultMutableTreeNode(schema), schemaManagement, i);
+        	Schema schema = schemas.get(i);
+            //((DefaultTreeModel) tree.getModel()).insertNodeInto(new DefaultMutableTreeNode(schema), schemaManagement, i);
+        	schemaManagement.add(new DefaultMutableTreeNode(schema));
         }
         for (int i = 0; i < tree.getRowCount(); i++) {
             tree.expandRow(i);

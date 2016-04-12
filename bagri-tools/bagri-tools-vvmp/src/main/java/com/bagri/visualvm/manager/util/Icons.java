@@ -12,6 +12,8 @@ public class Icons {
     public static ImageIcon SCHEMA_MANAGEMENT_ICON = ImageUtil.createImageIcon("com/bagri/visualvm/manager/schemaManagement.png");
     public static ImageIcon NODE_ICON = ImageUtil.createImageIcon("com/bagri/visualvm/manager/node.png");
     public static ImageIcon SCHEMA_ICON = ImageUtil.createImageIcon("com/bagri/visualvm/manager/schema.png");
+    public static ImageIcon DOCUMENT_ICON = ImageUtil.createImageIcon("com/bagri/visualvm/manager/document.png");
+    public static ImageIcon COLLECTION_ICON = ImageUtil.createImageIcon("com/bagri/visualvm/manager/collection.png");
 
     private Icons() {}
 }
