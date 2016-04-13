@@ -143,8 +143,12 @@ public class DocumentManagement extends SchemaFeatureManagement {
 	public CompositeData getDocumentInfo(String uri) {
 		try {
 			XDMDocument doc = docManager.getDocument(new XDMDocumentId(uri));
-	        Map<String, Object> docInfo = doc.convert();
-	        return JMXUtils.mapToComposite("document", "Document Info", docInfo);
+			if (doc != null) {
+				Map<String, Object> docInfo = doc.convert();
+				return JMXUtils.mapToComposite("document", "Document Info", docInfo);
+			} else {
+				return null;
+			}
 		} catch (XDMException ex) {
 			logger.error("getDocumentInfo.error: " + ex.getMessage(), ex);
 		}

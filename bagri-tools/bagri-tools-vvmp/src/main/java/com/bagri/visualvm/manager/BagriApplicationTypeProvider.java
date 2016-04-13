@@ -12,10 +12,11 @@ import com.sun.tools.visualvm.application.jvm.Jvm;
 import com.sun.tools.visualvm.application.type.ApplicationType;
 import com.sun.tools.visualvm.application.type.ApplicationTypeFactory;
 import com.sun.tools.visualvm.application.type.MainClassApplicationTypeFactory;
+import com.sun.tools.visualvm.core.datasupport.DataRemovedListener;
 import com.sun.tools.visualvm.tools.jmx.JmxModel;
 import com.sun.tools.visualvm.tools.jmx.JmxModelFactory;
 
-public class BagriApplicationTypeProvider extends MainClassApplicationTypeFactory {
+public class BagriApplicationTypeProvider extends MainClassApplicationTypeFactory implements DataRemovedListener {
 
 	private static BagriApplicationTypeProvider instance = new BagriApplicationTypeProvider();
 
@@ -28,12 +29,18 @@ public class BagriApplicationTypeProvider extends MainClassApplicationTypeFactor
         	boolean isAdmin = "admin".equalsIgnoreCase(role);
         	if (isAdmin) {
         		admins.add(app);
+        		app.notifyWhenRemoved(this);
         	}
             return new BagriApplicationType(app.getPid(), isAdmin);
         }
         return null;
     }
     
+	@Override
+	public void dataRemoved(Object source) {
+		admins.remove(source);
+	}
+
     private boolean isAdminApp(Application app) {
     	return admins.contains(app);
     }

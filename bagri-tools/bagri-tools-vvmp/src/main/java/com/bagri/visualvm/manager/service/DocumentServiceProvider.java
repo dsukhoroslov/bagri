@@ -2,7 +2,10 @@ package com.bagri.visualvm.manager.service;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -13,6 +16,7 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
 import javax.management.openmbean.CompositeData;
+import javax.management.openmbean.CompositeType;
 import javax.management.openmbean.TabularData;
 
 import com.bagri.visualvm.manager.model.Collection;
@@ -111,15 +115,27 @@ public class DocumentServiceProvider implements DocumentManagementService {
 	}
 
 	@Override
-	public void addDocument(Document document) throws ServiceException {
+	public void storeDocument(String ui, String content) throws ServiceException {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public Document getDocument(String uri) throws ServiceException {
-		// TODO Auto-generated method stub
-		return null;
+	public Map<String, Object> getDocumentInfo(String uri) throws ServiceException {
+        try {
+			CompositeData info = (CompositeData) connection.invoke(getDocMgrObjectName(schema), "getDocumentInfo", new Object[] {uri}, new String[] {String.class.getName()});
+	        Map<String, Object> result = new HashMap<String, Object>();
+	        if (info != null) {
+		        CompositeType type = info.getCompositeType();
+		        for (String name : type.keySet()) {
+		            result.put(name, info.get(name));
+		        }
+	        }
+	        return result;
+		} catch (Exception ex) {
+            LOGGER.throwing(this.getClass().getName(), "getDocumentContent", ex);
+            throw new ServiceException(ex);
+		}
 	}
 
 	@Override

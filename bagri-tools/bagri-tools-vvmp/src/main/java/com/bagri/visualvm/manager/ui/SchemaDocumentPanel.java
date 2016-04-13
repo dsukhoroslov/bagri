@@ -7,22 +7,29 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.JTree;
 import javax.swing.event.TreeSelectionEvent;
@@ -36,6 +43,7 @@ import com.bagri.visualvm.manager.event.ApplicationEvent;
 import com.bagri.visualvm.manager.event.EventBus;
 import com.bagri.visualvm.manager.model.Collection;
 import com.bagri.visualvm.manager.model.Document;
+import com.bagri.visualvm.manager.model.TypedValue;
 import com.bagri.visualvm.manager.service.DocumentManagementService;
 import com.bagri.visualvm.manager.service.SchemaManagementService;
 import com.bagri.visualvm.manager.service.ServiceException;
@@ -48,6 +56,7 @@ public class SchemaDocumentPanel extends JPanel {
     private final EventBus<ApplicationEvent> eventBus;
     private final String schemaName; 
 
+    private JPanel infoPanel;
     private JTextArea contentArea;
     
     public SchemaDocumentPanel(String schemaName, SchemaManagementService schemaService, EventBus<ApplicationEvent> eventBus) {
@@ -230,8 +239,25 @@ public class SchemaDocumentPanel extends JPanel {
     private void selectDocument(String uri) {
     	
     	try {
-			Document doc = docMgr.getDocument(uri);
-	    	String content = docMgr.getDocumentContent(uri);
+			Map<String, Object> doc = docMgr.getDocumentInfo(uri);
+			Component[] labels = infoPanel.getComponents();
+			((JLabel) labels[0]).setText("key: " + doc.get("key"));
+			((JLabel) labels[1]).setText("id: " + doc.get("id"));
+			((JLabel) labels[2]).setText("version: " + doc.get("version"));
+
+			((JLabel) labels[3]).setText("uri: " + doc.get("uri"));
+			((JLabel) labels[4]).setText("type: " + doc.get("type"));
+			((JLabel) labels[5]).setText("encoding: " + doc.get("encoding"));
+			
+			((JLabel) labels[6]).setText("created at: " + doc.get("created at"));
+			((JLabel) labels[7]).setText("created by: " + doc.get("created by"));
+			((JLabel) labels[8]).setText("start tx: " + doc.get("txStart"));
+
+			((JLabel) labels[9]).setText("elements: " + "NA"); //doc.get("created at"));
+			((JLabel) labels[10]).setText("fragments: " + doc.get("fragments"));
+			((JLabel) labels[11]).setText("collections: " + doc.get("collections"));
+
+			String content = docMgr.getDocumentContent(uri);
 	    	contentArea.setText(content);
 	    	contentArea.setCaretPosition(0);
     	} catch (ServiceException ex) {
@@ -259,14 +285,92 @@ public class SchemaDocumentPanel extends JPanel {
     	JPanel mgrPanel = new JPanel(new BorderLayout());
         JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
         splitPane.setDividerLocation(300);
-        JPanel infoPanel = new JPanel(new BorderLayout());
+        infoPanel = new JPanel(new GridBagLayout());
+		GridBagConstraints cs = new GridBagConstraints();
+		cs.fill = GridBagConstraints.HORIZONTAL;
+
+		JLabel label = new JLabel("key:");
+		cs.gridx = 0;
+		cs.gridy = 0;
+		label.setHorizontalAlignment(JLabel.CENTER);
+		infoPanel.add(label, cs);
+
+		label = new JLabel("id:");
+		cs.gridx = 1;
+		cs.gridy = 0;
+		label.setHorizontalAlignment(JLabel.CENTER);
+		infoPanel.add(label, cs);
+		
+		label = new JLabel("version:");
+		cs.gridx = 2;
+		cs.gridy = 0;
+		label.setHorizontalAlignment(JLabel.CENTER);
+		infoPanel.add(label, cs);
+
+		label = new JLabel("uri:");
+		cs.gridx = 0;
+		cs.gridy = 1;
+		label.setHorizontalAlignment(JLabel.CENTER);
+		infoPanel.add(label, cs);
+
+		label = new JLabel("type:");
+		cs.gridx = 1;
+		cs.gridy = 1;
+		label.setHorizontalAlignment(JLabel.CENTER);
+		infoPanel.add(label, cs);
+		
+		label = new JLabel("encoding:");
+		cs.gridx = 2;
+		cs.gridy = 1;
+		label.setHorizontalAlignment(JLabel.CENTER);
+		infoPanel.add(label, cs);
+
+		label = new JLabel("created at:");
+		cs.gridx = 0;
+		cs.gridy = 2;
+		label.setHorizontalAlignment(JLabel.CENTER);
+		infoPanel.add(label, cs);
+
+		label = new JLabel("created by:");
+		cs.gridx = 1;
+		cs.gridy = 2;
+		label.setHorizontalAlignment(JLabel.CENTER);
+		infoPanel.add(label, cs);
+		
+		label = new JLabel("start tx:");
+		cs.gridx = 2;
+		cs.gridy = 2;
+		label.setHorizontalAlignment(JLabel.CENTER);
+		infoPanel.add(label, cs);
+
+		label = new JLabel("elements:");
+		cs.gridx = 0;
+		cs.gridy = 3;
+		label.setHorizontalAlignment(JLabel.CENTER);
+		infoPanel.add(label, cs);
+		
+		label = new JLabel("fragments:");
+		cs.gridx = 1;
+		cs.gridy = 3;
+		label.setHorizontalAlignment(JLabel.CENTER);
+		infoPanel.add(label, cs);
+		
+		label = new JLabel("collections:");
+		cs.gridx = 3;
+		cs.gridy = 3;
+		label.setHorizontalAlignment(JLabel.CENTER);
+		infoPanel.add(label, cs);
+        
+        infoPanel.setPreferredSize(new Dimension(500, 100));
+        infoPanel.setMinimumSize(new Dimension(500, 100));
         infoPanel.setBorder(BorderFactory.createTitledBorder("document"));
         splitPane.setTopComponent(infoPanel);
+
         contentArea = new JTextArea();
         contentArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
         JScrollPane areaScrollPane = new JScrollPane(contentArea);
-        areaScrollPane.setPreferredSize(new Dimension(500, 150));
-        areaScrollPane.setMinimumSize(new Dimension(500, 150));
+        areaScrollPane.setPreferredSize(new Dimension(500, 500));
+        areaScrollPane.setMinimumSize(new Dimension(500, 500));
         contentArea.setEditable(false);
         contentArea.setCaretPosition(0);
         splitPane.setBottomComponent(areaScrollPane);

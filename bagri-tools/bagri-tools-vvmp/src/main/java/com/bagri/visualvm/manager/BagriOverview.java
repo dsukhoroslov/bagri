@@ -110,7 +110,7 @@ public class BagriOverview extends DataSourceViewPlugin {
                     return null;
                 }
                 
-                LOGGER.info("loadData; loaded schemas: " + schemas); 
+                //LOGGER.info("loadData; loaded schemas: " + schemas); 
                 java.util.List<GridRow> rows = new ArrayList<>();
                 if (schemas != null) { 
 	                for (Schema schema : schemas) {
@@ -143,7 +143,7 @@ public class BagriOverview extends DataSourceViewPlugin {
 	                    }
 	                }
                 }
-                LOGGER.info("loadData; loaded rows: " + rows.size() + " " + rows); 
+                //LOGGER.info("loadData; loaded rows: " + rows.size() + " " + rows); 
                 return rows;
             }
         });
