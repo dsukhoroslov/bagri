@@ -33,21 +33,24 @@ public class XDMDocument implements Convertable<Map<String, Object>>, Versionabl
 	private long txFinish;
 	private long createdAt;
 	private String createdBy;
+	private int bytes;
+	private int elements;
 	private BitSet collections = new BitSet(8);
 	
 	public XDMDocument() {
 		//
 	}
 	
-	public XDMDocument(long documentId, String uri, int typeId, String owner, long txId) {
-		this(documentId, 0, uri, typeId, txId, 0, new Date(), owner, def_encoding);
+	public XDMDocument(long documentId, String uri, int typeId, String owner, long txId, int bytes, int elts) {
+		this(documentId, 0, uri, typeId, txId, 0, new Date(), owner, def_encoding, bytes, elts);
 	}
 	
-	public XDMDocument(long documentId, int version, String uri, int typeId, String owner, long txId) {
-		this(documentId, version, uri, typeId, txId, 0, new Date(), owner, def_encoding);
+	public XDMDocument(long documentId, int version, String uri, int typeId, String owner, long txId, int bytes, int elts) {
+		this(documentId, version, uri, typeId, txId, 0, new Date(), owner, def_encoding, bytes, elts);
 	}
 
-	public XDMDocument(long documentId, int version, String uri, int typeId, long txStart, long txFinish, Date createdAt, String createdBy, String encoding) {
+	public XDMDocument(long documentId, int version, String uri, int typeId, long txStart, long txFinish, Date createdAt, 
+			String createdBy, String encoding, int bytes, int elts) {
 		//super(version, createdAt, createdBy);
 		this.documentKey = toKey(documentId, version);
 		this.uri = uri;
@@ -57,6 +60,8 @@ public class XDMDocument implements Convertable<Map<String, Object>>, Versionabl
 		this.createdAt = createdAt.getTime();
 		this.createdBy = createdBy.intern();
 		this.encoding = encoding.intern();
+		this.bytes = bytes;
+		this.elements = elts;
 	}
 
 	/**
@@ -71,6 +76,20 @@ public class XDMDocument implements Convertable<Map<String, Object>>, Versionabl
 	 */
 	public long getDocumentKey() {
 		return documentKey;
+	}
+	
+	/**
+	 * @return the document size in bytes
+	 */
+	public int getBytes() {
+		return bytes;
+	}
+	
+	/**
+	 * @return the number of elements belonging to document 
+	 */
+	public int getElements() {
+		return elements;
 	}
 
 	/**
@@ -192,6 +211,8 @@ public class XDMDocument implements Convertable<Map<String, Object>>, Versionabl
 		result.put("id", getDocumentId());
 		result.put("version", getVersion());
 		result.put("uri", uri);
+		result.put("bytes", bytes);
+		result.put("elements", elements);
 		result.put("type", typeId);
 		result.put("encoding", encoding);
 		result.put("txStart", txStart);
@@ -211,8 +232,8 @@ public class XDMDocument implements Convertable<Map<String, Object>>, Versionabl
 	public String toString() {
 		return "XDMDocument [documentId=" + getDocumentId() + ", version=" + getVersion()
 				+ ", uri=" + uri + ", typeId=" + typeId + ", createdAt=" + getCreatedAt()
-				+ ", createdBy=" + createdBy + ", encoding=" + encoding
-				+ ", txStart=" + txStart + ", txFinish=" + txFinish
+				+ ", createdBy=" + createdBy + ", encoding=" + encoding + ", bytes=" + bytes  
+				+ ", txStart=" + txStart + ", txFinish=" + txFinish + ", elements=" + elements 
 				+ ", number of fragments=" + getFragments().length
 				+ ", collections=" + Arrays.toString(getCollections()) + "]";
 	}

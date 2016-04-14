@@ -330,14 +330,14 @@
                 <!--entry name="xdm.schema.password">5f4dcc3b5aa765d61d8327deb882cf99</entry-->
                 <entry name="xdm.schema.data.backup.read">false</entry>
                 <entry name="xdm.schema.trans.backup.async">0</entry>
-                <entry name="xdm.schema.store.enabled">false</entry>
+                <entry name="xdm.schema.store.enabled">true</entry>
                 <entry name="xdm.schema.store.tx.buffer.size">2048</entry>
                 <entry name="xdm.schema.thread.pool">16</entry>
                 <entry name="xdm.schema.test.mode">false</entry>
                 <entry name="xdm.schema.ports.first">10500</entry>
                 <entry name="xdm.schema.store.type">XML</entry>
                 <entry name="xdm.schema.ports.last">10600</entry>
-                <entry name="xdm.schema.population.size">2</entry>
+                <entry name="xdm.schema.population.size">1</entry>
                 <entry name="xdm.schema.population.buffer.size">1000000</entry>
                 <entry name="xdm.schema.data.backup.async">1</entry>
                 <entry name="xdm.schema.store.data.path">../../etc/samples/default</entry>
@@ -360,7 +360,6 @@
                 <entry name="xdm.schema.query.parallel">true</entry>
                 <entry name="xdm.schema.partition.pool">32</entry>
                 <entry name="xqj.schema.baseUri">file:/C:/Work/Bagri/git/bagri/etc/samples/default/</entry>
-                <!--entry name="xqj.schema.baseUri"></entry-->
                 <entry name="xqj.schema.orderingMode">2</entry>
                 <entry name="xqj.schema.queryLanguageTypeAndVersion">1</entry>
                 <entry name="xqj.schema.bindingMode">0</entry>

@@ -26,7 +26,9 @@ public class XDMFragmentedDocumentSerializer extends XDMDocumentSerializer {
 				in.readLong(),
 				new java.util.Date(in.readLong()),
 				in.readUTF(),
-				in.readUTF());
+				in.readUTF(),
+				in.readInt(),
+				in.readInt());
 		xDoc.setCollections(in.readIntArray());
 		xDoc.setFragments(in.readLongArray());
 		return xDoc;

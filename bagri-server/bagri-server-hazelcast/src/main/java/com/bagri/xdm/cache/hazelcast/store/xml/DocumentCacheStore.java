@@ -126,14 +126,14 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<XDMDoc
 		//logger.info("loadDocument; got uri: {} for key: {}; uris: {}", docUri, docKey, uris.size());
 
     	if (docUri != null) {
-    		docUri = getFullUri(docUri);
-			Path path = Paths.get(docUri);
+    		String fullUri = getFullUri(docUri);
+			Path path = Paths.get(fullUri);
 	    	if (Files.exists(path)) {
         		try {
-        			String xml = FileUtils.readTextFile(docUri);
+        			String content = FileUtils.readTextFile(fullUri);
     	    		XDMParser parser = docMgr.getXdmFactory().newXDMParser(dataFormat, schemaDict);
         			//List<XDMData> data = parser.parse(new File(ddh.uri));
-        			List<XDMData> data = parser.parse(xml);         		
+        			List<XDMData> data = parser.parse(content);         		
 
         			Object[] ids = docMgr.loadElements(docKey.getKey(), data);
         			List<Long> fragments = (List<Long>) ids[0];  
@@ -142,22 +142,25 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<XDMDoc
         				//throw new XDMException("invalid document", XDMException.ecDocument);
         			} else {
 	        			int docType = fragments.get(0).intValue();
-						xmlCache.set(docKey, xml);
+						xmlCache.set(docKey, content);
 						// can make a fake population TX with id = 1! 
 	        			if (fragments.size() == 1) {
 	        				if (doc == null) {
 	        					doc = new XDMDocument(docKey.getDocumentId(), docKey.getVersion(), docUri, docType, TX_INIT, TX_NO,
-	        							new Date(Files.getLastModifiedTime(path).toMillis()), Files.getOwner(path).getName(), def_encoding);
+	        							new Date(Files.getLastModifiedTime(path).toMillis()), Files.getOwner(path).getName(), def_encoding,
+	        							content.length(), data.size());
 	    	        			docMgr.checkDefaultDocumentCollection(doc);
 	        				}
 	        			} else {
 	        				if (doc == null) {
 	        					doc = new XDMFragmentedDocument(docKey.getDocumentId(), docKey.getVersion(), docUri, docType, TX_INIT, TX_NO,
-	        							new Date(Files.getLastModifiedTime(path).toMillis()), Files.getOwner(path).getName(), def_encoding);
+	        							new Date(Files.getLastModifiedTime(path).toMillis()), Files.getOwner(path).getName(), def_encoding,
+	        							content.length(), data.size());
 	    	        			docMgr.checkDefaultDocumentCollection(doc);
 	        				} else {
 	        					XDMDocument fdoc = new XDMFragmentedDocument(docKey.getDocumentId(), docKey.getVersion(), doc.getUri(), doc.getTypeId(), 
-		        						doc.getTxStart(), doc.getTxFinish(), doc.getCreatedAt(), doc.getCreatedBy(), doc.getEncoding());
+		        						doc.getTxStart(), doc.getTxFinish(), doc.getCreatedAt(), doc.getCreatedBy(), doc.getEncoding(), doc.getBytes(),
+		        						doc.getElements());
 	        					fdoc.setCollections(doc.getCollections());
 	        					doc = fdoc;
 	        				}
@@ -234,7 +237,7 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<XDMDoc
 			XDMDocumentKey docKey; 
 			for (Path path: files) {
 				docKey = docMgr.nextDocumentKey();
-				uris.put(docKey, path.toString());
+				uris.put(docKey, path.getFileName().toString());
 			}
 			docIds = new HashSet<XDMDocumentKey>(uris.keySet());
 		} catch (IOException ex) {

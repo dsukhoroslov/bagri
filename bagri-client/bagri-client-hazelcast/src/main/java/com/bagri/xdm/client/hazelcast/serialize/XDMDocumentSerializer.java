@@ -29,7 +29,9 @@ public class XDMDocumentSerializer implements StreamSerializer<XDMDocument> {
 				in.readLong(),
 				new java.util.Date(in.readLong()),
 				in.readUTF(),
-				in.readUTF());
+				in.readUTF(),
+				in.readInt(),
+				in.readInt());
 		xDoc.setCollections(in.readIntArray());
 		return xDoc;
 	}
@@ -45,6 +47,8 @@ public class XDMDocumentSerializer implements StreamSerializer<XDMDocument> {
 		out.writeLong(xDoc.getCreatedAt().getTime());
 		out.writeUTF(xDoc.getCreatedBy());
 		out.writeUTF(xDoc.getEncoding());
+		out.writeInt(xDoc.getBytes());
+		out.writeInt(xDoc.getElements());
 		out.writeIntArray(xDoc.getCollections());
 	}
 	

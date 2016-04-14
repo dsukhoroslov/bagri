@@ -115,6 +115,6 @@ public class Schema implements Comparable<Schema> {
 
 	@Override
 	public int compareTo(Schema other) {
-		return schemaName.compareTo(other.schemaName);
+		return schemaName.toLowerCase().compareTo(other.schemaName.toLowerCase());
 	}
 }

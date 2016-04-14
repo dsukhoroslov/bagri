@@ -20,8 +20,8 @@ public class Collection implements Comparable<Collection> {
 	
 	
 	public Collection(String name, String description, String createdAt, String createdBy, int id, int version,
-			String docType, boolean enabled, int docCount, int eltCount, int fraCount, long byteSize, double avgEltSize,
-			double avgByteSize) {
+			String docType, boolean enabled, int docCount, int eltCount, int fraCount, long byteSize, double avgByteSize,
+			double avgEltSize) {
 		super();
 		this.name = name;
 		this.description = description;
@@ -35,8 +35,8 @@ public class Collection implements Comparable<Collection> {
 		this.eltCount = eltCount;
 		this.fraCount = fraCount;
 		this.byteSize = byteSize;
-		this.avgEltSize = avgEltSize;
 		this.avgByteSize = avgByteSize;
+		this.avgEltSize = avgEltSize;
 	}
 
 	/**

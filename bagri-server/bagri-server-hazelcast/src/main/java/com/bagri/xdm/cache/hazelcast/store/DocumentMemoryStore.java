@@ -95,11 +95,12 @@ public class DocumentMemoryStore extends MemoryMappedStore<Long, XDMDocument> {
 
 	@Override
 	protected int getEntrySize(XDMDocument entry) {
-		return 4*8 // 4 long's 
-			+ 4 // 1 int
+		return 4*8 // 4 long's (txStart, txFinish, docKey, createdAt)
+			+ 3*4 // 1 int (typeId, bytes, elements)
 			+ entry.getUri().getBytes().length + 4 // uri size
 			+ entry.getCreatedBy().getBytes().length + 4 // createdBy size
-			+ entry.getEncoding().getBytes().length + 4; // encoding size
+			+ entry.getEncoding().getBytes().length + 4 // encoding size
+			+ entry.getCollections().length*4 + 4; // collections
 	}
 	
 	@Override
@@ -117,9 +118,11 @@ public class DocumentMemoryStore extends MemoryMappedStore<Long, XDMDocument> {
 		Date createdAt = new Date(buff.getLong());
 		String createdBy = getString(buff);
 		String encoding = getString(buff);
+		int bytes = buff.getInt();
+		int elts = buff.getInt();
 		long documentId = toDocumentId(docKey);
 		int version = toVersion(docKey);
-		XDMDocument result = new XDMDocument(documentId, version, uri, typeId, txStart, txFinish, createdAt, createdBy, encoding);
+		XDMDocument result = new XDMDocument(documentId, version, uri, typeId, txStart, txFinish, createdAt, createdBy, encoding, bytes, elts);
 		result.setCollections(getIntArray(buff));
 		return result;
 	}
@@ -138,6 +141,8 @@ public class DocumentMemoryStore extends MemoryMappedStore<Long, XDMDocument> {
 		buff.putLong(entry.getCreatedAt().getTime());
 		putString(buff, entry.getCreatedBy());
 		putString(buff, entry.getEncoding());
+		buff.putInt(entry.getBytes());
+		buff.putInt(entry.getElements());
 		putIntArray(buff, entry.getCollections());
 	}
 

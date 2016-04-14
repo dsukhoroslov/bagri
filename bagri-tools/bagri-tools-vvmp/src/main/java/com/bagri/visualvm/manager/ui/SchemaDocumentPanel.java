@@ -14,7 +14,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -23,15 +22,14 @@ import java.util.logging.Logger;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
-import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.JTree;
+import javax.swing.border.TitledBorder;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -56,8 +54,13 @@ public class SchemaDocumentPanel extends JPanel {
     private final EventBus<ApplicationEvent> eventBus;
     private final String schemaName; 
 
-    private JPanel infoPanel;
+    private JPanel clnPanel = null;
+    private JPanel docPanel = null;
+    private JPanel clnInfoPanel;
+    private JPanel clnStatsPanel;
+    private JPanel docInfoPanel;
     private JTextArea contentArea;
+    private JSplitPane mgrSplitter;
     
     public SchemaDocumentPanel(String schemaName, SchemaManagementService schemaService, EventBus<ApplicationEvent> eventBus) {
     	super(new BorderLayout());
@@ -165,11 +168,11 @@ public class SchemaDocumentPanel extends JPanel {
     
         docToolbar.setFloatable(false);
         add(docToolbar, BorderLayout.PAGE_START);
-        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-        splitPane.setDividerLocation(200);
-        splitPane.setLeftComponent(createDocumentTreePanel());
-        splitPane.setRightComponent(createDocumentManagmenetPanel());
-        add(splitPane, BorderLayout.CENTER);
+        mgrSplitter = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+        mgrSplitter.setDividerLocation(0.3);
+        mgrSplitter.setLeftComponent(createDocumentTreePanel());
+        mgrSplitter.setRightComponent(getCollectionManagementPanel());
+        add(mgrSplitter, BorderLayout.CENTER);
     }
     
     private JPanel createDocumentTreePanel() {
@@ -181,7 +184,8 @@ public class SchemaDocumentPanel extends JPanel {
         DefaultMutableTreeNode all = new DefaultMutableTreeNode("All Documents");
         root.add(all);
         // fill all docs tree...
-        fillCollectionDocuments(all, null);
+        int cnt = fillCollectionDocuments(all, null);
+        all.setUserObject(new Collection("All Documents", "All Schema Documents", "", "", 0, 0, "", true, cnt, 0, 0, 0, 0.0, 0.0));
 
         List<Collection> collections = null;
         try {
@@ -211,17 +215,17 @@ public class SchemaDocumentPanel extends JPanel {
             	DefaultMutableTreeNode node = (DefaultMutableTreeNode) e.getPath().getLastPathComponent();
                 if (node == null) return;
 
-                //int dividerLocation = splitPane.getDividerLocation();
+                int dividerLocation = mgrSplitter.getDividerLocation();
                 Object nodeInfo = node.getUserObject();
                 if (nodeInfo instanceof Document) {
                 	String uri = ((Document) nodeInfo).getUri(); 
                 	selectDocument(uri);
                 //    splitPane.setRightComponent(getUserManagementView());
-                //} else if (nodeInfo instanceof ClusterManagement) {
+                } else if (nodeInfo instanceof Collection) {
+                	selectCollection((Collection) nodeInfo);
                 //    splitPane.setRightComponent(getClusterManagementPanel());
-                //} else if (nodeInfo instanceof Node) {
                 }
-                //splitPane.setDividerLocation(dividerLocation);
+                mgrSplitter.setDividerLocation(dividerLocation);
             }
         });
         
@@ -236,26 +240,143 @@ public class SchemaDocumentPanel extends JPanel {
         contentArea.setText(sw.toString());
     }
     
-    private void selectDocument(String uri) {
+    private int fillCollectionDocuments(DefaultMutableTreeNode clNode, String clName) {
     	
+        try {
+            List<Document> documents = docMgr.getDocuments(clName);
+        	Collections.sort(documents);
+            for (Document document: documents) {
+                DefaultMutableTreeNode doc = new DefaultMutableTreeNode(document);
+                clNode.add(doc);
+            }
+            return documents.size();
+		} catch (ServiceException ex) {
+            LOGGER.throwing(this.getClass().getName(), "fillCollectionDocuments", ex);
+		}
+        return 0;
+    }
+    
+    private JPanel getCollectionManagementPanel() {
+    	if (clnPanel == null) {
+	    	clnPanel = new JPanel(new BorderLayout());
+	        JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+	        clnInfoPanel = new JPanel(new GridLayout(3, 3));
+	        clnInfoPanel.add(new JLabel("name:"));
+	        clnInfoPanel.add(new JLabel("id:"));
+	        clnInfoPanel.add(new JLabel("version:"));
+	        clnInfoPanel.add(new JLabel("description:"));
+	        clnInfoPanel.add(new JLabel("document type:"));
+	        clnInfoPanel.add(new JLabel("enabled:"));
+	        clnInfoPanel.add(new JLabel("created at:"));
+	        clnInfoPanel.add(new JLabel("created by:"));
+	        clnInfoPanel.add(new JLabel(""));
+	        clnInfoPanel.setPreferredSize(new Dimension(500, 90));
+	        clnInfoPanel.setMinimumSize(new Dimension(500, 90));
+	        clnInfoPanel.setBorder(BorderFactory.createTitledBorder("collection: "));
+	        splitPane.setTopComponent(clnInfoPanel);
+	
+	        JPanel panel = new JPanel(new BorderLayout());
+	        clnStatsPanel = new JPanel(new GridLayout(2, 3));
+	        clnStatsPanel.add(new JLabel("documents:"));
+	        clnStatsPanel.add(new JLabel("fragments:"));
+	        clnStatsPanel.add(new JLabel("elements:"));
+	        clnStatsPanel.add(new JLabel("full size in bytes:"));
+	        clnStatsPanel.add(new JLabel("avg doc size in bytes:"));
+	        clnStatsPanel.add(new JLabel("avg doc size in elements:"));
+	        clnStatsPanel.setPreferredSize(new Dimension(500, 70));
+	        clnStatsPanel.setBorder(BorderFactory.createTitledBorder("statistics: "));
+	        panel.add(clnStatsPanel, BorderLayout.NORTH);
+	        splitPane.setBottomComponent(panel);
+	        clnPanel.add(splitPane, BorderLayout.CENTER);
+	        splitPane.setDividerLocation(0.2);
+    	}
+    	return clnPanel;
+    }
+    
+    private void selectCollection(Collection cln) {
+    	getCollectionManagementPanel();
+    	//try {
+			((TitledBorder) clnInfoPanel.getBorder()).setTitle("collection: " + cln.getName());
+			Component[] labels = clnInfoPanel.getComponents();
+			((JLabel) labels[0]).setText("name: " + cln.getName());
+			((JLabel) labels[1]).setText("id: " + cln.getId());
+			((JLabel) labels[2]).setText("version: " + cln.getVersion());
+			((JLabel) labels[3]).setText("description: " + cln.getDescription());
+			((JLabel) labels[4]).setText("document type: " + cln.getDocType());
+			((JLabel) labels[5]).setText("enabled: " + cln.isEnabled());
+			((JLabel) labels[6]).setText("created at: " + cln.getCreatedAt());
+			((JLabel) labels[7]).setText("created by: " + cln.getCreatedBy());
+			clnInfoPanel.repaint();
+
+			((TitledBorder) clnStatsPanel.getBorder()).setTitle("statistics: " + cln.getName());
+			labels = clnStatsPanel.getComponents();
+			((JLabel) labels[0]).setText("documents: " + cln.getDocCount());
+			((JLabel) labels[1]).setText("fragments: " + cln.getFraCount());
+			((JLabel) labels[2]).setText("elements: " + cln.getEltCount());
+			((JLabel) labels[3]).setText("full size in bytes: " + cln.getByteSize());
+			((JLabel) labels[4]).setText("avg doc size in bytes: " + cln.getAvgByteSize());
+			((JLabel) labels[5]).setText("avg doc size in elements: " + cln.getAvgEltSize());
+    	//} catch (ServiceException ex) {
+    	//	handleServiceException(ex);
+    	//}
+    	mgrSplitter.setRightComponent(clnPanel);
+    }
+    
+    private JPanel getDocumentManagementPanel() {
+    	if (docPanel == null) {
+	    	docPanel = new JPanel(new BorderLayout());
+	        JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+	        docInfoPanel = new JPanel(new GridLayout(4, 3));
+			docInfoPanel.add(new JLabel("key:"));
+			docInfoPanel.add(new JLabel("id:"));
+			docInfoPanel.add(new JLabel("version:"));
+			docInfoPanel.add(new JLabel("uri:"));
+			docInfoPanel.add(new JLabel("size:"));
+			docInfoPanel.add(new JLabel("encoding:"));
+			docInfoPanel.add(new JLabel("created at:"));
+			docInfoPanel.add(new JLabel("created by:"));
+			docInfoPanel.add(new JLabel("start tx:"));
+			docInfoPanel.add(new JLabel("elements:"));
+			docInfoPanel.add(new JLabel("fragments:"));
+			docInfoPanel.add(new JLabel("collections:"));
+			docInfoPanel.setPreferredSize(new Dimension(500, 100));
+			docInfoPanel.setMinimumSize(new Dimension(500, 100));
+			docInfoPanel.setBorder(BorderFactory.createTitledBorder("document: "));
+	        splitPane.setTopComponent(docInfoPanel);
+	
+	        contentArea = new JTextArea();
+	        contentArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
+	        JScrollPane areaScrollPane = new JScrollPane(contentArea);
+	        areaScrollPane.setPreferredSize(new Dimension(500, 500));
+	        areaScrollPane.setMinimumSize(new Dimension(500, 500));
+	        contentArea.setEditable(false);
+	        contentArea.setCaretPosition(0);
+	        splitPane.setBottomComponent(areaScrollPane);
+	        docPanel.add(splitPane, BorderLayout.CENTER);
+	        splitPane.setDividerLocation(0.2);
+    	}
+    	return docPanel;
+    }
+
+    private void selectDocument(String uri) {
+    	getDocumentManagementPanel();
     	try {
 			Map<String, Object> doc = docMgr.getDocumentInfo(uri);
-			Component[] labels = infoPanel.getComponents();
+			((TitledBorder) docInfoPanel.getBorder()).setTitle("document: " + doc.get("uri"));
+			Component[] labels = docInfoPanel.getComponents();
 			((JLabel) labels[0]).setText("key: " + doc.get("key"));
 			((JLabel) labels[1]).setText("id: " + doc.get("id"));
 			((JLabel) labels[2]).setText("version: " + doc.get("version"));
-
 			((JLabel) labels[3]).setText("uri: " + doc.get("uri"));
-			((JLabel) labels[4]).setText("type: " + doc.get("type"));
+			((JLabel) labels[4]).setText("size: " + doc.get("bytes"));
 			((JLabel) labels[5]).setText("encoding: " + doc.get("encoding"));
-			
 			((JLabel) labels[6]).setText("created at: " + doc.get("created at"));
 			((JLabel) labels[7]).setText("created by: " + doc.get("created by"));
 			((JLabel) labels[8]).setText("start tx: " + doc.get("txStart"));
-
-			((JLabel) labels[9]).setText("elements: " + "NA"); //doc.get("created at"));
+			((JLabel) labels[9]).setText("elements: " + doc.get("elements"));
 			((JLabel) labels[10]).setText("fragments: " + doc.get("fragments"));
 			((JLabel) labels[11]).setText("collections: " + doc.get("collections"));
+			docInfoPanel.repaint();
 
 			String content = docMgr.getDocumentContent(uri);
 	    	contentArea.setText(content);
@@ -263,121 +384,9 @@ public class SchemaDocumentPanel extends JPanel {
     	} catch (ServiceException ex) {
     		handleServiceException(ex);
     	}
+    	mgrSplitter.setRightComponent(docPanel);
     }
     
-    private void fillCollectionDocuments(DefaultMutableTreeNode clNode, String clName) {
-    	
-        LOGGER.info("fillCollectionDocuments; going to populate collection: " + clName);
-        try {
-            List<Document> documents = docMgr.getDocuments(clName);
-            LOGGER.info("fillCollectionDocuments; got documents: " + documents);
-        	Collections.sort(documents);
-            for (Document document: documents) {
-                DefaultMutableTreeNode doc = new DefaultMutableTreeNode(document);
-                clNode.add(doc);
-            }
-		} catch (ServiceException ex) {
-            LOGGER.throwing(this.getClass().getName(), "fillCollectionDocuments", ex);
-		}
-    }
-    
-    private JPanel createDocumentManagmenetPanel() {
-    	JPanel mgrPanel = new JPanel(new BorderLayout());
-        JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-        splitPane.setDividerLocation(300);
-        infoPanel = new JPanel(new GridBagLayout());
-		GridBagConstraints cs = new GridBagConstraints();
-		cs.fill = GridBagConstraints.HORIZONTAL;
-
-		JLabel label = new JLabel("key:");
-		cs.gridx = 0;
-		cs.gridy = 0;
-		label.setHorizontalAlignment(JLabel.CENTER);
-		infoPanel.add(label, cs);
-
-		label = new JLabel("id:");
-		cs.gridx = 1;
-		cs.gridy = 0;
-		label.setHorizontalAlignment(JLabel.CENTER);
-		infoPanel.add(label, cs);
-		
-		label = new JLabel("version:");
-		cs.gridx = 2;
-		cs.gridy = 0;
-		label.setHorizontalAlignment(JLabel.CENTER);
-		infoPanel.add(label, cs);
-
-		label = new JLabel("uri:");
-		cs.gridx = 0;
-		cs.gridy = 1;
-		label.setHorizontalAlignment(JLabel.CENTER);
-		infoPanel.add(label, cs);
-
-		label = new JLabel("type:");
-		cs.gridx = 1;
-		cs.gridy = 1;
-		label.setHorizontalAlignment(JLabel.CENTER);
-		infoPanel.add(label, cs);
-		
-		label = new JLabel("encoding:");
-		cs.gridx = 2;
-		cs.gridy = 1;
-		label.setHorizontalAlignment(JLabel.CENTER);
-		infoPanel.add(label, cs);
-
-		label = new JLabel("created at:");
-		cs.gridx = 0;
-		cs.gridy = 2;
-		label.setHorizontalAlignment(JLabel.CENTER);
-		infoPanel.add(label, cs);
-
-		label = new JLabel("created by:");
-		cs.gridx = 1;
-		cs.gridy = 2;
-		label.setHorizontalAlignment(JLabel.CENTER);
-		infoPanel.add(label, cs);
-		
-		label = new JLabel("start tx:");
-		cs.gridx = 2;
-		cs.gridy = 2;
-		label.setHorizontalAlignment(JLabel.CENTER);
-		infoPanel.add(label, cs);
-
-		label = new JLabel("elements:");
-		cs.gridx = 0;
-		cs.gridy = 3;
-		label.setHorizontalAlignment(JLabel.CENTER);
-		infoPanel.add(label, cs);
-		
-		label = new JLabel("fragments:");
-		cs.gridx = 1;
-		cs.gridy = 3;
-		label.setHorizontalAlignment(JLabel.CENTER);
-		infoPanel.add(label, cs);
-		
-		label = new JLabel("collections:");
-		cs.gridx = 3;
-		cs.gridy = 3;
-		label.setHorizontalAlignment(JLabel.CENTER);
-		infoPanel.add(label, cs);
-        
-        infoPanel.setPreferredSize(new Dimension(500, 100));
-        infoPanel.setMinimumSize(new Dimension(500, 100));
-        infoPanel.setBorder(BorderFactory.createTitledBorder("document"));
-        splitPane.setTopComponent(infoPanel);
-
-        contentArea = new JTextArea();
-        contentArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
-        JScrollPane areaScrollPane = new JScrollPane(contentArea);
-        areaScrollPane.setPreferredSize(new Dimension(500, 500));
-        areaScrollPane.setMinimumSize(new Dimension(500, 500));
-        contentArea.setEditable(false);
-        contentArea.setCaretPosition(0);
-        splitPane.setBottomComponent(areaScrollPane);
-        mgrPanel.add(splitPane, BorderLayout.CENTER);
-    	return mgrPanel;
-    }
-
     // --- Event Handlers --- //
     private void onAddDocument() {
     	// ...

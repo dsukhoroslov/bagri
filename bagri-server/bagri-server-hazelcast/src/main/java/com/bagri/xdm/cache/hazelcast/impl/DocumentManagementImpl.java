@@ -543,9 +543,11 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		String user = repo.getUserName();
 		XDMDocument doc;
 		if (fragments.size() == 1) {
-			doc = new XDMDocument(docKey.getDocumentId(), docKey.getVersion(), docId.getDocumentUri(), docType, user, txManager.getCurrentTxId());
+			doc = new XDMDocument(docKey.getDocumentId(), docKey.getVersion(), docId.getDocumentUri(), docType, user, txManager.getCurrentTxId(),
+					content.length(), data.size());
 		} else {
-			doc = new XDMFragmentedDocument(docKey.getDocumentId(), docKey.getVersion(), docId.getDocumentUri(), docType, user, txManager.getCurrentTxId());
+			doc = new XDMFragmentedDocument(docKey.getDocumentId(), docKey.getVersion(), docId.getDocumentUri(), docType, user, txManager.getCurrentTxId(),
+					content.length(), data.size());
 			long[] fa = new long[fragments.size()];
 			fa[0] = docKey.getKey();
 			for (int i=1; i < fragments.size(); i++) {
