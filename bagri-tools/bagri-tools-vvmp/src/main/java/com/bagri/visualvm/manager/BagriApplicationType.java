@@ -32,7 +32,10 @@ public class BagriApplicationType extends ApplicationType {
 
     @Override
     public String getDescription() {
-        return "Application type for Bagri Management Tool";
+    	if (isAdmin) {
+    		return "Bagri Management & Monitoring Server";
+    	}
+    	return "Bagri Cache Server";
     }
 
     @Override

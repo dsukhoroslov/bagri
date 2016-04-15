@@ -1,6 +1,7 @@
 package com.bagri.visualvm.manager.service;
 
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,6 +22,7 @@ import javax.management.openmbean.TabularData;
 
 import com.bagri.visualvm.manager.model.Collection;
 import com.bagri.visualvm.manager.model.Document;
+import com.bagri.visualvm.manager.util.FileUtil;
 
 public class DocumentServiceProvider implements DocumentManagementService {
 	
@@ -37,13 +39,14 @@ public class DocumentServiceProvider implements DocumentManagementService {
 	public List<Collection> getCollections() throws ServiceException {
         List<Collection> result = new ArrayList<>();
         try {
-            Object res = connection.getAttribute(new ObjectName("com.bagri.xdm:type=Schema,name=" + schema + ",kind=DocumentManagement"), "Collections");
+        	ObjectName on = getDocMgrObjectName();
+            Object res = connection.getAttribute(on, "Collections");
             if (res == null) {
             	return result;
             }
             TabularData clns = (TabularData) res;
         	Set<List> keys = (Set<List>) clns.keySet();
-            res = connection.getAttribute(new ObjectName("com.bagri.xdm:type=Schema,name=" + schema + ",kind=DocumentManagement"), "CollectionStatistics");
+            res = connection.getAttribute(on, "CollectionStatistics");
         	TabularData stats = (TabularData) res;
         	for (List key: keys) {
         		Object[] index = key.toArray();
@@ -94,8 +97,8 @@ public class DocumentServiceProvider implements DocumentManagementService {
 	public List<Document> getDocuments(String collection) throws ServiceException {
         List<Document> result = new ArrayList<>();
         try {
-            Object res = connection.invoke(new ObjectName("com.bagri.xdm:type=Schema,name=" + schema + ",kind=DocumentManagement"), 
-            		"getCollectionDocuments", new Object[] {collection, null}, new String[] {String.class.getName(), String.class.getName()});
+            Object res = connection.invoke(getDocMgrObjectName(), "getCollectionDocuments", 
+            		new Object[] {collection, null}, new String[] {String.class.getName(), String.class.getName()});
     		LOGGER.info("got ids: " + res + " for collection " + collection);
             if (res != null) {
             	TabularData ids = (TabularData) res;
@@ -115,15 +118,34 @@ public class DocumentServiceProvider implements DocumentManagementService {
 	}
 
 	@Override
-	public void storeDocument(String ui, String content) throws ServiceException {
-		// TODO Auto-generated method stub
-		
+	public Document storeDocument(String uri) throws ServiceException {
+        try {
+			Long docKey = (Long) connection.invoke(getDocMgrObjectName(), "registerDocument", 
+					new Object[] {uri}, new String[] {String.class.getName()});
+			return new Document(docKey, FileUtil.getFileName(uri));
+		} catch (Exception ex) {
+            LOGGER.throwing(this.getClass().getName(), "storeDocument", ex);
+            throw new ServiceException(ex);
+		}
+	}
+
+	@Override
+	public boolean storeDocuments(String uri) throws ServiceException {
+        try {
+			connection.invoke(getDocMgrObjectName(), "registerDocuments", 
+					new Object[] {uri}, new String[] {String.class.getName()});
+			return true;
+		} catch (Exception ex) {
+            LOGGER.throwing(this.getClass().getName(), "storeDocuments", ex);
+            throw new ServiceException(ex);
+		}
 	}
 
 	@Override
 	public Map<String, Object> getDocumentInfo(String uri) throws ServiceException {
         try {
-			CompositeData info = (CompositeData) connection.invoke(getDocMgrObjectName(schema), "getDocumentInfo", new Object[] {uri}, new String[] {String.class.getName()});
+			CompositeData info = (CompositeData) connection.invoke(getDocMgrObjectName(), "getDocumentInfo", 
+					new Object[] {uri}, new String[] {String.class.getName()});
 	        Map<String, Object> result = new HashMap<String, Object>();
 	        if (info != null) {
 		        CompositeType type = info.getCompositeType();
@@ -141,7 +163,7 @@ public class DocumentServiceProvider implements DocumentManagementService {
 	@Override
 	public String getDocumentContent(String uri) throws ServiceException {
         try {
-			return (String) connection.invoke(getDocMgrObjectName(schema), "getDocumentContent", new Object[] {uri}, new String[] {String.class.getName()});
+			return (String) connection.invoke(getDocMgrObjectName(), "getDocumentContent", new Object[] {uri}, new String[] {String.class.getName()});
 		} catch (Exception ex) {
             LOGGER.throwing(this.getClass().getName(), "getDocumentContent", ex);
             throw new ServiceException(ex);
@@ -153,8 +175,8 @@ public class DocumentServiceProvider implements DocumentManagementService {
 		// TODO Auto-generated method stub	
 	}
 	
-	private ObjectName getDocMgrObjectName(String schemaName) throws MalformedObjectNameException {
-		return new ObjectName("com.bagri.xdm:type=Schema,name=" + schemaName + ",kind=DocumentManagement");
+	private ObjectName getDocMgrObjectName() throws MalformedObjectNameException {
+		return new ObjectName("com.bagri.xdm:type=Schema,name=" + schema + ",kind=DocumentManagement");
 	}
 
 }

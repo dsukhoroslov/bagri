@@ -14,7 +14,8 @@ public interface DocumentManagementService {
     void deleteCollection(String collection) throws ServiceException;
 	
     List<Document> getDocuments(String collection) throws ServiceException;
-    void storeDocument(String uri, String content) throws ServiceException;
+    Document storeDocument(String uri) throws ServiceException;
+    boolean storeDocuments(String uri) throws ServiceException;
     Map<String, Object> getDocumentInfo(String uri) throws ServiceException;
     String getDocumentContent(String uri) throws ServiceException;
     void deleteDocument(String uri) throws ServiceException;

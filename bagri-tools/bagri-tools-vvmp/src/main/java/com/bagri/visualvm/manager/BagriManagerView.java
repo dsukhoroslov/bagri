@@ -28,13 +28,13 @@ public class BagriManagerView extends DataSourceView implements DataRemovedListe
 
     private Application application;
     private BagriMainPanel mainPanel;
-    private final MBeanServerConnection mbsc;
+    //private final MBeanServerConnection mbsc;
 
     public BagriManagerView(Application application) {
         super(application, BAGRI_MANAGER, Icons.MAIN_ICON.getImage(), 60, false);
         this.application = application;
-        JmxModel jmx = JmxModelFactory.getJmxModelFor(application);
-        this.mbsc = jmx.getMBeanServerConnection();
+        //JmxModel jmx = JmxModelFactory.getJmxModelFor(application);
+        //this.mbsc = jmx.getMBeanServerConnection();
         application.notifyWhenRemoved(this);
     }
 
@@ -45,6 +45,7 @@ public class BagriManagerView extends DataSourceView implements DataRemovedListe
         }
     }
 
+    @Override
     protected DataViewComponent createComponent() {
         DataViewComponent dvc;
         JmxModel jmx = JmxModelFactory.getJmxModelFor(application);
@@ -67,6 +68,7 @@ public class BagriManagerView extends DataSourceView implements DataRemovedListe
 
             dvc.configureDetailsArea(new DataViewComponent.DetailsAreaConfiguration(BAGRI_MANAGER, false), DataViewComponent.TOP_LEFT); // NOI18N
 
+            MBeanServerConnection mbsc = jmx.getMBeanServerConnection();
         	BagriServiceProvider bsp = DefaultServiceProvider.getInstance(mbsc);
             mainPanel = new BagriMainPanel(bsp);
             jmx.addPropertyChangeListener(WeakListeners.propertyChange(mainPanel, jmx));

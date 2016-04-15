@@ -41,6 +41,7 @@ import com.bagri.visualvm.manager.model.Schema;
 import com.bagri.visualvm.manager.model.TypedValue;
 import com.bagri.visualvm.manager.service.SchemaManagementService;
 import com.bagri.visualvm.manager.service.ServiceException;
+import com.bagri.visualvm.manager.util.FileUtil;
 
 public class SchemaQueryPanel extends JPanel {
 	
@@ -289,7 +290,7 @@ public class SchemaQueryPanel extends JPanel {
     	Map<String, Object> result = new HashMap<>(typedValues.size());
     	for (Map.Entry<String, TypedValue> e: typedValues.entrySet()) {
     		if ("file".equals(e.getValue().getType())) {
-   				String text = readTextFile(e.getValue().getValue().toString());
+   				String text = FileUtil.readTextFile(e.getValue().getValue().toString());
    				result.put(e.getKey(), text);
     		} else {
     			result.put(e.getKey(), e.getValue().getValue());
@@ -349,17 +350,6 @@ public class SchemaQueryPanel extends JPanel {
     }
     
 
-	private static String readTextFile(String fileName) throws IOException {
-	    Path path = Paths.get(fileName);
-	    StringBuilder text = new StringBuilder();
-	    try (Scanner scanner = new Scanner(path, "utf-8")) {
-	    	while (scanner.hasNextLine()) {
-	    		text.append(scanner.nextLine()).append("\n");
-	    	}      
-	   	}
-	    return text.toString();
-	}
-	
     private /*static*/ class QueryRunner extends Thread {
     	
     	private String query;

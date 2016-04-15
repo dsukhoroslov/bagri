@@ -10,7 +10,7 @@ target/
 .project
 
 # test generated xml files #
-etc/samples/tpox2/
+etc/samples/default/
 
 # catalog files #
 *.xdb
