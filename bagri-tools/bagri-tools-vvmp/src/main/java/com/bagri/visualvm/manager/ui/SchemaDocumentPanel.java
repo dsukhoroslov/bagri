@@ -12,6 +12,7 @@ import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Collections;
@@ -39,6 +40,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import com.bagri.visualvm.manager.event.ApplicationEvent;
@@ -48,6 +50,7 @@ import com.bagri.visualvm.manager.model.Document;
 import com.bagri.visualvm.manager.service.DocumentManagementService;
 import com.bagri.visualvm.manager.service.SchemaManagementService;
 import com.bagri.visualvm.manager.service.ServiceException;
+import com.bagri.visualvm.manager.util.ErrorUtil;
 
 public class SchemaDocumentPanel extends JPanel {
 	
@@ -65,6 +68,7 @@ public class SchemaDocumentPanel extends JPanel {
     private JPanel docInfoPanel;
     private JTextArea contentArea;
     private JSplitPane mgrSplitter;
+    private String currentPath = null;
     
     public SchemaDocumentPanel(String schemaName, SchemaManagementService schemaService, EventBus<ApplicationEvent> eventBus) {
     	super(new BorderLayout());
@@ -104,7 +108,7 @@ public class SchemaDocumentPanel extends JPanel {
         delDoc.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //onAddDocument();
+                onDeleteDocument();
             }
         });
         docToolbar.add(delDoc);
@@ -116,7 +120,7 @@ public class SchemaDocumentPanel extends JPanel {
         addCol.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //onAddDocument();
+                onAddCollection();
             }
         });
         docToolbar.add(addCol);
@@ -128,7 +132,7 @@ public class SchemaDocumentPanel extends JPanel {
         delCol.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //onAddDocument();
+                onDeleteCollection();
             }
         });
         docToolbar.add(delCol);
@@ -140,7 +144,7 @@ public class SchemaDocumentPanel extends JPanel {
         delDocs.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //onAddDocument();
+                onDeleteDocuments();
             }
         });
         docToolbar.add(delDocs);
@@ -152,7 +156,7 @@ public class SchemaDocumentPanel extends JPanel {
         addDocClns.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //onAddDocument();
+                onAddDocumentToCollection();
             }
         });
         docToolbar.add(addDocClns);
@@ -164,7 +168,7 @@ public class SchemaDocumentPanel extends JPanel {
         remDocClns.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //onAddDocument();
+                onRemoveDocumentFromCollection();
             }
         });
         docToolbar.add(remDocClns);
@@ -208,6 +212,7 @@ public class SchemaDocumentPanel extends JPanel {
         }
         docTree.setModel(new DefaultTreeModel(root, false));
         docTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+        docTree.setExpandsSelectedPaths(true);
         docTree.setShowsRootHandles(true);
         docTree.setRootVisible(false);
         if (collections == null) {
@@ -242,22 +247,6 @@ public class SchemaDocumentPanel extends JPanel {
         PrintWriter printWriter = new PrintWriter(sw);
         ex.printStackTrace(printWriter);
         contentArea.setText(sw.toString());
-    }
-    
-    private int fillCollectionDocuments(DefaultMutableTreeNode clNode, String clName) {
-    	
-        try {
-            List<Document> documents = docMgr.getDocuments(clName);
-        	Collections.sort(documents);
-            for (Document document: documents) {
-                DefaultMutableTreeNode doc = new DefaultMutableTreeNode(document);
-                clNode.add(doc);
-            }
-            return documents.size();
-		} catch (ServiceException ex) {
-            LOGGER.throwing(this.getClass().getName(), "fillCollectionDocuments", ex);
-		}
-        return 0;
     }
     
     private JPanel getCollectionManagementPanel() {
@@ -362,6 +351,24 @@ public class SchemaDocumentPanel extends JPanel {
     	return docPanel;
     }
 
+    private int fillCollectionDocuments(DefaultMutableTreeNode clNode, String clName) {
+        try {
+            List<Document> documents = docMgr.getDocuments(clName);
+        	Collections.sort(documents);
+        	int cnt = clNode.getChildCount(); 
+            for (Document document: documents) {
+                DefaultMutableTreeNode doc = new DefaultMutableTreeNode(document);
+                clNode.add(doc);
+            }
+            cnt = clNode.getChildCount() - cnt;
+            LOGGER.info("fillCollectionDocuments; added: " + cnt + "; returning: " + documents.size()); 
+            return documents.size();
+		} catch (ServiceException ex) {
+            LOGGER.throwing(this.getClass().getName(), "fillCollectionDocuments", ex);
+		}
+        return 0;
+    }
+    
     private void selectDocument(String uri) {
     	getDocumentManagementPanel();
     	try {
@@ -402,45 +409,113 @@ public class SchemaDocumentPanel extends JPanel {
     		if (doc.compareTo(exDoc) < 0) {
                 DefaultMutableTreeNode node = new DefaultMutableTreeNode(doc);
                 ((DefaultTreeModel) docTree.getModel()).insertNodeInto(node, allDocs, idx);
+                docTree.setSelectionPaths(new TreePath[] {new TreePath(node.getPath())});
     			return;
     		} 
     		idx++;
     	}
         DefaultMutableTreeNode node = new DefaultMutableTreeNode(doc);
         ((DefaultTreeModel) docTree.getModel()).insertNodeInto(node, allDocs, allDocs.getChildCount());
+        docTree.setSelectionPaths(new TreePath[] {new TreePath(node.getPath())});
     }
-    
+
+	private void refreshDocuments() {
+    	Object root = docTree.getModel().getRoot();
+    	DefaultMutableTreeNode allDocs = (DefaultMutableTreeNode) docTree.getModel().getChild(root, 0);
+    	allDocs.removeAllChildren();
+    	fillCollectionDocuments(allDocs, null);
+    	((DefaultTreeModel) docTree.getModel()).reload(allDocs);
+	}
+	
+	private void removeSelectedDocument() {
+		DefaultMutableTreeNode nextNode;
+		DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) docTree.getLastSelectedPathComponent();
+		if (selectedNode.getNextSibling() != null) {
+			nextNode = selectedNode.getNextSibling();
+		} else if (selectedNode.getPreviousSibling() != null) {
+			nextNode = selectedNode.getPreviousSibling();
+		} else {
+			nextNode = (DefaultMutableTreeNode) selectedNode.getParent();
+		}
+		((DefaultTreeModel) docTree.getModel()).removeNodeFromParent(selectedNode);
+        docTree.setSelectionPaths(new TreePath[] {new TreePath(nextNode.getPath())});
+	}
+
     // --- Event Handlers --- //
     private void onAddDocument() {
     	JFileChooser chooser = new JFileChooser();
+    	chooser.setDialogTitle("Select File");
         FileNameExtensionFilter filter = new FileNameExtensionFilter(
             "XML & JSON Documents", "json", "xml");
         chooser.setFileFilter(filter);
-        chooser.setCurrentDirectory(new java.io.File("."));
-        int returnVal = chooser.showOpenDialog(getTopLevelAncestor());
+        if (currentPath != null) {
+        	chooser.setCurrentDirectory(new File(currentPath));
+        }
+        int returnVal = chooser.showOpenDialog(this.getParent());
         if (returnVal == JFileChooser.APPROVE_OPTION) {
+        	currentPath = chooser.getCurrentDirectory().getAbsolutePath();
         	try {
 				Document doc = docMgr.storeDocument(chooser.getSelectedFile().getAbsolutePath());
 				insertDocument(doc);
         	} catch (ServiceException ex) {
-        		handleServiceException(ex);
+                ErrorUtil.showError(this.getParent(), ex);
 			}
         }
     }
 
     private void onAddDocuments() {
     	JFileChooser chooser = new JFileChooser();
-    	//chooser.setDialogTitle(choosertitle);
+    	chooser.setDialogTitle("Select Directory");
         chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        int returnVal = chooser.showOpenDialog(null);
+        if (currentPath != null) {
+        	chooser.setCurrentDirectory(new File(currentPath));
+        }
+        int returnVal = chooser.showOpenDialog(this.getParent());
         if (returnVal == JFileChooser.APPROVE_OPTION) {
+        	currentPath = chooser.getCurrentDirectory().getAbsolutePath();
         	try {
-				docMgr.storeDocuments(chooser.getCurrentDirectory().getAbsolutePath());
-        	} catch (ServiceException ex) {
-        		handleServiceException(ex);
+				if (docMgr.storeDocuments(chooser.getSelectedFile().getAbsolutePath())) {
+					refreshDocuments();
+				}
+        	} catch (Exception ex) {
+                ErrorUtil.showError(this.getParent(), ex);
 			}
         }
     }
+
+    private void onDeleteDocument() {
+    	if (docTree.getSelectionPath() != null) {
+    		DefaultMutableTreeNode node = (DefaultMutableTreeNode) docTree.getSelectionPath().getLastPathComponent();
+    		Document doc = (Document) node.getUserObject();
+   			try {
+    			docMgr.deleteDocument(doc.getUri());
+    			removeSelectedDocument();
+    		} catch (ServiceException ex) {
+                ErrorUtil.showError(this.getParent(), ex);
+    		}
+    	}
+    }
+
+    private void onAddCollection() {
+    	//
+    }
+
+    private void onDeleteCollection() {
+    	//
+    }
+    
+    private void onDeleteDocuments() {
+    	//
+    }
+    
+    private void onAddDocumentToCollection() {
+    	//
+    }
+    
+    private void onRemoveDocumentFromCollection() {
+    	//
+    }
+    
     
     private class DocTreeCellRenderer extends DefaultTreeCellRenderer {
 

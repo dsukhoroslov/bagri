@@ -133,7 +133,7 @@ public class DocumentManagement extends SchemaFeatureManagement {
 			return result.get();
 		} catch (InterruptedException | ExecutionException ex) {
 			logger.error("getDocumentElements.error; ", ex);
-			return null; //new String[] {"Error: " + ex.getMessage()}; 
+			throw new RuntimeException(ex.getMessage());
 		}
 	}
 
@@ -151,8 +151,8 @@ public class DocumentManagement extends SchemaFeatureManagement {
 			}
 		} catch (XDMException ex) {
 			logger.error("getDocumentInfo.error: " + ex.getMessage(), ex);
+			throw new RuntimeException(ex.getMessage());
 		}
-		return null;
 	}
 	
 	@ManagedOperation(description="Return Document Content")
@@ -163,8 +163,8 @@ public class DocumentManagement extends SchemaFeatureManagement {
 			return docManager.getDocumentAsString(new XDMDocumentId(uri));
 		} catch (XDMException ex) {
 			logger.error("getDocumentXML.error: " + ex.getMessage(), ex);
+			throw new RuntimeException(ex.getMessage());
 		}
-		return null;
 	}
 
 	@Override
@@ -238,6 +238,7 @@ public class DocumentManagement extends SchemaFeatureManagement {
 				}
 			} catch (InterruptedException | ExecutionException ex) {
 				logger.error("clear.error; ", ex);
+				//throw new RuntimeException(ex.getMessage());
 			}
 		}
 		return result;
@@ -255,8 +256,8 @@ public class DocumentManagement extends SchemaFeatureManagement {
 			return doc.getDocumentKey();
 		} catch (IOException | XDMException ex) {
 			logger.error("registerDocument.error: " + ex.getMessage(), ex);
+			throw new RuntimeException(ex.getMessage());
 		}
-		return 0;
 	}
 	
 	@ManagedOperation(description="Updates already registerd Document")
@@ -273,8 +274,8 @@ public class DocumentManagement extends SchemaFeatureManagement {
 			return doc.getDocumentKey();
 		} catch (IOException | XDMException ex) {
 			logger.error("updateDocument.error: " + ex.getMessage(), ex);
+			throw new RuntimeException(ex.getMessage());
 		}
-		return 0;
 	}
 	
 	@ManagedOperation(description="Remove Document")
@@ -287,8 +288,8 @@ public class DocumentManagement extends SchemaFeatureManagement {
 			return true;
 		} catch (Exception ex) {
 			logger.error("removeDocument.error: " + ex.getMessage(), ex);
+			throw new RuntimeException(ex.getMessage());
 		}
-		return false;
 	}
 
 	private int processFilesInCatalog(Path catalog) {
@@ -301,10 +302,11 @@ public class DocumentManagement extends SchemaFeatureManagement {
 		            result += registerDocument(path.toString()); // file.getPath());
 		        }
 		    }
+		    return result;
 		} catch (IOException ex) {
 			logger.error("processFilesInCatalog.error: " + ex.getMessage(), ex);
+			throw new RuntimeException(ex.getMessage());
 		}
-	    return result;
 	}
 	
 	@ManagedOperation(description="Register Documents")

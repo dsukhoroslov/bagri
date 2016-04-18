@@ -99,14 +99,12 @@ public class DocumentServiceProvider implements DocumentManagementService {
         try {
             Object res = connection.invoke(getDocMgrObjectName(), "getCollectionDocuments", 
             		new Object[] {collection, null}, new String[] {String.class.getName(), String.class.getName()});
-    		LOGGER.info("got ids: " + res + " for collection " + collection);
             if (res != null) {
             	TabularData ids = (TabularData) res;
             	Set<List> keys = (Set<List>) ids.keySet();
             	for (List key: keys) {
             		Object[] index = key.toArray();
             		CompositeData idData = ids.get(index);
-            		LOGGER.info("idData: " + idData);
             		result.add(new Document((Long) idData.get("docKey"), (String) idData.get("uri")));
             	}
         	}
@@ -122,6 +120,7 @@ public class DocumentServiceProvider implements DocumentManagementService {
         try {
 			Long docKey = (Long) connection.invoke(getDocMgrObjectName(), "registerDocument", 
 					new Object[] {uri}, new String[] {String.class.getName()});
+			LOGGER.info("storeDocument; got docKey: " + docKey + " for uri " + FileUtil.getFileName(uri));
 			return new Document(docKey, FileUtil.getFileName(uri));
 		} catch (Exception ex) {
             LOGGER.throwing(this.getClass().getName(), "storeDocument", ex);
@@ -131,10 +130,12 @@ public class DocumentServiceProvider implements DocumentManagementService {
 
 	@Override
 	public boolean storeDocuments(String uri) throws ServiceException {
+		LOGGER.info("storeDocuments; got uri: " + uri);
         try {
-			connection.invoke(getDocMgrObjectName(), "registerDocuments", 
+			Integer cnt = (Integer) connection.invoke(getDocMgrObjectName(), "registerDocuments", 
 					new Object[] {uri}, new String[] {String.class.getName()});
-			return true;
+			LOGGER.info("storeDocuments; registered " + cnt + " documents");
+			return cnt > 0;
 		} catch (Exception ex) {
             LOGGER.throwing(this.getClass().getName(), "storeDocuments", ex);
             throw new ServiceException(ex);

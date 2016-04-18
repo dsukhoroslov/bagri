@@ -6,7 +6,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 
 public class ErrorUtil {
-    public static void showError(JComponent owner, Throwable th) {
+    public static void showError(Container owner, Throwable th) {
         Window w = WindowUtil.getWindowForComponent(owner);
         showError(w, th);
     }

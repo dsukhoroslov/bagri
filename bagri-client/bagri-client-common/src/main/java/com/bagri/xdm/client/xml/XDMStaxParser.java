@@ -218,8 +218,11 @@ public class XDMStaxParser extends XDMDataParser implements XDMParser {
 		for (Iterator<Namespace> itr = element.getNamespaces(); itr.hasNext();) {
 			Namespace ns = itr.next();
 			// TODO: process default namespace properly
-			String prefix = dict.translateNamespace(ns.getValue(), ns.getName().getLocalPart());
-			addData(current, XDMNodeKind.namespace, "/#" + prefix, ns.getValue(), XQItemType.XQBASETYPE_QNAME, XDMOccurence.onlyOne); 
+			String nspace = ns.getValue();
+			if (nspace != null) {
+				String prefix = dict.translateNamespace(nspace, ns.getName().getLocalPart());
+				addData(current, XDMNodeKind.namespace, "/#" + prefix, nspace, XQItemType.XQBASETYPE_QNAME, XDMOccurence.onlyOne);
+			}
 		}
 
 		for (Iterator<Attribute> itr = element.getAttributes(); itr.hasNext();) {
