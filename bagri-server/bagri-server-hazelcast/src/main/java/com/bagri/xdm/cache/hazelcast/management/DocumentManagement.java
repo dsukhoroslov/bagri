@@ -123,12 +123,12 @@ public class DocumentManagement extends SchemaFeatureManagement {
     
 	@ManagedOperation(description="Return Document Elements")
 	@ManagedOperationParameters({
-		@ManagedOperationParameter(name = "docId", description = "Internal Document identifier")})
-	public CompositeData getDocumentElements(long docId) {
+		@ManagedOperationParameter(name = "uri", description = "Document identifier")})
+	public CompositeData getDocumentElements(String uri) {
 		//
 		//docManager.
-		DocumentStructureProvider task = new DocumentStructureProvider(null, new XDMDocumentId(docId)); //??
-		Future<CompositeData> result = execService.submitToKeyOwner(task, docId);
+		DocumentStructureProvider task = new DocumentStructureProvider(null, new XDMDocumentId(uri)); //??
+		Future<CompositeData> result = execService.submitToKeyOwner(task, uri); //?!!
 		try {
 			return result.get();
 		} catch (InterruptedException | ExecutionException ex) {
@@ -246,13 +246,14 @@ public class DocumentManagement extends SchemaFeatureManagement {
 	    
 	@ManagedOperation(description="Register Document")
 	@ManagedOperationParameters({
-		@ManagedOperationParameter(name = "docFile", description = "A full path to XML file to register")})
-	public long registerDocument(String docFile) {
+		@ManagedOperationParameter(name = "docFile", description = "A full path to XML file to register"),
+		@ManagedOperationParameter(name = "properties", description = "A list of properties in key=value form separated by semicolon")})
+	public long registerDocument(String docFile, String properties) {
 		
 		String uri = Paths.get(docFile).getFileName().toString(); 
 		try {
 			String xml = FileUtils.readTextFile(docFile);
-			XDMDocument doc = docManager.storeDocumentFromString(new XDMDocumentId(uri), xml, null);
+			XDMDocument doc = docManager.storeDocumentFromString(new XDMDocumentId(uri), xml, propsFromString(properties));
 			return doc.getDocumentKey();
 		} catch (IOException | XDMException ex) {
 			logger.error("registerDocument.error: " + ex.getMessage(), ex);
@@ -262,15 +263,14 @@ public class DocumentManagement extends SchemaFeatureManagement {
 	
 	@ManagedOperation(description="Updates already registerd Document")
 	@ManagedOperationParameters({
-		@ManagedOperationParameter(name = "docId", description = "Registered Document identifier"),
 		@ManagedOperationParameter(name = "uri", description = "A new uri for the file or null"),
 		@ManagedOperationParameter(name = "docFile", description = "A full path to XML file to register"),
-		@ManagedOperationParameter(name = "properties", description = "A list of properties separated by ';'")})
-	public long updateDocument(long docId, String uri, String docFile, String properties) {
+		@ManagedOperationParameter(name = "properties", description = "A list of properties in key=value form separated by semicolon")})
+	public long updateDocument(String uri, String docFile, String properties) {
 
 		try {
 			String xml = FileUtils.readTextFile(docFile);
-			XDMDocument doc = docManager.storeDocumentFromString(new XDMDocumentId(docId, uri), xml, propsFromString(properties));
+			XDMDocument doc = docManager.storeDocumentFromString(new XDMDocumentId(uri), xml, propsFromString(properties));
 			return doc.getDocumentKey();
 		} catch (IOException | XDMException ex) {
 			logger.error("updateDocument.error: " + ex.getMessage(), ex);
@@ -281,10 +281,10 @@ public class DocumentManagement extends SchemaFeatureManagement {
 	@ManagedOperation(description="Remove Document")
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "docId", description = "Registered Document identifier")})
-	public boolean removeDocument(long docId) {
+	public boolean removeDocument(String uri) {
 		
 		try {
-			docManager.removeDocument(new XDMDocumentId(docId));
+			docManager.removeDocument(new XDMDocumentId(uri));
 			return true;
 		} catch (Exception ex) {
 			logger.error("removeDocument.error: " + ex.getMessage(), ex);
@@ -292,14 +292,17 @@ public class DocumentManagement extends SchemaFeatureManagement {
 		}
 	}
 
-	private int processFilesInCatalog(Path catalog) {
+	private int processFilesInCatalog(Path catalog, String properties) {
 		int result = 0;
+		// TODO: think about allowed extensions..
 		try (DirectoryStream<Path> stream = Files.newDirectoryStream(catalog, "*.xml")) {
 		    for (Path path: stream) {
 		        if (Files.isDirectory(path)) {
-		            result += processFilesInCatalog(path);
+		            result += processFilesInCatalog(path, properties);
 		        } else {
-		            result += registerDocument(path.toString()); // file.getPath());
+		            if (registerDocument(path.toString(), properties) > 0) {
+		            	result++;
+		            }
 		        }
 		    }
 		    return result;
@@ -311,10 +314,11 @@ public class DocumentManagement extends SchemaFeatureManagement {
 	
 	@ManagedOperation(description="Register Documents")
 	@ManagedOperationParameters({
-		@ManagedOperationParameter(name = "catalog", description = "A full path to directory containing XML files to register")})
-	public int registerDocuments(String path) {
+		@ManagedOperationParameter(name = "path", description = "A full path to directory containing XML files to register"),
+		@ManagedOperationParameter(name = "properties", description = "A list of properties in key=value form separated by semicolon")})
+	public int registerDocuments(String path, String properties) {
 		Path catalog = Paths.get(path);
-		return processFilesInCatalog(catalog);	
+		return processFilesInCatalog(catalog, properties);	
 	}
 
 	@ManagedAttribute(description="Returns aggregated DocumentManagement invocation statistics, per method")
@@ -330,12 +334,12 @@ public class DocumentManagement extends SchemaFeatureManagement {
 	
 	@ManagedOperation(description="Add Document to Collection")
 	@ManagedOperationParameters({
-		@ManagedOperationParameter(name = "docId", description = "Document identifier"),
+		@ManagedOperationParameter(name = "uri", description = "Document identifier"),
 		@ManagedOperationParameter(name = "clnName", description = "Collection name")})
-	public int addDocumentToCollection(long docId, String clnName) {
+	public int addDocumentToCollection(String uri, String clnName) {
 		XDMCollection cln = this.schemaManager.getEntity().getCollection(clnName);
 		if (cln != null) {
-			return docManager.addDocumentToCollections(new XDMDocumentId(docId), new String[] {clnName});
+			return docManager.addDocumentToCollections(new XDMDocumentId(uri), new String[] {clnName});
 		}
 		logger.info("addDocumentToCollection; no collection found for name: {}", clnName);
 		return 0;
@@ -343,12 +347,12 @@ public class DocumentManagement extends SchemaFeatureManagement {
 
 	@ManagedOperation(description="Remove Document from Collection")
 	@ManagedOperationParameters({
-		@ManagedOperationParameter(name = "docId", description = "Document identifier"),
+		@ManagedOperationParameter(name = "uri", description = "Document identifier"),
 		@ManagedOperationParameter(name = "clnName", description = "Collection name")})
-	public int removeDocumentFromCollection(long docId, String clnName) {
+	public int removeDocumentFromCollection(String uri, String clnName) {
 		XDMCollection cln = this.schemaManager.getEntity().getCollection(clnName);
 		if (cln != null) {
-			return docManager.removeDocumentFromCollections(new XDMDocumentId(docId), new String[] {clnName});
+			return docManager.removeDocumentFromCollections(new XDMDocumentId(uri), new String[] {clnName});
 		}
 		logger.info("removeDocumentFromCollection; no collection found for name: {}", clnName);
 		return 0;
@@ -357,7 +361,7 @@ public class DocumentManagement extends SchemaFeatureManagement {
 	@ManagedOperation(description="Return Documents which belongs to Collection")
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "clnName", description = "Collection name"),
-		@ManagedOperationParameter(name = "props", description = "Comma-separated list of fetch properties")})
+		@ManagedOperationParameter(name = "props", description = "A list of properties in key=value form separated by semicolon")})
 	public TabularData getCollectionDocuments(String clName, String props) {
 		if (clName != null) {
 			XDMCollection cln = this.schemaManager.getEntity().getCollection(clName);

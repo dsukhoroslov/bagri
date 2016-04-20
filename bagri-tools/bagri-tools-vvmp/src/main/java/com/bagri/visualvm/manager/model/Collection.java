@@ -15,13 +15,12 @@ public class Collection implements Comparable<Collection> {
 	private int eltCount;
 	private int fraCount;
 	private long byteSize;
-	private double avgEltSize;
-	private double avgByteSize;
+	private int avgEltSize;
+	private int avgByteSize;
 	
 	
-	public Collection(String name, String description, String createdAt, String createdBy, int id, int version,
-			String docType, boolean enabled, int docCount, int eltCount, int fraCount, long byteSize, double avgByteSize,
-			double avgEltSize) {
+	public Collection(String name, String description, String createdAt, String createdBy, int id, int version,	String docType, 
+			boolean enabled, int docCount, int eltCount, int fraCount, long byteSize, int avgByteSize, int avgEltSize) {
 		super();
 		this.name = name;
 		this.description = description;
@@ -126,14 +125,14 @@ public class Collection implements Comparable<Collection> {
 	/**
 	 * @return the avgEltSize
 	 */
-	public double getAvgEltSize() {
+	public int getAvgEltSize() {
 		return avgEltSize;
 	}
 
 	/**
 	 * @return the avgByteSize
 	 */
-	public double getAvgByteSize() {
+	public int getAvgByteSize() {
 		return avgByteSize;
 	}
 

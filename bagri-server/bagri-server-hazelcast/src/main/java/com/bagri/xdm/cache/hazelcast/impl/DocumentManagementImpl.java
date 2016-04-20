@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.StringTokenizer;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
@@ -508,15 +509,14 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		if (props != null) {
 			String prop = props.getProperty(xdm_document_collections);
 			if (prop != null) {
-				String[] clns = prop.split(", ");
-				if (clns.length > 0) {
-					for (String clName: clns) {
-						XDMCollection cln = repo.getSchema().getCollection(clName);
-						logger.trace("checkDocumentCollections; got collection: {} for name: {}", cln, clName);
-						if (cln != null) {
-							doc.addCollection(cln.getId());
-							result.add(clName);
-						}
+				StringTokenizer tc = new StringTokenizer(prop, ", ", false);
+				while (tc.hasMoreTokens()) {
+					String clName = tc.nextToken();
+					XDMCollection cln = repo.getSchema().getCollection(clName);
+					logger.trace("checkDocumentCollections; got collection: {} for name: {}", cln, clName);
+					if (cln != null) {
+						doc.addCollection(cln.getId());
+						result.add(clName);
 					}
 				}
 			}

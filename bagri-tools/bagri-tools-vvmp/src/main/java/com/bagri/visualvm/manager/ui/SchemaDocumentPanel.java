@@ -5,6 +5,7 @@ import static com.bagri.visualvm.manager.util.Icons.DOCUMENT_ICON;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -15,6 +16,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
@@ -55,6 +57,7 @@ import com.bagri.visualvm.manager.util.ErrorUtil;
 public class SchemaDocumentPanel extends JPanel {
 	
     private static final Logger LOGGER = Logger.getLogger(SchemaDocumentPanel.class.getName());
+    private static final String all_docs = "All Documents";
     
     private final DocumentManagementService docMgr;
     private final EventBus<ApplicationEvent> eventBus;
@@ -69,6 +72,7 @@ public class SchemaDocumentPanel extends JPanel {
     private JTextArea contentArea;
     private JSplitPane mgrSplitter;
     private String currentPath = null;
+    private List<Collection> collections = null;
     
     public SchemaDocumentPanel(String schemaName, SchemaManagementService schemaService, EventBus<ApplicationEvent> eventBus) {
     	super(new BorderLayout());
@@ -92,7 +96,7 @@ public class SchemaDocumentPanel extends JPanel {
 
         // "Add Documents" button
         JButton addDocs = new JButton("Add Documents");
-        addDocs.setToolTipText("Register bunch of document from directory...");
+        addDocs.setToolTipText("Register bunch of documents from directory...");
         addDocs.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -189,13 +193,13 @@ public class SchemaDocumentPanel extends JPanel {
     	docTree = new JTree();
         docTree.setCellRenderer(new DocTreeCellRenderer());
         DefaultMutableTreeNode root = new DefaultMutableTreeNode(schemaName);
-        DefaultMutableTreeNode all = new DefaultMutableTreeNode("All Documents");
+        DefaultMutableTreeNode all = new DefaultMutableTreeNode(all_docs);
         root.add(all);
         // fill all docs tree...
-        int cnt = fillCollectionDocuments(all, null);
-        all.setUserObject(new Collection("All Documents", "All Schema Documents", "", "", 0, 0, "", true, cnt, 0, 0, 0, 0.0, 0.0));
+        int cnt = fillCollectionDocuments(all, all_docs);
+        all.setUserObject(new Collection(all_docs, "All Schema Documents", "", "", 0, 0, "", true, cnt, 0, 0, 0, 0, 0));
 
-        List<Collection> collections = null;
+        //List<Collection> collections = null;
         try {
 			collections = docMgr.getCollections();
 		} catch (ServiceException ex) {
@@ -398,33 +402,97 @@ public class SchemaDocumentPanel extends JPanel {
     	mgrSplitter.setRightComponent(docPanel);
     }
     
-    private void insertDocument(Document doc) {
+    private DefaultMutableTreeNode getCollectionNode(String collection) {
     	Object root = docTree.getModel().getRoot();
-    	DefaultMutableTreeNode allDocs = (DefaultMutableTreeNode) docTree.getModel().getChild(root, 0);
-    	int idx = 0;
-    	Enumeration en = allDocs.children();
-    	while (en.hasMoreElements()) {
-    		DefaultMutableTreeNode child = (DefaultMutableTreeNode) en.nextElement();
-    		Document exDoc = (Document) child.getUserObject();
-    		if (doc.compareTo(exDoc) < 0) {
-                DefaultMutableTreeNode node = new DefaultMutableTreeNode(doc);
-                ((DefaultTreeModel) docTree.getModel()).insertNodeInto(node, allDocs, idx);
-                docTree.setSelectionPaths(new TreePath[] {new TreePath(node.getPath())});
-    			return;
-    		} 
-    		idx++;
+    	int cnt = docTree.getModel().getChildCount(root);
+    	for (int i=0; i < cnt; i++) {
+    		DefaultMutableTreeNode node = (DefaultMutableTreeNode) docTree.getModel().getChild(root, i);
+    		if (collection.equals(((Collection) node.getUserObject()).getName())) {
+    			return node;
+    		}
     	}
-        DefaultMutableTreeNode node = new DefaultMutableTreeNode(doc);
-        ((DefaultTreeModel) docTree.getModel()).insertNodeInto(node, allDocs, allDocs.getChildCount());
-        docTree.setSelectionPaths(new TreePath[] {new TreePath(node.getPath())});
+    	return null;
+    }
+    
+    private void insertDocument(Document doc, String collection) {
+    	DefaultMutableTreeNode parent = getCollectionNode(collection);
+    	if (parent != null) {
+	    	int idx = 0;
+	    	Enumeration en = parent.children();
+	    	while (en.hasMoreElements()) {
+	    		DefaultMutableTreeNode child = (DefaultMutableTreeNode) en.nextElement();
+	    		Document exDoc = (Document) child.getUserObject();
+	    		if (doc.compareTo(exDoc) < 0) {
+	    			break;
+	    		} 
+	    		idx++;
+	    	}
+
+	        DefaultMutableTreeNode node = new DefaultMutableTreeNode(doc);
+	        ((DefaultTreeModel) docTree.getModel()).insertNodeInto(node, parent, idx);
+	        docTree.setSelectionPaths(new TreePath[] {new TreePath(node.getPath())});
+	        try {
+	        	Collection cln = docMgr.getCollection(collection);
+	        	if (cln != null) {
+	            	parent.setUserObject(cln);
+	        		((DefaultTreeModel) docTree.getModel()).reload(parent);
+	            	// TODO: set it in collections too..?
+	        	}
+	        } catch (ServiceException ex) {
+	            ErrorUtil.showError(this.getParent(), ex);
+	        }
+    	} else {
+    		LOGGER.info("insertDocument; no node found for collection: " + collection);
+    	}
+    }
+    
+    
+    private void insertDocument(Document doc, java.util.Collection<String> collections) {
+    	setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+    	try {
+	    	if (collections != null) {
+	    		for (String collection: collections) {
+	    			insertDocument(doc, collection);
+	    		}
+	    	}
+	    	insertDocument(doc, all_docs);
+    	} finally {
+    		setCursor(Cursor.getDefaultCursor());
+    	}
     }
 
-	private void refreshDocuments() {
-    	Object root = docTree.getModel().getRoot();
-    	DefaultMutableTreeNode allDocs = (DefaultMutableTreeNode) docTree.getModel().getChild(root, 0);
-    	allDocs.removeAllChildren();
-    	fillCollectionDocuments(allDocs, null);
-    	((DefaultTreeModel) docTree.getModel()).reload(allDocs);
+	private void refreshDocuments(String collection) {
+    	DefaultMutableTreeNode parent = getCollectionNode(collection);
+    	if (parent != null) {
+    		parent.removeAllChildren();
+    		fillCollectionDocuments(parent, collection);
+	        try {
+	        	Collection cln = docMgr.getCollection(collection);
+	        	if (cln != null) {
+	            	parent.setUserObject(cln);
+	        		((DefaultTreeModel) docTree.getModel()).reload(parent);
+	            	// TODO: set it in collections too..?
+	        	}
+	        } catch (ServiceException ex) {
+	            ErrorUtil.showError(this.getParent(), ex);
+	        }
+    	} else {
+    		LOGGER.info("refreshDocuments; no node found for collection: " + collection);
+    	}
+	}
+
+	private void refreshDocuments(java.util.Collection<String> collections) {
+    	setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+    	try {
+	    	if (collections != null) {
+	    		for (String collection: collections) {
+	    			refreshDocuments(collection);
+	    		}
+	    	}
+	    	refreshDocuments(all_docs);
+    	} finally {
+    		setCursor(Cursor.getDefaultCursor());
+    	}
 	}
 	
 	private void removeSelectedDocument() {
@@ -440,6 +508,14 @@ public class SchemaDocumentPanel extends JPanel {
 		((DefaultTreeModel) docTree.getModel()).removeNodeFromParent(selectedNode);
         docTree.setSelectionPaths(new TreePath[] {new TreePath(nextNode.getPath())});
 	}
+	
+	private List<String> getCollectionNames() {
+		List<String> names = new ArrayList<>(collections.size());
+		for (Collection cln: collections) {
+			names.add(cln.getName());
+		}
+		return names;
+	}
 
     // --- Event Handlers --- //
     private void onAddDocument() {
@@ -451,12 +527,21 @@ public class SchemaDocumentPanel extends JPanel {
         if (currentPath != null) {
         	chooser.setCurrentDirectory(new File(currentPath));
         }
+        CollectionPanel cp = null;
+        if (collections != null) {
+        	cp = new CollectionPanel(getCollectionNames());
+        	chooser.setAccessory(cp);
+        }
         int returnVal = chooser.showOpenDialog(this.getParent());
         if (returnVal == JFileChooser.APPROVE_OPTION) {
         	currentPath = chooser.getCurrentDirectory().getAbsolutePath();
+    		java.util.Collection<String> clns = null;
+    		if (cp != null) {
+    			clns = cp.getSelectedCollections();
+    		}
         	try {
-				Document doc = docMgr.storeDocument(chooser.getSelectedFile().getAbsolutePath());
-				insertDocument(doc);
+				Document doc = docMgr.storeDocument(chooser.getSelectedFile().getAbsolutePath(), clns);
+				insertDocument(doc, clns);
         	} catch (ServiceException ex) {
                 ErrorUtil.showError(this.getParent(), ex);
 			}
@@ -470,12 +555,21 @@ public class SchemaDocumentPanel extends JPanel {
         if (currentPath != null) {
         	chooser.setCurrentDirectory(new File(currentPath));
         }
+        CollectionPanel cp = null;
+        if (collections != null) {
+        	cp = new CollectionPanel(getCollectionNames());
+        	chooser.setAccessory(cp);
+        }
         int returnVal = chooser.showOpenDialog(this.getParent());
         if (returnVal == JFileChooser.APPROVE_OPTION) {
         	currentPath = chooser.getCurrentDirectory().getAbsolutePath();
+    		java.util.Collection<String> clns = null;
+    		if (cp != null) {
+    			clns = cp.getSelectedCollections();
+    		}
         	try {
-				if (docMgr.storeDocuments(chooser.getSelectedFile().getAbsolutePath())) {
-					refreshDocuments();
+				if (docMgr.storeDocuments(chooser.getSelectedFile().getAbsolutePath(), clns)) {
+					refreshDocuments(clns);
 				}
         	} catch (Exception ex) {
                 ErrorUtil.showError(this.getParent(), ex);
@@ -489,6 +583,7 @@ public class SchemaDocumentPanel extends JPanel {
     		Document doc = (Document) node.getUserObject();
    			try {
     			docMgr.deleteDocument(doc.getUri());
+    			// TODO: delete it from all collections!
     			removeSelectedDocument();
     		} catch (ServiceException ex) {
                 ErrorUtil.showError(this.getParent(), ex);

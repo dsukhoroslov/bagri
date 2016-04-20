@@ -8,12 +8,16 @@ import javax.management.openmbean.CompositeData;
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.common.stats.StatisticsEvent;
 import com.bagri.common.stats.UsageStatistics;
+import com.bagri.common.stats.StatisticsCollector.Statistics;
 import com.bagri.common.stats.StatisticsEvent.EventType;
 
 public class DocumentStatistics extends UsageStatistics {
 
+	private static final String all_docs = "All Documents";
+	
 	public DocumentStatistics(String name) {
 		super(name);
+		this.initStatistics(all_docs);
 	}
 
 	@Override
@@ -23,17 +27,24 @@ public class DocumentStatistics extends UsageStatistics {
 
 	@Override
 	public CompositeData getStatisticTotals() {
-		DocUsageStatistics result = new DocUsageStatistics();
-        for (Map.Entry<String, Statistics> entry: stats.entrySet()) {
-            DocUsageStatistics sts = (DocUsageStatistics) entry.getValue();
-            result.size += sts.size;
-            result.count += sts.count;
-            result.elements += sts.elements;
-            result.fragments += sts.fragments;
-        }
+		DocUsageStatistics result = (DocUsageStatistics) stats.get(all_docs);
+		//new DocUsageStatistics();
+        //for (Map.Entry<String, Statistics> entry: stats.entrySet()) {
+        //    DocUsageStatistics sts = (DocUsageStatistics) entry.getValue();
+        //    result.size += sts.size;
+        //    result.count += sts.count;
+        //    result.elements += sts.elements;
+        //    result.fragments += sts.fragments;
+        //}
         return JMXUtils.mapToComposite(name, "DocsStats", result.toMap());
 	}
-	
+
+	@Override
+	protected void updateStatistics(StatisticsEvent event) {
+		super.updateStatistics(event);
+		StatisticsEvent total = new StatisticsEvent(all_docs, event.isSuccess(), event.getCount(), event.getTimestamp());
+		super.updateStatistics(total);
+	}
 	
 	private class DocUsageStatistics implements Statistics {
 		
