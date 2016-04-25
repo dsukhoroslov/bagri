@@ -74,7 +74,13 @@ public class BagriOverview extends DataSourceViewPlugin {
         c.setResizable(true);
         configs.add(c);
         c = new ColumnConfig();
-        c.setHeader("Persistence type");
+        c.setHeader("Persistent");
+        c.setColumnClass(String.class);
+        c.setWidth(50);
+        c.setResizable(true);
+        configs.add(c);
+        c = new ColumnConfig();
+        c.setHeader("Data format");
         c.setColumnClass(String.class);
         c.setWidth(40);
         c.setResizable(true);
@@ -118,7 +124,8 @@ public class BagriOverview extends DataSourceViewPlugin {
 	                    		schema.isActive() ? "Yes" : "No"
 	                            , schema.getSchemaName()
 	                            , schema.getDescription()
-	                            , schema.getPersistenceType()
+	                            , schema.isPersistent() ? "Yes" : "No"
+	                            , schema.getDataFormat()
 	                            , schema.getState()
 	                            , schema.getProperties().getProperty("xdm.schema.members")
 	                            , "N/A"}));

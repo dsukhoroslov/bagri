@@ -49,6 +49,7 @@ import com.bagri.visualvm.manager.event.ApplicationEvent;
 import com.bagri.visualvm.manager.event.EventBus;
 import com.bagri.visualvm.manager.model.Collection;
 import com.bagri.visualvm.manager.model.Document;
+import com.bagri.visualvm.manager.model.Schema;
 import com.bagri.visualvm.manager.service.DocumentManagementService;
 import com.bagri.visualvm.manager.service.SchemaManagementService;
 import com.bagri.visualvm.manager.service.ServiceException;
@@ -61,7 +62,7 @@ public class SchemaDocumentPanel extends JPanel {
     
     private final DocumentManagementService docMgr;
     private final EventBus<ApplicationEvent> eventBus;
-    private final String schemaName; 
+    private final Schema schema; 
 
     private JTree docTree;
     private JPanel clnPanel = null;
@@ -74,11 +75,11 @@ public class SchemaDocumentPanel extends JPanel {
     private String currentPath = null;
     private List<Collection> collections = null;
     
-    public SchemaDocumentPanel(String schemaName, SchemaManagementService schemaService, EventBus<ApplicationEvent> eventBus) {
+    public SchemaDocumentPanel(Schema schema, SchemaManagementService schemaService, EventBus<ApplicationEvent> eventBus) {
     	super(new BorderLayout());
-        this.schemaName = schemaName;
+        this.schema = schema;
         this.eventBus = eventBus;
-        this.docMgr = schemaService.getDocumentManagement(schemaName);
+        this.docMgr = schemaService.getDocumentManagement(schema.getSchemaName());
 
         JToolBar docToolbar = new JToolBar();
 
@@ -192,17 +193,16 @@ public class SchemaDocumentPanel extends JPanel {
     	
     	docTree = new JTree();
         docTree.setCellRenderer(new DocTreeCellRenderer());
-        DefaultMutableTreeNode root = new DefaultMutableTreeNode(schemaName);
-        DefaultMutableTreeNode all = new DefaultMutableTreeNode(all_docs);
-        root.add(all);
-        // fill all docs tree...
-        int cnt = fillCollectionDocuments(all, all_docs);
-        all.setUserObject(new Collection(all_docs, "All Schema Documents", "", "", 0, 0, "", true, cnt, 0, 0, 0, 0, 0));
+        DefaultMutableTreeNode root = new DefaultMutableTreeNode(schema.getSchemaName());
 
-        //List<Collection> collections = null;
         try {
+			Collection allCln = docMgr.getCollection(all_docs);
+	        DefaultMutableTreeNode all = new DefaultMutableTreeNode(allCln);
+	        root.add(all);
+	        // fill all docs tree...
+	        fillCollectionDocuments(all, all_docs);
 			collections = docMgr.getCollections();
-		} catch (ServiceException ex) {
+        } catch (ServiceException ex) {
             LOGGER.throwing(this.getClass().getName(), "createDocumentTreePanel", ex);
 		}
         
@@ -414,6 +414,18 @@ public class SchemaDocumentPanel extends JPanel {
     	return null;
     }
     
+    private void refreshCollection(DefaultMutableTreeNode clnNode, String collection) {
+        try {
+        	Collection cln = docMgr.getCollection(collection);
+        	if (cln != null) {
+        		clnNode.setUserObject(cln);
+        		((DefaultTreeModel) docTree.getModel()).reload(clnNode);
+        	}
+        } catch (ServiceException ex) {
+            ErrorUtil.showError(this.getParent(), ex);
+        }
+    }
+    
     private void insertDocument(Document doc, String collection) {
     	DefaultMutableTreeNode parent = getCollectionNode(collection);
     	if (parent != null) {
@@ -430,17 +442,8 @@ public class SchemaDocumentPanel extends JPanel {
 
 	        DefaultMutableTreeNode node = new DefaultMutableTreeNode(doc);
 	        ((DefaultTreeModel) docTree.getModel()).insertNodeInto(node, parent, idx);
+	        refreshCollection(parent, collection);
 	        docTree.setSelectionPaths(new TreePath[] {new TreePath(node.getPath())});
-	        try {
-	        	Collection cln = docMgr.getCollection(collection);
-	        	if (cln != null) {
-	            	parent.setUserObject(cln);
-	        		((DefaultTreeModel) docTree.getModel()).reload(parent);
-	            	// TODO: set it in collections too..?
-	        	}
-	        } catch (ServiceException ex) {
-	            ErrorUtil.showError(this.getParent(), ex);
-	        }
     	} else {
     		LOGGER.info("insertDocument; no node found for collection: " + collection);
     	}
@@ -466,16 +469,7 @@ public class SchemaDocumentPanel extends JPanel {
     	if (parent != null) {
     		parent.removeAllChildren();
     		fillCollectionDocuments(parent, collection);
-	        try {
-	        	Collection cln = docMgr.getCollection(collection);
-	        	if (cln != null) {
-	            	parent.setUserObject(cln);
-	        		((DefaultTreeModel) docTree.getModel()).reload(parent);
-	            	// TODO: set it in collections too..?
-	        	}
-	        } catch (ServiceException ex) {
-	            ErrorUtil.showError(this.getParent(), ex);
-	        }
+    		refreshCollection(parent, collection);
     	} else {
     		LOGGER.info("refreshDocuments; no node found for collection: " + collection);
     	}
@@ -521,8 +515,8 @@ public class SchemaDocumentPanel extends JPanel {
     private void onAddDocument() {
     	JFileChooser chooser = new JFileChooser();
     	chooser.setDialogTitle("Select File");
-        FileNameExtensionFilter filter = new FileNameExtensionFilter(
-            "XML & JSON Documents", "json", "xml");
+    	String docType = schema.getDataFormat();
+        FileNameExtensionFilter filter = new FileNameExtensionFilter(docType + " Documents", docType.toLowerCase());
         chooser.setFileFilter(filter);
         if (currentPath != null) {
         	chooser.setCurrentDirectory(new File(currentPath));

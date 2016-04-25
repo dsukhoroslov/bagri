@@ -102,12 +102,6 @@
 			</hz:map>
 			<hz:map name="xdm-element" in-memory-format="BINARY" async-backup-count="${xdm.schema.data.backup.async}" 
 				backup-count="${xdm.schema.data.backup.sync}" read-backup-data="${xdm.schema.data.backup.read}">
-				<!--hz:map-store enabled="true" write-delay-seconds="10" factory-implementation="xdmStoreFactory">
-					<hz:properties>
-						<hz:property name="xdm.schema.name">${xdm.schema.name}</hz:property>
-						<hz:property name="xdm.schema.store.type">${xdm.schema.store.type}</hz:property>
-					</hz:properties>
-				</hz:map-store-->
 				<hz:indexes>
 					<!--hz:index attribute="documentId"/-->
 					<hz:index attribute="pathId" ordered="true"/>

@@ -8,9 +8,10 @@ public class Schema implements Comparable<Schema> {
     private ObjectName objectName;
     private String schemaName;
     private String description;
-    private String persistenceType;
+    private String dataFormat;
     private String state;
     private boolean active;
+    private boolean persistent;
     private int version;
     private String[] registeredTypes;
     private Properties properties;
@@ -43,12 +44,12 @@ public class Schema implements Comparable<Schema> {
         this.description = description;
     }
 
-    public String getPersistenceType() {
-        return persistenceType;
+    public String getDataFormat() {
+        return dataFormat;
     }
 
-    public void setPersistenceType(String persistenceType) {
-        this.persistenceType = persistenceType;
+    public void setDataFormat(String dataFormat) {
+        this.dataFormat = dataFormat;
     }
 
     public String getState() {
@@ -65,6 +66,14 @@ public class Schema implements Comparable<Schema> {
 
     public void setActive(boolean active) {
         this.active = active;
+    }
+
+    public boolean isPersistent() {
+        return persistent;
+    }
+
+    public void setPersistent(boolean persistent) {
+        this.persistent = persistent;
     }
 
     public int getVersion() {
@@ -98,12 +107,17 @@ public class Schema implements Comparable<Schema> {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+        	return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+        	return false;
+        }
 
-        Schema schema = (Schema) o;
-
-        if (!schemaName.equals(schema.schemaName)) return false;
+        Schema other = (Schema) o;
+        if (!schemaName.equals(other.schemaName)) {
+        	return false;
+        }
 
         return true;
     }

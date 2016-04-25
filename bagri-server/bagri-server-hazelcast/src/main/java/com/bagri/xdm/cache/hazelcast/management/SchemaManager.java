@@ -140,17 +140,15 @@ public class SchemaManager extends EntityManager<XDMSchema> implements XDMHealth
 	//	flushEntity(schema);
 	//}
 	
-	@ManagedAttribute(description="Returns Schema persistence type")
-	public String getPersistenceType() {
-		String result = getEntity().getProperty(xdm_schema_store_enabled);
-		if (!"true".equalsIgnoreCase(result)) {
-			return "NONE";
-		}
-		result = getEntity().getProperty(xdm_schema_store_type);
-		if (result == null) {
-			return "NONE";
-		}
-		return result;
+	@ManagedAttribute(description="Returns true if Schema persist its documents")
+	public boolean isPersistent() {
+		String value = getEntity().getProperty(xdm_schema_store_enabled);
+		return "true".equalsIgnoreCase(value);
+	}
+
+	@ManagedAttribute(description="Returns Schema persistence format")
+	public String getDataFormat() {
+		return getEntity().getProperty(xdm_schema_store_type);
 	}
 
 	@ManagedAttribute(description="Returns Schema health state")
@@ -320,7 +318,7 @@ public class SchemaManager extends EntityManager<XDMSchema> implements XDMHealth
 	
 	@ManagedOperation(description="Initiates schema population process")
 	public void populateSchema() {
-		if ("NONE".equals(getPersistenceType())) {
+		if (!isPersistent()) {
 			// throw ex?
 			return;
 		}

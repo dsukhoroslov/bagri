@@ -9,24 +9,6 @@ public class UsageStatistics extends StatisticsCollector implements StatisticsPr
 	public UsageStatistics(String name) {
 		super(name);
 	}
-/*	
-	@Override
-	public TabularData getStatisticSeries() {
-        TabularData result = null;
-        for (Map.Entry<String, ResourceUsageStats> entry: rStats.entrySet()) {
-            try {
-                Map<String, Object> stats = entry.getValue().toMap();
-                stats.put(sn_Resource, entry.getKey());
-                CompositeData data = JMXUtils.mapToComposite(sn_Name, sn_Header, stats);
-                result = JMXUtils.compositeToTabular(sn_Name, sn_Header, sn_Resource, result, data);
-            } catch (Exception ex) {
-                //logger.error("getStatisticSeries; error", ex);
-            }
-        }
-        //logger.trace("getStatisticSeries.exit; returning: {}", result);
-        return result;
-    }
-*/
 
 	@Override
 	protected Statistics createStatistics(String name) {

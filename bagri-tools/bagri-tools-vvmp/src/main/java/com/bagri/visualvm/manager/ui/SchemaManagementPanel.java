@@ -99,7 +99,13 @@ public class SchemaManagementPanel extends JPanel {
         c.setResizable(true);
         configs.add(c);
         c = new ColumnConfig();
-        c.setHeader("Persistence type");
+        c.setHeader("Persistent");
+        c.setColumnClass(Boolean.class);
+        c.setWidth(40);
+        c.setResizable(true);
+        configs.add(c);
+        c = new ColumnConfig();
+        c.setHeader("Data format");
         c.setColumnClass(String.class);
         c.setWidth(40);
         c.setResizable(true);
@@ -134,7 +140,8 @@ public class SchemaManagementPanel extends JPanel {
                     rows.add(new DefaultGridRow(schema.getObjectName(), new Object[]{
                             schema.getSchemaName()
                             , schema.getDescription()
-                            , schema.getPersistenceType()
+                            , schema.isPersistent()
+                            , schema.getDataFormat()
                             , schema.getState()
                             , schema.isActive()
                     }));

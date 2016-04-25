@@ -269,8 +269,8 @@ public class DocumentManagement extends SchemaFeatureManagement {
 	public long updateDocument(String uri, String docFile, String properties) {
 
 		try {
-			String xml = FileUtils.readTextFile(docFile);
-			XDMDocument doc = docManager.storeDocumentFromString(new XDMDocumentId(uri), xml, propsFromString(properties));
+			String content = FileUtils.readTextFile(docFile);
+			XDMDocument doc = docManager.storeDocumentFromString(new XDMDocumentId(uri), content, propsFromString(properties));
 			return doc.getDocumentKey();
 		} catch (IOException | XDMException ex) {
 			logger.error("updateDocument.error: " + ex.getMessage(), ex);
@@ -294,8 +294,8 @@ public class DocumentManagement extends SchemaFeatureManagement {
 
 	private int processFilesInCatalog(Path catalog, String properties) {
 		int result = 0;
-		// TODO: think about allowed extensions..
-		try (DirectoryStream<Path> stream = Files.newDirectoryStream(catalog, "*.xml")) {
+		String docType = schemaManager.getDataFormat();
+		try (DirectoryStream<Path> stream = Files.newDirectoryStream(catalog, "*." + docType.toLowerCase())) {
 		    for (Path path: stream) {
 		        if (Files.isDirectory(path)) {
 		            result += processFilesInCatalog(path, properties);
@@ -350,7 +350,7 @@ public class DocumentManagement extends SchemaFeatureManagement {
 		@ManagedOperationParameter(name = "uri", description = "Document identifier"),
 		@ManagedOperationParameter(name = "clnName", description = "Collection name")})
 	public int removeDocumentFromCollection(String uri, String clnName) {
-		XDMCollection cln = this.schemaManager.getEntity().getCollection(clnName);
+		XDMCollection cln = schemaManager.getEntity().getCollection(clnName);
 		if (cln != null) {
 			return docManager.removeDocumentFromCollections(new XDMDocumentId(uri), new String[] {clnName});
 		}
@@ -363,8 +363,8 @@ public class DocumentManagement extends SchemaFeatureManagement {
 		@ManagedOperationParameter(name = "clnName", description = "Collection name"),
 		@ManagedOperationParameter(name = "props", description = "A list of properties in key=value form separated by semicolon")})
 	public TabularData getCollectionDocuments(String clName, String props) {
-		if (clName != null) {
-			XDMCollection cln = this.schemaManager.getEntity().getCollection(clName);
+		if (clName != null && !"All Documents".equals(clName)) {
+			XDMCollection cln = schemaManager.getEntity().getCollection(clName);
 			if (cln == null) {
 				logger.info("getCollectionDocuments; got unknown collection: {}", clName);
 				return null;

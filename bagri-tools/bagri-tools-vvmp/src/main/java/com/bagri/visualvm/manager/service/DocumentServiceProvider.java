@@ -80,7 +80,15 @@ public class DocumentServiceProvider implements DocumentManagementService {
 	public Collection getCollection(String collection) throws ServiceException {
         try {
         	ObjectName on = getDocMgrObjectName();
-            Object res = connection.getAttribute(on, "Collections");
+			if ("All Documents".equals(collection)) {
+	            Object res = connection.getAttribute(on, "TotalCounts");
+        		CompositeData stsData = (CompositeData) res;
+		        return new Collection("All Documents", "All Schema Documents", "", "", 0, 0, "", true, (Integer) stsData.get("Number of documents"), 
+		        		(Integer) stsData.get("Number of elements"), (Integer) stsData.get("Number of fragments"), (Long) stsData.get("Consumed size"), 
+		        		((Double) stsData.get("Avg size (bytes)")).intValue(), ((Double) stsData.get("Avg size (elmts)")).intValue());
+			}
+			
+        	Object res = connection.getAttribute(on, "Collections");
             if (res != null) {
 	            TabularData clns = (TabularData) res;
 	        	Set<List> keys = (Set<List>) clns.keySet();
@@ -126,6 +134,9 @@ public class DocumentServiceProvider implements DocumentManagementService {
 	public List<Document> getDocuments(String collection) throws ServiceException {
         List<Document> result = new ArrayList<>();
         try {
+        	if ("All Documents".equals(collection)) {
+        		collection = null;
+        	}
             Object res = connection.invoke(getDocMgrObjectName(), "getCollectionDocuments", 
             		new Object[] {collection, null}, new String[] {String.class.getName(), String.class.getName()});
             if (res != null) {

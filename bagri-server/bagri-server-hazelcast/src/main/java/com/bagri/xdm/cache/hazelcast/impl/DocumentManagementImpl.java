@@ -585,6 +585,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 			updateStats(cln, true, data.size(), doc.getFragments().length);
 			//updateStats(cln, true, paths.size(), doc.getFragments().length);
 		}
+		updateStats(null, true, data.size(), doc.getFragments().length);
 		
 		logger.trace("createDocument.exit; returning: {}", doc);
 		return doc;
@@ -881,6 +882,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 					updateStats(cln.getName(), false, size, doc.getFragments().length);
 				}
 			}
+			updateStats(null, false, size, doc.getFragments().length);
 	    }
     	((QueryManagementImpl) repo.getQueryManagement()).removeQueryResults(docKey.getKey());
 		logger.trace("cleanDocument.exit; cleaned: {}", cleaned);
@@ -1082,6 +1084,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 				}
 			}
 		}
+		updateStats(null, add, size, doc.getFragments().length);
 		return cnt;
 	}
 

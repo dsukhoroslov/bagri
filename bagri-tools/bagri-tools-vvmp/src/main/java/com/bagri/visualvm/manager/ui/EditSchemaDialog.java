@@ -240,8 +240,9 @@ public class EditSchemaDialog extends JDialog {
             res.setRegisteredTypes(original.getRegisteredTypes());
             res.setVersion(original.getVersion());// TODO:
             res.setActive(original.isActive());
+            res.setPersistent(original.isPersistent());
             res.setState(original.getState());
-            res.setPersistenceType(original.getPersistenceType());
+            res.setDataFormat(original.getDataFormat());
         }
         return res;
     }

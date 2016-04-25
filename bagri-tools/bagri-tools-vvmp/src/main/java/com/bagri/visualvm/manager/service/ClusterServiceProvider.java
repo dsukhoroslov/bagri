@@ -393,9 +393,10 @@ public class ClusterServiceProvider implements ClusterManagementService, SchemaM
         ObjectName on = oi.getObjectName();
         String name = null;
         String description = null;
-        String persistenceType =  null;
+        String dataFormat =  null;
         String state = null;
-        boolean isActive = false;
+        boolean active = false;
+        boolean persistent = false;
         int version = -1;
         String[] registeredTypes = new String[0];
         CompositeData propertiesCd = null;
@@ -407,13 +408,16 @@ public class ClusterServiceProvider implements ClusterManagementService, SchemaM
             description = (String) connection.getAttribute(on, "Description");
         } catch (Exception e) {/* Ignore it for now */}
         try {
-            persistenceType = (String) connection.getAttribute(on, "PersistenceType");
+            dataFormat = (String) connection.getAttribute(on, "DataFormat");
         } catch (Exception e) {/* Ignore it for now */}
         try {
             state = (String) connection.getAttribute(on, "State");
         } catch (Exception e) {/* Ignore it for now */}
         try {
-            isActive = (Boolean) connection.getAttribute(on, "Active");
+            active = (Boolean) connection.getAttribute(on, "Active");
+        } catch (Exception e) {/* Ignore it for now */}
+        try {
+            persistent = (Boolean) connection.getAttribute(on, "Persistent");
         } catch (Exception e) {/* Ignore it for now */}
         try {
             version = (Integer) connection.getAttribute(on, "Version");
@@ -428,9 +432,10 @@ public class ClusterServiceProvider implements ClusterManagementService, SchemaM
         Schema schema = new Schema(name);
         schema.setObjectName(on);
         schema.setDescription(description);
-        schema.setPersistenceType(persistenceType);
+        schema.setDataFormat(dataFormat);
         schema.setState(state);
-        schema.setActive(isActive);
+        schema.setActive(active);
+        schema.setPersistent(persistent);
         schema.setVersion(version);
         schema.setRegisteredTypes(registeredTypes);
         schema.setProperties(convertCompositeToProperties(propertiesCd));

@@ -32,7 +32,6 @@ public class XDMMapStoreFactory implements ApplicationContextAware, MapStoreFact
     private static final String st_hive = "HIVE";
     private static final String st_xml = "XML";
     private static final String st_json = "JSON";
-    private static final String st_none = "NONE";
     
     private ApplicationContext parentCtx;
     private Map<String, ClassPathXmlApplicationContext> contexts = new HashMap<String, ClassPathXmlApplicationContext>();
@@ -110,7 +109,7 @@ public class XDMMapStoreFactory implements ApplicationContextAware, MapStoreFact
 				}
 			}
 		
-			if (st_none.equals(type) || type == null) {
+			if (type == null) {
 				// but map-store is enabled! means: config error
 				// todo: throw exception
 				mStore = new DummyCacheStore();

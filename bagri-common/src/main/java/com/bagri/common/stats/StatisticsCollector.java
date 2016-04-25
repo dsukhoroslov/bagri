@@ -57,17 +57,20 @@ public abstract class StatisticsCollector implements Runnable {
 	public TabularData getStatisticSeries() {
         TabularData result = null;
         for (Map.Entry<String, Statistics> entry: stats.entrySet()) {
-            try {
-            	String desc = entry.getValue().getDescription();
-            	String name = entry.getValue().getName();
-            	String header = entry.getValue().getHeader();
-                Map<String, Object> sts = entry.getValue().toMap();
-                sts.put(header, entry.getKey());
-                CompositeData data = JMXUtils.mapToComposite(name, desc, sts);
-                result = JMXUtils.compositeToTabular(name, desc, header, result, data);
-            } catch (Exception ex) {
-                logger.error("getStatisticSeries; error", ex);
-            }
+        	Statistics stats = entry.getValue();
+        	if (reportStatistics(stats)) {
+	            try {
+	            	String desc = stats.getDescription();
+	            	String name = stats.getName();
+	            	String header = stats.getHeader();
+	                Map<String, Object> sts = stats.toMap();
+	                sts.put(header, entry.getKey());
+	                CompositeData data = JMXUtils.mapToComposite(name, desc, sts);
+	                result = JMXUtils.compositeToTabular(name, desc, header, result, data);
+	            } catch (Exception ex) {
+	                logger.error("getStatisticSeries; error", ex);
+	            }
+        	}
         }
         //logger.trace("getStatisticSeries.exit; returning: {}", result);
         return result;
@@ -83,6 +86,10 @@ public abstract class StatisticsCollector implements Runnable {
 		Statistics sts = createStatistics(name);
 		stats.put(name, sts);
 		return sts;
+	}
+	
+	protected boolean reportStatistics(Statistics stats) {
+		return true;
 	}
 	
 	public void resetStatistics() {

@@ -1,6 +1,8 @@
 package com.bagri.xdm.cache.hazelcast;
 
-import java.util.Collections;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import static org.junit.Assert.*;
@@ -10,62 +12,113 @@ import org.junit.Test;
 
 import com.hazelcast.config.Config;
 import com.hazelcast.config.JoinConfig;
-import com.hazelcast.config.MemberGroupConfig;
-import com.hazelcast.config.NetworkConfig;
-import com.hazelcast.config.PartitionGroupConfig;
-import com.hazelcast.config.PartitionGroupConfig.MemberGroupType;
+import com.hazelcast.config.MapConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
+import com.hazelcast.core.MapLoaderLifecycleSupport;
+import com.hazelcast.core.MapStore;
 
 public class MigrationTest {
 
-	private boolean loadData = false;
-	
 	@Test
-	@Ignore
+	//@Ignore
 	public void testDataMigration() throws Exception {
 	
-		String adminIP = "127.0.0.1";
-		String cacheIP = "192.168.1.87";
-		
-		Config hzConfig = new Config();
-		hzConfig.getNetworkConfig().setPortAutoIncrement(true);
-		hzConfig.getGroupConfig().setName("system");
-		hzConfig.getGroupConfig().setPassword("syspwd");
-		NetworkConfig network = hzConfig.getNetworkConfig();
-		JoinConfig join = network.getJoin();
-		join.getMulticastConfig().setEnabled(false);
-		join.getTcpIpConfig().addMember(adminIP).setEnabled(true);
-		hzConfig.setProperty("hazelcast.logging.type", "slf4j");
-		hzConfig.setLiteMember(true);
-		HazelcastInstance node1 = Hazelcast.newHazelcastInstance(hzConfig);
-
-		Thread.sleep(5000);
-
 		Config shConfig = new Config();
 		shConfig.getNetworkConfig().setPortAutoIncrement(true);
 		shConfig.getGroupConfig().setName("schema");
 		shConfig.getGroupConfig().setPassword("schemapass");
 		JoinConfig shJoin = shConfig.getNetworkConfig().getJoin();
 		shJoin.getMulticastConfig().setEnabled(false);
-		shJoin.getTcpIpConfig().addMember(cacheIP).setEnabled(true);
+		shJoin.getTcpIpConfig().addMember("localhost").setEnabled(true);
 		shConfig.setProperty("hazelcast.logging.type", "slf4j");
-		shConfig.setLiteMember(false);
-		HazelcastInstance node2 = Hazelcast.newHazelcastInstance(shConfig);
 		
-		IMap<Long, String> testMap = node2.getMap("test");
-		int idx = testMap.size();
-		for (long i=idx; i < idx+1000; i++) {
-			testMap.put(i, String.valueOf(i));
-		}
+		MapConfig mConfig = new MapConfig("test");
+		mConfig.getMapStoreConfig().setEnabled(true);
+		mConfig.getMapStoreConfig().setWriteDelaySeconds(10);
+		mConfig.getMapStoreConfig().setImplementation(new TestCacheStore());
+		shConfig.addMapConfig(mConfig);
+		
+		HazelcastInstance node1 = Hazelcast.newHazelcastInstance(shConfig);
+		populateCache(node1, "test", 1000);
 
+		System.out.println("population finished, time to start second node!");
 		Thread.sleep(50000);
 		
-		Set<Long> keys = testMap.localKeySet();
-		System.out.println("node2 keys size is: " + keys.size());
-		assertTrue(keys.size() > 0);
-	}	
+		//HazelcastInstance node2 = Hazelcast.newHazelcastInstance(shConfig);
+		//populateCache(node, "test", 1000);
+
+		//System.out.println("Second node started");
+		//Thread.sleep(5000);
+	}
 	
+	private void populateCache(HazelcastInstance node, String cName, int count) {
+
+		IMap<Long, String> cache = node.getMap(cName);
+		int idx = cache.size();
+		for (long i=idx; i < idx+count; i++) {
+			cache.set(i, String.valueOf(i));
+		}
+	}
+	
+	
+	public class TestCacheStore implements MapStore<Integer, String>, MapLoaderLifecycleSupport {
+		
+		private IMap testCache;
+		private HazelcastInstance hzInstance;
+
+		@Override
+		public String load(Integer key) {
+			System.out.println("received load request for key " + key);
+			return null;
+		}
+
+		@Override
+		public Map<Integer, String> loadAll(Collection<Integer> keys) {
+			System.out.println("received loadAll request for keys " + keys);
+			return null;
+		}
+
+		@Override
+		public Iterable<Integer> loadAllKeys() {
+			System.out.println("received loadAllKeys request");
+			testCache = hzInstance.getMap("test2");
+			return null; //Collections.emptySet();
+		}
+
+		@Override
+		public void init(HazelcastInstance hzInstance, Properties properties, String mapName) {
+			System.out.println("received init request for map " + mapName);
+			//testCache = hzInstance.getMap("test2");
+			this.hzInstance = hzInstance;
+		}
+
+		@Override
+		public void destroy() {
+			// TODO Auto-generated method stub
+		}
+
+		@Override
+		public void store(Integer key, String value) {
+			// TODO Auto-generated method stub
+		}
+
+		@Override
+		public void storeAll(Map<Integer, String> map) {
+			// TODO Auto-generated method stub
+		}
+
+		@Override
+		public void delete(Integer key) {
+			// TODO Auto-generated method stub
+		}
+
+		@Override
+		public void deleteAll(Collection<Integer> keys) {
+			// TODO Auto-generated method stub
+		}
+		
+	}
 	
 }
