@@ -21,7 +21,7 @@ public class DocumentStatistics extends UsageStatistics {
 
 	@Override
 	protected Statistics createStatistics(String name) {
-		return new DocUsageStatistics();
+		return new DocUsageStatistics(name);
 	}
 
 	@Override
@@ -32,7 +32,7 @@ public class DocumentStatistics extends UsageStatistics {
 
 	@Override
 	protected boolean reportStatistics(Statistics stats) {
-		return !all_docs.equals(stats.getName());
+		return !all_docs.equals(((DocUsageStatistics) stats).getCollectionName());
 	}
 	
 	@Override
@@ -45,10 +45,16 @@ public class DocumentStatistics extends UsageStatistics {
 	
 	private class DocUsageStatistics implements Statistics {
 		
+		private String colName;
 		private long size;
 		private int count;
 		private int elements;
 		private int fragments;
+		
+		public DocUsageStatistics(String name) {
+			super();
+			colName = name;
+		}
 
 		@Override
 		public String getDescription() {
@@ -63,6 +69,10 @@ public class DocumentStatistics extends UsageStatistics {
 		@Override
 		public String getName() {
 			return "Collection Statistics";
+		}
+		
+		String getCollectionName() {
+			return colName;
 		}
 
 		@Override

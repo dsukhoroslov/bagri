@@ -8,8 +8,6 @@ import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -367,7 +365,7 @@ public class SchemaDocumentPanel extends JPanel {
             cnt = clNode.getChildCount() - cnt;
             LOGGER.info("fillCollectionDocuments; added: " + cnt + "; returning: " + documents.size()); 
             return documents.size();
-		} catch (ServiceException ex) {
+		} catch (Exception ex) {
             LOGGER.throwing(this.getClass().getName(), "fillCollectionDocuments", ex);
 		}
         return 0;
@@ -430,19 +428,28 @@ public class SchemaDocumentPanel extends JPanel {
     	DefaultMutableTreeNode parent = getCollectionNode(collection);
     	if (parent != null) {
 	    	int idx = 0;
+	    	DefaultMutableTreeNode node = null;
 	    	Enumeration en = parent.children();
 	    	while (en.hasMoreElements()) {
 	    		DefaultMutableTreeNode child = (DefaultMutableTreeNode) en.nextElement();
 	    		Document exDoc = (Document) child.getUserObject();
-	    		if (doc.compareTo(exDoc) < 0) {
+	    		int cmp = doc.compareTo(exDoc); 
+	    		if (cmp < 0) {
 	    			break;
-	    		} 
+	    		} else if (cmp == 0) {
+	    			node = child;
+	    			break;
+	    		}
 	    		idx++;
 	    	}
 
-	        DefaultMutableTreeNode node = new DefaultMutableTreeNode(doc);
-	        ((DefaultTreeModel) docTree.getModel()).insertNodeInto(node, parent, idx);
-	        refreshCollection(parent, collection);
+	    	if (node == null) {
+	    		node = new DefaultMutableTreeNode(doc);
+	    		((DefaultTreeModel) docTree.getModel()).insertNodeInto(node, parent, idx);
+	    		refreshCollection(parent, collection);
+	    	} else {
+	    		node.setUserObject(doc);
+	    	}
 	        docTree.setSelectionPaths(new TreePath[] {new TreePath(node.getPath())});
     	} else {
     		LOGGER.info("insertDocument; no node found for collection: " + collection);

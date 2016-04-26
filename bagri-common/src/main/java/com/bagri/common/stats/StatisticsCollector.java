@@ -30,7 +30,7 @@ public abstract class StatisticsCollector implements Runnable {
 	protected static final String semicolon = "; ";
 	protected static final String empty = ": 0; ";
 	
-    private final Logger logger;
+    protected final Logger logger;
 	
     protected String name;
 	private BlockingQueue<StatisticsEvent> queue =  null;

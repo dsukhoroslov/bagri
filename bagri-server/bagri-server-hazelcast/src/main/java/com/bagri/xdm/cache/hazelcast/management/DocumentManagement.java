@@ -8,8 +8,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -248,13 +250,13 @@ public class DocumentManagement extends SchemaFeatureManagement {
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "docFile", description = "A full path to XML file to register"),
 		@ManagedOperationParameter(name = "properties", description = "A list of properties in key=value form separated by semicolon")})
-	public long registerDocument(String docFile, String properties) {
+	public String registerDocument(String docFile, String properties) {
 		
 		String uri = Paths.get(docFile).getFileName().toString(); 
 		try {
 			String xml = FileUtils.readTextFile(docFile);
 			XDMDocument doc = docManager.storeDocumentFromString(new XDMDocumentId(uri), xml, propsFromString(properties));
-			return doc.getDocumentKey();
+			return doc.getUri();
 		} catch (IOException | XDMException ex) {
 			logger.error("registerDocument.error: " + ex.getMessage(), ex);
 			throw new RuntimeException(ex.getMessage());
@@ -266,12 +268,12 @@ public class DocumentManagement extends SchemaFeatureManagement {
 		@ManagedOperationParameter(name = "uri", description = "A new uri for the file or null"),
 		@ManagedOperationParameter(name = "docFile", description = "A full path to XML file to register"),
 		@ManagedOperationParameter(name = "properties", description = "A list of properties in key=value form separated by semicolon")})
-	public long updateDocument(String uri, String docFile, String properties) {
+	public String updateDocument(String uri, String docFile, String properties) {
 
 		try {
 			String content = FileUtils.readTextFile(docFile);
 			XDMDocument doc = docManager.storeDocumentFromString(new XDMDocumentId(uri), content, propsFromString(properties));
-			return doc.getDocumentKey();
+			return doc.getUri();
 		} catch (IOException | XDMException ex) {
 			logger.error("updateDocument.error: " + ex.getMessage(), ex);
 			throw new RuntimeException(ex.getMessage());
@@ -300,9 +302,8 @@ public class DocumentManagement extends SchemaFeatureManagement {
 		        if (Files.isDirectory(path)) {
 		            result += processFilesInCatalog(path, properties);
 		        } else {
-		            if (registerDocument(path.toString(), properties) > 0) {
-		            	result++;
-		            }
+		            registerDocument(path.toString(), properties);
+		            result++;
 		        }
 		    }
 		    return result;
@@ -362,7 +363,7 @@ public class DocumentManagement extends SchemaFeatureManagement {
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "clnName", description = "Collection name"),
 		@ManagedOperationParameter(name = "props", description = "A list of properties in key=value form separated by semicolon")})
-	public TabularData getCollectionDocuments(String clName, String props) {
+	public Collection<String> getCollectionDocuments(String clName, String props) {
 		if (clName != null && !"All Documents".equals(clName)) {
 			XDMCollection cln = schemaManager.getEntity().getCollection(clName);
 			if (cln == null) {
@@ -373,23 +374,11 @@ public class DocumentManagement extends SchemaFeatureManagement {
 
 		Collection<XDMDocumentId> ids = docManager.getCollectionDocumentIds(clName);
 		logger.debug("getCollectionDocuments; got {} ids for collection {}", ids.size(), clName);
-        String[] names = new String[] {"docKey", "uri"};
-        OpenType[] types = new OpenType[] {SimpleType.LONG, SimpleType.STRING};
-        int size = 0;
-		TabularData result = null;
-		try {
-            CompositeType type = new CompositeType("docId", "docId", names, names, types);
-        	TabularType type2 = new TabularType("docIds", "docIds", type, new String[] {"uri"});
-    		result = new TabularDataSupport(type2); 
-        	for (XDMDocumentId docId: ids) {
-        		Object[] values = new Object[] {docId.getDocumentKey(), docId.getDocumentUri()};
-        		result.put(new CompositeDataSupport(type, names, values));
-        	}
-			size = result.size();
-		} catch (OpenDataException ex) {
-			logger.error("getCollectionDocuments.error: ", ex);
+		Set<String> result = new HashSet<>(ids.size());
+       	for (XDMDocumentId docId: ids) {
+       		result.add(docId.getDocumentUri());
 		}
-		logger.debug("getCollectionDocuments; returning {} ids", size);
+		logger.debug("getCollectionDocuments; returning {} ids", result.size());
 		return result;
 	}
 

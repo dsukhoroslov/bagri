@@ -2,16 +2,10 @@ package com.bagri.visualvm.manager.model;
 
 public class Document implements Comparable<Document> {
 
-	private long docKey;
 	private String uri;
 	
-	public Document(long docKey, String uri) {
-		this.docKey = docKey;
+	public Document(String uri) {
 		this.uri = uri;
-	}
-	
-	public long getDocKey() {
-		return docKey;
 	}
 	
 	public String getUri() {

@@ -140,12 +140,9 @@ public class DocumentServiceProvider implements DocumentManagementService {
             Object res = connection.invoke(getDocMgrObjectName(), "getCollectionDocuments", 
             		new Object[] {collection, null}, new String[] {String.class.getName(), String.class.getName()});
             if (res != null) {
-            	TabularData ids = (TabularData) res;
-            	Set<List> keys = (Set<List>) ids.keySet();
-            	for (List key: keys) {
-            		Object[] index = key.toArray();
-            		CompositeData idData = ids.get(index);
-            		result.add(new Document((Long) idData.get("docKey"), (String) idData.get("uri")));
+            	java.util.Collection<String> ids = (java.util.Collection<String>) res;
+            	for (String uri: ids) {
+            		result.add(new Document(uri));
             	}
         	}
             return result;
@@ -159,10 +156,10 @@ public class DocumentServiceProvider implements DocumentManagementService {
 	public Document storeDocument(String uri, java.util.Collection<String> collections) throws ServiceException {
     	String props = collectionsToProperties(collections);
         try {
-			Long docKey = (Long) connection.invoke(getDocMgrObjectName(), "registerDocument", 
+			String docUri = (String) connection.invoke(getDocMgrObjectName(), "registerDocument", 
 					new Object[] {uri, props}, new String[] {String.class.getName(), String.class.getName()});
-			LOGGER.info("storeDocument; got docKey: " + docKey + " for uri " + FileUtil.getFileName(uri));
-			return new Document(docKey, FileUtil.getFileName(uri));
+			//LOGGER.info("storeDocument; got docKey: " + docKey + " for uri " + FileUtil.getFileName(uri));
+			return new Document(docUri);
 		} catch (Exception ex) {
             LOGGER.throwing(this.getClass().getName(), "storeDocument", ex);
             throw new ServiceException(ex);
