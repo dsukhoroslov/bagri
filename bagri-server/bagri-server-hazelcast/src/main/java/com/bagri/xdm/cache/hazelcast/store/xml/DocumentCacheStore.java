@@ -146,21 +146,18 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<XDMDoc
 						// can make a fake population TX with id = 1! 
 	        			if (fragments.size() == 1) {
 	        				if (doc == null) {
-	        					doc = new XDMDocument(docKey.getDocumentId(), docKey.getVersion(), docUri, docType, TX_INIT, TX_NO,
-	        							new Date(Files.getLastModifiedTime(path).toMillis()), Files.getOwner(path).getName(), def_encoding,
-	        							content.length(), data.size());
+	        					doc = new XDMDocument(docKey.getKey(), docUri, docType, TX_INIT, TX_NO,	new Date(Files.getLastModifiedTime(path).toMillis()), 
+	        							Files.getOwner(path).getName(), def_encoding, content.length(), data.size());
 	    	        			docMgr.checkDefaultDocumentCollection(doc);
 	        				}
 	        			} else {
 	        				if (doc == null) {
-	        					doc = new XDMFragmentedDocument(docKey.getDocumentId(), docKey.getVersion(), docUri, docType, TX_INIT, TX_NO,
-	        							new Date(Files.getLastModifiedTime(path).toMillis()), Files.getOwner(path).getName(), def_encoding,
-	        							content.length(), data.size());
+	        					doc = new XDMFragmentedDocument(docKey.getKey(), docUri, docType, TX_INIT, TX_NO, new Date(Files.getLastModifiedTime(path).toMillis()), 
+	        							Files.getOwner(path).getName(), def_encoding, content.length(), data.size());
 	    	        			docMgr.checkDefaultDocumentCollection(doc);
 	        				} else {
-	        					XDMDocument fdoc = new XDMFragmentedDocument(docKey.getDocumentId(), docKey.getVersion(), doc.getUri(), doc.getTypeId(), 
-		        						doc.getTxStart(), doc.getTxFinish(), doc.getCreatedAt(), doc.getCreatedBy(), doc.getEncoding(), doc.getBytes(),
-		        						doc.getElements());
+	        					XDMDocument fdoc = new XDMFragmentedDocument(docKey.getKey(), doc.getUri(),	doc.getTypeId(), doc.getTxStart(), doc.getTxFinish(), 
+	        							doc.getCreatedAt(), doc.getCreatedBy(), doc.getEncoding(), doc.getBytes(), doc.getElements());
 	        					fdoc.setCollections(doc.getCollections());
 	        					doc = fdoc;
 	        				}

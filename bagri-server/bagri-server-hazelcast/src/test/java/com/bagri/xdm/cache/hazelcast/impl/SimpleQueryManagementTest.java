@@ -83,7 +83,7 @@ public class SimpleQueryManagementTest extends XDMManagementTest {
 		assertNotNull(xDoc);
 		assertEquals(uri, xDoc.getUri());
 		assertEquals(txId, xDoc.getTxStart());
-		ids.add(xDoc.getDocumentKey());
+		uris.add(xDoc.getUri());
 		
 		String query = "for $doc in fn:collection()\n" +
 				"return $doc\n";

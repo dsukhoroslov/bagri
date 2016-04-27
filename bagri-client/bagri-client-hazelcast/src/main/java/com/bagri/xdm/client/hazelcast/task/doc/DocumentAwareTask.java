@@ -10,7 +10,7 @@ import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
-public abstract class DocumentAwareTask extends TransactionAwareTask implements PartitionAware<Long>, IdentifiedDataSerializable {
+public abstract class DocumentAwareTask extends TransactionAwareTask implements PartitionAware<Integer>, IdentifiedDataSerializable {
 	
 	protected Properties props;
 	protected XDMDocumentId docId;
@@ -29,11 +29,11 @@ public abstract class DocumentAwareTask extends TransactionAwareTask implements 
 	}
 
 	@Override
-	public Long getPartitionKey() {
-		if (docId != null) {
-			return docId.getDocumentId();
-		}
-		return this.txId;
+	public Integer getPartitionKey() {
+		//if (docId != null) {
+			return docId.getDocumentUri().hashCode();
+		//}
+		//return this.txId;
 	}
 
 	@Override

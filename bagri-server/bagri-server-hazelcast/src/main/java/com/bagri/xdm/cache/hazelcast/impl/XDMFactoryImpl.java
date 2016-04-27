@@ -37,9 +37,17 @@ public final class XDMFactoryImpl implements XDMFactory {
 	 */
 	@Override
 	public XDMDocumentKey newXDMDocumentKey(long documentId, int version) {
-		return new DocumentKey(documentId, version);
+		return null; //new DocumentKey(documentId, version);
 	}
 
+	/* (non-Javadoc)
+	 * @see com.bagri.xdm.common.XDMFactory#newXDMDocumentKey(String, int, int)
+	 */
+	@Override
+	public XDMDocumentKey newXDMDocumentKey(String documentUri, int revision, int version) {
+		return new DocumentKey(documentUri.hashCode(), revision, version);
+	}
+	
 	/* (non-Javadoc)
 	 * @see com.bagri.xdm.common.XDMFactory#newXDMDataKey(long, int)
 	 */

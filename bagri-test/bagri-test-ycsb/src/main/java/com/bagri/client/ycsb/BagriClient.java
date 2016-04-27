@@ -46,14 +46,7 @@ public class BagriClient extends DB {
 	}
 	
 	private XDMDocumentId buildId(final String key, final int version) {
-        //String id = key.substring(4);
-        //return new XDMDocumentId(Long.parseLong(id));
-        byte[] uri = key.getBytes();
-        long hash = HashUtil.MurmurHash3_x64_64(uri, 0, uri.length);
-        //hash &= ~0b1111111111;
-        //hash |= 0b1;
-        //return new XDMDocumentId(hash, key);
-		return new XDMDocumentId(hash, version, key);
+		return new XDMDocumentId(key);
 	}
 	
 	@Override

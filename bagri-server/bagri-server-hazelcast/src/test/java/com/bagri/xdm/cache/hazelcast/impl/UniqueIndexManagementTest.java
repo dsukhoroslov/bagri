@@ -4,6 +4,7 @@ import static com.bagri.common.config.XDMConfigConstants.xdm_config_path;
 import static com.bagri.common.config.XDMConfigConstants.xdm_config_properties_file;
 import static com.bagri.xdm.common.XDMConstants.xs_ns;
 import static com.bagri.xdm.common.XDMConstants.xs_prefix;
+import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -16,7 +17,6 @@ import javax.xml.xquery.XQItemType;
 
 import org.junit.After;
 import org.junit.AfterClass;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -107,28 +107,28 @@ public class UniqueIndexManagementTest extends XDMManagementTest {
 	@Test
 	public void uniqueDocumentCreateTest() throws Exception {
 		long txId = xRepo.getTxManagement().beginTransaction();
-		ids.add(createDocumentTest(sampleRoot + getFileName("security5621.xml")).getDocumentKey());
+		uris.add(createDocumentTest(sampleRoot + getFileName("security5621.xml")).getUri());
 		xRepo.getTxManagement().commitTransaction(txId);
 
 		txId = xRepo.getTxManagement().beginTransaction();
 		// this is an update because filename -> uri is the same, 
 		// thus no unique index violation expected
-		ids.add(createDocumentTest(sampleRoot + getFileName("security5621.xml")).getDocumentKey());
+		uris.add(createDocumentTest(sampleRoot + getFileName("security5621.xml")).getUri());
 		xRepo.getTxManagement().commitTransaction(txId);
 
 		txId = xRepo.getTxManagement().beginTransaction();
 		try {
-			ids.add(updateDocumentTest(0, "security1500.xml", sampleRoot + getFileName("security5621.xml")).getDocumentKey());			
+			uris.add(updateDocumentTest(0, "security1500.xml", sampleRoot + getFileName("security5621.xml")).getUri());			
 			xRepo.getTxManagement().commitTransaction(txId);
-			Assert.assertFalse("expected unique index vialation exception", true);
+			assertFalse("expected unique index vialation exception", true);
 		} catch (Exception ex) {
 			// anticipated ex..
 			xRepo.getTxManagement().rollbackTransaction(txId);
 		}
 			
 		Collection<String> sec = getSecurity("IBM");
-		Assert.assertNotNull(sec);
-		Assert.assertTrue("expected 1 but got " + sec.size() + " test documents", sec.size() == 1);
+		assertNotNull(sec);
+		assertTrue("expected 1 but got " + sec.size() + " test documents", sec.size() == 1);
 	}
 
 	@Test
@@ -136,9 +136,9 @@ public class UniqueIndexManagementTest extends XDMManagementTest {
 		
 		long txId = getTxManagement().beginTransaction();
 		XDMDocument doc = createDocumentTest(sampleRoot + getFileName("security1500.xml"));
-		Assert.assertNotNull(doc);
-		Assert.assertTrue(doc.getTxStart() == txId);
-		ids.add(doc.getDocumentKey());
+		assertNotNull(doc);
+		assertEquals(txId, doc.getTxStart());
+		uris.add(doc.getUri());
 		getTxManagement().commitTransaction(txId);
 		long docId = doc.getDocumentId();
 		int version = doc.getVersion();
@@ -146,17 +146,17 @@ public class UniqueIndexManagementTest extends XDMManagementTest {
 		
 		txId = getTxManagement().beginTransaction();
 		doc = updateDocumentTest(0, uri, sampleRoot + getFileName("security1500.xml"));
-		Assert.assertNotNull(doc);
-		Assert.assertTrue(doc.getTxStart() == txId);
-		Assert.assertTrue(doc.getDocumentId() == docId);
-		Assert.assertTrue(doc.getVersion() == ++version);
-		Assert.assertEquals(doc.getUri(), uri);
-		ids.add(doc.getDocumentKey());
+		assertNotNull(doc);
+		assertEquals(txId, doc.getTxStart());
+		assertEquals(docId, doc.getDocumentId());
+		assertEquals(++version, doc.getVersion());
+		assertEquals(uri, doc.getUri());
+		uris.add(doc.getUri());
 		getTxManagement().commitTransaction(txId);
 		
 		Collection<String> sec = getSecurity("VFINX");
-		Assert.assertNotNull(sec);
-		Assert.assertTrue("expected 1 but got " + sec.size() + " test documents", sec.size() == 1);
+		assertNotNull(sec);
+		assertTrue("expected 1 but got " + sec.size() + " test documents", sec.size() == 1);
 	}
 	
 	@Test
@@ -164,20 +164,20 @@ public class UniqueIndexManagementTest extends XDMManagementTest {
 		
 		long txId = getTxManagement().beginTransaction();
 		XDMDocument doc = createDocumentTest(sampleRoot + getFileName("security1500.xml"));
-		Assert.assertNotNull(doc);
-		Assert.assertTrue(doc.getTxStart() == txId);
-		ids.add(doc.getDocumentKey());
+		assertNotNull(doc);
+		assertEquals(txId, doc.getTxStart());
+		uris.add(doc.getUri());
 		getTxManagement().rollbackTransaction(txId);
 		
 		txId = getTxManagement().beginTransaction();
 		doc = createDocumentTest(sampleRoot + getFileName("security1500.xml"));
-		Assert.assertNotNull(doc);
-		ids.add(doc.getDocumentKey());
+		assertNotNull(doc);
+		uris.add(doc.getUri());
 		getTxManagement().commitTransaction(txId);
 		
 		Collection<String> sec = getSecurity("VFINX");
-		Assert.assertNotNull(sec);
-		Assert.assertTrue("expected 1 but got " + sec.size() + " test documents", sec.size() == 1);
+		assertNotNull(sec);
+		assertTrue("expected 1 but got " + sec.size() + " test documents", sec.size() == 1);
 	}
 	
 	@Test
@@ -185,21 +185,21 @@ public class UniqueIndexManagementTest extends XDMManagementTest {
 		
 		long txId = getTxManagement().beginTransaction();
 		XDMDocument doc = createDocumentTest(sampleRoot + getFileName("security1500.xml"));
-		Assert.assertNotNull(doc);
-		Assert.assertTrue(doc.getTxStart() == txId);
-		ids.add(doc.getDocumentKey());
+		assertNotNull(doc);
+		assertEquals(txId, doc.getTxStart());
+		uris.add(doc.getUri());
 		getTxManagement().commitTransaction(txId);
 
 		txId = getTxManagement().beginTransaction();
-		removeDocumentTest(doc.getDocumentKey());
+		removeDocumentTest(doc.getUri());
 		doc = createDocumentTest(sampleRoot + getFileName("security1500.xml"));
-		Assert.assertNotNull(doc);
-		ids.add(doc.getDocumentKey());
+		assertNotNull(doc);
+		uris.add(doc.getUri());
 		getTxManagement().commitTransaction(txId);
 		
 		Collection<String> sec = getSecurity("VFINX");
-		Assert.assertNotNull(sec);
-		Assert.assertTrue("expected 1 but got " + sec.size() + " test documents", sec.size() == 1);
+		assertNotNull(sec);
+		assertTrue("expected 1 but got " + sec.size() + " test documents", sec.size() == 1);
 	}
 	
 	@Test
@@ -207,9 +207,9 @@ public class UniqueIndexManagementTest extends XDMManagementTest {
 
 		long txId = getTxManagement().beginTransaction();
 		XDMDocument doc = createDocumentTest(sampleRoot + getFileName("security9012.xml"));
-		Assert.assertNotNull(doc);
-		Assert.assertTrue(doc.getTxStart() == txId);
-		ids.add(doc.getDocumentKey());
+		assertNotNull(doc);
+		assertEquals(txId, doc.getTxStart());
+		uris.add(doc.getUri());
 		getTxManagement().commitTransaction(txId);
 		long docId = doc.getDocumentId();
 		int version = doc.getVersion();
@@ -217,19 +217,19 @@ public class UniqueIndexManagementTest extends XDMManagementTest {
 		
 		txId = getTxManagement().beginTransaction();
 		doc = updateDocumentTest(0, uri, sampleRoot + getFileName("security5621.xml"));
-		Assert.assertNotNull(doc);
-		Assert.assertTrue(doc.getTxStart() == txId);
-		Assert.assertTrue(doc.getDocumentId() == docId);
-		Assert.assertTrue(doc.getVersion() == ++version);
-		Assert.assertEquals(doc.getUri(), uri);
-		ids.add(doc.getDocumentKey());
+		assertNotNull(doc);
+		assertEquals(txId, doc.getTxStart());
+		assertEquals(docId, doc.getDocumentId());
+		assertEquals(++version, doc.getVersion());
+		assertEquals(uri, doc.getUri());
+		uris.add(doc.getUri());
 		getTxManagement().commitTransaction(txId);
 		
 		txId = getTxManagement().beginTransaction();
 		doc = createDocumentTest(sampleRoot + getFileName("security9012.xml"));
-		Assert.assertNotNull(doc);
-		Assert.assertTrue(doc.getTxStart() == txId);
-		ids.add(doc.getDocumentKey());
+		assertNotNull(doc);
+		assertEquals(txId, doc.getTxStart());
+		uris.add(doc.getUri());
 		getTxManagement().commitTransaction(txId);
 		//long docId = doc.getDocumentId();
 		//int version = doc.getVersion();

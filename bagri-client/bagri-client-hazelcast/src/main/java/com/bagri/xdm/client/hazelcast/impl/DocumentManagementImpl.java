@@ -42,7 +42,6 @@ import com.hazelcast.query.Predicates;
 public class DocumentManagementImpl extends DocumentManagementBase implements XDMDocumentManagement {
 
 	private IMap<XDMDocumentKey, XDMDocument> xddCache;
-	//private IdGenerator<Long> docGen;
 	private IExecutorService execService;
     private RepositoryImpl repo;
 	
@@ -59,7 +58,6 @@ public class DocumentManagementImpl extends DocumentManagementBase implements XD
 		HazelcastInstance hzClient = repo.getHazelcastClient();
 		xddCache = hzClient.getMap(CN_XDM_DOCUMENT);
 		execService = hzClient.getExecutorService(PN_XDM_SCHEMA_POOL);
-		//docGen = new IdGeneratorImpl(hzClient.getAtomicLong(SQN_DOCUMENT));
 	}
 
 	@Override
@@ -103,7 +101,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements XD
 		logger.trace("getDocumentAsBean.enter; got docId: {}", docId);
 		Object result = null;
 		DocumentBeanProvider xp = new DocumentBeanProvider(repo.getClientId(), docId);
-		Future<Object> future = execService.submitToKeyOwner(xp, docId);
+		Future<Object> future = execService.submit(xp);
 		try {
 			result = future.get();
 			logger.trace("getDocumentAsBean.exit; got bean: {}", result);
@@ -119,7 +117,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements XD
 		logger.trace("getDocumentAsMap.enter; got docId: {}", docId);
 		Map<String, Object> result = null;
 		DocumentMapProvider xp = new DocumentMapProvider(repo.getClientId(), docId);
-		Future<Map<String, Object>> future = execService.submitToKeyOwner(xp, docId);
+		Future<Map<String, Object>> future = execService.submit(xp);
 		try {
 			result = future.get();
 			logger.trace("getDocumentAsMap.exit; got map: {}", result);
@@ -136,7 +134,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements XD
 		logger.trace("getDocumentAsString.enter; got docId: {}", docId);
 		String result = null;
 		DocumentContentProvider xp = new DocumentContentProvider(repo.getClientId(), docId);
-		Future<String> future = execService.submitToKeyOwner(xp, docId);
+		Future<String> future = execService.submit(xp);
 		try {
 			result = future.get();
 			logger.trace("getDocumentAsString.exit; got template results: {}", 
@@ -154,9 +152,6 @@ public class DocumentManagementImpl extends DocumentManagementBase implements XD
 			throw new XDMException("Document bean can not be null", XDMException.ecDocument);
 		}
 		logger.trace("storeDocumentFromMap.enter; bean: {}", bean);
-		//if (docId == null) {
-		//	docId = new XDMDocumentId(docGen.next(), 1);
-		//}
 		
 		DocumentBeanCreator task = new DocumentBeanCreator(repo.getClientId(), repo.getTransactionId(), docId, props, bean);
 		return storeDocument(docId, props, task);
@@ -168,9 +163,6 @@ public class DocumentManagementImpl extends DocumentManagementBase implements XD
 			throw new XDMException("Document fields map can not be null", XDMException.ecDocument);
 		}
 		logger.trace("storeDocumentFromMap.enter; field size: {}", fields.size());
-		//if (docId == null) {
-		//	docId = new XDMDocumentId(docGen.next(), 1);
-		//}
 		
 		DocumentMapCreator task = new DocumentMapCreator(repo.getClientId(), repo.getTransactionId(), docId, props, fields);
 		return storeDocument(docId, props, task);
@@ -182,9 +174,6 @@ public class DocumentManagementImpl extends DocumentManagementBase implements XD
 			throw new XDMException("Document content can not be null", XDMException.ecDocument);
 		}
 		logger.trace("storeDocumentFromString.enter; content length: {}", content.length());
-		//if (docId == null) {
-		//	docId = new XDMDocumentId(docGen.next(), 1);
-		//}
 		
 		DocumentCreator task = new DocumentCreator(repo.getClientId(), repo.getTransactionId(), docId, props, content);
 		return storeDocument(docId, props, task);
@@ -193,12 +182,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements XD
 	public XDMDocument storeDocument(XDMDocumentId docId, Properties props, Callable<XDMDocument> creator) throws XDMException {
 		logger.trace("storeDocument.enter; docId: {}; props: {}", docId, props);
 		repo.getHealthManagement().checkClusterState();
-		Long key = repo.getTransactionId();
-		if (docId != null) {
-			key = docId.getDocumentId();
-		}
-		
-		Future<XDMDocument> future = execService.submitToKeyOwner(creator, key);
+		Future<XDMDocument> future = execService.submit(creator);
 		try {
 			XDMDocument result = future.get();
 			logger.trace("storeDocument.exit; returning: {}", result);
@@ -219,7 +203,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements XD
 		//Object result = xddCache.executeOnKey(docId, proc);
 		
 		DocumentRemover task = new DocumentRemover(repo.getClientId(), repo.getTransactionId(), docId);
-		Future<XDMDocument> future = execService.submitToKeyOwner(task, docId);
+		Future<XDMDocument> future = execService.submit(task);
 		try {
 			XDMDocument result = future.get();
 			logger.trace("removeDocument.exit; returning: {}", result);
@@ -297,7 +281,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements XD
 	private int updateDocumentCollections(XDMDocumentId docId, boolean add, String[] collections) {
 		
 		DocumentCollectionUpdater task = new DocumentCollectionUpdater(repo.getClientId(), docId, add, collections);
-		Future<Integer> result = execService.submitToKeyOwner(task, docId);
+		Future<Integer> result = execService.submit(task);
 		int cnt = 0;
 		try {
 			cnt = result.get();

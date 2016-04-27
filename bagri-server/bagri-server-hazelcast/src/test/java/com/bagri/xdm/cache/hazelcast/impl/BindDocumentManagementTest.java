@@ -63,11 +63,11 @@ public class BindDocumentManagementTest extends XDMManagementTest {
 	public void createBeanDocumentTest() throws Exception {
 		long txId = xRepo.getTxManagement().beginTransaction();
 		SampleBean sb1 = new SampleBean(1, false, "XYZ");
-		XDMDocument bDoc = xRepo.getDocumentManagement().storeDocumentFromBean(null, sb1, null);
+		XDMDocument bDoc = xRepo.getDocumentManagement().storeDocumentFromBean(new XDMDocumentId("bean_test"), sb1, null);
 		assertNotNull(bDoc);
-		ids.add(bDoc.getDocumentKey());
+		uris.add(bDoc.getUri());
 		xRepo.getTxManagement().commitTransaction(txId);
-		XDMDocumentId xid = new XDMDocumentId(bDoc.getDocumentKey());
+		XDMDocumentId xid = new XDMDocumentId(bDoc.getUri());
 		
 		String xml = xRepo.getDocumentManagement().getDocumentAsString(xid);
 		assertNotNull(xml);
@@ -85,11 +85,11 @@ public class BindDocumentManagementTest extends XDMManagementTest {
 		m1.put("intProp", 1); 
 		m1.put("boolProp", Boolean.FALSE);
 		m1.put("strProp", "XYZ");
-		XDMDocument bDoc = xRepo.getDocumentManagement().storeDocumentFromMap(null, m1, null);
+		XDMDocument bDoc = xRepo.getDocumentManagement().storeDocumentFromMap(new XDMDocumentId("map_test"), m1, null);
 		assertNotNull(bDoc);
-		ids.add(bDoc.getDocumentKey());
+		uris.add(bDoc.getUri());
 		xRepo.getTxManagement().commitTransaction(txId);
-		XDMDocumentId xid = new XDMDocumentId(bDoc.getDocumentKey());
+		XDMDocumentId xid = new XDMDocumentId(bDoc.getUri());
 		
 		String xml = xRepo.getDocumentManagement().getDocumentAsString(xid);
 		assertNotNull(xml);

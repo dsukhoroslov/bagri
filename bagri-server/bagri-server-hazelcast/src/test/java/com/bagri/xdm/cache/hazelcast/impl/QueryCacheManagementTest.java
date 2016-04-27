@@ -93,7 +93,7 @@ public class QueryCacheManagementTest extends XDMManagementTest {
 		assertTrue(itr.hasNext());
 		
 		txId = xRepo.getTxManagement().beginTransaction();
-		removeDocumentTest(1); 
+		removeDocumentsTest(); 
 		xRepo.getTxManagement().commitTransaction(txId);
 		//updateDocumentTest(0, null, sampleRoot + getFileName("security5621.xml"));
 		// here we must have 0 result cached
