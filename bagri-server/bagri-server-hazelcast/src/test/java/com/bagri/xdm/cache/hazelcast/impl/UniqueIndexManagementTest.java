@@ -65,26 +65,17 @@ public class UniqueIndexManagementTest extends XDMManagementTest {
 		if (schema == null) {
 			schema = new XDMSchema(1, new java.util.Date(), "test", "test", "test schema", true, null);
 			xdmRepo.setSchema(schema);
-		}
-		String typePath = getModelManagement().normalizePath("/{http://tpox-benchmark.com/security}Security");
-		XDMIndex index = new XDMIndex(1, new Date(), xRepo.getUserName(), "IDX_Security_Symbol", "/{http://tpox-benchmark.com/security}Security", 
-				typePath, "/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}Symbol/text()", new QName(xs_ns, "string", xs_prefix),
-				true, true, true, "Security Symbol", true);
-		xdmRepo.addSchemaIndex(index);
-		
-		int docType = xdmRepo.getModelManagement().translateDocumentType("/{http://tpox-benchmark.com/security}Security");
-		int pathId = xdmRepo.getModelManagement().translatePath(docType, 
-				"/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}Symbol/text()", 
-				XDMNodeKind.text, XQItemType.XQBASETYPE_STRING, XDMOccurence.onlyOne).getPathId();
-		if (!xdmRepo.getIndexManagement().isPathIndexed(pathId)) {
-			System.out.println("path not indexed!!");
+			String typePath = getModelManagement().normalizePath("/{http://tpox-benchmark.com/security}Security");
+			XDMIndex index = new XDMIndex(1, new Date(), xRepo.getUserName(), "IDX_Security_Symbol", "/{http://tpox-benchmark.com/security}Security", 
+					typePath, "/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}Symbol/text()", new QName(xs_ns, "string", xs_prefix),
+					true, true, true, "Security Symbol", true);
+			xdmRepo.addSchemaIndex(index);
 		}
 	}
 
 	@After
 	public void tearDown() throws Exception {
 		// remove documents here!
-		//getTxManagement().
 		removeDocumentsTest();
 		//Assert.assertTrue(((IndexManagementImpl) ((RepositoryImpl) xRepo).getIndexManagement()).getIndexCache().size() == 0);
 	}
@@ -118,7 +109,7 @@ public class UniqueIndexManagementTest extends XDMManagementTest {
 
 		txId = xRepo.getTxManagement().beginTransaction();
 		try {
-			uris.add(updateDocumentTest(0, "security1500.xml", sampleRoot + getFileName("security5621.xml")).getUri());			
+			uris.add(updateDocumentTest("security1500.xml", sampleRoot + getFileName("security5621.xml")).getUri());			
 			xRepo.getTxManagement().commitTransaction(txId);
 			assertFalse("expected unique index vialation exception", true);
 		} catch (Exception ex) {
@@ -141,17 +132,16 @@ public class UniqueIndexManagementTest extends XDMManagementTest {
 		uris.add(doc.getUri());
 		getTxManagement().commitTransaction(txId);
 		long docId = doc.getDocumentId();
-		int version = doc.getVersion();
+		//int version = doc.getVersion();
 		String uri = doc.getUri();
 		
 		txId = getTxManagement().beginTransaction();
-		doc = updateDocumentTest(0, uri, sampleRoot + getFileName("security1500.xml"));
+		doc = updateDocumentTest(uri, sampleRoot + getFileName("security1500.xml"));
 		assertNotNull(doc);
 		assertEquals(txId, doc.getTxStart());
 		assertEquals(docId, doc.getDocumentId());
-		assertEquals(++version, doc.getVersion());
+		//assertEquals(++version, doc.getVersion());
 		assertEquals(uri, doc.getUri());
-		uris.add(doc.getUri());
 		getTxManagement().commitTransaction(txId);
 		
 		Collection<String> sec = getSecurity("VFINX");
@@ -194,7 +184,6 @@ public class UniqueIndexManagementTest extends XDMManagementTest {
 		removeDocumentTest(doc.getUri());
 		doc = createDocumentTest(sampleRoot + getFileName("security1500.xml"));
 		assertNotNull(doc);
-		uris.add(doc.getUri());
 		getTxManagement().commitTransaction(txId);
 		
 		Collection<String> sec = getSecurity("VFINX");
@@ -216,7 +205,7 @@ public class UniqueIndexManagementTest extends XDMManagementTest {
 		String uri = doc.getUri();
 		
 		txId = getTxManagement().beginTransaction();
-		doc = updateDocumentTest(0, uri, sampleRoot + getFileName("security5621.xml"));
+		doc = updateDocumentTest(uri, sampleRoot + getFileName("security5621.xml"));
 		assertNotNull(doc);
 		assertEquals(txId, doc.getTxStart());
 		assertEquals(docId, doc.getDocumentId());

@@ -25,6 +25,7 @@ public class DocumentKeyProcessor implements EntryProcessor<XDMDocumentKey, XDMD
 	
 	private String uri;
 	private boolean next;
+	private boolean skipClosed;
     private XDMFactory factory;
     private HazelcastInstance hzInstance;
     
@@ -32,9 +33,10 @@ public class DocumentKeyProcessor implements EntryProcessor<XDMDocumentKey, XDMD
     	//
     }
     
-    public DocumentKeyProcessor(String uri, boolean next, XDMFactory factory, HazelcastInstance hzInstance) {
+    public DocumentKeyProcessor(String uri, boolean next, boolean skipClosed, XDMFactory factory, HazelcastInstance hzInstance) {
     	this.uri = uri;
     	this.next = next;
+    	this.skipClosed = skipClosed;
     	this.factory = factory;
     	this.hzInstance = hzInstance;
     }
@@ -61,26 +63,19 @@ public class DocumentKeyProcessor implements EntryProcessor<XDMDocumentKey, XDMD
 		} while (true);
 		
 		if (doc != null) {
+			if (next) {
+				return key;
+			}
 			if (sameUri) {
 				// the txFinish can be > 0, but not committed yet!
 		        // should also check if doc's start transaction is committed..
 				if (doc.getTxFinish() == 0) {
-					if (next) {
-						return key; 
-					} else {
-						return factory.newXDMDocumentKey(doc.getDocumentKey());
-					}
+					return factory.newXDMDocumentKey(doc.getDocumentKey());
 				} else {
-					if (next) {
-						return key; 
-					} else {
-						logger.info("process; the latest document version is finished already: {}", doc);
+					if (skipClosed) {
+						return key;
 					}
-				}
-			} else {
-				// starting new revision - just a collision on the hash..
-				if (next) {
-					return key;
+					logger.info("process; the latest document version is finished already: {}", doc);
 				}
 			}
 		}

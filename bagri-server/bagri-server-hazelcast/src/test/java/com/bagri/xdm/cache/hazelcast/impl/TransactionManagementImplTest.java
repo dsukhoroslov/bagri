@@ -92,6 +92,7 @@ public class TransactionManagementImplTest extends XDMManagementTest {
 		assertNotNull(sec);
 		assertTrue("expected 1 but got " + sec.size() + " test documents", sec.size() == 1);
 
+		// TODO: known issue, fix it..
 		sec = getSecurity("PTTAX");
 		assertNotNull(sec);
 		assertTrue("expected 1 but got " + sec.size() + " test documents", sec.size() == 1);
@@ -115,33 +116,35 @@ public class TransactionManagementImplTest extends XDMManagementTest {
 	public void rollbackTransactionUpdateTest() throws Exception {
 		long txId = getTxManagement().beginTransaction();
 		XDMDocument doc = createDocumentTest(sampleRoot + getFileName("security1500.xml"));
-		uris.add(doc.getUri());
+		String uri = doc.getUri();
+		uris.add(uri);
 		assertNotNull(doc);
-		assertTrue(doc.getTxStart() == txId);
+		assertEquals(txId, doc.getTxStart());
 		getTxManagement().commitTransaction(txId);
 		long docId = doc.getDocumentId();
 		int version = doc.getVersion();
-		String uri = doc.getUri();
 	
 		txId = getTxManagement().beginTransaction();
-		doc = updateDocumentTest(0, uri, sampleRoot + getFileName("security5621.xml"));
-		uris.add(doc.getUri());
+		doc = updateDocumentTest(uri, sampleRoot + getFileName("security5621.xml"));
 		assertNotNull(doc);
-		assertTrue(doc.getTxStart() == txId);
-		assertTrue(doc.getDocumentId() == docId);
-		assertTrue(doc.getVersion() == ++version);
-		assertEquals(doc.getUri(), uri);
+		assertEquals(txId, doc.getTxStart());
+		assertEquals(docId, doc.getDocumentId());
+		assertEquals(++version, doc.getVersion());
+		assertEquals(uri, doc.getUri());
 		getTxManagement().rollbackTransaction(txId);
 		
 		txId = getTxManagement().beginTransaction();
-		doc = updateDocumentTest(0, uri, sampleRoot + getFileName("security9012.xml"));
-		uris.add(doc.getUri());
+		doc = updateDocumentTest(uri, sampleRoot + getFileName("security9012.xml"));
 		assertNotNull(doc);
-		assertTrue(doc.getTxStart() == txId);
+		assertEquals(txId, doc.getTxStart());
+		assertEquals(docId, doc.getDocumentId());
+		assertEquals(++version, doc.getVersion());
+		assertEquals(uri, doc.getUri());
 		getTxManagement().commitTransaction(txId);
-		assertTrue(doc.getDocumentId() == docId);
-		//assertTrue(doc.getVersion() == version);
-		assertEquals(doc.getUri(), uri);
+		
+		//Collection<String> sec = getSecurity("VFINX");
+		//assertNotNull(sec);
+		//assertTrue("expected 0 but got " + sec.size() + " test documents", sec.size() == 0);
 	}
 
 	@Test
@@ -149,7 +152,7 @@ public class TransactionManagementImplTest extends XDMManagementTest {
 		long txId = getTxManagement().beginTransaction();
 		XDMDocument doc = createDocumentTest(sampleRoot + getFileName("security1500.xml"));
 		assertNotNull(doc);
-		assertTrue(doc.getTxStart() == txId);
+		assertEquals(txId, doc.getTxStart());
 		uris.add(doc.getUri());
 		getTxManagement().commitTransaction(txId);
 		final String uri = doc.getUri();
@@ -162,7 +165,7 @@ public class TransactionManagementImplTest extends XDMManagementTest {
 				
 				try {
 					long txId = getTxManagement().beginTransaction();
-					XDMDocument doc = updateDocumentTest(0, uri, sampleRoot + getFileName("security5621.xml"));
+					XDMDocument doc = updateDocumentTest(uri, sampleRoot + getFileName("security5621.xml"));
 					getTxManagement().commitTransaction(txId);
 					if (doc != null) {
 						uris.add(doc.getUri());
@@ -180,7 +183,7 @@ public class TransactionManagementImplTest extends XDMManagementTest {
 				
 				try {
 					long txId = getTxManagement().beginTransaction();
-					XDMDocument doc = updateDocumentTest(0, uri, sampleRoot + getFileName("security9012.xml"));
+					XDMDocument doc = updateDocumentTest(uri, sampleRoot + getFileName("security9012.xml"));
 					getTxManagement().commitTransaction(txId);
 					if (doc != null) {
 						uris.add(doc.getUri());
@@ -203,7 +206,7 @@ public class TransactionManagementImplTest extends XDMManagementTest {
 		long txId = getTxManagement().beginTransaction();
 		XDMDocument doc = createDocumentTest(sampleRoot + getFileName("security1500.xml"));
 		assertNotNull(doc);
-		assertTrue(doc.getTxStart() == txId);
+		assertEquals(txId, doc.getTxStart());
 		uris.add(doc.getUri());
 		getTxManagement().commitTransaction(txId);
 		final String uri = doc.getUri();
@@ -216,7 +219,7 @@ public class TransactionManagementImplTest extends XDMManagementTest {
 				
 				try {
 					long txId = getTxManagement().beginTransaction();
-					XDMDocument doc = updateDocumentTest(0, uri, sampleRoot + getFileName("security5621.xml"));
+					XDMDocument doc = updateDocumentTest(uri, sampleRoot + getFileName("security5621.xml"));
 					getTxManagement().rollbackTransaction(txId);
 					if (doc != null) {
 						uris.add(doc.getUri());
@@ -234,7 +237,7 @@ public class TransactionManagementImplTest extends XDMManagementTest {
 				
 				try {
 					long txId = getTxManagement().beginTransaction();
-					XDMDocument doc = updateDocumentTest(0, uri, sampleRoot + getFileName("security9012.xml"));
+					XDMDocument doc = updateDocumentTest(uri, sampleRoot + getFileName("security9012.xml"));
 					getTxManagement().commitTransaction(txId);
 					if (doc != null) {
 						uris.add(doc.getUri());
@@ -258,7 +261,7 @@ public class TransactionManagementImplTest extends XDMManagementTest {
 		long txId = getTxManagement().beginTransaction();
 		XDMDocument doc = createDocumentTest(sampleRoot + getFileName("security1500.xml"));
 		assertNotNull(doc);
-		assertTrue(doc.getTxStart() == txId);
+		assertEquals(txId, doc.getTxStart());
 		uris.add(doc.getUri());
 		getTxManagement().commitTransaction(txId);
 		final String uri = doc.getUri();
@@ -272,7 +275,7 @@ public class TransactionManagementImplTest extends XDMManagementTest {
 				
 				try {
 					long txId = getTxManagement().beginTransaction();
-					XDMDocument doc = updateDocumentTest(0, uri, sampleRoot + getFileName("security5621.xml"));
+					XDMDocument doc = updateDocumentTest(uri, sampleRoot + getFileName("security5621.xml"));
 					getTxManagement().commitTransaction(txId);
 					if (doc != null) {
 						uris.add(doc.getUri());
@@ -290,7 +293,7 @@ public class TransactionManagementImplTest extends XDMManagementTest {
 				
 				try {
 					long txId = getTxManagement().beginTransaction();
-					XDMDocument doc = updateDocumentTest(0, uri, sampleRoot + getFileName("security9012.xml"));
+					XDMDocument doc = updateDocumentTest(uri, sampleRoot + getFileName("security9012.xml"));
 					getTxManagement().commitTransaction(txId);
 					if (doc != null) {
 						uris.add(doc.getUri());

@@ -22,11 +22,13 @@ public abstract class XDMDocumentManagementTest extends XDMManagementTest {
 	public void createSecurityTest() throws Exception {
 		
 		long txId = getTxManagement().beginTransaction();
-		XDMDocument doc = createDocumentTest(sampleRoot + getFileName("security1500.xml"));
+		String uri = getFileName("security1500.xml");
+		XDMDocument doc = createDocumentTest(sampleRoot + uri);
 		assertNotNull(doc);
+		uris.add(doc.getUri());
 		assertEquals(txId, doc.getTxStart());
 		assertEquals(0, doc.getTxFinish());
-		uris.add(doc.getUri());
+		assertEquals(uri, doc.getUri());
 		getTxManagement().commitTransaction(txId);
 	}
 	
@@ -36,34 +38,34 @@ public abstract class XDMDocumentManagementTest extends XDMManagementTest {
 		long txId = getTxManagement().beginTransaction();
 		XDMDocument doc = createDocumentTest(sampleRoot + getFileName("security1500.xml"));
 		assertNotNull(doc);
+		uris.add(doc.getUri());
 		assertEquals(txId, doc.getTxStart());
 		assertEquals(0, doc.getTxFinish());
-		uris.add(doc.getUri());
 		getTxManagement().commitTransaction(txId);
 		long docId = doc.getDocumentId();
 		int version = doc.getVersion();
 		String uri = doc.getUri();
 		
 		txId = getTxManagement().beginTransaction();
-		doc = updateDocumentTest(0, uri, sampleRoot + getFileName("security9012.xml"));
+		doc = updateDocumentTest(uri, sampleRoot + getFileName("security9012.xml"));
 		assertNotNull(doc);
+		uris.add(doc.getUri());
 		assertEquals(txId, doc.getTxStart());
 		assertEquals(0, doc.getTxFinish());
 		assertEquals(docId, doc.getDocumentId());
 		assertEquals(++version, doc.getVersion());
 		assertEquals(uri, doc.getUri());
-		uris.add(doc.getUri());
 		getTxManagement().commitTransaction(txId);
 
 		txId = getTxManagement().beginTransaction();
-		doc = updateDocumentTest(doc.getDocumentKey(), uri, sampleRoot + getFileName("security5621.xml"));
+		doc = updateDocumentTest(uri, sampleRoot + getFileName("security5621.xml"));
 		assertNotNull(doc);
+		uris.add(doc.getUri());
 		assertEquals(txId, doc.getTxStart());
 		assertEquals(0, doc.getTxFinish());
 		assertEquals(docId, doc.getDocumentId());
 		assertEquals(++version, doc.getVersion());
 		assertEquals(uri, doc.getUri());
-		uris.add(doc.getUri());
 		getTxManagement().commitTransaction(txId);
 	}
 	
@@ -73,12 +75,12 @@ public abstract class XDMDocumentManagementTest extends XDMManagementTest {
 		long txId = getTxManagement().beginTransaction();
 		XDMDocument doc = createDocumentTest(sampleRoot + getFileName("security1500.xml"));
 		assertNotNull(doc);
+		uris.add(doc.getUri());
 		assertEquals(txId, doc.getTxStart());
 		assertEquals(0, doc.getTxFinish());
 		getTxManagement().commitTransaction(txId);
 		long docId = doc.getDocumentId();
 		long docKey = doc.getDocumentKey();
-		uris.add(doc.getUri());
 		
 		long txId2 = getTxManagement().beginTransaction();
 		removeDocumentTest(doc.getUri());
@@ -107,9 +109,9 @@ public abstract class XDMDocumentManagementTest extends XDMManagementTest {
 		String xml = readTextFile(fileName);
 		XDMDocument doc = createDocumentTest(fileName);
 		assertNotNull(doc);
+		uris.add(doc.getUri());
 		assertEquals(txId, doc.getTxStart());
 		assertEquals(0, doc.getTxFinish());
-		uris.add(doc.getUri());
 		getTxManagement().commitTransaction(txId);
 
 		String result = getDocManagement().getDocumentAsString(new XDMDocumentId(doc.getUri()));

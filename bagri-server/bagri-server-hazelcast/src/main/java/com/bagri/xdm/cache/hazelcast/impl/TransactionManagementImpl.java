@@ -173,6 +173,21 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 		logger.trace("rollbackTransaction.exit; tx: {}", xTx); 
 	}
 	
+	@Override
+	public void finishCurrentTransaction(boolean rollback) throws XDMException {
+		long txId = getCurrentTxId();
+		if (rollback) {
+			rollbackTransaction(txId);
+		} else {
+			commitTransaction(txId);
+		}
+	}
+	
+	@Override
+	public boolean isInTransaction() {
+		return getCurrentTxId() > TX_NO; 
+	}
+	
 	private void cleanAffectedDocuments(XDMTransaction xTx) {
 		execService.submitToAllMembers(new DocumentCleaner(xTx), this);
 	}

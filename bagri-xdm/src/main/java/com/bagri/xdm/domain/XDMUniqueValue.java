@@ -2,18 +2,18 @@ package com.bagri.xdm.domain;
 
 public class XDMUniqueValue { 
 
-	private long docId;
+	private long docKey;
 	private long txStart;
 	private long txFinish;
 	
-	public XDMUniqueValue(long docId, long txStart, long txFinish) {
-		this.docId = docId;
+	public XDMUniqueValue(long docKey, long txStart, long txFinish) {
+		this.docKey = docKey;
 		this.txStart = txStart;
 		this.txFinish = txFinish;
 	}
 	
-	public long getDocumentId() {
-		return docId;
+	public long getDocumentKey() {
+		return docKey;
 	}
 	
 	public long getTxStart() {
@@ -26,7 +26,7 @@ public class XDMUniqueValue {
 
 	@Override
 	public String toString() {
-		return "XDMUniqueDocument [docId=" + docId + ", txStart=" + txStart + ", txFinish=" + txFinish + "]";
+		return "XDMUniqueDocument [docKey=" + docKey + ", txStart=" + txStart + ", txFinish=" + txFinish + "]";
 	}
 
 }	

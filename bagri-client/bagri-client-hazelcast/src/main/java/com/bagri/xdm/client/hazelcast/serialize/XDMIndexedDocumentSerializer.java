@@ -35,7 +35,7 @@ public class XDMIndexedDocumentSerializer implements StreamSerializer<XDMIndexed
 	@Override
 	public void write(ObjectDataOutput out, XDMIndexedDocument xIndex) throws IOException {
 		
-		long[] ids = CollectionUtils.toLongArray(xIndex.getDocumentIds());
+		long[] ids = CollectionUtils.toLongArray(xIndex.getDocumentKeys());
 		out.writeLongArray(ids);
 	}
 

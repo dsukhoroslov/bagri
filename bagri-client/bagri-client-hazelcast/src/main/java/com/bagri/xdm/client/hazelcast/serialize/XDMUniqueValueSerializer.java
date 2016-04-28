@@ -25,7 +25,7 @@ public class XDMUniqueValueSerializer implements StreamSerializer<XDMUniqueValue
 
 	@Override
 	public void write(ObjectDataOutput out, XDMUniqueValue xValue) throws IOException {
-		out.writeLong(xValue.getDocumentId());
+		out.writeLong(xValue.getDocumentKey());
 		out.writeLong(xValue.getTxStart());
 		out.writeLong(xValue.getTxFinish());
 	}

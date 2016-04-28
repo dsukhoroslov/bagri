@@ -22,7 +22,7 @@ public interface XDMDocumentManagement {
 
 	Collection<XDMDocumentId> getDocumentIds(String pattern); // throws XDMException;
 	//Collection<XDMDocument> getDocuments(String pattern);
-	Collection<XDMDocumentId> getCollectionDocumentIds(String collection); // throws XDMException;
+	Collection<XDMDocumentId> getCollectionDocumentIds(String collection) throws XDMException;
 	
 	XDMDocument getDocument(XDMDocumentId docId) throws XDMException;
 

@@ -13,6 +13,7 @@
     <name>bagri-client-jcache</name>
     <description>BagRi XDM Access Layer: JCache Implementation</description>
 
+
     <dependencies>
 
         <dependency>
@@ -27,15 +28,36 @@
             <groupId>com.sdv.bagri</groupId>
             <artifactId>bagri-client-common</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.sdv.bagri</groupId>
+            <artifactId>bagri-client-hazelcast</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sdv.bagri</groupId>
+            <artifactId>bagri-xqj</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sdv.bagri</groupId>
+            <artifactId>bagri-xquery-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sdv.bagri</groupId>
+            <artifactId>bagri-test-common</artifactId>
+            <scope>test</scope>
+        </dependency>
 
+        <dependency>
+            <groupId>com.hazelcast</groupId>
+            <artifactId>hazelcast-all</artifactId>
+        </dependency>
         <dependency>
             <groupId>javax.cache</groupId>
             <artifactId>cache-api</artifactId>
         </dependency>
-        <!--dependency>
-            <groupId>org.jsr107.ri</groupId>
-            <artifactId>cache-ri-impl</artifactId>
-        </dependency-->
+        <dependency>
+            <groupId>javax.xml.xquery</groupId>
+            <artifactId>xqj-api</artifactId>
+        </dependency>
 
         <!-- Dependencies for logging -->
         <dependency>
@@ -53,15 +75,18 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <scope>runtime</scope>
+            <scope>test</scope>
         </dependency>
 
         <!--Test dependencies-->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>
 
 </project>
+
+

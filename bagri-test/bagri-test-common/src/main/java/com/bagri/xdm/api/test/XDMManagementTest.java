@@ -63,6 +63,9 @@ public abstract class XDMManagementTest {
 	//}
 
 	protected void removeDocumentsTest() throws Exception {
+		if (getTxManagement().isInTransaction()) {
+			getTxManagement().finishCurrentTransaction(true);
+		}
 		long txId =  getTxManagement().beginTransaction();
 		for (String uri: uris) {
 			getDocManagement().removeDocument(new XDMDocumentId(uri));
@@ -77,13 +80,10 @@ public abstract class XDMManagementTest {
 		return getDocManagement().storeDocumentFromString(new XDMDocumentId(getUri(fileName)), xml, props);
 	}
 	
-	public XDMDocument updateDocumentTest(long docKey, String uri, String fileName) throws Exception {
+	public XDMDocument updateDocumentTest(String uri, String fileName) throws Exception {
 		String xml = readTextFile(fileName);
 		Properties props = getDocumentProperties();
-		XDMDocumentId docId = null;
-		if (docKey != 0 || uri != null) {
-			docId = new XDMDocumentId(docKey, uri);
-		}
+		XDMDocumentId docId = new XDMDocumentId(uri);
 		return getDocManagement().storeDocumentFromString(docId, xml, props);
 	}
 

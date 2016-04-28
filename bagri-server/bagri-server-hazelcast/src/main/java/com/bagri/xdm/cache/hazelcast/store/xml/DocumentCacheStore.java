@@ -208,6 +208,10 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<XDMDoc
 
 	@Override
 	public Set<XDMDocumentKey> loadAllKeys() {
+		//if (true) {
+		//	return Collections.emptySet();
+		//}
+		
 		ensureDocumentManager();
 		if (docMgr == null) {
 			logger.trace("loadAllKeys.enter; store is not ready yet, skipping population");

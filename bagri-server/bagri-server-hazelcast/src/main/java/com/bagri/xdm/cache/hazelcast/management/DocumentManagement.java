@@ -372,14 +372,20 @@ public class DocumentManagement extends SchemaFeatureManagement {
 			}
 		}
 
-		Collection<XDMDocumentId> ids = docManager.getCollectionDocumentIds(clName);
-		logger.debug("getCollectionDocuments; got {} ids for collection {}", ids.size(), clName);
-		Set<String> result = new HashSet<>(ids.size());
-       	for (XDMDocumentId docId: ids) {
-       		result.add(docId.getDocumentUri());
+		
+		try {
+			Collection<XDMDocumentId> ids = docManager.getCollectionDocumentIds(clName);
+			logger.debug("getCollectionDocuments; got {} ids for collection {}", ids.size(), clName);
+			Set<String> result = new HashSet<>(ids.size());
+	       	for (XDMDocumentId docId: ids) {
+	       		result.add(docId.getDocumentUri());
+			}
+			logger.debug("getCollectionDocuments; returning {} ids", result.size());
+			return result;
+		} catch (XDMException ex) {
+			logger.error("getCollectionDocuments.error", ex);
+			return null;
 		}
-		logger.debug("getCollectionDocuments; returning {} ids", result.size());
-		return result;
 	}
 
 }

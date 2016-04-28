@@ -8,33 +8,33 @@ import static com.bagri.xdm.api.XDMTransactionManagement.TX_NO;
 
 public class XDMIndexedDocument extends XDMIndexedValue {
 	
-	private Set<Long> docIds = new HashSet<>();
+	private Set<Long> docKeys = new HashSet<>();
 
 	public XDMIndexedDocument() {
 		super();
 	}
 
-	public XDMIndexedDocument(long docId) {
+	public XDMIndexedDocument(long docKey) {
 		super();
-		addDocument(docId, TX_NO);
+		addDocument(docKey, TX_NO);
 	}
 
-	public XDMIndexedDocument(Collection<Long> docIds) {
+	public XDMIndexedDocument(Collection<Long> docKeys) {
 		super();
-		if (docIds != null) {
-			for (Long docId: docIds) {
-				addDocument(docId, TX_NO);
+		if (docKeys != null) {
+			for (Long docKey: docKeys) {
+				addDocument(docKey, TX_NO);
 			}
 		}
 	}
 
 	@Override
 	public int getCount() {
-		return docIds.size();
+		return docKeys.size();
 	}
 
 	@Override
-	public long getDocumentId() {
+	public long getDocumentKey() {
 		//if (docIds.size() > 0) {
 		//	return ???
 		//}
@@ -45,30 +45,30 @@ public class XDMIndexedDocument extends XDMIndexedValue {
 	 * @return the documentIds
 	 */
 	@Override
-	public Set<Long> getDocumentIds() {
-		return docIds;
+	public Set<Long> getDocumentKeys() {
+		return docKeys;
 	}
 
 	@Override
-	public boolean addDocument(long docId, long txId) {
-		return docIds.add(docId);
+	public boolean addDocument(long docKey, long txId) {
+		return docKeys.add(docKey);
 	}
 	
 	@Override
-	public boolean removeDocument(long docId, long txId) {
-		return docIds.remove(docId);
+	public boolean removeDocument(long docKey, long txId) {
+		return docKeys.remove(docKey);
 	}
 
 	@Override
 	public String toString() {
-		return "XDMIndexedValue [docIds=" + docIds + "]";
+		return "XDMIndexedValue [docKeys=" + docKeys + "]";
 	}
 
 	@Override
 	public int getSize() {
 		// have no idea how much memory HashSet takes!
 		return Long.SIZE / Byte.SIZE // Set ref
-			+ (2 * Long.SIZE / Byte.SIZE) * docIds.size();
+			+ (2 * Long.SIZE / Byte.SIZE) * docKeys.size();
 	}
 
 }

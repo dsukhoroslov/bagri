@@ -32,7 +32,7 @@ public class CollectionManagementTest extends XDMManagementTest {
 	public static void setUpBeforeClass() throws Exception {
 		sampleRoot = "..\\..\\etc\\samples\\tpox\\";
 		System.setProperty("hz.log.level", "info");
-		System.setProperty("xdm.log.level", "trace");
+		//System.setProperty("xdm.log.level", "trace");
 		System.setProperty("logback.configurationFile", "hz-logging.xml");
 		System.setProperty(xdm_config_properties_file, "test.properties");
 		System.setProperty(xdm_config_path, "src\\test\\resources");
@@ -53,13 +53,13 @@ public class CollectionManagementTest extends XDMManagementTest {
 		XDMSchema schema = xdmRepo.getSchema();
 		if (schema == null) {
 			schema = new XDMSchema(1, new java.util.Date(), "test", "test", "test schema", true, null);
-			xdmRepo.setSchema(schema);
 			XDMCollection collection = new XDMCollection(1, new Date(), JMXUtils.getCurrentUser(), 
 					1, "CLN_Security", "/{http://tpox-benchmark.com/security}Security", "securities", true);
 			schema.addCollection(collection);
 			collection = new XDMCollection(1, new Date(), JMXUtils.getCurrentUser(), 
 					2, "CLN_Custom", "", "custom", true);
 			schema.addCollection(collection);
+			xdmRepo.setSchema(schema);
 		}
 	}
 
@@ -75,10 +75,12 @@ public class CollectionManagementTest extends XDMManagementTest {
 	
 	@Test
 	public void addDefaultCollectionDocumentsTest() throws Exception {
+		Collection<XDMDocumentId> docIds = this.getDocManagement().getCollectionDocumentIds(null);
+		assertEquals(0, docIds.size());
 		props = new Properties();
 		//props.setProperty(xdm_document_collections, "CLN_Security");
 		storeSecurityTest();
-		Collection<XDMDocumentId> docIds = this.getDocManagement().getCollectionDocumentIds("CLN_Security");
+		docIds = this.getDocManagement().getCollectionDocumentIds("CLN_Security");
 		assertEquals(4, docIds.size());
 		int cnt = 0;
 		for (XDMDocumentId docId: docIds) {
@@ -92,10 +94,14 @@ public class CollectionManagementTest extends XDMManagementTest {
 
 	@Test
 	public void addCustomCollectionDocumentsTest() throws Exception {
+		Collection<XDMDocumentId> docIds = this.getDocManagement().getCollectionDocumentIds(null);
+		assertEquals(0, docIds.size());
 		props = new Properties();
 		props.setProperty(xdm_document_collections, "CLN_Custom");
+		assertEquals(0, uris.size());
 		storeSecurityTest();
-		Collection<XDMDocumentId> docIds = this.getDocManagement().getCollectionDocumentIds("CLN_Security");
+		assertEquals(4, uris.size());
+		docIds = this.getDocManagement().getCollectionDocumentIds("CLN_Security");
 		assertEquals(0, docIds.size());
 		docIds = this.getDocManagement().getCollectionDocumentIds("CLN_Custom");
 		assertEquals(4, docIds.size());
@@ -111,10 +117,12 @@ public class CollectionManagementTest extends XDMManagementTest {
 
 	@Test
 	public void getCollectionDocumentsTest() throws Exception {
+		Collection<XDMDocumentId> docIds = this.getDocManagement().getCollectionDocumentIds(null);
+		assertEquals(0, docIds.size());
 		props = new Properties();
 		props.setProperty(xdm_document_collections, "CLN_Security");
 		storeSecurityTest();
-		Collection<XDMDocumentId> docIds = this.getDocManagement().getCollectionDocumentIds("CLN_Security");
+		docIds = this.getDocManagement().getCollectionDocumentIds("CLN_Security");
 		assertEquals(4, docIds.size());
 		int cnt = 0;
 		for (XDMDocumentId docId: docIds) {
@@ -128,11 +136,13 @@ public class CollectionManagementTest extends XDMManagementTest {
 
 	@Test
 	public void addDocumentsToCollectionTest() throws Exception {
+		Collection<XDMDocumentId> docIds = this.getDocManagement().getCollectionDocumentIds(null);
+		assertEquals(0, docIds.size());
 		assertEquals(0, uris.size());
 		storeSecurityTest();
 		assertEquals(4, uris.size());
 		// docs in default collection
-		Collection<XDMDocumentId> docIds = this.getDocManagement().getCollectionDocumentIds(null);
+		docIds = this.getDocManagement().getCollectionDocumentIds(null);
 		assertEquals(4, docIds.size());
 		// the docs are already in CLN_Security collection 
 		docIds = this.getDocManagement().getCollectionDocumentIds("CLN_Security");

@@ -83,7 +83,7 @@ public class DocumentCleaner implements Callable<XDMTransaction>, IdentifiedData
 				}
 				if (!commit) {
 					// just delete the doc and all its relatives: elements, content, source, cached result
-					docMgr.cleanDocument(dk, true);
+					docMgr.cleanDocument(dk, true); //false);
 				} 
 			}
 			for (XDMDocumentKey dk: dkFinished) {
