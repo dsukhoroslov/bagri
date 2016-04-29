@@ -34,7 +34,7 @@ public class DocumentMapCreator extends com.bagri.xdm.client.hazelcast.task.doc.
     	return txMgr.callInTransaction(txId, false, new Callable<XDMDocument>() {
     		
 	    	public XDMDocument call() throws Exception {
-	    		return docMgr.storeDocumentFromMap(docId, fields, props);
+	    		return docMgr.storeDocumentFromMap(uri, fields, props);
 	    	}
     	});
 	}

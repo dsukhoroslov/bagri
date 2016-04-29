@@ -13,6 +13,12 @@
 				<parameter>
 					<files collection="security"/>
 				</parameter>
+				<parameter>
+					<constant value="security" />
+				</parameter>
+				<parameter>
+					<sequence start="10000" step="1"/>
+				</parameter>
 			</parameters>
 		</transaction>
 

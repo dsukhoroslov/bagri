@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.util.Map.Entry;
 import java.util.Properties;
 
-import com.bagri.xdm.common.XDMDocumentId;
 import com.bagri.xdm.domain.XDMDocument;
 import com.hazelcast.map.EntryBackupProcessor;
 import com.hazelcast.map.EntryProcessor;
@@ -27,8 +26,8 @@ public class DocumentProcessor extends DocumentAwareTask
 		super();
 	}
 
-	public DocumentProcessor(String clientId, long txId, XDMDocumentId docId, String content, Properties props) {
-		super(clientId, txId, docId, props);
+	public DocumentProcessor(String clientId, long txId, String uri, String content, Properties props) {
+		super(clientId, txId, uri, props);
 		this.content = content;
 	}
 	

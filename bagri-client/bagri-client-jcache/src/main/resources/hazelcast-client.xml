@@ -55,7 +55,6 @@
 			<hz:serializer type-class="com.bagri.xdm.domain.XDMUniqueValue" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMUniqueValueSerializer"/>
 			<hz:serializer type-class="com.bagri.xdm.domain.XDMTransaction" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMTransactionSerializer"/>
 			<hz:serializer type-class="com.bagri.xdm.domain.XDMFragmentedDocument" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMFragmentedDocumentSerializer"/>
-			<hz:serializer type-class="com.bagri.xdm.common.XDMDocumentId" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMDocumentIdSerializer"/>
 		</hz:serializers>
 	</hz:serialization>
 

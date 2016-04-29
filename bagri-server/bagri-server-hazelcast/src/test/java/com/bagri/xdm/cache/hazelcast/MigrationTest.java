@@ -22,7 +22,7 @@ import com.hazelcast.core.MapStore;
 public class MigrationTest {
 
 	@Test
-	@Ignore
+	//@Ignore
 	public void testDataMigration() throws Exception {
 	
 		Config shConfig = new Config();
@@ -83,14 +83,14 @@ public class MigrationTest {
 		@Override
 		public Iterable<Integer> loadAllKeys() {
 			System.out.println("received loadAllKeys request");
-			testCache = hzInstance.getMap("test2");
+			//testCache = hzInstance.getMap("test2");
 			return null; //Collections.emptySet();
 		}
 
 		@Override
 		public void init(HazelcastInstance hzInstance, Properties properties, String mapName) {
 			System.out.println("received init request for map " + mapName);
-			//testCache = hzInstance.getMap("test2");
+			testCache = hzInstance.getMap("test2");
 			this.hzInstance = hzInstance;
 		}
 

@@ -15,7 +15,6 @@ import com.bagri.common.manage.JMXUtils;
 import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.cache.hazelcast.impl.DocumentManagementImpl;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentAwareTask;
-import com.bagri.xdm.common.XDMDocumentId;
 import com.bagri.xdm.domain.XDMElement;
 import com.bagri.xdm.domain.XDMElements;
 import com.bagri.xdm.domain.XDMPath;
@@ -30,8 +29,8 @@ public class DocumentStructureProvider extends DocumentAwareTask implements Call
 		super();
 	}
 	
-	public DocumentStructureProvider(String clientId, XDMDocumentId docId) {
-		super(clientId, 0, docId, null);
+	public DocumentStructureProvider(String clientId, String uri) {
+		super(clientId, 0, uri, null);
 	}
 
     @Autowired
@@ -42,7 +41,7 @@ public class DocumentStructureProvider extends DocumentAwareTask implements Call
 	@Override
 	public CompositeData call() throws Exception {
 		
-    	Collection<XDMElements> elements = docMgr.getDocumentElements(docId.getDocumentKey());
+    	Collection<XDMElements> elements = docMgr.getDocumentElements(uri); 
     	if (elements == null) {
     		return null;
     	}
@@ -68,8 +67,8 @@ public class DocumentStructureProvider extends DocumentAwareTask implements Call
 			tree.put(String.format("(%05d) %s", path.getPathId(), path.getPath()), buff.toString());
 		}
 		
-		String header = docMgr.getDocument(docId).toString();
-		return JMXUtils.mapToComposite(String.valueOf(docId), header, tree);
+		String header = uri; //docMgr.getDocument(docId).toString();
+		return JMXUtils.mapToComposite(uri, header, tree);
 	}
 
 	@Override

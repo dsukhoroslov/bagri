@@ -16,7 +16,6 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.bagri.xdm.api.test.XDMManagementTest;
 import com.bagri.xdm.cache.hazelcast.bean.SampleBean;
-import com.bagri.xdm.common.XDMDocumentId;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.system.XDMSchema;
 
@@ -63,16 +62,15 @@ public class BindDocumentManagementTest extends XDMManagementTest {
 	public void createBeanDocumentTest() throws Exception {
 		long txId = xRepo.getTxManagement().beginTransaction();
 		SampleBean sb1 = new SampleBean(1, false, "XYZ");
-		XDMDocument bDoc = xRepo.getDocumentManagement().storeDocumentFromBean(new XDMDocumentId("bean_test"), sb1, null);
+		XDMDocument bDoc = xRepo.getDocumentManagement().storeDocumentFromBean("bean_test", sb1, null);
 		assertNotNull(bDoc);
 		uris.add(bDoc.getUri());
 		xRepo.getTxManagement().commitTransaction(txId);
-		XDMDocumentId xid = new XDMDocumentId(bDoc.getUri());
 		
-		String xml = xRepo.getDocumentManagement().getDocumentAsString(xid);
+		String xml = xRepo.getDocumentManagement().getDocumentAsString(bDoc.getUri());
 		assertNotNull(xml);
 		
-		SampleBean sb2 = (SampleBean) xRepo.getDocumentManagement().getDocumentAsBean(xid);
+		SampleBean sb2 = (SampleBean) xRepo.getDocumentManagement().getDocumentAsBean(bDoc.getUri());
 		assertEquals(sb1.getIntProperty(), sb2.getIntProperty());
 		assertTrue(sb1.isBooleanProperty() == sb2.isBooleanProperty());
 		assertEquals(sb1.getStringProperty(), sb2.getStringProperty());
@@ -85,16 +83,15 @@ public class BindDocumentManagementTest extends XDMManagementTest {
 		m1.put("intProp", 1); 
 		m1.put("boolProp", Boolean.FALSE);
 		m1.put("strProp", "XYZ");
-		XDMDocument bDoc = xRepo.getDocumentManagement().storeDocumentFromMap(new XDMDocumentId("map_test"), m1, null);
+		XDMDocument bDoc = xRepo.getDocumentManagement().storeDocumentFromMap("map_test", m1, null);
 		assertNotNull(bDoc);
 		uris.add(bDoc.getUri());
 		xRepo.getTxManagement().commitTransaction(txId);
-		XDMDocumentId xid = new XDMDocumentId(bDoc.getUri());
 		
-		String xml = xRepo.getDocumentManagement().getDocumentAsString(xid);
+		String xml = xRepo.getDocumentManagement().getDocumentAsString(bDoc.getUri());
 		assertNotNull(xml);
 		
-		Map<String, Object> m2 = xRepo.getDocumentManagement().getDocumentAsMap(xid);
+		Map<String, Object> m2 = xRepo.getDocumentManagement().getDocumentAsMap(bDoc.getUri());
 		assertEquals(m1.get("intProp"), m2.get("intProp"));
 		assertEquals(m1.get("boolProp"), m2.get("boolProp"));
 		assertEquals(m1.get("strProp"), m2.get("strProp"));

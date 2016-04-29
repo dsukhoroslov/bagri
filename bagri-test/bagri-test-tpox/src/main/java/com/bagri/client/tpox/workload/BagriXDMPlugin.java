@@ -118,12 +118,14 @@ public class BagriXDMPlugin extends BagriTPoXPlugin {
 		try {
 			switch (tx.getTransName()) {
 				case "addDocument": {
-					String xml = null;
 					ActualParamInfo param = wp.getParamMarkerActualValue(transNo, 0, rand);
-					if (param != null) {
-						xml = new String(param.getDocument());
-					}
-					if (test.storeDocument(xml) != null) { 
+					String xml = new String(param.getDocument());
+					param = wp.getParamMarkerActualValue(transNo, 1, rand);
+					String prefix = param.getActualValue();
+					param = wp.getParamMarkerActualValue(transNo, 2, rand);
+					String uri = param.getActualValue();
+					uri = prefix + uri + ".xml";
+					if (test.storeDocument(uri, xml) != null) { 
 						result = 1;
 					}
 					break;
@@ -244,8 +246,8 @@ public class BagriXDMPlugin extends BagriTPoXPlugin {
 			return xRepo;
 		}
 		
-		XDMDocument storeDocument(String xml) throws Exception {
-			return xRepo.getDocumentManagement().storeDocumentFromString(null, xml, null);
+		XDMDocument storeDocument(String uri, String xml) throws Exception {
+			return xRepo.getDocumentManagement().storeDocumentFromString(uri, xml, null);
 		}
 		
 	}

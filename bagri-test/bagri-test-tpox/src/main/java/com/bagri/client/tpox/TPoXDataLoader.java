@@ -13,19 +13,10 @@ import java.util.concurrent.Executors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
-//import com.bagri.xdm.access.coherence.impl.CoherenceDocumentManager;
-
-
-import com.bagri.xdm.api.XDMDocumentManagement;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMRepository;
-import com.bagri.xdm.client.hazelcast.impl.DocumentManagementImpl;
 import com.bagri.xdm.client.hazelcast.impl.RepositoryImpl;
-import com.bagri.xdm.common.XDMDocumentId;
 import com.bagri.xdm.domain.XDMDocument;
-
-import static com.bagri.xdm.client.common.XDMCacheConstants.*;
 
 public class TPoXDataLoader {
 
@@ -118,7 +109,7 @@ public class TPoXDataLoader {
 	private String storeDocument(String uri, String xml) {
 
 		try {
-			XDMDocument doc = xRepo.getDocumentManagement().storeDocumentFromString(new XDMDocumentId(uri), xml, null);
+			XDMDocument doc = xRepo.getDocumentManagement().storeDocumentFromString(uri, xml, null);
 			//logger.trace("storeDocument.exit; result: {}", result);
 			return doc.getUri();
 		} catch (XDMException ex) {

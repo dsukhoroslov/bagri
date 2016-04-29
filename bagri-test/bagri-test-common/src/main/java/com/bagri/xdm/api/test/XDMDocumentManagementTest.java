@@ -1,19 +1,11 @@
 package com.bagri.xdm.api.test;
 
 import static com.bagri.common.util.FileUtils.readTextFile;
-import static org.junit.Assert.*;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
 
-import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.common.XDMDocumentId;
 import com.bagri.xdm.domain.XDMDocument;
 
 public abstract class XDMDocumentManagementTest extends XDMManagementTest {
@@ -84,7 +76,7 @@ public abstract class XDMDocumentManagementTest extends XDMManagementTest {
 		
 		long txId2 = getTxManagement().beginTransaction();
 		removeDocumentTest(doc.getUri());
-		doc = getDocManagement().getDocument(new XDMDocumentId(doc.getUri()));
+		doc = getDocManagement().getDocument(doc.getUri());
 		// now it is null.. think about it - is it correct or not?
 		//assertNotNull(doc);
 		//assertEquals(txId, doc.getTxStart());
@@ -114,7 +106,7 @@ public abstract class XDMDocumentManagementTest extends XDMManagementTest {
 		assertEquals(0, doc.getTxFinish());
 		getTxManagement().commitTransaction(txId);
 
-		String result = getDocManagement().getDocumentAsString(new XDMDocumentId(doc.getUri()));
+		String result = getDocManagement().getDocumentAsString(doc.getUri());
 		assertNotNull(result);
 		assertEquals(xml.length(), result.length());
 	}

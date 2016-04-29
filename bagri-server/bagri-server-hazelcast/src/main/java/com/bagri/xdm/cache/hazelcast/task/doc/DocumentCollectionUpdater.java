@@ -26,9 +26,9 @@ public class DocumentCollectionUpdater extends com.bagri.xdm.client.hazelcast.ta
     	checkPermission(Permission.modify);
     	
     	if (add) {
-    		return docMgr.addDocumentToCollections(docId, collections);
+    		return docMgr.addDocumentToCollections(uri, collections);
     	} else {
-    		return docMgr.removeDocumentFromCollections(docId, collections);
+    		return docMgr.removeDocumentFromCollections(uri, collections);
     	}    	
 	}
 

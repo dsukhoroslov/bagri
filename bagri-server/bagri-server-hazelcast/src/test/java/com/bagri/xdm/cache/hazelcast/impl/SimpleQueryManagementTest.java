@@ -14,12 +14,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import com.bagri.common.manage.JMXUtils;
 import com.bagri.xdm.api.test.XDMManagementTest;
 import com.bagri.xdm.client.hazelcast.impl.ResultCursor;
-import com.bagri.xdm.common.XDMDocumentId;
 import com.bagri.xdm.domain.XDMDocument;
-import com.bagri.xdm.system.XDMCollection;
 import com.bagri.xdm.system.XDMSchema;
 import com.bagri.xquery.api.XQProcessor;
 
@@ -77,8 +74,7 @@ public class SimpleQueryManagementTest extends XDMManagementTest {
 
 		long txId = xRepo.getTxManagement().beginTransaction();
 		Properties props = new Properties();
-		XDMDocumentId docId = new XDMDocumentId(uri);
-		XDMDocument xDoc = xRepo.getDocumentManagement().storeDocumentFromString(docId, xml, props);
+		XDMDocument xDoc = xRepo.getDocumentManagement().storeDocumentFromString(uri, xml, props);
 		xRepo.getTxManagement().commitTransaction(txId);
 		assertNotNull(xDoc);
 		assertEquals(uri, xDoc.getUri());

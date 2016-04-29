@@ -35,7 +35,6 @@ import com.bagri.xdm.client.hazelcast.impl.RepositoryImpl;
 import com.bagri.xdm.client.hazelcast.impl.ResultCursor;
 import com.bagri.xdm.client.hazelcast.task.query.DocumentIdsProvider;
 import com.bagri.xdm.client.hazelcast.task.query.QueryExecutor;
-import com.bagri.xdm.common.XDMDocumentId;
 import com.bagri.xdm.domain.XDMQuery;
 import com.bagri.xdm.domain.XDMResults;
 import com.hazelcast.cache.HazelcastCachingProvider;
@@ -94,16 +93,16 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 	}
 	
 	@Override
-	public Collection<XDMDocumentId> getDocumentIds(String query, Map<QName, Object> params, Properties props) throws XDMException {
+	public Collection<String> getDocumentUris(String query, Map<QName, Object> params, Properties props) throws XDMException {
 
 		long stamp = System.currentTimeMillis();
-		logger.trace("getDocumentIDs.enter; query: {}", query);
-		DocumentIdsProvider task = new DocumentIdsProvider(repo.getClientId(), repo.getTransactionId(), query, params, props);
+		logger.trace("getDocumentUris.enter; query: {}", query);
+		DocumentUrisProvider task = new DocumentUrisProvider(repo.getClientId(), repo.getTransactionId(), query, params, props);
 		Future<Collection<XDMDocumentId>> future = execService.submit(task);
 		execution = future;
-		Collection<XDMDocumentId> result = getResults(future, 0);
+		Collection<String> result = getResults(future, 0);
 		stamp = System.currentTimeMillis() - stamp;
-		logger.trace("getDocumentIDs.exit; time taken: {}; returning: {}", stamp, result);
+		logger.trace("getDocumentUris.exit; time taken: {}; returning: {}", stamp, result);
 		return result;
 	}
 	

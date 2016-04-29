@@ -49,7 +49,6 @@ import com.bagri.xdm.client.hazelcast.data.QueryParamsKey;
 import com.bagri.xdm.client.hazelcast.impl.FixedCursor;
 import com.bagri.xdm.client.hazelcast.impl.ResultCursor;
 import com.bagri.xdm.common.XDMDataKey;
-import com.bagri.xdm.common.XDMDocumentId;
 import com.bagri.xdm.common.XDMDocumentKey;
 import com.bagri.xdm.common.XDMResultsKey;
 import com.bagri.xdm.domain.XDMDocument;
@@ -535,21 +534,28 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 	}
 
 	@Override
-	public Collection<XDMDocumentId> getDocumentIds(String query, Map<QName, Object> params, Properties props) throws XDMException {
-		logger.trace("getDocumentIds.enter; query: {}, command: {}; params: {}; properties: {}", query, params, props);
-		List<XDMDocumentId> result = null;
+	public Collection<String> getDocumentUris(String query, Map<QName, Object> params, Properties props) throws XDMException {
+		logger.trace("getDocumentUris.enter; query: {}, command: {}; params: {}; properties: {}", query, params, props);
+		Collection<Long> keys = getDocumentKeys(query, params, props);
+		List<String> result = new ArrayList<>(keys.size());
+		for (Long docKey: keys) {
+			XDMDocument doc = docMgr.getDocument(docKey);
+			result.add(doc.getUri());
+		}
+		logger.trace("getDocumentUris.exit; returning: {}", result);
+		return result;
+	}
+
+	public Collection<Long> getDocumentKeys(String query, Map<QName, Object> params, Properties props) throws XDMException {
+		logger.trace("getDocumentKeys.enter; query: {}, command: {}; params: {}; properties: {}", query, params, props);
+		Collection<Long> result = null;
 		try {
 			Iterator<?> iter = runQuery(query, params, props);
-			Collection<Long> ids = thContext.get().getDocIds();
-			result = new ArrayList<>(ids.size());
-			for (Long id: ids) {
-				// TODO: get uri from doc somehow..
-				result.add(new XDMDocumentId(id));
-			}
+			result = thContext.get().getDocIds();
 		} catch (XQException ex) {
 			throw new XDMException(ex, XDMException.ecQuery);
 		}
-		logger.trace("getDocumentIds.exit; returning: {}", result);
+		logger.trace("getDocumentKeys.exit; returning: {}", result);
 		return result;
 	}
 	

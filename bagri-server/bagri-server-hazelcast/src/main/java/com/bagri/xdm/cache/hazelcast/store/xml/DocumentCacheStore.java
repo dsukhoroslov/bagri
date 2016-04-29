@@ -7,6 +7,7 @@ import static com.bagri.xdm.api.XDMTransactionManagement.TX_INIT;
 import static com.bagri.xdm.api.XDMTransactionManagement.TX_NO;
 import static com.bagri.xdm.cache.hazelcast.util.SpringContextHolder.getContext;
 import static com.bagri.xdm.cache.hazelcast.util.SpringContextHolder.schema_context;
+import static com.bagri.xdm.domain.XDMDocument.dvFirst;
 
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
@@ -34,7 +35,6 @@ import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.cache.hazelcast.impl.DocumentManagementImpl;
 import com.bagri.xdm.cache.hazelcast.impl.PopulationManagementImpl;
 import com.bagri.xdm.client.common.XDMCacheConstants;
-import com.bagri.xdm.common.XDMDocumentId;
 import com.bagri.xdm.common.XDMDocumentKey;
 import com.bagri.xdm.common.XDMParser;
 import com.bagri.xdm.domain.XDMData;
@@ -237,8 +237,13 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<XDMDoc
 			Collections.sort(files);
 			XDMDocumentKey docKey; 
 			for (Path path: files) {
-				docKey = docMgr.nextDocumentKey();
-				uris.put(docKey, path.getFileName().toString());
+				String uri = path.getFileName().toString();
+				int revision = 0;
+				do {
+					docKey = docMgr.getXdmFactory().newXDMDocumentKey(uri, revision, dvFirst);
+					revision++;
+				} while (uris.get(docKey) != null);				
+				uris.put(docKey, uri);
 			}
 			docIds = new HashSet<XDMDocumentKey>(uris.keySet());
 		} catch (IOException ex) {
@@ -271,11 +276,11 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<XDMDoc
 			// update existing document - put a new version
 		}
 		
-		docUri = getFullUri(docUri);
+		String fullUri = getFullUri(docUri);
 		try {
-			String xml = docMgr.getDocumentAsString(new XDMDocumentId(key.getKey()));
-			FileUtils.writeTextFile(docUri, xml);
-			logger.trace("store.exit; stored as: {}; length: {}", docUri, xml.length());
+			String xml = docMgr.getDocumentAsString(key);
+			FileUtils.writeTextFile(fullUri, xml);
+			logger.trace("store.exit; stored as: {}; length: {}", fullUri, xml.length());
 		} catch (IOException | XDMException ex) {
 			logger.error("store.error; exception on store document: " + ex.getMessage(), ex);
 			// rethrow it ?

@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.bagri.xdm.api.XDMDocumentManagement;
 import com.bagri.xdm.cache.api.XDMRepository;
 import com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl;
-import com.bagri.xdm.common.XDMDocumentId;
 import com.bagri.xdm.system.XDMPermission.Permission;
 import com.hazelcast.spring.context.SpringAware;
 
@@ -23,10 +22,10 @@ public class CollectionDocumentsProvider extends com.bagri.xdm.client.hazelcast.
 	}
 
     @Override
-	public Collection<XDMDocumentId> call() throws Exception {
+	public Collection<String> call() throws Exception {
     	((RepositoryImpl) repo).getXQProcessor(clientId);
     	checkPermission(Permission.read);
-   		return docMgr.getCollectionDocumentIds(collection);
+   		return docMgr.getCollectionDocumentUris(collection);
 	}
 	
 }

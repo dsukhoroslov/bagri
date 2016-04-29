@@ -15,11 +15,8 @@ import java.util.Vector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMRepository;
 import com.bagri.xdm.client.hazelcast.impl.RepositoryImpl;
-import com.bagri.xdm.common.XDMDocumentId;
-import com.hazelcast.util.HashUtil;
 import com.yahoo.ycsb.ByteIterator;
 import com.yahoo.ycsb.DB;
 import com.yahoo.ycsb.DBException;
@@ -45,10 +42,6 @@ public class BagriClient extends DB {
 	    xRepo.close();
 	}
 	
-	private XDMDocumentId buildId(final String key, final int version) {
-		return new XDMDocumentId(key);
-	}
-	
 	@Override
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Status insert(final String table, final String key, final HashMap<String, ByteIterator> values) {
@@ -57,10 +50,9 @@ public class BagriClient extends DB {
 		props.setProperty(xdm_document_collections, table);
 		props.setProperty(pn_client_storeMode, pv_client_storeMode_insert);
 		//props.setProperty(xdm_document_data_format, "map");
-		XDMDocumentId xid = buildId(key, 1);
 		HashMap fields = StringByteIterator.getStringMap(values);
 		try {
-			xRepo.getDocumentManagement().storeDocumentFromMap(xid, fields, props);
+			xRepo.getDocumentManagement().storeDocumentFromMap(key, fields, props);
 			return Status.OK;
 		} catch (Exception ex) {
 			logger.error("insert.error", ex);
@@ -72,9 +64,8 @@ public class BagriClient extends DB {
 	public Status read(final String table, final String key, final Set<String> fields,
 			    final HashMap<String, ByteIterator> result) {
 		//logger.debug("read.enter; table: {}; startKey: {}; fields: {}",	new Object[] {table, key, fields});
-		XDMDocumentId xid = buildId(key, 0);
 		try {
-			Map<String, Object> map = xRepo.getDocumentManagement().getDocumentAsMap(xid);
+			Map<String, Object> map = xRepo.getDocumentManagement().getDocumentAsMap(key);
 			if (map == null) {
 				logger.info("read; not found document for key: {}; table: {}", key, table);
 				return Status.NOT_FOUND;
@@ -117,10 +108,9 @@ public class BagriClient extends DB {
 		props.setProperty(pn_client_storeMode, pv_client_storeMode_update);
 		props.setProperty(pn_client_txTimeout, "100");
 		//props.setProperty(xdm_document_data_format, "map");
-		XDMDocumentId xid = buildId(key, 0);
 		HashMap fields = StringByteIterator.getStringMap(values);
 		try {
-			xRepo.getDocumentManagement().storeDocumentFromMap(xid, fields, props);
+			xRepo.getDocumentManagement().storeDocumentFromMap(key, fields, props);
 			return Status.OK;
 		} catch (Exception ex) {
 			logger.error("update.error", ex);
@@ -130,9 +120,8 @@ public class BagriClient extends DB {
 
 	@Override
 	public Status delete(final String table, final String key) {
-		XDMDocumentId xid = buildId(key, 0);
 		try {
-			xRepo.getDocumentManagement().removeDocument(xid);
+			xRepo.getDocumentManagement().removeDocument(key);
 			return Status.OK;
 		} catch (Exception ex) {
 			logger.error("delete.error", ex);

@@ -13,7 +13,6 @@ import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.api.XDMQueryManagement;
 import com.bagri.xdm.api.XDMRepository;
 import com.bagri.xdm.api.XDMTransactionManagement;
-import com.bagri.xdm.common.XDMDocumentId;
 import com.bagri.xdm.domain.XDMDocument;
 
 public abstract class XDMManagementTest {
@@ -68,7 +67,7 @@ public abstract class XDMManagementTest {
 		}
 		long txId =  getTxManagement().beginTransaction();
 		for (String uri: uris) {
-			getDocManagement().removeDocument(new XDMDocumentId(uri));
+			getDocManagement().removeDocument(uri);
 		}
 		uris.clear();
 		getTxManagement().commitTransaction(txId);
@@ -77,18 +76,17 @@ public abstract class XDMManagementTest {
 	public XDMDocument createDocumentTest(String fileName) throws Exception {
 		String xml = readTextFile(fileName);
 		Properties props = getDocumentProperties();
-		return getDocManagement().storeDocumentFromString(new XDMDocumentId(getUri(fileName)), xml, props);
+		return getDocManagement().storeDocumentFromString(getUri(fileName), xml, props);
 	}
 	
 	public XDMDocument updateDocumentTest(String uri, String fileName) throws Exception {
 		String xml = readTextFile(fileName);
 		Properties props = getDocumentProperties();
-		XDMDocumentId docId = new XDMDocumentId(uri);
-		return getDocManagement().storeDocumentFromString(docId, xml, props);
+		return getDocManagement().storeDocumentFromString(uri, xml, props);
 	}
 
 	public void removeDocumentTest(String uri) throws Exception {
-		getDocManagement().removeDocument(new XDMDocumentId(uri));
+		getDocManagement().removeDocument(uri);
 	}
 
 	public void storeSecurityTest() throws Exception {

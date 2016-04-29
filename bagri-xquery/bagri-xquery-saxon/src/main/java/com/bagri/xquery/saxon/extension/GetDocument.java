@@ -49,7 +49,7 @@ public class GetDocument extends DocumentFunctionExtension {
 
 				String result = null;
 				try {
-					result = xdm.getDocumentAsString(toDocumentId(arguments[0]));
+					result = xdm.getDocumentAsString(toUri(arguments[0]));
 				} catch (XDMException ex) {
 					throw new XPathException(ex);
 				}

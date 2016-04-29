@@ -7,12 +7,11 @@ import java.util.Collection;
 import java.util.concurrent.Callable;
 
 import com.bagri.xdm.client.hazelcast.task.ClientAwareTask;
-import com.bagri.xdm.common.XDMDocumentId;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
-public class CollectionDocumentsProvider extends ClientAwareTask implements Callable<Collection<XDMDocumentId>>, IdentifiedDataSerializable {
+public class CollectionDocumentsProvider extends ClientAwareTask implements Callable<Collection<String>>, IdentifiedDataSerializable {
 	
 	protected String collection;
 
@@ -26,7 +25,7 @@ public class CollectionDocumentsProvider extends ClientAwareTask implements Call
 	}
 
 	@Override
-	public Collection<XDMDocumentId> call() throws Exception {
+	public Collection<String> call() throws Exception {
 		return null;
 	}
 	

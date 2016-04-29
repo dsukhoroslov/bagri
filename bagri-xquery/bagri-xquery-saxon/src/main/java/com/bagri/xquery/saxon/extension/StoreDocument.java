@@ -4,12 +4,8 @@ import static com.bagri.xdm.common.XDMConstants.cmd_store_document;
 
 import java.util.Properties;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.bagri.xdm.api.XDMDocumentManagement;
 import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.common.XDMDocumentId;
 import com.bagri.xdm.domain.XDMDocument;
 
 import net.sf.saxon.expr.XPathContext;
@@ -43,6 +39,11 @@ public class StoreDocument extends DocumentFunctionExtension {
 	}
 
 	@Override 
+	public int getMinimumNumberOfArguments() { 
+		return 2; 
+	}
+	
+	@Override 
 	public int getMaximumNumberOfArguments() { 
 		return 3; 
 	} 	
@@ -57,17 +58,14 @@ public class StoreDocument extends DocumentFunctionExtension {
 			@Override
 			public Sequence call(XPathContext context, Sequence[] arguments) throws XPathException {
 				
-				String xml = arguments[0].head().getStringValue();
-				XDMDocumentId docId = null;
-				if (arguments.length > 1) {
-					docId = toDocumentId(arguments[1]);
-				}
+				String uri = toUri(arguments[0]);
+				String xml = arguments[1].head().getStringValue();
 				Properties props = null; 
 				if (arguments.length > 2) {
 					props = toProperties(arguments[2]);
 				}
 				try {
-					XDMDocument doc = xdm.storeDocumentFromString(docId, xml, props);
+					XDMDocument doc = xdm.storeDocumentFromString(uri, xml, props);
 					return new Int64Value(doc.getDocumentKey());
 					//return new ObjectValue(doc);
 				} catch (XDMException ex) {

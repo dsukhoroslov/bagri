@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 import com.bagri.xdm.api.XDMBindingManagement;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMRepository;
-import com.bagri.xdm.common.XDMDocumentId;
 
 public class BindingManagementImpl implements XDMBindingManagement {
 	
@@ -28,17 +27,17 @@ public class BindingManagementImpl implements XDMBindingManagement {
 	}	
 
 	@Override
-	public <T> T getDocumentBinding(XDMDocumentId docId) throws XDMException {
+	public <T> T getDocumentBinding(String uri) throws XDMException {
 		
 		return null;
 	}
 
 	@Override
-	public <T> T getDocumentBinding(XDMDocumentId docId, Class<T> type) throws XDMException {
+	public <T> T getDocumentBinding(String uri, Class<T> type) throws XDMException {
 		
-		logger.trace("getDocumentBinding.enter; docId: {}; type: {}", docId, type);
+		logger.trace("getDocumentBinding.enter; uri: {}; type: {}", uri, type);
 		Object result = null;
-		String xml = repo.getDocumentManagement().getDocumentAsString(docId);
+		String xml = repo.getDocumentManagement().getDocumentAsString(uri);
 		if (xml != null) {
 	        try {
 	        	// TODO think about internal static context
@@ -54,9 +53,9 @@ public class BindingManagementImpl implements XDMBindingManagement {
 	}
 
 	@Override
-	public void setDocumentBinding(Object value) throws XDMException {
+	public void setDocumentBinding(String uri, Object value) throws XDMException {
 		
-		logger.trace("setDocumentBinding.enter; value: {}", value);
+		logger.trace("setDocumentBinding.enter; uri{ {}; value: {}", uri, value);
         try {
         	// TODO: think about internal static context
         	JAXBContext jc = JAXBContext.newInstance(value.getClass());
@@ -66,8 +65,8 @@ public class BindingManagementImpl implements XDMBindingManagement {
         	writer.flush();
         	String xml = writer.getBuffer().toString();
         	writer.close();
-        	// TODO: get docId/uri from value somehow?
-        	repo.getDocumentManagement().storeDocumentFromString(null, xml, null);
+        	// TODO: set proper properties..
+        	repo.getDocumentManagement().storeDocumentFromString(uri, xml, null);
         } catch (JAXBException ex) {
         	throw new XDMException(ex, XDMException.ecBinding);
         } catch (IOException ex) {

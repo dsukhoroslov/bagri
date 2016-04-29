@@ -5,7 +5,6 @@ import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFacto
 import java.io.IOException;
 import java.util.concurrent.Callable;
 
-import com.bagri.xdm.common.XDMDocumentId;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 
@@ -18,8 +17,8 @@ public class DocumentCollectionUpdater extends DocumentAwareTask implements Call
 		super();
 	}
 	
-	public DocumentCollectionUpdater(String clientId, XDMDocumentId docId, boolean add, String[] collections) {
-		super(clientId, 0, docId, null);
+	public DocumentCollectionUpdater(String clientId, String uri, boolean add, String[] collections) {
+		super(clientId, 0, uri, null);
 		this.add = add;
 		this.collections = collections;
 	}

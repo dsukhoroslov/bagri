@@ -16,8 +16,8 @@ import org.slf4j.LoggerFactory;
 import com.bagri.common.query.ExpressionContainer;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMRepository;
+import com.bagri.xdm.cache.api.XDMDocumentManagement;
 import com.bagri.xdm.cache.api.XDMQueryManagement;
-import com.bagri.xdm.common.XDMDocumentId;
 
 import net.sf.saxon.expr.XPathContext;
 import net.sf.saxon.lib.Resource;
@@ -138,13 +138,12 @@ public class ResourceCollectionImpl implements ResourceCollection {
 
 		@Override
 		public Resource next() {
-			Long next = ResourceCollectionImpl.this.next();
-			if (next != null) {
-				XDMDocumentId docId = new XDMDocumentId(next);
+			Long docKey = ResourceCollectionImpl.this.next();
+			if (docKey != null) {
 				String content;
 				try {
 					// another bottleneck! takes 6.73 ms, even to get XML from cache! !?
-					content = repo.getDocumentManagement().getDocumentAsString(docId);
+					content = ((XDMDocumentManagement) repo.getDocumentManagement()).getDocumentAsString(docKey);
 					//content = content.replaceAll("&", "&amp;");
 				} catch (XDMException ex) {
 					logger.error("next.error", ex);
@@ -154,7 +153,7 @@ public class ResourceCollectionImpl implements ResourceCollection {
 				if (content != null && !content.isEmpty()) {
 					logger.trace("next; got content: {}", content.length());
 					StreamSource ss = new StreamSource(new StringReader(content));
-					ss.setSystemId(bg_schema + ":/" + next);
+					ss.setSystemId(bg_schema + ":/" + docKey);
 					// bottleneck! takes 15 ms. Cache DocumentInfo in Saxon instead! 
 					//NodeInfo doc = config.buildDocument(ss);
 					//mgr.storeDocumentSource(docId, doc);
