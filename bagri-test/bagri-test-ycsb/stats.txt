@@ -1,0 +1,192 @@
+simple-keys; insert; 1 node
+
+[OVERALL], RunTime(ms), 15690.0
+[OVERALL], Throughput(ops/sec), 1274.6972594008923
+[CLEANUP], Operations, 20.0
+[CLEANUP], AverageLatency(us), 5840.75
+[CLEANUP], MinLatency(us), 1824.0
+[CLEANUP], MaxLatency(us), 24927.0
+[CLEANUP], 95thPercentileLatency(us), 15383.0
+[CLEANUP], 99thPercentileLatency(us), 24927.0
+[INSERT], Operations, 20000.0
+[INSERT], AverageLatency(us), 14524.1308
+[INSERT], MinLatency(us), 2700.0
+[INSERT], MaxLatency(us), 382719.0
+[INSERT], 95thPercentileLatency(us), 35167.0
+[INSERT], 99thPercentileLatency(us), 53151.0
+[INSERT], Return=OK, 20000
+
+simple-keys; read/update; 1 node
+
+[OVERALL], RunTime(ms), 27041.0
+[OVERALL], Throughput(ops/sec), 3698.088088458267
+[READ], Operations, 94836.0
+[READ], AverageLatency(us), 12031.075646379013
+[READ], MinLatency(us), 694.0
+[READ], MaxLatency(us), 89727.0
+[READ], 95thPercentileLatency(us), 29663.0
+[READ], 99thPercentileLatency(us), 41087.0
+[READ], Return=OK, 94836
+[READ], Return=NOT_FOUND, 166
+[UPDATE-FAILED], Operations, 7.0
+[UPDATE-FAILED], AverageLatency(us), 223698.2857142857
+[UPDATE-FAILED], MinLatency(us), 159488.0
+[UPDATE-FAILED], MaxLatency(us), 266751.0
+[UPDATE-FAILED], 95thPercentileLatency(us), 266751.0
+[UPDATE-FAILED], 99thPercentileLatency(us), 266751.0
+[CLEANUP], Operations, 50.0
+[CLEANUP], AverageLatency(us), 13432.94
+[CLEANUP], MinLatency(us), 1817.0
+[CLEANUP], MaxLatency(us), 55743.0
+[CLEANUP], 95thPercentileLatency(us), 51647.0
+[CLEANUP], 99thPercentileLatency(us), 55743.0
+[UPDATE], Operations, 4991.0
+[UPDATE], AverageLatency(us), 23351.666599879783
+[UPDATE], MinLatency(us), 4392.0
+[UPDATE], MaxLatency(us), 123263.0
+[UPDATE], 95thPercentileLatency(us), 49343.0
+[UPDATE], 99thPercentileLatency(us), 63135.0
+[UPDATE], Return=OK, 4991
+[UPDATE], Return=ERROR, 7
+[READ-FAILED], Operations, 166.0
+[READ-FAILED], AverageLatency(us), 55746.843373493975
+[READ-FAILED], MinLatency(us), 19024.0
+[READ-FAILED], MaxLatency(us), 185855.0
+[READ-FAILED], 95thPercentileLatency(us), 96511.0
+[READ-FAILED], 99thPercentileLatency(us), 130175.0
+
+simple-keys; insert; 2 nodes
+
+[OVERALL], RunTime(ms), 33755.0
+[OVERALL], Throughput(ops/sec), 592.5048141016146
+[CLEANUP], Operations, 20.0
+[CLEANUP], AverageLatency(us), 7224.95
+[CLEANUP], MinLatency(us), 3534.0
+[CLEANUP], MaxLatency(us), 28559.0
+[CLEANUP], 95thPercentileLatency(us), 15231.0
+[CLEANUP], 99thPercentileLatency(us), 28559.0
+[INSERT], Operations, 20000.0
+[INSERT], AverageLatency(us), 31364.6088
+[INSERT], MinLatency(us), 6372.0
+[INSERT], MaxLatency(us), 675327.0
+[INSERT], 95thPercentileLatency(us), 77951.0
+[INSERT], 99thPercentileLatency(us), 177023.0
+[INSERT], Return=OK, 20000
+
+simple-keys; read/update; 2 nodes
+
+[OVERALL], RunTime(ms), 46784.0
+[OVERALL], Throughput(ops/sec), 2137.482900136799
+[READ], Operations, 94725.0
+[READ], AverageLatency(us), 18120.489553972024
+[READ], MinLatency(us), 801.0
+[READ], MaxLatency(us), 207103.0
+[READ], 95thPercentileLatency(us), 59007.0
+[READ], 99thPercentileLatency(us), 92671.0
+[READ], Return=OK, 94725
+[READ], Return=NOT_FOUND, 278
+[UPDATE-FAILED], Operations, 7.0
+[UPDATE-FAILED], AverageLatency(us), 528603.4285714285
+[UPDATE-FAILED], MinLatency(us), 377344.0
+[UPDATE-FAILED], MaxLatency(us), 773631.0
+[UPDATE-FAILED], 95thPercentileLatency(us), 773631.0
+[UPDATE-FAILED], 99thPercentileLatency(us), 773631.0
+[CLEANUP], Operations, 50.0
+[CLEANUP], AverageLatency(us), 17185.68
+[CLEANUP], MinLatency(us), 3518.0
+[CLEANUP], MaxLatency(us), 131839.0
+[CLEANUP], 95thPercentileLatency(us), 61631.0
+[CLEANUP], 99thPercentileLatency(us), 131839.0
+[UPDATE], Operations, 4990.0
+[UPDATE], AverageLatency(us), 62834.2
+[UPDATE], MinLatency(us), 6828.0
+[UPDATE], MaxLatency(us), 302335.0
+[UPDATE], 95thPercentileLatency(us), 118271.0
+[UPDATE], 99thPercentileLatency(us), 170239.0
+[UPDATE], Return=OK, 4990
+[UPDATE], Return=ERROR, 7
+[READ-FAILED], Operations, 278.0
+[READ-FAILED], AverageLatency(us), 115295.79856115108
+[READ-FAILED], MinLatency(us), 8280.0
+[READ-FAILED], MaxLatency(us), 429823.0
+[READ-FAILED], 95thPercentileLatency(us), 274431.0
+[READ-FAILED], 99thPercentileLatency(us), 383487.0
+
+master; insert; 1 node
+
+[OVERALL], RunTime(ms), 17856.0
+[OVERALL], Throughput(ops/sec), 1120.0716845878137
+[CLEANUP], Operations, 20.0
+[CLEANUP], AverageLatency(us), 8776.05
+[CLEANUP], MinLatency(us), 1929.0
+[CLEANUP], MaxLatency(us), 26639.0
+[CLEANUP], 95thPercentileLatency(us), 15207.0
+[CLEANUP], 99thPercentileLatency(us), 26639.0
+[INSERT], Operations, 20000.0
+[INSERT], AverageLatency(us), 16675.39885
+[INSERT], MinLatency(us), 3734.0
+[INSERT], MaxLatency(us), 383487.0
+[INSERT], 95thPercentileLatency(us), 37055.0
+[INSERT], 99thPercentileLatency(us), 63487.0
+[INSERT], Return=OK, 20000
+
+master; read/update; 1 node
+
+[OVERALL], RunTime(ms), 20805.0
+[OVERALL], Throughput(ops/sec), 4806.536890170632
+[READ], Operations, 94738.0
+[READ], AverageLatency(us), 8941.44266292301
+[READ], MinLatency(us), 553.0
+[READ], MaxLatency(us), 180607.0
+[READ], 95thPercentileLatency(us), 18847.0
+[READ], 99thPercentileLatency(us), 31103.0
+[READ], Return=OK, 94738
+[READ], Return=NOT_FOUND, 106
+[UPDATE-FAILED], Operations, 6.0
+[UPDATE-FAILED], AverageLatency(us), 335850.6666666667
+[UPDATE-FAILED], MinLatency(us), 141952.0
+[UPDATE-FAILED], MaxLatency(us), 615423.0
+[UPDATE-FAILED], 95thPercentileLatency(us), 615423.0
+[UPDATE-FAILED], 99thPercentileLatency(us), 615423.0
+[CLEANUP], Operations, 50.0
+[CLEANUP], AverageLatency(us), 16493.02
+[CLEANUP], MinLatency(us), 1289.0
+[CLEANUP], MaxLatency(us), 89855.0
+[CLEANUP], 95thPercentileLatency(us), 82431.0
+[CLEANUP], 99thPercentileLatency(us), 89855.0
+[UPDATE], Operations, 5150.0
+[UPDATE], AverageLatency(us), 18692.02640776699
+[UPDATE], MinLatency(us), 2620.0
+[UPDATE], MaxLatency(us), 171007.0
+[UPDATE], 95thPercentileLatency(us), 39615.0
+[UPDATE], 99thPercentileLatency(us), 70015.0
+[UPDATE], Return=OK, 5150
+[UPDATE], Return=ERROR, 6
+[READ-FAILED], Operations, 106.0
+[READ-FAILED], AverageLatency(us), 97792.81132075471
+[READ-FAILED], MinLatency(us), 7376.0
+[READ-FAILED], MaxLatency(us), 552959.0
+[READ-FAILED], 95thPercentileLatency(us), 325119.0
+[READ-FAILED], 99thPercentileLatency(us), 415743.0
+
+master; insert; 2 nodes
+
+[OVERALL], RunTime(ms), 35736.0
+[OVERALL], Throughput(ops/sec), 559.6597268860532
+[CLEANUP], Operations, 20.0
+[CLEANUP], AverageLatency(us), 39380.65
+[CLEANUP], MinLatency(us), 3852.0
+[CLEANUP], MaxLatency(us), 96959.0
+[CLEANUP], 95thPercentileLatency(us), 94719.0
+[CLEANUP], 99thPercentileLatency(us), 96959.0
+[INSERT], Operations, 20000.0
+[INSERT], AverageLatency(us), 33379.1474
+[INSERT], MinLatency(us), 8264.0
+[INSERT], MaxLatency(us), 744447.0
+[INSERT], 95thPercentileLatency(us), 100223.0
+[INSERT], 99thPercentileLatency(us), 208383.0
+[INSERT], Return=OK, 20000
+
+master; read/update; 2 nodes
+
+FAILED
