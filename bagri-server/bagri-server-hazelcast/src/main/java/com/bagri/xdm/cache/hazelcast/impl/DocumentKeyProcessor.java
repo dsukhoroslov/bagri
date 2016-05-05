@@ -24,7 +24,7 @@ public class DocumentKeyProcessor implements EntryProcessor<XDMDocumentKey, XDMD
     private static final Logger logger = LoggerFactory.getLogger(DocumentKeyProcessor.class);
 	
 	private String uri;
-	private boolean next;
+	private boolean returnNext;
 	private boolean skipClosed;
     private XDMFactory factory;
     private HazelcastInstance hzInstance;
@@ -33,9 +33,9 @@ public class DocumentKeyProcessor implements EntryProcessor<XDMDocumentKey, XDMD
     	//
     }
     
-    public DocumentKeyProcessor(String uri, boolean next, boolean skipClosed, XDMFactory factory, HazelcastInstance hzInstance) {
+    public DocumentKeyProcessor(String uri, boolean returnNext, boolean skipClosed, XDMFactory factory, HazelcastInstance hzInstance) {
     	this.uri = uri;
-    	this.next = next;
+    	this.returnNext = returnNext;
     	this.skipClosed = skipClosed;
     	this.factory = factory;
     	this.hzInstance = hzInstance;
@@ -43,12 +43,16 @@ public class DocumentKeyProcessor implements EntryProcessor<XDMDocumentKey, XDMD
     
 	@Override
 	public Object process(Entry<XDMDocumentKey, XDMDocument> entry) {
-		IMap<XDMDocumentKey, XDMDocument> xddCache = hzInstance.getMap(CN_XDM_DOCUMENT);
+		if (entry.getValue() == null) {
+			return null;
+		}
+		
 		XDMDocument doc = null;
 		boolean sameUri = false;
 		XDMDocumentKey key = entry.getKey();
+		XDMDocument lastDoc = entry.getValue();
+		IMap<XDMDocumentKey, XDMDocument> xddCache = hzInstance.getMap(CN_XDM_DOCUMENT);
 		do {
-			XDMDocument lastDoc = xddCache.get(key);
 			if (lastDoc != null) {
 				doc = lastDoc;
 				sameUri = uri.equals(lastDoc.getUri());
@@ -57,26 +61,25 @@ public class DocumentKeyProcessor implements EntryProcessor<XDMDocumentKey, XDMD
 				} else {
 					key = factory.newXDMDocumentKey(uri, key.getRevision() + 1, dvFirst);
 				}
+				lastDoc = xddCache.get(key);
 			} else {
 				break;
 			}
 		} while (true);
 		
-		if (doc != null) {
-			if (next) {
-				return key;
-			}
-			if (sameUri) {
-				// the txFinish can be > 0, but not committed yet!
-		        // should also check if doc's start transaction is committed..
-				if (doc.getTxFinish() == 0) {
-					return factory.newXDMDocumentKey(doc.getDocumentKey());
-				} else {
-					if (skipClosed) {
-						return key;
-					}
-					logger.info("process; the latest document version is finished already: {}", doc);
+		if (returnNext) {
+			return key;
+		}
+		if (sameUri) {
+			// the txFinish can be > 0, but not committed yet!
+	        // should also check if doc's start transaction is committed..
+			if (doc.getTxFinish() == 0) {
+				return factory.newXDMDocumentKey(doc.getDocumentKey());
+			} else {
+				if (skipClosed) {
+					return key;
 				}
+				logger.info("process; the latest document version is finished already: {}", doc);
 			}
 		}
 		return null;
