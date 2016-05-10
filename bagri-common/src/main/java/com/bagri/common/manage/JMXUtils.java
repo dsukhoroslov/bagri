@@ -202,7 +202,7 @@ public class JMXUtils {
                 }
                 CompositeType type = new CompositeType(name, desc, names, names, types);
                 return new CompositeDataSupport(type, def);
-            } catch (OpenDataException ex) {
+            } catch (Exception ex) {
                 logger.warn("statsToComposite. error: {}", ex.getMessage());
             }
         }

@@ -22,7 +22,7 @@ import com.hazelcast.core.MapStore;
 public class MigrationTest {
 
 	@Test
-	//@Ignore
+	@Ignore
 	public void testDataMigration() throws Exception {
 	
 		Config shConfig = new Config();

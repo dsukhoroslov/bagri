@@ -1,6 +1,7 @@
 package com.bagri.xdm.cache.hazelcast.store.xml;
 
 import static com.bagri.common.config.XDMConfigConstants.xdm_schema_store_type;
+import static com.bagri.common.config.XDMConfigConstants.xdm_schema_store_data_path;
 import static com.bagri.common.config.XDMConfigConstants.xdm_schema_name;
 import static com.bagri.common.util.FileUtils.def_encoding;
 import static com.bagri.xdm.api.XDMTransactionManagement.TX_INIT;
@@ -45,16 +46,16 @@ import com.hazelcast.core.IMap;
 import com.hazelcast.core.MapLoaderLifecycleSupport;
 import com.hazelcast.core.MapStore;
 
-public class DocumentCacheStore extends XmlCacheStore implements MapStore<XDMDocumentKey, XDMDocument>, MapLoaderLifecycleSupport {
+public class DocumentCacheStore implements MapStore<XDMDocumentKey, XDMDocument>, MapLoaderLifecycleSupport {
 
     private static final Logger logger = LoggerFactory.getLogger(DocumentCacheStore.class);
     
     private HazelcastInstance hzInstance;
     private Map<XDMDocumentKey, String> uris = new HashMap<>();
     
+	private String dataPath;
     private String schemaName;
-	//private String dataPath;
-    private String dataFormat = XDMParser.df_xml;
+    private String dataFormat;
     private DocumentManagementImpl docMgr;
     private XDMModelManagement schemaDict;
     private PopulationManagementImpl popManager;
@@ -63,14 +64,17 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<XDMDoc
     
 	@Override
 	public void init(HazelcastInstance hazelcastInstance, Properties properties, String mapName) {
-		logger.trace("init.enter; properties: {}", properties);
+		logger.info("init.enter; properties: {}", properties);
 		hzInstance = hazelcastInstance;
 		popManager = (PopulationManagementImpl) hzInstance.getUserContext().get("popManager");
-		schemaName = (String) properties.get(xdm_schema_name);
 		xmlCache = hzInstance.getMap(XDMCacheConstants.CN_XDM_CONTENT);
+		dataPath = properties.getProperty(xdm_schema_store_data_path);
+		schemaName = (String) properties.get(xdm_schema_name);
 		String df = properties.getProperty(xdm_schema_store_type);
 		if (df != null) {
 			dataFormat = df;
+		} else {
+			dataFormat = XDMParser.df_xml;
 		}
 	}
 
@@ -107,7 +111,7 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<XDMDoc
 	}
 	
 	private String getFullUri(String fileName) {
-		return getDataPath() + "/" + fileName;
+		return dataPath + "/" + fileName;
 	}
 
     @SuppressWarnings("unchecked")
@@ -228,7 +232,7 @@ public class DocumentCacheStore extends XmlCacheStore implements MapStore<XDMDoc
 			return docIds;
 		}
 	    
-	    Path root = Paths.get(getDataPath());
+	    Path root = Paths.get(dataPath);
 		try {
 			uris.clear();
 			List<Path> files = new ArrayList<>();

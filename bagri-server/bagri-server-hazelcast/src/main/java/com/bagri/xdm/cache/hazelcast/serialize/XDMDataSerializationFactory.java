@@ -8,6 +8,7 @@ import com.bagri.xdm.cache.hazelcast.predicate.ResultsQueryPredicate;
 import com.bagri.xdm.cache.hazelcast.task.doc.DocumentCreator;
 import com.bagri.xdm.cache.hazelcast.task.doc.DocumentMapCreator;
 import com.bagri.xdm.cache.hazelcast.task.doc.DocumentMapProvider;
+import com.bagri.xdm.cache.hazelcast.task.doc.DocumentProvider;
 import com.bagri.xdm.cache.hazelcast.task.doc.DocumentRemover;
 import com.bagri.xdm.cache.hazelcast.task.auth.UserAuthenticator;
 import com.bagri.xdm.cache.hazelcast.task.doc.CollectionDocumentsProvider;
@@ -99,6 +100,7 @@ public class XDMDataSerializationFactory extends com.bagri.xdm.client.hazelcast.
 			case cli_SchemaAdminTask: return new SchemaAdministrator();
 			case cli_SchemaMemberTask: return new SchemaMemberExtractor();
 			case cli_PopulateSchemaTask: return new SchemaPopulator();
+			case cli_GetDocumentTask: return new DocumentProvider();
 			case cli_ProvideDocumentIdsTask: return new DocumentIdsProvider(); 
 			case cli_ProvideDocumentContentTask: return new DocumentContentProvider();
 			case cli_ProvideDocumentStructureTask: return new DocumentStructureProvider();

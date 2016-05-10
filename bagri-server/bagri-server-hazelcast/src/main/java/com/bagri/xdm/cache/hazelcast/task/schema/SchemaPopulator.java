@@ -63,18 +63,18 @@ public class SchemaPopulator extends SchemaProcessingTask implements Callable<Bo
 		//	schemaCtx = (ApplicationContext) hz.getUserContext().get("appContext");
 		//}
 		if (schemaCtx == null) {
-	    	logger.debug("populateSchema.exit; No Spring Context initialized yet");
+	    	logger.info("populateSchema.exit; No Spring Context initialized yet");
 			return false;
 		}
 
-		ApplicationContext storeCtx = (ApplicationContext) getContext(schemaName, store_context);
-		if (storeCtx == null) {
+		//ApplicationContext storeCtx = (ApplicationContext) getContext(schemaName, store_context);
+		//if (storeCtx == null) {
 			// schema configured with no persistent store
-	    	logger.debug("populateSchema.exit; No persistent store configured");
-			return false;
-		}
+	    //	logger.debug("populateSchema.exit; No persistent store configured");
+		//	return false;
+		//}
 		
-		MapLoader docCacheStore = storeCtx.getBean("docCacheStore", MapLoader.class);
+		//MapLoader docCacheStore = storeCtx.getBean("docCacheStore", MapLoader.class);
 		
 		//Properties props = new Properties();
 		//props.put("documentIdGenerator", schemaCtx.getBean("xdm.document"));
@@ -85,11 +85,11 @@ public class SchemaPopulator extends SchemaProcessingTask implements Callable<Bo
 		
 		IMap<Long, XDMDocument> xddCache = hz.getMap(CN_XDM_DOCUMENT);
 		xddCache.loadAll(false);
-    	logger.trace("populateSchema; documents size after loadAll: {}", xddCache.size());
+    	logger.info("populateSchema; documents size after loadAll: {}", xddCache.size());
 
 		IMap<Long, XDMTransaction> xtxCache = hz.getMap(CN_XDM_TRANSACTION);
 		xtxCache.loadAll(false);
-    	logger.trace("populateSchema; transactions size after loadAll: {}", xtxCache.size());
+    	logger.info("populateSchema; transactions size after loadAll: {}", xtxCache.size());
 
     	// adjusting tx idGen!
 		TransactionManagementImpl txMgr = schemaCtx.getBean("txManager", TransactionManagementImpl.class);

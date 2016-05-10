@@ -146,8 +146,8 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
     	return keys;
     }
     
-    public Collection<XDMElements> getDocumentElements(long docKey) {
-		XDMDocument doc = getDocument(docKey);
+    public Collection<XDMElements> getDocumentElements(XDMDocumentId docId) {
+		XDMDocument doc = getDocument(docId);
 		if (doc == null) {
 			return null;
 		}

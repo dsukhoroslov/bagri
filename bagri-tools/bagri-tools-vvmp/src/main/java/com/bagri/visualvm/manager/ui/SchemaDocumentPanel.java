@@ -321,7 +321,7 @@ public class SchemaDocumentPanel extends JPanel {
     	if (docPanel == null) {
 	    	docPanel = new JPanel(new BorderLayout());
 	        JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-	        docInfoPanel = new JPanel(new GridLayout(4, 3));
+	        docInfoPanel = new JPanel(new GridLayout(5, 3));
 			docInfoPanel.add(new JLabel("key:"));
 			docInfoPanel.add(new JLabel("id:"));
 			docInfoPanel.add(new JLabel("version:"));
@@ -334,8 +334,10 @@ public class SchemaDocumentPanel extends JPanel {
 			docInfoPanel.add(new JLabel("elements:"));
 			docInfoPanel.add(new JLabel("fragments:"));
 			docInfoPanel.add(new JLabel("collections:"));
-			docInfoPanel.setPreferredSize(new Dimension(500, 100));
-			docInfoPanel.setMinimumSize(new Dimension(500, 100));
+			docInfoPanel.add(new JLabel("partition:"));
+			docInfoPanel.add(new JLabel("owner:"));
+			docInfoPanel.setPreferredSize(new Dimension(500, 120));
+			docInfoPanel.setMinimumSize(new Dimension(500, 120));
 			docInfoPanel.setBorder(BorderFactory.createTitledBorder("document: "));
 	        splitPane.setTopComponent(docInfoPanel);
 	
@@ -389,6 +391,8 @@ public class SchemaDocumentPanel extends JPanel {
 			((JLabel) labels[9]).setText("elements: " + doc.get("elements"));
 			((JLabel) labels[10]).setText("fragments: " + doc.get("fragments"));
 			((JLabel) labels[11]).setText("collections: " + doc.get("collections"));
+			((JLabel) labels[12]).setText("partition: " + doc.get("partition"));
+			((JLabel) labels[13]).setText("owner: " + doc.get("owner"));
 			docInfoPanel.repaint();
 
 			String content = docMgr.getDocumentContent(uri);

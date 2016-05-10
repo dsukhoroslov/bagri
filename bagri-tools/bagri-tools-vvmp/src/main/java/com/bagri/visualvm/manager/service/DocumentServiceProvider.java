@@ -193,6 +193,14 @@ public class DocumentServiceProvider implements DocumentManagementService {
 		            result.put(name, info.get(name));
 		        }
 	        }
+			info = (CompositeData) connection.invoke(getDocMgrObjectName(), "getDocumentLocation", 
+					new Object[] {uri}, new String[] {String.class.getName()});
+	        if (info != null) {
+		        CompositeType type = info.getCompositeType();
+		        for (String name : type.keySet()) {
+		            result.put(name, info.get(name));
+		        }
+	        }			
 	        return result;
 		} catch (Exception ex) {
             LOGGER.throwing(this.getClass().getName(), "getDocumentInfo", ex);

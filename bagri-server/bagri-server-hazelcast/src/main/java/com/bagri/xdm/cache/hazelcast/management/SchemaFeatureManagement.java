@@ -31,6 +31,7 @@ public abstract class SchemaFeatureManagement implements SelfNaming {
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     protected String schemaName;
+    protected HazelcastInstance hzClient;
 	protected IExecutorService execService;
 	protected XDMModelManagement modelMgr;
 	protected SchemaManager schemaManager;
@@ -47,7 +48,7 @@ public abstract class SchemaFeatureManagement implements SelfNaming {
 	
 	public void setSchemaManager(SchemaManager schemaManager) {
 		this.schemaManager = schemaManager;
-		HazelcastInstance hzClient = schemaManager.getHazelcastClient();
+		hzClient = schemaManager.getHazelcastClient();
 		execService = hzClient.getExecutorService(XDMCacheConstants.PN_XDM_SCHEMA_POOL);
 		modelMgr = schemaManager.getRepository().getModelManagement();
 	}

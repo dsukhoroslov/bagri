@@ -91,6 +91,7 @@
 					<hz:properties>
 						<hz:property name="xdm.schema.name">${xdm.schema.name}</hz:property>
 						<hz:property name="xdm.schema.store.type">${xdm.schema.store.type}</hz:property>
+	    				<hz:property name="xdm.schema.store.data.path">${xdm.schema.store.data.path}</hz:property>
 					</hz:properties>
 				</hz:map-store>
 				<hz:indexes>
@@ -269,7 +270,7 @@
 	
 	<bean id="xdmFactory" class="com.bagri.xdm.cache.hazelcast.impl.XDMFactoryImpl"/>
 
-	<bean id="xdmStoreFactory" class="com.bagri.xdm.cache.hazelcast.store.XDMMapStoreFactory"/>
+	<bean id="xdmStoreFactory" class="com.bagri.xdm.cache.hazelcast.store.DocumentStoreFactory"/>
 
 	<!--bean id="docGen" class="com.bagri.xdm.client.hazelcast.impl.IdGeneratorImpl">
 		<constructor-arg ref="xdm.document" />

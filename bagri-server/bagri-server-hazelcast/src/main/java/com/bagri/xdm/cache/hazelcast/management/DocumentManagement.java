@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
@@ -46,6 +47,7 @@ import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.system.XDMCollection;
 import com.bagri.xdm.system.XDMSchema;
 import com.hazelcast.core.Member;
+import com.hazelcast.core.Partition;
 
 @ManagedResource(description="Schema Documents Management MBean")
 public class DocumentManagement extends SchemaFeatureManagement {
@@ -90,6 +92,27 @@ public class DocumentManagement extends SchemaFeatureManagement {
 		}
 	}
 	
+	@ManagedOperation(description="delete all Schema documents")
+	@ManagedOperationParameters({
+		@ManagedOperationParameter(name = "evictOnly", description = "Delete from Cache or from Cache and CacheStore too")})
+	public boolean clear(boolean evictOnly) {
+		
+		SchemaDocCleaner task = new SchemaDocCleaner(schemaName, evictOnly);
+		Map<Member, Future<Boolean>> results = execService.submitToAllMembers(task);
+		boolean result = true;
+		for (Map.Entry<Member, Future<Boolean>> entry: results.entrySet()) {
+			try {
+				if (!entry.getValue().get()) {
+					result = false;
+				}
+			} catch (InterruptedException | ExecutionException ex) {
+				logger.error("clear.error; ", ex);
+				//throw new RuntimeException(ex.getMessage());
+			}
+		}
+		return result;
+	}
+	    
 	@ManagedAttribute(description="Returns Schema Totals")
 	public CompositeData getTotalCounts() {
 		collectTotals();
@@ -129,7 +152,7 @@ public class DocumentManagement extends SchemaFeatureManagement {
 	public CompositeData getDocumentElements(String uri) {
 		//
 		//docManager.
-		DocumentStructureProvider task = new DocumentStructureProvider(null, new XDMDocumentId(uri)); //??
+		DocumentStructureProvider task = new DocumentStructureProvider(null, new XDMDocumentId(uri)); 
 		Future<CompositeData> result = execService.submitToKeyOwner(task, uri); //?!!
 		try {
 			return result.get();
@@ -148,11 +171,30 @@ public class DocumentManagement extends SchemaFeatureManagement {
 			if (doc != null) {
 				Map<String, Object> docInfo = doc.convert();
 				return JMXUtils.mapToComposite("document", "Document Info", docInfo);
-			} else {
-				return null;
-			}
+			} 
+			return null;
 		} catch (XDMException ex) {
 			logger.error("getDocumentInfo.error: " + ex.getMessage(), ex);
+			throw new RuntimeException(ex.getMessage());
+		}
+	}
+	
+	@ManagedOperation(description="Return Document Location Info")
+	@ManagedOperationParameters({
+		@ManagedOperationParameter(name = "uri", description = "Document identifier")})
+	public CompositeData getDocumentLocation(String uri) {
+		try {
+			XDMDocument doc = docManager.getDocument(new XDMDocumentId(uri));
+			if (doc != null) {
+				Partition part = hzClient.getPartitionService().getPartition(doc.getDocumentId());
+				Map<String, Object> location = new HashMap<>(2);
+				location.put("partition", part.getPartitionId());
+				location.put("owner", part.getOwner().toString());
+				return JMXUtils.mapToComposite("document", "Document Location", location);
+			}
+			return null;
+		} catch (XDMException ex) {
+			logger.error("getDocumentLocation.error: " + ex.getMessage(), ex);
 			throw new RuntimeException(ex.getMessage());
 		}
 	}
@@ -169,83 +211,6 @@ public class DocumentManagement extends SchemaFeatureManagement {
 		}
 	}
 
-	@Override
-	protected Collection getSchemaFeatures(XDMSchema schema) {
-		return schema.getCollections();
-	}
-
-	@ManagedAttribute(description="Return Collections registered in the Schema")
-	public TabularData getCollections() {
-		return getTabularFeatures("collection", "Collection definition", "name");
-	}
-	
-	@ManagedOperation(description="Creates a new Collection")
-	@ManagedOperationParameters({
-		@ManagedOperationParameter(name = "name", description = "Collection name to create"),
-		@ManagedOperationParameter(name = "docType", description = "Root path for document type, if needed"),
-		@ManagedOperationParameter(name = "description", description = "Collection description")})
-	public void addCollection(String name, String docType, String description) {
-
-		logger.trace("addCollection.enter;");
-		long stamp = System.currentTimeMillis();
-		XDMCollection collect = schemaManager.addCollection(name, docType, description);
-		if (collect == null) {
-			throw new IllegalStateException("Collection '" + name + "' in schema '" + schemaName + "' already exists");
-		}
-		
-		int cnt = 0;
-		stamp = System.currentTimeMillis() - stamp;
-		logger.trace("addCollection.exit; collection added on {} members; timeTaken: {}", cnt, stamp);
-	}
-	
-	@ManagedOperation(description="Removes an existing Collection")
-	@ManagedOperationParameters({@ManagedOperationParameter(name = "name", description = "Collection name to remove")})
-	public void removeCollection(String name) {
-		
-		logger.trace("removeCollection.enter;");
-		long stamp = System.currentTimeMillis();
-		if (!schemaManager.deleteCollection(name)) {
-			throw new IllegalStateException("Collection '" + name + "' in schema '" + schemaName + "' does not exist");
-		}
-
-		int cnt = 0;
-		stamp = System.currentTimeMillis() - stamp;
-		logger.trace("removeCollection.exit; collection deleted on {} members; timeTaken: {}", cnt, stamp);
-	}
-
-	@ManagedOperation(description="Enables/Disables an existing Collection")
-	@ManagedOperationParameters({
-		@ManagedOperationParameter(name = "name", description = "Collection name to enable/disable"),
-		@ManagedOperationParameter(name = "enable", description = "enable/disable collection")})
-	public void enableCollection(String name, boolean enable) {
-		
-		if (!schemaManager.enableCollection(name, enable)) {
-			throw new IllegalStateException("Collection '" + name + "' in schema '" + schemaName + 
-					"' does not exist or already " + (enable ? "enabled" : "disabled"));
-		}
-	}
-	
-	@ManagedOperation(description="delete all Schema documents")
-	@ManagedOperationParameters({
-		@ManagedOperationParameter(name = "evictOnly", description = "Delete from Cache or from Cache and CacheStore too")})
-	public boolean clear(boolean evictOnly) {
-		
-		SchemaDocCleaner task = new SchemaDocCleaner(schemaName, evictOnly);
-		Map<Member, Future<Boolean>> results = execService.submitToAllMembers(task);
-		boolean result = true;
-		for (Map.Entry<Member, Future<Boolean>> entry: results.entrySet()) {
-			try {
-				if (!entry.getValue().get()) {
-					result = false;
-				}
-			} catch (InterruptedException | ExecutionException ex) {
-				logger.error("clear.error; ", ex);
-				//throw new RuntimeException(ex.getMessage());
-			}
-		}
-		return result;
-	}
-	    
 	@ManagedOperation(description="Register Document")
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "docFile", description = "A full path to XML file to register"),
@@ -322,6 +287,62 @@ public class DocumentManagement extends SchemaFeatureManagement {
 		return processFilesInCatalog(catalog, properties);	
 	}
 
+	@Override
+	protected Collection getSchemaFeatures(XDMSchema schema) {
+		return schema.getCollections();
+	}
+
+	@ManagedAttribute(description="Return Collections registered in the Schema")
+	public TabularData getCollections() {
+		return getTabularFeatures("collection", "Collection definition", "name");
+	}
+	
+	@ManagedOperation(description="Creates a new Collection")
+	@ManagedOperationParameters({
+		@ManagedOperationParameter(name = "name", description = "Collection name to create"),
+		@ManagedOperationParameter(name = "docType", description = "Root path for document type, if needed"),
+		@ManagedOperationParameter(name = "description", description = "Collection description")})
+	public void addCollection(String name, String docType, String description) {
+
+		logger.trace("addCollection.enter;");
+		long stamp = System.currentTimeMillis();
+		XDMCollection collect = schemaManager.addCollection(name, docType, description);
+		if (collect == null) {
+			throw new IllegalStateException("Collection '" + name + "' in schema '" + schemaName + "' already exists");
+		}
+		
+		int cnt = 0;
+		stamp = System.currentTimeMillis() - stamp;
+		logger.trace("addCollection.exit; collection added on {} members; timeTaken: {}", cnt, stamp);
+	}
+	
+	@ManagedOperation(description="Removes an existing Collection")
+	@ManagedOperationParameters({@ManagedOperationParameter(name = "name", description = "Collection name to remove")})
+	public void removeCollection(String name) {
+		
+		logger.trace("removeCollection.enter;");
+		long stamp = System.currentTimeMillis();
+		if (!schemaManager.deleteCollection(name)) {
+			throw new IllegalStateException("Collection '" + name + "' in schema '" + schemaName + "' does not exist");
+		}
+
+		int cnt = 0;
+		stamp = System.currentTimeMillis() - stamp;
+		logger.trace("removeCollection.exit; collection deleted on {} members; timeTaken: {}", cnt, stamp);
+	}
+
+	@ManagedOperation(description="Enables/Disables an existing Collection")
+	@ManagedOperationParameters({
+		@ManagedOperationParameter(name = "name", description = "Collection name to enable/disable"),
+		@ManagedOperationParameter(name = "enable", description = "enable/disable collection")})
+	public void enableCollection(String name, boolean enable) {
+		
+		if (!schemaManager.enableCollection(name, enable)) {
+			throw new IllegalStateException("Collection '" + name + "' in schema '" + schemaName + 
+					"' does not exist or already " + (enable ? "enabled" : "disabled"));
+		}
+	}
+	
 	@ManagedAttribute(description="Returns aggregated DocumentManagement invocation statistics, per method")
 	public TabularData getCollectionStatistics() {
 		initAggregator();

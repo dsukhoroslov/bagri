@@ -28,6 +28,7 @@ import com.bagri.xdm.client.hazelcast.task.doc.DocumentContentProvider;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentCreator;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentMapCreator;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentMapProvider;
+import com.bagri.xdm.client.hazelcast.task.doc.DocumentProvider;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentRemover;
 import com.bagri.xdm.common.XDMDocumentId;
 import com.bagri.xdm.common.XDMDocumentKey;
@@ -64,33 +65,31 @@ public class DocumentManagementImpl extends DocumentManagementBase implements XD
 
 	@Override
 	public XDMDocument getDocument(XDMDocumentId docId) throws XDMException {
-		// do this via task/EP ??
-		long docKey = docId.getDocumentKey();
-		if (docKey == 0) {
-			XDMDocumentKey key = getDocumentKey(docId.getDocumentUri());
-			docKey = key.getKey();
+		logger.trace("getDocument.enter; got docId: {}", docId);
+		XDMDocument result = null;
+		DocumentProvider xp = new DocumentProvider(repo.getClientId(), docId);
+		Future<XDMDocument> future = execService.submitToKeyOwner(xp, docId);
+		try {
+			result = future.get();
+			logger.trace("getDocument.exit; got document: {}", result);
+			return result;
+		} catch (InterruptedException | ExecutionException ex) {
+			logger.error("getDocument; error getting result", ex);
+			throw new XDMException(ex, XDMException.ecDocument);
 		}
-		XDMDocument doc = xddCache.get(new DocumentKey(docKey));
-		if (doc == null) {
-			logger.trace("getDocument; can not get document for key: {}; cache size is: {}", 
-					docKey, xddCache.size());
-			// throw ex?
-			repo.getHealthManagement().checkClusterState();
-		}
-		return doc;
 	}
 	
 	//@Override
-	public XDMDocumentKey getDocumentKey(String uri) {
+	//public XDMDocumentKey getDocumentKey(String uri) {
 		// do this via EP ?!
-   		Predicate<XDMDocumentKey, XDMDocument> f = Predicates.equal("uri", uri);
-		Set<XDMDocumentKey> docKeys = xddCache.keySet(f);
-		if (docKeys.size() == 0) {
-			return null;
-		}
+   	//	Predicate<XDMDocumentKey, XDMDocument> f = Predicates.equal("uri", uri);
+	//	Set<XDMDocumentKey> docKeys = xddCache.keySet(f);
+	//	if (docKeys.size() == 0) {
+	//		return null;
+	//	}
 		// TODO: check if too many docs ?? must take latest version!
-		return docKeys.iterator().next();
-	}
+	//	return docKeys.iterator().next();
+	//}
 	
 	@Override
 	public Collection<XDMDocumentId> getDocumentIds(String pattern) {

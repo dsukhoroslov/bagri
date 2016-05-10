@@ -42,7 +42,7 @@ public class DocumentStructureProvider extends DocumentAwareTask implements Call
 	@Override
 	public CompositeData call() throws Exception {
 		
-    	Collection<XDMElements> elements = docMgr.getDocumentElements(docId.getDocumentKey());
+    	Collection<XDMElements> elements = docMgr.getDocumentElements(docId);
     	if (elements == null) {
     		return null;
     	}

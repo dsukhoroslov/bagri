@@ -70,25 +70,9 @@
         <level value="debug"/>
     </logger-->
 
-    <logger name="org.springframework.core.env">
+    <logger name="org.springframework">
         <level value="info"/>
     </logger>
-    <logger name="org.springframework.beans.factory.annotation.InjectionMetadata">
-        <level value="info"/>
-    </logger>
-    <logger name="org.springframework.beans.factory.support.DefaultListableBeanFactory">
-        <level value="info"/>
-    </logger>
-    <logger name="org.springframework.jdbc.core.JdbcTemplate">
-        <level value="info"/>
-    </logger>
-    <logger name="org.springframework.jdbc.datasource.DataSourceUtils">
-        <level value="info"/>
-    </logger>
-    <logger name="org.springframework.jdbc.support.JdbcUtils">
-        <level value="info"/>
-    </logger>
-
 
     <root level="debug">
         <appender-ref ref="STDOUT"/>
