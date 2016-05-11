@@ -63,6 +63,7 @@ public class TransactionManagementImplTest extends XDMManagementTest {
 	@After
 	public void tearDown() throws Exception {
 		removeDocumentsTest();
+		Thread.sleep(1000);
 	}
 
 	public Collection<String> getSecurity(String symbol) throws Exception {
@@ -142,9 +143,9 @@ public class TransactionManagementImplTest extends XDMManagementTest {
 		assertEquals(uri, doc.getUri());
 		getTxManagement().commitTransaction(txId);
 		
-		//Collection<String> sec = getSecurity("VFINX");
-		//assertNotNull(sec);
-		//assertTrue("expected 0 but got " + sec.size() + " test documents", sec.size() == 0);
+		Collection<String> sec = getSecurity("VFINX");
+		assertNotNull(sec);
+		assertTrue("expected 0 but got " + sec.size() + " test documents", sec.size() == 0);
 	}
 
 	@Test

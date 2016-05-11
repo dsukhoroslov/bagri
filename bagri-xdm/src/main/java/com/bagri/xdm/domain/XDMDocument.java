@@ -235,7 +235,7 @@ public class XDMDocument implements Convertable<Map<String, Object>>, Versionabl
 	 */
 	@Override
 	public String toString() {
-		return "XDMDocument [documentId=" + getDocumentId() + ", version=" + getVersion()
+		return "XDMDocument [key=" + documentKey + ", version=" + getVersion()
 				+ ", uri=" + uri + ", typeId=" + typeId + ", createdAt=" + getCreatedAt()
 				+ ", createdBy=" + createdBy + ", encoding=" + encoding + ", bytes=" + bytes  
 				+ ", txStart=" + txStart + ", txFinish=" + txFinish + ", elements=" + elements 
@@ -243,5 +243,4 @@ public class XDMDocument implements Convertable<Map<String, Object>>, Versionabl
 				+ ", collections=" + Arrays.toString(getCollections()) + "]";
 	}
 
-	
 }

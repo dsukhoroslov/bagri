@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -253,7 +254,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	
 	public XDMDocument getDocument(long docKey) {
 		XDMDocument doc = getDocument(factory.newXDMDocumentKey(docKey)); 
-		logger.trace("getDocument; returning: {}", doc);
+		//logger.trace("getDocument; returning: {}", doc);
 		return doc;
 	}
 	
@@ -268,26 +269,43 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		if (docKey != null) {
 			doc = getDocument(docKey);
 		}
-		logger.trace("getDocument; returning: {}", doc);
+		//logger.trace("getDocument; returning: {}", doc);
 		return doc;
 	}
 
-    public XDMDocumentKey getDocumentKey(String uri, boolean next, boolean skipClosed) {
-    	//String uri = docId.getDocumentUri();
-    	//if (uri == null && docId.getDocumentKey() != 0) {
-    	//	return factory.newXDMDocumentKey(docId.getDocumentKey());
-    	//}
-    	
-		EntryProcessor<XDMDocumentKey, XDMDocument> ep = new DocumentKeyProcessor(uri, next, skipClosed, factory, hzInstance);
-		XDMDocumentKey dk = factory.newXDMDocumentKey(uri, 0, dvFirst);
-		Object result = xddCache.executeOnKey(dk, ep);
-		if (result != null) { 
-			return (XDMDocumentKey) result;
-		}
-		if (next) {
-			return factory.newXDMDocumentKey(uri, 0, dvFirst);
-		}
-		return null;
+    private XDMDocumentKey getDocumentKey(String uri, boolean next, boolean acceptClosed) {
+    	Set<XDMDocumentKey> keys = xddCache.localKeySet(Predicates.equal("uri", uri));
+    	if (keys.isEmpty()) {
+    		if (next) {
+    			return factory.newXDMDocumentKey(uri, 0, dvFirst);
+    		}
+    		return null;
+    	}
+    	XDMDocumentKey last = Collections.max(keys, new Comparator<XDMDocumentKey>() {
+
+			@Override
+			public int compare(XDMDocumentKey key1, XDMDocumentKey key2) {
+				return key1.getVersion() - key2.getVersion();
+			}
+    		
+    	});
+    	if (next) {
+    		return factory.newXDMDocumentKey(uri, last.getRevision(), last.getVersion() + 1);
+    	}
+    	if (acceptClosed) {
+    		return last;
+    	}
+    	XDMDocument lastDoc = xddCache.get(last);
+    	try {
+    		if (lastDoc.getTxFinish() == TX_NO || !txManager.isTxVisible(lastDoc.getTxFinish())) {
+    			return last;
+    		}
+    	} catch (XDMException ex) {
+    		logger.error("getDocumentKey.error", ex);
+    		// ??
+    	}
+    	logger.info("getDocumentKey; the latest document version is finished already: {}", lastDoc);
+    	return null;
     }
  	
 	@Override
@@ -396,7 +414,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		XDMDocumentKey docKey = getDocumentKey(uri, false, false);
 		if (docKey == null) {
 			//throw new XDMException("No document found for document Id: " + docId, XDMException.ecDocument);
-			logger.info("getDocumentAsString; can not construct valid DocumentKey from Uri: {}", uri);
+			logger.info("getDocumentAsString; can not find active document for uri: {}", uri);
 			return null;
 		}
 		return getDocumentAsString(docKey);
@@ -410,8 +428,8 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	
 	public String getDocumentAsString(XDMDocumentKey docKey) throws XDMException {
 		
-		String xml = cntCache.get(docKey);
-		if (xml == null) {
+		String content = cntCache.get(docKey);
+		if (content == null) {
 			XDMDocument doc = getDocument(docKey);
 			if (doc == null) {
 				logger.info("getDocumentAsString; no document found for key: {}", docKey);
@@ -426,22 +444,22 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 				params.put(":doc", root);
 				Collection<String> results = buildDocument(Collections.singleton(docKey.getKey()), ":doc", params);
 				if (!results.isEmpty()) {
-					xml = results.iterator().next();
-					cntCache.set(docKey, xml);
+					content = results.iterator().next();
+					cntCache.set(docKey, content);
 				}
 			} else {
 				DocumentContentProvider xp = new DocumentContentProvider(repo.getClientId(), doc.getUri()); 
 				IExecutorService execService = hzInstance.getExecutorService(PN_XDM_SCHEMA_POOL);
 				Future<String> future = execService.submitToKeyOwner(xp, doc.getUri());
 				try {
-					xml = future.get();
+					content = future.get();
 				} catch (InterruptedException | ExecutionException ex) {
 					logger.error("getDocumentAsString; error getting result", ex);
 					throw new XDMException(ex, XDMException.ecDocument);
 				}
 			}
 		}
-		return xml;
+		return content;
 	}
 
 	//@Override
@@ -690,7 +708,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 						XDMException.ecDocument); 
 			}
 		    XDMDocument doc = getDocument(docKey);
-			update = (doc != null && doc.getTxFinish() == TX_NO); // && txManager.isTxVisible(doc.getTxFinish())) {
+			update = (doc != null && (doc.getTxFinish() == TX_NO || !txManager.isTxVisible(doc.getTxFinish())));
 		}
 		
 		String value = PropUtils.getProperty(props, pn_client_txTimeout, null);
@@ -706,7 +724,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 				    XDMDocument doc = getDocument(newKey);
 				    if (doc != null) {
 				    	if (doc.getTxFinish() > TX_NO && txManager.isTxVisible(doc.getTxFinish())) {
-				    		throw new XDMException("Document with ID: " + doc.getDocumentId() + 
+				    		throw new XDMException("Document with key: " + doc.getDocumentKey() + 
 				    				", version: " + doc.getVersion() + " has been concurrently updated", 
 				    				XDMException.ecDocument);
 				    	}
@@ -755,7 +773,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		
 		XDMDocumentKey docKey = getDocumentKey(uri, false, false);
 		if (docKey == null) {
-			logger.info("removeDocument; no document found for uri: {}", uri);
+			logger.info("removeDocument; no active document found for uri: {}", uri);
 			return;
 		}
 		

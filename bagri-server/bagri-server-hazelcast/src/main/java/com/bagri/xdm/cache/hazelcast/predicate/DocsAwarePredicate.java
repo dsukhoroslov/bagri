@@ -36,7 +36,7 @@ public class DocsAwarePredicate extends QueryPredicate {
 
 	@Override
 	public boolean apply(Entry<XDMDataKey, XDMElements> xdmEntry) {
-		if (docIds.contains(xdmEntry.getKey().getDocumentId())) {
+		if (docIds.contains(xdmEntry.getKey().getDocumentKey())) {
 			return super.apply(xdmEntry);
 		}
 		return false;

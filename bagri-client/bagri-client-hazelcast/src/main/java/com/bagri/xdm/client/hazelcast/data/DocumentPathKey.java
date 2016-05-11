@@ -30,7 +30,7 @@ public class DocumentPathKey extends XDMDataKey implements IdentifiedDataSeriali
 
 	@Override
 	public Long getPartitionKey() {
-		return XDMDocumentKey.toDocumentId(documentId);
+		return XDMDocumentKey.toDocumentId(documentKey);
 	}
 
 	@Override
@@ -57,13 +57,13 @@ public class DocumentPathKey extends XDMDataKey implements IdentifiedDataSeriali
 
 	@Override
 	public void readData(ObjectDataInput in) throws IOException {
-		documentId = in.readLong();
+		documentKey = in.readLong();
 		pathId = in.readInt();
 	}
 
 	@Override
 	public void writeData(ObjectDataOutput out) throws IOException {
-		out.writeLong(documentId);
+		out.writeLong(documentKey);
 		out.writeInt(pathId);
 	}
 

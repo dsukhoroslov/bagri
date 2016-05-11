@@ -1,3 +1,342 @@
+Work BOX
+
+Mongo insert:
+----------
+[OVERALL], RunTime(ms), 5114.0
+[OVERALL], Throughput(ops/sec), 3910.8330074305827
+[CLEANUP], Operations, 20.0
+[CLEANUP], AverageLatency(us), 4418.55
+[CLEANUP], MinLatency(us), 0.0
+[CLEANUP], MaxLatency(us), 88383.0
+[CLEANUP], 95thPercentileLatency(us), 5.0
+[CLEANUP], 99thPercentileLatency(us), 88383.0
+[INSERT], Operations, 20000.0
+[INSERT], AverageLatency(us), 3889.03485
+[INSERT], MinLatency(us), 113.0
+[INSERT], MaxLatency(us), 896511.0
+[INSERT], 95thPercentileLatency(us), 8055.0
+[INSERT], 99thPercentileLatency(us), 51679.0
+[INSERT], Return=OK, 20000
+
+Mongo RW:
+----------
+[OVERALL], RunTime(ms), 13129.0
+[OVERALL], Throughput(ops/sec), 7616.726331022926
+[CLEANUP], Operations, 50.0
+[CLEANUP], AverageLatency(us), 10542.74
+[CLEANUP], MinLatency(us), 0.0
+[CLEANUP], MaxLatency(us), 527359.0
+[CLEANUP], 95thPercentileLatency(us), 2.0
+[CLEANUP], 99thPercentileLatency(us), 527359.0
+[READ], Operations, 94999.0
+[READ], AverageLatency(us), 4965.727870819693
+[READ], MinLatency(us), 81.0
+[READ], MaxLatency(us), 1644543.0
+[READ], 95thPercentileLatency(us), 7975.0
+[READ], 99thPercentileLatency(us), 19519.0
+[READ], Return=OK, 94999
+[UPDATE], Operations, 5001.0
+[UPDATE], AverageLatency(us), 17054.37172565487
+[UPDATE], MinLatency(us), 276.0
+[UPDATE], MaxLatency(us), 1593343.0
+[UPDATE], 95thPercentileLatency(us), 28415.0
+[UPDATE], 99thPercentileLatency(us), 568319.0
+[UPDATE], Return=OK, 5001
+
+01/03/2016:
+
+Bagri insert:
+--------------
+[OVERALL], RunTime(ms), 43944.0
+[OVERALL], Throughput(ops/sec), 455.1247041689423
+[CLEANUP], Operations, 20.0
+[CLEANUP], AverageLatency(us), 4574.0
+[CLEANUP], MinLatency(us), 1743.0
+[CLEANUP], MaxLatency(us), 17791.0
+[CLEANUP], 95thPercentileLatency(us), 7515.0
+[CLEANUP], 99thPercentileLatency(us), 17791.0
+[INSERT], Operations, 20000.0
+[INSERT], AverageLatency(us), 42021.0494
+[INSERT], MinLatency(us), 4908.0
+[INSERT], MaxLatency(us), 727551.0
+[INSERT], 95thPercentileLatency(us), 80575.0
+[INSERT], 99thPercentileLatency(us), 181119.0
+[INSERT], Return=OK, 20000
+
+Bagri RW:
+----------
+[OVERALL], RunTime(ms), 40145.0
+[OVERALL], Throughput(ops/sec), 2490.970232905717
+[READ-FAILED], Operations, 258.0
+[READ-FAILED], AverageLatency(us), 21453.612403100775
+[READ-FAILED], MinLatency(us), 6968.0
+[READ-FAILED], MaxLatency(us), 56799.0
+[READ-FAILED], 95thPercentileLatency(us), 37695.0
+[READ-FAILED], 99thPercentileLatency(us), 45695.0
+[CLEANUP], Operations, 50.0
+[CLEANUP], AverageLatency(us), 4903.66
+[CLEANUP], MinLatency(us), 1257.0
+[CLEANUP], MaxLatency(us), 29455.0
+[CLEANUP], 95thPercentileLatency(us), 11759.0
+[CLEANUP], 99thPercentileLatency(us), 29455.0
+[UPDATE-FAILED], Operations, 16.0
+[UPDATE-FAILED], AverageLatency(us), 87092.0
+[UPDATE-FAILED], MinLatency(us), 66624.0
+[UPDATE-FAILED], MaxLatency(us), 115711.0
+[UPDATE-FAILED], 95thPercentileLatency(us), 109759.0
+[UPDATE-FAILED], 99thPercentileLatency(us), 115711.0
+[READ], Operations, 94713.0
+[READ], AverageLatency(us), 17710.78752652751
+[READ], MinLatency(us), 269.0
+[READ], MaxLatency(us), 416511.0
+[READ], 95thPercentileLatency(us), 36799.0
+[READ], 99thPercentileLatency(us), 64671.0
+[READ], Return=OK, 94713
+[READ], Return=NOT_FOUND, 258
+[UPDATE], Operations, 5013.0
+[UPDATE], AverageLatency(us), 45962.66507081588
+[UPDATE], MinLatency(us), 7568.0
+[UPDATE], MaxLatency(us), 490495.0
+[UPDATE], 95thPercentileLatency(us), 84991.0
+[UPDATE], 99thPercentileLatency(us), 165887.0
+[UPDATE], Return=OK, 5013
+[UPDATE], Return=ERROR, 16
+
+
+10/03/2016:
+
+Bagri insert:
+--------------
+[OVERALL], RunTime(ms), 28793.0
+[OVERALL], Throughput(ops/sec), 694.6132740596673
+[CLEANUP], Operations, 20.0
+[CLEANUP], AverageLatency(us), 3722.8
+[CLEANUP], MinLatency(us), 1304.0
+[CLEANUP], MaxLatency(us), 14287.0
+[CLEANUP], 95thPercentileLatency(us), 9783.0
+[CLEANUP], 99thPercentileLatency(us), 14287.0
+[INSERT], Operations, 20000.0
+[INSERT], AverageLatency(us), 27132.2911
+[INSERT], MinLatency(us), 2286.0
+[INSERT], MaxLatency(us), 1019391.0
+[INSERT], 95thPercentileLatency(us), 74815.0
+[INSERT], 99thPercentileLatency(us), 184191.0
+[INSERT], Return=OK, 20000
+
+Bagri RW:
+----------
+[OVERALL], RunTime(ms), 31652.0
+[OVERALL], Throughput(ops/sec), 3159.358018450651
+[READ], Operations, 94938.0
+[READ], AverageLatency(us), 13953.508932145189
+[READ], MinLatency(us), 389.0
+[READ], MaxLatency(us), 269055.0
+[READ], 95thPercentileLatency(us), 30815.0
+[READ], 99thPercentileLatency(us), 57823.0
+[READ], Return=OK, 94938
+[READ], Return=NOT_FOUND, 116
+[UPDATE-FAILED], Operations, 11.0
+[UPDATE-FAILED], AverageLatency(us), 98094.54545454546
+[UPDATE-FAILED], MinLatency(us), 70400.0
+[UPDATE-FAILED], MaxLatency(us), 162431.0
+[UPDATE-FAILED], 95thPercentileLatency(us), 122047.0
+[UPDATE-FAILED], 99thPercentileLatency(us), 162431.0
+[CLEANUP], Operations, 50.0
+[CLEANUP], AverageLatency(us), 6524.82
+[CLEANUP], MinLatency(us), 1537.0
+[CLEANUP], MaxLatency(us), 26047.0
+[CLEANUP], 95thPercentileLatency(us), 18287.0
+[CLEANUP], 99thPercentileLatency(us), 26047.0
+[UPDATE], Operations, 4935.0
+[UPDATE], AverageLatency(us), 30940.885511651468
+[UPDATE], MinLatency(us), 4872.0
+[UPDATE], MaxLatency(us), 309759.0
+[UPDATE], 95thPercentileLatency(us), 72447.0
+[UPDATE], 99thPercentileLatency(us), 141183.0
+[UPDATE], Return=OK, 4935
+[UPDATE], Return=ERROR, 11
+[READ-FAILED], Operations, 116.0
+[READ-FAILED], AverageLatency(us), 27540.896551724138
+[READ-FAILED], MinLatency(us), 8296.0
+[READ-FAILED], MaxLatency(us), 476159.0
+[READ-FAILED], 95thPercentileLatency(us), 72383.0
+[READ-FAILED], 99thPercentileLatency(us), 123263.0
+
+10/05/2016:
+
+Bagri insert (master):
+--------------
+[OVERALL], RunTime(ms), 28881.0
+[OVERALL], Throughput(ops/sec), 692.4967972023129
+[CLEANUP], Operations, 20.0
+[CLEANUP], AverageLatency(us), 3393.95
+[CLEANUP], MinLatency(us), 844.0
+[CLEANUP], MaxLatency(us), 17375.0
+[CLEANUP], 95thPercentileLatency(us), 7655.0
+[CLEANUP], 99thPercentileLatency(us), 17375.0
+[INSERT], Operations, 20000.0
+[INSERT], AverageLatency(us), 27404.68455
+[INSERT], MinLatency(us), 2506.0
+[INSERT], MaxLatency(us), 997887.0
+[INSERT], 95thPercentileLatency(us), 72511.0
+[INSERT], 99thPercentileLatency(us), 205183.0
+[INSERT], Return=OK, 20000
+
+Bagri RW (master):
+----------
+[OVERALL], RunTime(ms), 32056.0
+[OVERALL], Throughput(ops/sec), 3119.540803593711
+[READ], Operations, 94966.0
+[READ], AverageLatency(us), 14314.250889792136
+[READ], MinLatency(us), 410.0
+[READ], MaxLatency(us), 293119.0
+[READ], 95thPercentileLatency(us), 30719.0
+[READ], 99thPercentileLatency(us), 70911.0
+[READ], Return=OK, 94966
+[READ], Return=NOT_FOUND, 124
+[UPDATE-FAILED], Operations, 3.0
+[UPDATE-FAILED], AverageLatency(us), 99210.66666666667
+[UPDATE-FAILED], MinLatency(us), 93952.0
+[UPDATE-FAILED], MaxLatency(us), 105855.0
+[UPDATE-FAILED], 95thPercentileLatency(us), 105855.0
+[UPDATE-FAILED], 99thPercentileLatency(us), 105855.0
+[CLEANUP], Operations, 50.0
+[CLEANUP], AverageLatency(us), 3557.8
+[CLEANUP], MinLatency(us), 1087.0
+[CLEANUP], MaxLatency(us), 22623.0
+[CLEANUP], 95thPercentileLatency(us), 9607.0
+[CLEANUP], 99thPercentileLatency(us), 22623.0
+[UPDATE], Operations, 4907.0
+[UPDATE], AverageLatency(us), 30908.35214998981
+[UPDATE], MinLatency(us), 8696.0
+[UPDATE], MaxLatency(us), 461055.0
+[UPDATE], 95thPercentileLatency(us), 67263.0
+[UPDATE], 99thPercentileLatency(us), 134271.0
+[UPDATE], Return=OK, 4907
+[UPDATE], Return=ERROR, 3
+[READ-FAILED], Operations, 124.0
+[READ-FAILED], AverageLatency(us), 19451.725806451614
+[READ-FAILED], MinLatency(us), 7636.0
+[READ-FAILED], MaxLatency(us), 71167.0
+[READ-FAILED], 95thPercentileLatency(us), 40927.0
+[READ-FAILED], 99thPercentileLatency(us), 67711.0
+
+
+10/05/2016:
+
+Bagri insert (simple-keys):
+--------------
+[OVERALL], RunTime(ms), 30416.0
+[OVERALL], Throughput(ops/sec), 657.5486586007364
+[CLEANUP], Operations, 20.0
+[CLEANUP], AverageLatency(us), 7567.6
+[CLEANUP], MinLatency(us), 1200.0
+[CLEANUP], MaxLatency(us), 76607.0
+[CLEANUP], 95thPercentileLatency(us), 10487.0
+[CLEANUP], 99thPercentileLatency(us), 76607.0
+[INSERT], Operations, 20000.0
+[INSERT], AverageLatency(us), 28755.03915
+[INSERT], MinLatency(us), 2306.0
+[INSERT], MaxLatency(us), 1110015.0
+[INSERT], 95thPercentileLatency(us), 77183.0
+[INSERT], 99thPercentileLatency(us), 206079.0
+[INSERT], Return=OK, 20000
+
+[OVERALL], RunTime(ms), 30907.0
+[OVERALL], Throughput(ops/sec), 647.1025981169314
+[CLEANUP], Operations, 20.0
+[CLEANUP], AverageLatency(us), 4708.6
+[CLEANUP], MinLatency(us), 1204.0
+[CLEANUP], MaxLatency(us), 15367.0
+[CLEANUP], 95thPercentileLatency(us), 14679.0
+[CLEANUP], 99thPercentileLatency(us), 15367.0
+[INSERT], Operations, 20000.0
+[INSERT], AverageLatency(us), 29436.8228
+[INSERT], MinLatency(us), 2586.0
+[INSERT], MaxLatency(us), 939007.0
+[INSERT], 95thPercentileLatency(us), 81151.0
+[INSERT], 99thPercentileLatency(us), 203007.0
+[INSERT], Return=OK, 20000
+
+Bagri RW (simple-keys):
+----------
+[OVERALL], RunTime(ms), 44733.0
+[OVERALL], Throughput(ops/sec), 2235.4861064538486
+[READ], Operations, 94922.0
+[READ], AverageLatency(us), 20284.552622152925
+[READ], MinLatency(us), 466.0
+[READ], MaxLatency(us), 268799.0
+[READ], 95thPercentileLatency(us), 43903.0
+[READ], 99thPercentileLatency(us), 90495.0
+[READ], Return=OK, 94922
+[READ], Return=NOT_FOUND, 169
+[UPDATE-FAILED], Operations, 10.0
+[UPDATE-FAILED], AverageLatency(us), 455033.6
+[UPDATE-FAILED], MinLatency(us), 93120.0
+[UPDATE-FAILED], MaxLatency(us), 2648063.0
+[UPDATE-FAILED], 95thPercentileLatency(us), 2648063.0
+[UPDATE-FAILED], 99thPercentileLatency(us), 2648063.0
+[CLEANUP], Operations, 50.0
+[CLEANUP], AverageLatency(us), 4739.42
+[CLEANUP], MinLatency(us), 1111.0
+[CLEANUP], MaxLatency(us), 11727.0
+[CLEANUP], 95thPercentileLatency(us), 10967.0
+[CLEANUP], 99thPercentileLatency(us), 11727.0
+[UPDATE], Operations, 4899.0
+[UPDATE], AverageLatency(us), 42456.79934680547
+[UPDATE], MinLatency(us), 2690.0
+[UPDATE], MaxLatency(us), 345855.0
+[UPDATE], 95thPercentileLatency(us), 95679.0
+[UPDATE], 99thPercentileLatency(us), 199039.0
+[UPDATE], Return=OK, 4899
+[UPDATE], Return=ERROR, 10
+[READ-FAILED], Operations, 169.0
+[READ-FAILED], AverageLatency(us), 73870.99408284023
+[READ-FAILED], MinLatency(us), 7408.0
+[READ-FAILED], MaxLatency(us), 3670015.0
+[READ-FAILED], 95thPercentileLatency(us), 174591.0
+[READ-FAILED], 99thPercentileLatency(us), 1043455.0
+
+[OVERALL], RunTime(ms), 33766.0
+[OVERALL], Throughput(ops/sec), 2961.558964638986
+[READ], Operations, 94914.0
+[READ], AverageLatency(us), 15193.241334260489
+[READ], MinLatency(us), 400.0
+[READ], MaxLatency(us), 314879.0
+[READ], 95thPercentileLatency(us), 32127.0
+[READ], 99thPercentileLatency(us), 65023.0
+[READ], Return=OK, 94914
+[READ], Return=NOT_FOUND, 188
+[UPDATE-FAILED], Operations, 5.0
+[UPDATE-FAILED], AverageLatency(us), 104832.0
+[UPDATE-FAILED], MinLatency(us), 78656.0
+[UPDATE-FAILED], MaxLatency(us), 137087.0
+[UPDATE-FAILED], 95thPercentileLatency(us), 137087.0
+[UPDATE-FAILED], 99thPercentileLatency(us), 137087.0
+[CLEANUP], Operations, 50.0
+[CLEANUP], AverageLatency(us), 3306.6
+[CLEANUP], MinLatency(us), 771.0
+[CLEANUP], MaxLatency(us), 16127.0
+[CLEANUP], 95thPercentileLatency(us), 10327.0
+[CLEANUP], 99thPercentileLatency(us), 16127.0
+[UPDATE], Operations, 4893.0
+[UPDATE], AverageLatency(us), 31638.262415695892
+[UPDATE], MinLatency(us), 2382.0
+[UPDATE], MaxLatency(us), 393215.0
+[UPDATE], 95thPercentileLatency(us), 67071.0
+[UPDATE], 99thPercentileLatency(us), 150271.0
+[UPDATE], Return=OK, 4893
+[UPDATE], Return=ERROR, 5
+[READ-FAILED], Operations, 188.0
+[READ-FAILED], AverageLatency(us), 24317.77659574468
+[READ-FAILED], MinLatency(us), 7808.0
+[READ-FAILED], MaxLatency(us), 295423.0
+[READ-FAILED], 95thPercentileLatency(us), 39071.0
+[READ-FAILED], 99thPercentileLatency(us), 255487.0
+
+
+HOME BOX (Notebook)
+
 simple-keys; insert; 1 node
 
 [OVERALL], RunTime(ms), 15690.0

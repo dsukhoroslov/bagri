@@ -429,13 +429,13 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 		Set<Long> result = new HashSet<>();
 		if (indexed) {
 			for (Integer pathId: paths) {
-				Set<Long> docIds = idxMgr.getIndexedDocuments(pathId, pex, newVal);
-				logger.trace("queryPathKeys; search for index - got ids: {}", docIds == null ? null : docIds.size()); 
-				if (docIds != null) {
+				Set<Long> docKeys = idxMgr.getIndexedDocuments(pathId, pex, newVal);
+				logger.trace("queryPathKeys; search for index - got keys: {}", docKeys == null ? null : docKeys.size()); 
+				if (docKeys != null) {
 					if (found == null) {
-						result.addAll(docIds);
+						result.addAll(docKeys);
 					} else {
-						found.retainAll(docIds);
+						found.retainAll(docKeys);
 						result = found;
 					}
 				} else {
@@ -466,7 +466,7 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 		logger.trace("queryPathKeys; got {} query results", xdmKeys.size()); 
 		result = new HashSet<>(xdmKeys.size());
 		for (XDMDataKey key: xdmKeys) {
-			result.add(key.getDocumentId());
+			result.add(key.getDocumentKey());
 		}
 		logger.trace("queryPathKeys.exit; returning {} keys", result.size()); 
 		if (!cached) {
@@ -475,32 +475,32 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 		return result;
 	}
 
-	private Collection<Long> checkDocumentsCommited(Collection<Long> docIds, int clnId) throws XDMException {
-		Iterator<Long> itr = docIds.iterator();
+	private Collection<Long> checkDocumentsCommited(Collection<Long> docKeys, int clnId) throws XDMException {
+		Iterator<Long> itr = docKeys.iterator();
 		if (clnId > 0) {
 			while (itr.hasNext()) {
-				long docId = itr.next();
-				if (!docMgr.checkDocumentCollectionCommited(docId, clnId)) {
+				long docKey = itr.next();
+				if (!docMgr.checkDocumentCollectionCommited(docKey, clnId)) {
 					itr.remove();
 				}
 			}
 		} else {
 			while (itr.hasNext()) {
-				long docId = itr.next();
-				if (!docMgr.checkDocumentCommited(docId)) {
+				long docKey = itr.next();
+				if (!docMgr.checkDocumentCommited(docKey)) {
 					itr.remove();
 				}
 			}
 		}
-		return docIds;
+		return docKeys;
 	}
 
 	@Override
 	public Collection<String> getContent(ExpressionContainer query, String template, Map params) throws XDMException {
 		
-		Collection<Long> docIds = getDocumentIds(query);
-		if (docIds.size() > 0) {
-			return docMgr.buildDocument(new HashSet<>(docIds), template, params);
+		Collection<Long> docKeys = getDocumentIds(query);
+		if (docKeys.size() > 0) {
+			return docMgr.buildDocument(new HashSet<>(docKeys), template, params);
 		}
 		return Collections.emptyList();
 	}

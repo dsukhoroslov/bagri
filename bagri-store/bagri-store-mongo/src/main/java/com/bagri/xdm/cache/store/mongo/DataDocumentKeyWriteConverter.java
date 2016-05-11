@@ -18,7 +18,7 @@ public class DataDocumentKeyWriteConverter implements Converter<XDMDataKey, DBOb
 		logger.trace("convert.enter; source: {}", source); 
 	    DBObject dbo = new BasicDBObject();
 	    //dbo.put("_id", source.getId());
-	    dbo.put("document_id", source.getDocumentId());
+	    dbo.put("document_key", source.getDocumentKey());
 	    dbo.put("path_id", source.getPathId());
 	    return dbo;	
 	}

@@ -55,10 +55,8 @@ public class DocumentCleaner implements Callable<XDMTransaction>, IdentifiedData
 		IMap<XDMDocumentKey, XDMDocument> xddCache = hz.getMap(CN_XDM_DOCUMENT);
 		DocumentManagementImpl docMgr = (DocumentManagementImpl) xdmRepo.getDocumentManagement();
 		// adjust cleaned counters; updateCounters(created, updated, deleted);
-		Predicate pts = Predicates.equal("txStart", xTx.getTxId());
-		Set<XDMDocumentKey> dkStarted = xddCache.localKeySet(pts);
-		Predicate ptf = Predicates.equal("txFinish", xTx.getTxId());
-		Set<XDMDocumentKey> dkFinished = xddCache.localKeySet(ptf);
+		Set<XDMDocumentKey> dkStarted = xddCache.localKeySet(Predicates.equal("txStart", xTx.getTxId()));
+		Set<XDMDocumentKey> dkFinished = xddCache.localKeySet(Predicates.equal("txFinish", xTx.getTxId()));
 		XDMTransaction result = new XDMTransaction(xTx.getTxId(), xTx.getStartedAt(), xTx.getFinishedAt(), xTx.getStartedBy(), xTx.getTxIsolation(), xTx.getTxState());
 		
 		boolean commit = xTx.getTxState() == XDMTransactionState.commited;
@@ -88,12 +86,13 @@ public class DocumentCleaner implements Callable<XDMTransaction>, IdentifiedData
 			}
 			for (XDMDocumentKey dk: dkFinished) {
 				// next version for the same doc 
-				XDMDocumentKey nk = docMgr.getXdmFactory().newXDMDocumentKey(dk.getDocumentId(), dk.getVersion() + 1);
+				XDMDocumentKey nk = docMgr.getXdmFactory().newXDMDocumentKey(dk.getKey(), dk.getVersion() + 1);
 				if (dkStarted.contains(nk)) {
 					//updated, already counted above;
 				} else {
 					// deleted
 					result.updateCounters(0, 0, 1);
+					logger.info("call; started: {}; finished: {}; newkey: {}", dkStarted, dkFinished, nk);
 				}
 				if (commit) {
 					// just delete doc relatives: elements, content, source, cached result

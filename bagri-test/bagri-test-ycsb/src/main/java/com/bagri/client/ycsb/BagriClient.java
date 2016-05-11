@@ -85,7 +85,7 @@ public class BagriClient extends DB {
 			}
 			return Status.OK;
 		} catch (Exception ex) {
-			logger.error("read.error", ex);
+			logger.error("read.error; key: " + key, ex);
 			return Status.ERROR;
 		}
 	}
@@ -103,6 +103,7 @@ public class BagriClient extends DB {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Status update(final String table, final String key, final HashMap<String, ByteIterator> values) {
 		//logger.debug("update.enter; table: {}; startKey: {}; values: {}", new Object[] {table, key, values});
+		// probably, we should do merge here: update only fields specified in the values map!
 		Properties props = new Properties();
 		props.setProperty(xdm_document_collections, table);
 		props.setProperty(pn_client_storeMode, pv_client_storeMode_update);

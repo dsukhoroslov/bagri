@@ -80,6 +80,7 @@ public class QueryManagementImplTest extends XDMManagementTest {
 	public void tearDown() throws Exception {
 		// remove documents here!
 		removeDocumentsTest();
+		Thread.sleep(1000);
 	}
 
 	
