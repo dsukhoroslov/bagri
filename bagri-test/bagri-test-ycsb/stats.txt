@@ -589,3 +589,50 @@ simple-keys; read/update; 1 node
 [READ-FAILED], 95thPercentileLatency(us), 108287.0
 [READ-FAILED], 99thPercentileLatency(us), 163199.0
 
+12/05/2016
+
+HOME BOX (Notebook)
+
+Mongo insert:
+----------
+[OVERALL], RunTime(ms), 4967.0
+[OVERALL], Throughput(ops/sec), 4026.5753976243204
+[CLEANUP], Operations, 20.0
+[CLEANUP], AverageLatency(us), 1507.25
+[CLEANUP], MinLatency(us), 0.0
+[CLEANUP], MaxLatency(us), 30127.0
+[CLEANUP], 95thPercentileLatency(us), 9.0
+[CLEANUP], 99thPercentileLatency(us), 30127.0
+[INSERT], Operations, 20000.0
+[INSERT], AverageLatency(us), 2817.8412
+[INSERT], MinLatency(us), 198.0
+[INSERT], MaxLatency(us), 1266687.0
+[INSERT], 95thPercentileLatency(us), 2695.0
+[INSERT], 99thPercentileLatency(us), 35839.0
+[INSERT], Return=OK, 20000
+
+Mongo RW:
+----------
+[OVERALL], RunTime(ms), 8483.0
+[OVERALL], Throughput(ops/sec), 11788.282447247437
+[READ], Operations, 94934.0
+[READ], AverageLatency(us), 2944.2489729706954
+[READ], MinLatency(us), 133.0
+[READ], MaxLatency(us), 288511.0
+[READ], 95thPercentileLatency(us), 6527.0
+[READ], 99thPercentileLatency(us), 8123.0
+[READ], Return=OK, 94934
+[CLEANUP], Operations, 50.0
+[CLEANUP], AverageLatency(us), 1738.84
+[CLEANUP], MinLatency(us), 0.0
+[CLEANUP], MaxLatency(us), 86911.0
+[CLEANUP], 95thPercentileLatency(us), 2.0
+[CLEANUP], 99thPercentileLatency(us), 86911.0
+[UPDATE], Operations, 5066.0
+[UPDATE], AverageLatency(us), 19527.79115673115
+[UPDATE], MinLatency(us), 231.0
+[UPDATE], MaxLatency(us), 505343.0
+[UPDATE], 95thPercentileLatency(us), 85183.0
+[UPDATE], 99thPercentileLatency(us), 412671.0
+[UPDATE], Return=OK, 5066
+

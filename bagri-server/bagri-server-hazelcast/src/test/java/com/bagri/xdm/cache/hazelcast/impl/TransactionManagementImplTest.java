@@ -63,7 +63,7 @@ public class TransactionManagementImplTest extends XDMManagementTest {
 	@After
 	public void tearDown() throws Exception {
 		removeDocumentsTest();
-		Thread.sleep(1000);
+		//Thread.sleep(1000);
 	}
 
 	public Collection<String> getSecurity(String symbol) throws Exception {
@@ -139,7 +139,7 @@ public class TransactionManagementImplTest extends XDMManagementTest {
 		assertNotNull(doc);
 		assertEquals(txId, doc.getTxStart());
 		assertEquals(docId, doc.getDocumentId());
-		assertEquals(++version, doc.getVersion());
+		assertEquals(version, doc.getVersion());
 		assertEquals(uri, doc.getUri());
 		getTxManagement().commitTransaction(txId);
 		
