@@ -49,7 +49,6 @@ import com.bagri.xdm.client.hazelcast.data.QueryParamsKey;
 import com.bagri.xdm.client.hazelcast.impl.FixedCursor;
 import com.bagri.xdm.client.hazelcast.impl.ResultCursor;
 import com.bagri.xdm.common.XDMDataKey;
-import com.bagri.xdm.common.XDMDocumentId;
 import com.bagri.xdm.common.XDMDocumentKey;
 import com.bagri.xdm.common.XDMResultsKey;
 import com.bagri.xdm.domain.XDMDocument;
@@ -430,13 +429,13 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 		Set<Long> result = new HashSet<>();
 		if (indexed) {
 			for (Integer pathId: paths) {
-				Set<Long> docIds = idxMgr.getIndexedDocuments(pathId, pex, newVal);
-				logger.trace("queryPathKeys; search for index - got ids: {}", docIds == null ? null : docIds.size()); 
-				if (docIds != null) {
+				Set<Long> docKeys = idxMgr.getIndexedDocuments(pathId, pex, newVal);
+				logger.trace("queryPathKeys; search for index - got keys: {}", docKeys == null ? null : docKeys.size()); 
+				if (docKeys != null) {
 					if (found == null) {
-						result.addAll(docIds);
+						result.addAll(docKeys);
 					} else {
-						found.retainAll(docIds);
+						found.retainAll(docKeys);
 						result = found;
 					}
 				} else {
@@ -467,7 +466,7 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 		logger.trace("queryPathKeys; got {} query results", xdmKeys.size()); 
 		result = new HashSet<>(xdmKeys.size());
 		for (XDMDataKey key: xdmKeys) {
-			result.add(key.getDocumentId());
+			result.add(key.getDocumentKey());
 		}
 		logger.trace("queryPathKeys.exit; returning {} keys", result.size()); 
 		if (!cached) {
@@ -476,32 +475,32 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 		return result;
 	}
 
-	private Collection<Long> checkDocumentsCommited(Collection<Long> docIds, int clnId) throws XDMException {
-		Iterator<Long> itr = docIds.iterator();
+	private Collection<Long> checkDocumentsCommited(Collection<Long> docKeys, int clnId) throws XDMException {
+		Iterator<Long> itr = docKeys.iterator();
 		if (clnId > 0) {
 			while (itr.hasNext()) {
-				long docId = itr.next();
-				if (!docMgr.checkDocumentCollectionCommited(docId, clnId)) {
+				long docKey = itr.next();
+				if (!docMgr.checkDocumentCollectionCommited(docKey, clnId)) {
 					itr.remove();
 				}
 			}
 		} else {
 			while (itr.hasNext()) {
-				long docId = itr.next();
-				if (!docMgr.checkDocumentCommited(docId)) {
+				long docKey = itr.next();
+				if (!docMgr.checkDocumentCommited(docKey)) {
 					itr.remove();
 				}
 			}
 		}
-		return docIds;
+		return docKeys;
 	}
 
 	@Override
 	public Collection<String> getContent(ExpressionContainer query, String template, Map params) throws XDMException {
 		
-		Collection<Long> docIds = getDocumentIds(query);
-		if (docIds.size() > 0) {
-			return docMgr.buildDocument(new HashSet<>(docIds), template, params);
+		Collection<Long> docKeys = getDocumentIds(query);
+		if (docKeys.size() > 0) {
+			return docMgr.buildDocument(new HashSet<>(docKeys), template, params);
 		}
 		return Collections.emptyList();
 	}
@@ -535,21 +534,28 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 	}
 
 	@Override
-	public Collection<XDMDocumentId> getDocumentIds(String query, Map<QName, Object> params, Properties props) throws XDMException {
-		logger.trace("getDocumentIds.enter; query: {}, command: {}; params: {}; properties: {}", query, params, props);
-		List<XDMDocumentId> result = null;
+	public Collection<String> getDocumentUris(String query, Map<QName, Object> params, Properties props) throws XDMException {
+		logger.trace("getDocumentUris.enter; query: {}, command: {}; params: {}; properties: {}", query, params, props);
+		Collection<Long> keys = getDocumentKeys(query, params, props);
+		List<String> result = new ArrayList<>(keys.size());
+		for (Long docKey: keys) {
+			XDMDocument doc = docMgr.getDocument(docKey);
+			result.add(doc.getUri());
+		}
+		logger.trace("getDocumentUris.exit; returning: {}", result);
+		return result;
+	}
+
+	public Collection<Long> getDocumentKeys(String query, Map<QName, Object> params, Properties props) throws XDMException {
+		logger.trace("getDocumentKeys.enter; query: {}, command: {}; params: {}; properties: {}", query, params, props);
+		Collection<Long> result = null;
 		try {
 			Iterator<?> iter = runQuery(query, params, props);
-			Collection<Long> ids = thContext.get().getDocIds();
-			result = new ArrayList<>(ids.size());
-			for (Long id: ids) {
-				// TODO: get uri from doc somehow..
-				result.add(new XDMDocumentId(id));
-			}
+			result = thContext.get().getDocIds();
 		} catch (XQException ex) {
 			throw new XDMException(ex, XDMException.ecQuery);
 		}
-		logger.trace("getDocumentIds.exit; returning: {}", result);
+		logger.trace("getDocumentKeys.exit; returning: {}", result);
 		return result;
 	}
 	

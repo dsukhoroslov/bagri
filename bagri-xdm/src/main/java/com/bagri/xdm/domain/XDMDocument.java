@@ -41,18 +41,23 @@ public class XDMDocument implements Convertable<Map<String, Object>>, Versionabl
 		//
 	}
 	
-	public XDMDocument(long documentId, String uri, int typeId, String owner, long txId, int bytes, int elts) {
-		this(documentId, 0, uri, typeId, txId, 0, new Date(), owner, def_encoding, bytes, elts);
-	}
-	
-	public XDMDocument(long documentId, int version, String uri, int typeId, String owner, long txId, int bytes, int elts) {
-		this(documentId, version, uri, typeId, txId, 0, new Date(), owner, def_encoding, bytes, elts);
+	public XDMDocument(String uri, int typeId, String owner, long txId, int bytes, int elts) {
+		this(uri.hashCode(), 0, dvFirst, uri, typeId, txId, 0, new Date(), owner, def_encoding, bytes, elts);
 	}
 
-	public XDMDocument(long documentId, int version, String uri, int typeId, long txStart, long txFinish, Date createdAt, 
+	public XDMDocument(int hash, int revision, int version, String uri, int typeId, String owner, long txId, int bytes, int elts) {
+		this(hash, revision, version, uri, typeId, txId, 0, new Date(), owner, def_encoding, bytes, elts);
+	}
+
+	public XDMDocument(long docKey, String uri, int typeId, long txStart, long txFinish, Date createdAt, String createdBy, String encoding, 
+			int bytes, int elts) {
+		this(toHash(docKey), toRevision(docKey), toVersion(docKey), uri, typeId, txStart, txFinish, createdAt, createdBy, encoding, bytes, elts);
+	}
+	
+	public XDMDocument(int hash, int revision, int version, String uri, int typeId, long txStart, long txFinish, Date createdAt, 
 			String createdBy, String encoding, int bytes, int elts) {
 		//super(version, createdAt, createdBy);
-		this.documentKey = toKey(documentId, version);
+		this.documentKey = toKey(hash, revision, version);
 		this.uri = uri;
 		this.typeId = typeId;
 		this.txStart = txStart;
@@ -230,7 +235,7 @@ public class XDMDocument implements Convertable<Map<String, Object>>, Versionabl
 	 */
 	@Override
 	public String toString() {
-		return "XDMDocument [documentId=" + getDocumentId() + ", version=" + getVersion()
+		return "XDMDocument [key=" + documentKey + ", version=" + getVersion()
 				+ ", uri=" + uri + ", typeId=" + typeId + ", createdAt=" + getCreatedAt()
 				+ ", createdBy=" + createdBy + ", encoding=" + encoding + ", bytes=" + bytes  
 				+ ", txStart=" + txStart + ", txFinish=" + txFinish + ", elements=" + elements 
@@ -238,5 +243,4 @@ public class XDMDocument implements Convertable<Map<String, Object>>, Versionabl
 				+ ", collections=" + Arrays.toString(getCollections()) + "]";
 	}
 
-	
 }

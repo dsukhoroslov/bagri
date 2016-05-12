@@ -14,6 +14,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.management.openmbean.CompositeData;
@@ -173,8 +175,42 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 		logger.trace("rollbackTransaction.exit; tx: {}", xTx); 
 	}
 	
+	@Override
+	public void finishCurrentTransaction(boolean rollback) throws XDMException {
+		long txId = getCurrentTxId();
+		if (rollback) {
+			rollbackTransaction(txId);
+		} else {
+			commitTransaction(txId);
+		}
+	}
+	
+	@Override
+	public boolean isInTransaction() {
+		return getCurrentTxId() > TX_NO; 
+	}
+	
 	private void cleanAffectedDocuments(XDMTransaction xTx) {
+		// asynchronous cleaning..
 		execService.submitToAllMembers(new DocumentCleaner(xTx), this);
+		
+		// synchronous cleaning.. causes a deadlock!
+		//Map<Member, Future<XDMTransaction>> values = execService.submitToAllMembers(new DocumentCleaner(xTx));
+        //XDMTransaction txClean = null;
+		//for (Future<XDMTransaction> value: values.values()) {
+		//	try {
+		//		XDMTransaction tx = value.get();
+		//		if (txClean == null) {
+		//			txClean = tx;
+		//		} else {
+		//			txClean.updateCounters(tx.getDocsCreated(), tx.getDocsUpdated(), tx.getDocsDeleted());
+		//		}
+		//	} catch (InterruptedException | ExecutionException ex) {
+		//		logger.error("cleanAffectedDocuments.error;", ex);
+		//	}
+		//}
+		//logger.info("cleanAffectedDocuments; going to complete {}", txClean);
+		//completeTransaction(txClean);
 	}
 	
 	boolean isTxVisible(long txId) throws XDMException {
@@ -349,23 +385,23 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 			}
 		}
 		if (txClean != null) {
-			//if (txClean.getTxState() == XDMTransactionState.commited) {
-			//	logger.debug("onComplete; got complete response for commited tx: {}", txClean);
-			//} else {
-				XDMTransaction txSource = txCache.get(txClean.getTxId());
-				if (txSource != null) {
-					if (txSource.getDocsCreated() != txClean.getDocsCreated() ||
-						txSource.getDocsUpdated() != txClean.getDocsUpdated() ||
-						txSource.getDocsDeleted() != txClean.getDocsDeleted()) {
-						logger.info("onComplete; wrong number of cleaned documents; expected: {}, reported: {}", txSource, txClean);
-					}
-					txCache.delete(txClean.getTxId());
-				} else {
-					logger.info("onComplete; got complete response for unknown tx: {}", txClean);
-				}
-			//}
+			completeTransaction(txClean);
 		} else {
 			logger.info("onComplete; got empty complete response");
+		}
+	}
+	
+	private void completeTransaction(XDMTransaction txClean) {
+		XDMTransaction txSource = txCache.get(txClean.getTxId());
+		if (txSource != null) {
+			if (txSource.getDocsCreated() != txClean.getDocsCreated() ||
+				txSource.getDocsUpdated() != txClean.getDocsUpdated() ||
+				txSource.getDocsDeleted() != txClean.getDocsDeleted()) {
+				logger.info("completeTransaction; wrong number of cleaned documents; expected: {}, reported: {}", txSource, txClean);
+			}
+			txCache.delete(txClean.getTxId());
+		} else {
+			logger.info("completeTransaction; got complete response for unknown tx: {}", txClean);
 		}
 	}
 

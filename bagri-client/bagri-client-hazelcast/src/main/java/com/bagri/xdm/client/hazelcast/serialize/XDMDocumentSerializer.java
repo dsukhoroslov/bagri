@@ -22,7 +22,6 @@ public class XDMDocumentSerializer implements StreamSerializer<XDMDocument> {
 	public XDMDocument read(ObjectDataInput in) throws IOException {
 		XDMDocument xDoc = new XDMDocument(
 				in.readLong(),
-				in.readInt(),
 				in.readUTF(),
 				in.readInt(),
 				in.readLong(),
@@ -38,8 +37,7 @@ public class XDMDocumentSerializer implements StreamSerializer<XDMDocument> {
 
 	@Override
 	public void write(ObjectDataOutput out, XDMDocument xDoc) throws IOException {
-		out.writeLong(xDoc.getDocumentId());
-		out.writeInt(xDoc.getVersion());
+		out.writeLong(xDoc.getDocumentKey());
 		out.writeUTF(xDoc.getUri());
 		out.writeInt(xDoc.getTypeId());
 		out.writeLong(xDoc.getTxStart());

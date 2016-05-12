@@ -80,6 +80,7 @@ public class QueryManagementImplTest extends XDMManagementTest {
 	public void tearDown() throws Exception {
 		// remove documents here!
 		removeDocumentsTest();
+		Thread.sleep(1000);
 	}
 
 	
@@ -244,16 +245,16 @@ public class QueryManagementImplTest extends XDMManagementTest {
 		storeSecurityTest();
 
 		Collection<String> sec = getPrice("VFINX");
-		Assert.assertNotNull(sec);
-		Assert.assertTrue(sec.size() == 1);
+		assertNotNull(sec);
+		assertEquals(1, sec.size());
 
 		sec = getPrice("IBM");
-		Assert.assertNotNull(sec);
-		Assert.assertTrue(sec.size() == 1);
+		assertNotNull(sec);
+		assertEquals(1, sec.size());
 
 		sec = getPrice("PTTAX");
-		Assert.assertNotNull(sec);
-		Assert.assertTrue(sec.size() == 1);
+		assertNotNull(sec);
+		assertEquals(1, sec.size());
 	}
 
 	@Test
@@ -261,16 +262,16 @@ public class QueryManagementImplTest extends XDMManagementTest {
 		storeSecurityTest();
 
 		Collection<String> sec = getSecurity("VFINX");
-		Assert.assertNotNull(sec);
-		Assert.assertTrue(sec.size() == 1);
+		assertNotNull(sec);
+		assertEquals(1, sec.size());
 
 		sec = getSecurity("IBM");
-		Assert.assertNotNull(sec);
-		Assert.assertTrue(sec.size() == 1);
+		assertNotNull(sec);
+		assertEquals(1, sec.size());
 
 		sec = getSecurity("PTTAX");
-		Assert.assertNotNull(sec);
-		Assert.assertTrue(sec.size() == 1);
+		assertNotNull(sec);
+		assertEquals(1, sec.size());
 	}
 
 	@Test
@@ -278,63 +279,63 @@ public class QueryManagementImplTest extends XDMManagementTest {
 		storeSecurityTest();
 
 		Collection<String> sec = searchSecurity("Technology", 25, 28, 0);
-		Assert.assertNotNull(sec);
-		Assert.assertTrue(sec.size() == 1);
+		assertNotNull(sec);
+		assertEquals(1, sec.size());
 
 		sec = searchSecurity("Technology", 25, 28, 1);
-		Assert.assertNotNull(sec);
-		Assert.assertTrue(sec.size() == 0);
+		assertNotNull(sec);
+		assertEquals(0, sec.size());
 
 		sec = searchSecurity("Technology", 28, 29, 0);
-		Assert.assertNotNull(sec);
-		Assert.assertTrue(sec.size() == 0);
+		assertNotNull(sec);
+		assertEquals(0, sec.size());
 	}
 
 	@Test
 	public void getOrderTest() throws Exception {
 		storeOrderTest();
 		Collection<String> sec = getOrder("103404");
-		Assert.assertNotNull(sec);
-		Assert.assertTrue(sec.size() == 1);
+		assertNotNull(sec);
+		assertEquals(1, sec.size());
 		sec = getOrder("103935");
-		Assert.assertNotNull(sec);
-		Assert.assertTrue(sec.size() == 1);
+		assertNotNull(sec);
+		assertEquals(1, sec.size());
 	}
 
 	@Test
 	public void getCustomerProfileTest() throws Exception {
 		storeCustomerTest();
 		Collection<String> sec = getCustomerProfile("1011");
-		Assert.assertNotNull(sec);
-		Assert.assertTrue(sec.size() == 1);
+		assertNotNull(sec);
+		assertEquals(1, sec.size());
 	}
 
 	@Test
 	public void getCustomerAccountsTest() throws Exception {
 		storeCustomerTest();
 		Collection<String> sec = getCustomerAccounts("1011");
-		Assert.assertNotNull(sec);
-		Assert.assertTrue(sec.size() == 1);
+		assertNotNull(sec);
+		assertEquals(1, sec.size());
 	}
 	
-	@Test
-	public void selectDocumentByIdTest() throws Exception {
+	//@Test
+	//public void selectDocumentByIdTest() throws Exception {
 		
-		storeSecurityTest();
-		Map<QName, Object> params = new HashMap<>();
-		Properties props = new Properties();
-		props.setProperty(pn_client_id, "1");
-		props.setProperty(pn_client_fetchSize, "0");
-		for (Long id: ids) {
-			String query = "declare namespace s=\"http://tpox-benchmark.com/security\";\n" +
-				"for $sec in fn:doc(\"bgdm:/" + id + "\")/s:Security\n" +
-				"return $sec\n";
-			Iterator itr = xRepo.getQueryManagement().executeQuery(query, params, props);
-			Assert.assertNotNull(itr);
-			((ResultCursor) itr).deserialize(((RepositoryImpl) xRepo).getHzInstance());
-			Assert.assertTrue(itr.hasNext());
-		}
-	}
+	//	storeSecurityTest();
+	//	Map<QName, Object> params = new HashMap<>();
+	//	Properties props = new Properties();
+	//	props.setProperty(pn_client_id, "1");
+	//	props.setProperty(pn_client_fetchSize, "0");
+	//	for (Long id: ids) {
+	//		String query = "declare namespace s=\"http://tpox-benchmark.com/security\";\n" +
+	//			"for $sec in fn:doc(\"bgdm:/" + id + "\")/s:Security\n" +
+	//			"return $sec\n";
+	//		Iterator itr = xRepo.getQueryManagement().executeQuery(query, params, props);
+	//		Assert.assertNotNull(itr);
+	//		((ResultCursor) itr).deserialize(((RepositoryImpl) xRepo).getHzInstance());
+	//		Assert.assertTrue(itr.hasNext());
+	//	}
+	//}
 
 	@Test
 	public void selectDocumentByUriTest() throws Exception {
@@ -350,9 +351,9 @@ public class QueryManagementImplTest extends XDMManagementTest {
 				"for $sec in fn:doc(\"" + uri + "\")/s:Security\n" +
 				"return $sec\n";
 			Iterator itr = xRepo.getQueryManagement().executeQuery(query, params, props);
-			Assert.assertNotNull(itr);
+			assertNotNull(itr);
 			((ResultCursor) itr).deserialize(((RepositoryImpl) xRepo).getHzInstance());
-			Assert.assertTrue(itr.hasNext());
+			assertTrue(itr.hasNext());
 		}
 	}
 	

@@ -3,31 +3,23 @@ package com.bagri.xdm.api.test;
 import static com.bagri.common.util.FileUtils.readTextFile;
 
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
 
-import com.bagri.common.query.AxisType;
-import com.bagri.common.query.Comparison;
-import com.bagri.common.query.ExpressionContainer;
-import com.bagri.common.query.PathBuilder;
 import com.bagri.xdm.api.XDMDocumentManagement;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.api.XDMQueryManagement;
 import com.bagri.xdm.api.XDMRepository;
 import com.bagri.xdm.api.XDMTransactionManagement;
-import com.bagri.xdm.common.XDMDocumentId;
 import com.bagri.xdm.domain.XDMDocument;
 
 public abstract class XDMManagementTest {
 
 	protected static String sampleRoot;
 	protected XDMRepository xRepo;
-	protected List<Long> ids = new ArrayList<Long>();
+	protected Set<String> uris = new HashSet<>();
 	
 	protected String getFileName(String original) {
 		return original;
@@ -70,32 +62,31 @@ public abstract class XDMManagementTest {
 	//}
 
 	protected void removeDocumentsTest() throws Exception {
-		long txId =  getTxManagement().beginTransaction();
-		for (Long key: ids) {
-			getDocManagement().removeDocument(new XDMDocumentId(key));
+		if (getTxManagement().isInTransaction()) {
+			getTxManagement().finishCurrentTransaction(true);
 		}
-		ids.clear();
+		long txId =  getTxManagement().beginTransaction();
+		for (String uri: uris) {
+			getDocManagement().removeDocument(uri);
+		}
+		uris.clear();
 		getTxManagement().commitTransaction(txId);
 	}
 	
 	public XDMDocument createDocumentTest(String fileName) throws Exception {
 		String xml = readTextFile(fileName);
 		Properties props = getDocumentProperties();
-		return getDocManagement().storeDocumentFromString(new XDMDocumentId(getUri(fileName)), xml, props);
+		return getDocManagement().storeDocumentFromString(getUri(fileName), xml, props);
 	}
 	
-	public XDMDocument updateDocumentTest(long docKey, String uri, String fileName) throws Exception {
+	public XDMDocument updateDocumentTest(String uri, String fileName) throws Exception {
 		String xml = readTextFile(fileName);
 		Properties props = getDocumentProperties();
-		XDMDocumentId docId = null;
-		if (docKey != 0 || uri != null) {
-			docId = new XDMDocumentId(docKey, uri);
-		}
-		return getDocManagement().storeDocumentFromString(docId, xml, props);
+		return getDocManagement().storeDocumentFromString(uri, xml, props);
 	}
 
-	public void removeDocumentTest(long docKey) throws Exception {
-		getDocManagement().removeDocument(new XDMDocumentId(docKey));
+	public void removeDocumentTest(String uri) throws Exception {
+		getDocManagement().removeDocument(uri);
 	}
 
 	public void storeSecurityTest() throws Exception {
@@ -107,10 +98,10 @@ public abstract class XDMManagementTest {
 				throw ex;
 			}
 		}
-		ids.add(createDocumentTest(sampleRoot + getFileName("security1500.xml")).getDocumentKey());
-		ids.add(createDocumentTest(sampleRoot + getFileName("security5621.xml")).getDocumentKey());
-		ids.add(createDocumentTest(sampleRoot + getFileName("security9012.xml")).getDocumentKey());
-		ids.add(createDocumentTest(sampleRoot + getFileName("security29674.xml")).getDocumentKey());
+		uris.add(createDocumentTest(sampleRoot + getFileName("security1500.xml")).getUri());
+		uris.add(createDocumentTest(sampleRoot + getFileName("security5621.xml")).getUri());
+		uris.add(createDocumentTest(sampleRoot + getFileName("security9012.xml")).getUri());
+		uris.add(createDocumentTest(sampleRoot + getFileName("security29674.xml")).getUri());
 		if (txId > 0) {
 			getTxManagement().commitTransaction(txId);
 		}
@@ -125,8 +116,8 @@ public abstract class XDMManagementTest {
 				throw ex;
 			}
 		}
-		ids.add(createDocumentTest(sampleRoot + getFileName("order123.xml")).getDocumentKey());
-		ids.add(createDocumentTest(sampleRoot + getFileName("order654.xml")).getDocumentKey());
+		uris.add(createDocumentTest(sampleRoot + getFileName("order123.xml")).getUri());
+		uris.add(createDocumentTest(sampleRoot + getFileName("order654.xml")).getUri());
 		if (txId > 0) {
 			getTxManagement().commitTransaction(txId);
 		}
@@ -141,7 +132,7 @@ public abstract class XDMManagementTest {
 				throw ex;
 			}
 		}
-		ids.add(createDocumentTest(sampleRoot + getFileName("custacc.xml")).getDocumentKey());
+		uris.add(createDocumentTest(sampleRoot + getFileName("custacc.xml")).getUri());
 		if (txId > 0) {
 			getTxManagement().commitTransaction(txId);
 		}

@@ -28,6 +28,11 @@
             <artifactId>bagri-client-common</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>javax.cache</groupId>
+            <artifactId>cache-api</artifactId>
+        </dependency>
+
         <!-- Dependencies for logging -->
         <dependency>
             <groupId>org.slf4j</groupId>

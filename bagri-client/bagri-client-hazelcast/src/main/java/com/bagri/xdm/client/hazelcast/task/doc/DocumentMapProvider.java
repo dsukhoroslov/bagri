@@ -5,16 +5,14 @@ import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFacto
 import java.util.Map;
 import java.util.concurrent.Callable;
 
-import com.bagri.xdm.common.XDMDocumentId;
-
 public class DocumentMapProvider extends DocumentAwareTask implements Callable<Map<String, Object>> {
 	
 	public DocumentMapProvider() {
 		super();
 	}
 	
-	public DocumentMapProvider(String clientId, XDMDocumentId docId) {
-		super(clientId, 0, docId, null);
+	public DocumentMapProvider(String clientId, String uri) {
+		super(clientId, 0, uri, null);
 	}
 
 	@Override

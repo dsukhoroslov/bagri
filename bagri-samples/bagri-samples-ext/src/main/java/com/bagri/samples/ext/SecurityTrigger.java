@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMRepository;
-import com.bagri.xdm.common.XDMDocumentId;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMTrigger;
 import com.tpox_benchmark.security.Security;
@@ -21,7 +20,7 @@ public class SecurityTrigger implements XDMTrigger {
 	public void afterInsert(XDMDocument doc, XDMRepository repo) {
 		logger.info("afterInsert.enter; doc: {}; repo: {}", doc, repo);
 		try {
-			Security sec = repo.getBindingManagement().getDocumentBinding(new XDMDocumentId(doc.getDocumentKey()), Security.class);
+			Security sec = repo.getBindingManagement().getDocumentBinding(doc.getUri(), Security.class);
 			logger.info("afterInsert.exit; got security: {}/{}/{}", sec.getName(), sec.getSymbol(), sec.getId());
 		} catch (XDMException ex) { 
 			logger.info("afterInsert.error; got exception: {}", ex.getMessage());

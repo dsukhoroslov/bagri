@@ -66,7 +66,7 @@ public class DocumentManagementImplTest extends XDMDocumentManagementTest {
 	@Test
 	public void documentPropertiesTest() throws Exception {
 		XDMDocument doc = createDocumentTest(sampleRoot + getFileName("security1500.xml"));
-		ids.add(doc.getDocumentKey());
+		uris.add(doc.getUri());
 		assertEquals(doc.getCreatedBy(), "guest");
 		assertEquals(doc.getFragments().length, 1);
 		//assertEquals(doc.getTxStart(), 1);

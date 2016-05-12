@@ -3,12 +3,11 @@
  */
 package com.bagri.xquery.saxon;
 
+import static com.bagri.xdm.common.XDMConstants.bg_schema;
+
 import java.io.StringReader;
 import java.net.URI;
-import java.util.Collection;
-import java.util.Iterator;
 
-import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.URIResolver;
@@ -18,23 +17,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bagri.common.util.FileUtils;
-import com.bagri.xdm.api.XDMDocumentManagement;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMRepository;
-import com.bagri.xdm.common.XDMDocumentId;
-import com.bagri.xdm.domain.XDMDocument;
+import com.bagri.xdm.cache.api.XDMDocumentManagement;
 
-import static com.bagri.xdm.common.XDMConstants.bg_schema;
 import net.sf.saxon.Configuration;
-import net.sf.saxon.event.Receiver;
-import net.sf.saxon.expr.JPConverter;
-import net.sf.saxon.expr.PJConverter;
-import net.sf.saxon.lib.ExternalObjectModel;
 import net.sf.saxon.lib.SourceResolver;
-import net.sf.saxon.om.DocumentInfo;
-import net.sf.saxon.om.NodeInfo;
 import net.sf.saxon.trans.XPathException;
-import net.sf.saxon.tree.tiny.TinyDocumentImpl;
 
 /**
  * @author Denis Sukhoroslov
@@ -63,36 +52,42 @@ public class SourceResolverImpl implements SourceResolver, URIResolver {
 	public Source resolveSource(Source source, Configuration config) throws XPathException {
 		logger.trace("resolveSource. source: {}; config: {}", source.getSystemId(), config);
 		
-		XDMDocumentId docId = null;
+		String content = null;
 		String original = source.getSystemId();
 
 		URI uri = URI.create(original);
 		logger.trace("resolveSource. got {} URI: {}", uri.isAbsolute() ? "absolute" : "relative", uri);
-		if (bg_schema.equals(uri.getScheme())) {
-			// skip leading "/"
-			docId = new XDMDocumentId(Long.parseLong(uri.getPath().substring(1)));
-		} else {
-			String src = original;
-			if ("file".equals(uri.getScheme())) {
-				// here we search by fileName
-				src = FileUtils.getPathName(src);
-			}
-			logger.debug("resolveSource; not a native schema {}, trying short uri: {}", uri.getScheme(), src); 
-			Collection<XDMDocumentId> ids = repo.getDocumentManagement().getDocumentIds(src);
-			if (ids.size() > 0) {
-				docId = ids.iterator().next();
-			} else if ("file".equals(uri.getScheme())) {
-				// here we search by full name
-				src = FileUtils.path2Uri(src);
-				logger.debug("resolveSource; got no results; trying full uri: {}", src); 
-				ids = repo.getDocumentManagement().getDocumentIds(src);
-				if (ids.size() > 0) {
-					docId = ids.iterator().next();
+		
+		try {
+			if (bg_schema.equals(uri.getScheme())) {
+				// skip leading "/"
+				long docKey = Long.parseLong(uri.getPath().substring(1));
+				content = ((XDMDocumentManagement) repo.getDocumentManagement()).getDocumentAsString(docKey);
+			} else {
+				String src = original;
+				if ("file".equals(uri.getScheme())) {
+					// here we search by fileName
+					src = FileUtils.getPathName(src);
 				}
+				logger.debug("resolveSource; not a native schema {}, trying short uri: {}", uri.getScheme(), src); 
+				content = repo.getDocumentManagement().getDocumentAsString(src);
+				//if (ids.size() > 0) {
+				//	docId = ids.iterator().next();
+				//} else if ("file".equals(uri.getScheme())) {
+					// here we search by full name
+				//	src = FileUtils.path2Uri(src);
+				//	logger.debug("resolveSource; got no results; trying full uri: {}", src); 
+				//	ids = repo.getDocumentManagement().getDocumentIds(src);
+				//	if (ids.size() > 0) {
+				//		docId = ids.iterator().next();
+				//	}
+				//}
 			}
+		} catch (XDMException ex) {
+			throw new XPathException("cannot resolve document for URI: " +  uri);
 		}
 		
-		if (docId == null) {
+		if (content == null) {
 			throw new XPathException("cannot resolve document for URI: " +  uri);
 		}
 
@@ -109,15 +104,15 @@ public class SourceResolverImpl implements SourceResolver, URIResolver {
 		
 		// move this processing to a node (member)
 		// the document belongs to
-		logger.debug("resolveSource; looking for documentId: {}", docId);
-		String content;
-		try {
+		//logger.debug("resolveSource; looking for documentId: {}", docId);
+		//String content;
+		//try {
 			// another bottleneck! takes 6.73 ms, even to get XML from cache! !?
-			content = repo.getDocumentManagement().getDocumentAsString(docId);
+		//	content = repo.getDocumentManagement().getDocumentAsString(docId);
 			//content = content.replaceAll("&", "&amp;");
-		} catch (XDMException ex) {
-			throw new XPathException(ex);
-		}
+		//} catch (XDMException ex) {
+		//	throw new XPathException(ex);
+		//}
 		 
 		if (content != null && content.trim().length() > 0) {
 			logger.trace("resolveSource; got content: {}", content.length());

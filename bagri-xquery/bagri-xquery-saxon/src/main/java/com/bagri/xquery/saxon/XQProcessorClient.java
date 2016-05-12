@@ -22,7 +22,6 @@ import javax.xml.xquery.XQStaticContext;
 
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMQueryManagement;
-import com.bagri.xdm.common.XDMDocumentId;
 import com.bagri.xquery.api.XQProcessor;
 
 import net.sf.saxon.expr.instruct.GlobalParameterSet;
@@ -47,20 +46,12 @@ public class XQProcessorClient extends XQProcessorImpl implements XQProcessor {
 		return executeXCommand(command, params, collectProperties(ctx));
 	}
 	
-	private XDMDocumentId getDocumentId(Map<QName, Object> params) throws XQException {
-		XQItem docId = (XQItem) params.remove(new QName("docId"));
+	private String getDocumentUri(Map<QName, Object> params) throws XQException {
 		XQItem uri = (XQItem) params.remove(new QName("uri"));
-		if (docId == null) {
-			if (uri == null) {
-				return null;
-			}
-			return new XDMDocumentId(uri.getAtomicValue());
-		}
 		if (uri == null) {
-			// TODO: for update version should be 0!
-			return new XDMDocumentId(docId.getLong(), 1);
+			throw new XQException("No document uri passed");
 		}
-		return new XDMDocumentId(docId.getLong(), 1, uri.getAtomicValue());
+		return uri.getAtomicValue();
 	}
 	
 	private Properties fillProperties(Map<QName, Object> params, Properties props) {
@@ -81,12 +72,14 @@ public class XQProcessorClient extends XQProcessorImpl implements XQProcessor {
     		Object result;
 			if (command.equals(cmd_store_document)) {
 				String content = ((XQItem) params.remove(new QName("content"))).getAtomicValue();
-				XDMDocumentId docId = getDocumentId(params);
-				result = getDocumentManagement().storeDocumentFromString(docId, content, fillProperties(params, props));
+				String uri = getDocumentUri(params);
+				result = getDocumentManagement().storeDocumentFromString(uri, content, fillProperties(params, props));
 			} else if (command.equals(cmd_get_document)) {
-				result = getDocumentManagement().getDocumentAsString(getDocumentId(params));
+				String uri = getDocumentUri(params);
+				result = getDocumentManagement().getDocumentAsString(uri);
 			} else if (command.equals(cmd_remove_document)) {
-				getDocumentManagement().removeDocument(getDocumentId(params));
+				String uri = getDocumentUri(params);
+				getDocumentManagement().removeDocument(uri);
 				result = new Integer(1); 
 			} else if (command.equals(cmd_remove_cln_documents)) {
 				String collection = (String) params.get("collection");

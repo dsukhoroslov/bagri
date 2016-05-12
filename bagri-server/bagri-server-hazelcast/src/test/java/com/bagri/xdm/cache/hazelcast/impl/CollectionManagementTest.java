@@ -18,7 +18,6 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.xdm.api.test.XDMManagementTest;
-import com.bagri.xdm.common.XDMDocumentId;
 import com.bagri.xdm.system.XDMCollection;
 import com.bagri.xdm.system.XDMSchema;
 
@@ -53,10 +52,13 @@ public class CollectionManagementTest extends XDMManagementTest {
 		XDMSchema schema = xdmRepo.getSchema();
 		if (schema == null) {
 			schema = new XDMSchema(1, new java.util.Date(), "test", "test", "test schema", true, null);
-			xdmRepo.setSchema(schema);
 			XDMCollection collection = new XDMCollection(1, new Date(), JMXUtils.getCurrentUser(), 
 					1, "CLN_Security", "/{http://tpox-benchmark.com/security}Security", "securities", true);
 			schema.addCollection(collection);
+			collection = new XDMCollection(1, new Date(), JMXUtils.getCurrentUser(), 
+					2, "CLN_Custom", "", "custom", true);
+			schema.addCollection(collection);
+			xdmRepo.setSchema(schema);
 		}
 	}
 
@@ -71,15 +73,59 @@ public class CollectionManagementTest extends XDMManagementTest {
 	}
 	
 	@Test
+	public void addDefaultCollectionDocumentsTest() throws Exception {
+		Collection<String> ids = this.getDocManagement().getCollectionDocumentUris(null);
+		assertEquals(0, ids.size());
+		props = new Properties();
+		//props.setProperty(xdm_document_collections, "CLN_Security");
+		storeSecurityTest();
+		ids = this.getDocManagement().getCollectionDocumentUris("CLN_Security");
+		assertEquals(4, ids.size());
+		int cnt = 0;
+		for (String id: ids) {
+			if (ids.contains(id)) {
+				cnt++;
+			}
+		}
+		assertEquals(4, cnt);
+		props = null;
+	}
+
+	@Test
+	public void addCustomCollectionDocumentsTest() throws Exception {
+		Collection<String> ids = this.getDocManagement().getCollectionDocumentUris(null);
+		assertEquals(0, ids.size());
+		props = new Properties();
+		props.setProperty(xdm_document_collections, "CLN_Custom");
+		assertEquals(0, uris.size());
+		storeSecurityTest();
+		assertEquals(4, uris.size());
+		ids = this.getDocManagement().getCollectionDocumentUris("CLN_Security");
+		assertEquals(0, ids.size());
+		ids = this.getDocManagement().getCollectionDocumentUris("CLN_Custom");
+		assertEquals(4, ids.size());
+		int cnt = 0;
+		for (String id: ids) {
+			if (uris.contains(id)) {
+				cnt++;
+			}
+		}
+		assertEquals(4, cnt);
+		props = null;
+	}
+
+	@Test
 	public void getCollectionDocumentsTest() throws Exception {
+		Collection<String> ids = this.getDocManagement().getCollectionDocumentUris(null);
+		assertEquals(0, ids.size());
 		props = new Properties();
 		props.setProperty(xdm_document_collections, "CLN_Security");
 		storeSecurityTest();
-		Collection<XDMDocumentId> docIds = this.getDocManagement().getCollectionDocumentIds("CLN_Security");
-		assertEquals(4, docIds.size());
+		ids = this.getDocManagement().getCollectionDocumentUris("CLN_Security");
+		assertEquals(4, ids.size());
 		int cnt = 0;
-		for (XDMDocumentId docId: docIds) {
-			if (ids.contains(docId.getDocumentKey())) {
+		for (String id: ids) {
+			if (uris.contains(id)) {
 				cnt++;
 			}
 		}
@@ -89,16 +135,26 @@ public class CollectionManagementTest extends XDMManagementTest {
 
 	@Test
 	public void addDocumentsToCollectionTest() throws Exception {
+		Collection<String> ids = this.getDocManagement().getCollectionDocumentUris(null);
+		assertEquals(0, ids.size());
+		assertEquals(0, uris.size());
 		storeSecurityTest();
-		for (Long docKey: ids) {
-			XDMDocumentId docId = new XDMDocumentId(docKey);
-			this.getDocManagement().addDocumentToCollections(docId, new String[] {"CLN_Security"});
+		assertEquals(4, uris.size());
+		// docs in default collection
+		ids = this.getDocManagement().getCollectionDocumentUris(null);
+		assertEquals(4, ids.size());
+		// the docs are already in CLN_Security collection 
+		ids = this.getDocManagement().getCollectionDocumentUris("CLN_Security");
+		assertEquals(4, ids.size());
+
+		for (String uri: uris) {
+			this.getDocManagement().addDocumentToCollections(uri, new String[] {"CLN_Custom"});
 		}
-		Collection<XDMDocumentId> docIds = this.getDocManagement().getCollectionDocumentIds("CLN_Security");
-		assertEquals(4, docIds.size());
+		ids = this.getDocManagement().getCollectionDocumentUris("CLN_Custom");
+		assertEquals(4, ids.size());
 		int cnt = 0;
-		for (XDMDocumentId docId: docIds) {
-			if (ids.contains(docId.getDocumentKey())) {
+		for (String id: ids) {
+			if (uris.contains(id)) {
 				cnt++;
 			}
 		}
@@ -108,25 +164,24 @@ public class CollectionManagementTest extends XDMManagementTest {
 	@Test
 	public void removeDocumentsFromCollectionTest() throws Exception {
 		addDocumentsToCollectionTest();
-		for (Long docKey: ids) {
-			XDMDocumentId docId = new XDMDocumentId(docKey);
-			this.getDocManagement().removeDocumentFromCollections(docId, new String[] {"CLN_Security"});
+		for (String uri: uris) {
+			this.getDocManagement().removeDocumentFromCollections(uri, new String[] {"CLN_Custom"});
 		}
-		Collection<XDMDocumentId> docIds = this.getDocManagement().getCollectionDocumentIds("CLN_Security");
-		assertEquals(0, docIds.size());
+		Collection<String> ids = this.getDocManagement().getCollectionDocumentUris("CLN_Custom");
+		assertEquals(0, ids.size());
 	}
 
 	@Test
 	public void removeCollectionDocumentsTest() throws Exception {
 		addDocumentsToCollectionTest();
-		assertEquals(4, ids.size());
+		assertEquals(4, uris.size());
 		
 		long txId = xRepo.getTxManagement().beginTransaction();
 		int cnt = getDocManagement().removeCollectionDocuments("CLN_Security");
 		xRepo.getTxManagement().commitTransaction(txId);
 		
-		Collection<XDMDocumentId> docIds = this.getDocManagement().getCollectionDocumentIds("CLN_Security");
-		assertEquals(0, docIds.size());
+		Collection<String> ids = this.getDocManagement().getCollectionDocumentUris("CLN_Security");
+		assertEquals(0, ids.size());
 	}
 
 

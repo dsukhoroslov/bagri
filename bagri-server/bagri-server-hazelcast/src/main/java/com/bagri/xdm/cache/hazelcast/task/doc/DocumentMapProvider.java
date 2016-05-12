@@ -27,7 +27,7 @@ public class DocumentMapProvider extends com.bagri.xdm.client.hazelcast.task.doc
     	((RepositoryImpl) repo).getXQProcessor(clientId);
     	checkPermission(Permission.read);
     	
-		return docMgr.getDocumentAsMap(docId);
+		return docMgr.getDocumentAsMap(uri);
 	}
 }
 

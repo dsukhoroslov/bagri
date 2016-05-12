@@ -1,4 +1,4 @@
-package com.bagri.xdm.access.jcache.impl;
+package com.bagri.xdm.client.jcache.impl;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -51,7 +51,7 @@ public class JCacheDocumentManager {
 	}
 	
 	public void store(XDMElement data) {
-		xdmCache.put(data.getElementId(), data);
+		//xdmCache.put(data.getElementId(), data);
 	}
 
 	public void store(Long id, XDMElement data) {
@@ -67,7 +67,7 @@ public class JCacheDocumentManager {
 		Map<Long, XDMElement> map = new HashMap<Long, XDMElement>(size);
 		for (Iterator<XDMElement> itr = data.iterator(); itr.hasNext(); idx++) {
 			XDMElement xdm = itr.next();
-			map.put(xdm.getElementId(), xdm);
+			//map.put(xdm.getElementId(), xdm);
 			if (idx % size == 0) { 
 				xdmCache.putAll(map);
 				logger.trace("storeAll; stored {} entries", map.size());

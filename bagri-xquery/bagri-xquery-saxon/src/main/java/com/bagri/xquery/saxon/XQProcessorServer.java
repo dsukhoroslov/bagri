@@ -18,17 +18,13 @@ import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMRepository;
 import com.bagri.xdm.cache.api.XDMQueryManagement;
 import com.bagri.xdm.common.XDMConstants;
-import com.bagri.xdm.common.XDMDocumentId;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMQuery;
 import com.bagri.xquery.api.XQProcessor;
 
-import net.sf.saxon.lib.CollectionFinder;
 import net.sf.saxon.lib.ModuleURIResolver;
-import net.sf.saxon.om.Item;
 import net.sf.saxon.om.NamePool;
 import net.sf.saxon.om.SequenceIterator;
-import net.sf.saxon.query.QueryResult;
 import net.sf.saxon.query.XQueryExpression;
 import net.sf.saxon.trans.XPathException;
 import net.sf.saxon.tree.util.DocumentNumberAllocator;
@@ -100,17 +96,18 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 	    XDMDocumentManagement dMgr = getRepository().getDocumentManagement();
 	    try {
 			if (command.startsWith("storeDocument")) {
-				XQItemAccessor item = getBoundItem(params, "doc");
+				XQItemAccessor item = getBoundItem(params, "uri");
+				String uri = item.getAtomicValue();
+				item = getBoundItem(params, "doc");
 				String xml = item.getItemAsString(null);
 				// validate document ?
 				// add/pass other params ?!
-				XDMDocument doc = dMgr.storeDocumentFromString(null, xml, null);
+				XDMDocument doc = dMgr.storeDocumentFromString(uri, xml, null);
 				return Collections.singletonList(doc).iterator();
-				//return Collections.emptyIterator();
 			} else if (command.startsWith("removeDocument")) {
-				XQItemAccessor item = getBoundItem(params, "docKey");
-				long docKey = item.getLong();
-				dMgr.removeDocument(new XDMDocumentId(docKey));
+				XQItemAccessor item = getBoundItem(params, "uri");
+				String uri = item.getAtomicValue();
+				dMgr.removeDocument(uri);
 				return Collections.emptyIterator(); 
 			} else {
 				throw new XQException("unknown command: " + command);

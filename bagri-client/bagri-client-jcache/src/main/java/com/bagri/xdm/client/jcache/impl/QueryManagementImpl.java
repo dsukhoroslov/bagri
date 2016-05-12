@@ -1,10 +1,12 @@
-package com.bagri.xdm.client.hazelcast.impl;
+package com.bagri.xdm.client.jcache.impl;
 
 import static com.bagri.xdm.client.common.XDMCacheConstants.CN_XDM_RESULT;
 import static com.bagri.xdm.client.common.XDMCacheConstants.CN_XDM_QUERY;
 import static com.bagri.xdm.client.common.XDMCacheConstants.PN_XDM_SCHEMA_POOL;
 import static com.bagri.xdm.common.XDMConstants.*;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -17,6 +19,10 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import javax.cache.Cache;
+import javax.cache.CacheManager;
+import javax.cache.Caching;
+import javax.cache.spi.CachingProvider;
 import javax.xml.namespace.QName;
 
 import org.slf4j.Logger;
@@ -25,10 +31,14 @@ import org.slf4j.LoggerFactory;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMQueryManagement;
 import com.bagri.xdm.client.common.impl.QueryManagementBase;
-import com.bagri.xdm.client.hazelcast.task.query.DocumentUrisProvider;
+import com.bagri.xdm.client.hazelcast.impl.RepositoryImpl;
+import com.bagri.xdm.client.hazelcast.impl.ResultCursor;
+import com.bagri.xdm.client.hazelcast.task.query.DocumentIdsProvider;
 import com.bagri.xdm.client.hazelcast.task.query.QueryExecutor;
 import com.bagri.xdm.domain.XDMQuery;
 import com.bagri.xdm.domain.XDMResults;
+import com.hazelcast.cache.HazelcastCachingProvider;
+import com.hazelcast.cache.ICache;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.Member;
@@ -42,7 +52,8 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
     private RepositoryImpl repo;
 	private IExecutorService execService;
     private Future execution = null; 
-    private IMap<Long, XDMResults> resCache;
+    //private IMap<Long, XDMResults> resCache;
+    private Cache<Long, XDMResults> resCache;
     private ReplicatedMap<Integer, XDMQuery> xqCache;
     
 	public QueryManagementImpl() {
@@ -52,8 +63,19 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 	void initialize(RepositoryImpl repo) {
 		this.repo = repo;
 		execService = repo.getHazelcastClient().getExecutorService(PN_XDM_SCHEMA_POOL);
-		resCache = repo.getHazelcastClient().getMap(CN_XDM_RESULT);
+		//resCache = repo.getHazelcastClient().getMap(CN_XDM_RESULT);
 		xqCache = repo.getHazelcastClient().getReplicatedMap(CN_XDM_QUERY);
+		
+        CachingProvider cachingProvider = Caching.getCachingProvider();
+        // retrieve the javax.cache.CacheManager
+        try {
+			URI uri = new URI("hzClient");
+			Properties props = HazelcastCachingProvider.propertiesByInstanceName(repo.getHazelcastClient().getName());
+	        CacheManager cacheManager = cachingProvider.getCacheManager(uri, null, props);
+	        resCache = cacheManager.getCache(CN_XDM_RESULT, Long.class, XDMResults.class); 
+		} catch (URISyntaxException ex) {
+			logger.error("initialize.error;", ex);
+		}
 	}
 	
 	public void setQueryCache(boolean queryCache) {
@@ -74,13 +96,13 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 	public Collection<String> getDocumentUris(String query, Map<QName, Object> params, Properties props) throws XDMException {
 
 		long stamp = System.currentTimeMillis();
-		logger.trace("getDocumentIDs.enter; query: {}", query);
+		logger.trace("getDocumentUris.enter; query: {}", query);
 		DocumentUrisProvider task = new DocumentUrisProvider(repo.getClientId(), repo.getTransactionId(), query, params, props);
-		Future<Collection<String>> future = execService.submit(task);
+		Future<Collection<XDMDocumentId>> future = execService.submit(task);
 		execution = future;
 		Collection<String> result = getResults(future, 0);
 		stamp = System.currentTimeMillis() - stamp;
-		logger.trace("getDocumentIDs.exit; time taken: {}; returning: {}", stamp, result);
+		logger.trace("getDocumentUris.exit; time taken: {}; returning: {}", stamp, result);
 		return result;
 	}
 	
@@ -93,9 +115,9 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 		if (qCache != null) {
 			useCache = Boolean.parseBoolean(qCache); 
 		}
-		long qKey = getResultsKey(query, params);
 		if (useCache) {
-			XDMResults res = resCache.get(qKey);
+			long key = getResultsKey(query, params);
+			XDMResults res = resCache.get(key);
 			if (res != null) {
 				logger.trace("execXQuery; got cached results: {}", res);
 				return res.getResults().iterator();
@@ -105,14 +127,15 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 		props.setProperty(pn_client_id, repo.getClientId());
 		//props.setProperty(pn_client_txId, String.valueOf(repo.getTransactionId()));
 		
+		long key = getQueryKey(query);
 		boolean isQuery = true;
 		QueryExecutor task = new QueryExecutor(repo.getClientId(), repo.getTransactionId(), query, params, props);
 		Future<ResultCursor> future;
 		String runOn = props.getProperty(pn_client_submitTo, pv_client_submitTo_any);
 		if (pv_client_submitTo_owner.equalsIgnoreCase(runOn)) {
-			future = execService.submitToKeyOwner(task, qKey);
+			future = execService.submitToKeyOwner(task, key);
 		} else if (pv_client_submitTo_member.equalsIgnoreCase(runOn)) {
-			Member member = repo.getHazelcastClient().getPartitionService().getPartition(qKey).getOwner();
+			Member member = repo.getHazelcastClient().getPartitionService().getPartition(key).getOwner();
 			future = execService.submitToMember(task, member);
 		} else {
 			future = execService.submit(task);

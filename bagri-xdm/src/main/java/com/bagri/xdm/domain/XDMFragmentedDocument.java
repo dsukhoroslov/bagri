@@ -1,9 +1,11 @@
 package com.bagri.xdm.domain;
 
 import static com.bagri.common.util.FileUtils.def_encoding;
+import static com.bagri.xdm.common.XDMDocumentKey.toHash;
+import static com.bagri.xdm.common.XDMDocumentKey.toRevision;
+import static com.bagri.xdm.common.XDMDocumentKey.toVersion;
 
 import java.util.Date;
-import java.util.List;
 
 public class XDMFragmentedDocument extends XDMDocument {
 
@@ -13,17 +15,22 @@ public class XDMFragmentedDocument extends XDMDocument {
 		super();
 	}
 	
-	public XDMFragmentedDocument(long documentId, String uri, int typeId, String owner, long txId, int bytes, int elts) {
-		this(documentId, 0, uri, typeId, txId, 0, new Date(), owner, def_encoding, bytes, elts);
+	public XDMFragmentedDocument(String uri, int typeId, String owner, long txId, int bytes, int elts) {
+		this(uri.hashCode(), 0, dvFirst, uri, typeId, txId, 0, new Date(), owner, def_encoding, bytes, elts);
 	}
 	
-	public XDMFragmentedDocument(long documentId, int version, String uri, int typeId, String owner, long txId, int bytes, int elts) {
-		this(documentId, version, uri, typeId, txId, 0, new Date(), owner, def_encoding, bytes, elts);
+	public XDMFragmentedDocument(int hash, int revision, int version, String uri, int typeId, String owner, long txId, int bytes, int elts) {
+		this(hash, revision, version, uri, typeId, txId, 0, new Date(), owner, def_encoding, bytes, elts);
 	}
 
-	public XDMFragmentedDocument(long documentId, int version, String uri, int typeId, long txStart, long txFinish, Date createdAt, 
+	public XDMFragmentedDocument(long docKey, String uri, int typeId, long txStart, long txFinish, Date createdAt, String createdBy, String encoding, 
+			int bytes, int elts) {
+		this(toHash(docKey), toRevision(docKey), toVersion(docKey), uri, typeId, txStart, txFinish, createdAt, createdBy, encoding, bytes, elts);
+	}
+	
+	public XDMFragmentedDocument(int hash, int revision, int version, String uri, int typeId, long txStart, long txFinish, Date createdAt, 
 			String createdBy, String encoding, int bytes, int elts) {
-		super(documentId, version, uri, typeId, txStart, txFinish, createdAt, createdBy, encoding, bytes, elts);
+		super(hash, revision, version, uri, typeId, txStart, txFinish, createdAt, createdBy, encoding, bytes, elts);
 	}
 	
 	public long[] getFragments() {

@@ -14,6 +14,10 @@ public interface XDMTransactionManagement {
 	
 	void rollbackTransaction(long txId) throws XDMException;
 
+	void finishCurrentTransaction(boolean rollback) throws XDMException;
+
+	boolean isInTransaction();
+	
 	long getTransactionTimeout();
 	
 	void setTransactionTimeout(long timeout) throws XDMException;

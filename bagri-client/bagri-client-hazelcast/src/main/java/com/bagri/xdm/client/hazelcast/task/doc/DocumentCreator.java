@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 
-import com.bagri.xdm.common.XDMDocumentId;
 import com.bagri.xdm.domain.XDMDocument;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
@@ -20,8 +19,8 @@ public class DocumentCreator extends DocumentAwareTask implements Callable<XDMDo
 		super();
 	}
 
-	public DocumentCreator(String clientId, long txId, XDMDocumentId docId, Properties props, String content) {
-		super(clientId, txId, docId, props);
+	public DocumentCreator(String clientId, long txId, String uri, Properties props, String content) {
+		super(clientId, txId, uri, props);
 		this.content = content;
 	}
 

@@ -17,14 +17,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import javax.management.openmbean.CompositeData;
-import javax.management.openmbean.CompositeDataSupport;
-import javax.management.openmbean.CompositeType;
-import javax.management.openmbean.OpenDataException;
-import javax.management.openmbean.OpenType;
-import javax.management.openmbean.SimpleType;
 import javax.management.openmbean.TabularData;
-import javax.management.openmbean.TabularDataSupport;
-import javax.management.openmbean.TabularType;
 
 import org.springframework.jmx.export.annotation.ManagedAttribute;
 import org.springframework.jmx.export.annotation.ManagedOperation;
@@ -42,7 +35,6 @@ import com.bagri.xdm.cache.hazelcast.task.schema.SchemaDocCleaner;
 import com.bagri.xdm.cache.hazelcast.task.stats.StatisticSeriesCollector;
 import com.bagri.xdm.cache.hazelcast.task.stats.StatisticTotalsCollector;
 import com.bagri.xdm.cache.hazelcast.task.stats.StatisticsReseter;
-import com.bagri.xdm.common.XDMDocumentId;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.system.XDMCollection;
 import com.bagri.xdm.system.XDMSchema;
@@ -152,8 +144,8 @@ public class DocumentManagement extends SchemaFeatureManagement {
 	public CompositeData getDocumentElements(String uri) {
 		//
 		//docManager.
-		DocumentStructureProvider task = new DocumentStructureProvider(null, new XDMDocumentId(uri)); 
-		Future<CompositeData> result = execService.submitToKeyOwner(task, uri); //?!!
+		DocumentStructureProvider task = new DocumentStructureProvider(null, uri); 
+		Future<CompositeData> result = execService.submitToKeyOwner(task, uri); 
 		try {
 			return result.get();
 		} catch (InterruptedException | ExecutionException ex) {
@@ -167,7 +159,7 @@ public class DocumentManagement extends SchemaFeatureManagement {
 		@ManagedOperationParameter(name = "uri", description = "Document identifier")})
 	public CompositeData getDocumentInfo(String uri) {
 		try {
-			XDMDocument doc = docManager.getDocument(new XDMDocumentId(uri));
+			XDMDocument doc = docManager.getDocument(uri);
 			if (doc != null) {
 				Map<String, Object> docInfo = doc.convert();
 				return JMXUtils.mapToComposite("document", "Document Info", docInfo);
@@ -184,7 +176,7 @@ public class DocumentManagement extends SchemaFeatureManagement {
 		@ManagedOperationParameter(name = "uri", description = "Document identifier")})
 	public CompositeData getDocumentLocation(String uri) {
 		try {
-			XDMDocument doc = docManager.getDocument(new XDMDocumentId(uri));
+			XDMDocument doc = docManager.getDocument(uri);
 			if (doc != null) {
 				Partition part = hzClient.getPartitionService().getPartition(doc.getDocumentId());
 				Map<String, Object> location = new HashMap<>(2);
@@ -204,7 +196,7 @@ public class DocumentManagement extends SchemaFeatureManagement {
 		@ManagedOperationParameter(name = "uri", description = "Document identifier")})
 	public String getDocumentContent(String uri) {
 		try {
-			return docManager.getDocumentAsString(new XDMDocumentId(uri));
+			return docManager.getDocumentAsString(uri);
 		} catch (XDMException ex) {
 			logger.error("getDocumentXML.error: " + ex.getMessage(), ex);
 			throw new RuntimeException(ex.getMessage());
@@ -220,7 +212,7 @@ public class DocumentManagement extends SchemaFeatureManagement {
 		String uri = Paths.get(docFile).getFileName().toString(); 
 		try {
 			String xml = FileUtils.readTextFile(docFile);
-			XDMDocument doc = docManager.storeDocumentFromString(new XDMDocumentId(uri), xml, propsFromString(properties));
+			XDMDocument doc = docManager.storeDocumentFromString(uri, xml, propsFromString(properties));
 			return doc.getUri();
 		} catch (IOException | XDMException ex) {
 			logger.error("registerDocument.error: " + ex.getMessage(), ex);
@@ -237,7 +229,7 @@ public class DocumentManagement extends SchemaFeatureManagement {
 
 		try {
 			String content = FileUtils.readTextFile(docFile);
-			XDMDocument doc = docManager.storeDocumentFromString(new XDMDocumentId(uri), content, propsFromString(properties));
+			XDMDocument doc = docManager.storeDocumentFromString(uri, content, propsFromString(properties));
 			return doc.getUri();
 		} catch (IOException | XDMException ex) {
 			logger.error("updateDocument.error: " + ex.getMessage(), ex);
@@ -251,7 +243,7 @@ public class DocumentManagement extends SchemaFeatureManagement {
 	public boolean removeDocument(String uri) {
 		
 		try {
-			docManager.removeDocument(new XDMDocumentId(uri));
+			docManager.removeDocument(uri);
 			return true;
 		} catch (Exception ex) {
 			logger.error("removeDocument.error: " + ex.getMessage(), ex);
@@ -361,7 +353,7 @@ public class DocumentManagement extends SchemaFeatureManagement {
 	public int addDocumentToCollection(String uri, String clnName) {
 		XDMCollection cln = this.schemaManager.getEntity().getCollection(clnName);
 		if (cln != null) {
-			return docManager.addDocumentToCollections(new XDMDocumentId(uri), new String[] {clnName});
+			return docManager.addDocumentToCollections(uri, new String[] {clnName});
 		}
 		logger.info("addDocumentToCollection; no collection found for name: {}", clnName);
 		return 0;
@@ -374,7 +366,7 @@ public class DocumentManagement extends SchemaFeatureManagement {
 	public int removeDocumentFromCollection(String uri, String clnName) {
 		XDMCollection cln = schemaManager.getEntity().getCollection(clnName);
 		if (cln != null) {
-			return docManager.removeDocumentFromCollections(new XDMDocumentId(uri), new String[] {clnName});
+			return docManager.removeDocumentFromCollections(uri, new String[] {clnName});
 		}
 		logger.info("removeDocumentFromCollection; no collection found for name: {}", clnName);
 		return 0;
@@ -393,14 +385,14 @@ public class DocumentManagement extends SchemaFeatureManagement {
 			}
 		}
 
-		Collection<XDMDocumentId> ids = docManager.getCollectionDocumentIds(clName);
-		logger.debug("getCollectionDocuments; got {} ids for collection {}", ids.size(), clName);
-		Set<String> result = new HashSet<>(ids.size());
-       	for (XDMDocumentId docId: ids) {
-       		result.add(docId.getDocumentUri());
+		try {
+			Collection<String> result = docManager.getCollectionDocumentUris(clName);
+			logger.debug("getCollectionDocuments; returning {} ids", result.size());
+			return result;
+		} catch (XDMException ex) {
+			logger.error("getCollectionDocuments.error", ex);
+			return null;
 		}
-		logger.debug("getCollectionDocuments; returning {} ids", result.size());
-		return result;
 	}
 
 }

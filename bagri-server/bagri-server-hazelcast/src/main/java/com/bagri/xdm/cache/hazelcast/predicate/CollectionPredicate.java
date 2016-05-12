@@ -42,8 +42,9 @@ public class CollectionPredicate implements Predicate<XDMDocumentKey, XDMDocumen
 
 	@Override
 	public boolean apply(Entry<XDMDocumentKey, XDMDocument> docEntry) {
-		XDMDocument doc = docEntry.getValue(); 
-		return doc.hasCollection(clnId) && doc.getTxFinish() == 0;
+		XDMDocument doc = docEntry.getValue();
+		// will perform this check later anyway..
+		return doc.hasCollection(clnId); // && doc.getTxFinish() == 0;
 	}
 	
 	@Override

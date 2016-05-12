@@ -13,6 +13,12 @@
 				<parameter>
 					<files collection="account"/>
 				</parameter>
+				<parameter>
+					<constant value="account" />
+				</parameter>
+				<parameter>
+					<sequence start="100" step="1"/>
+				</parameter>
 			</parameters>
 		</transaction>
 

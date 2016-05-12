@@ -11,7 +11,7 @@ import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
-public class DocumentKey extends XDMDocumentKey implements IdentifiedDataSerializable, PartitionAware<Long> {
+public class DocumentKey extends XDMDocumentKey implements IdentifiedDataSerializable, PartitionAware<Integer> {
 	
 	public DocumentKey() {
 		super();
@@ -21,13 +21,13 @@ public class DocumentKey extends XDMDocumentKey implements IdentifiedDataSeriali
 		super(key);
 	}
 
-	public DocumentKey(long docId, int version) {
-		super(docId, version);
+	public DocumentKey(int hash, int revision, int version) {
+		super(hash, revision, version);
 	}
 
 	@Override
-	public Long getPartitionKey() {
-		return getDocumentId();
+	public Integer getPartitionKey() {
+		return getHash();
 	}
 	
 	@Override

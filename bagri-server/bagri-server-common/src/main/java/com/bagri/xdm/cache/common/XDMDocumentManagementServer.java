@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.bagri.xdm.api.XDMDocumentManagement;
 import com.bagri.xdm.api.XDMModelManagement;
+import com.bagri.xdm.cache.api.XDMDocumentManagement;
 import com.bagri.xdm.client.common.impl.DocumentManagementBase;
 import com.bagri.xdm.client.xml.XmlBuilder;
 import com.bagri.xdm.common.XDMDataKey;

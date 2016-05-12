@@ -26,7 +26,7 @@ public class DocumentProvider extends com.bagri.xdm.client.hazelcast.task.doc.Do
     	((RepositoryImpl) repo).getXQProcessor(clientId);
     	checkPermission(Permission.read);
     	
-		return docMgr.getDocument(docId);
+		return docMgr.getDocument(uri);
 	}
 
 

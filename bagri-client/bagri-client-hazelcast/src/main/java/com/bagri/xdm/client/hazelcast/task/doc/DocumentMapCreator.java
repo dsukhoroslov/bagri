@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 
-import com.bagri.xdm.common.XDMDocumentId;
 import com.bagri.xdm.domain.XDMDocument;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
@@ -21,8 +20,8 @@ public class DocumentMapCreator extends DocumentAwareTask implements Callable<XD
 		super();
 	}
 
-	public DocumentMapCreator(String clientId, long txId, XDMDocumentId docId, Properties props, Map<String, Object> fields) {
-		super(clientId, txId, docId, props);
+	public DocumentMapCreator(String clientId, long txId, String uri, Properties props, Map<String, Object> fields) {
+		super(clientId, txId, uri, props);
 		this.fields = fields;
 	}
 

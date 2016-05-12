@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <hz:hazelcast-client xmlns:hz="http://www.hazelcast.com/schema/client-config" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.hazelcast.com/schema/client-config hazelcast-client-config-3.6.xsd">	
+	xsi:schemaLocation="http://www.hazelcast.com/schema/client-config hazelcast-client-config-3.6.xsd" id="hzClient">	
 	
 	<hz:group>
 		<hz:name>default</hz:name>
@@ -35,7 +35,6 @@
 		<hz:serializers>
 			<!--hz:global-serializer class-name="com.hazelcast.nio.serialization.PortableSerializer"/-->
 			<hz:serializer type-class="com.bagri.common.query.Expression" class-name="com.bagri.xdm.client.hazelcast.serialize.ExpressionSerializer"/>
-			<hz:serializer type-class="com.bagri.common.query.AlwaysExpression" class-name="com.bagri.xdm.client.hazelcast.serialize.ExpressionSerializer"/>
 			<hz:serializer type-class="com.bagri.common.query.PathExpression" class-name="com.bagri.xdm.client.hazelcast.serialize.ExpressionSerializer"/>
 			<hz:serializer type-class="com.bagri.common.query.BinaryExpression" class-name="com.bagri.xdm.client.hazelcast.serialize.ExpressionSerializer"/>
 			<hz:serializer type-class="com.bagri.common.query.ExpressionBuilder" class-name="com.bagri.xdm.client.hazelcast.serialize.ExpressionBuilderSerializer"/>

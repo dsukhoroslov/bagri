@@ -17,16 +17,16 @@ public class XDMUniqueDocument extends XDMIndexedValue {
 		super();
 	}
 	
-	public XDMUniqueDocument(long docId) {
+	public XDMUniqueDocument(long docKey) {
 		super();
-		addDocument(docId, TX_NO);
+		addDocument(docKey, TX_NO);
 	}
 
-	public XDMUniqueDocument(Collection<Long> docIds) {
+	public XDMUniqueDocument(Collection<Long> docKeys) {
 		super();
-		if (docIds != null) {
-			for (Long docId: docIds) {
-				addDocument(docId, TX_NO);
+		if (docKeys != null) {
+			for (Long docKey: docKeys) {
+				addDocument(docKey, TX_NO);
 			}
 		}
 	}
@@ -44,22 +44,22 @@ public class XDMUniqueDocument extends XDMIndexedValue {
 	}
 	
 	@Override
-	public long getDocumentId() {
+	public long getDocumentKey() {
 		for (int i=docs.size() - 1; i >=0; i--) {
 			XDMUniqueValue doc = docs.get(i);
 			if (doc.getTxFinish() == TX_NO) {
-				return doc.getDocumentId();
+				return doc.getDocumentKey();
 			}
 		}
 		return 0;
 	}
 	
 	@Override
-	public Set<Long> getDocumentIds() {
+	public Set<Long> getDocumentKeys() {
 		Set<Long> docIds = new HashSet<>(1);
 		for (XDMUniqueValue doc: docs) {
 			if (doc.getTxFinish() == TX_NO) {
-				docIds.add(doc.getDocumentId());
+				docIds.add(doc.getDocumentKey());
 			}
 		}
 		// returning size must be 1!
@@ -71,27 +71,27 @@ public class XDMUniqueDocument extends XDMIndexedValue {
 	}
 
 	@Override
-	public boolean addDocument(long docId, long txId) { // synchronized?
+	public boolean addDocument(long docKey, long txId) { // synchronized?
 		XDMUniqueValue doc;
 		for (int i=docs.size() - 1; i >=0; i--) {
 			doc = docs.get(i);
 			if (doc.getTxFinish() == TX_NO) {
-				doc = new XDMUniqueValue(doc.getDocumentId(), doc.getTxStart(), txId);
+				doc = new XDMUniqueValue(doc.getDocumentKey(), doc.getTxStart(), txId);
 				docs.set(i, doc);
 				break;
 			}
 		}
-		doc = new XDMUniqueValue(docId, txId, TX_NO);
+		doc = new XDMUniqueValue(docKey, txId, TX_NO);
 		docs.add(doc);
 		return true;
 	}
 
 	@Override
-	public boolean removeDocument(long docId, long txId) { // synchronized?
+	public boolean removeDocument(long docKey, long txId) { // synchronized?
 		for (int i=docs.size() - 1; i >=0; i--) {
 			XDMUniqueValue doc = docs.get(i);
-			if (doc.getDocumentId() == docId && doc.getTxFinish() == TX_NO) {
-				doc = new XDMUniqueValue(doc.getDocumentId(), doc.getTxStart(), txId);
+			if (doc.getDocumentKey() == docKey && doc.getTxFinish() == TX_NO) {
+				doc = new XDMUniqueValue(doc.getDocumentKey(), doc.getTxStart(), txId);
 				docs.set(i, doc);
 				return true;
 			}

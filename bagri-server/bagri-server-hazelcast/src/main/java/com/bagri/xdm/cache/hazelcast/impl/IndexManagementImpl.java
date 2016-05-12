@@ -283,7 +283,7 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 		return value;
 	}
 	
-	private void indexPath(XDMIndex idx, long docId, int pathId, Object value) throws XDMException {
+	private void indexPath(XDMIndex idx, long docKey, int pathId, Object value) throws XDMException {
 
 		value = getIndexedValue(idx, pathId, value);
 		logger.trace("indexPath; index: {}, value: {}({})", idx, value.getClass().getName(), value);
@@ -293,10 +293,10 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 		XDMIndexKey xid = factory.newXDMIndexKey(pathId, value);
 		XDMIndexedValue xidx = idxCache.get(xid);
 		if (idx.isUnique()) {
-			long id = XDMDocumentKey.toDocumentId(docId);
+			long id = XDMDocumentKey.toDocumentId(docKey);
 			if (!checkUniquiness((XDMUniqueDocument) xidx, id)) {
-				throw new XDMException("unique index '" + idx.getName() + "' violated for docId: " + 
-						docId + ", pathId: " + pathId + ", value: " + value, XDMException.ecIndexUnique);
+				throw new XDMException("unique index '" + idx.getName() + "' violated for docKey: " + 
+						docKey + ", pathId: " + pathId + ", value: " + value, XDMException.ecIndexUnique);
 			}
 
 			if (xidx == null) {
@@ -305,21 +305,21 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 			} else {
 				oldCount = xidx.getCount();
 			}
-			xidx.addDocument(docId, txMgr.getCurrentTxId());
+			xidx.addDocument(docKey, txMgr.getCurrentTxId());
 			XDMIndexedValue xidx2 = idxCache.put(xid, xidx);
 			// why it is done second time here? because it can be new xidx!
 			if (!checkUniquiness((XDMUniqueDocument) xidx2, id)) {
 				// shouldn't we delete just created xidx then ?
-				throw new XDMException("unique index '" + idx.getName() + "' violated for docId: " + 
-						docId + ", pathId: " + pathId + ", value: " + value, XDMException.ecIndexUnique);
+				throw new XDMException("unique index '" + idx.getName() + "' violated for docKey: " + 
+						docKey + ", pathId: " + pathId + ", value: " + value, XDMException.ecIndexUnique);
 			}
 		} else {
 			if (xidx == null) {
-				xidx = new XDMIndexedDocument(docId);
+				xidx = new XDMIndexedDocument(docKey);
 				first = true;
 			} else { 
 				oldCount = xidx.getCount();
-				xidx.addDocument(docId, XDMTransactionManagement.TX_NO);
+				xidx.addDocument(docKey, XDMTransactionManagement.TX_NO);
 			}
 			idxCache.set(xid, xidx);
 			if (idx.isRange()) {
@@ -351,7 +351,13 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 		if (uidx != null) {
 			Collection<XDMUniqueValue> ids = uidx.getDocumentValues();
 			for (XDMUniqueValue uv: ids) {
-				if (docMgr.checkDocumentCommited(uv.getDocumentId())) {
+				long id = XDMDocumentKey.toDocumentId(uv.getDocumentKey());
+				if (id == docId) {
+					// skipping index for the same document's family
+					continue;
+				}
+				
+				if (docMgr.checkDocumentCommited(uv.getDocumentKey())) {
 					if (uv.getTxFinish() > TX_NO) {
 						if (txMgr.isTxVisible(uv.getTxFinish())) {
 							// rolledBack, ok
@@ -441,7 +447,7 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 		XDMIndexedValue xidv = idxCache.get(idxk);
 		if (xidv != null) {
 			updateStats(idx.getName(), true, 1);
-			return xidv.getDocumentIds();
+			return xidv.getDocumentKeys();
 		}
 		updateStats(idx.getName(), false, 1);
 		return Collections.emptySet();
@@ -455,7 +461,7 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 		Map<XDMIndexKey, XDMIndexedValue> xidv = idxCache.getAll(keys);
 		Set<Long> ids = new HashSet<>(xidv.size());
 		for (XDMIndexedValue value: xidv.values()) {
-			ids.addAll(value.getDocumentIds());
+			ids.addAll(value.getDocumentKeys());
 		}
 		updateStats(idx.getName(), true, xidv.size());
 		updateStats(idx.getName(), false, keys.size() - xidv.size());
@@ -495,7 +501,7 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 		Set<Long> ids = new HashSet<>(values.size());
 		if (values.size() > 0) {
 			for (XDMIndexedValue val: values.values()) {
-				ids.addAll(val.getDocumentIds());
+				ids.addAll(val.getDocumentKeys());
 			}
 			updateStats(idx.getName(), true, 1);
 		} else {

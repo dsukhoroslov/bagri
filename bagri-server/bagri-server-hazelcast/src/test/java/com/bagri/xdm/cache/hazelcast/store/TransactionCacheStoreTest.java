@@ -137,9 +137,9 @@ public class TransactionCacheStoreTest extends XDMManagementTest {
 				for (int i=0; i < loops; i++) {
 					long txId = xRepo.getTxManagement().beginTransaction();
 					//storeSecurityTest();
-					ids.add(updateDocumentTest(0, null, sampleRoot + getFileName("security1500.xml")).getDocumentKey());
-					ids.add(updateDocumentTest(0, null, sampleRoot + getFileName("security5621.xml")).getDocumentKey());
-					ids.add(updateDocumentTest(0, null, sampleRoot + getFileName("security9012.xml")).getDocumentKey());
+					uris.add(updateDocumentTest("security1500.xml", sampleRoot + getFileName("security1500.xml")).getUri());
+					uris.add(updateDocumentTest("security5621.xml", sampleRoot + getFileName("security5621.xml")).getUri());
+					uris.add(updateDocumentTest("security9012.xml", sampleRoot + getFileName("security9012.xml")).getUri());
 					
 					Collection<String> sec = getSecurity("VFINX");
 					Assert.assertNotNull(sec);

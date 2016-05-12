@@ -52,10 +52,10 @@ return $id" />
 					<files collection="security"/>
 				</parameter>
 				<parameter>
-					<constant value="docId" />
+					<constant value="uri" />
 				</parameter>
 				<parameter>
-					<constant value="int" />
+					<constant value="string" />
 				</parameter>
 				<parameter>
 					<sequence start="10000" step="1"/>

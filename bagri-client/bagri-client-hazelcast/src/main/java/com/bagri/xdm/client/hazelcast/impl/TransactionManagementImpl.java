@@ -21,7 +21,7 @@ public class TransactionManagementImpl implements XDMTransactionManagement {
 	
     private static final Logger logger = LoggerFactory.getLogger(TransactionManagementImpl.class);
 	
-    private long txId = 0;
+    private long txId = TX_NO;
     private long txTimeout = 0;
     private String clientId = null;
     private RepositoryImpl repo;
@@ -46,6 +46,11 @@ public class TransactionManagementImpl implements XDMTransactionManagement {
 	}
 	
 	@Override
+	public boolean isInTransaction() {
+		return txId > TX_NO;
+	}
+	
+	@Override
 	public long beginTransaction() throws XDMException {
 		// TODO: get default value from session config!
 		return beginTransaction(XDMTransactionIsolation.readCommited);
@@ -56,7 +61,7 @@ public class TransactionManagementImpl implements XDMTransactionManagement {
 		logger.trace("beginTransaction.enter; current txId: {}", txId);
 		repo.getHealthManagement().checkClusterState();
 		
-		if (txId != 0) {
+		if (txId != TX_NO) {
 			throw new XDMException("Nested client transactions are not supported", XDMException.ecTransNoNested);
 		}
 
@@ -85,8 +90,9 @@ public class TransactionManagementImpl implements XDMTransactionManagement {
 		Future<Boolean> future = execService.submitToKeyOwner(txc, clientId);
 		try {
 			result = future.get();
-			this.txId = 0;
+			this.txId = TX_NO;
 		} catch (InterruptedException | ExecutionException ex) {
+			this.txId = TX_NO;
 			logger.error("commitTransaction; error getting result", ex);
 			throw new XDMException(ex, XDMException.ecTransaction);
 		}
@@ -106,12 +112,22 @@ public class TransactionManagementImpl implements XDMTransactionManagement {
 		Future<Boolean> future = execService.submitToKeyOwner(txa, clientId);
 		try {
 			result = future.get();
-			this.txId = 0;
+			this.txId = TX_NO;
 		} catch (InterruptedException | ExecutionException ex) {
+			this.txId = TX_NO;
 			logger.error("rollbackTransaction; error getting result", ex);
 			throw new XDMException(ex, XDMException.ecTransaction);
 		}
 		logger.trace("rollbackTransaction.exit; rolled back: {}", result); 
+	}
+	
+	@Override
+	public void finishCurrentTransaction(boolean rollback) throws XDMException {
+		if (rollback) {
+			rollbackTransaction(txId);
+		} else {
+			commitTransaction(txId);
+		}
 	}
 	
 	long getTxId() {

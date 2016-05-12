@@ -99,8 +99,8 @@
 
         <antlr.version>3.2</antlr.version>
         <jcache.version>1.0.0</jcache.version>
-        <!--hazelcast.version>3.5.4</hazelcast.version-->
         <hazelcast.version>3.6.3-SNAPSHOT</hazelcast.version>
+        <!--hazelcast.version>3.6.2</hazelcast.version-->
         <coherence.version>3.7.1.10</coherence.version>
         <!--coherence.version>12.1.2-0-0</coherence.version-->
         <coherence-common.version>11.1.0</coherence-common.version>

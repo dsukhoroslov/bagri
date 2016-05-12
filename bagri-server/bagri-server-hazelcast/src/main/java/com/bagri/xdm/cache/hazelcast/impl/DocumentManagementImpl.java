@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -34,14 +35,11 @@ import javax.xml.transform.Source;
 import com.bagri.common.idgen.IdGenerator;
 import com.bagri.common.stats.StatisticsEvent;
 import com.bagri.common.util.PropUtils;
-import com.bagri.common.util.XMLUtils;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.cache.common.XDMDocumentManagementServer;
 import com.bagri.xdm.cache.hazelcast.predicate.CollectionPredicate;
-import com.bagri.xdm.cache.hazelcast.predicate.UriPredicate;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentContentProvider;
 import com.bagri.xdm.common.XDMDataKey;
-import com.bagri.xdm.common.XDMDocumentId;
 import com.bagri.xdm.common.XDMDocumentKey;
 import com.bagri.xdm.common.XDMParser;
 import com.bagri.xdm.domain.XDMData;
@@ -55,13 +53,13 @@ import com.bagri.xdm.system.XDMFragment;
 import com.bagri.xdm.system.XDMSchema;
 import com.bagri.xdm.system.XDMTriggerAction.Action;
 import com.bagri.xdm.system.XDMTriggerAction.Scope;
+
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.IMap;
 import com.hazelcast.map.EntryProcessor;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
-import com.hazelcast.util.HashUtil;
 
 public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	
@@ -133,7 +131,6 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
     	this.enableStats = enable;
     }
     
-    
     private Set<XDMDataKey> getDocumentElementKeys(String path, long[] fragments, int docType) {
     	Set<Integer> parts = model.getPathElements(docType, path);
     	Set<XDMDataKey> keys = new HashSet<XDMDataKey>(parts.size()*fragments.length);
@@ -146,8 +143,8 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
     	return keys;
     }
     
-    public Collection<XDMElements> getDocumentElements(XDMDocumentId docId) {
-		XDMDocument doc = getDocument(docId);
+    public Collection<XDMElements> getDocumentElements(String uri) {
+		XDMDocument doc = getDocument(uri);
 		if (doc == null) {
 			return null;
 		}
@@ -255,20 +252,9 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		return xddCache.keySet(f);
 	}
 	
-	@Override
-	public XDMDocument getDocument(XDMDocumentId docId) {
-		XDMDocument doc = null;
-		XDMDocumentKey docKey = getDocumentKey(docId);
-		if (docKey != null) {
-			doc = getDocument(docKey);
-		}
-		logger.trace("getDocument; returning: {}", doc);
-		return doc;
-	}
-
 	public XDMDocument getDocument(long docKey) {
 		XDMDocument doc = getDocument(factory.newXDMDocumentKey(docKey)); 
-		logger.trace("getDocument; returning: {}", doc);
+		//logger.trace("getDocument; returning: {}", doc);
 		return doc;
 	}
 	
@@ -276,75 +262,68 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		return xddCache.get(docKey); 
 	}
 
-    public XDMDocumentKey getDocumentKey(XDMDocumentId docId) {
-		long docKey; 
-		if (docId.getVersion() > 0) {
-			docKey = docId.getDocumentKey(); 
-		} else {
-			docKey = getDocumentKey(docId.getDocumentId(), docId.getDocumentUri());
-	    	if (docKey == 0) {
-	    		return null;
-	    	}
+	@Override
+	public XDMDocument getDocument(String uri) {
+		XDMDocument doc = null;
+		XDMDocumentKey docKey = getDocumentKey(uri, false, false);
+		if (docKey != null) {
+			doc = getDocument(docKey);
 		}
-		return factory.newXDMDocumentKey(docKey);
-    }
-    
-	public XDMDocumentKey nextDocumentKey() {
-		return factory.newXDMDocumentKey(docGen.next(), dvFirst);
+		//logger.trace("getDocument; returning: {}", doc);
+		return doc;
 	}
-	
-	@SuppressWarnings("unchecked")
-    private long getDocumentKey(long docId, String uri) {
-		// new Predicate/EP
-        //Predicate<XDMDocumentKey, XDMDocument> f = new UriPredicate(1L, uri);
-        //Set<XDMDocumentKey> docKeys = xddCache.keySet(f);
-        
-		if (docId > 0) {
-			EntryProcessor<XDMDocumentKey, XDMDocument> ep = new UriPredicate(docId, uri, factory, hzInstance);
-			XDMDocumentKey dk = factory.newXDMDocumentKey(docId, dvFirst);
-			Object result = xddCache.executeOnKey(dk, ep);
-			if (result != null) { 
-				return (Long) result;
+
+    private XDMDocumentKey getDocumentKey(String uri, boolean next, boolean acceptClosed) {
+    	Set<XDMDocumentKey> keys = xddCache.localKeySet(Predicates.equal("uri", uri));
+    	if (keys.isEmpty()) {
+    		if (next) {
+    			return factory.newXDMDocumentKey(uri, 0, dvFirst);
+    		}
+    		return null;
+    	}
+    	XDMDocumentKey last = Collections.max(keys, new Comparator<XDMDocumentKey>() {
+
+			@Override
+			public int compare(XDMDocumentKey key1, XDMDocumentKey key2) {
+				return key1.getVersion() - key2.getVersion();
 			}
-			return 0L;
-		}
-
-		// the txFinish can be > 0, but not committed yet!
-        Predicate<XDMDocumentKey, XDMDocument> f = Predicates.and(Predicates.equal("uri", uri), 
-              Predicates.equal("txFinish", 0L));
-
-        Set<XDMDocumentKey> docKeys = xddCache.keySet(f);
-        if (docKeys.size() == 0) {
-            return 0L;
-        }
- 
-        // should also check if doc's start transaction is committed..
-        int version = 0;
-        for (XDMDocumentKey docKey: docKeys) {
-            if (docKey.getVersion() > version) {
-                docId = docKey.getKey();
-                version = docKey.getVersion();
-            }
-        }
-        return docId;
+    		
+    	});
+    	if (next) {
+    		return factory.newXDMDocumentKey(uri, last.getRevision(), last.getVersion() + 1);
+    	}
+    	if (acceptClosed) {
+    		return last;
+    	}
+    	XDMDocument lastDoc = xddCache.get(last);
+    	try {
+    		if (lastDoc.getTxFinish() == TX_NO || !txManager.isTxVisible(lastDoc.getTxFinish())) {
+    			return last;
+    		}
+    	} catch (XDMException ex) {
+    		logger.error("getDocumentKey.error", ex);
+    		// ??
+    	}
+    	logger.info("getDocumentKey; the latest document version is finished already: {}", lastDoc);
+    	return null;
     }
  	
 	@Override
 	@SuppressWarnings("unchecked")
-	public Collection<XDMDocumentId> getDocumentIds(String pattern) {
+	public Collection<String> getDocumentUris(String pattern) {
 		// TODO: search by uri only so far;
 		// implement other search types: by dates, owner, etc..
-		logger.trace("getDocumentIds.enter; got pattern: {}", pattern);
+		logger.trace("getDocumentUris.enter; got pattern: {}", pattern);
    		Predicate<XDMDocumentKey, XDMDocument> f = Predicates.and(Predicates.regex("uri", pattern), 
-   				Predicates.equal("txFinish", 0L));
+   				Predicates.equal("txFinish", TX_NO));
 		Set<XDMDocumentKey> docKeys = xddCache.keySet(f);
 
 		// should also check if doc's start transaction is committed..
-		List<XDMDocumentId> result = new ArrayList<>(docKeys.size());
+		List<String> result = new ArrayList<>(docKeys.size());
 		for (XDMDocumentKey docKey: docKeys) {
-			result.add(new XDMDocumentId(docKey.getKey(), pattern));
+			result.add(pattern);
 		}
-		logger.trace("getDocumentIds.exit; returning: {}", result.size());
+		logger.trace("getDocumentUris.exit; returning: {}", result.size());
 		return result;
 	}
 	
@@ -409,8 +388,8 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
     }
     
 	@Override
-	public Object getDocumentAsBean(XDMDocumentId docId) throws XDMException {
-		String xml = getDocumentAsString(docId);
+	public Object getDocumentAsBean(String uri) throws XDMException {
+		String xml = getDocumentAsString(uri);
 		if (xml == null) {
 			return null;
 		}
@@ -422,8 +401,8 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	}
 
 	@Override
-	public Map<String, Object> getDocumentAsMap(XDMDocumentId docId) throws XDMException {
-		String xml = getDocumentAsString(docId);
+	public Map<String, Object> getDocumentAsMap(String uri) throws XDMException {
+		String xml = getDocumentAsString(uri);
 		if (xml == null) {
 			return null;
 		}
@@ -431,21 +410,29 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	}
 
 	@Override
-	public String getDocumentAsString(XDMDocumentId docId) throws XDMException {
-		XDMDocumentKey docKey = getDocumentKey(docId);
+	public String getDocumentAsString(String uri) throws XDMException {
+		XDMDocumentKey docKey = getDocumentKey(uri, false, false);
 		if (docKey == null) {
 			//throw new XDMException("No document found for document Id: " + docId, XDMException.ecDocument);
-			logger.info("getDocumentAsString; can not construct valid DocumentKey ID: {}", docId);
+			logger.info("getDocumentAsString; can not find active document for uri: {}", uri);
 			return null;
 		}
+		return getDocumentAsString(docKey);
+	}
 
-		String xml = cntCache.get(docKey);
-		// very expensive operation!!
-		//logger.trace("getDocumentAsString; xml cache stats: {}", xmlCache.getLocalMapStats());
-		if (xml == null) {
+	@Override
+	public String getDocumentAsString(long docKey) throws XDMException {
+		XDMDocumentKey xdmKey = factory.newXDMDocumentKey(docKey);
+		return getDocumentAsString(xdmKey);
+	}
+	
+	public String getDocumentAsString(XDMDocumentKey docKey) throws XDMException {
+		
+		String content = cntCache.get(docKey);
+		if (content == null) {
 			XDMDocument doc = getDocument(docKey);
 			if (doc == null) {
-				logger.info("getDocumentAsString; no document found for ID: {}", docId);
+				logger.info("getDocumentAsString; no document found for key: {}", docKey);
 				return null;
 			}
 			
@@ -455,31 +442,30 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 				String root = model.getDocumentRoot(doc.getTypeId());
 				Map<String, String> params = new HashMap<String, String>();
 				params.put(":doc", root);
-				Collection<String> results = buildDocument(Collections.singleton(docId.getDocumentKey()), ":doc", params);
+				Collection<String> results = buildDocument(Collections.singleton(docKey.getKey()), ":doc", params);
 				if (!results.isEmpty()) {
-					xml = results.iterator().next();
-					cntCache.set(docKey, xml);
+					content = results.iterator().next();
+					cntCache.set(docKey, content);
 				}
 			} else {
-				DocumentContentProvider xp = new DocumentContentProvider(repo.getClientId(), docId); //??
+				DocumentContentProvider xp = new DocumentContentProvider(repo.getClientId(), doc.getUri()); 
 				IExecutorService execService = hzInstance.getExecutorService(PN_XDM_SCHEMA_POOL);
-				Future<String> future = execService.submitToKeyOwner(xp, docId);
+				Future<String> future = execService.submitToKeyOwner(xp, doc.getUri());
 				try {
-					xml = future.get();
+					content = future.get();
 				} catch (InterruptedException | ExecutionException ex) {
 					logger.error("getDocumentAsString; error getting result", ex);
 					throw new XDMException(ex, XDMException.ecDocument);
 				}
 			}
 		}
-		return xml;
+		return content;
 	}
 
-	// TODO: implementation of the ..source methods is wrong!?
-	@Override
-	public Source getDocumentAsSource(XDMDocumentId docId) {
-		return srcCache.get(factory.newXDMDocumentKey(docId.getDocumentKey()));
-	}
+	//@Override
+	//public Source getDocumentAsSource(String uri) {
+	//	return srcCache.get(factory.newXDMDocumentKey(docId.getDocumentKey()));
+	//}
 	
 	private XDMCollection getTypedCollection(XDMSchema schema, String typePath) {
 		for (XDMCollection collect: schema.getCollections()) {
@@ -525,14 +511,13 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	}
     
 	@SuppressWarnings("unchecked")
-	public XDMDocument createDocument(XDMDocumentId docId, String content, Properties props) throws XDMException {
-		logger.trace("createDocument.enter; docId: {}; props: {}", docId, props);
+	public XDMDocument createDocument(XDMDocumentKey docKey, String uri, String content, Properties props) throws XDMException {
+		logger.trace("createDocument.enter; uri: {}; props: {}", uri, props);
 		// TODO: move this out & refactor ?
 		String dataFormat = getDataFormat(props).toUpperCase();
 		XDMParser parser = factory.newXDMParser(dataFormat, model);
 		List<XDMData> data = parser.parse(content);
 
-		XDMDocumentKey docKey = factory.newXDMDocumentKey(docId.getDocumentKey());
 		Object[] ids = loadElements(docKey.getKey(), data);
 		List<Long> fragments = (List<Long>) ids[0];
 		if (fragments == null) {
@@ -543,11 +528,11 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		String user = repo.getUserName();
 		XDMDocument doc;
 		if (fragments.size() == 1) {
-			doc = new XDMDocument(docKey.getDocumentId(), docKey.getVersion(), docId.getDocumentUri(), docType, user, txManager.getCurrentTxId(),
+			doc = new XDMDocument(docKey.getHash(), docKey.getRevision(), docKey.getVersion(), uri, docType, user, txManager.getCurrentTxId(),
 					content.length(), data.size());
 		} else {
-			doc = new XDMFragmentedDocument(docKey.getDocumentId(), docKey.getVersion(), docId.getDocumentUri(), docType, user, txManager.getCurrentTxId(),
-					content.length(), data.size());
+			doc = new XDMFragmentedDocument(docKey.getHash(), docKey.getRevision(), docKey.getVersion(), uri, docType, user, 
+					txManager.getCurrentTxId(),	content.length(), data.size());
 			long[] fa = new long[fragments.size()];
 			fa[0] = docKey.getKey();
 			for (int i=1; i < fragments.size(); i++) {
@@ -664,7 +649,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	}
 	
 	@Override
-	public XDMDocument storeDocumentFromBean(XDMDocumentId docId, Object bean, Properties props) throws XDMException {
+	public XDMDocument storeDocumentFromBean(String uri, Object bean, Properties props) throws XDMException {
 		try {
 			String xml = beanToXML(bean);
 			if (xml == null || xml.trim().length() == 0) {
@@ -675,14 +660,14 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 			if (props != null) {
 				props.setProperty(xdm_document_data_format, XDMParser.df_xml);
 			}
-			return storeDocumentFromString(docId, xml, props);
+			return storeDocumentFromString(uri, xml, props);
 		} catch (IOException ex) {
 			throw new XDMException(ex.getMessage(), XDMException.ecInOut);
 		}
 	}
 
 	@Override
-	public XDMDocument storeDocumentFromMap(XDMDocumentId docId, Map<String, Object> fields, Properties props) throws XDMException {
+	public XDMDocument storeDocumentFromMap(String uri, Map<String, Object> fields, Properties props) throws XDMException {
 		String xml = mapToXML(fields);
 		if (xml == null || xml.trim().length() == 0) {
 			throw new XDMException("Can not convert map [" + fields + "] to XML", XDMException.ecDocument);
@@ -692,86 +677,40 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		if (props != null) {
 			props.setProperty(xdm_document_data_format, XDMParser.df_xml);
 		}
-		return storeDocumentFromString(docId, xml, props);
+		return storeDocumentFromString(uri, xml, props);
 	}
 	
-	// TODO: implementation of the ..source methods is wrong!?
-	@Override
-	public XDMDocument storeDocumentFromSource(XDMDocumentId docId, Source source, Properties props) {
-		srcCache.put(factory.newXDMDocumentKey(docId.getDocumentKey()), source);
-		return xddCache.get(docId);
-	}
+	//@Override
+	//public XDMDocument storeDocumentFromSource(String uri, Source source, Properties props) {
+	//	srcCache.put(factory.newXDMDocumentKey(docId.getDocumentKey()), source);
+	//	return xddCache.get(docId);
+	//}
 	
 	@Override
-	public XDMDocument storeDocumentFromString(XDMDocumentId docId, String xml, Properties props) throws XDMException {
-		logger.trace("storeDocumentFromString.enter; docId: {}; xml: {}; props: {}", docId, xml.length(), props);
-		String ext = getDataFormat(props).toLowerCase();
+	public XDMDocument storeDocumentFromString(String uri, String content, Properties props) throws XDMException {
+		logger.trace("storeDocumentFromString.enter; uri: {}; content: {}; props: {}", uri, content.length(), props);
+		if (uri == null) {
+			throw new XDMException("Empty URI passed", XDMException.ecDocument); 
+		}
+
 		boolean update = false;
 		String storeMode = PropUtils.getProperty(props, pn_client_storeMode, pv_client_storeMode_merge);
-/*		
-		XDMDocumentKey docKey = getDocumentKey(docId.getDocumentUri());
-		if (docKey == null)  {
+		
+		XDMDocumentKey docKey = getDocumentKey(uri, false, true);
+		if (docKey == null) {
 			if (pv_client_storeMode_update.equals(storeMode)) {
-				throw new XDMException("No document found for update. " +  docId, XDMException.ecDocument); 
+				throw new XDMException("No document found for update. " +  uri, XDMException.ecDocument); 
 			}
-			docKey = factory.newXDMDocumentKey(docId.getDocumentKey(), dvFirst);
+			docKey = factory.newXDMDocumentKey(uri, 0, dvFirst);
 		} else {
 			if (pv_client_storeMode_insert.equals(storeMode)) {
-				throw new XDMException("Document with URI '" + docId.getDocumentUri() + "' already exists; docKey: " + docKey, 
+				throw new XDMException("Document with URI '" + uri + "' already exists; docKey: " + docKey, 
 						XDMException.ecDocument); 
 			}
-			//docKey = factory.newXDMDocumentKey(docId.getKey(), docKey.getVersion() + 1);
-			update = true;
-		}
-*/		
-		if (docId == null) {
-			if (pv_client_storeMode_update.equals(storeMode)) {
-				throw new XDMException("Empty Document ID passed for update", XDMException.ecDocument); 
-			}
-			long docKey = XDMDocumentKey.toKey(docGen.next(), dvFirst);
-			docId = new XDMDocumentId(docKey, docKey + "." + ext);
-		} else {
-			if (docId.getDocumentKey() == 0) {
-				if (docId.getDocumentUri() == null) {
-					throw new XDMException("Empty Document ID passed", XDMException.ecDocument); 
-				}
-				long existingId = getDocumentKey(0, docId.getDocumentUri());
-				if (existingId != 0) {
-					docId = new XDMDocumentId(existingId, docId.getDocumentUri());
-					update = true;
-				} else {
-					docId = new XDMDocumentId(docGen.next(), dvFirst, docId.getDocumentUri());
-				}
-			} else {
-				if (docId.getDocumentUri() == null) {
-					docId = new XDMDocumentId(docId.getDocumentKey(), docId.getDocumentKey() + "." + ext);
-				} else {
-					if (docId.getVersion() == 0) {
-						long existingId = getDocumentKey(docId.getDocumentId(), docId.getDocumentUri());
-						if (existingId != 0) {
-							docId = new XDMDocumentId(existingId, docId.getDocumentUri());
-							update = true;
-						} else {
-							logger.info("storeDocumentFromString; can not find document for ID: {}", docId);
-						}
-						// shouldn't we check here if document with docId exists?
-						//if (existingId > 0 && existingId != docId.getDocumentKey()) {
-							// otherwise we'll get a situation when two different Documents
-							// are stored in the same file.
-							// what if they point to different versions of the same document!?
-						//	throw new XDMException("Document with URI '" + docId.getDocumentUri() + "' already exists; docId: " + 
-						//		existingId, XDMException.ecDocument);
-						//}
-					} else {
-						XDMDocumentKey docKey = factory.newXDMDocumentKey(docId.getDocumentKey());
-						update = xddCache.containsKey(docKey);
-					}
-				}
-			}
+		    XDMDocument doc = getDocument(docKey);
+			update = (doc != null && (doc.getTxFinish() == TX_NO || !txManager.isTxVisible(doc.getTxFinish())));
 		}
 		
-		XDMDocumentKey docKey = factory.newXDMDocumentKey(docId.getDocumentKey());
-
 		String value = PropUtils.getProperty(props, pn_client_txTimeout, null);
 		long timeout = txManager.getTransactionTimeout(); 
 		if (value != null) {
@@ -782,10 +721,10 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 			try {
 				XDMDocumentKey newKey = docKey;
 				if (update) {
-				    XDMDocument doc = xddCache.get(newKey);
+				    XDMDocument doc = getDocument(newKey);
 				    if (doc != null) {
 				    	if (doc.getTxFinish() > TX_NO && txManager.isTxVisible(doc.getTxFinish())) {
-				    		throw new XDMException("Document with ID: " + doc.getDocumentId() + 
+				    		throw new XDMException("Document with key: " + doc.getDocumentKey() + 
 				    				", version: " + doc.getVersion() + " has been concurrently updated", 
 				    				XDMException.ecDocument);
 				    	}
@@ -795,13 +734,12 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 				    	doc.finishDocument(txManager.getCurrentTxId());
 				    	// do this asynch after tx?
 				    	((QueryManagementImpl) repo.getQueryManagement()).removeQueryResults(newKey.getKey());
-				    	xddCache.put(docKey, doc);
-				    	newKey = factory.newXDMDocumentKey(doc.getDocumentId(), doc.getVersion() + 1);
+				    	xddCache.set(docKey, doc);
+						newKey = getDocumentKey(uri, true, false);
 				    	// shouldn't we lock the newKey too?
 				    }
 				}
-				docId = new XDMDocumentId(newKey.getKey(), docId.getDocumentUri());
-				XDMDocument result = createDocument(docId, xml, props);
+				XDMDocument result = createDocument(newKey, uri, content, props);
 				if (update) {
 					txManager.updateCounters(0, 1, 0);
 				} else {
@@ -811,7 +749,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 			} catch (XDMException ex) {
 				throw ex;
 			} catch (Exception ex) {
-				logger.error("storeDocumentFromString.error; docId: " + docId, ex);
+				logger.error("storeDocumentFromString.error; uri: " + uri, ex);
 				throw new XDMException(ex, XDMException.ecDocument);
 			} finally {
 				unlockDocument(docKey);
@@ -823,13 +761,22 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	}
 
 	@Override
-	public void removeDocument(XDMDocumentId docId) throws XDMException {
-		logger.trace("removeDocument.enter; docId: {}", docId);
-	    XDMDocumentKey docKey = getDocumentKey(docId);
-	    if (docKey == null) {
-    		throw new XDMException("No document found for document Id: " + docId, XDMException.ecDocument);
-	    }
-	    
+	public void removeDocument(String uri) throws XDMException {
+		logger.trace("removeDocument.enter; uri: {}", uri);
+		//XDMDocumentKey docKey = getDocumentKey(docId);
+	    //if (docKey == null) {
+    	//	throw new XDMException("No document found for document Id: " + docId, XDMException.ecDocument);
+	    //}
+		if (uri == null) {
+			throw new XDMException("No Document URI passed", XDMException.ecDocument); 
+		}
+		
+		XDMDocumentKey docKey = getDocumentKey(uri, false, false);
+		if (docKey == null) {
+			logger.info("removeDocument; no active document found for uri: {}", uri);
+			return;
+		}
+		
 	    boolean removed = false;
 		boolean locked = lockDocument(docKey, txManager.getTransactionTimeout());
 		if (locked) {
@@ -838,7 +785,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 			    if (doc != null && (doc.getTxFinish() == TX_NO || !txManager.isTxVisible(doc.getTxFinish()))) {
 					triggerManager.applyTrigger(doc, Action.delete, Scope.before); 
 			    	doc.finishDocument(txManager.getCurrentTxId()); 
-			    	xddCache.put(docKey, doc);
+			    	xddCache.set(docKey, doc);
 			    	((QueryManagementImpl) repo.getQueryManagement()).removeQueryResults(doc.getDocumentKey());
 			    	triggerManager.applyTrigger(doc, Action.delete, Scope.after); 
 			    	txManager.updateCounters(0, 0, 1);
@@ -847,7 +794,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 			} catch (XDMException ex) {
 				throw ex;
 			} catch (Exception ex) {
-				logger.error("removeDocument.error; docId: " + docId, ex);
+				logger.error("removeDocument.error; uri: " + uri, ex);
 				throw new XDMException(ex, XDMException.ecDocument);
 			} finally {
 				unlockDocument(docKey);
@@ -932,7 +879,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	}
 	
 	@Override
-	public Collection<XDMDocumentId> getCollectionDocumentIds(String collection) {
+	public Collection<String> getCollectionDocumentUris(String collection) throws XDMException {
 		Set<XDMDocumentKey> docKeys;
 		if (collection == null) {
 			docKeys = xddCache.localKeySet();
@@ -941,14 +888,19 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 			if (cln == null) {
 				return null;
 			}
+			//int size = xddCache.size();
 			Predicate<XDMDocumentKey, XDMDocument> clp = new CollectionPredicate(cln.getId());
 			docKeys = xddCache.localKeySet(clp);
+			// TODO: investigate it; the localKeySet returns extra empty key for some reason!
 		}
 		// TODO: use props to fetch docs in batches. otherwise we can get OOM here!
 		Map<XDMDocumentKey, XDMDocument> docs = xddCache.getAll(docKeys);
-		List<XDMDocumentId> result = new ArrayList<>(docs.size());
+		Set<String> result = new HashSet<>(docs.size());
 		for (XDMDocument doc: docs.values()) {
-			result.add(new XDMDocumentId(doc.getDocumentKey(), doc.getUri()));
+		    if (doc.getTxFinish() == TX_NO || !txManager.isTxVisible(doc.getTxFinish())) {
+				// check doc visibility via
+				result.add(doc.getUri());
+			}
 		}
 		return result;
 	}
@@ -976,9 +928,9 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		logger.trace("removeCollectionDocuments.enter; collection: {}", collection);
 		int cnt = 0;
 		// remove local documents only?!
-		Collection<XDMDocumentId> docIds = getCollectionDocumentIds(collection);
-		for (XDMDocumentId docId: docIds) {
-			removeDocument(docId);
+		Collection<String> uris = getCollectionDocumentUris(collection);
+		for (String uri: uris) {
+			removeDocument(uri);
 			cnt++;
 		}
 		logger.trace("removeCollectionDocuments.exit; removed: {}", cnt);
@@ -986,13 +938,14 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	}
 	
 	@Override
-	public int addDocumentToCollections(XDMDocumentId docId, String[] collections) {
-		logger.trace("addDocumentsToCollections.enter; got docId: {}; collectIds: {}", docId, Arrays.toString(collections));
+	public int addDocumentToCollections(String uri, String[] collections) {
+		logger.trace("addDocumentsToCollections.enter; got uri: {}; collectIds: {}", uri, Arrays.toString(collections));
 		int addCount = 0;
 		int unkCount = 0;
-		XDMDocument doc = getDocument(docId);
+		XDMDocument doc = getDocument(uri);
 		if (doc != null) {
-			// TODO: cache size in the doc itself?
+			// TODO: cache size in the doc itself? yes, done
+			// but must fix stats to account this size 
 			int size = 0;
 			for (XDMCollection cln: repo.getSchema().getCollections()) {
 				for (String collection: collections) {
@@ -1006,7 +959,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 				}
 			}
 			if (addCount > 0) {
-				xddCache.put(factory.newXDMDocumentKey(docId.getDocumentKey()), doc);
+				xddCache.set(factory.newXDMDocumentKey(doc.getDocumentKey()), doc);
 			}
 		} else {
 			unkCount++;
@@ -1016,11 +969,11 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	}
 
 	@Override
-	public int removeDocumentFromCollections(XDMDocumentId docId, String[] collections) {
-		logger.trace("removeDocumentsFromCollections.enter; got docId: {}; collectIds: {}", docId, Arrays.toString(collections));
+	public int removeDocumentFromCollections(String uri, String[] collections) {
+		logger.trace("removeDocumentsFromCollections.enter; got uri: {}; collectIds: {}", uri, Arrays.toString(collections));
 		int remCount = 0;
 		int unkCount = 0;
-		XDMDocument doc = getDocument(docId);
+		XDMDocument doc = getDocument(uri);
 		if (doc != null) {
 			int size = 0;
 			for (XDMCollection cln: repo.getSchema().getCollections()) {
@@ -1035,7 +988,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 				}
 			}
 			if (remCount > 0) {
-				xddCache.put(factory.newXDMDocumentKey(docId.getDocumentKey()), doc);
+				xddCache.set(factory.newXDMDocumentKey(doc.getDocumentKey()), doc);
 			}
 		} else {
 			unkCount++;

@@ -19,7 +19,6 @@ public class XDMFragmentedDocumentSerializer extends XDMDocumentSerializer {
 		
 		XDMFragmentedDocument xDoc = new XDMFragmentedDocument(
 				in.readLong(),
-				in.readInt(),
 				in.readUTF(),
 				in.readInt(),
 				in.readLong(),

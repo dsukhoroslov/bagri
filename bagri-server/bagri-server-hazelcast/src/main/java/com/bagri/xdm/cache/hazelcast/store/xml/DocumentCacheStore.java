@@ -8,6 +8,7 @@ import static com.bagri.xdm.api.XDMTransactionManagement.TX_INIT;
 import static com.bagri.xdm.api.XDMTransactionManagement.TX_NO;
 import static com.bagri.xdm.cache.hazelcast.util.SpringContextHolder.getContext;
 import static com.bagri.xdm.cache.hazelcast.util.SpringContextHolder.schema_context;
+import static com.bagri.xdm.domain.XDMDocument.dvFirst;
 
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
@@ -35,7 +36,6 @@ import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.cache.hazelcast.impl.DocumentManagementImpl;
 import com.bagri.xdm.cache.hazelcast.impl.PopulationManagementImpl;
 import com.bagri.xdm.client.common.XDMCacheConstants;
-import com.bagri.xdm.common.XDMDocumentId;
 import com.bagri.xdm.common.XDMDocumentKey;
 import com.bagri.xdm.common.XDMParser;
 import com.bagri.xdm.domain.XDMData;
@@ -150,21 +150,18 @@ public class DocumentCacheStore implements MapStore<XDMDocumentKey, XDMDocument>
 						// can make a fake population TX with id = 1! 
 	        			if (fragments.size() == 1) {
 	        				if (doc == null) {
-	        					doc = new XDMDocument(docKey.getDocumentId(), docKey.getVersion(), docUri, docType, TX_INIT, TX_NO,
-	        							new Date(Files.getLastModifiedTime(path).toMillis()), Files.getOwner(path).getName(), def_encoding,
-	        							content.length(), data.size());
+	        					doc = new XDMDocument(docKey.getKey(), docUri, docType, TX_INIT, TX_NO,	new Date(Files.getLastModifiedTime(path).toMillis()), 
+	        							Files.getOwner(path).getName(), def_encoding, content.length(), data.size());
 	    	        			docMgr.checkDefaultDocumentCollection(doc);
 	        				}
 	        			} else {
 	        				if (doc == null) {
-	        					doc = new XDMFragmentedDocument(docKey.getDocumentId(), docKey.getVersion(), docUri, docType, TX_INIT, TX_NO,
-	        							new Date(Files.getLastModifiedTime(path).toMillis()), Files.getOwner(path).getName(), def_encoding,
-	        							content.length(), data.size());
+	        					doc = new XDMFragmentedDocument(docKey.getKey(), docUri, docType, TX_INIT, TX_NO, new Date(Files.getLastModifiedTime(path).toMillis()), 
+	        							Files.getOwner(path).getName(), def_encoding, content.length(), data.size());
 	    	        			docMgr.checkDefaultDocumentCollection(doc);
 	        				} else {
-	        					XDMDocument fdoc = new XDMFragmentedDocument(docKey.getDocumentId(), docKey.getVersion(), doc.getUri(), doc.getTypeId(), 
-		        						doc.getTxStart(), doc.getTxFinish(), doc.getCreatedAt(), doc.getCreatedBy(), doc.getEncoding(), doc.getBytes(),
-		        						doc.getElements());
+	        					XDMDocument fdoc = new XDMFragmentedDocument(docKey.getKey(), doc.getUri(),	doc.getTypeId(), doc.getTxStart(), doc.getTxFinish(), 
+	        							doc.getCreatedAt(), doc.getCreatedBy(), doc.getEncoding(), doc.getBytes(), doc.getElements());
 	        					fdoc.setCollections(doc.getCollections());
 	        					doc = fdoc;
 	        				}
@@ -215,6 +212,10 @@ public class DocumentCacheStore implements MapStore<XDMDocumentKey, XDMDocument>
 
 	@Override
 	public Set<XDMDocumentKey> loadAllKeys() {
+		//if (true) {
+		//	return Collections.emptySet();
+		//}
+		
 		ensureDocumentManager();
 		if (docMgr == null) {
 			logger.trace("loadAllKeys.enter; store is not ready yet, skipping population");
@@ -240,8 +241,13 @@ public class DocumentCacheStore implements MapStore<XDMDocumentKey, XDMDocument>
 			Collections.sort(files);
 			XDMDocumentKey docKey; 
 			for (Path path: files) {
-				docKey = docMgr.nextDocumentKey();
-				uris.put(docKey, path.getFileName().toString());
+				String uri = path.getFileName().toString();
+				int revision = 0;
+				do {
+					docKey = docMgr.getXdmFactory().newXDMDocumentKey(uri, revision, dvFirst);
+					revision++;
+				} while (uris.get(docKey) != null);				
+				uris.put(docKey, uri);
 			}
 			docIds = new HashSet<XDMDocumentKey>(uris.keySet());
 		} catch (IOException ex) {
@@ -274,11 +280,11 @@ public class DocumentCacheStore implements MapStore<XDMDocumentKey, XDMDocument>
 			// update existing document - put a new version
 		}
 		
-		docUri = getFullUri(docUri);
+		String fullUri = getFullUri(docUri);
 		try {
-			String xml = docMgr.getDocumentAsString(new XDMDocumentId(key.getKey()));
-			FileUtils.writeTextFile(docUri, xml);
-			logger.trace("store.exit; stored as: {}; length: {}", docUri, xml.length());
+			String xml = docMgr.getDocumentAsString(key);
+			FileUtils.writeTextFile(fullUri, xml);
+			logger.trace("store.exit; stored as: {}; length: {}", fullUri, xml.length());
 		} catch (IOException | XDMException ex) {
 			logger.error("store.error; exception on store document: " + ex.getMessage(), ex);
 			// rethrow it ?

@@ -2,20 +2,20 @@ package com.bagri.xdm.common;
 
 public class XDMDataKey {
 	
-	protected long documentId;
+	protected long documentKey;
 	protected int pathId;
 	
 	public XDMDataKey() {
 		//
 	}
 	
-	public XDMDataKey(long documentId, int pathId) {
-		this.documentId = documentId;
+	public XDMDataKey(long documentKey, int pathId) {
+		this.documentKey = documentKey;
 		this.pathId = pathId;
 	}
 	
-	public long getDocumentId() {
-		return documentId;
+	public long getDocumentKey() {
+		return documentKey;
 	}
 
 	public int getPathId() {
@@ -29,7 +29,7 @@ public class XDMDataKey {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + (int) (documentId ^ (documentId >>> 32));
+		result = prime * result + (int) (documentKey ^ (documentKey >>> 32));
 		result = prime * result + (int) (pathId ^ (pathId >>> 32));
 		return result;
 	}
@@ -49,7 +49,7 @@ public class XDMDataKey {
 			return false;
 		}
 		XDMDataKey other = (XDMDataKey) obj;
-		if (documentId != other.documentId) {
+		if (documentKey != other.documentKey) {
 			return false;
 		}
 		if (pathId != other.pathId) {
@@ -63,7 +63,7 @@ public class XDMDataKey {
 	 */
 	@Override
 	public String toString() {
-		return getClass().getSimpleName() + " [documentId=" + documentId + ",pathId=" + pathId + "]";
+		return getClass().getSimpleName() + " [documentKey=" + documentKey + ",pathId=" + pathId + "]";
 	}
 	
 	

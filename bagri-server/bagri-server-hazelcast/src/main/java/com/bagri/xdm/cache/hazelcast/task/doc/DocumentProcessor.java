@@ -39,7 +39,7 @@ public class DocumentProcessor extends com.bagri.xdm.client.hazelcast.task.doc.D
 	    	return txMgr.callInTransaction(txId, false, new Callable<XDMDocument>() {
 	    		
 		    	public XDMDocument call() throws Exception {
-		    		return docMgr.storeDocumentFromString(docId, content, props);
+		    		return docMgr.storeDocumentFromString(uri, content, props);
 		    	}
 	    	});
     	} catch (XDMException ex) {

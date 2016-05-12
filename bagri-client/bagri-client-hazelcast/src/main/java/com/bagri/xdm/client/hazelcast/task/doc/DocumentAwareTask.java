@@ -4,49 +4,45 @@ import java.io.IOException;
 import java.util.Properties;
 
 import com.bagri.xdm.client.hazelcast.task.TransactionAwareTask;
-import com.bagri.xdm.common.XDMDocumentId;
 import com.hazelcast.core.PartitionAware;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
-public abstract class DocumentAwareTask extends TransactionAwareTask implements PartitionAware<Long>, IdentifiedDataSerializable {
+public abstract class DocumentAwareTask extends TransactionAwareTask implements PartitionAware<Integer>, IdentifiedDataSerializable {
 	
 	protected Properties props;
-	protected XDMDocumentId docId;
+	protected String uri;
 	
 	public DocumentAwareTask() {
 		super();
 	}
 	
-	public DocumentAwareTask(String clientId, long txId, XDMDocumentId docId, Properties props) {
+	public DocumentAwareTask(String clientId, long txId, String uri, Properties props) {
 		super(clientId, txId);
 		//if (docId == null) {
 		//	throw new IllegalArgumentException("<init>: docId must be not null");
 		//}
-		this.docId = docId;
+		this.uri = uri;
 		this.props = props;
 	}
 
 	@Override
-	public Long getPartitionKey() {
-		if (docId != null) {
-			return docId.getDocumentId();
-		}
-		return this.txId;
+	public Integer getPartitionKey() {
+		return uri.hashCode();
 	}
 
 	@Override
 	public void readData(ObjectDataInput in) throws IOException {
 		super.readData(in);
-		docId = in.readObject();
+		uri = in.readUTF();
 		props = in.readObject();
 	}
 
 	@Override
 	public void writeData(ObjectDataOutput out) throws IOException {
 		super.writeData(out);
-		out.writeObject(docId);
+		out.writeUTF(uri);
 		out.writeObject(props);
 	}
 

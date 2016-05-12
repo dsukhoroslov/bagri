@@ -4,16 +4,14 @@ import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFacto
 
 import java.util.concurrent.Callable;
 
-import com.bagri.xdm.common.XDMDocumentId;
-
 public class DocumentContentProvider extends DocumentAwareTask implements Callable<String> {
 	
 	public DocumentContentProvider() {
 		super();
 	}
 	
-	public DocumentContentProvider(String clientId, XDMDocumentId docId) {
-		super(clientId, 0, docId, null);
+	public DocumentContentProvider(String clientId, String uri) {
+		super(clientId, 0, uri, null);
 	}
 
 	@Override
