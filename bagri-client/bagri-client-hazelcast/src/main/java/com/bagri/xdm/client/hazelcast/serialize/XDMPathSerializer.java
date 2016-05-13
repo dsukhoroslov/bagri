@@ -13,7 +13,7 @@ public class XDMPathSerializer implements StreamSerializer<XDMPath> {
 
 	@Override
 	public int getTypeId() {
-		return XDMDataSerializationFactory.cli_XDMPath;
+		return DataSerializationFactoryImpl.cli_XDMPath;
 	}
 
 	@Override

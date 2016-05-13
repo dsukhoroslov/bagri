@@ -1,6 +1,6 @@
 package com.bagri.xdm.client.hazelcast.task.doc;
 
-import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_CreateMapDocumentTask;
+import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryImpl.cli_CreateMapDocumentTask;
 
 import java.io.IOException;
 import java.util.HashMap;

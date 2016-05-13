@@ -14,7 +14,7 @@ public class XDMIndexSerializer extends XDMEntitySerializer implements StreamSer
 
 	@Override
 	public int getTypeId() {
-		return XDMDataSerializationFactory.cli_XDMIndex;
+		return DataSerializationFactoryImpl.cli_XDMIndex;
 	}
 
 	@Override

@@ -18,7 +18,7 @@ public class PathBuilderSerializer implements StreamSerializer<PathBuilder> {
 
 	@Override
 	public int getTypeId() {
-		return XDMDataSerializationFactory.cli_PathBuilder;
+		return DataSerializationFactoryImpl.cli_PathBuilder;
 	}
 
 	@Override

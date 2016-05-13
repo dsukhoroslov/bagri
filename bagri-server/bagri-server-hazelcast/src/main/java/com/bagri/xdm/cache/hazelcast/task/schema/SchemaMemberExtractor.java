@@ -1,6 +1,6 @@
 package com.bagri.xdm.cache.hazelcast.task.schema;
 
-import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_SchemaMemberTask;
+import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryImpl.cli_SchemaMemberTask;
 
 import java.util.concurrent.Callable;
 

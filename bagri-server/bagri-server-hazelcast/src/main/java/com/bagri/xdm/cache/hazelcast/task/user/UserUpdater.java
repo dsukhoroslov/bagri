@@ -1,6 +1,6 @@
 package com.bagri.xdm.cache.hazelcast.task.user;
 
-import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_UpdateUserTask;
+import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryImpl.cli_UpdateUserTask;
 
 import java.io.IOException;
 import java.util.Map.Entry;

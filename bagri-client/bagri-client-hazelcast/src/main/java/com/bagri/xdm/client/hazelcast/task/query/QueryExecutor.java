@@ -1,6 +1,6 @@
 package com.bagri.xdm.client.hazelcast.task.query;
 
-import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_ExecQueryTask;
+import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryImpl.cli_ExecQueryTask;
 
 import java.util.Map;
 import java.util.Properties;

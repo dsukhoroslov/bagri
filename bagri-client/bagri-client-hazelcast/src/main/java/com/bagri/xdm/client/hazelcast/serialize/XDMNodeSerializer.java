@@ -13,7 +13,7 @@ public class XDMNodeSerializer extends XDMEntitySerializer implements StreamSeri
 
 	@Override
 	public int getTypeId() {
-		return XDMDataSerializationFactory.cli_XDMNode;
+		return DataSerializationFactoryImpl.cli_XDMNode;
 	}
 
 	@Override

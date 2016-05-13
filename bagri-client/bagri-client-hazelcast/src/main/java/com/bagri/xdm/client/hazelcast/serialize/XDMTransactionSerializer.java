@@ -17,7 +17,7 @@ public class XDMTransactionSerializer implements StreamSerializer<XDMTransaction
 
 	@Override
 	public int getTypeId() {
-		return XDMDataSerializationFactory.cli_XDMTransaction;
+		return DataSerializationFactoryImpl.cli_XDMTransaction;
 	}
 
 	@Override

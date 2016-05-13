@@ -1,7 +1,7 @@
 package com.bagri.xdm.cache.hazelcast.predicate;
 
-import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_ResultsQueryPredicate;
-import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.factoryId;
+import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryImpl.cli_ResultsQueryPredicate;
+import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryImpl.factoryId;
 import static com.bagri.common.util.CollectionUtils.*;
 
 import java.io.IOException;

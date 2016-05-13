@@ -1,6 +1,6 @@
 package com.bagri.xdm.cache.hazelcast.task.node;
 
-import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_DeleteNodeTask;
+import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryImpl.cli_DeleteNodeTask;
 
 import java.util.Map.Entry;
 

@@ -21,7 +21,7 @@ public class XDMSchemaSerializer extends XDMEntitySerializer implements StreamSe
 
 	@Override
 	public int getTypeId() {
-		return XDMDataSerializationFactory.cli_XDMSchema;
+		return DataSerializationFactoryImpl.cli_XDMSchema;
 	}
 
 	@Override

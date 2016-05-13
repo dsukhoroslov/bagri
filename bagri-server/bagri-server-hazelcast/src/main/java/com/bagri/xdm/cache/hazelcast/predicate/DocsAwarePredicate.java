@@ -1,6 +1,6 @@
 package com.bagri.xdm.cache.hazelcast.predicate;
 
-import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_DocsAwarePredicate;
+import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryImpl.cli_DocsAwarePredicate;
 
 import java.io.IOException;
 import java.util.Collections;

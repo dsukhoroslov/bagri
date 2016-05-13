@@ -17,7 +17,7 @@ public class XDMParameterSerializer implements StreamSerializer<XDMParameter> {
 
 	@Override
 	public int getTypeId() {
-		return XDMDataSerializationFactory.cli_XDMParameter;
+		return DataSerializationFactoryImpl.cli_XDMParameter;
 	}
 
 	@Override

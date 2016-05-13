@@ -15,7 +15,7 @@ public class XDMUniqueValueSerializer implements StreamSerializer<XDMUniqueValue
 
 	@Override
 	public int getTypeId() {
-		return XDMDataSerializationFactory.cli_XDMUniqueValue;
+		return DataSerializationFactoryImpl.cli_XDMUniqueValue;
 	}
 
 	@Override

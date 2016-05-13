@@ -1,7 +1,7 @@
 package com.bagri.xdm.cache.hazelcast.task.query;
 
-import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_ProcessQueryTask;
-import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.factoryId;
+import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryImpl.cli_ProcessQueryTask;
+import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryImpl.factoryId;
 
 import java.io.IOException;
 import java.util.Map.Entry;

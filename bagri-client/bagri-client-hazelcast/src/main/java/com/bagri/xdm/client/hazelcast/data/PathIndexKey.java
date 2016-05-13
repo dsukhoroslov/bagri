@@ -1,7 +1,7 @@
 package com.bagri.xdm.client.hazelcast.data;
 
-import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_PathIndexKey;
-import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.factoryId;
+import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryImpl.cli_PathIndexKey;
+import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryImpl.factoryId;
 
 import java.io.IOException;
 

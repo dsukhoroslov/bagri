@@ -15,7 +15,7 @@ public class XDMCounterSerializer implements StreamSerializer<XDMCounter> {
 
 	@Override
 	public int getTypeId() {
-		return XDMDataSerializationFactory.cli_XDMCounter;
+		return DataSerializationFactoryImpl.cli_XDMCounter;
 	}
 
 	@Override

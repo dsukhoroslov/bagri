@@ -12,7 +12,7 @@ public class XDMFragmentSerializer extends XDMEntitySerializer implements Stream
 
 	@Override
 	public int getTypeId() {
-		return XDMDataSerializationFactory.cli_XDMFragment;
+		return DataSerializationFactoryImpl.cli_XDMFragment;
 	}
 
 	@Override

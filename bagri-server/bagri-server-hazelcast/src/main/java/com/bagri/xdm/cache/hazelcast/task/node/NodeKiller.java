@@ -2,8 +2,8 @@ package com.bagri.xdm.cache.hazelcast.task.node;
 
 import static com.bagri.common.config.XDMConfigConstants.xdm_cluster_node_role;
 import static com.bagri.xdm.cache.hazelcast.util.HazelcastUtils.hz_instance;
-import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_KillNodeTask;
-import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.factoryId;
+import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryImpl.cli_KillNodeTask;
+import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryImpl.factoryId;
 
 import java.io.IOException;
 import java.util.Arrays;

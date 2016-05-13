@@ -1,6 +1,6 @@
 package com.bagri.xdm.cache.hazelcast.task.schema;
 
-import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_DenitSchemaTask;
+import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryImpl.cli_DenitSchemaTask;
 import static com.bagri.xdm.cache.hazelcast.util.SpringContextHolder.*;
 
 import java.util.concurrent.Callable;

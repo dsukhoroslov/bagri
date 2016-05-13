@@ -71,7 +71,7 @@ import com.bagri.xdm.cache.hazelcast.task.user.UserUpdater;
 //import com.bagri.xdm.client.hazelcast.task.doc.DocumentProcessor;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
-public class XDMDataSerializationFactory extends com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory {
+public class DataSerializationFactoryImpl extends com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryImpl {
 
 	@Override
 	public IdentifiedDataSerializable create(int typeId) {

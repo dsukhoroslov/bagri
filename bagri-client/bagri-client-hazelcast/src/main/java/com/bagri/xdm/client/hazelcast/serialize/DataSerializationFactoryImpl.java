@@ -26,7 +26,7 @@ import com.bagri.xdm.client.hazelcast.task.tx.TransactionStarter;
 import com.hazelcast.nio.serialization.DataSerializableFactory;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
-public class XDMDataSerializationFactory implements DataSerializableFactory { 
+public class DataSerializationFactoryImpl implements DataSerializableFactory { 
 
 	public static final int factoryId = 1; 
 	
@@ -49,21 +49,20 @@ public class XDMDataSerializationFactory implements DataSerializableFactory {
 	
 	public static final int cli_XDMDocument = 50;
 	public static final int cli_XDMElement = 51; 
-	public static final int cli_DataDocumentKey = 52; 
+	//public static final int cli_DataDocumentKey = 52; 
 	public static final int cli_XDMDocumentType = 53;
 	public static final int cli_XDMPath = 54;
 	public static final int cli_XDMNamespace = 55;
 	public static final int cli_XDMElements = 56; 
 	public static final int cli_XDMQuery = 57;
 	public static final int cli_XDMResults = 58;
-	public static final int cli_XDMSource = 59;
+	//public static final int cli_XDMSource = 59;
 	public static final int cli_XDMIndexedDocument = 60;
 	public static final int cli_XDMUniqueDocument = 61;
 	public static final int cli_XDMUniqueValue = 62;
 	public static final int cli_XDMTransaction = 63;
 	public static final int cli_XDMFragmentedDocument = 64;
 	public static final int cli_XDMCounter = 65;
-	public static final int cli_XDMDocumentId = 66;
 
 	public static final int cli_XQItemType = 75;
 	public static final int cli_XQItem = 76;

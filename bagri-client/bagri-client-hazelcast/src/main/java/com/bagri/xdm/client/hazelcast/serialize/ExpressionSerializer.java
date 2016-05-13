@@ -21,7 +21,7 @@ public class ExpressionSerializer implements StreamSerializer<Expression> {
 
 	@Override
 	public int getTypeId() {
-		return XDMDataSerializationFactory.cli_Expression;
+		return DataSerializationFactoryImpl.cli_Expression;
 	}
 
 	@Override

@@ -1,7 +1,7 @@
 package com.bagri.xdm.client.hazelcast.serialize;
 
-import static com.bagri.xdm.client.hazelcast.serialize.XDMPortableFactory.cli_XDMCredentials;
-import static com.bagri.xdm.client.hazelcast.serialize.XDMPortableFactory.factoryId;
+import static com.bagri.xdm.client.hazelcast.serialize.PortableFactoryImpl.cli_XDMCredentials;
+import static com.bagri.xdm.client.hazelcast.serialize.PortableFactoryImpl.factoryId;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

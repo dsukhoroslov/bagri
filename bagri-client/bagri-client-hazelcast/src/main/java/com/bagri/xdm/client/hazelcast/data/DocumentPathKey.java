@@ -10,10 +10,9 @@ import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
-import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.*;
+import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryImpl.*;
 
-public class DocumentPathKey extends XDMDataKey implements IdentifiedDataSerializable, //Portable, 
-	PartitionAware<Long> { //, Serializable {
+public class DocumentPathKey extends XDMDataKey implements IdentifiedDataSerializable, PartitionAware<Integer> { //, Serializable {
 
 	/**
 	 * 
@@ -24,13 +23,13 @@ public class DocumentPathKey extends XDMDataKey implements IdentifiedDataSeriali
 		super();
 	}
 
-	public DocumentPathKey(long documentId, int pathId) {
-		super(documentId, pathId);
+	public DocumentPathKey(long documentKey, int pathId) {
+		super(documentKey, pathId);
 	}
 
 	@Override
-	public Long getPartitionKey() {
-		return XDMDocumentKey.toDocumentId(documentKey);
+	public Integer getPartitionKey() {
+		return XDMDocumentKey.toHash(documentKey);
 	}
 
 	@Override
@@ -42,18 +41,6 @@ public class DocumentPathKey extends XDMDataKey implements IdentifiedDataSeriali
 	public int getId() {
 		return cli_DocumentPathKey;
 	}
-
-	//@Override
-	//public void readPortable(PortableReader in) throws IOException {
-	//	documentId = in.readLong("documentId");
-	//	pathId = in.readInt("pathId");
-	//}
-
-	//@Override
-	//public void writePortable(PortableWriter out) throws IOException {
-	//	out.writeLong("documentId", documentId);
-	//	out.writeInt("pathId", pathId);
-	//}
 
 	@Override
 	public void readData(ObjectDataInput in) throws IOException {

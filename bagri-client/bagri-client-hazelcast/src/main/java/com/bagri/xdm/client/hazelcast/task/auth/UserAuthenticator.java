@@ -1,7 +1,7 @@
 package com.bagri.xdm.client.hazelcast.task.auth;
 
-import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_AuthenticateTask;
-import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.factoryId;
+import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryImpl.cli_AuthenticateTask;
+import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryImpl.factoryId;
 
 import java.io.IOException;
 import java.util.concurrent.Callable;

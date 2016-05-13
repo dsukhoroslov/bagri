@@ -1,6 +1,6 @@
 package com.bagri.xdm.cache.hazelcast.task.library;
 
-import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_CreateLibraryTask;
+import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryImpl.cli_CreateLibraryTask;
 
 import java.io.IOException;
 import java.util.Date;

@@ -17,7 +17,7 @@ public class QueriedPathSerializer implements StreamSerializer<QueriedPath> {
 
 	@Override
 	public int getTypeId() {
-		return XDMDataSerializationFactory.cli_QueriedPath;
+		return DataSerializationFactoryImpl.cli_QueriedPath;
 	}
 
 	@Override

@@ -18,7 +18,7 @@ public class XDMIndexedDocumentSerializer implements StreamSerializer<XDMIndexed
 
 	@Override
 	public int getTypeId() {
-		return XDMDataSerializationFactory.cli_XDMIndexedDocument;
+		return DataSerializationFactoryImpl.cli_XDMIndexedDocument;
 	}
 
 	@Override

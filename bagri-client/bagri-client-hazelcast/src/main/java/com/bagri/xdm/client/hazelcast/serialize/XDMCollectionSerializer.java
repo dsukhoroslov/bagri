@@ -12,7 +12,7 @@ public class XDMCollectionSerializer extends XDMEntitySerializer implements Stre
 
 	@Override
 	public int getTypeId() {
-		return XDMDataSerializationFactory.cli_XDMCollection;
+		return DataSerializationFactoryImpl.cli_XDMCollection;
 	}
 
 	@Override

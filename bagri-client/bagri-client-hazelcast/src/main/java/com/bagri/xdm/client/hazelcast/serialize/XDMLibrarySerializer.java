@@ -13,7 +13,7 @@ public class XDMLibrarySerializer extends XDMEntitySerializer implements StreamS
 
 	@Override
 	public int getTypeId() {
-		return XDMDataSerializationFactory.cli_XDMLibrary;
+		return DataSerializationFactoryImpl.cli_XDMLibrary;
 	}
 
 	@Override

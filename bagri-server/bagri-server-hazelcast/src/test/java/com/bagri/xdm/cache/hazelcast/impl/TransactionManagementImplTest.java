@@ -122,14 +122,12 @@ public class TransactionManagementImplTest extends XDMManagementTest {
 		assertNotNull(doc);
 		assertEquals(txId, doc.getTxStart());
 		getTxManagement().commitTransaction(txId);
-		long docId = doc.getDocumentId();
 		int version = doc.getVersion();
 	
 		txId = getTxManagement().beginTransaction();
 		doc = updateDocumentTest(uri, sampleRoot + getFileName("security5621.xml"));
 		assertNotNull(doc);
 		assertEquals(txId, doc.getTxStart());
-		assertEquals(docId, doc.getDocumentId());
 		assertEquals(++version, doc.getVersion());
 		assertEquals(uri, doc.getUri());
 		getTxManagement().rollbackTransaction(txId);
@@ -138,7 +136,6 @@ public class TransactionManagementImplTest extends XDMManagementTest {
 		doc = updateDocumentTest(uri, sampleRoot + getFileName("security9012.xml"));
 		assertNotNull(doc);
 		assertEquals(txId, doc.getTxStart());
-		assertEquals(docId, doc.getDocumentId());
 		assertEquals(version, doc.getVersion());
 		assertEquals(uri, doc.getUri());
 		getTxManagement().commitTransaction(txId);

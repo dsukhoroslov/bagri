@@ -14,7 +14,7 @@ public class XDMXQueryTriggerSerializer extends XDMTriggerDefSerializer implemen
 
 	@Override
 	public int getTypeId() {
-		return XDMDataSerializationFactory.cli_XDMXQueryTrigger;
+		return DataSerializationFactoryImpl.cli_XDMXQueryTrigger;
 	}
 
 	@Override

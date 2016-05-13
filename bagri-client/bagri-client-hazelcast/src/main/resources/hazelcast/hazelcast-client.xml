@@ -27,10 +27,10 @@
 
 	<hz:serialization>
 		<hz:data-serializable-factories>
-			<hz:data-serializable-factory factory-id="1">com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory</hz:data-serializable-factory>
+			<hz:data-serializable-factory factory-id="1">com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryImpl</hz:data-serializable-factory>
 		</hz:data-serializable-factories>
 		<hz:portable-factories>
-			<hz:portable-factory factory-id="2">com.bagri.xdm.client.hazelcast.serialize.XDMPortableFactory</hz:portable-factory>
+			<hz:portable-factory factory-id="2">com.bagri.xdm.client.hazelcast.serialize.PortableFactoryImpl</hz:portable-factory>
 		</hz:portable-factories>
 		<hz:serializers>
 			<!--hz:global-serializer class-name="com.hazelcast.nio.serialization.PortableSerializer"/-->

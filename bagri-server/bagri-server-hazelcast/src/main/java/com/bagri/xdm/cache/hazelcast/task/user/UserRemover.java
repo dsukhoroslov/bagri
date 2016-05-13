@@ -1,6 +1,6 @@
 package com.bagri.xdm.cache.hazelcast.task.user;
 
-import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_DeleteUserTask;
+import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryImpl.cli_DeleteUserTask;
 
 import java.util.Map.Entry;
 

@@ -17,7 +17,7 @@ public class XDMFunctionSerializer implements StreamSerializer<XDMFunction> {
 
 	@Override
 	public int getTypeId() {
-		return XDMDataSerializationFactory.cli_XDMFunction;
+		return DataSerializationFactoryImpl.cli_XDMFunction;
 	}
 
 	@Override

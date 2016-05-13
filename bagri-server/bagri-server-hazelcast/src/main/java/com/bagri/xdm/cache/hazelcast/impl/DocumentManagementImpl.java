@@ -277,7 +277,13 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
     	Set<XDMDocumentKey> keys = xddCache.localKeySet(Predicates.equal("uri", uri));
     	if (keys.isEmpty()) {
     		if (next) {
-    			return factory.newXDMDocumentKey(uri, 0, dvFirst);
+    			XDMDocumentKey key = factory.newXDMDocumentKey(uri, 0, dvFirst);
+    			// TODO: bad case: most of the time it'll hit database!
+    			// try to use some internal service (PopulationManager?) instead!
+    			while (xddCache.containsKey(key)) {
+    				key = factory.newXDMDocumentKey(uri, key.getRevision() + 1, dvFirst);
+    			}
+    			return key;
     		}
     		return null;
     	}
@@ -300,6 +306,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
     		if (lastDoc.getTxFinish() == TX_NO || !txManager.isTxVisible(lastDoc.getTxFinish())) {
     			return last;
     		}
+    		// shouldn't we return previous version otherwise?
     	} catch (XDMException ex) {
     		logger.error("getDocumentKey.error", ex);
     		// ??
@@ -528,11 +535,9 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		String user = repo.getUserName();
 		XDMDocument doc;
 		if (fragments.size() == 1) {
-			doc = new XDMDocument(docKey.getHash(), docKey.getRevision(), docKey.getVersion(), uri, docType, user, txManager.getCurrentTxId(),
-					content.length(), data.size());
+			doc = new XDMDocument(docKey.getKey(), uri, docType, user, txManager.getCurrentTxId(), content.length(), data.size());
 		} else {
-			doc = new XDMFragmentedDocument(docKey.getHash(), docKey.getRevision(), docKey.getVersion(), uri, docType, user, 
-					txManager.getCurrentTxId(),	content.length(), data.size());
+			doc = new XDMFragmentedDocument(docKey.getKey(), uri, docType, user, txManager.getCurrentTxId(), content.length(), data.size());
 			long[] fa = new long[fragments.size()];
 			fa[0] = docKey.getKey();
 			for (int i=1; i < fragments.size(); i++) {

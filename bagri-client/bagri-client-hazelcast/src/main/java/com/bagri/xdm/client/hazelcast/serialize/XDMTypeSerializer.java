@@ -16,7 +16,7 @@ public class XDMTypeSerializer implements StreamSerializer<XDMType> {
 
 	@Override
 	public int getTypeId() {
-		return XDMDataSerializationFactory.cli_XDMType;
+		return DataSerializationFactoryImpl.cli_XDMType;
 	}
 
 	@Override

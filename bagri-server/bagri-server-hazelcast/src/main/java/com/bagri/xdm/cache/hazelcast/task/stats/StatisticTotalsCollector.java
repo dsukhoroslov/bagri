@@ -1,6 +1,6 @@
 package com.bagri.xdm.cache.hazelcast.task.stats;
 
-import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_CollectStatisticTotalsTask;
+import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryImpl.cli_CollectStatisticTotalsTask;
 
 import java.util.concurrent.Callable;
 

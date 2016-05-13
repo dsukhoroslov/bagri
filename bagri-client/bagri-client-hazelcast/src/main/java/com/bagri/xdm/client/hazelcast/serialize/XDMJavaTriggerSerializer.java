@@ -14,7 +14,7 @@ public class XDMJavaTriggerSerializer extends XDMTriggerDefSerializer implements
 
 	@Override
 	public int getTypeId() {
-		return XDMDataSerializationFactory.cli_XDMJavaTrigger;
+		return DataSerializationFactoryImpl.cli_XDMJavaTrigger;
 	}
 
 	@Override

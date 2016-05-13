@@ -131,7 +131,6 @@ public class UniqueIndexManagementTest extends XDMManagementTest {
 		assertEquals(txId, doc.getTxStart());
 		uris.add(doc.getUri());
 		getTxManagement().commitTransaction(txId);
-		long docId = doc.getDocumentId();
 		//int version = doc.getVersion();
 		String uri = doc.getUri();
 		
@@ -139,7 +138,6 @@ public class UniqueIndexManagementTest extends XDMManagementTest {
 		doc = updateDocumentTest(uri, sampleRoot + getFileName("security1500.xml"));
 		assertNotNull(doc);
 		assertEquals(txId, doc.getTxStart());
-		assertEquals(docId, doc.getDocumentId());
 		//assertEquals(++version, doc.getVersion());
 		assertEquals(uri, doc.getUri());
 		getTxManagement().commitTransaction(txId);
@@ -200,7 +198,6 @@ public class UniqueIndexManagementTest extends XDMManagementTest {
 		assertEquals(txId, doc.getTxStart());
 		uris.add(doc.getUri());
 		getTxManagement().commitTransaction(txId);
-		long docId = doc.getDocumentId();
 		int version = doc.getVersion();
 		String uri = doc.getUri();
 		
@@ -208,7 +205,6 @@ public class UniqueIndexManagementTest extends XDMManagementTest {
 		doc = updateDocumentTest(uri, sampleRoot + getFileName("security5621.xml"));
 		assertNotNull(doc);
 		assertEquals(txId, doc.getTxStart());
-		assertEquals(docId, doc.getDocumentId());
 		assertEquals(++version, doc.getVersion());
 		assertEquals(uri, doc.getUri());
 		uris.add(doc.getUri());

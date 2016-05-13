@@ -11,7 +11,7 @@ public class XDMFragmentedDocumentSerializer extends XDMDocumentSerializer {
 	
 	@Override
 	public int getTypeId() {
-		return XDMDataSerializationFactory.cli_XDMFragmentedDocument;
+		return DataSerializationFactoryImpl.cli_XDMFragmentedDocument;
 	}
 
 	@Override

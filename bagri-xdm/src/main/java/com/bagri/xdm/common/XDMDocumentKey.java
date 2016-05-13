@@ -19,10 +19,6 @@ public class XDMDocumentKey implements Comparable<XDMDocumentKey> {
 		this.key = toKey(hash, revision, version);
 	}
 	
-	public long getDocumentId() {
-		return toDocumentId(key); 
-	}
-	
 	public int getHash() {
 		return toHash(key); 
 	}
@@ -59,12 +55,6 @@ public class XDMDocumentKey implements Comparable<XDMDocumentKey> {
 		return key == other.key;
 	}
 	
-	public static long toKey(long documentId, int version) {
-		int hash = (int) (documentId >> shift);
-		int revision = ((int) documentId) >> 16;
-		return toKey(hash, revision, version);
-	}
-
 	public static long toKey(int hash, int revision, int version) {
 		return (((long) hash) << shift) | (revision << 16) | version;
 	}

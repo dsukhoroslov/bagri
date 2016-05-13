@@ -1,7 +1,7 @@
 package com.bagri.xdm.cache.hazelcast.task.doc;
 
-import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.factoryId;
-import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_CleanTxDocumentsTask;
+import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryImpl.factoryId;
+import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryImpl.cli_CleanTxDocumentsTask;
 import static com.bagri.xdm.client.common.XDMCacheConstants.CN_XDM_DOCUMENT;
 
 import java.io.IOException;

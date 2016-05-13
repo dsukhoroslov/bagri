@@ -43,7 +43,7 @@ public class XQItemSerializer implements StreamSerializer<XQItem> {
 
 	@Override
 	public int getTypeId() {
-		return XDMDataSerializationFactory.cli_XQItem;
+		return DataSerializationFactoryImpl.cli_XQItem;
 	}
 
 	@Override

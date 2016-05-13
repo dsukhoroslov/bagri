@@ -2,8 +2,8 @@ package com.bagri.xdm.cache.hazelcast.task.node;
 
 import static com.bagri.common.config.XDMConfigConstants.xdm_config_path;
 import static com.bagri.common.config.XDMConfigConstants.xdm_config_properties_file;
-import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_SetNodeOptionTask;
-import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.factoryId;
+import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryImpl.cli_SetNodeOptionTask;
+import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryImpl.factoryId;
 import static com.bagri.xdm.cache.hazelcast.util.HazelcastUtils.hz_instance;
 
 import java.io.IOException;

@@ -12,7 +12,7 @@ public class XDMModuleSerializer extends XDMEntitySerializer implements StreamSe
 
 	@Override
 	public int getTypeId() {
-		return XDMDataSerializationFactory.cli_XDMModule;
+		return DataSerializationFactoryImpl.cli_XDMModule;
 	}
 
 	@Override

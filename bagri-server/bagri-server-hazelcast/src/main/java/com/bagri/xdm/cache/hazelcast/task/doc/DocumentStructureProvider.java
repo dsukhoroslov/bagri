@@ -1,6 +1,6 @@
 package com.bagri.xdm.cache.hazelcast.task.doc;
 
-import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_ProvideDocumentStructureTask;
+import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryImpl.cli_ProvideDocumentStructureTask;
 
 import java.util.Collection;
 import java.util.HashMap;

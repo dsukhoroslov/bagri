@@ -1,6 +1,6 @@
 package com.bagri.xdm.cache.hazelcast.task.role;
 
-import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_DeleteRoleTask;
+import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryImpl.cli_DeleteRoleTask;
 
 import java.util.Map.Entry;
 

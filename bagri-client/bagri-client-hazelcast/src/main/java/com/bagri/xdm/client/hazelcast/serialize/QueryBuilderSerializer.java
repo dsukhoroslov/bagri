@@ -19,7 +19,7 @@ public class QueryBuilderSerializer implements StreamSerializer<QueryBuilder> {
 
 	@Override
 	public int getTypeId() {
-		return XDMDataSerializationFactory.cli_QueryBuilder;
+		return DataSerializationFactoryImpl.cli_QueryBuilder;
 	}
 
 	@Override

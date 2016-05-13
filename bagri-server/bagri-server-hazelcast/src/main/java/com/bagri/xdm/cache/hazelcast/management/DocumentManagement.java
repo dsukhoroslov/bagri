@@ -178,7 +178,7 @@ public class DocumentManagement extends SchemaFeatureManagement {
 		try {
 			XDMDocument doc = docManager.getDocument(uri);
 			if (doc != null) {
-				Partition part = hzClient.getPartitionService().getPartition(doc.getDocumentId());
+				Partition part = hzClient.getPartitionService().getPartition(doc.getUri().hashCode());
 				Map<String, Object> location = new HashMap<>(2);
 				location.put("partition", part.getPartitionId());
 				location.put("owner", part.getOwner().toString());

@@ -19,7 +19,7 @@ public class XDMUniqueDocumentSerializer implements StreamSerializer<XDMUniqueDo
 
 	@Override
 	public int getTypeId() {
-		return XDMDataSerializationFactory.cli_XDMUniqueDocument;
+		return DataSerializationFactoryImpl.cli_XDMUniqueDocument;
 	}
 
 	@Override

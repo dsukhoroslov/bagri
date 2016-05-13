@@ -37,7 +37,7 @@ public final class XDMFactoryImpl implements XDMFactory {
 	 */
 	@Override
 	public XDMDocumentKey newXDMDocumentKey(long documentKey, int version) {
-		return new DocumentKey(XDMDocumentKey.toHash(documentKey), XDMDocumentKey.toRevision(documentKey), version);
+		return new DocumentKey(XDMDocumentKey.toHash(documentKey), XDMDocumentKey.toRevision(documentKey), version); 
 	}
 
 	/* (non-Javadoc)

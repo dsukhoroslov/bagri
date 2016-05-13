@@ -1,6 +1,6 @@
 package com.bagri.xdm.cache.hazelcast.task.role;
 
-import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_UpdateRolePermissionsTask;
+import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryImpl.cli_UpdateRolePermissionsTask;
 
 import java.io.IOException;
 import java.util.Map.Entry;

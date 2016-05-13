@@ -1,6 +1,6 @@
 package com.bagri.xdm.client.hazelcast.impl;
 
-import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_XQFixedCursor;
+import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryImpl.cli_XQFixedCursor;
 
 import java.io.IOException;
 

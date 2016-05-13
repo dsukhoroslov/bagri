@@ -15,22 +15,13 @@ public class XDMFragmentedDocument extends XDMDocument {
 		super();
 	}
 	
-	public XDMFragmentedDocument(String uri, int typeId, String owner, long txId, int bytes, int elts) {
-		this(uri.hashCode(), 0, dvFirst, uri, typeId, txId, 0, new Date(), owner, def_encoding, bytes, elts);
-	}
-	
-	public XDMFragmentedDocument(int hash, int revision, int version, String uri, int typeId, String owner, long txId, int bytes, int elts) {
-		this(hash, revision, version, uri, typeId, txId, 0, new Date(), owner, def_encoding, bytes, elts);
+	public XDMFragmentedDocument(long docKey, String uri, int typeId, String owner, long txId, int bytes, int elts) {
+		this(docKey, uri, typeId, txId, 0, new Date(), owner, def_encoding, bytes, elts);
 	}
 
-	public XDMFragmentedDocument(long docKey, String uri, int typeId, long txStart, long txFinish, Date createdAt, String createdBy, String encoding, 
-			int bytes, int elts) {
-		this(toHash(docKey), toRevision(docKey), toVersion(docKey), uri, typeId, txStart, txFinish, createdAt, createdBy, encoding, bytes, elts);
-	}
-	
-	public XDMFragmentedDocument(int hash, int revision, int version, String uri, int typeId, long txStart, long txFinish, Date createdAt, 
+	public XDMFragmentedDocument(long docKey, String uri, int typeId, long txStart, long txFinish, Date createdAt, 
 			String createdBy, String encoding, int bytes, int elts) {
-		super(hash, revision, version, uri, typeId, txStart, txFinish, createdAt, createdBy, encoding, bytes, elts);
+		super(docKey, uri, typeId, txStart, txFinish, createdAt, createdBy, encoding, bytes, elts);
 	}
 	
 	public long[] getFragments() {

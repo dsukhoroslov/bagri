@@ -34,7 +34,6 @@ public abstract class XDMDocumentManagementTest extends XDMManagementTest {
 		assertEquals(txId, doc.getTxStart());
 		assertEquals(0, doc.getTxFinish());
 		getTxManagement().commitTransaction(txId);
-		long docId = doc.getDocumentId();
 		int version = doc.getVersion();
 		String uri = doc.getUri();
 		
@@ -44,7 +43,6 @@ public abstract class XDMDocumentManagementTest extends XDMManagementTest {
 		uris.add(doc.getUri());
 		assertEquals(txId, doc.getTxStart());
 		assertEquals(0, doc.getTxFinish());
-		assertEquals(docId, doc.getDocumentId());
 		assertEquals(++version, doc.getVersion());
 		assertEquals(uri, doc.getUri());
 		getTxManagement().commitTransaction(txId);
@@ -55,7 +53,6 @@ public abstract class XDMDocumentManagementTest extends XDMManagementTest {
 		uris.add(doc.getUri());
 		assertEquals(txId, doc.getTxStart());
 		assertEquals(0, doc.getTxFinish());
-		assertEquals(docId, doc.getDocumentId());
 		assertEquals(++version, doc.getVersion());
 		assertEquals(uri, doc.getUri());
 		getTxManagement().commitTransaction(txId);
@@ -71,7 +68,6 @@ public abstract class XDMDocumentManagementTest extends XDMManagementTest {
 		assertEquals(txId, doc.getTxStart());
 		assertEquals(0, doc.getTxFinish());
 		getTxManagement().commitTransaction(txId);
-		long docId = doc.getDocumentId();
 		long docKey = doc.getDocumentKey();
 		
 		long txId2 = getTxManagement().beginTransaction();

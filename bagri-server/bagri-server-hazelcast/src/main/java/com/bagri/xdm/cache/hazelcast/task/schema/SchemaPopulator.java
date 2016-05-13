@@ -3,7 +3,7 @@ package com.bagri.xdm.cache.hazelcast.task.schema;
 import static com.bagri.xdm.cache.hazelcast.util.SpringContextHolder.*;
 import static com.bagri.xdm.client.common.XDMCacheConstants.CN_XDM_DOCUMENT;
 import static com.bagri.xdm.client.common.XDMCacheConstants.CN_XDM_TRANSACTION;
-import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_PopulateSchemaTask;
+import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryImpl.cli_PopulateSchemaTask;
 
 import java.util.Properties;
 import java.util.concurrent.Callable;

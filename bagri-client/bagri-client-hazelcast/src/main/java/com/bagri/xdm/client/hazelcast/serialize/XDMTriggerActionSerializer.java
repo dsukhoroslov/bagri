@@ -18,7 +18,7 @@ public class XDMTriggerActionSerializer implements StreamSerializer<XDMTriggerAc
 
 	@Override
 	public int getTypeId() {
-		return XDMDataSerializationFactory.cli_XDMTriggerAction;
+		return DataSerializationFactoryImpl.cli_XDMTriggerAction;
 	}
 
 	@Override

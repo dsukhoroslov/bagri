@@ -1,7 +1,7 @@
 package com.bagri.xdm.cache.hazelcast.task.schema;
 
 import static com.bagri.xdm.client.common.XDMCacheConstants.PN_XDM_SYSTEM_POOL;
-import static com.bagri.xdm.client.hazelcast.serialize.XDMDataSerializationFactory.cli_SchemaAdminTask;
+import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryImpl.cli_SchemaAdminTask;
 
 import java.io.IOException;
 import java.util.concurrent.Callable;

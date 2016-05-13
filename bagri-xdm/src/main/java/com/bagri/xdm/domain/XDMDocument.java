@@ -41,23 +41,14 @@ public class XDMDocument implements Convertable<Map<String, Object>>, Versionabl
 		//
 	}
 	
-	public XDMDocument(String uri, int typeId, String owner, long txId, int bytes, int elts) {
-		this(uri.hashCode(), 0, dvFirst, uri, typeId, txId, 0, new Date(), owner, def_encoding, bytes, elts);
+	public XDMDocument(long docKey, String uri, int typeId, String owner, long txId, int bytes, int elts) {
+		this(docKey, uri, typeId, txId, 0, new Date(), owner, def_encoding, bytes, elts);
 	}
 
-	public XDMDocument(int hash, int revision, int version, String uri, int typeId, String owner, long txId, int bytes, int elts) {
-		this(hash, revision, version, uri, typeId, txId, 0, new Date(), owner, def_encoding, bytes, elts);
-	}
-
-	public XDMDocument(long docKey, String uri, int typeId, long txStart, long txFinish, Date createdAt, String createdBy, String encoding, 
-			int bytes, int elts) {
-		this(toHash(docKey), toRevision(docKey), toVersion(docKey), uri, typeId, txStart, txFinish, createdAt, createdBy, encoding, bytes, elts);
-	}
-	
-	public XDMDocument(int hash, int revision, int version, String uri, int typeId, long txStart, long txFinish, Date createdAt, 
+	public XDMDocument(long docKey, String uri, int typeId, long txStart, long txFinish, Date createdAt, 
 			String createdBy, String encoding, int bytes, int elts) {
 		//super(version, createdAt, createdBy);
-		this.documentKey = toKey(hash, revision, version);
+		this.documentKey = docKey; //toKey(hash, revision, version);
 		this.uri = uri;
 		this.typeId = typeId;
 		this.txStart = txStart;
@@ -72,9 +63,9 @@ public class XDMDocument implements Convertable<Map<String, Object>>, Versionabl
 	/**
 	 * @return the document Id
 	 */
-	public long getDocumentId() {
-		return toDocumentId(documentKey);
-	}
+	//public long getDocumentId() {
+	//	return toDocumentId(documentKey);
+	//}
 
 	/**
 	 * @return the document key
@@ -213,7 +204,7 @@ public class XDMDocument implements Convertable<Map<String, Object>>, Versionabl
 	public Map<String, Object> convert() {
 		Map<String, Object> result = new HashMap<>();
 		result.put("key", documentKey);
-		result.put("id", getDocumentId());
+		//result.put("id", getDocumentId());
 		result.put("version", getVersion());
 		result.put("uri", uri);
 		result.put("bytes", bytes);
