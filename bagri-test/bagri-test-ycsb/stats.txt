@@ -643,3 +643,62 @@ Mongo RW:
 [UPDATE], Return=OK, 5066
 
 >>>>>>> simple-keys
+
+HOME BOX (Notebook)
+
+Bagri insert:
+----------
+[OVERALL], RunTime(ms), 14661.0
+[OVERALL], Throughput(ops/sec), 1364.163426778528
+[CLEANUP], Operations, 20.0
+[CLEANUP], AverageLatency(us), 38901.2
+[CLEANUP], MinLatency(us), 12712.0
+[CLEANUP], MaxLatency(us), 73983.0
+[CLEANUP], 95thPercentileLatency(us), 66175.0
+[CLEANUP], 99thPercentileLatency(us), 73983.0
+[INSERT], Operations, 20000.0
+[INSERT], AverageLatency(us), 13495.183
+[INSERT], MinLatency(us), 2480.0
+[INSERT], MaxLatency(us), 373247.0
+[INSERT], 95thPercentileLatency(us), 30559.0
+[INSERT], 99thPercentileLatency(us), 55519.0
+[INSERT], Return=OK, 20000
+
+Bagri RW:
+----------
+[OVERALL], RunTime(ms), 17683.0
+[OVERALL], Throughput(ops/sec), 5655.149013176498
+[READ], Operations, 95008.0
+[READ], AverageLatency(us), 7343.55238506231
+[READ], MinLatency(us), 539.0
+[READ], MaxLatency(us), 133119.0
+[READ], 95thPercentileLatency(us), 14535.0
+[READ], 99thPercentileLatency(us), 24207.0
+[READ], Return=OK, 95008
+[READ], Return=ERROR, 1
+[UPDATE-FAILED], Operations, 10.0
+[UPDATE-FAILED], AverageLatency(us), 381203.2
+[UPDATE-FAILED], MinLatency(us), 158848.0
+[UPDATE-FAILED], MaxLatency(us), 592895.0
+[UPDATE-FAILED], 95thPercentileLatency(us), 592895.0
+[UPDATE-FAILED], 99thPercentileLatency(us), 592895.0
+[CLEANUP], Operations, 50.0
+[CLEANUP], AverageLatency(us), 60940.32
+[CLEANUP], MinLatency(us), 1369.0
+[CLEANUP], MaxLatency(us), 107455.0
+[CLEANUP], 95thPercentileLatency(us), 105471.0
+[CLEANUP], 99thPercentileLatency(us), 107455.0
+[UPDATE], Operations, 4981.0
+[UPDATE], AverageLatency(us), 20659.436458542463
+[UPDATE], MinLatency(us), 4040.0
+[UPDATE], MaxLatency(us), 151807.0
+[UPDATE], 95thPercentileLatency(us), 38591.0
+[UPDATE], 99thPercentileLatency(us), 64383.0
+[UPDATE], Return=OK, 4981
+[UPDATE], Return=ERROR, 10
+[READ-FAILED], Operations, 1.0
+[READ-FAILED], AverageLatency(us), 746752.0
+[READ-FAILED], MinLatency(us), 746496.0
+[READ-FAILED], MaxLatency(us), 747007.0
+[READ-FAILED], 95thPercentileLatency(us), 747007.0
+[READ-FAILED], 99thPercentileLatency(us), 747007.0

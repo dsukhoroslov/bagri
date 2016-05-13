@@ -42,6 +42,7 @@
 				</hz:join>
 			</hz:network>
 
+			<hz:executor-service name="xdm-trans-pool" pool-size="${xdm.schema.thread.pool}" />
 			<hz:executor-service name="xdm-exec-pool" pool-size="${xdm.schema.thread.pool}" />
 			<hz:executor-service name="hz:async" pool-size="${xdm.schema.thread.pool}" />
 			<hz:executor-service name="hz:query" pool-size="${xdm.schema.thread.pool}" />

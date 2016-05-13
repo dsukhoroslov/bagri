@@ -88,7 +88,8 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 		txCache = hzInstance.getMap(CN_XDM_TRANSACTION);
 		txGen = new IdGeneratorImpl(hzInstance.getAtomicLong(SQN_TRANSACTION));
 		cTopic = hzInstance.getTopic(TPN_XDM_COUNTERS);
-		execService = hzInstance.getExecutorService(PN_XDM_SCHEMA_POOL);
+		//execService = hzInstance.getExecutorService(PN_XDM_SCHEMA_POOL);
+		execService = hzInstance.getExecutorService("xdm-trans-pool");
 	}
 	
 	public long getTransactionTimeout() {
@@ -192,25 +193,25 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 	
 	private void cleanAffectedDocuments(XDMTransaction xTx) {
 		// asynchronous cleaning..
-		execService.submitToAllMembers(new DocumentCleaner(xTx), this);
+		//execService.submitToAllMembers(new DocumentCleaner(xTx), this);
 		
 		// synchronous cleaning.. causes a deadlock!
-		//Map<Member, Future<XDMTransaction>> values = execService.submitToAllMembers(new DocumentCleaner(xTx));
-        //XDMTransaction txClean = null;
-		//for (Future<XDMTransaction> value: values.values()) {
-		//	try {
-		//		XDMTransaction tx = value.get();
-		//		if (txClean == null) {
-		//			txClean = tx;
-		//		} else {
-		//			txClean.updateCounters(tx.getDocsCreated(), tx.getDocsUpdated(), tx.getDocsDeleted());
-		//		}
-		//	} catch (InterruptedException | ExecutionException ex) {
-		//		logger.error("cleanAffectedDocuments.error;", ex);
-		//	}
-		//}
-		//logger.info("cleanAffectedDocuments; going to complete {}", txClean);
-		//completeTransaction(txClean);
+		Map<Member, Future<XDMTransaction>> values = execService.submitToAllMembers(new DocumentCleaner(xTx));
+        XDMTransaction txClean = null;
+		for (Future<XDMTransaction> value: values.values()) {
+			try {
+				XDMTransaction tx = value.get();
+				if (txClean == null) {
+					txClean = tx;
+				} else {
+					txClean.updateCounters(tx.getDocsCreated(), tx.getDocsUpdated(), tx.getDocsDeleted());
+				}
+			} catch (InterruptedException | ExecutionException ex) {
+				logger.error("cleanAffectedDocuments.error;", ex);
+			}
+		}
+		logger.trace("cleanAffectedDocuments; going to complete {}", txClean);
+		completeTransaction(txClean); 
 	}
 	
 	boolean isTxVisible(long txId) throws XDMException {
