@@ -20,7 +20,7 @@ rem "%java_exec%" -server %java_opts% -cp "%app_home%\target\*;%app_home%\target
 
 rem perform queries loopig by user count
 for /l %%x in (5, 1, 10) do (
-rem	"%java_exec%" -server %java_opts% -cp "%app_home%\target\*;%app_home%\target\lib\*" net.sf.tpox.workload.core.WorkloadDriver -w queries/XQJ/securities.xml -u %%x -r 10 -pc 95 -cl 99
+	"%java_exec%" -server %java_opts% -cp "%app_home%\target\*;%app_home%\target\lib\*" net.sf.tpox.workload.core.WorkloadDriver -w queries/XQJ/securities.xml -u %%x -r 10 -pc 95 -cl 99
 rem	"%java_exec%" -server %java_opts% -cp "%app_home%\target\*;%app_home%\target\lib\*" com.bagri.client.tpox.StatisticsCollector %admin_addr% %schema% QueryManagement executeXQuery Users=%%x ./stats.txt false
 )
 
