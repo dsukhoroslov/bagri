@@ -1,21 +1,13 @@
-package com.bagri.common.stats;
+package com.bagri.xdm.cache.hazelcast.stats;
 
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-public class UsageStatistics extends StatisticsCollector implements StatisticsProvider {
+import com.bagri.common.stats.Statistics;
+import com.bagri.common.stats.StatisticsEvent;
 
-	public UsageStatistics(String name) {
-		super(name);
-	}
-
-	@Override
-	protected Statistics createStatistics(String name) {
-		return new ResourceUsageStatistics();
-	}
-	
-	protected class ResourceUsageStatistics implements Statistics {
+public class UsageStatistics extends Statistics {
 
 		// stats names
 		//public static final String sn_Avg_Time = "Avg time";
@@ -42,6 +34,11 @@ public class UsageStatistics extends StatisticsCollector implements StatisticsPr
 		//private long tmSum;
 		private long tmFirst = 0;
 		private long tmLast;
+
+		public UsageStatistics(String name) {
+			super(name);
+		}
+
 		
 		@Override
 		public String getDescription() {
@@ -60,11 +57,12 @@ public class UsageStatistics extends StatisticsCollector implements StatisticsPr
 
 		@Override
 		public void update(StatisticsEvent event) {
-			cntAccessed += event.getCount();
+			int count = (Integer) event.getParam(0);
+			cntAccessed += count;
 			if (event.isSuccess()) {
-				cntHits += event.getCount();
+				cntHits += count;
 			} else {
-				cntMiss += event.getCount();
+				cntMiss += count;
 			}
 			tmLast = event.getTimestamp();
 			if (tmFirst == 0) {
@@ -95,8 +93,6 @@ public class UsageStatistics extends StatisticsCollector implements StatisticsPr
 			buff.append("]");
 			return buff.toString();
 		}
-
-	}
 
 	
 }

@@ -1025,7 +1025,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 
 	private void updateStats(String name, boolean add, int elements, int fragments) {
 		if (enableStats) {
-			if (!queue.offer(new StatisticsEvent(name, add, fragments, elements))) {
+			if (!queue.offer(new StatisticsEvent(name, add, new Object[] {fragments, elements}))) {
 				logger.warn("updateStats; queue is full!!");
 			}
 		}

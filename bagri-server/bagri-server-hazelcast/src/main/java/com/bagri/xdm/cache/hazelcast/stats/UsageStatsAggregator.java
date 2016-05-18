@@ -1,4 +1,4 @@
-package com.bagri.common.stats;
+package com.bagri.xdm.cache.hazelcast.stats;
 
 //import static com.bagri.common.stats.UsageStatistics.*;
 

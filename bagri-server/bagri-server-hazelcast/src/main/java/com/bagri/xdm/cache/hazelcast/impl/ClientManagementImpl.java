@@ -58,7 +58,7 @@ public class ClientManagementImpl implements XDMClientManagement, ClientListener
 
 	private void updateStats(String name, boolean success, long duration) {
 		if (enableStats) {
-			if (!queue.offer(new StatisticsEvent(name, success, duration))) {
+			if (!queue.offer(new StatisticsEvent(name, success, new Object[] {duration}))) {
 				logger.warn("updateStats; queue is full!!");
 			}
 		}

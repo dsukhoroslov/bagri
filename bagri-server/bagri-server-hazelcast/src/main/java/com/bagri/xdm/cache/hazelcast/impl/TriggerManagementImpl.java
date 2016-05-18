@@ -163,7 +163,7 @@ public class TriggerManagementImpl implements XDMTriggerManagement {
 
 	private void updateStats(String name, boolean success, int count) {
 		if (enableStats) {
-			if (!queue.offer(new StatisticsEvent(name, success, count))) {
+			if (!queue.offer(new StatisticsEvent(name, success, new Object[] {count}))) {
 				logger.warn("updateStats; queue is full!!");
 			}
 		}

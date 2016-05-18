@@ -285,7 +285,7 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 	
 	private void updateStats(String name, boolean success, int count) {
 		if (enableStats) {
-			if (!queue.offer(new StatisticsEvent(name, success, count))) {
+			if (!queue.offer(new StatisticsEvent(name, success, new Object[] {count}))) {
 				logger.warn("updateStats; queue is full!!");
 			}
 		}
@@ -293,7 +293,8 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 	
 	private void updateStats(String name, int results, int hits) {
 		if (enableStats) {
-			if (!queue.offer(new StatisticsEvent(name, hits > 0, results, 0, true))) {
+			// ??? weird stats format!
+			if (!queue.offer(new StatisticsEvent(name, hits > 0, new Object[] {results, true}))) {
 				logger.warn("updateQueryStats; queue is full!!");
 			}
 		}
@@ -669,7 +670,7 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
             ex = t;
         }
         long stamp = stopWatch.stop();
-        if (!timeQueue.offer(new StatisticsEvent(query, !failed, stamp))) {
+        if (!timeQueue.offer(new StatisticsEvent(query, !failed, new Object[] {stamp}))) {
         	logger.warn("runQuery: the timeQueue is full!!");
         }
         if (failed) {

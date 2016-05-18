@@ -285,7 +285,8 @@
 	<bean id="clientQueue" class="java.util.concurrent.ArrayBlockingQueue">
 		<constructor-arg value="1024" />
 	</bean>
-	<bean id="clientStats" class="com.bagri.common.stats.InvocationStatistics">
+	<bean id="clientStats" class="com.bagri.common.stats.StatisticsCollector">
+		<constructor-arg value="com.bagri.xdm.cache.hazelcast.stats.InvocationStatistics" />
 		<constructor-arg value="clients" />
 		<property name="statsQueue" ref="clientQueue"/>
 	</bean>
@@ -293,7 +294,8 @@
 	<bean id="docQueue" class="java.util.concurrent.ArrayBlockingQueue">
 		<constructor-arg value="1024" />
 	</bean>
-	<bean id="docStats" class="com.bagri.xdm.cache.hazelcast.impl.DocumentStatistics">
+	<bean id="docStats" class="com.bagri.xdm.cache.hazelcast.stats.DocumentStatsCollector">
+		<constructor-arg value="com.bagri.xdm.cache.hazelcast.stats.DocumentStatistics" />
 		<constructor-arg value="docs" />
 		<property name="statsQueue" ref="docQueue"/>
 	</bean>
@@ -301,7 +303,8 @@
 	<bean id="queryQueue" class="java.util.concurrent.ArrayBlockingQueue">
 		<constructor-arg value="1024" />
 	</bean>
-	<bean id="queryStats" class="com.bagri.common.stats.InvocationStatistics">
+	<bean id="queryStats" class="com.bagri.common.stats.StatisticsCollector">
+		<constructor-arg value="com.bagri.xdm.cache.hazelcast.stats.InvocationStatistics" />
 		<constructor-arg value="query" />
 		<property name="statsQueue" ref="queryQueue"/>
 	</bean>
@@ -309,7 +312,8 @@
 	<bean id="indexQueue" class="java.util.concurrent.ArrayBlockingQueue">
 		<constructor-arg value="1024" />
 	</bean>
-	<bean id="indexStats" class="com.bagri.xdm.cache.hazelcast.impl.IndexStatistics">
+	<bean id="indexStats" class="com.bagri.common.stats.StatisticsCollector">
+		<constructor-arg value="com.bagri.xdm.cache.hazelcast.stats.IndexStatistics" />
 		<constructor-arg value="index" />
 		<property name="statsQueue" ref="indexQueue"/>
 	</bean>
@@ -317,7 +321,8 @@
 	<bean id="queryCacheQueue" class="java.util.concurrent.ArrayBlockingQueue">
 		<constructor-arg value="1024" />
 	</bean>
-	<bean id="queryCacheStats" class="com.bagri.xdm.cache.hazelcast.impl.QueryStatistics">
+	<bean id="queryCacheStats" class="com.bagri.common.stats.StatisticsCollector">
+		<constructor-arg value="com.bagri.xdm.cache.hazelcast.stats.QueryStatistics" />
 		<constructor-arg value="queryCache" />
 		<property name="statsQueue" ref="queryCacheQueue"/>
 	</bean>
@@ -325,7 +330,8 @@
 	<bean id="triggerQueue" class="java.util.concurrent.ArrayBlockingQueue">
 		<constructor-arg value="1024" />
 	</bean>
-	<bean id="triggerStats" class="com.bagri.common.stats.UsageStatistics">
+	<bean id="triggerStats" class="com.bagri.common.stats.StatisticsCollector">
+		<constructor-arg value="com.bagri.xdm.cache.hazelcast.stats.UsageStatistics" />
 		<constructor-arg value="trigger" />
 		<property name="statsQueue" ref="triggerQueue"/>
 	</bean>

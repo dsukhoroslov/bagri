@@ -30,7 +30,6 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
 import com.bagri.common.manage.JMXUtils;
-import com.bagri.common.stats.StatisticsCollector.Statistics;
 import com.bagri.common.util.PropUtils;
 import com.bagri.xdm.api.XDMHealthChangeListener;
 import com.bagri.xdm.api.XDMHealthState;

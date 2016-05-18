@@ -14,49 +14,40 @@ import org.slf4j.LoggerFactory;
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.common.stats.StatisticsEvent.EventType;
 
-public abstract class StatisticsCollector implements Runnable {
+public class StatisticsCollector<S extends Statistics> implements Runnable, StatisticsProvider {
 
-	public interface Statistics {
-		
-		String getDescription();
-		String getHeader();
-		String getName();
-		Map<String, Object> toMap();
-		void update(StatisticsEvent event);
-
-	}
-	
-	protected static final String colon = ": ";
-	protected static final String semicolon = "; ";
-	protected static final String empty = ": 0; ";
-	
     protected final Logger logger;
 	
+    private final Class<S> cls;
     protected String name;
 	private BlockingQueue<StatisticsEvent> queue =  null;
-	protected Map<String, Statistics> stats = new HashMap<>();
+	protected Map<String, Statistics> series = new HashMap<>();
 
-	public StatisticsCollector(String name) {
+	public StatisticsCollector(Class<S> cls, String name) {
+		this.cls = cls;
 		logger = LoggerFactory.getLogger(getClass().getName() + "[" + name + "]");
 		this.name = name;
 	}
 	
 	public Collection<String> getStatisticsNames() {
-		return stats.keySet();
+		return series.keySet();
 	}
 	
 	public Map<String, Object> getNamedStatistics(String name) {
-		return stats.get(name).toMap();
+		return series.get(name).toMap();
 	}
 	
+	@Override
 	public CompositeData getStatisticTotals() {
 		// it just has no much sense to implement this method for usage stats ?
+		// TODO: implement it!
 		return null;
 	}
 	
+	@Override
 	public TabularData getStatisticSeries() {
         TabularData result = null;
-        for (Map.Entry<String, Statistics> entry: stats.entrySet()) {
+        for (Map.Entry<String, Statistics> entry: series.entrySet()) {
         	Statistics stats = entry.getValue();
         	if (reportStatistics(stats)) {
 	            try {
@@ -76,15 +67,22 @@ public abstract class StatisticsCollector implements Runnable {
         return result;
     }
 	
-	protected abstract Statistics createStatistics(String name);
+	protected S createStatistics(String name) {
+		try {
+			return cls.getConstructor(String.class).newInstance(name);
+		} catch (Exception ex) {
+			logger.error("createStatistics.error", ex);
+		}
+		return null;
+	}
 	
 	public void deleteStatistics(String name) {
-		stats.remove(name);
+		series.remove(name);
 	}
 	
 	public Statistics initStatistics(String name) {
 		Statistics sts = createStatistics(name);
-		stats.put(name, sts);
+		series.put(name, sts);
 		return sts;
 	}
 	
@@ -92,15 +90,16 @@ public abstract class StatisticsCollector implements Runnable {
 		return true;
 	}
 	
+	@Override
 	public void resetStatistics() {
-		// renew all registered stats..
-		for (String name: stats.keySet()) {
+		// renew all registered stats.. why just not call clear()?
+		for (String name: series.keySet()) {
 			initStatistics(name);
 		}
 	}
 	
 	protected void updateStatistics(StatisticsEvent event) {
-		Statistics sts = stats.get(event.getName());
+		Statistics sts = series.get(event.getName());
 		if (sts == null) {
 			sts = initStatistics(event.getName());
 		}

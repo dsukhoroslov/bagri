@@ -16,9 +16,6 @@ import java.util.concurrent.BlockingQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.management.openmbean.CompositeData;
-import javax.management.openmbean.TabularData;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -534,7 +531,7 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 	
 	private void updateStats(String name, boolean success, int count) {
 		if (enableStats) {
-			if (!queue.offer(new StatisticsEvent(name, success, count))) {
+			if (!queue.offer(new StatisticsEvent(name, success, new Object[] {count}))) {
 				logger.warn("updateStats; queue is full!!");
 			}
 		}
@@ -542,7 +539,7 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 
 	private void updateStats(String name, boolean add, boolean unique, int count, int size) {
 		if (enableStats) {
-			if (!queue.offer(new StatisticsEvent(name, add, count, size, unique))) {
+			if (!queue.offer(new StatisticsEvent(name, add, new Object[] {count, size, unique}))) {
 				logger.warn("updateIndexStats; queue is full!!");
 			}
 		}
