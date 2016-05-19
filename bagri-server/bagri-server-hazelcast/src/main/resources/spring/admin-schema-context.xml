@@ -24,9 +24,9 @@
 		</property>
 	</bean>
 
-	<bean id="invocationStatsAggregator" class="com.bagri.common.stats.InvocationStatsAggregator"/>
+	<bean id="invocationStatsAggregator" class="com.bagri.xdm.cache.hazelcast.stats.InvocationStatsAggregator"/>
 
-	<bean id="usageStatsAggregator" class="com.bagri.common.stats.UsageStatsAggregator"/>
+	<bean id="usageStatsAggregator" class="com.bagri.xdm.cache.hazelcast.stats.UsageStatsAggregator"/>
 
 	<bean id="clientManager" class="com.bagri.xdm.cache.hazelcast.management.ClientManagement">
 		<constructor-arg value="${xdm.schema.name}" />

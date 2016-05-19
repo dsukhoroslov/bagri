@@ -2,6 +2,7 @@ package com.bagri.visualvm.manager;
 
 import com.sun.tools.visualvm.application.type.ApplicationType;
 import java.awt.Image;
+import javax.swing.ImageIcon;
 import org.openide.util.Utilities;
 
 public class BagriApplicationType extends ApplicationType {
@@ -41,7 +42,9 @@ public class BagriApplicationType extends ApplicationType {
     @Override
     public Image getIcon() {
     	// TODO: add Bagri Icon here
-        return Utilities.loadImage("com/sun/tools/visualvm/core/ui/resources/snapshot.png", true);
+        //return Utilities.loadImage("com/sun/tools/visualvm/core/ui/resources/snapshot.png", true);
+    	return Utilities.loadImage("com/bagri/visualvm/manager/bagri16x32.png", true);
+    	//return new ImageIcon("com/bagri/visualvm/manager/bagri16.ico");
     }
 
 }

@@ -3,7 +3,8 @@ package com.bagri.visualvm.manager.util;
 import javax.swing.*;
 
 public class Icons {
-    public static ImageIcon MAIN_ICON = ImageUtil.createImageIcon("com/bagri/visualvm/manager/icon.png");
+    //public static ImageIcon MAIN_ICON = ImageUtil.createImageIcon("com/bagri/visualvm/manager/icon.png");
+    public static ImageIcon MAIN_ICON = ImageUtil.createImageIcon("com/bagri/visualvm/manager/bagri16x4.png");
     public static ImageIcon ADD_ICON = ImageUtil.createImageIcon("com/bagri/visualvm/manager/add.png");
     public static ImageIcon DELETE_ICON = ImageUtil.createImageIcon("com/bagri/visualvm/manager/delete.png");
     public static ImageIcon EDIT_ICON = ImageUtil.createImageIcon("com/bagri/visualvm/manager/edit.png");

@@ -71,28 +71,28 @@
 			
 			<hz:serialization>
 				<hz:data-serializable-factories>
-					<hz:data-serializable-factory factory-id="1" class-name="com.bagri.xdm.cache.hazelcast.serialize.XDMDataSerializationFactory"/>
+					<hz:data-serializable-factory factory-id="1" class-name="com.bagri.xdm.cache.hazelcast.serialize.DataSerializationFactoryImpl"/>
 				</hz:data-serializable-factories>
 				<!--hz:portable-factories>
 					<hz:portable-factory factory-id="1" class-name="com.bagri.xdm.process.hazelcast.pof.XDMPortableFactory"/>
 				</hz:portable-factories-->
 				<hz:serializers>
-					<hz:serializer type-class="com.bagri.xdm.system.XDMType" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMTypeSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.system.XDMModule" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMModuleSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.system.XDMLibrary" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMLibrarySerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.system.XDMFunction" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMFunctionSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.system.XDMParameter" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMParameterSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.system.XDMNode" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMNodeSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.system.XDMSchema" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMSchemaSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.system.XDMCollection" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMCollectionSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.system.XDMFragment" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMFragmentSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.system.XDMIndex" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMIndexSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.system.XDMRole" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMRoleSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.system.XDMUser" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMUserSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.system.XDMPermission" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMPermissionSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.system.XDMTriggerAction" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMTriggerActionSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.system.XDMJavaTrigger" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMJavaTriggerSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.system.XDMXQueryTrigger" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMXQueryTriggerSerializer"/>
+					<hz:serializer type-class="com.bagri.xdm.system.XDMType" class-name="com.bagri.xdm.client.hazelcast.serialize.system.XDMTypeSerializer"/>
+					<hz:serializer type-class="com.bagri.xdm.system.XDMModule" class-name="com.bagri.xdm.client.hazelcast.serialize.system.XDMModuleSerializer"/>
+					<hz:serializer type-class="com.bagri.xdm.system.XDMLibrary" class-name="com.bagri.xdm.client.hazelcast.serialize.system.XDMLibrarySerializer"/>
+					<hz:serializer type-class="com.bagri.xdm.system.XDMFunction" class-name="com.bagri.xdm.client.hazelcast.serialize.system.XDMFunctionSerializer"/>
+					<hz:serializer type-class="com.bagri.xdm.system.XDMParameter" class-name="com.bagri.xdm.client.hazelcast.serialize.system.XDMParameterSerializer"/>
+					<hz:serializer type-class="com.bagri.xdm.system.XDMNode" class-name="com.bagri.xdm.client.hazelcast.serialize.system.XDMNodeSerializer"/>
+					<hz:serializer type-class="com.bagri.xdm.system.XDMSchema" class-name="com.bagri.xdm.client.hazelcast.serialize.system.XDMSchemaSerializer"/>
+					<hz:serializer type-class="com.bagri.xdm.system.XDMCollection" class-name="com.bagri.xdm.client.hazelcast.serialize.system.XDMCollectionSerializer"/>
+					<hz:serializer type-class="com.bagri.xdm.system.XDMFragment" class-name="com.bagri.xdm.client.hazelcast.serialize.system.XDMFragmentSerializer"/>
+					<hz:serializer type-class="com.bagri.xdm.system.XDMIndex" class-name="com.bagri.xdm.client.hazelcast.serialize.system.XDMIndexSerializer"/>
+					<hz:serializer type-class="com.bagri.xdm.system.XDMRole" class-name="com.bagri.xdm.client.hazelcast.serialize.system.XDMRoleSerializer"/>
+					<hz:serializer type-class="com.bagri.xdm.system.XDMUser" class-name="com.bagri.xdm.client.hazelcast.serialize.system.XDMUserSerializer"/>
+					<hz:serializer type-class="com.bagri.xdm.system.XDMPermission" class-name="com.bagri.xdm.client.hazelcast.serialize.system.XDMPermissionSerializer"/>
+					<hz:serializer type-class="com.bagri.xdm.system.XDMTriggerAction" class-name="com.bagri.xdm.client.hazelcast.serialize.system.XDMTriggerActionSerializer"/>
+					<hz:serializer type-class="com.bagri.xdm.system.XDMJavaTrigger" class-name="com.bagri.xdm.client.hazelcast.serialize.system.XDMJavaTriggerSerializer"/>
+					<hz:serializer type-class="com.bagri.xdm.system.XDMXQueryTrigger" class-name="com.bagri.xdm.client.hazelcast.serialize.system.XDMXQueryTriggerSerializer"/>
 				</hz:serializers>
 			</hz:serialization>
 			<hz:member-attributes>

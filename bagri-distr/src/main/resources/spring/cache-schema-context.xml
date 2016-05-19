@@ -162,10 +162,10 @@
 			
 			<hz:serialization>
 				<hz:data-serializable-factories>
-					<hz:data-serializable-factory factory-id="1" class-name="com.bagri.xdm.cache.hazelcast.serialize.XDMDataSerializationFactory"/>
+					<hz:data-serializable-factory factory-id="1" class-name="com.bagri.xdm.cache.hazelcast.serialize.DataSerializationFactoryImpl"/>
 				</hz:data-serializable-factories>
 				<hz:portable-factories>
-					<hz:portable-factory factory-id="2" class-name="com.bagri.xdm.cache.hazelcast.serialize.XDMPortableFactory"/>
+					<hz:portable-factory factory-id="2" class-name="com.bagri.xdm.cache.hazelcast.serialize.PortableFactoryImpl"/>
 				</hz:portable-factories>
 				<hz:serializers>
 					<!--hz:global-serializer class-name="com.hazelcast.nio.serialization.PortableSerializer"/-->
@@ -178,24 +178,24 @@
 					<hz:serializer type-class="com.bagri.common.query.ExpressionContainer" class-name="com.bagri.xdm.client.hazelcast.serialize.ExpressionContainerSerializer"/>
 					<hz:serializer type-class="com.bagri.common.query.QueryBuilder" class-name="com.bagri.xdm.client.hazelcast.serialize.QueryBuilderSerializer"/>
 					<hz:serializer type-class="com.bagri.common.query.QueriedPath" class-name="com.bagri.xdm.client.hazelcast.serialize.QueriedPathSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.domain.XDMElement" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMElementSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.domain.XDMElements" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMElementsSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.domain.XDMPath" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMPathSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.domain.XDMDocument" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMDocumentSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.domain.XDMDocumentType" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMDocumentTypeSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.domain.XDMNamespace" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMNamespaceSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.domain.XDMQuery" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMQuerySerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.domain.XDMResults" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMResultsSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.domain.XDMIndexedDocument" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMIndexedDocumentSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.domain.XDMUniqueDocument" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMUniqueDocumentSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.domain.XDMUniqueValue" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMUniqueValueSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.domain.XDMTransaction" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMTransactionSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.domain.XDMFragmentedDocument" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMFragmentedDocumentSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.domain.XDMCounter" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMCounterSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.system.XDMIndex" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMIndexSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.system.XDMTriggerAction" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMTriggerActionSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.system.XDMJavaTrigger" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMJavaTriggerSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.system.XDMXQueryTrigger" class-name="com.bagri.xdm.client.hazelcast.serialize.XDMXQueryTriggerSerializer"/>
+					<hz:serializer type-class="com.bagri.xdm.domain.XDMElement" class-name="com.bagri.xdm.client.hazelcast.serialize.domain.XDMElementSerializer"/>
+					<hz:serializer type-class="com.bagri.xdm.domain.XDMElements" class-name="com.bagri.xdm.client.hazelcast.serialize.domain.XDMElementsSerializer"/>
+					<hz:serializer type-class="com.bagri.xdm.domain.XDMPath" class-name="com.bagri.xdm.client.hazelcast.serialize.domain.XDMPathSerializer"/>
+					<hz:serializer type-class="com.bagri.xdm.domain.XDMDocument" class-name="com.bagri.xdm.client.hazelcast.serialize.domain.XDMDocumentSerializer"/>
+					<hz:serializer type-class="com.bagri.xdm.domain.XDMDocumentType" class-name="com.bagri.xdm.client.hazelcast.serialize.domain.XDMDocumentTypeSerializer"/>
+					<hz:serializer type-class="com.bagri.xdm.domain.XDMNamespace" class-name="com.bagri.xdm.client.hazelcast.serialize.domain.XDMNamespaceSerializer"/>
+					<hz:serializer type-class="com.bagri.xdm.domain.XDMQuery" class-name="com.bagri.xdm.client.hazelcast.serialize.domain.XDMQuerySerializer"/>
+					<hz:serializer type-class="com.bagri.xdm.domain.XDMResults" class-name="com.bagri.xdm.client.hazelcast.serialize.domain.XDMResultsSerializer"/>
+					<hz:serializer type-class="com.bagri.xdm.domain.XDMIndexedDocument" class-name="com.bagri.xdm.client.hazelcast.serialize.domain.XDMIndexedDocumentSerializer"/>
+					<hz:serializer type-class="com.bagri.xdm.domain.XDMUniqueDocument" class-name="com.bagri.xdm.client.hazelcast.serialize.domain.XDMUniqueDocumentSerializer"/>
+					<hz:serializer type-class="com.bagri.xdm.domain.XDMUniqueValue" class-name="com.bagri.xdm.client.hazelcast.serialize.domain.XDMUniqueValueSerializer"/>
+					<hz:serializer type-class="com.bagri.xdm.domain.XDMTransaction" class-name="com.bagri.xdm.client.hazelcast.serialize.domain.XDMTransactionSerializer"/>
+					<hz:serializer type-class="com.bagri.xdm.domain.XDMFragmentedDocument" class-name="com.bagri.xdm.client.hazelcast.serialize.domain.XDMFragmentedDocumentSerializer"/>
+					<hz:serializer type-class="com.bagri.xdm.domain.XDMCounter" class-name="com.bagri.xdm.client.hazelcast.serialize.domain.XDMCounterSerializer"/>
+					<hz:serializer type-class="com.bagri.xdm.system.XDMIndex" class-name="com.bagri.xdm.client.hazelcast.serialize.system.XDMIndexSerializer"/>
+					<hz:serializer type-class="com.bagri.xdm.system.XDMTriggerAction" class-name="com.bagri.xdm.client.hazelcast.serialize.system.XDMTriggerActionSerializer"/>
+					<hz:serializer type-class="com.bagri.xdm.system.XDMJavaTrigger" class-name="com.bagri.xdm.client.hazelcast.serialize.system.XDMJavaTriggerSerializer"/>
+					<hz:serializer type-class="com.bagri.xdm.system.XDMXQueryTrigger" class-name="com.bagri.xdm.client.hazelcast.serialize.system.XDMXQueryTriggerSerializer"/>
 					<hz:serializer type-class="javax.xml.xquery.XQItemType" implementation="xqItemTypeSerializer"/>
 					<hz:serializer type-class="javax.xml.xquery.XQItem" implementation="xqItemSerializer"/>
 					<hz:serializer type-class="javax.xml.xquery.XQSequence" implementation="xqSequenceSerializer"/>
@@ -285,7 +285,8 @@
 	<bean id="clientQueue" class="java.util.concurrent.ArrayBlockingQueue">
 		<constructor-arg value="1024" />
 	</bean>
-	<bean id="clientStats" class="com.bagri.common.stats.InvocationStatistics">
+	<bean id="clientStats" class="com.bagri.common.stats.StatisticsCollector">
+		<constructor-arg value="com.bagri.xdm.cache.hazelcast.stats.InvocationStatistics" />
 		<constructor-arg value="clients" />
 		<property name="statsQueue" ref="clientQueue"/>
 	</bean>
@@ -293,7 +294,8 @@
 	<bean id="docQueue" class="java.util.concurrent.ArrayBlockingQueue">
 		<constructor-arg value="1024" />
 	</bean>
-	<bean id="docStats" class="com.bagri.xdm.cache.hazelcast.impl.DocumentStatistics">
+	<bean id="docStats" class="com.bagri.xdm.cache.hazelcast.stats.DocumentStatsCollector">
+		<constructor-arg value="com.bagri.xdm.cache.hazelcast.stats.DocumentStatistics" />
 		<constructor-arg value="docs" />
 		<property name="statsQueue" ref="docQueue"/>
 	</bean>
@@ -301,7 +303,8 @@
 	<bean id="queryQueue" class="java.util.concurrent.ArrayBlockingQueue">
 		<constructor-arg value="1024" />
 	</bean>
-	<bean id="queryStats" class="com.bagri.common.stats.InvocationStatistics">
+	<bean id="queryStats" class="com.bagri.common.stats.StatisticsCollector">
+		<constructor-arg value="com.bagri.xdm.cache.hazelcast.stats.InvocationStatistics" />
 		<constructor-arg value="query" />
 		<property name="statsQueue" ref="queryQueue"/>
 	</bean>
@@ -309,7 +312,8 @@
 	<bean id="indexQueue" class="java.util.concurrent.ArrayBlockingQueue">
 		<constructor-arg value="1024" />
 	</bean>
-	<bean id="indexStats" class="com.bagri.xdm.cache.hazelcast.impl.IndexStatistics">
+	<bean id="indexStats" class="com.bagri.common.stats.StatisticsCollector">
+		<constructor-arg value="com.bagri.xdm.cache.hazelcast.stats.IndexStatistics" />
 		<constructor-arg value="index" />
 		<property name="statsQueue" ref="indexQueue"/>
 	</bean>
@@ -317,7 +321,8 @@
 	<bean id="queryCacheQueue" class="java.util.concurrent.ArrayBlockingQueue">
 		<constructor-arg value="1024" />
 	</bean>
-	<bean id="queryCacheStats" class="com.bagri.xdm.cache.hazelcast.impl.QueryStatistics">
+	<bean id="queryCacheStats" class="com.bagri.common.stats.StatisticsCollector">
+		<constructor-arg value="com.bagri.xdm.cache.hazelcast.stats.QueryStatistics" />
 		<constructor-arg value="queryCache" />
 		<property name="statsQueue" ref="queryCacheQueue"/>
 	</bean>
@@ -325,7 +330,8 @@
 	<bean id="triggerQueue" class="java.util.concurrent.ArrayBlockingQueue">
 		<constructor-arg value="1024" />
 	</bean>
-	<bean id="triggerStats" class="com.bagri.common.stats.UsageStatistics">
+	<bean id="triggerStats" class="com.bagri.common.stats.StatisticsCollector">
+		<constructor-arg value="com.bagri.xdm.cache.hazelcast.stats.UsageStatistics" />
 		<constructor-arg value="trigger" />
 		<property name="statsQueue" ref="triggerQueue"/>
 	</bean>
