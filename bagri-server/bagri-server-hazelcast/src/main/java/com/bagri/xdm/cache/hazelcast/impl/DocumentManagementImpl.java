@@ -840,6 +840,27 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		logger.trace("cleanDocument.exit; cleaned: {}", cleaned);
 	}
 
+	public void evictDocument(XDMDocumentKey xdmKey, XDMDocument xdmDoc) {
+		logger.trace("evictDocument.enter; xdmKey: {}, xdmDoc: {}", xdmKey, xdmDoc);
+		cntCache.delete(xdmKey);
+		srcCache.remove(xdmKey);
+    	int size = deleteDocumentElements(xdmDoc.getFragments(), xdmDoc.getTypeId());
+
+    	//Collection<Integer> pathIds = indexManager.getTypeIndexes(xdmDoc.getTypeId(), true);
+    	//for (int pathId: pathIds) {
+    	//	deindexElements(docKey.getKey(), pathId);
+    	//}
+    	
+		// update statistics
+		//for (XDMCollection cln: repo.getSchema().getCollections()) {
+		//	if (doc.hasCollection(cln.getId())) { 
+		//		updateStats(cln.getName(), false, size, doc.getFragments().length);
+		//	}
+		//}
+		//updateStats(null, false, size, doc.getFragments().length);
+		logger.trace("evictDocument.exit; evicted: {}", size);
+	}
+	
 	private int deleteDocumentElements(long[] fragments, int typeId) {
 
     	int cnt = 0;

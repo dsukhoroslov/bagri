@@ -61,6 +61,7 @@ public class PopulationManagementImpl implements ManagedService,
 	//private IMap<XDMDocumentKey, XDMDocument> xddCache;
 	private IMap xddCache;
 	private DocumentMemoryStore docStore;
+	private DocumentManagementImpl docMgr;
 
 	@Override
 	public void init(NodeEngine nodeEngine, Properties properties) {
@@ -150,8 +151,10 @@ public class PopulationManagementImpl implements ManagedService,
 
 		docStore.init(xddCache);
 
-		// only local HM should be notified!
 		ApplicationContext schemaCtx = (ApplicationContext) getContext(schemaName, schema_context);
+		docMgr = schemaCtx.getBean(DocumentManagementImpl.class);
+		
+		// only local HM should be notified!
 		HealthManagementImpl hMgr = schemaCtx.getBean(HealthManagementImpl.class);
 		int actCount = docStore.getActiveEntryCount();
 		int docCount = docStore.getFullEntryCount();
@@ -265,7 +268,18 @@ public class PopulationManagementImpl implements ManagedService,
 
 	@Override
 	public void entryEvicted(EntryEvent<XDMDocumentKey, XDMDocument> event) {
-		logger.trace("entryEvicted; event: {}", event);
+		logger.trace("entryEvicted.enter; event: {}", event);
+		// evict all document relatives: content, elements. do this on document owning node only. 
+		// what about indices and results? what about older document versions? 
+		// use document container for versions..
+		boolean evicted = false;
+		int partId = nodeEngine.getPartitionService().getPartitionId(event.getKey());
+		if (nodeEngine.getPartitionService().isPartitionOwner(partId)) {
+			// what if we're in migration right now? nodeEngine.getPartitionService().getActiveMigrations()
+			docMgr.evictDocument(event.getKey(), event.getValue());
+			evicted = true;
+		}
+		logger.trace("entryEvicted.exit; partition: {}; evicted: {}", partId, evicted);
 	}
 
 	@Override
