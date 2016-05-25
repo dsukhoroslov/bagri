@@ -35,7 +35,7 @@ import com.bagri.xdm.system.XDMJavaTrigger;
 import com.bagri.xdm.system.XDMLibrary;
 import com.bagri.xdm.system.XDMModule;
 import com.bagri.xdm.system.XDMTriggerAction;
-import com.bagri.xdm.system.XDMTriggerAction.Action;
+import com.bagri.xdm.system.XDMTriggerAction.Order;
 import com.bagri.xdm.system.XDMTriggerAction.Scope;
 import com.bagri.xdm.system.XDMTriggerDef;
 import com.bagri.xdm.system.XDMXQueryTrigger;
@@ -94,60 +94,60 @@ public class TriggerManagementImpl implements XDMTriggerManagement {
     	this.enableStats = enable;
     }
     
-    private String getTriggerKey(int typeId, Action action, Scope scope) {
-    	return "" + typeId + ":" + scope.name() + ":" + action.name();
+    private String getTriggerKey(int typeId, Order order, Scope scope) {
+    	return "" + typeId + ":" + order.name() + ":" + scope.name();
     }
     
-    void applyTrigger(final XDMDocument xDoc, final Action action, final Scope scope) throws XDMException {
+    void applyTrigger(final XDMDocument xDoc, final Order order, final Scope scope) throws XDMException {
     	//
-		String key = getTriggerKey(xDoc.getTypeId(), action, scope);
+		String key = getTriggerKey(xDoc.getTypeId(), order, scope);
     	List<TriggerContainer> impls = triggers.get(key);
     	if (impls != null) {
     		for (TriggerContainer impl: impls) {
 				logger.trace("applyTrigger; about to fire trigger {}, on document: {}", impl, key);
 				final XDMTrigger trigger = impl.getImplementation(); 
 				if (impl.isSynchronous()) {
-					runTrigger(action, scope, xDoc, trigger);
+					runTrigger(order, scope, xDoc, trigger);
 				} else {
 					String clientId = repo.getClientId();
-					execService.submitToMember(new TriggerRunner(action, scope, impl.getIndex(), xDoc, clientId),					
+					execService.submitToMember(new TriggerRunner(order, scope, impl.getIndex(), xDoc, clientId),					
 							hzInstance.getCluster().getLocalMember()); 
 				}
     		}
     	}
     }
 
-    void applyTrigger(final XDMTransaction xTx, final Action action, final Scope scope) throws XDMException {
+    void applyTrigger(final XDMTransaction xTx, final Order order, final Scope scope) throws XDMException {
     	// TODO: implement me!
     	// before/after begin/commit/rollback transaction
     }
     
-    public void runTrigger(Action action, Scope scope, XDMDocument xDoc, int index, String clientId) throws XDMException {
+    public void runTrigger(Order order, Scope scope, XDMDocument xDoc, int index, String clientId) throws XDMException {
 
-		String key = getTriggerKey(xDoc.getTypeId(), action, scope);
+		String key = getTriggerKey(xDoc.getTypeId(), order, scope);
     	List<TriggerContainer> impls = triggers.get(key);
     	if (impls != null) {
     		TriggerContainer impl = impls.get(index);
     		repo.getXQProcessor(clientId);
-    		runTrigger(action, scope, xDoc, impl.getImplementation());
+    		runTrigger(order, scope, xDoc, impl.getImplementation());
     	}    	
     }
     
-    private void runTrigger(Action action, Scope scope, XDMDocument xDoc, XDMTrigger trigger) throws XDMException {
-		String trName = scope + " " + action;
+    private void runTrigger(Order order, Scope scope, XDMDocument xDoc, XDMTrigger trigger) throws XDMException {
+		String trName = order + " " + scope;
 		try {
-			if (scope == Scope.before) {
-				if (action == Action.insert) {
+			if (order == Order.before) {
+				if (scope == Scope.insert) {
 					trigger.beforeInsert(xDoc, repo);
-				} else if (action == Action.delete) {
+				} else if (scope == Scope.delete) {
 					trigger.beforeDelete(xDoc, repo);
 				} else {
 					trigger.beforeUpdate(xDoc, repo);
 				}
 			} else {
-				if (action == Action.insert) {
+				if (scope == Scope.insert) {
 					trigger.afterInsert(xDoc, repo);
-				} else if (action == Action.delete) {
+				} else if (scope == Scope.delete) {
 					trigger.afterDelete(xDoc, repo);
 				} else {
 					trigger.afterUpdate(xDoc, repo);
@@ -184,7 +184,7 @@ public class TriggerManagementImpl implements XDMTriggerManagement {
 			if (impl != null) {
 				int typeId = getDocType(trigger);
 				for (XDMTriggerAction action: trigger.getActions()) {
-					String key = getTriggerKey(typeId, action.getAction(), action.getScope());
+					String key = getTriggerKey(typeId, action.getOrder(), action.getScope());
 					List<TriggerContainer> impls = triggers.get(key);
 					if (impls == null) {
 						impls = new LinkedList<>();
@@ -300,7 +300,7 @@ public class TriggerManagementImpl implements XDMTriggerManagement {
 		int cnt = 0;
 		int typeId = getDocType(trigger);
 		for (XDMTriggerAction action: trigger.getActions()) {
-			String key = getTriggerKey(typeId, action.getAction(), action.getScope());
+			String key = getTriggerKey(typeId, action.getOrder(), action.getScope());
 			List<TriggerContainer> impls = triggers.get(key);
 			if (impls != null) {
 				impls.remove(trigger.getIndex());

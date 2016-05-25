@@ -9,8 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.bagri.xdm.cache.hazelcast.impl.TriggerManagementImpl;
 import com.bagri.xdm.domain.XDMDocument;
+import com.bagri.xdm.system.XDMTriggerAction;
 //import com.bagri.xdm.domain.XDMTrigger;
-import com.bagri.xdm.system.XDMTriggerAction.Action;
+import com.bagri.xdm.system.XDMTriggerAction.Order;
 import com.bagri.xdm.system.XDMTriggerAction.Scope;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
@@ -25,7 +26,7 @@ public class TriggerRunner implements Callable<Void>, IdentifiedDataSerializable
 
 	private static final transient Logger logger = LoggerFactory.getLogger(TriggerRunner.class);
 
-	private Action action;
+	private Order order;
 	private Scope scope;
 	private int index;
 	private XDMDocument xDoc;
@@ -36,8 +37,8 @@ public class TriggerRunner implements Callable<Void>, IdentifiedDataSerializable
 		// for de-ser
 	}
 	
-	public TriggerRunner(Action action, Scope scope, int index, XDMDocument xDoc, String clientId) {
-		this.action = action;
+	public TriggerRunner(Order order, Scope scope, int index, XDMDocument xDoc, String clientId) {
+		this.order = order;
 		this.scope = scope;
 		this.index = index;
 		this.xDoc = xDoc;
@@ -52,7 +53,7 @@ public class TriggerRunner implements Callable<Void>, IdentifiedDataSerializable
 	@Override
 	public Void call() {
 		try {
-			trManager.runTrigger(action, scope, xDoc, index, clientId);
+			trManager.runTrigger(order, scope, xDoc, index, clientId);
 		} catch (Throwable ex) {
 			logger.error("runTrigger.error", ex);
 		}
@@ -71,8 +72,8 @@ public class TriggerRunner implements Callable<Void>, IdentifiedDataSerializable
 
 	@Override
 	public void readData(ObjectDataInput in) throws IOException {
-		action = Action.valueOf(in.readUTF());
-		scope = Scope.valueOf(in.readUTF());
+		order = Order.values()[in.readInt()];
+		scope = Scope.values()[in.readInt()];
 		index = in.readInt();
 		xDoc = in.readObject();
 		clientId = in.readUTF();
@@ -80,11 +81,12 @@ public class TriggerRunner implements Callable<Void>, IdentifiedDataSerializable
 
 	@Override
 	public void writeData(ObjectDataOutput out) throws IOException {
-		out.writeUTF(action.name());
-		out.writeUTF(scope.name());
+		out.writeInt(order.ordinal());
+		out.writeInt(scope.ordinal());
 		out.writeInt(index);
 		out.writeObject(xDoc);
 		out.writeUTF(clientId);
 	}
 
 }
+

@@ -51,7 +51,7 @@ import com.bagri.xdm.domain.XDMPath;
 import com.bagri.xdm.system.XDMCollection;
 import com.bagri.xdm.system.XDMFragment;
 import com.bagri.xdm.system.XDMSchema;
-import com.bagri.xdm.system.XDMTriggerAction.Action;
+import com.bagri.xdm.system.XDMTriggerAction.Order;
 import com.bagri.xdm.system.XDMTriggerAction.Scope;
 
 import com.hazelcast.core.HazelcastInstance;
@@ -554,17 +554,17 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 			}
 		}
 		
-		Action action;
+		Scope scope;
 		if (docKey.getVersion() == dvFirst) {
-			action = Action.insert;
-			triggerManager.applyTrigger(doc, action, Scope.before);
+			scope = Scope.insert;
+			triggerManager.applyTrigger(doc, Order.before, scope);
 		} else {
-			action = Action.update;
+			scope = Scope.update;
 			// trigger has been already invoked in storeDocument..
 		}
 		xddCache.set(docKey, doc);
 		cntCache.set(docKey, content);
-		triggerManager.applyTrigger(doc, action, Scope.after);
+		triggerManager.applyTrigger(doc, Order.after, scope);
 
 		// invalidate cached query results
 		Set<Integer> paths = (Set<Integer>) ids[1];
@@ -735,7 +735,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 				    	}
 				    	logger.trace("storeDocumentFromString; going to update document: {}", doc);
 				    	// we must finish old Document and create a new one!
-						triggerManager.applyTrigger(doc, Action.update, Scope.before);
+						triggerManager.applyTrigger(doc, Order.before, Scope.update);
 				    	doc.finishDocument(txManager.getCurrentTxId());
 				    	// do this asynch after tx?
 				    	((QueryManagementImpl) repo.getQueryManagement()).removeQueryResults(newKey.getKey());
@@ -788,11 +788,11 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 			try {
 			    XDMDocument doc = getDocument(docKey);
 			    if (doc != null && (doc.getTxFinish() == TX_NO || !txManager.isTxVisible(doc.getTxFinish()))) {
-					triggerManager.applyTrigger(doc, Action.delete, Scope.before); 
+					triggerManager.applyTrigger(doc, Order.before, Scope.delete); 
 			    	doc.finishDocument(txManager.getCurrentTxId()); 
 			    	xddCache.set(docKey, doc);
 			    	((QueryManagementImpl) repo.getQueryManagement()).removeQueryResults(doc.getDocumentKey());
-			    	triggerManager.applyTrigger(doc, Action.delete, Scope.after); 
+			    	triggerManager.applyTrigger(doc, Order.after, Scope.delete); 
 			    	txManager.updateCounters(0, 0, 1);
 				    removed = true;
 			    }

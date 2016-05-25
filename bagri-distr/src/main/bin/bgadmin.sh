@@ -29,7 +29,6 @@ esac
 #echo ${appname}
 #echo ${apphome}
 
-jmx_port=3330
 nodeName=admin
 nodeNum=0
 if [ $# -gt 1 ]

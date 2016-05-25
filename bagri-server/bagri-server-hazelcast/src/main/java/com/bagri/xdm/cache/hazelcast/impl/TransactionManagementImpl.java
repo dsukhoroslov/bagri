@@ -36,7 +36,7 @@ import com.bagri.xdm.cache.hazelcast.task.doc.DocumentCleaner;
 import com.bagri.xdm.client.hazelcast.impl.IdGeneratorImpl;
 import com.bagri.xdm.domain.XDMCounter;
 import com.bagri.xdm.domain.XDMTransaction;
-import com.bagri.xdm.system.XDMTriggerAction.Action;
+import com.bagri.xdm.system.XDMTriggerAction.Order;
 import com.bagri.xdm.system.XDMTriggerAction.Scope;
 import com.hazelcast.core.Cluster;
 import com.hazelcast.core.HazelcastInstance;
@@ -126,11 +126,11 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 		txId = txGen.next();
 		// TODO: do this via EntryProcessor?
 		XDMTransaction xTx = new XDMTransaction(txId, cluster.getClusterTime(), 0, repo.getUserName(), txIsolation, XDMTransactionState.started);
-		triggerManager.applyTrigger(xTx, Action.begin, Scope.before); 
+		triggerManager.applyTrigger(xTx, Order.before, Scope.begin); 
 		txCache.set(txId, xTx);
 		thTx.set(txId);
 		cntStarted.incrementAndGet();
-		triggerManager.applyTrigger(xTx, Action.begin, Scope.after); 
+		triggerManager.applyTrigger(xTx, Order.after, Scope.begin); 
 		logger.trace("beginTransaction.exit; started tx: {}; returning: {}", xTx, txId); 
 		return txId;
 	}
@@ -141,7 +141,7 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 		// TODO: do this via EntryProcessor?
 		XDMTransaction xTx = txCache.get(txId);
 		if (xTx != null) {
-			triggerManager.applyTrigger(xTx, Action.commit, Scope.before); 
+			triggerManager.applyTrigger(xTx, Order.before, Scope.commit); 
 			xTx.finish(true, cluster.getClusterTime());
 			//txCache.delete(txId);
 			txCache.set(txId, xTx);
@@ -150,7 +150,7 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 		}
 		thTx.set(TX_NO);
 		cntCommited.incrementAndGet();
-		triggerManager.applyTrigger(xTx, Action.commit, Scope.after); 
+		triggerManager.applyTrigger(xTx, Order.after, Scope.commit); 
 		cTopic.publish(new XDMCounter(true, xTx.getDocsCreated(), xTx.getDocsUpdated(), xTx.getDocsDeleted()));
 		cleanAffectedDocuments(xTx);
 		logger.trace("commitTransaction.exit; tx: {}", xTx); 
@@ -162,7 +162,7 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 		// TODO: do this via EntryProcessor?
 		XDMTransaction xTx = txCache.get(txId);
 		if (xTx != null) {
-			triggerManager.applyTrigger(xTx, Action.rollback, Scope.before); 
+			triggerManager.applyTrigger(xTx, Order.before, Scope.rollback); 
 			xTx.finish(false, cluster.getClusterTime());
 			txCache.set(txId, xTx);
 		} else {
@@ -170,7 +170,7 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 		}
 		thTx.set(TX_NO);
 		cntRolled.incrementAndGet();
-		triggerManager.applyTrigger(xTx, Action.rollback, Scope.after); 
+		triggerManager.applyTrigger(xTx, Order.after, Scope.rollback); 
 		cTopic.publish(new XDMCounter(false, xTx.getDocsCreated(), xTx.getDocsUpdated(), xTx.getDocsDeleted()));
 		cleanAffectedDocuments(xTx);
 		logger.trace("rollbackTransaction.exit; tx: {}", xTx); 

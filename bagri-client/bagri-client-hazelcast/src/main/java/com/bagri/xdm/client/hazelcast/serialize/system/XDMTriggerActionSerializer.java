@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryImpl;
 import com.bagri.xdm.system.XDMTriggerAction;
-import com.bagri.xdm.system.XDMTriggerAction.Action;
+import com.bagri.xdm.system.XDMTriggerAction.Order;
 import com.bagri.xdm.system.XDMTriggerAction.Scope;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
@@ -25,14 +25,14 @@ public class XDMTriggerActionSerializer implements StreamSerializer<XDMTriggerAc
 	@Override
 	public XDMTriggerAction read(ObjectDataInput in) throws IOException {
 		XDMTriggerAction xAction = new XDMTriggerAction(
-				Action.values()[in.readInt()],
+				Order.values()[in.readInt()],
 				Scope.values()[in.readInt()]);
 		return xAction;
 	}
 
 	@Override
 	public void write(ObjectDataOutput out, XDMTriggerAction xAction) throws IOException {
-		out.writeInt(xAction.getAction().ordinal());
+		out.writeInt(xAction.getOrder().ordinal());
 		out.writeInt(xAction.getScope().ordinal());
 	}
 

@@ -488,8 +488,8 @@
                     <enabled>true</enabled>
                     <index>1</index>
                     <actions>
-                        <action scope="after" action="delete"/>
-                        <action scope="before" action="insert"/>
+                        <action order="after" scope="delete"/>
+                        <action order="before" scope="insert"/>
                     </actions>
                     <library>trigger_library</library>
                     <className>com.bagri.samples.ext.SampleTrigger</className>
@@ -503,7 +503,7 @@
                     <enabled>true</enabled>
                     <index>1</index>
                     <actions>
-                        <action scope="after" action="insert"/>
+                        <action order="after" scope="insert"/>
                     </actions>
                     <library>trigger_library</library>
                     <className>com.bagri.samples.ext.SecurityTrigger</className>
@@ -517,7 +517,7 @@
                     <enabled>true</enabled>
                     <index>0</index>
                     <actions>
-                        <action scope="before" action="delete"/>
+                        <action order="before" scope="delete"/>
                     </actions>
                     <module>trigger_module</module>
                     <function>bgdm:before-delete-security</function>

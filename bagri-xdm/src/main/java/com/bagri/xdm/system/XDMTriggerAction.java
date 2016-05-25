@@ -9,14 +9,14 @@ import javax.xml.bind.annotation.XmlType;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(namespace = "http://www.bagri.com/xdm/system", propOrder = {
-		"scope",
-		"action"
+		"order",
+		"scope"
 })
 public class XDMTriggerAction {
 
-	@XmlType(name = "Scope", namespace = "http://www.bagri.com/xdm/system")
+	@XmlType(name = "Order", namespace = "http://www.bagri.com/xdm/system")
 	@XmlEnum
-	public enum Scope {
+	public enum Order {
 
 	    @XmlEnumValue("before")
 		before,
@@ -25,9 +25,9 @@ public class XDMTriggerAction {
 		after
 	}
 	
-	@XmlType(name = "Action", namespace = "http://www.bagri.com/xdm/system")
+	@XmlType(name = "Scope", namespace = "http://www.bagri.com/xdm/system")
 	@XmlEnum
-	public enum Action {
+	public enum Scope {
 
 	    @XmlEnumValue("insert")
 		insert,
@@ -50,22 +50,22 @@ public class XDMTriggerAction {
 	}
 	
 	@XmlAttribute(required = true)
-	private Action action;
+	private Scope scope;
 	
 	@XmlAttribute(required = true)
-	private Scope scope;
+	private Order order;
 	
 	public XDMTriggerAction() {
 		// for JAXB
 	}
 
-	public XDMTriggerAction(Action action, Scope scope) {
-		this.action = action;
+	public XDMTriggerAction(Order order, Scope scope) {
+		this.order = order;
 		this.scope = scope;
 	}
 
-	public Action getAction() {
-		return action;
+	public Order getOrder() {
+		return order;
 	}
 
 	public Scope getScope() {
@@ -75,7 +75,7 @@ public class XDMTriggerAction {
 	@Override
 	public int hashCode() {
 		int result = 1;
-		result = 31 + action.ordinal();
+		result = 31 + order.ordinal();
 		result = 31 * result + scope.ordinal();
 		return result;
 	}
@@ -92,7 +92,7 @@ public class XDMTriggerAction {
 			return false;
 		}
 		XDMTriggerAction other = (XDMTriggerAction) obj;
-		if (action != other.action) {
+		if (order != other.order) {
 			return false;
 		}
 		if (scope != other.scope) {
@@ -103,7 +103,7 @@ public class XDMTriggerAction {
 
 	@Override
 	public String toString() {
-		return scope + " " + action;
+		return order + " " + scope;
 	}
 
 	

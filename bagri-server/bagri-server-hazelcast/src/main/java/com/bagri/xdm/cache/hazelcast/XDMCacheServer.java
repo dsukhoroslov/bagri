@@ -78,12 +78,10 @@ public class XDMCacheServer {
     
     private static void initAdminNode(HazelcastInstance hzInstance) {
     	
-    	//String xport = hzInstance.getConfig().getProperty(xdm_cluster_admin_port);
     	String xport = ((Member) hzInstance.getLocalEndpoint()).getStringAttribute(xdm_cluster_admin_port);
     	int port = Integer.parseInt(xport);
     	JMXServiceURL url;
 		try {
-			//url = new JMXServiceURL("rmi", "localhost", port);
 			url = new JMXServiceURL("service:jmx:rmi://localhost/jndi/rmi://localhost:" + xport + "/jmxrmi");
 		} catch (MalformedURLException ex) {
 			logger.warn("error creating JMX URL: {}", ex.getMessage());
@@ -118,7 +116,7 @@ public class XDMCacheServer {
 			logger.error("error starting JMX connector server: " + ex.getMessage(), ex);
 			throw new RuntimeException(ex);
 		}
-		logger.info("JMX connector server started and listening on port: {}", xport);
+		logger.info("JMX connector server started and listening on port: {}", port);
     }
 
 	private static void lookupManagedNodes(HazelcastInstance hzInstance, ApplicationContext context) {

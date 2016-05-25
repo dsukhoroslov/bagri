@@ -16,7 +16,6 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
-import com.bagri.common.manage.StatsAggregator;
 import com.bagri.xdm.cache.hazelcast.task.stats.StatisticSeriesCollector;
 import com.bagri.xdm.cache.hazelcast.task.trigger.TriggerCreator;
 import com.bagri.xdm.cache.hazelcast.task.trigger.TriggerRemover;
@@ -24,7 +23,7 @@ import com.bagri.xdm.system.XDMSchema;
 import com.bagri.xdm.system.XDMTriggerAction;
 import com.bagri.xdm.system.XDMTriggerAction.Scope;
 import com.bagri.xdm.system.XDMTriggerDef;
-import com.bagri.xdm.system.XDMTriggerAction.Action;
+import com.bagri.xdm.system.XDMTriggerAction.Order;
 import com.hazelcast.core.Member;
 
 @ManagedResource(description="Schema Triggers Management MBean")
@@ -90,9 +89,9 @@ public class TriggerManagement extends SchemaFeatureManagement {
 		StringTokenizer st = new StringTokenizer(actions, " ,");
 		List<XDMTriggerAction> acts = new ArrayList<>();
 		while (st.hasMoreTokens()) {
+			String order = st.nextToken();
 			String scope = st.nextToken();
-			String action = st.nextToken();
-			acts.add(new XDMTriggerAction(Action.valueOf(action), Scope.valueOf(scope)));
+			acts.add(new XDMTriggerAction(Order.valueOf(order), Scope.valueOf(scope)));
 		}
 		
 		int index = schemaManager.getEntity().getTriggers().size();
