@@ -13,6 +13,11 @@
     <name>bagri-store-hive</name>
     <description>Bagri Cache Store: Hive persistence components</description>
 
+    <properties>
+        <spring.hadoop.version>1.0.2.RELEASE</spring.hadoop.version>
+        <thrift.version>0.8.0</thrift.version>
+    </properties>
+
     <dependencies>
 
         <dependency>
@@ -42,7 +47,21 @@
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-hadoop</artifactId>
+            <version>${spring.hadoop.version}</version>
             <exclusions>
+                <exclusion>
+                    <groupId>asm</groupId>
+                    <artifactId>asm</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>javax.servlet</groupId>
+                    <artifactId>servet-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>javax.xml.stream</groupId>
+                    <artifactId>stax-api</artifactId>
+                </exclusion>
+                <!-- we must exclude here much more.. -->
                 <exclusion>
                     <groupId>commons-lang</groupId>
                     <artifactId>commons-lang</artifactId>
@@ -68,6 +87,7 @@
         <dependency>
             <groupId>org.apache.thrift</groupId>
             <artifactId>libthrift</artifactId>
+            <version>${thrift.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.httpcomponents</groupId>

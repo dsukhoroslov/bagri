@@ -2,6 +2,7 @@ package com.bagri.xdm.cache.hazelcast.impl;
 
 import static com.bagri.common.query.PathBuilder.*;
 import static com.bagri.common.config.XDMConfigConstants.*;
+import static com.bagri.common.util.FileUtils.def_encoding;
 import static com.bagri.common.util.XMLUtils.*;
 import static com.bagri.xdm.common.XDMConstants.*;
 import static com.bagri.xdm.client.common.XDMCacheConstants.PN_XDM_SCHEMA_POOL;
@@ -16,6 +17,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -497,62 +499,29 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		return null;
 	}
 	
-	private List<String> checkDocumentCollections(XDMDocument doc, Properties props) {
-		List<String> result = new ArrayList<>();
+	public XDMDocument createDocument(XDMDocumentKey docKey, String uri, String content, Properties props) throws XDMException {
+		logger.trace("createDocument.enter; uri: {}; props: {}", uri, props);
+		String dataFormat = getDataFormat(props).toUpperCase();
+
+		int[] collections = null; 
 		if (props != null) {
 			String prop = props.getProperty(xdm_document_collections);
 			if (prop != null) {
 				StringTokenizer tc = new StringTokenizer(prop, ", ", false);
+				collections = new int[tc.countTokens()];
+				int idx = 0;
 				while (tc.hasMoreTokens()) {
 					String clName = tc.nextToken();
 					XDMCollection cln = repo.getSchema().getCollection(clName);
-					logger.trace("checkDocumentCollections; got collection: {} for name: {}", cln, clName);
 					if (cln != null) {
-						doc.addCollection(cln.getId());
-						result.add(clName);
+						collections[idx] = cln.getId();
 					}
+					idx++;
 				}
 			}
 		}
-		return result;
-	}
-    
-	@SuppressWarnings("unchecked")
-	public XDMDocument createDocument(XDMDocumentKey docKey, String uri, String content, Properties props) throws XDMException {
-		logger.trace("createDocument.enter; uri: {}; props: {}", uri, props);
-		// TODO: move this out & refactor ?
-		String dataFormat = getDataFormat(props).toUpperCase();
-		XDMParser parser = factory.newXDMParser(dataFormat, model);
-		List<XDMData> data = parser.parse(content);
 
-		Object[] ids = loadElements(docKey.getKey(), data);
-		List<Long> fragments = (List<Long>) ids[0];
-		if (fragments == null) {
-			logger.warn("createDocument.exit; the document is not valid as it has no root element");
-			throw new XDMException("invalid document", XDMException.ecDocument);
-		} 
-		int docType = fragments.get(0).intValue();
-		String user = repo.getUserName();
-		XDMDocument doc;
-		if (fragments.size() == 1) {
-			doc = new XDMDocument(docKey.getKey(), uri, docType, user, txManager.getCurrentTxId(), content.length(), data.size());
-		} else {
-			doc = new XDMFragmentedDocument(docKey.getKey(), uri, docType, user, txManager.getCurrentTxId(), content.length(), data.size());
-			long[] fa = new long[fragments.size()];
-			fa[0] = docKey.getKey();
-			for (int i=1; i < fragments.size(); i++) {
-				fa[i] = fragments.get(i);
-			}
-			((XDMFragmentedDocument) doc).setFragments(fa);
-		}
-
-		List<String> clns = checkDocumentCollections(doc, props); 
-		if (clns.size() == 0) {
-			String cln = checkDefaultDocumentCollection(doc);
-			if (cln != null) {
-				clns.add(cln);
-			}
-		}
+		XDMDocument doc = createDocument(docKey, uri, content, dataFormat, new Date(), repo.getUserName(), txManager.getCurrentTxId(), collections, false);
 		
 		Scope scope;
 		if (docKey.getVersion() == dvFirst) {
@@ -566,7 +535,62 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		cntCache.set(docKey, content);
 		triggerManager.applyTrigger(doc, Order.after, scope);
 
-		// invalidate cached query results
+		logger.trace("createDocument.exit; returning: {}", doc);
+		return doc;
+	}
+
+	@SuppressWarnings("unchecked")
+	public XDMDocument createDocument(XDMDocumentKey docKey, String uri, String content, String dataFormat, Date createdAt, String createdBy, 
+			long txStart, int[] collections, boolean addContent) throws XDMException {
+		
+		XDMParser parser = factory.newXDMParser(dataFormat, model);
+		List<XDMData> data = parser.parse(content);
+
+		Object[] ids = loadElements(docKey.getKey(), data);
+		List<Long> fragments = (List<Long>) ids[0];
+		if (fragments == null) {
+			logger.warn("createDocument.exit; the document is not valid as it has no root element");
+			throw new XDMException("invalid document", XDMException.ecDocument);
+		} 
+		int docType = fragments.get(0).intValue();
+		XDMDocument doc;
+		if (fragments.size() == 1) {
+			doc = new XDMDocument(docKey.getKey(), uri, docType, txStart, TX_NO, createdAt, createdBy, def_encoding, content.length(), data.size());
+		} else {
+			doc = new XDMFragmentedDocument(docKey.getKey(), uri, docType, txStart, TX_NO, createdAt, createdBy, def_encoding, content.length(), data.size());
+			long[] fa = new long[fragments.size()];
+			fa[0] = docKey.getKey();
+			for (int i=1; i < fragments.size(); i++) {
+				fa[i] = fragments.get(i);
+			}
+			((XDMFragmentedDocument) doc).setFragments(fa);
+		}
+
+		List<String> clns = new ArrayList<>();
+		if (collections != null && collections.length > 0) {
+			doc.setCollections(collections);
+			for (XDMCollection cln: repo.getSchema().getCollections()) {
+				for (int clnId: collections) {
+					if (clnId == cln.getId()) {
+						clns.add(cln.getName());
+						break;
+					}
+				}
+			}
+		}
+
+		if (clns.size() == 0) {
+			String cln = checkDefaultDocumentCollection(doc);
+			if (cln != null) {
+				clns.add(cln);
+			}
+		}
+		
+		if (addContent) {
+			cntCache.set(docKey, content);
+		}
+
+		// invalidate cached query results. always do this, even on load?
 		Set<Integer> paths = (Set<Integer>) ids[1];
 		((QueryManagementImpl) repo.getQueryManagement()).invalidateQueryResults(paths);
 
@@ -576,12 +600,10 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 			//updateStats(cln, true, paths.size(), doc.getFragments().length);
 		}
 		updateStats(null, true, data.size(), doc.getFragments().length);
-		
-		logger.trace("createDocument.exit; returning: {}", doc);
 		return doc;
 	}
 	
-	public Object[] loadElements(long docKey, List<XDMData> data) throws XDMException {
+	private Object[] loadElements(long docKey, List<XDMData> data) throws XDMException {
 		
 		long stamp = System.currentTimeMillis();
 		XDMData root = getDataRoot(data);
@@ -1050,21 +1072,6 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 				logger.warn("updateStats; queue is full!!");
 			}
 		}
-	}
-
-	public int updateDocumentStats(XDMDocument doc, int[] collectIds, boolean add, int size) {
-		int cnt = 0;
-		for (XDMCollection cln: repo.getSchema().getCollections()) {
-			for (int collectId: collectIds) {
-				if (collectId == cln.getId()) {
-					updateStats(cln.getName(), add, size, doc.getFragments().length);
-					cnt++;
-					break;
-				}
-			}
-		}
-		updateStats(null, add, size, doc.getFragments().length);
-		return cnt;
 	}
 
 }

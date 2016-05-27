@@ -65,23 +65,12 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <spring.version>4.2.5.RELEASE</spring.version>
-        <spring.mongo.version>1.4.2.RELEASE</spring.mongo.version>
-        <spring.hadoop.version>1.0.2.RELEASE</spring.hadoop.version>
-
-        <!--commons-collections.version>3.2.1</commons-collections.version>
-        <commons-fileupload.version>1.2.2</commons-fileupload.version>
-        <commons-lang3.version>3.1</commons-lang3.version>
-        <commons-io.version>1.4</commons-io.version-->
         <commons-cli.version>1.1</commons-cli.version>
-
-        <!--ojdbc.version>11.2.0.2.0</ojdbc.version>
-        <oracle.ucp.version>11.2.0.1.0</oracle.ucp.version-->
 
         <xqj.version>1.0</xqj.version>
         <xstream.version>1.4.8</xstream.version>
         <xerses.version>2.11.0</xerses.version>
         <saxon.version>9.7.0-4</saxon.version>
-        <!--saxon.version>9.6.0-6</saxon.version-->
         <json.version>1.0</json.version>
         <json.ri.version>1.0.4</json.ri.version>
         <jackson.version>2.5.2</jackson.version>
@@ -93,9 +82,6 @@
         <slf4j.version>1.7.5</slf4j.version>
         <logback.version>1.1.3</logback.version>
         <janino.version>2.7.8</janino.version>
-        <!--mail.version>1.4.4</mail.version-->
-
-        <!--<jmxri.version>1.2.1</jmxri.version>-->
 
         <antlr.version>3.2</antlr.version>
         <jcache.version>1.0.0</jcache.version>
@@ -106,8 +92,6 @@
         <coherence-common.version>11.1.0</coherence-common.version>
         <!--coherence-common.version>12.0.1-SNAPSHOT</coherence-common.version-->
         <!--coherence-spring.version>1.0.0</coherence-spring.version-->
-        <mongo.version>2.11.4</mongo.version>
-        <thrift.version>0.8.0</thrift.version>
 	<ycsb.version>0.7.0-SNAPSHOT</ycsb.version>
 
 	<marklogic.xcc.version>8.0.2</marklogic.xcc.version>
@@ -437,54 +421,6 @@
 		<version>${marklogic.client.version}</version>
 	    </dependency>
 
-            <!-- Dependencies for various storage options -->
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-jdbc</artifactId>
-                <version>${spring.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>commons-logging</groupId>
-                        <artifactId>commons-logging</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.data</groupId>
-                <artifactId>spring-data-mongodb</artifactId>
-                <version>${spring.mongo.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.data</groupId>
-                <artifactId>spring-data-hadoop</artifactId>
-                <version>${spring.hadoop.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>asm</groupId>
-                        <artifactId>asm</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.servlet</groupId>
-                        <artifactId>servet-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.xml.stream</groupId>
-                        <artifactId>stax-api</artifactId>
-                    </exclusion>
-                    <!-- we must exclude here much more.. -->
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.mongodb</groupId>
-                <artifactId>mongo-java-driver</artifactId>
-                <version>${mongo.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.thrift</groupId>
-                <artifactId>libthrift</artifactId>
-                <version>${thrift.version}</version>
-            </dependency>
-
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
@@ -727,18 +663,18 @@
 
     <repositories>
         <!-- for MarkLogic XCC client jar -->
-	<repository>
+	<!--repository>
       	    <id>MarkLogic-releases</id>
       	    <name>MarkLogic Releases</name>
       	    <url>http://developer.marklogic.com/maven2</url>
-  	</repository>
+  	</repository-->
         <!-- for XQJ API -->
-        <repository>
+        <!--repository>
             <id>spring-milestones</id>
             <url>http://repo.spring.io/libs-milestone/</url>
-        </repository>
+        </repository-->
         <!-- what it is for ?? -->
-	<repository>
+	<!--repository>
 	    <id>sonatype-snapshots</id>
 	    <url>https://oss.sonatype.org/content/repositories/snapshots</url>
 	    <releases>
@@ -747,7 +683,7 @@
 	    <snapshots>
 	        <enabled>true</enabled>
 	    </snapshots>
-	</repository>
+	</repository-->
     </repositories>
 
 </project>

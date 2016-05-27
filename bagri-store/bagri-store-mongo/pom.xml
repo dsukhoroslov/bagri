@@ -13,6 +13,13 @@
     <name>bagri-store-mongo</name>
     <description>Bagri Cache Store: Mongo persistence components</description>
 
+    <properties>
+        <mongo.version>3.2.2</mongo.version>
+        <!--mongo.version>2.11.4</mongo.version-->
+        <spring.mongo.version>1.4.2.RELEASE</spring.mongo.version>
+    </properties>
+
+
     <dependencies>
 
         <dependency>
@@ -42,6 +49,7 @@
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-mongodb</artifactId>
+            <version>${spring.mongo.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.springframework</groupId>
@@ -51,7 +59,9 @@
         </dependency>
         <dependency>
             <groupId>org.mongodb</groupId>
+            <!--artifactId>mongo-driver</artifactId-->
             <artifactId>mongo-java-driver</artifactId>
+            <version>${mongo.version}</version>
         </dependency>
 
         <!-- Dependencies for logging -->
