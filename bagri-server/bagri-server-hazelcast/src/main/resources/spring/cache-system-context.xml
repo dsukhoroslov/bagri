@@ -63,6 +63,8 @@
 					<hz:serializer type-class="com.bagri.xdm.system.XDMTriggerAction" class-name="com.bagri.xdm.client.hazelcast.serialize.system.XDMTriggerActionSerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.system.XDMJavaTrigger" class-name="com.bagri.xdm.client.hazelcast.serialize.system.XDMJavaTriggerSerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.system.XDMXQueryTrigger" class-name="com.bagri.xdm.client.hazelcast.serialize.system.XDMXQueryTriggerSerializer"/>
+					<hz:serializer type-class="com.bagri.xdm.system.XDMDataFormat" class-name="com.bagri.xdm.client.hazelcast.serialize.system.XDMDataFormatSerializer"/>
+					<hz:serializer type-class="com.bagri.xdm.system.XDMDataStore" class-name="com.bagri.xdm.client.hazelcast.serialize.system.XDMDataStoreSerializer"/>
 				</hz:serializers>
 			</hz:serialization>
 			<hz:member-attributes>

@@ -1,11 +1,5 @@
 package com.bagri.xdm.cache.hazelcast.management;
 
-import static com.bagri.common.config.XDMConfigConstants.xdm_cluster_login;
-
-import java.util.Collection;
-import java.util.Map;
-
-import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.TabularData;
 
 import org.springframework.jmx.export.annotation.ManagedAttribute;
@@ -14,7 +8,6 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
-import com.bagri.common.manage.JMXUtils;
 import com.bagri.xdm.cache.hazelcast.task.library.LibraryCreator;
 import com.bagri.xdm.cache.hazelcast.task.library.LibraryRemover;
 //import com.bagri.xdm.cache.hazelcast.task.Library.LibraryCreator;
@@ -22,7 +15,6 @@ import com.bagri.xdm.cache.hazelcast.task.library.LibraryRemover;
 import com.bagri.xdm.system.XDMLibrary;
 import com.bagri.xquery.api.XQCompiler;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.Member;
 
 /**
  * @author Denis Sukhoroslov email: dsukhoroslov@gmail.com

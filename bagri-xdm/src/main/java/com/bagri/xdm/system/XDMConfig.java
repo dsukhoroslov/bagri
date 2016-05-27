@@ -15,26 +15,36 @@ import javax.xml.bind.annotation.XmlType;
 		"nodes", 
 		"schemas",
 		"modules",
-		"libraries"
+		"libraries",
+		"formats",
+		"stores"
 })
 @XmlRootElement(name = "config", namespace = "http://www.bagri.com/xdm/system") 
 public class XDMConfig {
 	
 	@XmlElement(name="node")
 	@XmlElementWrapper(name="nodes")
-	private List<XDMNode> nodes = new ArrayList<XDMNode>();
+	private List<XDMNode> nodes = new ArrayList<>();
 
 	@XmlElement(name="schema")
 	@XmlElementWrapper(name="schemas")
-	private List<XDMSchema> schemas = new ArrayList<XDMSchema>();
+	private List<XDMSchema> schemas = new ArrayList<>();
 	
 	@XmlElement(name="module")
 	@XmlElementWrapper(name="modules")
-	private List<XDMModule> modules = new ArrayList<XDMModule>();
+	private List<XDMModule> modules = new ArrayList<>();
 
 	@XmlElement(name="library")
 	@XmlElementWrapper(name="libraries")
-	private List<XDMLibrary> libraries = new ArrayList<XDMLibrary>();
+	private List<XDMLibrary> libraries = new ArrayList<>();
+
+	@XmlElement(name="dataFormat")
+	@XmlElementWrapper(name="dataFormats")
+	private List<XDMDataFormat> formats = new ArrayList<>();
+
+	@XmlElement(name="dataStore")
+	@XmlElementWrapper(name="dataStores")
+	private List<XDMDataStore> stores = new ArrayList<>();
 
 	public List<XDMNode> getNodes() {
 		return nodes;
@@ -50,6 +60,14 @@ public class XDMConfig {
 
 	public List<XDMLibrary> getLibraries() {
 		return libraries;
+	}
+
+	public List<XDMDataFormat> getDataFormats() {
+		return formats;
+	}
+
+	public List<XDMDataStore> getDataStores() {
+		return stores;
 	}
 
 }

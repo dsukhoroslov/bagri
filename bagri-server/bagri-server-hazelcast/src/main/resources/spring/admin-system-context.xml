@@ -45,6 +45,14 @@
 
 			<hz:executor-service name="sys-exec-pool" pool-size="${xdm.cluster.thread.pool:8}" />
 
+			<hz:map name="formats">
+				<hz:map-store enabled="true" write-delay-seconds="10" initial-mode="EAGER" implementation="dataFormatCacheStore"/>
+			</hz:map>
+
+			<hz:map name="stores">
+				<hz:map-store enabled="true" write-delay-seconds="10" initial-mode="EAGER" implementation="dataStoreCacheStore"/>
+			</hz:map>
+
 			<hz:map name="modules">
 				<hz:map-store enabled="true" write-delay-seconds="10" initial-mode="EAGER" implementation="moduleCacheStore"/>
 			</hz:map>
@@ -93,6 +101,8 @@
 					<hz:serializer type-class="com.bagri.xdm.system.XDMTriggerAction" class-name="com.bagri.xdm.client.hazelcast.serialize.system.XDMTriggerActionSerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.system.XDMJavaTrigger" class-name="com.bagri.xdm.client.hazelcast.serialize.system.XDMJavaTriggerSerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.system.XDMXQueryTrigger" class-name="com.bagri.xdm.client.hazelcast.serialize.system.XDMXQueryTriggerSerializer"/>
+					<hz:serializer type-class="com.bagri.xdm.system.XDMDataFormat" class-name="com.bagri.xdm.client.hazelcast.serialize.system.XDMDataFormatSerializer"/>
+					<hz:serializer type-class="com.bagri.xdm.system.XDMDataStore" class-name="com.bagri.xdm.client.hazelcast.serialize.system.XDMDataStoreSerializer"/>
 				</hz:serializers>
 			</hz:serialization>
 			<hz:member-attributes>
@@ -105,6 +115,8 @@
 		</hz:config>
 	</hz:hazelcast>
 
+	<hz:map id="formats" name="formats" instance-ref="hzInstance"/>
+	<hz:map id="stores" name="stores" instance-ref="hzInstance"/>
 	<hz:map id="modules" name="modules" instance-ref="hzInstance"/>
 	<hz:map id="libraries" name="libraries" instance-ref="hzInstance"/>
 	<hz:map id="nodes" name="nodes" instance-ref="hzInstance"/>
@@ -134,6 +146,14 @@
 		<property name="entityManagement" ref="configService"/>
 	</bean>
 
+	<bean id="dataFormatCacheStore" class="com.bagri.xdm.cache.hazelcast.store.system.DataFormatCacheStore">
+		<property name="entityManagement" ref="configService"/>
+	</bean>
+
+	<bean id="dataStoreCacheStore" class="com.bagri.xdm.cache.hazelcast.store.system.DataStoreCacheStore">
+		<property name="entityManagement" ref="configService"/>
+	</bean>
+
 	<bean id="accessService" class="com.bagri.xdm.cache.hazelcast.management.AccessManagement">
 		<constructor-arg value="${xdm.access.filename}" />
 	</bean>
@@ -147,6 +167,16 @@
 	</bean>
 
 	<bean id="xqCompiler" class="com.bagri.xquery.saxon.XQCompilerImpl"/>
+
+	<bean id="dataFormatService" class="com.bagri.xdm.cache.hazelcast.management.DataFormatManagement">
+		<constructor-arg ref="hzInstance" />
+		<property name="entityCache" ref="formats"/>
+	</bean>
+
+	<bean id="dataStoreService" class="com.bagri.xdm.cache.hazelcast.management.DataStoreManagement">
+		<constructor-arg ref="hzInstance" />
+		<property name="entityCache" ref="stores"/>
+	</bean>
 
 	<bean id="moduleService" class="com.bagri.xdm.cache.hazelcast.management.ModuleManagement">
 		<constructor-arg ref="hzInstance" />
