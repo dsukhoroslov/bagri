@@ -86,7 +86,7 @@ public class DocumentCleaner implements Callable<XDMTransaction>, IdentifiedData
 			}
 			for (XDMDocumentKey dk: dkFinished) {
 				// next version for the same doc 
-				XDMDocumentKey nk = docMgr.getXdmFactory().newXDMDocumentKey(dk.getKey(), dk.getVersion() + 1);
+				XDMDocumentKey nk = xdmRepo.getFactory().newXDMDocumentKey(dk.getKey(), dk.getVersion() + 1);
 				if (dkStarted.contains(nk)) {
 					//updated, already counted above;
 				} else {

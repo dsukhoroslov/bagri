@@ -63,14 +63,6 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
     private boolean enableStats = true;
 	private BlockingQueue<StatisticsEvent> queue;
 
-	protected XDMFactory getXdmFactory() {
-		return this.factory;
-	}
-	
-	public void setXdmFactory(XDMFactory factory) {
-		this.factory = factory;
-	}
-    
 	protected ModelManagementImpl getModelManager() {
 		return this.mdlMgr;
 	}
@@ -105,6 +97,7 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 
     public void setRepository(RepositoryImpl repo) {
     	//this.repo = repo;
+    	this.factory = repo.getFactory();
     	//this.model = repo.getModelManagement();
     	//this.docMgr = (DocumentManagementImpl) repo.getDocumentManagement();
     	//this.txMgr = (TransactionManagementImpl) repo.getTxManagement();

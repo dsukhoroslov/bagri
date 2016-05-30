@@ -4,42 +4,48 @@ import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
 //import org.springframework.beans.BeansException;
 //import org.springframework.context.ApplicationContext;
 //import org.springframework.context.ApplicationContextAware;
 //import org.springframework.context.ConfigurableApplicationContext;
 //import org.springframework.context.support.ClassPathXmlApplicationContext;
 //import org.springframework.core.env.PropertySource;
+import org.springframework.context.ApplicationContextAware;
 
 import static com.bagri.common.config.XDMConfigConstants.*;
 
 import com.bagri.xdm.cache.store.DataStore;
+import com.bagri.xdm.common.XDMDocumentKey;
+import com.bagri.xdm.domain.XDMDocument;
 import com.hazelcast.core.MapLoader;
 import com.hazelcast.core.MapStore;
 import com.hazelcast.core.MapStoreFactory;
 
-public class DocumentStoreFactory implements MapStoreFactory { //, ApplicationContextAware {
+public class DocumentStoreFactory implements MapStoreFactory<XDMDocumentKey, XDMDocument> { //, ApplicationContextAware {
 	
     private static final Logger logger = LoggerFactory.getLogger(DocumentStoreFactory.class);
     private static final String defaultStoreClass = "com.bagri.xdm.cache.hazelcast.store.xml.DocumentCacheStore";
     
-    //private ApplicationContext parentCtx;
+    //private ApplicationContext ctx;
 	//private PropertySource msProps;
 	
 	//@Override
 	//public void setApplicationContext(ApplicationContext context) throws BeansException {
 		// it is the first one!?
-	//	parentCtx = context;
+	//	ctx = context;
 	//	msProps = ((ConfigurableApplicationContext) context).getEnvironment().getPropertySources().iterator().next(); //get("TPoX");
-	//	logger.debug("setApplicationContext.exit; got properties: {}", msProps);
+		//logger.debug("setApplicationContext.exit; got properties: {}", ctx.getBean("xdmRepo"));
 	//}
 	
 	@Override
 	public MapLoader newMapStore(String mapName, Properties properties) {
-		//String schemaName = properties.getProperty(xdm_schema_name);
-		String storeClass = properties.getProperty(xdm_schema_store_class);
+		String storeClass = null;
+		String storeType = properties.getProperty(xdm_schema_store_type);
 		logger.debug("newMapStore.enter; got properties: {} for map: {}", properties, mapName);
 		MapStore mStore = null;
+		// TODO: get it from type..
 		if (storeClass == null) {
 			storeClass = defaultStoreClass;
 		}

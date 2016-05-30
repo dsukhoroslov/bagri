@@ -1,10 +1,13 @@
 package com.bagri.xdm.cache.hazelcast.impl;
 
+import static com.bagri.common.config.XDMConfigConstants.xdm_schema_format_default;
 import static com.bagri.xdm.cache.hazelcast.util.HazelcastUtils.hz_instance;
+import static com.hazelcast.core.Hazelcast.getHazelcastInstanceByName;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -16,28 +19,29 @@ import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
-import com.bagri.common.manage.JMXUtils;
 import com.bagri.xdm.api.XDMBindingManagement;
 import com.bagri.xdm.api.XDMException;
+import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.api.XDMTransactionManagement;
 import com.bagri.xdm.cache.api.XDMClientManagement;
 import com.bagri.xdm.cache.api.XDMIndexManagement;
 import com.bagri.xdm.cache.api.XDMRepository;
 import com.bagri.xdm.cache.api.XDMTriggerManagement;
 import com.bagri.xdm.client.common.impl.XDMRepositoryBase;
+import com.bagri.xdm.client.xml.XmlBuilder;
+import com.bagri.xdm.client.xml.XmlStaxParser;
+import com.bagri.xdm.common.XDMBuilder;
+import com.bagri.xdm.common.XDMFactory;
+import com.bagri.xdm.common.XDMParser;
 import com.bagri.xdm.domain.XDMPath;
+import com.bagri.xdm.system.XDMDataFormat;
 import com.bagri.xdm.system.XDMIndex;
 import com.bagri.xdm.system.XDMLibrary;
 import com.bagri.xdm.system.XDMModule;
 import com.bagri.xdm.system.XDMSchema;
 import com.bagri.xdm.system.XDMTriggerDef;
 import com.bagri.xquery.api.XQProcessor;
-import com.hazelcast.core.Client;
-import com.hazelcast.core.ClientListener;
-import com.hazelcast.core.DistributedObject;
-import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IQueue;
 
 public class RepositoryImpl extends XDMRepositoryBase implements ApplicationContextAware, XDMRepository {
 
@@ -51,8 +55,10 @@ public class RepositoryImpl extends XDMRepositoryBase implements ApplicationCont
  		}
 	};
 	
-	private String instanceNum;
+	private XDMFactory xdmFactory; 
+	//private String instanceNum;
 	private XDMSchema xdmSchema;
+	private Map<String, XDMDataFormat> xdmFormats;
 	private Collection<XDMModule> xdmModules;
 	private Collection<XDMLibrary> xdmLibraries;
     private XDMClientManagement clientMgr;
@@ -174,17 +180,96 @@ public class RepositoryImpl extends XDMRepositoryBase implements ApplicationCont
 		return result;
 	}
 	
+	public XDMFactory getFactory() {
+		return xdmFactory;
+	}
+	
+	public void setFactory(XDMFactory factory) {
+		this.xdmFactory = factory;
+	}
+	
+	@Override
+	public XDMParser getParser(String dataFormat) {
+		XDMDataFormat df = getDataFormat(dataFormat);
+		if (df != null) {
+			return instantiateClass(df.getParserClass());
+		}
+		logger.warn("getParser; no parser found for dataFormat: {}", dataFormat); 
+		return new XmlStaxParser(getModelManagement());
+	}
+	
+	@Override
+	public XDMBuilder getBuilder(String dataFormat) {
+		XDMDataFormat df = getDataFormat(dataFormat);
+		if (df != null) {
+			return instantiateClass(df.getBuilderClass());
+		}
+		logger.warn("getBuilder; no builder found for dataFormat: {}", dataFormat); 
+		return new XmlBuilder(getModelManagement());
+	}
+	
+	private <T> T instantiateClass(String className) {
+		
+		try {
+			Class clazz = Class.forName(className);
+			return (T) clazz.getConstructor(XDMModelManagement.class).newInstance(getModelManagement());
+		} catch (Exception ex) {
+			logger.error("instantiateClass; cannot instantiate: " + className, ex);
+			// throw ex?
+		}
+		return null;
+	}
+	
 	@Override
 	public void close() {
 		// TODO: disconnect all clients ?
 	}
+	
+	public XDMDataFormat getDataFormat(String dataFormat) {
 
+		Map<String, XDMDataFormat> formats = xdmFormats;
+		if (formats == null) {
+			HazelcastInstance dataInstance = getHazelcastInstanceByName(hz_instance);
+			if (dataInstance != null) {
+				formats = dataInstance.getMap("formats");
+			}
+		}
+		if (formats != null) {
+			// find by name
+			XDMDataFormat df = formats.get(dataFormat);
+			if (df != null) {
+				return df;
+			} else {
+				// find by extension
+				for (XDMDataFormat df2: formats.values()) {
+					if (df2.getExtensions().contains(dataFormat)) {
+						return df2;
+					}
+				}
+			}
+			
+			// still not found -> get schema default format
+			dataFormat = this.xdmSchema.getProperty(xdm_schema_format_default);
+			return formats.get(dataFormat);
+		}
+		return null;
+	}
+
+	public void setDataFormats(Collection<XDMDataFormat> cFormats) {
+		if (cFormats != null) {
+			xdmFormats = new HashMap<>(cFormats.size());
+			for (XDMDataFormat df: cFormats) {
+				xdmFormats.put(df.getName(), df);
+			}
+		}
+	}
+	
 	public Collection<XDMLibrary> getLibraries() {
 		if (xdmLibraries != null) {
 			return xdmLibraries;
 		}
 		
-		HazelcastInstance dataInstance = Hazelcast.getHazelcastInstanceByName(hz_instance);
+		HazelcastInstance dataInstance = getHazelcastInstanceByName(hz_instance);
 		if (dataInstance != null) {
 			Map<String, XDMLibrary> libraries = dataInstance.getMap("libraries");
 			return libraries.values();
@@ -203,7 +288,7 @@ public class RepositoryImpl extends XDMRepositoryBase implements ApplicationCont
 			return xdmModules;
 		}
 		
-		HazelcastInstance dataInstance = Hazelcast.getHazelcastInstanceByName(hz_instance);
+		HazelcastInstance dataInstance = getHazelcastInstanceByName(hz_instance);
 		if (dataInstance != null) {
 			Map<String, XDMModule> modules = dataInstance.getMap("modules");
 			return modules.values();
@@ -250,10 +335,9 @@ public class RepositoryImpl extends XDMRepositoryBase implements ApplicationCont
 			}
 			
 			DocumentManagementImpl docMgr = (DocumentManagementImpl) getDocumentManagement();
-			int cnt = 0;
 			for (XDMPath xPath: paths) {
 				try {
-					cnt += docMgr.indexElements(xPath.getTypeId(), xPath.getPathId());
+					docMgr.indexElements(xPath.getTypeId(), xPath.getPathId());
 				} catch (XDMException ex) {
 					logger.warn("addSchemaIndex.error; index: " + index, ex);
 				}

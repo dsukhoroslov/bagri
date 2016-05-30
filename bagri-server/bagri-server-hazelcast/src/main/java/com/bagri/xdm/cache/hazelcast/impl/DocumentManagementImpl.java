@@ -7,11 +7,13 @@ import static com.bagri.common.util.XMLUtils.*;
 import static com.bagri.xdm.common.XDMConstants.*;
 import static com.bagri.xdm.client.common.XDMCacheConstants.PN_XDM_SCHEMA_POOL;
 import static com.bagri.xdm.api.XDMTransactionManagement.TX_NO;
+import static com.bagri.xdm.common.XDMConstants.pn_client_txTimeout;
 import static com.bagri.xdm.domain.XDMDocument.dvFirst;
 import static com.bagri.xdm.domain.XDMDocument.clnDefault;
-import static com.bagri.xdm.common.XDMConstants.pn_client_txTimeout;
+import static com.bagri.xdm.system.XDMDataFormat.df_xml;
 
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -43,6 +45,7 @@ import com.bagri.xdm.cache.hazelcast.predicate.CollectionPredicate;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentContentProvider;
 import com.bagri.xdm.common.XDMDataKey;
 import com.bagri.xdm.common.XDMDocumentKey;
+import com.bagri.xdm.common.XDMFactory;
 import com.bagri.xdm.common.XDMParser;
 import com.bagri.xdm.domain.XDMData;
 import com.bagri.xdm.domain.XDMDocument;
@@ -65,6 +68,7 @@ import com.hazelcast.query.Predicates;
 
 public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	
+	private XDMFactory factory;
 	private RepositoryImpl repo;
     private HazelcastInstance hzInstance;
     private IndexManagementImpl indexManager;
@@ -82,6 +86,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
     
     public void setRepository(RepositoryImpl repo) {
     	this.repo = repo;
+    	this.factory = repo.getFactory();
     	//this.model = repo.getModelManagement();
     	this.txManager = (TransactionManagementImpl) repo.getTxManagement();
     	this.triggerManager = (TriggerManagementImpl) repo.getTriggerManagement();
@@ -197,7 +202,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	}
 
 	private String getDataFormat(Properties props) {
-		return PropUtils.getProperty(props, xdm_document_data_format, XDMParser.df_xml);
+		return PropUtils.getProperty(props, xdm_document_data_format, df_xml);
 	}
 	
 	int indexElements(int docType, int pathId) throws XDMException {
@@ -337,7 +342,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	}
 	
 	@Override
-	public Collection<String> buildDocument(Set<Long> docKeys, String template, Map<String, String> params) {
+	public Collection<String> buildDocument(Set<Long> docKeys, String template, Map<String, String> params) throws XDMException {
         logger.trace("buildDocument.enter; docKeys: {}", docKeys.size());
 		long stamp = System.currentTimeMillis();
         Collection<String> result = new ArrayList<String>(docKeys.size());
@@ -391,9 +396,13 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
         return result;
 	}
     
-	private String buildElement(String path, long[] fragments, int docType) {
+	private String buildElement(String path, long[] fragments, int docType) throws XDMException {
+        logger.trace("buildElement.enter; got path: {}; docType: {}", path, docType); 
     	Set<XDMDataKey> xdKeys = getDocumentElementKeys(path, fragments, docType);
-       	return buildXml(xdmCache.getAll(xdKeys));
+    	String dataFormat = df_xml;
+    	String content = repo.getBuilder(dataFormat).buildString(xdmCache.getAll(xdKeys));
+        logger.trace("buildXml.exit; returning xml length: {}", content.length()); 
+       	return content;
     }
     
 	@Override
@@ -501,7 +510,10 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	
 	public XDMDocument createDocument(XDMDocumentKey docKey, String uri, String content, Properties props) throws XDMException {
 		logger.trace("createDocument.enter; uri: {}; props: {}", uri, props);
-		String dataFormat = getDataFormat(props).toUpperCase();
+		String dataFormat = getDataFormat(props);
+		if (dataFormat == null) {
+			dataFormat = uri.substring(uri.lastIndexOf(".") + 1);
+		}
 
 		int[] collections = null; 
 		if (props != null) {
@@ -543,7 +555,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 	public XDMDocument createDocument(XDMDocumentKey docKey, String uri, String content, String dataFormat, Date createdAt, String createdBy, 
 			long txStart, int[] collections, boolean addContent) throws XDMException {
 		
-		XDMParser parser = factory.newXDMParser(dataFormat, model);
+		XDMParser parser = repo.getParser(dataFormat);
 		List<XDMData> data = parser.parse(content);
 
 		Object[] ids = loadElements(docKey.getKey(), data);
@@ -685,7 +697,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 			logger.trace("storeDocumentFromBean; converted bean: {}", xml); 
 			
 			if (props != null) {
-				props.setProperty(xdm_document_data_format, XDMParser.df_xml);
+				props.setProperty(xdm_document_data_format, df_xml);
 			}
 			return storeDocumentFromString(uri, xml, props);
 		} catch (IOException ex) {
@@ -702,7 +714,7 @@ public class DocumentManagementImpl extends XDMDocumentManagementServer {
 		logger.trace("storeDocumentFromMap; converted map: {}", xml); 
 		
 		if (props != null) {
-			props.setProperty(xdm_document_data_format, XDMParser.df_xml);
+			props.setProperty(xdm_document_data_format, df_xml);
 		}
 		return storeDocumentFromString(uri, xml, props);
 	}

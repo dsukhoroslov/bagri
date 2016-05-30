@@ -4,6 +4,7 @@ import static com.bagri.common.config.XDMConfigConstants.xdm_config_path;
 import static com.bagri.common.config.XDMConfigConstants.xdm_config_properties_file;
 import static com.bagri.common.config.XDMConfigConstants.xdm_document_data_format;
 
+import java.util.ArrayList;
 import java.util.Properties;
 
 import org.junit.After;
@@ -13,6 +14,7 @@ import org.junit.BeforeClass;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.bagri.xdm.api.test.XDMDocumentManagementTest;
+import com.bagri.xdm.system.XDMDataFormat;
 import com.bagri.xdm.system.XDMSchema;
 import com.bagri.xquery.api.XQProcessor;
 
@@ -46,6 +48,10 @@ public class JsonDocumentManagementTest extends XDMDocumentManagementTest {
 		if (schema == null) {
 			schema = new XDMSchema(1, new java.util.Date(), "test", "test", "test schema", true, null);
 			xdmRepo.setSchema(schema);
+			XDMDataFormat df = new XDMDataFormat(1, new java.util.Date(), "", "JSON", null, null, null, "com.bagri.xdm.client.json.XDMJsonParser", null, true, null);
+			ArrayList<XDMDataFormat> cFormats = new ArrayList<>(1);
+			cFormats.add(df);
+			xdmRepo.setDataFormats(cFormats);
 		}
 		// set xdm.document.format to JSON !
 		//XQProcessor xqp = xdmRepo.getXQProcessor("test_client");
@@ -64,7 +70,7 @@ public class JsonDocumentManagementTest extends XDMDocumentManagementTest {
 	
 	protected Properties getDocumentProperties() {
 		Properties props = new Properties();
-		props.setProperty(xdm_document_data_format, "json");
+		props.setProperty(xdm_document_data_format, "JSON");
 		return props;
 	}
 

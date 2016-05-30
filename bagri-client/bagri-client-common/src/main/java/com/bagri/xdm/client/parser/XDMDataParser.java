@@ -23,12 +23,12 @@ public abstract class XDMDataParser {
 	
 	protected List<XDMData> dataList;
 	protected Stack<XDMData> dataStack;
-	protected XDMModelManagement dict;
+	protected XDMModelManagement model;
 	protected int docType = -1;
 	protected int elementId;
 	
-	protected XDMDataParser(XDMModelManagement dict) {
-		this.dict = dict;
+	protected XDMDataParser(XDMModelManagement model) {
+		this.model = model;
 	}
 	
 	protected XDMData addData(XDMData parent, XDMNodeKind kind, String name, String value, int dataType, XDMOccurence occurence) throws XDMException {
@@ -37,7 +37,7 @@ public abstract class XDMDataParser {
 		xElt.setElementId(elementId++);
 		xElt.setParentId(parent.getElementId());
 		String path = parent.getPath() + name;
-		XDMPath xPath = dict.translatePath(docType, path, kind, dataType, occurence);
+		XDMPath xPath = model.translatePath(docType, path, kind, dataType, occurence);
 		xElt.setValue(getAtomicValue(xPath.getDataType(), value));
 		XDMData xData = new XDMData(xPath, xElt);
 		dataList.add(xData);

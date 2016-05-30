@@ -40,6 +40,7 @@ import com.bagri.xdm.cache.hazelcast.security.BagriJMXAuthenticator;
 import com.bagri.xdm.cache.hazelcast.store.system.ModuleCacheStore;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaAdministrator;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaInitiator;
+import com.bagri.xdm.system.XDMDataFormat;
 import com.bagri.xdm.system.XDMLibrary;
 import com.bagri.xdm.system.XDMModule;
 import com.bagri.xdm.system.XDMSchema;
@@ -150,6 +151,7 @@ public class XDMCacheServer {
         
         Collection<XDMModule> cModules = null; 
         Collection<XDMLibrary> cLibraries = null; 
+        Collection<XDMDataFormat> cFormats = null; 
         Map<String, XDMSchema> schemaCache = null;
         
         Set<Member> admins = getAdmins(systemInstance);
@@ -164,6 +166,7 @@ public class XDMCacheServer {
 	       	    }
 	       		cModules = (Collection<XDMModule>) cfg.getEntities(XDMModule.class);
 	       		cLibraries = (Collection<XDMLibrary>) cfg.getEntities(XDMLibrary.class);
+	       		cFormats = (Collection<XDMDataFormat>) cfg.getEntities(XDMDataFormat.class);
 	       	}
         }
 
@@ -191,6 +194,7 @@ public class XDMCacheServer {
 							}
             			}
             			xdmRepo.setModules(cModules);
+            			xdmRepo.setDataFormats(cFormats);
             			xdmRepo.afterInit();
             		}
             	}            	

@@ -11,9 +11,6 @@ import com.bagri.xdm.domain.XDMData;
 
 public interface XDMParser {
 	
-	public static final String df_json = "JSON"; 
-	public static final String df_xml = "XML"; 
-
 	List<XDMData> parse(String source) throws XDMException; 
 	List<XDMData> parse(File file) throws XDMException;
 	List<XDMData> parse(InputStream stream) throws XDMException;

@@ -19,7 +19,7 @@
         <module>bagri-test-common</module>
         <module>bagri-test-tpox</module>
         <module>bagri-test-xqj</module>
-        <module>bagri-test-ycsb</module>
+        <!--module>bagri-test-ycsb</module-->
     </modules>
 
     <dependencies>

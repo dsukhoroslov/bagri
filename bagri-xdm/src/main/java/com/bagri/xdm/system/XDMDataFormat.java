@@ -33,6 +33,9 @@ import com.bagri.xdm.common.XDMEntity;
 })
 public class XDMDataFormat extends XDMEntity {
 
+	public static final String df_json = "JSON"; 
+	public static final String df_xml = "XML"; 
+	
 	@XmlAttribute(required = true)
 	@XmlID
 	private String name;
@@ -71,11 +74,15 @@ public class XDMDataFormat extends XDMEntity {
 		this.name = name;
 		this.library = library;
 		this.description = description;
-		this.extensions.addAll(extensions);
+		if (extensions != null) {
+			this.extensions.addAll(extensions);
+		}
 		this.parserClass = parserClass;
 		this.builderClass = builderClass;
 		this.enabled = enabled;
-		this.props.putAll(props);
+		if (props != null) {
+			this.props.putAll(props);
+		}
 	}
 
 	/**

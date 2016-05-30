@@ -168,8 +168,8 @@ public class XDMJsonParser extends XDMDataParser implements XDMParser {
 	private void processDocument(String name) throws XDMException {
 
 		String root = "/" + (name == null ? "" : name);
-		docType = dict.translateDocumentType(root);
-		XDMPath path = dict.translatePath(docType, "", XDMNodeKind.document, XQItemType.XQBASETYPE_ANYTYPE, XDMOccurence.onlyOne);
+		docType = model.translateDocumentType(root);
+		XDMPath path = model.translatePath(docType, "", XDMNodeKind.document, XQItemType.XQBASETYPE_ANYTYPE, XDMOccurence.onlyOne);
 		XDMElement start = new XDMElement();
 		start.setElementId(elementId++);
 		//start.setParentId(0); // -1 ?

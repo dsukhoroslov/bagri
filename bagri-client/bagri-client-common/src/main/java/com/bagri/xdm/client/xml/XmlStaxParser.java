@@ -36,7 +36,7 @@ import com.bagri.xdm.domain.XDMElement;
 import com.bagri.xdm.domain.XDMNodeKind;
 import com.bagri.xdm.domain.XDMPath;
 
-public class XDMStaxParser extends XDMDataParser implements XDMParser {
+public class XmlStaxParser extends XDMDataParser implements XDMParser {
 
 	private static XMLInputFactory factory = XMLInputFactory.newInstance();
 
@@ -44,12 +44,12 @@ public class XDMStaxParser extends XDMDataParser implements XDMParser {
 	private List<XMLEvent> firstEvents;
 
 	public static List<XDMData> parseDocument(XDMModelManagement dictionary, String xml) throws XMLStreamException, XDMException {
-		XDMStaxParser parser = new XDMStaxParser(dictionary);
+		XmlStaxParser parser = new XmlStaxParser(dictionary);
 		return parser.parse(xml);
 	}
 	
-	public XDMStaxParser(XDMModelManagement dict) {
-		super(dict);
+	public XmlStaxParser(XDMModelManagement model) {
+		super(model);
 	}
 
 	@Override
@@ -147,7 +147,7 @@ public class XDMStaxParser extends XDMDataParser implements XDMParser {
 			firstEvents.add(xmlEvent);
 			if (xmlEvent.getEventType() == XMLStreamConstants.START_ELEMENT) {
 				String root = "/" + xmlEvent.asStartElement().getName();
-				docType = dict.translateDocumentType(root);
+				docType = model.translateDocumentType(root);
 				for (XMLEvent event: firstEvents) {
 					processEvent(event);
 				}
@@ -202,7 +202,7 @@ public class XDMStaxParser extends XDMDataParser implements XDMParser {
 		XDMElement start = new XDMElement();
 		start.setElementId(elementId++);
 		//start.setParentId(0); // -1 ?
-		XDMPath path = dict.translatePath(docType, "", XDMNodeKind.document, XQItemType.XQBASETYPE_ANYTYPE, XDMOccurence.onlyOne);
+		XDMPath path = model.translatePath(docType, "", XDMNodeKind.document, XQItemType.XQBASETYPE_ANYTYPE, XDMOccurence.onlyOne);
 		XDMData data = new XDMData(path, start);
 		dataStack.add(data);
 		dataList.add(data);
@@ -220,7 +220,7 @@ public class XDMStaxParser extends XDMDataParser implements XDMParser {
 			// TODO: process default namespace properly
 			String nspace = ns.getValue();
 			if (nspace != null) {
-				String prefix = dict.translateNamespace(nspace, ns.getName().getLocalPart());
+				String prefix = model.translateNamespace(nspace, ns.getName().getLocalPart());
 				addData(current, XDMNodeKind.namespace, "/#" + prefix, nspace, XQItemType.XQBASETYPE_QNAME, XDMOccurence.onlyOne);
 			}
 		}

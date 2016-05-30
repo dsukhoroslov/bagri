@@ -9,7 +9,7 @@ import com.bagri.xdm.client.hazelcast.data.DocumentPathKey;
 import com.bagri.xdm.client.hazelcast.data.PathIndexKey;
 import com.bagri.xdm.client.json.XDMJaksonParser;
 import com.bagri.xdm.client.json.XDMJsonParser;
-import com.bagri.xdm.client.xml.XDMStaxParser;
+import com.bagri.xdm.client.xml.XmlStaxParser;
 import com.bagri.xdm.common.XDMDataKey;
 import com.bagri.xdm.common.XDMDocumentKey;
 import com.bagri.xdm.common.XDMFactory;
@@ -72,18 +72,4 @@ public final class XDMFactoryImpl implements XDMFactory {
 		return null;
 	}
 
-
-	/* (non-Javadoc)
-	 * @see com.bagri.xdm.common.XDMFactory#newXDMParser()
-	 */
-	@Override
-	public XDMParser newXDMParser(String dataFormat, XDMModelManagement model) {
-		if (XDMParser.df_json.equals(dataFormat)) {
-			// TODO: make this configurable
-			//return new XDMJaksonParser(model);
-			return new XDMJsonParser(model);
-		}
-		return new XDMStaxParser(model);
-	}
-	
 }
