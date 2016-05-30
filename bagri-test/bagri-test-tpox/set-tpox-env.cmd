@@ -3,7 +3,7 @@
 
 rem set TPoX HOME properly!
 
-if "%TPOX_HOME%"=="" set TPOX_HOME=D:\Work\Bagri\TPoX
+if "%TPOX_HOME%"=="" set TPOX_HOME=C:\Work\Bagri\TPoX
 
 set app_home=.
 

@@ -1,4 +1,4 @@
-package com.bagri.xdm.cache.hazelcast.management;
+package com.bagri.xdm.cache.hazelcast.config;
 
 import java.io.File;
 import java.util.Collection;

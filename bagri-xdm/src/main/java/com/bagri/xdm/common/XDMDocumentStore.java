@@ -1,13 +1,12 @@
-package com.bagri.xdm.cache.store;
+package com.bagri.xdm.common;
 
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
-import com.bagri.xdm.common.XDMDocumentKey;
 import com.bagri.xdm.domain.XDMDocument;
 
-public interface DocumentStore {
+public interface XDMDocumentStore {
 	
 	public void init(Map<String, Object> context);
 

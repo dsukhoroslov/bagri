@@ -9,7 +9,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bagri.xdm.cache.hazelcast.management.EntityConfig;
+import com.bagri.xdm.cache.hazelcast.config.EntityConfig;
 
 public abstract class ConfigCacheStore<K, V> {
 	

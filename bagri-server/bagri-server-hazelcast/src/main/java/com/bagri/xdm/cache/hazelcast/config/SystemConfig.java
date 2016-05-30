@@ -1,4 +1,4 @@
-package com.bagri.xdm.cache.hazelcast.management;
+package com.bagri.xdm.cache.hazelcast.config;
 
 import java.util.Collection;
 
@@ -14,11 +14,11 @@ import com.bagri.xdm.system.XDMModule;
 import com.bagri.xdm.system.XDMNode;
 import com.bagri.xdm.system.XDMSchema;
 
-public class ConfigManagement extends EntityConfig {
+public class SystemConfig extends EntityConfig {
 
 	private XDMConfig config;
 
-	public ConfigManagement(String configPath) {
+	public SystemConfig(String configPath) {
 		super(configPath);
 		try {
 			jctx = JAXBContext.newInstance(XDMConfig.class);

@@ -28,10 +28,6 @@
             <groupId>com.sdv.bagri</groupId>
             <artifactId>bagri-xdm</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.sdv.bagri</groupId>
-            <artifactId>bagri-store-common</artifactId>
-        </dependency>
 
         <!-- Spring framework -->
         <dependency>

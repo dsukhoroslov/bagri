@@ -16,6 +16,7 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -52,7 +53,7 @@ public class TransactionCacheStoreTest extends XDMManagementTest {
 
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
-		Thread.sleep(3000);
+		//Thread.sleep(3000);
 		//Assert.assertTrue("expected to delete tx log from " + txFileName, Files.deleteIfExists(Paths.get(txFileName)));
 		context.close();
 	}
@@ -98,7 +99,7 @@ public class TransactionCacheStoreTest extends XDMManagementTest {
 		return ((XDMQueryManagement) getQueryManagement()).getContent(ec, ":sec", params);
 	}
 	
-	
+	@Ignore
 	@Test
 	public void bulkTransactionTest() throws Exception {
 		

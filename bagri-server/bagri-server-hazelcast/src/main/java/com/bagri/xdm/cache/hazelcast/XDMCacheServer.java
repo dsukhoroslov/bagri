@@ -31,8 +31,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.bagri.xdm.api.XDMRepository;
+import com.bagri.xdm.cache.hazelcast.config.SystemConfig;
 import com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl;
-import com.bagri.xdm.cache.hazelcast.management.ConfigManagement;
 import com.bagri.xdm.cache.hazelcast.management.SchemaManagement;
 import com.bagri.xdm.cache.hazelcast.management.UserManagement;
 import com.bagri.xdm.cache.hazelcast.security.BagriJAASInvocationHandler;
@@ -53,7 +53,6 @@ public class XDMCacheServer {
     private static final transient Logger logger = LoggerFactory.getLogger(XDMCacheServer.class);
     private static ApplicationContext context;
     
-    @SuppressWarnings("unchecked")
 	public static void main(String[] args) {
     	
         String contextPath = System.getProperty(xdm_config_context_file);
@@ -158,7 +157,7 @@ public class XDMCacheServer {
         if (admins.size() == 0) {
 	       	String confName = System.getProperty(xdm_config_filename);
 	       	if (confName != null) {
-	       		ConfigManagement cfg = new ConfigManagement(confName);
+	       		SystemConfig cfg = new SystemConfig(confName);
 	       		Collection<XDMSchema> cSchemas = (Collection<XDMSchema>) cfg.getEntities(XDMSchema.class); 
 	   			schemaCache = new HashMap<String, XDMSchema>(cSchemas.size());
 	       		for (XDMSchema schema: cSchemas) {

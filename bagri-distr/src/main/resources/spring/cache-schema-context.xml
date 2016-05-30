@@ -270,7 +270,9 @@
 	
 	<bean id="xdmFactory" class="com.bagri.xdm.cache.hazelcast.impl.XDMFactoryImpl"/>
 
-	<bean id="xdmStoreFactory" class="com.bagri.xdm.cache.hazelcast.store.DocumentStoreFactory"/>
+	<bean id="xdmStoreFactory" class="com.bagri.xdm.cache.hazelcast.store.DocumentStoreFactory">
+		<!--property name="storeType" value="${xdm.schema.store.type}"/-->
+	</bean>
 
 	<!--bean id="docGen" class="com.bagri.xdm.client.hazelcast.impl.IdGeneratorImpl">
 		<constructor-arg ref="xdm.document" />
@@ -374,7 +376,6 @@
 	<bean id="docManager" class="com.bagri.xdm.cache.hazelcast.impl.DocumentManagementImpl">
 		<property name="documentIdGenerator" ref="docGen"/>
 		<property name="hzInstance" ref="hzInstance"/>
-		<property name="xdmFactory" ref="xdmFactory"/>
 		<property name="xddCache" ref="xdm-document"/>
 		<property name="xdmCache" ref="xdm-element"/>
 		<property name="contentCache" ref="xdm-content"/>
@@ -392,7 +393,6 @@
 	</bean>
 
 	<bean id="idxManager" class="com.bagri.xdm.cache.hazelcast.impl.IndexManagementImpl">
-		<property name="xdmFactory" ref="xdmFactory"/>
 		<!--property name="execService" ref="xdm-exec-pool"/-->
 		<property name="indexDictionary" ref="dict-index"/>
 		<property name="indexCache" ref="xdm-index"/>
@@ -447,6 +447,7 @@
 	
 	<bean id="xdmRepo" class="com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl">
 		<property name="hzInstance" ref="hzInstance"/>
+		<property name="factory" ref="xdmFactory"/>
 		<property name="accessManagement" ref="accManager"/>
 		<property name="bindingManagement" ref="bindManager"/>
 		<property name="clientManagement" ref="clientManager"/>

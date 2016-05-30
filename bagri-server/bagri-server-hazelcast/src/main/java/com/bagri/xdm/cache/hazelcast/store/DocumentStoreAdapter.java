@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import com.bagri.xdm.cache.store.DocumentStore;
+import com.bagri.xdm.common.XDMDocumentStore;
 import com.bagri.xdm.common.XDMDocumentKey;
 import com.bagri.xdm.domain.XDMDocument;
 import com.hazelcast.core.HazelcastInstance;
@@ -14,9 +14,9 @@ import com.hazelcast.core.MapStore;
 
 public class DocumentStoreAdapter implements MapStore<XDMDocumentKey, XDMDocument>, MapLoaderLifecycleSupport {
 	
-	private DocumentStore extStore;
+	private XDMDocumentStore extStore;
 	
-	public DocumentStoreAdapter(DocumentStore extStore) {
+	public DocumentStoreAdapter(XDMDocumentStore extStore) {
 		this.extStore = extStore;
 	}
 	

@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bagri.common.security.Encryptor;
-import com.bagri.xdm.cache.hazelcast.management.AccessManagement;
+import com.bagri.xdm.cache.hazelcast.config.AccessConfig;
 import com.bagri.xdm.system.XDMPermission;
 import com.bagri.xdm.system.XDMPermission.Permission;
 import com.bagri.xdm.system.XDMPermissionAware;
@@ -42,7 +42,8 @@ public class AccessManagementBridge implements MembershipListener {
 		setupCaches();
 	}
 	
-	public void setupCaches() {
+	@SuppressWarnings("unchecked")
+	private void setupCaches() {
 		boolean lite = true;
 		for (Member m: hzInstance.getCluster().getMembers()) {
 			if (!m.isLiteMember()) {
@@ -53,7 +54,7 @@ public class AccessManagementBridge implements MembershipListener {
 		if (lite) {
 	       	String confName = System.getProperty(xdm_access_filename);
 	       	if (confName != null) {
-	       		AccessManagement cfg = new AccessManagement(confName);
+	       		AccessConfig cfg = new AccessConfig(confName);
 	       		Collection<XDMRole> rCache = (Collection<XDMRole>) cfg.getEntities(XDMRole.class); 
 	       		for (XDMRole role: rCache) {
 	       			roles.put(role.getName(), role);

@@ -1,10 +1,32 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ns2:access xmlns:ns2="http://www.bagri.com/xdm/access">
     <roles>
+        <role name="DataFormatManagement">
+            <version>1</version>
+            <createdAt>2016-05-26T19:28:38.920+04:00</createdAt>
+            <createdBy>admin</createdBy>
+            <permissions>
+                <permission resource="com.bagri.xdm:type=Management,name=DataFormatManagement">execute modify read</permission>
+                <permission resource="com.bagri.xdm:name=*,type=DataFormat">execute modify read</permission>
+            </permissions>
+            <includedRoles></includedRoles>
+            <description>management access to all DataFormatManagement operations</description>
+        </role>
+        <role name="DataStoreManagement">
+            <version>1</version>
+            <createdAt>2016-05-26T19:28:38.920+04:00</createdAt>
+            <createdBy>admin</createdBy>
+            <permissions>
+                <permission resource="com.bagri.xdm:type=Management,name=DataStoreManagement">execute modify read</permission>
+                <permission resource="com.bagri.xdm:name=*,type=DataStore">execute modify read</permission>
+            </permissions>
+            <includedRoles></includedRoles>
+            <description>management access to all DataStoreManagement operations</description>
+        </role>
         <role name="LibraryManagement">
             <version>1</version>
-            <createdAt>2016-02-26T19:28:38.920+04:00</createdAt>
-            <createdBy>dsukhoroslov</createdBy>
+            <createdAt>2016-05-26T19:28:38.920+04:00</createdAt>
+            <createdBy>admin</createdBy>
             <permissions>
                 <permission resource="com.bagri.xdm:type=Management,name=LibraryManagement">execute modify read</permission>
                 <permission resource="com.bagri.xdm:name=*,type=Library">execute modify read</permission>
@@ -14,8 +36,8 @@
         </role>
         <role name="ModuleManagement">
             <version>1</version>
-            <createdAt>2016-02-26T19:28:38.920+04:00</createdAt>
-            <createdBy>dsukhoroslov</createdBy>
+            <createdAt>2016-05-26T19:28:38.920+04:00</createdAt>
+            <createdBy>admin</createdBy>
             <permissions>
                 <permission resource="com.bagri.xdm:type=Management,name=ModuleManagement">execute modify read</permission>
                 <permission resource="com.bagri.xdm:name=*,type=Module">execute modify read</permission>
@@ -25,8 +47,8 @@
         </role>
         <role name="NodeManagement">
             <version>6</version>
-            <createdAt>2014-05-29T19:28:38.920+04:00</createdAt>
-            <createdBy>dsukhoroslov</createdBy>
+            <createdAt>2016-05-29T19:28:38.920+04:00</createdAt>
+            <createdBy>admin</createdBy>
             <permissions>
                 <permission resource="com.bagri.xdm:type=Management,name=ClusterManagement">execute modify read</permission>
                 <permission resource="com.bagri.xdm:name=*,type=Node">execute modify read</permission>
@@ -36,8 +58,8 @@
         </role>
         <role name="SchemaManagement">
             <version>3</version>
-            <createdAt>2014-05-29T19:29:00.944+04:00</createdAt>
-            <createdBy>dsukhoroslov</createdBy>
+            <createdAt>2016-05-29T19:29:00.944+04:00</createdAt>
+            <createdBy>admin</createdBy>
             <permissions>
                 <permission resource="com.bagri.xdm:type=Management,name=SchemaManagement">execute modify read</permission>
                 <permission resource="com.bagri.xdm:name=*,type=Schema">execute modify read</permission>
@@ -54,8 +76,8 @@
         </role>
         <role name="RoleManagement">
             <version>2</version>
-            <createdAt>2014-05-29T19:26:58.463+04:00</createdAt>
-            <createdBy>dsukhoroslov</createdBy>
+            <createdAt>2016-05-29T19:26:58.463+04:00</createdAt>
+            <createdBy>admin</createdBy>
             <permissions>
                 <permission resource="com.bagri.xdm:type=Management,name=RoleManagement">execute modify read</permission>
                 <permission resource="com.bagri.xdm:name=*,type=Role">execute modify read</permission>
@@ -65,8 +87,8 @@
         </role>
         <role name="UserManagement">
             <version>3</version>
-            <createdAt>2014-05-29T19:29:19.858+04:00</createdAt>
-            <createdBy>dsukhoroslov</createdBy>
+            <createdAt>2016-05-29T19:29:19.858+04:00</createdAt>
+            <createdBy>admin</createdBy>
             <permissions>
                 <permission resource="com.bagri.xdm:type=Management,name=UserManagement">execute modify read</permission>
                 <permission resource="com.bagri.xdm:name=*,type=User">execute modify read</permission>
@@ -76,16 +98,16 @@
         </role>
         <role name="AdminRole">
             <version>5</version>
-            <createdAt>2014-05-28T09:13:20.929+04:00</createdAt>
-            <createdBy>Denis</createdBy>
+            <createdAt>2016-05-28T09:13:20.929+04:00</createdAt>
+            <createdBy>admin</createdBy>
             <permissions/>
-            <includedRoles>ModuleManagement LibraryManagement UserManagement NodeManagement SchemaManagement RoleManagement</includedRoles>
+            <includedRoles>DataFormatManagement DataStoreManagement ModuleManagement LibraryManagement UserManagement NodeManagement SchemaManagement RoleManagement</includedRoles>
             <description>admin: can do everything</description>
         </role>
         <role name="GuestRole">
             <version>3</version>
-            <createdAt>2014-05-27T00:36:16.320+04:00</createdAt>
-            <createdBy>Denis</createdBy>
+            <createdAt>2016-05-27T00:36:16.320+04:00</createdAt>
+            <createdBy>admin</createdBy>
             <permissions>
                 <permission resource="com.bagri.xdm:name=*,type=Schema">read</permission>
             </permissions>
@@ -96,7 +118,7 @@
     <users>
         <user login="admin" active="true">
             <version>2</version>
-            <createdAt>2014-05-29T01:12:30.559+04:00</createdAt>
+            <createdAt>2016-05-29T01:12:30.559+04:00</createdAt>
             <createdBy>admin</createdBy>
             <permissions/>
             <includedRoles>AdminRole</includedRoles>
@@ -104,7 +126,7 @@
         </user>
         <user login="guest" active="true">
             <version>4</version>
-            <createdAt>2015-08-28T10:41:29.003+03:00</createdAt>
+            <createdAt>2016-05-28T10:41:29.003+03:00</createdAt>
             <createdBy>admin</createdBy>
             <permissions>
                 <permission resource="com.bagri.xdm:name=default,type=Schema">modify</permission>

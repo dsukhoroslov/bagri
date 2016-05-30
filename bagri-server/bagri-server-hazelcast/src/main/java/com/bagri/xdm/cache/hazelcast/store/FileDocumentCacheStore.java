@@ -1,4 +1,4 @@
-package com.bagri.xdm.cache.hazelcast.store.xml;
+package com.bagri.xdm.cache.hazelcast.store;
 
 import static com.bagri.common.config.XDMConfigConstants.xdm_schema_format_default;
 import static com.bagri.common.config.XDMConfigConstants.xdm_schema_store_data_path;
@@ -41,9 +41,9 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.MapLoaderLifecycleSupport;
 import com.hazelcast.core.MapStore;
 
-public class DocumentCacheStore implements MapStore<XDMDocumentKey, XDMDocument>, MapLoaderLifecycleSupport {
+public class FileDocumentCacheStore implements MapStore<XDMDocumentKey, XDMDocument>, MapLoaderLifecycleSupport {
 
-    private static final Logger logger = LoggerFactory.getLogger(DocumentCacheStore.class);
+    private static final Logger logger = LoggerFactory.getLogger(FileDocumentCacheStore.class);
     
     private Map<XDMDocumentKey, String> uris = new HashMap<>();
     

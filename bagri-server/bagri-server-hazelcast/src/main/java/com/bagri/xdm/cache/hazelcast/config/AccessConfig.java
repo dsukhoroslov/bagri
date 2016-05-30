@@ -1,4 +1,4 @@
-package com.bagri.xdm.cache.hazelcast.management;
+package com.bagri.xdm.cache.hazelcast.config;
 
 import java.util.Collection;
 
@@ -10,11 +10,11 @@ import com.bagri.xdm.system.XDMAccess;
 import com.bagri.xdm.system.XDMRole;
 import com.bagri.xdm.system.XDMUser;
 
-public class AccessManagement extends EntityConfig {
+public class AccessConfig extends EntityConfig {
 
 	private XDMAccess config;
 	
-	public AccessManagement(String configPath) {
+	public AccessConfig(String configPath) {
 		super(configPath);
 		try {
 			jctx = JAXBContext.newInstance(XDMAccess.class);

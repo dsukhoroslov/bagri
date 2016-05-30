@@ -15,11 +15,9 @@
     <description>BagRi Cache Store: Persistent Store Components</description>
 
     <modules>
-        <module>bagri-store-common</module>
         <module>bagri-store-hive</module>
         <module>bagri-store-jdbc</module>
         <module>bagri-store-mongo</module>
-        <module>bagri-store-xml</module>
     </modules>
 
     <dependencies>

@@ -4,19 +4,10 @@ import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-//import org.springframework.beans.BeansException;
-//import org.springframework.context.ApplicationContext;
-//import org.springframework.context.ApplicationContextAware;
-//import org.springframework.context.ConfigurableApplicationContext;
-//import org.springframework.context.support.ClassPathXmlApplicationContext;
-//import org.springframework.core.env.PropertySource;
-import org.springframework.context.ApplicationContextAware;
 
 import static com.bagri.common.config.XDMConfigConstants.*;
 
-import com.bagri.xdm.cache.store.DataStore;
+import com.bagri.xdm.common.XDMDocumentStore;
 import com.bagri.xdm.common.XDMDocumentKey;
 import com.bagri.xdm.domain.XDMDocument;
 import com.hazelcast.core.MapLoader;
@@ -63,8 +54,8 @@ public class DocumentStoreFactory implements MapStoreFactory<XDMDocumentKey, XDM
 		if (instance != null) {
 			if (instance instanceof MapStore) {
 				mStore = (MapStore) instance;
-			} else if (instance instanceof DataStore) {
-				mStore = new DataStoreAdapter((DataStore) instance);
+			} else if (instance instanceof XDMDocumentStore) {
+				mStore = new DocumentStoreAdapter((XDMDocumentStore) instance);
 				// pass props somehow..
 				// do we need DataStoreAdapter.init ?
 			} else {
