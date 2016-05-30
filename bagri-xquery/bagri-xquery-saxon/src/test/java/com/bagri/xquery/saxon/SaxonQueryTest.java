@@ -24,7 +24,7 @@ public class SaxonQueryTest {
    	    DynamicQueryContext dqc = new DynamicQueryContext(config);
         dqc.setApplyFunctionConversionRulesToExternalVariables(false);
 
-		String query = "declare base-uri \"file:/C:/Work/Bagri/git/bagri/etc/samples/xmark/\";\n" +
+		String query = "declare base-uri \"../../etc/samples/xmark/\";\n" +
 				"let $auction := fn:doc(\"auction.xml\") return\n" +
 				"for $b in $auction/site/people/person[@id = 'person0'] return $b/name/text()";
    	    

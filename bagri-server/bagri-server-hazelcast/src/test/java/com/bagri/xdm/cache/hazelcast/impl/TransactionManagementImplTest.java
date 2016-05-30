@@ -45,7 +45,6 @@ public class TransactionManagementImplTest extends XDMManagementTest {
 
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
-		//Thread.sleep(3000);
 		context.close();
 	}
 

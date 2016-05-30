@@ -36,7 +36,6 @@ public class JsonDocumentManagementTest extends XDMDocumentManagementTest {
 
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
-		Thread.sleep(3000);
 		context.close();
 	}
 

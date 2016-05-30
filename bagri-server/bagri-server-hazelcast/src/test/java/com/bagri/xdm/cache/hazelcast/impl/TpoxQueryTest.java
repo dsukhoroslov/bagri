@@ -51,7 +51,6 @@ public class TpoxQueryTest extends ClientQueryManagementTest {
 
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
-		//Thread.sleep(3000);
 		context.close();
 	}
 
