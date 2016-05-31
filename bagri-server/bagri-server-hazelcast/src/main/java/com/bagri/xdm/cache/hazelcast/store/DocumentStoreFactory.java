@@ -17,7 +17,7 @@ import com.hazelcast.core.MapStoreFactory;
 public class DocumentStoreFactory implements MapStoreFactory<XDMDocumentKey, XDMDocument> { //, ApplicationContextAware {
 	
     private static final Logger logger = LoggerFactory.getLogger(DocumentStoreFactory.class);
-    private static final String defaultStoreClass = "com.bagri.xdm.cache.hazelcast.store.xml.DocumentCacheStore";
+    private static final String defaultStoreClass = "com.bagri.xdm.cache.hazelcast.store.FileDocumentCacheStore";
     
     //private ApplicationContext ctx;
 	//private PropertySource msProps;
