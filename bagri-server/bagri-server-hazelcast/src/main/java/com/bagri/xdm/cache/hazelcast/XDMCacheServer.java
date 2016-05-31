@@ -3,7 +3,7 @@ package com.bagri.xdm.cache.hazelcast;
 import static com.bagri.common.config.XDMConfigConstants.*;
 import static com.bagri.xdm.cache.hazelcast.util.HazelcastUtils.getMemberSchemas;
 import static com.bagri.xdm.cache.hazelcast.util.SpringContextHolder.*;
-import static com.bagri.xdm.cache.hazelcast.util.HazelcastUtils.hz_instance;
+import static com.bagri.xdm.cache.hazelcast.util.HazelcastUtils.*;
 import static com.bagri.xdm.client.common.XDMCacheConstants.PN_XDM_SYSTEM_POOL;
 
 import java.io.IOException;
@@ -60,7 +60,7 @@ public class XDMCacheServer {
     	
         context = new ClassPathXmlApplicationContext(contextPath);
         HazelcastInstance hz = context.getBean(hz_instance, HazelcastInstance.class);
-        hz.getUserContext().put("context", context);
+        hz.getUserContext().put(app_context, context);
     	Member local = hz.getCluster().getLocalMember();
         String name = local.getStringAttribute(xdm_cluster_node_name);
         String role = local.getStringAttribute(xdm_cluster_node_role);
@@ -70,7 +70,7 @@ public class XDMCacheServer {
         if (isAdminRole(role)) {
         	initAdminNode(hz);
         	// discover active schema server nodes now..
-        	lookupManagedNodes(hz, context);
+        	lookupManagedNodes(hz);
         } else {
         	initServerNode(hz, local);
         }
@@ -90,7 +90,7 @@ public class XDMCacheServer {
 		
         Map<String, Object> env = new HashMap<String, Object>();
         //BagriJMXAuthenticator auth = new BagriJMXAuthenticator();
-        BagriJMXAuthenticator auth = context.getBean("authManager", BagriJMXAuthenticator.class);
+        BagriJMXAuthenticator auth = context.getBean(BagriJMXAuthenticator.class);
         env.put(JMXConnectorServer.AUTHENTICATOR, auth);
 		logger.debug("going to start JMX connector server at: {}, with attributes: {}", url, env);
 
@@ -119,7 +119,7 @@ public class XDMCacheServer {
 		logger.info("JMX connector server started and listening on port: {}", port);
     }
 
-	private static void lookupManagedNodes(HazelcastInstance hzInstance, ApplicationContext context) {
+	private static void lookupManagedNodes(HazelcastInstance hzInstance) {
 
 		SchemaManagement sMgr = context.getBean("schemaService", SchemaManagement.class);
 		for (Member member: hzInstance.getCluster().getMembers()) {
@@ -153,11 +153,11 @@ public class XDMCacheServer {
         Collection<XDMDataFormat> cFormats = null; 
         Map<String, XDMSchema> schemaCache = null;
         
-        Set<Member> admins = getAdmins(systemInstance);
+    	SystemConfig cfg = context.getBean(SystemConfig.class);
+
+    	Set<Member> admins = getAdmins(systemInstance);
         if (admins.size() == 0) {
-	       	String confName = System.getProperty(xdm_config_filename);
-	       	if (confName != null) {
-	       		SystemConfig cfg = new SystemConfig(confName);
+	       	if (cfg.isLoaded()) {
 	       		Collection<XDMSchema> cSchemas = (Collection<XDMSchema>) cfg.getEntities(XDMSchema.class); 
 	   			schemaCache = new HashMap<String, XDMSchema>(cSchemas.size());
 	       		for (XDMSchema schema: cSchemas) {

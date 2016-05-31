@@ -25,7 +25,7 @@ public class SystemConfig extends EntityConfig {
 			config = (XDMConfig) loadConfig();
 		} catch (JAXBException ex) {
 			logger.error("init.error: " + ex.getMessage(), ex);
-			throw new RuntimeException(ex);
+			//throw new RuntimeException(ex);
 		}
 	}
 	

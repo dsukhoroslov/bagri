@@ -26,6 +26,7 @@ import com.bagri.common.query.ExpressionContainer;
 import com.bagri.common.query.PathBuilder;
 import com.bagri.common.util.FileUtils;
 import com.bagri.common.util.PropUtils;
+import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.test.XDMManagementTest;
 import com.bagri.xdm.cache.api.XDMQueryManagement;
 import com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl;
@@ -42,7 +43,7 @@ public class TransactionCacheStoreTest extends XDMManagementTest {
 	public static void setUpBeforeClass() throws Exception {
 		sampleRoot = "..\\..\\etc\\samples\\tpox\\";
 		System.setProperty("hz.log.level", "info");
-		System.setProperty("xdm.log.level", "info");
+		//System.setProperty("xdm.log.level", "info");
 		System.setProperty(xdm_node_instance, "0");
 		System.setProperty("logback.configurationFile", "hz-logging.xml");
 		System.setProperty(xdm_config_properties_file, "store.properties");
@@ -99,7 +100,7 @@ public class TransactionCacheStoreTest extends XDMManagementTest {
 		return ((XDMQueryManagement) getQueryManagement()).getContent(ec, ":sec", params);
 	}
 	
-	@Ignore
+	//@Ignore
 	@Test
 	public void bulkTransactionTest() throws Exception {
 		
@@ -134,9 +135,10 @@ public class TransactionCacheStoreTest extends XDMManagementTest {
 		@Override
 		public void run() {
 
+			long txId = 0;
 			try {
 				for (int i=0; i < loops; i++) {
-					long txId = xRepo.getTxManagement().beginTransaction();
+					txId = xRepo.getTxManagement().beginTransaction();
 					//storeSecurityTest();
 					uris.add(updateDocumentTest("security1500.xml", sampleRoot + getFileName("security1500.xml")).getUri());
 					uris.add(updateDocumentTest("security5621.xml", sampleRoot + getFileName("security5621.xml")).getUri());
@@ -164,6 +166,11 @@ public class TransactionCacheStoreTest extends XDMManagementTest {
 				}
 			} catch (Exception ex) {
 				counter.countDown();
+				try {
+					xRepo.getTxManagement().rollbackTransaction(txId);
+				} catch (XDMException e) {
+					e.printStackTrace();
+				}
 				Assert.assertTrue("Unexpected exception: " + ex.getMessage(), false);
 			}
 			counter.countDown();

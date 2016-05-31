@@ -41,6 +41,15 @@ public class HazelcastUtils {
 		}
 		return hzInstance;
 	}
+	
+	public static ApplicationContext findSystemContext() {
+		
+		HazelcastInstance hzInstance = findSystemInstance();
+		if (hzInstance != null) {
+			return (ApplicationContext) hzInstance.getUserContext().get(app_context);
+		}
+		return null;
+	}
 
 	public static ApplicationContext findContext() {
 		

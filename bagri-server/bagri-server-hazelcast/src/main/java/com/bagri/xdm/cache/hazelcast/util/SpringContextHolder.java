@@ -6,7 +6,6 @@ import java.util.Map;
 public class SpringContextHolder {
 	
 	public static final String schema_context = "appContext";
-	public static final String store_context = "storeContext";
 	
 	private static final Map<String, Object> context = new HashMap<String, Object>();
 	

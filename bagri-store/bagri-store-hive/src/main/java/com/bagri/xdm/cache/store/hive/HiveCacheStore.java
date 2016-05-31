@@ -29,6 +29,11 @@ public class HiveCacheStore implements XDMDocumentStore {
 	}
 
 	@Override
+	public void close() {
+		logger.trace("close; ");
+	}
+
+	@Override
 	public XDMDocument loadDocument(XDMDocumentKey key) {
 		logger.trace("load.enter; key: {}", key);
 		return null;

@@ -79,6 +79,14 @@
 
 	<hz:executorService id="sys-exec-pool" name="sys-exec-pool" instance-ref="hzInstance"/>
 	
+	<bean id="configService" class="com.bagri.xdm.cache.hazelcast.config.SystemConfig">
+		<constructor-arg value="${xdm.config.filename}" />
+	</bean>
+
+	<!--bean id="accessService" class="com.bagri.xdm.cache.hazelcast.config.AccessConfig">
+		<constructor-arg value="${xdm.access.filename}" />
+	</bean-->
+
 	<bean id="accBridge" class="com.bagri.xdm.cache.hazelcast.impl.AccessManagementBridge">
 		<property name="hazelcastInstance" ref="hzInstance"/>
 	</bean>

@@ -9,6 +9,8 @@ import com.bagri.xdm.domain.XDMDocument;
 public interface XDMDocumentStore {
 	
 	public void init(Map<String, Object> context);
+	
+	public void close();
 
 	public XDMDocument loadDocument(XDMDocumentKey key);
 

@@ -19,9 +19,14 @@ public abstract class EntityConfig {
     
 	protected String configPath;
 	protected JAXBContext jctx;
+	private boolean loaded = false;
     
 	public EntityConfig(String configPath) {
 		this.configPath = configPath;
+	}
+	
+	public boolean isLoaded() {
+		return loaded;
 	}
 	
 	protected void setEntities(Object config, Collection oldEntities, Collection newEntities) {
@@ -38,7 +43,9 @@ public abstract class EntityConfig {
 	protected Object loadConfig() throws JAXBException {
         Unmarshaller unmarshaller = jctx.createUnmarshaller();
         File xml = new File(configPath);
-        return unmarshaller.unmarshal(xml);
+        Object result = unmarshaller.unmarshal(xml);
+        loaded = true;
+        return result;
 	}
 	
 	private void storeConfig(Object config) throws JAXBException {

@@ -12,6 +12,8 @@ import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
 
 import com.bagri.xdm.system.XDMCollection;
+import com.bagri.xdm.system.XDMDataFormat;
+import com.bagri.xdm.system.XDMDataStore;
 import com.bagri.xdm.system.XDMFragment;
 import com.bagri.xdm.system.XDMIdentity;
 import com.bagri.xdm.system.XDMIndex;
@@ -43,7 +45,9 @@ import com.bagri.xdm.system.XDMXQueryTrigger;
     XDMXQueryTrigger.class,
     //XDMIdentity.class,
     XDMRole.class,
-    XDMUser.class
+    XDMUser.class,
+    XDMDataFormat.class,
+    XDMDataStore.class
 })
 public abstract class XDMEntity implements Convertable<Map<String, Object>>, Versionable {
 	

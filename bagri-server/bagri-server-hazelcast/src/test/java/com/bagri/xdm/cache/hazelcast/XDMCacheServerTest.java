@@ -30,7 +30,7 @@ public class XDMCacheServerTest {
         //<sysproperty key="xdm.cluster.node.role" value="admin"/>
 		
 		System.setProperty("hz.log.level", "info");
-		System.setProperty("xdm.log.level", "trace");
+		//System.setProperty("xdm.log.level", "trace");
 		System.setProperty("logback.configurationFile", "hz-logging.xml");
 		System.setProperty(xdm_access_filename, "access.xml");
 		System.setProperty(xdm_cluster_node_name, "admin");

@@ -34,7 +34,7 @@ public class DocumentStoreAdapter implements MapStore<XDMDocumentKey, XDMDocumen
 
 	@Override
 	public void destroy() {
-		// no-op?
+		extStore.close();
 	}
 
 	@Override

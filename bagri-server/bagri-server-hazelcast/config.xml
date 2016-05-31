@@ -744,7 +744,10 @@
             <description>Standard File store</description>
             <enabled>true</enabled>
             <storeClass>com.bagri.xdm.cache.hazelcast.store.FileDocumentCacheStore</storeClass>
-            <properties/>
+            <properties>
+		<entry name="xdm.schema.store.data.path">../data</entry>
+                <entry name="xdm.schema.store.property">my property value</entry>
+            </properties>
         </dataStore>
     </dataStores>
 </ns2:config>

@@ -54,6 +54,7 @@ public class AccessManagementBridge implements MembershipListener {
 		if (lite) {
 	       	String confName = System.getProperty(xdm_access_filename);
 	       	if (confName != null) {
+	       		// TODO: get it from Spring context?
 	       		AccessConfig cfg = new AccessConfig(confName);
 	       		Collection<XDMRole> rCache = (Collection<XDMRole>) cfg.getEntities(XDMRole.class); 
 	       		for (XDMRole role: rCache) {
