@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.sdv.bagri</groupId>
         <artifactId>bagri</artifactId>
-        <version>0.7.1-SNAPSHOT</version>
+        <version>0.8.1-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
 
@@ -16,7 +16,6 @@
     <description>BagRi XQuery Processing Components</description>
 
     <modules>
-        <module>bagri-xquery-api</module>
         <module>bagri-xquery-rex</module>
         <module>bagri-xquery-saxon</module>
     </modules>

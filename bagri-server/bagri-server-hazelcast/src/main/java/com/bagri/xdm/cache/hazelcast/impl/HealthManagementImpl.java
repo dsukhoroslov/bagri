@@ -1,6 +1,6 @@
 package com.bagri.xdm.cache.hazelcast.impl;
 
-import static com.bagri.xdm.client.common.XDMCacheConstants.*;
+import static com.bagri.xdm.cache.api.XDMCacheConstants.*;
 
 import java.util.concurrent.atomic.AtomicLong;
 

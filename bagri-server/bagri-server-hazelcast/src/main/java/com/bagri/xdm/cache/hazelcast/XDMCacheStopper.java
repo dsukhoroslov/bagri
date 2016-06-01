@@ -1,7 +1,7 @@
 package com.bagri.xdm.cache.hazelcast;
 
 import static com.bagri.common.config.XDMConfigConstants.xdm_cluster_node_role;
-import static com.bagri.xdm.client.common.XDMCacheConstants.PN_XDM_SYSTEM_POOL;
+import static com.bagri.xdm.cache.api.XDMCacheConstants.PN_XDM_SYSTEM_POOL;
 
 import java.util.ArrayList;
 import java.util.Collections;

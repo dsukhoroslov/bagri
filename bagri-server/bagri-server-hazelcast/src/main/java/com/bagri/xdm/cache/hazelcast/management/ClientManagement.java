@@ -1,6 +1,6 @@
 package com.bagri.xdm.cache.hazelcast.management;
 
-import static com.bagri.xdm.client.common.XDMCacheConstants.CN_XDM_CLIENT;
+import static com.bagri.xdm.cache.api.XDMCacheConstants.CN_XDM_CLIENT;
 import static com.bagri.xdm.common.XDMConstants.pn_schema_password;
 import static com.bagri.common.manage.JMXUtils.propsToComposite;
 import static com.bagri.common.manage.JMXUtils.compositeToTabular;

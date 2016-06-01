@@ -5,7 +5,7 @@
 
     <groupId>com.sdv.bagri</groupId>
     <artifactId>bagri</artifactId>
-    <version>0.7.1-SNAPSHOT</version>
+    <version>0.8.1-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>bagri</name>
     <!--shortDescription>An XML DB on top of Distributed Cache</shortDescription-->
@@ -144,11 +144,6 @@
                 <artifactId>bagri-xdm</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            <dependency>
-                <groupId>com.sdv.bagri</groupId>
-                <artifactId>bagri-client-common</artifactId>
-                <version>${project.version}</version>
-            </dependency>
             <!--dependency>
                 <groupId>com.sdv.bagri</groupId>
                 <artifactId>bagri-client-coherence</artifactId>
@@ -162,11 +157,6 @@
 
             <dependency>
                 <groupId>com.sdv.bagri</groupId>
-                <artifactId>bagri-xquery-api</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.sdv.bagri</groupId>
                 <artifactId>bagri-xquery-saxon</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -176,17 +166,6 @@
                 <version>${project.version}</version>
             </dependency>
 
-	    <dependency>
-            	<groupId>com.sdv.bagri</groupId>
-            	<artifactId>bagri-store-common</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-	    <dependency>
-            	<groupId>com.sdv.bagri</groupId>
-            	<artifactId>bagri-server-common</artifactId>
-                <version>${project.version}</version>
-            </dependency>
             <!--dependency>
                 <groupId>com.sdv.bagri</groupId>
                 <artifactId>bagri-server-coherence</artifactId>
@@ -257,6 +236,16 @@
 	    	<groupId>com.thoughtworks.xstream</groupId>
 	    	<artifactId>xstream</artifactId>
                 <version>${xstream.version}</version>
+                <exclusions>
+                    <exclusion>
+			<groupId>xmlpull</groupId>
+			<artifactId>xmlpull</artifactId>
+                    </exclusion>
+                    <exclusion>
+			<groupId>xpp3</groupId>
+			<artifactId>xpp3_min</artifactId>
+                    </exclusion>
+                </exclusions>
 	    </dependency>
             <dependency>
                 <groupId>xerces</groupId>

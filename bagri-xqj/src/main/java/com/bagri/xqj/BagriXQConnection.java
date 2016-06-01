@@ -29,7 +29,7 @@ import static com.bagri.xdm.api.XDMException.ecTransWrongState;
 import static com.bagri.xdm.api.XDMTransactionManagement.TX_NO;
 import static com.bagri.xqj.BagriXQErrors.ex_connection_closed;
 import static com.bagri.xqj.BagriXQErrors.ex_null_context;
-import static com.bagri.xqj.BagriXQUtils.getXQException;
+import static com.bagri.xquery.api.XQUtils.getXQException;
 
 
 public class BagriXQConnection extends BagriXQDataFactory implements XQConnection {

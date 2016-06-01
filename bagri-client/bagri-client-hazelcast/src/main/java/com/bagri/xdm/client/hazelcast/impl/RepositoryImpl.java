@@ -21,7 +21,7 @@ import com.bagri.xdm.api.XDMHealthCheckState;
 import com.bagri.xdm.api.XDMQueryManagement;
 import com.bagri.xdm.api.XDMRepository;
 import com.bagri.xdm.api.XDMTransactionManagement;
-import com.bagri.xdm.client.common.impl.XDMRepositoryBase;
+import com.bagri.xdm.api.impl.RepositoryBase;
 import com.bagri.xdm.client.hazelcast.serialize.SecureCredentials;
 import com.bagri.xdm.client.hazelcast.serialize.XQItemSerializer;
 import com.bagri.xdm.client.hazelcast.serialize.XQItemTypeSerializer;
@@ -33,7 +33,7 @@ import com.hazelcast.config.SerializerConfig;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.security.Credentials;
 
-public class RepositoryImpl extends XDMRepositoryBase implements XDMRepository {
+public class RepositoryImpl extends RepositoryBase implements XDMRepository {
 	
     private final static Logger logger = LoggerFactory.getLogger(RepositoryImpl.class);
 	

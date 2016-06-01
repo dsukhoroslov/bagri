@@ -1,8 +1,8 @@
 package com.bagri.xdm.client.hazelcast.impl;
 
-import static com.bagri.xdm.client.common.XDMCacheConstants.CN_XDM_RESULT;
-import static com.bagri.xdm.client.common.XDMCacheConstants.CN_XDM_QUERY;
-import static com.bagri.xdm.client.common.XDMCacheConstants.PN_XDM_SCHEMA_POOL;
+import static com.bagri.xdm.cache.api.XDMCacheConstants.CN_XDM_QUERY;
+import static com.bagri.xdm.cache.api.XDMCacheConstants.CN_XDM_RESULT;
+import static com.bagri.xdm.cache.api.XDMCacheConstants.PN_XDM_SCHEMA_POOL;
 import static com.bagri.xdm.common.XDMConstants.*;
 
 import java.util.ArrayList;
@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMQueryManagement;
-import com.bagri.xdm.client.common.impl.QueryManagementBase;
+import com.bagri.xdm.api.impl.QueryManagementBase;
 import com.bagri.xdm.client.hazelcast.task.query.DocumentUrisProvider;
 import com.bagri.xdm.client.hazelcast.task.query.QueryExecutor;
 import com.bagri.xdm.domain.XDMQuery;

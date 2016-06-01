@@ -1,8 +1,8 @@
 package com.bagri.xqj;
 
 import static com.bagri.xqj.BagriXQErrors.ex_connection_closed;
-import static com.bagri.xqj.BagriXQUtils.getTypeName;
-import static com.bagri.xqj.BagriXQUtils.isAtomicType;
+import static com.bagri.xquery.api.XQUtils.getTypeName;
+import static com.bagri.xquery.api.XQUtils.isAtomicType;
 import static javax.xml.xquery.XQItemType.*;
 
 import java.io.IOException;
@@ -28,6 +28,7 @@ import org.apache.xerces.util.XMLChar;
 import org.w3c.dom.Node;
 
 import com.bagri.common.util.XMLUtils;
+import com.bagri.xquery.api.XQUtils;
 import com.bagri.xquery.api.XQProcessor;
 
 public class BagriXQDataFactory extends BagriXQCloseable implements XQDataFactory {
@@ -490,9 +491,9 @@ public class BagriXQDataFactory extends BagriXQCloseable implements XQDataFactor
 			throw new XQException("value is null");
 		}
 		if (type == null) {
-			type = BagriXQUtils.getTypeForObject(this, value); 
+			type = XQUtils.getTypeForObject(this, value); 
 		} else {
-			if (!BagriXQUtils.isTypeValueCompatible(type.getBaseType(), value)) {
+			if (!XQUtils.isTypeValueCompatible(type.getBaseType(), value)) {
 				throw new XQException("Value is not compatible");
 			} 
 		}

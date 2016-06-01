@@ -8,6 +8,8 @@ import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQItemType;
 import javax.xml.xquery.XQStaticContext;
 
+import com.bagri.xquery.api.XQUtils;
+
 import static javax.xml.xquery.XQConstants.*;
 
 public class BagriXQStaticContext implements XQStaticContext {
@@ -151,13 +153,13 @@ public class BagriXQStaticContext implements XQStaticContext {
 			this.type = null;
 		} else {
 			QName typeName = null;
-			if (BagriXQUtils.isBaseTypeSupported(contextItemType.getItemKind())) {
+			if (XQUtils.isBaseTypeSupported(contextItemType.getItemKind())) {
 				typeName = contextItemType.getTypeName();
 			} else {
 				// ???
 			}
 			QName nodeName = null;
-			if (BagriXQUtils.isNodeNameSupported(contextItemType.getItemKind())) {
+			if (XQUtils.isNodeNameSupported(contextItemType.getItemKind())) {
 				nodeName = contextItemType.getNodeName();
 			}
 			this.type = new BagriXQItemType(contextItemType.getBaseType(), contextItemType.getItemKind(),

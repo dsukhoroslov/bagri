@@ -1,8 +1,8 @@
 package com.bagri.xdm.cache.hazelcast.task.schema;
 
+import static com.bagri.xdm.cache.api.XDMCacheConstants.CN_XDM_DOCUMENT;
+import static com.bagri.xdm.cache.api.XDMCacheConstants.CN_XDM_TRANSACTION;
 import static com.bagri.xdm.cache.hazelcast.util.SpringContextHolder.*;
-import static com.bagri.xdm.client.common.XDMCacheConstants.CN_XDM_DOCUMENT;
-import static com.bagri.xdm.client.common.XDMCacheConstants.CN_XDM_TRANSACTION;
 import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryImpl.cli_PopulateSchemaTask;
 
 import java.util.Properties;
@@ -13,7 +13,7 @@ import org.springframework.context.ApplicationContext;
 import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.cache.hazelcast.impl.DocumentManagementImpl;
 import com.bagri.xdm.cache.hazelcast.impl.TransactionManagementImpl;
-import com.bagri.xdm.cache.hazelcast.impl.XDMFactoryImpl;
+import com.bagri.xdm.cache.hazelcast.impl.KeyFactoryImpl;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMTransaction;
 import com.hazelcast.core.Hazelcast;

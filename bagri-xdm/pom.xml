@@ -5,13 +5,13 @@
     <parent>
         <groupId>com.sdv.bagri</groupId>
         <artifactId>bagri</artifactId>
-        <version>0.7.1-SNAPSHOT</version>
+        <version>0.8.1-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
 
     <artifactId>bagri-xdm</artifactId>
     <name>bagri-xdm</name>
-    <description>Bagri XDM Implementation</description>
+    <description>Bagri XDM API Classes and Interfaces</description>
 
     <dependencies>
 
@@ -26,10 +26,29 @@
             <artifactId>xqj-api</artifactId>
         </dependency>
 
+        <dependency>
+	    <groupId>javax.json</groupId>
+	    <artifactId>javax.json-api</artifactId>
+        </dependency>
+        <dependency>
+	    <groupId>org.glassfish</groupId>
+	    <artifactId>javax.json</artifactId>
+            <scope>runtime</scope>
+	</dependency>
+        <!--dependency>
+            <groupId>com.github.pgelinas</groupId>
+            <artifactId>jackson-javax-json</artifactId>
+        </dependency-->
+
         <!-- Dependencies for logging -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <scope>test</scope>
         </dependency>
 
         <!--Test dependencies-->

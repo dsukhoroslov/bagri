@@ -3,10 +3,10 @@ package com.bagri.xdm.cache.hazelcast.impl;
 import static com.bagri.xdm.api.XDMException.ecTransNoNested;
 import static com.bagri.xdm.api.XDMException.ecTransNotFound;
 import static com.bagri.xdm.api.XDMException.ecTransWrongState;
-import static com.bagri.xdm.client.common.XDMCacheConstants.CN_XDM_TRANSACTION;
-import static com.bagri.xdm.client.common.XDMCacheConstants.PN_XDM_SCHEMA_POOL;
-import static com.bagri.xdm.client.common.XDMCacheConstants.SQN_TRANSACTION;
-import static com.bagri.xdm.client.common.XDMCacheConstants.TPN_XDM_COUNTERS;
+import static com.bagri.xdm.cache.api.XDMCacheConstants.CN_XDM_TRANSACTION;
+import static com.bagri.xdm.cache.api.XDMCacheConstants.PN_XDM_SCHEMA_POOL;
+import static com.bagri.xdm.cache.api.XDMCacheConstants.SQN_TRANSACTION;
+import static com.bagri.xdm.cache.api.XDMCacheConstants.TPN_XDM_COUNTERS;
 
 import java.util.Collection;
 import java.util.Collections;

@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.sdv.bagri</groupId>
         <artifactId>bagri</artifactId>
-        <version>0.7.1-SNAPSHOT</version>
+        <version>0.8.1-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
 
@@ -15,7 +15,6 @@
     <description>BagRi XDM Client Components</description>
 
     <modules>
-        <module>bagri-client-common</module>
         <!--module>bagri-client-coherence</module-->
         <module>bagri-client-hazelcast</module>
         <!--module>bagri-client-jcache</module-->

@@ -18,6 +18,7 @@ import javax.xml.xquery.XQItem;
 import org.w3c.dom.Node;
 import org.xml.sax.ContentHandler;
 
+import com.bagri.xquery.api.XQUtils;
 import com.bagri.xquery.api.XQProcessor;
 
 public class IterableXQSequence extends BagriXQSequence {
@@ -290,7 +291,7 @@ public class IterableXQSequence extends BagriXQSequence {
 			} else if (current instanceof XQItem) {
 				setCurrent(((XQItem) current).getItemType(), ((XQItem) current).getObject());
 			} else {
-				setCurrent(BagriXQUtils.getTypeForObject(xqFactory, current), current);
+				setCurrent(XQUtils.getTypeForObject(xqFactory, current), current);
 			}
 			accessed = false;
 			return true;

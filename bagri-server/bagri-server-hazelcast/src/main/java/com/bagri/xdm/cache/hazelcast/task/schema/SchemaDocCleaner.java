@@ -1,6 +1,6 @@
 package com.bagri.xdm.cache.hazelcast.task.schema;
 
-import static com.bagri.xdm.client.common.XDMCacheConstants.*;
+import static com.bagri.xdm.cache.api.XDMCacheConstants.*;
 import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryImpl.cli_CleanSchemaTask;
 
 import java.io.IOException;

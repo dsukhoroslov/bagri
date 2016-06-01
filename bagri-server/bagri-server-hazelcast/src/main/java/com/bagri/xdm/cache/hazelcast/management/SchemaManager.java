@@ -2,8 +2,8 @@ package com.bagri.xdm.cache.hazelcast.management;
 
 import static com.bagri.common.config.XDMConfigConstants.xdm_schema_store_enabled;
 import static com.bagri.common.config.XDMConfigConstants.xdm_schema_store_type;
+import static com.bagri.xdm.cache.api.XDMCacheConstants.PN_XDM_SCHEMA_POOL;
 import static com.bagri.xdm.cache.hazelcast.util.HazelcastUtils.hz_instance;
-import static com.bagri.xdm.client.common.XDMCacheConstants.PN_XDM_SCHEMA_POOL;
 import static com.bagri.xdm.common.XDMConstants.xs_ns;
 import static com.bagri.xdm.common.XDMConstants.xs_prefix;
 

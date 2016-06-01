@@ -11,7 +11,7 @@ import javax.xml.xquery.XQItemType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static com.bagri.xqj.BagriXQUtils.*;
+import static com.bagri.xquery.api.XQUtils.*;
 import static javax.xml.xquery.XQItemType.*;
 
 import com.hazelcast.nio.ObjectDataInput;

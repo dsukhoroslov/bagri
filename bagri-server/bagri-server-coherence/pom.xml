@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.sdv.bagri</groupId>
         <artifactId>bagri-server</artifactId>
-        <version>0.7.1-SNAPSHOT</version>
+        <version>0.8.1-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
 
@@ -30,15 +30,7 @@
         </dependency>
         <dependency>
             <groupId>com.sdv.bagri</groupId>
-            <artifactId>bagri-client-common</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.sdv.bagri</groupId>
             <artifactId>bagri-client-coherence</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.sdv.bagri</groupId>
-            <artifactId>bagri-server-common</artifactId>
         </dependency>
 
         <!-- Spring framework -->

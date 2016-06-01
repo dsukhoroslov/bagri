@@ -8,16 +8,16 @@ import org.springframework.core.convert.converter.Converter;
 
 // move the key class to some common location!
 import com.bagri.xdm.common.XDMDataKey;
-import com.bagri.xdm.common.XDMFactory;
+import com.bagri.xdm.common.XDMKeyFactory;
 import com.mongodb.DBObject;
 
 public class DataDocumentKeyReadConverter implements Converter<DBObject, XDMDataKey> {
 
     private static final Logger logger = LoggerFactory.getLogger(DataDocumentKeyReadConverter.class);
     
-    private XDMFactory keyFactory;
+    private XDMKeyFactory keyFactory;
     
-    public void setKeyFactory(XDMFactory keyFactory) {
+    public void setKeyFactory(XDMKeyFactory keyFactory) {
     	this.keyFactory = keyFactory;
     }
 

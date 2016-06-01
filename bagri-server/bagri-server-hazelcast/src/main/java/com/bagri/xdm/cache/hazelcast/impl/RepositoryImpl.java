@@ -23,16 +23,16 @@ import com.bagri.xdm.api.XDMBindingManagement;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.api.XDMTransactionManagement;
+import com.bagri.xdm.api.impl.RepositoryBase;
 import com.bagri.xdm.cache.api.XDMClientManagement;
 import com.bagri.xdm.cache.api.XDMIndexManagement;
 import com.bagri.xdm.cache.api.XDMRepository;
 import com.bagri.xdm.cache.api.XDMTriggerManagement;
-import com.bagri.xdm.client.common.impl.XDMRepositoryBase;
-import com.bagri.xdm.client.xml.XmlBuilder;
-import com.bagri.xdm.client.xml.XmlStaxParser;
 import com.bagri.xdm.common.XDMBuilder;
-import com.bagri.xdm.common.XDMFactory;
+import com.bagri.xdm.common.XDMKeyFactory;
 import com.bagri.xdm.common.XDMParser;
+import com.bagri.xdm.common.df.xml.XmlBuilder;
+import com.bagri.xdm.common.df.xml.XmlStaxParser;
 import com.bagri.xdm.domain.XDMPath;
 import com.bagri.xdm.system.XDMDataFormat;
 import com.bagri.xdm.system.XDMIndex;
@@ -43,7 +43,7 @@ import com.bagri.xdm.system.XDMTriggerDef;
 import com.bagri.xquery.api.XQProcessor;
 import com.hazelcast.core.HazelcastInstance;
 
-public class RepositoryImpl extends XDMRepositoryBase implements ApplicationContextAware, XDMRepository {
+public class RepositoryImpl extends RepositoryBase implements ApplicationContextAware, XDMRepository {
 
 	private static final transient Logger logger = LoggerFactory.getLogger(RepositoryImpl.class);
 	
@@ -55,7 +55,7 @@ public class RepositoryImpl extends XDMRepositoryBase implements ApplicationCont
  		}
 	};
 	
-	private XDMFactory xdmFactory; 
+	private XDMKeyFactory xdmFactory; 
 	//private String instanceNum;
 	private XDMSchema xdmSchema;
 	private Map<String, XDMDataFormat> xdmFormats;
@@ -180,11 +180,11 @@ public class RepositoryImpl extends XDMRepositoryBase implements ApplicationCont
 		return result;
 	}
 	
-	public XDMFactory getFactory() {
+	public XDMKeyFactory getFactory() {
 		return xdmFactory;
 	}
 	
-	public void setFactory(XDMFactory factory) {
+	public void setFactory(XDMKeyFactory factory) {
 		this.xdmFactory = factory;
 	}
 	

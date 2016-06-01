@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.sdv.bagri</groupId>
         <artifactId>bagri-samples</artifactId>
-        <version>0.7.1-SNAPSHOT</version>
+        <version>0.8.1-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
 
@@ -22,6 +22,11 @@
         <dependency>
             <groupId>com.sdv.bagri</groupId>
             <artifactId>bagri-xdm</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
         </dependency>
 
         <!-- Dependencies for logging -->

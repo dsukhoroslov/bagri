@@ -1,9 +1,9 @@
 package com.bagri.xdm.cache.hazelcast.impl;
 
 import static com.bagri.xdm.api.XDMTransactionManagement.TX_NO;
-import static com.bagri.xqj.BagriXQUtils.getAtomicValue;
-import static com.bagri.xqj.BagriXQUtils.getBaseTypeForTypeName;
-import static com.bagri.xqj.BagriXQUtils.isStringTypeCompatible;
+import static com.bagri.xquery.api.XQUtils.getAtomicValue;
+import static com.bagri.xquery.api.XQUtils.getBaseTypeForTypeName;
+import static com.bagri.xquery.api.XQUtils.isStringTypeCompatible;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -29,7 +29,7 @@ import com.bagri.xdm.api.XDMTransactionManagement;
 import com.bagri.xdm.cache.api.XDMIndexManagement;
 import com.bagri.xdm.client.hazelcast.impl.ModelManagementImpl;
 import com.bagri.xdm.common.XDMDocumentKey;
-import com.bagri.xdm.common.XDMFactory;
+import com.bagri.xdm.common.XDMKeyFactory;
 import com.bagri.xdm.common.XDMIndexKey;
 import com.bagri.xdm.domain.XDMIndexedDocument;
 import com.bagri.xdm.domain.XDMIndexedValue;
@@ -39,7 +39,7 @@ import com.bagri.xdm.domain.XDMPath;
 import com.bagri.xdm.domain.XDMUniqueDocument;
 import com.bagri.xdm.domain.XDMUniqueValue;
 import com.bagri.xdm.system.XDMIndex;
-import com.bagri.xqj.BagriXQUtils;
+import com.bagri.xquery.api.XQUtils;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.ReplicatedMap;
@@ -55,7 +55,7 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 	private Map<Integer, TreeMap<Comparable, Integer>> rangeIndex = new HashMap<>();
 	private Map<XDMIndex, Pattern> patterns = new HashMap<>();
 
-	private XDMFactory factory;
+	private XDMKeyFactory factory;
     private ModelManagementImpl mdlMgr;
 	private DocumentManagementImpl docMgr;
     private TransactionManagementImpl txMgr;
@@ -200,7 +200,7 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 			path = mdlMgr.normalizePath(path);
 			result = mdlMgr.translatePathFromRegex(docType, PathBuilder.regexFromPath(path));
 		} else {
-			int dataType = BagriXQUtils.getBaseTypeForTypeName(index.getDataType());
+			int dataType = XQUtils.getBaseTypeForTypeName(index.getDataType());
 			XDMPath xPath = mdlMgr.translatePath(docType, path, XDMNodeKind.fromPath(path), dataType, XDMOccurence.zeroOrOne);
 			result = new HashSet<>(1);
 			result.add(xPath.getPathId());

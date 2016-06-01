@@ -1,12 +1,12 @@
 package com.bagri.xdm.client.hazelcast.impl;
 
+import static com.bagri.xdm.cache.api.XDMCacheConstants.TPN_XDM_HEALTH;
+
 import java.util.HashMap;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static com.bagri.xdm.client.common.XDMCacheConstants.TPN_XDM_HEALTH;
 
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMHealthChangeListener;

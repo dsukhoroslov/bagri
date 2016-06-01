@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.sdv.bagri</groupId>
         <artifactId>bagri</artifactId>
-        <version>0.7.1-SNAPSHOT</version>
+        <version>0.8.1-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
 
@@ -19,19 +19,15 @@
             <groupId>com.sdv.bagri</groupId>
             <artifactId>bagri-common</artifactId>
         </dependency>
-        <!--dependency>
-            <groupId>com.sdv.bagri</groupId>
-            <artifactId>bagri-client-common</artifactId>
-        </dependency-->
         <dependency>
             <groupId>com.sdv.bagri</groupId>
-            <artifactId>bagri-xquery-api</artifactId>
+            <artifactId>bagri-xdm</artifactId>
         </dependency>
-        <dependency>
+        <!--dependency>
             <groupId>com.sdv.bagri</groupId>
             <artifactId>bagri-xquery-saxon</artifactId>
             <scope>runtime</scope>
-        </dependency>
+        </dependency-->
 
         <dependency>
             <groupId>javax.xml.xquery</groupId>

@@ -28,7 +28,7 @@ import org.w3c.dom.Text;
 
 import com.bagri.common.util.XMLUtils;
 import com.bagri.xdm.system.XDMType;
-import com.bagri.xqj.BagriXQUtils;
+import com.bagri.xquery.api.XQUtils;
 
 import net.sf.saxon.Configuration;
 import net.sf.saxon.dom.DOMObjectModel;
@@ -381,7 +381,7 @@ public class SaxonUtils {
 	public static BuiltInAtomicType getAtomicType(XQItemType type) throws XQException {
 		
 		int kind = type.getItemKind();
-		if (BagriXQUtils.isBaseTypeSupported(kind)) {
+		if (XQUtils.isBaseTypeSupported(kind)) {
 			switch (type.getBaseType()) {
 				case XQBASETYPE_ANYATOMICTYPE: return BuiltInAtomicType.ANY_ATOMIC;
 				case XQBASETYPE_ANYSIMPLETYPE: return null; 
@@ -470,11 +470,11 @@ public class SaxonUtils {
 
     private static XMLGregorianCalendar getCalendar(CalendarValue c, int cType) { //throws XPathException {
     	GregorianCalendar cal = c.getCalendar(); 
-    	return BagriXQUtils.getXMLCalendar(cal, cType);
+    	return XQUtils.getXMLCalendar(cal, cType);
     }
 
     private static Duration getDuration(DurationValue d, int type) { //throws XPathException {
-    	return BagriXQUtils.getXMLDuration(d.getStringValue(), type);
+    	return XQUtils.getXMLDuration(d.getStringValue(), type);
     }
 
     @SuppressWarnings({ "rawtypes" })
@@ -658,14 +658,14 @@ public class SaxonUtils {
         	return xqFactory.createItemFromObject(value, xqt);
         } else if (item instanceof NodeInfo) {
         	org.w3c.dom.Node node = NodeOverNodeInfo.wrap((NodeInfo)item);
-        	XQItemType xqt = BagriXQUtils.getTypeForNode(xqFactory, node);
+        	XQItemType xqt = XQUtils.getTypeForNode(xqFactory, node);
         	return xqFactory.createItemFromNode(node, xqt);
         } else if (item instanceof ObjectValue) {
         	Object value = ((ObjectValue) item).getObject();
         	if (value instanceof XQItem) { //Accessor) {
         		return (XQItemAccessor) value;
         	} else {
-            	XQItemType xqt = BagriXQUtils.getTypeForObject(xqFactory, value);
+            	XQItemType xqt = XQUtils.getTypeForObject(xqFactory, value);
             	return xqFactory.createItemFromObject(value, xqt);
         	}
         } else if (item instanceof Sequence) {

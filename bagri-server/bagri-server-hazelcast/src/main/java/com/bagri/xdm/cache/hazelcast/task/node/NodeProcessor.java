@@ -23,7 +23,7 @@ import com.hazelcast.map.EntryProcessor;
 import com.hazelcast.spring.context.SpringAware;
 
 import static com.bagri.common.config.XDMConfigConstants.xdm_cluster_node_name;
-import static com.bagri.xdm.client.common.XDMCacheConstants.PN_XDM_SYSTEM_POOL;
+import static com.bagri.xdm.cache.api.XDMCacheConstants.PN_XDM_SYSTEM_POOL;
 
 @SpringAware
 public abstract class NodeProcessor extends EntityProcessor implements EntryProcessor<String, XDMNode>, 

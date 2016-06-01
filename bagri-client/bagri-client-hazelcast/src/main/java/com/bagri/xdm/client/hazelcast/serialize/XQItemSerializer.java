@@ -22,7 +22,7 @@ import org.w3c.dom.ProcessingInstruction;
 import org.w3c.dom.Text;
 
 import com.bagri.common.util.XMLUtils;
-import com.bagri.xqj.BagriXQUtils;
+import com.bagri.xquery.api.XQUtils;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.StreamSerializer;
@@ -120,14 +120,14 @@ public class XQItemSerializer implements StreamSerializer<XQItem> {
 			    		case XQBASETYPE_GYEARMONTH: {
 			    			// must be XMLGregorianCalendar
 			    			GregorianCalendar gc = (GregorianCalendar) in.readObject();
-			    			XMLGregorianCalendar xgc = BagriXQUtils.getXMLCalendar(gc, bType);
+			    			XMLGregorianCalendar xgc = XQUtils.getXMLCalendar(gc, bType);
 							return xqFactory.createItemFromObject(xgc, type);
 			    		}					
 			    		case XQBASETYPE_DURATION: 
 			    		case XQBASETYPE_DAYTIMEDURATION: 
 			    		case XQBASETYPE_YEARMONTHDURATION: {
 			    			// must be string representation of Duration
-			    			Duration xd = BagriXQUtils.getXMLDuration(in.readUTF(), bType);
+			    			Duration xd = XQUtils.getXMLDuration(in.readUTF(), bType);
 							return xqFactory.createItemFromObject(xd, type);
 			    		}
 						case XQBASETYPE_QNAME: {
@@ -207,9 +207,9 @@ public class XQItemSerializer implements StreamSerializer<XQItem> {
 			out.writeObject(type);
 			logger.trace("write; got type: {}", type);
 
-			if (BagriXQUtils.isBaseTypeSupported(type.getItemKind())) {
+			if (XQUtils.isBaseTypeSupported(type.getItemKind())) {
 				int bType = type.getBaseType();
-				if (BagriXQUtils.isAtomicType(bType)) {
+				if (XQUtils.isAtomicType(bType)) {
 					switch (bType) {
 						case XQBASETYPE_BASE64BINARY: 
 			    		case XQBASETYPE_HEXBINARY: {

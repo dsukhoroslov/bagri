@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.sdv.bagri</groupId>
         <artifactId>bagri</artifactId>
-        <version>0.7.1-SNAPSHOT</version>
+        <version>0.8.1-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
 
@@ -25,19 +25,11 @@
         </dependency>
         <dependency>
             <groupId>com.sdv.bagri</groupId>
-            <artifactId>bagri-client-common</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.sdv.bagri</groupId>
             <artifactId>bagri-client-hazelcast</artifactId>
         </dependency>
         <dependency>
             <groupId>com.sdv.bagri</groupId>
             <artifactId>bagri-xqj</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.sdv.bagri</groupId>
-            <artifactId>bagri-xquery-api</artifactId>
         </dependency>
         <dependency>
             <groupId>com.sdv.bagri</groupId>
@@ -87,7 +79,7 @@
                                     <verbose>false</verbose>
           			    <links>
 					<link>http://docs.hazelcast.org/docs/3.6/javadoc/</link>
-					<link>http://www.saxonica.com/documentation9.5/index.html#!javadoc</link>
+					<link>http://www.saxonica.com/documentation/javadoc/index.html</link>
           			    </links>				    
 
                                     <windowtitle>Bagri: XML DB on top of Distributed Cache</windowtitle>

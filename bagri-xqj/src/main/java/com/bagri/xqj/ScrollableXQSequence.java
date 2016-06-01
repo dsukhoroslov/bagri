@@ -9,6 +9,7 @@ import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQItem;
 import javax.xml.xquery.XQSequence;
 
+import com.bagri.xquery.api.XQUtils;
 import com.bagri.xquery.api.XQProcessor;
 
 public class ScrollableXQSequence extends BagriXQSequence implements XQSequence {
@@ -30,7 +31,7 @@ public class ScrollableXQSequence extends BagriXQSequence implements XQSequence 
 				XQItem item = (XQItem) current;
 				setCurrent(item.getItemType(), item.getObject());
 			} else {
-				setCurrent(BagriXQUtils.getTypeForObject(xqFactory, current), current);
+				setCurrent(XQUtils.getTypeForObject(xqFactory, current), current);
 			}
 		} else {
 			setCurrent(null, null);

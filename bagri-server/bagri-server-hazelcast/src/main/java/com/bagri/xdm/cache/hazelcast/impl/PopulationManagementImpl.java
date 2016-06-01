@@ -1,7 +1,7 @@
 package com.bagri.xdm.cache.hazelcast.impl;
 
 import static com.bagri.common.config.XDMConfigConstants.*;
-import static com.bagri.xdm.client.common.XDMCacheConstants.*;
+import static com.bagri.xdm.cache.api.XDMCacheConstants.*;
 import static com.bagri.xdm.cache.hazelcast.util.SpringContextHolder.*;
 
 import java.util.HashSet;
@@ -15,7 +15,7 @@ import org.springframework.context.ApplicationContext;
 import com.bagri.xdm.cache.hazelcast.store.DocumentMemoryStore;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaPopulator;
 import com.bagri.xdm.common.XDMDocumentKey;
-import com.bagri.xdm.common.XDMFactory;
+import com.bagri.xdm.common.XDMKeyFactory;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMTransaction;
 import com.hazelcast.core.EntryEvent;
@@ -56,7 +56,7 @@ public class PopulationManagementImpl implements ManagedService,
     private int populationSize;
     private NodeEngine nodeEngine;
 
-    private XDMFactory xFactory;
+    private XDMKeyFactory xFactory;
 	private IMap<Long, XDMTransaction> xtxCache;
 	//private IMap<XDMDocumentKey, XDMDocument> xddCache;
 	private IMap xddCache;
@@ -134,7 +134,7 @@ public class PopulationManagementImpl implements ManagedService,
 		}
 		
 		Set<XDMDocumentKey> result = new HashSet<>();
-		XDMFactory factory = getXDMFactory();
+		XDMKeyFactory factory = getXDMFactory();
 		for (Long docKey: docStore.getEntryKeys()) {
 			result.add(factory.newXDMDocumentKey(docKey));
 		}
@@ -161,10 +161,10 @@ public class PopulationManagementImpl implements ManagedService,
 		hMgr.initState(actCount, docCount - actCount);
 	}
 	
-	private XDMFactory getXDMFactory() {
+	private XDMKeyFactory getXDMFactory() {
 		if (xFactory == null) {
 			ApplicationContext schemaCtx = (ApplicationContext) getContext(schemaName, schema_context);
-			xFactory = schemaCtx.getBean("xdmFactory", XDMFactory.class);
+			xFactory = schemaCtx.getBean("xdmFactory", XDMKeyFactory.class);
 		}
 		return xFactory;
 	}

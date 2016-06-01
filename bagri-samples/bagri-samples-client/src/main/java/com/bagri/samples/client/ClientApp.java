@@ -5,7 +5,7 @@ import static com.bagri.common.config.XDMConfigConstants.xdm_document_data_forma
 import static com.bagri.common.util.FileUtils.readTextFile;
 import static com.bagri.xdm.common.XDMConstants.xs_ns;
 import static com.bagri.xdm.common.XDMConstants.xs_prefix;
-import static com.bagri.xqj.BagriXQUtils.getBaseTypeForTypeName;
+import static com.bagri.xquery.api.XQUtils.getBaseTypeForTypeName;
 
 import java.io.IOException;
 import java.util.ArrayList;

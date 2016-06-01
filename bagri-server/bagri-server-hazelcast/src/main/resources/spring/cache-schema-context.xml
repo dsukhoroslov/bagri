@@ -267,7 +267,7 @@
 	
 	<hz:executorService id="xdm-exec-pool" name="xdm-exec-pool" instance-ref="hzInstance"/>
 	
-	<bean id="xdmFactory" class="com.bagri.xdm.cache.hazelcast.impl.XDMFactoryImpl"/>
+	<bean id="xdmFactory" class="com.bagri.xdm.cache.hazelcast.impl.KeyFactoryImpl"/>
 
 	<bean id="xdmStoreFactory" class="com.bagri.xdm.cache.hazelcast.store.DocumentStoreFactory"/>
 

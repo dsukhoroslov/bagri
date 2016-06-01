@@ -5,8 +5,8 @@ import static com.bagri.common.config.XDMConfigConstants.*;
 import static com.bagri.common.util.FileUtils.def_encoding;
 import static com.bagri.common.util.XMLUtils.*;
 import static com.bagri.xdm.common.XDMConstants.*;
-import static com.bagri.xdm.client.common.XDMCacheConstants.PN_XDM_SCHEMA_POOL;
 import static com.bagri.xdm.api.XDMTransactionManagement.TX_NO;
+import static com.bagri.xdm.cache.api.XDMCacheConstants.PN_XDM_SCHEMA_POOL;
 import static com.bagri.xdm.common.XDMConstants.pn_client_txTimeout;
 import static com.bagri.xdm.domain.XDMDocument.dvFirst;
 import static com.bagri.xdm.domain.XDMDocument.clnDefault;
@@ -40,12 +40,12 @@ import com.bagri.common.idgen.IdGenerator;
 import com.bagri.common.stats.StatisticsEvent;
 import com.bagri.common.util.PropUtils;
 import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.cache.common.XDMDocumentManagementServer;
+import com.bagri.xdm.cache.api.impl.DocumentManagementServer;
 import com.bagri.xdm.cache.hazelcast.predicate.CollectionPredicate;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentContentProvider;
 import com.bagri.xdm.common.XDMDataKey;
 import com.bagri.xdm.common.XDMDocumentKey;
-import com.bagri.xdm.common.XDMFactory;
+import com.bagri.xdm.common.XDMKeyFactory;
 import com.bagri.xdm.common.XDMParser;
 import com.bagri.xdm.domain.XDMData;
 import com.bagri.xdm.domain.XDMDocument;
@@ -66,9 +66,9 @@ import com.hazelcast.map.EntryProcessor;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
 
-public class DocumentManagementImpl extends XDMDocumentManagementServer {
+public class DocumentManagementImpl extends DocumentManagementServer {
 	
-	private XDMFactory factory;
+	private XDMKeyFactory factory;
 	private RepositoryImpl repo;
     private HazelcastInstance hzInstance;
     private IndexManagementImpl indexManager;

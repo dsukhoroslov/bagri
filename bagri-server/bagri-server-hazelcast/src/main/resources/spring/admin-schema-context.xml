@@ -10,7 +10,7 @@
 	<context:property-placeholder ignore-unresolvable="true" location="file:${xdm.config.path}/admin.properties" />
 	<context:annotation-config />
  
-	<!--bean id="xdmFactory" class="com.bagri.xdm.cache.hazelcast.impl.XDMFactoryImpl" /-->
+	<!--bean id="xdmFactory" class="com.bagri.xdm.cache.hazelcast.impl.KeyFactoryImpl" /-->
 
 	<bean id="xqDataSource" class="com.bagri.xqj.BagriXQDataSource">
 	    <property name="properties">

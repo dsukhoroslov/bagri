@@ -5,7 +5,7 @@ import static com.bagri.xdm.common.XDMConstants.cmd_remove_cln_documents;
 import static com.bagri.xdm.common.XDMConstants.cmd_remove_document;
 import static com.bagri.xdm.common.XDMConstants.cmd_store_document;
 import static com.bagri.xdm.common.XDMConstants.pn_query_command;
-import static com.bagri.xqj.BagriXQUtils.getXQException;
+import static com.bagri.xquery.api.XQUtils.getXQException;
 import static com.bagri.xquery.saxon.SaxonUtils.itemToXQItem;
 
 import java.util.Collection;

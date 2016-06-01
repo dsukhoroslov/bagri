@@ -1,5 +1,7 @@
 package com.bagri.xdm.cache.hazelcast.management;
 
+import static com.bagri.xquery.api.XQUtils.getTypeName;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
@@ -16,10 +18,10 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
 import com.bagri.xdm.api.XDMException;
+import com.bagri.xdm.api.impl.ModelManagementBase;
 import com.bagri.xdm.cache.hazelcast.task.index.IndexCreator;
 import com.bagri.xdm.cache.hazelcast.task.index.IndexRemover;
 import com.bagri.xdm.cache.hazelcast.task.model.ModelRegistrator;
-import com.bagri.xdm.client.common.impl.ModelManagementBase;
 import com.bagri.xdm.domain.XDMDocumentType;
 import com.bagri.xdm.domain.XDMNamespace;
 import com.bagri.xdm.domain.XDMPath;
@@ -27,8 +29,6 @@ import com.bagri.xdm.system.XDMFragment;
 import com.bagri.xdm.system.XDMIndex;
 import com.bagri.xdm.system.XDMSchema;
 import com.hazelcast.core.Member;
-
-import static com.bagri.xqj.BagriXQUtils.getTypeName;
 
 @ManagedResource(description="Model Management MBean")
 public class ModelManagement extends SchemaFeatureManagement {

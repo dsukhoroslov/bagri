@@ -10,6 +10,8 @@ import javax.xml.xquery.XQSequenceType;
 import org.apache.xerces.util.XMLChar;
 import org.w3c.dom.Node;
 
+import com.bagri.xquery.api.XQUtils;
+
 public class BagriXQItemType extends BagriXQSequenceType implements XQItemType {
 
 	private int baseType;
@@ -39,7 +41,7 @@ public class BagriXQItemType extends BagriXQSequenceType implements XQItemType {
 	@Override
 	public int getBaseType() throws XQException {
 		
-		if (BagriXQUtils.isBaseTypeSupported(kind)) {
+		if (XQUtils.isBaseTypeSupported(kind)) {
 			return baseType;
 		}
 		throw new XQException("getBaseType is not supported for this item kind: " + kind);
@@ -54,7 +56,7 @@ public class BagriXQItemType extends BagriXQSequenceType implements XQItemType {
 	@Override
 	public QName getNodeName() throws XQException {
 		
-		if (BagriXQUtils.isNodeNameSupported(kind)) {
+		if (XQUtils.isNodeNameSupported(kind)) {
 			
 			if (nodeName != null && "*".equals(nodeName.getLocalPart())) { 
 				return null;  // a wildcard..
@@ -67,7 +69,7 @@ public class BagriXQItemType extends BagriXQSequenceType implements XQItemType {
 	@Override
 	public String getPIName() throws XQException {
 		
-		if (BagriXQUtils.isPINameSupported(kind)) {
+		if (XQUtils.isPINameSupported(kind)) {
 			if (nodeName != null) {
 				return nodeName.getLocalPart();
 			}
@@ -85,7 +87,7 @@ public class BagriXQItemType extends BagriXQSequenceType implements XQItemType {
 	@Override
 	public QName getTypeName() throws XQException {
 
-		if (BagriXQUtils.isBaseTypeSupported(kind)) {
+		if (XQUtils.isBaseTypeSupported(kind)) {
 			return typeName;
 		}
 		throw new XQException("getTypeName is not supported for this item kind: " + kind);
@@ -192,17 +194,17 @@ public class BagriXQItemType extends BagriXQSequenceType implements XQItemType {
 		if (this.getSchemaURI() != null) {
 		    hashCode = 31*hashCode + this.getSchemaURI().hashCode();
 		}
-		if (BagriXQUtils.isBaseTypeSupported(kind)) {
+		if (XQUtils.isBaseTypeSupported(kind)) {
 			hashCode = 31*hashCode + baseType;
 		}
-		if (BagriXQUtils.isNodeNameSupported(kind) && nodeName != null) {
+		if (XQUtils.isNodeNameSupported(kind) && nodeName != null) {
 			hashCode = 31*hashCode + nodeName.hashCode();
 		}
-		if (BagriXQUtils.isBaseTypeSupported(kind)) {
+		if (XQUtils.isBaseTypeSupported(kind)) {
 			hashCode = 31*hashCode + typeName.hashCode();
 		}
 		try {
-			if (BagriXQUtils.isPINameSupported(kind) && this.getPIName () != null) { 
+			if (XQUtils.isPINameSupported(kind) && this.getPIName () != null) { 
 				hashCode = 31*hashCode + this.getPIName().hashCode();
 			}
 		} catch (XQException ex) {
@@ -224,12 +226,12 @@ public class BagriXQItemType extends BagriXQSequenceType implements XQItemType {
 			return false;
 		}
 		try {
-			if (BagriXQUtils.isBaseTypeSupported(kind)) {
+			if (XQUtils.isBaseTypeSupported(kind)) {
 				if (this.getBaseType() != other.getBaseType()) {
 					return false;
 				}
 			}
-			if (BagriXQUtils.isNodeNameSupported(kind)) {
+			if (XQUtils.isNodeNameSupported(kind)) {
 				if (nodeName == null) {
 					if (other.getNodeName() != null) {
 						return false;
@@ -249,7 +251,7 @@ public class BagriXQItemType extends BagriXQSequenceType implements XQItemType {
 					return false;
 				}
 			}
-			if (BagriXQUtils.isBaseTypeSupported(kind)) {
+			if (XQUtils.isBaseTypeSupported(kind)) {
 				if (typeName == null) {
 					if (other.getTypeName() != null) {
 						return false;
@@ -266,7 +268,7 @@ public class BagriXQItemType extends BagriXQSequenceType implements XQItemType {
 			if (isElementNillable() != other.isElementNillable()) {
 				return false;
 			}
-			if (BagriXQUtils.isPINameSupported(kind)) {
+			if (XQUtils.isPINameSupported(kind)) {
 				if (this.getPIName() == null) {
 					if (other.getPIName() != null) {
 						return false;
