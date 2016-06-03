@@ -18,13 +18,13 @@ import static com.bagri.common.config.XDMConfigConstants.xdm_cluster_node_schema
 
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(namespace = "http://www.bagri.com/xdm/system", propOrder = {
+@XmlType(namespace = "http://www.bagridb.com/xdm/system", propOrder = {
 		"name", 
 		"options"
 })
 public class XDMNode extends XDMEntity {
 	
-	@XmlType(name = "NodeRole", namespace = "http://www.bagri.com/xdm/system")
+	@XmlType(name = "NodeRole", namespace = "http://www.bagridb.com/xdm/system")
 	@XmlEnum
 	public enum NodeRole {
 		

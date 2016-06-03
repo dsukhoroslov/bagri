@@ -4,7 +4,7 @@ import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlEnumValue;
 import javax.xml.bind.annotation.XmlType;
 
-@XmlType(name = "Cardinality", namespace = "http://www.bagri.com/xdm/system")
+@XmlType(name = "Cardinality", namespace = "http://www.bagridb.com/xdm/system")
 @XmlEnum
 public enum XDMCardinality {
 	

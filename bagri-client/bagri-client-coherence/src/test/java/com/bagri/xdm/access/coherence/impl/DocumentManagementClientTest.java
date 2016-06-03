@@ -1,34 +1,17 @@
 package com.bagri.xdm.access.coherence.impl;
 
-import static org.junit.Assert.*;
-
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import static com.bagri.xdm.cache.api.XDMCacheConstants.CN_XDM_DOCUMENT;
+import static com.bagri.xdm.cache.api.XDMCacheConstants.CN_XDM_ELEMENT;
+import static com.bagri.xdm.cache.api.XDMCacheConstants.CN_XDM_NAMESPACE_DICT;
+import static com.bagri.xdm.cache.api.XDMCacheConstants.CN_XDM_PATH_DICT;
 
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 
-import com.bagri.xdm.access.coherence.impl.DocumentManagementClient;
-import com.bagri.xdm.access.coherence.process.DocumentBuilder;
 import com.bagri.xdm.api.test.XDMDocumentManagementTest;
-import com.bagri.xdm.common.XDMDataKey;
 import com.tangosol.net.CacheFactory;
-import com.tangosol.util.Filter;
-import com.tangosol.util.extractor.PofExtractor;
-import com.tangosol.util.extractor.ReflectionExtractor;
-import com.tangosol.util.filter.AndFilter;
-import com.tangosol.util.filter.EqualsFilter;
-import com.tangosol.util.filter.GreaterEqualsFilter;
-import com.tangosol.util.filter.GreaterFilter;
-import com.tangosol.util.filter.InFilter;
-import com.tangosol.util.filter.LessFilter;
-
-import static com.bagri.xdm.access.api.XDMCacheConstants.*;
 
 public class DocumentManagementClientTest extends XDMDocumentManagementTest {
 

@@ -1,8 +1,6 @@
 package com.bagri.xdm.access.coherence.impl;
 
-import static com.bagri.xdm.access.api.XDMCacheConstants.CN_XDM_DOCUMENT;
-import static com.bagri.xdm.access.api.XDMCacheConstants.CN_XDM_ELEMENT;
-import static com.bagri.xdm.access.api.XDMCacheConstants.SQN_DOCUMENT;
+import static com.bagri.xdm.cache.api.XDMCacheConstants.*;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -17,7 +15,8 @@ import javax.xml.transform.Source;
 import com.bagri.common.query.ExpressionBuilder;
 import com.bagri.common.query.ExpressionContainer;
 import com.bagri.common.query.PathExpression;
-import com.bagri.xdm.access.api.XDMDocumentManagementClient;
+import com.bagri.xdm.api.XDMException;
+import com.bagri.xdm.api.impl.DocumentManagementBase;
 //import com.bagri.xdm.cache.data.PathParentDocumentKey;
 //import com.bagri.xdm.cache.data.PathValueDocumentKey;
 import com.bagri.xdm.access.coherence.process.DocumentBuilder;
@@ -41,7 +40,7 @@ import com.tangosol.util.filter.GreaterFilter;
 import com.tangosol.util.filter.LessEqualsFilter;
 import com.tangosol.util.filter.LessFilter;
 
-public class DocumentManagementClient extends XDMDocumentManagementClient { 
+public class DocumentManagementClient extends DocumentManagementBase { 
 	
 	private NamedCache xddCache;
 	private NamedCache xdmCache;
@@ -266,6 +265,18 @@ public class DocumentManagementClient extends XDMDocumentManagementClient {
 
 	@Override
 	public XDMDocument storeDocumentSource(long arg0, Source arg1) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getDocumentAsString(String arg0) throws XDMException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public XDMDocument storeDocumentFromString(String arg0, String arg1, Properties arg2) throws XDMException {
 		// TODO Auto-generated method stub
 		return null;
 	}

@@ -20,19 +20,19 @@ public class DataDocumentKey extends XDMDataKey implements KeyAssociation, Porta
 
 	@Override
 	public Object getAssociatedKey() {
-		return documentId;
+		return documentKey;
 	}
 
 	@Override
 	public void readExternal(PofReader in) throws IOException {
-		documentId = in.readLong(0);
+		documentKey = in.readLong(0);
 		pathId = in.readInt(1);
 	}
 
 	@Override
 	public void writeExternal(PofWriter out) throws IOException {
-		out.writeLong(0,  documentId);
-		out.writeLong(1,  pathId);
+		out.writeLong(0, documentKey);
+		out.writeLong(1, pathId);
 	}
 
 }

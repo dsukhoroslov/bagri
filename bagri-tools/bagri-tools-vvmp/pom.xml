@@ -3,13 +3,13 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.sdv.bagri</groupId>
+        <groupId>com.bagri.db</groupId>
         <artifactId>bagri-tools</artifactId>
         <version>0.8.1-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
 
-    <!--groupId>com.sdv.bagri</groupId-->
+    <!--groupId>com.bagri.db</groupId-->
     <artifactId>bagri-tools-vvmp</artifactId>
     <name>bagri-tools-vvmp</name>
     <description>BagRi: VisualVM plugin</description>
@@ -26,7 +26,7 @@
 
     <dependencies>
         <!--dependency>
-            <groupId>com.sdv.bagri</groupId>
+            <groupId>com.bagri.db</groupId>
             <artifactId>bagri-common</artifactId>
         </dependency-->
 

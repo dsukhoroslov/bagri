@@ -16,7 +16,7 @@ import javax.xml.namespace.QName;
 import com.bagri.xdm.common.XDMEntity;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(namespace = "http://www.bagri.com/xdm/system", propOrder = {
+@XmlType(namespace = "http://www.bagridb.com/xdm/system", propOrder = {
 		"name", 
 		"docType", 
 		"path",

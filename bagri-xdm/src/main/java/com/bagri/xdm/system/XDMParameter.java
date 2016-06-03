@@ -6,7 +6,7 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlType;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(namespace = "http://www.bagri.com/xdm/system", propOrder = {
+@XmlType(namespace = "http://www.bagridb.com/xdm/system", propOrder = {
 		"name"
 })
 public class XDMParameter extends XDMType {

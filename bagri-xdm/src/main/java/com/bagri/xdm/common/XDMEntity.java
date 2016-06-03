@@ -27,7 +27,7 @@ import com.bagri.xdm.system.XDMUser;
 import com.bagri.xdm.system.XDMXQueryTrigger;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-//@XmlType(namespace = "http://www.bagri.com/xdm/system",	propOrder = {
+//@XmlType(namespace = "http://www.bagridb.com/xdm/system",	propOrder = {
 @XmlType(propOrder = {
 		"version", 
 		"createdAt", 

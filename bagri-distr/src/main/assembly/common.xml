@@ -84,7 +84,7 @@
         <!--other command files-->
         <fileSet>
             <directory>src/main/bin</directory>
-            <outputDirectory>/bin</outputDirectory>
+            <outputDirectory>\bin</outputDirectory>
             <lineEnding>windows</lineEnding>
             <includes>
                 <include>*.bat</include>

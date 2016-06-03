@@ -111,7 +111,7 @@
         </fileSet>
         <fileSet>
             <directory>src/main/tpox</directory>
-            <outputDirectory>/tpox</outputDirectory>
+            <outputDirectory>\tpox</outputDirectory>
             <lineEnding>windows</lineEnding>
             <includes>
                 <include>*.cmd</include>
@@ -138,7 +138,7 @@
         </fileSet>
         <fileSet>
             <directory>src/main/ycsb</directory>
-            <outputDirectory>/ycsb</outputDirectory>
+            <outputDirectory>\ycsb</outputDirectory>
             <lineEnding>windows</lineEnding>
             <includes>
                 <include>*.cmd</include>

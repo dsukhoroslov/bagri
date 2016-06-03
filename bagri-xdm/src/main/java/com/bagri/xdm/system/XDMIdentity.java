@@ -7,7 +7,7 @@ import javax.xml.bind.annotation.XmlID;
 import javax.xml.bind.annotation.XmlType;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(namespace = "http://www.bagri.com/xdm/access", propOrder = {
+@XmlType(namespace = "http://www.bagridb.com/xdm/access", propOrder = {
 		"id" 
 })
 public class XDMIdentity {

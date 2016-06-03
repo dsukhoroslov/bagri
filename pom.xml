@@ -3,13 +3,13 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.sdv.bagri</groupId>
+    <groupId>com.bagri.db</groupId>
     <artifactId>bagri</artifactId>
     <version>0.8.1-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>bagri</name>
     <!--shortDescription>An XML DB on top of Distributed Cache</shortDescription-->
-    <description>BagRi: Root Project</description>
+    <description>Bagri: The Root Project</description>
     <inceptionYear>2013</inceptionYear>
 
     <licenses>
@@ -42,7 +42,7 @@
         <url>https://github.com/dsukhoroslov/bagri/issues</url>
     </issueManagement>
     <organization>
-      <name>Denis Sukhoroslov</name>
+      <name>Project Bagri</name>
       <url>www.bagridb.com</url>
     </organization>
 
@@ -124,12 +124,12 @@
         <dependencies>
             <!-- Module dependencies -->
             <dependency>
-                <groupId>com.sdv.bagri</groupId>
+                <groupId>com.bagri.db</groupId>
                 <artifactId>bagri-common</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.sdv.bagri</groupId>
+                <groupId>com.bagri.db</groupId>
                 <artifactId>bagri-test-common</artifactId>
                 <version>${project.version}</version>
                 <exclusions>
@@ -140,39 +140,39 @@
                 </exclusions>
             </dependency>
             <dependency>
-                <groupId>com.sdv.bagri</groupId>
+                <groupId>com.bagri.db</groupId>
                 <artifactId>bagri-xdm</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <!--dependency>
-                <groupId>com.sdv.bagri</groupId>
+                <groupId>com.bagri.db</groupId>
                 <artifactId>bagri-client-coherence</artifactId>
                 <version>${project.version}</version>
             </dependency-->
             <dependency>
-                <groupId>com.sdv.bagri</groupId>
+                <groupId>com.bagri.db</groupId>
                 <artifactId>bagri-client-hazelcast</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>com.sdv.bagri</groupId>
+                <groupId>com.bagri.db</groupId>
                 <artifactId>bagri-xquery-saxon</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.sdv.bagri</groupId>
+                <groupId>com.bagri.db</groupId>
                 <artifactId>bagri-xqj</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
             <!--dependency>
-                <groupId>com.sdv.bagri</groupId>
+                <groupId>com.bagri.db</groupId>
                 <artifactId>bagri-server-coherence</artifactId>
                 <version>${project.version}</version>
             </dependency-->
             <dependency>
-                <groupId>com.sdv.bagri</groupId>
+                <groupId>com.bagri.db</groupId>
                 <artifactId>bagri-server-hazelcast</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -366,20 +366,6 @@
                 <groupId>com.hazelcast</groupId>
                 <artifactId>hazelcast-all</artifactId>
                 <version>${hazelcast.version}</version>
-                <!--exclusions>
-                    <exclusion>
-		        <groupId>net.sourceforge.findbugs</groupId>
-		        <artifactId>annotations</artifactId>
-                    </exclusion>
-                    <exclusion>
-		        <groupId>com.eclipsesource.minimal-json</groupId>
-		        <artifactId>minimal-json</artifactId>
-                    </exclusion>
-                    <exclusion>
-		        <groupId>org.freemarker</groupId>
-		        <artifactId>freemarker</artifactId>
-                    </exclusion>
-                </exclusions-->
             </dependency>
 
             <!-- Oracle dependencies -->

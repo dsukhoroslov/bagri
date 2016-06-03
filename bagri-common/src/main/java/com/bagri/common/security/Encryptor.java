@@ -1,9 +1,11 @@
 package com.bagri.common.security;
 
+import static com.bagri.common.util.FileUtils.def_encoding;
+
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import static com.bagri.common.util.FileUtils.def_encoding;
+
 
 public class Encryptor {
 

@@ -1,11 +1,6 @@
 package com.bagri.xdm.access.coherence.impl;
 
-import static com.bagri.xdm.access.api.XDMCacheConstants.CN_XDM_DOCTYPE_DICT;
-import static com.bagri.xdm.access.api.XDMCacheConstants.CN_XDM_NAMESPACE_DICT;
-import static com.bagri.xdm.access.api.XDMCacheConstants.CN_XDM_PATH_DICT;
-import static com.bagri.xdm.access.api.XDMCacheConstants.SQN_DOCTYPE;
-import static com.bagri.xdm.access.api.XDMCacheConstants.SQN_NAMESPACE;
-import static com.bagri.xdm.access.api.XDMCacheConstants.SQN_PATH;
+import static com.bagri.xdm.cache.api.XDMCacheConstants.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -15,7 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.bagri.common.idgen.IdGenerator;
-import com.bagri.xdm.access.api.XDMSchemaDictionaryBase;
+import com.bagri.xdm.api.impl.ModelManagementBase;
 import com.bagri.xdm.domain.XDMDocumentType;
 import com.bagri.xdm.domain.XDMNamespace;
 import com.bagri.xdm.domain.XDMPath;
@@ -30,7 +25,7 @@ import com.tangosol.util.filter.AndFilter;
 import com.tangosol.util.filter.EqualsFilter;
 import com.tangosol.util.filter.RegexFilter;
 
-public class CoherenceSchemaDictionary extends XDMSchemaDictionaryBase { 
+public class CoherenceSchemaDictionary extends ModelManagementBase { 
 	
 	private Map<String, XDMNamespace> nsCache;
 	private Map<String, XDMPath> pathCache;

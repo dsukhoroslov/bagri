@@ -1,4 +1,4 @@
-<ns:access xmlns:ns="http://www.bagri.com/xdm/access">
+<ns:access xmlns:ns="http://www.bagridb.com/xdm/access">
 
     <roles>
         <role name="TestRole">

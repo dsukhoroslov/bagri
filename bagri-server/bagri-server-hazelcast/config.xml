@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<ns2:config xmlns:ns2="http://www.bagri.com/xdm/system">
+<ns2:config xmlns:ns2="http://www.bagridb.com/xdm/system">
     <nodes>
         <node name="admin">
             <version>1</version>

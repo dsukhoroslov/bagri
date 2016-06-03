@@ -16,7 +16,7 @@ import javax.xml.bind.annotation.XmlType;
 import com.bagri.xdm.common.XDMEntity;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(namespace = "http://www.bagri.com/xdm/system", propOrder = {
+@XmlType(namespace = "http://www.bagridb.com/xdm/system", propOrder = {
 		"docType",
 		"synchronous",
 		"enabled",

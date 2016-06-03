@@ -8,13 +8,13 @@ import javax.xml.bind.annotation.XmlEnumValue;
 import javax.xml.bind.annotation.XmlType;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(namespace = "http://www.bagri.com/xdm/system", propOrder = {
+@XmlType(namespace = "http://www.bagridb.com/xdm/system", propOrder = {
 		"order",
 		"scope"
 })
 public class XDMTriggerAction {
 
-	@XmlType(name = "Order", namespace = "http://www.bagri.com/xdm/system")
+	@XmlType(name = "Order", namespace = "http://www.bagridb.com/xdm/system")
 	@XmlEnum
 	public enum Order {
 
@@ -25,7 +25,7 @@ public class XDMTriggerAction {
 		after
 	}
 	
-	@XmlType(name = "Scope", namespace = "http://www.bagri.com/xdm/system")
+	@XmlType(name = "Scope", namespace = "http://www.bagridb.com/xdm/system")
 	@XmlEnum
 	public enum Scope {
 

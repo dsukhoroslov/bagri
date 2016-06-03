@@ -23,4 +23,10 @@ public class ClusteredIdGenerator implements IdGenerator<Long> {
 		return new Long[] {r.getFrom(), r.getTo()};
 	}
 
+	@Override
+	public boolean adjust(Long arg0) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 }

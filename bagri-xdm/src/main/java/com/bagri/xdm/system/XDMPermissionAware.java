@@ -16,7 +16,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import com.bagri.xdm.common.XDMEntity;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(namespace = "http://www.bagri.com/xdm/access", propOrder = {
+@XmlType(namespace = "http://www.bagridb.com/xdm/access", propOrder = {
 		"permissions",
 		"includedRoles"
 })

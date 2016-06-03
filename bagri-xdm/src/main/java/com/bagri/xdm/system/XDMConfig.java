@@ -11,7 +11,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(namespace = "http://www.bagri.com/xdm/system",	propOrder = {
+@XmlType(namespace = "http://www.bagridb.com/xdm/system",	propOrder = {
 		"nodes", 
 		"schemas",
 		"modules",
@@ -19,7 +19,7 @@ import javax.xml.bind.annotation.XmlType;
 		"formats",
 		"stores"
 })
-@XmlRootElement(name = "config", namespace = "http://www.bagri.com/xdm/system") 
+@XmlRootElement(name = "config", namespace = "http://www.bagridb.com/xdm/system") 
 public class XDMConfig {
 	
 	@XmlElement(name="node")

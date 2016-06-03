@@ -11,8 +11,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-//@XmlType(namespace = "http://www.bagri.com/xdm/system")
-@XmlRootElement(name = "script", namespace = "http://www.bagri.com/xdm/system") 
+//@XmlType(namespace = "http://www.bagridb.com/xdm/system")
+@XmlRootElement(name = "script", namespace = "http://www.bagridb.com/xdm/system") 
 public class JMXScript {
 	
 	@XmlElements(value = { 

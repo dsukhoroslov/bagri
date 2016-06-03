@@ -1,4 +1,4 @@
-<ns2:script xmlns:ns2="http://www.bagri.com/xdm/system">    
+<ns2:script xmlns:ns2="http://www.bagridb.com/xdm/system">    
     <!--param key="jmx.address">localhost:3330</param>
     <param key="jmx.login">admin</param>
     <param key="jmx.password">${password}</param-->

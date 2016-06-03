@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.sdv.bagri</groupId>
+        <groupId>com.bagri.db</groupId>
         <artifactId>bagri</artifactId>
         <version>0.8.1-SNAPSHOT</version>
         <relativePath>..</relativePath>
@@ -16,15 +16,15 @@
     <dependencies>
 
         <dependency>
-            <groupId>com.sdv.bagri</groupId>
+            <groupId>com.bagri.db</groupId>
             <artifactId>bagri-common</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.sdv.bagri</groupId>
+            <groupId>com.bagri.db</groupId>
             <artifactId>bagri-xdm</artifactId>
         </dependency>
         <!--dependency>
-            <groupId>com.sdv.bagri</groupId>
+            <groupId>com.bagri.db</groupId>
             <artifactId>bagri-xquery-saxon</artifactId>
             <scope>runtime</scope>
         </dependency-->
@@ -60,7 +60,7 @@
             <scope>test</scope>
         </dependency>
         <!--dependency>
-            <groupId>com.sdv.bagri</groupId>
+            <groupId>com.bagri.db</groupId>
             <artifactId>bagri-client-hazelcast</artifactId>
             <scope>test</scope>
         </dependency>

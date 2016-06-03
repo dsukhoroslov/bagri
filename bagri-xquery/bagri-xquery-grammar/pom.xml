@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.sdv.bagri</groupId>
+        <groupId>com.bagri.db</groupId>
         <artifactId>bagri-xquery</artifactId>
         <version>0.8.1-SNAPSHOT</version>
         <relativePath>..</relativePath>

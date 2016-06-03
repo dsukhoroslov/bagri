@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.sdv.bagri</groupId>
+        <groupId>com.bagri.db</groupId>
         <artifactId>bagri-test</artifactId>
         <version>0.8.1-SNAPSHOT</version>
         <relativePath>..</relativePath>
@@ -16,11 +16,11 @@
     <dependencies>
 
         <dependency>
-            <groupId>com.sdv.bagri</groupId>
+            <groupId>com.bagri.db</groupId>
             <artifactId>bagri-common</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.sdv.bagri</groupId>
+            <groupId>com.bagri.db</groupId>
             <artifactId>bagri-xdm</artifactId>
         </dependency>
 

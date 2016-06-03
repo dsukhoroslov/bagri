@@ -24,13 +24,13 @@ import javax.xml.bind.annotation.XmlValue;
  */
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(namespace = "http://www.bagri.com/xdm/access", propOrder = {
+@XmlType(namespace = "http://www.bagridb.com/xdm/access", propOrder = {
 		"resource",
 		"perms"
 })
 public class XDMPermission {
 
-	@XmlType(name = "Permission", namespace = "http://www.bagri.com/xdm/access")
+	@XmlType(name = "Permission", namespace = "http://www.bagridb.com/xdm/access")
 	@XmlEnum
 	public enum Permission {
 

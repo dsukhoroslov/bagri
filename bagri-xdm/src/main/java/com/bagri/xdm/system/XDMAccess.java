@@ -11,11 +11,11 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(namespace = "http://www.bagri.com/xdm/access",	propOrder = {
+@XmlType(namespace = "http://www.bagridb.com/xdm/access",	propOrder = {
 		"roles", 
 		"users"
 })
-@XmlRootElement(name = "access", namespace = "http://www.bagri.com/xdm/access") 
+@XmlRootElement(name = "access", namespace = "http://www.bagridb.com/xdm/access") 
 public class XDMAccess {
 
 	@XmlElement(name="role")

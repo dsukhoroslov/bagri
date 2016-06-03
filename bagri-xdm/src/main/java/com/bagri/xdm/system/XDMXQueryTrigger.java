@@ -9,7 +9,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name="xqtrigger", namespace = "http://www.bagri.com/xdm/system", propOrder = {
+@XmlType(name="xqtrigger", namespace = "http://www.bagridb.com/xdm/system", propOrder = {
 		"module", 
 		"function"
 })

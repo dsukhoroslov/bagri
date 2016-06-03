@@ -1,4 +1,4 @@
-<ns:config xmlns:ns="http://www.bagri.com/xdm/system" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<ns:config xmlns:ns="http://www.bagridb.com/xdm/system" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
 	<schemas>
 		<schema name="TPoX" active="true">
