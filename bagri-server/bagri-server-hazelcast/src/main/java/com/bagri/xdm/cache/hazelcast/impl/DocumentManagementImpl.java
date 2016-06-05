@@ -656,15 +656,21 @@ public class DocumentManagementImpl extends DocumentManagementServer {
 			for (XDMData xdm: data) {
 				if (fragments.contains(xdm.getPathId())) {
 					// TODO: why don't we shift it?
-					fraPath = docGen.next();
+					//XDMDocumentKey kk = factory.newXDMDocumentKey(docGen.next(), 0);
+					//fraPath = kk.getKey();
+					int hash = docGen.next().intValue(); 
+					fraPath = XDMDocumentKey.toKey(hash, 0, 0);
 					fragIds.add(fraPath);
-					fraPost = xdm.getPostId();
+					//fraPost = xdm.getPostId();
+					fraPost = model.getPath(xdm.getPath()).getPostId();
 				} else if (fraPost > 0 && xdm.getPathId() > fraPost) {
 					fraPath = docKey;
 					fraPost = 0;
 				}
 				pathIds.add(xdm.getPathId());
 				XDMDataKey xdk = factory.newXDMDataKey(fraPath, xdm.getPathId());
+				//logger.info("loadElements; got key: {}; fraPath: {}; fraPost: {}, partition: {}", 
+				//		xdk, fraPath, fraPost, hzInstance.getPartitionService().getPartition(xdk));
 				XDMElements xdes = elements.get(xdk);
 				if (xdes == null) {
 					xdes = new XDMElements(xdk.getPathId(), null);

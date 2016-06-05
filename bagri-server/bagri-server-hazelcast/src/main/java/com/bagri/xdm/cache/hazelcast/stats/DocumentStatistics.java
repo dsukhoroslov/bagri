@@ -47,6 +47,7 @@ public class DocumentStatistics extends UsageStatistics {
 	@Override
 	public Map<String, Object> toMap() {
 		Map<String, Object> result = new HashMap<String, Object>(4);
+		result.put("Collection", colName);
    		result.put("Consumed size", size);
    		result.put("Number of documents", count);
    		result.put("Number of elements", elements);
