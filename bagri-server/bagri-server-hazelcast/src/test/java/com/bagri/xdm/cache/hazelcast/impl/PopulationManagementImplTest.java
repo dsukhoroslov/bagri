@@ -6,6 +6,7 @@ import static com.bagri.common.config.XDMConfigConstants.xdm_config_properties_f
 import static com.bagri.common.config.XDMConfigConstants.xdm_node_instance;
 import static com.bagri.common.config.XDMConfigConstants.xdm_schema_store_data_path;
 
+import java.util.ArrayList;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 
@@ -19,6 +20,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.bagri.common.util.PropUtils;
 import com.bagri.xdm.api.test.XDMManagementTest;
+import com.bagri.xdm.system.XDMDataStore;
 import com.bagri.xdm.system.XDMSchema;
 
 public class PopulationManagementImplTest extends XDMManagementTest {
@@ -56,6 +58,12 @@ public class PopulationManagementImplTest extends XDMManagementTest {
 			Properties props = PropUtils.propsFromFile("src/test/resources/store.properties");
 			schema.setProperties(props);
 			xdmRepo.setSchema(schema);
+			//XDMDataStore ds = new XDMDataStore(1, new java.util.Date(), "", "JSON", null, null, null,
+			//		"com.bagri.xdm.common.df.json.JsonApiParser", "com.bagri.xdm.common.df.json.JsonBuilder", true, null);
+			//ArrayList<XDMDataStore> cStores = new ArrayList<>(1);
+			//cStores.add(ds);
+			//xdmRepo.setDataStores(cStores);
+			
 			setContext(schema.getName(), schema_context, context);
 			((TransactionManagementImpl) xdmRepo.getTxManagement()).adjustTxCounter();
     		popManager = (PopulationManagementImpl) xdmRepo.getHzInstance().getUserContext().get("popManager");
