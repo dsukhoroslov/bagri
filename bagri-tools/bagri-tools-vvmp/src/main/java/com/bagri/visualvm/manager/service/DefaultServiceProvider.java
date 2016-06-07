@@ -40,6 +40,13 @@ public class DefaultServiceProvider implements BagriServiceProvider {
 	}
 	
 	@Override
+    public void close() {
+		accService.close();
+		clService.close();
+		_INSTANCE = null;
+    }
+
+	@Override
 	public ClusterManagementService getClusterManagement() {
 		return clService;
 	}

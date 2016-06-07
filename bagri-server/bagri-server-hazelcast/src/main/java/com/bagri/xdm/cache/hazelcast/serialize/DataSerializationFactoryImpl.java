@@ -19,6 +19,7 @@ import com.bagri.xdm.cache.hazelcast.task.doc.DocumentCleaner;
 import com.bagri.xdm.cache.hazelcast.task.doc.DocumentCollectionUpdater;
 import com.bagri.xdm.cache.hazelcast.task.doc.DocumentContentProvider;
 import com.bagri.xdm.cache.hazelcast.task.doc.DocumentStructureProvider;
+import com.bagri.xdm.cache.hazelcast.task.doc.DocumentUrisProvider;
 import com.bagri.xdm.cache.hazelcast.task.index.IndexCreator;
 import com.bagri.xdm.cache.hazelcast.task.index.IndexRemover;
 import com.bagri.xdm.cache.hazelcast.task.index.ValueIndexator;
@@ -34,7 +35,7 @@ import com.bagri.xdm.cache.hazelcast.task.node.NodeKiller;
 import com.bagri.xdm.cache.hazelcast.task.node.NodeOptionSetter;
 import com.bagri.xdm.cache.hazelcast.task.node.NodeRemover;
 import com.bagri.xdm.cache.hazelcast.task.node.NodeUpdater;
-import com.bagri.xdm.cache.hazelcast.task.query.DocumentUrisProvider;
+import com.bagri.xdm.cache.hazelcast.task.query.QueryUrisProvider;
 import com.bagri.xdm.cache.hazelcast.task.query.QueryProcessor;
 import com.bagri.xdm.cache.hazelcast.task.query.ResultFetcher;
 import com.bagri.xdm.cache.hazelcast.task.query.XMLBuilder;
@@ -83,6 +84,7 @@ public class DataSerializationFactoryImpl extends com.bagri.xdm.client.hazelcast
 			case cli_ResultsDocPredicate: return new ResultsDocPredicate();
 			case cli_ResultsQueryPredicate: return new ResultsQueryPredicate();
 			case cli_CollectionPredicate: return new CollectionPredicate();
+			//case cli_ApplyQueryTask: return new QueryPredicate(); ??!
 			case cli_ProvideCollectionDocumentsTask: return new CollectionDocumentsProvider();
 			case cli_RemoveCollectionDocumentsTask: return new CollectionDocumentsRemover();
 			case cli_UpdateDocumentCollectionTask: return new DocumentCollectionUpdater();
@@ -109,11 +111,11 @@ public class DataSerializationFactoryImpl extends com.bagri.xdm.client.hazelcast
 			case cli_CleanTxDocumentsTask: return new DocumentCleaner();
 			case cli_BuildQueryXMLTask: return new XMLBuilder();
 			case cli_ExecQueryTask: return new QueryExecutor();
+			case cli_ProvideQueryUrisTask: return new QueryUrisProvider(); 
 			case cli_CollectStatisticSeriesTask: return new StatisticSeriesCollector();
 			case cli_CollectStatisticTotalsTask: return new StatisticTotalsCollector();
 			case cli_ResetStatisticsTask: return new StatisticsReseter();
 			case cli_ProcessQueryTask: return new QueryProcessor();
-			case cli_ApplyQueryTask: return new QueryPredicate();
 			case cli_KillNodeTask: return new NodeKiller();
 			case cli_SetNodeOptionTask: return new NodeOptionSetter();
 			case cli_AggregateSchemaInfoTask: return new SchemaStatsAggregator();

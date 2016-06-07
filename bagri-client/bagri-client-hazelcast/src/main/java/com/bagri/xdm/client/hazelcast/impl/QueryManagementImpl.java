@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMQueryManagement;
 import com.bagri.xdm.api.impl.QueryManagementBase;
-import com.bagri.xdm.client.hazelcast.task.query.DocumentUrisProvider;
+import com.bagri.xdm.client.hazelcast.task.query.QueryUrisProvider;
 import com.bagri.xdm.client.hazelcast.task.query.QueryExecutor;
 import com.bagri.xdm.domain.XDMQuery;
 import com.bagri.xdm.domain.XDMResults;
@@ -75,7 +75,7 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 
 		long stamp = System.currentTimeMillis();
 		logger.trace("getDocumentIDs.enter; query: {}", query);
-		DocumentUrisProvider task = new DocumentUrisProvider(repo.getClientId(), repo.getTransactionId(), query, params, props);
+		QueryUrisProvider task = new QueryUrisProvider(repo.getClientId(), repo.getTransactionId(), query, params, props);
 		Future<Collection<String>> future = execService.submit(task);
 		execution = future;
 		Collection<String> result = getResults(future, 0);

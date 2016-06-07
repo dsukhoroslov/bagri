@@ -10,7 +10,7 @@ import com.bagri.xdm.system.XDMPermission.Permission;
 import com.hazelcast.spring.context.SpringAware;
 
 @SpringAware
-public class DocumentUrisProvider extends com.bagri.xdm.client.hazelcast.task.query.DocumentUrisProvider {
+public class QueryUrisProvider extends com.bagri.xdm.client.hazelcast.task.query.QueryUrisProvider {
 
 	private transient XDMQueryManagement queryMgr;
     

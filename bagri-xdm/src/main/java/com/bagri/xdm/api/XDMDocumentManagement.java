@@ -19,8 +19,22 @@ import com.bagri.xdm.domain.XDMDocument;
  */
 public interface XDMDocumentManagement {
 
-	Collection<String> getDocumentUris(String pattern); // throws XDMException;
+	/**
+	 * search Document attributes by pattern provided
+	 * 
+	 * @param pattern: String - the query string conforming to syntax: Document attribute = value
+	 * for instance: createdBy = "admin" 
+	 * @return Collection<String> - matched Document uris
+	 */
+	Collection<String> getDocumentUris(String pattern) throws XDMException;
 	//Collection<XDMDocument> getDocuments(String pattern);
+	
+	/**
+	 * return Document uris which belongs to the collection
+	 * 
+	 * @param collection: String - the schema collection name
+	 * @return Collection<String> - Document uris belonging to the collection
+	 */
 	Collection<String> getCollectionDocumentUris(String collection) throws XDMException;
 	
 	XDMDocument getDocument(String uri) throws XDMException;

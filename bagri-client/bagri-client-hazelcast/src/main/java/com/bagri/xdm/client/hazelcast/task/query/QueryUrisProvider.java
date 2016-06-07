@@ -1,6 +1,6 @@
 package com.bagri.xdm.client.hazelcast.task.query;
 
-import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryImpl.cli_ProvideDocumentUrisTask;
+import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryImpl.cli_ProvideQueryUrisTask;
 
 import java.util.Collection;
 import java.util.Map;
@@ -9,19 +9,19 @@ import java.util.concurrent.Callable;
 
 import com.bagri.xdm.client.hazelcast.task.QueryAwareTask;
 
-public class DocumentUrisProvider extends QueryAwareTask implements Callable<Collection<String>> {
+public class QueryUrisProvider extends QueryAwareTask implements Callable<Collection<String>> {
 	
-	public DocumentUrisProvider() {
+	public QueryUrisProvider() {
 		super();
 	}
 	
-	public DocumentUrisProvider(String clientId, long txId, String query, Map params, Properties props) {
+	public QueryUrisProvider(String clientId, long txId, String query, Map params, Properties props) {
 		super(clientId, txId, query, params, props);
 	}
 
 	@Override
 	public int getId() {
-		return cli_ProvideDocumentUrisTask;
+		return cli_ProvideQueryUrisTask;
 	}
 
 	@Override

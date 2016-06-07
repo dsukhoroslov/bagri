@@ -9,7 +9,12 @@ import javax.swing.JOptionPane;
 
 public class BagriManagementAction extends SingleDataSourceAction<Application> {
 
-    public BagriManagementAction() {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -5745170562246484818L;
+
+	public BagriManagementAction() {
         super(Application.class);
         putValue(Action.NAME, "Discover Bagri clusters");
         putValue(Action.SHORT_DESCRIPTION, "Search for Bagri XDM nodes");

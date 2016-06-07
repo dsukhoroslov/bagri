@@ -248,7 +248,6 @@ public class JMXUtils {
 		return result;
 	}
     
-    @SuppressWarnings({ "rawtypes", "unchecked" })
 	public static CompositeData aggregateStats(CompositeData source, CompositeData target, StatsAggregator aggregator) {
     	// source is not nullable
 		Set<String> keys = source.getCompositeType().keySet();

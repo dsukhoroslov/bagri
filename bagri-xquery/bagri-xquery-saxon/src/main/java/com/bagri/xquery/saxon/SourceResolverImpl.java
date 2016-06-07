@@ -99,9 +99,6 @@ public class SourceResolverImpl implements SourceResolver, URIResolver {
 		//	return src;
 		//}
 		
-		// can return just a custom source (containing docId) from here,
-		// but perform the real resolution to the NodeInfo in unravel method
-		
 		// move this processing to a node (member)
 		// the document belongs to
 		//logger.debug("resolveSource; looking for documentId: {}", docId);

@@ -239,7 +239,7 @@ public class DocumentManagement extends SchemaFeatureManagement {
 	
 	@ManagedOperation(description="Remove Document")
 	@ManagedOperationParameters({
-		@ManagedOperationParameter(name = "docId", description = "Registered Document identifier")})
+		@ManagedOperationParameter(name = "uri", description = "Document identifier")})
 	public boolean removeDocument(String uri) {
 		
 		try {
@@ -391,6 +391,20 @@ public class DocumentManagement extends SchemaFeatureManagement {
 			return result;
 		} catch (XDMException ex) {
 			logger.error("getCollectionDocuments.error", ex);
+			return null;
+		}
+	}
+
+	@ManagedOperation(description="Return Documents matching the pattern provided")
+	@ManagedOperationParameters({
+		@ManagedOperationParameter(name = "pattern", description = "A pattern to match documents, like: createdBy = admin, bytes > 100")})
+	public Collection<String> getDocumentUris(String pattern) {
+		try {
+			Collection<String> result = docManager.getDocumentUris(pattern);
+			logger.debug("getDocumentUris; returning {} ids", result.size());
+			return result;
+		} catch (XDMException ex) {
+			logger.error("getDocumentUris.error", ex);
 			return null;
 		}
 	}

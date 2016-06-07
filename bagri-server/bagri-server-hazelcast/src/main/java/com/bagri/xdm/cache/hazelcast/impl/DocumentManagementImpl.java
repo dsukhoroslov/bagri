@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -37,6 +38,7 @@ import java.util.concurrent.TimeUnit;
 import javax.xml.transform.Source;
 
 import com.bagri.common.idgen.IdGenerator;
+import com.bagri.common.query.Comparison;
 import com.bagri.common.stats.StatisticsEvent;
 import com.bagri.common.util.PropUtils;
 import com.bagri.xdm.api.XDMException;
@@ -283,16 +285,25 @@ public class DocumentManagementImpl extends DocumentManagementServer {
     private XDMDocumentKey getDocumentKey(String uri, boolean next, boolean acceptClosed) {
     	Set<XDMDocumentKey> keys = xddCache.localKeySet(Predicates.equal("uri", uri));
     	if (keys.isEmpty()) {
+			XDMDocumentKey key = factory.newXDMDocumentKey(uri, 0, dvFirst);
     		if (next) {
-    			XDMDocumentKey key = factory.newXDMDocumentKey(uri, 0, dvFirst);
     			// TODO: bad case: most of the time it'll hit database!
     			// try to use some internal service (PopulationManager?) instead!
     			while (xddCache.containsKey(key)) {
     				key = factory.newXDMDocumentKey(uri, key.getRevision() + 1, dvFirst);
     			}
     			return key;
-    		}
-    		return null;
+    		} 
+    		
+			if (hzInstance.getPartitionService().getPartition(key).getOwner().localMember()) {
+	    		return null;
+			} else {
+				// think how to get it from concrete node?!
+				keys = xddCache.keySet(Predicates.equal("uri", uri));
+				if (keys.isEmpty()) {
+		    		return null;
+				}
+			}
     	}
     	XDMDocumentKey last = Collections.max(keys, new Comparator<XDMDocumentKey>() {
 
@@ -325,20 +336,94 @@ public class DocumentManagementImpl extends DocumentManagementServer {
 	@Override
 	@SuppressWarnings("unchecked")
 	public Collection<String> getDocumentUris(String pattern) {
-		// TODO: search by uri only so far;
 		// implement other search types: by dates, owner, etc..
 		logger.trace("getDocumentUris.enter; got pattern: {}", pattern);
-   		Predicate<XDMDocumentKey, XDMDocument> f = Predicates.and(Predicates.regex("uri", pattern), 
-   				Predicates.equal("txFinish", TX_NO));
-		Set<XDMDocumentKey> docKeys = xddCache.keySet(f);
+		String[] parts = pattern.split(",");
+		Predicate<XDMDocumentKey, XDMDocument> full = null;
+		for (String part: parts) {
+			logger.trace("getDocumentUris; translating query part: {}", part);
+			Predicate<XDMDocumentKey, XDMDocument> query = toPredicate(part.trim());
+			if (query != null) {
+				if (full == null) {
+					full = query;
+				} else {
+					full = Predicates.and(full, query);
+				}
+			} else {
+				logger.info("getDocumentUris; cannot translate query part '{}' to Predicate, skipping", part);
+			}
+		}
+   		//Predicate<XDMDocumentKey, XDMDocument> f = Predicates.and(Predicates.regex("uri", pattern), 
+   		//		Predicates.equal("txFinish", TX_NO));
+		Collection<XDMDocument> docs = xddCache.values(full);
 
-		// should also check if doc's start transaction is committed..
-		List<String> result = new ArrayList<>(docKeys.size());
-		for (XDMDocumentKey docKey: docKeys) {
-			result.add(pattern);
+		// should also check if doc's start transaction is committed?
+		Set<String> result = new HashSet<>(docs.size());
+		for (XDMDocument doc: docs) {
+			result.add(doc.getUri());
 		}
 		logger.trace("getDocumentUris.exit; returning: {}", result.size());
 		return result;
+	}
+
+	private Predicate toPredicate(String query) {
+		int pos = query.indexOf(" ");
+		if (pos > 0) {
+			String attr = query.substring(0, pos); 
+			int pos2 = query.indexOf(" ", pos + 1);
+			if (pos2 > 0) {
+				Comparison comp = toComparison(query.substring(pos, pos2).trim());
+				if (comp != null) {
+					String val = query.substring(pos2);
+					Comparable<?> value = toValue(attr, val.trim());
+					logger.trace("toPredicate; got predicate parts: {} {} {}", attr, comp, value);
+					switch (comp) {
+						case EQ: return Predicates.equal(attr, value);
+						case NE: return Predicates.notEqual(attr, value);
+						case GT: return Predicates.greaterThan(attr, value);
+						case GE: return Predicates.greaterEqual(attr, value);
+						case LT: return Predicates.lessThan(attr, value);
+						case LE: return Predicates.lessEqual(attr, value);
+						case LIKE: return Predicates.like(attr, value.toString());
+					}
+				}
+			}
+		}
+		return null;
+	}
+		
+	private Comparison toComparison(String comp) {
+		switch (comp) {
+			case "=": return Comparison.EQ;
+			case "!=": return Comparison.NE;
+			case "<": return Comparison.LT;
+			case "<=": return Comparison.LE;
+			case ">": return Comparison.GT;
+			case ">=": return Comparison.GE;
+			case "not": return Comparison.NOT;
+			case "like": return Comparison.LIKE;
+			case "between": return Comparison.BETWEEN;
+			case "and": return Comparison.AND;
+			case "or": return Comparison.OR;
+		}
+		return null;
+	}
+
+	private Comparable<?> toValue(String attr, String value) {
+		switch (attr) {
+		    //case "key": 
+		    case "version": return new Integer(value); 
+		    case "uri": return value;
+		    //case "type"
+		    //case "encoding": 
+		    case "txStart": 
+		    case "txFinish": return new Long(value);
+		    case "createdAt": return new Long(value); //Date()
+		    case "createdBy": return value;
+		    case "bytes": 
+		    case "elements": return new Integer(value);
+		}
+		return value;
 	}
 	
 	@Override

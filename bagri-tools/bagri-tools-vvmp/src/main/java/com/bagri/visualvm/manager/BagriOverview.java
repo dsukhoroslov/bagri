@@ -19,23 +19,24 @@ import com.bagri.visualvm.manager.service.SchemaManagementService;
 import com.bagri.visualvm.manager.service.ServiceException;
 import com.bagri.visualvm.manager.ui.XTable;
 import com.sun.tools.visualvm.application.Application;
+import com.sun.tools.visualvm.core.datasupport.DataRemovedListener;
 import com.sun.tools.visualvm.core.ui.DataSourceViewPlugin;
 import com.sun.tools.visualvm.core.ui.components.DataViewComponent;
 import com.sun.tools.visualvm.tools.jmx.JmxModel;
 import com.sun.tools.visualvm.tools.jmx.JmxModelFactory;
 
-public class BagriOverview extends DataSourceViewPlugin {
+public class BagriOverview extends DataSourceViewPlugin implements DataRemovedListener<Application>  {
 
 	private static final Logger LOGGER = Logger.getLogger(BagriOverview.class.getName());
 	
     private XTable schemasGrid;
-    private SchemaManagementService shService;
+    private BagriServiceProvider bsp;
 	
     BagriOverview(Application application) {
         super(application);
         JmxModel jmx = JmxModelFactory.getJmxModelFor(application);
-    	BagriServiceProvider bsp = DefaultServiceProvider.getInstance(jmx.getMBeanServerConnection());
-    	shService = bsp.getSchemaManagement();
+    	bsp = DefaultServiceProvider.getInstance(jmx.getMBeanServerConnection());
+        application.notifyWhenRemoved(this);
     }
 
     public DataViewComponent.DetailsView createView(int location) {
@@ -107,6 +108,7 @@ public class BagriOverview extends DataSourceViewPlugin {
         schemasGrid = new XTable(configs, new GridDataLoader() {
             @Override
             public List<GridRow> loadData() {
+            	SchemaManagementService shService = bsp.getSchemaManagement();
                 List<Schema> schemas;
                 try {
                     schemas = shService.getSchemas();
@@ -175,5 +177,11 @@ public class BagriOverview extends DataSourceViewPlugin {
         //panel.add(schemasGrid, BorderLayout.CENTER);
         return panel;
     }
+
+	@Override
+	public void dataRemoved(Application arg0) {
+		bsp.close();
+		bsp = null;
+	}
 
 }

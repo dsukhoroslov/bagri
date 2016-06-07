@@ -27,6 +27,7 @@ import com.bagri.xdm.client.hazelcast.task.doc.DocumentMapCreator;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentMapProvider;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentProvider;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentRemover;
+import com.bagri.xdm.client.hazelcast.task.doc.DocumentUrisProvider;
 import com.bagri.xdm.common.XDMDocumentKey;
 import com.bagri.xdm.domain.XDMDocument;
 import com.hazelcast.core.HazelcastInstance;
@@ -61,8 +62,8 @@ public class DocumentManagementImpl extends DocumentManagementBase implements XD
 	public XDMDocument getDocument(String uri) throws XDMException {
 		logger.trace("getDocument.enter; got uri: {}", uri);
 		XDMDocument result = null;
-		DocumentProvider xp = new DocumentProvider(repo.getClientId(), uri);
-		Future<XDMDocument> future = execService.submitToKeyOwner(xp, uri);
+		DocumentProvider task = new DocumentProvider(repo.getClientId(), uri);
+		Future<XDMDocument> future = execService.submit(task);
 		try {
 			result = future.get();
 			logger.trace("getDocument.exit; got document: {}", result);
@@ -73,30 +74,28 @@ public class DocumentManagementImpl extends DocumentManagementBase implements XD
 		}
 	}
 	
-	//@Override
-	//public XDMDocumentKey getDocumentKey(String uri) {
-		// do this via EP ?!
-   	//	Predicate<XDMDocumentKey, XDMDocument> f = Predicates.equal("uri", uri);
-	//	Set<XDMDocumentKey> docKeys = xddCache.keySet(f);
-	//	if (docKeys.size() == 0) {
-	//		return null;
-	//	}
-		// TODO: check if too many docs ?? must take latest version!
-	//	return docKeys.iterator().next();
-	//}
-	
 	@Override
-	public Collection<String> getDocumentUris(String pattern) {
-		// TODO Auto-generated method stub
-		return null;
+	public Collection<String> getDocumentUris(String pattern) throws XDMException {
+		logger.trace("getDocumentUris.enter; got pattern: {}", pattern);
+		Collection<String> result = null;
+		DocumentUrisProvider task = new DocumentUrisProvider(repo.getClientId(), repo.getTransactionId(), pattern);
+		Future<Collection<String>> future = execService.submit(task);
+		try {
+			result = future.get();
+			logger.trace("getDocumentUris.exit; got results: {}", result);
+			return result;
+		} catch (InterruptedException | ExecutionException ex) {
+			logger.error("getDocumentUris; error getting result", ex);
+			throw new XDMException(ex, XDMException.ecDocument);
+		}
 	}
 	
 	@Override
 	public Object getDocumentAsBean(String uri) throws XDMException {
 		logger.trace("getDocumentAsBean.enter; got uri: {}", uri);
 		Object result = null;
-		DocumentBeanProvider xp = new DocumentBeanProvider(repo.getClientId(), uri);
-		Future<Object> future = execService.submit(xp);
+		DocumentBeanProvider task = new DocumentBeanProvider(repo.getClientId(), uri);
+		Future<Object> future = execService.submit(task);
 		try {
 			result = future.get();
 			logger.trace("getDocumentAsBean.exit; got bean: {}", result);
@@ -111,8 +110,8 @@ public class DocumentManagementImpl extends DocumentManagementBase implements XD
 	public Map<String, Object> getDocumentAsMap(String uri) throws XDMException {
 		logger.trace("getDocumentAsMap.enter; got uri: {}", uri);
 		Map<String, Object> result = null;
-		DocumentMapProvider xp = new DocumentMapProvider(repo.getClientId(), uri);
-		Future<Map<String, Object>> future = execService.submit(xp);
+		DocumentMapProvider task = new DocumentMapProvider(repo.getClientId(), uri);
+		Future<Map<String, Object>> future = execService.submit(task);
 		try {
 			result = future.get();
 			logger.trace("getDocumentAsMap.exit; got map: {}", result);
@@ -128,12 +127,11 @@ public class DocumentManagementImpl extends DocumentManagementBase implements XD
 		// actually, I can try just get it from XML cache!
 		logger.trace("getDocumentAsString.enter; got uri: {}", uri);
 		String result = null;
-		DocumentContentProvider xp = new DocumentContentProvider(repo.getClientId(), uri);
-		Future<String> future = execService.submit(xp);
+		DocumentContentProvider task = new DocumentContentProvider(repo.getClientId(), uri);
+		Future<String> future = execService.submit(task);
 		try {
 			result = future.get();
-			logger.trace("getDocumentAsString.exit; got template results: {}", 
-					result == null ? 0 : result.length());
+			logger.trace("getDocumentAsString.exit; got content of length: {}", result == null ? 0 : result.length());
 			return result;
 		} catch (InterruptedException | ExecutionException ex) {
 			logger.error("getDocumentAsString; error getting result", ex);

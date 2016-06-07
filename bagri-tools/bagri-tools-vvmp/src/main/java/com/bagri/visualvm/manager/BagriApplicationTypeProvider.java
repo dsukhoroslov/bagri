@@ -16,7 +16,7 @@ import com.sun.tools.visualvm.core.datasupport.DataRemovedListener;
 import com.sun.tools.visualvm.tools.jmx.JmxModel;
 import com.sun.tools.visualvm.tools.jmx.JmxModelFactory;
 
-public class BagriApplicationTypeProvider extends MainClassApplicationTypeFactory implements DataRemovedListener {
+public class BagriApplicationTypeProvider extends MainClassApplicationTypeFactory implements DataRemovedListener<Application> {
 
 	private static BagriApplicationTypeProvider instance = new BagriApplicationTypeProvider();
 
@@ -37,7 +37,7 @@ public class BagriApplicationTypeProvider extends MainClassApplicationTypeFactor
     }
     
 	@Override
-	public void dataRemoved(Object source) {
+	public void dataRemoved(Application source) {
 		admins.remove(source);
 	}
 

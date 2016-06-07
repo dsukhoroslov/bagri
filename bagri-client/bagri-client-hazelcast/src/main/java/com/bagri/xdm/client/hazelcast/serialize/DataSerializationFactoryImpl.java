@@ -12,11 +12,12 @@ import com.bagri.xdm.client.hazelcast.task.doc.DocumentMapProvider;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentProcessor;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentRemover;
 import com.bagri.xdm.client.hazelcast.task.auth.UserAuthenticator;
+import com.bagri.xdm.client.hazelcast.task.doc.DocumentProvider;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentBeanCreator;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentBeanProvider;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentCollectionUpdater;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentContentProvider;
-import com.bagri.xdm.client.hazelcast.task.query.DocumentUrisProvider;
+import com.bagri.xdm.client.hazelcast.task.query.QueryUrisProvider;
 import com.bagri.xdm.client.hazelcast.task.query.ResultFetcher;
 //import com.bagri.xdm.client.hazelcast.task.query.XMLBuilder;
 import com.bagri.xdm.client.hazelcast.task.query.QueryExecutor;
@@ -91,62 +92,50 @@ public class DataSerializationFactoryImpl implements DataSerializableFactory {
 	public static final int cli_PathIndexKey = 97; 
 	public static final int cli_QueryParamsKey = 98;
 	
-	public static final int cli_GetDocumentTask = 99;
-
+	public static final int cli_GetDocumentTask = 100;
 	public static final int cli_ProvideCollectionDocumentsTask = 101;
 	public static final int cli_RemoveCollectionDocumentsTask = 102; 
-	
-	public static final int cli_GetBeanDocumentTask = 103;
-	public static final int cli_GetMapDocumentTask = 104; 
-	public static final int cli_CreateBeanDocumentTask = 105;
-	public static final int cli_CreateMapDocumentTask = 106; 
-	
-	public static final int cli_CleanTxDocumentsTask = 107; 
-	public static final int cli_UpdateDocumentCollectionTask = 108; 
-	public static final int cli_ProcessDocumentTask = 109; 
-	public static final int cli_CreateDocumentTask = 110; 
-	public static final int cli_RemoveDocumentTask = 111;
+	public static final int cli_CreateBeanDocumentTask = 103;
+	public static final int cli_CreateMapDocumentTask = 104; 
+	public static final int cli_ProcessDocumentTask = 105; 
+	public static final int cli_CreateDocumentTask = 106; 
+	public static final int cli_RemoveDocumentTask = 107;
+	public static final int cli_ProvideDocumentBeanTask = 108;
+	public static final int cli_ProvideDocumentMapTask = 109;
+	public static final int cli_ProvideDocumentContentTask = 110;
+	public static final int cli_ProvideDocumentStructureTask = 111;
+	public static final int cli_ProvideDocumentUrisTask = 112;
+	public static final int cli_UpdateDocumentCollectionTask = 113; 
 
-	public static final int cli_BeginTransactionTask = 112; 
-	public static final int cli_CommitTransactionTask = 113;
-	public static final int cli_RollbackTransactionTask = 114;
-
-	public static final int cli_FetchResultsTask = 115;
-	public static final int cli_ProcessXQCommandTask = 116;
+	public static final int cli_CleanTxDocumentsTask = 115; 
 	
-	public static final int cli_InitSchemaTask = 117;
-	public static final int cli_DenitSchemaTask = 118;
-	public static final int cli_SchemaAdminTask = 119;
-	public static final int cli_SchemaMemberTask = 120;
-	public static final int cli_CleanSchemaTask = 121;
-	public static final int cli_PopulateSchemaTask = 122;
-	public static final int cli_ProvideDocumentMapTask = 123;
-	public static final int cli_ProvideDocumentUrisTask = 124;
-	public static final int cli_ProvideDocumentContentTask = 125;
-	public static final int cli_ProvideDocumentStructureTask = 126;
-	public static final int cli_BuildQueryXMLTask = 127;
-	public static final int cli_ExecQueryTask = 128;
-	public static final int cli_CollectStatisticSeriesTask = 129;
-	public static final int cli_CollectStatisticTotalsTask = 130;
-	public static final int cli_ResetStatisticsTask = 131;
-	public static final int cli_ProcessQueryTask = 132;
-	public static final int cli_ApplyQueryTask = 133;
-	public static final int cli_KillNodeTask = 134;
-	public static final int cli_SetNodeOptionTask = 135;
-	public static final int cli_AggregateSchemaInfoTask = 136;
-	public static final int cli_GetNodeInfoTask = 137;
+	public static final int cli_BeginTransactionTask = 120; 
+	public static final int cli_CommitTransactionTask = 121;
+	public static final int cli_RollbackTransactionTask = 122;
+
+	public static final int cli_ProcessQueryTask = 125;
+	//public static final int cli_ApplyQueryTask = 126;
+	public static final int cli_FetchResultsTask = 127;
+	public static final int cli_ProcessXQCommandTask = 128;
+	public static final int cli_BuildQueryXMLTask = 129;
+	public static final int cli_ExecQueryTask = 130;
+	public static final int cli_ProvideQueryUrisTask = 131;
+	
+	public static final int cli_CollectStatisticSeriesTask = 135;
+	public static final int cli_CollectStatisticTotalsTask = 136;
+	public static final int cli_ResetStatisticsTask = 137;
+
 	public static final int cli_CreateIndexTask = 138;
 	public static final int cli_RemoveIndexTask = 139;
 	public static final int cli_IndexValueTask = 140;
 	public static final int cli_DeindexValueTask = 141;
+	
 	public static final int cli_CleanQueryTask = 142;
 	public static final int cli_CreateTriggerTask = 143;
 	public static final int cli_RemoveTriggerTask = 144;
 	public static final int cli_RunTriggerTask = 145;
 	public static final int cli_RegisterModelTask = 146;
 	public static final int cli_AuthenticateTask = 147;
-	public static final int cli_AggregateSchemaHealthTask = 148;
-	public static final int cli_ProvideDocumentBeanTask = 149;
 	
 	public static final int cli_CreateRoleTask = 150;
 	public static final int cli_UpdateRoleTask = 151;
@@ -156,13 +145,15 @@ public class DataSerializationFactoryImpl implements DataSerializableFactory {
 	public static final int cli_CreateLibraryTask = 155;
 	public static final int cli_UpdateLibraryTask = 156;
 	public static final int cli_DeleteLibraryTask = 157;
+	public static final int cli_CreateModuleTask = 158;
+	public static final int cli_DeleteModuleTask = 159;
 
-	public static final int cli_CreateModuleTask = 160;
-	public static final int cli_DeleteModuleTask = 161;
-
-	public static final int cli_CreateNodeTask = 165;
-	public static final int cli_UpdateNodeTask = 166;
-	public static final int cli_DeleteNodeTask = 167;
+	public static final int cli_CreateNodeTask = 160;
+	public static final int cli_UpdateNodeTask = 161;
+	public static final int cli_DeleteNodeTask = 162;
+	public static final int cli_KillNodeTask = 163;
+	public static final int cli_SetNodeOptionTask = 164;
+	public static final int cli_GetNodeInfoTask = 165;
 	
 	public static final int cli_CreateUserTask = 170;
 	public static final int cli_UpdateUserTask = 171;
@@ -172,6 +163,15 @@ public class DataSerializationFactoryImpl implements DataSerializableFactory {
 	public static final int cli_UpdateSchemaTask = 176;
 	public static final int cli_DeleteSchemaTask = 177;
 	public static final int cli_ActivateSchemaTask = 178;
+	public static final int cli_InitSchemaTask = 179;
+	public static final int cli_DenitSchemaTask = 180;
+	public static final int cli_SchemaAdminTask = 181;
+	public static final int cli_SchemaMemberTask = 182;
+	public static final int cli_CleanSchemaTask = 183;
+	public static final int cli_PopulateSchemaTask = 184;
+	public static final int cli_AggregateSchemaInfoTask = 185;
+	public static final int cli_AggregateSchemaHealthTask = 186;
+	
 	
 	@Override
 	public IdentifiedDataSerializable create(int typeId) {
@@ -186,6 +186,7 @@ public class DataSerializationFactoryImpl implements DataSerializableFactory {
 			case cli_ProcessDocumentTask: return new DocumentProcessor();
 			//case cli_GetBeanDocumentTask = 103;
 			//case cli_GetMapDocumentTask = 104; 
+			case cli_GetDocumentTask: return new DocumentProvider();
 			case cli_CreateBeanDocumentTask: return new DocumentBeanCreator();
 			case cli_CreateMapDocumentTask: return new DocumentMapCreator();
 			case cli_CreateDocumentTask: return new DocumentCreator();
@@ -195,7 +196,7 @@ public class DataSerializationFactoryImpl implements DataSerializableFactory {
 			case cli_RollbackTransactionTask: return new TransactionAborter();
 			case cli_FetchResultsTask: return new ResultFetcher();
 			case cli_ProvideDocumentMapTask: return new DocumentMapProvider();
-			case cli_ProvideDocumentUrisTask: return new DocumentUrisProvider(); 
+			case cli_ProvideDocumentUrisTask: return new QueryUrisProvider(); 
 			case cli_ProvideDocumentContentTask: return new DocumentContentProvider();
 			case cli_ProvideDocumentBeanTask: return new DocumentBeanProvider();
 			case cli_ExecQueryTask: return new QueryExecutor();

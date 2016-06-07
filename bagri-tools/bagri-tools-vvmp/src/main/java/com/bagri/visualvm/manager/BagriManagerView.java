@@ -21,20 +21,17 @@ import org.openide.util.WeakListeners;
 import javax.management.MBeanServerConnection;
 import javax.swing.*;
 
-public class BagriManagerView extends DataSourceView implements DataRemovedListener {
+public class BagriManagerView extends DataSourceView implements DataRemovedListener<Application> {
 	
 	private static final Logger LOGGER = Logger.getLogger(BagriManagerView.class.getName());
     private static final String NOT_CONNECTED = "Not Connected";
 
     private Application application;
     private BagriMainPanel mainPanel;
-    //private final MBeanServerConnection mbsc;
 
     public BagriManagerView(Application application) {
         super(application, BAGRI_MANAGER, Icons.MAIN_ICON.getImage(), 60, false);
         this.application = application;
-        //JmxModel jmx = JmxModelFactory.getJmxModelFor(application);
-        //this.mbsc = jmx.getMBeanServerConnection();
         application.notifyWhenRemoved(this);
     }
 
@@ -63,16 +60,13 @@ public class BagriManagerView extends DataSourceView implements DataRemovedListe
             DataViewComponent.MasterView monitoringMasterView = new DataViewComponent.MasterView(BAGRI_MANAGER, null, new JLabel(" ")); // NOI18N
             DataViewComponent.MasterViewConfiguration monitoringMasterConfiguration = new DataViewComponent.MasterViewConfiguration(false);
             dvc = new DataViewComponent(monitoringMasterView, monitoringMasterConfiguration);
-
             dvc.configureDetailsView(new DataViewComponent.DetailsViewConfiguration(0.33, 0, -1, -1, -1, -1));
-
             dvc.configureDetailsArea(new DataViewComponent.DetailsAreaConfiguration(BAGRI_MANAGER, false), DataViewComponent.TOP_LEFT); // NOI18N
-
             MBeanServerConnection mbsc = jmx.getMBeanServerConnection();
+            LOGGER.info("got connection: " + mbsc + "; className: " + mbsc.getClass().getName());
         	BagriServiceProvider bsp = DefaultServiceProvider.getInstance(mbsc);
             mainPanel = new BagriMainPanel(bsp);
             jmx.addPropertyChangeListener(WeakListeners.propertyChange(mainPanel, jmx));
-
             dvc.addDetailsView(new DataViewComponent.DetailsView("", null, 10, mainPanel, null), DataViewComponent.TOP_LEFT); // NOI18N
         }
         return dvc;
@@ -86,12 +80,13 @@ public class BagriManagerView extends DataSourceView implements DataRemovedListe
                 enableComponents((Container)component, enable);
             }
         }
-        container.setEnabled(false);
+        container.setEnabled(enable);
     }    
 
 	@Override
-	public void dataRemoved(Object source) {
+	public void dataRemoved(Application source) {
 		LOGGER.info("dataRemoved; got removed notification from source: " + source);
+		application = null;
 		SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {

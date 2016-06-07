@@ -20,7 +20,7 @@ import static com.bagri.common.util.FileUtils.def_encoding;
  * @since 05.2013 
  * @version 0.5
  */
-public class XDMDocument implements Convertable<Map<String, Object>>, Versionable { //extends XDMEntity {
+public class XDMDocument implements Convertable<Map<String, Object>>, Versionable { 
 	
 	public static final int dvFirst = 1;
 	public static final int clnDefault = -1;
@@ -47,7 +47,6 @@ public class XDMDocument implements Convertable<Map<String, Object>>, Versionabl
 
 	public XDMDocument(long docKey, String uri, int typeId, long txStart, long txFinish, Date createdAt, 
 			String createdBy, String encoding, int bytes, int elts) {
-		//super(version, createdAt, createdBy);
 		this.documentKey = docKey; //toKey(hash, revision, version);
 		this.uri = uri;
 		this.typeId = typeId;
@@ -59,13 +58,6 @@ public class XDMDocument implements Convertable<Map<String, Object>>, Versionabl
 		this.bytes = bytes;
 		this.elements = elts;
 	}
-
-	/**
-	 * @return the document Id
-	 */
-	//public long getDocumentId() {
-	//	return toDocumentId(documentKey);
-	//}
 
 	/**
 	 * @return the document key
@@ -204,7 +196,6 @@ public class XDMDocument implements Convertable<Map<String, Object>>, Versionabl
 	public Map<String, Object> convert() {
 		Map<String, Object> result = new HashMap<>();
 		result.put("key", documentKey);
-		//result.put("id", getDocumentId());
 		result.put("version", getVersion());
 		result.put("uri", uri);
 		result.put("bytes", bytes);

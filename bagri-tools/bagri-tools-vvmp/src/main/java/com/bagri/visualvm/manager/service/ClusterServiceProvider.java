@@ -16,12 +16,16 @@ import java.util.logging.Logger;
 public class ClusterServiceProvider implements ClusterManagementService, SchemaManagementService {
     
 	private static final Logger LOGGER = Logger.getLogger(ClusterServiceProvider.class.getName());
-    private final MBeanServerConnection connection;
+    private MBeanServerConnection connection;
     
     private Map<String, DocumentManagementService> docMgrs = new HashMap<>();
 
     public ClusterServiceProvider(MBeanServerConnection connection) {
         this.connection = connection;
+    }
+    
+    public void close() {
+    	this.connection = null;
     }
 
     @Override

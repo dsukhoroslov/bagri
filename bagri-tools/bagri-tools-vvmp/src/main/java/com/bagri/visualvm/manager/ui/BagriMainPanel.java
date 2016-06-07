@@ -55,7 +55,7 @@ public class BagriMainPanel extends JPanel implements NotificationListener, Prop
         setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 
         // Main tree
-        mainTree = createTree(clusterManagementService);
+        mainTree = createTree();
         Dimension minimumSize = new Dimension(150, 100);//TODO: Move to constants
         JScrollPane treeScrollPane = new JScrollPane(mainTree);
         treeScrollPane.setMinimumSize(minimumSize);
@@ -108,24 +108,26 @@ public class BagriMainPanel extends JPanel implements NotificationListener, Prop
         return panel;
     }
 
-    private MainTreePanel createTree(ClusterManagementService clusterService) {
+    private MainTreePanel createTree() {
         final MainTreePanel tree = new MainTreePanel();
         java.util.List<Node> nodes = null;
         try {
-            nodes = clusterService.getNodes();
+            nodes = clusterManagementService.getNodes();
+            tree.setNodes(nodes);
         } catch (ServiceException e) {
             LOGGER.throwing(BagriMainPanel.class.getName(), "createTree", e);
             ErrorUtil.showError(BagriMainPanel.this, e);
         }
-        tree.setNodes(nodes);
+        
         java.util.List<Schema> schemas = null;
         try {
             schemas = schemaManagementService.getSchemas();
+            tree.setSchemas(schemas);
         } catch (ServiceException e) {
             LOGGER.throwing(BagriMainPanel.class.getName(), "createTree", e);
             ErrorUtil.showError(BagriMainPanel.this, e);
         }
-        tree.setSchemas(schemas);
+        
         tree.addMouseListener ( new MouseAdapter() {
             public void mousePressed ( MouseEvent e ) {
                 if ( SwingUtilities.isRightMouseButton ( e ) ) {
