@@ -19,7 +19,7 @@ public class XDMPath implements Comparable<XDMPath> {
 	// the type constant from javax.xml.xquery.XQItemType.*
 	// change it to QName?
 	private int dataType;
-	private XDMOccurence occurence = XDMOccurence.zeroOrOne;
+	private XDMOccurrence occurence = XDMOccurrence.zeroOrOne;
 	
 	// cache it!
 	private String name = null; 
@@ -29,7 +29,7 @@ public class XDMPath implements Comparable<XDMPath> {
 	}
 	
 	public XDMPath(String path, int typeId, XDMNodeKind kind, int pathId, int parentId, int postId, 
-			int dataType, XDMOccurence occurence) {
+			int dataType, XDMOccurrence occurence) {
 		super();
 		this.path = path;
 		this.typeId = typeId;
@@ -43,7 +43,7 @@ public class XDMPath implements Comparable<XDMPath> {
 		}
 	}
 	
-	public XDMOccurence getOccurence() {
+	public XDMOccurrence getOccurence() {
 		return occurence;
 	}
 	

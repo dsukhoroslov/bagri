@@ -12,12 +12,6 @@ public class Encryptor {
     private static final String DA_MD5 = "MD5";
     private static final String DA_SHA_256 = "SHA-256";
     
-    /**
-     * Encrypts provided string value
-     * 
-     * @param value
-     * @return encrypted value or null in case of any error
-     */
     public static String encrypt(String value) { 
 
 		try {

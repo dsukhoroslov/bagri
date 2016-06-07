@@ -30,7 +30,7 @@ import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.common.XDMParser;
 import com.bagri.xdm.common.df.XDMParserBase;
-import com.bagri.xdm.domain.XDMOccurence;
+import com.bagri.xdm.domain.XDMOccurrence;
 import com.bagri.xdm.domain.XDMData;
 import com.bagri.xdm.domain.XDMElement;
 import com.bagri.xdm.domain.XDMNodeKind;
@@ -202,7 +202,7 @@ public class XmlStaxParser extends XDMParserBase implements XDMParser {
 		XDMElement start = new XDMElement();
 		start.setElementId(elementId++);
 		//start.setParentId(0); // -1 ?
-		XDMPath path = model.translatePath(docType, "", XDMNodeKind.document, XQItemType.XQBASETYPE_ANYTYPE, XDMOccurence.onlyOne);
+		XDMPath path = model.translatePath(docType, "", XDMNodeKind.document, XQItemType.XQBASETYPE_ANYTYPE, XDMOccurrence.onlyOne);
 		XDMData data = new XDMData(path, start);
 		dataStack.add(data);
 		dataList.add(data);
@@ -212,7 +212,7 @@ public class XmlStaxParser extends XDMParserBase implements XDMParser {
 	private void processStartElement(StartElement element) throws XDMException {
 		
 		XDMData parent = dataStack.peek();
-		XDMData current = addData(parent, XDMNodeKind.element, "/" + element.getName(), null, XQItemType.XQBASETYPE_ANYTYPE, XDMOccurence.zeroOrOne); 
+		XDMData current = addData(parent, XDMNodeKind.element, "/" + element.getName(), null, XQItemType.XQBASETYPE_ANYTYPE, XDMOccurrence.zeroOrOne); 
 		dataStack.add(current);
 
 		for (Iterator<Namespace> itr = element.getNamespaces(); itr.hasNext();) {
@@ -221,14 +221,14 @@ public class XmlStaxParser extends XDMParserBase implements XDMParser {
 			String nspace = ns.getValue();
 			if (nspace != null) {
 				String prefix = model.translateNamespace(nspace, ns.getName().getLocalPart());
-				addData(current, XDMNodeKind.namespace, "/#" + prefix, nspace, XQItemType.XQBASETYPE_QNAME, XDMOccurence.onlyOne);
+				addData(current, XDMNodeKind.namespace, "/#" + prefix, nspace, XQItemType.XQBASETYPE_QNAME, XDMOccurrence.onlyOne);
 			}
 		}
 
 		for (Iterator<Attribute> itr = element.getAttributes(); itr.hasNext();) {
 			Attribute a = itr.next();
 			// TODO: process additional (not registered yet) namespaces properly
-			addData(current, XDMNodeKind.attribute, "/@" + a.getName(), a.getValue(), XQItemType.XQBASETYPE_ANYATOMICTYPE, XDMOccurence.onlyOne); //.trim());
+			addData(current, XDMNodeKind.attribute, "/@" + a.getName(), a.getValue(), XQItemType.XQBASETYPE_ANYATOMICTYPE, XDMOccurrence.onlyOne); //.trim());
 		}
 	}
 
@@ -241,7 +241,7 @@ public class XmlStaxParser extends XDMParserBase implements XDMParser {
 			content = content.replaceAll("&", "&amp;");
 			// trim left/right ? this is schema-dependent. trim if schema-type 
 			// is xs:token, for instance..
-			XDMData text = addData(current, XDMNodeKind.text, "/text()", content, XQItemType.XQBASETYPE_ANYATOMICTYPE, XDMOccurence.zeroOrOne); 
+			XDMData text = addData(current, XDMNodeKind.text, "/text()", content, XQItemType.XQBASETYPE_ANYATOMICTYPE, XDMOccurrence.zeroOrOne); 
 			chars.delete(0, chars.length());
 			//logger.trace("text: {}", text);
 		}
@@ -257,7 +257,7 @@ public class XmlStaxParser extends XDMParserBase implements XDMParser {
 	private void processComment(Comment comment) throws XDMException {
 
 		//logger.trace("comment: {}", comment);
-		addData(dataStack.peek(), XDMNodeKind.comment, "/comment()", comment.getText(), XQItemType.XQBASETYPE_ANYTYPE, XDMOccurence.zeroOrOne);
+		addData(dataStack.peek(), XDMNodeKind.comment, "/comment()", comment.getText(), XQItemType.XQBASETYPE_ANYTYPE, XDMOccurrence.zeroOrOne);
 	}
 
 	private void processAttribute(Attribute attribute) {
@@ -271,7 +271,7 @@ public class XmlStaxParser extends XDMParserBase implements XDMParser {
 		//of the processing instruction node and position is an integer representing the position of the selected 
 		//node among its like-named processing-instruction node siblings
 		
-		XDMData piData = addData(dataStack.peek(), XDMNodeKind.pi, "/?" + pi.getTarget(), pi.getData(), XQItemType.XQBASETYPE_ANYTYPE, XDMOccurence.zeroOrOne);
+		XDMData piData = addData(dataStack.peek(), XDMNodeKind.pi, "/?" + pi.getTarget(), pi.getData(), XQItemType.XQBASETYPE_ANYTYPE, XDMOccurrence.zeroOrOne);
 		//logger.trace("piData: {}; target: {}", piData, pi.getTarget());
 	}
 

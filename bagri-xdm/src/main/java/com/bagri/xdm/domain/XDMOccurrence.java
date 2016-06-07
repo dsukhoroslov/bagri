@@ -1,21 +1,21 @@
 package com.bagri.xdm.domain;
 
-public class XDMOccurence {
+public class XDMOccurrence {
 	
-	public static final XDMOccurence zeroOrOne = new XDMOccurence(0, 1);
-	public static final XDMOccurence zeroOrMany = new XDMOccurence(0, -1);
-	public static final XDMOccurence onlyOne = new XDMOccurence(1, 1);
-	public static final XDMOccurence oneOrMany = new XDMOccurence(1, -1);
+	public static final XDMOccurrence zeroOrOne = new XDMOccurrence(0, 1);
+	public static final XDMOccurrence zeroOrMany = new XDMOccurrence(0, -1);
+	public static final XDMOccurrence onlyOne = new XDMOccurrence(1, 1);
+	public static final XDMOccurrence oneOrMany = new XDMOccurrence(1, -1);
 	
 	private int low;
 	private int high;
 	
-	private XDMOccurence(int low, int high) {
+	private XDMOccurrence(int low, int high) {
 		this.low = low;
 		this.high = high;
 	}
 	
-	public static XDMOccurence getOccurence(int low, int high) {
+	public static XDMOccurrence getOccurence(int low, int high) {
 		if (low == 0) {
 			if (high == 1) {
 				return zeroOrOne;
@@ -31,7 +31,7 @@ public class XDMOccurence {
 				return oneOrMany;
 			}
 		}
-		return new XDMOccurence(low, high);
+		return new XDMOccurrence(low, high);
 	}
 	
 	public int getLowBound() {

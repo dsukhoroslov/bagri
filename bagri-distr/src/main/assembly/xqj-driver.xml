@@ -11,20 +11,21 @@
         <moduleSet>
 	    <useAllReactorProjects>true</useAllReactorProjects>
 	    <excludes> 
-            	<exclude>com.sdv.bagri:bagri-distr</exclude>
-            	<exclude>com.sdv.bagri:bagri-server-*</exclude>
-            	<exclude>com.sdv.bagri:bagri-test-*</exclude>
-            	<exclude>com.sdv.bagri:bagri-tools-*</exclude>
+            	<exclude>com.bagri.db:bagri-distr</exclude>
+            	<exclude>com.bagri.db:bagri-samples-*</exclude>
+            	<exclude>com.bagri.db:bagri-server-*</exclude>
+            	<exclude>com.bagri.db:bagri-store-*</exclude>
+            	<exclude>com.bagri.db:bagri-test-*</exclude>
+            	<exclude>com.bagri.db:bagri-tools-*</exclude>
 	    </excludes>
 	    <binaries>
         	<outputDirectory>/</outputDirectory>
 	    	<includes>
-            	    <!--include>com.sdv.bagri:*</include-->
-            	    <include>com.sdv.bagri:bagri-common</include>
-		    <include>com.sdv.bagri:bagri-xdm</include>
-            	    <include>com.sdv.bagri:bagri-client-hazelcast</include>
-            	    <include>com.sdv.bagri:bagri-xqj</include>
-            	    <include>com.sdv.bagri:bagri-xquery-saxon</include>
+            	    <include>com.bagri.db:bagri-common</include>
+		    <include>com.bagri.db:bagri-xdm</include>
+            	    <include>com.bagri.db:bagri-client-hazelcast</include>
+            	    <include>com.bagri.db:bagri-xqj</include>
+            	    <include>com.bagri.db:bagri-xquery-saxon</include>
             	    <!-- third-party modules -->
             	    <include>com.hazelcast:hazelcast-all</include>
             	    <include>org.slf4j:slf4j-api</include>

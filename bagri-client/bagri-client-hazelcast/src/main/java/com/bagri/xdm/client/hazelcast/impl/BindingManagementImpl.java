@@ -27,12 +27,6 @@ public class BindingManagementImpl implements XDMBindingManagement {
 	}	
 
 	@Override
-	public <T> T getDocumentBinding(String uri) throws XDMException {
-		
-		return null;
-	}
-
-	@Override
 	public <T> T getDocumentBinding(String uri, Class<T> type) throws XDMException {
 		
 		logger.trace("getDocumentBinding.enter; uri: {}; type: {}", uri, type);
@@ -53,7 +47,7 @@ public class BindingManagementImpl implements XDMBindingManagement {
 	}
 
 	@Override
-	public void setDocumentBinding(String uri, Object value) throws XDMException {
+	public <T> void setDocumentBinding(String uri, T value) throws XDMException {
 		
 		logger.trace("setDocumentBinding.enter; uri{ {}; value: {}", uri, value);
         try {

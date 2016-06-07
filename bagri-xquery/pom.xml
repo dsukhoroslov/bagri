@@ -16,7 +16,7 @@
     <description>BagRi XQuery Processing Components</description>
 
     <modules>
-        <module>bagri-xquery-rex</module>
+        <!--module>bagri-xquery-rex</module-->
         <module>bagri-xquery-saxon</module>
     </modules>
 

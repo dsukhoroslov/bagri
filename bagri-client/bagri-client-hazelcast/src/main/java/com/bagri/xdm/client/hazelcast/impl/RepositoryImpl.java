@@ -122,7 +122,7 @@ public class RepositoryImpl extends RepositoryBase implements XDMRepository {
 		setModelManagement(new ModelManagementImpl(hzClient));
 		setQueryManagement(new QueryManagementImpl());
 		setTxManagement(new TransactionManagementImpl());
-		hzClient.getUserContext().put(bean_id, this);
+		hzClient.getUserContext().put("xdmRepo", this);
 
 		if (props != null) {
 			String value = props.getProperty(pn_client_healthCheck);

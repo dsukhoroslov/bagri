@@ -6,7 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Represents XDM document meta-data.
+ * Represents XDM document type meta-data.
  *  
  * @author Denis Sukhoroslov
  * @since 05.2013 
@@ -17,9 +17,11 @@ public class XDMDocumentType {
 	private int typeId;
 	private String rootPath;
 	private boolean normalized = false;
+	private Set<String> schemas = new HashSet<>();
+	
+	// what these two for !?
 	private int fragmentationLimit = 0;
 	private Set<Long> fragments = new HashSet<>();
-	private Set<String> schemas = new HashSet<>();
 	
 	public XDMDocumentType() {
 		//
@@ -31,35 +33,35 @@ public class XDMDocumentType {
 	}
 
 	/**
-	 * @return the typeId
+	 * @return the type Id
 	 */
 	public int getTypeId() {
 		return typeId;
 	}
 
 	/**
-	 * @return the typeName
+	 * @return the root path
 	 */
 	public String getRootPath() {
 		return rootPath;
 	}
 	
 	/**
-	 * @return the normalized
+	 * @return is the type normalized
 	 */
 	public boolean isNormalized() {
 		return normalized;
 	}
 
 	/**
-	 * @param normalized the normalized to set
+	 * @param normalized: boolean; set type's normalized flag
 	 */
 	public void setNormalized(boolean normalized) {
 		this.normalized = normalized;
 	}
 	
 	/**
-	 * @return the schemas
+	 * @return Collection of schemas used by the type
 	 */
 	public Collection<String> getSchemas() {
 		return Collections.unmodifiableCollection(schemas);
@@ -67,7 +69,9 @@ public class XDMDocumentType {
 	
 	/**
 	 * adds new schema
-	 * @return boolean
+	 * 
+	 * @param schemaUri: String; new schema uri
+	 * @return true in case when schema registered, false otherwise
 	 */
 	public boolean addSchema(String schemaUri) {
 		return schemas.add(schemaUri);
@@ -75,7 +79,9 @@ public class XDMDocumentType {
 
 	/**
 	 * removes schema
-	 * @return boolean
+	 * 
+	 * @param schemaUri: String; the schema uri to remove
+	 * @return true when schema removed, false otherwise
 	 */
 	public boolean removeSchema(String schemaUri) {
 		return schemas.remove(schemaUri);

@@ -1,29 +1,98 @@
 package com.bagri.xdm.api;
 
+/**
+ * XDM Exception; 
+ * 
+ * @author Denis Sukhoroslov
+ */
 public class XDMException extends Exception {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 8774397864143426913L;
 	
+	/**
+	 * unknown error
+	 */
 	public static final int ecUnknown = 0;
+	
+	/**
+	 * access error
+	 */
 	public static final int ecAccess = 10000;
+	
+	/**
+	 * binding error
+	 */
 	public static final int ecBinding = 20000;
+	
+	/**
+	 * document handling error
+	 */
 	public static final int ecDocument = 30000;
-	public static final int ecInOut = 40000;
-	public static final int ecModel = 50000;
-	public static final int ecIndex = 60000;
-	public static final int ecIndexUnique = 60001;
-	public static final int ecQuery = 70000;
-	public static final int ecQueryTimeout = 70001;
-	public static final int ecQueryCancel = 70002;
-	public static final int ecTransaction = 80000;
-	public static final int ecTransWrongState = 80001;
-	public static final int ecTransTimeout = 80002;
-	public static final int ecTransNotFound = 80003;
-	public static final int ecTransNoNested = 80004;
-	public static final int ecHealth = 90000;
+	
+	/**
+	 * health error 
+	 */
+	public static final int ecHealth = 40000;
+	
+	/**
+	 * index handling error
+	 */
+	public static final int ecIndex = 50000;
+	
+	/**
+	 * unique index violation
+	 */
+	public static final int ecIndexUnique = 50001;
+	
+	/**
+	 * IO error
+	 */
+	public static final int ecInOut = 60000;
+	
+	/**
+	 * model handling error
+	 */
+	public static final int ecModel = 70000;
+	
+	/**
+	 * query error
+	 */
+	public static final int ecQuery = 80000;
+	
+	/**
+	 * query cancelled
+	 */
+	public static final int ecQueryCancel = 80001;
+	
+	/**
+	 * query timed out
+	 */
+	public static final int ecQueryTimeout = 80002;
+	
+	/**
+	 * transaction handling error
+	 */
+	public static final int ecTransaction = 90000;
+	
+	/**
+	 * an attempt to begin new transaction from thread having current transaction in active state 
+	 */
+	public static final int ecTransNoNested = 90001;
+	
+	/**
+	 * transaction not found
+	 */
+	public static final int ecTransNotFound = 90002;
+	
+	/**
+	 * transaction timed out
+	 */
+	public static final int ecTransTimeout = 90003;
+	
+	/**
+	 * unexpected transaction state
+	 */
+	public static final int ecTransWrongState = 90004;
 	
 	private int errorCode;
 	

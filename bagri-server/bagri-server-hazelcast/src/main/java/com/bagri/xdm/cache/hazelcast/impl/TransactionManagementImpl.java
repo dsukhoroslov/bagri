@@ -177,13 +177,17 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 	}
 	
 	@Override
-	public void finishCurrentTransaction(boolean rollback) throws XDMException {
+	public boolean finishCurrentTransaction(boolean rollback) throws XDMException {
 		long txId = getCurrentTxId();
-		if (rollback) {
-			rollbackTransaction(txId);
-		} else {
-			commitTransaction(txId);
+		if (txId > TX_NO) {
+			if (rollback) {
+				rollbackTransaction(txId);
+			} else {
+				commitTransaction(txId);
+			}
+			return true;
 		}
+		return false;
 	}
 	
 	@Override

@@ -4,6 +4,7 @@ import static com.bagri.common.config.XDMConfigConstants.*;
 import static com.bagri.xdm.cache.hazelcast.util.HazelcastUtils.getMemberSchemas;
 import static com.bagri.xdm.cache.hazelcast.util.SpringContextHolder.*;
 import static com.bagri.xdm.cache.api.XDMCacheConstants.PN_XDM_SYSTEM_POOL;
+import static com.bagri.xdm.cache.api.XDMRepository.bean_id;
 import static com.bagri.xdm.cache.hazelcast.util.HazelcastUtils.*;
 
 import java.io.IOException;
@@ -183,7 +184,7 @@ public class XDMCacheServer {
             		ApplicationContext schemaContext = (ApplicationContext) getContext(schemaName, schema_context);
             		if (initialized) {
             			// set modules and libraries
-            			RepositoryImpl xdmRepo = schemaContext.getBean(XDMRepository.bean_id, RepositoryImpl.class);
+            			RepositoryImpl xdmRepo = schemaContext.getBean(bean_id, RepositoryImpl.class);
             			xdmRepo.setLibraries(cLibraries);
             			for (XDMModule module: cModules) {
             				try {

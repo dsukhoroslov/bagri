@@ -3,7 +3,7 @@ package com.bagri.xdm.cache.hazelcast.management;
 import static com.bagri.common.config.XDMConfigConstants.xdm_schema_store_enabled;
 import static com.bagri.common.config.XDMConfigConstants.xdm_schema_store_type;
 import static com.bagri.xdm.cache.api.XDMCacheConstants.PN_XDM_SCHEMA_POOL;
-import static com.bagri.xdm.cache.hazelcast.util.HazelcastUtils.hz_instance;
+import static com.bagri.xdm.cache.api.XDMRepository.bean_id;
 import static com.bagri.xdm.common.XDMConstants.xs_ns;
 import static com.bagri.xdm.common.XDMConstants.xs_prefix;
 
@@ -12,7 +12,6 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -49,7 +48,6 @@ import com.bagri.xdm.system.XDMTriggerDef;
 import com.bagri.xdm.system.XDMXQueryTrigger;
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.client.impl.HazelcastClientInstanceImpl;
-import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.Member;
@@ -98,7 +96,7 @@ public class SchemaManager extends EntityManager<XDMSchema> implements XDMHealth
 			logger.trace("setClientContext; got HZ instance: {}, from {}", schemaInstance, HazelcastClient.getAllHazelcastClients());
 			execService = schemaInstance.getExecutorService(PN_XDM_SCHEMA_POOL);
 			//setRepository(clientContext.getBean(XDMRepository.class));
-			setRepository((XDMRepository) schemaInstance.getUserContext().get(XDMRepository.bean_id));
+			setRepository((XDMRepository) schemaInstance.getUserContext().get(bean_id));
 		}
 	}
 	

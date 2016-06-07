@@ -1,7 +1,17 @@
 package com.bagri.xdm.api;
 
+/**
+ * XDM health state change listening interface; provided for the client side
+ * 
+ * @author Denis Sukhoroslov
+ */
 public interface XDMHealthChangeListener {
 	
-	public void onHealthStateChange(XDMHealthState newState);
+	/**
+	 * fires when Schema health state changes
+	 * 
+	 * @param newState {@link XDMHealthState} 
+	 */
+	void onHealthStateChange(XDMHealthState newState);
 
 }

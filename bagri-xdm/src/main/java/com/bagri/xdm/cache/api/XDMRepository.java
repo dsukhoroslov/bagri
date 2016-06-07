@@ -11,6 +11,8 @@ import com.bagri.xdm.system.XDMSchema;
 
 public interface XDMRepository extends com.bagri.xdm.api.XDMRepository {
 	
+	static String bean_id = "xdmRepo";
+	
 	XDMSchema getSchema();
 	
 	XDMClientManagement getClientManagement();

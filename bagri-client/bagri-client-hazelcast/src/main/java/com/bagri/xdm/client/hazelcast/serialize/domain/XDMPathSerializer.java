@@ -2,7 +2,7 @@ package com.bagri.xdm.client.hazelcast.serialize.domain;
 
 import java.io.IOException;
 
-import com.bagri.xdm.domain.XDMOccurence;
+import com.bagri.xdm.domain.XDMOccurrence;
 import com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryImpl;
 import com.bagri.xdm.domain.XDMNodeKind;
 import com.bagri.xdm.domain.XDMPath;
@@ -32,7 +32,7 @@ public class XDMPathSerializer implements StreamSerializer<XDMPath> {
 				in.readInt(),
 				in.readInt(),
 				in.readInt(),
-				XDMOccurence.getOccurence(
+				XDMOccurrence.getOccurence(
 						in.readInt(), 
 						in.readInt()));
 	}

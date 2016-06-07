@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMModelManagement;
-import com.bagri.xdm.domain.XDMOccurence;
+import com.bagri.xdm.domain.XDMOccurrence;
 import com.bagri.xdm.domain.XDMData;
 import com.bagri.xdm.domain.XDMElement;
 import com.bagri.xdm.domain.XDMNodeKind;
@@ -31,7 +31,7 @@ public abstract class XDMParserBase {
 		this.model = model;
 	}
 	
-	protected XDMData addData(XDMData parent, XDMNodeKind kind, String name, String value, int dataType, XDMOccurence occurence) throws XDMException {
+	protected XDMData addData(XDMData parent, XDMNodeKind kind, String name, String value, int dataType, XDMOccurrence occurence) throws XDMException {
 		logger.trace("addData.enter; name: {}; kind: {}; value: {}; parent: {}", name, kind, value, parent);
 		XDMElement xElt = new XDMElement();
 		xElt.setElementId(elementId++);

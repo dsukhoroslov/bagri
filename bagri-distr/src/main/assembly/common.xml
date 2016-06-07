@@ -25,9 +25,9 @@
 	    <useAllReactorProjects>true</useAllReactorProjects>
 	    <!--includeSubModules>true</includeSubModules-->
 	    <includes>
-            	<include>com.sdv.bagri:bagri-samples-client</include>
-            	<include>com.sdv.bagri:bagri-samples-embedded</include>
-            	<include>com.sdv.bagri:bagri-samples-ext</include>
+            	<include>com.bagri.db:bagri-samples-client</include>
+            	<include>com.bagri.db:bagri-samples-embedded</include>
+            	<include>com.bagri.db:bagri-samples-ext</include>
 	    </includes>
 	    <sources>
 		<outputDirectoryMapping>samples/${module.basedir.name}</outputDirectoryMapping>
@@ -46,13 +46,13 @@
         <!--moduleSet>
 	    <useAllReactorProjects>true</useAllReactorProjects>
 	    <includes>
-            	<include>com.sdv.bagri:bagri-tools-vvmp:*</include>
+            	<include>com.bagri.db:bagri-tools-vvmp:*</include>
 	    </includes>
 	    <binaries>
 		<outputDirectory>distr</outputDirectory>
 		<includeDependencies>false</includeDependencies>
        		<includes>
-               	    <include>com.sdv.bagri:bagri-tools-vvmp:nbm:*</include>
+               	    <include>com.bagri.db:bagri-tools-vvmp:nbm:*</include>
             	</includes>
 		<unpack>false</unpack>
       	    </binaries>

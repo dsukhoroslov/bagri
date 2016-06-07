@@ -12,7 +12,7 @@
     <artifactId>bagri-distr</artifactId>
     <packaging>jar</packaging>
     <name>bagri-distr</name>
-    <description>BagRi Distributive module</description>
+    <description>Bagri Distributive module</description>
 
     <dependencies>
         <dependency>
@@ -71,18 +71,17 @@
 
                                     <dependencySourceExcludes>
                                         <dependencySourceExclude>com.bagri.db:bagri-server*</dependencySourceExclude>
-                                        <!--dependencySourceExclude>com.bagri.db:bagri-test*</dependencySourceExclude-->
-                                        <!--dependencySourceExclude>com.bagri.db:bagri-tools*</dependencySourceExclude-->
+                                        <dependencySourceExclude>com.bagri.db:bagri-xquery*</dependencySourceExclude>
                                     </dependencySourceExcludes>
 
-                                    <doctitle>Bagri: XML DB on top of Distributed Cache</doctitle>
+                                    <doctitle>Bagri: Document DB on top of Distributed Cache</doctitle>
                                     <verbose>false</verbose>
           			    <links>
 					<link>http://docs.hazelcast.org/docs/3.6/javadoc/</link>
-					<link>http://www.saxonica.com/documentation/javadoc/index.html</link>
+					<link>http://www.saxonica.com/html/documentation/javadoc/</link>
           			    </links>				    
 
-                                    <windowtitle>Bagri: XML DB on top of Distributed Cache</windowtitle>
+                                    <windowtitle>Bagri: Document DB on top of Distributed Cache</windowtitle>
                                 </configuration>
                             </execution>
                         </executions>
@@ -102,7 +101,7 @@
                                     <descriptors>
                                         <descriptor>src/main/assembly/xqj-driver.xml</descriptor>
                                         <descriptor>src/main/assembly/hazelcast.xml</descriptor>
-                                        <descriptor>src/main/assembly/hazelcast-test.xml</descriptor>
+                                        <!--descriptor>src/main/assembly/hazelcast-test.xml</descriptor-->
                                     </descriptors>
                                 </configuration>
                             </execution>

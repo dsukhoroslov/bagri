@@ -29,7 +29,7 @@ import com.bagri.common.query.ExpressionContainer;
 import com.bagri.common.query.PathBuilder;
 import com.bagri.xdm.api.test.XDMManagementTest;
 import com.bagri.xdm.cache.api.XDMQueryManagement;
-import com.bagri.xdm.domain.XDMOccurence;
+import com.bagri.xdm.domain.XDMOccurrence;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMNodeKind;
 import com.bagri.xdm.system.XDMIndex;

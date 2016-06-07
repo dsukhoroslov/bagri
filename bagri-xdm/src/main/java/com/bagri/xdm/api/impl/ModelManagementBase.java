@@ -39,7 +39,7 @@ import org.w3c.dom.ls.LSInput;
 import com.bagri.common.idgen.IdGenerator;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMModelManagement;
-import com.bagri.xdm.domain.XDMOccurence;
+import com.bagri.xdm.domain.XDMOccurrence;
 import com.bagri.xdm.domain.XDMDocumentType;
 import com.bagri.xdm.domain.XDMNamespace;
 import com.bagri.xdm.domain.XDMNodeKind;
@@ -166,7 +166,7 @@ public abstract class ModelManagementBase implements XDMModelManagement {
 	}
     
 	@Override
-	public XDMPath translatePath(int typeId, String path, XDMNodeKind kind, int dataType, XDMOccurence occurence) throws XDMException {
+	public XDMPath translatePath(int typeId, String path, XDMNodeKind kind, int dataType, XDMOccurrence occurence) throws XDMException {
 		// "/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}Name/text()"
 		
 		//getLogger().trace("translatePath.enter; goth path: {}", path);
@@ -261,7 +261,7 @@ public abstract class ModelManagementBase implements XDMModelManagement {
 	}
 
 	protected XDMPath addDictionaryPath(int typeId, String path, XDMNodeKind kind, 
-			int dataType, XDMOccurence occurence) throws XDMException {
+			int dataType, XDMOccurrence occurence) throws XDMException {
 		//getLogger().trace("addDictionaryPath.enter; goth path: {}", path);
 
 		XDMPath xpath = getPathCache().get(path);
@@ -502,12 +502,12 @@ public abstract class ModelManagementBase implements XDMModelManagement {
 				String root = "/{" + xsElement.getNamespace() + "}" + xsElement.getName();
 				int docType = translateDocumentType(root);
 				// register document type..
-				XDMPath xp = translatePath(docType, "", XDMNodeKind.document, XQItemType.XQBASETYPE_ANYTYPE, XDMOccurence.onlyOne); 
+				XDMPath xp = translatePath(docType, "", XDMNodeKind.document, XQItemType.XQBASETYPE_ANYTYPE, XDMOccurrence.onlyOne); 
 				logger.trace("processModel; document type: {}; got XDMPath: {}", docType, xp);
 				
 				String prefix = translateNamespace(xsElement.getNamespace());
 				// target namespace -> default
-				translatePath(docType, "/#xmlns", XDMNodeKind.namespace, XQItemType.XQBASETYPE_QNAME, XDMOccurence.onlyOne); 
+				translatePath(docType, "/#xmlns", XDMNodeKind.namespace, XQItemType.XQBASETYPE_QNAME, XDMOccurrence.onlyOne); 
 
 				// add these two??
 				//xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -529,7 +529,7 @@ public abstract class ModelManagementBase implements XDMModelManagement {
 		if (!xsElement.getAbstract()) {
 			path += "/{" + xsElement.getNamespace() + "}" + xsElement.getName();
 			XDMPath xp = translatePath(docType, path, XDMNodeKind.element, XQItemType.XQBASETYPE_ANYTYPE, 
-					XDMOccurence.getOccurence(minOccurence, maxOccurence));
+					XDMOccurrence.getOccurence(minOccurence, maxOccurence));
 			logger.trace("processElement; element: {}; type: {}; got XDMPath: {}", path, xsElement.getTypeDefinition(), xp);
 		}
 		
@@ -569,7 +569,7 @@ public abstract class ModelManagementBase implements XDMModelManagement {
 					dataType = getBaseType(std); 
 				}
 				XDMPath xp = translatePath(docType, path, XDMNodeKind.text, dataType, 
-						XDMOccurence.getOccurence(minOccurence, maxOccurence));
+						XDMOccurrence.getOccurence(minOccurence, maxOccurence));
 				logger.trace("processElement; complex text: {}; type: {}; got XDMPath: {}", 
 						path, ctd.getBaseType(), xp);
 			}
@@ -577,7 +577,7 @@ public abstract class ModelManagementBase implements XDMModelManagement {
 			XSSimpleTypeDefinition std = (XSSimpleTypeDefinition) xsElement.getTypeDefinition();
 			path += "/text()";
 			XDMPath xp = translatePath(docType, path, XDMNodeKind.text, getBaseType(std), 
-					XDMOccurence.getOccurence(minOccurence, maxOccurence));
+					XDMOccurrence.getOccurence(minOccurence, maxOccurence));
 			logger.trace("processElement; simple text: {}; type: {}; got XDMPath: {}", path, std, xp); 
 		}
 		
@@ -589,7 +589,7 @@ public abstract class ModelManagementBase implements XDMModelManagement {
     	
 	    path += "/@" + xsAttribute.getAttrDeclaration().getName();
 	    XSSimpleTypeDefinition std = xsAttribute.getAttrDeclaration().getTypeDefinition();
-	    XDMOccurence occurence = XDMOccurence.getOccurence(
+	    XDMOccurrence occurence = XDMOccurrence.getOccurence(
 	    		xsAttribute.getRequired() ? 1 : 0,
 	    		std.getVariety() == XSSimpleTypeDefinition.VARIETY_LIST ? -1 : 1);
 		XDMPath xp = translatePath(docType, path, XDMNodeKind.attribute, getBaseType(std), occurence);

@@ -16,7 +16,6 @@ import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQItem;
 import javax.xml.xquery.XQItemAccessor;
 import javax.xml.xquery.XQItemType;
-import javax.xml.xquery.XQSequence;
 
 import org.w3c.dom.Attr;
 import org.w3c.dom.Comment;
@@ -41,7 +40,6 @@ import net.sf.saxon.evpull.StaxToEventBridge;
 import net.sf.saxon.expr.EarlyEvaluationContext;
 import net.sf.saxon.expr.JPConverter;
 import net.sf.saxon.expr.StaticProperty;
-import net.sf.saxon.expr.XPathContext;
 import net.sf.saxon.om.Item;
 import net.sf.saxon.om.NodeInfo;
 import net.sf.saxon.om.Sequence;
@@ -226,12 +224,6 @@ public class SaxonUtils {
             }
     }
     
-    /**
-     * Convert a Java object to a Saxon Item
-     * @param value the Java object. If null is supplied, null is returned.
-     * @return the corresponding Item
-     * @throws XPathException
-     */
 	public static Item convertToItem(Object value, Configuration config, BuiltInAtomicType type) throws XPathException {
         if (value == null) {
             return null;
