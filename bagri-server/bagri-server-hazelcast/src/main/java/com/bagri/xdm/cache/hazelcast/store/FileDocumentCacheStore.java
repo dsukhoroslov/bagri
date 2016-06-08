@@ -1,12 +1,12 @@
 package com.bagri.xdm.cache.hazelcast.store;
 
-import static com.bagri.common.config.XDMConfigConstants.xdm_schema_format_default;
-import static com.bagri.common.config.XDMConfigConstants.xdm_schema_store_data_path;
-import static com.bagri.common.config.XDMConfigConstants.xdm_schema_name;
 import static com.bagri.xdm.api.XDMTransactionManagement.TX_INIT;
 import static com.bagri.xdm.api.XDMTransactionManagement.TX_NO;
 import static com.bagri.xdm.cache.hazelcast.util.SpringContextHolder.getContext;
 import static com.bagri.xdm.cache.hazelcast.util.SpringContextHolder.schema_context;
+import static com.bagri.xdm.common.XDMConstants.xdm_schema_format_default;
+import static com.bagri.xdm.common.XDMConstants.xdm_schema_name;
+import static com.bagri.xdm.common.XDMConstants.xdm_schema_store_data_path;
 import static com.bagri.xdm.domain.XDMDocument.dvFirst;
 
 import java.io.IOException;

@@ -9,7 +9,7 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
-import com.bagri.common.manage.StatsAggregator;
+import com.bagri.common.stats.StatsAggregator;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMTransactionIsolation;
 import com.bagri.xdm.api.XDMTransactionManagement;

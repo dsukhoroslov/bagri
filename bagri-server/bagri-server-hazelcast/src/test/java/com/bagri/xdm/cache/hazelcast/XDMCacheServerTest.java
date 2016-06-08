@@ -1,6 +1,6 @@
 package com.bagri.xdm.cache.hazelcast;
 
-import static com.bagri.common.config.XDMConfigConstants.*;
+import static com.bagri.xdm.common.XDMConstants.*;
 import static org.junit.Assert.*;
 
 import java.util.HashMap;

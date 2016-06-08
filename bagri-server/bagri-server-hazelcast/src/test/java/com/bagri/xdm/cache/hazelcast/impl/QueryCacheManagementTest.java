@@ -1,9 +1,8 @@
 package com.bagri.xdm.cache.hazelcast.impl;
 
-import static com.bagri.common.config.XDMConfigConstants.xdm_config_path;
-import static com.bagri.common.config.XDMConfigConstants.xdm_config_properties_file;
-//import static com.bagri.xdm.common.XDMConstants.pn_baseURI;
 import static com.bagri.xdm.common.XDMConstants.pn_client_id;
+import static com.bagri.xdm.common.XDMConstants.xdm_config_path;
+import static com.bagri.xdm.common.XDMConstants.xdm_config_properties_file;
 import static com.bagri.xdm.common.XDMConstants.pn_client_fetchSize;
 import static org.junit.Assert.*;
 

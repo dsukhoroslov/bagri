@@ -1,30 +1,23 @@
 package com.bagri.xdm.cache.hazelcast.management;
 
-import static com.bagri.common.config.XDMConfigConstants.xdm_cluster_login;
+import static com.bagri.xdm.common.XDMConstants.xdm_cluster_node_name;
 
 import java.io.IOException;
 import java.util.Properties;
-import java.util.Set;
 
 import javax.management.openmbean.TabularData;
 
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.jmx.export.annotation.ManagedAttribute;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
-import com.bagri.common.config.XDMConfigConstants;
-import com.bagri.common.manage.JMXUtils;
-import com.bagri.common.util.FileUtils;
 import com.bagri.common.util.PropUtils;
 import com.bagri.xdm.cache.hazelcast.task.node.NodeCreator;
 import com.bagri.xdm.cache.hazelcast.task.node.NodeRemover;
 import com.bagri.xdm.system.XDMNode;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.MapEvent;
-import com.hazelcast.core.Member;
 
 @ManagedResource(objectName="com.bagri.xdm:type=Management,name=ClusterManagement", 
 	description="Cluster Management MBean")
@@ -65,7 +58,7 @@ public class ClusterManagement extends EntityManagement<XDMNode> {
 		Properties opts;
 		try {
 			opts = PropUtils.propsFromString(options);
-			opts.setProperty(XDMConfigConstants.xdm_cluster_node_name, name);
+			opts.setProperty(xdm_cluster_node_name, name);
 		} catch (IOException ex) {
 			logger.error("createSchema.error: ", ex);
 			return false;

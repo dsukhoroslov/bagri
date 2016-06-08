@@ -1,6 +1,6 @@
 package com.bagri.xdm.cache.hazelcast.impl;
 
-import static com.bagri.common.config.XDMConfigConstants.xdm_access_filename;
+import static com.bagri.xdm.common.XDMConstants.xdm_access_filename;
 
 import java.util.Collection;
 import java.util.HashMap;

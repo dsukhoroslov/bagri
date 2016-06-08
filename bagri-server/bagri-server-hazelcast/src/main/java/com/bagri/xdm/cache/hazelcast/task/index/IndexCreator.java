@@ -1,7 +1,7 @@
 package com.bagri.xdm.cache.hazelcast.task.index;
 
 import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryImpl.factoryId;
-import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryImpl.cli_CreateIndexTask;
+import static com.bagri.xdm.cache.hazelcast.serialize.DataSerializationFactoryImpl.cli_CreateIndexTask;
 
 import java.io.IOException;
 import java.util.concurrent.Callable;

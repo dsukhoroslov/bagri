@@ -1,5 +1,7 @@
 package com.bagri.xdm.system;
 
+import static com.bagri.xdm.common.XDMConstants.xdm_cluster_node_schemas;
+
 import java.util.Date;
 import java.util.Map;
 import java.util.Properties;
@@ -14,7 +16,6 @@ import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import com.bagri.xdm.common.XDMEntity;
-import static com.bagri.common.config.XDMConfigConstants.xdm_cluster_node_schemas;
 
 
 @XmlAccessorType(XmlAccessType.FIELD)

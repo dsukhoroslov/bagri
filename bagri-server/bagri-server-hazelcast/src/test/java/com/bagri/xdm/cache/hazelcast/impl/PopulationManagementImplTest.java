@@ -1,18 +1,16 @@
 package com.bagri.xdm.cache.hazelcast.impl;
 
 import static com.bagri.xdm.cache.hazelcast.util.SpringContextHolder.*;
-import static com.bagri.common.config.XDMConfigConstants.xdm_config_path;
-import static com.bagri.common.config.XDMConfigConstants.xdm_config_properties_file;
-import static com.bagri.common.config.XDMConfigConstants.xdm_node_instance;
-import static com.bagri.common.config.XDMConfigConstants.xdm_schema_store_data_path;
+import static com.bagri.xdm.common.XDMConstants.xdm_config_path;
+import static com.bagri.xdm.common.XDMConstants.xdm_config_properties_file;
+import static com.bagri.xdm.common.XDMConstants.xdm_node_instance;
+import static com.bagri.xdm.common.XDMConstants.xdm_schema_store_data_path;
 
-import java.util.ArrayList;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 
 import org.junit.After;
 import org.junit.AfterClass;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -20,7 +18,6 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.bagri.common.util.PropUtils;
 import com.bagri.xdm.api.test.XDMManagementTest;
-import com.bagri.xdm.system.XDMDataStore;
 import com.bagri.xdm.system.XDMSchema;
 
 public class PopulationManagementImplTest extends XDMManagementTest {

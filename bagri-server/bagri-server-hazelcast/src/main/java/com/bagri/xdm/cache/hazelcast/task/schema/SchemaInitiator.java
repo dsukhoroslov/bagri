@@ -1,8 +1,8 @@
 package com.bagri.xdm.cache.hazelcast.task.schema;
 
-import static com.bagri.common.config.XDMConfigConstants.xdm_schema_name;
-import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryImpl.cli_InitSchemaTask;
+import static com.bagri.xdm.cache.hazelcast.serialize.DataSerializationFactoryImpl.cli_InitSchemaTask;
 import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryImpl.factoryId;
+import static com.bagri.xdm.common.XDMConstants.xdm_schema_name;
 import static com.bagri.xdm.cache.hazelcast.util.SpringContextHolder.*;
 import static com.bagri.xdm.cache.hazelcast.util.HazelcastUtils.hz_instance;
 

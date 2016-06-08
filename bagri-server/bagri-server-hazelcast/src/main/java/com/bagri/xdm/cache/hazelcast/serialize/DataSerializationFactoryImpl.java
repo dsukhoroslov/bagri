@@ -76,6 +76,67 @@ import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
 public class DataSerializationFactoryImpl extends com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryImpl {
 
+	public static final int cli_CollectStatisticSeriesTask = 200;
+	public static final int cli_CollectStatisticTotalsTask = 201;
+	public static final int cli_ResetStatisticsTask = 202;
+
+	public static final int cli_CreateIndexTask = 205;
+	public static final int cli_RemoveIndexTask = 206;
+	public static final int cli_IndexValueTask = 207;
+	public static final int cli_DeindexValueTask = 208;
+	
+	public static final int cli_CleanTxDocumentsTask = 210; 
+	public static final int cli_CleanQueryTask = 211;
+	public static final int cli_RegisterModelTask = 212;
+	
+	public static final int cli_CreateTriggerTask = 215;
+	public static final int cli_RemoveTriggerTask = 216;
+	public static final int cli_RunTriggerTask = 217;
+	
+	public static final int cli_CreateRoleTask = 220;
+	public static final int cli_UpdateRoleTask = 221;
+	public static final int cli_DeleteRoleTask = 222;
+	public static final int cli_UpdateRolePermissionsTask = 223;
+	
+	public static final int cli_CreateLibraryTask = 225;
+	public static final int cli_UpdateLibraryTask = 226;
+	public static final int cli_DeleteLibraryTask = 227;
+	
+	public static final int cli_CreateModuleTask = 230;
+	public static final int cli_DeleteModuleTask = 231;
+
+	public static final int cli_CreateNodeTask = 235;
+	public static final int cli_UpdateNodeTask = 236;
+	public static final int cli_DeleteNodeTask = 237;
+	public static final int cli_KillNodeTask = 238;
+	public static final int cli_SetNodeOptionTask = 239;
+	public static final int cli_GetNodeInfoTask = 240;
+	
+	public static final int cli_CreateUserTask = 245;
+	public static final int cli_UpdateUserTask = 246;
+	public static final int cli_DeleteUserTask = 247;
+
+	public static final int cli_CreateSchemaTask = 250;
+	public static final int cli_UpdateSchemaTask = 251;
+	public static final int cli_DeleteSchemaTask = 252;
+	public static final int cli_ActivateSchemaTask = 253;
+	public static final int cli_InitSchemaTask = 254;
+	public static final int cli_DenitSchemaTask = 255;
+	public static final int cli_AdministrateSchemaTask = 256;
+	public static final int cli_ExtractSchemaMemberTask = 257;
+	public static final int cli_CleanSchemaTask = 258;
+	public static final int cli_PopulateSchemaTask = 259;
+	public static final int cli_AggregateSchemaInfoTask = 260;
+	public static final int cli_AggregateSchemaHealthTask = 261;
+	
+	public static final int cli_CreateDataFormatTask = 265;
+	public static final int cli_RemoveDataFormatTask = 266;
+	public static final int cli_UpdateDataFormatTask = 267;
+	
+	public static final int cli_CreateDataStoreTask = 270;
+	public static final int cli_RemoveDataStoreTask = 271;
+	public static final int cli_UpdateDataStoreTask = 272;
+	
 	@Override
 	public IdentifiedDataSerializable create(int typeId) {
 		
@@ -101,8 +162,8 @@ public class DataSerializationFactoryImpl extends com.bagri.xdm.client.hazelcast
 			case cli_InitSchemaTask: return new SchemaInitiator();
 			case cli_DenitSchemaTask: return new SchemaDenitiator();
 			case cli_CleanSchemaTask: return new SchemaDocCleaner();
-			case cli_SchemaAdminTask: return new SchemaAdministrator();
-			case cli_SchemaMemberTask: return new SchemaMemberExtractor();
+			case cli_AdministrateSchemaTask: return new SchemaAdministrator();
+			case cli_ExtractSchemaMemberTask: return new SchemaMemberExtractor();
 			case cli_PopulateSchemaTask: return new SchemaPopulator();
 			case cli_GetDocumentTask: return new DocumentProvider();
 			case cli_ProvideDocumentUrisTask: return new DocumentUrisProvider(); 

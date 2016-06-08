@@ -17,7 +17,7 @@ import org.springframework.jmx.export.annotation.ManagedAttribute;
 import org.springframework.jmx.export.naming.SelfNaming;
 
 import com.bagri.common.manage.JMXUtils;
-import com.bagri.common.manage.StatsAggregator;
+import com.bagri.common.stats.StatsAggregator;
 import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.cache.api.XDMCacheConstants;
 import com.bagri.xdm.common.XDMEntity;

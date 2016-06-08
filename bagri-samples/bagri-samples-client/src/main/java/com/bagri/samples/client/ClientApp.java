@@ -1,8 +1,8 @@
 package com.bagri.samples.client;
 
-import static com.bagri.common.config.XDMConfigConstants.xdm_document_collections;
-import static com.bagri.common.config.XDMConfigConstants.xdm_document_data_format;
 import static com.bagri.common.util.FileUtils.readTextFile;
+import static com.bagri.xdm.common.XDMConstants.xdm_document_collections;
+import static com.bagri.xdm.common.XDMConstants.xdm_document_data_format;
 import static com.bagri.xdm.common.XDMConstants.xs_ns;
 import static com.bagri.xdm.common.XDMConstants.xs_prefix;
 import static com.bagri.xquery.api.XQUtils.getBaseTypeForTypeName;

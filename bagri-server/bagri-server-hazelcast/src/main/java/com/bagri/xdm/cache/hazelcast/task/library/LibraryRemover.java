@@ -1,6 +1,6 @@
 package com.bagri.xdm.cache.hazelcast.task.library;
 
-import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryImpl.cli_DeleteLibraryTask;
+import static com.bagri.xdm.cache.hazelcast.serialize.DataSerializationFactoryImpl.cli_DeleteLibraryTask;
 
 import java.util.Map.Entry;
 

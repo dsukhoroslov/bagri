@@ -1,8 +1,8 @@
 package com.bagri.xdm.cache.hazelcast.impl;
 
-import static com.bagri.common.config.XDMConfigConstants.*;
 import static com.bagri.xdm.cache.api.XDMCacheConstants.*;
 import static com.bagri.xdm.cache.hazelcast.util.SpringContextHolder.*;
+import static com.bagri.xdm.common.XDMConstants.*;
 
 import java.util.HashSet;
 import java.util.Properties;

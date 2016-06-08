@@ -1,4 +1,4 @@
-package com.bagri.common.manage;
+package com.bagri.common.stats;
 
 public interface StatsAggregator {
 	

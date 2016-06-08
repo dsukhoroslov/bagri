@@ -6,9 +6,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.bagri.xdm.common.Convertable;
-import com.bagri.xdm.common.Versionable;
-import com.bagri.xdm.system.XDMCollection;
+import com.bagri.common.Convertable;
+import com.bagri.common.Versionable;
 
 import static com.bagri.xdm.common.XDMDocumentKey.*;
 import static com.bagri.common.util.FileUtils.def_encoding;

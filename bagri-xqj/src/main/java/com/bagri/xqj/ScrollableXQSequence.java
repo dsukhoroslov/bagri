@@ -2,7 +2,6 @@ package com.bagri.xqj;
 
 import static com.bagri.xqj.BagriXQErrors.ex_sequence_closed;
 
-import java.util.Iterator;
 import java.util.List;
 
 import javax.xml.xquery.XQException;
@@ -14,10 +13,10 @@ import com.bagri.xquery.api.XQProcessor;
 
 public class ScrollableXQSequence extends BagriXQSequence implements XQSequence {
 	
-	private List sequence;
+	private List<?> sequence;
 	private int position;
 	
-	ScrollableXQSequence(BagriXQDataFactory xqFactory, XQProcessor xqProcessor, List sequence) {
+	ScrollableXQSequence(BagriXQDataFactory xqFactory, XQProcessor xqProcessor, List<?> sequence) {
 		super(xqFactory, xqProcessor);
 		this.sequence = sequence;
 		position = 0;

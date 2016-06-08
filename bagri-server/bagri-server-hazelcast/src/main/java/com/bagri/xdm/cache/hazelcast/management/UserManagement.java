@@ -3,8 +3,6 @@
  */
 package com.bagri.xdm.cache.hazelcast.management;
 
-import static com.bagri.common.config.XDMConfigConstants.xdm_cluster_login;
-
 import javax.management.openmbean.TabularData;
 
 import org.springframework.jmx.export.annotation.ManagedAttribute;
@@ -13,7 +11,6 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
-import com.bagri.common.manage.JMXUtils;
 import com.bagri.common.security.Encryptor;
 import com.bagri.xdm.cache.hazelcast.task.user.UserCreator;
 import com.bagri.xdm.cache.hazelcast.task.user.UserRemover;
@@ -21,7 +18,6 @@ import com.bagri.xdm.system.XDMRole;
 import com.bagri.xdm.system.XDMUser;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
-import com.hazelcast.core.Member;
 
 /**
  * @author Denis Sukhoroslov email: dsukhoroslov@gmail.com

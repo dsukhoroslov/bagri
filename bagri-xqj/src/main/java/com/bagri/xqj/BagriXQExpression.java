@@ -1,6 +1,5 @@
 package com.bagri.xqj;
 
-//import static com.bagri.xqj.BagriXQConstants.ex_connection_closed;
 import static com.bagri.common.util.CollectionUtils.copyIterator;
 import static com.bagri.xqj.BagriXQErrors.ex_expression_closed;
 

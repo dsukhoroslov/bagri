@@ -1,6 +1,6 @@
 package com.bagri.xdm.cache.hazelcast.task.node;
 
-import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryImpl.cli_GetNodeInfoTask;
+import static com.bagri.xdm.cache.hazelcast.serialize.DataSerializationFactoryImpl.cli_GetNodeInfoTask;
 import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryImpl.factoryId;
 
 import java.io.IOException;

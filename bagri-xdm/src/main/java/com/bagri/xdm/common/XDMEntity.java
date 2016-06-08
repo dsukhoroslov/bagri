@@ -11,6 +11,8 @@ import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
 
+import com.bagri.common.Convertable;
+import com.bagri.common.Versionable;
 import com.bagri.xdm.system.XDMCollection;
 import com.bagri.xdm.system.XDMDataFormat;
 import com.bagri.xdm.system.XDMDataStore;

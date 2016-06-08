@@ -1,4 +1,4 @@
-package com.bagri.xdm.common;
+package com.bagri.common;
 
 import java.util.Date;
 

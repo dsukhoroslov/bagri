@@ -11,7 +11,6 @@ import java.util.Properties;
 
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.transform.Result;
-import javax.xml.xquery.XQConnection;
 import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQItem;
 
@@ -23,11 +22,10 @@ import com.bagri.xquery.api.XQProcessor;
 
 public class IterableXQSequence extends BagriXQSequence {
 	
-	private Iterator iterator;
+	private Iterator<?> iterator;
 	private boolean accessed;
 	
-	@SuppressWarnings("rawtypes")
-	IterableXQSequence(BagriXQDataFactory xqFactory, XQProcessor  xqProcessor, Iterator iterator) {
+	IterableXQSequence(BagriXQDataFactory xqFactory, XQProcessor  xqProcessor, Iterator<?> iterator) {
 		super(xqFactory, xqProcessor);
 		this.iterator = iterator;
 		accessed = false;

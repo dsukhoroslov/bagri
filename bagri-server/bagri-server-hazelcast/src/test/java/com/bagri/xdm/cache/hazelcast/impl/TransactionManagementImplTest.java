@@ -1,10 +1,9 @@
 package com.bagri.xdm.cache.hazelcast.impl;
 
-import static com.bagri.common.config.XDMConfigConstants.xdm_config_path;
-import static com.bagri.common.config.XDMConfigConstants.xdm_config_properties_file;
+import static com.bagri.xdm.common.XDMConstants.xdm_config_path;
+import static com.bagri.xdm.common.XDMConstants.xdm_config_properties_file;
 import static org.junit.Assert.*;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,7 +23,6 @@ import com.bagri.common.query.PathBuilder;
 import com.bagri.xdm.api.test.XDMManagementTest;
 import com.bagri.xdm.cache.api.XDMQueryManagement;
 import com.bagri.xdm.domain.XDMDocument;
-import com.bagri.xdm.domain.XDMPath;
 import com.bagri.xdm.system.XDMSchema;
 
 public class TransactionManagementImplTest extends XDMManagementTest {

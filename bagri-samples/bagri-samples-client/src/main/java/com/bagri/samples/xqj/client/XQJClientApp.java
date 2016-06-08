@@ -1,6 +1,6 @@
 package com.bagri.samples.xqj.client;
 
-import static com.bagri.common.config.XDMConfigConstants.xdm_document_data_format;
+import static com.bagri.xdm.common.XDMConstants.xdm_document_data_format;
 import static com.bagri.xdm.common.XDMConstants.pn_schema_address;
 import static com.bagri.xdm.common.XDMConstants.pn_schema_name;
 import static com.bagri.xdm.common.XDMConstants.pn_schema_password;

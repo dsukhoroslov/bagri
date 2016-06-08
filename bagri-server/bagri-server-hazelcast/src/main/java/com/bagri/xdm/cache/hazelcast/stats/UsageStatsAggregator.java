@@ -1,8 +1,6 @@
 package com.bagri.xdm.cache.hazelcast.stats;
 
-//import static com.bagri.common.stats.UsageStatistics.*;
-
-import com.bagri.common.manage.StatsAggregator;
+import com.bagri.common.stats.StatsAggregator;
 
 public class UsageStatsAggregator implements StatsAggregator {
 	

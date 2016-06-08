@@ -1,15 +1,15 @@
 package com.bagri.xdm.cache.hazelcast.util;
 
+import static com.bagri.xdm.common.XDMConstants.xdm_cluster_node_schemas;
+
 import java.util.Set;
-
 import org.springframework.context.ApplicationContext;
-
-import com.bagri.common.config.XDMConfigConstants;
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.client.impl.HazelcastClientProxy;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.Member;
+
 
 public class HazelcastUtils {
 	
@@ -70,7 +70,7 @@ public class HazelcastUtils {
 	}
 	
 	public static String[] getMemberSchemas(Member member) {
-		String schemas = member.getStringAttribute(XDMConfigConstants.xdm_cluster_node_schemas);
+		String schemas = member.getStringAttribute(xdm_cluster_node_schemas);
 		if (schemas != null && schemas.trim().length() > 0) {
 			return schemas.split(" ");
 		}

@@ -18,7 +18,6 @@ import javax.xml.transform.Source;
 import javax.xml.xquery.XQDynamicContext;
 import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQItem;
-import javax.xml.xquery.XQItemAccessor;
 import javax.xml.xquery.XQItemType;
 import javax.xml.xquery.XQSequence;
 import javax.xml.xquery.XQStaticContext;

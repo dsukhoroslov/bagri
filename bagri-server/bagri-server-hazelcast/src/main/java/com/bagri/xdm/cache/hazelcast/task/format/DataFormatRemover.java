@@ -1,6 +1,6 @@
 package com.bagri.xdm.cache.hazelcast.task.format;
 
-import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryImpl.cli_RemoveDataFormatTask;
+import static com.bagri.xdm.cache.hazelcast.serialize.DataSerializationFactoryImpl.cli_RemoveDataFormatTask;
 
 import java.util.Map.Entry;
 

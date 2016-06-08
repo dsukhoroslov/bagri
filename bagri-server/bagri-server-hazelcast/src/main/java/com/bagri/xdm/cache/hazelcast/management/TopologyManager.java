@@ -2,7 +2,6 @@ package com.bagri.xdm.cache.hazelcast.management;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
 import java.util.Properties;
@@ -24,20 +23,20 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 import org.springframework.jmx.export.naming.SelfNaming;
 
-import com.bagri.common.config.XDMConfigConstants;
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.xdm.cache.hazelcast.XDMCacheServer;
 import com.bagri.xdm.cache.hazelcast.task.node.NodeInfoProvider;
 import com.bagri.xdm.cache.hazelcast.task.node.NodeKiller;
 import com.bagri.xdm.cache.hazelcast.task.node.NodeOptionSetter;
 import com.bagri.xdm.cache.hazelcast.task.node.NodeInfoProvider.InfoType;
-import com.bagri.xdm.system.XDMNode;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.Member;
 
-import static com.bagri.common.config.XDMConfigConstants.xdm_cluster_login;
 import static com.bagri.xdm.cache.hazelcast.util.HazelcastUtils.getMemberSchemas;
+import static com.bagri.xdm.common.XDMConstants.xdm_cluster_login;
+import static com.bagri.xdm.common.XDMConstants.xdm_cluster_node_name;
+import static com.bagri.xdm.common.XDMConstants.xdm_cluster_node_role;
 
 @ManagedResource(description="Topology Manager MBean")
 public class TopologyManager implements SelfNaming {
@@ -77,12 +76,12 @@ public class TopologyManager implements SelfNaming {
 	
 	@ManagedAttribute(description="Returns active Node configuration name")
 	public String getName() {
-		return member.getStringAttribute(XDMConfigConstants.xdm_cluster_node_name);
+		return member.getStringAttribute(xdm_cluster_node_name);
 	}
 	
 	@ManagedAttribute(description="Returns active Node configuration role")
 	public String getRole() {
-		return member.getStringAttribute(XDMConfigConstants.xdm_cluster_node_role);
+		return member.getStringAttribute(xdm_cluster_node_role);
 	}
 
 	@ManagedAttribute(description="Returns active Node version")
@@ -169,7 +168,7 @@ public class TopologyManager implements SelfNaming {
 			props.setProperty(entry.getKey(), entry.getValue().toString());
 		}
 		props.put(name, value);
-		String nodeName = member.getStringAttribute(XDMConfigConstants.xdm_cluster_node_name);
+		String nodeName = member.getStringAttribute(xdm_cluster_node_name);
 		logger.trace("setOption; nodeName: {}; options: {}", nodeName, props);
 		String login = ((Member) hzInstance.getLocalEndpoint()).getStringAttribute(xdm_cluster_login);
 		NodeOptionSetter setter = new NodeOptionSetter(JMXUtils.getCurrentUser(login), 

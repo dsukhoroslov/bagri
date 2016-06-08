@@ -1,10 +1,6 @@
 package com.bagri.client.ycsb;
 
-import static com.bagri.common.config.XDMConfigConstants.*;
-import static com.bagri.xdm.common.XDMConstants.pn_client_txTimeout;
-import static com.bagri.xdm.common.XDMConstants.pn_client_storeMode;
-import static com.bagri.xdm.common.XDMConstants.pv_client_storeMode_insert;
-import static com.bagri.xdm.common.XDMConstants.pv_client_storeMode_update;
+import static com.bagri.xdm.common.XDMConstants.*;
 
 import java.util.HashMap;
 import java.util.Map;

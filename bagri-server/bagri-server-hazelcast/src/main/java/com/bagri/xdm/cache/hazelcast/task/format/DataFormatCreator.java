@@ -1,6 +1,6 @@
 package com.bagri.xdm.cache.hazelcast.task.format;
 
-import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryImpl.cli_CreateDataFormatTask;
+import static com.bagri.xdm.cache.hazelcast.serialize.DataSerializationFactoryImpl.cli_CreateDataFormatTask;
 
 import java.io.IOException;
 import java.util.Collection;

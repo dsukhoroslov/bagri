@@ -1,7 +1,6 @@
 package com.bagri.xdm.cache.hazelcast.impl;
 
 import static com.bagri.common.query.PathBuilder.*;
-import static com.bagri.common.config.XDMConfigConstants.*;
 import static com.bagri.common.util.FileUtils.def_encoding;
 import static com.bagri.common.util.XMLUtils.*;
 import static com.bagri.xdm.common.XDMConstants.*;

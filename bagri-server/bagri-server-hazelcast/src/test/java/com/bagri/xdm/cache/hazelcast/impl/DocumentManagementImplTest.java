@@ -1,8 +1,8 @@
 package com.bagri.xdm.cache.hazelcast.impl;
 
-import static com.bagri.common.config.XDMConfigConstants.xdm_config_path;
-import static com.bagri.common.config.XDMConfigConstants.xdm_config_properties_file;
-import static com.bagri.common.config.XDMConfigConstants.xdm_node_instance;
+import static com.bagri.xdm.common.XDMConstants.xdm_config_path;
+import static com.bagri.xdm.common.XDMConstants.xdm_config_properties_file;
+import static com.bagri.xdm.common.XDMConstants.xdm_node_instance;
 
 import org.junit.After;
 import org.junit.AfterClass;

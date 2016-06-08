@@ -1,26 +1,17 @@
 package com.bagri.common.util;
 
-import static com.bagri.common.config.XDMConfigConstants.xdm_node_instance;
-import static com.bagri.common.config.XDMConfigConstants.xdm_schema_population_buffer_size;
-import static com.bagri.common.config.XDMConfigConstants.xdm_schema_store_data_path;
-
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.io.StringReader;
-import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Properties;
 import java.util.Scanner;
 
 

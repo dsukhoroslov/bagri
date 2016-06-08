@@ -1,7 +1,7 @@
 package com.bagri.xdm.cache.hazelcast.store;
 
-import static com.bagri.common.config.XDMConfigConstants.*;
 import static com.bagri.xdm.cache.hazelcast.util.HazelcastUtils.*;
+import static com.bagri.xdm.common.XDMConstants.*;
 
 import java.util.Collection;
 import java.util.Map;

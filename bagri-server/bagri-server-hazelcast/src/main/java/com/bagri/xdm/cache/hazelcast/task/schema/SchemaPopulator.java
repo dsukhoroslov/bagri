@@ -3,26 +3,18 @@ package com.bagri.xdm.cache.hazelcast.task.schema;
 import static com.bagri.xdm.cache.api.XDMCacheConstants.CN_XDM_DOCUMENT;
 import static com.bagri.xdm.cache.api.XDMCacheConstants.CN_XDM_TRANSACTION;
 import static com.bagri.xdm.cache.hazelcast.util.SpringContextHolder.*;
-import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryImpl.cli_PopulateSchemaTask;
+import static com.bagri.xdm.cache.hazelcast.serialize.DataSerializationFactoryImpl.cli_PopulateSchemaTask;
 
-import java.util.Properties;
 import java.util.concurrent.Callable;
 
 import org.springframework.context.ApplicationContext;
 
-import com.bagri.xdm.api.XDMModelManagement;
-import com.bagri.xdm.cache.hazelcast.impl.DocumentManagementImpl;
 import com.bagri.xdm.cache.hazelcast.impl.TransactionManagementImpl;
-import com.bagri.xdm.cache.hazelcast.impl.KeyFactoryImpl;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMTransaction;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
-import com.hazelcast.core.MapLoader;
-import com.hazelcast.core.MapLoaderLifecycleSupport;
-import com.hazelcast.core.Partition;
-import com.hazelcast.core.PartitionService;
 
 public class SchemaPopulator extends SchemaProcessingTask implements Callable<Boolean> {
 	

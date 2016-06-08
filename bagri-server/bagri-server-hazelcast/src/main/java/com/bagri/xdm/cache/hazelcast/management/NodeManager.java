@@ -1,6 +1,7 @@
 package com.bagri.xdm.cache.hazelcast.management;
 
-import static com.bagri.xdm.cache.api.XDMCacheConstants.PN_XDM_SYSTEM_POOL;
+import static com.bagri.xdm.common.XDMConstants.xdm_cluster_node_schemas;
+import static com.bagri.xdm.common.XDMConstants.xdm_cluster_node_name;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,12 +15,10 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
-import com.bagri.common.config.XDMConfigConstants;
 import com.bagri.common.manage.JMXUtils;
 import com.bagri.xdm.cache.hazelcast.task.node.NodeUpdater;
 import com.bagri.xdm.system.XDMNode;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.Member;
 
 @ManagedResource(description="Cluster Node Manager MBean")
@@ -124,7 +123,7 @@ public class NodeManager extends EntityManager<XDMNode> {
 	private List<Member> getMembers(String name) {
 		List<Member> members = new ArrayList<Member>();
 		for (Member member: hzInstance.getCluster().getMembers()) {
-			if (name.equals(member.getStringAttribute(XDMConfigConstants.xdm_cluster_node_name))) {
+			if (name.equals(member.getStringAttribute(xdm_cluster_node_name))) {
 				members.add(member);
 			}
 		}
@@ -136,7 +135,7 @@ public class NodeManager extends EntityManager<XDMNode> {
 		@ManagedOperationParameter(name = "schemaName", description = "Schema name to add")})
 	public void addSchema(String schemaName) {
 		XDMNode node = getEntity();
-		String schemas = node.getOption(XDMConfigConstants.xdm_cluster_node_schemas);
+		String schemas = node.getOption(xdm_cluster_node_schemas);
 		if (schemas != null) {
 			if (schemas.length() > 0) {
 				schemas = schemas + " " + schemaName;
@@ -147,7 +146,7 @@ public class NodeManager extends EntityManager<XDMNode> {
 			schemas = schemaName;
 		}
 		
-		setOption(XDMConfigConstants.xdm_cluster_node_schemas, schemas);
+		setOption(xdm_cluster_node_schemas, schemas);
 	}
 
 	@ManagedOperation(description="Returns Node configurations")

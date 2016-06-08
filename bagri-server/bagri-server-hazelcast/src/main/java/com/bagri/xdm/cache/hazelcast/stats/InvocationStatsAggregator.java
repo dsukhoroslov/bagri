@@ -4,7 +4,7 @@ import static com.bagri.xdm.cache.hazelcast.stats.InvocationStatistics.*;
 
 import java.util.Date;
 
-import com.bagri.common.manage.StatsAggregator;
+import com.bagri.common.stats.StatsAggregator;
 
 public class InvocationStatsAggregator implements StatsAggregator {
 	
