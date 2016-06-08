@@ -17,10 +17,6 @@
 
         <dependency>
             <groupId>com.bagri.db</groupId>
-            <artifactId>bagri-common</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.bagri.db</groupId>
             <artifactId>bagri-xdm</artifactId>
         </dependency>
 
@@ -28,6 +24,10 @@
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
         </dependency>
+        <!--dependency>
+            <groupId>com.github.pgelinas</groupId>
+            <artifactId>jackson-javax-json</artifactId>
+        </dependency-->
 
         <!-- Dependencies for logging -->
         <dependency>

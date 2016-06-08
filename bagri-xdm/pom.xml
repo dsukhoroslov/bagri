@@ -14,18 +14,13 @@
     <description>Bagri XDM API Classes and Interfaces</description>
 
     <dependencies>
-
-        <dependency>
-            <groupId>com.bagri.db</groupId>
-            <artifactId>bagri-common</artifactId>
-        </dependency>
-
         <!-- XQJ types -->
         <dependency>
             <groupId>javax.xml.xquery</groupId>
             <artifactId>xqj-api</artifactId>
         </dependency>
 
+        <!-- JSON processing -->
         <dependency>
 	    <groupId>javax.json</groupId>
 	    <artifactId>javax.json-api</artifactId>
@@ -35,10 +30,16 @@
 	    <artifactId>javax.json</artifactId>
             <scope>runtime</scope>
 	</dependency>
-        <!--dependency>
-            <groupId>com.github.pgelinas</groupId>
-            <artifactId>jackson-javax-json</artifactId>
-        </dependency-->
+
+        <!-- XML processing -->
+        <dependency>
+            <groupId>xerces</groupId>
+            <artifactId>xercesImpl</artifactId>
+        </dependency>
+	<dependency>
+	    <groupId>com.thoughtworks.xstream</groupId>
+	    <artifactId>xstream</artifactId>
+	</dependency>
 
         <!-- Dependencies for logging -->
         <dependency>
@@ -61,3 +62,4 @@
     </dependencies>
 
 </project>
+

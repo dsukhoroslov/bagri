@@ -22,7 +22,6 @@ import com.bagri.xdm.common.XDMEntity;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(namespace = "http://www.bagridb.com/xdm/system", propOrder = {
 		"name", 
-		"library",
 		"description",
 		"storeClass",
 		"enabled",
@@ -34,9 +33,6 @@ public class XDMDataStore extends XDMEntity {
 	@XmlID
 	private String name;
 		
-	@XmlElement(required = 	true)
-	private String library;
-
 	@XmlElement(required = 	false)
 	private String description;
 
@@ -55,11 +51,10 @@ public class XDMDataStore extends XDMEntity {
 		super();
 	}
 
-	public XDMDataStore(int version, Date createdAt, String createdBy, String name, String library, String description, 
+	public XDMDataStore(int version, Date createdAt, String createdBy, String name, String description, 
 			String storeClass, boolean enabled, Properties props) {
 		super(version, createdAt, createdBy);
 		this.name = name;
-		this.library = library;
 		this.description = description;
 		this.storeClass = storeClass;
 		this.enabled = enabled;
@@ -71,13 +66,6 @@ public class XDMDataStore extends XDMEntity {
 	 */
 	public String getName() {
 		return name;
-	}
-
-	/**
-	 * @return the library
-	 */
-	public String getLibrary() {
-		return library;
 	}
 
 	/**
@@ -120,7 +108,6 @@ public class XDMDataStore extends XDMEntity {
 	public Map<String, Object> convert() {
 		Map<String, Object> result = super.convert();
 		result.put("name", name);
-		result.put("library", library);
 		result.put("description", description);
 		result.put("store", storeClass);
 		result.put("enabled", enabled);

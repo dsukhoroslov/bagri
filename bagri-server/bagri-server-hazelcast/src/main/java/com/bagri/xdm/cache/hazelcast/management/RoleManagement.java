@@ -50,7 +50,6 @@ public class RoleManagement extends EntityManagement<XDMRole> {
 		@ManagedOperationParameter(name = "name", description = "User name"),
 		@ManagedOperationParameter(name = "description", description = "Role description")})
 	public boolean addRole(String name, String description) {
-
 		if (!entityCache.containsKey(name)) {
 	    	Object result = entityCache.executeOnKey(name, new RoleCreator(getCurrentUser(), description));
 	    	logger.debug("addRole; execution result: {}", result);

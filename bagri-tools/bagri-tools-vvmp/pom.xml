@@ -25,11 +25,6 @@
     </properties>
 
     <dependencies>
-        <!--dependency>
-            <groupId>com.bagri.db</groupId>
-            <artifactId>bagri-common</artifactId>
-        </dependency-->
-
         <dependency>
             <groupId>com.sun.tools</groupId>
             <artifactId>visualvm-core</artifactId>
@@ -38,7 +33,6 @@
             <optional>false</optional>
             <systemPath>${project.basedir}/lib/com-sun-tools-visualvm-core.jar</systemPath>
         </dependency>
-    
     	<dependency>
             <groupId>com.sun.tools</groupId>
             <artifactId>visualvm-jmx</artifactId>

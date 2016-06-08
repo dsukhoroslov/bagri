@@ -55,7 +55,6 @@ public class UserManagement extends EntityManagement<XDMUser> {
 		@ManagedOperationParameter(name = "login", description = "User login"),
 		@ManagedOperationParameter(name = "password", description = "User password")})
 	public boolean addUser(String login, String password) {
-
 		if (!entityCache.containsKey(login)) {
 	    	Object result = entityCache.executeOnKey(login, new UserCreator(getCurrentUser(), password));
 	    	logger.debug("addUser; execution result: {}", result);
@@ -68,7 +67,6 @@ public class UserManagement extends EntityManagement<XDMUser> {
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "login", description = "User login")})
 	public boolean deleteUser(String login) {
-		//return userCache.remove(login) != null;
 		XDMUser user = entityCache.get(login);
 		if (user != null) {
 	    	Object result = entityCache.executeOnKey(login, new UserRemover(user.getVersion(), getCurrentUser()));
@@ -94,11 +92,11 @@ public class UserManagement extends EntityManagement<XDMUser> {
 			if (pwd.equals(user.getPassword())) {
 				return true;
 			}
-			// fallback to plain check
+			// is password already encrypted?
 			if (password.equals(user.getPassword())) {
 				return true;
 			}
-			// fallback to double-encrypted pwd
+			// fallback to double-encrypted pwd?
 			pwd = Encryptor.encrypt(user.getPassword());
 			return password.equals(pwd);
 		}

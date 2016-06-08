@@ -47,7 +47,7 @@ public class JsonDocumentManagementTest extends XDMDocumentManagementTest {
 		if (schema == null) {
 			schema = new XDMSchema(1, new java.util.Date(), "test", "test", "test schema", true, null);
 			xdmRepo.setSchema(schema);
-			XDMDataFormat df = new XDMDataFormat(1, new java.util.Date(), "", "JSON", null, null, null,
+			XDMDataFormat df = new XDMDataFormat(1, new java.util.Date(), "", "JSON", null, null,
 					"com.bagri.xdm.common.df.json.JsonApiParser", "com.bagri.xdm.common.df.json.JsonBuilder", true, null);
 			ArrayList<XDMDataFormat> cFormats = new ArrayList<>(1);
 			cFormats.add(df);

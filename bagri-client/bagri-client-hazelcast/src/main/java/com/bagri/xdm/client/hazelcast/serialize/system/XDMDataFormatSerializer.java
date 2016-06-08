@@ -27,7 +27,6 @@ public class XDMDataFormatSerializer extends XDMEntitySerializer implements Stre
 				(String) entity[2],
 				in.readUTF(),
 				in.readUTF(),
-				in.readUTF(),
 				(Collection<String>) in.readObject(),
 				in.readUTF(),
 				in.readUTF(),
@@ -39,7 +38,6 @@ public class XDMDataFormatSerializer extends XDMEntitySerializer implements Stre
 	public void write(ObjectDataOutput out, XDMDataFormat xFormat)	throws IOException {
 		super.writeEntity(out, xFormat);
 		out.writeUTF(xFormat.getName());
-		out.writeUTF(xFormat.getLibrary());
 		out.writeUTF(xFormat.getDescription());
 		out.writeObject(xFormat.getExtensions());
 		out.writeUTF(xFormat.getParserClass());

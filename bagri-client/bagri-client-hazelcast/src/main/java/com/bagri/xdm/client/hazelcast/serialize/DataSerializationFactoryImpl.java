@@ -172,6 +172,12 @@ public class DataSerializationFactoryImpl implements DataSerializableFactory {
 	public static final int cli_AggregateSchemaInfoTask = 185;
 	public static final int cli_AggregateSchemaHealthTask = 186;
 	
+	public static final int cli_CreateDataFormatTask = 190;
+	public static final int cli_RemoveDataFormatTask = 191;
+	public static final int cli_UpdateDataFormatTask = 192;
+	public static final int cli_CreateDataStoreTask = 195;
+	public static final int cli_RemoveDataStoreTask = 196;
+	public static final int cli_UpdateDataStoreTask = 197;
 	
 	@Override
 	public IdentifiedDataSerializable create(int typeId) {
@@ -184,8 +190,6 @@ public class DataSerializationFactoryImpl implements DataSerializableFactory {
 			case cli_XQFixedCursor: return new FixedCursor();
 			case cli_UpdateDocumentCollectionTask: return new DocumentCollectionUpdater();
 			case cli_ProcessDocumentTask: return new DocumentProcessor();
-			//case cli_GetBeanDocumentTask = 103;
-			//case cli_GetMapDocumentTask = 104; 
 			case cli_GetDocumentTask: return new DocumentProvider();
 			case cli_CreateBeanDocumentTask: return new DocumentBeanCreator();
 			case cli_CreateMapDocumentTask: return new DocumentMapCreator();

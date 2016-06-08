@@ -47,7 +47,6 @@
     </organization>
 
     <modules>
-        <module>bagri-common</module>
         <module>bagri-xdm</module>
         <module>bagri-client</module>
         <module>bagri-xquery</module>
@@ -125,7 +124,7 @@
             <!-- Module dependencies -->
             <dependency>
                 <groupId>com.bagri.db</groupId>
-                <artifactId>bagri-common</artifactId>
+                <artifactId>bagri-xdm</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -138,11 +137,6 @@
                         <artifactId>junit</artifactId>
                     </exclusion>
                 </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>com.bagri.db</groupId>
-                <artifactId>bagri-xdm</artifactId>
-                <version>${project.version}</version>
             </dependency>
             <!--dependency>
                 <groupId>com.bagri.db</groupId>

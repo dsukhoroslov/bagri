@@ -69,31 +69,28 @@ public class ModuleManagement extends EntityManagement<XDMModule> {
 		@ManagedOperationParameter(name = "fileName", description = "File for module"),
 		@ManagedOperationParameter(name = "description", description = "Module description"),
 		@ManagedOperationParameter(name = "namespace", description = "Module namespace")})
-	public void addModule(String name, String fileName, String description, String namespace) {
-
+	public boolean addModule(String name, String fileName, String description, String namespace) {
 		logger.trace("addModule.enter;");
 		XDMModule module = null;
 		if (!entityCache.containsKey(name)) {
 	    	Object result = entityCache.executeOnKey(name, new ModuleCreator(getCurrentUser(), fileName, namespace, description));
-			//return true;
 	    	module = (XDMModule) result;
 		}
-		//return false;
 		logger.trace("addModule.exit; module created: {}", module);
+		return module != null;
 	}
 	
 	@ManagedOperation(description="Removes an existing Module")
 	@ManagedOperationParameters({@ManagedOperationParameter(name = "name", description = "Module name to delete")})
-	public void deleteModule(String name) {
-		
+	public boolean deleteModule(String name) {
 		logger.trace("deleteModule.enter; name: {}", name);
 		XDMModule module = entityCache.get(name);
 		if (module != null) {
 	    	Object result = entityCache.executeOnKey(name, new ModuleRemover(module.getVersion(), getCurrentUser()));
-	    	//return result != null;
+	    	module = (XDMModule) result;
 		}
-		//return false;
-		logger.trace("deleteModule.exit; module deleted");
+		logger.trace("deleteModule.exit; module deleted: {}", module);
+		return module != null;
 	}
 /*
 	@ManagedOperation(description="Creates a new Module")

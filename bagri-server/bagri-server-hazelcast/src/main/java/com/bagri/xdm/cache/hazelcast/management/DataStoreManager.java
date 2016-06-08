@@ -41,22 +41,17 @@ public class DataStoreManager extends EntityManager<XDMDataStore> {
 		return "DataStore";
 	}
 
-	@ManagedAttribute(description="Returns Data Format description")
+	@ManagedAttribute(description="Returns Data Store description")
 	public String getDescription() {
 		return getEntity().getDescription();
 	}
 
-	@ManagedAttribute(description="Returns Data Format library name")
-	public String getLibrary() {
-		return getEntity().getLibrary();
-	}
-
-	@ManagedAttribute(description="Returns registered Data Format name")
+	@ManagedAttribute(description="Returns registered Data Store name")
 	public String getName() {
 		return entityName;
 	}
 
-	@ManagedAttribute(description="Returns Data Format version")
+	@ManagedAttribute(description="Returns Data Store version")
 	public int getVersion() {
 		return super.getVersion();
 	}

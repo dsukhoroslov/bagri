@@ -23,7 +23,6 @@ import com.bagri.xdm.common.XDMEntity;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(namespace = "http://www.bagridb.com/xdm/system", propOrder = {
 		"name", 
-		"library",
 		"description",
 		"extensions",
 		"parserClass",
@@ -40,9 +39,6 @@ public class XDMDataFormat extends XDMEntity {
 	@XmlID
 	private String name;
 		
-	@XmlElement(required = 	true)
-	private String library;
-
 	@XmlElement(required = 	false)
 	private String description;
 		
@@ -68,11 +64,10 @@ public class XDMDataFormat extends XDMEntity {
 		super();
 	}
 
-	public XDMDataFormat(int version, Date createdAt, String createdBy, String name, String library, String description, 
+	public XDMDataFormat(int version, Date createdAt, String createdBy, String name, String description, 
 			Collection<String> extensions, String parserClass, String builderClass, boolean enabled, Properties props) {
 		super(version, createdAt, createdBy);
 		this.name = name;
-		this.library = library;
 		this.description = description;
 		if (extensions != null) {
 			this.extensions.addAll(extensions);
@@ -90,13 +85,6 @@ public class XDMDataFormat extends XDMEntity {
 	 */
 	public String getName() {
 		return name;
-	}
-
-	/**
-	 * @return the library
-	 */
-	public String getLibrary() {
-		return library;
 	}
 
 	/**
@@ -161,7 +149,6 @@ public class XDMDataFormat extends XDMEntity {
 	public Map<String, Object> convert() {
 		Map<String, Object> result = super.convert();
 		result.put("name", name);
-		result.put("library", library);
 		result.put("description", description);
 		result.put("extensions", extensions.toString());
 		result.put("parser", parserClass);

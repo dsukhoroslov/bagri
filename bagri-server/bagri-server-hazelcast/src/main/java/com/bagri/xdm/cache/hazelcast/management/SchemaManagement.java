@@ -1,7 +1,5 @@
 package com.bagri.xdm.cache.hazelcast.management;
 
-import static com.bagri.xdm.cache.hazelcast.util.HazelcastUtils.hz_instance;
-
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
@@ -124,8 +122,7 @@ public class SchemaManagement extends EntityManagement<XDMSchema> implements Mem
 		@ManagedOperationParameter(name = "schemaName", description = "Schema name"),
 		@ManagedOperationParameter(name = "desription", description = "Schema description"),
 		@ManagedOperationParameter(name = "properties", description = "Schema properties: key/value pairs separated by comma")})
-	public boolean createSchema(String schemaName, String description, String properties) {
-
+	public boolean addSchema(String schemaName, String description, String properties) {
 		Properties props;
 		try {
 			props = PropUtils.propsFromString(properties);
@@ -140,17 +137,17 @@ public class SchemaManagement extends EntityManagement<XDMSchema> implements Mem
 				props.setProperty(prop, defaults.getProperty(prop));
 			}
 		}
-		return addSchema(schemaName, description, props) != null;
+		return createSchema(schemaName, description, props) != null;
 	}
 	
 	@ManagedOperation(description="Destroy Schema")
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "schemaName", description = "Schema name")})
-	public boolean destroySchema(String schemaName) {
-		return deleteSchema(schemaName) != null;
+	public boolean deleteSchema(String schemaName) {
+		return removeSchema(schemaName) != null;
 	}
 	
-	public XDMSchema addSchema(String schemaName, String description, Properties props) {
+	public XDMSchema createSchema(String schemaName, String description, Properties props) {
 		XDMSchema schema = null;
 		if (!entityCache.containsKey(schemaName)) {
 			// get current user from context...
@@ -162,7 +159,7 @@ public class SchemaManagement extends EntityManagement<XDMSchema> implements Mem
 		return schema;
 	}
 	
-	public XDMSchema deleteSchema(String schemaName) {
+	public XDMSchema removeSchema(String schemaName) {
 		XDMSchema schema = entityCache.get(schemaName);
 		if (schema != null) {
 			String user = srvUser.getCurrentUser();

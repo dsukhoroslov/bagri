@@ -27,7 +27,6 @@ public class XDMDataStoreSerializer extends XDMEntitySerializer implements Strea
 				in.readUTF(),
 				in.readUTF(),
 				in.readUTF(),
-				in.readUTF(),
 				in.readBoolean(),
 				(Properties) in.readObject());
 	}
@@ -36,7 +35,6 @@ public class XDMDataStoreSerializer extends XDMEntitySerializer implements Strea
 	public void write(ObjectDataOutput out, XDMDataStore xStore)	throws IOException {
 		super.writeEntity(out, xStore);
 		out.writeUTF(xStore.getName());
-		out.writeUTF(xStore.getLibrary());
 		out.writeUTF(xStore.getDescription());
 		out.writeUTF(xStore.getStoreClass());
 		out.writeBoolean(xStore.isEnabled());

@@ -20,6 +20,8 @@ import com.bagri.xdm.cache.hazelcast.task.doc.DocumentCollectionUpdater;
 import com.bagri.xdm.cache.hazelcast.task.doc.DocumentContentProvider;
 import com.bagri.xdm.cache.hazelcast.task.doc.DocumentStructureProvider;
 import com.bagri.xdm.cache.hazelcast.task.doc.DocumentUrisProvider;
+import com.bagri.xdm.cache.hazelcast.task.format.DataFormatCreator;
+import com.bagri.xdm.cache.hazelcast.task.format.DataFormatRemover;
 import com.bagri.xdm.cache.hazelcast.task.index.IndexCreator;
 import com.bagri.xdm.cache.hazelcast.task.index.IndexRemover;
 import com.bagri.xdm.cache.hazelcast.task.index.ValueIndexator;
@@ -149,6 +151,10 @@ public class DataSerializationFactoryImpl extends com.bagri.xdm.client.hazelcast
 			case cli_UpdateSchemaTask: return new SchemaUpdater();
 			case cli_DeleteSchemaTask: return new SchemaRemover();
 			case cli_ActivateSchemaTask: return new SchemaActivator();
+			case cli_CreateDataFormatTask: return new DataFormatCreator();
+			case cli_RemoveDataFormatTask: return new DataFormatRemover();
+			//case cli_CreateDataStoreTask: return new DataStoreCreator();
+			//case cli_RemoveDataStoreTask: return new DataStoreRemover();
 		}
 		return super.create(typeId);
 	}

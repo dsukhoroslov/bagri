@@ -17,10 +17,6 @@
     <dependencies>
         <dependency>
             <groupId>com.bagri.db</groupId>
-            <artifactId>bagri-common</artifactId>
-        </dependency>                     
-        <dependency>
-            <groupId>com.bagri.db</groupId>
             <artifactId>bagri-xdm</artifactId>
         </dependency>
         <dependency>

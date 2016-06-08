@@ -1,5 +1,10 @@
 package com.bagri.xdm.cache.hazelcast.management;
 
+import static com.bagri.common.util.PropUtils.propsFromString;
+
+import java.io.IOException;
+import java.util.Arrays;
+
 import javax.management.openmbean.TabularData;
 
 import org.springframework.jmx.export.annotation.ManagedAttribute;
@@ -8,11 +13,13 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
+import com.bagri.xdm.cache.hazelcast.task.format.DataFormatCreator;
+import com.bagri.xdm.cache.hazelcast.task.format.DataFormatRemover;
 import com.bagri.xdm.system.XDMDataFormat;
 import com.hazelcast.core.HazelcastInstance;
 
 /**
- * @author Denis Sukhoroslov email: dsukhoroslov@gmail.com
+ * @author Denis Sukhoroslov 
  *
  */
 @ManagedResource(objectName="com.bagri.xdm:type=Management,name=DataFormatManagement", 
@@ -43,35 +50,38 @@ public class DataFormatManagement extends EntityManagement<XDMDataFormat> {
 	@ManagedOperation(description="Creates a new Data Format")
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "name", description = "DataFormat name to create"),
-		@ManagedOperationParameter(name = "library", description = "Library name containing DataFormat implementation"),
-		@ManagedOperationParameter(name = "description", description = "DataFormat description")})
-	public void addDataFormat(String name, String library, String description) {
-
+		@ManagedOperationParameter(name = "parserClass", description = "Parser implementation class name"),
+		@ManagedOperationParameter(name = "builderClass", description = "Builder implementation class name"),
+		@ManagedOperationParameter(name = "description", description = "DataFormat description"),
+		@ManagedOperationParameter(name = "extensions", description = "Comma-separated format extensions"),
+		@ManagedOperationParameter(name = "properties", description = "DataFormat properties with their default values")})
+	public boolean addDataFormat(String name, String parser, String builder, String description, String extensions, String properties) {
 		logger.trace("addDataFormat.enter; name: {}", name);
 		XDMDataFormat format = null;
 		if (!entityCache.containsKey(name)) {
-	    	//Object result = entityCache.executeOnKey(name, new DataFormatCreator(getCurrentUser(), library, description));
-			//return true;
-	    	//format = (XDMDataFormat) result;
+			try {
+				Object result = entityCache.executeOnKey(name, new DataFormatCreator(getCurrentUser(), parser, builder, description,
+						Arrays.asList(extensions.split(", ")), propsFromString(properties)));
+		    	format = (XDMDataFormat) result;
+			} catch (IOException ex) {
+				logger.error("", ex);
+			}
 		}
-		//return false;
 		logger.trace("addLibrary.exit; dataFormat created: {}", format);
+		return format != null;
 	}
 	
 	@ManagedOperation(description="Removes an existing Extension Library")
-	@ManagedOperationParameters({@ManagedOperationParameter(name = "name", description = "Library name to delete")})
-	public void deleteDataFormat(String name) {
-		
+	@ManagedOperationParameters({@ManagedOperationParameter(name = "name", description = "Data Format name to delete")})
+	public boolean deleteDataFormat(String name) {
 		logger.trace("deleteDataFormat.enter; name: {}", name);
 		XDMDataFormat format = entityCache.get(name);
 		if (format != null) {
-	    	//Object result = entityCache.executeOnKey(name, new DataFormatRemover(format.getVersion(), getCurrentUser()));
-	    	//return result != null;
+	    	Object result = entityCache.executeOnKey(name, new DataFormatRemover(format.getVersion(), getCurrentUser()));
+	    	format = (XDMDataFormat) result;
 		}
-		//return false;
-		logger.trace("deleteDataFormat.exit; dataFormat deleted");
+		logger.trace("deleteDataFormat.exit; dataFormat deleted: {}", format);
+		return format != null;
 	}
-
-
 
 }

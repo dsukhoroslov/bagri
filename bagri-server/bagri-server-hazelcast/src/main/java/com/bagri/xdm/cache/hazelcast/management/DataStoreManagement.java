@@ -1,5 +1,9 @@
 package com.bagri.xdm.cache.hazelcast.management;
 
+import static com.bagri.common.util.PropUtils.propsFromString;
+
+import java.io.IOException;
+
 import javax.management.openmbean.TabularData;
 
 import org.springframework.jmx.export.annotation.ManagedAttribute;
@@ -8,11 +12,13 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
+import com.bagri.xdm.cache.hazelcast.task.store.DataStoreCreator;
+import com.bagri.xdm.cache.hazelcast.task.store.DataStoreRemover;
 import com.bagri.xdm.system.XDMDataStore;
 import com.hazelcast.core.HazelcastInstance;
 
 /**
- * @author Denis Sukhoroslov email: dsukhoroslov@gmail.com
+ * @author Denis Sukhoroslov 
  *
  */
 @ManagedResource(objectName="com.bagri.xdm:type=Management,name=DataStoreManagement", 
@@ -40,36 +46,39 @@ public class DataStoreManagement extends EntityManagement<XDMDataStore> {
 		return getEntities("dataStore", "Data Store definition");
     }
 	
-	@ManagedOperation(description="Creates a new Data Format")
+	@ManagedOperation(description="Creates a new Data Store")
 	@ManagedOperationParameters({
-		@ManagedOperationParameter(name = "name", description = "DataFormat name to create"),
-		@ManagedOperationParameter(name = "library", description = "Library name containing DataStore implementation"),
-		@ManagedOperationParameter(name = "description", description = "DataStore description")})
-	public void addDataStore(String name, String library, String description) {
-
+		@ManagedOperationParameter(name = "name", description = "DataStore name to create"),
+		@ManagedOperationParameter(name = "storeClass", description = "DocumentStore implementation class name"),
+		@ManagedOperationParameter(name = "description", description = "DataStore description"),
+		@ManagedOperationParameter(name = "properties", description = "DataStore properties with their default values")})
+	public boolean addDataStore(String name, String storeClass, String description, String properties) {
 		logger.trace("addDataStore.enter; name: {}", name);
 		XDMDataStore store = null;
 		if (!entityCache.containsKey(name)) {
-	    	//Object result = entityCache.executeOnKey(name, new DataFormatCreator(getCurrentUser(), library, description));
-			//return true;
-	    	//store = (XDMDataStore) result;
+			try {
+				Object result = entityCache.executeOnKey(name, new DataStoreCreator(getCurrentUser(), storeClass, description,
+						propsFromString(properties)));
+		    	store = (XDMDataStore) result;
+			} catch (IOException ex) {
+				logger.error("", ex);
+			}
 		}
-		//return false;
 		logger.trace("addStore.exit; dataStore created: {}", store);
+		return store != null;
 	}
 	
 	@ManagedOperation(description="Removes an existing Data Store")
 	@ManagedOperationParameters({@ManagedOperationParameter(name = "name", description = "Data Store name to delete")})
-	public void deleteDataStore(String name) {
-		
+	public boolean deleteDataStore(String name) {
 		logger.trace("deleteDataStore.enter; name: {}", name);
 		XDMDataStore store = entityCache.get(name);
 		if (store != null) {
-	    	//Object result = entityCache.executeOnKey(name, new DataFormatRemover(format.getVersion(), getCurrentUser()));
-	    	//return result != null;
+	    	Object result = entityCache.executeOnKey(name, new DataStoreRemover(store.getVersion(), getCurrentUser()));
+	    	store = (XDMDataStore) result;
 		}
-		//return false;
-		logger.trace("deleteDataStore.exit; dataStore deleted");
+		logger.trace("deleteDataStore.exit; dataStore deleted: {}", store);
+		return store != null;
 	}
 
 

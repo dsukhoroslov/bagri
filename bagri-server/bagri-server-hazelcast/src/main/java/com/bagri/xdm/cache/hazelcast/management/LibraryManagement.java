@@ -58,31 +58,28 @@ public class LibraryManagement extends EntityManagement<XDMLibrary> {
 		@ManagedOperationParameter(name = "name", description = "Library name to create"),
 		@ManagedOperationParameter(name = "fileName", description = "Library file (JAR), can be ommited"),
 		@ManagedOperationParameter(name = "description", description = "Library description")})
-	public void addLibrary(String name, String fileName, String description) {
-
+	public boolean addLibrary(String name, String fileName, String description) {
 		logger.trace("addLibrary.enter; name: {}", name);
 		XDMLibrary library = null;
 		if (!entityCache.containsKey(name)) {
 	    	Object result = entityCache.executeOnKey(name, new LibraryCreator(getCurrentUser(), fileName, description));
-			//return true;
 	    	library = (XDMLibrary) result;
 		}
-		//return false;
 		logger.trace("addLibrary.exit; library created: {}", library);
+		return library != null;
 	}
 	
 	@ManagedOperation(description="Removes an existing Extension Library")
 	@ManagedOperationParameters({@ManagedOperationParameter(name = "name", description = "Library name to delete")})
-	public void deleteLibrary(String name) {
-		
+	public boolean deleteLibrary(String name) {
 		logger.trace("deleteLibrary.enter; name: {}", name);
 		XDMLibrary library = entityCache.get(name);
 		if (library != null) {
 	    	Object result = entityCache.executeOnKey(name, new LibraryRemover(library.getVersion(), getCurrentUser()));
-	    	//return result != null;
+	    	library = (XDMLibrary) result;
 		}
-		//return false;
-		logger.trace("deleteLibrary.exit; library deleted");
+		logger.trace("deleteLibrary.exit; library deleted: {}", library);
+		return library != null;
 	}
 
 }

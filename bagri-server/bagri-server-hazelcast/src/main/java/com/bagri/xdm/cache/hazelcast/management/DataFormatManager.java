@@ -52,11 +52,6 @@ public class DataFormatManager extends EntityManager<XDMDataFormat> {
 		return getEntity().getDescription();
 	}
 
-	@ManagedAttribute(description="Returns Data Format library name")
-	public String getLibrary() {
-		return getEntity().getLibrary();
-	}
-
 	@ManagedAttribute(description="Returns registered Data Format name")
 	public String getName() {
 		return entityName;
