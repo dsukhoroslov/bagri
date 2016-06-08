@@ -65,9 +65,14 @@ public class XDMException extends Exception {
 	public static final int ecQueryCancel = 80001;
 	
 	/**
+	 * error compiling query 
+	 */
+	public static final int ecQueryCompile = 80002;
+
+	/**
 	 * query timed out
 	 */
-	public static final int ecQueryTimeout = 80002;
+	public static final int ecQueryTimeout = 80003;
 	
 	/**
 	 * transaction handling error

@@ -32,7 +32,7 @@ public class XDMPathSerializer implements StreamSerializer<XDMPath> {
 				in.readInt(),
 				in.readInt(),
 				in.readInt(),
-				XDMOccurrence.getOccurence(
+				XDMOccurrence.getOccurrence(
 						in.readInt(), 
 						in.readInt()));
 	}

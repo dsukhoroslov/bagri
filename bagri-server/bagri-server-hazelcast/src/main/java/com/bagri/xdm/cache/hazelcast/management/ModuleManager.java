@@ -8,6 +8,7 @@ import org.springframework.jmx.export.annotation.ManagedAttribute;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
+import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.system.XDMModule;
 import com.bagri.xquery.api.XQCompiler;
 import com.hazelcast.core.HazelcastInstance;
@@ -31,9 +32,14 @@ public class ModuleManager extends EntityManager<XDMModule> {
 	}
 	
 	@ManagedOperation(description="Compiles registered Module")
-	public void compileModule() {
+	public boolean compileModule() {
 		XDMModule module = getEntity();
-		xqComp.compileModule(module);
+		try {
+			xqComp.compileModule(module);
+			return true;
+		} catch (XDMException ex) {
+			return false;
+		}
 	}
 
 	@ManagedOperation(description="Reloads registered Module from disk")
@@ -46,8 +52,12 @@ public class ModuleManager extends EntityManager<XDMModule> {
 	@ManagedOperation(description="Returns Module functions")
 	public String[] getDeclaredFunctions() {
 		XDMModule module = getEntity();
-		List<String> list = xqComp.getModuleFunctions(module);
-		return list.toArray(new String[list.size()]);
+		try {
+			List<String> list = xqComp.getModuleFunctions(module);
+			return list.toArray(new String[list.size()]);
+		} catch (XDMException ex) {
+			return null;
+		}
 	}
 	
 	@Override

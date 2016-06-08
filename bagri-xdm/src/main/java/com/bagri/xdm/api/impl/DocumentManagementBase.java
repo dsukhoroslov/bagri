@@ -3,12 +3,8 @@ package com.bagri.xdm.api.impl;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.util.Properties;
-
-import javax.xml.transform.Source;
-import javax.xml.transform.stream.StreamSource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,21 +15,43 @@ import com.bagri.common.util.XMLUtils;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.domain.XDMDocument;
 
+/**
+ * Base implementation for XDM Document Management interface. SEveral common methods implemented 
+ * 
+ * @author Denis Sukhoroslov
+ *
+ */
 public abstract class DocumentManagementBase {
 	
     protected final transient Logger logger = LoggerFactory.getLogger(getClass());
 	
+	/**
+	 * 
+	 * @param uri the XDM document uri
+	 * @return XDM Document content as a plain text
+	 * @throws XDMException in case of any error
+	 */
 	public abstract String getDocumentAsString(String uri) throws XDMException;
-	public abstract XDMDocument storeDocumentFromString(String uri, String xml, Properties props) throws XDMException;
 	
-	public Source getDocumentAsSource(String uri) throws XDMException {
-		String content = getDocumentAsString(uri);
-		if (content != null) {
-			return new StreamSource(new StringReader(content));
-		}
-		return null;
-	}
 	
+	/**
+	 * Creates a new Document or overrides an existing one in XDM repository
+	 * 
+	 * @param uri String; the XDM document uri  
+	 * @param content document's text (JSON, XML, ..) representation, can not be null
+	 * @param props Properties; the document processing instructions
+	 * @return XDMDocument created or overridden (versioned) document
+	 * @throws XDMException in case of any error
+	 */
+	public abstract XDMDocument storeDocumentFromString(String uri, String content, Properties props) throws XDMException;
+
+	/**
+	 * constructs {@link InputStream} over XDMDocument content identified by the uri provided 
+	 * 
+	 * @param uri the XDM document uri
+	 * @return {@link InputStream} over the document's content
+	 * @throws XDMException in case of any error
+	 */
 	public InputStream getDocumentAsSream(String uri) throws XDMException {
 		String content = getDocumentAsString(uri);
 		if (content != null) {
@@ -46,17 +64,15 @@ public abstract class DocumentManagementBase {
 		return null;
 	}
 	
-	public XDMDocument storeDocumentFromSource(String uri, Source source, Properties props) throws XDMException {
-		try {
-			// TODO: get serialization props only..
-			String xml = XMLUtils.sourceToString(source, null);
-			return storeDocumentFromString(uri, xml, props);
-		} catch (IOException ex) {
-			logger.error("storeDocumentFromSource.error", ex);
-			throw new XDMException(ex, XDMException.ecInOut);
-		}
-	}
-	
+	/**
+	 * constructs new XDMDocument or overrides an existing one in XDM repository
+	 * 
+	 * @param uri String; the XDM document uri  
+	 * @param stream the {@link InputStream} over document's text (JSON, XML, ..) representation, can not be null
+	 * @param props Properties; the document processing instructions
+	 * @return XDMDocument created or overridden (versioned) document
+	 * @throws XDMException in case of any error
+	 */
 	public XDMDocument storeDocumentFromStream(String uri, InputStream stream, Properties props) throws XDMException {
 		try {
 			// TODO: get serialization props only..

@@ -13,10 +13,8 @@ import static com.bagri.xdm.domain.XDMDocument.clnDefault;
 import static com.bagri.xdm.system.XDMDataFormat.df_xml;
 
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -42,7 +40,8 @@ import com.bagri.common.query.Comparison;
 import com.bagri.common.stats.StatisticsEvent;
 import com.bagri.common.util.PropUtils;
 import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.cache.api.impl.DocumentManagementServer;
+import com.bagri.xdm.cache.api.XDMDocumentManagement;
+import com.bagri.xdm.cache.api.impl.DocumentManagementBase;
 import com.bagri.xdm.cache.hazelcast.predicate.CollectionPredicate;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentContentProvider;
 import com.bagri.xdm.common.XDMDataKey;
@@ -64,11 +63,10 @@ import com.bagri.xdm.system.XDMTriggerAction.Scope;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.IMap;
-import com.hazelcast.map.EntryProcessor;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
 
-public class DocumentManagementImpl extends DocumentManagementServer {
+public class DocumentManagementImpl extends DocumentManagementBase implements XDMDocumentManagement {
 	
 	private XDMKeyFactory factory;
 	private RepositoryImpl repo;
@@ -78,7 +76,7 @@ public class DocumentManagementImpl extends DocumentManagementServer {
     private TriggerManagementImpl triggerManager;
 
     private IdGenerator<Long> docGen;
-    private Map<XDMDocumentKey, Source> srcCache;
+    //private Map<XDMDocumentKey, Source> srcCache;
     private IMap<XDMDocumentKey, String> cntCache;
 	private IMap<XDMDocumentKey, XDMDocument> xddCache;
     private IMap<XDMDataKey, XDMElements> xdmCache;
@@ -120,7 +118,7 @@ public class DocumentManagementImpl extends DocumentManagementServer {
 
     public void setContentCache(IMap<XDMDocumentKey, String> cache) {
     	this.cntCache = cache;
-    	this.srcCache = new ConcurrentHashMap<XDMDocumentKey, Source>();
+    	//this.srcCache = new ConcurrentHashMap<XDMDocumentKey, Source>();
     }
     
     //@Autowired
@@ -942,7 +940,7 @@ public class DocumentManagementImpl extends DocumentManagementServer {
 	    boolean cleaned = false;
 	    if (doc != null) {
 			cntCache.delete(docKey);
-			srcCache.remove(docKey);
+			//srcCache.remove(docKey);
 	    	int size = deleteDocumentElements(doc.getFragments(), doc.getTypeId());
 	    	Collection<Integer> pathIds = indexManager.getTypeIndexes(doc.getTypeId(), true);
 	    	for (int pathId: pathIds) {
@@ -968,7 +966,7 @@ public class DocumentManagementImpl extends DocumentManagementServer {
 	public void evictDocument(XDMDocumentKey xdmKey, XDMDocument xdmDoc) {
 		logger.trace("evictDocument.enter; xdmKey: {}, xdmDoc: {}", xdmKey, xdmDoc);
 		cntCache.delete(xdmKey);
-		srcCache.remove(xdmKey);
+		//srcCache.remove(xdmKey);
     	int size = deleteDocumentElements(xdmDoc.getFragments(), xdmDoc.getTypeId());
 
     	//Collection<Integer> pathIds = indexManager.getTypeIndexes(xdmDoc.getTypeId(), true);

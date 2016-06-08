@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import com.bagri.common.idgen.IdGenerator;
+import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.api.impl.ModelManagementBase;
 import com.bagri.xdm.domain.XDMDocumentType;
 import com.bagri.xdm.domain.XDMNamespace;
@@ -18,13 +19,11 @@ import com.bagri.xdm.domain.XDMPath;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IAtomicLong;
 import com.hazelcast.core.IMap;
-import com.hazelcast.core.ReplicatedMap;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
 import com.hazelcast.query.impl.predicates.RegexPredicate;
-//import com.hazelcast.query.Predicates.RegexPredicate;
 
-public class ModelManagementImpl extends ModelManagementBase { 
+public class ModelManagementImpl extends ModelManagementBase implements XDMModelManagement { 
 
 	protected IMap<String, XDMPath> pathCache;
 	//protected ReplicatedMap<String, XDMNamespace> nsCache;
@@ -46,7 +45,6 @@ public class ModelManagementImpl extends ModelManagementBase {
 		initialize(hzInstance);
 	}
 	
-	@SuppressWarnings("unchecked")
 	private void initialize(HazelcastInstance hzInstance) {
 		nsCache = hzInstance.getMap(CN_XDM_NAMESPACE_DICT);
 		pathCache = hzInstance.getMap(CN_XDM_PATH_DICT);
@@ -106,7 +104,6 @@ public class ModelManagementImpl extends ModelManagementBase {
 
 	@Override
 	public XDMPath getPath(int pathId) {
-
 		Predicate f = Predicates.equal("pathId", pathId);
 		Collection<XDMPath> entries = pathCache.values(f);
 		if (entries.isEmpty()) {
@@ -118,8 +115,7 @@ public class ModelManagementImpl extends ModelManagementBase {
 	
 	@Override
 	public Collection<XDMPath> getTypePaths(int typeId) {
-		
-		Predicate f = Predicates.equal("typeId", typeId);
+		Predicate<String, XDMPath> f = Predicates.equal("typeId", typeId);
 		Collection<XDMPath> entries = pathCache.values(f);
 		if (entries.isEmpty()) {
 			return entries;
@@ -127,15 +123,15 @@ public class ModelManagementImpl extends ModelManagementBase {
 		// check size > 1 ??
 		List<XDMPath> result = new ArrayList<XDMPath>(entries);
 		Collections.sort(result);
-		if (getLogger().isTraceEnabled()) {
-			getLogger().trace("getTypePath; returning {} for type {}", result, typeId);
+		if (logger.isTraceEnabled()) {
+			logger.trace("getTypePath; returning {} for type {}", result, typeId);
 		}
 		return result;
 	}
 	
 	@Override
 	protected XDMDocumentType getDocumentTypeById(int typeId) {
-		Predicate f = Predicates.equal("typeId",  typeId);
+		Predicate f = Predicates.equal("typeId", typeId);
 		Set<Map.Entry<String, XDMDocumentType>> types = typeCache.entrySet(f);
 		if (types.size() == 0) {
 			return null;
@@ -144,6 +140,7 @@ public class ModelManagementImpl extends ModelManagementBase {
 	}
 
 	@Override
+	@SuppressWarnings("rawtypes")
 	protected Set getTypedPathEntries(int typeId) {
 		Predicate f = Predicates.equal("typeId",  typeId);
 		Set<Map.Entry<String, XDMPath>> entries = pathCache.entrySet(f);
@@ -151,6 +148,7 @@ public class ModelManagementImpl extends ModelManagementBase {
 	}
 	
 	@Override
+	@SuppressWarnings("rawtypes")
 	protected Set getTypedPathWithRegex(String regex, int typeId) {
 		Predicate filter;
 		if (typeId > 0) {
@@ -172,7 +170,7 @@ public class ModelManagementImpl extends ModelManagementBase {
 		try {
 			return ((IMap) cache).tryLock(key, timeout, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException ex) {
-			getLogger().error("Interrupted on lock", ex);
+			logger.error("Interrupted on lock", ex);
 			return false;
 		}
 	}
@@ -190,7 +188,7 @@ public class ModelManagementImpl extends ModelManagementBase {
 		if (val2 == null) {
 			return value;
 		}
-		getLogger().debug("putIfAbsent; got collision on cache: {}, key: {}; returning: {}", 
+		logger.debug("putIfAbsent; got collision on cache: {}, key: {}; returning: {}", 
 				new Object[] {cache.getName(), key, val2});
 		return val2;
 	}

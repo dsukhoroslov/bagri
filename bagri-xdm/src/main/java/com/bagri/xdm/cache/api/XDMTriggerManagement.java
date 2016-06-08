@@ -2,6 +2,12 @@ package com.bagri.xdm.cache.api;
 
 import com.bagri.xdm.system.XDMTriggerDef;
 
+/**
+ * XDM Trigger Management interface; Adds/Deletes XDM Schema triggers at runtime
+ * 
+ * @author Denis Sukhoroslov
+ *
+ */
 public interface XDMTriggerManagement {
 	
 	/**

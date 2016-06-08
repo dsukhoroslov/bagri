@@ -29,6 +29,7 @@ import net.sf.saxon.query.StaticQueryContext;
 import net.sf.saxon.query.XQueryExpression;
 import net.sf.saxon.trans.XPathException;
 
+import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.system.XDMFunction;
 import com.bagri.xdm.system.XDMLibrary;
 import com.bagri.xdm.system.XDMModule;
@@ -69,7 +70,7 @@ public class XQCompilerImpl implements XQCompiler {
 	}
 
 	@Override
-	public void compileQuery(String query) {
+	public void compileQuery(String query) throws XDMException {
 		long stamp = System.currentTimeMillis();
 		logger.trace("compileQuery.enter; got query: {}", query);
 		StaticQueryContext sqc = null;
@@ -78,16 +79,15 @@ public class XQCompilerImpl implements XQCompiler {
 			XQueryExpression exp = sqc.compileQuery(query);
 		} catch (XPathException ex) {
 			String error = getError(sqc);
-			//logger.error("compileQuery.error", ex);
 			logger.info("compileQuery.error; message: {}", error);
-			throw new RuntimeException(error);
+			throw new XDMException(error, XDMException.ecQueryCompile);
 		}
 		stamp = System.currentTimeMillis() - stamp;
 		logger.trace("compileQuery.exit; time taken: {}", stamp); 
 	}
 
 	@Override
-	public void compileModule(XDMModule module) {
+	public void compileModule(XDMModule module) throws XDMException {
 		long stamp = System.currentTimeMillis();
 		logger.trace("compileModule.enter; got module: {}", module);
 		XQueryExpression exp = getModuleExpression(module);
@@ -96,7 +96,7 @@ public class XQCompilerImpl implements XQCompiler {
 	}
 
 	@Override
-	public String compileTrigger(XDMModule module, XDMXQueryTrigger trigger) {
+	public String compileTrigger(XDMModule module, XDMXQueryTrigger trigger) throws XDMException {
 		long stamp = System.currentTimeMillis();
 		logger.trace("compileTrigger.enter; got trigger: {}", trigger);
 		String prefix;
@@ -119,7 +119,7 @@ public class XQCompilerImpl implements XQCompiler {
 			String error = getError(sqc);
 			//logger.error("compileQuery.error", ex);
 			logger.info("compileTrigger.error; message: {}", error);
-			query = null;
+			throw new XDMException(error, XDMException.ecQueryCompile);
 		}
 		stamp = System.currentTimeMillis() - stamp;
 		logger.trace("compileTrigger.exit; time taken: {}", stamp);
@@ -127,7 +127,7 @@ public class XQCompilerImpl implements XQCompiler {
 	}
 	
 	@Override
-	public List<String> getModuleFunctions(XDMModule module) {
+	public List<String> getModuleFunctions(XDMModule module) throws XDMException {
 		long stamp = System.currentTimeMillis();
 		logger.trace("getModuleFunctions.enter; got module: {}", module);
 		XQueryExpression exp = getModuleExpression(module);
@@ -198,7 +198,7 @@ public class XQCompilerImpl implements XQCompiler {
 		return sqc;
 	}
 	
-	private XQueryExpression getModuleExpression(XDMModule module) {
+	private XQueryExpression getModuleExpression(XDMModule module) throws XDMException {
 		//logger.trace("getModuleExpression.enter; got namespace: {}, name: {}, body: {}", namespace, name, body);
 		String query = "import module namespace test=\"" + module.getNamespace() + 
 				"\" at \"" + module.getName() + "\";\n\n";
@@ -214,7 +214,7 @@ public class XQCompilerImpl implements XQCompiler {
 		} catch (XPathException ex) {
 			String error = getError(sqc);
 			logger.info("getModuleExpression.error; message: {}", error);
-			throw new RuntimeException(error);
+			throw new XDMException(error, XDMException.ecQueryCompile);
 		}
 	}
 

@@ -263,14 +263,15 @@ public class TriggerManagementImpl implements XDMTriggerManagement {
 					trigger.getModule());
 			return null;
 		}
-		String query = xqComp.compileTrigger(module, trigger);
-		if (query == null) {
+		try {
+			String query = xqComp.compileTrigger(module, trigger);
+			XDMTrigger impl = new XQueryTriggerImpl(query);
+			return impl;
+		} catch (XDMException ex) {
 			logger.info("createXQueryTrigger; trigger function {} is invalid, trigger registration failed",
 					trigger.getFunction());
-			return null;
 		}
-		XDMTrigger impl = new XQueryTriggerImpl(query);
-		return impl;
+		return null;
 	}
 	
 	private XDMLibrary getLibrary(String library) {

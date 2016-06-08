@@ -53,6 +53,7 @@ public interface XDMDocumentManagement {
 	String getDocumentAsString(String uri) throws XDMException;
 	
 	/**
+	 * construct {@link InputStream} over XDMDocument content identified by the uri provided 
 	 * 
 	 * @param uri the XDM document uri
 	 * @return {@link InputStream} over the document's content
@@ -76,7 +77,7 @@ public interface XDMDocumentManagement {
 	 */
 	Map<String, Object> getDocumentAsMap(String uri) throws XDMException;
 
-	// TODO: add methods to return document as Document, Reader, Source, XMLStreamReader..
+	// TODO: add methods to return document as Document, Reader, Source, XMLStreamReader..?
 	
 	/**
 	 * Creates a new Document or overrides an existing one in XDM repository
@@ -122,7 +123,7 @@ public interface XDMDocumentManagement {
 	 */
 	XDMDocument storeDocumentFromMap(String uri, Map<String, Object> fields, Properties props) throws XDMException;
 
-	// TODO: add methods to store document from Document, Reader, Source, XMLStreamReader
+	// TODO: add methods to store document from Document, Reader, Source, XMLStreamReader..?
 	
 	/**
 	 * removes document from XDM repository

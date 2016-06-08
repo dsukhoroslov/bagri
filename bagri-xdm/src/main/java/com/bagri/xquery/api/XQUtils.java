@@ -85,6 +85,12 @@ import org.w3c.dom.Node;
 
 import com.bagri.xdm.api.XDMException;
 
+/**
+ * set of XQJ static utilities 
+ * 
+ * @author Denis Sukhoroslov
+ *
+ */
 public class XQUtils {
 	
 	private static DatatypeFactory dtFactory;
@@ -96,6 +102,12 @@ public class XQUtils {
 		}
 	}
 
+	/**
+	 * converts XQJ baseType to the corresponding {@link QName}. Return null if the provided type does not correspond to any XQJ type constant.
+	 * 
+	 * @param baseType one of XQJ base type constants 
+	 * @return QName representation for the type specified
+	 */
     public static QName getTypeName(int baseType) {
     	switch (baseType) {
     		case XQBASETYPE_ANYATOMICTYPE: return new QName(xs_ns, "anyAtomicType", xs_prefix);
@@ -153,6 +165,13 @@ public class XQUtils {
     	return null;
     }
     
+    /**
+     * converts String value to its Object representation. The resulting class constructed from the type provided.  
+     * 
+     * @param baseType one of XQJ base type constants
+     * @param value String representation of the value
+     * @return Object representation of the value
+     */
 	public static Object getAtomicValue(int baseType, String value) {
     	switch (baseType) {
 			case XQBASETYPE_ANYATOMICTYPE: return value;
@@ -210,6 +229,14 @@ public class XQUtils {
 		return null;
 	}
 
+	/**
+	 * converts {@link QName} to the corresponding XQJ baseType. 
+	 * Return XQBASETYPE_STRING if the provided typeName's local name is not recognized.
+	 * Return XQBASETYPE_ANYTYPE if the provided typeName is not from standard xs: namespace.
+	 * 
+	 * @param typeName the QName type representation 
+	 * @return one of XQJ base type constants
+	 */
 	public static int getBaseTypeForTypeName(QName typeName) {
 		if (xs_ns.equals(typeName.getNamespaceURI())) {
 			switch (typeName.getLocalPart()) {
@@ -270,10 +297,22 @@ public class XQUtils {
 		return XQBASETYPE_ANYTYPE;
 	}
     
+	/**
+	 * checks if the provided XQJ base type constant corresponds to XQJ atomic type or not 
+	 * 
+	 * @param type one of XQJ base type constants 
+	 * @return true if the {@code type} corresponds to XQJ atomic type, false otherwise
+	 */
     public static boolean isAtomicType(int type) {
     	return type >= XQBASETYPE_ANYATOMICTYPE && type <= XQBASETYPE_ENTITY; 
     }
 
+    /**
+     * checks if XQJ base type feature is supported by the data kind provided 
+     * 
+     * @param kind one of XQJ data kind constants
+     * @return true if base type supported for this data kind, false otherwise
+     */
 	public static boolean isBaseTypeSupported(int kind) {
 		return kind == XQITEMKIND_DOCUMENT_ELEMENT || kind ==  XQITEMKIND_DOCUMENT_SCHEMA_ELEMENT 
 			|| kind ==  XQITEMKIND_ELEMENT || kind == XQITEMKIND_SCHEMA_ELEMENT 
@@ -281,12 +320,34 @@ public class XQUtils {
 			|| kind == XQITEMKIND_ATOMIC;
 	}
 	
+	/**
+	 * checks if the node name feature is supported by the data kind provided
+	 * 
+	 * @param kind one of XQJ data kind constants
+	 * @return true if node name is supported, false otherwise
+	 */
 	public static boolean isNodeNameSupported(int kind) {
 		return kind == XQITEMKIND_DOCUMENT_ELEMENT || kind ==  XQITEMKIND_DOCUMENT_SCHEMA_ELEMENT 
 				|| kind ==  XQITEMKIND_ELEMENT || kind == XQITEMKIND_SCHEMA_ELEMENT 
 				|| kind == XQITEMKIND_ATTRIBUTE || kind == XQITEMKIND_SCHEMA_ATTRIBUTE; 
 	}
 
+	/**
+	 * checks if the processing instructions name feature is supported by the data kind provided
+	 * 
+	 * @param kind one of XQJ data kind constants
+	 * @return true if processing instruction name is supported, false otherwise
+	 */
+	public static boolean isPINameSupported(int kind) {
+		return kind == XQITEMKIND_PI;
+	}
+
+	/**
+	 * checks if the provided XQJ base type constant is assignable from String
+	 * 
+	 * @param baseType one of XQJ base type constants 
+	 * @return true if the value of the type is compatible with String, false otherwise
+	 */
     public static boolean isStringTypeCompatible(int baseType) {
     	return baseType == XQBASETYPE_ANYATOMICTYPE || baseType == XQBASETYPE_ANYSIMPLETYPE
     			|| baseType == XQBASETYPE_ANYTYPE || baseType == XQBASETYPE_ENTITIES
@@ -300,6 +361,13 @@ public class XQUtils {
     			|| baseType == XQBASETYPE_UNTYPEDATOMIC;
     }
     
+	/**
+	 * checks if the provided XQJ base type constant is compatible with provided {@code value}
+	 * 
+	 * @param baseType one of XQJ base type constants
+	 * @param value the Object value representation
+	 * @return true if the type is compatible with the value, false otherwise
+	 */
     public static boolean isTypeValueCompatible(int baseType, Object value) {
     	String sval = value.toString();
     	switch (baseType) {
@@ -456,10 +524,14 @@ public class XQUtils {
     	return false;
     }
 	
-	public static boolean isPINameSupported(int kind) {
-		return kind == XQITEMKIND_PI;
-	}
-
+    /**
+     * constructs XQJ item type for the {@code value} specified
+     * 
+     * @param factory the XQJ data factory to produce XQ item type
+     * @param value the value to get item type from
+     * @return XQ item type 
+     * @throws XQException in case of construction error
+     */
 	public static XQItemType getTypeForObject(XQDataFactory factory, Object value) throws XQException {
 		
 		if (value instanceof org.w3c.dom.Node) {
@@ -553,34 +625,49 @@ public class XQUtils {
 		return factory.createAtomicType(baseType, getTypeName(baseType), null);
 	}
 
+	/**
+	 * converts {@link GregorianCalendar} to the corresponding {@link XMLGregorianCalendar} instance 
+	 * 
+	 * @param gc the initial GregorianCalendar instance
+	 * @param cType one of XQJ base type constants 
+	 * @return XML gregorian calendar instance
+	 */
 	public static XMLGregorianCalendar getXMLCalendar(GregorianCalendar gc, int cType) { 
     	switch (cType) {
-    		case XQItemType.XQBASETYPE_DATE:
+    		case XQBASETYPE_DATE:
     			return dtFactory.newXMLGregorianCalendarDate(gc.get(Calendar.YEAR), gc.get(Calendar.MONTH) + 1, 
     					gc.get(Calendar.DAY_OF_MONTH), gc.get(Calendar.ZONE_OFFSET)); 
-    		case XQItemType.XQBASETYPE_GDAY: 
+    		case XQBASETYPE_GDAY: 
     			return dtFactory.newXMLGregorianCalendarDate(DatatypeConstants.FIELD_UNDEFINED, 
     					DatatypeConstants.FIELD_UNDEFINED, gc.get(Calendar.DAY_OF_MONTH), DatatypeConstants.FIELD_UNDEFINED); 
-    		case XQItemType.XQBASETYPE_GMONTH:  
+    		case XQBASETYPE_GMONTH:  
     			return dtFactory.newXMLGregorianCalendarDate(DatatypeConstants.FIELD_UNDEFINED, 
     					gc.get(Calendar.MONTH) + 1, DatatypeConstants.FIELD_UNDEFINED, DatatypeConstants.FIELD_UNDEFINED); 
-    		case XQItemType.XQBASETYPE_GMONTHDAY:  
+    		case XQBASETYPE_GMONTHDAY:  
     			return dtFactory.newXMLGregorianCalendarDate(DatatypeConstants.FIELD_UNDEFINED, 
     					gc.get(Calendar.MONTH) + 1, gc.get(Calendar.DAY_OF_MONTH), DatatypeConstants.FIELD_UNDEFINED); 
-    		case XQItemType.XQBASETYPE_GYEAR:  
+    		case XQBASETYPE_GYEAR:  
     			return dtFactory.newXMLGregorianCalendarDate(gc.get(Calendar.YEAR), 
     					DatatypeConstants.FIELD_UNDEFINED, DatatypeConstants.FIELD_UNDEFINED, DatatypeConstants.FIELD_UNDEFINED); 
-    		case XQItemType.XQBASETYPE_GYEARMONTH: 
+    		case XQBASETYPE_GYEARMONTH: 
     			return dtFactory.newXMLGregorianCalendarDate(gc.get(Calendar.YEAR), 
     					gc.get(Calendar.MONTH) + 1, DatatypeConstants.FIELD_UNDEFINED, DatatypeConstants.FIELD_UNDEFINED); 
-    		case XQItemType.XQBASETYPE_TIME:
+    		case XQBASETYPE_TIME:
     			return dtFactory.newXMLGregorianCalendarTime(gc.get(Calendar.HOUR), gc.get(Calendar.MINUTE), 
     					gc.get(Calendar.SECOND), gc.get(Calendar.MILLISECOND), gc.get(Calendar.ZONE_OFFSET)); 
-    		//default: //XQItemType.XQBASETYPE_DATETIME 
+    		//default: //XQBASETYPE_DATETIME 
     	}
     	return dtFactory.newXMLGregorianCalendar(gc);
     }
 	
+	/**
+	 * converts String representation of duration to its XML equivalent.
+	 * Returns null if the type provided does not correspond to any XML duration types.
+	 * 
+	 * @param duration the String duration representation
+	 * @param dType one of XQJ base type constants 
+	 * @return XML {@link Duration} instance or null
+	 */
     public static Duration getXMLDuration(String duration, int dType) { 
     	switch (dType) {
 			case XQBASETYPE_DURATION: return dtFactory.newDuration(duration); 
@@ -590,6 +677,14 @@ public class XQUtils {
     	return null;
     }
 	
+    /**
+     * constructs XQJ item type for the w3c {@link Node} instance provided
+     * 
+     * @param factory the XQJ data factory to produce XQ item type
+     * @param node w3c XML Node instance
+     * @return XQ item type
+     * @throws XQException in case of processing error
+     */
 	public static XQItemType getTypeForNode(XQDataFactory factory, org.w3c.dom.Node node) throws XQException {
 		//new URI(node.getBaseURI()));
 		switch (node.getNodeType()) {
@@ -614,6 +709,12 @@ public class XQUtils {
 		}
 	}
 
+	/**
+	 * a utility method to extract XQ exception information from the error stack provided 
+	 * 
+	 * @param ex the full error chain
+	 * @return XQ exception  
+	 */
 	public static XQException getXQException(Throwable ex) {
 
 		int errorCode = 0;

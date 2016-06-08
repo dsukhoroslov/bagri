@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
-import java.util.StringTokenizer;
 import java.util.TreeMap;
 
 import javax.xml.namespace.QName;
@@ -31,6 +30,7 @@ import org.apache.xerces.xs.XSParticle;
 import org.apache.xerces.xs.XSSimpleTypeDefinition;
 import org.apache.xerces.xs.XSTerm;
 import org.apache.xerces.xs.XSTypeDefinition;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.ls.DOMImplementationLS;
@@ -38,7 +38,6 @@ import org.w3c.dom.ls.LSInput;
 
 import com.bagri.common.idgen.IdGenerator;
 import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.domain.XDMOccurrence;
 import com.bagri.xdm.domain.XDMDocumentType;
 import com.bagri.xdm.domain.XDMNamespace;
@@ -48,26 +47,16 @@ import com.bagri.xdm.domain.XDMPath;
 import static com.bagri.xdm.common.XDMConstants.xs_ns;
 import static com.bagri.xquery.api.XQUtils.getBaseTypeForTypeName;
 
-public abstract class ModelManagementBase implements XDMModelManagement {
+/**
+ * Base implementation for XDM Model Management interface. Very close to its client ancestor class. 
+ * 
+ * @author Denis Sukhoroslov
+ *
+ */
+public abstract class ModelManagementBase {
 	
-	public static final int WRONG_PATH = -1;
-	
-    private final Logger logger; 
+    protected final transient Logger logger = LoggerFactory.getLogger(getClass());
     protected static final long timeout = 100; // 100ms to wait for lock..
-	
-	public ModelManagementBase() {
-		this.logger = LoggerFactory.getLogger(this.getClass());
-		//initialize();
-	}
-	
-	/*
-	 * initialize caches here
-	 */
-	//protected abstract void initialize();
-
-    protected Logger getLogger() {
-        return logger;
-    }
 
 	protected abstract Map<String, XDMNamespace> getNamespaceCache();
 	protected abstract Map<String, XDMPath> getPathCache();
@@ -76,44 +65,48 @@ public abstract class ModelManagementBase implements XDMModelManagement {
 	protected abstract IdGenerator<Long> getPathGen();
 	protected abstract IdGenerator<Long> getTypeGen();
     
+	@SuppressWarnings("rawtypes")
 	protected abstract boolean lock(Map cache, Object key); 
+	@SuppressWarnings("rawtypes")
 	protected abstract void unlock(Map cache, Object key); 
 	protected abstract <K, V> V putIfAbsent(Map<K, V> cache, K key, V value);
 
 	protected abstract XDMDocumentType getDocumentTypeById(int typeId);
+	@SuppressWarnings("rawtypes")
 	protected abstract Set getTypedPathEntries(int typeId);
+	@SuppressWarnings("rawtypes")
 	protected abstract Set getTypedPathWithRegex(String regex, int typeId);
-	
-	//@Override
-	public String normalizePathOld(String path) {
-		//getLogger().trace("normalizePath.enter; goth path: {}", path);
-		// profile: it takes 1.13 ms!
-		// TODO: optimize it!
-		StringTokenizer tc = new StringTokenizer(path, "{}", true);
-		StringBuffer buff = new StringBuffer();
-		boolean isNamespace = false;
-		while (tc.hasMoreTokens()) {
-			String toc = tc.nextToken();
-			//getLogger().trace("token: {}", toc);
-			if ("{".equals(toc)) {
-				isNamespace = true;
-			} else if ("}".equals(toc)) {
-				isNamespace = false;
-			} else {
-				if (isNamespace) {
-					String ns = translateNamespace(toc);
-					buff.append(ns).append(":");
-				} else {
-					buff.append(toc);
-				}
-			}
-		}
-		String result = buff.toString(); 
-		//getLogger().trace("normalizePath.exit; returning: {}", result);
-		return result;
+
+	/**
+	 * WRONG_PATH identifies path not existing in XDMPath dictionary
+	 */
+    public static final int WRONG_PATH = -1;
+
+    /**
+     * 
+     * @return all registered XDM Document types
+     */
+	public Collection<XDMDocumentType> getDocumentTypes() {
+		Map<String, XDMDocumentType> typeCache = getTypeCache();
+		return typeCache.values();
 	}
 	
-	@Override
+	/**
+	 * 
+	 * @return all registered XDM Namespaces
+	 */
+	public Collection<XDMNamespace> getNamespaces() {
+		Map<String, XDMNamespace> nsCache = getNamespaceCache();
+		return nsCache.values();
+	}
+
+    /**
+	 * translates full node path like "/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}Name"
+	 * to its prefixed equivalent: "/ns0:Security/ns0:Name"
+	 *  
+	 * @param path String; the full node path in Clark form
+	 * @return normalized path: STring; e.g. "/ns0:Security/ns0:Name"
+     */
 	public String normalizePath(String path) {
 		StringBuffer buff = new StringBuffer();
 		int pos = 0, end;
@@ -137,15 +130,32 @@ public abstract class ModelManagementBase implements XDMModelManagement {
 		return buff.toString();
 	}
 	
-	@Override
+	/**
+	 * performs translation from full namespace declaration to its prefix part:
+	 * http://tpox-benchmark.com/security -&gt; ns0
+	 * 
+	 * returns null in case when new (not registered yet) namespace provided;
+	 * 
+	 * @param namespace String; the full namespace declaration
+	 * @return namespace prefix: String; ns0 or null
+	 */
 	public String translateNamespace(String namespace) {
-		
 		return translateNamespace(namespace, null);
 	}
 
-	@Override
+	/**
+	 * performs translation from full namespace declaration to its prefix part:
+	 * http://tpox-benchmark.com/security -&gt; ns0
+	 * 
+	 * creates new prefix in case when new (not registered yet) namespace provided;
+	 * uses the suggested prefix for the new one
+	 * 
+	 * @param namespace String; the full namespace declaration
+	 * @param prefix String; the prefix suggested to use when the namespace is not registered yet, e.g. xsi
+	 * @return namespace prefix: String; xsi
+	 */
 	public String translateNamespace(String namespace, String prefix) {
-		//getLogger().trace("getNamespacePrefix.enter; goth namespace: {}", namespace);
+		//logger.trace("getNamespacePrefix.enter; goth namespace: {}", namespace);
 
 		XDMNamespace xns = (XDMNamespace) getNamespaceCache().get(namespace);
 		if (xns == null) {
@@ -156,20 +166,38 @@ public abstract class ModelManagementBase implements XDMModelManagement {
 			xns = putIfAbsent(getNamespaceCache(), namespace, xns);
 		}
 		String result = xns.getPrefix();
-		//getLogger().trace("getNamespacePrefix.exit; returning: {}", result);
+		//logger.trace("getNamespacePrefix.exit; returning: {}", result);
 		return result;
 	}
 
-	@Override
+	/**
+	 * search for registered full node path like "/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}Name/text()"
+	 * 
+	 * @param path String; node path in Clark form
+	 * @return registered {@link XDMPath} structure if any
+	 */
 	public XDMPath getPath(String path) {
 		return getPathCache().get(normalizePath(path));
 	}
     
-	@Override
-	public XDMPath translatePath(int typeId, String path, XDMNodeKind kind, int dataType, XDMOccurrence occurence) throws XDMException {
+	/**
+	 * translates full node path like "/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}Name/text()"
+	 * to XDMPath;
+	 * 
+	 * creates new XDMPath if it is not registered yet;
+	 * 
+	 * @param typeId int; the corresponding document's type
+	 * @param path String; the full node path in Clark form
+	 * @param kind XDMNodeKind; the type of the node, one of {@link XDMNodeKind} enum literals
+	 * @param dataType int; type of the node value
+	 * @param occurrence {@link XDMOccurrence}; multiplicity of the node
+	 * @return new or existing {@link XDMPath} structure
+	 * @throws XDMException in case of any error
+	 */
+	public XDMPath translatePath(int typeId, String path, XDMNodeKind kind, int dataType, XDMOccurrence occurrence) throws XDMException {
 		// "/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}Name/text()"
 		
-		//getLogger().trace("translatePath.enter; goth path: {}", path);
+		//logger.trace("translatePath.enter; goth path: {}", path);
 		if (kind != XDMNodeKind.document) {
 			if (path == null || path.length() == 0) {
 				return null; //WRONG_PATH;
@@ -177,28 +205,42 @@ public abstract class ModelManagementBase implements XDMModelManagement {
 		
 			path = normalizePath(path);
 		}
-		XDMPath result = addDictionaryPath(typeId, path, kind, dataType, occurence); 
-		//getLogger().trace("translatePath.exit; returning: {}", result);
+		XDMPath result = addDictionaryPath(typeId, path, kind, dataType, occurrence); 
+		//logger.trace("translatePath.exit; returning: {}", result);
 		return result;
 	}
 	
-	@Override
+	/**
+	 * performs translation from full namespace declaration to its prefix part:
+	 * http://tpox-benchmark.com/security -&gt; ns0.
+	 * 
+	 * creates new prefix in case when new (not registered yet) namespace provided;
+	 * 
+	 * @param namespace String; the full namespace declaration 
+	 * @return namespace prefix: String; ns0
+	 */
 	public String getNamespacePrefix(String namespace) {
-		//getLogger().trace("getNamespacePrefix.enter; goth namespace: {}", namespace);
+		//logger.trace("getNamespacePrefix.enter; goth namespace: {}", namespace);
 
 		String result = null;
 		XDMNamespace xns = getNamespaceCache().get(namespace);
 		if (xns != null) {
 			result = xns.getPrefix();
 		}
-		//getLogger().trace("getNamespacePrefix.exit; returning: {}", result);
+		//logger.trace("getNamespacePrefix.exit; returning: {}", result);
 		return result;
 	}
 	
-	@Override
+	/**
+	 * return array of pathIds which are children of the root specified;
+	 * 
+	 * @param typeId int; the corresponding document's type
+	 * @param root String; root node path 
+	 * @return Set&lt;Integer&gt;- set of registered pathIds who are direct or indirect children of the parent path provided
+	 */
 	public Set<Integer> getPathElements(int typeId, String root) {
 
-		getLogger().trace("getPathElements.enter; got path: {}, type: {}", root, typeId);
+		logger.trace("getPathElements.enter; got path: {}, type: {}", root, typeId);
 		Set<Integer> result = new HashSet<Integer>();
 
 		XDMPath xPath = getPathCache().get(root);
@@ -210,44 +252,63 @@ public abstract class ModelManagementBase implements XDMModelManagement {
 			}
 		}
 		
-		getLogger().trace("getPathElements.exit; returning: {}", result);
-		return result; //fromCollection(result);
+		logger.trace("getPathElements.exit; returning: {}", result);
+		return result; 
 	}
 
-	@Override
+	/**
+	 * returns document type ID for the root document element specified. root is a long
+	 * path representation like {@literal "/{http://tpox-benchmark.com/security}Security"}
+	 * 
+	 * returns -1 in case when root path is not registered in docType cache yet;
+	 * 
+	 * @param root String; the document root path
+	 * @return document typeId registered for the root path  
+	 */
 	public int getDocumentType(String root) {
 		// 
-		getLogger().trace("getDocumentType.enter; got path: {}", root);
+		logger.trace("getDocumentType.enter; got path: {}", root);
 		root = normalizePath(root);
-		getLogger().trace("getDocumentType; normalized path: {}", root);
+		logger.trace("getDocumentType; normalized path: {}", root);
 
 		int result = WRONG_PATH;
 		XDMDocumentType xdt = getTypeCache().get(root);
 		if (xdt != null) {
 			result = xdt.getTypeId();
 		} else {
-			if (getLogger().isTraceEnabled()) {
-				getLogger().trace("getDocumentType; type not found; keys: {}; types: {}", 
-						getTypeCache().keySet(), getTypeCache().values());
-				// throw XDMException ?
-			}
+			logger.debug("getDocumentType; type not found; keys: {}; types: {}", getTypeCache().keySet(), getTypeCache().values());
+			// throw XDMException ?
 		}
-		getLogger().trace("getDocumentType.exit; returning: {}", result);
+		logger.trace("getDocumentType.exit; returning: {}", result);
 		return result;
 	}
 	
-	@Override
+	/**
+	 * returns document root path like {@literal "/{http://tpox-benchmark.com/security}Security"}
+	 * for the typeId specified
+	 * 
+	 * @param typeId int; the document's type id
+	 * @return String path registered for the type id  
+	 */
 	public String getDocumentRoot(int typeId) {
 		XDMDocumentType type = getDocumentTypeById(typeId);
 		return type.getRootPath();
 	}
 
-	@Override
+	/**
+	 * returns document type ID for the root document element specified. root is a long
+	 * path representation like {@literal "/{http://tpox-benchmark.com/security}Security"}
+	 * 
+	 * returns new typeId in case when root path is not registered in docType cache yet;
+	 * 
+	 * @param root String; the document root path
+	 * @return int document typeId registered for the root path  
+	 */
 	public int translateDocumentType(String root) {
 		//
-		getLogger().trace("translateDocumentType.enter; got path: {}", root);
+		logger.trace("translateDocumentType.enter; got path: {}", root);
 		root = normalizePath(root);
-		getLogger().trace("translateDocumentType; normalized path: {}", root);
+		logger.trace("translateDocumentType; normalized path: {}", root);
 
 		XDMDocumentType xdt = (XDMDocumentType) getTypeCache().get(root);
 		if (xdt == null) {
@@ -256,18 +317,18 @@ public abstract class ModelManagementBase implements XDMModelManagement {
 			xdt = putIfAbsent(getTypeCache(), root, xdt);
 		}
 		int result = xdt.getTypeId();
-		getLogger().trace("translateDocumentType.exit; returning: {}", result);
+		logger.trace("translateDocumentType.exit; returning: {}", result);
 		return result;
 	}
 
 	protected XDMPath addDictionaryPath(int typeId, String path, XDMNodeKind kind, 
-			int dataType, XDMOccurrence occurence) throws XDMException {
-		//getLogger().trace("addDictionaryPath.enter; goth path: {}", path);
+			int dataType, XDMOccurrence occurrence) throws XDMException {
+		//logger.trace("addDictionaryPath.enter; goth path: {}", path);
 
 		XDMPath xpath = getPathCache().get(path);
 		if (xpath == null) {
 			int pathId = getPathGen().next().intValue();
-			xpath = new XDMPath(path, typeId, kind, pathId, 0, pathId, dataType, occurence); // specify parentId, postId at normalization phase
+			xpath = new XDMPath(path, typeId, kind, pathId, 0, pathId, dataType, occurrence); // specify parentId, postId at normalization phase
 			XDMPath xp2 = putIfAbsent(getPathCache(), path, xpath);
 			if (xp2.getPathId() == pathId) {
 				XDMDocumentType type = getDocumentTypeById(typeId);
@@ -284,15 +345,21 @@ public abstract class ModelManagementBase implements XDMModelManagement {
 			}
 		}
 		//int result = xpath.getPathId();
-		//getLogger().trace("addDictionaryPath.exit; returning: {}", result);
+		//logger.trace("addDictionaryPath.exit; returning: {}", result);
 		return xpath;
 	}
 
-	@Override
+	/**
+	 * normalizes all registered paths belonging to the document type id. 
+	 * i.e. set their parentId and pathId attributes properly  
+	 * 
+	 * @param typeId int; the document's type id  
+	 * @throws XDMException in case of any error 
+	 */
 	public void normalizeDocumentType(int typeId) throws XDMException {
 
 		// TODO: do this via EntryProcessor ?
-		getLogger().trace("normalizeDocumentType.enter; got typeId: {}", typeId);
+		logger.trace("normalizeDocumentType.enter; got typeId: {}", typeId);
 
 		XDMDocumentType type = getDocumentTypeById(typeId);
 		if (type == null) {
@@ -300,7 +367,7 @@ public abstract class ModelManagementBase implements XDMModelManagement {
 		}
 		
 		if (type.isNormalized()) {
-			getLogger().trace("normalizeDocumentType; already normalized (1): {}", type);
+			logger.trace("normalizeDocumentType; already normalized (1): {}", type);
 			return;
 		}
 		
@@ -310,7 +377,7 @@ public abstract class ModelManagementBase implements XDMModelManagement {
 		try {
 			locked = lock(getTypeCache(), root);
 			if (!locked) {
-				getLogger().info("normalizeDocumentType; Can't get lock on document-type {} for normalization, " +
+				logger.info("normalizeDocumentType; Can't get lock on document-type {} for normalization, " +
 							"thus it is being normalized by someone else.", type);
 				return;
 			}
@@ -318,7 +385,7 @@ public abstract class ModelManagementBase implements XDMModelManagement {
 			// it can be already normalized after we get lock!
 			type = getDocumentTypeById(typeId);
 			if (type.isNormalized()) {
-				getLogger().trace("normalizeDocumentType; already normalized (2): {}", type);
+				logger.trace("normalizeDocumentType; already normalized (2): {}", type);
 				return;
 			}
 			
@@ -330,9 +397,10 @@ public abstract class ModelManagementBase implements XDMModelManagement {
 				unlock(getTypeCache(), root);
 			}
 		}
-		getLogger().trace("normalizeDocumentType.exit; typeId: {}; normalized {} path elements", typeId, cnt);
+		logger.trace("normalizeDocumentType.exit; typeId: {}; normalized {} path elements", typeId, cnt);
 	}
 	
+	@SuppressWarnings("unchecked")
 	private int normalizeDocPath(int typeId) {
 		Set<Map.Entry<String, XDMPath>> entries = getTypedPathEntries(typeId); 
 		
@@ -378,41 +446,48 @@ public abstract class ModelManagementBase implements XDMModelManagement {
 		return pes.size();
 	}
 	
-	@Override
+	/**
+	 * translates regex expression like "^/ns0:Security/ns0:SecurityInformation/.(*)/ns0:Sector/text\\(\\)$";
+	 * to an array of registered pathIds which conforms to the regex specified
+	 * 
+	 * @param typeId int; the corresponding document's type
+	 * @param regex String; regex pattern 
+	 * @return Set&lt;Integer&gt;- set of registered pathIds conforming to the pattern provided
+	 */
+	@SuppressWarnings("unchecked")
 	public Set<Integer> translatePathFromRegex(int typeId, String regex) {
 
-		getLogger().trace("translatePathFromRegex.enter; got regex: {}, type: {}", regex, typeId);
-		
-		//Filter f = new AndFilter(new RegexFilter(new KeyExtractor(IdentityExtractor.INSTANCE), regex), 
-		//		new EqualsFilter("getTypeId", typeId));
-		//Filter f = new RegexFilter(new KeyExtractor(IdentityExtractor.INSTANCE), regex); 
-
-		Set<Map.Entry> entries = getTypedPathWithRegex(regex, typeId); //NamedCache(pathCache).entrySet(f);
+		logger.trace("translatePathFromRegex.enter; got regex: {}, type: {}", regex, typeId);
+		Set<Map.Entry<String, XDMPath>> entries = getTypedPathWithRegex(regex, typeId); 
 		Set<Integer> result = new HashSet<Integer>(entries.size());
 		for (Map.Entry<String, XDMPath> e: entries) {
-			getLogger().trace("translatePathFromRegex; path found: {}", e.getValue());
+			logger.trace("translatePathFromRegex; path found: {}", e.getValue());
 			result.add(e.getValue().getPathId());
 		}
 
-		getLogger().trace("translatePathFromRegex.exit; returning: {}", result);
+		logger.trace("translatePathFromRegex.exit; returning: {}", result);
 		return result;
 	}
 
-	@Override
+	/**
+	 * translates regex expression like "^/ns0:Security/ns0:SecurityInformation/.(*)/ns0:Sector/text\\(\\)$";
+	 * to Collection of registered path which conforms to the regex specified
+	 * 
+	 * @param typeId int; the corresponding document's type
+	 * @param regex String; regex pattern 
+	 * @return Set&lt;String&gt;- set of registered paths conforming to the pattern provided
+	 */
+	@SuppressWarnings("unchecked")
 	public Collection<String> getPathFromRegex(int typeId, String regex) {
 
-		getLogger().trace("getPathFromRegex.enter; got regex: {}, type: {}", regex, typeId);
-		
-		//Filter f = new AndFilter(new RegexFilter(new KeyExtractor(IdentityExtractor.INSTANCE), regex), 
-		//		new EqualsFilter("getTypeId", typeId));
-
-		Set<Map.Entry> entries = getTypedPathWithRegex(regex, typeId); //NamedCache(pathCache).entrySet(f);
+		logger.trace("getPathFromRegex.enter; got regex: {}, type: {}", regex, typeId);
+		Set<Map.Entry<String, XDMPath>> entries = getTypedPathWithRegex(regex, typeId); 
 		List<String> result = new ArrayList<String>(entries.size());
 		for (Map.Entry<String, XDMPath> e: entries) {
-			getLogger().trace("getPathFromRegex; path found: {}", e.getValue());
+			logger.trace("getPathFromRegex; path found: {}", e.getValue());
 			result.add(e.getKey());
 		}
-		getLogger().trace("getPathFromRegex.exit; returning: {}", result);
+		logger.trace("getPathFromRegex.exit; returning: {}", result);
 		return result;
 	}
 	
@@ -425,8 +500,12 @@ public abstract class ModelManagementBase implements XDMModelManagement {
 		return result;
 	}
 
-	
-	@Override
+	/**
+	 * registers bunch of node path's specified in the XML schema (XSD)   
+	 * 
+	 * @param schema String; schema in plain text  
+	 * @throws XDMException in case of any error
+	 */
 	public void registerSchema(String schema) throws XDMException {
 		
 		XSImplementation impl = (XSImplementation)
@@ -440,11 +519,15 @@ public abstract class ModelManagementBase implements XDMModelManagement {
 		processModel(model);
 	}
 
-	//@Override
+	/**
+	 * registers bunch of schemas located in the schemaUri folder   
+	 * 
+	 * @param schemasUri String; the folder containing schemas to register  
+	 * @throws XDMException in case of any error
+	 */
 	public void registerSchemas(String schemasUri) throws XDMException {
 
-		XSImplementation impl = (XSImplementation)
-				new DOMXSImplementationSourceImpl().getDOMImplementation("XS-Loader LS");
+		XSImplementation impl = (XSImplementation) new DOMXSImplementationSourceImpl().getDOMImplementation("XS-Loader LS");
 		XSLoader schemaLoader = impl.createXSLoader(null);
 		LSInput lsi = ((DOMImplementationLS) impl).createLSInput();
 		lsi.setSystemId(schemasUri);
@@ -452,12 +535,14 @@ public abstract class ModelManagementBase implements XDMModelManagement {
 		processModel(model);
 	}
 
-	@Override
+	/**
+	 * registers bunch of schemas located in the schemaUri folder   
+	 * 
+	 * @param schemaUri String; the folder containing schemas to register  
+	 * @throws XDMException in case of any error
+	 */
 	public void registerSchemaUri(String schemaUri) throws XDMException {
 
-		//XSImplementation impl = (XSImplementation)
-		//		(new DOMXSImplementationSourceImpl()	).getDOMImplementation ("XS-Loader");
-		
 		XSImplementation impl = new XSImplementationImpl(); 
 		XSLoader schemaLoader = impl.createXSLoader(null);
 		XSModel model = schemaLoader.loadURI(schemaUri);
@@ -524,12 +609,12 @@ public abstract class ModelManagementBase implements XDMModelManagement {
 
 	private void processElement(int docType, String path, XSElementDeclaration xsElement, 
 			Map<String, List<XSElementDeclaration>> substitutions,
-			List<XSElementDeclaration> parents, int minOccurence, int maxOccurence) throws XDMException {
+			List<XSElementDeclaration> parents, int minOccurs, int maxOccurs) throws XDMException {
 		
 		if (!xsElement.getAbstract()) {
 			path += "/{" + xsElement.getNamespace() + "}" + xsElement.getName();
 			XDMPath xp = translatePath(docType, path, XDMNodeKind.element, XQItemType.XQBASETYPE_ANYTYPE, 
-					XDMOccurrence.getOccurence(minOccurence, maxOccurence));
+					XDMOccurrence.getOccurrence(minOccurs, maxOccurs));
 			logger.trace("processElement; element: {}; type: {}; got XDMPath: {}", path, xsElement.getTypeDefinition(), xp);
 		}
 		
@@ -537,7 +622,7 @@ public abstract class ModelManagementBase implements XDMModelManagement {
 		logger.trace("processElement; got {} substitutions for element: {}", subs == null ? 0 : subs.size(), xsElement.getName());
 		if (subs != null) {
 			for (XSElementDeclaration sub: subs) {
-				processElement(docType, path, sub, substitutions, parents, minOccurence, maxOccurence);
+				processElement(docType, path, sub, substitutions, parents, minOccurs, maxOccurs);
 			}
 		}
 
@@ -569,7 +654,7 @@ public abstract class ModelManagementBase implements XDMModelManagement {
 					dataType = getBaseType(std); 
 				}
 				XDMPath xp = translatePath(docType, path, XDMNodeKind.text, dataType, 
-						XDMOccurrence.getOccurence(minOccurence, maxOccurence));
+						XDMOccurrence.getOccurrence(minOccurs, maxOccurs));
 				logger.trace("processElement; complex text: {}; type: {}; got XDMPath: {}", 
 						path, ctd.getBaseType(), xp);
 			}
@@ -577,7 +662,7 @@ public abstract class ModelManagementBase implements XDMModelManagement {
 			XSSimpleTypeDefinition std = (XSSimpleTypeDefinition) xsElement.getTypeDefinition();
 			path += "/text()";
 			XDMPath xp = translatePath(docType, path, XDMNodeKind.text, getBaseType(std), 
-					XDMOccurrence.getOccurence(minOccurence, maxOccurence));
+					XDMOccurrence.getOccurrence(minOccurs, maxOccurs));
 			logger.trace("processElement; simple text: {}; type: {}; got XDMPath: {}", path, std, xp); 
 		}
 		
@@ -589,17 +674,13 @@ public abstract class ModelManagementBase implements XDMModelManagement {
     	
 	    path += "/@" + xsAttribute.getAttrDeclaration().getName();
 	    XSSimpleTypeDefinition std = xsAttribute.getAttrDeclaration().getTypeDefinition();
-	    XDMOccurrence occurence = XDMOccurrence.getOccurence(
+	    XDMOccurrence occurrence = XDMOccurrence.getOccurrence(
 	    		xsAttribute.getRequired() ? 1 : 0,
 	    		std.getVariety() == XSSimpleTypeDefinition.VARIETY_LIST ? -1 : 1);
-		XDMPath xp = translatePath(docType, path, XDMNodeKind.attribute, getBaseType(std), occurence);
+		XDMPath xp = translatePath(docType, path, XDMNodeKind.attribute, getBaseType(std), occurrence);
 		logger.trace("processAttribute; attribute: {}; type: {}; got XDMPath: {}", path, std, xp); 
     }
 	
-	/**
-	 * Process particle
-	 * @throws XDMException 
-	 */
 	private void processParticle(int docType, String path, XSParticle xsParticle, 
 			Map<String, List<XSElementDeclaration>> substitutions,
 			List<XSElementDeclaration> parents) throws XDMException {
@@ -651,13 +732,4 @@ public abstract class ModelManagementBase implements XDMModelManagement {
 		return getBaseType(std.getBaseType());
 	}
 	
-	public Collection<XDMDocumentType> getDocumentTypes() {
-		Map<String, XDMDocumentType> typeCache = getTypeCache();
-		return typeCache.values();
-	}
-	
-	public Collection<XDMNamespace> getNamespaces() {
-		Map<String, XDMNamespace> nsCache = getNamespaceCache();
-		return nsCache.values();
-	}
 }

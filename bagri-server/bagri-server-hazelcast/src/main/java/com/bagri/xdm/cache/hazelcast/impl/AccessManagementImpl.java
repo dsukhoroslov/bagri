@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 
-import com.bagri.xdm.cache.api.XDMAccessManagement;
+import com.bagri.xdm.api.XDMAccessManagement;
 import com.bagri.xdm.system.XDMPermission.Permission;
 
 public class AccessManagementImpl implements XDMAccessManagement, InitializingBean {

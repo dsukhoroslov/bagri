@@ -15,7 +15,7 @@ public class XDMOccurrence {
 		this.high = high;
 	}
 	
-	public static XDMOccurrence getOccurence(int low, int high) {
+	public static XDMOccurrence getOccurrence(int low, int high) {
 		if (low == 0) {
 			if (high == 1) {
 				return zeroOrOne;
