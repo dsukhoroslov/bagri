@@ -19,25 +19,30 @@ import com.bagri.common.query.PathExpression;
  */
 public class XDMElements {
 
-	// private long documentId;
 	private int pathId;
-	// private XDMNodeKind kind;
-	// private String name;
-
 	private Object elementRef;
 
-	// private Map<Long, XDMElement> elements = new HashMap<Long, XDMElement>();
-	// private TreeMap<Object, Long> values = new TreeMap<Object, Long>();
-
+	/**
+	 * default constructor
+	 */
 	public XDMElements() {
 		//
 	}
 
+	/**
+	 * 
+	 * @param pathId the path id
+	 * @param elements the Map of elements
+	 */
 	public XDMElements(int pathId, Map<Long, XDMElement> elements) {
 		this.pathId = pathId;
 		setElements(elements);
 	}
 
+	/**
+	 * 
+	 * @param element the element to add into container
+	 */
 	@SuppressWarnings("unchecked")
 	public void addElement(XDMElement element) {
 		if (elementRef == null) {
@@ -55,6 +60,10 @@ public class XDMElements {
 		// } // put null as some special object (static)
 	}
 
+	/**
+	 * 
+	 * @return container elements
+	 */
 	@SuppressWarnings("unchecked")
 	public Collection<XDMElement> getElements() {
 		if (elementRef == null) {
@@ -68,10 +77,18 @@ public class XDMElements {
 		return (Set<XDMElement>) elementRef;
 	}
 
+	/**
+	 * 
+	 * @return element's path id
+	 */
 	public int getPathId() {
 		return pathId;
 	}
 
+	/**
+	 * 
+	 * @param elements elements to set
+	 */
 	public void setElements(Map<Long, XDMElement> elements) {
 		elementRef = null;
 		if (elements != null && elements.size() > 0) {
@@ -81,6 +98,13 @@ public class XDMElements {
 		}
 	}
 
+	/**
+	 * performs comparison with expression 
+	 * 
+	 * @param pex the expression
+	 * @param value the value to compare with
+	 * @return true if comparison satisfies, false otherwise
+	 */
 	public boolean apply(PathExpression pex, Object value) {
 
 		if (value instanceof Collection) {
@@ -147,6 +171,9 @@ public class XDMElements {
 		//}
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
 	@Override
 	public String toString() {
 		return "XDMElements [pathId=" + pathId + ", elementRef=" + elementRef + "]";

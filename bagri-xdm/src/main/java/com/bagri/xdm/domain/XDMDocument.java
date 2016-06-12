@@ -36,14 +36,40 @@ public class XDMDocument implements Convertable<Map<String, Object>>, Versionabl
 	private int elements;
 	private BitSet collections = new BitSet(8);
 	
+	/**
+	 * default constructor
+	 */
 	public XDMDocument() {
 		//
 	}
 	
+	/**
+	 * 
+	 * @param docKey the internal document's key
+	 * @param uri the document's uri 
+	 * @param typeId the document's type id
+	 * @param owner the document's owner
+	 * @param txId the transaction id created the document 
+	 * @param bytes the size of document in bytes
+	 * @param elts the size of document in elements
+	 */
 	public XDMDocument(long docKey, String uri, int typeId, String owner, long txId, int bytes, int elts) {
 		this(docKey, uri, typeId, txId, 0, new Date(), owner, def_encoding, bytes, elts);
 	}
 
+	/**
+	 * 
+	 * @param docKey the internal document's key
+	 * @param uri the document's uri 
+	 * @param typeId the document's type id
+	 * @param txStart the transaction id created the document
+	 * @param txFinish the transaction id finished the document
+	 * @param createdAt the date/time when the document was created
+	 * @param createdBy the document's owner
+	 * @param encoding the document's encoding
+	 * @param bytes the size of document in bytes
+	 * @param elts the size of document in elements
+	 */
 	public XDMDocument(long docKey, String uri, int typeId, long txStart, long txFinish, Date createdAt, 
 			String createdBy, String encoding, int bytes, int elts) {
 		this.documentKey = docKey; //toKey(hash, revision, version);
@@ -87,54 +113,67 @@ public class XDMDocument implements Convertable<Map<String, Object>>, Versionabl
 	}
 
 	/**
-	 * @return the uri
+	 * @return the document's uri
 	 */
 	public String getUri() {
 		return uri;
 	}
 
 	/**
-	 * @return the typeId
+	 * @return the document's type id
 	 */
 	public int getTypeId() {
 		return typeId;
 	}
 
 	/**
-	 * @return the encoding
+	 * @return the document's encoding
 	 */
 	public String getEncoding() {
 		return encoding;
 	}
 	
 	/**
-	 * @return initiated Tx id
+	 * @return initiated transaction id
 	 */
 	public long getTxStart() {
 		return txStart;
 	}
 	
 	/**
-	 * @return finalized Tx id
+	 * @return finalized transaction id
 	 */
 	public long getTxFinish() {
 		return txFinish;
 	}
 	
+	/**
+	 * @return the date/time when the document was created
+	 */
 	@Override
 	public Date getCreatedAt() {
 		return new Date(createdAt);
 	}
 
+	/**
+	 * @return the user who has created the document
+	 */
 	@Override
 	public String getCreatedBy() {
 		return createdBy;
 	}
 	
+	/**
+	 * 
+	 * @return the number of fragments owning by the documents. A single document has 1 fragment
+	 */
 	public long[] getFragments() {
 		return new long[] {documentKey};
 	}
 
+	/**
+	 * @param by the user who has updated the document
+	 */
 	@Override
 	public void updateVersion(String by) {
 		documentKey++; 
@@ -143,11 +182,19 @@ public class XDMDocument implements Convertable<Map<String, Object>>, Versionabl
 		createdBy = by;
 	}
 	
+	/**
+	 * 
+	 * @param txFinish set document's finalizing transaction id
+	 */
 	public void finishDocument(long txFinish) { //, String by) {
 		this.txFinish = txFinish;
 		//updateVersion(by);
 	}
 	
+	/**
+	 * 
+	 * @return ids of document collections
+	 */
 	public int[] getCollections() {
 		// may be we should cache it??
 		int[] result = new int[collections.cardinality()];
@@ -158,11 +205,21 @@ public class XDMDocument implements Convertable<Map<String, Object>>, Versionabl
 		return result;
 	}
 	
+	/**
+	 * 
+	 * @param collectId the collection id
+	 * @return true if document is included in the collection, false otherwise
+	 */
 	public boolean hasCollection(int collectId) {
 		if (collectId < 0) return false;
 		return collections.get(collectId);
 	}
 	
+	/**
+	 * 
+	 * @param collectId adds document to collection
+	 * @return true if document was added, false otherwise
+	 */
 	public boolean addCollection(int collectId) {
 		if (!collections.get(collectId)) {
 			collections.set(collectId);
@@ -171,6 +228,11 @@ public class XDMDocument implements Convertable<Map<String, Object>>, Versionabl
 		return false;
 	}
 	
+	/**
+	 * 
+	 * @param collectId removes document from collection
+	 * @return true if document was removed, false otherwise
+	 */
 	public boolean removeCollection(int collectId) {
 		//if (collectId == XDMCollection.clDocType) {
 		//	return false; // we never remove default docType collection
@@ -182,6 +244,10 @@ public class XDMDocument implements Convertable<Map<String, Object>>, Versionabl
 		return false;
 	}
 	
+	/**
+	 * 
+	 * @param collections set document collections
+	 */
 	public void setCollections(int[] collections) {
 		this.collections.clear();
 		if (collections != null) {
@@ -191,6 +257,9 @@ public class XDMDocument implements Convertable<Map<String, Object>>, Versionabl
 		}
 	}
 
+	/**
+	 * @return Map representation of the document
+	 */
 	@Override
 	public Map<String, Object> convert() {
 		Map<String, Object> result = new HashMap<>();

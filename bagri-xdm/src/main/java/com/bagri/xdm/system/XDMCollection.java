@@ -12,6 +12,12 @@ import javax.xml.bind.annotation.XmlType;
 
 import com.bagri.xdm.common.XDMEntity;
 
+/**
+ * Represents document's collection
+ * 
+ * @author Denis Sukhoroslov
+ *
+ */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(namespace = "http://www.bagridb.com/xdm/system", propOrder = {
 		"id",
@@ -38,11 +44,25 @@ public class XDMCollection extends XDMEntity {
 	@XmlElement(required = false, defaultValue = "true")
 	private boolean enabled = true;
 
+	/**
+	 * default constructor
+	 */
 	public XDMCollection() {
 		// for JAXB
 		super();
 	}
 	
+	/**
+	 * 
+	 * @param version the version
+	 * @param createdAt the date/time of version creation
+	 * @param createdBy the user who has created the version
+	 * @param id the collection id
+	 * @param name the collection name
+	 * @param docType the collection document type
+	 * @param description the collection description
+	 * @param enabled the collection enable flag
+	 */
 	public XDMCollection(int version, Date createdAt, String createdBy, int id, String name, 
 			String docType, String description, boolean enabled) {
 		super(version, createdAt, createdBy);
@@ -53,26 +73,51 @@ public class XDMCollection extends XDMEntity {
 		this.enabled = enabled;
 	}
 
+	/**
+	 * 
+	 * @return the collection id
+	 */
 	public int getId() {
 		return id;
 	}
 
+	/**
+	 * 
+	 * @return the collection name
+	 */
 	public String getName() {
 		return name;
 	}
 
+	/**
+	 * 
+	 * @return the collection description
+	 */
 	public String getDescription() {
 		return description;
 	}
 	
+	/**
+	 * 
+	 * @return the collection document type in Clark form
+	 */
 	public String getDocumentType() {
 		return docType;
 	}
 
+	/**
+	 * 
+	 * @return the collection enable flag
+	 */
 	public boolean isEnabled() {
 		return enabled;
 	}
 	
+	/**
+	 * 
+	 * @param enabled set collection enable flag
+	 * @return true if flag has been changed, false otherwise
+	 */
 	public boolean setEnabled(boolean enabled) {
 		if (this.enabled != enabled) {
 			this.enabled = enabled;
@@ -82,11 +127,17 @@ public class XDMCollection extends XDMEntity {
 		return false;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public int hashCode() {
 		return id;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {
@@ -102,6 +153,9 @@ public class XDMCollection extends XDMEntity {
 		return id == other.id; 
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Map<String, Object> convert() {
 		Map<String, Object> result = super.convert();
@@ -113,6 +167,9 @@ public class XDMCollection extends XDMEntity {
 		return result;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String toString() {
 		return "XDMCollection [id=" + id + ", name=" + name

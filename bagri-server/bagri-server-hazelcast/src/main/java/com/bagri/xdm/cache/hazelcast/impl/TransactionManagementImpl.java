@@ -353,7 +353,7 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
     	String header = "txId"; 
         for (XDMTransaction xTx: txStarted) {
             try {
-                Map<String, Object> txStats = xTx.toMap();
+                Map<String, Object> txStats = xTx.convert();
                 //stats.put(header, entry.getKey());
                 CompositeData data = JMXUtils.mapToComposite(name, desc, txStats);
                 result = JMXUtils.compositeToTabular(name, desc, header, result, data);

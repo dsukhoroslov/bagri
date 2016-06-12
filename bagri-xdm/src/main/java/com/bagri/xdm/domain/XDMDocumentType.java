@@ -23,10 +23,18 @@ public class XDMDocumentType {
 	private int fragmentationLimit = 0;
 	private Set<Long> fragments = new HashSet<>();
 	
+	/**
+	 * default constructor
+	 */
 	public XDMDocumentType() {
 		//
 	}
 	
+	/**
+	 * 
+	 * @param typeId the type id
+	 * @param rootPath the type's path
+	 */
 	public XDMDocumentType(int typeId, String rootPath) {
 		this.typeId = typeId;
 		this.rootPath = rootPath;

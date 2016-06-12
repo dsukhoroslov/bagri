@@ -3,11 +3,14 @@ package com.bagri.xdm.domain;
 import java.util.Set;
 
 /**
- * @author Denis Sukhoroslov: dsukhoroslov@gmail.com
+ * @author Denis Sukhoroslov
  * @version 0.5
  */
 public abstract class XDMIndexedValue { 
 
+	/**
+	 * default constructor
+	 */
 	public XDMIndexedValue() {
 		// de-ser
 	}

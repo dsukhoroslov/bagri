@@ -6,19 +6,36 @@ import java.util.Set;
 
 import static com.bagri.xdm.api.XDMTransactionManagement.TX_NO;
 
+/**
+ * Represents indexed document value
+ * 
+ * @author Denis Sukhoroslov
+ *
+ */
 public class XDMIndexedDocument extends XDMIndexedValue {
 	
 	private Set<Long> docKeys = new HashSet<>();
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public XDMIndexedDocument() {
 		super();
 	}
 
+	/**
+	 * 
+	 * @param docKey the document internal key
+	 */
 	public XDMIndexedDocument(long docKey) {
 		super();
 		addDocument(docKey, TX_NO);
 	}
 
+	/**
+	 * 
+	 * @param docKeys the documents
+	 */
 	public XDMIndexedDocument(Collection<Long> docKeys) {
 		super();
 		if (docKeys != null) {
@@ -28,6 +45,9 @@ public class XDMIndexedDocument extends XDMIndexedValue {
 		}
 	}
 
+	/**
+	 * return indexed documents count
+	 */
 	@Override
 	public int getCount() {
 		return docKeys.size();
@@ -42,28 +62,40 @@ public class XDMIndexedDocument extends XDMIndexedValue {
 	}
 
 	/**
-	 * @return the documentIds
+	 * @return the document keys
 	 */
 	@Override
 	public Set<Long> getDocumentKeys() {
 		return docKeys;
 	}
 
+	/**
+	 * adds document to index
+	 */
 	@Override
 	public boolean addDocument(long docKey, long txId) {
 		return docKeys.add(docKey);
 	}
 	
+	/**
+	 * removes document from index
+	 */
 	@Override
 	public boolean removeDocument(long docKey, long txId) {
 		return docKeys.remove(docKey);
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
 	@Override
 	public String toString() {
 		return "XDMIndexedValue [docKeys=" + docKeys + "]";
 	}
 
+	/**
+	 * return consumed size in bytes
+	 */
 	@Override
 	public int getSize() {
 		// have no idea how much memory HashSet takes!

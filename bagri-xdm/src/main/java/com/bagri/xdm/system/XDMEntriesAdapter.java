@@ -4,8 +4,17 @@ import java.util.Properties;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
+/**
+ * The adapter converting XDM Entries to Properties
+ * 
+ * @author Denis Sukhoroslov
+ *
+ */
 public class XDMEntriesAdapter extends XmlAdapter<XDMEntries, Properties> {
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public XDMEntries marshal(Properties props) throws Exception {
 	    XDMEntries xdmProps = new XDMEntries();
@@ -15,6 +24,9 @@ public class XDMEntriesAdapter extends XmlAdapter<XDMEntries, Properties> {
 	    return xdmProps;	
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Properties unmarshal(XDMEntries xdmProps) throws Exception {
 		Properties props = new Properties();

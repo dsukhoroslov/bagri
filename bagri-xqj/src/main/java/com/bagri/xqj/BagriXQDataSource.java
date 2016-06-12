@@ -1,6 +1,5 @@
 package com.bagri.xqj;
 
-import static com.bagri.common.util.PropUtils.setProperty;
 import static com.bagri.xdm.common.XDMConstants.*;
 
 import java.io.PrintWriter;
@@ -21,8 +20,7 @@ import com.bagri.xquery.api.XQProcessor;
 
 /**
  * @author Denis Sukhoroslov
- * date: 07.02.2013
- *
+ * @see javax.xml.xquery.XQDataSource
  */
 public class BagriXQDataSource implements XQDataSource {
 	
@@ -35,11 +33,8 @@ public class BagriXQDataSource implements XQDataSource {
 	public static final String USER = "user";
 	public static final String PASSWORD = "password";
 	public static final String ADDRESS = "address";
-	//public static final String BATCH_SIZE = "batchSize";
-	//public static final String LOGIN_TIMEOUT = "loginTimeout";
 	public static final String TRANSACTIONAL = "transactional";
 
-	//public static final String XQ_DATA_FACTORY = "xqDataFactory";
 	public static final String XQ_PROCESSOR = "query.processor";
 	public static final String XDM_REPOSITORY = "xdm.repository";
 	
@@ -69,6 +64,8 @@ public class BagriXQDataSource implements XQDataSource {
 		properties.put(XDM_REPOSITORY, ""); //"com.bagri.xdm.client.hazelcast.impl.RepositoryImpl"); 
 	}
 
+	/** {@inheritDoc}
+	 */
 	@Override
 	public XQConnection getConnection() throws XQException {
 		
@@ -77,6 +74,7 @@ public class BagriXQDataSource implements XQDataSource {
 		return initConnection(null);
 	}
 	
+	/** {@inheritDoc} */
 	@Override
 	public XQConnection getConnection(Connection connection) throws XQException {
 		
@@ -85,6 +83,9 @@ public class BagriXQDataSource implements XQDataSource {
 		throw new XQException("method not supported"); 
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public XQConnection getConnection(String username, String password) throws XQException {
 		
@@ -185,18 +186,27 @@ public class BagriXQDataSource implements XQDataSource {
 		return connect;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public PrintWriter getLogWriter() throws XQException {
 		
 		return writer;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public int getLoginTimeout() throws XQException {
 		
 		return Integer.parseInt(properties.getProperty(pn_client_loginTimeout));
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String getProperty(String name) throws XQException {
 		
@@ -209,12 +219,18 @@ public class BagriXQDataSource implements XQDataSource {
 		return properties.getProperty(name);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String[] getSupportedPropertyNames() {
 		
 		return properties.keySet().toArray(new String[properties.size()]);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void setLogWriter(PrintWriter writer) throws XQException {
 		
@@ -224,12 +240,17 @@ public class BagriXQDataSource implements XQDataSource {
 		this.writer = writer;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void setLoginTimeout(int timeout) throws XQException {
 		
 		properties.setProperty(pn_client_loginTimeout, String.valueOf(timeout));
 	}
 
+	/** {@inheritDoc}
+	 */
 	@Override
 	public void setProperties(Properties props) throws XQException {
 
@@ -241,6 +262,10 @@ public class BagriXQDataSource implements XQDataSource {
 		}
 	}
 
+	/** 
+	 * {@inheritDoc}
+	 * @see javax.xml.xquery.XQDataSource#setProperty(String, String)
+	 */
 	@Override
 	public void setProperty(String name, String value) throws XQException {
 		
@@ -253,4 +278,5 @@ public class BagriXQDataSource implements XQDataSource {
 		properties.setProperty(name, value);
 	}
 
+	
 }

@@ -19,17 +19,31 @@ public class XDMPath implements Comparable<XDMPath> {
 	// the type constant from javax.xml.xquery.XQItemType.*
 	// change it to QName?
 	private int dataType;
-	private XDMOccurrence occurence = XDMOccurrence.zeroOrOne;
+	private XDMOccurrence occurrence = XDMOccurrence.zeroOrOne;
 	
 	// cache it!
 	private String name = null; 
 	
+	/**
+	 * default constructor
+	 */
 	public XDMPath() {
-		super();
+		//..
 	}
 	
+	/**
+	 * 
+	 * @param path the node path
+	 * @param typeId the node type id
+	 * @param kind the node kind
+	 * @param pathId the node path id
+	 * @param parentId the node parent id
+	 * @param postId the node post id
+	 * @param dataType the node data type
+	 * @param occurrence the node occurrence
+	 */
 	public XDMPath(String path, int typeId, XDMNodeKind kind, int pathId, int parentId, int postId, 
-			int dataType, XDMOccurrence occurence) {
+			int dataType, XDMOccurrence occurrence) {
 		super();
 		this.path = path;
 		this.typeId = typeId;
@@ -38,17 +52,21 @@ public class XDMPath implements Comparable<XDMPath> {
 		this.parentId = parentId;
 		this.postId = postId;
 		this.dataType = dataType;
-		if (occurence != null) {
-			this.occurence = occurence;
+		if (occurrence != null) {
+			this.occurrence = occurrence;
 		}
 	}
 	
-	public XDMOccurrence getOccurence() {
-		return occurence;
+	/**
+	 * 
+	 * @return node occurence
+	 */
+	public XDMOccurrence getOccurrence() {
+		return occurrence;
 	}
 	
-	/*
-	 * return XQJ data type
+	/**
+	 * @return XQJ data type
 	 */
 	public int getDataType() {
 		return dataType;
@@ -100,60 +118,65 @@ public class XDMPath implements Comparable<XDMPath> {
 	}
 	
 	/**
-	 * @return the NodeKind
+	 * @return the node kind
 	 */
 	public XDMNodeKind getNodeKind() {
 		return kind;
 	}
 	
 	/**
-	 * @return the typeId
+	 * @return the type id
 	 */
 	public int getTypeId() {
 		return typeId;
 	}
 
 	/**
-	 * @return the pathId
+	 * @return the path id
 	 */
 	public int getPathId() {
 		return pathId;
 	}
 	
 	/**
-	 * @return the parentId
+	 * @return the parent path id
 	 */
 	public int getParentId() {
 		return parentId;
 	}
 
 	/**
-	 * @return the postId
+	 * @return the post path id
 	 */
 	public int getPostId() {
 		return postId;
 	}
 	
 	/**
-	 * @param parentId the parentId to set
+	 * @param parentId the parent id to set
 	 */
 	public void setParentId(int parentId) {
 		this.parentId = parentId;
 	}
 
 	/**
-	 * @param postId the postId to set
+	 * @param postId the post id to set
 	 */
 	public void setPostId(int postId) {
 		this.postId = postId;
 	}
 
-	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public int hashCode() {
 		return 31 + path.hashCode();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {
@@ -178,9 +201,12 @@ public class XDMPath implements Comparable<XDMPath> {
 		return "XDMPath [path=" + path + ", pathId=" + pathId + ", typeId="
 				+ typeId + ", kind=" + kind + ", parentId=" + parentId
 				+ ", postId=" + postId + ", dataType=" + dataType
-				+ ", occurence=" + occurence.toString() + "]";
+				+ ", occurrence=" + occurrence.toString() + "]";
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public int compareTo(XDMPath other) {
 		

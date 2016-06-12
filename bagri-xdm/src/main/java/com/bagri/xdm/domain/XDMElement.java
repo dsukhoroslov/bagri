@@ -17,10 +17,19 @@ public class XDMElement implements Comparable<XDMElement> {
 	//private String path;
 	//private int positionInParent;
 	
+	/**
+	 * default constructor
+	 */
 	public XDMElement() {
 		//
 	}
 	
+	/**
+	 * 
+	 * @param elementId the element's id
+	 * @param parentId the element's parent id
+	 * @param value the element's value
+	 */
 	public XDMElement(int elementId, int parentId, Object value) {
 		super();
 		this.elementId = elementId;
@@ -29,7 +38,7 @@ public class XDMElement implements Comparable<XDMElement> {
 	}
 
 	/**
-	 * @return the id
+	 * @return the element's id
 	 */
 	public int getElementId() {
 		return elementId;
@@ -57,20 +66,6 @@ public class XDMElement implements Comparable<XDMElement> {
 	}
 
 	/**
-	 * @return the path
-	 */
-	//public String getPath() {
-	//	return path;
-	//}
-
-	/**
-	 * @param path the path to set
-	 */
-	//public void setPath(String path) {
-	//	this.path = path;
-	//}
-
-	/**
 	 * @return the value
 	 */
 	public Object getValue() {
@@ -84,6 +79,10 @@ public class XDMElement implements Comparable<XDMElement> {
 		this.value = value;
 	}
 	
+	/**
+	 * 
+	 * @return integer value
+	 */
 	public int asInt() {
 		if (value == null) {
 			return 0; //NaN;
@@ -94,6 +93,10 @@ public class XDMElement implements Comparable<XDMElement> {
 		return Integer.valueOf(value.toString());
 	}
 	
+	/**
+	 * 
+	 * @return long value
+	 */
 	public long asLong() {
 		if (value == null) {
 			return 0; //NaN;
@@ -104,6 +107,10 @@ public class XDMElement implements Comparable<XDMElement> {
 		return Long.valueOf(value.toString());
 	}
 	
+	/**
+	 * 
+	 * @return boolean value
+	 */
 	public boolean asBoolean() {
 		if (value == null) {
 			return false; //NaN;
@@ -114,6 +121,10 @@ public class XDMElement implements Comparable<XDMElement> {
 		return Boolean.valueOf(value.toString());
 	}
 	
+	/**
+	 * 
+	 * @return byte value
+	 */
 	public byte asByte() {
 		if (value == null) {
 			return 0; //NaN;
@@ -124,6 +135,10 @@ public class XDMElement implements Comparable<XDMElement> {
 		return Byte.valueOf(value.toString());
 	}
 	
+	/**
+	 * 
+	 * @return short value
+	 */
 	public short asShort() {
 		if (value == null) {
 			return 0; //NaN;
@@ -134,6 +149,10 @@ public class XDMElement implements Comparable<XDMElement> {
 		return Short.valueOf(value.toString());
 	}
 	
+	/**
+	 * 
+	 * @return float value
+	 */
 	public float asFloat() {
 		if (value == null) {
 			return Float.NaN;
@@ -144,6 +163,10 @@ public class XDMElement implements Comparable<XDMElement> {
 		return Float.valueOf(value.toString());
 	}
 	
+	/**
+	 * 
+	 * @return double value
+	 */
 	public double asDouble() {
 		if (value == null) {
 			return Double.NaN;
@@ -154,6 +177,10 @@ public class XDMElement implements Comparable<XDMElement> {
 		return Double.valueOf(value.toString());
 	}
 	
+	/**
+	 * 
+	 * @return String value
+	 */
 	public String asString() {
 		if (value == null) {
 			return null;
@@ -168,6 +195,9 @@ public class XDMElement implements Comparable<XDMElement> {
 	//	
 	//}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public int compareTo(XDMElement other) {
 		return (int) (this.elementId - other.elementId);

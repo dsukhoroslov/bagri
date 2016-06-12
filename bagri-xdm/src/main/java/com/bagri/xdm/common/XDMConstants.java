@@ -2,9 +2,7 @@ package com.bagri.xdm.common;
 
 public class XDMConstants {
 
-	public static final String xs_prefix = "xs";
-	public static final String xs_ns = "http://www.w3.org/2001/XMLSchema";
-
+	// XDM Client configuration constants
 	public static final String pn_schema_address = "xdm.schema.address";
 	public static final String pn_schema_host = "xdm.schema.host";
 	public static final String pn_schema_port = "xdm.schema.port";
@@ -45,6 +43,50 @@ public class XDMConstants {
 	
 	public static final String pn_query_command = "xdm.query.command";
 	
+	// XDM Server configuration constants
+	public static final String xdm_cluster_login = "xdm.cluster.login";
+    public static final String xdm_cluster_node_name = "xdm.cluster.node.name";
+    public static final String xdm_cluster_node_role = "xdm.cluster.node.role";
+    public static final String xdm_cluster_node_size = "xdm.cluster.node.size";
+    public static final String xdm_cluster_admin_port = "xdm.cluster.admin.port";
+    public static final String xdm_cluster_node_schemas = "xdm.cluster.node.schemas";
+
+    public static final String xdm_access_filename = "xdm.access.filename";
+    public static final String xdm_config_filename = "xdm.config.filename";
+    public static final String xdm_config_path = "xdm.config.path";
+    public static final String xdm_config_context_file = "xdm.config.context.file";
+    public static final String xdm_config_properties_file = "xdm.config.properties.file";
+
+    public static final String xdm_node_instance = "xdm.node.instance";
+    
+    public static final String xdm_spring_context = "xdm.spring.context";
+    
+    public static final String xdm_schema_name = "xdm.schema.name";
+    public static final String xdm_schema_members = "xdm.schema.members";
+    public static final String xdm_schema_ports_first = "xdm.schema.ports.first";
+    public static final String xdm_schema_ports_last = "xdm.schema.ports.last";
+    public static final String xdm_schema_format_default = "xdm.schema.format.default";
+    public static final String xdm_schema_store_type = "xdm.schema.store.type";
+    public static final String xdm_schema_store_enabled = "xdm.schema.store.enabled";
+    public static final String xdm_schema_store_data_path = "xdm.schema.store.data.path";
+    public static final String xdm_schema_store_tx_buffer_size = "xdm.schema.store.tx.buffer.size";
+    public static final String xdm_schema_population_size = "xdm.schema.population.size";
+    public static final String xdm_schema_population_buffer_size = "xdm.schema.population.buffer.size";
+    
+    public static final String xdm_document_collections = "xdm.document.collections";
+    public static final String xdm_document_data_format = "xdm.document.data.format";
+
+    // schemas, namespaces
+	public static final String xs_prefix = "xs";
+	public static final String xs_ns = "http://www.w3.org/2001/XMLSchema";
+
+    public static final String bg_schema = "bgdm";
+	public static final String bg_ns = "http://bagridb.com/bagri-xdm";
+	
+	public static final String dc_ns = "http://www.w3.org/2005/xpath-functions/collation/codepoint";
+	public static final String df_ns = "http://www.w3.org/2005/xpath-functions";
+	
+	// XQJ configuration constants
 	public static final String pn_baseURI = "xqj.schema.baseUri";
 	public static final String pn_constructionMode = "xqj.schema.constructionMode";
 	public static final String pn_defaultCollationUri="xqj.schema.defaultCollationUri";
@@ -61,18 +103,7 @@ public class XDMConstants {
 	public static final String pn_scrollability = "xqj.schema.scrollability";
 	public static final String pn_queryTimeout = "xqj.schema.queryTimeout";
 	public static final String pn_defaultNamespaces = "xqj.schema.defaultNamespaces";
-	
-	public static final String bg_schema = "bgdm";
-	public static final String bg_ns = "http://bagridb.com/bagri-xdm";
-	
-	public static final String cmd_get_document = "get-document";
-	public static final String cmd_remove_document = "remove-document";
-	public static final String cmd_remove_cln_documents = "remove-collection-documents";
-	public static final String cmd_store_document = "store-document";
-	
-	public static final String dc_ns = "http://www.w3.org/2005/xpath-functions/collation/codepoint";
-	public static final String df_ns = "http://www.w3.org/2005/xpath-functions";
-	
+
 	// XQJ MetaData feature constants
 	public static final int xqf_Update = 1;
 	public static final int xqf_XQueryX = 2;
@@ -99,38 +130,10 @@ public class XDMConstants {
 	public static final int xqf_XQuery_30 = 15;
 	public static final int xqf_XA = 16;
 	   
-	// XDM Configuration Constants
-	public static final String xdm_cluster_login = "xdm.cluster.login";
-    public static final String xdm_cluster_node_name = "xdm.cluster.node.name";
-    public static final String xdm_cluster_node_role = "xdm.cluster.node.role";
-    public static final String xdm_cluster_node_size = "xdm.cluster.node.size";
-    public static final String xdm_cluster_admin_port = "xdm.cluster.admin.port";
-    public static final String xdm_cluster_node_schemas = "xdm.cluster.node.schemas";
-
-    public static final String xdm_access_filename = "xdm.access.filename";
-    public static final String xdm_config_filename = "xdm.config.filename";
-    public static final String xdm_config_path = "xdm.config.path";
-    public static final String xdm_config_context_file = "xdm.config.context.file";
-    public static final String xdm_config_properties_file = "xdm.config.properties.file";
-
-    public static final String xdm_node_instance = "xdm.node.instance";
-    
-    public static final String xdm_spring_context = "xdm.spring.context";
-    
-    public static final String xdm_schema_name = "xdm.schema.name";
-    public static final String xdm_schema_members = "xdm.schema.members";
-    public static final String xdm_schema_ports_first = "xdm.schema.ports.first";
-    public static final String xdm_schema_ports_last = "xdm.schema.ports.last";
-    public static final String xdm_schema_format_default = "xdm.schema.format.default";
-    public static final String xdm_schema_store_type = "xdm.schema.store.type";
-    //public static final String xdm_schema_store_class = "xdm.schema.store.class";
-    public static final String xdm_schema_store_enabled = "xdm.schema.store.enabled";
-    public static final String xdm_schema_store_data_path = "xdm.schema.store.data.path";
-    public static final String xdm_schema_store_tx_buffer_size = "xdm.schema.store.tx.buffer.size";
-    public static final String xdm_schema_population_size = "xdm.schema.population.size";
-    public static final String xdm_schema_population_buffer_size = "xdm.schema.population.buffer.size";
-    
-    public static final String xdm_document_collections = "xdm.document.collections";
-    public static final String xdm_document_data_format = "xdm.document.data.format";
-    
+	// direct commands
+	public static final String cmd_get_document = "get-document";
+	public static final String cmd_remove_document = "remove-document";
+	public static final String cmd_remove_cln_documents = "remove-collection-documents";
+	public static final String cmd_store_document = "store-document";
+	
 }

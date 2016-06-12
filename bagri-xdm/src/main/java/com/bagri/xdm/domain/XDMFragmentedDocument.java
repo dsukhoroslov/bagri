@@ -7,18 +7,34 @@ import static com.bagri.xdm.common.XDMDocumentKey.toVersion;
 
 import java.util.Date;
 
+/**
+ * Extends XDM document, contains fragments
+ *  
+ * @author Denis Sukhoroslov
+ * @since 05.2014 
+ * @version 0.7
+ */
 public class XDMFragmentedDocument extends XDMDocument {
 
 	private long[] fragments;
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	public XDMFragmentedDocument() {
 		super();
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	public XDMFragmentedDocument(long docKey, String uri, int typeId, String owner, long txId, int bytes, int elts) {
 		this(docKey, uri, typeId, txId, 0, new Date(), owner, def_encoding, bytes, elts);
 	}
 
+	/**
+	 * {@inheritDoc} 
+	 */
 	public XDMFragmentedDocument(long docKey, String uri, int typeId, long txStart, long txFinish, Date createdAt, 
 			String createdBy, String encoding, int bytes, int elts) {
 		super(docKey, uri, typeId, txStart, txFinish, createdAt, createdBy, encoding, bytes, elts);
@@ -28,6 +44,11 @@ public class XDMFragmentedDocument extends XDMDocument {
 		return fragments;
 	}
 	
+	/**
+	 * set document fragments
+	 * 
+	 * @param fragments the document fragment ids
+	 */
 	public void setFragments(long[] fragments) {
 		long first = fragments[0];
 		if (first == getDocumentKey()) {

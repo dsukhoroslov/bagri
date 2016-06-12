@@ -20,6 +20,12 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import com.bagri.xdm.common.XDMEntity;
 
+/**
+ * Represents Data Format configuration
+ * 
+ * @author Denis Sukhoroslov
+ *
+ */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(namespace = "http://www.bagridb.com/xdm/system", propOrder = {
 		"name", 
@@ -42,7 +48,6 @@ public class XDMDataFormat extends XDMEntity {
 	@XmlElement(required = 	false)
 	private String description;
 		
-	//@XmlValue
 	@XmlList
 	private Set<String> extensions = new HashSet<>();
 
@@ -58,12 +63,28 @@ public class XDMDataFormat extends XDMEntity {
 	@XmlElement(name = "properties")
 	@XmlJavaTypeAdapter(XDMEntriesAdapter.class)
 	private Properties props = new Properties();
-	
+
+	/**
+	 * default constructor
+	 */
 	public XDMDataFormat() {
 		// for JAXB
 		super();
 	}
 
+	/**
+	 * 
+	 * @param version the version
+	 * @param createdAt the date/time of version creation
+	 * @param createdBy the user who has created the version
+	 * @param name the data format name
+	 * @param description the data format description
+	 * @param extensions the data format file extensions
+	 * @param parserClass the data format parser class
+	 * @param builderClass the data format builder class
+	 * @param enabled the data format enabled flag
+	 * @param props the data format properties
+	 */
 	public XDMDataFormat(int version, Date createdAt, String createdBy, String name, String description, 
 			Collection<String> extensions, String parserClass, String builderClass, boolean enabled, Properties props) {
 		super(version, createdAt, createdBy);
@@ -102,49 +123,77 @@ public class XDMDataFormat extends XDMEntity {
 	}
 
 	/**
-	 * @return the parserClass
+	 * @return the parser class
 	 */
 	public String getParserClass() {
 		return parserClass;
 	}
 
 	/**
-	 * @return the builderClass
+	 * @return the builder class
 	 */
 	public String getBuilderClass() {
 		return builderClass;
 	}
 
 	/**
-	 * @return the enabled
+	 * @return the enabled flag
 	 */
 	public boolean isEnabled() {
 		return enabled;
 	}
 
+	/**
+	 * adds data format extension 
+	 * 
+	 * @param extension the file extension like xml, json, etc..
+	 * @return
+	 */
 	public boolean addExtension(String extension) {
 		return extensions.add(extension);
 	}
 	
+	/**
+	 * removes data format extension
+	 * 
+	 * @param extension the file extension like xml, json, etc..
+	 * @return
+	 */
 	public boolean removeExtension(String extension) {
 		return extensions.remove(extension);
 	}
 
 	/**
-	 * @return the props
+	 * @return the data format properties
 	 */
 	public Properties getProperties() {
 		return props;
 	}
 
+	/**
+	 * adds data format property
+	 * 
+	 * @param key the property key
+	 * @param value the property value
+	 * @return true if the property was inserted, false if updated
+	 */
 	public boolean addProperty(String key, String value) {
 		return props.setProperty(key, value) == null;
 	}
 	
+	/**
+	 * removes data format property
+	 * 
+	 * @param key the property key
+	 * @return true if the property was removed, false otherwise
+	 */
 	public boolean removeProperty(String key) {
 		return props.remove(key) != null;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Map<String, Object> convert() {
 		Map<String, Object> result = super.convert();

@@ -10,8 +10,14 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
+/**
+ * Represents Bagri cluster configuration file 
+ * 
+ * @author Denis Sukhoroslov
+ *
+ */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(namespace = "http://www.bagridb.com/xdm/system",	propOrder = {
+@XmlType(namespace = "http://www.bagridb.com/xdm/system", propOrder = {
 		"nodes", 
 		"schemas",
 		"modules",
@@ -46,26 +52,50 @@ public class XDMConfig {
 	@XmlElementWrapper(name="dataStores")
 	private List<XDMDataStore> stores = new ArrayList<>();
 
+	/**
+	 * 
+	 * @return node templates
+	 */
 	public List<XDMNode> getNodes() {
 		return nodes;
 	}
 	
+	/**
+	 * 
+	 * @return registered schemas
+	 */
 	public List<XDMSchema> getSchemas() {
 		return schemas;
 	}
 	
+	/**
+	 * 
+	 * @return registered modules
+	 */
 	public List<XDMModule> getModules() {
 		return modules;
 	}
 
+	/**
+	 * 
+	 * @return registered libraries
+	 */
 	public List<XDMLibrary> getLibraries() {
 		return libraries;
 	}
 
+	/**
+	 * 
+	 * @return registered data formats
+	 */
 	public List<XDMDataFormat> getDataFormats() {
 		return formats;
 	}
 
+	/**
+	 * 
+	 * @return registered document stores
+	 */
 	public List<XDMDataStore> getDataStores() {
 		return stores;
 	}

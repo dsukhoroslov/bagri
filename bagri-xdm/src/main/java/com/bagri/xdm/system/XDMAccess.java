@@ -10,8 +10,14 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
+/**
+ * Represents Bagri access configuration file
+ * 
+ * @author Denis Sukhoroslov
+ *
+ */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(namespace = "http://www.bagridb.com/xdm/access",	propOrder = {
+@XmlType(namespace = "http://www.bagridb.com/xdm/access", propOrder = {
 		"roles", 
 		"users"
 })
@@ -26,10 +32,18 @@ public class XDMAccess {
 	@XmlElementWrapper(name="users")
 	private List<XDMUser> users = new ArrayList<XDMUser>();
 	
+	/**
+	 * 
+	 * @return access roles
+	 */
 	public List<XDMRole> getRoles() {
 		return roles;
 	}
 	
+	/**
+	 * 
+	 * @return access users
+	 */
 	public List<XDMUser> getUsers() {
 		return users;
 	}

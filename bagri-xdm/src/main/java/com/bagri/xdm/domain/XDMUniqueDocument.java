@@ -8,20 +8,36 @@ import java.util.Set;
 
 import static com.bagri.xdm.api.XDMTransactionManagement.TX_NO;
 
-
+/**
+ * Represents unique index on XDM Document
+ * 
+ * @author Denis Sukhoroslov
+ *
+ */
 public class XDMUniqueDocument extends XDMIndexedValue {
 	
 	private List<XDMUniqueValue> docs = new ArrayList<>();
 	
+	/**
+	 * default constructor
+	 */
 	public XDMUniqueDocument() {
 		super();
 	}
 	
+	/**
+	 * 
+	 * @param docKey the internal document key
+	 */
 	public XDMUniqueDocument(long docKey) {
 		super();
 		addDocument(docKey, TX_NO);
 	}
 
+	/**
+	 * 
+	 * @param docKeys the collection of internal document keys
+	 */
 	public XDMUniqueDocument(Collection<Long> docKeys) {
 		super();
 		if (docKeys != null) {
@@ -31,6 +47,9 @@ public class XDMUniqueDocument extends XDMIndexedValue {
 		}
 	}
 
+	/**
+	 * @return the number of indexed documents
+	 */
 	@Override
 	public int getCount() {
 		int cnt = 0;
@@ -43,6 +62,9 @@ public class XDMUniqueDocument extends XDMIndexedValue {
 		return cnt;
 	}
 	
+	/**
+	 * @return the indexed document key
+	 */
 	@Override
 	public long getDocumentKey() {
 		for (int i=docs.size() - 1; i >=0; i--) {
@@ -54,6 +76,9 @@ public class XDMUniqueDocument extends XDMIndexedValue {
 		return 0;
 	}
 	
+	/**
+	 * @return the collection of indexed document keys
+	 */
 	@Override
 	public Set<Long> getDocumentKeys() {
 		Set<Long> docIds = new HashSet<>(1);
@@ -66,10 +91,20 @@ public class XDMUniqueDocument extends XDMIndexedValue {
 		return docIds;
 	}
 	
+	/**
+	 * 
+	 * @return the collection of unique indexed values
+	 */
 	public Collection<XDMUniqueValue> getDocumentValues() {
 		return docs;
 	}
 
+	/**
+	 * adds document to the index
+	 * 
+	 * @param docKey the internal document key
+	 * @param txId the internal transaction id
+	 */
 	@Override
 	public boolean addDocument(long docKey, long txId) { // synchronized?
 		XDMUniqueValue doc;
@@ -86,6 +121,12 @@ public class XDMUniqueDocument extends XDMIndexedValue {
 		return true;
 	}
 
+	/**
+	 * removes document from the index 
+	 * 
+	 * @param docKey the internal document key
+	 * @param txId the internal transaction id
+	 */
 	@Override
 	public boolean removeDocument(long docKey, long txId) { // synchronized?
 		for (int i=docs.size() - 1; i >=0; i--) {
@@ -99,18 +140,28 @@ public class XDMUniqueDocument extends XDMIndexedValue {
 		return false;
 	}
 
+	/**
+	 * 
+	 * @param values the collection of unique values
+	 */
 	public void setDocumentValues(Collection<XDMUniqueValue> values) {
 		docs.clear();
 		if (values != null) {
 			docs.addAll(values);
 		}
 	}
-	
+
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String toString() {
 		return "XDMUniqueDocumeny [docs=" + docs + "]";
 	}
 
+	/**
+	 * return consumed size in bytes
+	 */
 	@Override
 	public int getSize() {
 		// have no idea how much memory ArrayList takes!

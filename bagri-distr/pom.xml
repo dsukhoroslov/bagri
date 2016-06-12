@@ -70,13 +70,27 @@
                                         <dependencySourceExclude>com.bagri.db:bagri-xquery*</dependencySourceExclude>
                                     </dependencySourceExcludes>
 
+                                    <additionnalDependencies>
+                                        <additionnalDependency>
+                                            <groupId>javax.xml.xquery</groupId>
+                                            <artifactId>xqj-api</artifactId>
+                                            <version>1.0</version>
+                                            <scope>system</scope>
+                                            <optional>false</optional>
+                                            <systemPath>${project.basedir}/../etc/lib/xqj-api-1.0-sources.jar</systemPath>
+                                        </additionnalDependency>
+                                    </additionnalDependencies>
+
                                     <doctitle>Bagri: Document DB on top of Distributed Cache</doctitle>
-                                    <verbose>false</verbose>
           			    <links>
 					<link>http://docs.hazelcast.org/docs/3.6/javadoc/</link>
-					<link>http://www.saxonica.com/html/documentation/javadoc/</link>
+					<!--link>http://www.saxonica.com/html/documentation/javadoc/</link-->
+					<link>http://xqj.net/javadoc/</link>
           			    </links>				    
 
+                                    <!--sourcepath>C:\Work\Bagri\git\bagri\etc\lib\src javax.xml.xquery</sourcepath-->
+
+                                    <verbose>true</verbose>
                                     <windowtitle>Bagri: Document DB on top of Distributed Cache</windowtitle>
                                 </configuration>
                             </execution>

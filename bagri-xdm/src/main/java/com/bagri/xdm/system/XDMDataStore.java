@@ -19,6 +19,12 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import com.bagri.xdm.common.XDMEntity;
 
+/**
+ * Represents Document Store configuration
+ *  
+ * @author Denis Sukhoroslov
+ *
+ */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(namespace = "http://www.bagridb.com/xdm/system", propOrder = {
 		"name", 
@@ -51,6 +57,17 @@ public class XDMDataStore extends XDMEntity {
 		super();
 	}
 
+	/**
+	 * 
+	 * @param version the version
+	 * @param createdAt the date/time of version creation
+	 * @param createdBy the user who has created the version
+	 * @param name the data store name
+	 * @param description the data store description
+	 * @param storeClass the data store implementation class
+	 * @param enabled the data store enable flag
+	 * @param props the data store properties
+	 */
 	public XDMDataStore(int version, Date createdAt, String createdBy, String name, String description, 
 			String storeClass, boolean enabled, Properties props) {
 		super(version, createdAt, createdBy);
@@ -62,48 +79,64 @@ public class XDMDataStore extends XDMEntity {
 	}
 
 	/**
-	 * @return the name
+	 * @return the data store name
 	 */
 	public String getName() {
 		return name;
 	}
 
 	/**
-	 * @return the description
+	 * @return the data store description
 	 */
 	public String getDescription() {
 		return description;
 	}
 
 	/**
-	 * @return the storeClass
+	 * @return the data store implementation class
 	 */
 	public String getStoreClass() {
 		return storeClass;
 	}
 
 	/**
-	 * @return the enabled
+	 * @return the data store enabled flag
 	 */
 	public boolean isEnabled() {
 		return enabled;
 	}
 
 	/**
-	 * @return the props
+	 * @return the data store properties
 	 */
 	public Properties getProperties() {
 		return props;
 	}
 	
+	/**
+	 * adds data store property
+	 * 
+	 * @param key the property key
+	 * @param value the property value
+	 * @return true if the property was inserted, false if updated
+	 */
 	public boolean addProperty(String key, String value) {
 		return props.setProperty(key, value) == null;
 	}
 	
+	/**
+	 * removes data store property
+	 * 
+	 * @param key the property key
+	 * @return true if the property was removed, false otherwise
+	 */
 	public boolean removeProperty(String key) {
 		return props.remove(key) != null;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Map<String, Object> convert() {
 		Map<String, Object> result = super.convert();

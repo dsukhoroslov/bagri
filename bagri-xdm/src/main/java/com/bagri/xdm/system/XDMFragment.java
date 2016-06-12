@@ -47,11 +47,25 @@ public class XDMFragment extends XDMEntity {
 	@XmlElement(required = false, defaultValue = "true")
 	private boolean enabled = true;
 
+	/**
+	 * default constructor
+	 */
 	public XDMFragment() {
 		// for JAXB
 		super();
 	}
 	
+	/**
+	 * 
+	 * @param version the version
+	 * @param createdAt the date/time of version creation
+	 * @param createdBy the user who has created the version
+	 * @param name the fragment name
+	 * @param docType the fragment document type
+	 * @param path the fragment path
+	 * @param description the fragment description
+	 * @param enabled the fragment enable flag
+	 */
 	public XDMFragment(int version, Date createdAt, String createdBy, String name, 
 			String docType, String path, String description, boolean enabled) {
 		super(version, createdAt, createdBy);
@@ -62,26 +76,51 @@ public class XDMFragment extends XDMEntity {
 		this.enabled = enabled;
 	}
 
+	/**
+	 * 
+	 * @return the fragment name
+	 */
 	public String getName() {
 		return name;
 	}
 
+	/**
+	 * 
+	 * @return the fragment description
+	 */
 	public String getDescription() {
 		return description;
 	}
 	
+	/**
+	 * 
+	 * @return the fragment document type in Clark form
+	 */
 	public String getDocumentType() {
 		return docType;
 	}
 
+	/**
+	 * 
+	 * @return the fragment XPath
+	 */
 	public String getPath() {
 		return path;
 	}
 	
+	/**
+	 * 
+	 * @return the fragment enable flag
+	 */
 	public boolean isEnabled() {
 		return enabled;
 	}
 	
+	/**
+	 * 
+	 * @param enabled set fragment enable flag
+	 * @return true if flag has been changed, false otherwise
+	 */
 	public boolean setEnabled(boolean enabled) {
 		if (this.enabled != enabled) {
 			this.enabled = enabled;
@@ -91,11 +130,17 @@ public class XDMFragment extends XDMEntity {
 		return false;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public int hashCode() {
 		return name.hashCode();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {
@@ -111,6 +156,9 @@ public class XDMFragment extends XDMEntity {
 		return name.equals(other.name); 
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Map<String, Object> convert() {
 		Map<String, Object> result = super.convert();
@@ -122,6 +170,9 @@ public class XDMFragment extends XDMEntity {
 		return result;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String toString() {
 		return "XDMFragment [name=" + name + ", version=" + getVersion()

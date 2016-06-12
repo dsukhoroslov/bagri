@@ -13,10 +13,19 @@ public class XDMNamespace {
 	private String prefix;
 	private String location;
 	
+	/**
+	 * default constructor
+	 */
 	public XDMNamespace() {
 		//
 	}
 
+	/**
+	 * 
+	 * @param uri the namespace uri
+	 * @param prefix the namespace prefix
+	 * @param location the namespace location
+	 */
 	public XDMNamespace(String uri, String prefix, String location) {
 		this.uri = uri;
 		this.prefix = prefix;
@@ -24,21 +33,21 @@ public class XDMNamespace {
 	}
 
 	/**
-	 * @return the uri
+	 * @return the namespace uri
 	 */
 	public String getUri() {
 		return uri;
 	}
 
 	/**
-	 * @return the prefix
+	 * @return the namespace prefix
 	 */
 	public String getPrefix() {
 		return prefix;
 	}
 
 	/**
-	 * @return the location
+	 * @return the namespace location
 	 */
 	public String getLocation() {
 		return location;
