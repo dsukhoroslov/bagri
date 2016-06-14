@@ -4,14 +4,19 @@
 
     <parent>
         <groupId>com.bagri.db</groupId>
-        <artifactId>bagri-samples</artifactId>
+        <artifactId>bagri-store</artifactId>
         <version>0.8.1-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
 
-    <artifactId>bagri-samples-client</artifactId>
-    <name>bagri-samples-client</name>
-    <description>Bagri XQJ Client Test App</description>
+    <artifactId>bagri-samples-book</artifactId>
+    <name>bagri-samples-book</name>
+    <description>Bagri Sample App: Analysing Booking data</description>
+
+    <properties>
+        <opencsv.version>3.8</opencsv.version>
+    </properties>
+
 
     <dependencies>
 
@@ -33,36 +38,10 @@
         </dependency>
 
         <dependency>
-            <groupId>javax.xml.xquery</groupId>
-            <artifactId>xqj-api</artifactId>
+            <groupId>com.opencsv</groupId>
+            <artifactId>opencsv</artifactId>
+            <version>${opencsv.version}</version>
         </dependency>
-        <dependency>
-            <groupId>net.sf.saxon</groupId>
-            <artifactId>Saxon-HE</artifactId>
-        </dependency>
-
-        <!-- Spring framework -->
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.hazelcast</groupId>
-            <artifactId>hazelcast-all</artifactId>
-            <!--scope>runtime</scope-->
-        </dependency>
-
-        <!--dependency>
-            <groupId>com.oracle.coherence</groupId>
-            <artifactId>coherence</artifactId>
-                <scope>runtime</scope>
-        </dependency>
-            <dependency>
-            <groupId>com.oracle.coherence.incubator</groupId>
-            <artifactId>coherence-common</artifactId>
-                <scope>runtime</scope>
-        </dependency-->
 
         <!-- Dependencies for logging -->
         <dependency>
@@ -72,6 +51,12 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>log4j-over-slf4j</artifactId>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
@@ -83,6 +68,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>

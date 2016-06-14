@@ -16,6 +16,7 @@
     <description>BagRi: Sample Projects</description>
 
     <modules>
+        <module>bagri-samples-book</module>
         <module>bagri-samples-client</module>
         <module>bagri-samples-embedded</module>
         <module>bagri-samples-ext</module>
