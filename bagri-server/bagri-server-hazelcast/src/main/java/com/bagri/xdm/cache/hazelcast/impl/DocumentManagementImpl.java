@@ -637,8 +637,14 @@ public class DocumentManagementImpl extends DocumentManagementBase implements XD
 	public XDMDocument createDocument(XDMDocumentKey docKey, String uri, String content, String dataFormat, Date createdAt, String createdBy, 
 			long txStart, int[] collections, boolean addContent) throws XDMException {
 		
+		List<XDMData> data;
 		XDMParser parser = repo.getParser(dataFormat);
-		List<XDMData> data = parser.parse(content);
+		try {
+			data = parser.parse(content);
+		} catch (XDMException ex) {
+			logger.info("createDocument; parse error. content: {}", content);
+			throw ex;
+		}
 
 		Object[] ids = loadElements(docKey.getKey(), data);
 		List<Long> fragments = (List<Long>) ids[0];
@@ -795,7 +801,9 @@ public class DocumentManagementImpl extends DocumentManagementBase implements XD
 
 	@Override
 	public XDMDocument storeDocumentFromMap(String uri, Map<String, Object> fields, Properties props) throws XDMException {
+		logger.info("storeDocumentFromMap; got map: {}", fields);
 		String xml = mapToXML(fields);
+		logger.info("storeDocumentFromMap; converted to: {}", xml);
 		if (xml == null || xml.trim().length() == 0) {
 			throw new XDMException("Can not convert map [" + fields + "] to XML", XDMException.ecDocument);
 		}

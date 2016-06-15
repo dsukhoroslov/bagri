@@ -1,9 +1,13 @@
 package com.bagri.common.util;
 
+import static com.bagri.common.util.PropUtils.setProperty;
+
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Properties;
+
+import javax.xml.transform.OutputKeys;
 
 public class PropUtils {
 	
@@ -62,4 +66,18 @@ public class PropUtils {
 		}
 	}
 	
+	public static Properties getOutputProperties(Properties source) {
+		Properties outProps = new Properties();
+		setProperty(source, outProps, OutputKeys.CDATA_SECTION_ELEMENTS, null);
+		setProperty(source, outProps, OutputKeys.DOCTYPE_PUBLIC, null);
+		setProperty(source, outProps, OutputKeys.DOCTYPE_SYSTEM, null);
+		setProperty(source, outProps, OutputKeys.ENCODING, null);
+		setProperty(source, outProps, OutputKeys.INDENT, null);
+		setProperty(source, outProps, OutputKeys.MEDIA_TYPE, null);
+		setProperty(source, outProps, OutputKeys.METHOD, null);
+		setProperty(source, outProps, OutputKeys.OMIT_XML_DECLARATION, null);
+		setProperty(source, outProps, OutputKeys.STANDALONE, null);
+		setProperty(source, outProps, OutputKeys.VERSION, null);
+		return outProps;
+	}
 }

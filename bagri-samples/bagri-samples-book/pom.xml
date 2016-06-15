@@ -4,7 +4,7 @@
 
     <parent>
         <groupId>com.bagri.db</groupId>
-        <artifactId>bagri-store</artifactId>
+        <artifactId>bagri-samples</artifactId>
         <version>0.8.1-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
@@ -15,6 +15,8 @@
 
     <properties>
         <opencsv.version>3.8</opencsv.version>
+	<jline.version>3.0.0.M1</jline.version>
+	<fs.jansi.version>1.12</fs.jansi.version>
     </properties>
 
 
@@ -41,6 +43,16 @@
             <groupId>com.opencsv</groupId>
             <artifactId>opencsv</artifactId>
             <version>${opencsv.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>jline</groupId>
+            <artifactId>jline</artifactId>
+            <version>${jline.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.fusesource.jansi</groupId>
+            <artifactId>jansi</artifactId>
+            <version>${fs.jansi.version}</version>
         </dependency>
 
         <!-- Dependencies for logging -->
@@ -72,5 +84,29 @@
         </dependency>
 
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                            <overWriteReleases>true</overWriteReleases>
+                            <overWriteSnapshots>true</overWriteSnapshots>
+                            <overWriteIfNewer>true</overWriteIfNewer>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

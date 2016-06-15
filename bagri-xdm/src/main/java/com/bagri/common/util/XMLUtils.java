@@ -9,6 +9,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
@@ -35,6 +36,12 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.converters.Converter;
+import com.thoughtworks.xstream.converters.MarshallingContext;
+import com.thoughtworks.xstream.converters.UnmarshallingContext;
+import com.thoughtworks.xstream.io.HierarchicalStreamReader;
+import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
+import com.thoughtworks.xstream.io.naming.NoNameCoder;
 import com.thoughtworks.xstream.io.xml.StaxDriver;
 
 import static com.bagri.common.util.FileUtils.def_encoding;
@@ -46,11 +53,13 @@ public class XMLUtils {
 	private static final DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();  
 	private static final TransformerFactory transFactory = TransformerFactory.newInstance();  
 	private static final XMLInputFactory xiFactory = XMLInputFactory.newInstance();
-	private static final XStream xStream = new XStream(new StaxDriver());
+	private static final XStream xStream = new XStream(new StaxDriver(new NoNameCoder()));
+	//private static final XStream xStream = new XStream(new StaxDriver());
 	
 	static {
 		dbFactory.setNamespaceAware(true);
 		xStream.alias("map", java.util.Map.class);
+		xStream.registerConverter(new MapEntryConverter());
 	}
 
 	private static final ThreadLocal<DocumentBuilder> thDB = new ThreadLocal<DocumentBuilder>() {
@@ -202,6 +211,41 @@ public class XMLUtils {
 	
 	public static Map<String, Object> mapFromXML(String xml) {
 		return (Map<String, Object>) xStream.fromXML(xml);		
+	}
+
+
+	private static class MapEntryConverter implements Converter {
+	
+	    public boolean canConvert(Class clazz) {
+	        return Map.class.isAssignableFrom(clazz);
+	    }
+	
+	    public void marshal(Object value, HierarchicalStreamWriter writer, MarshallingContext context) {
+	
+	        Map<String, Object> map = (Map<String, Object>) value;
+	        for (Map.Entry<String, Object> entry : map.entrySet()) {
+	            writer.startNode(entry.getKey().toString());
+	            Object val = entry.getValue();
+	            if (val != null) {
+	                writer.setValue(val.toString());
+	            }
+	            writer.endNode();
+	        }
+	    }
+	
+	    public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
+	
+	        Map<String, String> map = new HashMap<String, String>();
+	        while(reader.hasMoreChildren()) {
+	            reader.moveDown();
+	            String key = reader.getNodeName(); 
+	            String value = reader.getValue();
+	            map.put(key, value);
+	            reader.moveUp();
+	        }
+	        return map;
+	    }
+	
 	}
 
 }

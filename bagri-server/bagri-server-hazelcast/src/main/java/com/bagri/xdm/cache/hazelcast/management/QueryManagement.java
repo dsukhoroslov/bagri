@@ -3,7 +3,7 @@
  */
 package com.bagri.xdm.cache.hazelcast.management;
 
-import static com.bagri.common.util.PropUtils.setProperty;
+import static com.bagri.common.util.PropUtils.getOutputProperties;
 import static com.bagri.xdm.common.XDMConstants.pn_client_fetchSize;
 import static com.bagri.xdm.common.XDMConstants.pn_client_submitTo;
 import static com.bagri.xdm.common.XDMConstants.pn_queryTimeout;
@@ -143,7 +143,7 @@ public class QueryManagement extends SchemaFeatureManagement {
 		String result = null;
 		try {
 			if (useXDM) {
-				Iterator itr = queryMgr.executeQuery(query, null, props);
+				Iterator<?> itr = queryMgr.executeQuery(query, null, props);
 				result = extractResult(itr, props);
 			} else {
 			    XQExpression xqExp = xqConn.createExpression();
@@ -160,7 +160,7 @@ public class QueryManagement extends SchemaFeatureManagement {
 		}
 	}
 	
-	private String extractResult(Iterator itr, Properties props) throws XQException {
+	private String extractResult(Iterator<?> itr, Properties props) throws XQException {
 		StringBuffer buff = new StringBuffer();
 		//ResultCursor rc = (ResultCursor) itr;
 		//rc.deserialize(((RepositoryImpl) schemaManager.getRepository()).getHzInstance());
@@ -181,21 +181,6 @@ public class QueryManagement extends SchemaFeatureManagement {
 		return buff.toString();
 	}
 	
-	private Properties getOutputProperties(Properties source) {
-		Properties outProps = new Properties();
-		setProperty(source, outProps, OutputKeys.CDATA_SECTION_ELEMENTS, null);
-		setProperty(source, outProps, OutputKeys.DOCTYPE_PUBLIC, null);
-		setProperty(source, outProps, OutputKeys.DOCTYPE_SYSTEM, null);
-		setProperty(source, outProps, OutputKeys.ENCODING, null);
-		setProperty(source, outProps, OutputKeys.INDENT, null);
-		setProperty(source, outProps, OutputKeys.MEDIA_TYPE, null);
-		setProperty(source, outProps, OutputKeys.METHOD, null);
-		setProperty(source, outProps, OutputKeys.OMIT_XML_DECLARATION, null);
-		setProperty(source, outProps, OutputKeys.STANDALONE, null);
-		setProperty(source, outProps, OutputKeys.VERSION, null);
-		return outProps;
-	}
-
 	@ManagedOperation(description="Run XQuery. Returns string output specified by XQuery")
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "query", description = "A query request provided in XQuery syntax"),

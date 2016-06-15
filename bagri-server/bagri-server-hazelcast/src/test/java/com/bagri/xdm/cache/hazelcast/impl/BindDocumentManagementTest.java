@@ -91,8 +91,8 @@ public class BindDocumentManagementTest extends XDMManagementTest {
 		assertNotNull(xml);
 		
 		Map<String, Object> m2 = xRepo.getDocumentManagement().getDocumentAsMap(bDoc.getUri());
-		assertEquals(m1.get("intProp"), m2.get("intProp"));
-		assertEquals(m1.get("boolProp"), m2.get("boolProp"));
+		assertEquals(m1.get("intProp").toString(), m2.get("intProp"));
+		assertEquals(m1.get("boolProp").toString(), m2.get("boolProp"));
 		assertEquals(m1.get("strProp"), m2.get("strProp"));
 	}
 		
