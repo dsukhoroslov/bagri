@@ -12,6 +12,7 @@ import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -39,9 +40,11 @@ import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
+import com.thoughtworks.xstream.core.util.HierarchicalStreams;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import com.thoughtworks.xstream.io.naming.NoNameCoder;
+import com.thoughtworks.xstream.io.xml.DomDriver;
 import com.thoughtworks.xstream.io.xml.StaxDriver;
 
 import static com.bagri.common.util.FileUtils.def_encoding;
@@ -53,7 +56,7 @@ public class XMLUtils {
 	private static final DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();  
 	private static final TransformerFactory transFactory = TransformerFactory.newInstance();  
 	private static final XMLInputFactory xiFactory = XMLInputFactory.newInstance();
-	private static final XStream xStream = new XStream(new StaxDriver(new NoNameCoder()));
+	private static final XStream xStream = new XStream(new DomDriver(def_encoding, new NoNameCoder()));
 	//private static final XStream xStream = new XStream(new StaxDriver());
 	
 	static {
@@ -215,6 +218,8 @@ public class XMLUtils {
 
 
 	private static class MapEntryConverter implements Converter {
+		
+		private ConcurrentHashMap<String, Class<?>> types = new ConcurrentHashMap<>();
 	
 	    public boolean canConvert(Class clazz) {
 	        return Map.class.isAssignableFrom(clazz);
@@ -224,9 +229,10 @@ public class XMLUtils {
 	
 	        Map<String, Object> map = (Map<String, Object>) value;
 	        for (Map.Entry<String, Object> entry : map.entrySet()) {
-	            writer.startNode(entry.getKey().toString());
+	            writer.startNode(entry.getKey());
 	            Object val = entry.getValue();
 	            if (val != null) {
+	            	types.putIfAbsent(entry.getKey(), val.getClass());
 	                writer.setValue(val.toString());
 	            }
 	            writer.endNode();
@@ -235,11 +241,12 @@ public class XMLUtils {
 	
 	    public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
 	
-	        Map<String, String> map = new HashMap<String, String>();
-	        while(reader.hasMoreChildren()) {
+	        Map<String, Object> map = new HashMap<>();
+	        while (reader.hasMoreChildren()) {
 	            reader.moveDown();
 	            String key = reader.getNodeName(); 
-	            String value = reader.getValue();
+	            String val = reader.getValue();
+	            Object value = context.convertAnother(val, types.get(key));
 	            map.put(key, value);
 	            reader.moveUp();
 	        }

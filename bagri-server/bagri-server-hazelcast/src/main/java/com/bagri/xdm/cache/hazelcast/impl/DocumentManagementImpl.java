@@ -801,9 +801,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements XD
 
 	@Override
 	public XDMDocument storeDocumentFromMap(String uri, Map<String, Object> fields, Properties props) throws XDMException {
-		logger.info("storeDocumentFromMap; got map: {}", fields);
 		String xml = mapToXML(fields);
-		logger.info("storeDocumentFromMap; converted to: {}", xml);
 		if (xml == null || xml.trim().length() == 0) {
 			throw new XDMException("Can not convert map [" + fields + "] to XML", XDMException.ecDocument);
 		}
