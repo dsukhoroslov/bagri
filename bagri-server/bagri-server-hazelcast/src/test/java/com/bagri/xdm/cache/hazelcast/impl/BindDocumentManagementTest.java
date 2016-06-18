@@ -5,7 +5,12 @@ import static com.bagri.xdm.common.XDMConstants.xdm_config_properties_file;
 import static org.junit.Assert.*;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Properties;
+
+import javax.xml.namespace.QName;
+import javax.xml.xquery.XQItem;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -16,6 +21,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.bagri.xdm.api.test.XDMManagementTest;
 import com.bagri.xdm.cache.hazelcast.bean.SampleBean;
+import com.bagri.xdm.client.hazelcast.impl.ResultCursor;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.system.XDMSchema;
 
@@ -82,18 +88,96 @@ public class BindDocumentManagementTest extends XDMManagementTest {
 		m1.put("intProp", 1); 
 		m1.put("boolProp", Boolean.FALSE);
 		m1.put("strProp", "XYZ");
-		XDMDocument bDoc = xRepo.getDocumentManagement().storeDocumentFromMap("map_test", m1, null);
-		assertNotNull(bDoc);
-		uris.add(bDoc.getUri());
+		XDMDocument mDoc = xRepo.getDocumentManagement().storeDocumentFromMap("map_test1", m1, null);
+		assertNotNull(mDoc);
+		assertEquals(txId, mDoc.getTxStart());
+		uris.add(mDoc.getUri());
 		xRepo.getTxManagement().commitTransaction(txId);
 		
-		String xml = xRepo.getDocumentManagement().getDocumentAsString(bDoc.getUri());
+		String xml = xRepo.getDocumentManagement().getDocumentAsString(mDoc.getUri());
 		assertNotNull(xml);
+		System.out.println(xml);
 		
-		Map<String, Object> m2 = xRepo.getDocumentManagement().getDocumentAsMap(bDoc.getUri());
+		Map<String, Object> m2 = xRepo.getDocumentManagement().getDocumentAsMap(mDoc.getUri());
 		assertEquals(m1.get("intProp"), m2.get("intProp"));
 		assertEquals(m1.get("boolProp"), m2.get("boolProp"));
 		assertEquals(m1.get("strProp"), m2.get("strProp"));
+
+		m2.put("intProp", 2); 
+		m2.put("boolProp", Boolean.TRUE);
+		m2.put("strProp", "ABC");
+		txId = xRepo.getTxManagement().beginTransaction();
+		mDoc = xRepo.getDocumentManagement().storeDocumentFromMap("map_test2", m2, null);
+		assertNotNull(mDoc);
+		assertEquals(txId, mDoc.getTxStart());
+		uris.add(mDoc.getUri());
+		xRepo.getTxManagement().commitTransaction(txId);
+		
+		String query = //"declare default element namespace \"\";\n" + 
+				"declare variable $value external;\n" +
+				"for $doc in fn:collection()/map\n" +
+				//"where $doc/intProp = $value\n" +
+				"where $doc[intProp = $value]\n" +
+				"return $doc/strProp/text()";
+		
+		Map<QName, Object> params = new HashMap<>();
+		params.put(new QName("value"), 0);
+		Iterator<?> results = query(query, params);
+		assertFalse(results.hasNext());
+		
+		params.put(new QName("value"), 1);
+		results = query(query, params);
+		assertTrue(results.hasNext());
+		
+		Properties props = new Properties();
+		props.setProperty("method", "text");
+		XQItem item = (XQItem) results.next();
+		String text = item.getItemAsString(props);
+		assertEquals("XYZ", text);
+		assertFalse(results.hasNext());
 	}
 		
+	@Test
+	public void queryDocumentTest() throws Exception {
+        String xml = "<map>\n" +
+        		"  <boolProp>false</boolProp>\n" +
+        		"  <strProp>XYZ</strProp>\n" +
+        		"  <intProp>1</intProp>\n" +
+        		"</map>";
+		
+		long txId = xRepo.getTxManagement().beginTransaction();
+		XDMDocument mDoc = xRepo.getDocumentManagement().storeDocumentFromString("map.xml", xml, null);
+		assertNotNull(mDoc);
+		assertEquals(txId, mDoc.getTxStart());
+		uris.add(mDoc.getUri());
+		xRepo.getTxManagement().commitTransaction(txId);
+		
+		String query = //"declare default element namespace \"\";\n" +
+				"declare variable $value external;\n" +
+				"for $doc in fn:collection()/map\n" +
+				"where $doc/intProp = $value\n" +
+				//"where $doc[intProp = $value]\n" +
+				"return $doc/strProp/text()";
+		
+		Map<QName, Object> params = new HashMap<>();
+		params.put(new QName("value"), 1);
+		Iterator<?> results = query(query, params);
+		assertTrue(results.hasNext());
+		
+		Properties props = new Properties();
+		props.setProperty("method", "text");
+		XQItem item = (XQItem) results.next();
+		String text = item.getItemAsString(props);
+		assertEquals("XYZ", text);
+		assertFalse(results.hasNext());
+	}
+		
+	private Iterator<?> query(String query, Map<QName, Object> params) throws Exception {
+		Iterator<?> result = getQueryManagement().executeQuery(query, params, new Properties());
+		assertNotNull(result);
+		((ResultCursor) result).deserialize(((RepositoryImpl) xRepo).getHzInstance());
+		//assertTrue(result.hasNext());
+		return result;
+	}
+	
 }

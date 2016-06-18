@@ -11,10 +11,12 @@ import java.net.URI;
 import javax.xml.transform.Source;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.URIResolver;
+import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamSource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.InputSource;
 
 import com.bagri.common.util.FileUtils;
 import com.bagri.xdm.api.XDMException;
@@ -115,6 +117,12 @@ public class SourceResolverImpl implements SourceResolver, URIResolver {
 			logger.trace("resolveSource; got content: {}", content.length());
 			StreamSource ss = new StreamSource(new StringReader(content));
 			ss.setSystemId(original);
+		    
+			//InputSource is = new InputSource(new StringReader(content));
+		    //is.setSystemId(original);
+		    //Source ss = new SAXSource(is);
+		    //ss.setSystemId(original);
+			
 			// bottleneck! takes 15 ms. Cache DocumentInfo in Saxon instead! 
 			//NodeInfo doc = config.buildDocument(ss);
 			//mgr.storeDocumentSource(docId, doc);
@@ -126,5 +134,5 @@ public class SourceResolverImpl implements SourceResolver, URIResolver {
 		logger.trace("resolveSource. got empty content: '{}'", content);
 		return null;
 	}
-
+	
 }

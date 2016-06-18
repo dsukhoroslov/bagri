@@ -16,8 +16,10 @@ import static com.bagri.xdm.common.XDMConstants.xdm_document_data_format;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
@@ -67,7 +69,6 @@ public class BookingApp {
 		BookingApp client = new BookingApp(props);
         // print success/failure msg about this 
 		System.out.println(">> connected to XDM Schema");
-		// print help message -> usage
 
 		StringBuffer query = null;
 		boolean querying = false;
@@ -95,6 +96,8 @@ public class BookingApp {
                     .completer(completer)
                     .build();
 
+    		usage(terminal);
+            
             while (true) {
                 String line = null;
                 try {
@@ -112,10 +115,17 @@ public class BookingApp {
                 if (line.length() == 0) {
                 	if (querying) {
                 		querying = false;
-                		String result = client.runQuery(query.toString());
+                    	long stamp = System.currentTimeMillis();
+                		List<String> result = client.runQuery(query.toString());
+                    	stamp = System.currentTimeMillis() - stamp;
                     	terminal.writer().println("> query result: \n");
-                    	terminal.writer().println(result);
+                    	for (String res: result) {
+                    		terminal.writer().println(res);
+                    	}
+                    	int cnt = result.size(); 
+                    	terminal.writer().println("> got " + cnt + " results; time taken: " + stamp + " ms");
                     	terminal.flush();
+                    	query = null;
                 	}
                 	continue;
                 }
@@ -135,8 +145,10 @@ public class BookingApp {
                     	if (pl.words().size() == 3) {
                     		threadCount = Integer.parseInt(pl.words().get(2));
                     	}
+                    	long stamp = System.currentTimeMillis();
                     	int cnt = client.loadFile(fName, threadCount);
-                    	terminal.writer().println("> loaded " + cnt + " documents");
+                    	stamp = System.currentTimeMillis() - stamp;
+                    	terminal.writer().println("> loaded " + cnt + " documents; time taken: " + stamp + " ms");
                     } else {
                     	terminal.writer().println("> load command expects only one or two parameters: fileName (mandatory) and threadCount (optional)");
                     }
@@ -162,6 +174,8 @@ public class BookingApp {
                 } else if ("cls".equals(pl.word())) {
                     terminal.puts(Capability.clear_screen);
                     terminal.flush();
+                } else if ("help".equals(pl.word())) {
+                	usage(terminal);
                 }
             }
         } catch (Throwable t) {
@@ -173,28 +187,18 @@ public class BookingApp {
 		
 	}
 
-    private static void usage() {
-        //System.out.println("Usage: java " + Example.class.getName()
-        //    + " [none/simple/files/dictionary [trigger mask]]");
-        System.out.println("  none - no completors");
-        System.out.println("  simple - a simple completor that comples "
-            + "\"foo\", \"bar\", and \"baz\"");
-        System.out
-            .println("  files - a completor that comples " + "file names");
-        System.out.println("  classes - a completor that comples "
-            + "java class names");
-        System.out
-            .println("  trigger - a special word which causes it to assume "
-                + "the next line is a password");
-        System.out.println("  mask - is the character to print in place of "
-            + "the actual password character");
-        System.out.println("  color - colored prompt and feedback");
-        System.out.println("\n  E.g - java Example simple su '*'\n"
-            + "will use the simple compleator with 'su' triggering\n"
-            + "the use of '*' as a password mask.");
+    private static void usage(Terminal terminal) {
+    	terminal.writer().println("CLI commands: command_name <mandatory_param> [optional_param] - description");
+    	terminal.writer().println("  get <document uri> - to print document content");
+    	terminal.writer().println("  load <file_name> [thread_count> - to load document(-s) from file");
+    	terminal.writer().println("  query - to perform XQuery on loaded documents");
+    	terminal.writer().println("     <query code>");
+    	terminal.writer().println("  CRLF");
+    	terminal.writer().println("  quit - to quit the CLI");
+    	terminal.writer().println("  help - to see this usage info");
+    	terminal.flush();
     }
 
-	
 	public BookingApp(Properties props) {
 		proc = new XQProcessorClient();
 		BagriXQDataFactory xqFactory = new BagriXQDataFactory();
@@ -286,10 +290,10 @@ public class BookingApp {
 		return xRepo.getDocumentManagement().getDocumentAsString(uri);
 	}
 	
-	public String runQuery(String query) throws XDMException, XQException {
+	public List<String> runQuery(String query) throws XDMException, XQException {
 		Properties props = new Properties();
 		Iterator<?> itr = xRepo.getQueryManagement().executeQuery(query, null, props);
-		StringBuffer result = new StringBuffer();
+		List<String> result = new ArrayList<String>();
 		
 		Properties outProps = getOutputProperties(props);
 		//int fSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, String.valueOf(fetchSize)));
@@ -301,11 +305,10 @@ public class BookingApp {
 		//	}
 		//} else {
 			while (itr.hasNext()) {
-				result.append(proc.convertToString(itr.next(), outProps));
-				result.append('\n');
+				result.add(proc.convertToString(itr.next(), outProps));
 			}
 		//}
-		return result.toString();
+		return result;
 	}
 	
 

@@ -40,7 +40,6 @@ import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
-import com.thoughtworks.xstream.core.util.HierarchicalStreams;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import com.thoughtworks.xstream.io.naming.NoNameCoder;
@@ -57,12 +56,12 @@ public class XMLUtils {
 	private static final TransformerFactory transFactory = TransformerFactory.newInstance();  
 	private static final XMLInputFactory xiFactory = XMLInputFactory.newInstance();
 	private static final XStream xStream = new XStream(new DomDriver(def_encoding, new NoNameCoder()));
-	//private static final XStream xStream = new XStream(new StaxDriver());
+	//private static final XStream xStream = new XStream(new StaxDriver(new NoNameCoder()));
 	
 	static {
 		dbFactory.setNamespaceAware(true);
 		xStream.alias("map", java.util.Map.class);
-		xStream.registerConverter(new MapEntryConverter());
+		xStream.registerConverter(new MapConverter());
 	}
 
 	private static final ThreadLocal<DocumentBuilder> thDB = new ThreadLocal<DocumentBuilder>() {
@@ -217,7 +216,7 @@ public class XMLUtils {
 	}
 
 
-	private static class MapEntryConverter implements Converter {
+	private static class MapConverter implements Converter {
 		
 		private ConcurrentHashMap<String, Class<?>> types = new ConcurrentHashMap<>();
 	
