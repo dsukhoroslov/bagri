@@ -1,5 +1,6 @@
 package com.bagri.samples.book;
 
+import static com.bagri.common.util.FileUtils.def_encoding;
 import static com.bagri.common.util.FileUtils.readTextFile;
 import static com.bagri.common.util.PropUtils.getOutputProperties;
 import static com.bagri.xdm.common.XDMConstants.pn_client_dataFactory;
@@ -13,10 +14,14 @@ import static com.bagri.xdm.common.XDMConstants.pn_schema_user;
 import static com.bagri.xdm.common.XDMConstants.xdm_document_collections;
 import static com.bagri.xdm.common.XDMConstants.xdm_document_data_format;
 
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -36,6 +41,9 @@ import org.jline.reader.UserInterruptException;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import org.jline.utils.InfoCmp.Capability;
+import org.supercsv.io.CsvListReader;
+import org.supercsv.io.CsvMapReader;
+import org.supercsv.prefs.CsvPreference;
 
 import com.bagri.xdm.api.XDMDocumentManagement;
 import com.bagri.xdm.api.XDMException;
@@ -45,7 +53,8 @@ import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xqj.BagriXQDataFactory;
 import com.bagri.xquery.api.XQProcessor;
 import com.bagri.xquery.saxon.XQProcessorClient;
-import com.opencsv.CSVReader;
+//import com.opencsv.CSVParser;
+//import com.opencsv.CSVReader;
 
 public class BookingApp {
 	
@@ -139,18 +148,31 @@ public class BookingApp {
                 	query.append('\n');
                 	query.append(line);
                 } else if ("load".equals(pl.word())) {
-                    if (pl.words().size() == 2 || pl.words().size() == 3) {
-                    	String fName = pl.words().get(1);
+                    if (pl.words().size() == 2 || pl.words().size() == 3 || pl.words().size() == 4) {
+                    	String[] splits = line.split("\\s");
+                    	String fName = splits[1]; 
+                    	//String fName = pl.words().get(1);
                     	int threadCount = 1;
-                    	if (pl.words().size() == 3) {
-                    		threadCount = Integer.parseInt(pl.words().get(2));
+                    	String encoding = null;
+                    	if (pl.words().size() > 2) {
+                    		try {
+                    			threadCount = Integer.parseInt(pl.words().get(2));
+                    		} catch (NumberFormatException ex) {
+                    			//
+                    			encoding = pl.words().get(2);
+                    		}
                     	}
+                    	if (pl.words().size() == 4) {
+                			encoding = pl.words().get(3);
+                    	}                    	
                     	long stamp = System.currentTimeMillis();
-                    	int cnt = client.loadFile(fName, threadCount);
+                    	long counts = client.loadFile(fName, encoding, threadCount);
+                    	int err = (int) counts;
+                    	int cnt = (int) (counts >> 32);
                     	stamp = System.currentTimeMillis() - stamp;
-                    	terminal.writer().println("> loaded " + cnt + " documents; time taken: " + stamp + " ms");
+                    	terminal.writer().println("> loaded " + cnt + " documents; not loaded: " + err + "; time taken: " + stamp + " ms");
                     } else {
-                    	terminal.writer().println("> load command expects only one or two parameters: fileName (mandatory) and threadCount (optional)");
+                    	terminal.writer().println("> load command expects one, two ot three parameters: fileName (mandatory), threadCount (optional) and encoding (optional)");
                     }
                 	terminal.flush();
                 } else if ("get".equals(pl.word())) {
@@ -171,6 +193,18 @@ public class BookingApp {
                 	query.delete(0, 6);
                 	querying = true;
                 	// todo: turn off history
+                } else if ("remove".equals(pl.word())) {
+                    if (pl.words().size() == 2) {
+                    	String uri = pl.words().get(1);
+                    	if (!client.removeDocument(uri)) {
+                    		terminal.writer().println("> no document found for uri " + uri);
+                    	} else {
+                    		terminal.writer().println("> the document " + uri + " was removed");
+                    	}
+                    } else {
+                    	terminal.writer().println("> remove command expects only one parameter: the document's uri");
+                    }
+                	terminal.flush();
                 } else if ("cls".equals(pl.word())) {
                     terminal.puts(Capability.clear_screen);
                     terminal.flush();
@@ -191,6 +225,7 @@ public class BookingApp {
     	terminal.writer().println("CLI commands: command_name <mandatory_param> [optional_param] - description");
     	terminal.writer().println("  get <document uri> - to print document content");
     	terminal.writer().println("  load <file_name> [thread_count> - to load document(-s) from file");
+    	terminal.writer().println("  remove <document uri> - to remove document from schema");
     	terminal.writer().println("  query - to perform XQuery on loaded documents");
     	terminal.writer().println("     <query code>");
     	terminal.writer().println("  CRLF");
@@ -215,72 +250,112 @@ public class BookingApp {
 		xRepo.close();
 	}
 	
-	public int loadFile(String fileName, int size) throws IOException, XDMException {
-		int pos = fileName.lastIndexOf('.');
-		final String name = fileName.substring(0,  pos) + "_";
-		final String ext = fileName.substring(pos);
-		CSVReader reader = null;
+	public long loadFile(String fileName, String encoding, int size) throws IOException, XDMException {
+		String fn = Paths.get(fileName).getFileName().toString();
+		int pos = fn.lastIndexOf('.');
+		final String name = fn.substring(0, pos) + "_";
+		final String ext = fn.substring(pos);
+		CsvListReader reader = null;
 		XDMDocumentManagement dMgr = xRepo.getDocumentManagement();
 		Properties props = new Properties();
 		props.setProperty(pn_client_storeMode, pv_client_storeMode_insert);
+		if (encoding == null) {
+			encoding = def_encoding;
+		}
 		if (".csv".equals(ext)) {
-			reader = new CSVReader(new FileReader(fileName));
+			reader = new CsvListReader(new InputStreamReader(new FileInputStream(fileName), encoding), CsvPreference.STANDARD_PREFERENCE);
 		} else if (".tsv".equals(ext)) {
-			reader = new CSVReader(new FileReader(fileName), '\t');
+			CsvPreference pref = new CsvPreference.Builder((char) 0, '\t', "\n").maxLinesPerRow(1).build();
+			reader = new CsvListReader(new InputStreamReader(new FileInputStream(fileName), encoding), pref); 
 		} else {
-			String content = readTextFile(fileName);
-			XDMDocument doc = dMgr.storeDocumentFromString(fileName, content, props);
+			String content = readTextFile(fileName, encoding);
+			XDMDocument doc = dMgr.storeDocumentFromString(fn, content, props);
 			return 1;
 		}
 
-		final String[] header = reader.readNext();
-		String[] line;
+		String[] header = reader.getHeader(true);
+		System.out.println("header: " + Arrays.toString(header));
+		List<String> h2 = new ArrayList<>(header.length);
+		for (String h: header) {
+			if (h != null) {
+				h2.add(h);
+			}
+		}
+		header = h2.toArray(new String[h2.size()]);
+		List<String> line;
 		int idx = 0;
+		int err = 0;
 		
-		if (size > 1) {
-			ExecutorService exec = Executors.newFixedThreadPool(size);
-			while ((line = reader.readNext()) != null) {
-	        	String uri = name + idx + ext;
-				Runnable worker = new DocumentStoreThread(header, line, uri, props);
-				exec.execute(worker);
-				idx++;
-			}
-			exec.shutdown();
-			while (!exec.isTerminated()) {
-			}
-		} else {
-			while ((line = reader.readNext()) != null) {
+		//if (size > 1) {
+		//	ExecutorService exec = Executors.newFixedThreadPool(size);
+		//	while ((line = reader.read(header)) != null) {
+	    //    	String uri = name + idx + ext;
+		//		Runnable worker = new DocumentStoreThread(header, line, uri, props);
+		//		exec.execute(worker);
+		//		idx++;
+		//	}
+		//	exec.shutdown();
+		//	while (!exec.isTerminated()) {
+		//		//?
+		//	}
+		//} else {
+			while ((line = reader.read()) != null) {
 	        	String uri = name + idx + ext;
 				if (storeDocument(header, line, uri, props)) {
 		        	idx++;
+		        } else {
+		        	err++;
 		        }
 		    }
-		}
+		//}
 		
 		reader.close();
-		return idx;
+		long result = (((long) idx) << 32) | (err & 0xffffffffL);
+		return result;
 	}
 	
-	private boolean storeDocument(String[] header, String[] data, String uri, Properties props) throws XDMException {
-        Map<String, Object> map = line2Map(header, data);
-        if (map != null) {
-        	XDMDocument doc = xRepo.getDocumentManagement().storeDocumentFromMap(uri, map, props);
-        	return doc != null;
-        }
-        return false;
+	private boolean storeDocument(String[] header, List<String> data, String uri, Properties props) { //throws XDMException {
+		Map<String, Object> map = line2Map(header, data);
+		if (map != null) {
+	       	try {
+	       		XDMDocument doc = xRepo.getDocumentManagement().storeDocumentFromMap(uri, map, props);
+	       		return doc != null;
+	       	} catch (XDMException ex) {
+	       		return false;
+	       	}
+		}
+		return false;
 	}
 	
-	private Map<String, Object> line2Map(String[] keys, String[] values) {
-		if (keys.length != values.length) {
+	private Map<String, Object> line2Map(String[] keys, List<String> values) {
+		while (values.size() > keys.length) {
+			if (values.get(values.size() - 1) == null) {
+				values.remove(values.size() - 1);
+			} else {
+				break;
+			}
+		}
+		if (keys.length != values.size()) {
 			// throw ex?
+			System.out.println("lines do not match! header length: " + keys.length + ", record length: " + values.size());
+			if (keys.length > values.size()) {
+				System.out.println(keys[values.size() - 1] + ": " + values.get(values.size() - 1));
+			}
 			return null;
 		}
+
+		//for (int i=0; i < keys.length; i++) {
+		//	System.out.println(keys[i] + ": " + values.get(i));
+		//}
 		
 		HashMap<String, Object> result = new HashMap<>(keys.length);
 		for (int i=0; i < keys.length; i++) {
 			String key = keys[i].trim();
 			if (key.length() > 0) {
-				result.put(key, values[i]);
+				String value = values.get(i);
+				// do it in the right way..
+				//value.replaceAll("&", "&amp;");
+				result.put(key, value);
 			}
 		}
 		return result;
@@ -311,16 +386,23 @@ public class BookingApp {
 		return result;
 	}
 	
+	public boolean removeDocument(String uri) {
+		try {
+			xRepo.getDocumentManagement().removeDocument(uri);
+			return true;
+		} catch (XDMException ex) {
+			return false;
+		}
+	}
+	
 
 	private class DocumentStoreThread implements Runnable {
 		
-		private String[] data;
-		private String[] header;
+		private Map data;
 		private String uri;
 		private Properties props;
 		
-		DocumentStoreThread(String[] header, String[] data, String uri, Properties props) {
-			this.header = header;
+		DocumentStoreThread(Map data, String uri, Properties props) {
 			this.data = data;
 			this.uri = uri;
 			this.props = props;
@@ -328,11 +410,11 @@ public class BookingApp {
 
 		@Override
 		public void run() {
-			try {
-				storeDocument(header, data, uri, props);
-			} catch (XDMException ex) {
-				ex.printStackTrace();
-			}
+			//try {
+				storeDocument(null, null, uri, props);
+			//} catch (XDMException ex) {
+			//	ex.printStackTrace();
+			//}
 		}
 		
 	}

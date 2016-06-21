@@ -21,16 +21,20 @@ public class FileUtils {
 	public final static String def_encoding = cs_encoding.name();
 	
 	public static String readTextFile(String fileName) throws IOException {
+	    return readTextFile(fileName, def_encoding);
+	}
+	
+	public static String readTextFile(String fileName, String encoding) throws IOException {
 	    Path path = Paths.get(fileName);
 	    StringBuilder text = new StringBuilder();
-	    try (Scanner scanner = new Scanner(path, def_encoding)){
+	    try (Scanner scanner = new Scanner(path, encoding)){
 	    	while (scanner.hasNextLine()) {
 	    		text.append(scanner.nextLine()).append("\n");
 	    	}      
 	   	}
 	    return text.toString();
 	}
-	
+
 	public static void writeTextFile(String fileName, String content) throws IOException {
 		
 		try (Writer writer = new BufferedWriter(

@@ -14,7 +14,8 @@
     <description>Bagri Sample App: Analysing Booking data</description>
 
     <properties>
-        <opencsv.version>3.8</opencsv.version>
+        <!--opencsv.version>3.8</opencsv.version-->
+	<supercsv.version>2.4.0</supercsv.version>
 	<jline.version>3.0.0.M1</jline.version>
 	<fs.jansi.version>1.12</fs.jansi.version>
     </properties>
@@ -39,10 +40,15 @@
             <artifactId>bagri-client-hazelcast</artifactId>
         </dependency>
 
-        <dependency>
+        <!--dependency>
             <groupId>com.opencsv</groupId>
             <artifactId>opencsv</artifactId>
             <version>${opencsv.version}</version>
+        </dependency-->
+        <dependency>
+            <groupId>net.sf.supercsv</groupId>
+            <artifactId>super-csv</artifactId>
+            <version>${supercsv.version}</version>
         </dependency>
         <dependency>
             <groupId>jline</groupId>
