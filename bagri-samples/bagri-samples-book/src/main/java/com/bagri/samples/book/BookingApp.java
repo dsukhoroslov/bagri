@@ -15,13 +15,13 @@ import static com.bagri.xdm.common.XDMConstants.xdm_document_collections;
 import static com.bagri.xdm.common.XDMConstants.xdm_document_data_format;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -41,9 +41,6 @@ import org.jline.reader.UserInterruptException;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import org.jline.utils.InfoCmp.Capability;
-import org.supercsv.io.CsvListReader;
-import org.supercsv.io.CsvMapReader;
-import org.supercsv.prefs.CsvPreference;
 
 import com.bagri.xdm.api.XDMDocumentManagement;
 import com.bagri.xdm.api.XDMException;
@@ -53,8 +50,8 @@ import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xqj.BagriXQDataFactory;
 import com.bagri.xquery.api.XQProcessor;
 import com.bagri.xquery.saxon.XQProcessorClient;
-//import com.opencsv.CSVParser;
-//import com.opencsv.CSVReader;
+import com.opencsv.CSVParser;
+import com.opencsv.CSVReader;
 
 public class BookingApp {
 	
@@ -166,7 +163,7 @@ public class BookingApp {
                 			encoding = pl.words().get(3);
                     	}                    	
                     	long stamp = System.currentTimeMillis();
-                    	long counts = client.loadFile(fName, encoding, threadCount);
+                    	long counts = client.loadFiles(fName, encoding, threadCount);
                     	int err = (int) counts;
                     	int cnt = (int) (counts >> 32);
                     	stamp = System.currentTimeMillis() - stamp;
@@ -224,7 +221,7 @@ public class BookingApp {
     private static void usage(Terminal terminal) {
     	terminal.writer().println("CLI commands: command_name <mandatory_param> [optional_param] - description");
     	terminal.writer().println("  get <document uri> - to print document content");
-    	terminal.writer().println("  load <file_name> [thread_count> - to load document(-s) from file");
+    	terminal.writer().println("  load <file_name> [thread_count] [encoding] - to load document(-s) from file");
     	terminal.writer().println("  remove <document uri> - to remove document from schema");
     	terminal.writer().println("  query - to perform XQuery on loaded documents");
     	terminal.writer().println("     <query code>");
@@ -236,7 +233,7 @@ public class BookingApp {
 
 	public BookingApp(Properties props) {
 		proc = new XQProcessorClient();
-		BagriXQDataFactory xqFactory = new BagriXQDataFactory();
+		BagriXQDataFactory xqFactory 	= new BagriXQDataFactory();
 		xqFactory.setProcessor(proc);
 		props.put(pn_client_dataFactory,  xqFactory);
 		xRepo = new RepositoryImpl(props);
@@ -249,57 +246,72 @@ public class BookingApp {
 	public void close() { 
 		xRepo.close();
 	}
+
+	public long loadFiles(String fileName, String encoding, int size) throws IOException, XDMException {
+		Path path = Paths.get(fileName);
+		if (Files.isDirectory(path)) {
+			return processFolder(path, encoding, size);
+		}
+		return processFile(path, encoding, size);
+	}
 	
-	public long loadFile(String fileName, String encoding, int size) throws IOException, XDMException {
-		String fn = Paths.get(fileName).getFileName().toString();
+	private long processFolder(Path folder, String encoding, int size) throws IOException, XDMException {
+		long result = 0;
+		try (DirectoryStream<Path> stream = Files.newDirectoryStream(folder)) {
+		    for (Path path: stream) {
+		        if (Files.isDirectory(path)) {
+		            result += processFolder(path, encoding, size);
+		        } else {
+		            result += processFile(path, encoding, size);
+		        }
+		    }
+		    return result;
+		} 
+	}
+	
+	private long processFile(Path path, String encoding, int size) throws IOException, XDMException {
+		String fn = path.getFileName().toString();
 		int pos = fn.lastIndexOf('.');
 		final String name = fn.substring(0, pos) + "_";
 		final String ext = fn.substring(pos);
-		CsvListReader reader = null;
+		CSVReader reader = null;
 		XDMDocumentManagement dMgr = xRepo.getDocumentManagement();
 		Properties props = new Properties();
 		props.setProperty(pn_client_storeMode, pv_client_storeMode_insert);
 		if (encoding == null) {
 			encoding = def_encoding;
 		}
+		String fileName = path.toString();
 		if (".csv".equals(ext)) {
-			reader = new CsvListReader(new InputStreamReader(new FileInputStream(fileName), encoding), CsvPreference.STANDARD_PREFERENCE);
+			reader = new CSVReader(new InputStreamReader(new FileInputStream(fileName), encoding));
 		} else if (".tsv".equals(ext)) {
-			CsvPreference pref = new CsvPreference.Builder((char) 0, '\t', "\n").maxLinesPerRow(1).build();
-			reader = new CsvListReader(new InputStreamReader(new FileInputStream(fileName), encoding), pref); 
+			CSVParser parser = new CSVParser('\t', '\0', '\0');
+			reader = new CSVReader(new InputStreamReader(new FileInputStream(fileName), encoding), 0, parser); 
 		} else {
 			String content = readTextFile(fileName, encoding);
 			XDMDocument doc = dMgr.storeDocumentFromString(fn, content, props);
 			return 1;
 		}
 
-		String[] header = reader.getHeader(true);
-		System.out.println("header: " + Arrays.toString(header));
-		List<String> h2 = new ArrayList<>(header.length);
-		for (String h: header) {
-			if (h != null) {
-				h2.add(h);
-			}
-		}
-		header = h2.toArray(new String[h2.size()]);
-		List<String> line;
+		final String[] header = reader.readNext();
+		String[] line;
 		int idx = 0;
 		int err = 0;
 		
-		//if (size > 1) {
-		//	ExecutorService exec = Executors.newFixedThreadPool(size);
-		//	while ((line = reader.read(header)) != null) {
-	    //    	String uri = name + idx + ext;
-		//		Runnable worker = new DocumentStoreThread(header, line, uri, props);
-		//		exec.execute(worker);
-		//		idx++;
-		//	}
-		//	exec.shutdown();
-		//	while (!exec.isTerminated()) {
-		//		//?
-		//	}
-		//} else {
-			while ((line = reader.read()) != null) {
+		if (size > 1) {
+			ExecutorService exec = Executors.newFixedThreadPool(size);
+			while ((line = reader.readNext()) != null) {
+	        	String uri = name + idx + ext;
+				Runnable worker = new DocumentStoreThread(header, line, uri, props);
+				exec.execute(worker);
+				idx++;
+			}
+			exec.shutdown();
+			while (!exec.isTerminated()) {
+				//?
+			}
+		} else {
+			while ((line = reader.readNext()) != null) {
 	        	String uri = name + idx + ext;
 				if (storeDocument(header, line, uri, props)) {
 		        	idx++;
@@ -307,54 +319,44 @@ public class BookingApp {
 		        	err++;
 		        }
 		    }
-		//}
+		}
 		
 		reader.close();
 		long result = (((long) idx) << 32) | (err & 0xffffffffL);
 		return result;
 	}
 	
-	private boolean storeDocument(String[] header, List<String> data, String uri, Properties props) { //throws XDMException {
-		Map<String, Object> map = line2Map(header, data);
-		if (map != null) {
-	       	try {
-	       		XDMDocument doc = xRepo.getDocumentManagement().storeDocumentFromMap(uri, map, props);
-	       		return doc != null;
-	       	} catch (XDMException ex) {
-	       		return false;
-	       	}
-		}
-		return false;
+	private boolean storeDocument(String[] header, String[] data, String uri, Properties props) { //throws XDMException {
+        Map<String, Object> map = line2Map(header, data);
+        if (map != null) {
+        	try {
+        		XDMDocument doc = xRepo.getDocumentManagement().storeDocumentFromMap(uri, map, props);
+        		return doc != null;
+        	} catch (XDMException ex) {
+        		System.out.println("failed map is: " + map);
+        		return false;
+        	}
+        }
+        return false;
 	}
 	
-	private Map<String, Object> line2Map(String[] keys, List<String> values) {
-		while (values.size() > keys.length) {
-			if (values.get(values.size() - 1) == null) {
-				values.remove(values.size() - 1);
-			} else {
-				break;
-			}
-		}
-		if (keys.length != values.size()) {
+	private Map<String, Object> line2Map(String[] keys, String[] values) {
+		if (keys.length != values.length) {
 			// throw ex?
-			System.out.println("lines do not match! header length: " + keys.length + ", record length: " + values.size());
-			if (keys.length > values.size()) {
-				System.out.println(keys[values.size() - 1] + ": " + values.get(values.size() - 1));
+			System.out.println("lines do not match! header length: " + keys.length + ", record length: " + values.length);
+			if (keys.length > values.length) {
+				System.out.println(keys[values.length - 1] + ": " + values[values.length - 1]);
+				return null;
 			}
-			return null;
 		}
 
-		//for (int i=0; i < keys.length; i++) {
-		//	System.out.println(keys[i] + ": " + values.get(i));
-		//}
-		
 		HashMap<String, Object> result = new HashMap<>(keys.length);
 		for (int i=0; i < keys.length; i++) {
 			String key = keys[i].trim();
 			if (key.length() > 0) {
-				String value = values.get(i);
+				String value = values[i];
 				// do it in the right way..
-				//value.replaceAll("&", "&amp;");
+				value = value.replaceAll("[\\u0005\\u0008\\u000b\\u0014\\u0019\\u001a\\u001c\\u001d]", "");
 				result.put(key, value);
 			}
 		}
@@ -398,11 +400,13 @@ public class BookingApp {
 
 	private class DocumentStoreThread implements Runnable {
 		
-		private Map data;
+		private String[] data;
+		private String[] header;
 		private String uri;
 		private Properties props;
 		
-		DocumentStoreThread(Map data, String uri, Properties props) {
+		DocumentStoreThread(String[] header, String[] data, String uri, Properties props) {
+			this.header = header;
 			this.data = data;
 			this.uri = uri;
 			this.props = props;
@@ -411,7 +415,7 @@ public class BookingApp {
 		@Override
 		public void run() {
 			//try {
-				storeDocument(null, null, uri, props);
+				storeDocument(header, data, uri, props);
 			//} catch (XDMException ex) {
 			//	ex.printStackTrace();
 			//}
