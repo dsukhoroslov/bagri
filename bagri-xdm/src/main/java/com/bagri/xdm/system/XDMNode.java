@@ -17,7 +17,12 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import com.bagri.xdm.common.XDMEntity;
 
-
+/**
+ * Represents a collection of options which can be applied on XDM Schema node. 
+ * 
+ * @author Denis Sukhoroslov
+ *
+ */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(namespace = "http://www.bagridb.com/xdm/system", propOrder = {
 		"name", 
@@ -25,16 +30,30 @@ import com.bagri.xdm.common.XDMEntity;
 })
 public class XDMNode extends XDMEntity {
 	
+	/**
+	 * possible roles implemented by node 
+	 */
 	@XmlType(name = "NodeRole", namespace = "http://www.bagridb.com/xdm/system")
 	@XmlEnum
 	public enum NodeRole {
 		
+		/**
+		 * administrative node
+		 */
 	    @XmlEnumValue("admin")
 		admin,
 
+		/**
+		 * cache server node
+		 */
 	    @XmlEnumValue("server")
 		server;
 		
+	    /**
+	     * 
+	     * @param role the role to check
+	     * @return true if the role nam e corresponds to administration role, false otherwise
+	     */
 		public static boolean isAdminRole(String role) {
 			return admin.name().equals(role);
 		}
@@ -47,21 +66,40 @@ public class XDMNode extends XDMEntity {
 	@XmlJavaTypeAdapter(XDMEntriesAdapter.class)
 	private Properties options = new Properties();
 
+	/**
+	 * default constructor
+	 */
 	public XDMNode() {
 		// we need it for JAXB
 		super();
 	}
 
+	/**
+	 * 
+	 * @param version the version
+	 * @param createdAt the date/time of version creation
+	 * @param createdBy the user who has created the version
+	 * @param name the node name
+	 * @param options the collection of node template options
+	 */
 	public XDMNode(int version, Date createdAt, String createdBy, String name, Properties options) {
 		super(version, createdAt, createdBy);
 		this.name = name;
 		setOptions(options);
 	}
 
+	/**
+	 * 
+	 * @return the node template name
+	 */
 	public String getName() {
 		return name;
 	}
 	
+	/**
+	 * 
+	 * @return the schema names specified in {@code xdm.cluster.node.schemas} option
+	 */
 	public String[] getSchemas() {
 		String schemas = getOption(xdm_cluster_node_schemas);
 		if (schemas != null) {
@@ -70,18 +108,36 @@ public class XDMNode extends XDMEntity {
 		return null;
 	}
 	
+	/**
+	 * 
+	 * @return node template options
+	 */
 	public Properties getOptions() {
 		return options;
 	}
 	
+	/**
+	 * 
+	 * @param key the option name
+	 * @return option value if found, null otherwise
+	 */
 	public String getOption(String key) {
 		return options.getProperty(key);
 	}
 	
+	/**
+	 * 
+	 * @param key the option name
+	 * @param value the new option value
+	 */
 	public void setOption(String key, String value) {
 		options.setProperty(key, value);
 	}
 	
+	/**
+	 * 
+	 * @param options node template options
+	 */
 	public void setOptions(Properties options) {
 		this.options.clear();
 		if (options != null) {
@@ -90,8 +146,8 @@ public class XDMNode extends XDMEntity {
 		// update version !?
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#hashCode()
+	/**
+	 * {@inheritDoc}
 	 */
 	@Override
 	public int hashCode() {
@@ -101,8 +157,8 @@ public class XDMNode extends XDMEntity {
 		return result;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#equals(java.lang.Object)
+	/**
+	 * {@inheritDoc}
 	 */
 	@Override
 	public boolean equals(Object obj) {
@@ -122,6 +178,9 @@ public class XDMNode extends XDMEntity {
 		return true;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Map<String, Object> convert() {
 		Map<String, Object> result = super.convert();
@@ -130,8 +189,8 @@ public class XDMNode extends XDMEntity {
 		return result;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
+	/**
+	 * {@inheritDoc}
 	 */
 	@Override
 	public String toString() {

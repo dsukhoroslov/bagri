@@ -1,25 +1,22 @@
 package com.bagri.xdm.system;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlID;
-import javax.xml.bind.annotation.XmlIDREF;
-import javax.xml.bind.annotation.XmlList;
 import javax.xml.bind.annotation.XmlType;
 
-import com.bagri.xdm.common.XDMEntity;
-
+/**
+ * Represents user registered to access XDM Schema.
+ * 
+ * @author Denis Sukhoroslov
+ *
+ */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(namespace = "http://www.bagridb.com/xdm/access", propOrder = {
 		"login", 
@@ -38,10 +35,24 @@ public class XDMUser extends XDMPermissionAware {
 	@XmlAttribute(required = true)
 	private boolean active;
 	
+	/**
+	 * default constructor
+	 */
 	public XDMUser() {
 		super();
 	}
 	
+	/**
+	 * 
+	 * @param version the version
+	 * @param createdAt the date/time of version creation
+	 * @param createdBy the user who has created the version
+	 * @param permissions the map of direct permissions granted to user
+	 * @param includedRoles the collection of roles granted to user
+	 * @param login the user login
+	 * @param password the user password
+	 * @param active the user active flag
+	 */
 	public XDMUser(int version, Date createdAt, String createdBy, Map<String, XDMPermission> permissions, Set<String> includedRoles,
 			String login, String password, boolean active) {
 		super(version, createdAt, createdBy, permissions, includedRoles);
@@ -67,7 +78,7 @@ public class XDMUser extends XDMPermissionAware {
 
 
 	/**
-	 * @return the active
+	 * @return the active flag
 	 */
 	public boolean isActive() {
 		return active;
@@ -75,7 +86,7 @@ public class XDMUser extends XDMPermissionAware {
 
 
 	/**
-	 * @param active the active to set
+	 * @param active the active flag new value
 	 */
 	public void setActive(boolean active) {
 		this.active = active;
@@ -83,14 +94,14 @@ public class XDMUser extends XDMPermissionAware {
 
 
 	/**
-	 * @return the login
+	 * @return the user login
 	 */
 	public String getLogin() {
 		return login;
 	}
-	
-	/* (non-Javadoc)
-	 * @see java.lang.Object#hashCode()
+
+	/**
+	 * {@inheritDoc}
 	 */
 	@Override
 	public int hashCode() {
@@ -100,9 +111,8 @@ public class XDMUser extends XDMPermissionAware {
 		return result;
 	}
 
-
-	/* (non-Javadoc)
-	 * @see java.lang.Object#equals(java.lang.Object)
+	/**
+	 * {@inheritDoc}
 	 */
 	@Override
 	public boolean equals(Object obj) {
@@ -122,6 +132,9 @@ public class XDMUser extends XDMPermissionAware {
 		return true;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Map<String, Object> convert() {
 		Map<String, Object> result = super.convert();
@@ -129,9 +142,9 @@ public class XDMUser extends XDMPermissionAware {
 		result.put("active", active);
 		return result;
 	}
-	
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
+
+	/**
+	 * {@inheritDoc}
 	 */
 	@Override
 	public String toString() {

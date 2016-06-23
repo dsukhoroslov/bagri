@@ -24,10 +24,9 @@ public class ExpressionContainerSerializer implements StreamSerializer<Expressio
 	@Override
 	public ExpressionContainer read(ObjectDataInput in) throws IOException {
 		ExpressionBuilder eBuilder = in.readObject();
-		Map<String, Object> params = null;
 		int size = in.readInt();
+		Map<String, Object> params = new HashMap<>(size);
 		if (size > 0) {
-			params = new HashMap<String, Object>(size);
 			for (int i=0; i < size; i++) {
 				params.put(in.readUTF(), in.readObject());
 			}
@@ -39,14 +38,10 @@ public class ExpressionContainerSerializer implements StreamSerializer<Expressio
 	public void write(ObjectDataOutput out, ExpressionContainer exp) throws IOException {
 		out.writeObject(exp.getExpression());
 		Map<String, Object> params = exp.getParams();
-		if (params == null) {
-			out.writeInt(0);
-		} else {
-			out.writeInt(params.size());
-			for (Map.Entry<String, Object> param: params.entrySet()) {
-				out.writeUTF(param.getKey());
-				out.writeObject(param.getValue());
-			}
+		out.writeInt(params.size());
+		for (Map.Entry<String, Object> param: params.entrySet()) {
+			out.writeUTF(param.getKey());
+			out.writeObject(param.getValue());
 		}
 	}
 

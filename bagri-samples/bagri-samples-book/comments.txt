@@ -1,0 +1,14 @@
+xdm-content   848714  2 689 538 727
+xdm-document  848714    225 640 949
+xdm-element 57482391 13 641 811 383
+
+queries:
+
+for $x in distinct-values(collection()/map/currencycode)
+return $x
+
+
+for $map in collection()/map
+let $ccy := $map/currencycode
+group by $ccy
+return <group ccy="{$ccy}" count="{count($map)}"/>

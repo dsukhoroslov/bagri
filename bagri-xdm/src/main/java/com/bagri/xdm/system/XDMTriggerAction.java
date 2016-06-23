@@ -7,6 +7,12 @@ import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlEnumValue;
 import javax.xml.bind.annotation.XmlType;
 
+/**
+ * Represents an action to be performed when trigger fires
+ * 
+ * @author Denis Sukhoroslov
+ *
+ */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(namespace = "http://www.bagridb.com/xdm/system", propOrder = {
 		"order",
@@ -14,36 +20,66 @@ import javax.xml.bind.annotation.XmlType;
 })
 public class XDMTriggerAction {
 
+	/**
+	 * Represents action ordering: will it be performed before operation happens or right after it happens. 
+	 */
 	@XmlType(name = "Order", namespace = "http://www.bagridb.com/xdm/system")
 	@XmlEnum
 	public enum Order {
 
+		/**
+		 * before operation happens
+		 */
 	    @XmlEnumValue("before")
 		before,
 
+		/**
+		 * after operation happens
+		 */
 	    @XmlEnumValue("after")
 		after
 	}
 	
+	/**
+	 * Represents action scope: the point in system lifecycle when action has to be performed
+	 */
 	@XmlType(name = "Scope", namespace = "http://www.bagridb.com/xdm/system")
 	@XmlEnum
 	public enum Scope {
 
+		/**
+		 * document inserted 
+		 */
 	    @XmlEnumValue("insert")
 		insert,
 
+		/**
+		 * document updated (versioned)
+		 */
 	    @XmlEnumValue("update")
 		update,
 
+		/**
+		 * document deleted
+		 */
 	    @XmlEnumValue("delete")
 		delete,
 
+		/**
+		 * transaction started
+		 */
 	    @XmlEnumValue("begin")
 		begin,
 
+		/**
+		 * transaction commited
+		 */
 		@XmlEnumValue("commit")
 		commit,
 		
+		/**
+		 * transaction rolled back
+		 */
 	    @XmlEnumValue("rollback")
 		rollback
 		
@@ -55,23 +91,42 @@ public class XDMTriggerAction {
 	@XmlAttribute(required = true)
 	private Order order;
 	
+	/**
+	 * default constructor
+	 */
 	public XDMTriggerAction() {
 		// for JAXB
 	}
 
+	/**
+	 * 
+	 * @param order the action order
+	 * @param scope the action scope
+	 */
 	public XDMTriggerAction(Order order, Scope scope) {
 		this.order = order;
 		this.scope = scope;
 	}
 
+	/**
+	 * 
+	 * @return the action order
+	 */
 	public Order getOrder() {
 		return order;
 	}
 
+	/**
+	 * 
+	 * @return the action scope
+	 */
 	public Scope getScope() {
 		return scope;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public int hashCode() {
 		int result = 1;
@@ -80,6 +135,9 @@ public class XDMTriggerAction {
 		return result;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {
@@ -101,6 +159,9 @@ public class XDMTriggerAction {
 		return true;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String toString() {
 		return order + " " + scope;

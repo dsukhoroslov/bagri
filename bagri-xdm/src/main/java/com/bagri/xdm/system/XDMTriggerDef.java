@@ -11,10 +11,17 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
 
 import com.bagri.xdm.common.XDMEntity;
 
+/**
+ * Represents basic trigger implementation
+ * 
+ * @author Denis Sukhoroslov
+ *
+ */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(namespace = "http://www.bagridb.com/xdm/system", propOrder = {
 		"docType",
@@ -22,6 +29,10 @@ import com.bagri.xdm.common.XDMEntity;
 		"enabled",
 		"index",
 		"actions"
+})
+@XmlSeeAlso({
+    XDMJavaTrigger.class,
+    XDMXQueryTrigger.class
 })
 public abstract class XDMTriggerDef extends XDMEntity {
 	
@@ -41,11 +52,24 @@ public abstract class XDMTriggerDef extends XDMEntity {
 	@XmlElementWrapper(name="actions")
 	private Set<XDMTriggerAction> actions = new HashSet<XDMTriggerAction>();
 	
+	/**
+	 * default constructor
+	 */
 	public XDMTriggerDef() {
 		// for JAXB
 		super();
 	}
 	
+	/**
+	 * 
+	 * @param version the version
+	 * @param createdAt the date/time of version creation
+	 * @param createdBy the user who has created the version
+	 * @param docType the document type for which trigger is registered
+	 * @param synchronous is trigger invoked synchronously or not
+	 * @param enabled the trigger enabled flag
+	 * @param index the order at which trigger will be invoked 
+	 */
 	public XDMTriggerDef(int version, Date createdAt, String createdBy, String docType, 
 			boolean synchronous, boolean enabled, int index) {
 		super(version, createdAt, createdBy);
@@ -54,21 +78,38 @@ public abstract class XDMTriggerDef extends XDMEntity {
 		this.enabled = enabled;
 		this.index = index;
 	}
-	
+
+	/**
+	 * 
+	 * @return the trigger name
+	 */
 	public abstract String getName();
 
 	public String getDocType() {
 		return docType;
 	}
 
+	/**
+	 * 
+	 * @return is trigger invoked synchronously or not
+	 */
 	public boolean isSynchronous() {
 		return synchronous;
 	}
 
+	/**
+	 * 
+	 * @return the trigger enabled flag
+	 */
 	public boolean isEnabled() {
 		return enabled;
 	}
 
+	/**
+	 * 
+	 * @param enabled the new flag value
+	 * @return true if flag has been changed, false otherwise
+	 */
 	public boolean setEnabled(boolean enabled) {
 		if (this.enabled != enabled) {
 			this.enabled = enabled;
@@ -78,30 +119,47 @@ public abstract class XDMTriggerDef extends XDMEntity {
 		return false;
 	}
 	
+	/**
+	 * 
+	 * @return the order at which trigger will be invoked
+	 */
 	public int getIndex() {
 		return index;
 	}
 	
+	/**
+	 * 
+	 * @param index the order at which trigger will be invoked
+	 */
 	public void setIndex(int index) {
 		this.index = index;
 	}
 
+	/**
+	 * 
+	 * @return a collection of trigger actions  
+	 */
 	public Set<XDMTriggerAction> getActions() {
 		return actions;
 	}
 	
+	/**
+	 * 
+	 * @param actions a collection of trigger actions
+	 */
 	public void setActions(Collection<XDMTriggerAction> actions) {
 		this.actions.clear();
 		if (actions != null) {
 			this.actions.addAll(actions);
 		}
 	}
-	
+
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Map<String, Object> convert() {
 		Map<String, Object> result = super.convert();
-		//result.put("library", library);
-		//result.put("className", className);
 		result.put("docType", docType); // can be null!
 		result.put("synchronous", synchronous); 
 		result.put("enabled", enabled);

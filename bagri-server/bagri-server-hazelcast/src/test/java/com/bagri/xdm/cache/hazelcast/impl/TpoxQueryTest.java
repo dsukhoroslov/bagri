@@ -5,12 +5,16 @@ import static com.bagri.xdm.common.XDMConstants.xdm_config_properties_file;
 import static com.bagri.xdm.common.XDMConstants.pn_baseURI;
 import static org.junit.Assert.*;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
+import javax.xml.namespace.QName;
 import javax.xml.xquery.XQItem;
 
 import org.junit.After;
@@ -322,6 +326,26 @@ public class TpoxQueryTest extends ClientQueryManagementTest {
 		text = item.getItemAsString(props);
 		assertTrue("unknown name: '" + text + "'", names.contains(text));
 		assertFalse(sec.hasNext());
+	}
+	
+	@Test
+	public void getDistinctIndustriesTest() throws Exception {
+	
+		String query = "declare namespace s=\"http://tpox-benchmark.com/security\";\n" + 
+				"for $ind in distinct-values(collection(\"CLN_Security\")/s:Security/s:SecurityInformation/*/s:Industry)\n" + 
+				"return $ind";
+		Iterator<?> ind = getQueryManagement().executeQuery(query, null, new Properties());
+		assertNotNull(ind);
+		((ResultCursor) ind).deserialize(((RepositoryImpl) xRepo).getHzInstance());
+		Properties props = new Properties();
+		props.setProperty("method", "text");
+		List<String> industries = new ArrayList<>();
+		while (ind.hasNext()) {
+			XQItem item = (XQItem) ind.next();
+			String text = item.getItemAsString(props);
+			industries.add(text);
+		}
+		assertEquals(10, industries.size());
 	}
 	
 }

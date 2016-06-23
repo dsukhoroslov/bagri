@@ -2,7 +2,6 @@ package com.bagri.xdm.system;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -16,6 +15,12 @@ import javax.xml.bind.annotation.XmlType;
 
 import com.bagri.xdm.common.XDMEntity;
 
+/**
+ * Represents external Java library containing extension functions and/or triggers.
+ * 
+ * @author Denis Sukhoroslov
+ *
+ */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(namespace = "http://www.bagridb.com/xdm/system", propOrder = {
 		"name", 
@@ -43,11 +48,24 @@ public class XDMLibrary extends XDMEntity {
 	@XmlElementWrapper(name="functions")
 	private List<XDMFunction> functions = new ArrayList<XDMFunction>();
 
+	/**
+	 * default constructor
+	 */
 	public XDMLibrary() {
 		// for JAXB
 		super();
 	}
 	
+	/**
+	 * 
+	 * @param version the version
+	 * @param createdAt the date/time of version creation
+	 * @param createdBy the user who has created the version
+	 * @param name the library name
+	 * @param fileName the library jar name
+	 * @param description the library description
+	 * @param enabled the library enable flag
+	 */
 	public XDMLibrary(int version, Date createdAt, String createdBy, String name, 
 			String fileName, String description, boolean enabled) {
 		super(version, createdAt, createdBy);
@@ -57,22 +75,43 @@ public class XDMLibrary extends XDMEntity {
 		this.enabled = enabled;
 	}
 
+	/**
+	 * 
+	 * @return the library name
+	 */
 	public String getName() {
 		return name;
 	}
 
+	/**
+	 * 
+	 * @return the library file name
+	 */
 	public String getFileName() {
 		return fileName;
 	}
 
+	/**
+	 * 
+	 * @return the library description
+	 */
 	public String getDescription() {
 		return description;
 	}
 	
+	/**
+	 * 
+	 * @return the library enable flag
+	 */
 	public boolean isEnabled() {
 		return enabled;
 	}
 
+	/**
+	 * 
+	 * @param enabled new enabled flag value
+	 * @return true if flag has been changed, false otherwise
+	 */
 	public boolean setEnabled(boolean enabled) {
 		if (this.enabled != enabled) {
 			this.enabled = enabled;
@@ -82,10 +121,17 @@ public class XDMLibrary extends XDMEntity {
 		return false;
 	}
 
+	/**
+	 * 
+	 * @return the collection of functions registered in the library
+	 */
 	public List<XDMFunction> getFunctions() {
 		return functions;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Map<String, Object> convert() {
 		Map<String, Object> result = super.convert();

@@ -1,9 +1,7 @@
 package com.bagri.xdm.system;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -18,6 +16,12 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import com.bagri.xdm.common.XDMEntity;
 
+/**
+ * Represents schema where XDM documents are stored. The base container for all other document processing entities.
+ * 
+ * @author Denis Sukhoroslov
+ *
+ */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(namespace = "http://www.bagridb.com/xdm/system", propOrder = {
 		"name", 
@@ -61,13 +65,25 @@ public class XDMSchema extends XDMEntity {
 	@XmlElementWrapper(name="triggers")
 	private Set<XDMTriggerDef> triggers = new HashSet<>();
 	
+	/**
+	 * default constructor
+	 */
 	public XDMSchema() {
 		// we need it for JAXB
 		super();
 	}
 
-	public XDMSchema(int version, Date createdAt, String createdBy, String name, 
-			String description, boolean active,	Properties props) {
+	/**
+	 * 
+	 * @param version the version
+	 * @param createdAt the date/time of version creation
+	 * @param createdBy the user who has created the version
+	 * @param name the schema name
+	 * @param description the schema description
+	 * @param active the schema active flag
+	 * @param props the schema properties
+	 */
+	public XDMSchema(int version, Date createdAt, String createdBy, String name, String description, boolean active, Properties props) {
 		super(version, createdAt, createdBy);
 		this.name = name;
 		this.description = description;
@@ -75,39 +91,77 @@ public class XDMSchema extends XDMEntity {
 		setProperties(props);
 	}
 
+	/**
+	 * 
+	 * @return the schema name
+	 */
 	public String getName() {
 		return name;
 	}
 	
+	/**
+	 * 
+	 * @return the schema description
+	 */
 	public String getDescription() {
 		return description;
 	}
 	
+	/**
+	 * 
+	 * @param description the new schema description value
+	 */
 	public void setDescription(String description) {
 		this.description = description;
 	}
 	
+	/**
+	 * 
+	 * @return the schema active flag
+	 */
 	public boolean isActive() {
 		return active;
 	}
 	
+	/**
+	 * 
+	 * @param active the new active flag value
+	 */
 	public void setActive(boolean active) {
 		this.active = active;
 		//version++;
 	}
 	
+	/**
+	 * 
+	 * @param key the schema property name
+	 * @return the schema property value, if any
+	 */
 	public String getProperty(String key) {
 		return props.getProperty(key);
 	}
 	
+	/**
+	 * 
+	 * @return the schema properties
+	 */
 	public Properties getProperties() {
 		return props; //new Properties(props); // Collections.unmodifiableMap(props);
 	}
 	
+	/**
+	 * 
+	 * @param key the schema property name
+	 * @param value the new schema property value
+	 */
 	public void setProperty(String key, String value) {
 		props.setProperty(key, value);
 	}
 	
+	/**
+	 * 
+	 * @param props the schema properties
+	 */
 	public void setProperties(Properties props) {
 		this.props.clear();
 		if (props != null) {
@@ -115,14 +169,29 @@ public class XDMSchema extends XDMEntity {
 		}
 	}
 	
+	/**
+	 * 
+	 * @return the XDM collections registered in the schema
+	 */
 	public Set<XDMCollection> getCollections() {
 		return collections;
 	}
 	
+	/**
+	 * 
+	 * @param collection the new collection to register in schema
+	 * @return true if collection has been added, false otherwise
+	 */
 	public boolean addCollection(XDMCollection collection) {
 		return collections.add(collection);
 	}
 	
+	/**
+	 * 
+	 * @param name the name of schema collection to enable
+	 * @param enable the new enable value
+	 * @return true if the collection enable flag has been changed, false otherwise
+	 */
 	public boolean enableCollection(String name, boolean enable) {
 		for (XDMCollection collection: collections) {
 			if (name.equals(collection.getName())) {
@@ -132,6 +201,11 @@ public class XDMSchema extends XDMEntity {
 		return false;
 	}
 
+	/**
+	 * 
+	 * @param name the name of the collection to search for
+	 * @return the XDM collection instance if it is found, null otherwise
+	 */
 	public XDMCollection getCollection(String name) {
 		for (XDMCollection collection: collections) {
 			if (name.equals(collection.getName())) {
@@ -141,6 +215,11 @@ public class XDMSchema extends XDMEntity {
 		return null;
 	}
 	
+	/**
+	 * 
+	 * @param collectId the XDM collection id
+	 * @return true if the schema contains collection with id provided, false otherwise
+	 */
 	public boolean hasCollection(int collectId) {
 		for (XDMCollection collection: collections) {
 			if (collectId == collection.getId()) {
@@ -150,6 +229,11 @@ public class XDMSchema extends XDMEntity {
 		return false;
 	}
 
+	/**
+	 * 
+	 * @param name the name of the collection to remove from schema
+	 * @return true if collection has been removed, false otherwise
+	 */
 	public XDMCollection removeCollection(String name) {
 		for (XDMCollection collection: collections) {
 			if (name.equals(collection.getName())) {
@@ -162,14 +246,29 @@ public class XDMSchema extends XDMEntity {
 		return null;
 	}
 	
+	/**
+	 * 
+	 * @return XDM fragments registered in schema
+	 */
 	public Set<XDMFragment> getFragments() {
 		return fragments;
 	}
-	
+
+	/**
+	 * 
+	 * @param fragment the new fragment to register in schema
+	 * @return true if fragment has been added, false otherwise
+	 */
 	public boolean addFragment(XDMFragment fragment) {
 		return fragments.add(fragment);
 	}
 	
+	/**
+	 * 
+	 * @param name the name of schema fragment to enable
+	 * @param enable the new enable value
+	 * @return true if the fragment enable flag has been changed, false otherwise
+	 */
 	public boolean enableFragment(String name, boolean enable) {
 		for (XDMFragment fragment: fragments) {
 			if (name.equals(fragment.getName())) {
@@ -179,6 +278,11 @@ public class XDMSchema extends XDMEntity {
 		return false;
 	}
 
+	/**
+	 * 
+	 * @param name the name of the fragment to search for
+	 * @return the XDM fragment instance if it is found, null otherwise
+	 */
 	public XDMFragment getFragment(String name) {
 		for (XDMFragment fragment: fragments) {
 			if (name.equals(fragment.getName())) {
@@ -188,6 +292,11 @@ public class XDMSchema extends XDMEntity {
 		return null;
 	}
 
+	/**
+	 * 
+	 * @param name the name of the fragment to remove from schema
+	 * @return true if fragment has been removed, false otherwise
+	 */
 	public XDMFragment removeFragment(String name) {
 		for (XDMFragment fragment: fragments) {
 			if (name.equals(fragment.getName())) {
@@ -200,14 +309,29 @@ public class XDMSchema extends XDMEntity {
 		return null;
 	}
 	
+	/**
+	 * 
+	 * @return XDM indices registered in schema
+	 */
 	public Set<XDMIndex> getIndexes() {
 		return indexes;
 	}
-	
+
+	/**
+	 * 
+	 * @param index the new index to register in schema
+	 * @return true if index has been added, false otherwise
+	 */
 	public boolean addIndex(XDMIndex index) {
 		return indexes.add(index);
 	}
-	
+
+	/**
+	 * 
+	 * @param name the name of schema index to enable
+	 * @param enable the new enable value
+	 * @return true if the index enable flag has been changed, false otherwise
+	 */
 	public boolean enableIndex(String name, boolean enable) {
 		for (XDMIndex index: indexes) {
 			if (name.equals(index.getName())) {
@@ -217,6 +341,11 @@ public class XDMSchema extends XDMEntity {
 		return false;
 	}
 
+	/**
+	 * 
+	 * @param name the name of the index to search for
+	 * @return the XDM index instance if it is found, null otherwise
+	 */
 	public XDMIndex getIndex(String name) {
 		for (XDMIndex index: indexes) {
 			if (name.equals(index.getName())) {
@@ -226,6 +355,11 @@ public class XDMSchema extends XDMEntity {
 		return null;
 	}
 
+	/**
+	 * 
+	 * @param name the name of the index to remove from schema
+	 * @return true if index has been removed, false otherwise
+	 */
 	public XDMIndex removeIndex(String name) {
 		for (XDMIndex index: indexes) {
 			if (name.equals(index.getName())) {
@@ -238,14 +372,29 @@ public class XDMSchema extends XDMEntity {
 		return null;
 	}
 	
+	/**
+	 * 
+	 * @return XDM triggers registered in schema
+	 */
 	public Set<XDMTriggerDef> getTriggers() {
 		return triggers;
 	}
 	
+	/**
+	 * 
+	 * @param trigger the new trigger to register in schema
+	 * @return true if trigger has been added, false otherwise
+	 */
 	public boolean addTrigger(XDMTriggerDef trigger) {
 		return triggers.add(trigger);
 	}
 	
+	/**
+	 * 
+	 * @param name the name of schema trigger to enable
+	 * @param enable the new enable value
+	 * @return true if the trigger enable flag has been changed, false otherwise
+	 */
 	public boolean enableTrigger(String name, boolean enable) {
 		for (XDMTriggerDef trigger: triggers) {
 			if (name.equals(trigger.getName())) {
@@ -255,6 +404,11 @@ public class XDMSchema extends XDMEntity {
 		return false;
 	}
 
+	/**
+	 * 
+	 * @param name the name of the trigger to search for
+	 * @return the XDM trigger instance if it is found, null otherwise
+	 */
 	public XDMTriggerDef getTrigger(String name) {
 		for (XDMTriggerDef trigger: triggers) {
 			if (name.equals(trigger.getName())) {
@@ -264,6 +418,11 @@ public class XDMSchema extends XDMEntity {
 		return null;
 	}
 
+	/**
+	 * 
+	 * @param name the name of the trigger to remove from schema
+	 * @return true if trigger has been removed, false otherwise
+	 */
 	public XDMTriggerDef removeTrigger(String name) {
 		for (XDMTriggerDef trigger: triggers) {
 			if (name.equals(trigger.getName())) {
@@ -276,11 +435,17 @@ public class XDMSchema extends XDMEntity {
 		return null;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public int hashCode() {
 		return 31 + name.hashCode();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {
@@ -296,6 +461,9 @@ public class XDMSchema extends XDMEntity {
 		return name.equals(other.name);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Map<String, Object> convert() {
 		Map<String, Object> result = super.convert();
@@ -310,6 +478,9 @@ public class XDMSchema extends XDMEntity {
 		return result;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String toString() {
 		return "XDMSchema [name=" + name + ", version=" + getVersion() + 

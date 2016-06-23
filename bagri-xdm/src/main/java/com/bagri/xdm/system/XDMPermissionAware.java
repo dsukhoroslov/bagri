@@ -10,15 +10,26 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlList;
+import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import com.bagri.xdm.common.XDMEntity;
 
+/**
+ * Represents basic entity which can be granted some direct permissions and indirect roles.
+ * 
+ * @author Denis Sukhoroslov
+ *
+ */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(namespace = "http://www.bagridb.com/xdm/access", propOrder = {
 		"permissions",
 		"includedRoles"
+})
+@XmlSeeAlso({
+    XDMRole.class,
+    XDMUser.class
 })
 public abstract class XDMPermissionAware extends XDMEntity {
 
@@ -30,20 +41,39 @@ public abstract class XDMPermissionAware extends XDMEntity {
 	@XmlList
 	private Set<String> includedRoles = new HashSet<String>();
 	
+	/**
+	 * default constructor
+	 */
 	public XDMPermissionAware() {
 		super();
 	}
 	
+	/**
+	 * 
+	 * @param version the version
+	 * @param createdAt the date/time of version creation
+	 * @param createdBy the user who has created the version
+	 * @param permissions the map of direct permissions granted to user
+	 * @param includedRoles the collection of roles granted to user
+	 */
 	public XDMPermissionAware(int version, Date createdAt, String createdBy, Map<String, XDMPermission> permissions, Set<String> includedRoles) {
 		super(version, createdAt, createdBy);
 		setPermissions(permissions);
 		setIncludedRoles(includedRoles);
 	}
-	
+
+	/**
+	 * 
+	 * @return the map of direct permissions granted to the entity
+	 */
 	public Map<String, XDMPermission> getPermissions() {
 		return permissions;
 	}
 	
+	/**
+	 * 
+	 * @return the full map permissions granted to entity directly or via roles
+	 */
 	public Map<String, Object> getFlatPermissions() {
 		Map<String, Object> perms = new HashMap<String, Object>(permissions.size());
 		for (Map.Entry<String, XDMPermission> e: permissions.entrySet()) {
@@ -52,10 +82,18 @@ public abstract class XDMPermissionAware extends XDMEntity {
 		return perms;
 	}
 	
+	/**
+	 * 
+	 * @return the collection of roles granted to the entity
+	 */
 	public Set<String> getIncludedRoles() {
 		return includedRoles;
 	}
 	
+	/**
+	 * 
+	 * @param permissions the map of direct permissions granted to the entity
+	 */
 	public void setPermissions(Map<String, XDMPermission> permissions) {
 		this.permissions.clear();
 		if (permissions != null) {
@@ -63,6 +101,10 @@ public abstract class XDMPermissionAware extends XDMEntity {
 		}
 	}
 	
+	/**
+	 * 
+	 * @param includedRoles the collection of roles granted to the entity
+	 */
 	public void setIncludedRoles(Set<String> includedRoles) {
 		this.includedRoles.clear();
 		if (includedRoles != null) {
@@ -70,14 +112,30 @@ public abstract class XDMPermissionAware extends XDMEntity {
 		}
 	}
 	
+	/**
+	 * 
+	 * @param role the role to add into the entity roles collection 
+	 * @return true if the role has been added, false otherwise
+	 */
 	public boolean addIncludedRole(String role) {
 		return includedRoles.add(role);
 	}
 	
+	/**
+	 * 
+	 * @param role the role to remove from the entity roles collection
+	 * @return true if the role has been removed, false otherwise
+	 */
 	public boolean removeIncludedRole(String role) {
 		return includedRoles.remove(role);
 	}
 
+	/**
+	 * 
+	 * @param resource the resource to grant permission on
+	 * @param permission the permission to add into the entity permissions map
+	 * @return true if the permission has been added, false otherwise
+	 */
 	public boolean addPermission(String resource, XDMPermission.Permission permission) {
 		XDMPermission perm = permissions.get(resource);
 		if (perm == null) {
@@ -87,6 +145,12 @@ public abstract class XDMPermissionAware extends XDMEntity {
 		return perm.addPermission(permission);
 	}
 	
+	/**
+	 * 
+	 * @param resource the resource to revoke permission from
+	 * @param permission the permission to remove from the entity permissions map
+	 * @return true if the permission has been removed, false otherwise
+	 */
 	public boolean removePermission(String resource, XDMPermission.Permission permission) {
 		XDMPermission perm = permissions.get(resource);
 		if (perm != null) {
@@ -104,6 +168,9 @@ public abstract class XDMPermissionAware extends XDMEntity {
 		return false;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Map<String, Object> convert() {
 		Map<String, Object> result = super.convert();

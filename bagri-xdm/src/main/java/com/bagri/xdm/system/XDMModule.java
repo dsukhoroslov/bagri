@@ -14,6 +14,12 @@ import javax.xml.bind.annotation.XmlType;
 
 import com.bagri.xdm.common.XDMEntity;
 
+/**
+ * Represents external XQuery module containing extension functions and/or triggers
+ * 
+ * @author Denis Sukhoroslov
+ *
+ */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(namespace = "http://www.bagridb.com/xdm/system", propOrder = {
 		"name", 
@@ -43,11 +49,26 @@ public class XDMModule extends XDMEntity {
 	@XmlElement(required = false, defaultValue = "true")
 	private boolean enabled = true;
 
+	/**
+	 * default constructor
+	 */
 	public XDMModule() {
 		// for JAXB
 		super();
 	}
 	
+	/**
+	 * 
+	 * @param version the version
+	 * @param createdAt the date/time of version creation
+	 * @param createdBy the user who has created the version
+	 * @param name the module name
+	 * @param fileName the module file name
+	 * @param description the module description
+	 * @param namespace the module namespace
+	 * @param body the module definition body
+	 * @param enabled the module enable flag
+	 */
 	public XDMModule(int version, Date createdAt, String createdBy, String name, 
 			String fileName, String description, String namespace, String body, boolean enabled) {
 		super(version, createdAt, createdBy);
@@ -59,30 +80,59 @@ public class XDMModule extends XDMEntity {
 		this.enabled = enabled;
 	}
 
+	/**
+	 * 
+	 * @return the module name
+	 */
 	public String getName() {
 		return name;
 	}
 
+	/**
+	 * 
+	 * @return the module file name
+	 */
 	public String getFileName() {
 		return fileName;
 	}
 
+	/**
+	 * 
+	 * @return the module description
+	 */
 	public String getDescription() {
 		return description;
 	}
 	
+	/**
+	 * 
+	 * @return the module namespace
+	 */
 	public String getNamespace() {
 		return namespace;
 	}
 
+	/**
+	 * 
+	 * @return the module definition body
+	 */
 	public String getBody() {
 		return body;
 	}
 
+	/**
+	 * 
+	 * @return the module enabled flag
+	 */
 	public boolean isEnabled() {
 		return enabled;
 	}
 
+	/**
+	 * 
+	 * @param enabled new enabled flag value
+	 * @return true if flag has been changed, false otherwise
+	 */
 	public boolean setEnabled(boolean enabled) {
 		if (this.enabled != enabled) {
 			this.enabled = enabled;
@@ -92,16 +142,26 @@ public class XDMModule extends XDMEntity {
 		return false;
 	}
 
+	/**
+	 * 
+	 * @param body the new module definition body 
+	 */
 	public void setBody(String body) {
 		this.body = body;
 		//this.updateVersion("???");
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public int hashCode() {
 		return name.hashCode();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {
@@ -117,6 +177,9 @@ public class XDMModule extends XDMEntity {
 		return name.equals(other.name); 
 	}
 	
+	/**
+	 * {@inheritDoc} 
+	 */
 	@Override
 	public Map<String, Object> convert() {
 		Map<String, Object> result = super.convert();
@@ -129,6 +192,9 @@ public class XDMModule extends XDMEntity {
 		return result;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String toString() {
 		return "XDMModule [name=" + name + ", version=" + getVersion()

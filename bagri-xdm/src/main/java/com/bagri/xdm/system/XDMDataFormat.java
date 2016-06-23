@@ -147,7 +147,7 @@ public class XDMDataFormat extends XDMEntity {
 	 * adds data format extension 
 	 * 
 	 * @param extension the file extension like xml, json, etc..
-	 * @return
+	 * @return true if extension has been added, false otherwise
 	 */
 	public boolean addExtension(String extension) {
 		return extensions.add(extension);
@@ -157,7 +157,7 @@ public class XDMDataFormat extends XDMEntity {
 	 * removes data format extension
 	 * 
 	 * @param extension the file extension like xml, json, etc..
-	 * @return
+	 * @return true if extension has been removed, false otherwise
 	 */
 	public boolean removeExtension(String extension) {
 		return extensions.remove(extension);

@@ -15,6 +15,12 @@ import javax.xml.namespace.QName;
 
 import com.bagri.xdm.common.XDMEntity;
 
+/**
+ * Represents index registered in XDM schema.
+ * 
+ * @author Denis Sukhoroslov
+ *
+ */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(namespace = "http://www.bagridb.com/xdm/system", propOrder = {
 		"name", 
@@ -60,11 +66,30 @@ public class XDMIndex extends XDMEntity {
 	@XmlElement(required = false, defaultValue = "true")
 	private boolean enabled = true;
 
+	/**
+	 * default constructor
+	 */
 	public XDMIndex() {
 		// for JAXB
 		super();
 	}
 	
+	/**
+	 * 
+	 * @param version the version
+	 * @param createdAt the date/time of version creation
+	 * @param createdBy the user who has created the version
+	 * @param name the index name
+	 * @param docType the type of document to be used by index
+	 * @param typePath
+	 * @param path the XPath to the value to be indexed
+	 * @param dataType the XML type of the value to be indexed
+	 * @param caseSensitive is index case-sensitive or not
+	 * @param range is it a range index or not
+	 * @param unique is it unique index or not
+	 * @param description the index description
+	 * @param enabled the index enabled flag
+	 */
 	public XDMIndex(int version, Date createdAt, String createdBy, String name, 
 			String docType, String typePath, String path, QName dataType, boolean caseSensitive, boolean range, boolean unique, 
 			String description, boolean enabled) {
@@ -81,46 +106,91 @@ public class XDMIndex extends XDMEntity {
 		this.enabled = enabled;
 	}
 
+	/**
+	 * 
+	 * @return the index name
+	 */
 	public String getName() {
 		return name;
 	}
 
+	/**
+	 * 
+	 * @return the index description
+	 */
 	public String getDescription() {
 		return description;
 	}
 	
+	/**
+	 * 
+	 * @return the type of document to be used by index
+	 */
 	public String getDocumentType() {
 		return docType;
 	}
 
+	/**
+	 * 
+	 * @return ??
+	 */
 	public String getTypePath() {
 		return typePath;
 	}
 
+	/**
+	 * 
+	 * @return the XPath to the value to be indexed
+	 */
 	public String getPath() {
 		return path;
 	}
 	
+	/**
+	 * 
+	 * @return the XML type of the value to be indexed. See XML Schema (XSD) types for more details
+	 */
 	public QName getDataType() {
 		return dataType;
 	}
 	
+	/**
+	 * 
+	 * @return is index case-sensitive or not
+	 */
 	public boolean isCaseSensitive() {
 		return caseSensitive;
 	}
 
+	/**
+	 * 
+	 * @return the index enabled flag
+	 */
 	public boolean isEnabled() {
 		return enabled;
 	}
 	
+	/**
+	 * 
+	 * @return is index compatible to be used in range queries or not
+	 */
 	public boolean isRange() {
 		return range;
 	}
 
+	/**
+	 * 
+	 * @return is index controls data uniqueness for the indexed values
+	 */
 	public boolean isUnique() {
 		return unique;
 	}
 
+	/**
+	 * 
+	 * @param enabled new enabled flag value
+	 * @return true if flag has been changed, false otherwise
+	 */
 	public boolean setEnabled(boolean enabled) {
 		if (this.enabled != enabled) {
 			this.enabled = enabled;
@@ -130,11 +200,17 @@ public class XDMIndex extends XDMEntity {
 		return false;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public int hashCode() {
 		return name.hashCode();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {
@@ -150,6 +226,9 @@ public class XDMIndex extends XDMEntity {
 		return name.equals(other.name); 
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Map<String, Object> convert() {
 		Map<String, Object> result = super.convert();
@@ -165,6 +244,9 @@ public class XDMIndex extends XDMEntity {
 		return result;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String toString() {
 		return "XDMIndex [name=" + name + ", version=" + getVersion()

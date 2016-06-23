@@ -111,7 +111,7 @@
                                     <descriptors>
                                         <descriptor>src/main/assembly/xqj-driver.xml</descriptor>
                                         <descriptor>src/main/assembly/hazelcast.xml</descriptor>
-                                        <!--descriptor>src/main/assembly/hazelcast-test.xml</descriptor-->
+                                        <descriptor>src/main/assembly/hazelcast-test.xml</descriptor>
                                     </descriptors>
                                 </configuration>
                             </execution>

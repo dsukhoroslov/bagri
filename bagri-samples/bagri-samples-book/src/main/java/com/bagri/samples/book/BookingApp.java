@@ -22,6 +22,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -298,11 +299,12 @@ public class BookingApp {
 		int idx = 0;
 		int err = 0;
 		
+		System.out.println("going to process file: " + fileName);
 		if (size > 1) {
 			ExecutorService exec = Executors.newFixedThreadPool(size);
 			while ((line = reader.readNext()) != null) {
 	        	String uri = name + idx + ext;
-				Runnable worker = new DocumentStoreThread(header, line, uri, props);
+				Runnable worker = new DocumentStoreThread(idx, header, line, uri, props);
 				exec.execute(worker);
 				idx++;
 			}
@@ -313,7 +315,7 @@ public class BookingApp {
 		} else {
 			while ((line = reader.readNext()) != null) {
 	        	String uri = name + idx + ext;
-				if (storeDocument(header, line, uri, props)) {
+				if (storeDocument(idx + err, header, line, uri, props)) {
 		        	idx++;
 		        } else {
 		        	err++;
@@ -323,20 +325,22 @@ public class BookingApp {
 		
 		reader.close();
 		long result = (((long) idx) << 32) | (err & 0xffffffffL);
+		System.out.println("file " + fileName + " processed; added records: " + idx + ", skipped records: " + err);
 		return result;
 	}
 	
-	private boolean storeDocument(String[] header, String[] data, String uri, Properties props) { //throws XDMException {
+	private boolean storeDocument(int idx, String[] header, String[] data, String uri, Properties props) { //throws XDMException {
         Map<String, Object> map = line2Map(header, data);
         if (map != null) {
         	try {
         		XDMDocument doc = xRepo.getDocumentManagement().storeDocumentFromMap(uri, map, props);
         		return doc != null;
         	} catch (XDMException ex) {
-        		System.out.println("failed map is: " + map);
+        		System.out.println("failed map is: " + map + ". record idx is: " + (idx + 2));
         		return false;
         	}
         }
+		System.out.println("was not able convert record to map. record idx is: " + (idx + 2));
         return false;
 	}
 	
@@ -344,10 +348,12 @@ public class BookingApp {
 		if (keys.length != values.length) {
 			// throw ex?
 			System.out.println("lines do not match! header length: " + keys.length + ", record length: " + values.length);
-			if (keys.length > values.length) {
-				System.out.println(keys[values.length - 1] + ": " + values[values.length - 1]);
+			System.out.println("keys: " + Arrays.toString(keys));
+			System.out.println("values: " + Arrays.toString(values));
+			//if (keys.length > values.length) {
+			//	System.out.println(keys[values.length - 1] + ": " + values[values.length - 1]);
 				return null;
-			}
+			//}
 		}
 
 		HashMap<String, Object> result = new HashMap<>(keys.length);
@@ -356,7 +362,7 @@ public class BookingApp {
 			if (key.length() > 0) {
 				String value = values[i];
 				// do it in the right way..
-				value = value.replaceAll("[\\u0005\\u0008\\u000b\\u0014\\u0019\\u001a\\u001c\\u001d]", "");
+				value = value.replaceAll("[\\u0001\\u0003\\u0005\\u0008\\u000b\\u0010\\u0011\\u0014\\u0019\\u001a\\u001b\\u001c\\u001d\\u001e\\u001f]", "");
 				result.put(key, value);
 			}
 		}
@@ -399,13 +405,15 @@ public class BookingApp {
 	
 
 	private class DocumentStoreThread implements Runnable {
-		
+
+		private int idx;
 		private String[] data;
 		private String[] header;
 		private String uri;
 		private Properties props;
 		
-		DocumentStoreThread(String[] header, String[] data, String uri, Properties props) {
+		DocumentStoreThread(int idx, String[] header, String[] data, String uri, Properties props) {
+			this.idx = idx;
 			this.header = header;
 			this.data = data;
 			this.uri = uri;
@@ -415,7 +423,7 @@ public class BookingApp {
 		@Override
 		public void run() {
 			//try {
-				storeDocument(header, data, uri, props);
+				storeDocument(idx, header, data, uri, props);
 			//} catch (XDMException ex) {
 			//	ex.printStackTrace();
 			//}

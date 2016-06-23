@@ -77,7 +77,8 @@ start() {
 
         JAVA_OPTS="${JAVA_OPTS} -showversion"
         JAVA_OPTS="${JAVA_OPTS} -server"
-        ${JAVA_HOME}/bin/java ${JAVA_OPTS} "${main}" </dev/null >>"${stdoutfile}" 2>>"${stderrfile}" &
+#        ${JAVA_HOME}/bin/java ${JAVA_OPTS} "${main}" </dev/null >>"${stdoutfile}" 2>>"${stderrfile}" &
+        java ${JAVA_OPTS} "${main}" </dev/null >>"${stdoutfile}" 2>>"${stderrfile}" &
         echo $! >"${pidfile}"
 
         status

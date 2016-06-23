@@ -5,8 +5,17 @@ import java.util.Map;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
+/**
+ * The adapter converting Collection of permissions to Map of permissions
+ * 
+ * @author Denis Sukhoroslov
+ *
+ */
 public class XDMPermissionsAdapter extends XmlAdapter<XDMPermissions, Map<String, XDMPermission>> {
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public XDMPermissions marshal(Map<String, XDMPermission> perms) throws Exception {
 	    XDMPermissions xdmPerms = new XDMPermissions();
@@ -16,6 +25,9 @@ public class XDMPermissionsAdapter extends XmlAdapter<XDMPermissions, Map<String
 	    return xdmPerms;	
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Map<String, XDMPermission> unmarshal(XDMPermissions xdmPerms) throws Exception {
 		Map<String, XDMPermission> perms = new HashMap<String, XDMPermission>();

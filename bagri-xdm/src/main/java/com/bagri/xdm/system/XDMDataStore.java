@@ -52,6 +52,9 @@ public class XDMDataStore extends XDMEntity {
 	@XmlJavaTypeAdapter(XDMEntriesAdapter.class)
 	private Properties props = new Properties();
 	
+	/**
+	 * default constructor
+	 */
 	public XDMDataStore() {
 		// for JAXB
 		super();
