@@ -1,29 +1,51 @@
 package com.bagri.xdm.common;
 
+/**
+ * The key is used for cached query results. Consists of query hash and parameters hash. 
+ * 
+ * @author Denis Sukhoroslov
+ *
+ */
 public class XDMResultsKey {
 
 	protected int queryHash;
 	protected long paramsHash;
 	
+	/**
+	 * default constructor
+	 */
 	public XDMResultsKey() {
 		//
 	}
 	
+	/**
+	 * 
+	 * @param queryHash the query string hash
+	 * @param paramsHash the query parameters hash
+	 */
 	public XDMResultsKey(int queryHash, long paramsHash) {
 		this.queryHash = queryHash;
 		this.paramsHash = paramsHash;
 	}
 	
+	/**
+	 * 
+	 * @return teh query string hash
+	 */
 	public int getQueryHash() {
 		return queryHash;
 	}
 	
+	/**
+	 * 
+	 * @return the query parameters hash
+	 */
 	public long getParamsHash() {
 		return paramsHash;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#hashCode()
+	/**
+	 * {@inheritDoc}
 	 */
 	@Override
 	public int hashCode() {
@@ -34,8 +56,8 @@ public class XDMResultsKey {
 		return result;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#equals(java.lang.Object)
+	/**
+	 * {@inheritDoc}
 	 */
 	@Override
 	public boolean equals(Object obj) {
@@ -58,8 +80,8 @@ public class XDMResultsKey {
 		return true;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
+	/**
+	 * {@inheritDoc}
 	 */
 	@Override
 	public String toString() {

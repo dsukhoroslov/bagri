@@ -1,5 +1,11 @@
 package com.bagri.xdm.common;
 
+/**
+ * Connection (client-side) and configuration (server-side) properties and standard values.
+ * 
+ * @author Denis Sukhoroslov
+ *
+ */
 public class XDMConstants {
 
 	// XDM Client configuration constants

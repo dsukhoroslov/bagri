@@ -1,23 +1,45 @@
 package com.bagri.xdm.common;
 
+/**
+ * The pair of internal (long) document key representation and XDM path identifier. 
+ * 
+ * @author Denis Sukhoroslov
+ *
+ */
 public class XDMDataKey {
 	
 	protected long documentKey;
 	protected int pathId;
 	
+	/**
+	 * default constructor
+	 */
 	public XDMDataKey() {
 		//
 	}
 	
+	/**
+	 * 
+	 * @param documentKey the internal document key
+	 * @param pathId the XDM path identifier
+	 */
 	public XDMDataKey(long documentKey, int pathId) {
 		this.documentKey = documentKey;
 		this.pathId = pathId;
 	}
 	
+	/**
+	 * 
+	 * @return the internal document key
+	 */
 	public long getDocumentKey() {
 		return documentKey;
 	}
 
+	/**
+	 * 
+	 * @return the XDM path identifier
+	 */
 	public int getPathId() {
 		return pathId;
 	}

@@ -10,7 +10,12 @@ import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.domain.XDMData;
 import com.bagri.xdm.domain.XDMNodeKind;
 
-// not sure, why do we need this class at all..
+/**
+ * Base server-side document management component implementation. 
+ * 
+ * @author Denis Sukhoroslov
+ *
+ */
 public abstract class DocumentManagementBase extends com.bagri.xdm.api.impl.DocumentManagementBase  {
 
 	protected XDMModelManagement model;

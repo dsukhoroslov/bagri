@@ -19,15 +19,20 @@ import com.bagri.xdm.system.XDMDataStore;
 import com.bagri.xdm.system.XDMFragment;
 import com.bagri.xdm.system.XDMIdentity;
 import com.bagri.xdm.system.XDMIndex;
-import com.bagri.xdm.system.XDMJavaTrigger;
 import com.bagri.xdm.system.XDMLibrary;
 import com.bagri.xdm.system.XDMModule;
 import com.bagri.xdm.system.XDMNode;
 import com.bagri.xdm.system.XDMRole;
 import com.bagri.xdm.system.XDMSchema;
+import com.bagri.xdm.system.XDMTriggerDef;
 import com.bagri.xdm.system.XDMUser;
-import com.bagri.xdm.system.XDMXQueryTrigger;
 
+/**
+ * Represents the basic configurable XDM schema entity. All configuration changes are stored and can be reviewed later on.  
+ * 
+ * @author Denis Sukhoroslov
+ *
+ */
 @XmlAccessorType(XmlAccessType.FIELD)
 //@XmlType(namespace = "http://www.bagridb.com/xdm/system",	propOrder = {
 @XmlType(propOrder = {
@@ -43,8 +48,7 @@ import com.bagri.xdm.system.XDMXQueryTrigger;
     XDMCollection.class,
     XDMFragment.class,
     XDMIndex.class,
-    XDMJavaTrigger.class,
-    XDMXQueryTrigger.class,
+    XDMTriggerDef.class,
     //XDMIdentity.class,
     XDMRole.class,
     XDMUser.class,
@@ -63,10 +67,19 @@ public abstract class XDMEntity implements Convertable<Map<String, Object>>, Ver
 	@XmlElement(required = true)
 	private String createdBy;
 	
+	/**
+	 * default constructor
+	 */
 	public XDMEntity() {
 		// ...
 	}
 	
+	/**
+	 * 
+	 * @param version the version
+	 * @param createdAt the date/time of version creation
+	 * @param createdBy the user who has created the version
+	 */
 	public XDMEntity(int version, Date createdAt, String createdBy) {
 		this.version = version;
 		// todo: think about other Date implementation, joda date, for instance..
@@ -74,21 +87,33 @@ public abstract class XDMEntity implements Convertable<Map<String, Object>>, Ver
 		this.createdBy = createdBy;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public int getVersion() {
 		return version;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Date getCreatedAt() {
 		return new Date(createdAt.getTime());
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String getCreatedBy() {
 		return createdBy;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Map<String, Object> convert() {
 		Map<String, Object> result = new HashMap<>();
@@ -98,6 +123,9 @@ public abstract class XDMEntity implements Convertable<Map<String, Object>>, Ver
 		return result;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void updateVersion(String by) {
 		version++;

@@ -12,3 +12,5 @@ for $map in collection()/map
 let $ccy := $map/currencycode
 group by $ccy
 return <group ccy="{$ccy}" count="{count($map)}"/>
+
+distrubuted testing: docker! blockade, jepsen

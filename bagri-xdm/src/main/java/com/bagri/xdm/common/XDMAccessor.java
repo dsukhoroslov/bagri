@@ -4,6 +4,14 @@ import java.util.Collection;
 
 import javax.xml.namespace.QName;
 
+/**
+ * The XDM accessor interface as defined in <a href="https://www.w3.org/TR/xpath-datamodel/">XDM W3C spec</a>
+ * 
+ * For future use, no real implementers yet
+ * 
+ * @author Denis Sukhoroslov
+ *
+ */
 public interface XDMAccessor {
 	
 	Collection<XDMAccessor> getAttributes();
