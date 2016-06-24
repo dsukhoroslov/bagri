@@ -1,12 +1,12 @@
 package com.bagri.xdm.cache.hazelcast.impl;
 
-import static com.bagri.common.query.PathBuilder.*;
 import static com.bagri.common.util.FileUtils.def_encoding;
 import static com.bagri.common.util.XMLUtils.*;
 import static com.bagri.xdm.common.XDMConstants.*;
 import static com.bagri.xdm.api.XDMTransactionManagement.TX_NO;
 import static com.bagri.xdm.cache.api.XDMCacheConstants.PN_XDM_SCHEMA_POOL;
 import static com.bagri.xdm.common.XDMConstants.pn_client_txTimeout;
+import static com.bagri.xdm.common.query.PathBuilder.*;
 import static com.bagri.xdm.domain.XDMDocument.dvFirst;
 import static com.bagri.xdm.domain.XDMDocument.clnDefault;
 import static com.bagri.xdm.system.XDMDataFormat.df_xml;
@@ -35,7 +35,6 @@ import java.util.concurrent.TimeUnit;
 import javax.xml.transform.Source;
 
 import com.bagri.common.idgen.IdGenerator;
-import com.bagri.common.query.Comparison;
 import com.bagri.common.stats.StatisticsEvent;
 import com.bagri.common.util.PropUtils;
 import com.bagri.xdm.api.XDMException;
@@ -47,6 +46,7 @@ import com.bagri.xdm.common.XDMDataKey;
 import com.bagri.xdm.common.XDMDocumentKey;
 import com.bagri.xdm.common.XDMKeyFactory;
 import com.bagri.xdm.common.XDMParser;
+import com.bagri.xdm.common.query.Comparison;
 import com.bagri.xdm.domain.XDMData;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMElement;

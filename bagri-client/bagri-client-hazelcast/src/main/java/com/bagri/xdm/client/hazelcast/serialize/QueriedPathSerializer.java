@@ -4,7 +4,7 @@ import static com.bagri.common.util.CollectionUtils.*;
 
 import java.io.IOException;
 
-import com.bagri.common.query.QueriedPath;
+import com.bagri.xdm.common.query.QueriedPath;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.StreamSerializer;

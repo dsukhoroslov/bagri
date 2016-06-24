@@ -1,4 +1,4 @@
-package com.bagri.common.query;
+package com.bagri.xdm.common.query;
 
 import java.util.HashMap;
 import java.util.Map;

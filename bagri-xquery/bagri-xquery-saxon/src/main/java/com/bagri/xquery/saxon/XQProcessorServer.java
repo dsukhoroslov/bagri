@@ -12,12 +12,12 @@ import javax.xml.xquery.XQItemAccessor;
 import javax.xml.xquery.XQQueryException;
 import javax.xml.xquery.XQStaticContext;
 
-import com.bagri.common.query.QueryBuilder;
 import com.bagri.xdm.api.XDMDocumentManagement;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMRepository;
 import com.bagri.xdm.cache.api.XDMQueryManagement;
 import com.bagri.xdm.common.XDMConstants;
+import com.bagri.xdm.common.query.QueryBuilder;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMQuery;
 import com.bagri.xquery.api.XQProcessor;

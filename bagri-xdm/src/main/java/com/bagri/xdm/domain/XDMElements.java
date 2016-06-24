@@ -6,8 +6,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import com.bagri.common.query.Comparison;
-import com.bagri.common.query.PathExpression;
+import com.bagri.xdm.common.query.Comparison;
+import com.bagri.xdm.common.query.PathExpression;
 
 
 /**

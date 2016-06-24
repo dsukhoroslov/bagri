@@ -2,13 +2,13 @@ package com.bagri.xdm.client.hazelcast.serialize;
 
 import java.io.IOException;
 
-import com.bagri.common.query.AlwaysExpression;
-import com.bagri.common.query.BinaryExpression;
-import com.bagri.common.query.Comparison;
-import com.bagri.common.query.Expression;
-import com.bagri.common.query.PathBuilder;
-import com.bagri.common.query.PathExpression;
-import com.bagri.common.query.QueriedPath;
+import com.bagri.xdm.common.query.AlwaysExpression;
+import com.bagri.xdm.common.query.BinaryExpression;
+import com.bagri.xdm.common.query.Comparison;
+import com.bagri.xdm.common.query.Expression;
+import com.bagri.xdm.common.query.PathBuilder;
+import com.bagri.xdm.common.query.PathExpression;
+import com.bagri.xdm.common.query.QueriedPath;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.StreamSerializer;

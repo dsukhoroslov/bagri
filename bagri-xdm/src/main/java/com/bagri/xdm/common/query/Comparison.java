@@ -1,4 +1,4 @@
-package com.bagri.common.query;
+package com.bagri.xdm.common.query;
 
 public enum Comparison {
 	

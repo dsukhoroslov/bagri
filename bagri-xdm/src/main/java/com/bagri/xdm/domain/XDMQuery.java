@@ -1,6 +1,6 @@
 package com.bagri.xdm.domain;
 
-import com.bagri.common.query.QueryBuilder;
+import com.bagri.xdm.common.query.QueryBuilder;
 
 /**
  * Represents cached compiled query 

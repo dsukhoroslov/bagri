@@ -7,9 +7,9 @@ import java.util.Properties;
 
 import javax.xml.namespace.QName;
 
-import com.bagri.common.query.ExpressionContainer;
-import com.bagri.common.query.QueryBuilder;
 import com.bagri.xdm.api.XDMException;
+import com.bagri.xdm.common.query.ExpressionContainer;
+import com.bagri.xdm.common.query.QueryBuilder;
 import com.bagri.xdm.domain.XDMQuery;
 
 /**

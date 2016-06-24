@@ -8,9 +8,9 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.Map.Entry;
 
-import com.bagri.common.query.PathExpression;
 import com.bagri.common.util.CollectionUtils;
 import com.bagri.xdm.common.XDMDataKey;
+import com.bagri.xdm.common.query.PathExpression;
 import com.bagri.xdm.domain.XDMElements;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;

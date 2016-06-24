@@ -23,12 +23,12 @@ import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.bagri.common.manage.JMXUtils;
-import com.bagri.common.query.AxisType;
-import com.bagri.common.query.Comparison;
-import com.bagri.common.query.ExpressionContainer;
-import com.bagri.common.query.PathBuilder;
 import com.bagri.xdm.api.test.XDMManagementTest;
 import com.bagri.xdm.cache.api.XDMQueryManagement;
+import com.bagri.xdm.common.query.AxisType;
+import com.bagri.xdm.common.query.Comparison;
+import com.bagri.xdm.common.query.ExpressionContainer;
+import com.bagri.xdm.common.query.PathBuilder;
 import com.bagri.xdm.domain.XDMOccurrence;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.domain.XDMNodeKind;

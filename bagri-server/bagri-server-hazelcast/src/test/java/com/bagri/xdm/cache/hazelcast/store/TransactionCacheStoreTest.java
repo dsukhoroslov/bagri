@@ -20,10 +20,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import com.bagri.common.query.AxisType;
-import com.bagri.common.query.Comparison;
-import com.bagri.common.query.ExpressionContainer;
-import com.bagri.common.query.PathBuilder;
 import com.bagri.common.util.FileUtils;
 import com.bagri.common.util.PropUtils;
 import com.bagri.xdm.api.XDMException;
@@ -31,6 +27,10 @@ import com.bagri.xdm.api.test.XDMManagementTest;
 import com.bagri.xdm.cache.api.XDMQueryManagement;
 import com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl;
 import com.bagri.xdm.cache.hazelcast.impl.TransactionManagementImpl;
+import com.bagri.xdm.common.query.AxisType;
+import com.bagri.xdm.common.query.Comparison;
+import com.bagri.xdm.common.query.ExpressionContainer;
+import com.bagri.xdm.common.query.PathBuilder;
 import com.bagri.xdm.system.XDMSchema;
 
 public class TransactionCacheStoreTest extends XDMManagementTest {

@@ -9,16 +9,16 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bagri.common.query.AxisType;
-import com.bagri.common.query.Comparison;
-import com.bagri.common.query.ExpressionBuilder;
-import com.bagri.common.query.ExpressionContainer;
-import com.bagri.common.query.PathBuilder;
-import com.bagri.common.query.QueryBuilder;
-import com.bagri.common.query.PathBuilder.PathSegment;
 import com.bagri.xdm.api.XDMRepository;
 import com.bagri.xdm.api.impl.ModelManagementBase;
 import com.bagri.xdm.cache.api.XDMQueryManagement;
+import com.bagri.xdm.common.query.AxisType;
+import com.bagri.xdm.common.query.Comparison;
+import com.bagri.xdm.common.query.ExpressionBuilder;
+import com.bagri.xdm.common.query.ExpressionContainer;
+import com.bagri.xdm.common.query.PathBuilder;
+import com.bagri.xdm.common.query.QueryBuilder;
+import com.bagri.xdm.common.query.PathBuilder.PathSegment;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.system.XDMCollection;
 import com.bagri.xdm.system.XDMSchema;
@@ -195,7 +195,7 @@ public class CollectionFinderImpl implements CollectionFinder {
 	}
 	
 	private void setParentPath(ExpressionBuilder eb, int exIndex, PathBuilder path) {
-		com.bagri.common.query.Expression ex = eb.getExpression(exIndex);
+		com.bagri.xdm.common.query.Expression ex = eb.getExpression(exIndex);
 		if (ex != null) {
     		path.setPath(ex.getPath()); 
         	logger.trace("iterate; path switched to: {}; from index: {}", path, exIndex);

@@ -2,8 +2,8 @@ package com.bagri.xdm.client.hazelcast.task.query;
 
 import java.io.IOException;
 
-import com.bagri.common.query.ExpressionContainer;
 import com.bagri.xdm.client.hazelcast.task.TransactionAwareTask;
+import com.bagri.xdm.common.query.ExpressionContainer;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;

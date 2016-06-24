@@ -13,11 +13,11 @@ import javax.xml.transform.stream.StreamSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bagri.common.query.ExpressionContainer;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMRepository;
 import com.bagri.xdm.cache.api.XDMDocumentManagement;
 import com.bagri.xdm.cache.api.XDMQueryManagement;
+import com.bagri.xdm.common.query.ExpressionContainer;
 
 import net.sf.saxon.expr.XPathContext;
 import net.sf.saxon.lib.Resource;

@@ -5,8 +5,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.bagri.common.query.ExpressionContainer;
-import com.bagri.common.query.QueryBuilder;
+import com.bagri.xdm.common.query.ExpressionContainer;
+import com.bagri.xdm.common.query.QueryBuilder;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.StreamSerializer;

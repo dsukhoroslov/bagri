@@ -2,4 +2,4 @@
  * Internal classes for Query representation   
  * 
  */
-package com.bagri.common.query;
+package com.bagri.xdm.common.query;
