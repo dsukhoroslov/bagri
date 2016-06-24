@@ -36,6 +36,12 @@ import com.bagri.xdm.domain.XDMElement;
 import com.bagri.xdm.domain.XDMNodeKind;
 import com.bagri.xdm.domain.XDMPath;
 
+/**
+ * XDM Parser implementation for XML data format. Uses reference implementation (Xerces) of XML streaming parser.
+ * 
+ * @author Denis Sukhoroslov
+ *
+ */
 public class XmlStaxParser extends XDMParserBase implements XDMParser {
 
 	private static XMLInputFactory factory = XMLInputFactory.newInstance();
@@ -43,15 +49,30 @@ public class XmlStaxParser extends XDMParserBase implements XDMParser {
 	private StringBuilder chars;
 	private List<XMLEvent> firstEvents;
 
-	public static List<XDMData> parseDocument(XDMModelManagement dictionary, String xml) throws XMLStreamException, XDMException {
-		XmlStaxParser parser = new XmlStaxParser(dictionary);
+	/**
+	 * 
+	 * @param model the model management component
+	 * @param xml the document content in XML format
+	 * @return the list of parsed XDM data elements
+	 * @throws XMLStreamException in case of content read exception
+	 * @throws XDMException in case of content parse exception
+	 */
+	public static List<XDMData> parseDocument(XDMModelManagement model, String xml) throws XMLStreamException, XDMException {
+		XmlStaxParser parser = new XmlStaxParser(model);
 		return parser.parse(xml);
 	}
 	
+	/**
+	 * 
+	 * @param model the model management component
+	 */
 	public XmlStaxParser(XDMModelManagement model) {
 		super(model);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public List<XDMData> parse(String xml) throws XDMException {
 		try (Reader reader = new StringReader(xml)) {
@@ -61,6 +82,9 @@ public class XmlStaxParser extends XDMParserBase implements XDMParser {
 		}
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public List<XDMData> parse(File file) throws XDMException {
 		try (Reader reader = new FileReader(file)) {
@@ -70,6 +94,9 @@ public class XmlStaxParser extends XDMParserBase implements XDMParser {
 		}
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public List<XDMData> parse(InputStream stream) throws XDMException {
 		
@@ -88,6 +115,9 @@ public class XmlStaxParser extends XDMParserBase implements XDMParser {
 		}
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public List<XDMData> parse(Reader reader) throws XDMException {
 		
@@ -106,6 +136,12 @@ public class XmlStaxParser extends XDMParserBase implements XDMParser {
 		}
 	}
 	
+	/**
+	 * 
+	 * @param source the XML source
+	 * @return the list of parsed XDM data elements
+	 * @throws XDMException in case of content parse exception
+	 */
 	public List<XDMData> parse(Source source) throws XDMException {
 		
 		XMLEventReader eventReader = null;
@@ -122,7 +158,13 @@ public class XmlStaxParser extends XDMParserBase implements XDMParser {
 			throw new XDMException(ex, XDMException.ecInOut);
 		}
 	}
-	
+
+	/**
+	 * 
+	 * @param eventReader the XML streaming parser
+	 * @return the list of parsed XDM data elements
+	 * @throws XDMException in case of content parse exception
+	 */
 	public List<XDMData> parse(XMLEventReader eventReader) throws XDMException {
 		
 		init();
@@ -169,7 +211,6 @@ public class XmlStaxParser extends XDMParserBase implements XDMParser {
 					//eventReader.nextTag();
 					break;
 				case XMLStreamConstants.END_DOCUMENT:
-					//cleanup();
 					break;
 				case XMLStreamConstants.ATTRIBUTE:
 					processAttribute((Attribute) xmlEvent);
@@ -184,12 +225,20 @@ public class XmlStaxParser extends XDMParserBase implements XDMParser {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	protected void cleanup() {
 		super.cleanup();
 		chars = null;
 		firstEvents = null;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	protected void init() {
 		super.init();
 		firstEvents = new ArrayList<XMLEvent>();

@@ -25,16 +25,29 @@ import com.bagri.xdm.domain.XDMElements;
 import com.bagri.xdm.domain.XDMNodeKind;
 import com.bagri.xdm.domain.XDMPath;
 
+/**
+ * XDM Builder implementation for XML format. 
+ * 
+ * @author Denis Sukhoroslov
+ *
+ */
 public class XmlBuilder implements XDMBuilder {
 
 	private static final Logger logger = LoggerFactory.getLogger(XmlBuilder.class);
 	
 	private XDMModelManagement model;
 	
+	/**
+	 * 
+	 * @param model the XDM model management component
+	 */
 	public XmlBuilder(XDMModelManagement model) {
 		this.model = model;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String buildString(Map<XDMDataKey, XDMElements> elements) throws XDMException {
     	StringBuffer buff = new StringBuffer();
@@ -125,6 +138,9 @@ public class XmlBuilder implements XDMBuilder {
     	return buff.toString();
     }
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public InputStream buildStream(Map<XDMDataKey, XDMElements> elements) throws XDMException {
 		String content = buildString(elements);

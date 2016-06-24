@@ -18,7 +18,7 @@ import com.bagri.xdm.common.query.ExpressionBuilder;
 import com.bagri.xdm.common.query.ExpressionContainer;
 import com.bagri.xdm.common.query.PathBuilder;
 import com.bagri.xdm.common.query.QueryBuilder;
-import com.bagri.xdm.common.query.PathBuilder.PathSegment;
+import com.bagri.xdm.common.query.PathSegment;
 import com.bagri.xdm.domain.XDMDocument;
 import com.bagri.xdm.system.XDMCollection;
 import com.bagri.xdm.system.XDMSchema;
@@ -113,7 +113,7 @@ public class CollectionFinderImpl implements CollectionFinder {
 		logger.debug("findCollection; time taken: {}; query: {}; this: {}", stamp, query, this); 
 
 		ExpressionContainer exCont = getCurrentContainer();
-		if (exCont.getExpression().getRoot() == null) {
+		if (exCont.getBuilder().getRoot() == null) {
 			exCont.addExpression(currentType);
    			logger.trace("findCollection; added always expression for type: {}", currentType);
 		}
@@ -401,13 +401,13 @@ public class CollectionFinderImpl implements CollectionFinder {
    			ExpressionContainer exCont = getCurrentContainer();
    			exIndex = exCont.addExpression(currentType, compType, path, pName, value);
    			logger.trace("iterate; added path expression at index: {}", exIndex);
-   			setParentPath(exCont.getExpression(), exIndex, path);
+   			setParentPath(exCont.getBuilder(), exIndex, path);
    			logger.trace("iterate; parent path {} set at index: {}", path, exIndex);
     	}  
 
     	if (ex instanceof BooleanExpression) {
 			ExpressionContainer exCont = getCurrentContainer();
-    		setParentPath(exCont.getExpression(), exIndex, path);
+    		setParentPath(exCont.getBuilder(), exIndex, path);
    			logger.trace("iterate; parent path {} set at index: {}", path, exIndex);
     	}
     	

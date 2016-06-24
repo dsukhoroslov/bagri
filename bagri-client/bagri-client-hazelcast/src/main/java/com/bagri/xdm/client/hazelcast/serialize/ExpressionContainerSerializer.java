@@ -36,7 +36,7 @@ public class ExpressionContainerSerializer implements StreamSerializer<Expressio
 
 	@Override
 	public void write(ObjectDataOutput out, ExpressionContainer exp) throws IOException {
-		out.writeObject(exp.getExpression());
+		out.writeObject(exp.getBuilder());
 		Map<String, Object> params = exp.getParams();
 		out.writeInt(params.size());
 		for (Map.Entry<String, Object> param: params.entrySet()) {

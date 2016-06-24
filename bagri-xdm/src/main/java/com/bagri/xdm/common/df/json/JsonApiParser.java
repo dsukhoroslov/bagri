@@ -26,6 +26,12 @@ import com.bagri.xdm.domain.XDMElement;
 import com.bagri.xdm.domain.XDMNodeKind;
 import com.bagri.xdm.domain.XDMPath;
 
+/**
+ * XDM Parser implementation for JSON data format. Uses reference implementation (Glassfish) of json streaming parser.
+ * 
+ * @author Denis Sukhoroslov
+ *
+ */
 public class JsonApiParser extends XDMParserBase implements XDMParser {
 	
 	private static JsonParserFactory factory;
@@ -42,15 +48,30 @@ public class JsonApiParser extends XDMParserBase implements XDMParser {
 		factory = Json.createParserFactory(params);
 	}
 	
-	public static List<XDMData> parseDocument(XDMModelManagement dictionary, String json) throws IOException, XDMException {
-		JsonApiParser parser = new JsonApiParser(dictionary);
+	/**
+	 * 
+	 * @param model the model management component
+	 * @param json the document content in JSON format
+	 * @return the list of parsed XDM data elements
+	 * @throws IOException in case of content read exception
+	 * @throws XDMException in case of content parse exception
+	 */
+	public static List<XDMData> parseDocument(XDMModelManagement model, String json) throws IOException, XDMException {
+		JsonApiParser parser = new JsonApiParser(model);
 		return parser.parse(json);
 	}
 	
-	public JsonApiParser(XDMModelManagement dict) {
-		super(dict);
+	/**
+	 * 
+	 * @param model the model management component
+	 */
+	public JsonApiParser(XDMModelManagement model) {
+		super(model);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public List<XDMData> parse(String json) throws XDMException { 
 		try (Reader reader = new StringReader(json)) {
@@ -60,6 +81,9 @@ public class JsonApiParser extends XDMParserBase implements XDMParser {
 		}
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public List<XDMData> parse(File file) throws XDMException {
 		try (Reader reader = new FileReader(file)) {
@@ -69,6 +93,9 @@ public class JsonApiParser extends XDMParserBase implements XDMParser {
 		}
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public List<XDMData> parse(InputStream stream) throws XDMException {
 
@@ -77,6 +104,9 @@ public class JsonApiParser extends XDMParserBase implements XDMParser {
 		}
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public List<XDMData> parse(Reader reader) throws XDMException {
 		
@@ -85,6 +115,12 @@ public class JsonApiParser extends XDMParserBase implements XDMParser {
 		}
 	}
 
+	/**
+	 * 
+	 * @param parser the JSON streaming parser
+	 * @return the list of parsed XDM data elements
+	 * @throws XDMException in case of any parsing error
+	 */
 	public List<XDMData> parse(JsonParser parser) throws XDMException {
 		
 		logger.trace("parse.enter; parser: {}", parser);
@@ -243,4 +279,5 @@ public class JsonApiParser extends XDMParserBase implements XDMParser {
 			dataStack.add(null);
 		}
 	}	
+	
 }

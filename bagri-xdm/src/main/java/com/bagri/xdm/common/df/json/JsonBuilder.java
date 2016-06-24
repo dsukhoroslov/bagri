@@ -8,15 +8,29 @@ import com.bagri.xdm.common.XDMBuilder;
 import com.bagri.xdm.common.XDMDataKey;
 import com.bagri.xdm.domain.XDMElements;
 
+/**
+ * XDM Builder implementation for JSON format. Uses reference implementation (Glassfish) of json genarator.
+ * 
+ *  NOTE: not implemented yet!
+ * 
+ * @author Denis Sukhoroslov
+ *
+ */
 public class JsonBuilder implements XDMBuilder {
 
 	// TODO: implement it!
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String buildString(Map<XDMDataKey, XDMElements> elements) throws XDMException {
 		return null;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public InputStream buildStream(Map<XDMDataKey, XDMElements> elements) throws XDMException {
 		return null;

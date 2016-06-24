@@ -179,7 +179,7 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 		for (Map.Entry<Integer, XDMQuery> e: xqCache.entrySet()) {
 			for (ExpressionContainer ec: e.getValue().getXdmQuery().getContainers()) {
 				boolean foundPath = false;
-				for (Expression ex: ec.getExpression().getExpressions()) {
+				for (Expression ex: ec.getBuilder().getExpressions()) {
 					if (!foundPath && ex.isCached()) {
 						QueriedPath qp = ((PathExpression) ex).getCachedPath();
 						if (checkIndexed && !qp.isIndexed()) {
@@ -508,7 +508,7 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 	
 	public Collection<Long> getDocumentIds(ExpressionContainer query) throws XDMException {
 		if (query != null) {
-			ExpressionBuilder exp = query.getExpression();
+			ExpressionBuilder exp = query.getBuilder();
 			if (exp != null && exp.getRoot() != null) {
 				// TODO: check stats for exp.getRoot().getCollectionId(), 
 				// build 'found' set here if collectionId is selective enough

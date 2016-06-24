@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.bagri.xdm.common.query.AxisType;
 import com.bagri.xdm.common.query.PathBuilder;
-import com.bagri.xdm.common.query.PathBuilder.PathSegment;
+import com.bagri.xdm.common.query.PathSegment;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.StreamSerializer;

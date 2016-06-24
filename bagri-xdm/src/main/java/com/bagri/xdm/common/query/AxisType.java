@@ -1,5 +1,11 @@
 package com.bagri.xdm.common.query;
 
+/**
+ * An internal enumeration representing XPath axis types. 
+ * 
+ * @author Denis Sukhoroslov
+ *
+ */
 public enum AxisType {
 
 	ANCESTOR,
