@@ -38,8 +38,8 @@ public class SimpleIdGenerator implements IdGenerator<Long> {
 	public Long[] nextRange(int size) {
 		Long[] result = new Long[size];
 		long current = id.getAndAdd(size);
-		for (int i=1; i <= size; i++) {
-			result[i] = current + 1;
+		for (int i=0; i < size; i++) {
+			result[i] = ++current;
 		}
 		return result; 
 	}

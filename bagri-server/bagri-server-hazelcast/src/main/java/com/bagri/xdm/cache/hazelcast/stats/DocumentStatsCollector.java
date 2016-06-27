@@ -4,10 +4,10 @@ import static com.bagri.xdm.cache.hazelcast.stats.DocumentStatistics.all_docs;
 
 import javax.management.openmbean.CompositeData;
 
-import com.bagri.common.manage.JMXUtils;
 import com.bagri.common.stats.Statistics;
 import com.bagri.common.stats.StatisticsCollector;
 import com.bagri.common.stats.StatisticsEvent;
+import com.bagri.common.util.JMXUtils;
 
 public class DocumentStatsCollector extends StatisticsCollector<DocumentStatistics> {
 

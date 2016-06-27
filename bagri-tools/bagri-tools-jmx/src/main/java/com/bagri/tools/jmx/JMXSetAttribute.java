@@ -1,4 +1,4 @@
-package com.bagri.common.manage;
+package com.bagri.tools.jmx;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -9,10 +9,11 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(namespace = "http://www.bagridb.com/xdm/system", propOrder = {
 		"mbean", 
 		"attribute",
+		"value",
 		"onFailure",
 		"onSuccess"
 })
-public class JMXGetAttribute {
+public class JMXSetAttribute {
 
 	@XmlElement(required = 	true)
 	private String mbean;
@@ -20,19 +21,23 @@ public class JMXGetAttribute {
 	@XmlElement(required = true)
 	private String attribute;
 
+	@XmlElement(required = true)
+	private String value;
+	
 	@XmlElement(required = false)
 	private String onFailure;
 
 	@XmlElement(required = false)
 	private String onSuccess;
 	
-	public JMXGetAttribute() {
+	public JMXSetAttribute() {
 		//
 	}
 	
-	public JMXGetAttribute(String mbean, String attribute, String onFailure, String onSuccess) {
+	public JMXSetAttribute(String mbean, String attribute, String value, String onFailure, String onSuccess) {
 		this.mbean = mbean;
 		this.attribute = attribute;
+		this.value = value;
 		this.onFailure = onFailure;
 		this.onSuccess = onSuccess;
 	}
@@ -45,6 +50,10 @@ public class JMXGetAttribute {
 		return attribute;
 	}
 	
+	public String getValue() {
+		return value;
+	}
+
 	public String getOnFailure() {
 		return onFailure;
 	}
@@ -54,3 +63,4 @@ public class JMXGetAttribute {
 	}
 	
 }
+

@@ -1,47 +1,38 @@
-package com.bagri.common.manage;
-
-import java.util.ArrayList;
-import java.util.List;
+package com.bagri.tools.jmx;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlType;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(namespace = "http://www.bagridb.com/xdm/system", propOrder = {
 		"mbean", 
-		"method",
-		"args",
+		"attribute",
 		"onFailure",
 		"onSuccess"
 })
-public class JMXInvoke {
+public class JMXGetAttribute {
 
 	@XmlElement(required = 	true)
 	private String mbean;
 
 	@XmlElement(required = true)
-	private String method;
-		
-	@XmlElement(name="argument")
-	@XmlElementWrapper(name="arguments")
-	private List<JMXArgument> args = new ArrayList<JMXArgument>();
-	
+	private String attribute;
+
 	@XmlElement(required = false)
 	private String onFailure;
 
 	@XmlElement(required = false)
 	private String onSuccess;
 	
-	public JMXInvoke() {
+	public JMXGetAttribute() {
 		//
 	}
 	
-	public JMXInvoke(String mbean, String method, String onFailure, String onSuccess) {
+	public JMXGetAttribute(String mbean, String attribute, String onFailure, String onSuccess) {
 		this.mbean = mbean;
-		this.method = method;
+		this.attribute = attribute;
 		this.onFailure = onFailure;
 		this.onSuccess = onSuccess;
 	}
@@ -50,8 +41,8 @@ public class JMXInvoke {
 		return mbean;
 	}
 	
-	public String getMethod() {
-		return method;
+	public String getAttribute() {
+		return attribute;
 	}
 	
 	public String getOnFailure() {
@@ -62,11 +53,4 @@ public class JMXInvoke {
 		return onSuccess;
 	}
 	
-	public List<JMXArgument> getArguments() {
-		return args;
-	}
-	
-	public void addArgument(String type, String value) {
-		args.add(new JMXArgument(args.size(), type, value));
-	}
 }

@@ -13,7 +13,7 @@ import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 
-import com.bagri.common.manage.JMXUtils;
+import com.bagri.common.util.JMXUtils;
 import com.bagri.xdm.cache.hazelcast.task.role.PermissionUpdater;
 import com.bagri.xdm.cache.hazelcast.task.role.RoleUpdater;
 import com.bagri.xdm.system.XDMPermission;

@@ -25,8 +25,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bagri.common.idgen.IdGenerator;
-import com.bagri.common.manage.JMXUtils;
 import com.bagri.common.stats.StatisticsProvider;
+import com.bagri.common.util.JMXUtils;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMHealthState;
 import com.bagri.xdm.api.XDMTransactionIsolation;

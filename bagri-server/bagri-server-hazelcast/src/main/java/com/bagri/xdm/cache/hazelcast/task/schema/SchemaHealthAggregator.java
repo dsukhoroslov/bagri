@@ -10,7 +10,7 @@ import javax.management.openmbean.CompositeData;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.bagri.common.manage.JMXUtils;
+import com.bagri.common.util.JMXUtils;
 import com.bagri.xdm.cache.hazelcast.impl.HealthManagementImpl;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.Member;

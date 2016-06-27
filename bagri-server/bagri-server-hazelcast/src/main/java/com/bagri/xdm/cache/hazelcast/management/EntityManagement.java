@@ -19,7 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jmx.export.MBeanExportException;
 import org.springframework.jmx.export.annotation.AnnotationMBeanExporter;
 
-import com.bagri.common.manage.JMXUtils;
+import com.bagri.common.util.JMXUtils;
 import com.bagri.xdm.common.XDMEntity;
 import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.EntryListener;

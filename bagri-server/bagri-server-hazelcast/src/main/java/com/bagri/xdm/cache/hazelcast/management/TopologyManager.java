@@ -23,7 +23,7 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 import org.springframework.jmx.export.naming.SelfNaming;
 
-import com.bagri.common.manage.JMXUtils;
+import com.bagri.common.util.JMXUtils;
 import com.bagri.xdm.cache.hazelcast.XDMCacheServer;
 import com.bagri.xdm.cache.hazelcast.task.node.NodeInfoProvider;
 import com.bagri.xdm.cache.hazelcast.task.node.NodeKiller;

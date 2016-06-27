@@ -19,8 +19,8 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bagri.common.manage.JMXUtils;
 import com.bagri.common.stats.StatisticsEvent;
+import com.bagri.common.util.JMXUtils;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMTransactionManagement;
 import com.bagri.xdm.cache.api.XDMIndexManagement;

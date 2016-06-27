@@ -25,9 +25,9 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
-import com.bagri.common.manage.JMXUtils;
 import com.bagri.common.stats.StatsAggregator;
 import com.bagri.common.util.FileUtils;
+import com.bagri.common.util.JMXUtils;
 import com.bagri.xdm.api.XDMDocumentManagement;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.cache.hazelcast.task.doc.DocumentStructureProvider;

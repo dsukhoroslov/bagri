@@ -1,4 +1,4 @@
-package com.bagri.common.manage;
+package com.bagri.tools.jmx;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;

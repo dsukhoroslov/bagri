@@ -1,10 +1,13 @@
-package com.bagri.common.manage;
+package com.bagri.tools.jmx;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 
 import org.junit.Test;
+
+import com.bagri.tools.jmx.JMXInvoke;
+import com.bagri.tools.jmx.JMXScript;
 
 public class JMXScriptTest {
 	

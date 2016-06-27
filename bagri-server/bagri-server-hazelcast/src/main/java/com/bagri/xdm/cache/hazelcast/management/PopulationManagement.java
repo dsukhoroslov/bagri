@@ -10,7 +10,7 @@ import javax.management.ObjectName;
 import org.springframework.jmx.export.annotation.ManagedResource;
 import org.springframework.jmx.export.naming.SelfNaming;
 
-import com.bagri.common.manage.JMXUtils;
+import com.bagri.common.util.JMXUtils;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.MemberAttributeEvent;

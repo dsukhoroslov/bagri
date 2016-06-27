@@ -1,28 +1,33 @@
-package com.bagri.common.manage;
+package com.bagri.tools.jmx;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlType;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(namespace = "http://www.bagridb.com/xdm/system", propOrder = {
 		"mbean", 
-		"attribute",
-		"value",
+		"method",
+		"args",
 		"onFailure",
 		"onSuccess"
 })
-public class JMXSetAttribute {
+public class JMXInvoke {
 
 	@XmlElement(required = 	true)
 	private String mbean;
 
 	@XmlElement(required = true)
-	private String attribute;
-
-	@XmlElement(required = true)
-	private String value;
+	private String method;
+		
+	@XmlElement(name="argument")
+	@XmlElementWrapper(name="arguments")
+	private List<JMXArgument> args = new ArrayList<JMXArgument>();
 	
 	@XmlElement(required = false)
 	private String onFailure;
@@ -30,14 +35,13 @@ public class JMXSetAttribute {
 	@XmlElement(required = false)
 	private String onSuccess;
 	
-	public JMXSetAttribute() {
+	public JMXInvoke() {
 		//
 	}
 	
-	public JMXSetAttribute(String mbean, String attribute, String value, String onFailure, String onSuccess) {
+	public JMXInvoke(String mbean, String method, String onFailure, String onSuccess) {
 		this.mbean = mbean;
-		this.attribute = attribute;
-		this.value = value;
+		this.method = method;
 		this.onFailure = onFailure;
 		this.onSuccess = onSuccess;
 	}
@@ -46,14 +50,10 @@ public class JMXSetAttribute {
 		return mbean;
 	}
 	
-	public String getAttribute() {
-		return attribute;
+	public String getMethod() {
+		return method;
 	}
 	
-	public String getValue() {
-		return value;
-	}
-
 	public String getOnFailure() {
 		return onFailure;
 	}
@@ -62,5 +62,11 @@ public class JMXSetAttribute {
 		return onSuccess;
 	}
 	
+	public List<JMXArgument> getArguments() {
+		return args;
+	}
+	
+	public void addArgument(String type, String value) {
+		args.add(new JMXArgument(args.size(), type, value));
+	}
 }
-

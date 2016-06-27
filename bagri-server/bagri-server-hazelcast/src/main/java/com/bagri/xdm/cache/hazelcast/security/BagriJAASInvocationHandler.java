@@ -18,8 +18,8 @@ import javax.security.auth.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bagri.common.manage.JMXUtils;
 import com.bagri.common.security.LocalSubject;
+import com.bagri.common.util.JMXUtils;
 import com.bagri.xdm.cache.hazelcast.management.UserManagement;
 import com.bagri.xdm.cache.hazelcast.management.UserManager;
 import com.bagri.xdm.system.XDMPermission;

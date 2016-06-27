@@ -1,4 +1,4 @@
-package com.bagri.common.manage;
+package com.bagri.tools.jmx;
 
 import java.io.Closeable;
 import java.io.File;

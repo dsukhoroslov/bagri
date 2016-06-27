@@ -1,4 +1,4 @@
-package com.bagri.common.manage;
+package com.bagri.common.util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

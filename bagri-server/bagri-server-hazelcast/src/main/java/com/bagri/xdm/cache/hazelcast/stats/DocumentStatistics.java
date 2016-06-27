@@ -5,10 +5,10 @@ import java.util.Map;
 
 import javax.management.openmbean.CompositeData;
 
-import com.bagri.common.manage.JMXUtils;
 import com.bagri.common.stats.Statistics;
 import com.bagri.common.stats.StatisticsEvent;
 import com.bagri.common.stats.StatisticsEvent.EventType;
+import com.bagri.common.util.JMXUtils;
 
 public class DocumentStatistics extends UsageStatistics {
 

@@ -11,7 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jmx.export.naming.SelfNaming;
 
-import com.bagri.common.manage.JMXUtils;
+import com.bagri.common.util.JMXUtils;
 import com.bagri.xdm.common.XDMEntity;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;

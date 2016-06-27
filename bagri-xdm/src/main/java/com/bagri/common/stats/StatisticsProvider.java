@@ -4,21 +4,23 @@ import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.TabularData;
 import java.util.List;
 
-
 /**
- *   Common interface for statistic beans.
+ * Statistics management interface. Provides collected statistics as standard JMX structures 
+ * 
+ * @author Denis Sukhoroslov
+ *
  */
 public interface StatisticsProvider {
 
     /**
     *
-    * @return overall statistics
+    * @return total statistics numbers 
     */
     CompositeData getStatisticTotals();
 
     /**
     *
-    * @return series of statistics; optional method
+    * @return statistics numbers per statistics name 
     */
     TabularData getStatisticSeries();
 

@@ -11,9 +11,17 @@ import javax.management.openmbean.TabularData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bagri.common.manage.JMXUtils;
 import com.bagri.common.stats.StatisticsEvent.EventType;
+import com.bagri.common.util.JMXUtils;
 
+/**
+ * Represents a container for statistics series. Keeps statistic series in internal Map. Also listens for Statistics events and
+ * updates corresponding statistics accordingly. 
+ * 
+ * @author Denis Sukhoroslov
+ *
+ * @param <S> the type of Statistics to collect
+ */
 public class StatisticsCollector<S extends Statistics> implements Runnable, StatisticsProvider {
 
     protected final Logger logger;
@@ -23,27 +31,46 @@ public class StatisticsCollector<S extends Statistics> implements Runnable, Stat
 	private BlockingQueue<StatisticsEvent> queue =  null;
 	protected Map<String, Statistics> series = new HashMap<>();
 
+	/**
+	 * 
+	 * @param cls statistics class
+	 * @param name statistics name
+	 */
 	public StatisticsCollector(Class<S> cls, String name) {
 		this.cls = cls;
-		logger = LoggerFactory.getLogger(getClass().getName() + "[" + name + "]");
 		this.name = name;
+		logger = LoggerFactory.getLogger(getClass().getName() + "[" + name + "]");
 	}
 	
+	/**
+	 * 
+	 * @return managed statistic series names
+	 */
 	public Collection<String> getStatisticsNames() {
 		return series.keySet();
 	}
 	
+	/**
+	 * 
+	 * @param name statistics series name
+	 * @return statistics for the series provided
+	 */
 	public Map<String, Object> getNamedStatistics(String name) {
 		return series.get(name).toMap();
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public CompositeData getStatisticTotals() {
-		// it just has no much sense to implement this method for usage stats ?
-		// TODO: implement it!
+		// TODO: implement it? we need some aggregator for this!
 		return null;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public TabularData getStatisticSeries() {
         TabularData result = null;
@@ -67,6 +94,11 @@ public class StatisticsCollector<S extends Statistics> implements Runnable, Stat
         return result;
     }
 	
+	/**
+	 * 
+	 * @param name the name of statistics series
+	 * @return the created statistics
+	 */
 	protected S createStatistics(String name) {
 		try {
 			return cls.getConstructor(String.class).newInstance(name);
@@ -76,20 +108,39 @@ public class StatisticsCollector<S extends Statistics> implements Runnable, Stat
 		return null;
 	}
 	
+	/**
+	 * Removes statistics from internal statistics series map
+	 * 
+	 * @param name the name of statistics series
+	 */
 	public void deleteStatistics(String name) {
 		series.remove(name);
 	}
 	
+	/**
+	 * 
+	 * @param name the name of statistics series
+	 * @return created and initialized statistics
+	 */
 	public Statistics initStatistics(String name) {
 		Statistics sts = createStatistics(name);
 		series.put(name, sts);
 		return sts;
 	}
 	
+	/**
+	 * Check do we need to report the concrete statistics series or not
+	 * 
+	 * @param stats the statistics series to check
+	 * @return true if it has to be reported (default value), false otherwise
+	 */
 	protected boolean reportStatistics(Statistics stats) {
 		return true;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void resetStatistics() {
 		// renew all registered stats.. why just not call clear()?
@@ -98,6 +149,10 @@ public class StatisticsCollector<S extends Statistics> implements Runnable, Stat
 		}
 	}
 	
+	/**
+	 * 
+	 * @param event received event to update statistics
+	 */
 	protected void updateStatistics(StatisticsEvent event) {
 		Statistics sts = series.get(event.getName());
 		if (sts == null) {
@@ -106,6 +161,9 @@ public class StatisticsCollector<S extends Statistics> implements Runnable, Stat
 		sts.update(event);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void run() {
 		logger.info("run.enter; starting [{}] stats collection", name); 
@@ -126,6 +184,10 @@ public class StatisticsCollector<S extends Statistics> implements Runnable, Stat
 		logger.info("run.exit; finished [{}] stats collection", name); 
 	}
 
+	/**
+	 * 
+	 * @param queue the queue to consume events from
+	 */
 	public void setStatsQueue(BlockingQueue<StatisticsEvent> queue) {
 		if (this.queue == null) {
 			this.queue = queue;

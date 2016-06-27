@@ -1,4 +1,4 @@
-package com.bagri.common.manage;
+package com.bagri.tools.jmx;
 
 import java.util.ArrayList;
 import java.util.List;

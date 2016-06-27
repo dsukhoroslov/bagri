@@ -16,6 +16,7 @@
     <description>BagRi: Tools and Plugins</description>
 
     <modules>
+        <module>bagri-tools-jmx</module>
         <module>bagri-tools-vvmp</module>
     </modules>
 

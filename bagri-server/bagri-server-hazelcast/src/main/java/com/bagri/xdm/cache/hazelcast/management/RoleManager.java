@@ -10,7 +10,7 @@ import javax.management.openmbean.CompositeData;
 import org.springframework.jmx.export.annotation.ManagedAttribute;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
-import com.bagri.common.manage.JMXUtils;
+import com.bagri.common.util.JMXUtils;
 import com.bagri.xdm.system.XDMPermission;
 import com.bagri.xdm.system.XDMRole;
 import com.hazelcast.core.HazelcastInstance;
