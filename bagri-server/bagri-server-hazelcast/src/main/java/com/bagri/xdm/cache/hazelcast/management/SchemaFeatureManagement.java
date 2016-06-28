@@ -20,8 +20,8 @@ import com.bagri.common.stats.StatsAggregator;
 import com.bagri.common.util.JMXUtils;
 import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.cache.api.XDMCacheConstants;
-import com.bagri.xdm.common.XDMEntity;
 import com.bagri.xdm.system.Schema;
+import com.bagri.xdm.system.Entity;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.Member;
@@ -144,7 +144,7 @@ public abstract class SchemaFeatureManagement implements SelfNaming {
 		logger.trace("resetStatistics.exit; reset stats on {} nodes", cnt);
 	}
 	
-	protected Collection<XDMEntity> getSchemaFeatures(Schema schema) {
+	protected Collection<Entity> getSchemaFeatures(Schema schema) {
 		return null;
 	}
 
@@ -152,13 +152,13 @@ public abstract class SchemaFeatureManagement implements SelfNaming {
 
 		logger.trace("getTabularFeatures.enter; schemaManager: {}", schemaManager);
 		Schema schema = schemaManager.getEntity();
-		Collection<XDMEntity> features = getSchemaFeatures(schema); 
+		Collection<Entity> features = getSchemaFeatures(schema); 
 		if (features == null || features.size() == 0) {
 			return null;
 		}
 		
         TabularData result = null;
-        for (XDMEntity feature: features) {
+        for (Entity feature: features) {
             try {
                 Map<String, Object> def = feature.convert();
                 CompositeData data = JMXUtils.mapToComposite(name, desc, def);

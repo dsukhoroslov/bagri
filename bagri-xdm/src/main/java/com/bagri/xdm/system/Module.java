@@ -12,8 +12,6 @@ import javax.xml.bind.annotation.XmlID;
 import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 
-import com.bagri.xdm.common.XDMEntity;
-
 /**
  * Represents external XQuery module containing extension functions and/or triggers
  * 
@@ -28,7 +26,7 @@ import com.bagri.xdm.common.XDMEntity;
 		"namespace",
 		"enabled"
 })
-public class Module extends XDMEntity {
+public class Module extends Entity {
 
 	@XmlAttribute(required = true)
 	@XmlID
@@ -197,7 +195,7 @@ public class Module extends XDMEntity {
 	 */
 	@Override
 	public String toString() {
-		return "XDMModule [name=" + name + ", version=" + getVersion()
+		return "Module [name=" + name + ", version=" + getVersion()
 				+ ", fileName=" + fileName + ", description=" + description  
 				+ ", created at=" + getCreatedAt() + ", by=" + getCreatedBy()
 				+ ", namespace=" + namespace + ", enabled=" + enabled + "]";

@@ -4,7 +4,7 @@ import java.util.Set;
 
 /**
  * @author Denis Sukhoroslov
- * @version 0.5
+ * 
  */
 public abstract class IndexedValue { 
 

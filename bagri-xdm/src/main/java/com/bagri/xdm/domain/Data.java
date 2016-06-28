@@ -5,7 +5,6 @@ package com.bagri.xdm.domain;
  *  
  * @author Denis Sukhoroslov
  * @since 06.2014 
- * @version 0.2
  */
 public class Data implements Comparable<Data> {
     	
@@ -13,7 +12,7 @@ public class Data implements Comparable<Data> {
    	private Element element;
     	
    	/**
-   	 * XDM Path constructor
+   	 * XDM Data constructor
    	 * 
    	 * @param path the path
    	 * @param element the element
@@ -113,7 +112,7 @@ public class Data implements Comparable<Data> {
 	 */
 	@Override
 	public String toString() {
-		return "XDMData [path=" + path + ", element=" + element + "]";
+		return "Data [path=" + path + ", element=" + element + "]";
 	}
 
 }

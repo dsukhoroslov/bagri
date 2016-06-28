@@ -130,7 +130,7 @@ public class XQueryTrigger extends TriggerDefinition {
 	 */
 	@Override
 	public String toString() {
-		return "XDMXQueryTrigger [module=" + module + ", function=" + function
+		return "XQueryTrigger [module=" + module + ", function=" + function
 				+ ", docType=" + getDocType() + ", enabled=" + isEnabled()
 				+ ", actions=" + getActions().toString() + "]";
 	}

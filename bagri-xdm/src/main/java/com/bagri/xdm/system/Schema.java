@@ -14,8 +14,6 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import com.bagri.xdm.common.XDMEntity;
-
 /**
  * Represents schema where XDM documents are stored. The base container for all other document processing entities.
  * 
@@ -33,7 +31,7 @@ import com.bagri.xdm.common.XDMEntity;
 		"indexes",
 		"triggers"
 })
-public class Schema extends XDMEntity {
+public class Schema extends Entity {
 
 	@XmlAttribute(required = true)
 	private String name;
@@ -483,7 +481,7 @@ public class Schema extends XDMEntity {
 	 */
 	@Override
 	public String toString() {
-		return "XDMSchema [name=" + name + ", version=" + getVersion() + 
+		return "Schema [name=" + name + ", version=" + getVersion() + 
 			", description=" + description + ", active=" + active + 
 			", created at=" + getCreatedAt() + ", by=" + getCreatedBy() + 
 			", props=" + props + ", indexes=" + indexes + 

@@ -10,7 +10,6 @@ import java.util.Set;
  *  
  * @author Denis Sukhoroslov
  * @since 05.2013 
- * @version 0.2
  */
 public class DocumentType { 
 	
@@ -100,7 +99,7 @@ public class DocumentType {
 	 */
 	@Override
 	public String toString() {
-		return "XDMDocumentType [typeId=" + typeId + ", rootPath=" + rootPath
+		return "DocumentType [typeId=" + typeId + ", rootPath=" + rootPath
 				+ ", schemas=" + schemas + "]";
 	}
 

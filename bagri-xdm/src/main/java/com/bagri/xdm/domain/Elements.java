@@ -6,8 +6,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import com.bagri.xdm.common.query.Comparison;
-import com.bagri.xdm.common.query.PathExpression;
+import com.bagri.xdm.query.Comparison;
+import com.bagri.xdm.query.PathExpression;
 
 
 /**
@@ -15,7 +15,6 @@ import com.bagri.xdm.common.query.PathExpression;
  *  
  * @author Denis Sukhoroslov
  * @since 06.2014 
- * @version 0.3
  */
 public class Elements {
 

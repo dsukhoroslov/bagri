@@ -11,13 +11,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 
-import com.bagri.xdm.common.XDMDocumentStore;
-import com.bagri.xdm.common.XDMEntity;
+import com.bagri.xdm.cache.api.XDMDocumentStore;
 import com.bagri.xdm.cache.hazelcast.config.SystemConfig;
-import com.bagri.xdm.common.XDMDocumentKey;
+import com.bagri.xdm.common.DocumentKey;
 import com.bagri.xdm.domain.Document;
 import com.bagri.xdm.system.DataStore;
 import com.bagri.xdm.system.Schema;
+import com.bagri.xdm.system.Entity;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.MapLoader;
@@ -25,14 +25,14 @@ import com.hazelcast.core.MapStore;
 import com.hazelcast.core.MapStoreFactory;
 import com.hazelcast.core.Member;
 
-public class DocumentStoreFactory implements MapStoreFactory<XDMDocumentKey, Document> { 
+public class DocumentStoreFactory implements MapStoreFactory<DocumentKey, Document> { 
 	
     private static final Logger logger = LoggerFactory.getLogger(DocumentStoreFactory.class);
     private static final String defaultStoreClass = "com.bagri.xdm.cache.hazelcast.store.FileDocumentCacheStore";
     
-    private Collection<? extends XDMEntity> getConfigEntities(Class<? extends XDMEntity> cls, String cache) {
+    private Collection<? extends Entity> getConfigEntities(Class<? extends Entity> cls, String cache) {
 		ApplicationContext context = findSystemContext();
-		Collection<? extends XDMEntity> result = null;
+		Collection<? extends Entity> result = null;
 		boolean lite = true;
 		if (context != null) {
 			HazelcastInstance hzInstance = context.getBean(HazelcastInstance.class);
@@ -43,7 +43,7 @@ public class DocumentStoreFactory implements MapStoreFactory<XDMDocumentKey, Doc
 					result = config.getEntities(cls);
 				}
 			} else {
-	    		IMap<String, ? extends XDMEntity> entities = hzInstance.getMap(cache);
+	    		IMap<String, ? extends Entity> entities = hzInstance.getMap(cache);
 	    		result = entities.values();
 	    	}
 		}
@@ -79,12 +79,12 @@ public class DocumentStoreFactory implements MapStoreFactory<XDMDocumentKey, Doc
     
 	@Override
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public MapLoader<XDMDocumentKey, Document> newMapStore(String mapName, Properties properties) {
+	public MapLoader<DocumentKey, Document> newMapStore(String mapName, Properties properties) {
 		String storeClass = null;
 		String schemaName = properties.getProperty(xdm_schema_name);
 		String storeType = properties.getProperty(xdm_schema_store_type);
 		logger.debug("newMapStore.enter; got properties: {} for map: {}", properties, mapName);
-		MapStore<XDMDocumentKey, Document> mStore = null;
+		MapStore<DocumentKey, Document> mStore = null;
 		DataStore store = getDataStore(storeType);
 		if (store != null) {
 			storeClass = store.getStoreClass();
@@ -114,7 +114,7 @@ public class DocumentStoreFactory implements MapStoreFactory<XDMDocumentKey, Doc
 
 		if (instance != null) {
 			if (instance instanceof MapStore) {
-				mStore = (MapStore<XDMDocumentKey, Document>) instance;
+				mStore = (MapStore<DocumentKey, Document>) instance;
 			} else if (instance instanceof XDMDocumentStore) {
 				mStore = new DocumentStoreAdapter((XDMDocumentStore) instance);
 			} else {

@@ -18,7 +18,7 @@ import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.StreamSerializer;
 
-public class SchemaSerializer extends XDMEntitySerializer implements StreamSerializer<Schema> {
+public class SchemaSerializer extends EntitySerializer implements StreamSerializer<Schema> {
 
 	@Override
 	public int getTypeId() {

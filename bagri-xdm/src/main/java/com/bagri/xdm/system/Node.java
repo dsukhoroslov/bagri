@@ -15,8 +15,6 @@ import javax.xml.bind.annotation.XmlEnumValue;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import com.bagri.xdm.common.XDMEntity;
-
 /**
  * Represents a collection of options which can be applied on XDM Schema node. 
  * 
@@ -28,7 +26,7 @@ import com.bagri.xdm.common.XDMEntity;
 		"name", 
 		"options"
 })
-public class Node extends XDMEntity {
+public class Node extends Entity {
 	
 	/**
 	 * possible roles implemented by node 
@@ -194,7 +192,7 @@ public class Node extends XDMEntity {
 	 */
 	@Override
 	public String toString() {
-		return "XDMNode [name=" + name + "; version=" + getVersion() + 
+		return "Node [name=" + name + "; version=" + getVersion() + 
 				"; created at=" + getCreatedAt() + "; by=" + getCreatedBy() + 
 				"; options=" + options + "]";
 	}

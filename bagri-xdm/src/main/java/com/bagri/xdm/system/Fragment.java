@@ -11,8 +11,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlID;
 import javax.xml.bind.annotation.XmlType;
 
-import com.bagri.xdm.common.XDMEntity;
-
 
 /**
  * Represents some (periodic) part of XDM document instance
@@ -29,7 +27,7 @@ import com.bagri.xdm.common.XDMEntity;
 		"description",
 		"enabled"
 })
-public class Fragment extends XDMEntity {
+public class Fragment extends Entity {
 	
 	@XmlAttribute(required = true)
 	@XmlID
@@ -175,7 +173,7 @@ public class Fragment extends XDMEntity {
 	 */
 	@Override
 	public String toString() {
-		return "XDMFragment [name=" + name + ", version=" + getVersion()
+		return "Fragment [name=" + name + ", version=" + getVersion()
 				+ ", docType=" + docType + ", path=" + path 
 				+ ", created at=" + getCreatedAt() + ", by=" + getCreatedBy()
 				+ ", description=" + description + ", enabled=" + enabled + "]";

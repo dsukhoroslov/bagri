@@ -66,7 +66,7 @@ public class QueryResult {
 	 */
 	@Override
 	public String toString() {
-		return "XDMResults [params=" + params + ", docIds=" + docIds + ", results=" + results + "]";
+		return "QueryResult [params=" + params + ", docIds=" + docIds + ", results=" + results + "]";
 	}
 	
 

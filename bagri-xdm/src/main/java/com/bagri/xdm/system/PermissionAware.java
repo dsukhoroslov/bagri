@@ -14,8 +14,6 @@ import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import com.bagri.xdm.common.XDMEntity;
-
 /**
  * Represents basic entity which can be granted some direct permissions and indirect roles.
  * 
@@ -31,7 +29,7 @@ import com.bagri.xdm.common.XDMEntity;
     Role.class,
     User.class
 })
-public abstract class PermissionAware extends XDMEntity {
+public abstract class PermissionAware extends Entity {
 
 	@XmlElement(name = "permissions")
 	@XmlJavaTypeAdapter(PermissionsAdapter.class)

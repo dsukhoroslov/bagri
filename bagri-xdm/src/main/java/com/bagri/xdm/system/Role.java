@@ -116,7 +116,7 @@ public class Role extends PermissionAware {
 	 */
 	@Override
 	public String toString() {
-		return "XDMRole [name=" + name + ", version=" + this.getVersion()
+		return "Role [name=" + name + ", version=" + this.getVersion()
 				+ ", created at=" + getCreatedAt() + ", by=" + getCreatedBy()
 				+ ", description=" + description + ", permissions=" + getPermissions()
 				+ ", includedRoles=" + getIncludedRoles() + "]";

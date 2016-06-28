@@ -5,7 +5,6 @@ import java.util.Collection;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 
-import com.bagri.xdm.common.XDMEntity;
 import com.bagri.xdm.system.Config;
 import com.bagri.xdm.system.DataFormat;
 import com.bagri.xdm.system.DataStore;
@@ -13,6 +12,7 @@ import com.bagri.xdm.system.Library;
 import com.bagri.xdm.system.Module;
 import com.bagri.xdm.system.Node;
 import com.bagri.xdm.system.Schema;
+import com.bagri.xdm.system.Entity;
 
 public class SystemConfig extends EntityConfig {
 
@@ -30,7 +30,7 @@ public class SystemConfig extends EntityConfig {
 	}
 	
 	@Override
-	public Collection<? extends XDMEntity> getEntities(Class<? extends XDMEntity> entityClass) {
+	public Collection<? extends Entity> getEntities(Class<? extends Entity> entityClass) {
 		if (entityClass == Node.class) {
 			return config.getNodes();
 		}
@@ -54,7 +54,7 @@ public class SystemConfig extends EntityConfig {
 	}
 
 	@Override
-	public void setEntities(Class<? extends XDMEntity> entityClass,	Collection<? extends XDMEntity> entities) {
+	public void setEntities(Class<? extends Entity> entityClass,	Collection<? extends Entity> entities) {
 		if (entityClass == Node.class) {
 			setEntities(config, config.getNodes(), entities);
 		} else if (entityClass == Schema.class) {

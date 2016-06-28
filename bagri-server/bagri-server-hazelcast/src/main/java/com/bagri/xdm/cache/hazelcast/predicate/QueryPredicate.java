@@ -9,15 +9,15 @@ import java.util.Map.Entry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bagri.xdm.common.XDMDataKey;
-import com.bagri.xdm.common.query.PathExpression;
+import com.bagri.xdm.common.DataKey;
 import com.bagri.xdm.domain.Elements;
+import com.bagri.xdm.query.PathExpression;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 import com.hazelcast.query.Predicate;
 
-public class QueryPredicate implements Predicate<XDMDataKey, Elements>, IdentifiedDataSerializable { 
+public class QueryPredicate implements Predicate<DataKey, Elements>, IdentifiedDataSerializable { 
 	
 	/**
 	 * 
@@ -49,7 +49,7 @@ public class QueryPredicate implements Predicate<XDMDataKey, Elements>, Identifi
 	}
 
 	@Override
-	public boolean apply(Entry<XDMDataKey, Elements> xdmEntry) {
+	public boolean apply(Entry<DataKey, Elements> xdmEntry) {
 		//logger.trace("apply.enter");
 		boolean result = xdmEntry.getValue().apply(pex, value);
 		//logger.trace("apply.exit; returning {}", result);

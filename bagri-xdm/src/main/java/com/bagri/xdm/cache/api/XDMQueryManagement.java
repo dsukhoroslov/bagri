@@ -8,9 +8,9 @@ import java.util.Properties;
 import javax.xml.namespace.QName;
 
 import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.common.query.ExpressionContainer;
-import com.bagri.xdm.common.query.QueryBuilder;
 import com.bagri.xdm.domain.Query;
+import com.bagri.xdm.query.ExpressionContainer;
+import com.bagri.xdm.query.QueryBuilder;
 
 /**
  * XDM Query Management server-side extension; Adds methods to be used from {@link com.bagri.xquery.api.XQProcessor} in generic way.

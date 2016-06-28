@@ -20,7 +20,7 @@ import org.springframework.jmx.export.MBeanExportException;
 import org.springframework.jmx.export.annotation.AnnotationMBeanExporter;
 
 import com.bagri.common.util.JMXUtils;
-import com.bagri.xdm.common.XDMEntity;
+import com.bagri.xdm.system.Entity;
 import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.EntryListener;
 import com.hazelcast.core.HazelcastInstance;
@@ -28,7 +28,7 @@ import com.hazelcast.core.IMap;
 import com.hazelcast.core.MapEvent;
 import com.hazelcast.core.Member;
 
-public abstract class EntityManagement<E extends XDMEntity> implements EntryListener<String, E>, InitializingBean {
+public abstract class EntityManagement<E extends Entity> implements EntryListener<String, E>, InitializingBean {
 	
     protected final transient Logger logger = LoggerFactory.getLogger(getClass());
 	
@@ -99,7 +99,7 @@ public abstract class EntityManagement<E extends XDMEntity> implements EntryList
 		}
 		
         TabularData result = null;
-        for (XDMEntity entity: entities) {
+        for (Entity entity: entities) {
             try {
                 Map<String, Object> def = entity.convert();
                 CompositeData data = JMXUtils.mapToComposite(name, desc, def);

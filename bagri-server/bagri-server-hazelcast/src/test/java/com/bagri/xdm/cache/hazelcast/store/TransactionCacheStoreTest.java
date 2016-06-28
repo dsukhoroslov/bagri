@@ -27,10 +27,10 @@ import com.bagri.xdm.api.test.XDMManagementTest;
 import com.bagri.xdm.cache.api.XDMQueryManagement;
 import com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl;
 import com.bagri.xdm.cache.hazelcast.impl.TransactionManagementImpl;
-import com.bagri.xdm.common.query.AxisType;
-import com.bagri.xdm.common.query.Comparison;
-import com.bagri.xdm.common.query.ExpressionContainer;
-import com.bagri.xdm.common.query.PathBuilder;
+import com.bagri.xdm.query.AxisType;
+import com.bagri.xdm.query.Comparison;
+import com.bagri.xdm.query.ExpressionContainer;
+import com.bagri.xdm.query.PathBuilder;
 import com.bagri.xdm.system.Schema;
 
 public class TransactionCacheStoreTest extends XDMManagementTest {

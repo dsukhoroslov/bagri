@@ -5,7 +5,6 @@ package com.bagri.xdm.domain;
  *  
  * @author Denis Sukhoroslov
  * @since 05.2013 
- * @version 0.1
  */
 public class Namespace { 
 	
@@ -94,7 +93,7 @@ public class Namespace {
 	 */
 	@Override
 	public String toString() {
-		return "XDMNamespace [uri=" + uri + ", prefix=" + prefix
+		return "Namespace [uri=" + uri + ", prefix=" + prefix
 				+ ", location=" + location + "]";
 	}
 	

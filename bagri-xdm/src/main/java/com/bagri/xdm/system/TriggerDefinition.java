@@ -14,8 +14,6 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
 
-import com.bagri.xdm.common.XDMEntity;
-
 /**
  * Represents basic trigger implementation
  * 
@@ -34,7 +32,7 @@ import com.bagri.xdm.common.XDMEntity;
     JavaTrigger.class,
     XQueryTrigger.class
 })
-public abstract class TriggerDefinition extends XDMEntity {
+public abstract class TriggerDefinition extends Entity {
 	
 	@XmlElement(required = false)
 	private String docType;

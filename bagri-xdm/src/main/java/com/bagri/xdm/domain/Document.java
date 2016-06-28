@@ -9,7 +9,7 @@ import java.util.Map;
 import com.bagri.common.Convertable;
 import com.bagri.common.Versionable;
 
-import static com.bagri.xdm.common.XDMDocumentKey.*;
+import static com.bagri.xdm.common.DocumentKey.*;
 import static com.bagri.common.util.FileUtils.def_encoding;
 
 /**
@@ -17,7 +17,6 @@ import static com.bagri.common.util.FileUtils.def_encoding;
  *  
  * @author Denis Sukhoroslov
  * @since 05.2013 
- * @version 0.5
  */
 public class Document implements Convertable<Map<String, Object>>, Versionable { 
 	
@@ -285,7 +284,7 @@ public class Document implements Convertable<Map<String, Object>>, Versionable {
 	 */
 	@Override
 	public String toString() {
-		return "XDMDocument [key=" + documentKey + ", version=" + getVersion()
+		return "Document [key=" + documentKey + ", version=" + getVersion()
 				+ ", uri=" + uri + ", typeId=" + typeId + ", createdAt=" + getCreatedAt()
 				+ ", createdBy=" + createdBy + ", encoding=" + encoding + ", bytes=" + bytes  
 				+ ", txStart=" + txStart + ", txFinish=" + txFinish + ", elements=" + elements 

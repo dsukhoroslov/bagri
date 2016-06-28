@@ -2,9 +2,7 @@ package com.bagri.xdm.cache.api;
 
 import java.util.Collection;
 
-import com.bagri.xdm.common.XDMBuilder;
-import com.bagri.xdm.common.XDMKeyFactory;
-import com.bagri.xdm.common.XDMParser;
+import com.bagri.xdm.common.KeyFactory;
 import com.bagri.xdm.system.Library;
 import com.bagri.xdm.system.Module;
 import com.bagri.xdm.system.Schema;
@@ -59,7 +57,7 @@ public interface XDMRepository extends com.bagri.xdm.api.XDMRepository {
 	 * 
 	 * @return key factory to generate various cache keys
 	 */
-	XDMKeyFactory getFactory();
+	KeyFactory getFactory();
 	
 	/**
 	 * 

@@ -4,7 +4,7 @@ import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryI
 
 import java.io.IOException;
 
-import com.bagri.xdm.common.XDMEntity;
+import com.bagri.xdm.system.Entity;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 //import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
@@ -43,7 +43,7 @@ public abstract class EntityProcessor { //implements IdentifiedDataSerializable 
 		return admin;
 	}
 	
-	protected void auditEntity(AuditType type, XDMEntity entity) {
+	protected void auditEntity(AuditType type, Entity entity) {
 		// write version/admin to somewhere 
 	}
 	

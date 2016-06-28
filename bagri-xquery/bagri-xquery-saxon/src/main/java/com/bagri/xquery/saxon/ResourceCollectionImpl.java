@@ -17,7 +17,7 @@ import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMRepository;
 import com.bagri.xdm.cache.api.XDMDocumentManagement;
 import com.bagri.xdm.cache.api.XDMQueryManagement;
-import com.bagri.xdm.common.query.ExpressionContainer;
+import com.bagri.xdm.query.ExpressionContainer;
 
 import net.sf.saxon.expr.XPathContext;
 import net.sf.saxon.lib.Resource;

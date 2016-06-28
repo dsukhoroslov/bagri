@@ -1,6 +1,6 @@
 package com.bagri.xdm.cache.hazelcast.store;
 
-import static com.bagri.xdm.common.XDMDocumentKey.*;
+import static com.bagri.xdm.common.DocumentKey.*;
 import static com.bagri.common.util.FileUtils.getStoreFileMask;
 import static com.bagri.common.util.FileUtils.buildSectionFileName;
 

@@ -10,7 +10,7 @@ import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.StreamSerializer;
 
-public class DataStoreSerializer extends XDMEntitySerializer implements StreamSerializer<DataStore> {
+public class DataStoreSerializer extends EntitySerializer implements StreamSerializer<DataStore> {
 
 	@Override
 	public int getTypeId() {

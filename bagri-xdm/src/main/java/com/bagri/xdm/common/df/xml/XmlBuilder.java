@@ -17,8 +17,8 @@ import org.slf4j.LoggerFactory;
 
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMModelManagement;
-import com.bagri.xdm.common.XDMBuilder;
-import com.bagri.xdm.common.XDMDataKey;
+import com.bagri.xdm.cache.api.XDMBuilder;
+import com.bagri.xdm.common.DataKey;
 import com.bagri.xdm.domain.Data;
 import com.bagri.xdm.domain.Element;
 import com.bagri.xdm.domain.Elements;
@@ -49,7 +49,7 @@ public class XmlBuilder implements XDMBuilder {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String buildString(Map<XDMDataKey, Elements> elements) throws XDMException {
+	public String buildString(Map<DataKey, Elements> elements) throws XDMException {
     	StringBuffer buff = new StringBuffer();
     	Collection<Data> dataList = buildDataList(elements);
     	
@@ -142,7 +142,7 @@ public class XmlBuilder implements XDMBuilder {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public InputStream buildStream(Map<XDMDataKey, Elements> elements) throws XDMException {
+	public InputStream buildStream(Map<DataKey, Elements> elements) throws XDMException {
 		String content = buildString(elements);
 		if (content != null) {
 			try {
@@ -189,10 +189,10 @@ public class XmlBuilder implements XDMBuilder {
 		return eltOpen;
     }
     
-    private Collection<Data> buildDataList(Map<XDMDataKey, Elements> elements) {
+    private Collection<Data> buildDataList(Map<DataKey, Elements> elements) {
 
     	List<Data> dataList = new ArrayList<Data>(elements.size() * 2);
-    	for (Map.Entry<XDMDataKey, Elements> entry: elements.entrySet()) {
+    	for (Map.Entry<DataKey, Elements> entry: elements.entrySet()) {
     		
     		int pathId = entry.getKey().getPathId();
     		Path path = model.getPath(pathId);

@@ -3,8 +3,8 @@ package com.bagri.xdm.client.hazelcast.serialize.domain;
 import java.io.IOException;
 
 import com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryImpl;
-import com.bagri.xdm.common.query.QueryBuilder;
 import com.bagri.xdm.domain.Query;
+import com.bagri.xdm.query.QueryBuilder;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.StreamSerializer;

@@ -13,8 +13,6 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlID;
 import javax.xml.bind.annotation.XmlType;
 
-import com.bagri.xdm.common.XDMEntity;
-
 /**
  * Represents external Java library containing extension functions and/or triggers.
  * 
@@ -29,7 +27,7 @@ import com.bagri.xdm.common.XDMEntity;
 		"enabled",
 		"functions"
 })
-public class Library extends XDMEntity {
+public class Library extends Entity {
 
 	@XmlAttribute(required = true)
 	@XmlID

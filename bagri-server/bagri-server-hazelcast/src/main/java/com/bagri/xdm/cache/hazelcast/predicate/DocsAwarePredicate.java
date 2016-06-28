@@ -9,9 +9,9 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import com.bagri.common.util.CollectionUtils;
-import com.bagri.xdm.common.XDMDataKey;
-import com.bagri.xdm.common.query.PathExpression;
+import com.bagri.xdm.common.DataKey;
 import com.bagri.xdm.domain.Elements;
+import com.bagri.xdm.query.PathExpression;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 
@@ -35,7 +35,7 @@ public class DocsAwarePredicate extends QueryPredicate {
 	}
 
 	@Override
-	public boolean apply(Entry<XDMDataKey, Elements> xdmEntry) {
+	public boolean apply(Entry<DataKey, Elements> xdmEntry) {
 		if (docIds.contains(xdmEntry.getKey().getDocumentKey())) {
 			return super.apply(xdmEntry);
 		}

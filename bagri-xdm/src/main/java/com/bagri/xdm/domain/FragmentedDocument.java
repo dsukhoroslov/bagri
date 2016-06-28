@@ -1,9 +1,9 @@
 package com.bagri.xdm.domain;
 
 import static com.bagri.common.util.FileUtils.def_encoding;
-import static com.bagri.xdm.common.XDMDocumentKey.toHash;
-import static com.bagri.xdm.common.XDMDocumentKey.toRevision;
-import static com.bagri.xdm.common.XDMDocumentKey.toVersion;
+import static com.bagri.xdm.common.DocumentKey.toHash;
+import static com.bagri.xdm.common.DocumentKey.toRevision;
+import static com.bagri.xdm.common.DocumentKey.toVersion;
 
 import java.util.Date;
 
@@ -12,7 +12,6 @@ import java.util.Date;
  *  
  * @author Denis Sukhoroslov
  * @since 05.2014 
- * @version 0.7
  */
 public class FragmentedDocument extends Document {
 

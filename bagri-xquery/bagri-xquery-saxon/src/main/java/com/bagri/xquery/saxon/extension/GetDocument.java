@@ -26,7 +26,7 @@ public class GetDocument extends DocumentFunctionExtension {
 
 	@Override
 	public SequenceType[] getArgumentTypes() {
-		return new SequenceType[] {SequenceType.ATOMIC_SEQUENCE}; 
+		return new SequenceType[] {SequenceType.SINGLE_ANY_URI}; 
 	}
 
 	@Override 

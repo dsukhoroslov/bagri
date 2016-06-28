@@ -5,13 +5,13 @@ import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryI
 
 import java.io.IOException;
 
-import com.bagri.xdm.common.XDMResultsKey;
+import com.bagri.xdm.common.QueryResultKey;
 import com.hazelcast.core.PartitionAware;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
-public class QueryParamsKey extends XDMResultsKey implements IdentifiedDataSerializable { //, PartitionAware<Integer> { 
+public class QueryParamsKey extends QueryResultKey implements IdentifiedDataSerializable { //, PartitionAware<Integer> { 
 
 	public QueryParamsKey() {
 		super();

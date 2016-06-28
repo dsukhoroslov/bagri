@@ -4,8 +4,8 @@ import java.io.InputStream;
 import java.util.Map;
 
 import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.common.XDMBuilder;
-import com.bagri.xdm.common.XDMDataKey;
+import com.bagri.xdm.cache.api.XDMBuilder;
+import com.bagri.xdm.common.DataKey;
 import com.bagri.xdm.domain.Elements;
 
 /**
@@ -24,7 +24,7 @@ public class JsonBuilder implements XDMBuilder {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String buildString(Map<XDMDataKey, Elements> elements) throws XDMException {
+	public String buildString(Map<DataKey, Elements> elements) throws XDMException {
 		return null;
 	}
 
@@ -32,7 +32,7 @@ public class JsonBuilder implements XDMBuilder {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public InputStream buildStream(Map<XDMDataKey, Elements> elements) throws XDMException {
+	public InputStream buildStream(Map<DataKey, Elements> elements) throws XDMException {
 		return null;
 	}
 

@@ -18,8 +18,6 @@ import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.XmlValue;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import com.bagri.xdm.common.XDMEntity;
-
 /**
  * Represents Data Format configuration
  * 
@@ -36,7 +34,7 @@ import com.bagri.xdm.common.XDMEntity;
 		"enabled",
 		"props"
 })
-public class DataFormat extends XDMEntity {
+public class DataFormat extends Entity {
 
 	public static final String df_json = "JSON"; 
 	public static final String df_xml = "XML"; 

@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bagri.xdm.api.XDMHealthState;
-import com.bagri.xdm.common.XDMDocumentKey;
+import com.bagri.xdm.common.DocumentKey;
 import com.bagri.xdm.domain.Counter;
 import com.bagri.xdm.domain.Document;
 import com.hazelcast.core.HazelcastInstance;
@@ -26,7 +26,7 @@ public class HealthManagementImpl implements MessageListener<Counter>, Partition
 
 	private HazelcastInstance hzInstance;
 	private ITopic<XDMHealthState> hTopic;
-	private IMap<XDMDocumentKey, Document> xddCache;
+	private IMap<DocumentKey, Document> xddCache;
 	
 	private XDMHealthState healthState = XDMHealthState.good; 
 	

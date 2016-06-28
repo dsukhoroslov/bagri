@@ -90,7 +90,7 @@ public class IndexedDocument extends IndexedValue {
 	 */
 	@Override
 	public String toString() {
-		return "XDMIndexedValue [docKeys=" + docKeys + "]";
+		return "IndexedDocument [docKeys=" + docKeys + "]";
 	}
 
 	/**

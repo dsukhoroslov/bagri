@@ -13,8 +13,6 @@ import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 
-import com.bagri.xdm.common.XDMEntity;
-
 /**
  * Represents index registered in XDM schema.
  * 
@@ -33,7 +31,7 @@ import com.bagri.xdm.common.XDMEntity;
 		"description",
 		"enabled"
 })
-public class Index extends XDMEntity {
+public class Index extends Entity {
 	
 	@XmlAttribute(required = true)
 	@XmlID
@@ -249,7 +247,7 @@ public class Index extends XDMEntity {
 	 */
 	@Override
 	public String toString() {
-		return "XDMIndex [name=" + name + ", version=" + getVersion()
+		return "Index [name=" + name + ", version=" + getVersion()
 				+ ", docType=" + docType + ", typePath=" + typePath
 				+ ", path=" + path + ", dataType=" + dataType
 				+ ", caseSensitive=" + caseSensitive + ", range=" + range

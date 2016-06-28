@@ -1,6 +1,6 @@
 package com.bagri.xdm.client.hazelcast.serialize;
 
-import com.bagri.xdm.client.hazelcast.data.DocumentKey;
+import com.bagri.xdm.client.hazelcast.data.DocumentPartKey;
 import com.bagri.xdm.client.hazelcast.data.DocumentPathKey;
 import com.bagri.xdm.client.hazelcast.data.PathIndexKey;
 import com.bagri.xdm.client.hazelcast.data.QueryParamsKey;
@@ -124,7 +124,7 @@ public class DataSerializationFactoryImpl implements DataSerializableFactory {
 	@Override
 	public IdentifiedDataSerializable create(int typeId) {
 		switch (typeId) {
-			case cli_DocumentKey: return new DocumentKey(); 
+			case cli_DocumentKey: return new DocumentPartKey(); 
 			case cli_DocumentPathKey: return new DocumentPathKey(); 
 			case cli_PathIndexKey: return new PathIndexKey(); 
 			case cli_QueryParamsKey: return new QueryParamsKey();

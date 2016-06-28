@@ -9,7 +9,7 @@ import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.StreamSerializer;
 
-public class FragmentSerializer extends XDMEntitySerializer implements StreamSerializer<Fragment> {
+public class FragmentSerializer extends EntitySerializer implements StreamSerializer<Fragment> {
 
 	@Override
 	public int getTypeId() {

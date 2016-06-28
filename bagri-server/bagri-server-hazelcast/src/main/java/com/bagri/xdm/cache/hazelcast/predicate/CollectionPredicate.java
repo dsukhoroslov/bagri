@@ -6,14 +6,14 @@ import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryI
 import java.io.IOException;
 import java.util.Map.Entry;
 
-import com.bagri.xdm.common.XDMDocumentKey;
+import com.bagri.xdm.common.DocumentKey;
 import com.bagri.xdm.domain.Document;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 import com.hazelcast.query.Predicate;
 
-public class CollectionPredicate implements Predicate<XDMDocumentKey, Document>, IdentifiedDataSerializable {
+public class CollectionPredicate implements Predicate<DocumentKey, Document>, IdentifiedDataSerializable {
 
 	/**
 	 * 
@@ -41,7 +41,7 @@ public class CollectionPredicate implements Predicate<XDMDocumentKey, Document>,
 	}
 
 	@Override
-	public boolean apply(Entry<XDMDocumentKey, Document> docEntry) {
+	public boolean apply(Entry<DocumentKey, Document> docEntry) {
 		Document doc = docEntry.getValue();
 		// will perform this check later anyway..
 		return doc.hasCollection(clnId); // && doc.getTxFinish() == 0;

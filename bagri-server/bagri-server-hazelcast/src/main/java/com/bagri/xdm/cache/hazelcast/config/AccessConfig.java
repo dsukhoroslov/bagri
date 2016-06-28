@@ -5,10 +5,10 @@ import java.util.Collection;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 
-import com.bagri.xdm.common.XDMEntity;
 import com.bagri.xdm.system.Access;
 import com.bagri.xdm.system.Role;
 import com.bagri.xdm.system.User;
+import com.bagri.xdm.system.Entity;
 
 public class AccessConfig extends EntityConfig {
 
@@ -26,7 +26,7 @@ public class AccessConfig extends EntityConfig {
 	}
 	
 	@Override
-	public Collection<? extends XDMEntity> getEntities(Class<? extends XDMEntity> entityClass) {
+	public Collection<? extends Entity> getEntities(Class<? extends Entity> entityClass) {
 		if (entityClass == User.class) {
 			return config.getUsers();
 		}
@@ -38,7 +38,7 @@ public class AccessConfig extends EntityConfig {
 	}
 
 	@Override
-	public void setEntities(Class<? extends XDMEntity> entityClass,	Collection<? extends XDMEntity> entities) {
+	public void setEntities(Class<? extends Entity> entityClass,	Collection<? extends Entity> entities) {
 		if (entityClass == User.class) {
 			setEntities(config, config.getUsers(), entities);
 		} else if (entityClass == Role.class) {

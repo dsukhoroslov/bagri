@@ -5,14 +5,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import com.bagri.xdm.common.XDMDocumentStore;
-import com.bagri.xdm.common.XDMDocumentKey;
+import com.bagri.xdm.cache.api.XDMDocumentStore;
+import com.bagri.xdm.common.DocumentKey;
 import com.bagri.xdm.domain.Document;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.MapLoaderLifecycleSupport;
 import com.hazelcast.core.MapStore;
 
-public class DocumentStoreAdapter implements MapStore<XDMDocumentKey, Document>, MapLoaderLifecycleSupport {
+public class DocumentStoreAdapter implements MapStore<DocumentKey, Document>, MapLoaderLifecycleSupport {
 	
 	private XDMDocumentStore extStore;
 	
@@ -38,37 +38,37 @@ public class DocumentStoreAdapter implements MapStore<XDMDocumentKey, Document>,
 	}
 
 	@Override
-	public Document load(XDMDocumentKey key) {
+	public Document load(DocumentKey key) {
 		return extStore.loadDocument(key);
 	}
 
 	@Override
-	public Map<XDMDocumentKey, Document> loadAll(Collection<XDMDocumentKey> keys) {
+	public Map<DocumentKey, Document> loadAll(Collection<DocumentKey> keys) {
 		return extStore.loadAllDocuments(keys);
 	}
 
 	@Override
-	public Iterable<XDMDocumentKey> loadAllKeys() {
+	public Iterable<DocumentKey> loadAllKeys() {
 		return extStore.loadAllDocumentKeys();
 	}
 
 	@Override
-	public void store(XDMDocumentKey key, Document value) {
+	public void store(DocumentKey key, Document value) {
 		extStore.storeDocument(key, value);
 	}
 
 	@Override
-	public void storeAll(Map<XDMDocumentKey, Document> map) {
+	public void storeAll(Map<DocumentKey, Document> map) {
 		extStore.storeAllDocuments(map);
 	}
 
 	@Override
-	public void delete(XDMDocumentKey key) {
+	public void delete(DocumentKey key) {
 		extStore.deleteDocument(key);
 	}
 
 	@Override
-	public void deleteAll(Collection<XDMDocumentKey> keys) {
+	public void deleteAll(Collection<DocumentKey> keys) {
 		extStore.deleteAllDocuments(keys);
 	}
 

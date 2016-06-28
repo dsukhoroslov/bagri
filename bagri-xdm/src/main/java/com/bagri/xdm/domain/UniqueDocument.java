@@ -156,7 +156,7 @@ public class UniqueDocument extends IndexedValue {
 	 */
 	@Override
 	public String toString() {
-		return "XDMUniqueDocumeny [docs=" + docs + "]";
+		return "UniqueDocument [docs=" + docs + "]";
 	}
 
 	/**

@@ -10,8 +10,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlID;
 import javax.xml.bind.annotation.XmlType;
 
-import com.bagri.xdm.common.XDMEntity;
-
 /**
  * Represents document's collection
  * 
@@ -26,7 +24,7 @@ import com.bagri.xdm.common.XDMEntity;
 		"description",
 		"enabled"
 })
-public class Collection extends XDMEntity {
+public class Collection extends Entity {
 	
 	@XmlAttribute(required = true)
 	private int id;
@@ -172,7 +170,7 @@ public class Collection extends XDMEntity {
 	 */
 	@Override
 	public String toString() {
-		return "XDMCollection [id=" + id + ", name=" + name
+		return "Collection [id=" + id + ", name=" + name
 				+ ", version=" + getVersion() + ", docType=" + docType
 				+ ", created at=" + getCreatedAt() + ", by=" + getCreatedBy()
 				+ ", description=" + description + ", enabled=" + enabled + "]";

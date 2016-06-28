@@ -6,7 +6,6 @@ package com.bagri.xdm.domain;
  *  
  * @author Denis Sukhoroslov
  * @since 05.2013 
- * @version 0.1
  */
 public class Element implements Comparable<Element> { 
 
@@ -208,7 +207,7 @@ public class Element implements Comparable<Element> {
 	 */
 	@Override
 	public String toString() {
-		return "XDMElement [elementId=" + elementId + ", parentId=" + parentId + /*", path=" + path +*/ ", value=" + value + "]";
+		return "Element [elementId=" + elementId + ", parentId=" + parentId + /*", path=" + path +*/ ", value=" + value + "]";
 	}
 
 	

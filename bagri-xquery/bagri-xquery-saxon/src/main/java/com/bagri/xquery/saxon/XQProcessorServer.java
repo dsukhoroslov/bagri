@@ -17,9 +17,9 @@ import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMRepository;
 import com.bagri.xdm.cache.api.XDMQueryManagement;
 import com.bagri.xdm.common.XDMConstants;
-import com.bagri.xdm.common.query.QueryBuilder;
 import com.bagri.xdm.domain.Document;
 import com.bagri.xdm.domain.Query;
+import com.bagri.xdm.query.QueryBuilder;
 import com.bagri.xquery.api.XQProcessor;
 
 import net.sf.saxon.lib.ModuleURIResolver;

@@ -9,7 +9,7 @@ import com.bagri.xdm.system.TriggerDefinition;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 
-public abstract class TriggerDefinitionSerializer extends XDMEntitySerializer { 
+public abstract class TriggerDefinitionSerializer extends EntitySerializer { 
 
 	public Object[] readTrigger(ObjectDataInput in) throws IOException {
 		Object[] entity = super.readEntity(in);

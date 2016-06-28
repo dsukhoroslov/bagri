@@ -210,7 +210,7 @@ public class Transaction implements Convertable<Map<String, Object>> {
 	 */
 	@Override
 	public String toString() {
-		return "XDMTransaction [txId=" + txId + ", startedAt=" + startedAt
+		return "Transaction [txId=" + txId + ", startedAt=" + startedAt
 				+ ", finishedAt=" + finishedAt + ", startedBy=" + startedBy
 				+ ", txIsolation=" + txIsolation + ", txState=" + txState
 				+ ", docsCreated=" + docsCreated + ", docsUpdated=" + docsUpdated

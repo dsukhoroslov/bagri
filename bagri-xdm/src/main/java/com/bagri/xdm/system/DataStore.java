@@ -17,8 +17,6 @@ import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.XmlValue;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import com.bagri.xdm.common.XDMEntity;
-
 /**
  * Represents Document Store configuration
  *  
@@ -33,7 +31,7 @@ import com.bagri.xdm.common.XDMEntity;
 		"enabled",
 		"props"
 })
-public class DataStore extends XDMEntity {
+public class DataStore extends Entity {
 
 	@XmlAttribute(required = true)
 	@XmlID

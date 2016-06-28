@@ -1,61 +1,58 @@
-/**
- * 
- */
 package com.bagri.xdm.cache.hazelcast.impl;
 
-import com.bagri.xdm.client.hazelcast.data.DocumentKey;
+import com.bagri.xdm.client.hazelcast.data.DocumentPartKey;
 import com.bagri.xdm.client.hazelcast.data.DocumentPathKey;
 import com.bagri.xdm.client.hazelcast.data.PathIndexKey;
-import com.bagri.xdm.common.XDMDataKey;
-import com.bagri.xdm.common.XDMDocumentKey;
-import com.bagri.xdm.common.XDMKeyFactory;
-import com.bagri.xdm.common.XDMIndexKey;
-import com.bagri.xdm.domain.Element;
+import com.bagri.xdm.common.DataKey;
+import com.bagri.xdm.common.DocumentKey;
+import com.bagri.xdm.common.KeyFactory;
+import com.bagri.xdm.common.IndexKey;
 
 /**
- * @author Denis Sukhoroslov: dsukhoroslov@gmail.com
- * @version 1.0
+ * The KeyFactory implementation. Produce Hazelcast-specific key implementations.
+ * 
+ * @author Denis Sukhoroslov
  *
  */
-public final class KeyFactoryImpl implements XDMKeyFactory {
+public final class KeyFactoryImpl implements KeyFactory {
 	
-	/* (non-Javadoc)
-	 * @see com.bagri.xdm.common.XDMFactory#newXDMDocumentKey(long)
+	/**
+	 * {@inheritDoc}
 	 */
 	@Override
-	public XDMDocumentKey newXDMDocumentKey(long documentKey) {
-		return new DocumentKey(documentKey);
+	public DocumentKey newDocumentKey(long documentKey) {
+		return new DocumentPartKey(documentKey);
 	}
 
-	/* (non-Javadoc)
-	 * @see com.bagri.xdm.common.XDMFactory#newXDMDocumentKey(long, int)
+	/**
+	 * {@inheritDoc}
 	 */
 	@Override
-	public XDMDocumentKey newXDMDocumentKey(long documentKey, int version) {
-		return new DocumentKey(XDMDocumentKey.toHash(documentKey), XDMDocumentKey.toRevision(documentKey), version); 
+	public DocumentKey newDocumentKey(long documentKey, int version) {
+		return new DocumentPartKey(DocumentPartKey.toHash(documentKey), DocumentPartKey.toRevision(documentKey), version); 
 	}
 
-	/* (non-Javadoc)
-	 * @see com.bagri.xdm.common.XDMFactory#newXDMDocumentKey(String, int, int)
+	/**
+	 * {@inheritDoc}
 	 */
 	@Override
-	public XDMDocumentKey newXDMDocumentKey(String documentUri, int revision, int version) {
-		return new DocumentKey(documentUri.hashCode(), revision, version);
+	public DocumentKey newDocumentKey(String documentUri, int revision, int version) {
+		return new DocumentPartKey(documentUri.hashCode(), revision, version);
 	}
 	
-	/* (non-Javadoc)
-	 * @see com.bagri.xdm.common.XDMFactory#newXDMDataKey(long, int)
+	/**
+	 * {@inheritDoc}
 	 */
 	@Override
-	public XDMDataKey newXDMDataKey(long documentKey, int pathId) {
+	public DataKey newDataKey(long documentKey, int pathId) {
 		return new DocumentPathKey(documentKey, pathId);
 	}
 
-	/* (non-Javadoc)
-	 * @see com.bagri.xdm.common.XDMFactory#newXDMIndexKey(int, Object)
+	/**
+	 * {@inheritDoc}
 	 */
 	@Override
-	public XDMIndexKey newXDMIndexKey(int pathId, Object value) {
+	public IndexKey newIndexKey(int pathId, Object value) {
 		return new PathIndexKey(pathId, value);
 	}
 

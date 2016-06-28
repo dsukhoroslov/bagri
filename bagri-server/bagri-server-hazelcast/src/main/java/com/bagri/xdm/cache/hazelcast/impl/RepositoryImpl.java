@@ -25,13 +25,13 @@ import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.api.XDMTransactionManagement;
 import com.bagri.xdm.api.impl.RepositoryBase;
+import com.bagri.xdm.cache.api.XDMBuilder;
 import com.bagri.xdm.cache.api.XDMClientManagement;
 import com.bagri.xdm.cache.api.XDMIndexManagement;
+import com.bagri.xdm.cache.api.XDMParser;
 import com.bagri.xdm.cache.api.XDMRepository;
 import com.bagri.xdm.cache.api.XDMTriggerManagement;
-import com.bagri.xdm.common.XDMBuilder;
-import com.bagri.xdm.common.XDMKeyFactory;
-import com.bagri.xdm.common.XDMParser;
+import com.bagri.xdm.common.KeyFactory;
 import com.bagri.xdm.common.df.xml.XmlBuilder;
 import com.bagri.xdm.common.df.xml.XmlStaxParser;
 import com.bagri.xdm.domain.Path;
@@ -56,7 +56,7 @@ public class RepositoryImpl extends RepositoryBase implements ApplicationContext
  		}
 	};
 	
-	private XDMKeyFactory xdmFactory; 
+	private KeyFactory xdmFactory; 
 	//private String instanceNum;
 	private Schema xdmSchema;
 	private Map<String, DataFormat> xdmFormats;
@@ -181,11 +181,11 @@ public class RepositoryImpl extends RepositoryBase implements ApplicationContext
 		return result;
 	}
 	
-	public XDMKeyFactory getFactory() {
+	public KeyFactory getFactory() {
 		return xdmFactory;
 	}
 	
-	public void setFactory(XDMKeyFactory factory) {
+	public void setFactory(KeyFactory factory) {
 		this.xdmFactory = factory;
 	}
 	

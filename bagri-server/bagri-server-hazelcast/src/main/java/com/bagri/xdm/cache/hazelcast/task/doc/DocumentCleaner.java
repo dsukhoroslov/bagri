@@ -15,7 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.bagri.xdm.api.XDMTransactionState;
 import com.bagri.xdm.cache.hazelcast.impl.DocumentManagementImpl;
 import com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl;
-import com.bagri.xdm.common.XDMDocumentKey;
+import com.bagri.xdm.common.DocumentKey;
 import com.bagri.xdm.domain.Document;
 import com.bagri.xdm.domain.Transaction;
 import com.hazelcast.core.HazelcastInstance;
@@ -52,11 +52,11 @@ public class DocumentCleaner implements Callable<Transaction>, IdentifiedDataSer
 	@Override
 	public Transaction call() throws Exception {
 		HazelcastInstance hz = xdmRepo.getHzInstance();
-		IMap<XDMDocumentKey, Document> xddCache = hz.getMap(CN_XDM_DOCUMENT);
+		IMap<DocumentKey, Document> xddCache = hz.getMap(CN_XDM_DOCUMENT);
 		DocumentManagementImpl docMgr = (DocumentManagementImpl) xdmRepo.getDocumentManagement();
 		// adjust cleaned counters; updateCounters(created, updated, deleted);
-		Set<XDMDocumentKey> dkStarted = xddCache.localKeySet(Predicates.equal("txStart", xTx.getTxId()));
-		Set<XDMDocumentKey> dkFinished = xddCache.localKeySet(Predicates.equal("txFinish", xTx.getTxId()));
+		Set<DocumentKey> dkStarted = xddCache.localKeySet(Predicates.equal("txStart", xTx.getTxId()));
+		Set<DocumentKey> dkFinished = xddCache.localKeySet(Predicates.equal("txFinish", xTx.getTxId()));
 		Transaction result = new Transaction(xTx.getTxId(), xTx.getStartedAt(), xTx.getFinishedAt(), xTx.getStartedBy(), xTx.getTxIsolation(), xTx.getTxState());
 		
 		boolean commit = xTx.getTxState() == XDMTransactionState.commited;
@@ -69,7 +69,7 @@ public class DocumentCleaner implements Callable<Transaction>, IdentifiedDataSer
 		//	updated - restore previous doc version (set txFinish to 0), delete new doc version as above;
 		//	deleted - the same as for update;
 		try {
-			for (XDMDocumentKey dk: dkStarted) {
+			for (DocumentKey dk: dkStarted) {
 				// previous version for the same doc 
 				//XDMDocumentKey pk = docMgr.getXdmFactory().newXDMDocumentKey(dk.getDocumentId(), dk.getVersion() - 1);
 				if (dk.getVersion() == Document.dvFirst) {
@@ -84,9 +84,9 @@ public class DocumentCleaner implements Callable<Transaction>, IdentifiedDataSer
 					docMgr.cleanDocument(dk, true); //false);
 				} 
 			}
-			for (XDMDocumentKey dk: dkFinished) {
+			for (DocumentKey dk: dkFinished) {
 				// next version for the same doc 
-				XDMDocumentKey nk = xdmRepo.getFactory().newXDMDocumentKey(dk.getKey(), dk.getVersion() + 1);
+				DocumentKey nk = xdmRepo.getFactory().newDocumentKey(dk.getKey(), dk.getVersion() + 1);
 				if (dkStarted.contains(nk)) {
 					//updated, already counted above;
 				} else {

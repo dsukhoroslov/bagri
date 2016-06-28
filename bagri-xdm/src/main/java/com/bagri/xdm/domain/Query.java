@@ -1,6 +1,6 @@
 package com.bagri.xdm.domain;
 
-import com.bagri.xdm.common.query.QueryBuilder;
+import com.bagri.xdm.query.QueryBuilder;
 
 /**
  * Represents cached compiled query 
@@ -96,7 +96,7 @@ public class Query implements Cloneable {
 	 */
 	@Override
 	public String toString() {
-		return "XDMQuery [query=" + query + ", readOnly=" + readOnly + 
+		return "Query [query=" + query + ", readOnly=" + readOnly + 
 				", xdmQuery=" + xdmQuery + "]";
 	}
 	

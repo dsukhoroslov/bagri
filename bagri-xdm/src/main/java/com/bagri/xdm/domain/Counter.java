@@ -65,7 +65,7 @@ public class Counter {
 	 */
 	@Override
 	public String toString() {
-		return "XDMCounter [commit=" + commit + ", created=" + created
+		return "Counter [commit=" + commit + ", created=" + created
 				+ ", updated=" + updated + ", deleted=" + deleted + "]";
 	}
 	

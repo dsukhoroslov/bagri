@@ -6,7 +6,6 @@ package com.bagri.xdm.domain;
  *  
  * @author Denis Sukhoroslov
  * @since 05.2013 
- * @version 0.3
  */
 public class Path implements Comparable<Path> { 
 	
@@ -198,7 +197,7 @@ public class Path implements Comparable<Path> {
 	 */
 	@Override
 	public String toString() {
-		return "XDMPath [path=" + path + ", pathId=" + pathId + ", typeId="
+		return "Path [path=" + path + ", pathId=" + pathId + ", typeId="
 				+ typeId + ", kind=" + kind + ", parentId=" + parentId
 				+ ", postId=" + postId + ", dataType=" + dataType
 				+ ", occurrence=" + occurrence.toString() + "]";

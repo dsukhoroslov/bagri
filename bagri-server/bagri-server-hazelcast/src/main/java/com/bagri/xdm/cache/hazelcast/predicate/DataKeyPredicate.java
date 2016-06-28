@@ -1,9 +1,9 @@
 package com.bagri.xdm.cache.hazelcast.predicate;
 
-import com.bagri.xdm.common.XDMDataKey;
+import com.bagri.xdm.common.DataKey;
 import com.hazelcast.mapreduce.KeyPredicate;
 
-public class DataKeyPredicate implements KeyPredicate<XDMDataKey> {
+public class DataKeyPredicate implements KeyPredicate<DataKey> {
 	
 	private int pathId;
 	
@@ -16,7 +16,7 @@ public class DataKeyPredicate implements KeyPredicate<XDMDataKey> {
 	}
 
 	@Override
-	public boolean evaluate(XDMDataKey key) {
+	public boolean evaluate(DataKey key) {
 		return key.getPathId() == pathId;
 	}
 

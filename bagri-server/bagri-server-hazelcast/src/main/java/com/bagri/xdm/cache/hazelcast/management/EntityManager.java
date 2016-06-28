@@ -12,12 +12,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.jmx.export.naming.SelfNaming;
 
 import com.bagri.common.util.JMXUtils;
-import com.bagri.xdm.common.XDMEntity;
+import com.bagri.xdm.system.Entity;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.Member;
 
-public abstract class EntityManager<E extends XDMEntity> implements SelfNaming {
+public abstract class EntityManager<E extends Entity> implements SelfNaming {
 
     protected final transient Logger logger = LoggerFactory.getLogger(getClass());
 

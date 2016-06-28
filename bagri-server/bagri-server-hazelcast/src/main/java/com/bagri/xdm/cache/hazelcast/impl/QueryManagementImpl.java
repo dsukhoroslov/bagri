@@ -39,23 +39,23 @@ import com.bagri.xdm.cache.hazelcast.predicate.ResultsQueryPredicate;
 import com.bagri.xdm.client.hazelcast.data.QueryParamsKey;
 import com.bagri.xdm.client.hazelcast.impl.FixedCursor;
 import com.bagri.xdm.client.hazelcast.impl.ResultCursor;
-import com.bagri.xdm.common.XDMDataKey;
-import com.bagri.xdm.common.XDMDocumentKey;
-import com.bagri.xdm.common.XDMResultsKey;
-import com.bagri.xdm.common.query.AlwaysExpression;
-import com.bagri.xdm.common.query.BinaryExpression;
-import com.bagri.xdm.common.query.Comparison;
-import com.bagri.xdm.common.query.Expression;
-import com.bagri.xdm.common.query.ExpressionBuilder;
-import com.bagri.xdm.common.query.ExpressionContainer;
-import com.bagri.xdm.common.query.PathExpression;
-import com.bagri.xdm.common.query.QueriedPath;
-import com.bagri.xdm.common.query.QueryBuilder;
+import com.bagri.xdm.common.DataKey;
+import com.bagri.xdm.common.DocumentKey;
+import com.bagri.xdm.common.QueryResultKey;
 import com.bagri.xdm.domain.Document;
 import com.bagri.xdm.domain.Elements;
 import com.bagri.xdm.domain.Path;
 import com.bagri.xdm.domain.Query;
 import com.bagri.xdm.domain.QueryResult;
+import com.bagri.xdm.query.AlwaysExpression;
+import com.bagri.xdm.query.BinaryExpression;
+import com.bagri.xdm.query.Comparison;
+import com.bagri.xdm.query.Expression;
+import com.bagri.xdm.query.ExpressionBuilder;
+import com.bagri.xdm.query.ExpressionContainer;
+import com.bagri.xdm.query.PathExpression;
+import com.bagri.xdm.query.QueriedPath;
+import com.bagri.xdm.query.QueryBuilder;
 import com.bagri.xquery.api.XQProcessor;
 import com.bagri.xquery.saxon.XQIterator;
 import com.hazelcast.core.IMap;
@@ -78,8 +78,8 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
     private ReplicatedMap<Integer, Query> xqCache;
     private IMap<Long, QueryResult> xrCache;
     
-    private IMap<XDMDataKey, Elements> xdmCache;
-	private IMap<XDMDocumentKey, Document> xddCache;
+    private IMap<DataKey, Elements> xdmCache;
+	private IMap<DocumentKey, Document> xddCache;
     
 	private StopWatch stopWatch;
 	private BlockingQueue<StatisticsEvent> timeQueue;
@@ -462,11 +462,11 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 		} else {
 			qp = new DocsAwarePredicate(pex, newVal, found);
 		}			
-		Predicate<XDMDataKey, Elements> f = Predicates.and(pp, qp);
-	   	Set<XDMDataKey> xdmKeys = xdmCache.keySet(f);
+		Predicate<DataKey, Elements> f = Predicates.and(pp, qp);
+	   	Set<DataKey> xdmKeys = xdmCache.keySet(f);
 		logger.trace("queryPathKeys; got {} query results", xdmKeys.size()); 
 		result = new HashSet<>(xdmKeys.size());
-		for (XDMDataKey key: xdmKeys) {
+		for (DataKey key: xdmKeys) {
 			result.add(key.getDocumentKey());
 		}
 		logger.trace("queryPathKeys.exit; returning {} keys", result.size()); 
@@ -524,7 +524,7 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 		// fallback to full IDs set: default collection over all documents. not too good...
 		// how could we distribute it over cache nodes? can we use local keySet only !?
 		List<Long> result = new ArrayList<Long>(xddCache.keySet().size());
-		for (XDMDocumentKey docKey: xddCache.keySet()) {
+		for (DocumentKey docKey: xddCache.keySet()) {
 			// we must provide only visible docIds!
 			if (docMgr.checkDocumentCommited(docKey.getKey())) {
 				result.add(docKey.getKey());

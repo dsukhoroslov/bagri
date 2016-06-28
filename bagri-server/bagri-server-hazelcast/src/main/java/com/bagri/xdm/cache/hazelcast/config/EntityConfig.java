@@ -11,7 +11,7 @@ import javax.xml.bind.Unmarshaller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bagri.xdm.common.XDMEntity;
+import com.bagri.xdm.system.Entity;
 
 public abstract class EntityConfig {
 	
@@ -56,7 +56,7 @@ public abstract class EntityConfig {
         marshaller.marshal(config, xml);
 	}
 
-	public abstract Collection<? extends XDMEntity> getEntities(Class<? extends XDMEntity> entityClass);
-	public abstract void setEntities(Class<? extends XDMEntity> entityClass, Collection<? extends XDMEntity> entities);
+	public abstract Collection<? extends Entity> getEntities(Class<? extends Entity> entityClass);
+	public abstract void setEntities(Class<? extends Entity> entityClass, Collection<? extends Entity> entities);
 	
 }

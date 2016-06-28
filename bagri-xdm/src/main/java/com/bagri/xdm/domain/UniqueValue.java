@@ -1,6 +1,8 @@
 package com.bagri.xdm.domain;
 
 /**
+ * Represents uniquely indexed document version. A UniqueDocument may contain several UniqueValue (document versions).
+ * Only one of then can be active (txFinish == 0).
  * 
  * @author Denis Sukhoroslov
  *
@@ -52,7 +54,7 @@ public class UniqueValue {
 	 */
 	@Override
 	public String toString() {
-		return "XDMUniqueDocument [docKey=" + docKey + ", txStart=" + txStart + ", txFinish=" + txFinish + "]";
+		return "UniqueValue [docKey=" + docKey + ", txStart=" + txStart + ", txFinish=" + txFinish + "]";
 	}
 
 }	

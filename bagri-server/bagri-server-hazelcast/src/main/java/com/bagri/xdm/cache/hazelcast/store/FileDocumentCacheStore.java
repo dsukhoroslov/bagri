@@ -34,18 +34,18 @@ import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.cache.hazelcast.impl.DocumentManagementImpl;
 import com.bagri.xdm.cache.hazelcast.impl.PopulationManagementImpl;
 import com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl;
-import com.bagri.xdm.common.XDMDocumentKey;
+import com.bagri.xdm.common.DocumentKey;
 import com.bagri.xdm.domain.Document;
 import com.bagri.xdm.system.DataFormat;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.MapLoaderLifecycleSupport;
 import com.hazelcast.core.MapStore;
 
-public class FileDocumentCacheStore implements MapStore<XDMDocumentKey, Document>, MapLoaderLifecycleSupport {
+public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, MapLoaderLifecycleSupport {
 
     private static final Logger logger = LoggerFactory.getLogger(FileDocumentCacheStore.class);
     
-    private Map<XDMDocumentKey, String> uris = new HashMap<>();
+    private Map<DocumentKey, String> uris = new HashMap<>();
     
 	private String dataPath;
     private String schemaName;
@@ -119,7 +119,7 @@ public class FileDocumentCacheStore implements MapStore<XDMDocumentKey, Document
 		return dataPath + "/" + fileName;
 	}
 
-	private Document loadDocument(XDMDocumentKey docKey) {
+	private Document loadDocument(DocumentKey docKey) {
     	String docUri = null;
     	Document doc = popManager.getDocument(docKey.getKey());
     	if (doc != null) {
@@ -159,7 +159,7 @@ public class FileDocumentCacheStore implements MapStore<XDMDocumentKey, Document
     }
     
 	@Override
-	public Document load(XDMDocumentKey key) {
+	public Document load(DocumentKey key) {
 		logger.trace("load.enter; key: {}", key);
 		ensureRepository();
     	Document result = loadDocument(key);
@@ -168,11 +168,11 @@ public class FileDocumentCacheStore implements MapStore<XDMDocumentKey, Document
 	}
 
 	@Override
-	public Map<XDMDocumentKey, Document> loadAll(Collection<XDMDocumentKey> keys) {
+	public Map<DocumentKey, Document> loadAll(Collection<DocumentKey> keys) {
 		logger.debug("loadAll.enter; keys: {}; ", keys.size());
 		ensureRepository();
-		Map<XDMDocumentKey, Document> result = new HashMap<>(keys.size());
-	    for (XDMDocumentKey key: keys) {
+		Map<DocumentKey, Document> result = new HashMap<>(keys.size());
+	    for (DocumentKey key: keys) {
 	    	Document doc = loadDocument(key);
 	    	if (doc != null) {
 	    		result.put(key, doc);
@@ -183,7 +183,7 @@ public class FileDocumentCacheStore implements MapStore<XDMDocumentKey, Document
 	}
 
 	@Override
-	public Set<XDMDocumentKey> loadAllKeys() {
+	public Set<DocumentKey> loadAllKeys() {
 		//if (true) {
 		//	return Collections.emptySet();
 		//}
@@ -195,7 +195,7 @@ public class FileDocumentCacheStore implements MapStore<XDMDocumentKey, Document
 		}
 		
 		logger.trace("loadAllKeys.enter;");
-		Set<XDMDocumentKey> docIds = popManager.getDocumentKeys();
+		Set<DocumentKey> docIds = popManager.getDocumentKeys();
 		if (docIds != null) {
 			if (logger.isTraceEnabled()) {
 				logger.trace("loadAllKeys.exit; returning from PopulationManager: {}", docIds);
@@ -211,17 +211,17 @@ public class FileDocumentCacheStore implements MapStore<XDMDocumentKey, Document
 			List<Path> files = new ArrayList<>();
 			processPathFiles(root, files);
 			Collections.sort(files);
-			XDMDocumentKey docKey; 
+			DocumentKey docKey; 
 			for (Path path: files) {
 				String uri = path.getFileName().toString();
 				int revision = 0;
 				do {
-					docKey = xdmRepo.getFactory().newXDMDocumentKey(uri, revision, dvFirst);
+					docKey = xdmRepo.getFactory().newDocumentKey(uri, revision, dvFirst);
 					revision++;
 				} while (uris.get(docKey) != null);				
 				uris.put(docKey, uri);
 			}
-			docIds = new HashSet<XDMDocumentKey>(uris.keySet());
+			docIds = new HashSet<DocumentKey>(uris.keySet());
 		} catch (IOException ex) {
 			logger.error("loadAllKeys.error;", ex);
 		}
@@ -234,7 +234,7 @@ public class FileDocumentCacheStore implements MapStore<XDMDocumentKey, Document
 	}
 	
 	@Override
-	public void store(XDMDocumentKey key, Document value) {
+	public void store(DocumentKey key, Document value) {
 		logger.trace("store.enter; key: {}; value: {}", key, value);
 		ensureRepository();
 		if (xdmRepo == null) {
@@ -265,16 +265,16 @@ public class FileDocumentCacheStore implements MapStore<XDMDocumentKey, Document
 	}
 
 	@Override
-	public void storeAll(Map<XDMDocumentKey, Document> entries) {
+	public void storeAll(Map<DocumentKey, Document> entries) {
 		logger.trace("storeAll.enter; entries: {}", entries.size());
-		for (Map.Entry<XDMDocumentKey, Document> entry: entries.entrySet()) {
+		for (Map.Entry<DocumentKey, Document> entry: entries.entrySet()) {
 			store(entry.getKey(), entry.getValue());
 		}
 		logger.trace("storeAll.exit; stored: {}", entries.size());
 	}
 
 	@Override
-	public void delete(XDMDocumentKey key) {
+	public void delete(DocumentKey key) {
 		logger.trace("delete.enter; key: {}", key);
     	boolean result = false;
 		String docUri = uris.get(key);
@@ -291,10 +291,10 @@ public class FileDocumentCacheStore implements MapStore<XDMDocumentKey, Document
 	}
 
 	@Override
-	public void deleteAll(Collection<XDMDocumentKey> keys) {
+	public void deleteAll(Collection<DocumentKey> keys) {
 		logger.trace("deleteAll.enter; keys: {}", keys.size());
 		int deleted = 0;
-		for (XDMDocumentKey key: keys) {
+		for (DocumentKey key: keys) {
 			String docUri = uris.get(key);
 			if (docUri != null) {
 				docUri = getFullUri(docUri);

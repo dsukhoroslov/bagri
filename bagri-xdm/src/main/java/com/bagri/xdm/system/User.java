@@ -148,7 +148,7 @@ public class User extends PermissionAware {
 	 */
 	@Override
 	public String toString() {
-		return "XDMUser [login=" + login + ", version=" + getVersion()  //+ ", password=" + password
+		return "User [login=" + login + ", version=" + getVersion()  //+ ", password=" + password
 				+ ", active=" + active + ", created at=" + getCreatedAt()
 				+ ", by=" + getCreatedBy() + "]";
 	}

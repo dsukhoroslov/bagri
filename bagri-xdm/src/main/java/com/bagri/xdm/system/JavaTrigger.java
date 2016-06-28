@@ -130,7 +130,7 @@ public class JavaTrigger extends TriggerDefinition {
 	 */
 	@Override
 	public String toString() {
-		return "XDMJavaTrigger [library=" + library + ", className=" + className
+		return "JavaTrigger [library=" + library + ", className=" + className
 				+ ", docType=" + getDocType() + ", enabled=" + isEnabled()
 				+ ", actions=" + getActions().toString() + "]";
 	}

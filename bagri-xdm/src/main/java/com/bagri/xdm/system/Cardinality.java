@@ -5,7 +5,7 @@ import javax.xml.bind.annotation.XmlEnumValue;
 import javax.xml.bind.annotation.XmlType;
 
 /**
- * Represents XDMType's cardinality 
+ * Represents DataType's cardinality 
  * 
  * @author Denis Sukhoroslov
  *

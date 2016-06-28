@@ -28,7 +28,7 @@ import com.bagri.xdm.client.hazelcast.task.doc.DocumentMapProvider;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentProvider;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentRemover;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentUrisProvider;
-import com.bagri.xdm.common.XDMDocumentKey;
+import com.bagri.xdm.common.DocumentKey;
 import com.bagri.xdm.domain.Document;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
@@ -39,7 +39,7 @@ import com.hazelcast.query.Predicates;
 
 public class DocumentManagementImpl extends DocumentManagementBase implements XDMDocumentManagement {
 
-	private IMap<XDMDocumentKey, Document> xddCache;
+	private IMap<DocumentKey, Document> xddCache;
 	private IExecutorService execService;
     private RepositoryImpl repo;
 	
@@ -47,7 +47,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements XD
 		super();
 	}
 
-	IMap<XDMDocumentKey, Document> getDocumentCache() {
+	IMap<DocumentKey, Document> getDocumentCache() {
 		return xddCache;
 	}
 	

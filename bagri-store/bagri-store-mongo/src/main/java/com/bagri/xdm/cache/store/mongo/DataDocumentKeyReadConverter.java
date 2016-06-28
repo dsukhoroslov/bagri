@@ -7,24 +7,24 @@ import org.springframework.core.convert.converter.Converter;
 
 
 // move the key class to some common location!
-import com.bagri.xdm.common.XDMDataKey;
-import com.bagri.xdm.common.XDMKeyFactory;
+import com.bagri.xdm.common.DataKey;
+import com.bagri.xdm.common.KeyFactory;
 import com.mongodb.DBObject;
 
-public class DataDocumentKeyReadConverter implements Converter<DBObject, XDMDataKey> {
+public class DataDocumentKeyReadConverter implements Converter<DBObject, DataKey> {
 
     private static final Logger logger = LoggerFactory.getLogger(DataDocumentKeyReadConverter.class);
     
-    private XDMKeyFactory keyFactory;
+    private KeyFactory keyFactory;
     
-    public void setKeyFactory(XDMKeyFactory keyFactory) {
+    public void setKeyFactory(KeyFactory keyFactory) {
     	this.keyFactory = keyFactory;
     }
 
 	@Override
-	public XDMDataKey convert(DBObject source) {
+	public DataKey convert(DBObject source) {
 		logger.trace("convert.enter; source: {}", source); 
-		return keyFactory.newXDMDataKey((Long) source.get("document_id"), 
+		return keyFactory.newDataKey((Long) source.get("document_id"), 
 				(Integer) source.get("path_id"));
 	}
 

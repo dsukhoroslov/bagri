@@ -5,13 +5,13 @@ import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryI
 
 import java.io.IOException;
 
-import com.bagri.xdm.common.XDMIndexKey;
+import com.bagri.xdm.common.IndexKey;
 import com.hazelcast.core.PartitionAware;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
-public class PathIndexKey extends XDMIndexKey implements IdentifiedDataSerializable { //, PartitionAware<Integer> { //Portable { 
+public class PathIndexKey extends IndexKey implements IdentifiedDataSerializable { //, PartitionAware<Integer> { //Portable { 
 
 	public PathIndexKey() {
 		super();
