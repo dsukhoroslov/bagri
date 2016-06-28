@@ -3,9 +3,9 @@ package com.bagri.xdm.api;
 import java.util.Collection;
 import java.util.Set;
 
-import com.bagri.xdm.domain.XDMOccurrence;
-import com.bagri.xdm.domain.XDMNodeKind;
-import com.bagri.xdm.domain.XDMPath;
+import com.bagri.xdm.domain.Occurrence;
+import com.bagri.xdm.domain.NodeKind;
+import com.bagri.xdm.domain.Path;
 
 /**
  * XDM document management interface; provided for the client side
@@ -68,13 +68,13 @@ public interface XDMModelManagement {
 	 * 
 	 * @param typeId int; the corresponding document's type
 	 * @param path String; the full node path in Clark form
-	 * @param kind XDMNodeKind; the type of the node, one of {@link XDMNodeKind} enum literals
+	 * @param kind XDMNodeKind; the type of the node, one of {@link NodeKind} enum literals
 	 * @param dataType int; type of the node value
-	 * @param occurrence {@link XDMOccurrence}; multiplicity of the node
-	 * @return new or existing {@link XDMPath} structure
+	 * @param occurrence {@link Occurrence}; multiplicity of the node
+	 * @return new or existing {@link Path} structure
 	 * @throws XDMException in case of any error
 	 */
-	XDMPath translatePath(int typeId, String path, XDMNodeKind kind, int dataType, XDMOccurrence occurrence) throws XDMException;
+	Path translatePath(int typeId, String path, NodeKind kind, int dataType, Occurrence occurrence) throws XDMException;
 	
 	/**
 	 * translates regex expression like "^/ns0:Security/ns0:SecurityInformation/.(*)/ns0:Sector/text\\(\\)$";
@@ -109,25 +109,25 @@ public interface XDMModelManagement {
 	 * search for registered full node path like "/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}Name/text()"
 	 * 
 	 * @param path String; node path in Clark form
-	 * @return registered {@link XDMPath} structure if any
+	 * @return registered {@link Path} structure if any
 	 */
-	XDMPath getPath(String path); 
+	Path getPath(String path); 
 
 	/**
 	 * return XDM path instance by pathId provided;
 	 * 
 	 * @param pathId int; the id of registered node path
-	 * @return registered {@link XDMPath} structure for the id provided
+	 * @return registered {@link Path} structure for the id provided
 	 */
-	XDMPath getPath(int pathId);
+	Path getPath(int pathId);
 	
 	/**
 	 * return collection of paths registered for the document type provided;
 	 * 
 	 * @param typeId int; the corresponding document's type
-	 * @return Collection of {@link XDMPath} belonging to the typeId provided; result is sorted by pathId
+	 * @return Collection of {@link Path} belonging to the typeId provided; result is sorted by pathId
 	 */
-	Collection<XDMPath> getTypePaths(int typeId);
+	Collection<Path> getTypePaths(int typeId);
 	
 	/**
 	 * returns document type ID for the root document element specified. root is a long

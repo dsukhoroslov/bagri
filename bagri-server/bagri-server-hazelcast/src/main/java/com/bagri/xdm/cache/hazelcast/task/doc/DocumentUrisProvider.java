@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.bagri.xdm.api.XDMDocumentManagement;
 import com.bagri.xdm.cache.api.XDMRepository;
 import com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl;
-import com.bagri.xdm.system.XDMPermission.Permission;
+import com.bagri.xdm.system.Permission;
 import com.hazelcast.spring.context.SpringAware;
 
 @SpringAware
@@ -26,7 +26,7 @@ public class DocumentUrisProvider  extends com.bagri.xdm.client.hazelcast.task.d
     	
     	// not sure we have to check it at all..
     	((RepositoryImpl) repo).getXQProcessor(clientId);
-    	checkPermission(Permission.read);
+    	checkPermission(Permission.Value.read);
     	
 		return docMgr.getDocumentUris(pattern);
 	}

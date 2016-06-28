@@ -7,7 +7,7 @@ import java.util.Date;
 import java.util.Map.Entry;
 
 //import com.bagri.xdm.cache.hazelcast.task.EntityProcessor.AuditType;
-import com.bagri.xdm.system.XDMModule;
+import com.bagri.xdm.system.Module;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
@@ -30,12 +30,12 @@ public class ModuleCreator extends ModuleProcessor implements IdentifiedDataSeri
 	}
 
 	@Override
-	public Object process(Entry<String, XDMModule> entry) {
+	public Object process(Entry<String, Module> entry) {
 		logger.debug("process.enter; entry: {}", entry); 
 		if (entry.getValue() == null) {
 			String name = entry.getKey();
 			String body = "module namespace ns = \"" + namespace + "\";";
-			XDMModule module = new XDMModule(getVersion(), new Date(), getAdmin(), 
+			Module module = new Module(getVersion(), new Date(), getAdmin(), 
 					name, fileName, description, namespace, body, true);
 			entry.setValue(module);
 			auditEntity(AuditType.create, module);

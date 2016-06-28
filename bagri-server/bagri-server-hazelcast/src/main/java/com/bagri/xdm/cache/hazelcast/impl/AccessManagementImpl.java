@@ -9,7 +9,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 
 import com.bagri.xdm.api.XDMAccessManagement;
-import com.bagri.xdm.system.XDMPermission.Permission;
+import com.bagri.xdm.system.Permission;
 
 public class AccessManagementImpl implements XDMAccessManagement, InitializingBean {
 
@@ -59,7 +59,7 @@ public class AccessManagementImpl implements XDMAccessManagement, InitializingBe
 	}
 
 	@Override
-	public boolean hasPermission(String username, Permission perm) {
+	public boolean hasPermission(String username, Permission.Value perm) {
 		if (bridge != null) {
 			Boolean result = bridge.hasPermission(schemaName, username, perm);
 			if (result != null) {

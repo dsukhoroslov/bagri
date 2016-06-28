@@ -12,7 +12,7 @@ import org.junit.Test;
 import com.bagri.xdm.api.XDMDocumentManagement;
 import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.api.XDMRepository;
-import com.bagri.xdm.domain.XDMPath;
+import com.bagri.xdm.domain.Path;
 
 public abstract class XDMModelManagementTest extends XDMManagementTest {
 
@@ -36,25 +36,25 @@ public abstract class XDMModelManagementTest extends XDMManagementTest {
 	//	mDictionary.registerSchema(schema);
 	//}
 	
-	protected Collection<XDMPath> getPath(String namespace, String template) {
+	protected Collection<Path> getPath(String namespace, String template) {
 		String prefix = getModelManagement().getNamespacePrefix(namespace);
 		String path = String.format(template, prefix);
 		int docType = getModelManagement().getDocumentType(path);
 		return getModelManagement().getTypePaths(docType);
 	}
 	
-	public Collection<XDMPath> getSecurityPath() {
+	public Collection<Path> getSecurityPath() {
 		return getPath("http://tpox-benchmark.com/security", "/%s:Security");
 	}
 	
-	public Collection<XDMPath> getCustomerPath() {
+	public Collection<Path> getCustomerPath() {
 		return getPath("http://tpox-benchmark.com/custacc", "/%s:Customer");
 	}
 
 	@Test
 	public void registerSecurityPathTest() throws Exception {
 		registerSecuritySchemaTest();
-		Collection<XDMPath> sec = getSecurityPath();
+		Collection<Path> sec = getSecurityPath();
 		Assert.assertNotNull(sec);
 		Assert.assertTrue(sec.size() > 0);
 	}
@@ -62,7 +62,7 @@ public abstract class XDMModelManagementTest extends XDMManagementTest {
 	@Test
 	public void registerCustomerPathTest() throws Exception {
 		registerCustaccSchemaTest();
-		Collection<XDMPath> sec = getCustomerPath();
+		Collection<Path> sec = getCustomerPath();
 		Assert.assertNotNull(sec);
 		Assert.assertTrue(sec.size() > 0);
 	}
@@ -71,7 +71,7 @@ public abstract class XDMModelManagementTest extends XDMManagementTest {
 	//@Ignore
 	public void getSecurityPathTest() throws Exception {
 		storeSecurityTest();
-		Collection<XDMPath> sec = getSecurityPath();
+		Collection<Path> sec = getSecurityPath();
 		Assert.assertNotNull(sec);
 		Assert.assertTrue(sec.size() > 0);
 	}
@@ -80,7 +80,7 @@ public abstract class XDMModelManagementTest extends XDMManagementTest {
 	//@Ignore
 	public void getCustomerPathTest() throws Exception {
 		storeCustomerTest();
-		Collection<XDMPath> sec = getCustomerPath();
+		Collection<Path> sec = getCustomerPath();
 		Assert.assertNotNull(sec);
 		Assert.assertTrue(sec.size() > 0);
 	}

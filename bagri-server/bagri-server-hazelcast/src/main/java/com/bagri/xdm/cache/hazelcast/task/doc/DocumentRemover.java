@@ -7,8 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.bagri.xdm.api.XDMDocumentManagement;
 import com.bagri.xdm.cache.api.XDMTransactionManagement;
 import com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl;
-import com.bagri.xdm.domain.XDMDocument;
-import com.bagri.xdm.system.XDMPermission.Permission;
+import com.bagri.xdm.domain.Document;
+import com.bagri.xdm.system.Permission;
 import com.hazelcast.spring.context.SpringAware;
 
 @SpringAware
@@ -25,10 +25,10 @@ public class DocumentRemover extends com.bagri.xdm.client.hazelcast.task.doc.Doc
 	}
 
     @Override
-	public XDMDocument call() throws Exception {
+	public Document call() throws Exception {
 
     	((RepositoryImpl) repo).getXQProcessor(clientId);
-    	checkPermission(Permission.modify);
+    	checkPermission(Permission.Value.modify);
     	
     	txMgr.callInTransaction(txId, false, new Callable<Void>() {
     		

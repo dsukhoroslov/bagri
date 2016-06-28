@@ -13,7 +13,7 @@ import static com.bagri.common.util.FileUtils.def_encoding;
 
 import com.bagri.common.util.XMLUtils;
 import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.domain.XDMDocument;
+import com.bagri.xdm.domain.Document;
 
 /**
  * Base implementation for XDM Document Management interface. SEveral common methods implemented 
@@ -43,7 +43,7 @@ public abstract class DocumentManagementBase {
 	 * @return XDMDocument created or overridden (versioned) document
 	 * @throws XDMException in case of any error
 	 */
-	public abstract XDMDocument storeDocumentFromString(String uri, String content, Properties props) throws XDMException;
+	public abstract Document storeDocumentFromString(String uri, String content, Properties props) throws XDMException;
 
 	/**
 	 * constructs {@link InputStream} over XDMDocument content identified by the uri provided 
@@ -73,7 +73,7 @@ public abstract class DocumentManagementBase {
 	 * @return XDMDocument created or overridden (versioned) document
 	 * @throws XDMException in case of any error
 	 */
-	public XDMDocument storeDocumentFromStream(String uri, InputStream stream, Properties props) throws XDMException {
+	public Document storeDocumentFromStream(String uri, InputStream stream, Properties props) throws XDMException {
 		try {
 			// TODO: get serialization props only..
 			String xml = XMLUtils.textToString(stream);

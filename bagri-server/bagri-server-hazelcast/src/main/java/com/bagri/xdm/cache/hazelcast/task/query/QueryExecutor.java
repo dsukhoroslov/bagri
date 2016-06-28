@@ -11,7 +11,7 @@ import com.bagri.xdm.cache.api.XDMQueryManagement;
 import com.bagri.xdm.cache.api.XDMTransactionManagement;
 import com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl;
 import com.bagri.xdm.client.hazelcast.impl.ResultCursor;
-import com.bagri.xdm.system.XDMPermission.Permission;
+import com.bagri.xdm.system.Permission;
 import com.hazelcast.spring.context.SpringAware;
 
 @SpringAware
@@ -39,9 +39,9 @@ public class QueryExecutor extends com.bagri.xdm.client.hazelcast.task.query.Que
     	boolean readOnly = queryMgr.isReadOnlyQuery(query);
     	((RepositoryImpl) repo).getXQProcessor(clientId);
     	if (readOnly) {
-    		checkPermission(Permission.read);
+    		checkPermission(Permission.Value.read);
     	} else {
-    		checkPermission(Permission.modify);
+    		checkPermission(Permission.Value.modify);
     	}
 
     	if (txId == TX_NO && readOnly) {

@@ -29,11 +29,11 @@ import com.bagri.xdm.common.query.AxisType;
 import com.bagri.xdm.common.query.Comparison;
 import com.bagri.xdm.common.query.ExpressionContainer;
 import com.bagri.xdm.common.query.PathBuilder;
-import com.bagri.xdm.domain.XDMOccurrence;
-import com.bagri.xdm.domain.XDMDocument;
-import com.bagri.xdm.domain.XDMNodeKind;
-import com.bagri.xdm.system.XDMIndex;
-import com.bagri.xdm.system.XDMSchema;
+import com.bagri.xdm.domain.Occurrence;
+import com.bagri.xdm.domain.Document;
+import com.bagri.xdm.domain.NodeKind;
+import com.bagri.xdm.system.Index;
+import com.bagri.xdm.system.Schema;
 
 public class UniqueIndexManagementTest extends XDMManagementTest {
 
@@ -60,12 +60,12 @@ public class UniqueIndexManagementTest extends XDMManagementTest {
 	public void setUp() throws Exception {
 		xRepo = context.getBean(RepositoryImpl.class);
 		RepositoryImpl xdmRepo = (RepositoryImpl) xRepo; 
-		XDMSchema schema = xdmRepo.getSchema();
+		Schema schema = xdmRepo.getSchema();
 		if (schema == null) {
-			schema = new XDMSchema(1, new java.util.Date(), "test", "test", "test schema", true, null);
+			schema = new Schema(1, new java.util.Date(), "test", "test", "test schema", true, null);
 			xdmRepo.setSchema(schema);
 			String typePath = getModelManagement().normalizePath("/{http://tpox-benchmark.com/security}Security");
-			XDMIndex index = new XDMIndex(1, new Date(), xRepo.getUserName(), "IDX_Security_Symbol", "/{http://tpox-benchmark.com/security}Security", 
+			Index index = new Index(1, new Date(), xRepo.getUserName(), "IDX_Security_Symbol", "/{http://tpox-benchmark.com/security}Security", 
 					typePath, "/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}Symbol/text()", new QName(xs_ns, "string", xs_prefix),
 					true, true, true, "Security Symbol", true);
 			xdmRepo.addSchemaIndex(index);
@@ -125,7 +125,7 @@ public class UniqueIndexManagementTest extends XDMManagementTest {
 	public void uniqueDocumentUpdateTest() throws Exception {
 		
 		long txId = getTxManagement().beginTransaction();
-		XDMDocument doc = createDocumentTest(sampleRoot + getFileName("security1500.xml"));
+		Document doc = createDocumentTest(sampleRoot + getFileName("security1500.xml"));
 		assertNotNull(doc);
 		assertEquals(txId, doc.getTxStart());
 		uris.add(doc.getUri());
@@ -150,7 +150,7 @@ public class UniqueIndexManagementTest extends XDMManagementTest {
 	public void uniqueDocumentRollbackTest() throws Exception {
 		
 		long txId = getTxManagement().beginTransaction();
-		XDMDocument doc = createDocumentTest(sampleRoot + getFileName("security1500.xml"));
+		Document doc = createDocumentTest(sampleRoot + getFileName("security1500.xml"));
 		assertNotNull(doc);
 		assertEquals(txId, doc.getTxStart());
 		uris.add(doc.getUri());
@@ -171,7 +171,7 @@ public class UniqueIndexManagementTest extends XDMManagementTest {
 	public void uniqueDocumentDeleteTest() throws Exception {
 		
 		long txId = getTxManagement().beginTransaction();
-		XDMDocument doc = createDocumentTest(sampleRoot + getFileName("security1500.xml"));
+		Document doc = createDocumentTest(sampleRoot + getFileName("security1500.xml"));
 		assertNotNull(doc);
 		assertEquals(txId, doc.getTxStart());
 		uris.add(doc.getUri());
@@ -192,7 +192,7 @@ public class UniqueIndexManagementTest extends XDMManagementTest {
 	public void twoDocumentsUpdateTest() throws Exception {
 
 		long txId = getTxManagement().beginTransaction();
-		XDMDocument doc = createDocumentTest(sampleRoot + getFileName("security9012.xml"));
+		Document doc = createDocumentTest(sampleRoot + getFileName("security9012.xml"));
 		assertNotNull(doc);
 		assertEquals(txId, doc.getTxStart());
 		uris.add(doc.getUri());

@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bagri.xdm.cache.api.XDMRepository;
-import com.bagri.xdm.system.XDMModule;
+import com.bagri.xdm.system.Module;
 
 import net.sf.saxon.lib.ModuleURIResolver;
 import net.sf.saxon.trans.XPathException;
@@ -40,7 +40,7 @@ public class ModuleURIResolverImpl implements ModuleURIResolver {
 			// moduleURI is the module namespace!
 			moduleName = moduleURI;
 		}
-		XDMModule module = getModule(moduleName);
+		Module module = getModule(moduleName);
 		if (module != null) {
 			Reader mReader = new StringReader(module.getBody());
 			return new StreamSource[] {new StreamSource(mReader)};
@@ -51,8 +51,8 @@ public class ModuleURIResolverImpl implements ModuleURIResolver {
 		return new StreamSource[0];
 	}
 	
-	private XDMModule getModule(String moduleName) {
-		for (XDMModule module: repo.getModules()) {
+	private Module getModule(String moduleName) {
+		for (Module module: repo.getModules()) {
 			if (moduleName.equals(module.getName())) {
 				return module;
 			}

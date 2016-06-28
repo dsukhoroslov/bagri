@@ -7,7 +7,7 @@ import java.io.IOException;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMAccessManagement;
 import com.bagri.xdm.api.XDMRepository;
-import com.bagri.xdm.system.XDMPermission.Permission;
+import com.bagri.xdm.system.Permission;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
@@ -30,7 +30,7 @@ public abstract class ClientAwareTask implements IdentifiedDataSerializable {
 		return factoryId;
 	}
 	
-	protected void checkPermission(Permission perm) throws XDMException {
+	protected void checkPermission(Permission.Value perm) throws XDMException {
     	//repo.getXQProcessor(clientId);
     	String user = repo.getUserName();
     	if (!((XDMAccessManagement) repo.getAccessManagement()).hasPermission(user, perm)) {

@@ -10,7 +10,7 @@ import org.springframework.data.hadoop.hive.HiveTemplate;
 
 import com.bagri.xdm.common.XDMDocumentStore;
 import com.bagri.xdm.common.XDMDocumentKey;
-import com.bagri.xdm.domain.XDMDocument;
+import com.bagri.xdm.domain.Document;
 
 public class HiveCacheStore implements XDMDocumentStore {
 
@@ -34,13 +34,13 @@ public class HiveCacheStore implements XDMDocumentStore {
 	}
 
 	@Override
-	public XDMDocument loadDocument(XDMDocumentKey key) {
+	public Document loadDocument(XDMDocumentKey key) {
 		logger.trace("load.enter; key: {}", key);
 		return null;
 	}
 
 	@Override
-	public Map<XDMDocumentKey, XDMDocument> loadAllDocuments(Collection<XDMDocumentKey> keys) {
+	public Map<XDMDocumentKey, Document> loadAllDocuments(Collection<XDMDocumentKey> keys) {
 		logger.trace("loadAll.enter; keys: {}", keys.size());
 		return null;
 	}
@@ -52,12 +52,12 @@ public class HiveCacheStore implements XDMDocumentStore {
 	}
 
 	@Override
-	public void storeDocument(XDMDocumentKey key, XDMDocument value) {
+	public void storeDocument(XDMDocumentKey key, Document value) {
 		logger.trace("store.enter; key: {}; value: {}", key, value);
 	}
 
 	@Override
-	public void storeAllDocuments(Map<XDMDocumentKey, XDMDocument> entries) {
+	public void storeAllDocuments(Map<XDMDocumentKey, Document> entries) {
 		logger.trace("storeAll.enter; entries: {}", entries.size());
 	}
 

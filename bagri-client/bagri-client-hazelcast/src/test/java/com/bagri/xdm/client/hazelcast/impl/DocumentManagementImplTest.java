@@ -14,7 +14,7 @@ import org.junit.Test;
 
 import com.bagri.xdm.api.test.ServerLauncher;
 import com.bagri.xdm.api.test.XDMDocumentManagementTest;
-import com.bagri.xdm.domain.XDMDocument;
+import com.bagri.xdm.domain.Document;
 import com.hazelcast.core.Hazelcast;
 
 public class DocumentManagementImplTest extends XDMDocumentManagementTest {
@@ -65,7 +65,7 @@ public class DocumentManagementImplTest extends XDMDocumentManagementTest {
 
 	@Test
 	public void documentPropertiesTest() throws Exception {
-		XDMDocument doc = createDocumentTest(sampleRoot + getFileName("security1500.xml"));
+		Document doc = createDocumentTest(sampleRoot + getFileName("security1500.xml"));
 		uris.add(doc.getUri());
 		assertEquals(doc.getCreatedBy(), "guest");
 		assertEquals(doc.getFragments().length, 1);

@@ -15,17 +15,17 @@ import java.nio.file.Paths;
 import java.util.Date;
 
 import com.bagri.xdm.api.XDMTransactionManagement;
-import com.bagri.xdm.domain.XDMDocument;
+import com.bagri.xdm.domain.Document;
 import com.hazelcast.core.IMap;
 
-public class DocumentMemoryStore extends MemoryMappedStore<Long, XDMDocument> {
+public class DocumentMemoryStore extends MemoryMappedStore<Long, Document> {
 
 	public DocumentMemoryStore(String dataPath, String nodeNum, int buffSize) {
 		super(dataPath, nodeNum, buffSize);
 	}
 	
 	@Override
-	public void init(IMap<Long, XDMDocument> cache) {
+	public void init(IMap<Long, Document> cache) {
 
 	    int docCount = 0;
 	    int actCount = 0;
@@ -89,12 +89,12 @@ public class DocumentMemoryStore extends MemoryMappedStore<Long, XDMDocument> {
 	}
 	
 	@Override
-	protected Long getEntryKey(XDMDocument entry) {
+	protected Long getEntryKey(Document entry) {
 		return entry.getDocumentKey();
 	}
 
 	@Override
-	protected int getEntrySize(XDMDocument entry) {
+	protected int getEntrySize(Document entry) {
 		return 4*8 // 4 long's (txStart, txFinish, docKey, createdAt)
 			+ 3*4 // 1 int (typeId, bytes, elements)
 			+ entry.getUri().getBytes().length + 4 // uri size
@@ -104,12 +104,12 @@ public class DocumentMemoryStore extends MemoryMappedStore<Long, XDMDocument> {
 	}
 	
 	@Override
-	protected boolean isEntryActive(XDMDocument entry) {
+	protected boolean isEntryActive(Document entry) {
 		return entry.getTxFinish() == XDMTransactionManagement.TX_NO;
 	}
 
 	@Override
-	protected XDMDocument readEntry(MappedByteBuffer buff) {
+	protected Document readEntry(MappedByteBuffer buff) {
 		long txFinish = buff.getLong();
 		long docKey = buff.getLong();
 		String uri = getString(buff);
@@ -120,13 +120,13 @@ public class DocumentMemoryStore extends MemoryMappedStore<Long, XDMDocument> {
 		String encoding = getString(buff);
 		int bytes = buff.getInt();
 		int elts = buff.getInt();
-		XDMDocument result = new XDMDocument(docKey, uri, typeId, txStart, txFinish, createdAt, createdBy, encoding, bytes, elts);
+		Document result = new Document(docKey, uri, typeId, txStart, txFinish, createdAt, createdBy, encoding, bytes, elts);
 		result.setCollections(getIntArray(buff));
 		return result;
 	}
 
 	@Override
-	protected void writeEntry(MappedByteBuffer buff, XDMDocument entry) {
+	protected void writeEntry(MappedByteBuffer buff, Document entry) {
 		//if (buff.remaining() < getEntrySize(entry)) {
 			//logger.info("writeDocument; remaining: {}, capacity: {}, limit: {}", buff.remaining(), buff.capacity(), buff.limit());
 			//buff.
@@ -145,7 +145,7 @@ public class DocumentMemoryStore extends MemoryMappedStore<Long, XDMDocument> {
 	}
 
 	@Override
-	protected void deactivateEntry(MappedByteBuffer buff, XDMDocument entry) {
+	protected void deactivateEntry(MappedByteBuffer buff, Document entry) {
 		if (entry == null) {
 			logger.info("deactivateEntry; got null entry for some reason!"); 
 		} else if (entry.getTxFinish() > XDMTransactionManagement.TX_NO) {

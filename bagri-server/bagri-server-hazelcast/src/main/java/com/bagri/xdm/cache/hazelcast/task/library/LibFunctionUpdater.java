@@ -9,11 +9,11 @@ import java.util.Map.Entry;
 import java.util.StringTokenizer;
 
 import com.bagri.common.util.ReflectUtils;
-import com.bagri.xdm.system.XDMCardinality;
-import com.bagri.xdm.system.XDMFunction;
-import com.bagri.xdm.system.XDMLibrary;
-import com.bagri.xdm.system.XDMParameter;
-import com.bagri.xdm.system.XDMType;
+import com.bagri.xdm.system.Cardinality;
+import com.bagri.xdm.system.Function;
+import com.bagri.xdm.system.Library;
+import com.bagri.xdm.system.Parameter;
+import com.bagri.xdm.system.DataType;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
@@ -41,12 +41,12 @@ public class LibFunctionUpdater extends LibraryProcessor implements IdentifiedDa
 	}
 
 	@Override
-	public Object process(Entry<String, XDMLibrary> entry) {
+	public Object process(Entry<String, Library> entry) {
 		logger.debug("process.enter; entry: {}", entry); 
 		if (entry.getValue() != null) {
-			XDMFunction xdf = buildFunction();
+			Function xdf = buildFunction();
 			if (xdf != null) {
-				XDMLibrary xdl = entry.getValue();
+				Library xdl = entry.getValue();
 				if (action == Action.remove) {
 					//
 					xdl.getFunctions().remove(xdf);
@@ -62,7 +62,7 @@ public class LibFunctionUpdater extends LibraryProcessor implements IdentifiedDa
 		return null;
 	}
 	
-	private XDMFunction buildFunction()  {
+	private Function buildFunction()  {
 		// TODO: do it via regexp ?
 		try {
 			Class cls = Class.forName(className);
@@ -76,8 +76,8 @@ public class LibFunctionUpdater extends LibraryProcessor implements IdentifiedDa
 				result = result.trim();
 				ReflectUtils.type2Class(result);
 				// parse cardinality properly..
-				XDMType resultType = new XDMType(result, XDMCardinality.one); 
-				XDMFunction xdf = new XDMFunction(className, method, resultType, description, prefix);
+				DataType resultType = new DataType(result, Cardinality.one); 
+				Function xdf = new Function(className, method, resultType, description, prefix);
 				StringTokenizer st = new StringTokenizer(args.trim(), " ,");
 				List<Class> clsa = new ArrayList<>();
 				while (st.hasMoreTokens()) {
@@ -85,7 +85,7 @@ public class LibFunctionUpdater extends LibraryProcessor implements IdentifiedDa
 					String type = st.nextToken();
 					clsa.add(ReflectUtils.type2Class(type));
 					// parse cardinality properly..
-					XDMParameter xdp = new XDMParameter(name, type, XDMCardinality.one);
+					Parameter xdp = new Parameter(name, type, Cardinality.one);
 					xdf.getParameters().add(xdp);
 				}
 				cls.getMethod(method, clsa.toArray(new Class[clsa.size()]));

@@ -4,7 +4,7 @@ import static com.bagri.xdm.cache.hazelcast.serialize.DataSerializationFactoryIm
 
 import java.util.Map.Entry;
 
-import com.bagri.xdm.system.XDMRole;
+import com.bagri.xdm.system.Role;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
 public class RoleRemover extends RoleProcessor implements IdentifiedDataSerializable {
@@ -18,10 +18,10 @@ public class RoleRemover extends RoleProcessor implements IdentifiedDataSerializ
 	}
 
 	@Override
-	public Object process(Entry<String, XDMRole> entry) {
+	public Object process(Entry<String, Role> entry) {
 		logger.debug("process.enter; entry: {}", entry); 
 		if (entry.getValue() != null) {
-			XDMRole role = entry.getValue();
+			Role role = entry.getValue();
 			if (role.getVersion() == getVersion()) {
 				entry.setValue(null);
 				auditEntity(AuditType.delete, role);

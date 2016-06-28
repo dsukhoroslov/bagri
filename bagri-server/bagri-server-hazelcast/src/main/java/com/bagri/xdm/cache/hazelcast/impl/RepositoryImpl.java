@@ -1,5 +1,6 @@
 package com.bagri.xdm.cache.hazelcast.impl;
 
+import static com.bagri.xdm.cache.hazelcast.util.HazelcastUtils.hasStorageMembers;
 import static com.bagri.xdm.cache.hazelcast.util.HazelcastUtils.hz_instance;
 import static com.bagri.xdm.common.XDMConstants.xdm_schema_format_default;
 import static com.hazelcast.core.Hazelcast.getHazelcastInstanceByName;
@@ -33,13 +34,13 @@ import com.bagri.xdm.common.XDMKeyFactory;
 import com.bagri.xdm.common.XDMParser;
 import com.bagri.xdm.common.df.xml.XmlBuilder;
 import com.bagri.xdm.common.df.xml.XmlStaxParser;
-import com.bagri.xdm.domain.XDMPath;
-import com.bagri.xdm.system.XDMDataFormat;
-import com.bagri.xdm.system.XDMIndex;
-import com.bagri.xdm.system.XDMLibrary;
-import com.bagri.xdm.system.XDMModule;
-import com.bagri.xdm.system.XDMSchema;
-import com.bagri.xdm.system.XDMTriggerDef;
+import com.bagri.xdm.domain.Path;
+import com.bagri.xdm.system.DataFormat;
+import com.bagri.xdm.system.Index;
+import com.bagri.xdm.system.Library;
+import com.bagri.xdm.system.Module;
+import com.bagri.xdm.system.Schema;
+import com.bagri.xdm.system.TriggerDefinition;
 import com.bagri.xquery.api.XQProcessor;
 import com.hazelcast.core.HazelcastInstance;
 
@@ -57,10 +58,10 @@ public class RepositoryImpl extends RepositoryBase implements ApplicationContext
 	
 	private XDMKeyFactory xdmFactory; 
 	//private String instanceNum;
-	private XDMSchema xdmSchema;
-	private Map<String, XDMDataFormat> xdmFormats;
-	private Collection<XDMModule> xdmModules;
-	private Collection<XDMLibrary> xdmLibraries;
+	private Schema xdmSchema;
+	private Map<String, DataFormat> xdmFormats;
+	private Collection<Module> xdmModules;
+	private Collection<Library> xdmLibraries;
     private XDMClientManagement clientMgr;
     private XDMIndexManagement indexMgr;
     private XDMTriggerManagement triggerMgr;
@@ -141,11 +142,11 @@ public class RepositoryImpl extends RepositoryBase implements ApplicationContext
 	}
 	
 	@Override
-	public XDMSchema getSchema() {
+	public Schema getSchema() {
 		return xdmSchema;
 	}
 	
-	public void setSchema(XDMSchema xdmSchema) {
+	public void setSchema(Schema xdmSchema) {
 		// TODO: think about run-time updates..
 		this.xdmSchema = xdmSchema;
 		afterInit();
@@ -190,7 +191,7 @@ public class RepositoryImpl extends RepositoryBase implements ApplicationContext
 	
 	@Override
 	public XDMParser getParser(String dataFormat) {
-		XDMDataFormat df = getDataFormat(dataFormat);
+		DataFormat df = getDataFormat(dataFormat);
 		if (df != null) {
 			return instantiateClass(df.getParserClass());
 		}
@@ -200,7 +201,7 @@ public class RepositoryImpl extends RepositoryBase implements ApplicationContext
 	
 	@Override
 	public XDMBuilder getBuilder(String dataFormat) {
-		XDMDataFormat df = getDataFormat(dataFormat);
+		DataFormat df = getDataFormat(dataFormat);
 		if (df != null) {
 			return instantiateClass(df.getBuilderClass());
 		}
@@ -225,9 +226,11 @@ public class RepositoryImpl extends RepositoryBase implements ApplicationContext
 		// TODO: disconnect all clients ?
 	}
 	
-	public XDMDataFormat getDataFormat(String dataFormat) {
+	public DataFormat getDataFormat(String dataFormat) {
 
-		Map<String, XDMDataFormat> formats = xdmFormats;
+		// TODO: make it as fast as possible as it is called from many other places!
+		//logger.info("getDataFormat; format: {}", dataFormat);
+		Map<String, DataFormat> formats = xdmFormats;
 		if (formats == null) {
 			HazelcastInstance dataInstance = getHazelcastInstanceByName(hz_instance);
 			if (dataInstance != null) {
@@ -236,12 +239,12 @@ public class RepositoryImpl extends RepositoryBase implements ApplicationContext
 		}
 		if (formats != null) {
 			// find by name
-			XDMDataFormat df = formats.get(dataFormat);
+			DataFormat df = formats.get(dataFormat);
 			if (df != null) {
 				return df;
 			} else {
 				// find by extension
-				for (XDMDataFormat df2: formats.values()) {
+				for (DataFormat df2: formats.values()) {
 					if (df2.getExtensions().contains(dataFormat)) {
 						return df2;
 					}
@@ -255,57 +258,57 @@ public class RepositoryImpl extends RepositoryBase implements ApplicationContext
 		return null;
 	}
 
-	public void setDataFormats(Collection<XDMDataFormat> cFormats) {
+	public void setDataFormats(Collection<DataFormat> cFormats) {
 		if (cFormats != null) {
 			xdmFormats = new HashMap<>(cFormats.size());
-			for (XDMDataFormat df: cFormats) {
+			for (DataFormat df: cFormats) {
 				xdmFormats.put(df.getName(), df);
 			}
 		}
 	}
 	
-	public Collection<XDMLibrary> getLibraries() {
+	public Collection<Library> getLibraries() {
 		if (xdmLibraries != null) {
 			return xdmLibraries;
 		}
 		
 		HazelcastInstance dataInstance = getHazelcastInstanceByName(hz_instance);
 		if (dataInstance != null) {
-			Map<String, XDMLibrary> libraries = dataInstance.getMap("libraries");
+			Map<String, Library> libraries = dataInstance.getMap("libraries");
 			return libraries.values();
 		}
 		return Collections.emptyList(); 
 	}
 
-	public void setLibraries(Collection<XDMLibrary> cLibraries) {
+	public void setLibraries(Collection<Library> cLibraries) {
 		if (cLibraries != null) {
 			xdmLibraries = new ArrayList<>(cLibraries);
 		}
 	}
 	
-	public Collection<XDMModule> getModules() {
+	public Collection<Module> getModules() {
 		if (xdmModules != null) {
 			return xdmModules;
 		}
 		
 		HazelcastInstance dataInstance = getHazelcastInstanceByName(hz_instance);
 		if (dataInstance != null) {
-			Map<String, XDMModule> modules = dataInstance.getMap("modules");
+			Map<String, Module> modules = dataInstance.getMap("modules");
 			return modules.values();
 		}
 		return Collections.emptyList(); 
 	}
 	
-	public void setModules(Collection<XDMModule> cModules) {
+	public void setModules(Collection<Module> cModules) {
 		if (cModules != null) {
 			xdmModules = new ArrayList<>(cModules);
 		}
 	}
 	
 	public void afterInit() {
-		Set<XDMIndex> indexes = xdmSchema.getIndexes();
+		Set<Index> indexes = xdmSchema.getIndexes();
 		if (indexes.size() > 0) {
-			for (XDMIndex idx: indexes) {
+			for (Index idx: indexes) {
 				try {
 					indexMgr.createIndex(idx);
 				} catch (XDMException ex) {
@@ -315,18 +318,26 @@ public class RepositoryImpl extends RepositoryBase implements ApplicationContext
 		}
 		
 		// now init triggers..
-		Set<XDMTriggerDef> triggers = xdmSchema.getTriggers();
+		Set<TriggerDefinition> triggers = xdmSchema.getTriggers();
 		if (triggers.size() > 0) {
-			for (XDMTriggerDef trg: triggers) {
+			for (TriggerDefinition trg: triggers) {
 				triggerMgr.createTrigger(trg);
 			}
 		}
 	}
 	
-	public boolean addSchemaIndex(XDMIndex index) {
+	public boolean isInitialized() {
+		if (xdmFormats != null && xdmModules != null && xdmLibraries != null) {
+			return true;
+		}
+		HazelcastInstance sysInstance = getHazelcastInstanceByName(hz_instance);
+		return hasStorageMembers(sysInstance);
+	}
+	
+	public boolean addSchemaIndex(Index index) {
 		
 		if (xdmSchema.addIndex(index)) {
-			XDMPath[] paths;
+			Path[] paths;
 			try {
 				paths = indexMgr.createIndex(index);
 			} catch (XDMException ex) {
@@ -335,7 +346,7 @@ public class RepositoryImpl extends RepositoryBase implements ApplicationContext
 			}
 			
 			DocumentManagementImpl docMgr = (DocumentManagementImpl) getDocumentManagement();
-			for (XDMPath xPath: paths) {
+			for (Path xPath: paths) {
 				try {
 					docMgr.indexElements(xPath.getTypeId(), xPath.getPathId());
 				} catch (XDMException ex) {
@@ -350,9 +361,9 @@ public class RepositoryImpl extends RepositoryBase implements ApplicationContext
 
 	public boolean dropSchemaIndex(String name) {
 		
-		XDMIndex index = xdmSchema.removeIndex(name);
+		Index index = xdmSchema.removeIndex(name);
 		if (index != null) {
-			XDMPath[] paths;
+			Path[] paths;
 			try {
 				paths = indexMgr.dropIndex(index);
 			} catch (XDMException ex) {
@@ -363,7 +374,7 @@ public class RepositoryImpl extends RepositoryBase implements ApplicationContext
 			DocumentManagementImpl docMgr = (DocumentManagementImpl) getDocumentManagement();
 			int cnt = 0;
 			List<Integer> pathIds = new ArrayList<>(paths.length);
-			for (XDMPath xPath: paths) {
+			for (Path xPath: paths) {
 				pathIds.add(xPath.getPathId());
 				cnt += docMgr.deindexElements(xPath.getTypeId(), xPath.getPathId());
 			}
@@ -380,7 +391,7 @@ public class RepositoryImpl extends RepositoryBase implements ApplicationContext
 		return false;
 	}
 	
-	public boolean addSchemaTrigger(XDMTriggerDef trigger) {
+	public boolean addSchemaTrigger(TriggerDefinition trigger) {
 		
 		if (xdmSchema.addTrigger(trigger)) {
 			return triggerMgr.createTrigger(trigger);
@@ -390,7 +401,7 @@ public class RepositoryImpl extends RepositoryBase implements ApplicationContext
 
 	public boolean dropSchemaTrigger(String className) {
 		
-		XDMTriggerDef trigger = xdmSchema.removeTrigger(className);
+		TriggerDefinition trigger = xdmSchema.removeTrigger(className);
 		if (trigger != null) {
 			return triggerMgr.deleteTrigger(trigger);
 		}

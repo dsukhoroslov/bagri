@@ -11,13 +11,13 @@ import org.springframework.jmx.export.annotation.ManagedAttribute;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
 import com.bagri.common.util.JMXUtils;
-import com.bagri.xdm.system.XDMPermission;
-import com.bagri.xdm.system.XDMRole;
+import com.bagri.xdm.system.Permission;
+import com.bagri.xdm.system.Role;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 
 @ManagedResource(description="Role Manager MBean")
-public class RoleManager extends PermissionAwareManager<XDMRole> {
+public class RoleManager extends PermissionAwareManager<Role> {
 
 	public RoleManager() {
 		super();
@@ -44,10 +44,10 @@ public class RoleManager extends PermissionAwareManager<XDMRole> {
 
 	@ManagedAttribute(description="Returns effective Role permissions, recursivelly")
 	public CompositeData getRecursivePermissions() {
-		Map<String, XDMPermission> xPerms = new HashMap<String, XDMPermission>();
+		Map<String, Permission> xPerms = new HashMap<String, Permission>();
 		getRecursivePermissions(xPerms, entityName);
 		Map<String, Object> pMap = new HashMap<String, Object>(xPerms.size());
-		for (Map.Entry<String, XDMPermission> e: xPerms.entrySet()) {
+		for (Map.Entry<String, Permission> e: xPerms.entrySet()) {
 			pMap.put(e.getKey(), e.getValue().getPermissionsAsString());
 		}
 		return JMXUtils.mapToComposite(entityName, "permissions", pMap);
@@ -62,7 +62,7 @@ public class RoleManager extends PermissionAwareManager<XDMRole> {
 	}
 
 	@Override
-	protected IMap<String, XDMRole> getRoleCache() {
+	protected IMap<String, Role> getRoleCache() {
 		return entityCache;
 	}
 	

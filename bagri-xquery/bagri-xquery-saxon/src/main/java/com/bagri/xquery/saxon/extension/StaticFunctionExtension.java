@@ -10,8 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bagri.common.util.ReflectUtils;
-import com.bagri.xdm.system.XDMFunction;
-import com.bagri.xdm.system.XDMParameter;
+import com.bagri.xdm.system.Function;
+import com.bagri.xdm.system.Parameter;
 
 import static com.bagri.xquery.saxon.SaxonUtils.*;
 
@@ -31,7 +31,7 @@ public class StaticFunctionExtension extends ExtensionFunctionDefinition {
 	
 	private static final Logger logger = LoggerFactory.getLogger(StaticFunctionExtension.class);
 	
-	private XDMFunction xdf;
+	private Function xdf;
 	private Class[] params;
 	private Configuration config;
 	
@@ -39,7 +39,7 @@ public class StaticFunctionExtension extends ExtensionFunctionDefinition {
 		// de-serialization ?
 	}
 	
-	public StaticFunctionExtension(XDMFunction xdf, Configuration config) throws ClassNotFoundException {
+	public StaticFunctionExtension(Function xdf, Configuration config) throws ClassNotFoundException {
 		this.xdf = xdf;
 		this.config = config;
 		params = buildParams();
@@ -55,7 +55,7 @@ public class StaticFunctionExtension extends ExtensionFunctionDefinition {
 	public SequenceType[] getArgumentTypes() {
 		SequenceType[] result = new SequenceType[xdf.getParameters().size()];
 		int idx = 0;
-		for (XDMParameter xdp: xdf.getParameters()) {
+		for (Parameter xdp: xdf.getParameters()) {
 			result[idx] = type2Sequence(xdp);
 			idx++;
 		}
@@ -113,7 +113,7 @@ public class StaticFunctionExtension extends ExtensionFunctionDefinition {
 	private Class[] buildParams() throws ClassNotFoundException {
 		Class[] result = new Class[xdf.getParameters().size()];
 		int idx = 0;
-		for (XDMParameter xp: xdf.getParameters()) {
+		for (Parameter xp: xdf.getParameters()) {
 			result[idx] = ReflectUtils.type2Class(xp.getType());
 			idx++;
 		}

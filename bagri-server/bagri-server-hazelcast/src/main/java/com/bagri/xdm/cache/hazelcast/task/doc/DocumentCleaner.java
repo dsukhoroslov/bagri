@@ -16,8 +16,8 @@ import com.bagri.xdm.api.XDMTransactionState;
 import com.bagri.xdm.cache.hazelcast.impl.DocumentManagementImpl;
 import com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl;
 import com.bagri.xdm.common.XDMDocumentKey;
-import com.bagri.xdm.domain.XDMDocument;
-import com.bagri.xdm.domain.XDMTransaction;
+import com.bagri.xdm.domain.Document;
+import com.bagri.xdm.domain.Transaction;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.nio.ObjectDataInput;
@@ -28,18 +28,18 @@ import com.hazelcast.query.Predicates;
 import com.hazelcast.spring.context.SpringAware;
 
 @SpringAware
-public class DocumentCleaner implements Callable<XDMTransaction>, IdentifiedDataSerializable { 
+public class DocumentCleaner implements Callable<Transaction>, IdentifiedDataSerializable { 
 	
 	private static final transient Logger logger = LoggerFactory.getLogger(DocumentCleaner.class);
 
-	private XDMTransaction xTx;
+	private Transaction xTx;
 	private transient RepositoryImpl xdmRepo;
     
 	public DocumentCleaner() {
 		//
 	}
 	
-	public DocumentCleaner(XDMTransaction xTx) {
+	public DocumentCleaner(Transaction xTx) {
 		this.xTx = xTx;
 	}
 
@@ -50,14 +50,14 @@ public class DocumentCleaner implements Callable<XDMTransaction>, IdentifiedData
 	
 	
 	@Override
-	public XDMTransaction call() throws Exception {
+	public Transaction call() throws Exception {
 		HazelcastInstance hz = xdmRepo.getHzInstance();
-		IMap<XDMDocumentKey, XDMDocument> xddCache = hz.getMap(CN_XDM_DOCUMENT);
+		IMap<XDMDocumentKey, Document> xddCache = hz.getMap(CN_XDM_DOCUMENT);
 		DocumentManagementImpl docMgr = (DocumentManagementImpl) xdmRepo.getDocumentManagement();
 		// adjust cleaned counters; updateCounters(created, updated, deleted);
 		Set<XDMDocumentKey> dkStarted = xddCache.localKeySet(Predicates.equal("txStart", xTx.getTxId()));
 		Set<XDMDocumentKey> dkFinished = xddCache.localKeySet(Predicates.equal("txFinish", xTx.getTxId()));
-		XDMTransaction result = new XDMTransaction(xTx.getTxId(), xTx.getStartedAt(), xTx.getFinishedAt(), xTx.getStartedBy(), xTx.getTxIsolation(), xTx.getTxState());
+		Transaction result = new Transaction(xTx.getTxId(), xTx.getStartedAt(), xTx.getFinishedAt(), xTx.getStartedBy(), xTx.getTxIsolation(), xTx.getTxState());
 		
 		boolean commit = xTx.getTxState() == XDMTransactionState.commited;
 		// on commit: 
@@ -72,7 +72,7 @@ public class DocumentCleaner implements Callable<XDMTransaction>, IdentifiedData
 			for (XDMDocumentKey dk: dkStarted) {
 				// previous version for the same doc 
 				//XDMDocumentKey pk = docMgr.getXdmFactory().newXDMDocumentKey(dk.getDocumentId(), dk.getVersion() - 1);
-				if (dk.getVersion() == XDMDocument.dvFirst) {
+				if (dk.getVersion() == Document.dvFirst) {
 					// created, for sure
 					result.updateCounters(1, 0, 0);
 				} else {

@@ -29,7 +29,7 @@ import com.bagri.xdm.client.hazelcast.task.doc.DocumentProvider;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentRemover;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentUrisProvider;
 import com.bagri.xdm.common.XDMDocumentKey;
-import com.bagri.xdm.domain.XDMDocument;
+import com.bagri.xdm.domain.Document;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.IMap;
@@ -39,7 +39,7 @@ import com.hazelcast.query.Predicates;
 
 public class DocumentManagementImpl extends DocumentManagementBase implements XDMDocumentManagement {
 
-	private IMap<XDMDocumentKey, XDMDocument> xddCache;
+	private IMap<XDMDocumentKey, Document> xddCache;
 	private IExecutorService execService;
     private RepositoryImpl repo;
 	
@@ -47,7 +47,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements XD
 		super();
 	}
 
-	IMap<XDMDocumentKey, XDMDocument> getDocumentCache() {
+	IMap<XDMDocumentKey, Document> getDocumentCache() {
 		return xddCache;
 	}
 	
@@ -59,11 +59,11 @@ public class DocumentManagementImpl extends DocumentManagementBase implements XD
 	}
 
 	@Override
-	public XDMDocument getDocument(String uri) throws XDMException {
+	public Document getDocument(String uri) throws XDMException {
 		logger.trace("getDocument.enter; got uri: {}", uri);
-		XDMDocument result = null;
+		Document result = null;
 		DocumentProvider task = new DocumentProvider(repo.getClientId(), uri);
-		Future<XDMDocument> future = execService.submit(task);
+		Future<Document> future = execService.submit(task);
 		try {
 			result = future.get();
 			logger.trace("getDocument.exit; got document: {}", result);
@@ -140,7 +140,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements XD
 	}
 
 	@Override
-	public XDMDocument storeDocumentFromBean(String uri, Object bean, Properties props) throws XDMException {
+	public Document storeDocumentFromBean(String uri, Object bean, Properties props) throws XDMException {
 		if (bean == null) {
 			throw new XDMException("Document bean can not be null", XDMException.ecDocument);
 		}
@@ -151,7 +151,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements XD
 	}
 
 	@Override
-	public XDMDocument storeDocumentFromMap(String uri, Map<String, Object> fields, Properties props) throws XDMException {
+	public Document storeDocumentFromMap(String uri, Map<String, Object> fields, Properties props) throws XDMException {
 		if (fields == null) {
 			throw new XDMException("Document fields map can not be null", XDMException.ecDocument);
 		}
@@ -162,7 +162,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements XD
 	}
 	
 	@Override
-	public XDMDocument storeDocumentFromString(String uri, String content, Properties props) throws XDMException {
+	public Document storeDocumentFromString(String uri, String content, Properties props) throws XDMException {
 		if (content == null) {
 			throw new XDMException("Document content can not be null", XDMException.ecDocument);
 		}
@@ -172,14 +172,14 @@ public class DocumentManagementImpl extends DocumentManagementBase implements XD
 		return storeDocument(props, task);
 	}
 	
-	public XDMDocument storeDocument(Properties props, Callable<XDMDocument> creator) throws XDMException {
+	public Document storeDocument(Properties props, Callable<Document> creator) throws XDMException {
 		logger.trace("storeDocument.enter; props: {}", props);
 		repo.getHealthManagement().checkClusterState();
-		Future<XDMDocument> future = execService.submit(creator);
+		Future<Document> future = execService.submit(creator);
 		try {
-			XDMDocument result = future.get();
+			Document result = future.get();
 			logger.trace("storeDocument.exit; returning: {}", result);
-			return (XDMDocument) result;
+			return (Document) result;
 		} catch (InterruptedException | ExecutionException ex) {
 			// the document could be stored anyway..
 			logger.error("storeDocument.error", ex);
@@ -196,9 +196,9 @@ public class DocumentManagementImpl extends DocumentManagementBase implements XD
 		//Object result = xddCache.executeOnKey(docId, proc);
 		
 		DocumentRemover task = new DocumentRemover(repo.getClientId(), repo.getTransactionId(), uri);
-		Future<XDMDocument> future = execService.submit(task);
+		Future<Document> future = execService.submit(task);
 		try {
-			XDMDocument result = future.get();
+			Document result = future.get();
 			logger.trace("removeDocument.exit; returning: {}", result);
 			//return (XDMDocument) result;
 		} catch (InterruptedException | ExecutionException ex) {

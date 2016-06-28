@@ -7,7 +7,7 @@ import static com.bagri.xdm.cache.hazelcast.util.SpringContextHolder.schema_cont
 import static com.bagri.xdm.common.XDMConstants.xdm_schema_format_default;
 import static com.bagri.xdm.common.XDMConstants.xdm_schema_name;
 import static com.bagri.xdm.common.XDMConstants.xdm_schema_store_data_path;
-import static com.bagri.xdm.domain.XDMDocument.dvFirst;
+import static com.bagri.xdm.domain.Document.dvFirst;
 
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
@@ -35,13 +35,13 @@ import com.bagri.xdm.cache.hazelcast.impl.DocumentManagementImpl;
 import com.bagri.xdm.cache.hazelcast.impl.PopulationManagementImpl;
 import com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl;
 import com.bagri.xdm.common.XDMDocumentKey;
-import com.bagri.xdm.domain.XDMDocument;
-import com.bagri.xdm.system.XDMDataFormat;
+import com.bagri.xdm.domain.Document;
+import com.bagri.xdm.system.DataFormat;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.MapLoaderLifecycleSupport;
 import com.hazelcast.core.MapStore;
 
-public class FileDocumentCacheStore implements MapStore<XDMDocumentKey, XDMDocument>, MapLoaderLifecycleSupport {
+public class FileDocumentCacheStore implements MapStore<XDMDocumentKey, Document>, MapLoaderLifecycleSupport {
 
     private static final Logger logger = LoggerFactory.getLogger(FileDocumentCacheStore.class);
     
@@ -72,6 +72,15 @@ public class FileDocumentCacheStore implements MapStore<XDMDocumentKey, XDMDocum
 			if (schemaCtx != null) {
 				xdmRepo = schemaCtx.getBean(RepositoryImpl.class);
 				dataFormat = xdmRepo.getSchema().getProperty(xdm_schema_format_default);
+				
+				while (!xdmRepo.isInitialized()) {
+					try {
+						Thread.sleep(100);
+					} catch (InterruptedException ex) {
+						// ??
+						logger.warn("ensureRepository; interrupted while waiting for Repo initialization"); 
+					}
+				}
 			} else {
 				logger.warn("ensureRepository; can not get context for schema: {}", schemaName);
 			}
@@ -80,7 +89,7 @@ public class FileDocumentCacheStore implements MapStore<XDMDocumentKey, XDMDocum
 	}
     
 	private void processPathFiles(Path root, List<Path> files) throws IOException {
-		XDMDataFormat df = xdmRepo.getDataFormat(dataFormat);
+		DataFormat df = xdmRepo.getDataFormat(dataFormat);
 		StringBuffer ext = new StringBuffer();
 		if (df != null) {
 			int cnt = 0;
@@ -110,9 +119,9 @@ public class FileDocumentCacheStore implements MapStore<XDMDocumentKey, XDMDocum
 		return dataPath + "/" + fileName;
 	}
 
-	private XDMDocument loadDocument(XDMDocumentKey docKey) {
+	private Document loadDocument(XDMDocumentKey docKey) {
     	String docUri = null;
-    	XDMDocument doc = popManager.getDocument(docKey.getKey());
+    	Document doc = popManager.getDocument(docKey.getKey());
     	if (doc != null) {
     		if (doc.getTxFinish() > TX_NO) {
     			// no need to load content for inactive docs
@@ -130,7 +139,7 @@ public class FileDocumentCacheStore implements MapStore<XDMDocumentKey, XDMDocum
 	    	if (Files.exists(path)) {
         		try {
         			String content = FileUtils.readTextFile(fullUri);
-        			XDMDocument newDoc;
+        			Document newDoc;
         			DocumentManagementImpl docManager = (DocumentManagementImpl) xdmRepo.getDocumentManagement(); 
         			if (doc == null) {
         				newDoc = docManager.createDocument(docKey, docUri, content, dataFormat, new Date(Files.getLastModifiedTime(path).toMillis()), 
@@ -150,21 +159,21 @@ public class FileDocumentCacheStore implements MapStore<XDMDocumentKey, XDMDocum
     }
     
 	@Override
-	public XDMDocument load(XDMDocumentKey key) {
+	public Document load(XDMDocumentKey key) {
 		logger.trace("load.enter; key: {}", key);
 		ensureRepository();
-    	XDMDocument result = loadDocument(key);
+    	Document result = loadDocument(key);
 		logger.trace("load.exit; returning: {}", result);
 		return result;
 	}
 
 	@Override
-	public Map<XDMDocumentKey, XDMDocument> loadAll(Collection<XDMDocumentKey> keys) {
+	public Map<XDMDocumentKey, Document> loadAll(Collection<XDMDocumentKey> keys) {
 		logger.debug("loadAll.enter; keys: {}; ", keys.size());
 		ensureRepository();
-		Map<XDMDocumentKey, XDMDocument> result = new HashMap<>(keys.size());
+		Map<XDMDocumentKey, Document> result = new HashMap<>(keys.size());
 	    for (XDMDocumentKey key: keys) {
-	    	XDMDocument doc = loadDocument(key);
+	    	Document doc = loadDocument(key);
 	    	if (doc != null) {
 	    		result.put(key, doc);
 	    	}
@@ -225,7 +234,7 @@ public class FileDocumentCacheStore implements MapStore<XDMDocumentKey, XDMDocum
 	}
 	
 	@Override
-	public void store(XDMDocumentKey key, XDMDocument value) {
+	public void store(XDMDocumentKey key, Document value) {
 		logger.trace("store.enter; key: {}; value: {}", key, value);
 		ensureRepository();
 		if (xdmRepo == null) {
@@ -256,9 +265,9 @@ public class FileDocumentCacheStore implements MapStore<XDMDocumentKey, XDMDocum
 	}
 
 	@Override
-	public void storeAll(Map<XDMDocumentKey, XDMDocument> entries) {
+	public void storeAll(Map<XDMDocumentKey, Document> entries) {
 		logger.trace("storeAll.enter; entries: {}", entries.size());
-		for (Map.Entry<XDMDocumentKey, XDMDocument> entry: entries.entrySet()) {
+		for (Map.Entry<XDMDocumentKey, Document> entry: entries.entrySet()) {
 			store(entry.getKey(), entry.getValue());
 		}
 		logger.trace("storeAll.exit; stored: {}", entries.size());

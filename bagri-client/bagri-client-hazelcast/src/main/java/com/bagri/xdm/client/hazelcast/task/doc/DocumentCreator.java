@@ -6,12 +6,12 @@ import java.io.IOException;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 
-import com.bagri.xdm.domain.XDMDocument;
+import com.bagri.xdm.domain.Document;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 
 
-public class DocumentCreator extends DocumentAwareTask implements Callable<XDMDocument> {
+public class DocumentCreator extends DocumentAwareTask implements Callable<Document> {
 
 	protected String content;
 
@@ -25,7 +25,7 @@ public class DocumentCreator extends DocumentAwareTask implements Callable<XDMDo
 	}
 
 	@Override
-	public XDMDocument call() throws Exception {
+	public Document call() throws Exception {
 		return null; 
 	}
 

@@ -9,14 +9,14 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Map.Entry;
 
-import com.bagri.xdm.domain.XDMResults;
+import com.bagri.xdm.domain.QueryResult;
 import com.hazelcast.map.EntryBackupProcessor;
 import com.hazelcast.map.EntryProcessor;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
-public class XQueryProcessor implements EntryProcessor<Long, XDMResults>, EntryBackupProcessor<Long, XDMResults>,
+public class XQueryProcessor implements EntryProcessor<Long, QueryResult>, EntryBackupProcessor<Long, QueryResult>,
 	IdentifiedDataSerializable {
 
 	protected boolean isQuery;
@@ -40,18 +40,18 @@ public class XQueryProcessor implements EntryProcessor<Long, XDMResults>, EntryB
 
 	
 	@Override
-	public void processBackup(Entry<Long, XDMResults> entry) {
+	public void processBackup(Entry<Long, QueryResult> entry) {
 		// TODO Auto-generated method stub
 	}
 
 	@Override
-	public Object process(Entry<Long, XDMResults> entry) {
+	public Object process(Entry<Long, QueryResult> entry) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public EntryBackupProcessor<Long, XDMResults> getBackupProcessor() {
+	public EntryBackupProcessor<Long, QueryResult> getBackupProcessor() {
 		return this;
 	}
 

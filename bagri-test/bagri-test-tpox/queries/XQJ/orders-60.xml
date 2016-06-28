@@ -9,7 +9,7 @@
 	<transactions>
 
 		<transaction id="1" name="getOrder" weight="100">
-			<java-plugin>com.bagri.client.tpox.workload.BagriXQJPlugin</java-plugin>
+			<java-plugin>com.bagri.test.tpox.workload.BagriXQJPlugin</java-plugin>
 			<parameters>
 				<parameter>
 					<constant value="

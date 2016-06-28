@@ -8,7 +8,7 @@
 	<transactions>
 
 		<!--transaction id="1" name="addDocument" weight="100">
-			<java-plugin>com.bagri.client.tpox.workload.BagriXQJPlugin</java-plugin>
+			<java-plugin>com.bagri.test.tpox.workload.BagriXQJPlugin</java-plugin>
 			<parameters>
 				<parameter>
 					<constant value="
@@ -34,7 +34,7 @@ return $id" />
 		</transaction-->
 
 		<transaction id="1" name="addDocument" weight="100">
-			<java-plugin>com.bagri.client.tpox.workload.BagriXQJPlugin</java-plugin>
+			<java-plugin>com.bagri.test.tpox.workload.BagriXQJPlugin</java-plugin>
 			<parameters>
 				<parameter>
 					<constant value="store-document" />

@@ -17,12 +17,12 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 
 import com.bagri.common.util.JMXUtils;
 import com.bagri.xdm.cache.hazelcast.task.node.NodeUpdater;
-import com.bagri.xdm.system.XDMNode;
+import com.bagri.xdm.system.Node;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.Member;
 
 @ManagedResource(description="Cluster Node Manager MBean")
-public class NodeManager extends EntityManager<XDMNode> { 
+public class NodeManager extends EntityManager<Node> { 
 
 	//private IExecutorService execService;
 
@@ -46,7 +46,7 @@ public class NodeManager extends EntityManager<XDMNode> {
 	
 	@ManagedAttribute(description="Returns active Node identifier")
 	public String[] getNodeIds() {
-		XDMNode node = getEntity();
+		Node node = getEntity();
 		List<Member> members = getMembers(node.getName());
 		if (members.size() > 0) {
 			int i = 0;
@@ -61,7 +61,7 @@ public class NodeManager extends EntityManager<XDMNode> {
 	
 	@ManagedAttribute(description="Returns Node state")
 	public boolean isActive() {
-		XDMNode node = getEntity();
+		Node node = getEntity();
 		List<Member> members = getMembers(node.getName());
 		return members.size() > 0;
 	}
@@ -89,7 +89,7 @@ public class NodeManager extends EntityManager<XDMNode> {
 		@ManagedOperationParameter(name = "name", description = "A name of the option to set"),
 		@ManagedOperationParameter(name = "value", description = "A value of the option to set")})
 	public void setOption(String name, String value) {
-		XDMNode node = getEntity();
+		Node node = getEntity();
 		if (node != null) {
 			Properties opts = new Properties();
 			opts.setProperty(name, value);
@@ -104,7 +104,7 @@ public class NodeManager extends EntityManager<XDMNode> {
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "name", description = "A name of the option to remove")})
 	public void removeOption(String name) {
-		XDMNode node = getEntity();
+		Node node = getEntity();
 		if (node != null) {
 			Properties opts = node.getOptions();
 			opts.remove(name); // is it safe??
@@ -116,7 +116,7 @@ public class NodeManager extends EntityManager<XDMNode> {
 
 	@ManagedAttribute(description="Return Schema names deployed on the Node")
 	public String[] getDeployedSchemas() {
-		XDMNode node = getEntity();
+		Node node = getEntity();
 		return node.getSchemas();
 	}
 	
@@ -134,7 +134,7 @@ public class NodeManager extends EntityManager<XDMNode> {
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "schemaName", description = "Schema name to add")})
 	public void addSchema(String schemaName) {
-		XDMNode node = getEntity();
+		Node node = getEntity();
 		String schemas = node.getOption(xdm_cluster_node_schemas);
 		if (schemas != null) {
 			if (schemas.length() > 0) {

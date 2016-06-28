@@ -12,7 +12,7 @@ import com.bagri.xdm.cache.hazelcast.task.library.LibraryCreator;
 import com.bagri.xdm.cache.hazelcast.task.library.LibraryRemover;
 //import com.bagri.xdm.cache.hazelcast.task.Library.LibraryCreator;
 //import com.bagri.xdm.cache.hazelcast.task.Library.LibraryRemover;
-import com.bagri.xdm.system.XDMLibrary;
+import com.bagri.xdm.system.Library;
 import com.bagri.xquery.api.XQCompiler;
 import com.hazelcast.core.HazelcastInstance;
 
@@ -22,7 +22,7 @@ import com.hazelcast.core.HazelcastInstance;
  */
 @ManagedResource(objectName="com.bagri.xdm:type=Management,name=LibraryManagement", 
 	description="Extension Library Management MBean")
-public class LibraryManagement extends EntityManagement<XDMLibrary> {
+public class LibraryManagement extends EntityManagement<Library> {
 
 	private XQCompiler xqComp;
 	
@@ -36,7 +36,7 @@ public class LibraryManagement extends EntityManagement<XDMLibrary> {
 	}
 	
 	@Override
-	protected EntityManager<XDMLibrary> createEntityManager(String libraryName) {
+	protected EntityManager<Library> createEntityManager(String libraryName) {
 		LibraryManager mgr = new LibraryManager(hzInstance, libraryName);
 		mgr.setEntityCache(entityCache);
 		mgr.setXQCompiler(xqComp);
@@ -60,10 +60,10 @@ public class LibraryManagement extends EntityManagement<XDMLibrary> {
 		@ManagedOperationParameter(name = "description", description = "Library description")})
 	public boolean addLibrary(String name, String fileName, String description) {
 		logger.trace("addLibrary.enter; name: {}", name);
-		XDMLibrary library = null;
+		Library library = null;
 		if (!entityCache.containsKey(name)) {
 	    	Object result = entityCache.executeOnKey(name, new LibraryCreator(getCurrentUser(), fileName, description));
-	    	library = (XDMLibrary) result;
+	    	library = (Library) result;
 		}
 		logger.trace("addLibrary.exit; library created: {}", library);
 		return library != null;
@@ -73,10 +73,10 @@ public class LibraryManagement extends EntityManagement<XDMLibrary> {
 	@ManagedOperationParameters({@ManagedOperationParameter(name = "name", description = "Library name to delete")})
 	public boolean deleteLibrary(String name) {
 		logger.trace("deleteLibrary.enter; name: {}", name);
-		XDMLibrary library = entityCache.get(name);
+		Library library = entityCache.get(name);
 		if (library != null) {
 	    	Object result = entityCache.executeOnKey(name, new LibraryRemover(library.getVersion(), getCurrentUser()));
-	    	library = (XDMLibrary) result;
+	    	library = (Library) result;
 		}
 		logger.trace("deleteLibrary.exit; library deleted: {}", library);
 		return library != null;

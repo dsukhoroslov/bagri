@@ -9,16 +9,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bagri.xdm.cache.hazelcast.task.EntityProcessor;
-import com.bagri.xdm.system.XDMPermissionAware;
-import com.bagri.xdm.system.XDMRole;
+import com.bagri.xdm.system.PermissionAware;
+import com.bagri.xdm.system.Role;
 import com.hazelcast.map.EntryBackupProcessor;
 import com.hazelcast.map.EntryProcessor;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
-public class RoleUpdater extends EntityProcessor implements EntryProcessor<String, XDMPermissionAware>, 
-	EntryBackupProcessor<String, XDMPermissionAware>, IdentifiedDataSerializable {
+public class RoleUpdater extends EntityProcessor implements EntryProcessor<String, PermissionAware>, 
+	EntryBackupProcessor<String, PermissionAware>, IdentifiedDataSerializable {
 
 	private static final transient Logger logger = LoggerFactory.getLogger(RoleUpdater.class);
 	
@@ -36,20 +36,20 @@ public class RoleUpdater extends EntityProcessor implements EntryProcessor<Strin
 	}
 
 	@Override
-	public void processBackup(Entry<String, XDMPermissionAware> entry) {
+	public void processBackup(Entry<String, PermissionAware> entry) {
 		process(entry);		
 	}
 
 	@Override
-	public EntryBackupProcessor<String, XDMPermissionAware> getBackupProcessor() {
+	public EntryBackupProcessor<String, PermissionAware> getBackupProcessor() {
 		return this;
 	}
 	
 	@Override
-	public Object process(Entry<String, XDMPermissionAware> entry) {
+	public Object process(Entry<String, PermissionAware> entry) {
 		logger.debug("process.enter; entry: {}", entry); 
 		if (entry.getValue() != null) {
-			XDMPermissionAware role = entry.getValue();
+			PermissionAware role = entry.getValue();
 			if (role.getVersion() == getVersion()) {
 				// check for circular inclusion !!
 				if (action == Action.add) {

@@ -8,8 +8,8 @@ import com.bagri.xdm.api.XDMDocumentManagement;
 import com.bagri.xdm.cache.api.XDMRepository;
 import com.bagri.xdm.cache.api.XDMTransactionManagement;
 import com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl;
-import com.bagri.xdm.domain.XDMDocument;
-import com.bagri.xdm.system.XDMPermission.Permission;
+import com.bagri.xdm.domain.Document;
+import com.bagri.xdm.system.Permission;
 import com.hazelcast.spring.context.SpringAware;
 
 @SpringAware
@@ -26,14 +26,14 @@ public class DocumentMapCreator extends com.bagri.xdm.client.hazelcast.task.doc.
 	}
 
     @Override
-	public XDMDocument call() throws Exception {
+	public Document call() throws Exception {
 
     	((RepositoryImpl) repo).getXQProcessor(clientId);
-    	checkPermission(Permission.modify);
+    	checkPermission(Permission.Value.modify);
     	
-    	return txMgr.callInTransaction(txId, false, new Callable<XDMDocument>() {
+    	return txMgr.callInTransaction(txId, false, new Callable<Document>() {
     		
-	    	public XDMDocument call() throws Exception {
+	    	public Document call() throws Exception {
 	    		return docMgr.storeDocumentFromMap(uri, fields, props);
 	    	}
     	});

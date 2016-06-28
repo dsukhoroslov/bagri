@@ -42,7 +42,7 @@ do
     $RUN_JAVA -server $JAVA_OPTS net.sf.tpox.workload.core.WorkloadDriver -w queries/XQJ/insOrder.xml -tr $count -u 100
 
     $RUN_JAVA -server $JAVA_OPTS net.sf.tpox.workload.core.WorkloadDriver -w queries/XQJ/orders-100.xml -u 80 -r 10
-    $RUN_JAVA -server $JAVA_OPTS com.bagri.client.tpox.StatisticsCollector $admin_addr $schema QueryManagement executeXQuery Orders=${count}0 ./stats.txt true
+    $RUN_JAVA -server $JAVA_OPTS com.bagri.test.tpox.StatisticsCollector $admin_addr $schema QueryManagement executeXQuery Orders=${count}0 ./stats.txt true
  
     a=`expr $a + 10`
 done

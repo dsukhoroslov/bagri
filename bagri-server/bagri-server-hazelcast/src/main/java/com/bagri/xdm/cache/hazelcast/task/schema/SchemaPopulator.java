@@ -10,8 +10,8 @@ import java.util.concurrent.Callable;
 import org.springframework.context.ApplicationContext;
 
 import com.bagri.xdm.cache.hazelcast.impl.TransactionManagementImpl;
-import com.bagri.xdm.domain.XDMDocument;
-import com.bagri.xdm.domain.XDMTransaction;
+import com.bagri.xdm.domain.Document;
+import com.bagri.xdm.domain.Transaction;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
@@ -75,11 +75,11 @@ public class SchemaPopulator extends SchemaProcessingTask implements Callable<Bo
 		//props.put("xdmManager", schemaCtx.getBean(DocumentManagementImpl.class));
 		//((MapLoaderLifecycleSupport) docCacheStore).init(hz, props, CN_XDM_DOCUMENT);
 		
-		IMap<Long, XDMDocument> xddCache = hz.getMap(CN_XDM_DOCUMENT);
+		IMap<Long, Document> xddCache = hz.getMap(CN_XDM_DOCUMENT);
 		xddCache.loadAll(false);
     	logger.info("populateSchema; documents size after loadAll: {}", xddCache.size());
 
-		IMap<Long, XDMTransaction> xtxCache = hz.getMap(CN_XDM_TRANSACTION);
+		IMap<Long, Transaction> xtxCache = hz.getMap(CN_XDM_TRANSACTION);
 		xtxCache.loadAll(false);
     	logger.info("populateSchema; transactions size after loadAll: {}", xtxCache.size());
 

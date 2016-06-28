@@ -19,9 +19,9 @@ import com.bagri.xdm.common.query.ExpressionContainer;
 import com.bagri.xdm.common.query.PathBuilder;
 import com.bagri.xdm.common.query.QueryBuilder;
 import com.bagri.xdm.common.query.PathSegment;
-import com.bagri.xdm.domain.XDMDocument;
-import com.bagri.xdm.system.XDMCollection;
-import com.bagri.xdm.system.XDMSchema;
+import com.bagri.xdm.domain.Document;
+import com.bagri.xdm.system.Collection;
+import com.bagri.xdm.system.Schema;
 
 import net.sf.saxon.expr.Atomizer;
 import net.sf.saxon.expr.AxisExpression;
@@ -93,8 +93,8 @@ public class CollectionFinderImpl implements CollectionFinder {
 		int collectId;
 		if (collectionURI == null || collectionURI.isEmpty()) {
 			// means default collection: all schema documents
-			collectId = XDMDocument.clnDefault;
-			currentType = XDMDocument.clnDefault;
+			collectId = Document.clnDefault;
+			currentType = Document.clnDefault;
 		} else {
 			collectId = getCollectionId(collectionURI, exp.getExpression().getStaticBaseURIString());
 			currentType = collectId; //0;
@@ -126,11 +126,11 @@ public class CollectionFinderImpl implements CollectionFinder {
 	}
 
 	private int getCollectionId(String uri, String baseUri) {
-		XDMSchema schema = ((com.bagri.xdm.cache.api.XDMRepository) repo).getSchema();
+		Schema schema = ((com.bagri.xdm.cache.api.XDMRepository) repo).getSchema();
 		if (baseUri != null && !baseUri.isEmpty() && uri.startsWith(baseUri)) {
 			uri = uri.substring(baseUri.length());
 		}
-		XDMCollection cln = schema.getCollection(uri);
+		Collection cln = schema.getCollection(uri);
 		if (cln != null) {
 			return cln.getId();
 		}

@@ -13,8 +13,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.bagri.xdm.common.XDMDataKey;
-import com.bagri.xdm.domain.XDMDocument;
-import com.bagri.xdm.domain.XDMElement;
+import com.bagri.xdm.domain.Document;
+import com.bagri.xdm.domain.Element;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.monitor.LocalMapStats;
@@ -49,8 +49,8 @@ public class SchemaStatsAggregator implements Callable<Long>, IdentifiedDataSeri
 	@Override
 	public Long call() throws Exception {
 		
-		IMap<Long, XDMDocument> xddCache = hzInstance.getMap(CN_XDM_DOCUMENT);
-		IMap<XDMDataKey, XDMElement> xdmCache = hzInstance.getMap(CN_XDM_ELEMENT);
+		IMap<Long, Document> xddCache = hzInstance.getMap(CN_XDM_DOCUMENT);
+		IMap<XDMDataKey, Element> xdmCache = hzInstance.getMap(CN_XDM_ELEMENT);
 		
     	LocalMapStats stats = xddCache.getLocalMapStats();
     	long size = stats.getBackupEntryMemoryCost() + stats.getOwnedEntryMemoryCost();

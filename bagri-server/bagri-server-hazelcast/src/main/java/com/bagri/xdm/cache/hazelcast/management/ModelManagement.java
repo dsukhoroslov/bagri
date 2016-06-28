@@ -22,12 +22,12 @@ import com.bagri.xdm.api.impl.ModelManagementBase;
 import com.bagri.xdm.cache.hazelcast.task.index.IndexCreator;
 import com.bagri.xdm.cache.hazelcast.task.index.IndexRemover;
 import com.bagri.xdm.cache.hazelcast.task.model.ModelRegistrator;
-import com.bagri.xdm.domain.XDMDocumentType;
-import com.bagri.xdm.domain.XDMNamespace;
-import com.bagri.xdm.domain.XDMPath;
-import com.bagri.xdm.system.XDMFragment;
-import com.bagri.xdm.system.XDMIndex;
-import com.bagri.xdm.system.XDMSchema;
+import com.bagri.xdm.domain.DocumentType;
+import com.bagri.xdm.domain.Namespace;
+import com.bagri.xdm.domain.Path;
+import com.bagri.xdm.system.Fragment;
+import com.bagri.xdm.system.Index;
+import com.bagri.xdm.system.Schema;
 import com.hazelcast.core.Member;
 
 @ManagedResource(description="Model Management MBean")
@@ -43,16 +43,16 @@ public class ModelManagement extends SchemaFeatureManagement {
 	}
 	
 	@Override
-	protected Collection getSchemaFeatures(XDMSchema schema) {
+	protected Collection getSchemaFeatures(Schema schema) {
 		return schema.getFragments();
 	}
 
 	@ManagedAttribute(description="Return Document Types registered in the Schema")
 	public String[] getDocumentTypes() {
-		Collection<XDMDocumentType> types = ((ModelManagementBase) modelMgr).getDocumentTypes();
+		Collection<DocumentType> types = ((ModelManagementBase) modelMgr).getDocumentTypes();
 		String[] result = new String[types.size()];
 		int idx = 0;
-		for (XDMDocumentType type: types) {
+		for (DocumentType type: types) {
 			result[idx++] = "" + type.getTypeId() + ": " + type.getRootPath();
 		}
 		Arrays.sort(result);
@@ -66,10 +66,10 @@ public class ModelManagement extends SchemaFeatureManagement {
 	
 	@ManagedAttribute(description="Return Namespaces registered in the Schema")
 	public String[] getNamespaces() {
-		Collection<XDMNamespace> nss = ((ModelManagementBase) modelMgr).getNamespaces();
+		Collection<Namespace> nss = ((ModelManagementBase) modelMgr).getNamespaces();
 		String[] result = new String[nss.size()];
 		int idx = 0;
-		for (XDMNamespace ns: nss) {
+		for (Namespace ns: nss) {
 			result[idx++] = ns.getPrefix() + ": " + ns.getUri();
 		}
 		Arrays.sort(result);
@@ -86,7 +86,7 @@ public class ModelManagement extends SchemaFeatureManagement {
 
 		logger.trace("addFragment.enter;");
 		long stamp = System.currentTimeMillis();
-		XDMFragment fragment = schemaManager.addFragment(name, docType, path, description);
+		Fragment fragment = schemaManager.addFragment(name, docType, path, description);
 		if (fragment == null) {
 			throw new IllegalStateException("Fragment '" + name + "' in schema '" + schemaName + "' already exists");
 		}
@@ -127,10 +127,10 @@ public class ModelManagement extends SchemaFeatureManagement {
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "typeId", description = "A document type identifier")})
 	public String[] getPathsForType(int typeId) {
-		Collection<XDMPath> paths = modelMgr.getTypePaths(typeId);
+		Collection<Path> paths = modelMgr.getTypePaths(typeId);
 		String[] result = new String[paths.size()];
 		int idx = 0;
-		for (XDMPath path: paths) {
+		for (Path path: paths) {
 			result[idx++] = "" + path.getPathId() + ": " + path.getPath() + 
 					" (" + path.getNodeKind() + ":" + getTypeName(path.getDataType()) + ")";
 		}

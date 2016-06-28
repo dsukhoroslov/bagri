@@ -38,11 +38,11 @@ import org.w3c.dom.ls.LSInput;
 
 import com.bagri.common.idgen.IdGenerator;
 import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.domain.XDMOccurrence;
-import com.bagri.xdm.domain.XDMDocumentType;
-import com.bagri.xdm.domain.XDMNamespace;
-import com.bagri.xdm.domain.XDMNodeKind;
-import com.bagri.xdm.domain.XDMPath;
+import com.bagri.xdm.domain.Occurrence;
+import com.bagri.xdm.domain.DocumentType;
+import com.bagri.xdm.domain.Namespace;
+import com.bagri.xdm.domain.NodeKind;
+import com.bagri.xdm.domain.Path;
 
 import static com.bagri.xdm.common.XDMConstants.xs_ns;
 import static com.bagri.xquery.api.XQUtils.getBaseTypeForTypeName;
@@ -58,9 +58,9 @@ public abstract class ModelManagementBase {
     protected final transient Logger logger = LoggerFactory.getLogger(getClass());
     protected static final long timeout = 100; // 100ms to wait for lock..
 
-	protected abstract Map<String, XDMNamespace> getNamespaceCache();
-	protected abstract Map<String, XDMPath> getPathCache();
-	protected abstract Map<String, XDMDocumentType> getTypeCache();
+	protected abstract Map<String, Namespace> getNamespaceCache();
+	protected abstract Map<String, Path> getPathCache();
+	protected abstract Map<String, DocumentType> getTypeCache();
 	protected abstract IdGenerator<Long> getNamespaceGen();
 	protected abstract IdGenerator<Long> getPathGen();
 	protected abstract IdGenerator<Long> getTypeGen();
@@ -71,7 +71,7 @@ public abstract class ModelManagementBase {
 	protected abstract void unlock(Map cache, Object key); 
 	protected abstract <K, V> V putIfAbsent(Map<K, V> cache, K key, V value);
 
-	protected abstract XDMDocumentType getDocumentTypeById(int typeId);
+	protected abstract DocumentType getDocumentTypeById(int typeId);
 	@SuppressWarnings("rawtypes")
 	protected abstract Set getTypedPathEntries(int typeId);
 	@SuppressWarnings("rawtypes")
@@ -86,8 +86,8 @@ public abstract class ModelManagementBase {
      * 
      * @return all registered XDM Document types
      */
-	public Collection<XDMDocumentType> getDocumentTypes() {
-		Map<String, XDMDocumentType> typeCache = getTypeCache();
+	public Collection<DocumentType> getDocumentTypes() {
+		Map<String, DocumentType> typeCache = getTypeCache();
 		return typeCache.values();
 	}
 	
@@ -95,8 +95,8 @@ public abstract class ModelManagementBase {
 	 * 
 	 * @return all registered XDM Namespaces
 	 */
-	public Collection<XDMNamespace> getNamespaces() {
-		Map<String, XDMNamespace> nsCache = getNamespaceCache();
+	public Collection<Namespace> getNamespaces() {
+		Map<String, Namespace> nsCache = getNamespaceCache();
 		return nsCache.values();
 	}
 
@@ -157,12 +157,12 @@ public abstract class ModelManagementBase {
 	public String translateNamespace(String namespace, String prefix) {
 		//logger.trace("getNamespacePrefix.enter; goth namespace: {}", namespace);
 
-		XDMNamespace xns = (XDMNamespace) getNamespaceCache().get(namespace);
+		Namespace xns = (Namespace) getNamespaceCache().get(namespace);
 		if (xns == null) {
 			if (prefix == null || prefix.isEmpty()) {
 				prefix = "ns" + getNamespaceGen().next();
 			}
-			xns = new XDMNamespace(namespace, prefix, null);
+			xns = new Namespace(namespace, prefix, null);
 			xns = putIfAbsent(getNamespaceCache(), namespace, xns);
 		}
 		String result = xns.getPrefix();
@@ -174,9 +174,9 @@ public abstract class ModelManagementBase {
 	 * search for registered full node path like "/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}Name/text()"
 	 * 
 	 * @param path String; node path in Clark form
-	 * @return registered {@link XDMPath} structure if any
+	 * @return registered {@link Path} structure if any
 	 */
-	public XDMPath getPath(String path) {
+	public Path getPath(String path) {
 		return getPathCache().get(normalizePath(path));
 	}
     
@@ -188,24 +188,24 @@ public abstract class ModelManagementBase {
 	 * 
 	 * @param typeId int; the corresponding document's type
 	 * @param path String; the full node path in Clark form
-	 * @param kind XDMNodeKind; the type of the node, one of {@link XDMNodeKind} enum literals
+	 * @param kind XDMNodeKind; the type of the node, one of {@link NodeKind} enum literals
 	 * @param dataType int; type of the node value
-	 * @param occurrence {@link XDMOccurrence}; multiplicity of the node
-	 * @return new or existing {@link XDMPath} structure
+	 * @param occurrence {@link Occurrence}; multiplicity of the node
+	 * @return new or existing {@link Path} structure
 	 * @throws XDMException in case of any error
 	 */
-	public XDMPath translatePath(int typeId, String path, XDMNodeKind kind, int dataType, XDMOccurrence occurrence) throws XDMException {
+	public Path translatePath(int typeId, String path, NodeKind kind, int dataType, Occurrence occurrence) throws XDMException {
 		// "/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}Name/text()"
 		
 		//logger.trace("translatePath.enter; goth path: {}", path);
-		if (kind != XDMNodeKind.document) {
+		if (kind != NodeKind.document) {
 			if (path == null || path.length() == 0) {
 				return null; //WRONG_PATH;
 			}
 		
 			path = normalizePath(path);
 		}
-		XDMPath result = addDictionaryPath(typeId, path, kind, dataType, occurrence); 
+		Path result = addDictionaryPath(typeId, path, kind, dataType, occurrence); 
 		//logger.trace("translatePath.exit; returning: {}", result);
 		return result;
 	}
@@ -223,7 +223,7 @@ public abstract class ModelManagementBase {
 		//logger.trace("getNamespacePrefix.enter; goth namespace: {}", namespace);
 
 		String result = null;
-		XDMNamespace xns = getNamespaceCache().get(namespace);
+		Namespace xns = getNamespaceCache().get(namespace);
 		if (xns != null) {
 			result = xns.getPrefix();
 		}
@@ -243,7 +243,7 @@ public abstract class ModelManagementBase {
 		logger.trace("getPathElements.enter; got path: {}, type: {}", root, typeId);
 		Set<Integer> result = new HashSet<Integer>();
 
-		XDMPath xPath = getPathCache().get(root);
+		Path xPath = getPathCache().get(root);
 		if (xPath != null) {
 			int pId = xPath.getPathId();
 			while (pId <= xPath.getPostId()) {
@@ -272,7 +272,7 @@ public abstract class ModelManagementBase {
 		logger.trace("getDocumentType; normalized path: {}", root);
 
 		int result = WRONG_PATH;
-		XDMDocumentType xdt = getTypeCache().get(root);
+		DocumentType xdt = getTypeCache().get(root);
 		if (xdt != null) {
 			result = xdt.getTypeId();
 		} else {
@@ -291,7 +291,7 @@ public abstract class ModelManagementBase {
 	 * @return String path registered for the type id  
 	 */
 	public String getDocumentRoot(int typeId) {
-		XDMDocumentType type = getDocumentTypeById(typeId);
+		DocumentType type = getDocumentTypeById(typeId);
 		return type.getRootPath();
 	}
 
@@ -310,10 +310,10 @@ public abstract class ModelManagementBase {
 		root = normalizePath(root);
 		logger.trace("translateDocumentType; normalized path: {}", root);
 
-		XDMDocumentType xdt = (XDMDocumentType) getTypeCache().get(root);
+		DocumentType xdt = (DocumentType) getTypeCache().get(root);
 		if (xdt == null) {
 			int typeId = getTypeGen().next().intValue();
-			xdt = new XDMDocumentType(typeId, root); 
+			xdt = new DocumentType(typeId, root); 
 			xdt = putIfAbsent(getTypeCache(), root, xdt);
 		}
 		int result = xdt.getTypeId();
@@ -321,17 +321,17 @@ public abstract class ModelManagementBase {
 		return result;
 	}
 
-	protected XDMPath addDictionaryPath(int typeId, String path, XDMNodeKind kind, 
-			int dataType, XDMOccurrence occurrence) throws XDMException {
+	protected Path addDictionaryPath(int typeId, String path, NodeKind kind, 
+			int dataType, Occurrence occurrence) throws XDMException {
 		//logger.trace("addDictionaryPath.enter; goth path: {}", path);
 
-		XDMPath xpath = getPathCache().get(path);
+		Path xpath = getPathCache().get(path);
 		if (xpath == null) {
 			int pathId = getPathGen().next().intValue();
-			xpath = new XDMPath(path, typeId, kind, pathId, 0, pathId, dataType, occurrence); // specify parentId, postId at normalization phase
-			XDMPath xp2 = putIfAbsent(getPathCache(), path, xpath);
+			xpath = new Path(path, typeId, kind, pathId, 0, pathId, dataType, occurrence); // specify parentId, postId at normalization phase
+			Path xp2 = putIfAbsent(getPathCache(), path, xpath);
 			if (xp2.getPathId() == pathId) {
-				XDMDocumentType type = getDocumentTypeById(typeId);
+				DocumentType type = getDocumentTypeById(typeId);
 				if (type == null) {
 					throw new XDMException("document type for typeId " + typeId + " is not registered yet",
 							XDMException.ecModel);
@@ -361,7 +361,7 @@ public abstract class ModelManagementBase {
 		// TODO: do this via EntryProcessor ?
 		logger.trace("normalizeDocumentType.enter; got typeId: {}", typeId);
 
-		XDMDocumentType type = getDocumentTypeById(typeId);
+		DocumentType type = getDocumentTypeById(typeId);
 		if (type == null) {
 			throw new XDMException("type ID \"" + typeId + "\" not registered yet", XDMException.ecModel);
 		}
@@ -402,20 +402,20 @@ public abstract class ModelManagementBase {
 	
 	@SuppressWarnings("unchecked")
 	private int normalizeDocPath(int typeId) {
-		Set<Map.Entry<String, XDMPath>> entries = getTypedPathEntries(typeId); 
+		Set<Map.Entry<String, Path>> entries = getTypedPathEntries(typeId); 
 		
-		TreeMap<Integer, XDMPath> elts = new TreeMap<Integer, XDMPath>(); //entries.size());
-		for (Map.Entry<String, XDMPath> path: entries) {
+		TreeMap<Integer, Path> elts = new TreeMap<Integer, Path>(); //entries.size());
+		for (Map.Entry<String, Path> path: entries) {
 			elts.put(path.getValue().getPathId(), path.getValue());
 		}
 		
-		Map<String, XDMPath> pes = new HashMap<String, XDMPath>(entries.size());
+		Map<String, Path> pes = new HashMap<String, Path>(entries.size());
 
-		Stack<XDMPath> pathStack = new Stack<XDMPath>();
-		for (Map.Entry<Integer, XDMPath> elt: elts.entrySet()) {
-			XDMPath path = elt.getValue();
+		Stack<Path> pathStack = new Stack<Path>();
+		for (Map.Entry<Integer, Path> elt: elts.entrySet()) {
+			Path path = elt.getValue();
 			if (!pathStack.isEmpty()) {
-				XDMPath top = pathStack.peek(); 
+				Path top = pathStack.peek(); 
 				if (path.getPath().startsWith(top.getPath())) {
 					path.setParentId(top.getPathId());
 				} else {
@@ -435,7 +435,7 @@ public abstract class ModelManagementBase {
 			pes.put(path.getPath(), path);
 		}
 
-		XDMPath top = pathStack.peek(); 
+		Path top = pathStack.peek(); 
 		int lastId = top.getPathId();
 		while (!pathStack.isEmpty()) {
 			top = pathStack.pop();
@@ -458,9 +458,9 @@ public abstract class ModelManagementBase {
 	public Set<Integer> translatePathFromRegex(int typeId, String regex) {
 
 		logger.trace("translatePathFromRegex.enter; got regex: {}, type: {}", regex, typeId);
-		Set<Map.Entry<String, XDMPath>> entries = getTypedPathWithRegex(regex, typeId); 
+		Set<Map.Entry<String, Path>> entries = getTypedPathWithRegex(regex, typeId); 
 		Set<Integer> result = new HashSet<Integer>(entries.size());
-		for (Map.Entry<String, XDMPath> e: entries) {
+		for (Map.Entry<String, Path> e: entries) {
 			logger.trace("translatePathFromRegex; path found: {}", e.getValue());
 			result.add(e.getValue().getPathId());
 		}
@@ -481,9 +481,9 @@ public abstract class ModelManagementBase {
 	public Collection<String> getPathFromRegex(int typeId, String regex) {
 
 		logger.trace("getPathFromRegex.enter; got regex: {}, type: {}", regex, typeId);
-		Set<Map.Entry<String, XDMPath>> entries = getTypedPathWithRegex(regex, typeId); 
+		Set<Map.Entry<String, Path>> entries = getTypedPathWithRegex(regex, typeId); 
 		List<String> result = new ArrayList<String>(entries.size());
-		for (Map.Entry<String, XDMPath> e: entries) {
+		for (Map.Entry<String, Path> e: entries) {
 			logger.trace("getPathFromRegex; path found: {}", e.getValue());
 			result.add(e.getKey());
 		}
@@ -550,7 +550,7 @@ public abstract class ModelManagementBase {
 	}
 
 	@SuppressWarnings("rawtypes")
-	private List<XDMPath> processModel(XSModel model) throws XDMException {
+	private List<Path> processModel(XSModel model) throws XDMException {
 		
 		// register namespaces
 		StringList sl = model.getNamespaces();
@@ -587,12 +587,12 @@ public abstract class ModelManagementBase {
 				String root = "/{" + xsElement.getNamespace() + "}" + xsElement.getName();
 				int docType = translateDocumentType(root);
 				// register document type..
-				XDMPath xp = translatePath(docType, "", XDMNodeKind.document, XQItemType.XQBASETYPE_ANYTYPE, XDMOccurrence.onlyOne); 
+				Path xp = translatePath(docType, "", NodeKind.document, XQItemType.XQBASETYPE_ANYTYPE, Occurrence.onlyOne); 
 				logger.trace("processModel; document type: {}; got XDMPath: {}", docType, xp);
 				
 				String prefix = translateNamespace(xsElement.getNamespace());
 				// target namespace -> default
-				translatePath(docType, "/#xmlns", XDMNodeKind.namespace, XQItemType.XQBASETYPE_QNAME, XDMOccurrence.onlyOne); 
+				translatePath(docType, "/#xmlns", NodeKind.namespace, XQItemType.XQBASETYPE_QNAME, Occurrence.onlyOne); 
 
 				// add these two??
 				//xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -604,7 +604,7 @@ public abstract class ModelManagementBase {
 			}
 		}
 		
-		return new ArrayList<XDMPath>();
+		return new ArrayList<Path>();
 	}
 
 	private void processElement(int docType, String path, XSElementDeclaration xsElement, 
@@ -613,8 +613,8 @@ public abstract class ModelManagementBase {
 		
 		if (!xsElement.getAbstract()) {
 			path += "/{" + xsElement.getNamespace() + "}" + xsElement.getName();
-			XDMPath xp = translatePath(docType, path, XDMNodeKind.element, XQItemType.XQBASETYPE_ANYTYPE, 
-					XDMOccurrence.getOccurrence(minOccurs, maxOccurs));
+			Path xp = translatePath(docType, path, NodeKind.element, XQItemType.XQBASETYPE_ANYTYPE, 
+					Occurrence.getOccurrence(minOccurs, maxOccurs));
 			logger.trace("processElement; element: {}; type: {}; got XDMPath: {}", path, xsElement.getTypeDefinition(), xp);
 		}
 		
@@ -653,16 +653,16 @@ public abstract class ModelManagementBase {
 				if (std != null) {
 					dataType = getBaseType(std); 
 				}
-				XDMPath xp = translatePath(docType, path, XDMNodeKind.text, dataType, 
-						XDMOccurrence.getOccurrence(minOccurs, maxOccurs));
+				Path xp = translatePath(docType, path, NodeKind.text, dataType, 
+						Occurrence.getOccurrence(minOccurs, maxOccurs));
 				logger.trace("processElement; complex text: {}; type: {}; got XDMPath: {}", 
 						path, ctd.getBaseType(), xp);
 			}
 		} else { //if (xsElementDecl.getTypeDefinition().getTypeCategory() == XSTypeDefinition.SIMPLE_TYPE) {
 			XSSimpleTypeDefinition std = (XSSimpleTypeDefinition) xsElement.getTypeDefinition();
 			path += "/text()";
-			XDMPath xp = translatePath(docType, path, XDMNodeKind.text, getBaseType(std), 
-					XDMOccurrence.getOccurrence(minOccurs, maxOccurs));
+			Path xp = translatePath(docType, path, NodeKind.text, getBaseType(std), 
+					Occurrence.getOccurrence(minOccurs, maxOccurs));
 			logger.trace("processElement; simple text: {}; type: {}; got XDMPath: {}", path, std, xp); 
 		}
 		
@@ -674,10 +674,10 @@ public abstract class ModelManagementBase {
     	
 	    path += "/@" + xsAttribute.getAttrDeclaration().getName();
 	    XSSimpleTypeDefinition std = xsAttribute.getAttrDeclaration().getTypeDefinition();
-	    XDMOccurrence occurrence = XDMOccurrence.getOccurrence(
+	    Occurrence occurrence = Occurrence.getOccurrence(
 	    		xsAttribute.getRequired() ? 1 : 0,
 	    		std.getVariety() == XSSimpleTypeDefinition.VARIETY_LIST ? -1 : 1);
-		XDMPath xp = translatePath(docType, path, XDMNodeKind.attribute, getBaseType(std), occurrence);
+		Path xp = translatePath(docType, path, NodeKind.attribute, getBaseType(std), occurrence);
 		logger.trace("processAttribute; attribute: {}; type: {}; got XDMPath: {}", path, std, xp); 
     }
 	

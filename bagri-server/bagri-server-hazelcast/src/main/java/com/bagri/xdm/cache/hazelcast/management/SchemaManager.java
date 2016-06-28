@@ -8,7 +8,6 @@ import static com.bagri.xdm.common.XDMConstants.xs_ns;
 import static com.bagri.xdm.common.XDMConstants.xs_prefix;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
 import java.util.Properties;
@@ -38,14 +37,14 @@ import com.bagri.xdm.cache.hazelcast.task.schema.SchemaHealthAggregator;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaPopulator;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaUpdater;
 import com.bagri.xdm.cache.hazelcast.util.HazelcastUtils;
-import com.bagri.xdm.system.XDMCollection;
-import com.bagri.xdm.system.XDMFragment;
-import com.bagri.xdm.system.XDMIndex;
-import com.bagri.xdm.system.XDMJavaTrigger;
-import com.bagri.xdm.system.XDMSchema;
-import com.bagri.xdm.system.XDMTriggerAction;
-import com.bagri.xdm.system.XDMTriggerDef;
-import com.bagri.xdm.system.XDMXQueryTrigger;
+import com.bagri.xdm.system.Collection;
+import com.bagri.xdm.system.Fragment;
+import com.bagri.xdm.system.Index;
+import com.bagri.xdm.system.JavaTrigger;
+import com.bagri.xdm.system.Schema;
+import com.bagri.xdm.system.TriggerAction;
+import com.bagri.xdm.system.TriggerDefinition;
+import com.bagri.xdm.system.XQueryTrigger;
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.client.impl.HazelcastClientInstanceImpl;
 import com.hazelcast.core.HazelcastInstance;
@@ -53,7 +52,7 @@ import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.Member;
 
 @ManagedResource(description="Schema Manager MBean")
-public class SchemaManager extends EntityManager<XDMSchema> implements XDMHealthChangeListener {
+public class SchemaManager extends EntityManager<Schema> implements XDMHealthChangeListener {
 
     private static final String state_ok = "working";
     private static final String state_fail = "inactive";
@@ -111,7 +110,7 @@ public class SchemaManager extends EntityManager<XDMSchema> implements XDMHealth
 		if (schemaInstance == null) {
 			return new String[0];
 		}
-		Collection<Member> members;
+		java.util.Collection<Member> members;
 		if (schemaInstance instanceof HazelcastClientInstanceImpl) {
 			members = ((HazelcastClientInstanceImpl) schemaInstance).getClientClusterService().getMemberList();
 		} else {
@@ -214,7 +213,7 @@ public class SchemaManager extends EntityManager<XDMSchema> implements XDMHealth
 	
 	@ManagedOperation(description="Activate Schema")
 	public boolean activateSchema() {
-		XDMSchema schema = getEntity();
+		Schema schema = getEntity();
 		if (schema != null && !schema.isActive()) {
 			String user = getCurrentUser();
 	    	Object result = entityCache.executeOnKey(entityName, new SchemaActivator(schema.getVersion(), user, true));
@@ -226,7 +225,7 @@ public class SchemaManager extends EntityManager<XDMSchema> implements XDMHealth
 		
 	@ManagedOperation(description="Deactivate Schema")
 	public boolean deactivateSchema() {
-		XDMSchema schema = getEntity();
+		Schema schema = getEntity();
 		if (schema != null && schema.isActive()) {
 			String user = getCurrentUser();
 	    	Object result = entityCache.executeOnKey(entityName, new SchemaActivator(schema.getVersion(), user, false));
@@ -250,7 +249,7 @@ public class SchemaManager extends EntityManager<XDMSchema> implements XDMHealth
 		@ManagedOperationParameter(name = "name", description = "A name of the property to set"),
 		@ManagedOperationParameter(name = "value", description = "A value of the property to set")})
 	public void setProperty(String name, String value) {
-		XDMSchema schema = getEntity();
+		Schema schema = getEntity();
 		if (schema != null) {
 			Properties props = new Properties();
 			props.setProperty(name, value);
@@ -277,7 +276,7 @@ public class SchemaManager extends EntityManager<XDMSchema> implements XDMHealth
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "properties", description = "Schema properties: key/value pairs separated by comma")})
 	public boolean updateProperties(String properties) {
-		XDMSchema schema = getEntity();
+		Schema schema = getEntity();
 		if (schema != null) {
 			Properties props;
 			try {
@@ -323,16 +322,16 @@ public class SchemaManager extends EntityManager<XDMSchema> implements XDMHealth
 		execService.submitToAllMembers(pop);
 	}
 
-	XDMCollection addCollection(String name, String docType, String description) {
-		XDMSchema schema = getEntity();
+	Collection addCollection(String name, String docType, String description) {
+		Schema schema = getEntity();
 		int id = 0; 
-		for (XDMCollection collect: schema.getCollections()) {
+		for (Collection collect: schema.getCollections()) {
 			if (collect.getId() > id) {
 				id = collect.getId(); 
 			}
 		}
 		id++;
-		XDMCollection collection = new XDMCollection(1, new Date(), getCurrentUser(), id, name, docType, description, true);
+		Collection collection = new Collection(1, new Date(), getCurrentUser(), id, name, docType, description, true);
 		if (schema.addCollection(collection)) {
 			// store schema!
 			flushEntity(schema);
@@ -342,7 +341,7 @@ public class SchemaManager extends EntityManager<XDMSchema> implements XDMHealth
 	}
 	
 	boolean deleteCollection(String name) {
-		XDMSchema schema = getEntity();
+		Schema schema = getEntity();
 		if (schema.removeCollection(name) != null) {
 			// store schema!
 			flushEntity(schema);
@@ -352,7 +351,7 @@ public class SchemaManager extends EntityManager<XDMSchema> implements XDMHealth
 	}
 
 	boolean enableCollection(String name, boolean enable) {
-		XDMSchema schema = getEntity();
+		Schema schema = getEntity();
 		if (schema.enableCollection(name, enable)) {
 			// store schema!
 			flushEntity(schema);
@@ -361,11 +360,11 @@ public class SchemaManager extends EntityManager<XDMSchema> implements XDMHealth
 		return false;
 	}
 
-	XDMFragment addFragment(String name, String docType, String path, String description) {
+	Fragment addFragment(String name, String docType, String path, String description) {
 		//String typePath = schemaDictionary.normalizePath(docType);
-		XDMFragment fragment = new XDMFragment(1, new Date(), getCurrentUser(), name, docType, //typePath, 
+		Fragment fragment = new Fragment(1, new Date(), getCurrentUser(), name, docType, //typePath, 
 				path, description, true);
-		XDMSchema schema = getEntity();
+		Schema schema = getEntity();
 		if (schema.addFragment(fragment)) {
 			// store schema!
 			flushEntity(schema);
@@ -375,7 +374,7 @@ public class SchemaManager extends EntityManager<XDMSchema> implements XDMHealth
 	}
 	
 	boolean deleteFragment(String name) {
-		XDMSchema schema = getEntity();
+		Schema schema = getEntity();
 		if (schema.removeFragment(name) != null) {
 			// store schema!
 			flushEntity(schema);
@@ -385,7 +384,7 @@ public class SchemaManager extends EntityManager<XDMSchema> implements XDMHealth
 	}
 
 	boolean enableFragment(String name, boolean enable) {
-		XDMSchema schema = getEntity();
+		Schema schema = getEntity();
 		if (schema.enableFragment(name, enable)) {
 			// store schema!
 			flushEntity(schema);
@@ -394,12 +393,12 @@ public class SchemaManager extends EntityManager<XDMSchema> implements XDMHealth
 		return false;
 	}
 
-	XDMIndex addIndex(String name, String docType, String path, String dataType, boolean caseSensitive, boolean range, 
+	Index addIndex(String name, String docType, String path, String dataType, boolean caseSensitive, boolean range, 
 			boolean unique, String description) {
 		String typePath = xdmRepo.getModelManagement().normalizePath(docType);
-		XDMIndex index = new XDMIndex(1, new Date(), getCurrentUser(), name, docType, typePath, 
+		Index index = new Index(1, new Date(), getCurrentUser(), name, docType, typePath, 
 				path, new QName(xs_ns, dataType, xs_prefix), caseSensitive, range, unique, description, true);
-		XDMSchema schema = getEntity();
+		Schema schema = getEntity();
 		if (schema.addIndex(index)) {
 			// store schema!
 			flushEntity(schema);
@@ -409,7 +408,7 @@ public class SchemaManager extends EntityManager<XDMSchema> implements XDMHealth
 	}
 	
 	boolean deleteIndex(String name) {
-		XDMSchema schema = getEntity();
+		Schema schema = getEntity();
 		if (schema.removeIndex(name) != null) {
 			// store schema!
 			flushEntity(schema);
@@ -419,7 +418,7 @@ public class SchemaManager extends EntityManager<XDMSchema> implements XDMHealth
 	}
 
 	boolean enableIndex(String name, boolean enable) {
-		XDMSchema schema = getEntity();
+		Schema schema = getEntity();
 		if (schema.enableIndex(name, enable)) {
 			// store schema!
 			flushEntity(schema);
@@ -428,18 +427,18 @@ public class SchemaManager extends EntityManager<XDMSchema> implements XDMHealth
 		return false;
 	}
 
-	XDMTriggerDef addTrigger(boolean java, String container, String implementation, String docType, 
-			boolean synchronous, Collection<XDMTriggerAction> actions, int index) {
-		XDMTriggerDef trigger;
+	TriggerDefinition addTrigger(boolean java, String container, String implementation, String docType, 
+			boolean synchronous, java.util.Collection<TriggerAction> actions, int index) {
+		TriggerDefinition trigger;
 		if (java) {
-			trigger = new XDMJavaTrigger(1, new Date(), getCurrentUser(), container, 
+			trigger = new JavaTrigger(1, new Date(), getCurrentUser(), container, 
 				 implementation, docType, synchronous, true, index);
 		} else {
-			trigger = new XDMXQueryTrigger(1, new Date(), getCurrentUser(), container, 
+			trigger = new XQueryTrigger(1, new Date(), getCurrentUser(), container, 
 					 implementation, docType, synchronous, true, index);
 		}
 		trigger.setActions(actions);
-		XDMSchema schema = getEntity();
+		Schema schema = getEntity();
 		if (schema.addTrigger(trigger)) {
 			// store schema!
 			flushEntity(schema);
@@ -449,7 +448,7 @@ public class SchemaManager extends EntityManager<XDMSchema> implements XDMHealth
 	}
 	
 	boolean deleteTrigger(String name) {
-		XDMSchema schema = getEntity();
+		Schema schema = getEntity();
 		if (schema.removeTrigger(name) != null) {
 			// store schema!
 			flushEntity(schema);
@@ -459,7 +458,7 @@ public class SchemaManager extends EntityManager<XDMSchema> implements XDMHealth
 	}
 
 	boolean enableTrigger(String name, boolean enable) {
-		XDMSchema schema = getEntity();
+		Schema schema = getEntity();
 		if (schema.enableTrigger(name, enable)) {
 			// store schema!
 			flushEntity(schema);

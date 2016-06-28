@@ -20,11 +20,11 @@ import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.common.XDMParser;
 import com.bagri.xdm.common.df.XDMParserBase;
-import com.bagri.xdm.domain.XDMOccurrence;
-import com.bagri.xdm.domain.XDMData;
-import com.bagri.xdm.domain.XDMElement;
-import com.bagri.xdm.domain.XDMNodeKind;
-import com.bagri.xdm.domain.XDMPath;
+import com.bagri.xdm.domain.Occurrence;
+import com.bagri.xdm.domain.Data;
+import com.bagri.xdm.domain.Element;
+import com.bagri.xdm.domain.NodeKind;
+import com.bagri.xdm.domain.Path;
 
 /**
  * XDM Parser implementation for JSON data format. Uses reference implementation (Glassfish) of json streaming parser.
@@ -56,7 +56,7 @@ public class JsonApiParser extends XDMParserBase implements XDMParser {
 	 * @throws IOException in case of content read exception
 	 * @throws XDMException in case of content parse exception
 	 */
-	public static List<XDMData> parseDocument(XDMModelManagement model, String json) throws IOException, XDMException {
+	public static List<Data> parseDocument(XDMModelManagement model, String json) throws IOException, XDMException {
 		JsonApiParser parser = new JsonApiParser(model);
 		return parser.parse(json);
 	}
@@ -73,7 +73,7 @@ public class JsonApiParser extends XDMParserBase implements XDMParser {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<XDMData> parse(String json) throws XDMException { 
+	public List<Data> parse(String json) throws XDMException { 
 		try (Reader reader = new StringReader(json)) {
 			return parse(reader);
 		} catch (IOException ex) {
@@ -85,7 +85,7 @@ public class JsonApiParser extends XDMParserBase implements XDMParser {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<XDMData> parse(File file) throws XDMException {
+	public List<Data> parse(File file) throws XDMException {
 		try (Reader reader = new FileReader(file)) {
 			return parse(reader);
 		} catch (IOException ex) {
@@ -97,7 +97,7 @@ public class JsonApiParser extends XDMParserBase implements XDMParser {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<XDMData> parse(InputStream stream) throws XDMException {
+	public List<Data> parse(InputStream stream) throws XDMException {
 
 		try (JsonParser parser = factory.createParser(stream)) {
 			return parse(parser);
@@ -108,7 +108,7 @@ public class JsonApiParser extends XDMParserBase implements XDMParser {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<XDMData> parse(Reader reader) throws XDMException {
+	public List<Data> parse(Reader reader) throws XDMException {
 		
 		try (JsonParser parser = factory.createParser(reader)) {
 			return parse(parser);
@@ -121,7 +121,7 @@ public class JsonApiParser extends XDMParserBase implements XDMParser {
 	 * @return the list of parsed XDM data elements
 	 * @throws XDMException in case of any parsing error
 	 */
-	public List<XDMData> parse(JsonParser parser) throws XDMException {
+	public List<Data> parse(JsonParser parser) throws XDMException {
 		
 		logger.trace("parse.enter; parser: {}", parser);
 		
@@ -131,7 +131,7 @@ public class JsonApiParser extends XDMParserBase implements XDMParser {
 		}
 		cleanup();
 
-		List<XDMData> result = dataList;
+		List<Data> result = dataList;
 		dataList = null;
 		logger.trace("parse.exit; returning {} elements", result); //.size());
 		return result;
@@ -188,9 +188,9 @@ public class JsonApiParser extends XDMParserBase implements XDMParser {
 		}			
 	}
 	
-	private XDMData getTopData() {
+	private Data getTopData() {
 		for (int i = dataStack.size() - 1; i >= 0; i--) {
-			XDMData data = dataStack.elementAt(i);
+			Data data = dataStack.elementAt(i);
 			if (data != null && data.getElement() != null) {
 				return data;
 			}
@@ -202,11 +202,11 @@ public class JsonApiParser extends XDMParserBase implements XDMParser {
 
 		String root = "/" + (name == null ? "" : name);
 		docType = model.translateDocumentType(root);
-		XDMPath path = model.translatePath(docType, "", XDMNodeKind.document, XQItemType.XQBASETYPE_ANYTYPE, XDMOccurrence.onlyOne);
-		XDMElement start = new XDMElement();
+		Path path = model.translatePath(docType, "", NodeKind.document, XQItemType.XQBASETYPE_ANYTYPE, Occurrence.onlyOne);
+		Element start = new Element();
 		start.setElementId(elementId++);
 		//start.setParentId(0); // -1 ?
-		XDMData data = new XDMData(path, start);
+		Data data = new Data(path, start);
 		dataStack.add(data);
 		dataList.add(data);
 	}
@@ -219,8 +219,8 @@ public class JsonApiParser extends XDMParserBase implements XDMParser {
 		if (isArray) {
 			dataStack.add(null);
 		} else {
-			XDMData current = dataStack.lastElement(); //getTopData(); 
-			if (current == null || current.getNodeKind() != XDMNodeKind.element) {
+			Data current = dataStack.lastElement(); //getTopData(); 
+			if (current == null || current.getNodeKind() != NodeKind.element) {
 				dataStack.add(null);
 			}
 		}
@@ -228,21 +228,21 @@ public class JsonApiParser extends XDMParserBase implements XDMParser {
 	
 	private void processStartElement(String name) throws XDMException {
 		
-		XDMData parent = getTopData();
+		Data parent = getTopData();
 		if (!name.equals(parent.getName())) {
-			XDMData current = null;
+			Data current = null;
 			if (isAttribute(name)) {
 				name = name.substring(1);
 				if (name.startsWith("xmlns")) {
-					current = addData(parent, XDMNodeKind.namespace, "/#" + name, null, XQItemType.XQBASETYPE_STRING, XDMOccurrence.zeroOrOne);
+					current = addData(parent, NodeKind.namespace, "/#" + name, null, XQItemType.XQBASETYPE_STRING, Occurrence.zeroOrOne);
 				} else {
-					current = addData(parent, XDMNodeKind.attribute, "/@" + name, null, XQItemType.XQBASETYPE_ANYATOMICTYPE, XDMOccurrence.zeroOrOne);
+					current = addData(parent, NodeKind.attribute, "/@" + name, null, XQItemType.XQBASETYPE_ANYATOMICTYPE, Occurrence.zeroOrOne);
 				}
 			} else if (name.equals("#text")) {
 				//dataStack.add(null);
-				current = new XDMData(null, null);  
+				current = new Data(null, null);  
 			} else {
-				current = addData(parent, XDMNodeKind.element, "/" + name, null, XQItemType.XQBASETYPE_ANYTYPE, XDMOccurrence.zeroOrOne); 
+				current = addData(parent, NodeKind.element, "/" + name, null, XQItemType.XQBASETYPE_ANYTYPE, Occurrence.zeroOrOne); 
 			}
 			if (current != null) {
 				dataStack.add(current);
@@ -252,7 +252,7 @@ public class JsonApiParser extends XDMParserBase implements XDMParser {
 
 	private void processEndElement() {
 		if (dataStack.size() > 0) {
-			XDMData current = dataStack.pop();
+			Data current = dataStack.pop();
 			logger.trace("processEndElement; got current: {}", current);
 		}
 	}
@@ -261,15 +261,15 @@ public class JsonApiParser extends XDMParserBase implements XDMParser {
 		
 		//value = value.replaceAll("&", "&amp;");
 	
-		XDMData current = dataStack.pop();
+		Data current = dataStack.pop();
 		boolean isArray = current == null;
 		if (isArray || current.getElement() == null) {
 			//current = dataStack.peek();
 			current = getTopData();
 		}
-		if (current.getNodeKind() == XDMNodeKind.element) {
-			addData(current, XDMNodeKind.text, "/text()", value, XQItemType.XQBASETYPE_ANYATOMICTYPE, 
-					isArray ? XDMOccurrence.zeroOrMany : XDMOccurrence.zeroOrOne);
+		if (current.getNodeKind() == NodeKind.element) {
+			addData(current, NodeKind.text, "/text()", value, XQItemType.XQBASETYPE_ANYATOMICTYPE, 
+					isArray ? Occurrence.zeroOrMany : Occurrence.zeroOrOne);
 		//} else if (current.getNodeKind() == XDMNodeKind.text) {
 		//	current.getElement().setValue(value);
 		} else {

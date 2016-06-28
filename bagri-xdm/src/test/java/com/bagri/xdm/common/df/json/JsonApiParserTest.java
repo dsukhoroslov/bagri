@@ -12,7 +12,7 @@ import org.junit.Test;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.common.df.json.JsonApiParser;
-import com.bagri.xdm.domain.XDMData;
+import com.bagri.xdm.domain.Data;
 
 public class JsonApiParserTest {
 
@@ -71,7 +71,7 @@ public class JsonApiParserTest {
 		//"\t\"age\":29,\n" +
 		//"\t\"messages\":[\"msg 1\",\"msg 2\",\"msg 3\"]\n" +
 		//"}";
-		List<XDMData> elts = parser.parse(json);
+		List<Data> elts = parser.parse(json);
 		assertNotNull(elts);
 		assertTrue(elts.size() > 0);
 	}

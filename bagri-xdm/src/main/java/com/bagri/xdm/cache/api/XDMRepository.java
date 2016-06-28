@@ -5,9 +5,9 @@ import java.util.Collection;
 import com.bagri.xdm.common.XDMBuilder;
 import com.bagri.xdm.common.XDMKeyFactory;
 import com.bagri.xdm.common.XDMParser;
-import com.bagri.xdm.system.XDMLibrary;
-import com.bagri.xdm.system.XDMModule;
-import com.bagri.xdm.system.XDMSchema;
+import com.bagri.xdm.system.Library;
+import com.bagri.xdm.system.Module;
+import com.bagri.xdm.system.Schema;
 
 /**
  * XDM Repository server-side extension; Adds methods to get additional management artifacts on the server side.
@@ -23,7 +23,7 @@ public interface XDMRepository extends com.bagri.xdm.api.XDMRepository {
 	 * 
 	 * @return current XDMSchema instance
 	 */
-	XDMSchema getSchema();
+	Schema getSchema();
 	
 	/**
 	 * 
@@ -47,13 +47,13 @@ public interface XDMRepository extends com.bagri.xdm.api.XDMRepository {
 	 * 
 	 * @return libraries registered in this XDM cluster
 	 */
-	Collection<XDMLibrary> getLibraries();
+	Collection<Library> getLibraries();
 
 	/**
 	 * 
 	 * @return modules registered in this XDM cluster
 	 */
-	Collection<XDMModule> getModules();
+	Collection<Module> getModules();
 	
 	/**
 	 * 

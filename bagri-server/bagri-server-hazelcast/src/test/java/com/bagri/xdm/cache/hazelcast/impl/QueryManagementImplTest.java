@@ -29,8 +29,7 @@ import com.bagri.xdm.common.query.AxisType;
 import com.bagri.xdm.common.query.Comparison;
 import com.bagri.xdm.common.query.ExpressionContainer;
 import com.bagri.xdm.common.query.PathBuilder;
-import com.bagri.xdm.system.XDMCollection;
-import com.bagri.xdm.system.XDMSchema;
+import com.bagri.xdm.system.Schema;
 import com.bagri.xquery.api.XQProcessor;
 
 public class QueryManagementImplTest extends XDMManagementTest {
@@ -58,13 +57,13 @@ public class QueryManagementImplTest extends XDMManagementTest {
 	public void setUp() throws Exception {
 		xRepo = context.getBean(RepositoryImpl.class);
 		RepositoryImpl xdmRepo = (RepositoryImpl) xRepo; 
-		XDMSchema schema = xdmRepo.getSchema();
+		Schema schema = xdmRepo.getSchema();
 		if (schema == null) {
-			schema = new XDMSchema(1, new java.util.Date(), "test", "test", "test schema", true, null);
+			schema = new Schema(1, new java.util.Date(), "test", "test", "test schema", true, null);
 			schema.setProperty(pn_baseURI, sampleRoot);
 			xdmRepo.setSchema(schema);
-			XDMCollection collection = new XDMCollection(1, new Date(), JMXUtils.getCurrentUser(), 
-					1, "CLN_Security", "/{http://tpox-benchmark.com/security}Security", "securities", true);
+			com.bagri.xdm.system.Collection collection = new com.bagri.xdm.system.Collection(1, new Date(), 
+					JMXUtils.getCurrentUser(), 1, "CLN_Security", "/{http://tpox-benchmark.com/security}Security", "securities", true);
 			schema.addCollection(collection);
 		}
 	}

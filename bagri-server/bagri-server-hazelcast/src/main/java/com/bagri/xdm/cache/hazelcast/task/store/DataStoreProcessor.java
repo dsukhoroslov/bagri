@@ -6,12 +6,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bagri.xdm.cache.hazelcast.task.EntityProcessor;
-import com.bagri.xdm.system.XDMDataStore;
+import com.bagri.xdm.system.DataStore;
 import com.hazelcast.map.EntryBackupProcessor;
 import com.hazelcast.map.EntryProcessor;
 
 public abstract class DataStoreProcessor extends EntityProcessor
-		implements EntryProcessor<String, XDMDataStore>, EntryBackupProcessor<String, XDMDataStore> {
+		implements EntryProcessor<String, DataStore>, EntryBackupProcessor<String, DataStore> {
 
 	protected final transient Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -24,12 +24,12 @@ public abstract class DataStoreProcessor extends EntityProcessor
 	}
 
 	@Override
-	public void processBackup(Entry<String, XDMDataStore> entry) {
+	public void processBackup(Entry<String, DataStore> entry) {
 		process(entry);
 	}
 
 	@Override
-	public EntryBackupProcessor<String, XDMDataStore> getBackupProcessor() {
+	public EntryBackupProcessor<String, DataStore> getBackupProcessor() {
 		return this;
 	}
 

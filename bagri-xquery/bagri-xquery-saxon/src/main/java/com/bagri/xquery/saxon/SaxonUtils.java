@@ -26,7 +26,7 @@ import org.w3c.dom.ProcessingInstruction;
 import org.w3c.dom.Text;
 
 import com.bagri.common.util.XMLUtils;
-import com.bagri.xdm.system.XDMType;
+import com.bagri.xdm.system.DataType;
 import com.bagri.xquery.api.XQUtils;
 
 import net.sf.saxon.Configuration;
@@ -431,7 +431,7 @@ public class SaxonUtils {
 		return null;
 	}
 	
-	public static SequenceType type2Sequence(XDMType type) {
+	public static SequenceType type2Sequence(DataType type) {
 		ItemType it = type2Item(type.getType());
 		int cardinality;
 		switch (type.getCardinality()) {

@@ -9,8 +9,8 @@ import org.slf4j.LoggerFactory;
 
 import com.bagri.xdm.api.XDMHealthState;
 import com.bagri.xdm.common.XDMDocumentKey;
-import com.bagri.xdm.domain.XDMCounter;
-import com.bagri.xdm.domain.XDMDocument;
+import com.bagri.xdm.domain.Counter;
+import com.bagri.xdm.domain.Document;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.ITopic;
@@ -19,14 +19,14 @@ import com.hazelcast.core.MessageListener;
 import com.hazelcast.partition.PartitionLostEvent;
 import com.hazelcast.partition.PartitionLostListener;
 
-public class HealthManagementImpl implements MessageListener<XDMCounter>, PartitionLostListener {
+public class HealthManagementImpl implements MessageListener<Counter>, PartitionLostListener {
 	//, XDMHealthManagement{ 
 
     private static final Logger logger = LoggerFactory.getLogger(HealthManagementImpl.class);
 
 	private HazelcastInstance hzInstance;
 	private ITopic<XDMHealthState> hTopic;
-	private IMap<XDMDocumentKey, XDMDocument> xddCache;
+	private IMap<XDMDocumentKey, Document> xddCache;
 	
 	private XDMHealthState healthState = XDMHealthState.good; 
 	
@@ -56,14 +56,14 @@ public class HealthManagementImpl implements MessageListener<XDMCounter>, Partit
 
 	private void initialize(HazelcastInstance hzInstance) {
 		this.hzInstance = hzInstance;
-		ITopic<XDMCounter> cTopic = hzInstance.getTopic(TPN_XDM_COUNTERS);
+		ITopic<Counter> cTopic = hzInstance.getTopic(TPN_XDM_COUNTERS);
 		cTopic.addMessageListener(this);
 		hTopic = hzInstance.getTopic(TPN_XDM_HEALTH);
 		xddCache = hzInstance.getMap(CN_XDM_DOCUMENT);
 		hzInstance.getPartitionService().addPartitionLostListener(this);
 	}
 	
-	private void updateState(XDMCounter counter) {
+	private void updateState(Counter counter) {
 		if (counter.isCommit()) {
 			cntActive.addAndGet(counter.getCreated() - counter.getDeleted());
 			cntInactive.addAndGet(counter.getUpdated() + counter.getDeleted()); 
@@ -115,7 +115,7 @@ public class HealthManagementImpl implements MessageListener<XDMCounter>, Partit
 	}
 	
 	@Override
-	public void onMessage(Message<XDMCounter> message) {
+	public void onMessage(Message<Counter> message) {
 		logger.trace("onMessage; {}", message); 
 		updateState(message.getMessageObject());
 	}

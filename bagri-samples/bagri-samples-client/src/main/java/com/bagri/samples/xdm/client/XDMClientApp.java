@@ -15,7 +15,7 @@ import com.bagri.samples.client.BagriClientApp;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMRepository;
 import com.bagri.xdm.client.hazelcast.impl.RepositoryImpl;
-import com.bagri.xdm.domain.XDMDocument;
+import com.bagri.xdm.domain.Document;
 import com.bagri.xqj.BagriXQDataFactory;
 import com.bagri.xquery.api.XQProcessor;
 import com.bagri.xquery.saxon.XQProcessorClient;
@@ -113,7 +113,7 @@ public class XDMClientApp implements BagriClientApp {
 	private long storeDocument(String uri, String content) throws XDMException {
 		
 		Properties props = new Properties();
-		XDMDocument xDoc = xRepo.getDocumentManagement().storeDocumentFromString(uri, content, props);
+		Document xDoc = xRepo.getDocumentManagement().storeDocumentFromString(uri, content, props);
 		return xDoc.getDocumentKey();
 	} 
 

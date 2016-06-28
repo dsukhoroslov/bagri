@@ -9,7 +9,7 @@ import java.util.HashSet;
 import java.util.Properties;
 import java.util.Map.Entry;
 
-import com.bagri.xdm.system.XDMDataStore;
+import com.bagri.xdm.system.DataStore;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
@@ -34,11 +34,11 @@ public class DataStoreCreator extends DataStoreProcessor implements IdentifiedDa
 	}
 
 	@Override
-	public Object process(Entry<String, XDMDataStore> entry) {
+	public Object process(Entry<String, DataStore> entry) {
 		logger.debug("process.enter; entry: {}", entry); 
 		if (entry.getValue() == null) {
 			String name = entry.getKey();
-			XDMDataStore store = new XDMDataStore(getVersion(), new Date(), getAdmin(), 
+			DataStore store = new DataStore(getVersion(), new Date(), getAdmin(), 
 					name, description, storeClass, true, properties);
 			entry.setValue(store);
 			auditEntity(AuditType.create, store);

@@ -4,7 +4,7 @@ import static com.bagri.xdm.cache.hazelcast.serialize.DataSerializationFactoryIm
 
 import java.util.Map.Entry;
 
-import com.bagri.xdm.system.XDMLibrary;
+import com.bagri.xdm.system.Library;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
 public class LibraryRemover extends LibraryProcessor implements IdentifiedDataSerializable {
@@ -18,10 +18,10 @@ public class LibraryRemover extends LibraryProcessor implements IdentifiedDataSe
 	}
 
 	@Override
-	public Object process(Entry<String, XDMLibrary> entry) {
+	public Object process(Entry<String, Library> entry) {
 		logger.debug("process.enter; entry: {}", entry); 
 		if (entry.getValue() != null) {
-			XDMLibrary library = entry.getValue();
+			Library library = entry.getValue();
 			if (library.getVersion() == getVersion()) {
 				entry.setValue(null);
 				auditEntity(AuditType.delete, library);

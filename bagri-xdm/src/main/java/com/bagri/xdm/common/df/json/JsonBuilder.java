@@ -6,7 +6,7 @@ import java.util.Map;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.common.XDMBuilder;
 import com.bagri.xdm.common.XDMDataKey;
-import com.bagri.xdm.domain.XDMElements;
+import com.bagri.xdm.domain.Elements;
 
 /**
  * XDM Builder implementation for JSON format. Uses reference implementation (Glassfish) of json genarator.
@@ -24,7 +24,7 @@ public class JsonBuilder implements XDMBuilder {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String buildString(Map<XDMDataKey, XDMElements> elements) throws XDMException {
+	public String buildString(Map<XDMDataKey, Elements> elements) throws XDMException {
 		return null;
 	}
 
@@ -32,7 +32,7 @@ public class JsonBuilder implements XDMBuilder {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public InputStream buildStream(Map<XDMDataKey, XDMElements> elements) throws XDMException {
+	public InputStream buildStream(Map<XDMDataKey, Elements> elements) throws XDMException {
 		return null;
 	}
 

@@ -6,23 +6,23 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 
 import com.bagri.xdm.common.XDMEntity;
-import com.bagri.xdm.system.XDMConfig;
-import com.bagri.xdm.system.XDMDataFormat;
-import com.bagri.xdm.system.XDMDataStore;
-import com.bagri.xdm.system.XDMLibrary;
-import com.bagri.xdm.system.XDMModule;
-import com.bagri.xdm.system.XDMNode;
-import com.bagri.xdm.system.XDMSchema;
+import com.bagri.xdm.system.Config;
+import com.bagri.xdm.system.DataFormat;
+import com.bagri.xdm.system.DataStore;
+import com.bagri.xdm.system.Library;
+import com.bagri.xdm.system.Module;
+import com.bagri.xdm.system.Node;
+import com.bagri.xdm.system.Schema;
 
 public class SystemConfig extends EntityConfig {
 
-	private XDMConfig config;
+	private Config config;
 
 	public SystemConfig(String configPath) {
 		super(configPath);
 		try {
-			jctx = JAXBContext.newInstance(XDMConfig.class);
-			config = (XDMConfig) loadConfig();
+			jctx = JAXBContext.newInstance(Config.class);
+			config = (Config) loadConfig();
 		} catch (JAXBException ex) {
 			logger.error("init.error: " + ex.getMessage(), ex);
 			//throw new RuntimeException(ex);
@@ -31,22 +31,22 @@ public class SystemConfig extends EntityConfig {
 	
 	@Override
 	public Collection<? extends XDMEntity> getEntities(Class<? extends XDMEntity> entityClass) {
-		if (entityClass == XDMNode.class) {
+		if (entityClass == Node.class) {
 			return config.getNodes();
 		}
-		if (entityClass == XDMSchema.class) {
+		if (entityClass == Schema.class) {
 			return config.getSchemas();
 		}
-		if (entityClass == XDMModule.class) {
+		if (entityClass == Module.class) {
 			return config.getModules();
 		}
-		if (entityClass == XDMLibrary.class) {
+		if (entityClass == Library.class) {
 			return config.getLibraries();
 		}
-		if (entityClass == XDMDataFormat.class) {
+		if (entityClass == DataFormat.class) {
 			return config.getDataFormats();
 		}
-		if (entityClass == XDMDataStore.class) {
+		if (entityClass == DataStore.class) {
 			return config.getDataStores();
 		}
 		// throw ex ?
@@ -55,17 +55,17 @@ public class SystemConfig extends EntityConfig {
 
 	@Override
 	public void setEntities(Class<? extends XDMEntity> entityClass,	Collection<? extends XDMEntity> entities) {
-		if (entityClass == XDMNode.class) {
+		if (entityClass == Node.class) {
 			setEntities(config, config.getNodes(), entities);
-		} else if (entityClass == XDMSchema.class) {
+		} else if (entityClass == Schema.class) {
 			setEntities(config, config.getSchemas(), entities);
-		} else if (entityClass == XDMModule.class) {
+		} else if (entityClass == Module.class) {
 			setEntities(config, config.getModules(), entities);
-		} else if (entityClass == XDMLibrary.class) {
+		} else if (entityClass == Library.class) {
 			setEntities(config, config.getLibraries(), entities);
-		} else if (entityClass == XDMDataFormat.class) {
+		} else if (entityClass == DataFormat.class) {
 			setEntities(config, config.getDataFormats(), entities);
-		} else if (entityClass == XDMDataStore.class) {
+		} else if (entityClass == DataStore.class) {
 			setEntities(config, config.getDataStores(), entities);
 		} else {
 			// throw ex?

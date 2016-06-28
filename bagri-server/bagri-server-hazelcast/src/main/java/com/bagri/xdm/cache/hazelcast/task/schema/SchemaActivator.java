@@ -5,7 +5,7 @@ import static com.bagri.xdm.cache.hazelcast.serialize.DataSerializationFactoryIm
 import java.io.IOException;
 import java.util.Map.Entry;
 
-import com.bagri.xdm.system.XDMSchema;
+import com.bagri.xdm.system.Schema;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
@@ -26,11 +26,11 @@ public class SchemaActivator extends SchemaProcessor implements IdentifiedDataSe
 	}
 
 	@Override
-	public Object process(Entry<String, XDMSchema> entry) {
+	public Object process(Entry<String, Schema> entry) {
 		logger.debug("process.enter; entry: {}", entry);
 		Object result = null;
 		if (entry.getValue() != null) {
-			XDMSchema schema = entry.getValue();
+			Schema schema = entry.getValue();
 			if (schema.getVersion() == getVersion()) {
 				if (activate) {
 					if (!schema.isActive()) {

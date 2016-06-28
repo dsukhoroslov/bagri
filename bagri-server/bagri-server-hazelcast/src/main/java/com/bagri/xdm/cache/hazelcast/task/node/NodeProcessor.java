@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.bagri.xdm.cache.hazelcast.task.EntityProcessor;
-import com.bagri.xdm.system.XDMNode;
+import com.bagri.xdm.system.Node;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.Member;
@@ -25,8 +25,8 @@ import static com.bagri.xdm.cache.api.XDMCacheConstants.PN_XDM_SYSTEM_POOL;
 import static com.bagri.xdm.common.XDMConstants.xdm_cluster_node_name;
 
 @SpringAware
-public abstract class NodeProcessor extends EntityProcessor implements EntryProcessor<String, XDMNode>, 
-	EntryBackupProcessor<String, XDMNode> {
+public abstract class NodeProcessor extends EntityProcessor implements EntryProcessor<String, Node>, 
+	EntryBackupProcessor<String, Node> {
 	
 	protected final transient Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -47,16 +47,16 @@ public abstract class NodeProcessor extends EntityProcessor implements EntryProc
 	}
 
     @Override
-	public void processBackup(Entry<String, XDMNode> entry) {
+	public void processBackup(Entry<String, Node> entry) {
 		process(entry);		
 	}
 
 	@Override
-	public EntryBackupProcessor<String, XDMNode> getBackupProcessor() {
+	public EntryBackupProcessor<String, Node> getBackupProcessor() {
 		return this;
 	}
 	
-	protected int updateNodesInCluster(XDMNode node, String comment) {
+	protected int updateNodesInCluster(Node node, String comment) {
 		
 		logger.trace("updateNodesInCluster.enter; node: {}", node);
 		

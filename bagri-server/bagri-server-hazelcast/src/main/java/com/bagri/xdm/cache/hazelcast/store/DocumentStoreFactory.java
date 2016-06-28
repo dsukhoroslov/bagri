@@ -15,9 +15,9 @@ import com.bagri.xdm.common.XDMDocumentStore;
 import com.bagri.xdm.common.XDMEntity;
 import com.bagri.xdm.cache.hazelcast.config.SystemConfig;
 import com.bagri.xdm.common.XDMDocumentKey;
-import com.bagri.xdm.domain.XDMDocument;
-import com.bagri.xdm.system.XDMDataStore;
-import com.bagri.xdm.system.XDMSchema;
+import com.bagri.xdm.domain.Document;
+import com.bagri.xdm.system.DataStore;
+import com.bagri.xdm.system.Schema;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.MapLoader;
@@ -25,7 +25,7 @@ import com.hazelcast.core.MapStore;
 import com.hazelcast.core.MapStoreFactory;
 import com.hazelcast.core.Member;
 
-public class DocumentStoreFactory implements MapStoreFactory<XDMDocumentKey, XDMDocument> { 
+public class DocumentStoreFactory implements MapStoreFactory<XDMDocumentKey, Document> { 
 	
     private static final Logger logger = LoggerFactory.getLogger(DocumentStoreFactory.class);
     private static final String defaultStoreClass = "com.bagri.xdm.cache.hazelcast.store.FileDocumentCacheStore";
@@ -36,12 +36,7 @@ public class DocumentStoreFactory implements MapStoreFactory<XDMDocumentKey, XDM
 		boolean lite = true;
 		if (context != null) {
 			HazelcastInstance hzInstance = context.getBean(HazelcastInstance.class);
-			for (Member member: hzInstance.getCluster().getMembers()) {
-				if (!member.isLiteMember()) {
-					lite = false;
-					break;
-				}
-			}
+			lite = !hasStorageMembers(hzInstance);
 			if (lite) {
 				SystemConfig config = context.getBean(SystemConfig.class);
 				if (config.isLoaded()) {
@@ -57,10 +52,10 @@ public class DocumentStoreFactory implements MapStoreFactory<XDMDocumentKey, XDM
     }
     
     @SuppressWarnings("unchecked")
-	private XDMDataStore getDataStore(String storeType) {
-    	Collection<XDMDataStore> stores = (Collection<XDMDataStore>) getConfigEntities(XDMDataStore.class, "stores");
+	private DataStore getDataStore(String storeType) {
+    	Collection<DataStore> stores = (Collection<DataStore>) getConfigEntities(DataStore.class, "stores");
     	if (stores != null) {
-			for (XDMDataStore store: stores) {
+			for (DataStore store: stores) {
 				if (store.getName().equals(storeType)) {
 					return store;
 				}
@@ -70,10 +65,10 @@ public class DocumentStoreFactory implements MapStoreFactory<XDMDocumentKey, XDM
     }
 
     @SuppressWarnings("unchecked")
-	private XDMSchema getSchema(String schemaName) {
-    	Collection<XDMSchema> schemas = (Collection<XDMSchema>) getConfigEntities(XDMSchema.class, "schemas");
+	private Schema getSchema(String schemaName) {
+    	Collection<Schema> schemas = (Collection<Schema>) getConfigEntities(Schema.class, "schemas");
     	if (schemas != null) {
-			for (XDMSchema schema: schemas) {
+			for (Schema schema: schemas) {
 				if (schema.getName().equals(schemaName)) {
 					return schema;
 				}
@@ -84,16 +79,16 @@ public class DocumentStoreFactory implements MapStoreFactory<XDMDocumentKey, XDM
     
 	@Override
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public MapLoader<XDMDocumentKey, XDMDocument> newMapStore(String mapName, Properties properties) {
+	public MapLoader<XDMDocumentKey, Document> newMapStore(String mapName, Properties properties) {
 		String storeClass = null;
 		String schemaName = properties.getProperty(xdm_schema_name);
 		String storeType = properties.getProperty(xdm_schema_store_type);
 		logger.debug("newMapStore.enter; got properties: {} for map: {}", properties, mapName);
-		MapStore<XDMDocumentKey, XDMDocument> mStore = null;
-		XDMDataStore store = getDataStore(storeType);
+		MapStore<XDMDocumentKey, Document> mStore = null;
+		DataStore store = getDataStore(storeType);
 		if (store != null) {
 			storeClass = store.getStoreClass();
-			XDMSchema schema = getSchema(schemaName);
+			Schema schema = getSchema(schemaName);
 			if (schema != null) {
 				// override store properties with their schema values
 				for (Map.Entry prop: store.getProperties().entrySet()) {
@@ -119,7 +114,7 @@ public class DocumentStoreFactory implements MapStoreFactory<XDMDocumentKey, XDM
 
 		if (instance != null) {
 			if (instance instanceof MapStore) {
-				mStore = (MapStore<XDMDocumentKey, XDMDocument>) instance;
+				mStore = (MapStore<XDMDocumentKey, Document>) instance;
 			} else if (instance instanceof XDMDocumentStore) {
 				mStore = new DocumentStoreAdapter((XDMDocumentStore) instance);
 			} else {

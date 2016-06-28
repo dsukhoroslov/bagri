@@ -6,19 +6,19 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 
 import com.bagri.xdm.common.XDMEntity;
-import com.bagri.xdm.system.XDMAccess;
-import com.bagri.xdm.system.XDMRole;
-import com.bagri.xdm.system.XDMUser;
+import com.bagri.xdm.system.Access;
+import com.bagri.xdm.system.Role;
+import com.bagri.xdm.system.User;
 
 public class AccessConfig extends EntityConfig {
 
-	private XDMAccess config;
+	private Access config;
 	
 	public AccessConfig(String configPath) {
 		super(configPath);
 		try {
-			jctx = JAXBContext.newInstance(XDMAccess.class);
-			config = (XDMAccess) loadConfig();
+			jctx = JAXBContext.newInstance(Access.class);
+			config = (Access) loadConfig();
 		} catch (JAXBException ex) {
 			logger.error("init.error: " + ex.getMessage(), ex);
 			//throw new RuntimeException(ex);
@@ -27,10 +27,10 @@ public class AccessConfig extends EntityConfig {
 	
 	@Override
 	public Collection<? extends XDMEntity> getEntities(Class<? extends XDMEntity> entityClass) {
-		if (entityClass == XDMUser.class) {
+		if (entityClass == User.class) {
 			return config.getUsers();
 		}
-		if (entityClass == XDMRole.class) {
+		if (entityClass == Role.class) {
 			return config.getRoles();
 		}
 		// throw ex ?
@@ -39,9 +39,9 @@ public class AccessConfig extends EntityConfig {
 
 	@Override
 	public void setEntities(Class<? extends XDMEntity> entityClass,	Collection<? extends XDMEntity> entities) {
-		if (entityClass == XDMUser.class) {
+		if (entityClass == User.class) {
 			setEntities(config, config.getUsers(), entities);
-		} else if (entityClass == XDMRole.class) {
+		} else if (entityClass == Role.class) {
 			setEntities(config, config.getRoles(), entities);
 		} else {
 			// throw ex?

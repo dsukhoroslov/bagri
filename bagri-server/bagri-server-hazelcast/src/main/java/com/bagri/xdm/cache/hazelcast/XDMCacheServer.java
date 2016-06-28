@@ -41,10 +41,10 @@ import com.bagri.xdm.cache.hazelcast.security.BagriJMXAuthenticator;
 import com.bagri.xdm.cache.hazelcast.store.system.ModuleCacheStore;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaAdministrator;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaInitiator;
-import com.bagri.xdm.system.XDMDataFormat;
-import com.bagri.xdm.system.XDMLibrary;
-import com.bagri.xdm.system.XDMModule;
-import com.bagri.xdm.system.XDMSchema;
+import com.bagri.xdm.system.DataFormat;
+import com.bagri.xdm.system.Library;
+import com.bagri.xdm.system.Module;
+import com.bagri.xdm.system.Schema;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.Member;
@@ -149,24 +149,24 @@ public class XDMCacheServer {
     		}
     	}
         
-        Collection<XDMModule> cModules = null; 
-        Collection<XDMLibrary> cLibraries = null; 
-        Collection<XDMDataFormat> cFormats = null; 
-        Map<String, XDMSchema> schemaCache = null;
+        Collection<Module> cModules = null; 
+        Collection<Library> cLibraries = null; 
+        Collection<DataFormat> cFormats = null; 
+        Map<String, Schema> schemaCache = null;
         
     	SystemConfig cfg = context.getBean(SystemConfig.class);
 
     	Set<Member> admins = getAdmins(systemInstance);
         if (admins.size() == 0) {
 	       	if (cfg.isLoaded()) {
-	       		Collection<XDMSchema> cSchemas = (Collection<XDMSchema>) cfg.getEntities(XDMSchema.class); 
-	   			schemaCache = new HashMap<String, XDMSchema>(cSchemas.size());
-	       		for (XDMSchema schema: cSchemas) {
+	       		Collection<Schema> cSchemas = (Collection<Schema>) cfg.getEntities(Schema.class); 
+	   			schemaCache = new HashMap<String, Schema>(cSchemas.size());
+	       		for (Schema schema: cSchemas) {
 	       			schemaCache.put(schema.getName(), schema);
 	       	    }
-	       		cModules = (Collection<XDMModule>) cfg.getEntities(XDMModule.class);
-	       		cLibraries = (Collection<XDMLibrary>) cfg.getEntities(XDMLibrary.class);
-	       		cFormats = (Collection<XDMDataFormat>) cfg.getEntities(XDMDataFormat.class);
+	       		cModules = (Collection<Module>) cfg.getEntities(Module.class);
+	       		cLibraries = (Collection<Library>) cfg.getEntities(Library.class);
+	       		cFormats = (Collection<DataFormat>) cfg.getEntities(DataFormat.class);
 	       	}
         }
 
@@ -177,7 +177,7 @@ public class XDMCacheServer {
        		logger.debug("initServerNode; going to deploy schema: {}", schemaName);
        		boolean initialized = false;
        		if (schemaCache != null) {
-            	XDMSchema xSchema = schemaCache.get(schemaName);
+            	Schema xSchema = schemaCache.get(schemaName);
             	if (xSchema != null) {
             		initialized = initSchema(systemInstance, local, xSchema);
             		//String store = xSchema.getProperty(xdm_schema_store_enabled);
@@ -186,7 +186,7 @@ public class XDMCacheServer {
             			// set modules and libraries
             			RepositoryImpl xdmRepo = schemaContext.getBean(bean_id, RepositoryImpl.class);
             			xdmRepo.setLibraries(cLibraries);
-            			for (XDMModule module: cModules) {
+            			for (Module module: cModules) {
             				try {
 								ModuleCacheStore.loadModule(module);
 							} catch (IOException e) {
@@ -243,7 +243,7 @@ public class XDMCacheServer {
     	return admins;
     }
     
-    private static boolean initSchema(HazelcastInstance hzInstance, Member member, XDMSchema schema) {
+    private static boolean initSchema(HazelcastInstance hzInstance, Member member, Schema schema) {
     	
 		logger.trace("initSchema.enter; schema: {}", schema);
 		SchemaInitiator init = new SchemaInitiator(schema);

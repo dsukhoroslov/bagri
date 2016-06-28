@@ -5,7 +5,6 @@ import static com.bagri.xdm.common.XDMConstants.xdm_config_properties_file;
 import static com.bagri.xdm.common.XDMConstants.xdm_document_collections;
 import static org.junit.Assert.*;
 
-import java.util.Collection;
 import java.util.Date;
 import java.util.Properties;
 
@@ -18,8 +17,8 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.bagri.common.util.JMXUtils;
 import com.bagri.xdm.api.test.XDMManagementTest;
-import com.bagri.xdm.system.XDMCollection;
-import com.bagri.xdm.system.XDMSchema;
+import com.bagri.xdm.system.Collection;
+import com.bagri.xdm.system.Schema;
 
 public class CollectionManagementTest extends XDMManagementTest {
 
@@ -48,13 +47,13 @@ public class CollectionManagementTest extends XDMManagementTest {
 	public void setUp() throws Exception {
 		xRepo = context.getBean(RepositoryImpl.class);
 		RepositoryImpl xdmRepo = (RepositoryImpl) xRepo; 
-		XDMSchema schema = xdmRepo.getSchema();
+		Schema schema = xdmRepo.getSchema();
 		if (schema == null) {
-			schema = new XDMSchema(1, new java.util.Date(), "test", "test", "test schema", true, null);
-			XDMCollection collection = new XDMCollection(1, new Date(), JMXUtils.getCurrentUser(), 
+			schema = new Schema(1, new java.util.Date(), "test", "test", "test schema", true, null);
+			Collection collection = new Collection(1, new Date(), JMXUtils.getCurrentUser(), 
 					1, "CLN_Security", "/{http://tpox-benchmark.com/security}Security", "securities", true);
 			schema.addCollection(collection);
-			collection = new XDMCollection(1, new Date(), JMXUtils.getCurrentUser(), 
+			collection = new Collection(1, new Date(), JMXUtils.getCurrentUser(), 
 					2, "CLN_Custom", "", "custom", true);
 			schema.addCollection(collection);
 			xdmRepo.setSchema(schema);
@@ -73,7 +72,7 @@ public class CollectionManagementTest extends XDMManagementTest {
 	
 	@Test
 	public void addDefaultCollectionDocumentsTest() throws Exception {
-		Collection<String> ids = this.getDocManagement().getCollectionDocumentUris(null);
+		java.util.Collection<String> ids = this.getDocManagement().getCollectionDocumentUris(null);
 		assertEquals(0, ids.size());
 		props = new Properties();
 		//props.setProperty(xdm_document_collections, "CLN_Security");
@@ -92,7 +91,7 @@ public class CollectionManagementTest extends XDMManagementTest {
 
 	@Test
 	public void addCustomCollectionDocumentsTest() throws Exception {
-		Collection<String> ids = this.getDocManagement().getCollectionDocumentUris(null);
+		java.util.Collection<String> ids = this.getDocManagement().getCollectionDocumentUris(null);
 		assertEquals(0, ids.size());
 		props = new Properties();
 		props.setProperty(xdm_document_collections, "CLN_Custom");
@@ -115,7 +114,7 @@ public class CollectionManagementTest extends XDMManagementTest {
 
 	@Test
 	public void getCollectionDocumentsTest() throws Exception {
-		Collection<String> ids = this.getDocManagement().getCollectionDocumentUris(null);
+		java.util.Collection<String> ids = this.getDocManagement().getCollectionDocumentUris(null);
 		assertEquals(0, ids.size());
 		props = new Properties();
 		props.setProperty(xdm_document_collections, "CLN_Security");
@@ -134,7 +133,7 @@ public class CollectionManagementTest extends XDMManagementTest {
 
 	@Test
 	public void addDocumentsToCollectionTest() throws Exception {
-		Collection<String> ids = this.getDocManagement().getCollectionDocumentUris(null);
+		java.util.Collection<String> ids = this.getDocManagement().getCollectionDocumentUris(null);
 		assertEquals(0, ids.size());
 		assertEquals(0, uris.size());
 		storeSecurityTest();
@@ -166,7 +165,7 @@ public class CollectionManagementTest extends XDMManagementTest {
 		for (String uri: uris) {
 			this.getDocManagement().removeDocumentFromCollections(uri, new String[] {"CLN_Custom"});
 		}
-		Collection<String> ids = this.getDocManagement().getCollectionDocumentUris("CLN_Custom");
+		java.util.Collection<String> ids = this.getDocManagement().getCollectionDocumentUris("CLN_Custom");
 		assertEquals(0, ids.size());
 	}
 
@@ -179,7 +178,7 @@ public class CollectionManagementTest extends XDMManagementTest {
 		int cnt = getDocManagement().removeCollectionDocuments("CLN_Security");
 		xRepo.getTxManagement().commitTransaction(txId);
 		
-		Collection<String> ids = this.getDocManagement().getCollectionDocumentUris("CLN_Security");
+		java.util.Collection<String> ids = this.getDocManagement().getCollectionDocumentUris("CLN_Security");
 		assertEquals(0, ids.size());
 	}
 

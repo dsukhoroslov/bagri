@@ -31,7 +31,7 @@ import com.bagri.xdm.common.query.AxisType;
 import com.bagri.xdm.common.query.Comparison;
 import com.bagri.xdm.common.query.ExpressionContainer;
 import com.bagri.xdm.common.query.PathBuilder;
-import com.bagri.xdm.system.XDMSchema;
+import com.bagri.xdm.system.Schema;
 
 public class TransactionCacheStoreTest extends XDMManagementTest {
 
@@ -63,9 +63,9 @@ public class TransactionCacheStoreTest extends XDMManagementTest {
 	public void setUp() throws Exception {
 		xRepo = context.getBean(RepositoryImpl.class);
 		RepositoryImpl xdmRepo = (RepositoryImpl) xRepo; 
-		XDMSchema schema = xdmRepo.getSchema();
+		Schema schema = xdmRepo.getSchema();
 		if (schema == null) {
-			schema = new XDMSchema(1, new java.util.Date(), "test", "test", "test schema", true, null);
+			schema = new Schema(1, new java.util.Date(), "test", "test", "test schema", true, null);
 			Properties props = PropUtils.propsFromFile("src/test/resources/store.properties");
 			schema.setProperties(props);
 			xdmRepo.setSchema(schema);
@@ -80,7 +80,7 @@ public class TransactionCacheStoreTest extends XDMManagementTest {
 	public void tearDown() throws Exception {
 		removeDocumentsTest();
 		RepositoryImpl xdmRepo = (RepositoryImpl) xRepo; 
-		XDMSchema schema = xdmRepo.getSchema();
+		Schema schema = xdmRepo.getSchema();
 		String dataPath = schema.getProperty(xdm_schema_store_data_path);
 		String nodeNum = System.getProperty(xdm_node_instance);
 		txFileName = FileUtils.buildStoreFileName(dataPath, nodeNum, "txlog");

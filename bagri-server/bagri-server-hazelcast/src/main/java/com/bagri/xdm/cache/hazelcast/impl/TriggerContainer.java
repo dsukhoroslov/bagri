@@ -1,6 +1,6 @@
 package com.bagri.xdm.cache.hazelcast.impl;
 
-import com.bagri.xdm.domain.XDMTrigger;
+import com.bagri.xdm.cache.api.XDMTrigger;
 
 public class TriggerContainer {
 	

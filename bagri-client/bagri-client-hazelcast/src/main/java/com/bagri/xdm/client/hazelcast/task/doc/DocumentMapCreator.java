@@ -8,11 +8,11 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 
-import com.bagri.xdm.domain.XDMDocument;
+import com.bagri.xdm.domain.Document;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 
-public class DocumentMapCreator extends DocumentAwareTask implements Callable<XDMDocument> {
+public class DocumentMapCreator extends DocumentAwareTask implements Callable<Document> {
 	
 	protected Map<String, Object> fields;
 
@@ -26,7 +26,7 @@ public class DocumentMapCreator extends DocumentAwareTask implements Callable<XD
 	}
 
 	@Override
-	public XDMDocument call() throws Exception {
+	public Document call() throws Exception {
 		return null;
 	}
 

@@ -10,8 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.bagri.xdm.cache.api.XDMQueryManagement;
 import com.bagri.xdm.cache.hazelcast.impl.HealthManagementImpl;
-import com.bagri.xdm.domain.XDMQuery;
-import com.bagri.xdm.domain.XDMResults;
+import com.bagri.xdm.domain.Query;
+import com.bagri.xdm.domain.QueryResult;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
@@ -53,7 +53,7 @@ public class SchemaDocCleaner extends SchemaProcessingTask implements Callable<B
 			cleanCache(hz, CN_XDM_INDEX);
 			cleanCache(hz, CN_XDM_RESULT);
 			//cleanCache(hz, CN_XDM_QUERY);
-		    ReplicatedMap<Integer, XDMQuery> xqCache = hz.getReplicatedMap(CN_XDM_QUERY);
+		    ReplicatedMap<Integer, Query> xqCache = hz.getReplicatedMap(CN_XDM_QUERY);
 		    xqCache.clear();
 			hMgr.clearState();
 			System.gc();

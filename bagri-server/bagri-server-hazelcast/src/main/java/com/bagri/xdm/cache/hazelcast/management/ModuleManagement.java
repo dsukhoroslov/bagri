@@ -10,7 +10,7 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 
 import com.bagri.xdm.cache.hazelcast.task.module.ModuleCreator;
 import com.bagri.xdm.cache.hazelcast.task.module.ModuleRemover;
-import com.bagri.xdm.system.XDMModule;
+import com.bagri.xdm.system.Module;
 import com.bagri.xquery.api.XQCompiler;
 import com.hazelcast.core.HazelcastInstance;
 
@@ -20,7 +20,7 @@ import com.hazelcast.core.HazelcastInstance;
  */
 @ManagedResource(objectName="com.bagri.xdm:type=Management,name=ModuleManagement", 
 	description="XQuery Module Management MBean")
-public class ModuleManagement extends EntityManagement<XDMModule> {
+public class ModuleManagement extends EntityManagement<Module> {
 
 	private XQCompiler xqComp;
 	
@@ -33,7 +33,7 @@ public class ModuleManagement extends EntityManagement<XDMModule> {
 	}
 	
 	@Override
-	protected EntityManager<XDMModule> createEntityManager(String moduleName) {
+	protected EntityManager<Module> createEntityManager(String moduleName) {
 		ModuleManager mgr = new ModuleManager(hzInstance, moduleName);
 		mgr.setEntityCache(entityCache);
 		mgr.setXQCompiler(xqComp);
@@ -58,10 +58,10 @@ public class ModuleManagement extends EntityManagement<XDMModule> {
 		@ManagedOperationParameter(name = "namespace", description = "Module namespace")})
 	public boolean addModule(String name, String fileName, String description, String namespace) {
 		logger.trace("addModule.enter;");
-		XDMModule module = null;
+		Module module = null;
 		if (!entityCache.containsKey(name)) {
 	    	Object result = entityCache.executeOnKey(name, new ModuleCreator(getCurrentUser(), fileName, namespace, description));
-	    	module = (XDMModule) result;
+	    	module = (Module) result;
 		}
 		logger.trace("addModule.exit; module created: {}", module);
 		return module != null;
@@ -71,10 +71,10 @@ public class ModuleManagement extends EntityManagement<XDMModule> {
 	@ManagedOperationParameters({@ManagedOperationParameter(name = "name", description = "Module name to delete")})
 	public boolean deleteModule(String name) {
 		logger.trace("deleteModule.enter; name: {}", name);
-		XDMModule module = entityCache.get(name);
+		Module module = entityCache.get(name);
 		if (module != null) {
 	    	Object result = entityCache.executeOnKey(name, new ModuleRemover(module.getVersion(), getCurrentUser()));
-	    	module = (XDMModule) result;
+	    	module = (Module) result;
 		}
 		logger.trace("deleteModule.exit; module deleted: {}", module);
 		return module != null;

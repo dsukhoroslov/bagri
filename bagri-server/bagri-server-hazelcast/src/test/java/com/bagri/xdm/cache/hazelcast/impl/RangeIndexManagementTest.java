@@ -16,8 +16,8 @@ import org.junit.BeforeClass;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.bagri.xdm.api.test.XDMManagementTest;
-import com.bagri.xdm.system.XDMIndex;
-import com.bagri.xdm.system.XDMSchema;
+import com.bagri.xdm.system.Index;
+import com.bagri.xdm.system.Schema;
 
 public class RangeIndexManagementTest extends XDMManagementTest {
 
@@ -44,12 +44,12 @@ public class RangeIndexManagementTest extends XDMManagementTest {
 	public void setUp() throws Exception {
 		xRepo = context.getBean(RepositoryImpl.class);
 		RepositoryImpl xdmRepo = (RepositoryImpl) xRepo; 
-		XDMSchema schema = xdmRepo.getSchema();
+		Schema schema = xdmRepo.getSchema();
 		if (schema == null) {
-			schema = new XDMSchema(1, new java.util.Date(), "test", "test", "test schema", true, null);
+			schema = new Schema(1, new java.util.Date(), "test", "test", "test schema", true, null);
 			xdmRepo.setSchema(schema);
 			String typePath = getModelManagement().normalizePath("/{http://tpox-benchmark.com/security}Security");
-			XDMIndex index = new XDMIndex(1, new Date(), xRepo.getUserName(), "IDX_Security_PE", "/{http://tpox-benchmark.com/security}Security", 
+			Index index = new Index(1, new Date(), xRepo.getUserName(), "IDX_Security_PE", "/{http://tpox-benchmark.com/security}Security", 
 				typePath, "/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}PE/text()", new QName(xs_ns, "decimal", xs_prefix), 
 				true, true, false, "Security PE", true);
 			xdmRepo.addSchemaIndex(index);

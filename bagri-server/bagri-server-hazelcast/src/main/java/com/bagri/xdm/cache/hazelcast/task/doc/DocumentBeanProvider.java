@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.bagri.xdm.api.XDMDocumentManagement;
 import com.bagri.xdm.cache.api.XDMRepository;
 import com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl;
-import com.bagri.xdm.system.XDMPermission.Permission;
+import com.bagri.xdm.system.Permission;
 import com.hazelcast.spring.context.SpringAware;
 
 @SpringAware
@@ -23,7 +23,7 @@ public class DocumentBeanProvider extends com.bagri.xdm.client.hazelcast.task.do
 	public Object call() throws Exception {
     	
     	((RepositoryImpl) repo).getXQProcessor(clientId);
-    	checkPermission(Permission.read);
+    	checkPermission(Permission.Value.read);
     	
 		return docMgr.getDocumentAsBean(uri);
 	}

@@ -9,16 +9,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bagri.xdm.cache.hazelcast.task.EntityProcessor;
-import com.bagri.xdm.system.XDMPermission.Permission;
-import com.bagri.xdm.system.XDMPermissionAware;
+import com.bagri.xdm.system.Permission;
+import com.bagri.xdm.system.PermissionAware;
 import com.hazelcast.map.EntryBackupProcessor;
 import com.hazelcast.map.EntryProcessor;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
-public class PermissionUpdater extends EntityProcessor implements EntryProcessor<String, XDMPermissionAware>, 
-	EntryBackupProcessor<String, XDMPermissionAware>, IdentifiedDataSerializable {
+public class PermissionUpdater extends EntityProcessor implements EntryProcessor<String, PermissionAware>, 
+	EntryBackupProcessor<String, PermissionAware>, IdentifiedDataSerializable {
 
 	private static final transient Logger logger = LoggerFactory.getLogger(PermissionUpdater.class);
 
@@ -38,24 +38,24 @@ public class PermissionUpdater extends EntityProcessor implements EntryProcessor
 	}
 
 	@Override
-	public void processBackup(Entry<String, XDMPermissionAware> entry) {
+	public void processBackup(Entry<String, PermissionAware> entry) {
 		process(entry);		
 	}
 
 	@Override
-	public EntryBackupProcessor<String, XDMPermissionAware> getBackupProcessor() {
+	public EntryBackupProcessor<String, PermissionAware> getBackupProcessor() {
 		return this;
 	}
 	
 	@Override
-	public Object process(Entry<String, XDMPermissionAware> entry) {
+	public Object process(Entry<String, PermissionAware> entry) {
 		logger.debug("process.enter; entry: {}", entry); 
 		if (entry.getValue() != null) {
-			XDMPermissionAware role = entry.getValue();
+			PermissionAware role = entry.getValue();
 			if (role.getVersion() == getVersion()) {
 				if (action == Action.add) {
 					for (String permission: permissions) {
-						if (!role.addPermission(resource, Permission.valueOf(permission))) {
+						if (!role.addPermission(resource, Permission.Value.valueOf(permission))) {
 							logger.warn("process.add; permission {} already granted for resource {}, skipped;", 
 									permission, resource); 
 						}
@@ -63,7 +63,7 @@ public class PermissionUpdater extends EntityProcessor implements EntryProcessor
 				} else {
 					if (permissions.length > 0) {
 						for (String permission: permissions) {
-							if (!role.removePermission(resource, Permission.valueOf(permission))) {
+							if (!role.removePermission(resource, Permission.Value.valueOf(permission))) {
 								logger.warn("process.remove; permission {} not granted for resource {}, skipped;", 
 										permission, resource); 
 							}

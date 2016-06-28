@@ -18,7 +18,7 @@ rem	"%java_exec%" -server %java_opts% -cp "%app_home%\target\*;%app_home%\target
 
 rem	"%java_exec%" -server %java_opts% -cp "%app_home%\target\*;%app_home%\target\lib\*" net.sf.tpox.workload.core.WorkloadDriver -w queries/XQJ/orders-%%x.xml -u 10
 	"%java_exec%" -server %java_opts% -cp "%app_home%\target\*;%app_home%\target\lib\*" net.sf.tpox.workload.core.WorkloadDriver -w queries/XQJ/orders-10.xml -u 10
-	"%java_exec%" -server %java_opts% -cp "%app_home%\target\*;%app_home%\target\lib\*" com.bagri.client.tpox.StatisticsCollector %admin_addr% %schema% QueryManagement executeXQuery Orders=!count!0 ./stats.txt true
+	"%java_exec%" -server %java_opts% -cp "%app_home%\target\*;%app_home%\target\lib\*" com.bagri.test.tpox.StatisticsCollector %admin_addr% %schema% QueryManagement executeXQuery Orders=!count!0 ./stats.txt true
 )
 
 goto exit

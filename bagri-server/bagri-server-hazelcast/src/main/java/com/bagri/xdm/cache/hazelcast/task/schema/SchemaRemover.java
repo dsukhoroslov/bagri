@@ -4,7 +4,7 @@ import static com.bagri.xdm.cache.hazelcast.serialize.DataSerializationFactoryIm
 
 import java.util.Map.Entry;
 
-import com.bagri.xdm.system.XDMSchema;
+import com.bagri.xdm.system.Schema;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 import com.hazelcast.spring.context.SpringAware;
 
@@ -20,10 +20,10 @@ public class SchemaRemover extends SchemaProcessor implements IdentifiedDataSeri
 	}
 
 	@Override
-	public Object process(Entry<String, XDMSchema> entry) {
+	public Object process(Entry<String, Schema> entry) {
 		logger.debug("process.enter; entry: {}", entry); 
 		if (entry.getValue() != null) {
-			XDMSchema schema = entry.getValue();
+			Schema schema = entry.getValue();
 			if (schema.getVersion() == getVersion()) {
 				if (denitSchemaInCluster(schema) > 0) {
 					schema.setActive(false);

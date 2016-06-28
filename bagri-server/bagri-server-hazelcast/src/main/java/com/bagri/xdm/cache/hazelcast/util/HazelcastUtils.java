@@ -101,6 +101,15 @@ public class HazelcastUtils {
 		}
 		return hzClient;
 	}
+	
+	public static boolean hasStorageMembers(HazelcastInstance hzInstance) {
+		for (Member member: hzInstance.getCluster().getMembers()) {
+			if (!member.isLiteMember()) {
+				return true;
+			}
+		}
+		return false;
+	}
 
     //public static Node getNode(HazelcastInstance hz) {
     //    HazelcastInstanceImpl impl = getHazelcastInstanceImpl(hz);

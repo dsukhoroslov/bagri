@@ -15,9 +15,9 @@ import com.bagri.common.util.JMXUtils;
 import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.cache.hazelcast.impl.DocumentManagementImpl;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentAwareTask;
-import com.bagri.xdm.domain.XDMElement;
-import com.bagri.xdm.domain.XDMElements;
-import com.bagri.xdm.domain.XDMPath;
+import com.bagri.xdm.domain.Element;
+import com.bagri.xdm.domain.Elements;
+import com.bagri.xdm.domain.Path;
 import com.hazelcast.spring.context.SpringAware;
 
 @SpringAware
@@ -41,19 +41,19 @@ public class DocumentStructureProvider extends DocumentAwareTask implements Call
 	@Override
 	public CompositeData call() throws Exception {
 		
-    	Collection<XDMElements> elements = docMgr.getDocumentElements(uri); 
+    	Collection<Elements> elements = docMgr.getDocumentElements(uri); 
     	if (elements == null) {
     		return null;
     	}
     	
     	XDMModelManagement model = docMgr.getModelManager();
     	Map<String, Object> tree = new HashMap<>();
-		for (XDMElements elts: elements) {
-			XDMPath path = model.getPath(elts.getPathId());
+		for (Elements elts: elements) {
+			Path path = model.getPath(elts.getPathId());
 			StringBuffer buff = new StringBuffer();
 			buff.append(path.getNodeKind()).append(" [");
 			int idx = 0;
-			for (XDMElement elt: elts.getElements()) {
+			for (Element elt: elts.getElements()) {
 				if (idx > 0) {
 					buff.append(", ");
 				}

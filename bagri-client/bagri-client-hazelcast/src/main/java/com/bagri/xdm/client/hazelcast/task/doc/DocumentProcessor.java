@@ -6,14 +6,14 @@ import java.io.IOException;
 import java.util.Map.Entry;
 import java.util.Properties;
 
-import com.bagri.xdm.domain.XDMDocument;
+import com.bagri.xdm.domain.Document;
 import com.hazelcast.map.EntryBackupProcessor;
 import com.hazelcast.map.EntryProcessor;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 
 public class DocumentProcessor extends DocumentAwareTask 
-	implements EntryProcessor<Long, XDMDocument>, EntryBackupProcessor<Long, XDMDocument> {
+	implements EntryProcessor<Long, Document>, EntryBackupProcessor<Long, Document> {
 	
 	/**
 	 * 
@@ -32,17 +32,17 @@ public class DocumentProcessor extends DocumentAwareTask
 	}
 	
 	@Override
-	public void processBackup(Entry<Long, XDMDocument> entry) {
+	public void processBackup(Entry<Long, Document> entry) {
 		this.process(entry);
 	}
 
 	@Override
-	public Object process(Entry<Long, XDMDocument> entry) {
+	public Object process(Entry<Long, Document> entry) {
 		return null;
 	}
 
 	@Override
-	public EntryBackupProcessor<Long, XDMDocument> getBackupProcessor() {
+	public EntryBackupProcessor<Long, Document> getBackupProcessor() {
 		return this;
 	}
 

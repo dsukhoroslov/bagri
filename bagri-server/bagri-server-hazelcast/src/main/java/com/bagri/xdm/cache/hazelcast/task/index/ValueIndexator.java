@@ -8,16 +8,16 @@ import java.util.Map.Entry;
 
 import com.bagri.xdm.api.XDMTransactionManagement;
 import com.bagri.xdm.common.XDMIndexKey;
-import com.bagri.xdm.domain.XDMIndexedDocument;
-import com.bagri.xdm.domain.XDMIndexedValue;
+import com.bagri.xdm.domain.IndexedDocument;
+import com.bagri.xdm.domain.IndexedValue;
 import com.hazelcast.map.EntryBackupProcessor;
 import com.hazelcast.map.EntryProcessor;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
-public class ValueIndexator implements EntryProcessor<XDMIndexKey, XDMIndexedValue>, 
-	EntryBackupProcessor<XDMIndexKey, XDMIndexedValue>, IdentifiedDataSerializable {
+public class ValueIndexator implements EntryProcessor<XDMIndexKey, IndexedValue>, 
+	EntryBackupProcessor<XDMIndexKey, IndexedValue>, IdentifiedDataSerializable {
 
 	private long docId;
 	
@@ -40,15 +40,15 @@ public class ValueIndexator implements EntryProcessor<XDMIndexKey, XDMIndexedVal
 	}
 
 	@Override
-	public EntryBackupProcessor<XDMIndexKey, XDMIndexedValue> getBackupProcessor() {
+	public EntryBackupProcessor<XDMIndexKey, IndexedValue> getBackupProcessor() {
 		return this;
 	}
 
 	@Override
-	public Object process(Entry<XDMIndexKey, XDMIndexedValue> entry) {
-		XDMIndexedValue index = entry.getValue(); 
+	public Object process(Entry<XDMIndexKey, IndexedValue> entry) {
+		IndexedValue index = entry.getValue(); 
 		if (index == null) {
-			index = new XDMIndexedDocument(docId);
+			index = new IndexedDocument(docId);
 		} else {
 			index.addDocument(docId, XDMTransactionManagement.TX_NO);
 		}
@@ -57,7 +57,7 @@ public class ValueIndexator implements EntryProcessor<XDMIndexKey, XDMIndexedVal
 	}
 
 	@Override
-	public void processBackup(Entry<XDMIndexKey, XDMIndexedValue> entry) {
+	public void processBackup(Entry<XDMIndexKey, IndexedValue> entry) {
 		process(entry);
 	}
 

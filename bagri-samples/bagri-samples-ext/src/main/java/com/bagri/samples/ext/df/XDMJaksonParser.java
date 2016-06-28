@@ -14,11 +14,11 @@ import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.common.XDMParser;
 import com.bagri.xdm.common.df.XDMParserBase;
-import com.bagri.xdm.domain.XDMOccurrence;
-import com.bagri.xdm.domain.XDMData;
-import com.bagri.xdm.domain.XDMElement;
-import com.bagri.xdm.domain.XDMNodeKind;
-import com.bagri.xdm.domain.XDMPath;
+import com.bagri.xdm.domain.Occurrence;
+import com.bagri.xdm.domain.Data;
+import com.bagri.xdm.domain.Element;
+import com.bagri.xdm.domain.NodeKind;
+import com.bagri.xdm.domain.Path;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -27,7 +27,7 @@ public class XDMJaksonParser extends XDMParserBase implements XDMParser {
 	
 	private static JsonFactory factory = new JsonFactory();
 
-	public static List<XDMData> parseDocument(XDMModelManagement dictionary, String json) throws XDMException {
+	public static List<Data> parseDocument(XDMModelManagement dictionary, String json) throws XDMException {
 		XDMJaksonParser parser = new XDMJaksonParser(dictionary);
 		return parser.parse(json);
 	}
@@ -37,7 +37,7 @@ public class XDMJaksonParser extends XDMParserBase implements XDMParser {
 	}
 
 	@Override
-	public List<XDMData> parse(String json) throws XDMException { 
+	public List<Data> parse(String json) throws XDMException { 
 		try (Reader reader = new StringReader(json)) {
 			return parse(reader);
 		} catch (IOException ex) {
@@ -46,7 +46,7 @@ public class XDMJaksonParser extends XDMParserBase implements XDMParser {
 	}
 	
 	@Override
-	public List<XDMData> parse(File file) throws XDMException {
+	public List<Data> parse(File file) throws XDMException {
 		try (Reader reader = new FileReader(file)) {
 			return parse(reader);
 		} catch (IOException ex) {
@@ -55,7 +55,7 @@ public class XDMJaksonParser extends XDMParserBase implements XDMParser {
 	}
 	
 	@Override
-	public List<XDMData> parse(InputStream stream) throws XDMException {
+	public List<Data> parse(InputStream stream) throws XDMException {
 		
 		JsonParser jParser = null;
 		try {
@@ -75,7 +75,7 @@ public class XDMJaksonParser extends XDMParserBase implements XDMParser {
 	}
 	
 	@Override
-	public List<XDMData> parse(Reader reader) throws XDMException {
+	public List<Data> parse(Reader reader) throws XDMException {
 		
 		JsonParser jParser = null;
 		try {
@@ -94,7 +94,7 @@ public class XDMJaksonParser extends XDMParserBase implements XDMParser {
 		}
 	}
 
-	public List<XDMData> parse(JsonParser parser) throws XDMException {
+	public List<Data> parse(JsonParser parser) throws XDMException {
 		
 		logger.trace("parse.enter; context: {}; schema: {}", parser.getParsingContext(), parser.getSchema());
 		
@@ -108,7 +108,7 @@ public class XDMJaksonParser extends XDMParserBase implements XDMParser {
 		}
 		cleanup();
 
-		List<XDMData> result = dataList;
+		List<Data> result = dataList;
 		dataList = null;
 		logger.trace("parse.exit; returning {} elements", result); //.size());
 		return result;
@@ -157,11 +157,11 @@ public class XDMJaksonParser extends XDMParserBase implements XDMParser {
 
 		String root = "/" + (name == null ? "" : name);
 		docType = model.translateDocumentType(root);
-		XDMPath path = model.translatePath(docType, "", XDMNodeKind.document, XQItemType.XQBASETYPE_ANYTYPE, XDMOccurrence.onlyOne); 
-		XDMElement start = new XDMElement();
+		Path path = model.translatePath(docType, "", NodeKind.document, XQItemType.XQBASETYPE_ANYTYPE, Occurrence.onlyOne); 
+		Element start = new Element();
 		start.setElementId(elementId++);
 		//start.setParentId(0); // -1 ?
-		XDMData data = new XDMData(path, start);
+		Data data = new Data(path, start);
 		dataStack.add(data);
 		dataList.add(data);
 	}
@@ -173,12 +173,12 @@ public class XDMJaksonParser extends XDMParserBase implements XDMParser {
 	private void processStartElement(String name) throws XDMException {
 		
 		if (name != null && !isAttribute(name)) {
-			XDMData parent = dataStack.peek();
+			Data parent = dataStack.peek();
 			if (name.equals("#text")) {
 				// add marker
 				dataStack.add(null);
 			} else if (!name.equals(parent.getName())) {
-				XDMData current = addData(parent, XDMNodeKind.element, "/" + name, null, XQItemType.XQBASETYPE_ANYTYPE, XDMOccurrence.zeroOrOne); 
+				Data current = addData(parent, NodeKind.element, "/" + name, null, XQItemType.XQBASETYPE_ANYTYPE, Occurrence.zeroOrOne); 
 				dataStack.add(current);
 			}
 		}
@@ -193,28 +193,28 @@ public class XDMJaksonParser extends XDMParserBase implements XDMParser {
 		
 		//value = value.replaceAll("&", "&amp;");
 		if (name == null) {
-			XDMData current = dataStack.peek();
+			Data current = dataStack.peek();
 			if (current == null) {
 				// #text in array; not sure it'll always work.
 				// use XDMJsonParser.getTopData instead ?
 				current = dataStack.elementAt(dataStack.size() - 2);
 			}
-			addData(current, XDMNodeKind.text, "/text()", value, XQItemType.XQBASETYPE_ANYATOMICTYPE, XDMOccurrence.zeroOrOne);
+			addData(current, NodeKind.text, "/text()", value, XQItemType.XQBASETYPE_ANYATOMICTYPE, Occurrence.zeroOrOne);
 		} else if (isAttribute(name)) {
-			XDMData current = dataStack.peek(); 
+			Data current = dataStack.peek(); 
 			name = name.substring(1);
 			if (name.startsWith("xmlns")) {
-				addData(current, XDMNodeKind.namespace, "/#" + name, value, XQItemType.XQBASETYPE_STRING, XDMOccurrence.onlyOne);
+				addData(current, NodeKind.namespace, "/#" + name, value, XQItemType.XQBASETYPE_STRING, Occurrence.onlyOne);
 			} else {
-				addData(current, XDMNodeKind.attribute, "/@" + name, value, XQItemType.XQBASETYPE_ANYATOMICTYPE, XDMOccurrence.zeroOrOne);
+				addData(current, NodeKind.attribute, "/@" + name, value, XQItemType.XQBASETYPE_ANYATOMICTYPE, Occurrence.zeroOrOne);
 			}
 		} else {
-			XDMData current = dataStack.pop();
+			Data current = dataStack.pop();
 			if (current == null) {
 				// #text
 				current = dataStack.peek(); 
 			}
-			addData(current, XDMNodeKind.text, "/text()", value, XQItemType.XQBASETYPE_ANYATOMICTYPE, XDMOccurrence.zeroOrOne);
+			addData(current, NodeKind.text, "/text()", value, XQItemType.XQBASETYPE_ANYATOMICTYPE, Occurrence.zeroOrOne);
 		}
 	}
 	

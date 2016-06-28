@@ -14,8 +14,8 @@ import org.junit.BeforeClass;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.bagri.xdm.api.test.XDMDocumentManagementTest;
-import com.bagri.xdm.system.XDMDataFormat;
-import com.bagri.xdm.system.XDMSchema;
+import com.bagri.xdm.system.DataFormat;
+import com.bagri.xdm.system.Schema;
 import com.bagri.xquery.api.XQProcessor;
 
 public class JsonDocumentManagementTest extends XDMDocumentManagementTest {
@@ -43,13 +43,13 @@ public class JsonDocumentManagementTest extends XDMDocumentManagementTest {
 	public void setUp() throws Exception {
 		xRepo = context.getBean(RepositoryImpl.class);
 		RepositoryImpl xdmRepo = (RepositoryImpl) xRepo; 
-		XDMSchema schema = xdmRepo.getSchema();
+		Schema schema = xdmRepo.getSchema();
 		if (schema == null) {
-			schema = new XDMSchema(1, new java.util.Date(), "test", "test", "test schema", true, null);
+			schema = new Schema(1, new java.util.Date(), "test", "test", "test schema", true, null);
 			xdmRepo.setSchema(schema);
-			XDMDataFormat df = new XDMDataFormat(1, new java.util.Date(), "", "JSON", null, null,
+			DataFormat df = new DataFormat(1, new java.util.Date(), "", "JSON", null, null,
 					"com.bagri.xdm.common.df.json.JsonApiParser", "com.bagri.xdm.common.df.json.JsonBuilder", true, null);
-			ArrayList<XDMDataFormat> cFormats = new ArrayList<>(1);
+			ArrayList<DataFormat> cFormats = new ArrayList<>(1);
 			cFormats.add(df);
 			xdmRepo.setDataFormats(cFormats);
 		}

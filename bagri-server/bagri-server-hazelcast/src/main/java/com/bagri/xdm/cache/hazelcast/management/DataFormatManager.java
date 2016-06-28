@@ -14,11 +14,11 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 
 import com.bagri.common.util.JMXUtils;
 import com.bagri.xdm.cache.hazelcast.task.EntityProcessor.Action;
-import com.bagri.xdm.system.XDMDataFormat;
+import com.bagri.xdm.system.DataFormat;
 import com.hazelcast.core.HazelcastInstance;
 
 @ManagedResource(description="Data Format Manager MBean")
-public class DataFormatManager extends EntityManager<XDMDataFormat> { 
+public class DataFormatManager extends EntityManager<DataFormat> { 
 
 	public DataFormatManager() {
 		super();
@@ -30,7 +30,7 @@ public class DataFormatManager extends EntityManager<XDMDataFormat> {
 
 	@ManagedAttribute(description="Returns Data Format extensions")
 	public String[] getExtensions() {
-		XDMDataFormat format = getEntity();
+		DataFormat format = getEntity();
 		List<String> result = new ArrayList<>(format.getExtensions());
 		Collections.sort(result);
 		return result.toArray(new String[result.size()]);
@@ -38,7 +38,7 @@ public class DataFormatManager extends EntityManager<XDMDataFormat> {
 	
 	@ManagedAttribute(description="Returns Data Store properties")
 	public CompositeData getProperties() {
-		XDMDataFormat format = getEntity();
+		DataFormat format = getEntity();
 		return JMXUtils.propsToComposite(entityName, "properties", format.getProperties());
 	}
 	

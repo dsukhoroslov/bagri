@@ -19,11 +19,11 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 import com.bagri.xdm.cache.hazelcast.task.stats.StatisticSeriesCollector;
 import com.bagri.xdm.cache.hazelcast.task.trigger.TriggerCreator;
 import com.bagri.xdm.cache.hazelcast.task.trigger.TriggerRemover;
-import com.bagri.xdm.system.XDMSchema;
-import com.bagri.xdm.system.XDMTriggerAction;
-import com.bagri.xdm.system.XDMTriggerAction.Scope;
-import com.bagri.xdm.system.XDMTriggerDef;
-import com.bagri.xdm.system.XDMTriggerAction.Order;
+import com.bagri.xdm.system.Schema;
+import com.bagri.xdm.system.TriggerAction;
+import com.bagri.xdm.system.TriggerAction.Scope;
+import com.bagri.xdm.system.TriggerDefinition;
+import com.bagri.xdm.system.TriggerAction.Order;
 import com.hazelcast.core.Member;
 
 @ManagedResource(description="Schema Triggers Management MBean")
@@ -38,7 +38,7 @@ public class TriggerManagement extends SchemaFeatureManagement {
 	}
 
 	@Override
-	protected Collection getSchemaFeatures(XDMSchema schema) {
+	protected Collection getSchemaFeatures(Schema schema) {
 		return schema.getTriggers();
 	}
 	//protected Collection<XDMEntity> getSchemaFeatures(XDMSchema schema) {
@@ -87,15 +87,15 @@ public class TriggerManagement extends SchemaFeatureManagement {
 		String type = (docType == null || docType.trim().length() == 0) ? null : docType;
 		
 		StringTokenizer st = new StringTokenizer(actions, " ,");
-		List<XDMTriggerAction> acts = new ArrayList<>();
+		List<TriggerAction> acts = new ArrayList<>();
 		while (st.hasMoreTokens()) {
 			String order = st.nextToken();
 			String scope = st.nextToken();
-			acts.add(new XDMTriggerAction(Order.valueOf(order), Scope.valueOf(scope)));
+			acts.add(new TriggerAction(Order.valueOf(order), Scope.valueOf(scope)));
 		}
 		
 		int index = schemaManager.getEntity().getTriggers().size();
-		XDMTriggerDef trigger = schemaManager.addTrigger(java, container, implementation, type, synchronous, acts, index);
+		TriggerDefinition trigger = schemaManager.addTrigger(java, container, implementation, type, synchronous, acts, index);
 		if (trigger == null) {
 			throw new IllegalArgumentException("Trigger '" + implementation + "' in schema '" + schemaName + "' already registered");
 		}

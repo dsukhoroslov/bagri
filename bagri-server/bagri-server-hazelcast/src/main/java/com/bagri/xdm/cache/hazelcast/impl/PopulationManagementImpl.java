@@ -16,8 +16,8 @@ import com.bagri.xdm.cache.hazelcast.store.DocumentMemoryStore;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaPopulator;
 import com.bagri.xdm.common.XDMDocumentKey;
 import com.bagri.xdm.common.XDMKeyFactory;
-import com.bagri.xdm.domain.XDMDocument;
-import com.bagri.xdm.domain.XDMTransaction;
+import com.bagri.xdm.domain.Document;
+import com.bagri.xdm.domain.Transaction;
 import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.LifecycleEvent;
@@ -43,11 +43,11 @@ import com.hazelcast.spi.NodeEngine;
 public class PopulationManagementImpl implements ManagedService, 
 	MembershipListener, MigrationListener, LifecycleListener,
 	MapClearedListener, MapEvictedListener, 
-	EntryAddedListener<XDMDocumentKey, XDMDocument>, 
-	EntryEvictedListener<XDMDocumentKey, XDMDocument>, 
-	EntryUpdatedListener<XDMDocumentKey, XDMDocument>, 
-	EntryRemovedListener<XDMDocumentKey, XDMDocument>, 
-	EntryMergedListener<XDMDocumentKey, XDMDocument>  { 
+	EntryAddedListener<XDMDocumentKey, Document>, 
+	EntryEvictedListener<XDMDocumentKey, Document>, 
+	EntryUpdatedListener<XDMDocumentKey, Document>, 
+	EntryRemovedListener<XDMDocumentKey, Document>, 
+	EntryMergedListener<XDMDocumentKey, Document>  { 
 
     private static final transient Logger logger = LoggerFactory.getLogger(PopulationManagementImpl.class);
 
@@ -57,7 +57,7 @@ public class PopulationManagementImpl implements ManagedService,
     private NodeEngine nodeEngine;
 
     private XDMKeyFactory xFactory;
-	private IMap<Long, XDMTransaction> xtxCache;
+	private IMap<Long, Transaction> xtxCache;
 	//private IMap<XDMDocumentKey, XDMDocument> xddCache;
 	private IMap xddCache;
 	private DocumentMemoryStore docStore;
@@ -116,7 +116,7 @@ public class PopulationManagementImpl implements ManagedService,
     	}
     }
 	
-	public XDMDocument getDocument(Long docKey) {
+	public Document getDocument(Long docKey) {
 		return enabled ? docStore.getEntry(docKey) : null;
 	}
 	
@@ -246,28 +246,28 @@ public class PopulationManagementImpl implements ManagedService,
 	}
 
 	@Override
-	public void entryAdded(EntryEvent<XDMDocumentKey, XDMDocument> event) {
+	public void entryAdded(EntryEvent<XDMDocumentKey, Document> event) {
 		logger.trace("entryAdded.enter; event: {}", event);
 		boolean added = docStore.putEntry(event.getKey().getKey(), event.getValue(), false);
 		logger.trace("entryAdded.exit; added: {}", added);
 	}
 
 	@Override
-	public void entryUpdated(EntryEvent<XDMDocumentKey, XDMDocument> event) {
+	public void entryUpdated(EntryEvent<XDMDocumentKey, Document> event) {
 		logger.trace("entryUpdated.enter; event: {}", event);
 		boolean updated = docStore.putEntry(event.getKey().getKey(), event.getValue(), true);
 		logger.trace("entryUpdated.exit; updated: {}", updated);
 	}
 
 	@Override
-	public void entryRemoved(EntryEvent<XDMDocumentKey, XDMDocument> event) {
+	public void entryRemoved(EntryEvent<XDMDocumentKey, Document> event) {
 		logger.trace("entryRemoved.enter; event: {}", event);
 		boolean removed = docStore.clearEntry(event.getKey().getKey(), event.getValue(), true);
 		logger.trace("entryRemoved.exit; removed: {}", removed);
 	}
 
 	@Override
-	public void entryEvicted(EntryEvent<XDMDocumentKey, XDMDocument> event) {
+	public void entryEvicted(EntryEvent<XDMDocumentKey, Document> event) {
 		logger.trace("entryEvicted.enter; event: {}", event);
 		// evict all document relatives: content, elements. do this on document owning node only. 
 		// what about indices and results? what about older document versions? 
@@ -283,7 +283,7 @@ public class PopulationManagementImpl implements ManagedService,
 	}
 
 	@Override
-	public void entryMerged(EntryEvent<XDMDocumentKey, XDMDocument> event) {
+	public void entryMerged(EntryEvent<XDMDocumentKey, Document> event) {
 		logger.trace("entryMerged; event: {}", event);
 	}
 

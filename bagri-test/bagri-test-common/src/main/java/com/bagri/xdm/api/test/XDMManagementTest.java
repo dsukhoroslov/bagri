@@ -13,7 +13,7 @@ import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.api.XDMQueryManagement;
 import com.bagri.xdm.api.XDMRepository;
 import com.bagri.xdm.api.XDMTransactionManagement;
-import com.bagri.xdm.domain.XDMDocument;
+import com.bagri.xdm.domain.Document;
 
 public abstract class XDMManagementTest {
 
@@ -73,13 +73,13 @@ public abstract class XDMManagementTest {
 		getTxManagement().commitTransaction(txId);
 	}
 	
-	public XDMDocument createDocumentTest(String fileName) throws Exception {
+	public Document createDocumentTest(String fileName) throws Exception {
 		String xml = readTextFile(fileName);
 		Properties props = getDocumentProperties();
 		return getDocManagement().storeDocumentFromString(getUri(fileName), xml, props);
 	}
 	
-	public XDMDocument updateDocumentTest(String uri, String fileName) throws Exception {
+	public Document updateDocumentTest(String uri, String fileName) throws Exception {
 		String xml = readTextFile(fileName);
 		Properties props = getDocumentProperties();
 		return getDocManagement().storeDocumentFromString(uri, xml, props);

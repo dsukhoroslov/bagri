@@ -9,7 +9,7 @@ import java.util.Date;
 import java.util.Map.Entry;
 import java.util.Properties;
 
-import com.bagri.xdm.system.XDMSchema;
+import com.bagri.xdm.system.Schema;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
@@ -32,7 +32,7 @@ public class SchemaCreator extends SchemaProcessor implements IdentifiedDataSeri
 	}
 
 	@Override
-	public Object process(Entry<String, XDMSchema> entry) {
+	public Object process(Entry<String, Schema> entry) {
 		logger.debug("process.enter; entry: {}", entry); 
 		if (entry.getValue() == null) {
 			String schemaName = entry.getKey();
@@ -40,7 +40,7 @@ public class SchemaCreator extends SchemaProcessor implements IdentifiedDataSeri
 			if (pwd != null) {
 				properties.setProperty(pn_schema_password, encrypt(pwd));
 			}
-			XDMSchema schema = new XDMSchema(getVersion(), new Date(), getAdmin(), schemaName, 
+			Schema schema = new Schema(getVersion(), new Date(), getAdmin(), schemaName, 
 					description, true, properties);
 			if (initSchemaInCluster(schema) == 0) {
 				schema.setActive(false);

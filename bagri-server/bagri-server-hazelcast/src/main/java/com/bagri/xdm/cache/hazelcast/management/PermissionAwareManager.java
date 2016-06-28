@@ -16,14 +16,13 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import com.bagri.common.util.JMXUtils;
 import com.bagri.xdm.cache.hazelcast.task.role.PermissionUpdater;
 import com.bagri.xdm.cache.hazelcast.task.role.RoleUpdater;
-import com.bagri.xdm.system.XDMPermission;
-import com.bagri.xdm.system.XDMPermissionAware;
-import com.bagri.xdm.system.XDMPermission.Permission;
-import com.bagri.xdm.system.XDMRole;
+import com.bagri.xdm.system.Permission;
+import com.bagri.xdm.system.PermissionAware;
+import com.bagri.xdm.system.Role;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 
-public abstract class PermissionAwareManager<P extends XDMPermissionAware> extends EntityManager {
+public abstract class PermissionAwareManager<P extends PermissionAware> extends EntityManager {
 	
 	public PermissionAwareManager() {
 		super();
@@ -38,7 +37,7 @@ public abstract class PermissionAwareManager<P extends XDMPermissionAware> exten
 		return (P) super.getEntity();
 	}
 	
-	protected abstract IMap<String, XDMRole> getRoleCache();
+	protected abstract IMap<String, Role> getRoleCache();
 
 	@ManagedAttribute(description="Returns registered Role permissions")
 	public CompositeData getDirectPermissions() {
@@ -52,8 +51,8 @@ public abstract class PermissionAwareManager<P extends XDMPermissionAware> exten
 		return roles.toArray(new String[roles.size()]);
 	}
 	
-	protected void getRecursivePermissions(Map<String, XDMPermission> xPerms, String roleName) {
-		XDMRole role = getRoleCache().get(roleName);
+	protected void getRecursivePermissions(Map<String, Permission> xPerms, String roleName) {
+		Role role = getRoleCache().get(roleName);
 		if (role != null) {
 			if (role.getIncludedRoles().size() > 0) {
 				for (String name: role.getIncludedRoles()) {
@@ -61,15 +60,15 @@ public abstract class PermissionAwareManager<P extends XDMPermissionAware> exten
 				}
 			}
 			
-			Collection<XDMPermission> perms = role.getPermissions().values();
+			Collection<Permission> perms = role.getPermissions().values();
 			if (perms.size() > 0) {
-				for (XDMPermission perm: perms) {
-					XDMPermission xPerm = xPerms.get(perm.getResource());
+				for (Permission perm: perms) {
+					Permission xPerm = xPerms.get(perm.getResource());
 					if (xPerm == null) {
-						xPerm = new XDMPermission(perm.getResource());
+						xPerm = new Permission(perm.getResource());
 						xPerms.put(perm.getResource(), xPerm);
 					}
-					for (Permission p: perm.getPermissions()) {
+					for (Permission.Value p: perm.getPermissions()) {
 						xPerm.addPermission(p);
 					}
 				}
@@ -78,7 +77,7 @@ public abstract class PermissionAwareManager<P extends XDMPermissionAware> exten
 	}
 
 	protected void getRecursiveRoles(Set<String> xRoles, String roleName) {
-		XDMRole role = getRoleCache().get(roleName);
+		Role role = getRoleCache().get(roleName);
 		if (role != null) {
 			if (role.getIncludedRoles().size() > 0) {
 				for (String name: role.getIncludedRoles()) {
@@ -93,7 +92,7 @@ public abstract class PermissionAwareManager<P extends XDMPermissionAware> exten
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "resource", description = "A name of the Resource to return")})
 	public String[] getResourcePermissions(String resource) {
-		XDMPermission perm = getEntity().getPermissions().get(resource);
+		Permission perm = getEntity().getPermissions().get(resource);
 		if (perm != null) {
 			return perm.getPermissionsAsArray();
 		}
@@ -134,7 +133,7 @@ public abstract class PermissionAwareManager<P extends XDMPermissionAware> exten
 	    	String xPerm = perm.trim();
 	    	if (xPerm.length() > 0) {
 	    		try {
-	    			if (XDMPermission.Permission.valueOf(xPerm) != null) {
+	    			if (Permission.Value.valueOf(xPerm) != null) {
 	    				lPerms.add(xPerm);
 	    			} else {
 	    			    logger.info("resolvePermissions; unknown permission: {}, skipping", xPerm);

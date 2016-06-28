@@ -1,6 +1,6 @@
 package com.bagri.xdm.api;
 
-import com.bagri.xdm.system.XDMPermission.Permission;
+import com.bagri.xdm.system.Permission.Value;
 
 /**
  * XDM access management interface; provided for the client side
@@ -23,6 +23,6 @@ public interface XDMAccessManagement {
 	 * @param permission the {@link Permission} to check
 	 * @return true in case of successful authorization, false otherwise
 	 */
-	boolean hasPermission(String username, Permission permission);
+	boolean hasPermission(String username, Value permission);
 	
 }

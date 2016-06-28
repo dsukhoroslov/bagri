@@ -6,7 +6,7 @@ import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
 
-import com.bagri.xdm.domain.XDMDocument;
+import com.bagri.xdm.domain.Document;
 
 public abstract class XDMDocumentManagementTest extends XDMManagementTest {
 
@@ -15,7 +15,7 @@ public abstract class XDMDocumentManagementTest extends XDMManagementTest {
 		
 		long txId = getTxManagement().beginTransaction();
 		String uri = getFileName("security1500.xml");
-		XDMDocument doc = createDocumentTest(sampleRoot + uri);
+		Document doc = createDocumentTest(sampleRoot + uri);
 		assertNotNull(doc);
 		uris.add(doc.getUri());
 		assertEquals(txId, doc.getTxStart());
@@ -28,7 +28,7 @@ public abstract class XDMDocumentManagementTest extends XDMManagementTest {
 	public void updateSecurityTest() throws Exception {
 		
 		long txId = getTxManagement().beginTransaction();
-		XDMDocument doc = createDocumentTest(sampleRoot + getFileName("security1500.xml"));
+		Document doc = createDocumentTest(sampleRoot + getFileName("security1500.xml"));
 		assertNotNull(doc);
 		uris.add(doc.getUri());
 		assertEquals(txId, doc.getTxStart());
@@ -62,7 +62,7 @@ public abstract class XDMDocumentManagementTest extends XDMManagementTest {
 	public void removeSecurityTest() throws Exception {
 		
 		long txId = getTxManagement().beginTransaction();
-		XDMDocument doc = createDocumentTest(sampleRoot + getFileName("security1500.xml"));
+		Document doc = createDocumentTest(sampleRoot + getFileName("security1500.xml"));
 		assertNotNull(doc);
 		uris.add(doc.getUri());
 		assertEquals(txId, doc.getTxStart());
@@ -95,7 +95,7 @@ public abstract class XDMDocumentManagementTest extends XDMManagementTest {
 
 		String fileName = sampleRoot + getFileName("security1500.xml");
 		String xml = readTextFile(fileName);
-		XDMDocument doc = createDocumentTest(fileName);
+		Document doc = createDocumentTest(fileName);
 		assertNotNull(doc);
 		uris.add(doc.getUri());
 		assertEquals(txId, doc.getTxStart());

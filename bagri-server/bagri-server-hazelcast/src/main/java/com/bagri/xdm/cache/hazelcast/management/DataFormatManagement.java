@@ -15,7 +15,7 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 
 import com.bagri.xdm.cache.hazelcast.task.format.DataFormatCreator;
 import com.bagri.xdm.cache.hazelcast.task.format.DataFormatRemover;
-import com.bagri.xdm.system.XDMDataFormat;
+import com.bagri.xdm.system.DataFormat;
 import com.hazelcast.core.HazelcastInstance;
 
 /**
@@ -24,14 +24,14 @@ import com.hazelcast.core.HazelcastInstance;
  */
 @ManagedResource(objectName="com.bagri.xdm:type=Management,name=DataFormatManagement", 
 	description="Data Format Management MBean")
-public class DataFormatManagement extends EntityManagement<XDMDataFormat> {
+public class DataFormatManagement extends EntityManagement<DataFormat> {
 
     public DataFormatManagement(HazelcastInstance hzInstance) {
     	super(hzInstance);
     }
 
 	@Override
-	protected EntityManager<XDMDataFormat> createEntityManager(String formatName) {
+	protected EntityManager<DataFormat> createEntityManager(String formatName) {
 		DataFormatManager mgr = new DataFormatManager(hzInstance, formatName);
 		mgr.setEntityCache(entityCache);
 		return mgr;
@@ -57,12 +57,12 @@ public class DataFormatManagement extends EntityManagement<XDMDataFormat> {
 		@ManagedOperationParameter(name = "properties", description = "DataFormat properties with their default values")})
 	public boolean addDataFormat(String name, String parser, String builder, String description, String extensions, String properties) {
 		logger.trace("addDataFormat.enter; name: {}", name);
-		XDMDataFormat format = null;
+		DataFormat format = null;
 		if (!entityCache.containsKey(name)) {
 			try {
 				Object result = entityCache.executeOnKey(name, new DataFormatCreator(getCurrentUser(), parser, builder, description,
 						Arrays.asList(extensions.split(", ")), propsFromString(properties)));
-		    	format = (XDMDataFormat) result;
+		    	format = (DataFormat) result;
 			} catch (IOException ex) {
 				logger.error("", ex);
 			}
@@ -75,10 +75,10 @@ public class DataFormatManagement extends EntityManagement<XDMDataFormat> {
 	@ManagedOperationParameters({@ManagedOperationParameter(name = "name", description = "Data Format name to delete")})
 	public boolean deleteDataFormat(String name) {
 		logger.trace("deleteDataFormat.enter; name: {}", name);
-		XDMDataFormat format = entityCache.get(name);
+		DataFormat format = entityCache.get(name);
 		if (format != null) {
 	    	Object result = entityCache.executeOnKey(name, new DataFormatRemover(format.getVersion(), getCurrentUser()));
-	    	format = (XDMDataFormat) result;
+	    	format = (DataFormat) result;
 		}
 		logger.trace("deleteDataFormat.exit; dataFormat deleted: {}", format);
 		return format != null;

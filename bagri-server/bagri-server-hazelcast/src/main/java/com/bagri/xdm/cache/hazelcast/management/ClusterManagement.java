@@ -16,12 +16,12 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 import com.bagri.common.util.PropUtils;
 import com.bagri.xdm.cache.hazelcast.task.node.NodeCreator;
 import com.bagri.xdm.cache.hazelcast.task.node.NodeRemover;
-import com.bagri.xdm.system.XDMNode;
+import com.bagri.xdm.system.Node;
 import com.hazelcast.core.HazelcastInstance;
 
 @ManagedResource(objectName="com.bagri.xdm:type=Management,name=ClusterManagement", 
 	description="Cluster Management MBean")
-public class ClusterManagement extends EntityManagement<XDMNode> {
+public class ClusterManagement extends EntityManagement<Node> {
 	
 	//, XDMClusterManagement {
 
@@ -76,7 +76,7 @@ public class ClusterManagement extends EntityManagement<XDMNode> {
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "name", description = "Node name")})
 	public boolean deleteNode(String name) {
-		XDMNode node = entityCache.get(name);
+		Node node = entityCache.get(name);
 		if (node != null) {
 	    	Object result = entityCache.executeOnKey(name, new NodeRemover(node.getVersion(), getCurrentUser()));
 	    	logger.debug("deleteNode; execution result: {}", result);
@@ -87,12 +87,12 @@ public class ClusterManagement extends EntityManagement<XDMNode> {
 
 	public NodeManager getNodeManager(String nodeName) {
 		logger.trace("getNodeManager.enter; got nodeId: {}", nodeName);
-		EntityManager<XDMNode> mgr = mgrCache.get(nodeName); 
+		EntityManager<Node> mgr = mgrCache.get(nodeName); 
 		return (NodeManager) mgr;
 	}
 
 	@Override
-	protected EntityManager<XDMNode> createEntityManager(String nodeName) {
+	protected EntityManager<Node> createEntityManager(String nodeName) {
 		NodeManager mgr = new NodeManager(hzInstance, nodeName);
 		mgr.setEntityCache(entityCache);
 		return mgr;

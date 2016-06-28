@@ -19,11 +19,11 @@ import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.common.XDMBuilder;
 import com.bagri.xdm.common.XDMDataKey;
-import com.bagri.xdm.domain.XDMData;
-import com.bagri.xdm.domain.XDMElement;
-import com.bagri.xdm.domain.XDMElements;
-import com.bagri.xdm.domain.XDMNodeKind;
-import com.bagri.xdm.domain.XDMPath;
+import com.bagri.xdm.domain.Data;
+import com.bagri.xdm.domain.Element;
+import com.bagri.xdm.domain.Elements;
+import com.bagri.xdm.domain.NodeKind;
+import com.bagri.xdm.domain.Path;
 
 /**
  * XDM Builder implementation for XML format. 
@@ -49,15 +49,15 @@ public class XmlBuilder implements XDMBuilder {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String buildString(Map<XDMDataKey, XDMElements> elements) throws XDMException {
+	public String buildString(Map<XDMDataKey, Elements> elements) throws XDMException {
     	StringBuffer buff = new StringBuffer();
-    	Collection<XDMData> dataList = buildDataList(elements);
+    	Collection<Data> dataList = buildDataList(elements);
     	
-    	Stack<XDMData> dataStack = new Stack<XDMData>();
+    	Stack<Data> dataStack = new Stack<Data>();
     	boolean eltOpen = false;
     	//int idx = 0;
     	
-    	for (XDMData data: dataList) {
+    	for (Data data: dataList) {
     		//idx++;
     		//if (idx % 10000 == 0) {
     		//	logger.trace("buildXml; idx: {}; length: {}", idx, buff.length());
@@ -125,7 +125,7 @@ public class XmlBuilder implements XDMBuilder {
     	}
     	
 		while (dataStack.size() > 0) {
-			XDMData top = dataStack.pop();
+			Data top = dataStack.pop();
 			if (eltOpen) {
 				buff.append("/>").append("\n");
 				eltOpen = false;
@@ -142,7 +142,7 @@ public class XmlBuilder implements XDMBuilder {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public InputStream buildStream(Map<XDMDataKey, XDMElements> elements) throws XDMException {
+	public InputStream buildStream(Map<XDMDataKey, Elements> elements) throws XDMException {
 		String content = buildString(elements);
 		if (content != null) {
 			try {
@@ -154,19 +154,19 @@ public class XmlBuilder implements XDMBuilder {
 		return null;
 	}
 	
-    private boolean endElement(Stack<XDMData> dataStack, XDMData data, StringBuffer buff, boolean eltOpen) {
+    private boolean endElement(Stack<Data> dataStack, Data data, StringBuffer buff, boolean eltOpen) {
     	
 		if (dataStack.isEmpty()) {
 			//
 		} else {
-			XDMData top = dataStack.peek();
+			Data top = dataStack.peek();
 			if (data.getParentId() == top.getElementId()) {
 				// new child element
 				if (eltOpen) {
 					buff.append(">");
 					eltOpen = false;
 				}
-				if (data.getNodeKind() != XDMNodeKind.text) {
+				if (data.getNodeKind() != NodeKind.text) {
 					buff.append("\n");
 				}
 			} else {
@@ -189,21 +189,21 @@ public class XmlBuilder implements XDMBuilder {
 		return eltOpen;
     }
     
-    private Collection<XDMData> buildDataList(Map<XDMDataKey, XDMElements> elements) {
+    private Collection<Data> buildDataList(Map<XDMDataKey, Elements> elements) {
 
-    	List<XDMData> dataList = new ArrayList<XDMData>(elements.size() * 2);
-    	for (Map.Entry<XDMDataKey, XDMElements> entry: elements.entrySet()) {
+    	List<Data> dataList = new ArrayList<Data>(elements.size() * 2);
+    	for (Map.Entry<XDMDataKey, Elements> entry: elements.entrySet()) {
     		
     		int pathId = entry.getKey().getPathId();
-    		XDMPath path = model.getPath(pathId);
+    		Path path = model.getPath(pathId);
     		if (path == null) {
         		logger.info("buildDataSet; can't get path for pathId: {}", pathId);
         		continue;
     		}
     		
-    		XDMElements elts = entry.getValue();
-    		for (XDMElement element: elts.getElements()) {
-    			XDMData data = new XDMData(path, element);
+    		Elements elts = entry.getValue();
+    		for (Element element: elts.getElements()) {
+    			Data data = new Data(path, element);
     			dataList.add(data);
     		}
     	}

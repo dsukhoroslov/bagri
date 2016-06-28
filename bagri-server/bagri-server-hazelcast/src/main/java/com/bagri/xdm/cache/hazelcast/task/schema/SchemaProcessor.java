@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.bagri.xdm.cache.hazelcast.task.EntityProcessor;
-import com.bagri.xdm.system.XDMSchema;
+import com.bagri.xdm.system.Schema;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.Member;
 import com.hazelcast.map.EntryBackupProcessor;
@@ -18,8 +18,8 @@ import com.hazelcast.map.EntryProcessor;
 import com.hazelcast.spring.context.SpringAware;
 
 @SpringAware
-public abstract class SchemaProcessor extends EntityProcessor implements EntryProcessor<String, XDMSchema>, 
-	EntryBackupProcessor<String, XDMSchema> {
+public abstract class SchemaProcessor extends EntityProcessor implements EntryProcessor<String, Schema>, 
+	EntryBackupProcessor<String, Schema> {
 	
 	protected final transient Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -40,17 +40,17 @@ public abstract class SchemaProcessor extends EntityProcessor implements EntryPr
 	}
 
     @Override
-	public void processBackup(Entry<String, XDMSchema> entry) {
+	public void processBackup(Entry<String, Schema> entry) {
 		process(entry);		
 	}
 
 	@Override
-	public EntryBackupProcessor<String, XDMSchema> getBackupProcessor() {
+	public EntryBackupProcessor<String, Schema> getBackupProcessor() {
 		return this;
 	}
 
 	
-	protected int initSchemaInCluster(XDMSchema schema) {
+	protected int initSchemaInCluster(Schema schema) {
 		
 		logger.trace("initSchemaInCluster.enter; schema: {}", schema);
 		SchemaInitiator init = new SchemaInitiator(schema);
@@ -84,7 +84,7 @@ public abstract class SchemaProcessor extends EntityProcessor implements EntryPr
 		return cnt;
 	}
 	
-	protected int denitSchemaInCluster(XDMSchema schema) {
+	protected int denitSchemaInCluster(Schema schema) {
 
 		logger.trace("denitSchemaInCluster.enter; schema: {}", schema);
 		SchemaDenitiator denit = new SchemaDenitiator(schema.getName());

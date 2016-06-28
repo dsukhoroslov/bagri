@@ -12,7 +12,7 @@
 
 	<transactions>
 		<transaction id="1" name="getSecurity" weight="20">
-			<java-plugin>com.bagri.client.tpox.workload.BagriXQJPlugin</java-plugin>
+			<java-plugin>com.bagri.test.tpox.workload.BagriXQJPlugin</java-plugin>
 			<parameters>
 				<parameter>
 					<constant value="
@@ -39,7 +39,7 @@ return $sec" />
 		</transaction>
 
 		<transaction id="2" name="getSecurityPrice" weight="20">
-			<java-plugin>com.bagri.client.tpox.workload.BagriXQJPlugin</java-plugin>
+			<java-plugin>com.bagri.test.tpox.workload.BagriXQJPlugin</java-plugin>
 			<parameters>
 				<parameter>
 					<constant value="
@@ -67,7 +67,7 @@ return
 		</transaction>
 
 		<transaction id="3" name="searchSecurity" weight="10">
-			<java-plugin>com.bagri.client.tpox.workload.BagriXQJPlugin</java-plugin>
+			<java-plugin>com.bagri.test.tpox.workload.BagriXQJPlugin</java-plugin>
 			<parameters>
 
 				<parameter>
@@ -133,7 +133,7 @@ return	&lt;Security&gt;
 		</transaction>
 
 		<transaction id="4" name="getOrder" weight="20">
-			<java-plugin>com.bagri.client.tpox.workload.BagriXQJPlugin</java-plugin>
+			<java-plugin>com.bagri.test.tpox.workload.BagriXQJPlugin</java-plugin>
 			<parameters>
 				<parameter>
 					<constant value="
@@ -160,7 +160,7 @@ return $ord/o:Order" />
 		</transaction>
 
 		<transaction id="5" name="getCustomerProfile" weight="15">
-			<java-plugin>com.bagri.client.tpox.workload.BagriXQJPlugin</java-plugin>
+			<java-plugin>com.bagri.test.tpox.workload.BagriXQJPlugin</java-plugin>
 			<parameters>
 				<parameter>
 					<constant value="
@@ -196,7 +196,7 @@ return
 		</transaction>
 
 		<transaction id="6" name="getCustomerAccounts" weight="15">
-			<java-plugin>com.bagri.client.tpox.workload.BagriXQJPlugin</java-plugin>
+			<java-plugin>com.bagri.test.tpox.workload.BagriXQJPlugin</java-plugin>
 			<parameters>
 				<parameter>
 					<constant value="

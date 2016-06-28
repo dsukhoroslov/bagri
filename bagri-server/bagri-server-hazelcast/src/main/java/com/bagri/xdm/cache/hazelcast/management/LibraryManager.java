@@ -13,13 +13,13 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 import com.bagri.common.util.JMXUtils;
 import com.bagri.xdm.cache.hazelcast.task.EntityProcessor.Action;
 import com.bagri.xdm.cache.hazelcast.task.library.LibFunctionUpdater;
-import com.bagri.xdm.system.XDMFunction;
-import com.bagri.xdm.system.XDMLibrary;
+import com.bagri.xdm.system.Function;
+import com.bagri.xdm.system.Library;
 import com.bagri.xquery.api.XQCompiler;
 import com.hazelcast.core.HazelcastInstance;
 
 @ManagedResource(description="Extension Library Manager MBean")
-public class LibraryManager extends EntityManager<XDMLibrary> { 
+public class LibraryManager extends EntityManager<Library> { 
 
 	private XQCompiler xqComp;
 	//private IExecutorService execService;
@@ -38,9 +38,9 @@ public class LibraryManager extends EntityManager<XDMLibrary> {
 	
 	@ManagedAttribute(description="Returns Library functions")
 	public String[] getDeclaredFunctions() {
-		XDMLibrary library = getEntity();
+		Library library = getEntity();
 		List<String> result = new ArrayList<>(library.getFunctions().size());
-		for (XDMFunction func: library.getFunctions()) {
+		for (Function func: library.getFunctions()) {
 			result.add(func.toString());
 		}
 		Collections.sort(result);
@@ -81,7 +81,7 @@ public class LibraryManager extends EntityManager<XDMLibrary> {
 	public void addFunction(String className, String prefix, String description, String signature) {
 
 		logger.trace("addFunction.enter; className: {}; signature: {}", className, signature);
-		XDMFunction function = (XDMFunction) entityCache.executeOnKey(entityName,  
+		Function function = (Function) entityCache.executeOnKey(entityName,  
 	    			new LibFunctionUpdater(getVersion(), getCurrentUser(), className, prefix, description, signature, Action.add));
 		// notify existing sessions about library/function change ?!
 		logger.trace("addFunction.exit; function created: {}", function);
@@ -94,7 +94,7 @@ public class LibraryManager extends EntityManager<XDMLibrary> {
 	public void deleteFunction(String className, String signature) {
 		
 		logger.trace("deleteFunction.enter; className: {}; signature: {}", className, signature);
-		XDMFunction function = (XDMFunction) entityCache.executeOnKey(entityName,  
+		Function function = (Function) entityCache.executeOnKey(entityName,  
     			new LibFunctionUpdater(getVersion(), getCurrentUser(), className, "test", null, signature, Action.remove));
 		// notify existing sessions about library/function change ?!
 		logger.trace("deleteFunction.exit; function deleted: {}", function);

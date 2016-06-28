@@ -22,8 +22,7 @@ import com.bagri.common.security.LocalSubject;
 import com.bagri.common.util.JMXUtils;
 import com.bagri.xdm.cache.hazelcast.management.UserManagement;
 import com.bagri.xdm.cache.hazelcast.management.UserManager;
-import com.bagri.xdm.system.XDMPermission;
-import com.bagri.xdm.system.XDMPermission.Permission;
+import com.bagri.xdm.system.Permission;
 
 public class BagriJAASInvocationHandler implements InvocationHandler {
 
@@ -127,8 +126,8 @@ public class BagriJAASInvocationHandler implements InvocationHandler {
 		}
 		
 		//Map<String, XDMPermission> xPerms = uMgr.getAllPermissions();
-		Map<String, XDMPermission> xPerms = uMgr.getFlatPermissions();
-		XDMPermission xPerm = xPerms.get(target.toString());
+		Map<String, Permission> xPerms = uMgr.getFlatPermissions();
+		Permission xPerm = xPerms.get(target.toString());
 		if (xPerm == null) {
 			//no permissions granted to this resource
 			logger.trace("checkPermissions.exit; returning: false"); 
@@ -138,19 +137,19 @@ public class BagriJAASInvocationHandler implements InvocationHandler {
 		if ((methodName.startsWith("getAttribute") || methodName.equals("getMBeanInfo") 
 				|| methodName.equals("isInstanceOf") || methodName.equals("isRegistered")
 				|| methodName.equals("queryMBeans") || methodName.equals("queryNames"))
-				&& xPerm.hasPermission(Permission.read)) {
+				&& xPerm.hasPermission(Permission.Value.read)) {
 			// granted read access
 			logger.trace("checkPermissions.exit; returning: true"); 
 			return true;
 		}
 
-		if (methodName.startsWith("setAttribute") && xPerm.hasPermission(Permission.modify)) {
+		if (methodName.startsWith("setAttribute") && xPerm.hasPermission(Permission.Value.modify)) {
 			// granted write access
 			logger.trace("checkPermissions.exit; returning: true"); 
 			return true;
 		}
 
-		if (methodName.equals("invoke") && xPerm.hasPermission(Permission.execute)) {
+		if (methodName.equals("invoke") && xPerm.hasPermission(Permission.Value.execute)) {
 			// granted execute access
 			logger.trace("checkPermissions.exit; returning: true"); 
 			return true;

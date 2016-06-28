@@ -7,7 +7,6 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -35,9 +34,9 @@ import com.bagri.xdm.cache.hazelcast.task.schema.SchemaDocCleaner;
 import com.bagri.xdm.cache.hazelcast.task.stats.StatisticSeriesCollector;
 import com.bagri.xdm.cache.hazelcast.task.stats.StatisticTotalsCollector;
 import com.bagri.xdm.cache.hazelcast.task.stats.StatisticsReseter;
-import com.bagri.xdm.domain.XDMDocument;
-import com.bagri.xdm.system.XDMCollection;
-import com.bagri.xdm.system.XDMSchema;
+import com.bagri.xdm.domain.Document;
+import com.bagri.xdm.system.Collection;
+import com.bagri.xdm.system.Schema;
 import com.hazelcast.core.Member;
 import com.hazelcast.core.Partition;
 
@@ -159,7 +158,7 @@ public class DocumentManagement extends SchemaFeatureManagement {
 		@ManagedOperationParameter(name = "uri", description = "Document identifier")})
 	public CompositeData getDocumentInfo(String uri) {
 		try {
-			XDMDocument doc = docManager.getDocument(uri);
+			Document doc = docManager.getDocument(uri);
 			if (doc != null) {
 				Map<String, Object> docInfo = doc.convert();
 				return JMXUtils.mapToComposite("document", "Document Info", docInfo);
@@ -176,7 +175,7 @@ public class DocumentManagement extends SchemaFeatureManagement {
 		@ManagedOperationParameter(name = "uri", description = "Document identifier")})
 	public CompositeData getDocumentLocation(String uri) {
 		try {
-			XDMDocument doc = docManager.getDocument(uri);
+			Document doc = docManager.getDocument(uri);
 			if (doc != null) {
 				Partition part = hzClient.getPartitionService().getPartition(doc.getUri().hashCode());
 				Map<String, Object> location = new HashMap<>(2);
@@ -212,7 +211,7 @@ public class DocumentManagement extends SchemaFeatureManagement {
 		String uri = Paths.get(docFile).getFileName().toString(); 
 		try {
 			String xml = FileUtils.readTextFile(docFile);
-			XDMDocument doc = docManager.storeDocumentFromString(uri, xml, propsFromString(properties));
+			Document doc = docManager.storeDocumentFromString(uri, xml, propsFromString(properties));
 			return doc.getUri();
 		} catch (IOException | XDMException ex) {
 			logger.error("registerDocument.error: " + ex.getMessage(), ex);
@@ -229,7 +228,7 @@ public class DocumentManagement extends SchemaFeatureManagement {
 
 		try {
 			String content = FileUtils.readTextFile(docFile);
-			XDMDocument doc = docManager.storeDocumentFromString(uri, content, propsFromString(properties));
+			Document doc = docManager.storeDocumentFromString(uri, content, propsFromString(properties));
 			return doc.getUri();
 		} catch (IOException | XDMException ex) {
 			logger.error("updateDocument.error: " + ex.getMessage(), ex);
@@ -280,7 +279,7 @@ public class DocumentManagement extends SchemaFeatureManagement {
 	}
 
 	@Override
-	protected Collection getSchemaFeatures(XDMSchema schema) {
+	protected java.util.Collection getSchemaFeatures(Schema schema) {
 		return schema.getCollections();
 	}
 
@@ -298,7 +297,7 @@ public class DocumentManagement extends SchemaFeatureManagement {
 
 		logger.trace("addCollection.enter;");
 		long stamp = System.currentTimeMillis();
-		XDMCollection collect = schemaManager.addCollection(name, docType, description);
+		Collection collect = schemaManager.addCollection(name, docType, description);
 		if (collect == null) {
 			throw new IllegalStateException("Collection '" + name + "' in schema '" + schemaName + "' already exists");
 		}
@@ -351,7 +350,7 @@ public class DocumentManagement extends SchemaFeatureManagement {
 		@ManagedOperationParameter(name = "uri", description = "Document identifier"),
 		@ManagedOperationParameter(name = "clnName", description = "Collection name")})
 	public int addDocumentToCollection(String uri, String clnName) {
-		XDMCollection cln = this.schemaManager.getEntity().getCollection(clnName);
+		Collection cln = this.schemaManager.getEntity().getCollection(clnName);
 		if (cln != null) {
 			return docManager.addDocumentToCollections(uri, new String[] {clnName});
 		}
@@ -364,7 +363,7 @@ public class DocumentManagement extends SchemaFeatureManagement {
 		@ManagedOperationParameter(name = "uri", description = "Document identifier"),
 		@ManagedOperationParameter(name = "clnName", description = "Collection name")})
 	public int removeDocumentFromCollection(String uri, String clnName) {
-		XDMCollection cln = schemaManager.getEntity().getCollection(clnName);
+		Collection cln = schemaManager.getEntity().getCollection(clnName);
 		if (cln != null) {
 			return docManager.removeDocumentFromCollections(uri, new String[] {clnName});
 		}
@@ -376,9 +375,9 @@ public class DocumentManagement extends SchemaFeatureManagement {
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "clnName", description = "Collection name"),
 		@ManagedOperationParameter(name = "props", description = "A list of properties in key=value form separated by semicolon")})
-	public Collection<String> getCollectionDocuments(String clName, String props) {
+	public java.util.Collection<String> getCollectionDocuments(String clName, String props) {
 		if (clName != null && !"All Documents".equals(clName)) {
-			XDMCollection cln = schemaManager.getEntity().getCollection(clName);
+			Collection cln = schemaManager.getEntity().getCollection(clName);
 			if (cln == null) {
 				logger.info("getCollectionDocuments; got unknown collection: {}", clName);
 				return null;
@@ -386,7 +385,7 @@ public class DocumentManagement extends SchemaFeatureManagement {
 		}
 
 		try {
-			Collection<String> result = docManager.getCollectionDocumentUris(clName);
+			java.util.Collection<String> result = docManager.getCollectionDocumentUris(clName);
 			logger.debug("getCollectionDocuments; returning {} ids", result.size());
 			return result;
 		} catch (XDMException ex) {
@@ -398,9 +397,9 @@ public class DocumentManagement extends SchemaFeatureManagement {
 	@ManagedOperation(description="Return Documents matching the pattern provided")
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "pattern", description = "A pattern to match documents, like: createdBy = admin, bytes > 100")})
-	public Collection<String> getDocumentUris(String pattern) {
+	public java.util.Collection<String> getDocumentUris(String pattern) {
 		try {
-			Collection<String> result = docManager.getDocumentUris(pattern);
+			java.util.Collection<String> result = docManager.getDocumentUris(pattern);
 			logger.debug("getDocumentUris; returning {} ids", result.size());
 			return result;
 		} catch (XDMException ex) {

@@ -8,7 +8,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import com.bagri.xdm.domain.XDMPath;
+import com.bagri.xdm.domain.Path;
 import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.MapEvent;
@@ -20,8 +20,8 @@ import com.hazelcast.map.listener.MapEvictedListener;
 
 public class ModelManagementImpl extends com.bagri.xdm.client.hazelcast.impl.ModelManagementImpl {
 	
-	private ConcurrentMap<Integer, XDMPath> cachePath = new ConcurrentHashMap<>();
-	private ConcurrentMap<Integer, Set<XDMPath>> cacheType = new ConcurrentHashMap<>();
+	private ConcurrentMap<Integer, Path> cachePath = new ConcurrentHashMap<>();
+	private ConcurrentMap<Integer, Set<Path>> cacheType = new ConcurrentHashMap<>();
 
 	public ModelManagementImpl() {
 		super();
@@ -38,8 +38,8 @@ public class ModelManagementImpl extends com.bagri.xdm.client.hazelcast.impl.Mod
 	}
 	
 	@Override
-	public XDMPath getPath(int pathId) {
-		XDMPath result = cachePath.get(pathId);
+	public Path getPath(int pathId) {
+		Path result = cachePath.get(pathId);
 		if (result == null) {
 			result = super.getPath(pathId);
 			if (result != null) {
@@ -50,13 +50,13 @@ public class ModelManagementImpl extends com.bagri.xdm.client.hazelcast.impl.Mod
 	}
 	
 	@Override
-	public Collection<XDMPath> getTypePaths(int typeId) {
-		Collection<XDMPath> result = cacheType.get(typeId);
+	public Collection<Path> getTypePaths(int typeId) {
+		Collection<Path> result = cacheType.get(typeId);
 		// TODO: think why the result is empty? happens from ModelManagementImplTest only?
 		if (result == null || result.isEmpty()) {
 			result = super.getTypePaths(typeId);
 			if (result != null) {
-				Set<XDMPath> paths = new HashSet<>(result);
+				Set<Path> paths = new HashSet<>(result);
 				paths = new HashSet<>();
 				cacheType.putIfAbsent(typeId, paths);
 			}
@@ -79,7 +79,7 @@ public class ModelManagementImpl extends com.bagri.xdm.client.hazelcast.impl.Mod
 	
 	
 	private class PathCacheListener implements MapClearedListener, MapEvictedListener,
-		EntryAddedListener<String, XDMPath>, EntryRemovedListener<String, XDMPath>, EntryUpdatedListener<String, XDMPath> {
+		EntryAddedListener<String, Path>, EntryRemovedListener<String, Path>, EntryUpdatedListener<String, Path> {
 
 		@Override
 		public void mapEvicted(MapEvent event) {
@@ -93,13 +93,13 @@ public class ModelManagementImpl extends com.bagri.xdm.client.hazelcast.impl.Mod
 		}
 		
 		@Override
-		public void entryUpdated(EntryEvent<String, XDMPath> event) {
-			XDMPath path = event.getValue();
+		public void entryUpdated(EntryEvent<String, Path> event) {
+			Path path = event.getValue();
 			cachePath.put(path.getPathId(), path);
-			Set<XDMPath> paths = cacheType.get(path.getTypeId());
+			Set<Path> paths = cacheType.get(path.getTypeId());
 			if (paths == null) {
 				paths = new HashSet<>();
-				Set<XDMPath> paths2 = cacheType.putIfAbsent(path.getTypeId(), paths);
+				Set<Path> paths2 = cacheType.putIfAbsent(path.getTypeId(), paths);
 				if (paths2 != null) {
 					paths = paths2;
 				}
@@ -108,23 +108,23 @@ public class ModelManagementImpl extends com.bagri.xdm.client.hazelcast.impl.Mod
 		}
 
 		@Override
-		public void entryRemoved(EntryEvent<String, XDMPath> event) {
-			XDMPath path = event.getValue();
+		public void entryRemoved(EntryEvent<String, Path> event) {
+			Path path = event.getValue();
 			cachePath.remove(path.getPathId());
-			Set<XDMPath> paths = cacheType.get(path.getTypeId());
+			Set<Path> paths = cacheType.get(path.getTypeId());
 			if (paths != null) {
 				paths.remove(path);
 			}
 		}
 
 		@Override
-		public void entryAdded(EntryEvent<String, XDMPath> event) {
-			XDMPath path = event.getValue();
+		public void entryAdded(EntryEvent<String, Path> event) {
+			Path path = event.getValue();
 			cachePath.putIfAbsent(path.getPathId(), path);
-			Set<XDMPath> paths = cacheType.get(path.getTypeId());
+			Set<Path> paths = cacheType.get(path.getTypeId());
 			if (paths == null) {
 				paths = new HashSet<>();
-				Set<XDMPath> paths2 = cacheType.putIfAbsent(path.getTypeId(), paths);
+				Set<Path> paths2 = cacheType.putIfAbsent(path.getTypeId(), paths);
 				if (paths2 != null) {
 					paths = paths2;
 				}

@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.bagri.xdm.cache.api.XDMQueryManagement;
 import com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl;
-import com.bagri.xdm.system.XDMPermission.Permission;
+import com.bagri.xdm.system.Permission;
 import com.hazelcast.spring.context.SpringAware;
 
 @SpringAware
@@ -27,7 +27,7 @@ public class XMLBuilder extends com.bagri.xdm.client.hazelcast.task.query.XMLBui
     @Override
 	public Collection<String> call() throws Exception {
     	((RepositoryImpl) repo).getXQProcessor(clientId);
-    	checkPermission(Permission.read);
+    	checkPermission(Permission.Value.read);
    		return queryMgr.getContent(exp, template, params);
 	}
 

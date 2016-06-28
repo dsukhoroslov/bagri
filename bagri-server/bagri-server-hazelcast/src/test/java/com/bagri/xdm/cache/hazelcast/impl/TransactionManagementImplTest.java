@@ -22,8 +22,8 @@ import com.bagri.xdm.common.query.AxisType;
 import com.bagri.xdm.common.query.Comparison;
 import com.bagri.xdm.common.query.ExpressionContainer;
 import com.bagri.xdm.common.query.PathBuilder;
-import com.bagri.xdm.domain.XDMDocument;
-import com.bagri.xdm.system.XDMSchema;
+import com.bagri.xdm.domain.Document;
+import com.bagri.xdm.system.Schema;
 
 public class TransactionManagementImplTest extends XDMManagementTest {
 
@@ -50,9 +50,9 @@ public class TransactionManagementImplTest extends XDMManagementTest {
 	public void setUp() throws Exception {
 		xRepo = context.getBean(RepositoryImpl.class);
 		RepositoryImpl xdmRepo = (RepositoryImpl) xRepo; 
-		XDMSchema schema = xdmRepo.getSchema();
+		Schema schema = xdmRepo.getSchema();
 		if (schema == null) {
-			schema = new XDMSchema(1, new java.util.Date(), "test", "test", "test schema", true, null);
+			schema = new Schema(1, new java.util.Date(), "test", "test", "test schema", true, null);
 			xdmRepo.setSchema(schema);
 		}
 	}
@@ -113,7 +113,7 @@ public class TransactionManagementImplTest extends XDMManagementTest {
 	@Test
 	public void rollbackTransactionUpdateTest() throws Exception {
 		long txId = getTxManagement().beginTransaction();
-		XDMDocument doc = createDocumentTest(sampleRoot + getFileName("security1500.xml"));
+		Document doc = createDocumentTest(sampleRoot + getFileName("security1500.xml"));
 		String uri = doc.getUri();
 		uris.add(uri);
 		assertNotNull(doc);
@@ -145,7 +145,7 @@ public class TransactionManagementImplTest extends XDMManagementTest {
 	@Test
 	public void concurrentUpdateTransactionTest() throws Exception {
 		long txId = getTxManagement().beginTransaction();
-		XDMDocument doc = createDocumentTest(sampleRoot + getFileName("security1500.xml"));
+		Document doc = createDocumentTest(sampleRoot + getFileName("security1500.xml"));
 		assertNotNull(doc);
 		assertEquals(txId, doc.getTxStart());
 		uris.add(doc.getUri());
@@ -160,7 +160,7 @@ public class TransactionManagementImplTest extends XDMManagementTest {
 				
 				try {
 					long txId = getTxManagement().beginTransaction();
-					XDMDocument doc = updateDocumentTest(uri, sampleRoot + getFileName("security5621.xml"));
+					Document doc = updateDocumentTest(uri, sampleRoot + getFileName("security5621.xml"));
 					getTxManagement().commitTransaction(txId);
 					if (doc != null) {
 						uris.add(doc.getUri());
@@ -178,7 +178,7 @@ public class TransactionManagementImplTest extends XDMManagementTest {
 				
 				try {
 					long txId = getTxManagement().beginTransaction();
-					XDMDocument doc = updateDocumentTest(uri, sampleRoot + getFileName("security9012.xml"));
+					Document doc = updateDocumentTest(uri, sampleRoot + getFileName("security9012.xml"));
 					getTxManagement().commitTransaction(txId);
 					if (doc != null) {
 						uris.add(doc.getUri());
@@ -199,7 +199,7 @@ public class TransactionManagementImplTest extends XDMManagementTest {
 	@Test
 	public void concurrentRollbackTransactionTest() throws Exception {
 		long txId = getTxManagement().beginTransaction();
-		XDMDocument doc = createDocumentTest(sampleRoot + getFileName("security1500.xml"));
+		Document doc = createDocumentTest(sampleRoot + getFileName("security1500.xml"));
 		assertNotNull(doc);
 		assertEquals(txId, doc.getTxStart());
 		uris.add(doc.getUri());
@@ -214,7 +214,7 @@ public class TransactionManagementImplTest extends XDMManagementTest {
 				
 				try {
 					long txId = getTxManagement().beginTransaction();
-					XDMDocument doc = updateDocumentTest(uri, sampleRoot + getFileName("security5621.xml"));
+					Document doc = updateDocumentTest(uri, sampleRoot + getFileName("security5621.xml"));
 					getTxManagement().rollbackTransaction(txId);
 					if (doc != null) {
 						uris.add(doc.getUri());
@@ -232,7 +232,7 @@ public class TransactionManagementImplTest extends XDMManagementTest {
 				
 				try {
 					long txId = getTxManagement().beginTransaction();
-					XDMDocument doc = updateDocumentTest(uri, sampleRoot + getFileName("security9012.xml"));
+					Document doc = updateDocumentTest(uri, sampleRoot + getFileName("security9012.xml"));
 					getTxManagement().commitTransaction(txId);
 					if (doc != null) {
 						uris.add(doc.getUri());
@@ -254,7 +254,7 @@ public class TransactionManagementImplTest extends XDMManagementTest {
 	@Test
 	public void timeoutTransactionTest() throws Exception {
 		long txId = getTxManagement().beginTransaction();
-		XDMDocument doc = createDocumentTest(sampleRoot + getFileName("security1500.xml"));
+		Document doc = createDocumentTest(sampleRoot + getFileName("security1500.xml"));
 		assertNotNull(doc);
 		assertEquals(txId, doc.getTxStart());
 		uris.add(doc.getUri());
@@ -270,7 +270,7 @@ public class TransactionManagementImplTest extends XDMManagementTest {
 				
 				try {
 					long txId = getTxManagement().beginTransaction();
-					XDMDocument doc = updateDocumentTest(uri, sampleRoot + getFileName("security5621.xml"));
+					Document doc = updateDocumentTest(uri, sampleRoot + getFileName("security5621.xml"));
 					getTxManagement().commitTransaction(txId);
 					if (doc != null) {
 						uris.add(doc.getUri());
@@ -288,7 +288,7 @@ public class TransactionManagementImplTest extends XDMManagementTest {
 				
 				try {
 					long txId = getTxManagement().beginTransaction();
-					XDMDocument doc = updateDocumentTest(uri, sampleRoot + getFileName("security9012.xml"));
+					Document doc = updateDocumentTest(uri, sampleRoot + getFileName("security9012.xml"));
 					getTxManagement().commitTransaction(txId);
 					if (doc != null) {
 						uris.add(doc.getUri());

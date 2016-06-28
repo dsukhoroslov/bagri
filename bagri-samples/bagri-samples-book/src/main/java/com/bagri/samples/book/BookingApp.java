@@ -47,7 +47,7 @@ import com.bagri.xdm.api.XDMDocumentManagement;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMRepository;
 import com.bagri.xdm.client.hazelcast.impl.RepositoryImpl;
-import com.bagri.xdm.domain.XDMDocument;
+import com.bagri.xdm.domain.Document;
 import com.bagri.xqj.BagriXQDataFactory;
 import com.bagri.xquery.api.XQProcessor;
 import com.bagri.xquery.saxon.XQProcessorClient;
@@ -290,7 +290,7 @@ public class BookingApp {
 			reader = new CSVReader(new InputStreamReader(new FileInputStream(fileName), encoding), 0, parser); 
 		} else {
 			String content = readTextFile(fileName, encoding);
-			XDMDocument doc = dMgr.storeDocumentFromString(fn, content, props);
+			Document doc = dMgr.storeDocumentFromString(fn, content, props);
 			return 1;
 		}
 
@@ -333,7 +333,7 @@ public class BookingApp {
         Map<String, Object> map = line2Map(header, data);
         if (map != null) {
         	try {
-        		XDMDocument doc = xRepo.getDocumentManagement().storeDocumentFromMap(uri, map, props);
+        		Document doc = xRepo.getDocumentManagement().storeDocumentFromMap(uri, map, props);
         		return doc != null;
         	} catch (XDMException ex) {
         		System.out.println("failed map is: " + map + ". record idx is: " + (idx + 2));

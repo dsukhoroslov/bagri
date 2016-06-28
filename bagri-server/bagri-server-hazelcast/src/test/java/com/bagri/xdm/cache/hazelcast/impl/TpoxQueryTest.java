@@ -28,8 +28,8 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import com.bagri.common.util.JMXUtils;
 import com.bagri.xdm.api.test.ClientQueryManagementTest;
 import com.bagri.xdm.client.hazelcast.impl.ResultCursor;
-import com.bagri.xdm.system.XDMCollection;
-import com.bagri.xdm.system.XDMSchema;
+import com.bagri.xdm.system.Collection;
+import com.bagri.xdm.system.Schema;
 import com.bagri.xquery.api.XQProcessor;
 
 //@Ignore
@@ -63,17 +63,17 @@ public class TpoxQueryTest extends ClientQueryManagementTest {
 		xRepo = context.getBean(RepositoryImpl.class);
 		RepositoryImpl xdmRepo = (RepositoryImpl) xRepo; 
 		xqProc = context.getBean("xqProcessor", XQProcessor.class);
-		XDMSchema schema = xdmRepo.getSchema();
+		Schema schema = xdmRepo.getSchema();
 		if (schema == null) {
-			schema = new XDMSchema(1, new java.util.Date(), "test", "test", "test schema", true, null);
+			schema = new Schema(1, new java.util.Date(), "test", "test", "test schema", true, null);
 			schema.setProperty(pn_baseURI, sampleRoot);
-			XDMCollection collection = new XDMCollection(1, new Date(), JMXUtils.getCurrentUser(), 
+			Collection collection = new Collection(1, new Date(), JMXUtils.getCurrentUser(), 
 					1, "CLN_Security", "/{http://tpox-benchmark.com/security}Security", "securities", true);
 			schema.addCollection(collection);
-			collection = new XDMCollection(1, new Date(), JMXUtils.getCurrentUser(), 
+			collection = new Collection(1, new Date(), JMXUtils.getCurrentUser(), 
 					2, "CLN_Customer", "/{http://tpox-benchmark.com/custacc}Customer", "customers", true);
 			schema.addCollection(collection);
-			collection = new XDMCollection(1, new Date(), JMXUtils.getCurrentUser(), 
+			collection = new Collection(1, new Date(), JMXUtils.getCurrentUser(), 
 					3, "CLN_Order", "/{http://www.fixprotocol.org/FIXML-4-4}FIXML", "orders", true);
 			schema.addCollection(collection);
 			xdmRepo.setSchema(schema);

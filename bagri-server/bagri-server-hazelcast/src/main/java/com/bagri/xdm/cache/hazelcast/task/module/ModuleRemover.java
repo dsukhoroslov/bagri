@@ -4,7 +4,7 @@ import static com.bagri.xdm.cache.hazelcast.serialize.DataSerializationFactoryIm
 
 import java.util.Map.Entry;
 
-import com.bagri.xdm.system.XDMModule;
+import com.bagri.xdm.system.Module;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
 public class ModuleRemover extends ModuleProcessor implements IdentifiedDataSerializable {
@@ -18,10 +18,10 @@ public class ModuleRemover extends ModuleProcessor implements IdentifiedDataSeri
 	}
 
 	@Override
-	public Object process(Entry<String, XDMModule> entry) {
+	public Object process(Entry<String, Module> entry) {
 		logger.debug("process.enter; entry: {}", entry); 
 		if (entry.getValue() != null) {
-			XDMModule module = entry.getValue();
+			Module module = entry.getValue();
 			if (module.getVersion() == getVersion()) {
 				entry.setValue(null);
 				auditEntity(AuditType.delete, module);

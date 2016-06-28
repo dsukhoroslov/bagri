@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.util.Properties;
 import java.util.Map.Entry;
 
-import com.bagri.xdm.system.XDMNode;
+import com.bagri.xdm.system.Node;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
@@ -29,10 +29,10 @@ public class NodeUpdater extends NodeProcessor implements IdentifiedDataSerializ
 	}
 
 	@Override
-	public Object process(Entry<String, XDMNode> entry) {
+	public Object process(Entry<String, Node> entry) {
 		logger.debug("process.enter; entry: {}", entry); 
 		if (entry.getValue() != null) {
-			XDMNode node = entry.getValue();
+			Node node = entry.getValue();
 			if (node.getVersion() == getVersion()) {
 				// what if new options are not consistent with the current node state??
 

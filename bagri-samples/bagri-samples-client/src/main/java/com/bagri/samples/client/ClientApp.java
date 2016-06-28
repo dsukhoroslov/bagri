@@ -23,7 +23,7 @@ import javax.xml.xquery.XQSequenceType;
 
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import com.bagri.xdm.domain.XDMDocument;
+import com.bagri.xdm.domain.Document;
 import com.hazelcast.core.HazelcastInstance;
 
 public class ClientApp {

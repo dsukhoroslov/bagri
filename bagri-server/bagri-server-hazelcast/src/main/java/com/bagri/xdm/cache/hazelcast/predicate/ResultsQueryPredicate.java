@@ -10,13 +10,13 @@ import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import com.bagri.xdm.domain.XDMResults;
+import com.bagri.xdm.domain.QueryResult;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 import com.hazelcast.query.Predicate;
 
-public class ResultsQueryPredicate implements Predicate<Long, XDMResults>, IdentifiedDataSerializable { 
+public class ResultsQueryPredicate implements Predicate<Long, QueryResult>, IdentifiedDataSerializable { 
 	
 	/**
 	 * 
@@ -44,7 +44,7 @@ public class ResultsQueryPredicate implements Predicate<Long, XDMResults>, Ident
 	}
 
 	@Override
-	public boolean apply(Entry<Long, XDMResults> resEntry) {
+	public boolean apply(Entry<Long, QueryResult> resEntry) {
 		long resultKey = resEntry.getKey();
 		Integer queryKey = (int) (resultKey >> 32);
 		return queryIds.contains(queryKey);

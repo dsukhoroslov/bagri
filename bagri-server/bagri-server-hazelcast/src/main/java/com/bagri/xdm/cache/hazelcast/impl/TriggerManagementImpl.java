@@ -24,21 +24,21 @@ import org.slf4j.LoggerFactory;
 import com.bagri.common.stats.StatisticsEvent;
 import com.bagri.common.util.FileUtils;
 import com.bagri.xdm.api.XDMException;
+import com.bagri.xdm.cache.api.XDMTrigger;
 import com.bagri.xdm.cache.api.XDMTriggerManagement;
 import com.bagri.xdm.cache.hazelcast.task.trigger.TriggerRunner;
 import com.bagri.xdm.client.hazelcast.impl.IdGeneratorImpl;
 import com.bagri.xdm.client.hazelcast.impl.ModelManagementImpl;
-import com.bagri.xdm.domain.XDMDocument;
-import com.bagri.xdm.domain.XDMTransaction;
-import com.bagri.xdm.domain.XDMTrigger;
-import com.bagri.xdm.system.XDMJavaTrigger;
-import com.bagri.xdm.system.XDMLibrary;
-import com.bagri.xdm.system.XDMModule;
-import com.bagri.xdm.system.XDMTriggerAction;
-import com.bagri.xdm.system.XDMTriggerAction.Order;
-import com.bagri.xdm.system.XDMTriggerAction.Scope;
-import com.bagri.xdm.system.XDMTriggerDef;
-import com.bagri.xdm.system.XDMXQueryTrigger;
+import com.bagri.xdm.domain.Document;
+import com.bagri.xdm.domain.Transaction;
+import com.bagri.xdm.system.JavaTrigger;
+import com.bagri.xdm.system.Library;
+import com.bagri.xdm.system.Module;
+import com.bagri.xdm.system.TriggerAction;
+import com.bagri.xdm.system.TriggerAction.Order;
+import com.bagri.xdm.system.TriggerAction.Scope;
+import com.bagri.xdm.system.TriggerDefinition;
+import com.bagri.xdm.system.XQueryTrigger;
 import com.bagri.xquery.api.XQCompiler;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
@@ -49,7 +49,7 @@ public class TriggerManagementImpl implements XDMTriggerManagement {
 	private static final transient Logger logger = LoggerFactory.getLogger(TriggerManagementImpl.class);
 
 	private HazelcastInstance hzInstance;
-	private IMap<Integer, XDMTriggerDef> trgDict;
+	private IMap<Integer, TriggerDefinition> trgDict;
     private Map<String, List<TriggerContainer>> triggers = new HashMap<>();
 	private IExecutorService execService;
     private ModelManagementImpl mdlMgr;
@@ -74,11 +74,11 @@ public class TriggerManagementImpl implements XDMTriggerManagement {
 		this.mdlMgr = mdlMgr;
 	}
 
-	protected Map<Integer, XDMTriggerDef> getTriggerDictionary() {
+	protected Map<Integer, TriggerDefinition> getTriggerDictionary() {
 		return trgDict;
 	}
 	
-	public void setTriggerDictionary(IMap<Integer, XDMTriggerDef> trgDict) {
+	public void setTriggerDictionary(IMap<Integer, TriggerDefinition> trgDict) {
 		this.trgDict = trgDict;
 	}
 
@@ -98,7 +98,7 @@ public class TriggerManagementImpl implements XDMTriggerManagement {
     	return "" + typeId + ":" + order.name() + ":" + scope.name();
     }
     
-    void applyTrigger(final XDMDocument xDoc, final Order order, final Scope scope) throws XDMException {
+    void applyTrigger(final Document xDoc, final Order order, final Scope scope) throws XDMException {
     	//
 		String key = getTriggerKey(xDoc.getTypeId(), order, scope);
     	List<TriggerContainer> impls = triggers.get(key);
@@ -117,12 +117,12 @@ public class TriggerManagementImpl implements XDMTriggerManagement {
     	}
     }
 
-    void applyTrigger(final XDMTransaction xTx, final Order order, final Scope scope) throws XDMException {
+    void applyTrigger(final Transaction xTx, final Order order, final Scope scope) throws XDMException {
     	// TODO: implement me!
     	// before/after begin/commit/rollback transaction
     }
     
-    public void runTrigger(Order order, Scope scope, XDMDocument xDoc, int index, String clientId) throws XDMException {
+    public void runTrigger(Order order, Scope scope, Document xDoc, int index, String clientId) throws XDMException {
 
 		String key = getTriggerKey(xDoc.getTypeId(), order, scope);
     	List<TriggerContainer> impls = triggers.get(key);
@@ -133,7 +133,7 @@ public class TriggerManagementImpl implements XDMTriggerManagement {
     	}    	
     }
     
-    private void runTrigger(Order order, Scope scope, XDMDocument xDoc, XDMTrigger trigger) throws XDMException {
+    private void runTrigger(Order order, Scope scope, Document xDoc, XDMTrigger trigger) throws XDMException {
 		String trName = order + " " + scope;
 		try {
 			if (order == Order.before) {
@@ -170,20 +170,20 @@ public class TriggerManagementImpl implements XDMTriggerManagement {
 	}
 	
 	@Override
-	public boolean createTrigger(XDMTriggerDef trigger) {
+	public boolean createTrigger(TriggerDefinition trigger) {
 		logger.trace("createTrigger.enter; trigger: {}", trigger);
 		boolean result = false;
 		if (trigger.isEnabled()) {
 			XDMTrigger impl;
-			if (trigger instanceof XDMJavaTrigger) {
-				impl = createJavaTrigger((XDMJavaTrigger) trigger);
+			if (trigger instanceof JavaTrigger) {
+				impl = createJavaTrigger((JavaTrigger) trigger);
 			} else {
-				impl = createXQueryTrigger((XDMXQueryTrigger) trigger);
+				impl = createXQueryTrigger((XQueryTrigger) trigger);
 			}
 	
 			if (impl != null) {
 				int typeId = getDocType(trigger);
-				for (XDMTriggerAction action: trigger.getActions()) {
+				for (TriggerAction action: trigger.getActions()) {
 					String key = getTriggerKey(typeId, action.getOrder(), action.getScope());
 					List<TriggerContainer> impls = triggers.get(key);
 					if (impls == null) {
@@ -207,8 +207,8 @@ public class TriggerManagementImpl implements XDMTriggerManagement {
 		return result;
 	}
 	
-	private XDMTrigger createJavaTrigger(XDMJavaTrigger trigger) {
-		XDMLibrary library = getLibrary(trigger.getLibrary());
+	private XDMTrigger createJavaTrigger(JavaTrigger trigger) {
+		Library library = getLibrary(trigger.getLibrary());
 		if (library == null) {
 			logger.info("createJavaTrigger; not library found for name: {}, trigger registration failed",
 					trigger.getLibrary());
@@ -246,8 +246,8 @@ public class TriggerManagementImpl implements XDMTriggerManagement {
 		return null;
 	}
 
-	private XDMTrigger createXQueryTrigger(XDMXQueryTrigger trigger) {
-		XDMModule module = getModule(trigger.getModule());
+	private XDMTrigger createXQueryTrigger(XQueryTrigger trigger) {
+		Module module = getModule(trigger.getModule());
 		if (module == null) {
 			logger.info("createXQueryTrigger; not module found for name: {}, trigger registration failed",
 					trigger.getModule());
@@ -274,9 +274,9 @@ public class TriggerManagementImpl implements XDMTriggerManagement {
 		return null;
 	}
 	
-	private XDMLibrary getLibrary(String library) {
-		Collection<XDMLibrary> libraries = repo.getLibraries();
-		for (XDMLibrary xLib: libraries) {
+	private Library getLibrary(String library) {
+		Collection<Library> libraries = repo.getLibraries();
+		for (Library xLib: libraries) {
 			if (library.equals(xLib.getName())) {
 				return xLib;
 			}
@@ -285,9 +285,9 @@ public class TriggerManagementImpl implements XDMTriggerManagement {
 		return null;
 	}
 
-	private XDMModule getModule(String module) {
-		Collection<XDMModule> modules = repo.getModules();
-		for (XDMModule xModule: modules) {
+	private Module getModule(String module) {
+		Collection<Module> modules = repo.getModules();
+		for (Module xModule: modules) {
 			if (module.equals(xModule.getName())) {
 				return xModule;
 			}
@@ -297,10 +297,10 @@ public class TriggerManagementImpl implements XDMTriggerManagement {
 	}
 	
 	@Override
-	public boolean deleteTrigger(XDMTriggerDef trigger) {
+	public boolean deleteTrigger(TriggerDefinition trigger) {
 		int cnt = 0;
 		int typeId = getDocType(trigger);
-		for (XDMTriggerAction action: trigger.getActions()) {
+		for (TriggerAction action: trigger.getActions()) {
 			String key = getTriggerKey(typeId, action.getOrder(), action.getScope());
 			List<TriggerContainer> impls = triggers.get(key);
 			if (impls != null) {
@@ -312,7 +312,7 @@ public class TriggerManagementImpl implements XDMTriggerManagement {
 		return cnt > 0;
 	}
 
-	private int getDocType(XDMTriggerDef trigger) {
+	private int getDocType(TriggerDefinition trigger) {
 		
 		String type = trigger.getDocType();
 		if (type == null) {

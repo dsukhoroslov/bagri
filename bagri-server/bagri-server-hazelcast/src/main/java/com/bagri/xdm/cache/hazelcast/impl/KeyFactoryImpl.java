@@ -10,7 +10,7 @@ import com.bagri.xdm.common.XDMDataKey;
 import com.bagri.xdm.common.XDMDocumentKey;
 import com.bagri.xdm.common.XDMKeyFactory;
 import com.bagri.xdm.common.XDMIndexKey;
-import com.bagri.xdm.domain.XDMElement;
+import com.bagri.xdm.domain.Element;
 
 /**
  * @author Denis Sukhoroslov: dsukhoroslov@gmail.com

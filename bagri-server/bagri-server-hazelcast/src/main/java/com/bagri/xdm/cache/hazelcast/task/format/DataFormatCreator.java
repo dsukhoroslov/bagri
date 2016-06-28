@@ -9,7 +9,7 @@ import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.Properties;
 
-import com.bagri.xdm.system.XDMDataFormat;
+import com.bagri.xdm.system.DataFormat;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
@@ -41,11 +41,11 @@ public class DataFormatCreator extends DataFormatProcessor implements Identified
 	}
 
 	@Override
-	public Object process(Entry<String, XDMDataFormat> entry) {
+	public Object process(Entry<String, DataFormat> entry) {
 		logger.debug("process.enter; entry: {}", entry); 
 		if (entry.getValue() == null) {
 			String name = entry.getKey();
-			XDMDataFormat format = new XDMDataFormat(getVersion(), new Date(), getAdmin(), 
+			DataFormat format = new DataFormat(getVersion(), new Date(), getAdmin(), 
 					name, description, extensions, parser, builder, true, properties);
 			entry.setValue(format);
 			auditEntity(AuditType.create, format);

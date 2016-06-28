@@ -14,7 +14,7 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 
 import com.bagri.xdm.cache.hazelcast.task.store.DataStoreCreator;
 import com.bagri.xdm.cache.hazelcast.task.store.DataStoreRemover;
-import com.bagri.xdm.system.XDMDataStore;
+import com.bagri.xdm.system.DataStore;
 import com.hazelcast.core.HazelcastInstance;
 
 /**
@@ -23,14 +23,14 @@ import com.hazelcast.core.HazelcastInstance;
  */
 @ManagedResource(objectName="com.bagri.xdm:type=Management,name=DataStoreManagement", 
 	description="Data Store Management MBean")
-public class DataStoreManagement extends EntityManagement<XDMDataStore> {
+public class DataStoreManagement extends EntityManagement<DataStore> {
 
     public DataStoreManagement(HazelcastInstance hzInstance) {
     	super(hzInstance);
     }
 
 	@Override
-	protected EntityManager<XDMDataStore> createEntityManager(String storeName) {
+	protected EntityManager<DataStore> createEntityManager(String storeName) {
 		DataStoreManager mgr = new DataStoreManager(hzInstance, storeName);
 		mgr.setEntityCache(entityCache);
 		return mgr;
@@ -54,12 +54,12 @@ public class DataStoreManagement extends EntityManagement<XDMDataStore> {
 		@ManagedOperationParameter(name = "properties", description = "DataStore properties with their default values")})
 	public boolean addDataStore(String name, String storeClass, String description, String properties) {
 		logger.trace("addDataStore.enter; name: {}", name);
-		XDMDataStore store = null;
+		DataStore store = null;
 		if (!entityCache.containsKey(name)) {
 			try {
 				Object result = entityCache.executeOnKey(name, new DataStoreCreator(getCurrentUser(), storeClass, description,
 						propsFromString(properties)));
-		    	store = (XDMDataStore) result;
+		    	store = (DataStore) result;
 			} catch (IOException ex) {
 				logger.error("", ex);
 			}
@@ -72,10 +72,10 @@ public class DataStoreManagement extends EntityManagement<XDMDataStore> {
 	@ManagedOperationParameters({@ManagedOperationParameter(name = "name", description = "Data Store name to delete")})
 	public boolean deleteDataStore(String name) {
 		logger.trace("deleteDataStore.enter; name: {}", name);
-		XDMDataStore store = entityCache.get(name);
+		DataStore store = entityCache.get(name);
 		if (store != null) {
 	    	Object result = entityCache.executeOnKey(name, new DataStoreRemover(store.getVersion(), getCurrentUser()));
-	    	store = (XDMDataStore) result;
+	    	store = (DataStore) result;
 		}
 		logger.trace("deleteDataStore.exit; dataStore deleted: {}", store);
 		return store != null;

@@ -5,9 +5,9 @@ import java.util.List;
 import java.util.Properties;
 
 import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.system.XDMLibrary;
-import com.bagri.xdm.system.XDMModule;
-import com.bagri.xdm.system.XDMXQueryTrigger;
+import com.bagri.xdm.system.Library;
+import com.bagri.xdm.system.Module;
+import com.bagri.xdm.system.XQueryTrigger;
 
 /**
  * (X-)Query compiler interface. Can be used to compile and/or check syntax of queries and server-side modules and triggers. 
@@ -46,7 +46,7 @@ public interface XQCompiler {
      * @param module the module to compile
      * @throws XDMException in case of compilation error
      */
-    void compileModule(XDMModule module) throws XDMException;
+    void compileModule(Module module) throws XDMException;
     
     /**
      * compiles server-side {@code trigger} to be added to the {@code module}
@@ -56,7 +56,7 @@ public interface XQCompiler {
      * @return the String containing generated trigger body 
      * @throws XDMException in case of compilation error
      */
-	String compileTrigger(XDMModule module, XDMXQueryTrigger trigger) throws XDMException;
+	String compileTrigger(Module module, XQueryTrigger trigger) throws XDMException;
 	
 	/**
 	 * collect functions specified in the {@code module} provided
@@ -65,7 +65,7 @@ public interface XQCompiler {
 	 * @return the {@link List} of found function names
      * @throws XDMException in case of compilation error
 	 */
-    List<String> getModuleFunctions(XDMModule module) throws XDMException;
+    List<String> getModuleFunctions(Module module) throws XDMException;
     
     /**
      * check {@code module} compilation state
@@ -73,13 +73,13 @@ public interface XQCompiler {
      * @param module the module to be tested
      * @return true if module is valied (compiled with no errors), false otherwise
      */
-	boolean getModuleState(XDMModule module);
+	boolean getModuleState(Module module);
 	
 	/**
 	 * register set of {@code libraries} in this compiler 
 	 * 
 	 * @param libraries the {@link Collection} of libraries to register 
 	 */
-	void setLibraries(Collection<XDMLibrary> libraries);
+	void setLibraries(Collection<Library> libraries);
 
 }

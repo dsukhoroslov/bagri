@@ -7,8 +7,8 @@ import java.util.Set;
 
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMModelManagement;
-import com.bagri.xdm.domain.XDMData;
-import com.bagri.xdm.domain.XDMNodeKind;
+import com.bagri.xdm.domain.Data;
+import com.bagri.xdm.domain.NodeKind;
 
 /**
  * Base server-side document management component implementation. 
@@ -30,9 +30,9 @@ public abstract class DocumentManagementBase extends com.bagri.xdm.api.impl.Docu
 
     public abstract Collection<String> buildDocument(Set<Long> docIds, String template, Map<String, String> params) throws XDMException;
 
-	public XDMData getDataRoot(List<XDMData> elements) {
-		for (XDMData data: elements) {
-			if (data.getNodeKind() == XDMNodeKind.element) {
+	public Data getDataRoot(List<Data> elements) {
+		for (Data data: elements) {
+			if (data.getNodeKind() == NodeKind.element) {
 				return data;
 			}
 		}

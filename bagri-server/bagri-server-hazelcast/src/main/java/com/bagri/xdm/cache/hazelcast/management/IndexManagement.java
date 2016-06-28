@@ -17,8 +17,8 @@ import com.bagri.common.stats.StatsAggregator;
 import com.bagri.xdm.cache.hazelcast.task.index.IndexCreator;
 import com.bagri.xdm.cache.hazelcast.task.index.IndexRemover;
 import com.bagri.xdm.cache.hazelcast.task.stats.StatisticSeriesCollector;
-import com.bagri.xdm.system.XDMIndex;
-import com.bagri.xdm.system.XDMSchema;
+import com.bagri.xdm.system.Index;
+import com.bagri.xdm.system.Schema;
 import com.hazelcast.core.Member;
 
 @ManagedResource(description="Schema Indexes Management MBean")
@@ -37,7 +37,7 @@ public class IndexManagement extends SchemaFeatureManagement {
     }
 	
 	@Override
-	protected Collection getSchemaFeatures(XDMSchema schema) {
+	protected Collection getSchemaFeatures(Schema schema) {
 		return schema.getIndexes();
 	}
 
@@ -66,7 +66,7 @@ public class IndexManagement extends SchemaFeatureManagement {
 
 		logger.trace("addIndex.enter;");
 		long stamp = System.currentTimeMillis();
-		XDMIndex index = schemaManager.addIndex(name, docType, path, dataType, caseSensitive, range, unique, description);
+		Index index = schemaManager.addIndex(name, docType, path, dataType, caseSensitive, range, unique, description);
 		if (index == null) {
 			throw new IllegalStateException("Index '" + name + "' in schema '" + schemaName + "' already exists");
 		}

@@ -23,8 +23,8 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.bagri.common.util.JMXUtils;
 import com.bagri.xdm.api.test.XDMManagementTest;
-import com.bagri.xdm.system.XDMCollection;
-import com.bagri.xdm.system.XDMSchema;
+import com.bagri.xdm.system.Collection;
+import com.bagri.xdm.system.Schema;
 
 public class QueryCacheManagementTest extends XDMManagementTest {
 
@@ -51,11 +51,11 @@ public class QueryCacheManagementTest extends XDMManagementTest {
 	public void setUp() throws Exception {
 		xRepo = context.getBean(RepositoryImpl.class);
 		RepositoryImpl xdmRepo = (RepositoryImpl) xRepo; 
-		XDMSchema schema = xdmRepo.getSchema();
+		Schema schema = xdmRepo.getSchema();
 		if (schema == null) {
-			schema = new XDMSchema(1, new java.util.Date(), "test", "test", "test schema", true, null);
+			schema = new Schema(1, new java.util.Date(), "test", "test", "test schema", true, null);
 			xdmRepo.setSchema(schema);
-			XDMCollection collection = new XDMCollection(1, new Date(), JMXUtils.getCurrentUser(), 
+			Collection collection = new Collection(1, new Date(), JMXUtils.getCurrentUser(), 
 					1, "CLN_Security", "/{http://tpox-benchmark.com/security}Security", "securities", true);
 			schema.addCollection(collection);
 		}

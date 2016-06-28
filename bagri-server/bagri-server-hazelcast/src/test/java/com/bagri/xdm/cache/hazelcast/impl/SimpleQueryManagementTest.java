@@ -16,8 +16,8 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.bagri.xdm.api.test.XDMManagementTest;
 import com.bagri.xdm.client.hazelcast.impl.ResultCursor;
-import com.bagri.xdm.domain.XDMDocument;
-import com.bagri.xdm.system.XDMSchema;
+import com.bagri.xdm.domain.Document;
+import com.bagri.xdm.system.Schema;
 import com.bagri.xquery.api.XQProcessor;
 
 public class SimpleQueryManagementTest extends XDMManagementTest {
@@ -48,9 +48,9 @@ public class SimpleQueryManagementTest extends XDMManagementTest {
 		xRepo = context.getBean(RepositoryImpl.class);
 		RepositoryImpl xdmRepo = (RepositoryImpl) xRepo; 
 		xqProc = context.getBean("xqProcessor", XQProcessor.class);
-		XDMSchema schema = xdmRepo.getSchema();
+		Schema schema = xdmRepo.getSchema();
 		if (schema == null) {
-			schema = new XDMSchema(1, new java.util.Date(), "test", "test", "test schema", true, null);
+			schema = new Schema(1, new java.util.Date(), "test", "test", "test schema", true, null);
 			schema.setProperty(pn_baseURI, sampleRoot);
 			xdmRepo.setSchema(schema);
 			//XDMCollection collection = new XDMCollection(1, new Date(), JMXUtils.getCurrentUser(), 
@@ -73,7 +73,7 @@ public class SimpleQueryManagementTest extends XDMManagementTest {
 
 		long txId = xRepo.getTxManagement().beginTransaction();
 		Properties props = new Properties();
-		XDMDocument xDoc = xRepo.getDocumentManagement().storeDocumentFromString(uri, xml, props);
+		Document xDoc = xRepo.getDocumentManagement().storeDocumentFromString(uri, xml, props);
 		xRepo.getTxManagement().commitTransaction(txId);
 		assertNotNull(xDoc);
 		assertEquals(uri, xDoc.getUri());

@@ -34,10 +34,10 @@ import com.bagri.xdm.api.XDMTransactionState;
 import com.bagri.xdm.cache.api.XDMTransactionManagement;
 import com.bagri.xdm.cache.hazelcast.task.doc.DocumentCleaner;
 import com.bagri.xdm.client.hazelcast.impl.IdGeneratorImpl;
-import com.bagri.xdm.domain.XDMCounter;
-import com.bagri.xdm.domain.XDMTransaction;
-import com.bagri.xdm.system.XDMTriggerAction.Order;
-import com.bagri.xdm.system.XDMTriggerAction.Scope;
+import com.bagri.xdm.domain.Counter;
+import com.bagri.xdm.domain.Transaction;
+import com.bagri.xdm.system.TriggerAction.Order;
+import com.bagri.xdm.system.TriggerAction.Scope;
 import com.hazelcast.core.Cluster;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
@@ -69,9 +69,9 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
     //private HazelcastInstance hzInstance;
 	private Cluster cluster;
 	private IdGenerator<Long> txGen;
-	private ITopic<XDMCounter> cTopic;
+	private ITopic<Counter> cTopic;
 	private IExecutorService execService;
-	private IMap<Long, XDMTransaction> txCache; 
+	private IMap<Long, Transaction> txCache; 
     private TriggerManagementImpl triggerManager;
 
 	private long txTimeout = 0;
@@ -125,7 +125,7 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 
 		txId = txGen.next();
 		// TODO: do this via EntryProcessor?
-		XDMTransaction xTx = new XDMTransaction(txId, cluster.getClusterTime(), 0, repo.getUserName(), txIsolation, XDMTransactionState.started);
+		Transaction xTx = new Transaction(txId, cluster.getClusterTime(), 0, repo.getUserName(), txIsolation, XDMTransactionState.started);
 		triggerManager.applyTrigger(xTx, Order.before, Scope.begin); 
 		txCache.set(txId, xTx);
 		thTx.set(txId);
@@ -139,7 +139,7 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 	public void commitTransaction(long txId) throws XDMException {
 		logger.trace("commitTransaction.enter; got txId: {}", txId); 
 		// TODO: do this via EntryProcessor?
-		XDMTransaction xTx = txCache.get(txId);
+		Transaction xTx = txCache.get(txId);
 		if (xTx != null) {
 			triggerManager.applyTrigger(xTx, Order.before, Scope.commit); 
 			xTx.finish(true, cluster.getClusterTime());
@@ -151,7 +151,7 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 		thTx.set(TX_NO);
 		cntCommited.incrementAndGet();
 		triggerManager.applyTrigger(xTx, Order.after, Scope.commit); 
-		cTopic.publish(new XDMCounter(true, xTx.getDocsCreated(), xTx.getDocsUpdated(), xTx.getDocsDeleted()));
+		cTopic.publish(new Counter(true, xTx.getDocsCreated(), xTx.getDocsUpdated(), xTx.getDocsDeleted()));
 		cleanAffectedDocuments(xTx);
 		logger.trace("commitTransaction.exit; tx: {}", xTx); 
 	}
@@ -160,7 +160,7 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 	public void rollbackTransaction(long txId) throws XDMException {
 		logger.trace("rollbackTransaction.enter; got txId: {}", txId); 
 		// TODO: do this via EntryProcessor?
-		XDMTransaction xTx = txCache.get(txId);
+		Transaction xTx = txCache.get(txId);
 		if (xTx != null) {
 			triggerManager.applyTrigger(xTx, Order.before, Scope.rollback); 
 			xTx.finish(false, cluster.getClusterTime());
@@ -171,7 +171,7 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 		thTx.set(TX_NO);
 		cntRolled.incrementAndGet();
 		triggerManager.applyTrigger(xTx, Order.after, Scope.rollback); 
-		cTopic.publish(new XDMCounter(false, xTx.getDocsCreated(), xTx.getDocsUpdated(), xTx.getDocsDeleted()));
+		cTopic.publish(new Counter(false, xTx.getDocsCreated(), xTx.getDocsUpdated(), xTx.getDocsDeleted()));
 		cleanAffectedDocuments(xTx);
 		logger.trace("rollbackTransaction.exit; tx: {}", xTx); 
 	}
@@ -195,16 +195,16 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 		return getCurrentTxId() > TX_NO; 
 	}
 	
-	private void cleanAffectedDocuments(XDMTransaction xTx) {
+	private void cleanAffectedDocuments(Transaction xTx) {
 		// asynchronous cleaning..
 		//execService.submitToAllMembers(new DocumentCleaner(xTx), this);
 		
 		// synchronous cleaning.. causes a deadlock!
-		Map<Member, Future<XDMTransaction>> values = execService.submitToAllMembers(new DocumentCleaner(xTx));
-        XDMTransaction txClean = null;
-		for (Future<XDMTransaction> value: values.values()) {
+		Map<Member, Future<Transaction>> values = execService.submitToAllMembers(new DocumentCleaner(xTx));
+        Transaction txClean = null;
+		for (Future<Transaction> value: values.values()) {
 			try {
-				XDMTransaction tx = value.get();
+				Transaction tx = value.get();
 				if (txClean == null) {
 					txClean = tx;
 				} else {
@@ -225,7 +225,7 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 			return true;
 		}
 
-		XDMTransaction xTx;
+		Transaction xTx;
 		XDMTransactionIsolation txIsolation;
 		if (cTx != TX_NO) {
 			// can not be null!
@@ -278,7 +278,7 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 	void updateCounters(int created, int updated, int deleted) throws XDMException {
 		long txId = getCurrentTxId();
 		if (txId > TX_NO) {
-			XDMTransaction xTx = txCache.get(txId);
+			Transaction xTx = txCache.get(txId);
 			if (xTx != null) {
 				xTx.updateCounters(created, updated, deleted);
 				txCache.set(txId, xTx);
@@ -341,8 +341,8 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 	@Override
 	public TabularData getStatisticSeries() {
 		// return InProgress Transactions here!?
-   		Predicate<Long, XDMTransaction> f = Predicates.equal("txState", XDMTransactionState.started);
-		Collection<XDMTransaction> txStarted = txCache.values(f);
+   		Predicate<Long, Transaction> f = Predicates.equal("txState", XDMTransactionState.started);
+		Collection<Transaction> txStarted = txCache.values(f);
 		if (txStarted == null || txStarted.isEmpty()) {
 			return null;
 		}
@@ -351,7 +351,7 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
     	String desc = "InProgress Transactions";
     	String name = "InProgress Transactions";
     	String header = "txId"; 
-        for (XDMTransaction xTx: txStarted) {
+        for (Transaction xTx: txStarted) {
             try {
                 Map<String, Object> txStats = xTx.convert();
                 //stats.put(header, entry.getKey());
@@ -380,9 +380,9 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 	@Override
 	public void onComplete(Map<Member, Object> values) {
         logger.trace("onComplete; got values: {}", values);
-        XDMTransaction txClean = null;
+        Transaction txClean = null;
 		for (Object value: values.values()) {
-			XDMTransaction tx = (XDMTransaction) value;
+			Transaction tx = (Transaction) value;
 			if (txClean == null) {
 				txClean = tx;
 			} else {
@@ -396,8 +396,8 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 		}
 	}
 	
-	private void completeTransaction(XDMTransaction txClean) {
-		XDMTransaction txSource = txCache.get(txClean.getTxId());
+	private void completeTransaction(Transaction txClean) {
+		Transaction txSource = txCache.get(txClean.getTxId());
 		if (txSource != null) {
 			if (txSource.getDocsCreated() != txClean.getDocsCreated() ||
 				txSource.getDocsUpdated() != txClean.getDocsUpdated() ||

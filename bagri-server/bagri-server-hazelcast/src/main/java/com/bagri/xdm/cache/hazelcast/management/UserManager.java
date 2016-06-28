@@ -18,16 +18,16 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 
 import com.bagri.common.util.JMXUtils;
 import com.bagri.xdm.cache.hazelcast.task.user.UserUpdater;
-import com.bagri.xdm.system.XDMPermission;
-import com.bagri.xdm.system.XDMRole;
-import com.bagri.xdm.system.XDMUser;
+import com.bagri.xdm.system.Permission;
+import com.bagri.xdm.system.Role;
+import com.bagri.xdm.system.User;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 
 @ManagedResource(description="User Manager MBean")
-public class UserManager extends PermissionAwareManager<XDMUser> {
+public class UserManager extends PermissionAwareManager<User> {
 	
-	private IMap<String, XDMRole> roleCache;
+	private IMap<String, Role> roleCache;
 
 	public UserManager() {
 		super();
@@ -37,7 +37,7 @@ public class UserManager extends PermissionAwareManager<XDMUser> {
 		super(hzInstance, userName);
 	}
 	
-	public void setRoleCache(IMap<String, XDMRole> roleCache) {
+	public void setRoleCache(IMap<String, Role> roleCache) {
 		this.roleCache = roleCache;
 	}
 
@@ -58,16 +58,16 @@ public class UserManager extends PermissionAwareManager<XDMUser> {
 
 	@ManagedAttribute(description="Returns effective User permissions, recursivelly")
 	public CompositeData getRecursivePermissions() {
-		Map<String, XDMPermission> xPerms = getAllPermissions();
+		Map<String, Permission> xPerms = getAllPermissions();
 		Map<String, Object> pMap = new HashMap<String, Object>(xPerms.size());
-		for (Map.Entry<String, XDMPermission> e: xPerms.entrySet()) {
+		for (Map.Entry<String, Permission> e: xPerms.entrySet()) {
 			pMap.put(e.getKey(), e.getValue().getPermissionsAsString());
 		}
 		return JMXUtils.mapToComposite(entityName, "permissions", pMap);
 	}
 	
-	public Map<String, XDMPermission> getAllPermissions() {
-		Map<String, XDMPermission> xPerms = new HashMap<String, XDMPermission>();
+	public Map<String, Permission> getAllPermissions() {
+		Map<String, Permission> xPerms = new HashMap<String, Permission>();
 		for (String role: getDirectRoles()) {
 			getRecursivePermissions(xPerms, role);
 		}
@@ -75,15 +75,15 @@ public class UserManager extends PermissionAwareManager<XDMUser> {
 	}
 	
 	//@ManagedAttribute(description="Returns effective User permissions, recursivelly, resolving wildcards")
-	public Map<String, XDMPermission> getFlatPermissions() {
-		Map<String, XDMPermission> xPerms = getAllPermissions();
-		List<XDMPermission> lPerms = new ArrayList<XDMPermission>(xPerms.values());
-		for (XDMPermission lPerm: lPerms) {
+	public Map<String, Permission> getFlatPermissions() {
+		Map<String, Permission> xPerms = getAllPermissions();
+		List<Permission> lPerms = new ArrayList<Permission>(xPerms.values());
+		for (Permission lPerm: lPerms) {
 			if (lPerm.isWildcard()) {
 				xPerms.remove(lPerm.getResource());
 				List<String> all = JMXUtils.queryNames(lPerm.getResource());
 				for (String resource: all) {
-					XDMPermission xPerm = new XDMPermission(resource, lPerm.getPermissions());
+					Permission xPerm = new Permission(resource, lPerm.getPermissions());
 					xPerms.put(resource, xPerm);
 				}
 			}
@@ -102,7 +102,7 @@ public class UserManager extends PermissionAwareManager<XDMUser> {
 	}
 
 	@Override
-	protected IMap<String, XDMRole> getRoleCache() {
+	protected IMap<String, Role> getRoleCache() {
 		return roleCache;
 	}
 	
@@ -120,7 +120,7 @@ public class UserManager extends PermissionAwareManager<XDMUser> {
 		@ManagedOperationParameter(name = "oldPassword", description = "old User's password"),
 		@ManagedOperationParameter(name = "newPassword", description = "new User's password")})
 	public boolean changePassword(String oldPassword, String newPassword) {
-		XDMUser user = getEntity();
+		User user = getEntity();
 		if (user != null) {
 	    	Object result = entityCache.executeOnKey(entityName, new UserUpdater(user.getVersion(), 
 	    			getCurrentUser(), oldPassword, newPassword));

@@ -10,7 +10,7 @@ import javax.xml.namespace.QName;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.common.query.ExpressionContainer;
 import com.bagri.xdm.common.query.QueryBuilder;
-import com.bagri.xdm.domain.XDMQuery;
+import com.bagri.xdm.domain.Query;
 
 /**
  * XDM Query Management server-side extension; Adds methods to be used from {@link com.bagri.xquery.api.XQProcessor} in generic way.
@@ -55,7 +55,7 @@ public interface XDMQueryManagement extends com.bagri.xdm.api.XDMQueryManagement
 	 * @param query the plain text query representation
 	 * @return internal query representation or null if not found
 	 */
-	XDMQuery getQuery(String query); 
+	Query getQuery(String query); 
 	
 	/**
 	 * adds internal compiled query representation into query cache

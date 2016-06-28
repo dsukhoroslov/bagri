@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.Map.Entry;
 
-import com.bagri.xdm.system.XDMLibrary;
+import com.bagri.xdm.system.Library;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
@@ -27,11 +27,11 @@ public class LibraryCreator extends LibraryProcessor implements IdentifiedDataSe
 	}
 
 	@Override
-	public Object process(Entry<String, XDMLibrary> entry) {
+	public Object process(Entry<String, Library> entry) {
 		logger.debug("process.enter; entry: {}", entry); 
 		if (entry.getValue() == null) {
 			String name = entry.getKey();
-			XDMLibrary library = new XDMLibrary(getVersion(), new Date(), getAdmin(), 
+			Library library = new Library(getVersion(), new Date(), getAdmin(), 
 					name, fileName, description, true);
 			entry.setValue(library);
 			auditEntity(AuditType.create, library);

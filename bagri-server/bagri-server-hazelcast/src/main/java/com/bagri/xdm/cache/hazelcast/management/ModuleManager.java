@@ -9,12 +9,12 @@ import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
 import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.system.XDMModule;
+import com.bagri.xdm.system.Module;
 import com.bagri.xquery.api.XQCompiler;
 import com.hazelcast.core.HazelcastInstance;
 
 @ManagedResource(description="XQuery Module Manager MBean")
-public class ModuleManager extends EntityManager<XDMModule> { 
+public class ModuleManager extends EntityManager<Module> { 
 
 	private XQCompiler xqComp;
 	//private IExecutorService execService;
@@ -33,7 +33,7 @@ public class ModuleManager extends EntityManager<XDMModule> {
 	
 	@ManagedOperation(description="Compiles registered Module")
 	public boolean compileModule() {
-		XDMModule module = getEntity();
+		Module module = getEntity();
 		try {
 			xqComp.compileModule(module);
 			return true;
@@ -51,7 +51,7 @@ public class ModuleManager extends EntityManager<XDMModule> {
 
 	@ManagedOperation(description="Returns Module functions")
 	public String[] getDeclaredFunctions() {
-		XDMModule module = getEntity();
+		Module module = getEntity();
 		try {
 			List<String> list = xqComp.getModuleFunctions(module);
 			return list.toArray(new String[list.size()]);
@@ -103,7 +103,7 @@ public class ModuleManager extends EntityManager<XDMModule> {
 	@ManagedOperation(description="Updates Module body")
 	public void setBody(String body) {
 		// TODO: do this via EntryProcessor with locks etc.. 
-		XDMModule module = getEntity();
+		Module module = getEntity();
 		module.setBody(body);
 		flushEntity(module);
 	}

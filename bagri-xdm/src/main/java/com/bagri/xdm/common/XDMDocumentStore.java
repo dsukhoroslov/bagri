@@ -3,7 +3,7 @@ package com.bagri.xdm.common;
 import java.util.Collection;
 import java.util.Map;
 
-import com.bagri.xdm.domain.XDMDocument;
+import com.bagri.xdm.domain.Document;
 
 /**
  * Abstracts Document persistent store from the underlying storage system. Resides between XDM Document and Elements caches and persistent store. 
@@ -31,7 +31,7 @@ public interface XDMDocumentStore {
 	 * @param key the document key
 	 * @return XDM Document instance if corresponding document found, null otherwise
 	 */
-	public XDMDocument loadDocument(XDMDocumentKey key);
+	public Document loadDocument(XDMDocumentKey key);
 
 	/**
 	 * Load bunch of documents from persistent store
@@ -39,7 +39,7 @@ public interface XDMDocumentStore {
 	 * @param keys the collection of document keys to load
 	 * @return the map of loaded documents with their keys
 	 */
-	public Map<XDMDocumentKey, XDMDocument> loadAllDocuments(Collection<XDMDocumentKey> keys);
+	public Map<XDMDocumentKey, Document> loadAllDocuments(Collection<XDMDocumentKey> keys);
 
 	/**
 	 * Load document keys. Can do it in synch or asynch way.
@@ -54,14 +54,14 @@ public interface XDMDocumentStore {
 	 * @param key the document key
 	 * @param value the XDM document instance
 	 */
-	public void storeDocument(XDMDocumentKey key, XDMDocument value);
+	public void storeDocument(XDMDocumentKey key, Document value);
 
 	/**
 	 * Stores bunch of documents to persistent store
 	 * 
 	 * @param entries the map of document keys and corresponding document instances
 	 */
-	public void storeAllDocuments(Map<XDMDocumentKey, XDMDocument> entries);
+	public void storeAllDocuments(Map<XDMDocumentKey, Document> entries);
 
 	/**
 	 * Deletes document from persistent store

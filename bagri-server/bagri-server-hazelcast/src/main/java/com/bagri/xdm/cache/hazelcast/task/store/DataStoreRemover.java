@@ -4,7 +4,7 @@ import static com.bagri.xdm.cache.hazelcast.serialize.DataSerializationFactoryIm
 
 import java.util.Map.Entry;
 
-import com.bagri.xdm.system.XDMDataStore;
+import com.bagri.xdm.system.DataStore;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
 public class DataStoreRemover extends DataStoreProcessor implements IdentifiedDataSerializable {
@@ -18,10 +18,10 @@ public class DataStoreRemover extends DataStoreProcessor implements IdentifiedDa
 	}
 
 	@Override
-	public Object process(Entry<String, XDMDataStore> entry) {
+	public Object process(Entry<String, DataStore> entry) {
 		logger.debug("process.enter; entry: {}", entry); 
 		if (entry.getValue() != null) {
-			XDMDataStore store = entry.getValue();
+			DataStore store = entry.getValue();
 			if (store.getVersion() == getVersion()) {
 				entry.setValue(null);
 				auditEntity(AuditType.delete, store);

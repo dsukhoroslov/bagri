@@ -32,7 +32,7 @@ import com.bagri.common.util.PropUtils;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaCreator;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaMemberExtractor;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaRemover;
-import com.bagri.xdm.system.XDMSchema;
+import com.bagri.xdm.system.Schema;
 import com.hazelcast.cluster.MemberAttributeOperationType;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
@@ -46,7 +46,7 @@ import static com.bagri.xdm.common.XDMConstants.*;
 
 @ManagedResource(objectName="com.bagri.xdm:type=Management,name=SchemaManagement", 
 	description="Schema Management MBean")
-public class SchemaManagement extends EntityManagement<XDMSchema> implements MembershipListener { 
+public class SchemaManagement extends EntityManagement<Schema> implements MembershipListener { 
 	
 	private IExecutorService execService;
 	private ClusterManagement srvCluster;
@@ -107,11 +107,11 @@ public class SchemaManagement extends EntityManagement<XDMSchema> implements Mem
 		return getEntities("schema", "Schema definition");
     }
 	
-	public XDMSchema getSchema(String schemaName) {
+	public Schema getSchema(String schemaName) {
 		return entityCache.get(schemaName);
 	}
 
-	public Collection<XDMSchema> getSchemas2() {
+	public Collection<Schema> getSchemas2() {
 		return super.getEntities();
 	}
 
@@ -145,31 +145,31 @@ public class SchemaManagement extends EntityManagement<XDMSchema> implements Mem
 		return removeSchema(schemaName) != null;
 	}
 	
-	public XDMSchema createSchema(String schemaName, String description, Properties props) {
-		XDMSchema schema = null;
+	public Schema createSchema(String schemaName, String description, Properties props) {
+		Schema schema = null;
 		if (!entityCache.containsKey(schemaName)) {
 			// get current user from context...
 			String user = srvUser.getCurrentUser();
 	    	Object result = entityCache.executeOnKey(schemaName, new SchemaCreator(user, description, props));
 	    	logger.debug("addSchema; execution result: {}", result);
-	    	schema = (XDMSchema) result;
+	    	schema = (Schema) result;
 		}
 		return schema;
 	}
 	
-	public XDMSchema removeSchema(String schemaName) {
-		XDMSchema schema = entityCache.get(schemaName);
+	public Schema removeSchema(String schemaName) {
+		Schema schema = entityCache.get(schemaName);
 		if (schema != null) {
 			String user = srvUser.getCurrentUser();
 	    	Object result = entityCache.executeOnKey(schemaName, new SchemaRemover(schema.getVersion(), user));
 	    	logger.debug("deleteSchema; execution result: {}", result);
-	    	schema = (XDMSchema) result;
+	    	schema = (Schema) result;
 		}
 		return schema;
 	}
 	
 	@Override
-	protected EntityManager<XDMSchema> createEntityManager(String schemaName) {
+	protected EntityManager<Schema> createEntityManager(String schemaName) {
 		SchemaManager mgr = new SchemaManager(hzInstance, schemaName, this);
 		mgr.setEntityCache(entityCache);
 		return mgr;
@@ -328,7 +328,7 @@ public class SchemaManagement extends EntityManagement<XDMSchema> implements Mem
 		int cnt = 0;
 		String[] aSchemas = getMemberSchemas(member);
 		for (String name: aSchemas) {
-			XDMSchema schema = entityCache.get(name);
+			Schema schema = entityCache.get(name);
 			if (schema != null) {
 				Properties props = schema.getProperties();
 				if (initSchema(schema.getName(), props)) {
@@ -355,7 +355,7 @@ public class SchemaManagement extends EntityManagement<XDMSchema> implements Mem
 		int cnt = 0;
 		String[] aSchemas = getMemberSchemas(member);
 		for (String name: aSchemas) {
-			XDMSchema schema = entityCache.get(name);
+			Schema schema = entityCache.get(name);
 			if (schema != null) {
 				// use there membershipEvent.members() !!
 				if (denitSchema(name, members)) {

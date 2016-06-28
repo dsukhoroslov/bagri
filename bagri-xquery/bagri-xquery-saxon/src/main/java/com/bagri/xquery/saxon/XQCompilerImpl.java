@@ -30,10 +30,10 @@ import net.sf.saxon.query.XQueryExpression;
 import net.sf.saxon.trans.XPathException;
 
 import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.system.XDMFunction;
-import com.bagri.xdm.system.XDMLibrary;
-import com.bagri.xdm.system.XDMModule;
-import com.bagri.xdm.system.XDMXQueryTrigger;
+import com.bagri.xdm.system.Function;
+import com.bagri.xdm.system.Library;
+import com.bagri.xdm.system.Module;
+import com.bagri.xdm.system.XQueryTrigger;
 import com.bagri.xquery.api.XQCompiler;
 import com.bagri.xquery.saxon.extension.StaticFunctionExtension;
 
@@ -44,7 +44,7 @@ public class XQCompilerImpl implements XQCompiler {
 	private Properties props = new Properties();
 	
     private Configuration config;
-	private List<XDMLibrary> libraries = new ArrayList<>();
+	private List<Library> libraries = new ArrayList<>();
 	
     public XQCompilerImpl() {
     	initializeConfig();
@@ -87,7 +87,7 @@ public class XQCompilerImpl implements XQCompiler {
 	}
 
 	@Override
-	public void compileModule(XDMModule module) throws XDMException {
+	public void compileModule(Module module) throws XDMException {
 		long stamp = System.currentTimeMillis();
 		logger.trace("compileModule.enter; got module: {}", module);
 		XQueryExpression exp = getModuleExpression(module);
@@ -96,7 +96,7 @@ public class XQCompilerImpl implements XQCompiler {
 	}
 
 	@Override
-	public String compileTrigger(XDMModule module, XDMXQueryTrigger trigger) throws XDMException {
+	public String compileTrigger(Module module, XQueryTrigger trigger) throws XDMException {
 		long stamp = System.currentTimeMillis();
 		logger.trace("compileTrigger.enter; got trigger: {}", trigger);
 		String prefix;
@@ -127,7 +127,7 @@ public class XQCompilerImpl implements XQCompiler {
 	}
 	
 	@Override
-	public List<String> getModuleFunctions(XDMModule module) throws XDMException {
+	public List<String> getModuleFunctions(Module module) throws XDMException {
 		long stamp = System.currentTimeMillis();
 		logger.trace("getModuleFunctions.enter; got module: {}", module);
 		XQueryExpression exp = getModuleExpression(module);
@@ -138,7 +138,7 @@ public class XQCompilerImpl implements XQCompiler {
 	}
 
 	@Override
-	public boolean getModuleState(XDMModule module) {
+	public boolean getModuleState(Module module) {
 		try {
 			String query = "import module namespace test=\"" + module.getNamespace() + 
 					"\" at \"" + module.getName() + "\";\n\n";
@@ -153,7 +153,7 @@ public class XQCompilerImpl implements XQCompiler {
 	}
 	
 	@Override
-	public void setLibraries(Collection<XDMLibrary> libraries) {
+	public void setLibraries(Collection<Library> libraries) {
 		this.libraries.clear();
 		this.libraries.addAll(libraries);
 		//config.registerExtensionFunction(function);
@@ -174,9 +174,9 @@ public class XQCompilerImpl implements XQCompiler {
 		logger.trace("initializeConfig.exit; new config: {}", config);
 	}
 	
-	static void registerExtensions(Configuration config, Collection<XDMLibrary> libraries) {
-		for (XDMLibrary lib: libraries) {
-			for (XDMFunction func: lib.getFunctions()) {
+	static void registerExtensions(Configuration config, Collection<Library> libraries) {
+		for (Library lib: libraries) {
+			for (Function func: lib.getFunctions()) {
 				try {
 					ExtensionFunctionDefinition efd = new StaticFunctionExtension(func, config);
 					logger.trace("registerExtensions; funtion {} registered as {}", func.toString(), efd.getFunctionQName()); 
@@ -198,7 +198,7 @@ public class XQCompilerImpl implements XQCompiler {
 		return sqc;
 	}
 	
-	private XQueryExpression getModuleExpression(XDMModule module) throws XDMException {
+	private XQueryExpression getModuleExpression(Module module) throws XDMException {
 		//logger.trace("getModuleExpression.enter; got namespace: {}, name: {}, body: {}", namespace, name, body);
 		String query = "import module namespace test=\"" + module.getNamespace() + 
 				"\" at \"" + module.getName() + "\";\n\n";

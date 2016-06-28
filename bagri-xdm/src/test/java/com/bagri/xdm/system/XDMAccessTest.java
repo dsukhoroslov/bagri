@@ -19,10 +19,10 @@ public class XDMAccessTest {
 
 	@Test
 	public void testRead() throws JAXBException {
-		JAXBContext jc = JAXBContext.newInstance(XDMAccess.class);
+		JAXBContext jc = JAXBContext.newInstance(Access.class);
         Unmarshaller unmarshaller = jc.createUnmarshaller();
         File xml = new File("src/test/resources/test_access.xml");
-        XDMAccess access = (XDMAccess) unmarshaller.unmarshal(xml);
+        Access access = (Access) unmarshaller.unmarshal(xml);
         assertNotNull(access);
 
         Marshaller marshaller = jc.createMarshaller();
@@ -36,22 +36,22 @@ public class XDMAccessTest {
 	@Test
 	public void testWrite() throws JAXBException {
 
-		Map<String, XDMPermission> perms = new HashMap<String, XDMPermission>(2);
-		perms.put("resource1", new XDMPermission("resource1", XDMPermission.Permission.read));
-		perms.put("resource2", new XDMPermission("resource2", XDMPermission.Permission.read, XDMPermission.Permission.modify));
-		XDMRole role = new XDMRole(1, new Date(), "test", perms, null, "TestRole", "Description");
+		Map<String, Permission> perms = new HashMap<String, Permission>(2);
+		perms.put("resource1", new Permission("resource1", Permission.Value.read));
+		perms.put("resource2", new Permission("resource2", Permission.Value.read, Permission.Value.modify));
+		Role role = new Role(1, new Date(), "test", perms, null, "TestRole", "Description");
 
 		//perms.clear();
 		//perms.add(new XDMPermission(XDMPermission.Permission.execute, "schema3"));
-		XDMUser user = new XDMUser(1, new Date(), "test", null, null, "admin", "admin", true);
+		User user = new User(1, new Date(), "test", null, null, "admin", "admin", true);
 		user.addIncludedRole(role.getName());
-		user.addPermission("schema3", XDMPermission.Permission.execute);
+		user.addPermission("schema3", Permission.Value.execute);
 
-		XDMAccess access = new XDMAccess();
+		Access access = new Access();
 		access.getRoles().add(role);
 		access.getUsers().add(user);
 
-		JAXBContext jc = JAXBContext.newInstance(XDMAccess.class);
+		JAXBContext jc = JAXBContext.newInstance(Access.class);
         Marshaller marshaller = jc.createMarshaller();
         marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
         //marshaller.setProperty(Marshaller.JAXB_NO_NAMESPACE_SCHEMA_LOCATION, "file:///C:/Documents%20and%20Settings/mojalal/Desktop/FirstXSD.xml");

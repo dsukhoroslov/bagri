@@ -15,12 +15,12 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 
 import com.bagri.common.util.JMXUtils;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaUpdater;
-import com.bagri.xdm.system.XDMDataStore;
-import com.bagri.xdm.system.XDMSchema;
+import com.bagri.xdm.system.DataStore;
+import com.bagri.xdm.system.Schema;
 import com.hazelcast.core.HazelcastInstance;
 
 @ManagedResource(description="Data Store Manager MBean")
-public class DataStoreManager extends EntityManager<XDMDataStore> { 
+public class DataStoreManager extends EntityManager<DataStore> { 
 
 	public DataStoreManager() {
 		super();
@@ -32,7 +32,7 @@ public class DataStoreManager extends EntityManager<XDMDataStore> {
 
 	@ManagedAttribute(description="Returns Data Store properties")
 	public CompositeData getProperties() {
-		XDMDataStore store = getEntity();
+		DataStore store = getEntity();
 		return JMXUtils.propsToComposite(entityName, "properties", store.getProperties());
 	}
 	
@@ -66,7 +66,7 @@ public class DataStoreManager extends EntityManager<XDMDataStore> {
 		@ManagedOperationParameter(name = "name", description = "A name of the property to set"),
 		@ManagedOperationParameter(name = "value", description = "A value of the property to set")})
 	public void setProperty(String name, String value) {
-		XDMDataStore store = getEntity();
+		DataStore store = getEntity();
 		Properties props = new Properties();
 		props.setProperty(name, value);
     	//Object result = entityCache.executeOnKey(entityName, new SchemaUpdater(schema.getVersion(), 

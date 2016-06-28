@@ -13,19 +13,18 @@ import javax.xml.bind.annotation.XmlType;
 
 import com.bagri.common.Convertable;
 import com.bagri.common.Versionable;
-import com.bagri.xdm.system.XDMCollection;
-import com.bagri.xdm.system.XDMDataFormat;
-import com.bagri.xdm.system.XDMDataStore;
-import com.bagri.xdm.system.XDMFragment;
-import com.bagri.xdm.system.XDMIdentity;
-import com.bagri.xdm.system.XDMIndex;
-import com.bagri.xdm.system.XDMLibrary;
-import com.bagri.xdm.system.XDMModule;
-import com.bagri.xdm.system.XDMNode;
-import com.bagri.xdm.system.XDMRole;
-import com.bagri.xdm.system.XDMSchema;
-import com.bagri.xdm.system.XDMTriggerDef;
-import com.bagri.xdm.system.XDMUser;
+import com.bagri.xdm.system.Collection;
+import com.bagri.xdm.system.DataFormat;
+import com.bagri.xdm.system.DataStore;
+import com.bagri.xdm.system.Fragment;
+import com.bagri.xdm.system.Index;
+import com.bagri.xdm.system.Library;
+import com.bagri.xdm.system.Module;
+import com.bagri.xdm.system.Node;
+import com.bagri.xdm.system.Role;
+import com.bagri.xdm.system.Schema;
+import com.bagri.xdm.system.TriggerDefinition;
+import com.bagri.xdm.system.User;
 
 /**
  * Represents the basic configurable XDM schema entity. All configuration changes are stored and can be reviewed later on.  
@@ -41,19 +40,18 @@ import com.bagri.xdm.system.XDMUser;
 		"createdBy"
 })
 @XmlSeeAlso({
-    XDMNode.class,
-    XDMSchema.class,
-    XDMModule.class,
-    XDMLibrary.class,
-    XDMCollection.class,
-    XDMFragment.class,
-    XDMIndex.class,
-    XDMTriggerDef.class,
-    //XDMIdentity.class,
-    XDMRole.class,
-    XDMUser.class,
-    XDMDataFormat.class,
-    XDMDataStore.class
+    Node.class,
+    Schema.class,
+    Module.class,
+    Library.class,
+    Collection.class,
+    Fragment.class,
+    Index.class,
+    TriggerDefinition.class,
+    Role.class,
+    User.class,
+    DataFormat.class,
+    DataStore.class
 })
 public abstract class XDMEntity implements Convertable<Map<String, Object>>, Versionable {
 	

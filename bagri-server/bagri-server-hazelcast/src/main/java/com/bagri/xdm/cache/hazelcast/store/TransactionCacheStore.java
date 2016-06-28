@@ -22,12 +22,12 @@ import org.slf4j.LoggerFactory;
 
 import com.bagri.xdm.api.XDMTransactionIsolation;
 import com.bagri.xdm.api.XDMTransactionState;
-import com.bagri.xdm.domain.XDMTransaction;
+import com.bagri.xdm.domain.Transaction;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.MapLoaderLifecycleSupport;
 import com.hazelcast.core.MapStore;
 
-public class TransactionCacheStore implements MapStore<Long, XDMTransaction>, MapLoaderLifecycleSupport {
+public class TransactionCacheStore implements MapStore<Long, Transaction>, MapLoaderLifecycleSupport {
 
     private static final Logger logger = LoggerFactory.getLogger(TransactionCacheStore.class);
 	private static final int byLen = 26;
@@ -111,7 +111,7 @@ public class TransactionCacheStore implements MapStore<Long, XDMTransaction>, Ma
 		while (tidx < txCount) {
 			int pos = buff.position();
 			// read just state here!
-			XDMTransaction xtx = readTx();
+			Transaction xtx = readTx();
 			if (XDMTransactionState.commited != xtx.getTxState()) {
 				transactions.put(xtx.getTxId(), (long) pos);
 				bits.set(idx);
@@ -130,9 +130,9 @@ public class TransactionCacheStore implements MapStore<Long, XDMTransaction>, Ma
 	}
 	
 	@Override
-	public XDMTransaction load(Long key) {
+	public Transaction load(Long key) {
 		logger.trace("load.enter; key: {}", key);
-		XDMTransaction result = null;
+		Transaction result = null;
 		Long position = transactions.get(key);
 		if (position != null) {
 			synchronized (buff) {
@@ -145,15 +145,15 @@ public class TransactionCacheStore implements MapStore<Long, XDMTransaction>, Ma
 	}
 
 	@Override
-	public Map<Long, XDMTransaction> loadAll(Collection<Long> keys) {
+	public Map<Long, Transaction> loadAll(Collection<Long> keys) {
 		logger.trace("loadAll.enter; keys: {}", keys);
-		Map<Long, XDMTransaction> result = new HashMap<>(keys.size());
+		Map<Long, Transaction> result = new HashMap<>(keys.size());
 		synchronized (buff) {
 			for (Long key: keys) {
 				Long position = transactions.get(key);
 				if (position != null) {
 					buff.position(position.intValue());
-					XDMTransaction xtx = readTx();
+					Transaction xtx = readTx();
 					result.put(key, xtx);
 				}
 			}
@@ -201,7 +201,7 @@ public class TransactionCacheStore implements MapStore<Long, XDMTransaction>, Ma
 	}
 	
 	@Override
-	public void store(Long key, XDMTransaction value) {
+	public void store(Long key, Transaction value) {
 		logger.trace("store.enter; key: {}; value: {}", key, value);
 		int pos;
 		Long position = transactions.get(key);
@@ -222,10 +222,10 @@ public class TransactionCacheStore implements MapStore<Long, XDMTransaction>, Ma
 	}
 
 	@Override
-	public void storeAll(Map<Long, XDMTransaction> entries) {
+	public void storeAll(Map<Long, Transaction> entries) {
 		logger.trace("storeAll.enter; entries: {}", entries);
 		int cnt = 0;
-		for (Map.Entry<Long, XDMTransaction> xtx: entries.entrySet()) {
+		for (Map.Entry<Long, Transaction> xtx: entries.entrySet()) {
 			int pos;
 			Long position = transactions.get(xtx.getKey());
 			if (position == null) {
@@ -261,7 +261,7 @@ public class TransactionCacheStore implements MapStore<Long, XDMTransaction>, Ma
 		return (pos - szOff)/txLen;
 	}
 	
-	private XDMTransaction readTx() {
+	private Transaction readTx() {
 		XDMTransactionState state = XDMTransactionState.values()[buff.get()];
 		long id = buff.getLong();
 		long start = buff.getLong();
@@ -274,12 +274,12 @@ public class TransactionCacheStore implements MapStore<Long, XDMTransaction>, Ma
 			sz++;
 		}
 		String owner = new String(by26, 0, sz);
-		XDMTransaction xtx = new XDMTransaction(id, start, finish, owner, isol, state);
+		Transaction xtx = new Transaction(id, start, finish, owner, isol, state);
 		xtx.updateCounters(buff.getInt(), buff.getInt(), buff.getInt());
 		return xtx;
 	}
 
-	private void writeTx(XDMTransaction xtx) {
+	private void writeTx(Transaction xtx) {
 		buff.put((byte) xtx.getTxState().ordinal());
 		buff.putLong(xtx.getTxId());
 		buff.putLong(xtx.getStartedAt());

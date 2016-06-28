@@ -11,7 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bagri.xdm.cache.hazelcast.management.UserManagement;
-import com.bagri.xdm.system.XDMUser;
+import com.bagri.xdm.system.User;
 
 
 public class BagriJMXAuthenticator implements JMXAuthenticator {

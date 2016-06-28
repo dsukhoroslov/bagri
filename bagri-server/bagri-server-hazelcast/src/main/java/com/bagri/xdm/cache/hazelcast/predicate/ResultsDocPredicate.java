@@ -6,13 +6,13 @@ import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryI
 import java.io.IOException;
 import java.util.Map.Entry;
 
-import com.bagri.xdm.domain.XDMResults;
+import com.bagri.xdm.domain.QueryResult;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 import com.hazelcast.query.Predicate;
 
-public class ResultsDocPredicate implements Predicate<Long, XDMResults>, IdentifiedDataSerializable { 
+public class ResultsDocPredicate implements Predicate<Long, QueryResult>, IdentifiedDataSerializable { 
 	
 	/**
 	 * 
@@ -41,7 +41,7 @@ public class ResultsDocPredicate implements Predicate<Long, XDMResults>, Identif
 	}
 
 	@Override
-	public boolean apply(Entry<Long, XDMResults> resEntry) {
+	public boolean apply(Entry<Long, QueryResult> resEntry) {
 		return resEntry.getValue().getDocIds().contains(docId);
 	}
 	

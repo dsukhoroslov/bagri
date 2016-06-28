@@ -1,8 +1,8 @@
 package com.bagri.xdm.cache.api;
 
 import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.domain.XDMPath;
-import com.bagri.xdm.system.XDMIndex;
+import com.bagri.xdm.domain.Path;
+import com.bagri.xdm.system.Index;
 
 /**
  * manages schema indices in internal cache, performs translations between indices and pats
@@ -23,20 +23,20 @@ public interface XDMIndexManagement {
 	/**
 	 * registers a new index
 	 * 
-	 * @param index: XDMIndex; the new {@link XDMIndex} structure to register in parent XDM Schema
-	 * @return an array of registered {@link XDMPath} being indexed 
+	 * @param index: XDMIndex; the new {@link Index} structure to register in parent XDM Schema
+	 * @return an array of registered {@link Path} being indexed 
 	 * @throws XDMException in case of any error
 	 */
-	XDMPath[] createIndex(XDMIndex index) throws XDMException;
+	Path[] createIndex(Index index) throws XDMException;
 	
 	/**
 	 * removes an existing index
 
-	 * @param index: XDMIndex; the {@link XDMIndex} structure to be removed from the parent XDM Schema
-	 * @return an array of registered {@link XDMPath} which were affected by the index
+	 * @param index: XDMIndex; the {@link Index} structure to be removed from the parent XDM Schema
+	 * @return an array of registered {@link Path} which were affected by the index
 	 * @throws XDMException in case of any error  
 	 */
-	XDMPath[] dropIndex(XDMIndex index) throws XDMException;
+	Path[] dropIndex(Index index) throws XDMException;
 
 	/**
 	 * rebuilds index

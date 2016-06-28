@@ -23,7 +23,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.bagri.xdm.api.test.XDMManagementTest;
 import com.bagri.xdm.client.hazelcast.impl.ResultCursor;
-import com.bagri.xdm.system.XDMSchema;
+import com.bagri.xdm.system.Schema;
 import com.bagri.xquery.api.XQProcessor;
 
 public class XMarkQueryTest extends XDMManagementTest {
@@ -54,9 +54,9 @@ public class XMarkQueryTest extends XDMManagementTest {
 		xRepo = context.getBean(RepositoryImpl.class);
 		RepositoryImpl xdmRepo = (RepositoryImpl) xRepo; 
 		xqProc = context.getBean("xqProcessor", XQProcessor.class);
-		XDMSchema schema = xdmRepo.getSchema();
+		Schema schema = xdmRepo.getSchema();
 		if (schema == null) {
-			schema = new XDMSchema(1, new java.util.Date(), "test", "test", "test schema", true, null);
+			schema = new Schema(1, new java.util.Date(), "test", "test", "test schema", true, null);
 			xdmRepo.setSchema(schema);
 			
 			long txId = getTxManagement().beginTransaction();

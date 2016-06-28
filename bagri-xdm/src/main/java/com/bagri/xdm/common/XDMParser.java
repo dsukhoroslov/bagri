@@ -7,7 +7,7 @@ import java.io.Reader;
 import java.util.List;
 
 import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.domain.XDMData;
+import com.bagri.xdm.domain.Data;
 
 /**
  * Convert Document's content to its internal XDM data representation. A counterpart to XDMBuilder interface.
@@ -25,7 +25,7 @@ public interface XDMParser {
 	 * @return the list of parsed data elements 
 	 * @throws XDMException in case of parsing error
 	 */
-	List<XDMData> parse(String source) throws XDMException;
+	List<Data> parse(String source) throws XDMException;
 	
 	/**
 	 * 
@@ -33,7 +33,7 @@ public interface XDMParser {
 	 * @return the list of parsed data elements
 	 * @throws XDMException in case of parsing error
 	 */
-	List<XDMData> parse(File file) throws XDMException;
+	List<Data> parse(File file) throws XDMException;
 	
 	/**
 	 * 
@@ -41,7 +41,7 @@ public interface XDMParser {
 	 * @return the list of parsed data elements
 	 * @throws XDMException in case of parsing error
 	 */
-	List<XDMData> parse(InputStream stream) throws XDMException;
+	List<Data> parse(InputStream stream) throws XDMException;
 	
 	/**
 	 * 
@@ -49,6 +49,6 @@ public interface XDMParser {
 	 * @return the list of parsed data elements
 	 * @throws XDMException in case of parsing error
 	 */
-	List<XDMData> parse(Reader reader) throws XDMException;
+	List<Data> parse(Reader reader) throws XDMException;
 	
 }

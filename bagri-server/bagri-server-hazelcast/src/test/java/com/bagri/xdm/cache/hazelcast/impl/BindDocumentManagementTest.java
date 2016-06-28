@@ -22,8 +22,8 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import com.bagri.xdm.api.test.XDMManagementTest;
 import com.bagri.xdm.cache.hazelcast.bean.SampleBean;
 import com.bagri.xdm.client.hazelcast.impl.ResultCursor;
-import com.bagri.xdm.domain.XDMDocument;
-import com.bagri.xdm.system.XDMSchema;
+import com.bagri.xdm.domain.Document;
+import com.bagri.xdm.system.Schema;
 
 public class BindDocumentManagementTest extends XDMManagementTest {
 	
@@ -50,9 +50,9 @@ public class BindDocumentManagementTest extends XDMManagementTest {
 	public void setUp() throws Exception {
 		xRepo = context.getBean(RepositoryImpl.class);
 		RepositoryImpl xdmRepo = (RepositoryImpl) xRepo; 
-		XDMSchema schema = xdmRepo.getSchema();
+		Schema schema = xdmRepo.getSchema();
 		if (schema == null) {
-			schema = new XDMSchema(1, new java.util.Date(), "test", "test", "test schema", true, null);
+			schema = new Schema(1, new java.util.Date(), "test", "test", "test schema", true, null);
 			xdmRepo.setSchema(schema);
 		}
 	}
@@ -67,7 +67,7 @@ public class BindDocumentManagementTest extends XDMManagementTest {
 	public void createBeanDocumentTest() throws Exception {
 		long txId = xRepo.getTxManagement().beginTransaction();
 		SampleBean sb1 = new SampleBean(1, false, "XYZ");
-		XDMDocument bDoc = xRepo.getDocumentManagement().storeDocumentFromBean("bean_test", sb1, null);
+		Document bDoc = xRepo.getDocumentManagement().storeDocumentFromBean("bean_test", sb1, null);
 		assertNotNull(bDoc);
 		uris.add(bDoc.getUri());
 		xRepo.getTxManagement().commitTransaction(txId);
@@ -88,7 +88,7 @@ public class BindDocumentManagementTest extends XDMManagementTest {
 		m1.put("intProp", 1); 
 		m1.put("boolProp", Boolean.FALSE);
 		m1.put("strProp", "XYZ");
-		XDMDocument mDoc = xRepo.getDocumentManagement().storeDocumentFromMap("map_test1", m1, null);
+		Document mDoc = xRepo.getDocumentManagement().storeDocumentFromMap("map_test1", m1, null);
 		assertNotNull(mDoc);
 		assertEquals(txId, mDoc.getTxStart());
 		uris.add(mDoc.getUri());
@@ -146,7 +146,7 @@ public class BindDocumentManagementTest extends XDMManagementTest {
         		"</map>";
 		
 		long txId = xRepo.getTxManagement().beginTransaction();
-		XDMDocument mDoc = xRepo.getDocumentManagement().storeDocumentFromString("map.xml", xml, null);
+		Document mDoc = xRepo.getDocumentManagement().storeDocumentFromString("map.xml", xml, null);
 		assertNotNull(mDoc);
 		assertEquals(txId, mDoc.getTxStart());
 		uris.add(mDoc.getUri());

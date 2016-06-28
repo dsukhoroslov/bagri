@@ -21,7 +21,7 @@ import com.bagri.common.util.JMXUtils;
 import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.cache.api.XDMCacheConstants;
 import com.bagri.xdm.common.XDMEntity;
-import com.bagri.xdm.system.XDMSchema;
+import com.bagri.xdm.system.Schema;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.Member;
@@ -144,14 +144,14 @@ public abstract class SchemaFeatureManagement implements SelfNaming {
 		logger.trace("resetStatistics.exit; reset stats on {} nodes", cnt);
 	}
 	
-	protected Collection<XDMEntity> getSchemaFeatures(XDMSchema schema) {
+	protected Collection<XDMEntity> getSchemaFeatures(Schema schema) {
 		return null;
 	}
 
 	protected TabularData getTabularFeatures(String name, String desc, String key) {
 
 		logger.trace("getTabularFeatures.enter; schemaManager: {}", schemaManager);
-		XDMSchema schema = schemaManager.getEntity();
+		Schema schema = schemaManager.getEntity();
 		Collection<XDMEntity> features = getSchemaFeatures(schema); 
 		if (features == null || features.size() == 0) {
 			return null;

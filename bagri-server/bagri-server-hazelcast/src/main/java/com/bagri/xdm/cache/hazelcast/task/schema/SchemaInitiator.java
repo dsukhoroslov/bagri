@@ -18,7 +18,7 @@ import org.springframework.core.env.PropertiesPropertySource;
 import com.bagri.xdm.cache.api.XDMRepository;
 import com.bagri.xdm.cache.hazelcast.impl.PopulationManagementImpl;
 import com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl;
-import com.bagri.xdm.system.XDMSchema;
+import com.bagri.xdm.system.Schema;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.nio.ObjectDataInput;
@@ -30,13 +30,13 @@ import com.hazelcast.spring.context.SpringAware;
 public class SchemaInitiator implements Callable<Boolean>, IdentifiedDataSerializable { //extends SchemaDenitiator {
 
 	protected final transient Logger logger = LoggerFactory.getLogger(SchemaInitiator.class);
-	private XDMSchema schema;
+	private Schema schema;
 	
 	public SchemaInitiator() {
 		//
 	}
 
-	public SchemaInitiator(XDMSchema schema) {
+	public SchemaInitiator(Schema schema) {
 		this.schema = schema;
 	}
 

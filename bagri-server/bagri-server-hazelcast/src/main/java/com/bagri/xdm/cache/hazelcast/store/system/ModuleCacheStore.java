@@ -10,32 +10,32 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.bagri.xdm.system.XDMModule;
+import com.bagri.xdm.system.Module;
 import com.hazelcast.core.MapStore;
 
 import static com.bagri.common.util.FileUtils.*;
 
-public class ModuleCacheStore extends ConfigCacheStore<String, XDMModule> implements MapStore<String, XDMModule> {
+public class ModuleCacheStore extends ConfigCacheStore<String, Module> implements MapStore<String, Module> {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	protected Map<String, XDMModule> loadEntities() {
-		Collection<XDMModule> modules = (Collection<XDMModule>) cfg.getEntities(XDMModule.class); 
-		Map<String, XDMModule> result = new HashMap<String, XDMModule>(modules.size());
-		for (XDMModule module: modules) {
+	protected Map<String, Module> loadEntities() {
+		Collection<Module> modules = (Collection<Module>) cfg.getEntities(Module.class); 
+		Map<String, Module> result = new HashMap<String, Module>(modules.size());
+		for (Module module: modules) {
 			result.put(module.getName(), module);
 	    }
 		return result;
 	}
 
 	@Override
-	protected void storeEntities(Map<String, XDMModule> entities) {
-		cfg.setEntities(XDMModule.class, entities.values());
+	protected void storeEntities(Map<String, Module> entities) {
+		cfg.setEntities(Module.class, entities.values());
 	}
 
 	// TODO: add relative path handling
 	
-	private void deleteModule(XDMModule module) {
+	private void deleteModule(Module module) {
     	Path path = Paths.get(module.getFileName());
 		try {
 			Files.deleteIfExists(path);
@@ -44,7 +44,7 @@ public class ModuleCacheStore extends ConfigCacheStore<String, XDMModule> implem
 		}
 	}
 	
-	public static XDMModule loadModule(XDMModule module) throws IOException {
+	public static Module loadModule(Module module) throws IOException {
 		if (module == null) {
 			return null;
 		}
@@ -54,7 +54,7 @@ public class ModuleCacheStore extends ConfigCacheStore<String, XDMModule> implem
 		return module;
 	}
 
-	private void storeModule(XDMModule module) {
+	private void storeModule(Module module) {
 		try {
 			writeTextFile(module.getFileName(), module.getBody());
 		} catch (IOException ex) {
@@ -63,8 +63,8 @@ public class ModuleCacheStore extends ConfigCacheStore<String, XDMModule> implem
 	}
 	
 	@Override
-	public XDMModule load(String key) {
-		XDMModule module = super.load(key);
+	public Module load(String key) {
+		Module module = super.load(key);
 		try {
 			return loadModule(module);
 		} catch (IOException ex) {
@@ -74,9 +74,9 @@ public class ModuleCacheStore extends ConfigCacheStore<String, XDMModule> implem
 	}
 
 	@Override
-	public Map<String, XDMModule> loadAll(Collection<String> keys) {
-		Map<String, XDMModule> result = super.loadAll(keys);
-		for (XDMModule module: result.values()) {
+	public Map<String, Module> loadAll(Collection<String> keys) {
+		Map<String, Module> result = super.loadAll(keys);
+		for (Module module: result.values()) {
 			try {
 				loadModule(module);
 			} catch (IOException ex) {
@@ -87,22 +87,22 @@ public class ModuleCacheStore extends ConfigCacheStore<String, XDMModule> implem
 	}
 
 	@Override
-	public void store(String key, XDMModule value) {
+	public void store(String key, Module value) {
 		super.store(key, value);
 		storeModule(value);
 	}
 	
 	@Override
-	public void storeAll(Map<String, XDMModule> map) {
+	public void storeAll(Map<String, Module> map) {
 		super.storeAll(map);
-		for (XDMModule module: map.values()) {
+		for (Module module: map.values()) {
 			storeModule(module);
 		}
 	}
 	
 	@Override
 	public void delete(String key) {
-		XDMModule module = entities.get(key);
+		Module module = entities.get(key);
 		super.delete(key);
 		if (module != null && !entities.containsKey(key)) {
 			deleteModule(module);
@@ -111,15 +111,15 @@ public class ModuleCacheStore extends ConfigCacheStore<String, XDMModule> implem
 	
 	@Override
 	public void deleteAll(Collection<String> keys) {
-		List<XDMModule> modules = new ArrayList<>(keys.size());
+		List<Module> modules = new ArrayList<>(keys.size());
 		for (String key: keys) {
-			XDMModule module = entities.get(key);
+			Module module = entities.get(key);
 			if (module != null) {
 				modules.add(module);
 			}
 		}
 		super.deleteAll(keys);
-		for (XDMModule module: modules) {
+		for (Module module: modules) {
 			if (!entities.containsKey(module.getName())) {
 				deleteModule(module);
 			}

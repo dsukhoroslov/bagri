@@ -7,7 +7,7 @@ import java.util.Date;
 import java.util.Properties;
 import java.util.Map.Entry;
 
-import com.bagri.xdm.system.XDMNode;
+import com.bagri.xdm.system.Node;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
@@ -28,11 +28,11 @@ public class NodeCreator extends NodeProcessor implements IdentifiedDataSerializ
 	}
 
 	@Override
-	public Object process(Entry<String, XDMNode> entry) {
+	public Object process(Entry<String, Node> entry) {
 		logger.debug("process.enter; entry: {}", entry); 
 		if (entry.getValue() == null) {
 			String nodeId = entry.getKey();
-			XDMNode node = new XDMNode(getVersion(), new Date(), getAdmin(), name, options);
+			Node node = new Node(getVersion(), new Date(), getAdmin(), name, options);
 			entry.setValue(node);
 			auditEntity(AuditType.create, node);
 			return node;

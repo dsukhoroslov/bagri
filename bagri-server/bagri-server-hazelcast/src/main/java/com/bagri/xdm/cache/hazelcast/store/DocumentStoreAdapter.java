@@ -7,12 +7,12 @@ import java.util.Properties;
 
 import com.bagri.xdm.common.XDMDocumentStore;
 import com.bagri.xdm.common.XDMDocumentKey;
-import com.bagri.xdm.domain.XDMDocument;
+import com.bagri.xdm.domain.Document;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.MapLoaderLifecycleSupport;
 import com.hazelcast.core.MapStore;
 
-public class DocumentStoreAdapter implements MapStore<XDMDocumentKey, XDMDocument>, MapLoaderLifecycleSupport {
+public class DocumentStoreAdapter implements MapStore<XDMDocumentKey, Document>, MapLoaderLifecycleSupport {
 	
 	private XDMDocumentStore extStore;
 	
@@ -38,12 +38,12 @@ public class DocumentStoreAdapter implements MapStore<XDMDocumentKey, XDMDocumen
 	}
 
 	@Override
-	public XDMDocument load(XDMDocumentKey key) {
+	public Document load(XDMDocumentKey key) {
 		return extStore.loadDocument(key);
 	}
 
 	@Override
-	public Map<XDMDocumentKey, XDMDocument> loadAll(Collection<XDMDocumentKey> keys) {
+	public Map<XDMDocumentKey, Document> loadAll(Collection<XDMDocumentKey> keys) {
 		return extStore.loadAllDocuments(keys);
 	}
 
@@ -53,12 +53,12 @@ public class DocumentStoreAdapter implements MapStore<XDMDocumentKey, XDMDocumen
 	}
 
 	@Override
-	public void store(XDMDocumentKey key, XDMDocument value) {
+	public void store(XDMDocumentKey key, Document value) {
 		extStore.storeDocument(key, value);
 	}
 
 	@Override
-	public void storeAll(Map<XDMDocumentKey, XDMDocument> map) {
+	public void storeAll(Map<XDMDocumentKey, Document> map) {
 		extStore.storeAllDocuments(map);
 	}
 

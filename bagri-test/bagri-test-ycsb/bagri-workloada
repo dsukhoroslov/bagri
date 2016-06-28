@@ -36,7 +36,7 @@ insertproportion=0
 
 requestdistribution=zipfian
 
-db=com.bagri.client.ycsb.BagriClient
+db=com.bagri.test.ycsb.BagriClient
 schema=YCSB
 address=localhost:10150
 user=guest

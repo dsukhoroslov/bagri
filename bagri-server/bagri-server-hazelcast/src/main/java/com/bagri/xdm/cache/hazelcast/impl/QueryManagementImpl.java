@@ -51,11 +51,11 @@ import com.bagri.xdm.common.query.ExpressionContainer;
 import com.bagri.xdm.common.query.PathExpression;
 import com.bagri.xdm.common.query.QueriedPath;
 import com.bagri.xdm.common.query.QueryBuilder;
-import com.bagri.xdm.domain.XDMDocument;
-import com.bagri.xdm.domain.XDMElements;
-import com.bagri.xdm.domain.XDMPath;
-import com.bagri.xdm.domain.XDMQuery;
-import com.bagri.xdm.domain.XDMResults;
+import com.bagri.xdm.domain.Document;
+import com.bagri.xdm.domain.Elements;
+import com.bagri.xdm.domain.Path;
+import com.bagri.xdm.domain.Query;
+import com.bagri.xdm.domain.QueryResult;
 import com.bagri.xquery.api.XQProcessor;
 import com.bagri.xquery.saxon.XQIterator;
 import com.hazelcast.core.IMap;
@@ -75,11 +75,11 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
     private boolean enableStats = true;
 	private BlockingQueue<StatisticsEvent> queue;
 	
-    private ReplicatedMap<Integer, XDMQuery> xqCache;
-    private IMap<Long, XDMResults> xrCache;
+    private ReplicatedMap<Integer, Query> xqCache;
+    private IMap<Long, QueryResult> xrCache;
     
-    private IMap<XDMDataKey, XDMElements> xdmCache;
-	private IMap<XDMDocumentKey, XDMDocument> xddCache;
+    private IMap<XDMDataKey, Elements> xdmCache;
+	private IMap<XDMDocumentKey, Document> xddCache;
     
 	private StopWatch stopWatch;
 	private BlockingQueue<StatisticsEvent> timeQueue;
@@ -108,12 +108,12 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
     	docMgr.setRepository(repo);
     }
 
-    public void setQueryCache(ReplicatedMap<Integer, XDMQuery> cache) {
+    public void setQueryCache(ReplicatedMap<Integer, Query> cache) {
     //public void setQueryCache(IMap<Integer, XDMQuery> cache) {
     	this.xqCache = cache;
     }
     
-    public void setResultCache(IMap<Long, XDMResults> cache) {
+    public void setResultCache(IMap<Long, QueryResult> cache) {
     	this.xrCache = cache;
     }
     
@@ -142,10 +142,10 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
     }
 
 	@Override
-	public XDMQuery getQuery(String query) {
+	public Query getQuery(String query) {
 		Integer qCode = getQueryKey(query);
 		//XDMQuery result = xQueries.get(qCode);
-		XDMQuery result = xqCache.get(qCode);
+		Query result = xqCache.get(qCode);
 		if (result != null) {
 		//	result = xqCache.get(qCode);
 		//} else {
@@ -161,7 +161,7 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 		Integer qKey = getQueryKey(query);
 		//logger.trace("addQuery.enter; got code: {}; query cache size: {}", qCode, xQueries.size());
 		//boolean result = xqCache.putIfAbsent(qCode, new XDMQuery(query, readOnly, xdmQuery)) == null;
-		boolean result = xqCache.put(qKey, new XDMQuery(query, readOnly, xdmQuery)) == null;
+		boolean result = xqCache.put(qKey, new Query(query, readOnly, xdmQuery)) == null;
 		logger.trace("addQuery.exit; returning: {}", result);
 		return result;
 	}
@@ -176,7 +176,7 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 		// TODO: also specify: do we care about unique indexes or not..
 		logger.trace("getQueriesForPaths.enter; got pathIds: {}; query cache size: {}", pathIds, xqCache.size());
 		Set<Integer> result = new HashSet<>();
-		for (Map.Entry<Integer, XDMQuery> e: xqCache.entrySet()) {
+		for (Map.Entry<Integer, Query> e: xqCache.entrySet()) {
 			for (ExpressionContainer ec: e.getValue().getXdmQuery().getContainers()) {
 				boolean foundPath = false;
 				for (Expression ex: ec.getBuilder().getExpressions()) {
@@ -208,7 +208,7 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 		//QueryParamsKey qpKey = getResultsKey(query, params);
 		long qpKey = getResultsKey(query, params);
 		logger.trace("getQueryResults; got result key: {}; parts: {}", qpKey, getResultsKeyParts(qpKey));
-		XDMResults xqr = xrCache.get(qpKey);
+		QueryResult xqr = xrCache.get(qpKey);
 		//XDMResults xqr = xResults.get(qpKey);
 		Iterator<?> result = null;
 		if (xqr != null) {
@@ -241,7 +241,7 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 			logger.warn("addQueryResults; got empty results but docs were found: {}", ctx.getDocIds());
 			return results;
 		}
-		XDMResults xqr = new XDMResults(params, ctx.getDocIds(), resList);
+		QueryResult xqr = new QueryResult(params, ctx.getDocIds(), resList);
 		//XDMResults oldRes = 
 		xrCache.putAsync(qpKey, xqr);
 		//xResults.put(qpKey, xqr);
@@ -400,13 +400,13 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 				if (paths.size() > 0) {
 					Integer[] pa = paths.toArray(new Integer[paths.size()]); 
 					pp = Predicates.in("pathId", pa);
-					XDMPath xPath = model.getPath(pa[0]);
+					Path xPath = model.getPath(pa[0]);
 					dataType = xPath.getDataType();
 				}
 			} else {
 				String path = pex.getFullPath();
 				logger.trace("queryPathKeys; path: {}; comparison: {}", path, pex.getCompType());
-				XDMPath xPath = model.getPath(path);
+				Path xPath = model.getPath(path);
 				if (xPath != null) {
 					paths = new HashSet<>(1);
 					pp = Predicates.equal("pathId", xPath.getPathId());
@@ -462,7 +462,7 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 		} else {
 			qp = new DocsAwarePredicate(pex, newVal, found);
 		}			
-		Predicate<XDMDataKey, XDMElements> f = Predicates.and(pp, qp);
+		Predicate<XDMDataKey, Elements> f = Predicates.and(pp, qp);
 	   	Set<XDMDataKey> xdmKeys = xdmCache.keySet(f);
 		logger.trace("queryPathKeys; got {} query results", xdmKeys.size()); 
 		result = new HashSet<>(xdmKeys.size());
@@ -540,7 +540,7 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 		Collection<Long> keys = getDocumentKeys(query, params, props);
 		List<String> result = new ArrayList<>(keys.size());
 		for (Long docKey: keys) {
-			XDMDocument doc = docMgr.getDocument(docKey);
+			Document doc = docMgr.getDocument(docKey);
 			result.add(doc.getUri());
 		}
 		logger.trace("getDocumentUris.exit; returning: {}", result);
@@ -568,7 +568,7 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 		}
 		
 		Integer qCode = getQueryKey(query);
-		XDMQuery xQuery = xqCache.get(qCode);
+		Query xQuery = xqCache.get(qCode);
 		//XDMQuery xQuery = this.getQuery(query);
 		if (xQuery == null) {
 			//not cached yet, returning false, just to be safe..

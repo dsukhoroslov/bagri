@@ -18,8 +18,8 @@ import com.bagri.xdm.cache.hazelcast.task.role.RoleCreator;
 import com.bagri.xdm.cache.hazelcast.task.role.RoleRemover;
 import com.bagri.xdm.cache.hazelcast.task.user.UserCreator;
 import com.bagri.xdm.cache.hazelcast.task.user.UserRemover;
-import com.bagri.xdm.system.XDMRole;
-import com.bagri.xdm.system.XDMUser;
+import com.bagri.xdm.system.Role;
+import com.bagri.xdm.system.User;
 import com.hazelcast.core.HazelcastInstance;
 
 /**
@@ -28,7 +28,7 @@ import com.hazelcast.core.HazelcastInstance;
  */
 @ManagedResource(objectName="com.bagri.xdm:type=Management,name=RoleManagement", 
 	description="Role Management MBean")
-public class RoleManagement extends EntityManagement<XDMRole> {
+public class RoleManagement extends EntityManagement<Role> {
 
 	public RoleManagement(HazelcastInstance hzInstance) {
 		//
@@ -63,7 +63,7 @@ public class RoleManagement extends EntityManagement<XDMRole> {
 		@ManagedOperationParameter(name = "name", description = "Role name")})
 	public boolean deleteRole(String name) {
 		//return userCache.remove(login) != null;
-		XDMRole role = entityCache.get(name);
+		Role role = entityCache.get(name);
 		if (role != null) {
 	    	Object result = entityCache.executeOnKey(name, new RoleRemover(role.getVersion(), getCurrentUser()));
 	    	logger.debug("deleteRole; execution result: {}", result);
@@ -73,7 +73,7 @@ public class RoleManagement extends EntityManagement<XDMRole> {
 	}
 
 	@Override
-	protected EntityManager<XDMRole> createEntityManager(String roleName) {
+	protected EntityManager<Role> createEntityManager(String roleName) {
 		RoleManager mgr = new RoleManager(hzInstance, roleName);
 		mgr.setEntityCache(entityCache);
 		return mgr;

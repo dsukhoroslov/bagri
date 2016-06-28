@@ -11,13 +11,12 @@ import javax.xml.xquery.XQItem;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
 
 import com.bagri.common.util.XMLUtils;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.XDMRepository;
-import com.bagri.xdm.domain.XDMDocument;
-import com.bagri.xdm.domain.XDMTrigger;
+import com.bagri.xdm.cache.api.XDMTrigger;
+import com.bagri.xdm.domain.Document;
 import com.bagri.xquery.api.XQProcessor;
 
 public class XQueryTriggerImpl implements XDMTrigger {
@@ -31,46 +30,46 @@ public class XQueryTriggerImpl implements XDMTrigger {
 	}
 
 	@Override
-	public void beforeInsert(XDMDocument doc, XDMRepository repo) throws XDMException {
+	public void beforeInsert(Document doc, XDMRepository repo) throws XDMException {
 		runTrigger(doc, (RepositoryImpl) repo);
 	} 
 
 	@Override
-	public void afterInsert(XDMDocument doc, XDMRepository repo) throws XDMException {
+	public void afterInsert(Document doc, XDMRepository repo) throws XDMException {
 		runTrigger(doc, (RepositoryImpl) repo);
 	}
 
 	@Override
-	public void beforeUpdate(XDMDocument doc, XDMRepository repo) throws XDMException {
+	public void beforeUpdate(Document doc, XDMRepository repo) throws XDMException {
 		runTrigger(doc, (RepositoryImpl) repo);
 	}
 
 	@Override
-	public void afterUpdate(XDMDocument doc, XDMRepository repo) throws XDMException {
+	public void afterUpdate(Document doc, XDMRepository repo) throws XDMException {
 		runTrigger(doc, (RepositoryImpl) repo);
 	}
 
 	@Override
-	public void beforeDelete(XDMDocument doc, XDMRepository repo) throws XDMException {
+	public void beforeDelete(Document doc, XDMRepository repo) throws XDMException {
 		runTrigger(doc, (RepositoryImpl) repo);
 	}
 
 	@Override
-	public void afterDelete(XDMDocument doc, XDMRepository repo) throws XDMException {
+	public void afterDelete(Document doc, XDMRepository repo) throws XDMException {
 		runTrigger(doc, (RepositoryImpl) repo);
 	}
 	
-	private void runTrigger(XDMDocument doc, RepositoryImpl repo) throws XDMException {
+	private void runTrigger(Document doc, RepositoryImpl repo) throws XDMException {
 		XQProcessor xqp = repo.getXQProcessor();
 		QName var = new QName("doc");
 		try {
 			String xml = repo.getDocumentManagement().getDocumentAsString(doc.getUri());
-			Document xDoc = XMLUtils.textToDocument(xml);
+			org.w3c.dom.Document xDoc = XMLUtils.textToDocument(xml);
 			XQDataFactory xqFactory = xqp.getXQDataFactory();
 			XQItem item = xqFactory.createItemFromNode(xDoc, xqFactory.createDocumentType());
 			xqp.bindVariable(var, item);
 			Properties props = new Properties();
-			Iterator iter = xqp.executeXQuery(query, props);
+			Iterator<?> iter = xqp.executeXQuery(query, props);
 			if (logger.isTraceEnabled()) {
 				while (iter.hasNext()) {
 					logger.trace("runTrigger; result: {}", iter.next()); 

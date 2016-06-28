@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.util.Map.Entry;
 
 import com.bagri.common.security.Encryptor;
-import com.bagri.xdm.system.XDMUser;
+import com.bagri.xdm.system.User;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
@@ -27,10 +27,10 @@ public class UserUpdater extends UserProcessor implements IdentifiedDataSerializ
 	}
 
 	@Override
-	public Object process(Entry<String, XDMUser> entry) {
+	public Object process(Entry<String, User> entry) {
 		logger.debug("process.enter; entry: {}", entry); 
 		if (entry.getValue() != null) {
-			XDMUser user = entry.getValue();
+			User user = entry.getValue();
 			if (user.getVersion() == getVersion()) {
 				String pwd = Encryptor.encrypt(oldPassword);
 				if (pwd.equals(user.getPassword())) {

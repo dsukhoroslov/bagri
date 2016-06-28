@@ -4,7 +4,7 @@ import static com.bagri.xdm.cache.hazelcast.serialize.DataSerializationFactoryIm
 
 import java.util.Map.Entry;
 
-import com.bagri.xdm.system.XDMDataFormat;
+import com.bagri.xdm.system.DataFormat;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
 public class DataFormatRemover extends DataFormatProcessor implements IdentifiedDataSerializable {
@@ -18,10 +18,10 @@ public class DataFormatRemover extends DataFormatProcessor implements Identified
 	}
 
 	@Override
-	public Object process(Entry<String, XDMDataFormat> entry) {
+	public Object process(Entry<String, DataFormat> entry) {
 		logger.debug("process.enter; entry: {}", entry); 
 		if (entry.getValue() != null) {
-			XDMDataFormat format = entry.getValue();
+			DataFormat format = entry.getValue();
 			if (format.getVersion() == getVersion()) {
 				entry.setValue(null);
 				auditEntity(AuditType.delete, format);

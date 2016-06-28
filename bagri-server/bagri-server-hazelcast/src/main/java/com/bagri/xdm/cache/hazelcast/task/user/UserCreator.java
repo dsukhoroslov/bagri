@@ -7,7 +7,7 @@ import java.util.Date;
 import java.util.Map.Entry;
 
 import com.bagri.common.security.Encryptor;
-import com.bagri.xdm.system.XDMUser;
+import com.bagri.xdm.system.User;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
@@ -26,12 +26,12 @@ public class UserCreator extends UserProcessor implements IdentifiedDataSerializ
 	}
 
 	@Override
-	public Object process(Entry<String, XDMUser> entry) {
+	public Object process(Entry<String, User> entry) {
 		logger.debug("process.enter; entry: {}", entry); 
 		if (entry.getValue() == null) {
 			String login = entry.getKey();
 			String pwd = Encryptor.encrypt(password);
-			XDMUser user = new XDMUser(getVersion(), new Date(), getAdmin(), null, null, login, pwd, true);
+			User user = new User(getVersion(), new Date(), getAdmin(), null, null, login, pwd, true);
 			entry.setValue(user);
 			auditEntity(AuditType.create, user);
 			return user;

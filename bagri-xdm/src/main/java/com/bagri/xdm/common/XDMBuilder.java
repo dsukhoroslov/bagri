@@ -4,7 +4,7 @@ import java.io.InputStream;
 import java.util.Map;
 
 import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.domain.XDMElements;
+import com.bagri.xdm.domain.Elements;
 
 /**
  * Converts internal XDM data representation to plain text representation. A counterpart to XDMParser interface.
@@ -22,7 +22,7 @@ public interface XDMBuilder {
 	 * @return String content representation 
 	 * @throws XDMException in case of any conversion error
 	 */
-    String buildString(Map<XDMDataKey, XDMElements> elements) throws XDMException;
+    String buildString(Map<XDMDataKey, Elements> elements) throws XDMException;
     
     /**
      * 
@@ -30,6 +30,6 @@ public interface XDMBuilder {
      * @return InputStream content representation 
      * @throws XDMException in case of any conversion error
      */
-    InputStream buildStream(Map<XDMDataKey, XDMElements> elements) throws XDMException; 
+    InputStream buildStream(Map<XDMDataKey, Elements> elements) throws XDMException; 
 	
 }

@@ -31,14 +31,14 @@ import com.bagri.xdm.common.query.Comparison;
 import com.bagri.xdm.common.query.PathBuilder;
 import com.bagri.xdm.common.query.PathExpression;
 import com.bagri.xdm.common.XDMIndexKey;
-import com.bagri.xdm.domain.XDMIndexedDocument;
-import com.bagri.xdm.domain.XDMIndexedValue;
-import com.bagri.xdm.domain.XDMNodeKind;
-import com.bagri.xdm.domain.XDMOccurrence;
-import com.bagri.xdm.domain.XDMPath;
-import com.bagri.xdm.domain.XDMUniqueDocument;
-import com.bagri.xdm.domain.XDMUniqueValue;
-import com.bagri.xdm.system.XDMIndex;
+import com.bagri.xdm.domain.IndexedDocument;
+import com.bagri.xdm.domain.IndexedValue;
+import com.bagri.xdm.domain.NodeKind;
+import com.bagri.xdm.domain.Occurrence;
+import com.bagri.xdm.domain.Path;
+import com.bagri.xdm.domain.UniqueDocument;
+import com.bagri.xdm.domain.UniqueValue;
+import com.bagri.xdm.system.Index;
 import com.bagri.xquery.api.XQUtils;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.IMap;
@@ -49,11 +49,11 @@ import com.hazelcast.query.Predicates;
 public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsProvider {
 	
 	private static final transient Logger logger = LoggerFactory.getLogger(IndexManagementImpl.class);
-	private ReplicatedMap<Integer, XDMIndex> idxDict;
-    private IMap<XDMIndexKey, XDMIndexedValue> idxCache;
+	private ReplicatedMap<Integer, Index> idxDict;
+    private IMap<XDMIndexKey, IndexedValue> idxCache;
 	//private IExecutorService execService;
 	private Map<Integer, TreeMap<Comparable, Integer>> rangeIndex = new HashMap<>();
-	private Map<XDMIndex, Pattern> patterns = new HashMap<>();
+	private Map<Index, Pattern> patterns = new HashMap<>();
 
 	private XDMKeyFactory factory;
     private ModelManagementImpl mdlMgr;
@@ -67,11 +67,11 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 		return this.mdlMgr;
 	}
 	
-	protected Map<Integer, XDMIndex> getIndexDictionary() {
+	protected Map<Integer, Index> getIndexDictionary() {
 		return idxDict;
 	}
 	
-    IMap<XDMIndexKey, XDMIndexedValue> getIndexCache() {
+    IMap<XDMIndexKey, IndexedValue> getIndexCache() {
     	return idxCache;
     }
 
@@ -79,11 +79,11 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
     //	this.xdmCache = xdmCache;
     //}
     
-	public void setIndexDictionary(ReplicatedMap<Integer, XDMIndex> idxDict) {
+	public void setIndexDictionary(ReplicatedMap<Integer, Index> idxDict) {
 		this.idxDict = idxDict;
 	}
 	
-    public void setIndexCache(IMap<XDMIndexKey, XDMIndexedValue> idxCache) {
+    public void setIndexCache(IMap<XDMIndexKey, IndexedValue> idxCache) {
     	this.idxCache = idxCache;
     }
     
@@ -142,7 +142,7 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 	}
 
 	public boolean isIndexEnabled(int pathId) {
-		XDMIndex idx = idxDict.get(pathId);
+		Index idx = idxDict.get(pathId);
 		if (idx != null) {
 			return idx.isEnabled();
 		}
@@ -150,9 +150,9 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 	}
 	
 	@Override
-	public XDMPath[] createIndex(XDMIndex index) throws XDMException {
+	public Path[] createIndex(Index index) throws XDMException {
 		Set<Integer> paths = getPathsForIndex(index);
-		XDMPath[] result = new XDMPath[paths.size()];
+		Path[] result = new Path[paths.size()];
 		int idx = 0;
 		for (Integer pathId: paths) {
 			//idxDict.putIfAbsent(pathId, index);
@@ -173,10 +173,10 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 	}
 	
 	@Override
-	public XDMPath[] dropIndex(XDMIndex index) throws XDMException {
+	public Path[] dropIndex(Index index) throws XDMException {
 		// we must not do translate here!
 		Set<Integer> paths = getPathsForIndex(index);
-		XDMPath[] result = new XDMPath[paths.size()];
+		Path[] result = new Path[paths.size()];
 		int idx = 0;
 		for (Integer pathId: paths) {
 			idxDict.remove(pathId);
@@ -192,7 +192,7 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 		return result;
 	}
 	
-	private Set<Integer> getPathsForIndex(XDMIndex index) throws XDMException {
+	private Set<Integer> getPathsForIndex(Index index) throws XDMException {
 		int docType = mdlMgr.translateDocumentType(index.getDocumentType());
 		String path = index.getPath();
 		Set<Integer> result;
@@ -201,7 +201,7 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 			result = mdlMgr.translatePathFromRegex(docType, PathBuilder.regexFromPath(path));
 		} else {
 			int dataType = XQUtils.getBaseTypeForTypeName(index.getDataType());
-			XDMPath xPath = mdlMgr.translatePath(docType, path, XDMNodeKind.fromPath(path), dataType, XDMOccurrence.zeroOrOne);
+			Path xPath = mdlMgr.translatePath(docType, path, NodeKind.fromPath(path), dataType, Occurrence.zeroOrOne);
 			result = new HashSet<>(1);
 			result.add(xPath.getPathId());
 		}
@@ -209,17 +209,17 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 		return result;
 	}
 	
-	private boolean isPatternIndex(XDMIndex index) {
+	private boolean isPatternIndex(Index index) {
 		return PathBuilder.isRegexPath(index.getPath());
 	}
 
-	private Collection<XDMIndex> getPathIndexes(int pathId, String path) {
-		Set<XDMIndex> result = new HashSet<>();
-		XDMIndex idx = idxDict.get(pathId);
+	private Collection<Index> getPathIndexes(int pathId, String path) {
+		Set<Index> result = new HashSet<>();
+		Index idx = idxDict.get(pathId);
 		if (idx != null) {
 			result.add(idx);
 		} else {
-			for (Map.Entry<XDMIndex, Pattern> e: patterns.entrySet()) {
+			for (Map.Entry<Index, Pattern> e: patterns.entrySet()) {
 				Matcher m = e.getValue().matcher(path);
 				boolean match = m.matches(); 
 				if (match) {
@@ -238,18 +238,18 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 
 		// shouldn't we index NULL values too? create special NULL class for this..
 		if (value != null) {
-			Collection<XDMIndex> indexes = getPathIndexes(pathId, path);
+			Collection<Index> indexes = getPathIndexes(pathId, path);
 			if (indexes.isEmpty()) {
 				return;
 			}
 			
-			for (XDMIndex idx: indexes) {
+			for (Index idx: indexes) {
 				indexPath(idx, docId, pathId, value);
 			}
 		}
 	}
 	
-	private Object getIndexedValue(XDMIndex idx, int pathId, Object value) {
+	private Object getIndexedValue(Index idx, int pathId, Object value) {
 		int baseType = getBaseTypeForTypeName(idx.getDataType());
 		if (isStringTypeCompatible(baseType)) {
 			value = value.toString();
@@ -257,7 +257,7 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 				value = ((String) value).toLowerCase();
 			}
 		} else {
-			XDMPath xPath = mdlMgr.getPath(pathId);
+			Path xPath = mdlMgr.getPath(pathId);
 			if (xPath.getDataType() != baseType) {
 				logger.info("getIndexedValue; index [{}] and path [{}] types are not compatible; value: {}({})", 
 						baseType, xPath.getDataType(), value.getClass().getName(), value);
@@ -273,7 +273,7 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 		return value;
 	}
 	
-	private void indexPath(XDMIndex idx, long docKey, int pathId, Object value) throws XDMException {
+	private void indexPath(Index idx, long docKey, int pathId, Object value) throws XDMException {
 
 		value = getIndexedValue(idx, pathId, value);
 		logger.trace("indexPath; index: {}, value: {}({})", idx, value.getClass().getName(), value);
@@ -281,31 +281,31 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 		int oldCount = 0;
 		boolean first = false;
 		XDMIndexKey xid = factory.newXDMIndexKey(pathId, value);
-		XDMIndexedValue xidx = idxCache.get(xid);
+		IndexedValue xidx = idxCache.get(xid);
 		if (idx.isUnique()) {
 			long id = XDMDocumentKey.toDocumentId(docKey);
-			if (!checkUniquiness((XDMUniqueDocument) xidx, id)) {
+			if (!checkUniquiness((UniqueDocument) xidx, id)) {
 				throw new XDMException("unique index '" + idx.getName() + "' violated for docKey: " + 
 						docKey + ", pathId: " + pathId + ", value: " + value, XDMException.ecIndexUnique);
 			}
 
 			if (xidx == null) {
-				xidx = new XDMUniqueDocument();
+				xidx = new UniqueDocument();
 				first = true;
 			} else {
 				oldCount = xidx.getCount();
 			}
 			xidx.addDocument(docKey, txMgr.getCurrentTxId());
-			XDMIndexedValue xidx2 = idxCache.put(xid, xidx);
+			IndexedValue xidx2 = idxCache.put(xid, xidx);
 			// why it is done second time here? because it can be new xidx!
-			if (!checkUniquiness((XDMUniqueDocument) xidx2, id)) {
+			if (!checkUniquiness((UniqueDocument) xidx2, id)) {
 				// shouldn't we delete just created xidx then ?
 				throw new XDMException("unique index '" + idx.getName() + "' violated for docKey: " + 
 						docKey + ", pathId: " + pathId + ", value: " + value, XDMException.ecIndexUnique);
 			}
 		} else {
 			if (xidx == null) {
-				xidx = new XDMIndexedDocument(docKey);
+				xidx = new IndexedDocument(docKey);
 				first = true;
 			} else { 
 				oldCount = xidx.getCount();
@@ -335,12 +335,12 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 		//logger.trace("addIndex; index submit for key {}", xid);
 	}
 
-	private boolean checkUniquiness(XDMUniqueDocument uidx, long docId) throws XDMException {
+	private boolean checkUniquiness(UniqueDocument uidx, long docId) throws XDMException {
 		//long id = XDMDocumentKey.toDocumentId(docId);
 		// check xidx.docIds - update document UC..
 		if (uidx != null) {
-			Collection<XDMUniqueValue> ids = uidx.getDocumentValues();
-			for (XDMUniqueValue uv: ids) {
+			Collection<UniqueValue> ids = uidx.getDocumentValues();
+			for (UniqueValue uv: ids) {
 				long id = XDMDocumentKey.toDocumentId(uv.getDocumentKey());
 				if (id == docId) {
 					// skipping index for the same document's family
@@ -377,7 +377,7 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 		XDMIndexKey iKey = factory.newXDMIndexKey(pathId, value);
 		// will have collisions here when two threads change/delete the same index!
 		// but not for unique index!
-		XDMIndexedValue xIdx = idxCache.get(iKey);
+		IndexedValue xIdx = idxCache.get(iKey);
 		if (xIdx != null) {
 			long txId = txMgr.getCurrentTxId();
 			int oldCount = xIdx.getCount(); 
@@ -389,7 +389,7 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 	 				idxCache.delete(iKey);
 	 				last = true;
 				}
-				XDMIndex idx = idxDict.get(pathId);
+				Index idx = idxDict.get(pathId);
 				updateStats(idx.getName(), false, last, oldCount - xIdx.getCount(), xIdx.getSize());
 				TreeMap<Comparable, Integer> range = rangeIndex.get(pathId);
 				if (range != null) {
@@ -411,7 +411,7 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 	public Set<Long> getIndexedDocuments(int pathId, PathExpression pex, Object value) {
 		logger.trace("getIndexedDocuments.enter; pathId: {}, PEx: {}, value: {}", pathId, pex, value);
 		Set<Long> result = null;
-		XDMIndex idx = idxDict.get(pathId);
+		Index idx = idxDict.get(pathId);
 		if (idx != null && idx.isEnabled()) {
 			if (Comparison.EQ.equals(pex.getCompType())) {
 				if (value instanceof Collection) {
@@ -432,9 +432,9 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 		return result;
 	}
 	
-	private Set<Long> getIndexedDocuments(XDMIndex idx, int pathId, Object value) {
+	private Set<Long> getIndexedDocuments(Index idx, int pathId, Object value) {
 		XDMIndexKey idxk = factory.newXDMIndexKey(pathId, value);
-		XDMIndexedValue xidv = idxCache.get(idxk);
+		IndexedValue xidv = idxCache.get(idxk);
 		if (xidv != null) {
 			updateStats(idx.getName(), true, 1);
 			return xidv.getDocumentKeys();
@@ -443,14 +443,14 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 		return Collections.emptySet();
 	}
 	
-	private Set<Long> getIndexedDocuments(XDMIndex idx, int pathId, Iterable values) {
+	private Set<Long> getIndexedDocuments(Index idx, int pathId, Iterable values) {
 		Set<XDMIndexKey> keys = new HashSet<>();
 		for (Object value: values) {
 			keys.add(factory.newXDMIndexKey(pathId, value));
 		}
-		Map<XDMIndexKey, XDMIndexedValue> xidv = idxCache.getAll(keys);
+		Map<XDMIndexKey, IndexedValue> xidv = idxCache.getAll(keys);
 		Set<Long> ids = new HashSet<>(xidv.size());
-		for (XDMIndexedValue value: xidv.values()) {
+		for (IndexedValue value: xidv.values()) {
 			ids.addAll(value.getDocumentKeys());
 		}
 		updateStats(idx.getName(), true, xidv.size());
@@ -459,7 +459,7 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 	}
 	
 	@SuppressWarnings("rawtypes")
-	private Set<Long> getIndexedDocuments(XDMIndex idx, int pathId, Comparison cmp, Comparable value) {
+	private Set<Long> getIndexedDocuments(Index idx, int pathId, Comparison cmp, Comparable value) {
 		TreeMap<Comparable, Integer> range = rangeIndex.get(pathId);
 		Map<Comparable, Integer> subRange;
 		switch (cmp) {
@@ -487,10 +487,10 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 		for (Object val: subRange.keySet()) {
 			keys.add(factory.newXDMIndexKey(pathId, val));
 		}
-		Map<XDMIndexKey, XDMIndexedValue> values = idxCache.getAll(keys);
+		Map<XDMIndexKey, IndexedValue> values = idxCache.getAll(keys);
 		Set<Long> ids = new HashSet<>(values.size());
 		if (values.size() > 0) {
-			for (XDMIndexedValue val: values.values()) {
+			for (IndexedValue val: values.values()) {
 				ids.addAll(val.getDocumentKeys());
 			}
 			updateStats(idx.getName(), true, 1);
@@ -508,7 +508,7 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 		//	p = Predicates.and(p, u);
 		//}
 		Collection<Integer> result = new HashSet<>(); //idxDict.keySet(p);
-		for (Map.Entry<Integer, XDMIndex> e: idxDict.entrySet()) {
+		for (Map.Entry<Integer, Index> e: idxDict.entrySet()) {
 			if (root.equals(e.getValue().getTypePath())) {
 				if (uniqueOnly) {
 					if (!e.getValue().isUnique()) {

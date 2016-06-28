@@ -8,11 +8,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.bagri.xdm.cache.hazelcast.impl.TriggerManagementImpl;
-import com.bagri.xdm.domain.XDMDocument;
-import com.bagri.xdm.system.XDMTriggerAction;
+import com.bagri.xdm.domain.Document;
+import com.bagri.xdm.system.TriggerAction;
 //import com.bagri.xdm.domain.XDMTrigger;
-import com.bagri.xdm.system.XDMTriggerAction.Order;
-import com.bagri.xdm.system.XDMTriggerAction.Scope;
+import com.bagri.xdm.system.TriggerAction.Order;
+import com.bagri.xdm.system.TriggerAction.Scope;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
@@ -29,7 +29,7 @@ public class TriggerRunner implements Callable<Void>, IdentifiedDataSerializable
 	private Order order;
 	private Scope scope;
 	private int index;
-	private XDMDocument xDoc;
+	private Document xDoc;
 	private String clientId;
 	private TriggerManagementImpl trManager;
 
@@ -37,7 +37,7 @@ public class TriggerRunner implements Callable<Void>, IdentifiedDataSerializable
 		// for de-ser
 	}
 	
-	public TriggerRunner(Order order, Scope scope, int index, XDMDocument xDoc, String clientId) {
+	public TriggerRunner(Order order, Scope scope, int index, Document xDoc, String clientId) {
 		this.order = order;
 		this.scope = scope;
 		this.index = index;

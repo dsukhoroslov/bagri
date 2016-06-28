@@ -8,7 +8,7 @@ import java.util.Map.Entry;
 
 import com.bagri.xdm.common.XDMDataKey;
 import com.bagri.xdm.common.query.PathExpression;
-import com.bagri.xdm.domain.XDMElements;
+import com.bagri.xdm.domain.Elements;
 import com.hazelcast.map.EntryBackupProcessor;
 import com.hazelcast.map.EntryProcessor;
 import com.hazelcast.nio.ObjectDataInput;
@@ -16,7 +16,7 @@ import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
 @SuppressWarnings("serial")
-public class QueryProcessor implements EntryProcessor<XDMDataKey, XDMElements>, IdentifiedDataSerializable { 
+public class QueryProcessor implements EntryProcessor<XDMDataKey, Elements>, IdentifiedDataSerializable { 
 	
 	//private static final transient Logger logger = LoggerFactory.getLogger(QueryProcessor.class);
 	//private Set<String> threads = new HashSet<String>();
@@ -49,7 +49,7 @@ public class QueryProcessor implements EntryProcessor<XDMDataKey, XDMElements>, 
 	}
 
 	@Override
-	public Object process(Entry<XDMDataKey, XDMElements> entry) {
+	public Object process(Entry<XDMDataKey, Elements> entry) {
 		if (entry.getValue().apply(pex, value)) {
 			return true;
 		}

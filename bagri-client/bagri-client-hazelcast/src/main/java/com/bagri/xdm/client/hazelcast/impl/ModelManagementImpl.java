@@ -13,9 +13,9 @@ import java.util.concurrent.TimeUnit;
 import com.bagri.common.idgen.IdGenerator;
 import com.bagri.xdm.api.XDMModelManagement;
 import com.bagri.xdm.api.impl.ModelManagementBase;
-import com.bagri.xdm.domain.XDMDocumentType;
-import com.bagri.xdm.domain.XDMNamespace;
-import com.bagri.xdm.domain.XDMPath;
+import com.bagri.xdm.domain.DocumentType;
+import com.bagri.xdm.domain.Namespace;
+import com.bagri.xdm.domain.Path;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IAtomicLong;
 import com.hazelcast.core.IMap;
@@ -25,10 +25,10 @@ import com.hazelcast.query.impl.predicates.RegexPredicate;
 
 public class ModelManagementImpl extends ModelManagementBase implements XDMModelManagement { 
 
-	protected IMap<String, XDMPath> pathCache;
+	protected IMap<String, Path> pathCache;
 	//protected ReplicatedMap<String, XDMNamespace> nsCache;
-	protected IMap<String, XDMNamespace> nsCache;
-	protected IMap<String, XDMDocumentType> typeCache;
+	protected IMap<String, Namespace> nsCache;
+	protected IMap<String, DocumentType> typeCache;
 	private IdGenerator<Long> nsGen;
 	private IdGenerator<Long> pathGen;
 	private IdGenerator<Long> typeGen;
@@ -54,15 +54,15 @@ public class ModelManagementImpl extends ModelManagementBase implements XDMModel
 		typeGen = new IdGeneratorImpl(hzInstance.getAtomicLong(SQN_DOCTYPE));
 	}
 	
-	protected Map<String, XDMNamespace> getNamespaceCache() {
+	protected Map<String, Namespace> getNamespaceCache() {
 		return nsCache;
 	}
 	
-	protected Map<String, XDMPath> getPathCache() {
+	protected Map<String, Path> getPathCache() {
 		return pathCache;
 	}
 	
-	protected Map<String, XDMDocumentType> getTypeCache() {
+	protected Map<String, DocumentType> getTypeCache() {
 		return typeCache;
 	}
 	
@@ -78,15 +78,15 @@ public class ModelManagementImpl extends ModelManagementBase implements XDMModel
 		return typeGen;
 	}
 
-	public void setNamespaceCache(IMap<String, XDMNamespace> nsCache) {
+	public void setNamespaceCache(IMap<String, Namespace> nsCache) {
 		this.nsCache = nsCache;
 	}
 	
-	public void setPathCache(IMap<String, XDMPath> pathCache) {
+	public void setPathCache(IMap<String, Path> pathCache) {
 		this.pathCache = pathCache;
 	}
 	
-	public void setTypeCache(IMap<String, XDMDocumentType> typeCache) {
+	public void setTypeCache(IMap<String, DocumentType> typeCache) {
 		this.typeCache = typeCache;
 	}
 	
@@ -103,9 +103,9 @@ public class ModelManagementImpl extends ModelManagementBase implements XDMModel
 	}
 
 	@Override
-	public XDMPath getPath(int pathId) {
+	public Path getPath(int pathId) {
 		Predicate f = Predicates.equal("pathId", pathId);
-		Collection<XDMPath> entries = pathCache.values(f);
+		Collection<Path> entries = pathCache.values(f);
 		if (entries.isEmpty()) {
 			return null;
 		}
@@ -114,14 +114,14 @@ public class ModelManagementImpl extends ModelManagementBase implements XDMModel
 	}
 	
 	@Override
-	public Collection<XDMPath> getTypePaths(int typeId) {
-		Predicate<String, XDMPath> f = Predicates.equal("typeId", typeId);
-		Collection<XDMPath> entries = pathCache.values(f);
+	public Collection<Path> getTypePaths(int typeId) {
+		Predicate<String, Path> f = Predicates.equal("typeId", typeId);
+		Collection<Path> entries = pathCache.values(f);
 		if (entries.isEmpty()) {
 			return entries;
 		}
 		// check size > 1 ??
-		List<XDMPath> result = new ArrayList<XDMPath>(entries);
+		List<Path> result = new ArrayList<Path>(entries);
 		Collections.sort(result);
 		if (logger.isTraceEnabled()) {
 			logger.trace("getTypePath; returning {} for type {}", result, typeId);
@@ -130,20 +130,20 @@ public class ModelManagementImpl extends ModelManagementBase implements XDMModel
 	}
 	
 	@Override
-	protected XDMDocumentType getDocumentTypeById(int typeId) {
+	protected DocumentType getDocumentTypeById(int typeId) {
 		Predicate f = Predicates.equal("typeId", typeId);
-		Set<Map.Entry<String, XDMDocumentType>> types = typeCache.entrySet(f);
+		Set<Map.Entry<String, DocumentType>> types = typeCache.entrySet(f);
 		if (types.size() == 0) {
 			return null;
 		}
-		return (XDMDocumentType) types.iterator().next().getValue();
+		return (DocumentType) types.iterator().next().getValue();
 	}
 
 	@Override
 	@SuppressWarnings("rawtypes")
 	protected Set getTypedPathEntries(int typeId) {
 		Predicate f = Predicates.equal("typeId",  typeId);
-		Set<Map.Entry<String, XDMPath>> entries = pathCache.entrySet(f);
+		Set<Map.Entry<String, Path>> entries = pathCache.entrySet(f);
 		return entries;
 	}
 	
@@ -156,7 +156,7 @@ public class ModelManagementImpl extends ModelManagementBase implements XDMModel
 		} else {
 			filter = new RegexPredicate("path", regex);
 		}
-		Set<Map.Entry<String, XDMPath>> entries = pathCache.entrySet(filter);
+		Set<Map.Entry<String, Path>> entries = pathCache.entrySet(filter);
 		return entries;
 	}
 

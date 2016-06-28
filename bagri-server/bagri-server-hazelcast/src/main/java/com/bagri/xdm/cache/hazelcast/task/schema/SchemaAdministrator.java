@@ -11,7 +11,7 @@ import java.util.concurrent.Future;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.bagri.xdm.cache.hazelcast.management.SchemaManagement;
-import com.bagri.xdm.system.XDMSchema;
+import com.bagri.xdm.system.Schema;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
@@ -50,7 +50,7 @@ public class SchemaAdministrator extends SchemaProcessingTask implements Callabl
 		for (Member member: hzInstance.getCluster().getMembers()) {
 			if (uuid.equals(member.getUuid())) {
 		    	if (init) {
-		    		XDMSchema schema = schemaService.getSchema(schemaName);
+		    		Schema schema = schemaService.getSchema(schemaName);
 		    		SchemaInitiator initTask = new SchemaInitiator(schema);
 		    		IExecutorService execService = hzInstance.getExecutorService(PN_XDM_SYSTEM_POOL);
 		    		Future<Boolean> initiated = execService.submitToMember(initTask, member);

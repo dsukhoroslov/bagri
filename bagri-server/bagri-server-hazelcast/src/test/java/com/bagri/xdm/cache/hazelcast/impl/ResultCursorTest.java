@@ -20,7 +20,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.test.XDMManagementTest;
 import com.bagri.xdm.client.hazelcast.impl.ResultCursor;
-import com.bagri.xdm.system.XDMSchema;
+import com.bagri.xdm.system.Schema;
 
 public class ResultCursorTest extends XDMManagementTest {
 	
@@ -47,9 +47,9 @@ public class ResultCursorTest extends XDMManagementTest {
 	public void setUp() throws Exception {
 		xRepo = context.getBean(RepositoryImpl.class);
 		RepositoryImpl xdmRepo = (RepositoryImpl) xRepo; 
-		XDMSchema schema = xdmRepo.getSchema();
+		Schema schema = xdmRepo.getSchema();
 		if (schema == null) {
-			schema = new XDMSchema(1, new java.util.Date(), "test", "test", "test schema", true, null);
+			schema = new Schema(1, new java.util.Date(), "test", "test", "test schema", true, null);
 			xdmRepo.setSchema(schema);
 		}
 	}

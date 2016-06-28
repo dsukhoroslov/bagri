@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import com.bagri.xdm.api.XDMAccessManagement;
 import com.bagri.xdm.client.hazelcast.task.auth.UserAuthenticator;
-import com.bagri.xdm.system.XDMPermission.Permission;
+import com.bagri.xdm.system.Permission;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
 
@@ -44,7 +44,7 @@ public class AccessManagementImpl implements XDMAccessManagement {
 	}
 
 	@Override
-	public boolean hasPermission(String username, Permission permission) {
+	public boolean hasPermission(String username, Permission.Value permission) {
 		// not implemented on client side. yet?
 		return false;
 	}

@@ -23,10 +23,10 @@ public class XDMConfigTest {
 
 	@Test
 	public void testRead() throws JAXBException {
-		JAXBContext jc = JAXBContext.newInstance(XDMConfig.class);
+		JAXBContext jc = JAXBContext.newInstance(Config.class);
         Unmarshaller unmarshaller = jc.createUnmarshaller();
         File xml = new File("src/test/resources/test_config.xml");
-        XDMConfig config = (XDMConfig) unmarshaller.unmarshal(xml);
+        Config config = (Config) unmarshaller.unmarshal(xml);
         assertNotNull(config);
 
         Marshaller marshaller = jc.createMarshaller();
@@ -36,9 +36,9 @@ public class XDMConfigTest {
         assertTrue(config.getNodes().size() == 0);
         assertTrue(config.getSchemas().size() == 2);
         assertTrue(config.getModules().size() == 0);
-        XDMSchema test = config.getSchemas().get(1);
+        Schema test = config.getSchemas().get(1);
         assertTrue(test.getIndexes().size() == 2);
-        XDMIndex index = test.getIndex("idx_test"); 
+        Index index = test.getIndex("idx_test"); 
         assertNotNull(index);
         assertNotNull(index.getDataType());
         assertEquals("string", index.getDataType().getLocalPart());
@@ -53,27 +53,27 @@ public class XDMConfigTest {
 		
 		Properties props = new Properties();
 		props.setProperty("xdm.schema.password", "test");
-		XDMSchema schema = new XDMSchema(1, new Date(), "test", "Test", "description", false, props);
-		XDMCollection collection = new XDMCollection(1, new Date(), "test", 1, "cln_security",  
+		Schema schema = new Schema(1, new Date(), "test", "Test", "description", false, props);
+		Collection collection = new Collection(1, new Date(), "test", 1, "cln_security",  
 				"/{http://tpox-benchmark.com/security}Security", "description", true);
 		schema.addCollection(collection);
-		XDMIndex index = new XDMIndex(1, new Date(), "test", "idx_test",  
+		Index index = new Index(1, new Date(), "test", "idx_test",  
 				"/{http://tpox-benchmark.com/security}Security", "/Security", "/Security/Symbol",
 				new QName(xs_ns, "string", xs_prefix), true, false, true, "description", true);
 		schema.addIndex(index);
-		XDMTriggerDef javaTrigger = new XDMJavaTrigger(1, new Date(), "test", "sample_library", 
+		TriggerDefinition javaTrigger = new JavaTrigger(1, new Date(), "test", "sample_library", 
 				"my.class.Name", "/{http://tpox-benchmark.com/security}Security", true, true, 0);
 		schema.addTrigger(javaTrigger);
-		XDMTriggerDef xqTrigger = new XDMXQueryTrigger(1, new Date(), "test", "sample_module", 
+		TriggerDefinition xqTrigger = new XQueryTrigger(1, new Date(), "test", "sample_module", 
 				"trg:function", "/{http://tpox-benchmark.com/security}Security", true, true, 1);
 		schema.addTrigger(xqTrigger);
-		XDMConfig config = new XDMConfig();
+		Config config = new Config();
 		config.getSchemas().add(schema);
 		
-		XDMNode node = new XDMNode(1, new Date(), "test", "first", props);
+		Node node = new Node(1, new Date(), "test", "first", props);
 		config.getNodes().add(node);
 
-		JAXBContext jc = JAXBContext.newInstance(XDMConfig.class);
+		JAXBContext jc = JAXBContext.newInstance(Config.class);
         Marshaller marshaller = jc.createMarshaller();
         marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
         //marshaller.setProperty(Marshaller.JAXB_NO_NAMESPACE_SCHEMA_LOCATION, "file:///C:/Documents%20and%20Settings/mojalal/Desktop/FirstXSD.xml");

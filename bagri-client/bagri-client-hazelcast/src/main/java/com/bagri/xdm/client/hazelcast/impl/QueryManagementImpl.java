@@ -27,8 +27,8 @@ import com.bagri.xdm.api.XDMQueryManagement;
 import com.bagri.xdm.api.impl.QueryManagementBase;
 import com.bagri.xdm.client.hazelcast.task.query.QueryUrisProvider;
 import com.bagri.xdm.client.hazelcast.task.query.QueryExecutor;
-import com.bagri.xdm.domain.XDMQuery;
-import com.bagri.xdm.domain.XDMResults;
+import com.bagri.xdm.domain.Query;
+import com.bagri.xdm.domain.QueryResult;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.Member;
@@ -42,8 +42,8 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
     private RepositoryImpl repo;
 	private IExecutorService execService;
     private Future execution = null; 
-    private IMap<Long, XDMResults> resCache;
-    private ReplicatedMap<Integer, XDMQuery> xqCache;
+    private IMap<Long, QueryResult> resCache;
+    private ReplicatedMap<Integer, Query> xqCache;
     
 	public QueryManagementImpl() {
 		// what should we do here? 
@@ -95,7 +95,7 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 		}
 		long qKey = getResultsKey(query, params);
 		if (useCache) {
-			XDMResults res = resCache.get(qKey);
+			QueryResult res = resCache.get(qKey);
 			if (res != null) {
 				logger.trace("execXQuery; got cached results: {}", res);
 				return res.getResults().iterator();
@@ -190,7 +190,7 @@ public class QueryManagementImpl extends QueryManagementBase implements XDMQuery
 
 		logger.trace("prepareQuery.enter; query: {}", query);
 		Collection<String> result = null;
-		XDMQuery xq = xqCache.get(getQueryKey(query));
+		Query xq = xqCache.get(getQueryKey(query));
 		if (xq != null) {
 			result = xq.getXdmQuery().getParamNames();
 		}

@@ -4,9 +4,9 @@ import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryI
 
 import java.util.concurrent.Callable;
 
-import com.bagri.xdm.domain.XDMDocument;
+import com.bagri.xdm.domain.Document;
 
-public class DocumentRemover extends DocumentAwareTask implements Callable<XDMDocument> {
+public class DocumentRemover extends DocumentAwareTask implements Callable<Document> {
 
 	public DocumentRemover() {
 		super();
@@ -22,7 +22,7 @@ public class DocumentRemover extends DocumentAwareTask implements Callable<XDMDo
 	}
 
 	@Override
-	public XDMDocument call() throws Exception {
+	public Document call() throws Exception {
 		return null;
 	}
 

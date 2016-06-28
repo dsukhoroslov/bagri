@@ -6,7 +6,7 @@ import java.util.Properties;
 
 import com.bagri.xdm.api.XDMDocumentManagement;
 import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.domain.XDMDocument;
+import com.bagri.xdm.domain.Document;
 
 import net.sf.saxon.expr.XPathContext;
 import net.sf.saxon.lib.ExtensionFunctionCall;
@@ -65,7 +65,7 @@ public class StoreDocument extends DocumentFunctionExtension {
 					props = toProperties(arguments[2]);
 				}
 				try {
-					XDMDocument doc = xdm.storeDocumentFromString(uri, xml, props);
+					Document doc = xdm.storeDocumentFromString(uri, xml, props);
 					return new Int64Value(doc.getDocumentKey());
 					//return new ObjectValue(doc);
 				} catch (XDMException ex) {

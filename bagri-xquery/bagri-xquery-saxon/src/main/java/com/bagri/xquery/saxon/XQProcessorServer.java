@@ -18,8 +18,8 @@ import com.bagri.xdm.api.XDMRepository;
 import com.bagri.xdm.cache.api.XDMQueryManagement;
 import com.bagri.xdm.common.XDMConstants;
 import com.bagri.xdm.common.query.QueryBuilder;
-import com.bagri.xdm.domain.XDMDocument;
-import com.bagri.xdm.domain.XDMQuery;
+import com.bagri.xdm.domain.Document;
+import com.bagri.xdm.domain.Query;
 import com.bagri.xquery.api.XQProcessor;
 
 import net.sf.saxon.lib.ModuleURIResolver;
@@ -102,7 +102,7 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 				String xml = item.getItemAsString(null);
 				// validate document ?
 				// add/pass other params ?!
-				XDMDocument doc = dMgr.storeDocumentFromString(uri, xml, null);
+				Document doc = dMgr.storeDocumentFromString(uri, xml, null);
 				return Collections.singletonList(doc).iterator();
 			} else if (command.startsWith("removeDocument")) {
 				XQItemAccessor item = getBoundItem(params, "uri");
@@ -122,7 +122,7 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 		long stamp = System.currentTimeMillis();
    	    
    	    XDMQueryManagement qMgr = (XDMQueryManagement) getQueryManagement();
-   	    XDMQuery xQuery = qMgr.getQuery(query);
+   	    Query xQuery = qMgr.getQuery(query);
    	    boolean cacheable = false;
    	    boolean readOnly = true;
 	    //logger.trace("execQuery; module resolver: {}", config.getModuleURIResolver());

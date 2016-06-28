@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Properties;
 
-import com.bagri.xdm.domain.XDMDocument;
+import com.bagri.xdm.domain.Document;
 
 /**
  * XDM document management interface; provided for the client side
@@ -39,10 +39,10 @@ public interface XDMDocumentManagement {
 	/**
 	 * 
 	 * @param uri the XDM document uri
-	 * @return {@link XDMDocument} structure
+	 * @return {@link Document} structure
 	 * @throws XDMException in case of any error
 	 */
-	XDMDocument getDocument(String uri) throws XDMException;
+	Document getDocument(String uri) throws XDMException;
 
 	/**
 	 * 
@@ -88,7 +88,7 @@ public interface XDMDocumentManagement {
 	 * @return XDMDocument created or overridden (versioned) document
 	 * @throws XDMException in case of any error
 	 */
-	XDMDocument storeDocumentFromString(String uri, String content, Properties props) throws XDMException;
+	Document storeDocumentFromString(String uri, String content, Properties props) throws XDMException;
 	
 	/**
 	 * Creates a new Document or overrides an existing one in XDM repository
@@ -99,7 +99,7 @@ public interface XDMDocumentManagement {
 	 * @return XDMDocument created or overridden (versioned) document
 	 * @throws XDMException in case of any error
 	 */
-	XDMDocument storeDocumentFromStream(String uri, InputStream stream, Properties props) throws XDMException;
+	Document storeDocumentFromStream(String uri, InputStream stream, Properties props) throws XDMException;
 	
 	/**
 	 * Creates a new Document or overrides an existing one in XDM repository
@@ -110,7 +110,7 @@ public interface XDMDocumentManagement {
 	 * @return XDMDocument created or overridden (versioned) document
 	 * @throws XDMException in case of any error
 	 */
-	XDMDocument storeDocumentFromBean(String uri, Object bean, Properties props) throws XDMException;
+	Document storeDocumentFromBean(String uri, Object bean, Properties props) throws XDMException;
 	
 	/**
 	 * Creates a new Document or overrides an existing one in XDM repository
@@ -121,7 +121,7 @@ public interface XDMDocumentManagement {
 	 * @return XDMDocument created or overridden (versioned) document
 	 * @throws XDMException in case of any error
 	 */
-	XDMDocument storeDocumentFromMap(String uri, Map<String, Object> fields, Properties props) throws XDMException;
+	Document storeDocumentFromMap(String uri, Map<String, Object> fields, Properties props) throws XDMException;
 
 	// TODO: add methods to store document from Document, Reader, Source, XMLStreamReader..?
 	

@@ -14,8 +14,8 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 import com.bagri.common.security.Encryptor;
 import com.bagri.xdm.cache.hazelcast.task.user.UserCreator;
 import com.bagri.xdm.cache.hazelcast.task.user.UserRemover;
-import com.bagri.xdm.system.XDMRole;
-import com.bagri.xdm.system.XDMUser;
+import com.bagri.xdm.system.Role;
+import com.bagri.xdm.system.User;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 
@@ -25,7 +25,7 @@ import com.hazelcast.core.IMap;
  */
 @ManagedResource(objectName="com.bagri.xdm:type=Management,name=UserManagement", 
 	description="User Management MBean")
-public class UserManagement extends EntityManagement<XDMUser> {
+public class UserManagement extends EntityManagement<User> {
 
 	public UserManagement(HazelcastInstance hzInstance) {
 		super(hzInstance);
@@ -63,7 +63,7 @@ public class UserManagement extends EntityManagement<XDMUser> {
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "login", description = "User login")})
 	public boolean deleteUser(String login) {
-		XDMUser user = entityCache.get(login);
+		User user = entityCache.get(login);
 		if (user != null) {
 	    	Object result = entityCache.executeOnKey(login, new UserRemover(user.getVersion(), getCurrentUser()));
 	    	logger.debug("deleteUser; execution result: {}", result);
@@ -73,16 +73,16 @@ public class UserManagement extends EntityManagement<XDMUser> {
 	}
 
 	@Override
-	protected EntityManager<XDMUser> createEntityManager(String userName) {
+	protected EntityManager<User> createEntityManager(String userName) {
 		UserManager mgr = new UserManager(hzInstance, userName);
 		mgr.setEntityCache(entityCache);
-		IMap<String, XDMRole> roles = hzInstance.getMap("roles");
+		IMap<String, Role> roles = hzInstance.getMap("roles");
 		mgr.setRoleCache(roles);
 		return mgr;
 	}
 	
 	public boolean authenticate(String login, String password) {
-		XDMUser user = entityCache.get(login);
+		User user = entityCache.get(login);
 		if (user != null) {
 			String pwd = Encryptor.encrypt(password);
 			if (pwd.equals(user.getPassword())) {
@@ -101,7 +101,7 @@ public class UserManagement extends EntityManagement<XDMUser> {
 	}
 
 	public String getUserPassword(String login) {
-		XDMUser user = entityCache.get(login);
+		User user = entityCache.get(login);
 		if (user != null) {
 			return user.getPassword();
 		}
