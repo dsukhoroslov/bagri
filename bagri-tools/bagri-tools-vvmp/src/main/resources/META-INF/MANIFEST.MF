@@ -4,9 +4,9 @@ OpenIDE-Module-Public-Packages: -
 OpenIDE-Module-Module-Dependencies: com.sun.tools.visualvm.uisupport/0-1 > 1.0, com.sun.tools.visualvm.charts/0-1 > 1.0, com.sun.tools.visualvm.application/0-1 > 1.0, com.sun.tools.visualvm.application.views/0-1 > 1.0, com.sun.tools.visualvm.core/0-1 > 1.0, com.sun.tools.visualvm.tools/0-1 > 1.0, org.openide.modules > 7.3.1, org.openide.util > 8.6.1
 OpenIDE-Module-Java-Dependencies: Java > 1.6
 OpenIDE-Module-Implementation-Version: 1.1
-OpenIDE-Module: com.bagri.visualvm.manager
-OpenIDE-Module-Install: com/bagri/visualvm/manager/Installer.class
-OpenIDE-Module-Localizing-Bundle: com/bagri/visualvm/manager/Bundle.properties
+OpenIDE-Module: com.bagri.tools.vvm.manager
+OpenIDE-Module-Install: com/bagri/tools/vvm/manager/Installer.class
+OpenIDE-Module-Localizing-Bundle: com/bagri/tools/vvm/manager/Bundle.properties
 OpenIDE-Module-Specification-Version: 0.8.1
 OpenIDE-Module-Requires: org.openide.modules.ModuleFormat1
-OpenIDE-Module-Layer: com/bagri/visualvm/manager/layer.xml
+OpenIDE-Module-Layer: com/bagri/tools/vvm/manager/layer.xml
