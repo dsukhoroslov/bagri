@@ -14,7 +14,7 @@ import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.util.Date;
 
-import com.bagri.xdm.api.XDMTransactionManagement;
+import com.bagri.xdm.api.TransactionManagement;
 import com.bagri.xdm.domain.Document;
 import com.hazelcast.core.IMap;
 
@@ -105,7 +105,7 @@ public class DocumentMemoryStore extends MemoryMappedStore<Long, Document> {
 	
 	@Override
 	protected boolean isEntryActive(Document entry) {
-		return entry.getTxFinish() == XDMTransactionManagement.TX_NO;
+		return entry.getTxFinish() == TransactionManagement.TX_NO;
 	}
 
 	@Override
@@ -148,7 +148,7 @@ public class DocumentMemoryStore extends MemoryMappedStore<Long, Document> {
 	protected void deactivateEntry(MappedByteBuffer buff, Document entry) {
 		if (entry == null) {
 			logger.info("deactivateEntry; got null entry for some reason!"); 
-		} else if (entry.getTxFinish() > XDMTransactionManagement.TX_NO) {
+		} else if (entry.getTxFinish() > TransactionManagement.TX_NO) {
 			buff.putLong(entry.getTxFinish());
 		} else {
 			buff.putLong(-1); // make some const for this..

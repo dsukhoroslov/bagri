@@ -1,6 +1,6 @@
 package com.bagri.xdm.client.hazelcast.impl;
 
-import static com.bagri.xdm.cache.api.XDMCacheConstants.TPN_XDM_HEALTH;
+import static com.bagri.xdm.cache.api.CacheConstants.TPN_XDM_HEALTH;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -9,23 +9,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.api.XDMHealthChangeListener;
-import com.bagri.xdm.api.XDMHealthCheckState;
-import com.bagri.xdm.api.XDMHealthManagement;
-import com.bagri.xdm.api.XDMHealthState;
+import com.bagri.xdm.api.HealthChangeListener;
+import com.bagri.xdm.api.HealthCheckState;
+import com.bagri.xdm.api.HealthManagement;
+import com.bagri.xdm.api.HealthState;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.ITopic;
 import com.hazelcast.core.Message;
 import com.hazelcast.core.MessageListener;
 
-public class HealthManagementImpl implements XDMHealthManagement, MessageListener<XDMHealthState> {
+public class HealthManagementImpl implements HealthManagement, MessageListener<HealthState> {
 
     private final static Logger logger = LoggerFactory.getLogger(HealthManagementImpl.class);
 	
 	private HazelcastInstance hzInstance;
-	private XDMHealthState state = XDMHealthState.good;
-	private XDMHealthCheckState checkState = XDMHealthCheckState.log;
-	private Map<Integer, XDMHealthChangeListener> listeners = new HashMap<>();
+	private HealthState state = HealthState.good;
+	private HealthCheckState checkState = HealthCheckState.log;
+	private Map<Integer, HealthChangeListener> listeners = new HashMap<>();
 	
 	public HealthManagementImpl() {
 		super();
@@ -33,15 +33,15 @@ public class HealthManagementImpl implements XDMHealthManagement, MessageListene
 	
 	public HealthManagementImpl(HazelcastInstance hzInstance) {
 		this.hzInstance = hzInstance;
-		ITopic<XDMHealthState> hTopic = hzInstance.getTopic(TPN_XDM_HEALTH);
+		ITopic<HealthState> hTopic = hzInstance.getTopic(TPN_XDM_HEALTH);
 		hTopic.addMessageListener(this);
 		// TODO: get initial state somehow!
 	}
 	
 	public void checkClusterState() throws XDMException {
-		if (checkState != XDMHealthCheckState.skip) {
+		if (checkState != HealthCheckState.skip) {
 			if (!isClusterSafe()) {
-				if (checkState == XDMHealthCheckState.raise) {
+				if (checkState == HealthCheckState.raise) {
 					throw new XDMException("System is not healthy", XDMException.ecHealth);
 				} else {
 					// log unhealthy time here?
@@ -53,7 +53,7 @@ public class HealthManagementImpl implements XDMHealthManagement, MessageListene
 	
 	@Override
 	public boolean isClusterSafe() {
-		return state == XDMHealthState.good; 
+		return state == HealthState.good; 
 	}
 
 	@Override
@@ -62,33 +62,33 @@ public class HealthManagementImpl implements XDMHealthManagement, MessageListene
 	}
 
 	@Override
-	public XDMHealthState getHealthState() {
+	public HealthState getHealthState() {
 		return state;
 	}
 	
-	public XDMHealthCheckState getCheckState() {
+	public HealthCheckState getCheckState() {
 		return checkState;
 	}
 	
-	public void setCheckSate(XDMHealthCheckState state) {
+	public void setCheckSate(HealthCheckState state) {
 		this.checkState = state;
 	}
 	
 	@Override
-	public void addHealthChangeListener(XDMHealthChangeListener listener) {
+	public void addHealthChangeListener(HealthChangeListener listener) {
 		listeners.put(listener.hashCode(), listener);
 	}
 
 	@Override
-	public void removeHealthChangeListener(XDMHealthChangeListener listener) {
+	public void removeHealthChangeListener(HealthChangeListener listener) {
 		listeners.remove(listener.hashCode());		
 	}
 
 	@Override
-	public void onMessage(Message<XDMHealthState> message) {
-		XDMHealthState newState = message.getMessageObject();
+	public void onMessage(Message<HealthState> message) {
+		HealthState newState = message.getMessageObject();
 		if (state != newState) {
-			for (XDMHealthChangeListener list: listeners.values()) {
+			for (HealthChangeListener list: listeners.values()) {
 				list.onHealthStateChange(newState);
 			}
 			logger.trace("onMessage; health state changed from {} to {}; listeners notified: {}", 

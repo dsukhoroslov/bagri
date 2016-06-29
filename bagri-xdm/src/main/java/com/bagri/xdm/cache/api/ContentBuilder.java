@@ -10,12 +10,12 @@ import com.bagri.xdm.domain.Elements;
 /**
  * Converts internal XDM data representation to plain text representation. A counterpart to XDMParser interface.
  *  
- * @see XDMParser  
+ * @see ContentParser  
  * 
  * @author Denis Sukhoroslov
  *
  */
-public interface XDMBuilder {
+public interface ContentBuilder {
 
 	/**
 	 * 

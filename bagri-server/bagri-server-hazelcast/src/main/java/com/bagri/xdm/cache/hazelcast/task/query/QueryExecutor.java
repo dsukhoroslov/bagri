@@ -1,14 +1,14 @@
 package com.bagri.xdm.cache.hazelcast.task.query;
 
-import static com.bagri.xdm.api.XDMTransactionManagement.TX_NO;
+import static com.bagri.xdm.api.TransactionManagement.TX_NO;
 
 import java.util.concurrent.Callable;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.cache.api.XDMQueryManagement;
-import com.bagri.xdm.cache.api.XDMTransactionManagement;
+import com.bagri.xdm.cache.api.QueryManagement;
+import com.bagri.xdm.cache.api.TransactionManagement;
 import com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl;
 import com.bagri.xdm.client.hazelcast.impl.ResultCursor;
 import com.bagri.xdm.system.Permission;
@@ -19,10 +19,10 @@ public class QueryExecutor extends com.bagri.xdm.client.hazelcast.task.query.Que
 
 	//private static final transient Logger logger = LoggerFactory.getLogger(QueryExecutor.class);
 	
-	private transient XDMQueryManagement queryMgr;
+	private transient QueryManagement queryMgr;
     
     @Autowired
-	public void setQueryManager(XDMQueryManagement queryMgr) {
+	public void setQueryManager(QueryManagement queryMgr) {
 		this.queryMgr = queryMgr;
 	}
     
@@ -48,7 +48,7 @@ public class QueryExecutor extends com.bagri.xdm.client.hazelcast.task.query.Que
 			return (ResultCursor) queryMgr.executeQuery(query, params, context);
     	}
 
-    	return ((XDMTransactionManagement) repo.getTxManagement()).callInTransaction(txId, false, new Callable<ResultCursor>() {
+    	return ((TransactionManagement) repo.getTxManagement()).callInTransaction(txId, false, new Callable<ResultCursor>() {
     		
 	    	public ResultCursor call() throws XDMException {
 				return (ResultCursor) queryMgr.executeQuery(query, params, context);

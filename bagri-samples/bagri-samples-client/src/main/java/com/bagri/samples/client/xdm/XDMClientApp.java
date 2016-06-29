@@ -13,7 +13,7 @@ import javax.xml.xquery.XQException;
 
 import com.bagri.samples.client.BagriClientApp;
 import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.api.XDMRepository;
+import com.bagri.xdm.api.SchemaRepository;
 import com.bagri.xdm.client.hazelcast.impl.RepositoryImpl;
 import com.bagri.xdm.domain.Document;
 import com.bagri.xqj.BagriXQDataFactory;
@@ -23,7 +23,7 @@ import com.bagri.xquery.saxon.XQProcessorClient;
 public class XDMClientApp implements BagriClientApp {
 	
 	private XQProcessor proc;
-	private XDMRepository xRepo;
+	private SchemaRepository xRepo;
 	
 	public static void main(String[] args) throws Exception {
 		
@@ -49,7 +49,7 @@ public class XDMClientApp implements BagriClientApp {
 		xRepo = new RepositoryImpl(props);
 	}
 	
-	public XDMClientApp(XDMRepository xRepo) {
+	public XDMClientApp(SchemaRepository xRepo) {
 		this.xRepo = xRepo;
 	}
 	

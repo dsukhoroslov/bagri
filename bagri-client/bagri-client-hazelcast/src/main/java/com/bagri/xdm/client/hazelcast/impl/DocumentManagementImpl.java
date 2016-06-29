@@ -1,7 +1,7 @@
 package com.bagri.xdm.client.hazelcast.impl;
 
-import static com.bagri.xdm.cache.api.XDMCacheConstants.CN_XDM_DOCUMENT;
-import static com.bagri.xdm.cache.api.XDMCacheConstants.PN_XDM_SCHEMA_POOL;
+import static com.bagri.xdm.cache.api.CacheConstants.CN_XDM_DOCUMENT;
+import static com.bagri.xdm.cache.api.CacheConstants.PN_XDM_SCHEMA_POOL;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -13,7 +13,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import com.bagri.xdm.api.XDMDocumentManagement;
+import com.bagri.xdm.api.DocumentManagement;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.impl.DocumentManagementBase;
 import com.bagri.xdm.client.hazelcast.task.doc.CollectionDocumentsProvider;
@@ -37,7 +37,7 @@ import com.hazelcast.core.Member;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
 
-public class DocumentManagementImpl extends DocumentManagementBase implements XDMDocumentManagement {
+public class DocumentManagementImpl extends DocumentManagementBase implements DocumentManagement {
 
 	private IMap<DocumentKey, Document> xddCache;
 	private IExecutorService execService;

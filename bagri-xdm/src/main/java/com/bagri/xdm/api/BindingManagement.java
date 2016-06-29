@@ -6,7 +6,7 @@ package com.bagri.xdm.api;
  * 
  * @author Denis Sukhoroslov
  */
-public interface XDMBindingManagement {
+public interface BindingManagement {
 
 	/**
 	 * 

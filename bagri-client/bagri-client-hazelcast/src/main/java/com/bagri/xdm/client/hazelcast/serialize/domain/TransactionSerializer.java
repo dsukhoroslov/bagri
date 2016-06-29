@@ -2,8 +2,8 @@ package com.bagri.xdm.client.hazelcast.serialize.domain;
 
 import java.io.IOException;
 
-import com.bagri.xdm.api.XDMTransactionIsolation;
-import com.bagri.xdm.api.XDMTransactionState;
+import com.bagri.xdm.api.TransactionIsolation;
+import com.bagri.xdm.api.TransactionState;
 import com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryImpl;
 import com.bagri.xdm.domain.Transaction;
 import com.hazelcast.nio.ObjectDataInput;
@@ -28,8 +28,8 @@ public class TransactionSerializer implements StreamSerializer<Transaction> {
 				in.readLong(),
 				in.readLong(),
 				in.readUTF(),
-				XDMTransactionIsolation.values()[in.readInt()],
-				XDMTransactionState.values()[in.readInt()]);
+				TransactionIsolation.values()[in.readInt()],
+				TransactionState.values()[in.readInt()]);
 		xTrans.updateCounters(in.readInt(), in.readInt(), in.readInt());
 		return xTrans;
 	}

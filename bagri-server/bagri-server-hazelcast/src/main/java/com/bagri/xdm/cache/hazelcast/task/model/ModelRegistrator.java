@@ -8,7 +8,7 @@ import java.util.concurrent.Callable;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.bagri.xdm.api.XDMModelManagement;
+import com.bagri.xdm.api.ModelManagement;
 import com.bagri.xdm.api.impl.ModelManagementBase;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
@@ -19,7 +19,7 @@ import com.hazelcast.spring.context.SpringAware;
 public class ModelRegistrator implements Callable<Integer>, IdentifiedDataSerializable {
 	
 	private String schemaFile;
-	private XDMModelManagement modelMgr;
+	private ModelManagement modelMgr;
 	
 	public ModelRegistrator() {
 		//
@@ -30,7 +30,7 @@ public class ModelRegistrator implements Callable<Integer>, IdentifiedDataSerial
 	}
 
     @Autowired
-	public void setModelManagement(XDMModelManagement modelMgr) {
+	public void setModelManagement(ModelManagement modelMgr) {
 		this.modelMgr = modelMgr;
 	}
 

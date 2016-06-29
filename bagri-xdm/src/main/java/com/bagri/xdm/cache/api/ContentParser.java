@@ -12,12 +12,12 @@ import com.bagri.xdm.domain.Data;
 /**
  * Convert Document's content to its internal XDM data representation. A counterpart to XDMBuilder interface.
  *  
- * @see XDMBuilder  
+ * @see ContentBuilder  
  * 
  * @author Denis Sukhoroslov
  *
  */
-public interface XDMParser {
+public interface ContentParser {
 	
 	/**
 	 * 

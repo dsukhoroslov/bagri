@@ -5,7 +5,7 @@ package com.bagri.xdm.api;
  * 
  * @author Denis Sukhoroslov
  */
-public interface XDMRepository {
+public interface SchemaRepository {
 	
 	/**
 	 * close connection with Bagri cluster
@@ -25,36 +25,36 @@ public interface XDMRepository {
 	/**
 	 * @return access management interface
 	 */
-	XDMAccessManagement getAccessManagement();
+	AccessManagement getAccessManagement();
 	
 	/**
 	 * @return binding management interface
 	 */
-	XDMBindingManagement getBindingManagement();
+	BindingManagement getBindingManagement();
 	
 	/**
 	 * @return document management interface
 	 */
-	XDMDocumentManagement getDocumentManagement();
+	DocumentManagement getDocumentManagement();
 
 	/**
 	 * @return health management interface
 	 */
-	XDMHealthManagement getHealthManagement();
+	HealthManagement getHealthManagement();
 	
 	/**
 	 * @return meta-data management interface
 	 */
-	XDMModelManagement getModelManagement();
+	ModelManagement getModelManagement();
 
 	/**
 	 * @return query management interface
 	 */
-	XDMQueryManagement getQueryManagement();
+	QueryManagement getQueryManagement();
 	
 	/**
 	 * @return transaction management interface
 	 */
-	XDMTransactionManagement getTxManagement();
+	TransactionManagement getTxManagement();
 	
 }

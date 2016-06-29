@@ -1,6 +1,6 @@
 package com.bagri.xdm.cache.hazelcast.impl;
 
-import static com.bagri.xdm.api.XDMTransactionManagement.TX_NO;
+import static com.bagri.xdm.api.TransactionManagement.TX_NO;
 import static com.bagri.xquery.api.XQUtils.getAtomicValue;
 import static com.bagri.xquery.api.XQUtils.getBaseTypeForTypeName;
 import static com.bagri.xquery.api.XQUtils.isStringTypeCompatible;
@@ -22,8 +22,8 @@ import org.slf4j.LoggerFactory;
 import com.bagri.common.stats.StatisticsEvent;
 import com.bagri.common.util.JMXUtils;
 import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.api.XDMTransactionManagement;
-import com.bagri.xdm.cache.api.XDMIndexManagement;
+import com.bagri.xdm.api.TransactionManagement;
+import com.bagri.xdm.cache.api.IndexManagement;
 import com.bagri.xdm.client.hazelcast.impl.ModelManagementImpl;
 import com.bagri.xdm.common.DocumentKey;
 import com.bagri.xdm.common.KeyFactory;
@@ -46,7 +46,7 @@ import com.hazelcast.core.ReplicatedMap;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
 
-public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsProvider {
+public class IndexManagementImpl implements IndexManagement { //, StatisticsProvider {
 	
 	private static final transient Logger logger = LoggerFactory.getLogger(IndexManagementImpl.class);
 	private ReplicatedMap<Integer, Index> idxDict;
@@ -309,7 +309,7 @@ public class IndexManagementImpl implements XDMIndexManagement { //, StatisticsP
 				first = true;
 			} else { 
 				oldCount = xidx.getCount();
-				xidx.addDocument(docKey, XDMTransactionManagement.TX_NO);
+				xidx.addDocument(docKey, TransactionManagement.TX_NO);
 			}
 			idxCache.set(xid, xidx);
 			if (idx.isRange()) {

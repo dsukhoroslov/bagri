@@ -4,9 +4,9 @@ import java.util.concurrent.Callable;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.bagri.xdm.api.XDMDocumentManagement;
-import com.bagri.xdm.cache.api.XDMRepository;
-import com.bagri.xdm.cache.api.XDMTransactionManagement;
+import com.bagri.xdm.api.DocumentManagement;
+import com.bagri.xdm.cache.api.SchemaRepository;
+import com.bagri.xdm.cache.api.TransactionManagement;
 import com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl;
 import com.bagri.xdm.domain.Document;
 import com.bagri.xdm.system.Permission;
@@ -15,14 +15,14 @@ import com.hazelcast.spring.context.SpringAware;
 @SpringAware
 public class DocumentBeanCreator extends com.bagri.xdm.client.hazelcast.task.doc.DocumentBeanCreator {
 
-	private transient XDMDocumentManagement docMgr;
-	private transient XDMTransactionManagement txMgr;
+	private transient DocumentManagement docMgr;
+	private transient TransactionManagement txMgr;
     
     @Autowired
-	public void setRepository(XDMRepository repo) {
+	public void setRepository(SchemaRepository repo) {
 		this.repo = repo;
 		this.docMgr = repo.getDocumentManagement();
-		this.txMgr = (XDMTransactionManagement) repo.getTxManagement();
+		this.txMgr = (TransactionManagement) repo.getTxManagement();
 	}
 
     @Override

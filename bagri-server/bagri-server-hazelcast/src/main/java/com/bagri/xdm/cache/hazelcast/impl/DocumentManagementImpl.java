@@ -3,8 +3,8 @@ package com.bagri.xdm.cache.hazelcast.impl;
 import static com.bagri.common.util.FileUtils.def_encoding;
 import static com.bagri.common.util.XMLUtils.*;
 import static com.bagri.xdm.common.XDMConstants.*;
-import static com.bagri.xdm.api.XDMTransactionManagement.TX_NO;
-import static com.bagri.xdm.cache.api.XDMCacheConstants.PN_XDM_SCHEMA_POOL;
+import static com.bagri.xdm.api.TransactionManagement.TX_NO;
+import static com.bagri.xdm.cache.api.CacheConstants.PN_XDM_SCHEMA_POOL;
 import static com.bagri.xdm.common.XDMConstants.pn_client_txTimeout;
 import static com.bagri.xdm.domain.Document.dvFirst;
 import static com.bagri.xdm.query.PathBuilder.*;
@@ -38,8 +38,8 @@ import com.bagri.common.idgen.IdGenerator;
 import com.bagri.common.stats.StatisticsEvent;
 import com.bagri.common.util.PropUtils;
 import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.cache.api.XDMDocumentManagement;
-import com.bagri.xdm.cache.api.XDMParser;
+import com.bagri.xdm.cache.api.DocumentManagement;
+import com.bagri.xdm.cache.api.ContentParser;
 import com.bagri.xdm.cache.api.impl.DocumentManagementBase;
 import com.bagri.xdm.cache.hazelcast.predicate.CollectionPredicate;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentContentProvider;
@@ -65,7 +65,7 @@ import com.hazelcast.core.IMap;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
 
-public class DocumentManagementImpl extends DocumentManagementBase implements XDMDocumentManagement {
+public class DocumentManagementImpl extends DocumentManagementBase implements DocumentManagement {
 	
 	private KeyFactory factory;
 	private RepositoryImpl repo;
@@ -638,7 +638,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements XD
 			long txStart, int[] collections, boolean addContent) throws XDMException {
 		
 		List<Data> data;
-		XDMParser parser = repo.getParser(dataFormat);
+		ContentParser parser = repo.getParser(dataFormat);
 		try {
 			data = parser.parse(content);
 		} catch (XDMException ex) {

@@ -1,7 +1,7 @@
 package com.bagri.xdm.cache.hazelcast.task.schema;
 
-import static com.bagri.xdm.cache.api.XDMCacheConstants.CN_XDM_DOCUMENT;
-import static com.bagri.xdm.cache.api.XDMCacheConstants.CN_XDM_TRANSACTION;
+import static com.bagri.xdm.cache.api.CacheConstants.CN_XDM_DOCUMENT;
+import static com.bagri.xdm.cache.api.CacheConstants.CN_XDM_TRANSACTION;
 import static com.bagri.xdm.cache.hazelcast.util.SpringContextHolder.*;
 import static com.bagri.xdm.cache.hazelcast.serialize.DataSerializationFactoryImpl.cli_PopulateSchemaTask;
 

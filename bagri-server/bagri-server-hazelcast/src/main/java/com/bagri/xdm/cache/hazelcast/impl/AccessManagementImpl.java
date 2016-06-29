@@ -8,10 +8,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 
-import com.bagri.xdm.api.XDMAccessManagement;
+import com.bagri.xdm.api.AccessManagement;
 import com.bagri.xdm.system.Permission;
 
-public class AccessManagementImpl implements XDMAccessManagement, InitializingBean {
+public class AccessManagementImpl implements AccessManagement, InitializingBean {
 
 	private static final transient Logger logger = LoggerFactory.getLogger(AccessManagementImpl.class);
 	

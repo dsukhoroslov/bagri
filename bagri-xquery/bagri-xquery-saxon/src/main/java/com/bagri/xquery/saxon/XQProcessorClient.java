@@ -21,7 +21,7 @@ import javax.xml.xquery.XQItem;
 import javax.xml.xquery.XQStaticContext;
 
 import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.api.XDMQueryManagement;
+import com.bagri.xdm.api.QueryManagement;
 import com.bagri.xquery.api.XQProcessor;
 
 import net.sf.saxon.expr.instruct.GlobalParameterSet;
@@ -87,7 +87,7 @@ public class XQProcessorClient extends XQProcessorImpl implements XQProcessor {
 				result = new Integer(0); 
 			} else {
 				props = ensureProperty(props, pn_query_command, "true");
-		    	XDMQueryManagement qMgr = getQueryManagement();
+		    	QueryManagement qMgr = getQueryManagement();
 	    		return qMgr.executeQuery(command, params, props);
 			}
 			return Collections.singletonList(result).iterator();
@@ -107,7 +107,7 @@ public class XQProcessorClient extends XQProcessorImpl implements XQProcessor {
 
     	//logger.trace("executeXQuery.enter; query: {}", query);
 		props = ensureProperty(props, pn_query_command, "false");
-    	XDMQueryManagement qMgr = getQueryManagement();
+    	QueryManagement qMgr = getQueryManagement();
     	GlobalParameterSet params = dqc.getParameters();
     	Map<QName, Object> bindings = new HashMap<>(params.getNumberOfKeys());
     	
@@ -127,7 +127,7 @@ public class XQProcessorClient extends XQProcessorImpl implements XQProcessor {
 
 	@Override
     public Collection<QName> prepareXQuery(String query, XQStaticContext ctx) throws XQException {
-    	XDMQueryManagement qMgr = getQueryManagement();
+    	QueryManagement qMgr = getQueryManagement();
     	Collection<String> names = qMgr.prepareQuery(query);
     	if (names != null) {
     		return getParamNames(names);

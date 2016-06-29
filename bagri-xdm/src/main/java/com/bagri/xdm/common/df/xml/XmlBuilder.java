@@ -16,8 +16,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.api.XDMModelManagement;
-import com.bagri.xdm.cache.api.XDMBuilder;
+import com.bagri.xdm.api.ModelManagement;
+import com.bagri.xdm.cache.api.ContentBuilder;
 import com.bagri.xdm.common.DataKey;
 import com.bagri.xdm.domain.Data;
 import com.bagri.xdm.domain.Element;
@@ -31,17 +31,17 @@ import com.bagri.xdm.domain.Path;
  * @author Denis Sukhoroslov
  *
  */
-public class XmlBuilder implements XDMBuilder {
+public class XmlBuilder implements ContentBuilder {
 
 	private static final Logger logger = LoggerFactory.getLogger(XmlBuilder.class);
 	
-	private XDMModelManagement model;
+	private ModelManagement model;
 	
 	/**
 	 * 
 	 * @param model the XDM model management component
 	 */
-	public XmlBuilder(XDMModelManagement model) {
+	public XmlBuilder(ModelManagement model) {
 		this.model = model;
 	}
 	

@@ -1,7 +1,7 @@
 package com.bagri.xdm.client.hazelcast.impl;
 
 import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryImpl.factoryId;
-import static com.bagri.xdm.cache.api.XDMCacheConstants.PN_XDM_SCHEMA_POOL;
+import static com.bagri.xdm.cache.api.CacheConstants.PN_XDM_SCHEMA_POOL;
 import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryImpl.cli_XQCursor;
 
 import java.io.IOException;

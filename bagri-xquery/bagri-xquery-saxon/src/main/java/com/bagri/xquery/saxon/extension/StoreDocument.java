@@ -4,7 +4,7 @@ import static com.bagri.xdm.common.XDMConstants.cmd_store_document;
 
 import java.util.Properties;
 
-import com.bagri.xdm.api.XDMDocumentManagement;
+import com.bagri.xdm.api.DocumentManagement;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.domain.Document;
 
@@ -19,7 +19,7 @@ public class StoreDocument extends DocumentFunctionExtension {
 
 	//private static final Logger logger = LoggerFactory.getLogger(StoreDocument.class);
 	
-	public StoreDocument(XDMDocumentManagement xdm) {
+	public StoreDocument(DocumentManagement xdm) {
 		super(xdm);
 	}
 

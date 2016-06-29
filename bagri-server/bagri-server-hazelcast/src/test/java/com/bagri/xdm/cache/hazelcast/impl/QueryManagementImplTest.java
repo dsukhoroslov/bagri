@@ -22,7 +22,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.bagri.common.util.JMXUtils;
 import com.bagri.xdm.api.test.XDMManagementTest;
-import com.bagri.xdm.cache.api.XDMQueryManagement;
+import com.bagri.xdm.cache.api.QueryManagement;
 import com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl;
 import com.bagri.xdm.client.hazelcast.impl.ResultCursor;
 import com.bagri.xdm.query.AxisType;
@@ -88,7 +88,7 @@ public class QueryManagementImplTest extends XDMManagementTest {
 		Map<String, String> params = new HashMap<String, String>();
 		params.put(":name", "/" + prefix + ":Security/" + prefix + ":Name/text()");
 		params.put(":price", "/" + prefix + ":Security/" + prefix + ":Price/" + prefix + ":PriceToday/" + prefix + ":Open/text()");
-		return ((XDMQueryManagement) getQueryManagement()).getContent(ec, "<print>The open price of the security \":name\" is :price dollars</print>", params);
+		return ((QueryManagement) getQueryManagement()).getContent(ec, "<print>The open price of the security \":name\" is :price dollars</print>", params);
 	}
 	
 	public Collection<String> getSecurity(String symbol) throws Exception {
@@ -102,7 +102,7 @@ public class QueryManagementImplTest extends XDMManagementTest {
 		ec.addExpression(docType, Comparison.EQ, path, "$sym", symbol);
 		Map<String, String> params = new HashMap<String, String>();
 		params.put(":sec", "/" + prefix + ":Security");
-		return ((XDMQueryManagement) getQueryManagement()).getContent(ec, ":sec", params);
+		return ((QueryManagement) getQueryManagement()).getContent(ec, ":sec", params);
 	}
 	
 	public Collection<String> getOrder(String id) throws Exception {
@@ -116,7 +116,7 @@ public class QueryManagementImplTest extends XDMManagementTest {
 		ec.addExpression(docType, Comparison.EQ, path, "$id", id);
 		Map<String, String> params = new HashMap<String, String>();
 		params.put(":order", "/" + prefix + ":FIXML/" + prefix + ":Order");
-		return ((XDMQueryManagement) getQueryManagement()).getContent(ec, ":order", params);
+		return ((QueryManagement) getQueryManagement()).getContent(ec, ":order", params);
 	}
 	
 	public Collection<String> getCustomerProfile(String id) throws Exception {
@@ -145,7 +145,7 @@ public class QueryManagementImplTest extends XDMManagementTest {
 		params.put(":langs", "/" + prefix + ":Customer/" + prefix + ":Languages");
 		params.put(":addrs", "/" + prefix + ":Customer/" + prefix + ":Addresses");
 		params.put(":email", "/" + prefix + ":Customer/" + prefix + ":EmailAddresses");
-		return ((XDMQueryManagement) getQueryManagement()).getContent(ec, template, params);
+		return ((QueryManagement) getQueryManagement()).getContent(ec, template, params);
 	}
 	
 	public Collection<String> getCustomerAccounts(String id) throws Exception {
@@ -174,7 +174,7 @@ public class QueryManagementImplTest extends XDMManagementTest {
 		params.put(":balance", "/" + prefix + ":Customer/" + prefix + ":Accounts/" + prefix + ":Account/" + prefix + ":Balance/" + prefix + ":OnlineActualBal/text()");
 		params.put(":accId", "/" + prefix + ":Customer/" + prefix + ":Accounts/" + prefix + ":Account/@id");
 		params.put(":posName", "/" + prefix + ":Customer/" + prefix + ":Accounts/" + prefix + ":Account/" + prefix + ":Holdings/" + prefix + ":Position/" + prefix + ":Name");
-		return ((XDMQueryManagement) getQueryManagement()).getContent(ec, template, params);
+		return ((QueryManagement) getQueryManagement()).getContent(ec, template, params);
 	}
 	
 	public Collection<String> searchSecurity(String sector, float peMin, float peMax, float yieldMin) throws Exception {
@@ -229,7 +229,7 @@ public class QueryManagementImplTest extends XDMManagementTest {
 		params.put(":sector", "/" + prefix + ":Security/" + prefix + ":SecurityInformation//" + prefix + ":Sector");
 		params.put(":pe", "/" + prefix + ":Security/" + prefix + ":PE");
    		params.put(":yield", "/" + prefix + ":Security/" + prefix + ":Yield");
-   		return ((XDMQueryManagement) getQueryManagement()).getContent(ec, template, params);
+   		return ((QueryManagement) getQueryManagement()).getContent(ec, template, params);
 	}
 	
 	@Test

@@ -1,8 +1,8 @@
 package com.bagri.xdm.client.hazelcast.impl;
 
-import static com.bagri.xdm.cache.api.XDMCacheConstants.CN_XDM_QUERY;
-import static com.bagri.xdm.cache.api.XDMCacheConstants.CN_XDM_RESULT;
-import static com.bagri.xdm.cache.api.XDMCacheConstants.PN_XDM_SCHEMA_POOL;
+import static com.bagri.xdm.cache.api.CacheConstants.CN_XDM_QUERY;
+import static com.bagri.xdm.cache.api.CacheConstants.CN_XDM_RESULT;
+import static com.bagri.xdm.cache.api.CacheConstants.PN_XDM_SCHEMA_POOL;
 import static com.bagri.xdm.common.XDMConstants.*;
 
 import java.util.ArrayList;
@@ -23,7 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.api.XDMQueryManagement;
+import com.bagri.xdm.api.QueryManagement;
 import com.bagri.xdm.api.impl.QueryManagementBase;
 import com.bagri.xdm.client.hazelcast.task.query.QueryUrisProvider;
 import com.bagri.xdm.client.hazelcast.task.query.QueryExecutor;
@@ -34,7 +34,7 @@ import com.hazelcast.core.IMap;
 import com.hazelcast.core.Member;
 import com.hazelcast.core.ReplicatedMap;
 
-public class QueryManagementImpl extends QueryManagementBase implements XDMQueryManagement {
+public class QueryManagementImpl extends QueryManagementBase implements QueryManagement {
 	
     private final static Logger logger = LoggerFactory.getLogger(QueryManagementImpl.class);
 	

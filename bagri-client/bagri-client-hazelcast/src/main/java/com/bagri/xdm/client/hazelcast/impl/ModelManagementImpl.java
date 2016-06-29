@@ -1,6 +1,6 @@
 package com.bagri.xdm.client.hazelcast.impl;
 
-import static com.bagri.xdm.cache.api.XDMCacheConstants.*;
+import static com.bagri.xdm.cache.api.CacheConstants.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -11,7 +11,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import com.bagri.common.idgen.IdGenerator;
-import com.bagri.xdm.api.XDMModelManagement;
+import com.bagri.xdm.api.ModelManagement;
 import com.bagri.xdm.api.impl.ModelManagementBase;
 import com.bagri.xdm.domain.DocumentType;
 import com.bagri.xdm.domain.Namespace;
@@ -23,7 +23,7 @@ import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
 import com.hazelcast.query.impl.predicates.RegexPredicate;
 
-public class ModelManagementImpl extends ModelManagementBase implements XDMModelManagement { 
+public class ModelManagementImpl extends ModelManagementBase implements ModelManagement { 
 
 	protected IMap<String, Path> pathCache;
 	//protected ReplicatedMap<String, XDMNamespace> nsCache;

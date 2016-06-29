@@ -5,7 +5,7 @@ package com.bagri.xdm.api;
  * 
  * @author Denis Sukhoroslov
  */
-public enum XDMHealthCheckState {
+public enum HealthCheckState {
 	
 	/**
 	 * do not check health state

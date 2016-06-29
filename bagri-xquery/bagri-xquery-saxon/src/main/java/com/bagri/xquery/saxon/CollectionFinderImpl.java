@@ -9,9 +9,9 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bagri.xdm.api.XDMRepository;
+import com.bagri.xdm.api.SchemaRepository;
 import com.bagri.xdm.api.impl.ModelManagementBase;
-import com.bagri.xdm.cache.api.XDMQueryManagement;
+import com.bagri.xdm.cache.api.QueryManagement;
 import com.bagri.xdm.domain.Document;
 import com.bagri.xdm.query.AxisType;
 import com.bagri.xdm.query.Comparison;
@@ -57,7 +57,7 @@ public class CollectionFinderImpl implements CollectionFinder {
 
 	private static final Logger logger = LoggerFactory.getLogger(CollectionFinderImpl.class);
 
-    private XDMRepository repo;
+    private SchemaRepository repo;
     private QueryBuilder query;
     private XQueryExpression exp;
 
@@ -65,7 +65,7 @@ public class CollectionFinderImpl implements CollectionFinder {
 	//private int collectType;
 	private int currentType;
     
-    public CollectionFinderImpl(XDMRepository repo) {
+    public CollectionFinderImpl(SchemaRepository repo) {
     	this.repo = repo;
     }
 
@@ -126,7 +126,7 @@ public class CollectionFinderImpl implements CollectionFinder {
 	}
 
 	private int getCollectionId(String uri, String baseUri) {
-		Schema schema = ((com.bagri.xdm.cache.api.XDMRepository) repo).getSchema();
+		Schema schema = ((com.bagri.xdm.cache.api.SchemaRepository) repo).getSchema();
 		if (baseUri != null && !baseUri.isEmpty() && uri.startsWith(baseUri)) {
 			uri = uri.substring(baseUri.length());
 		}

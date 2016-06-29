@@ -11,8 +11,8 @@ import java.util.List;
 import javax.xml.xquery.XQItemType;
 
 import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.api.XDMModelManagement;
-import com.bagri.xdm.cache.api.XDMParser;
+import com.bagri.xdm.api.ModelManagement;
+import com.bagri.xdm.cache.api.ContentParser;
 import com.bagri.xdm.common.df.XDMParserBase;
 import com.bagri.xdm.domain.Occurrence;
 import com.bagri.xdm.domain.Data;
@@ -23,16 +23,16 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
-public class XDMJaksonParser extends XDMParserBase implements XDMParser {
+public class XDMJaksonParser extends XDMParserBase implements ContentParser {
 	
 	private static JsonFactory factory = new JsonFactory();
 
-	public static List<Data> parseDocument(XDMModelManagement dictionary, String json) throws XDMException {
+	public static List<Data> parseDocument(ModelManagement dictionary, String json) throws XDMException {
 		XDMJaksonParser parser = new XDMJaksonParser(dictionary);
 		return parser.parse(json);
 	}
 	
-	public XDMJaksonParser(XDMModelManagement model) {
+	public XDMJaksonParser(ModelManagement model) {
 		super(model);
 	}
 

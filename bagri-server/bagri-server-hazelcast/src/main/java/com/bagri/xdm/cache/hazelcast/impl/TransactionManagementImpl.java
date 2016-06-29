@@ -3,10 +3,10 @@ package com.bagri.xdm.cache.hazelcast.impl;
 import static com.bagri.xdm.api.XDMException.ecTransNoNested;
 import static com.bagri.xdm.api.XDMException.ecTransNotFound;
 import static com.bagri.xdm.api.XDMException.ecTransWrongState;
-import static com.bagri.xdm.cache.api.XDMCacheConstants.CN_XDM_TRANSACTION;
-import static com.bagri.xdm.cache.api.XDMCacheConstants.PN_XDM_SCHEMA_POOL;
-import static com.bagri.xdm.cache.api.XDMCacheConstants.SQN_TRANSACTION;
-import static com.bagri.xdm.cache.api.XDMCacheConstants.TPN_XDM_COUNTERS;
+import static com.bagri.xdm.cache.api.CacheConstants.CN_XDM_TRANSACTION;
+import static com.bagri.xdm.cache.api.CacheConstants.PN_XDM_SCHEMA_POOL;
+import static com.bagri.xdm.cache.api.CacheConstants.SQN_TRANSACTION;
+import static com.bagri.xdm.cache.api.CacheConstants.TPN_XDM_COUNTERS;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -28,10 +28,10 @@ import com.bagri.common.idgen.IdGenerator;
 import com.bagri.common.stats.StatisticsProvider;
 import com.bagri.common.util.JMXUtils;
 import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.api.XDMHealthState;
-import com.bagri.xdm.api.XDMTransactionIsolation;
-import com.bagri.xdm.api.XDMTransactionState;
-import com.bagri.xdm.cache.api.XDMTransactionManagement;
+import com.bagri.xdm.api.HealthState;
+import com.bagri.xdm.api.TransactionIsolation;
+import com.bagri.xdm.api.TransactionState;
+import com.bagri.xdm.cache.api.TransactionManagement;
 import com.bagri.xdm.cache.hazelcast.task.doc.DocumentCleaner;
 import com.bagri.xdm.client.hazelcast.impl.IdGeneratorImpl;
 import com.bagri.xdm.domain.Counter;
@@ -48,7 +48,7 @@ import com.hazelcast.core.MultiExecutionCallback;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
 
-public class TransactionManagementImpl implements XDMTransactionManagement, StatisticsProvider, MultiExecutionCallback {
+public class TransactionManagementImpl implements TransactionManagement, StatisticsProvider, MultiExecutionCallback {
 	
     private static final Logger logger = LoggerFactory.getLogger(TransactionManagementImpl.class);
 	
@@ -56,7 +56,7 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 		
 		@Override
 		protected Long initialValue() {
-			return XDMTransactionManagement.TX_NO;
+			return TransactionManagement.TX_NO;
  		}
 		
 	};
@@ -112,11 +112,11 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 	@Override
 	public long beginTransaction() throws XDMException {
 		// get default isolation level from some config..
-		return beginTransaction(XDMTransactionIsolation.readCommited);
+		return beginTransaction(TransactionIsolation.readCommited);
 	}
 
 	@Override
-	public long beginTransaction(XDMTransactionIsolation txIsolation) throws XDMException {
+	public long beginTransaction(TransactionIsolation txIsolation) throws XDMException {
 		logger.trace("beginTransaction.enter; txIsolation: {}", txIsolation); 
 		long txId = thTx.get();
 		if (txId > TX_NO && txCache.containsKey(txId)) {
@@ -125,7 +125,7 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 
 		txId = txGen.next();
 		// TODO: do this via EntryProcessor?
-		Transaction xTx = new Transaction(txId, cluster.getClusterTime(), 0, repo.getUserName(), txIsolation, XDMTransactionState.started);
+		Transaction xTx = new Transaction(txId, cluster.getClusterTime(), 0, repo.getUserName(), txIsolation, TransactionState.started);
 		triggerManager.applyTrigger(xTx, Order.before, Scope.begin); 
 		txCache.set(txId, xTx);
 		thTx.set(txId);
@@ -226,7 +226,7 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 		}
 
 		Transaction xTx;
-		XDMTransactionIsolation txIsolation;
+		TransactionIsolation txIsolation;
 		if (cTx != TX_NO) {
 			// can not be null!
 			xTx = txCache.get(cTx);
@@ -235,23 +235,23 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 			}
 	
 			// current tx is already finished!
-			if (xTx.getTxState() != XDMTransactionState.started) {
+			if (xTx.getTxState() != TransactionState.started) {
 				throw new XDMException("Current Transaction is already " + xTx.getTxState(), ecTransWrongState);
 			}
 				
 			txIsolation = xTx.getTxIsolation(); 
-			if (txIsolation == XDMTransactionIsolation.dirtyRead) {
+			if (txIsolation == TransactionIsolation.dirtyRead) {
 				// current tx is dirtyRead, can see not-committed tx results
 				return true;
 			}
 		} else {
 			// default isolation level
-			txIsolation = XDMTransactionIsolation.readCommited;
+			txIsolation = TransactionIsolation.readCommited;
 		}
 		
 		xTx = txCache.get(txId);
-		boolean commited = xTx == null || xTx.getTxState() == XDMTransactionState.commited;
-		if (txIsolation == XDMTransactionIsolation.readCommited) {
+		boolean commited = xTx == null || xTx.getTxState() == TransactionState.commited;
+		if (txIsolation == TransactionIsolation.readCommited) {
 			return commited;
 		}
 
@@ -341,7 +341,7 @@ public class TransactionManagementImpl implements XDMTransactionManagement, Stat
 	@Override
 	public TabularData getStatisticSeries() {
 		// return InProgress Transactions here!?
-   		Predicate<Long, Transaction> f = Predicates.equal("txState", XDMTransactionState.started);
+   		Predicate<Long, Transaction> f = Predicates.equal("txState", TransactionState.started);
 		Collection<Transaction> txStarted = txCache.values(f);
 		if (txStarted == null || txStarted.isEmpty()) {
 			return null;

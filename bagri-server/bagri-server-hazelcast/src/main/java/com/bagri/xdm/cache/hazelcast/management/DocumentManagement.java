@@ -27,7 +27,6 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 import com.bagri.common.stats.StatsAggregator;
 import com.bagri.common.util.FileUtils;
 import com.bagri.common.util.JMXUtils;
-import com.bagri.xdm.api.XDMDocumentManagement;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.cache.hazelcast.task.doc.DocumentStructureProvider;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaDocCleaner;
@@ -44,7 +43,7 @@ import com.hazelcast.core.Partition;
 public class DocumentManagement extends SchemaFeatureManagement {
 
 	private CompositeData docTotals = null;
-	private XDMDocumentManagement docManager;
+	private com.bagri.xdm.api.DocumentManagement docManager;
     
     public DocumentManagement(String schemaName) {
     	super(schemaName);

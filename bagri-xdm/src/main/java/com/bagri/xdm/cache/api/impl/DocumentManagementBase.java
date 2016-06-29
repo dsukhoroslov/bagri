@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.api.XDMModelManagement;
+import com.bagri.xdm.api.ModelManagement;
 import com.bagri.xdm.domain.Data;
 import com.bagri.xdm.domain.NodeKind;
 
@@ -18,13 +18,13 @@ import com.bagri.xdm.domain.NodeKind;
  */
 public abstract class DocumentManagementBase extends com.bagri.xdm.api.impl.DocumentManagementBase  {
 
-	protected XDMModelManagement model;
+	protected ModelManagement model;
 	
-	public XDMModelManagement getModelManager() {
+	public ModelManagement getModelManager() {
 		return this.model;
 	}
 	
-	public void setModelManager(XDMModelManagement model) {
+	public void setModelManager(ModelManagement model) {
 		this.model = model;
 	}
 

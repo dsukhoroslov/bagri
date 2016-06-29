@@ -18,7 +18,7 @@ import com.bagri.xdm.query.QueryBuilder;
  * @author Denis Sukhoroslov
  *
  */
-public interface XDMQueryManagement extends com.bagri.xdm.api.XDMQueryManagement {
+public interface QueryManagement extends com.bagri.xdm.api.QueryManagement {
 	
 	/**
 	 * collect document identifiers witch match the query provided

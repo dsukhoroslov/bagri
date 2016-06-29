@@ -23,10 +23,10 @@ import org.slf4j.LoggerFactory;
 
 import com.bagri.common.util.XMLUtils;
 import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.api.XDMTransactionManagement;
+import com.bagri.xdm.api.TransactionManagement;
 
 import static com.bagri.xdm.api.XDMException.ecTransWrongState;
-import static com.bagri.xdm.api.XDMTransactionManagement.TX_NO;
+import static com.bagri.xdm.api.TransactionManagement.TX_NO;
 import static com.bagri.xqj.BagriXQErrors.ex_connection_closed;
 import static com.bagri.xqj.BagriXQErrors.ex_null_context;
 import static com.bagri.xquery.api.XQUtils.getXQException;
@@ -142,7 +142,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 		return autoCommit;
 	}
 
-	private XDMTransactionManagement getTxManager() {
+	private TransactionManagement getTxManager() {
 		return getProcessor().getRepository().getTxManagement();
 	}
 

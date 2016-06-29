@@ -12,10 +12,10 @@ import javax.xml.xquery.XQItemAccessor;
 import javax.xml.xquery.XQQueryException;
 import javax.xml.xquery.XQStaticContext;
 
-import com.bagri.xdm.api.XDMDocumentManagement;
+import com.bagri.xdm.api.DocumentManagement;
 import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.api.XDMRepository;
-import com.bagri.xdm.cache.api.XDMQueryManagement;
+import com.bagri.xdm.api.SchemaRepository;
+import com.bagri.xdm.cache.api.QueryManagement;
 import com.bagri.xdm.common.XDMConstants;
 import com.bagri.xdm.domain.Document;
 import com.bagri.xdm.domain.Query;
@@ -44,7 +44,7 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
     	config.setDocumentNumberAllocator(defDocNumberAllocator);
     }
 
-    public XQProcessorServer(XDMRepository xRepo) {
+    public XQProcessorServer(SchemaRepository xRepo) {
     	this();
     	logger.trace("<init>; got Repo: {}", xRepo);
     	setRepository(xRepo);
@@ -56,7 +56,7 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
     }
 
 	@Override
-    public void setRepository(XDMRepository xRepo) {
+    public void setRepository(SchemaRepository xRepo) {
     	super.setRepository(xRepo);
     	clnFinder = new CollectionFinderImpl(xRepo);
     	config.setCollectionFinder(clnFinder);
@@ -65,7 +65,7 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
         config.setSourceResolver(sResolver);
         //config.registerExternalObjectModel(sResolver);
         config.setURIResolver(sResolver);
-        ModuleURIResolver mResolver = new ModuleURIResolverImpl((com.bagri.xdm.cache.api.XDMRepository) xRepo);
+        ModuleURIResolver mResolver = new ModuleURIResolverImpl((com.bagri.xdm.cache.api.SchemaRepository) xRepo);
         config.setModuleURIResolver(mResolver);
     }
 
@@ -93,7 +93,7 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 	@Override
 	public Iterator<?> executeXCommand(String command, Map<QName, Object> params, Properties props) throws XQException {
 		
-	    XDMDocumentManagement dMgr = getRepository().getDocumentManagement();
+	    DocumentManagement dMgr = getRepository().getDocumentManagement();
 	    try {
 			if (command.startsWith("storeDocument")) {
 				XQItemAccessor item = getBoundItem(params, "uri");
@@ -121,7 +121,7 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 	    logger.trace("execQuery.enter; this: {}", this);
 		long stamp = System.currentTimeMillis();
    	    
-   	    XDMQueryManagement qMgr = (XDMQueryManagement) getQueryManagement();
+   	    QueryManagement qMgr = (QueryManagement) getQueryManagement();
    	    Query xQuery = qMgr.getQuery(query);
    	    boolean cacheable = false;
    	    boolean readOnly = true;

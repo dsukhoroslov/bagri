@@ -11,7 +11,7 @@ import javax.xml.transform.stream.StreamSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bagri.xdm.cache.api.XDMRepository;
+import com.bagri.xdm.cache.api.SchemaRepository;
 import com.bagri.xdm.system.Module;
 
 import net.sf.saxon.lib.ModuleURIResolver;
@@ -21,9 +21,9 @@ public class ModuleURIResolverImpl implements ModuleURIResolver {
 	
 	private static final Logger logger = LoggerFactory.getLogger(ModuleURIResolverImpl.class);
 	
-    private XDMRepository repo;
+    private SchemaRepository repo;
 
-    public ModuleURIResolverImpl(XDMRepository repo) {
+    public ModuleURIResolverImpl(SchemaRepository repo) {
     	this.repo = repo;
 		logger.trace("<init>; initialized with Repo: {}", repo);
     }

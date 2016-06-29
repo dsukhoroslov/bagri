@@ -24,7 +24,7 @@ import com.bagri.common.util.FileUtils;
 import com.bagri.common.util.PropUtils;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.test.XDMManagementTest;
-import com.bagri.xdm.cache.api.XDMQueryManagement;
+import com.bagri.xdm.cache.api.QueryManagement;
 import com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl;
 import com.bagri.xdm.cache.hazelcast.impl.TransactionManagementImpl;
 import com.bagri.xdm.query.AxisType;
@@ -97,7 +97,7 @@ public class TransactionCacheStoreTest extends XDMManagementTest {
 		ec.addExpression(docType, Comparison.EQ, path, "$sym", symbol);
 		Map<String, String> params = new HashMap<String, String>();
 		params.put(":sec", "/" + prefix + ":Security");
-		return ((XDMQueryManagement) getQueryManagement()).getContent(ec, ":sec", params);
+		return ((QueryManagement) getQueryManagement()).getContent(ec, ":sec", params);
 	}
 	
 	//@Ignore

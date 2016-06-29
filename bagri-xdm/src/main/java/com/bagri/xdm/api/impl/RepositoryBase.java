@@ -1,12 +1,12 @@
 package com.bagri.xdm.api.impl;
 
-import com.bagri.xdm.api.XDMAccessManagement;
-import com.bagri.xdm.api.XDMBindingManagement;
-import com.bagri.xdm.api.XDMDocumentManagement;
-import com.bagri.xdm.api.XDMHealthManagement;
-import com.bagri.xdm.api.XDMModelManagement;
-import com.bagri.xdm.api.XDMQueryManagement;
-import com.bagri.xdm.api.XDMTransactionManagement;
+import com.bagri.xdm.api.AccessManagement;
+import com.bagri.xdm.api.BindingManagement;
+import com.bagri.xdm.api.DocumentManagement;
+import com.bagri.xdm.api.HealthManagement;
+import com.bagri.xdm.api.ModelManagement;
+import com.bagri.xdm.api.QueryManagement;
+import com.bagri.xdm.api.TransactionManagement;
 
 /**
  * Base XDMRepository implementation. Just a common holder for internal management interfaces
@@ -16,19 +16,19 @@ import com.bagri.xdm.api.XDMTransactionManagement;
  */
 public abstract class RepositoryBase {
 	
-	private XDMAccessManagement accessMgr;
-	private XDMBindingManagement bindMgr;
-	private XDMDocumentManagement docMgr;
-	private XDMHealthManagement healthMgr;
-	private XDMModelManagement modelMgr;
-	private XDMQueryManagement queryMgr;
-	private XDMTransactionManagement txMgr;
+	private AccessManagement accessMgr;
+	private BindingManagement bindMgr;
+	private DocumentManagement docMgr;
+	private HealthManagement healthMgr;
+	private ModelManagement modelMgr;
+	private QueryManagement queryMgr;
+	private TransactionManagement txMgr;
 	
 	/**
 	 * 
 	 * @return XDM Access Management implementation
 	 */
-	public XDMAccessManagement getAccessManagement() {
+	public AccessManagement getAccessManagement() {
 		return accessMgr;
 	}
 	
@@ -36,7 +36,7 @@ public abstract class RepositoryBase {
 	 * 
 	 * @param accessMgr the XDM Access Management implementation
 	 */
-	public void setAccessManagement(XDMAccessManagement accessMgr) {
+	public void setAccessManagement(AccessManagement accessMgr) {
 		this.accessMgr = accessMgr;
 	}
 
@@ -44,7 +44,7 @@ public abstract class RepositoryBase {
 	 * 
 	 * @return XDM Binding Management implementation
 	 */
-	public XDMBindingManagement getBindingManagement() {
+	public BindingManagement getBindingManagement() {
 		return bindMgr;
 	}
 	
@@ -52,7 +52,7 @@ public abstract class RepositoryBase {
 	 * 
 	 * @param bindMgr the XDM Binding Management implementation
 	 */
-	public void setBindingManagement(XDMBindingManagement bindMgr) {
+	public void setBindingManagement(BindingManagement bindMgr) {
 		this.bindMgr = bindMgr;
 	}
 
@@ -60,7 +60,7 @@ public abstract class RepositoryBase {
 	 * 
 	 * @return XDM Document Management implementation
 	 */
-	public XDMDocumentManagement getDocumentManagement() {
+	public DocumentManagement getDocumentManagement() {
 		return docMgr;
 	}
 	
@@ -68,7 +68,7 @@ public abstract class RepositoryBase {
 	 * 
 	 * @param docMgr  the XDM Document Management implementation
 	 */
-	public void setDocumentManagement(XDMDocumentManagement docMgr) {
+	public void setDocumentManagement(DocumentManagement docMgr) {
 		this.docMgr = docMgr;
 	}
 
@@ -76,7 +76,7 @@ public abstract class RepositoryBase {
 	 * 
 	 * @return XDM Health Management implementation
 	 */
-	public XDMHealthManagement getHealthManagement() {
+	public HealthManagement getHealthManagement() {
 		return healthMgr;
 	}
 	
@@ -84,7 +84,7 @@ public abstract class RepositoryBase {
 	 * 
 	 * @param healthMgr  the XDM Health Management implementation
 	 */
-	public void setHealthManagement(XDMHealthManagement healthMgr) {
+	public void setHealthManagement(HealthManagement healthMgr) {
 		this.healthMgr = healthMgr;
 	}
 
@@ -92,7 +92,7 @@ public abstract class RepositoryBase {
 	 * 
 	 * @return XDM Model Management implementation
 	 */
-	public XDMModelManagement getModelManagement() {
+	public ModelManagement getModelManagement() {
 		return modelMgr;
 	}
 
@@ -100,7 +100,7 @@ public abstract class RepositoryBase {
 	 * 
 	 * @param modelMgr  the XDM Model Management implementation
 	 */
-	public void setModelManagement(XDMModelManagement modelMgr) {
+	public void setModelManagement(ModelManagement modelMgr) {
 		this.modelMgr = modelMgr;
 	}
 	
@@ -108,7 +108,7 @@ public abstract class RepositoryBase {
 	 * 
 	 * @return XDM Query Management implementation
 	 */
-	public XDMQueryManagement getQueryManagement() {
+	public QueryManagement getQueryManagement() {
 		return queryMgr;
 	}
 
@@ -116,7 +116,7 @@ public abstract class RepositoryBase {
 	 * 
 	 * @param queryMgr  the XDM Query Management implementation
 	 */
-	public void setQueryManagement(XDMQueryManagement queryMgr) {
+	public void setQueryManagement(QueryManagement queryMgr) {
 		this.queryMgr = queryMgr;
 	}
 
@@ -124,7 +124,7 @@ public abstract class RepositoryBase {
 	 * 
 	 * @return XDM Transaction Management implementation
 	 */
-	public XDMTransactionManagement getTxManagement() {
+	public TransactionManagement getTxManagement() {
 		return txMgr;
 	}
 
@@ -132,7 +132,7 @@ public abstract class RepositoryBase {
 	 * 
 	 * @param txMgr  the XDM Transaction Management implementation
 	 */
-	public void setTxManagement(XDMTransactionManagement txMgr) {
+	public void setTxManagement(TransactionManagement txMgr) {
 		this.txMgr = txMgr;
 	}
 

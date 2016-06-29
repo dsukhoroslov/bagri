@@ -24,7 +24,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.bagri.common.util.JMXUtils;
 import com.bagri.xdm.api.test.XDMManagementTest;
-import com.bagri.xdm.cache.api.XDMQueryManagement;
+import com.bagri.xdm.cache.api.QueryManagement;
 import com.bagri.xdm.domain.Occurrence;
 import com.bagri.xdm.query.AxisType;
 import com.bagri.xdm.query.Comparison;
@@ -90,7 +90,7 @@ public class UniqueIndexManagementTest extends XDMManagementTest {
 		ec.addExpression(docType, Comparison.EQ, path, "$sym", symbol);
 		Map<String, String> params = new HashMap<>();
 		params.put(":sec", "/" + prefix + ":Security");
-		return ((XDMQueryManagement) getQueryManagement()).getContent(ec, ":sec", params);
+		return ((QueryManagement) getQueryManagement()).getContent(ec, ":sec", params);
 	}
 	
 	

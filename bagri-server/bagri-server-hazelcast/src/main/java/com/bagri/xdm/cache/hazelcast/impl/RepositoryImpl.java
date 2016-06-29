@@ -20,17 +20,17 @@ import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
-import com.bagri.xdm.api.XDMBindingManagement;
+import com.bagri.xdm.api.BindingManagement;
 import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.api.XDMModelManagement;
-import com.bagri.xdm.api.XDMTransactionManagement;
+import com.bagri.xdm.api.ModelManagement;
+import com.bagri.xdm.api.TransactionManagement;
 import com.bagri.xdm.api.impl.RepositoryBase;
-import com.bagri.xdm.cache.api.XDMBuilder;
-import com.bagri.xdm.cache.api.XDMClientManagement;
-import com.bagri.xdm.cache.api.XDMIndexManagement;
-import com.bagri.xdm.cache.api.XDMParser;
-import com.bagri.xdm.cache.api.XDMRepository;
-import com.bagri.xdm.cache.api.XDMTriggerManagement;
+import com.bagri.xdm.cache.api.ContentBuilder;
+import com.bagri.xdm.cache.api.ClientManagement;
+import com.bagri.xdm.cache.api.IndexManagement;
+import com.bagri.xdm.cache.api.ContentParser;
+import com.bagri.xdm.cache.api.SchemaRepository;
+import com.bagri.xdm.cache.api.TriggerManagement;
 import com.bagri.xdm.common.KeyFactory;
 import com.bagri.xdm.common.df.xml.XmlBuilder;
 import com.bagri.xdm.common.df.xml.XmlStaxParser;
@@ -44,7 +44,7 @@ import com.bagri.xdm.system.TriggerDefinition;
 import com.bagri.xquery.api.XQProcessor;
 import com.hazelcast.core.HazelcastInstance;
 
-public class RepositoryImpl extends RepositoryBase implements ApplicationContextAware, XDMRepository {
+public class RepositoryImpl extends RepositoryBase implements ApplicationContextAware, SchemaRepository {
 
 	private static final transient Logger logger = LoggerFactory.getLogger(RepositoryImpl.class);
 	
@@ -62,9 +62,9 @@ public class RepositoryImpl extends RepositoryBase implements ApplicationContext
 	private Map<String, DataFormat> xdmFormats;
 	private Collection<Module> xdmModules;
 	private Collection<Library> xdmLibraries;
-    private XDMClientManagement clientMgr;
-    private XDMIndexManagement indexMgr;
-    private XDMTriggerManagement triggerMgr;
+    private ClientManagement clientMgr;
+    private IndexManagement indexMgr;
+    private TriggerManagement triggerMgr;
     private ApplicationContext appContext;
     private HazelcastInstance hzInstance;
 	private Map<String, XQProcessor> processors = new ConcurrentHashMap<String, XQProcessor>();
@@ -85,43 +85,43 @@ public class RepositoryImpl extends RepositoryBase implements ApplicationContext
 	}
 	
 	@Override
-	public void setBindingManagement(XDMBindingManagement bindMgr) {
+	public void setBindingManagement(BindingManagement bindMgr) {
 		super.setBindingManagement(bindMgr);
 		((BindingManagementImpl) bindMgr).setRepository(this);
 	}
 
 	@Override
-	public XDMClientManagement getClientManagement() {
+	public ClientManagement getClientManagement() {
 		return clientMgr;
 	}
 	
-	public void setClientManagement(XDMClientManagement clientMgr) {
+	public void setClientManagement(ClientManagement clientMgr) {
 		this.clientMgr = clientMgr;
 		((ClientManagementImpl) clientMgr).setRepository(this);
 	}
 	
 	@Override
-	public XDMIndexManagement getIndexManagement() {
+	public IndexManagement getIndexManagement() {
 		return indexMgr;
 	}
 
-	public void setIndexManagement(XDMIndexManagement indexMgr) {
+	public void setIndexManagement(IndexManagement indexMgr) {
 		this.indexMgr = indexMgr;
 		((IndexManagementImpl) indexMgr).setRepository(this);
 	}
 	
 	@Override
-	public void setTxManagement(XDMTransactionManagement txMgr) {
+	public void setTxManagement(TransactionManagement txMgr) {
 		super.setTxManagement(txMgr);
 		((TransactionManagementImpl) txMgr).setRepository(this);
 	}
 
 	@Override
-	public XDMTriggerManagement getTriggerManagement() {
+	public TriggerManagement getTriggerManagement() {
 		return triggerMgr;
 	}
 
-	public void setTriggerManagement(XDMTriggerManagement triggerMgr) {
+	public void setTriggerManagement(TriggerManagement triggerMgr) {
 		this.triggerMgr = triggerMgr;
 		((TriggerManagementImpl) triggerMgr).setRepository(this);
 	}
@@ -190,7 +190,7 @@ public class RepositoryImpl extends RepositoryBase implements ApplicationContext
 	}
 	
 	@Override
-	public XDMParser getParser(String dataFormat) {
+	public ContentParser getParser(String dataFormat) {
 		DataFormat df = getDataFormat(dataFormat);
 		if (df != null) {
 			return instantiateClass(df.getParserClass());
@@ -200,7 +200,7 @@ public class RepositoryImpl extends RepositoryBase implements ApplicationContext
 	}
 	
 	@Override
-	public XDMBuilder getBuilder(String dataFormat) {
+	public ContentBuilder getBuilder(String dataFormat) {
 		DataFormat df = getDataFormat(dataFormat);
 		if (df != null) {
 			return instantiateClass(df.getBuilderClass());
@@ -213,7 +213,7 @@ public class RepositoryImpl extends RepositoryBase implements ApplicationContext
 		
 		try {
 			Class clazz = Class.forName(className);
-			return (T) clazz.getConstructor(XDMModelManagement.class).newInstance(getModelManagement());
+			return (T) clazz.getConstructor(ModelManagement.class).newInstance(getModelManagement());
 		} catch (Exception ex) {
 			logger.error("instantiateClass; cannot instantiate: " + className, ex);
 			// throw ex?

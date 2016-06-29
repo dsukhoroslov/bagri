@@ -14,9 +14,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.api.XDMRepository;
-import com.bagri.xdm.cache.api.XDMDocumentManagement;
-import com.bagri.xdm.cache.api.XDMQueryManagement;
+import com.bagri.xdm.api.SchemaRepository;
+import com.bagri.xdm.cache.api.DocumentManagement;
+import com.bagri.xdm.cache.api.QueryManagement;
 import com.bagri.xdm.query.ExpressionContainer;
 
 import net.sf.saxon.expr.XPathContext;
@@ -29,7 +29,7 @@ public class ResourceCollectionImpl implements ResourceCollection {
     private static final Logger logger = LoggerFactory.getLogger(ResourceCollectionImpl.class);
 	
 	private String uri;
-    private XDMRepository repo;
+    private SchemaRepository repo;
 	private ExpressionContainer query;
 	private Collection<Long> docIds = null;
 	private Iterator<Long> iter = null;
@@ -41,7 +41,7 @@ public class ResourceCollectionImpl implements ResourceCollection {
 		this.iter = docIds.iterator();
 	}
 
-	public ResourceCollectionImpl(String uri, XDMRepository repo, ExpressionContainer query) {
+	public ResourceCollectionImpl(String uri, SchemaRepository repo, ExpressionContainer query) {
 		this.uri = uri;
 		this.repo = repo;
 		this.query = query;
@@ -49,7 +49,7 @@ public class ResourceCollectionImpl implements ResourceCollection {
 	
 	private void loadData() { //throws XPathException {
 		try {
-			docIds = ((XDMQueryManagement) repo.getQueryManagement()).getDocumentIds(query);
+			docIds = ((QueryManagement) repo.getQueryManagement()).getDocumentIds(query);
 		} catch (XDMException ex) {
 			logger.error("loadData.error;", ex);
 			//throw new XPathException(ex);
@@ -143,7 +143,7 @@ public class ResourceCollectionImpl implements ResourceCollection {
 				String content;
 				try {
 					// another bottleneck! takes 6.73 ms, even to get XML from cache! !?
-					content = ((XDMDocumentManagement) repo.getDocumentManagement()).getDocumentAsString(docKey);
+					content = ((DocumentManagement) repo.getDocumentManagement()).getDocumentAsString(docKey);
 					//content = content.replaceAll("&", "&amp;");
 				} catch (XDMException ex) {
 					logger.error("next.error", ex);

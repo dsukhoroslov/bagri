@@ -1,6 +1,6 @@
 package com.bagri.xdm.client.hazelcast.impl;
 
-import static com.bagri.xdm.cache.api.XDMCacheConstants.PN_XDM_SCHEMA_POOL;
+import static com.bagri.xdm.cache.api.CacheConstants.PN_XDM_SCHEMA_POOL;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -8,13 +8,13 @@ import java.util.concurrent.Future;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bagri.xdm.api.XDMAccessManagement;
+import com.bagri.xdm.api.AccessManagement;
 import com.bagri.xdm.client.hazelcast.task.auth.UserAuthenticator;
 import com.bagri.xdm.system.Permission;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
 
-public class AccessManagementImpl implements XDMAccessManagement {
+public class AccessManagementImpl implements AccessManagement {
 
     private final static Logger logger = LoggerFactory.getLogger(AccessManagementImpl.class);
 	

@@ -20,8 +20,8 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bagri.xdm.api.XDMTransactionIsolation;
-import com.bagri.xdm.api.XDMTransactionState;
+import com.bagri.xdm.api.TransactionIsolation;
+import com.bagri.xdm.api.TransactionState;
 import com.bagri.xdm.domain.Transaction;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.MapLoaderLifecycleSupport;
@@ -112,7 +112,7 @@ public class TransactionCacheStore implements MapStore<Long, Transaction>, MapLo
 			int pos = buff.position();
 			// read just state here!
 			Transaction xtx = readTx();
-			if (XDMTransactionState.commited != xtx.getTxState()) {
+			if (TransactionState.commited != xtx.getTxState()) {
 				transactions.put(xtx.getTxId(), (long) pos);
 				bits.set(idx);
 				tidx++;
@@ -177,7 +177,7 @@ public class TransactionCacheStore implements MapStore<Long, Transaction>, MapLo
 		if (position != null) {
 			int pos = position.intValue();
 			bits.clear(pos2bit(pos));
-			buff.put(pos, (byte) XDMTransactionState.commited.ordinal());
+			buff.put(pos, (byte) TransactionState.commited.ordinal());
 			buff.putInt(0, bits.cardinality());
 		}
 		logger.trace("delete.exit; deleted: {}; tx count: {}", position != null, bits.cardinality());
@@ -192,7 +192,7 @@ public class TransactionCacheStore implements MapStore<Long, Transaction>, MapLo
 			if (position != null) {
 				int pos = position.intValue();
 				bits.clear(pos2bit(pos));
-				buff.put(pos, (byte) XDMTransactionState.commited.ordinal());
+				buff.put(pos, (byte) TransactionState.commited.ordinal());
 				buff.putInt(0, bits.cardinality());
 				cnt++;
 			}
@@ -262,11 +262,11 @@ public class TransactionCacheStore implements MapStore<Long, Transaction>, MapLo
 	}
 	
 	private Transaction readTx() {
-		XDMTransactionState state = XDMTransactionState.values()[buff.get()];
+		TransactionState state = TransactionState.values()[buff.get()];
 		long id = buff.getLong();
 		long start = buff.getLong();
 		long finish = buff.getLong();
-		XDMTransactionIsolation isol = XDMTransactionIsolation.values()[buff.get()];
+		TransactionIsolation isol = TransactionIsolation.values()[buff.get()];
 		byte[] by26 = new byte[byLen];
 		buff.get(by26);
 		int sz = 0;

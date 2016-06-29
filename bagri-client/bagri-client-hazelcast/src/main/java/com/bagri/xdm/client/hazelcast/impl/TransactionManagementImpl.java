@@ -1,6 +1,6 @@
 package com.bagri.xdm.client.hazelcast.impl;
 
-import static com.bagri.xdm.cache.api.XDMCacheConstants.PN_XDM_SCHEMA_POOL;
+import static com.bagri.xdm.cache.api.CacheConstants.PN_XDM_SCHEMA_POOL;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -9,15 +9,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.api.XDMTransactionIsolation;
-import com.bagri.xdm.api.XDMTransactionManagement;
+import com.bagri.xdm.api.TransactionIsolation;
+import com.bagri.xdm.api.TransactionManagement;
 import com.bagri.xdm.client.hazelcast.task.tx.TransactionAborter;
 import com.bagri.xdm.client.hazelcast.task.tx.TransactionCommiter;
 import com.bagri.xdm.client.hazelcast.task.tx.TransactionStarter;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
 
-public class TransactionManagementImpl implements XDMTransactionManagement {
+public class TransactionManagementImpl implements TransactionManagement {
 	
     private static final Logger logger = LoggerFactory.getLogger(TransactionManagementImpl.class);
 	
@@ -53,11 +53,11 @@ public class TransactionManagementImpl implements XDMTransactionManagement {
 	@Override
 	public long beginTransaction() throws XDMException {
 		// TODO: get default value from session config!
-		return beginTransaction(XDMTransactionIsolation.readCommited);
+		return beginTransaction(TransactionIsolation.readCommited);
 	}
 	
 	@Override
-	public long beginTransaction(XDMTransactionIsolation txIsolation) throws XDMException {
+	public long beginTransaction(TransactionIsolation txIsolation) throws XDMException {
 		logger.trace("beginTransaction.enter; current txId: {}", txId);
 		repo.getHealthManagement().checkClusterState();
 		

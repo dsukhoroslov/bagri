@@ -1,13 +1,13 @@
 package com.bagri.xdm.cache.hazelcast.impl;
 
-import static com.bagri.xdm.cache.api.XDMCacheConstants.*;
+import static com.bagri.xdm.cache.api.CacheConstants.*;
 
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bagri.xdm.api.XDMHealthState;
+import com.bagri.xdm.api.HealthState;
 import com.bagri.xdm.common.DocumentKey;
 import com.bagri.xdm.domain.Counter;
 import com.bagri.xdm.domain.Document;
@@ -25,10 +25,10 @@ public class HealthManagementImpl implements MessageListener<Counter>, Partition
     private static final Logger logger = LoggerFactory.getLogger(HealthManagementImpl.class);
 
 	private HazelcastInstance hzInstance;
-	private ITopic<XDMHealthState> hTopic;
+	private ITopic<HealthState> hTopic;
 	private IMap<DocumentKey, Document> xddCache;
 	
-	private XDMHealthState healthState = XDMHealthState.good; 
+	private HealthState healthState = HealthState.good; 
 	
 	private int thLow = 10;
 	private int thHigh = 0;
@@ -77,18 +77,18 @@ public class HealthManagementImpl implements MessageListener<Counter>, Partition
 		int docSize = xddCache.size();
 		logger.trace("checkStats; active count: {}; inactive count: {}; cache size: {}", cntActive, cntInactive, docSize);
 		long fullSize = cntActive.get() + cntInactive.get();
-		XDMHealthState hState;
+		HealthState hState;
 		if (fullSize < docSize - thLow) {
-			hState = XDMHealthState.bad;
+			hState = HealthState.bad;
 		} else if (fullSize > docSize + thHigh) {
-			hState = XDMHealthState.ugly;
+			hState = HealthState.ugly;
 		} else {
-			hState = XDMHealthState.good; 
+			hState = HealthState.good; 
 		} 
 		if (healthState != hState) {
 			healthState = hState;
 			hTopic.publish(hState);
-			if (healthState != XDMHealthState.good) { 			
+			if (healthState != HealthState.good) { 			
 				logger.info("checkState; the state is: {}; expected size: {}; cache size: {}", hState, fullSize, docSize);
 			}
 		}
@@ -97,14 +97,14 @@ public class HealthManagementImpl implements MessageListener<Counter>, Partition
 	public void clearState() {
 		cntActive = new AtomicLong(0);
 		cntInactive = new AtomicLong(0);
-		hTopic.publish(XDMHealthState.good);
+		hTopic.publish(HealthState.good);
 	}
 
 	public int[] getCounters() {
 		return new int[] {cntActive.intValue(), cntInactive.intValue()};
 	}
 	
-	public XDMHealthState getHealthState() {
+	public HealthState getHealthState() {
 		return healthState;
 	}
 

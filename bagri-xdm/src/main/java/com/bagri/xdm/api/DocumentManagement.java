@@ -12,7 +12,7 @@ import com.bagri.xdm.domain.Document;
  * 
  * @author Denis Sukhoroslov
  */
-public interface XDMDocumentManagement {
+public interface DocumentManagement {
 
 	/**
 	 * search Document attributes by pattern provided

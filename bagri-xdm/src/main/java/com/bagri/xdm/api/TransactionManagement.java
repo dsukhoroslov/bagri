@@ -6,7 +6,7 @@ package com.bagri.xdm.api;
  * 
  * @author Denis Sukhoroslov
  */
-public interface XDMTransactionManagement {
+public interface TransactionManagement {
 	
 	/**
 	 * no transaction
@@ -33,7 +33,7 @@ public interface XDMTransactionManagement {
 	 * @return started transaction id
 	 * @throws XDMException in case of any errors
 	 */
-	long beginTransaction(XDMTransactionIsolation txIsolation) throws XDMException;
+	long beginTransaction(TransactionIsolation txIsolation) throws XDMException;
 	
 	/**
 	 * commits active transaction

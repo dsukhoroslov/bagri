@@ -4,7 +4,7 @@ import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.bagri.xdm.api.XDMQueryManagement;
+import com.bagri.xdm.api.QueryManagement;
 import com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl;
 import com.bagri.xdm.system.Permission;
 import com.hazelcast.spring.context.SpringAware;
@@ -12,10 +12,10 @@ import com.hazelcast.spring.context.SpringAware;
 @SpringAware
 public class QueryUrisProvider extends com.bagri.xdm.client.hazelcast.task.query.QueryUrisProvider {
 
-	private transient XDMQueryManagement queryMgr;
+	private transient QueryManagement queryMgr;
     
     @Autowired
-	public void setQueryManager(XDMQueryManagement queryMgr) {
+	public void setQueryManager(QueryManagement queryMgr) {
 		this.queryMgr = queryMgr;
 		//logger.debug("setQueryManager; got QueryManager: {}", queryMgr); 
 	}

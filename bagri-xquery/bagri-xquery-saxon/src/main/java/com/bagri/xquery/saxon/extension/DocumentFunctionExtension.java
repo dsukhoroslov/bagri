@@ -12,13 +12,13 @@ import net.sf.saxon.om.SequenceIterator;
 import net.sf.saxon.om.StructuredQName;
 import net.sf.saxon.trans.XPathException;
 
-import com.bagri.xdm.api.XDMDocumentManagement;
+import com.bagri.xdm.api.DocumentManagement;
 
 public abstract class DocumentFunctionExtension extends ExtensionFunctionDefinition {
 
-	protected XDMDocumentManagement xdm;
+	protected DocumentManagement xdm;
 	
-	public DocumentFunctionExtension(XDMDocumentManagement xdm) {
+	public DocumentFunctionExtension(DocumentManagement xdm) {
 		this.xdm = xdm;
 	}
 

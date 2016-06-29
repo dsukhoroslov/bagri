@@ -12,17 +12,17 @@ import javax.xml.bind.Unmarshaller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bagri.xdm.api.XDMBindingManagement;
+import com.bagri.xdm.api.BindingManagement;
 import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.api.XDMRepository;
+import com.bagri.xdm.api.SchemaRepository;
 
-public class BindingManagementImpl implements XDMBindingManagement {
+public class BindingManagementImpl implements BindingManagement {
 	
     private final static Logger logger = LoggerFactory.getLogger(BindingManagementImpl.class);
 	
-	protected XDMRepository repo;
+	protected SchemaRepository repo;
 	
-	void initialize(XDMRepository repo) {
+	void initialize(SchemaRepository repo) {
 		this.repo = repo;
 	}	
 

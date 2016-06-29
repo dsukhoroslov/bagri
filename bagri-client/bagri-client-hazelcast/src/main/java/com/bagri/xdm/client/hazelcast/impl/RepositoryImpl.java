@@ -16,11 +16,11 @@ import javax.xml.xquery.XQSequence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bagri.xdm.api.XDMDocumentManagement;
-import com.bagri.xdm.api.XDMHealthCheckState;
-import com.bagri.xdm.api.XDMQueryManagement;
-import com.bagri.xdm.api.XDMRepository;
-import com.bagri.xdm.api.XDMTransactionManagement;
+import com.bagri.xdm.api.DocumentManagement;
+import com.bagri.xdm.api.HealthCheckState;
+import com.bagri.xdm.api.QueryManagement;
+import com.bagri.xdm.api.SchemaRepository;
+import com.bagri.xdm.api.TransactionManagement;
 import com.bagri.xdm.api.impl.RepositoryBase;
 import com.bagri.xdm.client.hazelcast.serialize.SecureCredentials;
 import com.bagri.xdm.client.hazelcast.serialize.XQItemSerializer;
@@ -33,7 +33,7 @@ import com.hazelcast.config.SerializerConfig;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.security.Credentials;
 
-public class RepositoryImpl extends RepositoryBase implements XDMRepository {
+public class RepositoryImpl extends RepositoryBase implements SchemaRepository {
 	
     private final static Logger logger = LoggerFactory.getLogger(RepositoryImpl.class);
 	
@@ -127,7 +127,7 @@ public class RepositoryImpl extends RepositoryBase implements XDMRepository {
 		if (props != null) {
 			String value = props.getProperty(pn_client_healthCheck);
 			if (value != null) {
-				getHealthManagement().setCheckSate(XDMHealthCheckState.valueOf(value));
+				getHealthManagement().setCheckSate(HealthCheckState.valueOf(value));
 			}
 			value = props.getProperty(pn_client_queryCache);
 			if (value != null) {
@@ -142,19 +142,19 @@ public class RepositoryImpl extends RepositoryBase implements XDMRepository {
 	}
 
 	@Override
-	public void setDocumentManagement(XDMDocumentManagement docMgr) {
+	public void setDocumentManagement(DocumentManagement docMgr) {
 		super.setDocumentManagement(docMgr);
 		((DocumentManagementImpl) docMgr).initialize(this);
 	}
 
 	@Override
-	public void setQueryManagement(XDMQueryManagement queryMgr) {
+	public void setQueryManagement(QueryManagement queryMgr) {
 		super.setQueryManagement(queryMgr);
 		((QueryManagementImpl) queryMgr).initialize(this);
 	}
 	
 	@Override
-	public void setTxManagement(XDMTransactionManagement txMgr) {
+	public void setTxManagement(TransactionManagement txMgr) {
 		super.setTxManagement(txMgr);
 		((TransactionManagementImpl) txMgr).initialize(this);
 	}

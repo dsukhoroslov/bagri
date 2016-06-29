@@ -43,9 +43,9 @@ import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import org.jline.utils.InfoCmp.Capability;
 
-import com.bagri.xdm.api.XDMDocumentManagement;
+import com.bagri.xdm.api.DocumentManagement;
 import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.api.XDMRepository;
+import com.bagri.xdm.api.SchemaRepository;
 import com.bagri.xdm.client.hazelcast.impl.RepositoryImpl;
 import com.bagri.xdm.domain.Document;
 import com.bagri.xqj.BagriXQDataFactory;
@@ -57,7 +57,7 @@ import com.opencsv.CSVReader;
 public class BookingApp {
 	
 	private XQProcessor proc;
-	private XDMRepository xRepo;
+	private SchemaRepository xRepo;
 	
 
 	public static void main(String[] args) throws XDMException {
@@ -240,7 +240,7 @@ public class BookingApp {
 		xRepo = new RepositoryImpl(props);
 	}
 	
-	public BookingApp(XDMRepository xRepo) {
+	public BookingApp(SchemaRepository xRepo) {
 		this.xRepo = xRepo;
 	}
 	
@@ -276,7 +276,7 @@ public class BookingApp {
 		final String name = fn.substring(0, pos) + "_";
 		final String ext = fn.substring(pos);
 		CSVReader reader = null;
-		XDMDocumentManagement dMgr = xRepo.getDocumentManagement();
+		DocumentManagement dMgr = xRepo.getDocumentManagement();
 		Properties props = new Properties();
 		props.setProperty(pn_client_storeMode, pv_client_storeMode_insert);
 		if (encoding == null) {

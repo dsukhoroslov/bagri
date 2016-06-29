@@ -14,12 +14,12 @@ import org.slf4j.LoggerFactory;
 
 import com.bagri.common.util.XMLUtils;
 import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.api.XDMRepository;
-import com.bagri.xdm.cache.api.XDMTrigger;
+import com.bagri.xdm.api.SchemaRepository;
+import com.bagri.xdm.cache.api.DocumentTrigger;
 import com.bagri.xdm.domain.Document;
 import com.bagri.xquery.api.XQProcessor;
 
-public class XQueryTriggerImpl implements XDMTrigger {
+public class XQueryTriggerImpl implements DocumentTrigger {
 	
 	private static final transient Logger logger = LoggerFactory.getLogger(XQueryTriggerImpl.class);
 	
@@ -30,32 +30,32 @@ public class XQueryTriggerImpl implements XDMTrigger {
 	}
 
 	@Override
-	public void beforeInsert(Document doc, XDMRepository repo) throws XDMException {
+	public void beforeInsert(Document doc, SchemaRepository repo) throws XDMException {
 		runTrigger(doc, (RepositoryImpl) repo);
 	} 
 
 	@Override
-	public void afterInsert(Document doc, XDMRepository repo) throws XDMException {
+	public void afterInsert(Document doc, SchemaRepository repo) throws XDMException {
 		runTrigger(doc, (RepositoryImpl) repo);
 	}
 
 	@Override
-	public void beforeUpdate(Document doc, XDMRepository repo) throws XDMException {
+	public void beforeUpdate(Document doc, SchemaRepository repo) throws XDMException {
 		runTrigger(doc, (RepositoryImpl) repo);
 	}
 
 	@Override
-	public void afterUpdate(Document doc, XDMRepository repo) throws XDMException {
+	public void afterUpdate(Document doc, SchemaRepository repo) throws XDMException {
 		runTrigger(doc, (RepositoryImpl) repo);
 	}
 
 	@Override
-	public void beforeDelete(Document doc, XDMRepository repo) throws XDMException {
+	public void beforeDelete(Document doc, SchemaRepository repo) throws XDMException {
 		runTrigger(doc, (RepositoryImpl) repo);
 	}
 
 	@Override
-	public void afterDelete(Document doc, XDMRepository repo) throws XDMException {
+	public void afterDelete(Document doc, SchemaRepository repo) throws XDMException {
 		runTrigger(doc, (RepositoryImpl) repo);
 	}
 	

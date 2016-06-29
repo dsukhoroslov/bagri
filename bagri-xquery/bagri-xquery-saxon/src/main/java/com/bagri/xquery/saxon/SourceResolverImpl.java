@@ -20,8 +20,8 @@ import org.xml.sax.InputSource;
 
 import com.bagri.common.util.FileUtils;
 import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.api.XDMRepository;
-import com.bagri.xdm.cache.api.XDMDocumentManagement;
+import com.bagri.xdm.api.SchemaRepository;
+import com.bagri.xdm.cache.api.DocumentManagement;
 
 import net.sf.saxon.Configuration;
 import net.sf.saxon.lib.SourceResolver;
@@ -35,9 +35,9 @@ public class SourceResolverImpl implements SourceResolver, URIResolver {
 	
 	private static final Logger logger = LoggerFactory.getLogger(SourceResolverImpl.class);
 	
-    private XDMRepository repo;
+    private SchemaRepository repo;
 
-    public SourceResolverImpl(XDMRepository repo) {
+    public SourceResolverImpl(SchemaRepository repo) {
     	this.repo = repo;
     }
 	
@@ -64,7 +64,7 @@ public class SourceResolverImpl implements SourceResolver, URIResolver {
 			if (bg_schema.equals(uri.getScheme())) {
 				// skip leading "/"
 				long docKey = Long.parseLong(uri.getPath().substring(1));
-				content = ((XDMDocumentManagement) repo.getDocumentManagement()).getDocumentAsString(docKey);
+				content = ((DocumentManagement) repo.getDocumentManagement()).getDocumentAsString(docKey);
 			} else {
 				String src = original;
 				if ("file".equals(uri.getScheme())) {

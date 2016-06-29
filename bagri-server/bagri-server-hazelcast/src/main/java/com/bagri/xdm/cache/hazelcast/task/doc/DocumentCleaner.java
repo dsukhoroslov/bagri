@@ -1,7 +1,7 @@
 package com.bagri.xdm.cache.hazelcast.task.doc;
 
 import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryImpl.factoryId;
-import static com.bagri.xdm.cache.api.XDMCacheConstants.CN_XDM_DOCUMENT;
+import static com.bagri.xdm.cache.api.CacheConstants.CN_XDM_DOCUMENT;
 import static com.bagri.xdm.cache.hazelcast.serialize.DataSerializationFactoryImpl.cli_CleanTxDocumentsTask;
 
 import java.io.IOException;
@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.bagri.xdm.api.XDMTransactionState;
+import com.bagri.xdm.api.TransactionState;
 import com.bagri.xdm.cache.hazelcast.impl.DocumentManagementImpl;
 import com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl;
 import com.bagri.xdm.common.DocumentKey;
@@ -59,7 +59,7 @@ public class DocumentCleaner implements Callable<Transaction>, IdentifiedDataSer
 		Set<DocumentKey> dkFinished = xddCache.localKeySet(Predicates.equal("txFinish", xTx.getTxId()));
 		Transaction result = new Transaction(xTx.getTxId(), xTx.getStartedAt(), xTx.getFinishedAt(), xTx.getStartedBy(), xTx.getTxIsolation(), xTx.getTxState());
 		
-		boolean commit = xTx.getTxState() == XDMTransactionState.commited;
+		boolean commit = xTx.getTxState() == TransactionState.commited;
 		// on commit: 
 		//	inserted - do nothing; calc counters 
 		//	updated - delete previous version elements, xml and indices, invalidate results (?); 

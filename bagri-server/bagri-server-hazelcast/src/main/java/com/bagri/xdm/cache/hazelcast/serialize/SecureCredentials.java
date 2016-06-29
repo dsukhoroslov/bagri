@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.bagri.xdm.api.XDMAccessManagement;
+import com.bagri.xdm.api.AccessManagement;
 import com.bagri.xdm.cache.hazelcast.impl.AccessManagementImpl;
 import com.hazelcast.spring.context.SpringAware;
 
@@ -14,7 +14,7 @@ public class SecureCredentials extends com.bagri.xdm.client.hazelcast.serialize.
 	
 	private static final transient Logger logger = LoggerFactory.getLogger(SecureCredentials.class);
 	
-	private XDMAccessManagement accMgr;
+	private AccessManagement accMgr;
 	private boolean authenticated = false;
 
 	public SecureCredentials() {
@@ -22,7 +22,7 @@ public class SecureCredentials extends com.bagri.xdm.client.hazelcast.serialize.
 	}
 	
 	@Autowired
-	public void setAccessManager(XDMAccessManagement accMgr) {
+	public void setAccessManager(AccessManagement accMgr) {
 		this.accMgr = accMgr;
 		String username = super.getUsername();
 		String password = super.getPassword();

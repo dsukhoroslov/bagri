@@ -13,7 +13,7 @@ import com.bagri.xdm.system.Schema;
  * @author Denis Suukhoroslov
  *
  */
-public interface XDMRepository extends com.bagri.xdm.api.XDMRepository {
+public interface SchemaRepository extends com.bagri.xdm.api.SchemaRepository {
 	
 	static String bean_id = "xdmRepo";
 	
@@ -27,19 +27,19 @@ public interface XDMRepository extends com.bagri.xdm.api.XDMRepository {
 	 * 
 	 * @return client management interface
 	 */
-	XDMClientManagement getClientManagement();
+	ClientManagement getClientManagement();
 	
 	/**
 	 * 
 	 * @return index management interface
 	 */
-	XDMIndexManagement getIndexManagement();
+	IndexManagement getIndexManagement();
 	
 	/**
 	 * 
 	 * @return trigger management interface
 	 */
-	XDMTriggerManagement getTriggerManagement();
+	TriggerManagement getTriggerManagement();
 
 	/**
 	 * 
@@ -64,13 +64,13 @@ public interface XDMRepository extends com.bagri.xdm.api.XDMRepository {
 	 * @param dataFormat the name of dataFormat to search for
 	 * @return XDMParser instance associated with the dataFormat name 
 	 */
-	XDMParser getParser(String dataFormat);
+	ContentParser getParser(String dataFormat);
 	
 	/**
 	 * 
 	 * @param dataFormat the name of dataFormat to search for
 	 * @return XDMBuilder instance associated with the dataFormat name
 	 */
-	XDMBuilder getBuilder(String dataFormat);
+	ContentBuilder getBuilder(String dataFormat);
 	
 }

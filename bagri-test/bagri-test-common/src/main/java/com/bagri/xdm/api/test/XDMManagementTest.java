@@ -7,18 +7,18 @@ import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 
-import com.bagri.xdm.api.XDMDocumentManagement;
+import com.bagri.xdm.api.DocumentManagement;
 import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.api.XDMModelManagement;
-import com.bagri.xdm.api.XDMQueryManagement;
-import com.bagri.xdm.api.XDMRepository;
-import com.bagri.xdm.api.XDMTransactionManagement;
+import com.bagri.xdm.api.ModelManagement;
+import com.bagri.xdm.api.QueryManagement;
+import com.bagri.xdm.api.SchemaRepository;
+import com.bagri.xdm.api.TransactionManagement;
 import com.bagri.xdm.domain.Document;
 
 public abstract class XDMManagementTest {
 
 	protected static String sampleRoot;
-	protected XDMRepository xRepo;
+	protected SchemaRepository xRepo;
 	protected Set<String> uris = new HashSet<>();
 	
 	protected String getFileName(String original) {
@@ -33,19 +33,19 @@ public abstract class XDMManagementTest {
 		return null;
 	}
 	
-	protected XDMDocumentManagement getDocManagement() {
+	protected DocumentManagement getDocManagement() {
 		return xRepo.getDocumentManagement();
 	}
 	
-	protected XDMModelManagement getModelManagement() {
+	protected ModelManagement getModelManagement() {
 		return xRepo.getModelManagement();
 	}
 
-	protected XDMQueryManagement getQueryManagement() {
+	protected QueryManagement getQueryManagement() {
 		return xRepo.getQueryManagement();
 	}
 
-	protected XDMTransactionManagement getTxManagement() {
+	protected TransactionManagement getTxManagement() {
 		return xRepo.getTxManagement();
 	}
 	

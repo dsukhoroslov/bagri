@@ -10,7 +10,7 @@ import com.bagri.xdm.system.Index;
  * 
  * @author Denis Sukhoroslov
  */
-public interface XDMIndexManagement {
+public interface IndexManagement {
 
 	/**
 	 * check is path indexed or not

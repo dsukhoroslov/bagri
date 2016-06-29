@@ -10,7 +10,7 @@ import com.bagri.xdm.api.XDMException;
  * @author Denis Sukhoroslov
  *
  */
-public interface XDMTransactionManagement extends com.bagri.xdm.api.XDMTransactionManagement {
+public interface TransactionManagement extends com.bagri.xdm.api.TransactionManagement {
 
 	/**
 	 * A generic method to run any callable task within transaction boundaries 

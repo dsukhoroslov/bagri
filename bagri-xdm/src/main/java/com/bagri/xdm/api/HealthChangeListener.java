@@ -5,13 +5,13 @@ package com.bagri.xdm.api;
  * 
  * @author Denis Sukhoroslov
  */
-public interface XDMHealthChangeListener {
+public interface HealthChangeListener {
 	
 	/**
 	 * fires when Schema health state changes
 	 * 
-	 * @param newState {@link XDMHealthState} 
+	 * @param newState {@link HealthState} 
 	 */
-	void onHealthStateChange(XDMHealthState newState);
+	void onHealthStateChange(HealthState newState);
 
 }

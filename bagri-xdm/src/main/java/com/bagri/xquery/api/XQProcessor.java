@@ -10,7 +10,7 @@ import javax.xml.xquery.XQDataFactory;
 import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQStaticContext;
 
-import com.bagri.xdm.api.XDMRepository;
+import com.bagri.xdm.api.SchemaRepository;
 
 /**
  * abstracts (x-)query processing from the underlying XQuery engine implementation. Used as a link between Bagri XQJ implementation and low-level XDM API.   
@@ -24,7 +24,7 @@ public interface XQProcessor {
      * 
      * @return XDM repository
      */
-    XDMRepository getRepository();
+    SchemaRepository getRepository();
     
     /**
      * 
@@ -36,7 +36,7 @@ public interface XQProcessor {
      * 
      * @param xRepo the XDM repository to assign with this XQ processor
      */
-    void setRepository(XDMRepository xRepo);
+    void setRepository(SchemaRepository xRepo);
     
     /**
      * 

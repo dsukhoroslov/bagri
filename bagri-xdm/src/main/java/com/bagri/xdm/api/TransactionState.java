@@ -5,7 +5,7 @@ package com.bagri.xdm.api;
  * 
  * @author Denis Sukhoroslov
  */
-public enum XDMTransactionState {
+public enum TransactionState {
 	
 	/**
 	 * transaction is in active state

@@ -24,8 +24,8 @@ import org.slf4j.LoggerFactory;
 import com.bagri.common.stats.StatisticsEvent;
 import com.bagri.common.util.FileUtils;
 import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.cache.api.XDMTrigger;
-import com.bagri.xdm.cache.api.XDMTriggerManagement;
+import com.bagri.xdm.cache.api.DocumentTrigger;
+import com.bagri.xdm.cache.api.TriggerManagement;
 import com.bagri.xdm.cache.hazelcast.task.trigger.TriggerRunner;
 import com.bagri.xdm.client.hazelcast.impl.IdGeneratorImpl;
 import com.bagri.xdm.client.hazelcast.impl.ModelManagementImpl;
@@ -44,7 +44,7 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.IMap;
 
-public class TriggerManagementImpl implements XDMTriggerManagement {
+public class TriggerManagementImpl implements TriggerManagement {
 
 	private static final transient Logger logger = LoggerFactory.getLogger(TriggerManagementImpl.class);
 
@@ -105,7 +105,7 @@ public class TriggerManagementImpl implements XDMTriggerManagement {
     	if (impls != null) {
     		for (TriggerContainer impl: impls) {
 				logger.trace("applyTrigger; about to fire trigger {}, on document: {}", impl, key);
-				final XDMTrigger trigger = impl.getImplementation(); 
+				final DocumentTrigger trigger = impl.getImplementation(); 
 				if (impl.isSynchronous()) {
 					runTrigger(order, scope, xDoc, trigger);
 				} else {
@@ -133,7 +133,7 @@ public class TriggerManagementImpl implements XDMTriggerManagement {
     	}    	
     }
     
-    private void runTrigger(Order order, Scope scope, Document xDoc, XDMTrigger trigger) throws XDMException {
+    private void runTrigger(Order order, Scope scope, Document xDoc, DocumentTrigger trigger) throws XDMException {
 		String trName = order + " " + scope;
 		try {
 			if (order == Order.before) {
@@ -174,7 +174,7 @@ public class TriggerManagementImpl implements XDMTriggerManagement {
 		logger.trace("createTrigger.enter; trigger: {}", trigger);
 		boolean result = false;
 		if (trigger.isEnabled()) {
-			XDMTrigger impl;
+			DocumentTrigger impl;
 			if (trigger instanceof JavaTrigger) {
 				impl = createJavaTrigger((JavaTrigger) trigger);
 			} else {
@@ -207,7 +207,7 @@ public class TriggerManagementImpl implements XDMTriggerManagement {
 		return result;
 	}
 	
-	private XDMTrigger createJavaTrigger(JavaTrigger trigger) {
+	private DocumentTrigger createJavaTrigger(JavaTrigger trigger) {
 		Library library = getLibrary(trigger.getLibrary());
 		if (library == null) {
 			logger.info("createJavaTrigger; not library found for name: {}, trigger registration failed",
@@ -237,7 +237,7 @@ public class TriggerManagementImpl implements XDMTriggerManagement {
 		
 		if (tc != null) {
 			try {
-				XDMTrigger triggerImpl = (XDMTrigger) tc.newInstance();
+				DocumentTrigger triggerImpl = (DocumentTrigger) tc.newInstance();
 				return triggerImpl;
 			} catch (InstantiationException | IllegalAccessException ex) {
 				logger.error("createJavaTrigger.error; {}", ex);
@@ -246,7 +246,7 @@ public class TriggerManagementImpl implements XDMTriggerManagement {
 		return null;
 	}
 
-	private XDMTrigger createXQueryTrigger(XQueryTrigger trigger) {
+	private DocumentTrigger createXQueryTrigger(XQueryTrigger trigger) {
 		Module module = getModule(trigger.getModule());
 		if (module == null) {
 			logger.info("createXQueryTrigger; not module found for name: {}, trigger registration failed",
@@ -265,7 +265,7 @@ public class TriggerManagementImpl implements XDMTriggerManagement {
 		}
 		try {
 			String query = xqComp.compileTrigger(module, trigger);
-			XDMTrigger impl = new XQueryTriggerImpl(query);
+			DocumentTrigger impl = new XQueryTriggerImpl(query);
 			return impl;
 		} catch (XDMException ex) {
 			logger.info("createXQueryTrigger; trigger function {} is invalid, trigger registration failed",

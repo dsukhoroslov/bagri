@@ -6,13 +6,13 @@ import java.util.concurrent.Callable;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.bagri.xdm.cache.api.XDMQueryManagement;
+import com.bagri.xdm.cache.api.QueryManagement;
 import com.hazelcast.spring.context.SpringAware;
 
 @SpringAware
 public class SchemaQueryCleaner extends SchemaProcessingTask implements Callable<Boolean> {
 	
-	private XDMQueryManagement xqManager;
+	private QueryManagement xqManager;
 	
 	public SchemaQueryCleaner() {
 		super();
@@ -34,7 +34,7 @@ public class SchemaQueryCleaner extends SchemaProcessingTask implements Callable
 	}
 
     @Autowired
-	public void setQueryManagement(XDMQueryManagement xqManager) {
+	public void setQueryManagement(QueryManagement xqManager) {
 		this.xqManager = xqManager;
 	}
 

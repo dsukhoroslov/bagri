@@ -14,7 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.api.XDMRepository;
+import com.bagri.xdm.api.SchemaRepository;
 import com.bagri.xdm.client.hazelcast.impl.RepositoryImpl;
 import com.bagri.xdm.domain.Document;
 
@@ -23,7 +23,7 @@ public class TPoXDataLoader {
     private static final Logger logger = LoggerFactory.getLogger(TPoXDataLoader.class);
 	
 	private ExecutorService exec;
-	private XDMRepository xRepo;
+	private SchemaRepository xRepo;
 	
 	public static void main(String[] args) {
 

@@ -12,7 +12,7 @@ import javax.management.openmbean.CompositeData;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.bagri.common.util.JMXUtils;
-import com.bagri.xdm.api.XDMModelManagement;
+import com.bagri.xdm.api.ModelManagement;
 import com.bagri.xdm.cache.hazelcast.impl.DocumentManagementImpl;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentAwareTask;
 import com.bagri.xdm.domain.Element;
@@ -46,7 +46,7 @@ public class DocumentStructureProvider extends DocumentAwareTask implements Call
     		return null;
     	}
     	
-    	XDMModelManagement model = docMgr.getModelManager();
+    	ModelManagement model = docMgr.getModelManager();
     	Map<String, Object> tree = new HashMap<>();
 		for (Elements elts: elements) {
 			Path path = model.getPath(elts.getPathId());

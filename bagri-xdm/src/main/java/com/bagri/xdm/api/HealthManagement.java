@@ -5,7 +5,7 @@ package com.bagri.xdm.api;
  * 
  * @author Denis Sukhoroslov
  */
-public interface XDMHealthManagement {
+public interface HealthManagement {
 	
 	/**
 	 * perform XDM Schema health check
@@ -31,32 +31,32 @@ public interface XDMHealthManagement {
 	 * 
 	 * @return XDM Schema health state
 	 */
-	XDMHealthState getHealthState();
+	HealthState getHealthState();
 	
 	/**
 	 * 
 	 * @return XDM client check state
 	 */
-	XDMHealthCheckState getCheckState();
+	HealthCheckState getCheckState();
 	
 	/**
 	 * 
-	 * @param state the {@link XDMHealthCheckState} value to set
+	 * @param state the {@link HealthCheckState} value to set
 	 */
-	void setCheckSate(XDMHealthCheckState state);
+	void setCheckSate(HealthCheckState state);
 	
 	//int getDocumentCount();
 	
 	/**
 	 * 
-	 * @param listener the {@link XDMHealthChangeListener} to registered for listening on health events
+	 * @param listener the {@link HealthChangeListener} to registered for listening on health events
 	 */
-	void addHealthChangeListener(XDMHealthChangeListener listener);
+	void addHealthChangeListener(HealthChangeListener listener);
 	
 	/**
 	 * 
-	 * @param listener the {@link XDMHealthChangeListener} to unregister from listening on health events
+	 * @param listener the {@link HealthChangeListener} to unregister from listening on health events
 	 */
-	void removeHealthChangeListener(XDMHealthChangeListener listener);
+	void removeHealthChangeListener(HealthChangeListener listener);
 	
 }

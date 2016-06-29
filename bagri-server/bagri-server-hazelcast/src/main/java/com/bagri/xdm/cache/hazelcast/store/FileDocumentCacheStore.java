@@ -1,7 +1,7 @@
 package com.bagri.xdm.cache.hazelcast.store;
 
-import static com.bagri.xdm.api.XDMTransactionManagement.TX_INIT;
-import static com.bagri.xdm.api.XDMTransactionManagement.TX_NO;
+import static com.bagri.xdm.api.TransactionManagement.TX_INIT;
+import static com.bagri.xdm.api.TransactionManagement.TX_NO;
 import static com.bagri.xdm.cache.hazelcast.util.SpringContextHolder.getContext;
 import static com.bagri.xdm.cache.hazelcast.util.SpringContextHolder.schema_context;
 import static com.bagri.xdm.common.XDMConstants.xdm_schema_format_default;

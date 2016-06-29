@@ -12,7 +12,7 @@ import javax.xml.namespace.QName;
  * 
  * @author Denis Sukhoroslov
  */
-public interface XDMQueryManagement {
+public interface QueryManagement {
 	
 	/**
 	 * executes (X-)query on the current XDM SChema 

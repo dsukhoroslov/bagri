@@ -7,7 +7,7 @@ import com.bagri.xdm.system.Permission.Value;
  * 
  * @author Denis Sukhoroslov
  */
-public interface XDMAccessManagement {
+public interface AccessManagement {
 	
 	/**
 	 * 

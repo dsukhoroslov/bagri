@@ -29,9 +29,9 @@ import org.slf4j.LoggerFactory;
 import com.bagri.common.stats.StatisticsEvent;
 import com.bagri.common.stats.watch.StopWatch;
 import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.api.XDMModelManagement;
+import com.bagri.xdm.api.ModelManagement;
 import com.bagri.xdm.api.impl.QueryManagementBase;
-import com.bagri.xdm.cache.api.XDMQueryManagement;
+import com.bagri.xdm.cache.api.QueryManagement;
 import com.bagri.xdm.cache.hazelcast.predicate.DocsAwarePredicate;
 import com.bagri.xdm.cache.hazelcast.predicate.QueryPredicate;
 import com.bagri.xdm.cache.hazelcast.predicate.ResultsDocPredicate;
@@ -63,12 +63,12 @@ import com.hazelcast.core.ReplicatedMap;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
 
-public class QueryManagementImpl extends QueryManagementBase implements XDMQueryManagement {
+public class QueryManagementImpl extends QueryManagementBase implements QueryManagement {
 	
 	private static final transient Logger logger = LoggerFactory.getLogger(QueryManagementImpl.class);
 	
 	private RepositoryImpl repo;
-	private XDMModelManagement model;
+	private ModelManagement model;
     private IndexManagementImpl idxMgr;
 	private DocumentManagementImpl docMgr;
 	//private TransactionManagementImpl txMgr;

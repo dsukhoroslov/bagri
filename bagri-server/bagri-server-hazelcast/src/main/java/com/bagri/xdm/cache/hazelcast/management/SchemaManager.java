@@ -1,7 +1,7 @@
 package com.bagri.xdm.cache.hazelcast.management;
 
-import static com.bagri.xdm.cache.api.XDMCacheConstants.PN_XDM_SCHEMA_POOL;
-import static com.bagri.xdm.cache.api.XDMRepository.bean_id;
+import static com.bagri.xdm.cache.api.CacheConstants.PN_XDM_SCHEMA_POOL;
+import static com.bagri.xdm.cache.api.SchemaRepository.bean_id;
 import static com.bagri.xdm.common.XDMConstants.xdm_schema_store_enabled;
 import static com.bagri.xdm.common.XDMConstants.xdm_schema_store_type;
 import static com.bagri.xdm.common.XDMConstants.xs_ns;
@@ -29,9 +29,9 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 
 import com.bagri.common.util.JMXUtils;
 import com.bagri.common.util.PropUtils;
-import com.bagri.xdm.api.XDMHealthChangeListener;
-import com.bagri.xdm.api.XDMHealthState;
-import com.bagri.xdm.api.XDMRepository;
+import com.bagri.xdm.api.HealthChangeListener;
+import com.bagri.xdm.api.HealthState;
+import com.bagri.xdm.api.SchemaRepository;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaActivator;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaHealthAggregator;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaPopulator;
@@ -52,14 +52,14 @@ import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.Member;
 
 @ManagedResource(description="Schema Manager MBean")
-public class SchemaManager extends EntityManager<Schema> implements XDMHealthChangeListener {
+public class SchemaManager extends EntityManager<Schema> implements HealthChangeListener {
 
     private static final String state_ok = "working";
     private static final String state_fail = "inactive";
 
-    private XDMRepository xdmRepo;
+    private SchemaRepository xdmRepo;
     private SchemaManagement parent;
-    private XDMHealthState hState;
+    private HealthState hState;
 	private IExecutorService execService;
 	private HazelcastInstance schemaInstance;
     
@@ -76,7 +76,7 @@ public class SchemaManager extends EntityManager<Schema> implements XDMHealthCha
 		return schemaInstance;
 	}
 
-	XDMRepository getRepository() {
+	SchemaRepository getRepository() {
 		return xdmRepo;
 	}
 	
@@ -95,11 +95,11 @@ public class SchemaManager extends EntityManager<Schema> implements XDMHealthCha
 			logger.trace("setClientContext; got HZ instance: {}, from {}", schemaInstance, HazelcastClient.getAllHazelcastClients());
 			execService = schemaInstance.getExecutorService(PN_XDM_SCHEMA_POOL);
 			//setRepository(clientContext.getBean(XDMRepository.class));
-			setRepository((XDMRepository) schemaInstance.getUserContext().get(bean_id));
+			setRepository((SchemaRepository) schemaInstance.getUserContext().get(bean_id));
 		}
 	}
 	
-	void setRepository(XDMRepository xdmRepo) {
+	void setRepository(SchemaRepository xdmRepo) {
 		this.xdmRepo = xdmRepo;
 		this.hState = xdmRepo.getHealthManagement().getHealthState();
 		xdmRepo.getHealthManagement().addHealthChangeListener(this);
@@ -468,7 +468,7 @@ public class SchemaManager extends EntityManager<Schema> implements XDMHealthCha
 	}
 
 	@Override
-	public void onHealthStateChange(XDMHealthState newState) {
+	public void onHealthStateChange(HealthState newState) {
 		this.hState = newState;
 	}
 

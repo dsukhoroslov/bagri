@@ -11,8 +11,7 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 
 import com.bagri.common.stats.StatsAggregator;
 import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.api.XDMTransactionIsolation;
-import com.bagri.xdm.api.XDMTransactionManagement;
+import com.bagri.xdm.api.TransactionIsolation;
 import com.bagri.xdm.cache.hazelcast.task.stats.StatisticSeriesCollector;
 import com.bagri.xdm.cache.hazelcast.task.stats.StatisticTotalsCollector;
 import com.bagri.xdm.cache.hazelcast.task.stats.StatisticsReseter;
@@ -21,7 +20,7 @@ import com.bagri.xdm.cache.hazelcast.task.stats.StatisticsReseter;
 public class TransactionManagement extends SchemaFeatureManagement {
 	
 	private StatsAggregator txAggregator;
-	private XDMTransactionManagement txMgr;
+	private com.bagri.xdm.api.TransactionManagement txMgr;
 	
 	public TransactionManagement(String schemaName) {
 		super(schemaName);
@@ -75,7 +74,7 @@ public class TransactionManagement extends SchemaFeatureManagement {
 			if (txIsolation == null || txIsolation.length() == 0) {
 				return txMgr.beginTransaction();
 			} 
-			return txMgr.beginTransaction(XDMTransactionIsolation.valueOf(txIsolation));
+			return txMgr.beginTransaction(TransactionIsolation.valueOf(txIsolation));
 		} catch (XDMException ex) {
 			logger.error("beginTransaction.error: " + ex.getMessage(), ex);
 		}

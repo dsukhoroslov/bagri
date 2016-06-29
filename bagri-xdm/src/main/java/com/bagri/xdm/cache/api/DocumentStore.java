@@ -12,7 +12,7 @@ import com.bagri.xdm.domain.Document;
  * @author Denis Sukhoroslov
  *
  */
-public interface XDMDocumentStore {
+public interface DocumentStore {
 	
 	/**
 	 * Lifecycle method. Invoked when the store initialized. 

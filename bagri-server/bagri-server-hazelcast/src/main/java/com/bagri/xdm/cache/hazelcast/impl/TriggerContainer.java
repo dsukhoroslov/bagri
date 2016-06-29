@@ -1,14 +1,14 @@
 package com.bagri.xdm.cache.hazelcast.impl;
 
-import com.bagri.xdm.cache.api.XDMTrigger;
+import com.bagri.xdm.cache.api.DocumentTrigger;
 
 public class TriggerContainer {
 	
 	private int index;
 	private boolean synch;
-	private XDMTrigger impl;
+	private DocumentTrigger impl;
 	
-	public TriggerContainer(int index, boolean synch, XDMTrigger impl) {
+	public TriggerContainer(int index, boolean synch, DocumentTrigger impl) {
 		super();
 		this.index = index;
 		this.synch = synch;
@@ -36,7 +36,7 @@ public class TriggerContainer {
 	/**
 	 * @return the impl
 	 */
-	public XDMTrigger getImplementation() {
+	public DocumentTrigger getImplementation() {
 		return impl;
 	}
 

@@ -5,7 +5,7 @@ package com.bagri.xdm.api;
  * 
  * @author Denis Sukhoroslov
  */
-public enum XDMHealthState {
+public enum HealthState {
 	
 	/**
 	 * healthy: the number of cached documents is equal to expected.

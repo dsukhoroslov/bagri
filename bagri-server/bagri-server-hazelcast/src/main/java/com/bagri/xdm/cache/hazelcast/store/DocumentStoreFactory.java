@@ -11,7 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 
-import com.bagri.xdm.cache.api.XDMDocumentStore;
+import com.bagri.xdm.cache.api.DocumentStore;
 import com.bagri.xdm.cache.hazelcast.config.SystemConfig;
 import com.bagri.xdm.common.DocumentKey;
 import com.bagri.xdm.domain.Document;
@@ -115,8 +115,8 @@ public class DocumentStoreFactory implements MapStoreFactory<DocumentKey, Docume
 		if (instance != null) {
 			if (instance instanceof MapStore) {
 				mStore = (MapStore<DocumentKey, Document>) instance;
-			} else if (instance instanceof XDMDocumentStore) {
-				mStore = new DocumentStoreAdapter((XDMDocumentStore) instance);
+			} else if (instance instanceof DocumentStore) {
+				mStore = new DocumentStoreAdapter((DocumentStore) instance);
 			} else {
 				logger.warn("newMapStore; unknown store instance: " + instance);
 			}

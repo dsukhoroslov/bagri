@@ -8,7 +8,7 @@ import java.util.Properties;
  * @author Denis Sukhoroslov
  *
  */
-public interface XDMClientManagement {
+public interface ClientManagement {
 
 	/**
 	 * 

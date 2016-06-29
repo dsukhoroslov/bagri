@@ -5,7 +5,7 @@ package com.bagri.xdm.api;
  * 
  * @author Denis Sukhoroslov
  */
-public enum XDMTransactionIsolation {
+public enum TransactionIsolation {
 	
 	/**
 	 * changes done by not-commited-yet transaction are visible by other transactions 

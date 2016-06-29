@@ -18,8 +18,8 @@ import org.springframework.jmx.export.naming.SelfNaming;
 
 import com.bagri.common.stats.StatsAggregator;
 import com.bagri.common.util.JMXUtils;
-import com.bagri.xdm.api.XDMModelManagement;
-import com.bagri.xdm.cache.api.XDMCacheConstants;
+import com.bagri.xdm.api.ModelManagement;
+import com.bagri.xdm.cache.api.CacheConstants;
 import com.bagri.xdm.system.Schema;
 import com.bagri.xdm.system.Entity;
 import com.hazelcast.core.HazelcastInstance;
@@ -33,7 +33,7 @@ public abstract class SchemaFeatureManagement implements SelfNaming {
     protected String schemaName;
     protected HazelcastInstance hzClient;
 	protected IExecutorService execService;
-	protected XDMModelManagement modelMgr;
+	protected ModelManagement modelMgr;
 	protected SchemaManager schemaManager;
 	protected StatsAggregator aggregator;
 
@@ -49,7 +49,7 @@ public abstract class SchemaFeatureManagement implements SelfNaming {
 	public void setSchemaManager(SchemaManager schemaManager) {
 		this.schemaManager = schemaManager;
 		hzClient = schemaManager.getHazelcastClient();
-		execService = hzClient.getExecutorService(XDMCacheConstants.PN_XDM_SCHEMA_POOL);
+		execService = hzClient.getExecutorService(CacheConstants.PN_XDM_SCHEMA_POOL);
 		modelMgr = schemaManager.getRepository().getModelManagement();
 	}
 

@@ -6,7 +6,7 @@ package com.bagri.xdm.cache.api;
  * @author Denis Sukhoroslov
  *
  */
-public class XDMCacheConstants {
+public class CacheConstants {
 
     /**
      * XDM Document cache

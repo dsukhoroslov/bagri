@@ -8,11 +8,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.hadoop.hive.HiveTemplate;
 
-import com.bagri.xdm.cache.api.XDMDocumentStore;
+import com.bagri.xdm.cache.api.DocumentStore;
 import com.bagri.xdm.common.DocumentKey;
 import com.bagri.xdm.domain.Document;
 
-public class HiveCacheStore implements XDMDocumentStore {
+public class HiveCacheStore implements DocumentStore {
 
     private static final Logger logger = LoggerFactory.getLogger(HiveCacheStore.class);
     

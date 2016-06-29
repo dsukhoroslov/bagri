@@ -4,7 +4,7 @@ import java.io.InputStream;
 import java.util.Map;
 
 import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.cache.api.XDMBuilder;
+import com.bagri.xdm.cache.api.ContentBuilder;
 import com.bagri.xdm.common.DataKey;
 import com.bagri.xdm.domain.Elements;
 
@@ -16,7 +16,7 @@ import com.bagri.xdm.domain.Elements;
  * @author Denis Sukhoroslov
  *
  */
-public class JsonBuilder implements XDMBuilder {
+public class JsonBuilder implements ContentBuilder {
 
 	// TODO: implement it!
 	

@@ -5,8 +5,8 @@ import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryI
 import java.io.IOException;
 
 import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.api.XDMAccessManagement;
-import com.bagri.xdm.api.XDMRepository;
+import com.bagri.xdm.api.AccessManagement;
+import com.bagri.xdm.api.SchemaRepository;
 import com.bagri.xdm.system.Permission;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
@@ -15,7 +15,7 @@ import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 public abstract class ClientAwareTask implements IdentifiedDataSerializable {
 	
 	protected String clientId;
-	protected XDMRepository repo;
+	protected SchemaRepository repo;
 	
 	public ClientAwareTask() {
 		//
@@ -33,7 +33,7 @@ public abstract class ClientAwareTask implements IdentifiedDataSerializable {
 	protected void checkPermission(Permission.Value perm) throws XDMException {
     	//repo.getXQProcessor(clientId);
     	String user = repo.getUserName();
-    	if (!((XDMAccessManagement) repo.getAccessManagement()).hasPermission(user, perm)) {
+    	if (!((AccessManagement) repo.getAccessManagement()).hasPermission(user, perm)) {
     		throw new XDMException("User " + user + " has no permission to " + perm + " documents", XDMException.ecAccess);
     	}
 	}

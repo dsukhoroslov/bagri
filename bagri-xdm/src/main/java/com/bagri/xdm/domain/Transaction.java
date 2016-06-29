@@ -6,8 +6,8 @@ import java.util.Map;
 
 import com.bagri.common.Convertable;
 import com.bagri.common.util.DateUtils;
-import com.bagri.xdm.api.XDMTransactionIsolation;
-import com.bagri.xdm.api.XDMTransactionState;
+import com.bagri.xdm.api.TransactionIsolation;
+import com.bagri.xdm.api.TransactionState;
 
 /**
  * Represents cached transaction record
@@ -22,8 +22,8 @@ public class Transaction implements Convertable<Map<String, Object>> {
 	private long startedAt;
 	private long finishedAt;
 	private String startedBy;
-	private XDMTransactionState txState;
-	private XDMTransactionIsolation txIsolation;
+	private TransactionState txState;
+	private TransactionIsolation txIsolation;
 	private int docsCreated = 0;
 	private int docsUpdated = 0;
 	private int docsDeleted = 0;
@@ -51,7 +51,7 @@ public class Transaction implements Convertable<Map<String, Object>> {
 	 * @param startedBy transaction owner: the user who has started the transaction
 	 */
 	public Transaction(long txId, long startedAt, String startedBy) {
-		this(txId, startedAt, 0, startedBy, XDMTransactionIsolation.readCommited, XDMTransactionState.started);
+		this(txId, startedAt, 0, startedBy, TransactionIsolation.readCommited, TransactionState.started);
 	}
 
 	/**
@@ -64,7 +64,7 @@ public class Transaction implements Convertable<Map<String, Object>> {
 	 * @param txState transaction state
 	 */
 	public Transaction(long txId, long startedAt, long finishedAt, 
-			String startedBy, XDMTransactionIsolation txIsolation, XDMTransactionState txState) {
+			String startedBy, TransactionIsolation txIsolation, TransactionState txState) {
 		this.txId = txId;
 		this.startedAt = startedAt;
 		this.finishedAt = finishedAt;
@@ -133,7 +133,7 @@ public class Transaction implements Convertable<Map<String, Object>> {
 	 * 
 	 * @return the transaction isolation level
 	 */
-	public XDMTransactionIsolation getTxIsolation() {
+	public TransactionIsolation getTxIsolation() {
 		return txIsolation;
 	}
 
@@ -141,7 +141,7 @@ public class Transaction implements Convertable<Map<String, Object>> {
 	 * 
 	 * @return the transaction state
 	 */
-	public XDMTransactionState getTxState() {
+	public TransactionState getTxState() {
 		return txState;
 	}
 	
@@ -163,9 +163,9 @@ public class Transaction implements Convertable<Map<String, Object>> {
 	public void finish(boolean commit, long finishedAt) {
 		this.finishedAt = finishedAt;
 		if (commit) {
-			this.txState = XDMTransactionState.commited;
+			this.txState = TransactionState.commited;
 		} else {
-			this.txState = XDMTransactionState.rolledback;
+			this.txState = TransactionState.rolledback;
 		}
 	}
 	

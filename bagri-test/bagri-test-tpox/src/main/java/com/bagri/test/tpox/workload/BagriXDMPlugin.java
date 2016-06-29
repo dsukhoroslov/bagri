@@ -32,7 +32,7 @@ import net.sf.tpox.workload.transaction.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bagri.xdm.api.XDMRepository;
+import com.bagri.xdm.api.SchemaRepository;
 import com.bagri.xdm.api.test.ClientQueryManagementTest;
 import com.bagri.xdm.client.hazelcast.impl.RepositoryImpl;
 import com.bagri.xdm.domain.Document;
@@ -78,7 +78,7 @@ public class BagriXDMPlugin extends BagriTPoXPlugin {
 		protected TPoXQueryManagerTest initialValue() {
 			try {
 				XQConnection xqc = xqds.getConnection();
-				XDMRepository xdm = ((BagriXQDataFactory) xqc).getProcessor().getRepository(); 
+				SchemaRepository xdm = ((BagriXQDataFactory) xqc).getProcessor().getRepository(); 
 				TPoXQueryManagerTest xqmt = new TPoXQueryManagerTest(xdm);
 				logger.info("initialValue.exit; XDM: {}", xdm);
 				return xqmt;
@@ -234,7 +234,7 @@ public class BagriXDMPlugin extends BagriTPoXPlugin {
 
 	private static class TPoXQueryManagerTest extends ClientQueryManagementTest {
 		
-		TPoXQueryManagerTest(XDMRepository xRepo) {
+		TPoXQueryManagerTest(SchemaRepository xRepo) {
 			this.xRepo = xRepo;
 		}
 		
@@ -242,7 +242,7 @@ public class BagriXDMPlugin extends BagriTPoXPlugin {
 			xRepo.close();
 		}
 		
-		XDMRepository getRepository() {
+		SchemaRepository getRepository() {
 			return xRepo;
 		}
 		

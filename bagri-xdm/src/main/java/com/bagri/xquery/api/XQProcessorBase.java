@@ -5,9 +5,9 @@ import javax.xml.xquery.XQDataFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bagri.xdm.api.XDMDocumentManagement;
-import com.bagri.xdm.api.XDMQueryManagement;
-import com.bagri.xdm.api.XDMRepository;
+import com.bagri.xdm.api.DocumentManagement;
+import com.bagri.xdm.api.QueryManagement;
+import com.bagri.xdm.api.SchemaRepository;
 
 /**
  * Base abstract XQ Processor implementation, shared between client and server processor implementations.
@@ -20,13 +20,13 @@ public abstract class XQProcessorBase {
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     private XQDataFactory xqFactory;
-    private XDMRepository xRepo;
+    private SchemaRepository xRepo;
 
     /**
      * 
      * @return XDM repository
      */
-    public XDMRepository getRepository() {
+    public SchemaRepository getRepository() {
     	return xRepo;
     }
 
@@ -34,7 +34,7 @@ public abstract class XQProcessorBase {
      * 
      * @return document management implementation
      */
-    public XDMDocumentManagement getDocumentManagement() {
+    public DocumentManagement getDocumentManagement() {
     	return xRepo.getDocumentManagement();
     }
 
@@ -42,7 +42,7 @@ public abstract class XQProcessorBase {
      * 
      * @return query management implementation
      */
-    public XDMQueryManagement getQueryManagement() {
+    public QueryManagement getQueryManagement() {
     	return xRepo.getQueryManagement();
     }
 
@@ -58,7 +58,7 @@ public abstract class XQProcessorBase {
      * 
      * @param xRepo the XDM repository to assign with this XQ processor
      */
-    public void setRepository(XDMRepository xRepo) {
+    public void setRepository(SchemaRepository xRepo) {
     	this.xRepo = xRepo;
     	logger.trace("setRepository; got Repo: {}", xRepo); 
     }

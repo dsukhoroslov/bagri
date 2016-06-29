@@ -15,7 +15,7 @@ import javax.xml.xquery.XQException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bagri.xdm.api.XDMRepository;
+import com.bagri.xdm.api.SchemaRepository;
 import com.bagri.xquery.api.XQProcessor;
 
 /**
@@ -170,8 +170,8 @@ public class BagriXQDataSource implements XQDataSource {
 
 					Object xdm = initRepository(connect);
 					if (xdm != null) {
-						if (xdm instanceof XDMRepository) {
-							((XQProcessor) xqp).setRepository((XDMRepository) xdm);
+						if (xdm instanceof SchemaRepository) {
+							((XQProcessor) xqp).setRepository((SchemaRepository) xdm);
 						} else {
 							throw new XQException("Specified Repository class does not implement XDMRepository interface: " + 
 									properties.getProperty(XDM_REPOSITORY));

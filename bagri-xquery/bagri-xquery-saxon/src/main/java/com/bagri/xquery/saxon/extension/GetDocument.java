@@ -2,7 +2,7 @@ package com.bagri.xquery.saxon.extension;
 
 import static com.bagri.xdm.common.XDMConstants.cmd_get_document;
 
-import com.bagri.xdm.api.XDMDocumentManagement;
+import com.bagri.xdm.api.DocumentManagement;
 import com.bagri.xdm.api.XDMException;
 
 import net.sf.saxon.expr.XPathContext;
@@ -15,7 +15,7 @@ import net.sf.saxon.value.StringValue;
 
 public class GetDocument extends DocumentFunctionExtension {
 	
-	public GetDocument(XDMDocumentManagement xdm) {
+	public GetDocument(DocumentManagement xdm) {
 		super(xdm);
 	}
 

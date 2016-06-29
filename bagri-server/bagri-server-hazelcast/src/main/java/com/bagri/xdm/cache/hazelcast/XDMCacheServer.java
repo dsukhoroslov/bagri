@@ -3,8 +3,8 @@ package com.bagri.xdm.cache.hazelcast;
 import static com.bagri.xdm.cache.hazelcast.util.HazelcastUtils.getMemberSchemas;
 import static com.bagri.xdm.cache.hazelcast.util.SpringContextHolder.*;
 import static com.bagri.xdm.common.XDMConstants.*;
-import static com.bagri.xdm.cache.api.XDMCacheConstants.PN_XDM_SYSTEM_POOL;
-import static com.bagri.xdm.cache.api.XDMRepository.bean_id;
+import static com.bagri.xdm.cache.api.CacheConstants.PN_XDM_SYSTEM_POOL;
+import static com.bagri.xdm.cache.api.SchemaRepository.bean_id;
 import static com.bagri.xdm.cache.hazelcast.util.HazelcastUtils.*;
 
 import java.io.IOException;
@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import com.bagri.xdm.api.XDMRepository;
+import com.bagri.xdm.api.SchemaRepository;
 import com.bagri.xdm.cache.hazelcast.config.SystemConfig;
 import com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl;
 import com.bagri.xdm.cache.hazelcast.management.SchemaManagement;

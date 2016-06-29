@@ -8,7 +8,7 @@ import com.bagri.xdm.system.TriggerDefinition;
  * @author Denis Sukhoroslov
  *
  */
-public interface XDMTriggerManagement {
+public interface TriggerManagement {
 	
 	/**
 	 * registers a new trigger

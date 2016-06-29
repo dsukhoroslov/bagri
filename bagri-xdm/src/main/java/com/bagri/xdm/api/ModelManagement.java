@@ -14,7 +14,7 @@ import com.bagri.xdm.domain.Path;
  * 
  * @author Denis Sukhoroslov
  */
-public interface XDMModelManagement {
+public interface ModelManagement {
 	
 	/**
 	 * performs translation from full namespace declaration to its prefix part:

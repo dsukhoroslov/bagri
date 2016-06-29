@@ -1,6 +1,6 @@
 package com.bagri.xdm.cache.hazelcast.task.schema;
 
-import static com.bagri.xdm.cache.api.XDMCacheConstants.*;
+import static com.bagri.xdm.cache.api.CacheConstants.*;
 import static com.bagri.xdm.cache.hazelcast.serialize.DataSerializationFactoryImpl.cli_CleanSchemaTask;
 
 import java.io.IOException;
@@ -8,7 +8,7 @@ import java.util.concurrent.Callable;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.bagri.xdm.cache.api.XDMQueryManagement;
+import com.bagri.xdm.cache.api.QueryManagement;
 import com.bagri.xdm.cache.hazelcast.impl.HealthManagementImpl;
 import com.bagri.xdm.domain.Query;
 import com.bagri.xdm.domain.QueryResult;

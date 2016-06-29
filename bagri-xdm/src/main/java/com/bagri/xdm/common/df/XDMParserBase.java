@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.api.XDMModelManagement;
+import com.bagri.xdm.api.ModelManagement;
 import com.bagri.xdm.domain.Occurrence;
 import com.bagri.xdm.domain.Data;
 import com.bagri.xdm.domain.Element;
@@ -29,7 +29,7 @@ public abstract class XDMParserBase {
 	
 	protected List<Data> dataList;
 	protected Stack<Data> dataStack;
-	protected XDMModelManagement model;
+	protected ModelManagement model;
 	protected int docType = -1;
 	protected int elementId;
 	
@@ -37,7 +37,7 @@ public abstract class XDMParserBase {
 	 * 
 	 * @param model the model management component. Used to search/add model paths.
 	 */
-	protected XDMParserBase(XDMModelManagement model) {
+	protected XDMParserBase(ModelManagement model) {
 		this.model = model;
 	}
 	

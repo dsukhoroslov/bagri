@@ -2,7 +2,7 @@ package com.bagri.xquery.saxon.extension;
 
 import static com.bagri.xdm.common.XDMConstants.cmd_remove_cln_documents;
 
-import com.bagri.xdm.api.XDMDocumentManagement;
+import com.bagri.xdm.api.DocumentManagement;
 import com.bagri.xdm.api.XDMException;
 
 import net.sf.saxon.expr.XPathContext;
@@ -13,7 +13,7 @@ import net.sf.saxon.value.SequenceType;
 
 public class RemoveCollectionDocuments extends DocumentFunctionExtension {
 	
-	public RemoveCollectionDocuments(XDMDocumentManagement xdm) {
+	public RemoveCollectionDocuments(DocumentManagement xdm) {
 		super(xdm);
 	}
 

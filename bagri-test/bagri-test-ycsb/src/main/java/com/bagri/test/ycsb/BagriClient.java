@@ -11,7 +11,7 @@ import java.util.Vector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bagri.xdm.api.XDMRepository;
+import com.bagri.xdm.api.SchemaRepository;
 import com.bagri.xdm.client.hazelcast.impl.RepositoryImpl;
 import com.yahoo.ycsb.ByteIterator;
 import com.yahoo.ycsb.DB;
@@ -23,7 +23,7 @@ public class BagriClient extends DB {
 	
     private static final Logger logger = LoggerFactory.getLogger(BagriClient.class);
 	
-    private XDMRepository xRepo;
+    private SchemaRepository xRepo;
 	
 	@Override
 	public void init() throws DBException {

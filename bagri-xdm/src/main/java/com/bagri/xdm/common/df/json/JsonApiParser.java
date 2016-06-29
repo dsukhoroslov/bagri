@@ -17,8 +17,8 @@ import javax.json.stream.JsonParserFactory;
 import javax.xml.xquery.XQItemType;
 
 import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.api.XDMModelManagement;
-import com.bagri.xdm.cache.api.XDMParser;
+import com.bagri.xdm.api.ModelManagement;
+import com.bagri.xdm.cache.api.ContentParser;
 import com.bagri.xdm.common.df.XDMParserBase;
 import com.bagri.xdm.domain.Occurrence;
 import com.bagri.xdm.domain.Data;
@@ -32,7 +32,7 @@ import com.bagri.xdm.domain.Path;
  * @author Denis Sukhoroslov
  *
  */
-public class JsonApiParser extends XDMParserBase implements XDMParser {
+public class JsonApiParser extends XDMParserBase implements ContentParser {
 	
 	private static JsonParserFactory factory;
 	static {
@@ -56,7 +56,7 @@ public class JsonApiParser extends XDMParserBase implements XDMParser {
 	 * @throws IOException in case of content read exception
 	 * @throws XDMException in case of content parse exception
 	 */
-	public static List<Data> parseDocument(XDMModelManagement model, String json) throws IOException, XDMException {
+	public static List<Data> parseDocument(ModelManagement model, String json) throws IOException, XDMException {
 		JsonApiParser parser = new JsonApiParser(model);
 		return parser.parse(json);
 	}
@@ -65,7 +65,7 @@ public class JsonApiParser extends XDMParserBase implements XDMParser {
 	 * 
 	 * @param model the model management component
 	 */
-	public JsonApiParser(XDMModelManagement model) {
+	public JsonApiParser(ModelManagement model) {
 		super(model);
 	}
 

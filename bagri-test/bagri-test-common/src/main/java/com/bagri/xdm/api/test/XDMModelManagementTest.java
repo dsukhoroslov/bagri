@@ -9,9 +9,9 @@ import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import com.bagri.xdm.api.XDMDocumentManagement;
-import com.bagri.xdm.api.XDMModelManagement;
-import com.bagri.xdm.api.XDMRepository;
+import com.bagri.xdm.api.DocumentManagement;
+import com.bagri.xdm.api.ModelManagement;
+import com.bagri.xdm.api.SchemaRepository;
 import com.bagri.xdm.domain.Path;
 
 public abstract class XDMModelManagementTest extends XDMManagementTest {

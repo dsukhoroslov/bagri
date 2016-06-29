@@ -27,8 +27,8 @@ import javax.xml.transform.Source;
 import javax.xml.xquery.XQItemType;
 
 import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.api.XDMModelManagement;
-import com.bagri.xdm.cache.api.XDMParser;
+import com.bagri.xdm.api.ModelManagement;
+import com.bagri.xdm.cache.api.ContentParser;
 import com.bagri.xdm.common.df.XDMParserBase;
 import com.bagri.xdm.domain.Occurrence;
 import com.bagri.xdm.domain.Data;
@@ -42,7 +42,7 @@ import com.bagri.xdm.domain.Path;
  * @author Denis Sukhoroslov
  *
  */
-public class XmlStaxParser extends XDMParserBase implements XDMParser {
+public class XmlStaxParser extends XDMParserBase implements ContentParser {
 
 	private static XMLInputFactory factory = XMLInputFactory.newInstance();
 
@@ -57,7 +57,7 @@ public class XmlStaxParser extends XDMParserBase implements XDMParser {
 	 * @throws XMLStreamException in case of content read exception
 	 * @throws XDMException in case of content parse exception
 	 */
-	public static List<Data> parseDocument(XDMModelManagement model, String xml) throws XMLStreamException, XDMException {
+	public static List<Data> parseDocument(ModelManagement model, String xml) throws XMLStreamException, XDMException {
 		XmlStaxParser parser = new XmlStaxParser(model);
 		return parser.parse(xml);
 	}
@@ -66,7 +66,7 @@ public class XmlStaxParser extends XDMParserBase implements XDMParser {
 	 * 
 	 * @param model the model management component
 	 */
-	public XmlStaxParser(XDMModelManagement model) {
+	public XmlStaxParser(ModelManagement model) {
 		super(model);
 	}
 

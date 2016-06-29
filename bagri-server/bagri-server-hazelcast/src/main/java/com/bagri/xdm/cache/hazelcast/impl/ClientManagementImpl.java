@@ -11,7 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bagri.common.stats.StatisticsEvent;
-import com.bagri.xdm.cache.api.XDMClientManagement;
+import com.bagri.xdm.cache.api.ClientManagement;
 import com.bagri.xdm.cache.hazelcast.predicate.PropertyPredicate;
 import com.hazelcast.core.Client;
 import com.hazelcast.core.ClientListener;
@@ -22,7 +22,7 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.MapEvent;
 
-public class ClientManagementImpl implements XDMClientManagement, ClientListener, EntryListener<String, Properties> {
+public class ClientManagementImpl implements ClientManagement, ClientListener, EntryListener<String, Properties> {
 	
 	private static final transient Logger logger = LoggerFactory.getLogger(ClientManagementImpl.class);
 	

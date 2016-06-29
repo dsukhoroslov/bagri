@@ -9,12 +9,12 @@ import net.sf.saxon.trans.XPathException;
 import net.sf.saxon.value.EmptySequence;
 import net.sf.saxon.value.SequenceType;
 
-import com.bagri.xdm.api.XDMDocumentManagement;
+import com.bagri.xdm.api.DocumentManagement;
 import com.bagri.xdm.api.XDMException;
 
 public class RemoveDocument extends DocumentFunctionExtension {
 	
-	public RemoveDocument(XDMDocumentManagement xdm) {
+	public RemoveDocument(DocumentManagement xdm) {
 		super(xdm);
 	}
 

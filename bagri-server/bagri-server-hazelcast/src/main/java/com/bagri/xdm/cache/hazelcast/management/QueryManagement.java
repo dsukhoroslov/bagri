@@ -35,8 +35,7 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 import com.bagri.common.stats.StatsAggregator;
 import com.bagri.common.util.JMXUtils;
 import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.api.XDMQueryManagement;
-import com.bagri.xdm.cache.api.XDMCacheConstants;
+import com.bagri.xdm.cache.api.CacheConstants;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaQueryCleaner;
 import com.bagri.xdm.cache.hazelcast.task.stats.StatisticSeriesCollector;
 import com.bagri.xdm.cache.hazelcast.task.stats.StatisticsReseter;
@@ -58,7 +57,7 @@ public class QueryManagement extends SchemaFeatureManagement {
 	private int queryTimeout = 0;
     private XQConnection xqConn;
 	private StatsAggregator qcAggregator;
-	private XDMQueryManagement queryMgr;
+	private com.bagri.xdm.api.QueryManagement queryMgr;
 	
     
     public QueryManagement(String schemaName) {

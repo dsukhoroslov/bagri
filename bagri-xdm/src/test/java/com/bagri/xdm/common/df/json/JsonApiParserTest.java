@@ -10,7 +10,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.api.XDMModelManagement;
+import com.bagri.xdm.api.ModelManagement;
 import com.bagri.xdm.common.df.json.JsonApiParser;
 import com.bagri.xdm.domain.Data;
 
@@ -63,7 +63,7 @@ public class JsonApiParserTest {
 	@Test
 	@Ignore
 	public void testParse() throws IOException, XDMException {
-		XDMModelManagement dict = null; //new ModelManagementImpl();
+		ModelManagement dict = null; //new ModelManagementImpl();
 		JsonApiParser parser = new JsonApiParser(dict);
 		//String json = 
 		//"{\n" +

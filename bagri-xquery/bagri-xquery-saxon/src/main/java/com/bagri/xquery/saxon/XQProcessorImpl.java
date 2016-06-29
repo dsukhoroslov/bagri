@@ -36,8 +36,8 @@ import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 
 import com.bagri.common.util.XMLUtils;
-import com.bagri.xdm.api.XDMQueryManagement;
-import com.bagri.xdm.api.XDMRepository;
+import com.bagri.xdm.api.QueryManagement;
+import com.bagri.xdm.api.SchemaRepository;
 import com.bagri.xquery.api.XQProcessorBase;
 import com.bagri.xquery.saxon.extension.GetDocument;
 import com.bagri.xquery.saxon.extension.RemoveCollectionDocuments;
@@ -271,15 +271,15 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
     }
 
     @Override
-    public void setRepository(XDMRepository xRepo) {
+    public void setRepository(SchemaRepository xRepo) {
     	super.setRepository(xRepo);
         config.registerExtensionFunction(new GetDocument(xRepo.getDocumentManagement()));
         config.registerExtensionFunction(new RemoveDocument(xRepo.getDocumentManagement()));
         config.registerExtensionFunction(new StoreDocument(xRepo.getDocumentManagement()));
         config.registerExtensionFunction(new RemoveCollectionDocuments(xRepo.getDocumentManagement()));
-        if (xRepo instanceof com.bagri.xdm.cache.api.XDMRepository) {
+        if (xRepo instanceof com.bagri.xdm.cache.api.SchemaRepository) {
         	logger.debug("setRepository; registering extensions"); 
-        	XQCompilerImpl.registerExtensions(config, ((com.bagri.xdm.cache.api.XDMRepository) xRepo).getLibraries());
+        	XQCompilerImpl.registerExtensions(config, ((com.bagri.xdm.cache.api.SchemaRepository) xRepo).getLibraries());
         } else {
         	logger.debug("setRepository; client side repo - has no access to extensions"); 
         }

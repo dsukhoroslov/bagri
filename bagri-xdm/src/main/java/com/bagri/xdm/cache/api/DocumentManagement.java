@@ -8,7 +8,7 @@ import com.bagri.xdm.api.XDMException;
  * @author Denis Sukhoroslov
  *
  */
-public interface XDMDocumentManagement extends com.bagri.xdm.api.XDMDocumentManagement {
+public interface DocumentManagement extends com.bagri.xdm.api.DocumentManagement {
 
 	/**
 	 * provides XDM Document content for the internal document key

@@ -5,20 +5,20 @@ import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryI
 import java.io.IOException;
 import java.util.concurrent.Callable;
 
-import com.bagri.xdm.api.XDMTransactionIsolation;
+import com.bagri.xdm.api.TransactionIsolation;
 import com.bagri.xdm.client.hazelcast.task.ClientAwareTask;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 
 public class TransactionStarter extends ClientAwareTask implements Callable<Long> {
 	
-	protected XDMTransactionIsolation txIsolation;
+	protected TransactionIsolation txIsolation;
 
 	public TransactionStarter() {
 		super();
 	}
 
-	public TransactionStarter(String clientId, XDMTransactionIsolation txIsolation) {
+	public TransactionStarter(String clientId, TransactionIsolation txIsolation) {
 		super(clientId);
 		this.txIsolation = txIsolation;
 	}
@@ -36,7 +36,7 @@ public class TransactionStarter extends ClientAwareTask implements Callable<Long
 	@Override
 	public void readData(ObjectDataInput in) throws IOException {
 		super.readData(in);
-		txIsolation = XDMTransactionIsolation.valueOf(in.readUTF());
+		txIsolation = TransactionIsolation.valueOf(in.readUTF());
 	}
 
 	@Override
