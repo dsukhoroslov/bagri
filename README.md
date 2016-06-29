@@ -1,5 +1,4 @@
 ## bagri project
------------------
 
 ### XML/Document DB on top of distributed cache.
 
@@ -18,3 +17,7 @@ Consists of the following Maven modules:
  
 
 For more details visit our [Wiki pages](https://github.com/dsukhoroslov/bagri/wiki)
+
+### License
+
+Bagri is distributed under the Apache 2 License. 
