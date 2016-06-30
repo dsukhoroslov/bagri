@@ -102,11 +102,11 @@
 				</hz:indexes>
 			</hz:map>
 			<hz:map name="xdm-element" in-memory-format="BINARY" async-backup-count="${xdm.schema.data.backup.async}" 
-				backup-count="${xdm.schema.data.backup.sync}" read-backup-data="${xdm.schema.data.backup.read}">
+				backup-count="${xdm.schema.data.backup.sync}" read-backup-data="${xdm.schema.data.backup.read}"
+				cache-deserialized-values="INDEX-ONLY">
+				<!--cache-deserialized-values="NEVER"-->
 				<hz:indexes>
-					<!--hz:index attribute="documentId"/-->
 					<hz:index attribute="pathId" ordered="true"/>
-					<!--hz:index attribute="value"/-->
 				</hz:indexes>
 			</hz:map>
 			<hz:map name="xdm-index" in-memory-format="BINARY" async-backup-count="${xdm.schema.data.backup.async}" 
