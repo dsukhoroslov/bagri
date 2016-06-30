@@ -31,35 +31,35 @@ public class XQueryTriggerImpl implements DocumentTrigger {
 
 	@Override
 	public void beforeInsert(Document doc, SchemaRepository repo) throws XDMException {
-		runTrigger(doc, (RepositoryImpl) repo);
+		runTrigger(doc, (SchemaRepositoryImpl) repo);
 	} 
 
 	@Override
 	public void afterInsert(Document doc, SchemaRepository repo) throws XDMException {
-		runTrigger(doc, (RepositoryImpl) repo);
+		runTrigger(doc, (SchemaRepositoryImpl) repo);
 	}
 
 	@Override
 	public void beforeUpdate(Document doc, SchemaRepository repo) throws XDMException {
-		runTrigger(doc, (RepositoryImpl) repo);
+		runTrigger(doc, (SchemaRepositoryImpl) repo);
 	}
 
 	@Override
 	public void afterUpdate(Document doc, SchemaRepository repo) throws XDMException {
-		runTrigger(doc, (RepositoryImpl) repo);
+		runTrigger(doc, (SchemaRepositoryImpl) repo);
 	}
 
 	@Override
 	public void beforeDelete(Document doc, SchemaRepository repo) throws XDMException {
-		runTrigger(doc, (RepositoryImpl) repo);
+		runTrigger(doc, (SchemaRepositoryImpl) repo);
 	}
 
 	@Override
 	public void afterDelete(Document doc, SchemaRepository repo) throws XDMException {
-		runTrigger(doc, (RepositoryImpl) repo);
+		runTrigger(doc, (SchemaRepositoryImpl) repo);
 	}
 	
-	private void runTrigger(Document doc, RepositoryImpl repo) throws XDMException {
+	private void runTrigger(Document doc, SchemaRepositoryImpl repo) throws XDMException {
 		XQProcessor xqp = repo.getXQProcessor();
 		QName var = new QName("doc");
 		try {

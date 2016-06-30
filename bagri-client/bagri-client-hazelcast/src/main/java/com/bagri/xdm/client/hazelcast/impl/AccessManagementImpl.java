@@ -18,10 +18,10 @@ public class AccessManagementImpl implements AccessManagement {
 
     private final static Logger logger = LoggerFactory.getLogger(AccessManagementImpl.class);
 	
-	private RepositoryImpl repo;
+	private SchemaRepositoryImpl repo;
 	private IExecutorService execService;
 	
-	void initialize(RepositoryImpl repo) {
+	void initialize(SchemaRepositoryImpl repo) {
 		this.repo = repo;
 		HazelcastInstance hzClient = repo.getHazelcastClient();
 		execService = hzClient.getExecutorService(PN_XDM_SCHEMA_POOL);

@@ -45,8 +45,8 @@ public class ResultCursorTest extends XDMManagementTest {
 
 	@Before
 	public void setUp() throws Exception {
-		xRepo = context.getBean(RepositoryImpl.class);
-		RepositoryImpl xdmRepo = (RepositoryImpl) xRepo; 
+		xRepo = context.getBean(SchemaRepositoryImpl.class);
+		SchemaRepositoryImpl xdmRepo = (SchemaRepositoryImpl) xRepo; 
 		Schema schema = xdmRepo.getSchema();
 		if (schema == null) {
 			schema = new Schema(1, new java.util.Date(), "test", "test", "test schema", true, null);
@@ -89,7 +89,7 @@ public class ResultCursorTest extends XDMManagementTest {
 		props.setProperty(pn_client_fetchSize, "1");
 		props.setProperty(pn_client_id, "dummy");
 		ResultCursor rc = (ResultCursor) qm.executeQuery(query, params, props);
-		rc.deserialize(((RepositoryImpl) xRepo).getHzInstance());
+		rc.deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
 		assertTrue(rc.hasNext());
 		assertNotNull(rc.next());
 		assertFalse(rc.hasNext());
@@ -111,7 +111,7 @@ public class ResultCursorTest extends XDMManagementTest {
 		props.setProperty(pn_client_fetchSize, "1");
 		props.setProperty(pn_client_id, "dummy");
 		ResultCursor rc = (ResultCursor) qm.executeQuery(query, params, props);
-		rc.deserialize(((RepositoryImpl) xRepo).getHzInstance());
+		rc.deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
 		assertTrue(rc.hasNext());
 		assertNotNull(rc.next());
 		assertFalse(rc.hasNext());
@@ -140,7 +140,7 @@ public class ResultCursorTest extends XDMManagementTest {
 				ResultCursor rc;
 				try {
 					rc = (ResultCursor) qm.executeQuery(query, params, props);
-					rc.deserialize(((RepositoryImpl) xRepo).getHzInstance());
+					rc.deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
 					assertTrue(rc.hasNext());
 					assertNotNull(rc.next());
 					assertFalse(rc.hasNext());
@@ -159,7 +159,7 @@ public class ResultCursorTest extends XDMManagementTest {
 				ResultCursor rc;
 				try {
 					rc = (ResultCursor) qm.executeQuery(query, params, props);
-					rc.deserialize(((RepositoryImpl) xRepo).getHzInstance());
+					rc.deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
 					assertTrue(rc.hasNext());
 					assertNotNull(rc.next());
 					assertFalse(rc.hasNext());

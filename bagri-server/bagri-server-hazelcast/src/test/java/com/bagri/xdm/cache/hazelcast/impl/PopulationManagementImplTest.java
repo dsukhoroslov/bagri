@@ -47,8 +47,8 @@ public class PopulationManagementImplTest extends XDMManagementTest {
 
 	@Before
 	public void setUp() throws Exception {
-		xRepo = context.getBean(RepositoryImpl.class);
-		RepositoryImpl xdmRepo = (RepositoryImpl) xRepo; 
+		xRepo = context.getBean(SchemaRepositoryImpl.class);
+		SchemaRepositoryImpl xdmRepo = (SchemaRepositoryImpl) xRepo; 
 		Schema schema = xdmRepo.getSchema();
 		if (schema == null) {
 			schema = new Schema(1, new java.util.Date(), "test", "test", "test schema", true, null);
@@ -71,7 +71,7 @@ public class PopulationManagementImplTest extends XDMManagementTest {
 	@After
 	public void tearDown() throws Exception {
 		removeDocumentsTest();
-		RepositoryImpl xdmRepo = (RepositoryImpl) xRepo; 
+		SchemaRepositoryImpl xdmRepo = (SchemaRepositoryImpl) xRepo; 
 		Schema schema = xdmRepo.getSchema();
 		String dataPath = schema.getProperty(xdm_schema_store_data_path);
 		if (dataPath == null) {

@@ -55,14 +55,14 @@ public class TriggerManagementImpl implements TriggerManagement {
     private ModelManagementImpl mdlMgr;
     private boolean enableStats = true;
 	private BlockingQueue<StatisticsEvent> queue;
-	private RepositoryImpl repo = null; //
+	private SchemaRepositoryImpl repo = null; //
 	private XQCompiler xqComp;
 	
 	public void setHzInstance(HazelcastInstance hzInstance) {
 		this.hzInstance = hzInstance;
 	}
 	
-    public void setRepository(RepositoryImpl repo) {
+    public void setRepository(SchemaRepositoryImpl repo) {
     	this.repo = repo;
     }
     

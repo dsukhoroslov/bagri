@@ -49,8 +49,8 @@ public class QueryCacheManagementTest extends XDMManagementTest {
 
 	@Before
 	public void setUp() throws Exception {
-		xRepo = context.getBean(RepositoryImpl.class);
-		RepositoryImpl xdmRepo = (RepositoryImpl) xRepo; 
+		xRepo = context.getBean(SchemaRepositoryImpl.class);
+		SchemaRepositoryImpl xdmRepo = (SchemaRepositoryImpl) xRepo; 
 		Schema schema = xdmRepo.getSchema();
 		if (schema == null) {
 			schema = new Schema(1, new java.util.Date(), "test", "test", "test schema", true, null);

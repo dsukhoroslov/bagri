@@ -42,7 +42,7 @@ public class ModelManagementImplTest extends XDMManagementTest {
 
 	@Before
 	public void setUp() throws Exception {
-		xRepo = new RepositoryImpl();
+		xRepo = new SchemaRepositoryImpl();
 	}
 
 	@After

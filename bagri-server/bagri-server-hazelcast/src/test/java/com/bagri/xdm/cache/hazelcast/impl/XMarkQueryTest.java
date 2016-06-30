@@ -51,8 +51,8 @@ public class XMarkQueryTest extends XDMManagementTest {
 
 	@Before
 	public void setUp() throws Exception {
-		xRepo = context.getBean(RepositoryImpl.class);
-		RepositoryImpl xdmRepo = (RepositoryImpl) xRepo; 
+		xRepo = context.getBean(SchemaRepositoryImpl.class);
+		SchemaRepositoryImpl xdmRepo = (SchemaRepositoryImpl) xRepo; 
 		xqProc = context.getBean("xqProcessor", XQProcessor.class);
 		Schema schema = xdmRepo.getSchema();
 		if (schema == null) {
@@ -73,7 +73,7 @@ public class XMarkQueryTest extends XDMManagementTest {
 
 		Iterator<?> result = getQueryManagement().executeQuery(query, params, new Properties());
 		assertNotNull(result);
-		((ResultCursor) result).deserialize(((RepositoryImpl) xRepo).getHzInstance());
+		((ResultCursor) result).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
 		//assertTrue(result.hasNext());
 		return result;
 	}

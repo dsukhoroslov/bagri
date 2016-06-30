@@ -33,7 +33,7 @@ import com.bagri.common.util.FileUtils;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.cache.hazelcast.impl.DocumentManagementImpl;
 import com.bagri.xdm.cache.hazelcast.impl.PopulationManagementImpl;
-import com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl;
+import com.bagri.xdm.cache.hazelcast.impl.SchemaRepositoryImpl;
 import com.bagri.xdm.common.DocumentKey;
 import com.bagri.xdm.domain.Document;
 import com.bagri.xdm.system.DataFormat;
@@ -50,7 +50,7 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
 	private String dataPath;
     private String schemaName;
     private String dataFormat;
-    private RepositoryImpl xdmRepo;
+    private SchemaRepositoryImpl xdmRepo;
     private PopulationManagementImpl popManager;
     
 	@Override
@@ -70,7 +70,7 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
 		if (xdmRepo == null) {
 			ApplicationContext schemaCtx = (ApplicationContext) getContext(schemaName, schema_context);
 			if (schemaCtx != null) {
-				xdmRepo = schemaCtx.getBean(RepositoryImpl.class);
+				xdmRepo = schemaCtx.getBean(SchemaRepositoryImpl.class);
 				dataFormat = xdmRepo.getSchema().getProperty(xdm_schema_format_default);
 				
 				while (!xdmRepo.isInitialized()) {

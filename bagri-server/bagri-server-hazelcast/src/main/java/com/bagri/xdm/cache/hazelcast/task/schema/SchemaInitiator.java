@@ -17,7 +17,7 @@ import org.springframework.core.env.PropertiesPropertySource;
 
 import com.bagri.xdm.cache.api.SchemaRepository;
 import com.bagri.xdm.cache.hazelcast.impl.PopulationManagementImpl;
-import com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl;
+import com.bagri.xdm.cache.hazelcast.impl.SchemaRepositoryImpl;
 import com.bagri.xdm.system.Schema;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
@@ -67,7 +67,7 @@ public class SchemaInitiator implements Callable<Boolean>, IdentifiedDataSeriali
     		//hz.getConfig().getSecurityConfig().setEnabled(true);
 			setContext(schemaName, schema_context, ctx);
 			
-			RepositoryImpl xdmRepo = ctx.getBean(SchemaRepository.bean_id, RepositoryImpl.class);
+			SchemaRepositoryImpl xdmRepo = ctx.getBean(SchemaRepository.bean_id, SchemaRepositoryImpl.class);
 			xdmRepo.setSchema(schema);
     		logger.debug("initSchema; schema {} started on instance: {}", schemaName, hz);
     		

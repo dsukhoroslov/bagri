@@ -21,7 +21,7 @@ import com.bagri.xdm.api.HealthCheckState;
 import com.bagri.xdm.api.QueryManagement;
 import com.bagri.xdm.api.SchemaRepository;
 import com.bagri.xdm.api.TransactionManagement;
-import com.bagri.xdm.api.impl.RepositoryBase;
+import com.bagri.xdm.api.impl.SchemaRepositoryBase;
 import com.bagri.xdm.client.hazelcast.serialize.SecureCredentials;
 import com.bagri.xdm.client.hazelcast.serialize.XQItemSerializer;
 import com.bagri.xdm.client.hazelcast.serialize.XQItemTypeSerializer;
@@ -33,24 +33,24 @@ import com.hazelcast.config.SerializerConfig;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.security.Credentials;
 
-public class RepositoryImpl extends RepositoryBase implements SchemaRepository {
+public class SchemaRepositoryImpl extends SchemaRepositoryBase implements SchemaRepository {
 	
-    private final static Logger logger = LoggerFactory.getLogger(RepositoryImpl.class);
+    private final static Logger logger = LoggerFactory.getLogger(SchemaRepositoryImpl.class);
 	
 	private String clientId;
 	private String schemaName;
 	private ClientManagementImpl clientMgr;
 	private HazelcastInstance hzClient;
 	
-	public RepositoryImpl() {
+	public SchemaRepositoryImpl() {
 		initializeFromProperties(getSystemProps());
 	}
 
-	public RepositoryImpl(Properties props) {
+	public SchemaRepositoryImpl(Properties props) {
 		initializeFromProperties(getConvertedProps(props));
 	}
 	
-	public RepositoryImpl(HazelcastInstance hzInstance) {
+	public SchemaRepositoryImpl(HazelcastInstance hzInstance) {
 		this.hzClient = hzInstance;
 		com.hazelcast.client.impl.HazelcastClientProxy proxy = (com.hazelcast.client.impl.HazelcastClientProxy) hzClient;
 		schemaName = proxy.getClientConfig().getGroupConfig().getName();

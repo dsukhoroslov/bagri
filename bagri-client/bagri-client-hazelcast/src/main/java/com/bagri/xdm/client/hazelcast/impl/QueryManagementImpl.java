@@ -39,7 +39,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
     private final static Logger logger = LoggerFactory.getLogger(QueryManagementImpl.class);
 	
     private boolean queryCache = true;
-    private RepositoryImpl repo;
+    private SchemaRepositoryImpl repo;
 	private IExecutorService execService;
     private Future execution = null; 
     private IMap<Long, QueryResult> resCache;
@@ -49,7 +49,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		// what should we do here? 
 	}
 	
-	void initialize(RepositoryImpl repo) {
+	void initialize(SchemaRepositoryImpl repo) {
 		this.repo = repo;
 		execService = repo.getHazelcastClient().getExecutorService(PN_XDM_SCHEMA_POOL);
 		resCache = repo.getHazelcastClient().getMap(CN_XDM_RESULT);

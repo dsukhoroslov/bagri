@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl;
+import com.bagri.xdm.cache.hazelcast.impl.SchemaRepositoryImpl;
 import com.bagri.xdm.system.Index;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
@@ -23,7 +23,7 @@ public class IndexCreator implements Callable<Boolean>, IdentifiedDataSerializab
 	private static final transient Logger logger = LoggerFactory.getLogger(IndexCreator.class);
 	
 	private Index index;
-	private transient RepositoryImpl xdmRepo;
+	private transient SchemaRepositoryImpl xdmRepo;
     
 	public IndexCreator() {
 		//
@@ -34,7 +34,7 @@ public class IndexCreator implements Callable<Boolean>, IdentifiedDataSerializab
 	}
 
     @Autowired
-	public void setXDMRepository(RepositoryImpl xdmRepo) {
+	public void setXDMRepository(SchemaRepositoryImpl xdmRepo) {
 		this.xdmRepo = xdmRepo;
 	}
 	

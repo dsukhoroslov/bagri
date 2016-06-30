@@ -26,7 +26,7 @@ public class ClientManagementImpl implements ClientManagement, ClientListener, E
 	
 	private static final transient Logger logger = LoggerFactory.getLogger(ClientManagementImpl.class);
 	
-	private RepositoryImpl repo;
+	private SchemaRepositoryImpl repo;
     private HazelcastInstance hzInstance;
 	private IMap<String, Properties> clientsCache;
 	
@@ -44,7 +44,7 @@ public class ClientManagementImpl implements ClientManagement, ClientListener, E
 		clientsCache.addEntryListener(this, false);
 	}
 	
-    public void setRepository(RepositoryImpl repo) {
+    public void setRepository(SchemaRepositoryImpl repo) {
     	this.repo = repo;
     }	
 	

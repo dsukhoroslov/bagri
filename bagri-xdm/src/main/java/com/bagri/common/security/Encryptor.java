@@ -6,12 +6,23 @@ import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-
+/**
+ * A simple one-way encryptor. Encrypts String value using MD5 algorithm.
+ * 
+ * @author Denis Sukhoroslov
+ *
+ */
 public class Encryptor {
 
     private static final String DA_MD5 = "MD5";
     private static final String DA_SHA_256 = "SHA-256";
     
+    /**
+     * Encrypts the provided value using MD5 algorithm.
+     * 
+     * @param value the value to encrypt
+     * @return the encrypted value
+     */
     public static String encrypt(String value) { 
 
 		try {
@@ -23,15 +34,19 @@ public class Encryptor {
             }
             return hexString.toString();
 		} catch (NoSuchAlgorithmException e) {
-			//e.printStackTrace();
 			return null;
 		} catch (UnsupportedEncodingException e) {
-			//e.printStackTrace();
 			return null;
 		}
     }
     
-
+	/**
+     * Encrypts the provided value using MD5 algorithm.
+	 * 
+	 * @param value the value to encrypt
+	 * @param salt the secret word to use as a salt
+	 * @return the encrypted value
+	 */
     public static String encrypt(String value, String salt) { 
 
 		try {
@@ -45,10 +60,8 @@ public class Encryptor {
             }
             return hexString.toString();
 		} catch (NoSuchAlgorithmException e) {
-			//e.printStackTrace();
 			return null;
 		} catch (UnsupportedEncodingException e) {
-			//e.printStackTrace();
 			return null;
 		}
     }

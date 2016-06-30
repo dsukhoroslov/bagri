@@ -14,7 +14,7 @@ import javax.xml.xquery.XQException;
 import com.bagri.samples.client.BagriClientApp;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.SchemaRepository;
-import com.bagri.xdm.client.hazelcast.impl.RepositoryImpl;
+import com.bagri.xdm.client.hazelcast.impl.SchemaRepositoryImpl;
 import com.bagri.xdm.domain.Document;
 import com.bagri.xqj.BagriXQDataFactory;
 import com.bagri.xquery.api.XQProcessor;
@@ -46,7 +46,7 @@ public class XDMClientApp implements BagriClientApp {
 		BagriXQDataFactory xqFactory = new BagriXQDataFactory();
 		xqFactory.setProcessor(proc);
 		props.put(pn_client_dataFactory,  xqFactory);
-		xRepo = new RepositoryImpl(props);
+		xRepo = new SchemaRepositoryImpl(props);
 	}
 	
 	public XDMClientApp(SchemaRepository xRepo) {

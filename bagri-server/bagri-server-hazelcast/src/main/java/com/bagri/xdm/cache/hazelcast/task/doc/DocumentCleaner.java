@@ -14,7 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.bagri.xdm.api.TransactionState;
 import com.bagri.xdm.cache.hazelcast.impl.DocumentManagementImpl;
-import com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl;
+import com.bagri.xdm.cache.hazelcast.impl.SchemaRepositoryImpl;
 import com.bagri.xdm.common.DocumentKey;
 import com.bagri.xdm.domain.Document;
 import com.bagri.xdm.domain.Transaction;
@@ -33,7 +33,7 @@ public class DocumentCleaner implements Callable<Transaction>, IdentifiedDataSer
 	private static final transient Logger logger = LoggerFactory.getLogger(DocumentCleaner.class);
 
 	private Transaction xTx;
-	private transient RepositoryImpl xdmRepo;
+	private transient SchemaRepositoryImpl xdmRepo;
     
 	public DocumentCleaner() {
 		//
@@ -44,7 +44,7 @@ public class DocumentCleaner implements Callable<Transaction>, IdentifiedDataSer
 	}
 
     @Autowired
-	public void setXDMRepository(RepositoryImpl xdmRepo) {
+	public void setXDMRepository(SchemaRepositoryImpl xdmRepo) {
 		this.xdmRepo = xdmRepo;
 	}
 	
@@ -92,7 +92,7 @@ public class DocumentCleaner implements Callable<Transaction>, IdentifiedDataSer
 				} else {
 					// deleted
 					result.updateCounters(0, 0, 1);
-					logger.info("call; started: {}; finished: {}; newkey: {}", dkStarted, dkFinished, nk);
+					logger.debug("call: found deleted documents; started: {}; finished: {}; newkey: {}", dkStarted, dkFinished, nk);
 				}
 				if (commit) {
 					// just delete doc relatives: elements, content, source, cached result

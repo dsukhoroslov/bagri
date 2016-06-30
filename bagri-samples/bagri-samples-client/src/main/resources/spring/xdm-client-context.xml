@@ -44,7 +44,7 @@
         </entry>
     </util:map>
 
-    <bean id="xdmRepository" class="com.bagri.xdm.client.hazelcast.impl.RepositoryImpl">
+    <bean id="xdmRepository" class="com.bagri.xdm.client.hazelcast.impl.SchemaRepositoryImpl">
         <constructor-arg ref="xdmProps"/>
     </bean>
 

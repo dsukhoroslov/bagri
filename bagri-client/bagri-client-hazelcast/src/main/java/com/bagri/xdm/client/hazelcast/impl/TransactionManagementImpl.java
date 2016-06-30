@@ -24,10 +24,10 @@ public class TransactionManagementImpl implements TransactionManagement {
     private long txId = TX_NO;
     private long txTimeout = 0;
     private String clientId = null;
-    private RepositoryImpl repo;
+    private SchemaRepositoryImpl repo;
 	private IExecutorService execService;
 
-	void initialize(RepositoryImpl repo) {
+	void initialize(SchemaRepositoryImpl repo) {
 		this.repo = repo;
 		HazelcastInstance hzClient = repo.getHazelcastClient();
 		execService = hzClient.getExecutorService(PN_XDM_SCHEMA_POOL);

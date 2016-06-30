@@ -5,7 +5,7 @@ import java.util.Collection;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.bagri.xdm.cache.api.QueryManagement;
-import com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl;
+import com.bagri.xdm.cache.hazelcast.impl.SchemaRepositoryImpl;
 import com.bagri.xdm.system.Permission;
 import com.hazelcast.spring.context.SpringAware;
 
@@ -20,13 +20,13 @@ public class XMLBuilder extends com.bagri.xdm.client.hazelcast.task.query.XMLBui
 	}
 	    
     @Autowired
-	public void setRepository(RepositoryImpl repo) {
+	public void setRepository(SchemaRepositoryImpl repo) {
 		this.repo = repo;
 	}
 
     @Override
 	public Collection<String> call() throws Exception {
-    	((RepositoryImpl) repo).getXQProcessor(clientId);
+    	((SchemaRepositoryImpl) repo).getXQProcessor(clientId);
     	checkPermission(Permission.Value.read);
    		return queryMgr.getContent(exp, template, params);
 	}

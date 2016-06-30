@@ -104,7 +104,7 @@
 
 	<bean id="txManager" class="com.bagri.xdm.client.hazelcast.impl.TransactionManagementImpl"/>
 
-	<bean id="xdmRepo" class="com.bagri.xdm.client.hazelcast.impl.RepositoryImpl">
+	<bean id="xdmRepo" class="com.bagri.xdm.client.hazelcast.impl.SchemaRepositoryImpl">
 		<constructor-arg ref="hzInstance" />
 		<property name="modelManagement" ref="mdlManager"/>
 		<property name="queryManagement" ref="xqManager"/>
@@ -112,16 +112,4 @@
 		<property name="txManagement" ref="txManager"/>
 	</bean>
 
-	<!--bean id="xqItemTypeSerializer" class="com.bagri.xdm.client.hazelcast.serialize.XQItemTypeSerializer">
-		<property name="XQDataFactory" ref="xqConnection" />
-	</bean>
-
-	<bean id="xqItemSerializer" class="com.bagri.xdm.client.hazelcast.serialize.XQItemSerializer">
-		<property name="XQDataFactory" ref="xqConnection" />
-	</bean>
-	
-	<bean id="xqSequenceSerializer" class="com.bagri.xdm.client.hazelcast.serialize.XQSequenceSerializer">
-		<property name="XQDataFactory" ref="xqConnection" />
-	</bean-->
-	
 </beans>

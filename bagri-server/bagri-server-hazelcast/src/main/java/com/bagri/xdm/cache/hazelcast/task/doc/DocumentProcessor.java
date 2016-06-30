@@ -11,7 +11,7 @@ import com.bagri.xdm.api.DocumentManagement;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.cache.api.SchemaRepository;
 import com.bagri.xdm.cache.api.TransactionManagement;
-import com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl;
+import com.bagri.xdm.cache.hazelcast.impl.SchemaRepositoryImpl;
 import com.bagri.xdm.domain.Document;
 import com.hazelcast.spring.context.SpringAware;
 
@@ -34,7 +34,7 @@ public class DocumentProcessor extends com.bagri.xdm.client.hazelcast.task.doc.D
 	public Object process(Entry<Long, Document> entry) {
 
 		// TODO: rewrite it to get use of entry
-    	((RepositoryImpl) repo).getXQProcessor(clientId);
+    	((SchemaRepositoryImpl) repo).getXQProcessor(clientId);
     	try {
 	    	return txMgr.callInTransaction(txId, false, new Callable<Document>() {
 	    		

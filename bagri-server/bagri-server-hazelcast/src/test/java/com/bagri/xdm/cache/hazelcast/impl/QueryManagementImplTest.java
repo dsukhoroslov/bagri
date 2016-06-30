@@ -23,7 +23,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import com.bagri.common.util.JMXUtils;
 import com.bagri.xdm.api.test.XDMManagementTest;
 import com.bagri.xdm.cache.api.QueryManagement;
-import com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl;
+import com.bagri.xdm.cache.hazelcast.impl.SchemaRepositoryImpl;
 import com.bagri.xdm.client.hazelcast.impl.ResultCursor;
 import com.bagri.xdm.query.AxisType;
 import com.bagri.xdm.query.Comparison;
@@ -55,8 +55,8 @@ public class QueryManagementImplTest extends XDMManagementTest {
 
 	@Before
 	public void setUp() throws Exception {
-		xRepo = context.getBean(RepositoryImpl.class);
-		RepositoryImpl xdmRepo = (RepositoryImpl) xRepo; 
+		xRepo = context.getBean(SchemaRepositoryImpl.class);
+		SchemaRepositoryImpl xdmRepo = (SchemaRepositoryImpl) xRepo; 
 		Schema schema = xdmRepo.getSchema();
 		if (schema == null) {
 			schema = new Schema(1, new java.util.Date(), "test", "test", "test schema", true, null);
@@ -344,7 +344,7 @@ public class QueryManagementImplTest extends XDMManagementTest {
 				"return $sec\n";
 			Iterator itr = xRepo.getQueryManagement().executeQuery(query, params, props);
 			assertNotNull(itr);
-			((ResultCursor) itr).deserialize(((RepositoryImpl) xRepo).getHzInstance());
+			((ResultCursor) itr).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
 			assertTrue(itr.hasNext());
 		}
 	}
@@ -369,7 +369,7 @@ public class QueryManagementImplTest extends XDMManagementTest {
 		assertNotNull(itr);
 		//((ResultCursor) itr).deserialize(((RepositoryImpl) xRepo).getHzInstance());
 		assertTrue(itr.hasNext());
-		XQProcessor xqp = ((RepositoryImpl) xRepo).getXQProcessor();
+		XQProcessor xqp = ((SchemaRepositoryImpl) xRepo).getXQProcessor();
 		Object result = itr.next();
 		assertNotNull(result);
 		String text = xqp.convertToString(result, null);

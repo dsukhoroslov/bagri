@@ -14,7 +14,7 @@ import com.bagri.xdm.api.TransactionManagement;
  * @author Denis Sukhoroslov
  *
  */
-public abstract class RepositoryBase {
+public abstract class SchemaRepositoryBase {
 	
 	private AccessManagement accessMgr;
 	private BindingManagement bindMgr;

@@ -48,8 +48,8 @@ public class BindDocumentManagementTest extends XDMManagementTest {
 
 	@Before
 	public void setUp() throws Exception {
-		xRepo = context.getBean(RepositoryImpl.class);
-		RepositoryImpl xdmRepo = (RepositoryImpl) xRepo; 
+		xRepo = context.getBean(SchemaRepositoryImpl.class);
+		SchemaRepositoryImpl xdmRepo = (SchemaRepositoryImpl) xRepo; 
 		Schema schema = xdmRepo.getSchema();
 		if (schema == null) {
 			schema = new Schema(1, new java.util.Date(), "test", "test", "test schema", true, null);
@@ -175,7 +175,7 @@ public class BindDocumentManagementTest extends XDMManagementTest {
 	private Iterator<?> query(String query, Map<QName, Object> params) throws Exception {
 		Iterator<?> result = getQueryManagement().executeQuery(query, params, new Properties());
 		assertNotNull(result);
-		((ResultCursor) result).deserialize(((RepositoryImpl) xRepo).getHzInstance());
+		((ResultCursor) result).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
 		//assertTrue(result.hasNext());
 		return result;
 	}

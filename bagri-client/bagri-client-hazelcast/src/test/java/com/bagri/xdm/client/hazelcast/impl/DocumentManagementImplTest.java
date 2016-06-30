@@ -42,7 +42,7 @@ public class DocumentManagementImplTest extends XDMDocumentManagementTest {
 
 	@Before
 	public void setUp() throws Exception {
-		xRepo = new RepositoryImpl();
+		xRepo = new SchemaRepositoryImpl();
 
 		//storeSecurityTest();
 		//storeCustomerTest();

@@ -41,7 +41,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 
 	private IMap<DocumentKey, Document> xddCache;
 	private IExecutorService execService;
-    private RepositoryImpl repo;
+    private SchemaRepositoryImpl repo;
 	
 	public DocumentManagementImpl() {
 		super();
@@ -51,7 +51,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		return xddCache;
 	}
 	
-	void initialize(RepositoryImpl repo) {
+	void initialize(SchemaRepositoryImpl repo) {
 		this.repo = repo;
 		HazelcastInstance hzClient = repo.getHazelcastClient();
 		xddCache = hzClient.getMap(CN_XDM_DOCUMENT);

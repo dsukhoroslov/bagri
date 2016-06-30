@@ -36,7 +36,7 @@
     	<!--property name="processor" ref="xqProcessor" /-->
     </bean>
     
-    <bean id="xdmRepo" class="com.bagri.xdm.client.hazelcast.impl.RepositoryImpl">
+    <bean id="xdmRepo" class="com.bagri.xdm.client.hazelcast.impl.SchemaRepositoryImpl">
 	<constructor-arg ref="xdmProps"/>
     </bean>
 

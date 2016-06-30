@@ -43,7 +43,7 @@ public class TransactionManagementImplTest extends ClientQueryManagementTest {
 
 	@Before
 	public void setUp() throws Exception {
-		xRepo = new RepositoryImpl();
+		xRepo = new SchemaRepositoryImpl();
 	}
 
 	@After

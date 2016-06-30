@@ -68,7 +68,7 @@ import com.hazelcast.query.Predicates;
 public class DocumentManagementImpl extends DocumentManagementBase implements DocumentManagement {
 	
 	private KeyFactory factory;
-	private RepositoryImpl repo;
+	private SchemaRepositoryImpl repo;
     private HazelcastInstance hzInstance;
     private IndexManagementImpl indexManager;
     private TransactionManagementImpl txManager;
@@ -83,7 +83,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
     private boolean enableStats = true;
 	private BlockingQueue<StatisticsEvent> queue;
     
-    public void setRepository(RepositoryImpl repo) {
+    public void setRepository(SchemaRepositoryImpl repo) {
     	this.repo = repo;
     	this.factory = repo.getFactory();
     	//this.model = repo.getModelManagement();

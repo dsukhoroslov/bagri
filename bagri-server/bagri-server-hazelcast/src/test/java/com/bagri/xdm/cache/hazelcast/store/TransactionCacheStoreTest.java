@@ -25,7 +25,7 @@ import com.bagri.common.util.PropUtils;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.test.XDMManagementTest;
 import com.bagri.xdm.cache.api.QueryManagement;
-import com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl;
+import com.bagri.xdm.cache.hazelcast.impl.SchemaRepositoryImpl;
 import com.bagri.xdm.cache.hazelcast.impl.TransactionManagementImpl;
 import com.bagri.xdm.query.AxisType;
 import com.bagri.xdm.query.Comparison;
@@ -61,8 +61,8 @@ public class TransactionCacheStoreTest extends XDMManagementTest {
 
 	@Before
 	public void setUp() throws Exception {
-		xRepo = context.getBean(RepositoryImpl.class);
-		RepositoryImpl xdmRepo = (RepositoryImpl) xRepo; 
+		xRepo = context.getBean(SchemaRepositoryImpl.class);
+		SchemaRepositoryImpl xdmRepo = (SchemaRepositoryImpl) xRepo; 
 		Schema schema = xdmRepo.getSchema();
 		if (schema == null) {
 			schema = new Schema(1, new java.util.Date(), "test", "test", "test schema", true, null);
@@ -79,7 +79,7 @@ public class TransactionCacheStoreTest extends XDMManagementTest {
 	@After
 	public void tearDown() throws Exception {
 		removeDocumentsTest();
-		RepositoryImpl xdmRepo = (RepositoryImpl) xRepo; 
+		SchemaRepositoryImpl xdmRepo = (SchemaRepositoryImpl) xRepo; 
 		Schema schema = xdmRepo.getSchema();
 		String dataPath = schema.getProperty(xdm_schema_store_data_path);
 		String nodeNum = System.getProperty(xdm_node_instance);

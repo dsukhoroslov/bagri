@@ -45,8 +45,8 @@ public class SimpleQueryManagementTest extends XDMManagementTest {
 
 	@Before
 	public void setUp() throws Exception {
-		xRepo = context.getBean(RepositoryImpl.class);
-		RepositoryImpl xdmRepo = (RepositoryImpl) xRepo; 
+		xRepo = context.getBean(SchemaRepositoryImpl.class);
+		SchemaRepositoryImpl xdmRepo = (SchemaRepositoryImpl) xRepo; 
 		xqProc = context.getBean("xqProcessor", XQProcessor.class);
 		Schema schema = xdmRepo.getSchema();
 		if (schema == null) {
@@ -84,7 +84,7 @@ public class SimpleQueryManagementTest extends XDMManagementTest {
 				"return $doc\n";
 
 		ResultCursor rc = (ResultCursor) xRepo.getQueryManagement().executeQuery(query, null, new Properties());
-		rc.deserialize(((RepositoryImpl) xRepo).getHzInstance());
+		rc.deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
 		assertTrue(rc.hasNext());
 		
 		props = new Properties();

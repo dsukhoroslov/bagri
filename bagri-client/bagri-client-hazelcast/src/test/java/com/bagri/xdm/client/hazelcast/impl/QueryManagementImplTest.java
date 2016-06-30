@@ -39,7 +39,7 @@ public class QueryManagementImplTest extends ClientQueryManagementTest {
 
 	@Before
 	public void setUp() throws Exception {
-		xRepo = new RepositoryImpl();
+		xRepo = new SchemaRepositoryImpl();
 
 		//storeSecurityTest();
 		//storeCustomerTest();

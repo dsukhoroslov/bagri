@@ -3,14 +3,14 @@ package com.bagri.xdm.cache.hazelcast.task.auth;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl;
+import com.bagri.xdm.cache.hazelcast.impl.SchemaRepositoryImpl;
 
 public class UserAuthenticator extends com.bagri.xdm.client.hazelcast.task.auth.UserAuthenticator {
 
-	private transient RepositoryImpl repo;
+	private transient SchemaRepositoryImpl repo;
     
     @Autowired
-	public void setRepository(RepositoryImpl repo) {
+	public void setRepository(SchemaRepositoryImpl repo) {
 		this.repo = repo;
 	}
 

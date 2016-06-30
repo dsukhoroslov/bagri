@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
 
 import com.bagri.xdm.api.SchemaRepository;
 import com.bagri.xdm.api.test.ClientQueryManagementTest;
-import com.bagri.xdm.client.hazelcast.impl.RepositoryImpl;
+import com.bagri.xdm.client.hazelcast.impl.SchemaRepositoryImpl;
 import com.bagri.xdm.domain.Document;
 import com.bagri.xdm.system.Parameter;
 import com.bagri.xqj.BagriXQDataFactory;

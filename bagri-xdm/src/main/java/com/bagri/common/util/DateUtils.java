@@ -1,5 +1,11 @@
 package com.bagri.common.util;
 
+/**
+ * A set of static utility methods regarding dates
+ * 
+ * @author Denis Sukhoroslov
+ *
+ */
 public class DateUtils {
 	
 	private static final long MILLIS_PER_SECOND = 1000;

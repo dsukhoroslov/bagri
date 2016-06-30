@@ -85,12 +85,11 @@
         <dependency>
             <groupId>com.hazelcast</groupId>
             <artifactId>hazelcast-all</artifactId>
-            <!--exclusions>
-                <exclusion>
-                    <groupId>com.eclipsesource.minimal-json</groupId>
-                    <artifactId>minimal-json</artifactId>
-                </exclusion>
-            </exclusions-->
+        </dependency>
+        <dependency>
+            <groupId>javax.cache</groupId>
+            <artifactId>cache-api</artifactId>
+            <scope>runtime</scope>
         </dependency>
 
         <!-- Dependencies for logging -->

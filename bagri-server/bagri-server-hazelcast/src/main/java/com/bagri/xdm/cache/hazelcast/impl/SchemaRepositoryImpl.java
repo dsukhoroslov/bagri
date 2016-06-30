@@ -24,7 +24,7 @@ import com.bagri.xdm.api.BindingManagement;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.ModelManagement;
 import com.bagri.xdm.api.TransactionManagement;
-import com.bagri.xdm.api.impl.RepositoryBase;
+import com.bagri.xdm.api.impl.SchemaRepositoryBase;
 import com.bagri.xdm.cache.api.ContentBuilder;
 import com.bagri.xdm.cache.api.ClientManagement;
 import com.bagri.xdm.cache.api.IndexManagement;
@@ -44,9 +44,9 @@ import com.bagri.xdm.system.TriggerDefinition;
 import com.bagri.xquery.api.XQProcessor;
 import com.hazelcast.core.HazelcastInstance;
 
-public class RepositoryImpl extends RepositoryBase implements ApplicationContextAware, SchemaRepository {
+public class SchemaRepositoryImpl extends SchemaRepositoryBase implements ApplicationContextAware, SchemaRepository {
 
-	private static final transient Logger logger = LoggerFactory.getLogger(RepositoryImpl.class);
+	private static final transient Logger logger = LoggerFactory.getLogger(SchemaRepositoryImpl.class);
 	
 	private ThreadLocal<String> thClient = new ThreadLocal<String>() {
 		

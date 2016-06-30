@@ -32,6 +32,8 @@
                 <entry name="xdm.schema.trans.backup.async">0</entry>
                 <entry name="xdm.schema.store.enabled">false</entry>
                 <entry name="xdm.schema.thread.pool">10</entry>
+                <entry name="xdm.schema.data.cache">NEVER</entry>
+                <entry name="xdm.schema.data.stats.enabled">false</entry>
                 <entry name="xdm.schema.test.mode">false</entry>
                 <entry name="xdm.schema.ports.first">10150</entry>
                 <entry name="xdm.schema.format.default">XML</entry>
@@ -91,7 +93,7 @@
             <version>1</version>
             <createdAt>2015-04-22T13:36:26.965+03:00</createdAt>
             <createdBy>SDV</createdBy>
-            <description>TPoX: transient schema for TPoX-related tests; no persistent store</description>
+            <description>TPoX-J: schema for TPoX-related tests; JSON data format</description>
             <properties>
                 <entry name="xdm.schema.password">TPoX-J</entry>
                 <entry name="xdm.schema.data.backup.read">false</entry>
@@ -99,6 +101,8 @@
                 <entry name="xdm.schema.store.tx.buffer.size">1024</entry>
                 <entry name="xdm.schema.store.enabled">true</entry>
                 <entry name="xdm.schema.thread.pool">8</entry>
+                <entry name="xdm.schema.data.cache">INDEX-ONLY</entry>
+                <entry name="xdm.schema.data.stats.enabled">true</entry>
                 <entry name="xdm.schema.test.mode">false</entry>
                 <entry name="xdm.schema.ports.first">10700</entry>
                 <entry name="xdm.schema.format.default">JSON</entry>
@@ -161,6 +165,8 @@
                 <entry name="xdm.schema.ports.first">10050</entry>
                 <entry name="xdm.schema.format.default">XML</entry>
                 <entry name="xdm.schema.store.type">File</entry>
+                <entry name="xdm.schema.data.cache">INDEX-ONLY</entry>
+                <entry name="xdm.schema.data.stats.enabled">true</entry>
                 <entry name="xdm.schema.ports.last">10060</entry>
                 <entry name="xdm.schema.population.size">1</entry>
                 <entry name="xdm.schema.population.buffer.size">100000</entry>
@@ -218,6 +224,8 @@
                 <entry name="xdm.schema.test.mode">false</entry>
                 <entry name="xdm.schema.ports.first">10000</entry>
                 <entry name="xdm.schema.format.default">XML</entry>
+                <entry name="xdm.schema.data.cache">NEVER</entry>
+                <entry name="xdm.schema.data.stats.enabled">true</entry>
                 <entry name="xdm.schema.store.type">File</entry>
                 <entry name="xdm.schema.ports.last">10100</entry>
                 <entry name="xdm.schema.population.size">1</entry>
@@ -349,6 +357,8 @@
                 <entry name="xdm.schema.population.size">1</entry>
                 <entry name="xdm.schema.population.buffer.size">1000000</entry>
                 <entry name="xdm.schema.data.backup.async">1</entry>
+                <entry name="xdm.schema.data.cache">NEVER</entry>
+                <entry name="xdm.schema.data.stats.enabled">true</entry>
                 <entry name="xdm.schema.store.data.path">../../etc/samples/default</entry>
                 <entry name="xdm.schema.dict.backup.sync">0</entry>
                 <entry name="xdm.schema.trans.backup.sync">1</entry>
@@ -541,6 +551,8 @@
                 <entry name="xdm.schema.test.mode">false</entry>
                 <entry name="xdm.schema.ports.first">20000</entry>
                 <entry name="xdm.schema.name">XMark</entry>
+                <entry name="xdm.schema.data.cache">NEVER</entry>
+                <entry name="xdm.schema.data.stats.enabled">false</entry>
                 <entry name="xdm.schema.format.default">XML</entry>
                 <entry name="xdm.schema.store.type">File</entry>
                 <entry name="xdm.schema.ports.last">20010</entry>

@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.SchemaRepository;
-import com.bagri.xdm.client.hazelcast.impl.RepositoryImpl;
+import com.bagri.xdm.client.hazelcast.impl.SchemaRepositoryImpl;
 import com.bagri.xdm.domain.Document;
 
 public class TPoXDataLoader {
@@ -44,7 +44,7 @@ public class TPoXDataLoader {
 	}
 	
 	public void initialize(int poolSize) {
-   		xRepo = new RepositoryImpl();
+   		xRepo = new SchemaRepositoryImpl();
 		exec = Executors.newFixedThreadPool(poolSize);
 		logger.trace("initialize; got repository: {}", xRepo);
 	}

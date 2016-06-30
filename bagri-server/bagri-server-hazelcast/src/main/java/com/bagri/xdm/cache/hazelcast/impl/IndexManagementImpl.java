@@ -95,7 +95,7 @@ public class IndexManagementImpl implements IndexManagement { //, StatisticsProv
     	this.enableStats = enable;
     }
 
-    public void setRepository(RepositoryImpl repo) {
+    public void setRepository(SchemaRepositoryImpl repo) {
     	//this.repo = repo;
     	this.factory = repo.getFactory();
     	//this.model = repo.getModelManagement();

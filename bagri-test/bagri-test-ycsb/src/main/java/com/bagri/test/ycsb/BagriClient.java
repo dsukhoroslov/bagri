@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bagri.xdm.api.SchemaRepository;
-import com.bagri.xdm.client.hazelcast.impl.RepositoryImpl;
+import com.bagri.xdm.client.hazelcast.impl.SchemaRepositoryImpl;
 import com.yahoo.ycsb.ByteIterator;
 import com.yahoo.ycsb.DB;
 import com.yahoo.ycsb.DBException;
@@ -28,7 +28,7 @@ public class BagriClient extends DB {
 	@Override
 	public void init() throws DBException {
 	    Properties props = getProperties();
-	    xRepo = new RepositoryImpl(props);
+	    xRepo = new SchemaRepositoryImpl(props);
 	    logger.info("init.exit; xRepo: {}", xRepo);
 	}
 

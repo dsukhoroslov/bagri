@@ -65,7 +65,7 @@ public class TransactionManagementImpl implements TransactionManagement, Statist
 	private AtomicLong cntCommited = new AtomicLong(0);
 	private AtomicLong cntRolled = new AtomicLong(0);
     
-	private RepositoryImpl repo;
+	private SchemaRepositoryImpl repo;
     //private HazelcastInstance hzInstance;
 	private Cluster cluster;
 	private IdGenerator<Long> txGen;
@@ -76,7 +76,7 @@ public class TransactionManagementImpl implements TransactionManagement, Statist
 
 	private long txTimeout = 0;
 	
-    public void setRepository(RepositoryImpl repo) {
+    public void setRepository(SchemaRepositoryImpl repo) {
     	this.repo = repo;
     	triggerManager = (TriggerManagementImpl) repo.getTriggerManagement();
     	setHzInstance(repo.getHzInstance());

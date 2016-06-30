@@ -8,8 +8,13 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-//import java.util.Base64;
 
+/**
+ * Two-way encryptor, uses Cipher API.
+ * 
+ * @author Denis Sukhoroslov
+ *
+ */
 public class CipherEncryptor {
 
 	private String nonce;
@@ -18,13 +23,18 @@ public class CipherEncryptor {
     private Cipher ecipher = null;
     private Cipher dcipher = null;
     
+    /**
+     * 
+     * @param algo the algorithm to use
+     * @param nonce the secret word
+     */
     public CipherEncryptor(String algo, String nonce) {
     	this.algo = algo;
     	this.nonce = nonce;
     	init();
     }
 	
-	public void init() {
+	private void init() {
         if (ecipher == null || dcipher == null) {
             SecretKey key;
             try {
@@ -36,11 +46,17 @@ public class CipherEncryptor {
                 dcipher = Cipher.getInstance(algo);
                 dcipher.init(Cipher.DECRYPT_MODE, key);
             } catch (NoSuchAlgorithmException | InvalidKeyException | NoSuchPaddingException e) {
-                throw new RuntimeException("Encryption disabled. Check if you  have installed unlimited JCE policy", e);
+                throw new RuntimeException("Encryption disabled. Check if you have installed unlimited JCE policy", e);
             }
         }
     }
 
+	/**
+	 * Encrypts the value provided
+	 * 
+	 * @param toEncrypt the String to encrypt
+	 * @return the encrypted String
+	 */
     public String encrypt(String toEncrypt) {
         byte[] encrypted;
         try {
@@ -54,6 +70,12 @@ public class CipherEncryptor {
         return new String(encrypted); 
     }
 
+    /**
+     * Decrypts the value provided 
+     * 
+     * @param toDecrypt the String to decrypt
+     * @return the decrypted String
+     */
     public String decrypt(String toDecrypt) {
         byte[] decryptedBytes;
         try {
@@ -68,6 +90,13 @@ public class CipherEncryptor {
     
     private static String algo_name = "AES"; 
 
+    /**
+     * Encrypts the value provided using AES algorithm
+     * 
+     * @param toEncrypt the String to encrypt
+     * @param nonce the secret word
+     * @return the encrypted String
+     */
 	public static String encrypt(String toEncrypt, String nonce) {
         SecretKey key;
         try {
@@ -83,6 +112,13 @@ public class CipherEncryptor {
         }
 	}
 
+	/**
+	 * Decrypts the value provided using AES algorithm
+	 * 
+     * @param toDecrypt the String to decrypt
+     * @param nonce the secret word
+     * @return the decrypted String
+	 */
 	public static String decrypt(String toDecrypt, String nonce) {
         SecretKey key;
         try {

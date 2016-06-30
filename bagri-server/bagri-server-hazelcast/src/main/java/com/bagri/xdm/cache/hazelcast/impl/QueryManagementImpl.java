@@ -67,7 +67,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	
 	private static final transient Logger logger = LoggerFactory.getLogger(QueryManagementImpl.class);
 	
-	private RepositoryImpl repo;
+	private SchemaRepositoryImpl repo;
 	private ModelManagement model;
     private IndexManagementImpl idxMgr;
 	private DocumentManagementImpl docMgr;
@@ -98,7 +98,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
     	logger.info("<init>; query cache initialized");
     }
     
-    public void setRepository(RepositoryImpl repo) {
+    public void setRepository(SchemaRepositoryImpl repo) {
     	this.repo = repo;
     	this.model = repo.getModelManagement();
     	this.docMgr = (DocumentManagementImpl) repo.getDocumentManagement();

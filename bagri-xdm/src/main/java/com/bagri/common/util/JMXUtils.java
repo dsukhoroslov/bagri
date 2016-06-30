@@ -43,8 +43,10 @@ import java.util.Properties;
 import java.util.Set;
 
 /**
- * JMX Utils class
- * Date: 2/7/13 5:10 PM
+ * A set of static utility methods for JMX
+ * 
+ * @author Denis Sukhoroslov
+ *
  */
 public class JMXUtils {
 

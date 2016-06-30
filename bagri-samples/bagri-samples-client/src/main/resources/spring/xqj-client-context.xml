@@ -15,7 +15,7 @@
                 <prop key="user">${xdm.schema.user}</prop>
                 <prop key="password">${xdm.schema.password}</prop>
                 <prop key="query.processor">com.bagri.xquery.saxon.XQProcessorClient</prop>
-                <prop key="xdm.repository">com.bagri.xdm.client.hazelcast.impl.RepositoryImpl</prop>
+                <prop key="xdm.repository">com.bagri.xdm.client.hazelcast.impl.SchemaRepositoryImpl</prop>
             </props>
         </property>
     </bean>

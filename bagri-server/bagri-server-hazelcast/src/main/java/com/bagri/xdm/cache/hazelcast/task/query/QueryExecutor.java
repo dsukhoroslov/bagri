@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.cache.api.QueryManagement;
 import com.bagri.xdm.cache.api.TransactionManagement;
-import com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl;
+import com.bagri.xdm.cache.hazelcast.impl.SchemaRepositoryImpl;
 import com.bagri.xdm.client.hazelcast.impl.ResultCursor;
 import com.bagri.xdm.system.Permission;
 import com.hazelcast.spring.context.SpringAware;
@@ -27,7 +27,7 @@ public class QueryExecutor extends com.bagri.xdm.client.hazelcast.task.query.Que
 	}
     
     @Autowired
-	public void setRepository(RepositoryImpl repo) {
+	public void setRepository(SchemaRepositoryImpl repo) {
 		this.repo = repo;
 	}
 
@@ -37,7 +37,7 @@ public class QueryExecutor extends com.bagri.xdm.client.hazelcast.task.query.Que
     	//logger.info("call; clientId: {}", clientId);
 
     	boolean readOnly = queryMgr.isReadOnlyQuery(query);
-    	((RepositoryImpl) repo).getXQProcessor(clientId);
+    	((SchemaRepositoryImpl) repo).getXQProcessor(clientId);
     	if (readOnly) {
     		checkPermission(Permission.Value.read);
     	} else {
