@@ -23,7 +23,7 @@ import com.bagri.xdm.domain.Path;
  * @author Denis Sukhoroslov
  *
  */
-public abstract class XDMParserBase {
+public abstract class ContentParserBase {
 
 	protected final Logger logger = LoggerFactory.getLogger(getClass());
 	
@@ -37,7 +37,7 @@ public abstract class XDMParserBase {
 	 * 
 	 * @param model the model management component. Used to search/add model paths.
 	 */
-	protected XDMParserBase(ModelManagement model) {
+	protected ContentParserBase(ModelManagement model) {
 		this.model = model;
 	}
 	

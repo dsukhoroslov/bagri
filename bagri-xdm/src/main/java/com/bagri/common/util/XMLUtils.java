@@ -48,6 +48,12 @@ import com.thoughtworks.xstream.io.xml.StaxDriver;
 
 import static com.bagri.common.util.FileUtils.def_encoding;
 
+/**
+ * A set of static utility methods working with XML
+ * 
+ * @author Denis Sukhoroslov
+ *
+ */
 public class XMLUtils {
 
 	private static final String EOL = System.getProperty("line.separator");
@@ -103,6 +109,13 @@ public class XMLUtils {
  		}
 	};
 	
+	/**
+	 * Reads content from Reader and return it as String
+	 * 
+	 * @param text the Reader to read from
+	 * @return the String result
+	 * @throws IOException in case of read error
+	 */
 	public static String textToString(Reader text) throws IOException {
 		if (text == null) {
 			throw new IOException("Provided reader is null");
@@ -113,11 +126,18 @@ public class XMLUtils {
 			while((line = br.readLine()) != null) {
 				sb.append(line).append(EOL);
             }
-			sb.deleteCharAt(sb.length() - 1);
+			sb.delete(sb.length() - EOL.length(), sb.length());
 		}
 		return sb.toString();
 	}
 
+	/**
+	 * Reads content from InputStream and return it as String
+	 * 
+	 * @param text the InputStream to read from
+	 * @return the String result
+	 * @throws IOException in case of read error
+	 */
 	public static String textToString(InputStream text) throws IOException {
 		if (text == null) {
 			throw new IOException("Provided stream is null");
@@ -127,6 +147,13 @@ public class XMLUtils {
 		}
 	}
 	
+	/**
+	 * Produce new XML Document from the content provided as String 
+	 * 
+	 * @param text the content to put into the Document
+	 * @return the XML Document
+	 * @throws IOException in case of XML processing error
+	 */
 	public static Document textToDocument(String text) throws IOException {
 		DocumentBuilder builder = thDB.get();
 		try {
@@ -137,6 +164,13 @@ public class XMLUtils {
 		}  
 	}
 
+	/**
+	 * Produce new XML Document from the content provided as InputStream 
+	 * 
+	 * @param text the content stream to put into the Document
+	 * @return the XML Document
+	 * @throws IOException in case of XML processing error
+	 */
 	public static Document textToDocument(InputStream text) throws IOException {
 		DocumentBuilder builder = thDB.get();
 		try {
@@ -146,6 +180,13 @@ public class XMLUtils {
 		}  
 	}
 
+	/**
+	 * Produce new XML Document from the content provided as Reader
+	 * 
+	 * @param text the content reader to put into the Document
+	 * @return the XML Document
+	 * @throws IOException in case of XML processing error
+	 */
 	public static Document textToDocument(Reader text) throws IOException {
 		DocumentBuilder builder = thDB.get();
 		try {
@@ -155,6 +196,13 @@ public class XMLUtils {
 		}  
 	}
 	
+	/**
+	 * Creates an XMLStreamReader over the content provided as String
+	 * 
+	 * @param content the String content to parse
+	 * @return the streaming reader over the content 
+	 * @throws IOException in case of reader creation error
+	 */
 	public static XMLStreamReader stringToStream(String content) throws IOException {
 		//get Reader connected to XML input from somewhere..?
 		// note: we can not close this reader as it is used further
@@ -167,6 +215,14 @@ public class XMLUtils {
 		}
 	}
 	
+	/**
+	 * Transforms XML Source to XML String representation
+	 * 
+	 * @param source the XML Source 
+	 * @param props XML output properties as {@link OutputKeys}
+	 * @return XML String
+	 * @throws IOException in case of XML processing error
+	 */
 	public static String sourceToString(Source source, Properties props) throws IOException { 
 		Transformer trans = thTR.get();
 		try {
@@ -185,10 +241,25 @@ public class XMLUtils {
 		}  
 	}
 	
+	/**
+	 * Transforms a particular XML Node to XML String representation
+	 * 
+	 * @param node the XML Node to marshal 
+	 * @param props XML output properties as {@link OutputKeys}
+	 * @return XML String
+	 * @throws IOException in case of XML processing error
+	 */
 	public static String nodeToString(Node node, Properties props) throws IOException {
 		return sourceToString(new DOMSource(node), props);
 	}
 	
+	/**
+	 * Transforms XML String content to XML Result
+	 * 
+	 * @param source the String XML content
+	 * @param result the Result to transform to
+	 * @throws IOException in case of XML processing error
+	 */
 	public static void stringToResult(String source, Result result) throws IOException {
 		Transformer trans = thTR.get();
 		try {
@@ -199,18 +270,42 @@ public class XMLUtils {
 		}  
 	}
 	
-	public static String beanToXML(Object bean) throws IOException {
+	/**
+	 * Serialize POJO to XML string
+	 * 
+	 * @param bean the POJO to serialize
+	 * @return the serialization result
+	 */
+	public static String beanToXML(Object bean) { 
 		return xStream.toXML(bean);
 	}
 
-	public static Object beanFromXML(String xml) throws IOException {
+	/**
+	 * Deserialize POJO from XML string
+	 * 
+	 * @param xml the XML to deserialize
+	 * @return the deserialization result
+	 */
+	public static Object beanFromXML(String xml) { 
 		return xStream.fromXML(xml);		
 	}
 	
+	/**
+	 * Serialize Map to XML string
+	 * 
+	 * @param map the Map to serialize
+	 * @return the serialization result
+	 */
 	public static String mapToXML(Map<String, Object> map) {
 		return xStream.toXML(map);
 	}
 	
+	/**
+	 * Deserialize Map from XML string
+	 * 
+	 * @param xml the XML to deserialize
+	 * @return the deserialization result
+	 */
 	public static Map<String, Object> mapFromXML(String xml) {
 		return (Map<String, Object>) xStream.fromXML(xml);		
 	}

@@ -66,6 +66,7 @@
 				    <includeTransitiveDependencySources>false</includeTransitiveDependencySources>
 
                                     <dependencySourceExcludes>
+                                        <dependencySourceExclude>com.bagri.db:bagri-client*</dependencySourceExclude>
                                         <dependencySourceExclude>com.bagri.db:bagri-server*</dependencySourceExclude>
                                         <dependencySourceExclude>com.bagri.db:bagri-xquery*</dependencySourceExclude>
                                     </dependencySourceExcludes>

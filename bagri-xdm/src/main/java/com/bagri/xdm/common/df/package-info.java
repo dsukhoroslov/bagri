@@ -1,5 +1,5 @@
 /**
- * Basic XDM Parser implementation  
+ * Basic ContentParser implementation  
  * 
  */
 package com.bagri.xdm.common.df;

@@ -29,7 +29,7 @@ import javax.xml.xquery.XQItemType;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.ModelManagement;
 import com.bagri.xdm.cache.api.ContentParser;
-import com.bagri.xdm.common.df.XDMParserBase;
+import com.bagri.xdm.common.df.ContentParserBase;
 import com.bagri.xdm.domain.Occurrence;
 import com.bagri.xdm.domain.Data;
 import com.bagri.xdm.domain.Element;
@@ -42,7 +42,7 @@ import com.bagri.xdm.domain.Path;
  * @author Denis Sukhoroslov
  *
  */
-public class XmlStaxParser extends XDMParserBase implements ContentParser {
+public class XmlStaxParser extends ContentParserBase implements ContentParser {
 
 	private static XMLInputFactory factory = XMLInputFactory.newInstance();
 

@@ -57,21 +57,50 @@ public class JMXUtils {
 	public static final String domain = "com.bagri.xdm";
 	public static final String type_management = "Management";
     
+	/**
+	 * Registers system-specific MBean in domain {@code com.bagri.xdm} with type {@code Management} 
+	 * 
+	 * @param name the MBean name
+	 * @param mBean the MBean to register
+	 * @return true if MBean was registered, false otherwise
+	 */
 	public static boolean registerMBean(String name, Object mBean) {
 		Hashtable<String, String> keys = getStandardKeys(type_management, name);
 		return registerMBean(domain, keys, mBean);
 	}
 
+	/**
+	 * Registers system-specific MBean in domain {@code com.bagri.xdm}  
+	 * 
+	 * @param name the MBean name
+	 * @param type the MBean type
+	 * @param mBean the MBean to register
+	 * @return true if MBean was registered, false otherwise
+	 */
 	public static boolean registerMBean(String type, String name, Object mBean) {
 		Hashtable<String, String> keys = getStandardKeys(type, name);
 		return registerMBean(domain, keys, mBean);
 	}
 
+	/**
+	 * Unregisters MBean from JMX repository
+	 * 
+	 * @param type the MBean type
+	 * @param name the MBean name
+	 * @return true if MBean was unregistered, false otherwise
+	 */
 	public static boolean unregisterMBean(String type, String name) {
 		Hashtable<String, String> keys = getStandardKeys(type, name);
 		return unregisterMBean(domain, keys);
 	}
 	
+	/**
+	 * Creates a Hashtable containing type and name MBean properties for futher creation of MBean ObjectName.
+	 * 
+	 * @param type the MBena type
+	 * @param name the MBean name
+	 * @return the Hashtable containing the properties above
+	 */
 	public static Hashtable<String, String> getStandardKeys(String type, String name) {
 		Hashtable<String, String> keys = new Hashtable<String, String>(2);
 		keys.put(key_type, type);
@@ -79,23 +108,60 @@ public class JMXUtils {
 		return keys;
 	}
 
+	/**
+	 * Registers MBean under {@code com.bagri.xdm} domain
+	 * 
+	 * @param keys the MBean keys to use for registration
+	 * @param mBean the MBean to register
+	 * @return true if the MBean was registered, false otherwise
+	 */
 	public static boolean registerMBean(Hashtable<String, String> keys, Object mBean) {
 		return registerMBean(domain, keys, mBean);
 	}
 	
+	/**
+	 * Produce JMX ObjectName from the MBean type and name provided. Uses {@code com.bagri.xdm} as domain name 
+	 * 
+	 * @param type the MBean type
+	 * @param name the MBean name
+	 * @return the MBean ObjectName
+	 * @throws MalformedObjectNameException in case of ObjectName construction error
+	 */
 	public static ObjectName getObjectName(String type, String name) throws MalformedObjectNameException {
 		Hashtable<String, String> keys = getStandardKeys(type, name);
 		return new ObjectName(domain, keys);
 	}
 	
+	/**
+	 * Produce JMX ObjectName from the MBean keys provided. Uses {@code com.bagri.xdm} as domain name
+	 * 
+	 * @param keys the MBean keys
+	 * @return the MBean ObjectName
+	 * @throws MalformedObjectNameException in case of ObjectName construction error
+	 */
 	public static ObjectName getObjectName(Hashtable keys) throws MalformedObjectNameException {
 		return new ObjectName(domain, keys);
 	}
 	
+	/**
+	 * Produce JMX ObjectName from the MBean keys provided as String. Uses {@code com.bagri.xdm} as domain name
+	 * 
+	 * @param keys the MBean keys in String format
+	 * @return the MBean name
+	 * @throws MalformedObjectNameException in case of ObjectName construction error
+	 */
 	public static ObjectName getObjectName(String keys) throws MalformedObjectNameException {
 		return new ObjectName(domain + ":" + keys);
 	}
 
+	/**
+	 * Registers MBean in JMX repository
+	 * 
+	 * @param domain the domain to register MBean under
+	 * @param keys the MBean keys
+	 * @param mBean the MBean
+	 * @return true if MBean has been registered successfully, false otherwise
+	 */
 	public static boolean registerMBean(String domain, Hashtable<String, String> keys, Object mBean) {
 		
 		ArrayList<MBeanServer> servers = MBeanServerFactory.findMBeanServer(null);
@@ -112,10 +178,23 @@ public class JMXUtils {
 		return false;
 	}
     
+	/**
+	 * Unregisters MBean from JMX repository. Uses {@code com.bagri.xdm} domain
+	 * 
+	 * @param keys the MBean keys
+	 * @return true if MBean has been unregistered, false otherwise
+	 */
 	public static boolean unregisterMBean(Hashtable<String, String> keys) {
 		return unregisterMBean(domain, keys);
 	}
 
+	/**
+	 * Unregisters MBean from JMX repository
+	 * 
+	 * @param domain the domain to unregister MBean from
+	 * @param keys the MBean keys
+	 * @return true if MBean has been unregistered successfully, false otherwise
+	 */
 	public static boolean unregisterMBean(String domain, Hashtable<String, String> keys) {
 		
 		ArrayList<MBeanServer> servers = MBeanServerFactory.findMBeanServer(null);
@@ -131,6 +210,11 @@ public class JMXUtils {
 		return false;
 	}
 	
+	/**
+	 * Get the current user name connected to JMX server
+	 * 
+	 * @return the current user name if any, null otherwise
+	 */
 	public static String getSubjectUser() {
         AccessControlContext ctx = AccessController.getContext();
         Subject subj = Subject.getSubject(ctx);
@@ -154,6 +238,11 @@ public class JMXUtils {
         return result;
 	}
 	
+	/**
+	 * Get the current JMX user name or system user name
+	 * 
+	 * @return the current JMX user name or system user name. If both are null return "unknown" user name
+	 */
 	public static String getCurrentUser() {
         String result = getSubjectUser();
         if (result == null) {
@@ -166,15 +255,27 @@ public class JMXUtils {
         return result;
 	}
 
+	/**
+	 * Get the current JMX user name or login name
+	 * 
+	 * @param login the default user name
+	 * @return the current JMX user name if any, the login name if the current JMX user name is not known
+	 */
 	public static String getCurrentUser(String login) {
         String result = getSubjectUser();
         return result == null ? login : result;
 	}
 	
-	public static List<String> queryNames(String wildcard) {
+	/**
+	 * Query MBean names from JMX server.
+	 * 
+	 * @param query the JMX query string
+	 * @return the list of matching ObjectNames
+	 */
+	public static List<String> queryNames(String query) {
 		MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
 		try {
-			 Set<ObjectName> names = mbs.queryNames(new ObjectName(wildcard), null);
+			 Set<ObjectName> names = mbs.queryNames(new ObjectName(query), null);
 			 List<String> result = new ArrayList<String>(names.size());
 			 for (ObjectName name: names) {
 				 result.add(name.toString());
@@ -187,10 +288,12 @@ public class JMXUtils {
 	}
     
     /**
-     * @param name  Statistics name
-     * @param desc  Statistics description
-     * @param def	Statistics name/value map
-     * @return Composite data
+     * Converts Java Map to JMX CompositeData structure
+     * 
+     * @param name the produced CompositeData name
+     * @param desc the produced CompositeData description
+     * @param def the Map to convert
+     * @return the produced Composite data
      */
     public static CompositeData mapToComposite(String name, String desc, Map<String, Object> def) {
         if (def != null && !def.isEmpty()) {
@@ -212,6 +315,17 @@ public class JMXUtils {
         return null;
     }
 
+    /**
+     * Merges CompositeData part with series of another Composite blocks in TabularData format
+     * 
+     * @param name the series name
+     * @param desc the series description
+     * @param key the series key
+     * @param source the aggregated data to merge with   
+     * @param data the series data to be merged into the aggregation result
+     * @return the aggregated result in TabularData format
+     * @throws OpenDataException in case of data conversion error
+     */
     public static TabularData compositeToTabular(String name, String desc, String key, 
     		TabularData source, CompositeData data) throws OpenDataException {
         if (data == null) {
@@ -226,9 +340,16 @@ public class JMXUtils {
         return source;
     }
 
+    /**
+     * Aggregates two tabular structures into one. 
+     * 
+     * @param source the source tabular
+     * @param target the target tabular
+     * @param aggregator the aggregator which will perform data aggregation 
+     * @return the aggregated tabular structure
+     */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static TabularData aggregateStats(TabularData source, TabularData target, StatsAggregator aggregator) {
-    	// source is not nullable
         logger.debug("aggregateStats.enter; got source: {}", source);
         if (source == null) {
         	return target;
@@ -236,9 +357,6 @@ public class JMXUtils {
 		TabularData result = new TabularDataSupport(source.getTabularType());
         Set<List> keys = (Set<List>) source.keySet();
     	if (target == null) {
-       		//for (List key: keys) {
-       		//	result.put(source.get(key.toArray()));
-        	//}
     		return source;
     	} else {
        		for (List key: keys) {
@@ -250,9 +368,16 @@ public class JMXUtils {
         logger.debug("aggregateStats.exit; returning: {}", result);
 		return result;
 	}
-    
+
+	/**
+	 * Aggregates two composite structures into one.
+	 * 
+	 * @param source the source composite
+	 * @param target the target composite
+	 * @param aggregator the aggregator which will perform data aggregation
+	 * @return the aggregated composite structure
+	 */
 	public static CompositeData aggregateStats(CompositeData source, CompositeData target, StatsAggregator aggregator) {
-    	// source is not nullable
 		Set<String> keys = source.getCompositeType().keySet();
 		String[] names = keys.toArray(new String[keys.size()]);
 		Object[] srcVals = source.getAll(names);
@@ -274,7 +399,15 @@ public class JMXUtils {
     	}
     	return target;
     }
-    
+
+	/**
+	 * Converts set of properties to JMX CompositeData structure
+	 * 
+	 * @param name the produced CompositeData name
+	 * @param desc the produced CompositeData description
+	 * @param props the Properties to convert
+	 * @return the produced Composite data
+	 */
     public static CompositeData propsToComposite(String name, String desc, Properties props) {
     	logger.trace("propsToComposite; name: {}; properties: {}", name, props);
         if (props != null && !props.isEmpty()) {
@@ -299,8 +432,10 @@ public class JMXUtils {
     }
 
     /**
-     * @param props Property map
-     * @return Composite data
+     * Converts JMX CompositeData structure to Java Map
+     * 
+     * @param props the composite structure
+     * @return the resulting Java Map
      */
     public static Map<String, Object> propsFromComposite(CompositeData props) {
         Map<String, Object> result = new HashMap<String, Object>(props.values().size());
@@ -312,8 +447,10 @@ public class JMXUtils {
     }
 
     /**
-     * @param props Property map
-     * @return Tabular data
+     * Converts Map of strings into JMX tabular format. Every name/value pair considered as a separate tab
+     * 
+     * @param props the source Map
+     * @return the resulting JMX tabular structure
      */
     public static TabularData propsToTabular(Map<String, String> props) {
         TabularData result = null;
@@ -336,8 +473,10 @@ public class JMXUtils {
     }
 
     /**
-     * @param props Tabular data
-     * @return Property map
+     * Converts JMX TabularData structure into a Map of strings. Every composite part is should contain name and value parameters 
+     * 
+     * @param props the source TabularData
+     * @return the resulting properties Map
      */
     public static Map<String, String> propsFromTabular(TabularData props) {
         Map<String, String> result = new HashMap<String, String>(props.size());
@@ -349,8 +488,10 @@ public class JMXUtils {
     }
 
     /**
-     * @param props         Property map
-     * @param compositeType Composite type
+     * Converts Java Map into JMX composite format. 
+     *  
+     * @param props the Map to convert
+     * @param compositeType the Composite type to use
      * @return CompositeData based on type and property Map
      */
     public static CompositeData propsToComposite(Map<String, Object> props, CompositeType compositeType) {
@@ -365,8 +506,10 @@ public class JMXUtils {
 
 
     /**
-     * @param data Composite data
-     * @return EOD statistics
+     * Converts JMX composite structure into a List of strings in "name: value" format
+     * 
+     * @param data the composite data to convert
+     * @return the resulting name/value list
      */
     public static List<String> compositeToStrings(CompositeData data) {
         Set<String> keys = data.getCompositeType().keySet();
@@ -379,8 +522,10 @@ public class JMXUtils {
 
 
     /**
-     * @param props Property map
-     * @return EOD statistics
+     * Converts Map of properties into a List of strings in "name: value" format
+     * 
+     * @param props the property Map to convert
+     * @return the resulting name/value list
      */
     public static List<String> propsToStrings(Map<String, Object> props) {
         List<String> result = new ArrayList<String>(props.size());

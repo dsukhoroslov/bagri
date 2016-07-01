@@ -493,11 +493,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		if (xml == null) {
 			return null;
 		}
-		try {
-			return beanFromXML(xml);
-		} catch (IOException ex) {
-			throw new XDMException(ex.getMessage(), XDMException.ecInOut);
-		}
+		return beanFromXML(xml);
 	}
 
 	@Override
@@ -783,20 +779,16 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	
 	@Override
 	public Document storeDocumentFromBean(String uri, Object bean, Properties props) throws XDMException {
-		try {
-			String xml = beanToXML(bean);
-			if (xml == null || xml.trim().length() == 0) {
-				throw new XDMException("Can not convert bean [" + bean + "] to XML", XDMException.ecDocument);
-			}
-			logger.trace("storeDocumentFromBean; converted bean: {}", xml); 
-			
-			if (props != null) {
-				props.setProperty(xdm_document_data_format, df_xml);
-			}
-			return storeDocumentFromString(uri, xml, props);
-		} catch (IOException ex) {
-			throw new XDMException(ex.getMessage(), XDMException.ecInOut);
+		String xml = beanToXML(bean);
+		if (xml == null || xml.trim().length() == 0) {
+			throw new XDMException("Can not convert bean [" + bean + "] to XML", XDMException.ecDocument);
 		}
+		logger.trace("storeDocumentFromBean; converted bean: {}", xml); 
+			
+		if (props != null) {
+			props.setProperty(xdm_document_data_format, df_xml);
+		}
+		return storeDocumentFromString(uri, xml, props);
 	}
 
 	@Override
