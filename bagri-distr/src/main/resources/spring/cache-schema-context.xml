@@ -103,8 +103,7 @@
 			</hz:map>
 			<hz:map name="xdm-element" in-memory-format="BINARY" async-backup-count="${xdm.schema.data.backup.async}" 
 				backup-count="${xdm.schema.data.backup.sync}" read-backup-data="${xdm.schema.data.backup.read}"
-				cache-deserialized-values="INDEX-ONLY">
-				<!--cache-deserialized-values="NEVER"-->
+				cache-deserialized-values="INDEX-ONLY" statistics-enabled="${xdm.schema.data.stats.enabled}">
 				<hz:indexes>
 					<hz:index attribute="pathId" ordered="true"/>
 				</hz:indexes>
@@ -442,7 +441,7 @@
 		<property name="transactionTimeout" value="${xdm.schema.transaction.timeout}"/>
 	</bean>
 	
-	<bean id="xdmRepo" class="com.bagri.xdm.cache.hazelcast.impl.RepositoryImpl">
+	<bean id="xdmRepo" class="com.bagri.xdm.cache.hazelcast.impl.SchemaRepositoryImpl">
 		<property name="hzInstance" ref="hzInstance"/>
 		<property name="factory" ref="xdmFactory"/>
 		<property name="accessManagement" ref="accManager"/>

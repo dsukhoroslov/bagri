@@ -37,6 +37,8 @@
                 <entry name="xdm.schema.format.default">XML</entry>
                 <entry name="xdm.schema.ports.last">10600</entry>
                 <entry name="xdm.schema.population.size">1</entry>
+                <entry name="xdm.schema.data.cache">NEVER</entry>
+                <entry name="xdm.schema.data.stats.enabled">true</entry>
                 <entry name="xdm.schema.data.backup.async">1</entry>
                 <entry name="xdm.schema.store.data.path">../data/default</entry>
                 <entry name="xdm.schema.dict.backup.sync">0</entry>
@@ -240,6 +242,8 @@
                 <entry name="xdm.schema.population.size">1</entry>
                 <entry name="xdm.schema.buffer.size">64</entry>
                 <entry name="xdm.schema.store.enabled">true</entry>
+                <entry name="xdm.schema.data.cache">NEVER</entry>
+                <entry name="xdm.schema.data.stats.enabled">true</entry>
                 <entry name="xdm.schema.trans.backup.async">0</entry>
                 <entry name="xdm.schema.trans.backup.sync">1</entry>
                 <entry name="xdm.schema.trans.backup.read">false</entry>
@@ -366,6 +370,8 @@
                 <entry name="xdm.schema.test.mode">false</entry>
                 <entry name="xdm.schema.thread.pool">10</entry>
                 <entry name="xdm.schema.store.data.path">../data/xmark</entry>
+                <entry name="xdm.schema.data.cache">NEVER</entry>
+                <entry name="xdm.schema.data.stats.enabled">true</entry>
                 <entry name="xdm.schema.format.default">XML</entry>
                 <entry name="xdm.schema.password">XMark</entry>
                 <entry name="xdm.schema.name">XMark</entry>
@@ -473,6 +479,8 @@
                 <entry name="xdm.schema.data.backup.read">false</entry>
                 <entry name="xdm.schema.data.backup.async">1</entry>
                 <entry name="xdm.schema.data.backup.sync">0</entry>
+                <entry name="xdm.schema.data.cache">NEVER</entry>
+                <entry name="xdm.schema.data.stats.enabled">true</entry>
                 <entry name="xdm.schema.dict.backup.sync">0</entry>
                 <entry name="xdm.schema.dict.backup.async">1</entry>
                 <entry name="xdm.schema.dict.backup.read">true</entry>
@@ -539,6 +547,8 @@
                 <entry name="xdm.schema.store.data.path">../data/ycsb</entry>
                 <entry name="xdm.schema.dict.backup.sync">0</entry>
                 <entry name="xdm.schema.trans.backup.sync">1</entry>
+                <entry name="xdm.schema.data.cache">NEVER</entry>
+                <entry name="xdm.schema.data.stats.enabled">true</entry>
                 <entry name="xdm.schema.query.backup.sync">0</entry>
                 <entry name="xdm.schema.buffer.size">16</entry>
                 <entry name="xdm.schema.dict.backup.async">1</entry>
