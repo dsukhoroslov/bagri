@@ -23,6 +23,7 @@ import com.bagri.xdm.query.QueryBuilder;
 import com.bagri.xquery.api.XQProcessor;
 
 import net.sf.saxon.lib.ModuleURIResolver;
+import net.sf.saxon.lib.UnparsedTextURIResolver;
 import net.sf.saxon.om.NamePool;
 import net.sf.saxon.om.SequenceIterator;
 import net.sf.saxon.query.XQueryExpression;
@@ -67,6 +68,7 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
         config.setURIResolver(sResolver);
         ModuleURIResolver mResolver = new ModuleURIResolverImpl((com.bagri.xdm.cache.api.SchemaRepository) xRepo);
         config.setModuleURIResolver(mResolver);
+        dqc.setUnparsedTextURIResolver(sResolver);
     }
 
     @Override

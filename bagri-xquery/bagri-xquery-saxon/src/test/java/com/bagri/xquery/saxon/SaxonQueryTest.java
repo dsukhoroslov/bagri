@@ -5,11 +5,13 @@ import static org.junit.Assert.*;
 import java.io.StringReader;
 
 import static com.bagri.xquery.saxon.SaxonUtils.objectToItem;
+import static com.bagri.xquery.saxon.SaxonUtils.saxon_xquery_version;
 
 import javax.xml.transform.Source;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.xquery.XQException;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
@@ -84,6 +86,39 @@ public class SaxonQueryTest {
    	    assertNotNull(item);
    	    String val = item.getStringValue();
 		assertEquals("XYZ", val);
+		assertNull(itr.next());
+	}
+
+	@Test
+	@Ignore
+	public void testJsonQuery() throws XPathException {
+        Configuration config = Configuration.newConfiguration();
+        config.setDefaultCollection("");
+        StaticQueryContext sqc = config.newStaticQueryContext();
+		sqc.setLanguageVersion(saxon_xquery_version); 
+   	    DynamicQueryContext dqc = new DynamicQueryContext(config);
+        dqc.setApplyFunctionConversionRulesToExternalVariables(false);
+
+		String query = //"declare base-uri \"../../etc/samples/json/\";\n" +
+				"declare base-uri \"C:/Work/Bagri/git/bagri/etc/samples/json/\";\n" +
+				"declare namespace map=\"http://www.w3.org/2005/xpath-functions/map\";\n" +
+				//"declare variable $value external;\n" +
+				//"for $uri in fn:uri-collection()\n" +
+				//"let $map := fn:json-doc($uri)\n" +				
+				"for $map in fn:collection()\n" +
+				//"where $map?Security?Symbol = $value\n" +
+				"let $v := map:get($map, 'Security')\n" +
+				//"where get($map, '-id') = '5621'\n" +
+				"where map:get($v, 'Symbol') = 'IBM'\n" +
+				"return $v?Name";
+        
+   	    XQueryExpression xqExp = sqc.compileQuery(query);
+   	    //dqc.setParameter(new StructuredQName("", "", "value"), objectToItem("IBM", config));
+        SequenceIterator itr = xqExp.iterator(dqc);
+        Item item = itr.next();
+   	    assertNotNull(item);
+   	    String val = item.getStringValue();
+		assertEquals("Internatinal Business Machines Corporation", val);
 		assertNull(itr.next());
 	}
 }

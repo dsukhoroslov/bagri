@@ -61,7 +61,7 @@ public class BagriXQDataSource implements XQDataSource {
 		properties.put(pn_client_bufferSize, "32"); 
 		properties.put(pn_client_connectAttempts, "3");
 		properties.put(XQ_PROCESSOR, ""); //"com.bagri.xquery.saxon.BagriXQProcessor"); //Proxy
-		properties.put(XDM_REPOSITORY, ""); //"com.bagri.xdm.client.hazelcast.impl.RepositoryImpl"); 
+		properties.put(XDM_REPOSITORY, ""); //"com.bagri.xdm.client.hazelcast.impl.SchemaRepositoryImpl"); 
 	}
 
 	/** {@inheritDoc}

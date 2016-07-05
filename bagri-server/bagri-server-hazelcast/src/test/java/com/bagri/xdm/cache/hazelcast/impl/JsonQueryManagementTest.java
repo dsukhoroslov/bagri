@@ -41,7 +41,7 @@ public class JsonQueryManagementTest extends XDMManagementTest {
 	public static void setUpBeforeClass() throws Exception {
 		sampleRoot = "..\\..\\etc\\samples\\json\\";
 		System.setProperty("hz.log.level", "info");
-		System.setProperty("xdm.log.level", "trace");
+		//System.setProperty("xdm.log.level", "trace");
 		System.setProperty("logback.configurationFile", "hz-logging.xml");
 		System.setProperty(xdm_config_properties_file, "json.properties");
 		System.setProperty(xdm_config_path, "src\\test\\resources");
@@ -61,7 +61,7 @@ public class JsonQueryManagementTest extends XDMManagementTest {
 		Schema schema = xdmRepo.getSchema();
 		if (schema == null) {
 			schema = new Schema(1, new java.util.Date(), "test", "test", "test schema", true, null);
-			//schema.setProperty(xdm_schema_format_default, "JSON");
+			schema.setProperty(xdm_schema_format_default, "JSON");
 			xdmRepo.setSchema(schema);
 			DataFormat df = new DataFormat(1, new java.util.Date(), "", "JSON", null, "application/json", null, 
 					"com.bagri.xdm.common.df.json.JsonApiParser", "com.bagri.xdm.common.df.json.JsonBuilder", true, null);
@@ -93,50 +93,72 @@ public class JsonQueryManagementTest extends XDMManagementTest {
 	}
 
 	@Test
-	public void getJsonDocumentsTest() throws Exception {
+	public void convertJsonDocumentsTest() throws Exception {
 	
 		String query = "for $map in fn:collection()\n" + 
-				//"let $v := get($map, 'Security')\n" +
-				//"return get($v, 'Symbol')";
-				//"let $doc := fn:json-to-xml($map)\n" +
-				//"return $doc";
-				//"return fn:json-to-xml($map)";
-				"return fn:json-to-xml('{ \"message\": \"world\" }')";
+				"let $props := entry('method', 'json')\n" +
+				"let $json := fn:serialize($map, $props)\n" +
+				"return fn:json-to-xml($json)";
 		Iterator<?> docs = getQueryManagement().executeQuery(query, null, new Properties());
 		assertNotNull(docs);
 		((ResultCursor) docs).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
 		Properties props = new Properties();
+		//props.setProperty("method", "xml");
+		List<String> jsons = new ArrayList<>();
+		while (docs.hasNext()) {
+			XQItem item = (XQItem) docs.next();
+			String json = item.getItemAsString(props);
+			jsons.add(json);
+			//System.out.println(json);
+		}
+		assertEquals(3, jsons.size());
+	}
+	
+	@Test
+	public void serializeJsonDocumentsTest() throws Exception {
+	
+		String query = "for $uri in fn:uri-collection()\n" +
+				"let $map := fn:json-doc($uri)\n" +
+				"let $props := map { 'method': 'json' }\n" +
+				"return fn:serialize($map, $props)";
+		
+		Properties props = new Properties();
+		//props.setProperty("method", "json");
+		Iterator<?> docs = getQueryManagement().executeQuery(query, null, props);
+		assertNotNull(docs);
+		((ResultCursor) docs).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
+		props = new Properties();
 		//props.setProperty("method", "json");
 		List<String> jsons = new ArrayList<>();
 		while (docs.hasNext()) {
 			XQItem item = (XQItem) docs.next();
 			String json = item.getItemAsString(props);
 			jsons.add(json);
+			//System.out.println(json);
 		}
 		assertEquals(3, jsons.size());
 	}
-	
+
 	@Test
-	//@Ignore
-	public void queryJsonDocumentsTest() throws Exception {
+	public void getJsonDocumentsTest() throws Exception {
 	
-		//String query = "for $map in fn:collection()\n" + 
-		//		"let $v := get($map, 'Security')\n" +
-		//		"where get($v, 'Symbol') = 'VFINX'\n" +
-		//		"return get($v, 'Name')";
-		
-		String query = "for $uri in fn:uri-collection()\n" +
-				"return fn:json-doc($uri)";
-				//"return $uri";
-		
+		String query = "for $map in fn:collection()\n" + 
+				"let $v := get($map, 'Security')\n" +
+				//"where get($v, '-id') = '5621'\n" +
+				"where get($v, 'Symbol') = 'IBM'\n" +
+				"return $v?('Symbol', 'Name')";
 		Iterator<?> docs = getQueryManagement().executeQuery(query, null, new Properties());
 		assertNotNull(docs);
 		((ResultCursor) docs).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
 		Properties props = new Properties();
 		props.setProperty("method", "text");
-		XQItem item = (XQItem) docs.next();
-		String text = item.getItemAsString(props);
-		assertEquals("Vanguard 500 Index Fund", text);
-		assertFalse(docs.hasNext());
+		List<String> results = new ArrayList<>();
+		while (docs.hasNext()) {
+			XQItem item = (XQItem) docs.next();
+			String text = item.getItemAsString(props);
+			results.add(text);
+		}
+		assertEquals(2, results.size());
 	}
+	
 }

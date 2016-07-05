@@ -36,7 +36,7 @@ public class BagriXQDynamicContextTest {
 	    xqds.setProperty(BagriXQDataSource.USER, "guest");
 	    xqds.setProperty(BagriXQDataSource.PASSWORD, "password");
 	    xqds.setProperty(BagriXQDataSource.XQ_PROCESSOR, "com.bagri.xquery.saxon.XQProcessorClient");
-	    xqds.setProperty(BagriXQDataSource.XDM_REPOSITORY, "com.bagri.xdm.client.hazelcast.impl.RepositoryImpl");
+	    xqds.setProperty(BagriXQDataSource.XDM_REPOSITORY, "com.bagri.xdm.client.hazelcast.impl.SchemaRepositoryImpl");
 		xqc = xqds.getConnection();
 	}
 

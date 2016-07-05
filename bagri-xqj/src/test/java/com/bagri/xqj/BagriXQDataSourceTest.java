@@ -40,7 +40,7 @@ public class BagriXQDataSourceTest {
 	    xqds.setProperty(BagriXQDataSource.PASSWORD, "password");
 	    //xqds.setProperty("hz.cache.mode", "client");
 	    xqds.setProperty(BagriXQDataSource.XQ_PROCESSOR, "com.bagri.xquery.saxon.XQProcessorClient");
-	    xqds.setProperty(BagriXQDataSource.XDM_REPOSITORY, "com.bagri.xdm.client.hazelcast.impl.RepositoryImpl");
+	    xqds.setProperty(BagriXQDataSource.XDM_REPOSITORY, "com.bagri.xdm.client.hazelcast.impl.SchemaRepositoryImpl");
     }
 	
 	@Test

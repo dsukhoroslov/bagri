@@ -58,7 +58,7 @@ public class XQJClientApp implements BagriClientApp {
 		xqds.setProperty(USER, props.getProperty(pn_schema_user));
 		xqds.setProperty(PASSWORD, props.getProperty(pn_schema_password));
 		xqds.setProperty(XQ_PROCESSOR, "com.bagri.xquery.saxon.XQProcessorClient");
-		xqds.setProperty(XDM_REPOSITORY, "com.bagri.xdm.client.hazelcast.impl.RepositoryImpl");
+		xqds.setProperty(XDM_REPOSITORY, "com.bagri.xdm.client.hazelcast.impl.SchemaRepositoryImpl");
 		xqConn = xqds.getConnection();
 	}
 

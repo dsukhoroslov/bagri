@@ -5,6 +5,7 @@ package com.bagri.xquery.saxon;
 
 import static com.bagri.xdm.common.XDMConstants.bg_schema;
 
+import java.io.Reader;
 import java.io.StringReader;
 import java.net.URI;
 
@@ -25,13 +26,14 @@ import com.bagri.xdm.cache.api.DocumentManagement;
 
 import net.sf.saxon.Configuration;
 import net.sf.saxon.lib.SourceResolver;
+import net.sf.saxon.lib.UnparsedTextURIResolver;
 import net.sf.saxon.trans.XPathException;
 
 /**
  * @author Denis Sukhoroslov
  *
  */
-public class SourceResolverImpl implements SourceResolver, URIResolver {
+public class SourceResolverImpl implements SourceResolver, URIResolver, UnparsedTextURIResolver {
 	
 	private static final Logger logger = LoggerFactory.getLogger(SourceResolverImpl.class);
 	
@@ -41,57 +43,28 @@ public class SourceResolverImpl implements SourceResolver, URIResolver {
     	this.repo = repo;
     }
 	
+    /**
+     * {@inheritDoc}
+     */
 	@Override
 	public Source resolve(String href, String base) throws TransformerException {
 		logger.trace("resolve. href: {}; base: {}", href, base);
 		return resolveSource(new StreamSource(href), null);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.sf.saxon.lib.SourceResolver#resolveSource(javax.xml.transform.Source, net.sf.saxon.Configuration)
+	/**
+	 * {@inheritDoc} 
 	 */
 	@Override
 	public Source resolveSource(Source source, Configuration config) throws XPathException {
 		logger.trace("resolveSource. source: {}; config: {}", source.getSystemId(), config);
 		
-		String content = null;
 		String original = source.getSystemId();
 
 		URI uri = URI.create(original);
 		logger.trace("resolveSource. got {} URI: {}", uri.isAbsolute() ? "absolute" : "relative", uri);
-		
-		try {
-			if (bg_schema.equals(uri.getScheme())) {
-				// skip leading "/"
-				long docKey = Long.parseLong(uri.getPath().substring(1));
-				content = ((DocumentManagement) repo.getDocumentManagement()).getDocumentAsString(docKey);
-			} else {
-				String src = original;
-				if ("file".equals(uri.getScheme())) {
-					// here we search by fileName
-					src = FileUtils.getPathName(src);
-				}
-				logger.debug("resolveSource; not a native schema {}, trying short uri: {}", uri.getScheme(), src); 
-				content = repo.getDocumentManagement().getDocumentAsString(src);
-				//if (ids.size() > 0) {
-				//	docId = ids.iterator().next();
-				//} else if ("file".equals(uri.getScheme())) {
-					// here we search by full name
-				//	src = FileUtils.path2Uri(src);
-				//	logger.debug("resolveSource; got no results; trying full uri: {}", src); 
-				//	ids = repo.getDocumentManagement().getDocumentIds(src);
-				//	if (ids.size() > 0) {
-				//		docId = ids.iterator().next();
-				//	}
-				//}
-			}
-		} catch (XDMException ex) {
-			throw new XPathException("cannot resolve document for URI: " +  uri);
-		}
-		
-		if (content == null) {
-			throw new XPathException("cannot resolve document for URI: " +  uri);
-		}
+
+		String content = resolveContent(uri, config); 
 
 		//Source src = mgr.getDocumentAsSource(docId);
 		//if (src != null) {
@@ -133,6 +106,40 @@ public class SourceResolverImpl implements SourceResolver, URIResolver {
 		}
 		logger.trace("resolveSource. got empty content: '{}'", content);
 		return null;
+	}
+
+	@Override
+	public Reader resolve(URI absoluteURI, String encoding, Configuration config) throws XPathException {
+		logger.trace("resolve; uri: {}; encoding: {}", absoluteURI, encoding);
+		String content = resolveContent(absoluteURI, config); 
+		return new StringReader(content);
+	}
+	
+	private String resolveContent(URI uri, Configuration config) throws XPathException {
+
+		String content;
+		try {
+			if (bg_schema.equals(uri.getScheme())) {
+				// skip leading "/"
+				long docKey = Long.parseLong(uri.getPath().substring(1));
+				content = ((DocumentManagement) repo.getDocumentManagement()).getDocumentAsString(docKey);
+			} else {
+				String src = uri.toString();
+				if ("file".equals(uri.getScheme())) {
+					// here we search by fileName
+					src = FileUtils.getPathName(src);
+				}
+				logger.debug("resolveContent; not a native schema {}, trying short uri: {}", uri.getScheme(), src); 
+				content = repo.getDocumentManagement().getDocumentAsString(src);
+			}
+
+			if (content == null) {
+				throw new XPathException("cannot resolve document for URI: " +  uri); //??
+			}
+			return content;
+		} catch (XDMException ex) {
+			throw new XPathException("cannot resolve document for URI: " +  uri);
+		}
 	}
 	
 }

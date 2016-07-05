@@ -395,11 +395,13 @@ public class CollectionFinderImpl implements CollectionFinder {
    				value = getValues(((Literal) var).getValue()); 
    			}
     			
-   			ExpressionContainer exCont = getCurrentContainer();
-   			exIndex = exCont.addExpression(currentType, compType, path, pName, value);
-   			logger.trace("iterate; added path expression at index: {}", exIndex);
-   			setParentPath(exCont.getBuilder(), exIndex, path);
-   			logger.trace("iterate; parent path {} set at index: {}", path, exIndex);
+   			if (path.getSegments().size() > 0) {
+	   			ExpressionContainer exCont = getCurrentContainer();
+	   			exIndex = exCont.addExpression(currentType, compType, path, pName, value);
+	   			logger.trace("iterate; added path expression at index: {}", exIndex);
+	   			setParentPath(exCont.getBuilder(), exIndex, path);
+	   			logger.trace("iterate; parent path {} set at index: {}", path, exIndex);
+   			}
     	}  
 
     	if (ex instanceof BooleanExpression) {
