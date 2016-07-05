@@ -29,6 +29,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 		"name", 
 		"description",
 		"extensions",
+		"type",
 		"parserClass",
 		"builderClass",
 		"enabled",
@@ -49,6 +50,9 @@ public class DataFormat extends Entity {
 	@XmlList
 	private Set<String> extensions = new HashSet<>();
 
+	@XmlElement(required = true)
+	private String type;
+	
 	@XmlElement(required = true)
 	private String parserClass;
 
@@ -83,11 +87,12 @@ public class DataFormat extends Entity {
 	 * @param enabled the data format enabled flag
 	 * @param props the data format properties
 	 */
-	public DataFormat(int version, Date createdAt, String createdBy, String name, String description, 
+	public DataFormat(int version, Date createdAt, String createdBy, String name, String description, String type, 
 			Collection<String> extensions, String parserClass, String builderClass, boolean enabled, Properties props) {
 		super(version, createdAt, createdBy);
 		this.name = name;
 		this.description = description;
+		this.type = type;
 		if (extensions != null) {
 			this.extensions.addAll(extensions);
 		}
@@ -118,6 +123,13 @@ public class DataFormat extends Entity {
 	 */
 	public Set<String> getExtensions() {
 		return extensions;
+	}
+
+	/**
+	 * @return the description
+	 */
+	public String getType() {
+		return type;
 	}
 
 	/**
@@ -202,6 +214,7 @@ public class DataFormat extends Entity {
 		result.put("builder", builderClass);
 		result.put("enabled", enabled);
 		result.put("properties", props.size());
+		result.put("type", type);
 		return result;
 	}
 	

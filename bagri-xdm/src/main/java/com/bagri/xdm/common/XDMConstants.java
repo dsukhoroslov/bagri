@@ -92,6 +92,9 @@ public class XDMConstants {
 	public static final String dc_ns = "http://www.w3.org/2005/xpath-functions/collation/codepoint";
 	public static final String df_ns = "http://www.w3.org/2005/xpath-functions";
 	
+	public static final String mt_xml = "application/xml"; 
+	public static final String mt_json = "application/json";
+	
 	// XQJ configuration constants
 	public static final String pn_baseURI = "xqj.schema.baseUri";
 	public static final String pn_constructionMode = "xqj.schema.constructionMode";

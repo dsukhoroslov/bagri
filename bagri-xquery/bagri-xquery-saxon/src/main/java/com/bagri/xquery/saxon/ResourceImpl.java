@@ -1,6 +1,6 @@
 package com.bagri.xquery.saxon;
 
-import static com.bagri.xdm.common.XDMConstants.bg_schema;
+import static com.bagri.xdm.common.XDMConstants.mt_xml;
 
 import javax.xml.transform.Source;
 
@@ -8,11 +8,10 @@ import net.sf.saxon.expr.XPathContext;
 import net.sf.saxon.lib.Resource;
 import net.sf.saxon.om.Item;
 import net.sf.saxon.trans.XPathException;
-import net.sf.saxon.value.AnyURIValue;
 
 public class ResourceImpl implements Resource {
-	
-	private Source docSrc;
+
+	private final Source docSrc;
 	
 	public ResourceImpl(Source src) {
 		this.docSrc = src;
@@ -25,13 +24,12 @@ public class ResourceImpl implements Resource {
 
 	@Override
 	public Item getItem(XPathContext context) throws XPathException {
-		//return context.getConfiguration().buildDocument(docSrc);
 		return context.getConfiguration().buildDocumentTree(docSrc).getRootNode();
 	}
 
 	@Override
 	public String getContentType() {
-		return "application/xml"; // + json...
+		return mt_xml;
 	}
 
 }

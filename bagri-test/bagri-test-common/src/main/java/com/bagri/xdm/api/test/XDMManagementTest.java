@@ -3,6 +3,7 @@ package com.bagri.xdm.api.test;
 import static com.bagri.common.util.FileUtils.readTextFile;
 
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
@@ -14,6 +15,8 @@ import com.bagri.xdm.api.QueryManagement;
 import com.bagri.xdm.api.SchemaRepository;
 import com.bagri.xdm.api.TransactionManagement;
 import com.bagri.xdm.domain.Document;
+import com.bagri.xdm.system.DataFormat;
+import com.bagri.xdm.system.Schema;
 
 public abstract class XDMManagementTest {
 
@@ -49,17 +52,20 @@ public abstract class XDMManagementTest {
 		return xRepo.getTxManagement();
 	}
 	
-	// TODO: think on how this can be generalized!
-	// need to have some kind of XDMServerManagementTest!
-	//protected void initRepo(ApplicationContext ctx) {
-	//	xRepo = ctx.getBean(XDMRepository.class);
-	//	RepositoryImpl xdmRepo = (RepositoryImpl) xRepo; 
-	//	XDMSchema schema = xdmRepo.getSchema();
-	//	if (schema == null) {
-	//		schema = new XDMSchema(1, new java.util.Date(), "test", "test", "test schema", true, null);
-	//		xdmRepo.setSchema(schema);
-	//	}
-	//}
+	protected Schema initSchema() {
+		com.bagri.xdm.cache.api.SchemaRepository xdmRepo = (com.bagri.xdm.cache.api.SchemaRepository) xRepo; 
+		Schema schema = xdmRepo.getSchema();
+		if (schema == null) {
+			schema = new Schema(1, new java.util.Date(), "test", "test", "test schema", true, null);
+			//xdmRepo.setSchema(schema);
+			//DataFormat df = new DataFormat(1, new java.util.Date(), "", "JSON", null, "application/json", null, 
+			//		"com.bagri.xdm.common.df.json.JsonApiParser", "com.bagri.xdm.common.df.json.JsonBuilder", true, null);
+			//ArrayList<DataFormat> cFormats = new ArrayList<>(1);
+			//cFormats.add(df);
+			//xdmRepo.setDataFormats(cFormats);
+		}
+		return schema;
+	}
 
 	protected void removeDocumentsTest() throws Exception {
 		if (getTxManagement().isInTransaction()) {

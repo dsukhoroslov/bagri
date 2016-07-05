@@ -13,11 +13,11 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import com.bagri.xdm.api.test.ServerLauncher;
-import com.bagri.xdm.api.test.XDMDocumentManagementTest;
+import com.bagri.xdm.api.test.DocumentManagementTest;
 import com.bagri.xdm.domain.Document;
 import com.hazelcast.core.Hazelcast;
 
-public class DocumentManagementImplTest extends XDMDocumentManagementTest {
+public class DocumentManagementImplTest extends DocumentManagementTest {
 	
 	private static ServerLauncher launcher;
 	private static final String srvDir = "C:\\Work\\Bagri\\git\\bagri\\bagri-server\\bagri-server-hazelcast";

@@ -10,11 +10,11 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import com.bagri.xdm.api.test.XDMModelManagementTest;
+import com.bagri.xdm.api.test.ModelManagementTest;
 import com.bagri.xdm.cache.hazelcast.impl.SchemaRepositoryImpl;
 import com.bagri.xdm.system.Schema;
 
-public class ModelManagementImplTest extends XDMModelManagementTest {
+public class ModelManagementImplTest extends ModelManagementTest {
 	
     private static ClassPathXmlApplicationContext context;
 	

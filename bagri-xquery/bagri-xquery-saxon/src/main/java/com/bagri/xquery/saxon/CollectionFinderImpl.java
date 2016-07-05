@@ -1,7 +1,5 @@
 package com.bagri.xquery.saxon;
 
-import static com.bagri.xdm.common.XDMConstants.*;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -11,7 +9,6 @@ import org.slf4j.LoggerFactory;
 
 import com.bagri.xdm.api.SchemaRepository;
 import com.bagri.xdm.api.impl.ModelManagementBase;
-import com.bagri.xdm.cache.api.QueryManagement;
 import com.bagri.xdm.domain.Document;
 import com.bagri.xdm.query.AxisType;
 import com.bagri.xdm.query.Comparison;

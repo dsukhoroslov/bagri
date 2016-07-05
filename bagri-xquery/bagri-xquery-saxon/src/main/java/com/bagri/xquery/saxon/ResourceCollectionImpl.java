@@ -1,8 +1,13 @@
 package com.bagri.xquery.saxon;
 
+import static com.bagri.common.util.FileUtils.def_encoding;
 import static com.bagri.xdm.common.XDMConstants.bg_schema;
+import static com.bagri.xdm.common.XDMConstants.mt_json;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -22,6 +27,7 @@ import com.bagri.xdm.query.ExpressionContainer;
 import net.sf.saxon.expr.XPathContext;
 import net.sf.saxon.lib.Resource;
 import net.sf.saxon.lib.ResourceCollection;
+import net.sf.saxon.resource.JSONResource;
 import net.sf.saxon.trans.XPathException;
 
 public class ResourceCollectionImpl implements ResourceCollection {
@@ -102,8 +108,7 @@ public class ResourceCollectionImpl implements ResourceCollection {
 
 	@Override
 	public String toString() {
-		return "ResourceCollectionImpl [query=" + query
-				+ ", docIds=" + docIds /*+ ", current=" + current + ", position=" + position*/ + "]";
+		return "ResourceCollectionImpl [query=" + query	+ ", docIds=" + docIds  + "]";
 	}
 	
 	public class UriIterator implements Iterator<String> {
@@ -142,27 +147,31 @@ public class ResourceCollectionImpl implements ResourceCollection {
 			if (docKey != null) {
 				String content;
 				try {
-					// another bottleneck! takes 6.73 ms, even to get XML from cache! !?
 					content = ((DocumentManagement) repo.getDocumentManagement()).getDocumentAsString(docKey);
-					//content = content.replaceAll("&", "&amp;");
+					if (content != null && !content.isEmpty()) {
+						logger.trace("next; got content: {}", content.length());
+						String xref = bg_schema + ":/" + docKey;
+						String type = ((DocumentManagement) repo.getDocumentManagement()).getDocumentContentType(docKey);
+						if (mt_json.equals(type)) {
+							try {
+								InputStream is = new ByteArrayInputStream(content.getBytes(def_encoding));
+								return new JSONResource(xref, is);
+							} catch (UnsupportedEncodingException ex) {
+								logger.error("next.error", ex);
+								return null;
+							}
+						}
+						
+						StreamSource ss = new StreamSource(new StringReader(content));
+						ss.setSystemId(xref);
+						// an attempt to cache source here?
+						//mgr.storeDocumentSource(docId, ss);
+						return new ResourceImpl(ss);
+					}
+					logger.trace("next. got empty content'");
 				} catch (XDMException ex) {
 					logger.error("next.error", ex);
-					return null;
 				}
-				 
-				if (content != null && !content.isEmpty()) {
-					logger.trace("next; got content: {}", content.length());
-					StreamSource ss = new StreamSource(new StringReader(content));
-					ss.setSystemId(bg_schema + ":/" + docKey);
-					// bottleneck! takes 15 ms. Cache DocumentInfo in Saxon instead! 
-					//NodeInfo doc = config.buildDocument(ss);
-					//mgr.storeDocumentSource(docId, doc);
-					//return doc;
-
-					//mgr.storeDocumentSource(docId, ss);
-					return new ResourceImpl(ss);
-				}
-				logger.trace("resolveSource. got empty content'");
 			}
 			return null;
 		}

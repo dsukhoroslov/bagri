@@ -11,7 +11,10 @@ import static com.bagri.xdm.query.PathBuilder.*;
 import static com.bagri.xdm.domain.Document.clnDefault;
 import static com.bagri.xdm.system.DataFormat.df_xml;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 //import java.util.Collection;
@@ -54,6 +57,7 @@ import com.bagri.xdm.domain.FragmentedDocument;
 import com.bagri.xdm.domain.Path;
 import com.bagri.xdm.query.Comparison;
 import com.bagri.xdm.system.Collection;
+import com.bagri.xdm.system.DataFormat;
 import com.bagri.xdm.system.Fragment;
 import com.bagri.xdm.system.Schema;
 import com.bagri.xdm.system.TriggerAction.Order;
@@ -506,6 +510,19 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	}
 
 	@Override
+	public InputStream getDocumentAsStream(long docKey) throws XDMException {
+		String content = getDocumentAsString(docKey);
+		if (content != null) {
+			try {
+				return new ByteArrayInputStream(content.getBytes(def_encoding));
+			} catch (UnsupportedEncodingException ex) {
+				throw new XDMException(ex, XDMException.ecInOut);
+			}
+		}
+		return null;
+	}
+	
+	@Override
 	public String getDocumentAsString(String uri) throws XDMException {
 		DocumentKey docKey = getDocumentKey(uri, false, false);
 		if (docKey == null) {
@@ -562,6 +579,17 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	//public Source getDocumentAsSource(String uri) {
 	//	return srcCache.get(factory.newXDMDocumentKey(docId.getDocumentKey()));
 	//}
+
+	@Override
+	public String getDocumentContentType(long docKey) throws XDMException {
+		// TODO: get it from the document itself?
+		String def = repo.getSchema().getProperty(xdm_schema_format_default);
+		DataFormat df = repo.getDataFormat(def);
+		if (df == null) {
+			return mt_xml;
+		}
+		return df.getType();
+	}
 	
 	private Collection getTypedCollection(Schema schema, String typePath) {
 		for (Collection collect: schema.getCollections()) {

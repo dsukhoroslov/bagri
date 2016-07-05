@@ -27,7 +27,7 @@ public class XQIterator implements Iterator {
 		try {
 			next = iter.next();
 		} catch (XPathException e) {
-			//
+			logger.error("<init>.error", e);
 		}
 	}
 	
@@ -36,7 +36,7 @@ public class XQIterator implements Iterator {
 			try {
 				return ((LastPositionFinder) iter).getLength();
 			} catch (XPathException ex) {
-				logger.error("getFullSize; error", ex);
+				logger.error("getFullSize.error", ex);
 			}
 		}
 		if (next == null) {
@@ -57,16 +57,16 @@ public class XQIterator implements Iterator {
 			next = iter.next();
 		} catch (XPathException ex) {
 			// throw Runtime ex?
-			logger.error("next 1;", ex);
+			logger.error("next 1.error", ex);
 		}
 		
 		if (item != null) {
 			try {
 				return SaxonUtils.itemToXQItem(item, xqFactory);
 			} catch (XPathException ex) {
-				logger.error("next 2;", ex);
+				logger.error("next 2.error", ex);
 			} catch (XQException ex) {
-				logger.error("next 3;", ex);
+				logger.error("next 3.error", ex);
 			}
 		}
 		return null;

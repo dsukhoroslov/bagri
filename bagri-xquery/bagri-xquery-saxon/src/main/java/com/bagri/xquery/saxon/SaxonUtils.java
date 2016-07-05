@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.GregorianCalendar;
+import java.util.NoSuchElementException;
 
 import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.Duration;
@@ -40,6 +41,8 @@ import net.sf.saxon.evpull.StaxToEventBridge;
 import net.sf.saxon.expr.EarlyEvaluationContext;
 import net.sf.saxon.expr.JPConverter;
 import net.sf.saxon.expr.StaticProperty;
+import net.sf.saxon.ma.map.KeyValuePair;
+import net.sf.saxon.ma.map.MapItem;
 import net.sf.saxon.om.Item;
 import net.sf.saxon.om.NodeInfo;
 import net.sf.saxon.om.Sequence;
@@ -479,138 +482,138 @@ public class SaxonUtils {
             int t = p.getItemType().getPrimitiveType();
             switch (t) {
                 case XS_ANY_URI:
-                    type = XQItemType.XQBASETYPE_ANYURI; 	
+                    type = XQBASETYPE_ANYURI; 	
                     value = p.getStringValue();
                     break;
                 case XS_ANY_ATOMIC_TYPE:
-                    type = XQItemType.XQBASETYPE_ANYATOMICTYPE; 	
+                    type = XQBASETYPE_ANYATOMICTYPE; 	
                     value = p.getStringValue();
                     break;
                 case XS_BASE64_BINARY:
-                    type = XQItemType.XQBASETYPE_BASE64BINARY;
+                    type = XQBASETYPE_BASE64BINARY;
                     value = ((Base64BinaryValue)p).getBinaryValue();
                     break;
                 case XS_BOOLEAN:
-                    type = XQItemType.XQBASETYPE_BOOLEAN;
+                    type = XQBASETYPE_BOOLEAN;
                     value = Boolean.valueOf(((BooleanValue)p).getBooleanValue());
                     break;
                 case XS_DATE:
-                    type = XQItemType.XQBASETYPE_DATE;
-                    value = getCalendar((CalendarValue) p, XQItemType.XQBASETYPE_DATE);
+                    type = XQBASETYPE_DATE;
+                    value = getCalendar((CalendarValue) p, XQBASETYPE_DATE);
                     break;
                 case XS_TIME:
-                    type = XQItemType.XQBASETYPE_TIME;
-                    value = getCalendar((CalendarValue) p, XQItemType.XQBASETYPE_TIME);
+                    type = XQBASETYPE_TIME;
+                    value = getCalendar((CalendarValue) p, XQBASETYPE_TIME);
                     break;
                 case XS_DATE_TIME:
-                    type = XQItemType.XQBASETYPE_DATETIME;
-                    value = getCalendar((CalendarValue) p, XQItemType.XQBASETYPE_DATETIME);
+                    type = XQBASETYPE_DATETIME;
+                    value = getCalendar((CalendarValue) p, XQBASETYPE_DATETIME);
                     break;
                 case XS_DECIMAL:
-                    type = XQItemType.XQBASETYPE_DECIMAL;
+                    type = XQBASETYPE_DECIMAL;
                     value = ((DecimalValue)p).getDecimalValue();
                     break;
                 case XS_DOUBLE:
-                    type = XQItemType.XQBASETYPE_DOUBLE;
+                    type = XQBASETYPE_DOUBLE;
                     value = ((DoubleValue)p).getDoubleValue();
                     break;
                 case XS_DURATION:
-                    type = XQItemType.XQBASETYPE_DURATION;
+                    type = XQBASETYPE_DURATION;
                     value = getDuration((DurationValue) p, type);
                     break;
                 case XS_DAY_TIME_DURATION:
-                    type = XQItemType.XQBASETYPE_DAYTIMEDURATION;
+                    type = XQBASETYPE_DAYTIMEDURATION;
                     value = getDuration((DurationValue) p, type);
                     break;
                 case XS_YEAR_MONTH_DURATION:
-                    type = XQItemType.XQBASETYPE_YEARMONTHDURATION;
+                    type = XQBASETYPE_YEARMONTHDURATION;
                     value = getDuration((DurationValue) p, type);
                     break;
                 case XS_FLOAT:
-                    type = XQItemType.XQBASETYPE_FLOAT;
+                    type = XQBASETYPE_FLOAT;
                     value = ((FloatValue)p).getFloatValue();
                     break;
                 case XS_G_DAY:
-                    type = XQItemType.XQBASETYPE_GDAY;
-                    value = getCalendar((CalendarValue) p, XQItemType.XQBASETYPE_GDAY);
+                    type = XQBASETYPE_GDAY;
+                    value = getCalendar((CalendarValue) p, XQBASETYPE_GDAY);
                     break;
                 case XS_G_MONTH:
-                    type = XQItemType.XQBASETYPE_GMONTH;
-                    value = getCalendar((CalendarValue) p, XQItemType.XQBASETYPE_GMONTH);
+                    type = XQBASETYPE_GMONTH;
+                    value = getCalendar((CalendarValue) p, XQBASETYPE_GMONTH);
                     break;
                 case XS_G_MONTH_DAY:
-                    type = XQItemType.XQBASETYPE_GMONTHDAY;
-                    value = getCalendar((CalendarValue) p, XQItemType.XQBASETYPE_GMONTHDAY);
+                    type = XQBASETYPE_GMONTHDAY;
+                    value = getCalendar((CalendarValue) p, XQBASETYPE_GMONTHDAY);
                     break;
                 case XS_G_YEAR:
-                    type = XQItemType.XQBASETYPE_GYEAR;
-                    value = getCalendar((CalendarValue) p, XQItemType.XQBASETYPE_GYEAR);
+                    type = XQBASETYPE_GYEAR;
+                    value = getCalendar((CalendarValue) p, XQBASETYPE_GYEAR);
                     break;
                 case XS_G_YEAR_MONTH:
-                    type = XQItemType.XQBASETYPE_GYEARMONTH;
-                    value = getCalendar((CalendarValue) p, XQItemType.XQBASETYPE_GYEARMONTH);
+                    type = XQBASETYPE_GYEARMONTH;
+                    value = getCalendar((CalendarValue) p, XQBASETYPE_GYEARMONTH);
                     break;
                 case XS_HEX_BINARY:
-                    type = XQItemType.XQBASETYPE_HEXBINARY;
+                    type = XQBASETYPE_HEXBINARY;
                     value = ((HexBinaryValue)p).getBinaryValue();
                     break;
                 case XS_INTEGER:
                     if (p instanceof BigIntegerValue) {
-                    	type = XQItemType.XQBASETYPE_INTEGER;
+                    	type = XQBASETYPE_INTEGER;
                         value = ((BigIntegerValue)p).asBigInteger();
                     } else {
                         int sub = ((AtomicType)p.getItemType()).getFingerprint();
                         switch (sub) {
                             case XS_INTEGER:
-                            	type = XQItemType.XQBASETYPE_INTEGER;
+                            	type = XQBASETYPE_INTEGER;
                                 value = BigInteger.valueOf(((Int64Value)p).longValue());
                                 break;
                             case XS_NEGATIVE_INTEGER:
-                            	type = XQItemType.XQBASETYPE_NEGATIVE_INTEGER;
+                            	type = XQBASETYPE_NEGATIVE_INTEGER;
                                 value = BigInteger.valueOf(((Int64Value)p).longValue());
                                 break;
                             case XS_NON_NEGATIVE_INTEGER:
-                            	type = XQItemType.XQBASETYPE_NONNEGATIVE_INTEGER;
+                            	type = XQBASETYPE_NONNEGATIVE_INTEGER;
                                 value = BigInteger.valueOf(((Int64Value)p).longValue());
                                 break;
                             case XS_NON_POSITIVE_INTEGER:
-                            	type = XQItemType.XQBASETYPE_NONPOSITIVE_INTEGER;
+                            	type = XQBASETYPE_NONPOSITIVE_INTEGER;
                                 value = BigInteger.valueOf(((Int64Value)p).longValue());
                                 break;
                             case XS_POSITIVE_INTEGER:
-                            	type = XQItemType.XQBASETYPE_POSITIVE_INTEGER;
+                            	type = XQBASETYPE_POSITIVE_INTEGER;
                                 value = BigInteger.valueOf(((Int64Value)p).longValue());
                                 break;
                             case XS_UNSIGNED_LONG:
-                            	type = XQItemType.XQBASETYPE_UNSIGNED_LONG;
+                            	type = XQBASETYPE_UNSIGNED_LONG;
                                 value = BigInteger.valueOf(((Int64Value)p).longValue());
                                 break;
                             case XS_BYTE:
-                            	type = XQItemType.XQBASETYPE_BYTE;
+                            	type = XQBASETYPE_BYTE;
                                 value = Byte.valueOf(((Int64Value)p).getStringValue());
                                 break;
                             case XS_INT:
-                            	type = XQItemType.XQBASETYPE_INT;
+                            	type = XQBASETYPE_INT;
                                 value = Integer.valueOf((int)((Int64Value)p).longValue());
                                 break;
                             case XS_UNSIGNED_SHORT:
-                            	type = XQItemType.XQBASETYPE_UNSIGNED_SHORT;
+                            	type = XQBASETYPE_UNSIGNED_SHORT;
                                 value = Integer.valueOf((int)((Int64Value)p).longValue());
                                 break;
                             case XS_LONG:
-                            	type = XQItemType.XQBASETYPE_LONG;
+                            	type = XQBASETYPE_LONG;
                                 value = Long.valueOf((int)((Int64Value)p).longValue());
                                 break;
                             case XS_UNSIGNED_INT:
-                            	type = XQItemType.XQBASETYPE_UNSIGNED_INT;
+                            	type = XQBASETYPE_UNSIGNED_INT;
                                 value = Long.valueOf((int)((Int64Value)p).longValue());
                                 break;
                             case StandardNames.XS_SHORT:
-                            	type = XQItemType.XQBASETYPE_SHORT;
+                            	type = XQBASETYPE_SHORT;
                                 value = Short.valueOf((short)((Int64Value)p).longValue());
                                 break;
                             case XS_UNSIGNED_BYTE:
-                            	type = XQItemType.XQBASETYPE_UNSIGNED_BYTE;
+                            	type = XQBASETYPE_UNSIGNED_BYTE;
                                 value = Short.valueOf((short)((Int64Value)p).longValue());
                                 break;
                             default:
@@ -623,24 +626,24 @@ public class SaxonUtils {
                     int sub = ((AtomicType)p.getItemType()).getFingerprint();
                     switch (sub) {
 	                    case XS_NAME:
-	                    	type = XQItemType.XQBASETYPE_NAME;
+	                    	type = XQBASETYPE_NAME;
 	                    	break;
 	                    case XS_NCNAME:
-	                    	type = XQItemType.XQBASETYPE_NCNAME;
+	                    	type = XQBASETYPE_NCNAME;
 	                        break;
 	                    case XS_NMTOKEN:
-	                    	type = XQItemType.XQBASETYPE_NMTOKEN;
+	                    	type = XQBASETYPE_NMTOKEN;
 	                    	break;
 	                    default:
-	                    	type = XQItemType.XQBASETYPE_STRING;
+	                    	type = XQBASETYPE_STRING;
                     }
                     break;
                 case XS_QNAME:
-                	type = XQItemType.XQBASETYPE_QNAME;
+                	type = XQBASETYPE_QNAME;
                     value = ((QualifiedNameValue)p).toJaxpQName();
                     break;
                 case XS_UNTYPED_ATOMIC:
-                	type = XQItemType.XQBASETYPE_UNTYPEDATOMIC;
+                	type = XQBASETYPE_UNTYPEDATOMIC;
                     value = p.getStringValue();
                     break;
                 default:
@@ -660,6 +663,23 @@ public class SaxonUtils {
             	XQItemType xqt = XQUtils.getTypeForObject(xqFactory, value);
             	return xqFactory.createItemFromObject(value, xqt);
         	}
+        } else if (item instanceof MapItem) {
+        	MapItem mi = (MapItem) item;
+        	int sz = mi.size();
+        	Item it = mi.head();
+        	if (it == item) {
+        		if (mi.iterator().hasNext()) {
+        			try {
+        				KeyValuePair kvp = mi.iterator().next();
+            			it = kvp.value.head();
+        			} catch (NoSuchElementException ee) {
+        				return  null;
+        			}
+        		} else if (sz == 0) {
+        			return null;
+        		}
+        	}
+        	return itemToXQItem(it, xqFactory);
         } else if (item instanceof Sequence) {
         	Sequence sq = (Sequence) item;
         	SequenceIterator itr = sq.iterate();

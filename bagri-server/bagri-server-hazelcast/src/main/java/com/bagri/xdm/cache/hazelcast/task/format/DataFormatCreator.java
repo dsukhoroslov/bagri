@@ -19,6 +19,7 @@ public class DataFormatCreator extends DataFormatProcessor implements Identified
 	private String parser;
 	private String builder;
 	private String description;
+	private String type;
 	private Collection<String> extensions = new HashSet<>();
 	private Properties properties = new Properties();
 	
@@ -27,11 +28,12 @@ public class DataFormatCreator extends DataFormatProcessor implements Identified
 	}
 
 	public DataFormatCreator(String admin, String parser, String builder, String description,
-			Collection<String> extensions, Properties properties) {
+			String type, Collection<String> extensions, Properties properties) {
 		super(1, admin);
 		this.parser = parser;
 		this.builder = builder;
 		this.description = description;
+		this.type = type;
 		if (extensions != null) {
 			this.extensions.addAll(extensions);
 		}
@@ -46,7 +48,7 @@ public class DataFormatCreator extends DataFormatProcessor implements Identified
 		if (entry.getValue() == null) {
 			String name = entry.getKey();
 			DataFormat format = new DataFormat(getVersion(), new Date(), getAdmin(), 
-					name, description, extensions, parser, builder, true, properties);
+					name, description, type, extensions, parser, builder, true, properties);
 			entry.setValue(format);
 			auditEntity(AuditType.create, format);
 			return format;
@@ -65,6 +67,7 @@ public class DataFormatCreator extends DataFormatProcessor implements Identified
 		parser = in.readUTF();
 		builder = in.readUTF();
 		description = in.readUTF();
+		type = in.readUTF();
 		extensions.addAll((Collection<String>) in.readObject());
 		properties.putAll((Properties) in.readObject());
 	}
@@ -75,6 +78,7 @@ public class DataFormatCreator extends DataFormatProcessor implements Identified
 		out.writeUTF(parser);
 		out.writeUTF(builder);
 		out.writeUTF(description);
+		out.writeUTF(type);
 		out.writeObject(extensions);
 		out.writeObject(properties);
 	}

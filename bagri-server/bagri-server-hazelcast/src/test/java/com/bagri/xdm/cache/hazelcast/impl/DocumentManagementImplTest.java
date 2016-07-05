@@ -10,11 +10,11 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import com.bagri.xdm.api.test.XDMDocumentManagementTest;
+import com.bagri.xdm.api.test.DocumentManagementTest;
 import com.bagri.xdm.cache.hazelcast.impl.SchemaRepositoryImpl;
 import com.bagri.xdm.system.Schema;
 
-public class DocumentManagementImplTest extends XDMDocumentManagementTest {
+public class DocumentManagementImplTest extends DocumentManagementTest {
 	
     private static ClassPathXmlApplicationContext context;
 

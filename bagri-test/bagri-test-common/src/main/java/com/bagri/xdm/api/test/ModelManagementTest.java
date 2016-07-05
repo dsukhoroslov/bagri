@@ -14,7 +14,7 @@ import com.bagri.xdm.api.ModelManagement;
 import com.bagri.xdm.api.SchemaRepository;
 import com.bagri.xdm.domain.Path;
 
-public abstract class XDMModelManagementTest extends XDMManagementTest {
+public abstract class ModelManagementTest extends XDMManagementTest {
 
 	//protected XDMModelManagement mDictionary;
 	

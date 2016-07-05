@@ -212,7 +212,7 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
 	private <T> T instantiateClass(String className) {
 		
 		try {
-			Class clazz = Class.forName(className);
+			Class<?> clazz = Class.forName(className);
 			return (T) clazz.getConstructor(ModelManagement.class).newInstance(getModelManagement());
 		} catch (Exception ex) {
 			logger.error("instantiateClass; cannot instantiate: " + className, ex);

@@ -613,7 +613,6 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 
 	private Iterator<?> runQuery(String query, Map<QName, Object> params, Properties props) throws XQException {
 		
-		
         Throwable ex = null;
         boolean failed = false;
         stopWatch.start();
@@ -666,6 +665,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			}
 			
         } catch (Throwable t) {
+        	//t.printStackTrace();
             failed = true;
             ex = t;
         }

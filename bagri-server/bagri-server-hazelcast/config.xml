@@ -733,6 +733,7 @@
             <parserClass>com.bagri.xdm.common.df.xml.XmlStaxParser</parserClass>
             <builderClass>com.bagri.xdm.common.df.xml.XmlBuilder</builderClass>
             <extensions>xml</extensions>
+            <type>application/xml</type>
         </dataFormat>
         <dataFormat name="JSON">
             <version>1</version>
@@ -744,6 +745,7 @@
             <parserClass>com.bagri.xdm.common.df.json.JsonApiParser</parserClass>
             <builderClass>com.bagri.xdm.common.df.json.JsonBuilder</builderClass>
             <extensions>json</extensions>
+            <type>application/json</type>
         </dataFormat>
     </dataFormats>
     <dataStores>
