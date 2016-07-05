@@ -61,7 +61,7 @@ public class JsonQueryManagementTest extends XDMManagementTest {
 		Schema schema = xdmRepo.getSchema();
 		if (schema == null) {
 			schema = new Schema(1, new java.util.Date(), "test", "test", "test schema", true, null);
-			schema.setProperty(xdm_schema_format_default, "JSON");
+			//schema.setProperty(xdm_schema_format_default, "JSON");
 			xdmRepo.setSchema(schema);
 			DataFormat df = new DataFormat(1, new java.util.Date(), "", "JSON", null, "application/json", null, 
 					"com.bagri.xdm.common.df.json.JsonApiParser", "com.bagri.xdm.common.df.json.JsonBuilder", true, null);
@@ -117,13 +117,18 @@ public class JsonQueryManagementTest extends XDMManagementTest {
 	}
 	
 	@Test
-	@Ignore
+	//@Ignore
 	public void queryJsonDocumentsTest() throws Exception {
 	
-		String query = "for $map in fn:collection()\n" + 
-				"let $v := get($map, 'Security')\n" +
-				"where get($v, 'Symbol') = 'VFINX'\n" +
-				"return get($v, 'Name')";
+		//String query = "for $map in fn:collection()\n" + 
+		//		"let $v := get($map, 'Security')\n" +
+		//		"where get($v, 'Symbol') = 'VFINX'\n" +
+		//		"return get($v, 'Name')";
+		
+		String query = "for $uri in fn:uri-collection()\n" +
+				"return fn:json-doc($uri)";
+				//"return $uri";
+		
 		Iterator<?> docs = getQueryManagement().executeQuery(query, null, new Properties());
 		assertNotNull(docs);
 		((ResultCursor) docs).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());

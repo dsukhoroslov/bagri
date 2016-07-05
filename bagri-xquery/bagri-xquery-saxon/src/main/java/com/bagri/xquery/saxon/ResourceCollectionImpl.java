@@ -151,16 +151,16 @@ public class ResourceCollectionImpl implements ResourceCollection {
 					if (content != null && !content.isEmpty()) {
 						logger.trace("next; got content: {}", content.length());
 						String xref = bg_schema + ":/" + docKey;
-						String type = ((DocumentManagement) repo.getDocumentManagement()).getDocumentContentType(docKey);
-						if (mt_json.equals(type)) {
-							try {
-								InputStream is = new ByteArrayInputStream(content.getBytes(def_encoding));
-								return new JSONResource(xref, is);
-							} catch (UnsupportedEncodingException ex) {
-								logger.error("next.error", ex);
-								return null;
-							}
-						}
+						//String type = ((DocumentManagement) repo.getDocumentManagement()).getDocumentContentType(docKey);
+						//if (mt_json.equals(type)) {
+						//	try {
+						//		InputStream is = new ByteArrayInputStream(content.getBytes(def_encoding));
+						//		return new JSONResource(xref, is);
+						//	} catch (UnsupportedEncodingException ex) {
+						//		logger.error("next.error", ex);
+						//		return null;
+						//	}
+						//}
 						
 						StreamSource ss = new StreamSource(new StringReader(content));
 						ss.setSystemId(xref);
