@@ -1,9 +1,10 @@
-package com.bagri.xdm.api;
+package com.bagri.xdm.cache.api;
 
 import java.util.Collection;
 import java.util.Set;
 
 import com.bagri.xdm.domain.Occurrence;
+import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.domain.NodeKind;
 import com.bagri.xdm.domain.Path;
 

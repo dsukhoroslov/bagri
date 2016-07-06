@@ -24,7 +24,9 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.bagri.common.util.JMXUtils;
 import com.bagri.xdm.api.test.XDMManagementTest;
+import com.bagri.xdm.cache.api.ModelManagement;
 import com.bagri.xdm.cache.api.QueryManagement;
+import com.bagri.xdm.cache.api.SchemaRepository;
 import com.bagri.xdm.domain.Occurrence;
 import com.bagri.xdm.query.AxisType;
 import com.bagri.xdm.query.Comparison;
@@ -79,6 +81,10 @@ public class UniqueIndexManagementTest extends XDMManagementTest {
 		//Assert.assertTrue(((IndexManagementImpl) ((RepositoryImpl) xRepo).getIndexManagement()).getIndexCache().size() == 0);
 	}
 	
+	private ModelManagement getModelManagement() {
+		return ((SchemaRepository) xRepo).getModelManagement();
+	}
+
 	public Collection<String> getSecurity(String symbol) throws Exception {
 		String prefix = getModelManagement().getNamespacePrefix("http://tpox-benchmark.com/security"); 
 		int docType = 0; //getModelManagement().getDocumentType("/" + prefix + ":Security");

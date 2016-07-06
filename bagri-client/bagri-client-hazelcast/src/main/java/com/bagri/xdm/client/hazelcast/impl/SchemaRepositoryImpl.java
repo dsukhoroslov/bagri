@@ -3,15 +3,8 @@ package com.bagri.xdm.client.hazelcast.impl;
 import static com.bagri.common.util.PropUtils.setProperty;
 import static com.bagri.xdm.common.XDMConstants.*;
 
-import java.io.InputStream;
-import java.util.Arrays;
 import java.util.Properties;
 import java.util.UUID;
-
-import javax.xml.xquery.XQDataFactory;
-import javax.xml.xquery.XQItem;
-import javax.xml.xquery.XQItemType;
-import javax.xml.xquery.XQSequence;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,16 +15,7 @@ import com.bagri.xdm.api.QueryManagement;
 import com.bagri.xdm.api.SchemaRepository;
 import com.bagri.xdm.api.TransactionManagement;
 import com.bagri.xdm.api.impl.SchemaRepositoryBase;
-import com.bagri.xdm.client.hazelcast.serialize.SecureCredentials;
-import com.bagri.xdm.client.hazelcast.serialize.XQItemSerializer;
-import com.bagri.xdm.client.hazelcast.serialize.XQItemTypeSerializer;
-import com.bagri.xdm.client.hazelcast.serialize.XQSequenceSerializer;
-import com.hazelcast.client.HazelcastClient;
-import com.hazelcast.client.config.ClientConfig;
-import com.hazelcast.client.config.XmlClientConfigBuilder;
-import com.hazelcast.config.SerializerConfig;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.security.Credentials;
 
 public class SchemaRepositoryImpl extends SchemaRepositoryBase implements SchemaRepository {
 	
@@ -119,7 +103,6 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Schema
 		setBindingManagement(new BindingManagementImpl());
 		setDocumentManagement(new DocumentManagementImpl());
 		setHealthManagement(new HealthManagementImpl(hzClient));
-		setModelManagement(new ModelManagementImpl(hzClient));
 		setQueryManagement(new QueryManagementImpl());
 		setTxManagement(new TransactionManagementImpl());
 		hzClient.getUserContext().put("xdmRepo", this);
@@ -178,7 +161,7 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Schema
 	
 	@Override
 	public String toString() {
-		return "RepositoryImpl[" + clientId + "]";
+		return "SchemaRepositoryImpl[" + clientId + "]";
 	}
 	
 	HazelcastInstance getHazelcastClient() {

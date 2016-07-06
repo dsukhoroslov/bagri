@@ -10,7 +10,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.api.ModelManagement;
+import com.bagri.xdm.cache.api.ModelManagement;
 import com.bagri.xdm.common.df.json.JsonApiParser;
 import com.bagri.xdm.domain.Data;
 

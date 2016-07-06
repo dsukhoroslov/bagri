@@ -395,7 +395,8 @@ public class SchemaManager extends EntityManager<Schema> implements HealthChange
 
 	Index addIndex(String name, String docType, String path, String dataType, boolean caseSensitive, boolean range, 
 			boolean unique, String description) {
-		String typePath = xdmRepo.getModelManagement().normalizePath(docType);
+		// TODO: what it is for?!
+		String typePath = path; //xdmRepo.getModelManagement().normalizePath(docType);
 		Index index = new Index(1, new Date(), getCurrentUser(), name, docType, typePath, 
 				path, new QName(xs_ns, dataType, xs_prefix), caseSensitive, range, unique, description, true);
 		Schema schema = getEntity();

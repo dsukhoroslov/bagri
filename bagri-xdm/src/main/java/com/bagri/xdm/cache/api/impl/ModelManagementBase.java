@@ -1,4 +1,4 @@
-package com.bagri.xdm.api.impl;
+package com.bagri.xdm.cache.api.impl;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -38,6 +38,7 @@ import org.w3c.dom.ls.LSInput;
 
 import com.bagri.common.idgen.IdGenerator;
 import com.bagri.xdm.api.XDMException;
+import com.bagri.xdm.cache.api.ModelManagement;
 import com.bagri.xdm.domain.Occurrence;
 import com.bagri.xdm.domain.DocumentType;
 import com.bagri.xdm.domain.Namespace;
@@ -53,7 +54,7 @@ import static com.bagri.xquery.api.XQUtils.getBaseTypeForTypeName;
  * @author Denis Sukhoroslov
  *
  */
-public abstract class ModelManagementBase {
+public abstract class ModelManagementBase implements ModelManagement {
 	
     protected final transient Logger logger = LoggerFactory.getLogger(getClass());
     protected static final long timeout = 100; // 100ms to wait for lock..

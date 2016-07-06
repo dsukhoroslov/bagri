@@ -11,8 +11,8 @@ import java.util.List;
 import javax.xml.xquery.XQItemType;
 
 import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.api.ModelManagement;
 import com.bagri.xdm.cache.api.ContentParser;
+import com.bagri.xdm.cache.api.ModelManagement;
 import com.bagri.xdm.common.df.ContentParserBase;
 import com.bagri.xdm.domain.Occurrence;
 import com.bagri.xdm.domain.Data;

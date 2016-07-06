@@ -22,7 +22,9 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.bagri.common.util.JMXUtils;
 import com.bagri.xdm.api.test.XDMManagementTest;
+import com.bagri.xdm.cache.api.ModelManagement;
 import com.bagri.xdm.cache.api.QueryManagement;
+import com.bagri.xdm.cache.api.SchemaRepository;
 import com.bagri.xdm.cache.hazelcast.impl.SchemaRepositoryImpl;
 import com.bagri.xdm.client.hazelcast.impl.ResultCursor;
 import com.bagri.xdm.query.AxisType;
@@ -73,6 +75,10 @@ public class QueryManagementImplTest extends XDMManagementTest {
 		// remove documents here!
 		removeDocumentsTest();
 		Thread.sleep(1000);
+	}
+
+	private ModelManagement getModelManagement() {
+		return ((SchemaRepository) xRepo).getModelManagement();
 	}
 
 	

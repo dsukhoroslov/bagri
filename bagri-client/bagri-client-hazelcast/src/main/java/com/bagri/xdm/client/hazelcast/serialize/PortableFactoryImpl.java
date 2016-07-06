@@ -1,5 +1,6 @@
 package com.bagri.xdm.client.hazelcast.serialize;
 
+import com.bagri.xdm.client.hazelcast.impl.SecureCredentials;
 import com.hazelcast.nio.serialization.Portable;
 import com.hazelcast.nio.serialization.PortableFactory;
 

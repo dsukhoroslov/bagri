@@ -1,27 +1,54 @@
 package com.bagri.xdm.cache.hazelcast.impl;
 
+import static com.bagri.xdm.cache.api.CacheConstants.*;
+
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.TimeUnit;
 
+import com.bagri.common.idgen.IdGenerator;
+import com.bagri.xdm.cache.api.ModelManagement;
+import com.bagri.xdm.cache.api.impl.ModelManagementBase;
+import com.bagri.xdm.client.hazelcast.impl.IdGeneratorImpl;
+import com.bagri.xdm.domain.DocumentType;
+import com.bagri.xdm.domain.Namespace;
 import com.bagri.xdm.domain.Path;
 import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IAtomicLong;
+import com.hazelcast.core.IMap;
 import com.hazelcast.core.MapEvent;
 import com.hazelcast.map.listener.EntryAddedListener;
 import com.hazelcast.map.listener.EntryRemovedListener;
 import com.hazelcast.map.listener.EntryUpdatedListener;
 import com.hazelcast.map.listener.MapClearedListener;
 import com.hazelcast.map.listener.MapEvictedListener;
+import com.hazelcast.query.Predicate;
+import com.hazelcast.query.Predicates;
+import com.hazelcast.query.impl.predicates.RegexPredicate;
 
-public class ModelManagementImpl extends com.bagri.xdm.client.hazelcast.impl.ModelManagementImpl {
+public class ModelManagementImpl extends ModelManagementBase implements ModelManagement { 
+
+	protected IMap<String, Path> pathCache;
+	//protected ReplicatedMap<String, XDMNamespace> nsCache;
+	protected IMap<String, Namespace> nsCache;
+	protected IMap<String, DocumentType> typeCache;
+	private IdGenerator<Long> nsGen;
+	private IdGenerator<Long> pathGen;
+	private IdGenerator<Long> typeGen;
 	
 	private ConcurrentMap<Integer, Path> cachePath = new ConcurrentHashMap<>();
 	private ConcurrentMap<Integer, Set<Path>> cacheType = new ConcurrentHashMap<>();
+
+	//@Autowired
+	//private HazelcastInstance hzInstance;
 
 	public ModelManagementImpl() {
 		super();
@@ -29,22 +56,101 @@ public class ModelManagementImpl extends com.bagri.xdm.client.hazelcast.impl.Mod
 	
 	public ModelManagementImpl(HazelcastInstance hzInstance) {
 		super();
-		initialize();
+		initialize(hzInstance);
 	}
 	
-	private void initialize() {
+	private void initialize(HazelcastInstance hzInstance) {
+		nsCache = hzInstance.getMap(CN_XDM_NAMESPACE_DICT);
+		pathCache = hzInstance.getMap(CN_XDM_PATH_DICT);
+		typeCache = hzInstance.getMap(CN_XDM_DOCTYPE_DICT);
+		nsGen = new IdGeneratorImpl(hzInstance.getAtomicLong(SQN_NAMESPACE));
+		pathGen = new IdGeneratorImpl(hzInstance.getAtomicLong(SQN_PATH));
+		typeGen = new IdGeneratorImpl(hzInstance.getAtomicLong(SQN_DOCTYPE));
 		// init listeners here
 		pathCache.addEntryListener(new PathCacheListener(), true);
+	}
+	
+	protected Map<String, Namespace> getNamespaceCache() {
+		return nsCache;
+	}
+	
+	protected Map<String, Path> getPathCache() {
+		return pathCache;
+	}
+	
+	protected Map<String, DocumentType> getTypeCache() {
+		return typeCache;
+	}
+	
+	protected IdGenerator<Long> getNamespaceGen() {
+		return nsGen;
+	}
+	
+	protected IdGenerator<Long> getPathGen() {
+		return pathGen;
+	}
+	
+	protected IdGenerator<Long> getTypeGen() {
+		return typeGen;
+	}
+
+	public void setNamespaceCache(IMap<String, Namespace> nsCache) {
+		this.nsCache = nsCache;
+	}
+	
+	public void setPathCache(IMap<String, Path> pathCache) {
+		this.pathCache = pathCache;
+	}
+	
+	public void setTypeCache(IMap<String, DocumentType> typeCache) {
+		this.typeCache = typeCache;
+	}
+	
+	public void setNamespaceGen(IAtomicLong nsGen) {
+		this.nsGen = new IdGeneratorImpl(nsGen);
+	}
+
+	public void setPathGen(IAtomicLong pathGen) {
+		this.pathGen = new IdGeneratorImpl(pathGen);
+	}
+	
+	public void setTypeGen(IAtomicLong typeGen) {
+		this.typeGen = new IdGeneratorImpl(typeGen);
+	}
+
+	private Path getPathInternal(int pathId) {
+		Predicate f = Predicates.equal("pathId", pathId);
+		Collection<Path> entries = pathCache.values(f);
+		if (entries.isEmpty()) {
+			return null;
+		}
+		// check size > 1 ??
+		return entries.iterator().next();
 	}
 	
 	@Override
 	public Path getPath(int pathId) {
 		Path result = cachePath.get(pathId);
 		if (result == null) {
-			result = super.getPath(pathId);
+			result = getPathInternal(pathId);
 			if (result != null) {
 				cachePath.putIfAbsent(pathId, result);
 			}
+		}
+		return result;
+	}
+	
+	private Collection<Path> getTypePathsInternal(int typeId) {
+		Predicate<String, Path> f = Predicates.equal("typeId", typeId);
+		Collection<Path> entries = pathCache.values(f);
+		if (entries.isEmpty()) {
+			return entries;
+		}
+		// check size > 1 ??
+		List<Path> result = new ArrayList<Path>(entries);
+		Collections.sort(result);
+		if (logger.isTraceEnabled()) {
+			logger.trace("getTypePath; returning {} for type {}", result, typeId);
 		}
 		return result;
 	}
@@ -54,7 +160,7 @@ public class ModelManagementImpl extends com.bagri.xdm.client.hazelcast.impl.Mod
 		Collection<Path> result = cacheType.get(typeId);
 		// TODO: think why the result is empty? happens from ModelManagementImplTest only?
 		if (result == null || result.isEmpty()) {
-			result = super.getTypePaths(typeId);
+			result = getTypePathsInternal(typeId);
 			if (result != null) {
 				Set<Path> paths = new HashSet<>(result);
 				paths = new HashSet<>();
@@ -64,28 +170,80 @@ public class ModelManagementImpl extends com.bagri.xdm.client.hazelcast.impl.Mod
 		return result;
 	}
 	
-	//@Override
-	//protected Set getTypedPathEntries(int typeId) {
-		//Predicate f = Predicates.equal("typeId",  typeId);
-		//Set<Map.Entry<String, XDMPath>> entries = pathCache.entrySet(f);
-		//return entries;
-	//	return null;
+	
+	@Override
+	protected DocumentType getDocumentTypeById(int typeId) {
+		Predicate f = Predicates.equal("typeId", typeId);
+		Set<Map.Entry<String, DocumentType>> types = typeCache.entrySet(f);
+		if (types.size() == 0) {
+			return null;
+		}
+		return (DocumentType) types.iterator().next().getValue();
+	}
+
+	@Override
+	@SuppressWarnings("rawtypes")
+	protected Set getTypedPathEntries(int typeId) {
+		Predicate f = Predicates.equal("typeId",  typeId);
+		Set<Map.Entry<String, Path>> entries = pathCache.entrySet(f);
+		return entries;
+	}
+	
+	@Override
+	@SuppressWarnings("rawtypes")
+	protected Set getTypedPathWithRegex(String regex, int typeId) {
+		Predicate filter;
+		if (typeId > 0) {
+			filter = Predicates.and(new RegexPredicate("path", regex), Predicates.equal("typeId", typeId));
+		} else {
+			filter = new RegexPredicate("path", regex);
+		}
+		Set<Map.Entry<String, Path>> entries = pathCache.entrySet(filter);
+		return entries;
+	}
+
+	//private IMap getNamedCache(Map cache) {
+	//	return (IMap) cache;
 	//}
-	
-	//@Override
-	//protected Set getTypedPathWithRegex(String regex, int typeId) {
-	//	return null;
-	//}	
-	
-	
+
+	@Override
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	protected boolean lock(Map cache, Object key) {
+		try {
+			return ((IMap) cache).tryLock(key, timeout, TimeUnit.MILLISECONDS);
+		} catch (InterruptedException ex) {
+			logger.error("Interrupted on lock", ex);
+			return false;
+		}
+	}
+
+	@Override
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	protected void unlock(Map cache, Object key) {
+		((IMap) cache).unlock(key);
+	}
+
+	@Override
+	protected <K, V> V putIfAbsent(Map<K, V> map, K key, V value) {
+		IMap<K, V> cache = (IMap<K, V>) map;
+		V val2 = cache.putIfAbsent(key, value);
+		if (val2 == null) {
+			return value;
+		}
+		logger.debug("putIfAbsent; got collision on cache: {}, key: {}; returning: {}", 
+				new Object[] {cache.getName(), key, val2});
+		return val2;
+	}
+
+
 	private class PathCacheListener implements MapClearedListener, MapEvictedListener,
 		EntryAddedListener<String, Path>, EntryRemovedListener<String, Path>, EntryUpdatedListener<String, Path> {
-
+	
 		@Override
 		public void mapEvicted(MapEvent event) {
 			// don't think we have to clear everything in this case
 		}
-
+	
 		@Override
 		public void mapCleared(MapEvent event) {
 			cachePath.clear();
@@ -106,7 +264,7 @@ public class ModelManagementImpl extends com.bagri.xdm.client.hazelcast.impl.Mod
 			}
 			paths.add(path);
 		}
-
+	
 		@Override
 		public void entryRemoved(EntryEvent<String, Path> event) {
 			Path path = event.getValue();
@@ -116,7 +274,7 @@ public class ModelManagementImpl extends com.bagri.xdm.client.hazelcast.impl.Mod
 				paths.remove(path);
 			}
 		}
-
+	
 		@Override
 		public void entryAdded(EntryEvent<String, Path> event) {
 			Path path = event.getValue();
@@ -131,7 +289,7 @@ public class ModelManagementImpl extends com.bagri.xdm.client.hazelcast.impl.Mod
 			}
 			paths.add(path);
 		}
-
+	
 	}
 	
 }

@@ -11,7 +11,7 @@ import com.bagri.xdm.system.Permission;
 import com.hazelcast.spring.context.SpringAware;
 
 @SpringAware
-public class DocumentUrisProvider  extends com.bagri.xdm.client.hazelcast.task.doc.DocumentUrisProvider {
+public class DocumentUrisProvider extends com.bagri.xdm.client.hazelcast.task.doc.DocumentUrisProvider {
 
 	private transient DocumentManagement docMgr;
     

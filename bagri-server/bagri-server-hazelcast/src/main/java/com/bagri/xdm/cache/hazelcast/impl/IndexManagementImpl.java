@@ -24,7 +24,6 @@ import com.bagri.common.util.JMXUtils;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.TransactionManagement;
 import com.bagri.xdm.cache.api.IndexManagement;
-import com.bagri.xdm.client.hazelcast.impl.ModelManagementImpl;
 import com.bagri.xdm.common.DocumentKey;
 import com.bagri.xdm.common.KeyFactory;
 import com.bagri.xdm.common.IndexKey;

@@ -22,12 +22,12 @@ import org.springframework.context.ApplicationContextAware;
 
 import com.bagri.xdm.api.BindingManagement;
 import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.api.ModelManagement;
 import com.bagri.xdm.api.TransactionManagement;
 import com.bagri.xdm.api.impl.SchemaRepositoryBase;
 import com.bagri.xdm.cache.api.ContentBuilder;
 import com.bagri.xdm.cache.api.ClientManagement;
 import com.bagri.xdm.cache.api.IndexManagement;
+import com.bagri.xdm.cache.api.ModelManagement;
 import com.bagri.xdm.cache.api.ContentParser;
 import com.bagri.xdm.cache.api.SchemaRepository;
 import com.bagri.xdm.cache.api.TriggerManagement;
@@ -64,6 +64,7 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
 	private Collection<Library> xdmLibraries;
     private ClientManagement clientMgr;
     private IndexManagement indexMgr;
+	private ModelManagement modelMgr;
     private TriggerManagement triggerMgr;
     private ApplicationContext appContext;
     private HazelcastInstance hzInstance;
@@ -108,6 +109,14 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
 	public void setIndexManagement(IndexManagement indexMgr) {
 		this.indexMgr = indexMgr;
 		((IndexManagementImpl) indexMgr).setRepository(this);
+	}
+	
+	public ModelManagement getModelManagement() {
+		return modelMgr;
+	}
+
+	public void setModelManagement(ModelManagement modelMgr) {
+		this.modelMgr = modelMgr;
 	}
 	
 	@Override

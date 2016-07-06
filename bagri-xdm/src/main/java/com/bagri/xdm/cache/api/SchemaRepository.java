@@ -10,7 +10,7 @@ import com.bagri.xdm.system.Schema;
 /**
  * XDM Repository server-side extension; Adds methods to get additional management artifacts on the server side.
  * 
- * @author Denis Suukhoroslov
+ * @author Denis Sukhoroslov
  *
  */
 public interface SchemaRepository extends com.bagri.xdm.api.SchemaRepository {
@@ -35,6 +35,11 @@ public interface SchemaRepository extends com.bagri.xdm.api.SchemaRepository {
 	 */
 	IndexManagement getIndexManagement();
 	
+	/**
+	 * @return meta-data management interface
+	 */
+	ModelManagement getModelManagement();
+
 	/**
 	 * 
 	 * @return trigger management interface

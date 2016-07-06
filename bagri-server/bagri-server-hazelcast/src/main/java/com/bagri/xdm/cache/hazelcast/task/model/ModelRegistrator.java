@@ -8,8 +8,8 @@ import java.util.concurrent.Callable;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.bagri.xdm.api.ModelManagement;
-import com.bagri.xdm.api.impl.ModelManagementBase;
+import com.bagri.xdm.cache.api.ModelManagement;
+import com.bagri.xdm.cache.api.impl.ModelManagementBase;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;

@@ -54,6 +54,7 @@ public class BindDocumentManagementTest extends XDMManagementTest {
 		if (schema == null) {
 			schema = new Schema(1, new java.util.Date(), "test", "test", "test schema", true, null);
 			xdmRepo.setSchema(schema);
+			
 		}
 	}
 

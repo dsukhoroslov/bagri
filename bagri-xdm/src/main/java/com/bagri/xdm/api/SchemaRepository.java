@@ -43,11 +43,6 @@ public interface SchemaRepository {
 	HealthManagement getHealthManagement();
 	
 	/**
-	 * @return meta-data management interface
-	 */
-	ModelManagement getModelManagement();
-
-	/**
 	 * @return query management interface
 	 */
 	QueryManagement getQueryManagement();

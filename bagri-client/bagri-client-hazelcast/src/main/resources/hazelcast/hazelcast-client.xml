@@ -61,17 +61,4 @@
 
 	<!--load-balancer type="random"></load-balancer-->
 	 
-	<hz:near-cache name="dict-path">
-		<hz:in-memory-format>OBJECT</hz:in-memory-format>
-	</hz:near-cache>
-	<!--hz:near-cache name="dict-index">
-		<hz:in-memory-format>OBJECT</hz:in-memory-format>
-	</hz:near-cache-->
-	<hz:near-cache name="dict-namespace">
-		<hz:in-memory-format>OBJECT</hz:in-memory-format>
-	</hz:near-cache>
-	<hz:near-cache name="dict-document-type">
-		<hz:in-memory-format>OBJECT</hz:in-memory-format>
-	</hz:near-cache>
-	
 </hz:hazelcast-client>

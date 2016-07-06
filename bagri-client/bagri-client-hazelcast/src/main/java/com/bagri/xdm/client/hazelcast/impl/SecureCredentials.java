@@ -1,4 +1,4 @@
-package com.bagri.xdm.client.hazelcast.serialize;
+package com.bagri.xdm.client.hazelcast.impl;
 
 import static com.bagri.xdm.client.hazelcast.serialize.PortableFactoryImpl.cli_XDMCredentials;
 import static com.bagri.xdm.client.hazelcast.serialize.PortableFactoryImpl.factoryId;

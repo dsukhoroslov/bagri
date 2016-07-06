@@ -10,7 +10,7 @@ import com.hazelcast.spring.context.SpringAware;
 
 @SpringAware
 @SuppressWarnings("serial")
-public class SecureCredentials extends com.bagri.xdm.client.hazelcast.serialize.SecureCredentials {
+public class SecureCredentials extends com.bagri.xdm.client.hazelcast.impl.SecureCredentials {
 	
 	private static final transient Logger logger = LoggerFactory.getLogger(SecureCredentials.class);
 	

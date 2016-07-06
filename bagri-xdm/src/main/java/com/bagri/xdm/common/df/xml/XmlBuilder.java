@@ -16,8 +16,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.api.ModelManagement;
 import com.bagri.xdm.cache.api.ContentBuilder;
+import com.bagri.xdm.cache.api.ModelManagement;
 import com.bagri.xdm.common.DataKey;
 import com.bagri.xdm.domain.Data;
 import com.bagri.xdm.domain.Element;

@@ -3,19 +3,16 @@ package com.bagri.xdm.api.test;
 import static com.bagri.common.util.FileUtils.readTextFile;
 
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 
 import com.bagri.xdm.api.DocumentManagement;
 import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.api.ModelManagement;
 import com.bagri.xdm.api.QueryManagement;
 import com.bagri.xdm.api.SchemaRepository;
 import com.bagri.xdm.api.TransactionManagement;
 import com.bagri.xdm.domain.Document;
-import com.bagri.xdm.system.DataFormat;
 import com.bagri.xdm.system.Schema;
 
 public abstract class XDMManagementTest {
@@ -40,10 +37,6 @@ public abstract class XDMManagementTest {
 		return xRepo.getDocumentManagement();
 	}
 	
-	protected ModelManagement getModelManagement() {
-		return xRepo.getModelManagement();
-	}
-
 	protected QueryManagement getQueryManagement() {
 		return xRepo.getQueryManagement();
 	}

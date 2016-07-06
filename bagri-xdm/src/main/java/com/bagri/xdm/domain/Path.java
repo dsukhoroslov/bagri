@@ -192,8 +192,8 @@ public class Path implements Comparable<Path> {
 		return path.equals(other.path);
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
+	/**
+	 * {@inheritDoc}
 	 */
 	@Override
 	public String toString() {
@@ -208,7 +208,6 @@ public class Path implements Comparable<Path> {
 	 */
 	@Override
 	public int compareTo(Path other) {
-		
 		return this.pathId - other.pathId;
 	}
 	

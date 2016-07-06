@@ -7,8 +7,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bagri.xdm.api.SchemaRepository;
-import com.bagri.xdm.api.impl.ModelManagementBase;
+import com.bagri.xdm.cache.api.SchemaRepository;
+import com.bagri.xdm.cache.api.impl.ModelManagementBase;
 import com.bagri.xdm.domain.Document;
 import com.bagri.xdm.query.AxisType;
 import com.bagri.xdm.query.Comparison;
@@ -123,7 +123,7 @@ public class CollectionFinderImpl implements CollectionFinder {
 	}
 
 	private int getCollectionId(String uri, String baseUri) {
-		Schema schema = ((com.bagri.xdm.cache.api.SchemaRepository) repo).getSchema();
+		Schema schema = repo.getSchema();
 		if (baseUri != null && !baseUri.isEmpty() && uri.startsWith(baseUri)) {
 			uri = uri.substring(baseUri.length());
 		}

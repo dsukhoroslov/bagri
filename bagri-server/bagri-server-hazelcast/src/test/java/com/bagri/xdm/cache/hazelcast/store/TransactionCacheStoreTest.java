@@ -24,7 +24,9 @@ import com.bagri.common.util.FileUtils;
 import com.bagri.common.util.PropUtils;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.test.XDMManagementTest;
+import com.bagri.xdm.cache.api.ModelManagement;
 import com.bagri.xdm.cache.api.QueryManagement;
+import com.bagri.xdm.cache.api.SchemaRepository;
 import com.bagri.xdm.cache.hazelcast.impl.SchemaRepositoryImpl;
 import com.bagri.xdm.cache.hazelcast.impl.TransactionManagementImpl;
 import com.bagri.xdm.query.AxisType;
@@ -84,6 +86,10 @@ public class TransactionCacheStoreTest extends XDMManagementTest {
 		String dataPath = schema.getProperty(xdm_schema_store_data_path);
 		String nodeNum = System.getProperty(xdm_node_instance);
 		txFileName = FileUtils.buildStoreFileName(dataPath, nodeNum, "txlog");
+	}
+
+	private ModelManagement getModelManagement() {
+		return ((SchemaRepository) xRepo).getModelManagement();
 	}
 
 	public Collection<String> getSecurity(String symbol) throws Exception {

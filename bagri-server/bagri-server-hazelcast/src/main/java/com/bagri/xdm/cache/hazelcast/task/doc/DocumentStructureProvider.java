@@ -12,7 +12,7 @@ import javax.management.openmbean.CompositeData;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.bagri.common.util.JMXUtils;
-import com.bagri.xdm.api.ModelManagement;
+import com.bagri.xdm.cache.api.ModelManagement;
 import com.bagri.xdm.cache.hazelcast.impl.DocumentManagementImpl;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentAwareTask;
 import com.bagri.xdm.domain.Element;

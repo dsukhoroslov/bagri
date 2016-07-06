@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.api.ModelManagement;
+import com.bagri.xdm.cache.api.ModelManagement;
 import com.bagri.xdm.domain.Data;
 import com.bagri.xdm.domain.NodeKind;
 

@@ -59,7 +59,7 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 	@Override
     public void setRepository(SchemaRepository xRepo) {
     	super.setRepository(xRepo);
-    	clnFinder = new CollectionFinderImpl(xRepo);
+    	clnFinder = new CollectionFinderImpl((com.bagri.xdm.cache.api.SchemaRepository) xRepo);
     	config.setCollectionFinder(clnFinder);
         config.setDefaultCollection("");
         SourceResolverImpl sResolver = new SourceResolverImpl(xRepo);

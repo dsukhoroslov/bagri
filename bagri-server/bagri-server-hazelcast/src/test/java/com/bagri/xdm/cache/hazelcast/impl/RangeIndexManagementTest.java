@@ -16,6 +16,8 @@ import org.junit.BeforeClass;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.bagri.xdm.api.test.XDMManagementTest;
+import com.bagri.xdm.cache.api.ModelManagement;
+import com.bagri.xdm.cache.api.SchemaRepository;
 import com.bagri.xdm.system.Index;
 import com.bagri.xdm.system.Schema;
 
@@ -62,6 +64,11 @@ public class RangeIndexManagementTest extends XDMManagementTest {
 		removeDocumentsTest();
 	}
 
+	private ModelManagement getModelManagement() {
+		return ((SchemaRepository) xRepo).getModelManagement();
+	}
+
+	
 }
 
 

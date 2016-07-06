@@ -1,11 +1,10 @@
 package com.bagri.xdm.cache.hazelcast.management;
 
+import static com.bagri.xdm.cache.api.CacheConstants.*;
 import static com.bagri.xquery.api.XQUtils.getTypeName;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Iterator;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -18,17 +17,15 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
 import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.api.impl.ModelManagementBase;
-import com.bagri.xdm.cache.hazelcast.task.index.IndexCreator;
-import com.bagri.xdm.cache.hazelcast.task.index.IndexRemover;
+import com.bagri.xdm.cache.api.impl.ModelManagementBase;
 import com.bagri.xdm.cache.hazelcast.task.model.ModelRegistrator;
 import com.bagri.xdm.domain.DocumentType;
 import com.bagri.xdm.domain.Namespace;
 import com.bagri.xdm.domain.Path;
 import com.bagri.xdm.system.Fragment;
-import com.bagri.xdm.system.Index;
 import com.bagri.xdm.system.Schema;
-import com.hazelcast.core.Member;
+import com.hazelcast.core.IMap;
+import com.hazelcast.query.Predicates;
 
 @ManagedResource(description="Model Management MBean")
 public class ModelManagement extends SchemaFeatureManagement {
@@ -49,7 +46,8 @@ public class ModelManagement extends SchemaFeatureManagement {
 
 	@ManagedAttribute(description="Return Document Types registered in the Schema")
 	public String[] getDocumentTypes() {
-		Collection<DocumentType> types = ((ModelManagementBase) modelMgr).getDocumentTypes();
+	    IMap<String, DocumentType> dtCache = hzClient.getMap(CN_XDM_DOCTYPE_DICT);
+		Collection<DocumentType> types = dtCache.values();
 		String[] result = new String[types.size()];
 		int idx = 0;
 		for (DocumentType type: types) {
@@ -66,7 +64,8 @@ public class ModelManagement extends SchemaFeatureManagement {
 	
 	@ManagedAttribute(description="Return Namespaces registered in the Schema")
 	public String[] getNamespaces() {
-		Collection<Namespace> nss = ((ModelManagementBase) modelMgr).getNamespaces();
+	    IMap<String, Namespace> nsCache = hzClient.getMap(CN_XDM_NAMESPACE_DICT);
+		Collection<Namespace> nss = nsCache.values();
 		String[] result = new String[nss.size()];
 		int idx = 0;
 		for (Namespace ns: nss) {
@@ -127,7 +126,8 @@ public class ModelManagement extends SchemaFeatureManagement {
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "typeId", description = "A document type identifier")})
 	public String[] getPathsForType(int typeId) {
-		Collection<Path> paths = modelMgr.getTypePaths(typeId);
+	    IMap<String, Path> xpCache = hzClient.getMap(CN_XDM_PATH_DICT);
+		Collection<Path> paths = xpCache.values(Predicates.equal("typeId", typeId)); 
 		String[] result = new String[paths.size()];
 		int idx = 0;
 		for (Path path: paths) {
@@ -146,15 +146,6 @@ public class ModelManagement extends SchemaFeatureManagement {
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "schemaFile", description = "A full path to XSD file to register")})
 	public int registerSchema(String schemaFile) {
-		//int size = ((XDMModelManagementBase) modelMgr).getDocumentTypes().size();
-		//try {
-		//	modelMgr.registerSchemaUri(schemaFile);
-		//	return ((XDMModelManagementBase) modelMgr).getDocumentTypes().size() - size;
-		//} catch (XDMException ex) {
-		//	logger.error("registerSchema.error:", ex);
-		//}
-		//return 0;
-		
 		logger.trace("registerSchema.enter;");
 		long stamp = System.currentTimeMillis();
 		ModelRegistrator task = new ModelRegistrator(schemaFile);
@@ -174,13 +165,14 @@ public class ModelManagement extends SchemaFeatureManagement {
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "schemaCatalog", description = "A full path to the directory containing XSD files to register")})
 	public int registerSchemas(String schemasCatalog) {
-		int size = ((ModelManagementBase) modelMgr).getDocumentTypes().size(); 
-		try {
-			((ModelManagementBase) modelMgr).registerSchemas(schemasCatalog);
-			return ((ModelManagementBase) modelMgr).getDocumentTypes().size() - size;
-		} catch (XDMException ex) {
-			logger.error("registerSchemas.error:", ex);
-		}
+		// TODO: implement it properly!
+		//int size = modelMgr.getDocumentTypes().size(); 
+		//try {
+		//	modelMgr.registerSchemas(schemasCatalog);
+		//	return modelMgr.getDocumentTypes().size() - size;
+		//} catch (XDMException ex) {
+		//	logger.error("registerSchemas.error:", ex);
+		//}
 		return 0;
 	}
 	

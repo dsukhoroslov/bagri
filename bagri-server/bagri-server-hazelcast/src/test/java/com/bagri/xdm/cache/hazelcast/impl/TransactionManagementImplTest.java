@@ -17,7 +17,9 @@ import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.bagri.xdm.api.test.XDMManagementTest;
+import com.bagri.xdm.cache.api.ModelManagement;
 import com.bagri.xdm.cache.api.QueryManagement;
+import com.bagri.xdm.cache.api.SchemaRepository;
 import com.bagri.xdm.domain.Document;
 import com.bagri.xdm.query.AxisType;
 import com.bagri.xdm.query.Comparison;
@@ -61,6 +63,10 @@ public class TransactionManagementImplTest extends XDMManagementTest {
 	public void tearDown() throws Exception {
 		removeDocumentsTest();
 		//Thread.sleep(1000);
+	}
+
+	private ModelManagement getModelManagement() {
+		return ((SchemaRepository) xRepo).getModelManagement();
 	}
 
 	public Collection<String> getSecurity(String symbol) throws Exception {

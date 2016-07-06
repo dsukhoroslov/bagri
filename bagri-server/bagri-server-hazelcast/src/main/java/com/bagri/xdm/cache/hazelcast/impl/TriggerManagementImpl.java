@@ -28,7 +28,6 @@ import com.bagri.xdm.cache.api.DocumentTrigger;
 import com.bagri.xdm.cache.api.TriggerManagement;
 import com.bagri.xdm.cache.hazelcast.task.trigger.TriggerRunner;
 import com.bagri.xdm.client.hazelcast.impl.IdGeneratorImpl;
-import com.bagri.xdm.client.hazelcast.impl.ModelManagementImpl;
 import com.bagri.xdm.domain.Document;
 import com.bagri.xdm.domain.Transaction;
 import com.bagri.xdm.system.JavaTrigger;
