@@ -8,9 +8,72 @@ for $x in distinct-values(collection()/map/currencycode)
 return $x
 
 
-for $map in collection()/map
-let $ccy := $map/currencycode
+for $map in collection()
+let $ccy := $map/map/currencycode
 group by $ccy
 return <group ccy="{$ccy}" count="{count($map)}"/>
 
 distrubuted testing: docker! blockade, jepsen
+
+>> load C:\\Work\\Bagri\\booking 100
+
+> query result:
+
+<group ccy="FJD" count="166"/>
+<group ccy="CHF" count="8779"/>
+<group ccy="MXN" count="2594"/>
+<group ccy="GTQ" count="496"/>
+<group ccy="ZAR" count="6822"/>
+<group ccy="AUD" count="12739"/>
+<group ccy="MDL" count="252"/>
+<group ccy="IDR" count="8941"/>
+<group ccy="AMD" count="759"/>
+<group ccy="BWP" count="66"/>
+<group ccy="JOD" count="331"/>
+<group ccy="AED" count="1111"/>
+<group ccy="TWD" count="3461"/>
+<group ccy="HKD" count="625"/>
+<group ccy="EUR" count="439648"/>
+<group ccy="DKK" count="20546"/>
+<group ccy="LSL" count="21"/>
+<group ccy="CAD" count="9018"/>
+<group ccy="MYR" count="3861"/>
+<group ccy="NOK" count="3536"/>
+<group ccy="GEL" count="3176"/>
+<group ccy="XOF" count="406"/>
+<group ccy="CVE" count="286"/>
+<group ccy="AZN" count="298"/>
+<group ccy="OMR" count="219"/>
+<group ccy="PGK" count="40"/>
+<group ccy="NGN" count="309"/>
+<group ccy="SEK" count="5889"/>
+<group ccy="UAH" count="3672"/>
+<group ccy="BHD" count="132"/>
+<group ccy="MZN" count="108"/>
+<group ccy="QAR" count="107"/>
+<group ccy="SAR" count="1299"/>
+<group ccy="KZT" count="858"/>
+<group ccy="SZL" count="22"/>
+<group ccy="AFN" count="1"/>
+<group ccy="IRR" count="4"/>
+<group ccy="INR" count="14910"/>
+<group ccy="CNY" count="35138"/>
+<group ccy="THB" count="12999"/>
+<group ccy="XPF" count="186"/>
+<group ccy="KRW" count="3130"/>
+<group ccy="PLN" count="15890"/>
+<group ccy="JPY" count="8297"/>
+<group ccy="GBP" count="33448"/>
+<group ccy="PHP" count="2294"/>
+<group ccy="KWD" count="112"/>
+<group ccy="RUB" count="24137"/>
+<group ccy="COP" count="4509"/>
+<group ccy="USD" count="126742"/>
+<group ccy="MGA" count="185"/>
+<group ccy="DZD" count="16"/>
+<group ccy="SGD" count="447"/>
+<group ccy="NAD" count="271"/>
+<group ccy="NZD" count="3831"/>
+<group ccy="BRL" count="21462"/>
+<group ccy="XAF" count="112"/>
+> got 57 results; time taken: 195926 ms

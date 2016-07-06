@@ -51,6 +51,7 @@ import com.hazelcast.query.Predicates;
 public class TransactionManagementImpl implements TransactionManagement, StatisticsProvider, MultiExecutionCallback {
 	
     private static final Logger logger = LoggerFactory.getLogger(TransactionManagementImpl.class);
+    private static final long TX_START = 5L;
 	
 	private ThreadLocal<Long> thTx = new ThreadLocal<Long>() {
 		
@@ -87,6 +88,7 @@ public class TransactionManagementImpl implements TransactionManagement, Statist
 		cluster = hzInstance.getCluster();
 		txCache = hzInstance.getMap(CN_XDM_TRANSACTION);
 		txGen = new IdGeneratorImpl(hzInstance.getAtomicLong(SQN_TRANSACTION));
+		txGen.adjust(TX_START);
 		cTopic = hzInstance.getTopic(TPN_XDM_COUNTERS);
 		//execService = hzInstance.getExecutorService(PN_XDM_SCHEMA_POOL);
 		execService = hzInstance.getExecutorService("xdm-trans-pool");

@@ -2,23 +2,15 @@ package com.bagri.xquery.saxon;
 
 import static org.junit.Assert.*;
 
-import java.io.StringReader;
-
 import static com.bagri.xquery.saxon.SaxonUtils.objectToItem;
 import static com.bagri.xquery.saxon.SaxonUtils.saxon_xquery_version;
 
-import javax.xml.transform.Source;
-import javax.xml.transform.sax.SAXSource;
 import javax.xml.xquery.XQException;
 
 import org.junit.Ignore;
 import org.junit.Test;
-import org.w3c.dom.Document;
-import org.xml.sax.InputSource;
 
 import net.sf.saxon.Configuration;
-import net.sf.saxon.dom.DocumentOverNodeInfo;
-import net.sf.saxon.om.DocumentInfo;
 import net.sf.saxon.om.Item;
 import net.sf.saxon.om.SequenceIterator;
 import net.sf.saxon.om.StructuredQName;
@@ -103,8 +95,6 @@ public class SaxonQueryTest {
 				"declare base-uri \"C:/Work/Bagri/git/bagri/etc/samples/json/\";\n" +
 				"declare namespace map=\"http://www.w3.org/2005/xpath-functions/map\";\n" +
 				//"declare variable $value external;\n" +
-				//"for $uri in fn:uri-collection()\n" +
-				//"let $map := fn:json-doc($uri)\n" +				
 				"for $map in fn:collection()\n" +
 				//"where $map?Security?Symbol = $value\n" +
 				"let $v := map:get($map, 'Security')\n" +
