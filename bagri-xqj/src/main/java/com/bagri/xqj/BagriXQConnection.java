@@ -3,7 +3,9 @@ package com.bagri.xqj;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -304,23 +306,26 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 		}
 	}
 
-	public void executeCommand(String cmd, Map<QName, Object> bindings) throws XQException {
+	void executeCommand(String cmd, Map<QName, Object> bindings) throws XQException {
 		
 		executeCommand(cmd, bindings, context); 
 	}
 	
-	public void executeCommand(final String cmd, final Map<QName, Object> bindings, 
-			final XQStaticContext ctx) throws XQException {
+	void executeCommand(final String cmd, final Map<QName, Object> bindings, final XQStaticContext ctx) throws XQException {
 		
 		checkState(ex_connection_closed);
 		cancelled = false;
 		try {
+			final Map<String, Object> params = new HashMap<>(bindings.size());
+			for (Map.Entry<QName, Object> e: bindings.entrySet()) {
+				params.put(toStringName(e.getKey()), e.getValue());
+			}
 			if (transactional) {
 				try {
 					executeInTransaction(new Callable<Void>() {
 						@Override
 				    	public Void call() throws XQException {
-							getProcessor().executeXCommand(cmd, bindings, ctx);
+							getProcessor().executeXCommand(cmd, params, ctx);
 							return null;
 				    	}
 					});
@@ -328,7 +333,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 		    		throw getXQException(ex);
 				}
 			} else {
-				getProcessor().executeXCommand(cmd, bindings, ctx);
+				getProcessor().executeXCommand(cmd, params, ctx);
 			}
 		} finally {
 			if (cancelled) {
@@ -410,16 +415,24 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 	private void prepareQuery(BagriXQPreparedExpression exp, XQStaticContext ctx) throws XQException {
 		
 		checkState(ex_connection_closed);
-		Collection<QName> vars = getProcessor().prepareXQuery(exp.getXQuery(), ctx);
-		exp.setVarNames(vars);
+		Collection<String> vars = getProcessor().prepareXQuery(exp.getXQuery(), ctx);
+		Collection<QName> names = new ArrayList<>(vars.size());
+		for (String vName: vars) {
+			names.add(QName.valueOf(vName));
+		}
+		exp.setVarNames(names);
 	}
 	
 	void bindVariable(QName varName, Object var) throws XQException {
-		getProcessor().bindVariable(varName, var);
+		getProcessor().bindVariable(toStringName(varName), var);
 	}
 	
 	void unbindVariable(QName varName) throws XQException {
-		getProcessor().unbindVariable(varName);
+		getProcessor().unbindVariable(toStringName(varName));
+	}
+	
+	private String toStringName(QName qName) {
+		return qName.toString();
 	}
 	
 }

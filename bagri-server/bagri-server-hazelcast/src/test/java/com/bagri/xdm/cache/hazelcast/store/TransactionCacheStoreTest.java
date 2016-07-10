@@ -101,7 +101,7 @@ public class TransactionCacheStoreTest extends XDMManagementTest {
 				addPathSegment(AxisType.CHILD, null, "text()");
 		ExpressionContainer ec = new ExpressionContainer();
 		ec.addExpression(docType, Comparison.EQ, path, "$sym", symbol);
-		Map<String, String> params = new HashMap<String, String>();
+		Map<String, Object> params = new HashMap<>();
 		params.put(":sec", "/" + prefix + ":Security");
 		return ((QueryManagement) getQueryManagement()).getContent(ec, ":sec", params);
 	}

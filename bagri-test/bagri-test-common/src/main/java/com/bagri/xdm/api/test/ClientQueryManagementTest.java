@@ -5,8 +5,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
-import javax.xml.namespace.QName;
-
 public abstract class ClientQueryManagementTest extends XDMManagementTest {
 
 	public Iterator<?> getPrice(String symbol) throws Exception {
@@ -17,8 +15,8 @@ public abstract class ClientQueryManagementTest extends XDMManagementTest {
 				"where $sec/s:Symbol=$sym\n" +
 				"return\n" +
 					"<print>The open price of the security \"{$sec/s:Name/text()}\" is {$sec/s:Price/s:PriceToday/s:Open/text()} dollars</print>";
-		Map<QName, Object> bindings = new HashMap<>();
-		bindings.put(new QName("sym"), symbol);
+		Map<String, Object> bindings = new HashMap<>();
+		bindings.put("sym", symbol);
    		return getQueryManagement().executeQuery(query, bindings, new Properties());
 	}
 	
@@ -29,8 +27,8 @@ public abstract class ClientQueryManagementTest extends XDMManagementTest {
 				"for $sec in fn:collection()/s:Security\n" +
 		  		"where $sec/s:Symbol=$sym\n" + 
 				"return $sec\n";
-		Map<QName, Object> bindings = new HashMap<>();
-		bindings.put(new QName("sym"), symbol);
+		Map<String, Object> bindings = new HashMap<>();
+		bindings.put("sym", symbol);
    		return getQueryManagement().executeQuery(query, bindings, new Properties());
 	}
 	
@@ -41,8 +39,8 @@ public abstract class ClientQueryManagementTest extends XDMManagementTest {
 				"for $ord in fn:collection()/o:FIXML\n" +
 				"where $ord/o:Order/@ID=$ID\n" +
 				"return $ord/o:Order\n";
-		Map<QName, Object> bindings = new HashMap<>();
-		bindings.put(new QName("ID"), id);
+		Map<String, Object> bindings = new HashMap<>();
+		bindings.put("ID", id);
    		return getQueryManagement().executeQuery(query, bindings, new Properties());
 	}
 	
@@ -53,8 +51,8 @@ public abstract class ClientQueryManagementTest extends XDMManagementTest {
 				"for $cust in fn:collection()/c:Customer\n" +
 				"where $cust/@id=$id\n" +
 				"return $cust\n"; 
-		Map<QName, Object> bindings = new HashMap<>();
-		bindings.put(new QName("id"), id);
+		Map<String, Object> bindings = new HashMap<>();
+		bindings.put("id", id);
    		return getQueryManagement().executeQuery(query, bindings, new Properties());
 	}
 	
@@ -74,8 +72,8 @@ public abstract class ClientQueryManagementTest extends XDMManagementTest {
 			        "\t{$cust/Addresses}\n" +
 			        "\t{$cust/EmailAddresses}\n" +
 			        "</Customer_Profile>";
-		Map<QName, Object> bindings = new HashMap<>();
-		bindings.put(new QName("id"), id);
+		Map<String, Object> bindings = new HashMap<>();
+		bindings.put("id", id);
    		return getQueryManagement().executeQuery(query, bindings, new Properties());
 	}
 	
@@ -100,8 +98,8 @@ public abstract class ClientQueryManagementTest extends XDMManagementTest {
 					"}\n" +
 					"\t</Customer_Securities>\n" +
 					"</Customer>";
-		Map<QName, Object> bindings = new HashMap<>();
-		bindings.put(new QName("id"), id);
+		Map<String, Object> bindings = new HashMap<>();
+		bindings.put("id", id);
    		return getQueryManagement().executeQuery(query, bindings, new Properties());
 	}
 	
@@ -122,11 +120,11 @@ public abstract class ClientQueryManagementTest extends XDMManagementTest {
 				"\t{$sec/PE}\n" +
 				"\t{$sec/Yield}\n" +
 				"</Security>";
-		Map<QName, Object> bindings = new HashMap<>();
-		bindings.put(new QName("sect"), sector);
-	    bindings.put(new QName("pemin"), peMin);
-	    bindings.put(new QName("pemax"), peMax);
-	    bindings.put(new QName("yield"), yieldMin);
+		Map<String, Object> bindings = new HashMap<>();
+		bindings.put("sect", sector);
+	    bindings.put("pemin", peMin);
+	    bindings.put("pemax", peMax);
+	    bindings.put("yield", yieldMin);
    		return getQueryManagement().executeQuery(query, bindings, new Properties());
 	}
 	
@@ -141,8 +139,8 @@ public abstract class ClientQueryManagementTest extends XDMManagementTest {
 				"\t<Today_Order_Price ORDER_ID=\"{$ord/@ID}\">\n" +
 				"\t\t{xs:string($ord/OrdQty/@Qty*$sec/s:Price/s:PriceToday/s:Open)}\n" +
 				"\t</Today_Order_Price>";
-		Map<QName, Object> bindings = new HashMap<>();
-		bindings.put(new QName("ID"), ID);
+		Map<String, Object> bindings = new HashMap<>();
+		bindings.put("ID", ID);
    		return getQueryManagement().executeQuery(query, bindings, new Properties());
 	}
 
@@ -156,9 +154,9 @@ public abstract class ClientQueryManagementTest extends XDMManagementTest {
 				"for $cust in fn:collection(\"CLN_Customer\")/c:Customer[c:Accounts/c:Account/@id=$ord/@Acct/fn:string(.)]\n" +
 				"where $ord/OrdQty/@Cash < $cash and $cust/c:CountryOfResidence = $country \n" + 
 				"return $cust/c:ShortNames/c:ShortName";
-		Map<QName, Object> bindings = new HashMap<>();
-		bindings.put(new QName("cash"), cash);
-		bindings.put(new QName("country"), country);
+		Map<String, Object> bindings = new HashMap<>();
+		bindings.put("cash", cash);
+		bindings.put("country", country);
    		return getQueryManagement().executeQuery(query, bindings, new Properties());
 	}
 
@@ -176,10 +174,10 @@ public abstract class ClientQueryManagementTest extends XDMManagementTest {
 				"\t<Customer>\n" +
 		 		"\t\t{$cust/c:Name/c:LastName/text()} - {$cust/c:Addresses/c:Address[@primary=$kind]/c:Phones/c:Phone[@primary=$kind]}\n" +
 		 		"\t</Customer>";
-		Map<QName, Object> bindings = new HashMap<>();
-		bindings.put(new QName("pcode"), postalCode);
-		bindings.put(new QName("side"), orderSide);
-		bindings.put(new QName("kind"), isPrimary ? "Yes" : "No");
+		Map<String, Object> bindings = new HashMap<>();
+		bindings.put("pcode", postalCode);
+		bindings.put("side", orderSide);
+		bindings.put("kind", isPrimary ? "Yes" : "No");
    		return getQueryManagement().executeQuery(query, bindings, new Properties());
 	}
 
@@ -194,8 +192,8 @@ public abstract class ClientQueryManagementTest extends XDMManagementTest {
 					"for $ord in fn:collection(\"CLN_Order\")/FIXML/Order[@Acct=$cust/c:Accounts/c:Account/@id/fn:string(.)]\n" +
 					"return $ord/OrdQty/@Cash\n" +
 				"return fn:max($orderprice)";
-		Map<QName, Object> bindings = new HashMap<>();
-		bindings.put(new QName("id"), id);
+		Map<String, Object> bindings = new HashMap<>();
+		bindings.put("id", id);
    		return getQueryManagement().executeQuery(query, bindings, new Properties());
 	}
 
@@ -212,9 +210,9 @@ public abstract class ClientQueryManagementTest extends XDMManagementTest {
 						"for $cs in fn:collection(\"CLN_Customer\")/c:Customer[c:Addresses/c:Address/c:State = $state]/c:Accounts/c:Account[@id=$ord/@Acct/fn:string(.)]\n" + 
 						"return $ord/OrdQty/@Cash\n" +
 				"return xs:string(fn:max($order))";
-		Map<QName, Object> bindings = new HashMap<>();
-		bindings.put(new QName("industry"), industry);
-		bindings.put(new QName("state"), state);
+		Map<String, Object> bindings = new HashMap<>();
+		bindings.put("industry", industry);
+		bindings.put("state", state);
    		return getQueryManagement().executeQuery(query, bindings, new Properties());
 	}
 
@@ -226,8 +224,8 @@ public abstract class ClientQueryManagementTest extends XDMManagementTest {
 				"for $cust in fn:collection(\"CLN_Customer\")/c:Customer[@id=$id]\n" +
 				"for $sec in fn:collection(\"CLN_Security\")/s:Security[s:Symbol=$cust/c:Accounts/c:Account/c:Holdings/c:Position/c:Symbol/fn:string(.)]\n" + 
 				"return <Security>{$sec/s:Name/text()}</Security>";
-		Map<QName, Object> bindings = new HashMap<>();
-		bindings.put(new QName("id"), id);
+		Map<String, Object> bindings = new HashMap<>();
+		bindings.put("id", id);
    		return getQueryManagement().executeQuery(query, bindings, new Properties());
 	}
 	

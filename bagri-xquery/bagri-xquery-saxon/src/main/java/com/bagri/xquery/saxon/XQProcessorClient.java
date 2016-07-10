@@ -41,37 +41,37 @@ public class XQProcessorClient extends XQProcessorImpl implements XQProcessor {
     }
 	
 	@Override
-	public Iterator<?> executeXCommand(String command, Map<QName, Object> params, XQStaticContext ctx) throws XQException {
+	public Iterator<?> executeXCommand(String command, Map<String, Object> params, XQStaticContext ctx) throws XQException {
 		
 		return executeXCommand(command, params, collectProperties(ctx));
 	}
 	
-	private String getDocumentUri(Map<QName, Object> params) throws XQException {
-		XQItem uri = (XQItem) params.remove(new QName("uri"));
+	private String getDocumentUri(Map<String, Object> params) throws XQException {
+		XQItem uri = (XQItem) params.remove("uri");
 		if (uri == null) {
 			throw new XQException("No document uri passed");
 		}
 		return uri.getAtomicValue();
 	}
 	
-	private Properties fillProperties(Map<QName, Object> params, Properties props) {
+	private Properties fillProperties(Map<String, Object> params, Properties props) {
 		if (props == null) {
 			props = new Properties();
 		}
-		for (Map.Entry<QName, Object> e: params.entrySet()) {
-			props.put(e.getKey().getLocalPart(), e.getValue());
+		for (Map.Entry<String, Object> e: params.entrySet()) {
+			props.put(e.getKey(), e.getValue());
 		}
 		return props;
 	}
 
 	@Override
-	public Iterator<?> executeXCommand(String command, Map<QName, Object> params, Properties props) throws XQException {
+	public Iterator<?> executeXCommand(String command, Map<String, Object> params, Properties props) throws XQException {
 		
     	//logger.trace("executeXCommand.enter; command: {}", command);
     	try {
     		Object result;
 			if (command.equals(cmd_store_document)) {
-				String content = ((XQItem) params.remove(new QName("content"))).getAtomicValue();
+				String content = ((XQItem) params.remove("content")).getAtomicValue();
 				String uri = getDocumentUri(params);
 				result = getDocumentManagement().storeDocumentFromString(uri, content, fillProperties(params, props));
 			} else if (command.equals(cmd_get_document)) {
@@ -109,12 +109,13 @@ public class XQProcessorClient extends XQProcessorImpl implements XQProcessor {
 		props = ensureProperty(props, pn_query_command, "false");
     	QueryManagement qMgr = getQueryManagement();
     	GlobalParameterSet params = dqc.getParameters();
-    	Map<QName, Object> bindings = new HashMap<>(params.getNumberOfKeys());
+    	Map<String, Object> bindings = new HashMap<>(params.getNumberOfKeys());
     	
     	try {
 	    	for (StructuredQName qName: params.getKeys()) {
-	    		QName vName = new QName(qName.getURI(), qName.getLocalPart(), qName.getPrefix()); 
+	    		//QName vName = new QName(qName.getURI(), qName.getLocalPart(), qName.getPrefix()); 
 	    		//bindings.put(vName, itemToObject((Item) params.get(qName)));
+	    		String vName = qName.getClarkName(); 
 	    		bindings.put(vName, itemToXQItem((Item) params.get(qName), this.getXQDataFactory()));
 	    	}
 	    	//logger.trace("executeXQuery; bindings: {}", bindings);
@@ -126,11 +127,11 @@ public class XQProcessorClient extends XQProcessorImpl implements XQProcessor {
 	}
 
 	@Override
-    public Collection<QName> prepareXQuery(String query, XQStaticContext ctx) throws XQException {
+    public Collection<String> prepareXQuery(String query, XQStaticContext ctx) throws XQException {
     	QueryManagement qMgr = getQueryManagement();
     	Collection<String> names = qMgr.prepareQuery(query);
     	if (names != null) {
-    		return getParamNames(names);
+    		return names;
     	}
     	return super.prepareXQuery(query, ctx);
 	}

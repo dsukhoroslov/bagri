@@ -9,7 +9,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
-import javax.xml.namespace.QName;
 import javax.xml.xquery.XQItem;
 
 import org.junit.After;
@@ -121,12 +120,12 @@ public class BindDocumentManagementTest extends XDMManagementTest {
 				"where $doc[intProp = $value]\n" +
 				"return $doc/strProp/text()";
 		
-		Map<QName, Object> params = new HashMap<>();
-		params.put(new QName("value"), 0);
+		Map<String, Object> params = new HashMap<>();
+		params.put("value", 0);
 		Iterator<?> results = query(query, params);
 		assertFalse(results.hasNext());
 		
-		params.put(new QName("value"), 1);
+		params.put("value", 1);
 		results = query(query, params);
 		assertTrue(results.hasNext());
 		
@@ -160,8 +159,8 @@ public class BindDocumentManagementTest extends XDMManagementTest {
 				//"where $doc[intProp = $value]\n" +
 				"return $doc/strProp/text()";
 		
-		Map<QName, Object> params = new HashMap<>();
-		params.put(new QName("value"), 1);
+		Map<String, Object> params = new HashMap<>();
+		params.put("value", 1);
 		Iterator<?> results = query(query, params);
 		assertTrue(results.hasNext());
 		
@@ -173,7 +172,7 @@ public class BindDocumentManagementTest extends XDMManagementTest {
 		assertFalse(results.hasNext());
 	}
 		
-	private Iterator<?> query(String query, Map<QName, Object> params) throws Exception {
+	private Iterator<?> query(String query, Map<String, Object> params) throws Exception {
 		Iterator<?> result = getQueryManagement().executeQuery(query, params, new Properties());
 		assertNotNull(result);
 		((ResultCursor) result).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());

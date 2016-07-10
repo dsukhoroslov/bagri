@@ -72,20 +72,18 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
     }
 
     @Override
-	public Iterator<?> executeXCommand(String command, Map<QName, Object> bindings, XQStaticContext ctx) throws XQException {
+	public Iterator<?> executeXCommand(String command, Map<String, Object> bindings, XQStaticContext ctx) throws XQException {
 		
         //setStaticContext(sqc, ctx);
 		return executeXCommand(command, bindings, (Properties) null);
 	}
     
-    private XQItemAccessor getBoundItem(Map<QName, Object> bindings, String varName) throws XQException {
+    private XQItemAccessor getBoundItem(Map<String, Object> bindings, String varName) throws XQException {
 		if (bindings.size() == 0) {
 			throw new XQException("bindings not provided");
 		}
 
-    	XQItemAccessor item;
-		QName bName = new QName(varName);
-		item = (XQItemAccessor) bindings.get(bName);
+    	XQItemAccessor item = (XQItemAccessor) bindings.get(varName);
 		if (item == null) {
 			throw new XQException("variable '" + varName + "' not bound");
 		}
@@ -93,8 +91,10 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
     }
 	
 	@Override
-	public Iterator<?> executeXCommand(String command, Map<QName, Object> params, Properties props) throws XQException {
+	public Iterator<?> executeXCommand(String command, Map<String, Object> params, Properties props) throws XQException {
 		
+		// TODO: rewrite it (use client impl)!? 
+		// and think about command results!..
 	    DocumentManagement dMgr = getRepository().getDocumentManagement();
 	    try {
 			if (command.startsWith("storeDocument")) {

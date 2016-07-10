@@ -12,8 +12,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
-import javax.xml.namespace.QName;
-
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -76,8 +74,8 @@ public class QueryCacheManagementTest extends XDMManagementTest {
 			"for $sec in fn:collection(\"CLN_Security\")/s:Security\n" +
 	  		"where $sec/s:Symbol=$sym\n" + 
 			"return $sec\n";
-		Map<QName, Object> params = new HashMap<>();
-		params.put(new QName("sym"), "VFINX");
+		Map<String, Object> params = new HashMap<>();
+		params.put("sym", "VFINX");
 		Properties props = new Properties();
 		props.setProperty(pn_client_id, "1");
 		props.setProperty(pn_client_fetchSize, "1");
@@ -119,11 +117,11 @@ public class QueryCacheManagementTest extends XDMManagementTest {
 			"\t{$sec/PE}\n" +
 			"\t{$sec/Yield}\n" +
 			"</Security>";
-		Map<QName, Object> params = new HashMap<>();
-		params.put(new QName("sect"), "Technology"); 
-		params.put(new QName("pemin"), new java.math.BigDecimal("25.0"));
-		params.put(new QName("pemax"), new java.math.BigDecimal("28.0"));
-		params.put(new QName("yield"), new java.math.BigDecimal("0.1"));
+		Map<String, Object> params = new HashMap<>();
+		params.put("sect", "Technology"); 
+		params.put("pemin", new java.math.BigDecimal("25.0"));
+		params.put("pemax", new java.math.BigDecimal("28.0"));
+		params.put("yield", new java.math.BigDecimal("0.1"));
 		
 		Properties props = new Properties();
 		props.setProperty(pn_client_id, "2");

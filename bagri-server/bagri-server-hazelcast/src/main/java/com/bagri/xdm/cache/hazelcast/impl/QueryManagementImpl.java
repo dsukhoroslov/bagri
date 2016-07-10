@@ -6,7 +6,6 @@ import static com.bagri.xdm.common.XDMConstants.pn_query_command;
 import static com.bagri.xquery.api.XQUtils.getAtomicValue;
 import static com.bagri.xquery.api.XQUtils.isStringTypeCompatible;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -18,7 +17,6 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 
-import javax.xml.namespace.QName;
 import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQItem;
 import javax.xml.xquery.XQItemType;
@@ -36,12 +34,10 @@ import com.bagri.xdm.cache.hazelcast.predicate.DocsAwarePredicate;
 import com.bagri.xdm.cache.hazelcast.predicate.QueryPredicate;
 import com.bagri.xdm.cache.hazelcast.predicate.ResultsDocPredicate;
 import com.bagri.xdm.cache.hazelcast.predicate.ResultsQueryPredicate;
-import com.bagri.xdm.client.hazelcast.data.QueryParamsKey;
 import com.bagri.xdm.client.hazelcast.impl.FixedCursor;
 import com.bagri.xdm.client.hazelcast.impl.ResultCursor;
 import com.bagri.xdm.common.DataKey;
 import com.bagri.xdm.common.DocumentKey;
-import com.bagri.xdm.common.QueryResultKey;
 import com.bagri.xdm.domain.Document;
 import com.bagri.xdm.domain.Elements;
 import com.bagri.xdm.domain.Path;
@@ -204,7 +200,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	}
 
 	@Override
-	public Iterator<?> getQueryResults(String query, Map<QName, Object> params, Properties props) {
+	public Iterator<?> getQueryResults(String query, Map<String, Object> params, Properties props) {
 		//QueryParamsKey qpKey = getResultsKey(query, params);
 		long qpKey = getResultsKey(query, params);
 		logger.trace("getQueryResults; got result key: {}; parts: {}", qpKey, getResultsKeyParts(qpKey));
@@ -222,7 +218,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	}
 	
 	@Override
-	public Iterator<?> addQueryResults(String query, Map<QName, Object> params, Properties props, Iterator<?> results) {
+	public Iterator<?> addQueryResults(String query, Map<String, Object> params, Properties props, Iterator<?> results) {
 		//QueryParamsKey qpKey = getResultsKey(query, params);
 		QueryExecContext ctx = thContext.get();
 		if (ctx.getDocIds().size() == 0) {
@@ -535,7 +531,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	}
 
 	@Override
-	public Collection<String> getDocumentUris(String query, Map<QName, Object> params, Properties props) throws XDMException {
+	public Collection<String> getDocumentUris(String query, Map<String, Object> params, Properties props) throws XDMException {
 		logger.trace("getDocumentUris.enter; query: {}, command: {}; params: {}; properties: {}", query, params, props);
 		Collection<Long> keys = getDocumentKeys(query, params, props);
 		List<String> result = new ArrayList<>(keys.size());
@@ -547,7 +543,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		return result;
 	}
 
-	public Collection<Long> getDocumentKeys(String query, Map<QName, Object> params, Properties props) throws XDMException {
+	public Collection<Long> getDocumentKeys(String query, Map<String, Object> params, Properties props) throws XDMException {
 		logger.trace("getDocumentKeys.enter; query: {}, command: {}; params: {}; properties: {}", query, params, props);
 		Collection<Long> result = null;
 		try {
@@ -584,9 +580,9 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		// no-op on the server side
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Override
-	public Iterator<?> executeQuery(String query, Map<QName, Object> params, Properties props) throws XDMException {
+	@SuppressWarnings("unchecked")
+	public Iterator<?> executeQuery(String query, Map<String, Object> params, Properties props) throws XDMException {
 
 		logger.trace("executeQuery.enter; query: {}; params: {}; properties: {}", query, params, props);
 		ResultCursor result = null;
@@ -611,7 +607,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		return null;
 	}
 
-	private Iterator<?> runQuery(String query, Map<QName, Object> params, Properties props) throws XQException {
+	private Iterator<?> runQuery(String query, Map<String, Object> params, Properties props) throws XQException {
 		
         Throwable ex = null;
         boolean failed = false;
@@ -639,7 +635,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 					ctx.clear();
 				
 					if (params != null) {
-						for (Map.Entry<QName, Object> var: params.entrySet()) {
+						for (Map.Entry<String, Object> var: params.entrySet()) {
 							xqp.bindVariable(var.getKey(), var.getValue());
 						}
 					}
@@ -651,7 +647,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 					}
 					
 					if (params != null) {
-						for (Map.Entry<QName, Object> var: params.entrySet()) {
+						for (Map.Entry<String, Object> var: params.entrySet()) {
 							xqp.unbindVariable(var.getKey());
 						}
 					}

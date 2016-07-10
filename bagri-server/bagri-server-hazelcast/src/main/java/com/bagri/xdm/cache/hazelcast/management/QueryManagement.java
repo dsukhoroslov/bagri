@@ -197,9 +197,9 @@ public class QueryManagement extends SchemaFeatureManagement {
 		try {
 			if (useXDM) {
 				Set<String> keys = bindings.getCompositeType().keySet();
-				Map<QName, Object> params = new HashMap<>(keys.size()); 
+				Map<String, Object> params = new HashMap<>(keys.size()); 
 			    for (String key: keys) {
-			    	params.put(new QName(key), bindings.get(key)); 
+			    	params.put(key, bindings.get(key)); 
 			    }
 				Iterator itr = queryMgr.executeQuery(query, params, props);
 				result = extractResult(itr, props);

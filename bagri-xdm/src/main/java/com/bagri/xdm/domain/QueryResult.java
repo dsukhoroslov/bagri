@@ -13,7 +13,7 @@ import javax.xml.namespace.QName;
  */
 public class QueryResult {
 	
-	private Map<QName, Object> params;
+	private Map<String, Object> params;
 	private Collection<Long> docIds;
 	private Collection<Object> results;
 	
@@ -30,7 +30,7 @@ public class QueryResult {
 	 * @param docIds the query resulting document ids
 	 * @param results the query results
 	 */
-	public QueryResult(Map<QName, Object> params, Collection<Long> docIds, Collection<Object> results) {
+	public QueryResult(Map<String, Object> params, Collection<Long> docIds, Collection<Object> results) {
 		//super();
 		this.params = params;
 		this.docIds = docIds;
@@ -41,7 +41,7 @@ public class QueryResult {
 	 * 
 	 * @return the query parameters
 	 */
-	public Map<QName, Object> getParams() {
+	public Map<String, Object> getParams() {
 		return params;
 	}
 

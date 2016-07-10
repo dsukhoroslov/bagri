@@ -4,9 +4,7 @@ import static com.bagri.xdm.common.XDMConstants.xdm_config_path;
 import static com.bagri.xdm.common.XDMConstants.xdm_config_properties_file;
 import static com.bagri.xdm.common.XDMConstants.xdm_document_data_format;
 import static com.bagri.xdm.common.XDMConstants.xdm_schema_format_default;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -19,24 +17,18 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.bagri.xdm.api.test.XDMManagementTest;
 import com.bagri.xdm.client.hazelcast.impl.ResultCursor;
-import com.bagri.xdm.domain.Document;
 import com.bagri.xdm.system.DataFormat;
 import com.bagri.xdm.system.Schema;
-import com.bagri.xquery.api.XQProcessor;
-import com.bagri.xquery.saxon.extension.StoreDocument;
 
 public class JsonQueryManagementTest extends XDMManagementTest {
 
     private static ClassPathXmlApplicationContext context;
 	
-    private XQProcessor xqProc; 
-
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		sampleRoot = "..\\..\\etc\\samples\\json\\";
@@ -57,7 +49,6 @@ public class JsonQueryManagementTest extends XDMManagementTest {
 	public void setUp() throws Exception {
 		xRepo = context.getBean(SchemaRepositoryImpl.class);
 		SchemaRepositoryImpl xdmRepo = (SchemaRepositoryImpl) xRepo; 
-		xqProc = context.getBean("xqProcessor", XQProcessor.class);
 		Schema schema = xdmRepo.getSchema();
 		if (schema == null) {
 			schema = new Schema(1, new java.util.Date(), "test", "test", "test schema", true, null);

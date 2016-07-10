@@ -1,12 +1,9 @@
 package com.bagri.xdm.client.hazelcast.task;
 
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-
-import javax.xml.namespace.QName;
 
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
@@ -14,14 +11,14 @@ import com.hazelcast.nio.ObjectDataOutput;
 public abstract class QueryAwareTask extends TransactionAwareTask {
 
 	protected String query;
-	protected Map<QName, Object> params;
+	protected Map<String, Object> params;
 	protected Properties context;
 	
 	public QueryAwareTask() {
 		super();
 	}
 	
-	public QueryAwareTask(String clientId, long txId, String query, Map<QName, Object> params, Properties context) {
+	public QueryAwareTask(String clientId, long txId, String query, Map<String, Object> params, Properties context) {
 		super(clientId, txId);
 		this.query = query;
 		this.params = params;
@@ -36,7 +33,7 @@ public abstract class QueryAwareTask extends TransactionAwareTask {
 		if (size > 0) {
 			params = new HashMap<>(size);
 			for (int i=0; i < size; i++) {
-				params.put((QName) in.readObject(), in.readObject());
+				params.put(in.readUTF(), in.readObject());
 			}
 		}
 		context = in.readObject();
@@ -50,16 +47,8 @@ public abstract class QueryAwareTask extends TransactionAwareTask {
 			out.writeInt(0);
 		} else {
 			out.writeInt(params.size());
-			for (Map.Entry<QName, Object> param: params.entrySet()) {
-				out.writeObject(param.getKey());
-				//Object  v = param.getValue();
-				//try {
-				//	Method m = v.getClass().getMethod("getObject", null);
-				//	v = m.invoke(v, null);
-				//} catch (Exception e) {
-				//	e.printStackTrace();
-				//}
-				//out.writeObject(v); 
+			for (Map.Entry<String, Object> param: params.entrySet()) {
+				out.writeUTF(param.getKey());
 				out.writeObject(param.getValue());
 			}
 		}

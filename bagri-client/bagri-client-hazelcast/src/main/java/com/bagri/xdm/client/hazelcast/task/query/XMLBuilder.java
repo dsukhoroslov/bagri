@@ -15,13 +15,13 @@ import com.hazelcast.nio.ObjectDataOutput;
 public class XMLBuilder extends ResultBuilder implements Callable<Collection<String>> {
 	
 	protected String template;
-	protected Map<String, String> params = new HashMap<String, String>();
+	protected Map<String, Object> params = new HashMap<String, Object>();
 	
 	public XMLBuilder() {
 		super();
 	}
 	
-	public XMLBuilder(String clientId, long txId, ExpressionContainer exp, String template, Map<String, String> params) {
+	public XMLBuilder(String clientId, long txId, ExpressionContainer exp, String template, Map<String, Object> params) {
 		super(clientId, txId, exp);
 		this.template = template;
 		if (params != null) {

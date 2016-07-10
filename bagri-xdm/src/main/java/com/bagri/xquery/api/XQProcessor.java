@@ -5,7 +5,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
-import javax.xml.namespace.QName;
 import javax.xml.xquery.XQDataFactory;
 import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQStaticContext;
@@ -65,7 +64,7 @@ public interface XQProcessor {
      * @return the list of bound variable names
      * @throws XQException in case of query preparation error
      */
-    Collection<QName> prepareXQuery(String query, XQStaticContext ctx) throws XQException;
+    Collection<String> prepareXQuery(String query, XQStaticContext ctx) throws XQException;
     
     /**
      * executes XQuery provided. If query contains variables it must be prepared via <code>prepareXQuery</code> and variables 
@@ -98,7 +97,7 @@ public interface XQProcessor {
      * @param var the variable value
      * @throws XQException in case of binding error
      */
-    void bindVariable(QName varName, Object var) throws XQException;
+    void bindVariable(String varName, Object var) throws XQException;
 
     /**
      * removes binding for the variable name from internal XQuery processing context
@@ -106,7 +105,7 @@ public interface XQProcessor {
      * @param varName the variable name
      * @throws XQException in case of unbinding error
      */
-    void unbindVariable(QName varName) throws XQException;
+    void unbindVariable(String varName) throws XQException;
 
     /**
      * executes custom XQuery command. Currently supported commands are:
@@ -125,7 +124,7 @@ public interface XQProcessor {
      * @return an Iterator over command execution results
      * @throws XQException in case of command execution errors
      */
-	Iterator<?> executeXCommand(String command, Map<QName, Object> params, XQStaticContext ctx) throws XQException;
+	Iterator<?> executeXCommand(String command, Map<String, Object> params, XQStaticContext ctx) throws XQException;
 	
     /**
      * executes custom XQuery command. Currently supported commands are:
@@ -144,7 +143,7 @@ public interface XQProcessor {
      * @return an Iterator over command execution results
      * @throws XQException in case of command execution errors
      */
-    Iterator<?> executeXCommand(String command, Map<QName, Object> params, Properties props) throws XQException;
+    Iterator<?> executeXCommand(String command, Map<String, Object> params, Properties props) throws XQException;
 
     /**
      * for internal use on server seide only

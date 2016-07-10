@@ -8,20 +8,16 @@ import static org.junit.Assert.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
-import javax.xml.namespace.QName;
 import javax.xml.xquery.XQItem;
 
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -30,7 +26,6 @@ import com.bagri.xdm.api.test.ClientQueryManagementTest;
 import com.bagri.xdm.client.hazelcast.impl.ResultCursor;
 import com.bagri.xdm.system.Collection;
 import com.bagri.xdm.system.Schema;
-import com.bagri.xquery.api.XQProcessor;
 
 //@Ignore
 public class TpoxQueryTest extends ClientQueryManagementTest {
@@ -39,8 +34,6 @@ public class TpoxQueryTest extends ClientQueryManagementTest {
 	private static final String[] aNames = new String[] {"Vanguard 500 Index Fund", "Internatinal Business Machines Corporation", "PIMCO Total Return A"};
 	private static final List<String> names = Arrays.asList(aNames); 
 	
-    private XQProcessor xqProc; 
-
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		sampleRoot = "..\\..\\etc\\samples\\tpox\\";
@@ -62,7 +55,6 @@ public class TpoxQueryTest extends ClientQueryManagementTest {
 	public void setUp() throws Exception {
 		xRepo = context.getBean(SchemaRepositoryImpl.class);
 		SchemaRepositoryImpl xdmRepo = (SchemaRepositoryImpl) xRepo; 
-		xqProc = context.getBean("xqProcessor", XQProcessor.class);
 		Schema schema = xdmRepo.getSchema();
 		if (schema == null) {
 			schema = new Schema(1, new java.util.Date(), "test", "test", "test schema", true, null);

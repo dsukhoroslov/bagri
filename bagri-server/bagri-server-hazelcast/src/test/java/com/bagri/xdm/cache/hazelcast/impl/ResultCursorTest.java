@@ -80,11 +80,11 @@ public class ResultCursorTest extends XDMManagementTest {
 				"\t{$sec/PE}\n" +
 				"\t{$sec/Yield}\n" +
 				"</Security>";
-		Map<QName, Object> params = new HashMap<>();
-		params.put(new QName("sect"), "Technology");
-	    params.put(new QName("pemin"), 25.0f);
-	    params.put(new QName("pemax"), 28.0f);
-	    params.put(new QName("yield"), 0.1f);
+		Map<String, Object> params = new HashMap<>();
+		params.put("sect", "Technology");
+	    params.put("pemin", 25.0f);
+	    params.put("pemax", 28.0f);
+	    params.put("yield", 0.1f);
 		Properties props = new Properties();
 		props.setProperty(pn_client_fetchSize, "1");
 		props.setProperty(pn_client_id, "dummy");
@@ -105,8 +105,8 @@ public class ResultCursorTest extends XDMManagementTest {
 				"for $sec in fn:collection()/s:Security\n" +
 		  		"where $sec/s:Symbol=$sym\n" + 
 				"return $sec\n";
-		Map<QName, Object> params = new HashMap<>();
-		params.put(new QName("sym"), "IBM");
+		Map<String, Object> params = new HashMap<>();
+		params.put("sym", "IBM");
 		Properties props = new Properties();
 		props.setProperty(pn_client_fetchSize, "1");
 		props.setProperty(pn_client_id, "dummy");
@@ -135,8 +135,8 @@ public class ResultCursorTest extends XDMManagementTest {
 
 			@Override
 			public void run() {
-				Map<QName, Object> params = new HashMap<>();
-				params.put(new QName("sym"), "IBM");
+				Map<String, Object> params = new HashMap<>();
+				params.put("sym", "IBM");
 				ResultCursor rc;
 				try {
 					rc = (ResultCursor) qm.executeQuery(query, params, props);
@@ -154,8 +154,8 @@ public class ResultCursorTest extends XDMManagementTest {
 
 			@Override
 			public void run() {
-				Map<QName, Object> params = new HashMap<>();
-				params.put(new QName("sym"), "VFINX");
+				Map<String, Object> params = new HashMap<>();
+				params.put("sym", "VFINX");
 				ResultCursor rc;
 				try {
 					rc = (ResultCursor) qm.executeQuery(query, params, props);

@@ -8,8 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.namespace.QName;
-
 import com.bagri.common.util.CollectionUtils;
 import com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryImpl;
 import com.bagri.xdm.domain.QueryResult;
@@ -31,11 +29,11 @@ public class QueryResultSerializer implements StreamSerializer<QueryResult> {
 	@Override
 	public QueryResult read(ObjectDataInput in) throws IOException {
 		int size = in.readInt();
-		Map<QName, Object> params = null;
+		Map<String, Object> params = null;
 		if (size > 0) {
-			params = new HashMap<QName, Object>(size);
+			params = new HashMap<String, Object>(size);
 			for (int i=0; i < size; i++) {
-				params.put((QName) in.readObject(), in.readObject());
+				params.put(in.readUTF(), in.readObject());
 			}
 		}
 		List<Long> docIds = toLongList(in.readLongArray());
@@ -53,8 +51,8 @@ public class QueryResultSerializer implements StreamSerializer<QueryResult> {
 			out.writeInt(0);
 		} else {
 			out.writeInt(xreslts.getParams().size());
-			for (Map.Entry e: xreslts.getParams().entrySet()) {
-				out.writeObject(e.getKey());
+			for (Map.Entry<String, Object> e: xreslts.getParams().entrySet()) {
+				out.writeUTF(e.getKey());
 				out.writeObject(e.getValue());
 			}
 		}

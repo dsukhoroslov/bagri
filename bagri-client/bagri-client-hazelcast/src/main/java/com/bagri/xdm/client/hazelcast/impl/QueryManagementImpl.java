@@ -17,8 +17,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import javax.xml.namespace.QName;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,7 +69,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	}
 	
 	@Override
-	public Collection<String> getDocumentUris(String query, Map<QName, Object> params, Properties props) throws XDMException {
+	public Collection<String> getDocumentUris(String query, Map<String, Object> params, Properties props) throws XDMException {
 
 		long stamp = System.currentTimeMillis();
 		logger.trace("getDocumentIDs.enter; query: {}", query);
@@ -85,7 +83,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	}
 	
 	@Override
-	public Iterator executeQuery(String query, Map<QName, Object> params, Properties props) throws XDMException {
+	public Iterator executeQuery(String query, Map<String, Object> params, Properties props) throws XDMException {
 
 		logger.trace("executeQuery.enter; query: {}; bindings: {}; context: {}", query, params, props);
 		boolean useCache = this.queryCache; 

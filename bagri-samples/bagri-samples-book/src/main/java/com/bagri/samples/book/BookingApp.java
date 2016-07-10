@@ -4,15 +4,15 @@ import static com.bagri.common.util.FileUtils.def_encoding;
 import static com.bagri.common.util.FileUtils.readTextFile;
 import static com.bagri.common.util.PropUtils.getOutputProperties;
 import static com.bagri.xdm.common.XDMConstants.pn_client_dataFactory;
-import static com.bagri.xdm.common.XDMConstants.pn_client_fetchSize;
+//import static com.bagri.xdm.common.XDMConstants.pn_client_fetchSize;
 import static com.bagri.xdm.common.XDMConstants.pn_client_storeMode;
 import static com.bagri.xdm.common.XDMConstants.pv_client_storeMode_insert;
 import static com.bagri.xdm.common.XDMConstants.pn_schema_address;
 import static com.bagri.xdm.common.XDMConstants.pn_schema_name;
 import static com.bagri.xdm.common.XDMConstants.pn_schema_password;
 import static com.bagri.xdm.common.XDMConstants.pn_schema_user;
-import static com.bagri.xdm.common.XDMConstants.xdm_document_collections;
-import static com.bagri.xdm.common.XDMConstants.xdm_document_data_format;
+//import static com.bagri.xdm.common.XDMConstants.xdm_document_collections;
+//import static com.bagri.xdm.common.XDMConstants.xdm_document_data_format;
 
 import java.io.FileInputStream;
 import java.io.IOException;

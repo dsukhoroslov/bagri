@@ -11,8 +11,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
-import javax.xml.namespace.QName;
-
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -91,7 +89,7 @@ public class QueryManagementImplTest extends XDMManagementTest {
 				addPathSegment(AxisType.CHILD, null, "text()");
 		ExpressionContainer ec = new ExpressionContainer();
 		ec.addExpression(docType, Comparison.EQ, path, "$sym", symbol);
-		Map<String, String> params = new HashMap<String, String>();
+		Map<String, Object> params = new HashMap<>();
 		params.put(":name", "/" + prefix + ":Security/" + prefix + ":Name/text()");
 		params.put(":price", "/" + prefix + ":Security/" + prefix + ":Price/" + prefix + ":PriceToday/" + prefix + ":Open/text()");
 		return ((QueryManagement) getQueryManagement()).getContent(ec, "<print>The open price of the security \":name\" is :price dollars</print>", params);
@@ -106,7 +104,7 @@ public class QueryManagementImplTest extends XDMManagementTest {
 				addPathSegment(AxisType.CHILD, null, "text()");
 		ExpressionContainer ec = new ExpressionContainer();
 		ec.addExpression(docType, Comparison.EQ, path, "$sym", symbol);
-		Map<String, String> params = new HashMap<String, String>();
+		Map<String, Object> params = new HashMap<>();
 		params.put(":sec", "/" + prefix + ":Security");
 		return ((QueryManagement) getQueryManagement()).getContent(ec, ":sec", params);
 	}
@@ -120,7 +118,7 @@ public class QueryManagementImplTest extends XDMManagementTest {
 				addPathSegment(AxisType.ATTRIBUTE, null, "ID");
 		ExpressionContainer ec = new ExpressionContainer();
 		ec.addExpression(docType, Comparison.EQ, path, "$id", id);
-		Map<String, String> params = new HashMap<String, String>();
+		Map<String, Object> params = new HashMap<>();
 		params.put(":order", "/" + prefix + ":FIXML/" + prefix + ":Order");
 		return ((QueryManagement) getQueryManagement()).getContent(ec, ":order", params);
 	}
@@ -143,7 +141,7 @@ public class QueryManagementImplTest extends XDMManagementTest {
 				"\t:email" + 
 			"</Customer_Profile>";
 		
-		Map<String, String> params = new HashMap<String, String>();
+		Map<String, Object> params = new HashMap<>();
 		params.put(":id", "/" + prefix + ":Customer/@id");
 		params.put(":name", "/" + prefix + ":Customer/" + prefix + ":Name");
 		params.put(":dob", "/" + prefix + ":Customer/" + prefix + ":DateOfBirth");
@@ -174,7 +172,7 @@ public class QueryManagementImplTest extends XDMManagementTest {
 				"\t</Customer_Securities>\n" + 
 			"</Customer_Profile>";
 		
-		Map<String, String> params = new HashMap<String, String>();
+		Map<String, Object> params = new HashMap<>();
 		params.put(":id", "/" + prefix + ":Customer/@id");
 		params.put(":name", "/" + prefix + ":Customer/" + prefix + ":Name");
 		params.put(":balance", "/" + prefix + ":Customer/" + prefix + ":Accounts/" + prefix + ":Account/" + prefix + ":Balance/" + prefix + ":OnlineActualBal/text()");
@@ -228,7 +226,7 @@ public class QueryManagementImplTest extends XDMManagementTest {
         		"\t:yield" +
 		"</Security>";
 
-		Map<String, String> params = new HashMap<String, String>();
+		Map<String, Object> params = new HashMap<>();
 		params.put(":symbol", "/" + prefix + ":Security/" + prefix + ":Symbol");
 		params.put(":name", "/" + prefix + ":Security/" + prefix + ":Name");
 		params.put(":type", "/" + prefix + ":Security/" + prefix + ":SecurityType");
@@ -339,7 +337,7 @@ public class QueryManagementImplTest extends XDMManagementTest {
 	public void selectDocumentByUriTest() throws Exception {
 		
 		storeSecurityTest();
-		Map<QName, Object> params = new HashMap<>();
+		Map<String, Object> params = new HashMap<>();
 		Properties props = new Properties();
 		props.setProperty(pn_client_id, "1");
 		props.setProperty(pn_client_fetchSize, "0");
@@ -365,8 +363,8 @@ public class QueryManagementImplTest extends XDMManagementTest {
 	  		"where $sec/s:Symbol=$sym\n" + 
 			"return \n" +
 			"\t<print>The open price of the security \"{$sec/s:Name/text()}\" is {$sec/s:Price/s:PriceToday/s:Open/text()} dollars</print>";
-		Map<QName, Object> params = new HashMap<>();
-		params.put(new QName("sym"), "VFINX");
+		Map<String, Object> params = new HashMap<>();
+		params.put("sym", "VFINX");
 		Properties props = new Properties();
 		props.setProperty(pn_client_id, "1");
 		props.setProperty(pn_client_fetchSize, "1");

@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.Properties;
 
-import javax.xml.namespace.QName;
 import javax.xml.xquery.XQDataFactory;
 import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQItem;
@@ -61,13 +60,12 @@ public class XQueryTriggerImpl implements DocumentTrigger {
 	
 	private void runTrigger(Document doc, SchemaRepositoryImpl repo) throws XDMException {
 		XQProcessor xqp = repo.getXQProcessor();
-		QName var = new QName("doc");
 		try {
 			String xml = repo.getDocumentManagement().getDocumentAsString(doc.getUri());
 			org.w3c.dom.Document xDoc = XMLUtils.textToDocument(xml);
 			XQDataFactory xqFactory = xqp.getXQDataFactory();
 			XQItem item = xqFactory.createItemFromNode(xDoc, xqFactory.createDocumentType());
-			xqp.bindVariable(var, item);
+			xqp.bindVariable("doc", item);
 			Properties props = new Properties();
 			Iterator<?> iter = xqp.executeXQuery(query, props);
 			if (logger.isTraceEnabled()) {
@@ -75,7 +73,7 @@ public class XQueryTriggerImpl implements DocumentTrigger {
 					logger.trace("runTrigger; result: {}", iter.next()); 
 				}
 			}
-			xqp.unbindVariable(var);
+			xqp.unbindVariable("doc");
 		} catch (IOException ex) {
 			throw new XDMException(ex, XDMException.ecInOut);
 		} catch (XQException ex) {

@@ -5,8 +5,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
-import javax.xml.namespace.QName;
-
 /**
  * XDM query management interface; provided for the client side
  * 
@@ -23,7 +21,7 @@ public interface QueryManagement {
 	 * @return iterator over resulting data sequence 
 	 * @throws XDMException in case of any query processing error
 	 */
-	Iterator<?> executeQuery(String query, Map<QName, Object> params, Properties props) throws XDMException;
+	Iterator<?> executeQuery(String query, Map<String, Object> params, Properties props) throws XDMException;
 	
 	/**
 	 * 
@@ -33,7 +31,7 @@ public interface QueryManagement {
 	 * @return collection of document uris found by query
 	 * @throws XDMException in case of any query processing error
 	 */
-	Collection<String> getDocumentUris(String query, Map<QName, Object> params, Properties props) throws XDMException;
+	Collection<String> getDocumentUris(String query, Map<String, Object> params, Properties props) throws XDMException;
 	
 	/**
 	 * cancels currently executing query

@@ -5,8 +5,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
-import javax.xml.namespace.QName;
-
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.domain.Query;
 import com.bagri.xdm.query.ExpressionContainer;
@@ -38,7 +36,7 @@ public interface QueryManagement extends com.bagri.xdm.api.QueryManagement {
 	 * @return collection of strings produced by the system. The number of returned strings matches the number of documents found by query 
 	 * @throws XDMException in case of any error
 	 */
-	Collection<String> getContent(ExpressionContainer query, String template, Map params) throws XDMException;
+	Collection<String> getContent(ExpressionContainer query, String template, Map<String, Object> params) throws XDMException;
 	
 	/**
 	 * check if the {@literal query} read-only or not. To do this the system looks query in internal cache. 
@@ -75,7 +73,7 @@ public interface QueryManagement extends com.bagri.xdm.api.QueryManagement {
 	 * @param props the query processing instructions. Supported values are: ...
 	 * @return the {@link Iterator} over found query results or null if not found
 	 */
-	Iterator<?> getQueryResults(String query, Map<QName, Object> params, Properties props);
+	Iterator<?> getQueryResults(String query, Map<String, Object> params, Properties props);
 	
 	/**
 	 * adds query {@literal results} into internal cache for the {@literal query} {@literal params} and query processing {@literal props} specified.
@@ -86,7 +84,7 @@ public interface QueryManagement extends com.bagri.xdm.api.QueryManagement {
 	 * @param results the generic {@link Iterator} over query results
 	 * @return the {@link Iterator} over query results 
 	 */
-	Iterator<?> addQueryResults(String query, Map<QName, Object> params, Properties props, Iterator<?> results);
+	Iterator<?> addQueryResults(String query, Map<String, Object> params, Properties props, Iterator<?> results);
 	
 	/**
 	 * clears internal query and query results caches

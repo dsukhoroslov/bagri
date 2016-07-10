@@ -10,7 +10,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
-import javax.xml.namespace.QName;
 import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQItem;
 
@@ -24,13 +23,13 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import com.bagri.xdm.api.test.XDMManagementTest;
 import com.bagri.xdm.client.hazelcast.impl.ResultCursor;
 import com.bagri.xdm.system.Schema;
-import com.bagri.xquery.api.XQProcessor;
+//import com.bagri.xquery.api.XQProcessor;
 
 public class XMarkQueryTest extends XDMManagementTest {
 
     private static ClassPathXmlApplicationContext context;
 	
-    private XQProcessor xqProc; 
+    //private XQProcessor xqProc; 
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
@@ -53,7 +52,7 @@ public class XMarkQueryTest extends XDMManagementTest {
 	public void setUp() throws Exception {
 		xRepo = context.getBean(SchemaRepositoryImpl.class);
 		SchemaRepositoryImpl xdmRepo = (SchemaRepositoryImpl) xRepo; 
-		xqProc = context.getBean("xqProcessor", XQProcessor.class);
+		//xqProc = context.getBean("xqProcessor", XQProcessor.class);
 		Schema schema = xdmRepo.getSchema();
 		if (schema == null) {
 			schema = new Schema(1, new java.util.Date(), "test", "test", "test schema", true, null);
@@ -69,7 +68,7 @@ public class XMarkQueryTest extends XDMManagementTest {
 	public void tearDown() throws Exception {
 	}
 	
-	private Iterator<?> query(String query, Map<QName, Object> params) throws Exception {
+	private Iterator<?> query(String query, Map<String, Object> params) throws Exception {
 
 		Iterator<?> result = getQueryManagement().executeQuery(query, params, new Properties());
 		assertNotNull(result);
@@ -98,8 +97,8 @@ public class XMarkQueryTest extends XDMManagementTest {
 				"let $auction := fn:doc(\"auction.xml\") return\n" +
 				"for $b in $auction/site/people/person[@id = $name] return $b/name/text()";
 		
-		Map<QName, Object> params = new HashMap<>();
-		params.put(new QName("name"), "person0");
+		Map<String, Object> params = new HashMap<>();
+		params.put("name", "person0");
 		Iterator<?> results = query(query, params);
 		Properties props = new Properties();
 		props.setProperty("method", "text");
@@ -184,9 +183,9 @@ public class XMarkQueryTest extends XDMManagementTest {
 				"satisfies $pr1 << $pr2\n" +
 				"return <history>{$b/reserve/text()}</history>";
 		
-		Map<QName, Object> params = new HashMap<>();
-		params.put(new QName("name1"), "person8");
-		params.put(new QName("name2"), "person19");
+		Map<String, Object> params = new HashMap<>();
+		params.put("name1", "person8");
+		params.put("name2", "person19");
 		Iterator<?> results = query(query, params);
 		assertNotNull(results.next());
 		assertFalse(results.hasNext());
@@ -204,8 +203,8 @@ public class XMarkQueryTest extends XDMManagementTest {
 				"  return $i/price\n" +
 				")";
 		
-		Map<QName, Object> params = new HashMap<>();
-		params.put(new QName("pmin"), new Integer(40));
+		Map<String, Object> params = new HashMap<>();
+		params.put("pmin", new Integer(40));
 		Iterator<?> results = query(query, params);
 		XQItem item = (XQItem) results.next();
 		assertEquals(7, item.getInt());
@@ -413,8 +412,8 @@ public class XMarkQueryTest extends XDMManagementTest {
 				"where contains(string(exactly-one($i/description)), $word)\n" +
 				"return $i/name/text()";
 
-		Map<QName, Object> params = new HashMap<>();
-		params.put(new QName("word"), "gold");
+		Map<String, Object> params = new HashMap<>();
+		params.put("word", "gold");
 		Iterator<?> results = query(query, params);
 		int cnt = 0;
 		while (results.hasNext()) {

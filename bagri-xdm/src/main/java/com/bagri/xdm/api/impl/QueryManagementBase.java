@@ -29,7 +29,7 @@ public abstract class QueryManagementBase {
      * @param params the Map&lt;String, Object&gt; of query parameters
      * @return cache key for the params
      */
-	public int getParamsKey(Map<QName, Object> params) {
+	public int getParamsKey(Map<String, Object> params) {
 		//final int prime = 31;
 		//int result = params.size();
 		//for (Map.Entry param: params.entrySet()) {
@@ -51,7 +51,7 @@ public abstract class QueryManagementBase {
 	 * @param params the params Map&lt;String, Object&gt;
 	 * @return cache key for the parameterized query
 	 */
-	public long getResultsKey(String query, Map<QName, Object> params) {
+	public long getResultsKey(String query, Map<String, Object> params) {
 		int highKey = getQueryKey(query);
 		int lowKey = getParamsKey(params);
 		long result = (((long) highKey) << 32) | (lowKey & 0xffffffffL);

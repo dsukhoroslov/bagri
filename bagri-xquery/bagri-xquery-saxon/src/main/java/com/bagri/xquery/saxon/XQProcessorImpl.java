@@ -345,9 +345,7 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
 	}
 	
 	//@Override
-    public void bindVariable(QName varName, Object var) throws XQException {
-    	//dqc.setParameter(varName.toString(), var);
-        //dqc.setParameter(getStructuredQName(varName), new ObjectValue(var));
+    public void bindVariable(String varName, Object var) throws XQException {
     	try {
     		Item item;
     		if (var instanceof XQItem) {
@@ -362,14 +360,13 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
     }
     
 	//@Override
-    public void unbindVariable(QName varName) throws XQException {
-    	// QName.toString produce ClarkName
-        //dqc.setParameter(varName.toString(), null);
+    public void unbindVariable(String varName) throws XQException {
         dqc.setParameter(getStructuredQName(varName), null);
     }
 
-    private static StructuredQName getStructuredQName(QName qname) {
-    	return new StructuredQName(qname.getPrefix(), qname.getNamespaceURI(), qname.getLocalPart());
+    private static StructuredQName getStructuredQName(String vName) {
+    	//return new StructuredQName(qname.getPrefix(), qname.getNamespaceURI(), qname.getLocalPart());
+    	return StructuredQName.fromClarkName(vName);
     }
     
     // why it is not <QName, Object> ??
@@ -387,14 +384,14 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
     	return bindings;
     }
     
-    protected Collection<QName> getParamNames(Collection<String> pNames) {
-    	List<QName> result = new ArrayList<>(pNames.size());
-    	for (String pName: pNames) {
+    //protected Collection<QName> getParamNames(Collection<String> pNames) {
+    //	List<QName> result = new ArrayList<>(pNames.size());
+    //	for (String pName: pNames) {
     		// it should be a ClarkName as a result of conversion above
-    		result.add(QName.valueOf(pName));
-    	}
-    	return result;
-    }
+    //		result.add(QName.valueOf(pName));
+    //	}
+    //	return result;
+    //}
     
     protected String explainQuery(XQueryExpression exp) throws XPathException {
     	ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -429,7 +426,7 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
     }
 	
 	//@Override
-    public Collection<QName> prepareXQuery(String query, XQStaticContext ctx) throws XQException {
+    public Collection<String> prepareXQuery(String query, XQStaticContext ctx) throws XQException {
 
         setStaticContext(sqc, ctx);
         try {
@@ -450,11 +447,12 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
 	        //}
         	//logger.info("prepareXQuery; result 2: {}", result);
 
-	        Set<QName> result = new HashSet<QName>();
+	        Set<String> result = new HashSet<>();
 	        //Iterator<GlobalVariable> itr = exp.getStaticContext().getModuleVariables();
 	        Iterator<GlobalVariable> itr = exp.getMainModule().getModuleVariables();
 	        while (itr.hasNext()) {
-	        	result.add(itr.next().getVariableQName().toJaxpQName());
+	        	//result.add(itr.next().getVariableQName().toJaxpQName());
+	        	result.add(itr.next().getVariableQName().getClarkName());
 	        }
 	        return result; 
         } catch (XPathException ex) {
