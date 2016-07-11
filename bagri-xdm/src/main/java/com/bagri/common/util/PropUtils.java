@@ -1,5 +1,7 @@
 package com.bagri.common.util;
 
+import static com.bagri.common.util.FileUtils.EOL;
+
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.StringReader;
@@ -15,8 +17,6 @@ import javax.xml.transform.OutputKeys;
  */
 public class PropUtils {
 	
-	private static final String EOL = System.getProperty("line.separator");
-
 	/**
 	 * Load Properties from file
 	 * 

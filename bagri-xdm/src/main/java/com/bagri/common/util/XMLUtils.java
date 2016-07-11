@@ -1,5 +1,7 @@
 package com.bagri.common.util;
 
+import static com.bagri.common.util.FileUtils.EOL;
+
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -56,8 +58,6 @@ import static com.bagri.common.util.FileUtils.def_encoding;
  */
 public class XMLUtils {
 
-	private static final String EOL = System.getProperty("line.separator");
-	
 	private static final DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();  
 	private static final TransformerFactory transFactory = TransformerFactory.newInstance();  
 	private static final XMLInputFactory xiFactory = XMLInputFactory.newInstance();

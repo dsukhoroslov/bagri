@@ -22,6 +22,8 @@ import java.util.Scanner;
  */
 public class FileUtils {
 	
+	public static final String EOL = System.getProperty("line.separator");
+	
 	public final static Charset cs_encoding = StandardCharsets.UTF_8;
 	public final static String def_encoding = cs_encoding.name();
 	
@@ -49,7 +51,7 @@ public class FileUtils {
 	    StringBuilder text = new StringBuilder();
 	    try (Scanner scanner = new Scanner(path, encoding)){
 	    	while (scanner.hasNextLine()) {
-	    		text.append(scanner.nextLine()).append("\n");
+	    		text.append(scanner.nextLine()).append(EOL);
 	    	}      
 	   	}
 	    return text.toString();

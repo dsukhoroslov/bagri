@@ -428,7 +428,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	}
 	
 	@Override
-	public java.util.Collection<String> buildDocument(Set<Long> docKeys, String template, Map<String, String> params) throws XDMException {
+	public java.util.Collection<String> buildDocument(Set<Long> docKeys, String template, Map<String, Object> params) throws XDMException {
         logger.trace("buildDocument.enter; docKeys: {}", docKeys.size());
 		long stamp = System.currentTimeMillis();
         java.util.Collection<String> result = new ArrayList<String>(docKeys.size());
@@ -445,9 +445,9 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 				}
 
 				StringBuilder buff = new StringBuilder(template);
-				for (Map.Entry<String, String> param: params.entrySet()) {
+				for (Map.Entry<String, Object> param: params.entrySet()) {
 					String key = param.getKey();
-					String path = param.getValue();
+					String path = param.getValue().toString();
 					if (doc.getTypeId() != typeId) {
 						typeId = doc.getTypeId();
 						root = model.getDocumentRoot(typeId); 
@@ -553,7 +553,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			// query docId owner node for the XML instead
 			if (hzInstance.getPartitionService().getPartition(docKey).getOwner().localMember()) {
 				String root = model.getDocumentRoot(doc.getTypeId());
-				Map<String, String> params = new HashMap<String, String>();
+				Map<String, Object> params = new HashMap<>();
 				params.put(":doc", root);
 				java.util.Collection<String> results = buildDocument(Collections.singleton(docKey.getKey()), ":doc", params);
 				if (!results.isEmpty()) {

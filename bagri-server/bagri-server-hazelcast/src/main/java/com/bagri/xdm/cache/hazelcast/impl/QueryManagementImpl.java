@@ -493,7 +493,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	}
 
 	@Override
-	public Collection<String> getContent(ExpressionContainer query, String template, Map params) throws XDMException {
+	public Collection<String> getContent(ExpressionContainer query, String template, Map<String, Object> params) throws XDMException {
 		
 		Collection<Long> docKeys = getDocumentIds(query);
 		if (docKeys.size() > 0) {
@@ -581,7 +581,6 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	}
 	
 	@Override
-	@SuppressWarnings("unchecked")
 	public Iterator<?> executeQuery(String query, Map<String, Object> params, Properties props) throws XDMException {
 
 		logger.trace("executeQuery.enter; query: {}; params: {}; properties: {}", query, params, props);

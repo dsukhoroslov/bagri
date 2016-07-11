@@ -28,7 +28,7 @@ public abstract class DocumentManagementBase extends com.bagri.xdm.api.impl.Docu
 		this.model = model;
 	}
 
-    public abstract Collection<String> buildDocument(Set<Long> docIds, String template, Map<String, String> params) throws XDMException;
+    public abstract Collection<String> buildDocument(Set<Long> docIds, String template, Map<String, Object> params) throws XDMException;
 
 	public Data getDataRoot(List<Data> elements) {
 		for (Data data: elements) {

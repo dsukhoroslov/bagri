@@ -1,6 +1,7 @@
 package com.bagri.xdm.common.df.xml;
 
 import static com.bagri.common.util.FileUtils.def_encoding;
+import static com.bagri.common.util.FileUtils.EOL;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -66,7 +67,7 @@ public class XmlBuilder implements ContentBuilder {
     		String name = data.getName();
     		switch (data.getNodeKind()) {
     			case document: { // this must be the first row..
-    				buff.append("<?xml version=\"1.0\"?>").append("\n"); // what about: encoding="utf-8"?>
+    				buff.append("<?xml version=\"1.0\"?>").append(EOL); // what about: encoding="utf-8"?>
     				break;
     			}
     			case namespace: { 
@@ -98,7 +99,7 @@ public class XmlBuilder implements ContentBuilder {
     	    		// add idents..
     				buff.append("<!--").append(data.getValue()).append("-->"); 
     				if (dataStack.isEmpty()) {
-    					buff.append("\n");
+    					buff.append(EOL);
     				}
     				break;
     			}
@@ -108,7 +109,7 @@ public class XmlBuilder implements ContentBuilder {
     				buff.append("<?").append(name).append(" ");
     				buff.append(data.getValue()).append("?>"); 
     				if (dataStack.isEmpty()) {
-    					buff.append("\n");
+    					buff.append(EOL);
     				}
     				break;
     			}
@@ -127,10 +128,10 @@ public class XmlBuilder implements ContentBuilder {
 		while (dataStack.size() > 0) {
 			Data top = dataStack.pop();
 			if (eltOpen) {
-				buff.append("/>").append("\n");
+				buff.append("/>").append(EOL);
 				eltOpen = false;
 			} else {
-				buff.append("</").append(top.getName()).append(">").append("\n");
+				buff.append("</").append(top.getName()).append(">").append(EOL);
 			}
 		}
 		// add idents..
@@ -167,15 +168,15 @@ public class XmlBuilder implements ContentBuilder {
 					eltOpen = false;
 				}
 				if (data.getNodeKind() != NodeKind.text) {
-					buff.append("\n");
+					buff.append(EOL);
 				}
 			} else {
 				while (top != null && data.getParentId() != top.getElementId()) {
 					if (eltOpen) {
-						buff.append("/>").append("\n");
+						buff.append("/>").append(EOL);
 						eltOpen = false;
 					} else {
-						buff.append("</").append(top.getName()).append(">").append("\n");
+						buff.append("</").append(top.getName()).append(">").append(EOL);
 					}
     				dataStack.pop();
     				if (dataStack.isEmpty()) {

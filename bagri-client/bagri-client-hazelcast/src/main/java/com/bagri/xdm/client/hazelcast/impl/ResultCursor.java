@@ -6,7 +6,6 @@ import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryI
 
 import java.io.IOException;
 import java.util.Iterator;
-import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -23,7 +22,7 @@ import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
-public class ResultCursor implements Iterator<Object>, IdentifiedDataSerializable, MemberSelector {
+public class ResultCursor implements Iterator, IdentifiedDataSerializable, MemberSelector {
 	
 	public static final int ONE = 1;
 	public static final int EMPTY = 0;
@@ -42,7 +41,7 @@ public class ResultCursor implements Iterator<Object>, IdentifiedDataSerializabl
 	private HazelcastInstance hzi;
 
 	// server side
-	private Iterator<Object> iter;
+	private Iterator<?> iter;
 
 	// client side
 	private Object current = null;
@@ -51,7 +50,7 @@ public class ResultCursor implements Iterator<Object>, IdentifiedDataSerializabl
 		// for de-serializer
 	}
 	
-	public ResultCursor(String clientId, int batchSize, Iterator<Object> iter) {
+	public ResultCursor(String clientId, int batchSize, Iterator<?> iter) {
 		this.clientId = clientId;
 		this.batchSize = batchSize;
 		this.iter = iter;

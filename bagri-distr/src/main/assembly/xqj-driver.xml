@@ -21,18 +21,17 @@
 	    <binaries>
         	<outputDirectory>/</outputDirectory>
 	    	<includes>
-            	    <include>com.bagri.db:bagri-common</include>
 		    <include>com.bagri.db:bagri-xdm</include>
-            	    <include>com.bagri.db:bagri-client-hazelcast</include>
             	    <include>com.bagri.db:bagri-xqj</include>
             	    <include>com.bagri.db:bagri-xquery-saxon</include>
+            	    <include>com.bagri.db:bagri-client-hazelcast</include>
             	    <!-- third-party modules -->
             	    <include>com.hazelcast:hazelcast-all</include>
             	    <include>org.slf4j:slf4j-api</include>
             	    <include>ch.qos.logback:logback-classic</include>
             	    <include>ch.qos.logback:logback-core</include>
             	    <include>net.sf.saxon:Saxon-HE</include>
-            	    <!-- what about Xerces and XSteam?! -->
+            	    <include>com.thoughtworks.xstream:xstream</include>
 	    	</includes>
         	<unpack>true</unpack>
 	    </binaries>
