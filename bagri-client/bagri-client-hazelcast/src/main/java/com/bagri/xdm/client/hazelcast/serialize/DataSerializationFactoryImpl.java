@@ -2,10 +2,11 @@ package com.bagri.xdm.client.hazelcast.serialize;
 
 import com.bagri.xdm.client.hazelcast.data.DocumentPartKey;
 import com.bagri.xdm.client.hazelcast.data.DocumentPathKey;
+import com.bagri.xdm.client.hazelcast.data.GroupCountPredicate;
 import com.bagri.xdm.client.hazelcast.data.PathIndexKey;
 import com.bagri.xdm.client.hazelcast.data.QueryParamsKey;
-import com.bagri.xdm.client.hazelcast.impl.FixedCursor;
-import com.bagri.xdm.client.hazelcast.impl.ResultCursor;
+import com.bagri.xdm.client.hazelcast.impl.FixedCursorImpl;
+import com.bagri.xdm.client.hazelcast.impl.QueuedCursorImpl;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentCreator;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentMapCreator;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentMapProvider;
@@ -87,6 +88,8 @@ public class DataSerializationFactoryImpl implements DataSerializableFactory {
 	public static final int cli_XQCursor = 91;
 	public static final int cli_XQFixedCursor = 92;
 	
+	public static final int cli_GroupCountPredicate = 93;
+	
 	public static final int cli_DocumentKey = 95; 
 	public static final int cli_DocumentPathKey = 96; 
 	public static final int cli_PathIndexKey = 97; 
@@ -128,8 +131,9 @@ public class DataSerializationFactoryImpl implements DataSerializableFactory {
 			case cli_DocumentPathKey: return new DocumentPathKey(); 
 			case cli_PathIndexKey: return new PathIndexKey(); 
 			case cli_QueryParamsKey: return new QueryParamsKey();
-			case cli_XQCursor: return new ResultCursor();
-			case cli_XQFixedCursor: return new FixedCursor();
+			case cli_XQCursor: return new QueuedCursorImpl();
+			case cli_XQFixedCursor: return new FixedCursorImpl();
+			case cli_GroupCountPredicate: return new GroupCountPredicate();
 			case cli_FetchResultsTask: return new ResultFetcher();
 			case cli_UpdateDocumentCollectionTask: return new DocumentCollectionUpdater();
 			case cli_ProcessDocumentTask: return new DocumentProcessor();

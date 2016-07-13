@@ -15,7 +15,7 @@ import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.bagri.xdm.api.test.XDMManagementTest;
-import com.bagri.xdm.client.hazelcast.impl.ResultCursor;
+import com.bagri.xdm.client.hazelcast.impl.QueuedCursorImpl;
 import com.bagri.xdm.domain.Document;
 import com.bagri.xdm.system.Schema;
 import com.bagri.xquery.api.XQProcessor;
@@ -83,7 +83,7 @@ public class SimpleQueryManagementTest extends XDMManagementTest {
 		String query = "for $doc in fn:collection()\n" +
 				"return $doc\n";
 
-		ResultCursor rc = (ResultCursor) xRepo.getQueryManagement().executeQuery(query, null, new Properties());
+		QueuedCursorImpl rc = (QueuedCursorImpl) xRepo.getQueryManagement().executeQuery(query, null, new Properties());
 		rc.deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
 		assertTrue(rc.hasNext());
 		

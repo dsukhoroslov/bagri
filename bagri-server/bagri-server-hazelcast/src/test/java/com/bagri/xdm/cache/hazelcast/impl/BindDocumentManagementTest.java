@@ -20,7 +20,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.bagri.xdm.api.test.XDMManagementTest;
 import com.bagri.xdm.cache.hazelcast.bean.SampleBean;
-import com.bagri.xdm.client.hazelcast.impl.ResultCursor;
+import com.bagri.xdm.client.hazelcast.impl.QueuedCursorImpl;
 import com.bagri.xdm.domain.Document;
 import com.bagri.xdm.system.Schema;
 
@@ -175,7 +175,7 @@ public class BindDocumentManagementTest extends XDMManagementTest {
 	private Iterator<?> query(String query, Map<String, Object> params) throws Exception {
 		Iterator<?> result = getQueryManagement().executeQuery(query, params, new Properties());
 		assertNotNull(result);
-		((ResultCursor) result).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
+		((QueuedCursorImpl) result).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
 		//assertTrue(result.hasNext());
 		return result;
 	}

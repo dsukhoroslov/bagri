@@ -2,12 +2,13 @@ package com.bagri.xdm.api;
 
 import java.util.List;
 
+import javax.xml.xquery.XQItemAccessor;
+
 import org.w3c.dom.Node;
 
 public interface ResultCursor extends AutoCloseable {
 	
-	List<?> fetchAll();
-	Object getAsIs() throws XDMException;
+	//List<?> fetchAll();
 	
 	boolean getBoolean() throws XDMException;
 	byte getByte() throws XDMException;
@@ -19,6 +20,8 @@ public interface ResultCursor extends AutoCloseable {
 	Object getObject() throws XDMException;
 	short getShort() throws XDMException;
 	String getString() throws XDMException;
-	boolean next() throws XDMException;
+	XQItemAccessor getXQItem() throws XDMException;
+
+	boolean getNext() throws XDMException;
 	
 }

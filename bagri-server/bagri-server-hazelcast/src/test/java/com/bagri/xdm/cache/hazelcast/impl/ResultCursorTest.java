@@ -17,9 +17,10 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import com.bagri.xdm.api.ResultCursor;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.test.XDMManagementTest;
-import com.bagri.xdm.client.hazelcast.impl.ResultCursor;
+import com.bagri.xdm.client.hazelcast.impl.QueuedCursorImpl;
 import com.bagri.xdm.system.Schema;
 
 public class ResultCursorTest extends XDMManagementTest {
@@ -88,11 +89,11 @@ public class ResultCursorTest extends XDMManagementTest {
 		Properties props = new Properties();
 		props.setProperty(pn_client_fetchSize, "1");
 		props.setProperty(pn_client_id, "dummy");
-		ResultCursor rc = (ResultCursor) qm.executeQuery(query, params, props);
-		rc.deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
-		assertTrue(rc.hasNext());
-		assertNotNull(rc.next());
-		assertFalse(rc.hasNext());
+		ResultCursor rc = qm.processQuery(query, params, props);
+		//rc.deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
+		assertTrue(rc.getNext());
+		assertNotNull(rc.getObject());
+		assertFalse(rc.getNext());
 	}
 	
 	@Test
@@ -110,11 +111,11 @@ public class ResultCursorTest extends XDMManagementTest {
 		Properties props = new Properties();
 		props.setProperty(pn_client_fetchSize, "1");
 		props.setProperty(pn_client_id, "dummy");
-		ResultCursor rc = (ResultCursor) qm.executeQuery(query, params, props);
-		rc.deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
-		assertTrue(rc.hasNext());
-		assertNotNull(rc.next());
-		assertFalse(rc.hasNext());
+		ResultCursor rc = qm.processQuery(query, params, props);
+		//rc.deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
+		assertTrue(rc.getNext());
+		assertNotNull(rc.getObject());
+		assertFalse(rc.getNext());
 	}
 
 	@Test
@@ -139,11 +140,11 @@ public class ResultCursorTest extends XDMManagementTest {
 				params.put("sym", "IBM");
 				ResultCursor rc;
 				try {
-					rc = (ResultCursor) qm.executeQuery(query, params, props);
-					rc.deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
-					assertTrue(rc.hasNext());
-					assertNotNull(rc.next());
-					assertFalse(rc.hasNext());
+					rc = qm.processQuery(query, params, props);
+					//rc.deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
+					assertTrue(rc.getNext());
+					assertNotNull(rc.getObject());
+					assertFalse(rc.getNext());
 				} catch (XDMException ex) {
 					assertTrue(ex.getMessage(), false);
 				}
@@ -158,11 +159,11 @@ public class ResultCursorTest extends XDMManagementTest {
 				params.put("sym", "VFINX");
 				ResultCursor rc;
 				try {
-					rc = (ResultCursor) qm.executeQuery(query, params, props);
-					rc.deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
-					assertTrue(rc.hasNext());
-					assertNotNull(rc.next());
-					assertFalse(rc.hasNext());
+					rc = qm.processQuery(query, params, props);
+					//rc.deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
+					assertTrue(rc.getNext());
+					assertNotNull(rc.getObject());
+					assertFalse(rc.getNext());
 				} catch (XDMException ex) {
 					assertTrue(ex.getMessage(), false);
 				}

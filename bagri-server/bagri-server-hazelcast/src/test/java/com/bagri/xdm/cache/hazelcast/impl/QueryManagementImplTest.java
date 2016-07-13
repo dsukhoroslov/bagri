@@ -24,7 +24,7 @@ import com.bagri.xdm.cache.api.ModelManagement;
 import com.bagri.xdm.cache.api.QueryManagement;
 import com.bagri.xdm.cache.api.SchemaRepository;
 import com.bagri.xdm.cache.hazelcast.impl.SchemaRepositoryImpl;
-import com.bagri.xdm.client.hazelcast.impl.ResultCursor;
+import com.bagri.xdm.client.hazelcast.impl.QueuedCursorImpl;
 import com.bagri.xdm.query.AxisType;
 import com.bagri.xdm.query.Comparison;
 import com.bagri.xdm.query.ExpressionContainer;
@@ -348,7 +348,7 @@ public class QueryManagementImplTest extends XDMManagementTest {
 				"return $sec\n";
 			Iterator itr = xRepo.getQueryManagement().executeQuery(query, params, props);
 			assertNotNull(itr);
-			((ResultCursor) itr).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
+			((QueuedCursorImpl) itr).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
 			assertTrue(itr.hasNext());
 		}
 	}

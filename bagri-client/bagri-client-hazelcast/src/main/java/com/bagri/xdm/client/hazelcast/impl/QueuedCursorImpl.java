@@ -12,6 +12,7 @@ import java.util.concurrent.Future;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.bagri.xdm.api.impl.ResultCursorBase;
 import com.bagri.xdm.client.hazelcast.task.query.ResultFetcher;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
@@ -22,45 +23,40 @@ import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
-public class ResultCursor implements Iterator, IdentifiedDataSerializable, MemberSelector {
+public class QueuedCursorImpl extends ResultCursorBase implements IdentifiedDataSerializable { 
 	
-	public static final int ONE = 1;
-	public static final int EMPTY = 0;
-	public static final int ONE_OR_MORE = -1;
-	public static final int UNKNOWN = -2;
-	
-    private static final transient Logger logger = LoggerFactory.getLogger(ResultCursor.class);
+    private static final transient Logger logger = LoggerFactory.getLogger(QueuedCursorImpl.class);
 
+	private int batchSize;
+	private int queueSize;
 	private String clientId;
 	private String memberId;
-	//private boolean failure;
-	protected int batchSize;
-	protected int queueSize;
-	protected int position;
+	private Object current;
+
 	private IQueue<Object> queue;
 	private HazelcastInstance hzi;
 
-	// server side
-	private Iterator<?> iter;
-
-	// client side
-	private Object current = null;
+	private MemberSelector selector = new ResultMemberSelector();
 	
-	public ResultCursor() {
+	public QueuedCursorImpl() {
 		// for de-serializer
+		super(null);
 	}
 	
-	public ResultCursor(String clientId, int batchSize, Iterator<?> iter) {
+	public QueuedCursorImpl(Iterator<Object> iter, String clientId, int batchSize) {
+		super(iter);
 		this.clientId = clientId;
 		this.batchSize = batchSize;
-		this.iter = iter;
 		this.queueSize = UNKNOWN;
-		//this.failure = false;
 	}
 
-	public ResultCursor(String clientId, int batchSize, Iterator<Object> iter, int queueSize) {
-		this(clientId, batchSize, iter);
+	public QueuedCursorImpl(Iterator<Object> iter, String clientId, int batchSize, int queueSize) {
+		this(iter, clientId, batchSize);
 		this.queueSize = queueSize;
+	}
+	
+	protected Object getCurrent() {
+		return current;
 	}
 
 	private IQueue<Object> getQueue() {
@@ -130,13 +126,9 @@ public class ResultCursor implements Iterator, IdentifiedDataSerializable, Membe
 		return false;
 	}
 	
-	public String getClientId() {
-		return clientId;
-	}
-	
-	public int getQueueSize() {
-		return queueSize;
-	}
+	//public int getQueueSize() {
+	//	return queueSize;
+	//}
 	
 	@Override
 	public boolean hasNext() {
@@ -146,7 +138,7 @@ public class ResultCursor implements Iterator, IdentifiedDataSerializable, Membe
 				logger.debug("hasNext; got end of the queue; position: {}; queueSize: {}", position, queueSize);
 				// request next batch from server side..
 				IExecutorService exec = hzi.getExecutorService(PN_XDM_SCHEMA_POOL);
-				Future<Boolean> fetcher = exec.submit(new ResultFetcher(clientId), this);
+				Future<Boolean> fetcher = exec.submit(new ResultFetcher(clientId), selector);
 				try {
 					if (fetcher.get()) {
 						current = queue.poll();
@@ -176,29 +168,13 @@ public class ResultCursor implements Iterator, IdentifiedDataSerializable, Membe
 	}
 
 	@Override
-	public void remove() {
-		throw new UnsupportedOperationException("remove not supported");
-	}
-	
-	@Override
-	public boolean select(Member member) {
-		return memberId.equals(member.getUuid());
-	}
-
-	//@Override
-	public void close(boolean destroy) {
+	public void close() {
 		logger.trace("close.enter; queue remaining size: {}", queue.size());
+		super.close();
 		queue.clear();
-		if (destroy) {
-			queue.destroy();
-		}
-	}
-
-	@Override
-	public String toString() {
-		return "ResultCursor [clientId=" + clientId + ", memberId=" + memberId + 
-			", queueSize=" + queueSize + ", position=" + position + 
-			", batchSize=" + batchSize + "]";
+		//if (destroy) {
+		//	queue.destroy();
+		//}
 	}
 
 	@Override
@@ -225,6 +201,23 @@ public class ResultCursor implements Iterator, IdentifiedDataSerializable, Membe
 		out.writeInt(queueSize);
 		out.writeUTF(memberId);
 		out.writeInt(batchSize);
+	}
+	
+	@Override
+	public String toString() {
+		return "ResultCursor [clientId=" + clientId + ", memberId=" + memberId + 
+			", queueSize=" + queueSize + ", position=" + position + 
+			", batchSize=" + batchSize + "]";
+	}
+
+	
+	private class ResultMemberSelector implements MemberSelector {
+
+		@Override
+		public boolean select(Member member) {
+			return memberId.equals(member.getUuid());
+		}
+		
 	}
 
 }

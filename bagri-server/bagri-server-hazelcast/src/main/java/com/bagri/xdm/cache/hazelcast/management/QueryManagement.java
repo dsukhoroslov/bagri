@@ -19,7 +19,6 @@ import java.util.concurrent.Future;
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.TabularData;
 import javax.xml.namespace.QName;
-import javax.xml.transform.OutputKeys;
 import javax.xml.xquery.XQConnection;
 import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQExpression;
@@ -33,17 +32,12 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
 import com.bagri.common.stats.StatsAggregator;
-import com.bagri.common.util.JMXUtils;
 import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.cache.api.CacheConstants;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaQueryCleaner;
 import com.bagri.xdm.cache.hazelcast.task.stats.StatisticSeriesCollector;
 import com.bagri.xdm.cache.hazelcast.task.stats.StatisticsReseter;
 import com.bagri.xqj.BagriXQConnection;
 import com.bagri.xquery.api.XQProcessor;
-//import com.bagri.xdm.client.hazelcast.impl.RepositoryImpl;
-//import com.bagri.xdm.client.hazelcast.impl.ResultCursor;
-//import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.Member;
 
 /**

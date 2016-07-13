@@ -13,7 +13,7 @@ import java.util.Properties;
 public interface QueryManagement {
 	
 	/**
-	 * executes (X-)query on the current XDM SChema 
+	 * executes (X-)query on the current XDM SChema. Returns iterator over resulting XQItems
 	 * 
 	 * @param query the query specified as a plain text.  
 	 * @param params the map of parameter name/value pairs. Parameters are bound in query by names 
@@ -23,6 +23,17 @@ public interface QueryManagement {
 	 */
 	Iterator<?> executeQuery(String query, Map<String, Object> params, Properties props) throws XDMException;
 	
+	/**
+	 * executes (X-)query on the current XDM SChema. Returns cursor over resulting Java objects
+	 * 
+	 * @param query the query specified as a plain text.  
+	 * @param params the map of parameter name/value pairs. Parameters are bound in query by names 
+	 * @param props the query processing instructions. Supported values are: ...
+	 * @return wrapping cursor over resulting data sequence 
+	 * @throws XDMException in case of any query processing error
+	 */
+	ResultCursor processQuery(String query, Map<String, Object> params, Properties props) throws XDMException;
+
 	/**
 	 * 
 	 * @param query the query specified as a plain text. 

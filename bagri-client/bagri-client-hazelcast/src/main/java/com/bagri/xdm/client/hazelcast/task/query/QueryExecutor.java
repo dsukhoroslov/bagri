@@ -6,21 +6,21 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 
-import com.bagri.xdm.client.hazelcast.impl.ResultCursor;
+import com.bagri.xdm.api.impl.ResultCursorBase;
 import com.bagri.xdm.client.hazelcast.task.QueryAwareTask;
 
-public class QueryExecutor extends QueryAwareTask implements Callable<ResultCursor> {
+public class QueryExecutor extends QueryAwareTask implements Callable<ResultCursorBase> {
 
 	public QueryExecutor() {
 		super();
 	}
 	
-	public QueryExecutor(String clientId, long txId, String query, Map params, Properties context) {
+	public QueryExecutor(String clientId, long txId, String query, Map<String, Object> params, Properties context) {
 		super(clientId, txId, query, params, context);
 	}
 
 	@Override
-	public ResultCursor call() throws Exception {
+	public ResultCursorBase call() throws Exception {
 		return null;
 	}
 	

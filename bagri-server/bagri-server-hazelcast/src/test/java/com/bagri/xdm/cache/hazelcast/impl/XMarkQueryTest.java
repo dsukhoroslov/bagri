@@ -21,7 +21,7 @@ import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.bagri.xdm.api.test.XDMManagementTest;
-import com.bagri.xdm.client.hazelcast.impl.ResultCursor;
+import com.bagri.xdm.client.hazelcast.impl.QueuedCursorImpl;
 import com.bagri.xdm.system.Schema;
 //import com.bagri.xquery.api.XQProcessor;
 
@@ -72,7 +72,7 @@ public class XMarkQueryTest extends XDMManagementTest {
 
 		Iterator<?> result = getQueryManagement().executeQuery(query, params, new Properties());
 		assertNotNull(result);
-		((ResultCursor) result).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
+		((QueuedCursorImpl) result).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
 		//assertTrue(result.hasNext());
 		return result;
 	}

@@ -23,7 +23,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.bagri.common.util.JMXUtils;
 import com.bagri.xdm.api.test.ClientQueryManagementTest;
-import com.bagri.xdm.client.hazelcast.impl.ResultCursor;
+import com.bagri.xdm.client.hazelcast.impl.QueuedCursorImpl;
 import com.bagri.xdm.system.Collection;
 import com.bagri.xdm.system.Schema;
 
@@ -85,7 +85,7 @@ public class TpoxQueryTest extends ClientQueryManagementTest {
 	public void getPriceTest() throws Exception {
 		Iterator<?> sec = getPrice("VFINX");
 		assertNotNull(sec);
-		((ResultCursor) sec).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
+		((QueuedCursorImpl) sec).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
 		assertTrue(sec.hasNext());
 		Properties props = new Properties();
 		props.setProperty("method", "text");
@@ -95,7 +95,7 @@ public class TpoxQueryTest extends ClientQueryManagementTest {
 
 		sec = getPrice("IBM");
 		assertNotNull(sec);
-		((ResultCursor) sec).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
+		((QueuedCursorImpl) sec).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
 		assertTrue(sec.hasNext());
 		item = (XQItem) sec.next();
 		text = item.getItemAsString(props);
@@ -103,7 +103,7 @@ public class TpoxQueryTest extends ClientQueryManagementTest {
 
 		sec = getPrice("PTTAX");
 		assertNotNull(sec);
-		((ResultCursor) sec).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
+		((QueuedCursorImpl) sec).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
 		assertTrue(sec.hasNext());
 		item = (XQItem) sec.next();
 		text = item.getItemAsString(props);
@@ -114,7 +114,7 @@ public class TpoxQueryTest extends ClientQueryManagementTest {
 	public void getSecurityTest() throws Exception {
 		Iterator<?> sec = getSecurity("VFINX");
 		assertNotNull(sec);
-		((ResultCursor) sec).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
+		((QueuedCursorImpl) sec).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
 		assertTrue(sec.hasNext());
 		XQItem item = (XQItem) sec.next();
 		String xml = item.getItemAsString(null);
@@ -123,7 +123,7 @@ public class TpoxQueryTest extends ClientQueryManagementTest {
 
 		sec = getSecurity("IBM");
 		assertNotNull(sec);
-		((ResultCursor) sec).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
+		((QueuedCursorImpl) sec).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
 		assertTrue(sec.hasNext());
 		item = (XQItem) sec.next();
 		xml = item.getItemAsString(null);
@@ -132,7 +132,7 @@ public class TpoxQueryTest extends ClientQueryManagementTest {
 
 		sec = getSecurity("PTTAX");
 		assertNotNull(sec);
-		((ResultCursor) sec).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
+		((QueuedCursorImpl) sec).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
 		assertTrue(sec.hasNext());
 		item = (XQItem) sec.next();
 		xml = item.getItemAsString(null);
@@ -144,7 +144,7 @@ public class TpoxQueryTest extends ClientQueryManagementTest {
 	public void searchSecurityTest() throws Exception {
 		Iterator<?> sec = searchSecurity("Technology", 25, 28, 0);
 		assertNotNull(sec);
-		((ResultCursor) sec).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
+		((QueuedCursorImpl) sec).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
 		assertTrue(sec.hasNext());
 		XQItem item = (XQItem) sec.next();
 		String xml = item.getItemAsString(null);
@@ -157,12 +157,12 @@ public class TpoxQueryTest extends ClientQueryManagementTest {
 
 		sec = searchSecurity("Technology", 25, 28, 1);
 		assertNotNull(sec);
-		((ResultCursor) sec).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
+		((QueuedCursorImpl) sec).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
 		assertFalse(sec.hasNext());
 
 		sec = searchSecurity("Technology", 28, 29, 0);
 		assertNotNull(sec);
-		((ResultCursor) sec).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
+		((QueuedCursorImpl) sec).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
 		assertFalse(sec.hasNext());
 	}
 
@@ -170,7 +170,7 @@ public class TpoxQueryTest extends ClientQueryManagementTest {
 	public void getOrderTest() throws Exception {
 		Iterator<?> sec = getOrder("103404");
 		assertNotNull(sec);
-		((ResultCursor) sec).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
+		((QueuedCursorImpl) sec).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
 		assertTrue(sec.hasNext());
 		XQItem item = (XQItem) sec.next();
 		String xml = item.getItemAsString(null);
@@ -179,7 +179,7 @@ public class TpoxQueryTest extends ClientQueryManagementTest {
 
 		sec = getOrder("103935");
 		assertNotNull(sec);
-		((ResultCursor) sec).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
+		((QueuedCursorImpl) sec).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
 		assertTrue(sec.hasNext());
 		item = (XQItem) sec.next();
 		xml = item.getItemAsString(null);
@@ -191,7 +191,7 @@ public class TpoxQueryTest extends ClientQueryManagementTest {
 	public void getCustomerTest() throws Exception {
 		Iterator<?> sec = getCustomer("1011");
 		assertNotNull(sec);
-		((ResultCursor) sec).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
+		((QueuedCursorImpl) sec).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
 		assertTrue(sec.hasNext());
 		XQItem item = (XQItem) sec.next();
 		String xml = item.getItemAsString(null);
@@ -203,7 +203,7 @@ public class TpoxQueryTest extends ClientQueryManagementTest {
 	public void getCustomerProfileTest() throws Exception {
 		Iterator<?> sec = getCustomerProfile("1011");
 		assertNotNull(sec);
-		((ResultCursor) sec).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
+		((QueuedCursorImpl) sec).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
 		assertTrue(sec.hasNext());
 		XQItem item = (XQItem) sec.next();
 		String xml = item.getItemAsString(null);
@@ -215,7 +215,7 @@ public class TpoxQueryTest extends ClientQueryManagementTest {
 	public void getCustomerAccountsTest() throws Exception {
 		Iterator<?> sec = getCustomerAccounts("1011");
 		assertNotNull(sec);
-		((ResultCursor) sec).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
+		((QueuedCursorImpl) sec).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
 		assertTrue(sec.hasNext());
 		XQItem item = (XQItem) sec.next();
 		String xml = item.getItemAsString(null);
@@ -227,7 +227,7 @@ public class TpoxQueryTest extends ClientQueryManagementTest {
 	public void getTodayOrderPriceTest() throws Exception {
 		Iterator<?> sec = getTodayOrderPrice("103935");
 		assertNotNull(sec);
-		((ResultCursor) sec).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
+		((QueuedCursorImpl) sec).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
 		assertTrue(sec.hasNext());
 		Properties props = new Properties();
 		props.setProperty("method", "text");
@@ -241,7 +241,7 @@ public class TpoxQueryTest extends ClientQueryManagementTest {
 	public void getOrderCustomersTest() throws Exception {
 		Iterator<?> sec = getOrderCustomers(2000, "Portugal");
 		assertNotNull(sec);
-		((ResultCursor) sec).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
+		((QueuedCursorImpl) sec).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
 		assertTrue(sec.hasNext());
 		Properties props = new Properties();
 		props.setProperty("method", "text");
@@ -255,7 +255,7 @@ public class TpoxQueryTest extends ClientQueryManagementTest {
 	public void getCustomerByAddressTest() throws Exception {
 		Iterator<?> sec = getCustomerByAddress(56137, 1, true);
 		assertNotNull(sec);
-		((ResultCursor) sec).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
+		((QueuedCursorImpl) sec).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
 		assertTrue(sec.hasNext());
 		XQItem item = (XQItem) sec.next();
 		String xml = item.getItemAsString(null);
@@ -276,7 +276,7 @@ public class TpoxQueryTest extends ClientQueryManagementTest {
 	public void getMaxOrderPriceTest() throws Exception {
 		Iterator<?> sec = getMaxOrderPrice(1011);
 		assertNotNull(sec);
-		((ResultCursor) sec).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
+		((QueuedCursorImpl) sec).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
 		assertTrue(sec.hasNext());
 		XQItem item = (XQItem) sec.next();
 		String price = item.getItemAsString(null);
@@ -288,7 +288,7 @@ public class TpoxQueryTest extends ClientQueryManagementTest {
 	public void getMaxIndustryOrderTest() throws Exception {
 		Iterator<?> sec = getMaxOrderForIndustry("ComputerHardware", "California");
 		assertNotNull(sec);
-		((ResultCursor) sec).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
+		((QueuedCursorImpl) sec).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
 		assertTrue(sec.hasNext());
 		XQItem item = (XQItem) sec.next();
 		String price = item.getItemAsString(null);
@@ -300,7 +300,7 @@ public class TpoxQueryTest extends ClientQueryManagementTest {
 	public void getCustomerSecuritiesTest() throws Exception {
 		Iterator<?> sec = getCustomerSecurities(1011);
 		assertNotNull(sec);
-		((ResultCursor) sec).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
+		((QueuedCursorImpl) sec).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
 		assertTrue(sec.hasNext());
 		Properties props = new Properties();
 		props.setProperty("method", "text");
@@ -328,7 +328,7 @@ public class TpoxQueryTest extends ClientQueryManagementTest {
 				"return $ind";
 		Iterator<?> ind = getQueryManagement().executeQuery(query, null, new Properties());
 		assertNotNull(ind);
-		((ResultCursor) ind).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
+		((QueuedCursorImpl) ind).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
 		Properties props = new Properties();
 		props.setProperty("method", "text");
 		List<String> industries = new ArrayList<>();

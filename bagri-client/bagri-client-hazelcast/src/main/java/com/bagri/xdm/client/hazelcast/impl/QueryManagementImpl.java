@@ -22,7 +22,9 @@ import org.slf4j.LoggerFactory;
 
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.QueryManagement;
+import com.bagri.xdm.api.ResultCursor;
 import com.bagri.xdm.api.impl.QueryManagementBase;
+import com.bagri.xdm.api.impl.ResultCursorBase;
 import com.bagri.xdm.client.hazelcast.task.query.QueryUrisProvider;
 import com.bagri.xdm.client.hazelcast.task.query.QueryExecutor;
 import com.bagri.xdm.domain.Query;
@@ -83,7 +85,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	}
 	
 	@Override
-	public Iterator executeQuery(String query, Map<String, Object> params, Properties props) throws XDMException {
+	public Iterator<?> executeQuery(String query, Map<String, Object> params, Properties props) throws XDMException {
 
 		logger.trace("executeQuery.enter; query: {}; bindings: {}; context: {}", query, params, props);
 		boolean useCache = this.queryCache; 
@@ -105,7 +107,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		
 		boolean isQuery = true;
 		QueryExecutor task = new QueryExecutor(repo.getClientId(), repo.getTransactionId(), query, params, props);
-		Future<ResultCursor> future;
+		Future<ResultCursorBase> future;
 		String runOn = props.getProperty(pn_client_submitTo, pv_client_submitTo_any);
 		if (pv_client_submitTo_owner.equalsIgnoreCase(runOn)) {
 			future = execService.submitToKeyOwner(task, qKey);
@@ -122,22 +124,29 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		//if (cursor != null) {
 		//	cursor.close(false);
 		//}
-		ResultCursor cursor = getResults(future, timeout);
+		ResultCursorBase cursor = getResults(future, timeout);
 		logger.trace("execXQuery; got cursor: {}", cursor);
-		if (cursor != null) {
-			cursor.deserialize(repo.getHazelcastClient());
+		if (cursor instanceof QueuedCursorImpl) {
+			((QueuedCursorImpl) cursor).deserialize(repo.getHazelcastClient());
 		}
 			
-		Iterator result;
-		int fetchSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, "0"));
-		if (fetchSize == 0) {
-			result = extractFromCursor(cursor);
-		} else {
+		Iterator result = cursor;
+		//int fetchSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, "0"));
+		//if (fetchSize == 0) {
+		//	result = extractFromCursor(cursor);
+		//} else {
 			// possible memory leak with non-closed cursors !?
-			result = cursor;
-		}
+		//	result = cursor;
+		//}
 		logger.trace("executeQuery.exit; returning: {}", result);
 		return result; 
+	}
+
+	@Override
+	public ResultCursor processQuery(String query, Map<String, Object> params, Properties props) throws XDMException {
+		//
+		ResultCursorBase cursor = (ResultCursorBase) executeQuery(query, params, props);
+		return cursor;
 	}
 	
 	private <T> T getResults(Future<T> future, long timeout) throws XDMException {
@@ -174,14 +183,14 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		}
 	}
 	
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private Iterator extractFromCursor(ResultCursor cursor) {
-		List result = new ArrayList(cursor.getQueueSize());
-		while (cursor.hasNext()) {
-			result.add(cursor.next());
-		}
-		return result.iterator();
-	}
+	//@SuppressWarnings({ "rawtypes", "unchecked" })
+	//private Iterator extractFromCursor(QueuedCursorImpl cursor) {
+	//	List result = new ArrayList(cursor.getQueueSize());
+	//	while (cursor.hasNext()) {
+	//		result.add(cursor.next());
+	//	}
+	//	return result.iterator();
+	//}
 	
 	@Override
 	public Collection<String> prepareQuery(String query) { //throws XDMException {

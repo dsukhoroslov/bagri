@@ -26,16 +26,18 @@ import org.slf4j.LoggerFactory;
 
 import com.bagri.common.stats.StatisticsEvent;
 import com.bagri.common.stats.watch.StopWatch;
+import com.bagri.xdm.api.ResultCursor;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.impl.QueryManagementBase;
+import com.bagri.xdm.api.impl.ResultCursorBase;
 import com.bagri.xdm.cache.api.ModelManagement;
 import com.bagri.xdm.cache.api.QueryManagement;
 import com.bagri.xdm.cache.hazelcast.predicate.DocsAwarePredicate;
 import com.bagri.xdm.cache.hazelcast.predicate.QueryPredicate;
 import com.bagri.xdm.cache.hazelcast.predicate.ResultsDocPredicate;
 import com.bagri.xdm.cache.hazelcast.predicate.ResultsQueryPredicate;
-import com.bagri.xdm.client.hazelcast.impl.FixedCursor;
-import com.bagri.xdm.client.hazelcast.impl.ResultCursor;
+import com.bagri.xdm.client.hazelcast.impl.FixedCursorImpl;
+import com.bagri.xdm.client.hazelcast.impl.QueuedCursorImpl;
 import com.bagri.xdm.common.DataKey;
 import com.bagri.xdm.common.DocumentKey;
 import com.bagri.xdm.domain.Document;
@@ -584,12 +586,12 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	public Iterator<?> executeQuery(String query, Map<String, Object> params, Properties props) throws XDMException {
 
 		logger.trace("executeQuery.enter; query: {}; params: {}; properties: {}", query, params, props);
-		ResultCursor result = null;
+		ResultCursorBase result = null;
 		String clientId = props.getProperty(pn_client_id);
 		int batchSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, "0"));
 		try {
 			XQProcessor xqp = repo.getXQProcessor(clientId);
-			Iterator<?> iter = runQuery(query, params, props);
+			Iterator<Object> iter = runQuery(query, params, props);
 			result = createCursor(clientId, batchSize, iter);
 			xqp.setResults(result);
 		} catch (XQException ex) {
@@ -606,13 +608,20 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		return null;
 	}
 
-	private Iterator<?> runQuery(String query, Map<String, Object> params, Properties props) throws XQException {
+	@Override
+	public ResultCursor processQuery(String query, Map<String, Object> params, Properties props) throws XDMException {
+		//
+		ResultCursorBase cursor = (ResultCursorBase) executeQuery(query, params, props);
+		return cursor;
+	}
+	
+	private Iterator<Object> runQuery(String query, Map<String, Object> params, Properties props) throws XQException {
 		
         Throwable ex = null;
         boolean failed = false;
         stopWatch.start();
 		
-		Iterator<?> iter = null;
+		Iterator iter = null;
 		String clientId = props.getProperty(pn_client_id);
 		boolean isQuery = "false".equalsIgnoreCase(props.getProperty(pn_query_command, "false"));
 		XQProcessor xqp = repo.getXQProcessor(clientId);
@@ -675,20 +684,20 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		return iter;
 	}
 
-	private ResultCursor createCursor(String clientId, int batchSize, Iterator iter) {
-		int size = ResultCursor.UNKNOWN;
+	private ResultCursorBase createCursor(String clientId, int batchSize, Iterator<Object> iter) {
+		int size = QueuedCursorImpl.UNKNOWN;
 		if (iter instanceof XQIterator) {
 			size = ((XQIterator) iter).getFullSize();
 		}
-		final ResultCursor xqCursor;
+		final ResultCursorBase xqCursor;
+		int count = 0;
 		if (batchSize == 1) {
-			if (iter.hasNext()) {
-				xqCursor = new FixedCursor(clientId, batchSize, iter.next());
-			} else {
-				xqCursor = new FixedCursor(clientId, batchSize, null);
-			}
+			xqCursor = new FixedCursorImpl(iter);
+			// count = ??
 		} else {
-			xqCursor = new ResultCursor(clientId, batchSize, iter, size);
+			QueuedCursorImpl qc = new QueuedCursorImpl(iter, clientId, batchSize, size);
+			count = qc.serialize(repo.getHzInstance());
+			xqCursor = qc;
 		}
 		
 		// async serialization takes even more time! because of the thread context switch, most probably
@@ -700,7 +709,6 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		//	}
 		//});
 		
-		int count = xqCursor.serialize(repo.getHzInstance());
 		logger.trace("createCursor.exit; serialized: {} results", count);
 		return xqCursor;
 	}

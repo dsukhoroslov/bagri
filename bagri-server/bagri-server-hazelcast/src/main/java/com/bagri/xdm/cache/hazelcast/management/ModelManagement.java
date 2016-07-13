@@ -5,6 +5,7 @@ import static com.bagri.xquery.api.XQUtils.getTypeName;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -16,15 +17,17 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
-import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.cache.api.impl.ModelManagementBase;
 import com.bagri.xdm.cache.hazelcast.task.model.ModelRegistrator;
+import com.bagri.xdm.client.hazelcast.data.GroupCountPredicate;
+import com.bagri.xdm.common.DataKey;
 import com.bagri.xdm.domain.DocumentType;
+import com.bagri.xdm.domain.Elements;
 import com.bagri.xdm.domain.Namespace;
 import com.bagri.xdm.domain.Path;
 import com.bagri.xdm.system.Fragment;
 import com.bagri.xdm.system.Schema;
 import com.hazelcast.core.IMap;
+import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
 
 @ManagedResource(description="Model Management MBean")
@@ -176,5 +179,19 @@ public class ModelManagement extends SchemaFeatureManagement {
 		return 0;
 	}
 	
+	@ManagedOperation(description="Calculates the number of unique values on the path specified")
+	@ManagedOperationParameters({
+		@ManagedOperationParameter(name = "pathId", description = "The path identifier to aggregate on")})
+	public int aggregatePath(int pathId) {
+
+		IMap<DataKey, Elements> elts = hzClient.getMap(CN_XDM_ELEMENT);
+		Predicate<DataKey, Elements> q = Predicates.equal("pathId", pathId);
+		Set<DataKey> keys = elts.keySet(q);
+		if (keys.size() > 0) {
+			q = Predicates.and(Predicates.equal("pathId", pathId), new GroupCountPredicate());
+			elts.keySet(q);
+		}
+		return keys.size();
+	}
 	
 }

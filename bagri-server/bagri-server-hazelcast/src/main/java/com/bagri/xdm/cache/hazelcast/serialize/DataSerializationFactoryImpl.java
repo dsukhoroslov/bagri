@@ -71,6 +71,7 @@ import com.bagri.xdm.cache.hazelcast.task.tx.TransactionStarter;
 import com.bagri.xdm.cache.hazelcast.task.user.UserCreator;
 import com.bagri.xdm.cache.hazelcast.task.user.UserRemover;
 import com.bagri.xdm.cache.hazelcast.task.user.UserUpdater;
+import com.bagri.xdm.client.hazelcast.data.GroupCountPredicate;
 //import com.bagri.xdm.client.hazelcast.task.doc.DocumentProcessor;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 

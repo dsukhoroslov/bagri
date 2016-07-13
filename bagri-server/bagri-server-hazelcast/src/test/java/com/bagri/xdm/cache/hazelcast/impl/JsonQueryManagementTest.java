@@ -20,8 +20,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import com.bagri.xdm.api.ResultCursor;
 import com.bagri.xdm.api.test.XDMManagementTest;
-import com.bagri.xdm.client.hazelcast.impl.ResultCursor;
+import com.bagri.xdm.client.hazelcast.impl.QueuedCursorImpl;
 import com.bagri.xdm.system.DataFormat;
 import com.bagri.xdm.system.Schema;
 
@@ -90,17 +91,18 @@ public class JsonQueryManagementTest extends XDMManagementTest {
 				"let $props := entry('method', 'json')\n" +
 				"let $json := fn:serialize($map, $props)\n" +
 				"return fn:json-to-xml($json)";
-		Iterator<?> docs = getQueryManagement().executeQuery(query, null, new Properties());
+		ResultCursor docs = getQueryManagement().processQuery(query, null, new Properties());
 		assertNotNull(docs);
-		((ResultCursor) docs).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
+		((QueuedCursorImpl) docs).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
 		Properties props = new Properties();
 		//props.setProperty("method", "xml");
 		List<String> jsons = new ArrayList<>();
-		while (docs.hasNext()) {
-			XQItem item = (XQItem) docs.next();
-			String json = item.getItemAsString(props);
+		while (docs.getNext()) {
+			//XQItem item = (XQItem) docs.next();
+			//String json = item.getItemAsString(props);
+			String json = docs.getString();
 			jsons.add(json);
-			//System.out.println(json);
+			System.out.println(json);
 		}
 		assertEquals(3, jsons.size());
 	}
@@ -117,7 +119,7 @@ public class JsonQueryManagementTest extends XDMManagementTest {
 		//props.setProperty("method", "json");
 		Iterator<?> docs = getQueryManagement().executeQuery(query, null, props);
 		assertNotNull(docs);
-		((ResultCursor) docs).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
+		((QueuedCursorImpl) docs).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
 		props = new Properties();
 		//props.setProperty("method", "json");
 		List<String> jsons = new ArrayList<>();
@@ -140,7 +142,7 @@ public class JsonQueryManagementTest extends XDMManagementTest {
 				"return $v?('Symbol', 'Name')";
 		Iterator<?> docs = getQueryManagement().executeQuery(query, null, new Properties());
 		assertNotNull(docs);
-		((ResultCursor) docs).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
+		((QueuedCursorImpl) docs).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
 		Properties props = new Properties();
 		props.setProperty("method", "text");
 		List<String> results = new ArrayList<>();
