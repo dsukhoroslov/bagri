@@ -6,12 +6,14 @@ import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryI
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.impl.ResultCursorBase;
 import com.bagri.xdm.client.hazelcast.task.query.ResultFetcher;
 import com.hazelcast.core.HazelcastInstance;
@@ -33,6 +35,9 @@ public class QueuedCursorImpl extends ResultCursorBase implements IdentifiedData
 	private String memberId;
 	private Object current;
 
+	// server side
+	private Iterator<Object> iter;
+	
 	private IQueue<Object> queue;
 	private HazelcastInstance hzi;
 
@@ -40,11 +45,10 @@ public class QueuedCursorImpl extends ResultCursorBase implements IdentifiedData
 	
 	public QueuedCursorImpl() {
 		// for de-serializer
-		super(null);
 	}
 	
 	public QueuedCursorImpl(Iterator<Object> iter, String clientId, int batchSize) {
-		super(iter);
+		this.iter = iter;
 		this.clientId = clientId;
 		this.batchSize = batchSize;
 		this.queueSize = UNKNOWN;
@@ -55,6 +59,17 @@ public class QueuedCursorImpl extends ResultCursorBase implements IdentifiedData
 		this.queueSize = queueSize;
 	}
 	
+	@Override
+	public void close() {
+		logger.trace("close.enter; queue remaining size: {}", queue.size());
+		queue.clear();
+		iter = null; // on the server side
+		current = null;
+		//if (destroy) {
+		//	queue.destroy();
+		//}
+	}
+
 	protected Object getCurrent() {
 		return current;
 	}
@@ -66,13 +81,15 @@ public class QueuedCursorImpl extends ResultCursorBase implements IdentifiedData
 		return queue;
 	}
 
+	// client side
 	public void deserialize(HazelcastInstance hzi) {
 		this.hzi = hzi;
 		queue = getQueue();
-		current = queue.poll();
-		position = 0;
+		current = null; //queue.poll();
+		position = 0; //-1;
 	}
 	
+	// server side
 	public int serialize(HazelcastInstance hzi) {
 		this.hzi =  hzi;
 		memberId = hzi.getCluster().getLocalMember().getUuid();
@@ -126,12 +143,25 @@ public class QueuedCursorImpl extends ResultCursorBase implements IdentifiedData
 		return false;
 	}
 	
-	//public int getQueueSize() {
-	//	return queueSize;
-	//}
-	
 	@Override
-	public boolean hasNext() {
+	public List<?> getList() throws XDMException {
+		throw new XDMException("Not implemented in queue", XDMException.ecQuery);
+	}
+	
+	//@Override
+	//public boolean getNext() {
+	//	boolean result = hasNext();
+	//	if (first) {
+	//		first = false;
+	//	} else {
+	//		next();
+	//	}
+	//	return result;
+	//}
+
+	@Override
+	public boolean getNext() {
+		current = queue.poll();
 		boolean result = current != null;
 		if (!result) {
 			if (position < queueSize || ((queueSize < EMPTY) && (position % batchSize) == 0)) {
@@ -151,31 +181,23 @@ public class QueuedCursorImpl extends ResultCursorBase implements IdentifiedData
 					logger.error("hasNext.error", ex); 
 				}
 			}
+		} else {
+			position++;
 		}
 		logger.trace("hasNext; returning: {}", result); 
 		return result;
 	}
 
-	@Override
-	public Object next() {
-		Object result = current;
-		if (current != null) {
-			current = queue.poll();
-			position++;
-		}
-		logger.trace("next; returning: {}", result);
-		return result;
-	}
-
-	@Override
-	public void close() {
-		logger.trace("close.enter; queue remaining size: {}", queue.size());
-		super.close();
-		queue.clear();
-		//if (destroy) {
-		//	queue.destroy();
-		//}
-	}
+	//@Override
+	//public Object next() {
+	//	Object result = current;
+	//	if (current != null) {
+	//		current = queue.poll();
+	//		position++;
+	//	}
+	//	logger.trace("next; returning: {}", result);
+	//	return result;
+	//}
 
 	@Override
 	public int getFactoryId() {

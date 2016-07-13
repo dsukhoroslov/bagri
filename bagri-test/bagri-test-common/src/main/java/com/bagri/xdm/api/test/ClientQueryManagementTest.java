@@ -5,9 +5,11 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
+import com.bagri.xdm.api.ResultCursor;
+
 public abstract class ClientQueryManagementTest extends XDMManagementTest {
 
-	public Iterator<?> getPrice(String symbol) throws Exception {
+	public ResultCursor getPrice(String symbol) throws Exception {
 		
 		String query = "declare namespace s=\"http://tpox-benchmark.com/security\";\n" +
 				"declare variable $sym external;\n" +
@@ -20,7 +22,7 @@ public abstract class ClientQueryManagementTest extends XDMManagementTest {
    		return getQueryManagement().executeQuery(query, bindings, new Properties());
 	}
 	
-	public Iterator<?> getSecurity(String symbol) throws Exception {
+	public ResultCursor getSecurity(String symbol) throws Exception {
 		
 		String query = "declare namespace s=\"http://tpox-benchmark.com/security\";\n" +
 				"declare variable $sym external;\n" + 
@@ -32,7 +34,7 @@ public abstract class ClientQueryManagementTest extends XDMManagementTest {
    		return getQueryManagement().executeQuery(query, bindings, new Properties());
 	}
 	
-	public Iterator<?> getOrder(String id) throws Exception {
+	public ResultCursor getOrder(String id) throws Exception {
 		
 		String query = "declare namespace o=\"http://www.fixprotocol.org/FIXML-4-4\";\n" +
 				"declare variable $ID external;\n" +
@@ -44,7 +46,7 @@ public abstract class ClientQueryManagementTest extends XDMManagementTest {
    		return getQueryManagement().executeQuery(query, bindings, new Properties());
 	}
 	
-	public Iterator<?> getCustomer(String id) throws Exception {
+	public ResultCursor getCustomer(String id) throws Exception {
 		
 		String query = "declare namespace c=\"http://tpox-benchmark.com/custacc\";\n" +
 				"declare variable $id external;\n" +
@@ -56,7 +58,7 @@ public abstract class ClientQueryManagementTest extends XDMManagementTest {
    		return getQueryManagement().executeQuery(query, bindings, new Properties());
 	}
 	
-	public Iterator<?> getCustomerProfile(String id) throws Exception {
+	public ResultCursor getCustomerProfile(String id) throws Exception {
 		
 		String query = "declare default element namespace \"http://tpox-benchmark.com/custacc\";\n" +
 				"declare variable $id external;\n" +
@@ -77,7 +79,7 @@ public abstract class ClientQueryManagementTest extends XDMManagementTest {
    		return getQueryManagement().executeQuery(query, bindings, new Properties());
 	}
 	
-	public Iterator<?> getCustomerAccounts(String id) throws Exception {
+	public ResultCursor getCustomerAccounts(String id) throws Exception {
 		
 		String query = "declare default element namespace \"http://tpox-benchmark.com/custacc\";\n" +
 				"declare variable $id external;\n" +
@@ -103,7 +105,7 @@ public abstract class ClientQueryManagementTest extends XDMManagementTest {
    		return getQueryManagement().executeQuery(query, bindings, new Properties());
 	}
 	
-	public Iterator<?> searchSecurity(String sector, float peMin, float peMax, float yieldMin) throws Exception {
+	public ResultCursor searchSecurity(String sector, float peMin, float peMax, float yieldMin) throws Exception {
 
 		String query = "declare default element namespace \"http://tpox-benchmark.com/security\";\n" +
 				"declare variable $sect external;\n" + 
@@ -128,7 +130,7 @@ public abstract class ClientQueryManagementTest extends XDMManagementTest {
    		return getQueryManagement().executeQuery(query, bindings, new Properties());
 	}
 	
-	public Iterator<?> getTodayOrderPrice(String ID) throws Exception {
+	public ResultCursor getTodayOrderPrice(String ID) throws Exception {
 
 		String query = "declare default element namespace \"http://www.fixprotocol.org/FIXML-4-4\";\n" +
 				"declare namespace s=\"http://tpox-benchmark.com/security\";\n" +
@@ -144,7 +146,7 @@ public abstract class ClientQueryManagementTest extends XDMManagementTest {
    		return getQueryManagement().executeQuery(query, bindings, new Properties());
 	}
 
-	public Iterator<?> getOrderCustomers(float cash, String country) throws Exception {
+	public ResultCursor getOrderCustomers(float cash, String country) throws Exception {
 
 		String query = "declare default element namespace \"http://www.fixprotocol.org/FIXML-4-4\";\n" +
 				"declare namespace c=\"http://tpox-benchmark.com/custacc\";\n" +
@@ -160,7 +162,7 @@ public abstract class ClientQueryManagementTest extends XDMManagementTest {
    		return getQueryManagement().executeQuery(query, bindings, new Properties());
 	}
 
-	public Iterator<?> getCustomerByAddress(int postalCode, int orderSide, boolean isPrimary) throws Exception {
+	public ResultCursor getCustomerByAddress(int postalCode, int orderSide, boolean isPrimary) throws Exception {
 
 		String query = "declare default element namespace \"http://www.fixprotocol.org/FIXML-4-4\";\n" +
 				"declare namespace c=\"http://tpox-benchmark.com/custacc\";\n" +
@@ -182,7 +184,7 @@ public abstract class ClientQueryManagementTest extends XDMManagementTest {
 	}
 
 	
-	public Iterator<?> getMaxOrderPrice(int id) throws Exception {
+	public ResultCursor getMaxOrderPrice(int id) throws Exception {
 
 		String query = "declare default element namespace \"http://www.fixprotocol.org/FIXML-4-4\";\n" +
 				"declare namespace c=\"http://tpox-benchmark.com/custacc\";\n" +
@@ -197,7 +199,7 @@ public abstract class ClientQueryManagementTest extends XDMManagementTest {
    		return getQueryManagement().executeQuery(query, bindings, new Properties());
 	}
 
-	public Iterator<?> getMaxOrderForIndustry(String industry, String state) throws Exception {
+	public ResultCursor getMaxOrderForIndustry(String industry, String state) throws Exception {
 
 		String query = "declare default element namespace \"http://www.fixprotocol.org/FIXML-4-4\";\n" +
 				"declare namespace s=\"http://tpox-benchmark.com/security\";\n" + 
@@ -216,7 +218,7 @@ public abstract class ClientQueryManagementTest extends XDMManagementTest {
    		return getQueryManagement().executeQuery(query, bindings, new Properties());
 	}
 
-	public Iterator<?> getCustomerSecurities(int id) throws Exception {
+	public ResultCursor getCustomerSecurities(int id) throws Exception {
 
 		String query = "declare namespace s=\"http://tpox-benchmark.com/security\";\n" + 
 				"declare namespace c=\"http://tpox-benchmark.com/custacc\";\n" +

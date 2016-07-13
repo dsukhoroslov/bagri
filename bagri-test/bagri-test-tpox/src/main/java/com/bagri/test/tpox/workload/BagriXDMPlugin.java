@@ -17,7 +17,6 @@ import static com.bagri.xqj.BagriXQDataSource.XQ_PROCESSOR;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -32,9 +31,10 @@ import net.sf.tpox.workload.transaction.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.bagri.xdm.api.ResultCursor;
 import com.bagri.xdm.api.SchemaRepository;
+import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.test.ClientQueryManagementTest;
-import com.bagri.xdm.client.hazelcast.impl.SchemaRepositoryImpl;
 import com.bagri.xdm.domain.Document;
 import com.bagri.xdm.system.Parameter;
 import com.bagri.xqj.BagriXQDataFactory;
@@ -221,13 +221,13 @@ public class BagriXDMPlugin extends BagriTPoXPlugin {
 		return logger;
 	}
 	
-	private Collection<String> toCollection(Iterator<?> iter) {
-		if (iter == null) {
+	private Collection<String> toCollection(ResultCursor cursor) throws XDMException {
+		if (cursor == null) {
 			return null;
 		}
 		List<String> result = new ArrayList<>();
-		while (iter.hasNext()) {
-			result.add(iter.next().toString());
+		while (cursor.getNext()) {
+			result.add(cursor.getString());
 		}
 		return result;
 	}

@@ -13,7 +13,9 @@ import javax.xml.xquery.XQQueryException;
 import javax.xml.xquery.XQStaticContext;
 
 import com.bagri.xdm.api.DocumentManagement;
+import com.bagri.xdm.api.ResultCursor;
 import com.bagri.xdm.api.XDMException;
+import com.bagri.xdm.api.impl.ResultCursorBase;
 import com.bagri.xdm.api.SchemaRepository;
 import com.bagri.xdm.cache.api.QueryManagement;
 import com.bagri.xdm.common.XDMConstants;
@@ -144,7 +146,7 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 	        	queries.put(qKey, xqExp);
         	} 
    	    	
-        	Map<String, Object> params = getParams();
+        	Map<String, Object> params = getObjectParams();
     	    if (xQuery == null) {
 		        cacheable = true; 
 	        	clnFinder.setQuery(null);
@@ -212,6 +214,14 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
         return execQuery(query);
 	}
 	
+	@Override
+    public ResultCursor processXQuery(String query, XQStaticContext ctx) throws XQException {
+
+        setStaticContext(sqc, ctx);
+        ResultCursorBase cursor = (ResultCursorBase) execQuery(query);
+        return cursor;
+    }
+    
 	@Override
 	public Iterator<?> getResults() {
 		return results;

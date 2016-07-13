@@ -371,27 +371,17 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
     
     // why it is not <QName, Object> ??
     // because it is used in QueryBuilder where params identified by plain Strings
-    protected Map<String, Object> getParams() throws XPathException {
+    protected Map<String, Object> getObjectParams() throws XPathException {
     	GlobalParameterSet params = dqc.getParameters();
     	Map<String, Object> bindings = new HashMap<>(params.getNumberOfKeys());
     	for (StructuredQName name: params.getKeys()) {
     		Item item = (Item) params.get(name);
-    		Object value;
-			value = itemToObject(item);
+    		Object value = itemToObject(item);
     		bindings.put(name.getClarkName(), value);
     		logger.trace("getParams; name: {}; item: {}; value: {}", name, item, value);
     	}
     	return bindings;
     }
-    
-    //protected Collection<QName> getParamNames(Collection<String> pNames) {
-    //	List<QName> result = new ArrayList<>(pNames.size());
-    //	for (String pName: pNames) {
-    		// it should be a ClarkName as a result of conversion above
-    //		result.add(QName.valueOf(pName));
-    //	}
-    //	return result;
-    //}
     
     protected String explainQuery(XQueryExpression exp) throws XPathException {
     	ByteArrayOutputStream baos = new ByteArrayOutputStream();

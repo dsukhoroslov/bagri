@@ -1,10 +1,8 @@
 package com.bagri.xqj;
 
-import static com.bagri.common.util.CollectionUtils.copyIterator;
 import static com.bagri.xqj.BagriXQErrors.ex_expression_closed;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -20,7 +18,12 @@ import javax.xml.xquery.XQSequence;
 import javax.xml.xquery.XQSequenceType;
 import javax.xml.xquery.XQStaticContext;
 
+import com.bagri.xdm.api.ResultCursor;
+import com.bagri.xdm.api.XDMException;
+
 import static javax.xml.xquery.XQSequenceType.*;
+import static com.bagri.xquery.api.XQUtils.*;
+
 
 public class BagriXQPreparedExpression extends BagriXQDynamicContext implements	XQPreparedExpression {
 	
@@ -68,9 +71,13 @@ public class BagriXQPreparedExpression extends BagriXQDynamicContext implements	
 	public XQResultSequence executeQuery() throws XQException {
 
 		checkState(ex_expression_closed);
-		Iterator result = connection.executeQuery(xquery, context); //this.getStaticContext());
+		ResultCursor result = connection.executeQuery(xquery, context); 
 		if (context.getScrollability() == XQConstants.SCROLLTYPE_SCROLLABLE) {
-			return new ScrollableXQResultSequence(this, copyIterator(result));
+			try {
+				return new ScrollableXQResultSequence(this, result.getList());
+			} catch (XDMException ex) {
+				throw getXQException(ex); 
+			}
 		}
 		return new IterableXQResultSequence(this, result);
 	}

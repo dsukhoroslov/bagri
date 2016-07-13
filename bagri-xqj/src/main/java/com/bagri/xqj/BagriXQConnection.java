@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import com.bagri.common.util.XMLUtils;
 import com.bagri.xdm.api.XDMException;
+import com.bagri.xdm.api.ResultCursor;
 import com.bagri.xdm.api.TransactionManagement;
 
 import static com.bagri.xdm.api.XDMException.ecTransWrongState;
@@ -343,16 +344,16 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 	}
 
 	@SuppressWarnings("rawtypes")
-	public Iterator executeQuery(String query) throws XQException {
+	ResultCursor executeQuery(String query) throws XQException {
 		
 		return executeQuery(query, context); //this.getStaticContext());
 	}
 	
 	@SuppressWarnings("rawtypes")
-	public Iterator executeQuery(final String query, final XQStaticContext ctx) throws XQException {
+	ResultCursor executeQuery(final String query, final XQStaticContext ctx) throws XQException {
 		
 		checkState(ex_connection_closed);
-		Iterator result = null;
+		ResultCursor result = null;
 		cancelled = false;
 		try {
 			if (transactional) {
@@ -367,7 +368,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 		    		throw getXQException(ex);
 				}
 			} else {
-				result = getProcessor().executeXQuery(query, ctx);
+				result = getProcessor().processXQuery(query, ctx);
 			}
 		} finally {
 			if (cancelled) {

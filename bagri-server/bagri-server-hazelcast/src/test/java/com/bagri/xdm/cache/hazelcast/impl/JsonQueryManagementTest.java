@@ -91,7 +91,7 @@ public class JsonQueryManagementTest extends XDMManagementTest {
 				"let $props := entry('method', 'json')\n" +
 				"let $json := fn:serialize($map, $props)\n" +
 				"return fn:json-to-xml($json)";
-		ResultCursor docs = getQueryManagement().processQuery(query, null, new Properties());
+		ResultCursor docs = getQueryManagement().executeQuery(query, null, new Properties());
 		assertNotNull(docs);
 		((QueuedCursorImpl) docs).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
 		Properties props = new Properties();
@@ -102,8 +102,9 @@ public class JsonQueryManagementTest extends XDMManagementTest {
 			//String json = item.getItemAsString(props);
 			String json = docs.getString();
 			jsons.add(json);
-			System.out.println(json);
+			//System.out.println(json);
 		}
+		docs.close();
 		assertEquals(3, jsons.size());
 	}
 	
@@ -117,18 +118,20 @@ public class JsonQueryManagementTest extends XDMManagementTest {
 		
 		Properties props = new Properties();
 		//props.setProperty("method", "json");
-		Iterator<?> docs = getQueryManagement().executeQuery(query, null, props);
+		ResultCursor docs = getQueryManagement().executeQuery(query, null, props);
 		assertNotNull(docs);
 		((QueuedCursorImpl) docs).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
 		props = new Properties();
 		//props.setProperty("method", "json");
 		List<String> jsons = new ArrayList<>();
-		while (docs.hasNext()) {
-			XQItem item = (XQItem) docs.next();
-			String json = item.getItemAsString(props);
+		while (docs.getNext()) {
+			//XQItem item = (XQItem) docs.next();
+			//String json = item.getItemAsString(props);
+			String json = docs.getString();
 			jsons.add(json);
 			//System.out.println(json);
 		}
+		docs.close();
 		assertEquals(3, jsons.size());
 	}
 
@@ -140,17 +143,19 @@ public class JsonQueryManagementTest extends XDMManagementTest {
 				//"where get($v, '-id') = '5621'\n" +
 				"where get($v, 'Symbol') = 'IBM'\n" +
 				"return $v?('Symbol', 'Name')";
-		Iterator<?> docs = getQueryManagement().executeQuery(query, null, new Properties());
+		ResultCursor docs = getQueryManagement().executeQuery(query, null, new Properties());
 		assertNotNull(docs);
 		((QueuedCursorImpl) docs).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
 		Properties props = new Properties();
 		props.setProperty("method", "text");
 		List<String> results = new ArrayList<>();
-		while (docs.hasNext()) {
-			XQItem item = (XQItem) docs.next();
-			String text = item.getItemAsString(props);
+		while (docs.getNext()) {
+			//XQItem item = (XQItem) docs.next();
+			//String text = item.getItemAsString(props);
+			String text = docs.getString();
 			results.add(text);
 		}
+		docs.close();
 		assertEquals(2, results.size());
 	}
 	

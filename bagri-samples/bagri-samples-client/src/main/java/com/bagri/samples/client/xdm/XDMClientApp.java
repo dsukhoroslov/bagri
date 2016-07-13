@@ -13,6 +13,7 @@ import javax.xml.xquery.XQException;
 
 import com.bagri.samples.client.BagriClientApp;
 import com.bagri.xdm.api.XDMException;
+import com.bagri.xdm.api.ResultCursor;
 import com.bagri.xdm.api.SchemaRepository;
 import com.bagri.xdm.client.hazelcast.impl.SchemaRepositoryImpl;
 import com.bagri.xdm.domain.Document;
@@ -71,31 +72,33 @@ public class XDMClientApp implements BagriClientApp {
 	}
 	
 	@Override
-	public String queryDocumentByUri(String uri) throws XDMException, XQException {
+	public String queryDocumentByUri(String uri) throws Exception {
 
 		String query = "for $doc in fn:doc(\"" + uri + "\")\n" +
 				"return $doc\n";
 
-		Iterator<?> itr = xRepo.getQueryManagement().executeQuery(query, null, new Properties());
-	    String result = null;
-	    if (itr.hasNext()) {
-			result = proc.convertToString(itr.next(), null);
-	    }
-	    return result;
+		try (ResultCursor cursor = xRepo.getQueryManagement().executeQuery(query, null, new Properties())) {
+			String result = null;
+			if (cursor.getNext()) {
+				result = cursor.getString(); // proc.convertToString(itr.next(), null);
+			}
+			return result;
+		}
 	}
 	
 	@Override
-	public String queryDocumentFromCollection() throws XDMException, XQException {
+	public String queryDocumentFromCollection() throws Exception {
 
 		String query = "for $doc in fn:collection()\n" +
 				"return $doc\n";
 
-		Iterator<?> itr = xRepo.getQueryManagement().executeQuery(query, null, new Properties());
-	    String result = null;
-	    if (itr.hasNext()) {
-			result = proc.convertToString(itr.next(), null);
-	    }
-	    return result;
+		try (ResultCursor cursor = xRepo.getQueryManagement().executeQuery(query, null, new Properties())) {
+			String result = null;
+			if (cursor.getNext()) {
+				result = cursor.getString(); // proc.convertToString(itr.next(), null);
+			}
+			return result;
+		}
 	}
 	
 	@Override

@@ -85,7 +85,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	}
 	
 	@Override
-	public Iterator<?> executeQuery(String query, Map<String, Object> params, Properties props) throws XDMException {
+	public ResultCursor executeQuery(String query, Map<String, Object> params, Properties props) throws XDMException {
 
 		logger.trace("executeQuery.enter; query: {}; bindings: {}; context: {}", query, params, props);
 		boolean useCache = this.queryCache; 
@@ -98,7 +98,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			QueryResult res = resCache.get(qKey);
 			if (res != null) {
 				logger.trace("execXQuery; got cached results: {}", res);
-				return res.getResults().iterator();
+				return new FixedCursorImpl((List) res.getResults());
 			}
 		}
 
@@ -130,7 +130,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			((QueuedCursorImpl) cursor).deserialize(repo.getHazelcastClient());
 		}
 			
-		Iterator result = cursor;
+		//Iterator result = cursor;
 		//int fetchSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, "0"));
 		//if (fetchSize == 0) {
 		//	result = extractFromCursor(cursor);
@@ -138,17 +138,10 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			// possible memory leak with non-closed cursors !?
 		//	result = cursor;
 		//}
-		logger.trace("executeQuery.exit; returning: {}", result);
-		return result; 
+		logger.trace("executeQuery.exit; returning: {}", cursor);
+		return cursor; 
 	}
 
-	@Override
-	public ResultCursor processQuery(String query, Map<String, Object> params, Properties props) throws XDMException {
-		//
-		ResultCursorBase cursor = (ResultCursorBase) executeQuery(query, params, props);
-		return cursor;
-	}
-	
 	private <T> T getResults(Future<T> future, long timeout) throws XDMException {
 
 		T result;

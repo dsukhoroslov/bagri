@@ -5,7 +5,9 @@ import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryI
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.List;
 
+import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.impl.ResultCursorBase;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.nio.ObjectDataInput;
@@ -15,21 +17,36 @@ import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 public class FixedCursorImpl extends ResultCursorBase implements IdentifiedDataSerializable {
 
 	private Object value = null;
+	private List<Object> values;
+	private Iterator<Object> iter;
 	
 	public FixedCursorImpl() {
 		this(null);
 	}
 
-	public FixedCursorImpl(Iterator<Object> iter) {
-		super(iter);
+	public FixedCursorImpl(List<Object> values) {
+		//super(iter);
+		this.values = values;
+		iter = this.values.iterator();
 	}
 	
+	@Override
+	public void close() throws Exception {
+		if (values.size() > 1) {
+			// non-abstract impl
+			values.clear();
+		}
+		values = null;
+		value = null;
+		iter = null;
+	}
+
 	public void deserialize(HazelcastInstance hzi) {
 		position = 0;
 	}
 
 	public int serialize(HazelcastInstance hzi) {
-		return 1;
+		return values.size();
 	}
 	
 	protected Object getCurrent() {
@@ -37,16 +54,21 @@ public class FixedCursorImpl extends ResultCursorBase implements IdentifiedDataS
 	}
 	
 	@Override
-	public boolean hasNext() {
-		return iter.hasNext();
-	}	
-	
-	@Override
-	public Object next() {
-		value = iter.next(); 
-		return value;
+	public List<?> getList() throws XDMException {
+		return values;
 	}
 
+	@Override
+	public boolean getNext() {
+		boolean result = iter.hasNext();
+		if (result) {
+			value = iter.next();
+		} else {
+			value = null;
+		}
+		return result;
+	}	
+	
 	@Override
 	public int getFactoryId() {
 		return factoryId;
@@ -59,22 +81,17 @@ public class FixedCursorImpl extends ResultCursorBase implements IdentifiedDataS
 
 	@Override
 	public void readData(ObjectDataInput in) throws IOException {
-		//super.readData(in);
-		//value = in.readObject();
-		iter = in.readObject();
+		values = in.readObject();
 	}
 
 	@Override
 	public void writeData(ObjectDataOutput out) throws IOException {
-		//super.writeData(out);
-		//out.writeObject(value);
-		out.writeObject(iter);
+		out.writeObject(values);
 	}
 
 	@Override
 	public String toString() {
-		return "FixedCursorImpl [" + //clientId=" + getClientId() + //", queueSize=" + queueSize + 
-			", position=" + position + "]"; //", batchSize=" + batchSize + ", value=" + value + "]";
+		return "FixedCursorImpl [position=" + position + ", values=" + values.size() + "]"; 
 	}
 
 }

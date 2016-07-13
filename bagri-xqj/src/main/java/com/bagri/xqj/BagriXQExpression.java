@@ -1,12 +1,11 @@
 package com.bagri.xqj;
 
-import static com.bagri.common.util.CollectionUtils.copyIterator;
 import static com.bagri.xqj.BagriXQErrors.ex_expression_closed;
+import static com.bagri.xquery.api.XQUtils.getXQException;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
-import java.util.Iterator;
 
 import javax.xml.xquery.XQConstants;
 import javax.xml.xquery.XQException;
@@ -15,6 +14,8 @@ import javax.xml.xquery.XQResultSequence;
 import javax.xml.xquery.XQStaticContext;
 
 import com.bagri.common.util.XMLUtils;
+import com.bagri.xdm.api.ResultCursor;
+import com.bagri.xdm.api.XDMException;
 
 public class BagriXQExpression extends BagriXQDynamicContext implements XQExpression {
 	
@@ -54,7 +55,6 @@ public class BagriXQExpression extends BagriXQDynamicContext implements XQExpres
 	}
 
 	@Override
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public XQResultSequence executeQuery(String query) throws XQException {
 		
 		checkState(ex_expression_closed);
@@ -63,10 +63,13 @@ public class BagriXQExpression extends BagriXQDynamicContext implements XQExpres
 		}
 		
 		// run it...
-		Iterator result = connection.executeQuery(query);
-		
+		ResultCursor result = connection.executeQuery(query, context);
 		if (context.getScrollability() == XQConstants.SCROLLTYPE_SCROLLABLE) {
-			return new ScrollableXQResultSequence(this, copyIterator(result));
+			try {
+				return new ScrollableXQResultSequence(this, result.getList());
+			} catch (XDMException ex) {
+				throw getXQException(ex); 
+			}
 		}
 		return new IterableXQResultSequence(this, result);
 	}

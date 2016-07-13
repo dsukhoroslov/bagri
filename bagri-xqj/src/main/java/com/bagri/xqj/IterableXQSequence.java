@@ -6,28 +6,31 @@ import static com.bagri.xqj.BagriXQErrors.ex_sequence_not_scrollable;
 import java.io.OutputStream;
 import java.io.Writer;
 import java.net.URI;
-import java.util.Iterator;
 import java.util.Properties;
 
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.transform.Result;
 import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQItem;
+import javax.xml.xquery.XQItemAccessor;
 
 import org.w3c.dom.Node;
 import org.xml.sax.ContentHandler;
 
-import com.bagri.xquery.api.XQUtils;
+import static com.bagri.xquery.api.XQUtils.*;
+
+import com.bagri.xdm.api.ResultCursor;
+import com.bagri.xdm.api.XDMException;
 import com.bagri.xquery.api.XQProcessor;
 
 public class IterableXQSequence extends BagriXQSequence {
 	
-	private Iterator<?> iterator;
+	private ResultCursor cursor;
 	private boolean accessed;
 	
-	IterableXQSequence(BagriXQDataFactory xqFactory, XQProcessor  xqProcessor, Iterator<?> iterator) {
+	IterableXQSequence(BagriXQDataFactory xqFactory, XQProcessor  xqProcessor, ResultCursor cursor) {
 		super(xqFactory, xqProcessor);
-		this.iterator = iterator;
+		this.cursor = cursor;
 		accessed = false;
 	}
 	
@@ -39,6 +42,16 @@ public class IterableXQSequence extends BagriXQSequence {
 			throw new XQException("Item has been already accessed");
 		}
 		//accessed = true;
+	}
+	
+	@Override
+	public void close() throws XQException {
+		super.close();
+		try {
+			cursor.close();
+		} catch (Exception ex) {
+			throw getXQException(ex);
+		}
 	}
 
 	@Override
@@ -282,20 +295,24 @@ public class IterableXQSequence extends BagriXQSequence {
 	public boolean next() throws XQException {
 		
 		checkState(ex_sequence_closed);
-		if (iterator.hasNext()) {
-			Object current = iterator.next();
-			if (current instanceof BagriXQItem) {
-				setCurrent(((BagriXQItem) current).type, ((BagriXQItem) current).value);
-			} else if (current instanceof XQItem) {
-				setCurrent(((XQItem) current).getItemType(), ((XQItem) current).getObject());
-			} else {
-				setCurrent(XQUtils.getTypeForObject(xqFactory, current), current);
+		try {
+			if (cursor.getNext()) {
+				XQItemAccessor current = cursor.getXQItem();
+				//if (current instanceof BagriXQItemAccessor) {
+					setCurrent(((BagriXQItemAccessor) current).type, ((BagriXQItemAccessor) current).value);
+				//} else if (current instanceof XQItem) {
+				//	setCurrent(((XQItem) current).getItemType(), ((XQItem) current).getObject());
+				//} else {
+				//	setCurrent(getTypeForObject(xqFactory, current), current);
+				//}
+				accessed = false;
+				return true;
 			}
-			accessed = false;
-			return true;
+			positioned = false;
+			return false;
+		} catch (XDMException ex) {
+			throw getXQException(ex);
 		}
-		positioned = false;
-		return false;
 	}
 
 	@Override

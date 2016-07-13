@@ -24,14 +24,11 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import javax.xml.xquery.XQException;
 
 import org.jline.reader.Completer;
 import org.jline.reader.EndOfFileException;
@@ -44,6 +41,7 @@ import org.jline.terminal.TerminalBuilder;
 import org.jline.utils.InfoCmp.Capability;
 
 import com.bagri.xdm.api.DocumentManagement;
+import com.bagri.xdm.api.ResultCursor;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.SchemaRepository;
 import com.bagri.xdm.client.hazelcast.impl.SchemaRepositoryImpl;
@@ -373,24 +371,15 @@ public class BookingApp {
 		return xRepo.getDocumentManagement().getDocumentAsString(uri);
 	}
 	
-	public List<String> runQuery(String query) throws XDMException, XQException {
+	public List<String> runQuery(String query) throws Exception {
 		Properties props = new Properties();
-		Iterator<?> itr = xRepo.getQueryManagement().executeQuery(query, null, props);
 		List<String> result = new ArrayList<String>();
-		
 		Properties outProps = getOutputProperties(props);
-		//int fSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, String.valueOf(fetchSize)));
-		//if (fSize > 0) {
-		//	int cnt = 0;
-		//	while (itr.hasNext() && cnt < fSize) {
-		//		buff.append(xqp.convertToString(itr.next(), outProps));
-		//		cnt++;
-		//	}
-		//} else {
-			while (itr.hasNext()) {
-				result.add(proc.convertToString(itr.next(), outProps));
+		try (ResultCursor cursor = xRepo.getQueryManagement().executeQuery(query, null, props)) {
+			while (cursor.getNext()) {
+				result.add(proc.convertToString(cursor.getXQItem(), outProps));
 			}
-		//}
+		}
 		return result;
 	}
 	

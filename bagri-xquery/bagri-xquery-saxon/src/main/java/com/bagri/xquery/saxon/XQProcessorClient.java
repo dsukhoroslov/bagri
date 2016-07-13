@@ -21,7 +21,9 @@ import javax.xml.xquery.XQItem;
 import javax.xml.xquery.XQStaticContext;
 
 import com.bagri.xdm.api.XDMException;
+import com.bagri.xdm.api.impl.ResultCursorBase;
 import com.bagri.xdm.api.QueryManagement;
+import com.bagri.xdm.api.ResultCursor;
 import com.bagri.xquery.api.XQProcessor;
 
 import net.sf.saxon.expr.instruct.GlobalParameterSet;
@@ -88,7 +90,9 @@ public class XQProcessorClient extends XQProcessorImpl implements XQProcessor {
 			} else {
 				props = ensureProperty(props, pn_query_command, "true");
 		    	QueryManagement qMgr = getQueryManagement();
-	    		return qMgr.executeQuery(command, params, props);
+	    		ResultCursorBase cursor = (ResultCursorBase) qMgr.executeQuery(command, params, props);
+				result = new Integer(1); 
+		    	//return cursor; 
 			}
 			return Collections.singletonList(result).iterator();
     	} catch (XDMException ex) {
@@ -104,23 +108,17 @@ public class XQProcessorClient extends XQProcessorImpl implements XQProcessor {
 
 	@Override
 	public Iterator<?> executeXQuery(String query, Properties props) throws XQException {
+   		throw new XQException("Not implemented on the client side. Use method processXQuery instead");
+	}
 
-    	//logger.trace("executeXQuery.enter; query: {}", query);
+	@Override
+	public ResultCursor processXQuery(String query, XQStaticContext ctx) throws XQException {
+
+		Properties props = collectProperties(ctx);
 		props = ensureProperty(props, pn_query_command, "false");
-    	QueryManagement qMgr = getQueryManagement();
-    	GlobalParameterSet params = dqc.getParameters();
-    	Map<String, Object> bindings = new HashMap<>(params.getNumberOfKeys());
-    	
     	try {
-	    	for (StructuredQName qName: params.getKeys()) {
-	    		//QName vName = new QName(qName.getURI(), qName.getLocalPart(), qName.getPrefix()); 
-	    		//bindings.put(vName, itemToObject((Item) params.get(qName)));
-	    		String vName = qName.getClarkName(); 
-	    		bindings.put(vName, itemToXQItem((Item) params.get(qName), this.getXQDataFactory()));
-	    	}
-	    	//logger.trace("executeXQuery; bindings: {}", bindings);
-    	
-    		return qMgr.executeQuery(query, bindings, props);
+        	Map<String, Object> params = getXQItemParams();
+    		return getQueryManagement().executeQuery(query, params, props);
     	} catch (XPathException | XDMException ex) {
     		throw getXQException(ex);
     	}
@@ -136,6 +134,15 @@ public class XQProcessorClient extends XQProcessorImpl implements XQProcessor {
     	return super.prepareXQuery(query, ctx);
 	}
 
+	private Map<String, Object> getXQItemParams() throws XQException, XPathException {
+    	GlobalParameterSet paramSet = dqc.getParameters();
+    	Map<String, Object> params = new HashMap<>(paramSet.getNumberOfKeys());
+    	for (StructuredQName qName: paramSet.getKeys()) {
+    		String pName = qName.getClarkName(); 
+    		params.put(pName, itemToXQItem((Item) paramSet.get(qName), this.getXQDataFactory()));
+    	}
+		return params;
+	}
 
 	@Override
 	public Iterator<?> getResults() {

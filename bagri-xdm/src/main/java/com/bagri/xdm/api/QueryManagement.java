@@ -21,7 +21,7 @@ public interface QueryManagement {
 	 * @return iterator over resulting data sequence 
 	 * @throws XDMException in case of any query processing error
 	 */
-	Iterator<?> executeQuery(String query, Map<String, Object> params, Properties props) throws XDMException;
+	//Iterator<?> executeQuery(String query, Map<String, Object> params, Properties props) throws XDMException;
 	
 	/**
 	 * executes (X-)query on the current XDM SChema. Returns cursor over resulting Java objects
@@ -32,7 +32,7 @@ public interface QueryManagement {
 	 * @return wrapping cursor over resulting data sequence 
 	 * @throws XDMException in case of any query processing error
 	 */
-	ResultCursor processQuery(String query, Map<String, Object> params, Properties props) throws XDMException;
+	ResultCursor executeQuery(String query, Map<String, Object> params, Properties props) throws XDMException;
 
 	/**
 	 * 

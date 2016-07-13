@@ -5,8 +5,6 @@ import static com.bagri.xdm.common.XDMConstants.pn_schema_name;
 import static com.bagri.xdm.common.XDMConstants.pn_schema_password;
 import static com.bagri.xdm.common.XDMConstants.pn_schema_user;
 
-import java.util.Iterator;
-
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -14,6 +12,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.bagri.xdm.api.ResultCursor;
 import com.bagri.xdm.api.test.ClientQueryManagementTest;
 import com.hazelcast.core.Hazelcast;
 
@@ -57,78 +56,92 @@ public class QueryManagementImplTest extends ClientQueryManagementTest {
 	public void getPriceTest() throws Exception {
 		storeSecurityTest();
 
-		Iterator<?> sec = getPrice("VFINX");
+		ResultCursor sec = getPrice("VFINX");
 		Assert.assertNotNull(sec);
-		Assert.assertTrue(sec.hasNext());
+		Assert.assertTrue(sec.getNext());
+		sec.close();
 
 		sec = getPrice("IBM");
 		Assert.assertNotNull(sec);
-		Assert.assertTrue(sec.hasNext());
+		Assert.assertTrue(sec.getNext());
+		sec.close();
 
 		sec = getPrice("PTTAX");
 		Assert.assertNotNull(sec);
-		Assert.assertTrue(sec.hasNext());
+		Assert.assertTrue(sec.getNext());
+		sec.close();
 	}
 
 	@Test
 	public void getSecurityTest() throws Exception {
 		storeSecurityTest();
 
-		Iterator<?> sec = getSecurity("VFINX");
+		ResultCursor sec = getSecurity("VFINX");
 		Assert.assertNotNull(sec);
-		Assert.assertTrue(sec.hasNext());
+		Assert.assertTrue(sec.getNext());
+		sec.close();
 
 		sec = getSecurity("IBM");
 		Assert.assertNotNull(sec);
-		Assert.assertTrue(sec.hasNext());
+		Assert.assertTrue(sec.getNext());
+		sec.close();
 
 		sec = getSecurity("PTTAX");
 		Assert.assertNotNull(sec);
-		Assert.assertTrue(sec.hasNext());
+		Assert.assertTrue(sec.getNext());
+		sec.close();
 	}
 
 	@Test
 	public void searchSecurityTest() throws Exception {
 		storeSecurityTest();
 
-		Iterator<?> sec = searchSecurity("Technology", 25, 28, 0);
+		ResultCursor sec = searchSecurity("Technology", 25, 28, 0);
 		Assert.assertNotNull(sec);
-		Assert.assertTrue(sec.hasNext());
+		Assert.assertTrue(sec.getNext());
+		sec.close();
 
 		sec = searchSecurity("Technology", 25, 28, 1);
 		Assert.assertNotNull(sec);
-		Assert.assertFalse(sec.hasNext());
+		Assert.assertFalse(sec.getNext());
+		sec.close();
 
 		sec = searchSecurity("Technology", 28, 29, 0);
 		Assert.assertNotNull(sec);
-		Assert.assertFalse(sec.hasNext());
+		Assert.assertFalse(sec.getNext());
+		sec.close();
 	}
 
 	@Test
 	public void getOrderTest() throws Exception {
 		storeOrderTest();
-		Iterator<?> sec = getOrder("103404");
+		ResultCursor sec = getOrder("103404");
 		Assert.assertNotNull(sec);
-		Assert.assertTrue(sec.hasNext());
+		Assert.assertTrue(sec.getNext());
+		sec.close();
+
 		sec = getOrder("103935");
 		Assert.assertNotNull(sec);
-		Assert.assertTrue(sec.hasNext());
+		Assert.assertTrue(sec.getNext());
+		sec.close();
 	}
 
 	@Test
 	public void getCustomerProfileTest() throws Exception {
 		storeCustomerTest();
-		Iterator<?> sec = getCustomerProfile("1011");
+		ResultCursor sec = getCustomerProfile("1011");
 		Assert.assertNotNull(sec);
-		Assert.assertTrue(sec.hasNext());
+		Assert.assertTrue(sec.getNext());
+		sec.close();
 	}
 
 	@Test
 	public void getCustomerAccountsTest() throws Exception {
 		storeCustomerTest();
-		Iterator<?> sec = getCustomerAccounts("1011");
+		ResultCursor sec = getCustomerAccounts("1011");
 		Assert.assertNotNull(sec);
-		Assert.assertTrue(sec.hasNext());
+		Assert.assertTrue(sec.getNext());
+		sec.close();
 	}
 	
 	

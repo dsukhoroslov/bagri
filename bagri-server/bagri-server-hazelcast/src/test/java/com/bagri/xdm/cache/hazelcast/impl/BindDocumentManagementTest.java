@@ -18,6 +18,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import com.bagri.xdm.api.ResultCursor;
 import com.bagri.xdm.api.test.XDMManagementTest;
 import com.bagri.xdm.cache.hazelcast.bean.SampleBean;
 import com.bagri.xdm.client.hazelcast.impl.QueuedCursorImpl;
@@ -122,19 +123,21 @@ public class BindDocumentManagementTest extends XDMManagementTest {
 		
 		Map<String, Object> params = new HashMap<>();
 		params.put("value", 0);
-		Iterator<?> results = query(query, params);
-		assertFalse(results.hasNext());
+		ResultCursor results = query(query, params);
+		assertFalse(results.getNext());
+		results.close();
 		
 		params.put("value", 1);
 		results = query(query, params);
-		assertTrue(results.hasNext());
+		assertTrue(results.getNext());
 		
 		Properties props = new Properties();
 		props.setProperty("method", "text");
-		XQItem item = (XQItem) results.next();
+		XQItem item = (XQItem) results.getXQItem();
 		String text = item.getItemAsString(props);
 		assertEquals("XYZ", text);
-		assertFalse(results.hasNext());
+		assertFalse(results.getNext());
+		results.close();
 	}
 		
 	@Test
@@ -161,19 +164,19 @@ public class BindDocumentManagementTest extends XDMManagementTest {
 		
 		Map<String, Object> params = new HashMap<>();
 		params.put("value", 1);
-		Iterator<?> results = query(query, params);
-		assertTrue(results.hasNext());
-		
-		Properties props = new Properties();
-		props.setProperty("method", "text");
-		XQItem item = (XQItem) results.next();
-		String text = item.getItemAsString(props);
-		assertEquals("XYZ", text);
-		assertFalse(results.hasNext());
+		try (ResultCursor results = query(query, params)) {
+			assertTrue(results.getNext());
+			Properties props = new Properties();
+			props.setProperty("method", "text");
+			XQItem item = (XQItem) results.getXQItem();
+			String text = item.getItemAsString(props);
+			assertEquals("XYZ", text);
+			assertFalse(results.getNext());
+		}
 	}
 		
-	private Iterator<?> query(String query, Map<String, Object> params) throws Exception {
-		Iterator<?> result = getQueryManagement().executeQuery(query, params, new Properties());
+	private ResultCursor query(String query, Map<String, Object> params) throws Exception {
+		ResultCursor result = getQueryManagement().executeQuery(query, params, new Properties());
 		assertNotNull(result);
 		((QueuedCursorImpl) result).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
 		//assertTrue(result.hasNext());

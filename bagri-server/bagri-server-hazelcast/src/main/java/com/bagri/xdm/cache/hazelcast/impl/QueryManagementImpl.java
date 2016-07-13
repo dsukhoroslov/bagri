@@ -583,7 +583,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	}
 	
 	@Override
-	public Iterator<?> executeQuery(String query, Map<String, Object> params, Properties props) throws XDMException {
+	public ResultCursor executeQuery(String query, Map<String, Object> params, Properties props) throws XDMException {
 
 		logger.trace("executeQuery.enter; query: {}; params: {}; properties: {}", query, params, props);
 		ResultCursorBase result = null;
@@ -593,7 +593,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			XQProcessor xqp = repo.getXQProcessor(clientId);
 			Iterator<Object> iter = runQuery(query, params, props);
 			result = createCursor(clientId, batchSize, iter);
-			xqp.setResults(result);
+			xqp.setResults(iter);
 		} catch (XQException ex) {
 			throw new XDMException(ex, XDMException.ecQuery);
 		}
@@ -608,13 +608,6 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		return null;
 	}
 
-	@Override
-	public ResultCursor processQuery(String query, Map<String, Object> params, Properties props) throws XDMException {
-		//
-		ResultCursorBase cursor = (ResultCursorBase) executeQuery(query, params, props);
-		return cursor;
-	}
-	
 	private Iterator<Object> runQuery(String query, Map<String, Object> params, Properties props) throws XQException {
 		
         Throwable ex = null;
@@ -692,7 +685,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		final ResultCursorBase xqCursor;
 		int count = 0;
 		if (batchSize == 1) {
-			xqCursor = new FixedCursorImpl(iter);
+			xqCursor = new FixedCursorImpl(Collections.singletonList(iter.next()));
 			// count = ??
 		} else {
 			QueuedCursorImpl qc = new QueuedCursorImpl(iter, clientId, batchSize, size);

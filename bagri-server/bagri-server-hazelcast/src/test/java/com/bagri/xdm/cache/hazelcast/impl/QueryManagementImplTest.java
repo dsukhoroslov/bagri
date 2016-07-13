@@ -19,6 +19,7 @@ import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.bagri.common.util.JMXUtils;
+import com.bagri.xdm.api.ResultCursor;
 import com.bagri.xdm.api.test.XDMManagementTest;
 import com.bagri.xdm.cache.api.ModelManagement;
 import com.bagri.xdm.cache.api.QueryManagement;
@@ -346,10 +347,11 @@ public class QueryManagementImplTest extends XDMManagementTest {
 			String query = "declare namespace s=\"http://tpox-benchmark.com/security\";\n" +
 				"for $sec in fn:doc(\"" + uri + "\")/s:Security\n" +
 				"return $sec\n";
-			Iterator itr = xRepo.getQueryManagement().executeQuery(query, params, props);
-			assertNotNull(itr);
-			((QueuedCursorImpl) itr).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
-			assertTrue(itr.hasNext());
+			ResultCursor rc = xRepo.getQueryManagement().executeQuery(query, params, props);
+			assertNotNull(rc);
+			((QueuedCursorImpl) rc).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
+			assertTrue(rc.getNext());
+			rc.close();
 		}
 	}
 	
@@ -369,22 +371,23 @@ public class QueryManagementImplTest extends XDMManagementTest {
 		props.setProperty(pn_client_id, "1");
 		props.setProperty(pn_client_fetchSize, "1");
 		props.setProperty(pn_defaultElementTypeNamespace, "");
-		Iterator itr = xRepo.getQueryManagement().executeQuery(query, params, props);
-		assertNotNull(itr);
-		//((ResultCursor) itr).deserialize(((RepositoryImpl) xRepo).getHzInstance());
-		assertTrue(itr.hasNext());
+		ResultCursor rc = xRepo.getQueryManagement().executeQuery(query, params, props);
+		assertNotNull(rc);
+		//((QueuedCursorImpl) rc).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
+		assertTrue(rc.getNext());
 		XQProcessor xqp = ((SchemaRepositoryImpl) xRepo).getXQProcessor();
-		Object result = itr.next();
+		Object result = rc.getObject();
 		assertNotNull(result);
 		String text = xqp.convertToString(result, null);
 		assertEquals("<print>The open price of the security \"Vanguard 500 Index Fund\" is 101.12 dollars</print>", text);
-		assertFalse(itr.hasNext());
+		assertFalse(rc.getNext());
 		props = new Properties();
 		//props.setProperty(javax.xml.transform.OutputKeys.OMIT_XML_DECLARATION, "yes");
 		//props.setProperty(javax.xml.transform.OutputKeys.INDENT, "yes");
 		props.setProperty(javax.xml.transform.OutputKeys.METHOD, "text");
 		text = xqp.convertToString(result, props);
 		assertEquals("The open price of the security \"Vanguard 500 Index Fund\" is 101.12 dollars", text);
+		rc.close();
 	}
 	
 }

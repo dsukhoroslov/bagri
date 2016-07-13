@@ -10,7 +10,7 @@ import org.w3c.dom.Node;
 import com.bagri.xdm.api.ResultCursor;
 import com.bagri.xdm.api.XDMException;
 
-public abstract class ResultCursorBase implements Iterator<Object>, ResultCursor {
+public abstract class ResultCursorBase implements ResultCursor {
 
 	public static final int ONE = 1;
 	public static final int EMPTY = 0;
@@ -19,18 +19,18 @@ public abstract class ResultCursorBase implements Iterator<Object>, ResultCursor
 	
 	protected int position;
 
-	protected Iterator<Object> iter;
+	//protected Iterator<Object> iter;
 	
-	protected ResultCursorBase(Iterator<Object> iter) {
-		this.iter = iter;
-	}
+	//protected ResultCursorBase(Iterator<Object> iter) {
+	//	this.iter = iter;
+	//}
 	
-	@Override
-	public void close() {
+	//@Override
+	//public void close() {
 		//logger.trace("close.enter; position: {}", position);
-		iter = null;
+	//	iter = null;
 		//current = null;
-	}
+	//}
 	
 	protected abstract Object getCurrent();
 	
@@ -136,19 +136,19 @@ public abstract class ResultCursorBase implements Iterator<Object>, ResultCursor
 		return checkCurrent();
 	}
 
-	public boolean getNext() throws XDMException {
-		boolean result = hasNext();
-		if (result) {
-			next();
+	//public boolean getNext() throws XDMException {
+	//	boolean result = hasNext();
+	//	if (result) {
+	//		next();
 		//} else {
 		//	current = null;
-		}
-		return result;
-	}
+	//	}
+	//	return result;
+	//}
 	
-	@Override
-	public void remove() {
-		throw new UnsupportedOperationException("remove not supported");
-	}
+	//@Override
+	//public void remove() {
+	//	throw new UnsupportedOperationException("remove not supported");
+	//}
 	
 }

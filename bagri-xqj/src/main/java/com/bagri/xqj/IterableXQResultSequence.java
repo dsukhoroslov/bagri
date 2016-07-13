@@ -9,12 +9,14 @@ import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQItem;
 import javax.xml.xquery.XQResultSequence;
 
+import com.bagri.xdm.api.ResultCursor;
+
 public class IterableXQResultSequence extends IterableXQSequence implements XQResultSequence {
 
 	private BagriXQDynamicContext expression;
 	
-	IterableXQResultSequence(BagriXQDynamicContext expression, Iterator<?> itr) {
-		super(expression.connection, expression.connection.getProcessor(), itr);
+	IterableXQResultSequence(BagriXQDynamicContext expression, ResultCursor cursor) {
+		super(expression.connection, expression.connection.getProcessor(), cursor);
 		this.expression = expression;
 	}
 

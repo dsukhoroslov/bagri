@@ -32,6 +32,7 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
 import com.bagri.common.stats.StatsAggregator;
+import com.bagri.xdm.api.ResultCursor;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaQueryCleaner;
 import com.bagri.xdm.cache.hazelcast.task.stats.StatisticSeriesCollector;
@@ -136,8 +137,8 @@ public class QueryManagement extends SchemaFeatureManagement {
 		String result = null;
 		try {
 			if (useXDM) {
-				Iterator<?> itr = queryMgr.executeQuery(query, null, props);
-				result = extractResult(itr, props);
+				ResultCursor cursor = queryMgr.executeQuery(query, null, props);
+				result = extractResult(cursor, props);
 			} else {
 			    XQExpression xqExp = xqConn.createExpression();
 			    XQResultSequence xqSec = xqExp.executeQuery(query);
@@ -153,22 +154,21 @@ public class QueryManagement extends SchemaFeatureManagement {
 		}
 	}
 	
-	private String extractResult(Iterator<?> itr, Properties props) throws XQException {
+	private String extractResult(ResultCursor cursor, Properties props) throws XQException, XDMException {
 		StringBuffer buff = new StringBuffer();
-		//ResultCursor rc = (ResultCursor) itr;
-		//rc.deserialize(((RepositoryImpl) schemaManager.getRepository()).getHzInstance());
+		//cursor.deserialize(((RepositoryImpl) schemaManager.getRepository()).getHzInstance());
 		XQProcessor xqp = ((BagriXQConnection) xqConn).getProcessor();
 		Properties outProps = getOutputProperties(props);
 		int fSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, String.valueOf(fetchSize)));
 		if (fSize > 0) {
 			int cnt = 0;
-			while (itr.hasNext() && cnt < fSize) {
-				buff.append(xqp.convertToString(itr.next(), outProps));
+			while (cursor.getNext() && cnt < fSize) {
+				buff.append(xqp.convertToString(cursor.getXQItem(), outProps));
 				cnt++;
 			}
 		} else {
-			while (itr.hasNext()) {
-				buff.append(xqp.convertToString(itr.next(), outProps));
+			while (cursor.getNext()) {
+				buff.append(xqp.convertToString(cursor.getXQItem(), outProps));
 			}
 		}
 		return buff.toString();
@@ -195,8 +195,8 @@ public class QueryManagement extends SchemaFeatureManagement {
 			    for (String key: keys) {
 			    	params.put(key, bindings.get(key)); 
 			    }
-				Iterator itr = queryMgr.executeQuery(query, params, props);
-				result = extractResult(itr, props);
+				ResultCursor cursor = queryMgr.executeQuery(query, params, props);
+				result = extractResult(cursor, props);
 			} else {
 				XQPreparedExpression xqpExp = xqConn.prepareExpression(query);
 			    for (String key: bindings.getCompositeType().keySet()) {

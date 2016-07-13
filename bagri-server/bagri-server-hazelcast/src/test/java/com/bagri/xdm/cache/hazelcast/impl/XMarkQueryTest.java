@@ -20,6 +20,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import com.bagri.xdm.api.ResultCursor;
+import com.bagri.xdm.api.XDMException;
+import com.bagri.xdm.api.impl.ResultCursorBase;
 import com.bagri.xdm.api.test.XDMManagementTest;
 import com.bagri.xdm.client.hazelcast.impl.QueuedCursorImpl;
 import com.bagri.xdm.system.Schema;
@@ -68,19 +71,19 @@ public class XMarkQueryTest extends XDMManagementTest {
 	public void tearDown() throws Exception {
 	}
 	
-	private Iterator<?> query(String query, Map<String, Object> params) throws Exception {
+	private ResultCursor query(String query, Map<String, Object> params) throws Exception {
 
-		Iterator<?> result = getQueryManagement().executeQuery(query, params, new Properties());
+		ResultCursor result = getQueryManagement().executeQuery(query, params, new Properties());
 		assertNotNull(result);
 		((QueuedCursorImpl) result).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
 		//assertTrue(result.hasNext());
 		return result;
 	}
 	
-	private int exploreIterator(Iterator<?> itr) throws XQException {
+	private int exploreCursor(ResultCursor cursor) throws XQException, XDMException {
 		int cnt = 0;
-		while (itr.hasNext()) {
-			XQItem item = (XQItem) itr.next();
+		while (cursor.getNext()) {
+			XQItem item = (XQItem) cursor.getXQItem();
 			String text = item.getItemAsString(null);
 			System.out.println("" + cnt + ": " + text);
 			cnt++;
@@ -99,13 +102,15 @@ public class XMarkQueryTest extends XDMManagementTest {
 		
 		Map<String, Object> params = new HashMap<>();
 		params.put("name", "person0");
-		Iterator<?> results = query(query, params);
-		Properties props = new Properties();
-		props.setProperty("method", "text");
-		XQItem item = (XQItem) results.next();
-		String text = item.getItemAsString(props);
-		assertEquals("Huei Demke", text);
-		assertFalse(results.hasNext());
+		try (ResultCursor results = query(query, params)) {
+			assertTrue(results.getNext());
+			Properties props = new Properties();
+			props.setProperty("method", "text");
+			XQItem item = (XQItem) results.getXQItem();
+			String text = item.getItemAsString(props);
+			assertEquals("Huei Demke", text);
+			assertFalse(results.getNext());
+		}
 	}
 	
 	@Test
@@ -116,13 +121,15 @@ public class XMarkQueryTest extends XDMManagementTest {
 				"let $auction := fn:doc(\"auction.xml\") return\n" +
 				"for $b in $auction/site/people/person[@id = 'person0'] return $b/name/text()";
 		
-		Iterator<?> results = query(query, null);
-		Properties props = new Properties();
-		props.setProperty("method", "text");
-		XQItem item = (XQItem) results.next();
-		String text = item.getItemAsString(props);
-		assertEquals("Huei Demke", text);
-		assertFalse(results.hasNext());
+		try (ResultCursor results = query(query, null)) {
+			assertTrue(results.getNext());
+			Properties props = new Properties();
+			props.setProperty("method", "text");
+			XQItem item = (XQItem) results.getXQItem();
+			String text = item.getItemAsString(props);
+			assertEquals("Huei Demke", text);
+			assertFalse(results.getNext());
+		}
 	}
 	
 	@Test
@@ -133,15 +140,16 @@ public class XMarkQueryTest extends XDMManagementTest {
 				"for $b in $auction/site/open_auctions/open_auction\n" +
 				"return <increase>{$b/bidder[1]/increase/text()}</increase>";
 		
-		Iterator<?> results = query(query, null);
-		int cnt = 0;
-		while (results.hasNext()) {
-			XQItem item = (XQItem) results.next();
-			String text = item.getItemAsString(null);
-			assertTrue("unexpected result: " + text, text.startsWith("<increase>") && text.endsWith("</increase>"));
-			cnt++;
+		try (ResultCursor results = query(query, null)) {
+			int cnt = 0;
+			while (results.getNext()) {
+				XQItem item = (XQItem) results.getXQItem();
+				String text = item.getItemAsString(null);
+				assertTrue("unexpected result: " + text, text.startsWith("<increase>") && text.endsWith("</increase>"));
+				cnt++;
+			}
+			assertEquals(12, cnt);
 		}
-		assertEquals(12, cnt);
 	}
 	
 	
@@ -155,17 +163,18 @@ public class XMarkQueryTest extends XDMManagementTest {
 				"where zero-or-one($b/bidder[1]/increase/text()) * 2 <= $b/bidder[last()]/increase/text()\n" +
 				"return <increase first=\"{$b/bidder[1]/increase/text()}\" last=\"{$b/bidder[last()]/increase/text()}\"/>";
 		
-		Iterator<?> results = query(query, null);
-		//<increase first="4.50" last="12.00"/>
-		//<increase first="6.00" last="30.00"/>
-		int cnt = 0;
-		while (results.hasNext()) {
-			XQItem item = (XQItem) results.next();
-			String text = item.getItemAsString(null);
-			assertTrue("unexpected result: " + text, text.startsWith("<increase"));
-			cnt++;
+		try (ResultCursor results = query(query, null)) {
+			//<increase first="4.50" last="12.00"/>
+			//<increase first="6.00" last="30.00"/>
+			int cnt = 0;
+			while (results.getNext()) {
+				XQItem item = (XQItem) results.getXQItem();
+				String text = item.getItemAsString(null);
+				assertTrue("unexpected result: " + text, text.startsWith("<increase"));
+				cnt++;
+			}
+			assertEquals(2, cnt);
 		}
-		assertEquals(2, cnt);
 	}
 	
 	@Test
@@ -186,9 +195,10 @@ public class XMarkQueryTest extends XDMManagementTest {
 		Map<String, Object> params = new HashMap<>();
 		params.put("name1", "person8");
 		params.put("name2", "person19");
-		Iterator<?> results = query(query, params);
-		assertNotNull(results.next());
-		assertFalse(results.hasNext());
+		try (ResultCursor results = query(query, params)) {
+			assertTrue(results.getNext());
+			assertFalse(results.getNext());
+		}
 	}
 
 	@Test
@@ -205,10 +215,12 @@ public class XMarkQueryTest extends XDMManagementTest {
 		
 		Map<String, Object> params = new HashMap<>();
 		params.put("pmin", new Integer(40));
-		Iterator<?> results = query(query, params);
-		XQItem item = (XQItem) results.next();
-		assertEquals(7, item.getInt());
-		assertFalse(results.hasNext());
+		try (ResultCursor results = query(query, params)) {
+			assertTrue(results.getNext());
+			XQItem item = (XQItem) results.getXQItem();
+			assertEquals(7, item.getInt());
+			assertFalse(results.getNext());
+		}
 	}
 
 	@Test
@@ -218,10 +230,12 @@ public class XMarkQueryTest extends XDMManagementTest {
 		String query = "let $auction := doc(\"auction.xml\") return\n" +
 				"for $b in $auction//site/regions return count($b//item)";
 
-		Iterator<?> results = query(query, null);
-		XQItem item = (XQItem) results.next();
-		assertEquals(22, item.getInt());
-		assertFalse(results.hasNext());
+		try (ResultCursor results = query(query, null)) {
+			assertTrue(results.getNext());
+			XQItem item = (XQItem) results.getXQItem();
+			assertEquals(22, item.getInt());
+			assertFalse(results.getNext());
+		}
 	}
 
 	@Test
@@ -232,10 +246,12 @@ public class XMarkQueryTest extends XDMManagementTest {
 				"for $p in $auction/site return\n" +
 				"  count($p//description) + count($p//annotation) + count($p//emailaddress)";
 
-		Iterator<?> results = query(query, null);
-		XQItem item = (XQItem) results.next();
-		assertEquals(92, item.getInt());
-		assertFalse(results.hasNext());
+		try (ResultCursor results = query(query, null)) {
+			assertTrue(results.getNext());
+			XQItem item = (XQItem) results.getXQItem();
+			assertEquals(92, item.getInt());
+			assertFalse(results.getNext());
+		}
 	}
 
 	@Test
@@ -251,15 +267,16 @@ public class XMarkQueryTest extends XDMManagementTest {
 				"  return $t\n" +
 				"return <item person=\"{$p/name/text()}\">{count($a)}</item>";
 
-		Iterator<?> results = query(query, null);
-		int cnt = 0;
-		while (results.hasNext()) {
-			XQItem item = (XQItem) results.next();
-			String text = item.getItemAsString(null);
-			assertTrue("unexpected result: " + text, text.startsWith("<item person") && text.endsWith("</item>"));
-			cnt++;
+		try (ResultCursor results = query(query, null)) {
+			int cnt = 0;
+			while (results.getNext()) {
+				XQItem item = (XQItem) results.getXQItem();
+				String text = item.getItemAsString(null);
+				assertTrue("unexpected result: " + text, text.startsWith("<item person") && text.endsWith("</item>"));
+				cnt++;
+			}
+			assertEquals(25, cnt);
 		}
-		assertEquals(25, cnt);
 	}
 	
 	@Test
@@ -280,15 +297,16 @@ public class XMarkQueryTest extends XDMManagementTest {
 				"		return <item>{$n/name/text()}</item>\n" +
 				"return <person name=\"{$p/name/text()}\">{$a}</person>";
 
-		Iterator<?> results = query(query, null);
-		int cnt = 0;
-		while (results.hasNext()) {
-			XQItem item = (XQItem) results.next();
-			String text = item.getItemAsString(null);
-			assertTrue("unexpected result: " + text, text.startsWith("<person name"));
-			cnt++;
+		try (ResultCursor results = query(query, null)) {
+			int cnt = 0;
+			while (results.getNext()) {
+				XQItem item = (XQItem) results.getXQItem();
+				String text = item.getItemAsString(null);
+				assertTrue("unexpected result: " + text, text.startsWith("<person name"));
+				cnt++;
+			}
+			assertEquals(25, cnt);
 		}
-		assertEquals(25, cnt);
 	}
 
 	@Test
@@ -324,11 +342,13 @@ public class XMarkQueryTest extends XDMManagementTest {
 		        "		</personne>\n" +
 		        "return <categorie>{<id>{$i}</id>, $p}</categorie>";
 
-		Iterator<?> results = query(query, null);
-		XQItem item = (XQItem) results.next();
-		String text = item.getItemAsString(null);
-		assertTrue("unexpected result: " + text, text.startsWith("<categorie>") && text.endsWith("</categorie>"));
-		assertFalse(results.hasNext());
+		try (ResultCursor results = query(query, null)) {
+			assertTrue(results.getNext());
+			XQItem item = (XQItem) results.getXQItem();
+			String text = item.getItemAsString(null);
+			assertTrue("unexpected result: " + text, text.startsWith("<categorie>") && text.endsWith("</categorie>"));
+			assertFalse(results.getNext());
+		}
 	}
 	
 	@Test
@@ -344,15 +364,16 @@ public class XMarkQueryTest extends XDMManagementTest {
 				"	return $i\n" +
 				"return <items name=\"{$p/name/text()}\">{count($l)}</items>";
 
-		Iterator<?> results = query(query, null);
-		int cnt = 0;
-		while (results.hasNext()) {
-			XQItem item = (XQItem) results.next();
-			String text = item.getItemAsString(null);
-			assertTrue("unexpected result: " + text, text.startsWith("<items name") && text.endsWith("</items>"));
-			cnt++;
+		try (ResultCursor results = query(query, null)) {
+			int cnt = 0;
+			while (results.getNext()) {
+				XQItem item = (XQItem) results.getXQItem();
+				String text = item.getItemAsString(null);
+				assertTrue("unexpected result: " + text, text.startsWith("<items name") && text.endsWith("</items>"));
+				cnt++;
+			}
+			assertEquals(25, cnt);
 		}
-		assertEquals(25, cnt);
 	}
 	
 	@Test
@@ -370,15 +391,16 @@ public class XMarkQueryTest extends XDMManagementTest {
 				"where $p/profile/@income > 50000\n" +
 				"return <items person=\"{$p/profile/@income}\">{count($l)}</items>";
 
-		Iterator<?> results = query(query, null);
-		int cnt = 0;
-		while (results.hasNext()) {
-			XQItem item = (XQItem) results.next();
-			String text = item.getItemAsString(null);
-			assertTrue("unexpected result: " + text, text.startsWith("<items person") && text.endsWith("</items>"));
-			cnt++;
+		try (ResultCursor results = query(query, null)) {
+			int cnt = 0;
+			while (results.getNext()) {
+				XQItem item = (XQItem) results.getXQItem();
+				String text = item.getItemAsString(null);
+				assertTrue("unexpected result: " + text, text.startsWith("<items person") && text.endsWith("</items>"));
+				cnt++;
+			}
+			assertEquals(3, cnt);
 		}
-		assertEquals(3, cnt);
 	}
 	
 	@Test
@@ -390,15 +412,16 @@ public class XMarkQueryTest extends XDMManagementTest {
 				"for $i in $auction/site/regions/australia/item\n" +
 				"return <item name=\"{$i/name/text()}\">{$i/description}</item>";
 
-		Iterator<?> results = query(query, null);
-		int cnt = 0;
-		while (results.hasNext()) {
-			XQItem item = (XQItem) results.next();
-			String text = item.getItemAsString(null);
-			assertTrue("unexpected result: " + text, text.startsWith("<item name") && text.endsWith("</item>"));
-			cnt++;
+		try (ResultCursor results = query(query, null)) {
+			int cnt = 0;
+			while (results.getNext()) {
+				XQItem item = (XQItem) results.getXQItem();
+				String text = item.getItemAsString(null);
+				assertTrue("unexpected result: " + text, text.startsWith("<item name") && text.endsWith("</item>"));
+				cnt++;
+			}
+			assertEquals(2, cnt);
 		}
-		assertEquals(2, cnt);
 	}
 
 	@Test
@@ -414,13 +437,13 @@ public class XMarkQueryTest extends XDMManagementTest {
 
 		Map<String, Object> params = new HashMap<>();
 		params.put("word", "gold");
-		Iterator<?> results = query(query, params);
-		int cnt = 0;
-		while (results.hasNext()) {
-			results.next();
-			cnt++;
+		try (ResultCursor results = query(query, params)) {
+			int cnt = 0;
+			while (results.getNext()) {
+				cnt++;
+			}
+			assertEquals(2, cnt);
 		}
-		assertEquals(2, cnt);
 	}
 
 	@Test
@@ -433,8 +456,9 @@ public class XMarkQueryTest extends XDMManagementTest {
 				"   listitem/parlist/listitem/text/emph/keyword/text()\n" +
 				"return <text>{$a}</text>";
 
-		Iterator<?> results = query(query, null);
-		assertFalse(results.hasNext());
+		try (ResultCursor results = query(query, null)) {
+			assertFalse(results.getNext());
+		}
 	}
 
 	@Test
@@ -454,8 +478,9 @@ public class XMarkQueryTest extends XDMManagementTest {
 				"	)\n" +
 				"return <person id=\"{$a/seller/@person}\"/>";
 
-		Iterator<?> results = query(query, null);
-		assertFalse(results.hasNext());
+		try (ResultCursor results = query(query, null)) {
+			assertFalse(results.getNext());
+		}
 	}
 
 	@Test
@@ -467,15 +492,16 @@ public class XMarkQueryTest extends XDMManagementTest {
 				"where empty($p/homepage/text())\n" +
 				"return <person name=\"{$p/name/text()}\"/>";
 
-		Iterator<?> results = query(query, null);
-		int cnt = 0;
-		while (results.hasNext()) {
-			XQItem item = (XQItem) results.next();
-			String text = item.getItemAsString(null);
-			assertTrue("unexpected result: " + text, text.startsWith("<person name"));
-			cnt++;
+		try (ResultCursor results = query(query, null)) {
+			int cnt = 0;
+			while (results.getNext()) {
+				XQItem item = (XQItem) results.getXQItem();
+				String text = item.getItemAsString(null);
+				assertTrue("unexpected result: " + text, text.startsWith("<person name"));
+				cnt++;
+			}
+			assertEquals(15, cnt);
 		}
-		assertEquals(15, cnt);
 	}
 	
 	@Test
@@ -492,15 +518,16 @@ public class XMarkQueryTest extends XDMManagementTest {
 				"for $i in $auction/site/open_auctions/open_auction\n" +
 				"return local:convert(zero-or-one($i/reserve))";
 
-		Iterator<?> results = query(query, null);
-		int cnt = 0;
-		while (results.hasNext()) {
-			XQItem item = (XQItem) results.next();
-			BigDecimal bd = (BigDecimal) item.getObject();
-			assertTrue("unexpected result: " + bd, bd.compareTo(BigDecimal.ZERO) > 0);
-			cnt++;
+		try (ResultCursor results = query(query, null)) {
+			int cnt = 0;
+			while (results.getNext()) {
+				XQItem item = (XQItem) results.getXQItem();
+				BigDecimal bd = (BigDecimal) item.getObject();
+				assertTrue("unexpected result: " + bd, bd.compareTo(BigDecimal.ZERO) > 0);
+				cnt++;
+			}
+			assertEquals(6, cnt);
 		}
-		assertEquals(6, cnt);
 	}
 	
 	@Test
@@ -514,15 +541,16 @@ public class XMarkQueryTest extends XDMManagementTest {
 				"order by zero-or-one($b/location) ascending empty greatest\n" +
 				"return <item name=\"{$k}\">{$b/location/text()}</item>";
 
-		Iterator<?> results = query(query, null);
-		int cnt = 0;
-		while (results.hasNext()) {
-			XQItem item = (XQItem) results.next();
-			String text = item.getItemAsString(null);
-			assertTrue("unexpected result: " + text, text.startsWith("<item name") && text.endsWith("</item>"));
-			cnt++;
+		try (ResultCursor results = query(query, null)) {
+			int cnt = 0;
+			while (results.getNext()) {
+				XQItem item = (XQItem) results.getXQItem();
+				String text = item.getItemAsString(null);
+				assertTrue("unexpected result: " + text, text.startsWith("<item name") && text.endsWith("</item>"));
+				cnt++;
+			}
+			assertEquals(22, cnt);
 		}
-		assertEquals(22, cnt);
 	}
 	
 	@Test
@@ -557,23 +585,24 @@ public class XMarkQueryTest extends XDMManagementTest {
 		    	"	</na>\n" +
 		    	"</result>";
 
-		Iterator<?> results = query(query, null);
-		//<result>
-		//  <preferred>
-		//	0
-		//  </preferred>
-		//  <standard>
-		//	9
-		//  </standard>
-		//  <challenge>
-		//	2
-		//  </challenge>
-		//  <na>
-		//	14
-		//  </na>
-		//</result>
-		assertNotNull(results.next());
-		assertFalse(results.hasNext());
+		try (ResultCursor results = query(query, null)) {
+			//<result>
+			//  <preferred>
+			//	0
+			//  </preferred>
+			//  <standard>
+			//	9
+			//  </standard>
+			//  <challenge>
+			//	2
+			//  </challenge>
+			//  <na>
+			//	14
+			//  </na>
+			//</result>
+			assertTrue(results.getNext());
+			assertFalse(results.getNext());
+		}
 	}
 	
 	

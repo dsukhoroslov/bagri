@@ -89,11 +89,12 @@ public class ResultCursorTest extends XDMManagementTest {
 		Properties props = new Properties();
 		props.setProperty(pn_client_fetchSize, "1");
 		props.setProperty(pn_client_id, "dummy");
-		ResultCursor rc = qm.processQuery(query, params, props);
-		//rc.deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
+		ResultCursor rc = qm.executeQuery(query, params, props);
+		// rc.deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
 		assertTrue(rc.getNext());
 		assertNotNull(rc.getObject());
 		assertFalse(rc.getNext());
+		rc.close();
 	}
 	
 	@Test
@@ -111,11 +112,12 @@ public class ResultCursorTest extends XDMManagementTest {
 		Properties props = new Properties();
 		props.setProperty(pn_client_fetchSize, "1");
 		props.setProperty(pn_client_id, "dummy");
-		ResultCursor rc = qm.processQuery(query, params, props);
+		ResultCursor rc = qm.executeQuery(query, params, props);
 		//rc.deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
 		assertTrue(rc.getNext());
 		assertNotNull(rc.getObject());
 		assertFalse(rc.getNext());
+		rc.close();
 	}
 
 	@Test
@@ -140,12 +142,13 @@ public class ResultCursorTest extends XDMManagementTest {
 				params.put("sym", "IBM");
 				ResultCursor rc;
 				try {
-					rc = qm.processQuery(query, params, props);
+					rc = qm.executeQuery(query, params, props);
 					//rc.deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
 					assertTrue(rc.getNext());
 					assertNotNull(rc.getObject());
 					assertFalse(rc.getNext());
-				} catch (XDMException ex) {
+					rc.close();
+				} catch (Exception ex) {
 					assertTrue(ex.getMessage(), false);
 				}
 			}
@@ -159,12 +162,13 @@ public class ResultCursorTest extends XDMManagementTest {
 				params.put("sym", "VFINX");
 				ResultCursor rc;
 				try {
-					rc = qm.processQuery(query, params, props);
+					rc = qm.executeQuery(query, params, props);
 					//rc.deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
 					assertTrue(rc.getNext());
 					assertNotNull(rc.getObject());
 					assertFalse(rc.getNext());
-				} catch (XDMException ex) {
+					rc.close();
+				} catch (Exception ex) {
 					assertTrue(ex.getMessage(), false);
 				}
 			}

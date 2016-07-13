@@ -146,3 +146,81 @@ heapdump-1467962870679  //elements cache in OBJECT format; cache-values=NEVER; b
 heapdump-1467964470440  //elements cache in OBJECT format; cache-values=NEVER; after query
 heapdump-1468160973448  //elements cache in OBJECT format; cache-values=INDEX-ONLY; before query
 heapdump-1468162830109  //elements cache in OBJECT format; cache-values=INDEX-ONLY; after query
+
+<FLWOR vn="31"
+       baseUri="file:/C:/Work/Bagri/git/bagri/etc/samples/default/"
+       ns="fn=http://www.w3.org/2005/xpath-functions xs=http://www.w3.org/2001/XMLSchema saxon=http://saxon.sf.net/ err=http://www.w3.org/2005/xqt-errors local=http://www.w3.org/2005/xquery-local-functions xsi=http://www.w3.org/2001/XMLSchema-instance"
+       line="2">
+   <for var="map" slot="0">
+      <fn name="collection"/>
+   </for>
+   <let var="ccy" slot="1">
+      <slash line="3">
+         <slash simple="1">
+            <treat as="node()" diag="1|0|XPTY0019|/">
+               <varRef name="map" slot="0"/>
+            </treat>
+            <axis name="child" nodeTest="element(Q{}map)"/>
+         </slash>
+         <axis line="4" name="child" nodeTest="element(Q{}currencycode)"/>
+      </slash>
+   </let>
+   <group-by>
+      <by var="map" slot="0"/>
+   </group-by>
+   <return>
+      <elem line="5" name="group">
+         <sequence>
+            <att name="ccy">
+               <fn line="1" name="string-join">
+                  <convert from="xs:anyAtomicType" to="xs:string">
+                     <data>
+                        <varRef name="ccy" slot="2"/>
+                     </data>
+                  </convert>
+                  <str val=" "/>
+               </fn>
+            </att>
+            <att name="count">
+               <convert line="1" from="xs:integer" to="xs:string">
+                  <fn name="count">
+                     <varRef name="map" slot="3"/>
+                  </fn>
+               </convert>
+            </att>
+         </sequence>
+      </elem>
+   </return>
+</FLWOR>
+
+start: net.sf.saxon.expr.flwor.FLWORExpression; path: for $map in collection() let $ccy := ((($map) treat as node())/child::element(Q{}map))/child::element(Q{}currencycode) group by ...   return <group {Block(FixedAttribute(string-join(convert(data($ccy)), " ")), FixedAttribute(convert(count($map))))}/>
+start: net.sf.saxon.expr.SystemFunctionCall; path: collection()
+iterate; set collectionId: -1 for uri: 
+end: net.sf.saxon.expr.SystemFunctionCall; path: 
+start: net.sf.saxon.expr.SlashExpression; path: ((($map) treat as node())/child::element(Q{}map))/child::element(Q{}currencycode)
+start: net.sf.saxon.expr.SimpleStepExpression; path: (($map) treat as node())/child::element(Q{}map)
+start: net.sf.saxon.expr.ItemChecker; path: ($map) treat as node()
+start: net.sf.saxon.expr.LocalVariableReference; path: $map
+end: net.sf.saxon.expr.LocalVariableReference; path: 
+end: net.sf.saxon.expr.ItemChecker; path: 
+start: net.sf.saxon.expr.AxisExpression; path: child::element(Q{}map)
+iterate: axis: child
+end: net.sf.saxon.expr.AxisExpression; path: /map
+end: net.sf.saxon.expr.SimpleStepExpression; path: /map
+start: net.sf.saxon.expr.AxisExpression; path: child::element(Q{}currencycode)
+iterate: axis: child
+end: net.sf.saxon.expr.AxisExpression; path: /map/currencycode
+end: net.sf.saxon.expr.SlashExpression; path: /map/currencycode
+start: net.sf.saxon.expr.flwor.TupleExpression; path: TupleExpression($ccy)
+start: net.sf.saxon.expr.LocalVariableReference; path: $ccy
+end: net.sf.saxon.expr.LocalVariableReference; path: /map/currencycode
+end: net.sf.saxon.expr.flwor.TupleExpression; path: /map/currencycode
+start: net.sf.saxon.expr.flwor.TupleExpression; path: TupleExpression($map)
+start: net.sf.saxon.expr.LocalVariableReference; path: $map
+end: net.sf.saxon.expr.LocalVariableReference; path: /map/currencycode
+end: net.sf.saxon.expr.flwor.TupleExpression; path: /map/currencycode
+start: net.sf.saxon.expr.instruct.FixedElement; path: <group {Block(FixedAttribute(string-join(convert(data($ccy)), " ")), FixedAttribute(convert(count($map))))}/>
+start: net.sf.saxon.expr.instruct.Block; path: Block(FixedAttribute(string-join(convert(data($ccy)), " ")), FixedAttribute(convert(count($map))))
+end: net.sf.saxon.expr.instruct.Block; path: /map/currencycode
+end: net.sf.saxon.expr.instruct.FixedElement; path: /map/currencycode
+end: net.sf.saxon.expr.flwor.FLWORExpression; path: 

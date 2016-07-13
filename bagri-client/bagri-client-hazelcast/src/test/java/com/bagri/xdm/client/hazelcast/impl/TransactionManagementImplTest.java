@@ -5,8 +5,6 @@ import static com.bagri.xdm.common.XDMConstants.pn_schema_name;
 import static com.bagri.xdm.common.XDMConstants.pn_schema_password;
 import static com.bagri.xdm.common.XDMConstants.pn_schema_user;
 
-import java.util.Iterator;
-
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -14,6 +12,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.bagri.xdm.api.ResultCursor;
 import com.bagri.xdm.api.test.ClientQueryManagementTest;
 import com.bagri.xdm.api.test.ServerLauncher;
 import com.hazelcast.core.Hazelcast;
@@ -59,32 +58,38 @@ public class TransactionManagementImplTest extends ClientQueryManagementTest {
 		try {
 			storeSecurityTest();
 	
-			Iterator<?> sec = getSecurity("VFINX");
+			ResultCursor sec = getSecurity("VFINX");
 			Assert.assertNotNull(sec);
-			Assert.assertTrue(sec.hasNext());
-	
+			Assert.assertTrue(sec.getNext());
+			sec.close();
+
 			sec = getSecurity("IBM");
 			Assert.assertNotNull(sec);
-			Assert.assertTrue(sec.hasNext());
-	
+			Assert.assertTrue(sec.getNext());
+			sec.close();
+
 			sec = getSecurity("PTTAX");
 			Assert.assertNotNull(sec);
-			Assert.assertTrue(sec.hasNext());
-	
+			Assert.assertTrue(sec.getNext());
+			sec.close();
+
 			xRepo.getTxManagement().rollbackTransaction(txId);
 			txId = 0;
 			
 			sec = getSecurity("VFINX");
 			Assert.assertNotNull(sec);
-			Assert.assertFalse(sec.hasNext());
-	
+			Assert.assertFalse(sec.getNext());
+			sec.close();
+
 			sec = getSecurity("IBM");
 			Assert.assertNotNull(sec);
-			Assert.assertFalse(sec.hasNext());
-	
+			Assert.assertFalse(sec.getNext());
+			sec.close();
+
 			sec = getSecurity("PTTAX");
 			Assert.assertNotNull(sec);
-			Assert.assertFalse(sec.hasNext());
+			Assert.assertFalse(sec.getNext());
+			sec.close();
 		} finally {
 			if (txId > 0) {
 				xRepo.getTxManagement().rollbackTransaction(txId);

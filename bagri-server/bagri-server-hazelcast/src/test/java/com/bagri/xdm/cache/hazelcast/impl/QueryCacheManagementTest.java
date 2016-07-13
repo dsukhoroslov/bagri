@@ -20,6 +20,7 @@ import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.bagri.common.util.JMXUtils;
+import com.bagri.xdm.api.ResultCursor;
 import com.bagri.xdm.api.test.XDMManagementTest;
 import com.bagri.xdm.system.Collection;
 import com.bagri.xdm.system.Schema;
@@ -79,12 +80,14 @@ public class QueryCacheManagementTest extends XDMManagementTest {
 		Properties props = new Properties();
 		props.setProperty(pn_client_id, "1");
 		props.setProperty(pn_client_fetchSize, "1");
-		Iterator itr = xRepo.getQueryManagement().executeQuery(query, params, props);
-		assertNotNull(itr);
+		ResultCursor rc = xRepo.getQueryManagement().executeQuery(query, params, props);
+		assertNotNull(rc);
 		//((ResultCursor) itr).deserialize(((RepositoryImpl) xRepo).getHzInstance());
-		assertTrue(itr.hasNext());
+		assertTrue(rc.getNext());
+		rc.close();
+		
 		// here we must have 1 result cached
-		itr = ((QueryManagementImpl) xRepo.getQueryManagement()).getQueryResults(query, params, props);		
+		Iterator itr = ((QueryManagementImpl) xRepo.getQueryManagement()).getQueryResults(query, params, props);		
 		assertNotNull(itr);
 		assertTrue(itr.hasNext());
 		
@@ -126,12 +129,14 @@ public class QueryCacheManagementTest extends XDMManagementTest {
 		Properties props = new Properties();
 		props.setProperty(pn_client_id, "2");
 		props.setProperty(pn_client_fetchSize, "1");
-		Iterator itr = xRepo.getQueryManagement().executeQuery(query, params, props);
-		assertNotNull(itr);
+		ResultCursor rc = xRepo.getQueryManagement().executeQuery(query, params, props);
+		assertNotNull(rc);
 		//((ResultCursor) itr).deserialize(((RepositoryImpl) xRepo).getHzInstance());
-		assertTrue(itr.hasNext());
+		assertTrue(rc.getNext());
+		rc.close();
+		
 		// here we must have 1 result cached
-		itr = ((QueryManagementImpl) xRepo.getQueryManagement()).getQueryResults(query, params, props);		
+		Iterator itr = ((QueryManagementImpl) xRepo.getQueryManagement()).getQueryResults(query, params, props);		
 		assertNotNull(itr);
 		assertTrue(itr.hasNext());
 		

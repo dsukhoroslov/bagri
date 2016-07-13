@@ -8,8 +8,6 @@ import org.w3c.dom.Node;
 
 public interface ResultCursor extends AutoCloseable {
 	
-	//List<?> fetchAll();
-	
 	boolean getBoolean() throws XDMException;
 	byte getByte() throws XDMException;
 	double getDouble() throws XDMException;
@@ -20,6 +18,8 @@ public interface ResultCursor extends AutoCloseable {
 	Object getObject() throws XDMException;
 	short getShort() throws XDMException;
 	String getString() throws XDMException;
+	
+	List<?> getList() throws XDMException;
 	XQItemAccessor getXQItem() throws XDMException;
 
 	boolean getNext() throws XDMException;

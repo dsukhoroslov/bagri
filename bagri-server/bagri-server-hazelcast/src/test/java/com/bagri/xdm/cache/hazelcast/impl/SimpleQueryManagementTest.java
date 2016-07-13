@@ -14,6 +14,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import com.bagri.xdm.api.ResultCursor;
 import com.bagri.xdm.api.test.XDMManagementTest;
 import com.bagri.xdm.client.hazelcast.impl.QueuedCursorImpl;
 import com.bagri.xdm.domain.Document;
@@ -83,17 +84,17 @@ public class SimpleQueryManagementTest extends XDMManagementTest {
 		String query = "for $doc in fn:collection()\n" +
 				"return $doc\n";
 
-		QueuedCursorImpl rc = (QueuedCursorImpl) xRepo.getQueryManagement().executeQuery(query, null, new Properties());
-		rc.deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
-		assertTrue(rc.hasNext());
+		ResultCursor rc = xRepo.getQueryManagement().executeQuery(query, null, new Properties());
+		((QueuedCursorImpl) rc).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
+		assertTrue(rc.getNext());
 		
 		props = new Properties();
 		props.setProperty(javax.xml.transform.OutputKeys.OMIT_XML_DECLARATION, "yes");
 		props.setProperty(javax.xml.transform.OutputKeys.INDENT, "no");
 		props.setProperty(javax.xml.transform.OutputKeys.METHOD, "text");
-		String text = xqProc.convertToString(rc.next(), props);
+		String text = xqProc.convertToString(rc.getXQItem(), props);
 		assertEquals("XML Content", text);
+		rc.close();
 	}
-
 
 }
