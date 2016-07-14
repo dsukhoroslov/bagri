@@ -22,6 +22,6 @@ public interface ResultCursor extends AutoCloseable {
 	List<?> getList() throws XDMException;
 	XQItemAccessor getXQItem() throws XDMException;
 
-	boolean getNext() throws XDMException;
+	boolean next() throws XDMException;
 	
 }

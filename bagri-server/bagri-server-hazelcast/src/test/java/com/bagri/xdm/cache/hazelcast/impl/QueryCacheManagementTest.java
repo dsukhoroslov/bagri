@@ -83,7 +83,7 @@ public class QueryCacheManagementTest extends XDMManagementTest {
 		ResultCursor rc = xRepo.getQueryManagement().executeQuery(query, params, props);
 		assertNotNull(rc);
 		//((ResultCursor) itr).deserialize(((RepositoryImpl) xRepo).getHzInstance());
-		assertTrue(rc.getNext());
+		assertTrue(rc.next());
 		rc.close();
 		
 		// here we must have 1 result cached
@@ -132,7 +132,7 @@ public class QueryCacheManagementTest extends XDMManagementTest {
 		ResultCursor rc = xRepo.getQueryManagement().executeQuery(query, params, props);
 		assertNotNull(rc);
 		//((ResultCursor) itr).deserialize(((RepositoryImpl) xRepo).getHzInstance());
-		assertTrue(rc.getNext());
+		assertTrue(rc.next());
 		rc.close();
 		
 		// here we must have 1 result cached

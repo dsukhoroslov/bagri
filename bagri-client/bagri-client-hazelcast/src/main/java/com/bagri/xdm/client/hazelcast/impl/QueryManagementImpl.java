@@ -107,7 +107,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		
 		boolean isQuery = true;
 		QueryExecutor task = new QueryExecutor(repo.getClientId(), repo.getTransactionId(), query, params, props);
-		Future<ResultCursorBase> future;
+		Future<ResultCursor> future;
 		String runOn = props.getProperty(pn_client_submitTo, pv_client_submitTo_any);
 		if (pv_client_submitTo_owner.equalsIgnoreCase(runOn)) {
 			future = execService.submitToKeyOwner(task, qKey);
@@ -124,7 +124,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		//if (cursor != null) {
 		//	cursor.close(false);
 		//}
-		ResultCursorBase cursor = getResults(future, timeout);
+		ResultCursor cursor = getResults(future, timeout);
 		logger.trace("execXQuery; got cursor: {}", cursor);
 		if (cursor instanceof QueuedCursorImpl) {
 			((QueuedCursorImpl) cursor).deserialize(repo.getHazelcastClient());

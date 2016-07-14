@@ -91,9 +91,9 @@ public class ResultCursorTest extends XDMManagementTest {
 		props.setProperty(pn_client_id, "dummy");
 		ResultCursor rc = qm.executeQuery(query, params, props);
 		// rc.deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
-		assertTrue(rc.getNext());
+		assertTrue(rc.next());
 		assertNotNull(rc.getObject());
-		assertFalse(rc.getNext());
+		assertFalse(rc.next());
 		rc.close();
 	}
 	
@@ -114,9 +114,9 @@ public class ResultCursorTest extends XDMManagementTest {
 		props.setProperty(pn_client_id, "dummy");
 		ResultCursor rc = qm.executeQuery(query, params, props);
 		//rc.deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
-		assertTrue(rc.getNext());
+		assertTrue(rc.next());
 		assertNotNull(rc.getObject());
-		assertFalse(rc.getNext());
+		assertFalse(rc.next());
 		rc.close();
 	}
 
@@ -144,9 +144,9 @@ public class ResultCursorTest extends XDMManagementTest {
 				try {
 					rc = qm.executeQuery(query, params, props);
 					//rc.deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
-					assertTrue(rc.getNext());
+					assertTrue(rc.next());
 					assertNotNull(rc.getObject());
-					assertFalse(rc.getNext());
+					assertFalse(rc.next());
 					rc.close();
 				} catch (Exception ex) {
 					assertTrue(ex.getMessage(), false);
@@ -164,9 +164,9 @@ public class ResultCursorTest extends XDMManagementTest {
 				try {
 					rc = qm.executeQuery(query, params, props);
 					//rc.deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
-					assertTrue(rc.getNext());
+					assertTrue(rc.next());
 					assertNotNull(rc.getObject());
-					assertFalse(rc.getNext());
+					assertFalse(rc.next());
 					rc.close();
 				} catch (Exception ex) {
 					assertTrue(ex.getMessage(), false);

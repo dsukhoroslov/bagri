@@ -79,7 +79,7 @@ public class XDMClientApp implements BagriClientApp {
 
 		try (ResultCursor cursor = xRepo.getQueryManagement().executeQuery(query, null, new Properties())) {
 			String result = null;
-			if (cursor.getNext()) {
+			if (cursor.next()) {
 				result = cursor.getString(); // proc.convertToString(itr.next(), null);
 			}
 			return result;
@@ -94,7 +94,7 @@ public class XDMClientApp implements BagriClientApp {
 
 		try (ResultCursor cursor = xRepo.getQueryManagement().executeQuery(query, null, new Properties())) {
 			String result = null;
-			if (cursor.getNext()) {
+			if (cursor.next()) {
 				result = cursor.getString(); // proc.convertToString(itr.next(), null);
 			}
 			return result;

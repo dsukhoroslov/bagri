@@ -82,7 +82,7 @@ public class XMarkQueryTest extends XDMManagementTest {
 	
 	private int exploreCursor(ResultCursor cursor) throws XQException, XDMException {
 		int cnt = 0;
-		while (cursor.getNext()) {
+		while (cursor.next()) {
 			XQItem item = (XQItem) cursor.getXQItem();
 			String text = item.getItemAsString(null);
 			System.out.println("" + cnt + ": " + text);
@@ -103,13 +103,13 @@ public class XMarkQueryTest extends XDMManagementTest {
 		Map<String, Object> params = new HashMap<>();
 		params.put("name", "person0");
 		try (ResultCursor results = query(query, params)) {
-			assertTrue(results.getNext());
+			assertTrue(results.next());
 			Properties props = new Properties();
 			props.setProperty("method", "text");
 			XQItem item = (XQItem) results.getXQItem();
 			String text = item.getItemAsString(props);
 			assertEquals("Huei Demke", text);
-			assertFalse(results.getNext());
+			assertFalse(results.next());
 		}
 	}
 	
@@ -122,13 +122,13 @@ public class XMarkQueryTest extends XDMManagementTest {
 				"for $b in $auction/site/people/person[@id = 'person0'] return $b/name/text()";
 		
 		try (ResultCursor results = query(query, null)) {
-			assertTrue(results.getNext());
+			assertTrue(results.next());
 			Properties props = new Properties();
 			props.setProperty("method", "text");
 			XQItem item = (XQItem) results.getXQItem();
 			String text = item.getItemAsString(props);
 			assertEquals("Huei Demke", text);
-			assertFalse(results.getNext());
+			assertFalse(results.next());
 		}
 	}
 	
@@ -142,7 +142,7 @@ public class XMarkQueryTest extends XDMManagementTest {
 		
 		try (ResultCursor results = query(query, null)) {
 			int cnt = 0;
-			while (results.getNext()) {
+			while (results.next()) {
 				XQItem item = (XQItem) results.getXQItem();
 				String text = item.getItemAsString(null);
 				assertTrue("unexpected result: " + text, text.startsWith("<increase>") && text.endsWith("</increase>"));
@@ -167,7 +167,7 @@ public class XMarkQueryTest extends XDMManagementTest {
 			//<increase first="4.50" last="12.00"/>
 			//<increase first="6.00" last="30.00"/>
 			int cnt = 0;
-			while (results.getNext()) {
+			while (results.next()) {
 				XQItem item = (XQItem) results.getXQItem();
 				String text = item.getItemAsString(null);
 				assertTrue("unexpected result: " + text, text.startsWith("<increase"));
@@ -196,8 +196,8 @@ public class XMarkQueryTest extends XDMManagementTest {
 		params.put("name1", "person8");
 		params.put("name2", "person19");
 		try (ResultCursor results = query(query, params)) {
-			assertTrue(results.getNext());
-			assertFalse(results.getNext());
+			assertTrue(results.next());
+			assertFalse(results.next());
 		}
 	}
 
@@ -216,10 +216,10 @@ public class XMarkQueryTest extends XDMManagementTest {
 		Map<String, Object> params = new HashMap<>();
 		params.put("pmin", new Integer(40));
 		try (ResultCursor results = query(query, params)) {
-			assertTrue(results.getNext());
+			assertTrue(results.next());
 			XQItem item = (XQItem) results.getXQItem();
 			assertEquals(7, item.getInt());
-			assertFalse(results.getNext());
+			assertFalse(results.next());
 		}
 	}
 
@@ -231,10 +231,10 @@ public class XMarkQueryTest extends XDMManagementTest {
 				"for $b in $auction//site/regions return count($b//item)";
 
 		try (ResultCursor results = query(query, null)) {
-			assertTrue(results.getNext());
+			assertTrue(results.next());
 			XQItem item = (XQItem) results.getXQItem();
 			assertEquals(22, item.getInt());
-			assertFalse(results.getNext());
+			assertFalse(results.next());
 		}
 	}
 
@@ -247,10 +247,10 @@ public class XMarkQueryTest extends XDMManagementTest {
 				"  count($p//description) + count($p//annotation) + count($p//emailaddress)";
 
 		try (ResultCursor results = query(query, null)) {
-			assertTrue(results.getNext());
+			assertTrue(results.next());
 			XQItem item = (XQItem) results.getXQItem();
 			assertEquals(92, item.getInt());
-			assertFalse(results.getNext());
+			assertFalse(results.next());
 		}
 	}
 
@@ -269,7 +269,7 @@ public class XMarkQueryTest extends XDMManagementTest {
 
 		try (ResultCursor results = query(query, null)) {
 			int cnt = 0;
-			while (results.getNext()) {
+			while (results.next()) {
 				XQItem item = (XQItem) results.getXQItem();
 				String text = item.getItemAsString(null);
 				assertTrue("unexpected result: " + text, text.startsWith("<item person") && text.endsWith("</item>"));
@@ -299,7 +299,7 @@ public class XMarkQueryTest extends XDMManagementTest {
 
 		try (ResultCursor results = query(query, null)) {
 			int cnt = 0;
-			while (results.getNext()) {
+			while (results.next()) {
 				XQItem item = (XQItem) results.getXQItem();
 				String text = item.getItemAsString(null);
 				assertTrue("unexpected result: " + text, text.startsWith("<person name"));
@@ -343,11 +343,11 @@ public class XMarkQueryTest extends XDMManagementTest {
 		        "return <categorie>{<id>{$i}</id>, $p}</categorie>";
 
 		try (ResultCursor results = query(query, null)) {
-			assertTrue(results.getNext());
+			assertTrue(results.next());
 			XQItem item = (XQItem) results.getXQItem();
 			String text = item.getItemAsString(null);
 			assertTrue("unexpected result: " + text, text.startsWith("<categorie>") && text.endsWith("</categorie>"));
-			assertFalse(results.getNext());
+			assertFalse(results.next());
 		}
 	}
 	
@@ -366,7 +366,7 @@ public class XMarkQueryTest extends XDMManagementTest {
 
 		try (ResultCursor results = query(query, null)) {
 			int cnt = 0;
-			while (results.getNext()) {
+			while (results.next()) {
 				XQItem item = (XQItem) results.getXQItem();
 				String text = item.getItemAsString(null);
 				assertTrue("unexpected result: " + text, text.startsWith("<items name") && text.endsWith("</items>"));
@@ -393,7 +393,7 @@ public class XMarkQueryTest extends XDMManagementTest {
 
 		try (ResultCursor results = query(query, null)) {
 			int cnt = 0;
-			while (results.getNext()) {
+			while (results.next()) {
 				XQItem item = (XQItem) results.getXQItem();
 				String text = item.getItemAsString(null);
 				assertTrue("unexpected result: " + text, text.startsWith("<items person") && text.endsWith("</items>"));
@@ -414,7 +414,7 @@ public class XMarkQueryTest extends XDMManagementTest {
 
 		try (ResultCursor results = query(query, null)) {
 			int cnt = 0;
-			while (results.getNext()) {
+			while (results.next()) {
 				XQItem item = (XQItem) results.getXQItem();
 				String text = item.getItemAsString(null);
 				assertTrue("unexpected result: " + text, text.startsWith("<item name") && text.endsWith("</item>"));
@@ -439,7 +439,7 @@ public class XMarkQueryTest extends XDMManagementTest {
 		params.put("word", "gold");
 		try (ResultCursor results = query(query, params)) {
 			int cnt = 0;
-			while (results.getNext()) {
+			while (results.next()) {
 				cnt++;
 			}
 			assertEquals(2, cnt);
@@ -457,7 +457,7 @@ public class XMarkQueryTest extends XDMManagementTest {
 				"return <text>{$a}</text>";
 
 		try (ResultCursor results = query(query, null)) {
-			assertFalse(results.getNext());
+			assertFalse(results.next());
 		}
 	}
 
@@ -479,7 +479,7 @@ public class XMarkQueryTest extends XDMManagementTest {
 				"return <person id=\"{$a/seller/@person}\"/>";
 
 		try (ResultCursor results = query(query, null)) {
-			assertFalse(results.getNext());
+			assertFalse(results.next());
 		}
 	}
 
@@ -494,7 +494,7 @@ public class XMarkQueryTest extends XDMManagementTest {
 
 		try (ResultCursor results = query(query, null)) {
 			int cnt = 0;
-			while (results.getNext()) {
+			while (results.next()) {
 				XQItem item = (XQItem) results.getXQItem();
 				String text = item.getItemAsString(null);
 				assertTrue("unexpected result: " + text, text.startsWith("<person name"));
@@ -520,7 +520,7 @@ public class XMarkQueryTest extends XDMManagementTest {
 
 		try (ResultCursor results = query(query, null)) {
 			int cnt = 0;
-			while (results.getNext()) {
+			while (results.next()) {
 				XQItem item = (XQItem) results.getXQItem();
 				BigDecimal bd = (BigDecimal) item.getObject();
 				assertTrue("unexpected result: " + bd, bd.compareTo(BigDecimal.ZERO) > 0);
@@ -543,7 +543,7 @@ public class XMarkQueryTest extends XDMManagementTest {
 
 		try (ResultCursor results = query(query, null)) {
 			int cnt = 0;
-			while (results.getNext()) {
+			while (results.next()) {
 				XQItem item = (XQItem) results.getXQItem();
 				String text = item.getItemAsString(null);
 				assertTrue("unexpected result: " + text, text.startsWith("<item name") && text.endsWith("</item>"));
@@ -600,8 +600,8 @@ public class XMarkQueryTest extends XDMManagementTest {
 			//	14
 			//  </na>
 			//</result>
-			assertTrue(results.getNext());
-			assertFalse(results.getNext());
+			assertTrue(results.next());
+			assertFalse(results.next());
 		}
 	}
 	

@@ -376,7 +376,7 @@ public class BookingApp {
 		List<String> result = new ArrayList<String>();
 		Properties outProps = getOutputProperties(props);
 		try (ResultCursor cursor = xRepo.getQueryManagement().executeQuery(query, null, props)) {
-			while (cursor.getNext()) {
+			while (cursor.next()) {
 				result.add(proc.convertToString(cursor.getXQItem(), outProps));
 			}
 		}
@@ -411,11 +411,7 @@ public class BookingApp {
 
 		@Override
 		public void run() {
-			//try {
-				storeDocument(idx, header, data, uri, props);
-			//} catch (XDMException ex) {
-			//	ex.printStackTrace();
-			//}
+			storeDocument(idx, header, data, uri, props);
 		}
 		
 	}

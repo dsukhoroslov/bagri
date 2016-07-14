@@ -58,17 +58,17 @@ public class QueryManagementImplTest extends ClientQueryManagementTest {
 
 		ResultCursor sec = getPrice("VFINX");
 		Assert.assertNotNull(sec);
-		Assert.assertTrue(sec.getNext());
+		Assert.assertTrue(sec.next());
 		sec.close();
 
 		sec = getPrice("IBM");
 		Assert.assertNotNull(sec);
-		Assert.assertTrue(sec.getNext());
+		Assert.assertTrue(sec.next());
 		sec.close();
 
 		sec = getPrice("PTTAX");
 		Assert.assertNotNull(sec);
-		Assert.assertTrue(sec.getNext());
+		Assert.assertTrue(sec.next());
 		sec.close();
 	}
 
@@ -78,17 +78,17 @@ public class QueryManagementImplTest extends ClientQueryManagementTest {
 
 		ResultCursor sec = getSecurity("VFINX");
 		Assert.assertNotNull(sec);
-		Assert.assertTrue(sec.getNext());
+		Assert.assertTrue(sec.next());
 		sec.close();
 
 		sec = getSecurity("IBM");
 		Assert.assertNotNull(sec);
-		Assert.assertTrue(sec.getNext());
+		Assert.assertTrue(sec.next());
 		sec.close();
 
 		sec = getSecurity("PTTAX");
 		Assert.assertNotNull(sec);
-		Assert.assertTrue(sec.getNext());
+		Assert.assertTrue(sec.next());
 		sec.close();
 	}
 
@@ -98,17 +98,17 @@ public class QueryManagementImplTest extends ClientQueryManagementTest {
 
 		ResultCursor sec = searchSecurity("Technology", 25, 28, 0);
 		Assert.assertNotNull(sec);
-		Assert.assertTrue(sec.getNext());
+		Assert.assertTrue(sec.next());
 		sec.close();
 
 		sec = searchSecurity("Technology", 25, 28, 1);
 		Assert.assertNotNull(sec);
-		Assert.assertFalse(sec.getNext());
+		Assert.assertFalse(sec.next());
 		sec.close();
 
 		sec = searchSecurity("Technology", 28, 29, 0);
 		Assert.assertNotNull(sec);
-		Assert.assertFalse(sec.getNext());
+		Assert.assertFalse(sec.next());
 		sec.close();
 	}
 
@@ -117,12 +117,12 @@ public class QueryManagementImplTest extends ClientQueryManagementTest {
 		storeOrderTest();
 		ResultCursor sec = getOrder("103404");
 		Assert.assertNotNull(sec);
-		Assert.assertTrue(sec.getNext());
+		Assert.assertTrue(sec.next());
 		sec.close();
 
 		sec = getOrder("103935");
 		Assert.assertNotNull(sec);
-		Assert.assertTrue(sec.getNext());
+		Assert.assertTrue(sec.next());
 		sec.close();
 	}
 
@@ -131,7 +131,7 @@ public class QueryManagementImplTest extends ClientQueryManagementTest {
 		storeCustomerTest();
 		ResultCursor sec = getCustomerProfile("1011");
 		Assert.assertNotNull(sec);
-		Assert.assertTrue(sec.getNext());
+		Assert.assertTrue(sec.next());
 		sec.close();
 	}
 
@@ -140,7 +140,7 @@ public class QueryManagementImplTest extends ClientQueryManagementTest {
 		storeCustomerTest();
 		ResultCursor sec = getCustomerAccounts("1011");
 		Assert.assertNotNull(sec);
-		Assert.assertTrue(sec.getNext());
+		Assert.assertTrue(sec.next());
 		sec.close();
 	}
 	

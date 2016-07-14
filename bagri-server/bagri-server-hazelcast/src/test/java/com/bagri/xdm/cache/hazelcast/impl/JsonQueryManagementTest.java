@@ -97,7 +97,7 @@ public class JsonQueryManagementTest extends XDMManagementTest {
 		Properties props = new Properties();
 		//props.setProperty("method", "xml");
 		List<String> jsons = new ArrayList<>();
-		while (docs.getNext()) {
+		while (docs.next()) {
 			//XQItem item = (XQItem) docs.next();
 			//String json = item.getItemAsString(props);
 			String json = docs.getString();
@@ -124,7 +124,7 @@ public class JsonQueryManagementTest extends XDMManagementTest {
 		props = new Properties();
 		//props.setProperty("method", "json");
 		List<String> jsons = new ArrayList<>();
-		while (docs.getNext()) {
+		while (docs.next()) {
 			//XQItem item = (XQItem) docs.next();
 			//String json = item.getItemAsString(props);
 			String json = docs.getString();
@@ -149,7 +149,7 @@ public class JsonQueryManagementTest extends XDMManagementTest {
 		Properties props = new Properties();
 		props.setProperty("method", "text");
 		List<String> results = new ArrayList<>();
-		while (docs.getNext()) {
+		while (docs.next()) {
 			//XQItem item = (XQItem) docs.next();
 			//String text = item.getItemAsString(props);
 			String text = docs.getString();

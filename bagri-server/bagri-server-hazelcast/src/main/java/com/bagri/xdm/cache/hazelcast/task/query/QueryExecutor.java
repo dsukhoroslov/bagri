@@ -6,6 +6,7 @@ import java.util.concurrent.Callable;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.bagri.xdm.api.ResultCursor;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.cache.api.QueryManagement;
 import com.bagri.xdm.cache.api.TransactionManagement;
@@ -32,7 +33,7 @@ public class QueryExecutor extends com.bagri.xdm.client.hazelcast.task.query.Que
 	}
 
     @Override
-	public QueuedCursorImpl call() throws Exception {
+	public ResultCursor call() throws Exception {
     	
     	//logger.info("call; clientId: {}", clientId);
 
@@ -45,13 +46,13 @@ public class QueryExecutor extends com.bagri.xdm.client.hazelcast.task.query.Que
     	}
 
     	if (txId == TX_NO && readOnly) {
-			return (QueuedCursorImpl) queryMgr.executeQuery(query, params, context);
+			return queryMgr.executeQuery(query, params, context);
     	}
 
-    	return ((TransactionManagement) repo.getTxManagement()).callInTransaction(txId, false, new Callable<QueuedCursorImpl>() {
+    	return ((TransactionManagement) repo.getTxManagement()).callInTransaction(txId, false, new Callable<ResultCursor>() {
     		
-	    	public QueuedCursorImpl call() throws XDMException {
-				return (QueuedCursorImpl) queryMgr.executeQuery(query, params, context);
+	    	public ResultCursor call() throws XDMException {
+				return queryMgr.executeQuery(query, params, context);
 	    	}
     	});
     }

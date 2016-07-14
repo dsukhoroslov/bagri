@@ -85,8 +85,8 @@ public class DataSerializationFactoryImpl implements DataSerializableFactory {
 	public static final int cli_ResultsQueryPredicate = 89;
 	public static final int cli_CollectionPredicate = 90;
 	
-	public static final int cli_XQCursor = 91;
-	public static final int cli_XQFixedCursor = 92;
+	public static final int cli_QueuedCursor = 91;
+	public static final int cli_FixedCursor = 92;
 	
 	public static final int cli_GroupCountPredicate = 93;
 	
@@ -131,8 +131,8 @@ public class DataSerializationFactoryImpl implements DataSerializableFactory {
 			case cli_DocumentPathKey: return new DocumentPathKey(); 
 			case cli_PathIndexKey: return new PathIndexKey(); 
 			case cli_QueryParamsKey: return new QueryParamsKey();
-			case cli_XQCursor: return new QueuedCursorImpl();
-			case cli_XQFixedCursor: return new FixedCursorImpl();
+			case cli_QueuedCursor: return new QueuedCursorImpl();
+			case cli_FixedCursor: return new FixedCursorImpl();
 			case cli_GroupCountPredicate: return new GroupCountPredicate();
 			case cli_FetchResultsTask: return new ResultFetcher();
 			case cli_UpdateDocumentCollectionTask: return new DocumentCollectionUpdater();

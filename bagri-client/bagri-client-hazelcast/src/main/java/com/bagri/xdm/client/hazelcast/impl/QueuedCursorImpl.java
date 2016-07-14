@@ -2,7 +2,7 @@ package com.bagri.xdm.client.hazelcast.impl;
 
 import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryImpl.factoryId;
 import static com.bagri.xdm.cache.api.CacheConstants.PN_XDM_SCHEMA_POOL;
-import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryImpl.cli_XQCursor;
+import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryImpl.cli_QueuedCursor;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -85,7 +85,7 @@ public class QueuedCursorImpl extends ResultCursorBase implements IdentifiedData
 	public void deserialize(HazelcastInstance hzi) {
 		this.hzi = hzi;
 		queue = getQueue();
-		current = null; //queue.poll();
+		current = null; 
 		position = 0; //-1;
 	}
 	
@@ -148,19 +148,8 @@ public class QueuedCursorImpl extends ResultCursorBase implements IdentifiedData
 		throw new XDMException("Not implemented in queue", XDMException.ecQuery);
 	}
 	
-	//@Override
-	//public boolean getNext() {
-	//	boolean result = hasNext();
-	//	if (first) {
-	//		first = false;
-	//	} else {
-	//		next();
-	//	}
-	//	return result;
-	//}
-
 	@Override
-	public boolean getNext() {
+	public boolean next() {
 		current = queue.poll();
 		boolean result = current != null;
 		if (!result) {
@@ -188,17 +177,6 @@ public class QueuedCursorImpl extends ResultCursorBase implements IdentifiedData
 		return result;
 	}
 
-	//@Override
-	//public Object next() {
-	//	Object result = current;
-	//	if (current != null) {
-	//		current = queue.poll();
-	//		position++;
-	//	}
-	//	logger.trace("next; returning: {}", result);
-	//	return result;
-	//}
-
 	@Override
 	public int getFactoryId() {
 		return factoryId;
@@ -206,7 +184,7 @@ public class QueuedCursorImpl extends ResultCursorBase implements IdentifiedData
 
 	@Override
 	public int getId() {
-		return cli_XQCursor;
+		return cli_QueuedCursor;
 	}
 
 	@Override

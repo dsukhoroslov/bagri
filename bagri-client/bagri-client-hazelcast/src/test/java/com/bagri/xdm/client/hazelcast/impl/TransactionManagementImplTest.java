@@ -60,17 +60,17 @@ public class TransactionManagementImplTest extends ClientQueryManagementTest {
 	
 			ResultCursor sec = getSecurity("VFINX");
 			Assert.assertNotNull(sec);
-			Assert.assertTrue(sec.getNext());
+			Assert.assertTrue(sec.next());
 			sec.close();
 
 			sec = getSecurity("IBM");
 			Assert.assertNotNull(sec);
-			Assert.assertTrue(sec.getNext());
+			Assert.assertTrue(sec.next());
 			sec.close();
 
 			sec = getSecurity("PTTAX");
 			Assert.assertNotNull(sec);
-			Assert.assertTrue(sec.getNext());
+			Assert.assertTrue(sec.next());
 			sec.close();
 
 			xRepo.getTxManagement().rollbackTransaction(txId);
@@ -78,17 +78,17 @@ public class TransactionManagementImplTest extends ClientQueryManagementTest {
 			
 			sec = getSecurity("VFINX");
 			Assert.assertNotNull(sec);
-			Assert.assertFalse(sec.getNext());
+			Assert.assertFalse(sec.next());
 			sec.close();
 
 			sec = getSecurity("IBM");
 			Assert.assertNotNull(sec);
-			Assert.assertFalse(sec.getNext());
+			Assert.assertFalse(sec.next());
 			sec.close();
 
 			sec = getSecurity("PTTAX");
 			Assert.assertNotNull(sec);
-			Assert.assertFalse(sec.getNext());
+			Assert.assertFalse(sec.next());
 			sec.close();
 		} finally {
 			if (txId > 0) {

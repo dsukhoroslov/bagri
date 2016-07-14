@@ -162,12 +162,12 @@ public class QueryManagement extends SchemaFeatureManagement {
 		int fSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, String.valueOf(fetchSize)));
 		if (fSize > 0) {
 			int cnt = 0;
-			while (cursor.getNext() && cnt < fSize) {
+			while (cursor.next() && cnt < fSize) {
 				buff.append(xqp.convertToString(cursor.getXQItem(), outProps));
 				cnt++;
 			}
 		} else {
-			while (cursor.getNext()) {
+			while (cursor.next()) {
 				buff.append(xqp.convertToString(cursor.getXQItem(), outProps));
 			}
 		}

@@ -226,7 +226,7 @@ public class BagriXDMPlugin extends BagriTPoXPlugin {
 			return null;
 		}
 		List<String> result = new ArrayList<>();
-		while (cursor.getNext()) {
+		while (cursor.next()) {
 			result.add(cursor.getString());
 		}
 		return result;

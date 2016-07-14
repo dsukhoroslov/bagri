@@ -296,7 +296,7 @@ public class IterableXQSequence extends BagriXQSequence {
 		
 		checkState(ex_sequence_closed);
 		try {
-			if (cursor.getNext()) {
+			if (cursor.next()) {
 				XQItemAccessor current = cursor.getXQItem();
 				//if (current instanceof BagriXQItemAccessor) {
 					setCurrent(((BagriXQItemAccessor) current).type, ((BagriXQItemAccessor) current).value);

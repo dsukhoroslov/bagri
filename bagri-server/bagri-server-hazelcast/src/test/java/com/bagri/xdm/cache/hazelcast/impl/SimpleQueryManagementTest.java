@@ -86,7 +86,7 @@ public class SimpleQueryManagementTest extends XDMManagementTest {
 
 		ResultCursor rc = xRepo.getQueryManagement().executeQuery(query, null, new Properties());
 		((QueuedCursorImpl) rc).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
-		assertTrue(rc.getNext());
+		assertTrue(rc.next());
 		
 		props = new Properties();
 		props.setProperty(javax.xml.transform.OutputKeys.OMIT_XML_DECLARATION, "yes");

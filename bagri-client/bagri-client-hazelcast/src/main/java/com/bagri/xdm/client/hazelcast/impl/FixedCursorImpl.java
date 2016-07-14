@@ -1,6 +1,6 @@
 package com.bagri.xdm.client.hazelcast.impl;
 
-import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryImpl.cli_XQFixedCursor;
+import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryImpl.cli_FixedCursor;
 import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryImpl.factoryId;
 
 import java.io.IOException;
@@ -21,7 +21,7 @@ public class FixedCursorImpl extends ResultCursorBase implements IdentifiedDataS
 	private Iterator<Object> iter;
 	
 	public FixedCursorImpl() {
-		this(null);
+		//
 	}
 
 	public FixedCursorImpl(List<Object> values) {
@@ -59,7 +59,7 @@ public class FixedCursorImpl extends ResultCursorBase implements IdentifiedDataS
 	}
 
 	@Override
-	public boolean getNext() {
+	public boolean next() {
 		boolean result = iter.hasNext();
 		if (result) {
 			value = iter.next();
@@ -76,12 +76,13 @@ public class FixedCursorImpl extends ResultCursorBase implements IdentifiedDataS
 
 	@Override
 	public int getId() {
-		return cli_XQFixedCursor;
+		return cli_FixedCursor;
 	}
 
 	@Override
 	public void readData(ObjectDataInput in) throws IOException {
 		values = in.readObject();
+		iter = values.iterator();
 	}
 
 	@Override

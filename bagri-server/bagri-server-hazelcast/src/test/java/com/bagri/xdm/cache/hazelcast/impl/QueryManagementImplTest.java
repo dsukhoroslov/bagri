@@ -350,7 +350,7 @@ public class QueryManagementImplTest extends XDMManagementTest {
 			ResultCursor rc = xRepo.getQueryManagement().executeQuery(query, params, props);
 			assertNotNull(rc);
 			((QueuedCursorImpl) rc).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
-			assertTrue(rc.getNext());
+			assertTrue(rc.next());
 			rc.close();
 		}
 	}
@@ -374,13 +374,13 @@ public class QueryManagementImplTest extends XDMManagementTest {
 		ResultCursor rc = xRepo.getQueryManagement().executeQuery(query, params, props);
 		assertNotNull(rc);
 		//((QueuedCursorImpl) rc).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
-		assertTrue(rc.getNext());
+		assertTrue(rc.next());
 		XQProcessor xqp = ((SchemaRepositoryImpl) xRepo).getXQProcessor();
 		Object result = rc.getObject();
 		assertNotNull(result);
 		String text = xqp.convertToString(result, null);
 		assertEquals("<print>The open price of the security \"Vanguard 500 Index Fund\" is 101.12 dollars</print>", text);
-		assertFalse(rc.getNext());
+		assertFalse(rc.next());
 		props = new Properties();
 		//props.setProperty(javax.xml.transform.OutputKeys.OMIT_XML_DECLARATION, "yes");
 		//props.setProperty(javax.xml.transform.OutputKeys.INDENT, "yes");

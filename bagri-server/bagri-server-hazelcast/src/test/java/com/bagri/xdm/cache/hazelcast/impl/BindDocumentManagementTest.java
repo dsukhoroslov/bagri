@@ -124,19 +124,19 @@ public class BindDocumentManagementTest extends XDMManagementTest {
 		Map<String, Object> params = new HashMap<>();
 		params.put("value", 0);
 		ResultCursor results = query(query, params);
-		assertFalse(results.getNext());
+		assertFalse(results.next());
 		results.close();
 		
 		params.put("value", 1);
 		results = query(query, params);
-		assertTrue(results.getNext());
+		assertTrue(results.next());
 		
 		Properties props = new Properties();
 		props.setProperty("method", "text");
 		XQItem item = (XQItem) results.getXQItem();
 		String text = item.getItemAsString(props);
 		assertEquals("XYZ", text);
-		assertFalse(results.getNext());
+		assertFalse(results.next());
 		results.close();
 	}
 		
@@ -165,13 +165,13 @@ public class BindDocumentManagementTest extends XDMManagementTest {
 		Map<String, Object> params = new HashMap<>();
 		params.put("value", 1);
 		try (ResultCursor results = query(query, params)) {
-			assertTrue(results.getNext());
+			assertTrue(results.next());
 			Properties props = new Properties();
 			props.setProperty("method", "text");
 			XQItem item = (XQItem) results.getXQItem();
 			String text = item.getItemAsString(props);
 			assertEquals("XYZ", text);
-			assertFalse(results.getNext());
+			assertFalse(results.next());
 		}
 	}
 		
