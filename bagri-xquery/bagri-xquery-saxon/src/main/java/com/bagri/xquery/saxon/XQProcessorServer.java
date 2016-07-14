@@ -202,24 +202,19 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
     
 	@Override
     public Iterator<?> executeXQuery(String query, XQStaticContext ctx) throws XQException {
-
         setStaticContext(sqc, ctx);
         return execQuery(query);
     }
     
 	@Override
     public Iterator<?> executeXQuery(String query, Properties props) throws XQException {
-
 		setStaticContext(sqc, props);
         return execQuery(query);
 	}
 	
 	@Override
     public ResultCursor processXQuery(String query, XQStaticContext ctx) throws XQException {
-
-        setStaticContext(sqc, ctx);
-        ResultCursorBase cursor = (ResultCursorBase) execQuery(query);
-        return cursor;
+   		throw new XQException("Not implemented on the server side. Use method executeXQuery instead");
     }
     
 	@Override

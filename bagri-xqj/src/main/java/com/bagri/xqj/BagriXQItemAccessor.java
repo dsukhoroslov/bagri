@@ -15,6 +15,7 @@ import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQItemAccessor;
 import javax.xml.xquery.XQItemType;
 
+import static com.bagri.common.util.PropUtils.getOutputProperties;
 import static com.bagri.xqj.BagriXQErrors.ex_item_closed;
 import static javax.xml.xquery.XQItemType.*;
 
@@ -67,21 +68,16 @@ public abstract class BagriXQItemAccessor extends BagriXQCloseable implements XQ
 	}
 	
 	protected Properties checkOutputProperties(Properties props) {
+		Properties outProps;
         if (props == null) {
-            props = new Properties();
+    		outProps = new Properties();
+            outProps.setProperty(OutputKeys.INDENT, "yes");
+            outProps.setProperty(OutputKeys.METHOD, "xml");
+            outProps.setProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+        } else {
+        	outProps = getOutputProperties(props);
         }
-        if (!props.containsKey(OutputKeys.INDENT)) {
-            props.setProperty(OutputKeys.INDENT, "yes");
-        }
-        if (!props.containsKey(OutputKeys.METHOD)) {
-            props.setProperty(OutputKeys.METHOD, "xml");
-        }
-        if (!props.containsKey(OutputKeys.OMIT_XML_DECLARATION)) {
-            props.setProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-        } 
-   		// TODO: check for only serialization properties here?
-        //validateSerializationProperties(props, config);
-        return props;
+        return outProps;
 	}
 	
 	private long convertDecimal(long min, long max, String typeName) throws XQException {

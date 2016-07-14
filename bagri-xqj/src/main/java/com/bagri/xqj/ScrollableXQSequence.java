@@ -78,7 +78,10 @@ public class ScrollableXQSequence extends BagriXQSequence implements XQSequence 
 	public void close() throws XQException {
 		
 		super.close();
-		sequence.clear();
+		// can be already cleared via cursor!
+		if (sequence != null) {
+			sequence.clear();
+		}
 		sequence = null;
 	}
 

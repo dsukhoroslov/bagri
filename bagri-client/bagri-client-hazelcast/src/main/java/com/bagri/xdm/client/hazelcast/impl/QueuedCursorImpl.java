@@ -144,8 +144,8 @@ public class QueuedCursorImpl extends ResultCursorBase implements IdentifiedData
 	}
 	
 	@Override
-	public List<?> getList() throws XDMException {
-		throw new XDMException("Not implemented in queue", XDMException.ecQuery);
+	public List<Object> getList() throws XDMException {
+		throw new XDMException("Not implemented in queued cursor", XDMException.ecQuery);
 	}
 	
 	@Override
@@ -163,17 +163,17 @@ public class QueuedCursorImpl extends ResultCursorBase implements IdentifiedData
 						current = queue.poll();
 						result = current != null;
 						if (!result && position < queueSize) {
-							logger.warn("hasNext; declared and fetched queue sizes do not match: {}/{}", queueSize, position);
+							logger.warn("next; declared and fetched queue sizes do not match: {}/{}", queueSize, position);
 						}
 					}
 				} catch (InterruptedException | ExecutionException ex) {
-					logger.error("hasNext.error", ex); 
+					logger.error("next.error", ex); 
 				}
 			}
 		} else {
 			position++;
 		}
-		logger.trace("hasNext; returning: {}", result); 
+		logger.trace("next; returning: {}", result); 
 		return result;
 	}
 
@@ -206,8 +206,7 @@ public class QueuedCursorImpl extends ResultCursorBase implements IdentifiedData
 	@Override
 	public String toString() {
 		return "ResultCursor [clientId=" + clientId + ", memberId=" + memberId + 
-			", queueSize=" + queueSize + ", position=" + position + 
-			", batchSize=" + batchSize + "]";
+			", queueSize=" + queueSize + ", position=" + position + ", batchSize=" + batchSize + "]";
 	}
 
 	

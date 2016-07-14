@@ -113,6 +113,23 @@ public class PropUtils {
 			target.setProperty(name, prop);
 		}
 	}
+
+	/**
+	 * Takes property from source and set it in target Properties. Set default value if no property found in source
+	 * 
+	 * @param source the source Properties to take property value from
+	 * @param target the target Properties to set property value in
+	 * @param name the property name
+	 * @param defValue default value to set if no property found in source
+	 */
+	public static void setPropertyOrDefault(Properties source, Properties target, String name, String defValue) {
+		String prop = source.getProperty(name);
+		if (prop != null) {
+			target.setProperty(name, prop);
+		} else {
+			target.setProperty(name, defValue);
+		}
+	}
 	
 	/**
 	 * Extract XML-output specific properties from the wider list of Properties passed 
@@ -126,10 +143,10 @@ public class PropUtils {
 		setProperty(source, outProps, OutputKeys.DOCTYPE_PUBLIC, null);
 		setProperty(source, outProps, OutputKeys.DOCTYPE_SYSTEM, null);
 		setProperty(source, outProps, OutputKeys.ENCODING, null);
-		setProperty(source, outProps, OutputKeys.INDENT, null);
+		setPropertyOrDefault(source, outProps, OutputKeys.INDENT, "yes");
 		setProperty(source, outProps, OutputKeys.MEDIA_TYPE, null);
-		setProperty(source, outProps, OutputKeys.METHOD, null);
-		setProperty(source, outProps, OutputKeys.OMIT_XML_DECLARATION, null);
+		setPropertyOrDefault(source, outProps, OutputKeys.METHOD, "xml");
+		setPropertyOrDefault(source, outProps, OutputKeys.OMIT_XML_DECLARATION, "yes");
 		setProperty(source, outProps, OutputKeys.STANDALONE, null);
 		setProperty(source, outProps, OutputKeys.VERSION, null);
 		return outProps;

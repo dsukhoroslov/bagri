@@ -18,6 +18,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 
+import javax.xml.xquery.XQConstants;
 import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQItem;
 import javax.xml.xquery.XQItemType;
@@ -689,7 +690,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		String clientId = props.getProperty(pn_client_id);
 		int batchSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, "0"));
 		int scrollType = Integer.parseInt(props.getProperty(pn_scrollability, "1"));
-		if (scrollType == 2 || batchSize == 1) {
+		if (scrollType == XQConstants.SCROLLTYPE_SCROLLABLE || batchSize == 1) {
 			//xqCursor = new FixedCursorImpl(Collections.singletonList(iter.next()));
 			List results = CollectionUtils.copyIterator(iter);
 			xqCursor = new FixedCursorImpl(results);

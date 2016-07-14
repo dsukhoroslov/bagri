@@ -15,8 +15,6 @@ import javax.xml.xquery.XQPreparedExpression;
 import javax.xml.xquery.XQResultSequence;
 import javax.xml.xquery.XQSequence;
 
-import junit.framework.Assert;
-
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -110,8 +108,8 @@ public class BagriXQAxisTest {
 		//xqe.bindString(new QName("doc"), xml, xqc.createAtomicType(XQItemType.XQBASETYPE_STRING));
 	    XQResultSequence xqrs = xqe.executeQuery(query);
 
-	    Assert.assertNotNull(xqrs);
-		Assert.assertFalse(xqrs.isClosed());
+	    assertNotNull(xqrs);
+		assertFalse(xqrs.isClosed());
 
 	    boolean found = false;
 	    while (xqrs.next()) {
@@ -136,8 +134,8 @@ public class BagriXQAxisTest {
 		XQExpression xqe = xqc.createExpression();
 	    XQResultSequence xqrs = xqe.executeQuery(query);
 
-	    Assert.assertNotNull(xqrs);
-		Assert.assertFalse(xqrs.isClosed());
+	    assertNotNull(xqrs);
+		assertFalse(xqrs.isClosed());
 
 	    boolean found = false;
 	    while (xqrs.next()) {

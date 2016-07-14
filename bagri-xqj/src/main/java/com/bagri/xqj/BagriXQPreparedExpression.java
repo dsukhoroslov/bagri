@@ -28,6 +28,7 @@ import static com.bagri.xquery.api.XQUtils.*;
 public class BagriXQPreparedExpression extends BagriXQDynamicContext implements	XQPreparedExpression {
 	
 	private String xquery;
+	private List<XQResultSequence> results = new ArrayList<>();
 
 	BagriXQPreparedExpression(XQStaticContext context) {
 		super(context);
@@ -58,6 +59,14 @@ public class BagriXQPreparedExpression extends BagriXQDynamicContext implements	
 		super.bindSequence(varName, value);
 	}
 	
+	@Override
+	public void close() throws XQException {
+		super.close();
+		for (XQResultSequence sq: results) {
+			sq.close();
+		}
+		results.clear();
+	}
 	
 	public String getXQuery() {
 		return xquery;
@@ -71,15 +80,19 @@ public class BagriXQPreparedExpression extends BagriXQDynamicContext implements	
 	public XQResultSequence executeQuery() throws XQException {
 
 		checkState(ex_expression_closed);
-		ResultCursor result = connection.executeQuery(xquery, context); 
+		ResultCursor result = connection.executeQuery(xquery, context);
+		XQResultSequence sequence;
 		if (context.getScrollability() == XQConstants.SCROLLTYPE_SCROLLABLE) {
 			try {
-				return new ScrollableXQResultSequence(this, result.getList());
+				sequence = new ScrollableXQResultSequence(this, result.getList());
 			} catch (XDMException ex) {
 				throw getXQException(ex); 
 			}
+		} else {
+			sequence = new IterableXQResultSequence(this, result); 
 		}
-		return new IterableXQResultSequence(this, result);
+		results.add(sequence);
+		return sequence;
 	}
 
 	@Override

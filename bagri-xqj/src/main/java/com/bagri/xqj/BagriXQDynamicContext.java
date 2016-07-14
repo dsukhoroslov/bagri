@@ -64,6 +64,7 @@ public class BagriXQDynamicContext extends BagriXQCloseable implements XQDynamic
 		connection.cancel();
 	}
 
+	@Override
 	public boolean isClosed() {
 		
 		if (closed) {
@@ -75,6 +76,7 @@ public class BagriXQDynamicContext extends BagriXQCloseable implements XQDynamic
 		return false; 
 	}
 
+	@Override
 	public void close() throws XQException {
 		
 		// close expression when it is created by DataFactory

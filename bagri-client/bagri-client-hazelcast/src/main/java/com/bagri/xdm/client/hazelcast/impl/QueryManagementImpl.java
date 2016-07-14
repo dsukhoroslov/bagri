@@ -24,7 +24,6 @@ import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.QueryManagement;
 import com.bagri.xdm.api.ResultCursor;
 import com.bagri.xdm.api.impl.QueryManagementBase;
-import com.bagri.xdm.api.impl.ResultCursorBase;
 import com.bagri.xdm.client.hazelcast.task.query.QueryUrisProvider;
 import com.bagri.xdm.client.hazelcast.task.query.QueryExecutor;
 import com.bagri.xdm.domain.Query;
@@ -73,6 +72,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	@Override
 	public Collection<String> getDocumentUris(String query, Map<String, Object> params, Properties props) throws XDMException {
 
+		// TODO: use QueryResult cache as well!
 		long stamp = System.currentTimeMillis();
 		logger.trace("getDocumentIDs.enter; query: {}", query);
 		QueryUrisProvider task = new QueryUrisProvider(repo.getClientId(), repo.getTransactionId(), query, params, props);
@@ -122,22 +122,19 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		long timeout = Long.parseLong(props.getProperty(pn_queryTimeout, "0"));
 
 		//if (cursor != null) {
-		//	cursor.close(false);
+		//  TODO: fetch current cursor..
 		//}
 		ResultCursor cursor = getResults(future, timeout);
 		logger.trace("execXQuery; got cursor: {}", cursor);
 		if (cursor instanceof QueuedCursorImpl) {
 			((QueuedCursorImpl) cursor).deserialize(repo.getHazelcastClient());
+			// we need this workaround to pass TCK test..
+			// TODO: fix it in some other way..
+			int fetchSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, "0"));
+			if (fetchSize == 0) {
+				cursor = new FixedCursorImpl(extractFromCursor(cursor));
+			} 
 		}
-			
-		//Iterator result = cursor;
-		//int fetchSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, "0"));
-		//if (fetchSize == 0) {
-		//	result = extractFromCursor(cursor);
-		//} else {
-			// possible memory leak with non-closed cursors !?
-		//	result = cursor;
-		//}
 		logger.trace("executeQuery.exit; returning: {}", cursor);
 		return cursor; 
 	}
@@ -176,14 +173,14 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		}
 	}
 	
-	//@SuppressWarnings({ "rawtypes", "unchecked" })
-	//private Iterator extractFromCursor(QueuedCursorImpl cursor) {
-	//	List result = new ArrayList(cursor.getQueueSize());
-	//	while (cursor.hasNext()) {
-	//		result.add(cursor.next());
-	//	}
-	//	return result.iterator();
-	//}
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private List<Object> extractFromCursor(ResultCursor cursor) throws XDMException {
+		List result = new ArrayList();
+		while (cursor.next()) {
+			result.add(cursor.getXQItem());
+		}
+		return result;
+	}
 	
 	@Override
 	public Collection<String> prepareQuery(String query) { //throws XDMException {

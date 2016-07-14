@@ -1,5 +1,6 @@
 package com.bagri.xqj;
 
+import static com.bagri.common.util.CollectionUtils.copyIterator;
 import static com.bagri.xqj.BagriXQErrors.ex_connection_closed;
 import static com.bagri.xquery.api.XQUtils.getTypeName;
 import static com.bagri.xquery.api.XQUtils.isAtomicType;
@@ -718,7 +719,7 @@ public class BagriXQDataFactory extends BagriXQCloseable implements XQDataFactor
 	}
 
 	@Override
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public XQSequence createSequence(Iterator itr) throws XQException {
 
 		checkState(ex_connection_closed);
@@ -726,17 +727,18 @@ public class BagriXQDataFactory extends BagriXQCloseable implements XQDataFactor
 			throw new XQException("Iterator is null");
 		}
 		
-		return new ScrollableXQSequence(this, xqProcessor, getList(itr));
+		return new ScrollableXQSequence(this, xqProcessor, copyIterator(itr));
+		//return new IterableXQSequence(this, xqProcessor, itr);
 	}
 	
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private List getList(Iterator itr) {
-		ArrayList list = new ArrayList();
-		while (itr.hasNext()) {
-			list.add(itr.next());
-		}
-		return list;
-	}
+	//@SuppressWarnings({ "rawtypes", "unchecked" })
+	//private List getList(Iterator itr) {
+	//	ArrayList list = new ArrayList();
+	//	while (itr.hasNext()) {
+	//		list.add(itr.next());
+	//	}
+	//	return list;
+	//}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private List getList(XQSequence xqc) throws XQException {

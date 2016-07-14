@@ -4,12 +4,12 @@ import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryI
 import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryImpl.factoryId;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.impl.ResultCursorBase;
-import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
@@ -17,44 +17,30 @@ import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 public class FixedCursorImpl extends ResultCursorBase implements IdentifiedDataSerializable {
 
 	private Object value = null;
-	private List<Object> values;
 	private Iterator<Object> iter;
+	private List<Object> values = new ArrayList<>();
 	
 	public FixedCursorImpl() {
 		//
 	}
 
 	public FixedCursorImpl(List<Object> values) {
-		//super(iter);
-		this.values = values;
-		iter = this.values.iterator();
+		setValues(values);
 	}
 	
 	@Override
 	public void close() throws Exception {
-		if (values.size() > 1) {
-			// non-abstract impl
-			values.clear();
-		}
 		values = null;
 		value = null;
 		iter = null;
 	}
 
-	public void deserialize(HazelcastInstance hzi) {
-		position = 0;
-	}
-
-	public int serialize(HazelcastInstance hzi) {
-		return values.size();
-	}
-	
 	protected Object getCurrent() {
 		return value;
 	}
 	
 	@Override
-	public List<?> getList() throws XDMException {
+	public List<Object> getList() throws XDMException {
 		return values;
 	}
 
@@ -78,11 +64,17 @@ public class FixedCursorImpl extends ResultCursorBase implements IdentifiedDataS
 	public int getId() {
 		return cli_FixedCursor;
 	}
+	
+	private void setValues(List<Object> values) {
+		if (values != null) {
+			this.values.addAll(values);
+		}
+		iter = this.values.iterator();
+	}
 
 	@Override
 	public void readData(ObjectDataInput in) throws IOException {
-		values = in.readObject();
-		iter = values.iterator();
+		setValues((List<Object>) in.readObject());
 	}
 
 	@Override
@@ -92,7 +84,7 @@ public class FixedCursorImpl extends ResultCursorBase implements IdentifiedDataS
 
 	@Override
 	public String toString() {
-		return "FixedCursorImpl [position=" + position + ", values=" + values.size() + "]"; 
+		return "FixedCursorImpl [values=" + values.size() + "]"; 
 	}
 
 }

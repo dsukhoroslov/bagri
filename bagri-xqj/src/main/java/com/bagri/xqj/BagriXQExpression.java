@@ -6,6 +6,8 @@ import static com.bagri.xquery.api.XQUtils.getXQException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.xquery.XQConstants;
 import javax.xml.xquery.XQException;
@@ -19,6 +21,7 @@ import com.bagri.xdm.api.XDMException;
 
 public class BagriXQExpression extends BagriXQDynamicContext implements XQExpression {
 	
+	private List<XQResultSequence> results = new ArrayList<>();
 
 	BagriXQExpression(XQStaticContext context) {
 		super(context);
@@ -32,6 +35,15 @@ public class BagriXQExpression extends BagriXQDynamicContext implements XQExpres
 		super(connection, context);
 	}
 
+	@Override
+	public void close() throws XQException {
+		super.close();
+		for (XQResultSequence sq: results) {
+			sq.close();
+		}
+		results.clear();
+	}
+	
 	@Override
 	public void executeCommand(String cmd) throws XQException {
 		
@@ -62,16 +74,19 @@ public class BagriXQExpression extends BagriXQDynamicContext implements XQExpres
 			throw new XQException("Provided query is null");
 		}
 		
-		// run it...
 		ResultCursor result = connection.executeQuery(query, context);
+		XQResultSequence sequence;
 		if (context.getScrollability() == XQConstants.SCROLLTYPE_SCROLLABLE) {
 			try {
-				return new ScrollableXQResultSequence(this, result.getList());
+				sequence = new ScrollableXQResultSequence(this, result.getList());
 			} catch (XDMException ex) {
 				throw getXQException(ex); 
 			}
+		} else {
+			sequence = new IterableXQResultSequence(this, result); 
 		}
-		return new IterableXQResultSequence(this, result);
+		results.add(sequence);
+		return sequence;
 	}
 
 	@Override

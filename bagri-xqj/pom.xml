@@ -19,11 +19,6 @@
             <groupId>com.bagri.db</groupId>
             <artifactId>bagri-xdm</artifactId>
         </dependency>
-        <!--dependency>
-            <groupId>com.bagri.db</groupId>
-            <artifactId>bagri-xquery-saxon</artifactId>
-            <scope>runtime</scope>
-        </dependency-->
 
         <dependency>
             <groupId>javax.xml.xquery</groupId>
@@ -56,6 +51,11 @@
             <scope>test</scope>
         </dependency>
         <!--dependency>
+            <groupId>com.bagri.db</groupId>
+            <artifactId>bagri-xquery-saxon</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>com.bagri.db</groupId>
             <artifactId>bagri-client-hazelcast</artifactId>
             <scope>test</scope>
