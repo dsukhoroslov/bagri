@@ -75,8 +75,6 @@ public class XMarkQueryTest extends XDMManagementTest {
 
 		ResultCursor result = getQueryManagement().executeQuery(query, params, new Properties());
 		assertNotNull(result);
-		((QueuedCursorImpl) result).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
-		//assertTrue(result.hasNext());
 		return result;
 	}
 	

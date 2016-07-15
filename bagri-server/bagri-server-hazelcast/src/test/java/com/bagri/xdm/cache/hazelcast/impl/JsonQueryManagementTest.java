@@ -93,7 +93,7 @@ public class JsonQueryManagementTest extends XDMManagementTest {
 				"return fn:json-to-xml($json)";
 		ResultCursor docs = getQueryManagement().executeQuery(query, null, new Properties());
 		assertNotNull(docs);
-		((QueuedCursorImpl) docs).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
+		//((QueuedCursorImpl) docs).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
 		Properties props = new Properties();
 		//props.setProperty("method", "xml");
 		List<String> jsons = new ArrayList<>();
@@ -120,7 +120,7 @@ public class JsonQueryManagementTest extends XDMManagementTest {
 		//props.setProperty("method", "json");
 		ResultCursor docs = getQueryManagement().executeQuery(query, null, props);
 		assertNotNull(docs);
-		((QueuedCursorImpl) docs).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
+		//((QueuedCursorImpl) docs).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
 		props = new Properties();
 		//props.setProperty("method", "json");
 		List<String> jsons = new ArrayList<>();
@@ -145,7 +145,7 @@ public class JsonQueryManagementTest extends XDMManagementTest {
 				"return $v?('Symbol', 'Name')";
 		ResultCursor docs = getQueryManagement().executeQuery(query, null, new Properties());
 		assertNotNull(docs);
-		((QueuedCursorImpl) docs).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
+		//((QueuedCursorImpl) docs).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
 		Properties props = new Properties();
 		props.setProperty("method", "text");
 		List<String> results = new ArrayList<>();

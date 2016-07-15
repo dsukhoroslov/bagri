@@ -30,6 +30,24 @@ public class CollectionUtils {
 	}
 	
 	/**
+	 * Copies first {@value limit} values from Iterator to the List
+	 * 
+	 * @param source the source Iterator to copy data from
+	 * @param limit the max number of values to copy from Iterator to the resulting List
+	 * @param <T> the type of iterable instances
+	 * @return the List containing first {@value limit} values copied from the source Iterator 
+	 */
+	public static <T> List<T> copyIterator(Iterator<T> source, int limit) {
+	    List<T> copy = new ArrayList<T>(limit);
+	    int cnt = 0;
+	    while (source.hasNext() && cnt < limit) {
+	        copy.add(source.next());
+	        cnt++;
+	    }
+	    return copy;
+	}
+
+	/**
 	 * Converts Collection of Integers to int array
 	 * 
 	 * @param source the source Collection to copy data from

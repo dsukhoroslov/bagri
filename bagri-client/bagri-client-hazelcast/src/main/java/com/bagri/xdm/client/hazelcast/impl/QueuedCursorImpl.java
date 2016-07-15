@@ -89,11 +89,15 @@ public class QueuedCursorImpl extends ResultCursorBase implements IdentifiedData
 		position = 0; //-1;
 	}
 	
-	// server side
-	public int serialize(HazelcastInstance hzi) {
+	private void initQueue(HazelcastInstance hzi) {
 		this.hzi =  hzi;
 		memberId = hzi.getCluster().getLocalMember().getUuid();
 		queue = getQueue();
+	}
+	
+	// server side
+	public int serialize(HazelcastInstance hzi) {
+		initQueue(hzi);
 		int size = 0;
 		if (batchSize > 0) {
 			for (int i = 0; i < batchSize && addNext(); i++) {
@@ -122,6 +126,22 @@ public class QueuedCursorImpl extends ResultCursorBase implements IdentifiedData
 				queueSize = size;
 			} else if (size != queueSize) {
 				logger.info("serialize; declared and current queue sizes do not match: {}/{}", queueSize, size);
+			}
+		}
+		return size;
+	}
+	
+	public int serialize(HazelcastInstance hzi, List<Object> toQueue) {
+		initQueue(hzi);
+		int size = 0;
+		for (Object value: toQueue) { 
+			if (value != null) {
+				if (queue.offer(value)) {
+					size++;
+				} else {
+					logger.warn("serialize; queue is full!");
+					break; //??
+				}
 			}
 		}
 		return size;

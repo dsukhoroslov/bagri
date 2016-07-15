@@ -178,8 +178,6 @@ public class BindDocumentManagementTest extends XDMManagementTest {
 	private ResultCursor query(String query, Map<String, Object> params) throws Exception {
 		ResultCursor result = getQueryManagement().executeQuery(query, params, new Properties());
 		assertNotNull(result);
-		((QueuedCursorImpl) result).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
-		//assertTrue(result.hasNext());
 		return result;
 	}
 	

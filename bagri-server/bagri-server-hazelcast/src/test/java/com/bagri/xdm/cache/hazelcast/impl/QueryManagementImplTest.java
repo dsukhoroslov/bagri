@@ -329,7 +329,6 @@ public class QueryManagementImplTest extends XDMManagementTest {
 	//			"return $sec\n";
 	//		Iterator itr = xRepo.getQueryManagement().executeQuery(query, params, props);
 	//		Assert.assertNotNull(itr);
-	//		((ResultCursor) itr).deserialize(((RepositoryImpl) xRepo).getHzInstance());
 	//		Assert.assertTrue(itr.hasNext());
 	//	}
 	//}
@@ -349,7 +348,6 @@ public class QueryManagementImplTest extends XDMManagementTest {
 				"return $sec\n";
 			ResultCursor rc = xRepo.getQueryManagement().executeQuery(query, params, props);
 			assertNotNull(rc);
-			((QueuedCursorImpl) rc).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
 			assertTrue(rc.next());
 			rc.close();
 		}
@@ -373,7 +371,6 @@ public class QueryManagementImplTest extends XDMManagementTest {
 		props.setProperty(pn_defaultElementTypeNamespace, "");
 		ResultCursor rc = xRepo.getQueryManagement().executeQuery(query, params, props);
 		assertNotNull(rc);
-		//((QueuedCursorImpl) rc).deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
 		assertTrue(rc.next());
 		XQProcessor xqp = ((SchemaRepositoryImpl) xRepo).getXQProcessor();
 		Object result = rc.getObject();

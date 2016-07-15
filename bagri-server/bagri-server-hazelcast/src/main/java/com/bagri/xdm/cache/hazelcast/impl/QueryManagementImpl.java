@@ -4,6 +4,7 @@ import static com.bagri.xdm.common.XDMConstants.pn_client_fetchSize;
 import static com.bagri.xdm.common.XDMConstants.pn_client_id;
 import static com.bagri.xdm.common.XDMConstants.pn_query_command;
 import static com.bagri.xdm.common.XDMConstants.pn_scrollability;
+import static com.bagri.xdm.common.XDMConstants.xdm_schema_fetchSize;
 import static com.bagri.xquery.api.XQUtils.getAtomicValue;
 import static com.bagri.xquery.api.XQUtils.isStringTypeCompatible;
 
@@ -680,24 +681,43 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	}
 
 	private ResultCursorBase createCursor(Iterator<Object> iter, Properties props) {
-		int size = QueuedCursorImpl.UNKNOWN;
-		if (iter instanceof XQIterator) {
-			size = ((XQIterator) iter).getFullSize();
-		}
-		final ResultCursorBase xqCursor;
 		int count = 0;
-		
-		String clientId = props.getProperty(pn_client_id);
-		int batchSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, "0"));
+		final ResultCursorBase xqCursor;
+
+		int batchSize = 0;
+		List<Object> results;
+		boolean fixed = true;
 		int scrollType = Integer.parseInt(props.getProperty(pn_scrollability, "1"));
-		if (scrollType == XQConstants.SCROLLTYPE_SCROLLABLE || batchSize == 1) {
-			//xqCursor = new FixedCursorImpl(Collections.singletonList(iter.next()));
-			List results = CollectionUtils.copyIterator(iter);
+		if (scrollType != XQConstants.SCROLLTYPE_SCROLLABLE) {
+			String fetchSize = props.getProperty(pn_client_fetchSize);
+			// not set -> use default BS
+			if (fetchSize == null) {
+				fetchSize = repo.getSchema().getProperty(xdm_schema_fetchSize);
+				if (fetchSize == null) {
+					fetchSize = "50"; // define constant for this
+				}
+			}
+			batchSize = Integer.parseInt(fetchSize);
+			// fetch BS results.
+			results = CollectionUtils.copyIterator(iter, batchSize);
+			// if RS < BS -> put them to FixedCursor
+			// else -> serialize them in QueuedCursor
+			fixed = results.size() <= batchSize;
+		} else {
+			results = CollectionUtils.copyIterator(iter);
+		}
+
+		if (fixed) {
 			xqCursor = new FixedCursorImpl(results);
 			count = results.size();
 		} else {
+			int size = QueuedCursorImpl.UNKNOWN;
+			if (iter instanceof XQIterator) {
+				size = ((XQIterator) iter).getFullSize();
+			}
+			String clientId = props.getProperty(pn_client_id);
 			QueuedCursorImpl qc = new QueuedCursorImpl(iter, clientId, batchSize, size);
-			count = qc.serialize(repo.getHzInstance());
+			count = qc.serialize(repo.getHzInstance(), results);
 			xqCursor = qc;
 		}
 		
