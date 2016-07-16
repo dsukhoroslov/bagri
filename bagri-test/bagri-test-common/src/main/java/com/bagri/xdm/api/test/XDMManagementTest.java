@@ -1,15 +1,18 @@
 package com.bagri.xdm.api.test;
 
 import static com.bagri.common.util.FileUtils.readTextFile;
+import static org.junit.Assert.assertNotNull;
 
 import java.nio.file.Paths;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
 import com.bagri.xdm.api.DocumentManagement;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.QueryManagement;
+import com.bagri.xdm.api.ResultCursor;
 import com.bagri.xdm.api.SchemaRepository;
 import com.bagri.xdm.api.TransactionManagement;
 import com.bagri.xdm.domain.Document;
@@ -58,6 +61,15 @@ public abstract class XDMManagementTest {
 			//xdmRepo.setDataFormats(cFormats);
 		}
 		return schema;
+	}
+	
+	protected ResultCursor query(String query, Map<String, Object> params, Properties props) throws Exception {
+		if (props == null) {
+			props = new Properties();
+		}
+		ResultCursor result = getQueryManagement().executeQuery(query, params, props);
+		assertNotNull(result);
+		return result;
 	}
 
 	protected void removeDocumentsTest() throws Exception {

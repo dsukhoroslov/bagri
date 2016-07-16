@@ -56,7 +56,7 @@ public class BagriXQDataSource implements XQDataSource {
 		properties.put(PASSWORD, "password");
 		properties.put(SCHEMA, "default");
 		properties.put(TRANSACTIONAL, "false");
-		properties.put(pn_client_fetchSize, "0");
+		properties.put(pn_client_fetchSize, "50");
 		properties.put(pn_client_loginTimeout, "30");
 		properties.put(pn_client_bufferSize, "32"); 
 		properties.put(pn_client_connectAttempts, "3");

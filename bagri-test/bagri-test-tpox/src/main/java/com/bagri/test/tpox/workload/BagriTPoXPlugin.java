@@ -30,7 +30,7 @@ import net.sf.tpox.workload.util.WorkloadEnvironment;
  */
 public abstract class BagriTPoXPlugin implements GenericJavaClassPlugin {
 	
-	protected static final int fetchSize = Integer.parseInt(System.getProperty(pn_client_fetchSize, "0"));
+    protected static final int fetchSize = Integer.parseInt(System.getProperty(pn_client_fetchSize, "1"));
 	
     protected WorkloadProcessor wp;
     protected WorkloadEnvironment we;

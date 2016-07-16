@@ -80,9 +80,8 @@ public class QueryCacheManagementTest extends XDMManagementTest {
 		Properties props = new Properties();
 		props.setProperty(pn_client_id, "1");
 		props.setProperty(pn_client_fetchSize, "1");
-		ResultCursor rc = xRepo.getQueryManagement().executeQuery(query, params, props);
+		ResultCursor rc = query(query, params, props);
 		assertNotNull(rc);
-		//((ResultCursor) itr).deserialize(((RepositoryImpl) xRepo).getHzInstance());
 		assertTrue(rc.next());
 		rc.close();
 		
@@ -129,9 +128,8 @@ public class QueryCacheManagementTest extends XDMManagementTest {
 		Properties props = new Properties();
 		props.setProperty(pn_client_id, "2");
 		props.setProperty(pn_client_fetchSize, "1");
-		ResultCursor rc = xRepo.getQueryManagement().executeQuery(query, params, props);
+		ResultCursor rc = query(query, params, props);
 		assertNotNull(rc);
-		//((ResultCursor) itr).deserialize(((RepositoryImpl) xRepo).getHzInstance());
 		assertTrue(rc.next());
 		rc.close();
 		

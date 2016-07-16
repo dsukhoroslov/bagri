@@ -71,13 +71,6 @@ public class XMarkQueryTest extends XDMManagementTest {
 	public void tearDown() throws Exception {
 	}
 	
-	private ResultCursor query(String query, Map<String, Object> params) throws Exception {
-
-		ResultCursor result = getQueryManagement().executeQuery(query, params, new Properties());
-		assertNotNull(result);
-		return result;
-	}
-	
 	private int exploreCursor(ResultCursor cursor) throws XQException, XDMException {
 		int cnt = 0;
 		while (cursor.next()) {
@@ -100,7 +93,7 @@ public class XMarkQueryTest extends XDMManagementTest {
 		
 		Map<String, Object> params = new HashMap<>();
 		params.put("name", "person0");
-		try (ResultCursor results = query(query, params)) {
+		try (ResultCursor results = query(query, params, null)) {
 			assertTrue(results.next());
 			Properties props = new Properties();
 			props.setProperty("method", "text");
@@ -119,7 +112,7 @@ public class XMarkQueryTest extends XDMManagementTest {
 				"let $auction := fn:doc(\"auction.xml\") return\n" +
 				"for $b in $auction/site/people/person[@id = 'person0'] return $b/name/text()";
 		
-		try (ResultCursor results = query(query, null)) {
+		try (ResultCursor results = query(query, null, null)) {
 			assertTrue(results.next());
 			Properties props = new Properties();
 			props.setProperty("method", "text");
@@ -138,7 +131,7 @@ public class XMarkQueryTest extends XDMManagementTest {
 				"for $b in $auction/site/open_auctions/open_auction\n" +
 				"return <increase>{$b/bidder[1]/increase/text()}</increase>";
 		
-		try (ResultCursor results = query(query, null)) {
+		try (ResultCursor results = query(query, null, null)) {
 			int cnt = 0;
 			while (results.next()) {
 				XQItem item = (XQItem) results.getXQItem();
@@ -161,7 +154,7 @@ public class XMarkQueryTest extends XDMManagementTest {
 				"where zero-or-one($b/bidder[1]/increase/text()) * 2 <= $b/bidder[last()]/increase/text()\n" +
 				"return <increase first=\"{$b/bidder[1]/increase/text()}\" last=\"{$b/bidder[last()]/increase/text()}\"/>";
 		
-		try (ResultCursor results = query(query, null)) {
+		try (ResultCursor results = query(query, null, null)) {
 			//<increase first="4.50" last="12.00"/>
 			//<increase first="6.00" last="30.00"/>
 			int cnt = 0;
@@ -193,7 +186,7 @@ public class XMarkQueryTest extends XDMManagementTest {
 		Map<String, Object> params = new HashMap<>();
 		params.put("name1", "person8");
 		params.put("name2", "person19");
-		try (ResultCursor results = query(query, params)) {
+		try (ResultCursor results = query(query, params, null)) {
 			assertTrue(results.next());
 			assertFalse(results.next());
 		}
@@ -213,7 +206,7 @@ public class XMarkQueryTest extends XDMManagementTest {
 		
 		Map<String, Object> params = new HashMap<>();
 		params.put("pmin", new Integer(40));
-		try (ResultCursor results = query(query, params)) {
+		try (ResultCursor results = query(query, params, null)) {
 			assertTrue(results.next());
 			XQItem item = (XQItem) results.getXQItem();
 			assertEquals(7, item.getInt());
@@ -228,7 +221,7 @@ public class XMarkQueryTest extends XDMManagementTest {
 		String query = "let $auction := doc(\"auction.xml\") return\n" +
 				"for $b in $auction//site/regions return count($b//item)";
 
-		try (ResultCursor results = query(query, null)) {
+		try (ResultCursor results = query(query, null, null)) {
 			assertTrue(results.next());
 			XQItem item = (XQItem) results.getXQItem();
 			assertEquals(22, item.getInt());
@@ -244,7 +237,7 @@ public class XMarkQueryTest extends XDMManagementTest {
 				"for $p in $auction/site return\n" +
 				"  count($p//description) + count($p//annotation) + count($p//emailaddress)";
 
-		try (ResultCursor results = query(query, null)) {
+		try (ResultCursor results = query(query, null, null)) {
 			assertTrue(results.next());
 			XQItem item = (XQItem) results.getXQItem();
 			assertEquals(92, item.getInt());
@@ -265,7 +258,7 @@ public class XMarkQueryTest extends XDMManagementTest {
 				"  return $t\n" +
 				"return <item person=\"{$p/name/text()}\">{count($a)}</item>";
 
-		try (ResultCursor results = query(query, null)) {
+		try (ResultCursor results = query(query, null, null)) {
 			int cnt = 0;
 			while (results.next()) {
 				XQItem item = (XQItem) results.getXQItem();
@@ -295,7 +288,7 @@ public class XMarkQueryTest extends XDMManagementTest {
 				"		return <item>{$n/name/text()}</item>\n" +
 				"return <person name=\"{$p/name/text()}\">{$a}</person>";
 
-		try (ResultCursor results = query(query, null)) {
+		try (ResultCursor results = query(query, null, null)) {
 			int cnt = 0;
 			while (results.next()) {
 				XQItem item = (XQItem) results.getXQItem();
@@ -340,7 +333,7 @@ public class XMarkQueryTest extends XDMManagementTest {
 		        "		</personne>\n" +
 		        "return <categorie>{<id>{$i}</id>, $p}</categorie>";
 
-		try (ResultCursor results = query(query, null)) {
+		try (ResultCursor results = query(query, null, null)) {
 			assertTrue(results.next());
 			XQItem item = (XQItem) results.getXQItem();
 			String text = item.getItemAsString(null);
@@ -362,7 +355,7 @@ public class XMarkQueryTest extends XDMManagementTest {
 				"	return $i\n" +
 				"return <items name=\"{$p/name/text()}\">{count($l)}</items>";
 
-		try (ResultCursor results = query(query, null)) {
+		try (ResultCursor results = query(query, null, null)) {
 			int cnt = 0;
 			while (results.next()) {
 				XQItem item = (XQItem) results.getXQItem();
@@ -389,7 +382,7 @@ public class XMarkQueryTest extends XDMManagementTest {
 				"where $p/profile/@income > 50000\n" +
 				"return <items person=\"{$p/profile/@income}\">{count($l)}</items>";
 
-		try (ResultCursor results = query(query, null)) {
+		try (ResultCursor results = query(query, null, null)) {
 			int cnt = 0;
 			while (results.next()) {
 				XQItem item = (XQItem) results.getXQItem();
@@ -410,7 +403,7 @@ public class XMarkQueryTest extends XDMManagementTest {
 				"for $i in $auction/site/regions/australia/item\n" +
 				"return <item name=\"{$i/name/text()}\">{$i/description}</item>";
 
-		try (ResultCursor results = query(query, null)) {
+		try (ResultCursor results = query(query, null, null)) {
 			int cnt = 0;
 			while (results.next()) {
 				XQItem item = (XQItem) results.getXQItem();
@@ -435,7 +428,7 @@ public class XMarkQueryTest extends XDMManagementTest {
 
 		Map<String, Object> params = new HashMap<>();
 		params.put("word", "gold");
-		try (ResultCursor results = query(query, params)) {
+		try (ResultCursor results = query(query, params, null)) {
 			int cnt = 0;
 			while (results.next()) {
 				cnt++;
@@ -454,7 +447,7 @@ public class XMarkQueryTest extends XDMManagementTest {
 				"   listitem/parlist/listitem/text/emph/keyword/text()\n" +
 				"return <text>{$a}</text>";
 
-		try (ResultCursor results = query(query, null)) {
+		try (ResultCursor results = query(query, null, null)) {
 			assertFalse(results.next());
 		}
 	}
@@ -476,7 +469,7 @@ public class XMarkQueryTest extends XDMManagementTest {
 				"	)\n" +
 				"return <person id=\"{$a/seller/@person}\"/>";
 
-		try (ResultCursor results = query(query, null)) {
+		try (ResultCursor results = query(query, null, null)) {
 			assertFalse(results.next());
 		}
 	}
@@ -490,7 +483,7 @@ public class XMarkQueryTest extends XDMManagementTest {
 				"where empty($p/homepage/text())\n" +
 				"return <person name=\"{$p/name/text()}\"/>";
 
-		try (ResultCursor results = query(query, null)) {
+		try (ResultCursor results = query(query, null, null)) {
 			int cnt = 0;
 			while (results.next()) {
 				XQItem item = (XQItem) results.getXQItem();
@@ -516,7 +509,7 @@ public class XMarkQueryTest extends XDMManagementTest {
 				"for $i in $auction/site/open_auctions/open_auction\n" +
 				"return local:convert(zero-or-one($i/reserve))";
 
-		try (ResultCursor results = query(query, null)) {
+		try (ResultCursor results = query(query, null, null)) {
 			int cnt = 0;
 			while (results.next()) {
 				XQItem item = (XQItem) results.getXQItem();
@@ -539,7 +532,7 @@ public class XMarkQueryTest extends XDMManagementTest {
 				"order by zero-or-one($b/location) ascending empty greatest\n" +
 				"return <item name=\"{$k}\">{$b/location/text()}</item>";
 
-		try (ResultCursor results = query(query, null)) {
+		try (ResultCursor results = query(query, null, null)) {
 			int cnt = 0;
 			while (results.next()) {
 				XQItem item = (XQItem) results.getXQItem();
@@ -583,7 +576,7 @@ public class XMarkQueryTest extends XDMManagementTest {
 		    	"	</na>\n" +
 		    	"</result>";
 
-		try (ResultCursor results = query(query, null)) {
+		try (ResultCursor results = query(query, null, null)) {
 			//<result>
 			//  <preferred>
 			//	0

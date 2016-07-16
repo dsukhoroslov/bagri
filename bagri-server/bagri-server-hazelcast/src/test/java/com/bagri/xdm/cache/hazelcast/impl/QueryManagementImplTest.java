@@ -7,7 +7,6 @@ import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
@@ -25,7 +24,6 @@ import com.bagri.xdm.cache.api.ModelManagement;
 import com.bagri.xdm.cache.api.QueryManagement;
 import com.bagri.xdm.cache.api.SchemaRepository;
 import com.bagri.xdm.cache.hazelcast.impl.SchemaRepositoryImpl;
-import com.bagri.xdm.client.hazelcast.impl.QueuedCursorImpl;
 import com.bagri.xdm.query.AxisType;
 import com.bagri.xdm.query.Comparison;
 import com.bagri.xdm.query.ExpressionContainer;
@@ -315,24 +313,6 @@ public class QueryManagementImplTest extends XDMManagementTest {
 		assertEquals(1, sec.size());
 	}
 	
-	//@Test
-	//public void selectDocumentByIdTest() throws Exception {
-		
-	//	storeSecurityTest();
-	//	Map<QName, Object> params = new HashMap<>();
-	//	Properties props = new Properties();
-	//	props.setProperty(pn_client_id, "1");
-	//	props.setProperty(pn_client_fetchSize, "0");
-	//	for (Long id: ids) {
-	//		String query = "declare namespace s=\"http://tpox-benchmark.com/security\";\n" +
-	//			"for $sec in fn:doc(\"bgdm:/" + id + "\")/s:Security\n" +
-	//			"return $sec\n";
-	//		Iterator itr = xRepo.getQueryManagement().executeQuery(query, params, props);
-	//		Assert.assertNotNull(itr);
-	//		Assert.assertTrue(itr.hasNext());
-	//	}
-	//}
-
 	@Test
 	public void selectDocumentByUriTest() throws Exception {
 		
@@ -340,16 +320,15 @@ public class QueryManagementImplTest extends XDMManagementTest {
 		Map<String, Object> params = new HashMap<>();
 		Properties props = new Properties();
 		props.setProperty(pn_client_id, "1");
-		props.setProperty(pn_client_fetchSize, "0");
 		String[] uris = new String[] {"security1500.xml", "security5621.xml", "security9012.xml"};
 		for (String uri: uris) {
 			String query = "declare namespace s=\"http://tpox-benchmark.com/security\";\n" +
 				"for $sec in fn:doc(\"" + uri + "\")/s:Security\n" +
 				"return $sec\n";
-			ResultCursor rc = xRepo.getQueryManagement().executeQuery(query, params, props);
-			assertNotNull(rc);
-			assertTrue(rc.next());
-			rc.close();
+			try (ResultCursor rc = query(query, params, props)) {
+				assertNotNull(rc);
+				assertTrue(rc.next());
+			}
 		}
 	}
 	
@@ -369,7 +348,7 @@ public class QueryManagementImplTest extends XDMManagementTest {
 		props.setProperty(pn_client_id, "1");
 		props.setProperty(pn_client_fetchSize, "1");
 		props.setProperty(pn_defaultElementTypeNamespace, "");
-		ResultCursor rc = xRepo.getQueryManagement().executeQuery(query, params, props);
+		ResultCursor rc = query(query, params, props);
 		assertNotNull(rc);
 		assertTrue(rc.next());
 		XQProcessor xqp = ((SchemaRepositoryImpl) xRepo).getXQProcessor();

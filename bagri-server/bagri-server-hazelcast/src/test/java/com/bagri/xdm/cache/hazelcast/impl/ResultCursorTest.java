@@ -64,7 +64,6 @@ public class ResultCursorTest extends XDMManagementTest {
 	@Test
 	public void fetchResultsTest() throws Exception {
 		storeSecurityTest();
-		QueryManagementImpl qm = (QueryManagementImpl) getQueryManagement();
 		String query = "declare default element namespace \"http://tpox-benchmark.com/security\";\n" +
 				"declare variable $sect external;\n" + 
 				"declare variable $pemin external;\n" +
@@ -89,8 +88,7 @@ public class ResultCursorTest extends XDMManagementTest {
 		Properties props = new Properties();
 		props.setProperty(pn_client_fetchSize, "1");
 		props.setProperty(pn_client_id, "dummy");
-		ResultCursor rc = qm.executeQuery(query, params, props);
-		// rc.deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
+		ResultCursor rc = query(query, params, props);
 		assertTrue(rc.next());
 		assertNotNull(rc.getObject());
 		assertFalse(rc.next());
@@ -100,7 +98,6 @@ public class ResultCursorTest extends XDMManagementTest {
 	@Test
 	public void fetchSecurityTest() throws Exception {
 		storeSecurityTest();
-		QueryManagementImpl qm = (QueryManagementImpl) getQueryManagement();
 		String query = "declare namespace s=\"http://tpox-benchmark.com/security\";\n" +
 				"declare variable $sym external;\n" + 
 				//"for $sec in fn:collection(\"CLN_Security\")/s:Security\n" +
@@ -112,8 +109,7 @@ public class ResultCursorTest extends XDMManagementTest {
 		Properties props = new Properties();
 		props.setProperty(pn_client_fetchSize, "1");
 		props.setProperty(pn_client_id, "dummy");
-		ResultCursor rc = qm.executeQuery(query, params, props);
-		//rc.deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
+		ResultCursor rc = query(query, params, props);
 		assertTrue(rc.next());
 		assertNotNull(rc.getObject());
 		assertFalse(rc.next());
@@ -123,7 +119,6 @@ public class ResultCursorTest extends XDMManagementTest {
 	@Test
 	public void fetchSecuritiesTest() throws Exception {
 		storeSecurityTest();
-		final QueryManagementImpl qm = (QueryManagementImpl) getQueryManagement();
 		final String query = "declare namespace s=\"http://tpox-benchmark.com/security\";\n" +
 				"declare variable $sym external;\n" + 
 				//"for $sec in fn:collection(\"CLN_Security\")/s:Security\n" +
@@ -142,8 +137,7 @@ public class ResultCursorTest extends XDMManagementTest {
 				params.put("sym", "IBM");
 				ResultCursor rc;
 				try {
-					rc = qm.executeQuery(query, params, props);
-					//rc.deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
+					rc = query(query, params, props);
 					assertTrue(rc.next());
 					assertNotNull(rc.getObject());
 					assertFalse(rc.next());
@@ -162,8 +156,7 @@ public class ResultCursorTest extends XDMManagementTest {
 				params.put("sym", "VFINX");
 				ResultCursor rc;
 				try {
-					rc = qm.executeQuery(query, params, props);
-					//rc.deserialize(((SchemaRepositoryImpl) xRepo).getHzInstance());
+					rc = query(query, params, props);
 					assertTrue(rc.next());
 					assertNotNull(rc.getObject());
 					assertFalse(rc.next());

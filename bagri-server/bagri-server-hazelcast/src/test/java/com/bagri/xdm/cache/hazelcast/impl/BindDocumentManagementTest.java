@@ -5,7 +5,6 @@ import static com.bagri.xdm.common.XDMConstants.xdm_config_properties_file;
 import static org.junit.Assert.*;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
@@ -21,7 +20,6 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import com.bagri.xdm.api.ResultCursor;
 import com.bagri.xdm.api.test.XDMManagementTest;
 import com.bagri.xdm.cache.hazelcast.bean.SampleBean;
-import com.bagri.xdm.client.hazelcast.impl.QueuedCursorImpl;
 import com.bagri.xdm.domain.Document;
 import com.bagri.xdm.system.Schema;
 
@@ -123,12 +121,12 @@ public class BindDocumentManagementTest extends XDMManagementTest {
 		
 		Map<String, Object> params = new HashMap<>();
 		params.put("value", 0);
-		ResultCursor results = query(query, params);
+		ResultCursor results = query(query, params, null);
 		assertFalse(results.next());
 		results.close();
 		
 		params.put("value", 1);
-		results = query(query, params);
+		results = query(query, params, null);
 		assertTrue(results.next());
 		
 		Properties props = new Properties();
@@ -164,7 +162,7 @@ public class BindDocumentManagementTest extends XDMManagementTest {
 		
 		Map<String, Object> params = new HashMap<>();
 		params.put("value", 1);
-		try (ResultCursor results = query(query, params)) {
+		try (ResultCursor results = query(query, params, null)) {
 			assertTrue(results.next());
 			Properties props = new Properties();
 			props.setProperty("method", "text");
@@ -175,10 +173,4 @@ public class BindDocumentManagementTest extends XDMManagementTest {
 		}
 	}
 		
-	private ResultCursor query(String query, Map<String, Object> params) throws Exception {
-		ResultCursor result = getQueryManagement().executeQuery(query, params, new Properties());
-		assertNotNull(result);
-		return result;
-	}
-	
 }

@@ -7,7 +7,6 @@ import static com.bagri.xdm.common.XDMConstants.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -130,10 +129,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			((QueuedCursorImpl) cursor).deserialize(repo.getHazelcastClient());
 			// we need this workaround to pass TCK test..
 			// TODO: fix it in some other way..
-			int fetchSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, "0"));
-			if (fetchSize == 0) {
-				cursor = new FixedCursorImpl(extractFromCursor(cursor));
-			} 
+			cursor = new FixedCursorImpl(extractFromCursor(cursor));
 		}
 		logger.trace("executeQuery.exit; returning: {}", cursor);
 		return cursor; 
