@@ -61,7 +61,7 @@ public class BagriClient extends DB {
 			    final HashMap<String, ByteIterator> result) {
 		//logger.debug("read.enter; table: {}; startKey: {}; fields: {}",	new Object[] {table, key, fields});
 		try {
-			Map<String, Object> map = xRepo.getDocumentManagement().getDocumentAsMap(key);
+			Map<String, Object> map = xRepo.getDocumentManagement().getDocumentAsMap(key, null);
 			if (map == null) {
 				logger.info("read; not found document for key: {}; table: {}", key, table);
 				return Status.NOT_FOUND;

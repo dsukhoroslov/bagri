@@ -61,7 +61,7 @@ public class XQueryTriggerImpl implements DocumentTrigger {
 	private void runTrigger(Document doc, SchemaRepositoryImpl repo) throws XDMException {
 		XQProcessor xqp = repo.getXQProcessor();
 		try {
-			String xml = repo.getDocumentManagement().getDocumentAsString(doc.getUri());
+			String xml = repo.getDocumentManagement().getDocumentAsString(doc.getUri(), null);
 			org.w3c.dom.Document xDoc = XMLUtils.textToDocument(xml);
 			XQDataFactory xqFactory = xqp.getXQDataFactory();
 			XQItem item = xqFactory.createItemFromNode(xDoc, xqFactory.createDocumentType());

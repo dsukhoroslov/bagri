@@ -191,11 +191,12 @@ public class DocumentManagement extends SchemaFeatureManagement {
 	
 	@ManagedOperation(description="Return Document Content")
 	@ManagedOperationParameters({
-		@ManagedOperationParameter(name = "uri", description = "Document identifier")})
-	public String getDocumentContent(String uri) {
+		@ManagedOperationParameter(name = "uri", description = "Document identifier"),
+		@ManagedOperationParameter(name = "properties", description = "A list of properties in key=value form separated by semicolon")})
+	public String getDocumentContent(String uri, String properties) {
 		try {
-			return docManager.getDocumentAsString(uri);
-		} catch (XDMException ex) {
+			return docManager.getDocumentAsString(uri, propsFromString(properties));
+		} catch (IOException | XDMException ex) {
 			logger.error("getDocumentXML.error: " + ex.getMessage(), ex);
 			throw new RuntimeException(ex.getMessage());
 		}

@@ -492,8 +492,8 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
     }
     
 	@Override
-	public Object getDocumentAsBean(String uri) throws XDMException {
-		String xml = getDocumentAsString(uri);
+	public Object getDocumentAsBean(String uri, Properties props) throws XDMException {
+		String xml = getDocumentAsString(uri, props);
 		if (xml == null) {
 			return null;
 		}
@@ -501,8 +501,8 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	}
 
 	@Override
-	public Map<String, Object> getDocumentAsMap(String uri) throws XDMException {
-		String xml = getDocumentAsString(uri);
+	public Map<String, Object> getDocumentAsMap(String uri, Properties props) throws XDMException {
+		String xml = getDocumentAsString(uri, props);
 		if (xml == null) {
 			return null;
 		}
@@ -510,8 +510,8 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	}
 
 	@Override
-	public InputStream getDocumentAsStream(long docKey) throws XDMException {
-		String content = getDocumentAsString(docKey);
+	public InputStream getDocumentAsStream(long docKey, Properties props) throws XDMException {
+		String content = getDocumentAsString(docKey, props);
 		if (content != null) {
 			try {
 				return new ByteArrayInputStream(content.getBytes(def_encoding));
@@ -523,23 +523,23 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	}
 	
 	@Override
-	public String getDocumentAsString(String uri) throws XDMException {
+	public String getDocumentAsString(String uri, Properties props) throws XDMException {
 		DocumentKey docKey = getDocumentKey(uri, false, false);
 		if (docKey == null) {
 			//throw new XDMException("No document found for document Id: " + docId, XDMException.ecDocument);
 			logger.info("getDocumentAsString; can not find active document for uri: {}", uri);
 			return null;
 		}
-		return getDocumentAsString(docKey);
+		return getDocumentAsString(docKey, props);
 	}
 
 	@Override
-	public String getDocumentAsString(long docKey) throws XDMException {
+	public String getDocumentAsString(long docKey, Properties props) throws XDMException {
 		DocumentKey xdmKey = factory.newDocumentKey(docKey);
-		return getDocumentAsString(xdmKey);
+		return getDocumentAsString(xdmKey, props);
 	}
 	
-	public String getDocumentAsString(DocumentKey docKey) throws XDMException {
+	public String getDocumentAsString(DocumentKey docKey, Properties props) throws XDMException {
 		
 		String content = cntCache.get(docKey);
 		if (content == null) {
@@ -548,6 +548,8 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 				logger.info("getDocumentAsString; no document found for key: {}", docKey);
 				return null;
 			}
+			// TODO: check Properties for document content production!
+			// get Builder type from props, for instance..
 			
 			// if docId is not local then buildDocument returns null!
 			// query docId owner node for the XML instead
@@ -561,7 +563,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 					cntCache.set(docKey, content);
 				}
 			} else {
-				DocumentContentProvider xp = new DocumentContentProvider(repo.getClientId(), doc.getUri()); 
+				DocumentContentProvider xp = new DocumentContentProvider(repo.getClientId(), doc.getUri(), props); 
 				IExecutorService execService = hzInstance.getExecutorService(PN_XDM_SCHEMA_POOL);
 				Future<String> future = execService.submitToKeyOwner(xp, doc.getUri());
 				try {

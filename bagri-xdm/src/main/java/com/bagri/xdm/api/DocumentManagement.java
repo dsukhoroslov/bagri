@@ -47,35 +47,39 @@ public interface DocumentManagement {
 	/**
 	 * 
 	 * @param uri the XDM document uri
+	 * @param props result production properties
 	 * @return XDM Document content as a plain text
 	 * @throws XDMException in case of any error
 	 */
-	String getDocumentAsString(String uri) throws XDMException;
+	String getDocumentAsString(String uri, Properties props) throws XDMException;
 	
 	/**
 	 * construct {@link InputStream} over XDMDocument content identified by the uri provided 
 	 * 
 	 * @param uri the XDM document uri
+	 * @param props result production properties
 	 * @return {@link InputStream} over the document's content
 	 * @throws XDMException in case of any error
 	 */
-	InputStream getDocumentAsSream(String uri) throws XDMException;
+	InputStream getDocumentAsSream(String uri, Properties props) throws XDMException;
 	
 	/**
 	 * 
 	 * @param uri the XDM document uri
+	 * @param props result production properties
 	 * @return POJO representing the XDM document
 	 * @throws XDMException in case of any error
 	 */
-	Object getDocumentAsBean(String uri) throws XDMException;
+	Object getDocumentAsBean(String uri, Properties props) throws XDMException;
 	
 	/**
 	 * 
 	 * @param uri the XDM document uri
+	 * @param props result production properties
 	 * @return Map&lt;String, Object&gt; representing the XDM document
 	 * @throws XDMException in case of any error
 	 */
-	Map<String, Object> getDocumentAsMap(String uri) throws XDMException;
+	Map<String, Object> getDocumentAsMap(String uri, Properties props) throws XDMException;
 
 	// TODO: add methods to return document as Document, Reader, Source, XMLStreamReader..?
 	

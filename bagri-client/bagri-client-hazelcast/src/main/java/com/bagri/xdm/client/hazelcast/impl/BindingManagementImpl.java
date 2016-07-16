@@ -31,7 +31,7 @@ public class BindingManagementImpl implements BindingManagement {
 		
 		logger.trace("getDocumentBinding.enter; uri: {}; type: {}", uri, type);
 		Object result = null;
-		String xml = repo.getDocumentManagement().getDocumentAsString(uri);
+		String xml = repo.getDocumentManagement().getDocumentAsString(uri, null);
 		if (xml != null) {
 	        try {
 	        	// TODO think about internal static context

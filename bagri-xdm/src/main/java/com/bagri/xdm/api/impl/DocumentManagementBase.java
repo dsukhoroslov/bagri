@@ -28,10 +28,11 @@ public abstract class DocumentManagementBase {
 	/**
 	 * 
 	 * @param uri the XDM document uri
+	 * @param props result production properties
 	 * @return XDM Document content as a plain text
 	 * @throws XDMException in case of any error
 	 */
-	public abstract String getDocumentAsString(String uri) throws XDMException;
+	public abstract String getDocumentAsString(String uri, Properties props) throws XDMException;
 	
 	
 	/**
@@ -49,11 +50,12 @@ public abstract class DocumentManagementBase {
 	 * constructs {@link InputStream} over XDMDocument content identified by the uri provided 
 	 * 
 	 * @param uri the XDM document uri
+	 * @param props result production properties
 	 * @return {@link InputStream} over the document's content
 	 * @throws XDMException in case of any error
 	 */
-	public InputStream getDocumentAsSream(String uri) throws XDMException {
-		String content = getDocumentAsString(uri);
+	public InputStream getDocumentAsSream(String uri, Properties props) throws XDMException {
+		String content = getDocumentAsString(uri, props);
 		if (content != null) {
 			try {
 				return new ByteArrayInputStream(content.getBytes(def_encoding));

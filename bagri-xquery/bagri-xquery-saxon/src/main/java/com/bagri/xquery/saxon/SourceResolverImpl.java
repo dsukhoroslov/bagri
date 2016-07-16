@@ -122,7 +122,7 @@ public class SourceResolverImpl implements SourceResolver, URIResolver, Unparsed
 			if (bg_schema.equals(uri.getScheme())) {
 				// skip leading "/"
 				long docKey = Long.parseLong(uri.getPath().substring(1));
-				content = ((DocumentManagement) repo.getDocumentManagement()).getDocumentAsString(docKey);
+				content = ((DocumentManagement) repo.getDocumentManagement()).getDocumentAsString(docKey, null);
 			} else {
 				String src = uri.toString();
 				if ("file".equals(uri.getScheme())) {
@@ -130,7 +130,7 @@ public class SourceResolverImpl implements SourceResolver, URIResolver, Unparsed
 					src = FileUtils.getPathName(src);
 				}
 				logger.debug("resolveContent; not a native schema {}, trying short uri: {}", uri.getScheme(), src); 
-				content = repo.getDocumentManagement().getDocumentAsString(src);
+				content = repo.getDocumentManagement().getDocumentAsString(src, null);
 			}
 
 			if (content == null) {

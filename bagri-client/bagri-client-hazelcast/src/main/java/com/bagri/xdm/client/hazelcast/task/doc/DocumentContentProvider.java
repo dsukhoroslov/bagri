@@ -2,6 +2,7 @@ package com.bagri.xdm.client.hazelcast.task.doc;
 
 import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryImpl.cli_ProvideDocumentContentTask;
 
+import java.util.Properties;
 import java.util.concurrent.Callable;
 
 public class DocumentContentProvider extends DocumentAwareTask implements Callable<String> {
@@ -10,8 +11,8 @@ public class DocumentContentProvider extends DocumentAwareTask implements Callab
 		super();
 	}
 	
-	public DocumentContentProvider(String clientId, String uri) {
-		super(clientId, 0, uri, null);
+	public DocumentContentProvider(String clientId, String uri, Properties props) {
+		super(clientId, 0, uri, props);
 	}
 
 	@Override

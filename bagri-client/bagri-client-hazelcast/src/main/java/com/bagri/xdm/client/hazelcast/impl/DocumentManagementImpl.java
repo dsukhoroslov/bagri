@@ -91,10 +91,10 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	}
 	
 	@Override
-	public Object getDocumentAsBean(String uri) throws XDMException {
+	public Object getDocumentAsBean(String uri, Properties props) throws XDMException {
 		logger.trace("getDocumentAsBean.enter; got uri: {}", uri);
 		Object result = null;
-		DocumentBeanProvider task = new DocumentBeanProvider(repo.getClientId(), uri);
+		DocumentBeanProvider task = new DocumentBeanProvider(repo.getClientId(), uri, props);
 		Future<Object> future = execService.submit(task);
 		try {
 			result = future.get();
@@ -107,10 +107,10 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	}
 
 	@Override
-	public Map<String, Object> getDocumentAsMap(String uri) throws XDMException {
+	public Map<String, Object> getDocumentAsMap(String uri, Properties props) throws XDMException {
 		logger.trace("getDocumentAsMap.enter; got uri: {}", uri);
 		Map<String, Object> result = null;
-		DocumentMapProvider task = new DocumentMapProvider(repo.getClientId(), uri);
+		DocumentMapProvider task = new DocumentMapProvider(repo.getClientId(), uri, props);
 		Future<Map<String, Object>> future = execService.submit(task);
 		try {
 			result = future.get();
@@ -123,11 +123,11 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	}
 
 	@Override
-	public String getDocumentAsString(String uri) throws XDMException {
+	public String getDocumentAsString(String uri, Properties props) throws XDMException {
 		// actually, I can try just get it from XML cache!
 		logger.trace("getDocumentAsString.enter; got uri: {}", uri);
 		String result = null;
-		DocumentContentProvider task = new DocumentContentProvider(repo.getClientId(), uri);
+		DocumentContentProvider task = new DocumentContentProvider(repo.getClientId(), uri, props);
 		Future<String> future = execService.submit(task);
 		try {
 			result = future.get();

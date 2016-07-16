@@ -255,7 +255,7 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
 		String fullUri = getFullUri(docUri);
 		try {
 			DocumentManagementImpl docManager = (DocumentManagementImpl) xdmRepo.getDocumentManagement(); 
-			String xml = docManager.getDocumentAsString(key);
+			String xml = docManager.getDocumentAsString(key, null);
 			FileUtils.writeTextFile(fullUri, xml);
 			logger.trace("store.exit; stored as: {}; length: {}", fullUri, xml.length());
 		} catch (IOException | XDMException ex) {

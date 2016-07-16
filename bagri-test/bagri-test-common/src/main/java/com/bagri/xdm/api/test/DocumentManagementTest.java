@@ -102,7 +102,7 @@ public abstract class DocumentManagementTest extends XDMManagementTest {
 		assertEquals(0, doc.getTxFinish());
 		getTxManagement().commitTransaction(txId);
 
-		String result = getDocManagement().getDocumentAsString(doc.getUri());
+		String result = getDocManagement().getDocumentAsString(doc.getUri(), null);
 		assertNotNull(result);
 		assertEquals(xml.length(), result.length());
 	}

@@ -147,7 +147,7 @@ public class ResourceCollectionImpl implements ResourceCollection {
 			if (docKey != null) {
 				String content;
 				try {
-					content = ((DocumentManagement) repo.getDocumentManagement()).getDocumentAsString(docKey);
+					content = ((DocumentManagement) repo.getDocumentManagement()).getDocumentAsString(docKey, null);
 					if (content != null && !content.isEmpty()) {
 						logger.trace("next; got content: {}", content.length());
 						String xref = bg_schema + ":/" + docKey;

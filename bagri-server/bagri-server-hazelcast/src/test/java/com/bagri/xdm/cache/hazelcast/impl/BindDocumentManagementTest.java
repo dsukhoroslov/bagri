@@ -71,10 +71,10 @@ public class BindDocumentManagementTest extends XDMManagementTest {
 		uris.add(bDoc.getUri());
 		xRepo.getTxManagement().commitTransaction(txId);
 		
-		String xml = xRepo.getDocumentManagement().getDocumentAsString(bDoc.getUri());
+		String xml = xRepo.getDocumentManagement().getDocumentAsString(bDoc.getUri(), null);
 		assertNotNull(xml);
 		
-		SampleBean sb2 = (SampleBean) xRepo.getDocumentManagement().getDocumentAsBean(bDoc.getUri());
+		SampleBean sb2 = (SampleBean) xRepo.getDocumentManagement().getDocumentAsBean(bDoc.getUri(), null);
 		assertEquals(sb1.getIntProperty(), sb2.getIntProperty());
 		assertTrue(sb1.isBooleanProperty() == sb2.isBooleanProperty());
 		assertEquals(sb1.getStringProperty(), sb2.getStringProperty());
@@ -93,11 +93,11 @@ public class BindDocumentManagementTest extends XDMManagementTest {
 		uris.add(mDoc.getUri());
 		xRepo.getTxManagement().commitTransaction(txId);
 		
-		String xml = xRepo.getDocumentManagement().getDocumentAsString(mDoc.getUri());
+		String xml = xRepo.getDocumentManagement().getDocumentAsString(mDoc.getUri(), null);
 		assertNotNull(xml);
 		System.out.println(xml);
 		
-		Map<String, Object> m2 = xRepo.getDocumentManagement().getDocumentAsMap(mDoc.getUri());
+		Map<String, Object> m2 = xRepo.getDocumentManagement().getDocumentAsMap(mDoc.getUri(), null);
 		assertEquals(m1.get("intProp"), m2.get("intProp"));
 		assertEquals(m1.get("boolProp"), m2.get("boolProp"));
 		assertEquals(m1.get("strProp"), m2.get("strProp"));

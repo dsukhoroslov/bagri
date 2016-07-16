@@ -3,6 +3,7 @@ package com.bagri.xdm.client.hazelcast.task.doc;
 import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryImpl.cli_ProvideDocumentMapTask;
 
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.Callable;
 
 public class DocumentMapProvider extends DocumentAwareTask implements Callable<Map<String, Object>> {
@@ -11,8 +12,8 @@ public class DocumentMapProvider extends DocumentAwareTask implements Callable<M
 		super();
 	}
 	
-	public DocumentMapProvider(String clientId, String uri) {
-		super(clientId, 0, uri, null);
+	public DocumentMapProvider(String clientId, String uri, Properties props) {
+		super(clientId, 0, uri, props);
 	}
 
 	@Override

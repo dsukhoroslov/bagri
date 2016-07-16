@@ -77,7 +77,7 @@ public class XQProcessorClient extends XQProcessorImpl implements XQProcessor {
 				result = getDocumentManagement().storeDocumentFromString(uri, content, fillProperties(params, props));
 			} else if (command.equals(cmd_get_document)) {
 				String uri = getDocumentUri(params);
-				result = getDocumentManagement().getDocumentAsString(uri);
+				result = getDocumentManagement().getDocumentAsString(uri, props);
 			} else if (command.equals(cmd_remove_document)) {
 				String uri = getDocumentUri(params);
 				getDocumentManagement().removeDocument(uri);

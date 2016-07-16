@@ -368,7 +368,7 @@ public class BookingApp {
 	}
 	
 	public String getDocument(String uri) throws XDMException {
-		return xRepo.getDocumentManagement().getDocumentAsString(uri);
+		return xRepo.getDocumentManagement().getDocumentAsString(uri, null);
 	}
 	
 	public List<String> runQuery(String query) throws Exception {

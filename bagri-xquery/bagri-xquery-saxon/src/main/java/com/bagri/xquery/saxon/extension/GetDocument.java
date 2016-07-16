@@ -2,6 +2,8 @@ package com.bagri.xquery.saxon.extension;
 
 import static com.bagri.xdm.common.XDMConstants.cmd_get_document;
 
+import java.util.Properties;
+
 import com.bagri.xdm.api.DocumentManagement;
 import com.bagri.xdm.api.XDMException;
 
@@ -26,12 +28,12 @@ public class GetDocument extends DocumentFunctionExtension {
 
 	@Override
 	public SequenceType[] getArgumentTypes() {
-		return new SequenceType[] {SequenceType.SINGLE_ANY_URI}; 
+		return new SequenceType[] {SequenceType.SINGLE_ANY_URI, SequenceType.STRING_SEQUENCE}; 
 	}
 
 	@Override 
 	public int getMaximumNumberOfArguments() { 
-		return 1; 
+		return 2; 
 	} 	
 	
 	@Override
@@ -49,7 +51,12 @@ public class GetDocument extends DocumentFunctionExtension {
 
 				String result = null;
 				try {
-					result = xdm.getDocumentAsString(toUri(arguments[0]));
+					String uri = toUri(arguments[0]);
+					Properties props = null; 
+					if (arguments.length > 1) {
+						props = toProperties(arguments[1]);
+					}
+					result = xdm.getDocumentAsString(uri, props);
 				} catch (XDMException ex) {
 					throw new XPathException(ex);
 				}
