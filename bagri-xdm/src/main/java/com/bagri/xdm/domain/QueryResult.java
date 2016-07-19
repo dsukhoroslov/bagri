@@ -1,9 +1,8 @@
 package com.bagri.xdm.domain;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
-
-import javax.xml.namespace.QName;
 
 /**
  * Represents cache query results
@@ -15,7 +14,7 @@ public class QueryResult {
 	
 	private Map<String, Object> params;
 	private Collection<Long> docIds;
-	private Collection<Object> results;
+	private List<Object> results;
 	
 	/**
 	 * default constructor
@@ -30,7 +29,7 @@ public class QueryResult {
 	 * @param docIds the query resulting document ids
 	 * @param results the query results
 	 */
-	public QueryResult(Map<String, Object> params, Collection<Long> docIds, Collection<Object> results) {
+	public QueryResult(Map<String, Object> params, Collection<Long> docIds, List<Object> results) {
 		//super();
 		this.params = params;
 		this.docIds = docIds;
@@ -57,7 +56,7 @@ public class QueryResult {
 	 * 
 	 * @return the query results
 	 */
-	public Collection<Object> getResults() {
+	public List<Object> getResults() {
 		return results;
 	}
 

@@ -69,6 +69,9 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	
 	private static final transient Logger logger = LoggerFactory.getLogger(QueryManagementImpl.class);
 	
+	private static final String xqScrollForwardStr = String.valueOf(XQConstants.SCROLLTYPE_FORWARD_ONLY);
+	private static final String xqDefFetchSizeStr = "50";
+	
 	private SchemaRepositoryImpl repo;
 	private ModelManagement model;
     private IndexManagementImpl idxMgr;
@@ -85,9 +88,9 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
     
 	private StopWatch stopWatch;
 	private BlockingQueue<StatisticsEvent> timeQueue;
-	
-	private boolean testMode = false; 
 
+	private QueryProcessor localProc;
+	
 	private ThreadLocal<QueryExecContext> thContext = new ThreadLocal<QueryExecContext>() {
 		
 		@Override
@@ -132,7 +135,11 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
     }
     
     public void setTestMode(boolean testMode) {
-    	this.testMode = testMode;
+    	if (testMode) {
+    		localProc = new QueryProcessor();
+    	} else {
+    		localProc = new RealQueryProcessor();
+    	}
     }
     
 	public void setStopWatch(StopWatch stopWatch) {
@@ -553,7 +560,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		logger.trace("getDocumentKeys.enter; query: {}, command: {}; params: {}; properties: {}", query, params, props);
 		Collection<Long> result = null;
 		try {
-			Iterator<?> iter = runQuery(query, params, props);
+			Iterator<Object> iter = runQuery(query, params, props);
 			result = thContext.get().getDocIds();
 		} catch (XQException ex) {
 			throw new XDMException(ex, XDMException.ecQuery);
@@ -565,20 +572,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	@Override
 	public boolean isReadOnlyQuery(String query) {
 
-		if (testMode) {
-			return true;
-		}
-		
-		Integer qCode = getQueryKey(query);
-		Query xQuery = xqCache.get(qCode);
-		//XDMQuery xQuery = this.getQuery(query);
-		if (xQuery == null) {
-			//not cached yet, returning false, just to be safe..
-			return false;
-			// calc it via xqp...
-			//XQProcessor xqp = repo.getXQProcessor(clientId);
-		}
-		return xQuery.isReadOnly();
+		return localProc.isReadOnlyQuery(query);
 	}
 
 	@Override
@@ -590,7 +584,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	public ResultCursor executeQuery(String query, Map<String, Object> params, Properties props) throws XDMException {
 
 		logger.trace("executeQuery.enter; query: {}; params: {}; properties: {}", query, params, props);
-		ResultCursorBase result = null;
+		ResultCursor result = null;
 		String clientId = props.getProperty(pn_client_id);
 		try {
 			XQProcessor xqp = repo.getXQProcessor(clientId);
@@ -618,54 +612,10 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
         stopWatch.start();
 		
 		Iterator iter = null;
-		String clientId = props.getProperty(pn_client_id);
-		boolean isQuery = "false".equalsIgnoreCase(props.getProperty(pn_query_command, "false"));
-		XQProcessor xqp = repo.getXQProcessor(clientId);
-
 		try {
-			if (testMode) {
-				iter = Collections.emptyIterator();
-			} else {
-				int qCode = getQueryKey(query);
-				if (isQuery) {
-					if (xqCache.containsKey(qCode)) {
-						iter = getQueryResults(query, params, props);
-					}
-				}
-				
-				xqp.setResults(null);
-				if (iter == null) {
-					QueryExecContext ctx = thContext.get();
-					ctx.clear();
-				
-					if (params != null) {
-						for (Map.Entry<String, Object> var: params.entrySet()) {
-							xqp.bindVariable(var.getKey(), var.getValue());
-						}
-					}
-					
-					if (isQuery) {
-						iter = xqp.executeXQuery(query, props);
-					} else {
-						iter = xqp.executeXCommand(query, params, props);
-					}
-					
-					if (params != null) {
-						for (Map.Entry<String, Object> var: params.entrySet()) {
-							xqp.unbindVariable(var.getKey());
-						}
-					}
-	
-					//XDMQuery xquery = xqCache.get(qCode);
-					//if (xquery != null && xquery.isReadOnly()) {
-					if (xqCache.containsKey(qCode)) {
-						iter = addQueryResults(query, params, props, iter);
-					}
-				}
-			}
-			
+			iter = localProc.runQuery(query, params, props);
         } catch (Throwable t) {
-        	t.printStackTrace();
+        	//t.printStackTrace();
             failed = true;
             ex = t;
         }
@@ -679,6 +629,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			
 		return iter;
 	}
+	
 
 	private ResultCursorBase createCursor(Iterator<Object> iter, Properties props) {
 		int count = 0;
@@ -687,14 +638,16 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		int batchSize = 0;
 		List<Object> results;
 		boolean fixed = true;
-		int scrollType = Integer.parseInt(props.getProperty(pn_scrollability, "1"));
-		if (scrollType != XQConstants.SCROLLTYPE_SCROLLABLE) {
+		int scrollType = Integer.parseInt(props.getProperty(pn_scrollability, xqScrollForwardStr));
+		if (scrollType == XQConstants.SCROLLTYPE_SCROLLABLE) {
+			results = CollectionUtils.copyIterator(iter);
+		} else {
 			String fetchSize = props.getProperty(pn_client_fetchSize);
 			// not set -> use default BS
 			if (fetchSize == null) {
 				fetchSize = repo.getSchema().getProperty(xdm_schema_fetchSize);
 				if (fetchSize == null) {
-					fetchSize = "50"; // define constant for this
+					fetchSize = xqDefFetchSizeStr;
 				}
 			}
 			batchSize = Integer.parseInt(fetchSize);
@@ -703,8 +656,6 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			// if RS < BS -> put them to FixedCursor
 			// else -> serialize them in QueuedCursor
 			fixed = results.size() <= batchSize;
-		} else {
-			results = CollectionUtils.copyIterator(iter);
 		}
 
 		if (fixed) {
@@ -732,6 +683,78 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		
 		logger.trace("createCursor.exit; serialized: {} results", count);
 		return xqCursor;
+	}
+	
+	private class QueryProcessor {
+		
+		boolean isReadOnlyQuery(String query) {
+			return true;
+		}
+		
+		Iterator<Object> runQuery(String query, Map<String, Object> params, Properties props) throws Exception {
+			return Collections.emptyIterator();
+		}
+	}
+	
+	private class RealQueryProcessor extends QueryProcessor {
+
+		boolean isReadOnlyQuery(String query) {
+			Integer qCode = getQueryKey(query);
+			Query xQuery = xqCache.get(qCode);
+			//XDMQuery xQuery = this.getQuery(query);
+			if (xQuery == null) {
+				//not cached yet, returning false, just to be safe..
+				return false;
+				// calc it via xqp...
+				//XQProcessor xqp = repo.getXQProcessor(clientId);
+			}
+			return xQuery.isReadOnly();
+		}
+		
+		Iterator<Object> runQuery(String query, Map<String, Object> params, Properties props) throws Exception {
+
+			Iterator iter = null;
+			String clientId = props.getProperty(pn_client_id);
+			boolean isQuery = "false".equalsIgnoreCase(props.getProperty(pn_query_command, "false"));
+			XQProcessor xqp = repo.getXQProcessor(clientId);
+			
+			int qCode = getQueryKey(query);
+			if (isQuery) {
+				if (xqCache.containsKey(qCode)) {
+					iter = getQueryResults(query, params, props);
+				}
+			}
+			
+			if (iter == null) {
+				QueryExecContext ctx = thContext.get();
+				ctx.clear();
+			
+				if (params != null) {
+					for (Map.Entry<String, Object> var: params.entrySet()) {
+						xqp.bindVariable(var.getKey(), var.getValue());
+					}
+				}
+				
+				if (isQuery) {
+					iter = xqp.executeXQuery(query, props);
+				} else {
+					iter = xqp.executeXCommand(query, params, props);
+				}
+				
+				if (params != null) {
+					for (Map.Entry<String, Object> var: params.entrySet()) {
+						xqp.unbindVariable(var.getKey());
+					}
+				}
+
+				//XDMQuery xquery = xqCache.get(qCode);
+				//if (xquery != null && xquery.isReadOnly()) {
+				if (xqCache.containsKey(qCode)) {
+					iter = addQueryResults(query, params, props, iter);
+				}
+			}
+			return iter;
+		}
 	}
 	
 	private class QueryExecContext {

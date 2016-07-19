@@ -71,15 +71,12 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	@Override
 	public Collection<String> getDocumentUris(String query, Map<String, Object> params, Properties props) throws XDMException {
 
-		// TODO: use QueryResult cache as well!
-		long stamp = System.currentTimeMillis();
 		logger.trace("getDocumentIDs.enter; query: {}", query);
 		QueryUrisProvider task = new QueryUrisProvider(repo.getClientId(), repo.getTransactionId(), query, params, props);
 		Future<Collection<String>> future = execService.submit(task);
 		execution = future;
 		Collection<String> result = getResults(future, 0);
-		stamp = System.currentTimeMillis() - stamp;
-		logger.trace("getDocumentIDs.exit; time taken: {}; returning: {}", stamp, result);
+		logger.trace("getDocumentIDs.exit; returning: {}", result);
 		return result;
 	}
 	
@@ -97,18 +94,18 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			QueryResult res = resCache.get(qKey);
 			if (res != null) {
 				logger.trace("execXQuery; got cached results: {}", res);
-				return new FixedCursorImpl((List) res.getResults());
+				return new FixedCursorImpl(res.getResults());
 			}
 		}
 
 		props.setProperty(pn_client_id, repo.getClientId());
 		//props.setProperty(pn_client_txId, String.valueOf(repo.getTransactionId()));
 		
-		boolean isQuery = true;
 		QueryExecutor task = new QueryExecutor(repo.getClientId(), repo.getTransactionId(), query, params, props);
 		Future<ResultCursor> future;
 		String runOn = props.getProperty(pn_client_submitTo, pv_client_submitTo_any);
 		if (pv_client_submitTo_owner.equalsIgnoreCase(runOn)) {
+			// not sure it'll use partition thread in this case!
 			future = execService.submitToKeyOwner(task, qKey);
 		} else if (pv_client_submitTo_member.equalsIgnoreCase(runOn)) {
 			Member member = repo.getHazelcastClient().getPartitionService().getPartition(qKey).getOwner();
@@ -120,16 +117,13 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 
 		long timeout = Long.parseLong(props.getProperty(pn_queryTimeout, "0"));
 
-		//if (cursor != null) {
-		//  TODO: fetch current cursor..
+		//if (cursor != null && cursor instanceof QueuedCursorImpl) {
+		//  purge queue, fetch/close current cursor..?
 		//}
 		ResultCursor cursor = getResults(future, timeout);
 		logger.trace("execXQuery; got cursor: {}", cursor);
 		if (cursor instanceof QueuedCursorImpl) {
 			((QueuedCursorImpl) cursor).deserialize(repo.getHazelcastClient());
-			// we need this workaround to pass TCK test..
-			// TODO: fix it in some other way..
-			cursor = new FixedCursorImpl(extractFromCursor(cursor));
 		}
 		logger.trace("executeQuery.exit; returning: {}", cursor);
 		return cursor; 
@@ -140,7 +134,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		T result;
 		try {
 			if (timeout > 0) {
-				result = future.get(timeout, TimeUnit.MILLISECONDS); // SECONDS);
+				result = future.get(timeout, TimeUnit.MILLISECONDS); 
 			} else {
 				result = future.get();
 			}
@@ -167,15 +161,6 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			}
 			throw new XDMException(ex, errorCode);
 		}
-	}
-	
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private List<Object> extractFromCursor(ResultCursor cursor) throws XDMException {
-		List result = new ArrayList();
-		while (cursor.next()) {
-			result.add(cursor.getXQItem());
-		}
-		return result;
 	}
 	
 	@Override
