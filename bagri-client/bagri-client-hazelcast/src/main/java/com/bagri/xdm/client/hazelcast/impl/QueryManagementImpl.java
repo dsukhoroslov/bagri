@@ -71,12 +71,26 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	@Override
 	public Collection<String> getDocumentUris(String query, Map<String, Object> params, Properties props) throws XDMException {
 
-		logger.trace("getDocumentIDs.enter; query: {}", query);
+		logger.trace("getDocumentUris.enter; query: {}", query);
+		boolean useCache = this.queryCache; 
+		String qCache = props.getProperty(pn_client_queryCache);
+		if (qCache != null) {
+			useCache = Boolean.parseBoolean(qCache); 
+		}
+		long qKey = getResultsKey(query, params);
+		if (useCache) {
+			QueryResult res = resCache.get(qKey);
+			if (res != null) {
+				logger.trace("getDocumentUris; got cached results: {}", res);
+				return res.getDocUris();
+			}
+		}
+		
 		QueryUrisProvider task = new QueryUrisProvider(repo.getClientId(), repo.getTransactionId(), query, params, props);
 		Future<Collection<String>> future = execService.submit(task);
 		execution = future;
 		Collection<String> result = getResults(future, 0);
-		logger.trace("getDocumentIDs.exit; returning: {}", result);
+		logger.trace("getDocumentUris.exit; returning: {}", result);
 		return result;
 	}
 	
@@ -93,7 +107,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		if (useCache) {
 			QueryResult res = resCache.get(qKey);
 			if (res != null) {
-				logger.trace("execXQuery; got cached results: {}", res);
+				logger.trace("executeQuery; got cached results: {}", res);
 				return new FixedCursorImpl(res.getResults());
 			}
 		}
