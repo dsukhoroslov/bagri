@@ -36,13 +36,20 @@ public class QueryResultSerializer implements StreamSerializer<QueryResult> {
 				params.put(in.readUTF(), in.readObject());
 			}
 		}
-		List<Long> docIds = toLongList(in.readLongArray());
 		size = in.readInt();
-		List results = new ArrayList(size);
+		Map<Long, String> docKeys = null;
+		if (size > 0) {
+			docKeys = new HashMap<Long, String>(size);
+			for (int i=0; i < size; i++) {
+				docKeys.put(in.readLong(), in.readUTF());
+			}
+		}
+		size = in.readInt();
+		List<Object> results = new ArrayList<>(size);
 		for (int i=0; i < size; i++) {
 			results.add(in.readObject());
 		}
-		return new QueryResult(params, docIds, results);
+		return new QueryResult(params, docKeys, results);
 	}
 
 	@Override
@@ -56,7 +63,11 @@ public class QueryResultSerializer implements StreamSerializer<QueryResult> {
 				out.writeObject(e.getValue());
 			}
 		}
-		out.writeLongArray(toLongArray(xreslts.getDocIds()));
+		out.writeInt(xreslts.getDocKeys().size());
+		for (Map.Entry<Long, String> e: xreslts.getDocKeys().entrySet()) {
+			out.writeLong(e.getKey());
+			out.writeUTF(e.getValue());
+		}
 		out.writeInt(xreslts.getResults().size());
 		for (Object o: xreslts.getResults()) {
 			out.writeObject(o);

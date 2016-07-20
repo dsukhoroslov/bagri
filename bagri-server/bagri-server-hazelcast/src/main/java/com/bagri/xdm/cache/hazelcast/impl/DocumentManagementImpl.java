@@ -165,7 +165,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		return elements.values();
     }
     
-	public boolean checkDocumentCollectionCommited(long docKey, int clnId) throws XDMException {
+	public String checkDocumentCommited(long docKey, int clnId) throws XDMException {
 		
 		// TODO: make this behavior configurable! 
 		// check if any docs were removed
@@ -175,33 +175,17 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		
 		Document doc = getDocument(docKey);
 		if (doc != null) {
-			if (!doc.hasCollection(clnId)) {
-				return false;
+			if (clnId > 0 && !doc.hasCollection(clnId)) {
+				return null;
 			}
 			if (doc.getTxFinish() > TX_NO && txManager.isTxVisible(doc.getTxFinish())) {
-				return false;
+				return null;
 			}
-			return txManager.isTxVisible(doc.getTxStart());
-		}
-		return false;
-	}
-
-	public boolean checkDocumentCommited(long docKey) throws XDMException {
-		
-		// TODO: make this behavior configurable! 
-		// check if any docs were removed
-		//if (txManager.getCurrentTxId() == TX_NO) {
-		//	return xddCache.containsKey(factory.newXDMDocumentKey(docId));
-		//}
-		
-		Document doc = getDocument(docKey);
-		if (doc != null) {
-			if (doc.getTxFinish() > TX_NO && txManager.isTxVisible(doc.getTxFinish())) {
-				return false;
+			if (txManager.isTxVisible(doc.getTxStart())) {
+				return doc.getUri();
 			}
-			return txManager.isTxVisible(doc.getTxStart());
 		}
-		return false;
+		return null;
 	}
 
 	private String getDataFormat(Properties props) {

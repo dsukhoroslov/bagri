@@ -11,6 +11,7 @@ import static com.bagri.xquery.api.XQUtils.isStringTypeCompatible;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -234,7 +235,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	public Iterator<?> addQueryResults(String query, Map<String, Object> params, Properties props, Iterator<?> results) {
 		//QueryParamsKey qpKey = getResultsKey(query, params);
 		QueryExecContext ctx = thContext.get();
-		if (ctx.getDocIds().size() == 0) {
+		if (ctx.getDocKeys().size() == 0) {
 			return results;
 		}
 		long qpKey = getResultsKey(query, params);
@@ -247,10 +248,10 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			resList.add(results.next());
 		}
 		if (resList.size() == 0) {
-			logger.warn("addQueryResults; got empty results but docs were found: {}", ctx.getDocIds());
+			logger.warn("addQueryResults; got empty results but docs were found: {}", ctx.getDocKeys());
 			return results;
 		}
-		QueryResult xqr = new QueryResult(params, ctx.getDocIds(), resList);
+		QueryResult xqr = new QueryResult(params, ctx.getDocKeys(), resList);
 		//XDMResults oldRes = 
 		xrCache.putAsync(qpKey, xqr);
 		//xResults.put(qpKey, xqr);
@@ -485,24 +486,19 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		return result;
 	}
 
-	private Collection<Long> checkDocumentsCommited(Collection<Long> docKeys, int clnId) throws XDMException {
+	private Map<Long, String> checkDocumentsCommited(Collection<Long> docKeys, int clnId) throws XDMException {
+		Map<Long, String> result = new HashMap<>(docKeys.size());  
 		Iterator<Long> itr = docKeys.iterator();
-		if (clnId > 0) {
-			while (itr.hasNext()) {
-				long docKey = itr.next();
-				if (!docMgr.checkDocumentCollectionCommited(docKey, clnId)) {
-					itr.remove();
-				}
-			}
-		} else {
-			while (itr.hasNext()) {
-				long docKey = itr.next();
-				if (!docMgr.checkDocumentCommited(docKey)) {
-					itr.remove();
-				}
+		while (itr.hasNext()) {
+			long docKey = itr.next();
+			String uri = docMgr.checkDocumentCommited(docKey, clnId); 
+			if (uri != null) {
+				result.put(docKey, uri);
+			//} else {
+			//	itr.remove();
 			}
 		}
-		return docKeys;
+		return result;
 	}
 
 	@Override
@@ -523,19 +519,19 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 				// build 'found' set here if collectionId is selective enough
 				Set<Long> ids = queryKeys(null, query, exp.getRoot());
 				// otherwise filter out documents with wrong collectionIds here
-				Collection<Long> result = checkDocumentsCommited(ids, exp.getRoot().getCollectionId());
-				thContext.get().setDocIds(result);
-				return result;
+				Map<Long, String> result = checkDocumentsCommited(ids, exp.getRoot().getCollectionId());
+				thContext.get().setDocKeys(result);
+				return result.keySet();
 			}
 		}
 		logger.info("getDocumentIds; got rootless path: {}", query); 
 		
 		// fallback to full IDs set: default collection over all documents. not too good...
-		// how could we distribute it over cache nodes? can we use local keySet only !?
+		// TODO: how could we distribute it over cache nodes? can we use local keySet only !?
 		List<Long> result = new ArrayList<Long>(xddCache.keySet().size());
 		for (DocumentKey docKey: xddCache.keySet()) {
 			// we must provide only visible docIds!
-			if (docMgr.checkDocumentCommited(docKey.getKey())) {
+			if (docMgr.checkDocumentCommited(docKey.getKey(), 0) != null) {
 				result.add(docKey.getKey());
 			}
 		}
@@ -546,11 +542,12 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	@Override
 	public Collection<String> getDocumentUris(String query, Map<String, Object> params, Properties props) throws XDMException {
 		logger.trace("getDocumentUris.enter; query: {}, command: {}; params: {}; properties: {}", query, params, props);
-		Collection<Long> keys = getDocumentKeys(query, params, props);
-		List<String> result = new ArrayList<>(keys.size());
-		for (Long docKey: keys) {
-			Document doc = docMgr.getDocument(docKey);
-			result.add(doc.getUri());
+		Collection<String> result = null;
+		try {
+			Iterator<Object> iter = runQuery(query, params, props);
+			result = thContext.get().getDocKeys().values();
+		} catch (XQException ex) {
+			throw new XDMException(ex, XDMException.ecQuery);
 		}
 		logger.trace("getDocumentUris.exit; returning: {}", result);
 		return result;
@@ -561,7 +558,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		Collection<Long> result = null;
 		try {
 			Iterator<Object> iter = runQuery(query, params, props);
-			result = thContext.get().getDocIds();
+			result = thContext.get().getDocKeys().keySet();
 		} catch (XQException ex) {
 			throw new XDMException(ex, XDMException.ecQuery);
 		}
@@ -588,6 +585,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		String clientId = props.getProperty(pn_client_id);
 		try {
 			XQProcessor xqp = repo.getXQProcessor(clientId);
+			xqp.setResults(null);
 			Iterator<Object> iter = runQuery(query, params, props);
 			result = createCursor(iter, props);
 			xqp.setResults(iter);
@@ -759,21 +757,21 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	
 	private class QueryExecContext {
 		
-		private Collection<Long> docIds;
+		private Map<Long, String> docKeys;
 		
 		void clear() {
-			this.docIds = null;
+			this.docKeys = null;
 		}
 		
-		Collection<Long> getDocIds() {
-			if (docIds == null) {
-				return Collections.emptyList();
+		Map<Long, String> getDocKeys() {
+			if (docKeys == null) {
+				return Collections.emptyMap();
 			}
-			return docIds;
+			return docKeys;
 		}
 		
-		void setDocIds(Collection<Long> docIds) {
-			this.docIds = docIds;
+		void setDocKeys(Map<Long, String> docKeys) {
+			this.docKeys = docKeys;
 		}
 		
 	}

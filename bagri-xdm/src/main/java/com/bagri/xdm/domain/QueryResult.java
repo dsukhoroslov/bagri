@@ -13,7 +13,7 @@ import java.util.Map;
 public class QueryResult {
 	
 	private Map<String, Object> params;
-	private Collection<Long> docIds;
+	private Map<Long, String> docKeys;
 	private List<Object> results;
 	
 	/**
@@ -26,13 +26,13 @@ public class QueryResult {
 	/**
 	 * 
 	 * @param params the query parameters
-	 * @param docIds the query resulting document ids
+	 * @param docIds the query resulting document id/uri pairs
 	 * @param results the query results
 	 */
-	public QueryResult(Map<String, Object> params, Collection<Long> docIds, List<Object> results) {
+	public QueryResult(Map<String, Object> params, Map<Long, String> docKeys, List<Object> results) {
 		//super();
 		this.params = params;
-		this.docIds = docIds;
+		this.docKeys = docKeys;
 		this.results = results;
 	}
 
@@ -46,10 +46,26 @@ public class QueryResult {
 
 	/**
 	 * 
+	 * @return the query resulting document id/uri pairs
+	 */
+	public Map<Long, String> getDocKeys() {
+		return docKeys;
+	}
+	
+	/**
+	 * 
 	 * @return the query resulting document ids
 	 */
 	public Collection<Long> getDocIds() {
-		return docIds;
+		return docKeys.keySet();
+	}
+	
+	/**
+	 * 
+	 * @return the query resulting document uris
+	 */
+	public Collection<String> getDocUris() {
+		return docKeys.values();
 	}
 	
 	/**
@@ -65,7 +81,7 @@ public class QueryResult {
 	 */
 	@Override
 	public String toString() {
-		return "QueryResult [params=" + params + ", docIds=" + docIds + ", results=" + results + "]";
+		return "QueryResult [params=" + params + ", docKeys=" + docKeys + ", results=" + results + "]";
 	}
 	
 

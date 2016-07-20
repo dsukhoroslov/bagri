@@ -346,7 +346,7 @@ public class IndexManagementImpl implements IndexManagement { //, StatisticsProv
 					continue;
 				}
 				
-				if (docMgr.checkDocumentCommited(uv.getDocumentKey())) {
+				if (docMgr.checkDocumentCommited(uv.getDocumentKey(), 0) != null) {
 					if (uv.getTxFinish() > TX_NO) {
 						if (txMgr.isTxVisible(uv.getTxFinish())) {
 							// rolledBack, ok

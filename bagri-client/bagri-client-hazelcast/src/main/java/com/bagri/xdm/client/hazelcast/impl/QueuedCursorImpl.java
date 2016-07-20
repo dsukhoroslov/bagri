@@ -63,11 +63,9 @@ public class QueuedCursorImpl extends ResultCursorBase implements IdentifiedData
 	public void close() {
 		logger.trace("close.enter; queue remaining size: {}", queue.size());
 		queue.clear();
+		queue.destroy();
 		iter = null; // on the server side
 		current = null;
-		//if (destroy) {
-		//	queue.destroy();
-		//}
 	}
 
 	protected Object getCurrent() {
