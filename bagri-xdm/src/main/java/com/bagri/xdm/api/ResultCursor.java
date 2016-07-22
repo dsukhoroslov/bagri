@@ -99,6 +99,12 @@ public interface ResultCursor extends AutoCloseable {
 	XQItemAccessor getXQItem() throws XDMException;
 
 	/**
+	 * 
+	 * @return true if cursor has a List of results fetched, false otherwise 
+	 */
+	boolean isFixed();
+	
+	/**
 	 * Moves selected item one position next  
 	 * 
 	 * @return true is next item selected, false otherwise

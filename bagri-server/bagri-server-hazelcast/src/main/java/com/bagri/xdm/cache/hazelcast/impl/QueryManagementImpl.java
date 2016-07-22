@@ -213,14 +213,49 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		return result;
 	}
 
-	@Override
-	public Iterator<?> getQueryResults(String query, Map<String, Object> params, Properties props) {
-		//QueryParamsKey qpKey = getResultsKey(query, params);
+	void addQueryResults(String query, Map<String, Object> params, Properties props, ResultCursor cursor, 
+			Iterator<Object> results) throws XDMException {
+		QueryExecContext ctx = thContext.get();
+		if (ctx.getDocKeys().size() == 0) {
+			return;
+		}
+		long qpKey = getResultsKey(query, params);
+		// TODO: think about lazy solution... EntryProcessor? or, try local Map?
+		List<Object> resList;
+		if (cursor != null) {
+			resList = cursor.getList();
+			if (!cursor.isFixed()) {
+				while (results.hasNext()) {
+					resList.add(results.next());
+				}
+			}
+		} else {
+			resList = new ArrayList<>();
+			while (results.hasNext()) {
+				resList.add(results.next());
+			}
+		}
+		if (resList.size() == 0) {
+			logger.warn("addQueryResults; got empty results but docs were found: {}", ctx.getDocKeys());
+			return;
+		}
+		QueryResult xqr = new QueryResult(params, ctx.getDocKeys(), resList);
+		xrCache.putAsync(qpKey, xqr);
+		updateStats(query, 1, 0);
+		
+		String clientId = props.getProperty(pn_client_id);
+		XQProcessor xqp = repo.getXQProcessor(clientId);
+		xqp.setResults(cursor);
+		
+		logger.trace("addQueryResults.exit; stored results: {} for key: {}", xqr, qpKey);
+	}
+	
+	Iterator<Object> getQueryResults(String query, Map<String, Object> params, Properties props) {
 		long qpKey = getResultsKey(query, params);
 		logger.trace("getQueryResults; got result key: {}; parts: {}", qpKey, getResultsKeyParts(qpKey));
 		QueryResult xqr = xrCache.get(qpKey);
 		//XDMResults xqr = xResults.get(qpKey);
-		Iterator<?> result = null;
+		Iterator<Object> result = null;
 		if (xqr != null) {
 			result = xqr.getResults().iterator();
 			updateStats(query, 0, 1);
@@ -230,44 +265,30 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		logger.trace("getQueryResults; returning: {}", xqr);
 		return result;
 	}
-	
-	@Override
-	public Iterator<?> addQueryResults(String query, Map<String, Object> params, Properties props, Iterator<?> results) {
-		//QueryParamsKey qpKey = getResultsKey(query, params);
-		QueryExecContext ctx = thContext.get();
-		if (ctx.getDocKeys().size() == 0) {
-			return results;
-		}
+
+	Map<Long, String> getQueryUris(String query, Map<String, Object> params, Properties props) {
 		long qpKey = getResultsKey(query, params);
-		// TODO: think about lazy solution... EntryProcessor? or, try local Map?
-		List<Object> resList = new ArrayList<>();
-		while (results.hasNext()) {
-			//Object res = results.next();
-			//logger.info("addQueryResults; caching result: {}; {}", res == null ? "null" : res.getClass().getName(), res); 
-			//resList.add(res); 
-			resList.add(results.next());
+		logger.trace("getQueryUris; got result key: {}; parts: {}", qpKey, getResultsKeyParts(qpKey));
+		QueryResult xqr = xrCache.get(qpKey);
+		Map<Long, String> result = null;
+		if (xqr != null) {
+			result = xqr.getDocKeys();
+			updateStats(query, 0, 1);
+		} else {
+			updateStats(query, 0, -1);
 		}
-		if (resList.size() == 0) {
-			logger.warn("addQueryResults; got empty results but docs were found: {}", ctx.getDocKeys());
-			return results;
-		}
-		QueryResult xqr = new QueryResult(params, ctx.getDocKeys(), resList);
-		//XDMResults oldRes = 
-		xrCache.putAsync(qpKey, xqr);
-		//xResults.put(qpKey, xqr);
-		updateStats(query, 1, 0);
-		logger.trace("addQueryResults; stored results: {} for key: {}", xqr, qpKey);
-		return xqr.getResults().iterator();
+		logger.trace("getQueryUris; returning: {}", result);
+		return result;
 	}
 	
-	public void invalidateQueryResults(Set<Integer> paths) {
+	void invalidateQueryResults(Set<Integer> paths) {
 		Set<Integer> qKeys = getQueriesForPaths(paths, false);
 		if (!qKeys.isEmpty()) {
 			removeQueryResults(qKeys);
 		}
 	}
 	
-	public void removeQueryResults(long docId) {
+	void removeQueryResults(long docId) {
 		logger.trace("removeQueryResults.enter; got docId: {}; result cache size: {}", docId, xrCache.size());
 		Predicate rdp = new ResultsDocPredicate(docId);
 		Set<Long> rdKeys = xrCache.keySet(rdp);
@@ -277,7 +298,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		logger.trace("removeQueryResults.exit; deleted {} results for docId: {}", rdKeys.size(), docId);
 	}
 
-	public void removeQueryResults(Collection<Integer> queryIds) {
+	void removeQueryResults(Collection<Integer> queryIds) {
 		logger.trace("removeQueryResults.enter; got queryIds: {}; result cache size: {}", queryIds, xrCache.size());
 		Predicate rqp = new ResultsQueryPredicate(queryIds);
 		Set<Long> rqKeys = xrCache.keySet(rqp);
@@ -511,6 +532,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		return Collections.emptyList();
 	}
 	
+	@Override
 	public Collection<Long> getDocumentIds(ExpressionContainer query) throws XDMException {
 		if (query != null) {
 			ExpressionBuilder exp = query.getBuilder();
@@ -543,28 +565,41 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	public Collection<String> getDocumentUris(String query, Map<String, Object> params, Properties props) throws XDMException {
 		logger.trace("getDocumentUris.enter; query: {}, command: {}; params: {}; properties: {}", query, params, props);
 		Collection<String> result = null;
-		try {
-			Iterator<Object> iter = runQuery(query, params, props);
-			result = thContext.get().getDocKeys().values();
-		} catch (XQException ex) {
-			throw new XDMException(ex, XDMException.ecQuery);
+		
+		int qCode = getQueryKey(query);
+		if (xqCache.containsKey(qCode)) {
+			Map<Long, String> keys = getQueryUris(query, params, props);
+			result = keys.values();
 		}
+		
+		if (result == null) {
+			try {
+				Iterator<Object> iter = runQuery(query, params, props, true);
+				result = thContext.get().getDocKeys().values();
+				if (xqCache.containsKey(qCode)) {
+					addQueryResults(query, params, props, null, iter);
+				}
+			} catch (XQException ex) {
+				throw new XDMException(ex, XDMException.ecQuery);
+			}
+		}
+
 		logger.trace("getDocumentUris.exit; returning: {}", result);
 		return result;
 	}
 
-	public Collection<Long> getDocumentKeys(String query, Map<String, Object> params, Properties props) throws XDMException {
-		logger.trace("getDocumentKeys.enter; query: {}, command: {}; params: {}; properties: {}", query, params, props);
-		Collection<Long> result = null;
-		try {
-			Iterator<Object> iter = runQuery(query, params, props);
-			result = thContext.get().getDocKeys().keySet();
-		} catch (XQException ex) {
-			throw new XDMException(ex, XDMException.ecQuery);
-		}
-		logger.trace("getDocumentKeys.exit; returning: {}", result);
-		return result;
-	}
+	//public Collection<Long> getDocumentKeys(String query, Map<String, Object> params, Properties props) throws XDMException {
+	//	logger.trace("getDocumentKeys.enter; query: {}, command: {}; params: {}; properties: {}", query, params, props);
+	//	Collection<Long> result = null;
+	//	try {
+	//		Iterator<Object> iter = runQuery(query, params, props);
+	//		result = thContext.get().getDocKeys().keySet();
+	//	} catch (XQException ex) {
+	//		throw new XDMException(ex, XDMException.ecQuery);
+	//	}
+	//	logger.trace("getDocumentKeys.exit; returning: {}", result);
+	//	return result;
+	//}
 	
 	@Override
 	public boolean isReadOnlyQuery(String query) {
@@ -582,17 +617,43 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 
 		logger.trace("executeQuery.enter; query: {}; params: {}; properties: {}", query, params, props);
 		ResultCursor result = null;
-		String clientId = props.getProperty(pn_client_id);
-		try {
-			XQProcessor xqp = repo.getXQProcessor(clientId);
-			xqp.setResults(null);
-			Iterator<Object> iter = runQuery(query, params, props);
-			result = createCursor(iter, props);
-			xqp.setResults(iter);
-		} catch (XQException ex) {
-			throw new XDMException(ex, XDMException.ecQuery);
+		Iterator<Object> iter = null;
+		boolean isQuery = "false".equalsIgnoreCase(props.getProperty(pn_query_command, "false"));
+		boolean resultCached = false;
+		
+		int qCode = getQueryKey(query);
+		if (isQuery) {
+			if (xqCache.containsKey(qCode)) {
+				iter = getQueryResults(query, params, props);
+				resultCached = true;
+			}
 		}
-		logger.trace("executeQuery.exit; returning: {}, for client: {}", result, clientId);
+		
+		if (iter == null) {
+			try {
+				iter = runQuery(query, params, props, false);
+			} catch (XQException ex) {
+				throw new XDMException(ex, XDMException.ecQuery);
+			}
+		}
+
+		result = createCursor(iter, props);
+		if (resultCached) {
+			String clientId = props.getProperty(pn_client_id);
+			XQProcessor xqp = repo.getXQProcessor(clientId);
+			xqp.setResults(result);
+		} else {
+			//XDMQuery xquery = xqCache.get(qCode);
+			//if (xquery != null && xquery.isReadOnly()) {
+			// check for isQuery too?
+			if (xqCache.containsKey(qCode)) {
+				addQueryResults(query, params, props, result, iter);
+			} else {
+				logger.warn("executeQuery; query is not cached after processing: {}", query);
+			}
+		}		
+		
+		logger.trace("executeQuery.exit; returning: {}", result);
 		return result;
 	}
 	
@@ -603,15 +664,15 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		return null;
 	}
 
-	private Iterator<Object> runQuery(String query, Map<String, Object> params, Properties props) throws XQException {
+	private Iterator<Object> runQuery(String query, Map<String, Object> params, Properties props, boolean forUris) throws XQException {
 		
         Throwable ex = null;
         boolean failed = false;
         stopWatch.start();
 		
-		Iterator iter = null;
+		Iterator<Object> iter = null;
 		try {
-			iter = localProc.runQuery(query, params, props);
+			iter = localProc.runQuery(query, params, props, forUris);
         } catch (Throwable t) {
         	//t.printStackTrace();
             failed = true;
@@ -628,7 +689,6 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		return iter;
 	}
 	
-
 	private ResultCursorBase createCursor(Iterator<Object> iter, Properties props) {
 		int count = 0;
 		final ResultCursorBase xqCursor;
@@ -689,7 +749,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			return true;
 		}
 		
-		Iterator<Object> runQuery(String query, Map<String, Object> params, Properties props) throws Exception {
+		Iterator<Object> runQuery(String query, Map<String, Object> params, Properties props, boolean forUris) throws Exception {
 			return Collections.emptyIterator();
 		}
 	}
@@ -709,46 +769,31 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			return xQuery.isReadOnly();
 		}
 		
-		Iterator<Object> runQuery(String query, Map<String, Object> params, Properties props) throws Exception {
+		Iterator<Object> runQuery(String query, Map<String, Object> params, Properties props, boolean forUris) throws Exception {
 
-			Iterator iter = null;
+			Iterator<Object> iter = null;
 			String clientId = props.getProperty(pn_client_id);
 			boolean isQuery = "false".equalsIgnoreCase(props.getProperty(pn_query_command, "false"));
 			XQProcessor xqp = repo.getXQProcessor(clientId);
 			
-			int qCode = getQueryKey(query);
-			if (isQuery) {
-				if (xqCache.containsKey(qCode)) {
-					iter = getQueryResults(query, params, props);
+			QueryExecContext ctx = thContext.get();
+			ctx.clear();
+			
+			if (params != null) {
+				for (Map.Entry<String, Object> var: params.entrySet()) {
+					xqp.bindVariable(var.getKey(), var.getValue());
 				}
 			}
-			
-			if (iter == null) {
-				QueryExecContext ctx = thContext.get();
-				ctx.clear();
-			
-				if (params != null) {
-					for (Map.Entry<String, Object> var: params.entrySet()) {
-						xqp.bindVariable(var.getKey(), var.getValue());
-					}
-				}
 				
-				if (isQuery) {
-					iter = xqp.executeXQuery(query, props);
-				} else {
-					iter = xqp.executeXCommand(query, params, props);
-				}
+			if (isQuery) {
+				iter = xqp.executeXQuery(query, props);
+			} else {
+				iter = xqp.executeXCommand(query, params, props);
+			}
 				
-				if (params != null) {
-					for (Map.Entry<String, Object> var: params.entrySet()) {
-						xqp.unbindVariable(var.getKey());
-					}
-				}
-
-				//XDMQuery xquery = xqCache.get(qCode);
-				//if (xquery != null && xquery.isReadOnly()) {
-				if (xqCache.containsKey(qCode)) {
-					iter = addQueryResults(query, params, props, iter);
+			if (params != null) {
+				for (Map.Entry<String, Object> var: params.entrySet()) {
+					xqp.unbindVariable(var.getKey());
 				}
 			}
 			return iter;

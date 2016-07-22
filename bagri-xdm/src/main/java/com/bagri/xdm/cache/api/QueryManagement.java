@@ -73,7 +73,7 @@ public interface QueryManagement extends com.bagri.xdm.api.QueryManagement {
 	 * @param props the query processing instructions. Supported values are: ...
 	 * @return the {@link Iterator} over found query results or null if not found
 	 */
-	Iterator<?> getQueryResults(String query, Map<String, Object> params, Properties props);
+	//Iterator<Object> getQueryResults(String query, Map<String, Object> params, Properties props);
 	
 	/**
 	 * adds query {@literal results} into internal cache for the {@literal query} {@literal params} and query processing {@literal props} specified.
@@ -84,7 +84,7 @@ public interface QueryManagement extends com.bagri.xdm.api.QueryManagement {
 	 * @param results the generic {@link Iterator} over query results
 	 * @return the {@link Iterator} over query results 
 	 */
-	Iterator<?> addQueryResults(String query, Map<String, Object> params, Properties props, Iterator<?> results);
+	//Iterator<Object> addQueryResults(String query, Map<String, Object> params, Properties props, Iterator<Object> results);
 	
 	/**
 	 * clears internal query and query results caches

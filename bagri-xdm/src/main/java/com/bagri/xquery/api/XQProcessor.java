@@ -77,7 +77,7 @@ public interface XQProcessor {
      * @return an Iterator over query results
      * @throws XQException in case of query processing error
      */
-    Iterator<?> executeXQuery(String query, XQStaticContext ctx) throws XQException;
+    Iterator<Object> executeXQuery(String query, XQStaticContext ctx) throws XQException;
     
     /**
      * executes XQuery provided. If query contains variables it must be prepared via <code>prepareXQuery</code> and variables 
@@ -89,7 +89,7 @@ public interface XQProcessor {
      * @return an Iterator over query results
      * @throws XQException in case of query processing error
      */
-    Iterator<?> executeXQuery(String query, Properties props) throws XQException;
+    Iterator<Object> executeXQuery(String query, Properties props) throws XQException;
 
     /**
      * 
@@ -135,7 +135,7 @@ public interface XQProcessor {
      * @return an Iterator over command execution results
      * @throws XQException in case of command execution errors
      */
-	Iterator<?> executeXCommand(String command, Map<String, Object> params, XQStaticContext ctx) throws XQException;
+	Iterator<Object> executeXCommand(String command, Map<String, Object> params, XQStaticContext ctx) throws XQException;
 	
     /**
      * executes custom XQuery command. Currently supported commands are:
@@ -154,21 +154,21 @@ public interface XQProcessor {
      * @return an Iterator over command execution results
      * @throws XQException in case of command execution errors
      */
-    Iterator<?> executeXCommand(String command, Map<String, Object> params, Properties props) throws XQException;
+    Iterator<Object> executeXCommand(String command, Map<String, Object> params, Properties props) throws XQException;
 
     /**
-     * for internal use on server seide only
+     * for internal use on server side only
      * 
-     * @return Iterator over cached results
+     * @return cursor over cached results
      */
-    Iterator<?> getResults();
+    ResultCursor getResults();
     
     /**
-     * for internal use on servere side only
+     * for internal use on server side only
      * 
-     * @param itr Iterator over results to be cached in processor
+     * @param cursor the ResultCursor supporting results pagination
      */
-    void setResults(Iterator<?> itr);
+    void setResults(ResultCursor cursor);
     
     /**
      * cancels currently executing query or command

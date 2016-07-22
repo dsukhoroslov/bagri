@@ -36,6 +36,7 @@ public class QueuedCursorImpl extends ResultCursorBase implements IdentifiedData
 	private Object current;
 
 	// server side
+	private List<Object> results;
 	private Iterator<Object> iter;
 	
 	private IQueue<Object> queue;
@@ -132,6 +133,7 @@ public class QueuedCursorImpl extends ResultCursorBase implements IdentifiedData
 	public int serialize(HazelcastInstance hzi, List<Object> toQueue) {
 		initQueue(hzi);
 		int size = 0;
+		results = toQueue;
 		for (Object value: toQueue) { 
 			if (value != null) {
 				if (queue.offer(value)) {
@@ -163,7 +165,13 @@ public class QueuedCursorImpl extends ResultCursorBase implements IdentifiedData
 	
 	@Override
 	public List<Object> getList() throws XDMException {
-		throw new XDMException("Not implemented in queued cursor", XDMException.ecQuery);
+		return results;
+		//throw new XDMException("Not implemented in queued cursor", XDMException.ecQuery);
+	}
+	
+	@Override
+	public boolean isFixed() {
+		return false;
 	}
 	
 	@Override

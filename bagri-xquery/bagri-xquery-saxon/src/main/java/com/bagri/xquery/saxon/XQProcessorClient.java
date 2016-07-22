@@ -42,31 +42,13 @@ public class XQProcessorClient extends XQProcessorImpl implements XQProcessor {
     }
 	
 	@Override
-	public Iterator<?> executeXCommand(String command, Map<String, Object> params, XQStaticContext ctx) throws XQException {
+	public Iterator<Object> executeXCommand(String command, Map<String, Object> params, XQStaticContext ctx) throws XQException {
 		
 		return executeXCommand(command, params, collectProperties(ctx));
 	}
 	
-	private String getDocumentUri(Map<String, Object> params) throws XQException {
-		XQItem uri = (XQItem) params.remove("uri");
-		if (uri == null) {
-			throw new XQException("No document uri passed");
-		}
-		return uri.getAtomicValue();
-	}
-	
-	private Properties fillProperties(Map<String, Object> params, Properties props) {
-		if (props == null) {
-			props = new Properties();
-		}
-		for (Map.Entry<String, Object> e: params.entrySet()) {
-			props.put(e.getKey(), e.getValue());
-		}
-		return props;
-	}
-
 	@Override
-	public Iterator<?> executeXCommand(String command, Map<String, Object> params, Properties props) throws XQException {
+	public Iterator<Object> executeXCommand(String command, Map<String, Object> params, Properties props) throws XQException {
 		
     	//logger.trace("executeXCommand.enter; command: {}", command);
     	try {
@@ -100,13 +82,13 @@ public class XQProcessorClient extends XQProcessorImpl implements XQProcessor {
 	}
 
 	@Override
-	public Iterator<?> executeXQuery(String query, XQStaticContext ctx) throws XQException {
+	public Iterator<Object> executeXQuery(String query, XQStaticContext ctx) throws XQException {
 
 		return executeXQuery(query, collectProperties(ctx));
 	}
 
 	@Override
-	public Iterator<?> executeXQuery(String query, Properties props) throws XQException {
+	public Iterator<Object> executeXQuery(String query, Properties props) throws XQException {
    		throw new XQException("Not implemented on the client side. Use method processXQuery instead");
 	}
 
@@ -133,24 +115,16 @@ public class XQProcessorClient extends XQProcessorImpl implements XQProcessor {
     	return super.prepareXQuery(query, ctx);
 	}
 
-	private Map<String, Object> getXQItemParams() throws XQException, XPathException {
-    	GlobalParameterSet paramSet = dqc.getParameters();
-    	Map<String, Object> params = new HashMap<>(paramSet.getNumberOfKeys());
-    	for (StructuredQName qName: paramSet.getKeys()) {
-    		String pName = qName.getClarkName(); 
-    		params.put(pName, itemToXQItem((Item) paramSet.get(qName), this.getXQDataFactory()));
-    	}
-		return params;
-	}
-
 	@Override
-	public Iterator<?> getResults() {
+	public ResultCursor getResults() {
+		// throw ex?
 		return null;
 	}
 
 	@Override
-	public void setResults(Iterator<?> itr) {
-		// no-op
+	public void setResults(ResultCursor cursor) {
+		// no-op 
+		// throw ex?
 	}
 
 	private Properties collectProperties(XQStaticContext ctx) throws XQException {
@@ -171,4 +145,32 @@ public class XQProcessorClient extends XQProcessorImpl implements XQProcessor {
 		return props;
 	}
 	
+	private Properties fillProperties(Map<String, Object> params, Properties props) {
+		if (props == null) {
+			props = new Properties();
+		}
+		for (Map.Entry<String, Object> e: params.entrySet()) {
+			props.put(e.getKey(), e.getValue());
+		}
+		return props;
+	}
+
+	private String getDocumentUri(Map<String, Object> params) throws XQException {
+		XQItem uri = (XQItem) params.remove("uri");
+		if (uri == null) {
+			throw new XQException("No document uri passed");
+		}
+		return uri.getAtomicValue();
+	}
+	
+	private Map<String, Object> getXQItemParams() throws XQException, XPathException {
+    	GlobalParameterSet paramSet = dqc.getParameters();
+    	Map<String, Object> params = new HashMap<>(paramSet.getNumberOfKeys());
+    	for (StructuredQName qName: paramSet.getKeys()) {
+    		String pName = qName.getClarkName(); 
+    		params.put(pName, itemToXQItem((Item) paramSet.get(qName), this.getXQDataFactory()));
+    	}
+		return params;
+	}
+
 }

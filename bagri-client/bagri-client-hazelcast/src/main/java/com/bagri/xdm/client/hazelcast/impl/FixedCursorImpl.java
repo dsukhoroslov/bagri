@@ -45,6 +45,11 @@ public class FixedCursorImpl extends ResultCursorBase implements IdentifiedDataS
 	}
 
 	@Override
+	public boolean isFixed() {
+		return true;
+	}
+	
+	@Override
 	public boolean next() {
 		boolean result = iter.hasNext();
 		if (result) {

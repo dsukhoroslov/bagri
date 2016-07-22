@@ -1,8 +1,10 @@
 package com.bagri.xquery.saxon;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -34,7 +36,7 @@ import net.sf.saxon.tree.util.DocumentNumberAllocator;
 
 public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 	
-	private Iterator<?> results;
+	private ResultCursor cursor;
 	private CollectionFinderImpl clnFinder;
     private Map<Integer, XQueryExpression> queries = new HashMap<>();
     
@@ -74,26 +76,14 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
     }
 
     @Override
-	public Iterator<?> executeXCommand(String command, Map<String, Object> bindings, XQStaticContext ctx) throws XQException {
+	public Iterator<Object> executeXCommand(String command, Map<String, Object> bindings, XQStaticContext ctx) throws XQException {
 		
         //setStaticContext(sqc, ctx);
 		return executeXCommand(command, bindings, (Properties) null);
 	}
     
-    private XQItemAccessor getBoundItem(Map<String, Object> bindings, String varName) throws XQException {
-		if (bindings.size() == 0) {
-			throw new XQException("bindings not provided");
-		}
-
-    	XQItemAccessor item = (XQItemAccessor) bindings.get(varName);
-		if (item == null) {
-			throw new XQException("variable '" + varName + "' not bound");
-		}
-    	return item;
-    }
-	
 	@Override
-	public Iterator<?> executeXCommand(String command, Map<String, Object> params, Properties props) throws XQException {
+	public Iterator<Object> executeXCommand(String command, Map<String, Object> params, Properties props) throws XQException {
 		
 		// TODO: rewrite it (use client impl)!? 
 		// and think about command results!..
@@ -107,7 +97,9 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 				// validate document ?
 				// add/pass other params ?!
 				Document doc = dMgr.storeDocumentFromString(uri, xml, null);
-				return Collections.singletonList(doc).iterator();
+				List<Object> result = new ArrayList<>(1);
+				result.add(doc);
+				return result.iterator();
 			} else if (command.startsWith("removeDocument")) {
 				XQItemAccessor item = getBoundItem(params, "uri");
 				String uri = item.getAtomicValue();
@@ -121,7 +113,7 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 	    }
 	}
 	
-	private Iterator<?> execQuery(final String query) throws XQException {
+	private Iterator<Object> execQuery(final String query) throws XQException {
 	    logger.trace("execQuery.enter; this: {}", this);
 		long stamp = System.currentTimeMillis();
    	    
@@ -201,13 +193,13 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 	}
     
 	@Override
-    public Iterator<?> executeXQuery(String query, XQStaticContext ctx) throws XQException {
+    public Iterator<Object> executeXQuery(String query, XQStaticContext ctx) throws XQException {
         setStaticContext(sqc, ctx);
         return execQuery(query);
     }
     
 	@Override
-    public Iterator<?> executeXQuery(String query, Properties props) throws XQException {
+    public Iterator<Object> executeXQuery(String query, Properties props) throws XQException {
 		setStaticContext(sqc, props);
         return execQuery(query);
 	}
@@ -218,19 +210,31 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
     }
     
 	@Override
-	public Iterator<?> getResults() {
-		return results;
+	public ResultCursor getResults() {
+		return cursor;
 	}
 
 	@Override
-	public void setResults(Iterator<?> itr) {
-		this.results = itr;
+	public void setResults(ResultCursor cursor) {
+		this.cursor = cursor;
 	}
 	
 	@Override
 	public String toString() {
 		return "XQProcessorServer[" + getRepository().getClientId() + "]";
 	}
+	
+    private XQItemAccessor getBoundItem(Map<String, Object> bindings, String varName) throws XQException {
+		if (bindings.size() == 0) {
+			throw new XQException("bindings not provided");
+		}
+
+    	XQItemAccessor item = (XQItemAccessor) bindings.get(varName);
+		if (item == null) {
+			throw new XQException("variable '" + varName + "' not bound");
+		}
+    	return item;
+    }
 	
 }
 
