@@ -43,7 +43,7 @@ set java_opts=%java_opts% -Dxdm.schema.password=password
 rem possible values are: member, owner, any
 set java_opts=%java_opts% -Dxdm.client.submitTo=owner
 set java_opts=%java_opts% -Dxdm.client.bufferSize=32
-set java_opts=%java_opts% -Dxdm.client.fetchSize=1
+set java_opts=%java_opts% -Dxdm.client.fetchSize=10
 set java_opts=%java_opts% -Dxdm.client.connectAttempts=3
 set java_opts=%java_opts% -Dxdm.client.loginTimeout=30
 set java_opts=%java_opts% -Dxdm.client.smart=true

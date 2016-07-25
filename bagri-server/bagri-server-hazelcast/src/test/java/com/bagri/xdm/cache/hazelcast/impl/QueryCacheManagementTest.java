@@ -85,13 +85,15 @@ public class QueryCacheManagementTest extends XDMManagementTest {
 		assertNotNull(rc);
 		assertTrue(rc.next());
 		rc.close();
+		Thread.currentThread().sleep(1000);
 		
 		// here we must have 1 result cached
-		List<Object> results = ((QueryManagementImpl) xRepo.getQueryManagement()).getQueryResults(query, params, props);		
+		List<Object> results = ((QueryManagementImpl) xRepo.getQueryManagement()).getQueryResults(query, params, props);
 		assertNotNull(results);
 		assertEquals(1, results.size());
 		
 		removeDocumentsTest(); 
+		//Thread.currentThread().sleep(1000);
 		//updateDocumentTest(0, null, sampleRoot + getFileName("security5621.xml"));
 		// here we must have 0 result cached
 		results = ((QueryManagementImpl) xRepo.getQueryManagement()).getQueryResults(query, params, props);		
@@ -133,6 +135,7 @@ public class QueryCacheManagementTest extends XDMManagementTest {
 		assertNotNull(rc);
 		assertTrue(rc.next());
 		rc.close();
+		Thread.currentThread().sleep(1000);
 		
 		// here we must have 1 result cached
 		List<Object> results = ((QueryManagementImpl) xRepo.getQueryManagement()).getQueryResults(query, params, props);		

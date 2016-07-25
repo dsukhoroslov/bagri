@@ -217,6 +217,18 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			final ResultCursor cursor, final Iterator<Object> results) {
 
 		final QueryExecContext ctx = thContext.get();
+
+		final List<Object> resList;
+		if (cursor != null) {
+			try {
+				resList = cursor.getList();
+			} catch (XDMException ex) {
+				logger.error("addQueryResults.error", ex);
+				return;
+			}
+		} else {
+			resList = new ArrayList<>();
+		}
 		
 		//IExecutorService execService = hzInstance.getExecutorService(PN_XDM_SCHEMA_POOL);
 		//execService.execute(new Runnable() {
@@ -224,20 +236,12 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 				@Override
 				public void run() {
 					long qpKey = getResultsKey(query, params);
-					List<Object> resList;
 					if (cursor != null) {
-						try {
-							resList = cursor.getList();
-						} catch (XDMException ex) {
-							logger.error("addQueryResults.error", ex);
-							return;
-						}
-						
 						if (!cursor.isFixed()) {
 							CollectionUtils.copyIterator(results, resList);
 						}
 					} else {
-						resList = CollectionUtils.copyIterator(results);
+						CollectionUtils.copyIterator(results, resList);
 					}
 
 					if (resList.size() == 0 && ctx.getDocKeys().size() > 0) {
@@ -578,7 +582,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		
 		if (result == null) {
 			try {
-				Iterator<Object> iter = runQuery(query, params, props, true);
+				Iterator<Object> iter = runQuery(query, params, props);
 				result = thContext.get().getDocKeys().values();
 				if (xqCache.containsKey(qCode)) {
 					addQueryResults(query, params, props, null, iter);
@@ -620,7 +624,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		Iterator<Object> iter = null;
 		if (resList == null) {
 			try {
-				iter = runQuery(query, params, props, false);
+				iter = runQuery(query, params, props);
 			} catch (XQException ex) {
 				throw new XDMException(ex, XDMException.ecQuery);
 			}
@@ -651,7 +655,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		return null;
 	}
 
-	private Iterator<Object> runQuery(String query, Map<String, Object> params, Properties props, boolean forUris) throws XQException {
+	private Iterator<Object> runQuery(String query, Map<String, Object> params, Properties props) throws XQException {
 		
         Throwable ex = null;
         boolean failed = false;
@@ -659,7 +663,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		
 		Iterator<Object> iter = null;
 		try {
-			iter = localProc.runQuery(query, params, props, forUris);
+			iter = localProc.runQuery(query, params, props);
         } catch (Throwable t) {
         	//t.printStackTrace();
             failed = true;
@@ -729,7 +733,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			return true;
 		}
 		
-		Iterator<Object> runQuery(String query, Map<String, Object> params, Properties props, boolean forUris) throws Exception {
+		Iterator<Object> runQuery(String query, Map<String, Object> params, Properties props) throws Exception {
 			return Collections.emptyIterator();
 		}
 	}
@@ -749,7 +753,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			return xQuery.isReadOnly();
 		}
 		
-		Iterator<Object> runQuery(String query, Map<String, Object> params, Properties props, boolean forUris) throws Exception {
+		Iterator<Object> runQuery(String query, Map<String, Object> params, Properties props) throws Exception {
 
 			Iterator<Object> iter = null;
 			String clientId = props.getProperty(pn_client_id);

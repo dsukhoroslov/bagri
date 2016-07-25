@@ -95,7 +95,7 @@ public interface XQProcessor {
      * 
      * 
      * @param query the plain text query representation
-     * @param props Properties containing query processing instructions. Besides standard XQJ properties may contain additional XDM properties: ..
+     * @param ctx the XQJ static context {@link XQStaticContext}
      * @return a cursor over query results
      * @throws XQException in case of query processing error
      */

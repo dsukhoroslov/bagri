@@ -81,6 +81,7 @@ public class DataFormat extends Entity {
 	 * @param createdBy the user who has created the version
 	 * @param name the data format name
 	 * @param description the data format description
+	 * @param type the data format type name
 	 * @param extensions the data format file extensions
 	 * @param parserClass the data format parser class
 	 * @param builderClass the data format builder class

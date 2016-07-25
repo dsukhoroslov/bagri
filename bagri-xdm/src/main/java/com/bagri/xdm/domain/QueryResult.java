@@ -26,7 +26,7 @@ public class QueryResult {
 	/**
 	 * 
 	 * @param params the query parameters
-	 * @param docIds the query resulting document id/uri pairs
+	 * @param docKeys the query resulting document id/uri pairs
 	 * @param results the query results
 	 */
 	public QueryResult(Map<String, Object> params, Map<Long, String> docKeys, List<Object> results) {

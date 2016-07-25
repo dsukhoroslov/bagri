@@ -24,8 +24,6 @@ import com.bagri.common.util.JMXUtils;
  */
 public class StatisticsCollector<S extends Statistics> implements Runnable, StatisticsProvider {
 
-	private static final String thPrefix = "xdm.statistics.";
-	
     protected final Logger logger;
 	
     private final Class<S> cls;
@@ -193,7 +191,7 @@ public class StatisticsCollector<S extends Statistics> implements Runnable, Stat
 	public void setStatsQueue(BlockingQueue<StatisticsEvent> queue) {
 		if (this.queue == null) {
 			this.queue = queue;
-			Thread listener = new Thread(this, thPrefix + name);
+			Thread listener = new Thread(this, name);
 			listener.start();
 		} else {
 			logger.warn("setStatsQueue; stats queue is already assigned: {}", queue);
