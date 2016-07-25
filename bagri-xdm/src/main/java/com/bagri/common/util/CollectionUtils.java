@@ -48,6 +48,19 @@ public class CollectionUtils {
 	}
 
 	/**
+	 * Copies Iterator to List of the same values
+	 * 
+	 * @param source the source Iterator to copy data from
+	 * @param target the List containing values copied from the source Iterator 
+	 * @param <T> the type of iterable instances
+	 */
+	public static <T> void copyIterator(Iterator<T> source, List<T> target) {
+	    while (source.hasNext()) {
+	        target.add(source.next());
+	    }
+	}
+	
+	/**
 	 * Converts Collection of Integers to int array
 	 * 
 	 * @param source the source Collection to copy data from

@@ -48,16 +48,17 @@ public class QueuedCursorImpl extends ResultCursorBase implements IdentifiedData
 		// for de-serializer
 	}
 	
-	public QueuedCursorImpl(Iterator<Object> iter, String clientId, int batchSize) {
-		this.iter = iter;
+	public QueuedCursorImpl(List<Object> results, String clientId, int batchSize) {
+		this.results = results;
 		this.clientId = clientId;
 		this.batchSize = batchSize;
 		this.queueSize = UNKNOWN;
 	}
 
-	public QueuedCursorImpl(Iterator<Object> iter, String clientId, int batchSize, int queueSize) {
-		this(iter, clientId, batchSize);
+	public QueuedCursorImpl(List<Object> results, String clientId, int batchSize, int queueSize, Iterator<Object> iter) {
+		this(results, clientId, batchSize);
 		this.queueSize = queueSize;
+		this.iter = iter;
 	}
 	
 	@Override
@@ -98,52 +99,49 @@ public class QueuedCursorImpl extends ResultCursorBase implements IdentifiedData
 	public int serialize(HazelcastInstance hzi) {
 		initQueue(hzi);
 		int size = 0;
-		if (batchSize > 0) {
-			for (int i = 0; i < batchSize && addNext(); i++) {
-				size++;
-			}
-			if (queueSize < EMPTY) {
-				if (size > 0) {
-					if (iter.hasNext()) {
-						queueSize = ONE_OR_MORE;
-					} else {
-						queueSize = ONE; 
-					}
-				} else {
-					queueSize = EMPTY;
-				}
-			} else if (size > queueSize) {
-				logger.info("serialize; declared and current batch queue sizes do not match: {}/{}", queueSize, size);
-				//queueSize = size; ?? 
-			}
-		} else {
-			while (iter.hasNext()) { 
-				addNext();
-				size++;
-			}
-			if (queueSize < EMPTY) {
-				queueSize = size;
-			} else if (size != queueSize) {
-				logger.info("serialize; declared and current queue sizes do not match: {}/{}", queueSize, size);
-			}
-		}
-		return size;
-	}
-	
-	public int serialize(HazelcastInstance hzi, List<Object> toQueue) {
-		initQueue(hzi);
-		int size = 0;
-		results = toQueue;
-		for (Object value: toQueue) { 
-			if (value != null) {
-				if (queue.offer(value)) {
+		if (iter == null) {
+			//for (Object value: results) { 
+			//	if (value != null) {
+			//		if (queue.offer(value)) {
+			//			size++;
+			//		} else {
+			//			logger.warn("serialize; queue is full!");
+			//			break; //??
+			//		}
+			//	}
+			//}
+			iter = results.iterator();
+		} //else { 
+			if (batchSize > 0) {
+				for (int i = 0; i < batchSize && addNext(); i++) {
 					size++;
-				} else {
-					logger.warn("serialize; queue is full!");
-					break; //??
+				}
+				if (queueSize < EMPTY) {
+					if (size > 0) {
+						if (iter.hasNext()) {
+							queueSize = ONE_OR_MORE;
+						} else {
+							queueSize = ONE; 
+						}
+					} else {
+						queueSize = EMPTY;
+					}
+				} else if (size > queueSize) {
+					logger.info("serialize; declared and current batch queue sizes do not match: {}/{}", queueSize, size);
+					//queueSize = size; ?? 
+				}
+			} else {
+				while (iter.hasNext()) { 
+					addNext();
+					size++;
+				}
+				if (queueSize < EMPTY) {
+					queueSize = size;
+				} else if (size != queueSize) {
+					logger.info("serialize; declared and current queue sizes do not match: {}/{}", queueSize, size);
 				}
 			}
-		}
+		//}
 		return size;
 	}
 	

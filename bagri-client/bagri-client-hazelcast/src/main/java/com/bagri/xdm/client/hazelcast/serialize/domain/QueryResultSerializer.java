@@ -37,12 +37,9 @@ public class QueryResultSerializer implements StreamSerializer<QueryResult> {
 			}
 		}
 		size = in.readInt();
-		Map<Long, String> docKeys = null;
-		if (size > 0) {
-			docKeys = new HashMap<Long, String>(size);
-			for (int i=0; i < size; i++) {
-				docKeys.put(in.readLong(), in.readUTF());
-			}
+		Map<Long, String> docKeys = new HashMap<Long, String>(size);
+		for (int i=0; i < size; i++) {
+			docKeys.put(in.readLong(), in.readUTF());
 		}
 		size = in.readInt();
 		List<Object> results = new ArrayList<>(size);

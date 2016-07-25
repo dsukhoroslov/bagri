@@ -9,6 +9,7 @@ import static org.junit.Assert.*;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -86,15 +87,15 @@ public class QueryCacheManagementTest extends XDMManagementTest {
 		rc.close();
 		
 		// here we must have 1 result cached
-		Iterator itr = ((QueryManagementImpl) xRepo.getQueryManagement()).getQueryResults(query, params, props);		
-		assertNotNull(itr);
-		assertTrue(itr.hasNext());
+		List<Object> results = ((QueryManagementImpl) xRepo.getQueryManagement()).getQueryResults(query, params, props);		
+		assertNotNull(results);
+		assertEquals(1, results.size());
 		
 		removeDocumentsTest(); 
 		//updateDocumentTest(0, null, sampleRoot + getFileName("security5621.xml"));
 		// here we must have 0 result cached
-		itr = ((QueryManagementImpl) xRepo.getQueryManagement()).getQueryResults(query, params, props);		
-		assertNull(itr);
+		results = ((QueryManagementImpl) xRepo.getQueryManagement()).getQueryResults(query, params, props);		
+		assertNull(results);
 		//assertFalse(itr.hasNext());
 	}
 
@@ -134,17 +135,17 @@ public class QueryCacheManagementTest extends XDMManagementTest {
 		rc.close();
 		
 		// here we must have 1 result cached
-		Iterator itr = ((QueryManagementImpl) xRepo.getQueryManagement()).getQueryResults(query, params, props);		
-		assertNotNull(itr);
-		assertTrue(itr.hasNext());
+		List<Object> results = ((QueryManagementImpl) xRepo.getQueryManagement()).getQueryResults(query, params, props);		
+		assertNotNull(results);
+		assertEquals(1, results.size());
 		
 		txId = xRepo.getTxManagement().beginTransaction();
 		createDocumentTest(sampleRoot + getFileName("security9012.xml"));
 		xRepo.getTxManagement().commitTransaction(txId);
 		// here we must have 0 result cached
 		// but there is no code to do this!
-		itr = ((QueryManagementImpl) xRepo.getQueryManagement()).getQueryResults(query, params, props);		
-		assertNull(itr);
+		results = ((QueryManagementImpl) xRepo.getQueryManagement()).getQueryResults(query, params, props);		
+		assertNull(results);
 		//assertFalse(itr.hasNext());
 	}
 	

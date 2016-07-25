@@ -213,51 +213,55 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		return result;
 	}
 
-	void addQueryResults(String query, Map<String, Object> params, Properties props, ResultCursor cursor, 
-			Iterator<Object> results) throws XDMException {
-		QueryExecContext ctx = thContext.get();
-		if (ctx.getDocKeys().size() == 0) {
-			return;
-		}
-		long qpKey = getResultsKey(query, params);
-		// TODO: think about lazy solution... EntryProcessor? or, try local Map?
-		List<Object> resList;
-		if (cursor != null) {
-			resList = cursor.getList();
-			if (!cursor.isFixed()) {
-				while (results.hasNext()) {
-					resList.add(results.next());
+	void addQueryResults(final String query, final Map<String, Object> params, final Properties props, 
+			final ResultCursor cursor, final Iterator<Object> results) {
+
+		final QueryExecContext ctx = thContext.get();
+		
+		//IExecutorService execService = hzInstance.getExecutorService(PN_XDM_SCHEMA_POOL);
+		//execService.execute(new Runnable() {
+		new Thread(new Runnable() {
+				@Override
+				public void run() {
+					long qpKey = getResultsKey(query, params);
+					List<Object> resList;
+					if (cursor != null) {
+						try {
+							resList = cursor.getList();
+						} catch (XDMException ex) {
+							logger.error("addQueryResults.error", ex);
+							return;
+						}
+						
+						if (!cursor.isFixed()) {
+							CollectionUtils.copyIterator(results, resList);
+						}
+					} else {
+						resList = CollectionUtils.copyIterator(results);
+					}
+
+					if (resList.size() == 0 && ctx.getDocKeys().size() > 0) {
+						logger.warn("addQueryResults; got empty results but docs were found: {}", ctx.getDocKeys());
+					}
+					QueryResult xqr = new QueryResult(params, ctx.getDocKeys(), resList);
+					xrCache.putAsync(qpKey, xqr);
+					updateStats(query, 1, resList.size());
+					
+					String clientId = props.getProperty(pn_client_id);
+					XQProcessor xqp = repo.getXQProcessor(clientId);
+					xqp.setResults(cursor);
+					logger.trace("addQueryResults.exit; stored results: {} for key: {}", xqr, qpKey);
 				}
-			}
-		} else {
-			resList = new ArrayList<>();
-			while (results.hasNext()) {
-				resList.add(results.next());
-			}
-		}
-		if (resList.size() == 0) {
-			logger.warn("addQueryResults; got empty results but docs were found: {}", ctx.getDocKeys());
-			return;
-		}
-		QueryResult xqr = new QueryResult(params, ctx.getDocKeys(), resList);
-		xrCache.putAsync(qpKey, xqr);
-		updateStats(query, 1, 0);
-		
-		String clientId = props.getProperty(pn_client_id);
-		XQProcessor xqp = repo.getXQProcessor(clientId);
-		xqp.setResults(cursor);
-		
-		logger.trace("addQueryResults.exit; stored results: {} for key: {}", xqr, qpKey);
+		}).start();
 	}
 	
-	Iterator<Object> getQueryResults(String query, Map<String, Object> params, Properties props) {
+	List<Object> getQueryResults(String query, Map<String, Object> params, Properties props) {
 		long qpKey = getResultsKey(query, params);
 		logger.trace("getQueryResults; got result key: {}; parts: {}", qpKey, getResultsKeyParts(qpKey));
 		QueryResult xqr = xrCache.get(qpKey);
-		//XDMResults xqr = xResults.get(qpKey);
-		Iterator<Object> result = null;
+		List<Object> result = null;
 		if (xqr != null) {
-			result = xqr.getResults().iterator();
+			result = xqr.getResults();
 			updateStats(query, 0, 1);
 		} else {
 			updateStats(query, 0, -1);
@@ -588,19 +592,6 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		return result;
 	}
 
-	//public Collection<Long> getDocumentKeys(String query, Map<String, Object> params, Properties props) throws XDMException {
-	//	logger.trace("getDocumentKeys.enter; query: {}, command: {}; params: {}; properties: {}", query, params, props);
-	//	Collection<Long> result = null;
-	//	try {
-	//		Iterator<Object> iter = runQuery(query, params, props);
-	//		result = thContext.get().getDocKeys().keySet();
-	//	} catch (XQException ex) {
-	//		throw new XDMException(ex, XDMException.ecQuery);
-	//	}
-	//	logger.trace("getDocumentKeys.exit; returning: {}", result);
-	//	return result;
-	//}
-	
 	@Override
 	public boolean isReadOnlyQuery(String query) {
 
@@ -616,20 +607,18 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	public ResultCursor executeQuery(String query, Map<String, Object> params, Properties props) throws XDMException {
 
 		logger.trace("executeQuery.enter; query: {}; params: {}; properties: {}", query, params, props);
-		ResultCursor result = null;
-		Iterator<Object> iter = null;
 		boolean isQuery = "false".equalsIgnoreCase(props.getProperty(pn_query_command, "false"));
-		boolean resultCached = false;
 		
+		List<Object> resList = null;
 		int qCode = getQueryKey(query);
 		if (isQuery) {
 			if (xqCache.containsKey(qCode)) {
-				iter = getQueryResults(query, params, props);
-				resultCached = true;
+				resList = getQueryResults(query, params, props);
 			}
 		}
 		
-		if (iter == null) {
+		Iterator<Object> iter = null;
+		if (resList == null) {
 			try {
 				iter = runQuery(query, params, props, false);
 			} catch (XQException ex) {
@@ -637,20 +626,18 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			}
 		}
 
-		result = createCursor(iter, props);
-		if (resultCached) {
-			String clientId = props.getProperty(pn_client_id);
-			XQProcessor xqp = repo.getXQProcessor(clientId);
-			xqp.setResults(result);
-		} else {
-			//XDMQuery xquery = xqCache.get(qCode);
-			//if (xquery != null && xquery.isReadOnly()) {
-			// check for isQuery too?
+		ResultCursor result = createCursor(resList, iter, props);
+		if (resList == null) {
+			// no need to check for isQuery, commands are not cached!
 			if (xqCache.containsKey(qCode)) {
 				addQueryResults(query, params, props, result, iter);
 			} else {
 				logger.warn("executeQuery; query is not cached after processing: {}", query);
 			}
+		} else {
+			String clientId = props.getProperty(pn_client_id);
+			XQProcessor xqp = repo.getXQProcessor(clientId);
+			xqp.setResults(result);
 		}		
 		
 		logger.trace("executeQuery.exit; returning: {}", result);
@@ -689,16 +676,17 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		return iter;
 	}
 	
-	private ResultCursorBase createCursor(Iterator<Object> iter, Properties props) {
+	private ResultCursorBase createCursor(List<Object> results, Iterator<Object> iter, Properties props) {
 		int count = 0;
 		final ResultCursorBase xqCursor;
 
 		int batchSize = 0;
-		List<Object> results;
 		boolean fixed = true;
 		int scrollType = Integer.parseInt(props.getProperty(pn_scrollability, xqScrollForwardStr));
 		if (scrollType == XQConstants.SCROLLTYPE_SCROLLABLE) {
-			results = CollectionUtils.copyIterator(iter);
+			if (results == null) {
+				results = CollectionUtils.copyIterator(iter);
+			}
 		} else {
 			String fetchSize = props.getProperty(pn_client_fetchSize);
 			// not set -> use default BS
@@ -710,7 +698,9 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			}
 			batchSize = Integer.parseInt(fetchSize);
 			// fetch BS results.
-			results = CollectionUtils.copyIterator(iter, batchSize);
+			if (results == null) {
+				results = CollectionUtils.copyIterator(iter, batchSize);
+			}
 			// if RS < BS -> put them to FixedCursor
 			// else -> serialize them in QueuedCursor
 			fixed = results.size() <= batchSize;
@@ -721,24 +711,14 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			count = results.size();
 		} else {
 			int size = QueuedCursorImpl.UNKNOWN;
-			if (iter instanceof XQIterator) {
+			if (iter != null && iter instanceof XQIterator) {
 				size = ((XQIterator) iter).getFullSize();
 			}
 			String clientId = props.getProperty(pn_client_id);
-			QueuedCursorImpl qc = new QueuedCursorImpl(iter, clientId, batchSize, size);
-			count = qc.serialize(repo.getHzInstance(), results);
+			QueuedCursorImpl qc = new QueuedCursorImpl(results, clientId, batchSize, size, iter);
+			count = qc.serialize(repo.getHzInstance());
 			xqCursor = qc;
 		}
-		
-		// async serialization takes even more time! because of the thread context switch, most probably
-		//IExecutorService execService = hzInstance.getExecutorService(PN_XDM_SCHEMA_POOL);
-		//execService.execute(new Runnable() {
-		//	@Override
-		//	public void run() {
-		//		xqCursor.serialize(hzInstance);
-		//	}
-		//});
-		
 		logger.trace("createCursor.exit; serialized: {} results", count);
 		return xqCursor;
 	}
