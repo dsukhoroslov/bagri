@@ -8,13 +8,13 @@
 	<transactions>
 
 		<transaction id="1" name="addDocument" weight="100">
-			<java-plugin>com.bagri.client.tpox.workload.BagriXDMPlugin</java-plugin>
+			<java-plugin>com.bagri.test.tpox.workload.BagriXDMPlugin</java-plugin>
 			<parameters>
 				<parameter>
 					<files collection="security"/>
 				</parameter>
 				<parameter>
-					<constant value="security" />
+					<constant value="CLN_Security" />
 				</parameter>
 				<parameter>
 					<sequence start="10000" step="1"/>
