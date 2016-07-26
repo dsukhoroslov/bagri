@@ -63,11 +63,10 @@
 
     <modules>
         <module>bagri-xdm</module>
-        <module>bagri-client</module>
         <module>bagri-xquery</module>
         <module>bagri-xqj</module>
         <module>bagri-test</module>
-        <module>bagri-store</module>
+        <module>bagri-client</module>
         <module>bagri-server</module>
         <module>bagri-samples</module>
         <module>bagri-tools</module>
@@ -187,16 +186,6 @@
                 <version>${project.version}</version>
             </dependency>
 
-            <!--dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-lang3</artifactId>
-                <version>${commons-lang3.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-collections</groupId>
-                <artifactId>commons-collections</artifactId>
-                <version>${commons-collections.version}</version>
-            </dependency-->
             <dependency>
                 <groupId>commons-cli</groupId>
                 <artifactId>commons-cli</artifactId>
@@ -226,21 +215,6 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-            <!--dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-aop</artifactId>
-                <version>${spring.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-context-support</artifactId>
-                <version>${spring.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-core</artifactId>
-                <version>${spring.version}</version>
-            </dependency-->
 
 	    <dependency>
 	    	<groupId>com.thoughtworks.xstream</groupId>
@@ -292,23 +266,8 @@
                 <artifactId>jackson-core</artifactId>
                 <version>${jackson.version}</version>
             </dependency>
-	    <!--dependency>
-		<groupId>com.fasterxml.jackson.core</groupId>
-		<artifactId>jackson-databind</artifactId>
-                <version>${jackson.version}</version>
-	    </dependency>
-	    <dependency>
-		<groupId>com.fasterxml.jackson.core</groupId>
-		<artifactId>jackson-annotations</artifactId>
-                <version>${jackson.version}</version>
-	    </dependency>
-            <dependency>
-                <groupId>com.github.pgelinas</groupId>
-                <artifactId>jackson-javax-json</artifactId>
-                <version>${jackson.jsr353.version}</version>
-            </dependency-->
 
-            <dependency>
+            <!--dependency>
                 <groupId>org.antlr</groupId>
                 <artifactId>antlr-runtime</artifactId>
                 <version>${antlr.version}</version>
@@ -318,7 +277,7 @@
                         <artifactId>stringtemplate</artifactId>
                     </exclusion>
                 </exclusions>
-            </dependency>
+            </dependency-->
 
             <!-- Dependencies for logging -->
             <dependency>
@@ -366,12 +325,6 @@
                 <artifactId>cache-api</artifactId>
                 <version>${jcache.version}</version>
             </dependency>
-            <!--dependency>
-                <groupId>org.jsr107.ri</groupId>
-                <artifactId>cache-ri-impl</artifactId>
-                <version>${jcache.ri.version}</version>
-            </dependency-->
-
             <dependency>
                 <groupId>com.hazelcast</groupId>
                 <artifactId>hazelcast-all</artifactId>
@@ -432,19 +385,6 @@
             	<!--scope>provided</scope-->
 	    </dependency>
 
-            <!--dependency>
-                <groupId>org.mockito</groupId>
-                <artifactId>mockito-core</artifactId>
-                <version>${mockito.version}</version>
-                <scope>compile</scope>
-                <exclusions>
-                    <exclusion>
-                        <artifactId>hamcrest-core</artifactId>
-                        <groupId>org.hamcrest</groupId>
-                    </exclusion>
-                </exclusions>
-            </dependency-->
-
         </dependencies>
     </dependencyManagement>
 
@@ -496,12 +436,6 @@
                     <!--<debugForkedProcess>-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=23456</debugForkedProcess>-->
                     <systemPropertyVariables>
                         <env>local</env>
-                        <!--tangosol.pof.config>coherence/pof-config.xml</tangosol.pof.config>
-                        <tangosol.coherence.override>coherence/ccs-test-coherence-override.xml</tangosol.coherence.override>
-                        <tangosol.coherence.cluster>MyTestCluster</tangosol.coherence.cluster>
-                        <tangosol.coherence.wka>localhost</tangosol.coherence.wka>
-                        <tangosol.coherence.ttl>0</tangosol.coherence.ttl>
-                        <logback.configurationFile>env/logback-test.xml</logback.configurationFile-->
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
