@@ -2,7 +2,7 @@ package com.bagri.xdm.cache.hazelcast;
 
 import static com.bagri.xdm.cache.hazelcast.util.HazelcastUtils.getMemberSchemas;
 import static com.bagri.xdm.cache.hazelcast.util.SpringContextHolder.*;
-import static com.bagri.xdm.common.XDMConstants.*;
+import static com.bagri.xdm.common.Constants.*;
 import static com.bagri.xdm.cache.api.CacheConstants.PN_XDM_SYSTEM_POOL;
 import static com.bagri.xdm.cache.api.SchemaRepository.bean_id;
 import static com.bagri.xdm.cache.hazelcast.util.HazelcastUtils.*;
@@ -49,9 +49,9 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.Member;
 
-public class XDMCacheServer {
+public class BagriCacheServer {
 
-    private static final transient Logger logger = LoggerFactory.getLogger(XDMCacheServer.class);
+    private static final transient Logger logger = LoggerFactory.getLogger(BagriCacheServer.class);
     private static ApplicationContext context;
     
 	public static void main(String[] args) {

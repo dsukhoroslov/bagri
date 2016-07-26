@@ -2,10 +2,10 @@ package com.bagri.xdm.cache.hazelcast.management;
 
 import static com.bagri.xdm.cache.api.CacheConstants.PN_XDM_SCHEMA_POOL;
 import static com.bagri.xdm.cache.api.SchemaRepository.bean_id;
-import static com.bagri.xdm.common.XDMConstants.xdm_schema_store_enabled;
-import static com.bagri.xdm.common.XDMConstants.xdm_schema_store_type;
-import static com.bagri.xdm.common.XDMConstants.xs_ns;
-import static com.bagri.xdm.common.XDMConstants.xs_prefix;
+import static com.bagri.xdm.common.Constants.xdm_schema_store_enabled;
+import static com.bagri.xdm.common.Constants.xdm_schema_store_type;
+import static com.bagri.xdm.common.Constants.xs_ns;
+import static com.bagri.xdm.common.Constants.xs_prefix;
 
 import java.io.IOException;
 import java.util.Date;

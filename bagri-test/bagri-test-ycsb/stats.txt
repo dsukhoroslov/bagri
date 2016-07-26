@@ -702,3 +702,65 @@ Bagri RW:
 [READ-FAILED], MaxLatency(us), 747007.0
 [READ-FAILED], 95thPercentileLatency(us), 747007.0
 [READ-FAILED], 99thPercentileLatency(us), 747007.0
+
+26/07/2016. Work box (desktop)
+
+Bagri insert
+
+[OVERALL], RunTime(ms), 24476.0
+[OVERALL], Throughput(ops/sec), 817.1269815329302
+[CLEANUP], Operations, 20.0
+[CLEANUP], AverageLatency(us), 5135.35
+[CLEANUP], MinLatency(us), 1184.0
+[CLEANUP], MaxLatency(us), 11927.0
+[CLEANUP], 95thPercentileLatency(us), 9823.0
+[CLEANUP], 99thPercentileLatency(us), 11927.0
+[INSERT], Operations, 20000.0
+[INSERT], AverageLatency(us), 23236.6312
+[INSERT], MinLatency(us), 2278.0
+[INSERT], MaxLatency(us), 781311.0
+[INSERT], 95thPercentileLatency(us), 65375.0
+[INSERT], 99thPercentileLatency(us), 128255.0
+[INSERT], Return=OK, 20000
+YCSB Client 0.1
+Command line: -threads 50 -P bagri-workloada
+
+Bagri RW
+
+[OVERALL], RunTime(ms), 43470.0
+[OVERALL], Throughput(ops/sec), 2300.4370830457788
+[READ], Operations, 95067.0
+[READ], AverageLatency(us), 18941.796511933688
+[READ], MinLatency(us), 649.0
+[READ], MaxLatency(us), 334591.0
+[READ], 95thPercentileLatency(us), 35167.0
+[READ], 99thPercentileLatency(us), 75903.0
+[READ], Return=OK, 95067
+[READ], Return=NOT_FOUND, 2
+[UPDATE-FAILED], Operations, 4.0
+[UPDATE-FAILED], AverageLatency(us), 79748.0
+[UPDATE-FAILED], MinLatency(us), 53472.0
+[UPDATE-FAILED], MaxLatency(us), 99711.0
+[UPDATE-FAILED], 95thPercentileLatency(us), 99711.0
+[UPDATE-FAILED], 99thPercentileLatency(us), 99711.0
+[CLEANUP], Operations, 50.0
+[CLEANUP], AverageLatency(us), 3786.64
+[CLEANUP], MinLatency(us), 1256.0
+[CLEANUP], MaxLatency(us), 12607.0
+[CLEANUP], 95thPercentileLatency(us), 7815.0
+[CLEANUP], 99thPercentileLatency(us), 12607.0
+[UPDATE], Operations, 4927.0
+[UPDATE], AverageLatency(us), 55799.44550436371
+[UPDATE], MinLatency(us), 5152.0
+[UPDATE], MaxLatency(us), 1179647.0
+[UPDATE], 95thPercentileLatency(us), 108671.0
+[UPDATE], 99thPercentileLatency(us), 253055.0
+[UPDATE], Return=OK, 4927
+[UPDATE], Return=ERROR, 4
+[READ-FAILED], Operations, 2.0
+[READ-FAILED], AverageLatency(us), 62776.0
+[READ-FAILED], MinLatency(us), 53248.0
+[READ-FAILED], MaxLatency(us), 72319.0
+[READ-FAILED], 95thPercentileLatency(us), 72319.0
+[READ-FAILED], 99thPercentileLatency(us), 72319.0
+

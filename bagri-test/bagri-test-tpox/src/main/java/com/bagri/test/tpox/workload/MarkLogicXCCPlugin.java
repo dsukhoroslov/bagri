@@ -1,6 +1,6 @@
 package com.bagri.test.tpox.workload;
 
-import static com.bagri.xdm.common.XDMConstants.*;
+import static com.bagri.xdm.common.Constants.*;
 
 import java.sql.SQLException;
 import java.util.Map;

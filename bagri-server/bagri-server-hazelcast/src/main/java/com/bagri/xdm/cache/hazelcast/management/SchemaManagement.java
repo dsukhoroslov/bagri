@@ -42,7 +42,7 @@ import com.hazelcast.core.MembershipEvent;
 import com.hazelcast.core.MembershipListener;
 
 import static com.bagri.xdm.cache.hazelcast.util.HazelcastUtils.getMemberSchemas;
-import static com.bagri.xdm.common.XDMConstants.*;
+import static com.bagri.xdm.common.Constants.*;
 
 @ManagedResource(objectName="com.bagri.xdm:type=Management,name=SchemaManagement", 
 	description="Schema Management MBean")

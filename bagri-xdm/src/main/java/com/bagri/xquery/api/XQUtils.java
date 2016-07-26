@@ -1,7 +1,7 @@
 package com.bagri.xquery.api;
 
-import static com.bagri.xdm.common.XDMConstants.xs_ns;
-import static com.bagri.xdm.common.XDMConstants.xs_prefix;
+import static com.bagri.xdm.common.Constants.xs_ns;
+import static com.bagri.xdm.common.Constants.xs_prefix;
 import static javax.xml.xquery.XQItemType.XQBASETYPE_ANYATOMICTYPE;
 import static javax.xml.xquery.XQItemType.XQBASETYPE_ANYSIMPLETYPE;
 import static javax.xml.xquery.XQItemType.XQBASETYPE_ANYTYPE;

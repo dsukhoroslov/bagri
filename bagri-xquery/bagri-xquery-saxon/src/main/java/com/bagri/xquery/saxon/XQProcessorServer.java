@@ -20,7 +20,7 @@ import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.impl.ResultCursorBase;
 import com.bagri.xdm.api.SchemaRepository;
 import com.bagri.xdm.cache.api.QueryManagement;
-import com.bagri.xdm.common.XDMConstants;
+import com.bagri.xdm.common.Constants;
 import com.bagri.xdm.domain.Document;
 import com.bagri.xdm.domain.Query;
 import com.bagri.xdm.query.QueryBuilder;
@@ -134,7 +134,7 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 		        			xqExp.getExpression().getExpressionName());
 		        }
 	    	    // HOWTO: distinguish a query from command utilizing external function (store, remove)?
-		        readOnly = !xqExp.getExpression().getExpressionName().startsWith(XDMConstants.bg_schema);
+		        readOnly = !xqExp.getExpression().getExpressionName().startsWith(Constants.bg_schema);
 	        	queries.put(qKey, xqExp);
         	} 
    	    	
@@ -193,20 +193,15 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 	}
     
 	@Override
-    public Iterator<Object> executeXQuery(String query, XQStaticContext ctx) throws XQException {
-        setStaticContext(sqc, ctx);
-        return execQuery(query);
-    }
-    
-	@Override
     public Iterator<Object> executeXQuery(String query, Properties props) throws XQException {
 		setStaticContext(sqc, props);
         return execQuery(query);
 	}
 	
 	@Override
-    public ResultCursor processXQuery(String query, XQStaticContext ctx) throws XQException {
-   		throw new XQException("Not implemented on the server side. Use method executeXQuery instead");
+    public ResultCursor executeXQuery(String query, XQStaticContext ctx) throws XQException {
+		// implement it? what for..?
+   		throw new XQException("Not implemented on the server side. Use another executeXQuery method taking Properties as a parameter instead");
     }
     
 	@Override

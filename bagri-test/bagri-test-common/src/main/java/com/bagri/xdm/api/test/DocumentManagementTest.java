@@ -8,7 +8,7 @@ import org.junit.Test;
 
 import com.bagri.xdm.domain.Document;
 
-public abstract class DocumentManagementTest extends XDMManagementTest {
+public abstract class DocumentManagementTest extends BagriManagementTest {
 
 	@Test
 	public void createSecurityTest() throws Exception {

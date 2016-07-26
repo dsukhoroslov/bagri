@@ -24,7 +24,7 @@ public class BagriApplicationTypeProvider extends MainClassApplicationTypeFactor
 	
     @Override
     public ApplicationType createApplicationTypeFor(Application app, Jvm jvm, String mainClass) {
-        if ("com.bagri.xdm.cache.hazelcast.XDMCacheServer".equals(mainClass)) {
+        if ("com.bagri.xdm.cache.hazelcast.BagriCacheServer".equals(mainClass)) {
         	String role = jvm.getSystemProperties().getProperty("xdm.cluster.node.role", "");
         	boolean isAdmin = "admin".equalsIgnoreCase(role);
         	if (isAdmin) {

@@ -2,10 +2,10 @@ package com.bagri.xdm.cache.hazelcast.impl;
 
 import static com.bagri.common.util.FileUtils.def_encoding;
 import static com.bagri.common.util.XMLUtils.*;
-import static com.bagri.xdm.common.XDMConstants.*;
+import static com.bagri.xdm.common.Constants.*;
 import static com.bagri.xdm.api.TransactionManagement.TX_NO;
 import static com.bagri.xdm.cache.api.CacheConstants.PN_XDM_SCHEMA_POOL;
-import static com.bagri.xdm.common.XDMConstants.pn_client_txTimeout;
+import static com.bagri.xdm.common.Constants.pn_client_txTimeout;
 import static com.bagri.xdm.domain.Document.dvFirst;
 import static com.bagri.xdm.query.PathBuilder.*;
 import static com.bagri.xdm.domain.Document.clnDefault;

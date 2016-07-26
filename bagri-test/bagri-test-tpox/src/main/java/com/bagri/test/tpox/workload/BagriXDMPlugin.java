@@ -1,12 +1,12 @@
 package com.bagri.test.tpox.workload;
 
-import static com.bagri.xdm.common.XDMConstants.pn_client_bufferSize;
-import static com.bagri.xdm.common.XDMConstants.pn_client_connectAttempts;
-import static com.bagri.xdm.common.XDMConstants.pn_client_loginTimeout;
-import static com.bagri.xdm.common.XDMConstants.pn_schema_address;
-import static com.bagri.xdm.common.XDMConstants.pn_schema_name;
-import static com.bagri.xdm.common.XDMConstants.pn_schema_password;
-import static com.bagri.xdm.common.XDMConstants.pn_schema_user;
+import static com.bagri.xdm.common.Constants.pn_client_bufferSize;
+import static com.bagri.xdm.common.Constants.pn_client_connectAttempts;
+import static com.bagri.xdm.common.Constants.pn_client_loginTimeout;
+import static com.bagri.xdm.common.Constants.pn_schema_address;
+import static com.bagri.xdm.common.Constants.pn_schema_name;
+import static com.bagri.xdm.common.Constants.pn_schema_password;
+import static com.bagri.xdm.common.Constants.pn_schema_user;
 import static com.bagri.xqj.BagriXQDataSource.ADDRESS;
 import static com.bagri.xqj.BagriXQDataSource.PASSWORD;
 import static com.bagri.xqj.BagriXQDataSource.SCHEMA;

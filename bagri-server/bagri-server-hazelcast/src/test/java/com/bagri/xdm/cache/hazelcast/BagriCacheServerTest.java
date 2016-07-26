@@ -1,6 +1,6 @@
 package com.bagri.xdm.cache.hazelcast;
 
-import static com.bagri.xdm.common.XDMConstants.*;
+import static com.bagri.xdm.common.Constants.*;
 import static org.junit.Assert.*;
 
 import java.util.HashMap;
@@ -14,7 +14,7 @@ import javax.management.remote.JMXServiceURL;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class XDMCacheServerTest {
+public class BagriCacheServerTest {
 	
 	private static String url = "service:jmx:rmi://localhost/jndi/rmi://localhost:3330/jmxrmi";
 	private static String user = "admin";
@@ -39,7 +39,7 @@ public class XDMCacheServerTest {
 		System.setProperty(xdm_config_filename, "config.xml");
 		System.setProperty(xdm_config_context_file, adminCtx);
 		System.setProperty(xdm_config_properties_file, "admin.properties");
-		XDMCacheServer.main(null);
+		BagriCacheServer.main(null);
 	}
 
 	@Test

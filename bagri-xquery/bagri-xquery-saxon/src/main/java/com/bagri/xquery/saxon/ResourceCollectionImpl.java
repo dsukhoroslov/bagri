@@ -1,8 +1,8 @@
 package com.bagri.xquery.saxon;
 
 import static com.bagri.common.util.FileUtils.def_encoding;
-import static com.bagri.xdm.common.XDMConstants.bg_schema;
-import static com.bagri.xdm.common.XDMConstants.mt_json;
+import static com.bagri.xdm.common.Constants.bg_schema;
+import static com.bagri.xdm.common.Constants.mt_json;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;

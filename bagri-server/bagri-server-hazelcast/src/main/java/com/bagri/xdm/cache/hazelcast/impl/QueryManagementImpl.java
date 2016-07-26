@@ -1,10 +1,10 @@
 package com.bagri.xdm.cache.hazelcast.impl;
 
-import static com.bagri.xdm.common.XDMConstants.pn_client_fetchSize;
-import static com.bagri.xdm.common.XDMConstants.pn_client_id;
-import static com.bagri.xdm.common.XDMConstants.pn_query_command;
-import static com.bagri.xdm.common.XDMConstants.pn_scrollability;
-import static com.bagri.xdm.common.XDMConstants.xdm_schema_fetchSize;
+import static com.bagri.xdm.common.Constants.pn_client_fetchSize;
+import static com.bagri.xdm.common.Constants.pn_client_id;
+import static com.bagri.xdm.common.Constants.pn_query_command;
+import static com.bagri.xdm.common.Constants.pn_scrollability;
+import static com.bagri.xdm.common.Constants.xdm_schema_fetchSize;
 import static com.bagri.xquery.api.XQUtils.getAtomicValue;
 import static com.bagri.xquery.api.XQUtils.isStringTypeCompatible;
 
@@ -680,7 +680,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		return iter;
 	}
 	
-	private ResultCursorBase createCursor(List<Object> results, Iterator<Object> iter, Properties props) {
+	private ResultCursor createCursor(List<Object> results, Iterator<Object> iter, Properties props) {
 		int count = 0;
 		final ResultCursorBase xqCursor;
 

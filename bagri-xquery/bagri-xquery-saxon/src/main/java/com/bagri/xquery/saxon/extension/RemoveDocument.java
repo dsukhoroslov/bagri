@@ -1,6 +1,6 @@
 package com.bagri.xquery.saxon.extension;
 
-import static com.bagri.xdm.common.XDMConstants.cmd_remove_document;
+import static com.bagri.xdm.common.Constants.cmd_remove_document;
 
 import net.sf.saxon.expr.XPathContext;
 import net.sf.saxon.lib.ExtensionFunctionCall;

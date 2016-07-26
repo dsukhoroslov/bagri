@@ -1,9 +1,9 @@
 package com.bagri.xdm.cache.hazelcast.store;
 
 import static com.bagri.common.util.FileUtils.buildStoreFileName;
-import static com.bagri.xdm.common.XDMConstants.xdm_schema_name;
-import static com.bagri.xdm.common.XDMConstants.xdm_schema_store_data_path;
-import static com.bagri.xdm.common.XDMConstants.xdm_schema_store_tx_buffer_size;
+import static com.bagri.xdm.common.Constants.xdm_schema_name;
+import static com.bagri.xdm.common.Constants.xdm_schema_store_data_path;
+import static com.bagri.xdm.common.Constants.xdm_schema_store_tx_buffer_size;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;

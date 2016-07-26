@@ -394,7 +394,7 @@ public class BagriMainPanel extends JPanel implements NotificationListener, Prop
     }
 
     private static boolean pickThisOne(VirtualMachineDescriptor virtualMachineDescriptor) {
-        if ("com.bagri.xdm.cache.hazelcast.XDMCacheServer".equals(virtualMachineDescriptor.displayName())) {
+        if ("com.bagri.xdm.cache.hazelcast.BagriCacheServer".equals(virtualMachineDescriptor.displayName())) {
             return true;
         }
         return false;

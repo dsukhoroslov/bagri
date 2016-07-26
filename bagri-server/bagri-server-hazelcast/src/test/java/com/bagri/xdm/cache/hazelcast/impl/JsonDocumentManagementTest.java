@@ -1,9 +1,9 @@
 package com.bagri.xdm.cache.hazelcast.impl;
 
-import static com.bagri.xdm.common.XDMConstants.xdm_config_path;
-import static com.bagri.xdm.common.XDMConstants.xdm_config_properties_file;
-import static com.bagri.xdm.common.XDMConstants.xdm_document_data_format;
-import static com.bagri.xdm.common.XDMConstants.xdm_schema_format_default;
+import static com.bagri.xdm.common.Constants.xdm_config_path;
+import static com.bagri.xdm.common.Constants.xdm_config_properties_file;
+import static com.bagri.xdm.common.Constants.xdm_document_data_format;
+import static com.bagri.xdm.common.Constants.xdm_schema_format_default;
 
 import java.util.ArrayList;
 import java.util.Properties;

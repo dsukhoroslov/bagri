@@ -1,7 +1,7 @@
 package com.bagri.xdm.client.hazelcast.impl;
 
 import static com.bagri.xdm.cache.api.CacheConstants.CN_XDM_CLIENT;
-import static com.bagri.xdm.common.XDMConstants.*;
+import static com.bagri.xdm.common.Constants.*;
 
 import java.io.InputStream;
 import java.util.Arrays;

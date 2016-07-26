@@ -1,7 +1,7 @@
 package com.bagri.xquery.saxon.extension;
 
-import static com.bagri.xdm.common.XDMConstants.bg_ns;
-import static com.bagri.xdm.common.XDMConstants.bg_schema;
+import static com.bagri.xdm.common.Constants.bg_ns;
+import static com.bagri.xdm.common.Constants.bg_schema;
 
 import java.util.Properties;
 

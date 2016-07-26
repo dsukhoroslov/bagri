@@ -343,13 +343,11 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 		}
 	}
 
-	@SuppressWarnings("rawtypes")
 	ResultCursor executeQuery(String query) throws XQException {
 		
-		return executeQuery(query, context); //this.getStaticContext());
+		return executeQuery(query, context); 
 	}
 	
-	@SuppressWarnings("rawtypes")
 	ResultCursor executeQuery(final String query, final XQStaticContext ctx) throws XQException {
 		
 		checkState(ex_connection_closed);
@@ -358,9 +356,9 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 		try {
 			if (transactional) {
 				try {
-					executeInTransaction(new Callable<Iterator>() {
+					executeInTransaction(new Callable<ResultCursor>() {
 						@Override
-				    	public Iterator call() throws XQException {
+				    	public ResultCursor call() throws XQException {
 							return getProcessor().executeXQuery(query, ctx);
 				    	}
 					});
@@ -368,7 +366,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 		    		throw getXQException(ex);
 				}
 			} else {
-				result = getProcessor().processXQuery(query, ctx);
+				result = getProcessor().executeXQuery(query, ctx);
 			}
 		} finally {
 			if (cancelled) {

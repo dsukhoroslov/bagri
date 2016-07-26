@@ -1,7 +1,7 @@
 package com.bagri.xdm.cache.hazelcast;
 
 import static com.bagri.xdm.cache.api.CacheConstants.PN_XDM_SYSTEM_POOL;
-import static com.bagri.xdm.common.XDMConstants.xdm_cluster_node_role;
+import static com.bagri.xdm.common.Constants.xdm_cluster_node_role;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -19,9 +19,9 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.Member;
 
-public class XDMCacheStopper {
+public class BagriCacheStopper {
 
-    private static final transient Logger logger = LoggerFactory.getLogger(XDMCacheStopper.class);
+    private static final transient Logger logger = LoggerFactory.getLogger(BagriCacheStopper.class);
 
 	public static void main(String[] args) {
 

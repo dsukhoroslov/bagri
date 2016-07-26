@@ -1,10 +1,10 @@
 package com.bagri.samples.client.xdm;
 
-import static com.bagri.xdm.common.XDMConstants.pn_client_dataFactory;
-import static com.bagri.xdm.common.XDMConstants.pn_schema_address;
-import static com.bagri.xdm.common.XDMConstants.pn_schema_name;
-import static com.bagri.xdm.common.XDMConstants.pn_schema_password;
-import static com.bagri.xdm.common.XDMConstants.pn_schema_user;
+import static com.bagri.xdm.common.Constants.pn_client_dataFactory;
+import static com.bagri.xdm.common.Constants.pn_schema_address;
+import static com.bagri.xdm.common.Constants.pn_schema_name;
+import static com.bagri.xdm.common.Constants.pn_schema_password;
+import static com.bagri.xdm.common.Constants.pn_schema_user;
 
 import java.util.Iterator;
 import java.util.Properties;

@@ -2,7 +2,7 @@ package com.bagri.xdm.cache.hazelcast.impl;
 
 import static com.bagri.xdm.cache.hazelcast.util.HazelcastUtils.hasStorageMembers;
 import static com.bagri.xdm.cache.hazelcast.util.HazelcastUtils.hz_instance;
-import static com.bagri.xdm.common.XDMConstants.xdm_schema_format_default;
+import static com.bagri.xdm.common.Constants.xdm_schema_format_default;
 import static com.hazelcast.core.Hazelcast.getHazelcastInstanceByName;
 
 import java.util.ArrayList;

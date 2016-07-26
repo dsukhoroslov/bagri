@@ -45,7 +45,7 @@ import com.bagri.xdm.domain.Namespace;
 import com.bagri.xdm.domain.NodeKind;
 import com.bagri.xdm.domain.Path;
 
-import static com.bagri.xdm.common.XDMConstants.xs_ns;
+import static com.bagri.xdm.common.Constants.xs_ns;
 import static com.bagri.xquery.api.XQUtils.getBaseTypeForTypeName;
 
 /**

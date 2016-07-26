@@ -1,6 +1,6 @@
 package com.bagri.xdm.cache.hazelcast.impl;
 
-import static com.bagri.xdm.common.XDMConstants.*;
+import static com.bagri.xdm.common.Constants.*;
 import static org.junit.Assert.*;
 
 import java.util.HashMap;
@@ -19,11 +19,11 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.bagri.xdm.api.ResultCursor;
 import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.api.test.XDMManagementTest;
+import com.bagri.xdm.api.test.BagriManagementTest;
 import com.bagri.xdm.client.hazelcast.impl.QueuedCursorImpl;
 import com.bagri.xdm.system.Schema;
 
-public class ResultCursorTest extends XDMManagementTest {
+public class ResultCursorTest extends BagriManagementTest {
 	
     private static ClassPathXmlApplicationContext context;
 

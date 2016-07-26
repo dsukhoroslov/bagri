@@ -18,7 +18,7 @@ import com.bagri.xdm.api.TransactionManagement;
 import com.bagri.xdm.domain.Document;
 import com.bagri.xdm.system.Schema;
 
-public abstract class XDMManagementTest {
+public abstract class BagriManagementTest {
 
 	protected static String sampleRoot;
 	protected SchemaRepository xRepo;

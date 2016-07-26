@@ -1,7 +1,7 @@
 package com.bagri.xdm.system;
 
-import static com.bagri.xdm.common.XDMConstants.xs_ns;
-import static com.bagri.xdm.common.XDMConstants.xs_prefix;
+import static com.bagri.xdm.common.Constants.xs_ns;
+import static com.bagri.xdm.common.Constants.xs_prefix;
 import static org.junit.Assert.*;
 
 import java.io.File;

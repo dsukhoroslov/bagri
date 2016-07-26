@@ -1,10 +1,10 @@
 package com.bagri.samples.client.xqj;
 
-import static com.bagri.xdm.common.XDMConstants.xdm_document_data_format;
-import static com.bagri.xdm.common.XDMConstants.pn_schema_address;
-import static com.bagri.xdm.common.XDMConstants.pn_schema_name;
-import static com.bagri.xdm.common.XDMConstants.pn_schema_password;
-import static com.bagri.xdm.common.XDMConstants.pn_schema_user;
+import static com.bagri.xdm.common.Constants.xdm_document_data_format;
+import static com.bagri.xdm.common.Constants.pn_schema_address;
+import static com.bagri.xdm.common.Constants.pn_schema_name;
+import static com.bagri.xdm.common.Constants.pn_schema_password;
+import static com.bagri.xdm.common.Constants.pn_schema_user;
 import static com.bagri.xqj.BagriXQDataSource.ADDRESS;
 import static com.bagri.xqj.BagriXQDataSource.PASSWORD;
 import static com.bagri.xqj.BagriXQDataSource.SCHEMA;

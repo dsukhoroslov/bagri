@@ -1,10 +1,10 @@
 package com.bagri.xquery.saxon;
 
-import static com.bagri.xdm.common.XDMConstants.cmd_get_document;
-import static com.bagri.xdm.common.XDMConstants.cmd_remove_cln_documents;
-import static com.bagri.xdm.common.XDMConstants.cmd_remove_document;
-import static com.bagri.xdm.common.XDMConstants.cmd_store_document;
-import static com.bagri.xdm.common.XDMConstants.pn_query_command;
+import static com.bagri.xdm.common.Constants.cmd_get_document;
+import static com.bagri.xdm.common.Constants.cmd_remove_cln_documents;
+import static com.bagri.xdm.common.Constants.cmd_remove_document;
+import static com.bagri.xdm.common.Constants.cmd_store_document;
+import static com.bagri.xdm.common.Constants.pn_query_command;
 import static com.bagri.xquery.api.XQUtils.getXQException;
 import static com.bagri.xquery.saxon.SaxonUtils.itemToXQItem;
 
@@ -82,19 +82,13 @@ public class XQProcessorClient extends XQProcessorImpl implements XQProcessor {
 	}
 
 	@Override
-	public Iterator<Object> executeXQuery(String query, XQStaticContext ctx) throws XQException {
-
-		return executeXQuery(query, collectProperties(ctx));
-	}
-
-	@Override
 	public Iterator<Object> executeXQuery(String query, Properties props) throws XQException {
-   		throw new XQException("Not implemented on the client side. Use method processXQuery instead");
+		// implement it? what for..?
+   		throw new XQException("Not implemented on the client side. Use another executeXQuery method taking XQStaticContext as a parameter instead");
 	}
 
 	@Override
-	public ResultCursor processXQuery(String query, XQStaticContext ctx) throws XQException {
-
+	public ResultCursor executeXQuery(String query, XQStaticContext ctx) throws XQException {
 		Properties props = collectProperties(ctx);
 		props = ensureProperty(props, pn_query_command, "false");
     	try {

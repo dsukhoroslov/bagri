@@ -1,7 +1,7 @@
 package com.bagri.xdm.cache.hazelcast.impl;
 
-import static com.bagri.xdm.common.XDMConstants.pn_schema_user;
-import static com.bagri.xdm.common.XDMConstants.pn_client_memberId;
+import static com.bagri.xdm.common.Constants.pn_schema_user;
+import static com.bagri.xdm.common.Constants.pn_client_memberId;
 
 import java.util.Properties;
 import java.util.Set;

@@ -1,4 +1,4 @@
-package com.bagri.common;
+package com.bagri.xdm.common;
 
 /**
  * The key constructed from two Strings

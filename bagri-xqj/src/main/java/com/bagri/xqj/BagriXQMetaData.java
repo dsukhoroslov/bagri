@@ -1,6 +1,6 @@
 package com.bagri.xqj;
 
-import static com.bagri.xdm.common.XDMConstants.*;
+import static com.bagri.xdm.common.Constants.*;
 import static com.bagri.xqj.BagriXQErrors.ex_connection_closed;
 
 import java.nio.charset.Charset;
@@ -68,7 +68,7 @@ public class BagriXQMetaData implements XQMetaData { //, XQMetaData2 {
 	public String getProductVersion() throws XQException {
 		connect.checkState(ex_connection_closed);
 		// TODO: use some global constant for this
-		return "0.8.1";
+		return "0.9.1";
 	}
 
 	@Override

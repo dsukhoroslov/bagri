@@ -1,6 +1,6 @@
 package com.bagri.xdm.cache.hazelcast.management;
 
-import static com.bagri.xdm.common.XDMConstants.xdm_cluster_login;
+import static com.bagri.xdm.common.Constants.xdm_cluster_login;
 
 import java.util.ArrayList;
 import java.util.Collection;

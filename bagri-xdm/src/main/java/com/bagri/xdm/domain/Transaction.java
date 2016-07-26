@@ -4,10 +4,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.bagri.common.Convertable;
 import com.bagri.common.util.DateUtils;
 import com.bagri.xdm.api.TransactionIsolation;
 import com.bagri.xdm.api.TransactionState;
+import com.bagri.xdm.common.Convertable;
 
 /**
  * Represents cached transaction record

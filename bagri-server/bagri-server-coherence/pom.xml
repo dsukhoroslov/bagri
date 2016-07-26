@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.bagri.db</groupId>
         <artifactId>bagri-server</artifactId>
-        <version>0.8.1-SNAPSHOT</version>
+        <version>0.9.1-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
 
@@ -133,7 +133,7 @@
                                 <configuration>
                                     <tasks if="run-cache">
                                         <java fork="true" classname="com.tangosol.net.DefaultCacheServer">
-                                            <!--java fork="true" classname="com.bagri.xdm.cache.XDMCacheServer"-->
+                                            <!--java fork="true" classname="com.bagri.xdm.cache.BagriCacheServer"-->
                                             <jvmarg line="${run.jvm.args}"/>
                                             <sysproperty key="node.logdir" value="./logs/"/>
                                             <sysproperty key="tangosol.coherence.override"

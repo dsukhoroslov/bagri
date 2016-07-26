@@ -3,7 +3,7 @@
  */
 package com.bagri.test.tpox.workload;
 
-import static com.bagri.xdm.common.XDMConstants.pn_client_fetchSize;
+import static com.bagri.xdm.common.Constants.pn_client_fetchSize;
 
 import java.sql.Connection;
 import java.sql.SQLException;

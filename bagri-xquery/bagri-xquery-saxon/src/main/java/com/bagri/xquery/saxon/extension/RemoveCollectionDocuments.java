@@ -1,6 +1,6 @@
 package com.bagri.xquery.saxon.extension;
 
-import static com.bagri.xdm.common.XDMConstants.cmd_remove_cln_documents;
+import static com.bagri.xdm.common.Constants.cmd_remove_cln_documents;
 
 import com.bagri.xdm.api.DocumentManagement;
 import com.bagri.xdm.api.XDMException;

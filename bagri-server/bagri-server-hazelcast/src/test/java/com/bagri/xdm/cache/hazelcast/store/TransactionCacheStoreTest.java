@@ -1,9 +1,9 @@
 package com.bagri.xdm.cache.hazelcast.store;
 
-import static com.bagri.xdm.common.XDMConstants.xdm_config_path;
-import static com.bagri.xdm.common.XDMConstants.xdm_config_properties_file;
-import static com.bagri.xdm.common.XDMConstants.xdm_node_instance;
-import static com.bagri.xdm.common.XDMConstants.xdm_schema_store_data_path;
+import static com.bagri.xdm.common.Constants.xdm_config_path;
+import static com.bagri.xdm.common.Constants.xdm_config_properties_file;
+import static com.bagri.xdm.common.Constants.xdm_node_instance;
+import static com.bagri.xdm.common.Constants.xdm_schema_store_data_path;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -23,7 +23,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import com.bagri.common.util.FileUtils;
 import com.bagri.common.util.PropUtils;
 import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.api.test.XDMManagementTest;
+import com.bagri.xdm.api.test.BagriManagementTest;
 import com.bagri.xdm.cache.api.ModelManagement;
 import com.bagri.xdm.cache.api.QueryManagement;
 import com.bagri.xdm.cache.api.SchemaRepository;
@@ -35,7 +35,7 @@ import com.bagri.xdm.query.ExpressionContainer;
 import com.bagri.xdm.query.PathBuilder;
 import com.bagri.xdm.system.Schema;
 
-public class TransactionCacheStoreTest extends XDMManagementTest {
+public class TransactionCacheStoreTest extends BagriManagementTest {
 
     private static ClassPathXmlApplicationContext context;
     private static String txFileName;

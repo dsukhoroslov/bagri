@@ -285,7 +285,7 @@
 	</bean>
 	<bean id="clientStats" class="com.bagri.common.stats.StatisticsCollector">
 		<constructor-arg value="com.bagri.xdm.cache.hazelcast.stats.InvocationStatistics" />
-		<constructor-arg value="clients" />
+		<constructor-arg value="xdm.statistics.${xdm.schema.name}.clients" />
 		<property name="statsQueue" ref="clientQueue"/>
 	</bean>
 
@@ -294,7 +294,7 @@
 	</bean>
 	<bean id="docStats" class="com.bagri.xdm.cache.hazelcast.stats.DocumentStatsCollector">
 		<constructor-arg value="com.bagri.xdm.cache.hazelcast.stats.DocumentStatistics" />
-		<constructor-arg value="docs" />
+		<constructor-arg value="xdm.statistics.${xdm.schema.name}.docs" />
 		<property name="statsQueue" ref="docQueue"/>
 	</bean>
 
@@ -303,7 +303,7 @@
 	</bean>
 	<bean id="queryStats" class="com.bagri.common.stats.StatisticsCollector">
 		<constructor-arg value="com.bagri.xdm.cache.hazelcast.stats.InvocationStatistics" />
-		<constructor-arg value="query" />
+		<constructor-arg value="xdm.statistics.${xdm.schema.name}.query" />
 		<property name="statsQueue" ref="queryQueue"/>
 	</bean>
 	
@@ -312,7 +312,7 @@
 	</bean>
 	<bean id="indexStats" class="com.bagri.common.stats.StatisticsCollector">
 		<constructor-arg value="com.bagri.xdm.cache.hazelcast.stats.IndexStatistics" />
-		<constructor-arg value="index" />
+		<constructor-arg value="xdm.statistics.${xdm.schema.name}.index" />
 		<property name="statsQueue" ref="indexQueue"/>
 	</bean>
 
@@ -321,7 +321,7 @@
 	</bean>
 	<bean id="queryCacheStats" class="com.bagri.common.stats.StatisticsCollector">
 		<constructor-arg value="com.bagri.xdm.cache.hazelcast.stats.QueryStatistics" />
-		<constructor-arg value="queryCache" />
+		<constructor-arg value="xdm.statistics.${xdm.schema.name}.queryCache" />
 		<property name="statsQueue" ref="queryCacheQueue"/>
 	</bean>
 
@@ -330,7 +330,7 @@
 	</bean>
 	<bean id="triggerStats" class="com.bagri.common.stats.StatisticsCollector">
 		<constructor-arg value="com.bagri.xdm.cache.hazelcast.stats.UsageStatistics" />
-		<constructor-arg value="trigger" />
+		<constructor-arg value="xdm.statistics.${xdm.schema.name}.trigger" />
 		<property name="statsQueue" ref="triggerQueue"/>
 	</bean>
 
@@ -339,11 +339,11 @@
 	</bean>
 
 	<bean id="xqItemSerializer" class="com.bagri.xdm.client.hazelcast.serialize.XQItemSerializer">
-    	<property name="XQDataFactory" ref="xqFactory" />
+		<property name="XQDataFactory" ref="xqFactory" />
 	</bean>
 	
 	<bean id="xqSequenceSerializer" class="com.bagri.xdm.client.hazelcast.serialize.XQSequenceSerializer">
-    	<property name="XQDataFactory" ref="xqFactory" />
+		<property name="XQDataFactory" ref="xqFactory" />
 	</bean>
 
 	<bean id="xqCompiler" class="com.bagri.xquery.saxon.XQCompilerImpl"/>
@@ -398,7 +398,6 @@
 		<property name="documentManager" ref="docManager"/>
 	</bean>
 
-	<!--bean id="mdlManager" class="com.bagri.xdm.client.hazelcast.impl.ModelManagementImpl"-->
 	<bean id="mdlManager" class="com.bagri.xdm.cache.hazelcast.impl.ModelManagementImpl">
 		<property name="namespaceCache" ref="dict-namespace"/>
 		<property name="pathCache" ref="dict-path"/>

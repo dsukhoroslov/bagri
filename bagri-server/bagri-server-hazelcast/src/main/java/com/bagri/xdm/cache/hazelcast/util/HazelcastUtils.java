@@ -1,6 +1,6 @@
 package com.bagri.xdm.cache.hazelcast.util;
 
-import static com.bagri.xdm.common.XDMConstants.xdm_cluster_node_schemas;
+import static com.bagri.xdm.common.Constants.xdm_cluster_node_schemas;
 
 import java.util.Set;
 import org.springframework.context.ApplicationContext;

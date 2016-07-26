@@ -6,7 +6,7 @@ package com.bagri.xdm.common;
  * @author Denis Sukhoroslov
  *
  */
-public class XDMConstants {
+public class Constants {
 
 	// XDM Client configuration constants
 	public static final String pn_schema_address = "xdm.schema.address";

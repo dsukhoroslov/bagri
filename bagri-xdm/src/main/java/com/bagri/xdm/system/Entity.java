@@ -11,8 +11,8 @@ import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
 
-import com.bagri.common.Convertable;
-import com.bagri.common.Versionable;
+import com.bagri.xdm.common.Convertable;
+import com.bagri.xdm.common.Versionable;
 
 /**
  * Represents the basic configurable XDM schema entity. All configuration changes are stored and can be reviewed later on.  

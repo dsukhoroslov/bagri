@@ -1,8 +1,8 @@
 package com.bagri.xdm.cache.hazelcast.impl;
 
 import static com.bagri.common.util.FileUtils.readTextFile;
-import static com.bagri.xdm.common.XDMConstants.xdm_config_path;
-import static com.bagri.xdm.common.XDMConstants.xdm_config_properties_file;
+import static com.bagri.xdm.common.Constants.xdm_config_path;
+import static com.bagri.xdm.common.Constants.xdm_config_properties_file;
 import static org.junit.Assert.*;
 
 import java.util.Collection;
@@ -14,14 +14,14 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import com.bagri.xdm.api.test.XDMManagementTest;
+import com.bagri.xdm.api.test.BagriManagementTest;
 import com.bagri.xdm.cache.api.ModelManagement;
 import com.bagri.xdm.cache.api.SchemaRepository;
 import com.bagri.xdm.cache.hazelcast.impl.SchemaRepositoryImpl;
 import com.bagri.xdm.domain.Path;
 import com.bagri.xdm.system.Schema;
 
-public class ModelManagementImplTest extends XDMManagementTest {
+public class ModelManagementImplTest extends BagriManagementTest {
 	
     private static ClassPathXmlApplicationContext context;
 	

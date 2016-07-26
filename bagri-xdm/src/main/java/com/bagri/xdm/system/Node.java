@@ -1,6 +1,6 @@
 package com.bagri.xdm.system;
 
-import static com.bagri.xdm.common.XDMConstants.xdm_cluster_node_schemas;
+import static com.bagri.xdm.common.Constants.xdm_cluster_node_schemas;
 
 import java.util.Date;
 import java.util.Map;

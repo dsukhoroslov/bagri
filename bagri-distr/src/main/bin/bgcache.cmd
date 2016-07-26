@@ -51,7 +51,7 @@ set java_opts=%java_opts% -Dcom.sun.management.jmxremote
 rem jmx_port=$(( 3333 + $nodeNum ))
 rem set java_opts=%java_opts% -Dcom.sun.management.jmxremote.port=${jmx_port}
 
-"%java_exec%" -server -showversion %java_opts% -cp "%app_home%\config\*;%app_home%\lib\*" com.bagri.xdm.cache.hazelcast.XDMCacheServer %*
+"%java_exec%" -server -showversion %java_opts% -cp "%app_home%\config\*;%app_home%\lib\*" com.bagri.xdm.cache.hazelcast.BagriCacheServer %*
 
 goto exit
 

@@ -3,7 +3,7 @@ package com.bagri.xdm.client.hazelcast.impl;
 import static com.bagri.xdm.cache.api.CacheConstants.CN_XDM_QUERY;
 import static com.bagri.xdm.cache.api.CacheConstants.CN_XDM_RESULT;
 import static com.bagri.xdm.cache.api.CacheConstants.PN_XDM_SCHEMA_POOL;
-import static com.bagri.xdm.common.XDMConstants.*;
+import static com.bagri.xdm.common.Constants.*;
 
 import java.util.ArrayList;
 import java.util.Collection;

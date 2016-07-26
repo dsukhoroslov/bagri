@@ -1,9 +1,9 @@
 package com.bagri.xdm.client.hazelcast.impl;
 
-import static com.bagri.xdm.common.XDMConstants.pn_schema_address;
-import static com.bagri.xdm.common.XDMConstants.pn_schema_name;
-import static com.bagri.xdm.common.XDMConstants.pn_schema_password;
-import static com.bagri.xdm.common.XDMConstants.pn_schema_user;
+import static com.bagri.xdm.common.Constants.pn_schema_address;
+import static com.bagri.xdm.common.Constants.pn_schema_name;
+import static com.bagri.xdm.common.Constants.pn_schema_password;
+import static com.bagri.xdm.common.Constants.pn_schema_user;
 
 import org.junit.After;
 import org.junit.AfterClass;

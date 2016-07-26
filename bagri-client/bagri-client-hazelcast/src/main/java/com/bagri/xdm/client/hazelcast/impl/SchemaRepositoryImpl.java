@@ -1,7 +1,7 @@
 package com.bagri.xdm.client.hazelcast.impl;
 
 import static com.bagri.common.util.PropUtils.setProperty;
-import static com.bagri.xdm.common.XDMConstants.*;
+import static com.bagri.xdm.common.Constants.*;
 
 import java.util.Properties;
 import java.util.UUID;

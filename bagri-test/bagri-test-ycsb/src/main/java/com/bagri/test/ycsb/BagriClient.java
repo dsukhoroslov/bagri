@@ -1,6 +1,6 @@
 package com.bagri.test.ycsb;
 
-import static com.bagri.xdm.common.XDMConstants.*;
+import static com.bagri.xdm.common.Constants.*;
 
 import java.util.HashMap;
 import java.util.Map;

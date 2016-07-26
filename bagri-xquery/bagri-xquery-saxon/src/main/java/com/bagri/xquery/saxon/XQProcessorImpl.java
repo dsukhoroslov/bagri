@@ -1,6 +1,6 @@
 package com.bagri.xquery.saxon;
 
-import static com.bagri.xdm.common.XDMConstants.*;
+import static com.bagri.xdm.common.Constants.*;
 import static com.bagri.xquery.saxon.SaxonUtils.*;
 import static javax.xml.xquery.XQConstants.*;
 

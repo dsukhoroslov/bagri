@@ -30,7 +30,7 @@ public class ServerLauncher {
 	            "-Dlogback.configurationFile=hz-logging.xml " +
 				"-cp " + dir + "\\target\\*;" + dir + "\\target\\lib\\*";
 
-		command = "java " + java_opts + " com.bagri.xdm.cache.hazelcast.XDMCacheServer";
+		command = "java " + java_opts + " com.bagri.xdm.cache.hazelcast.BagriCacheServer";
 		home = new File(dir);
 		this.props = props;
 	}

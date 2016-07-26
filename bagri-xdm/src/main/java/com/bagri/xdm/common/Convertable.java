@@ -1,4 +1,4 @@
-package com.bagri.common;
+package com.bagri.xdm.common;
 
 /**
  * An entity that can be converted to some other format

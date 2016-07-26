@@ -1,7 +1,7 @@
 package com.bagri.xdm.cache.hazelcast.impl;
 
 import static com.bagri.xdm.cache.hazelcast.util.HazelcastUtils.hasStorageMembers;
-import static com.bagri.xdm.common.XDMConstants.xdm_access_filename;
+import static com.bagri.xdm.common.Constants.xdm_access_filename;
 
 import java.util.Collection;
 import java.util.HashMap;

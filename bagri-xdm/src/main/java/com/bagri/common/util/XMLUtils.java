@@ -61,8 +61,8 @@ public class XMLUtils {
 	private static final DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();  
 	private static final TransformerFactory transFactory = TransformerFactory.newInstance();  
 	private static final XMLInputFactory xiFactory = XMLInputFactory.newInstance();
-	private static final XStream xStream = new XStream(new DomDriver(def_encoding, new NoNameCoder()));
-	//private static final XStream xStream = new XStream(new StaxDriver(new NoNameCoder()));
+	//private static final XStream xStream = new XStream(new DomDriver(def_encoding, new NoNameCoder()));
+	private static final XStream xStream = new XStream(new StaxDriver(new NoNameCoder()));
 	
 	static {
 		dbFactory.setNamespaceAware(true);
@@ -327,7 +327,8 @@ public class XMLUtils {
 	            Object val = entry.getValue();
 	            if (val != null) {
 	            	types.putIfAbsent(entry.getKey(), val.getClass());
-	                writer.setValue(val.toString());
+	                //writer.setValue(val.toString());
+	            	context.convertAnother(val);
 	            }
 	            writer.endNode();
 	        }
@@ -339,8 +340,9 @@ public class XMLUtils {
 	        while (reader.hasMoreChildren()) {
 	            reader.moveDown();
 	            String key = reader.getNodeName(); 
-	            String val = reader.getValue();
-	            Object value = context.convertAnother(val, types.get(key));
+	            //String val = reader.getValue();
+	            //Object value = context.convertAnother(val, types.get(key));
+	            Object value = context.convertAnother(map, types.get(key));
 	            map.put(key, value);
 	            reader.moveUp();
 	        }

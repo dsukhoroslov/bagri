@@ -1,6 +1,6 @@
 package com.bagri.xdm.cache.hazelcast.impl;
 
-import static com.bagri.xdm.common.XDMConstants.*;
+import static com.bagri.xdm.common.Constants.*;
 import static org.junit.Assert.*;
 
 import java.math.BigDecimal;
@@ -19,7 +19,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.bagri.common.util.JMXUtils;
 import com.bagri.xdm.api.ResultCursor;
-import com.bagri.xdm.api.test.XDMManagementTest;
+import com.bagri.xdm.api.test.BagriManagementTest;
 import com.bagri.xdm.cache.api.ModelManagement;
 import com.bagri.xdm.cache.api.QueryManagement;
 import com.bagri.xdm.cache.api.SchemaRepository;
@@ -31,7 +31,7 @@ import com.bagri.xdm.query.PathBuilder;
 import com.bagri.xdm.system.Schema;
 import com.bagri.xquery.api.XQProcessor;
 
-public class QueryManagementImplTest extends XDMManagementTest {
+public class QueryManagementImplTest extends BagriManagementTest {
 
     private static ClassPathXmlApplicationContext context;
 

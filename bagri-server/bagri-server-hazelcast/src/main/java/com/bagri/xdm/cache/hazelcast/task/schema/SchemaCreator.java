@@ -2,7 +2,7 @@ package com.bagri.xdm.cache.hazelcast.task.schema;
 
 import static com.bagri.common.security.Encryptor.encrypt;
 import static com.bagri.xdm.cache.hazelcast.serialize.DataSerializationFactoryImpl.cli_CreateSchemaTask;
-import static com.bagri.xdm.common.XDMConstants.pn_schema_password;
+import static com.bagri.xdm.common.Constants.pn_schema_password;
 
 import java.io.IOException;
 import java.util.Date;

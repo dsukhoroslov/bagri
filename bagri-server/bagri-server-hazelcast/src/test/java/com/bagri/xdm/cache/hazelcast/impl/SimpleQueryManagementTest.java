@@ -1,8 +1,8 @@
 package com.bagri.xdm.cache.hazelcast.impl;
 
-import static com.bagri.xdm.common.XDMConstants.xdm_config_path;
-import static com.bagri.xdm.common.XDMConstants.xdm_config_properties_file;
-import static com.bagri.xdm.common.XDMConstants.pn_baseURI;
+import static com.bagri.xdm.common.Constants.xdm_config_path;
+import static com.bagri.xdm.common.Constants.xdm_config_properties_file;
+import static com.bagri.xdm.common.Constants.pn_baseURI;
 import static org.junit.Assert.*;
 
 import java.util.Properties;
@@ -15,12 +15,12 @@ import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.bagri.xdm.api.ResultCursor;
-import com.bagri.xdm.api.test.XDMManagementTest;
+import com.bagri.xdm.api.test.BagriManagementTest;
 import com.bagri.xdm.domain.Document;
 import com.bagri.xdm.system.Schema;
 import com.bagri.xquery.api.XQProcessor;
 
-public class SimpleQueryManagementTest extends XDMManagementTest {
+public class SimpleQueryManagementTest extends BagriManagementTest {
 
     private static ClassPathXmlApplicationContext context;
     

@@ -3,7 +3,7 @@
  */
 package com.bagri.xquery.saxon;
 
-import static com.bagri.xdm.common.XDMConstants.bg_schema;
+import static com.bagri.xdm.common.Constants.bg_schema;
 
 import java.io.Reader;
 import java.io.StringReader;

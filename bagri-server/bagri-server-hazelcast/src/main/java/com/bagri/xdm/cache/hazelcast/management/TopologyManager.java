@@ -24,7 +24,7 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 import org.springframework.jmx.export.naming.SelfNaming;
 
 import com.bagri.common.util.JMXUtils;
-import com.bagri.xdm.cache.hazelcast.XDMCacheServer;
+import com.bagri.xdm.cache.hazelcast.BagriCacheServer;
 import com.bagri.xdm.cache.hazelcast.task.node.NodeInfoProvider;
 import com.bagri.xdm.cache.hazelcast.task.node.NodeKiller;
 import com.bagri.xdm.cache.hazelcast.task.node.NodeOptionSetter;
@@ -34,9 +34,9 @@ import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.Member;
 
 import static com.bagri.xdm.cache.hazelcast.util.HazelcastUtils.getMemberSchemas;
-import static com.bagri.xdm.common.XDMConstants.xdm_cluster_login;
-import static com.bagri.xdm.common.XDMConstants.xdm_cluster_node_name;
-import static com.bagri.xdm.common.XDMConstants.xdm_cluster_node_role;
+import static com.bagri.xdm.common.Constants.xdm_cluster_login;
+import static com.bagri.xdm.common.Constants.xdm_cluster_node_name;
+import static com.bagri.xdm.common.Constants.xdm_cluster_node_role;
 
 @ManagedResource(description="Topology Manager MBean")
 public class TopologyManager implements SelfNaming {
@@ -87,7 +87,7 @@ public class TopologyManager implements SelfNaming {
 	@ManagedAttribute(description="Returns active Node version")
 	public String getVersion() {
 		
-		Class clazz = XDMCacheServer.class;
+		Class clazz = BagriCacheServer.class;
 		String className = clazz.getSimpleName() + ".class";
 		String classPath = clazz.getResource(className).toString();
 		if (!classPath.startsWith("jar")) {

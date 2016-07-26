@@ -1,6 +1,6 @@
 package com.bagri.xquery.saxon.extension;
 
-import static com.bagri.xdm.common.XDMConstants.cmd_store_document;
+import static com.bagri.xdm.common.Constants.cmd_store_document;
 
 import java.util.Properties;
 

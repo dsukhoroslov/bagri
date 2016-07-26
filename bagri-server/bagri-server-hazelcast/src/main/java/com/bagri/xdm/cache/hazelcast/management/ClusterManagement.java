@@ -1,6 +1,6 @@
 package com.bagri.xdm.cache.hazelcast.management;
 
-import static com.bagri.xdm.common.XDMConstants.xdm_cluster_node_name;
+import static com.bagri.xdm.common.Constants.xdm_cluster_node_name;
 
 import java.io.IOException;
 import java.util.Properties;

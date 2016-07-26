@@ -72,17 +72,7 @@ public interface XQProcessor {
      * must be bound via <code>bindVariable</code> first. 
      * Returns back {@link Iterator} over query results.
      * 
-     * @param query the plain text query representation
-     * @param ctx the XQJ static context {@link XQStaticContext}
-     * @return an Iterator over query results
-     * @throws XQException in case of query processing error
-     */
-    Iterator<Object> executeXQuery(String query, XQStaticContext ctx) throws XQException;
-    
-    /**
-     * executes XQuery provided. If query contains variables it must be prepared via <code>prepareXQuery</code> and variables 
-     * must be bound via <code>bindVariable</code> first. 
-     * Returns back {@link Iterator} over query results.
+     * NOTE: implemented on the server side only
      * 
      * @param query the plain text query representation
      * @param props Properties containing query processing instructions. Besides standard XQJ properties may contain additional XDM properties: ..
@@ -92,14 +82,18 @@ public interface XQProcessor {
     Iterator<Object> executeXQuery(String query, Properties props) throws XQException;
 
     /**
+     * executes XQuery provided. If query contains variables it must be prepared via <code>prepareXQuery</code> and variables 
+     * must be bound via <code>bindVariable</code> first. 
+     * Returns back {@link ResultCursor} over query results.
      * 
+     * NOTE: implemented on the client side only
      * 
      * @param query the plain text query representation
      * @param ctx the XQJ static context {@link XQStaticContext}
      * @return a cursor over query results
      * @throws XQException in case of query processing error
      */
-    ResultCursor processXQuery(String query, XQStaticContext ctx) throws XQException;
+    ResultCursor executeXQuery(String query, XQStaticContext ctx) throws XQException;
     
     /**
      * bounds variable name with value in internal XQuery processing context

@@ -12,7 +12,7 @@ if "%java_home%"=="" (set java_exec=java) else (set java_exec=%java_home%\bin\ja
 if "%1"=="" goto usage
 if "%2"=="" goto usage
 
-"%java_exec%" -cp "%app_home%\lib\*" com.bagri.xdm.cache.hazelcast.XDMCacheStopper %*
+"%java_exec%" -cp "%app_home%\lib\*" com.bagri.xdm.cache.hazelcast.BagriCacheStopper %*
 
 goto exit
 

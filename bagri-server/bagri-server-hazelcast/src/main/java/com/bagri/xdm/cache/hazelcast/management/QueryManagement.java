@@ -4,9 +4,9 @@
 package com.bagri.xdm.cache.hazelcast.management;
 
 import static com.bagri.common.util.PropUtils.getOutputProperties;
-import static com.bagri.xdm.common.XDMConstants.pn_client_fetchSize;
-import static com.bagri.xdm.common.XDMConstants.pn_client_submitTo;
-import static com.bagri.xdm.common.XDMConstants.pn_queryTimeout;
+import static com.bagri.xdm.common.Constants.pn_client_fetchSize;
+import static com.bagri.xdm.common.Constants.pn_client_submitTo;
+import static com.bagri.xdm.common.Constants.pn_queryTimeout;
 
 import java.util.HashMap;
 import java.util.Iterator;

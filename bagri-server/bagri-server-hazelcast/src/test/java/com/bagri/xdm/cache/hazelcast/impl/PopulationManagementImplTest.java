@@ -1,10 +1,10 @@
 package com.bagri.xdm.cache.hazelcast.impl;
 
 import static com.bagri.xdm.cache.hazelcast.util.SpringContextHolder.*;
-import static com.bagri.xdm.common.XDMConstants.xdm_config_path;
-import static com.bagri.xdm.common.XDMConstants.xdm_config_properties_file;
-import static com.bagri.xdm.common.XDMConstants.xdm_node_instance;
-import static com.bagri.xdm.common.XDMConstants.xdm_schema_store_data_path;
+import static com.bagri.xdm.common.Constants.xdm_config_path;
+import static com.bagri.xdm.common.Constants.xdm_config_properties_file;
+import static com.bagri.xdm.common.Constants.xdm_node_instance;
+import static com.bagri.xdm.common.Constants.xdm_schema_store_data_path;
 
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
@@ -17,10 +17,10 @@ import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.bagri.common.util.PropUtils;
-import com.bagri.xdm.api.test.XDMManagementTest;
+import com.bagri.xdm.api.test.BagriManagementTest;
 import com.bagri.xdm.system.Schema;
 
-public class PopulationManagementImplTest extends XDMManagementTest {
+public class PopulationManagementImplTest extends BagriManagementTest {
 
     private static ClassPathXmlApplicationContext context;
     //private static String txFileName;

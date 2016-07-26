@@ -1,7 +1,7 @@
 package com.bagri.test.tpox.workload;
 
 import static com.bagri.common.util.PropUtils.setProperty;
-import static com.bagri.xdm.common.XDMConstants.*;
+import static com.bagri.xdm.common.Constants.*;
 import static com.bagri.xqj.BagriXQDataSource.*;
 import static com.bagri.xquery.api.XQUtils.*;
 

@@ -7,7 +7,7 @@ import java.util.Properties;
 
 import com.bagri.xdm.api.ResultCursor;
 
-public abstract class ClientQueryManagementTest extends XDMManagementTest {
+public abstract class ClientQueryManagementTest extends BagriManagementTest {
 
 	public ResultCursor getPrice(String symbol) throws Exception {
 		

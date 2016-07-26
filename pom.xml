@@ -20,7 +20,7 @@
 
     <groupId>com.bagri.db</groupId>
     <artifactId>bagri</artifactId>
-    <version>0.8.1-SNAPSHOT</version>
+    <version>0.9.1-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>bagri</name>
     <!--shortDescription>An XML DB on top of Distributed Cache</shortDescription-->
