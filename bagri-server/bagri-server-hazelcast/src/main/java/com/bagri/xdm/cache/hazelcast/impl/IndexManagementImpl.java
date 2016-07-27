@@ -49,17 +49,17 @@ public class IndexManagementImpl implements IndexManagement { //, StatisticsProv
 	
 	private static final transient Logger logger = LoggerFactory.getLogger(IndexManagementImpl.class);
 	private ReplicatedMap<Integer, Index> idxDict;
-    private IMap<IndexKey, IndexedValue> idxCache;
+	private IMap<IndexKey, IndexedValue> idxCache;
 	//private IExecutorService execService;
 	private Map<Integer, TreeMap<Comparable, Integer>> rangeIndex = new HashMap<>();
 	private Map<Index, Pattern> patterns = new HashMap<>();
 
 	private KeyFactory factory;
-    private ModelManagementImpl mdlMgr;
+	private ModelManagementImpl mdlMgr;
 	private DocumentManagementImpl docMgr;
-    private TransactionManagementImpl txMgr;
+	private TransactionManagementImpl txMgr;
     
-    private boolean enableStats = true;
+	private boolean enableStats = true;
 	private BlockingQueue<StatisticsEvent> queue;
 
 	protected ModelManagementImpl getModelManager() {
@@ -70,42 +70,42 @@ public class IndexManagementImpl implements IndexManagement { //, StatisticsProv
 		return idxDict;
 	}
 	
-    IMap<IndexKey, IndexedValue> getIndexCache() {
-    	return idxCache;
-    }
+	IMap<IndexKey, IndexedValue> getIndexCache() {
+		return idxCache;
+	}
 
-    //public void setDataCache(IMap<XDMDataKey, XDMElements> xdmCache) {
-    //	this.xdmCache = xdmCache;
-    //}
+	//public void setDataCache(IMap<XDMDataKey, XDMElements> xdmCache) {
+	//	this.xdmCache = xdmCache;
+	//}
     
 	public void setIndexDictionary(ReplicatedMap<Integer, Index> idxDict) {
 		this.idxDict = idxDict;
 	}
 	
-    public void setIndexCache(IMap<IndexKey, IndexedValue> idxCache) {
-    	this.idxCache = idxCache;
-    }
+	public void setIndexCache(IMap<IndexKey, IndexedValue> idxCache) {
+		this.idxCache = idxCache;
+	}
     
-    public void setStatsQueue(BlockingQueue<StatisticsEvent> queue) {
-    	this.queue = queue;
-    }
+	public void setStatsQueue(BlockingQueue<StatisticsEvent> queue) {
+		this.queue = queue;
+	}
 
-    public void setStatsEnabled(boolean enable) {
-    	this.enableStats = enable;
-    }
+	public void setStatsEnabled(boolean enable) {
+		this.enableStats = enable;
+	}
 
-    public void setRepository(SchemaRepositoryImpl repo) {
-    	//this.repo = repo;
-    	this.factory = repo.getFactory();
-    	//this.model = repo.getModelManagement();
-    	//this.docMgr = (DocumentManagementImpl) repo.getDocumentManagement();
-    	//this.txMgr = (TransactionManagementImpl) repo.getTxManagement();
-    	//this.xddCache = docMgr.getDocumentCache();
-    	//this.xdmCache = docMgr.getElementCache();
-    	//docMgr.setRepository(repo);
-    }
+	public void setRepository(SchemaRepositoryImpl repo) {
+		//this.repo = repo;
+		this.factory = repo.getFactory();
+		//this.model = repo.getModelManagement();
+		//this.docMgr = (DocumentManagementImpl) repo.getDocumentManagement();
+		//this.txMgr = (TransactionManagementImpl) repo.getTxManagement();
+		//this.xddCache = docMgr.getDocumentCache();
+		//this.xdmCache = docMgr.getElementCache();
+		//docMgr.setRepository(repo);
+	}
 
-    //public void setExecService(IExecutorService execService) {
+	//public void setExecService(IExecutorService execService) {
 	//	this.execService = execService;
 	//}
 

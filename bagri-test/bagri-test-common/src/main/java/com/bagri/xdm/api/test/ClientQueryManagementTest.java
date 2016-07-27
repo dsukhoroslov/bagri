@@ -13,7 +13,7 @@ public abstract class ClientQueryManagementTest extends BagriManagementTest {
 		
 		String query = "declare namespace s=\"http://tpox-benchmark.com/security\";\n" +
 				"declare variable $sym external;\n" +
-				"for $sec in fn:collection()/s:Security\n" +
+				"for $sec in fn:collection(\"CLN_Security\")/s:Security\n" +
 				"where $sec/s:Symbol=$sym\n" +
 				"return\n" +
 					"<print>The open price of the security \"{$sec/s:Name/text()}\" is {$sec/s:Price/s:PriceToday/s:Open/text()} dollars</print>";
@@ -26,7 +26,7 @@ public abstract class ClientQueryManagementTest extends BagriManagementTest {
 		
 		String query = "declare namespace s=\"http://tpox-benchmark.com/security\";\n" +
 				"declare variable $sym external;\n" + 
-				"for $sec in fn:collection()/s:Security\n" +
+				"for $sec in fn:collection(\"CLN_Security\")/s:Security\n" +
 		  		"where $sec/s:Symbol=$sym\n" + 
 				"return $sec\n";
 		Map<String, Object> params = new HashMap<>();
@@ -38,7 +38,7 @@ public abstract class ClientQueryManagementTest extends BagriManagementTest {
 		
 		String query = "declare namespace o=\"http://www.fixprotocol.org/FIXML-4-4\";\n" +
 				"declare variable $ID external;\n" +
-				"for $ord in fn:collection()/o:FIXML\n" +
+				"for $ord in fn:collection(\"CLN_Order\")/o:FIXML\n" +
 				"where $ord/o:Order/@ID=$ID\n" +
 				"return $ord/o:Order\n";
 		Map<String, Object> params = new HashMap<>();
@@ -50,7 +50,7 @@ public abstract class ClientQueryManagementTest extends BagriManagementTest {
 		
 		String query = "declare namespace c=\"http://tpox-benchmark.com/custacc\";\n" +
 				"declare variable $id external;\n" +
-				"for $cust in fn:collection()/c:Customer\n" +
+				"for $cust in fn:collection(\"CLN_Customer\")/c:Customer\n" +
 				"where $cust/@id=$id\n" +
 				"return $cust\n"; 
 		Map<String, Object> params = new HashMap<>();
@@ -62,7 +62,7 @@ public abstract class ClientQueryManagementTest extends BagriManagementTest {
 		
 		String query = "declare default element namespace \"http://tpox-benchmark.com/custacc\";\n" +
 				"declare variable $id external;\n" +
-				"for $cust in fn:collection()/Customer\n" +
+				"for $cust in fn:collection(\"CLN_Customer\")/Customer\n" +
 				"where $cust/@id=$id\n" +
 				"return\n" + 
 			    	"<Customer_Profile CUSTOMERID=\"{$cust/@id}\">\n" +
@@ -83,7 +83,7 @@ public abstract class ClientQueryManagementTest extends BagriManagementTest {
 		
 		String query = "declare default element namespace \"http://tpox-benchmark.com/custacc\";\n" +
 				"declare variable $id external;\n" +
-				"for $cust in fn:collection()/Customer\n" +
+				"for $cust in fn:collection(\"CLN_Customer\")/Customer\n" +
 				"where $cust/@id=$id\n" + 
 				"return\n" +
 					"<Customer>{$cust/@id}\n" +
@@ -112,7 +112,7 @@ public abstract class ClientQueryManagementTest extends BagriManagementTest {
 				"declare variable $pemin external;\n" +
 				"declare variable $pemax external;\n" + 
 				"declare variable $yield external;\n" + 
-				"for $sec in fn:collection()/Security\n" +
+				"for $sec in fn:collection(\"CLN_Security\")/Security\n" +
 		  		"where $sec[SecurityInformation/*/Sector = $sect and PE[. >= $pemin and . < $pemax] and Yield > $yield]\n" +
 				"return	<Security>\n" +	
 				"\t{$sec/Symbol}\n" +

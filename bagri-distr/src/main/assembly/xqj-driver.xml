@@ -14,7 +14,6 @@
             	<exclude>com.bagri.db:bagri-distr</exclude>
             	<exclude>com.bagri.db:bagri-samples-*</exclude>
             	<exclude>com.bagri.db:bagri-server-*</exclude>
-            	<exclude>com.bagri.db:bagri-store-*</exclude>
             	<exclude>com.bagri.db:bagri-test-*</exclude>
             	<exclude>com.bagri.db:bagri-tools-*</exclude>
 	    </excludes>

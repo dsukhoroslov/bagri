@@ -39,7 +39,6 @@ public class TransactionManagementImplTest extends BagriManagementTest {
 		System.setProperty("logback.configurationFile", "hz-logging.xml");
 		System.setProperty(xdm_config_properties_file, "test.properties");
 		System.setProperty(xdm_config_path, "src\\test\\resources");
-		//context = new ClassPathXmlApplicationContext("spring/cache-xqj-context.xml");
 		context = new ClassPathXmlApplicationContext("spring/cache-test-context.xml");
 	}
 

@@ -3,6 +3,8 @@ package com.bagri.xdm.cache.hazelcast.impl;
 import static com.bagri.common.security.Encryptor.encrypt;
 import static com.bagri.xdm.cache.hazelcast.util.HazelcastUtils.findSystemContext;
 
+import java.util.Set;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -10,6 +12,8 @@ import org.springframework.context.ApplicationContext;
 
 import com.bagri.xdm.api.AccessManagement;
 import com.bagri.xdm.system.Permission;
+import com.hazelcast.core.Hazelcast;
+import com.hazelcast.core.HazelcastInstance;
 
 public class AccessManagementImpl implements AccessManagement, InitializingBean {
 
@@ -21,8 +25,12 @@ public class AccessManagementImpl implements AccessManagement, InitializingBean 
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		ApplicationContext context = findSystemContext();;
+		ApplicationContext context = findSystemContext();
 		if (context != null) {
+			Set<HazelcastInstance> instances = Hazelcast.getAllHazelcastInstances();
+			for (HazelcastInstance hzi: instances) {
+				System.out.println("got HZI: " + hzi.getName());
+			}
 			bridge = context.getBean(AccessManagementBridge.class);
 			logger.trace("afterPropertiesSet; got bridge: {}", bridge);
 		}
