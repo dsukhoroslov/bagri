@@ -340,6 +340,9 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
 			return true;
 		}
 		HazelcastInstance sysInstance = getHazelcastInstanceByName(hz_instance);
+		if (sysInstance == null) {
+			return false;
+		}
 		return hasStorageMembers(sysInstance);
 	}
 	

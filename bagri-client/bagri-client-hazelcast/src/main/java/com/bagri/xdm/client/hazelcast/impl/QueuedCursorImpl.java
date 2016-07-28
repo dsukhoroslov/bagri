@@ -7,6 +7,7 @@ import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryI
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -33,6 +34,7 @@ public class QueuedCursorImpl extends ResultCursorBase implements IdentifiedData
 	private int queueSize;
 	private String clientId;
 	private String memberId;
+	private String queueName;
 	private Object current;
 
 	// server side
@@ -76,7 +78,7 @@ public class QueuedCursorImpl extends ResultCursorBase implements IdentifiedData
 
 	private IQueue<Object> getQueue() {
 		if (queue == null) {
-			queue = hzi.getQueue("client:" + clientId); 
+			queue = hzi.getQueue(queueName); 
 		}
 		return queue;
 	}
@@ -92,6 +94,7 @@ public class QueuedCursorImpl extends ResultCursorBase implements IdentifiedData
 	private void initQueue(HazelcastInstance hzi) {
 		this.hzi =  hzi;
 		memberId = hzi.getCluster().getLocalMember().getUuid();
+		queueName = "client:" + clientId + ":" + UUID.randomUUID().toString();
 		queue = getQueue();
 	}
 	
@@ -100,48 +103,37 @@ public class QueuedCursorImpl extends ResultCursorBase implements IdentifiedData
 		initQueue(hzi);
 		int size = 0;
 		if (iter == null) {
-			//for (Object value: results) { 
-			//	if (value != null) {
-			//		if (queue.offer(value)) {
-			//			size++;
-			//		} else {
-			//			logger.warn("serialize; queue is full!");
-			//			break; //??
-			//		}
-			//	}
-			//}
 			iter = results.iterator();
-		} //else { 
-			if (batchSize > 0) {
-				for (int i = 0; i < batchSize && addNext(); i++) {
-					size++;
-				}
-				if (queueSize < EMPTY) {
-					if (size > 0) {
-						if (iter.hasNext()) {
-							queueSize = ONE_OR_MORE;
-						} else {
-							queueSize = ONE; 
-						}
-					} else {
-						queueSize = EMPTY;
-					}
-				} else if (size > queueSize) {
-					logger.info("serialize; declared and current batch queue sizes do not match: {}/{}", queueSize, size);
-					//queueSize = size; ?? 
-				}
-			} else {
-				while (iter.hasNext()) { 
-					addNext();
-					size++;
-				}
-				if (queueSize < EMPTY) {
-					queueSize = size;
-				} else if (size != queueSize) {
-					logger.info("serialize; declared and current queue sizes do not match: {}/{}", queueSize, size);
-				}
+		}  
+		if (batchSize > 0) {
+			for (int i = 0; i < batchSize && addNext(); i++) {
+				size++;
 			}
-		//}
+			if (queueSize < EMPTY) {
+				if (size > 0) {
+					if (iter.hasNext()) {
+						queueSize = ONE_OR_MORE;
+					} else {
+						queueSize = ONE; 
+					}
+				} else {
+					queueSize = EMPTY;
+				}
+			} else if (size > queueSize) {
+				logger.info("serialize; declared and current batch queue sizes do not match: {}/{}", queueSize, size);
+				//queueSize = size; ?? 
+			}
+		} else {
+			while (iter.hasNext()) { 
+				addNext();
+				size++;
+			}
+			if (queueSize < EMPTY) {
+				queueSize = size;
+			} else if (size != queueSize) {
+				logger.info("serialize; declared and current queue sizes do not match: {}/{}", queueSize, size);
+			}
+		}
 		return size;
 	}
 	
@@ -217,6 +209,7 @@ public class QueuedCursorImpl extends ResultCursorBase implements IdentifiedData
 		queueSize = in.readInt();
 		memberId = in.readUTF();
 		batchSize = in.readInt();
+		queueName = in.readUTF();
 	}
 
 	@Override
@@ -225,6 +218,7 @@ public class QueuedCursorImpl extends ResultCursorBase implements IdentifiedData
 		out.writeInt(queueSize);
 		out.writeUTF(memberId);
 		out.writeInt(batchSize);
+		out.writeUTF(queueName);
 	}
 	
 	@Override

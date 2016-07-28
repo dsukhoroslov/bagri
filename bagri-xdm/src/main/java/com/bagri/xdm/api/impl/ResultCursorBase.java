@@ -1,6 +1,6 @@
 package com.bagri.xdm.api.impl;
 
-import java.util.Iterator;
+import java.util.Properties;
 
 import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQItemAccessor;
@@ -10,6 +10,12 @@ import org.w3c.dom.Node;
 import com.bagri.xdm.api.ResultCursor;
 import com.bagri.xdm.api.XDMException;
 
+/**
+ * Base implementation for ResultCursor. Accessor methods are implemented  
+ * 
+ * @author Denis Sukhoroslov
+ *
+ */
 public abstract class ResultCursorBase implements ResultCursor {
 
 	public static final int ONE = 1;
@@ -19,19 +25,6 @@ public abstract class ResultCursorBase implements ResultCursor {
 	
 	protected int position;
 
-	//protected Iterator<Object> iter;
-	
-	//protected ResultCursorBase(Iterator<Object> iter) {
-	//	this.iter = iter;
-	//}
-	
-	//@Override
-	//public void close() {
-		//logger.trace("close.enter; position: {}", position);
-	//	iter = null;
-		//current = null;
-	//}
-	
 	protected abstract Object getCurrent();
 	
 	private XQItemAccessor checkCurrent() throws XDMException {
@@ -42,6 +35,10 @@ public abstract class ResultCursorBase implements ResultCursor {
 		return (XQItemAccessor) current; 
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public boolean getBoolean() throws XDMException {
 		XQItemAccessor ci = checkCurrent();
 		try {
@@ -51,6 +48,10 @@ public abstract class ResultCursorBase implements ResultCursor {
 		}
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public byte getByte() throws XDMException {
 		XQItemAccessor ci = checkCurrent();
 		try {
@@ -60,6 +61,10 @@ public abstract class ResultCursorBase implements ResultCursor {
 		}
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public double getDouble() throws XDMException {
 		XQItemAccessor ci = checkCurrent();
 		try {
@@ -69,6 +74,10 @@ public abstract class ResultCursorBase implements ResultCursor {
 		}
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public float getFloat() throws XDMException {
 		XQItemAccessor ci = checkCurrent();
 		try {
@@ -78,6 +87,10 @@ public abstract class ResultCursorBase implements ResultCursor {
 		}
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public int getInt() throws XDMException {
 		XQItemAccessor ci = checkCurrent();
 		try {
@@ -87,6 +100,10 @@ public abstract class ResultCursorBase implements ResultCursor {
 		}
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public long getLong() throws XDMException {
 		XQItemAccessor ci = checkCurrent();
 		try {
@@ -96,6 +113,10 @@ public abstract class ResultCursorBase implements ResultCursor {
 		}
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public Node getNode() throws XDMException {
 		XQItemAccessor ci = checkCurrent();
 		try {
@@ -105,6 +126,10 @@ public abstract class ResultCursorBase implements ResultCursor {
 		}
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public Object getObject() throws XDMException {
 		XQItemAccessor ci = checkCurrent();
 		try {
@@ -114,6 +139,10 @@ public abstract class ResultCursorBase implements ResultCursor {
 		}
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public short getShort() throws XDMException {
 		XQItemAccessor ci = checkCurrent();
 		try {
@@ -123,6 +152,10 @@ public abstract class ResultCursorBase implements ResultCursor {
 		}
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public String getString() throws XDMException {
 		XQItemAccessor ci = checkCurrent();
 		try {
@@ -132,23 +165,26 @@ public abstract class ResultCursorBase implements ResultCursor {
 		}
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public XQItemAccessor getXQItem() throws XDMException {
 		return checkCurrent();
 	}
-
-	//public boolean getNext() throws XDMException {
-	//	boolean result = hasNext();
-	//	if (result) {
-	//		next();
-		//} else {
-		//	current = null;
-	//	}
-	//	return result;
-	//}
 	
-	//@Override
-	//public void remove() {
-	//	throw new UnsupportedOperationException("remove not supported");
-	//}
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getItemAsString(Properties props) throws XDMException {
+		XQItemAccessor ci = checkCurrent();
+		try {
+			return ci.getItemAsString(props);
+		} catch (XQException ex) {
+			throw new XDMException(ex, XDMException.ecQuery);
+		}
+	}
+
 	
 }

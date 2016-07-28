@@ -46,6 +46,7 @@ public class TpoxQueryTest extends ClientQueryManagementTest {
 
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
+		Thread.sleep(3000);
 		context.close();
 	}
 
@@ -86,24 +87,21 @@ public class TpoxQueryTest extends ClientQueryManagementTest {
 		assertTrue(sec.next());
 		Properties props = new Properties();
 		props.setProperty("method", "text");
-		XQItem item = (XQItem) sec.getXQItem();
-		String text = item.getItemAsString(props);
+		String text = sec.getItemAsString(props);
 		assertEquals("The open price of the security \"Vanguard 500 Index Fund\" is 101.12 dollars", text);
 		sec.close();
 
 		sec = getPrice("IBM");
 		assertNotNull(sec);
 		assertTrue(sec.next());
-		item = (XQItem) sec.getXQItem();
-		text = item.getItemAsString(props);
+		text = sec.getItemAsString(props);
 		assertEquals("The open price of the security \"Internatinal Business Machines Corporation\" is 86.23 dollars", text);
 		sec.close();
 
 		sec = getPrice("PTTAX");
 		assertNotNull(sec);
 		assertTrue(sec.next());
-		item = (XQItem) sec.getXQItem();
-		text = item.getItemAsString(props);
+		text = sec.getItemAsString(props);
 		assertEquals("The open price of the security \"PIMCO Total Return A\" is 36.23 dollars", text);
 		sec.close();
 	}
@@ -113,8 +111,7 @@ public class TpoxQueryTest extends ClientQueryManagementTest {
 		ResultCursor sec = getSecurity("VFINX");
 		assertNotNull(sec);
 		assertTrue(sec.next());
-		XQItem item = (XQItem) sec.getXQItem();
-		String xml = item.getItemAsString(null);
+		String xml = sec.getItemAsString(null);
 		assertEquals(4289, xml.length());
 		assertFalse(sec.next());
 		sec.close();
@@ -122,8 +119,7 @@ public class TpoxQueryTest extends ClientQueryManagementTest {
 		sec = getSecurity("IBM");
 		assertNotNull(sec);
 		assertTrue(sec.next());
-		item = (XQItem) sec.getXQItem();
-		xml = item.getItemAsString(null);
+		xml = sec.getItemAsString(null);
 		assertEquals(3502, xml.length());
 		assertFalse(sec.next());
 		sec.close();
@@ -131,8 +127,7 @@ public class TpoxQueryTest extends ClientQueryManagementTest {
 		sec = getSecurity("PTTAX");
 		assertNotNull(sec);
 		assertTrue(sec.next());
-		item = (XQItem) sec.getXQItem();
-		xml = item.getItemAsString(null);
+		xml = sec.getItemAsString(null);
 		assertEquals(2774, xml.length());
 		assertFalse(sec.next());
 		sec.close();
@@ -143,8 +138,7 @@ public class TpoxQueryTest extends ClientQueryManagementTest {
 		ResultCursor sec = searchSecurity("Technology", 25, 28, 0);
 		assertNotNull(sec);
 		assertTrue(sec.next());
-		XQItem item = (XQItem) sec.getXQItem();
-		String xml = item.getItemAsString(null);
+		String xml = sec.getItemAsString(null);
 		//<Symbol>IBM</Symbol>
 		//<Name>Internatinal Business Machines Corporation</Name>
 		//<SecurityType>Stock</SecurityType>
@@ -169,8 +163,7 @@ public class TpoxQueryTest extends ClientQueryManagementTest {
 		ResultCursor sec = getOrder("103404");
 		assertNotNull(sec);
 		assertTrue(sec.next());
-		XQItem item = (XQItem) sec.getXQItem();
-		String xml = item.getItemAsString(null);
+		String xml = sec.getItemAsString(null);
 		assertEquals(1990, xml.length());
 		assertFalse(sec.next());
 		sec.close();
@@ -178,8 +171,7 @@ public class TpoxQueryTest extends ClientQueryManagementTest {
 		sec = getOrder("103935");
 		assertNotNull(sec);
 		assertTrue(sec.next());
-		item = (XQItem) sec.getXQItem();
-		xml = item.getItemAsString(null);
+		xml = sec.getItemAsString(null);
 		assertEquals(2041, xml.length());
 		assertFalse(sec.next());
 		sec.close();
@@ -190,8 +182,7 @@ public class TpoxQueryTest extends ClientQueryManagementTest {
 		ResultCursor sec = getCustomer("1011");
 		assertNotNull(sec);
 		assertTrue(sec.next());
-		XQItem item = (XQItem) sec.getXQItem();
-		String xml = item.getItemAsString(null);
+		String xml = sec.getItemAsString(null);
 		assertEquals(6699, xml.length());
 		assertFalse(sec.next());
 		sec.close();
@@ -202,8 +193,7 @@ public class TpoxQueryTest extends ClientQueryManagementTest {
 		ResultCursor sec = getCustomerProfile("1011");
 		assertNotNull(sec);
 		assertTrue(sec.next());
-		XQItem item = (XQItem) sec.getXQItem();
-		String xml = item.getItemAsString(null);
+		String xml = sec.getItemAsString(null);
 		assertEquals(2048, xml.length());
 		assertFalse(sec.next());
 		sec.close();
@@ -214,8 +204,7 @@ public class TpoxQueryTest extends ClientQueryManagementTest {
 		ResultCursor sec = getCustomerAccounts("1011");
 		assertNotNull(sec);
 		assertTrue(sec.next());
-		XQItem item = (XQItem) sec.getXQItem();
-		String xml = item.getItemAsString(null);
+		String xml = sec.getItemAsString(null);
 		assertEquals(775, xml.length());
 		assertFalse(sec.next());
 		sec.close();
@@ -228,8 +217,7 @@ public class TpoxQueryTest extends ClientQueryManagementTest {
 		assertTrue(sec.next());
 		Properties props = new Properties();
 		props.setProperty("method", "text");
-		XQItem item = (XQItem) sec.getXQItem();
-		String text = item.getItemAsString(props);
+		String text = sec.getItemAsString(props);
 		assertEquals("164230.5448", text.trim());
 		assertFalse(sec.next());
 		sec.close();
@@ -242,8 +230,7 @@ public class TpoxQueryTest extends ClientQueryManagementTest {
 		assertTrue(sec.next());
 		Properties props = new Properties();
 		props.setProperty("method", "text");
-		XQItem item = (XQItem) sec.getXQItem();
-		String text = item.getItemAsString(props);
+		String text = sec.getItemAsString(props);
 		assertEquals("Marjo Villoldo", text);
 		assertFalse(sec.next());
 		sec.close();
@@ -254,8 +241,7 @@ public class TpoxQueryTest extends ClientQueryManagementTest {
 		ResultCursor sec = getCustomerByAddress(56137, 1, true);
 		assertNotNull(sec);
 		assertTrue(sec.next());
-		XQItem item = (XQItem) sec.getXQItem();
-		String xml = item.getItemAsString(null);
+		String xml = sec.getItemAsString(null);
 		assertFalse(sec.next());
 		//<Customer xmlns="http://www.fixprotocol.org/FIXML-4-4">
 		//Villoldo - <Phone xmlns="http://tpox-benchmark.com/custacc"
@@ -275,8 +261,7 @@ public class TpoxQueryTest extends ClientQueryManagementTest {
 		ResultCursor sec = getMaxOrderPrice(1011);
 		assertNotNull(sec);
 		assertTrue(sec.next());
-		XQItem item = (XQItem) sec.getXQItem();
-		String price = item.getItemAsString(null);
+		String price = sec.getItemAsString(null);
 		assertEquals("1479.06", price);
 		assertFalse(sec.next());
 		sec.close();
@@ -287,8 +272,7 @@ public class TpoxQueryTest extends ClientQueryManagementTest {
 		ResultCursor sec = getMaxOrderForIndustry("ComputerHardware", "California");
 		assertNotNull(sec);
 		assertTrue(sec.next());
-		XQItem item = (XQItem) sec.getXQItem();
-		String price = item.getItemAsString(null);
+		String price = sec.getItemAsString(null);
 		assertEquals("1479.06", price);
 		assertFalse(sec.next());
 		sec.close();
@@ -301,18 +285,15 @@ public class TpoxQueryTest extends ClientQueryManagementTest {
 		assertTrue(sec.next());
 		Properties props = new Properties();
 		props.setProperty("method", "text");
-		XQItem item = (XQItem) sec.getXQItem();
-		String text = item.getItemAsString(props);
+		String text = sec.getItemAsString(props);
 		assertTrue("unknown name: '" + text + "'", names.contains(text));
 
 		assertTrue(sec.next());
-		item = (XQItem) sec.getXQItem();
-		text = item.getItemAsString(props);
+		text = sec.getItemAsString(props);
 		assertTrue("unknown name: '" + text + "'", names.contains(text));
 		
 		assertTrue(sec.next());
-		item = (XQItem) sec.getXQItem();
-		text = item.getItemAsString(props);
+		text = sec.getItemAsString(props);
 		assertTrue("unknown name: '" + text + "'", names.contains(text));
 		assertFalse(sec.next());
 		sec.close();
@@ -330,8 +311,7 @@ public class TpoxQueryTest extends ClientQueryManagementTest {
 		props.setProperty("method", "text");
 		List<String> industries = new ArrayList<>();
 		while (ind.next()) {
-			XQItem item = (XQItem) ind.getXQItem();
-			String text = item.getItemAsString(props);
+			String text = ind.getItemAsString(props);
 			industries.add(text);
 		}
 		assertEquals(10, industries.size());

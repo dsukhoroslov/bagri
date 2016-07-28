@@ -345,7 +345,7 @@ public class QueryManagementImplTest extends BagriManagementTest {
 		params.put("sym", "VFINX");
 		Properties props = new Properties();
 		props.setProperty(pn_client_id, "1");
-		props.setProperty(pn_client_fetchSize, "1");
+		props.setProperty(pn_client_fetchSize, "5");
 		props.setProperty(pn_defaultElementTypeNamespace, "");
 		ResultCursor rc = query(query, params, props);
 		assertNotNull(rc);

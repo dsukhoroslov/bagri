@@ -1,6 +1,7 @@
 package com.bagri.xdm.api;
 
 import java.util.List;
+import java.util.Properties;
 
 import javax.xml.xquery.XQItemAccessor;
 
@@ -97,6 +98,13 @@ public interface ResultCursor extends AutoCloseable {
 	 * @throws XDMException in case of data access error
 	 */
 	XQItemAccessor getXQItem() throws XDMException;
+
+	/**
+	 * 
+	 * @return transforms currently selected item to String
+	 * @throws XDMException in case of data access error
+	 */
+	String getItemAsString(Properties props) throws XDMException;
 
 	/**
 	 * 

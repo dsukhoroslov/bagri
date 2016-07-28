@@ -4,7 +4,7 @@ import static com.bagri.xdm.common.Constants.pn_client_fetchSize;
 import static com.bagri.xdm.common.Constants.pn_client_id;
 import static com.bagri.xdm.common.Constants.pn_query_command;
 import static com.bagri.xdm.common.Constants.pn_scrollability;
-import static com.bagri.xdm.common.Constants.xdm_schema_fetchSize;
+import static com.bagri.xdm.common.Constants.xdm_schema_fetch_size;
 import static com.bagri.xquery.api.XQUtils.getAtomicValue;
 import static com.bagri.xquery.api.XQUtils.isStringTypeCompatible;
 
@@ -248,7 +248,8 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 						logger.warn("addQueryResults; got empty results but docs were found: {}", ctx.getDocKeys());
 					}
 					QueryResult xqr = new QueryResult(params, ctx.getDocKeys(), resList);
-					xrCache.putAsync(qpKey, xqr);
+					// what is better to use here: putAsync or set ?
+					xrCache.set(qpKey, xqr);
 					updateStats(query, 1, resList.size());
 					
 					String clientId = props.getProperty(pn_client_id);
@@ -695,7 +696,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			String fetchSize = props.getProperty(pn_client_fetchSize);
 			// not set -> use default BS
 			if (fetchSize == null) {
-				fetchSize = repo.getSchema().getProperty(xdm_schema_fetchSize);
+				fetchSize = repo.getSchema().getProperty(xdm_schema_fetch_size);
 				if (fetchSize == null) {
 					fetchSize = xqDefFetchSizeStr;
 				}
@@ -719,6 +720,8 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 				size = ((XQIterator) iter).getFullSize();
 			}
 			String clientId = props.getProperty(pn_client_id);
+			// we do not close cursors on the server side
+			@SuppressWarnings("resource")
 			QueuedCursorImpl qc = new QueuedCursorImpl(results, clientId, batchSize, size, iter);
 			count = qc.serialize(repo.getHzInstance());
 			xqCursor = qc;

@@ -72,6 +72,16 @@ public abstract class BagriManagementTest {
 		return result;
 	}
 
+	protected int exploreCursor(ResultCursor cursor) throws Exception {
+		int cnt = 0;
+		while (cursor.next()) {
+			String text = cursor.getItemAsString(null);
+			System.out.println("" + cnt + ": " + text);
+			cnt++;
+		}
+		return cnt;
+	}
+	
 	protected void removeDocumentsTest() throws Exception {
 		if (getTxManagement().isInTransaction()) {
 			getTxManagement().finishCurrentTransaction(true);

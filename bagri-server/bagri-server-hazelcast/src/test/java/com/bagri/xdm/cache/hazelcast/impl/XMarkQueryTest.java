@@ -6,7 +6,6 @@ import static org.junit.Assert.*;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
@@ -22,9 +21,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.bagri.xdm.api.ResultCursor;
 import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.api.impl.ResultCursorBase;
 import com.bagri.xdm.api.test.BagriManagementTest;
-import com.bagri.xdm.client.hazelcast.impl.QueuedCursorImpl;
 import com.bagri.xdm.system.Schema;
 //import com.bagri.xquery.api.XQProcessor;
 
@@ -70,18 +67,6 @@ public class XMarkQueryTest extends BagriManagementTest {
 	public void tearDown() throws Exception {
 	}
 	
-	private int exploreCursor(ResultCursor cursor) throws XQException, XDMException {
-		int cnt = 0;
-		while (cursor.next()) {
-			XQItem item = (XQItem) cursor.getXQItem();
-			String text = item.getItemAsString(null);
-			System.out.println("" + cnt + ": " + text);
-			cnt++;
-		}
-		return cnt;
-	}
-
-
 	@Test
 	public void getPersonTest() throws Exception {
 		// Q1.Return the name of the person with ID `person0'.
@@ -96,8 +81,7 @@ public class XMarkQueryTest extends BagriManagementTest {
 			assertTrue(results.next());
 			Properties props = new Properties();
 			props.setProperty("method", "text");
-			XQItem item = (XQItem) results.getXQItem();
-			String text = item.getItemAsString(props);
+			String text = results.getItemAsString(props);
 			assertEquals("Huei Demke", text);
 			assertFalse(results.next());
 		}
@@ -115,8 +99,7 @@ public class XMarkQueryTest extends BagriManagementTest {
 			assertTrue(results.next());
 			Properties props = new Properties();
 			props.setProperty("method", "text");
-			XQItem item = (XQItem) results.getXQItem();
-			String text = item.getItemAsString(props);
+			String text = results.getItemAsString(props);
 			assertEquals("Huei Demke", text);
 			assertFalse(results.next());
 		}
@@ -133,8 +116,7 @@ public class XMarkQueryTest extends BagriManagementTest {
 		try (ResultCursor results = query(query, null, null)) {
 			int cnt = 0;
 			while (results.next()) {
-				XQItem item = (XQItem) results.getXQItem();
-				String text = item.getItemAsString(null);
+				String text = results.getItemAsString(null);
 				assertTrue("unexpected result: " + text, text.startsWith("<increase>") && text.endsWith("</increase>"));
 				cnt++;
 			}
@@ -158,8 +140,7 @@ public class XMarkQueryTest extends BagriManagementTest {
 			//<increase first="6.00" last="30.00"/>
 			int cnt = 0;
 			while (results.next()) {
-				XQItem item = (XQItem) results.getXQItem();
-				String text = item.getItemAsString(null);
+				String text = results.getItemAsString(null);
 				assertTrue("unexpected result: " + text, text.startsWith("<increase"));
 				cnt++;
 			}
@@ -207,8 +188,7 @@ public class XMarkQueryTest extends BagriManagementTest {
 		params.put("pmin", new Integer(40));
 		try (ResultCursor results = query(query, params, null)) {
 			assertTrue(results.next());
-			XQItem item = (XQItem) results.getXQItem();
-			assertEquals(7, item.getInt());
+			assertEquals(7, results.getInt());
 			assertFalse(results.next());
 		}
 	}
@@ -222,8 +202,7 @@ public class XMarkQueryTest extends BagriManagementTest {
 
 		try (ResultCursor results = query(query, null, null)) {
 			assertTrue(results.next());
-			XQItem item = (XQItem) results.getXQItem();
-			assertEquals(22, item.getInt());
+			assertEquals(22, results.getInt());
 			assertFalse(results.next());
 		}
 	}
@@ -238,8 +217,7 @@ public class XMarkQueryTest extends BagriManagementTest {
 
 		try (ResultCursor results = query(query, null, null)) {
 			assertTrue(results.next());
-			XQItem item = (XQItem) results.getXQItem();
-			assertEquals(92, item.getInt());
+			assertEquals(92, results.getInt());
 			assertFalse(results.next());
 		}
 	}
@@ -260,8 +238,7 @@ public class XMarkQueryTest extends BagriManagementTest {
 		try (ResultCursor results = query(query, null, null)) {
 			int cnt = 0;
 			while (results.next()) {
-				XQItem item = (XQItem) results.getXQItem();
-				String text = item.getItemAsString(null);
+				String text = results.getItemAsString(null);
 				assertTrue("unexpected result: " + text, text.startsWith("<item person") && text.endsWith("</item>"));
 				cnt++;
 			}
@@ -290,8 +267,7 @@ public class XMarkQueryTest extends BagriManagementTest {
 		try (ResultCursor results = query(query, null, null)) {
 			int cnt = 0;
 			while (results.next()) {
-				XQItem item = (XQItem) results.getXQItem();
-				String text = item.getItemAsString(null);
+				String text = results.getItemAsString(null);
 				assertTrue("unexpected result: " + text, text.startsWith("<person name"));
 				cnt++;
 			}
@@ -334,8 +310,7 @@ public class XMarkQueryTest extends BagriManagementTest {
 
 		try (ResultCursor results = query(query, null, null)) {
 			assertTrue(results.next());
-			XQItem item = (XQItem) results.getXQItem();
-			String text = item.getItemAsString(null);
+			String text = results.getItemAsString(null);
 			assertTrue("unexpected result: " + text, text.startsWith("<categorie>") && text.endsWith("</categorie>"));
 			assertFalse(results.next());
 		}
@@ -357,8 +332,7 @@ public class XMarkQueryTest extends BagriManagementTest {
 		try (ResultCursor results = query(query, null, null)) {
 			int cnt = 0;
 			while (results.next()) {
-				XQItem item = (XQItem) results.getXQItem();
-				String text = item.getItemAsString(null);
+				String text = results.getItemAsString(null);
 				assertTrue("unexpected result: " + text, text.startsWith("<items name") && text.endsWith("</items>"));
 				cnt++;
 			}
@@ -384,8 +358,7 @@ public class XMarkQueryTest extends BagriManagementTest {
 		try (ResultCursor results = query(query, null, null)) {
 			int cnt = 0;
 			while (results.next()) {
-				XQItem item = (XQItem) results.getXQItem();
-				String text = item.getItemAsString(null);
+				String text = results.getItemAsString(null);
 				assertTrue("unexpected result: " + text, text.startsWith("<items person") && text.endsWith("</items>"));
 				cnt++;
 			}
@@ -405,8 +378,7 @@ public class XMarkQueryTest extends BagriManagementTest {
 		try (ResultCursor results = query(query, null, null)) {
 			int cnt = 0;
 			while (results.next()) {
-				XQItem item = (XQItem) results.getXQItem();
-				String text = item.getItemAsString(null);
+				String text = results.getItemAsString(null);
 				assertTrue("unexpected result: " + text, text.startsWith("<item name") && text.endsWith("</item>"));
 				cnt++;
 			}
@@ -485,8 +457,7 @@ public class XMarkQueryTest extends BagriManagementTest {
 		try (ResultCursor results = query(query, null, null)) {
 			int cnt = 0;
 			while (results.next()) {
-				XQItem item = (XQItem) results.getXQItem();
-				String text = item.getItemAsString(null);
+				String text = results.getItemAsString(null);
 				assertTrue("unexpected result: " + text, text.startsWith("<person name"));
 				cnt++;
 			}
@@ -511,8 +482,7 @@ public class XMarkQueryTest extends BagriManagementTest {
 		try (ResultCursor results = query(query, null, null)) {
 			int cnt = 0;
 			while (results.next()) {
-				XQItem item = (XQItem) results.getXQItem();
-				BigDecimal bd = (BigDecimal) item.getObject();
+				BigDecimal bd = (BigDecimal) results.getObject();
 				assertTrue("unexpected result: " + bd, bd.compareTo(BigDecimal.ZERO) > 0);
 				cnt++;
 			}
@@ -534,8 +504,7 @@ public class XMarkQueryTest extends BagriManagementTest {
 		try (ResultCursor results = query(query, null, null)) {
 			int cnt = 0;
 			while (results.next()) {
-				XQItem item = (XQItem) results.getXQItem();
-				String text = item.getItemAsString(null);
+				String text = results.getItemAsString(null);
 				assertTrue("unexpected result: " + text, text.startsWith("<item name") && text.endsWith("</item>"));
 				cnt++;
 			}

@@ -3,12 +3,10 @@ package com.bagri.xdm.cache.hazelcast.impl;
 import static com.bagri.xdm.common.Constants.*;
 import static org.junit.Assert.*;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-
-import javax.xml.namespace.QName;
-import javax.xml.xquery.XQPreparedExpression;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -17,10 +15,10 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import com.bagri.common.util.JMXUtils;
 import com.bagri.xdm.api.ResultCursor;
-import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.test.BagriManagementTest;
-import com.bagri.xdm.client.hazelcast.impl.QueuedCursorImpl;
+import com.bagri.xdm.system.Collection;
 import com.bagri.xdm.system.Schema;
 
 public class ResultCursorTest extends BagriManagementTest {
@@ -50,6 +48,10 @@ public class ResultCursorTest extends BagriManagementTest {
 		Schema schema = xdmRepo.getSchema();
 		if (schema == null) {
 			schema = new Schema(1, new java.util.Date(), "test", "test", "test schema", true, null);
+			//schema.setProperty(pn_baseURI, sampleRoot);
+			Collection collection = new Collection(1, new Date(), JMXUtils.getCurrentUser(), 
+					1, "CLN_Security", "/{http://tpox-benchmark.com/security}Security", "securities", true);
+			schema.addCollection(collection);
 			xdmRepo.setSchema(schema);
 		}
 	}
@@ -87,11 +89,11 @@ public class ResultCursorTest extends BagriManagementTest {
 		Properties props = new Properties();
 		props.setProperty(pn_client_fetchSize, "1");
 		props.setProperty(pn_client_id, "dummy");
-		ResultCursor rc = query(query, params, props);
-		assertTrue(rc.next());
-		assertNotNull(rc.getObject());
-		assertFalse(rc.next());
-		rc.close();
+		try (ResultCursor rc = query(query, params, props)) {
+			assertTrue(rc.next());
+			assertNotNull(rc.getObject());
+			assertFalse(rc.next());
+		}
 	}
 	
 	@Test
@@ -108,11 +110,11 @@ public class ResultCursorTest extends BagriManagementTest {
 		Properties props = new Properties();
 		props.setProperty(pn_client_fetchSize, "1");
 		props.setProperty(pn_client_id, "dummy");
-		ResultCursor rc = query(query, params, props);
-		assertTrue(rc.next());
-		assertNotNull(rc.getObject());
-		assertFalse(rc.next());
-		rc.close();
+		try (ResultCursor rc = query(query, params, props)) {
+			assertTrue(rc.next());
+			assertNotNull(rc.getObject());
+			assertFalse(rc.next());
+		}
 	}
 
 	@Test
@@ -124,9 +126,6 @@ public class ResultCursorTest extends BagriManagementTest {
 				"for $sec in fn:collection()/s:Security\n" +
 		  		"where $sec/s:Symbol=$sym\n" + 
 				"return $sec\n";
-		final Properties props = new Properties();
-		props.setProperty(pn_client_fetchSize, "1");
-		props.setProperty(pn_client_id, "dummy");
 		
 		Thread th1 = new Thread(new Runnable() {
 
@@ -134,13 +133,13 @@ public class ResultCursorTest extends BagriManagementTest {
 			public void run() {
 				Map<String, Object> params = new HashMap<>();
 				params.put("sym", "IBM");
-				ResultCursor rc;
-				try {
-					rc = query(query, params, props);
+				Properties props = new Properties();
+				props.setProperty(pn_client_fetchSize, "1");
+				props.setProperty(pn_client_id, "thread1");
+				try (ResultCursor rc = query(query, params, props)) {
 					assertTrue(rc.next());
 					assertNotNull(rc.getObject());
 					assertFalse(rc.next());
-					rc.close();
 				} catch (Exception ex) {
 					assertTrue(ex.getMessage(), false);
 				}
@@ -153,18 +152,21 @@ public class ResultCursorTest extends BagriManagementTest {
 			public void run() {
 				Map<String, Object> params = new HashMap<>();
 				params.put("sym", "VFINX");
-				ResultCursor rc;
-				try {
-					rc = query(query, params, props);
+				Properties props = new Properties();
+				props.setProperty(pn_client_fetchSize, "1");
+				props.setProperty(pn_client_id, "thread2");
+				try (ResultCursor rc = query(query, params, props)) {
 					assertTrue(rc.next());
 					assertNotNull(rc.getObject());
 					assertFalse(rc.next());
-					rc.close();
 				} catch (Exception ex) {
 					assertTrue(ex.getMessage(), false);
 				}
 			}
 		});
+		
+		th1.start();
+		th2.start();
 		
 	}
 }

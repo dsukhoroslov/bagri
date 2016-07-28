@@ -1,5 +1,7 @@
 package com.bagri.xdm.cache.hazelcast;
 
+import static com.bagri.xdm.cache.hazelcast.util.HazelcastUtils.app_context;
+import static com.bagri.xdm.cache.hazelcast.util.HazelcastUtils.hz_instance;
 import static com.bagri.xdm.common.Constants.*;
 import static org.junit.Assert.*;
 
@@ -11,8 +13,13 @@ import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+import com.hazelcast.core.Hazelcast;
+import com.hazelcast.core.HazelcastInstance;
 
 public class BagriCacheServerTest {
 	
@@ -42,6 +49,13 @@ public class BagriCacheServerTest {
 		BagriCacheServer.main(null);
 	}
 
+	@AfterClass
+	public static void tearDownAfterClass() throws Exception {
+        HazelcastInstance hz = Hazelcast.getHazelcastInstanceByName(hz_instance);
+        ClassPathXmlApplicationContext ctx = (ClassPathXmlApplicationContext) hz.getUserContext().get(app_context);
+		ctx.close();
+	}
+	
 	@Test
 	public void testJMXConnection() throws Exception {
 		

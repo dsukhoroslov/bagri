@@ -106,8 +106,8 @@ public class TransactionCacheStoreTest extends BagriManagementTest {
 		return ((QueryManagement) getQueryManagement()).getContent(ec, ":sec", params);
 	}
 	
-	//@Ignore
 	@Test
+	//@Ignore
 	public void bulkTransactionTest() throws Exception {
 		
 		int oldCount = txStore.getStoredCount();

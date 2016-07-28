@@ -78,7 +78,7 @@ public class Constants {
     public static final String xdm_schema_store_tx_buffer_size = "xdm.schema.store.tx.buffer.size";
     public static final String xdm_schema_population_size = "xdm.schema.population.size";
     public static final String xdm_schema_population_buffer_size = "xdm.schema.population.buffer.size";
-    public static final String xdm_schema_fetchSize = "xdm.schema.fetchSize";
+    public static final String xdm_schema_fetch_size = "xdm.schema.fetch.size";
     
     public static final String xdm_document_collections = "xdm.document.collections";
     public static final String xdm_document_data_format = "xdm.document.data.format";
