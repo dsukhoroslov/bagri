@@ -50,6 +50,7 @@ set java_opts=%java_opts% -Dxdm.client.smart=true
 set java_opts=%java_opts% -Dxdm.client.poolSize=10
 set java_opts=%java_opts% -Dxdm.client.healthCheck=skip
 set java_opts=%java_opts% -Dxdm.client.customAuth=true
+set java_opts=%java_opts% -Dxdm.client.queryCache=true
 
 set java_opts=%java_opts% -Duser.country=US -Duser.language=en
 

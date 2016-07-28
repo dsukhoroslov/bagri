@@ -27,10 +27,6 @@ public class AccessManagementImpl implements AccessManagement, InitializingBean 
 	public void afterPropertiesSet() throws Exception {
 		ApplicationContext context = findSystemContext();
 		if (context != null) {
-			Set<HazelcastInstance> instances = Hazelcast.getAllHazelcastInstances();
-			for (HazelcastInstance hzi: instances) {
-				System.out.println("got HZI: " + hzi.getName());
-			}
 			bridge = context.getBean(AccessManagementBridge.class);
 			logger.trace("afterPropertiesSet; got bridge: {}", bridge);
 		}

@@ -30,7 +30,7 @@
                 <entry name="xdm.schema.data.backup.read">false</entry>
                 <entry name="xdm.schema.trans.backup.async">0</entry>
                 <entry name="xdm.schema.store.enabled">false</entry>
-                <entry name="xdm.schema.test.mode">false</entry>
+                <entry name="xdm.schema.query.cache">true</entry>
                 <entry name="xdm.schema.transaction.timeout">60000</entry>
                 <entry name="xdm.schema.thread.pool">32</entry>
                 <entry name="xdm.schema.ports.first">10500</entry>
@@ -70,7 +70,7 @@
                 <entry name="xqj.schema.defaultFunctionNamespace">http://www.w3.org/2005/xpath-functions</entry>
                 <entry name="xqj.schema.defaultElementTypeNamespace"></entry>
                 <entry name="xqj.schema.copyNamespacesModeInherit">1</entry>
-                <entry name="xqj.schema.baseUri">file:///../data/default</entry>
+                <entry name="xqj.schema.baseUri">file:///../data/default/</entry>
                 <entry name="xqj.schema.defaultOrderForEmptySequences">2</entry>
                 <entry name="xqj.schema.defaultCollationUri">http://www.w3.org/2005/xpath-functions/collation/codepoint</entry>
                 <entry name="xqj.schema.constructionMode">1</entry>
@@ -233,7 +233,7 @@
                 <entry name="xdm.schema.ports.last">10100</entry>
                 <entry name="xdm.schema.members">192.168.1.50, 192.168.1.139</entry>
                 <entry name="xdm.schema.thread.pool">16</entry>
-                <entry name="xdm.schema.test.mode">false</entry>
+                <entry name="xdm.schema.query.cache">true</entry>
                 <entry name="xdm.schema.store.data.path">../data/tpox</entry>
                 <entry name="xdm.schema.store.type">File</entry>
                 <entry name="xdm.schema.format.default">XML</entry>
@@ -367,7 +367,7 @@
                 <entry name="xdm.schema.ports.first">20000</entry>
                 <entry name="xdm.schema.ports.last">20010</entry>
                 <entry name="xdm.schema.members">192.168.1.50, 192.168.1.139</entry>
-                <entry name="xdm.schema.test.mode">false</entry>
+                <entry name="xdm.schema.query.cache">true</entry>
                 <entry name="xdm.schema.thread.pool">10</entry>
                 <entry name="xdm.schema.store.data.path">../data/xmark</entry>
                 <entry name="xdm.schema.data.cache">NEVER</entry>
@@ -488,7 +488,7 @@
                 <entry name="xdm.schema.query.backup.sync">0</entry>
                 <entry name="xdm.schema.query.backup.read">true</entry>
                 <entry name="xdm.schema.password">TPoX-J</entry>
-                <entry name="xdm.schema.test.mode">false</entry>
+                <entry name="xdm.schema.query.cache">true</entry>
                 <entry name="xdm.schema.thread.pool">8</entry>
                 <entry name="xdm.schema.format.default">JSON</entry>
                 <entry name="xdm.schema.ports.first">10700</entry>
@@ -537,7 +537,7 @@
                 <entry name="xdm.schema.trans.backup.async">0</entry>
                 <entry name="xdm.schema.store.enabled">false</entry>
                 <entry name="xdm.schema.thread.pool">10</entry>
-                <entry name="xdm.schema.test.mode">false</entry>
+                <entry name="xdm.schema.query.cache">true</entry>
                 <entry name="xdm.schema.ports.first">10150</entry>
                 <entry name="xdm.schema.format.default">XML</entry>
                 <entry name="xdm.schema.ports.last">10160</entry>

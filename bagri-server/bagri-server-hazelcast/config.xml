@@ -34,7 +34,7 @@
                 <entry name="xdm.schema.thread.pool">10</entry>
                 <entry name="xdm.schema.data.cache">NEVER</entry>
                 <entry name="xdm.schema.data.stats.enabled">false</entry>
-                <entry name="xdm.schema.test.mode">false</entry>
+                <entry name="xdm.schema.query.cache">true</entry>
                 <entry name="xdm.schema.ports.first">10150</entry>
                 <entry name="xdm.schema.format.default">XML</entry>
                 <entry name="xdm.schema.ports.last">10160</entry>
@@ -103,7 +103,7 @@
                 <entry name="xdm.schema.thread.pool">8</entry>
                 <entry name="xdm.schema.data.cache">INDEX-ONLY</entry>
                 <entry name="xdm.schema.data.stats.enabled">true</entry>
-                <entry name="xdm.schema.test.mode">false</entry>
+                <entry name="xdm.schema.query.cache">true</entry>
                 <entry name="xdm.schema.ports.first">10700</entry>
                 <entry name="xdm.schema.format.default">JSON</entry>
                 <entry name="xdm.schema.store.type">File</entry>
@@ -161,7 +161,7 @@
                 <entry name="xdm.schema.trans.backup.async">0</entry>
                 <entry name="xdm.schema.store.enabled">true</entry>
                 <entry name="xdm.schema.thread.pool">10</entry>
-                <entry name="xdm.schema.test.mode">false</entry>
+                <entry name="xdm.schema.query.cache">true</entry>
                 <entry name="xdm.schema.ports.first">10050</entry>
                 <entry name="xdm.schema.format.default">XML</entry>
                 <entry name="xdm.schema.store.type">File</entry>
@@ -221,7 +221,7 @@
                 <entry name="xdm.schema.store.enabled">true</entry>
                 <entry name="xdm.schema.store.tx.buffer.size">2048</entry>
                 <entry name="xdm.schema.thread.pool">16</entry>
-                <entry name="xdm.schema.test.mode">false</entry>
+                <entry name="xdm.schema.query.cache">true</entry>
                 <entry name="xdm.schema.ports.first">10000</entry>
                 <entry name="xdm.schema.format.default">XML</entry>
                 <entry name="xdm.schema.data.cache">NEVER</entry>
@@ -350,7 +350,7 @@
                 <entry name="xdm.schema.store.enabled">false</entry>
                 <entry name="xdm.schema.store.tx.buffer.size">2048</entry>
                 <entry name="xdm.schema.thread.pool">16</entry>
-                <entry name="xdm.schema.test.mode">false</entry>
+                <entry name="xdm.schema.query.cache">true</entry>
                 <entry name="xdm.schema.ports.first">10500</entry>
                 <entry name="xdm.schema.format.default">XML</entry>
                 <entry name="xdm.schema.ports.last">10600</entry>
@@ -548,7 +548,7 @@
                 <entry name="xdm.schema.store.enabled">true</entry>
                 <entry name="xdm.schema.store.tx.buffer.size">2048</entry>
                 <entry name="xdm.schema.thread.pool">10</entry>
-                <entry name="xdm.schema.test.mode">false</entry>
+                <entry name="xdm.schema.query.cache">true</entry>
                 <entry name="xdm.schema.ports.first">20000</entry>
                 <entry name="xdm.schema.name">XMark</entry>
                 <entry name="xdm.schema.data.cache">NEVER</entry>

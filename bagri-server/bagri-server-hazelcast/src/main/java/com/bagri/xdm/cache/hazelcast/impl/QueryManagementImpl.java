@@ -90,7 +90,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	private StopWatch stopWatch;
 	private BlockingQueue<StatisticsEvent> timeQueue;
 
-	private QueryProcessor localProc;
+	private boolean cacheResults = true;
 	
 	private ThreadLocal<QueryExecContext> thContext = new ThreadLocal<QueryExecContext>() {
 		
@@ -135,12 +135,8 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
     	this.enableStats = enable;
     }
     
-    public void setTestMode(boolean testMode) {
-    	if (testMode) {
-    		localProc = new QueryProcessor();
-    	} else {
-    		localProc = new RealQueryProcessor();
-    	}
+    public void setCacheResults(boolean cacheResults) {
+    	this.cacheResults = cacheResults;
     }
     
 	public void setStopWatch(StopWatch stopWatch) {
@@ -574,19 +570,25 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	public Collection<String> getDocumentUris(String query, Map<String, Object> params, Properties props) throws XDMException {
 		logger.trace("getDocumentUris.enter; query: {}, command: {}; params: {}; properties: {}", query, params, props);
 		Collection<String> result = null;
-		
-		int qCode = getQueryKey(query);
-		if (xqCache.containsKey(qCode)) {
-			Map<Long, String> keys = getQueryUris(query, params, props);
-			result = keys.values();
+		int qCode = 0;
+		if (cacheResults) {
+			qCode = getQueryKey(query);
+			if (xqCache.containsKey(qCode)) {
+				Map<Long, String> keys = getQueryUris(query, params, props);
+				result = keys.values();
+			}
 		}
 		
 		if (result == null) {
 			try {
 				Iterator<Object> iter = runQuery(query, params, props);
 				result = thContext.get().getDocKeys().values();
-				if (xqCache.containsKey(qCode)) {
-					addQueryResults(query, params, props, null, iter);
+				if (cacheResults) {
+					if (xqCache.containsKey(qCode)) {
+						addQueryResults(query, params, props, null, iter);
+					} else {
+						logger.warn("getDocumentUris; query is not cached after processing: {}", query);
+					}
 				}
 			} catch (XQException ex) {
 				throw new XDMException(ex, XDMException.ecQuery);
@@ -599,8 +601,16 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 
 	@Override
 	public boolean isReadOnlyQuery(String query) {
-
-		return localProc.isReadOnlyQuery(query);
+		Integer qCode = getQueryKey(query);
+		Query xQuery = xqCache.get(qCode);
+		//XDMQuery xQuery = this.getQuery(query);
+		if (xQuery == null) {
+			//not cached yet, returning false, just to be safe..
+			return false;
+			// calc it via xqp...
+			//XQProcessor xqp = repo.getXQProcessor(clientId);
+		}
+		return xQuery.isReadOnly();
 	}
 
 	@Override
@@ -612,34 +622,37 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	public ResultCursor executeQuery(String query, Map<String, Object> params, Properties props) throws XDMException {
 
 		logger.trace("executeQuery.enter; query: {}; params: {}; properties: {}", query, params, props);
-		boolean isQuery = "false".equalsIgnoreCase(props.getProperty(pn_query_command, "false"));
-		
 		List<Object> resList = null;
-		int qCode = getQueryKey(query);
-		if (isQuery) {
-			if (xqCache.containsKey(qCode)) {
-				resList = getQueryResults(query, params, props);
+		int qCode = 0;
+		if (cacheResults) {
+			boolean isQuery = "false".equalsIgnoreCase(props.getProperty(pn_query_command, "false"));
+			qCode = getQueryKey(query);
+			if (isQuery) {
+				if (xqCache.containsKey(qCode)) {
+					resList = getQueryResults(query, params, props);
+				}
 			}
 		}
 		
-		Iterator<Object> iter = null;
+		ResultCursor result;
 		if (resList == null) {
 			try {
-				iter = runQuery(query, params, props);
+				Iterator<Object> iter = runQuery(query, params, props);
+				result = createCursor(resList, iter, props);
+				if (cacheResults) {
+					if (xqCache.containsKey(qCode)) {
+						// no need to check for isQuery, commands are not cached
+						addQueryResults(query, params, props, result, iter);
+					} else {
+						logger.warn("executeQuery; query is not cached after processing: {}", query);
+					}
+				}
 			} catch (XQException ex) {
 				throw new XDMException(ex, XDMException.ecQuery);
 			}
-		}
-
-		ResultCursor result = createCursor(resList, iter, props);
-		if (resList == null) {
-			// no need to check for isQuery, commands are not cached!
-			if (xqCache.containsKey(qCode)) {
-				addQueryResults(query, params, props, result, iter);
-			} else {
-				logger.warn("executeQuery; query is not cached after processing: {}", query);
-			}
 		} else {
+			// already cached
+			result = createCursor(resList, null, props);
 			String clientId = props.getProperty(pn_client_id);
 			XQProcessor xqp = repo.getXQProcessor(clientId);
 			xqp.setResults(result);
@@ -664,7 +677,30 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		
 		Iterator<Object> iter = null;
 		try {
-			iter = localProc.runQuery(query, params, props);
+			String clientId = props.getProperty(pn_client_id);
+			boolean isQuery = "false".equalsIgnoreCase(props.getProperty(pn_query_command, "false"));
+			XQProcessor xqp = repo.getXQProcessor(clientId);
+			
+			QueryExecContext ctx = thContext.get();
+			ctx.clear();
+				
+			if (params != null) {
+				for (Map.Entry<String, Object> var: params.entrySet()) {
+					xqp.bindVariable(var.getKey(), var.getValue());
+				}
+			}
+					
+			if (isQuery) {
+				iter = xqp.executeXQuery(query, props);
+			} else {
+				iter = xqp.executeXCommand(query, params, props);
+			}
+					
+			if (params != null) {
+				for (Map.Entry<String, Object> var: params.entrySet()) {
+					xqp.unbindVariable(var.getKey());
+				}
+			}
         } catch (Throwable t) {
         	//t.printStackTrace();
             failed = true;
@@ -728,63 +764,6 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		}
 		logger.trace("createCursor.exit; serialized: {} results", count);
 		return xqCursor;
-	}
-	
-	private class QueryProcessor {
-		
-		boolean isReadOnlyQuery(String query) {
-			return true;
-		}
-		
-		Iterator<Object> runQuery(String query, Map<String, Object> params, Properties props) throws Exception {
-			return Collections.emptyIterator();
-		}
-	}
-	
-	private class RealQueryProcessor extends QueryProcessor {
-
-		boolean isReadOnlyQuery(String query) {
-			Integer qCode = getQueryKey(query);
-			Query xQuery = xqCache.get(qCode);
-			//XDMQuery xQuery = this.getQuery(query);
-			if (xQuery == null) {
-				//not cached yet, returning false, just to be safe..
-				return false;
-				// calc it via xqp...
-				//XQProcessor xqp = repo.getXQProcessor(clientId);
-			}
-			return xQuery.isReadOnly();
-		}
-		
-		Iterator<Object> runQuery(String query, Map<String, Object> params, Properties props) throws Exception {
-
-			Iterator<Object> iter = null;
-			String clientId = props.getProperty(pn_client_id);
-			boolean isQuery = "false".equalsIgnoreCase(props.getProperty(pn_query_command, "false"));
-			XQProcessor xqp = repo.getXQProcessor(clientId);
-			
-			QueryExecContext ctx = thContext.get();
-			ctx.clear();
-			
-			if (params != null) {
-				for (Map.Entry<String, Object> var: params.entrySet()) {
-					xqp.bindVariable(var.getKey(), var.getValue());
-				}
-			}
-				
-			if (isQuery) {
-				iter = xqp.executeXQuery(query, props);
-			} else {
-				iter = xqp.executeXCommand(query, params, props);
-			}
-				
-			if (params != null) {
-				for (Map.Entry<String, Object> var: params.entrySet()) {
-					xqp.unbindVariable(var.getKey());
-				}
-			}
-			return iter;
-		}
 	}
 	
 	private class QueryExecContext {
