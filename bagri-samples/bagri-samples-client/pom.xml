@@ -53,17 +53,6 @@
             <!--scope>runtime</scope-->
         </dependency>
 
-        <!--dependency>
-            <groupId>com.oracle.coherence</groupId>
-            <artifactId>coherence</artifactId>
-                <scope>runtime</scope>
-        </dependency>
-            <dependency>
-            <groupId>com.oracle.coherence.incubator</groupId>
-            <artifactId>coherence-common</artifactId>
-                <scope>runtime</scope>
-        </dependency-->
-
         <!-- Dependencies for logging -->
         <dependency>
             <groupId>org.slf4j</groupId>

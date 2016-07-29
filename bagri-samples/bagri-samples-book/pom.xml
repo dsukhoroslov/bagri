@@ -65,11 +65,11 @@
             <artifactId>jcl-over-slf4j</artifactId>
             <scope>runtime</scope>
         </dependency>
-        <dependency>
+        <!--dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>log4j-over-slf4j</artifactId>
             <scope>runtime</scope>
-        </dependency>
+        </dependency-->
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>

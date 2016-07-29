@@ -35,7 +35,7 @@
         </license>
     </licenses>
     <scm>
-        <!--connection>scm:git:git://github.com/dsukhoroslov/bagri.git</connection-->
+        <connection>scm:git:git://github.com/dsukhoroslov/bagri.git</connection>
         <developerConnection>scm:git:git@github.com:dsukhoroslov/bagri.git</developerConnection>
         <url>https://github.com/dsukhoroslov/bagri/</url>
     </scm>
@@ -153,11 +153,6 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-            <!--dependency>
-                <groupId>com.bagri.db</groupId>
-                <artifactId>bagri-client-coherence</artifactId>
-                <version>${project.version}</version>
-            </dependency-->
             <dependency>
                 <groupId>com.bagri.db</groupId>
                 <artifactId>bagri-client-hazelcast</artifactId>
@@ -175,11 +170,6 @@
                 <version>${project.version}</version>
             </dependency>
 
-            <!--dependency>
-                <groupId>com.bagri.db</groupId>
-                <artifactId>bagri-server-coherence</artifactId>
-                <version>${project.version}</version>
-            </dependency-->
             <dependency>
                 <groupId>com.bagri.db</groupId>
                 <artifactId>bagri-server-hazelcast</artifactId>
@@ -241,11 +231,6 @@
                 <artifactId>xqj-api</artifactId>
                 <version>${xqj.version}</version>
             </dependency>
-            <!--dependency>
-                <groupId>com.xqj2</groupId>
-                <artifactId>xqj2</artifactId>
-                <version>${xqj2.version}</version>
-            </dependency-->
             <dependency>
                 <groupId>net.sf.saxon</groupId>
                 <artifactId>Saxon-HE</artifactId>
@@ -266,18 +251,6 @@
                 <artifactId>jackson-core</artifactId>
                 <version>${jackson.version}</version>
             </dependency>
-
-            <!--dependency>
-                <groupId>org.antlr</groupId>
-                <artifactId>antlr-runtime</artifactId>
-                <version>${antlr.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.antlr</groupId>
-                        <artifactId>stringtemplate</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency-->
 
             <!-- Dependencies for logging -->
             <dependency>
@@ -331,23 +304,6 @@
                 <version>${hazelcast.version}</version>
             </dependency>
 
-            <!-- Oracle dependencies -->
-            <!--dependency>
-                <groupId>com.oracle.coherence</groupId>
-                <artifactId>coherence</artifactId>
-                <version>${coherence.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.oracle.coherence.incubator</groupId>
-                <artifactId>coherence-common</artifactId>
-                <version>${coherence-common.version}</version>
-            </dependency-->
-            <!--dependency>
-		<groupId>com.oracle.coherence.spring</groupId>
-		<artifactId>coherence-spring</artifactId>
-		<version>${coherence-spring.version}</version>
-            </dependency-->
-
 	    <dependency>
 		<groupId>com.marklogic</groupId>
 		<artifactId>marklogic-xcc</artifactId>
@@ -364,12 +320,6 @@
                 <artifactId>junit</artifactId>
                 <version>${junit.version}</version>
                 <!--scope>test</scope-->
-                <!--exclusions>
-                    <exclusion>
-                        <artifactId>hamcrest-core</artifactId>
-                        <groupId>org.hamcrest</groupId>
-                    </exclusion>
-                </exclusions-->
             </dependency>
 
             <dependency>
