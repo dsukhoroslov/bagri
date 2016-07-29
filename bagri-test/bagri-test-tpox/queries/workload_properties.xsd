@@ -36,7 +36,6 @@
 			<xs:attribute name="name" type="xs:string" use="required"/>
 		</xs:complexType>
 	</xs:element>
-	
 	<xs:element name="directory" type="xs:string"/>
 	<xs:element name="transactions">
 		<xs:complexType>
