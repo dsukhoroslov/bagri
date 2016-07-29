@@ -51,7 +51,7 @@ public class ThreadedStopWatch implements StopWatch {
 	}
 
 	/**
-	 * Initializes StopWatch with the Ticker provided. Must be used before the first use of the StopWatch.
+	 * Initializes StopWatch with the Ticker provided. Must be called before the first use of the StopWatch.
 	 * 
 	 * @param ticker the Ticker to use
 	 */

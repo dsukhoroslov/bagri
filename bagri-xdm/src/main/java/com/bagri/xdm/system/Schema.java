@@ -41,7 +41,6 @@ public class Schema extends Entity {
 	
 	@XmlAttribute(required = true)
 	private boolean active;
-	//private Map<String, Object> props = new HashMap<String, Object>();
 	
 	@XmlElement(name = "properties")
 	@XmlJavaTypeAdapter(EntriesAdapter.class)

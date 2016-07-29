@@ -306,6 +306,7 @@ public class XMLUtils {
 	 * @param xml the XML to deserialize
 	 * @return the deserialization result
 	 */
+	@SuppressWarnings("unchecked")
 	public static Map<String, Object> mapFromXML(String xml) {
 		return (Map<String, Object>) xStream.fromXML(xml);		
 	}
@@ -315,11 +316,13 @@ public class XMLUtils {
 		
 		private ConcurrentHashMap<String, Class<?>> types = new ConcurrentHashMap<>();
 	
-	    public boolean canConvert(Class clazz) {
+	    @SuppressWarnings("rawtypes")
+		public boolean canConvert(Class clazz) {
 	        return Map.class.isAssignableFrom(clazz);
 	    }
 	
-	    public void marshal(Object value, HierarchicalStreamWriter writer, MarshallingContext context) {
+	    @SuppressWarnings("unchecked")
+		public void marshal(Object value, HierarchicalStreamWriter writer, MarshallingContext context) {
 	
 	        Map<String, Object> map = (Map<String, Object>) value;
 	        for (Map.Entry<String, Object> entry : map.entrySet()) {
@@ -327,7 +330,6 @@ public class XMLUtils {
 	            Object val = entry.getValue();
 	            if (val != null) {
 	            	types.putIfAbsent(entry.getKey(), val.getClass());
-	                //writer.setValue(val.toString());
 	            	context.convertAnother(val);
 	            }
 	            writer.endNode();
@@ -340,8 +342,6 @@ public class XMLUtils {
 	        while (reader.hasMoreChildren()) {
 	            reader.moveDown();
 	            String key = reader.getNodeName(); 
-	            //String val = reader.getValue();
-	            //Object value = context.convertAnother(val, types.get(key));
 	            Object value = context.convertAnother(map, types.get(key));
 	            map.put(key, value);
 	            reader.moveUp();

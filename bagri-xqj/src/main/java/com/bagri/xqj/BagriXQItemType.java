@@ -95,9 +95,6 @@ public class BagriXQItemType extends BagriXQSequenceType implements XQItemType {
 
 	@Override
 	public boolean isAnonymousType() {
-		// @TODO: wrong implementation!
-		// Represents whether the item type is an anonymous type in the schema.
-		//return false;
 		return schemaURI != null && typeName == null;
 	}
 

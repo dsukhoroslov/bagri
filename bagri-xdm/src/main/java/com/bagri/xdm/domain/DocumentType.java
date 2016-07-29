@@ -18,10 +18,6 @@ public class DocumentType {
 	private boolean normalized = false;
 	private Set<String> schemas = new HashSet<>();
 	
-	// what these two for !?
-	private int fragmentationLimit = 0;
-	private Set<Long> fragments = new HashSet<>();
-	
 	/**
 	 * default constructor
 	 */

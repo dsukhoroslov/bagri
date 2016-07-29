@@ -66,27 +66,6 @@ public interface QueryManagement extends com.bagri.xdm.api.QueryManagement {
 	boolean addQuery(String query, boolean readOnly, QueryBuilder xdmQuery);
 
 	/**
-	 * looks for cached query results associated with the {@literal query} {@literal params} and query processing {@literal props} provided.
-	 * 
-	 * @param query the plain text query representation
-	 * @param params the map of parameter name/value pairs. Parameters are bound in query by names
-	 * @param props the query processing instructions. Supported values are: ...
-	 * @return the {@link Iterator} over found query results or null if not found
-	 */
-	//Iterator<Object> getQueryResults(String query, Map<String, Object> params, Properties props);
-	
-	/**
-	 * adds query {@literal results} into internal cache for the {@literal query} {@literal params} and query processing {@literal props} specified.
-	 * 
-	 * @param query the plain text query representation
-	 * @param params the map of parameter name/value pairs. Parameters are bound in query by names
-	 * @param props the query processing instructions. Supported values are: ...
-	 * @param results the generic {@link Iterator} over query results
-	 * @return the {@link Iterator} over query results 
-	 */
-	//Iterator<Object> addQueryResults(String query, Map<String, Object> params, Properties props, Iterator<Object> results);
-	
-	/**
 	 * clears internal query and query results caches
 	 */
 	void clearCache();

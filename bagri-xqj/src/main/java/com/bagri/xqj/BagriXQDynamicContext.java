@@ -109,8 +109,8 @@ public class BagriXQDynamicContext extends BagriXQCloseable implements XQDynamic
 		if (value.isClosed()) {
 			throw new XQException("Item is closed");
 		}
-		bindings.put(varName, value); //?
-		connection.bindVariable(varName, value); //value.getObject()
+		bindings.put(varName, value); 
+		connection.bindVariable(varName, value); 
 	}
 
 	@Override
@@ -231,13 +231,7 @@ public class BagriXQDynamicContext extends BagriXQCloseable implements XQDynamic
 		
 		checkState(ex_expression_closed);
 		this.timeZone = implicitTimeZone;
-		// TODO: propagate timezone to the underlying XQuery processor
-        //GregorianCalendar now = new GregorianCalendar(implicitTimeZone);
-        //try {
-        //    getDynamicContext().setCurrentDateTime(new DateTimeValue(now, true));
-        //} catch (XPathException e) {
-        //    throw new XQException(e.getMessage());
-        //}
+		connection.getProcessor().setTimeZone(implicitTimeZone);
 	}
 	
 	protected Set<QName> getVarNames() {

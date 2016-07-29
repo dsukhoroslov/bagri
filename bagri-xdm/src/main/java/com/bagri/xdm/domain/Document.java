@@ -176,7 +176,6 @@ public class Document implements Convertable<Map<String, Object>>, Versionable {
 	@Override
 	public void updateVersion(String by) {
 		documentKey++; 
-		//toKey(getDocumentId(), getVersion() + 1);
 		createdAt = System.currentTimeMillis();
 		createdBy = by;
 	}

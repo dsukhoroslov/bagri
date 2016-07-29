@@ -184,7 +184,6 @@ public class XmlStaxParser extends ContentParserBase implements ContentParser {
 	
 	private void processEvent(XMLEvent xmlEvent) throws XDMException {
 		
-		//logger.trace("event: {}; type: {}; docType: {}", xmlEvent, xmlEvent.getEventType(), docType);
 		if (docType < 0) {
 			firstEvents.add(xmlEvent);
 			if (xmlEvent.getEventType() == XMLStreamConstants.START_ELEMENT) {
@@ -201,14 +200,12 @@ public class XmlStaxParser extends ContentParserBase implements ContentParser {
 					break;
 				case XMLStreamConstants.START_ELEMENT:
 					processStartElement(xmlEvent.asStartElement());
-					//eventReader.nextTag();
 					break;
 				case XMLStreamConstants.CHARACTERS:
 					processCharacters(xmlEvent.asCharacters());
 					break;
 				case XMLStreamConstants.END_ELEMENT:
 					processEndElement(xmlEvent.asEndElement());
-					//eventReader.nextTag();
 					break;
 				case XMLStreamConstants.END_DOCUMENT:
 					break;
@@ -247,10 +244,8 @@ public class XmlStaxParser extends ContentParserBase implements ContentParser {
 	
 	private void processDocument(StartDocument document) throws XDMException {
 
-		//logger.trace("document: {}", document);
 		Element start = new Element();
 		start.setElementId(elementId++);
-		//start.setParentId(0); // -1 ?
 		Path path = model.translatePath(docType, "", NodeKind.document, XQItemType.XQBASETYPE_ANYTYPE, Occurrence.onlyOne);
 		Data data = new Data(path, start);
 		dataStack.add(data);
@@ -277,7 +272,7 @@ public class XmlStaxParser extends ContentParserBase implements ContentParser {
 		for (Iterator<Attribute> itr = element.getAttributes(); itr.hasNext();) {
 			Attribute a = itr.next();
 			// TODO: process additional (not registered yet) namespaces properly
-			addData(current, NodeKind.attribute, "/@" + a.getName(), a.getValue(), XQItemType.XQBASETYPE_ANYATOMICTYPE, Occurrence.onlyOne); //.trim());
+			addData(current, NodeKind.attribute, "/@" + a.getName(), a.getValue(), XQItemType.XQBASETYPE_ANYATOMICTYPE, Occurrence.onlyOne); 
 		}
 	}
 
@@ -292,7 +287,6 @@ public class XmlStaxParser extends ContentParserBase implements ContentParser {
 			// is xs:token, for instance..
 			Data text = addData(current, NodeKind.text, "/text()", content, XQItemType.XQBASETYPE_ANYATOMICTYPE, Occurrence.zeroOrOne); 
 			chars.delete(0, chars.length());
-			//logger.trace("text: {}", text);
 		}
 	}
 
@@ -305,7 +299,6 @@ public class XmlStaxParser extends ContentParserBase implements ContentParser {
 
 	private void processComment(Comment comment) throws XDMException {
 
-		//logger.trace("comment: {}", comment);
 		addData(dataStack.peek(), NodeKind.comment, "/comment()", comment.getText(), XQItemType.XQBASETYPE_ANYTYPE, Occurrence.zeroOrOne);
 	}
 
@@ -321,7 +314,6 @@ public class XmlStaxParser extends ContentParserBase implements ContentParser {
 		//node among its like-named processing-instruction node siblings
 		
 		Data piData = addData(dataStack.peek(), NodeKind.pi, "/?" + pi.getTarget(), pi.getData(), XQItemType.XQBASETYPE_ANYTYPE, Occurrence.zeroOrOne);
-		//logger.trace("piData: {}; target: {}", piData, pi.getTarget());
 	}
 
 }

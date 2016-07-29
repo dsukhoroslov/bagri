@@ -41,7 +41,6 @@ public class IterableXQSequence extends BagriXQSequence {
 		if (accessed) {
 			throw new XQException("Item has been already accessed");
 		}
-		//accessed = true;
 	}
 	
 	@Override
@@ -176,15 +175,6 @@ public class IterableXQSequence extends BagriXQSequence {
 		return result;
 	}
 
-	//@Override
-	//Iterator getIterator() throws XQException {
-		
-	//	if (isClosed()) {
-	//		throw new XQException("Sequence is closed");
-	//	}
-	//	return iterator;
-	//}
-
 	@Override
 	public XQItem getItem() throws XQException {
 		
@@ -230,7 +220,6 @@ public class IterableXQSequence extends BagriXQSequence {
 	@Override
 	public XMLStreamReader getSequenceAsStream() throws XQException {
 
-		//positioned = true;
 		checkAccess(false);
 		XMLStreamReader result = super.getSequenceAsStream();
 		accessed = true;
@@ -240,7 +229,6 @@ public class IterableXQSequence extends BagriXQSequence {
 	@Override
 	public String getSequenceAsString(Properties props) throws XQException {
 
-		//positioned = true;
 		checkAccess(false);
 		String result = super.getSequenceAsString(props);
 		accessed = true;
@@ -330,7 +318,6 @@ public class IterableXQSequence extends BagriXQSequence {
 	@Override
 	public void writeItem(OutputStream os, Properties props) throws XQException {
 
-		//accessed = false;
 		checkAccess(true);
 		super.writeItem(os, props);
 		accessed = true;
@@ -339,7 +326,6 @@ public class IterableXQSequence extends BagriXQSequence {
 	@Override
 	public void writeItem(Writer ow, Properties props) throws XQException {
 
-		//accessed = false;
 		checkAccess(true);
 		super.writeItem(ow, props);
 		accessed = true;
@@ -364,7 +350,6 @@ public class IterableXQSequence extends BagriXQSequence {
 	@Override
 	public void writeSequence(OutputStream os, Properties props) throws XQException {
 
-		//positioned = true;
 		checkAccess(false);
 		super.writeSequence(os, props);
 		accessed = true;
@@ -373,7 +358,6 @@ public class IterableXQSequence extends BagriXQSequence {
 	@Override
 	public void writeSequence(Writer ow, Properties props) throws XQException {
 		
-		//positioned = true;
 		checkAccess(false);
 		super.writeSequence(ow, props);
 		accessed = true;
@@ -382,7 +366,6 @@ public class IterableXQSequence extends BagriXQSequence {
 	@Override
 	public void writeSequenceToSAX(ContentHandler saxhdlr) throws XQException {
 
-		//positioned = true;
 		checkAccess(false);
 		super.writeSequenceToSAX(saxhdlr);
 		accessed = true;
@@ -391,7 +374,6 @@ public class IterableXQSequence extends BagriXQSequence {
 	@Override
 	public void writeSequenceToResult(Result result) throws XQException {
 		
-		//positioned = true;
 		checkAccess(false);
 		super.writeSequenceToResult(result);
 		accessed = true;

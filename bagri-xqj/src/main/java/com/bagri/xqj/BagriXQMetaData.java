@@ -10,7 +10,7 @@ import java.util.Set;
 import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQMetaData;
 
-public class BagriXQMetaData implements XQMetaData { //, XQMetaData2 {
+public class BagriXQMetaData implements XQMetaData { 
 	
 	public static final int max_expression_length = Integer.MAX_VALUE;
 	public static final int max_user_name_length = 64;
@@ -37,7 +37,7 @@ public class BagriXQMetaData implements XQMetaData { //, XQMetaData2 {
 	@Override
 	public int getProductMinorVersion() throws XQException {
 		connect.checkState(ex_connection_closed);
-		return 7;
+		return 9;
 	}
 
 	@Override

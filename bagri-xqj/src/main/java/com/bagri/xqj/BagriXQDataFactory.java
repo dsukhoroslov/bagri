@@ -726,20 +726,12 @@ public class BagriXQDataFactory extends BagriXQCloseable implements XQDataFactor
 		if (itr == null) {
 			throw new XQException("Iterator is null");
 		}
-		
+
+		// shouldn't we check processor props to know type of sequence?
 		return new ScrollableXQSequence(this, xqProcessor, copyIterator(itr));
 		//return new IterableXQSequence(this, xqProcessor, itr);
 	}
 	
-	//@SuppressWarnings({ "rawtypes", "unchecked" })
-	//private List getList(Iterator itr) {
-	//	ArrayList list = new ArrayList();
-	//	while (itr.hasNext()) {
-	//		list.add(itr.next());
-	//	}
-	//	return list;
-	//}
-
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private List getList(XQSequence xqc) throws XQException {
 		ArrayList list = new ArrayList();

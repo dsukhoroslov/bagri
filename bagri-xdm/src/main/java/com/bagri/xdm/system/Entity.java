@@ -21,7 +21,6 @@ import com.bagri.xdm.common.Versionable;
  *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-//@XmlType(namespace = "http://www.bagridb.com/xdm/system",	propOrder = {
 @XmlType(propOrder = {
 		"version", 
 		"createdAt", 

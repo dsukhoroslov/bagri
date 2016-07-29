@@ -30,17 +30,10 @@ public abstract class QueryManagementBase {
      * @return cache key for the params
      */
 	public int getParamsKey(Map<String, Object> params) {
-		//final int prime = 31;
-		//int result = params.size();
-		//for (Map.Entry param: params.entrySet()) {
-		//	result = prime * result	+ param.getKey().hashCode();
-		//	result = prime * result + param.getValue().hashCode();
-		//}
 		if (params == null) {
 			return 0;
 		}
 		int result = params.toString().hashCode();
-		//logger.trace("getParamsKey; returning key: {} for params: {}", result, params);
 		return result;
 	}
 

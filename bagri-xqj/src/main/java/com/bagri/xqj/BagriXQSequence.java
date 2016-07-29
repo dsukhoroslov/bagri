@@ -19,7 +19,7 @@ import org.xml.sax.ContentHandler;
 import com.bagri.common.util.XMLUtils;
 import com.bagri.xquery.api.XQProcessor;
 
-public abstract class BagriXQSequence extends BagriXQItemAccessor implements XQSequence /*, XQResultSequence*/ {
+public abstract class BagriXQSequence extends BagriXQItemAccessor implements XQSequence {
 	
 	protected BagriXQDataFactory xqFactory;
 	

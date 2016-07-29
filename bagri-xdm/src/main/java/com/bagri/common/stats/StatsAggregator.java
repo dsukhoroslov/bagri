@@ -16,5 +16,5 @@ public interface StatsAggregator {
 	 */
 	Object[] aggregateStats(Object[] source, Object[] target);
 
-	// to we need to aggregate for Map, CompositeData?
+	// do we need an aggregate method for Map, CompositeData?
 }

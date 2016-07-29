@@ -101,9 +101,9 @@
 					<hz:index attribute="uri"/>
 				</hz:indexes>
 			</hz:map>
-			<hz:map name="xdm-element" in-memory-format="OBJECT" async-backup-count="${xdm.schema.data.backup.async}" 
+			<hz:map name="xdm-element" in-memory-format="BINARY" async-backup-count="${xdm.schema.data.backup.async}" 
 				backup-count="${xdm.schema.data.backup.sync}" read-backup-data="${xdm.schema.data.backup.read}"
-				cache-deserialized-values="INDEX-ONLY" statistics-enabled="${xdm.schema.data.stats.enabled}">
+				cache-deserialized-values="NEVER" statistics-enabled="${xdm.schema.data.stats.enabled}">
 				<hz:indexes>
 					<hz:index attribute="pathId" ordered="true"/>
 				</hz:indexes>

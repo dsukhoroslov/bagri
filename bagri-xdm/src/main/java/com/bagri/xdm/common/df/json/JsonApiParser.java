@@ -205,7 +205,6 @@ public class JsonApiParser extends ContentParserBase implements ContentParser {
 		Path path = model.translatePath(docType, "", NodeKind.document, XQItemType.XQBASETYPE_ANYTYPE, Occurrence.onlyOne);
 		Element start = new Element();
 		start.setElementId(elementId++);
-		//start.setParentId(0); // -1 ?
 		Data data = new Data(path, start);
 		dataStack.add(data);
 		dataList.add(data);
@@ -219,7 +218,7 @@ public class JsonApiParser extends ContentParserBase implements ContentParser {
 		if (isArray) {
 			dataStack.add(null);
 		} else {
-			Data current = dataStack.lastElement(); //getTopData(); 
+			Data current = dataStack.lastElement();  
 			if (current == null || current.getNodeKind() != NodeKind.element) {
 				dataStack.add(null);
 			}
@@ -239,7 +238,6 @@ public class JsonApiParser extends ContentParserBase implements ContentParser {
 					current = addData(parent, NodeKind.attribute, "/@" + name, null, XQItemType.XQBASETYPE_ANYATOMICTYPE, Occurrence.zeroOrOne);
 				}
 			} else if (name.equals("#text")) {
-				//dataStack.add(null);
 				current = new Data(null, null);  
 			} else {
 				current = addData(parent, NodeKind.element, "/" + name, null, XQItemType.XQBASETYPE_ANYTYPE, Occurrence.zeroOrOne); 
@@ -259,19 +257,14 @@ public class JsonApiParser extends ContentParserBase implements ContentParser {
 
 	private void processValueElement(String value) throws XDMException {
 		
-		//value = value.replaceAll("&", "&amp;");
-	
 		Data current = dataStack.pop();
 		boolean isArray = current == null;
 		if (isArray || current.getElement() == null) {
-			//current = dataStack.peek();
 			current = getTopData();
 		}
 		if (current.getNodeKind() == NodeKind.element) {
 			addData(current, NodeKind.text, "/text()", value, XQItemType.XQBASETYPE_ANYATOMICTYPE, 
 					isArray ? Occurrence.zeroOrMany : Occurrence.zeroOrOne);
-		//} else if (current.getNodeKind() == XDMNodeKind.text) {
-		//	current.getElement().setValue(value);
 		} else {
 			current.getElement().setValue(value);
 		}

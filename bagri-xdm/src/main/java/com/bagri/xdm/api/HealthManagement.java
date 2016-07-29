@@ -45,8 +45,6 @@ public interface HealthManagement {
 	 */
 	void setCheckSate(HealthCheckState state);
 	
-	//int getDocumentCount();
-	
 	/**
 	 * 
 	 * @param listener the {@link HealthChangeListener} to registered for listening on health events

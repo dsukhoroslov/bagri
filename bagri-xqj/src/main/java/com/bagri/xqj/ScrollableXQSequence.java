@@ -92,15 +92,6 @@ public class ScrollableXQSequence extends BagriXQSequence implements XQSequence 
 		return sequence.size();
 	}
 
-	//@Override
-	//Iterator getIterator() throws XQException {
-		
-	//	if (isClosed()) {
-	//		throw new XQException("Sequence is closed");
-	//	}
-	//	return sequence.iterator();
-	//}
-
 	@Override
 	public int getPosition() throws XQException {
 		
@@ -138,7 +129,7 @@ public class ScrollableXQSequence extends BagriXQSequence implements XQSequence 
 	public boolean isAfterLast() throws XQException {
 
 		checkState(ex_sequence_closed);
-		return position > sequence.size(); //sequence.size() > 0 && position == sequence.size() - 1;
+		return position > sequence.size(); 
 	}
 
 	@Override

@@ -53,11 +53,11 @@ public class IndexedDocument extends IndexedValue {
 		return docKeys.size();
 	}
 
+	/**
+	 * @return the internal document key
+	 */
 	@Override
 	public long getDocumentKey() {
-		//if (docIds.size() > 0) {
-		//	return ???
-		//}
 		return 0;
 	}
 

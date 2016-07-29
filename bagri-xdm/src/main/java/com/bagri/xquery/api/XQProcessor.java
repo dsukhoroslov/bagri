@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
+import java.util.TimeZone;
 
 import javax.xml.xquery.XQDataFactory;
 import javax.xml.xquery.XQException;
@@ -130,6 +131,8 @@ public interface XQProcessor {
      * @throws XQException in case of command execution errors
      */
 	Iterator<Object> executeXCommand(String command, Map<String, Object> params, XQStaticContext ctx) throws XQException;
+
+    // TODO: the commands should not return results, probably..
 	
     /**
      * executes custom XQuery command. Currently supported commands are:
@@ -172,7 +175,7 @@ public interface XQProcessor {
     void cancelExecution() throws XQException;
 
     // Saxon specific conversion
-    // TODO: move this out of the interface!
+    // TODO: move this out of the interface..
     /**
      * converts query result into its string representation
      * 
@@ -182,5 +185,13 @@ public interface XQProcessor {
      * @throws XQException in case of conversion errors
      */
 	String convertToString(Object item, Properties props) throws XQException;
+	
+	/**
+	 * set timeZone in the processor's dynamic context
+	 * 
+	 * @param timeZone
+	 * @throws XQException
+	 */
+	void setTimeZone(TimeZone timeZone) throws XQException;
 	
 }

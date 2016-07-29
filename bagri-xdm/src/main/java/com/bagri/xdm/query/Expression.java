@@ -66,7 +66,4 @@ public abstract class Expression {
 		return false;
 	}
 	
-	//public void addPath(String add) {
-	//	this.path += add;
-	//}
 }

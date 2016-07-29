@@ -16,7 +16,6 @@ public class Path implements Comparable<Path> {
 	private int parentId;
 	private int postId;
 	// the type constant from javax.xml.xquery.XQItemType.*
-	// change it to QName?
 	private int dataType;
 	private Occurrence occurrence = Occurrence.zeroOrOne;
 	

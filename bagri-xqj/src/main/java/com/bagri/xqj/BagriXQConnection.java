@@ -6,7 +6,6 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
@@ -15,7 +14,6 @@ import javax.xml.xquery.XQCancelledException;
 import javax.xml.xquery.XQConnection;
 import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQExpression;
-import javax.xml.xquery.XQItemAccessor;
 import javax.xml.xquery.XQMetaData;
 import javax.xml.xquery.XQPreparedExpression;
 import javax.xml.xquery.XQStaticContext;
@@ -408,7 +406,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 	
 	private void prepareQuery(BagriXQPreparedExpression exp) throws XQException {
 		
-		prepareQuery(exp, context); // this.getStaticContext());
+		prepareQuery(exp, context); 
 	}
 	
 	private void prepareQuery(BagriXQPreparedExpression exp, XQStaticContext ctx) throws XQException {

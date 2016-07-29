@@ -248,9 +248,9 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 					xrCache.set(qpKey, xqr);
 					updateStats(query, 1, resList.size());
 					
-					String clientId = props.getProperty(pn_client_id);
-					XQProcessor xqp = repo.getXQProcessor(clientId);
-					xqp.setResults(cursor);
+					//String clientId = props.getProperty(pn_client_id);
+					//XQProcessor xqp = repo.getXQProcessor(clientId);
+					//xqp.setResults(cursor);
 					logger.trace("addQueryResults.exit; stored results: {} for key: {}", xqr, qpKey);
 				}
 		}).start();
@@ -634,15 +634,15 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			}
 		}
 		
-		ResultCursor result;
+		ResultCursor cursor;
 		if (resList == null) {
 			try {
 				Iterator<Object> iter = runQuery(query, params, props);
-				result = createCursor(resList, iter, props);
+				cursor = createCursor(resList, iter, props);
 				if (cacheResults) {
 					if (xqCache.containsKey(qCode)) {
 						// no need to check for isQuery, commands are not cached
-						addQueryResults(query, params, props, result, iter);
+						addQueryResults(query, params, props, cursor, iter);
 					} else {
 						logger.warn("executeQuery; query is not cached after processing: {}", query);
 					}
@@ -652,14 +652,13 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			}
 		} else {
 			// already cached
-			result = createCursor(resList, null, props);
-			String clientId = props.getProperty(pn_client_id);
-			XQProcessor xqp = repo.getXQProcessor(clientId);
-			xqp.setResults(result);
-		}		
-		
-		logger.trace("executeQuery.exit; returning: {}", result);
-		return result;
+			cursor = createCursor(resList, null, props);
+		}
+		String clientId = props.getProperty(pn_client_id);
+		XQProcessor xqp = repo.getXQProcessor(clientId);
+		xqp.setResults(cursor);
+		logger.trace("executeQuery.exit; returning: {}", cursor);
+		return cursor;
 	}
 	
 	@Override

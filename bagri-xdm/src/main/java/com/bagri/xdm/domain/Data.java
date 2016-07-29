@@ -94,10 +94,6 @@ public class Data implements Comparable<Data> {
     	return element.getValue();
     }
     
-    //public void setPath(XDMPath path) {
-    //	this.path = path;
-    //}
-    
     /**
      * {@inheritDoc}
      */

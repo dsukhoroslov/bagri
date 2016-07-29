@@ -54,9 +54,6 @@ public class Elements {
 			((Set<Element>) elementRef).add(oldElement);
 		}
 		((Set<Element>) elementRef).add(element);
-		// if (element.getValue() != null) {
-		// values.put(element.getValue(), element.getElementId());
-		// } // put null as some special object (static)
 	}
 
 	/**
@@ -69,6 +66,7 @@ public class Elements {
 			return Collections.emptyList();
 		}
 		if (elementRef instanceof Element) {
+			// wouldn't be better to keep it in the Set then?
 			Set<Element> elements = new TreeSet<Element>();
 			elements.add((Element) elementRef);
 			return elements;
@@ -118,9 +116,9 @@ public class Elements {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	private boolean applyValue(PathExpression pex, Object value) {
 
-		//String val = value.toString();
 		if (elementRef instanceof Element) {
 			return compareValue(pex.getCompType(), value, ((Element) elementRef).getValue());
 		} else {
@@ -146,12 +144,8 @@ public class Elements {
 	@SuppressWarnings("unchecked")
 	private boolean compareValues(Comparison comp, Object value, Set<Element> elements) {
 
-		// can we prevent this copy somehow?
-		// yes!!
-		//TreeSet values = new TreeSet();
 		for (Element element : elements) {
 			if (element.getValue() != null) {
-				//values.add(element.getValue());
 				if (compareValue(comp, value, element.getValue())) {
 					return true;
 				}

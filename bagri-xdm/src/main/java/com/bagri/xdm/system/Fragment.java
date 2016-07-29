@@ -1,7 +1,6 @@
 package com.bagri.xdm.system;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -17,7 +16,6 @@ import javax.xml.bind.annotation.XmlType;
  *  
  * @author Denis Sukhoroslov
  * @since 09.2015 
- * @version 0.5
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(namespace = "http://www.bagridb.com/xdm/system", propOrder = {

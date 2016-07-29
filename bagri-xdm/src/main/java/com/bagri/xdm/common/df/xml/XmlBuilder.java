@@ -56,14 +56,8 @@ public class XmlBuilder implements ContentBuilder {
     	
     	Stack<Data> dataStack = new Stack<Data>();
     	boolean eltOpen = false;
-    	//int idx = 0;
     	
     	for (Data data: dataList) {
-    		//idx++;
-    		//if (idx % 10000 == 0) {
-    		//	logger.trace("buildXml; idx: {}; length: {}", idx, buff.length());
-    		//}
-    		
     		String name = data.getName();
     		switch (data.getNodeKind()) {
     			case document: { // this must be the first row..

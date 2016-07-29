@@ -514,8 +514,6 @@ public abstract class ModelManagementBase implements ModelManagement {
 		XSLoader schemaLoader = impl.createXSLoader(null);
 		LSInput lsi = ((DOMImplementationLS) impl).createLSInput();
 		lsi.setStringData(schema);
-		//LSInputList input = impl.createLSInputList(new LSInput[] {lsi});
-		//XSModel model = schemaLoader.loadInputList(input);
 		XSModel model = schemaLoader.load(lsi);
 		processModel(model);
 	}

@@ -50,7 +50,7 @@ public class Node extends Entity {
 	    /**
 	     * 
 	     * @param role the role to check
-	     * @return true if the role nam e corresponds to administration role, false otherwise
+	     * @return true if the role name corresponds to administration role, false otherwise
 	     */
 		public static boolean isAdminRole(String role) {
 			return admin.name().equals(role);
@@ -183,7 +183,7 @@ public class Node extends Entity {
 	public Map<String, Object> convert() {
 		Map<String, Object> result = super.convert();
 		result.put("name", name);
-		//result.put("enabled", enabled);
+		result.put("options", options.size());
 		return result;
 	}
 

@@ -15,7 +15,6 @@ public class Constants {
 	public static final String pn_schema_name = "xdm.schema.name";
 	public static final String pn_schema_user = "xdm.schema.user";
 	public static final String pn_schema_password = "xdm.schema.password";
-	//public static final String pn_pool_size = "xdm.schema.poolSize";
 
 	public static final String pn_client_id = "xdm.client.id";
 	public static final String pn_client_txId = "xdm.client.txId";

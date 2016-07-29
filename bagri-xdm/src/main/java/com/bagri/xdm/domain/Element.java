@@ -12,8 +12,6 @@ public class Element implements Comparable<Element> {
 	private int elementId;
 	private int parentId;
 	private Object value = null;
-	// transient path
-	//private String path;
 	//private int positionInParent;
 	
 	/**
@@ -84,7 +82,7 @@ public class Element implements Comparable<Element> {
 	 */
 	public int asInt() {
 		if (value == null) {
-			return 0; //NaN;
+			return 0; 
 		}
 		if (value instanceof Integer) {
 			return (Integer) value;
@@ -98,7 +96,7 @@ public class Element implements Comparable<Element> {
 	 */
 	public long asLong() {
 		if (value == null) {
-			return 0; //NaN;
+			return 0; 
 		}
 		if (value instanceof Long) {
 			return (Long) value;
@@ -112,7 +110,7 @@ public class Element implements Comparable<Element> {
 	 */
 	public boolean asBoolean() {
 		if (value == null) {
-			return false; //NaN;
+			return false; 
 		}
 		if (value instanceof Boolean) {
 			return (Boolean) value;
@@ -126,7 +124,7 @@ public class Element implements Comparable<Element> {
 	 */
 	public byte asByte() {
 		if (value == null) {
-			return 0; //NaN;
+			return 0; 
 		}
 		if (value instanceof Byte) {
 			return (Byte) value;
@@ -140,7 +138,7 @@ public class Element implements Comparable<Element> {
 	 */
 	public short asShort() {
 		if (value == null) {
-			return 0; //NaN;
+			return 0; 
 		}
 		if (value instanceof Short) {
 			return (Short) value;
@@ -207,7 +205,7 @@ public class Element implements Comparable<Element> {
 	 */
 	@Override
 	public String toString() {
-		return "Element [elementId=" + elementId + ", parentId=" + parentId + /*", path=" + path +*/ ", value=" + value + "]";
+		return "Element [elementId=" + elementId + ", parentId=" + parentId + ", value=" + value + "]";
 	}
 
 	

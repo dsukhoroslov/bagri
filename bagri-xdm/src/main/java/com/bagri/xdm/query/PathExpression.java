@@ -68,7 +68,7 @@ public class PathExpression extends Expression {
 	 * @return true if the expression path contains wildcards, false otherwise
 	 */
 	public boolean isRegex() {
-		return path.hasRegex(); // .contains("/*/");
+		return path.hasRegex(); 
 	}
 	
 	/**

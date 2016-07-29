@@ -11,8 +11,8 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -21,8 +21,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.TimeZone;
 
-import javax.xml.namespace.QName;
 import javax.xml.transform.Source;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamResult;
@@ -36,7 +36,6 @@ import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 
 import com.bagri.common.util.XMLUtils;
-import com.bagri.xdm.api.QueryManagement;
 import com.bagri.xdm.api.SchemaRepository;
 import com.bagri.xquery.api.XQProcessorBase;
 import com.bagri.xquery.saxon.extension.GetDocument;
@@ -47,24 +46,21 @@ import com.bagri.xquery.saxon.extension.StoreDocument;
 import net.sf.saxon.Configuration;
 import net.sf.saxon.dom.DocumentOverNodeInfo;
 import net.sf.saxon.dom.NodeOverNodeInfo;
-import net.sf.saxon.expr.JPConverter;
 import net.sf.saxon.expr.instruct.GlobalParameterSet;
 import net.sf.saxon.expr.instruct.GlobalVariable;
 import net.sf.saxon.lib.Logger;
-import net.sf.saxon.lib.SerializerFactory;
 import net.sf.saxon.lib.StandardLogger;
 import net.sf.saxon.lib.Validation;
 import net.sf.saxon.om.DocumentInfo;
 import net.sf.saxon.om.Item;
 import net.sf.saxon.om.SequenceIterator;
-import net.sf.saxon.om.SequenceTool;
 import net.sf.saxon.om.StructuredQName;
 import net.sf.saxon.query.DynamicQueryContext;
 import net.sf.saxon.query.QueryResult;
 import net.sf.saxon.query.StaticQueryContext;
 import net.sf.saxon.query.XQueryExpression;
 import net.sf.saxon.trans.XPathException;
-import net.sf.saxon.value.DecimalValue;
+import net.sf.saxon.value.DateTimeValue;
 import net.sf.saxon.value.ObjectValue;
 
 public abstract class XQProcessorImpl extends XQProcessorBase {
@@ -425,23 +421,9 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
 	        	logger.trace("prepareXQuery; query: \n{}", explainQuery(exp));
 	        }
 	        
-	        //Set<QName> result = new HashSet<QName>(exp.getExternalVariableNames().length);
-	        //for (StructuredQName qname: exp.getExternalVariableNames()) {
-	        //	result.add(qname.toJaxpQName());
-	        //}
-        	//logger.info("prepareXQuery; result 1: {}", result);
-	        
-	        //Iterator<GlobalVariable> itr = exp.getStaticContext().getGlobalVariables(); 
-	        //while (itr.hasNext()) {
-	        //	result.add(itr.next().getVariableQName().toJaxpQName());
-	        //}
-        	//logger.info("prepareXQuery; result 2: {}", result);
-
 	        Set<String> result = new HashSet<>();
-	        //Iterator<GlobalVariable> itr = exp.getStaticContext().getModuleVariables();
 	        Iterator<GlobalVariable> itr = exp.getMainModule().getModuleVariables();
 	        while (itr.hasNext()) {
-	        	//result.add(itr.next().getVariableQName().toJaxpQName());
 	        	result.add(itr.next().getVariableQName().getClarkName());
 	        }
 	        return result; 
@@ -450,5 +432,14 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
         	throw new XQException(ex.getMessage());
         }
     }
-	
+
+    public void setTimeZone(TimeZone timeZone) throws XQException {
+    	
+        GregorianCalendar now = new GregorianCalendar(timeZone);
+        try {
+            dqc.setCurrentDateTime(new DateTimeValue(now, true));
+        } catch (XPathException ex) {
+            throw new XQException(ex.getMessage());
+        }
+    }
 }

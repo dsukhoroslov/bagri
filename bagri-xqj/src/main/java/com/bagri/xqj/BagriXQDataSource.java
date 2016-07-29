@@ -26,7 +26,6 @@ public class BagriXQDataSource implements XQDataSource {
 	
     private static final Logger logger = LoggerFactory.getLogger(BagriXQDataSource.class);
 	
-    // must be range of hosts/ports
 	public static final String HOST = "host";
 	public static final String PORT = "port";
 	public static final String SCHEMA = "schema";
@@ -38,14 +37,14 @@ public class BagriXQDataSource implements XQDataSource {
 	public static final String XQ_PROCESSOR = "query.processor";
 	public static final String XDM_REPOSITORY = "xdm.repository";
 	
-	// TODO: make some relevant writer which will do logging
+	// TODO: implement some relevant writer which will do logging
 	private PrintWriter writer;
 	private Properties properties = new Properties();
 	
 	// DataSource initialization: init query processor
 	// connection -> set processor
-	// processor -> set XDM
-	// XDM -> initialize dictionary, factory
+	// processor -> set Repository
+	// Repository -> initialize dictionary, factory
 	
 	public BagriXQDataSource() {
 		// ...
@@ -117,7 +116,7 @@ public class BagriXQDataSource implements XQDataSource {
 		}
 		
 		try {
-			Class procClass = Class.forName(className);
+			Class<?> procClass = Class.forName(className);
 			Object instance = procClass.newInstance();
 			return instance;
 		} catch (ClassNotFoundException ex) {
@@ -135,12 +134,12 @@ public class BagriXQDataSource implements XQDataSource {
 		}
 		
 		try {
-			Class procClass = Class.forName(className);
+			Class<?> procClass = Class.forName(className);
 			
 			try {
-				Constructor init = procClass.getConstructor(Properties.class);
+				Constructor<?> init = procClass.getConstructor(Properties.class);
 				if (init != null) {
-					Properties props = new Properties(); //properties);
+					Properties props = new Properties(); 
 					props.putAll(properties);
 					props.put(pn_client_dataFactory, connect);
 					return init.newInstance(props);
@@ -234,9 +233,6 @@ public class BagriXQDataSource implements XQDataSource {
 	@Override
 	public void setLogWriter(PrintWriter writer) throws XQException {
 		
-		//if (writer == null) {
-		//	throw new XQException("writer is null");
-		//}
 		this.writer = writer;
 	}
 

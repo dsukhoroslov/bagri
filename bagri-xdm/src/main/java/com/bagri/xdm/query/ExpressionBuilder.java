@@ -113,12 +113,6 @@ public class ExpressionBuilder {
 		return -1;
 	}
 	
-	//public void setCurrentExpression(int idx) {
-	//	if (idx >= 0 && idx < expressions.size()) {
-	//		exIndex = idx;
-	//	}
-	//}
-	
 	/**
 	 * {@inheritDoc}
 	 */

@@ -124,7 +124,6 @@ public class FileUtils {
 	 * @throws IOException in case of malformed path string
 	 */
 	public static URL path2url(String path) throws IOException {
-        //return Paths.get(path).toUri().toURL();
         File f = new File(path);
         return f.toURI().toURL();
     }
@@ -136,7 +135,6 @@ public class FileUtils {
 	 * @return the last portion of the full path: the file name with extension
 	 */
 	public static String getPathName(String path) {
-		//return Paths.get(path).getFileName().toString();
 		return Paths.get(URI.create(path)).getFileName().toString();
 	}
 

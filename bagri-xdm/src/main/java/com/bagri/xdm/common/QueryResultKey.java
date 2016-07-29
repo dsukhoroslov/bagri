@@ -30,7 +30,7 @@ public class QueryResultKey {
 	
 	/**
 	 * 
-	 * @return teh query string hash
+	 * @return the query string hash
 	 */
 	public int getQueryHash() {
 		return queryHash;

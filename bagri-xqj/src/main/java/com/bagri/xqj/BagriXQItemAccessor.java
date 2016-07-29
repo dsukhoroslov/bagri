@@ -40,10 +40,6 @@ public abstract class BagriXQItemAccessor extends BagriXQCloseable implements XQ
 		this.xqProcessor = xqProcessor;
 	}
 	
-	//public boolean isClosed() {
-	//	return closed; // || parent.isClosed() 
-	//}
-
 	protected void setCurrent(XQItemType type, Object value) {
 		this.type = type;
 		this.value = value;
@@ -358,12 +354,6 @@ public abstract class BagriXQItemAccessor extends BagriXQCloseable implements XQ
 			throw new XQException(ex.getMessage());
 		}
 	}
-	
-	//void checkState() throws XQException {
-	//	if (closed) {
-	//		throw new XQException(ex_item_closed);
-	//	}
-	//}
 	
 
 }

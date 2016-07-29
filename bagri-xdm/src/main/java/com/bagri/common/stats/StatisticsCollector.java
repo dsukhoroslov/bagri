@@ -90,7 +90,6 @@ public class StatisticsCollector<S extends Statistics> implements Runnable, Stat
 	            }
         	}
         }
-        //logger.trace("getStatisticSeries.exit; returning: {}", result);
         return result;
     }
 	

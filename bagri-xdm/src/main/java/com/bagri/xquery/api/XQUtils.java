@@ -686,14 +686,11 @@ public class XQUtils {
      * @throws XQException in case of processing error
      */
 	public static XQItemType getTypeForNode(XQDataFactory factory, org.w3c.dom.Node node) throws XQException {
-		//new URI(node.getBaseURI()));
 		switch (node.getNodeType()) {
 			case Node.DOCUMENT_NODE:
 				return factory.createDocumentType();
 			case Node.DOCUMENT_FRAGMENT_NODE:
 				return factory.createDocumentType();
-				//return factory.createDocumentElementType(
-				//		factory.createElementType(new QName(node.getNodeName()), XQItemType.XQBASETYPE_ANYTYPE));
 			case Node.ELEMENT_NODE: 
 				return factory.createElementType(new QName(node.getNodeName()), XQItemType.XQBASETYPE_ANYTYPE);
 			case Node.ATTRIBUTE_NODE:
