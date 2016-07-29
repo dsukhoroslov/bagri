@@ -35,7 +35,7 @@
         </license>
     </licenses>
     <scm>
-        <connection>scm:git:git://github.com/dsukhoroslov/bagri.git</connection>
+        <!--connection>scm:git:git://github.com/dsukhoroslov/bagri.git</connection-->
         <developerConnection>scm:git:git@github.com:dsukhoroslov/bagri.git</developerConnection>
         <url>https://github.com/dsukhoroslov/bagri/</url>
     </scm>
