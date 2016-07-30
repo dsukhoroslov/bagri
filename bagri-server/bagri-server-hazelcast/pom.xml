@@ -1,11 +1,10 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>com.bagri.db</groupId>
         <artifactId>bagri-server</artifactId>
-        <version>0.9.1-SNAPSHOT</version>
+        <version>1.0.0-EA1</version>
         <relativePath>..</relativePath>
     </parent>
 
@@ -178,24 +177,24 @@
                                 <configuration>
                                     <tasks if="run-admin">
                                         <java fork="true" classname="com.bagri.xdm.cache.hazelcast.BagriCacheServer">
-                                            <jvmarg line="-server -Xms512m -Xmx1028m"/>
-                                            <sysproperty key="node.logdir" value="./logs"/>
-                                            <sysproperty key="node.name" value="admin"/>
-                                            <sysproperty key="com.sun.management.jmxremote" value="true"/>
-                                            <sysproperty key="com.sun.management.jmxremote.ssl" value="false"/>
-                                            <sysproperty key="logback.configurationFile" value="hz-logging.xml"/>
-                                            <sysproperty key="xdm.log.level" value="debug"/>
-                                            <sysproperty key="xdm.config.path" value="src/main/resources"/>
-                                            <sysproperty key="xdm.config.context.file" value="spring/admin-system-context.xml"/>
-					    <sysproperty key="xdm.config.properties.file" value="admin.properties"/>
-                                            <sysproperty key="xdm.config.filename" value="config.xml"/>
-                                            <sysproperty key="xdm.access.filename" value="access.xml"/>
-                                            <sysproperty key="xdm.cluster.node.role" value="admin"/>
-                                            <sysproperty key="xdm.cluster.node.schemas" value=""/>
+                                            <jvmarg line="-server -Xms512m -Xmx1028m" />
+                                            <sysproperty key="node.logdir" value="./logs" />
+                                            <sysproperty key="node.name" value="admin" />
+                                            <sysproperty key="com.sun.management.jmxremote" value="true" />
+                                            <sysproperty key="com.sun.management.jmxremote.ssl" value="false" />
+                                            <sysproperty key="logback.configurationFile" value="hz-logging.xml" />
+                                            <sysproperty key="xdm.log.level" value="debug" />
+                                            <sysproperty key="xdm.config.path" value="src/main/resources" />
+                                            <sysproperty key="xdm.config.context.file" value="spring/admin-system-context.xml" />
+					    <sysproperty key="xdm.config.properties.file" value="admin.properties" />
+                                            <sysproperty key="xdm.config.filename" value="config.xml" />
+                                            <sysproperty key="xdm.access.filename" value="access.xml" />
+                                            <sysproperty key="xdm.cluster.node.role" value="admin" />
+                                            <sysproperty key="xdm.cluster.node.schemas" value="" />
                                             <classpath>
-                                                <path refid="maven.compile.classpath"/>
-                                                <path refid="maven.runtime.classpath"/>
-                                                <pathelement location="config/"/>
+                                                <path refid="maven.compile.classpath" />
+                                                <path refid="maven.runtime.classpath" />
+                                                <pathelement location="config/" />
                                             </classpath>
                                         </java>
                                     </tasks>
@@ -212,21 +211,21 @@
                                 <configuration>
                                     <tasks if="run-server">
                                         <java fork="true" classname="com.bagri.xdm.cache.hazelcast.BagriCacheServer">
-                                            <jvmarg line="-Xms2g -Xmx4g ${run.jvm.args0} ${run.jvm.args1} ${run.jvm.args2} ${run.jvm.args3}"/>
-                                            <sysproperty key="node.logdir" value="./logs"/>
-                                            <sysproperty key="node.name" value="first"/>
-                                            <sysproperty key="xdm.node.instance" value="${node.instance}"/>
-                                            <sysproperty key="logback.configurationFile" value="hz-logging.xml"/>
-                                            <sysproperty key="xdm.log.level" value="${log.level}"/>
-                                            <sysproperty key="xdm.config.path" value="src/main/resources"/>
-                                            <sysproperty key="xdm.config.context.file" value="spring/cache-system-context.xml"/>
-					    <sysproperty key="xdm.config.properties.file" value="${profile}.properties"/>
-					    <sysproperty key="xdm.config.filename" value="config.xml"/>
-					    <sysproperty key="xdm.access.filename" value="access.xml"/>
+                                            <jvmarg line="-Xms2g -Xmx4g ${run.jvm.args0} ${run.jvm.args1} ${run.jvm.args2} ${run.jvm.args3}" />
+                                            <sysproperty key="node.logdir" value="./logs" />
+                                            <sysproperty key="node.name" value="first" />
+                                            <sysproperty key="xdm.node.instance" value="${node.instance}" />
+                                            <sysproperty key="logback.configurationFile" value="hz-logging.xml" />
+                                            <sysproperty key="xdm.log.level" value="${log.level}" />
+                                            <sysproperty key="xdm.config.path" value="src/main/resources" />
+                                            <sysproperty key="xdm.config.context.file" value="spring/cache-system-context.xml" />
+					    <sysproperty key="xdm.config.properties.file" value="${profile}.properties" />
+					    <sysproperty key="xdm.config.filename" value="config.xml" />
+					    <sysproperty key="xdm.access.filename" value="access.xml" />
                                             <classpath>
-                                                <path refid="maven.compile.classpath"/>
-                                                <path refid="maven.runtime.classpath"/>
-                                                <pathelement location="config/"/>
+                                                <path refid="maven.compile.classpath" />
+                                                <path refid="maven.runtime.classpath" />
+                                                <pathelement location="config/" />
                                             </classpath>
                                         </java>
                                     </tasks>

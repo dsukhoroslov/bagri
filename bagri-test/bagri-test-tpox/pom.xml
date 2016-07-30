@@ -1,11 +1,10 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>com.bagri.db</groupId>
         <artifactId>bagri-test</artifactId>
-        <version>0.9.1-SNAPSHOT</version>
+        <version>1.0.0-EA1</version>
         <relativePath>..</relativePath>
     </parent>
 
@@ -125,21 +124,21 @@
                                         <java fork="true" classname="com.bagri.tpox.TPoXDataLoader">
                                             <!--sysproperty key="tangosol.coherence.cacheconfig" value="coherence/tpox-client-cache-config.xml"/-->
                                             <!--sysproperty key="tangosol.coherence.management" value="all" />
-                                            <sysproperty key="tangosol.coherence.management.refresh.timeout" value="120000"/>
-                                            <sysproperty key="com.sun.management.jmxremote" value="true"/>
-                                            <sysproperty key="com.sun.management.jmxremote.authenticate" value="false"/>
+                                            <sysproperty key="tangosol.coherence.management.refresh.timeout" value="120000" />
+                                            <sysproperty key="com.sun.management.jmxremote" value="true" />
+                                            <sysproperty key="com.sun.management.jmxremote.authenticate" value="false" />
                                             <sysproperty key="com.sun.management.jmxremote.ssl" value="false"/-->
-                                            <sysproperty key="logback.configurationFile" value="tpox-logging.xml"/>
-                                            <!--sysproperty key="tangosol.coherence.proxy.address" value="linbox.sdv.home"/>
+                                            <sysproperty key="logback.configurationFile" value="tpox-logging.xml" />
+                                            <!--sysproperty key="tangosol.coherence.proxy.address" value="linbox.sdv.home" />
                                             <sysproperty key="tangosol.coherence.proxy.port" value="17000"/-->
-                                            <sysproperty key="xdm.spring.context" value="hazelcast/tpox-client-cache-context.xml"/>
+                                            <sysproperty key="xdm.spring.context" value="hazelcast/tpox-client-cache-context.xml" />
                                             <classpath>
-                                                <path refid="maven.compile.classpath"/>
-                                                <path refid="maven.runtime.classpath"/>
+                                                <path refid="maven.compile.classpath" />
+                                                <path refid="maven.runtime.classpath" />
                                             </classpath>
-                                            <arg value="C:\Work\Bagri\TPoX\data\security"/>
-                                            <arg value="batch-1.xml.offset"/>
-                                            <arg value="20"/>
+                                            <arg value="C:\Work\Bagri\TPoX\data\security" />
+                                            <arg value="batch-1.xml.offset" />
+                                            <arg value="20" />
                                             <!--arg value="hazelcast" /-->
                                         </java>
                                     </tasks>
