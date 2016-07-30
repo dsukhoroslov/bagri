@@ -455,6 +455,11 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
                 <version>${maven-release-plugin.version}</version>
+                <configuration>
+                    <checkModificationExcludes>
+                        <checkModificationExclude>**\workload_properties.xsd</checkModificationExclude>
+                    </checkModificationExcludes>
+                </configuration>
             </plugin>
 
         </plugins>
@@ -548,17 +553,6 @@
             <id>spring-milestones</id>
             <url>http://repo.spring.io/libs-milestone/</url>
         </repository-->
-        <!-- what it is for ?? -->
-	<!--repository>
-	    <id>sonatype-snapshots</id>
-	    <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-	    <releases>
-	        <enabled>false</enabled>
-	    </releases>
-	    <snapshots>
-	        <enabled>true</enabled>
-	    </snapshots>
-	</repository-->
     </repositories>
 
 </project>
