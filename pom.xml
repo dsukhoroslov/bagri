@@ -459,6 +459,7 @@
                     <checkModificationExcludes>
                         <checkModificationExclude>**\workload_properties.xsd</checkModificationExclude>
                     </checkModificationExcludes>
+		    <pushChanges>false</pushChanges>
                 </configuration>
             </plugin>
 
