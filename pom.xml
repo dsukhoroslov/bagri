@@ -37,8 +37,8 @@
         <connection>scm:git:git://github.com/dsukhoroslov/bagri.git</connection>
         <developerConnection>scm:git:git@github.com:dsukhoroslov/bagri.git</developerConnection>
         <url>https://github.com/dsukhoroslov/bagri/</url>
-      <tag>HEAD</tag>
-  </scm>
+        <tag>1.0.0-EA1</tag>
+    </scm>
     <developers>
         <developer>
             <id>dsukhoroslov</id>
