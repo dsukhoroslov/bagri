@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.bagri.db</groupId>
         <artifactId>bagri-xquery</artifactId>
-        <version>0.9.1-SNAPSHOT</version>
+        <version>1.0.0-EA1</version>
         <relativePath>..</relativePath>
     </parent>
 

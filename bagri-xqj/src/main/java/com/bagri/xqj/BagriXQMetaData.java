@@ -31,13 +31,13 @@ public class BagriXQMetaData implements XQMetaData {
 	@Override
 	public int getProductMajorVersion() throws XQException {
 		connect.checkState(ex_connection_closed);
-		return 0;
+		return 1;
 	}
 
 	@Override
 	public int getProductMinorVersion() throws XQException {
 		connect.checkState(ex_connection_closed);
-		return 9;
+		return 0;
 	}
 
 	@Override
@@ -68,7 +68,7 @@ public class BagriXQMetaData implements XQMetaData {
 	public String getProductVersion() throws XQException {
 		connect.checkState(ex_connection_closed);
 		// TODO: use some global constant for this
-		return "0.9.1";
+		return "1.0.0";
 	}
 
 	@Override

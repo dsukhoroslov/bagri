@@ -28,7 +28,7 @@ public class BagriApplicationType extends ApplicationType {
 
     @Override
     public String getVersion() {
-        return "0.9.1";
+        return "1.0.0";
     }
 
     @Override
