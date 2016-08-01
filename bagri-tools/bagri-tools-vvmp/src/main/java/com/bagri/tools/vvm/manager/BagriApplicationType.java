@@ -1,5 +1,6 @@
 package com.bagri.tools.vvm.manager;
 
+import com.bagri.tools.vvm.util.Icons;
 import com.sun.tools.visualvm.application.type.ApplicationType;
 import java.awt.Image;
 import javax.swing.ImageIcon;
@@ -41,9 +42,8 @@ public class BagriApplicationType extends ApplicationType {
 
     @Override
     public Image getIcon() {
-    	// TODO: add Bagri Icon here
-        //return Utilities.loadImage("com/sun/tools/visualvm/core/ui/resources/snapshot.png", true);
-    	return Utilities.loadImage("com/bagri/visualvm/manager/bagri16x32.png", true);
+    	return Utilities.loadImage("com/bagri/tools/vvm/manager/bagri16x32.png", true);
+    	//return Utilities.icon2Image(Icons.BAGRI_MANAGER_ICON);
     	//return new ImageIcon("com/bagri/visualvm/manager/bagri16.ico");
     }
 
