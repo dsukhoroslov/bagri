@@ -8,6 +8,7 @@ public class Icons {
     public static ImageIcon ADD_ICON = ImageUtil.createImageIcon("com/bagri/tools/vvm/manager/add.png");
     public static ImageIcon DELETE_ICON = ImageUtil.createImageIcon("com/bagri/tools/vvm/manager/delete.png");
     public static ImageIcon EDIT_ICON = ImageUtil.createImageIcon("com/bagri/tools/vvm/manager/edit.png");
+    public static ImageIcon BAGRI_MANAGER_ICON = ImageUtil.createImageIcon("com/bagri/tools/vvm/manager/bagri16x32.png");
     public static ImageIcon USER_MANAGEMENT_ICON = ImageUtil.createImageIcon("com/bagri/tools/vvm/manager/userManagement.png");
     public static ImageIcon CLUSTER_MANAGEMENT_ICON = ImageUtil.createImageIcon("com/bagri/tools/vvm/manager/clusterManagement.png");
     public static ImageIcon SCHEMA_MANAGEMENT_ICON = ImageUtil.createImageIcon("com/bagri/tools/vvm/manager/schemaManagement.png");
