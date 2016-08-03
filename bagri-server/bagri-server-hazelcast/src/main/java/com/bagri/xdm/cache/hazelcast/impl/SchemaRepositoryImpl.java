@@ -82,6 +82,7 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
     //@Autowired
 	public void setHzInstance(HazelcastInstance hzInstance) {
 		this.hzInstance = hzInstance;
+		hzInstance.getUserContext().put("xdmRepository", this);
 		logger.debug("setHzInstange; got instance: {}", hzInstance.getName());
 	}
 	
