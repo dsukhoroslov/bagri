@@ -211,7 +211,8 @@ public class DocumentServiceProvider implements DocumentManagementService {
 	@Override
 	public String getDocumentContent(String uri) throws ServiceException {
         try {
-			return (String) connection.invoke(getDocMgrObjectName(), "getDocumentContent", new Object[] {uri}, new String[] {String.class.getName()});
+			return (String) connection.invoke(getDocMgrObjectName(), "getDocumentContent", new Object[] {uri, null}, 
+					new String[] {String.class.getName(), String.class.getName()});
 		} catch (Exception ex) {
             LOGGER.throwing(this.getClass().getName(), "getDocumentContent", ex);
             throw new ServiceException(ex);

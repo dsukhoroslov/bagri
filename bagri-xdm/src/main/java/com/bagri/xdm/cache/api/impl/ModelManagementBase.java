@@ -106,9 +106,12 @@ public abstract class ModelManagementBase implements ModelManagement {
 	 * to its prefixed equivalent: "/ns0:Security/ns0:Name"
 	 *  
 	 * @param path String; the full node path in Clark form
-	 * @return normalized path: STring; e.g. "/ns0:Security/ns0:Name"
+	 * @return normalized path: String; e.g. "/ns0:Security/ns0:Name"
      */
 	public String normalizePath(String path) {
+		if (path == null) {
+			return null;
+		}
 		StringBuffer buff = new StringBuffer();
 		int pos = 0, end;
 		char brace = '{';
