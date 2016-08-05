@@ -109,6 +109,9 @@ public abstract class ModelManagementBase implements ModelManagement {
 	 * @return normalized path: STring; e.g. "/ns0:Security/ns0:Name"
      */
 	public String normalizePath(String path) {
+		if (path == null) {
+			return null;
+		}
 		StringBuffer buff = new StringBuffer();
 		int pos = 0, end;
 		char brace = '{';
