@@ -38,6 +38,9 @@ public class PropUtils {
 	 * @throws IOException in case of load error
 	 */
 	public static Properties propsFromString(String properties) throws IOException {
+		if (properties == null) {
+			return null;
+		}
 		Properties props = new Properties();
 		properties = properties.replaceAll(";", EOL);
 		props.load(new StringReader(properties));
