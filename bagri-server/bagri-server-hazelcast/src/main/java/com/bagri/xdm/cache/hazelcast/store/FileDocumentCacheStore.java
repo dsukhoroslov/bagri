@@ -297,6 +297,7 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
 		for (DocumentKey key: keys) {
 			String docUri = uris.get(key);
 			if (docUri != null) {
+				// delete uri!?
 				docUri = getFullUri(docUri);
 		    	Path path = Paths.get(docUri);
 				try {

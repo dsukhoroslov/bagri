@@ -188,10 +188,6 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		return null;
 	}
 
-	private String getDataFormat(Properties props) {
-		return PropUtils.getProperty(props, xdm_document_data_format, df_xml);
-	}
-	
 	int indexElements(int docType, int pathId) throws XDMException {
 		Set<DocumentKey> docKeys = getDocumentsOfType(docType);
 		String path = model.getPath(pathId).getPath();
@@ -602,7 +598,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	
 	public Document createDocument(DocumentKey docKey, String uri, String content, Properties props) throws XDMException {
 		logger.trace("createDocument.enter; uri: {}; props: {}", uri, props);
-		String dataFormat = getDataFormat(props);
+		String dataFormat = props.getProperty(xdm_document_data_format); 
 		if (dataFormat == null) {
 			dataFormat = uri.substring(uri.lastIndexOf(".") + 1);
 		}
