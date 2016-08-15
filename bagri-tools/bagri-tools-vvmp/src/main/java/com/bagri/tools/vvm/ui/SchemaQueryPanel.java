@@ -9,9 +9,15 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.io.Writer;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -22,6 +28,7 @@ import java.util.logging.Logger;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
@@ -32,6 +39,7 @@ import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.DefaultEditorKit;
 import javax.xml.transform.OutputKeys;
 
@@ -62,11 +70,13 @@ public class SchemaQueryPanel extends JPanel {
     private JButton cancelQuery;
     private JButton queryProps;
     private JButton clearResults;
+    private JButton storeResults;
     private JLabel lbTime;
     private Properties properties;
     private Map<String, TypedValue> bindings = new HashMap<>(); 
     private long parseTime;
     private Thread qRunner;
+    private String currentPath = null;
 	
 	public SchemaQueryPanel(Schema schema, SchemaManagementService schemaService, EventBus<ApplicationEvent> eventBus) {
 		super(new BorderLayout());
@@ -109,6 +119,18 @@ public class SchemaQueryPanel extends JPanel {
             }
     	});
         queryToolbar.add(queryProps);
+        queryToolbar.addSeparator();
+
+        // "Store Results" button
+        storeResults = new JButton("Store Results");
+        storeResults.setToolTipText("Store results to file");
+        storeResults.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                onStoreResults();
+            }
+    	});
+        queryToolbar.add(storeResults);
         queryToolbar.addSeparator();
 
         // "Clear Results" button
@@ -303,6 +325,27 @@ public class SchemaQueryPanel extends JPanel {
     	bindings.putAll(typedValues);
     }
 
+    private void onStoreResults() {
+    	JFileChooser chooser = new JFileChooser();
+    	chooser.setDialogTitle("Store Query Results");
+    	String docType = schema.getDataFormat();
+        FileNameExtensionFilter filter = new FileNameExtensionFilter(docType + " Documents", docType.toLowerCase());
+        chooser.setFileFilter(filter);
+        if (currentPath != null) {
+        	chooser.setCurrentDirectory(new File(currentPath));
+        }
+    	if (chooser.showSaveDialog(this.getParent()) == JFileChooser.APPROVE_OPTION) {
+        	currentPath = chooser.getCurrentDirectory().getAbsolutePath();
+        	// fetch all!!
+    		try (Writer writer = new BufferedWriter(
+    				new OutputStreamWriter(new FileOutputStream(chooser.getSelectedFile())))) {
+    		    writer.write(queryResult.getText());
+			} catch (IOException ex) {
+	    		handleServiceException(ex);
+			}		
+    	}
+    }
+    
     private void onQueryProperties() {
     	//
 		final EditPropertiesDialog dlg = new EditPropertiesDialog(properties, SchemaQueryPanel.this);

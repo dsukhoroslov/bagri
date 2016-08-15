@@ -439,11 +439,14 @@ public abstract class ModelManagementBase implements ModelManagement {
 			pes.put(path.getPath(), path);
 		}
 
-		Path top = pathStack.peek(); 
-		int lastId = top.getPathId();
-		while (!pathStack.isEmpty()) {
-			top = pathStack.pop();
-			top.setPostId(lastId);
+		// this is for JSON model..
+		if (!pathStack.isEmpty()) {
+			Path top = pathStack.peek(); 
+			int lastId = top.getPathId();
+			while (!pathStack.isEmpty()) {
+				top = pathStack.pop();
+				top.setPostId(lastId);
+			}
 		}
 
 		getPathCache().putAll(pes);
