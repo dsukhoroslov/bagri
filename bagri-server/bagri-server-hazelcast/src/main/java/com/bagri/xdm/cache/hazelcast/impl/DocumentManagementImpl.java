@@ -598,13 +598,10 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	
 	public Document createDocument(DocumentKey docKey, String uri, String content, Properties props) throws XDMException {
 		logger.trace("createDocument.enter; uri: {}; props: {}", uri, props);
-		String dataFormat = props.getProperty(xdm_document_data_format); 
-		if (dataFormat == null) {
-			dataFormat = uri.substring(uri.lastIndexOf(".") + 1);
-		}
-
+		String dataFormat = null;
 		int[] collections = null; 
 		if (props != null) {
+			dataFormat = props.getProperty(xdm_document_data_format); 
 			String prop = props.getProperty(xdm_document_collections);
 			if (prop != null) {
 				StringTokenizer tc = new StringTokenizer(prop, ", ", false);
@@ -619,6 +616,9 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 					idx++;
 				}
 			}
+		}
+		if (dataFormat == null) {
+			dataFormat = uri.substring(uri.lastIndexOf(".") + 1);
 		}
 
 		Document doc = createDocument(docKey, uri, content, dataFormat, new Date(), repo.getUserName(), txManager.getCurrentTxId(), collections, false);
