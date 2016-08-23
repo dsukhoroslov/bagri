@@ -83,7 +83,7 @@
         <xqj.version>1.0</xqj.version>
         <xstream.version>1.4.9</xstream.version>
         <xerses.version>2.11.0</xerses.version>
-        <saxon.version>9.7.0-6</saxon.version>
+        <saxon.version>9.7.0-7</saxon.version>
         <json.version>1.0</json.version>
         <json.ri.version>1.0.4</json.ri.version>
         <jackson.version>2.5.2</jackson.version>
@@ -98,8 +98,8 @@
 
         <antlr.version>3.2</antlr.version>
         <jcache.version>1.0.0</jcache.version>
-        <!--hazelcast.version>3.7-EA</hazelcast.version-->
-        <hazelcast.version>3.6.4</hazelcast.version>
+        <hazelcast.version>3.7</hazelcast.version>
+        <!--hazelcast.version>3.6.4</hazelcast.version-->
         <coherence.version>3.7.1.10</coherence.version>
         <!--coherence.version>12.1.2-0-0</coherence.version-->
         <coherence-common.version>11.1.0</coherence-common.version>
