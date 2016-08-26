@@ -519,6 +519,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		return getDocumentAsString(xdmKey, props);
 	}
 	
+	@Override
 	public String getDocumentAsString(DocumentKey docKey, Properties props) throws XDMException {
 		
 		String content = cntCache.get(docKey);
@@ -596,7 +597,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		return null;
 	}
 	
-	public Document createDocument(DocumentKey docKey, String uri, String content, Properties props) throws XDMException {
+	private Document createDocument(DocumentKey docKey, String uri, String content, Properties props) throws XDMException {
 		logger.trace("createDocument.enter; uri: {}; props: {}", uri, props);
 		String dataFormat = null;
 		int[] collections = null; 
@@ -639,6 +640,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		return doc;
 	}
 
+	@Override
 	@SuppressWarnings("unchecked")
 	public Document createDocument(DocumentKey docKey, String uri, String content, String dataFormat, Date createdAt, String createdBy, 
 			long txStart, int[] collections, boolean addContent) throws XDMException {
@@ -1061,7 +1063,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		return result;
 	}
 
-	java.util.Collection<Long> getCollectionDocumentKeys(int collectId) {
+	Set<Long> getCollectionDocumentKeys(int collectId) {
 		//
 		Set<DocumentKey> docKeys;
 		if (collectId == clnDefault) {
@@ -1072,7 +1074,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			// TODO: local or global keySet ?!
 			docKeys = xddCache.keySet(clp);
 		}
-		List<Long> result = new ArrayList<>(docKeys.size());
+		Set<Long> result = new HashSet<>(docKeys.size());
 		for (DocumentKey key: docKeys) {
 			result.add(key.getKey());
 		}

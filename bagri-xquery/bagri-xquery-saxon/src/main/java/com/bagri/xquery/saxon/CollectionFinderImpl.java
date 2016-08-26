@@ -26,6 +26,7 @@ import net.sf.saxon.expr.BinaryExpression;
 import net.sf.saxon.expr.Binding;
 import net.sf.saxon.expr.BindingReference;
 import net.sf.saxon.expr.BooleanExpression;
+import net.sf.saxon.expr.ComparisonExpression;
 import net.sf.saxon.expr.Expression;
 import net.sf.saxon.expr.FunctionCall;
 import net.sf.saxon.expr.GeneralComparison10;
@@ -277,7 +278,7 @@ public class CollectionFinderImpl implements CollectionFinder {
     	
        	if (ex instanceof FunctionCall) {
        		FunctionCall clx = (FunctionCall) ex;
-       		if ("collection".equals(clx.getDisplayName())) {
+       		if ("collection".equals(clx.getDisplayName()) || "uri-collection".equals(clx.getDisplayName())) {
        			String collectUri = "";
        			if (clx.getArity() > 0) {
        				Expression arg = clx.getArg(0);
@@ -346,7 +347,7 @@ public class CollectionFinderImpl implements CollectionFinder {
     		iterate(e, ctx);
     	}
     	
-    	if (ex instanceof GeneralComparison10 || ex instanceof GeneralComparison20 || ex instanceof ValueComparison) {
+    	if (ex instanceof GeneralComparison10 || ex instanceof ComparisonExpression) { //GeneralComparison20 || ex instanceof ValueComparison) {
     		BinaryExpression be = (BinaryExpression) ex;
     		Object value = null;
     		String pName = null;

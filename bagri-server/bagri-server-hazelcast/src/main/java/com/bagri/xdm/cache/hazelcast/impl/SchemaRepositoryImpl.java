@@ -3,6 +3,7 @@ package com.bagri.xdm.cache.hazelcast.impl;
 import static com.bagri.xdm.cache.hazelcast.util.HazelcastUtils.hasStorageMembers;
 import static com.bagri.xdm.cache.hazelcast.util.HazelcastUtils.hz_instance;
 import static com.bagri.xdm.common.Constants.xdm_schema_format_default;
+import static com.bagri.xdm.common.Constants.ctx_repo;
 import static com.hazelcast.core.Hazelcast.getHazelcastInstanceByName;
 
 import java.util.ArrayList;
@@ -82,7 +83,7 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
     //@Autowired
 	public void setHzInstance(HazelcastInstance hzInstance) {
 		this.hzInstance = hzInstance;
-		hzInstance.getUserContext().put("xdmRepository", this);
+		hzInstance.getUserContext().put(ctx_repo, this);
 		logger.debug("setHzInstange; got instance: {}", hzInstance.getName());
 	}
 	

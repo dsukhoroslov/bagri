@@ -96,6 +96,9 @@ public class Constants {
 	public static final String mt_xml = "application/xml"; 
 	public static final String mt_json = "application/json";
 	
+	// DocumentStore initialization context constants
+	public static final String ctx_repo = "xdmRepository";
+	
 	// XQJ configuration constants
 	public static final String pn_baseURI = "xqj.schema.baseUri";
 	public static final String pn_constructionMode = "xqj.schema.constructionMode";

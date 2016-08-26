@@ -336,7 +336,11 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		}
 	}
 	
-	public Set<Long> queryKeys(Set<Long> found, ExpressionContainer ec, Expression ex) throws XDMException {
+	private Set<Long> queryKeys(Set<Long> found, ExpressionContainer ec, Expression ex) throws XDMException {
+		if (ex instanceof AlwaysExpression) {
+			return docMgr.getCollectionDocumentKeys(ex.getCollectionId());
+		}
+		
 		if (ex instanceof BinaryExpression) {
 			BinaryExpression be = (BinaryExpression) ex;
 			Set<Long> leftKeys = queryKeys(found, ec, be.getLeft());
@@ -353,12 +357,6 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			} else {
 				throw new XDMException("Wrong BinaryExpression type: " + be.getCompType(), XDMException.ecQuery);
 			}
-		}
-		
-		if (ex instanceof AlwaysExpression) {
-			AlwaysExpression ae = (AlwaysExpression) ex;
-			Collection<Long> docKeys = docMgr.getCollectionDocumentKeys(ae.getCollectionId());
-			return new HashSet<Long>(docKeys);
 		}
 		
 		PathExpression pex = (PathExpression) ex;

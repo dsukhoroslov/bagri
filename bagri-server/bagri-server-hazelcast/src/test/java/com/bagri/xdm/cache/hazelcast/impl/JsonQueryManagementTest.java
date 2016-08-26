@@ -2,16 +2,15 @@ package com.bagri.xdm.cache.hazelcast.impl;
 
 import static com.bagri.xdm.common.Constants.xdm_config_path;
 import static com.bagri.xdm.common.Constants.xdm_config_properties_file;
+import static com.bagri.xdm.common.Constants.xdm_document_collections;
 import static com.bagri.xdm.common.Constants.xdm_document_data_format;
 import static com.bagri.xdm.common.Constants.xdm_schema_format_default;
 import static org.junit.Assert.*;
 
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
-
-import javax.xml.xquery.XQItem;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -20,9 +19,10 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import com.bagri.common.util.JMXUtils;
 import com.bagri.xdm.api.ResultCursor;
 import com.bagri.xdm.api.test.BagriManagementTest;
-import com.bagri.xdm.client.hazelcast.impl.QueuedCursorImpl;
+import com.bagri.xdm.system.Collection;
 import com.bagri.xdm.system.DataFormat;
 import com.bagri.xdm.system.Schema;
 
@@ -54,6 +54,9 @@ public class JsonQueryManagementTest extends BagriManagementTest {
 		if (schema == null) {
 			schema = new Schema(1, new java.util.Date(), "test", "test", "test schema", true, null);
 			schema.setProperty(xdm_schema_format_default, "JSON");
+			Collection collection = new Collection(1, new Date(), JMXUtils.getCurrentUser(), 
+					1, "securities", "/{http://tpox-benchmark.com/security}Security", "all securities", true);
+			schema.addCollection(collection);
 			xdmRepo.setSchema(schema);
 			DataFormat df = new DataFormat(1, new java.util.Date(), "", "JSON", null, "application/json", null, 
 					"com.bagri.xdm.common.df.json.JsonApiParser", "com.bagri.xdm.common.df.json.JsonBuilder", true, null);
@@ -80,6 +83,7 @@ public class JsonQueryManagementTest extends BagriManagementTest {
 	
 	protected Properties getDocumentProperties() {
 		Properties props = new Properties();
+		props.setProperty(xdm_document_collections, "securities");
 		props.setProperty(xdm_document_data_format, "JSON");
 		return props;
 	}
@@ -93,8 +97,6 @@ public class JsonQueryManagementTest extends BagriManagementTest {
 				"return fn:json-to-xml($json)";
 		ResultCursor docs = query(query, null, null);
 		assertNotNull(docs);
-		Properties props = new Properties();
-		//props.setProperty("method", "xml");
 		List<String> jsons = new ArrayList<>();
 		while (docs.next()) {
 			String json = docs.getString();
@@ -132,7 +134,7 @@ public class JsonQueryManagementTest extends BagriManagementTest {
 	@Test
 	public void getJsonDocumentsTest() throws Exception {
 	
-		String query = "for $map in fn:collection()\n" + 
+		String query = "for $map in fn:collection(\"securities\")\n" + 
 				"let $v := get($map, 'Security')\n" +
 				//"where get($v, '-id') = '5621'\n" +
 				"where get($v, 'Symbol') = 'IBM'\n" +
@@ -150,4 +152,30 @@ public class JsonQueryManagementTest extends BagriManagementTest {
 		assertEquals(2, results.size());
 	}
 	
+	@Test
+	public void queryJsonDocumentsTest() throws Exception {
+	
+		String query = "for $uri in fn:uri-collection(\"securities\")\n" +
+				"let $props := map {'method': 'json'}\n" +
+				"let $map := fn:json-doc($uri)\n" +
+				"let $sec := get($map, 'Security')\n" +
+				"where get($sec, 'id') = 5621\n" +
+				//"where get($sec, 'Symbol') = 'IBM'\n" +
+				"return fn:serialize($map, $props)";
+		
+		Properties props = new Properties();
+		//props.setProperty("method", "json");
+		ResultCursor docs = query(query, null, props);
+		assertNotNull(docs);
+		props = new Properties();
+		//props.setProperty("method", "json");
+		List<String> jsons = new ArrayList<>();
+		while (docs.next()) {
+			String json = docs.getString();
+			jsons.add(json);
+			//System.out.println(json);
+		}
+		docs.close();
+		assertEquals(1, jsons.size());
+	}
 }
