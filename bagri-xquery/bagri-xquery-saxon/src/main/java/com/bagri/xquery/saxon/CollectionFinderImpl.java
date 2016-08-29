@@ -277,7 +277,7 @@ public class CollectionFinderImpl implements CollectionFinder {
     	
        	if (ex instanceof FunctionCall) {
        		FunctionCall clx = (FunctionCall) ex;
-       		if ("collection".equals(clx.getDisplayName())) {
+       		if ("collection".equals(clx.getDisplayName()) || "uri-collection".equals(clx.getDisplayName())) {
        			String collectUri = "";
        			if (clx.getArity() > 0) {
        				Expression arg = clx.getArg(0);

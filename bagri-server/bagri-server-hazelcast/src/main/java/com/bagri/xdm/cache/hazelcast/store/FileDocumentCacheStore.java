@@ -221,7 +221,7 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
 				} while (uris.get(docKey) != null);				
 				uris.put(docKey, uri);
 			}
-			docIds = new HashSet<DocumentKey>(uris.keySet());
+			docIds = new HashSet<>(uris.keySet());
 		} catch (IOException ex) {
 			logger.error("loadAllKeys.error;", ex);
 		}

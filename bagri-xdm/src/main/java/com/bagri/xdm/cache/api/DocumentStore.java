@@ -19,12 +19,12 @@ public interface DocumentStore {
 	 * 
 	 * @param context the environment context
 	 */
-	public void init(Map<String, Object> context);
+	void init(Map<String, Object> context);
 	
 	/**
 	 * Lifecycle method. Invoked when parent schema is closing
 	 */
-	public void close();
+	void close();
 
 	/**
 	 * Load document from persistent store
@@ -32,7 +32,7 @@ public interface DocumentStore {
 	 * @param key the document key
 	 * @return XDM Document instance if corresponding document found, null otherwise
 	 */
-	public Document loadDocument(DocumentKey key);
+	Document loadDocument(DocumentKey key);
 
 	/**
 	 * Load bunch of documents from persistent store
@@ -40,14 +40,14 @@ public interface DocumentStore {
 	 * @param keys the collection of document keys to load
 	 * @return the map of loaded documents with their keys
 	 */
-	public Map<DocumentKey, Document> loadAllDocuments(Collection<DocumentKey> keys);
+	Map<DocumentKey, Document> loadAllDocuments(Collection<DocumentKey> keys);
 
 	/**
 	 * Load document keys. Can do it in synch or asynch way.
 	 * 
 	 * @return iterator over found document keys
 	 */
-	public Iterable<DocumentKey> loadAllDocumentKeys();
+	Iterable<DocumentKey> loadAllDocumentKeys();
 
 	/**
 	 * Stores document to persistent store.
@@ -55,27 +55,27 @@ public interface DocumentStore {
 	 * @param key the document key
 	 * @param value the XDM document instance
 	 */
-	public void storeDocument(DocumentKey key, Document value);
+	void storeDocument(DocumentKey key, Document value);
 
 	/**
 	 * Stores bunch of documents to persistent store
 	 * 
 	 * @param entries the map of document keys and corresponding document instances
 	 */
-	public void storeAllDocuments(Map<DocumentKey, Document> entries);
+	void storeAllDocuments(Map<DocumentKey, Document> entries);
 
 	/**
 	 * Deletes document from persistent store
 	 * 
 	 * @param key the document key
 	 */
-	public void deleteDocument(DocumentKey key);
+	void deleteDocument(DocumentKey key);
 
 	/**
 	 * Deletes bunch o documents from persistent store 
 	 * 
 	 * @param keys the keys identifying documents to be deleted 
 	 */
-	public void deleteAllDocuments(Collection<DocumentKey> keys);
+	void deleteAllDocuments(Collection<DocumentKey> keys);
 		
 }
