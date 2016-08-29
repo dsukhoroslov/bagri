@@ -98,6 +98,8 @@ public class Constants {
 	
 	// DocumentStore initialization context constants
 	public static final String ctx_repo = "xdmRepository";
+	public static final String ctx_cache = "cacheInstance";
+	public static final String ctx_context = "userContext";
 	
 	// XQJ configuration constants
 	public static final String pn_baseURI = "xqj.schema.baseUri";

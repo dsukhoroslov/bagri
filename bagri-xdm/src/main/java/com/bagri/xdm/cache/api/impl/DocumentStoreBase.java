@@ -1,6 +1,7 @@
 package com.bagri.xdm.cache.api.impl;
 
 import static com.bagri.xdm.common.Constants.ctx_repo;
+import static com.bagri.xdm.common.Constants.ctx_context;
 
 import java.util.Map;
 
@@ -35,8 +36,9 @@ public abstract class DocumentStoreBase {
 	 * 
 	 * @param context the context
 	 */
+	@SuppressWarnings("unchecked")
 	protected void setContext(Map<String, Object> context) {
-		this.userContext = context;
+		this.userContext = (Map<String, Object>) context.get(ctx_context);
 	}
 
 	

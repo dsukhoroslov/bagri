@@ -51,14 +51,13 @@ public class PopulationManagementImpl implements ManagedService,
 
     private static final transient Logger logger = LoggerFactory.getLogger(PopulationManagementImpl.class);
 
-    private boolean enabled;
     private String schemaName;
     private int populationSize;
     private NodeEngine nodeEngine;
 
     private KeyFactory xFactory;
 	private IMap<Long, Transaction> xtxCache;
-	//private IMap<XDMDocumentKey, XDMDocument> xddCache;
+	//private IMap<DocumentKey, Document> xddCache;
 	private IMap xddCache;
 	private DocumentMemoryStore docStore;
 	private DocumentManagementImpl docMgr;
@@ -69,7 +68,6 @@ public class PopulationManagementImpl implements ManagedService,
 		this.nodeEngine = nodeEngine;
 		this.schemaName = properties.getProperty(xdm_schema_name);
 		this.populationSize = Integer.parseInt(properties.getProperty(xdm_schema_population_size));
-		this.enabled = Boolean.parseBoolean(properties.getProperty(xdm_schema_store_enabled));
 		String dataPath = properties.getProperty(xdm_schema_store_data_path);
 		String nodeNum = properties.getProperty(xdm_node_instance);
 		int buffSize = 2048*100;
@@ -77,17 +75,13 @@ public class PopulationManagementImpl implements ManagedService,
 		if (bSize != null) {
 			buffSize = Integer.parseInt(bSize);
 		}
-		if (enabled) {
-			logger.info("init; will open doc store from path: {}; instance: {}; buffer size: {} docs", dataPath, nodeNum, buffSize);
-			docStore = new DocumentMemoryStore(dataPath, nodeNum, buffSize);
-			
-			nodeEngine.getPartitionService().addMigrationListener(this);
-			nodeEngine.getHazelcastInstance().getCluster().addMembershipListener(this);
-			nodeEngine.getHazelcastInstance().getLifecycleService().addLifecycleListener(this);
-			nodeEngine.getHazelcastInstance().getUserContext().put("popManager", this);
-		} else {
-			logger.info("init; persistent store is disabled");
-		}
+
+		logger.info("init; will open doc store from path: {}; instance: {}; buffer size: {} docs", dataPath, nodeNum, buffSize);
+		docStore = new DocumentMemoryStore(dataPath, nodeNum, buffSize);
+		nodeEngine.getPartitionService().addMigrationListener(this);
+		nodeEngine.getHazelcastInstance().getCluster().addMembershipListener(this);
+		nodeEngine.getHazelcastInstance().getLifecycleService().addLifecycleListener(this);
+		nodeEngine.getHazelcastInstance().getUserContext().put("popManager", this);
 	}
 	
 	@Override
@@ -98,17 +92,13 @@ public class PopulationManagementImpl implements ManagedService,
 	@Override
 	public void shutdown(boolean terminate) {
 		logger.info("shutdown; terminate: {}", terminate);
-		if (enabled) {
-			docStore.close();
-		}
+		docStore.close();
 	}
 
 	public void checkPopulation(int currentSize) {
 		logger.info("checkPopulation; populationSize: {}; currentSize: {}", populationSize, currentSize);
-		if (enabled) {
-			activateDocStore();
-			xddCache.addEntryListener(this, true);
-		}
+		activateDocStore();
+		xddCache.addEntryListener(this, true);
     	if (populationSize == currentSize && xddCache.size() == 0) {
     		SchemaPopulator pop = new SchemaPopulator(schemaName);
     		nodeEngine.getHazelcastInstance().getExecutorService(PN_XDM_SCHEMA_POOL).submitToMember(pop, nodeEngine.getLocalMember());
@@ -117,18 +107,14 @@ public class PopulationManagementImpl implements ManagedService,
     }
 	
 	public Document getDocument(Long docKey) {
-		return enabled ? docStore.getEntry(docKey) : null;
+		return docStore.getEntry(docKey);
 	}
 	
 	public int getDocumentCount() {
-		return enabled ? docStore.getFullEntryCount() : 0;
+		return docStore.getFullEntryCount();
 	}
 	
 	public Set<DocumentKey> getDocumentKeys() {
-		if (!enabled) {
-			return null;
-		}
-		
 		if (docStore.getEntryKeys().size() == 0) {
 			return null;
 		}

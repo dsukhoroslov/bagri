@@ -374,7 +374,7 @@
 		<entry name="xdm.schema.transaction.timeout">60000</entry>
                 <entry name="xdm.schema.partition.count">271</entry>
                 <entry name="xdm.schema.health.threshold.low">25</entry>
-                <entry name="xdm.schema.health.threshold.high">0</entry>
+                <entry name="xdm.schema.health.threshold.high">5</entry>
                 <entry name="xdm.schema.query.parallel">true</entry>
                 <entry name="xdm.schema.partition.pool">32</entry>
                 <entry name="xqj.schema.baseUri">file:/C:/Work/Bagri/git/bagri/etc/samples/default/</entry>
