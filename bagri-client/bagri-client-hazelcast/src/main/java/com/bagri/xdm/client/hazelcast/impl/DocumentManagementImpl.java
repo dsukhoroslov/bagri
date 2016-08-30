@@ -1,5 +1,6 @@
 package com.bagri.xdm.client.hazelcast.impl;
 
+import static com.bagri.xdm.api.XDMException.ecDocument;
 import static com.bagri.xdm.cache.api.CacheConstants.CN_XDM_DOCUMENT;
 import static com.bagri.xdm.cache.api.CacheConstants.PN_XDM_SCHEMA_POOL;
 
@@ -8,7 +9,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -34,8 +34,6 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.Member;
-import com.hazelcast.query.Predicate;
-import com.hazelcast.query.Predicates;
 
 public class DocumentManagementImpl extends DocumentManagementBase implements DocumentManagement {
 
@@ -70,7 +68,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			return result;
 		} catch (InterruptedException | ExecutionException ex) {
 			logger.error("getDocument; error getting result", ex);
-			throw new XDMException(ex, XDMException.ecDocument);
+			throw new XDMException(ex, ecDocument);
 		}
 	}
 	
@@ -86,7 +84,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			return result;
 		} catch (InterruptedException | ExecutionException ex) {
 			logger.error("getDocumentUris; error getting result", ex);
-			throw new XDMException(ex, XDMException.ecDocument);
+			throw new XDMException(ex, ecDocument);
 		}
 	}
 	
@@ -102,7 +100,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			return result;
 		} catch (InterruptedException | ExecutionException ex) {
 			logger.error("getDocumentAsBean; error getting result", ex);
-			throw new XDMException(ex, XDMException.ecDocument);
+			throw new XDMException(ex, ecDocument);
 		}
 	}
 
@@ -118,7 +116,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			return result;
 		} catch (InterruptedException | ExecutionException ex) {
 			logger.error("getDocumentAsMap; error getting result", ex);
-			throw new XDMException(ex, XDMException.ecDocument);
+			throw new XDMException(ex, ecDocument);
 		}
 	}
 
@@ -135,14 +133,14 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			return result;
 		} catch (InterruptedException | ExecutionException ex) {
 			logger.error("getDocumentAsString; error getting result", ex);
-			throw new XDMException(ex, XDMException.ecDocument);
+			throw new XDMException(ex, ecDocument);
 		}
 	}
 
 	@Override
 	public Document storeDocumentFromBean(String uri, Object bean, Properties props) throws XDMException {
 		if (bean == null) {
-			throw new XDMException("Document bean can not be null", XDMException.ecDocument);
+			throw new XDMException("Document bean can not be null", ecDocument);
 		}
 		logger.trace("storeDocumentFromMap.enter; uri: {}; bean: {}", uri, bean);
 		
@@ -153,7 +151,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	@Override
 	public Document storeDocumentFromMap(String uri, Map<String, Object> fields, Properties props) throws XDMException {
 		if (fields == null) {
-			throw new XDMException("Document fields map can not be null", XDMException.ecDocument);
+			throw new XDMException("Document fields map can not be null", ecDocument);
 		}
 		logger.trace("storeDocumentFromMap.enter; uri: {}; field size: {}", uri, fields.size());
 		
@@ -164,7 +162,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	@Override
 	public Document storeDocumentFromString(String uri, String content, Properties props) throws XDMException {
 		if (content == null) {
-			throw new XDMException("Document content can not be null", XDMException.ecDocument);
+			throw new XDMException("Document content can not be null", ecDocument);
 		}
 		logger.trace("storeDocumentFromString.enter; uri: {}; content length: {}", uri, content.length());
 		
@@ -183,7 +181,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		} catch (InterruptedException | ExecutionException ex) {
 			// the document could be stored anyway..
 			logger.error("storeDocument.error", ex);
-			throw new XDMException(ex, XDMException.ecDocument);
+			throw new XDMException(ex, ecDocument);
 		}
 	}
 
@@ -203,7 +201,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			//return (XDMDocument) result;
 		} catch (InterruptedException | ExecutionException ex) {
 			logger.error("removeDocument.error: ", ex);
-			throw new XDMException(ex, XDMException.ecDocument);
+			throw new XDMException(ex, ecDocument);
 		}
 	}
 
@@ -222,7 +220,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			} catch (InterruptedException | ExecutionException ex) {
 				logger.error("getCollectionDocumentIds.error; ", ex);
 				// process all results first?!
-				//throw new XDMException(ex, XDMException.ecDocument);
+				//throw new XDMException(ex, ecDocument);
 			}
 		}
 		logger.trace("getCollectionDocumentIds.exit; returning: {}", result.size());
@@ -244,7 +242,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			} catch (InterruptedException | ExecutionException ex) {
 				logger.error("removeCollectionDocuments.error; ", ex);
 				// process all results first?!
-				throw new XDMException(ex, XDMException.ecDocument);
+				throw new XDMException(ex, ecDocument);
 			}
 		}
 		logger.trace("removeCollectionDocuments.exit; removed: {}", cnt);
@@ -280,7 +278,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			cnt = result.get();
 		} catch (InterruptedException | ExecutionException ex) {
 			logger.error("updateDocumentsCollections.error: ", ex);
-			//throw new XDMException(ex, XDMException.ecDocument);
+			//throw new XDMException(ex, ecDocument);
 		}
 		return cnt;
 	}
