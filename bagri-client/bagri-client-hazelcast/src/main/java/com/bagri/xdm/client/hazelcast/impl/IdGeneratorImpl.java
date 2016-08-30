@@ -13,21 +13,8 @@ public class IdGeneratorImpl implements IdGenerator<Long> {
 	}
 	
 	@Override
-	public boolean adjust(final Long newValue) {
-		
-		long changed = idGen.alterAndGet(new IFunction<Long, Long>() {
-
-			@Override
-			public Long apply(Long input) {
-				if (input < newValue) {
-					input = newValue;
-					return newValue;
-				}
-				return input;
-			}
-			
-		});
-		return changed == newValue;
+	public boolean adjust(Long newValue) {
+		return newValue == idGen.alterAndGet(new MaxValue(newValue));
 	}
 
 	@Override
@@ -45,5 +32,31 @@ public class IdGeneratorImpl implements IdGenerator<Long> {
 		}
 		return result; 
 	}
+	
+	
+	public static class MaxValue implements IFunction<Long, Long> {
+		
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 4889277331209519782L;
+		
+		private long newValue;
+		
+		MaxValue(long value) {
+			this.newValue = value;
+		}
+
+		@Override
+		public Long apply(Long input) {
+			if (input < newValue) {
+				//input = newValue;
+				return newValue;
+			}
+			return input;
+		}
+		
+	}
+
 
 }

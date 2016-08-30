@@ -12,12 +12,10 @@ import static com.bagri.xdm.domain.Document.clnDefault;
 import static com.bagri.xdm.system.DataFormat.df_xml;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
-//import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -30,12 +28,9 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-
-import javax.xml.transform.Source;
 
 import com.bagri.common.idgen.IdGenerator;
 import com.bagri.common.stats.StatisticsEvent;
@@ -45,6 +40,7 @@ import com.bagri.xdm.cache.api.DocumentManagement;
 import com.bagri.xdm.cache.api.ContentParser;
 import com.bagri.xdm.cache.api.impl.DocumentManagementBase;
 import com.bagri.xdm.cache.hazelcast.predicate.CollectionPredicate;
+import com.bagri.xdm.cache.hazelcast.predicate.DocumentPredicateBuilder;
 import com.bagri.xdm.client.hazelcast.task.doc.DocumentContentProvider;
 import com.bagri.xdm.common.DataKey;
 import com.bagri.xdm.common.DocumentKey;
@@ -55,7 +51,6 @@ import com.bagri.xdm.domain.Element;
 import com.bagri.xdm.domain.Elements;
 import com.bagri.xdm.domain.FragmentedDocument;
 import com.bagri.xdm.domain.Path;
-import com.bagri.xdm.query.Comparison;
 import com.bagri.xdm.system.Collection;
 import com.bagri.xdm.system.DataFormat;
 import com.bagri.xdm.system.Fragment;
@@ -315,28 +310,13 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
     }
  	
 	@Override
-	@SuppressWarnings("unchecked")
 	public java.util.Collection<String> getDocumentUris(String pattern) {
 		// implement other search types: by dates, owner, etc..
 		logger.trace("getDocumentUris.enter; got pattern: {}", pattern);
-		String[] parts = pattern.split(",");
-		Predicate<DocumentKey, Document> full = null;
-		for (String part: parts) {
-			logger.trace("getDocumentUris; translating query part: {}", part);
-			Predicate<DocumentKey, Document> query = toPredicate(part.trim());
-			if (query != null) {
-				if (full == null) {
-					full = query;
-				} else {
-					full = Predicates.and(full, query);
-				}
-			} else {
-				logger.info("getDocumentUris; cannot translate query part '{}' to Predicate, skipping", part);
-			}
-		}
+		Predicate<DocumentKey, Document> query = DocumentPredicateBuilder.getQuery(pattern);
    		//Predicate<XDMDocumentKey, XDMDocument> f = Predicates.and(Predicates.regex("uri", pattern), 
    		//		Predicates.equal("txFinish", TX_NO));
-		java.util.Collection<Document> docs = xddCache.values(full);
+		java.util.Collection<Document> docs = xddCache.values(query);
 
 		// should also check if doc's start transaction is committed?
 		Set<String> result = new HashSet<>(docs.size());
@@ -347,66 +327,6 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		return result;
 	}
 
-	private Predicate toPredicate(String query) {
-		int pos = query.indexOf(" ");
-		if (pos > 0) {
-			String attr = query.substring(0, pos); 
-			int pos2 = query.indexOf(" ", pos + 1);
-			if (pos2 > 0) {
-				Comparison comp = toComparison(query.substring(pos, pos2).trim());
-				if (comp != null) {
-					String val = query.substring(pos2);
-					Comparable<?> value = toValue(attr, val.trim());
-					logger.trace("toPredicate; got predicate parts: {} {} {}", attr, comp, value);
-					switch (comp) {
-						case EQ: return Predicates.equal(attr, value);
-						case NE: return Predicates.notEqual(attr, value);
-						case GT: return Predicates.greaterThan(attr, value);
-						case GE: return Predicates.greaterEqual(attr, value);
-						case LT: return Predicates.lessThan(attr, value);
-						case LE: return Predicates.lessEqual(attr, value);
-						case LIKE: return Predicates.like(attr, value.toString());
-					}
-				}
-			}
-		}
-		return null;
-	}
-		
-	private Comparison toComparison(String comp) {
-		switch (comp) {
-			case "=": return Comparison.EQ;
-			case "!=": return Comparison.NE;
-			case "<": return Comparison.LT;
-			case "<=": return Comparison.LE;
-			case ">": return Comparison.GT;
-			case ">=": return Comparison.GE;
-			case "not": return Comparison.NOT;
-			case "like": return Comparison.LIKE;
-			case "between": return Comparison.BETWEEN;
-			case "and": return Comparison.AND;
-			case "or": return Comparison.OR;
-		}
-		return null;
-	}
-
-	private Comparable<?> toValue(String attr, String value) {
-		switch (attr) {
-		    //case "key": 
-		    case "version": return new Integer(value); 
-		    case "uri": return value;
-		    //case "type"
-		    //case "encoding": 
-		    case "txStart": 
-		    case "txFinish": return new Long(value);
-		    case "createdAt": return new Long(value); //Date()
-		    case "createdBy": return value;
-		    case "bytes": 
-		    case "elements": return new Integer(value);
-		}
-		return value;
-	}
-	
 	@Override
 	public java.util.Collection<String> buildDocument(Set<Long> docKeys, String template, Map<String, Object> params) throws XDMException {
         logger.trace("buildDocument.enter; docKeys: {}", docKeys.size());
