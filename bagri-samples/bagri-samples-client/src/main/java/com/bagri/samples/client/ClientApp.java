@@ -227,21 +227,15 @@ public class ClientApp {
 		}
 
 		String query = "declare namespace bgdm=\"http://bagridb.com/bagri-xdm\";\n" +
+				"declare variable $uri external;\n" + 
 				"declare variable $xml external;\n" + 
-				"declare variable $docIds external;\n" + 
 				"declare variable $props external;\n" + 
-				//"declare option bgdm:document-format \"JSON\";\n\n" + 
-				"let $id := bgdm:store-document($xml, $docIds, $props)\n" +
+				"let $id := bgdm:store-document($uri, $xml, $props)\n" +
 				"return $id\n";
 
 	    XQPreparedExpression xqpe = xqc.prepareExpression(query);
+	    xqpe.bindString(new QName("uri"), "65538.xml", xqc.createAtomicType(XQItemType.XQBASETYPE_ANYURI));
 	    xqpe.bindString(new QName("xml"), xml, xqc.createAtomicType(XQItemType.XQBASETYPE_STRING));
-	    List docIds = new ArrayList(4);
-	    docIds.add(new Long(0));
-	    //docIds.add(new Long(1));
-	    //docIds.add(new Integer(1));
-	    docIds.add("65538.xml");
-	    xqpe.bindSequence(new QName("docIds"), xqc.createSequence(docIds.iterator()));
 	    List<String> props = new ArrayList<>(4);
 	    props.add(xdm_document_data_format + "=xml");
 	    props.add(xdm_document_collections + "=CLN_Custom, CLN_Security");

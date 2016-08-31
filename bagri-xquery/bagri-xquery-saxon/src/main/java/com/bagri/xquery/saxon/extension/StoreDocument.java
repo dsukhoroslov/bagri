@@ -17,8 +17,6 @@ import net.sf.saxon.value.SequenceType;
 
 public class StoreDocument extends DocumentFunctionExtension {
 
-	//private static final Logger logger = LoggerFactory.getLogger(StoreDocument.class);
-	
 	public StoreDocument(DocumentManagement xdm) {
 		super(xdm);
 	}
@@ -30,7 +28,7 @@ public class StoreDocument extends DocumentFunctionExtension {
 
 	@Override
 	public SequenceType[] getArgumentTypes() {
-		return new SequenceType[] {SequenceType.SINGLE_ANY_URI, SequenceType.SINGLE_STRING, SequenceType.STRING_SEQUENCE};
+		return new SequenceType[] {SequenceType.SINGLE_ANY_URI, SequenceType.SINGLE_STRING, SequenceType.ATOMIC_SEQUENCE}; //STRING_SEQUENCE};
 	}
 	
 	@Override
@@ -50,8 +48,6 @@ public class StoreDocument extends DocumentFunctionExtension {
 	
 	@Override
 	public ExtensionFunctionCall makeCallExpression() {
-
-		//"declare option bgdm:document-format \"JSON\";\n\n" +
 
 		return new ExtensionFunctionCall() {
 

@@ -29,6 +29,7 @@ import javax.xml.xquery.XQSequence;
 
 import com.bagri.samples.client.BagriClientApp;
 import com.bagri.xdm.api.XDMException;
+import com.bagri.xdm.common.DocumentKey;
 import com.bagri.xqj.BagriXQDataSource;
 
 public class XQJClientApp implements BagriClientApp {
@@ -75,7 +76,7 @@ public class XQJClientApp implements BagriClientApp {
 	public boolean createDocument(String uri, String content) throws XQException {
 		
 		long result = storeDocument(uri, content);
-    	return result > 0;
+    	return result != 0;
 	}
 	
 	@Override
@@ -131,7 +132,7 @@ public class XQJClientApp implements BagriClientApp {
 
 		long result = storeDocument(uri, content);
     	// document version must be > 1
-    	return result > 1;
+    	return DocumentKey.toVersion(result) > 1;
 	}
 	
 	@Override
@@ -167,7 +168,7 @@ public class XQJClientApp implements BagriClientApp {
 	    XQPreparedExpression xqpe = xqConn.prepareExpression(query);
 	    xqpe.bindString(new QName("uri"), uri, xqConn.createAtomicType(XQItemType.XQBASETYPE_ANYURI));
 	    xqpe.bindString(new QName("xml"), content, xqConn.createAtomicType(XQItemType.XQBASETYPE_STRING));
-	    List<String> props = new ArrayList<>(4);
+	    List<String> props = new ArrayList<>(2);
 	    props.add(xdm_document_data_format + "=xml");
 	    // 
 	    xqpe.bindSequence(new QName("props"), xqConn.createSequence(props.iterator()));
