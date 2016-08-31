@@ -29,6 +29,7 @@ import com.bagri.xdm.cache.api.ContentBuilder;
 import com.bagri.xdm.cache.api.ClientManagement;
 import com.bagri.xdm.cache.api.IndexManagement;
 import com.bagri.xdm.cache.api.ModelManagement;
+import com.bagri.xdm.cache.api.PopulationManagement;
 import com.bagri.xdm.cache.api.ContentParser;
 import com.bagri.xdm.cache.api.SchemaRepository;
 import com.bagri.xdm.cache.api.TriggerManagement;
@@ -66,6 +67,7 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
     private ClientManagement clientMgr;
     private IndexManagement indexMgr;
 	private ModelManagement modelMgr;
+	private PopulationManagement popMgr;
     private TriggerManagement triggerMgr;
     private ApplicationContext appContext;
     private HazelcastInstance hzInstance;
@@ -84,6 +86,7 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
 	public void setHzInstance(HazelcastInstance hzInstance) {
 		this.hzInstance = hzInstance;
 		hzInstance.getUserContext().put(ctx_repo, this);
+		setPopulationManagement((PopulationManagement) hzInstance.getUserContext().get("popManager"));
 		logger.debug("setHzInstange; got instance: {}", hzInstance.getName());
 	}
 	
@@ -117,6 +120,15 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
 		return modelMgr;
 	}
 
+	@Override
+	public PopulationManagement getPopulationManagement() {
+		return popMgr;
+	}
+
+	public void setPopulationManagement(PopulationManagement popMgr) {
+		this.popMgr = popMgr;
+	}
+	
 	public void setModelManagement(ModelManagement modelMgr) {
 		this.modelMgr = modelMgr;
 	}

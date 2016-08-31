@@ -86,6 +86,9 @@
 					max-size="0" invalidate-on-change="true" in-memory-format="OBJECT" cache-local-entries="false"/>
 			</hz:map>
 			
+			<hz:map name="xdm-key" in-memory-format="BINARY" async-backup-count="${xdm.schema.data.backup.async}" 
+				backup-count="${xdm.schema.data.backup.sync}" read-backup-data="${xdm.schema.data.backup.read}">
+			</hz:map>
 			<hz:map name="xdm-document" in-memory-format="BINARY" async-backup-count="${xdm.schema.data.backup.async}" 
 				backup-count="${xdm.schema.data.backup.sync}" read-backup-data="${xdm.schema.data.backup.read}">
 				<hz:map-store enabled="${xdm.schema.store.enabled}" write-delay-seconds="10" factory-implementation="xdmStoreFactory">
@@ -241,6 +244,7 @@
 		</hz:config>
 	</hz:hazelcast>
 
+	<hz:map id="xdm-key" name="xdm-key" instance-ref="hzInstance" />
 	<hz:map id="xdm-client" name="xdm-client" instance-ref="hzInstance" />
 	<hz:map id="xdm-content" name="xdm-content" instance-ref="hzInstance" />
 	<hz:replicatedMap id="xdm-query" name="xdm-query" instance-ref="hzInstance" />
@@ -347,12 +351,6 @@
 	</bean>
 
 	<bean id="xqCompiler" class="com.bagri.xquery.saxon.XQCompilerImpl"/>
-
-	<!--bean id="popManager" class="com.bagri.xdm.cache.hazelcast.management.PopulationManager">
-		<constructor-arg ref="hzInstance" />
-		<property name="schemaName" value="${xdm.schema.name}"/>
-		<property name="populationSize" value="${xdm.schema.population.size}"/>
-	</bean-->
 
 	<bean id="accManager" class="com.bagri.xdm.cache.hazelcast.impl.AccessManagementImpl">
 		<property name="schemaName" value="${xdm.schema.name}"/>

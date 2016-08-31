@@ -1,8 +1,9 @@
 package com.bagri.xdm.cache.api;
 
-import java.io.InputStream;
 import java.util.Date;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.common.DocumentKey;

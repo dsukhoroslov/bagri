@@ -1,5 +1,8 @@
 package com.bagri.xdm.cache.hazelcast.store;
 
+import static com.bagri.xdm.common.Constants.ctx_cache;
+import static com.bagri.xdm.common.Constants.ctx_context; 
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,12 +29,12 @@ public class DocumentStoreAdapter implements MapStore<DocumentKey, Document>, Ma
 		for (Object key: properties.keySet()) {
 			ctx.put(key.toString(), properties.get(key));
 		}
-		ctx.putAll(hzInstance.getUserContext());
-		ctx.put("hzInstance", hzInstance);
-		// TODO: get persistence properties from repo.getSchema and pass them to extStore too!
+		//ctx.putAll(hzInstance.getUserContext());
+		ctx.put(ctx_cache, hzInstance);
+		ctx.put(ctx_context, hzInstance.getUserContext());
 		extStore.init(ctx);
 	}
-
+	
 	@Override
 	public void destroy() {
 		extStore.close();
@@ -73,3 +76,4 @@ public class DocumentStoreAdapter implements MapStore<DocumentKey, Document>, Ma
 	}
 
 }
+
