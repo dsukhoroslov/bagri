@@ -132,6 +132,11 @@ public class CacheConstants {
      */
 	public static final String PN_XDM_SCHEMA_POOL = "xdm-exec-pool";
 	
+    /**
+     * XDM Schema cluster execution service
+     */
+	public static final String PN_XDM_TRANS_POOL = "xdm-trans-pool";
+	
 	/**
 	 * XDM System cluster execution service
 	 */
@@ -148,5 +153,10 @@ public class CacheConstants {
 	 * XDM Counters notifications topic
 	 */
 	public static final String TPN_XDM_COUNTERS = "xdm-counters";
+	
+	/**
+	 * Population notification topic
+	 */
+	public static final String TPN_XDM_POPULATION = "xdm-population";
 	
 }

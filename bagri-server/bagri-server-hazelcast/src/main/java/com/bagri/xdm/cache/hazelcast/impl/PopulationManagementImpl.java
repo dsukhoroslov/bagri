@@ -142,7 +142,7 @@ public class PopulationManagementImpl implements PopulationManagement, ManagedSe
 		}
 	}
 
-	public void checkPopulation(int currentSize) {
+	public void checkPopulation(int currentSize) throws Exception {
 		logger.info("checkPopulation; populationSize: {}; currentSize: {}", populationSize, currentSize);
 		if (enabled) {
 			activateDocStore();
@@ -150,13 +150,18 @@ public class PopulationManagementImpl implements PopulationManagement, ManagedSe
 		}
     	if (populationSize == currentSize && xddCache.size() == 0) {
     		SchemaPopulator pop = new SchemaPopulator(schemaName);
+    		// try to run it from the same thread..
     		nodeEngine.getHazelcastInstance().getExecutorService(PN_XDM_SCHEMA_POOL).submitToMember(pop, nodeEngine.getLocalMember());
-    		//nodeEngine.getHazelcastInstance().getExecutorService(PN_XDM_SCHEMA_POOL).submitToAllMembers(pop); 
+    		//pop.call();
     	}
     }
 	
 	public Document getDocument(Long docKey) {
 		return enabled ? docStore.getEntry(docKey) : null;
+	}
+	
+	public int getActiveCount() {
+		return enabled ? docStore.getActiveEntryCount() : 0;
 	}
 	
 	public int getDocumentCount() {
@@ -192,12 +197,6 @@ public class PopulationManagementImpl implements PopulationManagement, ManagedSe
 
 		ApplicationContext schemaCtx = (ApplicationContext) getContext(schemaName, schema_context);
 		docMgr = schemaCtx.getBean(DocumentManagementImpl.class);
-		
-		// only local HM should be notified!
-		HealthManagementImpl hMgr = schemaCtx.getBean(HealthManagementImpl.class);
-		int actCount = docStore.getActiveEntryCount();
-		int docCount = docStore.getFullEntryCount();
-		hMgr.initState(actCount, docCount - actCount);
 	}
 	
 	private KeyFactory getKeyFactory() {
@@ -242,7 +241,7 @@ public class PopulationManagementImpl implements PopulationManagement, ManagedSe
 
 	@Override
 	public void memberRemoved(MembershipEvent membershipEvent) {
-		logger.info("memberRemoved; event: {}; docs size: {}", membershipEvent, xddCache.size());
+		logger.info("memberRemoved; event: {}; docs size: {}; active count: {}", membershipEvent, xddCache.size(), docStore.getActiveEntryCount());
 	}
 
 	@Override

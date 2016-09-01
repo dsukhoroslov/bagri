@@ -58,6 +58,8 @@ public class HealthManagementImpl implements MessageListener<Counter>, Partition
 		this.hzInstance = hzInstance;
 		ITopic<Counter> cTopic = hzInstance.getTopic(TPN_XDM_COUNTERS);
 		cTopic.addMessageListener(this);
+		ITopic<Long> pTopic = hzInstance.getTopic(TPN_XDM_POPULATION);
+		pTopic.addMessageListener(new PopulationStateListener());
 		hTopic = hzInstance.getTopic(TPN_XDM_HEALTH);
 		xddCache = hzInstance.getMap(CN_XDM_DOCUMENT);
 		hzInstance.getPartitionService().addPartitionLostListener(this);
@@ -75,7 +77,7 @@ public class HealthManagementImpl implements MessageListener<Counter>, Partition
 	
 	private void checkState() {
 		int docSize = xddCache.size();
-		logger.trace("checkStats; active count: {}; inactive count: {}; cache size: {}", cntActive, cntInactive, docSize);
+		logger.trace("checkState; active count: {}; inactive count: {}; cache size: {}", cntActive, cntInactive, docSize);
 		long fullSize = cntActive.get() + cntInactive.get();
 		HealthState hState;
 		if (fullSize < docSize - thLow) {
@@ -124,6 +126,18 @@ public class HealthManagementImpl implements MessageListener<Counter>, Partition
 	public void partitionLost(PartitionLostEvent event) {
 		logger.debug("partitionLost; event: {}", event); 
 		checkState();
+	}
+	
+	private class PopulationStateListener implements MessageListener<Long> {
+
+		@Override
+		public void onMessage(Message<Long> message) {
+			int lo = (int) message.getMessageObject().longValue();
+			int hi = (int) (message.getMessageObject().longValue() >> 32);
+			initState(lo, hi);
+			// now we can disconnect, actually..
+		}
+		
 	}
 	
 /*		

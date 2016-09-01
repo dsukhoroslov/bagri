@@ -189,8 +189,8 @@ public interface XQProcessor {
 	/**
 	 * set timeZone in the processor's dynamic context
 	 * 
-	 * @param timeZone
-	 * @throws XQException
+	 * @param timeZone the TimeZone to set
+	 * @throws XQException in case of processing error
 	 */
 	void setTimeZone(TimeZone timeZone) throws XQException;
 	

@@ -3,10 +3,7 @@ package com.bagri.xdm.cache.hazelcast.impl;
 import static com.bagri.xdm.api.XDMException.ecTransNoNested;
 import static com.bagri.xdm.api.XDMException.ecTransNotFound;
 import static com.bagri.xdm.api.XDMException.ecTransWrongState;
-import static com.bagri.xdm.cache.api.CacheConstants.CN_XDM_TRANSACTION;
-import static com.bagri.xdm.cache.api.CacheConstants.PN_XDM_SCHEMA_POOL;
-import static com.bagri.xdm.cache.api.CacheConstants.SQN_TRANSACTION;
-import static com.bagri.xdm.cache.api.CacheConstants.TPN_XDM_COUNTERS;
+import static com.bagri.xdm.cache.api.CacheConstants.*;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -51,13 +48,13 @@ import com.hazelcast.query.Predicates;
 public class TransactionManagementImpl implements TransactionManagement, StatisticsProvider, MultiExecutionCallback {
 	
     private static final Logger logger = LoggerFactory.getLogger(TransactionManagementImpl.class);
-    private static final long TX_START = 5L;
+    private static final long TX_START = 5L; 
 	
 	private ThreadLocal<Long> thTx = new ThreadLocal<Long>() {
 		
 		@Override
 		protected Long initialValue() {
-			return TransactionManagement.TX_NO;
+			return TX_NO;
  		}
 		
 	};
@@ -90,8 +87,7 @@ public class TransactionManagementImpl implements TransactionManagement, Statist
 		txGen = new IdGeneratorImpl(hzInstance.getAtomicLong(SQN_TRANSACTION));
 		txGen.adjust(TX_START);
 		cTopic = hzInstance.getTopic(TPN_XDM_COUNTERS);
-		//execService = hzInstance.getExecutorService(PN_XDM_SCHEMA_POOL);
-		execService = hzInstance.getExecutorService("xdm-trans-pool");
+		execService = hzInstance.getExecutorService(PN_XDM_TRANS_POOL);
 	}
 	
 	public long getTransactionTimeout() {
@@ -201,7 +197,8 @@ public class TransactionManagementImpl implements TransactionManagement, Statist
 		// asynchronous cleaning..
 		//execService.submitToAllMembers(new DocumentCleaner(xTx), this);
 		
-		// synchronous cleaning.. causes a deadlock!
+		// synchronous cleaning.. causes a deadlock if used from the common schema exec-pool. 
+		// that is why we use separate exec-pool for transaction tasks 
 		Map<Member, Future<Transaction>> values = execService.submitToAllMembers(new DocumentCleaner(xTx));
         Transaction txClean = null;
 		for (Future<Transaction> value: values.values()) {

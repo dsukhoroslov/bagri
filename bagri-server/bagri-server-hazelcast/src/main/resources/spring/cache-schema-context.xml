@@ -157,6 +157,7 @@
 			
 			<hz:topic name="xdm-health"/>
 			<hz:topic name="xdm-counters"/>
+			<hz:topic name="xdm-population"/>
 			
 			<hz:replicatedmap name="xdm-query" in-memory-format="BINARY" replication-delay-millis="0"/>
 			<hz:replicatedmap name="dict-index" in-memory-format="BINARY" replication-delay-millis="0"/>
