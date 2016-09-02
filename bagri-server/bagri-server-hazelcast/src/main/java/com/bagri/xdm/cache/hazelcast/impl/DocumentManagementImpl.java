@@ -106,6 +106,11 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
     	this.docGen = docGen;
     }
     
+    public void setContentCache(IMap<DocumentKey, String> cache) {
+    	this.cntCache = cache;
+    	//this.srcCache = new ConcurrentHashMap<XDMDocumentKey, Source>();
+    }
+    
     public void setXddCache(IMap<DocumentKey, Document> cache) {
     	this.xddCache = cache;
     }
@@ -114,11 +119,6 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
     	this.xdmCache = cache;
     }
 
-    public void setContentCache(IMap<DocumentKey, String> cache) {
-    	this.cntCache = cache;
-    	//this.srcCache = new ConcurrentHashMap<XDMDocumentKey, Source>();
-    }
-    
     //@Autowired
 	public void setHzInstance(HazelcastInstance hzInstance) {
 		this.hzInstance = hzInstance;

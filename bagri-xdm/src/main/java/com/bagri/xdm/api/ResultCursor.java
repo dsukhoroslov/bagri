@@ -101,6 +101,7 @@ public interface ResultCursor extends AutoCloseable {
 
 	/**
 	 * 
+	 * @param props result production properties
 	 * @return transforms currently selected item to String
 	 * @throws XDMException in case of data access error
 	 */
@@ -108,7 +109,7 @@ public interface ResultCursor extends AutoCloseable {
 
 	/**
 	 * 
-	 * @return true if cursor has a List of results fetched, false otherwise 
+	 * @return true if cursor has a static List of results fetched, false otherwise 
 	 */
 	boolean isFixed();
 	

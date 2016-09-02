@@ -5,6 +5,7 @@ import static com.bagri.xdm.common.Constants.xdm_schema_name;
 import static com.bagri.xdm.common.Constants.xdm_schema_store_data_path;
 import static com.bagri.xdm.common.Constants.xdm_schema_store_tx_buffer_size;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.MappedByteBuffer;
@@ -63,6 +64,12 @@ public class TransactionCacheStore implements MapStore<Long, Transaction>, MapLo
 		int size = bit2pos(bSize);
 		try {
 			raf = new RandomAccessFile(fileName, "rw");
+		} catch (FileNotFoundException ex) {
+			throw new RuntimeException("Path " + fileName + " does not exists", ex);
+		}
+		
+		int txCount = 0;
+		try {
 			if (raf.length() > 0) {
 				logger.info("init; opened tx log with length: {}", raf.length());
 				// not sure we have to do this..
@@ -70,7 +77,6 @@ public class TransactionCacheStore implements MapStore<Long, Transaction>, MapLo
 					size = (int) raf.length();
 				}
 			}
-		    int txCount = 0;
 			fc = raf.getChannel();
 			buff = fc.map(MapMode.READ_WRITE, 0, size);
 			if (raf.length() > 0) {
@@ -79,13 +85,11 @@ public class TransactionCacheStore implements MapStore<Long, Transaction>, MapLo
 			} else {
 				transactions = new HashMap<>();
 			}
-			logger.info("init; tx buffer initialized; tx count: {}", txCount);
-			loadTransactions(txCount);
 		} catch (IOException ex) {
-			logger.error("init.error", ex);
 			throw new RuntimeException("Cannot initialize Transaction Store", ex);
 		}
-		
+		logger.info("init; tx buffer initialized; tx count: {}", txCount);
+		loadTransactions(txCount);
 		instance = this;
 	}
 

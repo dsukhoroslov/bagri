@@ -9,15 +9,22 @@ package com.bagri.xdm.cache.api;
 public class CacheConstants {
 
     /**
+     * XDM Key mapping cache
+     * Key: DocumentKey; 
+     * Value: String
+     */
+	public static final String CN_XDM_KEY = "xdm-key";
+
+	/**
      * XDM Document cache
      * Key: DocumentKey; 
-     * Value: com.bagri.xdm.XDMDocument
+     * Value: com.bagri.xdm.domain.Document
      */
 	public static final String CN_XDM_DOCUMENT = "xdm-document";
 
     /**
       * XDM Data cache
-      * Key: DataDocumentKey; 
+      * Key: DataKey; 
       * Value: com.bagri.xdm.XDMElements
       */
 	public static final String CN_XDM_ELEMENT = "xdm-element";
@@ -25,7 +32,7 @@ public class CacheConstants {
     /**
      * XDM Index cache
      * Key: PathIndexKey; 
-     * Value: com.bagri.xdm.XDMIndexedValue
+     * Value: com.bagri.xdm.domain.IndexedValue
      */
 	public static final String CN_XDM_INDEX = "xdm-index";
 
@@ -125,6 +132,11 @@ public class CacheConstants {
      */
 	public static final String PN_XDM_SCHEMA_POOL = "xdm-exec-pool";
 	
+    /**
+     * XDM Schema cluster execution service
+     */
+	public static final String PN_XDM_TRANS_POOL = "xdm-trans-pool";
+	
 	/**
 	 * XDM System cluster execution service
 	 */
@@ -141,5 +153,10 @@ public class CacheConstants {
 	 * XDM Counters notifications topic
 	 */
 	public static final String TPN_XDM_COUNTERS = "xdm-counters";
+	
+	/**
+	 * Population notification topic
+	 */
+	public static final String TPN_XDM_POPULATION = "xdm-population";
 	
 }

@@ -36,9 +36,16 @@ public interface SchemaRepository extends com.bagri.xdm.api.SchemaRepository {
 	IndexManagement getIndexManagement();
 	
 	/**
+	 * 
 	 * @return meta-data management interface
 	 */
 	ModelManagement getModelManagement();
+	
+	/**
+	 * 
+	 * @return population management interface
+	 */
+	PopulationManagement getPopulationManagement();
 
 	/**
 	 * 

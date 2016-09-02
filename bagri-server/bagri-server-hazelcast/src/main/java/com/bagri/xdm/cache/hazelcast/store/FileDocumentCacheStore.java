@@ -45,8 +45,6 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
 
     private static final Logger logger = LoggerFactory.getLogger(FileDocumentCacheStore.class);
     
-    private Map<DocumentKey, String> uris = new HashMap<>();
-    
 	private String dataPath;
     private String schemaName;
     private String dataFormat;
@@ -129,7 +127,7 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
     		}
         	docUri = doc.getUri();
     	} else {
-    		docUri = uris.get(docKey);
+    		docUri = popManager.getKeyMapping(docKey);
     	}
 		//logger.info("loadDocument; got uri: {} for key: {}; uris: {}", docUri, docKey, uris.size());
 
@@ -206,8 +204,8 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
 		}
 	    
 	    Path root = Paths.get(dataPath);
+	    Map<DocumentKey, String> uris = new HashMap<>();
 		try {
-			uris.clear();
 			List<Path> files = new ArrayList<>();
 			processPathFiles(root, files);
 			Collections.sort(files);
@@ -225,8 +223,9 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
 		} catch (IOException ex) {
 			logger.error("loadAllKeys.error;", ex);
 		}
+   		popManager.setKeyMappings(uris);
 		if (logger.isTraceEnabled()) {
-			logger.trace("loadAllKeys.exit; returning: {}; docKeys: {}", docIds, uris);
+			logger.trace("loadAllKeys.exit; got mappings: {}", uris);
 		} else {
 			logger.info("loadAllKeys.exit; returning keys: {}", docIds.size());
 		}
@@ -242,12 +241,12 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
 			return;
 		}
 		
-		String docUri = uris.get(key);
+		String docUri = popManager.getKeyMapping(key);
 		if (docUri == null) {
 			// create a new document
 			//logger.trace("store; got path: {}; uri: {}", path, uri);
 			docUri = value.getUri();
-			uris.put(key, docUri);
+			popManager.setKeyMapping(key, docUri);
 		} else {
 			// update existing document - put a new version
 		}
@@ -277,7 +276,7 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
 	public void delete(DocumentKey key) {
 		logger.trace("delete.enter; key: {}", key);
     	boolean result = false;
-		String docUri = uris.get(key);
+		String docUri = popManager.deleteKeyMapping(key);
 		if (docUri != null) {
 			docUri = getFullUri(docUri);
 	    	Path path = Paths.get(docUri);
@@ -295,7 +294,7 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
 		logger.trace("deleteAll.enter; keys: {}", keys.size());
 		int deleted = 0;
 		for (DocumentKey key: keys) {
-			String docUri = uris.get(key);
+			String docUri = popManager.deleteKeyMapping(key);
 			if (docUri != null) {
 				docUri = getFullUri(docUri);
 		    	Path path = Paths.get(docUri);

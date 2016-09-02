@@ -34,7 +34,7 @@ public class DocumentStoreAdapter implements MapStore<DocumentKey, Document>, Ma
 		ctx.put(ctx_context, hzInstance.getUserContext());
 		extStore.init(ctx);
 	}
-
+	
 	@Override
 	public void destroy() {
 		extStore.close();
@@ -76,3 +76,4 @@ public class DocumentStoreAdapter implements MapStore<DocumentKey, Document>, Ma
 	}
 
 }
+

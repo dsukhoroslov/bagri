@@ -86,6 +86,9 @@
 					max-size="0" invalidate-on-change="true" in-memory-format="OBJECT" cache-local-entries="false"/>
 			</hz:map>
 			
+			<hz:map name="xdm-key" in-memory-format="BINARY" async-backup-count="${xdm.schema.data.backup.async}" 
+				backup-count="${xdm.schema.data.backup.sync}" read-backup-data="${xdm.schema.data.backup.read}">
+			</hz:map>
 			<hz:map name="xdm-document" in-memory-format="BINARY" async-backup-count="${xdm.schema.data.backup.async}" 
 				backup-count="${xdm.schema.data.backup.sync}" read-backup-data="${xdm.schema.data.backup.read}">
 				<hz:map-store enabled="${xdm.schema.store.enabled}" write-delay-seconds="10" factory-implementation="xdmStoreFactory">
@@ -158,6 +161,7 @@
 			<hz:topic name="xdm-counters">
 				<hz:multi-threading-enabled>true</hz:multi-threading-enabled>
 			</hz:topic>
+			<hz:topic name="xdm-population"/>
 			
 			<hz:replicatedmap name="xdm-query" in-memory-format="BINARY" replication-delay-millis="0"/>
 			<hz:replicatedmap name="dict-index" in-memory-format="BINARY" replication-delay-millis="0"/>
@@ -243,6 +247,7 @@
 		</hz:config>
 	</hz:hazelcast>
 
+	<hz:map id="xdm-key" name="xdm-key" instance-ref="hzInstance" />
 	<hz:map id="xdm-client" name="xdm-client" instance-ref="hzInstance" />
 	<hz:map id="xdm-content" name="xdm-content" instance-ref="hzInstance" />
 	<hz:replicatedMap id="xdm-query" name="xdm-query" instance-ref="hzInstance" />

@@ -5,6 +5,7 @@ import static com.bagri.xdm.cache.hazelcast.util.SpringContextHolder.*;
 import static com.bagri.xdm.common.Constants.*;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -12,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 
+import com.bagri.xdm.cache.api.PopulationManagement;
 import com.bagri.xdm.cache.hazelcast.store.DocumentMemoryStore;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaPopulator;
 import com.bagri.xdm.common.DocumentKey;
@@ -40,7 +42,7 @@ import com.hazelcast.map.listener.MapEvictedListener;
 import com.hazelcast.spi.ManagedService;
 import com.hazelcast.spi.NodeEngine;
 
-public class PopulationManagementImpl implements ManagedService, 
+public class PopulationManagementImpl implements PopulationManagement, ManagedService, 
 	MembershipListener, MigrationListener, LifecycleListener,
 	MapClearedListener, MapEvictedListener, 
 	EntryAddedListener<DocumentKey, Document>, 
@@ -57,10 +59,47 @@ public class PopulationManagementImpl implements ManagedService,
 
     private KeyFactory xFactory;
 	private IMap<Long, Transaction> xtxCache;
+    private IMap<DocumentKey, String> keyCache;
 	//private IMap<DocumentKey, Document> xddCache;
 	private IMap xddCache;
 	private DocumentMemoryStore docStore;
 	private DocumentManagementImpl docMgr;
+
+	@Override
+	public String getKeyMapping(DocumentKey key) {
+		return keyCache.get(key);
+	}
+
+	@Override
+	public void setKeyMapping(DocumentKey key, String mapping) {
+		keyCache.put(key, mapping);
+	}
+
+	@Override
+	public Map<DocumentKey, String> getKeyMappings(Set<DocumentKey> keys) {
+		return keyCache.getAll(keys);
+	}
+
+	@Override
+	public void setKeyMappings(Map<DocumentKey, String> mappings) {
+		keyCache.putAll(mappings);
+	}
+
+	@Override
+	public String deleteKeyMapping(DocumentKey key) {
+		return keyCache.remove(key);
+	}
+
+	@Override
+	public int deleteKeyMappings(Set<DocumentKey> keys) {
+		int cnt = 0;
+		for (DocumentKey key: keys) {
+			if (keyCache.remove(key) != null) {
+				cnt++;
+			}
+		}
+		return cnt;
+	}
 
 	@Override
 	public void init(NodeEngine nodeEngine, Properties properties) {
@@ -75,9 +114,9 @@ public class PopulationManagementImpl implements ManagedService,
 		if (bSize != null) {
 			buffSize = Integer.parseInt(bSize);
 		}
-
 		logger.info("init; will open doc store from path: {}; instance: {}; buffer size: {} docs", dataPath, nodeNum, buffSize);
 		docStore = new DocumentMemoryStore(dataPath, nodeNum, buffSize);
+			
 		nodeEngine.getPartitionService().addMigrationListener(this);
 		nodeEngine.getHazelcastInstance().getCluster().addMembershipListener(this);
 		nodeEngine.getHazelcastInstance().getLifecycleService().addLifecycleListener(this);
@@ -95,19 +134,24 @@ public class PopulationManagementImpl implements ManagedService,
 		docStore.close();
 	}
 
-	public void checkPopulation(int currentSize) {
+	public void checkPopulation(int currentSize) throws Exception {
 		logger.info("checkPopulation; populationSize: {}; currentSize: {}", populationSize, currentSize);
 		activateDocStore();
 		xddCache.addEntryListener(this, true);
     	if (populationSize == currentSize && xddCache.size() == 0) {
     		SchemaPopulator pop = new SchemaPopulator(schemaName);
+    		// try to run it from the same thread..
     		nodeEngine.getHazelcastInstance().getExecutorService(PN_XDM_SCHEMA_POOL).submitToMember(pop, nodeEngine.getLocalMember());
-    		//nodeEngine.getHazelcastInstance().getExecutorService(PN_XDM_SCHEMA_POOL).submitToAllMembers(pop); 
+    		//pop.call();
     	}
     }
 	
 	public Document getDocument(Long docKey) {
 		return docStore.getEntry(docKey);
+	}
+	
+	public int getActiveCount() {
+		return docStore.getActiveEntryCount();
 	}
 	
 	public int getDocumentCount() {
@@ -139,12 +183,6 @@ public class PopulationManagementImpl implements ManagedService,
 
 		ApplicationContext schemaCtx = (ApplicationContext) getContext(schemaName, schema_context);
 		docMgr = schemaCtx.getBean(DocumentManagementImpl.class);
-		
-		// only local HM should be notified!
-		HealthManagementImpl hMgr = schemaCtx.getBean(HealthManagementImpl.class);
-		int actCount = docStore.getActiveEntryCount();
-		int docCount = docStore.getFullEntryCount();
-		hMgr.initState(actCount, docCount - actCount);
 	}
 	
 	private KeyFactory getKeyFactory() {
@@ -165,6 +203,7 @@ public class PopulationManagementImpl implements ManagedService,
 		if (LifecycleState.STARTED == event.getState()) {
 			xtxCache = nodeEngine.getHazelcastInstance().getMap(CN_XDM_TRANSACTION);
 			xddCache = nodeEngine.getHazelcastInstance().getMap(CN_XDM_DOCUMENT);
+			keyCache = nodeEngine.getHazelcastInstance().getMap(CN_XDM_KEY);
 			//readCatalog(catalog);
 			// too early
 			//checkPopulation(nodeEngine.getClusterService().getSize());
@@ -188,7 +227,7 @@ public class PopulationManagementImpl implements ManagedService,
 
 	@Override
 	public void memberRemoved(MembershipEvent membershipEvent) {
-		logger.info("memberRemoved; event: {}; docs size: {}", membershipEvent, xddCache.size());
+		logger.info("memberRemoved; event: {}; docs size: {}; active count: {}", membershipEvent, xddCache.size(), docStore.getActiveEntryCount());
 	}
 
 	@Override
@@ -198,28 +237,28 @@ public class PopulationManagementImpl implements ManagedService,
 
 	@Override
 	public void migrationStarted(MigrationEvent migrationEvent) {
-		logger.info("migrationStarted; event: {}; docs size: {}", migrationEvent); //, xddCache.size());
+		logger.debug("migrationStarted; event: {}", migrationEvent); 
 	}
 
 	@Override
 	public void migrationCompleted(MigrationEvent migrationEvent) {
-		logger.info("migrationCompleted; event: {}; docs size: {}", migrationEvent); //), xddCache.size());
+		logger.debug("migrationCompleted; event: {}", migrationEvent); 
 	}
 
 	@Override
 	public void migrationFailed(MigrationEvent migrationEvent) {
-		logger.info("migrationFailed; event: {}; docs size: {}", migrationEvent); //, xddCache.size());
+		logger.debug("migrationFailed; event: {};", migrationEvent); 
 	}
 
 	//@Override
-	public void migrationInitialized(MigrationEvent migrationEvent) {
-		logger.info("migrationInitialized; event: {}", migrationEvent);
-	}
+	//public void migrationInitialized(MigrationEvent migrationEvent) {
+	//	logger.debug("migrationInitialized; event: {}", migrationEvent);
+	//}
 
 	//@Override
-	public void migrationFinalized(MigrationEvent migrationEvent) {
-		logger.info("migrationFinalized; event: {}", migrationEvent);
-	}
+	//public void migrationFinalized(MigrationEvent migrationEvent) {
+	//	logger.debug("migrationFinalized; event: {}", migrationEvent);
+	//}
 
 	@Override
 	public void mapEvicted(MapEvent event) {

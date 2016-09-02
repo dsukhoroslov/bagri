@@ -2,6 +2,7 @@ package com.bagri.xdm.cache.hazelcast.task.schema;
 
 import static com.bagri.xdm.cache.api.CacheConstants.CN_XDM_DOCUMENT;
 import static com.bagri.xdm.cache.api.CacheConstants.CN_XDM_TRANSACTION;
+import static com.bagri.xdm.cache.api.CacheConstants.TPN_XDM_POPULATION;
 import static com.bagri.xdm.cache.hazelcast.util.SpringContextHolder.*;
 import static com.bagri.xdm.cache.hazelcast.serialize.DataSerializationFactoryImpl.cli_PopulateSchemaTask;
 
@@ -9,12 +10,14 @@ import java.util.concurrent.Callable;
 
 import org.springframework.context.ApplicationContext;
 
+import com.bagri.xdm.cache.hazelcast.impl.PopulationManagementImpl;
 import com.bagri.xdm.cache.hazelcast.impl.TransactionManagementImpl;
 import com.bagri.xdm.domain.Document;
 import com.bagri.xdm.domain.Transaction;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
+import com.hazelcast.core.ITopic;
 
 public class SchemaPopulator extends SchemaProcessingTask implements Callable<Boolean> {
 	
@@ -30,9 +33,8 @@ public class SchemaPopulator extends SchemaProcessingTask implements Callable<Bo
 	public Boolean call() throws Exception {
     	logger.debug("call.enter; schema: {}", schemaName);
     	boolean result = false;
-		// get hzInstance and close it...
+		// get hzInstance 
 		HazelcastInstance hz = Hazelcast.getHazelcastInstanceByName(schemaName);
-		//hz = hzInstance;
 		if (hz != null) {
 			try {
 				// TODO: ensure that partitions migration has been already finished! 
@@ -59,34 +61,25 @@ public class SchemaPopulator extends SchemaProcessingTask implements Callable<Bo
 			return false;
 		}
 
-		//ApplicationContext storeCtx = (ApplicationContext) getContext(schemaName, store_context);
-		//if (storeCtx == null) {
-			// schema configured with no persistent store
-	    //	logger.debug("populateSchema.exit; No persistent store configured");
-		//	return false;
-		//}
-		
-		//MapLoader docCacheStore = storeCtx.getBean("docCacheStore", MapLoader.class);
-		
-		//Properties props = new Properties();
-		//props.put("documentIdGenerator", schemaCtx.getBean("xdm.document"));
-		//props.put("keyFactory", schemaCtx.getBean(XDMFactoryImpl.class));
-		//props.put("xdmModel", schemaCtx.getBean(XDMModelManagement.class));
-		//props.put("xdmManager", schemaCtx.getBean(DocumentManagementImpl.class));
-		//((MapLoaderLifecycleSupport) docCacheStore).init(hz, props, CN_XDM_DOCUMENT);
-		
-		IMap<Long, Document> xddCache = hz.getMap(CN_XDM_DOCUMENT);
-		xddCache.loadAll(false);
-    	logger.info("populateSchema; documents size after loadAll: {}", xddCache.size());
-
 		IMap<Long, Transaction> xtxCache = hz.getMap(CN_XDM_TRANSACTION);
 		xtxCache.loadAll(false);
     	logger.info("populateSchema; transactions size after loadAll: {}", xtxCache.size());
 
+		IMap<Long, Document> xddCache = hz.getMap(CN_XDM_DOCUMENT);
+		xddCache.loadAll(false);
+    	logger.info("populateSchema; documents size after loadAll: {}", xddCache.size());
+
     	// adjusting tx idGen!
 		TransactionManagementImpl txMgr = schemaCtx.getBean("txManager", TransactionManagementImpl.class);
 		txMgr.adjustTxCounter();
-    	
+
+		ITopic<Long> pTopic = hz.getTopic(TPN_XDM_POPULATION);
+		PopulationManagementImpl pm = (PopulationManagementImpl) hz.getUserContext().get("popManager");
+		int lo = pm.getActiveCount();
+		int hi = pm.getDocumentCount() - lo;
+		long counts = ((long) hi << 32) + lo;
+		pTopic.publish(counts);
+		
     	return true;
 	}
 	
