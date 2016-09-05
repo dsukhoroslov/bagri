@@ -2,17 +2,21 @@ package com.bagri.common.util;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.RandomAccessFile;
 import java.io.Writer;
 import java.net.URI;
 import java.net.URL;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Scanner;
 
 /**
  * A set of static utility methods regarding files
@@ -47,13 +51,16 @@ public class FileUtils {
 	 * @throws IOException in case of read error
 	 */
 	public static String readTextFile(String fileName, String encoding) throws IOException {
-	    Path path = Paths.get(fileName);
+		Charset cs = Charset.forName(encoding);
 	    StringBuilder text = new StringBuilder();
-	    try (Scanner scanner = new Scanner(path, encoding)){
-	    	while (scanner.hasNextLine()) {
-	    		text.append(scanner.nextLine()).append(EOL);
-	    	}      
-	   	}
+	    try (FileInputStream fis = new FileInputStream(fileName)) {
+			FileChannel ch = fis.getChannel();
+			MappedByteBuffer mbb = ch.map(FileChannel.MapMode.READ_ONLY, 0, ch.size());
+			while (mbb.hasRemaining()) {
+				CharBuffer cb = cs.decode(mbb);
+				text.append(cb.toString());
+			}
+	    }
 	    return text.toString();
 	}
 
@@ -65,11 +72,12 @@ public class FileUtils {
 	 * @throws IOException in case of write error
 	 */
 	public static void writeTextFile(String fileName, String content) throws IOException {
-		
-		try (Writer writer = new BufferedWriter(
-				new OutputStreamWriter(new FileOutputStream(fileName), def_encoding))) {
-		    writer.write(content);
-		}		
+		byte[] bytes = content.getBytes();
+		try (RandomAccessFile raw = new RandomAccessFile(fileName, "rw")) {
+			FileChannel ch = raw.getChannel();
+			ByteBuffer buff = ch.map(FileChannel.MapMode.READ_WRITE, 0, bytes.length); 
+			buff.put(bytes);
+		}
 	}
 
 	/**
@@ -80,7 +88,7 @@ public class FileUtils {
 	 * @throws IOException in case of write error
 	 */
     public static void appendTextFile(String fileName, String content) throws IOException {
-        
+        // TODO: do append via NIO
         try (Writer writer = new BufferedWriter(
                 new OutputStreamWriter(new FileOutputStream(fileName, true), def_encoding))) {
             writer.write(content);
