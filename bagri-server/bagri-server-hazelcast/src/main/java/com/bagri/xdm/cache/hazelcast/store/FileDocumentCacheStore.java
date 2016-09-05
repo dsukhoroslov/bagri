@@ -16,7 +16,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -31,6 +30,7 @@ import org.springframework.context.ApplicationContext;
 
 import com.bagri.common.util.FileUtils;
 import com.bagri.xdm.api.XDMException;
+import com.bagri.xdm.cache.api.DocumentManagement;
 import com.bagri.xdm.cache.hazelcast.impl.DocumentManagementImpl;
 import com.bagri.xdm.cache.hazelcast.impl.PopulationManagementImpl;
 import com.bagri.xdm.cache.hazelcast.impl.SchemaRepositoryImpl;
@@ -117,6 +117,57 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
 		return dataPath + "/" + fileName;
 	}
 
+	@Override
+	public Set<DocumentKey> loadAllKeys() {
+		//if (true) {
+		//	return Collections.emptySet();
+		//}
+		
+		ensureRepository();
+		if (xdmRepo == null) {
+			logger.trace("loadAllKeys.enter; store is not ready yet, skipping population");
+			return null;
+		}
+		
+		logger.trace("loadAllKeys.enter;");
+		Set<DocumentKey> docIds = popManager.getDocumentKeys();
+		if (docIds != null) {
+			if (logger.isTraceEnabled()) {
+				logger.trace("loadAllKeys.exit; returning from PopulationManager: {}", docIds);
+			} else {
+				logger.info("loadAllKeys.exit; returning keys from PopulationManager: {}", docIds.size());
+			}
+			return docIds;
+		}
+	    
+	    Path root = Paths.get(dataPath);
+	    Map<DocumentKey, String> uris = new HashMap<>();
+		try {
+			List<Path> files = new ArrayList<>();
+			processPathFiles(root, files);
+			DocumentKey docKey; 
+			for (Path path: files) {
+				String uri = path.getFileName().toString();
+				int revision = 0;
+				do {
+					docKey = xdmRepo.getFactory().newDocumentKey(uri, revision, dvFirst);
+					revision++;
+				} while (uris.get(docKey) != null);				
+				uris.put(docKey, uri);
+			}
+			docIds = new HashSet<>(uris.keySet());
+		} catch (IOException ex) {
+			logger.error("loadAllKeys.error;", ex);
+		}
+   		popManager.setKeyMappings(uris);
+		if (logger.isTraceEnabled()) {
+			logger.trace("loadAllKeys.exit; got mappings: {}", uris);
+		} else {
+			logger.info("loadAllKeys.exit; returning keys: {}", docIds.size());
+		}
+		return docIds;
+	}
+	
 	private Document loadDocument(DocumentKey docKey) {
     	String docUri = null;
     	Document doc = popManager.getDocument(docKey.getKey());
@@ -180,67 +231,7 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
 		return result;
 	}
 
-	@Override
-	public Set<DocumentKey> loadAllKeys() {
-		//if (true) {
-		//	return Collections.emptySet();
-		//}
-		
-		ensureRepository();
-		if (xdmRepo == null) {
-			logger.trace("loadAllKeys.enter; store is not ready yet, skipping population");
-			return null;
-		}
-		
-		logger.trace("loadAllKeys.enter;");
-		Set<DocumentKey> docIds = popManager.getDocumentKeys();
-		if (docIds != null) {
-			if (logger.isTraceEnabled()) {
-				logger.trace("loadAllKeys.exit; returning from PopulationManager: {}", docIds);
-			} else {
-				logger.info("loadAllKeys.exit; returning keys from PopulationManager: {}", docIds.size());
-			}
-			return docIds;
-		}
-	    
-	    Path root = Paths.get(dataPath);
-	    Map<DocumentKey, String> uris = new HashMap<>();
-		try {
-			List<Path> files = new ArrayList<>();
-			processPathFiles(root, files);
-			Collections.sort(files);
-			DocumentKey docKey; 
-			for (Path path: files) {
-				String uri = path.getFileName().toString();
-				int revision = 0;
-				do {
-					docKey = xdmRepo.getFactory().newDocumentKey(uri, revision, dvFirst);
-					revision++;
-				} while (uris.get(docKey) != null);				
-				uris.put(docKey, uri);
-			}
-			docIds = new HashSet<>(uris.keySet());
-		} catch (IOException ex) {
-			logger.error("loadAllKeys.error;", ex);
-		}
-   		popManager.setKeyMappings(uris);
-		if (logger.isTraceEnabled()) {
-			logger.trace("loadAllKeys.exit; got mappings: {}", uris);
-		} else {
-			logger.info("loadAllKeys.exit; returning keys: {}", docIds.size());
-		}
-		return docIds;
-	}
-	
-	@Override
-	public void store(DocumentKey key, Document value) {
-		logger.trace("store.enter; key: {}; value: {}", key, value);
-		ensureRepository();
-		if (xdmRepo == null) {
-			logger.trace("store; not ready yet, skipping store");
-			return;
-		}
-		
+	private Exception storeDocument(DocumentManagement docManager, DocumentKey key, Document value) {
 		String docUri = popManager.getKeyMapping(key);
 		if (docUri == null) {
 			// create a new document
@@ -253,28 +244,55 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
 		
 		String fullUri = getFullUri(docUri);
 		try {
-			DocumentManagementImpl docManager = (DocumentManagementImpl) xdmRepo.getDocumentManagement(); 
 			String xml = docManager.getDocumentAsString(key, null);
 			FileUtils.writeTextFile(fullUri, xml);
-			logger.trace("store.exit; stored as: {}; length: {}", fullUri, xml.length());
+			logger.trace("storeDocument.exit; stored as: {}; length: {}", fullUri, xml.length());
+			return null;
 		} catch (IOException | XDMException ex) {
+			return ex;
+		}
+	}
+	
+	@Override
+	public void store(DocumentKey key, Document value) {
+		logger.trace("store.enter; key: {}; value: {}", key, value);
+		ensureRepository();
+		DocumentManagement docManager = (DocumentManagement) xdmRepo.getDocumentManagement();
+		Exception ex = storeDocument(docManager, key, value);
+		if (ex != null) {
 			logger.error("store.error; exception on store document: " + ex.getMessage(), ex);
-			// rethrow it ?
+			throw new RuntimeException(ex);
+		} else {
+			logger.trace("store.exit");
 		}
 	}
 
 	@Override
 	public void storeAll(Map<DocumentKey, Document> entries) {
 		logger.trace("storeAll.enter; entries: {}", entries.size());
+		ensureRepository();
+		int cnt = 0;
+		int err = 0;
+		Exception ex = null;
+		DocumentManagement docManager = (DocumentManagement) xdmRepo.getDocumentManagement();
 		for (Map.Entry<DocumentKey, Document> entry: entries.entrySet()) {
-			store(entry.getKey(), entry.getValue());
+			Exception e = storeDocument(docManager, entry.getKey(), entry.getValue());  
+			if (e == null) {
+				cnt++;
+			} else {
+				err++;
+				ex = e;
+			}
 		}
-		logger.trace("storeAll.exit; stored: {}", entries.size());
+		if (err == 0) {
+			logger.trace("storeAll.exit; stored: {}; errors: {}", cnt, err);
+		} else {
+			logger.info("storeAll.exit; stored: {}; errors: {}", cnt, err);
+			throw new RuntimeException(ex);
+		}
 	}
-
-	@Override
-	public void delete(DocumentKey key) {
-		logger.trace("delete.enter; key: {}", key);
+	
+	private boolean deleteDocument(DocumentKey key) {
     	boolean result = false;
 		String docUri = popManager.deleteKeyMapping(key);
 		if (docUri != null) {
@@ -283,9 +301,16 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
 			try {
 				result = Files.deleteIfExists(path);
 			} catch (IOException ex) {
-				logger.error("delete.error; path: " + path, ex);
+				logger.error("deleteDocument.error; path: " + path, ex);
 			}
 		}
+		return result;
+	}
+
+	@Override
+	public void delete(DocumentKey key) {
+		logger.trace("delete.enter; key: {}", key);
+    	boolean result = deleteDocument(key);
     	logger.trace("delete.exit; deleted: {}", result);
 	}
 
@@ -294,17 +319,8 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
 		logger.trace("deleteAll.enter; keys: {}", keys.size());
 		int deleted = 0;
 		for (DocumentKey key: keys) {
-			String docUri = popManager.deleteKeyMapping(key);
-			if (docUri != null) {
-				docUri = getFullUri(docUri);
-		    	Path path = Paths.get(docUri);
-				try {
-					if (Files.deleteIfExists(path)) {
-						deleted++;
-					}
-				} catch (IOException ex) {
-					logger.error("deleteAll.error; path: " + path, ex);
-				}
+			if (deleteDocument(key)) {
+				deleted++;
 			}
 		}
 		logger.trace("deleteAll.exit; deleted: {}", deleted);
