@@ -31,6 +31,7 @@ import org.springframework.context.ApplicationContext;
 
 import com.bagri.common.util.FileUtils;
 import com.bagri.xdm.api.XDMException;
+import com.bagri.xdm.cache.api.DocumentManagement;
 import com.bagri.xdm.cache.hazelcast.impl.DocumentManagementImpl;
 import com.bagri.xdm.cache.hazelcast.impl.PopulationManagementImpl;
 import com.bagri.xdm.cache.hazelcast.impl.SchemaRepositoryImpl;
@@ -232,15 +233,7 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
 		return docIds;
 	}
 	
-	@Override
-	public void store(DocumentKey key, Document value) {
-		logger.trace("store.enter; key: {}; value: {}", key, value);
-		ensureRepository();
-		if (xdmRepo == null) {
-			logger.trace("store; not ready yet, skipping store");
-			return;
-		}
-		
+	private Exception storeFile(DocumentManagement docManager, DocumentKey key, Document value) {
 		String docUri = popManager.getKeyMapping(key);
 		if (docUri == null) {
 			// create a new document
@@ -253,23 +246,51 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
 		
 		String fullUri = getFullUri(docUri);
 		try {
-			DocumentManagementImpl docManager = (DocumentManagementImpl) xdmRepo.getDocumentManagement(); 
 			String xml = docManager.getDocumentAsString(key, null);
 			FileUtils.writeTextFile(fullUri, xml);
-			logger.trace("store.exit; stored as: {}; length: {}", fullUri, xml.length());
+			logger.trace("storeFile.exit; stored as: {}; length: {}", fullUri, xml.length());
+			return null;
 		} catch (IOException | XDMException ex) {
+			return ex;
+		}
+	}
+	
+	@Override
+	public void store(DocumentKey key, Document value) {
+		logger.trace("store.enter; key: {}; value: {}", key, value);
+		ensureRepository();
+		if (xdmRepo == null) {
+			logger.trace("store; not ready yet, skipping store");
+			return;
+		}
+
+		DocumentManagement docManager = (DocumentManagement) xdmRepo.getDocumentManagement();
+		Exception ex = storeFile(docManager, key, value);
+		if (ex != null) {
 			logger.error("store.error; exception on store document: " + ex.getMessage(), ex);
 			// rethrow it ?
+		} else {
+			logger.trace("store.exit");
 		}
 	}
 
 	@Override
 	public void storeAll(Map<DocumentKey, Document> entries) {
-		logger.trace("storeAll.enter; entries: {}", entries.size());
-		for (Map.Entry<DocumentKey, Document> entry: entries.entrySet()) {
-			store(entry.getKey(), entry.getValue());
+		logger.info("storeAll.enter; entries: {}", entries.size());
+		ensureRepository();
+		if (xdmRepo == null) {
+			logger.trace("store; not ready yet, skipping store");
+			return;
 		}
-		logger.trace("storeAll.exit; stored: {}", entries.size());
+
+		int cnt = 0;
+		DocumentManagement docManager = (DocumentManagement) xdmRepo.getDocumentManagement();
+		for (Map.Entry<DocumentKey, Document> entry: entries.entrySet()) {
+			if (storeFile(docManager, entry.getKey(), entry.getValue()) == null) {
+				cnt++;
+			}
+		}
+		logger.info("storeAll.exit; stored: {}", cnt);
 	}
 
 	@Override
