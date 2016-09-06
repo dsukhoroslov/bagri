@@ -19,7 +19,7 @@
 
     <groupId>com.bagri.db</groupId>
     <artifactId>bagri</artifactId>
-    <version>1.0.0-EA1</version>
+    <version>1.0.0-EA2</version>
     <packaging>pom</packaging>
     <name>bagri</name>
     <!--shortDescription>An XML DB on top of Distributed Cache</shortDescription-->
@@ -37,7 +37,7 @@
         <connection>scm:git:git://github.com/dsukhoroslov/bagri.git</connection>
         <developerConnection>scm:git:git@github.com:dsukhoroslov/bagri.git</developerConnection>
         <url>https://github.com/dsukhoroslov/bagri/</url>
-        <tag>1.0.0-EA1</tag>
+        <tag>1.0.0-EA2</tag>
     </scm>
     <developers>
         <developer>
