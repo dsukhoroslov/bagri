@@ -67,6 +67,7 @@
         <module>bagri-xqj</module>
         <module>bagri-test</module>
         <module>bagri-client</module>
+        <module>bagri-rest</module>
         <module>bagri-server</module>
         <module>bagri-samples</module>
         <module>bagri-tools</module>
@@ -87,6 +88,9 @@
         <json.version>1.0</json.version>
         <json.ri.version>1.0.4</json.ri.version>
         <jackson.version>2.5.2</jackson.version>
+
+    	<jetty.version>9.2.3.v20140905</jetty.version>
+    	<jersey.version>2.7</jersey.version>
 
         <junit.version>4.11</junit.version>
         <hamcrest.version>1.3</hamcrest.version>
@@ -278,6 +282,33 @@
                 <artifactId>janino</artifactId>
                 <version>${janino.version}</version>
             </dependency>
+
+	    <!-- Dependencies for REST server -->
+	    	<dependency>
+	    	<groupId>org.eclipse.jetty</groupId>
+	    	<artifactId>jetty-server</artifactId>
+	    	<version>${jetty.version}</version>
+	    </dependency>
+	    <dependency>
+	    	<groupId>org.eclipse.jetty</groupId>
+	    	<artifactId>jetty-servlet</artifactId>
+	    	<version>${jetty.version}</version>
+	    </dependency>
+	    <dependency>
+	    	<groupId>org.glassfish.jersey.core</groupId>
+	    	<artifactId>jersey-server</artifactId>
+	    	<version>${jersey.version}</version>
+	    </dependency>
+	    <dependency>
+	    	<groupId>org.glassfish.jersey.containers</groupId>
+	    	<artifactId>jersey-container-servlet-core</artifactId>
+	    	<version>${jersey.version}</version>
+	    </dependency>
+	    <dependency>
+	    	<groupId>org.glassfish.jersey.containers</groupId>
+	    	<artifactId>jersey-container-jetty-http</artifactId>
+	    	<version>${jersey.version}</version>
+	    </dependency>
 
             <!-- Dependencies for unit tests -->
             <dependency>
