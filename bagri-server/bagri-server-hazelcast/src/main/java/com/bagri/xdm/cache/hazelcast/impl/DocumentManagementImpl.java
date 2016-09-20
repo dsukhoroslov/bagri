@@ -956,6 +956,15 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	}
 	
 	@Override
+	public java.util.Collection<String> getCollections() throws XDMException {
+		List<String> clNames = new ArrayList<>(repo.getSchema().getCollections().size());
+		for (Collection cln: repo.getSchema().getCollections()) {
+			clNames.add(cln.getName());
+		}
+		return clNames;
+	}
+
+	@Override
 	public java.util.Collection<String> getCollectionDocumentUris(String collection) throws XDMException {
 		Set<DocumentKey> docKeys;
 		if (collection == null) {

@@ -17,6 +17,10 @@
         <level value="${hz.log.level:-info}"/>
     </logger>
 
+    <logger name="org.eclipse.jetty">
+        <level value="${jetty.log.level:-info}"/>
+    </logger>
+
     <!--logger name="com.bagri.xdm.cache.hazelcast.store.TransactionCacheStore">
         <level value="trace"/>
     </logger-->

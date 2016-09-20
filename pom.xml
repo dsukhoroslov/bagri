@@ -176,6 +176,11 @@
 
             <dependency>
                 <groupId>com.bagri.db</groupId>
+                <artifactId>bagri-rest</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.bagri.db</groupId>
                 <artifactId>bagri-server-hazelcast</artifactId>
                 <version>${project.version}</version>
             </dependency>

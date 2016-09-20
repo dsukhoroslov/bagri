@@ -17,13 +17,32 @@ import org.slf4j.LoggerFactory;
 public class BagriRestServer {
 
     private static final transient Logger logger = LoggerFactory.getLogger(BagriRestServer.class);
-    //private Server server;
+    
+    private int port = 3030;
+    private Server jettyServer;
 	
     public static void main(String[] args) throws Exception {
+    	BagriRestServer server = new BagriRestServer();
+        try {
+            server.start();
+            server.jettyServer.join();
+        } finally {
+            server.stop();
+        }
+    }
+    
+    public int getPort() {
+    	return port;
+    }
+    
+    public void start() {
+        logger.debug("start.enter; Starting rest server");
+
         ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
         context.setContextPath("/");
 
-        Server jettyServer = new Server(3030);
+        
+        jettyServer = new Server(port);
         jettyServer.setHandler(context);
 
         ServletHolder jerseyServlet = context.addServlet(org.glassfish.jersey.servlet.ServletContainer.class, "/*");
@@ -31,13 +50,24 @@ public class BagriRestServer {
 
         // Tells the Jersey Servlet which REST service/class to load.
         jerseyServlet.setInitParameter(ServerProperties.PROVIDER_CLASSNAMES, SchemaResources.class.getCanonicalName());
-
+    	
         try {
             jettyServer.start();
-            jettyServer.join();
-        } finally {
-            jettyServer.destroy();
+            //jettyServer.join();
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
         }
+        logger.debug("start.exit; Rest server is started");
+    }
+    
+    public void stop() {
+        logger.debug("stop.enter; Stopping rest server");
+        try {
+            jettyServer.destroy(); //stop();
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+        logger.debug("stop.exit; Rest server is stopped");
     }
 
 /*    
@@ -68,15 +98,6 @@ public class BagriRestServer {
         return config;
     }
 
-    public void stop() {
-        logger.debug("Stopping rest server");
-        try {
-            server.stop();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        logger.debug("Rest server is stopped")
-    }
 */
     
 }

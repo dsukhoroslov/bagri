@@ -206,6 +206,12 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	}
 
 	@Override
+	public Collection<String> getCollections() throws XDMException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
 	public Collection<String> getCollectionDocumentUris(String collection) {
 
 		logger.trace("getCollectionDocumentIds.enter; collection: {}", collection);

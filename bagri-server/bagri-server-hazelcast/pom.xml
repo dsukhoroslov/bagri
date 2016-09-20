@@ -54,12 +54,10 @@
             <groupId>com.bagri.db</groupId>
             <artifactId>bagri-xquery-saxon</artifactId>
         </dependency>
-
-        <!--dependency>
+        <dependency>
             <groupId>com.bagri.db</groupId>
-	    <artifactId>bagri-samples-ext</artifactId>
-	    <version>${project.version}</version>
-        </dependency-->
+            <artifactId>bagri-rest</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>javax.xml.xquery</groupId>

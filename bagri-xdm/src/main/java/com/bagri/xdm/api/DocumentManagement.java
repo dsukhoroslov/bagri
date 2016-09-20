@@ -35,6 +35,14 @@ public interface DocumentManagement {
 	 * @throws XDMException in case of any error
 	 */
 	Collection<String> getCollectionDocumentUris(String collection) throws XDMException;
+
+	/**
+	 * return Collection names registered in Schema
+	 * 
+	 * @return Collection of XDM Collection names
+	 * @throws XDMException in case of any error
+	 */
+	Collection<String> getCollections() throws XDMException;
 	
 	/**
 	 * 

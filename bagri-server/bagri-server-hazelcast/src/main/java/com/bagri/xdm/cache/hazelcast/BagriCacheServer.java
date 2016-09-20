@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import com.bagri.rest.BagriRestServer;
 import com.bagri.xdm.api.SchemaRepository;
 import com.bagri.xdm.cache.hazelcast.config.SystemConfig;
 import com.bagri.xdm.cache.hazelcast.impl.SchemaRepositoryImpl;
@@ -118,6 +119,10 @@ public class BagriCacheServer {
 			throw new RuntimeException(ex);
 		}
 		logger.info("JMX connector server started and listening on port: {}", port);
+		
+		BagriRestServer rest = new BagriRestServer();
+		rest.start();
+		logger.info("REST server started on port: {}", rest.getPort());
     }
 
 	private static void lookupManagedNodes(HazelcastInstance hzInstance) {
