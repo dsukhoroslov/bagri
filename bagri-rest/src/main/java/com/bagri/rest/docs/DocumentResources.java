@@ -31,7 +31,7 @@ import com.bagri.xdm.api.SchemaRepository;
 import com.bagri.xdm.domain.Document;
 
 @Singleton
-@Path("/docs")
+//@Path("/docs")
 public class DocumentResources  {
 	
     private static final transient Logger logger = LoggerFactory.getLogger(DocumentResources.class);
@@ -53,7 +53,7 @@ public class DocumentResources  {
     }
     
 	@GET
-    @Path("/")
+    @Path("/docs")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getDocuments(@QueryParam("query") String query, 
     		@DefaultValue("1") @QueryParam("page") int page, @DefaultValue("100") @QueryParam("size") int size) {
@@ -84,7 +84,7 @@ public class DocumentResources  {
     }
     
     @GET
-    @Path("/{uri}")
+    @Path("/docs/{uri}")
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON}) 
     public Response getDocumentContent(@PathParam("uri") String uri) {
 		String schema = "default";
@@ -100,7 +100,7 @@ public class DocumentResources  {
     }    
 
     @POST
-    @Path("/")
+    @Path("/docs")
     @Produces(MediaType.APPLICATION_JSON) 
 	public Response postDocument(String uri, String content, String properties) {
 		String schema = "default";
@@ -117,7 +117,7 @@ public class DocumentResources  {
     }
     
     @DELETE
-    @Path("/{uri}")
+    @Path("/docs/{uri}")
     @Produces(MediaType.APPLICATION_JSON) 
 	public Response deleteDocument(@PathParam("uri") String uri) {
 		String schema = "default";
@@ -131,7 +131,6 @@ public class DocumentResources  {
     		//return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
     	}
     }
-    
     
 }
 

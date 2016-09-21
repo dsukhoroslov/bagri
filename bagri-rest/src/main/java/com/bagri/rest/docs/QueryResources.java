@@ -23,7 +23,7 @@ import com.bagri.xdm.api.QueryManagement;
 import com.bagri.xdm.api.SchemaRepository;
 
 @Singleton
-@Path("/query")
+//@Path("/query")
 public class QueryResources {
 
     private static final transient Logger logger = LoggerFactory.getLogger(QueryResources.class);
@@ -45,7 +45,7 @@ public class QueryResources {
     }
     
     @POST
-    @Path("/")
+    @Path("/query")
     @Produces(MediaType.APPLICATION_JSON) 
 	public Response postQuery(String query, String params, String properties) {
 		String schema = "default";
@@ -61,7 +61,7 @@ public class QueryResources {
     }
     
     @POST
-    @Path("/uris")
+    @Path("/query/uris")
     @Produces(MediaType.TEXT_PLAIN) 
 	public Response getURIs(String query, String params, String properties) {
 		String schema = "default";

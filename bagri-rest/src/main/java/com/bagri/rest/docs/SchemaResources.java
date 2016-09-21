@@ -1,4 +1,4 @@
-package com.bagri.rest;
+package com.bagri.rest.docs;
 
 import java.util.Collection;
 
@@ -13,9 +13,10 @@ import javax.ws.rs.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.bagri.rest.RepositoryProvider;
 import com.bagri.xdm.system.Schema;
 
-@Path("/schemas")
+//@Path("/schemas")
 public class SchemaResources {
 	
     private static final transient Logger logger = LoggerFactory.getLogger(SchemaResources.class);
@@ -24,21 +25,21 @@ public class SchemaResources {
     private RepositoryProvider repos;
     
 	@GET
-    @Path("/")
+    @Path("/schemas")
     @Produces(MediaType.APPLICATION_JSON) //TEXT_PLAIN)
     public Collection<String> getSchemas() {
         return repos.getSchemaNames();
     }
     
     @GET
-    @Path("/{name}")
+    @Path("/schemas/{name}")
     @Produces(MediaType.APPLICATION_JSON) 
     public Response getSchemaAsJSON(@PathParam("name") String name) {
     	return getSchema(name);
     }    
 
     @GET
-    @Path("/{name}")
+    @Path("/schemas/{name}")
     @Produces(MediaType.APPLICATION_XML) 
     public Response getSchemaAsXML(@PathParam("name") String name) {
     	return getSchema(name);
@@ -56,4 +57,5 @@ public class SchemaResources {
         }
         return Response.status(Response.Status.NOT_FOUND).entity("No Schema found for name: " + name).build();
     }
+    
 }

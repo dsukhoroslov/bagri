@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bagri.rest.docs.DocumentResources;
+import com.bagri.rest.docs.SchemaResources;
 
 public class BagriRestServer implements Factory<RepositoryProvider> {
 

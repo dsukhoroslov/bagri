@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.glassfish.jersey.test.JerseyTest;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.ws.rs.core.Application;
@@ -17,6 +18,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@Ignore
 public class BagriRestServerTest extends JerseyTest {
 
     private RepositoryProvider repoProvider;
