@@ -313,10 +313,16 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	public java.util.Collection<String> getDocumentUris(String pattern) {
 		// implement other search types: by dates, owner, etc..
 		logger.trace("getDocumentUris.enter; got pattern: {}", pattern);
-		Predicate<DocumentKey, Document> query = DocumentPredicateBuilder.getQuery(pattern);
-   		//Predicate<XDMDocumentKey, XDMDocument> f = Predicates.and(Predicates.regex("uri", pattern), 
-   		//		Predicates.equal("txFinish", TX_NO));
-		java.util.Collection<Document> docs = xddCache.values(query);
+		java.util.Collection<Document> docs;
+		if (pattern != null) {
+			Predicate<DocumentKey, Document> query = DocumentPredicateBuilder.getQuery(pattern);
+	   		//Predicate<XDMDocumentKey, XDMDocument> f = Predicates.and(Predicates.regex("uri", pattern), 
+	   		//		Predicates.equal("txFinish", TX_NO));
+			docs = xddCache.values(query);
+		} else {
+			// TODO: possible OOM here!! then use PagingPredicate somehow!
+			docs = xddCache.values();
+		}
 
 		// should also check if doc's start transaction is committed?
 		Set<String> result = new HashSet<>(docs.size());

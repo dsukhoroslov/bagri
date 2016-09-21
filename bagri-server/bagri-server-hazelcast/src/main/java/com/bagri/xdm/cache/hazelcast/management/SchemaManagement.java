@@ -10,7 +10,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.TabularData;
 import javax.xml.xquery.XQConnection;
@@ -334,9 +333,8 @@ public class SchemaManagement extends EntityManagement<Schema> implements Member
 				if (initSchema(schema.getName(), props)) {
 					cnt++;
 					Future<String> future = execService.submitToMember(new SchemaMemberExtractor(name), member);
-					String uuid;
 					try {
-						uuid = future.get(); //10, TimeUnit.SECONDS);
+						String uuid = future.get(); //10, TimeUnit.SECONDS);
 					} catch (InterruptedException | ExecutionException ex) { // | TimeoutException ex) {
 						logger.error("initMember.error 1; ", ex);
 						continue;

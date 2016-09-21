@@ -16,6 +16,8 @@ import org.glassfish.jersey.server.ServerProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.bagri.rest.docs.DocumentResources;
+
 public class BagriRestServer implements Factory<RepositoryProvider> {
 
     private static final transient Logger logger = LoggerFactory.getLogger(BagriRestServer.class);
@@ -48,6 +50,18 @@ public class BagriRestServer implements Factory<RepositoryProvider> {
     	return port;
     }
     
+    public ResourceConfig buildConfig() {
+        ResourceConfig config = new ResourceConfig(SchemaResources.class, DocumentResources.class);
+        config.register(JacksonFeature.class);
+        config.register(new AbstractBinder() {
+            @Override
+            protected void configure() {
+                bindFactory(BagriRestServer.this).to(RepositoryProvider.class);
+            }
+        });
+        return config;
+    }
+    
     public void start() {
         logger.debug("start.enter; Starting rest server");
 
@@ -61,7 +75,7 @@ public class BagriRestServer implements Factory<RepositoryProvider> {
         //jerseyServlet.setInitParameter(ServerProperties.PROVIDER_CLASSNAMES, SchemaResources.class.getCanonicalName());
 
         URI baseUri = UriBuilder.fromUri("http://localhost/").port(port).build();
-        ResourceConfig config = new ResourceConfig(SchemaResources.class);
+        ResourceConfig config = new ResourceConfig(SchemaResources.class, DocumentResources.class);
         config.register(JacksonFeature.class);
         config.register(new AbstractBinder() {
             @Override
@@ -101,35 +115,6 @@ public class BagriRestServer implements Factory<RepositoryProvider> {
 		logger.trace("dispose");
 		this.rePro = null;
 	}
-
-/*    
-    public void start(final RestContext context) {
-        logger.debug("Starting rest server");
-
-        URI baseUri = UriBuilder.fromUri("http://localhost/").port(9998).build();
-        ResourceConfig config = buildConfig(context);
-        jettyServer = JettyHttpContainerFactory.createServer(baseUri, config);
-        try {
-            server.start();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        logger.debug("Rest server is started");
-    }
-
-    public static ResourceConfig buildConfig(final RestContext context) {
-        ResourceConfig config = new ResourceConfig(SchemaResources.class);
-        config.register(new AbstractBinder() {
-            @Override
-            protected void configure() {
-                bindFactory(new RestContextFactory(context)).to(RestContext.class);
-            }
-        });
-        //config.register(JacksonFeature.class);
-        //config.register(FreemarkerMvcFeature.class);
-        return config;
-    }
-*/
 
     
 }
