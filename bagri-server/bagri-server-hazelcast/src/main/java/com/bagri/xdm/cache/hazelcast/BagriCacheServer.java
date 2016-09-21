@@ -32,6 +32,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.bagri.rest.BagriRestServer;
+import com.bagri.rest.RepositoryProvider;
 import com.bagri.xdm.api.SchemaRepository;
 import com.bagri.xdm.cache.hazelcast.config.SystemConfig;
 import com.bagri.xdm.cache.hazelcast.impl.SchemaRepositoryImpl;
@@ -120,7 +121,8 @@ public class BagriCacheServer {
 		}
 		logger.info("JMX connector server started and listening on port: {}", port);
 		
-		BagriRestServer rest = new BagriRestServer();
+		RepositoryProvider rePro = context.getBean(RepositoryProvider.class);
+		BagriRestServer rest = new BagriRestServer(rePro, 3030);
 		rest.start();
 		logger.info("REST server started on port: {}", rest.getPort());
     }

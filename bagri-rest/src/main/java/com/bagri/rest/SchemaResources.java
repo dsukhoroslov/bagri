@@ -1,8 +1,6 @@
 package com.bagri.rest;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.inject.Inject;
 import javax.ws.rs.GET;
@@ -17,40 +15,45 @@ import org.slf4j.LoggerFactory;
 
 import com.bagri.xdm.system.Schema;
 
-@Path("/bagri")
+@Path("/schemas")
 public class SchemaResources {
 	
     private static final transient Logger logger = LoggerFactory.getLogger(SchemaResources.class);
 
-    //@Inject
+    @Inject
     private RepositoryProvider repos;
     
-	public SchemaResources() {
-		repos = new RepositoryProvider();
-	}
-	
-    @GET
-    @Path("schemas")
+	@GET
+    @Path("/")
     @Produces(MediaType.APPLICATION_JSON) //TEXT_PLAIN)
     public Collection<String> getSchemas() {
         return repos.getSchemaNames();
     }
     
     @GET
-    @Path("schemas/{name}")
-    @Produces(MediaType.APPLICATION_XML) 
-    public Response getSchema(@PathParam("name") String name) {
+    @Path("/{name}")
+    @Produces(MediaType.APPLICATION_JSON) 
+    public Response getSchemaAsJSON(@PathParam("name") String name) {
+    	return getSchema(name);
+    }    
 
+    @GET
+    @Path("/{name}")
+    @Produces(MediaType.APPLICATION_XML) 
+    public Response getSchemaAsXML(@PathParam("name") String name) {
+    	return getSchema(name);
+    }    
+
+    private Response getSchema(String name) {
         Schema schema = repos.getSchema(name);
         if (schema != null) {
         	try {
-        		return Response.ok(schema).build(); //return xdm schema directly? Response.ok(xdmSchema).build();
+        		return Response.ok(schema).build(); 
         	} catch (Exception ex) {
         		logger.error("getSchema.error", ex);
-        		return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        		return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
         	}
         }
-        return Response.status(Response.Status.NOT_FOUND).build();
-    }    
-
+        return Response.status(Response.Status.NOT_FOUND).entity("No Schema found for name: " + name).build();
+    }
 }

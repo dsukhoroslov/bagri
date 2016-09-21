@@ -318,8 +318,17 @@
                         <groupId>org.eclipse.jetty</groupId>
                         <artifactId>jetty-util</artifactId>
                     </exclusion>
+                    <!--exclusion>
+                        <groupId>org.eclipse.jetty</groupId>
+                        <artifactId>jetty-continuation</artifactId>
+                    </exclusion-->
                 </exclusions>
 	    </dependency>
+	    <dependency>
+            	<groupId>org.glassfish.jersey.media</groupId>
+            	<artifactId>jersey-media-json-jackson</artifactId>
+            	<version>${jersey.version}</version>
+            </dependency>
 
             <!-- Dependencies for unit tests -->
             <dependency>

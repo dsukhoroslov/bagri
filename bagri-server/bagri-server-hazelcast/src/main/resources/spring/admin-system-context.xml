@@ -234,4 +234,8 @@
 		<property name="entityCache" ref="users"/>
 	</bean>
 
+	<bean id="repoProviderService" class="com.bagri.xdm.cache.hazelcast.impl.RepositoryProviderImpl">
+		<property name="schemaManagement" ref="schemaService"/>
+	</bean>
+
 </beans>
