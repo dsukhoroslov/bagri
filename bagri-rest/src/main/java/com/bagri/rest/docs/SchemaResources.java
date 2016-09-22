@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 import com.bagri.rest.RepositoryProvider;
 import com.bagri.xdm.system.Schema;
 
-//@Path("/schemas")
+@Path("/")
 public class SchemaResources {
 	
     private static final transient Logger logger = LoggerFactory.getLogger(SchemaResources.class);
@@ -28,6 +28,7 @@ public class SchemaResources {
     @Path("/schemas")
     @Produces(MediaType.APPLICATION_JSON) //TEXT_PLAIN)
     public Collection<String> getSchemas() {
+		logger.info("getSchemas.enter");
         return repos.getSchemaNames();
     }
     

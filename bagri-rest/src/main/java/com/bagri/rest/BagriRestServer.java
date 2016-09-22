@@ -16,8 +16,10 @@ import org.glassfish.jersey.server.ServerProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bagri.rest.docs.DocumentResources;
 import com.bagri.rest.docs.SchemaResources;
+import com.bagri.rest.service.DocumentService;
+import com.bagri.rest.service.QueryService;
+import com.bagri.rest.service.TransactionService;
 
 public class BagriRestServer implements Factory<RepositoryProvider> {
 
@@ -52,7 +54,7 @@ public class BagriRestServer implements Factory<RepositoryProvider> {
     }
     
     public ResourceConfig buildConfig() {
-        ResourceConfig config = new ResourceConfig(SchemaResources.class, DocumentResources.class);
+        ResourceConfig config = new ResourceConfig(SchemaResources.class, DocumentService.class, QueryService.class, TransactionService.class);
         config.register(JacksonFeature.class);
         config.register(new AbstractBinder() {
             @Override
@@ -76,14 +78,7 @@ public class BagriRestServer implements Factory<RepositoryProvider> {
         //jerseyServlet.setInitParameter(ServerProperties.PROVIDER_CLASSNAMES, SchemaResources.class.getCanonicalName());
 
         URI baseUri = UriBuilder.fromUri("http://localhost/").port(port).build();
-        ResourceConfig config = new ResourceConfig(SchemaResources.class, DocumentResources.class);
-        config.register(JacksonFeature.class);
-        config.register(new AbstractBinder() {
-            @Override
-            protected void configure() {
-                bindFactory(BagriRestServer.this).to(RepositoryProvider.class);
-            }
-        });
+        ResourceConfig config = buildConfig();
         jettyServer = JettyHttpContainerFactory.createServer(baseUri, config);
         
         try {

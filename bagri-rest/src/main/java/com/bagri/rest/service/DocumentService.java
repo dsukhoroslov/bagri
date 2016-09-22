@@ -1,4 +1,4 @@
-package com.bagri.rest.docs;
+package com.bagri.rest.service;
 
 import static com.bagri.common.util.PropUtils.propsFromString;
 
@@ -9,6 +9,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
@@ -26,15 +27,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bagri.rest.RepositoryProvider;
+import com.bagri.rest.docs.DocumentResource;
+import com.bagri.rest.docs.DocumentParams;
 import com.bagri.xdm.api.DocumentManagement;
 import com.bagri.xdm.api.SchemaRepository;
 import com.bagri.xdm.domain.Document;
 
 @Singleton
-//@Path("/docs")
-public class DocumentResources  {
+@Path("/docs")
+public class DocumentService  {
 	
-    private static final transient Logger logger = LoggerFactory.getLogger(DocumentResources.class);
+    private static final transient Logger logger = LoggerFactory.getLogger(DocumentService.class);
 
     @Inject
     private RepositoryProvider repos;
@@ -53,7 +56,6 @@ public class DocumentResources  {
     }
     
 	@GET
-    @Path("/docs")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getDocuments(@QueryParam("query") String query, 
     		@DefaultValue("1") @QueryParam("page") int page, @DefaultValue("100") @QueryParam("size") int size) {
@@ -84,14 +86,14 @@ public class DocumentResources  {
     }
     
     @GET
-    @Path("/docs/{uri}")
+    @Path("/{uri}")
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON}) 
     public Response getDocumentContent(@PathParam("uri") String uri) {
 		String schema = "default";
 		DocumentManagement docMgr = getDocManager(schema);
     	try {
-             String content = docMgr.getDocumentAsString(uri, null);
-             return Response.ok(content).build();
+            String content = docMgr.getDocumentAsString(uri, null);
+            return Response.ok(content).build();
     	} catch (Exception ex) {
     		logger.error("getDocumentContent.error", ex);
     		throw new WebApplicationException(ex, Status.INTERNAL_SERVER_ERROR);
@@ -100,15 +102,17 @@ public class DocumentResources  {
     }    
 
     @POST
-    @Path("/docs")
+    @Consumes(MediaType.APPLICATION_JSON) 
     @Produces(MediaType.APPLICATION_JSON) 
-	public Response postDocument(String uri, String content, String properties) {
+	public Response postDocument(final DocumentParams params) {
 		String schema = "default";
 		DocumentManagement docMgr = getDocManager(schema);
     	try {
-             Document doc = docMgr.storeDocumentFromString(uri, content, propsFromString(properties));
-             DocumentResource dr = new DocumentResource(doc.getUri(), doc.getCreatedAt().getTime(), doc.getCreatedBy(), doc.getEncoding(), doc.getBytes());
-             return Response.ok(dr).build();
+    		logger.trace("postDocument; got params: {}", params);
+            Document doc = docMgr.storeDocumentFromString(params.uri, params.content, params.props);
+     		logger.trace("postDocument; got document: {}", doc);
+            DocumentResource dr = new DocumentResource(doc.getUri(), doc.getCreatedAt().getTime(), doc.getCreatedBy(), doc.getEncoding(), doc.getBytes());
+            return Response.ok(dr).build();
     	} catch (Exception ex) {
     		logger.error("postDocument.error", ex);
     		throw new WebApplicationException(ex, Status.INTERNAL_SERVER_ERROR);
@@ -117,14 +121,14 @@ public class DocumentResources  {
     }
     
     @DELETE
-    @Path("/docs/{uri}")
+    @Path("/{uri}")
     @Produces(MediaType.APPLICATION_JSON) 
 	public Response deleteDocument(@PathParam("uri") String uri) {
 		String schema = "default";
 		DocumentManagement docMgr = getDocManager(schema);
     	try {
-             docMgr.removeDocument(uri);
-             return Response.ok(uri).build();
+            docMgr.removeDocument(uri);
+            return Response.ok(uri).build();
     	} catch (Exception ex) {
     		logger.error("deleteDocument.error", ex);
     		throw new WebApplicationException(ex, Status.INTERNAL_SERVER_ERROR);

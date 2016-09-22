@@ -1,4 +1,4 @@
-package com.bagri.rest.docs;
+package com.bagri.rest.service;
 
 import static com.bagri.common.util.PropUtils.propsFromString;
 
@@ -7,6 +7,7 @@ import java.util.Map;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -23,10 +24,12 @@ import com.bagri.xdm.api.QueryManagement;
 import com.bagri.xdm.api.SchemaRepository;
 
 @Singleton
-//@Path("/query")
-public class QueryResources {
+@Path("/query")
+@Consumes(MediaType.APPLICATION_JSON)
+@Produces(MediaType.APPLICATION_JSON) 
+public class QueryService {
 
-    private static final transient Logger logger = LoggerFactory.getLogger(QueryResources.class);
+    private static final transient Logger logger = LoggerFactory.getLogger(QueryService.class);
 
     @Inject
     private RepositoryProvider repos;
@@ -43,10 +46,8 @@ public class QueryResources {
     	}
     	return repo.getQueryManagement();
     }
-    
+/*    
     @POST
-    @Path("/query")
-    @Produces(MediaType.APPLICATION_JSON) 
 	public Response postQuery(String query, String params, String properties) {
 		String schema = "default";
 		QueryManagement queryMgr = getQueryManager(schema);
@@ -61,8 +62,7 @@ public class QueryResources {
     }
     
     @POST
-    @Path("/query/uris")
-    @Produces(MediaType.TEXT_PLAIN) 
+    @Path("/uris")
 	public Response getURIs(String query, String params, String properties) {
 		String schema = "default";
 		QueryManagement queryMgr = getQueryManager(schema);
@@ -75,7 +75,7 @@ public class QueryResources {
     		//return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
     	}
     }
-    
+*/    
     private Map<String, Object> convertParams(String params) {
     	return null;
     }
