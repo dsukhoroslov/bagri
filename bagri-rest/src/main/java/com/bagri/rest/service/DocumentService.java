@@ -1,11 +1,15 @@
 package com.bagri.rest.service;
 
 import static com.bagri.common.util.PropUtils.propsFromString;
+import static com.bagri.xdm.common.Constants.xdm_document_data_format;
+import static com.bagri.xdm.system.DataFormat.df_json;
+import static com.bagri.xdm.system.DataFormat.df_xml;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -19,6 +23,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -88,11 +94,17 @@ public class DocumentService  {
     @GET
     @Path("/{uri}")
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON}) 
-    public Response getDocumentContent(@PathParam("uri") String uri) {
+    public Response getDocumentContent(@PathParam("uri") String uri, @Context HttpHeaders hh) {
 		String schema = "default";
 		DocumentManagement docMgr = getDocManager(schema);
     	try {
-            String content = docMgr.getDocumentAsString(uri, null);
+    		Properties props = new Properties();
+    		if (MediaType.APPLICATION_JSON_TYPE.equals(hh.getAcceptableMediaTypes().get(0))) {
+    	    	props.setProperty(xdm_document_data_format, df_json);
+    		} else if (MediaType.APPLICATION_XML_TYPE.equals(hh.getAcceptableMediaTypes().get(0))) {
+    	    	props.setProperty(xdm_document_data_format, df_xml);
+    		}
+            String content = docMgr.getDocumentAsString(uri, props);
             return Response.ok(content).build();
     	} catch (Exception ex) {
     		logger.error("getDocumentContent.error", ex);

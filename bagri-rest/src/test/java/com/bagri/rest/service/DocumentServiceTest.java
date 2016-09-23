@@ -1,11 +1,10 @@
 package com.bagri.rest.service;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static com.bagri.xdm.common.Constants.xdm_document_data_format;
-import static com.bagri.xdm.system.DataFormat.df_json;
+import static com.bagri.xdm.system.DataFormat.*;
 
 import java.util.Properties;
 
@@ -30,21 +29,29 @@ public class DocumentServiceTest extends JerseyTest {
 	private DocumentManagement docMgr;
 	private SchemaRepository mockRepo;
 	private RepositoryProvider mockPro;
-	private Properties props;
-	private Document response;
+	private Properties propsXml;
+	private Properties propsJson;
+	private Document responseXml;
+	private Document responseJson;
 
     @Override
     protected Application configure() {
-    	props = new Properties();
-    	props.setProperty(xdm_document_data_format, df_json);
+    	propsXml = new Properties();
+    	propsXml.setProperty(xdm_document_data_format, df_xml);
+    	propsJson = new Properties();
+    	propsJson.setProperty(xdm_document_data_format, df_json);
         docMgr = mock(DocumentManagement.class);
         mockRepo = mock(SchemaRepository.class);
     	mockPro = mock(RepositoryProvider.class);
         when(mockPro.getRepository("default")).thenReturn(mockRepo);
         when(mockRepo.getDocumentManagement()).thenReturn(docMgr);
-        response = new Document(1L, "a0001.xml", 0, "owner", 1, 18, 1);
+        responseXml = new Document(1L, "a0001.xml", 0, "owner", 1, 34, 1);
+        responseJson = new Document(2L, "a0001.xml", 0, "owner", 1, 30, 1);
         try {
-			when(docMgr.storeDocumentFromString("a0001.xml", "<xml>content</xml>", props)).thenReturn(response);
+			when(docMgr.storeDocumentFromString("a0001.xml", "<content>initial content</content>", propsXml)).thenReturn(responseXml);
+			when(docMgr.storeDocumentFromString("a0001.xml", "{\"content\": \"updated content\"}", propsJson)).thenReturn(responseJson);
+			when(docMgr.getDocumentAsString("a0001.xml", propsXml)).thenReturn("<content>initial content</content>");
+			when(docMgr.getDocumentAsString("a0001.xml", propsJson)).thenReturn("{\"content\": \"updated content\"}");
 		} catch (XDMException ex) {
 			ex.printStackTrace();
 		}
@@ -55,17 +62,32 @@ public class DocumentServiceTest extends JerseyTest {
     @Test
     public void testDocumentService() throws Exception {
     	
-    	DocumentParams dp = new DocumentParams("a0001.xml", "<xml>content</xml>", props);
+    	// create document
+    	DocumentParams params = new DocumentParams("a0001.xml", "<content>initial content</content>", propsXml);
         DocumentResource doc = target("docs").request().header("Content-Type", "application/json").
-        		post(Entity.json(dp), DocumentResource.class);
+        		post(Entity.json(params), DocumentResource.class);
         assertEquals("a0001.xml", doc.uri);
+        // get initial content
+        String content = target("docs").path("a0001.xml").request(MediaType.APPLICATION_XML).get(String.class);
+        assertEquals("<content>initial content</content>", content);
         
-        //target("tx").path("100").request(MediaType.TEXT_PLAIN).delete();
-        //txId = target("tx").request(MediaType.TEXT_PLAIN).post(isolation, Long.class);
-        //assertEquals(100L, txId);
-        //Entity<Long> entity = Entity.entity(100L, MediaType.TEXT_PLAIN);
-        //target("tx").path("100").request(MediaType.TEXT_PLAIN).put(entity);
-    	
+        // update document
+        params = new DocumentParams("a0001.xml", "{\"content\": \"updated content\"}", propsJson);
+        doc = target("docs").request().header("Content-Type", "application/json").
+        		post(Entity.json(params), DocumentResource.class);
+        assertEquals("a0001.xml", doc.uri);
+        // get updated content
+        content = target("docs").path("a0001.xml").request(MediaType.APPLICATION_JSON).get(String.class);
+        assertEquals("{\"content\": \"updated content\"}", content);
+        
+        // delete document
+        String uri = target("docs").path("a0001.xml").request().delete(String.class);
+        assertEquals("a0001.xml", uri);
     }    
 
+    @Test
+    public void testDocumentPatterns() throws Exception {
+    	// implement it..
+    }
+    
 }
