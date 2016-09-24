@@ -1,4 +1,4 @@
-package com.bagri.rest.docs;
+package com.bagri.rest.service;
 
 import java.util.Collection;
 
@@ -17,13 +17,8 @@ import com.bagri.rest.RepositoryProvider;
 import com.bagri.xdm.system.Schema;
 
 @Path("/")
-public class SchemaResources {
+public class SchemaService extends RestService {
 	
-    private static final transient Logger logger = LoggerFactory.getLogger(SchemaResources.class);
-
-    @Inject
-    private RepositoryProvider repos;
-    
 	@GET
     @Path("/schemas")
     @Produces(MediaType.APPLICATION_JSON) //TEXT_PLAIN)

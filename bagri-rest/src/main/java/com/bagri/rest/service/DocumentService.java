@@ -1,6 +1,5 @@
 package com.bagri.rest.service;
 
-import static com.bagri.common.util.PropUtils.propsFromString;
 import static com.bagri.xdm.common.Constants.xdm_document_data_format;
 import static com.bagri.xdm.system.DataFormat.df_json;
 import static com.bagri.xdm.system.DataFormat.df_xml;
@@ -11,7 +10,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
-import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -29,36 +27,21 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.bagri.rest.RepositoryProvider;
-import com.bagri.rest.docs.DocumentResource;
-import com.bagri.rest.docs.DocumentParams;
 import com.bagri.xdm.api.DocumentManagement;
 import com.bagri.xdm.api.SchemaRepository;
 import com.bagri.xdm.domain.Document;
 
 @Singleton
 @Path("/docs")
-public class DocumentService  {
+public class DocumentService  extends RestService {
 	
-    private static final transient Logger logger = LoggerFactory.getLogger(DocumentService.class);
-
-    @Inject
-    private RepositoryProvider repos;
     
-    private DocumentManagement getDocManager(String schemaName) {
-    	if (repos == null) {
-    		logger.warn("getDocManager; resource not initialized: RepositoryProvider is null");
-    		return null;
+    private DocumentManagement getDocManager() {
+    	SchemaRepository repo = getRepository();
+    	if (repo != null) {
+        	return repo.getDocumentManagement();
     	}
-    	SchemaRepository repo = repos.getRepository(schemaName);
-    	if (repo == null) {
-    		logger.warn("getDocManager; Repository is not active for schema {}", schemaName);
-    		return null;
-    	}
-    	return repo.getDocumentManagement();
+		return null;
     }
     
 	@GET
@@ -67,8 +50,7 @@ public class DocumentService  {
     		@DefaultValue("1") @QueryParam("page") int page, @DefaultValue("100") @QueryParam("size") int size) {
 		// add paginaton, pattern
 		logger.trace("getDocuments.enter; query: {}, page: {}, size: {}", query, page, size);
-		String schema = "default";
-		DocumentManagement docMgr = getDocManager(schema);
+		DocumentManagement docMgr = getDocManager();
     	try {
             Collection<String> uris = docMgr.getDocumentUris(query);
             uris = new ArrayList<>(uris);
@@ -95,8 +77,7 @@ public class DocumentService  {
     @Path("/{uri}")
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON}) 
     public Response getDocumentContent(@PathParam("uri") String uri, @Context HttpHeaders hh) {
-		String schema = "default";
-		DocumentManagement docMgr = getDocManager(schema);
+		DocumentManagement docMgr = getDocManager();
     	try {
     		Properties props = new Properties();
     		if (MediaType.APPLICATION_JSON_TYPE.equals(hh.getAcceptableMediaTypes().get(0))) {
@@ -117,8 +98,7 @@ public class DocumentService  {
     @Consumes(MediaType.APPLICATION_JSON) 
     @Produces(MediaType.APPLICATION_JSON) 
 	public Response postDocument(final DocumentParams params) {
-		String schema = "default";
-		DocumentManagement docMgr = getDocManager(schema);
+		DocumentManagement docMgr = getDocManager();
     	try {
     		logger.trace("postDocument; got params: {}", params);
             Document doc = docMgr.storeDocumentFromString(params.uri, params.content, params.props);
@@ -136,8 +116,7 @@ public class DocumentService  {
     @Path("/{uri}")
     @Produces(MediaType.APPLICATION_JSON) 
 	public Response deleteDocument(@PathParam("uri") String uri) {
-		String schema = "default";
-		DocumentManagement docMgr = getDocManager(schema);
+		DocumentManagement docMgr = getDocManager();
     	try {
             docMgr.removeDocument(uri);
             return Response.ok(uri).build();

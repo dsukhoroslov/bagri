@@ -1,11 +1,8 @@
 package com.bagri.rest.service;
 
-import static com.bagri.common.util.PropUtils.propsFromString;
-
 import java.util.Collection;
 import java.util.Map;
 
-import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -16,43 +13,29 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.bagri.rest.RepositoryProvider;
 import com.bagri.xdm.api.QueryManagement;
+import com.bagri.xdm.api.ResultCursor;
 import com.bagri.xdm.api.SchemaRepository;
 
 @Singleton
 @Path("/query")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON) 
-public class QueryService {
+public class QueryService extends RestService {
 
-    private static final transient Logger logger = LoggerFactory.getLogger(QueryService.class);
-
-    @Inject
-    private RepositoryProvider repos;
-    
-    private QueryManagement getQueryManager(String schemaName) {
-    	if (repos == null) {
-    		logger.warn("getQueryManager; resource not initialized: RepositoryProvider is null");
-    		return null;
+    private QueryManagement getQueryManager() {
+    	SchemaRepository repo = getRepository();
+    	if (repo != null) {
+        	return repo.getQueryManagement();
     	}
-    	SchemaRepository repo = repos.getRepository(schemaName);
-    	if (repo == null) {
-    		logger.warn("getQueryManager; Repository is not active for schema {}", schemaName);
-    		return null;
-    	}
-    	return repo.getQueryManagement();
+		return null;
     }
-/*    
+    
     @POST
-	public Response postQuery(String query, String params, String properties) {
-		String schema = "default";
-		QueryManagement queryMgr = getQueryManager(schema);
+	public Response postQuery(final QueryParams params) {
+		QueryManagement queryMgr = getQueryManager();
     	try {
-    		queryMgr.executeQuery(query, convertParams(params), propsFromString(properties));
+    		ResultCursor cursor = queryMgr.executeQuery(params.query, params.params, params.props);
             return null; //Response.ok(dr).build();
     	} catch (Exception ex) {
     		logger.error("postQuery.error", ex);
@@ -63,11 +46,12 @@ public class QueryService {
     
     @POST
     @Path("/uris")
-	public Response getURIs(String query, String params, String properties) {
-		String schema = "default";
-		QueryManagement queryMgr = getQueryManager(schema);
+	public Response getURIs(final QueryParams params) {
+		QueryManagement queryMgr = getQueryManager();
     	try {
-    		Collection<String> uris = queryMgr.getDocumentUris(query, convertParams(params), propsFromString(properties));
+    		logger.info("getURIs; got params: {}", params);
+    		Collection<String> uris = queryMgr.getDocumentUris(params.query, params.params, params.props);
+    		logger.info("getURIs; got URIs: {}", uris);
             return Response.ok(uris).build();
     	} catch (Exception ex) {
     		logger.error("postQuery.error", ex);
@@ -75,9 +59,6 @@ public class QueryService {
     		//return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
     	}
     }
-*/    
-    private Map<String, Object> convertParams(String params) {
-    	return null;
-    }
+    
 	
 }

@@ -1,4 +1,4 @@
-package com.bagri.rest.docs;
+package com.bagri.rest.service;
 
 import java.util.Properties;
 
@@ -9,7 +9,7 @@ public class DocumentParams {
 	
 	public String uri;
 	public String content;
-	public Properties props = new Properties();
+	public Properties props;
 
 	public DocumentParams() {
 		// de-ser

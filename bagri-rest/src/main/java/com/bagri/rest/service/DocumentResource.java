@@ -1,4 +1,4 @@
-package com.bagri.rest.docs;
+package com.bagri.rest.service;
 
 import javax.xml.bind.annotation.XmlRootElement;
 

@@ -16,9 +16,9 @@ import org.glassfish.jersey.server.ServerProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bagri.rest.docs.SchemaResources;
 import com.bagri.rest.service.DocumentService;
 import com.bagri.rest.service.QueryService;
+import com.bagri.rest.service.SchemaService;
 import com.bagri.rest.service.TransactionService;
 
 public class BagriRestServer implements Factory<RepositoryProvider> {
@@ -54,7 +54,7 @@ public class BagriRestServer implements Factory<RepositoryProvider> {
     }
     
     public ResourceConfig buildConfig() {
-        ResourceConfig config = new ResourceConfig(SchemaResources.class, DocumentService.class, QueryService.class, TransactionService.class);
+        ResourceConfig config = new ResourceConfig(SchemaService.class, DocumentService.class, QueryService.class, TransactionService.class);
         config.register(JacksonFeature.class);
         config.register(new AbstractBinder() {
             @Override

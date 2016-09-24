@@ -17,8 +17,6 @@ import org.junit.Test;
 
 import com.bagri.rest.BagriRestServer;
 import com.bagri.rest.RepositoryProvider;
-import com.bagri.rest.docs.DocumentResource;
-import com.bagri.rest.docs.DocumentParams;
 import com.bagri.xdm.api.DocumentManagement;
 import com.bagri.xdm.api.SchemaRepository;
 import com.bagri.xdm.api.XDMException;
