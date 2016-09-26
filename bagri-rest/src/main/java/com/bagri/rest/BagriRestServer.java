@@ -13,6 +13,7 @@ import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.jetty.JettyHttpContainerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.ServerProperties;
+import org.glassfish.jersey.server.wadl.WadlFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,6 +56,7 @@ public class BagriRestServer implements Factory<RepositoryProvider> {
     
     public ResourceConfig buildConfig() {
         ResourceConfig config = new ResourceConfig(SchemaService.class, DocumentService.class, QueryService.class, TransactionService.class);
+        config.register(AuthFilter.class);
         config.register(JacksonFeature.class);
         config.register(new AbstractBinder() {
             @Override
@@ -62,6 +64,7 @@ public class BagriRestServer implements Factory<RepositoryProvider> {
                 bindFactory(BagriRestServer.this).to(RepositoryProvider.class);
             }
         });
+        config.register(WadlFeature.class);
         return config;
     }
     
