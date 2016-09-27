@@ -1,6 +1,8 @@
 package com.bagri.rest.service;
 
 import javax.inject.Inject;
+import javax.ws.rs.CookieParam;
+import javax.ws.rs.core.Cookie;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,12 +14,16 @@ public abstract class RestService {
 
     protected final transient Logger logger = LoggerFactory.getLogger(getClass());
 	
+	public static final String bg_cookie = "bg-auth";
+	
+	@CookieParam(bg_cookie) 
+	protected Cookie bgAuth;
+	
     @Inject
     protected RepositoryProvider repos;
 	
-    protected String getCurrentSchema() {
-    	// TODO: implement it properly
-    	return "default";
+    protected String getClientId() {
+    	return bgAuth.getValue();
     }
     
     protected SchemaRepository getRepository() {
@@ -25,10 +31,10 @@ public abstract class RestService {
     		logger.warn("getRepository; service is not yet initialized: RepositoryProvider is null");
     		return null;
     	}
-    	String schemaName = getCurrentSchema();
-    	SchemaRepository repo = repos.getRepository(schemaName);
+    	String clientId = getClientId();
+    	SchemaRepository repo = repos.getRepository(clientId);
     	if (repo == null) {
-    		logger.warn("getRepository; Repository is not active for schema {}", schemaName);
+    		logger.warn("getRepository; Repository is not active for client {}", clientId);
     	}
     	return repo;
     }

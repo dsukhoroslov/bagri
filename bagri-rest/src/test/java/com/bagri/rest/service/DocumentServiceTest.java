@@ -5,6 +5,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static com.bagri.xdm.common.Constants.xdm_document_data_format;
 import static com.bagri.xdm.system.DataFormat.*;
+import static com.bagri.rest.service.RestService.bg_cookie;
 
 import java.util.Properties;
 
@@ -41,7 +42,7 @@ public class DocumentServiceTest extends JerseyTest {
         docMgr = mock(DocumentManagement.class);
         mockRepo = mock(SchemaRepository.class);
     	mockPro = mock(RepositoryProvider.class);
-        when(mockPro.getRepository("default")).thenReturn(mockRepo);
+        when(mockPro.getRepository("client-id")).thenReturn(mockRepo);
         when(mockRepo.getDocumentManagement()).thenReturn(docMgr);
         responseXml = new Document(1L, "a0001.xml", 0, "owner", 1, 34, 1);
         responseJson = new Document(2L, "a0001.xml", 0, "owner", 1, 30, 1);
@@ -62,24 +63,37 @@ public class DocumentServiceTest extends JerseyTest {
     	
     	// create document
     	DocumentParams params = new DocumentParams("a0001.xml", "<content>initial content</content>", propsXml);
-        DocumentResource doc = target("docs").request().header("Content-Type", "application/json").
-        		post(Entity.json(params), DocumentResource.class);
+        DocumentResource doc = target("docs").request()
+        		.header("Content-Type", "application/json")
+        		.cookie(bg_cookie, "client-id")
+        		.post(Entity.json(params), DocumentResource.class);
         assertEquals("a0001.xml", doc.uri);
         // get initial content
-        String content = target("docs").path("a0001.xml").request(MediaType.APPLICATION_XML).get(String.class);
+        String content = target("docs").path("a0001.xml")
+        		.request(MediaType.APPLICATION_XML)
+        		.cookie(bg_cookie, "client-id")
+        		.get(String.class);
         assertEquals("<content>initial content</content>", content);
         
         // update document
         params = new DocumentParams("a0001.xml", "{\"content\": \"updated content\"}", propsJson);
-        doc = target("docs").request().header("Content-Type", "application/json").
-        		post(Entity.json(params), DocumentResource.class);
+        doc = target("docs").request()
+        		.header("Content-Type", "application/json")
+        		.cookie(bg_cookie, "client-id")
+        		.post(Entity.json(params), DocumentResource.class);
         assertEquals("a0001.xml", doc.uri);
         // get updated content
-        content = target("docs").path("a0001.xml").request(MediaType.APPLICATION_JSON).get(String.class);
+        content = target("docs").path("a0001.xml")
+        		.request(MediaType.APPLICATION_JSON)
+        		.cookie(bg_cookie, "client-id")
+        		.get(String.class);
         assertEquals("{\"content\": \"updated content\"}", content);
         
         // delete document
-        String uri = target("docs").path("a0001.xml").request().delete(String.class);
+        String uri = target("docs").path("a0001.xml")
+        		.request()
+        		.cookie(bg_cookie, "client-id")
+        		.delete(String.class);
         assertEquals("a0001.xml", uri);
     }    
 

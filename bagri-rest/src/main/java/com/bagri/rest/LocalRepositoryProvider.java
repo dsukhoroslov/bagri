@@ -41,17 +41,19 @@ public class LocalRepositoryProvider implements RepositoryProvider {
 		return schemas.values();
 	}
 	
-	public SchemaRepository getRepository(String schemaName) {
+	public SchemaRepository getRepository(String clientId) {
 		return null;
 	}
 	
-	public boolean isRepositoryActive(String schemaName) {
-		return false;
+	//public boolean isRepositoryActive(String schemaName) {
+	//	return false;
+	//}
+	
+	public SchemaRepository connect(String schemaName, String userName, String password) {
+		return null;
 	}
-	
-	// connect to repo -> credentials?
-	
-	// disconnect from repo..
 
-
+	public void disconnect(String clientId) {
+		//
+	}
 }

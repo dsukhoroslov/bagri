@@ -2,15 +2,12 @@ package com.bagri.rest;
 
 import java.io.IOException;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.inject.Inject;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
+import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.SecurityContext;
 
 import org.slf4j.Logger;
@@ -20,24 +17,16 @@ public class AuthFilter implements ContainerRequestFilter {
 
     private static final transient Logger logger = LoggerFactory.getLogger(AuthFilter.class);
 	
-	//@Override
-	//public void init(FilterConfig filterConfig) throws ServletException {
-		// TODO Auto-generated method stub
-	//	logger.info("init; got config: {}", filterConfig);
-	//}
+    @Inject
+    protected RepositoryProvider repos;
+	
+    private boolean checkAuth(String clientId) {
+    	return repos.getRepository(clientId) != null;
+    }
 
-	//@Override
-	//public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
-	//		throws IOException, ServletException {
-		// TODO Auto-generated method stub
-	//	logger.debug("doFilter; request: {}, response: {}, chanin: {}", request, response, chain);
-	//}
-
-	//@Override
-	//public void destroy() {
-		// TODO Auto-generated method stub
-	//	logger.trace("destroy;");
-	//}
+    //private String doAuth() {
+    //	return "test";
+    //}
 
 	@Override
 	public void filter(ContainerRequestContext requestContext) throws IOException {
@@ -45,12 +34,28 @@ public class AuthFilter implements ContainerRequestFilter {
 		logger.debug("filter; context: {}", requestContext);
 		
 		final SecurityContext securityContext = requestContext.getSecurityContext();
-		if (securityContext == null ||
-                !securityContext.isUserInRole("privileged")) {
-
-            requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED)
-                .entity("User cannot access the resource.").build());
-		}		
-	}
+		if (securityContext != null) {
+			logger.debug("filter; auth scheme: {}; secure: {}", securityContext.getAuthenticationScheme(), securityContext.isSecure());
+			String path = requestContext.getUriInfo().getPath();
+			if ("access/login".equals(path)) {
+				// just check https
+				//if (securityContext.isSecure()) {
+					//requestContext.getCookies().put("bg-auth", new Cookie("bg-auth", token));
+				//} else {
+		        //    requestContext.abortWith(Response.status(Status.UNAUTHORIZED)
+		        //            .entity("User not authenticated.").build());
+				//}
+			} else {
+				Cookie cc = requestContext.getCookies().get("bg-auth");
+				if (cc == null || !checkAuth(cc.getValue())) {
+		            requestContext.abortWith(Response.status(Status.UNAUTHORIZED)
+		                    .entity("User cannot access the resource.").build());
+				}
+			}
+		} else {
+            requestContext.abortWith(Response.status(Status.UNAUTHORIZED)
+                    .entity("No security context provided.").build());
+		}
+	} 
 
 }

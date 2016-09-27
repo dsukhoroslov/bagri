@@ -24,6 +24,14 @@
         </dependency>
         <dependency>
             <groupId>com.bagri.db</groupId>
+            <artifactId>bagri-xquery-saxon</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.bagri.db</groupId>
+            <artifactId>bagri-client-hazelcast</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.bagri.db</groupId>
             <artifactId>bagri-test-common</artifactId>
             <scope>test</scope>
         </dependency>

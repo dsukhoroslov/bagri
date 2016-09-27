@@ -1,5 +1,7 @@
 package com.bagri.rest.service;
 
+import static com.bagri.rest.service.RestService.bg_cookie;
+
 import static org.junit.Assert.*;
 
 import javax.ws.rs.client.Entity;
@@ -31,7 +33,7 @@ public class TransactionServiceTest extends JerseyTest {
         txMgr = mock(TransactionManagement.class);
         mockRepo = mock(SchemaRepository.class);
     	mockPro = mock(RepositoryProvider.class);
-        when(mockPro.getRepository("default")).thenReturn(mockRepo);
+        when(mockPro.getRepository("client-id")).thenReturn(mockRepo);
         when(mockRepo.getTxManagement()).thenReturn(txMgr);
         when(txMgr.isInTransaction()).thenReturn(false);
         try {
@@ -45,16 +47,26 @@ public class TransactionServiceTest extends JerseyTest {
 
     @Test
     public void testTransactionService() throws Exception {
-        Boolean inTx = target("tx").request(MediaType.TEXT_PLAIN).get(Boolean.class);
+        Boolean inTx = target("tx").request(MediaType.TEXT_PLAIN)
+        		.cookie(bg_cookie, "client-id")
+        		.get(Boolean.class);
         assertFalse(inTx);
         Entity<String> isolation = Entity.entity("readCommited", MediaType.TEXT_PLAIN);
-        long txId = target("tx").request(MediaType.TEXT_PLAIN).post(isolation, Long.class);
+        long txId = target("tx").request(MediaType.TEXT_PLAIN)
+        		.cookie(bg_cookie, "client-id")
+        		.post(isolation, Long.class);
         assertEquals(100L, txId);
-        target("tx").path("100").request(MediaType.TEXT_PLAIN).delete();
-        txId = target("tx").request(MediaType.TEXT_PLAIN).post(isolation, Long.class);
+        target("tx").path("100").request(MediaType.TEXT_PLAIN)
+				.cookie(bg_cookie, "client-id")
+        		.delete();
+        txId = target("tx").request(MediaType.TEXT_PLAIN)
+        		.cookie(bg_cookie, "client-id")
+        		.post(isolation, Long.class);
         assertEquals(100L, txId);
         Entity<Long> entity = Entity.entity(100L, MediaType.TEXT_PLAIN);
-        target("tx").path("100").request(MediaType.TEXT_PLAIN).put(entity);
+        target("tx").path("100").request(MediaType.TEXT_PLAIN)
+				.cookie(bg_cookie, "client-id")
+        		.put(entity);
     }
 	
 }

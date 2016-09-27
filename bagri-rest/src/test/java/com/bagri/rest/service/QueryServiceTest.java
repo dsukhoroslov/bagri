@@ -1,7 +1,8 @@
 package com.bagri.rest.service;
 
+import static com.bagri.rest.service.RestService.bg_cookie;
+
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -9,7 +10,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
@@ -21,8 +21,6 @@ import com.bagri.rest.BagriRestServer;
 import com.bagri.rest.RepositoryProvider;
 import com.bagri.xdm.api.QueryManagement;
 import com.bagri.xdm.api.SchemaRepository;
-import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.domain.Document;
 
 public class QueryServiceTest extends JerseyTest {
 	
@@ -44,13 +42,14 @@ public class QueryServiceTest extends JerseyTest {
         queryMgr = mock(QueryManagement.class);
         mockRepo = mock(SchemaRepository.class);
     	mockPro = mock(RepositoryProvider.class);
-        when(mockPro.getRepository("default")).thenReturn(mockRepo);
+        when(mockPro.getRepository("client-id")).thenReturn(mockRepo);
         when(mockRepo.getQueryManagement()).thenReturn(queryMgr);
         BagriRestServer server = new BagriRestServer(mockPro, 3030);
         return server.buildConfig();
     }
 
-    @Test
+	@Test
+    @SuppressWarnings("unchecked")
     public void testQueryURIService() throws Exception {
     	//
     	Collection<String> response1 = new ArrayList<>();  
@@ -60,8 +59,10 @@ public class QueryServiceTest extends JerseyTest {
 		when(queryMgr.getDocumentUris(q1, null, null)).thenReturn(response1);
 
     	QueryParams params = new QueryParams(q1, null, null);
-        Collection<String> uris = target("query/uris").request().header("Content-Type", "application/json").
-        		post(Entity.json(params), Collection.class);
+        Collection<String> uris = target("query/uris").request()
+        		.header("Content-Type", "application/json")
+        		.cookie(bg_cookie, "client-id")
+        		.post(Entity.json(params), Collection.class);
     	assertEquals(3, uris.size());
     	assertTrue(uris.contains("security1500.xml"));
     	assertTrue(uris.contains("security5621.xml"));
@@ -74,8 +75,10 @@ public class QueryServiceTest extends JerseyTest {
 		when(queryMgr.getDocumentUris(q2, params2, null)).thenReturn(response2);
     	
     	params = new QueryParams(q2, params2, null);
-        uris = target("query/uris").request().header("Content-Type", "application/json").
-        		post(Entity.json(params), Collection.class);
+        uris = target("query/uris").request()
+        		.header("Content-Type", "application/json")
+        		.cookie(bg_cookie, "client-id")
+        		.post(Entity.json(params), Collection.class);
     	assertEquals(1, uris.size());
     	assertTrue(uris.contains("security5621.xml"));
     }

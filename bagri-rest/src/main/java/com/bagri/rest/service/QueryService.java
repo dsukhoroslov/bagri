@@ -17,7 +17,7 @@ import com.bagri.xdm.api.QueryManagement;
 import com.bagri.xdm.api.ResultCursor;
 import com.bagri.xdm.api.SchemaRepository;
 
-@Singleton
+//@Singleton
 @Path("/query")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON) 

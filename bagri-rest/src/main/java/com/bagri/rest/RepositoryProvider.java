@@ -10,10 +10,10 @@ public interface RepositoryProvider {
 	Collection<String> getSchemaNames();
 	Schema getSchema(String name);
 	Collection<Schema> getSchemas();
-	SchemaRepository getRepository(String schemaName);
-	boolean isRepositoryActive(String schemaName);
+	SchemaRepository getRepository(String clientId);
+	//boolean isRepositoryActive(String schemaName);
+	SchemaRepository connect(String schemaName, String userName, String password);
+	void disconnect(String clientId);
 	
-	// connect to repo -> credentials?
-	// disconnect from repo..
 }
 

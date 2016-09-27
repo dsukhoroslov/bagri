@@ -17,7 +17,7 @@ import com.bagri.xdm.api.SchemaRepository;
 import com.bagri.xdm.api.TransactionIsolation;
 import com.bagri.xdm.api.TransactionManagement;
 
-@Singleton
+//@Singleton
 @Path("/tx")
 public class TransactionService extends RestService {
 	

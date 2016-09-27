@@ -31,7 +31,7 @@ import com.bagri.xdm.api.DocumentManagement;
 import com.bagri.xdm.api.SchemaRepository;
 import com.bagri.xdm.domain.Document;
 
-@Singleton
+//@Singleton
 @Path("/docs")
 public class DocumentService  extends RestService {
 	
