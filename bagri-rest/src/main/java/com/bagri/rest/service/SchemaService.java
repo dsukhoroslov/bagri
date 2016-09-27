@@ -23,7 +23,7 @@ public class SchemaService extends RestService {
     @Path("/schemas")
     @Produces(MediaType.APPLICATION_JSON) //TEXT_PLAIN)
     public Collection<String> getSchemas() {
-		logger.info("getSchemas.enter");
+		logger.trace("getSchemas.enter");
         return repos.getSchemaNames();
     }
     

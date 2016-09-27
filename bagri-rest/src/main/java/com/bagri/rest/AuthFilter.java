@@ -24,15 +24,8 @@ public class AuthFilter implements ContainerRequestFilter {
     	return repos.getRepository(clientId) != null;
     }
 
-    //private String doAuth() {
-    //	return "test";
-    //}
-
 	@Override
 	public void filter(ContainerRequestContext requestContext) throws IOException {
-		// TODO Auto-generated method stub
-		logger.debug("filter; context: {}", requestContext);
-		
 		final SecurityContext securityContext = requestContext.getSecurityContext();
 		if (securityContext != null) {
 			logger.debug("filter; auth scheme: {}; secure: {}", securityContext.getAuthenticationScheme(), securityContext.isSecure());
