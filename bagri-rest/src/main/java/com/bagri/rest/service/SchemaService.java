@@ -16,11 +16,11 @@ import org.slf4j.LoggerFactory;
 import com.bagri.rest.RepositoryProvider;
 import com.bagri.xdm.system.Schema;
 
-@Path("/")
+@Path("/schemas")
 public class SchemaService extends RestService {
 	
 	@GET
-    @Path("/schemas")
+    @Path("/")
     @Produces(MediaType.APPLICATION_JSON) //TEXT_PLAIN)
     public Collection<String> getSchemas() {
 		logger.trace("getSchemas.enter");
@@ -28,14 +28,14 @@ public class SchemaService extends RestService {
     }
     
     @GET
-    @Path("/schemas/{name}")
+    @Path("/{name}")
     @Produces(MediaType.APPLICATION_JSON) 
     public Response getSchemaAsJSON(@PathParam("name") String name) {
     	return getSchema(name);
     }    
 
     @GET
-    @Path("/schemas/{name}")
+    @Path("/{name}")
     @Produces(MediaType.APPLICATION_XML) 
     public Response getSchemaAsXML(@PathParam("name") String name) {
     	return getSchema(name);

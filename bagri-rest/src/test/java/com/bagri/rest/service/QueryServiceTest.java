@@ -9,11 +9,17 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
+import javax.ws.rs.core.GenericType;
+import javax.ws.rs.core.Response;
+import javax.xml.xquery.XQItem;
+import javax.xml.xquery.XQItemType;
 
+import org.glassfish.jersey.client.ChunkedInput;
 import org.glassfish.jersey.test.JerseyTest;
 import org.junit.Test;
 
@@ -21,6 +27,10 @@ import com.bagri.rest.BagriRestServer;
 import com.bagri.rest.RepositoryProvider;
 import com.bagri.xdm.api.QueryManagement;
 import com.bagri.xdm.api.SchemaRepository;
+import com.bagri.xdm.client.hazelcast.impl.FixedCursorImpl;
+import com.bagri.xqj.BagriXQDataFactory;
+import com.bagri.xquery.api.XQProcessor;
+import com.bagri.xquery.saxon.XQProcessorClient;
 
 public class QueryServiceTest extends JerseyTest {
 	
@@ -47,6 +57,41 @@ public class QueryServiceTest extends JerseyTest {
         BagriRestServer server = new BagriRestServer(mockPro, 3030);
         return server.buildConfig();
     }
+    
+	@Test
+    @SuppressWarnings("unchecked")
+    public void testQueryService() throws Exception {
+		
+    	List response1 = new ArrayList<>();  
+		XQProcessor proc = new XQProcessorClient();
+		BagriXQDataFactory xqFactory = new BagriXQDataFactory();
+		xqFactory.setProcessor(proc);
+		XQItemType sType = xqFactory.createAtomicType(XQItemType.XQBASETYPE_STRING);
+        response1.add(xqFactory.createItemFromAtomicValue("<response>constructed from security1500.xml</response>", sType));
+        response1.add(xqFactory.createItemFromAtomicValue("<response>constructed from security5621.xml</response>", sType));
+        response1.add(xqFactory.createItemFromAtomicValue("<response>constructed from security9012.xml</response>", sType));
+		when(queryMgr.executeQuery(q1, null, null)).thenReturn(new FixedCursorImpl(response1));
+
+    	QueryParams params = new QueryParams(q1, null, null);
+    	Response response = target("query").request()
+        		.header("Content-Type", "application/json")
+        		.cookie(bg_cookie, "client-id")
+        		.post(Entity.json(params));
+    	ChunkedInput<String> input = response.readEntity(new GenericType<ChunkedInput<String>>() {});
+    	input.setParser(ChunkedInput.createParser(QueryService.splitter));
+    	String chunk;
+    	Collection<String> results = new ArrayList<>();
+    	while ((chunk = input.read()) != null) {
+        	//System.out.println(chunk);
+			results.add(chunk);
+    	}    	
+    	input.close();
+    	//System.out.println(results);
+    	assertEquals(3, results.size());
+    	assertTrue(results.contains("<response>constructed from security1500.xml</response>"));
+    	assertTrue(results.contains("<response>constructed from security5621.xml</response>"));
+    	assertTrue(results.contains("<response>constructed from security9012.xml</response>"));
+	}    
 
 	@Test
     @SuppressWarnings("unchecked")

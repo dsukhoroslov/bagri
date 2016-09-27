@@ -41,6 +41,7 @@ public class AcessServiceTest extends JerseyTest {
     public void testLogin() throws Exception {
     	//
     	LoginParams params = new LoginParams("default", "guest", "password");
+        //Response response = target("https://localhost:9998/access/login").request()
         Response response = target("access/login").request()
         		.header("Content-Type", "application/json")
         		.post(Entity.json(params), Response.class);
