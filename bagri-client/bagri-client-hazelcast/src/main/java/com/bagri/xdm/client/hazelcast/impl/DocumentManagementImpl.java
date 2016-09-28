@@ -16,18 +16,7 @@ import java.util.concurrent.Future;
 import com.bagri.xdm.api.DocumentManagement;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.impl.DocumentManagementBase;
-import com.bagri.xdm.client.hazelcast.task.doc.CollectionDocumentsProvider;
-import com.bagri.xdm.client.hazelcast.task.doc.CollectionDocumentsRemover;
-import com.bagri.xdm.client.hazelcast.task.doc.DocumentBeanCreator;
-import com.bagri.xdm.client.hazelcast.task.doc.DocumentBeanProvider;
-import com.bagri.xdm.client.hazelcast.task.doc.DocumentCollectionUpdater;
-import com.bagri.xdm.client.hazelcast.task.doc.DocumentContentProvider;
-import com.bagri.xdm.client.hazelcast.task.doc.DocumentCreator;
-import com.bagri.xdm.client.hazelcast.task.doc.DocumentMapCreator;
-import com.bagri.xdm.client.hazelcast.task.doc.DocumentMapProvider;
-import com.bagri.xdm.client.hazelcast.task.doc.DocumentProvider;
-import com.bagri.xdm.client.hazelcast.task.doc.DocumentRemover;
-import com.bagri.xdm.client.hazelcast.task.doc.DocumentUrisProvider;
+import com.bagri.xdm.client.hazelcast.task.doc.*;
 import com.bagri.xdm.common.DocumentKey;
 import com.bagri.xdm.domain.Document;
 import com.hazelcast.core.HazelcastInstance;
@@ -187,7 +176,6 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 
 	@Override
 	public void removeDocument(String uri) throws XDMException {
-		
 		logger.trace("removeDocument.enter; uri: {}", uri);
 		repo.getHealthManagement().checkClusterState();
 		//XDMDocumentRemover proc = new XDMDocumentRemover();
@@ -207,16 +195,24 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 
 	@Override
 	public Collection<String> getCollections() throws XDMException {
-		// TODO Auto-generated method stub
-		return null;
+		logger.trace("getCollections.enter; ");
+		Collection<String> result = null;
+		CollectionsProvider task = new CollectionsProvider(repo.getClientId());
+		Future<Collection<String>> future = execService.submit(task);
+		try {
+			result = future.get();
+			logger.trace("getCollections.exit; returning: {}", result);
+			return result;
+		} catch (InterruptedException | ExecutionException ex) {
+			logger.error("getCollections; error getting result", ex);
+			throw new XDMException(ex, ecDocument);
+		}
 	}
 
 	@Override
 	public Collection<String> getCollectionDocumentUris(String collection) {
-
 		logger.trace("getCollectionDocumentIds.enter; collection: {}", collection);
 		//repo.getHealthManagement().checkClusterState();
-		
 		CollectionDocumentsProvider task = new CollectionDocumentsProvider(repo.getClientId(), collection);
 		Map<Member, Future<Collection<String>>> results = execService.submitToAllMembers(task);
 		Collection<String> result = new HashSet<String>();
@@ -235,10 +231,8 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	
 	@Override
 	public int removeCollectionDocuments(String collection) throws XDMException {
-		
 		logger.trace("removeCollectionDocuments.enter; collection: {}", collection);
 		repo.getHealthManagement().checkClusterState();
-		
 		CollectionDocumentsRemover task = new CollectionDocumentsRemover(repo.getClientId(), repo.getTransactionId(), collection);
 		Map<Member, Future<Integer>> results = execService.submitToAllMembers(task);
 		int cnt = 0;
@@ -257,7 +251,6 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	
 	@Override
 	public int addDocumentToCollections(String uri, String[] collections) {
-		//
 		logger.trace("addDocumentsToCollections.enter; uri: {}, collectIds: {}", uri, Arrays.toString(collections));
 		//repo.getHealthManagement().checkClusterState();
 		int cnt = updateDocumentCollections(uri, true, collections);
@@ -267,7 +260,6 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 
 	@Override
 	public int removeDocumentFromCollections(String uri, String[] collections) {
-		//
 		logger.trace("removeDocumentsFromCollections.enter; uri: {}, collectIds: {}", uri, Arrays.toString(collections));
 		//repo.getHealthManagement().checkClusterState();
 		int cnt = updateDocumentCollections(uri, false, collections);
@@ -276,7 +268,6 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	}
 	
 	private int updateDocumentCollections(String uri, boolean add, String[] collections) {
-		
 		DocumentCollectionUpdater task = new DocumentCollectionUpdater(repo.getClientId(), uri, add, collections);
 		Future<Integer> result = execService.submit(task);
 		int cnt = 0;

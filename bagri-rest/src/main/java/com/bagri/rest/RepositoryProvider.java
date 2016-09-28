@@ -3,6 +3,7 @@ package com.bagri.rest;
 import java.util.Collection;
 
 import com.bagri.xdm.api.SchemaRepository;
+import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.system.Schema;
 
 public interface RepositoryProvider {

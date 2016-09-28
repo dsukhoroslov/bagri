@@ -15,6 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.bagri.rest.RepositoryProvider;
 import com.bagri.xdm.api.SchemaRepository;
+import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.cache.hazelcast.management.SchemaManagement;
 import com.bagri.xdm.client.hazelcast.impl.SchemaRepositoryImpl;
 import com.bagri.xdm.system.Schema;
@@ -58,29 +59,21 @@ public class RepositoryProviderImpl implements RepositoryProvider {
 		return repos.get(clientId);
 	}
 
-	//@Override
-	//public boolean isRepositoryActive(String schemaName) {
-	//	return getRepository(schemaName) != null;
-	//}
-
 	@Override
 	public SchemaRepository connect(String schemaName, String userName, String password) {
 		String address = ""; 
 		HazelcastInstance hzInstance = getHazelcastClientByName(schemaName);
 		if (hzInstance != null) {
-			//HazelcastClientProxy proxy = (HazelcastClientProxy) hzInstance;
-			//proxy. getClientConfig().getNetworkConfig().getAddresses()
 			int cnt = 0;
 			for (Member m: hzInstance.getCluster().getMembers()) {
 				if (cnt > 0) {
 					address += ",";
 				}
-				address += m.getSocketAddress().toString();
+				address += m.getSocketAddress().getHostString() + ":" + m.getSocketAddress().getPort(); 
 				cnt++;
 			}
 		} else {
-			// ???
-			address = "localhost:10000";
+			return null;
 		}
 
 		Properties props = new Properties();
@@ -88,7 +81,6 @@ public class RepositoryProviderImpl implements RepositoryProvider {
 	    props.setProperty(pn_schema_name, schemaName);
 	    props.setProperty(pn_schema_user, userName);
 	    props.setProperty(pn_schema_password, password);
-	    System.out.println(props);
 
 		XQProcessor proc = new XQProcessorClient();
 		BagriXQDataFactory xqFactory = new BagriXQDataFactory();

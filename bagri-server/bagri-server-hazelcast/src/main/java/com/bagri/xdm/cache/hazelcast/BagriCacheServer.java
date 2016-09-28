@@ -132,7 +132,7 @@ public class BagriCacheServer {
 		SchemaManagement sMgr = context.getBean("schemaService", SchemaManagement.class);
 		for (Member member: hzInstance.getCluster().getMembers()) {
 			if (!member.localMember()) {
-				//sMgr.initMember(member);
+				sMgr.initMember(member);
 			}
 		}
 	}

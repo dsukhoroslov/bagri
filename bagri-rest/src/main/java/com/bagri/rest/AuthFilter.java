@@ -32,19 +32,17 @@ public class AuthFilter implements ContainerRequestFilter {
 			String path = requestContext.getUriInfo().getPath();
 			if ("access/login".equals(path)) {
 				// just check https
-				//if (securityContext.isSecure()) {
-					//requestContext.getCookies().put("bg-auth", new Cookie("bg-auth", token));
-				//} else {
-		        //    requestContext.abortWith(Response.status(Status.UNAUTHORIZED)
-		        //            .entity("User not authenticated.").build());
-				//}
-			} else if (path.endsWith("application.wadl")) {
-				//
+				if (!securityContext.isSecure()) {
+		            requestContext.abortWith(Response.status(Status.NOT_ACCEPTABLE)
+		                    .entity("Wrong protocol used.").build());
+				}
+			} else if ("application.wadl".equals(path)) {
+				return; 
 			} else {
 				Cookie cc = requestContext.getCookies().get("bg-auth");
 				if (cc == null || !checkAuth(cc.getValue())) {
 		            requestContext.abortWith(Response.status(Status.UNAUTHORIZED)
-		                    .entity("User cannot access the resource.").build());
+		                    .entity("No authorization token provided.").build());
 				}
 			}
 		} else {

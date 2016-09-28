@@ -13,6 +13,7 @@ import com.bagri.xdm.cache.hazelcast.task.doc.DocumentRemover;
 import com.bagri.xdm.cache.hazelcast.task.auth.UserAuthenticator;
 import com.bagri.xdm.cache.hazelcast.task.doc.CollectionDocumentsProvider;
 import com.bagri.xdm.cache.hazelcast.task.doc.CollectionDocumentsRemover;
+import com.bagri.xdm.cache.hazelcast.task.doc.CollectionsProvider;
 import com.bagri.xdm.cache.hazelcast.task.doc.DocumentBeanCreator;
 import com.bagri.xdm.cache.hazelcast.task.doc.DocumentBeanProvider;
 import com.bagri.xdm.cache.hazelcast.task.doc.DocumentCleaner;
@@ -152,6 +153,7 @@ public class DataSerializationFactoryImpl extends com.bagri.xdm.client.hazelcast
 			case cli_ProvideCollectionDocumentsTask: return new CollectionDocumentsProvider();
 			case cli_RemoveCollectionDocumentsTask: return new CollectionDocumentsRemover();
 			case cli_UpdateDocumentCollectionTask: return new DocumentCollectionUpdater();
+			case cli_ProvideCollectionsTask: return new CollectionsProvider();
 			case cli_CreateDocumentTask: return new DocumentCreator();
 			case cli_CreateMapDocumentTask: return new DocumentMapCreator();
 			case cli_CreateBeanDocumentTask: return new DocumentBeanCreator();
