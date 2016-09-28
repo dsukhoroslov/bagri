@@ -99,6 +99,9 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 
 		logger.trace("executeQuery.enter; query: {}; bindings: {}; context: {}", query, params, props);
 		boolean useCache = this.queryCache; 
+		if (props == null) {
+			props = new Properties();
+		}
 		String qCache = props.getProperty(pn_client_queryCache);
 		if (qCache != null) {
 			useCache = Boolean.parseBoolean(qCache); 

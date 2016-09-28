@@ -80,7 +80,7 @@ public class RepositoryProviderImpl implements RepositoryProvider {
 			}
 		} else {
 			// ???
-			address = "localhost:10500";
+			address = "localhost:10000";
 		}
 
 		Properties props = new Properties();
@@ -88,6 +88,7 @@ public class RepositoryProviderImpl implements RepositoryProvider {
 	    props.setProperty(pn_schema_name, schemaName);
 	    props.setProperty(pn_schema_user, userName);
 	    props.setProperty(pn_schema_password, password);
+	    System.out.println(props);
 
 		XQProcessor proc = new XQProcessorClient();
 		BagriXQDataFactory xqFactory = new BagriXQDataFactory();

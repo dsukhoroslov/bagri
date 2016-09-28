@@ -52,7 +52,7 @@ public class QueryService extends RestService {
                             output.write(splitter);
                     	}
                     	String chunk = cursor.getItemAsString(null); 
-                        logger.debug("postQuery; out: {}", chunk);
+                        logger.trace("postQuery; out: {}", chunk);
                         output.write(chunk);
                         cnt++;
                     }
@@ -82,7 +82,7 @@ public class QueryService extends RestService {
 		QueryManagement queryMgr = getQueryManager();
     	try {
     		Collection<String> uris = queryMgr.getDocumentUris(params.query, params.params, params.props);
-    		logger.debug("getURIs; returning URIs: {}", uris);
+    		logger.trace("getURIs; returning URIs: {}", uris);
             return Response.ok(uris).build();
     	} catch (Exception ex) {
     		logger.error("getURIs.error", ex);
