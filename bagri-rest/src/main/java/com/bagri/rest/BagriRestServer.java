@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bagri.rest.service.AccessService;
+import com.bagri.rest.service.CollectionService;
 import com.bagri.rest.service.DocumentService;
 import com.bagri.rest.service.QueryService;
 import com.bagri.rest.service.SchemaService;
@@ -63,8 +64,13 @@ public class BagriRestServer implements Factory<RepositoryProvider> {
     	return port;
     }
     
+    public RepositoryProvider getRepositoryProvider() {
+    	return rePro;
+    }
+    
     public ResourceConfig buildConfig() {
-        ResourceConfig config = new ResourceConfig(AccessService.class, DocumentService.class, QueryService.class, SchemaService.class, TransactionService.class);
+        ResourceConfig config = new ResourceConfig(AccessService.class, CollectionService.class, 
+        		DocumentService.class, QueryService.class, SchemaService.class, TransactionService.class);
         config.register(AuthFilter.class);
         config.register(JacksonFeature.class);
         config.register(new AbstractBinder() {
@@ -79,7 +85,6 @@ public class BagriRestServer implements Factory<RepositoryProvider> {
     
     public void start() {
         logger.debug("start.enter; Starting rest server");
-
         jettyServer = createServer();
         ResourceConfig config = buildConfig();
         ServletHolder servlet = new ServletHolder(new ServletContainer(config));

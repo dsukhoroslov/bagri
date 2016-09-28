@@ -20,7 +20,6 @@ import com.bagri.xdm.system.Schema;
 public class SchemaService extends RestService {
 	
 	@GET
-    @Path("/")
     @Produces(MediaType.APPLICATION_JSON) //TEXT_PLAIN)
     public Collection<String> getSchemas() {
 		logger.trace("getSchemas.enter");

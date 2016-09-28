@@ -18,7 +18,7 @@ import com.bagri.rest.RepositoryProvider;
 import com.bagri.xdm.api.AccessManagement;
 import com.bagri.xdm.api.SchemaRepository;
 
-public class AcessServiceTest extends JerseyTest {
+public class AccessServiceTest extends JerseyTest {
 
 	private AccessManagement accMgr;
 	private SchemaRepository mockRepo;

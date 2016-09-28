@@ -38,6 +38,8 @@ public class AuthFilter implements ContainerRequestFilter {
 		        //    requestContext.abortWith(Response.status(Status.UNAUTHORIZED)
 		        //            .entity("User not authenticated.").build());
 				//}
+			} else if (path.endsWith("application.wadl")) {
+				//
 			} else {
 				Cookie cc = requestContext.getCookies().get("bg-auth");
 				if (cc == null || !checkAuth(cc.getValue())) {

@@ -63,10 +63,10 @@ public class DocumentServiceTest extends JerseyTest {
     	
     	// create document
     	DocumentParams params = new DocumentParams("a0001.xml", "<content>initial content</content>", propsXml);
-        DocumentResource doc = target("docs").request()
+        DocumentBean doc = target("docs").request()
         		.header("Content-Type", "application/json")
         		.cookie(bg_cookie, "client-id")
-        		.post(Entity.json(params), DocumentResource.class);
+        		.post(Entity.json(params), DocumentBean.class);
         assertEquals("a0001.xml", doc.uri);
         // get initial content
         String content = target("docs").path("a0001.xml")
@@ -80,7 +80,7 @@ public class DocumentServiceTest extends JerseyTest {
         doc = target("docs").request()
         		.header("Content-Type", "application/json")
         		.cookie(bg_cookie, "client-id")
-        		.post(Entity.json(params), DocumentResource.class);
+        		.post(Entity.json(params), DocumentBean.class);
         assertEquals("a0001.xml", doc.uri);
         // get updated content
         content = target("docs").path("a0001.xml")

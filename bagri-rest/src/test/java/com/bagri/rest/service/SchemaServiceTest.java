@@ -1,5 +1,7 @@
-package com.bagri.rest;
+package com.bagri.rest.service;
 
+import com.bagri.rest.BagriRestServer;
+import com.bagri.rest.RepositoryProvider;
 import com.bagri.xdm.api.SchemaRepository;
 import com.bagri.xdm.system.Schema;
 import com.fasterxml.jackson.core.JsonFactory;
@@ -24,7 +26,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 
-public class BagriRestServerTest extends JerseyTest {
+public class SchemaServiceTest extends JerseyTest {
 
 	private SchemaRepository mockRepo;
 	private RepositoryProvider mockPro;

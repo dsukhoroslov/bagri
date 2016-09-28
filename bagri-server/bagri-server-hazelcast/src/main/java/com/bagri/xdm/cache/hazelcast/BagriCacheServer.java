@@ -124,7 +124,7 @@ public class BagriCacheServer {
 		RepositoryProvider rePro = context.getBean(RepositoryProvider.class);
 		BagriRestServer rest = new BagriRestServer(rePro, 3030);
 		rest.start();
-		logger.info("REST server started on port: {}", rest.getPort());
+		logger.info("REST server started on port: {}; provider: {}", rest.getPort(), rest.getRepositoryProvider());
     }
 
 	private static void lookupManagedNodes(HazelcastInstance hzInstance) {

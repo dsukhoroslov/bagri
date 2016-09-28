@@ -56,7 +56,7 @@ public class DocumentService  extends RestService {
             Collection<String> uris = docMgr.getDocumentUris(query);
             uris = new ArrayList<>(uris);
             Collections.sort((List) uris);
-            DocumentResource[] docs = new DocumentResource[size];
+            DocumentBean[] docs = new DocumentBean[size];
             long now = new java.util.Date().getTime();
             int start = page == 0 ? 0 : (page - 1) * size;
             if (start >= uris.size()) {
@@ -64,7 +64,7 @@ public class DocumentService  extends RestService {
             } 
             for (int i = 0; i < size && start + i < uris.size(); i++) {
             	String uri = ((List<String>) uris).get(i);
-            	docs[i] = new DocumentResource(uri, now, "owner", "utf-8", 1000);
+            	docs[i] = new DocumentBean(uri, now, "owner", "utf-8", 1000);
             }
             return Response.ok(docs).build();
     	} catch (Exception ex) {
@@ -104,7 +104,7 @@ public class DocumentService  extends RestService {
     		logger.trace("postDocument; got params: {}", params);
             Document doc = docMgr.storeDocumentFromString(params.uri, params.content, params.props);
      		logger.trace("postDocument; got document: {}", doc);
-            DocumentResource dr = new DocumentResource(doc.getUri(), doc.getCreatedAt().getTime(), doc.getCreatedBy(), doc.getEncoding(), doc.getBytes());
+            DocumentBean dr = new DocumentBean(doc.getUri(), doc.getCreatedAt().getTime(), doc.getCreatedBy(), doc.getEncoding(), doc.getBytes());
             return Response.ok(dr).build();
     	} catch (Exception ex) {
     		logger.error("postDocument.error", ex);
