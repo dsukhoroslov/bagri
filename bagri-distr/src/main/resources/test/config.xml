@@ -35,6 +35,7 @@
                 <entry name="xdm.schema.thread.pool">32</entry>
                 <entry name="xdm.schema.ports.first">10500</entry>
                 <entry name="xdm.schema.format.default">XML</entry>
+                <entry name="xdm.schema.store.type">File</entry>
                 <entry name="xdm.schema.ports.last">10600</entry>
                 <entry name="xdm.schema.population.size">1</entry>
                 <entry name="xdm.schema.data.cache">NEVER</entry>
@@ -340,7 +341,6 @@
                     <unique>true</unique>
                     <description>Security Symbol</description>
                     <enabled>true</enabled>
-
                 </index>
                 <index name="IDX_Order_ID">
                     <version>1</version>
@@ -539,7 +539,7 @@
                 <entry name="xdm.schema.thread.pool">10</entry>
                 <entry name="xdm.schema.query.cache">true</entry>
                 <entry name="xdm.schema.ports.first">10150</entry>
-                <entry name="xdm.schema.format.default">XML</entry>
+                <entry name="xdm.schema.format.default">JSON</entry>
                 <entry name="xdm.schema.ports.last">10160</entry>
                 <entry name="xdm.schema.population.size">1</entry>
                 <entry name="xdm.schema.population.buffer.size">1000000</entry>
