@@ -7,6 +7,7 @@ Consists of the following Maven modules:
 * bagri-xdm - XDM API, common classes and utilities
 * bagri-client - XDM Cache - client side
 * bagri-server - XDM Cache - server side
+* bagri-rest - Bagri REST server
 * bagri-xqj - JSR225 implementation
 * bagri-xquery - XQuery engine
 * bagri-samples - sample apps, Bagri extensions
