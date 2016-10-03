@@ -11,6 +11,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.Response.Status;
 
 import com.bagri.xdm.api.SchemaRepository;
@@ -43,11 +44,11 @@ public class TransactionService extends RestService {
     
     @POST
     @Produces(MediaType.TEXT_PLAIN) 
-	public long postTx(String isolation) {
+	public Response postTx(String isolation) {
 		TransactionManagement txMgr = getTxManager();
     	try {
     		long txId = txMgr.beginTransaction(TransactionIsolation.valueOf(isolation));
-            return txId; //Response.ok(txId).build();
+            return Response.created(UriBuilder.fromPath("/tx/" + txId).build()).entity(txId).build();
     	} catch (Exception ex) {
     		logger.error("postTx.error", ex);
     		throw new WebApplicationException(ex, Status.INTERNAL_SERVER_ERROR);

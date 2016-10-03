@@ -55,8 +55,17 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
 	public void init(HazelcastInstance hzInstance, Properties properties, String mapName) {
 		logger.info("init.enter; properties: {}", properties);
 		popManager = (PopulationManagementImpl) hzInstance.getUserContext().get("popManager");
+		if (popManager == null) {
+			logger.warn("init; PopulationManager not set, please check Spring configuration files..."); 
+		}
 		dataPath = properties.getProperty(xdm_schema_store_data_path);
-		schemaName = (String) properties.get(xdm_schema_name);
+		if (dataPath == null) {
+			logger.warn("init; dataPath not set, please check schema properties in config.xml"); 
+		}
+		schemaName = properties.getProperty(xdm_schema_name);
+		if (schemaName == null) {
+			logger.warn("init; schemaName not set, please check node profile properties"); 
+		}
 	}
 
 	@Override
@@ -285,7 +294,7 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
 			}
 		}
 		if (err == 0) {
-			logger.trace("storeAll.exit; stored: {}; errors: {}", cnt, err);
+			logger.trace("storeAll.exit; stored: {}", cnt);
 		} else {
 			logger.info("storeAll.exit; stored: {}; errors: {}", cnt, err);
 			throw new RuntimeException(ex);

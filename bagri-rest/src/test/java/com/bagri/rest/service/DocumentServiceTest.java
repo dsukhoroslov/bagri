@@ -1,17 +1,20 @@
 package com.bagri.rest.service;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static com.bagri.xdm.common.Constants.xdm_document_data_format;
 import static com.bagri.xdm.system.DataFormat.*;
 import static com.bagri.rest.service.RestService.bg_cookie;
 
+import java.net.URI;
 import java.util.Properties;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.glassfish.jersey.test.JerseyTest;
 import org.junit.Test;
@@ -63,10 +66,13 @@ public class DocumentServiceTest extends JerseyTest {
     	
     	// create document
     	DocumentParams params = new DocumentParams("a0001.xml", "<content>initial content</content>", propsXml);
-        DocumentBean doc = target("docs").request()
+        Response resp = target("docs").request()
         		.header("Content-Type", "application/json")
         		.cookie(bg_cookie, "client-id")
-        		.post(Entity.json(params), DocumentBean.class);
+        		.post(Entity.json(params));
+        assertEquals(Status.CREATED.getStatusCode(), resp.getStatus());
+        assertTrue(resp.getLocation().getPath().endsWith("/a0001.xml"));
+        DocumentBean doc = resp.readEntity(DocumentBean.class);
         assertEquals("a0001.xml", doc.uri);
         // get initial content
         String content = target("docs").path("a0001.xml")
@@ -77,10 +83,13 @@ public class DocumentServiceTest extends JerseyTest {
         
         // update document
         params = new DocumentParams("a0001.xml", "{\"content\": \"updated content\"}", propsJson);
-        doc = target("docs").request()
+        resp = target("docs").request()
         		.header("Content-Type", "application/json")
         		.cookie(bg_cookie, "client-id")
-        		.post(Entity.json(params), DocumentBean.class);
+        		.post(Entity.json(params));
+        assertEquals(Status.CREATED.getStatusCode(), resp.getStatus());
+        assertTrue(resp.getLocation().getPath().endsWith("/a0001.xml"));
+        doc = resp.readEntity(DocumentBean.class);
         assertEquals("a0001.xml", doc.uri);
         // get updated content
         content = target("docs").path("a0001.xml")

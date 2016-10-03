@@ -27,6 +27,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.UriBuilder;
 
 import com.bagri.xdm.api.DocumentManagement;
 import com.bagri.xdm.api.SchemaRepository;
@@ -105,7 +106,7 @@ public class DocumentService  extends RestService {
             Document doc = docMgr.storeDocumentFromString(params.uri, params.content, params.props);
      		logger.trace("postDocument; got document: {}", doc);
             DocumentBean dr = new DocumentBean(doc.getUri(), doc.getCreatedAt().getTime(), doc.getCreatedBy(), doc.getEncoding(), doc.getBytes());
-            return Response.ok(dr).build();
+            return Response.created(UriBuilder.fromPath("/docs/" + dr.uri).build()).entity(dr).build();
     	} catch (Exception ex) {
     		logger.error("postDocument.error", ex);
     		throw new WebApplicationException(ex, Status.INTERNAL_SERVER_ERROR);

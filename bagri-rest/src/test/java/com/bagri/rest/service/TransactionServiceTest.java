@@ -7,6 +7,8 @@ import static org.junit.Assert.*;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.glassfish.jersey.test.JerseyTest;
 import org.junit.Test;
@@ -52,21 +54,26 @@ public class TransactionServiceTest extends JerseyTest {
         		.get(Boolean.class);
         assertFalse(inTx);
         Entity<String> isolation = Entity.entity("readCommited", MediaType.TEXT_PLAIN);
-        long txId = target("tx").request(MediaType.TEXT_PLAIN)
+        Response resp = target("tx").request(MediaType.TEXT_PLAIN)
         		.cookie(bg_cookie, "client-id")
-        		.post(isolation, Long.class);
+        		.post(isolation);
+        assertEquals(Status.CREATED.getStatusCode(), resp.getStatus());
+        assertTrue(resp.getLocation().getPath().endsWith("/100"));
+        long txId = resp.readEntity(Long.class);
         assertEquals(100L, txId);
-        target("tx").path("100").request(MediaType.TEXT_PLAIN)
+        resp = target("tx").path("100").request(MediaType.TEXT_PLAIN)
 				.cookie(bg_cookie, "client-id")
         		.delete();
+        assertEquals(Status.OK.getStatusCode(), resp.getStatus());
         txId = target("tx").request(MediaType.TEXT_PLAIN)
         		.cookie(bg_cookie, "client-id")
         		.post(isolation, Long.class);
         assertEquals(100L, txId);
         Entity<Long> entity = Entity.entity(100L, MediaType.TEXT_PLAIN);
-        target("tx").path("100").request(MediaType.TEXT_PLAIN)
+        resp = target("tx").path("100").request(MediaType.TEXT_PLAIN)
 				.cookie(bg_cookie, "client-id")
         		.put(entity);
+        assertEquals(Status.OK.getStatusCode(), resp.getStatus());
     }
 	
 }
