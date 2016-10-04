@@ -687,6 +687,15 @@ public class SaxonUtils {
         }
         return null; //item.;
     }
+    
+    public static com.bagri.xdm.system.Cardinality getCardinality(int cardinality) {
+    	switch (cardinality) {
+    		case StaticProperty.ALLOWS_ONE_OR_MORE: return com.bagri.xdm.system.Cardinality.one_or_more;  
+    		case StaticProperty.ALLOWS_ZERO_OR_ONE: return com.bagri.xdm.system.Cardinality.zero_or_one;
+    		case StaticProperty.ALLOWS_ZERO_OR_MORE: return com.bagri.xdm.system.Cardinality.zero_or_more;
+    	}
+    	return com.bagri.xdm.system.Cardinality.one;  
+    }
 
 	/*    
     public static int getBaseType(AtomicValue value) {

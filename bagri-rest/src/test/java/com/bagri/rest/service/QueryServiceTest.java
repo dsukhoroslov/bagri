@@ -54,7 +54,7 @@ public class QueryServiceTest extends JerseyTest {
     	mockPro = mock(RepositoryProvider.class);
         when(mockPro.getRepository("client-id")).thenReturn(mockRepo);
         when(mockRepo.getQueryManagement()).thenReturn(queryMgr);
-        BagriRestServer server = new BagriRestServer(mockPro, 3030);
+        BagriRestServer server = new BagriRestServer(mockPro, null, 3030);
         return server.buildConfig();
     }
     

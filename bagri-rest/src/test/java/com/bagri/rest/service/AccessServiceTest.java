@@ -42,7 +42,7 @@ public class AccessServiceTest extends JerseyTest {
         when(mockPro.getRepository("client-id")).thenReturn(mockRepo);
         when(mockRepo.getAccessManagement()).thenReturn(accMgr);
     	when(mockRepo.getClientId()).thenReturn("client-id");
-        BagriRestServer server = new BagriRestServer(mockPro, 3030);
+        BagriRestServer server = new BagriRestServer(mockPro, null, 3030);
         ResourceConfig app = server.buildConfig();
         //server.start();
         return app;

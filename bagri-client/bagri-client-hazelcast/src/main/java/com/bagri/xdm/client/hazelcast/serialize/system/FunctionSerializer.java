@@ -34,6 +34,12 @@ public class FunctionSerializer implements StreamSerializer<Function> {
 			Parameter xp = in.readObject();
 			xFunc.getParameters().add(xp);
 		}
+		cnt = in.readInt();
+		for (int i=0; i < cnt; i++) {
+			String atn = in.readUTF();
+			String val = in.readUTF();
+			xFunc.getAnnotations().setProperty(atn, val);
+		}
 		return xFunc;
 	}
 
@@ -47,6 +53,11 @@ public class FunctionSerializer implements StreamSerializer<Function> {
 		out.writeInt(xFunc.getParameters().size());
 		for (Parameter xp: xFunc.getParameters()) {
 			out.writeObject(xp);
+		}
+		out.writeInt(xFunc.getAnnotations().size());
+		for (String atn: xFunc.getAnnotations().stringPropertyNames()) {
+			out.writeUTF(atn);
+			out.writeUTF(xFunc.getAnnotations().getProperty(atn));
 		}
 	}
 

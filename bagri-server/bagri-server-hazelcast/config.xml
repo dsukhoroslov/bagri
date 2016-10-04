@@ -335,6 +335,16 @@
                     <enabled>true</enabled>
                 </index>
             </indexes>
+            <resources>
+                <resource name="tpox">
+                    <createdAt>2016-10-04T13:36:26.965+03:00</createdAt>
+                    <createdBy>SDV</createdBy>
+                    <path>/tpox</path>
+                    <module>rest_module</module>
+                    <description>TPoX resource exposed via REST</description>
+                    <enabled>true</enabled>
+                </resource>
+            </resources>
             <triggers/>
         </schema>
         <schema name="default" active="true">
@@ -662,6 +672,15 @@
             <fileName>../../etc/samples/tpox/hello_module.xq</fileName>
             <description>The Hello Test Module</description>
             <namespace>http://helloworld</namespace>
+            <enabled>true</enabled>
+        </module>
+        <module name="rest_module">
+            <version>1</version>
+            <createdAt>2016-10-04T13:36:26.965+03:00</createdAt>
+            <createdBy>SDV</createdBy>
+            <fileName>../../etc/samples/tpox/rest_module.xq</fileName>
+            <description>The first REST module for TPoX schema</description>
+            <namespace>http://tpox-benchmark.com/rest</namespace>
             <enabled>true</enabled>
         </module>
         <module name="trigger_module">

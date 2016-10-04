@@ -16,8 +16,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.bagri.rest.RepositoryProvider;
 import com.bagri.xdm.api.SchemaRepository;
 import com.bagri.xdm.api.XDMException;
+import com.bagri.xdm.cache.hazelcast.management.ModuleManagement;
+import com.bagri.xdm.cache.hazelcast.management.ModuleManager;
 import com.bagri.xdm.cache.hazelcast.management.SchemaManagement;
 import com.bagri.xdm.client.hazelcast.impl.SchemaRepositoryImpl;
+import com.bagri.xdm.system.Module;
 import com.bagri.xdm.system.Schema;
 import com.bagri.xqj.BagriXQDataFactory;
 import com.bagri.xquery.api.XQProcessor;
@@ -27,6 +30,7 @@ import com.hazelcast.core.Member;
 
 public class RepositoryProviderImpl implements RepositoryProvider {
 
+	private ModuleManagement moduleService;
 	private SchemaManagement schemaService;
 	private Map<String, SchemaRepository> repos = new ConcurrentHashMap<>();
 	
@@ -34,11 +38,19 @@ public class RepositoryProviderImpl implements RepositoryProvider {
     	return schemaService;
     }
     
+    public void setModuleManagement(ModuleManagement moduleService) {
+    	this.moduleService = moduleService;
+    }
+	
     public void setSchemaManagement(SchemaManagement schemaService) {
     	this.schemaService = schemaService;
     }
 	
-	
+	@Override
+	public Module getModule(String name) {
+		return ((ModuleManager) moduleService.getEntityManager(name)).getModule(); 
+	}
+
 	@Override
 	public Collection<String> getSchemaNames() {
 		return Arrays.asList(schemaService.getSchemaNames());

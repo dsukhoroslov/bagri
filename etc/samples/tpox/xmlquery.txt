@@ -168,3 +168,9 @@ xquery version "1.0" encoding "ISO-8859-1";
 declare namespace dbl="java.lang.Double";
 
 <a> {dbl:valueOf('1.123')} </a>
+
+
+xquery version "1.0";
+import module namespace hw="http://helloworld" at "../../etc/samples/tpox/hello_module.xq";
+
+hw:hello_world("Boss")

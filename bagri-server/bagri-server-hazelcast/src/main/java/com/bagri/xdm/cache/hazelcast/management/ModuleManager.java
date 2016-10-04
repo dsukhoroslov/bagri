@@ -79,6 +79,10 @@ public class ModuleManager extends EntityManager<Module> {
 	public String getFileName() {
 		return getEntity().getFileName();
 	}
+	
+	public Module getModule() {
+		return getEntity();
+	}
 
 	@ManagedAttribute(description="Returns registered Module name")
 	public String getName() {

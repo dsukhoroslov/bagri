@@ -30,6 +30,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 		"collections",
 		"fragments",
 		"indexes",
+		"resources",
 		"triggers"
 })
 @XmlRootElement
@@ -59,6 +60,10 @@ public class Schema extends Entity {
 	@XmlElement(name="index")
 	@XmlElementWrapper(name="indexes")
 	private Set<Index> indexes = new HashSet<>();
+
+	@XmlElement(name="resource")
+	@XmlElementWrapper(name="resources")
+	private Set<Resource> resources = new HashSet<>();
 	
 	@XmlElement(name="trigger")
 	@XmlElementWrapper(name="triggers")
@@ -370,6 +375,69 @@ public class Schema extends Entity {
 		}
 		return null;
 	}
+
+	/**
+	 * 
+	 * @return REST resources registered in schema
+	 */
+	public Set<Resource> getResources() {
+		return resources;
+	}
+	
+	/**
+	 * 
+	 * @param resource the new resource to register in schema
+	 * @return true if resource has been added, false otherwise
+	 */
+	public boolean addResource(Resource resource) {
+		return resources.add(resource);
+	}
+	
+	/**
+	 * 
+	 * @param name the name of REST resource to enable
+	 * @param enable the new enable value
+	 * @return true if the resource enable flag has been changed, false otherwise
+	 */
+	public boolean enableResource(String name, boolean enable) {
+		for (Resource resource: resources) {
+			if (name.equals(resource.getName())) {
+				return resource.setEnabled(enable);
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * 
+	 * @param name the name of the resource to search for
+	 * @return the REST resource instance if it is found, null otherwise
+	 */
+	public Resource getResource(String name) {
+		for (Resource resource: resources) {
+			if (name.equals(resource.getName())) {
+				return resource;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * 
+	 * @param name the name of the resource to remove from schema
+	 * @return true if resource has been removed, false otherwise
+	 */
+	public Resource removeResource(String name) {
+		for (Resource resource: resources) {
+			if (name.equals(resource.getName())) {
+				if (triggers.remove(resource)) {
+					return resource;
+				}
+				break;
+			}
+		}
+		return null;
+	}
 	
 	/**
 	 * 
@@ -473,6 +541,7 @@ public class Schema extends Entity {
 		result.put("collections", collections.size());
 		result.put("fragments", fragments.size());
 		result.put("indexes", indexes.size());
+		result.put("resources", resources.size());
 		result.put("triggers", triggers.size());
 		return result;
 	}
@@ -487,7 +556,7 @@ public class Schema extends Entity {
 			", created at=" + getCreatedAt() + ", by=" + getCreatedBy() + 
 			", props=" + props + ", indexes=" + indexes + 
 			", triggers=" + triggers + ", fragments=" + fragments + 
-			", collections=" + collections + "]";
+			", collections=" + collections + ", resources=" + resources + "]";
 	}
 	
 }

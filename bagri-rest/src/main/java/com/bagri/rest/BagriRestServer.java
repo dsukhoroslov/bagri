@@ -1,6 +1,7 @@
 package com.bagri.rest;
 
 import java.net.URI;
+import java.util.List;
 
 import javax.ws.rs.core.UriBuilder;
 
@@ -31,6 +32,13 @@ import com.bagri.rest.service.DocumentService;
 import com.bagri.rest.service.QueryService;
 import com.bagri.rest.service.SchemaService;
 import com.bagri.rest.service.TransactionService;
+import com.bagri.xdm.api.SchemaRepository;
+import com.bagri.xdm.api.XDMException;
+import com.bagri.xdm.system.Function;
+import com.bagri.xdm.system.Module;
+import com.bagri.xdm.system.Resource;
+import com.bagri.xdm.system.Schema;
+import com.bagri.xquery.api.XQCompiler;
 
 public class BagriRestServer implements Factory<RepositoryProvider> {
 
@@ -38,6 +46,7 @@ public class BagriRestServer implements Factory<RepositoryProvider> {
     
     private int port;
     private Server jettyServer;
+    private XQCompiler xqComp;
     private RepositoryProvider rePro;
 	
     public static void main(String[] args) throws Exception {
@@ -55,9 +64,10 @@ public class BagriRestServer implements Factory<RepositoryProvider> {
     	this.rePro = new LocalRepositoryProvider();
     }
     
-    public BagriRestServer(RepositoryProvider rePro, int port) {
+    public BagriRestServer(RepositoryProvider rePro, XQCompiler xqComp, int port) {
     	this.port = port;
     	this.rePro = rePro;
+    	this.xqComp = xqComp;
     }
     
     public int getPort() {
@@ -81,6 +91,34 @@ public class BagriRestServer implements Factory<RepositoryProvider> {
         });
         config.register(WadlFeature.class);
         return config;
+    }
+    
+    public ResourceConfig buildSchemaConfig(String schemaName) {
+    	ResourceConfig config = buildConfig();
+    	Schema schema = rePro.getSchema(schemaName);
+    	String clientId = schemaName; //!!!
+    	SchemaRepository repo = rePro.getRepository(clientId);
+    	// get schema -> resources
+    	for (Resource res: schema.getResources()) {
+        	// for each resource -> get module
+        	// get functions for module
+    		Module module = rePro.getModule(res.getModule());
+    		try {
+    			List<Function> fList = xqComp.getRestFunctions(module);
+    			// now build Resource dynamically from the function list
+    			buildDynamicResources(config, fList);
+    		} catch (XDMException ex) {
+    			logger.error("buildSchemaConfig; error processing module: " + res.getModule(), ex);
+    			// skip it..
+    		}
+    	}
+    	return config;
+    }
+    
+    private void buildDynamicResources(ResourceConfig config, List<Function> functions) {
+    	for (Function fn: functions) {
+    		logger.info("buildDynamicResources; fn: {}", fn.getMethod());
+    	}
     }
     
     public void start() {

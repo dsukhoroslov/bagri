@@ -2,11 +2,13 @@ package com.bagri.xdm.system;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 
 /**
@@ -43,6 +45,9 @@ public class Function {
 	@XmlElement(name="parameter")
 	@XmlElementWrapper(name="parameters")
 	private List<Parameter> parameters = new ArrayList<Parameter>();
+	
+	@XmlTransient
+	private Properties annotations = new Properties();
 
 	/**
 	 * default constructor
@@ -114,6 +119,14 @@ public class Function {
 	 */
 	public List<Parameter> getParameters() {
 		return parameters;
+	}
+	
+	/**
+	 * 
+	 * @return the list of function annotations
+	 */
+	public Properties getAnnotations() {
+		return annotations;
 	}
 	
 	/**

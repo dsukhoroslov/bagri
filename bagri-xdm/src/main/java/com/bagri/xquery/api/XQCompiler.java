@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Properties;
 
 import com.bagri.xdm.api.XDMException;
+import com.bagri.xdm.system.Function;
 import com.bagri.xdm.system.Library;
 import com.bagri.xdm.system.Module;
 import com.bagri.xdm.system.XQueryTrigger;
@@ -66,6 +67,15 @@ public interface XQCompiler {
      * @throws XDMException in case of compilation error
 	 */
     List<String> getModuleFunctions(Module module) throws XDMException;
+    
+	/**
+	 * collect RESTXQ-annotated functions specified in the {@code module} provided
+	 * 
+	 * @param module the module to process
+	 * @return the {@link List} of found functions with their details
+     * @throws XDMException in case of compilation error
+	 */
+    List<Function> getRestFunctions(Module module) throws XDMException;
     
     /**
      * check {@code module} compilation state

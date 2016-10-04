@@ -40,7 +40,7 @@ public class SchemaServiceTest extends JerseyTest {
         when(mockPro.getRepository("client-id")).thenReturn(mockRepo);
     	when(mockRepo.getClientId()).thenReturn("client-id");
         //when(restContext.getSchemaManagement()).thenReturn(schemaManagement);
-        BagriRestServer server = new BagriRestServer(mockPro, 3030);
+        BagriRestServer server = new BagriRestServer(mockPro, null, 3030);
         return server.buildConfig();
     }
 

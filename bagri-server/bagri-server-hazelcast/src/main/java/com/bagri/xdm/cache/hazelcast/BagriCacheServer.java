@@ -47,6 +47,7 @@ import com.bagri.xdm.system.DataFormat;
 import com.bagri.xdm.system.Library;
 import com.bagri.xdm.system.Module;
 import com.bagri.xdm.system.Schema;
+import com.bagri.xquery.api.XQCompiler;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.Member;
@@ -122,7 +123,8 @@ public class BagriCacheServer {
 		logger.info("JMX connector server started and listening on port: {}", port);
 		
 		RepositoryProvider rePro = context.getBean(RepositoryProvider.class);
-		BagriRestServer rest = new BagriRestServer(rePro, 3030);
+		XQCompiler xqComp = context.getBean(XQCompiler.class);
+		BagriRestServer rest = new BagriRestServer(rePro, xqComp, 3030);
 		rest.start();
 		logger.info("REST server started on port: {}; provider: {}", rest.getPort(), rest.getRepositoryProvider());
     }

@@ -57,7 +57,7 @@ public class DocumentServiceTest extends JerseyTest {
 		} catch (XDMException ex) {
 			ex.printStackTrace();
 		}
-        BagriRestServer server = new BagriRestServer(mockPro, 3030);
+        BagriRestServer server = new BagriRestServer(mockPro, null, 3030);
         return server.buildConfig();
     }
 

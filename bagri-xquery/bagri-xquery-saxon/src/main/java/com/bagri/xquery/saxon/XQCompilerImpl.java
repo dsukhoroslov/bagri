@@ -38,9 +38,11 @@ import net.sf.saxon.trans.XPathException;
 import net.sf.saxon.value.AtomicValue;
 
 import com.bagri.xdm.api.XDMException;
+import com.bagri.xdm.system.DataType;
 import com.bagri.xdm.system.Function;
 import com.bagri.xdm.system.Library;
 import com.bagri.xdm.system.Module;
+import com.bagri.xdm.system.Parameter;
 import com.bagri.xdm.system.XQueryTrigger;
 import com.bagri.xquery.api.XQCompiler;
 import com.bagri.xquery.saxon.extension.StaticFunctionExtension;
@@ -139,12 +141,69 @@ public class XQCompilerImpl implements XQCompiler {
 		long stamp = System.currentTimeMillis();
 		logger.trace("getModuleFunctions.enter; got module: {}", module);
 		XQueryExpression exp = getModuleExpression(module);
-		List<String> result = lookupFunctions(exp.getExecutable().getFunctionLibrary());
+		List<String> result = lookupFunctions(exp.getExecutable().getFunctionLibrary(), new FunctionExtractor<String>() {
+
+			@Override
+			public String extractFunction(XQueryFunction fn) {
+				String decl = getFunctionDeclaration(fn.getUserFunction()); 
+				try {
+					Field f = fn.getClass().getDeclaredField("annotationMap"); 
+					f.setAccessible(true);
+					Map<StructuredQName, Annotation> atns = (HashMap<StructuredQName, Annotation>) f.get(fn); 
+					logger.trace("lookupFunctions; fn annotations: {}", atns);
+					for (Annotation atn: atns.values()) {
+						String str = atn.getAnnotationQName().getDisplayName();
+						str += "(";
+						int cnt = 0;
+						for (AtomicValue av: atn.getAnnotationParameters()) {
+							if (cnt > 0) {
+								str += ", ";
+							}
+							str += "\"";
+							str += av.getStringValue();
+							str += "\"";
+						}
+						str += ")\n";
+						decl = str + decl;
+					}
+				} catch (NoSuchFieldException | IllegalAccessException ex) {
+					logger.warn("lookupFunctions. error accessing annotations: {}", ex);
+				}
+				return decl;
+			}
+			
+		});
 		stamp = System.currentTimeMillis() - stamp;
 		logger.trace("getModuleFunctions.exit; time taken: {}; returning: {}", stamp, result);
 		return result;
 	}
 
+	private String getFunctionDeclaration(UserFunction function) {
+		//declare function hw:helloworld($name as xs:string)
+		logger.trace("getFunctionDeclaration.enter; function: {}", function);
+		StringBuffer buff = new StringBuffer("function ");
+		buff.append(function.getFunctionName());
+		buff.append("(");
+		int idx =0;
+		for (UserFunctionParameter ufp: function.getParameterDefinitions()) {
+			if (idx > 0) {
+				buff.append(", ");
+			}
+			buff.append("$");
+			buff.append(ufp.getVariableQName());
+			buff.append(" as ");
+			buff.append(ufp.getRequiredType().toString());
+			idx++;
+		}
+		buff.append(") as ");
+		// TODO: get rid of Q{} notation..
+		buff.append(function.getDeclaredResultType().toString());
+		String result = buff.toString();
+		logger.trace("getFunctionDeclaration.exit; returning: {}", result);
+		return result;
+	}
+
+	
 	@Override
 	public boolean getModuleState(Module module) {
 		try {
@@ -226,78 +285,78 @@ public class XQCompilerImpl implements XQCompiler {
 		}
 	}
 
-	private List<String> lookupFunctions(FunctionLibraryList fll) {
-		List<String> fl = new ArrayList<>();
+	private <R> List<R> lookupFunctions(FunctionLibraryList fll, FunctionExtractor<R> ext) {
+		List<R> fl = new ArrayList<>();
 		for (FunctionLibrary lib: fll.getLibraryList()) {
 			logger.trace("lookupFunctions; function library: {}; class: {}", lib.toString(), lib.getClass().getName());
 			if (lib instanceof FunctionLibraryList) {
-				fl.addAll(lookupFunctions((FunctionLibraryList) lib));
-			} else if (lib instanceof ExecutableFunctionLibrary) {
-				ExecutableFunctionLibrary efl = (ExecutableFunctionLibrary) lib;
-				Iterator<UserFunction> itr = efl.iterateFunctions();
-				while (itr.hasNext()) {
-					fl.add(getFunctionDeclaration(itr.next()));
-				}
+				fl.addAll(lookupFunctions((FunctionLibraryList) lib, ext));
+			//} else if (lib instanceof ExecutableFunctionLibrary) {
+			//	ExecutableFunctionLibrary efl = (ExecutableFunctionLibrary) lib;
+			//	Iterator<UserFunction> itr = efl.iterateFunctions();
+			//	while (itr.hasNext()) {
+			//		fl.add(getFunctionDeclaration(itr.next()));
+			//	}
 			} else if (lib instanceof XQueryFunctionLibrary) {
 				XQueryFunctionLibrary xqfl = (XQueryFunctionLibrary) lib;
 				Iterator<XQueryFunction> itr = xqfl.getFunctionDefinitions();
 				while (itr.hasNext()) {
 					XQueryFunction fn = itr.next();
 					logger.trace("lookupFunctions; fn: {}", fn.getDisplayName());
-					String decl = getFunctionDeclaration(fn.getUserFunction()); 
-					try {
-						Field f = fn.getClass().getDeclaredField("annotationMap"); 
-						f.setAccessible(true);
-						Map<StructuredQName, Annotation> atns = (HashMap<StructuredQName, Annotation>) f.get(fn); 
-						logger.trace("lookupFunctions; fn annotations: {}", atns);
-						for (Annotation atn: atns.values()) {
-							String str = atn.getAnnotationQName().getDisplayName();
-							str += "(";
-							int cnt = 0;
-							for (AtomicValue av: atn.getAnnotationParameters()) {
-								if (cnt > 0) {
-									str += ", ";
-								}
-								str += "\"";
-								str += av.getStringValue();
-								str += "\"";
-							}
-							str += ")\n";
-							decl = str + decl;
-						}
-					} catch (NoSuchFieldException | IllegalAccessException ex) {
-						logger.warn("lookupFunctions. error accessing annotations: {}", ex);
-					}
-					fl.add(decl);
+					fl.add(ext.extractFunction(fn));
 				}
 			}
 		}
 		return fl;
 	}
 	
-	private String getFunctionDeclaration(UserFunction function) {
-		//declare function hw:helloworld($name as xs:string)
-		logger.trace("getFunctionDeclaration.enter; function: {}", function);
-		StringBuffer buff = new StringBuffer("function ");
-		buff.append(function.getFunctionName());
-		buff.append("(");
-		int idx =0;
-		for (UserFunctionParameter ufp: function.getParameterDefinitions()) {
-			if (idx > 0) {
-				buff.append(", ");
+	@Override
+    public List<Function> getRestFunctions(Module module) throws XDMException {
+		long stamp = System.currentTimeMillis();
+		logger.trace("getRestFunctions.enter; got module: {}", module);
+		XQueryExpression exp = getModuleExpression(module);
+		List<Function> result = lookupFunctions(exp.getExecutable().getFunctionLibrary(), new FunctionExtractor<Function>() {
+
+			@Override
+			public Function extractFunction(XQueryFunction fn) {
+				logger.trace("extractFunction.enter; function: {}", fn);
+				DataType type = new DataType(fn.getResultType().getPrimaryType().toString(), SaxonUtils.getCardinality(fn.getResultType().getCardinality()));
+				Function result = new Function(null, fn.getFunctionName().getDisplayName(), type, null, null);
+				for (UserFunctionParameter ufp: fn.getParameterDefinitions()) {
+					Parameter param = new Parameter(ufp.getVariableQName().getDisplayName(), ufp.getRequiredType().getPrimaryType().toString(), 
+							SaxonUtils.getCardinality(ufp.getRequiredType().getCardinality()));
+					result.getParameters().add(param);
+				}
+
+				try {
+					Field f = fn.getClass().getDeclaredField("annotationMap"); 
+					f.setAccessible(true);
+					Map<StructuredQName, Annotation> atns = (HashMap<StructuredQName, Annotation>) f.get(fn); 
+					logger.trace("extractFunction; fn annotations: {}", atns);
+					for (Annotation atn: atns.values()) {
+						String aName = atn.getAnnotationQName().getDisplayName();
+						if (aName.startsWith("rest:")) {
+							result.getAnnotations().setProperty(aName, atn.getAnnotationParameters().get(0).getStringValue());
+						}
+					}
+				} catch (NoSuchFieldException | IllegalAccessException ex) {
+					logger.warn("lookupFunctions. error accessing annotations: {}", ex);
+				}
+				
+				logger.trace("extractFunction.exit; returning: {}", result);
+				return result;
 			}
-			buff.append("$");
-			buff.append(ufp.getVariableQName());
-			buff.append(" as ");
-			buff.append(ufp.getRequiredType().toString());
-			idx++;
-		}
-		buff.append(") as ");
-		// TODO: get rid of Q{} notation..
-		buff.append(function.getDeclaredResultType().toString());
-		String result = buff.toString();
-		logger.trace("getFunctionDeclaration.exit; returning: {}", result);
+			
+		});
+		stamp = System.currentTimeMillis() - stamp;
+		logger.trace("getRestFunctions.exit; time taken: {}; returning: {}", stamp, result);
 		return result;
+    }
+	
+	private interface FunctionExtractor<R> {
+		
+		R extractFunction(XQueryFunction fn);
+		
 	}
 	
 	private class LocalErrorListener implements ErrorListener {

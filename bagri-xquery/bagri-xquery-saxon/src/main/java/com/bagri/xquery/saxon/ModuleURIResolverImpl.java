@@ -56,6 +56,10 @@ public class ModuleURIResolverImpl implements ModuleURIResolver {
 			if (moduleName.equals(module.getName())) {
 				return module;
 			}
+			Path path = Paths.get(module.getFileName());
+			if (moduleName.equals(path.getFileName().toString())) {
+				return module;
+			}
 		}
 		return null;
 	}
