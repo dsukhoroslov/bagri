@@ -2,10 +2,13 @@ package com.bagri.xquery.saxon;
 
 import java.io.Reader;
 import java.io.StringReader;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.xml.transform.ErrorListener;
@@ -25,9 +28,14 @@ import net.sf.saxon.lib.ExtensionFunctionDefinition;
 import net.sf.saxon.lib.FeatureKeys;
 import net.sf.saxon.lib.ModuleURIResolver;
 import net.sf.saxon.lib.Validation;
+import net.sf.saxon.om.StructuredQName;
+import net.sf.saxon.query.Annotation;
 import net.sf.saxon.query.StaticQueryContext;
 import net.sf.saxon.query.XQueryExpression;
+import net.sf.saxon.query.XQueryFunction;
+import net.sf.saxon.query.XQueryFunctionLibrary;
 import net.sf.saxon.trans.XPathException;
+import net.sf.saxon.value.AtomicValue;
 
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.system.Function;
@@ -230,6 +238,38 @@ public class XQCompilerImpl implements XQCompiler {
 				while (itr.hasNext()) {
 					fl.add(getFunctionDeclaration(itr.next()));
 				}
+			} else if (lib instanceof XQueryFunctionLibrary) {
+				XQueryFunctionLibrary xqfl = (XQueryFunctionLibrary) lib;
+				Iterator<XQueryFunction> itr = xqfl.getFunctionDefinitions();
+				while (itr.hasNext()) {
+					XQueryFunction fn = itr.next();
+					logger.trace("lookupFunctions; fn: {}", fn.getDisplayName());
+					String decl = getFunctionDeclaration(fn.getUserFunction()); 
+					try {
+						Field f = fn.getClass().getDeclaredField("annotationMap"); 
+						f.setAccessible(true);
+						Map<StructuredQName, Annotation> atns = (HashMap<StructuredQName, Annotation>) f.get(fn); 
+						logger.trace("lookupFunctions; fn annotations: {}", atns);
+						for (Annotation atn: atns.values()) {
+							String str = atn.getAnnotationQName().getDisplayName();
+							str += "(";
+							int cnt = 0;
+							for (AtomicValue av: atn.getAnnotationParameters()) {
+								if (cnt > 0) {
+									str += ", ";
+								}
+								str += "\"";
+								str += av.getStringValue();
+								str += "\"";
+							}
+							str += ")\n";
+							decl = str + decl;
+						}
+					} catch (NoSuchFieldException | IllegalAccessException ex) {
+						logger.warn("lookupFunctions. error accessing annotations: {}", ex);
+					}
+					fl.add(decl);
+				}
 			}
 		}
 		return fl;
@@ -237,6 +277,7 @@ public class XQCompilerImpl implements XQCompiler {
 	
 	private String getFunctionDeclaration(UserFunction function) {
 		//declare function hw:helloworld($name as xs:string)
+		logger.trace("getFunctionDeclaration.enter; function: {}", function);
 		StringBuffer buff = new StringBuffer("function ");
 		buff.append(function.getFunctionName());
 		buff.append("(");
@@ -254,7 +295,9 @@ public class XQCompilerImpl implements XQCompiler {
 		buff.append(") as ");
 		// TODO: get rid of Q{} notation..
 		buff.append(function.getDeclaredResultType().toString());
-		return buff.toString();
+		String result = buff.toString();
+		logger.trace("getFunctionDeclaration.exit; returning: {}", result);
+		return result;
 	}
 	
 	private class LocalErrorListener implements ErrorListener {
@@ -291,7 +334,8 @@ public class XQCompilerImpl implements XQCompiler {
 
 		@Override
 		public StreamSource[] resolve(String moduleURI, String baseURI,	String[] locations) throws XPathException {
-			logger.trace("resolve.enter; got moduleURI: {}, baseURI: {}, locations: {}", moduleURI, baseURI, locations);
+			logger.trace("resolve.enter; got moduleURI: {}, baseURI: {}, locations: {}, body: {}", 
+					moduleURI, baseURI, locations, body);
 			Reader reader = new StringReader(body);
 			return new StreamSource[] {new StreamSource(reader)};
 		}
