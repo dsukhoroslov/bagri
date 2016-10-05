@@ -12,6 +12,7 @@ import com.bagri.xdm.system.Collection;
 import com.bagri.xdm.system.Fragment;
 import com.bagri.xdm.system.Index;
 import com.bagri.xdm.system.Module;
+import com.bagri.xdm.system.Resource;
 import com.bagri.xdm.system.Schema;
 import com.bagri.xdm.system.TriggerDefinition;
 import com.hazelcast.nio.ObjectDataInput;
@@ -53,6 +54,11 @@ public class SchemaSerializer extends EntitySerializer implements StreamSerializ
 		}
 		size = in.readInt();
 		for (int i=0; i < size; i++) {
+			Resource res = in.readObject();
+			xSchema.addResource(res);
+		}
+		size = in.readInt();
+		for (int i=0; i < size; i++) {
 			TriggerDefinition trg = in.readObject();
 			xSchema.addTrigger(trg);
 		}
@@ -74,10 +80,13 @@ public class SchemaSerializer extends EntitySerializer implements StreamSerializ
 		for (Fragment fragment: xSchema.getFragments()) {
 			out.writeObject(fragment);
 		}
-		//out.writeObject(xSchema.getIndexes());
 		out.writeInt(xSchema.getIndexes().size());
 		for (Index index: xSchema.getIndexes()) {
 			out.writeObject(index);
+		}
+		out.writeInt(xSchema.getResources().size());
+		for (Resource resource: xSchema.getResources()) {
+			out.writeObject(resource);
 		}
 		out.writeInt(xSchema.getTriggers().size());
 		for (TriggerDefinition trigger: xSchema.getTriggers()) {

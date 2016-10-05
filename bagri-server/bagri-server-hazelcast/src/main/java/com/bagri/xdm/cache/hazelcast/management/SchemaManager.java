@@ -41,6 +41,7 @@ import com.bagri.xdm.system.Collection;
 import com.bagri.xdm.system.Fragment;
 import com.bagri.xdm.system.Index;
 import com.bagri.xdm.system.JavaTrigger;
+import com.bagri.xdm.system.Resource;
 import com.bagri.xdm.system.Schema;
 import com.bagri.xdm.system.TriggerAction;
 import com.bagri.xdm.system.TriggerDefinition;
@@ -428,6 +429,37 @@ public class SchemaManager extends EntityManager<Schema> implements HealthChange
 		return false;
 	}
 
+	Resource addResource(String name, String path, String module, String description) {
+		Resource resource = new Resource(1, new Date(), getCurrentUser(), name, path, description, module, true);
+		Schema schema = getEntity();
+		if (schema.addResource(resource)) {
+			// store schema!
+			flushEntity(schema);
+			return resource;
+		}
+		return null;
+	}
+	
+	boolean deleteResource(String name) {
+		Schema schema = getEntity();
+		if (schema.removeResource(name) != null) {
+			// store schema!
+			flushEntity(schema);
+			return true;
+		}
+		return false;
+	}
+
+	boolean enableResource(String name, boolean enable) {
+		Schema schema = getEntity();
+		if (schema.enableResource(name, enable)) {
+			// store schema!
+			flushEntity(schema);
+			return true;
+		}
+		return false;
+	}
+	
 	TriggerDefinition addTrigger(boolean java, String container, String implementation, String docType, 
 			boolean synchronous, java.util.Collection<TriggerAction> actions, int index) {
 		TriggerDefinition trigger;

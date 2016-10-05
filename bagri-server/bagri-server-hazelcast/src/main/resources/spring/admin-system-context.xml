@@ -94,6 +94,7 @@
 					<hz:serializer type-class="com.bagri.xdm.system.Schema" class-name="com.bagri.xdm.client.hazelcast.serialize.system.SchemaSerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.system.Collection" class-name="com.bagri.xdm.client.hazelcast.serialize.system.CollectionSerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.system.Fragment" class-name="com.bagri.xdm.client.hazelcast.serialize.system.FragmentSerializer"/>
+					<hz:serializer type-class="com.bagri.xdm.system.Resource" class-name="com.bagri.xdm.client.hazelcast.serialize.system.ResourceSerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.system.Index" class-name="com.bagri.xdm.client.hazelcast.serialize.system.IndexSerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.system.Role" class-name="com.bagri.xdm.client.hazelcast.serialize.system.RoleSerializer"/>
 					<hz:serializer type-class="com.bagri.xdm.system.User" class-name="com.bagri.xdm.client.hazelcast.serialize.system.UserSerializer"/>
@@ -235,6 +236,7 @@
 	</bean>
 
 	<bean id="repoProviderService" class="com.bagri.xdm.cache.hazelcast.impl.RepositoryProviderImpl">
+		<property name="moduleManagement" ref="moduleService"/>
 		<property name="schemaManagement" ref="schemaService"/>
 	</bean>
 

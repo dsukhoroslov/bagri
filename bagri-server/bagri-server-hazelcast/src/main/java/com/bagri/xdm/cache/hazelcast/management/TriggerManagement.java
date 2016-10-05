@@ -135,7 +135,7 @@ public class TriggerManagement extends SchemaFeatureManagement {
 					cnt++;
 				}
 			} catch (InterruptedException | ExecutionException ex) {
-				logger.error("dropIndex.error; ", ex);
+				logger.error("dropTrigger.error; ", ex);
 			}
 		}
 		stamp = System.currentTimeMillis() - stamp;

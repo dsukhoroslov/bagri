@@ -25,7 +25,6 @@ import net.sf.saxon.functions.ExecutableFunctionLibrary;
 import net.sf.saxon.functions.FunctionLibrary;
 import net.sf.saxon.functions.FunctionLibraryList;
 import net.sf.saxon.lib.ExtensionFunctionDefinition;
-import net.sf.saxon.lib.FeatureKeys;
 import net.sf.saxon.lib.ModuleURIResolver;
 import net.sf.saxon.lib.Validation;
 import net.sf.saxon.om.StructuredQName;
@@ -86,7 +85,7 @@ public class XQCompilerImpl implements XQCompiler {
 		StaticQueryContext sqc = null;
 		try {
 		    sqc = prepareStaticContext(null);
-			XQueryExpression exp = sqc.compileQuery(query);
+			sqc.compileQuery(query);
 		} catch (XPathException ex) {
 			String error = getError(sqc);
 			logger.info("compileQuery.error; message: {}", error);
@@ -100,7 +99,7 @@ public class XQCompilerImpl implements XQCompiler {
 	public void compileModule(Module module) throws XDMException {
 		long stamp = System.currentTimeMillis();
 		logger.trace("compileModule.enter; got module: {}", module);
-		XQueryExpression exp = getModuleExpression(module);
+		getModuleExpression(module);
 		stamp = System.currentTimeMillis() - stamp;
 		logger.trace("compileModule.exit; time taken: {}", stamp); 
 	}
@@ -151,23 +150,28 @@ public class XQCompilerImpl implements XQCompiler {
 					f.setAccessible(true);
 					Map<StructuredQName, Annotation> atns = (HashMap<StructuredQName, Annotation>) f.get(fn); 
 					logger.trace("lookupFunctions; fn annotations: {}", atns);
+					StringBuffer buff = new StringBuffer();
 					for (Annotation atn: atns.values()) {
-						String str = atn.getAnnotationQName().getDisplayName();
-						str += "(";
-						int cnt = 0;
-						for (AtomicValue av: atn.getAnnotationParameters()) {
-							if (cnt > 0) {
-								str += ", ";
+						buff.append(atn.getAnnotationQName().getDisplayName());
+						if (atn.getAnnotationParameters() != null) {
+							buff.append("(");
+							int cnt = 0;
+							for (AtomicValue av: atn.getAnnotationParameters()) {
+								if (cnt > 0) {
+									buff.append(", ");
+								}
+								buff.append("\"").append(av.getStringValue()).append("\"");
+								cnt++;
 							}
-							str += "\"";
-							str += av.getStringValue();
-							str += "\"";
+							buff.append(")");
 						}
-						str += ")\n";
-						decl = str + decl;
+						buff.append("\n");
 					}
+					decl = buff.toString() + decl;
 				} catch (NoSuchFieldException | IllegalAccessException ex) {
 					logger.warn("lookupFunctions. error accessing annotations: {}", ex);
+				} catch (Exception ex) {
+					logger.error("lookupFunctions.error: {}", ex);
 				}
 				return decl;
 			}
@@ -336,11 +340,18 @@ public class XQCompilerImpl implements XQCompiler {
 					for (Annotation atn: atns.values()) {
 						String aName = atn.getAnnotationQName().getDisplayName();
 						if (aName.startsWith("rest:")) {
-							result.getAnnotations().setProperty(aName, atn.getAnnotationParameters().get(0).getStringValue());
+							result.addAnnotation(aName, null);
+							if (atn.getAnnotationParameters() != null) {
+								for (AtomicValue av: atn.getAnnotationParameters()) {
+									result.addAnnotation(aName, av.getStringValue());
+								}								
+							}
 						}
 					}
 				} catch (NoSuchFieldException | IllegalAccessException ex) {
 					logger.warn("lookupFunctions. error accessing annotations: {}", ex);
+				} catch (Exception ex) {
+					logger.error("lookupFunctions.error: {}", ex);
 				}
 				
 				logger.trace("extractFunction.exit; returning: {}", result);

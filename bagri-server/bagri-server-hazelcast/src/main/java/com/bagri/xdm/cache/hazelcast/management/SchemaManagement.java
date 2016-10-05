@@ -285,6 +285,9 @@ public class SchemaManagement extends EntityManagement<Schema> implements Member
 		TransactionManagement tMgr = ctx.getBean("transManager", TransactionManagement.class);
 	    tMgr.setSchemaManager(sMgr);
 		mbeanExporter.registerManagedResource(tMgr, tMgr.getObjectName());
+	    ResourceManagement rMgr = ctx.getBean("resourceManager", ResourceManagement.class);
+	    rMgr.setSchemaManager(sMgr);
+		mbeanExporter.registerManagedResource(rMgr, rMgr.getObjectName());
 	}
 	
 	private void unregisterFeatureManagers(ApplicationContext ctx) throws MalformedObjectNameException {
@@ -302,6 +305,8 @@ public class SchemaManagement extends EntityManagement<Schema> implements Member
 		mbeanExporter.unregisterManagedResource(qMgr.getObjectName());
 		TransactionManagement tMgr = ctx.getBean("transManager", TransactionManagement.class);
 		mbeanExporter.unregisterManagedResource(tMgr.getObjectName());
+	    ResourceManagement rMgr = ctx.getBean("resourceManager", ResourceManagement.class);
+		mbeanExporter.unregisterManagedResource(rMgr.getObjectName());
 	}
 
 	private boolean isSchemaActive(String schemaName, Set<Member> members) {

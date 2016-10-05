@@ -56,6 +56,11 @@
 		<property name="queryTimeout" value="${xqj.schema.queryTimeout}"/>
 	</bean>
 
+	<bean id="resourceManager" class="com.bagri.xdm.cache.hazelcast.management.ResourceManagement">
+		<constructor-arg value="${xdm.schema.name}" />
+		<!--property name="statsAggregator" ref="invocationStatsAggregator"/-->
+	</bean>
+
 	<bean id="transManager" class="com.bagri.xdm.cache.hazelcast.management.TransactionManagement">
 		<constructor-arg value="${xdm.schema.name}" />
 		<property name="statsAggregator" ref="invocationStatsAggregator"/>

@@ -1,8 +1,12 @@
 package com.bagri.rest;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
+import javax.ws.rs.container.ContainerRequestContext;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriBuilder;
 
 import org.eclipse.jetty.server.Connector;
@@ -19,7 +23,10 @@ import org.glassfish.hk2.api.Factory;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.jetty.JettyHttpContainerFactory;
+import org.glassfish.jersey.process.Inflector;
 import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.server.model.Resource;
+import org.glassfish.jersey.server.model.ResourceMethod;
 import org.glassfish.jersey.server.ServerProperties;
 import org.glassfish.jersey.server.wadl.WadlFeature;
 import org.glassfish.jersey.servlet.ServletContainer;
@@ -36,7 +43,6 @@ import com.bagri.xdm.api.SchemaRepository;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.system.Function;
 import com.bagri.xdm.system.Module;
-import com.bagri.xdm.system.Resource;
 import com.bagri.xdm.system.Schema;
 import com.bagri.xquery.api.XQCompiler;
 
@@ -99,32 +105,68 @@ public class BagriRestServer implements Factory<RepositoryProvider> {
     	String clientId = schemaName; //!!!
     	SchemaRepository repo = rePro.getRepository(clientId);
     	// get schema -> resources
-    	for (Resource res: schema.getResources()) {
+    	for (com.bagri.xdm.system.Resource res: schema.getResources()) {
         	// for each resource -> get module
-        	// get functions for module
-    		Module module = rePro.getModule(res.getModule());
-    		try {
-    			List<Function> fList = xqComp.getRestFunctions(module);
-    			// now build Resource dynamically from the function list
-    			buildDynamicResources(config, fList);
-    		} catch (XDMException ex) {
-    			logger.error("buildSchemaConfig; error processing module: " + res.getModule(), ex);
-    			// skip it..
+    		if (res.isEnabled()) {
+	    		Module module = rePro.getModule(res.getModule());
+	    		try {
+	    			buildDynamicResources(config, res.getPath(), module);
+	    		} catch (XDMException ex) {
+	    			logger.error("buildSchemaConfig; error processing module: " + res.getModule(), ex);
+	    			// skip it..
+	    		}
     		}
     	}
     	return config;
     }
     
-    private void buildDynamicResources(ResourceConfig config, List<Function> functions) {
-    	for (Function fn: functions) {
-    		logger.info("buildDynamicResources; fn: {}", fn.getMethod());
+    private void buildDynamicResources(ResourceConfig config, String basePath, Module module) throws XDMException {
+
+    	Resource.Builder resourceBuilder = Resource.builder();
+        resourceBuilder.path(basePath);
+    	
+    	// get functions for module
+		List<Function> functions = xqComp.getRestFunctions(module);
+		
+		// now build Resource dynamically from the function list
+    	for (Function function: functions) {
+    		buildMethod(resourceBuilder, function);
     	}
+    	
+        Resource resource = resourceBuilder.build();
+        config.register(resource);
+		logger.info("buildDynamicResources; registered resource: {}", resource);
+    }
+    
+    private void buildMethod(Resource.Builder builder, Function fn) {
+		logger.trace("buildMethod; got fn: {}", fn.getMethod());
+		Map<String, List<String>> annotations = fn.getAnnotations();
+		// get method type from anns
+		//Resource.Builder childResource = builder.addChildResource("subresource");
+		//childResource.addMethod("GET").handledBy(new Inflector<ContainerRequestContext, String>());
+		
+        final ResourceMethod.Builder methodBuilder = builder.addMethod("GET");
+        List<MediaType> types = null;
+        List<String> values = annotations.get("rest:produces");
+        if (values != null) {
+        	types = new ArrayList<>(values.size());
+        	for (String value: values) {
+        		types.add(MediaType.valueOf(value));
+        	}
+        }
+        methodBuilder.produces(types).handledBy(new Inflector<ContainerRequestContext, String>() {
+ 
+            @Override
+            public String apply(ContainerRequestContext containerRequestContext) {
+                return "Hello World!";
+            }
+        });
     }
     
     public void start() {
         logger.debug("start.enter; Starting rest server");
         jettyServer = createServer();
-        ResourceConfig config = buildConfig();
+        ResourceConfig config = buildSchemaConfig("TPoX");
         ServletHolder servlet = new ServletHolder(new ServletContainer(config));
         ServletContextHandler context = new ServletContextHandler(jettyServer, "/*");
         context.addServlet(servlet, "/*");

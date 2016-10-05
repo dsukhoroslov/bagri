@@ -1,7 +1,9 @@
 package com.bagri.xdm.system;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -44,10 +46,10 @@ public class Function {
 	
 	@XmlElement(name="parameter")
 	@XmlElementWrapper(name="parameters")
-	private List<Parameter> parameters = new ArrayList<Parameter>();
+	private List<Parameter> parameters = new ArrayList<>();
 	
 	@XmlTransient
-	private Properties annotations = new Properties();
+	private Map<String, List<String>> annotations = new HashMap<>();
 
 	/**
 	 * default constructor
@@ -125,8 +127,25 @@ public class Function {
 	 * 
 	 * @return the list of function annotations
 	 */
-	public Properties getAnnotations() {
+	public Map<String, List<String>> getAnnotations() {
 		return annotations;
+	}
+	
+	/**
+	 * adds new annotation
+	 * 
+	 * @param name the annotation name
+	 * @param value the annotation value
+	 */
+	public void addAnnotation(String name, String value) {
+		List<String> values = annotations.get(name);
+		if (values == null) {
+			values = new ArrayList<>();
+			annotations.put(name,  values);
+		}
+		if (value != null) {
+			values.add(value);
+		}
 	}
 	
 	/**

@@ -1,6 +1,8 @@
 package com.bagri.xdm.client.hazelcast.serialize.system;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 import com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryImpl;
 import com.bagri.xdm.system.Function;
@@ -36,9 +38,12 @@ public class FunctionSerializer implements StreamSerializer<Function> {
 		}
 		cnt = in.readInt();
 		for (int i=0; i < cnt; i++) {
-			String atn = in.readUTF();
-			String val = in.readUTF();
-			xFunc.getAnnotations().setProperty(atn, val);
+			String name = in.readUTF();
+			xFunc.addAnnotation(name, null);
+			int sz = in.readInt();
+			for (int j=0; j < sz; j++) {
+				xFunc.addAnnotation(name, in.readUTF());
+			}
 		}
 		return xFunc;
 	}
@@ -55,9 +60,12 @@ public class FunctionSerializer implements StreamSerializer<Function> {
 			out.writeObject(xp);
 		}
 		out.writeInt(xFunc.getAnnotations().size());
-		for (String atn: xFunc.getAnnotations().stringPropertyNames()) {
-			out.writeUTF(atn);
-			out.writeUTF(xFunc.getAnnotations().getProperty(atn));
+		for (Map.Entry<String, List<String>> entry: xFunc.getAnnotations().entrySet()) {
+			out.writeUTF(entry.getKey());
+			out.writeInt(entry.getValue().size());
+			for (String value: entry.getValue()) {
+				out.writeUTF(value);
+			}
 		}
 	}
 

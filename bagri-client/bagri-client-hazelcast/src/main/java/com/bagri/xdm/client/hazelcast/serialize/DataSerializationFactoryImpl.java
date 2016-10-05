@@ -50,6 +50,7 @@ public class DataSerializationFactoryImpl implements DataSerializableFactory {
 	public static final int cli_XDMCollection = 16;
 	public static final int cli_XDMDataFormat = 17;
 	public static final int cli_XDMDataStore = 18;
+	public static final int cli_XDMResource = 19;
 	
 	public static final int cli_XDMDocument = 50;
 	public static final int cli_XDMElement = 51; 
