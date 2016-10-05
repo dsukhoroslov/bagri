@@ -7,6 +7,7 @@ import java.util.Map;
 
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 
 import org.eclipse.jetty.server.Connector;
@@ -43,6 +44,7 @@ import com.bagri.xdm.api.SchemaRepository;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.system.Function;
 import com.bagri.xdm.system.Module;
+import com.bagri.xdm.system.Parameter;
 import com.bagri.xdm.system.Schema;
 import com.bagri.xquery.api.XQCompiler;
 
@@ -102,15 +104,14 @@ public class BagriRestServer implements Factory<RepositoryProvider> {
     public ResourceConfig buildSchemaConfig(String schemaName) {
     	ResourceConfig config = buildConfig();
     	Schema schema = rePro.getSchema(schemaName);
-    	String clientId = schemaName; //!!!
-    	SchemaRepository repo = rePro.getRepository(clientId);
+    	SchemaRepository repo = rePro.getRepository(null);
     	// get schema -> resources
     	for (com.bagri.xdm.system.Resource res: schema.getResources()) {
         	// for each resource -> get module
     		if (res.isEnabled()) {
 	    		Module module = rePro.getModule(res.getModule());
 	    		try {
-	    			buildDynamicResources(config, res.getPath(), module);
+	    			buildDynamicResources(config, repo, res.getPath(), module);
 	    		} catch (XDMException ex) {
 	    			logger.error("buildSchemaConfig; error processing module: " + res.getModule(), ex);
 	    			// skip it..
@@ -120,7 +121,7 @@ public class BagriRestServer implements Factory<RepositoryProvider> {
     	return config;
     }
     
-    private void buildDynamicResources(ResourceConfig config, String basePath, Module module) throws XDMException {
+    private void buildDynamicResources(ResourceConfig config, SchemaRepository repo, String basePath, Module module) throws XDMException {
 
     	Resource.Builder resourceBuilder = Resource.builder();
         resourceBuilder.path(basePath);
@@ -130,37 +131,82 @@ public class BagriRestServer implements Factory<RepositoryProvider> {
 		
 		// now build Resource dynamically from the function list
     	for (Function function: functions) {
-    		buildMethod(resourceBuilder, function);
+    		buildMethod(resourceBuilder, repo, module, function);
     	}
     	
         Resource resource = resourceBuilder.build();
-        config.register(resource);
+        config.registerResources(resource);
 		logger.info("buildDynamicResources; registered resource: {}", resource);
     }
     
-    private void buildMethod(Resource.Builder builder, Function fn) {
+    private void buildMethod(Resource.Builder builder, SchemaRepository repo, Module module, Function fn) {
 		logger.trace("buildMethod; got fn: {}", fn.getMethod());
 		Map<String, List<String>> annotations = fn.getAnnotations();
-		// get method type from anns
-		//Resource.Builder childResource = builder.addChildResource("subresource");
-		//childResource.addMethod("GET").handledBy(new Inflector<ContainerRequestContext, String>());
-		
-        final ResourceMethod.Builder methodBuilder = builder.addMethod("GET");
-        List<MediaType> types = null;
-        List<String> values = annotations.get("rest:produces");
+        List<String> consTypes = annotations.get("rest:consumes");
+        List<String> prodTypes = annotations.get("rest:produces");
+        List<String> values = annotations.get("rest:path");
         if (values != null) {
-        	types = new ArrayList<>(values.size());
-        	for (String value: values) {
+        	String subPath = values.get(0);
+        	builder = builder.addChildResource(subPath);
+        }
+
+		//import module namespace tpox="http://tpox-benchmark.com/rest" at "../../etc/samples/tpox/rest_module.xq";
+    	//declare variable $id external;
+        StringBuffer query = new StringBuffer("import module namespace ").
+        		append(module.getPrefix()).append("=\"").append(module.getNamespace()).
+        		append("\" at \"").append(module.getName()).append("\";\n"). // +
+		    	//tpox:security-by-id($id)
+				append(fn.getMethod()).append("("); 
+        int cnt = 0;
+        for (Parameter param: fn.getParameters()) {
+        	if (cnt > 0) {
+        		query.append(", ");
+        	}
+        	query.append("$").append(param.getName());
+        }
+        query.append(")\n");
+        		
+        values = annotations.get("rest:GET");
+        if (values != null) {
+        	buildGet(builder, query.toString(), repo, values, consTypes, prodTypes);
+        }
+        
+        values = annotations.get("rest:POST");
+        if (values != null) {
+        	//buildPost(builder, values, consTypes, prodTypes);
+        }
+        
+        values = annotations.get("rest:PUT");
+        if (values != null) {
+        	//buildPut(builder, values, consTypes, prodTypes);
+        }
+        
+        values = annotations.get("rest:DELETE");
+        if (values != null) {
+        	//buildDelete(builder, values, consTypes, prodTypes);
+        }
+    }
+    
+    private void buildGet(Resource.Builder builder, String query, SchemaRepository repo, List<String> params, List<String> consumes, List<String> produces) {
+        ResourceMethod.Builder methodBuilder = builder.addMethod("GET");
+        List<MediaType> types;
+        if (consumes != null) {
+            types = new ArrayList<>(consumes.size());
+        	for (String value: consumes) {
         		types.add(MediaType.valueOf(value));
         	}
+            methodBuilder = methodBuilder.consumes(types);
         }
-        methodBuilder.produces(types).handledBy(new Inflector<ContainerRequestContext, String>() {
- 
-            @Override
-            public String apply(ContainerRequestContext containerRequestContext) {
-                return "Hello World!";
-            }
-        });
+        
+        if (produces != null) {
+            types = new ArrayList<>(produces.size());
+        	for (String value: produces) {
+        		types.add(MediaType.valueOf(value));
+        	}
+            methodBuilder = methodBuilder.produces(types);
+        }
+        
+        methodBuilder.handledBy(new RestRequestProcessor(query, repo));
     }
     
     public void start() {

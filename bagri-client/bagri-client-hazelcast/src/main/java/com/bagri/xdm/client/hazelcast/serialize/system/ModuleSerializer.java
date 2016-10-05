@@ -28,6 +28,7 @@ public class ModuleSerializer extends EntitySerializer implements StreamSerializ
 				in.readUTF(),
 				in.readUTF(),
 				in.readUTF(),
+				in.readUTF(),
 				in.readBoolean());
 		return xModule;
 	}
@@ -39,6 +40,7 @@ public class ModuleSerializer extends EntitySerializer implements StreamSerializ
 		out.writeUTF(xModule.getName());
 		out.writeUTF(xModule.getFileName());
 		out.writeUTF(xModule.getDescription());
+		out.writeUTF(xModule.getPrefix());
 		out.writeUTF(xModule.getNamespace());
 		out.writeUTF(xModule.getBody());
 		out.writeBoolean(xModule.isEnabled());

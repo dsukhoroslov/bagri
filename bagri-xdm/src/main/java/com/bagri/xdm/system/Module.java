@@ -22,6 +22,7 @@ import javax.xml.bind.annotation.XmlType;
 		"name", 
 		"fileName",
 		"description",
+		"prefix",
 		"namespace",
 		"enabled"
 })
@@ -31,13 +32,16 @@ public class Module extends Entity {
 	@XmlID
 	private String name;
 		
-	@XmlElement(required = 	true)
+	@XmlElement(required = true)
 	private String fileName;
 
-	@XmlElement(required = 	false)
+	@XmlElement(required = false)
 	private String description;
 		
-	@XmlElement(required = 	true)
+	@XmlElement(required = true)
+	private String prefix;
+
+	@XmlElement(required = true)
 	private String namespace;
 
 	@XmlTransient
@@ -62,16 +66,18 @@ public class Module extends Entity {
 	 * @param name the module name
 	 * @param fileName the module file name
 	 * @param description the module description
+	 * @param prefix the module ns prefix
 	 * @param namespace the module namespace
 	 * @param body the module definition body
 	 * @param enabled the module enable flag
 	 */
-	public Module(int version, Date createdAt, String createdBy, String name, 
-			String fileName, String description, String namespace, String body, boolean enabled) {
+	public Module(int version, Date createdAt, String createdBy, String name, String fileName, 
+			String description, String prefix, String namespace, String body, boolean enabled) {
 		super(version, createdAt, createdBy);
 		this.name = name;
 		this.fileName = fileName;
 		this.description = description;
+		this.prefix = prefix;
 		this.namespace = namespace;
 		this.body = body;
 		this.enabled = enabled;
@@ -101,6 +107,14 @@ public class Module extends Entity {
 		return description;
 	}
 	
+	/**
+	 * 
+	 * @return the module ns prefix
+	 */
+	public String getPrefix() {
+		return prefix;
+	}
+
 	/**
 	 * 
 	 * @return the module namespace
@@ -183,6 +197,7 @@ public class Module extends Entity {
 		result.put("name", name);
 		result.put("fileName", fileName);
 		result.put("description", description);
+		result.put("prefix", prefix);
 		result.put("namespace", namespace);
 		result.put("enabled", enabled);
 		result.put("body", body);
@@ -197,7 +212,7 @@ public class Module extends Entity {
 		return "Module [name=" + name + ", version=" + getVersion()
 				+ ", fileName=" + fileName + ", description=" + description  
 				+ ", created at=" + getCreatedAt() + ", by=" + getCreatedBy()
-				+ ", namespace=" + namespace + ", enabled=" + enabled + "]";
+				+ ", prefix=" + prefix + ", namespace=" + namespace + ", enabled=" + enabled + "]";
 	}
 	
 

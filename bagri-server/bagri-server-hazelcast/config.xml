@@ -671,6 +671,7 @@
             <createdBy>SDV</createdBy>
             <fileName>../../etc/samples/tpox/hello_module.xq</fileName>
             <description>The Hello Test Module</description>
+            <prefix>hw</prefix>
             <namespace>http://helloworld</namespace>
             <enabled>true</enabled>
         </module>
@@ -680,6 +681,7 @@
             <createdBy>SDV</createdBy>
             <fileName>../../etc/samples/tpox/rest_module.xq</fileName>
             <description>The first REST module for TPoX schema</description>
+            <prefix>tpox</prefix>
             <namespace>http://tpox-benchmark.com/rest</namespace>
             <enabled>true</enabled>
         </module>
@@ -689,6 +691,7 @@
             <createdBy>SDV</createdBy>
             <fileName>../../etc/samples/tpox/sample_triggers.xq</fileName>
             <description>The Trigger Test Module</description>
+            <prefix>bgdm</prefix>
             <namespace>http://bagridb.com/bagri-xdm</namespace>
             <enabled>true</enabled>
         </module>

@@ -68,6 +68,12 @@ public class RepositoryProviderImpl implements RepositoryProvider {
 
 	@Override
 	public SchemaRepository getRepository(String clientId) {
+		if (clientId == null) {
+			if (repos.size() > 0) {
+				return repos.values().iterator().next();
+			}
+			return null;
+		}
 		return repos.get(clientId);
 	}
 

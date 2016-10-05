@@ -70,6 +70,8 @@ public class XQCompilerImpl implements XQCompiler {
 	}
 	
 	private String getError(StaticQueryContext sqc) {
+		// TODO: sqc.getErrorListener() can be not LocalErrorListener!
+		// got ClassCustException here, when error happened at REST service preparation..
 		List<TransformerException> errors = ((LocalErrorListener) sqc.getErrorListener()).getErrors();
 		StringBuffer buff = new StringBuffer();
 		for (TransformerException tex: errors) {
@@ -108,14 +110,7 @@ public class XQCompilerImpl implements XQCompiler {
 	public String compileTrigger(Module module, XQueryTrigger trigger) throws XDMException {
 		long stamp = System.currentTimeMillis();
 		logger.trace("compileTrigger.enter; got trigger: {}", trigger);
-		String prefix;
-		int idx = trigger.getFunction().indexOf(":");
-		if (idx > 0) {
-			prefix = trigger.getFunction().substring(0, idx);
-		} else {
-			prefix = "test";
-		}
-		String query = "import module namespace " + prefix + 
+		String query = "import module namespace " + module.getPrefix() + 
 				"=\"" + module.getNamespace() + 
 				"\" at \"" + module.getName() + "\";\n" +
 				"declare variable $doc external;\n\n" +

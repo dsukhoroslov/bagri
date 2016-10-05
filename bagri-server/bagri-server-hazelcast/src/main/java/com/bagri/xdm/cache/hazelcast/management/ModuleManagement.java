@@ -55,12 +55,13 @@ public class ModuleManagement extends EntityManagement<Module> {
 		@ManagedOperationParameter(name = "name", description = "Module name to create"),
 		@ManagedOperationParameter(name = "fileName", description = "File for module"),
 		@ManagedOperationParameter(name = "description", description = "Module description"),
+		@ManagedOperationParameter(name = "prefix", description = "Module ns prefix"),
 		@ManagedOperationParameter(name = "namespace", description = "Module namespace")})
-	public boolean addModule(String name, String fileName, String description, String namespace) {
+	public boolean addModule(String name, String fileName, String description, String prefix, String namespace) {
 		logger.trace("addModule.enter;");
 		Module module = null;
 		if (!entityCache.containsKey(name)) {
-	    	Object result = entityCache.executeOnKey(name, new ModuleCreator(getCurrentUser(), fileName, namespace, description));
+	    	Object result = entityCache.executeOnKey(name, new ModuleCreator(getCurrentUser(), fileName, prefix, namespace, description));
 	    	module = (Module) result;
 		}
 		logger.trace("addModule.exit; module created: {}", module);
