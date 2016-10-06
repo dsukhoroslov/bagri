@@ -5,10 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
 
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.HttpConfiguration;
@@ -23,12 +20,9 @@ import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.glassfish.hk2.api.Factory;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.jackson.JacksonFeature;
-import org.glassfish.jersey.jetty.JettyHttpContainerFactory;
-import org.glassfish.jersey.process.Inflector;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.model.Resource;
 import org.glassfish.jersey.server.model.ResourceMethod;
-import org.glassfish.jersey.server.ServerProperties;
 import org.glassfish.jersey.server.wadl.WadlFeature;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.slf4j.Logger;
@@ -40,7 +34,6 @@ import com.bagri.rest.service.DocumentService;
 import com.bagri.rest.service.QueryService;
 import com.bagri.rest.service.SchemaService;
 import com.bagri.rest.service.TransactionService;
-import com.bagri.xdm.api.SchemaRepository;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.system.Function;
 import com.bagri.xdm.system.Module;
@@ -56,6 +49,7 @@ public class BagriRestServer implements Factory<RepositoryProvider> {
     private Server jettyServer;
     private XQCompiler xqComp;
     private RepositoryProvider rePro;
+    private Reloader reloader = new Reloader();
 	
     public static void main(String[] args) throws Exception {
     	BagriRestServer server = new BagriRestServer();
@@ -98,20 +92,20 @@ public class BagriRestServer implements Factory<RepositoryProvider> {
             }
         });
         config.register(WadlFeature.class);
+        config.registerInstances(reloader);
         return config;
     }
     
     public ResourceConfig buildSchemaConfig(String schemaName) {
     	ResourceConfig config = buildConfig();
     	Schema schema = rePro.getSchema(schemaName);
-    	SchemaRepository repo = rePro.getRepository(null);
     	// get schema -> resources
     	for (com.bagri.xdm.system.Resource res: schema.getResources()) {
         	// for each resource -> get module
     		if (res.isEnabled()) {
 	    		Module module = rePro.getModule(res.getModule());
 	    		try {
-	    			buildDynamicResources(config, repo, res.getPath(), module);
+	    			buildDynamicResources(config, res.getPath(), module);
 	    		} catch (XDMException ex) {
 	    			logger.error("buildSchemaConfig; error processing module: " + res.getModule(), ex);
 	    			// skip it..
@@ -121,7 +115,7 @@ public class BagriRestServer implements Factory<RepositoryProvider> {
     	return config;
     }
     
-    private void buildDynamicResources(ResourceConfig config, SchemaRepository repo, String basePath, Module module) throws XDMException {
+    private void buildDynamicResources(ResourceConfig config, String basePath, Module module) throws XDMException {
 
     	Resource.Builder resourceBuilder = Resource.builder();
         resourceBuilder.path(basePath);
@@ -131,7 +125,7 @@ public class BagriRestServer implements Factory<RepositoryProvider> {
 		
 		// now build Resource dynamically from the function list
     	for (Function function: functions) {
-    		buildMethod(resourceBuilder, repo, module, function);
+    		buildMethod(resourceBuilder, module, function);
     	}
     	
         Resource resource = resourceBuilder.build();
@@ -139,11 +133,9 @@ public class BagriRestServer implements Factory<RepositoryProvider> {
 		logger.info("buildDynamicResources; registered resource: {}", resource);
     }
     
-    private void buildMethod(Resource.Builder builder, SchemaRepository repo, Module module, Function fn) {
-		logger.trace("buildMethod; got fn: {}", fn.getMethod());
+    private void buildMethod(Resource.Builder builder, Module module, Function fn) {
+		logger.debug("buildMethod; got fn: {}", fn.getSignature());
 		Map<String, List<String>> annotations = fn.getAnnotations();
-        List<String> consTypes = annotations.get("rest:consumes");
-        List<String> prodTypes = annotations.get("rest:produces");
         List<String> values = annotations.get("rest:path");
         if (values != null) {
         	String subPath = values.get(0);
@@ -151,44 +143,55 @@ public class BagriRestServer implements Factory<RepositoryProvider> {
         }
 
 		//import module namespace tpox="http://tpox-benchmark.com/rest" at "../../etc/samples/tpox/rest_module.xq";
-    	//declare variable $id external;
         StringBuffer query = new StringBuffer("import module namespace ").
         		append(module.getPrefix()).append("=\"").append(module.getNamespace()).
-        		append("\" at \"").append(module.getName()).append("\";\n"). // +
-		    	//tpox:security-by-id($id)
-				append(fn.getMethod()).append("("); 
+        		append("\" at \"").append(module.getName()).append("\";\n"); // +
+        int offset = query.length();
+    	//tpox:security-by-id($id)
+        query.append(fn.getMethod()).append("(");
+        StringBuffer params = new StringBuffer();
         int cnt = 0;
+    	//declare variable $id external;
         for (Parameter param: fn.getParameters()) {
         	if (cnt > 0) {
         		query.append(", ");
         	}
         	query.append("$").append(param.getName());
+        	params.append("declare variable $").append(param.getName()).append(" external;\n");
         }
         query.append(")\n");
+        params.append("\n");
+        query.insert(offset, params.toString());
         		
         values = annotations.get("rest:GET");
         if (values != null) {
-        	buildGet(builder, query.toString(), repo, values, consTypes, prodTypes);
+        	buildMethodHandler(builder, "GET", query.toString(), fn);
         }
         
         values = annotations.get("rest:POST");
         if (values != null) {
-        	//buildPost(builder, values, consTypes, prodTypes);
+        	buildMethodHandler(builder, "POST", query.toString(), fn);
         }
         
         values = annotations.get("rest:PUT");
         if (values != null) {
-        	//buildPut(builder, values, consTypes, prodTypes);
+        	buildMethodHandler(builder, "PUT", query.toString(), fn);
         }
         
         values = annotations.get("rest:DELETE");
         if (values != null) {
-        	//buildDelete(builder, values, consTypes, prodTypes);
+        	buildMethodHandler(builder, "DELETE", query.toString(), fn);
         }
     }
     
-    private void buildGet(Resource.Builder builder, String query, SchemaRepository repo, List<String> params, List<String> consumes, List<String> produces) {
-        ResourceMethod.Builder methodBuilder = builder.addMethod("GET");
+    private void buildMethodHandler(Resource.Builder builder, String method, String query, Function fn) {
+
+		Map<String, List<String>> annotations = fn.getAnnotations();
+    	//List<String> params, 
+    	List<String> consumes = annotations.get("rest:consumes"); 
+    	List<String> produces = annotations.get("rest:produces");
+    	
+    	ResourceMethod.Builder methodBuilder = builder.addMethod(method);
         List<MediaType> types;
         if (consumes != null) {
             types = new ArrayList<>(consumes.size());
@@ -206,12 +209,13 @@ public class BagriRestServer implements Factory<RepositoryProvider> {
             methodBuilder = methodBuilder.produces(types);
         }
         
-        methodBuilder.handledBy(new RestRequestProcessor(query, repo));
+        methodBuilder.handledBy(new RestRequestProcessor(fn, query, rePro));
     }
     
     public void start() {
         logger.debug("start.enter; Starting rest server");
         jettyServer = createServer();
+        // TODO: reload schema dynamically!
         ResourceConfig config = buildSchemaConfig("TPoX");
         ServletHolder servlet = new ServletHolder(new ServletContainer(config));
         ServletContextHandler context = new ServletContextHandler(jettyServer, "/*");
