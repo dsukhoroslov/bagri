@@ -65,7 +65,7 @@ public class SaxonUtils {
 
     public static Object itemToObject(Item item) throws XPathException {
         if (item instanceof AtomicValue) {
-            AtomicValue p = ((AtomicValue)item);
+            AtomicValue p = ((AtomicValue) item).asAtomic(); // ((AtomicValue)item);
             int t = p.getItemType().getPrimitiveType();
             switch (t) {
                 case XS_ANY_URI:
@@ -446,19 +446,69 @@ public class SaxonUtils {
 		return SequenceType.makeSequenceType(it, cardinality);
 	}
 	
+    public static com.bagri.xdm.system.Cardinality getCardinality(int cardinality) {
+    	switch (cardinality) {
+    		case StaticProperty.ALLOWS_ONE_OR_MORE: return com.bagri.xdm.system.Cardinality.one_or_more;  
+    		case StaticProperty.ALLOWS_ZERO_OR_ONE: return com.bagri.xdm.system.Cardinality.zero_or_one;
+    		case StaticProperty.ALLOWS_ZERO_OR_MORE: return com.bagri.xdm.system.Cardinality.zero_or_more;
+    	}
+    	return com.bagri.xdm.system.Cardinality.one;  
+    }
+
 	public static ItemType type2Item(String type) {
 
-		// provide long switch here..
 		switch (type) {
+			case "anyAtomicType": return BuiltInAtomicType.ANY_ATOMIC;
+			//case "anySimpleType": return XQBASETYPE_ANYSIMPLETYPE;
+			//case "anyType": return XQBASETYPE_ANYTYPE;
+			case "anyURI": return BuiltInAtomicType.ANY_URI;
+			case "base64Binary": return BuiltInAtomicType.BASE64_BINARY;
 			case "boolean": return BuiltInAtomicType.BOOLEAN; 
 			case "byte": return BuiltInAtomicType.BYTE; 
-			case "double": return BuiltInAtomicType.DOUBLE; 
-			case "float": return BuiltInAtomicType.FLOAT; 
+			case "date": return BuiltInAtomicType.DATE;
+			case "dateTime": return BuiltInAtomicType.DATE_TIME; 
+    		case "dayTimeDuration": return BuiltInAtomicType.DAY_TIME_DURATION;
+    		case "decimal": return BuiltInAtomicType.DECIMAL;
+			case "double": return BuiltInAtomicType.DOUBLE;
+    		case "duration": return BuiltInAtomicType.DURATION;
+    		//case "ENTITIES": return BuiltInAtomicType.ENTITIES;
+    		case "ENTITY": return BuiltInAtomicType.ENTITY;
+			case "float": return BuiltInAtomicType.FLOAT;
+    		case "gDay": return BuiltInAtomicType.G_DAY;
+    		case "gMonth": return BuiltInAtomicType.G_MONTH;
+    		case "gMonthDay": return BuiltInAtomicType.G_MONTH_DAY;
+    		case "gYear": return BuiltInAtomicType.G_YEAR;
+    		case "gYearMonth": return BuiltInAtomicType.G_YEAR_MONTH;
+    		case "hexBinary": return BuiltInAtomicType.HEX_BINARY;
+    		case "ID": return BuiltInAtomicType.ID;
+    		case "IDREF": return BuiltInAtomicType.IDREF;
+    		//case "IDREFS": return BuiltInAtomicType.IDREFS;
 			case "int": return BuiltInAtomicType.INT; 
-			case "integer": return BuiltInAtomicType.INTEGER; 
-			case "long": return BuiltInAtomicType.LONG; 
+			case "integer": return BuiltInAtomicType.INTEGER;
+    		case "language": return BuiltInAtomicType.LANGUAGE;
+			case "long": return BuiltInAtomicType.LONG;
+    		case "Name": return BuiltInAtomicType.NAME;
+    		case "NCName": return BuiltInAtomicType.NCNAME;
+    		case "negativeInteger": return BuiltInAtomicType.NEGATIVE_INTEGER;
+    		case "NMTOKEN": return BuiltInAtomicType.NMTOKEN;
+    		//case "NMTOKENS": return BuiltInAtomicType.NMTOKENS;
+    		case "nonNegativeInteger": return BuiltInAtomicType.NON_NEGATIVE_INTEGER;
+    		case "nonPositiveInteger": return BuiltInAtomicType.NON_POSITIVE_INTEGER;
+    		case "normalizedString": return BuiltInAtomicType.NORMALIZED_STRING;
+    		case "NOTATION": return BuiltInAtomicType.NOTATION;
+    		case "positiveInteger": return BuiltInAtomicType.POSITIVE_INTEGER;
+    		case "QName": return BuiltInAtomicType.QNAME;
 			case "short": return BuiltInAtomicType.SHORT; 
 			case "string": return BuiltInAtomicType.STRING; 
+    		case "time": return BuiltInAtomicType.TIME;
+    		case "token": return BuiltInAtomicType.TOKEN;
+    		case "unsignedByte": return BuiltInAtomicType.UNSIGNED_BYTE;
+    		case "unsignedInt": return BuiltInAtomicType.UNSIGNED_INT;
+    		case "unsignedLong": return BuiltInAtomicType.UNSIGNED_LONG;
+    		case "unsignedShort": return BuiltInAtomicType.UNSIGNED_SHORT;
+    		//case "untyped": return BuiltInAtomicType.UNTYPED;
+    		case "untypedAtomic": return BuiltInAtomicType.UNTYPED_ATOMIC;
+    		case "yearMonthDuration": return BuiltInAtomicType.YEAR_MONTH_DURATION;
 		}
 		return BuiltInAtomicType.ANY_ATOMIC; 
 	}
@@ -470,6 +520,15 @@ public class SaxonUtils {
 
     private static Duration getDuration(DurationValue d, int type) { //throws XPathException {
     	return XQUtils.getXMLDuration(d.getStringValue(), type);
+    }
+
+    public static String getTypeName(ItemType type) {
+    	if (type.isAtomicType()) {
+    		return type.getAtomizedItemType().getTypeName().getLocalPart();
+    	}
+    	String result = type.toString();
+    	// delete () at the end
+    	return result.substring(0, result.length() - 2);
     }
 
     @SuppressWarnings({ "rawtypes" })
@@ -688,15 +747,6 @@ public class SaxonUtils {
         return null; //item.;
     }
     
-    public static com.bagri.xdm.system.Cardinality getCardinality(int cardinality) {
-    	switch (cardinality) {
-    		case StaticProperty.ALLOWS_ONE_OR_MORE: return com.bagri.xdm.system.Cardinality.one_or_more;  
-    		case StaticProperty.ALLOWS_ZERO_OR_ONE: return com.bagri.xdm.system.Cardinality.zero_or_one;
-    		case StaticProperty.ALLOWS_ZERO_OR_MORE: return com.bagri.xdm.system.Cardinality.zero_or_more;
-    	}
-    	return com.bagri.xdm.system.Cardinality.one;  
-    }
-
 	/*    
     public static int getBaseType(AtomicValue value) {
         int type = value.getItemType().getPrimitiveType();

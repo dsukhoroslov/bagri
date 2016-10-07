@@ -229,6 +229,11 @@ public class XQUtils {
 		return null;
 	}
 
+	public static Object getAtomicValue(String typeName, String value) {
+		int baseType = getBaseTypeForTypeName(typeName);
+		return getAtomicValue(baseType, value);
+	}
+	
 	/**
 	 * converts {@link QName} to the corresponding XQJ baseType. 
 	 * Return XQBASETYPE_STRING if the provided typeName's local name is not recognized.
@@ -239,64 +244,68 @@ public class XQUtils {
 	 */
 	public static int getBaseTypeForTypeName(QName typeName) {
 		if (xs_ns.equals(typeName.getNamespaceURI())) {
-			switch (typeName.getLocalPart()) {
-				case "anyAtomicType": return XQBASETYPE_ANYATOMICTYPE;
-				case "anySimpleType": return XQBASETYPE_ANYSIMPLETYPE;
-				case "anyType": return XQBASETYPE_ANYTYPE;
-				case "anyURI": return XQBASETYPE_ANYURI;
-				case "base64Binary": return XQBASETYPE_BASE64BINARY;
-				case "boolean": return XQBASETYPE_BOOLEAN;
-				case "byte": return XQBASETYPE_BYTE;
-				case "date": return XQBASETYPE_DATE;
-				case "dateTime": return XQBASETYPE_DATETIME; 
-	    		case "dayTimeDuration": return XQBASETYPE_DAYTIMEDURATION;
-	    		case "decimal": return XQBASETYPE_DECIMAL;
-	    		case "double": return XQBASETYPE_DOUBLE;
-	    		case "duration": return XQBASETYPE_DURATION;
-	    		case "ENTITIES": return XQBASETYPE_ENTITIES;
-	    		case "ENTITY": return XQBASETYPE_ENTITY;
-	    		case "float": return XQBASETYPE_FLOAT;
-	    		case "gDay": return XQBASETYPE_GDAY;
-	    		case "gMonth": return XQBASETYPE_GMONTH;
-	    		case "gMonthDay": return XQBASETYPE_GMONTHDAY;
-	    		case "gYear": return XQBASETYPE_GYEAR;
-	    		case "gYearMonth": return XQBASETYPE_GYEARMONTH;
-	    		case "hexBinary": return XQBASETYPE_HEXBINARY;
-	    		case "ID": return XQBASETYPE_ID;
-	    		case "IDREF": return XQBASETYPE_IDREF;
-	    		case "IDREFS": return XQBASETYPE_IDREFS;
-	    		case "int": return XQBASETYPE_INT;
-	    		case "integer": return XQBASETYPE_INTEGER;
-	    		case "language": return XQBASETYPE_LANGUAGE;
-	    		case "long": return XQBASETYPE_LONG;
-	    		case "Name": return XQBASETYPE_NAME;
-	    		case "NCName": return XQBASETYPE_NCNAME;
-	    		case "negativeInteger": return XQBASETYPE_NEGATIVE_INTEGER;
-	    		case "NMTOKEN": return XQBASETYPE_NMTOKEN;
-	    		case "NMTOKENS": return XQBASETYPE_NMTOKENS;
-	    		case "nonNegativeInteger": return XQBASETYPE_NONNEGATIVE_INTEGER;
-	    		case "nonPositiveInteger": return XQBASETYPE_NONPOSITIVE_INTEGER;
-	    		case "normalizedString": return XQBASETYPE_NORMALIZED_STRING;
-	    		case "NOTATION": return XQBASETYPE_NOTATION;
-	    		case "positiveInteger": return XQBASETYPE_POSITIVE_INTEGER;
-	    		case "QName": return XQBASETYPE_QNAME;
-	    		case "short": return XQBASETYPE_SHORT;
-	    		case "string": return XQBASETYPE_STRING;
-	    		case "time": return XQBASETYPE_TIME;
-	    		case "token": return XQBASETYPE_TOKEN;
-	    		case "unsignedByte": return XQBASETYPE_UNSIGNED_BYTE;
-	    		case "unsignedInt": return XQBASETYPE_UNSIGNED_INT;
-	    		case "unsignedLong": return XQBASETYPE_UNSIGNED_LONG;
-	    		case "unsignedShort": return XQBASETYPE_UNSIGNED_SHORT;
-	    		case "untyped": return XQBASETYPE_UNTYPED;
-	    		case "untypedAtomic": return XQBASETYPE_UNTYPEDATOMIC;
-	    		case "yearMonthDuration": return XQBASETYPE_YEARMONTHDURATION;
-			}
-			return XQBASETYPE_STRING;
+			return getBaseTypeForTypeName(typeName.getLocalPart());
 		}
 		return XQBASETYPE_ANYTYPE;
 	}
-    
+
+	public static int getBaseTypeForTypeName(String typeName) {
+		switch (typeName) {
+			case "anyAtomicType": return XQBASETYPE_ANYATOMICTYPE;
+			case "anySimpleType": return XQBASETYPE_ANYSIMPLETYPE;
+			case "anyType": return XQBASETYPE_ANYTYPE;
+			case "anyURI": return XQBASETYPE_ANYURI;
+			case "base64Binary": return XQBASETYPE_BASE64BINARY;
+			case "boolean": return XQBASETYPE_BOOLEAN;
+			case "byte": return XQBASETYPE_BYTE;
+			case "date": return XQBASETYPE_DATE;
+			case "dateTime": return XQBASETYPE_DATETIME; 
+    		case "dayTimeDuration": return XQBASETYPE_DAYTIMEDURATION;
+    		case "decimal": return XQBASETYPE_DECIMAL;
+    		case "double": return XQBASETYPE_DOUBLE;
+    		case "duration": return XQBASETYPE_DURATION;
+    		case "ENTITIES": return XQBASETYPE_ENTITIES;
+    		case "ENTITY": return XQBASETYPE_ENTITY;
+    		case "float": return XQBASETYPE_FLOAT;
+    		case "gDay": return XQBASETYPE_GDAY;
+    		case "gMonth": return XQBASETYPE_GMONTH;
+    		case "gMonthDay": return XQBASETYPE_GMONTHDAY;
+    		case "gYear": return XQBASETYPE_GYEAR;
+    		case "gYearMonth": return XQBASETYPE_GYEARMONTH;
+    		case "hexBinary": return XQBASETYPE_HEXBINARY;
+    		case "ID": return XQBASETYPE_ID;
+    		case "IDREF": return XQBASETYPE_IDREF;
+    		case "IDREFS": return XQBASETYPE_IDREFS;
+    		case "int": return XQBASETYPE_INT;
+    		case "integer": return XQBASETYPE_INTEGER;
+    		case "language": return XQBASETYPE_LANGUAGE;
+    		case "long": return XQBASETYPE_LONG;
+    		case "Name": return XQBASETYPE_NAME;
+    		case "NCName": return XQBASETYPE_NCNAME;
+    		case "negativeInteger": return XQBASETYPE_NEGATIVE_INTEGER;
+    		case "NMTOKEN": return XQBASETYPE_NMTOKEN;
+    		case "NMTOKENS": return XQBASETYPE_NMTOKENS;
+    		case "nonNegativeInteger": return XQBASETYPE_NONNEGATIVE_INTEGER;
+    		case "nonPositiveInteger": return XQBASETYPE_NONPOSITIVE_INTEGER;
+    		case "normalizedString": return XQBASETYPE_NORMALIZED_STRING;
+    		case "NOTATION": return XQBASETYPE_NOTATION;
+    		case "positiveInteger": return XQBASETYPE_POSITIVE_INTEGER;
+    		case "QName": return XQBASETYPE_QNAME;
+    		case "short": return XQBASETYPE_SHORT;
+    		case "string": return XQBASETYPE_STRING;
+    		case "time": return XQBASETYPE_TIME;
+    		case "token": return XQBASETYPE_TOKEN;
+    		case "unsignedByte": return XQBASETYPE_UNSIGNED_BYTE;
+    		case "unsignedInt": return XQBASETYPE_UNSIGNED_INT;
+    		case "unsignedLong": return XQBASETYPE_UNSIGNED_LONG;
+    		case "unsignedShort": return XQBASETYPE_UNSIGNED_SHORT;
+    		case "untyped": return XQBASETYPE_UNTYPED;
+    		case "untypedAtomic": return XQBASETYPE_UNTYPEDATOMIC;
+    		case "yearMonthDuration": return XQBASETYPE_YEARMONTHDURATION;
+		}
+		return XQBASETYPE_STRING;
+	}
+	
 	/**
 	 * checks if the provided XQJ base type constant corresponds to XQJ atomic type or not 
 	 * 

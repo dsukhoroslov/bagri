@@ -1,5 +1,7 @@
 package com.bagri.xquery.saxon;
 
+import static com.bagri.xquery.saxon.SaxonUtils.*; 
+
 import java.io.Reader;
 import java.io.StringReader;
 import java.lang.reflect.Field;
@@ -343,11 +345,11 @@ public class XQCompilerImpl implements XQCompiler {
 					return null;
 				}
 				
-				DataType type = new DataType(fn.getResultType().getPrimaryType().toString(), SaxonUtils.getCardinality(fn.getResultType().getCardinality()));
+				DataType type = new DataType(getTypeName(fn.getResultType().getPrimaryType()), getCardinality(fn.getResultType().getCardinality()));
 				Function result = new Function(null, fn.getFunctionName().getLocalPart(), type, null, fn.getFunctionName().getPrefix());
 				for (UserFunctionParameter ufp: fn.getParameterDefinitions()) {
-					Parameter param = new Parameter(ufp.getVariableQName().getLocalPart(), ufp.getRequiredType().getPrimaryType().toString(), 
-							SaxonUtils.getCardinality(ufp.getRequiredType().getCardinality()));
+					Parameter param = new Parameter(ufp.getVariableQName().getLocalPart(), getTypeName(ufp.getRequiredType().getPrimaryType()), 
+							getCardinality(ufp.getRequiredType().getCardinality()));
 					result.getParameters().add(param);
 				}
 

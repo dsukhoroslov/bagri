@@ -1,5 +1,12 @@
 package com.bagri.rest;
 
+import static com.bagri.xquery.api.XQUtils.getAtomicValue;
+
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -7,8 +14,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
 import javax.xml.xquery.XQDataFactory;
 import javax.xml.xquery.XQItem;
 
@@ -51,25 +60,32 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
     		List<String> vals = context.getUriInfo().getPathParameters().get(pm.getName());
     		if (vals != null) {
     			// resolve cardinality..
-    			params.put(pm.getName(), vals.get(0));
+    			params.put(pm.getName(), getAtomicValue(pm.getType(), vals.get(0)));
     		}
     	}
     	logger.debug("apply.enter; got params: {}", params); 
 		Properties props = new Properties();
 		try {
-			ResultCursor cursor = repo.getQueryManagement().executeQuery(query, params, props);
+			final ResultCursor cursor = repo.getQueryManagement().executeQuery(query, params, props);
 	    	logger.debug("apply.exit; got cursor: {}", cursor);
-	    	List<String> result = new ArrayList<>();
-            while (cursor.next()) {
-            	//if (cnt > 0) {
-                //    output.write(splitter);
-            	//}
-            	String chunk = cursor.getItemAsString(null); 
-                logger.trace("postQuery; out: {}", chunk);
-                result.add(chunk);
-                //cnt++;
-            }
-			return Response.ok().entity(result).build();
+	    	StreamingOutput stream = new StreamingOutput() {
+	            @Override
+	            public void write(OutputStream os) throws IOException, WebApplicationException {
+	                Writer writer = new BufferedWriter(new OutputStreamWriter(os));
+	                try {
+		                while (cursor.next()) {
+		                	String chunk = cursor.getItemAsString(null); 
+		                    logger.trace("write; out: {}", chunk);
+		                    writer.write(chunk + "\n");
+		                }
+	                } catch (XDMException ex) {
+	        			logger.error("write.error: ", ex);
+	        			// how to handle it properly??
+	                }
+	                writer.flush();
+	            }
+	        };
+	        return Response.ok(stream).build();	    	
 		} catch (XDMException ex) {
 			logger.error("apply.error: ", ex);
 			return Response.serverError().entity(ex.getMessage()).build();
