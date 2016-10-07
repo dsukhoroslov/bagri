@@ -318,22 +318,22 @@ public class SaxonUtils {
     	if (value instanceof Node) {
 	    	JPConverter jp;
 			switch (kind) {
-				case XQItemType.XQITEMKIND_DOCUMENT:
+				case XQITEMKIND_DOCUMENT:
 			        jp = DOMObjectModel.getInstance().getJPConverter(Document.class, config);
 			        break;
-				case XQItemType.XQITEMKIND_ELEMENT:
+				case XQITEMKIND_ELEMENT:
 			        jp = DOMObjectModel.getInstance().getJPConverter(Element.class, config);
 			        break;
-				case XQItemType.XQITEMKIND_ATTRIBUTE:
+				case XQITEMKIND_ATTRIBUTE:
 			        jp = DOMObjectModel.getInstance().getJPConverter(Attr.class, config);
 			        break;
-				case XQItemType.XQITEMKIND_COMMENT:
+				case XQITEMKIND_COMMENT:
 			        jp = DOMObjectModel.getInstance().getJPConverter(Comment.class, config);
 			        break;
-				case XQItemType.XQITEMKIND_PI:
+				case XQITEMKIND_PI:
 			        jp = DOMObjectModel.getInstance().getJPConverter(ProcessingInstruction.class, config);
 			        break;
-				case XQItemType.XQITEMKIND_TEXT:
+				case XQITEMKIND_TEXT:
 			        jp = DOMObjectModel.getInstance().getJPConverter(Text.class, config);
 			        break;
 				//case XQItemType.XQITEMKIND_NODE:

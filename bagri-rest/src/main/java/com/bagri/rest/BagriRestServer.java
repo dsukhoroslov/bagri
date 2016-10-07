@@ -148,7 +148,7 @@ public class BagriRestServer implements Factory<RepositoryProvider> {
         		append("\" at \"").append(module.getName()).append("\";\n"); // +
         int offset = query.length();
     	//tpox:security-by-id($id)
-        query.append(fn.getMethod()).append("(");
+        query.append(fn.getPrefix()).append(":").append(fn.getMethod()).append("(");
         StringBuffer params = new StringBuffer();
         int cnt = 0;
     	//declare variable $id external;
