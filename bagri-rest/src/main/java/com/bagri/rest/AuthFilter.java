@@ -18,8 +18,8 @@ public class AuthFilter implements ContainerRequestFilter {
     private static final transient Logger logger = LoggerFactory.getLogger(AuthFilter.class);
 	
     @Inject
-    protected RepositoryProvider repos;
-	
+    private RepositoryProvider repos;
+
     private boolean checkAuth(String clientId) {
     	return repos.getRepository(clientId) != null;
     }

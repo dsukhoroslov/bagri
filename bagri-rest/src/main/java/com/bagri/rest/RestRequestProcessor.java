@@ -16,6 +16,7 @@ import java.util.Properties;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.container.ContainerRequestContext;
+import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import javax.xml.xquery.XQDataFactory;
@@ -49,21 +50,75 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
     @Override
     public Response apply(ContainerRequestContext context) {
     	
-		//XQDataFactory xqFactory = xqp.getXQDataFactory();
-		//XQItem item = xqFactory.createItemFromNode(xDoc, xqFactory.createDocumentType());
-		//xqp.bindVariable("doc", item);
-    	
     	String clientId = context.getCookies().get(RestService.bg_cookie).getValue();
     	SchemaRepository repo = rePro.getRepository(clientId);
     	Map<String, Object> params = new HashMap<>(fn.getParameters().size());
+		logger.debug("apply.enter; path: {}; params: {}; query: {}", context.getUriInfo().getPath(), 
+				context.getUriInfo().getPathParameters(), context.getUriInfo().getQueryParameters());
     	for (Parameter pm: fn.getParameters()) {
+    		if (isPathParameter(pm.getName())) {
+        		List<String> vals = context.getUriInfo().getPathParameters().get(pm.getName());
+        		if (vals != null) {
+        			// resolve cardinality..
+        			params.put(pm.getName(), getAtomicValue(pm.getType(), vals.get(0)));
+        		}    			
+    		} else {
+        		List<String> atns = getParamAnnotations("rest:query-param", pm.getName());
+    			if (atns != null) {
+    	    		List<String> vals = context.getUriInfo().getQueryParameters().get(pm.getName());
+    	    		if (vals != null) {
+    	    			// resolve cardinality..
+    	    			params.put(pm.getName(), getAtomicValue(pm.getType(), vals.get(0)));
+    	    		} else {
+    	    			// handle default values
+    	    			if (atns.size() >= 2) {
+        	    			params.put(pm.getName(), getAtomicValue(pm.getType(), atns.get(2)));
+    	    			}
+    	    		}
+    			} else {
+    				atns = getParamAnnotations("rest:form-param", pm.getName());
+        			if (atns != null) {
+        				// TODO: handle them properly..
+        			} else {
+        				atns = getParamAnnotations("rest:header-param", pm.getName());
+        				if (atns != null) {
+            	    		String val = context.getHeaderString(atns.get(0));
+        					if (val != null) {
+        						params.put(pm.getName(), getAtomicValue(pm.getType(), val));
+        					}
+        				} else {
+            				atns = getParamAnnotations("rest:cookie-param", pm.getName());
+            				if (atns != null) {
+                	    		Cookie val = context.getCookies().get(atns.get(0));
+            					if (val != null) {
+            						params.put(pm.getName(), getAtomicValue(pm.getType(), val.getValue()));
+            					}
+            				} else {
+                				atns = getParamAnnotations("rest:matrix-param", pm.getName());
+                				if (atns != null) {
+                    				// does not work in Jersey: context.getUriInfo().getPathSegments();
+                					List<String> vals = getMatrixParams(context.getUriInfo().getPath());
+                					if (vals != null) {
+                						params.put(pm.getName(), vals);
+                					}
+                				} else {
+                    				if (context.hasEntity() && ("POST".equals(context.getMethod()) || "PUT".equals(context.getMethod()))) {
+                					    java.util.Scanner s = new java.util.Scanner(context.getEntityStream()).useDelimiter("\\A");
+                    	    			params.put(pm.getName(), getAtomicValue(pm.getType(), s.next()));
+                    				}
+                				}
+            				}
+        				}
+        			}
+    			}
+    		}
     		List<String> vals = context.getUriInfo().getPathParameters().get(pm.getName());
     		if (vals != null) {
     			// resolve cardinality..
     			params.put(pm.getName(), getAtomicValue(pm.getType(), vals.get(0)));
     		}
     	}
-    	logger.debug("apply.enter; got params: {}", params); 
+    	logger.debug("apply; got params: {}", params); 
 		Properties props = new Properties();
 		try {
 			final ResultCursor cursor = repo.getQueryManagement().executeQuery(query, params, props);
@@ -92,5 +147,32 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
 		}
     	
 	}
+
+    private boolean isPathParameter(String pName) {
+    	List<String> pa = fn.getAnnotations().get("rest:path");
+    	return (pa != null && pa.size() == 1 && pa.get(0).indexOf("{" + pName + "}") > 0);
+    }
+    
+    private List<String> getParamAnnotations(String aName, String pName) {
+    	List<String> pa = fn.getAnnotations().get(aName);
+    	if (pa != null && pa.size() > 0) {
+    		if (pName.equals(pa.get(0))) {
+    			return pa;
+    		} else if (pa.size() > 1 && ("{$" + pName + "}").equals(pa.get(1))) {
+    			return pa;
+    		}
+    	}
+    	return null;
+    }
+    
+    private List<String> getMatrixParams(String path) {
+    	List<String> pairs = new ArrayList<>();
+    	for (String part: path.split(";")) {
+    		if (part.indexOf("=") > 0) {
+    			pairs.add(part);
+    		}
+    	}
+    	return pairs;
+    }
     
 }

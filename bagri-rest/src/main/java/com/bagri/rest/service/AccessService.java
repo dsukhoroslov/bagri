@@ -1,5 +1,7 @@
 package com.bagri.rest.service;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -9,11 +11,16 @@ import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import com.bagri.rest.BagriRestServer;
 import com.bagri.xdm.api.SchemaRepository;
 
+@Singleton
 @Path("/access")
 public class AccessService extends RestService {
 
+	@Inject
+    private BagriRestServer server;
+    
 	@POST
     @Path("/login")
     @Consumes(MediaType.APPLICATION_JSON) 
@@ -28,6 +35,7 @@ public class AccessService extends RestService {
 			    if (repo != null) {
 					logger.trace("login.exit; returning client: {}", repo.getClientId());
 				    NewCookie cookie = new NewCookie(bg_cookie, repo.getClientId());
+				    server.reload(params.schemaName);
 				    return Response.ok("OK").cookie(cookie).build();
 			    } else {
 				    return Response.status(Status.GONE).entity("Schema is not active").build();

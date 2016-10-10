@@ -81,8 +81,9 @@ public class BagriRestServer implements Factory<RepositoryProvider> {
     }
     
     public ResourceConfig buildConfig() {
-        ResourceConfig config = new ResourceConfig(AccessService.class, CollectionService.class, 
-        		DocumentService.class, QueryService.class, SchemaService.class, TransactionService.class);
+        ResourceConfig config = new ResourceConfig(AccessService.class, CollectionService.class, DocumentService.class, 
+        		QueryService.class, SchemaService.class, TransactionService.class);
+        config.register(this);
         config.register(AuthFilter.class);
         config.register(JacksonFeature.class);
         config.register(new AbstractBinder() {
@@ -96,7 +97,7 @@ public class BagriRestServer implements Factory<RepositoryProvider> {
         return config;
     }
     
-    public ResourceConfig buildSchemaConfig(String schemaName) {
+    private ResourceConfig buildSchemaConfig(String schemaName) {
     	ResourceConfig config = buildConfig();
     	Schema schema = rePro.getSchema(schemaName);
     	// get schema -> resources
@@ -158,6 +159,7 @@ public class BagriRestServer implements Factory<RepositoryProvider> {
         	}
         	query.append("$").append(param.getName());
         	params.append("declare variable $").append(param.getName()).append(" external;\n");
+        	cnt++;
         }
         query.append(")\n");
         params.append("\n");
@@ -212,11 +214,20 @@ public class BagriRestServer implements Factory<RepositoryProvider> {
         methodBuilder.handledBy(new RestRequestProcessor(fn, query, rePro));
     }
     
+    public void reload(final String schemaName) {
+    	new Thread() {
+    		@Override
+    		public void run() {
+    			ResourceConfig newConfig = buildSchemaConfig(schemaName);
+    			reloader.reload(newConfig);
+    		}
+    	}.start();
+    }
+    
     public void start() {
         logger.debug("start.enter; Starting rest server");
         jettyServer = createServer();
-        // TODO: reload schema dynamically!
-        ResourceConfig config = buildSchemaConfig("TPoX");
+        ResourceConfig config = buildConfig();
         ServletHolder servlet = new ServletHolder(new ServletContainer(config));
         ServletContextHandler context = new ServletContextHandler(jettyServer, "/*");
         context.addServlet(servlet, "/*");

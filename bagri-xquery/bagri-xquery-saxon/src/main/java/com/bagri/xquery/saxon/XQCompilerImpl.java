@@ -36,7 +36,6 @@ import net.sf.saxon.query.StaticQueryContext;
 import net.sf.saxon.query.XQueryExpression;
 import net.sf.saxon.query.XQueryFunction;
 import net.sf.saxon.query.XQueryFunctionLibrary;
-import net.sf.saxon.trace.LocationKind;
 import net.sf.saxon.trans.XPathException;
 import net.sf.saxon.value.AtomicValue;
 
@@ -48,7 +47,11 @@ import com.bagri.xdm.system.Module;
 import com.bagri.xdm.system.Parameter;
 import com.bagri.xdm.system.XQueryTrigger;
 import com.bagri.xquery.api.XQCompiler;
+import com.bagri.xquery.saxon.extension.GetDocument;
+import com.bagri.xquery.saxon.extension.RemoveCollectionDocuments;
+import com.bagri.xquery.saxon.extension.RemoveDocument;
 import com.bagri.xquery.saxon.extension.StaticFunctionExtension;
+import com.bagri.xquery.saxon.extension.StoreDocument;
 
 public class XQCompilerImpl implements XQCompiler {
 	
@@ -73,13 +76,19 @@ public class XQCompilerImpl implements XQCompiler {
 		props.setProperty(name, value.toString());
 	}
 	
-	private String getError(StaticQueryContext sqc) {
-		// TODO: sqc.getErrorListener() can be not LocalErrorListener!
-		// got ClassCustException here, when error happened at REST service preparation..
-		List<TransformerException> errors = ((LocalErrorListener) sqc.getErrorListener()).getErrors();
+	private String getError(XPathException ex, StaticQueryContext sqc) {
 		StringBuffer buff = new StringBuffer();
-		for (TransformerException tex: errors) {
-			buff.append(tex.getMessageAndLocation()).append("\n");
+		if (sqc.getErrorListener() instanceof LocalErrorListener) {
+			List<TransformerException> errors = ((LocalErrorListener) sqc.getErrorListener()).getErrors();
+			for (TransformerException tex: errors) {
+				buff.append(tex.getMessageAndLocation()).append("\n");
+			}
+		} else {
+			Throwable err = ex;
+			while (err != null) {
+				buff.append(err.getMessage()).append("\n");
+				err = err.getCause();
+			}
 		}
 		return buff.toString();
 	}
@@ -93,7 +102,7 @@ public class XQCompilerImpl implements XQCompiler {
 		    sqc = prepareStaticContext(null);
 			sqc.compileQuery(query);
 		} catch (XPathException ex) {
-			String error = getError(sqc);
+			String error = getError(ex, sqc);
 			logger.info("compileQuery.error; message: {}", error);
 			throw new XDMException(error, XDMException.ecQueryCompile);
 		}
@@ -124,7 +133,7 @@ public class XQCompilerImpl implements XQCompiler {
 		try {
 			sqc.compileQuery(query);
 		} catch (XPathException ex) {
-			String error = getError(sqc);
+			String error = getError(ex, sqc);
 			//logger.error("compileQuery.error", ex);
 			logger.info("compileTrigger.error; message: {}", error);
 			throw new XDMException(error, XDMException.ecQueryCompile);
@@ -238,6 +247,11 @@ public class XQCompilerImpl implements XQCompiler {
         config.setSchemaValidationMode(Validation.STRIP);
         //config.setConfigurationProperty(FeatureKeys.ALLOW_EXTERNAL_FUNCTIONS, Boolean.TRUE);
 
+        config.registerExtensionFunction(new GetDocument(null));
+        config.registerExtensionFunction(new RemoveDocument(null));
+        config.registerExtensionFunction(new StoreDocument(null));
+        config.registerExtensionFunction(new RemoveCollectionDocuments(null));
+        
         if (libraries != null) {
         	registerExtensions(config, libraries);
         }
@@ -282,7 +296,7 @@ public class XQCompilerImpl implements XQCompiler {
 			return sqc.compileQuery(query);
 			//sqc.getCompiledLibrary("test")...
 		} catch (XPathException ex) {
-			String error = getError(sqc);
+			String error = getError(ex, sqc);
 			logger.info("getModuleExpression.error; message: {}", error);
 			throw new XDMException(error, XDMException.ecQueryCompile);
 		}
