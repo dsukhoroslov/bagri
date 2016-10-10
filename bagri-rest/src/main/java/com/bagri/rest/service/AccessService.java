@@ -1,7 +1,6 @@
 package com.bagri.rest.service;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -14,7 +13,6 @@ import javax.ws.rs.core.Response.Status;
 import com.bagri.rest.BagriRestServer;
 import com.bagri.xdm.api.SchemaRepository;
 
-@Singleton
 @Path("/access")
 public class AccessService extends RestService {
 
@@ -51,9 +49,11 @@ public class AccessService extends RestService {
     @Produces(MediaType.TEXT_PLAIN)
 	public Response logout() {
 		logger.trace("logout.enter; cookie: {}", bgAuth);
-		repos.disconnect(bgAuth.getValue());
-        NewCookie newCookie = new NewCookie(bgAuth, null, 0, false);
-        return Response.ok("OK").cookie(newCookie).build();
+		repos.disconnect(getClientId());
+        NewCookie cookie = new NewCookie(bgAuth, null, 0, false);
+        return Response.ok("OK").cookie(cookie).build();
+		// may be we should notify server about disconnection?
+        // in order to re-check activeSchemas..?
 	}
 
 }

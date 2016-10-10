@@ -126,18 +126,17 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
 	    	StreamingOutput stream = new StreamingOutput() {
 	            @Override
 	            public void write(OutputStream os) throws IOException, WebApplicationException {
-	                Writer writer = new BufferedWriter(new OutputStreamWriter(os));
-	                try {
+	                try (Writer writer = new BufferedWriter(new OutputStreamWriter(os))) {
 		                while (cursor.next()) {
 		                	String chunk = cursor.getItemAsString(null); 
 		                    logger.trace("write; out: {}", chunk);
 		                    writer.write(chunk + "\n");
+			                writer.flush();
 		                }
 	                } catch (XDMException ex) {
-	        			logger.error("write.error: ", ex);
-	        			// how to handle it properly??
-	                }
-	                writer.flush();
+	        			logger.error("apply.error: error getting result from cursor ", ex);
+	        			// how to handle it properly?? throw WebAppEx?
+	                } 
 	            }
 	        };
 	        return Response.ok(stream).build();	    	

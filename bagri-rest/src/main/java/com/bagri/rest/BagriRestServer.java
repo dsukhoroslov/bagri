@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.ext.ContextResolver;
+import javax.ws.rs.ext.Provider;
 
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.HttpConfiguration;
@@ -41,7 +43,8 @@ import com.bagri.xdm.system.Parameter;
 import com.bagri.xdm.system.Schema;
 import com.bagri.xquery.api.XQCompiler;
 
-public class BagriRestServer implements Factory<RepositoryProvider> {
+@Provider
+public class BagriRestServer implements ContextResolver<BagriRestServer>, Factory<RepositoryProvider> {
 
     private static final transient Logger logger = LoggerFactory.getLogger(BagriRestServer.class);
     
@@ -50,6 +53,7 @@ public class BagriRestServer implements Factory<RepositoryProvider> {
     private XQCompiler xqComp;
     private RepositoryProvider rePro;
     private Reloader reloader = new Reloader();
+    private List<String> activeSchemas = new ArrayList<>();
 	
     public static void main(String[] args) throws Exception {
     	BagriRestServer server = new BagriRestServer();
@@ -97,23 +101,169 @@ public class BagriRestServer implements Factory<RepositoryProvider> {
         return config;
     }
     
-    private ResourceConfig buildSchemaConfig(String schemaName) {
-    	ResourceConfig config = buildConfig();
+    public void reload(final String schemaName) {
+    	if (!activeSchemas.contains(schemaName)) {
+	    	new Thread() {
+	    		@Override
+	    		public void run() {
+	    			// TODO: think about concurrency issues
+	    			ResourceConfig config = buildConfig();
+	    			activeSchemas.add(schemaName);
+	    			List<String> newList = new ArrayList<>(activeSchemas.size() + 1);
+	    			for (String schema: activeSchemas) {
+	    				if (buildSchemaConfig(config, schema)) {
+	    					newList.add(schema);
+	    				}
+	    			}
+	    			reloader.reload(config);
+	    			activeSchemas = newList;
+	    		}
+	    	}.start();
+    	}
+    }
+    
+    public void start() {
+        logger.debug("start.enter; Starting rest server");
+        jettyServer = createServer();
+        ResourceConfig config = buildConfig();
+        ServletHolder servlet = new ServletHolder(new ServletContainer(config));
+        ServletContextHandler context = new ServletContextHandler(jettyServer, "/*");
+        context.addServlet(servlet, "/*");
+        
+        try {
+            jettyServer.start();
+            //jettyServer.join();
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+        logger.debug("start.exit; Rest server is started");
+    }
+    
+    public void stop() {
+        logger.debug("stop.enter; Stopping rest server");
+        try {
+            jettyServer.destroy(); //stop();
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+        logger.debug("stop.exit; Rest server is stopped");
+    }
+
+	@Override
+	public BagriRestServer getContext(Class<?> type) {
+		logger.trace("getContext; type: {}", type);
+		if (type.equals(BagriRestServer.class)) {
+			return this;
+		}
+		return null;
+	}
+    
+	@Override
+	public RepositoryProvider provide() {
+		logger.trace("provide");
+		return rePro;
+	}
+
+	@Override
+	public void dispose(RepositoryProvider instance) {
+		logger.trace("dispose");
+		this.rePro = null;
+	}
+
+	private Server createServer() {
+		
+        int securePort = 3443;
+        //String keyStorePath = "C:\\Work\\Bagri\\";
+        String keyStorePwd = "bagri11";
+        
+        // First the Server itself
+
+        // Create a basic jetty server object without declaring the port.  Since we are configuring connectors
+        // directly we'll be setting ports on those connectors.
+        Server server = new Server();
+
+        // Next the HttpConfiguration for http
+
+        // HTTP Configuration
+        // HttpConfiguration is a collection of configuration information appropriate for http and https. The default
+        // scheme for http is <code>http</code> of course, as the default for secured http is <code>https</code> but
+        // we show setting the scheme to show it can be done.  The port for secured communication is also set here.
+        HttpConfiguration http_config = new HttpConfiguration();
+        http_config.setSecureScheme("https");
+        http_config.setSecurePort(securePort);
+        http_config.setOutputBufferSize(32768);
+
+        // Now define the ServerConnector for handling just http
+
+        // HTTP connector
+        // The first server connector we create is the one for http, passing in the http configuration we configured
+        // above so it can get things like the output buffer size, etc. We also set the port (8080) and configure an
+        // idle timeout.
+        ServerConnector http = new ServerConnector(server, new HttpConnectionFactory(http_config));        
+        http.setPort(port); //3030);        
+        
+        // Now configure the SslContextFactory with your keystore information
+
+        // SSL Context Factory for HTTPS and SPDY
+        // SSL requires a certificate so we configure a factory for ssl contents with information pointing to what
+        // keystore the ssl connection needs to know about. Much more configuration is available the ssl context,
+        // including things like choosing the particular certificate out of a keystore to be used.
+        SslContextFactory sslContextFactory = new SslContextFactory();
+        sslContextFactory.setKeyStorePath("../etc/keystore/");
+        sslContextFactory.setKeyStorePath(BagriRestServer.class.getResource("/keystore.jks").toExternalForm());
+        sslContextFactory.setKeyStorePassword(keyStorePwd);
+        sslContextFactory.setKeyManagerPassword(keyStorePwd);
+
+        // Now setup your HTTPS configuration.
+        // Note: the SecureRequestCustomizer, sets up various servlet api request attributes and certificate information to satisfy the requirements of the servlet spec.
+
+        // HTTPS Configuration
+        // A new HttpConfiguration object is needed for the next connector and you can pass the old one as an
+        // argument to effectively clone the contents. On this HttpConfiguration object we add a
+        // SecureRequestCustomizer which is how a new connector is able to resolve the https connection before
+        // handing control over to the Jetty Server.
+        //jettyServer.
+        HttpConfiguration https_config = new HttpConfiguration(http_config);
+        https_config.addCustomizer(new SecureRequestCustomizer());
+
+        // Now define the ServerConnector for handling SSL+http (aka https)
+
+        // HTTPS connector
+        // We create a second ServerConnector, passing in the http configuration we just made along with the
+        // previously created ssl context factory. Next we set the port and a longer idle timeout.
+        ServerConnector https = new ServerConnector(server, new SslConnectionFactory(sslContextFactory,"http/1.1"), new HttpConnectionFactory(https_config));
+        https.setPort(securePort);
+        https.setIdleTimeout(500000);
+
+        // Finally, add the connectors to the server
+
+        // Here you see the server having multiple connectors registered with it, now requests can flow into the server
+        // from both http and https urls to their respective ports and be processed accordingly by jetty. A simple
+        // handler is also registered with the server so the example has something to pass requests off to.
+
+        // Set the connectors
+        server.setConnectors(new Connector[] { http, https });
+        return server;
+	}
+    
+    private boolean buildSchemaConfig(ResourceConfig config, String schemaName) {
     	Schema schema = rePro.getSchema(schemaName);
     	// get schema -> resources
+    	int cnt = 0;
     	for (com.bagri.xdm.system.Resource res: schema.getResources()) {
         	// for each resource -> get module
     		if (res.isEnabled()) {
 	    		Module module = rePro.getModule(res.getModule());
 	    		try {
 	    			buildDynamicResources(config, res.getPath(), module);
+	    			cnt++;
 	    		} catch (XDMException ex) {
 	    			logger.error("buildSchemaConfig; error processing module: " + res.getModule(), ex);
 	    			// skip it..
 	    		}
     		}
     	}
-    	return config;
+    	return cnt > 0;
     }
     
     private void buildDynamicResources(ResourceConfig config, String basePath, Module module) throws XDMException {
@@ -213,130 +363,5 @@ public class BagriRestServer implements Factory<RepositoryProvider> {
         
         methodBuilder.handledBy(new RestRequestProcessor(fn, query, rePro));
     }
-    
-    public void reload(final String schemaName) {
-    	new Thread() {
-    		@Override
-    		public void run() {
-    			ResourceConfig newConfig = buildSchemaConfig(schemaName);
-    			reloader.reload(newConfig);
-    		}
-    	}.start();
-    }
-    
-    public void start() {
-        logger.debug("start.enter; Starting rest server");
-        jettyServer = createServer();
-        ResourceConfig config = buildConfig();
-        ServletHolder servlet = new ServletHolder(new ServletContainer(config));
-        ServletContextHandler context = new ServletContextHandler(jettyServer, "/*");
-        context.addServlet(servlet, "/*");
-        
-        try {
-            jettyServer.start();
-            //jettyServer.join();
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
-        }
-        logger.debug("start.exit; Rest server is started");
-    }
-    
-    public void stop() {
-        logger.debug("stop.enter; Stopping rest server");
-        try {
-            jettyServer.destroy(); //stop();
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
-        }
-        logger.debug("stop.exit; Rest server is stopped");
-    }
 
-	@Override
-	public RepositoryProvider provide() {
-		logger.trace("provide");
-		return rePro;
-	}
-
-	@Override
-	public void dispose(RepositoryProvider instance) {
-		logger.trace("dispose");
-		this.rePro = null;
-	}
-
-	private Server createServer() {
-		
-        int securePort = 3443;
-        //String keyStorePath = "C:\\Work\\Bagri\\";
-        String keyStorePwd = "bagri11";
-        
-        // First the Server itself
-
-        // Create a basic jetty server object without declaring the port.  Since we are configuring connectors
-        // directly we'll be setting ports on those connectors.
-        Server server = new Server();
-
-        // Next the HttpConfiguration for http
-
-        // HTTP Configuration
-        // HttpConfiguration is a collection of configuration information appropriate for http and https. The default
-        // scheme for http is <code>http</code> of course, as the default for secured http is <code>https</code> but
-        // we show setting the scheme to show it can be done.  The port for secured communication is also set here.
-        HttpConfiguration http_config = new HttpConfiguration();
-        http_config.setSecureScheme("https");
-        http_config.setSecurePort(securePort);
-        http_config.setOutputBufferSize(32768);
-
-        // Now define the ServerConnector for handling just http
-
-        // HTTP connector
-        // The first server connector we create is the one for http, passing in the http configuration we configured
-        // above so it can get things like the output buffer size, etc. We also set the port (8080) and configure an
-        // idle timeout.
-        ServerConnector http = new ServerConnector(server, new HttpConnectionFactory(http_config));        
-        http.setPort(port); //3030);        
-        
-        // Now configure the SslContextFactory with your keystore information
-
-        // SSL Context Factory for HTTPS and SPDY
-        // SSL requires a certificate so we configure a factory for ssl contents with information pointing to what
-        // keystore the ssl connection needs to know about. Much more configuration is available the ssl context,
-        // including things like choosing the particular certificate out of a keystore to be used.
-        SslContextFactory sslContextFactory = new SslContextFactory();
-        sslContextFactory.setKeyStorePath("../etc/keystore/");
-        sslContextFactory.setKeyStorePath(BagriRestServer.class.getResource("/keystore.jks").toExternalForm());
-        sslContextFactory.setKeyStorePassword(keyStorePwd);
-        sslContextFactory.setKeyManagerPassword(keyStorePwd);
-
-        // Now setup your HTTPS configuration.
-        // Note: the SecureRequestCustomizer, sets up various servlet api request attributes and certificate information to satisfy the requirements of the servlet spec.
-
-        // HTTPS Configuration
-        // A new HttpConfiguration object is needed for the next connector and you can pass the old one as an
-        // argument to effectively clone the contents. On this HttpConfiguration object we add a
-        // SecureRequestCustomizer which is how a new connector is able to resolve the https connection before
-        // handing control over to the Jetty Server.
-        //jettyServer.
-        HttpConfiguration https_config = new HttpConfiguration(http_config);
-        https_config.addCustomizer(new SecureRequestCustomizer());
-
-        // Now define the ServerConnector for handling SSL+http (aka https)
-
-        // HTTPS connector
-        // We create a second ServerConnector, passing in the http configuration we just made along with the
-        // previously created ssl context factory. Next we set the port and a longer idle timeout.
-        ServerConnector https = new ServerConnector(server, new SslConnectionFactory(sslContextFactory,"http/1.1"), new HttpConnectionFactory(https_config));
-        https.setPort(securePort);
-        https.setIdleTimeout(500000);
-
-        // Finally, add the connectors to the server
-
-        // Here you see the server having multiple connectors registered with it, now requests can flow into the server
-        // from both http and https urls to their respective ports and be processed accordingly by jetty. A simple
-        // handler is also registered with the server so the example has something to pass requests off to.
-
-        // Set the connectors
-        server.setConnectors(new Connector[] { http, https });
-        return server;
-	}
-    
 }

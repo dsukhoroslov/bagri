@@ -1,6 +1,5 @@
 package com.bagri.rest.service;
 
-import javax.inject.Singleton;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -18,7 +17,6 @@ import com.bagri.xdm.api.SchemaRepository;
 import com.bagri.xdm.api.TransactionIsolation;
 import com.bagri.xdm.api.TransactionManagement;
 
-//@Singleton
 @Path("/tx")
 public class TransactionService extends RestService {
 	

@@ -1,5 +1,7 @@
 package com.bagri.rest;
 
+import static com.bagri.rest.service.RestService.bg_cookie;
+
 import java.io.IOException;
 
 import javax.inject.Inject;
@@ -39,7 +41,7 @@ public class AuthFilter implements ContainerRequestFilter {
 			} else if ("application.wadl".equals(path)) {
 				return; 
 			} else {
-				Cookie cc = requestContext.getCookies().get("bg-auth");
+				Cookie cc = requestContext.getCookies().get(bg_cookie);
 				if (cc == null || !checkAuth(cc.getValue())) {
 		            requestContext.abortWith(Response.status(Status.UNAUTHORIZED)
 		                    .entity("No authorization token provided.").build());

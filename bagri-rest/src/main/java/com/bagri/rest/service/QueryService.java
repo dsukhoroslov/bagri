@@ -2,9 +2,7 @@ package com.bagri.rest.service;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Map;
 
-import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -20,7 +18,6 @@ import com.bagri.xdm.api.QueryManagement;
 import com.bagri.xdm.api.ResultCursor;
 import com.bagri.xdm.api.SchemaRepository;
 
-//@Singleton
 @Path("/query")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON) 

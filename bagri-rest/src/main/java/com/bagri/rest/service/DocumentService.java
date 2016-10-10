@@ -10,7 +10,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
-import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
@@ -33,7 +32,6 @@ import com.bagri.xdm.api.DocumentManagement;
 import com.bagri.xdm.api.SchemaRepository;
 import com.bagri.xdm.domain.Document;
 
-//@Singleton
 @Path("/docs")
 public class DocumentService  extends RestService {
 	
