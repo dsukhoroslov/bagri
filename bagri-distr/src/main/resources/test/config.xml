@@ -619,7 +619,7 @@
             <version>1</version>
             <createdAt>2016-10-04T13:36:26.965+03:00</createdAt>
             <createdBy>admin</createdBy>
-            <fileName>../../etc/samples/tpox/rest_module.xq</fileName>
+            <fileName>../data/tpox/rest_module.xq</fileName>
             <description>The first REST module for TPoX schema</description>
             <namespace>http://tpox-benchmark.com/rest</namespace>
             <enabled>true</enabled>
