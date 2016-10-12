@@ -296,8 +296,9 @@ public class XQCompilerImpl implements XQCompiler {
 			return sqc.compileQuery(query);
 			//sqc.getCompiledLibrary("test")...
 		} catch (XPathException ex) {
+			logger.error("getModuleExpression.error; {}", ex);
 			String error = getError(ex, sqc);
-			logger.info("getModuleExpression.error; message: {}", error);
+			//logger.info("getModuleExpression.error; message: {}", error);
 			throw new XDMException(error, XDMException.ecQueryCompile);
 		}
 	}
