@@ -71,7 +71,7 @@
                 <entry name="xqj.schema.defaultFunctionNamespace">http://www.w3.org/2005/xpath-functions</entry>
                 <entry name="xqj.schema.defaultElementTypeNamespace"></entry>
                 <entry name="xqj.schema.copyNamespacesModeInherit">1</entry>
-                <entry name="xqj.schema.baseUri">file:///../data/default/</entry>
+                <entry name="xqj.schema.baseUri">file:/../data/default/</entry>
                 <entry name="xqj.schema.defaultOrderForEmptySequences">2</entry>
                 <entry name="xqj.schema.defaultCollationUri">http://www.w3.org/2005/xpath-functions/collation/codepoint</entry>
                 <entry name="xqj.schema.constructionMode">1</entry>
@@ -264,7 +264,7 @@
                 <entry name="xdm.schema.population.buffer.size">1000000</entry>
                 <entry name="xdm.schema.query.parallel">true</entry>
                 <entry name="xdm.schema.partition.pool">32</entry>
-                <entry name="xqj.schema.baseUri">file:///../data/tpox/</entry>
+                <entry name="xqj.schema.baseUri">file:/../data/tpox/</entry>
                 <entry name="xqj.schema.orderingMode">2</entry>
                 <entry name="xqj.schema.queryLanguageTypeAndVersion">1</entry>
                 <entry name="xqj.schema.bindingMode">0</entry>
@@ -409,7 +409,7 @@
                 <entry name="xdm.schema.population.buffer.size">1000000</entry>
                 <entry name="xdm.schema.query.parallel">true</entry>
                 <entry name="xdm.schema.partition.pool">32</entry>
-                <entry name="xqj.schema.baseUri">file:///../data/xmark/</entry>
+                <entry name="xqj.schema.baseUri">file:/../data/xmark/</entry>
                 <entry name="xqj.schema.orderingMode">2</entry>
                 <entry name="xqj.schema.queryLanguageTypeAndVersion">1</entry>
                 <entry name="xqj.schema.bindingMode">0</entry>
@@ -515,7 +515,7 @@
                 <entry name="xdm.schema.population.buffer.size">1000000</entry>
                 <entry name="xdm.schema.query.parallel">false</entry>
                 <entry name="xdm.schema.partition.pool">32</entry>
-                <entry name="xqj.schema.baseUri">file:///../data/json/</entry>
+                <entry name="xqj.schema.baseUri">file:/../data/json/</entry>
                 <entry name="xqj.schema.orderingMode">2</entry>
                 <entry name="xqj.schema.queryLanguageTypeAndVersion">1</entry>
                 <entry name="xqj.schema.bindingMode">0</entry>
@@ -574,7 +574,7 @@
                 <entry name="xdm.schema.health.threshold.high">0</entry>
                 <entry name="xdm.schema.query.parallel">true</entry>
                 <entry name="xdm.schema.partition.pool">32</entry>
-                <entry name="xqj.schema.baseUri">file:///../data/ycsb/</entry>
+                <entry name="xqj.schema.baseUri">file:/../data/ycsb/</entry>
                 <entry name="xqj.schema.orderingMode">2</entry>
                 <entry name="xqj.schema.queryLanguageTypeAndVersion">1</entry>
                 <entry name="xqj.schema.bindingMode">0</entry>
@@ -612,6 +612,7 @@
             <createdBy>admin</createdBy>
             <fileName>../data/tpox/hello_module.xq</fileName>
             <description>The Hello Test Module</description>
+            <prefix>hw</prefix>
             <namespace>http://helloworld</namespace>
             <enabled>true</enabled>
         </module>
@@ -621,6 +622,7 @@
             <createdBy>admin</createdBy>
             <fileName>../data/tpox/rest_module.xq</fileName>
             <description>The first REST module for TPoX schema</description>
+            <prefix>tpox</prefix>
             <namespace>http://tpox-benchmark.com/rest</namespace>
             <enabled>true</enabled>
         </module>
@@ -630,6 +632,7 @@
             <createdBy>admin</createdBy>
             <fileName>../data/tpox/sample_triggers.xq</fileName>
             <description>The Trigger Test Module</description>
+            <prefix>bgdm</prefix>
             <namespace>http://bagridb.com/bagri-xdm</namespace>
             <enabled>true</enabled>
         </module>
