@@ -6,21 +6,12 @@ declare namespace p = "http://hl7.org/fhir";
 
 declare 
   %rest:GET
-  %rest:produces("application/fhir+xml")
-function fhir:get-patients() as element()* {
-  for $doc in fn:collection("Patients")/p:Patient
-  return $doc
-};
-
-
-declare 
-  %rest:GET
   %rest:path("/{id}")
   %rest:produces("application/fhir+xml")
 (:  %rest:query-param("_format", "{$format}", "") :)
   %rest:query-param("_summary", "{$summary}", "") 
 function fhir:get-patient-by-id($id as xs:string, (: $format as xs:string?, :) $summary as xs:string?) as element()? {
-  fn:collection("Patients")/p:Patient[p:id/@value = $id]
+  collection("Patients")/p:Patient[p:id/@value = $id]
 };
 
 
@@ -30,7 +21,7 @@ declare
   %rest:produces("application/fhir+xml")
   %rest:query-param("_format", "{$format}", "") 
 function fhir:get-patient-by-id-version($id as xs:string, $vid as xs:string, $format as xs:string?) as element()? {
-  fn:collection("Patients")/p:Patient[p:id/@value = $id]
+  collection("Patients")/p:Patient[p:id/@value = $id and p:meta/p:versionId/@value = $vid]
 };
 
 
@@ -40,26 +31,28 @@ declare
   %rest:produces("application/fhir+xml")
   %rest:matrix-param("parameters", "{$parameters}", "()")
   %rest:query-param("_format", "{$format}", "") 
-function fhir:search-patients-get($parameters as item()*, $format as xs:string?) as element()* {
-(: build query here? pass it to QueryManager? :)
-  <Bundle xmlns="http://hl7.org/fhir">
-    <id value="call some function to generate id here" />
-    <meta>
-      <lastUpdated value="{fn:current-dateTime()}" />
-    </meta>
-    <type value="searchset" />
-    <total value="6" />
-    <link>
-      <relation value="self" />
-      <url value="http://bagridb.com/Patient/search?name=test" />
-    </link>
-      {for $doc in fn:collection("Patients")/p:Patient
+function fhir:get-patients($parameters as item()*, $format as xs:string?) as element()* {
+
+  let $itr := collection("Patients")/p:Patient 
+  return
+    <Bundle xmlns="http://hl7.org/fhir">
+      <id value="call some external function to generate id here" />
+      <meta>
+        <lastUpdated value="{current-dateTime()}" />
+      </meta>
+      <type value="searchset" />
+      <total value="{count($itr)}" />
+      <link>
+        <relation value="self" />
+        <url value="http://bagridb.com/Patient/search?name=test" />
+      </link>
+      {for $doc in $itr
        return 
          <entry>
-          <resource>{$doc}</resource>
+           <resource>{$doc}</resource>
          </entry>
       }
-  </Bundle>
+    </Bundle>
 };         
 
 
@@ -70,8 +63,8 @@ declare
   %rest:produces("application/fhir+xml")
   %rest:form-param("parameters", "{$parameters}", "()")
   %rest:query-param("_format", "{$format}", "") 
-function fhir:search-patients-post($parameters as item()*, $format as xs:string?) as element()? {
-  for $doc in fn:collection("Patients")/p:Patient
+function fhir:search-patients($parameters as item()*, $format as xs:string?) as element()? {
+  for $doc in collection("Patients")/p:Patient
   return $doc
 };
 
@@ -82,10 +75,13 @@ declare
   %rest:consumes("application/fhir+xml")
   %rest:produces("application/fhir+xml")
   %rest:query-param("_format", "{$format}", "") 
-function fhir:create-patient($content as xs:string, $format as xs:string?) as element()? {
-  let $uri := "xxx"
+function fhir:create-patient($content as xs:string, $format as xs:string?) as item()? {
+  let $doc := parse-xml($content) 
+  let $uri := xs:string($doc/p:Patient/p:id/@value) || ".xml"
+  let $out := bgdm:log-output("start doc store; got uri: " || $uri, "info") 
   let $id := bgdm:store-document(xs:anyURI($uri), $content, ())
-  return fn:collection("Patients")/p:Patient[p:id/@value = $id] 
+  let $out := bgdm:log-output("doc stored; got id: " || $id, "info") 
+  return $id (: $doc/p:Patient :)
 };
 
 
@@ -97,7 +93,7 @@ declare
   %rest:query-param("_format", "{$format}", "") 
 function fhir:update-patient($id as xs:string, $content as xs:string, $format as xs:string?) as element()? {
   let $uri := bgdm:store-document(xs:anyURI($id), $content, ())
-  return fn:collection("Patients")/p:Patient[p:id/@value = $id] 
+  return collection("Patients")/p:Patient[p:id/@value = $id] 
 };
 
 
