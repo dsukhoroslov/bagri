@@ -53,14 +53,17 @@ public class FileUtils {
 	public static String readTextFile(String fileName, String encoding) throws IOException {
 		Charset cs = Charset.forName(encoding);
 	    StringBuilder text = new StringBuilder();
+	    MappedByteBuffer buff;
 	    try (FileInputStream fis = new FileInputStream(fileName)) {
 			FileChannel ch = fis.getChannel();
-			MappedByteBuffer mbb = ch.map(FileChannel.MapMode.READ_ONLY, 0, ch.size());
-			while (mbb.hasRemaining()) {
-				CharBuffer cb = cs.decode(mbb);
+			buff = ch.map(FileChannel.MapMode.READ_ONLY, 0, ch.size());
+			while (buff.hasRemaining()) {
+				CharBuffer cb = cs.decode(buff);
 				text.append(cb.toString());
 			}
+			ch.close();
 	    }
+	    unmap(buff);
 	    return text.toString();
 	}
 
@@ -73,13 +76,19 @@ public class FileUtils {
 	 */
 	public static void writeTextFile(String fileName, String content) throws IOException {
 		byte[] bytes = content.getBytes();
+		MappedByteBuffer buff;
 		try (RandomAccessFile raw = new RandomAccessFile(fileName, "rw")) {
 			FileChannel ch = raw.getChannel();
-			ByteBuffer buff = ch.map(FileChannel.MapMode.READ_WRITE, 0, bytes.length); 
+			buff = ch.map(FileChannel.MapMode.READ_WRITE, 0, bytes.length); 
 			buff.put(bytes);
 		}
+		unmap(buff);
 	}
 
+	private static void unmap(MappedByteBuffer buffer) {
+	   sun.misc.Cleaner cleaner = ((sun.nio.ch.DirectBuffer) buffer).cleaner();
+	   cleaner.clean();
+	}	
 	/**
 	 * Appends String content to a file. Throws FileNotFoundException if it not exists yet  
 	 * 

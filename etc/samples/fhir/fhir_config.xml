@@ -368,11 +368,20 @@
                 </index>
             </indexes>
             <resources>
+                <resource name="common">
+                    <version>1</version>
+                    <createdAt>2016-10-11T23:14:40.096+03:00</createdAt>
+                    <createdBy>admin</createdBy>
+                    <path>/</path>
+                    <module>common_module</module>
+                    <description>FHIR Conformance resource exposed via REST</description>
+                    <enabled>true</enabled>
+                </resource>
                 <resource name="patient">
                     <version>1</version>
                     <createdAt>2016-10-11T23:14:40.096+03:00</createdAt>
                     <createdBy>admin</createdBy>
-                    <path>/patient</path>
+                    <path>/Patient</path>
                     <module>patient_module</module>
                     <description>FHIR Patient resource exposed via REST</description>
                     <enabled>true</enabled>
@@ -392,14 +401,24 @@
             <namespace>http://helloworld</namespace>
             <enabled>true</enabled>
         </module>
+        <module name="common_module">
+            <version>1</version>
+            <createdAt>2016-10-11T23:14:40.096+03:00</createdAt>
+            <createdBy>admin</createdBy>
+            <fileName>../data/fhir/common_module.xq</fileName>
+            <description>Conformance module for FHIR schema</description>
+            <prefix>comm</prefix>
+            <namespace>http://hl7.org/fhir</namespace>
+            <enabled>true</enabled>
+        </module>
         <module name="patient_module">
             <version>1</version>
             <createdAt>2016-10-11T23:14:40.096+03:00</createdAt>
             <createdBy>admin</createdBy>
             <fileName>../data/fhir/patient_module.xq</fileName>
-            <description>Patient resoirce module for FHIR schema</description>
+            <description>Patient resource module for FHIR schema</description>
             <prefix>fhir</prefix>
-            <namespace>http://hl7.org/fhir</namespace>
+            <namespace>http://hl7.org/fhir/patient</namespace>
             <enabled>true</enabled>
         </module>
     </modules>

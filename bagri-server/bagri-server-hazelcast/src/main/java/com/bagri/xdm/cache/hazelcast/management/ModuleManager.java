@@ -38,7 +38,7 @@ public class ModuleManager extends EntityManager<Module> {
 			xqComp.compileModule(module);
 			return true;
 		} catch (XDMException ex) {
-			return false;
+			throw new RuntimeException(ex.getMessage());
 		}
 	}
 
@@ -56,7 +56,7 @@ public class ModuleManager extends EntityManager<Module> {
 			List<String> list = xqComp.getModuleFunctions(module);
 			return list.toArray(new String[list.size()]);
 		} catch (XDMException ex) {
-			return null;
+			throw new RuntimeException(ex.getMessage());
 		}
 	}
 	

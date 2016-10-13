@@ -1,7 +1,8 @@
-module namespace fhir = "http://hl7.org/fhir"; 
+module namespace fhir = "http://hl7.org/fhir/patient"; 
 declare namespace rest = "http://www.exquery.com/restxq";
 declare namespace bgdm = "http://bagridb.com/bagri-xdm";
 declare namespace p = "http://hl7.org/fhir"; 
+
 
 declare 
   %rest:GET
@@ -33,16 +34,47 @@ function fhir:get-patient-by-id-version($id as xs:string, $vid as xs:string, $fo
 };
 
 
+
 declare 
   %rest:GET
   %rest:produces("application/fhir+xml")
-  %rest:matrix-param("props", "{$props}", "()")
+  %rest:matrix-param("parameters", "{$parameters}", "()")
   %rest:query-param("_format", "{$format}", "") 
-function fhir:search-patients($props as item()*, $format as xs:string?) as element()* {
+function fhir:search-patients-get($parameters as item()*, $format as xs:string?) as element()* {
 (: build query here? pass it to QueryManager? :)
+  <Bundle xmlns="http://hl7.org/fhir">
+    <id value="call some function to generate id here" />
+    <meta>
+      <lastUpdated value="{fn:current-dateTime()}" />
+    </meta>
+    <type value="searchset" />
+    <total value="6" />
+    <link>
+      <relation value="self" />
+      <url value="http://bagridb.com/Patient/search?name=test" />
+    </link>
+      {for $doc in fn:collection("Patients")/p:Patient
+       return 
+         <entry>
+          <resource>{$doc}</resource>
+         </entry>
+      }
+  </Bundle>
+};         
+
+
+
+declare 
+  %rest:POST
+  %rest:path("_search")
+  %rest:produces("application/fhir+xml")
+  %rest:form-param("parameters", "{$parameters}", "()")
+  %rest:query-param("_format", "{$format}", "") 
+function fhir:search-patients-post($parameters as item()*, $format as xs:string?) as element()? {
   for $doc in fn:collection("Patients")/p:Patient
   return $doc
 };
+
 
 
 declare 
@@ -68,12 +100,66 @@ function fhir:update-patient($id as xs:string, $content as xs:string, $format as
   return fn:collection("Patients")/p:Patient[p:id/@value = $id] 
 };
 
-(:
+
+
 declare 
   %rest:DELETE
   %rest:path("/{id}")
-function fhir:delete-patient($id as xs:string) as () {
-  bgdm:remove-document(xs:anyURI($id)) 
+function fhir:delete-patient($id as xs:string) as item()? {
+  let $i := bgdm:remove-document(xs:anyURI($id)) 
+  return ()
 };
-:)
 
+
+(:
+
+Общие параметры, определённые для всех ресурсов:
+_id	token	Идентификатор ресурса (а не полный URL)	Resource.id
+_lastUpdated	date	Дата последнего обновления. Сервер может по своему усмотрению устанавливать границы точности	Resource.meta.lastUpdated
+_tag	token	Поиск по тегу ресурса	Resource.meta.tag
+_profile	uri	Поиск всех ресурсов, помеченных профилем	Resource.meta.profile
+_security	token	Поиск по метке уровня безопасности	Resource.meta.security
+_text	string	Текстовый поиск по описательной части	
+_content	string	Текстовый поиск по всему ресурсу целиком	
+_list	string	Все ресурсы в названном списке (по идентификатору, а не полному URL)	
+_query	string	Custom named query	
+Search Control Parameters:
+Имя	Тип	Описание	Допустимое содержимое
+_sort	string	Порядок сортировки результатов (может повторяться для внутренних порядков сортировки)	Имя допустимого параметра поиска
+_count	number	Количество результатов на странице	Общее количество
+_include	string	Другие ресурсы для включения в результаты поиска, на которые указывают найденные при поиске совпадения	SourceType:searchParam(  :targetType)
+_revinclude	string	Другие ресурсы для включения в результаты поиска, когда они ссылаются на найденные при поиске совпадения	SourceType:searchParam(  :targetType)
+_summary	string	Просто верните суммарные элементы (для ресурсов, где это определено)	true | false (false is default)
+_contained	string	Возвращать ли ресурсы, вложенные в другие ресурсы при поиске совпадений	true | false | both (false is default)
+_containedType	string	Возвращать ли вложенные или родительские ресурсы при возвращении вложенных ресурсов	container | contained
+
+Patient
+active	token	Активна ли данная запись о пациенте	Patient.active
+address	string	A server defined search that may match any of the string fields in the Address, including line, city, state, country, postalCode, and/or text	Patient.address
+address-city	string	Город, указанный в адресе	Patient.address.city
+address-country	string	Страна, указанная в адресе	Patient.address.country
+address-postalcode	string	Почтовый индекс, указанный в адресе	Patient.address.postalCode
+address-state	string	Штат, указанный в адресе	Patient.address.state
+address-use	token	Код применения, указанный в адресе	Patient.address.use
+animal-breed	token	Порода для пациентов-животных	Patient.animal.breed
+animal-species	token	Вид для пациентов-животных	Patient.animal.species
+birthdate	date	Дата рождения пациента	Patient.birthDate
+death-date	date	Была указана дата смерти, или удовлетворяет данному искомому значению	Patient.deceased.as(DateTime)
+deceased	token	Этот пациент помечен как умерший, либо введена дата смерти	Patient.deceased.exists()
+email	token	Адрес электронной почты	Patient.telecom.where(system='email')
+family	string	Часть фамилии пациента	Patient.name.family
+gender	token	Пол пациента	Patient.gender
+general-practitioner	reference	Patient's nominated general practitioner, not the organization that manages the record	Patient.generalPractitioner
+given	string	Часть имени пациента	Patient.name.given
+identifier	token	Идентификатор пациента	Patient.identifier
+language	token	Код языка (безотносительно значения вида использования)	Patient.communication.language
+link	reference	Все пациенты, связанные с данным пациентом	Patient.link.other
+name	string	A server defined search that may match any of the string fields in the HumanName, including family, give, prefix, suffix, suffix, and/or text	Patient.name
+organization	reference	Организация, в которой этот человек является пациентом	Patient.managingOrganization
+phone	token	Номер телефона	Patient.telecom.where(system='phone')
+phonetic	string	Часть либо фамилии, либо имени, используя некоторый алгоритм фонетического соответствия	Patient.name
+telecom	token	Значение в любом виде контактных данных пациента	Patient.telecom
+race	token	Returns patients with a race extension matching the specified code.	
+ethnicity	token	Returns patients with an ethnicity extension matching the specified code.	
+
+:)
