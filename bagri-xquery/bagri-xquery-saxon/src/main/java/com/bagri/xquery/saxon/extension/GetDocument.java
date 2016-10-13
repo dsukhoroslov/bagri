@@ -36,6 +36,11 @@ public class GetDocument extends DocumentFunctionExtension {
 		return 2; 
 	} 	
 	
+	@Override 
+	public boolean hasSideEffects() {
+		return false; 
+	} 	
+	
 	@Override
 	public SequenceType getResultType(SequenceType[] suppliedArgumentTypes) {
 		return SequenceType.OPTIONAL_STRING;

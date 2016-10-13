@@ -47,11 +47,7 @@ declare
   %rest:query-param("uri", "{$uri}", "unknown")
   %rest:matrix-param("props", "{$props}", "()")
 function tpox:create-security($uri as xs:string, $content as xs:string, $props as item()*) as item()? {
-  if (fn:empty($props)) then (
-    bgdm:store-document(xs:anyURI($uri), $content, ())
-  ) else (
-    bgdm:store-document(xs:anyURI($uri), $content, $props)
-  )
+  bgdm:store-document(xs:anyURI($uri), $content, $props)
 };
 
 

@@ -35,10 +35,15 @@ public abstract class DocumentFunctionExtension extends ExtensionFunctionDefinit
 	}
 	
 	@Override 
-	public int getMaximumNumberOfArguments() { 
+	public int getMaximumNumberOfArguments() {
 		return 2; 
 	} 	
 
+	@Override 
+	public boolean hasSideEffects() {
+		return true; 
+	} 	
+	
 	protected String toUri(Sequence uri) throws XPathException {
 		return uri.head().getStringValue();
 	}

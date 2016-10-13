@@ -117,6 +117,7 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Factor
 	    					newList.add(schema);
 	    				}
 	    			}
+	    	        logger.debug("reload.run; going to reload context for schemas: {}", newList);
 	    			reloader.reload(config);
 	    			activeSchemas = newList;
 	    		}

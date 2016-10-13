@@ -48,6 +48,7 @@ import com.bagri.xdm.system.Parameter;
 import com.bagri.xdm.system.XQueryTrigger;
 import com.bagri.xquery.api.XQCompiler;
 import com.bagri.xquery.saxon.extension.GetDocument;
+import com.bagri.xquery.saxon.extension.LogOutput;
 import com.bagri.xquery.saxon.extension.RemoveCollectionDocuments;
 import com.bagri.xquery.saxon.extension.RemoveDocument;
 import com.bagri.xquery.saxon.extension.StaticFunctionExtension;
@@ -247,6 +248,7 @@ public class XQCompilerImpl implements XQCompiler {
         config.setSchemaValidationMode(Validation.STRIP);
         //config.setConfigurationProperty(FeatureKeys.ALLOW_EXTERNAL_FUNCTIONS, Boolean.TRUE);
 
+        config.registerExtensionFunction(new LogOutput());
         config.registerExtensionFunction(new GetDocument(null));
         config.registerExtensionFunction(new RemoveDocument(null));
         config.registerExtensionFunction(new StoreDocument(null));
