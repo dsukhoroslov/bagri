@@ -1,4 +1,4 @@
-package com.bagri.xquery.saxon.extension;
+package com.bagri.xquery.saxon.ext.doc;
 
 import static com.bagri.xdm.common.Constants.cmd_remove_document;
 
@@ -6,7 +6,7 @@ import net.sf.saxon.expr.XPathContext;
 import net.sf.saxon.lib.ExtensionFunctionCall;
 import net.sf.saxon.om.Sequence;
 import net.sf.saxon.trans.XPathException;
-import net.sf.saxon.value.EmptySequence;
+import net.sf.saxon.value.AnyURIValue;
 import net.sf.saxon.value.SequenceType;
 
 import com.bagri.xdm.api.DocumentManagement;
@@ -35,7 +35,7 @@ public class RemoveDocument extends DocumentFunctionExtension {
 	
 	@Override
 	public SequenceType getResultType(SequenceType[] suppliedArgumentTypes) {
-		return SequenceType.EMPTY_SEQUENCE;
+		return SequenceType.SINGLE_ANY_URI;
 	}
 
 	@Override
@@ -47,11 +47,12 @@ public class RemoveDocument extends DocumentFunctionExtension {
 			public Sequence call(XPathContext context, Sequence[] arguments) throws XPathException {
 				
 				try {
-					xdm.removeDocument(toUri(arguments[0]));
+					String uri = toUri(arguments[0]);
+					xdm.removeDocument(uri);
+					return new AnyURIValue(uri);
 				} catch (XDMException ex) {
 					throw new XPathException(ex);
 				}
-				return EmptySequence.getInstance();
 			}
         };
 	} 

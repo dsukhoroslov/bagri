@@ -36,7 +36,7 @@ function fhir:get-patients($parameters as item()*, $format as xs:string?) as ele
   let $itr := collection("Patients")/p:Patient 
   return
     <Bundle xmlns="http://hl7.org/fhir">
-      <id value="call some external function to generate id here" />
+      <id value="{bgdm:get-uuid()}" />
       <meta>
         <lastUpdated value="{current-dateTime()}" />
       </meta>
@@ -75,13 +75,15 @@ declare
   %rest:consumes("application/fhir+xml")
   %rest:produces("application/fhir+xml")
   %rest:query-param("_format", "{$format}", "") 
-function fhir:create-patient($content as xs:string, $format as xs:string?) as item()? {
+function fhir:create-patient($content as xs:string, $format as xs:string?) as element()? {
   let $doc := parse-xml($content) 
   let $uri := xs:string($doc/p:Patient/p:id/@value) || ".xml"
-  let $out := bgdm:log-output("start doc store; got uri: " || $uri, "info") 
-  let $id := bgdm:store-document(xs:anyURI($uri), $content, ())
-  let $out := bgdm:log-output("doc stored; got id: " || $id, "info") 
-  return $id (: $doc/p:Patient :)
+(:  let $out := bgdm:log-output("start doc store; got uri: " || $uri, "info") :)
+  let $uri := bgdm:store-document(xs:anyURI($uri), $content, ())
+(:  let $out := bgdm:log-output("doc stored; got id: " || $id, "info") :)
+  let $content := bgdm:get-document($uri)
+  let $doc := parse-xml($content)
+  return $doc/p:Patient
 };
 
 
@@ -102,7 +104,8 @@ declare
   %rest:DELETE
   %rest:path("/{id}")
 function fhir:delete-patient($id as xs:string) as item()? {
-  let $i := bgdm:remove-document(xs:anyURI($id)) 
+(:  let $doc := collection("Patients")/p:Patient[p:id/@value = $id] :)
+  let $uri := bgdm:remove-document(xs:anyURI($id)) 
   return ()
 };
 

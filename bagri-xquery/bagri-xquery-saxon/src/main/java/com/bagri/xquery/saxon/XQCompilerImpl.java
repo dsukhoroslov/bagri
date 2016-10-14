@@ -47,12 +47,13 @@ import com.bagri.xdm.system.Module;
 import com.bagri.xdm.system.Parameter;
 import com.bagri.xdm.system.XQueryTrigger;
 import com.bagri.xquery.api.XQCompiler;
-import com.bagri.xquery.saxon.extension.GetDocument;
-import com.bagri.xquery.saxon.extension.LogOutput;
-import com.bagri.xquery.saxon.extension.RemoveCollectionDocuments;
-import com.bagri.xquery.saxon.extension.RemoveDocument;
-import com.bagri.xquery.saxon.extension.StaticFunctionExtension;
-import com.bagri.xquery.saxon.extension.StoreDocument;
+import com.bagri.xquery.saxon.ext.doc.GetDocument;
+import com.bagri.xquery.saxon.ext.doc.RemoveCollectionDocuments;
+import com.bagri.xquery.saxon.ext.doc.RemoveDocument;
+import com.bagri.xquery.saxon.ext.doc.StoreDocument;
+import com.bagri.xquery.saxon.ext.util.GetUuid;
+import com.bagri.xquery.saxon.ext.util.LogOutput;
+import com.bagri.xquery.saxon.ext.util.StaticFunctionExtension;
 
 public class XQCompilerImpl implements XQCompiler {
 	
@@ -248,6 +249,7 @@ public class XQCompilerImpl implements XQCompiler {
         config.setSchemaValidationMode(Validation.STRIP);
         //config.setConfigurationProperty(FeatureKeys.ALLOW_EXTERNAL_FUNCTIONS, Boolean.TRUE);
 
+        config.registerExtensionFunction(new GetUuid());
         config.registerExtensionFunction(new LogOutput());
         config.registerExtensionFunction(new GetDocument(null));
         config.registerExtensionFunction(new RemoveDocument(null));

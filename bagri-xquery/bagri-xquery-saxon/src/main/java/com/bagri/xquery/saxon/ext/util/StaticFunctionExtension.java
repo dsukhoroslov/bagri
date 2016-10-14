@@ -1,4 +1,4 @@
-package com.bagri.xquery.saxon.extension;
+package com.bagri.xquery.saxon.ext.util;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

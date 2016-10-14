@@ -1,4 +1,4 @@
-package com.bagri.xquery.saxon.extension;
+package com.bagri.xquery.saxon.ext.doc;
 
 import static com.bagri.xdm.common.Constants.cmd_get_document;
 

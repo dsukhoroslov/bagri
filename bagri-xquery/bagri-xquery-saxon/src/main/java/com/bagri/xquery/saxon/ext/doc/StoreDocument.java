@@ -1,4 +1,4 @@
-package com.bagri.xquery.saxon.extension;
+package com.bagri.xquery.saxon.ext.doc;
 
 import static com.bagri.xdm.common.Constants.cmd_store_document;
 
@@ -10,8 +10,10 @@ import com.bagri.xdm.domain.Document;
 
 import net.sf.saxon.expr.XPathContext;
 import net.sf.saxon.lib.ExtensionFunctionCall;
+import net.sf.saxon.ma.map.HashTrieMap;
 import net.sf.saxon.om.Sequence;
 import net.sf.saxon.trans.XPathException;
+import net.sf.saxon.value.AnyURIValue;
 import net.sf.saxon.value.Int64Value;
 import net.sf.saxon.value.SequenceType;
 
@@ -35,7 +37,7 @@ public class StoreDocument extends DocumentFunctionExtension {
 	
 	@Override
 	public SequenceType getResultType(SequenceType[] suppliedArgumentTypes) {
-		return SequenceType.SINGLE_NUMERIC;
+		return SequenceType.SINGLE_ANY_URI;
 	}
 
 	@Override 
@@ -64,8 +66,8 @@ public class StoreDocument extends DocumentFunctionExtension {
 				}
 				try {
 					Document doc = xdm.storeDocumentFromString(uri, xml, props);
-					return new Int64Value(doc.getDocumentKey());
-					//return new ObjectValue(doc);
+					//HashTrieMap map = new HashTrieMap(context);
+					return new AnyURIValue(doc.getUri());
 				} catch (XDMException ex) {
 					throw new XPathException(ex);
 				}
