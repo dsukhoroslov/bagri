@@ -9,7 +9,6 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -19,8 +18,6 @@ import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
-import javax.xml.xquery.XQDataFactory;
-import javax.xml.xquery.XQItem;
 
 import org.glassfish.jersey.process.Inflector;
 import org.slf4j.Logger;
@@ -79,6 +76,19 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
     				atns = getParamAnnotations("rest:form-param", pm.getName());
         			if (atns != null) {
         				// TODO: handle them properly..
+        				// content type must be application/x-www-form-urlencoded
+    					String body = getBody(context);
+    					if (context != null) {
+    						String[] parts = body.split("&");
+    						for (String part: parts) {
+    							int pos = part.indexOf("=");
+    							String name = part.substring(0, pos);
+    							if (name.equals(pm.getName())) {
+    	        	    			params.put(pm.getName(), getAtomicValue(pm.getType(), part.substring(pos) + 1));
+    	        	    			break;
+    							}
+    						}
+        				}
         			} else {
         				atns = getParamAnnotations("rest:header-param", pm.getName());
         				if (atns != null) {
@@ -102,9 +112,9 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
                 						params.put(pm.getName(), vals);
                 					}
                 				} else {
-                    				if (context.hasEntity() && ("POST".equals(context.getMethod()) || "PUT".equals(context.getMethod()))) {
-                					    java.util.Scanner s = new java.util.Scanner(context.getEntityStream()).useDelimiter("\\A");
-                    	    			params.put(pm.getName(), getAtomicValue(pm.getType(), s.next()));
+                					String body = getBody(context);
+                					if (context != null) {
+                    	    			params.put(pm.getName(), getAtomicValue(pm.getType(), body));
                     				}
                 				}
             				}
@@ -172,6 +182,14 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
     		}
     	}
     	return pairs;
+    }
+    
+    private String getBody(ContainerRequestContext context) {
+		if (context.hasEntity() && ("POST".equals(context.getMethod()) || "PUT".equals(context.getMethod()))) {
+		    java.util.Scanner s = new java.util.Scanner(context.getEntityStream()).useDelimiter("\\A");
+			return s.next();
+		}
+    	return null;
     }
     
 }

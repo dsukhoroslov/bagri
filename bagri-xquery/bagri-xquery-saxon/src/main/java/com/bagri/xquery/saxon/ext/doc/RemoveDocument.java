@@ -47,7 +47,7 @@ public class RemoveDocument extends DocumentFunctionExtension {
 			public Sequence call(XPathContext context, Sequence[] arguments) throws XPathException {
 				
 				try {
-					String uri = toUri(arguments[0]);
+					String uri = arguments[0].head().getStringValue();
 					xdm.removeDocument(uri);
 					return new AnyURIValue(uri);
 				} catch (XDMException ex) {

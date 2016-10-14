@@ -1,6 +1,7 @@
 package com.bagri.xquery.saxon.ext.doc;
 
 import static com.bagri.xdm.common.Constants.cmd_store_document;
+import static com.bagri.xquery.saxon.SaxonUtils.sequence2Properties;
 
 import java.util.Properties;
 
@@ -14,7 +15,6 @@ import net.sf.saxon.ma.map.HashTrieMap;
 import net.sf.saxon.om.Sequence;
 import net.sf.saxon.trans.XPathException;
 import net.sf.saxon.value.AnyURIValue;
-import net.sf.saxon.value.Int64Value;
 import net.sf.saxon.value.SequenceType;
 
 public class StoreDocument extends DocumentFunctionExtension {
@@ -58,11 +58,11 @@ public class StoreDocument extends DocumentFunctionExtension {
 			@Override
 			public Sequence call(XPathContext context, Sequence[] arguments) throws XPathException {
 				
-				String uri = toUri(arguments[0]);
+				String uri = arguments[0].head().getStringValue();
 				String xml = arguments[1].head().getStringValue();
 				Properties props = null; 
 				if (arguments.length > 2) {
-					props = toProperties(arguments[2]);
+					props = sequence2Properties(arguments[2]);
 				}
 				try {
 					Document doc = xdm.storeDocumentFromString(uri, xml, props);

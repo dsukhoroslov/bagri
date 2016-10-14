@@ -12,6 +12,7 @@ declare
   %rest:query-param("_summary", "{$summary}", "") 
 function fhir:get-patient-by-id($id as xs:string, (: $format as xs:string?, :) $summary as xs:string?) as element()? {
   collection("Patients")/p:Patient[p:id/@value = $id]
+(: TODO: add summary.. do we really need it on a single Patient resource? :)
 };
 
 
@@ -94,8 +95,24 @@ declare
   %rest:produces("application/fhir+xml")
   %rest:query-param("_format", "{$format}", "") 
 function fhir:update-patient($id as xs:string, $content as xs:string, $format as xs:string?) as element()? {
-  let $uri := bgdm:store-document(xs:anyURI($id), $content, ())
+(:
+  for $uri in fhir:get-patient-uri($id)
+  let $uri2 := bgdm:store-document(xs:anyURI($uri), $content, ())
   return collection("Patients")/p:Patient[p:id/@value = $id] 
+:)
+  let $query := 
+' declare namespace p = "http://hl7.org/fhir"; 
+  declare variable $id external;
+
+  for $ptn in fn:collection("Patients")/p:Patient
+  where $ptn/p:id/@value = $id
+  return $ptn'
+
+  for $uri in bgdm:query-document-uris($query, ("id", $id), ())
+  let $uri2 := bgdm:store-document(xs:anyURI($uri), $content, ())
+  let $content2 := bgdm:get-document($uri2, ())
+  let $doc := parse-xml($content2) 
+  return $doc/p:Patient
 };
 
 
@@ -104,14 +121,44 @@ declare
   %rest:DELETE
   %rest:path("/{id}")
 function fhir:delete-patient($id as xs:string) as item()? {
-(:  let $doc := collection("Patients")/p:Patient[p:id/@value = $id] :)
-  let $uri := bgdm:remove-document(xs:anyURI($id)) 
-  return ()
+(:
+  let $uri := bgdm:query-document-uris('collection("Patients")/p:Patient[p:id/@value = $id]', ('id', $id), ())
+  if ($uri) then 
+    return bgdm:remove-document($uri) 
+  else 
+    return ()
+:)
+  let $query := 
+' declare namespace p = "http://hl7.org/fhir"; 
+  declare variable $id external;
+
+  for $ptn in fn:collection("Patients")/p:Patient
+  where $ptn/p:id/@value = $id
+  return $ptn'
+
+  for $uri in bgdm:query-document-uris($query, ("id", $id), ())
+  return bgdm:remove-document(xs:anyURI($uri)) 
 };
 
 
 (:
+declare 
+function fhir:get-patient-uri($id as xs:string) as item()? {
+  let $query := 
+' declare namespace p = "http://hl7.org/fhir"; 
+  declare variable $id external;
 
+  for $ptn in fn:collection("Patients")/p:Patient
+  where $ptn/p:id/@value = $id
+  return $ptn'
+
+  let $uri := bgdm:query-document-uris($query, ("id", $id), ())
+  return string-join($uri, '')
+}
+:)
+
+
+(:
 Общие параметры, определённые для всех ресурсов:
 _id	token	Идентификатор ресурса (а не полный URL)	Resource.id
 _lastUpdated	date	Дата последнего обновления. Сервер может по своему усмотрению устанавливать границы точности	Resource.meta.lastUpdated

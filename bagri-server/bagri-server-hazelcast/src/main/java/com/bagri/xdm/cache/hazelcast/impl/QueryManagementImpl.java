@@ -566,14 +566,16 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 
 	@Override
 	public Collection<String> getDocumentUris(String query, Map<String, Object> params, Properties props) throws XDMException {
-		logger.trace("getDocumentUris.enter; query: {}, command: {}; params: {}; properties: {}", query, params, props);
+		logger.trace("getDocumentUris.enter; query: {}, params: {}; properties: {}", query, params, props);
 		Collection<String> result = null;
 		int qCode = 0;
 		if (cacheResults) {
 			qCode = getQueryKey(query);
 			if (xqCache.containsKey(qCode)) {
 				Map<Long, String> keys = getQueryUris(query, params, props);
-				result = keys.values();
+				if (keys != null) {
+					result = keys.values();
+				}
 			}
 		}
 		

@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.GregorianCalendar;
 import java.util.NoSuchElementException;
+import java.util.Properties;
 
 import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.Duration;
@@ -746,6 +747,25 @@ public class SaxonUtils {
         }
         return null; //item.;
     }
+    
+	public static Properties sequence2Properties(Sequence sq) throws XPathException {
+		SequenceIterator itr = sq.iterate();
+		Properties props = new Properties();
+		do {
+			Item item = itr.next();
+			if (item != null) {
+				String prop = item.getStringValue();
+				int pos = prop.indexOf("=");
+				if (pos > 0) {
+					props.setProperty(prop.substring(0, pos), prop.substring(pos + 1));
+				}
+			} else {
+				break;
+			}
+		} while (true);
+		return props;
+	}
+	
     
 	/*    
     public static int getBaseType(AtomicValue value) {

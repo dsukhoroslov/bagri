@@ -1,6 +1,7 @@
 package com.bagri.xquery.saxon.ext.doc;
 
 import static com.bagri.xdm.common.Constants.cmd_get_document;
+import static com.bagri.xquery.saxon.SaxonUtils.sequence2Properties;
 
 import java.util.Properties;
 
@@ -56,10 +57,10 @@ public class GetDocument extends DocumentFunctionExtension {
 
 				String result = null;
 				try {
-					String uri = toUri(arguments[0]);
+					String uri = arguments[0].head().getStringValue();
 					Properties props = null; 
 					if (arguments.length > 1) {
-						props = toProperties(arguments[1]);
+						props = sequence2Properties(arguments[1]);
 					}
 					result = xdm.getDocumentAsString(uri, props);
 				} catch (XDMException ex) {
