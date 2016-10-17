@@ -16,9 +16,9 @@ import net.sf.saxon.value.EmptySequence;
 import net.sf.saxon.value.SequenceType;
 import net.sf.saxon.value.StringValue;
 
-public class GetDocument extends DocumentFunctionExtension {
+public class GetDocumentContent extends DocumentFunctionExtension {
 	
-	public GetDocument(DocumentManagement xdm) {
+	public GetDocumentContent(DocumentManagement xdm) {
 		super(xdm);
 	}
 

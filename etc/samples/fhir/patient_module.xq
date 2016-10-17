@@ -79,10 +79,8 @@ declare
 function fhir:create-patient($content as xs:string, $format as xs:string?) as element()? {
   let $doc := parse-xml($content) 
   let $uri := xs:string($doc/p:Patient/p:id/@value) || ".xml"
-(:  let $out := bgdm:log-output("start doc store; got uri: " || $uri, "info") :)
   let $uri := bgdm:store-document(xs:anyURI($uri), $content, ())
-(:  let $out := bgdm:log-output("doc stored; got id: " || $id, "info") :)
-  let $content := bgdm:get-document($uri)
+  let $content := bgdm:get-document-content($uri)
   let $doc := parse-xml($content)
   return $doc/p:Patient
 };
@@ -95,22 +93,10 @@ declare
   %rest:produces("application/fhir+xml")
   %rest:query-param("_format", "{$format}", "") 
 function fhir:update-patient($id as xs:string, $content as xs:string, $format as xs:string?) as element()? {
-(:
+
   for $uri in fhir:get-patient-uri($id)
-  let $uri2 := bgdm:store-document(xs:anyURI($uri), $content, ())
-  return collection("Patients")/p:Patient[p:id/@value = $id] 
-:)
-  let $query := 
-' declare namespace p = "http://hl7.org/fhir"; 
-  declare variable $id external;
-
-  for $ptn in fn:collection("Patients")/p:Patient
-  where $ptn/p:id/@value = $id
-  return $ptn'
-
-  for $uri in bgdm:query-document-uris($query, ("id", $id), ())
-  let $uri2 := bgdm:store-document(xs:anyURI($uri), $content, ())
-  let $content2 := bgdm:get-document($uri2, ())
+  let $uri2 := bgdm:store-document($uri, $content, ())
+  let $content2 := bgdm:get-document-content($uri2, ())
   let $doc := parse-xml($content2) 
   return $doc/p:Patient
 };
@@ -121,29 +107,15 @@ declare
   %rest:DELETE
   %rest:path("/{id}")
 function fhir:delete-patient($id as xs:string) as item()? {
-(:
-  let $uri := bgdm:query-document-uris('collection("Patients")/p:Patient[p:id/@value = $id]', ('id', $id), ())
-  if ($uri) then 
-    return bgdm:remove-document($uri) 
-  else 
-    return ()
-:)
-  let $query := 
-' declare namespace p = "http://hl7.org/fhir"; 
-  declare variable $id external;
-
-  for $ptn in fn:collection("Patients")/p:Patient
-  where $ptn/p:id/@value = $id
-  return $ptn'
-
-  for $uri in bgdm:query-document-uris($query, ("id", $id), ())
-  return bgdm:remove-document(xs:anyURI($uri)) 
+  for $uri in fhir:get-patient-uri($id)
+  return bgdm:remove-document($uri) 
 };
 
 
-(:
+
 declare 
-function fhir:get-patient-uri($id as xs:string) as item()? {
+  %private
+function fhir:get-patient-uri($id as xs:string) as xs:anyURI? {
   let $query := 
 ' declare namespace p = "http://hl7.org/fhir"; 
   declare variable $id external;
@@ -153,12 +125,32 @@ function fhir:get-patient-uri($id as xs:string) as item()? {
   return $ptn'
 
   let $uri := bgdm:query-document-uris($query, ("id", $id), ())
-  return string-join($uri, '')
-}
-:)
+  return xs:anyURI($uri)
+};
+
+
+
+declare 
+  %private
+function fhir:get-patient-uris($params as xs:string*) as xs:anyURI* {
+  let $prolog := 
+' declare namespace p = "http://hl7.org/fhir"; 
+  declare variable $id external;
+'
+
+  let $query := 
+' for $ptn in fn:collection("Patients")/p:Patient
+  where $ptn/p:id/@value = $id
+  return $ptn'
+
+  let $query := $prolog || $query
+  let $uri := bgdm:query-document-uris($query, $params, ())
+  return xs:anyURI($uri)
+};
 
 
 (:
+
 Общие параметры, определённые для всех ресурсов:
 _id	token	Идентификатор ресурса (а не полный URL)	Resource.id
 _lastUpdated	date	Дата последнего обновления. Сервер может по своему усмотрению устанавливать границы точности	Resource.meta.lastUpdated
@@ -207,5 +199,12 @@ phonetic	string	Часть либо фамилии, либо имени, используя некоторый алгоритм фон
 telecom	token	Значение в любом виде контактных данных пациента	Patient.telecom
 race	token	Returns patients with a race extension matching the specified code.	
 ethnicity	token	Returns patients with an ethnicity extension matching the specified code.	
+
+
+inject; exp: "Patients"; env: net.sf.saxon.query.QueryModule@42dfc; construct: 0; qName: null
+inject; exp: collection("Patients"); env: net.sf.saxon.query.QueryModule@42dfc; construct: 2009; qName: fn:collection
+inject; exp: $ptn; env: net.sf.saxon.query.QueryModule@42dfc; construct: 2014; qName: null
+injectClause; traget: for $ptn in homCheck((collection("Patients"))/child::element(Q{http://hl7.org/fhir}Patient)); env: net.sf.saxon.query.QueryModule@42dfc
+injectClause; traget: where (homCheck((homCheck($ptn/child::element(Q{http://hl7.org/fhir}id)))/attribute::attribute(Q{}value))) = $Q{}id; env: net.sf.saxon.query.QueryModule@42dfc
 
 :)

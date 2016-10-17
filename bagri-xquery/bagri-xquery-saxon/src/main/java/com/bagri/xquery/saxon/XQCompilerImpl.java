@@ -29,6 +29,7 @@ import net.sf.saxon.functions.FunctionLibrary;
 import net.sf.saxon.functions.FunctionLibraryList;
 import net.sf.saxon.lib.ExtensionFunctionDefinition;
 import net.sf.saxon.lib.ModuleURIResolver;
+import net.sf.saxon.lib.UnfailingErrorListener;
 import net.sf.saxon.lib.Validation;
 import net.sf.saxon.om.StructuredQName;
 import net.sf.saxon.query.Annotation;
@@ -47,7 +48,7 @@ import com.bagri.xdm.system.Module;
 import com.bagri.xdm.system.Parameter;
 import com.bagri.xdm.system.XQueryTrigger;
 import com.bagri.xquery.api.XQCompiler;
-import com.bagri.xquery.saxon.ext.doc.GetDocument;
+import com.bagri.xquery.saxon.ext.doc.GetDocumentContent;
 import com.bagri.xquery.saxon.ext.doc.QueryDocumentUris;
 import com.bagri.xquery.saxon.ext.doc.RemoveCollectionDocuments;
 import com.bagri.xquery.saxon.ext.doc.RemoveDocument;
@@ -163,6 +164,10 @@ public class XQCompilerImpl implements XQCompiler {
 					logger.trace("lookupFunctions; fn annotations: {}", atns);
 					StringBuffer buff = new StringBuffer();
 					for (Annotation atn: atns.values()) {
+						if (Annotation.PRIVATE.equals(atn.getAnnotationQName())) {
+							// do not expose private functions
+							return null;
+						}
 						buff.append(atn.getAnnotationQName().getDisplayName());
 						if (atn.getAnnotationParameters() != null) {
 							buff.append("(");
@@ -252,7 +257,7 @@ public class XQCompilerImpl implements XQCompiler {
 
         config.registerExtensionFunction(new GetUuid());
         config.registerExtensionFunction(new LogOutput());
-        config.registerExtensionFunction(new GetDocument(null));
+        config.registerExtensionFunction(new GetDocumentContent(null));
         config.registerExtensionFunction(new RemoveDocument(null));
         config.registerExtensionFunction(new StoreDocument(null));
         config.registerExtensionFunction(new RemoveCollectionDocuments(null));
@@ -281,7 +286,7 @@ public class XQCompilerImpl implements XQCompiler {
 	private StaticQueryContext prepareStaticContext(String body) {
 		StaticQueryContext sqc = config.newStaticQueryContext();
 		sqc.setErrorListener(new LocalErrorListener());
-        //sqc.setCompileWithTracing(true);
+		//sqc.setSchemaAware(true); - requires Saxon-EE
 		if (body != null) {
 			sqc.setModuleURIResolver(new LocalModuleURIResolver(body));
 		}
@@ -291,19 +296,18 @@ public class XQCompilerImpl implements XQCompiler {
 	private XQueryExpression getModuleExpression(Module module) throws XDMException {
 		//logger.trace("getModuleExpression.enter; got namespace: {}, name: {}, body: {}", namespace, name, body);
 		String query = "import module namespace test=\"" + module.getNamespace() + 
-				"\" at \"" + module.getName() + "\";\n\n";
-		query += "1213";
+				"\" at \"" + module.getName() + "\";\n\n1213";
 		StaticQueryContext sqc = null;
 		try {
-			//sqc.compileLibrary(query); - works in EE only
+			//sqc.compileLibrary(query); - works in Saxon-EE only
 		    sqc = prepareStaticContext(module.getBody());
 			logger.trace("getModuleExpression; compiling query: {}", query);
 			//logger.trace("getModuleExpression.exit; time taken: {}", stamp);
 			return sqc.compileQuery(query);
 			//sqc.getCompiledLibrary("test")...
 		} catch (XPathException ex) {
-			logger.error("getModuleExpression.error; {}", ex);
 			String error = getError(ex, sqc);
+			logger.error("getModuleExpression.error; " + error, ex);
 			//logger.info("getModuleExpression.error; message: {}", error);
 			throw new XDMException(error, XDMException.ecQueryCompile);
 		}
@@ -411,7 +415,7 @@ public class XQCompilerImpl implements XQCompiler {
 		
 	}
 	
-	private class LocalErrorListener implements ErrorListener {
+	private class LocalErrorListener implements UnfailingErrorListener {
 
 	    private List<TransformerException> errors = new ArrayList<>();
 	    
@@ -420,17 +424,17 @@ public class XQCompilerImpl implements XQCompiler {
 	    }
 		
 		@Override
-		public void error(TransformerException txEx) throws TransformerException {
+		public void error(TransformerException txEx) { 
 			errors.add(txEx);
 		}
 	
 		@Override
-		public void fatalError(TransformerException txEx) throws TransformerException {
+		public void fatalError(TransformerException txEx) {
 			errors.add(txEx);
 		}
 	
 		@Override
-		public void warning(TransformerException txEx) throws TransformerException {
+		public void warning(TransformerException txEx) {
 			errors.add(txEx);
 		}
 	}

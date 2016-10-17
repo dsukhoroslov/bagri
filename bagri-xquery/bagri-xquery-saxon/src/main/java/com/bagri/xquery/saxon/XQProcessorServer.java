@@ -73,6 +73,7 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
         ModuleURIResolver mResolver = new ModuleURIResolverImpl((com.bagri.xdm.cache.api.SchemaRepository) xRepo);
         config.setModuleURIResolver(mResolver);
         dqc.setUnparsedTextURIResolver(sResolver);
+        //sqc.setCodeInjector(new CodeInjectorImpl());
     }
 
     @Override

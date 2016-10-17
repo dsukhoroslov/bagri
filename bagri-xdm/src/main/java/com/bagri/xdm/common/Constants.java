@@ -146,7 +146,7 @@ public class Constants {
 	public static final int xqf_XA = 16;
 	   
 	// direct commands
-	public static final String cmd_get_document = "get-document";
+	public static final String cmd_get_document = "get-document-content";
 	public static final String cmd_remove_document = "remove-document";
 	public static final String cmd_remove_cln_documents = "remove-collection-documents";
 	public static final String cmd_store_document = "store-document";

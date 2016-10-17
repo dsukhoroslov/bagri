@@ -116,7 +116,7 @@ public interface XQProcessor {
     /**
      * executes custom XQuery command. Currently supported commands are:
      * <ul>
-     *   <li>get-document</li>
+     *   <li>get-document-content</li>
      *   <li>remove-document</li>
      *   <li>remove-collection-documents</li>
      *   <li>store-document</li>
@@ -137,7 +137,7 @@ public interface XQProcessor {
     /**
      * executes custom XQuery command. Currently supported commands are:
      * <ul>
-     *   <li>get-document</li>
+     *   <li>get-document-content</li>
      *   <li>remove-document</li>
      *   <li>remove-collection-documents</li>
      *   <li>store-document</li>

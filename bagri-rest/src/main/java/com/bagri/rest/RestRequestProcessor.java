@@ -177,8 +177,10 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
     private List<String> getMatrixParams(String path) {
     	List<String> pairs = new ArrayList<>();
     	for (String part: path.split(";")) {
-    		if (part.indexOf("=") > 0) {
-    			pairs.add(part);
+    		int pos = part.indexOf("="); 
+    		if (pos > 0) {
+    			pairs.add(part.substring(0, pos));
+    			pairs.add(part.substring(pos + 1));
     		}
     	}
     	return pairs;

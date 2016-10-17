@@ -38,7 +38,7 @@ import org.xml.sax.InputSource;
 import com.bagri.common.util.XMLUtils;
 import com.bagri.xdm.api.SchemaRepository;
 import com.bagri.xquery.api.XQProcessorBase;
-import com.bagri.xquery.saxon.ext.doc.GetDocument;
+import com.bagri.xquery.saxon.ext.doc.GetDocumentContent;
 import com.bagri.xquery.saxon.ext.doc.QueryDocumentUris;
 import com.bagri.xquery.saxon.ext.doc.RemoveCollectionDocuments;
 import com.bagri.xquery.saxon.ext.doc.RemoveDocument;
@@ -274,7 +274,7 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
     	super.setRepository(xRepo);
         config.registerExtensionFunction(new GetUuid());
         config.registerExtensionFunction(new LogOutput());
-        config.registerExtensionFunction(new GetDocument(xRepo.getDocumentManagement()));
+        config.registerExtensionFunction(new GetDocumentContent(xRepo.getDocumentManagement()));
         config.registerExtensionFunction(new RemoveDocument(xRepo.getDocumentManagement()));
         config.registerExtensionFunction(new StoreDocument(xRepo.getDocumentManagement()));
         config.registerExtensionFunction(new RemoveCollectionDocuments(xRepo.getDocumentManagement()));
