@@ -1,30 +1,129 @@
+xquery version "3.1";
 module namespace comm = "http://hl7.org/fhir"; 
 declare namespace rest = "http://www.exquery.com/restxq";
 declare namespace bgdm = "http://bagridb.com/bagri-xdm";
+declare namespace m="http://www.w3.org/2005/xpath-functions/map";
+
 
 declare 
   %rest:GET
   %rest:path("/metadata")
   %rest:produces("application/fhir+xml")
   %rest:query-param("_format", "{$format}", "") 
-function comm:get-conformance($format as xs:string?) as element()* {
-  <Conformance xmlns="http://hl7.org/fhir"> 
-    <url value="http://bagridb.com"/>
+function comm:get-conformance-x($format as xs:string?) as item() {
+  if ($format = "application/fhir+json") then (
+    "The endpoint produce application/fhir+xml format, wrong format specified"
+  ) else (
+    comm:get-conformance-xml()
+  )
+};
+
+
+declare 
+  %rest:GET
+  %rest:path("/metadata")
+  %rest:produces("application/fhir+json")
+  %rest:query-param("_format", "{$format}", "") 
+function comm:get-conformance-j($format as xs:string?) as item() {
+  if ($format = "application/fhir+xml") then (
+    "The endpoint produce application/fhir+json format, wrong format specified"
+  ) else (
+    comm:get-conformance-json()
+  )
+};
+
+
+declare 
+  %private 
+function comm:get-conformance-xml() as element() {
+  <CapabilityStatement
+    xmlns="http://hl7.org/fhir">
+    <id value="FhirServer"/>
+    <url value="http://188.166.45.131:3030/metadata"/>
     <version value="1.1-SNAPSHOT"/>
-    <name value="Bagri DB"/>
+    <name value="Bagri FHIR Server Conformance Statement"/>
     <status value="draft"/>
     <experimental value="true"/>
     <date value="{fn:current-dateTime()}"/>
     <publisher value="Bagri Project"/>
-    <kind value="instance"/>
-    <fhirVersion value="DSTU2"/>
+    <contact>
+        <telecom>
+            <system value="other"/>
+            <value value="http://bagridb.com/"/>
+        </telecom>
+    </contact>
+    <description value="Standard Conformance Statement for the open source Reference FHIR Server provided by Bagri"/>
+    <instantiates value="http://hl7.org/fhir/Conformance/terminology-server"/>
+    <software>
+        <name value="Reference Server"/>
+        <version value="1.1-SNAPSHOT"/>
+        <releaseDate value="2016-10-17"/>
+    </software>
+    <implementation>
+        <description value="FHIR Server running at http://188.166.45.131:3030/"/>
+        <url value="http://188.166.45.131:3030/"/>
+    </implementation>
+    <fhirVersion value="1.7.0"/>
     <acceptUnknown value="both"/>
-    <format value="xml"/>
-    <format value="json"/>
     <format value="application/fhir+xml"/>
     <format value="application/fhir+json"/>
-  </Conformance>
+    <rest>
+    </rest>
+  </CapabilityStatement>
 };
+
+
+declare 
+  %private 
+function comm:get-conformance-json() as item() {
+
+  let $json := fn:parse-json('{
+      "resourceType": "CapabilityStatement",
+      "id": "FhirServer",
+      "url": "http://188.166.45.131:3030/metadata",
+      "version": "1.1-SNAPSHOT",
+      "name": "Bagri FHIR Server Conformance Statement",
+      "status": "draft",
+      "experimental": true,
+      "date": "now",
+      "publisher": "Bagri Project",
+      "contact": [
+         {
+            "telecom": [
+               {
+                  "system": "other",
+                  "value": "http://bagridb.com/"
+               }
+            ]
+         }
+      ],
+     "description": "Standard Conformance Statement for the open source Reference FHIR Server provided by Bagri",
+      "instantiates": [
+         "http://hl7.org/fhir/Conformance/terminology-server"
+      ],
+      "software": {
+         "name": "Reference Server",
+         "version": "1.1-SNAPSHOT",
+         "releaseDate": "2016-10-17"
+      },
+      "implementation": {
+         "description": "FHIR Server running at http://188.166.45.131:3030/",
+         "url": "http://188.166.45.131:3030/"
+      },
+      "fhirVersion": "1.7.0",
+      "acceptUnknown": "both",
+      "format": [
+         "application/fhir+xml",
+         "application/fhir+json"
+      ],
+      "rest": [
+      ]
+  }')
+  let $json := m:put($json, "date", fn:current-dateTime())
+  let $props := map{'method': 'json', 'indent': fn:true()}
+  return fn:serialize($json, $props)
+};
+
 
 
 (:

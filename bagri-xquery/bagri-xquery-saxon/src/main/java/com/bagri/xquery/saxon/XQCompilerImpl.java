@@ -293,6 +293,7 @@ public class XQCompilerImpl implements XQCompiler {
 		StaticQueryContext sqc = config.newStaticQueryContext();
 		sqc.setErrorListener(new LocalErrorListener());
 		//sqc.setSchemaAware(true); - requires Saxon-EE
+		sqc.setLanguageVersion(saxon_xquery_version); 
 		if (body != null) {
 			sqc.setModuleURIResolver(new LocalModuleURIResolver(body));
 		}

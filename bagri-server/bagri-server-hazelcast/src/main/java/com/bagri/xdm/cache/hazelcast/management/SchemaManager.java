@@ -81,6 +81,10 @@ public class SchemaManager extends EntityManager<Schema> implements HealthChange
 		return xdmRepo;
 	}
 	
+	SchemaManagement getParent() {
+		return parent;
+	}
+	
 	public void setClientContext(ClassPathXmlApplicationContext clientContext) {
 		if (clientContext == null) {
 			if (xdmRepo != null) {

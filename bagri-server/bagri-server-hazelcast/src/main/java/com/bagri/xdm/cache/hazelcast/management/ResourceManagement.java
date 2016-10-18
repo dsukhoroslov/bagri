@@ -10,6 +10,7 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
+import com.bagri.rest.BagriRestServer;
 import com.bagri.xdm.cache.hazelcast.task.stats.StatisticSeriesCollector;
 import com.bagri.xdm.system.Resource;
 import com.bagri.xdm.system.Schema;
@@ -111,5 +112,13 @@ public class ResourceManagement extends SchemaFeatureManagement {
 		// switch it on/off here!!
 	}
 	
-
+	@ManagedOperation(description="Reload Schema Resources")
+	public void reloadResources() {
+		BagriRestServer rest = schemaManager.getParent().getRestService();
+		if (rest != null) {
+			rest.reload(schemaName);
+		}
+	}
+	
+	
 }

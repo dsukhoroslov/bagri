@@ -28,6 +28,7 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 
 import com.bagri.common.util.JMXUtils;
 import com.bagri.common.util.PropUtils;
+import com.bagri.rest.BagriRestServer;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaCreator;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaMemberExtractor;
 import com.bagri.xdm.cache.hazelcast.task.schema.SchemaRemover;
@@ -47,6 +48,7 @@ import static com.bagri.xdm.common.Constants.*;
 	description="Schema Management MBean")
 public class SchemaManagement extends EntityManagement<Schema> implements MembershipListener { 
 	
+	private BagriRestServer restServer;
 	private IExecutorService execService;
 	private ClusterManagement srvCluster;
 	private UserManagement srvUser;
@@ -69,6 +71,14 @@ public class SchemaManagement extends EntityManagement<Schema> implements Member
 	
     public void setExecService(IExecutorService execService) {
     	this.execService = execService;
+    }
+	
+    public BagriRestServer getRestService() {
+    	return restServer;
+    }
+    
+    public void setRestService(BagriRestServer restServer) {
+    	this.restServer = restServer;
     }
 	
     public void setUserService(UserManagement srvUser) {

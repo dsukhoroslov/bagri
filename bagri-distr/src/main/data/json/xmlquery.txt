@@ -1,0 +1,26 @@
+
+fn:xml-to-json(<map xmlns="http://www.w3.org/2005/xpath-functions">
+<array key="properties"><map><string key="think">Marks and Spencer, you've been tangoed</string></map></array></map>)
+
+
+fn:json-to-xml('{"properties":[{"think":"Marks and Spencer, you''ve been tangoed"}]}')
+
+
+for $map in fn:collection()
+let $props := entry('method', 'json')
+let $json := fn:serialize($map, $props)
+return fn:json-to-xml($json)
+
+
+for $uri in fn:uri-collection()
+let $map := fn:json-doc($uri)
+let $props := map{'method': 'json'}
+return fn:serialize($map, $props)
+
+
+for $map in fn:collection()
+let $v := get($map, 'Security')
+(: where get($v, '-id') = '5621' :)
+where get($v, 'Symbol') = 'IBM'
+return $v?('Symbol', 'Name')
+

@@ -201,6 +201,7 @@
 		<property name="entityCache" ref="schemas"/>
 		<property name="clusterService" ref="clusterService"/>
 		<property name="execService" ref="sys-exec-pool"/>
+		<property name="restService" ref="restServer"/>
 		<property name="userService" ref="userService"/>
 		<property name="defaultProperties">
 			<props>
@@ -238,6 +239,12 @@
 	<bean id="repoProviderService" class="com.bagri.xdm.cache.hazelcast.impl.RepositoryProviderImpl">
 		<property name="moduleManagement" ref="moduleService"/>
 		<property name="schemaManagement" ref="schemaService"/>
+	</bean>
+
+	<bean id="restServer" class="com.bagri.rest.BagriRestServer">
+		<constructor-arg ref="repoProviderService" />
+		<constructor-arg ref="xqCompiler" />
+		<constructor-arg value="3030" />
 	</bean>
 
 </beans>

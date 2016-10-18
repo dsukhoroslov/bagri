@@ -122,9 +122,10 @@ public class BagriCacheServer {
 		}
 		logger.info("JMX connector server started and listening on port: {}", port);
 		
-		RepositoryProvider rePro = context.getBean(RepositoryProvider.class);
-		XQCompiler xqComp = context.getBean(XQCompiler.class);
-		BagriRestServer rest = new BagriRestServer(rePro, xqComp, 3030);
+		//RepositoryProvider rePro = context.getBean(RepositoryProvider.class);
+		//XQCompiler xqComp = context.getBean(XQCompiler.class);
+		//BagriRestServer rest = new BagriRestServer(rePro, xqComp, 3030);
+		BagriRestServer rest = context.getBean(BagriRestServer.class);
 		rest.start();
 		logger.info("REST server started on port: {}; provider: {}", rest.getPort(), rest.getRepositoryProvider());
     }
