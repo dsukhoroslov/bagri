@@ -33,7 +33,7 @@ public class AccessService extends RestService {
 			    if (repo != null) {
 					logger.trace("login.exit; returning client: {}", repo.getClientId());
 				    NewCookie cookie = new NewCookie(bg_cookie, repo.getClientId());
-				    server.reload(params.schemaName);
+				    server.reload(params.schemaName, false);
 				    return Response.ok("OK").cookie(cookie).build();
 			    } else {
 				    return Response.status(Status.GONE).entity("Schema is not active").build();

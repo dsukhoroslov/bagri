@@ -67,6 +67,7 @@ import net.sf.saxon.query.StaticQueryContext;
 import net.sf.saxon.query.XQueryExpression;
 import net.sf.saxon.trans.XPathException;
 import net.sf.saxon.value.DateTimeValue;
+import net.sf.saxon.value.EmptySequence;
 import net.sf.saxon.value.ObjectValue;
 
 public abstract class XQProcessorImpl extends XQProcessorBase {
@@ -355,13 +356,17 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
 	//@Override
     public void bindVariable(String varName, Object var) throws XQException {
     	try {
-    		Item item;
-    		if (var instanceof XQItem) {
-    			item = convertXQItem((XQItem) var, config);
+    		if (var == null) {
+        		dqc.setParameter(getStructuredQName(varName), EmptySequence.getInstance());
     		} else {
-    			item = objectToItem(var, config);
+        		Item item;
+	    		if (var instanceof XQItem) {
+	    			item = convertXQItem((XQItem) var, config);
+	    		} else {
+	    			item = objectToItem(var, config);
+	    		}
+	    		dqc.setParameter(getStructuredQName(varName), item);
     		}
-    		dqc.setParameter(getStructuredQName(varName), item);
     	} catch (XPathException ex) {
     		throw new XQException(ex.getMessage());
     	}
@@ -383,10 +388,14 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
     	GlobalParameterSet params = dqc.getParameters();
     	Map<String, Object> bindings = new HashMap<>(params.getNumberOfKeys());
     	for (StructuredQName name: params.getKeys()) {
-    		Item item = (Item) params.get(name);
-    		Object value = itemToObject(item);
+    		Object value = params.get(name);
+    		if (value instanceof EmptySequence) {
+    			value = null;
+    		} else {
+    			value = itemToObject((Item) value);
+    		}
     		bindings.put(name.getClarkName(), value);
-    		logger.trace("getParams; name: {}; item: {}; value: {}", name, item, value);
+    		logger.trace("getParams; name: {}; value: {}", name, value);
     	}
     	return bindings;
     }

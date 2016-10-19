@@ -63,53 +63,75 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
         		List<String> atns = getParamAnnotations("rest:query-param", pm.getName());
     			if (atns != null) {
     	    		List<String> vals = context.getUriInfo().getQueryParameters().get(pm.getName());
+    				//logger.info("apply; query values: {}; ", vals);
     	    		if (vals != null) {
     	    			// resolve cardinality..
     	    			params.put(pm.getName(), getAtomicValue(pm.getType(), vals.get(0)));
     	    		} else {
-    	    			// handle default values
-    	    			if (atns.size() >= 2) {
-        	    			params.put(pm.getName(), getAtomicValue(pm.getType(), atns.get(2)));
-    	    			}
+    	    			setNotFoundParameter(params, atns, pm);
     	    		}
     			} else {
     				atns = getParamAnnotations("rest:form-param", pm.getName());
         			if (atns != null) {
         				// TODO: handle them properly..
         				// content type must be application/x-www-form-urlencoded
+						boolean found = false;
     					String body = getBody(context);
-    					if (context != null) {
+    					if (body != null) {
+            				logger.info("apply; form body: {}; ", body);
     						String[] parts = body.split("&");
     						for (String part: parts) {
     							int pos = part.indexOf("=");
     							String name = part.substring(0, pos);
     							if (name.equals(pm.getName())) {
     	        	    			params.put(pm.getName(), getAtomicValue(pm.getType(), part.substring(pos) + 1));
+    	        	    			found = true;
     	        	    			break;
     							}
     						}
         				}
+						if (!found) {
+	    	    			setNotFoundParameter(params, atns, pm);
+						}
         			} else {
         				atns = getParamAnnotations("rest:header-param", pm.getName());
         				if (atns != null) {
+            				logger.info("apply; header annotations: {}", atns);
             	    		String val = context.getHeaderString(atns.get(0));
         					if (val != null) {
         						params.put(pm.getName(), getAtomicValue(pm.getType(), val));
+            	    		} else {
+            	    			setNotFoundParameter(params, atns, pm);
         					}
         				} else {
             				atns = getParamAnnotations("rest:cookie-param", pm.getName());
             				if (atns != null) {
+                				logger.info("apply; cookie annotations: {}", atns);
                 	    		Cookie val = context.getCookies().get(atns.get(0));
             					if (val != null) {
             						params.put(pm.getName(), getAtomicValue(pm.getType(), val.getValue()));
+                	    		} else {
+                	    			setNotFoundParameter(params, atns, pm);
             					}
             				} else {
                 				atns = getParamAnnotations("rest:matrix-param", pm.getName());
                 				if (atns != null) {
+                    				logger.info("apply; matrix annotations: {}", atns);
                     				// does not work in Jersey: context.getUriInfo().getPathSegments();
-                					List<String> vals = getMatrixParams(context.getUriInfo().getPath());
-                					if (vals != null) {
-                						params.put(pm.getName(), vals);
+                					//List<String> vals = getMatrixParams(context.getUriInfo().getPath());
+            						boolean found = false;
+            						String[] parts = context.getUriInfo().getPath().split("&");
+            						for (String part: parts) {
+            							int pos = part.indexOf("=");
+            							String name = part.substring(0, pos);
+            							if (name.equals(pm.getName())) {
+            	        	    			params.put(pm.getName(), getAtomicValue(pm.getType(), part.substring(pos) + 1));
+            	        	    			found = true;
+            	        	    			break;
+            							}
+            						}
+                					if (!found) {
+                    	    			setNotFoundParameter(params, atns, pm);
                 					}
                 				} else {
                 					String body = getBody(context);
@@ -192,6 +214,16 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
 			return s.next();
 		}
     	return null;
+    }
+    
+    private void setNotFoundParameter(Map<String, Object> params, List<String> atns, Parameter pm) {
+		// handle default values
+		if (atns.size() > 2) {
+			params.put(pm.getName(), getAtomicValue(pm.getType(), atns.get(2)));
+		} else if (pm.getCardinality().isOptional()) {
+			// pass empty value..
+			params.put(pm.getName(), null);
+		}
     }
     
 }

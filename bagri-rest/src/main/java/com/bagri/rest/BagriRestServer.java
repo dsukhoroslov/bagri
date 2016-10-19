@@ -103,8 +103,8 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Factor
         return config;
     }
     
-    public void reload(final String schemaName) {
-    	if (!activeSchemas.contains(schemaName)) {
+    public void reload(final String schemaName, final boolean force) {
+    	if (force || !activeSchemas.contains(schemaName)) {
 	    	new Thread() {
 	    		@Override
 	    		public void run() {
@@ -120,6 +120,8 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Factor
 	    	        logger.debug("reload.run; going to reload context for schemas: {}", newList);
 	    			reloader.reload(config);
 	    			activeSchemas = newList;
+	    			// what about current clients?
+	    			// should we disconnect all of them?
 	    		}
 	    	}.start();
     	}

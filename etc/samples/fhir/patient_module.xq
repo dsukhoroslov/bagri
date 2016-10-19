@@ -26,13 +26,15 @@ function fhir:get-patient-by-id-version($id as xs:string, $vid as xs:string, $fo
 };
 
 
-
 declare 
   %rest:GET
   %rest:produces("application/fhir+xml")
-  %rest:matrix-param("parameters", "{$parameters}", "()")
-  %rest:query-param("_format", "{$format}", "") 
-function fhir:get-patients($parameters as item()*, $format as xs:string?) as element()* {
+  %rest:query-param("identifier", "{$identifier}")
+  %rest:matrix-param("birthdate", "{$birthdate}")
+  %rest:cookie-param("gender", "{$gender}") 
+  %rest:form-param("name", "{$name}")
+  %rest:header-param("X-telecom", "{$telecom}")
+function fhir:get-patients($identifier as xs:string?, $birthdate as xs:date?, $gender as xs:token?, $name as xs:string?, $telecom as xs:string?) as element()* {
 
   let $itr := collection("Patients")/p:Patient 
   return
@@ -47,28 +49,30 @@ function fhir:get-patients($parameters as item()*, $format as xs:string?) as ele
         <relation value="self" />
         <url value="http://bagridb.com/Patient/search?name=test" />
       </link>
-      {for $doc in $itr
+      {for $ptn in $itr
+       where (exists($gender) and $ptn/p:gender = $gender) 
        return 
          <entry>
-           <resource>{$doc}</resource>
+           <resource>{$ptn}</resource>
          </entry>
       }
     </Bundle>
 };         
 
 
-
 declare 
   %rest:POST
   %rest:path("_search")
   %rest:produces("application/fhir+xml")
-  %rest:form-param("parameters", "{$parameters}", "()")
-  %rest:query-param("_format", "{$format}", "") 
-function fhir:search-patients($parameters as item()*, $format as xs:string?) as element()? {
+  %rest:query-param("identifier", "{$identifier}")
+  %rest:matrix-param("birthdate", "{$birthdate}")
+  %rest:cookie-param("gender", "{$gender}") 
+  %rest:form-param("name", "{$name}")
+  %rest:header-param("X-telecom", "{$telecom}")
+function fhir:search-patients($identifier as xs:string?, $birthdate as xs:date?, $gender as xs:token?, $name as xs:string?, $telecom as xs:string?) as element()* {
   for $doc in collection("Patients")/p:Patient
   return $doc
 };
-
 
 
 declare 
@@ -93,14 +97,12 @@ declare
   %rest:produces("application/fhir+xml")
   %rest:query-param("_format", "{$format}", "") 
 function fhir:update-patient($id as xs:string, $content as xs:string, $format as xs:string?) as element()? {
-
   for $uri in fhir:get-patient-uri($id)
   let $uri2 := bgdm:store-document($uri, $content, ())
   let $content2 := bgdm:get-document-content($uri2, ())
   let $doc := parse-xml($content2) 
   return $doc/p:Patient
 };
-
 
 
 declare 
@@ -110,7 +112,6 @@ function fhir:delete-patient($id as xs:string) as item()? {
   for $uri in fhir:get-patient-uri($id)
   return bgdm:remove-document($uri) 
 };
-
 
 
 declare 
@@ -127,7 +128,6 @@ function fhir:get-patient-uri($id as xs:string) as xs:anyURI? {
   let $uri := bgdm:query-document-uris($query, ("id", $id), ())
   return xs:anyURI($uri)
 };
-
 
 
 declare 
@@ -151,54 +151,16 @@ function fhir:get-patient-uris($params as xs:string*) as xs:anyURI* {
 
 (:
 
-Общие параметры, определённые для всех ресурсов:
-_id	token	Идентификатор ресурса (а не полный URL)	Resource.id
-_lastUpdated	date	Дата последнего обновления. Сервер может по своему усмотрению устанавливать границы точности	Resource.meta.lastUpdated
-_tag	token	Поиск по тегу ресурса	Resource.meta.tag
-_profile	uri	Поиск всех ресурсов, помеченных профилем	Resource.meta.profile
-_security	token	Поиск по метке уровня безопасности	Resource.meta.security
-_text	string	Текстовый поиск по описательной части	
-_content	string	Текстовый поиск по всему ресурсу целиком	
-_list	string	Все ресурсы в названном списке (по идентификатору, а не полному URL)	
-_query	string	Custom named query	
 Search Control Parameters:
 Имя	Тип	Описание	Допустимое содержимое
-_sort	string	Порядок сортировки результатов (может повторяться для внутренних порядков сортировки)	Имя допустимого параметра поиска
-_count	number	Количество результатов на странице	Общее количество
-_include	string	Другие ресурсы для включения в результаты поиска, на которые указывают найденные при поиске совпадения	SourceType:searchParam(  :targetType)
-_revinclude	string	Другие ресурсы для включения в результаты поиска, когда они ссылаются на найденные при поиске совпадения	SourceType:searchParam(  :targetType)
 _summary	string	Просто верните суммарные элементы (для ресурсов, где это определено)	true | false (false is default)
-_contained	string	Возвращать ли ресурсы, вложенные в другие ресурсы при поиске совпадений	true | false | both (false is default)
-_containedType	string	Возвращать ли вложенные или родительские ресурсы при возвращении вложенных ресурсов	container | contained
 
 Patient
-active	token	Активна ли данная запись о пациенте	Patient.active
-address	string	A server defined search that may match any of the string fields in the Address, including line, city, state, country, postalCode, and/or text	Patient.address
-address-city	string	Город, указанный в адресе	Patient.address.city
-address-country	string	Страна, указанная в адресе	Patient.address.country
-address-postalcode	string	Почтовый индекс, указанный в адресе	Patient.address.postalCode
-address-state	string	Штат, указанный в адресе	Patient.address.state
-address-use	token	Код применения, указанный в адресе	Patient.address.use
-animal-breed	token	Порода для пациентов-животных	Patient.animal.breed
-animal-species	token	Вид для пациентов-животных	Patient.animal.species
 birthdate	date	Дата рождения пациента	Patient.birthDate
-death-date	date	Была указана дата смерти, или удовлетворяет данному искомому значению	Patient.deceased.as(DateTime)
-deceased	token	Этот пациент помечен как умерший, либо введена дата смерти	Patient.deceased.exists()
-email	token	Адрес электронной почты	Patient.telecom.where(system='email')
-family	string	Часть фамилии пациента	Patient.name.family
 gender	token	Пол пациента	Patient.gender
-general-practitioner	reference	Patient's nominated general practitioner, not the organization that manages the record	Patient.generalPractitioner
-given	string	Часть имени пациента	Patient.name.given
-identifier	token	Идентификатор пациента	Patient.identifier
-language	token	Код языка (безотносительно значения вида использования)	Patient.communication.language
-link	reference	Все пациенты, связанные с данным пациентом	Patient.link.other
 name	string	A server defined search that may match any of the string fields in the HumanName, including family, give, prefix, suffix, suffix, and/or text	Patient.name
-organization	reference	Организация, в которой этот человек является пациентом	Patient.managingOrganization
-phone	token	Номер телефона	Patient.telecom.where(system='phone')
-phonetic	string	Часть либо фамилии, либо имени, используя некоторый алгоритм фонетического соответствия	Patient.name
 telecom	token	Значение в любом виде контактных данных пациента	Patient.telecom
-race	token	Returns patients with a race extension matching the specified code.	
-ethnicity	token	Returns patients with an ethnicity extension matching the specified code.	
+identifier	Identifier	Patient.active
 
 
 inject; exp: "Patients"; env: net.sf.saxon.query.QueryModule@42dfc; construct: 0; qName: null

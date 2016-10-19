@@ -37,5 +37,9 @@ public enum Cardinality {
 	 */
     @XmlEnumValue("zero_or_more")
 	zero_or_more;
+    
+    public boolean isOptional() {
+    	return this.ordinal() == zero_or_one.ordinal() || this.ordinal() == zero_or_more.ordinal(); 
+    }
 
 }

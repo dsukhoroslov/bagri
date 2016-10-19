@@ -116,7 +116,7 @@ public class ResourceManagement extends SchemaFeatureManagement {
 	public void reloadResources() {
 		BagriRestServer rest = schemaManager.getParent().getRestService();
 		if (rest != null) {
-			rest.reload(schemaName);
+			rest.reload(schemaName, true);
 		}
 	}
 	

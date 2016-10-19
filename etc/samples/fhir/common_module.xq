@@ -47,12 +47,19 @@ function comm:get-conformance-xml() as element() {
     <date value="{fn:current-dateTime()}"/>
     <publisher value="Bagri Project"/>
     <contact>
+        <name value="Denis Sukhoroslov"/>
+        <telecom>
+            <system value="email"/>
+            <value value="info@bagridb.com"/>
+            <use value="work"/>
+        </telecom>
         <telecom>
             <system value="other"/>
             <value value="http://bagridb.com/"/>
         </telecom>
     </contact>
     <description value="Standard Conformance Statement for the open source Reference FHIR Server provided by Bagri"/>
+    <kind value="instance"/>
     <instantiates value="http://hl7.org/fhir/Conformance/terminology-server"/>
     <software>
         <name value="Reference Server"/>
@@ -68,6 +75,85 @@ function comm:get-conformance-xml() as element() {
     <format value="application/fhir+xml"/>
     <format value="application/fhir+json"/>
     <rest>
+        <mode value="server"/>
+        <resource>
+            <type value="Patient"/>
+            <profile>
+                <reference value="http://fhir3.healthintersections.com.au/open/StructureDefinition/patient"/>
+            </profile>
+            <interaction>
+                <code value="read"/>
+            </interaction>
+            <interaction>
+                <code value="vread"/>
+            </interaction>
+            <interaction>
+                <code value="search-type"/>
+            </interaction>
+            <interaction>
+                <code value="update"/>
+            </interaction>
+            <interaction>
+                <code value="create"/>
+            </interaction>
+            <interaction>
+                <code value="delete"/>
+            </interaction>
+            <readHistory value="true"/>
+            <updateCreate value="true"/>
+            <searchParam>
+                <name value="birthdate"/>
+                <definition value="http://hl7.org/fhir/SearchParameter/Patient-birthdate"/>
+                <type value="date"/>
+                <documentation value="The patient's date of birth"/>
+                <modifier value="missing"/>
+            </searchParam>
+            <searchParam>
+                <name value="gender"/>
+                <definition value="http://hl7.org/fhir/SearchParameter/Patient-gender"/>
+                <type value="token"/>
+                <documentation value="Gender of the patient"/>
+                <modifier value="missing"/>
+                <modifier value="text"/>
+                <modifier value="in"/>
+                <modifier value="not-in"/>
+            </searchParam>
+            <searchParam>
+                <name value="identifier"/>
+                <definition value="http://hl7.org/fhir/SearchParameter/Patient-identifier"/>
+                <type value="token"/>
+                <documentation value="A patient identifier"/>
+                <modifier value="missing"/>
+                <modifier value="text"/>
+                <modifier value="in"/>
+                <modifier value="not-in"/>
+            </searchParam>
+            <searchParam>
+                <name value="name"/>
+                <definition value="http://hl7.org/fhir/SearchParameter/Patient-name"/>
+                <type value="string"/>
+                <documentation value="A server defined search that may match any of the string fields in the HumanName, including family, give, prefix, suffix, suffix, and/or text"/>
+                <modifier value="missing"/>
+                <modifier value="exact"/>
+                <modifier value="contains"/>
+            </searchParam>
+            <searchParam>
+                <name value="telecom"/>
+                <definition value="http://hl7.org/fhir/SearchParameter/Patient-telecom"/>
+                <type value="token"/>
+                <documentation value="The value in any kind of telecom details of the patient"/>
+                <modifier value="missing"/>
+                <modifier value="text"/>
+                <modifier value="in"/>
+                <modifier value="not-in"/>
+            </searchParam>
+        </resource>
+        <interaction>
+            <code value="transaction"/>
+        </interaction>
+        <interaction>
+            <code value="search-system"/>
+        </interaction>
     </rest>
   </CapabilityStatement>
 };
@@ -89,7 +175,13 @@ function comm:get-conformance-json() as item() {
       "publisher": "Bagri Project",
       "contact": [
          {
+            "name": "Denis Sukhoroslov",
             "telecom": [
+               {
+                  "system": "email",
+                  "value": "info@bagridb.com",
+                  "use": "work"
+               },
                {
                   "system": "other",
                   "value": "http://bagridb.com/"
@@ -97,7 +189,8 @@ function comm:get-conformance-json() as item() {
             ]
          }
       ],
-     "description": "Standard Conformance Statement for the open source Reference FHIR Server provided by Bagri",
+      "description": "Standard Conformance Statement for the open source Reference FHIR Server provided by Bagri",
+      "kind": "instance",
       "instantiates": [
          "http://hl7.org/fhir/Conformance/terminology-server"
       ],
@@ -117,8 +210,107 @@ function comm:get-conformance-json() as item() {
          "application/fhir+json"
       ],
       "rest": [
-      ]
-  }')
+         {
+            "mode": "server",
+            "resource": [
+               {
+               "type": "Patient",
+               "profile": {
+                  "reference": "http://fhir3.healthintersections.com.au/open/StructureDefinition/patient"
+               },
+               "interaction": [
+                  {
+                     "code": "read"
+                  },
+                  {
+                     "code": "vread"
+                  },
+                  {
+                     "code": "search-type"
+                  },
+                  {
+                     "code": "update"
+                  },
+                  {
+                     "code": "create"
+                  },
+                  {
+                     "code": "delete"
+                  }
+               ],
+               "readHistory": true,
+               "updateCreate": true,
+               "searchParam": [
+                  {
+                     "name": "birthdate",
+                     "definition": "http://hl7.org/fhir/SearchParameter/Patient-birthdate",
+                     "type": "date",
+                     "documentation": "The patient''s date of birth",
+                     "modifier": [
+                        "missing"
+                     ]
+                  },
+                  {
+                     "name": "gender",
+                     "definition": "http://hl7.org/fhir/SearchParameter/Patient-gender",
+                     "type": "token",
+                     "documentation": "Gender of the patient",
+                     "modifier": [
+                        "missing",
+                        "text",
+                        "in",
+                        "not-in"
+                     ]
+                  },
+                  {
+                     "name": "identifier",
+                     "definition": "http://hl7.org/fhir/SearchParameter/Patient-identifier",
+                     "type": "token",
+                     "documentation": "A patient identifier",
+                     "modifier": [
+                        "missing",
+                        "text",
+                        "in",
+                        "not-in"
+                     ]
+                  },
+                  {
+                     "name": "name",
+                     "definition": "http://hl7.org/fhir/SearchParameter/Patient-name",
+                     "type": "string",
+                     "documentation": "A server defined search that may match any of the string fields in the HumanName, including family, give, prefix, suffix, suffix, and/or text",
+                     "modifier": [
+                        "missing",
+                        "exact",
+                        "contains"
+                     ]
+                  },
+                  {
+                     "name": "telecom",
+                     "definition": "http://hl7.org/fhir/SearchParameter/Patient-telecom",
+                     "type": "token",
+                     "documentation": "The value in any kind of telecom details of the patient",
+                     "modifier": [
+                        "missing",
+                        "text",
+                        "in",
+                        "not-in"
+                     ]
+                  }
+               ]
+            }
+         ],
+         "interaction": [
+            {
+               "code": "transaction"
+            },
+            {
+               "code": "search-system"
+            }
+         ]
+      }
+   ]
+}')
   let $json := m:put($json, "date", fn:current-dateTime())
   let $props := map{'method': 'json', 'indent': fn:true()}
   return fn:serialize($json, $props)
