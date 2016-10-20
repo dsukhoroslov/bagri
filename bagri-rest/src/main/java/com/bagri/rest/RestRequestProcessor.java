@@ -53,98 +53,73 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
 		logger.debug("apply.enter; path: {}; params: {}; query: {}", context.getUriInfo().getPath(), 
 				context.getUriInfo().getPathParameters(), context.getUriInfo().getQueryParameters());
     	for (Parameter pm: fn.getParameters()) {
+			// TODO: resolve cardinality properly!
     		if (isPathParameter(pm.getName())) {
         		List<String> vals = context.getUriInfo().getPathParameters().get(pm.getName());
         		if (vals != null) {
-        			// resolve cardinality..
         			params.put(pm.getName(), getAtomicValue(pm.getType(), vals.get(0)));
         		}    			
     		} else {
+    			boolean found = false;
         		List<String> atns = getParamAnnotations("rest:query-param", pm.getName());
     			if (atns != null) {
     	    		List<String> vals = context.getUriInfo().getQueryParameters().get(pm.getName());
-    				//logger.info("apply; query values: {}; ", vals);
     	    		if (vals != null) {
-    	    			// resolve cardinality..
     	    			params.put(pm.getName(), getAtomicValue(pm.getType(), vals.get(0)));
-    	    		} else {
-    	    			setNotFoundParameter(params, atns, pm);
+    	    			found = true;
     	    		}
     			} else {
     				atns = getParamAnnotations("rest:form-param", pm.getName());
         			if (atns != null) {
-        				// TODO: handle them properly..
         				// content type must be application/x-www-form-urlencoded
-						boolean found = false;
     					String body = getBody(context);
     					if (body != null) {
-            				logger.info("apply; form body: {}; ", body);
-    						String[] parts = body.split("&");
-    						for (String part: parts) {
-    							int pos = part.indexOf("=");
-    							String name = part.substring(0, pos);
-    							if (name.equals(pm.getName())) {
-    	        	    			params.put(pm.getName(), getAtomicValue(pm.getType(), part.substring(pos) + 1));
-    	        	    			found = true;
-    	        	    			break;
-    							}
+            				//logger.info("apply; form body: {}; ", body);
+    						String val = getParamValue(body, "&", pm.getName());
+    						if (val != null) {
+   	        	    			params.put(pm.getName(), getAtomicValue(pm.getType(), val));
+   	        	    			found = true;
     						}
         				}
-						if (!found) {
-	    	    			setNotFoundParameter(params, atns, pm);
-						}
         			} else {
         				atns = getParamAnnotations("rest:header-param", pm.getName());
         				if (atns != null) {
-            				logger.info("apply; header annotations: {}", atns);
             	    		String val = context.getHeaderString(atns.get(0));
         					if (val != null) {
         						params.put(pm.getName(), getAtomicValue(pm.getType(), val));
-            	    		} else {
-            	    			setNotFoundParameter(params, atns, pm);
+            	    			found = true;
         					}
         				} else {
             				atns = getParamAnnotations("rest:cookie-param", pm.getName());
             				if (atns != null) {
-                				logger.info("apply; cookie annotations: {}", atns);
                 	    		Cookie val = context.getCookies().get(atns.get(0));
             					if (val != null) {
             						params.put(pm.getName(), getAtomicValue(pm.getType(), val.getValue()));
-                	    		} else {
-                	    			setNotFoundParameter(params, atns, pm);
+                	    			found = true;
             					}
             				} else {
                 				atns = getParamAnnotations("rest:matrix-param", pm.getName());
                 				if (atns != null) {
-                    				logger.info("apply; matrix annotations: {}", atns);
                     				// does not work in Jersey: context.getUriInfo().getPathSegments();
-                					//List<String> vals = getMatrixParams(context.getUriInfo().getPath());
-            						boolean found = false;
-            						String[] parts = context.getUriInfo().getPath().split("&");
-            						for (String part: parts) {
-            							int pos = part.indexOf("=");
-            							if (pos > 0) {
-	            							String name = part.substring(0, pos);
-	            							if (name.equals(pm.getName())) {
-	            	        	    			params.put(pm.getName(), getAtomicValue(pm.getType(), part.substring(pos) + 1));
-	            	        	    			found = true;
-	            	        	    			break;
-	            							}
-            							}
+            						String val = getParamValue(context.getUriInfo().getPath(), "&", pm.getName());
+            						if (val != null) {
+           	        	    			params.put(pm.getName(), getAtomicValue(pm.getType(), val));
+           	        	    			found = true;
             						}
-                					if (!found) {
-                    	    			setNotFoundParameter(params, atns, pm);
-                					}
                 				} else {
                 					String body = getBody(context);
                 					if (context != null) {
                     	    			params.put(pm.getName(), getAtomicValue(pm.getType(), body));
+                    	    			found = true;
                     				}
                 				}
             				}
         				}
         			}
     			}
+				if (!found) {
+	    			setNotFoundParameter(params, atns, pm);
+				}
     		}
     		List<String> vals = context.getUriInfo().getPathParameters().get(pm.getName());
     		if (vals != null) {
@@ -197,17 +172,19 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
     	}
     	return null;
     }
-    
-    private List<String> getMatrixParams(String path) {
-    	List<String> pairs = new ArrayList<>();
-    	for (String part: path.split(";")) {
-    		int pos = part.indexOf("="); 
-    		if (pos > 0) {
-    			pairs.add(part.substring(0, pos));
-    			pairs.add(part.substring(pos + 1));
-    		}
-    	}
-    	return pairs;
+
+    private String getParamValue(String s, String d, String p) {
+		String[] parts = s.split(d);
+		for (String part: parts) {
+			int pos = part.indexOf("=");
+			if (pos > 0) {
+				String name = part.substring(0, pos);
+				if (name.equals(p)) {
+	    			return part.substring(pos + 1);
+				}
+			}
+		}
+    	return null;
     }
     
     private String getBody(ContainerRequestContext context) {
