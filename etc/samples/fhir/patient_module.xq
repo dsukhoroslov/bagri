@@ -34,9 +34,12 @@ declare
   %rest:cookie-param("gender", "{$gender}") 
   %rest:form-param("name", "{$name}")
   %rest:header-param("X-telecom", "{$telecom}")
-function fhir:get-patients($identifier as xs:string?, $birthdate as xs:date?, $gender as xs:token?, $name as xs:string?, $telecom as xs:string?) as element()* {
-
-  let $itr := collection("Patients")/p:Patient 
+function fhir:get-patients($identifier as xs:string?, $birthdate as xs:date?, $gender as xs:string?, $name as xs:string?, $telecom as xs:string?) as element()* {
+(:
+let $itr := collection("Patients")/p:Patient[p:gender/@value = $gender and p:birthDate/@value = $birthdate and contains(data(p:text), $name)
+	and contains(p:identifier/p:value/@value, $ident) and contains(string-join(p:telecom/p:value/@value, " "), $telecom)] 
+:)
+  let $itr := collection("Patients")/p:Patient[p:gender/@value = $gender and p:birthDate/@value = $birthdate] 
   return
     <Bundle xmlns="http://hl7.org/fhir">
       <id value="{bgdm:get-uuid()}" />
@@ -50,7 +53,11 @@ function fhir:get-patients($identifier as xs:string?, $birthdate as xs:date?, $g
         <url value="http://bagridb.com/Patient/search?name=test" />
       </link>
       {for $ptn in $itr
-       where (exists($gender) and $ptn/p:gender = $gender) 
+       where (: (not(exists($gender)) or $ptn/p:gender/@value = $gender) 
+         and (not(exists($birthdate)) or $ptn/p:birthDate/@value = $birthdate) 
+         and :) (not(exists($name)) or contains(data($ptn/p:text), $name)) 
+         and (not(exists($identifier)) or contains($ptn/p:identifier/p:value/@value, $identifier)) 
+         and (not(exists($telecom)) or contains(string-join($ptn/p:telecom/p:value/@value, " "), $telecom)) 
        return 
          <entry>
            <resource>{$ptn}</resource>

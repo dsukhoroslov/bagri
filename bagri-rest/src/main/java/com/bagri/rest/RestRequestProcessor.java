@@ -123,11 +123,13 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
             						String[] parts = context.getUriInfo().getPath().split("&");
             						for (String part: parts) {
             							int pos = part.indexOf("=");
-            							String name = part.substring(0, pos);
-            							if (name.equals(pm.getName())) {
-            	        	    			params.put(pm.getName(), getAtomicValue(pm.getType(), part.substring(pos) + 1));
-            	        	    			found = true;
-            	        	    			break;
+            							if (pos > 0) {
+	            							String name = part.substring(0, pos);
+	            							if (name.equals(pm.getName())) {
+	            	        	    			params.put(pm.getName(), getAtomicValue(pm.getType(), part.substring(pos) + 1));
+	            	        	    			found = true;
+	            	        	    			break;
+	            							}
             							}
             						}
                 					if (!found) {
