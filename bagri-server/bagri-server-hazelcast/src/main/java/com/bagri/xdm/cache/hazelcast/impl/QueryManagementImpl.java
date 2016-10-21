@@ -337,6 +337,11 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	}
 	
 	private Set<Long> queryKeys(Set<Long> found, ExpressionContainer ec, Expression ex) throws XDMException {
+		if (ex == null) {
+			logger.debug("queryKeys; got null expression in container: {}, skipping..", ec);
+			return found;
+		}
+		
 		if (ex instanceof AlwaysExpression) {
 			return docMgr.getCollectionDocumentKeys(ex.getCollectionId());
 		}
@@ -345,14 +350,20 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			BinaryExpression be = (BinaryExpression) ex;
 			Set<Long> leftKeys = queryKeys(found, ec, be.getLeft());
 			if (Comparison.AND == be.getCompType()) {
-				if (leftKeys.isEmpty()) {
+				if (leftKeys != null && leftKeys.isEmpty()) {
 					return leftKeys;
 				}
 				Set<Long> rightKeys = queryKeys(leftKeys, ec, be.getRight());
 				return rightKeys;
 			} else if (Comparison.OR == be.getCompType()) {
 				Set<Long> rightKeys = queryKeys(found, ec, be.getRight());
-				leftKeys.addAll(rightKeys);
+				if (leftKeys != null) {
+					if (rightKeys != null) {
+						leftKeys.addAll(rightKeys);
+					}
+				} else {
+					leftKeys = rightKeys;
+				}
 				return leftKeys;
 			} else {
 				throw new XDMException("Wrong BinaryExpression type: " + be.getCompType(), XDMException.ecQuery);
@@ -450,18 +461,18 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			}
 		}
 		
+		Set<Long> result = new HashSet<>();
 		if (paths == null || paths.isEmpty()) {
 			logger.info("queryPathKeys; got query on unknown path: {}", pex); 
-			return Collections.emptySet();
+			return result;
 		}
 		Object newVal = adjustSearchValue(value, dataType);
 		if (newVal == null) {
 			logger.info("queryPathKeys; got query on empty value sequence: {}", value); 
-			return Collections.emptySet();
+			return result;
 		}
 		logger.trace("queryPathKeys; adjusted value: {}({})", newVal.getClass().getName(), newVal); 
 		
-		Set<Long> result = new HashSet<>();
 		if (indexed) {
 			for (Integer pathId: paths) {
 				Set<Long> docKeys = idxMgr.getIndexedDocuments(pathId, pex, newVal);

@@ -35,11 +35,13 @@ import net.sf.saxon.expr.LetExpression;
 import net.sf.saxon.expr.Literal;
 import net.sf.saxon.expr.Operand;
 import net.sf.saxon.expr.StringLiteral;
+import net.sf.saxon.expr.SystemFunctionCall;
 import net.sf.saxon.expr.ValueComparison;
 import net.sf.saxon.expr.VariableReference;
 import net.sf.saxon.expr.XPathContext;
 import net.sf.saxon.expr.instruct.Block;
 import net.sf.saxon.expr.parser.Token;
+import net.sf.saxon.functions.IntegratedFunctionCall;
 import net.sf.saxon.lib.CollectionFinder;
 import net.sf.saxon.lib.ResourceCollection;
 import net.sf.saxon.om.AxisInfo;
@@ -268,7 +270,7 @@ public class CollectionFinderImpl implements CollectionFinder {
     }
 	
     private void iterate(Expression ex, XPathContext ctx) throws XPathException {
-    	logger.trace("start: {}; path: {}", ex.getClass().getName(), ex); 
+    	logger.trace("start: {}; expression: {}", ex.getClass().getName(), ex); 
 
     	PathBuilder path = currentPath;
     	if (ex instanceof Block) {
@@ -276,9 +278,10 @@ public class CollectionFinderImpl implements CollectionFinder {
     		return;
     	}
     	
-       	if (ex instanceof FunctionCall) {
-       		FunctionCall clx = (FunctionCall) ex;
-       		if ("collection".equals(clx.getDisplayName()) || "uri-collection".equals(clx.getDisplayName())) {
+       	if (ex instanceof SystemFunctionCall) {
+       		SystemFunctionCall clx = (SystemFunctionCall) ex;
+       		//if ("collection".equals(clx.getDisplayName()) || "uri-collection".equals(clx.getDisplayName())) {
+       		if (clx.isCallOnSystemFunction("collection") || clx.isCallOnSystemFunction("uri-collection")) {
        			String collectUri = "";
        			if (clx.getArity() > 0) {
        				Expression arg = clx.getArg(0);
@@ -359,12 +362,15 @@ public class CollectionFinderImpl implements CollectionFinder {
     	    	throw new XPathException("Unknown comparison type for expression: " + be);
     		} 
 
+    		Expression fun;
     		Expression var;
     		if (le instanceof VariableReference || le instanceof Literal) {
     			compType = Comparison.revert(compType);
     			var = le;
+    			fun = be.getRhsExpression();
     		} else {
     			var = be.getRhsExpression();
+    			fun = le;
     		}
     		
    			if (var instanceof VariableReference) {
@@ -402,6 +408,12 @@ public class CollectionFinderImpl implements CollectionFinder {
 	   			logger.trace("iterate; added path expression at index: {}", exIndex);
 	   			setParentPath(exCont.getBuilder(), exIndex, path);
 	   			logger.trace("iterate; parent path {} set at index: {}", path, exIndex);
+   			} else {
+	   			logger.trace("iterate; got function call: {}, {}", fun.getClass().getName(), fun);
+   				if (fun instanceof IntegratedFunctionCall) {
+   					IntegratedFunctionCall ifc = (IntegratedFunctionCall) fun;
+   		   			logger.trace("iterate; function arguments: {}", (Object[]) ifc.getArguments());
+   				}
    			}
     	}  
 
@@ -413,6 +425,7 @@ public class CollectionFinderImpl implements CollectionFinder {
     	
     	if (ex instanceof Atomizer) {
     		Atomizer at = (Atomizer) ex;
+   			logger.trace("iterate; atomizing: {}", at.getBaseExpression());
     		if (at.getBaseExpression() instanceof BindingReference) {
        			//logger.trace("iterate; got base ref: {}", at.getBaseExpression());
     		} else {
@@ -422,6 +435,10 @@ public class CollectionFinderImpl implements CollectionFinder {
     			}
     		}
     	}
+
+       	if (ex instanceof SystemFunctionCall) {
+       		// add FunctionExpression..?
+       	}
     	
     	logger.trace("end: {}; path: {}", ex.getClass().getName(), path.getFullPath());
     }

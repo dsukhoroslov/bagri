@@ -24,3 +24,12 @@ let $v := get($map, 'Security')
 where get($v, 'Symbol') = 'IBM'
 return $v?('Symbol', 'Name')
 
+
+declare namespace m="http://www.w3.org/2005/xpath-functions/map";
+
+for $uri in fn:uri-collection("securities")
+let $props := map {'method': 'json'}
+let $map := fn:json-doc($uri)
+let $sec := m:get($map, 'Security')
+where m:get($sec, 'id') = 5621
+return fn:serialize($map, $props) 
