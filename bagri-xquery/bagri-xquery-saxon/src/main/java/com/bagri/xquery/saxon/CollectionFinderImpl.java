@@ -28,9 +28,9 @@ import net.sf.saxon.expr.BindingReference;
 import net.sf.saxon.expr.BooleanExpression;
 import net.sf.saxon.expr.ComparisonExpression;
 import net.sf.saxon.expr.Expression;
-import net.sf.saxon.expr.FunctionCall;
 import net.sf.saxon.expr.GeneralComparison10;
 import net.sf.saxon.expr.GeneralComparison20;
+import net.sf.saxon.expr.ItemChecker;
 import net.sf.saxon.expr.LetExpression;
 import net.sf.saxon.expr.Literal;
 import net.sf.saxon.expr.Operand;
@@ -44,6 +44,7 @@ import net.sf.saxon.expr.parser.Token;
 import net.sf.saxon.functions.IntegratedFunctionCall;
 import net.sf.saxon.lib.CollectionFinder;
 import net.sf.saxon.lib.ResourceCollection;
+import net.sf.saxon.ma.map.MapGet;
 import net.sf.saxon.om.AxisInfo;
 import net.sf.saxon.om.Item;
 import net.sf.saxon.om.Sequence;
@@ -305,7 +306,7 @@ public class CollectionFinderImpl implements CollectionFinder {
 	    	    query.addContainer(currentType, exCont);
        		}
     	}
-    	
+       	
     	if (ex instanceof AxisExpression) {
     		AxisExpression ae = (AxisExpression) ex;
         	logger.trace("iterate: axis: {}", AxisInfo.axisName[ae.getAxis()]);
@@ -408,12 +409,6 @@ public class CollectionFinderImpl implements CollectionFinder {
 	   			logger.trace("iterate; added path expression at index: {}", exIndex);
 	   			setParentPath(exCont.getBuilder(), exIndex, path);
 	   			logger.trace("iterate; parent path {} set at index: {}", path, exIndex);
-   			} else {
-	   			logger.trace("iterate; got function call: {}, {}", fun.getClass().getName(), fun);
-   				if (fun instanceof IntegratedFunctionCall) {
-   					IntegratedFunctionCall ifc = (IntegratedFunctionCall) fun;
-   		   			logger.trace("iterate; function arguments: {}", (Object[]) ifc.getArguments());
-   				}
    			}
     	}  
 
@@ -422,6 +417,26 @@ public class CollectionFinderImpl implements CollectionFinder {
     		setParentPath(exCont.getBuilder(), exIndex, path);
    			logger.trace("iterate; parent path {} set at index: {}", path, exIndex);
     	}
+    	
+       	if (ex instanceof IntegratedFunctionCall) {
+       		IntegratedFunctionCall ifc = (IntegratedFunctionCall) ex;
+       		if ("map:get".equals(ifc.getDisplayName())) {
+       			String namespace = null;
+       			String segment = ((StringLiteral) ifc.getArg(1)).getStringValue();
+       			AxisType axis = AxisType.CHILD;
+       			if (segment.startsWith("@")) {
+       				axis = AxisType.ATTRIBUTE;
+       				segment = segment.substring(1);
+       			} else if (segment.startsWith("#")) {
+       				axis = AxisType.NAMESPACE;
+       				segment = segment.substring(1);
+       			}
+       	    	path.addPathSegment(axis, namespace, segment); 
+       		}
+		}
+       	//if (ex instanceof SystemFunctionCall) {
+       		// add FunctionExpression..?
+       	//}
     	
     	if (ex instanceof Atomizer) {
     		Atomizer at = (Atomizer) ex;
@@ -436,10 +451,6 @@ public class CollectionFinderImpl implements CollectionFinder {
     		}
     	}
 
-       	if (ex instanceof SystemFunctionCall) {
-       		// add FunctionExpression..?
-       	}
-    	
     	logger.trace("end: {}; path: {}", ex.getClass().getName(), path.getFullPath());
     }
     
@@ -453,5 +464,5 @@ public class CollectionFinderImpl implements CollectionFinder {
 		}  
     	return exCont;
     }
-    
+        
 }

@@ -1,8 +1,8 @@
 {
   "Security": {
-    "-xmlns": "http://tpox-benchmark.com/security",
-    "-xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
-    "-id": "9012",
+    "xmlns": "http://tpox-benchmark.com/security",
+    "xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
+    "@id": "9012",
     "-xsi:schemaLocation": "http://tpox-benchmark.com/security security.xsd",
     "Symbol": "PTTAX",
     "Name": "PIMCO Total Return A",

@@ -1,8 +1,8 @@
 {
   "Security": {
-    "-xmlns": "http://tpox-benchmark.com/security",
-    "-xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
-    "-id": "1500",
+    "xmlns": "http://tpox-benchmark.com/security",
+    "xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
+    "@id": "1500",
     "-xsi:schemaLocation": "http://tpox-benchmark.com/security security.xsd",
     "Symbol": "VFINX",
     "Name": "Vanguard 500 Index Fund",
