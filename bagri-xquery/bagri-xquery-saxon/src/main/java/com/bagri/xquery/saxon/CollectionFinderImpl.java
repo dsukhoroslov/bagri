@@ -421,17 +421,23 @@ public class CollectionFinderImpl implements CollectionFinder {
        	if (ex instanceof IntegratedFunctionCall) {
        		IntegratedFunctionCall ifc = (IntegratedFunctionCall) ex;
        		if ("map:get".equals(ifc.getDisplayName())) {
-       			String namespace = null;
-       			String segment = ((StringLiteral) ifc.getArg(1)).getStringValue();
-       			AxisType axis = AxisType.CHILD;
-       			if (segment.startsWith("@")) {
-       				axis = AxisType.ATTRIBUTE;
-       				segment = segment.substring(1);
-       			} else if (segment.startsWith("#")) {
-       				axis = AxisType.NAMESPACE;
-       				segment = segment.substring(1);
+       			Expression arg = ifc.getArg(1); 
+       			if (arg instanceof StringLiteral) {
+           			String namespace = null;
+       				String segment = ((StringLiteral) arg).getStringValue();
+       				AxisType axis = AxisType.CHILD;
+       				if (segment.startsWith("@")) {
+       					axis = AxisType.ATTRIBUTE;
+       					segment = segment.substring(1);
+       				} else if (segment.startsWith("#")) {
+       					axis = AxisType.NAMESPACE;
+       					segment = segment.substring(1);
+       				}
+       				path.addPathSegment(axis, namespace, segment);
+       			} else { 
+       				// the arg can be instanceof VariableReference pointing to array of 
+       				// literals. Can it be used in comparison condition..? 
        			}
-       	    	path.addPathSegment(axis, namespace, segment); 
        		}
 		}
        	//if (ex instanceof SystemFunctionCall) {

@@ -35,11 +35,14 @@ declare
   %rest:query-param("name", "{$name}")
   %rest:query-param("telecom", "{$telecom}")
 function fhir:get-patients($identifier as xs:string?, $birthdate as xs:date?, $gender as xs:string?, $name as xs:string?, $telecom as xs:string?) as element()* {
-(:
-let $itr := collection("Patients")/p:Patient[p:gender/@value = $gender and p:birthDate/@value = $birthdate and contains(data(p:text), $name)
-	and contains(p:identifier/p:value/@value, $ident) and contains(string-join(p:telecom/p:value/@value, " "), $telecom)] 
-:)
-  let $itr := collection("Patients")/p:Patient[p:gender/@value = $gender and p:birthDate/@value = $birthdate] 
+
+  let $itr := collection("Patients")/p:Patient[ 
+	(not(exists($gender)) or p:gender/@value = $gender)
+    and (not(exists($birthdate)) or p:birthDate/@value = $birthdate) 
+    and (not(exists($name)) or contains(data(p:text), $name)) 
+    and (not(exists($identifier)) or contains(p:identifier/p:value/@value, $identifier)) 
+    and (not(exists($telecom)) or contains(string-join(p:telecom/p:value/@value, " "), $telecom))] 
+
   return
     <Bundle xmlns="http://hl7.org/fhir">
       <id value="{bgdm:get-uuid()}" />
@@ -53,11 +56,6 @@ let $itr := collection("Patients")/p:Patient[p:gender/@value = $gender and p:bir
         <url value="http://bagridb.com/Patient/search?name=test" />
       </link>
       {for $ptn in $itr
-       where (: (not(exists($gender)) or $ptn/p:gender/@value = $gender) 
-         and (not(exists($birthdate)) or $ptn/p:birthDate/@value = $birthdate) 
-         and :) (not(exists($name)) or contains(data($ptn/p:text), $name)) 
-         and (not(exists($identifier)) or contains($ptn/p:identifier/p:value/@value, $identifier)) 
-         and (not(exists($telecom)) or contains(string-join($ptn/p:telecom/p:value/@value, " "), $telecom)) 
        return 
          <entry>
            <resource>{$ptn}</resource>
@@ -77,8 +75,33 @@ declare
   %rest:form-param("name", "{$name}")
   %rest:form-param("telecom", "{$telecom}")
 function fhir:search-patients($identifier as xs:string?, $birthdate as xs:date?, $gender as xs:token?, $name as xs:string?, $telecom as xs:string?) as element()* {
-  for $doc in collection("Patients")/p:Patient
-  return $doc
+
+  let $itr := collection("Patients")/p:Patient[ 
+	(not(exists($gender)) or p:gender/@value = $gender)
+    and (not(exists($birthdate)) or p:birthDate/@value = $birthdate) 
+    and (not(exists($name)) or contains(data(p:text), $name)) 
+    and (not(exists($identifier)) or contains(p:identifier/p:value/@value, $identifier)) 
+    and (not(exists($telecom)) or contains(string-join(p:telecom/p:value/@value, " "), $telecom))] 
+
+  return
+    <Bundle xmlns="http://hl7.org/fhir">
+      <id value="{bgdm:get-uuid()}" />
+      <meta>
+        <lastUpdated value="{current-dateTime()}" />
+      </meta>
+      <type value="searchset" />
+      <total value="{count($itr)}" />
+      <link>
+        <relation value="self" />
+        <url value="http://bagridb.com/Patient/search?name=test" />
+      </link>
+      {for $ptn in $itr
+       return 
+         <entry>
+           <resource>{$ptn}</resource>
+         </entry>
+      }
+    </Bundle>
 };
 
 

@@ -8,6 +8,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,71 +61,68 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
         			params.put(pm.getName(), getAtomicValue(pm.getType(), vals.get(0)));
         		}    			
     		} else {
-    			boolean found = false;
-        		List<String> atns = getParamAnnotations("rest:query-param", pm.getName());
-    			if (atns != null) {
-    	    		List<String> vals = context.getUriInfo().getQueryParameters().get(pm.getName());
-    	    		if (vals != null) {
-    	    			params.put(pm.getName(), getAtomicValue(pm.getType(), vals.get(0)));
-    	    			found = true;
-    	    		}
-    			} else {
-    				atns = getParamAnnotations("rest:form-param", pm.getName());
-        			if (atns != null) {
-        				// content type must be application/x-www-form-urlencoded
+    			String aType = getParamAnnotationType(pm.getName());
+    			if (aType == null) {
+    				// this is for POST/PUT only!
+    				if ("POST".equals(context.getMethod()) || "PUT".equals(context.getMethod())) {
     					String body = getBody(context);
     					if (body != null) {
-            				//logger.info("apply; form body: {}; ", body);
-    						String val = getParamValue(body, "&", pm.getName());
-    						if (val != null) {
-   	        	    			params.put(pm.getName(), getAtomicValue(pm.getType(), val));
-   	        	    			found = true;
-    						}
-        				}
-        			} else {
-        				atns = getParamAnnotations("rest:header-param", pm.getName());
-        				if (atns != null) {
-            	    		String val = context.getHeaderString(atns.get(0));
+    						params.put(pm.getName(), getAtomicValue(pm.getType(), body));
+    					}
+    				}
+    			} else {
+        			boolean found = false;
+        			List<String> atns = Collections.emptyList();
+    				switch (aType) {
+    					case "rest:cookie-param": {
+            	    		Cookie val = context.getCookies().get(pm.getType());
+        					if (val != null) {
+        						params.put(pm.getName(), getAtomicValue(pm.getType(), val.getValue()));
+            	    			found = true;
+        					}
+    					}
+    					case "rest:form-param": {
+            				// content type must be application/x-www-form-urlencoded
+        					String body = getBody(context);
+        					if (body != null) {
+                				//logger.info("apply; form body: {}; ", body);
+        						String val = getParamValue(body, "&", pm.getName());
+        						if (val != null) {
+       	        	    			params.put(pm.getName(), getAtomicValue(pm.getType(), val));
+       	        	    			found = true;
+        						}
+            				}
+        					break;
+    					}
+    					case "rest:header-param": {
+            	    		String val = context.getHeaderString(pm.getName()); //atns.get(0)); !!!
         					if (val != null) {
         						params.put(pm.getName(), getAtomicValue(pm.getType(), val));
             	    			found = true;
         					}
-        				} else {
-            				atns = getParamAnnotations("rest:cookie-param", pm.getName());
-            				if (atns != null) {
-                	    		Cookie val = context.getCookies().get(atns.get(0));
-            					if (val != null) {
-            						params.put(pm.getName(), getAtomicValue(pm.getType(), val.getValue()));
-                	    			found = true;
-            					}
-            				} else {
-                				atns = getParamAnnotations("rest:matrix-param", pm.getName());
-                				if (atns != null) {
-                    				// does not work in Jersey: context.getUriInfo().getPathSegments();
-            						String val = getParamValue(context.getUriInfo().getPath(), "&", pm.getName());
-            						if (val != null) {
-           	        	    			params.put(pm.getName(), getAtomicValue(pm.getType(), val));
-           	        	    			found = true;
-            						}
-                				} else {
-                					String body = getBody(context);
-                					if (context != null) {
-                    	    			params.put(pm.getName(), getAtomicValue(pm.getType(), body));
-                    	    			found = true;
-                    				}
-                				}
-            				}
-        				}
-        			}
+        					break;
+    					}
+    					case "rest:matrix-param": {
+            				// does not work in Jersey: context.getUriInfo().getPathSegments();
+    						String val = getParamValue(context.getUriInfo().getPath(), "&", pm.getName());
+    						if (val != null) {
+   	        	    			params.put(pm.getName(), getAtomicValue(pm.getType(), val));
+   	        	    			found = true;
+    						}
+    					}
+    					case "rest:query-param": {
+    	    	    		List<String> vals = context.getUriInfo().getQueryParameters().get(pm.getName());
+    	    	    		if (vals != null) {
+    	    	    			params.put(pm.getName(), getAtomicValue(pm.getType(), vals.get(0)));
+    	    	    			found = true;
+    	    	    		}
+    	    	    		break;
+    					}
+    				}
+    				if (!found) {
+    	    			setNotFoundParameter(params, atns, pm);
+    				}
     			}
-				if (!found) {
-	    			setNotFoundParameter(params, atns, pm);
-				}
-    		}
-    		List<String> vals = context.getUriInfo().getPathParameters().get(pm.getName());
-    		if (vals != null) {
-    			// resolve cardinality..
-    			params.put(pm.getName(), getAtomicValue(pm.getType(), vals.get(0)));
     		}
     	}
     	logger.debug("apply; got params: {}", params); 
@@ -153,7 +151,6 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
 			logger.error("apply.error: ", ex);
 			return Response.serverError().entity(ex.getMessage()).build();
 		}
-    	
 	}
 
     private boolean isPathParameter(String pName) {
@@ -161,13 +158,13 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
     	return (pa != null && pa.size() == 1 && pa.get(0).indexOf("{" + pName + "}") > 0);
     }
     
-    private List<String> getParamAnnotations(String aName, String pName) {
-    	List<String> pa = fn.getAnnotations().get(aName);
-    	if (pa != null && pa.size() > 0) {
-    		if (pName.equals(pa.get(0))) {
-    			return pa;
-    		} else if (pa.size() > 1 && ("{$" + pName + "}").equals(pa.get(1))) {
-    			return pa;
+    private String getParamAnnotationType(String pName) {
+		String xpName = "{$" + pName + "}";
+    	for (Map.Entry<String, List<String>> ant: fn.getAnnotations().entrySet()) {
+    		for (String val: ant.getValue()) {
+    			if (pName.equals(val) || xpName.equals(val)) {
+    				return ant.getKey();
+    			}
     		}
     	}
     	return null;
