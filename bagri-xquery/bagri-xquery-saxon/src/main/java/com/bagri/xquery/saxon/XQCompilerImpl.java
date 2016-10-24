@@ -158,40 +158,32 @@ public class XQCompilerImpl implements XQCompiler {
 		List<String> result = lookupFunctions(exp.getExecutable().getFunctionLibrary(), new FunctionExtractor<String>() {
 
 			@Override
-			public String extractFunction(XQueryFunction fn) {
-				String decl = getFunctionDeclaration(fn.getUserFunction()); 
-				try {
-					Field f = fn.getClass().getDeclaredField("annotationMap"); 
-					f.setAccessible(true);
-					Map<StructuredQName, Annotation> atns = (HashMap<StructuredQName, Annotation>) f.get(fn); 
-					logger.trace("lookupFunctions; fn annotations: {}", atns);
-					StringBuffer buff = new StringBuffer();
-					for (Annotation atn: atns.values()) {
-						if (Annotation.PRIVATE.equals(atn.getAnnotationQName())) {
-							// do not expose private functions
-							return null;
-						}
-						buff.append(atn.getAnnotationQName().getDisplayName());
-						if (atn.getAnnotationParameters() != null) {
-							buff.append("(");
-							int cnt = 0;
-							for (AtomicValue av: atn.getAnnotationParameters()) {
-								if (cnt > 0) {
-									buff.append(", ");
-								}
-								buff.append("\"").append(av.getStringValue()).append("\"");
-								cnt++;
-							}
-							buff.append(")");
-						}
-						buff.append("\n");
+			public String extractFunction(UserFunction fn) {
+				String decl = getFunctionDeclaration(fn); 
+				List<Annotation> atns = fn.getAnnotations(); 
+				logger.trace("lookupFunctions; fn annotations: {}", atns);
+				StringBuffer buff = new StringBuffer();
+				for (Annotation atn: atns) {
+					if (Annotation.PRIVATE.equals(atn.getAnnotationQName())) {
+						// do not expose private functions
+						return null;
 					}
-					decl = buff.toString() + decl;
-				} catch (NoSuchFieldException | IllegalAccessException ex) {
-					logger.warn("lookupFunctions. error accessing annotations: {}", ex);
-				} catch (Exception ex) {
-					logger.error("lookupFunctions.error: {}", ex);
+					buff.append(atn.getAnnotationQName().getDisplayName());
+					if (atn.getAnnotationParameters() != null) {
+						buff.append("(");
+						int cnt = 0;
+						for (AtomicValue av: atn.getAnnotationParameters()) {
+							if (cnt > 0) {
+								buff.append(", ");
+							}
+							buff.append("\"").append(av.getStringValue()).append("\"");
+							cnt++;
+						}
+						buff.append(")");
+					}
+					buff.append("\n");
 				}
+				decl = buff.toString() + decl;
 				return decl;
 			}
 			
@@ -338,7 +330,7 @@ public class XQCompilerImpl implements XQCompiler {
 				while (itr.hasNext()) {
 					XQueryFunction fn = itr.next();
 					logger.trace("lookupFunctions; fn: {}", fn.getDisplayName());
-					R result = ext.extractFunction(fn);
+					R result = ext.extractFunction(fn.getUserFunction());
 					if (result != null) {
 						fl.add(result);
 					}
@@ -356,23 +348,10 @@ public class XQCompilerImpl implements XQCompiler {
 		List<Function> result = lookupFunctions(exp.getExecutable().getFunctionLibrary(), new FunctionExtractor<Function>() {
 
 			@Override
-			public Function extractFunction(XQueryFunction fn) {
+			public Function extractFunction(UserFunction fn) {
 				logger.trace("extractFunction.enter; function: {}", fn);
-				Map<StructuredQName, Annotation> atns = null;
-				try {
-					Field f = fn.getClass().getDeclaredField("annotationMap"); 
-					f.setAccessible(true);
-					atns = (HashMap<StructuredQName, Annotation>) f.get(fn); 
-					logger.trace("extractFunction; fn annotations: {}", atns);
-				} catch (NoSuchFieldException | IllegalAccessException ex) {
-					logger.warn("extractFunction. error accessing annotations: {}", ex);
-				} catch (Exception ex) {
-					logger.error("extractFunction.error: {}", ex);
-				}
-				if (atns == null) {
-					return null;
-				}
-				if (!hasRestAnnotations(atns.keySet())) {
+				List<Annotation> atns = fn.getAnnotations();
+				if (!hasRestAnnotations(atns)) {
 					logger.debug("extractFunction; no REST annotations found for function {}, skipping it", fn.getFunctionName().getDisplayName());
 					return null;
 				}
@@ -385,7 +364,7 @@ public class XQCompilerImpl implements XQCompiler {
 					result.getParameters().add(param);
 				}
 
-				for (Annotation atn: atns.values()) {
+				for (Annotation atn: atns) {
 					String aName = atn.getAnnotationQName().getDisplayName();
 					if (aName.startsWith("rest:")) {
 						result.addAnnotation(aName, null);
@@ -407,9 +386,9 @@ public class XQCompilerImpl implements XQCompiler {
 		return result;
     }
 	
-	private boolean hasRestAnnotations(Set<StructuredQName> annotations) {
-		for (StructuredQName sn: annotations) {
-			if ("rest".equalsIgnoreCase(sn.getPrefix())) {
+	private boolean hasRestAnnotations(List<Annotation> annotations) {
+		for (Annotation atn: annotations) {
+			if ("rest".equalsIgnoreCase(atn.getAnnotationQName().getPrefix())) {
 				return true;
 			}
 		}
@@ -418,7 +397,7 @@ public class XQCompilerImpl implements XQCompiler {
 	
 	private interface FunctionExtractor<R> {
 		
-		R extractFunction(XQueryFunction fn);
+		R extractFunction(UserFunction fn);
 		
 	}
 	

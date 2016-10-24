@@ -2,6 +2,7 @@ package com.bagri.xdm.cache.hazelcast.task.schema;
 
 import static com.bagri.xdm.cache.hazelcast.serialize.DataSerializationFactoryImpl.cli_InitSchemaTask;
 import static com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryImpl.factoryId;
+import static com.bagri.xdm.common.Constants.xdm_config_path;
 import static com.bagri.xdm.common.Constants.xdm_schema_name;
 import static com.bagri.xdm.cache.hazelcast.util.SpringContextHolder.*;
 import static com.bagri.xdm.cache.hazelcast.util.HazelcastUtils.hz_instance;
@@ -58,9 +59,8 @@ public class SchemaInitiator implements Callable<Boolean>, IdentifiedDataSeriali
     	try {
     		ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext();
     		ctx.getEnvironment().getPropertySources().addFirst(pps);
-            //String contextPath = System.getProperty(xdm_config_context_file);
-    		//ctx.setConfigLocation(contextPath);
-    		ctx.setConfigLocation("spring/cache-xqj-context.xml");
+            String contextPath = System.getProperty(xdm_config_path);
+    		ctx.setConfigLocation("file:" + contextPath + "/spring/cache-xqj-context.xml");
     		ctx.refresh();
 
     		hz = ctx.getBean(hz_instance, HazelcastInstance.class);

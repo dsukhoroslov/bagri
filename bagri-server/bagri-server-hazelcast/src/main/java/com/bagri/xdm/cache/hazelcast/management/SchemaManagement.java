@@ -190,7 +190,7 @@ public class SchemaManagement extends EntityManagement<Schema> implements Member
     	ClassPathXmlApplicationContext ctx = ctxCache.get(schemaName);
     	if (ctx != null) {
         	logger.debug("initSchema; schema {} already initialized", schemaName);
-    		return true; //ctx.getBean(hz_instance, HazelcastInstance.class);
+    		return true; 
     	}
 
     	props.setProperty(xdm_schema_name, schemaName);
@@ -204,15 +204,11 @@ public class SchemaManagement extends EntityManagement<Schema> implements Member
 	    	try {
 	    		ctx = new ClassPathXmlApplicationContext();
 	    		ctx.getEnvironment().getPropertySources().addFirst(pps);
-	            //String contextPath = System.getProperty(xdm_config_context_file);
-	    		//ctx.setConfigLocation(contextPath);
-	    		ctx.setConfigLocation("spring/admin-schema-context.xml");
+	            String contextPath = System.getProperty(xdm_config_path);
+	    		ctx.setConfigLocation("file:" + contextPath + "/spring/admin-schema-context.xml");
 	    		ctx.refresh();
 	    		
 	    		ctxCache.put(schemaName, ctx);
-	    		//HazelcastInstance hz = ctx.getBean(hz_instance, HazelcastInstance.class);
-	    		//hz.getUserContext().put("appContext", ctx);
-	    		//hz.getConfig().getSecurityConfig().setEnabled(true);
 	    	    SchemaManager sMgr = (SchemaManager) mgrCache.get(schemaName);
 	       	    if (sMgr != null) {
 	       	    	setupXQConnection(ctx);

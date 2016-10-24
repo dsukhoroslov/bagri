@@ -30,10 +30,10 @@ declare
   %rest:GET
   %rest:produces("application/fhir+xml")
   %rest:query-param("identifier", "{$identifier}")
-  %rest:matrix-param("birthdate", "{$birthdate}")
-  %rest:cookie-param("gender", "{$gender}") 
-  %rest:form-param("name", "{$name}")
-  %rest:header-param("X-telecom", "{$telecom}")
+  %rest:query-param("birthdate", "{$birthdate}")
+  %rest:query-param("gender", "{$gender}") 
+  %rest:query-param("name", "{$name}")
+  %rest:query-param("telecom", "{$telecom}")
 function fhir:get-patients($identifier as xs:string?, $birthdate as xs:date?, $gender as xs:string?, $name as xs:string?, $telecom as xs:string?) as element()* {
 (:
 let $itr := collection("Patients")/p:Patient[p:gender/@value = $gender and p:birthDate/@value = $birthdate and contains(data(p:text), $name)
@@ -71,11 +71,11 @@ declare
   %rest:POST
   %rest:path("_search")
   %rest:produces("application/fhir+xml")
-  %rest:query-param("identifier", "{$identifier}")
-  %rest:matrix-param("birthdate", "{$birthdate}")
-  %rest:cookie-param("gender", "{$gender}") 
+  %rest:form-param("identifier", "{$identifier}")
+  %rest:form-param("birthdate", "{$birthdate}")
+  %rest:form-param("gender", "{$gender}") 
   %rest:form-param("name", "{$name}")
-  %rest:header-param("X-telecom", "{$telecom}")
+  %rest:form-param("telecom", "{$telecom}")
 function fhir:search-patients($identifier as xs:string?, $birthdate as xs:date?, $gender as xs:token?, $name as xs:string?, $telecom as xs:string?) as element()* {
   for $doc in collection("Patients")/p:Patient
   return $doc
