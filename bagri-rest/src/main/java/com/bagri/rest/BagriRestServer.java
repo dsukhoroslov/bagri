@@ -3,8 +3,10 @@ package com.bagri.rest;
 import java.lang.management.ManagementFactory;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.ext.ContextResolver;
@@ -55,7 +57,7 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Factor
     private XQCompiler xqComp;
     private RepositoryProvider rePro;
     private Reloader reloader = new Reloader();
-    private List<String> activeSchemas = new ArrayList<>();
+    private Set<String> activeSchemas = new HashSet<>();
 	
     public static void main(String[] args) throws Exception {
     	BagriRestServer server = new BagriRestServer();
@@ -111,7 +113,7 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Factor
 	    			// TODO: think about concurrency issues
 	    			ResourceConfig config = buildConfig();
 	    			activeSchemas.add(schemaName);
-	    			List<String> newList = new ArrayList<>(activeSchemas.size() + 1);
+	    			Set<String> newList = new HashSet<>(activeSchemas.size() + 1);
 	    			for (String schema: activeSchemas) {
 	    				if (buildSchemaConfig(config, schema)) {
 	    					newList.add(schema);

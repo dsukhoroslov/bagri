@@ -16,9 +16,9 @@ public class Reloader implements ContainerLifecycleListener {
         container.reload(newConfig);
     }
  
-    public void reload() {
-        container.reload();
-    }
+    //public void reload() {
+    //    container.reload();
+    //}
  
     @Override
     public void onStartup(Container container) {
@@ -29,7 +29,7 @@ public class Reloader implements ContainerLifecycleListener {
     @Override
     public void onReload(Container container) {
         logger.debug("onReload; old container: {}, new container: {}", this.container, container);
-        this.container = container;
+        //this.container = container;
     }
  
     @Override
