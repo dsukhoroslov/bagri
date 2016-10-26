@@ -21,6 +21,7 @@ import javax.xml.xquery.XQItemType;
 
 import org.glassfish.jersey.client.ChunkedInput;
 import org.glassfish.jersey.test.JerseyTest;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.bagri.rest.BagriRestServer;
@@ -59,6 +60,7 @@ public class QueryServiceTest extends JerseyTest {
     }
     
 	@Test
+	@Ignore
     @SuppressWarnings("unchecked")
     public void testQueryService() throws Exception {
 		

@@ -77,23 +77,27 @@ public class SaxonUtils {
                 case XS_BOOLEAN:
                     return Boolean.valueOf(((BooleanValue)p).getBooleanValue());
                 case XS_DATE:
-                    return new SaxonXMLGregorianCalendar((CalendarValue)p);
+                    return getCalendar((CalendarValue) p, XQBASETYPE_DATE); // new SaxonXMLGregorianCalendar((CalendarValue)p);
                 case XS_DATE_TIME:
-                    return new SaxonXMLGregorianCalendar((CalendarValue)p);
+                    return getCalendar((CalendarValue) p, XQBASETYPE_DATETIME); // new SaxonXMLGregorianCalendar((CalendarValue)p);
                 case XS_DECIMAL:
                     return ((DecimalValue)p).getDecimalValue();
                 case XS_DOUBLE:
                     return new Double(((DoubleValue)p).getDoubleValue());
                 case XS_DURATION:
-                    return new SaxonDuration((DurationValue)p);
+                    return getDuration((DurationValue)p, XQBASETYPE_DURATION);
                 case XS_FLOAT:
                     return new Float(((FloatValue)p).getFloatValue());
                 case XS_G_DAY:
+                	return getCalendar((CalendarValue) p, XQBASETYPE_GDAY); 
                 case XS_G_MONTH:
+                	return getCalendar((CalendarValue) p, XQBASETYPE_GMONTH); 
                 case XS_G_MONTH_DAY:
+                	return getCalendar((CalendarValue) p, XQBASETYPE_GMONTHDAY); 
                 case XS_G_YEAR:
+                	return getCalendar((CalendarValue) p, XQBASETYPE_GYEAR); 
                 case XS_G_YEAR_MONTH:
-                    return new SaxonXMLGregorianCalendar((CalendarValue)p);
+                	return getCalendar((CalendarValue) p, XQBASETYPE_GYEARMONTH); 
                 case XS_HEX_BINARY:
                     return ((HexBinaryValue)p).getBinaryValue();
                 case XS_INTEGER:
@@ -130,11 +134,11 @@ public class SaxonUtils {
                 case XS_UNTYPED_ATOMIC:
                     return p.getStringValue();
                 case XS_TIME:
-                    return new SaxonXMLGregorianCalendar((CalendarValue)p);
+                    return getCalendar((CalendarValue) p, XQBASETYPE_TIME);
                 case XS_DAY_TIME_DURATION:
-                    return new SaxonDuration((DurationValue)p);
+                    return getDuration((DurationValue)p, XQBASETYPE_DAYTIMEDURATION);
                 case XS_YEAR_MONTH_DURATION:
-                    return new SaxonDuration((DurationValue)p);
+                    return getDuration((DurationValue)p, XQBASETYPE_YEARMONTHDURATION);
                 default:
                     throw new XPathException("unsupported type: " + t);
             }
@@ -514,13 +518,13 @@ public class SaxonUtils {
 		return BuiltInAtomicType.ANY_ATOMIC; 
 	}
 
-    private static XMLGregorianCalendar getCalendar(CalendarValue c, int cType) { //throws XPathException {
+    private static XMLGregorianCalendar getCalendar(CalendarValue c, int cType) { 
     	GregorianCalendar cal = c.getCalendar(); 
-    	return XQUtils.getXMLCalendar(cal, cType);
+    	return XMLUtils.getXMLCalendar(cal, cType);
     }
 
-    private static Duration getDuration(DurationValue d, int type) { //throws XPathException {
-    	return XQUtils.getXMLDuration(d.getStringValue(), type);
+    private static Duration getDuration(DurationValue d, int type) { 
+    	return XMLUtils.getXMLDuration(d.getStringValue(), type);
     }
 
     public static String getTypeName(ItemType type) {

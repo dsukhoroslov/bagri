@@ -120,14 +120,14 @@ public class XQItemSerializer implements StreamSerializer<XQItem> {
 			    		case XQBASETYPE_GYEARMONTH: {
 			    			// must be XMLGregorianCalendar
 			    			GregorianCalendar gc = (GregorianCalendar) in.readObject();
-			    			XMLGregorianCalendar xgc = XQUtils.getXMLCalendar(gc, bType);
+			    			XMLGregorianCalendar xgc = XMLUtils.getXMLCalendar(gc, bType);
 							return xqFactory.createItemFromObject(xgc, type);
 			    		}					
 			    		case XQBASETYPE_DURATION: 
 			    		case XQBASETYPE_DAYTIMEDURATION: 
 			    		case XQBASETYPE_YEARMONTHDURATION: {
 			    			// must be string representation of Duration
-			    			Duration xd = XQUtils.getXMLDuration(in.readUTF(), bType);
+			    			Duration xd = XMLUtils.getXMLDuration(in.readUTF(), bType);
 							return xqFactory.createItemFromObject(xd, type);
 			    		}
 						case XQBASETYPE_QNAME: {

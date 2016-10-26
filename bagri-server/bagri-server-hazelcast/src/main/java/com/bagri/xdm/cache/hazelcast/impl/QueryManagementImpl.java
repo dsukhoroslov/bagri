@@ -172,7 +172,12 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		//logger.trace("addQuery.enter; got code: {}; query cache size: {}", qCode, xQueries.size());
 		//boolean result = xqCache.putIfAbsent(qCode, new XDMQuery(query, readOnly, xdmQuery)) == null;
 		if (!xqCache.containsKey(qKey)) {
-			xqCache.put(qKey, query);
+			// throws exception: Failed to serialize 'com.bagri.xdm.domain.Query'
+			try {
+				xqCache.put(qKey, query);
+			} catch (Exception ex) {
+				logger.error("addQuery.error", ex);
+			}
 			return true;
 		}
 		return false;
@@ -666,8 +671,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 				if (cacheResults) {
 					Query xQuery = xqp.getCurrentQuery(query);
 					if (xQuery != null) {
-						// throws exception: Failed to serialize 'com.bagri.xdm.domain.Query'
-						// addQuery(xQuery);
+						addQuery(xQuery);
 						addQueryResults(query, params, props, cursor, iter);
 					} else {
 						logger.warn("executeQuery; query is not cached after processing: {}", query);

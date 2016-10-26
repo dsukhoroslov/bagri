@@ -1,9 +1,5 @@
 package com.bagri.xquery.saxon;
 
-import static com.bagri.xdm.common.Constants.bg_remove_cln_documents;
-import static com.bagri.xdm.common.Constants.bg_remove_document;
-import static com.bagri.xdm.common.Constants.bg_store_document;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -34,7 +30,6 @@ import net.sf.saxon.expr.ComparisonExpression;
 import net.sf.saxon.expr.Expression;
 import net.sf.saxon.expr.GeneralComparison10;
 import net.sf.saxon.expr.GeneralComparison20;
-import net.sf.saxon.expr.ItemChecker;
 import net.sf.saxon.expr.LetExpression;
 import net.sf.saxon.expr.Literal;
 import net.sf.saxon.expr.Operand;
@@ -49,7 +44,6 @@ import net.sf.saxon.expr.parser.Token;
 import net.sf.saxon.functions.IntegratedFunctionCall;
 import net.sf.saxon.lib.CollectionFinder;
 import net.sf.saxon.lib.ResourceCollection;
-import net.sf.saxon.ma.map.MapGet;
 import net.sf.saxon.om.AxisInfo;
 import net.sf.saxon.om.Item;
 import net.sf.saxon.om.Sequence;
@@ -146,7 +140,7 @@ public class CollectionFinderImpl implements CollectionFinder {
 	
 	private Object getValues(Sequence sq) throws XPathException {
 		if (sq != null) {
-			List result = new ArrayList();
+			List<Object> result = new ArrayList<>();
 			SequenceIterator itr = sq.iterate();
 			while (true) {
 				Item item = itr.next();
@@ -375,15 +369,12 @@ public class CollectionFinderImpl implements CollectionFinder {
     	    	throw new XPathException("Unknown comparison type for expression: " + be);
     		} 
 
-    		Expression fun;
     		Expression var;
     		if (le instanceof VariableReference || le instanceof Literal) {
     			compType = Comparison.revert(compType);
     			var = le;
-    			fun = be.getRhsExpression();
     		} else {
     			var = be.getRhsExpression();
-    			fun = le;
     		}
     		
    			if (var instanceof VariableReference) {

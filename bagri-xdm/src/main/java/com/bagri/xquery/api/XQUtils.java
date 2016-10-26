@@ -2,75 +2,13 @@ package com.bagri.xquery.api;
 
 import static com.bagri.xdm.common.Constants.xs_ns;
 import static com.bagri.xdm.common.Constants.xs_prefix;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_ANYATOMICTYPE;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_ANYSIMPLETYPE;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_ANYTYPE;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_ANYURI;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_BASE64BINARY;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_BOOLEAN;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_BYTE;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_DATE;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_DATETIME;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_DAYTIMEDURATION;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_DECIMAL;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_DOUBLE;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_DURATION;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_ENTITIES;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_ENTITY;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_FLOAT;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_GDAY;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_GMONTH;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_GMONTHDAY;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_GYEAR;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_GYEARMONTH;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_HEXBINARY;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_ID;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_IDREF;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_IDREFS;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_INT;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_INTEGER;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_LANGUAGE;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_LONG;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_NAME;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_NCNAME;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_NEGATIVE_INTEGER;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_NMTOKEN;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_NMTOKENS;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_NONNEGATIVE_INTEGER;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_NONPOSITIVE_INTEGER;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_NORMALIZED_STRING;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_NOTATION;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_POSITIVE_INTEGER;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_QNAME;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_SHORT;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_STRING;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_TIME;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_TOKEN;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_UNSIGNED_BYTE;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_UNSIGNED_INT;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_UNSIGNED_LONG;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_UNSIGNED_SHORT;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_UNTYPED;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_UNTYPEDATOMIC;
-import static javax.xml.xquery.XQItemType.XQBASETYPE_YEARMONTHDURATION;
-import static javax.xml.xquery.XQItemType.XQITEMKIND_ATOMIC;
-import static javax.xml.xquery.XQItemType.XQITEMKIND_ATTRIBUTE;
-import static javax.xml.xquery.XQItemType.XQITEMKIND_DOCUMENT_ELEMENT;
-import static javax.xml.xquery.XQItemType.XQITEMKIND_DOCUMENT_SCHEMA_ELEMENT;
-import static javax.xml.xquery.XQItemType.XQITEMKIND_ELEMENT;
-import static javax.xml.xquery.XQItemType.XQITEMKIND_PI;
-import static javax.xml.xquery.XQItemType.XQITEMKIND_SCHEMA_ATTRIBUTE;
-import static javax.xml.xquery.XQItemType.XQITEMKIND_SCHEMA_ELEMENT;
+import static javax.xml.datatype.DatatypeConstants.*;
+import static javax.xml.xquery.XQItemType.*;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URI;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
 
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeConstants;
-import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.Duration;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
@@ -84,6 +22,7 @@ import org.apache.xerces.util.XMLChar;
 import org.w3c.dom.Node;
 
 import com.bagri.xdm.api.XDMException;
+import com.bagri.common.util.XMLUtils;
 
 /**
  * set of XQJ static utilities 
@@ -93,15 +32,6 @@ import com.bagri.xdm.api.XDMException;
  */
 public class XQUtils {
 	
-	private static DatatypeFactory dtFactory;
-	static {
-		try {
-			dtFactory = DatatypeFactory.newInstance();
-		} catch (DatatypeConfigurationException e) {
-			throw new IllegalStateException("Can not instantiate datatype factory");
-		}
-	}
-
 	/**
 	 * converts XQJ baseType to the corresponding {@link QName}. Return null if the provided type does not correspond to any XQJ type constant.
 	 * 
@@ -181,20 +111,20 @@ public class XQUtils {
 			case XQBASETYPE_BASE64BINARY: return Base64.encode(value.getBytes());
 			case XQBASETYPE_BOOLEAN: return new Boolean(value);
 			case XQBASETYPE_BYTE: return new Byte(value);
-			case XQBASETYPE_DATE: return dtFactory.newXMLGregorianCalendar(value);
-			case XQBASETYPE_DATETIME: return dtFactory.newXMLGregorianCalendar(value);
-			case XQBASETYPE_DAYTIMEDURATION: return dtFactory.newDurationDayTime(value); 
+			case XQBASETYPE_DATE: return XMLUtils.newXMLCalendar(value); 
+			case XQBASETYPE_DATETIME: return XMLUtils.newXMLCalendar(value);
+			case XQBASETYPE_DAYTIMEDURATION: return XMLUtils.getXMLDuration(value, XQBASETYPE_DAYTIMEDURATION); 
 			case XQBASETYPE_DECIMAL: return new BigDecimal(value);
 			case XQBASETYPE_DOUBLE: return new Double(value);
-			case XQBASETYPE_DURATION: return dtFactory.newDuration(value); 
+			case XQBASETYPE_DURATION: return XMLUtils.getXMLDuration(value, XQBASETYPE_DURATION);
 			case XQBASETYPE_ENTITIES: return value;
 			case XQBASETYPE_ENTITY: return value;
 			case XQBASETYPE_FLOAT: return new Float(value);
-			case XQBASETYPE_GDAY: return dtFactory.newXMLGregorianCalendar(value);
-			case XQBASETYPE_GMONTH: return dtFactory.newXMLGregorianCalendar(value);
-			case XQBASETYPE_GMONTHDAY: return dtFactory.newXMLGregorianCalendar(value);
-			case XQBASETYPE_GYEAR: return dtFactory.newXMLGregorianCalendar(value);
-			case XQBASETYPE_GYEARMONTH: return dtFactory.newXMLGregorianCalendar(value);
+			case XQBASETYPE_GDAY: return XMLUtils.newXMLCalendar(value);
+			case XQBASETYPE_GMONTH: return XMLUtils.newXMLCalendar(value);
+			case XQBASETYPE_GMONTHDAY: return XMLUtils.newXMLCalendar(value);
+			case XQBASETYPE_GYEAR: return XMLUtils.newXMLCalendar(value);
+			case XQBASETYPE_GYEARMONTH: return XMLUtils.newXMLCalendar(value);
 			case XQBASETYPE_HEXBINARY: return Base64.encode(value.getBytes());
 			case XQBASETYPE_ID: return value;
 			case XQBASETYPE_IDREF: return value;
@@ -216,7 +146,7 @@ public class XQUtils {
 			case XQBASETYPE_QNAME: return new QName(value);
 			case XQBASETYPE_SHORT: return new Short(value);
 			case XQBASETYPE_STRING: return value;
-			case XQBASETYPE_TIME: return dtFactory.newXMLGregorianCalendar(value);
+			case XQBASETYPE_TIME: return XMLUtils.newXMLCalendar(value);
 			case XQBASETYPE_TOKEN: return value;
 			case XQBASETYPE_UNSIGNED_BYTE: return new Byte(value);
 			case XQBASETYPE_UNSIGNED_INT: return new Integer(value);
@@ -224,7 +154,7 @@ public class XQUtils {
 			case XQBASETYPE_UNSIGNED_SHORT: return new Short(value);
 			case XQBASETYPE_UNTYPED: return value;
 			case XQBASETYPE_UNTYPEDATOMIC: return value;
-			case XQBASETYPE_YEARMONTHDURATION: return dtFactory.newDurationYearMonth(value);
+			case XQBASETYPE_YEARMONTHDURATION: return XMLUtils.getXMLDuration(value, XQBASETYPE_YEARMONTHDURATION);
 		}
 		return null;
 	}
@@ -574,9 +504,9 @@ public class XQUtils {
 			baseType = XQBASETYPE_INTEGER;
 		} else if (value instanceof javax.xml.datatype.Duration) {
 			javax.xml.datatype.Duration d = (javax.xml.datatype.Duration) value;
-			boolean setYM = d.isSet(DatatypeConstants.YEARS) || d.isSet(DatatypeConstants.MONTHS);
-			boolean setDT = d.isSet(DatatypeConstants.DAYS) || d.isSet(DatatypeConstants.HOURS) ||
-					d.isSet(DatatypeConstants.MINUTES) || d.isSet(DatatypeConstants.SECONDS);
+			boolean setYM = d.isSet(YEARS) || d.isSet(MONTHS);
+			boolean setDT = d.isSet(DAYS) || d.isSet(HOURS) ||
+					d.isSet(MINUTES) || d.isSet(SECONDS);
 			if (setYM) {
 				if (setDT) {
 					baseType = XQBASETYPE_DURATION;
@@ -588,12 +518,12 @@ public class XQUtils {
 			}
 		} else if (value instanceof javax.xml.datatype.XMLGregorianCalendar) {
 			javax.xml.datatype.XMLGregorianCalendar c = (javax.xml.datatype.XMLGregorianCalendar) value;
-			boolean setYear = c.getYear() != DatatypeConstants.FIELD_UNDEFINED;
-			boolean setMonth = c.getMonth() != DatatypeConstants.FIELD_UNDEFINED;
-			boolean setDay = c.getDay() != DatatypeConstants.FIELD_UNDEFINED;
-			boolean setHour = c.getHour() != DatatypeConstants.FIELD_UNDEFINED;
-			boolean setMinute = c.getMinute() != DatatypeConstants.FIELD_UNDEFINED;
-			boolean setSecond = c.getSecond() != DatatypeConstants.FIELD_UNDEFINED;
+			boolean setYear = c.getYear() != FIELD_UNDEFINED;
+			boolean setMonth = c.getMonth() != FIELD_UNDEFINED;
+			boolean setDay = c.getDay() != FIELD_UNDEFINED;
+			boolean setHour = c.getHour() != FIELD_UNDEFINED;
+			boolean setMinute = c.getMinute() != FIELD_UNDEFINED;
+			boolean setSecond = c.getSecond() != FIELD_UNDEFINED;
 			if (setYear) {
 				if (setMonth) {
 					if (setDay) {
@@ -634,58 +564,6 @@ public class XQUtils {
 		return factory.createAtomicType(baseType, getTypeName(baseType), null);
 	}
 
-	/**
-	 * converts {@link GregorianCalendar} to the corresponding {@link XMLGregorianCalendar} instance 
-	 * 
-	 * @param gc the initial GregorianCalendar instance
-	 * @param cType one of XQJ base type constants 
-	 * @return XML gregorian calendar instance
-	 */
-	public static XMLGregorianCalendar getXMLCalendar(GregorianCalendar gc, int cType) { 
-    	switch (cType) {
-    		case XQBASETYPE_DATE:
-    			return dtFactory.newXMLGregorianCalendarDate(gc.get(Calendar.YEAR), gc.get(Calendar.MONTH) + 1, 
-    					gc.get(Calendar.DAY_OF_MONTH), gc.get(Calendar.ZONE_OFFSET)); 
-    		case XQBASETYPE_GDAY: 
-    			return dtFactory.newXMLGregorianCalendarDate(DatatypeConstants.FIELD_UNDEFINED, 
-    					DatatypeConstants.FIELD_UNDEFINED, gc.get(Calendar.DAY_OF_MONTH), DatatypeConstants.FIELD_UNDEFINED); 
-    		case XQBASETYPE_GMONTH:  
-    			return dtFactory.newXMLGregorianCalendarDate(DatatypeConstants.FIELD_UNDEFINED, 
-    					gc.get(Calendar.MONTH) + 1, DatatypeConstants.FIELD_UNDEFINED, DatatypeConstants.FIELD_UNDEFINED); 
-    		case XQBASETYPE_GMONTHDAY:  
-    			return dtFactory.newXMLGregorianCalendarDate(DatatypeConstants.FIELD_UNDEFINED, 
-    					gc.get(Calendar.MONTH) + 1, gc.get(Calendar.DAY_OF_MONTH), DatatypeConstants.FIELD_UNDEFINED); 
-    		case XQBASETYPE_GYEAR:  
-    			return dtFactory.newXMLGregorianCalendarDate(gc.get(Calendar.YEAR), 
-    					DatatypeConstants.FIELD_UNDEFINED, DatatypeConstants.FIELD_UNDEFINED, DatatypeConstants.FIELD_UNDEFINED); 
-    		case XQBASETYPE_GYEARMONTH: 
-    			return dtFactory.newXMLGregorianCalendarDate(gc.get(Calendar.YEAR), 
-    					gc.get(Calendar.MONTH) + 1, DatatypeConstants.FIELD_UNDEFINED, DatatypeConstants.FIELD_UNDEFINED); 
-    		case XQBASETYPE_TIME:
-    			return dtFactory.newXMLGregorianCalendarTime(gc.get(Calendar.HOUR), gc.get(Calendar.MINUTE), 
-    					gc.get(Calendar.SECOND), gc.get(Calendar.MILLISECOND), gc.get(Calendar.ZONE_OFFSET)); 
-    		//default: //XQBASETYPE_DATETIME 
-    	}
-    	return dtFactory.newXMLGregorianCalendar(gc);
-    }
-	
-	/**
-	 * converts String representation of duration to its XML equivalent.
-	 * Returns null if the type provided does not correspond to any XML duration types.
-	 * 
-	 * @param duration the String duration representation
-	 * @param dType one of XQJ base type constants 
-	 * @return XML {@link Duration} instance or null
-	 */
-    public static Duration getXMLDuration(String duration, int dType) { 
-    	switch (dType) {
-			case XQBASETYPE_DURATION: return dtFactory.newDuration(duration); 
-			case XQBASETYPE_DAYTIMEDURATION: return dtFactory.newDurationDayTime(duration); 
-			case XQBASETYPE_YEARMONTHDURATION: return dtFactory.newDurationYearMonth(duration);
-    	}
-    	return null;
-    }
-	
     /**
      * constructs XQJ item type for the w3c {@link Node} instance provided
      * 

@@ -20,6 +20,7 @@ import net.sf.saxon.expr.XPathContext;
 import net.sf.saxon.lib.ExtensionFunctionCall;
 import net.sf.saxon.lib.ExtensionFunctionDefinition;
 import net.sf.saxon.om.Sequence;
+import net.sf.saxon.om.SequenceTool;
 import net.sf.saxon.om.StructuredQName;
 import net.sf.saxon.trans.XPathException;
 import net.sf.saxon.type.BuiltInAtomicType;
@@ -82,7 +83,8 @@ public class StaticFunctionExtension extends ExtensionFunctionDefinition {
 			}
 			
 			private Object sequence2Object(Sequence seq) throws XPathException {
-				return itemToObject(seq.head()); 
+				return itemToObject(seq.head());
+				//return SequenceTool.convertToJava(seq.head());
 			}
 			
 			private Sequence object2Sequence(Object value) throws XPathException {

@@ -60,6 +60,7 @@ import net.sf.saxon.lib.Validation;
 import net.sf.saxon.om.DocumentInfo;
 import net.sf.saxon.om.Item;
 import net.sf.saxon.om.SequenceIterator;
+import net.sf.saxon.om.SequenceTool;
 import net.sf.saxon.om.StructuredQName;
 import net.sf.saxon.query.DynamicQueryContext;
 import net.sf.saxon.query.QueryResult;
@@ -398,6 +399,7 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
     			value = null;
     		} else {
     			value = itemToObject((Item) value);
+				//value = SequenceTool.convertToJava((Item) value);
     		}
     		bindings.put(name.getClarkName(), value);
     		logger.trace("getParams; name: {}; value: {}", name, value);

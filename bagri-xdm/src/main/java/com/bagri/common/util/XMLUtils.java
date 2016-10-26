@@ -1,6 +1,9 @@
 package com.bagri.common.util;
 
 import static com.bagri.common.util.FileUtils.EOL;
+import static java.util.Calendar.*;
+import static javax.xml.datatype.DatatypeConstants.FIELD_UNDEFINED;
+import static javax.xml.xquery.XQItemType.*;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -11,11 +14,17 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.Duration;
+import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -45,7 +54,6 @@ import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import com.thoughtworks.xstream.io.naming.NoNameCoder;
-import com.thoughtworks.xstream.io.xml.DomDriver;
 import com.thoughtworks.xstream.io.xml.StaxDriver;
 
 import static com.bagri.common.util.FileUtils.def_encoding;
@@ -58,6 +66,7 @@ import static com.bagri.common.util.FileUtils.def_encoding;
  */
 public class XMLUtils {
 
+	private static final DatatypeFactory dtFactory;
 	private static final DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();  
 	private static final TransformerFactory transFactory = TransformerFactory.newInstance();  
 	private static final XMLInputFactory xiFactory = XMLInputFactory.newInstance();
@@ -68,6 +77,11 @@ public class XMLUtils {
 		dbFactory.setNamespaceAware(true);
 		xStream.alias("map", java.util.Map.class);
 		xStream.registerConverter(new MapConverter());
+		try {
+			dtFactory = DatatypeFactory.newInstance();
+		} catch (DatatypeConfigurationException e) {
+			throw new IllegalStateException("Can not instantiate datatype factory");
+		}
 	}
 
 	private static final ThreadLocal<DocumentBuilder> thDB = new ThreadLocal<DocumentBuilder>() {
@@ -108,6 +122,63 @@ public class XMLUtils {
 			return result;
  		}
 	};
+	
+	/**
+	 * converts {@link GregorianCalendar} to the corresponding {@link XMLGregorianCalendar} instance 
+	 * 
+	 * @param gc the initial GregorianCalendar instance
+	 * @param cType one of XQJ base type constants 
+	 * @return XML gregorian calendar instance
+	 */
+	public static XMLGregorianCalendar getXMLCalendar(GregorianCalendar gc, int cType) { 
+    	switch (cType) {
+    		case XQBASETYPE_DATE:
+    			return dtFactory.newXMLGregorianCalendarDate(gc.get(YEAR), 
+    					gc.get(MONTH) + 1, gc.get(DAY_OF_MONTH), gc.get(ZONE_OFFSET)); 
+    		case XQBASETYPE_GDAY: 
+    			return dtFactory.newXMLGregorianCalendarDate(FIELD_UNDEFINED, 
+    					FIELD_UNDEFINED, gc.get(DAY_OF_MONTH), FIELD_UNDEFINED); 
+    		case XQBASETYPE_GMONTH:  
+    			return dtFactory.newXMLGregorianCalendarDate(FIELD_UNDEFINED, 
+    					gc.get(MONTH) + 1, FIELD_UNDEFINED, FIELD_UNDEFINED); 
+    		case XQBASETYPE_GMONTHDAY:  
+    			return dtFactory.newXMLGregorianCalendarDate(FIELD_UNDEFINED, 
+    					gc.get(MONTH) + 1, gc.get(DAY_OF_MONTH), FIELD_UNDEFINED); 
+    		case XQBASETYPE_GYEAR:  
+    			return dtFactory.newXMLGregorianCalendarDate(gc.get(YEAR), 
+    					FIELD_UNDEFINED, FIELD_UNDEFINED, FIELD_UNDEFINED); 
+    		case XQBASETYPE_GYEARMONTH: 
+    			return dtFactory.newXMLGregorianCalendarDate(gc.get(YEAR), 
+    					gc.get(Calendar.MONTH) + 1, FIELD_UNDEFINED, FIELD_UNDEFINED); 
+    		case XQBASETYPE_TIME:
+    			return dtFactory.newXMLGregorianCalendarTime(gc.get(HOUR), gc.get(MINUTE), 
+    					gc.get(SECOND), gc.get(MILLISECOND), gc.get(ZONE_OFFSET)); 
+    		//default: //XQBASETYPE_DATETIME 
+    	}
+    	return dtFactory.newXMLGregorianCalendar(gc);
+    }
+
+	public static XMLGregorianCalendar newXMLCalendar(String value) {
+		return dtFactory.newXMLGregorianCalendar(value);
+	}
+	
+	/**
+	 * converts String representation of duration to its XML equivalent.
+	 * Returns null if the type provided does not correspond to any XML duration types.
+	 * 
+	 * @param duration the String duration representation
+	 * @param dType one of XQJ base type constants 
+	 * @return XML {@link Duration} instance or null
+	 */
+    public static Duration getXMLDuration(String duration, int dType) { 
+    	switch (dType) {
+			case XQBASETYPE_DURATION: return dtFactory.newDuration(duration); 
+			case XQBASETYPE_DAYTIMEDURATION: return dtFactory.newDurationDayTime(duration); 
+			case XQBASETYPE_YEARMONTHDURATION: return dtFactory.newDurationYearMonth(duration);
+    	}
+    	return null;
+    }
+	
 	
 	/**
 	 * Reads content from Reader and return it as String
