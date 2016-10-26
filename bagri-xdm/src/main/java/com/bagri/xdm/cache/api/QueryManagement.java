@@ -44,8 +44,9 @@ public interface QueryManagement extends com.bagri.xdm.api.QueryManagement {
 	 * 
 	 * @param query the plain text query representation
 	 * @return true if query is read-only, false otherwise
+	 * @throws XDMException in case of query check error
 	 */
-	boolean isReadOnlyQuery(String query);
+	boolean isQueryReadOnly(String query) throws XDMException;
 	
 	/**
 	 * looks for internal cached query representation identified by the query text provided  

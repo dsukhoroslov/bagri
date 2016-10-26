@@ -51,6 +51,8 @@ import com.bagri.xquery.api.XQCompiler;
 public class BagriRestServer implements ContextResolver<BagriRestServer>, Factory<RepositoryProvider> {
 
     private static final transient Logger logger = LoggerFactory.getLogger(BagriRestServer.class);
+    private static final transient String[] methods = {"GET", "POST", "PUT", "DELETE"};
+    
     
     private int port;
     private Server jettyServer;
@@ -327,32 +329,19 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Factor
         query.append(")\n");
         params.append("\n");
         query.insert(offset, params.toString());
-        		
-        values = annotations.get("rest:GET");
-        if (values != null) {
-        	buildMethodHandler(builder, "GET", query.toString(), fn);
-        }
-        
-        values = annotations.get("rest:POST");
-        if (values != null) {
-        	buildMethodHandler(builder, "POST", query.toString(), fn);
-        }
-        
-        values = annotations.get("rest:PUT");
-        if (values != null) {
-        	buildMethodHandler(builder, "PUT", query.toString(), fn);
-        }
-        
-        values = annotations.get("rest:DELETE");
-        if (values != null) {
-        	buildMethodHandler(builder, "DELETE", query.toString(), fn);
+        String full = query.toString();
+ 
+        for (String method: methods) {
+        	values = annotations.get("rest:" + method);
+        	if (values != null) {
+        		buildMethodHandler(builder, method, full, fn);
+        	}
         }
     }
     
     private void buildMethodHandler(Resource.Builder builder, String method, String query, Function fn) {
 
 		Map<String, List<String>> annotations = fn.getAnnotations();
-    	//List<String> params, 
     	List<String> consumes = annotations.get("rest:consumes"); 
     	List<String> produces = annotations.get("rest:produces");
     	

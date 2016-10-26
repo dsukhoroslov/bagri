@@ -12,6 +12,7 @@ import javax.xml.xquery.XQStaticContext;
 
 import com.bagri.xdm.api.ResultCursor;
 import com.bagri.xdm.api.SchemaRepository;
+import com.bagri.xdm.domain.Query;
 
 /**
  * abstracts (x-)query processing from the underlying XQuery engine implementation. Used as a link between Bagri XQJ implementation and low-level XDM API.   
@@ -57,6 +58,14 @@ public interface XQProcessor {
      * @return true if feature supported by the underlying XQuery implementation, false otherwise
      */
     boolean isFeatureSupported(int feature);
+    
+    /**
+     * 
+     * @param query the plain text query representation 
+     * @return true if query is read-only, false otherwise
+     * @throws XQException in case of query compilation error
+     */
+	boolean isQueryReadOnly(String query) throws XQException;
     
     /**
      * parses and compiles XQuery provided. Returns back found variable names.   
@@ -152,6 +161,15 @@ public interface XQProcessor {
      * @throws XQException in case of command execution errors
      */
     Iterator<Object> executeXCommand(String command, Map<String, Object> params, Properties props) throws XQException;
+
+    /**
+     * for internal use on server side only
+     * 
+     * @param query the plain text query representation
+     * @return just executed query 
+     * @throws XQException in case of query compilation errors
+     */
+    Query getCurrentQuery(final String query) throws XQException;
 
     /**
      * for internal use on server side only

@@ -136,6 +136,13 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
 		return false;
 	}
     
+	public boolean isQueryReadOnly(final String query) throws XQException {
+   	    return (query.indexOf(bg_schema + ":" + cmd_remove_cln_documents) < 0)
+   	    	&& (query.indexOf(bg_schema + ":" + cmd_remove_document) < 0)
+   	    	&& (query.indexOf(bg_schema + ":" + cmd_store_document) < 0);
+	}
+	
+	
     protected void setStaticContext(StaticQueryContext sqc, XQStaticContext ctx) throws XQException {
     	// !!
         sqc.setSchemaAware(false);
@@ -311,7 +318,6 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
 		}
     }
     
-	//@Override
 	public String convertToString(Object item, Properties props) throws XQException {
 		
 		if (item instanceof NodeOverNodeInfo) {

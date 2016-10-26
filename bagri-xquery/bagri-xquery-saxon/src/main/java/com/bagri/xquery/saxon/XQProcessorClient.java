@@ -21,6 +21,7 @@ import javax.xml.xquery.XQStaticContext;
 
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.api.impl.ResultCursorBase;
+import com.bagri.xdm.domain.Query;
 import com.bagri.xdm.api.QueryManagement;
 import com.bagri.xdm.api.ResultCursor;
 import com.bagri.xquery.api.XQProcessor;
@@ -109,6 +110,12 @@ public class XQProcessorClient extends XQProcessorImpl implements XQProcessor {
     	return super.prepareXQuery(query, ctx);
 	}
 
+	@Override
+    public Query getCurrentQuery(final String query) throws XQException {
+		// throw ex?
+		return null;
+	}
+    
 	@Override
 	public ResultCursor getResults() {
 		// throw ex?

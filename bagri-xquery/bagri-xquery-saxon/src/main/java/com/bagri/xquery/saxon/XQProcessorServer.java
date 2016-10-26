@@ -1,5 +1,7 @@
 package com.bagri.xquery.saxon;
 
+import static com.bagri.xdm.common.Constants.bg_schema;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -8,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import javax.xml.namespace.QName;
 import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQItemAccessor;
 import javax.xml.xquery.XQQueryException;
@@ -17,17 +18,14 @@ import javax.xml.xquery.XQStaticContext;
 import com.bagri.xdm.api.DocumentManagement;
 import com.bagri.xdm.api.ResultCursor;
 import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.api.impl.ResultCursorBase;
 import com.bagri.xdm.api.SchemaRepository;
 import com.bagri.xdm.cache.api.QueryManagement;
-import com.bagri.xdm.common.Constants;
 import com.bagri.xdm.domain.Document;
 import com.bagri.xdm.domain.Query;
 import com.bagri.xdm.query.QueryBuilder;
 import com.bagri.xquery.api.XQProcessor;
 
 import net.sf.saxon.lib.ModuleURIResolver;
-import net.sf.saxon.lib.UnparsedTextURIResolver;
 import net.sf.saxon.om.NamePool;
 import net.sf.saxon.om.SequenceIterator;
 import net.sf.saxon.query.XQueryExpression;
@@ -38,6 +36,8 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 	
 	private ResultCursor cursor;
 	private CollectionFinderImpl clnFinder;
+	// local cache for XQueryExpressions.
+	// may be make it static, synchronized? for XQProcessorServer instances..
     private Map<Integer, XQueryExpression> queries = new HashMap<>();
     
     private static NamePool defNamePool = new NamePool();
@@ -120,38 +120,18 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
    	    
    	    QueryManagement qMgr = (QueryManagement) getQueryManagement();
    	    Query xQuery = qMgr.getQuery(query);
-   	    boolean cacheable = false;
-   	    boolean readOnly = true;
-	    //logger.trace("execQuery; module resolver: {}", config.getModuleURIResolver());
-   	    sqc.setModuleURIResolver(config.getModuleURIResolver());
-   	    
 	    Integer qKey = qMgr.getQueryKey(query);
-   	    XQueryExpression xqExp = queries.get(qKey);
    	    try {
-        	if (xqExp == null) {
-		        xqExp = sqc.compileQuery(query);
-		        if (logger.isTraceEnabled()) {
-		        	logger.trace("execQuery; query: \n{}; \nexpression: {}", explainQuery(xqExp), 
-		        			xqExp.getExpression().getExpressionName());
-		        }
-	    	    // HOWTO: distinguish a query from command utilizing external function (store, remove)?
-		        readOnly = !xqExp.getExpression().getExpressionName().startsWith(Constants.bg_schema);
-	        	queries.put(qKey, xqExp);
-        	} 
-   	    	
+   	   	    XQueryExpression xqExp = getXQuery(qKey, query);
         	Map<String, Object> params = getObjectParams();
     	    if (xQuery == null) {
-		        cacheable = true; 
 	        	clnFinder.setQuery(null);
-		        readOnly |= !xqExp.getExpression().isUpdatingExpression();
 	        } else {
-	        	//Map params = getParams();
     	    	QueryBuilder xdmQuery = xQuery.getXdmQuery();
     	    	if (!(params == null || params.isEmpty())) {
         	    	xdmQuery.resetParams(params);
     	    	}
 	    		clnFinder.setQuery(xdmQuery);
-	    		readOnly = xQuery.isReadOnly();
     	    }
         	clnFinder.setExpression(xqExp);
 
@@ -161,27 +141,14 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 	        SequenceIterator itr = xqExp.iterator(dqc);
 	        //Result r = new StreamResult();
 	        //xqExp.run(dqc, r, null);
-	        if (clnFinder.getQuery() != null && cacheable) {
-	        	qMgr.addQuery(query, readOnly, clnFinder.getQuery());
-	        }
 	        stamp = System.currentTimeMillis() - stamp;
-		    logger.trace("execQuery.exit; iterator props: {}; time taken: {}", itr.getProperties(), stamp);
+		    logger.trace("execQuery.exit; time taken: {}", stamp);
 	        return new XQIterator(getXQDataFactory(), itr); 
         } catch (Throwable ex) {
         	logger.error("execQuery.error: ", ex);
         	XQException xqe;
         	if (ex instanceof XPathException) {
-        		XPathException xpe = (XPathException) ex;
-        		if (xpe.getErrorCodeQName() == null) {
-            		xqe = new XQException(xpe.getMessage());
-        		} else {
-	            	if (xpe.getLocator() == null) {
-	            		xqe = new XQQueryException(xpe.getMessage(), xpe.getErrorCodeQName().toJaxpQName());
-	            	} else {
-	            		xqe = new XQQueryException(xpe.getMessage(), xpe.getErrorCodeQName().toJaxpQName(), 
-	            			xpe.getLocator().getLineNumber(), xpe.getLocator().getColumnNumber(), 0);
-	            	}
-        		}
+        		xqe = convertXPathException((XPathException) ex);
         	} else if (ex instanceof XDMException) {
         		xqe = new XQException(ex.getMessage(), ((XDMException) ex).getVendorCode());
         	} else {
@@ -204,6 +171,15 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 		// implement it? what for..?
    		throw new XQException("Not implemented on the server side. Use another executeXQuery method taking Properties as a parameter instead");
     }
+	
+	@Override
+	public Query getCurrentQuery(final String query) throws XQException {
+		if (clnFinder.getQuery() == null) {
+			// not 'collection' query?
+			return null;
+		}
+		return new Query(query, isQueryReadOnly(query), clnFinder.getQuery());
+	}
     
 	@Override
 	public ResultCursor getResults() {
@@ -213,6 +189,27 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 	@Override
 	public void setResults(ResultCursor cursor) {
 		this.cursor = cursor;
+	}
+	
+	@Override
+	public boolean isQueryReadOnly(final String query) throws XQException {
+		boolean result = super.isQueryReadOnly(query);
+		if (result) {
+			int qKey = getQueryManagement().getQueryKey(query);
+			XQueryExpression xqExp;
+			try {
+				xqExp = getXQuery(qKey, query);
+			} catch (XPathException xpe) {
+        		throw convertXPathException(xpe);
+			}
+   		    // HOWTO: distinguish a query from command utilizing external function (store, remove)?
+   	    	// check for document functions only!
+   	    	// HOWTO: check functions from external modules which in turn use store/remove docs?
+			logger.trace("isQueryReadOnly; got XQExp: {}; data: {}; exp: {}", xqExp, xqExp.getPackageData(),
+					xqExp.getExpression());
+   	    	result = !xqExp.isUpdateQuery();
+   	    }
+   	    return result;
 	}
 	
 	@Override
@@ -231,6 +228,35 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 		}
     	return item;
     }
-	
+    
+    private XQueryExpression getXQuery(int queryKey, String query) throws XPathException {
+   	    XQueryExpression xqExp = queries.get(queryKey);
+    	if (xqExp == null) {
+       	    sqc.setModuleURIResolver(config.getModuleURIResolver());
+	        xqExp = sqc.compileQuery(query);
+	        if (logger.isTraceEnabled()) {
+	        	logger.trace("execQuery; query: \n{}; \nexpression: {}", explainQuery(xqExp), 
+	        			xqExp.getExpression().getExpressionName());
+	        }
+        	queries.put(queryKey, xqExp);
+    	} 
+    	return xqExp;
+    }
+    
+    private XQException convertXPathException(XPathException xpe) {
+    	XQException xqe;
+   		if (xpe.getErrorCodeQName() == null) {
+       		xqe = new XQException(xpe.getMessage());
+   		} else {
+           	if (xpe.getLocator() == null) {
+           		xqe = new XQQueryException(xpe.getMessage(), xpe.getErrorCodeQName().toJaxpQName());
+           	} else {
+           		xqe = new XQQueryException(xpe.getMessage(), xpe.getErrorCodeQName().toJaxpQName(), 
+           			xpe.getLocator().getLineNumber(), xpe.getLocator().getColumnNumber(), 0);
+           	}
+   		}
+    	return xqe;
+    }
+    
 }
 

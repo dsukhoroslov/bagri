@@ -164,12 +164,18 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 
 	@Override
 	public boolean addQuery(String query, boolean readOnly, QueryBuilder xdmQuery) {
-		Integer qKey = getQueryKey(query);
+		return addQuery(new Query(query, readOnly, xdmQuery));
+	}
+
+	private boolean addQuery(Query query) {
+		Integer qKey = getQueryKey(query.getQuery());
 		//logger.trace("addQuery.enter; got code: {}; query cache size: {}", qCode, xQueries.size());
 		//boolean result = xqCache.putIfAbsent(qCode, new XDMQuery(query, readOnly, xdmQuery)) == null;
-		boolean result = xqCache.put(qKey, new Query(query, readOnly, xdmQuery)) == null;
-		logger.trace("addQuery.exit; returning: {}", result);
-		return result;
+		if (!xqCache.containsKey(qKey)) {
+			xqCache.put(qKey, query);
+			return true;
+		}
+		return false;
 	}
 	
 	public void removeQueries(Set<Integer> qKeys) {
@@ -229,30 +235,30 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		//IExecutorService execService = hzInstance.getExecutorService(PN_XDM_SCHEMA_POOL);
 		//execService.execute(new Runnable() {
 		new Thread(new Runnable() {
-				@Override
-				public void run() {
-					long qpKey = getResultsKey(query, params);
-					if (cursor != null) {
-						if (!cursor.isFixed()) {
-							CollectionUtils.copyIterator(results, resList);
-						}
-					} else {
+			@Override
+			public void run() {
+				long qpKey = getResultsKey(query, params);
+				if (cursor != null) {
+					if (!cursor.isFixed()) {
 						CollectionUtils.copyIterator(results, resList);
 					}
-
-					if (resList.size() == 0 && ctx.getDocKeys().size() > 0) {
-						logger.warn("addQueryResults; got empty results but docs were found: {}", ctx.getDocKeys());
-					}
-					QueryResult xqr = new QueryResult(params, ctx.getDocKeys(), resList);
-					// what is better to use here: putAsync or set ?
-					xrCache.set(qpKey, xqr);
-					updateStats(query, 1, resList.size());
-					
-					//String clientId = props.getProperty(pn_client_id);
-					//XQProcessor xqp = repo.getXQProcessor(clientId);
-					//xqp.setResults(cursor);
-					logger.trace("addQueryResults.exit; stored results: {} for key: {}", xqr, qpKey);
+				} else {
+					CollectionUtils.copyIterator(results, resList);
 				}
+
+				if (resList.size() == 0 && ctx.getDocKeys().size() > 0) {
+					logger.warn("addQueryResults; got empty results but docs were found: {}", ctx.getDocKeys());
+				}
+				QueryResult xqr = new QueryResult(params, ctx.getDocKeys(), resList);
+				// what is better to use here: putAsync or set ?
+				xrCache.set(qpKey, xqr);
+				updateStats(query, 1, resList.size());
+					
+				//String clientId = props.getProperty(pn_client_id);
+				//XQProcessor xqp = repo.getXQProcessor(clientId);
+				//xqp.setResults(cursor);
+				logger.trace("addQueryResults.exit; stored results: {} for key: {}", xqr, qpKey);
+			}
 		}).start();
 	}
 	
@@ -591,11 +597,15 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		}
 		
 		if (result == null) {
+			String clientId = props.getProperty(pn_client_id);
+			XQProcessor xqp = repo.getXQProcessor(clientId);
 			try {
 				Iterator<Object> iter = runQuery(query, params, props);
 				result = thContext.get().getDocKeys().values();
 				if (cacheResults) {
-					if (xqCache.containsKey(qCode)) {
+					Query q = xqp.getCurrentQuery(query);
+					if (q != null) {
+						addQuery(q);
 						addQueryResults(query, params, props, null, iter);
 					} else {
 						logger.warn("getDocumentUris; query is not cached after processing: {}", query);
@@ -611,15 +621,16 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	}
 
 	@Override
-	public boolean isReadOnlyQuery(String query) {
+	public boolean isQueryReadOnly(String query) throws XDMException {
 		Integer qCode = getQueryKey(query);
 		Query xQuery = xqCache.get(qCode);
-		//XDMQuery xQuery = this.getQuery(query);
 		if (xQuery == null) {
-			//not cached yet, returning false, just to be safe..
-			return false;
-			// calc it via xqp...
-			//XQProcessor xqp = repo.getXQProcessor(clientId);
+			XQProcessor xqp = repo.getXQProcessor();
+			try {
+				return xqp.isQueryReadOnly(query);
+			} catch (XQException ex) {
+				throw new XDMException(ex, XDMException.ecQuery);
+			}
 		}
 		return xQuery.isReadOnly();
 	}
@@ -646,13 +657,16 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		}
 		
 		ResultCursor cursor;
+		String clientId = props.getProperty(pn_client_id);
+		XQProcessor xqp = repo.getXQProcessor(clientId);
 		if (resList == null) {
 			try {
 				Iterator<Object> iter = runQuery(query, params, props);
 				cursor = createCursor(resList, iter, props);
 				if (cacheResults) {
-					if (xqCache.containsKey(qCode)) {
-						// no need to check for isQuery, commands are not cached
+					Query q = xqp.getCurrentQuery(query);
+					if (q != null) {
+						addQuery(q);
 						addQueryResults(query, params, props, cursor, iter);
 					} else {
 						logger.warn("executeQuery; query is not cached after processing: {}", query);
@@ -665,8 +679,6 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			// already cached
 			cursor = createCursor(resList, null, props);
 		}
-		String clientId = props.getProperty(pn_client_id);
-		XQProcessor xqp = repo.getXQProcessor(clientId);
 		xqp.setResults(cursor);
 		logger.trace("executeQuery.exit; returning: {}", cursor);
 		return cursor;
