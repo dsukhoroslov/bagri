@@ -137,9 +137,8 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
 	}
     
 	public boolean isQueryReadOnly(final String query) throws XQException {
-   	    return (query.indexOf(bg_schema + ":" + cmd_remove_cln_documents) < 0)
-   	    	&& (query.indexOf(bg_schema + ":" + cmd_remove_document) < 0)
-   	    	&& (query.indexOf(bg_schema + ":" + cmd_store_document) < 0);
+   	    return (query.indexOf(bg_remove_cln_documents) < 0) && (query.indexOf(bg_remove_document) < 0) 
+   	    		&& (query.indexOf(bg_store_document) < 0);
 	}
 	
 	

@@ -1,6 +1,6 @@
 package com.bagri.xquery.saxon;
 
-import static com.bagri.xdm.common.Constants.bg_schema;
+import static com.bagri.xdm.common.Constants.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,6 +25,10 @@ import com.bagri.xdm.domain.Query;
 import com.bagri.xdm.query.QueryBuilder;
 import com.bagri.xquery.api.XQProcessor;
 
+import net.sf.saxon.expr.Expression;
+import net.sf.saxon.expr.Operand;
+import net.sf.saxon.expr.UserFunctionCall;
+import net.sf.saxon.functions.IntegratedFunctionCall;
 import net.sf.saxon.lib.ModuleURIResolver;
 import net.sf.saxon.om.NamePool;
 import net.sf.saxon.om.SequenceIterator;
@@ -202,12 +206,7 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 			} catch (XPathException xpe) {
         		throw convertXPathException(xpe);
 			}
-   		    // HOWTO: distinguish a query from command utilizing external function (store, remove)?
-   	    	// check for document functions only!
-   	    	// HOWTO: check functions from external modules which in turn use store/remove docs?
-			logger.trace("isQueryReadOnly; got XQExp: {}; data: {}; exp: {}", xqExp, xqExp.getPackageData(),
-					xqExp.getExpression());
-   	    	result = !xqExp.isUpdateQuery();
+			result = !isUpdatingExpression(xqExp.getExpression());
    	    }
    	    return result;
 	}
@@ -217,6 +216,21 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 		return "XQProcessorServer[" + getRepository().getClientId() + "]";
 	}
 	
+    private XQException convertXPathException(XPathException xpe) {
+    	XQException xqe;
+   		if (xpe.getErrorCodeQName() == null) {
+       		xqe = new XQException(xpe.getMessage());
+   		} else {
+           	if (xpe.getLocator() == null) {
+           		xqe = new XQQueryException(xpe.getMessage(), xpe.getErrorCodeQName().toJaxpQName());
+           	} else {
+           		xqe = new XQQueryException(xpe.getMessage(), xpe.getErrorCodeQName().toJaxpQName(), 
+           			xpe.getLocator().getLineNumber(), xpe.getLocator().getColumnNumber(), 0);
+           	}
+   		}
+    	return xqe;
+    }
+
     private XQItemAccessor getBoundItem(Map<String, Object> bindings, String varName) throws XQException {
 		if (bindings.size() == 0) {
 			throw new XQException("bindings not provided");
@@ -235,7 +249,7 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
        	    sqc.setModuleURIResolver(config.getModuleURIResolver());
 	        xqExp = sqc.compileQuery(query);
 	        if (logger.isTraceEnabled()) {
-	        	logger.trace("execQuery; query: \n{}; \nexpression: {}", explainQuery(xqExp), 
+	        	logger.trace("getXQuery; query: \n{}; \nexpression: {}", explainQuery(xqExp), 
 	        			xqExp.getExpression().getExpressionName());
 	        }
         	queries.put(queryKey, xqExp);
@@ -243,19 +257,31 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
     	return xqExp;
     }
     
-    private XQException convertXPathException(XPathException xpe) {
-    	XQException xqe;
-   		if (xpe.getErrorCodeQName() == null) {
-       		xqe = new XQException(xpe.getMessage());
-   		} else {
-           	if (xpe.getLocator() == null) {
-           		xqe = new XQQueryException(xpe.getMessage(), xpe.getErrorCodeQName().toJaxpQName());
-           	} else {
-           		xqe = new XQQueryException(xpe.getMessage(), xpe.getErrorCodeQName().toJaxpQName(), 
-           			xpe.getLocator().getLineNumber(), xpe.getLocator().getColumnNumber(), 0);
-           	}
-   		}
-    	return xqe;
+    private boolean isUpdatingExpression(Expression ex) {
+		//logger.trace("isUpdatingExpression; got ex: {}; {}", ex.getClass().getName(), ex);
+    	if (ex.isUpdatingExpression()) {
+    		logger.debug("isUpdatingExpression; got updating ex: {}", ex);
+    		return true;
+    	}
+    	if (ex instanceof IntegratedFunctionCall) {
+    		String qName = ex.getExpressionName();
+    		if (bg_remove_document.equals(qName) || bg_remove_cln_documents.equals(qName) || bg_store_document.equals(qName)) {
+        		logger.trace("isUpdatingExpression; got updating UDF: {}", qName);
+    			return true;
+    		}
+    	} else if (ex instanceof UserFunctionCall) {
+    		UserFunctionCall ufc = (UserFunctionCall) ex;
+    		ex = ufc.getFunction().getBody();
+    	}  
+    	
+    	Iterator<Operand> itr = ex.operands().iterator();
+    	while(itr.hasNext()) {
+    		Expression e = itr.next().getChildExpression(); 
+    		if (isUpdatingExpression(e)) {
+    			return true;
+    		}
+    	}
+    	return false;
     }
     
 }

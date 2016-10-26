@@ -149,14 +149,14 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 
 	@Override
 	public Query getQuery(String query) {
-		Integer qCode = getQueryKey(query);
-		//XDMQuery result = xQueries.get(qCode);
-		Query result = xqCache.get(qCode);
-		if (result != null) {
-		//	result = xqCache.get(qCode);
-		//} else {
-			result = result.clone();
-		}
+		Integer qKey = getQueryKey(query);
+		Query result = xqCache.get(qKey);
+		// as I see we use BINARY format for this cache, no need for clone!
+		//if (result != null) {
+			// TODO: are you sure we have to perform clone here?
+			// we got it by ref from replicated cache?
+		//	result = result.clone();
+		//}
 		updateStats(query, result != null, 1);
 		logger.trace("getQuery.exit; returning {}", result);
 		return result;
@@ -585,10 +585,10 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	public Collection<String> getDocumentUris(String query, Map<String, Object> params, Properties props) throws XDMException {
 		logger.trace("getDocumentUris.enter; query: {}, params: {}; properties: {}", query, params, props);
 		Collection<String> result = null;
-		int qCode = 0;
+		int qKey = 0;
 		if (cacheResults) {
-			qCode = getQueryKey(query);
-			if (xqCache.containsKey(qCode)) {
+			qKey = getQueryKey(query);
+			if (xqCache.containsKey(qKey)) {
 				Map<Long, String> keys = getQueryUris(query, params, props);
 				if (keys != null) {
 					result = keys.values();
@@ -603,9 +603,9 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 				Iterator<Object> iter = runQuery(query, params, props);
 				result = thContext.get().getDocKeys().values();
 				if (cacheResults) {
-					Query q = xqp.getCurrentQuery(query);
-					if (q != null) {
-						addQuery(q);
+					Query xQuery = xqp.getCurrentQuery(query);
+					if (xQuery != null) {
+						addQuery(xQuery);
 						addQueryResults(query, params, props, null, iter);
 					} else {
 						logger.warn("getDocumentUris; query is not cached after processing: {}", query);
@@ -622,8 +622,8 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 
 	@Override
 	public boolean isQueryReadOnly(String query) throws XDMException {
-		Integer qCode = getQueryKey(query);
-		Query xQuery = xqCache.get(qCode);
+		Integer qKey = getQueryKey(query);
+		Query xQuery = xqCache.get(qKey);
 		if (xQuery == null) {
 			XQProcessor xqp = repo.getXQProcessor();
 			try {
@@ -645,12 +645,12 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 
 		logger.trace("executeQuery.enter; query: {}; params: {}; properties: {}", query, params, props);
 		List<Object> resList = null;
-		int qCode = 0;
+		int qKey = 0;
 		if (cacheResults) {
 			boolean isQuery = "false".equalsIgnoreCase(props.getProperty(pn_query_command, "false"));
-			qCode = getQueryKey(query);
+			qKey = getQueryKey(query);
 			if (isQuery) {
-				if (xqCache.containsKey(qCode)) {
+				if (xqCache.containsKey(qKey)) {
 					resList = getQueryResults(query, params, props);
 				}
 			}
@@ -664,9 +664,10 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 				Iterator<Object> iter = runQuery(query, params, props);
 				cursor = createCursor(resList, iter, props);
 				if (cacheResults) {
-					Query q = xqp.getCurrentQuery(query);
-					if (q != null) {
-						addQuery(q);
+					Query xQuery = xqp.getCurrentQuery(query);
+					if (xQuery != null) {
+						// throws exception: Failed to serialize 'com.bagri.xdm.domain.Query'
+						// addQuery(xQuery);
 						addQueryResults(query, params, props, cursor, iter);
 					} else {
 						logger.warn("executeQuery; query is not cached after processing: {}", query);

@@ -1,5 +1,9 @@
 package com.bagri.xquery.saxon;
 
+import static com.bagri.xdm.common.Constants.bg_remove_cln_documents;
+import static com.bagri.xdm.common.Constants.bg_remove_document;
+import static com.bagri.xdm.common.Constants.bg_store_document;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -36,6 +40,7 @@ import net.sf.saxon.expr.Literal;
 import net.sf.saxon.expr.Operand;
 import net.sf.saxon.expr.StringLiteral;
 import net.sf.saxon.expr.SystemFunctionCall;
+import net.sf.saxon.expr.UserFunctionCall;
 import net.sf.saxon.expr.ValueComparison;
 import net.sf.saxon.expr.VariableReference;
 import net.sf.saxon.expr.XPathContext;
@@ -345,6 +350,13 @@ public class CollectionFinderImpl implements CollectionFinder {
     		}
     	}
 
+    	if (ex instanceof UserFunctionCall) {
+    		UserFunctionCall ufc = (UserFunctionCall) ex;
+			logger.trace("iterate; switching to UDF: {}", ufc.getFunctionName());
+    		//ex = ufc.getTargetFunction(ctx).getBody();
+    		ex = ufc.getFunction().getBody();
+    	}
+    	
     	Iterator<Operand> itr = ex.operands().iterator();
     	while(itr.hasNext()) {
     		Expression e = itr.next().getChildExpression(); 
