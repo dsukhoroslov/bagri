@@ -174,4 +174,9 @@ public class XQProcessorClient extends XQProcessorImpl implements XQProcessor {
 		return params;
 	}
 
+	@Override
+	public boolean isQueryReadOnly(String query, Properties props) throws XQException {
+		return isQueryReadOnly(query);
+	}
+
 }

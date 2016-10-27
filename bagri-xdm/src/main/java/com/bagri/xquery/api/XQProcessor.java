@@ -62,10 +62,11 @@ public interface XQProcessor {
     /**
      * 
      * @param query the plain text query representation 
+     * @param props Properties containing query processing instructions. Besides standard XQJ properties may contain additional XDM properties: ..
      * @return true if query is read-only, false otherwise
      * @throws XQException in case of query compilation error
      */
-	boolean isQueryReadOnly(String query) throws XQException;
+	boolean isQueryReadOnly(String query, Properties props) throws XQException;
     
     /**
      * parses and compiles XQuery provided. Returns back found variable names.   

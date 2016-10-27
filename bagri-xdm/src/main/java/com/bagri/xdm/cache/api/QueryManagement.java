@@ -43,10 +43,11 @@ public interface QueryManagement extends com.bagri.xdm.api.QueryManagement {
 	 * If the query is not cached yet the system assumes it is read-write for the first time.
 	 * 
 	 * @param query the plain text query representation
+	 * @param props the query processing instructions. Supported values are: ...
 	 * @return true if query is read-only, false otherwise
 	 * @throws XDMException in case of query check error
 	 */
-	boolean isQueryReadOnly(String query) throws XDMException;
+	boolean isQueryReadOnly(String query, Properties props) throws XDMException;
 	
 	/**
 	 * looks for internal cached query representation identified by the query text provided  

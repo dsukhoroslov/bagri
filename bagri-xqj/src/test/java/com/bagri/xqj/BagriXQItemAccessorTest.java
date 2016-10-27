@@ -64,7 +64,6 @@ public class BagriXQItemAccessorTest {
 	}
 
 	@Test
-	//@Ignore
 	public void testGetByte() throws XQException {
 		
 		XQExpression xqe = xqc.createExpression();

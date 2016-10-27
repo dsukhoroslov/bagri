@@ -603,16 +603,21 @@ public class XQUtils {
 
 		int errorCode = 0;
 		Throwable init = ex;
+		Throwable cause = null;
+		String message = "";
 		while (ex != null) {
 			if (ex instanceof XQException) {
 				return (XQException) ex;
-			} else if (errorCode == 0 && ex instanceof XDMException) {
+			} else if (/*errorCode == 0 &&*/ ex instanceof XDMException) {
+				// deeper is better!
+				message += ex.getMessage() + "; ";
 				errorCode = ((XDMException) ex).getErrorCode();
+				cause = ex;
 			}
 			ex = ex.getCause();
 		}
-		XQException xqe = new XQException(init.getMessage() == null ? "null" : init.getMessage(), String.valueOf(errorCode));
-		xqe.initCause(ex);
+		XQException xqe = new XQException(message, String.valueOf(errorCode));
+		xqe.initCause(cause);
 		return xqe;
 	}
 

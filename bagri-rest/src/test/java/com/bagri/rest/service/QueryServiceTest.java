@@ -60,7 +60,7 @@ public class QueryServiceTest extends JerseyTest {
     }
     
 	@Test
-	@Ignore
+	//@Ignore
     @SuppressWarnings("unchecked")
     public void testQueryService() throws Exception {
 		

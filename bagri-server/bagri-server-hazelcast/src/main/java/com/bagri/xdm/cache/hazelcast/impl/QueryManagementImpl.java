@@ -626,13 +626,13 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	}
 
 	@Override
-	public boolean isQueryReadOnly(String query) throws XDMException {
+	public boolean isQueryReadOnly(String query, Properties props) throws XDMException {
 		Integer qKey = getQueryKey(query);
 		Query xQuery = xqCache.get(qKey);
 		if (xQuery == null) {
 			XQProcessor xqp = repo.getXQProcessor();
 			try {
-				return xqp.isQueryReadOnly(query);
+				return xqp.isQueryReadOnly(query, props);
 			} catch (XQException ex) {
 				throw new XDMException(ex, XDMException.ecQuery);
 			}
@@ -678,7 +678,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 					}
 				}
 			} catch (XQException ex) {
-				throw new XDMException(ex, XDMException.ecQuery);
+				throw new XDMException(ex.getMessage(), ex, XDMException.ecQuery);
 			}
 		} else {
 			// already cached
@@ -701,7 +701,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
         Throwable ex = null;
         boolean failed = false;
         stopWatch.start();
-		
+
 		Iterator<Object> iter = null;
 		try {
 			String clientId = props.getProperty(pn_client_id);

@@ -126,7 +126,7 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
    	    Query xQuery = qMgr.getQuery(query);
 	    Integer qKey = qMgr.getQueryKey(query);
    	    try {
-   	   	    XQueryExpression xqExp = getXQuery(qKey, query);
+   	   	    XQueryExpression xqExp = getXQuery(qKey, query, null);
         	Map<String, Object> params = getObjectParams();
     	    if (xQuery == null) {
 	        	clnFinder.setQuery(null);
@@ -148,19 +148,9 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 	        stamp = System.currentTimeMillis() - stamp;
 		    logger.trace("execQuery.exit; time taken: {}", stamp);
 	        return new XQIterator(getXQDataFactory(), itr); 
-        } catch (Throwable ex) {
-        	logger.error("execQuery.error: ", ex);
-        	XQException xqe;
-        	if (ex instanceof XPathException) {
-        		xqe = convertXPathException((XPathException) ex);
-        	} else if (ex instanceof XDMException) {
-        		xqe = new XQException(ex.getMessage(), ((XDMException) ex).getVendorCode());
-        	} else {
-        		xqe = new XQException(ex.getMessage());
-        	}
-        	// issues with not-serializable staff from Saxon exceptions..
-        	//xqe.initCause(ex);
-        	throw xqe;
+        } catch (XPathException xpe) {
+        	logger.error("execQuery.error: ", xpe);
+        	throw convertXPathException(xpe);
         }
 	}
     
@@ -196,14 +186,15 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 	}
 	
 	@Override
-	public boolean isQueryReadOnly(final String query) throws XQException {
+	public boolean isQueryReadOnly(final String query, Properties props) throws XQException {
 		boolean result = super.isQueryReadOnly(query);
 		if (result) {
 			int qKey = getQueryManagement().getQueryKey(query);
 			XQueryExpression xqExp;
 			try {
-				xqExp = getXQuery(qKey, query);
+				xqExp = getXQuery(qKey, query, props);
 			} catch (XPathException xpe) {
+	        	logger.error("isQueryReadOnly.error: ", xpe);
         		throw convertXPathException(xpe);
 			}
 			result = !isUpdatingExpression(xqExp.getExpression());
@@ -243,9 +234,12 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
     	return item;
     }
     
-    private XQueryExpression getXQuery(int queryKey, String query) throws XPathException {
+    private XQueryExpression getXQuery(int queryKey, String query, Properties props) throws XPathException, XQException {
    	    XQueryExpression xqExp = queries.get(queryKey);
     	if (xqExp == null) {
+    		//if (props != null) {
+    		//	setStaticContext(sqc, props);
+    		//}
        	    sqc.setModuleURIResolver(config.getModuleURIResolver());
 	        xqExp = sqc.compileQuery(query);
 	        if (logger.isTraceEnabled()) {

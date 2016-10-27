@@ -27,6 +27,7 @@ import com.bagri.xdm.client.hazelcast.task.query.QueryUrisProvider;
 import com.bagri.xdm.client.hazelcast.task.query.QueryExecutor;
 import com.bagri.xdm.domain.Query;
 import com.bagri.xdm.domain.QueryResult;
+import com.hazelcast.client.UndefinedErrorCodeException;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.Member;
@@ -173,6 +174,10 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 					err = err.getCause();
 					if (err instanceof XDMException) {
 						throw (XDMException) err;
+					//} else if (err instanceof UndefinedErrorCodeException) {
+					//	if (XDMException.class.getName().equals(((UndefinedErrorCodeException) err).getOriginClassName())) {
+					//		throw new XDMException(ex.getMessage(), errorCode);
+					//	}
 					}
 				}
 			}
