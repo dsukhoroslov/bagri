@@ -133,11 +133,13 @@ public class BagriXQDataSourceTest {
 		}
 		
 		String query = "declare namespace bgdm=\"http://bagridb.com/bagri-xdm\";\n" +
+				"declare variable $url external;\n" + 
 				"declare variable $xml external;\n" + 
-				"let $id := bgdm:store-document($xml)\n" +
+				"let $id := bgdm:store-document($url, $xml)\n" +
 				"return $id\n";
 
 	    XQPreparedExpression xqpe = xqc.prepareExpression(query);
+	    xqpe.bindString(new QName("url"), "security5621.xml", xqc.createAtomicType(XQItemType.XQBASETYPE_ANYURI));
 	    xqpe.bindString(new QName("xml"), xml, xqc.createAtomicType(XQItemType.XQBASETYPE_STRING));
 	    XQSequence xqs = xqpe.executeQuery();
 	    assertTrue(xqs.next());
@@ -190,14 +192,19 @@ public class BagriXQDataSourceTest {
 			throw new XQException(ex.getMessage());
 		}
 		
+		String query = "declare namespace bgdm=\"http://bagridb.com/bagri-xdm\";\n" +
+				"declare variable $url external;\n" + 
+				"declare variable $xml external;\n" + 
+				"let $id := bgdm:store-document($url, $xml)\n" +
+				"return $id\n";
 		XQConnection xqc = xqds.getConnection();
-		XQExpression xqe = xqc.createExpression();
-		//xqe.bindDocument(new QName("s"), xml, "http://tpox-benchmark.com/security", xqc.createDocumentType());
-		xqe.bindString(new QName("s"), xml, xqc.createAtomicType(XQItemType.XQBASETYPE_STRING));
-	    xqe.executeCommand("storeDocument($s)");
-	    //xqs.next();
-	    //assertTrue("expected true but got false", xqs.getBoolean());
-	    xqe.close();
+	    XQPreparedExpression xqpe = xqc.prepareExpression(query);
+	    xqpe.bindString(new QName("url"), "security1500.xml", xqc.createAtomicType(XQItemType.XQBASETYPE_ANYURI));
+	    xqpe.bindString(new QName("xml"), xml, xqc.createAtomicType(XQItemType.XQBASETYPE_STRING));
+	    XQSequence xqs = xqpe.executeQuery();
+	    assertTrue(xqs.next());
+	    xqs.close();
+	    xqpe.close();
 	}
 	
 	@Test
