@@ -16,6 +16,13 @@ import com.bagri.xdm.domain.Elements;
  *
  */
 public interface ContentBuilder {
+	
+    /**
+     * Lifecycle method. Invoked at Schema initialization phase. 
+     * 
+     * @param context the environment context
+     */
+    void init(Map<String, Object> context);	
 
 	/**
 	 * 

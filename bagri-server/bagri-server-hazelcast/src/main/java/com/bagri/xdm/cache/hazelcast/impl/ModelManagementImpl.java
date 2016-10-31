@@ -183,7 +183,7 @@ public class ModelManagementImpl extends ModelManagementBase implements ModelMan
 
 	@Override
 	@SuppressWarnings("rawtypes")
-	protected Set getTypedPathEntries(int typeId) {
+	protected Set<Map.Entry<String, Path>> getTypedPathEntries(int typeId) {
 		Predicate f = Predicates.equal("typeId",  typeId);
 		Set<Map.Entry<String, Path>> entries = pathCache.entrySet(f);
 		return entries;
@@ -191,12 +191,10 @@ public class ModelManagementImpl extends ModelManagementBase implements ModelMan
 	
 	@Override
 	@SuppressWarnings("rawtypes")
-	protected Set getTypedPathWithRegex(String regex, int typeId) {
-		Predicate filter;
+	protected Set<Map.Entry<String, Path>> getTypedPathWithRegex(String regex, int typeId) {
+		Predicate filter = new RegexPredicate("path", regex);
 		if (typeId > 0) {
-			filter = Predicates.and(new RegexPredicate("path", regex), Predicates.equal("typeId", typeId));
-		} else {
-			filter = new RegexPredicate("path", regex);
+			filter = Predicates.and(filter, Predicates.equal("typeId", typeId));
 		}
 		Set<Map.Entry<String, Path>> entries = pathCache.entrySet(filter);
 		return entries;
@@ -208,7 +206,7 @@ public class ModelManagementImpl extends ModelManagementBase implements ModelMan
 
 	@Override
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	protected boolean lock(Map cache, Object key) {
+	protected <K> boolean lock(Map<K, ?> cache, K key) {
 		try {
 			return ((IMap) cache).tryLock(key, timeout, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException ex) {
@@ -219,7 +217,7 @@ public class ModelManagementImpl extends ModelManagementBase implements ModelMan
 
 	@Override
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	protected void unlock(Map cache, Object key) {
+	protected <K> void unlock(Map<K, ?> cache, K key) {
 		((IMap) cache).unlock(key);
 	}
 
@@ -230,8 +228,7 @@ public class ModelManagementImpl extends ModelManagementBase implements ModelMan
 		if (val2 == null) {
 			return value;
 		}
-		logger.debug("putIfAbsent; got collision on cache: {}, key: {}; returning: {}", 
-				new Object[] {cache.getName(), key, val2});
+		logger.debug("putIfAbsent; got collision on cache: {}, key: {}; returning: {}", cache.getName(), key, val2);
 		return val2;
 	}
 

@@ -169,7 +169,7 @@ public class Elements {
 	 */
 	@Override
 	public String toString() {
-		return "XDMElements [pathId=" + pathId + ", elementRef=" + elementRef + "]";
+		return "Elements [pathId=" + pathId + ", elementRef=" + elementRef + "]";
 	}
 
 }

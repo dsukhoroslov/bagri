@@ -756,6 +756,9 @@
             <builderClass>com.bagri.xdm.common.df.xml.XmlBuilder</builderClass>
             <extensions>xml</extensions>
             <type>application/xml</type>
+            <properties>
+		<entry name="xdm.schema.parser.schemas"></entry>
+            </properties>
         </dataFormat>
         <dataFormat name="JSON">
             <version>1</version>
@@ -768,6 +771,7 @@
             <builderClass>com.bagri.xdm.common.df.json.JsonBuilder</builderClass>
             <extensions>json</extensions>
             <type>application/json</type>
+            <properties/>
         </dataFormat>
     </dataFormats>
     <dataStores>

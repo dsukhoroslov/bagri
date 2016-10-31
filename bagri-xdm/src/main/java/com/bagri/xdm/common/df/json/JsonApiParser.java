@@ -34,6 +34,7 @@ import com.bagri.xdm.domain.Path;
  */
 public class JsonApiParser extends ContentParserBase implements ContentParser {
 	
+	// TODO: move all of this to the init method !?
 	private static JsonParserFactory factory;
 	static {
 		//JsonProvider provider = JsonProvider.provider();

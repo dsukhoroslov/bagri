@@ -66,10 +66,8 @@ public abstract class ModelManagementBase implements ModelManagement {
 	protected abstract IdGenerator<Long> getPathGen();
 	protected abstract IdGenerator<Long> getTypeGen();
     
-	@SuppressWarnings("rawtypes")
-	protected abstract boolean lock(Map cache, Object key); 
-	@SuppressWarnings("rawtypes")
-	protected abstract void unlock(Map cache, Object key); 
+	protected abstract <K> boolean lock(Map<K, ?> cache, K key); 
+	protected abstract <K> void unlock(Map<K, ?> cache, K key); 
 	protected abstract <K, V> V putIfAbsent(Map<K, V> cache, K key, V value);
 
 	protected abstract DocumentType getDocumentTypeById(int typeId);
@@ -159,8 +157,6 @@ public abstract class ModelManagementBase implements ModelManagement {
 	 * @return namespace prefix: String; xsi
 	 */
 	public String translateNamespace(String namespace, String prefix) {
-		//logger.trace("getNamespacePrefix.enter; goth namespace: {}", namespace);
-
 		Namespace xns = (Namespace) getNamespaceCache().get(namespace);
 		if (xns == null) {
 			if (prefix == null || prefix.isEmpty()) {
@@ -170,7 +166,6 @@ public abstract class ModelManagementBase implements ModelManagement {
 			xns = putIfAbsent(getNamespaceCache(), namespace, xns);
 		}
 		String result = xns.getPrefix();
-		//logger.trace("getNamespacePrefix.exit; returning: {}", result);
 		return result;
 	}
 
@@ -201,7 +196,6 @@ public abstract class ModelManagementBase implements ModelManagement {
 	public Path translatePath(int typeId, String path, NodeKind kind, int dataType, Occurrence occurrence) throws XDMException {
 		// "/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}Name/text()"
 		
-		//logger.trace("translatePath.enter; goth path: {}", path);
 		if (kind != NodeKind.document) {
 			if (path == null || path.length() == 0) {
 				return null; //WRONG_PATH;
@@ -210,7 +204,6 @@ public abstract class ModelManagementBase implements ModelManagement {
 			path = normalizePath(path);
 		}
 		Path result = addDictionaryPath(typeId, path, kind, dataType, occurrence); 
-		//logger.trace("translatePath.exit; returning: {}", result);
 		return result;
 	}
 	
@@ -224,14 +217,11 @@ public abstract class ModelManagementBase implements ModelManagement {
 	 * @return namespace prefix: String; ns0
 	 */
 	public String getNamespacePrefix(String namespace) {
-		//logger.trace("getNamespacePrefix.enter; goth namespace: {}", namespace);
-
 		String result = null;
 		Namespace xns = getNamespaceCache().get(namespace);
 		if (xns != null) {
 			result = xns.getPrefix();
 		}
-		//logger.trace("getNamespacePrefix.exit; returning: {}", result);
 		return result;
 	}
 	
@@ -255,7 +245,6 @@ public abstract class ModelManagementBase implements ModelManagement {
 				pId++;
 			}
 		}
-		
 		logger.trace("getPathElements.exit; returning: {}", result);
 		return result; 
 	}
@@ -327,7 +316,6 @@ public abstract class ModelManagementBase implements ModelManagement {
 
 	protected Path addDictionaryPath(int typeId, String path, NodeKind kind, 
 			int dataType, Occurrence occurrence) throws XDMException {
-		//logger.trace("addDictionaryPath.enter; goth path: {}", path);
 
 		Path xpath = getPathCache().get(path);
 		if (xpath == null) {
@@ -348,8 +336,6 @@ public abstract class ModelManagementBase implements ModelManagement {
 				xpath = xp2;
 			}
 		}
-		//int result = xpath.getPathId();
-		//logger.trace("addDictionaryPath.exit; returning: {}", result);
 		return xpath;
 	}
 
@@ -505,7 +491,9 @@ public abstract class ModelManagementBase implements ModelManagement {
 	}
 
 	/**
-	 * registers bunch of node path's specified in the XML schema (XSD)   
+	 * registers bunch of node path's specified in the XML schema (XSD)
+	 * 
+	 * Note: subject to move out to Parser API
 	 * 
 	 * @param schema String; schema in plain text  
 	 * @throws XDMException in case of any error
@@ -524,6 +512,8 @@ public abstract class ModelManagementBase implements ModelManagement {
 	/**
 	 * registers bunch of schemas located in the schemaUri folder   
 	 * 
+	 * Note: subject to move out to Parser API
+	 * 
 	 * @param schemasUri String; the folder containing schemas to register  
 	 * @throws XDMException in case of any error
 	 */
@@ -539,6 +529,8 @@ public abstract class ModelManagementBase implements ModelManagement {
 
 	/**
 	 * registers bunch of schemas located in the schemaUri folder   
+	 * 
+	 * Note: subject to move out to Parser API
 	 * 
 	 * @param schemaUri String; the folder containing schemas to register  
 	 * @throws XDMException in case of any error

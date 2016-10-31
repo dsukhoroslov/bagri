@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.util.List;
+import java.util.Map;
 
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.domain.Data;
@@ -19,6 +20,13 @@ import com.bagri.xdm.domain.Data;
  */
 public interface ContentParser {
 	
+    /**
+     * Lifecycle method. Invoked at Schema initialization phase. 
+     * 
+     * @param context the environment context
+     */
+    void init(Map<String, Object> context);	
+
 	/**
 	 * 
 	 * @param source the document's content

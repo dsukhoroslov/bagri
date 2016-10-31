@@ -46,6 +46,14 @@ public class XmlBuilder implements ContentBuilder {
 		this.model = model;
 	}
 	
+ 	/**
+  	 * {@inheritDoc}
+  	 */
+ 	public void init(Map<String, Object> context) {
+ 		//
+ 		//logger.trace("init; got context: {}", context);
+ 	}
+ 
 	/**
 	 * {@inheritDoc}
 	 */

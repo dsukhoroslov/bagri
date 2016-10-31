@@ -11,6 +11,7 @@ import org.junit.Test;
 
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.cache.api.ModelManagement;
+import com.bagri.xdm.cache.api.impl.ModelManagementImpl;
 import com.bagri.xdm.common.df.json.JsonApiParser;
 import com.bagri.xdm.domain.Data;
 
@@ -61,19 +62,24 @@ public class JsonApiParserTest {
 
 
 	@Test
-	@Ignore
-	public void testParse() throws IOException, XDMException {
-		ModelManagement dict = null; //new ModelManagementImpl();
+	public void testParse() throws Exception {
+		ModelManagement dict = new ModelManagementImpl();
 		JsonApiParser parser = new JsonApiParser(dict);
-		//String json = 
-		//"{\n" +
-		//"\t\"name\":\"mkyong\",\n" +
-		//"\t\"age\":29,\n" +
-		//"\t\"messages\":[\"msg 1\",\"msg 2\",\"msg 3\"]\n" +
-		//"}";
 		List<Data> elts = parser.parse(json);
 		assertNotNull(elts);
-		assertTrue(elts.size() > 0);
+		assertEquals(28, elts.size());
+		Data data = elts.get(0);
+		assertEquals("", data.getPath());
+		assertNull(data.getValue());
+		data = elts.get(1);
+		assertEquals("/firstName", data.getPath());
+		assertNull(data.getValue());
+		data = elts.get(2);
+		assertEquals("/firstName/text()", data.getPath());
+		assertEquals("John", data.getValue());
+		//int typeId = 1;
+		//String root = dict.getDocumentRoot(typeId);
+		//assertEquals("", root); -> /firstName	
 	}
 	
 }

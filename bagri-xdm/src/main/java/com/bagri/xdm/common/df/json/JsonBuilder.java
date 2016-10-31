@@ -20,7 +20,15 @@ public class JsonBuilder implements ContentBuilder {
 
 	// TODO: implement it!
 	
-	/**
+ 	/**
+  	 * {@inheritDoc}
+  	 */
+ 	public void init(Map<String, Object> context) {
+ 		//
+ 		//logger.trace("init; got context: {}", context);
+ 	}
+ 
+ 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
