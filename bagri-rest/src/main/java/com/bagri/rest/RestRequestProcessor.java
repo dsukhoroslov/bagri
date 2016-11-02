@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -23,6 +22,7 @@ import javax.ws.rs.core.StreamingOutput;
 import org.glassfish.jersey.process.Inflector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -36,6 +36,7 @@ import com.bagri.xdm.system.Parameter;
 public class RestRequestProcessor implements Inflector<ContainerRequestContext, Response> {
 	 
     private static final transient Logger logger = LoggerFactory.getLogger(RestRequestProcessor.class);
+    private static final transient String ns_http = "http://www.expath.org/http"; 
 	
     private Function fn;
 	private String query;
@@ -52,9 +53,46 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
     	
     	String clientId = context.getCookies().get(RestService.bg_cookie).getValue();
     	SchemaRepository repo = rePro.getRepository(clientId);
-    	Map<String, Object> params = new HashMap<>(fn.getParameters().size());
 		logger.debug("apply.enter; path: {}; params: {}; query: {}", context.getUriInfo().getPath(), 
 				context.getUriInfo().getPathParameters(), context.getUriInfo().getQueryParameters());
+
+		Map<String, Object> params = getParameters(context);
+		logger.debug("apply; got params: {}", params); 
+
+    	boolean empty = false;
+    	Properties props = new Properties();
+		ResultCursor cursor = null;
+		try {
+			cursor = repo.getQueryManagement().executeQuery(query, params, props);
+	    	empty = !cursor.next();
+		} catch (XDMException ex) {
+			logger.error("apply.error: ", ex);
+			return Response.serverError().entity(ex.getMessage()).build();
+		}
+	    logger.debug("apply; got cursor: {}", cursor);
+	    
+    	if (empty) {
+    		// send response right away
+	        return Response.ok().build();	    	
+    	}
+	    
+    	Response.ResponseBuilder response = Response.noContent();
+    	try {
+    		empty = fillResponse(cursor, response);
+	    } catch (XDMException ex) {
+			logger.error("apply.error: error processing response ", ex);
+			return Response.serverError().entity(ex.getMessage()).build();
+	    }
+		logger.debug("apply: got response: {}", response);
+    	
+    	if (!empty) {
+    		response.entity(getResultStream(cursor));
+    	}
+        return response.build();
+	}
+    
+    private Map<String, Object> getParameters(ContainerRequestContext context) {
+    	Map<String, Object> params = new HashMap<>(fn.getParameters().size());
     	for (Parameter pm: fn.getParameters()) {
 			// TODO: resolve cardinality properly!
     		if (isPathParameter(pm.getName())) {
@@ -127,94 +165,8 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
     			}
     		}
     	}
-    	logger.debug("apply; got params: {}", params); 
-
-    	boolean empty = false;
-    	Properties props = new Properties();
-		ResultCursor cursor = null;
-		try {
-			cursor = repo.getQueryManagement().executeQuery(query, params, props);
-	    	empty = !cursor.next();
-		} catch (XDMException ex) {
-			logger.error("apply.error: ", ex);
-			return Response.serverError().entity(ex.getMessage()).build();
-		}
-	    logger.debug("apply; got cursor: {}", cursor);
-	    
-    	if (empty) {
-    		// send response right away
-	        return Response.ok().build();	    	
-    	}
-	    		
-    	int status = 200;
-    	String message = null;
-    	Map<String, String> headers = new HashMap<>();
-    	try {
-	    	Node node = cursor.getNode();
-    		logger.debug("apply; got node: {}", node);
-	    	if (node != null) {
-	    		logger.debug("apply; uri: {}; name: {}; value: {}", node.getNamespaceURI(), node.getNodeName(), node.getNodeValue());
-	    		if ("rest:response".equals(node.getNodeName())) {
-	    			node = node.getFirstChild();
-	    			// must be http:response
-	    			Node sts = node.getAttributes().getNamedItem("status");
-	    			if (sts != null) {
-	    				status = Integer.parseInt(sts.getNodeValue());
-	    			}
-	    			Node msg = node.getAttributes().getNamedItem("message");
-	    			if (msg != null) {
-	    				message = msg.getNodeValue();
-	    			}
-	    			// set Response headers..
-	    			NodeList children = node.getChildNodes();
-	    			for (int i=0; i < children.getLength(); i++) {
-	    				Node header = children.item(i);
-	    				if ("http:header".equals(header.getNodeName())) {
-	    					String name = header.getAttributes().getNamedItem("name").getNodeValue();
-	    					String value = header.getAttributes().getNamedItem("value").getNodeValue();
-	    					if (name != null && !name.isEmpty() && value != null && !value.isEmpty()) {
-	    						headers.put(name, value);
-	    					}
-	    				}
-	    			}
-	    			// move cursor one position further
-	    			cursor.next();
-	    		}
-	    	}
-	    } catch (XDMException ex) {
-	    	// handle it
-	    }
-	    
-    	final ResultCursor result = cursor; 
-	    StreamingOutput stream = new StreamingOutput() {
-	        @Override
-	        public void write(OutputStream os) throws IOException, WebApplicationException {
-	            try (Writer writer = new BufferedWriter(new OutputStreamWriter(os))) {
-		            do {
-		             	String chunk = result.getItemAsString(null); 
-		                logger.trace("write; out: {}", chunk);
-		                writer.write(chunk + "\n");
-			            writer.flush();
-		            } while (result.next());
-	            } catch (XDMException ex) {
-	            	logger.error("write.error: error getting result from cursor ", ex);
-        			// how to handle it properly?? throw WebAppEx?
-                } finally {
-                	try {
-						result.close();
-					} catch (Exception ex) {
-		            	logger.error("write.error: error closing cursor ", ex);
-					}
-                }
-	            
-            }
-        };
-        Response.ResponseBuilder response = Response.ok(stream);
-        for (Map.Entry<String, String> header: headers.entrySet()) {
-        	response.header(header.getKey(), header.getValue());
-        }
-        return response.status(status).build();
-	}
+    	return params;
+    }
 
     private boolean isPathParameter(String pName) {
     	List<String> pa = fn.getAnnotations().get("rest:path");
@@ -263,6 +215,73 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
 			// pass empty value..
 			params.put(pm.getName(), null);
 		}
+    }
+    
+    private boolean fillResponse(ResultCursor cursor, Response.ResponseBuilder response) throws XDMException {
+    	int status = 200;
+    	String message = null;
+    	boolean empty = false;
+    	Node node = cursor.getNode();
+   		logger.debug("apply; got node: {}", node);
+    	if (node != null) {
+    		logger.trace("apply; uri: {}; name: {}; type: {}", node.getNamespaceURI(), node.getNodeName(), node.getNodeType());
+    		Element elt = (Element) node;
+    		NodeList nodes = elt.getElementsByTagNameNS(ns_http, "response");
+    		if (nodes.getLength() > 0) {
+    			elt = (Element) nodes.item(0);
+    			String sts = elt.getAttribute("status");
+		    	if (!sts.isEmpty()) {
+		    		status = Integer.parseInt(sts);
+		    	}
+	    		message = elt.getAttribute("message");
+		    	// set Response headers..
+		    	NodeList children = elt.getElementsByTagNameNS(ns_http, "header");
+		    	for (int i=0; i < children.getLength(); i++) {
+		    		elt = (Element) children.item(i);
+	    			String name = elt.getAttribute("name");
+	    			String value = elt.getAttribute("value");
+	    			if (!name.isEmpty() && !value.isEmpty()) {
+	    				response.header(name, value);
+	    			}
+		    	}
+   			} else {
+   				logger.info("apply; unexpected response structure: {}", elt.getTextContent());
+   			}
+   			// move cursor one position further
+   			empty = !cursor.next();
+    	}
+    	
+        response.status(status);
+    	if (empty) {
+    		response.entity(message);
+    	}
+    	return empty;
+    }
+    
+    private StreamingOutput getResultStream(final ResultCursor result) {
+	    return new StreamingOutput() {
+	        @Override
+	        public void write(OutputStream os) throws IOException, WebApplicationException {
+	            try (Writer writer = new BufferedWriter(new OutputStreamWriter(os))) {
+		            do {
+		             	String chunk = result.getItemAsString(null); 
+		                logger.trace("write; out: {}", chunk);
+		                writer.write(chunk + "\n");
+			            writer.flush();
+		            } while (result.next());
+	            } catch (XDMException ex) {
+	            	logger.error("write.error: error getting result from cursor ", ex);
+        			// how to handle it properly?? throw WebAppEx?
+                } finally {
+                	try {
+						result.close();
+					} catch (Exception ex) {
+		            	logger.error("write.error: error closing cursor ", ex);
+					}
+                }
+	            
+            }
+        };
     }
     
 }

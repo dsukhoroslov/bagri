@@ -15,19 +15,17 @@ function fhir:get-patient-by-id($id as xs:string, (: $format as xs:string?, :) $
   let $itr := collection("Patients")/p:Patient[p:id/@value = $id]
   return
     if ($itr) then 
-      for $ptn in $itr
-        return 
-          (<rest:response>
-             <http:response status="200">
-             {if ($ptn/p:Patient/p:meta/p:versionId/@value) then (
-               <http:header name="ETag" value="{$ptn/p:Patient/p:meta/p:versionId/@value}"/>,
-               <http:header name="Content-Location" value="/Patient/{$id}/_history/{$ptn/p:Patient/p:meta/p:versionId/@value}"/> 
-              ) else (
-               <http:header name="Content-Location" value="/Patient/{$id}"/> 
-              )}
-               <http:header name="Last-Modified" value="{$ptn/p:Patient/p:meta/p:lastUpdated/@value}"/>
-             </http:response>                     
-           </rest:response>, $ptn)
+      (<rest:response>
+         <http:response status="200">
+         {if ($itr/p:meta/p:versionId/@value) then (
+           <http:header name="ETag" value="{$itr/p:meta/p:versionId/@value}"/>,
+           <http:header name="Content-Location" value="/Patient/{$id}/_history/{$itr/p:meta/p:versionId/@value}"/> 
+          ) else (
+           <http:header name="Content-Location" value="/Patient/{$id}"/> 
+          )}
+           <http:header name="Last-Modified" value="{$itr/p:meta/p:lastUpdated/@value}"/>
+         </http:response>                     
+       </rest:response>, $itr)
     else 
       <rest:response>
         <http:response status="404" message="Patient with id={$id} was not found."/>
