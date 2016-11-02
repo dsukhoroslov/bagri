@@ -1,3 +1,4 @@
+(: import schema default element namespace "" at "security.xsd"; :)
 for $doc in fn:collection("CLN_Custom")
 (: where $sec/s:Symbol='IBM' :)
 return $doc
@@ -174,3 +175,16 @@ xquery version "1.0";
 import module namespace hw="http://helloworld" at "../../etc/samples/tpox/hello_module.xq";
 
 hw:hello_world("Boss")
+
+
+
+declare namespace m="http://www.w3.org/2005/xpath-functions/map";
+declare namespace s="http://tpox-benchmark.com/security";
+declare variable $id external;
+
+let $itr := fn:collection("CLN_Security")/s:Security[s:Symbol = $id]
+let $http := map{"status": "200"}
+let $headers := map{"Last-Modified": fn:current-dateTime()}
+let $headers := m:put($headers, "Content-Location", "/Security/" || $id)
+let $http := m:put($http, "headers", $headers)
+return ($http, $itr)

@@ -204,9 +204,9 @@ public class CollectionFinderImpl implements CollectionFinder {
 	
     private void iterateParams(Expression ex, XPathContext ctx) throws XPathException {
 
-    	if (ex instanceof Block) {
-    		return;
-    	}
+    	//if (ex instanceof Block) {
+    	//	return;
+    	//}
     	
     	Iterator<Operand> itr = ex.operands().iterator();
     	while(itr.hasNext()) {
@@ -273,10 +273,10 @@ public class CollectionFinderImpl implements CollectionFinder {
     	logger.trace("start: {}; expression: {}", ex.getClass().getName(), ex); 
 
     	PathBuilder path = currentPath;
-    	if (ex instanceof Block) {
-        	logger.trace("end: {}; path: {}", ex.getClass().getName(), path.getFullPath());
-    		return;
-    	}
+    	//if (ex instanceof Block) {
+        //	logger.trace("end: {}; path: {}", ex.getClass().getName(), path.getFullPath());
+    	//	return;
+    	//}
     	
        	if (ex instanceof SystemFunctionCall) {
        		SystemFunctionCall clx = (SystemFunctionCall) ex;

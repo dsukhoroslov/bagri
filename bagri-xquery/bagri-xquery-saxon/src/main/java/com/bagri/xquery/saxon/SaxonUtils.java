@@ -3,7 +3,9 @@ package com.bagri.xquery.saxon;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Properties;
 
@@ -42,6 +44,7 @@ import net.sf.saxon.evpull.StaxToEventBridge;
 import net.sf.saxon.expr.EarlyEvaluationContext;
 import net.sf.saxon.expr.JPConverter;
 import net.sf.saxon.expr.StaticProperty;
+import net.sf.saxon.ma.map.HashTrieMap;
 import net.sf.saxon.ma.map.KeyValuePair;
 import net.sf.saxon.ma.map.MapItem;
 import net.sf.saxon.om.Item;
@@ -51,6 +54,7 @@ import net.sf.saxon.om.SequenceIterator;
 import net.sf.saxon.om.SequenceTool;
 import net.sf.saxon.om.StandardNames;
 import net.sf.saxon.trans.XPathException;
+import net.sf.saxon.tree.iter.AtomicIterator;
 import net.sf.saxon.tree.tiny.TinyBuilder;
 import net.sf.saxon.type.AtomicType;
 import net.sf.saxon.type.BuiltInAtomicType;
@@ -728,28 +732,27 @@ public class SaxonUtils {
             	return xqFactory.createItemFromObject(value, xqt);
         	}
         } else if (item instanceof MapItem) {
+        	// TODO: we'll need a new XQ type for maps, probably..
+        	AtomicValue key;
         	MapItem mi = (MapItem) item;
-        	int sz = mi.size();
-        	Item it = mi.head();
-        	if (it == item) {
-        		if (mi.iterator().hasNext()) {
-        			try {
-        				KeyValuePair kvp = mi.iterator().next();
-            			it = kvp.value.head();
-        			} catch (NoSuchElementException ee) {
-        				return  null;
-        			}
-        		} else if (sz == 0) {
-        			return null;
+        	AtomicIterator itr = mi.keys();
+        	List<List<XQItemAccessor>> pairs = new ArrayList<>(); 
+        	while ((key = itr.next()) != null) {
+        		Sequence val = mi.get(key);
+        		List<XQItemAccessor> pair = new ArrayList<>();
+        		pair.add(itemToXQItem(key, xqFactory));
+        		if (val instanceof Item) {
+        			pair.add(itemToXQItem((Item) val, xqFactory));
+        		} else {
+        			pair.add(xqFactory.createSequence(new XQIterator(xqFactory, val.iterate())));
         		}
+        		pairs.add(pair);
         	}
-        	return itemToXQItem(it, xqFactory);
+        	return xqFactory.createSequence(pairs.iterator());
         } else if (item instanceof Sequence) {
-        	Sequence sq = (Sequence) item;
-        	SequenceIterator itr = sq.iterate();
-        	return xqFactory.createSequence(new XQIterator(xqFactory, itr));
+        	return xqFactory.createSequence(new XQIterator(xqFactory, ((Sequence) item).iterate()));
         }
-        return null; //item.;
+        return null; 
     }
     
 	public static Properties sequence2Properties(Sequence sq) throws XPathException {

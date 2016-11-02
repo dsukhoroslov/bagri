@@ -1,6 +1,6 @@
 module namespace fhir = "http://hl7.org/fhir/patient"; 
-declare namespace http = "http://www.exquery.com/http";
-declare namespace rest = "http://www.exquery.com/restxq";
+declare namespace http = "http://www.expath.org/http";
+declare namespace rest = "http://www.expath.org/restxq";
 declare namespace bgdm = "http://bagridb.com/bagri-xdm";
 declare namespace p = "http://hl7.org/fhir"; 
 
@@ -20,14 +20,11 @@ function fhir:get-patient-by-id($id as xs:string, (: $format as xs:string?, :) $
           (<rest:response>
              <http:response status="200">
              {if ($ptn/p:Patient/p:meta/p:versionId/@value) then (
-               let $loc := "/Patient/" || $id || "/_history/" || $ptn/p:Patient/p:meta/p:versionId/@value
-               <http:header name="ETag" value="{$ptn/p:Patient/p:meta/p:versionId/@value}"/>
-(:               <http:header name="Content-Location" value="/Patient/{$id}/_history/{$ptn/p:Patient/p:meta/p:versionId/@value}"/> :)
+               <http:header name="ETag" value="{$ptn/p:Patient/p:meta/p:versionId/@value}"/>,
+               <http:header name="Content-Location" value="/Patient/{$id}/_history/{$ptn/p:Patient/p:meta/p:versionId/@value}"/> 
               ) else (
-               let $loc := "/Patient/" || $id
-(:               <http:header name="Content-Location" value="/Patient/{$id}"/> :)
+               <http:header name="Content-Location" value="/Patient/{$id}"/> 
               )}
-               <http:header name="Content-Location" value="{$loc}"/>
                <http:header name="Last-Modified" value="{$ptn/p:Patient/p:meta/p:lastUpdated/@value}"/>
              </http:response>                     
            </rest:response>, $ptn)
@@ -215,11 +212,17 @@ name	string	A server defined search that may match any of the string fields in t
 telecom	token	«начение в любом виде контактных данных пациента	Patient.telecom
 identifier	Identifier	Patient.active
 
+:)
 
-inject; exp: "Patients"; env: net.sf.saxon.query.QueryModule@42dfc; construct: 0; qName: null
-inject; exp: collection("Patients"); env: net.sf.saxon.query.QueryModule@42dfc; construct: 2009; qName: fn:collection
-inject; exp: $ptn; env: net.sf.saxon.query.QueryModule@42dfc; construct: 2014; qName: null
-injectClause; traget: for $ptn in homCheck((collection("Patients"))/child::element(Q{http://hl7.org/fhir}Patient)); env: net.sf.saxon.query.QueryModule@42dfc
-injectClause; traget: where (homCheck((homCheck($ptn/child::element(Q{http://hl7.org/fhir}id)))/attribute::attribute(Q{}value))) = $Q{}id; env: net.sf.saxon.query.QueryModule@42dfc
+(:
+declare namespace m="http://www.w3.org/2005/xpath-functions/map";
+declare namespace p = "http://hl7.org/fhir"; 
+declare variable $id external;
 
+let $itr := collection("Patients")/p:Patient[p:id/@value = $id]
+let $http := map{"status": "200"}
+let $headers := map{"Last-Modified": $itr/p:Patient/p:meta/p:lastUpdated/@value}
+let $headers := m:put($headers, "Content-Location", "/Patient/" || $id)
+let $http := m:put($http, "headers", $headers)
+return ($http, $itr)
 :)
