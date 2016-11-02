@@ -1,4 +1,5 @@
 module namespace fhir = "http://hl7.org/fhir/patient"; 
+declare namespace http = "http://www.exquery.com/http";
 declare namespace rest = "http://www.exquery.com/restxq";
 declare namespace bgdm = "http://bagridb.com/bagri-xdm";
 declare namespace p = "http://hl7.org/fhir"; 
@@ -10,8 +11,30 @@ declare
   %rest:produces("application/fhir+xml")
 (:  %rest:query-param("_format", "{$format}", "") :)
   %rest:query-param("_summary", "{$summary}", "") 
-function fhir:get-patient-by-id($id as xs:string, (: $format as xs:string?, :) $summary as xs:string?) as element()? {
-  collection("Patients")/p:Patient[p:id/@value = $id]
+function fhir:get-patient-by-id($id as xs:string, (: $format as xs:string?, :) $summary as xs:string?) as element()* {
+  let $itr := collection("Patients")/p:Patient[p:id/@value = $id]
+  return
+    if ($itr) then 
+      for $ptn in $itr
+        return 
+          (<rest:response>
+             <http:response status="200">
+             {if ($ptn/p:Patient/p:meta/p:versionId/@value) then (
+               let $loc := "/Patient/" || $id || "/_history/" || $ptn/p:Patient/p:meta/p:versionId/@value
+               <http:header name="ETag" value="{$ptn/p:Patient/p:meta/p:versionId/@value}"/>
+(:               <http:header name="Content-Location" value="/Patient/{$id}/_history/{$ptn/p:Patient/p:meta/p:versionId/@value}"/> :)
+              ) else (
+               let $loc := "/Patient/" || $id
+(:               <http:header name="Content-Location" value="/Patient/{$id}"/> :)
+              )}
+               <http:header name="Content-Location" value="{$loc}"/>
+               <http:header name="Last-Modified" value="{$ptn/p:Patient/p:meta/p:lastUpdated/@value}"/>
+             </http:response>                     
+           </rest:response>, $ptn)
+    else 
+      <rest:response>
+        <http:response status="404" message="Patient with id={$id} was not found."/>
+      </rest:response>
 (: TODO: add summary.. do we really need it on a single Patient resource? :)
 };
 
