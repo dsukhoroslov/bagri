@@ -6,6 +6,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.security.NoSuchAlgorithmException;
+import java.util.Properties;
 
 import javax.net.ssl.SSLContext;
 import javax.ws.rs.client.Client;
@@ -42,7 +43,7 @@ public class AccessServiceTest extends JerseyTest {
         when(mockPro.getRepository("client-id")).thenReturn(mockRepo);
         when(mockRepo.getAccessManagement()).thenReturn(accMgr);
     	when(mockRepo.getClientId()).thenReturn("client-id");
-        BagriRestServer server = new BagriRestServer(mockPro, null, 3030);
+        BagriRestServer server = new BagriRestServer(mockPro, null, new Properties());
         ResourceConfig app = server.buildConfig();
         //server.start();
         return app;

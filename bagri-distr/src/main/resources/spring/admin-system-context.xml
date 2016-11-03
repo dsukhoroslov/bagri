@@ -244,7 +244,13 @@
 	<bean id="restServer" class="com.bagri.rest.BagriRestServer">
 		<constructor-arg ref="repoProviderService" />
 		<constructor-arg ref="xqCompiler" />
-		<constructor-arg value="3030" />
+		<constructor-arg>
+            <props>
+                <prop key="xdm.rest.jmx">${xdm.rest.jmx:true}</prop>
+                <prop key="xdm.rest.port">${xdm.rest.port:3030}</prop>
+                <prop key="xdm.rest.auth.port">${xdm.rest.auth.port:3443}</prop>
+            </props>
+		</constructor-arg>
 	</bean>
 
 </beans>

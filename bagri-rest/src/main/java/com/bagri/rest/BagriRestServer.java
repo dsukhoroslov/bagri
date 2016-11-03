@@ -1,11 +1,16 @@
 package com.bagri.rest;
 
+import static com.bagri.xdm.common.Constants.xdm_rest_jmx;
+import static com.bagri.xdm.common.Constants.xdm_rest_port;
+import static com.bagri.xdm.common.Constants.xdm_rest_auth_port;
+
 import java.lang.management.ManagementFactory;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import javax.ws.rs.core.MediaType;
@@ -54,7 +59,10 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Factor
     private static final transient String[] methods = {"GET", "POST", "PUT", "DELETE"};
     
     
-    private int port;
+    private int port = 3030;
+    private int sport = 3443;
+    private boolean jmx = true;
+    
     private Server jettyServer;
     private XQCompiler xqComp;
     private RepositoryProvider rePro;
@@ -72,14 +80,15 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Factor
     }
     
     public BagriRestServer() {
-    	this.port = 3030;
     	this.rePro = new LocalRepositoryProvider();
     }
     
-    public BagriRestServer(RepositoryProvider rePro, XQCompiler xqComp, int port) {
-    	this.port = port;
+    public BagriRestServer(RepositoryProvider rePro, XQCompiler xqComp, Properties props) {
     	this.rePro = rePro;
     	this.xqComp = xqComp;
+    	this.jmx = Boolean.parseBoolean(props.getProperty(xdm_rest_jmx, "true"));
+    	this.port = Integer.parseInt(props.getProperty(xdm_rest_port, "3030"));
+    	this.sport = Integer.parseInt(props.getProperty(xdm_rest_auth_port, "3443"));
     }
     
     public int getPort() {
@@ -181,7 +190,6 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Factor
 
 	private Server createServer() {
 		
-        int securePort = 3443;
         //String keyStorePath = "C:\\Work\\Bagri\\";
         String keyStorePwd = "bagri11";
         
@@ -199,7 +207,7 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Factor
         // we show setting the scheme to show it can be done.  The port for secured communication is also set here.
         HttpConfiguration http_config = new HttpConfiguration();
         http_config.setSecureScheme("https");
-        http_config.setSecurePort(securePort);
+        http_config.setSecurePort(sport);
         http_config.setOutputBufferSize(32768);
 
         // Now define the ServerConnector for handling just http
@@ -241,7 +249,7 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Factor
         // We create a second ServerConnector, passing in the http configuration we just made along with the
         // previously created ssl context factory. Next we set the port and a longer idle timeout.
         ServerConnector https = new ServerConnector(server, new SslConnectionFactory(sslContextFactory,"http/1.1"), new HttpConnectionFactory(https_config));
-        https.setPort(securePort);
+        https.setPort(sport);
         https.setIdleTimeout(500000);
 
         // Finally, add the connectors to the server
@@ -254,9 +262,11 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Factor
         server.setConnectors(new Connector[] { http, https });
         
         // Setup JMX
-        MBeanContainer mbContainer = new MBeanContainer(ManagementFactory.getPlatformMBeanServer());
-        server.addEventListener(mbContainer);
-        server.addBean(mbContainer);
+        if (jmx) {
+        	MBeanContainer mbContainer = new MBeanContainer(ManagementFactory.getPlatformMBeanServer());
+        	server.addEventListener(mbContainer);
+        	server.addBean(mbContainer);
+        }
         
         return server;
 	}

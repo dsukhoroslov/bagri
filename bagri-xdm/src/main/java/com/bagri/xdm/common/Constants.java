@@ -56,6 +56,12 @@ public class Constants {
     public static final String xdm_cluster_admin_port = "xdm.cluster.admin.port";
     public static final String xdm_cluster_node_schemas = "xdm.cluster.node.schemas";
 
+	// REST Server configuration constants
+	public static final String xdm_rest_enabled = "xdm.rest.enabled";
+    public static final String xdm_rest_jmx = "xdm.rest.jmx";
+    public static final String xdm_rest_port = "xdm.rest.port";
+    public static final String xdm_rest_auth_port = "xdm.rest.auth.port";
+    
     public static final String xdm_access_filename = "xdm.access.filename";
     public static final String xdm_config_filename = "xdm.config.filename";
     public static final String xdm_config_path = "xdm.config.path";

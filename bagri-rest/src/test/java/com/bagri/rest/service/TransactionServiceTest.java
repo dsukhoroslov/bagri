@@ -23,6 +23,8 @@ import com.bagri.xdm.api.XDMException;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.Properties;
+
 
 public class TransactionServiceTest extends JerseyTest {
 	
@@ -43,7 +45,7 @@ public class TransactionServiceTest extends JerseyTest {
 		} catch (XDMException ex) {
 			ex.printStackTrace();
 		}
-        BagriRestServer server = new BagriRestServer(mockPro, null, 3030);
+        BagriRestServer server = new BagriRestServer(mockPro, null, new Properties());
         return server.buildConfig();
     }
 

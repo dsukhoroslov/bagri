@@ -18,12 +18,12 @@ function fhir:get-patient-by-id($id as xs:string, (: $format as xs:string?, :) $
       (<rest:response>
          <http:response status="200">
          {if ($itr/p:meta/p:versionId/@value) then (
-           <http:header name="ETag" value="{$itr/p:meta/p:versionId/@value}"/>,
+           <http:header name="ETag" value="W/&quot;{$itr/p:meta/p:versionId/@value}&quot;"/>,
            <http:header name="Content-Location" value="/Patient/{$id}/_history/{$itr/p:meta/p:versionId/@value}"/> 
           ) else (
            <http:header name="Content-Location" value="/Patient/{$id}"/> 
           )}
-           <http:header name="Last-Modified" value="{$itr/p:meta/p:lastUpdated/@value}"/>
+           <http:header name="Last-Modified" value="{format-dateTime(xs:dateTime($itr/p:meta/p:lastUpdated/@value), "[FNn,3-3], [D] [MNn,3-3] [Y] [H01]:[m01]:[s01] [z,*-6]")}"/>
          </http:response>                     
        </rest:response>, $itr)
     else 

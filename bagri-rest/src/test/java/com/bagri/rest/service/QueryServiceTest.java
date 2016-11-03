@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
@@ -55,7 +56,7 @@ public class QueryServiceTest extends JerseyTest {
     	mockPro = mock(RepositoryProvider.class);
         when(mockPro.getRepository("client-id")).thenReturn(mockRepo);
         when(mockRepo.getQueryManagement()).thenReturn(queryMgr);
-        BagriRestServer server = new BagriRestServer(mockPro, null, 3030);
+        BagriRestServer server = new BagriRestServer(mockPro, null, new Properties());
         return server.buildConfig();
     }
     
