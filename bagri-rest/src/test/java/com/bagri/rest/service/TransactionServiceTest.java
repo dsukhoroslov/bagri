@@ -1,6 +1,6 @@
 package com.bagri.rest.service;
 
-import static com.bagri.rest.service.RestService.bg_cookie;
+import static com.bagri.rest.RestConstants.bg_cookie;
 
 import static org.junit.Assert.*;
 

@@ -5,9 +5,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static com.bagri.xdm.common.Constants.xdm_document_data_format;
 import static com.bagri.xdm.system.DataFormat.*;
-import static com.bagri.rest.service.RestService.bg_cookie;
+import static com.bagri.rest.RestConstants.bg_cookie;
 
-import java.net.URI;
 import java.util.Properties;
 
 import javax.ws.rs.client.Entity;

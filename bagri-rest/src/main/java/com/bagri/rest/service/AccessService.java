@@ -1,5 +1,7 @@
 package com.bagri.rest.service;
 
+import static com.bagri.rest.RestConstants.bg_cookie;
+
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;

@@ -1,5 +1,7 @@
 package com.bagri.rest.service;
 
+import static com.bagri.rest.RestConstants.bg_cookie;
+
 import javax.inject.Inject;
 import javax.ws.rs.CookieParam;
 import javax.ws.rs.core.Cookie;
@@ -13,8 +15,6 @@ import com.bagri.xdm.api.SchemaRepository;
 public abstract class RestService {
 
     protected final transient Logger logger = LoggerFactory.getLogger(getClass());
-	
-	public static final String bg_cookie = "bg-auth";
 	
 	@CookieParam(bg_cookie) 
 	protected Cookie bgAuth;

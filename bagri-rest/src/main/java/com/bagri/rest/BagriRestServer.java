@@ -1,5 +1,6 @@
 package com.bagri.rest;
 
+import static com.bagri.rest.RestConstants.*;
 import static com.bagri.xdm.common.Constants.xdm_rest_jmx;
 import static com.bagri.xdm.common.Constants.xdm_rest_port;
 import static com.bagri.xdm.common.Constants.xdm_rest_auth_port;
@@ -56,7 +57,7 @@ import com.bagri.xquery.api.XQCompiler;
 public class BagriRestServer implements ContextResolver<BagriRestServer>, Factory<RepositoryProvider> {
 
     private static final transient Logger logger = LoggerFactory.getLogger(BagriRestServer.class);
-    private static final transient String[] methods = {"GET", "POST", "PUT", "DELETE"};
+    private static final transient String[] methods = {GET, POST, PUT, DELETE};
     
     
     private int port = 3030;
@@ -217,7 +218,7 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Factor
         // above so it can get things like the output buffer size, etc. We also set the port (8080) and configure an
         // idle timeout.
         ServerConnector http = new ServerConnector(server, new HttpConnectionFactory(http_config));        
-        http.setPort(port); //3030);        
+        http.setPort(port); 
         
         // Now configure the SslContextFactory with your keystore information
 
@@ -312,7 +313,7 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Factor
     private void buildMethod(Resource.Builder builder, Module module, Function fn) {
 		logger.debug("buildMethod; got fn: {}", fn.getSignature());
 		Map<String, List<String>> annotations = fn.getAnnotations();
-        List<String> values = annotations.get("rest:path");
+        List<String> values = annotations.get(an_path);
         if (values != null) {
         	String subPath = values.get(0);
         	builder = builder.addChildResource(subPath);
@@ -352,8 +353,8 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Factor
     private void buildMethodHandler(Resource.Builder builder, String method, String query, Function fn) {
 
 		Map<String, List<String>> annotations = fn.getAnnotations();
-    	List<String> consumes = annotations.get("rest:consumes"); 
-    	List<String> produces = annotations.get("rest:produces");
+    	List<String> consumes = annotations.get(an_consumes); 
+    	List<String> produces = annotations.get(an_produces);
     	
     	ResourceMethod.Builder methodBuilder = builder.addMethod(method);
         List<MediaType> types;

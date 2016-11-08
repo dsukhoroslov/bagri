@@ -1,5 +1,6 @@
 package com.bagri.rest;
 
+import static com.bagri.rest.RestConstants.*;
 import static com.bagri.xquery.api.XQUtils.getAtomicValue;
 
 import java.io.BufferedWriter;
@@ -26,7 +27,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import com.bagri.rest.service.RestService;
 import com.bagri.xdm.api.ResultCursor;
 import com.bagri.xdm.api.SchemaRepository;
 import com.bagri.xdm.api.XDMException;
@@ -51,7 +51,7 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
     @Override
     public Response apply(ContainerRequestContext context) {
     	
-    	String clientId = context.getCookies().get(RestService.bg_cookie).getValue();
+    	String clientId = context.getCookies().get(bg_cookie).getValue();
     	SchemaRepository repo = rePro.getRepository(clientId);
 		logger.debug("apply.enter; path: {}; params: {}; query: {}", context.getUriInfo().getPath(), 
 				context.getUriInfo().getPathParameters(), context.getUriInfo().getQueryParameters());
@@ -104,7 +104,7 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
     			String aType = getParamAnnotationType(pm.getName());
     			if (aType == null) {
     				// this is for POST/PUT only!
-    				if ("POST".equals(context.getMethod()) || "PUT".equals(context.getMethod())) {
+    				if (POST.equals(context.getMethod()) || PUT.equals(context.getMethod())) {
     					String body = getBody(context);
     					if (body != null) {
     						params.put(pm.getName(), getAtomicValue(pm.getType(), body));
@@ -114,14 +114,14 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
         			boolean found = false;
         			List<String> atns = Collections.emptyList();
     				switch (aType) {
-    					case "rest:cookie-param": {
+    					case apn_cookie: {
             	    		Cookie val = context.getCookies().get(pm.getType());
         					if (val != null) {
         						params.put(pm.getName(), getAtomicValue(pm.getType(), val.getValue()));
             	    			found = true;
         					}
     					}
-    					case "rest:form-param": {
+    					case apn_form: {
             				// content type must be application/x-www-form-urlencoded
         					String body = getBody(context);
         					if (body != null) {
@@ -134,7 +134,7 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
             				}
         					break;
     					}
-    					case "rest:header-param": {
+    					case apn_header: {
             	    		String val = context.getHeaderString(pm.getName()); //atns.get(0)); !!!
         					if (val != null) {
         						params.put(pm.getName(), getAtomicValue(pm.getType(), val));
@@ -142,7 +142,7 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
         					}
         					break;
     					}
-    					case "rest:matrix-param": {
+    					case apn_matrix: {
             				// does not work in Jersey: context.getUriInfo().getPathSegments();
     						String val = getParamValue(context.getUriInfo().getPath(), "&", pm.getName());
     						if (val != null) {
@@ -150,7 +150,7 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
    	        	    			found = true;
     						}
     					}
-    					case "rest:query-param": {
+    					case apn_query: {
     	    	    		List<String> vals = context.getUriInfo().getQueryParameters().get(pm.getName());
     	    	    		if (vals != null) {
     	    	    			params.put(pm.getName(), getAtomicValue(pm.getType(), vals.get(0)));
@@ -169,7 +169,7 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
     }
 
     private boolean isPathParameter(String pName) {
-    	List<String> pa = fn.getAnnotations().get("rest:path");
+    	List<String> pa = fn.getAnnotations().get(an_path);
     	return (pa != null && pa.size() == 1 && pa.get(0).indexOf("{" + pName + "}") > 0);
     }
     
@@ -200,7 +200,7 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
     }
     
     private String getBody(ContainerRequestContext context) {
-		if (context.hasEntity() && ("POST".equals(context.getMethod()) || "PUT".equals(context.getMethod()))) {
+		if (context.hasEntity() && (POST.equals(context.getMethod()) || PUT.equals(context.getMethod()))) {
 		    java.util.Scanner s = new java.util.Scanner(context.getEntityStream()).useDelimiter("\\A");
 			return s.next();
 		}

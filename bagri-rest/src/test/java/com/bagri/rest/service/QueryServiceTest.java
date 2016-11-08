@@ -1,6 +1,6 @@
 package com.bagri.rest.service;
 
-import static com.bagri.rest.service.RestService.bg_cookie;
+import static com.bagri.rest.RestConstants.bg_cookie;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
@@ -17,12 +17,10 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
-import javax.xml.xquery.XQItem;
 import javax.xml.xquery.XQItemType;
 
 import org.glassfish.jersey.client.ChunkedInput;
 import org.glassfish.jersey.test.JerseyTest;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.bagri.rest.BagriRestServer;

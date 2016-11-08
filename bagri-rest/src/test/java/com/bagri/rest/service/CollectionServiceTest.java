@@ -1,9 +1,6 @@
 package com.bagri.rest.service;
 
-import static com.bagri.rest.service.RestService.bg_cookie;
-import static com.bagri.xdm.common.Constants.xdm_document_data_format;
-import static com.bagri.xdm.system.DataFormat.df_json;
-import static com.bagri.xdm.system.DataFormat.df_xml;
+import static com.bagri.rest.RestConstants.bg_cookie;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -13,10 +10,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Properties;
 
-import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
 import org.glassfish.jersey.test.JerseyTest;
 import org.junit.Test;
@@ -25,8 +20,6 @@ import com.bagri.rest.BagriRestServer;
 import com.bagri.rest.RepositoryProvider;
 import com.bagri.xdm.api.DocumentManagement;
 import com.bagri.xdm.api.SchemaRepository;
-import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.domain.Document;
 
 public class CollectionServiceTest extends JerseyTest {
 	
