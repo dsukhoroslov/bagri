@@ -221,10 +221,16 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
     	int status = 200;
     	String message = null;
     	boolean empty = false;
-    	Node node = cursor.getNode();
-   		logger.debug("apply; got node: {}", node);
+    	Node node = null;
+    	try {
+    		node = cursor.getNode();
+       		logger.debug("fillResponse; got node: {}", node);
+    	} catch (XDMException ex) {
+       		logger.debug("fillResponse; got not node content, skipping");
+    	}
+
     	if (node != null) {
-    		logger.trace("apply; uri: {}; name: {}; type: {}", node.getNamespaceURI(), node.getNodeName(), node.getNodeType());
+    		logger.trace("fillResponse; uri: {}; name: {}; type: {}", node.getNamespaceURI(), node.getNodeName(), node.getNodeType());
     		Element elt = (Element) node;
     		NodeList nodes = elt.getElementsByTagNameNS(ns_http, "response");
     		if (nodes.getLength() > 0) {
@@ -244,11 +250,11 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
 	    				response.header(name, value);
 	    			}
 		    	}
+	   			// move cursor one position further
+	   			empty = !cursor.next();
    			} else {
-   				logger.info("apply; unexpected response structure: {}", elt.getTextContent());
+   				logger.info("fillResponse; unexpected response structure: {}", elt);
    			}
-   			// move cursor one position further
-   			empty = !cursor.next();
     	}
     	
         response.status(status);

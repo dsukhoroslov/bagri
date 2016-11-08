@@ -1,6 +1,6 @@
 xquery version "3.1";
 module namespace comm = "http://hl7.org/fhir"; 
-declare namespace rest = "http://www.exquery.com/restxq";
+declare namespace rest = "http://www.expath.org/restxq";
 declare namespace bgdm = "http://bagridb.com/bagri-xdm";
 declare namespace m="http://www.w3.org/2005/xpath-functions/map";
 
@@ -9,13 +9,12 @@ declare
   %rest:GET
   %rest:path("/metadata")
   %rest:produces("application/fhir+xml")
-  %rest:query-param("_format", "{$format}", "") 
+  %rest:query-param("_format", "{$format}") 
 function comm:get-conformance-x($format as xs:string?) as item() {
-  if ($format = "application/fhir+json") then (
-    "The endpoint produce application/fhir+xml format, wrong format specified"
-  ) else (
+  if (exists($format) and not ($format = ("application/xml", "application/fhir+xml"))) then 
+    "The endpoint produce response in application/fhir+xml format, but [" || $format || "] specified"
+  else 
     comm:get-conformance-xml()
-  )
 };
 
 
@@ -25,26 +24,24 @@ declare
   %rest:produces("application/fhir+json")
   %rest:query-param("_format", "{$format}", "") 
 function comm:get-conformance-j($format as xs:string?) as item() {
-  if ($format = "application/fhir+xml") then (
+  if ($format = "application/fhir+xml") then 
     "The endpoint produce application/fhir+json format, wrong format specified"
-  ) else (
+  else 
     comm:get-conformance-json()
-  )
 };
 
 
 declare 
   %private 
 function comm:get-conformance-xml() as element() {
-  <CapabilityStatement
-    xmlns="http://hl7.org/fhir">
+  <CapabilityStatement xmlns="http://hl7.org/fhir">
     <id value="FhirServer"/>
     <url value="http://188.166.45.131:3030/metadata"/>
     <version value="1.1-SNAPSHOT"/>
     <name value="Bagri FHIR Server Conformance Statement"/>
     <status value="draft"/>
     <experimental value="true"/>
-    <date value="{fn:current-dateTime()}"/>
+    <date value="{current-dateTime()}"/>
     <publisher value="Bagri Project"/>
     <contact>
         <name value="Denis Sukhoroslov"/>
@@ -106,35 +103,27 @@ function comm:get-conformance-xml() as element() {
                 <definition value="http://hl7.org/fhir/SearchParameter/Patient-birthdate"/>
                 <type value="date"/>
                 <documentation value="The patient's date of birth"/>
-                <modifier value="missing"/>
+                <modifier value="exact"/>
             </searchParam>
             <searchParam>
                 <name value="gender"/>
                 <definition value="http://hl7.org/fhir/SearchParameter/Patient-gender"/>
                 <type value="token"/>
                 <documentation value="Gender of the patient"/>
-                <modifier value="missing"/>
-                <modifier value="text"/>
-                <modifier value="in"/>
-                <modifier value="not-in"/>
+                <modifier value="exact"/>
             </searchParam>
             <searchParam>
                 <name value="identifier"/>
                 <definition value="http://hl7.org/fhir/SearchParameter/Patient-identifier"/>
                 <type value="token"/>
                 <documentation value="A patient identifier"/>
-                <modifier value="missing"/>
-                <modifier value="text"/>
-                <modifier value="in"/>
-                <modifier value="not-in"/>
+                <modifier value="contains"/>
             </searchParam>
             <searchParam>
                 <name value="name"/>
                 <definition value="http://hl7.org/fhir/SearchParameter/Patient-name"/>
                 <type value="string"/>
                 <documentation value="A server defined search that may match any of the string fields in the HumanName, including family, give, prefix, suffix, suffix, and/or text"/>
-                <modifier value="missing"/>
-                <modifier value="exact"/>
                 <modifier value="contains"/>
             </searchParam>
             <searchParam>
@@ -142,18 +131,9 @@ function comm:get-conformance-xml() as element() {
                 <definition value="http://hl7.org/fhir/SearchParameter/Patient-telecom"/>
                 <type value="token"/>
                 <documentation value="The value in any kind of telecom details of the patient"/>
-                <modifier value="missing"/>
-                <modifier value="text"/>
-                <modifier value="in"/>
-                <modifier value="not-in"/>
+                <modifier value="contains"/>
             </searchParam>
         </resource>
-        <interaction>
-            <code value="transaction"/>
-        </interaction>
-        <interaction>
-            <code value="search-system"/>
-        </interaction>
     </rest>
   </CapabilityStatement>
 };
