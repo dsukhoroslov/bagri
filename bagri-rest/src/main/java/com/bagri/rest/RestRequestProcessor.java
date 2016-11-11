@@ -35,9 +35,16 @@ import com.bagri.xdm.system.Parameter;
 
 public class RestRequestProcessor implements Inflector<ContainerRequestContext, Response> {
 	 
-    private static final transient Logger logger = LoggerFactory.getLogger(RestRequestProcessor.class);
-    private static final transient String ns_http = "http://www.expath.org/http"; 
-	
+    private static final Logger logger = LoggerFactory.getLogger(RestRequestProcessor.class);
+    
+    private static final String ns_http = "http://www.expath.org/http"; 
+    private static final String en_response = "response"; 
+    private static final String en_header = "header";
+    private static final String an_message = "message";
+    private static final String an_name = "name"; 
+    private static final String an_status = "status"; 
+    private static final String an_value = "value";
+    
     private Function fn;
 	private String query;
 	private RepositoryProvider rePro;
@@ -218,7 +225,7 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
     }
     
     private boolean fillResponse(ResultCursor cursor, Response.ResponseBuilder response) throws XDMException {
-    	int status = 200;
+    	int status = Response.Status.OK.getStatusCode(); 
     	String message = null;
     	boolean empty = false;
     	Node node = null;
@@ -226,26 +233,26 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
     		node = cursor.getNode();
        		logger.debug("fillResponse; got node: {}", node);
     	} catch (XDMException ex) {
-       		logger.debug("fillResponse; got not node content, skipping");
+       		logger.debug("fillResponse; got non-xml content, skipping");
     	}
 
     	if (node != null) {
     		logger.trace("fillResponse; uri: {}; name: {}; type: {}", node.getNamespaceURI(), node.getNodeName(), node.getNodeType());
     		Element elt = (Element) node;
-    		NodeList nodes = elt.getElementsByTagNameNS(ns_http, "response");
+    		NodeList nodes = elt.getElementsByTagNameNS(ns_http, en_response);
     		if (nodes.getLength() > 0) {
     			elt = (Element) nodes.item(0);
-    			String sts = elt.getAttribute("status");
+    			String sts = elt.getAttribute(an_status);
 		    	if (!sts.isEmpty()) {
 		    		status = Integer.parseInt(sts);
 		    	}
-	    		message = elt.getAttribute("message");
+	    		message = elt.getAttribute(an_message);
 		    	// set Response headers..
-		    	NodeList children = elt.getElementsByTagNameNS(ns_http, "header");
+		    	NodeList children = elt.getElementsByTagNameNS(ns_http, en_header);
 		    	for (int i=0; i < children.getLength(); i++) {
 		    		elt = (Element) children.item(i);
-	    			String name = elt.getAttribute("name");
-	    			String value = elt.getAttribute("value");
+	    			String name = elt.getAttribute(an_name);
+	    			String value = elt.getAttribute(an_value);
 	    			if (!name.isEmpty() && !value.isEmpty()) {
 	    				response.header(name, value);
 	    			}
@@ -253,7 +260,7 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
 	   			// move cursor one position further
 	   			empty = !cursor.next();
    			} else {
-   				logger.info("fillResponse; unexpected response structure: {}", elt);
+   				logger.debug("fillResponse; non-standard response structure: {}", elt);
    			}
     	}
     	
