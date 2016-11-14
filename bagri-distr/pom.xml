@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.bagri.db</groupId>
+        <groupId>com.bagridb</groupId>
         <artifactId>bagri</artifactId>
         <version>1.1.0-SNAPSHOT</version>
         <relativePath>..</relativePath>
@@ -15,29 +15,29 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.bagri.db</groupId>
+            <groupId>com.bagridb</groupId>
             <artifactId>bagri-xdm</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.bagri.db</groupId>
+            <groupId>com.bagridb</groupId>
             <artifactId>bagri-client-hazelcast</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.bagri.db</groupId>
+            <groupId>com.bagridb</groupId>
             <artifactId>bagri-xqj</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.bagri.db</groupId>
+            <groupId>com.bagridb</groupId>
             <artifactId>bagri-xquery-saxon</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>com.bagri.db</groupId>
+            <groupId>com.bagridb</groupId>
             <artifactId>bagri-server-hazelcast</artifactId>
         </dependency>
 
         <!--dependency>
-	    <groupId>com.bagri.db</groupId>
+	    <groupId>com.bagridb</groupId>
 	    <artifactId>bagri-tools-vvmp</artifactId>
 	    <version>${project.version}</version>
 	    <type>nbm</type>
@@ -65,9 +65,9 @@
 				    <includeTransitiveDependencySources>false</includeTransitiveDependencySources>
 
                                     <dependencySourceExcludes>
-                                        <dependencySourceExclude>com.bagri.db:bagri-client*</dependencySourceExclude>
-                                        <dependencySourceExclude>com.bagri.db:bagri-server*</dependencySourceExclude>
-                                        <dependencySourceExclude>com.bagri.db:bagri-xquery*</dependencySourceExclude>
+                                        <dependencySourceExclude>com.bagridb:bagri-client*</dependencySourceExclude>
+                                        <dependencySourceExclude>com.bagridb:bagri-server*</dependencySourceExclude>
+                                        <dependencySourceExclude>com.bagridb:bagri-xquery*</dependencySourceExclude>
                                     </dependencySourceExcludes>
 
                                     <additionnalDependencies>
