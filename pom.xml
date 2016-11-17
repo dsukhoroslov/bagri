@@ -628,16 +628,16 @@
 
     <repositories>
         <!-- for MarkLogic XCC client jar -->
-	<!--repository>
+	<repository>
       	    <id>MarkLogic-releases</id>
       	    <name>MarkLogic Releases</name>
       	    <url>http://developer.marklogic.com/maven2</url>
-  	</repository-->
+  	</repository>
         <!-- for XQJ API -->
-        <!--repository>
+        <repository>
             <id>spring-milestones</id>
             <url>http://repo.spring.io/libs-milestone/</url>
-        </repository-->
+        </repository>
     </repositories>
 
 </project>
