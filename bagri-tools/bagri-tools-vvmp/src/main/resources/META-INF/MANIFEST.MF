@@ -7,6 +7,6 @@ OpenIDE-Module-Implementation-Version: 1.1
 OpenIDE-Module: com.bagri.tools.vvm.manager
 OpenIDE-Module-Install: com/bagri/tools/vvm/manager/Installer.class
 OpenIDE-Module-Localizing-Bundle: com/bagri/tools/vvm/manager/Bundle.properties
-OpenIDE-Module-Specification-Version: 0.9.1
+OpenIDE-Module-Specification-Version: 1.1.0
 OpenIDE-Module-Requires: org.openide.modules.ModuleFormat1
 OpenIDE-Module-Layer: com/bagri/tools/vvm/manager/layer.xml
