@@ -18,16 +18,18 @@ public class DataStoreCreator extends DataStoreProcessor implements IdentifiedDa
 	
 	private String storeClass;
 	private String description;
+	private boolean readOnly;
 	private Properties properties = new Properties();
 	
 	public DataStoreCreator() {
 		// de-ser
 	}
 
-	public DataStoreCreator(String admin, String storeClass, String description, Properties properties) {
+	public DataStoreCreator(String admin, String storeClass, String description, boolean readOnly, Properties properties) {
 		super(1, admin);
 		this.storeClass = storeClass;
 		this.description = description;
+		this.readOnly = readOnly;
 		if (properties != null) {
 			this.properties.putAll(properties);
 		}
@@ -39,7 +41,7 @@ public class DataStoreCreator extends DataStoreProcessor implements IdentifiedDa
 		if (entry.getValue() == null) {
 			String name = entry.getKey();
 			DataStore store = new DataStore(getVersion(), new Date(), getAdmin(), 
-					name, description, storeClass, true, properties);
+					name, description, storeClass, readOnly, true, properties);
 			entry.setValue(store);
 			auditEntity(AuditType.create, store);
 			return store;
@@ -57,6 +59,7 @@ public class DataStoreCreator extends DataStoreProcessor implements IdentifiedDa
 		super.readData(in);
 		storeClass = in.readUTF();
 		description = in.readUTF();
+		readOnly = in.readBoolean();
 		properties.putAll((Properties) in.readObject());
 	}
 
@@ -65,6 +68,7 @@ public class DataStoreCreator extends DataStoreProcessor implements IdentifiedDa
 		super.writeData(out);
 		out.writeUTF(storeClass);
 		out.writeUTF(description);
+		out.writeBoolean(readOnly);
 		out.writeObject(properties);
 	}
 

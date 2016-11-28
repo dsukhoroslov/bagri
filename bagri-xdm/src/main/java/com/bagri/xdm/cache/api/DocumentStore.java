@@ -27,6 +27,11 @@ public interface DocumentStore {
 	void close();
 	
 	/**
+	 * If returns true the store/delete methods will not be invoked at all.
+	 */
+	boolean isReadOnly();
+
+	/**
 	 * Load document from persistent store
 	 * 
 	 * @param key the document key

@@ -51,14 +51,15 @@ public class DataStoreManagement extends EntityManagement<DataStore> {
 		@ManagedOperationParameter(name = "name", description = "DataStore name to create"),
 		@ManagedOperationParameter(name = "storeClass", description = "DocumentStore implementation class name"),
 		@ManagedOperationParameter(name = "description", description = "DataStore description"),
+		@ManagedOperationParameter(name = "readOnly", description = "DataStore read-only flag"),
 		@ManagedOperationParameter(name = "properties", description = "DataStore properties with their default values")})
-	public boolean addDataStore(String name, String storeClass, String description, String properties) {
+	public boolean addDataStore(String name, String storeClass, String description, boolean readOnly, String properties) {
 		logger.trace("addDataStore.enter; name: {}", name);
 		DataStore store = null;
 		if (!entityCache.containsKey(name)) {
 			try {
 				Object result = entityCache.executeOnKey(name, new DataStoreCreator(getCurrentUser(), storeClass, description,
-						propsFromString(properties)));
+						readOnly, propsFromString(properties)));
 		    	store = (DataStore) result;
 			} catch (IOException ex) {
 				logger.error("", ex);

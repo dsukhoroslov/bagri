@@ -21,9 +21,8 @@ import com.bagri.xdm.system.Entity;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.MapLoader;
-import com.hazelcast.core.MapStore;
+//import com.hazelcast.core.MapStore;
 import com.hazelcast.core.MapStoreFactory;
-import com.hazelcast.core.Member;
 
 public class DocumentStoreFactory implements MapStoreFactory<DocumentKey, Document> { 
 	
@@ -84,7 +83,7 @@ public class DocumentStoreFactory implements MapStoreFactory<DocumentKey, Docume
 		String schemaName = properties.getProperty(xdm_schema_name);
 		String storeType = properties.getProperty(xdm_schema_store_type);
 		logger.debug("newMapStore.enter; got properties: {} for map: {}", properties, mapName);
-		MapStore<DocumentKey, Document> mStore = null;
+		MapLoader<DocumentKey, Document> mStore = null;
 		DataStore store = getDataStore(storeType);
 		if (store != null) {
 			storeClass = store.getStoreClass();
@@ -113,10 +112,14 @@ public class DocumentStoreFactory implements MapStoreFactory<DocumentKey, Docume
 		}
 
 		if (instance != null) {
-			if (instance instanceof MapStore) {
-				mStore = (MapStore<DocumentKey, Document>) instance;
+			if (instance instanceof MapLoader) {
+				mStore = (MapLoader<DocumentKey, Document>) instance;
 			} else if (instance instanceof DocumentStore) {
-				mStore = new DocumentStoreAdapter((DocumentStore) instance);
+				if (((DocumentStore) instance).isReadOnly()) {
+					mStore = new DocumentLoaderAdapter((DocumentStore) instance);
+				} else {
+					mStore = new DocumentStoreAdapter((DocumentStore) instance);
+				}
 			} else {
 				logger.warn("newMapStore; unknown store instance: " + instance);
 			}

@@ -28,6 +28,7 @@ public class DataStoreSerializer extends EntitySerializer implements StreamSeria
 				in.readUTF(),
 				in.readUTF(),
 				in.readBoolean(),
+				in.readBoolean(),
 				(Properties) in.readObject());
 	}
 
@@ -37,6 +38,7 @@ public class DataStoreSerializer extends EntitySerializer implements StreamSeria
 		out.writeUTF(xStore.getName());
 		out.writeUTF(xStore.getDescription());
 		out.writeUTF(xStore.getStoreClass());
+		out.writeBoolean(xStore.isReadOnly());
 		out.writeBoolean(xStore.isEnabled());
 		out.writeObject(xStore.getProperties());
 	}
