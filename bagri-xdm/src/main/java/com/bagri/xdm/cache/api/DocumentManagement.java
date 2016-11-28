@@ -2,6 +2,7 @@ package com.bagri.xdm.cache.api;
 
 import java.io.InputStream;
 import java.util.Date;
+import java.util.Map;
 import java.util.Properties;
 
 import com.bagri.xdm.api.XDMException;
@@ -16,6 +17,16 @@ import com.bagri.xdm.domain.Document;
  */
 public interface DocumentManagement extends com.bagri.xdm.api.DocumentManagement {
 
+	/**
+	 * provides XDM Document content for the internal document key
+	 * 
+	 * @param docKey the internal Document key 
+	 * @param props result production properties
+	 * @return Map&lt;String, Object&gt; representing the XDM document
+	 * @throws XDMException in case of any error
+	 */
+	Map<String, Object> getDocumentAsMap(DocumentKey docKey, Properties props) throws XDMException;
+	
 	/**
 	 * provides XDM Document content for the internal document key
 	 * 

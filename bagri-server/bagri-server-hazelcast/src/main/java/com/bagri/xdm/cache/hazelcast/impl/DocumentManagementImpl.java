@@ -408,7 +408,13 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 
 	@Override
 	public Map<String, Object> getDocumentAsMap(String uri, Properties props) throws XDMException {
-		String xml = getDocumentAsString(uri, props);
+		DocumentKey docKey = getDocumentKey(uri, false, false);
+		return getDocumentAsMap(docKey, props);
+	}
+
+	@Override
+	public Map<String, Object> getDocumentAsMap(DocumentKey docKey, Properties props) throws XDMException {
+		String xml = getDocumentAsString(docKey, props);
 		if (xml == null) {
 			return null;
 		}
