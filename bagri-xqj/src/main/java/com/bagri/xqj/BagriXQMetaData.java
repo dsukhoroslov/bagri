@@ -31,19 +31,25 @@ public class BagriXQMetaData implements XQMetaData {
 	@Override
 	public int getProductMajorVersion() throws XQException {
 		connect.checkState(ex_connection_closed);
-		return 0;
+		return 1;
 	}
 
 	@Override
 	public int getProductMinorVersion() throws XQException {
 		connect.checkState(ex_connection_closed);
-		return 9;
+		return 1;
 	}
 
 	@Override
 	public String getProductName() throws XQException {
 		connect.checkState(ex_connection_closed);
 		return "bagri-xqj";
+	}
+
+	@Override
+	public String getProductVersion() throws XQException {
+		connect.checkState(ex_connection_closed);
+		return bg_version;
 	}
 
 	@Override
@@ -62,13 +68,6 @@ public class BagriXQMetaData implements XQMetaData {
 	public int getMaxUserNameLength() throws XQException {
 		connect.checkState(ex_connection_closed);
 		return max_user_name_length;
-	}
-
-	@Override
-	public String getProductVersion() throws XQException {
-		connect.checkState(ex_connection_closed);
-		// TODO: use some global constant for this
-		return "1.1.0";
 	}
 
 	@Override
@@ -97,7 +96,6 @@ public class BagriXQMetaData implements XQMetaData {
 
 	@Override
 	public boolean isXQueryXSupported() throws XQException {
-		
 		connect.checkState(ex_connection_closed);
 		return connect.getProcessor().isFeatureSupported(xqf_XQueryX);
 	}

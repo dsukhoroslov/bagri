@@ -1,12 +1,12 @@
 package com.bagri.rest;
 
 import static com.bagri.rest.RestConstants.*;
+import static com.bagri.xdm.common.Constants.bg_version;
 import static com.bagri.xdm.common.Constants.xdm_rest_jmx;
 import static com.bagri.xdm.common.Constants.xdm_rest_port;
 import static com.bagri.xdm.common.Constants.xdm_rest_auth_port;
 
 import java.lang.management.ManagementFactory;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -52,6 +52,10 @@ import com.bagri.xdm.system.Module;
 import com.bagri.xdm.system.Parameter;
 import com.bagri.xdm.system.Schema;
 import com.bagri.xquery.api.XQCompiler;
+
+import io.swagger.jaxrs.config.BeanConfig;
+import io.swagger.jaxrs.listing.ApiListingResource;
+import io.swagger.jaxrs.listing.SwaggerSerializers;
 
 @Provider
 public class BagriRestServer implements ContextResolver<BagriRestServer>, Factory<RepositoryProvider> {
@@ -114,6 +118,9 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Factor
         });
         config.register(WadlFeature.class);
         config.registerInstances(reloader);
+        // adding Swagger support
+        config.register(ApiListingResource.class);
+        config.register(SwaggerSerializers.class);
         return config;
     }
     
@@ -148,6 +155,7 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Factor
         ServletHolder servlet = new ServletHolder(new ServletContainer(config));
         ServletContextHandler context = new ServletContextHandler(jettyServer, "/*");
         context.addServlet(servlet, "/*");
+        bildSwaggerConfig();
         
         try {
             jettyServer.start();
@@ -375,6 +383,23 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Factor
         }
         
         methodBuilder.handledBy(new RestRequestProcessor(fn, query, rePro));
+    }
+    
+    private void bildSwaggerConfig() {
+        BeanConfig beanConfig = new BeanConfig();
+        beanConfig.setTitle("Bagri REST server");
+        beanConfig.setDescription("goto http://bagridb.com for more info");
+        beanConfig.setContact("support@bagridb.com");
+        beanConfig.setLicense("Apache 2.0");
+        beanConfig.setLicenseUrl("http://www.apache.org/licenses/LICENSE-2.0.html");
+        beanConfig.setVersion(bg_version);
+        beanConfig.setSchemes(new String[] {"http", "https"});
+        // TODO: get host info somehow..
+        beanConfig.setHost("localhost:" + port);
+        beanConfig.setBasePath("/"); // /api
+        beanConfig.setResourcePackage("com.bagri.rest.service");
+        beanConfig.setScan(true);
+        beanConfig.setPrettyPrint(true);
     }
 
 }

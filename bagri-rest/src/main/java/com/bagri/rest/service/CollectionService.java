@@ -14,7 +14,10 @@ import javax.ws.rs.core.Response.Status;
 import com.bagri.xdm.api.DocumentManagement;
 import com.bagri.xdm.api.SchemaRepository;
 
+import io.swagger.annotations.Api;
+
 @Path("/clns")
+@Api(value = "collections")
 public class CollectionService extends RestService {
 
     private DocumentManagement getDocManager() {

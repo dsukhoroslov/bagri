@@ -17,7 +17,10 @@ import com.bagri.xdm.api.SchemaRepository;
 import com.bagri.xdm.api.TransactionIsolation;
 import com.bagri.xdm.api.TransactionManagement;
 
+import io.swagger.annotations.Api;
+
 @Path("/tx")
+@Api(value = "transactions")
 public class TransactionService extends RestService {
 	
     private TransactionManagement getTxManager() {

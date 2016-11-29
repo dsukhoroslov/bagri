@@ -32,7 +32,10 @@ import com.bagri.xdm.api.DocumentManagement;
 import com.bagri.xdm.api.SchemaRepository;
 import com.bagri.xdm.domain.Document;
 
+import io.swagger.annotations.Api;
+
 @Path("/docs")
+@Api(value = "documents")
 public class DocumentService  extends RestService {
 	
     

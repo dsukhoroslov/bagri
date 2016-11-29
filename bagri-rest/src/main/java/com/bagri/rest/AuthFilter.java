@@ -38,7 +38,7 @@ public class AuthFilter implements ContainerRequestFilter {
 		            requestContext.abortWith(Response.status(Status.NOT_ACCEPTABLE)
 		                    .entity("Wrong protocol used.").build());
 				}
-			} else if ("application.wadl".equals(path)) {
+			} else if ("application.wadl".equals(path) || "swagger.json".equals(path) || "swagger.yaml".equals(path)) {
 				return; 
 			} else {
 				Cookie cc = requestContext.getCookies().get(bg_cookie);

@@ -16,7 +16,10 @@ import org.slf4j.LoggerFactory;
 import com.bagri.rest.RepositoryProvider;
 import com.bagri.xdm.system.Schema;
 
+import io.swagger.annotations.Api;
+
 @Path("/schemas")
+@Api(value = "schemas")
 public class SchemaService extends RestService {
 	
 	@GET
