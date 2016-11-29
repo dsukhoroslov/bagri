@@ -15,6 +15,7 @@ import com.bagri.xdm.api.DocumentManagement;
 import com.bagri.xdm.api.SchemaRepository;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 
 @Path("/clns")
 @Api(value = "collections")
@@ -30,6 +31,7 @@ public class CollectionService extends RestService {
     
 	@GET
     @Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "getCollections: return Collection names registered in the current schema")
     public Collection<String> getCollections() {
 		DocumentManagement docMgr = getDocManager();
 		try {
@@ -43,6 +45,7 @@ public class CollectionService extends RestService {
     @GET
     @Path("/{name}")
     @Produces(MediaType.APPLICATION_JSON) 
+	@ApiOperation(value = "getCollectionsDocuments: return Document uris belonging to the specified Collection")
     public Collection<String> getCollectionDocuments(@PathParam("name") String name) {
 		DocumentManagement docMgr = getDocManager();
 		try {
@@ -56,6 +59,7 @@ public class CollectionService extends RestService {
     @DELETE
     @Path("/{name}")
     @Produces(MediaType.APPLICATION_JSON) 
+	@ApiOperation(value = "deleteCollectionsDocuments: delete all Documents belonging to the specified Collection")
     public int deleteCollectionDocuments(@PathParam("name") String name) {
 		DocumentManagement docMgr = getDocManager();
 		try {

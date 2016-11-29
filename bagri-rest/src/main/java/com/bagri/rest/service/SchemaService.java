@@ -17,6 +17,7 @@ import com.bagri.rest.RepositoryProvider;
 import com.bagri.xdm.system.Schema;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 
 @Path("/schemas")
 @Api(value = "schemas")
@@ -24,6 +25,7 @@ public class SchemaService extends RestService {
 	
 	@GET
     @Produces(MediaType.APPLICATION_JSON) //TEXT_PLAIN)
+	@ApiOperation(value = "getSchemas: return Schema names accessible in the current session")
     public Collection<String> getSchemas() {
 		logger.trace("getSchemas.enter");
         return repos.getSchemaNames();
@@ -32,6 +34,7 @@ public class SchemaService extends RestService {
     @GET
     @Path("/{name}")
     @Produces(MediaType.APPLICATION_JSON) 
+	@ApiOperation(value = "getSchemaAsJSON: return Schema settings in JSON format")
     public Response getSchemaAsJSON(@PathParam("name") String name) {
     	return getSchema(name);
     }    
@@ -39,6 +42,7 @@ public class SchemaService extends RestService {
     @GET
     @Path("/{name}")
     @Produces(MediaType.APPLICATION_XML) 
+	@ApiOperation(value = "getSchemaAsXML: return Schema settings in XML format")
     public Response getSchemaAsXML(@PathParam("name") String name) {
     	return getSchema(name);
     }    

@@ -18,6 +18,7 @@ import com.bagri.xdm.api.TransactionIsolation;
 import com.bagri.xdm.api.TransactionManagement;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 
 @Path("/tx")
 @Api(value = "transactions")
@@ -33,6 +34,7 @@ public class TransactionService extends RestService {
     
 	@GET
     @Produces(MediaType.TEXT_PLAIN) 
+	@ApiOperation(value = "getTxState: return transaction state of the current user session")
     public boolean getTxState() {
 		TransactionManagement txMgr = getTxManager();
     	try {
@@ -45,6 +47,7 @@ public class TransactionService extends RestService {
     
     @POST
     @Produces(MediaType.TEXT_PLAIN) 
+	@ApiOperation(value = "postTx: starts a new user Transaction in the current session")
 	public Response postTx(String isolation) {
 		TransactionManagement txMgr = getTxManager();
     	try {
@@ -59,6 +62,7 @@ public class TransactionService extends RestService {
     @PUT
     @Path("/{txId}")
     @Produces(MediaType.TEXT_PLAIN) 
+	@ApiOperation(value = "putTx: commits the specified user Transaction")
 	public Response putTx(@PathParam("txId") long txId) {
 		TransactionManagement txMgr = getTxManager();
     	try {
@@ -73,6 +77,7 @@ public class TransactionService extends RestService {
     @DELETE
     @Path("/{txId}")
     @Produces(MediaType.TEXT_PLAIN) 
+	@ApiOperation(value = "deleteTx: rolls back the specified user Transaction")
 	public Response deleteTx(@PathParam("txId") long txId) {
 		TransactionManagement txMgr = getTxManager();
     	try {

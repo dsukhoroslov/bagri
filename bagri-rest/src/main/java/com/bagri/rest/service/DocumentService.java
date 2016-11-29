@@ -33,6 +33,7 @@ import com.bagri.xdm.api.SchemaRepository;
 import com.bagri.xdm.domain.Document;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 
 @Path("/docs")
 @Api(value = "documents")
@@ -49,6 +50,7 @@ public class DocumentService  extends RestService {
     
 	@GET
     @Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "getDocuments: return Document uris corresponding to the specified query")
     public Response getDocuments(@QueryParam("query") String query, 
     		@DefaultValue("1") @QueryParam("page") int page, @DefaultValue("100") @QueryParam("size") int size) {
 		// add paginaton, pattern
@@ -79,6 +81,7 @@ public class DocumentService  extends RestService {
     @GET
     @Path("/{uri}")
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON}) 
+	@ApiOperation(value = "getDocumentContent: return content of the specified Document")
     public Response getDocumentContent(@PathParam("uri") String uri, @Context HttpHeaders hh) {
 		DocumentManagement docMgr = getDocManager();
     	try {
@@ -100,6 +103,7 @@ public class DocumentService  extends RestService {
     @POST
     @Consumes(MediaType.APPLICATION_JSON) 
     @Produces(MediaType.APPLICATION_JSON) 
+	@ApiOperation(value = "postDocument: creates a new Document or new version if Document with provided uri already exists")
 	public Response postDocument(final DocumentParams params) {
 		DocumentManagement docMgr = getDocManager();
     	try {
@@ -118,6 +122,7 @@ public class DocumentService  extends RestService {
     @DELETE
     @Path("/{uri}")
     @Produces(MediaType.APPLICATION_JSON) 
+	@ApiOperation(value = "deleteDocument: deletes Document by its uri")
 	public Response deleteDocument(@PathParam("uri") String uri) {
 		DocumentManagement docMgr = getDocManager();
     	try {
@@ -134,6 +139,7 @@ public class DocumentService  extends RestService {
     @Path("/{uri}")
     @Consumes(MediaType.APPLICATION_JSON) 
     @Produces(MediaType.APPLICATION_JSON) 
+	@ApiOperation(value = "changeDocumentCollections: adds/removes Document to/from the specified Collections")
 	public Response changeDocumentCollections(@PathParam("uri") String uri, CollectionParams params) {
 		DocumentManagement docMgr = getDocManager();
     	try {

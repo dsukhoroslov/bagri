@@ -19,6 +19,7 @@ import com.bagri.xdm.api.ResultCursor;
 import com.bagri.xdm.api.SchemaRepository;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 
 @Path("/query")
 @Api(value = "query")
@@ -37,6 +38,7 @@ public class QueryService extends RestService {
     }
     
     @POST
+	@ApiOperation(value = "postQuery: return results of the provided XQuery; results are chunked")
 	public ChunkedOutput<String> postQuery(final QueryParams params) {
 		logger.debug("postQuery; got query: {}", params);
     	final ChunkedOutput<String> output = new ChunkedOutput<String>(String.class);
@@ -77,6 +79,7 @@ public class QueryService extends RestService {
  
     @POST
     @Path("/uris")
+	@ApiOperation(value = "gqtURIs: return URIs of Documents conforming to the specified XQuery")
 	public Response getURIs(final QueryParams params) {
 		logger.debug("getURIs; got query: {}", params);
 		QueryManagement queryMgr = getQueryManager();
