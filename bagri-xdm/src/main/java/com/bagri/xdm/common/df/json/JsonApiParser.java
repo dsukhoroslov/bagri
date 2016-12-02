@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -190,8 +191,15 @@ public class JsonApiParser extends ContentParserBase implements ContentParser {
 	}
 	
 	private Data getTopData() {
-		for (int i = dataStack.size() - 1; i >= 0; i--) {
-			Data data = dataStack.elementAt(i);
+		//for (int i = dataStack.size() - 1; i >= 0; i--) {
+		//	Data data = dataStack.elementAt(i);
+		//	if (data != null && data.getElement() != null) {
+		//		return data;
+		//	}
+		//}
+		Iterator<Data> itr = dataStack.iterator();
+		while (itr.hasNext()) {
+			Data data = itr.next();
 			if (data != null && data.getElement() != null) {
 				return data;
 			}
@@ -219,7 +227,8 @@ public class JsonApiParser extends ContentParserBase implements ContentParser {
 		if (isArray) {
 			dataStack.add(null);
 		} else {
-			Data current = dataStack.lastElement();  
+			//Data current = dataStack.lastElement();  
+			Data current = dataStack.element();  
 			if (current == null || current.getNodeKind() != NodeKind.element) {
 				dataStack.add(null);
 			}

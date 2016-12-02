@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.xml.xquery.XQItemType;
@@ -197,7 +198,10 @@ public class JaksonParser extends ContentParserBase implements ContentParser {
 			if (current == null) {
 				// #text in array; not sure it'll always work.
 				// use XDMJsonParser.getTopData instead ?
-				current = dataStack.elementAt(dataStack.size() - 2);
+				//current = dataStack.elementAt(dataStack.size() - 2);
+				Iterator<Data> itr = dataStack.descendingIterator();
+				itr.next();
+				current = itr.next();
 			}
 			addData(current, NodeKind.text, "/text()", value, XQItemType.XQBASETYPE_ANYATOMICTYPE, Occurrence.zeroOrOne);
 		} else if (isAttribute(name)) {

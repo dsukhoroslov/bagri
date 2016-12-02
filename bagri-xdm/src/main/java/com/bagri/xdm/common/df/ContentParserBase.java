@@ -2,10 +2,11 @@ package com.bagri.xdm.common.df;
 
 import static com.bagri.xquery.api.XQUtils.getAtomicValue;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
 import java.util.Map;
-import java.util.Stack;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +30,7 @@ public abstract class ContentParserBase {
 	protected final Logger logger = LoggerFactory.getLogger(getClass());
 	
 	protected List<Data> dataList;
-	protected Stack<Data> dataStack;
+	protected Deque<Data> dataStack;
 	protected ModelManagement model;
 	protected int docType = -1;
 	protected int elementId;
@@ -79,6 +80,7 @@ public abstract class ContentParserBase {
 	 * cleans up paser components after parsing document
 	 */
 	protected void cleanup() {
+		dataStack.clear();
 		dataStack = null;
 	}
 
@@ -86,8 +88,8 @@ public abstract class ContentParserBase {
 	 * initializes parser components before parsing document
 	 */
 	protected void init() {
-		dataList = new ArrayList<Data>();
-		dataStack = new Stack<Data>();
+		dataList = new ArrayList<>();
+		dataStack = new ArrayDeque<>();
 		docType = -1;
 		elementId = 0;
 	}

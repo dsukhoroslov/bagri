@@ -248,7 +248,7 @@ public class XmlStaxParser extends ContentParserBase implements ContentParser {
 		start.setElementId(elementId++);
 		Path path = model.translatePath(docType, "", NodeKind.document, XQItemType.XQBASETYPE_ANYTYPE, Occurrence.onlyOne);
 		Data data = new Data(path, start);
-		dataStack.add(data);
+		dataStack.push(data); 
 		dataList.add(data);
 	}
 
@@ -257,7 +257,7 @@ public class XmlStaxParser extends ContentParserBase implements ContentParser {
 		
 		Data parent = dataStack.peek();
 		Data current = addData(parent, NodeKind.element, "/" + element.getName(), null, XQItemType.XQBASETYPE_ANYTYPE, Occurrence.zeroOrOne); 
-		dataStack.add(current);
+		dataStack.push(current); 
 
 		for (Iterator<Namespace> itr = element.getNamespaces(); itr.hasNext();) {
 			Namespace ns = itr.next();

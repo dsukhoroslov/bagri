@@ -1,13 +1,14 @@
 package com.bagri.xdm.cache.api.impl;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Stack;
 import java.util.TreeMap;
 
 import javax.xml.namespace.QName;
@@ -71,10 +72,8 @@ public abstract class ModelManagementBase implements ModelManagement {
 	protected abstract <K, V> V putIfAbsent(Map<K, V> cache, K key, V value);
 
 	protected abstract DocumentType getDocumentTypeById(int typeId);
-	@SuppressWarnings("rawtypes")
-	protected abstract Set getTypedPathEntries(int typeId);
-	@SuppressWarnings("rawtypes")
-	protected abstract Set getTypedPathWithRegex(String regex, int typeId);
+	protected abstract Set<Map.Entry<String, Path>> getTypedPathEntries(int typeId);
+	protected abstract Set<Map.Entry<String, Path>> getTypedPathWithRegex(String regex, int typeId);
 
 	/**
 	 * WRONG_PATH identifies path not existing in XDMPath dictionary
@@ -394,14 +393,14 @@ public abstract class ModelManagementBase implements ModelManagement {
 	private int normalizeDocPath(int typeId) {
 		Set<Map.Entry<String, Path>> entries = getTypedPathEntries(typeId); 
 		
-		TreeMap<Integer, Path> elts = new TreeMap<Integer, Path>(); //entries.size());
+		TreeMap<Integer, Path> elts = new TreeMap<>(); //entries.size());
 		for (Map.Entry<String, Path> path: entries) {
 			elts.put(path.getValue().getPathId(), path.getValue());
 		}
 		
-		Map<String, Path> pes = new HashMap<String, Path>(entries.size());
+		Map<String, Path> pes = new HashMap<>(entries.size());
 
-		Stack<Path> pathStack = new Stack<Path>();
+		Deque<Path> pathStack = new ArrayDeque<>();
 		for (Map.Entry<Integer, Path> elt: elts.entrySet()) {
 			Path path = elt.getValue();
 			if (!pathStack.isEmpty()) {
