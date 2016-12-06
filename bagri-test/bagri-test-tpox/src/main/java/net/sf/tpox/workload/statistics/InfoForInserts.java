@@ -23,17 +23,17 @@ import net.sf.tpox.workload.parameter.Collection;
 /**
  * Each {@link Collection} used in the workload has its own 
  * <code>InfoForInserts</code>.  
- * <p/>
+ * <p></p>
  * The parameter marker specification for inserts in the 
  * workload description file looks like this:
- * <br/> 
+ *  
  * <code>p2|1 = files|custacc|data/custacc/batch-|1-5|1000|500</code>
- * <p/>
+ * <p></p>
  * Basically, what we see on the right side of the '<code>=</code>' 
  * sign is this:
- * <br/>
+ * 
  * <code>files|&lt;collection name&gt;|&lt;directory name mask&gt;|&lt;first dir #&gt;-&lt;last dir #&gt;|&lt;docs per dir&gt;|&lt;first document id&gt;[&lt;file name mask&gt;]</code>
- * <p/>
+ * <p></p>
  * All of this information (except for the <code>files</code> keyword) is saved in the <code>InfoForInserts</code>
  * object.  There can be only one such object for each collection
  * (plus, a separate object for accounts in the TPoX workload since
@@ -41,7 +41,7 @@ import net.sf.tpox.workload.parameter.Collection;
  * the custacc collection and do not exist in their own collection).
  * An error is raised if the user tries to provide ambiguous 
  * parameter marker specifications.
- * <p/>
+ * <p></p>
  * The <code>files</code> keyword is used when specifying parameter
  * markers for the XML insert statements or XML updates performing a sub-document
  * level insert.
