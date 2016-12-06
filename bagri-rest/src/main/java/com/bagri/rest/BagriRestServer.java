@@ -45,6 +45,7 @@ import com.bagri.rest.service.CollectionService;
 import com.bagri.rest.service.DocumentService;
 import com.bagri.rest.service.QueryService;
 import com.bagri.rest.service.SchemaService;
+import com.bagri.rest.service.SwaggerListener;
 import com.bagri.rest.service.TransactionService;
 import com.bagri.xdm.api.XDMException;
 import com.bagri.xdm.system.Function;
@@ -140,6 +141,8 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Factor
 	    			}
 	    	        logger.debug("reload.run; going to reload context for schemas: {}", newList);
 	    			reloader.reload(config);
+	    			// rebuild Swagger definitions
+	    			bildSwaggerConfig();
 	    			activeSchemas = newList;
 	    			// what about current clients?
 	    			// should we disconnect all of them?
@@ -382,7 +385,9 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Factor
             methodBuilder = methodBuilder.produces(types);
         }
         
-        methodBuilder.handledBy(new RestRequestProcessor(fn, query, rePro));
+        RestRequestProcessor pro = new RestRequestProcessor(fn, query, rePro);
+        methodBuilder.handledBy(pro);
+        SwaggerListener.addRequestProcessor(pro);
     }
     
     private void bildSwaggerConfig() {
@@ -398,8 +403,8 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Factor
         beanConfig.setHost("localhost:" + port);
         beanConfig.setBasePath("/"); // /api
         beanConfig.setResourcePackage("com.bagri.rest.service");
-        beanConfig.setScan(true);
         beanConfig.setPrettyPrint(true);
+        beanConfig.setScan(true);
     }
 
 }
