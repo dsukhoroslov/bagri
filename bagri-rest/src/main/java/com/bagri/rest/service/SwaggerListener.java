@@ -9,8 +9,11 @@ import org.slf4j.LoggerFactory;
 import com.bagri.rest.RestRequestProcessor;
 
 import io.swagger.annotations.SwaggerDefinition;
+import io.swagger.annotations.SwaggerDefinition.Scheme;
 import io.swagger.jaxrs.Reader;
 import io.swagger.jaxrs.config.ReaderListener;
+import io.swagger.models.Model;
+import io.swagger.models.ModelImpl;
 import io.swagger.models.Swagger;
 
 @SwaggerDefinition()
@@ -35,8 +38,12 @@ public class SwaggerListener implements ReaderListener {
 
 	@Override
 	public void afterScan(Reader reader, Swagger swagger) {
-		logger.debug("afterScan; reader: {}; swagger: {}; processors: {}", reader, swagger, processors);
 		for (RestRequestProcessor pro: processors) {
+			//reader.
+			logger.debug("afterScan; processing: {}", pro);
+			ModelImpl impl = new ModelImpl();
+			//impl.setTitle("title");
+			//impl.
 			//swagger.addDefinition(pro., model);
 		}
 	}

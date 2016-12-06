@@ -141,6 +141,8 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Factor
 	    			}
 	    	        logger.debug("reload.run; going to reload context for schemas: {}", newList);
 	    			reloader.reload(config);
+	    			// rebuild Swagger definitions
+	    			bildSwaggerConfig();
 	    			activeSchemas = newList;
 	    			// what about current clients?
 	    			// should we disconnect all of them?
