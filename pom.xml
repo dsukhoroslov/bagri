@@ -16,7 +16,7 @@
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
+    
     <groupId>com.bagridb</groupId>
     <artifactId>bagri</artifactId>
     <version>1.1.0-EA1</version>
@@ -555,13 +555,13 @@
 
     <profiles>
         <profile>
-            <id>sign-artifacts</id>
-            <activation>
+            <id>release</id>
+            <!--activation>
                 <property>
                     <name>performRelease</name>
                     <value>true</value>
                 </property>
-            </activation>
+            </activation-->
             <build>
                 <plugins>
                     <plugin>
@@ -569,7 +569,6 @@
                         <artifactId>maven-gpg-plugin</artifactId>
                         <version>${maven-gpg-plugin.version}</version>
                         <configuration>
-                            <!--executable>gpg2</executable-->
                             <passphrase>${gpg.passphrase}</passphrase>
                         </configuration>
                         <executions>
@@ -583,7 +582,7 @@
                         </executions>
                     </plugin>
 
-                    <plugin>
+                    <!--plugin>
                         <groupId>org.sonatype.plugins</groupId>
                         <artifactId>nexus-staging-maven-plugin</artifactId>
                         <version>${nexus-maven-plugin.version}</version>
@@ -593,7 +592,7 @@
                             <nexusUrl>https://oss.sonatype.org/</nexusUrl>
                             <autoReleaseAfterClose>false</autoReleaseAfterClose>
                         </configuration>
-                    </plugin>
+                    </plugin-->
                 </plugins>
             </build>
         </profile>
