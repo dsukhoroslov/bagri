@@ -27,6 +27,7 @@ import com.bagri.xquery.api.XQProcessor;
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.client.config.XmlClientConfigBuilder;
+import com.hazelcast.client.impl.HazelcastClientInstanceImpl;
 import com.hazelcast.client.impl.HazelcastClientProxy;
 import com.hazelcast.config.SerializerConfig;
 import com.hazelcast.core.HazelcastInstance;
@@ -128,12 +129,14 @@ public class ClientManagementImpl {
 	    	if (found != null) {
 	    		if (found.isEmpty()) {
 					if (found.hzInstance.getLifecycleService().isRunning()) {
-						logger.info("disconnect; going to close HZ instance: {}", found.hzInstance);
-						found.hzInstance.getLifecycleService().shutdown();
+						logger.info("disconnect; going to shutdown HZ instance: {}", found.hzInstance);
+						//found.hzInstance.getLifecycleService().shutdown();
 						// probably, should do something like this:
 						//execService.awaitTermination(100, TimeUnit.SECONDS);
+						found.hzInstance.shutdown();
+						logger.info("disconnect; the instance {} disconnected", found.hzInstance);
 					} else {
-						logger.info("disconnect; an attempt to close not-running client!");
+						logger.info("disconnect; an attempt to shutdown not-running client!");
 					}
 					clients.remove(found.clientKey);
 	    		} else  {

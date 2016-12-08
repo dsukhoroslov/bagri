@@ -3,6 +3,7 @@ package net.sf.tpox.databaseoperations;
 import java.io.FileWriter;
 import java.sql.Connection;
 import java.util.Arrays;
+import java.util.Hashtable;
 import java.util.Random;
 import java.util.Vector;
 
@@ -40,8 +41,7 @@ public class DatabaseOperations implements GenericDatabaseOperations {
 			Random randomNumGenerator) {
 
 		logger.debug("<init>. WP: {}; WE: {}; DBS: {}; dbName: {}; schema: {}; host: {}; port: {}; user: {}; pwd: {}; level: {}; numTrans: {}",
-				new Object[] {workloadProcessor, workloadEnvironment, databaseSystem, databaseName, 
-					schema, host, port, userID, password, verbosityLevel, numOfTransactions});
+				workloadProcessor, workloadEnvironment, databaseSystem, databaseName, schema, host, port, userID, "*****", verbosityLevel, numOfTransactions);
 		
 		numOfTrans = numOfTransactions;
 		errors.get();
@@ -78,6 +78,15 @@ public class DatabaseOperations implements GenericDatabaseOperations {
 		//this.randomNumGenerator = randomNumGenerator;
 	}
 
+	public static void initAdminConnection(String dbName, String host, String port, String userID, String pwd) {
+		logger.debug("initAdminConnection. dbName: {}; host: {}; port: {}; userId: {}; pwd: {}, skipping", dbName, host, port, userID, "*****"); // pwd
+		//throw new UnsupportedOperationException("Not implemented in Bagri DB.");
+	}
+
+	public static Hashtable<String, String> getInstInfo() {
+		return new Hashtable<>(0);
+		//throw new UnsupportedOperationException("Not implemented in Bagri DB.");
+	}
 	
 	@Override
 	public void closeConnection() {

@@ -95,7 +95,7 @@
         <xqj.version>1.0</xqj.version>
         <xstream.version>1.4.9</xstream.version>
         <xerses.version>2.11.0</xerses.version>
-        <saxon.version>9.7.0-10</saxon.version>
+        <saxon.version>9.7.0-14</saxon.version>
         <json.version>1.0</json.version>
         <json.ri.version>1.0.4</json.ri.version>
         <jackson.version>2.5.2</jackson.version>
@@ -474,36 +474,6 @@
                 </configuration>
             </plugin>
 
-            <!--it's for generation of src and javadoc artifacts-->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <version>${maven-source-plugin.version}</version>
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-			<phase>package</phase>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>${maven-javadoc-plugin.version}</version>
-                <executions>
-                    <execution>
-                        <id>attach-javadocs</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
             <!--todo: are we really using these plugins?-->
             <!--plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -556,14 +526,39 @@
     <profiles>
         <profile>
             <id>release</id>
-            <!--activation>
-                <property>
-                    <name>performRelease</name>
-                    <value>true</value>
-                </property>
-            </activation-->
             <build>
                 <plugins>
+                    <!--it's for generation of src and javadoc artifacts-->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>${maven-source-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>${maven-javadoc-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <!--this is to sign the generated artifacts-->
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>

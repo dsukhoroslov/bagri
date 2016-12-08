@@ -21,6 +21,7 @@ import com.bagri.xdm.system.Entity;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.MapLoader;
+import com.hazelcast.core.MapStore;
 //import com.hazelcast.core.MapStore;
 import com.hazelcast.core.MapStoreFactory;
 
@@ -115,7 +116,7 @@ public class DocumentStoreFactory implements MapStoreFactory<DocumentKey, Docume
 			if (instance instanceof MapLoader) {
 				mStore = (MapLoader<DocumentKey, Document>) instance;
 			} else if (instance instanceof DocumentStore) {
-				if (((DocumentStore) instance).isReadOnly()) {
+				if (((DocumentStore) instance).isReadOnly() || store.isReadOnly()) {
 					mStore = new DocumentLoaderAdapter((DocumentStore) instance);
 				} else {
 					mStore = new DocumentStoreAdapter((DocumentStore) instance);
@@ -128,7 +129,7 @@ public class DocumentStoreFactory implements MapStoreFactory<DocumentKey, Docume
 		if (mStore == null) {
 			throw new IllegalArgumentException("Configuration error: no DataStore found for type " + storeType + ", class " + storeClass);
 		}
-		logger.info("newMapStore.exit; returning: {}", mStore);
+		logger.info("newMapStore.exit; returning: {}; read-only: {}", mStore, !(mStore instanceof MapStore));
 		return mStore; 
 	}
 
