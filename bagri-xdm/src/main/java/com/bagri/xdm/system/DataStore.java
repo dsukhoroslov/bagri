@@ -28,7 +28,6 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 		"name", 
 		"description",
 		"storeClass",
-		"readOnly",
 		"enabled",
 		"props"
 })
@@ -44,9 +43,6 @@ public class DataStore extends Entity {
 	@XmlElement(required = true)
 	private String storeClass;
 	
-	@XmlElement(required = true)
-	private boolean readOnly = true;
-
 	@XmlElement(required = false, defaultValue = "true")
 	private boolean enabled = true;
 
@@ -74,12 +70,11 @@ public class DataStore extends Entity {
 	 * @param props the data store properties
 	 */
 	public DataStore(int version, Date createdAt, String createdBy, String name, String description, 
-			String storeClass, boolean readOnly, boolean enabled, Properties props) {
+			String storeClass, boolean enabled, Properties props) {
 		super(version, createdAt, createdBy);
 		this.name = name;
 		this.description = description;
 		this.storeClass = storeClass;
-		this.readOnly = readOnly;
 		this.enabled = enabled;
 		this.props.putAll(props);
 	}
@@ -103,13 +98,6 @@ public class DataStore extends Entity {
 	 */
 	public String getStoreClass() {
 		return storeClass;
-	}
-
-	/**
-	 * @return the data store read-only flag
-	 */
-	public boolean isReadOnly() {
-		return readOnly;
 	}
 
 	/**
@@ -156,7 +144,6 @@ public class DataStore extends Entity {
 		result.put("name", name);
 		result.put("description", description);
 		result.put("store", storeClass);
-		result.put("read-only", readOnly);
 		result.put("enabled", enabled);
 		result.put("properties", props.size());
 		return result;

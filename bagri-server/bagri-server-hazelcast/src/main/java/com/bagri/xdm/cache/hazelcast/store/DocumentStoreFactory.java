@@ -116,7 +116,7 @@ public class DocumentStoreFactory implements MapStoreFactory<DocumentKey, Docume
 			if (instance instanceof MapLoader) {
 				mStore = (MapLoader<DocumentKey, Document>) instance;
 			} else if (instance instanceof DocumentStore) {
-				if (((DocumentStore) instance).isReadOnly() || store.isReadOnly()) {
+				if (((DocumentStore) instance).isReadOnly()) {
 					mStore = new DocumentLoaderAdapter((DocumentStore) instance);
 				} else {
 					mStore = new DocumentStoreAdapter((DocumentStore) instance);
