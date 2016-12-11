@@ -2,6 +2,7 @@ package com.bagri.xdm.cache.api.impl;
 
 import static com.bagri.xdm.common.Constants.ctx_repo;
 import static com.bagri.xdm.common.Constants.ctx_context;
+import static com.bagri.xdm.common.Constants.xdm_schema_store_read_only;
 
 import java.util.Collection;
 import java.util.Map;
@@ -20,6 +21,7 @@ public abstract class DocumentStoreBase {
 
     private SchemaRepository xdmRepo;
     private Map<String, Object> userContext;
+    protected boolean readOnly = true;
 	
 	/**
 	 * Returns the current schema repository. Can be used after full schema initialization, 
@@ -38,7 +40,7 @@ public abstract class DocumentStoreBase {
 	 * If returns true the store/delete methods will not be invoked at all.
 	 */
 	public boolean isReadOnly() {
-		return true;
+		return readOnly;
 	}
 
 	/**
@@ -49,6 +51,10 @@ public abstract class DocumentStoreBase {
 	@SuppressWarnings("unchecked")
 	protected void setContext(Map<String, Object> context) {
 		this.userContext = (Map<String, Object>) context.get(ctx_context);
+		String value = (String) context.get(xdm_schema_store_read_only);
+		if (value != null) {
+			readOnly = value.equalsIgnoreCase("true");
+		}
 	}
 
 	/**

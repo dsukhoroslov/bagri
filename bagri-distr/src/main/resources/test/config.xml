@@ -716,12 +716,11 @@
             <createdBy>admin</createdBy>
             <library>java_library</library>
             <description>Standard File store</description>
-            <read-only>false</read-only>
             <enabled>true</enabled>
             <storeClass>com.bagri.xdm.cache.hazelcast.store.FileDocumentCacheStore</storeClass>
             <properties>
 		<entry name="xdm.schema.store.data.path">../data</entry>
-                <entry name="xdm.schema.store.property">my property value</entry>
+                <entry name="xdm.schema.store.read-only">false</entry>
             </properties>
         </dataStore>
     </dataStores>

@@ -81,6 +81,7 @@ public class Constants {
     public static final String xdm_schema_store_enabled = "xdm.schema.store.enabled";
     public static final String xdm_schema_store_data_path = "xdm.schema.store.data.path";
     public static final String xdm_schema_store_tx_buffer_size = "xdm.schema.store.tx.buffer.size";
+    public static final String xdm_schema_store_read_only = "xdm.schema.store.read-only";
     public static final String xdm_schema_population_size = "xdm.schema.population.size";
     public static final String xdm_schema_population_buffer_size = "xdm.schema.population.buffer.size";
     public static final String xdm_schema_fetch_size = "xdm.schema.fetch.size";
