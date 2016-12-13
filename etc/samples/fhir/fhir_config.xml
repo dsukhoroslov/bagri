@@ -658,7 +658,7 @@
             <storeClass>com.bagri.xdm.cache.hazelcast.store.FileDocumentCacheStore</storeClass>
             <properties>
 		<entry name="xdm.schema.store.data.path">../data</entry>
-                <entry name="xdm.schema.store.property">my property value</entry>
+                <entry name="xdm.schema.store.read-only">false</entry>
             </properties>
         </dataStore>
         <dataStore name="Mongo">
@@ -674,6 +674,7 @@
                 <entry name="xdm.schema.store.collections">*</entry>
                 <entry name="xdm.schema.store.indent">false</entry>
                 <entry name="xdm.schema.store.format">MAP</entry>
+                <entry name="xdm.schema.store.read-only">false</entry>
             </properties>
         </dataStore>
     </dataStores>

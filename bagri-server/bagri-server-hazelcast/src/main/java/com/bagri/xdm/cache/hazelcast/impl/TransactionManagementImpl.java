@@ -218,12 +218,16 @@ public class TransactionManagementImpl implements TransactionManagement, Statist
 	}
 	
 	boolean isTxVisible(long txId) throws XDMException {
+		if (txId <= TX_INIT) {
+			return true;
+		}
+
 		long cTx = getCurrentTxId();
 		if (txId == cTx) {
 			// current tx;
 			return true;
 		}
-
+		
 		Transaction xTx;
 		TransactionIsolation txIsolation;
 		if (cTx != TX_NO) {
