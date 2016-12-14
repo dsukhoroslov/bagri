@@ -71,7 +71,7 @@ public class TransactionCacheStoreTest extends BagriManagementTest {
 			Properties props = PropUtils.propsFromFile("src/test/resources/store.properties");
 			schema.setProperties(props);
 			xdmRepo.setSchema(schema);
-			((TransactionManagementImpl) xdmRepo.getTxManagement()).adjustTxCounter();
+			((TransactionManagementImpl) xdmRepo.getTxManagement()).adjustTxCounter(0);
 			//PopulationManagementImpl pm = context.getBean(PopulationManagementImpl.class);
 			//ManagedService svc = pm.getHzService(MapService.SERVICE_NAME, "xdm-transaction");
 			txStore = TransactionCacheStore.instance;

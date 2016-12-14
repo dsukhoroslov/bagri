@@ -69,17 +69,17 @@ public class SchemaPopulator extends SchemaProcessingTask implements Callable<Bo
 		xddCache.loadAll(false);
     	logger.info("populateSchema; documents size after loadAll: {}", xddCache.size());
 
-    	// adjusting tx idGen!
-		TransactionManagementImpl txMgr = schemaCtx.getBean("txManager", TransactionManagementImpl.class);
-		txMgr.adjustTxCounter();
-
 		ITopic<Long> pTopic = hz.getTopic(TPN_XDM_POPULATION);
 		PopulationManagementImpl pm = (PopulationManagementImpl) hz.getUserContext().get("popManager");
 		int lo = pm.getActiveCount();
 		int hi = pm.getDocumentCount() - lo;
 		long counts = ((long) hi << 32) + lo;
 		pTopic.publish(counts);
-		
+
+    	// adjusting tx idGen!
+		TransactionManagementImpl txMgr = schemaCtx.getBean("txManager", TransactionManagementImpl.class);
+		txMgr.adjustTxCounter(pm.getMaxTransactionId());
+
     	return true;
 	}
 	

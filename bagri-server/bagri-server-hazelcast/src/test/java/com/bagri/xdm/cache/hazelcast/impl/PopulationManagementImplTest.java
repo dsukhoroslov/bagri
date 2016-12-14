@@ -61,7 +61,7 @@ public class PopulationManagementImplTest extends BagriManagementTest {
 			//xdmRepo.setDataStores(cStores);
 			
 			setContext(schema.getName(), schema_context, context);
-			((TransactionManagementImpl) xdmRepo.getTxManagement()).adjustTxCounter();
+			//((TransactionManagementImpl) xdmRepo.getTxManagement()).adjustTxCounter(0);
     		popManager = (PopulationManagementImpl) xdmRepo.getHzInstance().getUserContext().get("popManager");
     		popManager.checkPopulation(1);
 		}

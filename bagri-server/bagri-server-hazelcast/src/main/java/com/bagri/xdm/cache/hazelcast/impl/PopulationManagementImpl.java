@@ -31,6 +31,7 @@ import com.hazelcast.core.MembershipEvent;
 import com.hazelcast.core.MembershipListener;
 import com.hazelcast.core.MigrationEvent;
 import com.hazelcast.core.MigrationListener;
+import com.hazelcast.map.impl.MapService;
 import com.hazelcast.map.listener.EntryAddedListener;
 import com.hazelcast.map.listener.EntryEvictedListener;
 import com.hazelcast.map.listener.EntryMergedListener;
@@ -172,6 +173,10 @@ public class PopulationManagementImpl implements PopulationManagement, ManagedSe
 		return result;
 	}
 	
+	public long getMaxTransactionId() {
+		return docStore.getMaxTransactionId();
+	}
+	
 	private void activateDocStore() {
 
 		if (docStore.isActivated()) {
@@ -191,6 +196,11 @@ public class PopulationManagementImpl implements PopulationManagement, ManagedSe
 			xFactory = schemaCtx.getBean("xdmFactory", KeyFactory.class);
 		}
 		return xFactory;
+	}
+	
+	private int checkPersistenceQueue() {
+		MapService svc = nodeEngine.getService(MapService.SERVICE_NAME);
+		return svc.getMapServiceContext().getWriteBehindQueueItemCounter().get();
 	}
 	
 	//public ManagedService getHzService(String serviceName, String instanceName) {

@@ -1,6 +1,6 @@
 package com.bagri.xdm.cache.hazelcast.store;
 
-import static com.bagri.xdm.common.DocumentKey.*;
+import static com.bagri.xdm.api.TransactionManagement.TX_NO;
 import static com.bagri.common.util.FileUtils.getStoreFileMask;
 import static com.bagri.common.util.FileUtils.buildSectionFileName;
 
@@ -14,11 +14,12 @@ import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.util.Date;
 
-import com.bagri.xdm.api.TransactionManagement;
 import com.bagri.xdm.domain.Document;
 import com.hazelcast.core.IMap;
 
 public class DocumentMemoryStore extends MemoryMappedStore<Long, Document> {
+	
+	private long maxTxId = TX_NO;
 
 	public DocumentMemoryStore(String dataPath, String nodeNum, int buffSize) {
 		super(dataPath, nodeNum, buffSize);
@@ -88,6 +89,10 @@ public class DocumentMemoryStore extends MemoryMappedStore<Long, Document> {
 		return pointers.size();
 	}
 	
+	public long getMaxTransactionId() {
+		return maxTxId;
+	}
+	
 	@Override
 	protected Long getEntryKey(Document entry) {
 		return entry.getDocumentKey();
@@ -96,7 +101,7 @@ public class DocumentMemoryStore extends MemoryMappedStore<Long, Document> {
 	@Override
 	protected int getEntrySize(Document entry) {
 		return 4*8 // 4 long's (txStart, txFinish, docKey, createdAt)
-			+ 3*4 // 1 int (typeId, bytes, elements)
+			+ 3*4 // 3 int's (typeId, bytes, elements)
 			+ entry.getUri().getBytes().length + 4 // uri size
 			+ entry.getCreatedBy().getBytes().length + 4 // createdBy size
 			+ entry.getEncoding().getBytes().length + 4 // encoding size
@@ -105,7 +110,7 @@ public class DocumentMemoryStore extends MemoryMappedStore<Long, Document> {
 	
 	@Override
 	protected boolean isEntryActive(Document entry) {
-		return entry.getTxFinish() == TransactionManagement.TX_NO;
+		return entry.getTxFinish() == TX_NO;
 	}
 
 	@Override
@@ -122,6 +127,11 @@ public class DocumentMemoryStore extends MemoryMappedStore<Long, Document> {
 		int elts = buff.getInt();
 		Document result = new Document(docKey, uri, typeId, txStart, txFinish, createdAt, createdBy, encoding, bytes, elts);
 		result.setCollections(getIntArray(buff));
+		if (txFinish > maxTxId) {
+			maxTxId = txFinish;
+		} else if (txStart > maxTxId) {
+			maxTxId = txStart;
+		}
 		return result;
 	}
 
@@ -148,7 +158,7 @@ public class DocumentMemoryStore extends MemoryMappedStore<Long, Document> {
 	protected void deactivateEntry(MappedByteBuffer buff, Document entry) {
 		if (entry == null) {
 			logger.info("deactivateEntry; got null entry for some reason!"); 
-		} else if (entry.getTxFinish() > TransactionManagement.TX_NO) {
+		} else if (entry.getTxFinish() > TX_NO) {
 			buff.putLong(entry.getTxFinish());
 		} else {
 			buff.putLong(-1); // make some const for this..

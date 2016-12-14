@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bagri.common.idgen.IdGenerator;
+import com.bagri.common.idgen.SimpleIdGenerator;
 import com.bagri.common.stats.StatisticsProvider;
 import com.bagri.common.util.JMXUtils;
 import com.bagri.xdm.api.XDMException;
@@ -85,6 +86,8 @@ public class TransactionManagementImpl implements TransactionManagement, Statist
 		cluster = hzInstance.getCluster();
 		txCache = hzInstance.getMap(CN_XDM_TRANSACTION);
 		txGen = new IdGeneratorImpl(hzInstance.getAtomicLong(SQN_TRANSACTION));
+		// not a bottleneck at all!
+		//txGen = new SimpleIdGenerator();
 		txGen.adjust(TX_START);
 		cTopic = hzInstance.getTopic(TPN_XDM_COUNTERS);
 		execService = hzInstance.getExecutorService(PN_XDM_TRANS_POOL);
@@ -98,8 +101,11 @@ public class TransactionManagementImpl implements TransactionManagement, Statist
 		this.txTimeout = timeout;
 	}
 	
-	public void adjustTxCounter() {
+	public void adjustTxCounter(long maxUsedId) {
 		Set<Long> ids = txCache.localKeySet();
+		if (maxUsedId > 0) {
+			ids.add(maxUsedId);
+		}
 		if (ids.size() > 0) {
 			Long maxId = Collections.max(ids);
 			boolean adjusted = txGen.adjust(maxId);
