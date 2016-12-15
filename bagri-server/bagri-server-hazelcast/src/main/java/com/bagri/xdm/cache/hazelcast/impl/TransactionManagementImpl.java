@@ -8,6 +8,7 @@ import static com.bagri.xdm.cache.api.CacheConstants.*;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -102,7 +103,7 @@ public class TransactionManagementImpl implements TransactionManagement, Statist
 	}
 	
 	public void adjustTxCounter(long maxUsedId) {
-		Set<Long> ids = txCache.localKeySet();
+		Set<Long> ids = new HashSet<>(txCache.localKeySet());
 		if (maxUsedId > 0) {
 			ids.add(maxUsedId);
 		}

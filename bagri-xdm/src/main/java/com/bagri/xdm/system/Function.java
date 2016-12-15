@@ -155,7 +155,11 @@ public class Function {
 	public String getSignature() {
 
 		StringBuffer buff = new StringBuffer();
-		buff.append(className).append(".");
+		if (className != null) {
+			buff.append(className).append(".");
+		} else if (prefix != null) {
+			buff.append(prefix).append(":");
+		}
 		buff.append(method).append("(");
 		int idx = 0;
 		for (Parameter xp: parameters) {

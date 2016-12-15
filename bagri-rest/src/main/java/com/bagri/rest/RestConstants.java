@@ -12,9 +12,11 @@ public class RestConstants {
 	static final String PUT = "PUT";
 	static final String TRACE = "TRACE";
 	
-	static final String an_consumes = "rest:consumes";
-	static final String an_path = "rest:path";
-	static final String an_produces = "rest:produces";
+    public static final transient String[] methods = {GET, POST, PUT, DELETE};
+	
+	public static final String an_path = "rest:path";
+	public static final String an_consumes = "rest:consumes";
+	public static final String an_produces = "rest:produces";
 	
 	static final String apn_cookie = "rest:cookie-param";
 	static final String apn_form = "rest:form-param";

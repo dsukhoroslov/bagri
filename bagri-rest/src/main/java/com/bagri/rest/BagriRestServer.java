@@ -62,8 +62,6 @@ import io.swagger.jaxrs.listing.SwaggerSerializers;
 public class BagriRestServer implements ContextResolver<BagriRestServer>, Factory<RepositoryProvider> {
 
     private static final transient Logger logger = LoggerFactory.getLogger(BagriRestServer.class);
-    private static final transient String[] methods = {GET, POST, PUT, DELETE};
-    
     
     private int port = 3030;
     private int sport = 3443;
@@ -314,6 +312,7 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Factor
 		// now build Resource dynamically from the function list
     	for (Function function: functions) {
     		buildMethod(resourceBuilder, module, function);
+            SwaggerListener.addFunction(basePath, function);
     	}
     	
         Resource resource = resourceBuilder.build();
@@ -386,8 +385,7 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Factor
         }
         
         RestRequestProcessor pro = new RestRequestProcessor(fn, query, rePro);
-        methodBuilder.handledBy(pro);
-        SwaggerListener.addRequestProcessor(pro);
+        methodBuilder.handledBy(pro); 
     }
     
     private void bildSwaggerConfig() {
