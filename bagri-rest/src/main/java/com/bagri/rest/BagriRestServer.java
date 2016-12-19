@@ -131,7 +131,8 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Factor
 	    			// TODO: think about concurrency issues
 	    			ResourceConfig config = buildConfig();
 	    			activeSchemas.add(schemaName);
-	    			Set<String> newList = new HashSet<>(activeSchemas.size() + 1);
+	    			Set<String> newList = new HashSet<>(activeSchemas.size());
+	    			SwaggerListener.clearFunctions();
 	    			for (String schema: activeSchemas) {
 	    				if (buildSchemaConfig(config, schema)) {
 	    					newList.add(schema);
@@ -390,6 +391,7 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Factor
     
     private void bildSwaggerConfig() {
         BeanConfig beanConfig = new BeanConfig();
+        //beanConfig.setConfigId("configId: " + contextId++);
         beanConfig.setTitle("Bagri REST server");
         beanConfig.setDescription("goto http://bagridb.com for more info");
         beanConfig.setContact("support@bagridb.com");
@@ -402,7 +404,11 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Factor
         beanConfig.setBasePath("/"); // /api
         beanConfig.setResourcePackage("com.bagri.rest.service");
         beanConfig.setPrettyPrint(true);
+        // force Swagger to re-scan the package mentioned above and use 
+        // custom ReaderListener from that package
         beanConfig.setScan(true);
     }
+    
+    private int contextId = 1;
 
 }

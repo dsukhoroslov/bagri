@@ -79,7 +79,7 @@ public class QueryService extends RestService {
  
     @POST
     @Path("/uris")
-	@ApiOperation(value = "gqtURIs: return URIs of Documents conforming to the specified XQuery")
+	@ApiOperation(value = "getURIs: return URIs of Documents conforming to the specified XQuery")
 	public Response getURIs(final QueryParams params) {
 		logger.debug("getURIs; got query: {}", params);
 		QueryManagement queryMgr = getQueryManager();

@@ -127,6 +127,7 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
         						params.put(pm.getName(), getAtomicValue(pm.getType(), val.getValue()));
             	    			found = true;
         					}
+        					break;
     					}
     					case apn_form: {
             				// content type must be application/x-www-form-urlencoded
@@ -156,6 +157,7 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
    	        	    			params.put(pm.getName(), getAtomicValue(pm.getType(), val));
    	        	    			found = true;
     						}
+    						break;
     					}
     					case apn_query: {
     	    	    		List<String> vals = context.getUriInfo().getQueryParameters().get(pm.getName());
@@ -209,7 +211,10 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
     private String getBody(ContainerRequestContext context) {
 		if (context.hasEntity() && (POST.equals(context.getMethod()) || PUT.equals(context.getMethod()))) {
 		    java.util.Scanner s = new java.util.Scanner(context.getEntityStream()).useDelimiter("\\A");
-			return s.next();
+		    String result = s.next();
+		    s.close();
+	    	return result;
+		    
 		}
     	return null;
     }

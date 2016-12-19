@@ -169,7 +169,7 @@ public class Function {
 			buff.append(xp.getName()).append(" ").append(xp.getType());
 			idx++;
 		}
-		buff.append("): ").append(result.getType()).append(";");
+		buff.append("): ").append(result.getType()); //.append(";");
 		return buff.toString();
 		
 	}
@@ -204,7 +204,7 @@ public class Function {
 	 * {@inheritDoc}
 	 */
 	public String toString() {
-		return prefix + ":" + getSignature();
+		return getSignature();
 	}
 	
 }

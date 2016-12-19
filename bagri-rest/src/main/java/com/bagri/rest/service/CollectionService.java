@@ -45,7 +45,7 @@ public class CollectionService extends RestService {
     @GET
     @Path("/{name}")
     @Produces(MediaType.APPLICATION_JSON) 
-	@ApiOperation(value = "getCollectionsDocuments: return Document uris belonging to the specified Collection")
+	@ApiOperation(value = "getCollectionDocuments: return Document uris belonging to the specified Collection")
     public Collection<String> getCollectionDocuments(@PathParam("name") String name) {
 		DocumentManagement docMgr = getDocManager();
 		try {
@@ -59,7 +59,7 @@ public class CollectionService extends RestService {
     @DELETE
     @Path("/{name}")
     @Produces(MediaType.APPLICATION_JSON) 
-	@ApiOperation(value = "deleteCollectionsDocuments: delete all Documents belonging to the specified Collection")
+	@ApiOperation(value = "deleteCollectionDocuments: delete all Documents belonging to the specified Collection")
     public int deleteCollectionDocuments(@PathParam("name") String name) {
 		DocumentManagement docMgr = getDocManager();
 		try {

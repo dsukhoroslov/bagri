@@ -70,8 +70,16 @@
         <level value="debug"/>
     </logger-->
 
+    <logger name="io.swagger">
+        <level value="${swagger.log.level:-info}"/>
+    </logger>
+
+    <logger name="org.eclipse.jetty">
+        <level value="${jetty.log.level:-info}"/>
+    </logger>
+
     <logger name="org.springframework">
-        <level value="info"/>
+        <level value="${spring.log.level:-info}"/>
     </logger>
 
     <root level="debug">
