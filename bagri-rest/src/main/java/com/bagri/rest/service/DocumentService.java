@@ -35,6 +35,12 @@ import com.bagri.core.model.Document;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
+/**
+ * JAX-RS documents resource, contains methods for documents management. Accessible on /docs path. 
+ * 
+ * @author Denis Sukhoroslov
+ *
+ */
 @Path("/docs")
 @Api(value = "documents")
 public class DocumentService  extends RestService {

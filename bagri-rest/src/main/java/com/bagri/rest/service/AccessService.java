@@ -19,6 +19,12 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
+/**
+ * JAX-RS access resource, contains login/logout methods. Can be reached on /access path via HTTPS.
+ * 
+ * @author Denis Sukhoroslov
+ *
+ */
 @Path("/access")
 @Api(value = "access")
 public class AccessService extends RestService {

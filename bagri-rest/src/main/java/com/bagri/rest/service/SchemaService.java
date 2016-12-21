@@ -19,6 +19,12 @@ import com.bagri.rest.RepositoryProvider;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
+/**
+ * JAX-RS schemas resource, contains methods for server schemas resolution. Accessible on /schemas path. 
+ * 
+ * @author Denis Sukhoroslov
+ *
+ */
 @Path("/schemas")
 @Api(value = "schemas")
 public class SchemaService extends RestService {

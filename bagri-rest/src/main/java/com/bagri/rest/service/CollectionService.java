@@ -17,6 +17,12 @@ import com.bagri.core.api.SchemaRepository;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
+/**
+ * JAX-RS collections resource, contains methods for document collections management. Accessible on /clns path. 
+ * 
+ * @author Denis Sukhoroslov
+ *
+ */
 @Path("/clns")
 @Api(value = "collections")
 public class CollectionService extends RestService {
@@ -70,6 +76,5 @@ public class CollectionService extends RestService {
     	}
     }    
     
-
 }
 

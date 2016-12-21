@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.bagridb</groupId>
         <artifactId>bagri</artifactId>
-        <version>1.1.0-EA1</version>
+        <version>1.1.0-EA2</version>
         <relativePath>..</relativePath>
     </parent>
 
@@ -66,6 +66,14 @@
 		<configuration>
 		    <skipTests>true</skipTests>
 		</configuration>
+	    </plugin>
+
+	    <plugin>
+	        <groupId>org.apache.maven.plugins</groupId>
+	        <artifactId>maven-deploy-plugin</artifactId>
+	        <configuration>
+        	    <skip>false</skip>
+	        </configuration>
 	    </plugin>
 
 	    <!--plugin>

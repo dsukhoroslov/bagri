@@ -21,6 +21,12 @@ import com.bagri.core.api.SchemaRepository;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
+/**
+ * JAX-RS query resource, contains methods to perform XQuery queries on Bagri server. Accessible on /query path.  
+ * 
+ * @author Denis Sukhoroslov
+ *
+ */
 @Path("/query")
 @Api(value = "query")
 @Consumes(MediaType.APPLICATION_JSON)
