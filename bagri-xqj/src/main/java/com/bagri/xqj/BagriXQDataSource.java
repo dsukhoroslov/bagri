@@ -1,6 +1,6 @@
 package com.bagri.xqj;
 
-import static com.bagri.xdm.common.Constants.*;
+import static com.bagri.core.Constants.*;
 
 import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
@@ -15,8 +15,8 @@ import javax.xml.xquery.XQException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bagri.xdm.api.SchemaRepository;
-import com.bagri.xquery.api.XQProcessor;
+import com.bagri.core.api.SchemaRepository;
+import com.bagri.core.xquery.api.XQProcessor;
 
 /**
  * @author Denis Sukhoroslov
@@ -34,8 +34,8 @@ public class BagriXQDataSource implements XQDataSource {
 	public static final String ADDRESS = "address";
 	public static final String TRANSACTIONAL = "transactional";
 
-	public static final String XQ_PROCESSOR = "query.processor";
-	public static final String XDM_REPOSITORY = "xdm.repository";
+	public static final String XQ_PROCESSOR = "processor";
+	public static final String XDM_REPOSITORY = "repository";
 	
 	// TODO: implement some relevant writer which will do logging
 	private PrintWriter writer;
@@ -60,7 +60,7 @@ public class BagriXQDataSource implements XQDataSource {
 		properties.put(pn_client_bufferSize, "32"); 
 		properties.put(pn_client_connectAttempts, "3");
 		properties.put(XQ_PROCESSOR, ""); //"com.bagri.xquery.saxon.BagriXQProcessor"); //Proxy
-		properties.put(XDM_REPOSITORY, ""); //"com.bagri.xdm.client.hazelcast.impl.SchemaRepositoryImpl"); 
+		properties.put(XDM_REPOSITORY, ""); //"com.bagri.client.hazelcast.impl.SchemaRepositoryImpl"); 
 	}
 
 	/** {@inheritDoc}

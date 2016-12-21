@@ -1,7 +1,7 @@
 package com.bagri.rest;
 
+import static com.bagri.core.xquery.XQUtils.getAtomicValue;
 import static com.bagri.rest.RestConstants.*;
-import static com.bagri.xquery.api.XQUtils.getAtomicValue;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -27,11 +27,11 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import com.bagri.xdm.api.ResultCursor;
-import com.bagri.xdm.api.SchemaRepository;
-import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.system.Function;
-import com.bagri.xdm.system.Parameter;
+import com.bagri.core.api.ResultCursor;
+import com.bagri.core.api.SchemaRepository;
+import com.bagri.core.api.BagriException;
+import com.bagri.core.system.Function;
+import com.bagri.core.system.Parameter;
 
 public class RestRequestProcessor implements Inflector<ContainerRequestContext, Response> {
 	 
@@ -72,7 +72,7 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
 		try {
 			cursor = repo.getQueryManagement().executeQuery(query, params, props);
 	    	empty = !cursor.next();
-		} catch (XDMException ex) {
+		} catch (BagriException ex) {
 			logger.error("apply.error: ", ex);
 			return Response.serverError().entity(ex.getMessage()).build();
 		}
@@ -86,7 +86,7 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
     	Response.ResponseBuilder response = Response.noContent();
     	try {
     		empty = fillResponse(cursor, response);
-	    } catch (XDMException ex) {
+	    } catch (BagriException ex) {
 			logger.error("apply.error: error processing response ", ex);
 			return Response.serverError().entity(ex.getMessage()).build();
 	    }
@@ -229,7 +229,7 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
 		}
     }
     
-    private boolean fillResponse(ResultCursor cursor, Response.ResponseBuilder response) throws XDMException {
+    private boolean fillResponse(ResultCursor cursor, Response.ResponseBuilder response) throws BagriException {
     	int status = Response.Status.OK.getStatusCode(); 
     	String message = null;
     	boolean empty = false;
@@ -237,7 +237,7 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
     	try {
     		node = cursor.getNode();
        		logger.debug("fillResponse; got node: {}", node);
-    	} catch (XDMException ex) {
+    	} catch (BagriException ex) {
        		logger.debug("fillResponse; got non-xml content, skipping");
     	}
 
@@ -287,7 +287,7 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
 		                writer.write(chunk + "\n");
 			            writer.flush();
 		            } while (result.next());
-	            } catch (XDMException ex) {
+	            } catch (BagriException ex) {
 	            	logger.error("write.error: error getting result from cursor ", ex);
         			// how to handle it properly?? throw WebAppEx?
                 } finally {

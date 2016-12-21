@@ -9,8 +9,8 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bagri.xdm.system.Function;
-import com.bagri.xdm.system.Parameter;
+import com.bagri.core.system.Function;
+import com.bagri.core.system.Parameter;
 
 import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.jaxrs.Reader;

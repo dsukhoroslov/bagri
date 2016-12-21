@@ -3,7 +3,7 @@
  */
 package com.bagri.xquery.saxon;
 
-import static com.bagri.xdm.common.Constants.bg_schema;
+import static com.bagri.core.Constants.bg_schema;
 
 import java.io.Reader;
 import java.io.StringReader;
@@ -19,10 +19,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
 
-import com.bagri.common.util.FileUtils;
-import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.api.SchemaRepository;
-import com.bagri.xdm.cache.api.DocumentManagement;
+import com.bagri.core.api.SchemaRepository;
+import com.bagri.core.api.BagriException;
+import com.bagri.core.server.api.DocumentManagement;
+import com.bagri.support.util.FileUtils;
 
 import net.sf.saxon.Configuration;
 import net.sf.saxon.lib.SourceResolver;
@@ -137,7 +137,7 @@ public class SourceResolverImpl implements SourceResolver, URIResolver, Unparsed
 				throw new XPathException("cannot resolve document for URI: " +  uri); //??
 			}
 			return content;
-		} catch (XDMException ex) {
+		} catch (BagriException ex) {
 			throw new XPathException("cannot resolve document for URI: " +  uri);
 		}
 	}

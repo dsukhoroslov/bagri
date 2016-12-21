@@ -1,9 +1,9 @@
 package com.bagri.rest.service;
 
+import com.bagri.core.api.SchemaRepository;
+import com.bagri.core.system.Schema;
 import com.bagri.rest.BagriRestServer;
 import com.bagri.rest.RepositoryProvider;
-import com.bagri.xdm.api.SchemaRepository;
-import com.bagri.xdm.system.Schema;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

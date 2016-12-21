@@ -129,7 +129,7 @@ public class BagriOverview extends DataSourceViewPlugin implements DataRemovedLi
 	                            , schema.isPersistent() ? "Yes" : "No"
 	                            , schema.getDataFormat()
 	                            , schema.getState()
-	                            , schema.getProperties().getProperty("xdm.schema.members")
+	                            , schema.getProperties().getProperty("bdb.schema.members")
 	                            , "N/A"}));
 	                    if ("working".equals(schema.getState())) {
 	                    	try {

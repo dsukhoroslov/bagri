@@ -9,10 +9,10 @@
     </appender>
 
     <appender name="ROLLING" class="ch.qos.logback.core.rolling.RollingFileAppender">
-    	<file>${log.path:-output/logs}/${log.name:-xdm-client}.log</file>
+    	<file>${log.path:-output/logs}/${log.name:-bdb-client}.log</file>
     	<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
       		<!-- rollover daily -->
-      		<fileNamePattern>${log.path:-output/logs}/${log.name:-xdm-client}-%d{yyyy-MM-dd}.%i.gz</fileNamePattern>
+      		<fileNamePattern>${log.path:-output/logs}/${log.name:-bdb-client}-%d{yyyy-MM-dd}.%i.gz</fileNamePattern>
       		<maxHistory>4</maxHistory>
       		<timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
         		<!-- or whenever the file size reaches 50MB -->
@@ -25,7 +25,7 @@
     </appender>
 
     <logger name="com.bagri">
-        <level value="${xdm.log.level:-debug}"/>
+        <level value="${bdb.log.level:-debug}"/>
     </logger>
 
     <logger name="org.springframework">

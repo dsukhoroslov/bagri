@@ -1,6 +1,6 @@
 package com.bagri.xquery.saxon;
 
-import static com.bagri.xdm.common.Constants.*;
+import static com.bagri.core.Constants.*;
 import static com.bagri.xquery.saxon.SaxonUtils.*;
 import static javax.xml.xquery.XQConstants.*;
 
@@ -35,9 +35,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 
-import com.bagri.common.util.XMLUtils;
-import com.bagri.xdm.api.SchemaRepository;
-import com.bagri.xquery.api.XQProcessorBase;
+import com.bagri.core.api.SchemaRepository;
+import com.bagri.core.xquery.api.XQProcessorBase;
+import com.bagri.support.util.XMLUtils;
 import com.bagri.xquery.saxon.ext.doc.GetDocumentContent;
 import com.bagri.xquery.saxon.ext.doc.QueryDocumentUris;
 import com.bagri.xquery.saxon.ext.doc.RemoveCollectionDocuments;
@@ -184,16 +184,16 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
 		logger.trace("setStaticContext.enter; got props: {}", props);
        	// !!
         sqc.setSchemaAware(false);
-        String value = props.getProperty(pn_baseURI);
+        String value = props.getProperty(pn_xqj_baseURI);
         if (value != null && !value.isEmpty()) {
         	sqc.setBaseURI(value);
         }
     	//props.getProperty(pn_bindingMode)
-        value = props.getProperty(pn_boundarySpacePolicy);
+        value = props.getProperty(pn_xqj_boundarySpacePolicy);
         if (value != null) {
         	sqc.setPreserveBoundarySpace(String.valueOf(BOUNDARY_SPACE_PRESERVE).equals(value));
         }
-        value = props.getProperty(pn_constructionMode);
+        value = props.getProperty(pn_xqj_constructionMode);
         if (value != null) {
         	if (String.valueOf(CONSTRUCTION_MODE_PRESERVE).equals(value)) {
         		sqc.setConstructionMode(Validation.PRESERVE);
@@ -205,29 +205,29 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
         //if (contextItemStaticType != null) {
         //    sqc.setRequiredContextItemType(contextItemStaticType.getSaxonItemType());
         //}
-        value = props.getProperty(pn_defaultCollationUri);
+        value = props.getProperty(pn_xqj_defaultCollationUri);
         if (value != null) {
         	sqc.declareDefaultCollation(value);
         }
-        value = props.getProperty(pn_defaultElementTypeNamespace);
+        value = props.getProperty(pn_xqj_defaultElementTypeNamespace);
         if (value != null) {
         	// TODO: after set all XMark queries were broken!!! as they have no ns.
         	sqc.setDefaultElementNamespace(value);
         }
-        value = props.getProperty(pn_defaultFunctionNamespace);
+        value = props.getProperty(pn_xqj_defaultFunctionNamespace);
         if (value != null) {
         	sqc.setDefaultFunctionNamespace(value);
         }
         //sqc.setEmptyLeast(emptyLeast);
-        value = props.getProperty(pn_copyNamespacesModeInherit);
+        value = props.getProperty(pn_xqj_copyNamespacesModeInherit);
         if (value != null) {
         	sqc.setInheritNamespaces(String.valueOf(COPY_NAMESPACES_MODE_INHERIT).equals(value));
         }
-        value = props.getProperty(pn_copyNamespacesModePreserve);
+        value = props.getProperty(pn_xqj_copyNamespacesModePreserve);
         if (value != null) {
         	sqc.setPreserveNamespaces(String.valueOf(COPY_NAMESPACES_MODE_PRESERVE).equals(value));
         }
-        value = props.getProperty(pn_defaultNamespaces);
+        value = props.getProperty(pn_xqj_defaultNamespaces);
         if (value != null) {
         	sqc.clearNamespaces();
         	StringTokenizer st = new StringTokenizer(value, " ");
@@ -240,7 +240,7 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
     	//props.getProperty(pn_defaultOrderForEmptySequences)
     	//props.getProperty(pn_holdability)
     	//props.getProperty(pn_orderingMode)
-        value = props.getProperty(pn_queryLanguageTypeAndVersion);
+        value = props.getProperty(pn_xqj_queryLanguageTypeAndVersion);
         if (value != null) {
         	if (String.valueOf(LANGTYPE_XQUERY).equals(value)) {
         		sqc.setLanguageVersion(saxon_xquery_version); 
@@ -253,30 +253,30 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
 
     protected Properties contextToProps(XQStaticContext ctx) throws XQException {
     	Properties result = new Properties();
-    	result.put(pn_baseURI, ctx.getBaseURI());
-    	result.setProperty(pn_bindingMode, String.valueOf(ctx.getBindingMode()));
-    	result.setProperty(pn_boundarySpacePolicy, String.valueOf(ctx.getBoundarySpacePolicy()));
-    	result.setProperty(pn_constructionMode, String.valueOf(ctx.getConstructionMode()));
+    	result.put(pn_xqj_baseURI, ctx.getBaseURI());
+    	result.setProperty(pn_xqj_bindingMode, String.valueOf(ctx.getBindingMode()));
+    	result.setProperty(pn_xqj_boundarySpacePolicy, String.valueOf(ctx.getBoundarySpacePolicy()));
+    	result.setProperty(pn_xqj_constructionMode, String.valueOf(ctx.getConstructionMode()));
     	//ctx.getContextItemStaticType()
-    	result.setProperty(pn_copyNamespacesModeInherit, String.valueOf(ctx.getCopyNamespacesModeInherit()));
-    	result.setProperty(pn_copyNamespacesModePreserve, String.valueOf(ctx.getCopyNamespacesModePreserve()));
-    	result.setProperty(pn_defaultCollationUri, ctx.getDefaultCollation());
-    	result.setProperty(pn_defaultElementTypeNamespace, ctx.getDefaultElementTypeNamespace());
-    	result.setProperty(pn_defaultFunctionNamespace, ctx.getDefaultFunctionNamespace());
+    	result.setProperty(pn_xqj_copyNamespacesModeInherit, String.valueOf(ctx.getCopyNamespacesModeInherit()));
+    	result.setProperty(pn_xqj_copyNamespacesModePreserve, String.valueOf(ctx.getCopyNamespacesModePreserve()));
+    	result.setProperty(pn_xqj_defaultCollationUri, ctx.getDefaultCollation());
+    	result.setProperty(pn_xqj_defaultElementTypeNamespace, ctx.getDefaultElementTypeNamespace());
+    	result.setProperty(pn_xqj_defaultFunctionNamespace, ctx.getDefaultFunctionNamespace());
     	if (ctx.getNamespacePrefixes().length > 0) {
     		StringBuffer namespaces = new StringBuffer();
     		for (String prefix: ctx.getNamespacePrefixes()) {
     			namespaces.append(prefix).append(":").append(ctx.getNamespaceURI(prefix));
     			namespaces.append(" ");
     		}
-    		result.put(pn_defaultNamespaces, namespaces.toString());
+    		result.put(pn_xqj_defaultNamespaces, namespaces.toString());
     	}
-    	result.setProperty(pn_defaultOrderForEmptySequences, String.valueOf(ctx.getDefaultOrderForEmptySequences()));
-    	result.setProperty(pn_holdability, String.valueOf(ctx.getHoldability()));
-    	result.setProperty(pn_orderingMode, String.valueOf(ctx.getOrderingMode()));
-    	result.setProperty(pn_queryLanguageTypeAndVersion, String.valueOf(ctx.getQueryLanguageTypeAndVersion()));
-    	result.setProperty(pn_queryTimeout, String.valueOf(ctx.getQueryTimeout()));
-    	result.setProperty(pn_scrollability, String.valueOf(ctx.getScrollability()));
+    	result.setProperty(pn_xqj_defaultOrderForEmptySequences, String.valueOf(ctx.getDefaultOrderForEmptySequences()));
+    	result.setProperty(pn_xqj_holdability, String.valueOf(ctx.getHoldability()));
+    	result.setProperty(pn_xqj_orderingMode, String.valueOf(ctx.getOrderingMode()));
+    	result.setProperty(pn_xqj_queryLanguageTypeAndVersion, String.valueOf(ctx.getQueryLanguageTypeAndVersion()));
+    	result.setProperty(pn_xqj_queryTimeout, String.valueOf(ctx.getQueryTimeout()));
+    	result.setProperty(pn_xqj_scrollability, String.valueOf(ctx.getScrollability()));
     	return result;
     }
 
@@ -293,9 +293,9 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
         config.registerExtensionFunction(new BeginTransaction(xRepo.getTxManagement()));
         config.registerExtensionFunction(new CommitTransaction(xRepo.getTxManagement()));
         config.registerExtensionFunction(new RollbackTransaction(xRepo.getTxManagement()));
-        if (xRepo instanceof com.bagri.xdm.cache.api.SchemaRepository) {
+        if (xRepo instanceof com.bagri.core.server.api.SchemaRepository) {
         	logger.debug("setRepository; registering extensions"); 
-        	XQCompilerImpl.registerExtensions(config, ((com.bagri.xdm.cache.api.SchemaRepository) xRepo).getLibraries());
+        	XQCompilerImpl.registerExtensions(config, ((com.bagri.core.server.api.SchemaRepository) xRepo).getLibraries());
         } else {
         	logger.debug("setRepository; client side repo - has no access to extensions"); 
         }

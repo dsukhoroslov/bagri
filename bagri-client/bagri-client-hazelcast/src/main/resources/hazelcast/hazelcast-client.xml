@@ -22,40 +22,40 @@
 	<hz:executor-pool-size>16</hz:executor-pool-size>
 
 	<!--hz:security>
-		<credentials>com.bagri.xdm.client.hazelcast.serialize.SecureCredentials</credentials>
+		<credentials>com.bagri.client.hazelcast.serialize.SecureCredentials</credentials>
 	</hz:security-->
 
 	<hz:serialization>
 		<hz:data-serializable-factories>
-			<hz:data-serializable-factory factory-id="1">com.bagri.xdm.client.hazelcast.serialize.DataSerializationFactoryImpl</hz:data-serializable-factory>
+			<hz:data-serializable-factory factory-id="1">com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl</hz:data-serializable-factory>
 		</hz:data-serializable-factories>
 		<hz:portable-factories>
-			<hz:portable-factory factory-id="2">com.bagri.xdm.client.hazelcast.serialize.PortableFactoryImpl</hz:portable-factory>
+			<hz:portable-factory factory-id="2">com.bagri.client.hazelcast.serialize.PortableFactoryImpl</hz:portable-factory>
 		</hz:portable-factories>
 		<hz:serializers>
 			<!--hz:global-serializer class-name="com.hazelcast.nio.serialization.PortableSerializer"/-->
-			<hz:serializer type-class="com.bagri.xdm.domain.Element" class-name="com.bagri.xdm.client.hazelcast.serialize.domain.ElementSerializer"/>
-			<hz:serializer type-class="com.bagri.xdm.domain.Elements" class-name="com.bagri.xdm.client.hazelcast.serialize.domain.ElementsSerializer"/>
-			<hz:serializer type-class="com.bagri.xdm.domain.Path" class-name="com.bagri.xdm.client.hazelcast.serialize.domain.PathSerializer"/>
-			<hz:serializer type-class="com.bagri.xdm.domain.Document" class-name="com.bagri.xdm.client.hazelcast.serialize.domain.DocumentSerializer"/>
-			<hz:serializer type-class="com.bagri.xdm.domain.DocumentType" class-name="com.bagri.xdm.client.hazelcast.serialize.domain.DocumentTypeSerializer"/>
-			<hz:serializer type-class="com.bagri.xdm.domain.Namespace" class-name="com.bagri.xdm.client.hazelcast.serialize.domain.NamespaceSerializer"/>
-			<hz:serializer type-class="com.bagri.xdm.domain.Query" class-name="com.bagri.xdm.client.hazelcast.serialize.domain.QuerySerializer"/>
-			<hz:serializer type-class="com.bagri.xdm.domain.QueryResult" class-name="com.bagri.xdm.client.hazelcast.serialize.domain.QueryResultSerializer"/>
-			<hz:serializer type-class="com.bagri.xdm.domain.IndexedDocument" class-name="com.bagri.xdm.client.hazelcast.serialize.domain.IndexedDocumentSerializer"/>
-			<hz:serializer type-class="com.bagri.xdm.domain.UniqueDocument" class-name="com.bagri.xdm.client.hazelcast.serialize.domain.UniqueDocumentSerializer"/>
-			<hz:serializer type-class="com.bagri.xdm.domain.UniqueValue" class-name="com.bagri.xdm.client.hazelcast.serialize.domain.UniqueValueSerializer"/>
-			<hz:serializer type-class="com.bagri.xdm.domain.Transaction" class-name="com.bagri.xdm.client.hazelcast.serialize.domain.TransactionSerializer"/>
-			<hz:serializer type-class="com.bagri.xdm.domain.FragmentedDocument" class-name="com.bagri.xdm.client.hazelcast.serialize.domain.FragmentedDocumentSerializer"/>
-			<hz:serializer type-class="com.bagri.xdm.query.Expression" class-name="com.bagri.xdm.client.hazelcast.serialize.query.ExpressionSerializer"/>
-			<hz:serializer type-class="com.bagri.xdm.query.AlwaysExpression" class-name="com.bagri.xdm.client.hazelcast.serialize.query.ExpressionSerializer"/>
-			<hz:serializer type-class="com.bagri.xdm.query.PathExpression" class-name="com.bagri.xdm.client.hazelcast.serialize.query.ExpressionSerializer"/>
-			<hz:serializer type-class="com.bagri.xdm.query.BinaryExpression" class-name="com.bagri.xdm.client.hazelcast.serialize.query.ExpressionSerializer"/>
-			<hz:serializer type-class="com.bagri.xdm.query.ExpressionBuilder" class-name="com.bagri.xdm.client.hazelcast.serialize.query.ExpressionBuilderSerializer"/>
-			<hz:serializer type-class="com.bagri.xdm.query.ExpressionContainer" class-name="com.bagri.xdm.client.hazelcast.serialize.query.ExpressionContainerSerializer"/>
-			<hz:serializer type-class="com.bagri.xdm.query.PathBuilder" class-name="com.bagri.xdm.client.hazelcast.serialize.query.PathBuilderSerializer"/>
-			<hz:serializer type-class="com.bagri.xdm.query.QueryBuilder" class-name="com.bagri.xdm.client.hazelcast.serialize.query.QueryBuilderSerializer"/>
-			<hz:serializer type-class="com.bagri.xdm.query.QueriedPath" class-name="com.bagri.xdm.client.hazelcast.serialize.query.QueriedPathSerializer"/>
+			<hz:serializer type-class="com.bagri.core.model.Element" class-name="com.bagri.client.hazelcast.serialize.model.ElementSerializer"/>
+			<hz:serializer type-class="com.bagri.core.model.Elements" class-name="com.bagri.client.hazelcast.serialize.model.ElementsSerializer"/>
+			<hz:serializer type-class="com.bagri.core.model.Path" class-name="com.bagri.client.hazelcast.serialize.model.PathSerializer"/>
+			<hz:serializer type-class="com.bagri.core.model.Document" class-name="com.bagri.client.hazelcast.serialize.model.DocumentSerializer"/>
+			<hz:serializer type-class="com.bagri.core.model.DocumentType" class-name="com.bagri.client.hazelcast.serialize.model.DocumentTypeSerializer"/>
+			<hz:serializer type-class="com.bagri.core.model.Namespace" class-name="com.bagri.client.hazelcast.serialize.model.NamespaceSerializer"/>
+			<hz:serializer type-class="com.bagri.core.model.Query" class-name="com.bagri.client.hazelcast.serialize.model.QuerySerializer"/>
+			<hz:serializer type-class="com.bagri.core.model.QueryResult" class-name="com.bagri.client.hazelcast.serialize.model.QueryResultSerializer"/>
+			<hz:serializer type-class="com.bagri.core.model.IndexedDocument" class-name="com.bagri.client.hazelcast.serialize.model.IndexedDocumentSerializer"/>
+			<hz:serializer type-class="com.bagri.core.model.UniqueDocument" class-name="com.bagri.client.hazelcast.serialize.model.UniqueDocumentSerializer"/>
+			<hz:serializer type-class="com.bagri.core.model.UniqueValue" class-name="com.bagri.client.hazelcast.serialize.model.UniqueValueSerializer"/>
+			<hz:serializer type-class="com.bagri.core.model.Transaction" class-name="com.bagri.client.hazelcast.serialize.model.TransactionSerializer"/>
+			<hz:serializer type-class="com.bagri.core.model.FragmentedDocument" class-name="com.bagri.client.hazelcast.serialize.model.FragmentedDocumentSerializer"/>
+			<hz:serializer type-class="com.bagri.core.query.Expression" class-name="com.bagri.client.hazelcast.serialize.query.ExpressionSerializer"/>
+			<hz:serializer type-class="com.bagri.core.query.AlwaysExpression" class-name="com.bagri.client.hazelcast.serialize.query.ExpressionSerializer"/>
+			<hz:serializer type-class="com.bagri.core.query.PathExpression" class-name="com.bagri.client.hazelcast.serialize.query.ExpressionSerializer"/>
+			<hz:serializer type-class="com.bagri.core.query.BinaryExpression" class-name="com.bagri.client.hazelcast.serialize.query.ExpressionSerializer"/>
+			<hz:serializer type-class="com.bagri.core.query.ExpressionBuilder" class-name="com.bagri.client.hazelcast.serialize.query.ExpressionBuilderSerializer"/>
+			<hz:serializer type-class="com.bagri.core.query.ExpressionContainer" class-name="com.bagri.client.hazelcast.serialize.query.ExpressionContainerSerializer"/>
+			<hz:serializer type-class="com.bagri.core.query.PathBuilder" class-name="com.bagri.client.hazelcast.serialize.query.PathBuilderSerializer"/>
+			<hz:serializer type-class="com.bagri.core.query.QueryBuilder" class-name="com.bagri.client.hazelcast.serialize.query.QueryBuilderSerializer"/>
+			<hz:serializer type-class="com.bagri.core.query.QueriedPath" class-name="com.bagri.client.hazelcast.serialize.query.QueriedPathSerializer"/>
 		</hz:serializers>
 	</hz:serialization>
 

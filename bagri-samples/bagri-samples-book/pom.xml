@@ -23,7 +23,7 @@
 
         <dependency>
             <groupId>com.bagridb</groupId>
-            <artifactId>bagri-xdm</artifactId>
+            <artifactId>bagri-core</artifactId>
         </dependency>
         <dependency>
             <groupId>com.bagridb</groupId>

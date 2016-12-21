@@ -1,10 +1,10 @@
 package com.bagri.rest;
 
+import static com.bagri.core.Constants.bg_version;
+import static com.bagri.core.Constants.pn_rest_auth_port;
+import static com.bagri.core.Constants.pn_rest_jmx;
+import static com.bagri.core.Constants.pn_rest_port;
 import static com.bagri.rest.RestConstants.*;
-import static com.bagri.xdm.common.Constants.bg_version;
-import static com.bagri.xdm.common.Constants.xdm_rest_jmx;
-import static com.bagri.xdm.common.Constants.xdm_rest_port;
-import static com.bagri.xdm.common.Constants.xdm_rest_auth_port;
 
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
@@ -40,6 +40,12 @@ import org.glassfish.jersey.servlet.ServletContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.bagri.core.api.BagriException;
+import com.bagri.core.system.Function;
+import com.bagri.core.system.Module;
+import com.bagri.core.system.Parameter;
+import com.bagri.core.system.Schema;
+import com.bagri.core.xquery.api.XQCompiler;
 import com.bagri.rest.service.AccessService;
 import com.bagri.rest.service.CollectionService;
 import com.bagri.rest.service.DocumentService;
@@ -47,12 +53,6 @@ import com.bagri.rest.service.QueryService;
 import com.bagri.rest.service.SchemaService;
 import com.bagri.rest.service.SwaggerListener;
 import com.bagri.rest.service.TransactionService;
-import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.system.Function;
-import com.bagri.xdm.system.Module;
-import com.bagri.xdm.system.Parameter;
-import com.bagri.xdm.system.Schema;
-import com.bagri.xquery.api.XQCompiler;
 
 import io.swagger.jaxrs.config.BeanConfig;
 import io.swagger.jaxrs.listing.ApiListingResource;
@@ -90,9 +90,9 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Factor
     public BagriRestServer(RepositoryProvider rePro, XQCompiler xqComp, Properties props) {
     	this.rePro = rePro;
     	this.xqComp = xqComp;
-    	this.jmx = Boolean.parseBoolean(props.getProperty(xdm_rest_jmx, "true"));
-    	this.port = Integer.parseInt(props.getProperty(xdm_rest_port, "3030"));
-    	this.sport = Integer.parseInt(props.getProperty(xdm_rest_auth_port, "3443"));
+    	this.jmx = Boolean.parseBoolean(props.getProperty(pn_rest_jmx, "true"));
+    	this.port = Integer.parseInt(props.getProperty(pn_rest_port, "3030"));
+    	this.sport = Integer.parseInt(props.getProperty(pn_rest_auth_port, "3443"));
     }
     
     public int getPort() {
@@ -286,14 +286,14 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Factor
     	Schema schema = rePro.getSchema(schemaName);
     	// get schema -> resources
     	int cnt = 0;
-    	for (com.bagri.xdm.system.Resource res: schema.getResources()) {
+    	for (com.bagri.core.system.Resource res: schema.getResources()) {
         	// for each resource -> get module
     		if (res.isEnabled()) {
 	    		Module module = rePro.getModule(res.getModule());
 	    		try {
 	    			buildDynamicResources(config, res.getPath(), module);
 	    			cnt++;
-	    		} catch (XDMException ex) {
+	    		} catch (BagriException ex) {
 	    			logger.error("buildSchemaConfig; error processing module: " + res.getModule(), ex);
 	    			// skip it..
 	    		}
@@ -302,7 +302,7 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Factor
     	return cnt > 0;
     }
     
-    private void buildDynamicResources(ResourceConfig config, String basePath, Module module) throws XDMException {
+    private void buildDynamicResources(ResourceConfig config, String basePath, Module module) throws BagriException {
 
     	Resource.Builder resourceBuilder = Resource.builder();
         resourceBuilder.path(basePath);

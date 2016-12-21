@@ -14,9 +14,9 @@ import javax.ws.rs.core.Response.Status;
 
 import org.glassfish.jersey.server.ChunkedOutput;
 
-import com.bagri.xdm.api.QueryManagement;
-import com.bagri.xdm.api.ResultCursor;
-import com.bagri.xdm.api.SchemaRepository;
+import com.bagri.core.api.QueryManagement;
+import com.bagri.core.api.ResultCursor;
+import com.bagri.core.api.SchemaRepository;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

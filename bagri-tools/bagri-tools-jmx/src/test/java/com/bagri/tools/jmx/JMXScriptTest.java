@@ -14,7 +14,7 @@ public class JMXScriptTest {
 	@Test
 	public void testWrite() throws JAXBException {
 		
-		JMXInvoke invoke = new JMXInvoke("com.bagri.xdm:type=Schema,name=default,kind=ModelManagement",
+		JMXInvoke invoke = new JMXInvoke("com.bagri.db:type=Schema,name=default,kind=ModelManagement",
 				"registerSchema", null, null);
 		invoke.addArgument("java.lang.String", "../../etc/samples/tpox/security.xsd");
 
@@ -22,7 +22,7 @@ public class JMXScriptTest {
 		script.getTasks().add(invoke);
 		script.getTasks().add(5000);
 		
-		invoke = new JMXInvoke("com.bagri.xdm:type=Schema,name=default,kind=IndexManagement",
+		invoke = new JMXInvoke("com.bagri.db:type=Schema,name=default,kind=IndexManagement",
 				"addIndex", null, null);
 		invoke.addArgument("java.lang.String", "IDX_Customer_id");
 		invoke.addArgument("java.lang.String", "/{http://tpox-benchmark.com/custacc}Customer/@id");

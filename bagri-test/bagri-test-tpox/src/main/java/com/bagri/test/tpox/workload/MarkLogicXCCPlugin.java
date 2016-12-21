@@ -1,6 +1,6 @@
 package com.bagri.test.tpox.workload;
 
-import static com.bagri.xdm.common.Constants.*;
+import static com.bagri.core.Constants.*;
 
 import java.sql.SQLException;
 import java.util.Map;
@@ -9,7 +9,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bagri.xdm.system.Parameter;
+import com.bagri.core.system.Parameter;
 import com.marklogic.xcc.Content;
 import com.marklogic.xcc.ContentCreateOptions;
 import com.marklogic.xcc.ContentFactory;

@@ -1,18 +1,15 @@
 package com.bagri.samples.book;
 
-import static com.bagri.common.util.FileUtils.def_encoding;
-import static com.bagri.common.util.FileUtils.readTextFile;
-import static com.bagri.common.util.PropUtils.getOutputProperties;
-import static com.bagri.xdm.common.Constants.pn_client_dataFactory;
-//import static com.bagri.xdm.common.XDMConstants.pn_client_fetchSize;
-import static com.bagri.xdm.common.Constants.pn_client_storeMode;
-import static com.bagri.xdm.common.Constants.pv_client_storeMode_insert;
-import static com.bagri.xdm.common.Constants.pn_schema_address;
-import static com.bagri.xdm.common.Constants.pn_schema_name;
-import static com.bagri.xdm.common.Constants.pn_schema_password;
-import static com.bagri.xdm.common.Constants.pn_schema_user;
-//import static com.bagri.xdm.common.XDMConstants.xdm_document_collections;
-//import static com.bagri.xdm.common.XDMConstants.xdm_document_data_format;
+import static com.bagri.core.Constants.pn_client_dataFactory;
+import static com.bagri.core.Constants.pn_client_storeMode;
+import static com.bagri.core.Constants.pn_schema_address;
+import static com.bagri.core.Constants.pn_schema_name;
+import static com.bagri.core.Constants.pn_schema_password;
+import static com.bagri.core.Constants.pn_schema_user;
+import static com.bagri.core.Constants.pv_client_storeMode_insert;
+import static com.bagri.support.util.FileUtils.def_encoding;
+import static com.bagri.support.util.FileUtils.readTextFile;
+import static com.bagri.support.util.PropUtils.getOutputProperties;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -40,14 +37,14 @@ import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import org.jline.utils.InfoCmp.Capability;
 
-import com.bagri.xdm.api.DocumentManagement;
-import com.bagri.xdm.api.ResultCursor;
-import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.api.SchemaRepository;
-import com.bagri.xdm.client.hazelcast.impl.SchemaRepositoryImpl;
-import com.bagri.xdm.domain.Document;
+import com.bagri.client.hazelcast.impl.SchemaRepositoryImpl;
+import com.bagri.core.api.DocumentManagement;
+import com.bagri.core.api.ResultCursor;
+import com.bagri.core.api.SchemaRepository;
+import com.bagri.core.api.BagriException;
+import com.bagri.core.model.Document;
+import com.bagri.core.xquery.api.XQProcessor;
 import com.bagri.xqj.BagriXQDataFactory;
-import com.bagri.xquery.api.XQProcessor;
 import com.bagri.xquery.saxon.XQProcessorClient;
 import com.opencsv.CSVParser;
 import com.opencsv.CSVReader;
@@ -58,11 +55,11 @@ public class BookingApp {
 	private SchemaRepository xRepo;
 	
 
-	public static void main(String[] args) throws XDMException {
+	public static void main(String[] args) throws BagriException {
 
         // parse args, get connection params, connect to XDM cluster
 		if (args.length < 4) {
-			throw new XDMException("wrong number of arguments passed. Expected: schemaAddress schemaName userName password", 0);
+			throw new BagriException("wrong number of arguments passed. Expected: schemaAddress schemaName userName password", 0);
 		}
 		
 		Properties props = new Properties();
@@ -246,7 +243,7 @@ public class BookingApp {
 		xRepo.close();
 	}
 
-	public long loadFiles(String fileName, String encoding, int size) throws IOException, XDMException {
+	public long loadFiles(String fileName, String encoding, int size) throws IOException, BagriException {
 		Path path = Paths.get(fileName);
 		if (Files.isDirectory(path)) {
 			return processFolder(path, encoding, size);
@@ -254,7 +251,7 @@ public class BookingApp {
 		return processFile(path, encoding, size);
 	}
 	
-	private long processFolder(Path folder, String encoding, int size) throws IOException, XDMException {
+	private long processFolder(Path folder, String encoding, int size) throws IOException, BagriException {
 		long result = 0;
 		try (DirectoryStream<Path> stream = Files.newDirectoryStream(folder)) {
 		    for (Path path: stream) {
@@ -268,7 +265,7 @@ public class BookingApp {
 		} 
 	}
 	
-	private long processFile(Path path, String encoding, int size) throws IOException, XDMException {
+	private long processFile(Path path, String encoding, int size) throws IOException, BagriException {
 		String fn = path.getFileName().toString();
 		int pos = fn.lastIndexOf('.');
 		final String name = fn.substring(0, pos) + "_";
@@ -333,7 +330,7 @@ public class BookingApp {
         	try {
         		Document doc = xRepo.getDocumentManagement().storeDocumentFromMap(uri, map, props);
         		return doc != null;
-        	} catch (XDMException ex) {
+        	} catch (BagriException ex) {
         		System.out.println("failed map is: " + map + ". record idx is: " + (idx + 2));
         		return false;
         	}
@@ -367,7 +364,7 @@ public class BookingApp {
 		return result;
 	}
 	
-	public String getDocument(String uri) throws XDMException {
+	public String getDocument(String uri) throws BagriException {
 		return xRepo.getDocumentManagement().getDocumentAsString(uri, null);
 	}
 	
@@ -387,7 +384,7 @@ public class BookingApp {
 		try {
 			xRepo.getDocumentManagement().removeDocument(uri);
 			return true;
-		} catch (XDMException ex) {
+		} catch (BagriException ex) {
 			return false;
 		}
 	}

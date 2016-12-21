@@ -21,16 +21,16 @@ import javax.xml.xquery.XQStaticContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bagri.common.util.XMLUtils;
-import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.api.ResultCursor;
-import com.bagri.xdm.api.TransactionManagement;
+import com.bagri.core.api.ResultCursor;
+import com.bagri.core.api.TransactionManagement;
+import com.bagri.core.api.BagriException;
+import com.bagri.support.util.XMLUtils;
 
-import static com.bagri.xdm.api.XDMException.ecTransWrongState;
-import static com.bagri.xdm.api.TransactionManagement.TX_NO;
+import static com.bagri.core.api.TransactionManagement.TX_NO;
+import static com.bagri.core.api.BagriException.ecTransWrongState;
+import static com.bagri.core.xquery.XQUtils.getXQException;
 import static com.bagri.xqj.BagriXQErrors.ex_connection_closed;
 import static com.bagri.xqj.BagriXQErrors.ex_null_context;
-import static com.bagri.xquery.api.XQUtils.getXQException;
 
 
 public class BagriXQConnection extends BagriXQDataFactory implements XQConnection {
@@ -87,7 +87,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 			if (autoCommit) {
 				try {
 					getTxManager().commitTransaction(txId);
-				} catch (XDMException ex) {
+				} catch (BagriException ex) {
 		    		throw getXQException(ex);
 				}
 				txId = TX_NO;
@@ -129,7 +129,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 		if (transactional) {
 			try {
 				getTxManager().commitTransaction(txId);
-			} catch (XDMException ex) {
+			} catch (BagriException ex) {
 	    		throw getXQException(ex);
 			}
 			txId = TX_NO;
@@ -158,7 +158,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 		if (transactional) {
 			try {
 				getTxManager().rollbackTransaction(txId);
-			} catch (XDMException ex) {
+			} catch (BagriException ex) {
 	    		throw getXQException(ex);
 			}
 			txId = TX_NO;
@@ -176,7 +176,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 			if (!this.autoCommit) {
 				try {
 					getTxManager().commitTransaction(txId);
-				} catch (XDMException ex) {
+				} catch (BagriException ex) {
 		    		throw getXQException(ex);
 				}
 				txId = TX_NO;
@@ -328,7 +328,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 							return null;
 				    	}
 					});
-				} catch (XDMException ex) {
+				} catch (BagriException ex) {
 		    		throw getXQException(ex);
 				}
 			} else {
@@ -360,7 +360,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 							return getProcessor().executeXQuery(query, ctx);
 				    	}
 					});
-				} catch (XDMException ex) {
+				} catch (BagriException ex) {
 		    		throw getXQException(ex);
 				}
 			} else {
@@ -378,7 +378,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 		return result;
 	}
 	
-	private <V> V executeInTransaction(Callable<V> executor) throws XDMException, XQException {
+	private <V> V executeInTransaction(Callable<V> executor) throws BagriException, XQException {
 		if (autoCommit || txId == TX_NO) {
 			txId = getTxManager().beginTransaction();
 		}
@@ -397,10 +397,10 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 			if (ex instanceof XQException) {
 				throw (XQException) ex;
 			}
-			if (ex instanceof XDMException) {
-				throw (XDMException) ex;
+			if (ex instanceof BagriException) {
+				throw (BagriException) ex;
 			}
-			throw new XDMException(ex, XDMException.ecTransaction);
+			throw new BagriException(ex, BagriException.ecTransaction);
 		}
 	}
 	

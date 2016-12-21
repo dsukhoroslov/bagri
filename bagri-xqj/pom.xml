@@ -16,7 +16,7 @@
 
         <dependency>
             <groupId>com.bagridb</groupId>
-            <artifactId>bagri-xdm</artifactId>
+            <artifactId>bagri-core</artifactId>
         </dependency>
 
         <dependency>
@@ -105,7 +105,7 @@
 			    <value>ERROR</value>
 			</systemProperty>
 			<systemProperty>
-			    <key>xdm.log.level</key>
+			    <key>bdb.log.level</key>
 			    <value>OFF</value>
 			</systemProperty>
 			<systemProperty>

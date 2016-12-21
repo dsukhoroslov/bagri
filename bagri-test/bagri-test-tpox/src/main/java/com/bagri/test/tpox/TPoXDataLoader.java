@@ -13,10 +13,10 @@ import java.util.concurrent.Executors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.api.SchemaRepository;
-import com.bagri.xdm.client.hazelcast.impl.SchemaRepositoryImpl;
-import com.bagri.xdm.domain.Document;
+import com.bagri.client.hazelcast.impl.SchemaRepositoryImpl;
+import com.bagri.core.api.SchemaRepository;
+import com.bagri.core.api.BagriException;
+import com.bagri.core.model.Document;
 
 public class TPoXDataLoader {
 
@@ -112,7 +112,7 @@ public class TPoXDataLoader {
 			Document doc = xRepo.getDocumentManagement().storeDocumentFromString(uri, xml, null);
 			//logger.trace("storeDocument.exit; result: {}", result);
 			return doc.getUri();
-		} catch (XDMException ex) {
+		} catch (BagriException ex) {
 			return null;
 		}
 	}

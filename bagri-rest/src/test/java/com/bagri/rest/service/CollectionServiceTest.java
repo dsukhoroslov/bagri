@@ -16,10 +16,10 @@ import javax.ws.rs.core.MediaType;
 import org.glassfish.jersey.test.JerseyTest;
 import org.junit.Test;
 
+import com.bagri.core.api.DocumentManagement;
+import com.bagri.core.api.SchemaRepository;
 import com.bagri.rest.BagriRestServer;
 import com.bagri.rest.RepositoryProvider;
-import com.bagri.xdm.api.DocumentManagement;
-import com.bagri.xdm.api.SchemaRepository;
 
 public class CollectionServiceTest extends JerseyTest {
 	

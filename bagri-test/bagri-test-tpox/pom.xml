@@ -16,7 +16,7 @@
 
         <dependency>
             <groupId>com.bagridb</groupId>
-            <artifactId>bagri-xdm</artifactId>
+            <artifactId>bagri-core</artifactId>
         </dependency>
         <dependency>
             <groupId>com.bagridb</groupId>
@@ -26,10 +26,6 @@
         <dependency>
             <groupId>com.bagridb</groupId>
             <artifactId>bagri-xqj</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.bagridb</groupId>
-            <artifactId>bagri-test-common</artifactId>
         </dependency>
         <dependency>
             <groupId>com.bagridb</groupId>
@@ -131,7 +127,7 @@
                                             <sysproperty key="logback.configurationFile" value="tpox-logging.xml" />
                                             <!--sysproperty key="tangosol.coherence.proxy.address" value="linbox.sdv.home" />
                                             <sysproperty key="tangosol.coherence.proxy.port" value="17000"/-->
-                                            <sysproperty key="xdm.spring.context" value="hazelcast/tpox-client-cache-context.xml" />
+                                            <sysproperty key="bdb.spring.context" value="hazelcast/tpox-client-cache-context.xml" />
                                             <classpath>
                                                 <path refid="maven.compile.classpath" />
                                                 <path refid="maven.runtime.classpath" />

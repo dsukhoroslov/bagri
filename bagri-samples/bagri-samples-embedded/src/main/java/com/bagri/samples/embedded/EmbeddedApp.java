@@ -1,7 +1,7 @@
 package com.bagri.samples.embedded;
 
-import static com.bagri.common.util.FileUtils.readTextFile;
-import static com.bagri.xdm.common.Constants.*;
+import static com.bagri.core.Constants.*;
+import static com.bagri.support.util.FileUtils.readTextFile;
 
 import java.io.IOException;
 
@@ -16,7 +16,6 @@ import javax.xml.xquery.XQSequence;
 
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import com.hazelcast.core.HazelcastInstance;
 
 public class EmbeddedApp {
 	
@@ -25,7 +24,7 @@ public class EmbeddedApp {
 
 	public static void main(String[] args) throws XQException {
 		
-		System.setProperty(xdm_config_properties_file, "embedded.properties");
+		System.setProperty(pn_config_properties_file, "embedded.properties");
 		
 		context = new ClassPathXmlApplicationContext("spring/xqj-embedded-context.xml");
 		XQConnection xqc = context.getBean("xqFactory", XQConnection.class);
@@ -210,10 +209,10 @@ public class EmbeddedApp {
 			throw new XQException(ex.getMessage());
 		}
 
-		String query = "declare namespace bgdm=\"http://bagridb.com/bagri-xdm\";\n" +
+		String query = "declare namespace bgdb=\"http://bagridb.com/bdb\";\n" +
 				"declare variable $sec external;\n\n" + 
-				//"return bgdm:store-document($sec)\n";
-				"for $id in bgdm:store-document($sec)\n" +
+				//"return bgdb:store-document($sec)\n";
+				"for $id in bgdb:store-document($sec)\n" +
 				"return $id\n";
 
 	    XQPreparedExpression xqpe = xqc.prepareExpression(query);

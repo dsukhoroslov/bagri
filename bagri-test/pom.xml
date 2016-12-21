@@ -12,10 +12,9 @@
     <artifactId>bagri-test</artifactId>
     <packaging>pom</packaging>
     <name>bagri-test</name>
-    <description>BagRi: Test Utilities and Artifacts</description>
+    <description>Bagri: Test Utilities and Artifacts</description>
 
     <modules>
-        <module>bagri-test-common</module>
         <module>bagri-test-tpox</module>
         <module>bagri-test-xqj</module>
         <!--module>bagri-test-ycsb</module-->

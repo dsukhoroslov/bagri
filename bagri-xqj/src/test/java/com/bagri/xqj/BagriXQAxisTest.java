@@ -1,6 +1,6 @@
 package com.bagri.xqj;
 
-import static com.bagri.common.util.FileUtils.readTextFile;
+import static com.bagri.support.util.FileUtils.readTextFile;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
@@ -47,11 +47,11 @@ public class BagriXQAxisTest {
 	    xqds.setProperty(BagriXQDataSource.USER, "guest");
 	    xqds.setProperty(BagriXQDataSource.PASSWORD, "password");
 	    xqds.setProperty(BagriXQDataSource.XQ_PROCESSOR, "com.bagri.xquery.saxon.XQProcessorClient");
-	    xqds.setProperty(BagriXQDataSource.XDM_REPOSITORY, "com.bagri.xdm.client.hazelcast.impl.SchemaRepositoryImpl");
+	    xqds.setProperty(BagriXQDataSource.XDM_REPOSITORY, "com.bagri.client.hazelcast.impl.SchemaRepositoryImpl");
 
-		String query = "declare namespace bgdm=\"http://bagridb.com/bagri-xdm\";\n" +
+		String query = "declare namespace bgdb=\"http://bagridb.com/bdb\";\n" +
 				"declare variable $sec external;\n\n" + 
-				"for $id in bgdm:store-document($sec)\n" +
+				"for $id in bgdb:store-document($sec)\n" +
 				"return $id\n";
 
 		XQConnection xqc = xqds.getConnection();

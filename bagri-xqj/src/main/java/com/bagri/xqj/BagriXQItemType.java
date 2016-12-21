@@ -10,7 +10,7 @@ import javax.xml.xquery.XQSequenceType;
 import org.apache.xerces.util.XMLChar;
 import org.w3c.dom.Node;
 
-import com.bagri.xquery.api.XQUtils;
+import com.bagri.core.xquery.XQUtils;
 
 public class BagriXQItemType extends BagriXQSequenceType implements XQItemType {
 

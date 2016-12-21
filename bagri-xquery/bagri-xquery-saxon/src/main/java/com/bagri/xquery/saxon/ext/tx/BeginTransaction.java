@@ -1,13 +1,13 @@
 package com.bagri.xquery.saxon.ext.tx;
 
-import static com.bagri.xdm.common.Constants.bg_ns;
-import static com.bagri.xdm.common.Constants.bg_schema;
+import static com.bagri.core.Constants.bg_ns;
+import static com.bagri.core.Constants.bg_schema;
 
 import java.util.UUID;
 
-import com.bagri.xdm.api.TransactionIsolation;
-import com.bagri.xdm.api.TransactionManagement;
-import com.bagri.xdm.api.XDMException;
+import com.bagri.core.api.TransactionIsolation;
+import com.bagri.core.api.TransactionManagement;
+import com.bagri.core.api.BagriException;
 
 import net.sf.saxon.expr.XPathContext;
 import net.sf.saxon.lib.ExtensionFunctionCall;
@@ -66,7 +66,7 @@ public class BeginTransaction extends ExtensionFunctionDefinition {
 						txId = txMgr.beginTransaction(); 
 					}
 					return new Int64Value(txId);
-				} catch (XDMException ex) {
+				} catch (BagriException ex) {
 					throw new XPathException(ex);
 				}
 			}

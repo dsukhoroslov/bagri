@@ -260,7 +260,7 @@ public class BagriMainPanel extends JPanel implements NotificationListener, Prop
 /*
     private String[] getSchemas(MBeanServerConnection connection) {
         try {
-            Object res = connection.invoke(new ObjectName("com.bagri.xdm:type=Management,name=SchemaManagement"), "getSchemaNames", null, null);
+            Object res = connection.invoke(new ObjectName("com.bagri.db:type=Management,name=SchemaManagement"), "getSchemaNames", null, null);
             return (String[]) res;
         } catch (Exception e) {
             LOGGER.throwing(this.getClass().getName(), "getSchemaNames", e);
@@ -339,7 +339,7 @@ public class BagriMainPanel extends JPanel implements NotificationListener, Prop
         MBeanServerConnection mbsc = getMBeanServerConnection();
         Object o = null;
         try {
-            o = mbsc.getObjectInstance(new ObjectName("com.bagri.xdm:type=Management,name=ClusterManagement"));
+            o = mbsc.getObjectInstance(new ObjectName("com.bagri.db:type=Management,name=ClusterManagement"));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -372,7 +372,7 @@ public class BagriMainPanel extends JPanel implements NotificationListener, Prop
                 final JMXConnector connector = JMXConnectorFactory.connect(target);
                 final MBeanServerConnection remote = connector.getMBeanServerConnection();
                 try {
-                    Object o = remote.getObjectInstance(new ObjectName("com.bagri.xdm:type=Management,name=ClusterManagement"));
+                    Object o = remote.getObjectInstance(new ObjectName("com.bagri.db:type=Management,name=ClusterManagement"));
                     if (null != o) {
                         break;
                     }
@@ -394,7 +394,7 @@ public class BagriMainPanel extends JPanel implements NotificationListener, Prop
     }
 
     private static boolean pickThisOne(VirtualMachineDescriptor virtualMachineDescriptor) {
-        if ("com.bagri.xdm.cache.hazelcast.BagriCacheServer".equals(virtualMachineDescriptor.displayName())) {
+        if ("com.bagri.server.hazelcast.BagriCacheServer".equals(virtualMachineDescriptor.displayName())) {
             return true;
         }
         return false;

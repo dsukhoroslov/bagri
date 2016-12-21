@@ -1,24 +1,24 @@
 package com.bagri.samples.client.xdm;
 
-import static com.bagri.xdm.common.Constants.pn_client_dataFactory;
-import static com.bagri.xdm.common.Constants.pn_schema_address;
-import static com.bagri.xdm.common.Constants.pn_schema_name;
-import static com.bagri.xdm.common.Constants.pn_schema_password;
-import static com.bagri.xdm.common.Constants.pn_schema_user;
+import static com.bagri.core.Constants.pn_client_dataFactory;
+import static com.bagri.core.Constants.pn_schema_address;
+import static com.bagri.core.Constants.pn_schema_name;
+import static com.bagri.core.Constants.pn_schema_password;
+import static com.bagri.core.Constants.pn_schema_user;
 
 import java.util.Iterator;
 import java.util.Properties;
 
 import javax.xml.xquery.XQException;
 
+import com.bagri.client.hazelcast.impl.SchemaRepositoryImpl;
+import com.bagri.core.api.ResultCursor;
+import com.bagri.core.api.SchemaRepository;
+import com.bagri.core.api.BagriException;
+import com.bagri.core.model.Document;
+import com.bagri.core.xquery.api.XQProcessor;
 import com.bagri.samples.client.BagriClientApp;
-import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.api.ResultCursor;
-import com.bagri.xdm.api.SchemaRepository;
-import com.bagri.xdm.client.hazelcast.impl.SchemaRepositoryImpl;
-import com.bagri.xdm.domain.Document;
 import com.bagri.xqj.BagriXQDataFactory;
-import com.bagri.xquery.api.XQProcessor;
 import com.bagri.xquery.saxon.XQProcessorClient;
 
 public class XDMClientApp implements BagriClientApp {
@@ -29,7 +29,7 @@ public class XDMClientApp implements BagriClientApp {
 	public static void main(String[] args) throws Exception {
 		
 		if (args.length < 4) {
-			throw new XDMException("wrong number of arguments passed. Expected: schemaAddress schemaName userName password", 0);
+			throw new BagriException("wrong number of arguments passed. Expected: schemaAddress schemaName userName password", 0);
 		}
 		
 		Properties props = new Properties();
@@ -60,13 +60,13 @@ public class XDMClientApp implements BagriClientApp {
 	}
 	
 	@Override
-	public boolean createDocument(String uri, String content) throws XDMException {
+	public boolean createDocument(String uri, String content) throws BagriException {
 		
 		return storeDocument(uri, content) > 0;
 	}
 	
 	@Override
-	public String readDocument(String uri) throws XDMException {
+	public String readDocument(String uri) throws BagriException {
 		
 		return xRepo.getDocumentManagement().getDocumentAsString(uri, null);
 	}
@@ -102,18 +102,18 @@ public class XDMClientApp implements BagriClientApp {
 	}
 	
 	@Override
-	public boolean updateDocument(String uri, String content) throws XDMException {
+	public boolean updateDocument(String uri, String content) throws BagriException {
 		
 		return storeDocument(uri, content) > 1;
 	}
 	
 	@Override
-	public void deleteDocument(String uri) throws XDMException {
+	public void deleteDocument(String uri) throws BagriException {
 
 		xRepo.getDocumentManagement().removeDocument(uri);
 	}
 	
-	private int storeDocument(String uri, String content) throws XDMException {
+	private int storeDocument(String uri, String content) throws BagriException {
 		
 		Properties props = new Properties();
 		Document xDoc = xRepo.getDocumentManagement().storeDocumentFromString(uri, content, props);

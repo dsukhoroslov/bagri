@@ -1,11 +1,11 @@
 package com.bagri.samples.client;
 
-import static com.bagri.common.util.FileUtils.readTextFile;
-import static com.bagri.xdm.common.Constants.xdm_document_collections;
-import static com.bagri.xdm.common.Constants.xdm_document_data_format;
-import static com.bagri.xdm.common.Constants.xs_ns;
-import static com.bagri.xdm.common.Constants.xs_prefix;
-import static com.bagri.xquery.api.XQUtils.getBaseTypeForTypeName;
+import static com.bagri.core.Constants.pn_document_collections;
+import static com.bagri.core.Constants.pn_document_data_format;
+import static com.bagri.core.Constants.xs_ns;
+import static com.bagri.core.Constants.xs_prefix;
+import static com.bagri.core.xquery.XQUtils.getBaseTypeForTypeName;
+import static com.bagri.support.util.FileUtils.readTextFile;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -23,7 +23,7 @@ import javax.xml.xquery.XQSequenceType;
 
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import com.bagri.xdm.domain.Document;
+import com.bagri.core.model.Document;
 import com.hazelcast.core.HazelcastInstance;
 
 public class ClientApp {
@@ -33,9 +33,9 @@ public class ClientApp {
 
 	public static void main(String[] args) throws XQException {
 		
-		//System.setProperty("xdm.schema.members", "localhost:10600");
+		//System.setProperty("bdb.schema.members", "localhost:10600");
 		System.setProperty("logback.configurationFile", "hz-client-logging.xml");
-		System.setProperty("xdm.log.level", "trace");
+		System.setProperty("bdb.log.level", "trace");
 		//
 		context = new ClassPathXmlApplicationContext("spring/xqj-client-context.xml");
 		XQConnection xqc = context.getBean("xqConnection", XQConnection.class);
@@ -226,19 +226,19 @@ public class ClientApp {
 			throw new XQException(ex.getMessage());
 		}
 
-		String query = "declare namespace bgdm=\"http://bagridb.com/bagri-xdm\";\n" +
+		String query = "declare namespace bgdb=\"http://bagridb.com/bdb\";\n" +
 				"declare variable $uri external;\n" + 
 				"declare variable $xml external;\n" + 
 				"declare variable $props external;\n" + 
-				"let $id := bgdm:store-document($uri, $xml, $props)\n" +
+				"let $id := bgdb:store-document($uri, $xml, $props)\n" +
 				"return $id\n";
 
 	    XQPreparedExpression xqpe = xqc.prepareExpression(query);
 	    xqpe.bindString(new QName("uri"), "65538.xml", xqc.createAtomicType(XQItemType.XQBASETYPE_ANYURI));
 	    xqpe.bindString(new QName("xml"), xml, xqc.createAtomicType(XQItemType.XQBASETYPE_STRING));
 	    List<String> props = new ArrayList<>(4);
-	    props.add(xdm_document_data_format + "=xml");
-	    props.add(xdm_document_collections + "=CLN_Custom, CLN_Security");
+	    props.add(pn_document_data_format + "=xml");
+	    props.add(pn_document_collections + "=CLN_Custom, CLN_Security");
 	    xqpe.bindSequence(new QName("props"), xqc.createSequence(props.iterator()));
 	    XQSequence xqs = xqpe.executeQuery();
 	    if (xqs.next()) {

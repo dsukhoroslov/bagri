@@ -6,9 +6,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.bagri.xdm.api.SchemaRepository;
-import com.bagri.xdm.system.Module;
-import com.bagri.xdm.system.Schema;
+import com.bagri.core.api.SchemaRepository;
+import com.bagri.core.system.Module;
+import com.bagri.core.system.Schema;
 
 public class LocalRepositoryProvider implements RepositoryProvider {
 

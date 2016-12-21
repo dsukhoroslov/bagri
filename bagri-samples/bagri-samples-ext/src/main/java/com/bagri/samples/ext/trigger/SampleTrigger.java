@@ -3,9 +3,9 @@ package com.bagri.samples.ext.trigger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bagri.xdm.api.SchemaRepository;
-import com.bagri.xdm.cache.api.DocumentTrigger;
-import com.bagri.xdm.domain.Document;
+import com.bagri.core.api.SchemaRepository;
+import com.bagri.core.model.Document;
+import com.bagri.core.server.api.DocumentTrigger;
 
 public class SampleTrigger implements DocumentTrigger {
 

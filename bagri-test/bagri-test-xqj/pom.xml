@@ -16,7 +16,7 @@
 
         <dependency>
             <groupId>com.bagridb</groupId>
-            <artifactId>bagri-xdm</artifactId>
+            <artifactId>bagri-core</artifactId>
         </dependency>
         <dependency>
             <groupId>com.bagridb</groupId>
@@ -83,7 +83,7 @@
                                             <sysproperty key="port" value="5701"/-->
                                             <sysproperty key="logback.configurationFile" value="hz-client-logging.xml" />
                                             <sysproperty key="hz.log.level" value="ERROR" />
-                                            <sysproperty key="xdm.log.level" value="OFF" />
+                                            <sysproperty key="bdb.log.level" value="OFF" />
                                             <sysproperty key="log.name" value="xqj-tck" />
                                             <sysproperty key="hazelcast.logging.type" value="slf4j" />
                                             <sysproperty key="com.oracle.xqj.tck.datasource" value="tck.properties" />

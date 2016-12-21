@@ -73,10 +73,10 @@
     </scm>
 
     <modules>
-        <module>bagri-xdm</module>
+        <module>bagri-core</module>
+        <module>bagri-test</module>
         <module>bagri-xquery</module>
         <module>bagri-xqj</module>
-        <module>bagri-test</module>
         <module>bagri-client</module>
         <module>bagri-rest</module>
         <module>bagri-server</module>
@@ -151,12 +151,7 @@
             <!-- Module dependencies -->
             <dependency>
                 <groupId>com.bagridb</groupId>
-                <artifactId>bagri-xdm</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.bagridb</groupId>
-                <artifactId>bagri-test-common</artifactId>
+                <artifactId>bagri-core</artifactId>
                 <version>${project.version}</version>
                 <exclusions>
                     <exclusion>
@@ -170,7 +165,6 @@
                 <artifactId>bagri-client-hazelcast</artifactId>
                 <version>${project.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>com.bagridb</groupId>
                 <artifactId>bagri-xquery-saxon</artifactId>
@@ -181,7 +175,6 @@
                 <artifactId>bagri-xqj</artifactId>
                 <version>${project.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>com.bagridb</groupId>
                 <artifactId>bagri-rest</artifactId>
@@ -321,6 +314,12 @@
 	    	<groupId>org.glassfish.jersey.core</groupId>
 	    	<artifactId>jersey-server</artifactId>
 	    	<version>${jersey.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.glassfish.hk2</groupId>
+                        <artifactId>osgi-resource-locator</artifactId>
+                    </exclusion>
+                </exclusions>
 	    </dependency>
 	    <dependency>
 		<groupId>org.glassfish.jersey.core</groupId>

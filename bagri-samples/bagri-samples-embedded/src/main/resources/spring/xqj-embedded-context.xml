@@ -13,9 +13,9 @@
     <bean id="xqDataSource" class="com.bagri.xqj.BagriXQDataSource">
         <property name="properties">
             <props>
-                <prop key="address">${xdm.schema.members}</prop>
-                <prop key="schema">${xdm.schema.name}</prop>
-                <prop key="password">${xdm.schema.password}</prop>
+                <prop key="address">${bdb.schema.members}</prop>
+                <prop key="schema">${bdb.schema.name}</prop>
+                <prop key="password">${bdb.schema.password}</prop>
             </props>
         </property>
     </bean>

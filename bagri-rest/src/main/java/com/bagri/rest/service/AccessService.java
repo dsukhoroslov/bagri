@@ -12,8 +12,8 @@ import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import com.bagri.core.api.SchemaRepository;
 import com.bagri.rest.BagriRestServer;
-import com.bagri.xdm.api.SchemaRepository;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

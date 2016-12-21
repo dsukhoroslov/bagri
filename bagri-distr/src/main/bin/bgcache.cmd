@@ -35,14 +35,14 @@ set java_opts=%java_opts% -Xloggc:..\logs\%node_name%\gc\gc.%node_num%.log -XX:+
    
 rem specify logging & XDM options
 set java_opts=%java_opts% -Dnode.name=%node_name% -Dnode.instance=%node_num%
-set java_opts=%java_opts% -Dnode.logdir=..\logs\%node_name% -Dxdm.log.level=info
+set java_opts=%java_opts% -Dnode.logdir=..\logs\%node_name% -Dbdb.log.level=info
 set java_opts=%java_opts% -Dlogback.configurationFile=..\config\hz-logging.xml
-set java_opts=%java_opts% -Dxdm.config.path=..\config
-set java_opts=%java_opts% -Dxdm.config.context.file=file:..\config\spring\cache-system-context.xml
-set java_opts=%java_opts% -Dxdm.config.properties.file=%node_name%.properties
-set java_opts=%java_opts% -Dxdm.config.filename=..\config\config.xml
-set java_opts=%java_opts% -Dxdm.access.filename=..\config\access.xml
-set java_opts=%java_opts% -Dxdm.node.instance=%node_num%
+set java_opts=%java_opts% -Dbdb.config.path=..\config
+set java_opts=%java_opts% -Dbdb.config.context.file=file:..\config\spring\cache-system-context.xml
+set java_opts=%java_opts% -Dbdb.config.properties.file=%node_name%.properties
+set java_opts=%java_opts% -Dbdb.config.filename=..\config\config.xml
+set java_opts=%java_opts% -Dbdb.access.filename=..\config\access.xml
+set java_opts=%java_opts% -Dbdb.node.instance=%node_num%
 
 rem specify JMX options
 set java_opts=%java_opts% -Dcom.sun.management.jmxremote.authenticate=false
@@ -51,7 +51,7 @@ set java_opts=%java_opts% -Dcom.sun.management.jmxremote
 rem jmx_port=$(( 3333 + $nodeNum ))
 rem set java_opts=%java_opts% -Dcom.sun.management.jmxremote.port=${jmx_port}
 
-"%java_exec%" -server -showversion %java_opts% -cp "%app_home%\config\*;%app_home%\lib\*" com.bagri.xdm.cache.hazelcast.BagriCacheServer %*
+"%java_exec%" -server -showversion %java_opts% -cp "%app_home%\config\*;%app_home%\lib\*" com.bagri.server.hazelcast.BagriCacheServer %*
 
 goto exit
 

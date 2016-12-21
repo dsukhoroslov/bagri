@@ -1,9 +1,9 @@
-<ns2:script xmlns:ns2="http://www.bagridb.com/xdm/system">    
+<ns2:script xmlns:ns2="http://www.bagridb.com/schema/system">    
     <!--param key="jmx.address">localhost:3330</param>
     <param key="jmx.login">admin</param>
     <param key="jmx.password">${password}</param-->
     <!--invoke>
-        <mbean>com.bagri.xdm:type=Schema,name=default,kind=ModelManagement</mbean>
+        <mbean>com.bagri.db:type=Schema,name=default,kind=ModelManagement</mbean>
         <method>registerSchema</method>
         <arguments>
             <argument index="0">
@@ -14,7 +14,7 @@
     </invoke-->
     <!--delay>5000</delay-->
     <!--invoke>
-	<mbean>com.bagri.xdm:type=Schema,name=default,kind=IndexManagement</mbean>
+	<mbean>com.bagri.db:type=Schema,name=default,kind=IndexManagement</mbean>
 	<method>addIndex</method>
 	<arguments>
 	    <argument index="0">
@@ -52,7 +52,7 @@
 	</arguments>
     </invoke-->
     <invoke>
-        <mbean>com.bagri.xdm:type=Schema,name=default,kind=ModelManagement</mbean>
+        <mbean>com.bagri.db:type=Schema,name=default,kind=ModelManagement</mbean>
         <method>registerSchema</method>
         <arguments>
             <argument index="0">
@@ -63,7 +63,7 @@
     </invoke>
     <delay>5000</delay>
     <invoke>
-	<mbean>com.bagri.xdm:type=Schema,name=default,kind=IndexManagement</mbean>
+	<mbean>com.bagri.db:type=Schema,name=default,kind=IndexManagement</mbean>
 	<method>addIndex</method>
 	<arguments>
 	    <argument index="0">
@@ -101,7 +101,7 @@
 	</arguments>
     </invoke>
     <invoke>
-	<mbean>com.bagri.xdm:type=Schema,name=default,kind=IndexManagement</mbean>
+	<mbean>com.bagri.db:type=Schema,name=default,kind=IndexManagement</mbean>
 	<method>addIndex</method>
 	<arguments>
 	    <argument index="0">
@@ -139,7 +139,7 @@
 	</arguments>
     </invoke>
     <invoke>
-	<mbean>com.bagri.xdm:type=Schema,name=default,kind=IndexManagement</mbean>
+	<mbean>com.bagri.db:type=Schema,name=default,kind=IndexManagement</mbean>
 	<method>addIndex</method>
 	<arguments>
 	    <argument index="0">
@@ -177,7 +177,7 @@
 	</arguments>
     </invoke>
     <!--invoke>
-	<mbean>com.bagri.xdm:type=Schema,name=default,kind=IndexManagement</mbean>
+	<mbean>com.bagri.db:type=Schema,name=default,kind=IndexManagement</mbean>
 	<method>addIndex</method>
 	<arguments>
 	    <argument index="0">
@@ -216,7 +216,7 @@
     </invoke-->
     <delay>3000</delay>
     <!--invoke>
-	<mbean>com.bagri.xdm:type=Schema,name=default,kind=TriggerManagement</mbean>
+	<mbean>com.bagri.db:type=Schema,name=default,kind=TriggerManagement</mbean>
 	<method>addJavaTrigger</method>
 	<arguments>
 	    <argument index="0">
@@ -242,7 +242,7 @@
 	</arguments>
     </invoke>
     <invoke>
-	<mbean>com.bagri.xdm:type=Schema,name=default,kind=TriggerManagement</mbean>
+	<mbean>com.bagri.db:type=Schema,name=default,kind=TriggerManagement</mbean>
 	<method>addXQueryTrigger</method>
 	<arguments>
 	    <argument index="0">
@@ -251,7 +251,7 @@
 	    </argument>
 	    <argument index="1">
 		<type>java.lang.String</type>
-		<value>bgdm:before-delete-security</value>
+		<value>bgdb:before-delete-security</value>
 	    </argument>
 	    <argument index="2">
 		<type>java.lang.String</type>

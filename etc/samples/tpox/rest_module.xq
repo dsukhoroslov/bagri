@@ -62,3 +62,18 @@ function tpox:delete-security($uri as xs:string) as item()? {
   bgdm:remove-document(xs:anyURI($uri)) 
 };
 
+(:
+declare 
+  %rest:PUT
+  %rest:path("/{uri}")
+  %rest:consumes("application/xml")
+  %rest:produces("application/xml")
+  %rest:matrix-param("props", "{$props}", "()")
+function tpox:update-security($uri as xs:string, $content as xs:string, $props as item()*) as item()? {
+  if (fn:empty($props)) then (
+    bgdm:store-document(xs:anyURI($uri), $content, ())
+  ) else (
+    bgdm:store-document(xs:anyURI($uri), $content, $props)
+  )
+};
+:)

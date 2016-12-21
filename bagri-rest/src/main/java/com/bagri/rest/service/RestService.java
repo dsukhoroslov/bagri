@@ -9,8 +9,8 @@ import javax.ws.rs.core.Cookie;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.bagri.core.api.SchemaRepository;
 import com.bagri.rest.RepositoryProvider;
-import com.bagri.xdm.api.SchemaRepository;
 
 public abstract class RestService {
 

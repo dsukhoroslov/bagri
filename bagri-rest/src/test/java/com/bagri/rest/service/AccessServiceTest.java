@@ -17,10 +17,10 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.junit.Test;
 
+import com.bagri.core.api.AccessManagement;
+import com.bagri.core.api.SchemaRepository;
 import com.bagri.rest.BagriRestServer;
 import com.bagri.rest.RepositoryProvider;
-import com.bagri.xdm.api.AccessManagement;
-import com.bagri.xdm.api.SchemaRepository;
 
 public class AccessServiceTest extends JerseyTest {
 

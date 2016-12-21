@@ -15,15 +15,15 @@ import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQItemAccessor;
 import javax.xml.xquery.XQItemType;
 
-import static com.bagri.common.util.PropUtils.getOutputProperties;
+import static com.bagri.support.util.PropUtils.getOutputProperties;
 import static com.bagri.xqj.BagriXQErrors.ex_item_closed;
 import static javax.xml.xquery.XQItemType.*;
 
 import org.w3c.dom.Node;
 import org.xml.sax.ContentHandler;
 
-import com.bagri.common.util.XMLUtils;
-import com.bagri.xquery.api.XQProcessor;
+import com.bagri.core.xquery.api.XQProcessor;
+import com.bagri.support.util.XMLUtils;
 
 public abstract class BagriXQItemAccessor extends BagriXQCloseable implements XQItemAccessor {
 	

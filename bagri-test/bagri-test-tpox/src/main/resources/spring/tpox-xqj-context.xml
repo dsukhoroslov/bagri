@@ -10,22 +10,22 @@
     <context:property-placeholder ignore-resource-not-found="true"/>
 
     <util:map id="xdmProps" map-class="java.util.Properties">
-        <entry key="xdm.schema.name">
-            <value type="java.lang.String">${xdm.schema.name}</value>
+        <entry key="bdb.schema.name">
+            <value type="java.lang.String">${bdb.schema.name}</value>
         </entry>
-        <entry key="xdm.schema.address">
-            <value type="java.lang.String">${xdm.schema.members}</value>
+        <entry key="bdb.schema.address">
+            <value type="java.lang.String">${bdb.schema.members}</value>
         </entry>
-        <entry key="xdm.schema.user">
-            <value type="java.lang.String">${xdm.schema.user}</value>
+        <entry key="bdb.schema.user">
+            <value type="java.lang.String">${bdb.schema.user}</value>
         </entry>
-        <entry key="xdm.schema.password">
-            <value type="java.lang.String">${xdm.schema.password}</value>
+        <entry key="bdb.schema.password">
+            <value type="java.lang.String">${bdb.schema.password}</value>
         </entry>
-        <entry key="xdm.client.loginTimeout">
+        <entry key="bdb.client.loginTimeout">
             <value type="java.lang.String">0</value>
         </entry>
-        <entry key="xdm.client.dataFactory">
+        <entry key="bdb.client.dataFactory">
            	<ref bean="xqConnection"/>
         </entry>
     </util:map>
@@ -36,7 +36,7 @@
     	<!--property name="processor" ref="xqProcessor" /-->
     </bean>
     
-    <bean id="xdmRepo" class="com.bagri.xdm.client.hazelcast.impl.SchemaRepositoryImpl">
+    <bean id="xdmRepo" class="com.bagri.client.hazelcast.impl.SchemaRepositoryImpl">
 	<constructor-arg ref="xdmProps"/>
     </bean>
 
@@ -45,8 +45,8 @@
     <bean id="xqProcessor" class="com.bagri.xquery.saxon.XQProcessorClient">
         <property name="properties">
             <props>
-                <prop key="xdm.client.fetchSize">${xdm.client.fetchSize}</prop>
-                <prop key="xdm.client.submitTo">${xdm.client.submitTo}</prop>
+                <prop key="bdb.client.fetchSize">${bdb.client.fetchSize}</prop>
+                <prop key="bdb.client.submitTo">${bdb.client.submitTo}</prop>
             </props>
         </property>
     	<property name="repository" ref="xdmRepo" />

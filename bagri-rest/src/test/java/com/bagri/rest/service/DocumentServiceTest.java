@@ -3,8 +3,8 @@ package com.bagri.rest.service;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static com.bagri.xdm.common.Constants.xdm_document_data_format;
-import static com.bagri.xdm.system.DataFormat.*;
+import static com.bagri.core.Constants.pn_document_data_format;
+import static com.bagri.core.system.DataFormat.*;
 import static com.bagri.rest.RestConstants.bg_cookie;
 
 import java.util.Properties;
@@ -18,12 +18,12 @@ import javax.ws.rs.core.Response.Status;
 import org.glassfish.jersey.test.JerseyTest;
 import org.junit.Test;
 
+import com.bagri.core.api.DocumentManagement;
+import com.bagri.core.api.SchemaRepository;
+import com.bagri.core.api.BagriException;
+import com.bagri.core.model.Document;
 import com.bagri.rest.BagriRestServer;
 import com.bagri.rest.RepositoryProvider;
-import com.bagri.xdm.api.DocumentManagement;
-import com.bagri.xdm.api.SchemaRepository;
-import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.domain.Document;
 
 public class DocumentServiceTest extends JerseyTest {
 	
@@ -38,9 +38,9 @@ public class DocumentServiceTest extends JerseyTest {
     @Override
     protected Application configure() {
     	propsXml = new Properties();
-    	propsXml.setProperty(xdm_document_data_format, df_xml);
+    	propsXml.setProperty(pn_document_data_format, df_xml);
     	propsJson = new Properties();
-    	propsJson.setProperty(xdm_document_data_format, df_json);
+    	propsJson.setProperty(pn_document_data_format, df_json);
         docMgr = mock(DocumentManagement.class);
         mockRepo = mock(SchemaRepository.class);
     	mockPro = mock(RepositoryProvider.class);
@@ -53,7 +53,7 @@ public class DocumentServiceTest extends JerseyTest {
 			when(docMgr.storeDocumentFromString("a0001.xml", "{\"content\": \"updated content\"}", propsJson)).thenReturn(responseJson);
 			when(docMgr.getDocumentAsString("a0001.xml", propsXml)).thenReturn("<content>initial content</content>");
 			when(docMgr.getDocumentAsString("a0001.xml", propsJson)).thenReturn("{\"content\": \"updated content\"}");
-		} catch (XDMException ex) {
+		} catch (BagriException ex) {
 			ex.printStackTrace();
 		}
         BagriRestServer server = new BagriRestServer(mockPro, null, new Properties());

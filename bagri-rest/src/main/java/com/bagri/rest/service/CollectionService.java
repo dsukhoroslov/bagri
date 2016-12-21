@@ -11,8 +11,8 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.Status;
 
-import com.bagri.xdm.api.DocumentManagement;
-import com.bagri.xdm.api.SchemaRepository;
+import com.bagri.core.api.DocumentManagement;
+import com.bagri.core.api.SchemaRepository;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

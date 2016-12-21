@@ -1,9 +1,9 @@
 package com.bagri.xqj;
 
-import static com.bagri.common.util.CollectionUtils.copyIterator;
+import static com.bagri.core.xquery.XQUtils.getTypeName;
+import static com.bagri.core.xquery.XQUtils.isAtomicType;
+import static com.bagri.support.util.CollectionUtils.copyIterator;
 import static com.bagri.xqj.BagriXQErrors.ex_connection_closed;
-import static com.bagri.xquery.api.XQUtils.getTypeName;
-import static com.bagri.xquery.api.XQUtils.isAtomicType;
 import static javax.xml.xquery.XQItemType.*;
 
 import java.io.IOException;
@@ -28,9 +28,9 @@ import javax.xml.xquery.XQSequenceType;
 import org.apache.xerces.util.XMLChar;
 import org.w3c.dom.Node;
 
-import com.bagri.common.util.XMLUtils;
-import com.bagri.xquery.api.XQUtils;
-import com.bagri.xquery.api.XQProcessor;
+import com.bagri.core.xquery.XQUtils;
+import com.bagri.core.xquery.api.XQProcessor;
+import com.bagri.support.util.XMLUtils;
 
 public class BagriXQDataFactory extends BagriXQCloseable implements XQDataFactory {
 

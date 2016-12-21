@@ -9,7 +9,7 @@
             <property name="prefix" value="${node.name}"/>
         </then>
         <else>
-            <property name="prefix" value="xdm"/>
+            <property name="prefix" value="bdb"/>
         </else>
     </if-->
 
@@ -17,7 +17,7 @@
         <level value="${hz.log.level:-info}"/>
     </logger>
 
-    <!--logger name="com.bagri.xdm.cache.hazelcast.store.TransactionCacheStore">
+    <!--logger name="com.bagri.server.hazelcast.store.TransactionCacheStore">
         <level value="trace"/>
     </logger-->
 

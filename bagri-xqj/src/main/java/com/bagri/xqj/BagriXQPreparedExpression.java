@@ -1,5 +1,6 @@
 package com.bagri.xqj;
 
+import static com.bagri.core.xquery.XQUtils.*;
 import static com.bagri.xqj.BagriXQErrors.ex_expression_closed;
 
 import java.util.ArrayList;
@@ -18,11 +19,10 @@ import javax.xml.xquery.XQSequence;
 import javax.xml.xquery.XQSequenceType;
 import javax.xml.xquery.XQStaticContext;
 
-import com.bagri.xdm.api.ResultCursor;
-import com.bagri.xdm.api.XDMException;
+import com.bagri.core.api.ResultCursor;
+import com.bagri.core.api.BagriException;
 
 import static javax.xml.xquery.XQSequenceType.*;
-import static com.bagri.xquery.api.XQUtils.*;
 
 
 public class BagriXQPreparedExpression extends BagriXQDynamicContext implements	XQPreparedExpression {
@@ -85,7 +85,7 @@ public class BagriXQPreparedExpression extends BagriXQDynamicContext implements	
 		if (context.getScrollability() == XQConstants.SCROLLTYPE_SCROLLABLE) {
 			try {
 				sequence = new ScrollableXQResultSequence(this, result.getList());
-			} catch (XDMException ex) {
+			} catch (BagriException ex) {
 				throw getXQException(ex); 
 			}
 		} else {

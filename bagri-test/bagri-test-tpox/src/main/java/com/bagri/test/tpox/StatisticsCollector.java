@@ -20,7 +20,7 @@ import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 
-import com.bagri.common.util.FileUtils;
+import com.bagri.support.util.FileUtils;
 
 public class StatisticsCollector {
 	
@@ -82,13 +82,13 @@ public class StatisticsCollector {
 	}
 	
 	public String getActiveNodes() throws Exception {
-        ObjectName mName = new ObjectName("com.bagri.xdm:name=" + schema + ",type=Schema"); 
+        ObjectName mName = new ObjectName("com.bagri.db:name=" + schema + ",type=Schema"); 
 		String[] nodes = (String[]) mbsc.getAttribute(mName, "ActiveNodes");
 		return Arrays.toString(nodes);
 	}
 	
 	public String getStatistics(String kind, String method) throws Exception {
-        ObjectName mName = new ObjectName("com.bagri.xdm:type=Schema,name=" + schema + ",kind=" + kind); 
+        ObjectName mName = new ObjectName("com.bagri.db:type=Schema,name=" + schema + ",kind=" + kind); 
 		TabularData data = (TabularData) mbsc.getAttribute(mName, "InvocationStatistics");
 		if (data != null) {
 			CompositeData stats = data.get(new String[] {method});
@@ -105,13 +105,13 @@ public class StatisticsCollector {
 	}
 	
 	public void resetStatistics(String kind) throws Exception {
-        ObjectName mName = new ObjectName("com.bagri.xdm:type=Schema,name=" + schema + ",kind=" + kind); 
+        ObjectName mName = new ObjectName("com.bagri.db:type=Schema,name=" + schema + ",kind=" + kind); 
 		mbsc.invoke(mName, "resetStatistics", null, null);
 		//jmxc.close();
 	}
 	
 	public void clearSchema(boolean evictOnly) throws Exception {
-        ObjectName mName = new ObjectName("com.bagri.xdm:type=Schema,name=" + schema + ",kind=DocumentManagement"); 
+        ObjectName mName = new ObjectName("com.bagri.db:type=Schema,name=" + schema + ",kind=DocumentManagement"); 
 		mbsc.invoke(mName, "clear", new Object[] {evictOnly}, new String[] {boolean.class.getName()});
 		//jmxc.close();
 	}

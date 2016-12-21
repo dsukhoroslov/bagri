@@ -13,8 +13,8 @@ import javax.ws.rs.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.bagri.core.system.Schema;
 import com.bagri.rest.RepositoryProvider;
-import com.bagri.xdm.system.Schema;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

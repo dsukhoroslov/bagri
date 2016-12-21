@@ -16,30 +16,30 @@
     <bean id="xqProcessor" class="com.bagri.xquery.saxon.XQProcessorClient">
         <property name="properties">
             <props>
-                <prop key="xdm.client.fetchSize">${xdm.client.fetchSize}</prop>
-                <prop key="xdm.client.submitTo">${xdm.client.submitTo}</prop>
+                <prop key="bdb.client.fetchSize">${xdm.client.fetchSize}</prop>
+                <prop key="bdb.client.submitTo">${xdm.client.submitTo}</prop>
             </props>
         </property>
     	<property name="XQDataFactory" ref="xqFactory" />
     </bean>
 
     <util:map id="xdmProps" map-class="java.util.Properties">
-        <entry key="xdm.schema.name">
+        <entry key="bdb.schema.name">
             <value type="java.lang.String">${xdm.schema.name}</value>
         </entry>
-        <entry key="xdm.schema.address">
+        <entry key="bdb.schema.address">
             <value type="java.lang.String">${xdm.schema.members}</value>
         </entry>
-        <entry key="xdm.schema.user">
+        <entry key="bdb.schema.user">
             <value type="java.lang.String">${xdm.schema.user}</value>
         </entry>
-        <entry key="xdm.schema.password">
+        <entry key="bdb.schema.password">
             <value type="java.lang.String">${xdm.schema.password}</value>
         </entry>
-        <entry key="xdm.client.loginTimeout">
+        <entry key="bdb.client.loginTimeout">
             <value type="java.lang.String">0</value>
         </entry>
-        <entry key="xdm.client.dataFactory">
+        <entry key="bdb.client.dataFactory">
            	<ref bean="xqFactory"/>
         </entry>
     </util:map>

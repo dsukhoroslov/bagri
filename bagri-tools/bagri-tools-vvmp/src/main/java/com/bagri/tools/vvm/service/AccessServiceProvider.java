@@ -25,7 +25,7 @@ public class AccessServiceProvider implements UserManagementService {
     public List<User> getUsers() throws ServiceException {
         List<User> result;
         try {
-            Object res = connection.invoke(new ObjectName("com.bagri.xdm:type=Management,name=UserManagement"), "getUserNames", null, null);
+            Object res = connection.invoke(new ObjectName("com.bagri.db:type=Management,name=UserManagement"), "getUserNames", null, null);
             String[] usersArray = (String[]) res;
             result = new ArrayList<User>(usersArray.length);
             for (String strUser : usersArray) {
@@ -43,7 +43,7 @@ public class AccessServiceProvider implements UserManagementService {
     @Override
     public boolean addUser(String user, String password) throws ServiceException {
         try {
-            Object res = connection.invoke(new ObjectName("com.bagri.xdm:type=Management,name=UserManagement"), "addUser",new Object[] {user, password}, new String[] {String.class.getName(), String.class.getName()});
+            Object res = connection.invoke(new ObjectName("com.bagri.db:type=Management,name=UserManagement"), "addUser",new Object[] {user, password}, new String[] {String.class.getName(), String.class.getName()});
             return (Boolean) res;
         } catch (Exception e) {
             LOGGER.throwing(this.getClass().getName(), "addUser", e);
@@ -54,7 +54,7 @@ public class AccessServiceProvider implements UserManagementService {
     @Override
     public boolean deleteUser(String user) throws ServiceException {
         try {
-            Object res = connection.invoke(new ObjectName("com.bagri.xdm:type=Management,name=UserManagement"), "deleteUser",new Object[] {user}, new String[] {String.class.getName()});
+            Object res = connection.invoke(new ObjectName("com.bagri.db:type=Management,name=UserManagement"), "deleteUser",new Object[] {user}, new String[] {String.class.getName()});
             return (Boolean) res;
         } catch (Exception e) {
             LOGGER.throwing(this.getClass().getName(), "deleteUser", e);
@@ -65,7 +65,7 @@ public class AccessServiceProvider implements UserManagementService {
     @Override
     public boolean activateUser(String user, boolean activate) throws ServiceException {
         try {
-            Object res = connection.invoke(new ObjectName("com.bagri.xdm:type=Management,name=UserManagement"), "activateUser",new Object[] {user, activate}, new String[] {String.class.getName(), boolean.class.getName()});
+            Object res = connection.invoke(new ObjectName("com.bagri.db:type=Management,name=UserManagement"), "activateUser",new Object[] {user, activate}, new String[] {String.class.getName(), boolean.class.getName()});
             return (Boolean) res;
         } catch (Exception e) {
             LOGGER.throwing(this.getClass().getName(), "activateUser", e);
@@ -76,7 +76,7 @@ public class AccessServiceProvider implements UserManagementService {
     @Override
     public boolean changePassword(String user, String password) throws ServiceException {
         try {
-            Object res = connection.invoke(new ObjectName("com.bagri.xdm:type=Management,name=UserManagement"), "changePassword",new Object[] {user, password}, new String[] {String.class.getName(), String.class.getName()});
+            Object res = connection.invoke(new ObjectName("com.bagri.db:type=Management,name=UserManagement"), "changePassword",new Object[] {user, password}, new String[] {String.class.getName(), String.class.getName()});
             return (Boolean) res;
         } catch (Exception e) {
             LOGGER.throwing(this.getClass().getName(), "changePassword", e);

@@ -10,22 +10,17 @@
 
     <artifactId>bagri-client-hazelcast</artifactId>
     <name>bagri-client-hazelcast</name>
-    <description>BagRi XDM Client: Hazelcast Implementation</description>
+    <description>Bagri Client: Hazelcast Implementation</description>
 
     <dependencies>
 
         <dependency>
             <groupId>com.bagridb</groupId>
-            <artifactId>bagri-xdm</artifactId>
+            <artifactId>bagri-core</artifactId>
         </dependency>
         <dependency>
             <groupId>com.bagridb</groupId>
             <artifactId>bagri-xqj</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.bagridb</groupId>
-            <artifactId>bagri-test-common</artifactId>
-            <scope>test</scope>
         </dependency>
 
         <dependency>

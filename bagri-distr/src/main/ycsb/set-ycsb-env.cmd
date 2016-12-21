@@ -18,24 +18,24 @@ if "%java_home%"=="" (set java_exec=java) else (set java_exec=%java_home%\bin\ja
 set java_opts=-Xms%memory% -Xmx%memory% 
 
 set java_opts=%java_opts% -Dhazelcast.logging.type=slf4j -Dlogback.configurationFile=hz-client-logging.xml
-set java_opts=%java_opts% -Dlog.name=ycsb-client -Dhz.log.level=warn -Dxdm.log.level=info
+set java_opts=%java_opts% -Dlog.name=ycsb-client -Dhz.log.level=warn -Dbdb.log.level=info
 
 set java_opts=%java_opts% -Dhazelcast.client.event.thread.count=1
 
-set java_opts=%java_opts% -Dxdm.schema.address=%schema_addr%
-set java_opts=%java_opts% -Dxdm.schema.name=YCSB
-set java_opts=%java_opts% -Dxdm.schema.user=guest
-set java_opts=%java_opts% -Dxdm.schema.password=password
+set java_opts=%java_opts% -Dbdb.schema.address=%schema_addr%
+set java_opts=%java_opts% -Dbdb.schema.name=YCSB
+set java_opts=%java_opts% -Dbdb.schema.user=guest
+set java_opts=%java_opts% -Dbdb.schema.password=password
 
 rem possible values are: member, owner, any
-set java_opts=%java_opts% -Dxdm.client.submitTo=owner
-set java_opts=%java_opts% -Dxdm.client.bufferSize=64
-set java_opts=%java_opts% -Dxdm.client.fetchSize=1
-set java_opts=%java_opts% -Dxdm.client.connectAttempts=3
-set java_opts=%java_opts% -Dxdm.client.loginTimeout=30
-set java_opts=%java_opts% -Dxdm.client.smart=true
-set java_opts=%java_opts% -Dxdm.client.poolSize=200
-set java_opts=%java_opts% -Dxdm.client.healthCheck=skip
+set java_opts=%java_opts% -Dbdb.client.submitTo=owner
+set java_opts=%java_opts% -Dbdb.client.bufferSize=64
+set java_opts=%java_opts% -Dbdb.client.fetchSize=1
+set java_opts=%java_opts% -Dbdb.client.connectAttempts=3
+set java_opts=%java_opts% -Dbdb.client.loginTimeout=30
+set java_opts=%java_opts% -Dbdb.client.smart=true
+set java_opts=%java_opts% -Dbdb.client.poolSize=200
+set java_opts=%java_opts% -Dbdb.client.healthCheck=skip
 
 rem set java_opts=%java_opts% -Duser.country=US -Duser.language=en
 
