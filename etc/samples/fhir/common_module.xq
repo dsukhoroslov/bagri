@@ -1,7 +1,7 @@
 xquery version "3.1";
 module namespace comm = "http://hl7.org/fhir"; 
 declare namespace rest = "http://www.expath.org/restxq";
-declare namespace bgdm = "http://bagridb.com/bagri-xdm";
+declare namespace bgdb = "http://bagridb.com/bdb";
 declare namespace m="http://www.w3.org/2005/xpath-functions/map";
 
 
