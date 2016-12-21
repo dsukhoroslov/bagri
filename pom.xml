@@ -19,7 +19,7 @@
     
     <groupId>com.bagridb</groupId>
     <artifactId>bagri</artifactId>
-    <version>1.1.0-EA1</version>
+    <version>1.1.0-EA2</version>
     <packaging>pom</packaging>
     <name>bagri</name>
     <description>Bagri: The Root Project</description>
@@ -47,7 +47,7 @@
         <license>
             <name>The Apache Software License, Version 2.0</name>
             <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-            <distribution>manual</distribution>
+            <distribution>repo</distribution>
         </license>
     </licenses>
 
@@ -136,6 +136,7 @@
         <maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
         <maven-surefire-plugin.version>2.18.1</maven-surefire-plugin.version>
 	<maven-release-plugin.version>2.5.3</maven-release-plugin.version>
+	<maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
         <maven-checkstyle-plugin.version>2.17</maven-checkstyle-plugin.version>
 	<maven-project-info-reports-plugin.version>2.8.1</maven-project-info-reports-plugin.version>
         <cobertura-maven-plugin.version>2.7</cobertura-maven-plugin.version>
@@ -518,6 +519,15 @@
 		    <pushChanges>false</pushChanges>
                 </configuration>
             </plugin-->
+
+	    <plugin>
+	        <groupId>org.apache.maven.plugins</groupId>
+	        <artifactId>maven-deploy-plugin</artifactId>
+                <version>${maven-deploy-plugin.version}</version>
+	        <configuration>
+        	    <skip>true</skip>
+	        </configuration>
+	    </plugin>
 
         </plugins>
     </build>
