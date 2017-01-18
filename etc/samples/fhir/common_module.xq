@@ -37,7 +37,7 @@ function comm:get-conformance-xml() as element() {
   <CapabilityStatement xmlns="http://hl7.org/fhir">
     <id value="FhirServer"/>
     <url value="http://188.166.45.131:3030/metadata"/>
-    <version value="1.1-SNAPSHOT"/>
+    <version value="1.2.0-SNAPSHOT"/>
     <name value="Bagri FHIR Server Conformance Statement"/>
     <status value="draft"/>
     <experimental value="true"/>
@@ -60,7 +60,7 @@ function comm:get-conformance-xml() as element() {
     <instantiates value="http://hl7.org/fhir/Conformance/terminology-server"/>
     <software>
         <name value="Reference Server"/>
-        <version value="1.1-SNAPSHOT"/>
+        <version value="1.2.0-SNAPSHOT"/>
         <releaseDate value="2016-10-17"/>
     </software>
     <implementation>
@@ -147,7 +147,7 @@ function comm:get-conformance-json() as item() {
       "resourceType": "CapabilityStatement",
       "id": "FhirServer",
       "url": "http://188.166.45.131:3030/metadata",
-      "version": "1.1-SNAPSHOT",
+      "version": "1.2.0-SNAPSHOT",
       "name": "Bagri FHIR Server Conformance Statement",
       "status": "draft",
       "experimental": true,
@@ -176,7 +176,7 @@ function comm:get-conformance-json() as item() {
       ],
       "software": {
          "name": "Reference Server",
-         "version": "1.1-SNAPSHOT",
+         "version": "1.2.0-SNAPSHOT",
          "releaseDate": "2016-10-17"
       },
       "implementation": {

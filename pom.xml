@@ -19,7 +19,7 @@
     
     <groupId>com.bagridb</groupId>
     <artifactId>bagri</artifactId>
-    <version>1.1.0-EA2</version>
+    <version>1.2.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>bagri</name>
     <description>Bagri: The Root Project</description>
@@ -69,7 +69,7 @@
         <connection>scm:git:git://github.com/dsukhoroslov/bagri.git</connection>
         <developerConnection>scm:git:ssh://github.com:dsukhoroslov/bagri.git</developerConnection>
         <url>https://github.com/dsukhoroslov/bagri/</url>
-        <tag>1.1.0</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <modules>
@@ -140,6 +140,7 @@
         <maven-checkstyle-plugin.version>2.17</maven-checkstyle-plugin.version>
         <maven-project-info-reports-plugin.version>2.8.1</maven-project-info-reports-plugin.version>
         <cobertura-maven-plugin.version>2.7</cobertura-maven-plugin.version>
+	<docker-maven-plugin.version>0.4.13</docker-maven-plugin.version>
         <exec-maven-plugin.version>1.4.0</exec-maven-plugin.version>
         <findbugs-maven-plugin.version>3.0.0</findbugs-maven-plugin.version>
         <nexus-maven-plugin.version>1.6.7</nexus-maven-plugin.version>
@@ -442,6 +443,11 @@
                 <plugin>
                     <artifactId>maven-assembly-plugin</artifactId>
                     <version>${maven-assembly-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>com.spotify</groupId>
+                    <artifactId>docker-maven-plugin</artifactId>
+                    <version>${docker-maven-plugin.version}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
