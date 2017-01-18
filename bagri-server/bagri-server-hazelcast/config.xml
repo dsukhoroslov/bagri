@@ -738,7 +738,7 @@
             <version>1</version>
             <createdAt>2015-05-31T16:17:20.542+03:00</createdAt>
             <createdBy>admin</createdBy>
-            <fileName>../../bagri-samples/bagri-samples-ext/target/bagri-samples-ext-1.1.0.jar</fileName>
+            <fileName>../../bagri-samples/bagri-samples-ext/target/bagri-samples-ext-1.2.0.jar</fileName>
             <description>Sample extension trigger Library</description>
             <enabled>true</enabled>
             <functions/>
