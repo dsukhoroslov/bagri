@@ -14,13 +14,19 @@ import javax.ws.rs.core.Response.Status;
 
 import org.glassfish.jersey.server.ChunkedOutput;
 
-import com.bagri.xdm.api.QueryManagement;
-import com.bagri.xdm.api.ResultCursor;
-import com.bagri.xdm.api.SchemaRepository;
+import com.bagri.core.api.QueryManagement;
+import com.bagri.core.api.ResultCursor;
+import com.bagri.core.api.SchemaRepository;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
+/**
+ * JAX-RS query resource, contains methods to perform XQuery queries on Bagri server. Accessible on /query path.  
+ * 
+ * @author Denis Sukhoroslov
+ *
+ */
 @Path("/query")
 @Api(value = "query")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -79,7 +85,7 @@ public class QueryService extends RestService {
  
     @POST
     @Path("/uris")
-	@ApiOperation(value = "gqtURIs: return URIs of Documents conforming to the specified XQuery")
+	@ApiOperation(value = "getURIs: return URIs of Documents conforming to the specified XQuery")
 	public Response getURIs(final QueryParams params) {
 		logger.debug("getURIs; got query: {}", params);
 		QueryManagement queryMgr = getQueryManager();

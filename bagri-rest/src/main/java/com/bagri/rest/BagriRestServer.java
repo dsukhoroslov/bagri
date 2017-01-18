@@ -1,10 +1,10 @@
 package com.bagri.rest;
 
+import static com.bagri.core.Constants.bg_version;
+import static com.bagri.core.Constants.pn_rest_auth_port;
+import static com.bagri.core.Constants.pn_rest_jmx;
+import static com.bagri.core.Constants.pn_rest_port;
 import static com.bagri.rest.RestConstants.*;
-import static com.bagri.xdm.common.Constants.bg_version;
-import static com.bagri.xdm.common.Constants.xdm_rest_jmx;
-import static com.bagri.xdm.common.Constants.xdm_rest_port;
-import static com.bagri.xdm.common.Constants.xdm_rest_auth_port;
 
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
@@ -40,6 +40,12 @@ import org.glassfish.jersey.servlet.ServletContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.bagri.core.api.BagriException;
+import com.bagri.core.system.Function;
+import com.bagri.core.system.Module;
+import com.bagri.core.system.Parameter;
+import com.bagri.core.system.Schema;
+import com.bagri.core.xquery.api.XQCompiler;
 import com.bagri.rest.service.AccessService;
 import com.bagri.rest.service.CollectionService;
 import com.bagri.rest.service.DocumentService;
@@ -47,12 +53,6 @@ import com.bagri.rest.service.QueryService;
 import com.bagri.rest.service.SchemaService;
 import com.bagri.rest.service.SwaggerListener;
 import com.bagri.rest.service.TransactionService;
-import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.system.Function;
-import com.bagri.xdm.system.Module;
-import com.bagri.xdm.system.Parameter;
-import com.bagri.xdm.system.Schema;
-import com.bagri.xquery.api.XQCompiler;
 
 import io.swagger.jaxrs.config.BeanConfig;
 import io.swagger.jaxrs.listing.ApiListingResource;
@@ -62,8 +62,6 @@ import io.swagger.jaxrs.listing.SwaggerSerializers;
 public class BagriRestServer implements ContextResolver<BagriRestServer>, Factory<RepositoryProvider> {
 
     private static final transient Logger logger = LoggerFactory.getLogger(BagriRestServer.class);
-    private static final transient String[] methods = {GET, POST, PUT, DELETE};
-    
     
     private int port = 3030;
     private int sport = 3443;
@@ -92,9 +90,9 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Factor
     public BagriRestServer(RepositoryProvider rePro, XQCompiler xqComp, Properties props) {
     	this.rePro = rePro;
     	this.xqComp = xqComp;
-    	this.jmx = Boolean.parseBoolean(props.getProperty(xdm_rest_jmx, "true"));
-    	this.port = Integer.parseInt(props.getProperty(xdm_rest_port, "3030"));
-    	this.sport = Integer.parseInt(props.getProperty(xdm_rest_auth_port, "3443"));
+    	this.jmx = Boolean.parseBoolean(props.getProperty(pn_rest_jmx, "true"));
+    	this.port = Integer.parseInt(props.getProperty(pn_rest_port, "3030"));
+    	this.sport = Integer.parseInt(props.getProperty(pn_rest_auth_port, "3443"));
     }
     
     public int getPort() {
@@ -133,7 +131,8 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Factor
 	    			// TODO: think about concurrency issues
 	    			ResourceConfig config = buildConfig();
 	    			activeSchemas.add(schemaName);
-	    			Set<String> newList = new HashSet<>(activeSchemas.size() + 1);
+	    			Set<String> newList = new HashSet<>(activeSchemas.size());
+	    			SwaggerListener.clearFunctions();
 	    			for (String schema: activeSchemas) {
 	    				if (buildSchemaConfig(config, schema)) {
 	    					newList.add(schema);
@@ -287,14 +286,14 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Factor
     	Schema schema = rePro.getSchema(schemaName);
     	// get schema -> resources
     	int cnt = 0;
-    	for (com.bagri.xdm.system.Resource res: schema.getResources()) {
+    	for (com.bagri.core.system.Resource res: schema.getResources()) {
         	// for each resource -> get module
     		if (res.isEnabled()) {
 	    		Module module = rePro.getModule(res.getModule());
 	    		try {
 	    			buildDynamicResources(config, res.getPath(), module);
 	    			cnt++;
-	    		} catch (XDMException ex) {
+	    		} catch (BagriException ex) {
 	    			logger.error("buildSchemaConfig; error processing module: " + res.getModule(), ex);
 	    			// skip it..
 	    		}
@@ -303,7 +302,7 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Factor
     	return cnt > 0;
     }
     
-    private void buildDynamicResources(ResourceConfig config, String basePath, Module module) throws XDMException {
+    private void buildDynamicResources(ResourceConfig config, String basePath, Module module) throws BagriException {
 
     	Resource.Builder resourceBuilder = Resource.builder();
         resourceBuilder.path(basePath);
@@ -314,6 +313,7 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Factor
 		// now build Resource dynamically from the function list
     	for (Function function: functions) {
     		buildMethod(resourceBuilder, module, function);
+            SwaggerListener.addFunction(basePath, function);
     	}
     	
         Resource resource = resourceBuilder.build();
@@ -387,11 +387,12 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Factor
         
         RestRequestProcessor pro = new RestRequestProcessor(fn, query, rePro);
         methodBuilder.handledBy(pro);
-        SwaggerListener.addRequestProcessor(pro);
+        //SwaggerListener.addRequestProcessor(pro);
     }
     
     private void bildSwaggerConfig() {
         BeanConfig beanConfig = new BeanConfig();
+        //beanConfig.setConfigId("configId: " + contextId++);
         beanConfig.setTitle("Bagri REST server");
         beanConfig.setDescription("goto http://bagridb.com for more info");
         beanConfig.setContact("support@bagridb.com");
@@ -404,7 +405,11 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Factor
         beanConfig.setBasePath("/"); // /api
         beanConfig.setResourcePackage("com.bagri.rest.service");
         beanConfig.setPrettyPrint(true);
+        // force Swagger to re-scan the package mentioned above and use 
+        // custom ReaderListener from that package
         beanConfig.setScan(true);
     }
+    
+    //private int contextId = 1;
 
 }

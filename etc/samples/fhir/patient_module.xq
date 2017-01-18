@@ -1,7 +1,7 @@
 module namespace fhir = "http://hl7.org/fhir/patient"; 
 declare namespace http = "http://www.expath.org/http";
 declare namespace rest = "http://www.expath.org/restxq";
-declare namespace bgdm = "http://bagridb.com/bagri-xdm";
+declare namespace bgdb = "http://bagridb.com/bdb";
 declare namespace p = "http://hl7.org/fhir"; 
 
 
@@ -63,7 +63,7 @@ function fhir:get-patients($identifier as xs:string?, $birthdate as xs:date?, $g
 
   return
     <Bundle xmlns="http://hl7.org/fhir">
-      <id value="{bgdm:get-uuid()}" />
+      <id value="{bgdb:get-uuid()}" />
       <meta>
         <lastUpdated value="{current-dateTime()}" />
       </meta>
@@ -103,7 +103,7 @@ function fhir:search-patients($identifier as xs:string?, $birthdate as xs:date?,
 
   return
     <Bundle xmlns="http://hl7.org/fhir">
-      <id value="{bgdm:get-uuid()}" />
+      <id value="{bgdb:get-uuid()}" />
       <meta>
         <lastUpdated value="{current-dateTime()}" />
       </meta>
@@ -131,8 +131,8 @@ declare
 function fhir:create-patient($content as xs:string, $format as xs:string?) as element()? {
   let $doc := parse-xml($content) 
   let $uri := xs:string($doc/p:Patient/p:id/@value) || ".xml"
-  let $uri := bgdm:store-document(xs:anyURI($uri), $content, ())
-  let $content := bgdm:get-document-content($uri)
+  let $uri := bgdb:store-document(xs:anyURI($uri), $content, ())
+  let $content := bgdb:get-document-content($uri)
   let $doc := parse-xml($content)
   return $doc/p:Patient
 };
@@ -146,8 +146,8 @@ declare
   %rest:query-param("_format", "{$format}", "") 
 function fhir:update-patient($id as xs:string, $content as xs:string, $format as xs:string?) as element()? {
   for $uri in fhir:get-patient-uri($id)
-  let $uri2 := bgdm:store-document($uri, $content, ())
-  let $content2 := bgdm:get-document-content($uri2, ())
+  let $uri2 := bgdb:store-document($uri, $content, ())
+  let $content2 := bgdb:get-document-content($uri2, ())
   let $doc := parse-xml($content2) 
   return $doc/p:Patient
 };
@@ -158,7 +158,7 @@ declare
   %rest:path("/{id}")
 function fhir:delete-patient($id as xs:string) as item()? {
   for $uri in fhir:get-patient-uri($id)
-  return bgdm:remove-document($uri) 
+  return bgdb:remove-document($uri) 
 };
 
 
@@ -173,7 +173,7 @@ function fhir:get-patient-uri($id as xs:string) as xs:anyURI? {
   where $ptn/p:id/@value = $id
   return $ptn'
 
-  let $uri := bgdm:query-document-uris($query, ("id", $id), ())
+  let $uri := bgdb:query-document-uris($query, ("id", $id), ())
   return xs:anyURI($uri)
 };
 
@@ -192,7 +192,7 @@ function fhir:get-patient-uris($params as xs:string*) as xs:anyURI* {
   return $ptn'
 
   let $query := $prolog || $query
-  let $uri := bgdm:query-document-uris($query, $params, ())
+  let $uri := bgdb:query-document-uris($query, $params, ())
   return xs:anyURI($uri)
 };
 

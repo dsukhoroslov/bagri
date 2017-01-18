@@ -9,9 +9,9 @@ import javax.xml.xquery.XQItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bagri.common.util.ReflectUtils;
-import com.bagri.xdm.system.Function;
-import com.bagri.xdm.system.Parameter;
+import com.bagri.core.system.Function;
+import com.bagri.core.system.Parameter;
+import com.bagri.support.util.ReflectUtils;
 
 import static com.bagri.xquery.saxon.SaxonUtils.*;
 

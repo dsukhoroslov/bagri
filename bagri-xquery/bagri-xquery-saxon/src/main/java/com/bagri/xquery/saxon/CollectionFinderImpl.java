@@ -7,18 +7,18 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bagri.xdm.cache.api.SchemaRepository;
-import com.bagri.xdm.cache.api.impl.ModelManagementBase;
-import com.bagri.xdm.domain.Document;
-import com.bagri.xdm.query.AxisType;
-import com.bagri.xdm.query.Comparison;
-import com.bagri.xdm.query.ExpressionBuilder;
-import com.bagri.xdm.query.ExpressionContainer;
-import com.bagri.xdm.query.PathBuilder;
-import com.bagri.xdm.query.PathSegment;
-import com.bagri.xdm.query.QueryBuilder;
-import com.bagri.xdm.system.Collection;
-import com.bagri.xdm.system.Schema;
+import com.bagri.core.model.Document;
+import com.bagri.core.query.AxisType;
+import com.bagri.core.query.Comparison;
+import com.bagri.core.query.ExpressionBuilder;
+import com.bagri.core.query.ExpressionContainer;
+import com.bagri.core.query.PathBuilder;
+import com.bagri.core.query.PathSegment;
+import com.bagri.core.query.QueryBuilder;
+import com.bagri.core.server.api.SchemaRepository;
+import com.bagri.core.server.api.impl.ModelManagementBase;
+import com.bagri.core.system.Collection;
+import com.bagri.core.system.Schema;
 
 import net.sf.saxon.expr.Atomizer;
 import net.sf.saxon.expr.AxisExpression;
@@ -195,7 +195,7 @@ public class CollectionFinderImpl implements CollectionFinder {
 	}
 	
 	private void setParentPath(ExpressionBuilder eb, int exIndex, PathBuilder path) {
-		com.bagri.xdm.query.Expression ex = eb.getExpression(exIndex);
+		com.bagri.core.query.Expression ex = eb.getExpression(exIndex);
 		if (ex != null) {
     		path.setPath(ex.getPath()); 
         	logger.trace("iterate; path switched to: {}; from index: {}", path, exIndex);

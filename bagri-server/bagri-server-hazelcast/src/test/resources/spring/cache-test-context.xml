@@ -5,7 +5,7 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.1.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.1.xsd">
 
-    <context:property-placeholder ignore-unresolvable="true" location="file:${xdm.config.path}/${xdm.config.properties.file}" />
+    <context:property-placeholder ignore-unresolvable="true" location="file:${bdb.config.path}/${bdb.config.properties.file}" />
 
     <!--import resource="classpath:spring/coh-client-context.xml"/-->
     <import resource="classpath:spring/cache-schema-context.xml"/>
@@ -13,9 +13,9 @@
     <bean id="xqDataSource" class="com.bagri.xqj.BagriXQDataSource">
         <property name="properties">
             <props>
-                <prop key="address">${xdm.schema.members}</prop>
-                <prop key="schema">${xdm.schema.name}</prop>
-                <prop key="password">${xdm.schema.password}</prop>
+                <prop key="address">${bdb.schema.members}</prop>
+                <prop key="schema">${bdb.schema.name}</prop>
+                <prop key="password">${bdb.schema.password}</prop>
             </props>
         </property>
     </bean>

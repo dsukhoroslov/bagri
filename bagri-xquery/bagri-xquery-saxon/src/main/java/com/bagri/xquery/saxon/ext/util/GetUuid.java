@@ -1,7 +1,7 @@
 package com.bagri.xquery.saxon.ext.util;
 
-import static com.bagri.xdm.common.Constants.bg_ns;
-import static com.bagri.xdm.common.Constants.bg_schema;
+import static com.bagri.core.Constants.bg_ns;
+import static com.bagri.core.Constants.bg_schema;
 
 import java.util.UUID;
 

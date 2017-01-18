@@ -230,14 +230,14 @@ public class DocumentServiceProvider implements DocumentManagementService {
 	}
 	
 	private ObjectName getDocMgrObjectName() throws MalformedObjectNameException {
-		return new ObjectName("com.bagri.xdm:type=Schema,name=" + schema + ",kind=DocumentManagement");
+		return new ObjectName("com.bagri.db:type=Schema,name=" + schema + ",kind=DocumentManagement");
 	}
 	
 	private String collectionsToProperties(java.util.Collection<String> collections) {
 		if (collections == null) {
 			return null;
 		}
-		StringBuffer buff = new StringBuffer("xdm.document.collections=");
+		StringBuffer buff = new StringBuffer("bdb.document.collections=");
 		for (String cln: collections) {
 			buff.append(cln).append(" ");
 		}

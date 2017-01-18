@@ -1,7 +1,7 @@
 module namespace tpox = "http://tpox-benchmark.com/rest";
 declare namespace rest = "http://www.exquery.com/restxq";
 declare namespace s="http://tpox-benchmark.com/security";
-declare namespace bgdm="http://bagridb.com/bagri-xdm";
+declare namespace bgdb="http://bagridb.com/bdb";
 
 declare 
   %rest:GET
@@ -16,7 +16,7 @@ declare
   %rest:path("/{uri}")
   %rest:produces("application/xml", "application/json")
 function tpox:security-by-uri($uri as xs:string) as element()? {
-  bgdm:get-document($uri)
+  bgdb:get-document-content($uri)
 };
 :)
 
@@ -48,9 +48,9 @@ declare
   %rest:matrix-param("props", "{$props}", "()")
 function tpox:create-security($uri as xs:string, $content as xs:string, $props as item()*) as item()? {
   if (fn:empty($props)) then (
-    bgdm:store-document(xs:anyURI($uri), $content, ())
+    bgdb:store-document(xs:anyURI($uri), $content, ())
   ) else (
-    bgdm:store-document(xs:anyURI($uri), $content, $props)
+    bgdb:store-document(xs:anyURI($uri), $content, $props)
   )
 };
 
@@ -59,6 +59,21 @@ declare
   %rest:DELETE
   %rest:path("/{uri}")
 function tpox:delete-security($uri as xs:string) as item()? {
-  bgdm:remove-document(xs:anyURI($uri)) 
+  bgdb:remove-document(xs:anyURI($uri)) 
 };
 
+(:
+declare 
+  %rest:PUT
+  %rest:path("/{uri}")
+  %rest:consumes("application/xml")
+  %rest:produces("application/xml")
+  %rest:matrix-param("props", "{$props}", "()")
+function tpox:update-security($uri as xs:string, $content as xs:string, $props as item()*) as item()? {
+  if (fn:empty($props)) then (
+    bgdb:store-document(xs:anyURI($uri), $content, ())
+  ) else (
+    bgdb:store-document(xs:anyURI($uri), $content, $props)
+  )
+};
+:)

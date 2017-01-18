@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<ns2:config xmlns:ns2="http://www.bagridb.com/xdm/system">
+<ns2:config xmlns:ns2="http://www.bagridb.com/schema/system">
     <nodes>
         <node name="admin">
             <version>1</version>
             <createdAt>2016-05-24T17:54:42.221+04:00</createdAt>
             <createdBy>admin</createdBy>
             <options>
-                <entry name="xdm.cluster.node.role">admin</entry>
+                <entry name="bdb.cluster.node.role">admin</entry>
             </options>
         </node>
         <node name="cache">
@@ -14,8 +14,8 @@
             <createdAt>2016-05-11T02:15:20.792+04:00</createdAt>
             <createdBy>admin</createdBy>
             <options>
-                <entry name="xdm.cluster.node.schemas">default</entry>
-                <entry name="xdm.cluster.node.role">server</entry>
+                <entry name="bdb.cluster.node.schemas">default</entry>
+                <entry name="bdb.cluster.node.role">server</entry>
             </options>
         </node>
     </nodes>
@@ -26,40 +26,40 @@
             <createdBy>admin</createdBy>
             <description>default schema for test and demo purpose</description>
             <properties>
-                <entry name="xdm.schema.password">5f4dcc3b5aa765d61d8327deb882cf99</entry>
-                <entry name="xdm.schema.data.backup.read">false</entry>
-                <entry name="xdm.schema.trans.backup.async">0</entry>
-                <entry name="xdm.schema.store.enabled">false</entry>
-                <entry name="xdm.schema.query.cache">true</entry>
-                <entry name="xdm.schema.transaction.timeout">60000</entry>
-                <entry name="xdm.schema.thread.pool">32</entry>
-                <entry name="xdm.schema.ports.first">10500</entry>
-                <entry name="xdm.schema.format.default">XML</entry>
-                <entry name="xdm.schema.store.type">File</entry>
-                <entry name="xdm.schema.ports.last">10600</entry>
-                <entry name="xdm.schema.population.size">1</entry>
-                <entry name="xdm.schema.data.cache">NEVER</entry>
-                <entry name="xdm.schema.data.stats.enabled">true</entry>
-                <entry name="xdm.schema.data.backup.async">1</entry>
-                <entry name="xdm.schema.store.data.path">../data/default</entry>
-                <entry name="xdm.schema.dict.backup.sync">0</entry>
-                <entry name="xdm.schema.trans.backup.sync">1</entry>
-                <entry name="xdm.schema.query.backup.sync">0</entry>
-                <entry name="xdm.schema.buffer.size">128</entry>
-                <entry name="xdm.schema.dict.backup.async">1</entry>
-                <entry name="xdm.schema.dict.backup.read">true</entry>
-                <entry name="xdm.schema.trans.backup.read">false</entry>
-                <entry name="xdm.schema.query.backup.async">0</entry>
-                <entry name="xdm.schema.members">192.168.1.50, 192.168.1.139</entry>
-                <entry name="xdm.schema.data.backup.sync">0</entry>
-                <entry name="xdm.schema.partition.count">271</entry>
-                <entry name="xdm.schema.query.backup.read">true</entry>
-                <entry name="xdm.schema.health.threshold.low">250</entry>
-                <entry name="xdm.schema.health.threshold.high">100</entry>
-                <entry name="xdm.schema.store.tx.buffer.size">2048</entry>
-                <entry name="xdm.schema.population.buffer.size">1000000</entry>
-                <entry name="xdm.schema.query.parallel">true</entry>
-                <entry name="xdm.schema.partition.pool">32</entry>
+                <entry name="bdb.schema.password">5f4dcc3b5aa765d61d8327deb882cf99</entry>
+                <entry name="bdb.schema.data.backup.read">false</entry>
+                <entry name="bdb.schema.trans.backup.async">0</entry>
+                <entry name="bdb.schema.store.enabled">false</entry>
+                <entry name="bdb.schema.query.cache">true</entry>
+                <entry name="bdb.schema.transaction.timeout">60000</entry>
+                <entry name="bdb.schema.thread.pool">32</entry>
+                <entry name="bdb.schema.ports.first">10500</entry>
+                <entry name="bdb.schema.format.default">XML</entry>
+                <entry name="bdb.schema.store.type">File</entry>
+                <entry name="bdb.schema.ports.last">10600</entry>
+                <entry name="bdb.schema.population.size">1</entry>
+                <entry name="bdb.schema.data.cache">NEVER</entry>
+                <entry name="bdb.schema.data.stats.enabled">true</entry>
+                <entry name="bdb.schema.data.backup.async">1</entry>
+                <entry name="bdb.schema.store.data.path">../data/default</entry>
+                <entry name="bdb.schema.dict.backup.sync">0</entry>
+                <entry name="bdb.schema.trans.backup.sync">1</entry>
+                <entry name="bdb.schema.query.backup.sync">0</entry>
+                <entry name="bdb.schema.buffer.size">128</entry>
+                <entry name="bdb.schema.dict.backup.async">1</entry>
+                <entry name="bdb.schema.dict.backup.read">true</entry>
+                <entry name="bdb.schema.trans.backup.read">false</entry>
+                <entry name="bdb.schema.query.backup.async">0</entry>
+                <entry name="bdb.schema.members">192.168.1.50, 192.168.1.139</entry>
+                <entry name="bdb.schema.data.backup.sync">0</entry>
+                <entry name="bdb.schema.partition.count">271</entry>
+                <entry name="bdb.schema.query.backup.read">true</entry>
+                <entry name="bdb.schema.health.threshold.low">250</entry>
+                <entry name="bdb.schema.health.threshold.high">100</entry>
+                <entry name="bdb.schema.store.tx.buffer.size">2048</entry>
+                <entry name="bdb.schema.population.buffer.size">1000000</entry>
+                <entry name="bdb.schema.query.parallel">true</entry>
+                <entry name="bdb.schema.partition.pool">32</entry>
                 <entry name="xqj.schema.orderingMode">2</entry>
                 <entry name="xqj.schema.queryLanguageTypeAndVersion">1</entry>
                 <entry name="xqj.schema.bindingMode">0</entry>
@@ -220,7 +220,7 @@
                         <action order="before" scope="delete"/>
                     </actions>
                     <module>trigger_module</module>
-                    <function>bgdm:before-delete-security</function>
+                    <function>bgdb:before-delete-security</function>
                 </trigger-->
             </triggers>
         </schema>
@@ -230,40 +230,40 @@
             <createdBy>admin</createdBy>
             <description>TPoX: schema for TPoX-related tests</description>
             <properties>
-                <entry name="xdm.schema.ports.first">10000</entry>
-                <entry name="xdm.schema.ports.last">10100</entry>
-                <entry name="xdm.schema.members">192.168.1.50, 192.168.1.139</entry>
-                <entry name="xdm.schema.thread.pool">16</entry>
-                <entry name="xdm.schema.query.cache">true</entry>
-                <entry name="xdm.schema.store.data.path">../data/tpox</entry>
-                <entry name="xdm.schema.store.type">File</entry>
-                <entry name="xdm.schema.format.default">XML</entry>
-                <entry name="xdm.schema.password">TPoX</entry>
-                <entry name="xdm.schema.partition.count">271</entry>
-                <entry name="xdm.schema.population.size">1</entry>
-                <entry name="xdm.schema.buffer.size">64</entry>
-                <entry name="xdm.schema.store.enabled">true</entry>
-                <entry name="xdm.schema.data.cache">NEVER</entry>
-                <entry name="xdm.schema.data.stats.enabled">true</entry>
-                <entry name="xdm.schema.trans.backup.async">0</entry>
-                <entry name="xdm.schema.trans.backup.sync">1</entry>
-                <entry name="xdm.schema.trans.backup.read">false</entry>
-                <entry name="xdm.schema.data.backup.read">false</entry>
-                <entry name="xdm.schema.data.backup.async">1</entry>
-                <entry name="xdm.schema.data.backup.sync">0</entry>
-                <entry name="xdm.schema.dict.backup.sync">0</entry>
-                <entry name="xdm.schema.dict.backup.async">1</entry>
-                <entry name="xdm.schema.dict.backup.read">true</entry>
-                <entry name="xdm.schema.query.backup.async">0</entry>
-                <entry name="xdm.schema.query.backup.sync">0</entry>
-                <entry name="xdm.schema.query.backup.read">true</entry>
-		<entry name="xdm.schema.transaction.timeout">60000</entry>
-                <entry name="xdm.schema.health.threshold.low">25</entry>
-                <entry name="xdm.schema.health.threshold.high">0</entry>
-                <entry name="xdm.schema.store.tx.buffer.size">2048</entry>
-                <entry name="xdm.schema.population.buffer.size">1000000</entry>
-                <entry name="xdm.schema.query.parallel">true</entry>
-                <entry name="xdm.schema.partition.pool">32</entry>
+                <entry name="bdb.schema.ports.first">10000</entry>
+                <entry name="bdb.schema.ports.last">10100</entry>
+                <entry name="bdb.schema.members">192.168.1.50, 192.168.1.139</entry>
+                <entry name="bdb.schema.thread.pool">16</entry>
+                <entry name="bdb.schema.query.cache">true</entry>
+                <entry name="bdb.schema.store.data.path">../data/tpox</entry>
+                <entry name="bdb.schema.store.type">File</entry>
+                <entry name="bdb.schema.format.default">XML</entry>
+                <entry name="bdb.schema.password">TPoX</entry>
+                <entry name="bdb.schema.partition.count">271</entry>
+                <entry name="bdb.schema.population.size">1</entry>
+                <entry name="bdb.schema.buffer.size">64</entry>
+                <entry name="bdb.schema.store.enabled">true</entry>
+                <entry name="bdb.schema.data.cache">NEVER</entry>
+                <entry name="bdb.schema.data.stats.enabled">true</entry>
+                <entry name="bdb.schema.trans.backup.async">0</entry>
+                <entry name="bdb.schema.trans.backup.sync">1</entry>
+                <entry name="bdb.schema.trans.backup.read">false</entry>
+                <entry name="bdb.schema.data.backup.read">false</entry>
+                <entry name="bdb.schema.data.backup.async">1</entry>
+                <entry name="bdb.schema.data.backup.sync">0</entry>
+                <entry name="bdb.schema.dict.backup.sync">0</entry>
+                <entry name="bdb.schema.dict.backup.async">1</entry>
+                <entry name="bdb.schema.dict.backup.read">true</entry>
+                <entry name="bdb.schema.query.backup.async">0</entry>
+                <entry name="bdb.schema.query.backup.sync">0</entry>
+                <entry name="bdb.schema.query.backup.read">true</entry>
+		<entry name="bdb.schema.transaction.timeout">60000</entry>
+                <entry name="bdb.schema.health.threshold.low">25</entry>
+                <entry name="bdb.schema.health.threshold.high">0</entry>
+                <entry name="bdb.schema.store.tx.buffer.size">2048</entry>
+                <entry name="bdb.schema.population.buffer.size">1000000</entry>
+                <entry name="bdb.schema.query.parallel">true</entry>
+                <entry name="bdb.schema.partition.pool">32</entry>
                 <entry name="xqj.schema.baseUri">file:/../data/tpox/</entry>
                 <entry name="xqj.schema.orderingMode">2</entry>
                 <entry name="xqj.schema.queryLanguageTypeAndVersion">1</entry>
@@ -374,41 +374,41 @@
             <createdBy>admin</createdBy>
             <description>XMark benchmark schema</description>
             <properties>
-                <entry name="xdm.schema.ports.first">20000</entry>
-                <entry name="xdm.schema.ports.last">20010</entry>
-                <entry name="xdm.schema.members">192.168.1.50, 192.168.1.139</entry>
-                <entry name="xdm.schema.query.cache">true</entry>
-                <entry name="xdm.schema.thread.pool">10</entry>
-                <entry name="xdm.schema.store.data.path">../data/xmark</entry>
-                <entry name="xdm.schema.data.cache">NEVER</entry>
-                <entry name="xdm.schema.data.stats.enabled">true</entry>
-                <entry name="xdm.schema.format.default">XML</entry>
-                <entry name="xdm.schema.password">XMark</entry>
-                <entry name="xdm.schema.name">XMark</entry>
-                <entry name="xdm.schema.partition.count">271</entry>
-                <entry name="xdm.schema.population.size">1</entry>
-                <entry name="xdm.schema.buffer.size">256</entry>
-                <entry name="xdm.schema.store.enabled">true</entry>
-                <entry name="xdm.schema.store.type">File</entry>
-                <entry name="xdm.schema.trans.backup.async">0</entry>
-                <entry name="xdm.schema.trans.backup.sync">1</entry>
-                <entry name="xdm.schema.trans.backup.read">false</entry>
-                <entry name="xdm.schema.data.backup.read">false</entry>
-                <entry name="xdm.schema.data.backup.async">1</entry>
-                <entry name="xdm.schema.data.backup.sync">0</entry>
-                <entry name="xdm.schema.dict.backup.sync">0</entry>
-                <entry name="xdm.schema.dict.backup.async">1</entry>
-                <entry name="xdm.schema.dict.backup.read">true</entry>
-                <entry name="xdm.schema.query.backup.async">0</entry>
-                <entry name="xdm.schema.query.backup.sync">0</entry>
-                <entry name="xdm.schema.query.backup.read">true</entry>
-		<entry name="xdm.schema.transaction.timeout">60000</entry>
-                <entry name="xdm.schema.health.threshold.low">25</entry>
-                <entry name="xdm.schema.health.threshold.high">0</entry>
-                <entry name="xdm.schema.store.tx.buffer.size">2048</entry>
-                <entry name="xdm.schema.population.buffer.size">1000000</entry>
-                <entry name="xdm.schema.query.parallel">true</entry>
-                <entry name="xdm.schema.partition.pool">32</entry>
+                <entry name="bdb.schema.ports.first">20000</entry>
+                <entry name="bdb.schema.ports.last">20010</entry>
+                <entry name="bdb.schema.members">192.168.1.50, 192.168.1.139</entry>
+                <entry name="bdb.schema.query.cache">true</entry>
+                <entry name="bdb.schema.thread.pool">10</entry>
+                <entry name="bdb.schema.store.data.path">../data/xmark</entry>
+                <entry name="bdb.schema.data.cache">NEVER</entry>
+                <entry name="bdb.schema.data.stats.enabled">true</entry>
+                <entry name="bdb.schema.format.default">XML</entry>
+                <entry name="bdb.schema.password">XMark</entry>
+                <entry name="bdb.schema.name">XMark</entry>
+                <entry name="bdb.schema.partition.count">271</entry>
+                <entry name="bdb.schema.population.size">1</entry>
+                <entry name="bdb.schema.buffer.size">256</entry>
+                <entry name="bdb.schema.store.enabled">true</entry>
+                <entry name="bdb.schema.store.type">File</entry>
+                <entry name="bdb.schema.trans.backup.async">0</entry>
+                <entry name="bdb.schema.trans.backup.sync">1</entry>
+                <entry name="bdb.schema.trans.backup.read">false</entry>
+                <entry name="bdb.schema.data.backup.read">false</entry>
+                <entry name="bdb.schema.data.backup.async">1</entry>
+                <entry name="bdb.schema.data.backup.sync">0</entry>
+                <entry name="bdb.schema.dict.backup.sync">0</entry>
+                <entry name="bdb.schema.dict.backup.async">1</entry>
+                <entry name="bdb.schema.dict.backup.read">true</entry>
+                <entry name="bdb.schema.query.backup.async">0</entry>
+                <entry name="bdb.schema.query.backup.sync">0</entry>
+                <entry name="bdb.schema.query.backup.read">true</entry>
+		<entry name="bdb.schema.transaction.timeout">60000</entry>
+                <entry name="bdb.schema.health.threshold.low">25</entry>
+                <entry name="bdb.schema.health.threshold.high">0</entry>
+                <entry name="bdb.schema.store.tx.buffer.size">2048</entry>
+                <entry name="bdb.schema.population.buffer.size">1000000</entry>
+                <entry name="bdb.schema.query.parallel">true</entry>
+                <entry name="bdb.schema.partition.pool">32</entry>
                 <entry name="xqj.schema.baseUri">file:/../data/xmark/</entry>
                 <entry name="xqj.schema.orderingMode">2</entry>
                 <entry name="xqj.schema.queryLanguageTypeAndVersion">1</entry>
@@ -481,40 +481,40 @@
             <createdBy>admin</createdBy>
             <description>TPoX-J: transient schema for TPoX-related tests; no persistent store</description>
             <properties>
-                <entry name="xdm.schema.store.enabled">true</entry>
-                <entry name="xdm.schema.store.type">File</entry>
-                <entry name="xdm.schema.trans.backup.async">0</entry>
-                <entry name="xdm.schema.trans.backup.sync">1</entry>
-                <entry name="xdm.schema.trans.backup.read">false</entry>
-                <entry name="xdm.schema.data.backup.read">false</entry>
-                <entry name="xdm.schema.data.backup.async">1</entry>
-                <entry name="xdm.schema.data.backup.sync">0</entry>
-                <entry name="xdm.schema.data.cache">NEVER</entry>
-                <entry name="xdm.schema.data.stats.enabled">true</entry>
-                <entry name="xdm.schema.dict.backup.sync">0</entry>
-                <entry name="xdm.schema.dict.backup.async">1</entry>
-                <entry name="xdm.schema.dict.backup.read">true</entry>
-                <entry name="xdm.schema.query.backup.async">0</entry>
-                <entry name="xdm.schema.query.backup.sync">0</entry>
-                <entry name="xdm.schema.query.backup.read">true</entry>
-                <entry name="xdm.schema.password">TPoX-J</entry>
-                <entry name="xdm.schema.query.cache">true</entry>
-                <entry name="xdm.schema.thread.pool">8</entry>
-                <entry name="xdm.schema.format.default">JSON</entry>
-                <entry name="xdm.schema.ports.first">10700</entry>
-                <entry name="xdm.schema.ports.last">10800</entry>
-                <entry name="xdm.schema.members">192.168.1.50, 192.168.1.139</entry>
-                <entry name="xdm.schema.population.size">1</entry>
-                <entry name="xdm.schema.store.data.path">../data/json</entry>
-                <entry name="xdm.schema.buffer.size">128</entry>
-                <entry name="xdm.schema.partition.count">271</entry>
-		<entry name="xdm.schema.transaction.timeout">60000</entry>
-                <entry name="xdm.schema.health.threshold.low">25</entry>
-                <entry name="xdm.schema.health.threshold.high">0</entry>
-                <entry name="xdm.schema.store.tx.buffer.size">2048</entry>
-                <entry name="xdm.schema.population.buffer.size">1000000</entry>
-                <entry name="xdm.schema.query.parallel">false</entry>
-                <entry name="xdm.schema.partition.pool">32</entry>
+                <entry name="bdb.schema.store.enabled">true</entry>
+                <entry name="bdb.schema.store.type">File</entry>
+                <entry name="bdb.schema.trans.backup.async">0</entry>
+                <entry name="bdb.schema.trans.backup.sync">1</entry>
+                <entry name="bdb.schema.trans.backup.read">false</entry>
+                <entry name="bdb.schema.data.backup.read">false</entry>
+                <entry name="bdb.schema.data.backup.async">1</entry>
+                <entry name="bdb.schema.data.backup.sync">0</entry>
+                <entry name="bdb.schema.data.cache">NEVER</entry>
+                <entry name="bdb.schema.data.stats.enabled">true</entry>
+                <entry name="bdb.schema.dict.backup.sync">0</entry>
+                <entry name="bdb.schema.dict.backup.async">1</entry>
+                <entry name="bdb.schema.dict.backup.read">true</entry>
+                <entry name="bdb.schema.query.backup.async">0</entry>
+                <entry name="bdb.schema.query.backup.sync">0</entry>
+                <entry name="bdb.schema.query.backup.read">true</entry>
+                <entry name="bdb.schema.password">TPoX-J</entry>
+                <entry name="bdb.schema.query.cache">true</entry>
+                <entry name="bdb.schema.thread.pool">8</entry>
+                <entry name="bdb.schema.format.default">JSON</entry>
+                <entry name="bdb.schema.ports.first">10700</entry>
+                <entry name="bdb.schema.ports.last">10800</entry>
+                <entry name="bdb.schema.members">192.168.1.50, 192.168.1.139</entry>
+                <entry name="bdb.schema.population.size">1</entry>
+                <entry name="bdb.schema.store.data.path">../data/json</entry>
+                <entry name="bdb.schema.buffer.size">128</entry>
+                <entry name="bdb.schema.partition.count">271</entry>
+		<entry name="bdb.schema.transaction.timeout">60000</entry>
+                <entry name="bdb.schema.health.threshold.low">25</entry>
+                <entry name="bdb.schema.health.threshold.high">0</entry>
+                <entry name="bdb.schema.store.tx.buffer.size">2048</entry>
+                <entry name="bdb.schema.population.buffer.size">1000000</entry>
+                <entry name="bdb.schema.query.parallel">false</entry>
+                <entry name="bdb.schema.partition.pool">32</entry>
                 <entry name="xqj.schema.baseUri">file:/../data/json/</entry>
                 <entry name="xqj.schema.orderingMode">2</entry>
                 <entry name="xqj.schema.queryLanguageTypeAndVersion">1</entry>
@@ -541,39 +541,39 @@
             <createdBy>admin</createdBy>
             <description>Schema for YCSB Benchmark</description>
             <properties>
-                <entry name="xdm.schema.password">password</entry>
-                <entry name="xdm.schema.store.tx.buffer.size">1024</entry>
-                <entry name="xdm.schema.data.backup.read">false</entry>
-                <entry name="xdm.schema.trans.backup.async">0</entry>
-                <entry name="xdm.schema.store.enabled">false</entry>
-                <entry name="xdm.schema.thread.pool">10</entry>
-                <entry name="xdm.schema.query.cache">true</entry>
-                <entry name="xdm.schema.ports.first">10150</entry>
-                <entry name="xdm.schema.format.default">JSON</entry>
-                <entry name="xdm.schema.ports.last">10160</entry>
-                <entry name="xdm.schema.population.size">1</entry>
-                <entry name="xdm.schema.population.buffer.size">1000000</entry>
-                <entry name="xdm.schema.data.backup.async">1</entry>
-                <entry name="xdm.schema.store.data.path">../data/ycsb</entry>
-                <entry name="xdm.schema.dict.backup.sync">0</entry>
-                <entry name="xdm.schema.trans.backup.sync">1</entry>
-                <entry name="xdm.schema.data.cache">NEVER</entry>
-                <entry name="xdm.schema.data.stats.enabled">true</entry>
-                <entry name="xdm.schema.query.backup.sync">0</entry>
-                <entry name="xdm.schema.buffer.size">16</entry>
-                <entry name="xdm.schema.dict.backup.async">1</entry>
-                <entry name="xdm.schema.dict.backup.read">true</entry>
-                <entry name="xdm.schema.trans.backup.read">false</entry>
-                <entry name="xdm.schema.query.backup.async">0</entry>
-                <entry name="xdm.schema.members">192.168.1.50, 192.168.1.139</entry>
-                <entry name="xdm.schema.data.backup.sync">0</entry>
-                <entry name="xdm.schema.partition.count">157</entry>
-                <entry name="xdm.schema.query.backup.read">true</entry>
-		<entry name="xdm.schema.transaction.timeout">0</entry>
-                <entry name="xdm.schema.health.threshold.low">25</entry>
-                <entry name="xdm.schema.health.threshold.high">0</entry>
-                <entry name="xdm.schema.query.parallel">true</entry>
-                <entry name="xdm.schema.partition.pool">32</entry>
+                <entry name="bdb.schema.password">password</entry>
+                <entry name="bdb.schema.store.tx.buffer.size">1024</entry>
+                <entry name="bdb.schema.data.backup.read">false</entry>
+                <entry name="bdb.schema.trans.backup.async">0</entry>
+                <entry name="bdb.schema.store.enabled">false</entry>
+                <entry name="bdb.schema.thread.pool">10</entry>
+                <entry name="bdb.schema.query.cache">true</entry>
+                <entry name="bdb.schema.ports.first">10150</entry>
+                <entry name="bdb.schema.format.default">JSON</entry>
+                <entry name="bdb.schema.ports.last">10160</entry>
+                <entry name="bdb.schema.population.size">1</entry>
+                <entry name="bdb.schema.population.buffer.size">1000000</entry>
+                <entry name="bdb.schema.data.backup.async">1</entry>
+                <entry name="bdb.schema.store.data.path">../data/ycsb</entry>
+                <entry name="bdb.schema.dict.backup.sync">0</entry>
+                <entry name="bdb.schema.trans.backup.sync">1</entry>
+                <entry name="bdb.schema.data.cache">NEVER</entry>
+                <entry name="bdb.schema.data.stats.enabled">true</entry>
+                <entry name="bdb.schema.query.backup.sync">0</entry>
+                <entry name="bdb.schema.buffer.size">16</entry>
+                <entry name="bdb.schema.dict.backup.async">1</entry>
+                <entry name="bdb.schema.dict.backup.read">true</entry>
+                <entry name="bdb.schema.trans.backup.read">false</entry>
+                <entry name="bdb.schema.query.backup.async">0</entry>
+                <entry name="bdb.schema.members">192.168.1.50, 192.168.1.139</entry>
+                <entry name="bdb.schema.data.backup.sync">0</entry>
+                <entry name="bdb.schema.partition.count">157</entry>
+                <entry name="bdb.schema.query.backup.read">true</entry>
+		<entry name="bdb.schema.transaction.timeout">0</entry>
+                <entry name="bdb.schema.health.threshold.low">25</entry>
+                <entry name="bdb.schema.health.threshold.high">0</entry>
+                <entry name="bdb.schema.query.parallel">true</entry>
+                <entry name="bdb.schema.partition.pool">32</entry>
                 <entry name="xqj.schema.baseUri">file:/../data/ycsb/</entry>
                 <entry name="xqj.schema.orderingMode">2</entry>
                 <entry name="xqj.schema.queryLanguageTypeAndVersion">1</entry>
@@ -632,8 +632,8 @@
             <createdBy>admin</createdBy>
             <fileName>../data/tpox/sample_triggers.xq</fileName>
             <description>The Trigger Test Module</description>
-            <prefix>bgdm</prefix>
-            <namespace>http://bagridb.com/bagri-xdm</namespace>
+            <prefix>bgdb</prefix>
+            <namespace>http://bagridb.com/bdb</namespace>
             <enabled>true</enabled>
         </module>
     </modules>
@@ -679,7 +679,7 @@
             <version>1</version>
             <createdAt>2016-05-31T16:17:20.542+03:00</createdAt>
             <createdBy>admin</createdBy>
-            <fileName>../samples/bagri-samples-ext/target/bagri-samples-ext-1.1.0-SNAPSHOT.jar</fileName>
+            <fileName>../samples/bagri-samples-ext/target/bagri-samples-ext-1.1.0.jar</fileName>
             <description>Sample extension trigger Library</description>
             <enabled>true</enabled>
             <functions/>
@@ -690,22 +690,20 @@
             <version>1</version>
             <createdAt>2016-05-31T16:17:20.542+03:00</createdAt>
             <createdBy>admin</createdBy>
-            <library>java_library</library>
             <description>XML Parser/Builder</description>
             <enabled>true</enabled>
-            <parserClass>com.bagri.xdm.common.df.xml.XmlStaxParser</parserClass>
-            <builderClass>com.bagri.xdm.common.df.xml.XmlBuilder</builderClass>
+            <parserClass>com.bagri.core.server.api.df.xml.XmlStaxParser</parserClass>
+            <builderClass>com.bagri.core.server.api.df.xml.XmlBuilder</builderClass>
             <extensions>xml</extensions>
         </dataFormat>
         <dataFormat name="JSON">
             <version>1</version>
             <createdAt>2016-05-31T16:17:20.542+03:00</createdAt>
             <createdBy>admin</createdBy>
-            <library>java_library</library>
             <description>JSON Parser/Builder</description>
             <enabled>true</enabled>
-            <parserClass>com.bagri.xdm.common.df.json.JsonApiParser</parserClass>
-            <builderClass>com.bagri.xdm.common.df.json.JsonBuilder</builderClass>
+            <parserClass>com.bagri.core.server.api.df.json.JsonApiParser</parserClass>
+            <builderClass>com.bagri.core.server.api.df.json.JsonBuilder</builderClass>
             <extensions>json</extensions>
         </dataFormat>
     </dataFormats>
@@ -714,14 +712,12 @@
             <version>1</version>
             <createdAt>2016-05-31T16:17:20.542+03:00</createdAt>
             <createdBy>admin</createdBy>
-            <library>java_library</library>
             <description>Standard File store</description>
-            <read-only>false</read-only>
             <enabled>true</enabled>
-            <storeClass>com.bagri.xdm.cache.hazelcast.store.FileDocumentCacheStore</storeClass>
+            <storeClass>com.bagri.server.hazelcast.store.FileDocumentCacheStore</storeClass>
             <properties>
-		<entry name="xdm.schema.store.data.path">../data</entry>
-                <entry name="xdm.schema.store.property">my property value</entry>
+		<entry name="bdb.schema.store.data.path">../data</entry>
+                <entry name="bdb.schema.store.read-only">false</entry>
             </properties>
         </dataStore>
     </dataStores>

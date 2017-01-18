@@ -5,14 +5,14 @@ import java.util.Properties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import com.bagri.xdm.api.SchemaRepository;
+import com.bagri.core.api.SchemaRepository;
 
 public class XDMClientSpringApp extends XDMClientApp {
 
 	public static void main(String[] args) throws Exception {
 		
 		ApplicationContext context = new ClassPathXmlApplicationContext("spring/xdm-client-context.xml");
-		SchemaRepository xRepo = context.getBean("xdmRepository", SchemaRepository.class);
+		SchemaRepository xRepo = context.getBean(SchemaRepository.class);
 		
 	    XDMClientSpringApp client = new XDMClientSpringApp(xRepo); 
 		tester.testClient(client);

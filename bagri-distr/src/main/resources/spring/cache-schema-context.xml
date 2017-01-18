@@ -8,14 +8,14 @@
 		http://www.hazelcast.com/schema/spring http://www.hazelcast.com/schema/spring/hazelcast-spring-3.7.xsd">
 
 	<!-- Beans Declaration -->
-	<context:property-placeholder ignore-unresolvable="true" location="file:${xdm.config.path}/${xdm.config.properties.file}" />
+	<context:property-placeholder ignore-unresolvable="true" location="file:${bdb.config.path}/${bdb.config.properties.file}" />
 	<context:annotation-config />
  
 	<hz:hazelcast id="hzInstance">
 		<hz:config>
 			<hz:spring-aware/>
-			<hz:instance-name>${xdm.schema.name}</hz:instance-name>
-			<hz:group name="${xdm.schema.name}" password="${xdm.schema.password}"/>
+			<hz:instance-name>${bdb.schema.name}</hz:instance-name>
+			<hz:group name="${bdb.schema.name}" password="${bdb.schema.password}"/>
 			<hz:management-center url="http://localhost:8080/mancenter" enabled="false"/>
 			<hz:properties>
 				<hz:property name="hazelcast.jmx">true</hz:property>
@@ -23,39 +23,39 @@
 				<hz:property name="hazelcast.logging.type">slf4j</hz:property>
 				<hz:property name="hazelcast.rest.enabled">false</hz:property>
 				<hz:property name="hazelcast.memcache.enabled">false</hz:property>
-				<hz:property name="hazelcast.partition.count">${xdm.schema.partition.count}</hz:property>
-				<hz:property name="hazelcast.operation.thread.count">${xdm.schema.partition.pool}</hz:property>
-				<hz:property name="hazelcast.operation.generic.thread.count">${xdm.schema.partition.pool}</hz:property>
-				<hz:property name="hazelcast.socket.send.buffer.size">${xdm.schema.buffer.size}</hz:property>
-				<hz:property name="hazelcast.socket.receive.buffer.size">${xdm.schema.buffer.size}</hz:property>
-				<hz:property name="hazelcast.query.predicate.parallel.evaluation">${xdm.schema.query.parallel}</hz:property>
+				<hz:property name="hazelcast.partition.count">${bdb.schema.partition.count}</hz:property>
+				<hz:property name="hazelcast.operation.thread.count">${bdb.schema.partition.pool}</hz:property>
+				<hz:property name="hazelcast.operation.generic.thread.count">${bdb.schema.partition.pool}</hz:property>
+				<hz:property name="hazelcast.socket.send.buffer.size">${bdb.schema.buffer.size}</hz:property>
+				<hz:property name="hazelcast.socket.receive.buffer.size">${bdb.schema.buffer.size}</hz:property>
+				<hz:property name="hazelcast.query.predicate.parallel.evaluation">${bdb.schema.query.parallel}</hz:property>
 			</hz:properties>
-			<hz:network port="${xdm.schema.ports.first}" port-auto-increment="true">
+			<hz:network port="${bdb.schema.ports.first}" port-auto-increment="true">
 				<hz:outbound-ports>
-					<hz:ports>${xdm.schema.ports.first}-${xdm.schema.ports.last}</hz:ports> 
+					<hz:ports>${bdb.schema.ports.first}-${bdb.schema.ports.last}</hz:ports> 
 				</hz:outbound-ports>
 				<hz:join>
 					<hz:multicast enabled="false" />
 					<hz:tcp-ip enabled="true" connection-timeout-seconds="10">
-						<hz:members>${xdm.schema.members}</hz:members>
+						<hz:members>${bdb.schema.members}</hz:members>
 					</hz:tcp-ip>
 				</hz:join>
 			</hz:network>
 
-			<hz:executor-service name="xdm-trans-pool" pool-size="${xdm.schema.thread.pool}" />
-			<hz:executor-service name="xdm-exec-pool" pool-size="${xdm.schema.thread.pool}" />
-			<hz:executor-service name="hz:async" pool-size="${xdm.schema.thread.pool}" />
-			<hz:executor-service name="hz:query" pool-size="${xdm.schema.thread.pool}" />
+			<hz:executor-service name="xdm-trans-pool" pool-size="${bdb.schema.thread.pool}" />
+			<hz:executor-service name="xdm-exec-pool" pool-size="${bdb.schema.thread.pool}" />
+			<hz:executor-service name="hz:async" pool-size="${bdb.schema.thread.pool}" />
+			<hz:executor-service name="hz:query" pool-size="${bdb.schema.thread.pool}" />
 			
 			<hz:queue name="client:*" async-backup-count="0" backup-count="0" />
 			
-			<hz:map name="dict-namespace" in-memory-format="BINARY" async-backup-count="${xdm.schema.dict.backup.async}" 
-				backup-count="${xdm.schema.dict.backup.sync}" read-backup-data="${xdm.schema.dict.backup.read}">
+			<hz:map name="dict-namespace" in-memory-format="BINARY" async-backup-count="${bdb.schema.dict.backup.async}" 
+				backup-count="${bdb.schema.dict.backup.sync}" read-backup-data="${bdb.schema.dict.backup.read}">
 				<hz:near-cache time-to-live-seconds="0" max-idle-seconds="0" eviction-policy="LRU" 
 					max-size="0" invalidate-on-change="true" in-memory-format="OBJECT" cache-local-entries="false"/>
 			</hz:map>
-			<hz:map name="dict-path" in-memory-format="BINARY" async-backup-count="${xdm.schema.dict.backup.async}" 
-				backup-count="${xdm.schema.dict.backup.sync}" read-backup-data="${xdm.schema.dict.backup.read}">
+			<hz:map name="dict-path" in-memory-format="BINARY" async-backup-count="${bdb.schema.dict.backup.async}" 
+				backup-count="${bdb.schema.dict.backup.sync}" read-backup-data="${bdb.schema.dict.backup.read}">
 				<hz:near-cache time-to-live-seconds="0" max-idle-seconds="0" eviction-policy="LRU" 
 					max-size="0" invalidate-on-change="true" in-memory-format="OBJECT" cache-local-entries="false"/>
 				<!--hz:indexes>
@@ -63,38 +63,38 @@
 					<hz:index attribute="pathId" ordered="true"/>
 				</hz:indexes-->
 			</hz:map>
-			<!--hz:map name="dict-index" in-memory-format="OBJECT" async-backup-count="${xdm.schema.dict.backup.async}" 
-				backup-count="${xdm.schema.dict.backup.sync}" read-backup-data="${xdm.schema.dict.backup.read}">
+			<!--hz:map name="dict-index" in-memory-format="OBJECT" async-backup-count="${bdb.schema.dict.backup.async}" 
+				backup-count="${bdb.schema.dict.backup.sync}" read-backup-data="${bdb.schema.dict.backup.read}">
 				<hz:near-cache time-to-live-seconds="0" max-idle-seconds="0" eviction-policy="LRU" 
 					max-size="0" invalidate-on-change="true" in-memory-format="OBJECT" cache-local-entries="false"/>
 			</hz:map-->
 			
-			<hz:map name="dict-document-type" in-memory-format="BINARY" async-backup-count="${xdm.schema.dict.backup.async}" 
-				backup-count="${xdm.schema.dict.backup.sync}" read-backup-data="${xdm.schema.dict.backup.read}">
+			<hz:map name="dict-document-type" in-memory-format="BINARY" async-backup-count="${bdb.schema.dict.backup.async}" 
+				backup-count="${bdb.schema.dict.backup.sync}" read-backup-data="${bdb.schema.dict.backup.read}">
 				<!--hz:map-store enabled="true" write-delay-seconds="10" factory-implementation="xdmStoreFactory">
 					<hz:properties>
-						<hz:property name="xdm.schema.name">${xdm.schema.name}</hz:property>
-						<hz:property name="xdm.schema.store.type">${xdm.schema.store.type}</hz:property>
+						<hz:property name="bdb.schema.name">${bdb.schema.name}</hz:property>
+						<hz:property name="bdb.schema.store.type">${bdb.schema.store.type}</hz:property>
 					</hz:properties>
 				</hz:map-store-->
 				<hz:near-cache time-to-live-seconds="0" max-idle-seconds="0" eviction-policy="LRU" 
 					max-size="0" invalidate-on-change="true" in-memory-format="OBJECT" cache-local-entries="false"/>
 			</hz:map>
-			<hz:map name="dict-trigger" in-memory-format="BINARY" async-backup-count="${xdm.schema.dict.backup.async}" 
-				backup-count="${xdm.schema.dict.backup.sync}" read-backup-data="${xdm.schema.dict.backup.read}">
+			<hz:map name="dict-trigger" in-memory-format="BINARY" async-backup-count="${bdb.schema.dict.backup.async}" 
+				backup-count="${bdb.schema.dict.backup.sync}" read-backup-data="${bdb.schema.dict.backup.read}">
 				<hz:near-cache time-to-live-seconds="0" max-idle-seconds="0" eviction-policy="LRU" 
 					max-size="0" invalidate-on-change="true" in-memory-format="OBJECT" cache-local-entries="false"/>
 			</hz:map>
 			
-			<hz:map name="xdm-key" in-memory-format="BINARY" async-backup-count="${xdm.schema.data.backup.async}" 
-				backup-count="${xdm.schema.data.backup.sync}" read-backup-data="${xdm.schema.data.backup.read}">
+			<hz:map name="xdm-key" in-memory-format="BINARY" async-backup-count="${bdb.schema.data.backup.async}" 
+				backup-count="${bdb.schema.data.backup.sync}" read-backup-data="${bdb.schema.data.backup.read}">
 			</hz:map>
-			<hz:map name="xdm-document" in-memory-format="BINARY" async-backup-count="${xdm.schema.data.backup.async}" 
-				backup-count="${xdm.schema.data.backup.sync}" read-backup-data="${xdm.schema.data.backup.read}">
-				<hz:map-store enabled="${xdm.schema.store.enabled}" write-delay-seconds="10" factory-implementation="xdmStoreFactory">
+			<hz:map name="xdm-document" in-memory-format="BINARY" async-backup-count="${bdb.schema.data.backup.async}" 
+				backup-count="${bdb.schema.data.backup.sync}" read-backup-data="${bdb.schema.data.backup.read}">
+				<hz:map-store enabled="${bdb.schema.store.enabled}" write-delay-seconds="10" factory-implementation="xdmStoreFactory">
 					<hz:properties>
-						<hz:property name="xdm.schema.name">${xdm.schema.name}</hz:property>
-						<hz:property name="xdm.schema.store.type">${xdm.schema.store.type}</hz:property>
+						<hz:property name="bdb.schema.name">${bdb.schema.name}</hz:property>
+						<hz:property name="bdb.schema.store.type">${bdb.schema.store.type}</hz:property>
 					</hz:properties>
 				</hz:map-store>
 				<hz:indexes>
@@ -104,30 +104,30 @@
 					<hz:index attribute="uri"/>
 				</hz:indexes>
 			</hz:map>
-			<hz:map name="xdm-element" in-memory-format="BINARY" async-backup-count="${xdm.schema.data.backup.async}" 
-				backup-count="${xdm.schema.data.backup.sync}" read-backup-data="${xdm.schema.data.backup.read}"
-				cache-deserialized-values="NEVER" statistics-enabled="${xdm.schema.data.stats.enabled}">
+			<hz:map name="xdm-element" in-memory-format="BINARY" async-backup-count="${bdb.schema.data.backup.async}" 
+				backup-count="${bdb.schema.data.backup.sync}" read-backup-data="${bdb.schema.data.backup.read}"
+				cache-deserialized-values="NEVER" statistics-enabled="${bdb.schema.data.stats.enabled}">
 				<hz:indexes>
 					<hz:index attribute="pathId" ordered="true"/>
 				</hz:indexes>
 			</hz:map>
-			<hz:map name="xdm-index" in-memory-format="BINARY" async-backup-count="${xdm.schema.data.backup.async}" 
-				backup-count="${xdm.schema.data.backup.sync}" read-backup-data="${xdm.schema.data.backup.read}">
+			<hz:map name="xdm-index" in-memory-format="BINARY" async-backup-count="${bdb.schema.data.backup.async}" 
+				backup-count="${bdb.schema.data.backup.sync}" read-backup-data="${bdb.schema.data.backup.read}">
 				<!--hz:indexes>
 					<hz:index attribute="pathId"/>
 					<hz:index attribute="value" ordered="true"/>
 				</hz:indexes-->
 			</hz:map>
 
-			<hz:map name="xdm-transaction" in-memory-format="BINARY" async-backup-count="${xdm.schema.trans.backup.async}" 
-				backup-count="${xdm.schema.trans.backup.sync}" read-backup-data="${xdm.schema.trans.backup.read}">
+			<hz:map name="xdm-transaction" in-memory-format="BINARY" async-backup-count="${bdb.schema.trans.backup.async}" 
+				backup-count="${bdb.schema.trans.backup.sync}" read-backup-data="${bdb.schema.trans.backup.read}">
 				<!-- must persist transaction log... --> 
-				<hz:map-store enabled="${xdm.schema.store.enabled}" write-delay-seconds="1" initial-mode="EAGER" class-name="com.bagri.xdm.cache.hazelcast.store.TransactionCacheStore">
+				<hz:map-store enabled="${bdb.schema.store.enabled}" write-delay-seconds="1" initial-mode="EAGER" class-name="com.bagri.server.hazelcast.store.TransactionCacheStore">
 					<hz:properties>
-						<hz:property name="xdm.node.instance">${xdm.node.instance}</hz:property>
-						<hz:property name="xdm.schema.name">${xdm.schema.name}</hz:property>
-	    				<hz:property name="xdm.schema.store.data.path">${xdm.schema.store.data.path}</hz:property>
-	    				<hz:property name="xdm.schema.store.tx.buffer.size">${xdm.schema.store.tx.buffer.size}</hz:property>
+						<hz:property name="bdb.node.instance">${bdb.node.instance}</hz:property>
+						<hz:property name="bdb.schema.name">${bdb.schema.name}</hz:property>
+	    				<hz:property name="bdb.schema.store.data.path">${bdb.schema.store.data.path}</hz:property>
+	    				<hz:property name="bdb.schema.store.tx.buffer.size">${bdb.schema.store.tx.buffer.size}</hz:property>
 					</hz:properties>
 				</hz:map-store>
 				<hz:indexes>
@@ -137,20 +137,20 @@
 
 			<hz:map name="xdm-client" in-memory-format="BINARY" async-backup-count="0" backup-count="1"/>
 			
-			<hz:map name="xdm-content" in-memory-format="BINARY" async-backup-count="${xdm.schema.query.backup.async}" 
-					 backup-count="${xdm.schema.query.backup.sync}" read-backup-data="${xdm.schema.query.backup.read}"
+			<hz:map name="xdm-content" in-memory-format="BINARY" async-backup-count="${bdb.schema.query.backup.async}" 
+					 backup-count="${bdb.schema.query.backup.sync}" read-backup-data="${bdb.schema.query.backup.read}"
 					 eviction-policy="LRU" time-to-live-seconds="0" max-size-policy="USED_HEAP_PERCENTAGE" 
 					 max-size="25">
 			</hz:map>
-			<!--hz:map name="xdm-query" in-memory-format="BINARY" async-backup-count="${xdm.schema.query.backup.async}" 
-					 backup-count="${xdm.schema.query.backup.sync}" read-backup-data="${xdm.schema.query.backup.read}"
+			<!--hz:map name="xdm-query" in-memory-format="BINARY" async-backup-count="${bdb.schema.query.backup.async}" 
+					 backup-count="${bdb.schema.query.backup.sync}" read-backup-data="${bdb.schema.query.backup.read}"
 					 eviction-policy="LRU" time-to-live-seconds="0" max-size-policy="USED_HEAP_PERCENTAGE" 
 					 max-size="15" eviction-percentage="10">
 				<hz:near-cache time-to-live-seconds="0" max-idle-seconds="0" eviction-policy="LRU" 
 					max-size="0" invalidate-on-change="true" in-memory-format="OBJECT" cache-local-entries="true"/>
 			</hz:map-->
-			<hz:map name="xdm-result" in-memory-format="BINARY" async-backup-count="${xdm.schema.query.backup.async}" 
-					 backup-count="${xdm.schema.query.backup.sync}" read-backup-data="${xdm.schema.query.backup.read}"
+			<hz:map name="xdm-result" in-memory-format="BINARY" async-backup-count="${bdb.schema.query.backup.async}" 
+					 backup-count="${bdb.schema.query.backup.sync}" read-backup-data="${bdb.schema.query.backup.read}"
 					 eviction-policy="LRU" time-to-live-seconds="0" max-size-policy="USED_HEAP_PERCENTAGE" 
 					 max-size="10">
 			</hz:map>
@@ -168,40 +168,40 @@
 			
 			<hz:serialization>
 				<hz:data-serializable-factories>
-					<hz:data-serializable-factory factory-id="1" class-name="com.bagri.xdm.cache.hazelcast.serialize.DataSerializationFactoryImpl"/>
+					<hz:data-serializable-factory factory-id="1" class-name="com.bagri.server.hazelcast.serialize.DataSerializationFactoryImpl"/>
 				</hz:data-serializable-factories>
 				<hz:portable-factories>
-					<hz:portable-factory factory-id="2" class-name="com.bagri.xdm.cache.hazelcast.serialize.PortableFactoryImpl"/>
+					<hz:portable-factory factory-id="2" class-name="com.bagri.server.hazelcast.serialize.PortableFactoryImpl"/>
 				</hz:portable-factories>
 				<hz:serializers>
 					<!--hz:global-serializer class-name="com.hazelcast.nio.serialization.PortableSerializer"/-->
-					<hz:serializer type-class="com.bagri.xdm.domain.Element" class-name="com.bagri.xdm.client.hazelcast.serialize.domain.ElementSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.domain.Elements" class-name="com.bagri.xdm.client.hazelcast.serialize.domain.ElementsSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.domain.Path" class-name="com.bagri.xdm.client.hazelcast.serialize.domain.PathSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.domain.Document" class-name="com.bagri.xdm.client.hazelcast.serialize.domain.DocumentSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.domain.DocumentType" class-name="com.bagri.xdm.client.hazelcast.serialize.domain.DocumentTypeSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.domain.Namespace" class-name="com.bagri.xdm.client.hazelcast.serialize.domain.NamespaceSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.domain.Query" class-name="com.bagri.xdm.client.hazelcast.serialize.domain.QuerySerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.domain.QueryResult" class-name="com.bagri.xdm.client.hazelcast.serialize.domain.QueryResultSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.domain.IndexedDocument" class-name="com.bagri.xdm.client.hazelcast.serialize.domain.IndexedDocumentSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.domain.UniqueDocument" class-name="com.bagri.xdm.client.hazelcast.serialize.domain.UniqueDocumentSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.domain.UniqueValue" class-name="com.bagri.xdm.client.hazelcast.serialize.domain.UniqueValueSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.domain.Transaction" class-name="com.bagri.xdm.client.hazelcast.serialize.domain.TransactionSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.domain.FragmentedDocument" class-name="com.bagri.xdm.client.hazelcast.serialize.domain.FragmentedDocumentSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.domain.Counter" class-name="com.bagri.xdm.client.hazelcast.serialize.domain.CounterSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.query.Expression" class-name="com.bagri.xdm.client.hazelcast.serialize.query.ExpressionSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.query.AlwaysExpression" class-name="com.bagri.xdm.client.hazelcast.serialize.query.ExpressionSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.query.PathExpression" class-name="com.bagri.xdm.client.hazelcast.serialize.query.ExpressionSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.query.BinaryExpression" class-name="com.bagri.xdm.client.hazelcast.serialize.query.ExpressionSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.query.ExpressionBuilder" class-name="com.bagri.xdm.client.hazelcast.serialize.query.ExpressionBuilderSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.query.ExpressionContainer" class-name="com.bagri.xdm.client.hazelcast.serialize.query.ExpressionContainerSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.query.PathBuilder" class-name="com.bagri.xdm.client.hazelcast.serialize.query.PathBuilderSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.query.QueryBuilder" class-name="com.bagri.xdm.client.hazelcast.serialize.query.QueryBuilderSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.query.QueriedPath" class-name="com.bagri.xdm.client.hazelcast.serialize.query.QueriedPathSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.system.Index" class-name="com.bagri.xdm.client.hazelcast.serialize.system.IndexSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.system.TriggerAction" class-name="com.bagri.xdm.client.hazelcast.serialize.system.TriggerActionSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.system.JavaTrigger" class-name="com.bagri.xdm.client.hazelcast.serialize.system.JavaTriggerSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.system.XQueryTrigger" class-name="com.bagri.xdm.client.hazelcast.serialize.system.XQueryTriggerSerializer"/>
+					<hz:serializer type-class="com.bagri.core.model.Element" class-name="com.bagri.client.hazelcast.serialize.model.ElementSerializer"/>
+					<hz:serializer type-class="com.bagri.core.model.Elements" class-name="com.bagri.client.hazelcast.serialize.model.ElementsSerializer"/>
+					<hz:serializer type-class="com.bagri.core.model.Path" class-name="com.bagri.client.hazelcast.serialize.model.PathSerializer"/>
+					<hz:serializer type-class="com.bagri.core.model.Document" class-name="com.bagri.client.hazelcast.serialize.model.DocumentSerializer"/>
+					<hz:serializer type-class="com.bagri.core.model.DocumentType" class-name="com.bagri.client.hazelcast.serialize.model.DocumentTypeSerializer"/>
+					<hz:serializer type-class="com.bagri.core.model.Namespace" class-name="com.bagri.client.hazelcast.serialize.model.NamespaceSerializer"/>
+					<hz:serializer type-class="com.bagri.core.model.Query" class-name="com.bagri.client.hazelcast.serialize.model.QuerySerializer"/>
+					<hz:serializer type-class="com.bagri.core.model.QueryResult" class-name="com.bagri.client.hazelcast.serialize.model.QueryResultSerializer"/>
+					<hz:serializer type-class="com.bagri.core.model.IndexedDocument" class-name="com.bagri.client.hazelcast.serialize.model.IndexedDocumentSerializer"/>
+					<hz:serializer type-class="com.bagri.core.model.UniqueDocument" class-name="com.bagri.client.hazelcast.serialize.model.UniqueDocumentSerializer"/>
+					<hz:serializer type-class="com.bagri.core.model.UniqueValue" class-name="com.bagri.client.hazelcast.serialize.model.UniqueValueSerializer"/>
+					<hz:serializer type-class="com.bagri.core.model.Transaction" class-name="com.bagri.client.hazelcast.serialize.model.TransactionSerializer"/>
+					<hz:serializer type-class="com.bagri.core.model.FragmentedDocument" class-name="com.bagri.client.hazelcast.serialize.model.FragmentedDocumentSerializer"/>
+					<hz:serializer type-class="com.bagri.core.model.Counter" class-name="com.bagri.client.hazelcast.serialize.model.CounterSerializer"/>
+					<hz:serializer type-class="com.bagri.core.query.Expression" class-name="com.bagri.client.hazelcast.serialize.query.ExpressionSerializer"/>
+					<hz:serializer type-class="com.bagri.core.query.AlwaysExpression" class-name="com.bagri.client.hazelcast.serialize.query.ExpressionSerializer"/>
+					<hz:serializer type-class="com.bagri.core.query.PathExpression" class-name="com.bagri.client.hazelcast.serialize.query.ExpressionSerializer"/>
+					<hz:serializer type-class="com.bagri.core.query.BinaryExpression" class-name="com.bagri.client.hazelcast.serialize.query.ExpressionSerializer"/>
+					<hz:serializer type-class="com.bagri.core.query.ExpressionBuilder" class-name="com.bagri.client.hazelcast.serialize.query.ExpressionBuilderSerializer"/>
+					<hz:serializer type-class="com.bagri.core.query.ExpressionContainer" class-name="com.bagri.client.hazelcast.serialize.query.ExpressionContainerSerializer"/>
+					<hz:serializer type-class="com.bagri.core.query.PathBuilder" class-name="com.bagri.client.hazelcast.serialize.query.PathBuilderSerializer"/>
+					<hz:serializer type-class="com.bagri.core.query.QueryBuilder" class-name="com.bagri.client.hazelcast.serialize.query.QueryBuilderSerializer"/>
+					<hz:serializer type-class="com.bagri.core.query.QueriedPath" class-name="com.bagri.client.hazelcast.serialize.query.QueriedPathSerializer"/>
+					<hz:serializer type-class="com.bagri.core.system.Index" class-name="com.bagri.server.hazelcast.serialize.system.IndexSerializer"/>
+					<hz:serializer type-class="com.bagri.core.system.TriggerAction" class-name="com.bagri.server.hazelcast.serialize.system.TriggerActionSerializer"/>
+					<hz:serializer type-class="com.bagri.core.system.JavaTrigger" class-name="com.bagri.server.hazelcast.serialize.system.JavaTriggerSerializer"/>
+					<hz:serializer type-class="com.bagri.core.system.XQueryTrigger" class-name="com.bagri.server.hazelcast.serialize.system.XQueryTriggerSerializer"/>
 					<hz:serializer type-class="javax.xml.xquery.XQItemType" implementation="xqItemTypeSerializer"/>
 					<hz:serializer type-class="javax.xml.xquery.XQItem" implementation="xqItemSerializer"/>
 					<hz:serializer type-class="javax.xml.xquery.XQSequence" implementation="xqSequenceSerializer"/>
@@ -216,7 +216,7 @@
 				</hz:member-credentials-factory>
 			
 				<hz:client-login-modules>
-					<hz:login-module class-name="com.bagri.xdm.cache.hazelcast.security.BagriLoginModule" usage="REQUIRED">
+					<hz:login-module class-name="com.bagri.server.hazelcast.security.BagriLoginModule" usage="REQUIRED">
 						<hz:properties>
 							<hz:property name="property3">value3</hz:property>
 						</hz:properties>
@@ -225,14 +225,14 @@
 			</hz:security-->
 
 			<hz:services enable-defaults="true">
-				<hz:service enabled="${xdm.schema.store.enabled}" class-name="com.bagri.xdm.cache.hazelcast.impl.PopulationManagementImpl">
+				<hz:service enabled="${bdb.schema.store.enabled}" class-name="com.bagri.server.hazelcast.impl.PopulationManagementImpl">
 					<hz:name>PopulationService</hz:name>
 					<hz:properties> 
-						<hz:property name="xdm.node.instance">${xdm.node.instance}</hz:property>
-						<hz:property name="xdm.schema.name">${xdm.schema.name}</hz:property>
-						<hz:property name="xdm.schema.population.size">${xdm.schema.population.size}</hz:property>
-	    				<hz:property name="xdm.schema.population.buffer.size">${xdm.schema.population.buffer.size}</hz:property>
-	    				<hz:property name="xdm.schema.store.data.path">${xdm.schema.store.data.path}</hz:property>
+						<hz:property name="bdb.node.instance">${bdb.node.instance}</hz:property>
+						<hz:property name="bdb.schema.name">${bdb.schema.name}</hz:property>
+						<hz:property name="bdb.schema.population.size">${bdb.schema.population.size}</hz:property>
+	    				<hz:property name="bdb.schema.population.buffer.size">${bdb.schema.population.buffer.size}</hz:property>
+	    				<hz:property name="bdb.schema.store.data.path">${bdb.schema.store.data.path}</hz:property>
 					</hz:properties>
 					<!--hz:configuration parser="MyParser">
 					</hz:configuration-->
@@ -242,7 +242,7 @@
 			<!--hz:quorum name="xdmQuorum" enabled="true">
 				<hz:quorum-size>2</hz:quorum-size>
 				<hz:quorum-type>READ_WRITE</hz:quorum-type>
-				<hz:quorum-function-class-name>com.bagri.xdm.cache.hazelcast.impl.HealthCheckFunction</hz:quorum-function-class-name>
+				<hz:quorum-function-class-name>com.bagri.server.hazelcast.impl.HealthCheckFunction</hz:quorum-function-class-name>
 			</hz:quorum-->
 		</hz:config>
 	</hz:hazelcast>
@@ -273,110 +273,110 @@
 	
 	<hz:executorService id="xdm-exec-pool" name="xdm-exec-pool" instance-ref="hzInstance"/>
 	
-	<bean id="xdmFactory" class="com.bagri.xdm.cache.hazelcast.impl.KeyFactoryImpl"/>
+	<bean id="xdmFactory" class="com.bagri.server.hazelcast.impl.KeyFactoryImpl"/>
 
-	<bean id="xdmStoreFactory" class="com.bagri.xdm.cache.hazelcast.store.DocumentStoreFactory"/>
+	<bean id="xdmStoreFactory" class="com.bagri.server.hazelcast.store.DocumentStoreFactory"/>
 
-	<!--bean id="docGen" class="com.bagri.xdm.client.hazelcast.impl.IdGeneratorImpl">
+	<!--bean id="docGen" class="com.bagri.client.hazelcast.impl.IdGeneratorImpl">
 		<constructor-arg ref="xdm.document" />
 	</bean-->
-	<bean id="docGen" class="com.bagri.xdm.client.hazelcast.impl.HzGeneratorImpl">
+	<bean id="docGen" class="com.bagri.client.hazelcast.impl.HzGeneratorImpl">
 		<constructor-arg ref="xdm.document" />
 	</bean>
 
-	<bean id="mTicker" class="com.bagri.common.stats.watch.MillisTicker"/>
-	<bean id="nTicker" class="com.bagri.common.stats.watch.NanosTicker"/>
+	<bean id="mTicker" class="com.bagri.support.stats.watch.MillisTicker"/>
+	<bean id="nTicker" class="com.bagri.support.stats.watch.NanosTicker"/>
 
 	<bean id="clientQueue" class="java.util.concurrent.ArrayBlockingQueue">
 		<constructor-arg value="1024" />
 	</bean>
-	<bean id="clientStats" class="com.bagri.common.stats.StatisticsCollector">
-		<constructor-arg value="com.bagri.xdm.cache.hazelcast.stats.InvocationStatistics" />
-		<constructor-arg value="xdm.statistics.${xdm.schema.name}.clients" />
+	<bean id="clientStats" class="com.bagri.support.stats.StatisticsCollector">
+		<constructor-arg value="com.bagri.server.hazelcast.stats.InvocationStatistics" />
+		<constructor-arg value="xdm.statistics.${bdb.schema.name}.clients" />
 		<property name="statsQueue" ref="clientQueue"/>
 	</bean>
 
 	<bean id="docQueue" class="java.util.concurrent.ArrayBlockingQueue">
 		<constructor-arg value="1024" />
 	</bean>
-	<bean id="docStats" class="com.bagri.xdm.cache.hazelcast.stats.DocumentStatsCollector">
-		<constructor-arg value="com.bagri.xdm.cache.hazelcast.stats.DocumentStatistics" />
-		<constructor-arg value="xdm.statistics.${xdm.schema.name}.docs" />
+	<bean id="docStats" class="com.bagri.server.hazelcast.stats.DocumentStatsCollector">
+		<constructor-arg value="com.bagri.server.hazelcast.stats.DocumentStatistics" />
+		<constructor-arg value="xdm.statistics.${bdb.schema.name}.docs" />
 		<property name="statsQueue" ref="docQueue"/>
 	</bean>
 
 	<bean id="queryQueue" class="java.util.concurrent.ArrayBlockingQueue">
 		<constructor-arg value="1024" />
 	</bean>
-	<bean id="queryStats" class="com.bagri.common.stats.StatisticsCollector">
-		<constructor-arg value="com.bagri.xdm.cache.hazelcast.stats.InvocationStatistics" />
-		<constructor-arg value="xdm.statistics.${xdm.schema.name}.query" />
+	<bean id="queryStats" class="com.bagri.support.stats.StatisticsCollector">
+		<constructor-arg value="com.bagri.server.hazelcast.stats.InvocationStatistics" />
+		<constructor-arg value="xdm.statistics.${bdb.schema.name}.query" />
 		<property name="statsQueue" ref="queryQueue"/>
 	</bean>
 	
 	<bean id="indexQueue" class="java.util.concurrent.ArrayBlockingQueue">
 		<constructor-arg value="1024" />
 	</bean>
-	<bean id="indexStats" class="com.bagri.common.stats.StatisticsCollector">
-		<constructor-arg value="com.bagri.xdm.cache.hazelcast.stats.IndexStatistics" />
-		<constructor-arg value="xdm.statistics.${xdm.schema.name}.index" />
+	<bean id="indexStats" class="com.bagri.support.stats.StatisticsCollector">
+		<constructor-arg value="com.bagri.server.hazelcast.stats.IndexStatistics" />
+		<constructor-arg value="xdm.statistics.${bdb.schema.name}.index" />
 		<property name="statsQueue" ref="indexQueue"/>
 	</bean>
 
 	<bean id="queryCacheQueue" class="java.util.concurrent.ArrayBlockingQueue">
 		<constructor-arg value="1024" />
 	</bean>
-	<bean id="queryCacheStats" class="com.bagri.common.stats.StatisticsCollector">
-		<constructor-arg value="com.bagri.xdm.cache.hazelcast.stats.QueryStatistics" />
-		<constructor-arg value="xdm.statistics.${xdm.schema.name}.queryCache" />
+	<bean id="queryCacheStats" class="com.bagri.support.stats.StatisticsCollector">
+		<constructor-arg value="com.bagri.server.hazelcast.stats.QueryStatistics" />
+		<constructor-arg value="xdm.statistics.${bdb.schema.name}.queryCache" />
 		<property name="statsQueue" ref="queryCacheQueue"/>
 	</bean>
 
 	<bean id="triggerQueue" class="java.util.concurrent.ArrayBlockingQueue">
 		<constructor-arg value="1024" />
 	</bean>
-	<bean id="triggerStats" class="com.bagri.common.stats.StatisticsCollector">
-		<constructor-arg value="com.bagri.xdm.cache.hazelcast.stats.UsageStatistics" />
-		<constructor-arg value="xdm.statistics.${xdm.schema.name}.trigger" />
+	<bean id="triggerStats" class="com.bagri.support.stats.StatisticsCollector">
+		<constructor-arg value="com.bagri.server.hazelcast.stats.UsageStatistics" />
+		<constructor-arg value="xdm.statistics.${bdb.schema.name}.trigger" />
 		<property name="statsQueue" ref="triggerQueue"/>
 	</bean>
 
-	<bean id="xqItemTypeSerializer" class="com.bagri.xdm.client.hazelcast.serialize.XQItemTypeSerializer">
+	<bean id="xqItemTypeSerializer" class="com.bagri.client.hazelcast.serialize.XQItemTypeSerializer">
    		<property name="XQDataFactory" ref="xqFactory" />
 	</bean>
 
-	<bean id="xqItemSerializer" class="com.bagri.xdm.client.hazelcast.serialize.XQItemSerializer">
+	<bean id="xqItemSerializer" class="com.bagri.client.hazelcast.serialize.XQItemSerializer">
 		<property name="XQDataFactory" ref="xqFactory" />
 	</bean>
 	
-	<bean id="xqSequenceSerializer" class="com.bagri.xdm.client.hazelcast.serialize.XQSequenceSerializer">
+	<bean id="xqSequenceSerializer" class="com.bagri.client.hazelcast.serialize.XQSequenceSerializer">
 		<property name="XQDataFactory" ref="xqFactory" />
 	</bean>
 
 	<bean id="xqCompiler" class="com.bagri.xquery.saxon.XQCompilerImpl"/>
 
-	<!--bean id="popManager" class="com.bagri.xdm.cache.hazelcast.management.PopulationManager">
+	<!--bean id="popManager" class="com.bagri.server.hazelcast.management.PopulationManager">
 		<constructor-arg ref="hzInstance" />
-		<property name="schemaName" value="${xdm.schema.name}"/>
-		<property name="populationSize" value="${xdm.schema.population.size}"/>
+		<property name="schemaName" value="${bdb.schema.name}"/>
+		<property name="populationSize" value="${bdb.schema.population.size}"/>
 	</bean-->
 
-	<bean id="accManager" class="com.bagri.xdm.cache.hazelcast.impl.AccessManagementImpl">
-		<property name="schemaName" value="${xdm.schema.name}"/>
-		<property name="schemaPass" value="${xdm.schema.password}"/>
+	<bean id="accManager" class="com.bagri.server.hazelcast.impl.AccessManagementImpl">
+		<property name="schemaName" value="${bdb.schema.name}"/>
+		<property name="schemaPass" value="${bdb.schema.password}"/>
 	</bean>
 
-	<bean id="bindManager" class="com.bagri.xdm.cache.hazelcast.impl.BindingManagementImpl">
+	<bean id="bindManager" class="com.bagri.server.hazelcast.impl.BindingManagementImpl">
 		<!--property name="namespaceCache" ref="dict-namespace"/-->
 	</bean>
 
-	<bean id="clientManager" class="com.bagri.xdm.cache.hazelcast.impl.ClientManagementImpl">
+	<bean id="clientManager" class="com.bagri.server.hazelcast.impl.ClientManagementImpl">
 		<property name="clientsCache" ref="xdm-client"/>
 		<property name="hzInstance" ref="hzInstance"/>
 		<property name="statsQueue" ref="clientQueue"/>
 	</bean>
     
-	<bean id="docManager" class="com.bagri.xdm.cache.hazelcast.impl.DocumentManagementImpl">
+	<bean id="docManager" class="com.bagri.server.hazelcast.impl.DocumentManagementImpl">
 		<property name="documentIdGenerator" ref="docGen"/>
 		<property name="hzInstance" ref="hzInstance"/>
 		<property name="xddCache" ref="xdm-document"/>
@@ -389,13 +389,13 @@
    		<!--property name="repository" ref="xdmRepo" /-->
 	</bean>
 
-	<bean id="healthManager" class="com.bagri.xdm.cache.hazelcast.impl.HealthManagementImpl">
+	<bean id="healthManager" class="com.bagri.server.hazelcast.impl.HealthManagementImpl">
 		<constructor-arg ref="hzInstance" />
-		<property name="lowThreshold" value="${xdm.schema.health.threshold.low}"/>
-		<property name="highThreshold" value="${xdm.schema.health.threshold.high}"/>
+		<property name="lowThreshold" value="${bdb.schema.health.threshold.low}"/>
+		<property name="highThreshold" value="${bdb.schema.health.threshold.high}"/>
 	</bean>
 
-	<bean id="idxManager" class="com.bagri.xdm.cache.hazelcast.impl.IndexManagementImpl">
+	<bean id="idxManager" class="com.bagri.server.hazelcast.impl.IndexManagementImpl">
 		<!--property name="execService" ref="xdm-exec-pool"/-->
 		<property name="indexDictionary" ref="dict-index"/>
 		<property name="indexCache" ref="xdm-index"/>
@@ -405,7 +405,7 @@
 		<property name="documentManager" ref="docManager"/>
 	</bean>
 
-	<bean id="mdlManager" class="com.bagri.xdm.cache.hazelcast.impl.ModelManagementImpl">
+	<bean id="mdlManager" class="com.bagri.server.hazelcast.impl.ModelManagementImpl">
 		<property name="namespaceCache" ref="dict-namespace"/>
 		<property name="pathCache" ref="dict-path"/>
 		<property name="typeCache" ref="dict-document-type"/>
@@ -414,7 +414,7 @@
 		<property name="typeGen" ref="xdm.doctype"/>
 	</bean>
 
-	<bean id="queryManager" class="com.bagri.xdm.cache.hazelcast.impl.QueryManagementImpl">
+	<bean id="queryManager" class="com.bagri.server.hazelcast.impl.QueryManagementImpl">
 		<property name="queryCache" ref="xdm-query"/>
 		<property name="resultCache" ref="xdm-result"/>
 		<!--property name="xddCache" ref="xdm-document"/>
@@ -423,16 +423,16 @@
 		<property name="statsQueue" ref="queryCacheQueue"/>
    		<property name="repository" ref="xdmRepo" />
    		<property name="indexManager" ref="idxManager" />
-   		<property name="cacheResults" value="${xdm.schema.query.cache}" />
+   		<property name="cacheResults" value="${bdb.schema.query.cache}" />
 		<property name="timeQueue" ref="queryQueue"/>
 		<property name="stopWatch">
-   			<bean class="com.bagri.common.stats.watch.ThreadedStopWatch">
+   			<bean class="com.bagri.support.stats.watch.ThreadedStopWatch">
 				<property name="ticker" ref="mTicker" />
    			</bean>
 		</property>
 	</bean>
 
-	<bean id="trManager" class="com.bagri.xdm.cache.hazelcast.impl.TriggerManagementImpl">
+	<bean id="trManager" class="com.bagri.server.hazelcast.impl.TriggerManagementImpl">
 		<property name="triggerDictionary" ref="dict-trigger"/>
 		<property name="execService" ref="xdm-exec-pool"/>
 		<property name="modelManager" ref="mdlManager"/>
@@ -442,12 +442,12 @@
 		<property name="XQCompiler" ref="xqCompiler"/>
 	</bean>
 
-	<bean id="txManager" class="com.bagri.xdm.cache.hazelcast.impl.TransactionManagementImpl">
+	<bean id="txManager" class="com.bagri.server.hazelcast.impl.TransactionManagementImpl">
 		<!--property name="hzInstance" ref="hzInstance"/-->
-		<property name="transactionTimeout" value="${xdm.schema.transaction.timeout}"/>
+		<property name="transactionTimeout" value="${bdb.schema.transaction.timeout}"/>
 	</bean>
 	
-	<bean id="xdmRepo" class="com.bagri.xdm.cache.hazelcast.impl.SchemaRepositoryImpl">
+	<bean id="xdmRepo" class="com.bagri.server.hazelcast.impl.SchemaRepositoryImpl">
 		<property name="hzInstance" ref="hzInstance"/>
 		<property name="factory" ref="xdmFactory"/>
 		<property name="accessManagement" ref="accManager"/>

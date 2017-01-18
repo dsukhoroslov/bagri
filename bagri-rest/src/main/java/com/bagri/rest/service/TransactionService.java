@@ -13,13 +13,19 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.Response.Status;
 
-import com.bagri.xdm.api.SchemaRepository;
-import com.bagri.xdm.api.TransactionIsolation;
-import com.bagri.xdm.api.TransactionManagement;
+import com.bagri.core.api.SchemaRepository;
+import com.bagri.core.api.TransactionIsolation;
+import com.bagri.core.api.TransactionManagement;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
+/**
+ * JAX-RS transactions resource, contains methods for transactions management. Accessible on /tx path. 
+ * 
+ * @author Denis Sukhoroslov
+ *
+ */
 @Path("/tx")
 @Api(value = "transactions")
 public class TransactionService extends RestService {

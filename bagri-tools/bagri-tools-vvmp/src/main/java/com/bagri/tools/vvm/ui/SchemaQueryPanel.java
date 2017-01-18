@@ -153,7 +153,7 @@ public class SchemaQueryPanel extends JPanel {
         	properties = schemaService.getQueryProperties(schema.getSchemaName());
         } catch (ServiceException ex) {
         	properties = new Properties();
-        	properties.setProperty("xdm.client.fetchSize", "1000");
+        	properties.setProperty("bdb.client.fetchSize", "1000");
         	properties.setProperty("xqj.schema.queryTimeout", "0");
         }
 

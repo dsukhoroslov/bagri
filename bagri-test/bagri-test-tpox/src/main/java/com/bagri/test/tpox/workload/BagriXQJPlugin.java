@@ -1,9 +1,9 @@
 package com.bagri.test.tpox.workload;
 
-import static com.bagri.common.util.PropUtils.setProperty;
-import static com.bagri.xdm.common.Constants.*;
+import static com.bagri.core.Constants.*;
+import static com.bagri.core.xquery.XQUtils.*;
+import static com.bagri.support.util.PropUtils.setProperty;
 import static com.bagri.xqj.BagriXQDataSource.*;
-import static com.bagri.xquery.api.XQUtils.*;
 
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -22,8 +22,8 @@ import javax.xml.xquery.XQResultSequence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bagri.xdm.system.Parameter;
 import com.bagri.xqj.BagriXQDataSource;
+import com.bagri.core.system.Parameter;
 import com.bagri.xqj.BagriXQDataFactory;
 
 public class BagriXQJPlugin extends BagriTPoXPlugin {
@@ -40,7 +40,7 @@ public class BagriXQJPlugin extends BagriTPoXPlugin {
 		    xqds.setProperty(USER, System.getProperty(pn_schema_user));
 		    xqds.setProperty(PASSWORD, System.getProperty(pn_schema_password));
 		    xqds.setProperty(XQ_PROCESSOR, "com.bagri.xquery.saxon.XQProcessorClient");
-		    xqds.setProperty(XDM_REPOSITORY, "com.bagri.xdm.client.hazelcast.impl.SchemaRepositoryImpl");
+		    xqds.setProperty(XDM_REPOSITORY, "com.bagri.client.hazelcast.impl.SchemaRepositoryImpl");
 		    String value = System.getProperty(pn_client_loginTimeout);
 		    if (value != null) {
 		    	xqds.setProperty(pn_client_loginTimeout, value);

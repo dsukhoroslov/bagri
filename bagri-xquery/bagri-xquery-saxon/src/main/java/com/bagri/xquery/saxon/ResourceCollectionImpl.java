@@ -1,8 +1,8 @@
 package com.bagri.xquery.saxon;
 
-import static com.bagri.common.util.FileUtils.def_encoding;
-import static com.bagri.xdm.common.Constants.bg_schema;
-import static com.bagri.xdm.common.Constants.mt_json;
+import static com.bagri.core.Constants.bg_schema;
+import static com.bagri.core.Constants.mt_json;
+import static com.bagri.support.util.FileUtils.def_encoding;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -18,11 +18,11 @@ import javax.xml.transform.stream.StreamSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.api.SchemaRepository;
-import com.bagri.xdm.cache.api.DocumentManagement;
-import com.bagri.xdm.cache.api.QueryManagement;
-import com.bagri.xdm.query.ExpressionContainer;
+import com.bagri.core.api.SchemaRepository;
+import com.bagri.core.api.BagriException;
+import com.bagri.core.query.ExpressionContainer;
+import com.bagri.core.server.api.DocumentManagement;
+import com.bagri.core.server.api.QueryManagement;
 
 import net.sf.saxon.expr.XPathContext;
 import net.sf.saxon.lib.Resource;
@@ -56,7 +56,7 @@ public class ResourceCollectionImpl implements ResourceCollection {
 	private void loadData() { //throws XPathException {
 		try {
 			docIds = ((QueryManagement) repo.getQueryManagement()).getDocumentIds(query);
-		} catch (XDMException ex) {
+		} catch (BagriException ex) {
 			logger.error("loadData.error;", ex);
 			//throw new XPathException(ex);
 			docIds = Collections.emptyList();
@@ -169,7 +169,7 @@ public class ResourceCollectionImpl implements ResourceCollection {
 						return new ResourceImpl(ss);
 					}
 					logger.trace("next. got empty content'");
-				} catch (XDMException ex) {
+				} catch (BagriException ex) {
 					logger.error("next.error", ex);
 				}
 			}

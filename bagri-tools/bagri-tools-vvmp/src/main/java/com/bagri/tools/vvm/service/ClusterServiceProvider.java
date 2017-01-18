@@ -60,7 +60,7 @@ public class ClusterServiceProvider implements ClusterManagementService, SchemaM
     @Override
     public List<Node> getNodes() throws ServiceException {
         try {
-            Set<ObjectInstance> instances = connection.queryMBeans(new ObjectName("com.bagri.xdm:type=Node,name=*"), null);
+            Set<ObjectInstance> instances = connection.queryMBeans(new ObjectName("com.bagri.db:type=Node,name=*"), null);
             List<Node> nodes = new ArrayList<Node>();
             for (ObjectInstance instance : instances) {
                 Node node = getNode(instance.getObjectName());
@@ -115,7 +115,7 @@ public class ClusterServiceProvider implements ClusterManagementService, SchemaM
     public void addNode(Node node) throws ServiceException {
         String optionsStr = convertOptionsToString(node.getNodeOptions());
         try {
-            connection.invoke(new ObjectName("com.bagri.xdm:type=Management,name=ClusterManagement")
+            connection.invoke(new ObjectName("com.bagri.db:type=Management,name=ClusterManagement")
                     , "addNode"
                     , new Object[] {node.getName(), optionsStr}
                     , new String[] {String.class.getName(), String.class.getName()});
@@ -128,7 +128,7 @@ public class ClusterServiceProvider implements ClusterManagementService, SchemaM
     @Override
     public void deleteNode(Node node) throws ServiceException {
         try {
-            connection.invoke(new ObjectName("com.bagri.xdm:type=Management,name=ClusterManagement")
+            connection.invoke(new ObjectName("com.bagri.db:type=Management,name=ClusterManagement")
                     , "deleteNode"
                     , new Object[] {node.getName()}
                     , new String[] {String.class.getName()});
@@ -151,7 +151,7 @@ public class ClusterServiceProvider implements ClusterManagementService, SchemaM
     @Override
     public List<Schema> getSchemas() throws ServiceException {
         try {
-            Set<ObjectInstance> instances = connection.queryMBeans(new ObjectName("com.bagri.xdm:type=Schema,name=*"), null);
+            Set<ObjectInstance> instances = connection.queryMBeans(new ObjectName("com.bagri.db:type=Schema,name=*"), null);
             List<Schema> schemas = new ArrayList<Schema>();
             for (ObjectInstance instance : instances) {
                 Schema schema = extractSchema(instance);
@@ -167,7 +167,7 @@ public class ClusterServiceProvider implements ClusterManagementService, SchemaM
     @Override
     public Properties getDefaultProperties() throws ServiceException {
         try {
-            CompositeData cd = (CompositeData) connection.invoke(new ObjectName("com.bagri.xdm:type=Management,name=SchemaManagement")
+            CompositeData cd = (CompositeData) connection.invoke(new ObjectName("com.bagri.db:type=Management,name=SchemaManagement")
                     , "getDefaultProperties"
                     , null
                     , null);
@@ -181,7 +181,7 @@ public class ClusterServiceProvider implements ClusterManagementService, SchemaM
     @Override
     public void setDefaultProperty(Property property) throws ServiceException {
         try {
-            connection.invoke(new ObjectName("com.bagri.xdm:type=Management,name=SchemaManagement")
+            connection.invoke(new ObjectName("com.bagri.db:type=Management,name=SchemaManagement")
                     , "setDefaultProperty"
                     , new Object[] {property.getPropertyName(), property.getPropertyValue()}
                     , new String[] {String.class.getName(), String.class.getName()});
@@ -194,7 +194,7 @@ public class ClusterServiceProvider implements ClusterManagementService, SchemaM
     @Override
     public void addSchema(Schema schema) throws ServiceException {
         try {
-            connection.invoke(new ObjectName("com.bagri.xdm:type=Management,name=SchemaManagement")
+            connection.invoke(new ObjectName("com.bagri.db:type=Management,name=SchemaManagement")
                     , "createSchema"
                     , new Object[] {schema.getSchemaName(), schema.getDescription(), convertPropertiesToString(schema.getProperties())}
                     , new String[] {String.class.getName(), String.class.getName(), String.class.getName()});
@@ -207,7 +207,7 @@ public class ClusterServiceProvider implements ClusterManagementService, SchemaM
     @Override
     public Schema getSchema(String schemaName) throws ServiceException {
         try {
-            ObjectInstance oi = connection.getObjectInstance(new ObjectName("com.bagri.xdm:type=Schema,name=" + schemaName));
+            ObjectInstance oi = connection.getObjectInstance(new ObjectName("com.bagri.db:type=Schema,name=" + schemaName));
             if (null != oi) {
                 return extractSchema(oi);
             }
@@ -276,7 +276,7 @@ public class ClusterServiceProvider implements ClusterManagementService, SchemaM
     @Override
     public void deleteSchema(Schema schema) throws ServiceException {
         try {
-            connection.invoke(new ObjectName("com.bagri.xdm:type=Management,name=SchemaManagement")
+            connection.invoke(new ObjectName("com.bagri.db:type=Management,name=SchemaManagement")
                     , "destroySchema"
                     , new Object[] {schema.getSchemaName()}
                     , new String[] {String.class.getName()});
@@ -340,7 +340,7 @@ public class ClusterServiceProvider implements ClusterManagementService, SchemaM
     	try {
     		ObjectName on = getSchemaObjectName("QueryManagement", schemaName);
     		Object value = connection.getAttribute(on, "FetchSize");
-    		props.setProperty("xdm.client.fetchSize", value.toString());
+    		props.setProperty("bdb.client.fetchSize", value.toString());
     		value = connection.getAttribute(on, "QueryTimeout");
     		props.setProperty("xqj.schema.queryTimeout", value.toString());
     		return props;
@@ -381,7 +381,7 @@ public class ClusterServiceProvider implements ClusterManagementService, SchemaM
     public List<String> getWorkingHosts(String schemaName) throws ServiceException {
     	
         try {
-            Object res = connection.getAttribute(new ObjectName("com.bagri.xdm:type=Schema,name=" + schemaName), "ActiveNodes");
+            Object res = connection.getAttribute(new ObjectName("com.bagri.db:type=Schema,name=" + schemaName), "ActiveNodes");
             return Arrays.asList((String[]) res);
         } catch (Exception e) {
             LOGGER.throwing(this.getClass().getName(), "getWorkingHosts", e);
@@ -390,7 +390,7 @@ public class ClusterServiceProvider implements ClusterManagementService, SchemaM
     }
     
     private ObjectName getSchemaObjectName(String kind, String schemaName) throws MalformedObjectNameException {
-    	return new ObjectName("com.bagri.xdm:type=Schema,kind=" + kind + ",name=" + schemaName);
+    	return new ObjectName("com.bagri.db:type=Schema,kind=" + kind + ",name=" + schemaName);
     }
 
     private Schema extractSchema(ObjectInstance oi) {

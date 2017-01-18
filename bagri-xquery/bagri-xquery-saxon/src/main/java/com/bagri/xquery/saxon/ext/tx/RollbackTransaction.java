@@ -1,10 +1,10 @@
 package com.bagri.xquery.saxon.ext.tx;
 
-import static com.bagri.xdm.common.Constants.bg_ns;
-import static com.bagri.xdm.common.Constants.bg_schema;
+import static com.bagri.core.Constants.bg_ns;
+import static com.bagri.core.Constants.bg_schema;
 
-import com.bagri.xdm.api.TransactionManagement;
-import com.bagri.xdm.api.XDMException;
+import com.bagri.core.api.TransactionManagement;
+import com.bagri.core.api.BagriException;
 
 import net.sf.saxon.expr.XPathContext;
 import net.sf.saxon.lib.ExtensionFunctionCall;
@@ -59,7 +59,7 @@ public class RollbackTransaction extends ExtensionFunctionDefinition {
 				try {
 					txMgr.rollbackTransaction(txId);
 					return null;
-				} catch (XDMException ex) {
+				} catch (BagriException ex) {
 					throw new XPathException(ex);
 				}
 			}

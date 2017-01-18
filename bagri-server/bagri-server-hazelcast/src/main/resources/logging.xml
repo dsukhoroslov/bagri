@@ -2,15 +2,15 @@
 
     <jmxConfigurator/>
     
-    <!--contextName>xdm-cache</contextName-->
-    <!--property resource="xdm-cache.properties" /-->
+    <!--contextName>bdb-cache</contextName-->
+    <!--property resource="bdb-cache.properties" /-->
 
     <if condition='isDefined("node.name")'>
         <then>
             <property name="prefix" value="${node.name}"/>
         </then>
         <else>
-            <property name="prefix" value="xdm"/>
+            <property name="prefix" value="bdb"/>
         </else>
     </if>
 
@@ -50,28 +50,19 @@
     </if>
 
     <logger name="com.bagri">
-        <level value="${xdm.log.level}"/>
+        <level value="${bdb.log.level}"/>
     </logger>
 
-    <!--logger name="com.bagri.xdm.cache.factory">
-        <level value="${xdm.log.level}"/>
-    </logger-->
+    <logger name="io.swagger">
+        <level value="${swagger.log.level:-info}"/>
+    </logger>
 
-    <!--logger name="com.bagri.xdm.cache.hazelcast.security.BagriJAASInvocationHandler">
-        <level value="debug"/>
-    </logger-->
-
-    <!--logger name="com.bagri.xdm.cache.hazelcast.store.DummyCacheStore"-->
-    <!--logger name="com.bagri.xdm.cache.hazelcast.store">
-        <level value="debug"/>
-    </logger-->
-
-    <!--logger name="com.bagri.xdm.cache.process.XDMDataProcessor">
-        <level value="debug"/>
-    </logger-->
+    <logger name="org.eclipse.jetty">
+        <level value="${jetty.log.level:-info}"/>
+    </logger>
 
     <logger name="org.springframework">
-        <level value="info"/>
+        <level value="${spring.log.level:-info}"/>
     </logger>
 
     <root level="debug">

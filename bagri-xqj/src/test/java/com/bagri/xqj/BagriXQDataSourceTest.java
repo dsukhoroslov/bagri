@@ -1,5 +1,6 @@
 package com.bagri.xqj;
 
+import static com.bagri.support.util.FileUtils.readTextFile;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
@@ -21,9 +22,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import com.bagri.xdm.api.XDMException;
-
-import static com.bagri.common.util.FileUtils.readTextFile;
+import com.bagri.core.api.BagriException;
 
 public class BagriXQDataSourceTest {
 	
@@ -40,7 +39,7 @@ public class BagriXQDataSourceTest {
 	    xqds.setProperty(BagriXQDataSource.PASSWORD, "password");
 	    //xqds.setProperty("hz.cache.mode", "client");
 	    xqds.setProperty(BagriXQDataSource.XQ_PROCESSOR, "com.bagri.xquery.saxon.XQProcessorClient");
-	    xqds.setProperty(BagriXQDataSource.XDM_REPOSITORY, "com.bagri.xdm.client.hazelcast.impl.SchemaRepositoryImpl");
+	    xqds.setProperty(BagriXQDataSource.XDM_REPOSITORY, "com.bagri.client.hazelcast.impl.SchemaRepositoryImpl");
     }
 	
 	@Test
@@ -132,10 +131,10 @@ public class BagriXQDataSourceTest {
 			throw new XQException(ex.getMessage());
 		}
 		
-		String query = "declare namespace bgdm=\"http://bagridb.com/bagri-xdm\";\n" +
+		String query = "declare namespace bgdb=\"http://bagridb.com/bdb\";\n" +
 				"declare variable $url external;\n" + 
 				"declare variable $xml external;\n" + 
-				"let $id := bgdm:store-document($url, $xml)\n" +
+				"let $id := bgdb:store-document($url, $xml)\n" +
 				"return $id\n";
 
 	    XQPreparedExpression xqpe = xqc.prepareExpression(query);
@@ -174,7 +173,7 @@ public class BagriXQDataSourceTest {
 			assertFalse(xqs.next());
 		} catch (XQException ex) {
 			// must be timeout exception
-			assertTrue(XDMException.ecQueryTimeout == Integer.parseInt(ex.getVendorCode()));
+			assertTrue(BagriException.ecQueryTimeout == Integer.parseInt(ex.getVendorCode()));
 		}
 		xqs.close();
 		xqpe.close();
@@ -192,10 +191,10 @@ public class BagriXQDataSourceTest {
 			throw new XQException(ex.getMessage());
 		}
 		
-		String query = "declare namespace bgdm=\"http://bagridb.com/bagri-xdm\";\n" +
+		String query = "declare namespace bgdb=\"http://bagridb.com/bdb\";\n" +
 				"declare variable $url external;\n" + 
 				"declare variable $xml external;\n" + 
-				"let $id := bgdm:store-document($url, $xml)\n" +
+				"let $id := bgdb:store-document($url, $xml)\n" +
 				"return $id\n";
 		XQConnection xqc = xqds.getConnection();
 	    XQPreparedExpression xqpe = xqc.prepareExpression(query);

@@ -8,7 +8,7 @@ import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQItemType;
 import javax.xml.xquery.XQStaticContext;
 
-import com.bagri.xquery.api.XQUtils;
+import com.bagri.core.xquery.XQUtils;
 
 import static javax.xml.xquery.XQConstants.*;
 

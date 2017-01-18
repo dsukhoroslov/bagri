@@ -11,12 +11,18 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.Status;
 
-import com.bagri.xdm.api.DocumentManagement;
-import com.bagri.xdm.api.SchemaRepository;
+import com.bagri.core.api.DocumentManagement;
+import com.bagri.core.api.SchemaRepository;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
+/**
+ * JAX-RS collections resource, contains methods for document collections management. Accessible on /clns path. 
+ * 
+ * @author Denis Sukhoroslov
+ *
+ */
 @Path("/clns")
 @Api(value = "collections")
 public class CollectionService extends RestService {
@@ -45,7 +51,7 @@ public class CollectionService extends RestService {
     @GET
     @Path("/{name}")
     @Produces(MediaType.APPLICATION_JSON) 
-	@ApiOperation(value = "getCollectionsDocuments: return Document uris belonging to the specified Collection")
+	@ApiOperation(value = "getCollectionDocuments: return Document uris belonging to the specified Collection")
     public Collection<String> getCollectionDocuments(@PathParam("name") String name) {
 		DocumentManagement docMgr = getDocManager();
 		try {
@@ -59,7 +65,7 @@ public class CollectionService extends RestService {
     @DELETE
     @Path("/{name}")
     @Produces(MediaType.APPLICATION_JSON) 
-	@ApiOperation(value = "deleteCollectionsDocuments: delete all Documents belonging to the specified Collection")
+	@ApiOperation(value = "deleteCollectionDocuments: delete all Documents belonging to the specified Collection")
     public int deleteCollectionDocuments(@PathParam("name") String name) {
 		DocumentManagement docMgr = getDocManager();
 		try {
@@ -70,6 +76,5 @@ public class CollectionService extends RestService {
     	}
     }    
     
-
 }
 

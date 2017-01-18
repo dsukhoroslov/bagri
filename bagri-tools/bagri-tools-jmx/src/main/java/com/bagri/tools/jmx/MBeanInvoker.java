@@ -18,7 +18,7 @@ import javax.xml.bind.Unmarshaller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bagri.common.util.ReflectUtils;
+import com.bagri.support.util.ReflectUtils;
 
 public class MBeanInvoker implements Closeable {
 

@@ -12,13 +12,19 @@ import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import com.bagri.core.api.SchemaRepository;
 import com.bagri.rest.BagriRestServer;
-import com.bagri.xdm.api.SchemaRepository;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
+/**
+ * JAX-RS access resource, contains login/logout methods. Can be reached on /access path via HTTPS.
+ * 
+ * @author Denis Sukhoroslov
+ *
+ */
 @Path("/access")
 @Api(value = "access")
 public class AccessService extends RestService {

@@ -3,7 +3,7 @@ package com.bagri.xqj;
 import javax.xml.xquery.XQItem;
 import javax.xml.xquery.XQItemType;
 
-import com.bagri.xquery.api.XQProcessor;
+import com.bagri.core.xquery.api.XQProcessor;
 
 public class BagriXQItem extends BagriXQItemAccessor implements XQItem {
 	

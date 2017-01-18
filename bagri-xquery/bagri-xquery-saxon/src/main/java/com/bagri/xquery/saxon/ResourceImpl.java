@@ -1,6 +1,6 @@
 package com.bagri.xquery.saxon;
 
-import static com.bagri.xdm.common.Constants.mt_xml;
+import static com.bagri.core.Constants.mt_xml;
 
 import javax.xml.transform.Source;
 

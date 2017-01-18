@@ -29,9 +29,9 @@ import org.w3c.dom.Node;
 import org.w3c.dom.ProcessingInstruction;
 import org.w3c.dom.Text;
 
-import com.bagri.common.util.XMLUtils;
-import com.bagri.xdm.system.DataType;
-import com.bagri.xquery.api.XQUtils;
+import com.bagri.core.system.DataType;
+import com.bagri.core.xquery.XQUtils;
+import com.bagri.support.util.XMLUtils;
 
 import net.sf.saxon.Configuration;
 import net.sf.saxon.dom.DOMObjectModel;
@@ -455,13 +455,13 @@ public class SaxonUtils {
 		return SequenceType.makeSequenceType(it, cardinality);
 	}
 	
-    public static com.bagri.xdm.system.Cardinality getCardinality(int cardinality) {
+    public static com.bagri.core.system.Cardinality getCardinality(int cardinality) {
     	switch (cardinality) {
-    		case StaticProperty.ALLOWS_ONE_OR_MORE: return com.bagri.xdm.system.Cardinality.one_or_more;  
-    		case StaticProperty.ALLOWS_ZERO_OR_ONE: return com.bagri.xdm.system.Cardinality.zero_or_one;
-    		case StaticProperty.ALLOWS_ZERO_OR_MORE: return com.bagri.xdm.system.Cardinality.zero_or_more;
+    		case StaticProperty.ALLOWS_ONE_OR_MORE: return com.bagri.core.system.Cardinality.one_or_more;  
+    		case StaticProperty.ALLOWS_ZERO_OR_ONE: return com.bagri.core.system.Cardinality.zero_or_one;
+    		case StaticProperty.ALLOWS_ZERO_OR_MORE: return com.bagri.core.system.Cardinality.zero_or_more;
     	}
-    	return com.bagri.xdm.system.Cardinality.one;  
+    	return com.bagri.core.system.Cardinality.one;  
     }
 
 	public static ItemType type2Item(String type) {

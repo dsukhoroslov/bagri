@@ -1,7 +1,7 @@
 package com.bagri.xquery.saxon.ext.doc;
 
-import static com.bagri.xdm.common.Constants.bg_ns;
-import static com.bagri.xdm.common.Constants.bg_schema;
+import static com.bagri.core.Constants.bg_ns;
+import static com.bagri.core.Constants.bg_schema;
 import static com.bagri.xquery.saxon.SaxonUtils.sequence2Properties;
 
 import java.util.ArrayList;
@@ -10,8 +10,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import com.bagri.xdm.api.QueryManagement;
-import com.bagri.xdm.api.XDMException;
+import com.bagri.core.api.QueryManagement;
+import com.bagri.core.api.BagriException;
 
 import net.sf.saxon.expr.XPathContext;
 import net.sf.saxon.lib.ExtensionFunctionCall;
@@ -101,7 +101,7 @@ public class QueryDocumentUris extends ExtensionFunctionDefinition {
 						list.add(new StringValue(uri));
 					}
 					return new AtomicArray(list);
-				} catch (XDMException ex) {
+				} catch (BagriException ex) {
 					throw new XPathException(ex);
 				}
 			}

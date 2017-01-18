@@ -4,28 +4,23 @@
     <parent>
         <groupId>com.bagridb</groupId>
         <artifactId>bagri-client</artifactId>
-        <version>1.1.0-SNAPSHOT</version>
+        <version>1.1.0-EA2</version>
         <relativePath>..</relativePath>
     </parent>
 
     <artifactId>bagri-client-hazelcast</artifactId>
     <name>bagri-client-hazelcast</name>
-    <description>BagRi XDM Client: Hazelcast Implementation</description>
+    <description>Bagri Client: Hazelcast Implementation</description>
 
     <dependencies>
 
         <dependency>
             <groupId>com.bagridb</groupId>
-            <artifactId>bagri-xdm</artifactId>
+            <artifactId>bagri-core</artifactId>
         </dependency>
         <dependency>
             <groupId>com.bagridb</groupId>
             <artifactId>bagri-xqj</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.bagridb</groupId>
-            <artifactId>bagri-test-common</artifactId>
-            <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -57,5 +52,17 @@
         </dependency>
 
     </dependencies>
+
+    <build>
+	<plugins>
+	    <plugin>
+	        <groupId>org.apache.maven.plugins</groupId>
+	        <artifactId>maven-deploy-plugin</artifactId>
+	        <configuration>
+        	    <skip>false</skip>
+	        </configuration>
+	    </plugin>
+	</plugins>
+    </build>
 
 </project>

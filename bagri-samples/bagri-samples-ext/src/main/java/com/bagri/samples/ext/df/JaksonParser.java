@@ -11,15 +11,15 @@ import java.util.List;
 
 import javax.xml.xquery.XQItemType;
 
-import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.cache.api.ContentParser;
-import com.bagri.xdm.cache.api.ModelManagement;
-import com.bagri.xdm.common.df.ContentParserBase;
-import com.bagri.xdm.domain.Occurrence;
-import com.bagri.xdm.domain.Data;
-import com.bagri.xdm.domain.Element;
-import com.bagri.xdm.domain.NodeKind;
-import com.bagri.xdm.domain.Path;
+import com.bagri.core.api.BagriException;
+import com.bagri.core.model.Data;
+import com.bagri.core.model.Element;
+import com.bagri.core.model.NodeKind;
+import com.bagri.core.model.Occurrence;
+import com.bagri.core.model.Path;
+import com.bagri.core.server.api.ContentParser;
+import com.bagri.core.server.api.ModelManagement;
+import com.bagri.core.server.api.impl.ContentParserBase;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -28,7 +28,7 @@ public class JaksonParser extends ContentParserBase implements ContentParser {
 	
 	private static JsonFactory factory = new JsonFactory();
 
-	public static List<Data> parseDocument(ModelManagement dictionary, String json) throws XDMException {
+	public static List<Data> parseDocument(ModelManagement dictionary, String json) throws BagriException {
 		JaksonParser parser = new JaksonParser(dictionary);
 		return parser.parse(json);
 	}
@@ -38,32 +38,32 @@ public class JaksonParser extends ContentParserBase implements ContentParser {
 	}
 
 	@Override
-	public List<Data> parse(String json) throws XDMException { 
+	public List<Data> parse(String json) throws BagriException { 
 		try (Reader reader = new StringReader(json)) {
 			return parse(reader);
 		} catch (IOException ex) {
-			throw new XDMException(ex, XDMException.ecInOut);
+			throw new BagriException(ex, BagriException.ecInOut);
 		}
 	}
 	
 	@Override
-	public List<Data> parse(File file) throws XDMException {
+	public List<Data> parse(File file) throws BagriException {
 		try (Reader reader = new FileReader(file)) {
 			return parse(reader);
 		} catch (IOException ex) {
-			throw new XDMException(ex, XDMException.ecInOut);
+			throw new BagriException(ex, BagriException.ecInOut);
 		}
 	}
 	
 	@Override
-	public List<Data> parse(InputStream stream) throws XDMException {
+	public List<Data> parse(InputStream stream) throws BagriException {
 		
 		JsonParser jParser = null;
 		try {
 			jParser = factory.createParser(stream);	
 			return parse(jParser);
 		} catch (IOException ex) {
-			throw new XDMException(ex, XDMException.ecInOut);
+			throw new BagriException(ex, BagriException.ecInOut);
 		} finally {
 			if (jParser != null) {
 				try {
@@ -76,14 +76,14 @@ public class JaksonParser extends ContentParserBase implements ContentParser {
 	}
 	
 	@Override
-	public List<Data> parse(Reader reader) throws XDMException {
+	public List<Data> parse(Reader reader) throws BagriException {
 		
 		JsonParser jParser = null;
 		try {
 			jParser = factory.createParser(reader);	
 			return parse(jParser);
 		} catch (IOException ex) {
-			throw new XDMException(ex, XDMException.ecInOut);
+			throw new BagriException(ex, BagriException.ecInOut);
 		} finally {
 			if (jParser != null) {
 				try {
@@ -95,7 +95,7 @@ public class JaksonParser extends ContentParserBase implements ContentParser {
 		}
 	}
 
-	public List<Data> parse(JsonParser parser) throws XDMException {
+	public List<Data> parse(JsonParser parser) throws BagriException {
 		
 		logger.trace("parse.enter; context: {}; schema: {}", parser.getParsingContext(), parser.getSchema());
 		
@@ -105,7 +105,7 @@ public class JaksonParser extends ContentParserBase implements ContentParser {
 				processToken(parser);
 			}
 		} catch (IOException ex) {
-			throw new XDMException(ex, XDMException.ecInOut);
+			throw new BagriException(ex, BagriException.ecInOut);
 		}
 		cleanup();
 
@@ -115,7 +115,7 @@ public class JaksonParser extends ContentParserBase implements ContentParser {
 		return result;
 	}
 	
-	private void processToken(JsonParser parser) throws IOException, XDMException { //, XMLStreamException {
+	private void processToken(JsonParser parser) throws IOException, BagriException { //, XMLStreamException {
 
 		JsonToken token = parser.getCurrentToken();
 		logger.trace("processToken; got token: {}; name: {}; value: {}", token.name(), parser.getCurrentName(), parser.getText());
@@ -154,7 +154,7 @@ public class JaksonParser extends ContentParserBase implements ContentParser {
 		}			
 	}
 
-	private void processDocument(String name) throws XDMException {
+	private void processDocument(String name) throws BagriException {
 
 		String root = "/" + (name == null ? "" : name);
 		docType = model.translateDocumentType(root);
@@ -171,7 +171,7 @@ public class JaksonParser extends ContentParserBase implements ContentParser {
 		return name.startsWith("-") || name.startsWith("@");
 	}
 
-	private void processStartElement(String name) throws XDMException {
+	private void processStartElement(String name) throws BagriException {
 		
 		if (name != null && !isAttribute(name)) {
 			Data parent = dataStack.peek();
@@ -190,7 +190,7 @@ public class JaksonParser extends ContentParserBase implements ContentParser {
 		dataStack.pop();
 	}
 
-	private void processValueElement(String name, String value) throws XDMException {
+	private void processValueElement(String name, String value) throws BagriException {
 		
 		//value = value.replaceAll("&", "&amp;");
 		if (name == null) {
@@ -198,10 +198,11 @@ public class JaksonParser extends ContentParserBase implements ContentParser {
 			if (current == null) {
 				// #text in array; not sure it'll always work.
 				// use XDMJsonParser.getTopData instead ?
-				//current = dataStack.elementAt(dataStack.size() - 2);
-				Iterator<Data> itr = dataStack.descendingIterator();
-				itr.next();
-				current = itr.next();
+				current = dataStack.elementAt(dataStack.size() - 2);
+				// this is for Deque
+				//Iterator<Data> itr = dataStack.descendingIterator();
+				//itr.next();
+				//current = itr.next();
 			}
 			addData(current, NodeKind.text, "/text()", value, XQItemType.XQBASETYPE_ANYATOMICTYPE, Occurrence.zeroOrOne);
 		} else if (isAttribute(name)) {

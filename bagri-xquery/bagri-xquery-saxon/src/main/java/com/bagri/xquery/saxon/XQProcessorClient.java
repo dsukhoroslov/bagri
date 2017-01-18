@@ -1,11 +1,11 @@
 package com.bagri.xquery.saxon;
 
-import static com.bagri.xdm.common.Constants.cmd_get_document;
-import static com.bagri.xdm.common.Constants.cmd_remove_cln_documents;
-import static com.bagri.xdm.common.Constants.cmd_remove_document;
-import static com.bagri.xdm.common.Constants.cmd_store_document;
-import static com.bagri.xdm.common.Constants.pn_query_command;
-import static com.bagri.xquery.api.XQUtils.getXQException;
+import static com.bagri.core.Constants.cmd_get_document;
+import static com.bagri.core.Constants.cmd_remove_cln_documents;
+import static com.bagri.core.Constants.cmd_remove_document;
+import static com.bagri.core.Constants.cmd_store_document;
+import static com.bagri.core.Constants.pn_query_command;
+import static com.bagri.core.xquery.XQUtils.getXQException;
 import static com.bagri.xquery.saxon.SaxonUtils.itemToXQItem;
 
 import java.util.Collection;
@@ -19,12 +19,12 @@ import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQItem;
 import javax.xml.xquery.XQStaticContext;
 
-import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.api.impl.ResultCursorBase;
-import com.bagri.xdm.domain.Query;
-import com.bagri.xdm.api.QueryManagement;
-import com.bagri.xdm.api.ResultCursor;
-import com.bagri.xquery.api.XQProcessor;
+import com.bagri.core.api.QueryManagement;
+import com.bagri.core.api.ResultCursor;
+import com.bagri.core.api.BagriException;
+import com.bagri.core.api.impl.ResultCursorBase;
+import com.bagri.core.model.Query;
+import com.bagri.core.xquery.api.XQProcessor;
 
 import net.sf.saxon.expr.instruct.GlobalParameterSet;
 import net.sf.saxon.om.Item;
@@ -37,7 +37,7 @@ public class XQProcessorClient extends XQProcessorImpl implements XQProcessor {
     public void cancelExecution() throws XQException {
 		try {
 			getQueryManagement().cancelExecution();
-		} catch (XDMException ex) {
+		} catch (BagriException ex) {
     		throw getXQException(ex);
 		}
     }
@@ -77,7 +77,7 @@ public class XQProcessorClient extends XQProcessorImpl implements XQProcessor {
 		    	//return cursor; 
 			}
 			return Collections.singletonList(result).iterator();
-    	} catch (XDMException ex) {
+    	} catch (BagriException ex) {
     		throw getXQException(ex);
     	}
 	}
@@ -95,7 +95,7 @@ public class XQProcessorClient extends XQProcessorImpl implements XQProcessor {
     	try {
         	Map<String, Object> params = getXQItemParams();
     		return getQueryManagement().executeQuery(query, params, props);
-    	} catch (XPathException | XDMException ex) {
+    	} catch (XPathException | BagriException ex) {
     		throw getXQException(ex);
     	}
 	}

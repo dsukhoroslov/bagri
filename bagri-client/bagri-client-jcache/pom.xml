@@ -11,14 +11,14 @@
 
     <artifactId>bagri-client-jcache</artifactId>
     <name>bagri-client-jcache</name>
-    <description>BagRi XDM Access Layer: JCache Implementation</description>
+    <description>Bagri Client: JCache Implementation</description>
 
 
     <dependencies>
 
         <dependency>
             <groupId>com.bagridb</groupId>
-            <artifactId>bagri-xdm</artifactId>
+            <artifactId>bagri-core</artifactId>
         </dependency>
         <dependency>
             <groupId>com.bagridb</groupId>
@@ -27,11 +27,6 @@
         <dependency>
             <groupId>com.bagridb</groupId>
             <artifactId>bagri-xqj</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.bagridb</groupId>
-            <artifactId>bagri-test-common</artifactId>
-            <scope>test</scope>
         </dependency>
 
         <dependency>

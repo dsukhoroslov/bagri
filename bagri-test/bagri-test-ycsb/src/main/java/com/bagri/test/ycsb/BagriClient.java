@@ -1,6 +1,6 @@
 package com.bagri.test.ycsb;
 
-import static com.bagri.xdm.common.Constants.*;
+import static com.bagri.core.Constants.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,8 +11,8 @@ import java.util.Vector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bagri.xdm.api.SchemaRepository;
-import com.bagri.xdm.client.hazelcast.impl.SchemaRepositoryImpl;
+import com.bagri.core.api.SchemaRepository;
+import com.bagri.client.hazelcast.impl.SchemaRepositoryImpl;
 import com.yahoo.ycsb.ByteIterator;
 import com.yahoo.ycsb.DB;
 import com.yahoo.ycsb.DBException;

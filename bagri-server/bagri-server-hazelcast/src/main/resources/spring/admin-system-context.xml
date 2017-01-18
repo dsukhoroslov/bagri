@@ -11,13 +11,13 @@
 
     <!-- Beans Declarations -->
     
-    <context:property-placeholder location="file:${xdm.config.path}/admin.properties" />
+    <context:property-placeholder location="file:${bdb.config.path}/admin.properties" />
     <context:annotation-config />
 
     <bean id="mbeanServer" class="java.lang.management.ManagementFactory" factory-method="getPlatformMBeanServer"/>
-    <context:mbean-export server="mbeanServer" default-domain="com.bagri.xdm"/>
+    <context:mbean-export server="mbeanServer" default-domain="com.bagri.db"/>
     
-	<bean id="authManager" class="com.bagri.xdm.cache.hazelcast.security.BagriJMXAuthenticator">
+	<bean id="authManager" class="com.bagri.server.hazelcast.security.BagriJMXAuthenticator">
 		<property name="userManager" ref="userService"/>
 	</bean>
 
@@ -34,16 +34,16 @@
 				<hz:property name="hazelcast.rest.enabled">false</hz:property>
 				<hz:property name="hazelcast.memcache.enabled">false</hz:property>
 			</hz:properties>
-			<hz:network port="${xdm.cluster.port:3331}" port-auto-increment="true">
+			<hz:network port="${bdb.cluster.port:3331}" port-auto-increment="true">
 				<hz:join>
 					<hz:multicast enabled="false"/>
 					<hz:tcp-ip enabled="true" connection-timeout-seconds="10">
-						<hz:members>${xdm.cluster.members:localhost}</hz:members>
+						<hz:members>${bdb.cluster.members:localhost}</hz:members>
 					</hz:tcp-ip>
 				</hz:join>
 			</hz:network>
 
-			<hz:executor-service name="sys-exec-pool" pool-size="${xdm.cluster.thread.pool:8}" />
+			<hz:executor-service name="sys-exec-pool" pool-size="${bdb.cluster.thread.pool:8}" />
 
 			<hz:map name="formats">
 				<hz:map-store enabled="true" write-delay-seconds="10" initial-mode="EAGER" implementation="dataFormatCacheStore"/>
@@ -79,39 +79,39 @@
 			
 			<hz:serialization>
 				<hz:data-serializable-factories>
-					<hz:data-serializable-factory factory-id="1" class-name="com.bagri.xdm.cache.hazelcast.serialize.DataSerializationFactoryImpl"/>
+					<hz:data-serializable-factory factory-id="1" class-name="com.bagri.server.hazelcast.serialize.DataSerializationFactoryImpl"/>
 				</hz:data-serializable-factories>
 				<!--hz:portable-factories>
-					<hz:portable-factory factory-id="1" class-name="com.bagri.xdm.process.hazelcast.pof.XDMPortableFactory"/>
+					<hz:portable-factory factory-id="1" class-name="com.bagri.client.hazelcast.serialize.XDMPortableFactory"/>
 				</hz:portable-factories-->
 				<hz:serializers>
-					<hz:serializer type-class="com.bagri.xdm.system.DataType" class-name="com.bagri.xdm.client.hazelcast.serialize.system.DataTypeSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.system.Module" class-name="com.bagri.xdm.client.hazelcast.serialize.system.ModuleSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.system.Library" class-name="com.bagri.xdm.client.hazelcast.serialize.system.LibrarySerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.system.Function" class-name="com.bagri.xdm.client.hazelcast.serialize.system.FunctionSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.system.Parameter" class-name="com.bagri.xdm.client.hazelcast.serialize.system.ParameterSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.system.Node" class-name="com.bagri.xdm.client.hazelcast.serialize.system.NodeSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.system.Schema" class-name="com.bagri.xdm.client.hazelcast.serialize.system.SchemaSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.system.Collection" class-name="com.bagri.xdm.client.hazelcast.serialize.system.CollectionSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.system.Fragment" class-name="com.bagri.xdm.client.hazelcast.serialize.system.FragmentSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.system.Resource" class-name="com.bagri.xdm.client.hazelcast.serialize.system.ResourceSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.system.Index" class-name="com.bagri.xdm.client.hazelcast.serialize.system.IndexSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.system.Role" class-name="com.bagri.xdm.client.hazelcast.serialize.system.RoleSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.system.User" class-name="com.bagri.xdm.client.hazelcast.serialize.system.UserSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.system.Permission" class-name="com.bagri.xdm.client.hazelcast.serialize.system.PermissionSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.system.TriggerAction" class-name="com.bagri.xdm.client.hazelcast.serialize.system.TriggerActionSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.system.JavaTrigger" class-name="com.bagri.xdm.client.hazelcast.serialize.system.JavaTriggerSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.system.XQueryTrigger" class-name="com.bagri.xdm.client.hazelcast.serialize.system.XQueryTriggerSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.system.DataFormat" class-name="com.bagri.xdm.client.hazelcast.serialize.system.DataFormatSerializer"/>
-					<hz:serializer type-class="com.bagri.xdm.system.DataStore" class-name="com.bagri.xdm.client.hazelcast.serialize.system.DataStoreSerializer"/>
+					<hz:serializer type-class="com.bagri.core.system.DataType" class-name="com.bagri.server.hazelcast.serialize.system.DataTypeSerializer"/>
+					<hz:serializer type-class="com.bagri.core.system.Module" class-name="com.bagri.server.hazelcast.serialize.system.ModuleSerializer"/>
+					<hz:serializer type-class="com.bagri.core.system.Library" class-name="com.bagri.server.hazelcast.serialize.system.LibrarySerializer"/>
+					<hz:serializer type-class="com.bagri.core.system.Function" class-name="com.bagri.server.hazelcast.serialize.system.FunctionSerializer"/>
+					<hz:serializer type-class="com.bagri.core.system.Parameter" class-name="com.bagri.server.hazelcast.serialize.system.ParameterSerializer"/>
+					<hz:serializer type-class="com.bagri.core.system.Node" class-name="com.bagri.server.hazelcast.serialize.system.NodeSerializer"/>
+					<hz:serializer type-class="com.bagri.core.system.Schema" class-name="com.bagri.server.hazelcast.serialize.system.SchemaSerializer"/>
+					<hz:serializer type-class="com.bagri.core.system.Collection" class-name="com.bagri.server.hazelcast.serialize.system.CollectionSerializer"/>
+					<hz:serializer type-class="com.bagri.core.system.Fragment" class-name="com.bagri.server.hazelcast.serialize.system.FragmentSerializer"/>
+					<hz:serializer type-class="com.bagri.core.system.Resource" class-name="com.bagri.server.hazelcast.serialize.system.ResourceSerializer"/>
+					<hz:serializer type-class="com.bagri.core.system.Index" class-name="com.bagri.server.hazelcast.serialize.system.IndexSerializer"/>
+					<hz:serializer type-class="com.bagri.core.system.Role" class-name="com.bagri.server.hazelcast.serialize.system.RoleSerializer"/>
+					<hz:serializer type-class="com.bagri.core.system.User" class-name="com.bagri.server.hazelcast.serialize.system.UserSerializer"/>
+					<hz:serializer type-class="com.bagri.core.system.Permission" class-name="com.bagri.server.hazelcast.serialize.system.PermissionSerializer"/>
+					<hz:serializer type-class="com.bagri.core.system.TriggerAction" class-name="com.bagri.server.hazelcast.serialize.system.TriggerActionSerializer"/>
+					<hz:serializer type-class="com.bagri.core.system.JavaTrigger" class-name="com.bagri.server.hazelcast.serialize.system.JavaTriggerSerializer"/>
+					<hz:serializer type-class="com.bagri.core.system.XQueryTrigger" class-name="com.bagri.server.hazelcast.serialize.system.XQueryTriggerSerializer"/>
+					<hz:serializer type-class="com.bagri.core.system.DataFormat" class-name="com.bagri.server.hazelcast.serialize.system.DataFormatSerializer"/>
+					<hz:serializer type-class="com.bagri.core.system.DataStore" class-name="com.bagri.server.hazelcast.serialize.system.DataStoreSerializer"/>
 				</hz:serializers>
 			</hz:serialization>
 			<hz:member-attributes>
-				<hz:attribute name="xdm.cluster.login">${xdm.cluster.login:admin}</hz:attribute>
-				<hz:attribute name="xdm.cluster.admin.port">${xdm.cluster.admin.port:3330}</hz:attribute>
-				<hz:attribute name="xdm.cluster.node.name">${xdm.cluster.node.name:admin}</hz:attribute>
-				<hz:attribute name="xdm.cluster.node.role">admin</hz:attribute>
-				<hz:attribute name="xdm.cluster.node.schemas">${xdm.cluster.node.schemas:}</hz:attribute>
+				<hz:attribute name="bdb.cluster.login">${bdb.cluster.login:admin}</hz:attribute>
+				<hz:attribute name="bdb.cluster.admin.port">${bdb.cluster.admin.port:3330}</hz:attribute>
+				<hz:attribute name="bdb.cluster.node.name">${bdb.cluster.node.name:admin}</hz:attribute>
+				<hz:attribute name="bdb.cluster.node.role">admin</hz:attribute>
+				<hz:attribute name="bdb.cluster.node.schemas">${bdb.cluster.node.schemas:}</hz:attribute>
 			</hz:member-attributes>
 		</hz:config>
 	</hz:hazelcast>
@@ -127,76 +127,76 @@
 
 	<hz:executorService id="sys-exec-pool" name="sys-exec-pool" instance-ref="hzInstance"/>
 
-	<bean id="configService" class="com.bagri.xdm.cache.hazelcast.config.SystemConfig">
-		<constructor-arg value="${xdm.config.filename}" />
+	<bean id="configService" class="com.bagri.server.hazelcast.config.SystemConfig">
+		<constructor-arg value="${bdb.config.filename}" />
 	</bean>
 
-	<bean id="moduleCacheStore" class="com.bagri.xdm.cache.hazelcast.store.system.ModuleCacheStore">
+	<bean id="moduleCacheStore" class="com.bagri.server.hazelcast.store.system.ModuleCacheStore">
 		<property name="entityManagement" ref="configService"/>
 	</bean>
 
-	<bean id="libraryCacheStore" class="com.bagri.xdm.cache.hazelcast.store.system.LibraryCacheStore">
+	<bean id="libraryCacheStore" class="com.bagri.server.hazelcast.store.system.LibraryCacheStore">
 		<property name="entityManagement" ref="configService"/>
 	</bean>
 
-	<bean id="schemaCacheStore" class="com.bagri.xdm.cache.hazelcast.store.system.SchemaCacheStore">
+	<bean id="schemaCacheStore" class="com.bagri.server.hazelcast.store.system.SchemaCacheStore">
 		<property name="entityManagement" ref="configService"/>
 	</bean>
 
-	<bean id="nodeCacheStore" class="com.bagri.xdm.cache.hazelcast.store.system.NodeCacheStore">
+	<bean id="nodeCacheStore" class="com.bagri.server.hazelcast.store.system.NodeCacheStore">
 		<property name="entityManagement" ref="configService"/>
 	</bean>
 
-	<bean id="dataFormatCacheStore" class="com.bagri.xdm.cache.hazelcast.store.system.DataFormatCacheStore">
+	<bean id="dataFormatCacheStore" class="com.bagri.server.hazelcast.store.system.DataFormatCacheStore">
 		<property name="entityManagement" ref="configService"/>
 	</bean>
 
-	<bean id="dataStoreCacheStore" class="com.bagri.xdm.cache.hazelcast.store.system.DataStoreCacheStore">
+	<bean id="dataStoreCacheStore" class="com.bagri.server.hazelcast.store.system.DataStoreCacheStore">
 		<property name="entityManagement" ref="configService"/>
 	</bean>
 
-	<bean id="accessService" class="com.bagri.xdm.cache.hazelcast.config.AccessConfig">
-		<constructor-arg value="${xdm.access.filename}" />
+	<bean id="accessService" class="com.bagri.server.hazelcast.config.AccessConfig">
+		<constructor-arg value="${bdb.access.filename}" />
 	</bean>
 
-	<bean id="roleCacheStore" class="com.bagri.xdm.cache.hazelcast.store.system.RoleCacheStore">
+	<bean id="roleCacheStore" class="com.bagri.server.hazelcast.store.system.RoleCacheStore">
 		<property name="entityManagement" ref="accessService"/>
 	</bean>
 
-	<bean id="userCacheStore" class="com.bagri.xdm.cache.hazelcast.store.system.UserCacheStore">
+	<bean id="userCacheStore" class="com.bagri.server.hazelcast.store.system.UserCacheStore">
 		<property name="entityManagement" ref="accessService"/>
 	</bean>
 
 	<bean id="xqCompiler" class="com.bagri.xquery.saxon.XQCompilerImpl"/>
 
-	<bean id="dataFormatService" class="com.bagri.xdm.cache.hazelcast.management.DataFormatManagement">
+	<bean id="dataFormatService" class="com.bagri.server.hazelcast.management.DataFormatManagement">
 		<constructor-arg ref="hzInstance" />
 		<property name="entityCache" ref="formats"/>
 	</bean>
 
-	<bean id="dataStoreService" class="com.bagri.xdm.cache.hazelcast.management.DataStoreManagement">
+	<bean id="dataStoreService" class="com.bagri.server.hazelcast.management.DataStoreManagement">
 		<constructor-arg ref="hzInstance" />
 		<property name="entityCache" ref="stores"/>
 	</bean>
 
-	<bean id="moduleService" class="com.bagri.xdm.cache.hazelcast.management.ModuleManagement">
+	<bean id="moduleService" class="com.bagri.server.hazelcast.management.ModuleManagement">
 		<constructor-arg ref="hzInstance" />
 		<property name="entityCache" ref="modules"/>
 		<property name="XQCompiler" ref="xqCompiler"/>
 	</bean>
 
-	<bean id="libraryService" class="com.bagri.xdm.cache.hazelcast.management.LibraryManagement">
+	<bean id="libraryService" class="com.bagri.server.hazelcast.management.LibraryManagement">
 		<constructor-arg ref="hzInstance" />
 		<property name="entityCache" ref="libraries"/>
 		<property name="XQCompiler" ref="xqCompiler"/>
 	</bean>
 
-	<bean id="clusterService" class="com.bagri.xdm.cache.hazelcast.management.ClusterManagement">
+	<bean id="clusterService" class="com.bagri.server.hazelcast.management.ClusterManagement">
 		<constructor-arg ref="hzInstance" />
 		<property name="entityCache" ref="nodes"/>
 	</bean>
 
-	<bean id="schemaService" class="com.bagri.xdm.cache.hazelcast.management.SchemaManagement">
+	<bean id="schemaService" class="com.bagri.server.hazelcast.management.SchemaManagement">
 		<constructor-arg ref="hzInstance" />
 		<property name="entityCache" ref="schemas"/>
 		<property name="clusterService" ref="clusterService"/>
@@ -205,38 +205,38 @@
 		<property name="userService" ref="userService"/>
 		<property name="defaultProperties">
 			<props>
-				<prop key="xdm.schema.password"></prop>
-				<!--prop key="xdm.schema.members">${xdm.schema.default.members}</prop-->
-				<prop key="xdm.schema.ports.first">${xdm.schema.default.ports.first}</prop>
-				<prop key="xdm.schema.ports.last">${xdm.schema.default.ports.last}</prop>
-				<prop key="xdm.schema.thread.pool">${xdm.schema.default.thread.pool}</prop>
-				<prop key="xdm.schema.store.type">${xdm.schema.default.store.type}</prop>
-				<prop key="xdm.schema.store.tx.buffer.size">${xdm.schema.default.store.tx.buffer.size}</prop>
-				<prop key="xdm.schema.buffer.size">${xdm.schema.default.buffer.size}</prop>
-				<prop key="xdm.schema.partition.count">${xdm.schema.default.partition.count}</prop>
-				<prop key="xdm.schema.population.size">${xdm.schema.default.population.size}</prop>
-				<prop key="xdm.schema.population.buffer.size">${xdm.schema.default.population.buffer.size}</prop>
-				<prop key="xdm.schema.transaction.timeout">${xdm.schema.default.transaction.timeout}</prop>
+				<prop key="bdb.schema.password"></prop>
+				<!--prop key="bdb.schema.members">${bdb.schema.default.members}</prop-->
+				<prop key="bdb.schema.ports.first">${bdb.schema.default.ports.first}</prop>
+				<prop key="bdb.schema.ports.last">${bdb.schema.default.ports.last}</prop>
+				<prop key="bdb.schema.thread.pool">${bdb.schema.default.thread.pool}</prop>
+				<prop key="bdb.schema.store.type">${bdb.schema.default.store.type}</prop>
+				<prop key="bdb.schema.store.tx.buffer.size">${bdb.schema.default.store.tx.buffer.size}</prop>
+				<prop key="bdb.schema.buffer.size">${bdb.schema.default.buffer.size}</prop>
+				<prop key="bdb.schema.partition.count">${bdb.schema.default.partition.count}</prop>
+				<prop key="bdb.schema.population.size">${bdb.schema.default.population.size}</prop>
+				<prop key="bdb.schema.population.buffer.size">${bdb.schema.default.population.buffer.size}</prop>
+				<prop key="bdb.schema.transaction.timeout">${bdb.schema.default.transaction.timeout}</prop>
 			</props>
 		</property>
 	</bean>
 
-	<bean id="topService" class="com.bagri.xdm.cache.hazelcast.management.TopologyManagement">
+	<bean id="topService" class="com.bagri.server.hazelcast.management.TopologyManagement">
 		<constructor-arg ref="hzInstance" />
 		<property name="execService" ref="sys-exec-pool"/>
 	</bean>
 
-	<bean id="roleService" class="com.bagri.xdm.cache.hazelcast.management.RoleManagement">
+	<bean id="roleService" class="com.bagri.server.hazelcast.management.RoleManagement">
 		<constructor-arg ref="hzInstance" />
 		<property name="entityCache" ref="roles"/>
 	</bean>
 
-	<bean id="userService" class="com.bagri.xdm.cache.hazelcast.management.UserManagement">
+	<bean id="userService" class="com.bagri.server.hazelcast.management.UserManagement">
 		<constructor-arg ref="hzInstance" />
 		<property name="entityCache" ref="users"/>
 	</bean>
 
-	<bean id="repoProviderService" class="com.bagri.xdm.cache.hazelcast.impl.RepositoryProviderImpl">
+	<bean id="repoProviderService" class="com.bagri.server.hazelcast.impl.RepositoryProviderImpl">
 		<property name="moduleManagement" ref="moduleService"/>
 		<property name="schemaManagement" ref="schemaService"/>
 	</bean>
@@ -246,9 +246,9 @@
 		<constructor-arg ref="xqCompiler" />
 		<constructor-arg>
             <props>
-                <prop key="xdm.rest.jmx">${xdm.rest.jmx:true}</prop>
-                <prop key="xdm.rest.port">${xdm.rest.port:3030}</prop>
-                <prop key="xdm.rest.auth.port">${xdm.rest.auth.port:3443}</prop>
+                <prop key="bdb.rest.jmx">${bdb.rest.jmx:true}</prop>
+                <prop key="bdb.rest.port">${bdb.rest.port:3030}</prop>
+                <prop key="bdb.rest.auth.port">${bdb.rest.auth.port:3443}</prop>
             </props>
 		</constructor-arg>
 	</bean>

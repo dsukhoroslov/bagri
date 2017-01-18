@@ -8,7 +8,7 @@ import javax.xml.xquery.XQItemType;
 import javax.xml.xquery.XQResultItem;
 import javax.xml.xquery.XQResultSequence;
 
-import com.bagri.xquery.api.XQProcessor;
+import com.bagri.core.xquery.api.XQProcessor;
 
 public class BagriXQResultItem extends BagriXQItem implements XQResultItem {
 	

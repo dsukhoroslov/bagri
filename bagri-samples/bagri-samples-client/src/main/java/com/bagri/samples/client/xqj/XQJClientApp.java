@@ -1,10 +1,10 @@
 package com.bagri.samples.client.xqj;
 
-import static com.bagri.xdm.common.Constants.xdm_document_data_format;
-import static com.bagri.xdm.common.Constants.pn_schema_address;
-import static com.bagri.xdm.common.Constants.pn_schema_name;
-import static com.bagri.xdm.common.Constants.pn_schema_password;
-import static com.bagri.xdm.common.Constants.pn_schema_user;
+import static com.bagri.core.Constants.pn_schema_address;
+import static com.bagri.core.Constants.pn_schema_name;
+import static com.bagri.core.Constants.pn_schema_password;
+import static com.bagri.core.Constants.pn_schema_user;
+import static com.bagri.core.Constants.pn_document_data_format;
 import static com.bagri.xqj.BagriXQDataSource.ADDRESS;
 import static com.bagri.xqj.BagriXQDataSource.PASSWORD;
 import static com.bagri.xqj.BagriXQDataSource.SCHEMA;
@@ -56,7 +56,7 @@ public class XQJClientApp implements BagriClientApp {
 		xqds.setProperty(USER, props.getProperty(pn_schema_user));
 		xqds.setProperty(PASSWORD, props.getProperty(pn_schema_password));
 		xqds.setProperty(XQ_PROCESSOR, "com.bagri.xquery.saxon.XQProcessorClient");
-		xqds.setProperty(XDM_REPOSITORY, "com.bagri.xdm.client.hazelcast.impl.SchemaRepositoryImpl");
+		xqds.setProperty(XDM_REPOSITORY, "com.bagri.client.hazelcast.impl.SchemaRepositoryImpl");
 		xqConn = xqds.getConnection();
 	}
 
@@ -79,9 +79,9 @@ public class XQJClientApp implements BagriClientApp {
 	@Override
 	public String readDocument(String uri) throws XQException {
 		
-		String query = "declare namespace bgdm=\"http://bagridb.com/bagri-xdm\";\n" +
+		String query = "declare namespace bgdb=\"http://bagridb.com/bdb\";\n" +
 				"declare variable $uri external;\n" + 
-				"let $doc := bgdm:get-document-content($uri)\n" +
+				"let $doc := bgdb:get-document-content($uri)\n" +
 				"return $doc\n";
 
 	    XQPreparedExpression xqpe = xqConn.prepareExpression(query);
@@ -135,9 +135,9 @@ public class XQJClientApp implements BagriClientApp {
 	@Override
 	public void deleteDocument(String uri) throws XQException {
 
-		String query = "declare namespace bgdm=\"http://bagridb.com/bagri-xdm\";\n" +
+		String query = "declare namespace bgdb=\"http://bagridb.com/bdb\";\n" +
 				"declare variable $uri external;\n" + 
-				"let $uri := bgdm:remove-document($uri)\n" + 
+				"let $uri := bgdb:remove-document($uri)\n" + 
 				"return $uri\n";
 
 	    XQPreparedExpression xqpe = xqConn.prepareExpression(query);
@@ -149,7 +149,7 @@ public class XQJClientApp implements BagriClientApp {
 		    	result = xqs.getAtomicValue();
 		    }
 		    if (!uri.equals(result)) {
-		    	throw new XQException("got no result from bgdm:remove-document function");
+		    	throw new XQException("got no result from bgdb:remove-document function");
 		    }
 	    } finally {
 	    	xqpe.close();
@@ -159,18 +159,18 @@ public class XQJClientApp implements BagriClientApp {
 
 	private String storeDocument(String uri, String content) throws XQException {
 		
-		String query = "declare namespace bgdm=\"http://bagridb.com/bagri-xdm\";\n" +
+		String query = "declare namespace bgdb=\"http://bagridb.com/bdb\";\n" +
 				"declare variable $uri external;\n" + 
 				"declare variable $xml external;\n" + 
 				"declare variable $props external;\n" + 
-				"let $uri := bgdm:store-document($uri, $xml, $props)\n" +
+				"let $uri := bgdb:store-document($uri, $xml, $props)\n" +
 				"return $uri\n";
 
 	    XQPreparedExpression xqpe = xqConn.prepareExpression(query);
 	    xqpe.bindString(new QName("uri"), uri, xqConn.createAtomicType(XQItemType.XQBASETYPE_ANYURI));
 	    xqpe.bindString(new QName("xml"), content, xqConn.createAtomicType(XQItemType.XQBASETYPE_STRING));
 	    List<String> props = new ArrayList<>(2);
-	    props.add(xdm_document_data_format + "=xml");
+	    props.add(pn_document_data_format + "=xml");
 	    // 
 	    xqpe.bindSequence(new QName("props"), xqConn.createSequence(props.iterator()));
 	    XQSequence xqs = xqpe.executeQuery();

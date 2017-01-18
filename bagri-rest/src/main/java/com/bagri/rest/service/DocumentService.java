@@ -1,8 +1,8 @@
 package com.bagri.rest.service;
 
-import static com.bagri.xdm.common.Constants.xdm_document_data_format;
-import static com.bagri.xdm.system.DataFormat.df_json;
-import static com.bagri.xdm.system.DataFormat.df_xml;
+import static com.bagri.core.Constants.pn_document_data_format;
+import static com.bagri.core.system.DataFormat.df_json;
+import static com.bagri.core.system.DataFormat.df_xml;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -28,13 +28,19 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriBuilder;
 
-import com.bagri.xdm.api.DocumentManagement;
-import com.bagri.xdm.api.SchemaRepository;
-import com.bagri.xdm.domain.Document;
+import com.bagri.core.api.DocumentManagement;
+import com.bagri.core.api.SchemaRepository;
+import com.bagri.core.model.Document;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
+/**
+ * JAX-RS documents resource, contains methods for documents management. Accessible on /docs path. 
+ * 
+ * @author Denis Sukhoroslov
+ *
+ */
 @Path("/docs")
 @Api(value = "documents")
 public class DocumentService  extends RestService {
@@ -87,9 +93,9 @@ public class DocumentService  extends RestService {
     	try {
     		Properties props = new Properties();
     		if (MediaType.APPLICATION_JSON_TYPE.equals(hh.getAcceptableMediaTypes().get(0))) {
-    	    	props.setProperty(xdm_document_data_format, df_json);
+    	    	props.setProperty(pn_document_data_format, df_json);
     		} else if (MediaType.APPLICATION_XML_TYPE.equals(hh.getAcceptableMediaTypes().get(0))) {
-    	    	props.setProperty(xdm_document_data_format, df_xml);
+    	    	props.setProperty(pn_document_data_format, df_xml);
     		}
             String content = docMgr.getDocumentAsString(uri, props);
             return Response.ok(content).build();

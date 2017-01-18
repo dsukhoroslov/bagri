@@ -3,7 +3,7 @@
  */
 package com.bagri.test.tpox.workload;
 
-import static com.bagri.xdm.common.Constants.pn_client_fetchSize;
+import static com.bagri.core.Constants.pn_client_fetchSize;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -14,8 +14,8 @@ import java.util.Vector;
 
 import org.slf4j.Logger;
 
-import com.bagri.xdm.system.Cardinality;
-import com.bagri.xdm.system.Parameter;
+import com.bagri.core.system.Cardinality;
+import com.bagri.core.system.Parameter;
 
 import net.sf.tpox.databaseoperations.DatabaseOperations;
 import net.sf.tpox.workload.core.WorkloadProcessor;

@@ -6,7 +6,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(namespace = "http://www.bagridb.com/xdm/system", propOrder = {
+@XmlType(namespace = "http://www.bagridb.com/schema/system", propOrder = {
 		"mbean", 
 		"attribute",
 		"value",

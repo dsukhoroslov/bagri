@@ -11,8 +11,8 @@ import javax.xml.transform.stream.StreamSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bagri.xdm.cache.api.SchemaRepository;
-import com.bagri.xdm.system.Module;
+import com.bagri.core.server.api.SchemaRepository;
+import com.bagri.core.system.Module;
 
 import net.sf.saxon.lib.ModuleURIResolver;
 import net.sf.saxon.trans.XPathException;

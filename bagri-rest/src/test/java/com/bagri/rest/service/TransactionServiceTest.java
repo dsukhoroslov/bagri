@@ -13,12 +13,12 @@ import javax.ws.rs.core.Response.Status;
 import org.glassfish.jersey.test.JerseyTest;
 import org.junit.Test;
 
+import com.bagri.core.api.SchemaRepository;
+import com.bagri.core.api.TransactionIsolation;
+import com.bagri.core.api.TransactionManagement;
+import com.bagri.core.api.BagriException;
 import com.bagri.rest.BagriRestServer;
 import com.bagri.rest.RepositoryProvider;
-import com.bagri.xdm.api.SchemaRepository;
-import com.bagri.xdm.api.TransactionIsolation;
-import com.bagri.xdm.api.TransactionManagement;
-import com.bagri.xdm.api.XDMException;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -42,7 +42,7 @@ public class TransactionServiceTest extends JerseyTest {
         when(txMgr.isInTransaction()).thenReturn(false);
         try {
 			when(txMgr.beginTransaction(TransactionIsolation.readCommited)).thenReturn(100L);
-		} catch (XDMException ex) {
+		} catch (BagriException ex) {
 			ex.printStackTrace();
 		}
         BagriRestServer server = new BagriRestServer(mockPro, null, new Properties());

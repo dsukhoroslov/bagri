@@ -1,6 +1,6 @@
 package com.bagri.xqj;
 
-import static com.bagri.xdm.common.Constants.*;
+import static com.bagri.core.Constants.*;
 import static com.bagri.xqj.BagriXQErrors.ex_connection_closed;
 
 import java.nio.charset.Charset;

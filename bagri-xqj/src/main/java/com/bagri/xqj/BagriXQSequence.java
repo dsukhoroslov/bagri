@@ -16,8 +16,8 @@ import javax.xml.xquery.XQSequence;
 
 import org.xml.sax.ContentHandler;
 
-import com.bagri.common.util.XMLUtils;
-import com.bagri.xquery.api.XQProcessor;
+import com.bagri.core.xquery.api.XQProcessor;
+import com.bagri.support.util.XMLUtils;
 
 public abstract class BagriXQSequence extends BagriXQItemAccessor implements XQSequence {
 	

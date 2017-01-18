@@ -1,6 +1,6 @@
 package com.bagri.xquery.saxon;
 
-import static com.bagri.common.util.FileUtils.readTextFile;
+import static com.bagri.support.util.FileUtils.readTextFile;
 import static org.junit.Assert.*;
 
 import java.math.BigDecimal;
@@ -16,7 +16,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.Document;
 
-import com.bagri.common.util.XMLUtils;
+import com.bagri.support.util.XMLUtils;
 
 import net.sf.saxon.Configuration;
 import net.sf.saxon.expr.JPConverter;

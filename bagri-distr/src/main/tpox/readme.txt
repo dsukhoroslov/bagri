@@ -4,10 +4,10 @@ financial application scenario.
 See TPoX project at: http://tpox.sourceforge.net/
 
 To run TPoX benchmark download test data from http://sourceforge.net/projects/tpox/files/ then 
-install it and set TPOX_HOME variable in the set-tpox-env.cmd file. Set proper Bagri (XDM) host and port
-via xdm.schema.members java option. By default it s set as
+install it and set TPOX_HOME variable in the set-tpox-env.cmd file. Set proper Bagri DB host and port
+via bdb.schema.members java option. By default it s set as
 
--Dxdm.schema.members=localhost:10500
+-Dbdb.schema.members=localhost:10500
 
 To learn more about TPoX settings go to http://sourceforge.net/p/tpox/code/HEAD/tree/TPoX21/documentation/.
 Or, check downloaded documents at $TPOX_HOME/documentation and $TPOX_HOME/WorkloadDriver/README.TXT

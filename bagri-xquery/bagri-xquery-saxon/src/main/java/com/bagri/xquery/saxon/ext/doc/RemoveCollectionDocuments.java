@@ -1,9 +1,9 @@
 package com.bagri.xquery.saxon.ext.doc;
 
-import static com.bagri.xdm.common.Constants.cmd_remove_cln_documents;
+import static com.bagri.core.Constants.cmd_remove_cln_documents;
 
-import com.bagri.xdm.api.DocumentManagement;
-import com.bagri.xdm.api.XDMException;
+import com.bagri.core.api.DocumentManagement;
+import com.bagri.core.api.BagriException;
 
 import net.sf.saxon.expr.XPathContext;
 import net.sf.saxon.lib.ExtensionFunctionCall;
@@ -49,7 +49,7 @@ public class RemoveCollectionDocuments extends DocumentFunctionExtension {
 				String collection = arguments[0].head().getStringValue();
 				try {
 					xdm.removeCollectionDocuments(collection);
-				} catch (XDMException ex) {
+				} catch (BagriException ex) {
 					throw new XPathException(ex);
 				}
 				return EmptySequence.getInstance(); 

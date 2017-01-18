@@ -12,10 +12,10 @@
 			<parameters>
 				<parameter>
 					<constant value="
-declare namespace bgdm=&quot;http://bagridb.com/bagri-xdm&quot;;
+declare namespace bgdb=&quot;http://bagridb.com/bdb&quot;;
 declare variable $sec external;
 
-let $id := bgdm:store-document($sec)
+let $id := bgdb:store-document($sec)
 return $id" />
 				</parameter>
 				<parameter>

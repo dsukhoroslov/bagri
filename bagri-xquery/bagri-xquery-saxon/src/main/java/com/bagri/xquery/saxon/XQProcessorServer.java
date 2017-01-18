@@ -1,6 +1,6 @@
 package com.bagri.xquery.saxon;
 
-import static com.bagri.xdm.common.Constants.*;
+import static com.bagri.core.Constants.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -15,15 +15,15 @@ import javax.xml.xquery.XQItemAccessor;
 import javax.xml.xquery.XQQueryException;
 import javax.xml.xquery.XQStaticContext;
 
-import com.bagri.xdm.api.DocumentManagement;
-import com.bagri.xdm.api.ResultCursor;
-import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.api.SchemaRepository;
-import com.bagri.xdm.cache.api.QueryManagement;
-import com.bagri.xdm.domain.Document;
-import com.bagri.xdm.domain.Query;
-import com.bagri.xdm.query.QueryBuilder;
-import com.bagri.xquery.api.XQProcessor;
+import com.bagri.core.api.DocumentManagement;
+import com.bagri.core.api.ResultCursor;
+import com.bagri.core.api.SchemaRepository;
+import com.bagri.core.api.BagriException;
+import com.bagri.core.model.Document;
+import com.bagri.core.model.Query;
+import com.bagri.core.query.QueryBuilder;
+import com.bagri.core.server.api.QueryManagement;
+import com.bagri.core.xquery.api.XQProcessor;
 
 import net.sf.saxon.expr.Expression;
 import net.sf.saxon.expr.Operand;
@@ -67,14 +67,14 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 	@Override
     public void setRepository(SchemaRepository xRepo) {
     	super.setRepository(xRepo);
-    	clnFinder = new CollectionFinderImpl((com.bagri.xdm.cache.api.SchemaRepository) xRepo);
+    	clnFinder = new CollectionFinderImpl((com.bagri.core.server.api.SchemaRepository) xRepo);
     	config.setCollectionFinder(clnFinder);
         config.setDefaultCollection("");
         SourceResolverImpl sResolver = new SourceResolverImpl(xRepo);
         config.setSourceResolver(sResolver);
         //config.registerExternalObjectModel(sResolver);
         config.setURIResolver(sResolver);
-        ModuleURIResolver mResolver = new ModuleURIResolverImpl((com.bagri.xdm.cache.api.SchemaRepository) xRepo);
+        ModuleURIResolver mResolver = new ModuleURIResolverImpl((com.bagri.core.server.api.SchemaRepository) xRepo);
         config.setModuleURIResolver(mResolver);
         dqc.setUnparsedTextURIResolver(sResolver);
         //sqc.setCodeInjector(new CodeInjectorImpl());
@@ -113,7 +113,7 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 			} else {
 				throw new XQException("unknown command: " + command);
 			}
-	    } catch (XDMException ex) {
+	    } catch (BagriException ex) {
 	    	throw new XQException(ex.getMessage());
 	    }
 	}
@@ -237,9 +237,9 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
     private XQueryExpression getXQuery(int queryKey, String query, Properties props) throws XPathException, XQException {
    	    XQueryExpression xqExp = queries.get(queryKey);
     	if (xqExp == null) {
-    		//if (props != null) {
-    		//	setStaticContext(sqc, props);
-    		//}
+    		if (props != null) {
+    			setStaticContext(sqc, props);
+    		}
        	    sqc.setModuleURIResolver(config.getModuleURIResolver());
 	        xqExp = sqc.compileQuery(query);
 	        if (logger.isTraceEnabled()) {

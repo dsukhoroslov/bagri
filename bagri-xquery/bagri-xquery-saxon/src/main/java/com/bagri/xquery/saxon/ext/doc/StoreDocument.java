@@ -1,13 +1,13 @@
 package com.bagri.xquery.saxon.ext.doc;
 
-import static com.bagri.xdm.common.Constants.cmd_store_document;
+import static com.bagri.core.Constants.cmd_store_document;
 import static com.bagri.xquery.saxon.SaxonUtils.sequence2Properties;
 
 import java.util.Properties;
 
-import com.bagri.xdm.api.DocumentManagement;
-import com.bagri.xdm.api.XDMException;
-import com.bagri.xdm.domain.Document;
+import com.bagri.core.api.DocumentManagement;
+import com.bagri.core.api.BagriException;
+import com.bagri.core.model.Document;
 
 import net.sf.saxon.expr.XPathContext;
 import net.sf.saxon.lib.ExtensionFunctionCall;
@@ -68,7 +68,7 @@ public class StoreDocument extends DocumentFunctionExtension {
 					Document doc = xdm.storeDocumentFromString(uri, xml, props);
 					//HashTrieMap map = new HashTrieMap(context);
 					return new AnyURIValue(doc.getUri());
-				} catch (XDMException ex) {
+				} catch (BagriException ex) {
 					throw new XPathException(ex);
 				}
 			}

@@ -23,13 +23,13 @@ import org.glassfish.jersey.client.ChunkedInput;
 import org.glassfish.jersey.test.JerseyTest;
 import org.junit.Test;
 
+import com.bagri.client.hazelcast.impl.FixedCursorImpl;
+import com.bagri.core.api.QueryManagement;
+import com.bagri.core.api.SchemaRepository;
+import com.bagri.core.xquery.api.XQProcessor;
 import com.bagri.rest.BagriRestServer;
 import com.bagri.rest.RepositoryProvider;
-import com.bagri.xdm.api.QueryManagement;
-import com.bagri.xdm.api.SchemaRepository;
-import com.bagri.xdm.client.hazelcast.impl.FixedCursorImpl;
 import com.bagri.xqj.BagriXQDataFactory;
-import com.bagri.xquery.api.XQProcessor;
 import com.bagri.xquery.saxon.XQProcessorClient;
 
 public class QueryServiceTest extends JerseyTest {

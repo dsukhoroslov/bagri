@@ -1,12 +1,12 @@
 package com.bagri.xquery.saxon.ext.doc;
 
-import static com.bagri.xdm.common.Constants.cmd_get_document;
+import static com.bagri.core.Constants.cmd_get_document;
 import static com.bagri.xquery.saxon.SaxonUtils.sequence2Properties;
 
 import java.util.Properties;
 
-import com.bagri.xdm.api.DocumentManagement;
-import com.bagri.xdm.api.XDMException;
+import com.bagri.core.api.DocumentManagement;
+import com.bagri.core.api.BagriException;
 
 import net.sf.saxon.expr.XPathContext;
 import net.sf.saxon.lib.ExtensionFunctionCall;
@@ -63,7 +63,7 @@ public class GetDocumentContent extends DocumentFunctionExtension {
 						props = sequence2Properties(arguments[1]);
 					}
 					result = xdm.getDocumentAsString(uri, props);
-				} catch (XDMException ex) {
+				} catch (BagriException ex) {
 					throw new XPathException(ex);
 				}
 				if (result == null) {

@@ -1,5 +1,6 @@
 package com.bagri.xqj;
 
+import static com.bagri.core.xquery.XQUtils.*;
 import static com.bagri.xqj.BagriXQErrors.ex_sequence_closed;
 import static com.bagri.xqj.BagriXQErrors.ex_sequence_not_scrollable;
 
@@ -17,11 +18,9 @@ import javax.xml.xquery.XQItemAccessor;
 import org.w3c.dom.Node;
 import org.xml.sax.ContentHandler;
 
-import static com.bagri.xquery.api.XQUtils.*;
-
-import com.bagri.xdm.api.ResultCursor;
-import com.bagri.xdm.api.XDMException;
-import com.bagri.xquery.api.XQProcessor;
+import com.bagri.core.api.ResultCursor;
+import com.bagri.core.api.BagriException;
+import com.bagri.core.xquery.api.XQProcessor;
 
 public class IterableXQSequence extends BagriXQSequence {
 	
@@ -298,7 +297,7 @@ public class IterableXQSequence extends BagriXQSequence {
 			}
 			positioned = false;
 			return false;
-		} catch (XDMException ex) {
+		} catch (BagriException ex) {
 			throw getXQException(ex);
 		}
 	}
