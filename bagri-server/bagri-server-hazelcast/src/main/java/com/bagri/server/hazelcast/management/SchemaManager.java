@@ -1,7 +1,7 @@
 package com.bagri.server.hazelcast.management;
 
 import static com.bagri.core.Constants.pn_schema_store_enabled;
-import static com.bagri.core.Constants.pn_schema_store_type;
+import static com.bagri.core.Constants.pn_schema_format_default;
 import static com.bagri.core.Constants.xs_ns;
 import static com.bagri.core.Constants.xs_prefix;
 import static com.bagri.core.server.api.CacheConstants.PN_XDM_SCHEMA_POOL;
@@ -149,7 +149,7 @@ public class SchemaManager extends EntityManager<Schema> implements HealthChange
 
 	@ManagedAttribute(description="Returns Schema persistence format")
 	public String getDataFormat() {
-		return getEntity().getProperty(pn_schema_store_type);
+		return getEntity().getProperty(pn_schema_format_default);
 	}
 
 	@ManagedAttribute(description="Returns Schema health state")

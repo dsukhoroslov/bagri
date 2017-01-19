@@ -207,7 +207,6 @@ public class DocumentManagement extends SchemaFeatureManagement {
 		@ManagedOperationParameter(name = "docFile", description = "A full path to XML file to register"),
 		@ManagedOperationParameter(name = "properties", description = "A list of properties in key=value form separated by semicolon")})
 	public String registerDocument(String docFile, String properties) {
-		
 		String uri = Paths.get(docFile).getFileName().toString(); 
 		try {
 			String xml = FileUtils.readTextFile(docFile);
@@ -225,7 +224,6 @@ public class DocumentManagement extends SchemaFeatureManagement {
 		@ManagedOperationParameter(name = "docFile", description = "A full path to XML file to register"),
 		@ManagedOperationParameter(name = "properties", description = "A list of properties in key=value form separated by semicolon")})
 	public String updateDocument(String uri, String docFile, String properties) {
-
 		try {
 			String content = FileUtils.readTextFile(docFile);
 			Document doc = docManager.storeDocumentFromString(uri, content, propsFromString(properties));
@@ -240,7 +238,6 @@ public class DocumentManagement extends SchemaFeatureManagement {
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "uri", description = "Document identifier")})
 	public boolean removeDocument(String uri) {
-		
 		try {
 			docManager.removeDocument(uri);
 			return true;
@@ -294,7 +291,6 @@ public class DocumentManagement extends SchemaFeatureManagement {
 		@ManagedOperationParameter(name = "docType", description = "Root path for document type, if needed"),
 		@ManagedOperationParameter(name = "description", description = "Collection description")})
 	public void addCollection(String name, String docType, String description) {
-
 		logger.trace("addCollection.enter;");
 		long stamp = System.currentTimeMillis();
 		Collection collect = schemaManager.addCollection(name, docType, description);
@@ -310,7 +306,6 @@ public class DocumentManagement extends SchemaFeatureManagement {
 	@ManagedOperation(description="Removes an existing Collection")
 	@ManagedOperationParameters({@ManagedOperationParameter(name = "name", description = "Collection name to remove")})
 	public void removeCollection(String name) {
-		
 		logger.trace("removeCollection.enter;");
 		long stamp = System.currentTimeMillis();
 		if (!schemaManager.deleteCollection(name)) {
@@ -327,7 +322,6 @@ public class DocumentManagement extends SchemaFeatureManagement {
 		@ManagedOperationParameter(name = "name", description = "Collection name to enable/disable"),
 		@ManagedOperationParameter(name = "enable", description = "enable/disable collection")})
 	public void enableCollection(String name, boolean enable) {
-		
 		if (!schemaManager.enableCollection(name, enable)) {
 			throw new IllegalStateException("Collection '" + name + "' in schema '" + schemaName + 
 					"' does not exist or already " + (enable ? "enabled" : "disabled"));

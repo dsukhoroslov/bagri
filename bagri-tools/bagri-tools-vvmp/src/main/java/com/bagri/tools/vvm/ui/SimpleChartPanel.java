@@ -18,7 +18,8 @@ import com.sun.tools.visualvm.charts.SimpleXYChartSupport;
 
 public class SimpleChartPanel extends JPanel {
 	
-    private static final Logger LOGGER = Logger.getLogger(SchemaManagementPanel.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(SimpleChartPanel.class.getName());
+    
     private final SchemaManagementService schemaService;
     private final EventBus<ApplicationEvent> eventBus;
     

@@ -50,7 +50,8 @@ public class SchemaQueryPanel extends JPanel {
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	private static final Logger LOGGER = Logger.getLogger(SchemaManagementPanel.class.getName());
+	private static final Logger LOGGER = Logger.getLogger(SchemaQueryPanel.class.getName());
+	
     private final SchemaManagementService schemaService;
     private final EventBus<ApplicationEvent> eventBus;
     private final Schema schema;
