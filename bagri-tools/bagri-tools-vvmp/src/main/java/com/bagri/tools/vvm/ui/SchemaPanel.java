@@ -14,7 +14,9 @@ import com.bagri.tools.vvm.model.SchemaManagement;
 import com.bagri.tools.vvm.service.SchemaManagementService;
 
 public class SchemaPanel extends JPanel {
-    private static final Logger LOGGER = Logger.getLogger(SchemaManagementPanel.class.getName());
+    
+	private static final Logger LOGGER = Logger.getLogger(SchemaPanel.class.getName());
+    
     private final SchemaManagementService schemaService;
     private final EventBus<ApplicationEvent> eventBus;
     private final Schema schema;

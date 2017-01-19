@@ -212,6 +212,8 @@ public class ClusterServiceProvider implements ClusterManagementService, SchemaM
                 return extractSchema(oi);
             }
             return null;
+        } catch (InstanceNotFoundException e) {
+        	return null;
         } catch (Exception e) {
             LOGGER.throwing(this.getClass().getName(), "getSchema", e);
             throw new ServiceException(e);

@@ -10,6 +10,7 @@ import javax.swing.JTabbedPane;
 
 import com.bagri.tools.vvm.event.ApplicationEvent;
 import com.bagri.tools.vvm.event.EventBus;
+import com.bagri.tools.vvm.model.Schema;
 import com.bagri.tools.vvm.model.SchemaManagement;
 import com.bagri.tools.vvm.service.SchemaManagementService;
 import com.sun.tools.visualvm.charts.ChartFactory;
@@ -18,7 +19,7 @@ import com.sun.tools.visualvm.charts.SimpleXYChartSupport;
 
 public class SchemaMonitoringPanel extends JPanel {
 	
-    private static final Logger LOGGER = Logger.getLogger(SchemaManagementPanel.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(SchemaMonitoringPanel.class.getName());
     private static final long SLEEP_TIME = 1000;
     private static final int VALUES_LIMIT = 150;
     
@@ -49,10 +50,16 @@ public class SchemaMonitoringPanel extends JPanel {
         descriptor.setChartTitle("<html><font size='+1'><b>" + schemaName + " Statistics</b></font></html>");
         descriptor.setXAxisDescription("time");
         descriptor.setYAxisDescription("units");
-
         chart = ChartFactory.createSimpleXYChart(descriptor);
 
-        new VolumeStatsGenerator(chart, schemaService, schemaName).start();
+        try {
+	    	Schema s = schemaService.getSchema(schemaName);
+	    	if (s != null && s.isActive()) {
+	    		new VolumeStatsGenerator(chart, schemaService, schemaName).start();
+	    	}
+        } catch (Exception ex) {
+            LOGGER.severe(ex.getMessage());
+        }
     }    
     
     private static class VolumeStatsGenerator extends Thread {

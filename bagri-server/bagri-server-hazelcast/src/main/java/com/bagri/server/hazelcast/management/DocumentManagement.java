@@ -293,7 +293,6 @@ public class DocumentManagement extends SchemaFeatureManagement {
 		@ManagedOperationParameter(name = "docType", description = "Root path for document type, if needed"),
 		@ManagedOperationParameter(name = "description", description = "Collection description")})
 	public void addCollection(String name, String docType, String description) {
-
 		logger.trace("addCollection.enter;");
 		long stamp = System.currentTimeMillis();
 		Collection collect = schemaManager.addCollection(name, docType, description);
@@ -309,7 +308,6 @@ public class DocumentManagement extends SchemaFeatureManagement {
 	@ManagedOperation(description="Removes an existing Collection")
 	@ManagedOperationParameters({@ManagedOperationParameter(name = "name", description = "Collection name to remove")})
 	public void removeCollection(String name) {
-		
 		logger.trace("removeCollection.enter;");
 		long stamp = System.currentTimeMillis();
 		if (!schemaManager.deleteCollection(name)) {
@@ -326,7 +324,6 @@ public class DocumentManagement extends SchemaFeatureManagement {
 		@ManagedOperationParameter(name = "name", description = "Collection name to enable/disable"),
 		@ManagedOperationParameter(name = "enable", description = "enable/disable collection")})
 	public void enableCollection(String name, boolean enable) {
-		
 		if (!schemaManager.enableCollection(name, enable)) {
 			throw new IllegalStateException("Collection '" + name + "' in schema '" + schemaName + 
 					"' does not exist or already " + (enable ? "enabled" : "disabled"));
