@@ -5,6 +5,7 @@ import static com.bagri.core.server.api.CacheConstants.*;
 import static com.bagri.server.hazelcast.util.SpringContextHolder.*;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -32,6 +33,9 @@ import com.hazelcast.core.MembershipListener;
 import com.hazelcast.core.MigrationEvent;
 import com.hazelcast.core.MigrationListener;
 import com.hazelcast.map.impl.MapService;
+import com.hazelcast.map.impl.MapServiceContext;
+import com.hazelcast.map.impl.mapstore.MapDataStore;
+import com.hazelcast.map.impl.recordstore.RecordStore;
 import com.hazelcast.map.listener.EntryAddedListener;
 import com.hazelcast.map.listener.EntryEvictedListener;
 import com.hazelcast.map.listener.EntryMergedListener;
@@ -159,6 +163,22 @@ public class PopulationManagementImpl implements PopulationManagement, ManagedSe
 		return docStore.getFullEntryCount();
 	}
 	
+	public int getUpdatingDocumentCount() {
+		MapService svc = nodeEngine.getService(MapService.SERVICE_NAME);
+		MapServiceContext xddCtx = svc.getMapServiceContext();
+		// this does not work for some reason
+		//return xddCtx.getWriteBehindQueueItemCounter().get();
+		int cnt = 0;
+		List<Integer> parts = nodeEngine.getPartitionService().getMemberPartitions(nodeEngine.getThisAddress());
+		for (int part: parts) {
+			RecordStore rs = xddCtx.getRecordStore(part, CN_XDM_DOCUMENT);
+			if (rs != null) {
+				cnt += rs.getMapDataStore().notFinishedOperationsCount();
+			}
+		}
+		return cnt;
+	}
+	
 	public Set<DocumentKey> getDocumentKeys() {
 		if (docStore.getEntryKeys().size() == 0) {
 			return null;
@@ -196,11 +216,6 @@ public class PopulationManagementImpl implements PopulationManagement, ManagedSe
 			xFactory = schemaCtx.getBean("xdmFactory", KeyFactory.class);
 		}
 		return xFactory;
-	}
-	
-	private int checkPersistenceQueue() {
-		MapService svc = nodeEngine.getService(MapService.SERVICE_NAME);
-		return svc.getMapServiceContext().getWriteBehindQueueItemCounter().get();
 	}
 	
 	//public ManagedService getHzService(String serviceName, String instanceName) {

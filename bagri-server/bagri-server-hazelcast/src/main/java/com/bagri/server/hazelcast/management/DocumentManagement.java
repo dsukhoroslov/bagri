@@ -28,6 +28,7 @@ import com.bagri.core.api.BagriException;
 import com.bagri.core.model.Document;
 import com.bagri.core.system.Collection;
 import com.bagri.core.system.Schema;
+import com.bagri.server.hazelcast.task.doc.DocumentQueueCounter;
 import com.bagri.server.hazelcast.task.doc.DocumentStructureProvider;
 import com.bagri.server.hazelcast.task.schema.SchemaDocCleaner;
 import com.bagri.server.hazelcast.task.stats.StatisticSeriesCollector;
@@ -207,7 +208,6 @@ public class DocumentManagement extends SchemaFeatureManagement {
 		@ManagedOperationParameter(name = "docFile", description = "A full path to XML file to register"),
 		@ManagedOperationParameter(name = "properties", description = "A list of properties in key=value form separated by semicolon")})
 	public String registerDocument(String docFile, String properties) {
-		
 		String uri = Paths.get(docFile).getFileName().toString(); 
 		try {
 			String xml = FileUtils.readTextFile(docFile);
@@ -225,7 +225,6 @@ public class DocumentManagement extends SchemaFeatureManagement {
 		@ManagedOperationParameter(name = "docFile", description = "A full path to XML file to register"),
 		@ManagedOperationParameter(name = "properties", description = "A list of properties in key=value form separated by semicolon")})
 	public String updateDocument(String uri, String docFile, String properties) {
-
 		try {
 			String content = FileUtils.readTextFile(docFile);
 			Document doc = docManager.storeDocumentFromString(uri, content, propsFromString(properties));
@@ -240,7 +239,6 @@ public class DocumentManagement extends SchemaFeatureManagement {
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "uri", description = "Document identifier")})
 	public boolean removeDocument(String uri) {
-		
 		try {
 			docManager.removeDocument(uri);
 			return true;
@@ -253,6 +251,7 @@ public class DocumentManagement extends SchemaFeatureManagement {
 	private int processFilesInCatalog(Path catalog, String properties) {
 		int result = 0;
 		String docType = schemaManager.getDataFormat();
+		logger.debug("processFilesInCatalog; got docType: {}", docType); 
 		try (DirectoryStream<Path> stream = Files.newDirectoryStream(catalog, "*." + docType.toLowerCase())) {
 		    for (Path path: stream) {
 		        if (Files.isDirectory(path)) {
@@ -406,6 +405,22 @@ public class DocumentManagement extends SchemaFeatureManagement {
 			logger.error("getDocumentUris.error", ex);
 			return null;
 		}
+	}
+
+	@ManagedOperation(description="Return number of not-stored-yet Documents")
+	public int checkUpdatingDocuments() {
+		DocumentQueueCounter task = new DocumentQueueCounter();
+		Map<Member, Future<Integer>> results = execService.submitToAllMembers(task);
+		int result = 0;
+		for (Map.Entry<Member, Future<Integer>> entry: results.entrySet()) {
+			try {
+				result += entry.getValue().get();
+			} catch (InterruptedException | ExecutionException ex) {
+				logger.error("checkUpdatingDocuments.error; ", ex);
+				//throw new RuntimeException(ex.getMessage());
+			}
+		}
+		return result;
 	}
 
 }

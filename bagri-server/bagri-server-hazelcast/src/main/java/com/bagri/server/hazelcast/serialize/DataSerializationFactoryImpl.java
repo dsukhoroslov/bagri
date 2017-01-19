@@ -19,6 +19,7 @@ import com.bagri.server.hazelcast.task.doc.DocumentCreator;
 import com.bagri.server.hazelcast.task.doc.DocumentMapCreator;
 import com.bagri.server.hazelcast.task.doc.DocumentMapProvider;
 import com.bagri.server.hazelcast.task.doc.DocumentProvider;
+import com.bagri.server.hazelcast.task.doc.DocumentQueueCounter;
 import com.bagri.server.hazelcast.task.doc.DocumentRemover;
 import com.bagri.server.hazelcast.task.doc.DocumentStructureProvider;
 import com.bagri.server.hazelcast.task.doc.DocumentUrisProvider;
@@ -81,6 +82,7 @@ public class DataSerializationFactoryImpl extends com.bagri.client.hazelcast.ser
 	public static final int cli_CollectStatisticSeriesTask = 200;
 	public static final int cli_CollectStatisticTotalsTask = 201;
 	public static final int cli_ResetStatisticsTask = 202;
+	public static final int cli_CountUpdatingDocumentsTask = 203;
 
 	public static final int cli_CreateIndexTask = 205;
 	public static final int cli_RemoveIndexTask = 206;
@@ -181,6 +183,7 @@ public class DataSerializationFactoryImpl extends com.bagri.client.hazelcast.ser
 			case cli_CollectStatisticSeriesTask: return new StatisticSeriesCollector();
 			case cli_CollectStatisticTotalsTask: return new StatisticTotalsCollector();
 			case cli_ResetStatisticsTask: return new StatisticsReseter();
+			case cli_CountUpdatingDocumentsTask: return new DocumentQueueCounter();
 			case cli_ProcessQueryTask: return new QueryProcessor();
 			case cli_KillNodeTask: return new NodeKiller();
 			case cli_SetNodeOptionTask: return new NodeOptionSetter();
