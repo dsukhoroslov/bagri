@@ -12,6 +12,8 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hazelcast.client.HazelcastClient;
+import com.hazelcast.core.Client;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.nio.ObjectDataInput;
@@ -47,13 +49,17 @@ public class NodeKiller implements Runnable, IdentifiedDataSerializable {
 			}
 		}
 		if (schemas.length == 0) {
-			boolean isAdmin = "admin".equals(hzSystem.getCluster().getLocalMember().getStringAttribute(pn_cluster_node_role));
-			hzSystem.shutdown();
 			cnt++;
-			if (isAdmin) {
+			if ("admin".equals(hzSystem.getCluster().getLocalMember().getStringAttribute(pn_cluster_node_role))) {
+				// close all open clients to cache nodes!
+				for (HazelcastInstance client: HazelcastClient.getAllHazelcastClients()) {
+					client.shutdown();
+				}
+				hzSystem.shutdown();
 				logger.info("run.exit; instances stopped: {}; admin terminated", cnt);
 				System.exit(0);
 			}
+			hzSystem.shutdown();
 		}
 		logger.info("run.exit; instances stopped: {}", cnt);
 	}
