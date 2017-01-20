@@ -23,7 +23,7 @@ public interface SchemaManagementService {
     void deleteSchema(Schema schema) throws ServiceException;
     
     void cancelQuery(String schemaName) throws ServiceException;
-    List<String> parseQuery(String schemaName, String query) throws ServiceException;
+    List<String> parseQuery(String schemaName, String query, Properties props) throws ServiceException;
     Object runQuery(String schemaName, boolean direct, String query, Map<String, Object> params, Properties props) throws ServiceException;
 
     Properties getQueryProperties(String schemaName) throws ServiceException;

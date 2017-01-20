@@ -3,9 +3,7 @@
  */
 package com.bagri.server.hazelcast.management;
 
-import static com.bagri.core.Constants.pn_client_fetchSize;
-import static com.bagri.core.Constants.pn_client_submitTo;
-import static com.bagri.core.Constants.pn_xqj_queryTimeout;
+import static com.bagri.core.Constants.*;
 import static com.bagri.support.util.PropUtils.getOutputProperties;
 
 import java.util.HashMap;
@@ -24,6 +22,7 @@ import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQExpression;
 import javax.xml.xquery.XQPreparedExpression;
 import javax.xml.xquery.XQResultSequence;
+import javax.xml.xquery.XQStaticContext;
 
 import org.springframework.jmx.export.annotation.ManagedAttribute;
 import org.springframework.jmx.export.annotation.ManagedOperation;
@@ -107,10 +106,12 @@ public class QueryManagement extends SchemaFeatureManagement {
 	@ManagedOperation(description="Parse XQuery. Return array of parameter names, if any")
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "query", description = "A query request provided in XQuery syntax")})
-	public String[] parseQuery(String query) {
+	public String[] parseQuery(String query, Properties props) {
 		XQPreparedExpression xqpExp = null;
 		try {
-			xqpExp = xqConn.prepareExpression(query);
+			XQStaticContext ctx = xqConn.getStaticContext();
+			props2Context(props, ctx);
+			xqpExp = xqConn.prepareExpression(query, ctx);
 			QName[] vars = xqpExp.getAllExternalVariables();
 			String[] result = null;
 			if (vars != null) {
@@ -126,6 +127,74 @@ public class QueryManagement extends SchemaFeatureManagement {
 			throw new RuntimeException(ex.getMessage());
 		} 
 	}
+	
+	private void props2Context(Properties props, XQStaticContext ctx) throws XQException {
+		String prop = props.getProperty(pn_xqj_baseURI);
+		if (prop != null) {
+			ctx.setBaseURI(prop);
+		}
+		prop = props.getProperty(pn_xqj_constructionMode);
+		if (prop != null) {
+			ctx.setConstructionMode(Integer.valueOf(prop));
+		}
+		prop = props.getProperty(pn_xqj_defaultCollationUri);
+		if (prop != null) {
+			ctx.setDefaultCollation(prop);
+		}
+		prop = props.getProperty(pn_xqj_defaultElementTypeNamespace);
+		if (prop != null) {
+			ctx.setDefaultElementTypeNamespace(prop);
+		}
+		prop = props.getProperty(pn_xqj_defaultFunctionNamespace);
+		if (prop != null) {
+			ctx.setDefaultFunctionNamespace(prop);
+		}
+		prop = props.getProperty(pn_xqj_orderingMode);
+		if (prop != null) {
+			ctx.setOrderingMode(Integer.valueOf(prop));
+		}
+		prop = props.getProperty(pn_xqj_defaultOrderForEmptySequences);
+		if (prop != null) {
+			ctx.setDefaultOrderForEmptySequences(Integer.valueOf(prop));
+		}
+		prop = props.getProperty(pn_xqj_boundarySpacePolicy);
+		if (prop != null) {
+			ctx.setBoundarySpacePolicy(Integer.valueOf(prop));
+		}
+		prop = props.getProperty(pn_xqj_copyNamespacesModePreserve);
+		if (prop != null) {
+			ctx.setCopyNamespacesModePreserve(Integer.valueOf(prop));
+		}
+		prop = props.getProperty(pn_xqj_copyNamespacesModeInherit);
+		if (prop != null) {
+			ctx.setCopyNamespacesModeInherit(Integer.valueOf(prop));
+		}
+		prop = props.getProperty(pn_xqj_bindingMode);
+		if (prop != null) {
+			ctx.setBindingMode(Integer.valueOf(prop));
+		}
+		prop = props.getProperty(pn_xqj_queryLanguageTypeAndVersion);
+		if (prop != null) {
+			ctx.setQueryLanguageTypeAndVersion(Integer.valueOf(prop));
+		}
+		prop = props.getProperty(pn_xqj_holdability);
+		if (prop != null) {
+			ctx.setHoldability(Integer.valueOf(prop));
+		}
+		prop = props.getProperty(pn_xqj_scrollability);
+		if (prop != null) {
+			ctx.setScrollability(Integer.valueOf(prop));
+		}
+		prop = props.getProperty(pn_xqj_queryTimeout);
+		if (prop != null) {
+			ctx.setQueryTimeout(Integer.valueOf(prop));
+		}
+		prop = props.getProperty(pn_xqj_defaultNamespaces);
+		if (prop != null) {
+			// think how to process it properly..
+			//ctx.declareNamespace(prefix, uri);
+		}
+	}
 
 	@ManagedOperation(description="Run XQuery. Returns string output specified by XQuery")
 	@ManagedOperationParameters({
@@ -140,7 +209,9 @@ public class QueryManagement extends SchemaFeatureManagement {
 				ResultCursor cursor = queryMgr.executeQuery(query, null, props);
 				result = extractResult(cursor, props);
 			} else {
-			    XQExpression xqExp = xqConn.createExpression();
+				XQStaticContext ctx = xqConn.getStaticContext();
+				props2Context(props, ctx);
+			    XQExpression xqExp = xqConn.createExpression(ctx);
 			    XQResultSequence xqSec = xqExp.executeQuery(query);
 			    result = xqSec.getSequenceAsString(props);
 			    xqSec.close();
@@ -198,7 +269,9 @@ public class QueryManagement extends SchemaFeatureManagement {
 				ResultCursor cursor = queryMgr.executeQuery(query, params, props);
 				result = extractResult(cursor, props);
 			} else {
-				XQPreparedExpression xqpExp = xqConn.prepareExpression(query);
+				XQStaticContext ctx = xqConn.getStaticContext();
+				props2Context(props, ctx);
+				XQPreparedExpression xqpExp = xqConn.prepareExpression(query, ctx);
 			    for (String key: bindings.getCompositeType().keySet()) {
 			    	xqpExp.bindObject(new QName(key), bindings.get(key), null); 
 			    }

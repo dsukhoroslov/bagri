@@ -43,9 +43,9 @@ public class BagriClient extends DB {
 	public Status insert(final String table, final String key, final HashMap<String, ByteIterator> values) {
 		//logger.debug("insert.enter; table: {}; startKey: {}; values: {}", new Object[] {table, key, values});
 		Properties props = new Properties();
-		props.setProperty(xdm_document_collections, table);
+		props.setProperty(pn_document_collections, table);
 		props.setProperty(pn_client_storeMode, pv_client_storeMode_insert);
-		//props.setProperty(xdm_document_data_format, "map");
+		//props.setProperty(pn_document_data_format, "map");
 		HashMap fields = StringByteIterator.getStringMap(values);
 		try {
 			xRepo.getDocumentManagement().storeDocumentFromMap(key, fields, props);
@@ -101,10 +101,10 @@ public class BagriClient extends DB {
 		//logger.debug("update.enter; table: {}; startKey: {}; values: {}", new Object[] {table, key, values});
 		// probably, we should do merge here: update only fields specified in the values map!
 		Properties props = new Properties();
-		props.setProperty(xdm_document_collections, table);
+		props.setProperty(pn_document_collections, table);
 		props.setProperty(pn_client_storeMode, pv_client_storeMode_update);
 		props.setProperty(pn_client_txTimeout, "100");
-		//props.setProperty(xdm_document_data_format, "map");
+		//props.setProperty(pn_document_data_format, "map");
 		HashMap fields = StringByteIterator.getStringMap(values);
 		try {
 			xRepo.getDocumentManagement().storeDocumentFromMap(key, fields, props);

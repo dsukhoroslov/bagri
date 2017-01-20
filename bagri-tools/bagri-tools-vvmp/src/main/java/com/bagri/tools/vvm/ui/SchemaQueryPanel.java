@@ -229,7 +229,7 @@ public class SchemaQueryPanel extends JPanel {
 			lbTime.setVisible(false);
 			long stamp = System.currentTimeMillis();
 			try {
-	    		java.util.List<String> vars = schemaService.parseQuery(schema.getSchemaName(), qry);
+	    		java.util.List<String> vars = schemaService.parseQuery(schema.getSchemaName(), qry, properties);
             	parseTime = System.currentTimeMillis() - stamp;
 	    		if (vars.size() > 0) {
 		    		final BindQueryVarsDialog dlg = new BindQueryVarsDialog(vars, bindings, SchemaQueryPanel.this);

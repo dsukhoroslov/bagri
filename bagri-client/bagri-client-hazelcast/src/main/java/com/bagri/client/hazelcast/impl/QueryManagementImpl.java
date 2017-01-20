@@ -186,7 +186,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	}
 	
 	@Override
-	public Collection<String> prepareQuery(String query) { //throws XDMException {
+	public Collection<String> prepareQuery(String query) { //throws BagriException {
 
 		logger.trace("prepareQuery.enter; query: {}", query);
 		Collection<String> result = null;
@@ -194,7 +194,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		if (xq != null) {
 			result = xq.getXdmQuery().getParamNames();
 		}
-		logger.trace("prepareQuery.exit; returning: {}", query);
+		logger.trace("prepareQuery.exit; returning: {}", result);
 		return result;
 	}
 	
