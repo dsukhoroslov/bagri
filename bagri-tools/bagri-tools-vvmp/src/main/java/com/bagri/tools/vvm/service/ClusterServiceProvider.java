@@ -303,12 +303,12 @@ public class ClusterServiceProvider implements ClusterManagementService, SchemaM
     }
     
     @Override
-    public List<String> parseQuery(String schemaName, String query) throws ServiceException {
+    public List<String> parseQuery(String schemaName, String query, Properties props) throws ServiceException {
         try {
             Object vars = connection.invoke(getSchemaObjectName("QueryManagement", schemaName)
                     , "parseQuery"
-                    , new Object[] {query}
-                    , new String[] {String.class.getName()}
+                    , new Object[] {query, props}
+                    , new String[] {String.class.getName(), Properties.class.getName()}
             );
             return Arrays.asList((String[]) vars);
         } catch (Exception e) {

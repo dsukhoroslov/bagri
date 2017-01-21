@@ -205,7 +205,7 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 	public XQStaticContext getStaticContext() throws XQException {
 		
 		checkState(ex_connection_closed);
-		return context; 
+		return new BagriXQStaticContext(context);
 	}
 
 	@Override

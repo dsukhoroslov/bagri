@@ -738,6 +738,9 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
         	logger.warn("runQuery: the timeQueue is full!!");
         }
         if (failed) {
+        	if (logger.isDebugEnabled()) {
+        		logger.error("runQuery.error: ", ex);
+        	}
             throw new XQException(ex.getMessage());
         }
 			

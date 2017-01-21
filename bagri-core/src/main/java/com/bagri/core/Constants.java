@@ -92,7 +92,7 @@ public class Constants {
 	// XQJ configuration constants
 	public static final String pn_xqj_baseURI = "xqj.schema.baseUri";
 	public static final String pn_xqj_constructionMode = "xqj.schema.constructionMode";
-	public static final String pn_xqj_defaultCollationUri="xqj.schema.defaultCollationUri";
+	public static final String pn_xqj_defaultCollationUri = "xqj.schema.defaultCollationUri";
 	public static final String pn_xqj_defaultElementTypeNamespace = "xqj.schema.defaultElementTypeNamespace";
 	public static final String pn_xqj_defaultFunctionNamespace = "xqj.schema.defaultFunctionNamespace";
 	public static final String pn_xqj_orderingMode = "xqj.schema.orderingMode";
