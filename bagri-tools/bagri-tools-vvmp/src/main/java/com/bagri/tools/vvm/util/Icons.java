@@ -16,6 +16,6 @@ public class Icons {
     public static ImageIcon SCHEMA_ICON = ImageUtil.createImageIcon("com/bagri/tools/vvm/manager/schema.png");
     public static ImageIcon DOCUMENT_ICON = ImageUtil.createImageIcon("com/bagri/tools/vvm/manager/document.png");
     public static ImageIcon COLLECTION_ICON = ImageUtil.createImageIcon("com/bagri/tools/vvm/manager/collection.png");
-
+    public static ImageIcon USER_ICON = ImageUtil.createImageIcon("com/bagri/tools/vvm/manager/user.png");
     private Icons() {}
 }

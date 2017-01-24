@@ -128,6 +128,15 @@ public class BagriMainPanel extends JPanel implements NotificationListener, Prop
             ErrorUtil.showError(BagriMainPanel.this, e);
         }
         
+        java.util.List<User> users = null;
+        try {
+            users = userManagementService.getUsers();
+            tree.setUsers(users);
+        } catch (ServiceException e) {
+            LOGGER.throwing(BagriMainPanel.class.getName(), "createTree", e);
+            ErrorUtil.showError(BagriMainPanel.this, e);
+        }
+
         tree.addMouseListener ( new MouseAdapter() {
             public void mousePressed ( MouseEvent e ) {
                 if ( SwingUtilities.isRightMouseButton ( e ) ) {
@@ -193,18 +202,17 @@ public class BagriMainPanel extends JPanel implements NotificationListener, Prop
         tree.addTreeSelectionListener(new TreeSelectionListener() {
             @Override
             public void valueChanged(TreeSelectionEvent e) {
-                DefaultMutableTreeNode node = (DefaultMutableTreeNode)
-                        tree.getLastSelectedPathComponent();
-
+                DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
                 if (node == null) return;
 
                 int dividerLocation = splitPane.getDividerLocation();
                 Object nodeInfo = node.getUserObject();
-                if (nodeInfo instanceof UserManagement) {
-                    splitPane.setRightComponent(getUserManagementView());
+            	if (nodeInfo instanceof BagriManager) {
+            		splitPane.setRightComponent(getBagriManagementPanel());
                 } else if (nodeInfo instanceof ClusterManagement) {
                     splitPane.setRightComponent(getClusterManagementPanel());
                 } else if (nodeInfo instanceof Node) {
+                	// TODO: cache panels per Node (template)
                     splitPane.setRightComponent(new NodeManagementPanel(BagriMainPanel.this.clusterManagementService, (Node)nodeInfo));
                 } else if (nodeInfo instanceof SchemaManagement) {
                     splitPane.setRightComponent(getSchemaManagementPanel());
@@ -216,8 +224,11 @@ public class BagriMainPanel extends JPanel implements NotificationListener, Prop
                         schemaCache.put(s.getSchemaName(), panel);
                     }
                     splitPane.setRightComponent(panel);
-                } else if (nodeInfo instanceof BagriManager) {
-                    splitPane.setRightComponent(getBagriManagementPanel());
+            	} else if (nodeInfo instanceof UserManagement) {
+                    splitPane.setRightComponent(getUserManagementView());
+                //} else if (nodeInfo instanceof User) {
+                    // TODO: implement it..
+                //    User u = (User) nodeInfo;
                 } else {
                     JTabbedPane tabbedPane = new JTabbedPane();
                     tabbedPane.addTab(nodeInfo.toString(), makeTextPanel(nodeInfo.toString() + " placeholder"));
