@@ -134,10 +134,19 @@ public class MainTreePanel extends JPanel {
         }
     }
 
-    public void setUsers(String[] users) {
+    public void setUsers(java.util.List<User> users) {
     	// add them to the tree too??
-        for (String userName: users) {
-            userManagement.add(new DefaultMutableTreeNode(new User(userName)));
+        //for (String userName: users) {
+        //    userManagement.add(new DefaultMutableTreeNode(new User(userName)));
+        //}
+    	userManagement.removeAllChildren();
+    	Collections.sort(users);
+        for (int i=0; i < users.size(); i++) {
+        	User user = users.get(i);
+        	userManagement.add(new DefaultMutableTreeNode(user));
+        }
+        for (int i = 0; i < tree.getRowCount(); i++) {
+            tree.expandRow(i);
         }
     }
 
@@ -181,8 +190,7 @@ public class MainTreePanel extends JPanel {
         }
 
         private ImageIcon getTreeIcon(Object value) {
-            DefaultMutableTreeNode treeNode =
-                    (DefaultMutableTreeNode)value;
+            DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode)value;
             Object valueObject = treeNode.getUserObject();
             if (valueObject instanceof BagriManager) {
                 return MAIN_ICON;
@@ -201,6 +209,9 @@ public class MainTreePanel extends JPanel {
             }
             if (valueObject instanceof Schema) {
                 return SCHEMA_ICON;
+            }
+            if (valueObject instanceof User) {
+                return USER_ICON;
             }
             return null;
         }

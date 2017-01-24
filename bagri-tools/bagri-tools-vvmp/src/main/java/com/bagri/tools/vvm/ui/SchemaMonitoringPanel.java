@@ -52,14 +52,7 @@ public class SchemaMonitoringPanel extends JPanel {
         descriptor.setYAxisDescription("units");
         chart = ChartFactory.createSimpleXYChart(descriptor);
 
-        try {
-	    	Schema s = schemaService.getSchema(schemaName);
-	    	if (s != null && s.isActive()) {
-	    		new VolumeStatsGenerator(chart, schemaService, schemaName).start();
-	    	}
-        } catch (Exception ex) {
-            LOGGER.severe(ex.getMessage());
-        }
+   		new VolumeStatsGenerator(chart, schemaService, schemaName).start();
     }    
     
     private static class VolumeStatsGenerator extends Thread {
@@ -77,16 +70,19 @@ public class SchemaMonitoringPanel extends JPanel {
         public void run() {
             while (true) {
                 try {
-                    long[] vValues = service.getSchemaVolumeStatistics(schema);
-                    long[] tValues = service.getSchemaTransactionStatistics(schema);
-                    long[] stats = new long[] {vValues[0], vValues[1], tValues[1]};
-                    chart.addValues(System.currentTimeMillis(), stats);
-                    //chart.updateDetails(new String[]{1000 * Math.random() + "",
-                    //            1000 * Math.random() + "",
-                    //            1000 * Math.random() + ""});
+        	    	Schema s = service.getSchema(schema);
+        	    	if (s != null && s.isActive()) {
+        	    		long[] vValues = service.getSchemaVolumeStatistics(schema);
+        	    		long[] tValues = service.getSchemaTransactionStatistics(schema);
+        	    		long[] stats = new long[] {vValues[0], vValues[1], tValues[1]};
+        	    		chart.addValues(System.currentTimeMillis(), stats);
+        	    		//chart.updateDetails(new String[]{1000 * Math.random() + "",
+        	    		//            1000 * Math.random() + "",
+        	    		//            1000 * Math.random() + ""});
+        	    	}
                     Thread.sleep(SLEEP_TIME);
                 } catch (Exception ex) {
-                    LOGGER.severe(ex.getMessage());
+                    //LOGGER.severe(ex.getMessage());
                 }
             }
         }
