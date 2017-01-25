@@ -10,13 +10,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -29,11 +27,6 @@ import com.bagri.core.query.PathBuilder;
 import com.bagri.core.server.api.ModelManagement;
 import com.bagri.core.server.api.QueryManagement;
 import com.bagri.core.server.api.SchemaRepository;
-import com.bagri.core.server.api.df.json.JsonApiParser;
-import com.bagri.core.server.api.df.json.JsonBuilder;
-import com.bagri.core.server.api.df.xml.XmlBuilder;
-import com.bagri.core.server.api.df.xml.XmlStaxParser;
-import com.bagri.core.system.DataFormat;
 import com.bagri.core.system.Library;
 import com.bagri.core.system.Module;
 import com.bagri.core.system.Schema;
@@ -42,7 +35,6 @@ import com.bagri.server.hazelcast.impl.PopulationManagementImpl;
 import com.bagri.server.hazelcast.impl.SchemaRepositoryImpl;
 import com.bagri.server.hazelcast.impl.TransactionManagementImpl;
 import com.bagri.server.hazelcast.store.TransactionCacheStore;
-import com.bagri.support.util.FileUtils;
 import com.bagri.support.util.PropUtils;
 import com.hazelcast.core.HazelcastInstance;
 
@@ -57,12 +49,11 @@ public class TransactionCacheStoreTest extends BagriManagementTest {
 	public static void setUpBeforeClass() throws Exception {
 		sampleRoot = "..\\..\\etc\\samples\\tpox\\";
 		System.setProperty("hz.log.level", "info");
-		//System.setProperty("bdb.log.level", "info");
+		System.setProperty("bdb.log.level", "trace");
 		System.setProperty(pn_node_instance, "0");
 		System.setProperty("logback.configurationFile", "hz-logging.xml");
 		System.setProperty(pn_config_properties_file, "store.properties");
 		System.setProperty(pn_config_path, "src\\test\\resources");
-		//context = new ClassPathXmlApplicationContext("spring/cache-xqj-context.xml");
 		context = new ClassPathXmlApplicationContext("spring/cache-test-context.xml");
 	}
 
@@ -86,8 +77,6 @@ public class TransactionCacheStoreTest extends BagriManagementTest {
 			schema.setProperties(props);
 			xdmRepo.setSchema(schema);
 			((TransactionManagementImpl) xdmRepo.getTxManagement()).adjustTxCounter(0);
-			//PopulationManagementImpl pm = context.getBean(PopulationManagementImpl.class);
-			//ManagedService svc = pm.getHzService(MapService.SERVICE_NAME, "xdm-transaction");
 			
 			xdmRepo.setDataFormats(getBasicDataFormats());
 			xdmRepo.setLibraries(new ArrayList<Library>());
@@ -130,7 +119,6 @@ public class TransactionCacheStoreTest extends BagriManagementTest {
 	}
 	
 	@Test
-	//@Ignore
 	public void bulkTransactionTest() throws Exception {
 		
 		int oldCount = txStore.getStoredCount();
@@ -142,11 +130,9 @@ public class TransactionCacheStoreTest extends BagriManagementTest {
 			Thread.sleep(10);
 			th.start();
 		}
-		System.out.println("started " + thCount + " threads; waiting for " + cdl.getCount() + " transaction events");
-		cdl.await(2, TimeUnit.MINUTES);
-		System.out.println("test finished; left counter is " + cdl.getCount());
+		cdl.await();
 		int newCount = txStore.getStoredCount();
-		int expCount = oldCount; // + (loops*(thCount/2));
+		int expCount = oldCount; // + (loops*(thCount/2)); why is new == old??
 		assertTrue("expected " + expCount + " but got " + newCount + " transactions", newCount == expCount);
 	}
 
