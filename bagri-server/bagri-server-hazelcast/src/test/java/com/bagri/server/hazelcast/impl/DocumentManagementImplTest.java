@@ -4,12 +4,16 @@ import static com.bagri.core.Constants.pn_config_path;
 import static com.bagri.core.Constants.pn_config_properties_file;
 import static com.bagri.core.Constants.pn_node_instance;
 
+import java.util.ArrayList;
+
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import com.bagri.core.system.Library;
+import com.bagri.core.system.Module;
 import com.bagri.core.system.Schema;
 import com.bagri.core.test.DocumentManagementTest;
 import com.bagri.server.hazelcast.impl.SchemaRepositoryImpl;
@@ -43,6 +47,9 @@ public class DocumentManagementImplTest extends DocumentManagementTest {
 		if (schema == null) {
 			schema = new Schema(1, new java.util.Date(), "test", "test", "test schema", true, null);
 			xdmRepo.setSchema(schema);
+			xdmRepo.setDataFormats(getBasicDataFormats());
+			xdmRepo.setLibraries(new ArrayList<Library>());
+			xdmRepo.setModules(new ArrayList<Module>());
 		}
 	}
 

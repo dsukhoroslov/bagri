@@ -6,6 +6,7 @@ import static com.bagri.core.Constants.pn_config_path;
 import static com.bagri.core.Constants.pn_config_properties_file;
 import static org.junit.Assert.*;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -22,6 +23,8 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.bagri.core.api.ResultCursor;
 import com.bagri.core.system.Collection;
+import com.bagri.core.system.Library;
+import com.bagri.core.system.Module;
 import com.bagri.core.system.Schema;
 import com.bagri.core.test.BagriManagementTest;
 import com.bagri.server.hazelcast.impl.QueryManagementImpl;
@@ -56,6 +59,9 @@ public class QueryCacheManagementTest extends BagriManagementTest {
 		if (schema == null) {
 			schema = new Schema(1, new java.util.Date(), "test", "test", "test schema", true, null);
 			xdmRepo.setSchema(schema);
+			xdmRepo.setDataFormats(getBasicDataFormats());
+			xdmRepo.setLibraries(new ArrayList<Library>());
+			xdmRepo.setModules(new ArrayList<Module>());
 			Collection collection = new Collection(1, new Date(), JMXUtils.getCurrentUser(), 
 					1, "CLN_Security", "/{http://tpox-benchmark.com/security}Security", "securities", true);
 			schema.addCollection(collection);

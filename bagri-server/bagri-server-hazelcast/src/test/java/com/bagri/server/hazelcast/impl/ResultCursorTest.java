@@ -3,6 +3,7 @@ package com.bagri.server.hazelcast.impl;
 import static com.bagri.core.Constants.*;
 import static org.junit.Assert.*;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,6 +18,8 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.bagri.core.api.ResultCursor;
 import com.bagri.core.system.Collection;
+import com.bagri.core.system.Library;
+import com.bagri.core.system.Module;
 import com.bagri.core.system.Schema;
 import com.bagri.core.test.BagriManagementTest;
 import com.bagri.server.hazelcast.impl.SchemaRepositoryImpl;
@@ -54,6 +57,9 @@ public class ResultCursorTest extends BagriManagementTest {
 					1, "CLN_Security", "/{http://tpox-benchmark.com/security}Security", "securities", true);
 			schema.addCollection(collection);
 			repo.setSchema(schema);
+			repo.setDataFormats(getBasicDataFormats());
+			repo.setLibraries(new ArrayList<Library>());
+			repo.setModules(new ArrayList<Module>());
 		}
 	}
 

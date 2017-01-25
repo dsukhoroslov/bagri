@@ -5,6 +5,7 @@ import static com.bagri.core.Constants.pn_config_path;
 import static com.bagri.core.Constants.pn_config_properties_file;
 import static org.junit.Assert.*;
 
+import java.util.ArrayList;
 import java.util.Properties;
 
 import org.junit.After;
@@ -16,6 +17,8 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.bagri.core.api.ResultCursor;
 import com.bagri.core.model.Document;
+import com.bagri.core.system.Library;
+import com.bagri.core.system.Module;
 import com.bagri.core.system.Schema;
 import com.bagri.core.test.BagriManagementTest;
 import com.bagri.core.xquery.api.XQProcessor;
@@ -56,6 +59,9 @@ public class SimpleQueryManagementTest extends BagriManagementTest {
 			//XDMCollection collection = new XDMCollection(1, new Date(), JMXUtils.getCurrentUser(), 
 			//		1, "CLN_Security", "/{http://tpox-benchmark.com/security}Security", "securities", true);
 			//schema.addCollection(collection);
+			xdmRepo.setDataFormats(getBasicDataFormats());
+			xdmRepo.setLibraries(new ArrayList<Library>());
+			xdmRepo.setModules(new ArrayList<Module>());
 		}
 	}
 
@@ -68,7 +74,7 @@ public class SimpleQueryManagementTest extends BagriManagementTest {
 	@Test
 	public void simplestQueryTest() throws Exception {
 		
-		String uri = "test_document";
+		String uri = "test_document.xml";
 		String xml = "<content>XML Content</content>";
 
 		long txId = xRepo.getTxManagement().beginTransaction();

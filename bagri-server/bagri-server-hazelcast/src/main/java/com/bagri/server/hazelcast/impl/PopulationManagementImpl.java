@@ -26,6 +26,7 @@ import com.hazelcast.core.LifecycleEvent;
 import com.hazelcast.core.LifecycleEvent.LifecycleState;
 import com.hazelcast.core.LifecycleListener;
 import com.hazelcast.core.MapEvent;
+import com.hazelcast.core.MapStore;
 import com.hazelcast.core.MemberAttributeEvent;
 import com.hazelcast.core.MembershipEvent;
 import com.hazelcast.core.MembershipListener;
@@ -121,7 +122,7 @@ public class PopulationManagementImpl implements PopulationManagement, ManagedSe
 		nodeEngine.getPartitionService().addMigrationListener(this);
 		nodeEngine.getHazelcastInstance().getCluster().addMembershipListener(this);
 		nodeEngine.getHazelcastInstance().getLifecycleService().addLifecycleListener(this);
-		nodeEngine.getHazelcastInstance().getUserContext().put("popManager", this);
+		nodeEngine.getHazelcastInstance().getUserContext().put(ctx_popService, this);
 	}
 	
 	@Override
@@ -201,6 +202,11 @@ public class PopulationManagementImpl implements PopulationManagement, ManagedSe
 	private int checkPersistenceQueue() {
 		MapService svc = nodeEngine.getService(MapService.SERVICE_NAME);
 		return svc.getMapServiceContext().getWriteBehindQueueItemCounter().get();
+	}
+
+	public MapStore getMapStore(String mapName) {
+		MapService svc = nodeEngine.getService(MapService.SERVICE_NAME);
+		return svc.getMapServiceContext().getMapContainer(mapName).getMapStoreContext().getMapStoreWrapper().getMapStore();
 	}
 	
 	//public ManagedService getHzService(String serviceName, String instanceName) {

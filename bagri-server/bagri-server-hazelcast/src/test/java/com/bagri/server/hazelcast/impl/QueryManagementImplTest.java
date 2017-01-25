@@ -4,6 +4,7 @@ import static com.bagri.core.Constants.*;
 import static org.junit.Assert.*;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -25,6 +26,8 @@ import com.bagri.core.query.PathBuilder;
 import com.bagri.core.server.api.ModelManagement;
 import com.bagri.core.server.api.QueryManagement;
 import com.bagri.core.server.api.SchemaRepository;
+import com.bagri.core.system.Library;
+import com.bagri.core.system.Module;
 import com.bagri.core.system.Schema;
 import com.bagri.core.test.BagriManagementTest;
 import com.bagri.core.xquery.api.XQProcessor;
@@ -60,6 +63,9 @@ public class QueryManagementImplTest extends BagriManagementTest {
 			schema = new Schema(1, new java.util.Date(), "test", "test", "test schema", true, null);
 			schema.setProperty(pn_xqj_baseURI, sampleRoot);
 			xdmRepo.setSchema(schema);
+			xdmRepo.setDataFormats(getBasicDataFormats());
+			xdmRepo.setLibraries(new ArrayList<Library>());
+			xdmRepo.setModules(new ArrayList<Module>());
 			com.bagri.core.system.Collection collection = new com.bagri.core.system.Collection(1, new Date(), 
 					JMXUtils.getCurrentUser(), 1, "CLN_Security", "/{http://tpox-benchmark.com/security}Security", "securities", true);
 			schema.addCollection(collection);

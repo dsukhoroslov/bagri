@@ -5,6 +5,7 @@ import static com.bagri.core.Constants.pn_config_properties_file;
 import static org.junit.Assert.*;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -17,6 +18,8 @@ import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.bagri.core.api.ResultCursor;
+import com.bagri.core.system.Library;
+import com.bagri.core.system.Module;
 import com.bagri.core.system.Schema;
 import com.bagri.core.test.BagriManagementTest;
 import com.bagri.server.hazelcast.impl.SchemaRepositoryImpl;
@@ -52,6 +55,9 @@ public class XMarkQueryTest extends BagriManagementTest {
 		if (schema == null) {
 			schema = new Schema(1, new java.util.Date(), "test", "test", "test schema", true, null);
 			xdmRepo.setSchema(schema);
+			xdmRepo.setDataFormats(getBasicDataFormats());
+			xdmRepo.setLibraries(new ArrayList<Library>());
+			xdmRepo.setModules(new ArrayList<Module>());
 			
 			long txId = getTxManagement().beginTransaction();
 			createDocumentTest(sampleRoot + getFileName("auction.xml"));

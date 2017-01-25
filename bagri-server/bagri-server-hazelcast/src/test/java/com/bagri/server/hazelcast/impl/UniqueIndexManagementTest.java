@@ -6,6 +6,7 @@ import static com.bagri.core.Constants.xs_ns;
 import static com.bagri.core.Constants.xs_prefix;
 import static org.junit.Assert.*;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -29,6 +30,8 @@ import com.bagri.core.server.api.ModelManagement;
 import com.bagri.core.server.api.QueryManagement;
 import com.bagri.core.server.api.SchemaRepository;
 import com.bagri.core.system.Index;
+import com.bagri.core.system.Library;
+import com.bagri.core.system.Module;
 import com.bagri.core.system.Schema;
 import com.bagri.core.test.BagriManagementTest;
 import com.bagri.server.hazelcast.impl.SchemaRepositoryImpl;
@@ -66,6 +69,9 @@ public class UniqueIndexManagementTest extends BagriManagementTest {
 					typePath, "/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}Symbol/text()", new QName(xs_ns, "string", xs_prefix),
 					true, true, true, "Security Symbol", true);
 			xdmRepo.addSchemaIndex(index);
+			xdmRepo.setDataFormats(getBasicDataFormats());
+			xdmRepo.setLibraries(new ArrayList<Library>());
+			xdmRepo.setModules(new ArrayList<Module>());
 		}
 	}
 

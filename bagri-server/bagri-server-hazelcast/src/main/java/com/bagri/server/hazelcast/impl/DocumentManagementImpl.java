@@ -821,8 +821,8 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 				unlockDocument(docKey);
 			}
 		} else {
-    		throw new BagriException("Was not able to aquire lock on Document: " + docKey + 
-    				", timeout: " + txManager.getTransactionTimeout(), BagriException.ecDocument);
+    		throw new BagriException("Was not able to aquire lock while storing Document: " + docKey + 
+    				", timeout: " + timeout, BagriException.ecTransTimeout);
 		}
 	}
 
@@ -866,8 +866,8 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 				unlockDocument(docKey);
 			}
 		} else {
-    		throw new BagriException("Was not able to aquire lock on Document: " + docKey + 
-    				", timeout: " + txManager.getTransactionTimeout(), BagriException.ecDocument);
+    		throw new BagriException("Was not able to aquire lock while removing Document: " + docKey + 
+    				", timeout: " + txManager.getTransactionTimeout(), BagriException.ecTransTimeout);
 		}
 		logger.trace("removeDocument.exit; removed: {}", removed);
 	}

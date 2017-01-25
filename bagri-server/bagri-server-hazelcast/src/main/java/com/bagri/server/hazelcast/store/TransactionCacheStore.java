@@ -44,10 +44,6 @@ public class TransactionCacheStore implements MapStore<Long, Transaction>, MapLo
     private MappedByteBuffer buff;
     private Map<Long, Long> transactions;
     
-    // TODO: this is for tests only, remove it when proper way to get 
-    // MapStore instance will be found
-    static TransactionCacheStore instance;
-    
 	@Override
 	public void init(HazelcastInstance hazelcastInstance, Properties properties, String mapName) {
 		logger.trace("init.enter; properties: {}", properties);
@@ -91,7 +87,6 @@ public class TransactionCacheStore implements MapStore<Long, Transaction>, MapLo
 		}
 		logger.info("init; tx buffer initialized; tx count: {}", txCount);
 		loadTransactions(txCount);
-		instance = this;
 	}
 
 	@Override

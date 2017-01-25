@@ -4,6 +4,7 @@ import static com.bagri.core.Constants.pn_config_path;
 import static com.bagri.core.Constants.pn_config_properties_file;
 import static org.junit.Assert.*;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,6 +25,8 @@ import com.bagri.core.query.PathBuilder;
 import com.bagri.core.server.api.ModelManagement;
 import com.bagri.core.server.api.QueryManagement;
 import com.bagri.core.server.api.SchemaRepository;
+import com.bagri.core.system.Library;
+import com.bagri.core.system.Module;
 import com.bagri.core.system.Schema;
 import com.bagri.core.test.BagriManagementTest;
 import com.bagri.server.hazelcast.impl.SchemaRepositoryImpl;
@@ -56,6 +59,9 @@ public class TransactionManagementImplTest extends BagriManagementTest {
 		if (schema == null) {
 			schema = new Schema(1, new java.util.Date(), "test", "test", "test schema", true, null);
 			xdmRepo.setSchema(schema);
+			xdmRepo.setDataFormats(getBasicDataFormats());
+			xdmRepo.setLibraries(new ArrayList<Library>());
+			xdmRepo.setModules(new ArrayList<Module>());
 		}
 	}
 

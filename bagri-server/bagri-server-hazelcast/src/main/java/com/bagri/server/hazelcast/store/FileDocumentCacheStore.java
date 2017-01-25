@@ -1,13 +1,13 @@
 package com.bagri.server.hazelcast.store;
 
+import static com.bagri.core.Constants.ctx_repo;
+import static com.bagri.core.Constants.ctx_popService;
 import static com.bagri.core.Constants.pn_schema_format_default;
 import static com.bagri.core.Constants.pn_schema_name;
 import static com.bagri.core.Constants.pn_schema_store_data_path;
 import static com.bagri.core.api.TransactionManagement.TX_INIT;
 import static com.bagri.core.api.TransactionManagement.TX_NO;
 import static com.bagri.core.model.Document.dvFirst;
-import static com.bagri.server.hazelcast.util.SpringContextHolder.getContext;
-import static com.bagri.server.hazelcast.util.SpringContextHolder.schema_context;
 
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
@@ -26,7 +26,6 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
 
 import com.bagri.core.DocumentKey;
 import com.bagri.core.api.BagriException;
@@ -48,13 +47,15 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
 	private String dataPath;
     private String schemaName;
     private String dataFormat;
+    private HazelcastInstance hzi;
     private SchemaRepositoryImpl xdmRepo;
     private PopulationManagementImpl popManager;
     
 	@Override
 	public void init(HazelcastInstance hzInstance, Properties properties, String mapName) {
 		logger.info("init.enter; properties: {}", properties);
-		popManager = (PopulationManagementImpl) hzInstance.getUserContext().get("popManager");
+		this.hzi = hzInstance;
+		popManager = (PopulationManagementImpl) hzInstance.getUserContext().get(ctx_popService);
 		if (popManager == null) {
 			logger.warn("init; PopulationManager not set, please check Spring configuration files..."); 
 		}
@@ -75,11 +76,9 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
 	
 	private synchronized void ensureRepository() {
 		if (xdmRepo == null) {
-			ApplicationContext schemaCtx = (ApplicationContext) getContext(schemaName, schema_context);
-			if (schemaCtx != null) {
-				xdmRepo = schemaCtx.getBean(SchemaRepositoryImpl.class);
+			xdmRepo = (SchemaRepositoryImpl) hzi.getUserContext().get(ctx_repo);
+			if (xdmRepo != null) {
 				dataFormat = xdmRepo.getSchema().getProperty(pn_schema_format_default);
-				
 				while (!xdmRepo.isInitialized()) {
 					try {
 						Thread.sleep(100);
@@ -88,8 +87,6 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
 						logger.warn("ensureRepository; interrupted while waiting for Repo initialization"); 
 					}
 				}
-			} else {
-				logger.warn("ensureRepository; can not get context for schema: {}", schemaName);
 			}
 			logger.info("ensureRepository; repo: {}", xdmRepo);
 		}
