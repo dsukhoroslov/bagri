@@ -95,6 +95,7 @@
 					<hz:properties>
 						<hz:property name="bdb.schema.name">${bdb.schema.name}</hz:property>
 						<hz:property name="bdb.schema.store.type">${bdb.schema.store.type}</hz:property>
+	    				<hz:property name="bdb.schema.store.data.path">${bdb.schema.store.data.path}</hz:property>
 					</hz:properties>
 				</hz:map-store>
 				<hz:indexes>

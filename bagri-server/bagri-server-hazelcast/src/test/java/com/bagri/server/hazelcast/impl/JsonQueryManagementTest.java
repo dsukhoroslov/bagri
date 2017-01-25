@@ -24,6 +24,8 @@ import com.bagri.core.server.api.df.json.JsonApiParser;
 import com.bagri.core.server.api.df.json.JsonBuilder;
 import com.bagri.core.system.Collection;
 import com.bagri.core.system.DataFormat;
+import com.bagri.core.system.Library;
+import com.bagri.core.system.Module;
 import com.bagri.core.system.Schema;
 import com.bagri.core.test.BagriManagementTest;
 import com.bagri.server.hazelcast.impl.SchemaRepositoryImpl;
@@ -61,11 +63,9 @@ public class JsonQueryManagementTest extends BagriManagementTest {
 					1, "securities", "/{http://tpox-benchmark.com/security}Security", "all securities", true);
 			schema.addCollection(collection);
 			xdmRepo.setSchema(schema);
-			DataFormat df = new DataFormat(1, new java.util.Date(), "", "JSON", null, "application/json", null, 
-					JsonApiParser.class.getName(), JsonBuilder.class.getName(), true, null);
-			ArrayList<DataFormat> cFormats = new ArrayList<>(1);
-			cFormats.add(df);
-			xdmRepo.setDataFormats(cFormats);
+			xdmRepo.setDataFormats(getBasicDataFormats());
+			xdmRepo.setLibraries(new ArrayList<Library>());
+			xdmRepo.setModules(new ArrayList<Module>());
 			
 			long txId = xRepo.getTxManagement().beginTransaction();
 			createDocumentTest(sampleRoot + "security1500.json");

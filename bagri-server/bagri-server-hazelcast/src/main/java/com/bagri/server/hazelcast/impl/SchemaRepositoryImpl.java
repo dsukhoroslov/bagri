@@ -35,6 +35,8 @@ import com.bagri.core.server.api.ModelManagement;
 import com.bagri.core.server.api.PopulationManagement;
 import com.bagri.core.server.api.SchemaRepository;
 import com.bagri.core.server.api.TriggerManagement;
+import com.bagri.core.server.api.df.json.JsonApiParser;
+import com.bagri.core.server.api.df.json.JsonBuilder;
 import com.bagri.core.server.api.df.xml.XmlBuilder;
 import com.bagri.core.server.api.df.xml.XmlStaxParser;
 import com.bagri.core.system.DataFormat;
@@ -218,8 +220,14 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
 		if (df != null) {
 			return instantiateClass(df.getParserClass());
 		}
-		logger.warn("getParser; no parser found for dataFormat: {}", dataFormat); 
-		return new XmlStaxParser(getModelManagement());
+		logger.info("getParser; no parser found for dataFormat: {}", dataFormat); 
+		dataFormat = this.xdmSchema.getProperty(pn_schema_format_default);
+		if ("json".equalsIgnoreCase(dataFormat)) {
+			return new JsonApiParser(getModelManagement());
+		} else if ("xml".equalsIgnoreCase(dataFormat)) {
+			return new XmlStaxParser(getModelManagement());
+		}
+		return null;
 	}
 	
 	@Override
@@ -228,8 +236,16 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
 		if (df != null) {
 			return instantiateClass(df.getBuilderClass());
 		}
-		logger.warn("getBuilder; no builder found for dataFormat: {}", dataFormat); 
-		return new XmlBuilder(getModelManagement());
+		logger.info("getBuilder; no builder found for dataFormat: {}", dataFormat); 
+		dataFormat = this.xdmSchema.getProperty(pn_schema_format_default);
+		// JSON builder is not implemented yet..
+		//if ("json".equalsIgnoreCase(dataFormat)) {
+		//	return new JsonBuilder();
+		//} else 
+		if ("xml".equalsIgnoreCase(dataFormat)) {
+			return new XmlBuilder(getModelManagement());
+		}
+		return null;
 	}
 	
 	private <T> T instantiateClass(String className) {
@@ -239,7 +255,6 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
 			return (T) clazz.getConstructor(ModelManagement.class).newInstance(getModelManagement());
 		} catch (Exception ex) {
 			logger.error("instantiateClass; cannot instantiate: " + className, ex);
-			// throw ex?
 		}
 		return null;
 	}

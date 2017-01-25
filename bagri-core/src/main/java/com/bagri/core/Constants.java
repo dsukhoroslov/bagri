@@ -126,6 +126,7 @@ public class Constants {
 	public static final String ctx_repo = "xdmRepository";
 	public static final String ctx_cache = "cacheInstance";
 	public static final String ctx_context = "userContext";
+	public static final String ctx_popService = "popManager";
 	
 	// XQJ MetaData feature constants
 	public static final int xqf_Update = 1;

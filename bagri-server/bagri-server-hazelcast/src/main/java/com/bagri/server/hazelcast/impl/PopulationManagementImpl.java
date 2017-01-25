@@ -27,14 +27,17 @@ import com.hazelcast.core.LifecycleEvent;
 import com.hazelcast.core.LifecycleEvent.LifecycleState;
 import com.hazelcast.core.LifecycleListener;
 import com.hazelcast.core.MapEvent;
+import com.hazelcast.core.MapStore;
 import com.hazelcast.core.MemberAttributeEvent;
 import com.hazelcast.core.MembershipEvent;
 import com.hazelcast.core.MembershipListener;
 import com.hazelcast.core.MigrationEvent;
 import com.hazelcast.core.MigrationListener;
+import com.hazelcast.map.impl.MapContainer;
 import com.hazelcast.map.impl.MapService;
 import com.hazelcast.map.impl.MapServiceContext;
-import com.hazelcast.map.impl.mapstore.MapDataStore;
+import com.hazelcast.map.impl.MapStoreWrapper;
+import com.hazelcast.map.impl.mapstore.MapStoreContext;
 import com.hazelcast.map.impl.recordstore.RecordStore;
 import com.hazelcast.map.listener.EntryAddedListener;
 import com.hazelcast.map.listener.EntryEvictedListener;
@@ -125,7 +128,7 @@ public class PopulationManagementImpl implements PopulationManagement, ManagedSe
 		nodeEngine.getPartitionService().addMigrationListener(this);
 		nodeEngine.getHazelcastInstance().getCluster().addMembershipListener(this);
 		nodeEngine.getHazelcastInstance().getLifecycleService().addLifecycleListener(this);
-		nodeEngine.getHazelcastInstance().getUserContext().put("popManager", this);
+		nodeEngine.getHazelcastInstance().getUserContext().put(ctx_popService, this);
 	}
 	
 	@Override
@@ -216,6 +219,21 @@ public class PopulationManagementImpl implements PopulationManagement, ManagedSe
 			xFactory = schemaCtx.getBean("xdmFactory", KeyFactory.class);
 		}
 		return xFactory;
+	}
+
+	public MapStore getMapStore(String mapName) {
+		MapService svc = nodeEngine.getService(MapService.SERVICE_NAME);
+		MapContainer mc = svc.getMapServiceContext().getMapContainer(mapName);
+		if (mc != null) {
+			MapStoreContext msc = mc.getMapStoreContext();
+			if (msc != null) {
+				MapStoreWrapper msw = msc.getMapStoreWrapper();
+				if (msw != null) {
+					return msw.getMapStore();
+				}
+			}
+		}
+		return null;
 	}
 	
 	//public ManagedService getHzService(String serviceName, String instanceName) {

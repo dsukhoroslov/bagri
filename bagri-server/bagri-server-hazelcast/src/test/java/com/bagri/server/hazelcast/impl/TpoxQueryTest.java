@@ -22,6 +22,8 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.bagri.core.api.ResultCursor;
 import com.bagri.core.system.Collection;
+import com.bagri.core.system.Library;
+import com.bagri.core.system.Module;
 import com.bagri.core.system.Schema;
 import com.bagri.core.test.ClientQueryManagementTest;
 import com.bagri.server.hazelcast.impl.SchemaRepositoryImpl;
@@ -69,6 +71,9 @@ public class TpoxQueryTest extends ClientQueryManagementTest {
 					3, "CLN_Order", "/{http://www.fixprotocol.org/FIXML-4-4}FIXML", "orders", true);
 			schema.addCollection(collection);
 			xdmRepo.setSchema(schema);
+			xdmRepo.setDataFormats(getBasicDataFormats());
+			xdmRepo.setLibraries(new ArrayList<Library>());
+			xdmRepo.setModules(new ArrayList<Module>());
 			
 			storeCustomerTest();
 			storeOrderTest();

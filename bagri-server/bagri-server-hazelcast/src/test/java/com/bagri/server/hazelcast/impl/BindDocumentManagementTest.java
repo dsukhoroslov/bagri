@@ -4,6 +4,7 @@ import static com.bagri.core.Constants.pn_config_path;
 import static com.bagri.core.Constants.pn_config_properties_file;
 import static org.junit.Assert.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -19,6 +20,8 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.bagri.core.api.ResultCursor;
 import com.bagri.core.model.Document;
+import com.bagri.core.system.Library;
+import com.bagri.core.system.Module;
 import com.bagri.core.system.Schema;
 import com.bagri.core.test.BagriManagementTest;
 import com.bagri.server.hazelcast.bean.SampleBean;
@@ -53,6 +56,9 @@ public class BindDocumentManagementTest extends BagriManagementTest {
 			schema = new Schema(1, new java.util.Date(), "test", "test", "test schema", true, null);
 			xdmRepo.setSchema(schema);
 			
+			xdmRepo.setDataFormats(getBasicDataFormats());
+			xdmRepo.setLibraries(new ArrayList<Library>());
+			xdmRepo.setModules(new ArrayList<Module>());
 		}
 	}
 
@@ -66,7 +72,7 @@ public class BindDocumentManagementTest extends BagriManagementTest {
 	public void createBeanDocumentTest() throws Exception {
 		long txId = xRepo.getTxManagement().beginTransaction();
 		SampleBean sb1 = new SampleBean(1, false, "XYZ");
-		Document bDoc = xRepo.getDocumentManagement().storeDocumentFromBean("bean_test", sb1, null);
+		Document bDoc = xRepo.getDocumentManagement().storeDocumentFromBean("bean_test.xml", sb1, null);
 		assertNotNull(bDoc);
 		uris.add(bDoc.getUri());
 		xRepo.getTxManagement().commitTransaction(txId);
@@ -87,7 +93,7 @@ public class BindDocumentManagementTest extends BagriManagementTest {
 		m1.put("intProp", 1); 
 		m1.put("boolProp", Boolean.FALSE);
 		m1.put("strProp", "XYZ");
-		Document mDoc = xRepo.getDocumentManagement().storeDocumentFromMap("map_test1", m1, null);
+		Document mDoc = xRepo.getDocumentManagement().storeDocumentFromMap("map_test1.xml", m1, null);
 		assertNotNull(mDoc);
 		assertEquals(txId, mDoc.getTxStart());
 		uris.add(mDoc.getUri());
@@ -106,7 +112,7 @@ public class BindDocumentManagementTest extends BagriManagementTest {
 		m2.put("boolProp", Boolean.TRUE);
 		m2.put("strProp", "ABC");
 		txId = xRepo.getTxManagement().beginTransaction();
-		mDoc = xRepo.getDocumentManagement().storeDocumentFromMap("map_test2", m2, null);
+		mDoc = xRepo.getDocumentManagement().storeDocumentFromMap("map_test2.xml", m2, null);
 		assertNotNull(mDoc);
 		assertEquals(txId, mDoc.getTxStart());
 		uris.add(mDoc.getUri());

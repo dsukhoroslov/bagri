@@ -4,6 +4,8 @@ import static com.bagri.support.util.FileUtils.readTextFile;
 import static org.junit.Assert.assertNotNull;
 
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
@@ -16,7 +18,15 @@ import com.bagri.core.api.SchemaRepository;
 import com.bagri.core.api.TransactionManagement;
 import com.bagri.core.api.BagriException;
 import com.bagri.core.model.Document;
+import com.bagri.core.server.api.df.json.JsonApiParser;
+import com.bagri.core.server.api.df.json.JsonBuilder;
+import com.bagri.core.server.api.df.xml.XmlBuilder;
+import com.bagri.core.server.api.df.xml.XmlStaxParser;
+import com.bagri.core.system.DataFormat;
+import com.bagri.core.system.Library;
+import com.bagri.core.system.Module;
 import com.bagri.core.system.Schema;
+import com.bagri.support.util.PropUtils;
 
 public abstract class BagriManagementTest {
 
@@ -48,17 +58,28 @@ public abstract class BagriManagementTest {
 		return xRepo.getTxManagement();
 	}
 	
+	protected Collection<DataFormat> getBasicDataFormats() {
+		ArrayList<DataFormat> cFormats = new ArrayList<>(2);
+		ArrayList<String> cExt = new ArrayList<>(1);
+		cExt.add("xml");
+		DataFormat df = new DataFormat(1, new java.util.Date(), "", "XML", null, "application/xml", cExt, 
+				XmlStaxParser.class.getName(), XmlBuilder.class.getName(), true, null);
+		cFormats.add(df);
+		cExt = new ArrayList<>(1);
+		cExt.add("json");
+		df = new DataFormat(1, new java.util.Date(), "", "JSON", null, "application/json", cExt, 
+				JsonApiParser.class.getName(), JsonBuilder.class.getName(), true, null);
+		cFormats.add(df);
+		return cFormats;
+	}
+	
 	protected Schema initSchema() {
 		com.bagri.core.server.api.SchemaRepository xdmRepo = (com.bagri.core.server.api.SchemaRepository) xRepo; 
 		Schema schema = xdmRepo.getSchema();
 		if (schema == null) {
 			schema = new Schema(1, new java.util.Date(), "test", "test", "test schema", true, null);
 			//xdmRepo.setSchema(schema);
-			//DataFormat df = new DataFormat(1, new java.util.Date(), "", "JSON", null, "application/json", null, 
-			//		"com.bagri.core.server.df.json.JsonApiParser", "com.bagri.core.server.df.json.JsonBuilder", true, null);
-			//ArrayList<DataFormat> cFormats = new ArrayList<>(1);
-			//cFormats.add(df);
-			//xdmRepo.setDataFormats(cFormats);
+			//xdmRepo.setDataFormats(getBasicDataFormats());
 		}
 		return schema;
 	}

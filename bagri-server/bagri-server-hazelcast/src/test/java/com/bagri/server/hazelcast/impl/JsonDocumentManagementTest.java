@@ -17,6 +17,8 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import com.bagri.core.server.api.df.json.JsonApiParser;
 import com.bagri.core.server.api.df.json.JsonBuilder;
 import com.bagri.core.system.DataFormat;
+import com.bagri.core.system.Library;
+import com.bagri.core.system.Module;
 import com.bagri.core.system.Schema;
 import com.bagri.core.test.DocumentManagementTest;
 import com.bagri.core.xquery.api.XQProcessor;
@@ -51,11 +53,9 @@ public class JsonDocumentManagementTest extends DocumentManagementTest {
 			schema = new Schema(1, new java.util.Date(), "test", "test", "test schema", true, null);
 			schema.setProperty(pn_schema_format_default, "JSON");
 			xdmRepo.setSchema(schema);
-			DataFormat df = new DataFormat(1, new java.util.Date(), "", "JSON", null, "application/json", null, 
-					JsonApiParser.class.getName(), JsonBuilder.class.getName(), true, null);
-			ArrayList<DataFormat> cFormats = new ArrayList<>(1);
-			cFormats.add(df);
-			xdmRepo.setDataFormats(cFormats);
+			xdmRepo.setDataFormats(getBasicDataFormats());
+			xdmRepo.setLibraries(new ArrayList<Library>());
+			xdmRepo.setModules(new ArrayList<Module>());
 		}
 		// set bdb.document.format to JSON !
 		//XQProcessor xqp = xdmRepo.getXQProcessor("test_client");

@@ -1,11 +1,9 @@
 package com.bagri.server.hazelcast.impl;
 
-import static com.bagri.core.Constants.pn_config_path;
-import static com.bagri.core.Constants.pn_config_properties_file;
-import static com.bagri.core.Constants.pn_node_instance;
-import static com.bagri.core.Constants.pn_schema_store_data_path;
+import static com.bagri.core.Constants.*;
 import static com.bagri.server.hazelcast.util.SpringContextHolder.*;
 
+import java.util.ArrayList;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 
@@ -16,6 +14,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import com.bagri.core.system.Library;
+import com.bagri.core.system.Module;
 import com.bagri.core.system.Schema;
 import com.bagri.core.test.BagriManagementTest;
 import com.bagri.server.hazelcast.impl.PopulationManagementImpl;
@@ -56,6 +56,10 @@ public class PopulationManagementImplTest extends BagriManagementTest {
 			Properties props = PropUtils.propsFromFile("src/test/resources/store.properties");
 			schema.setProperties(props);
 			xdmRepo.setSchema(schema);
+			xdmRepo.setDataFormats(getBasicDataFormats());
+			xdmRepo.setLibraries(new ArrayList<Library>());
+			xdmRepo.setModules(new ArrayList<Module>());
+			
 			//XDMDataStore ds = new XDMDataStore(1, new java.util.Date(), "", "JSON", null, null, null,
 			//		"com.bagri.core.df.json.JsonApiParser", "com.bagri.core.df.json.JsonBuilder", true, null);
 			//ArrayList<XDMDataStore> cStores = new ArrayList<>(1);
@@ -64,7 +68,7 @@ public class PopulationManagementImplTest extends BagriManagementTest {
 			
 			setContext(schema.getName(), schema_context, context);
 			//((TransactionManagementImpl) xdmRepo.getTxManagement()).adjustTxCounter(0);
-    		popManager = (PopulationManagementImpl) xdmRepo.getHzInstance().getUserContext().get("popManager");
+    		popManager = (PopulationManagementImpl) xdmRepo.getHzInstance().getUserContext().get(ctx_popService);
     		popManager.checkPopulation(1);
 		}
 	}
