@@ -42,14 +42,14 @@ ENV JAVA_OPTS -Xms1g -Xmx2g -XX:NewSize=64m -XX:MaxNewSize=64m \
 -Dcom.sun.management.jmxremote \
 -Dcom.sun.management.jmxremote.port=3431 \ 
 -Dcom.sun.management.jmxremote.authenticate=false \
--Dcom.sun.management.jmxremote.ssl=false 
-#\ -Djava.rmi.server.hostname=${hostName} - ??
+-Dcom.sun.management.jmxremote.ssl=false \
+-Djava.rmi.server.hostname=192.168.99.100
 
 
 ENV CLASSPATH /bagri-$BG_VERSION/config/*:/bagri-$BG_VERSION/lib/*
 
 # Start Bagri server.
 #ENTRYPOINT ["sh", "-c"]
-CMD ["java", "-showversion -server $JAVA_OPTS", "-cp $CLASSPATH", "com.bagri.server.hazelcast.BagriCacheServer"]
-EXPOSE 3330 10500
+CMD java -showversion -server $JAVA_OPTS -cp $CLASSPATH com.bagri.server.hazelcast.BagriCacheServer
+EXPOSE 3331 3431 10500
  
