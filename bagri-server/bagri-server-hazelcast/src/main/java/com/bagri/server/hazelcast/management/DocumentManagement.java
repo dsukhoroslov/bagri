@@ -1,6 +1,8 @@
 package com.bagri.server.hazelcast.management;
 
 import static com.bagri.support.util.PropUtils.propsFromString;
+import static com.bagri.support.util.JMXUtils.mapToComposite;
+import static com.bagri.support.util.JMXUtils.compositeToTabular;
 
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
@@ -16,6 +18,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import javax.management.openmbean.CompositeData;
+import javax.management.openmbean.OpenDataException;
 import javax.management.openmbean.TabularData;
 
 import org.springframework.jmx.export.annotation.ManagedAttribute;
@@ -24,12 +27,14 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
+import com.bagri.client.hazelcast.PartitionStatistics;
 import com.bagri.core.api.BagriException;
 import com.bagri.core.model.Document;
 import com.bagri.core.system.Collection;
 import com.bagri.core.system.Schema;
 import com.bagri.server.hazelcast.task.doc.DocumentQueueCounter;
 import com.bagri.server.hazelcast.task.doc.DocumentStructureProvider;
+import com.bagri.server.hazelcast.task.node.NodeDistributionProvider;
 import com.bagri.server.hazelcast.task.schema.SchemaDocCleaner;
 import com.bagri.server.hazelcast.task.stats.StatisticSeriesCollector;
 import com.bagri.server.hazelcast.task.stats.StatisticTotalsCollector;
@@ -420,4 +425,34 @@ public class DocumentManagement extends SchemaFeatureManagement {
 		return result;
 	}
 
+	@ManagedOperation(description="Return partition-related statistics")
+	@ManagedOperationParameters({
+		@ManagedOperationParameter(name = "typeSwitch", description = "An int flag regulating stats granulatity. 0 = per partition, 1 = per node, 2 = per machine")})
+	public TabularData getPartitionStatistics(int typeSwitch) {
+		NodeDistributionProvider task = new NodeDistributionProvider();
+		Map<Member, Future<java.util.Collection<PartitionStatistics>>> results = execService.submitToAllMembers(task);
+		TabularData result = null;
+		java.util.Collection<PartitionStatistics> stats;
+		for (Map.Entry<Member, Future<java.util.Collection<PartitionStatistics>>> entry: results.entrySet()) {
+			try {
+				stats = entry.getValue().get();
+			} catch (InterruptedException | ExecutionException ex) {
+				logger.error("getPartitionStatistics.error; ", ex);
+				//throw new RuntimeException(ex.getMessage());
+				continue;
+			}
+			
+			try {
+				for (PartitionStatistics sts: stats) {
+					CompositeData cd = mapToComposite("stats", "parts", sts.toMap());
+					result = compositeToTabular("stats", "parts", "partition", result, cd);
+				}
+			} catch (OpenDataException ex) {
+				logger.error("getPartitionStatistics.error; ", ex);
+				throw new RuntimeException(ex.getMessage());
+			}
+		}
+		return result;
+	}
+	
 }

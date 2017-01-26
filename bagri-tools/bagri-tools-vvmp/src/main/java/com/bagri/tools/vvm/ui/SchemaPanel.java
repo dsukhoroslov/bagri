@@ -39,7 +39,7 @@ public class SchemaPanel extends JPanel {
     }
 
     private JPanel createSchemaInfoPanel() {
-        JPanel panel = new JPanel();
+        JPanel panel = new SchemaCapacityPanel(schema.getSchemaName(), schemaService, eventBus);
         return panel;
     }
 

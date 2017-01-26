@@ -4,6 +4,8 @@ import static com.bagri.core.Constants.*;
 import static com.bagri.core.server.api.CacheConstants.*;
 import static com.bagri.server.hazelcast.util.SpringContextHolder.*;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 
+import com.bagri.client.hazelcast.PartitionStatistics;
 import com.bagri.core.DocumentKey;
 import com.bagri.core.KeyFactory;
 import com.bagri.core.model.Document;
@@ -180,6 +183,22 @@ public class PopulationManagementImpl implements PopulationManagement, ManagedSe
 			}
 		}
 		return cnt;
+	}
+	
+	public Collection<PartitionStatistics> getPartitionStatistics() {
+		MapService svc = nodeEngine.getService(MapService.SERVICE_NAME);
+		MapServiceContext xddCtx = svc.getMapServiceContext();
+		List<Integer> parts = nodeEngine.getPartitionService().getMemberPartitions(nodeEngine.getThisAddress());
+		String address = nodeEngine.getThisAddress().toString();
+		List<PartitionStatistics> stats = new ArrayList<>(parts.size());
+		for (int part: parts) {
+			RecordStore rs = xddCtx.getRecordStore(part, CN_XDM_DOCUMENT);
+			if (rs != null) {
+				stats.add(new PartitionStatistics(address, part, rs.size(), rs.getHeapCost(), rs.getMapDataStore().notFinishedOperationsCount()));
+			}
+		}
+		// TODO: what about content, indexes, etc?
+		return stats;
 	}
 	
 	public Set<DocumentKey> getDocumentKeys() {

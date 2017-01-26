@@ -1,6 +1,7 @@
 package com.bagri.tools.vvm.service;
 
 import javax.management.ObjectName;
+import javax.management.openmbean.TabularData;
 
 import com.bagri.tools.vvm.model.Property;
 import com.bagri.tools.vvm.model.Schema;
@@ -31,4 +32,5 @@ public interface SchemaManagementService {
     long[] getSchemaTransactionStatistics(String schemaName) throws ServiceException;
     List<String> getWorkingHosts(String schemaName) throws ServiceException;
 
+    TabularData getSchemaPartitionStatistics(String schemaName) throws ServiceException;
 }

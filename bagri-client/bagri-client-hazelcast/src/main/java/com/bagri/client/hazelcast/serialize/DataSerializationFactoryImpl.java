@@ -3,6 +3,7 @@ package com.bagri.client.hazelcast.serialize;
 import com.bagri.client.hazelcast.DocumentPartKey;
 import com.bagri.client.hazelcast.DocumentPathKey;
 import com.bagri.client.hazelcast.GroupCountPredicate;
+import com.bagri.client.hazelcast.PartitionStatistics;
 import com.bagri.client.hazelcast.PathIndexKey;
 import com.bagri.client.hazelcast.QueryParamsKey;
 import com.bagri.client.hazelcast.impl.FixedCursorImpl;
@@ -71,6 +72,8 @@ public class DataSerializationFactoryImpl implements DataSerializableFactory {
 	public static final int cli_XQItemType = 75;
 	public static final int cli_XQItem = 76;
 	public static final int cli_XQSequence = 77;
+
+	public static final int cli_PartitionStats = 79;
 
 	public static final int cli_Expression = 80;
 	public static final int cli_ExpressionBuilder = 81;
@@ -151,6 +154,7 @@ public class DataSerializationFactoryImpl implements DataSerializableFactory {
 			case cli_ProvideDocumentBeanTask: return new DocumentBeanProvider();
 			case cli_ExecQueryTask: return new QueryExecutor();
 			case cli_AuthenticateTask: return new UserAuthenticator();
+			case cli_PartitionStats: return new PartitionStatistics();
 		}
 		return null;
 	}

@@ -7,6 +7,7 @@ import javax.management.openmbean.CompositeType;
 import javax.management.openmbean.OpenDataException;
 import javax.management.openmbean.OpenType;
 import javax.management.openmbean.SimpleType;
+import javax.management.openmbean.TabularData;
 
 import com.bagri.tools.vvm.model.*;
 
@@ -377,6 +378,19 @@ public class ClusterServiceProvider implements ClusterManagementService, SchemaM
             throw new ServiceException(e);
         }
     	
+    }
+    
+    @Override
+    public TabularData getSchemaPartitionStatistics(String schemaName) throws ServiceException {
+
+    	int flag = 0;
+        try {
+            return (TabularData) connection.invoke(getSchemaObjectName("DocumentManagement", schemaName), 
+            		"getPartitionStatistics", new Object[] {flag}, new String[] {int.class.getName()});
+        } catch (Exception e) {
+            LOGGER.throwing(this.getClass().getName(), "getSchemaTransactionStatistics", e);
+            throw new ServiceException(e);
+        }
     }
     
     @Override

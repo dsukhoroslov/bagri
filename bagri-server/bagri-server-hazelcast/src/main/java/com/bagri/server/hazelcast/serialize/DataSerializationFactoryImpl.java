@@ -35,6 +35,7 @@ import com.bagri.server.hazelcast.task.model.ModelRegistrator;
 import com.bagri.server.hazelcast.task.module.ModuleCreator;
 import com.bagri.server.hazelcast.task.module.ModuleRemover;
 import com.bagri.server.hazelcast.task.node.NodeCreator;
+import com.bagri.server.hazelcast.task.node.NodeDistributionProvider;
 import com.bagri.server.hazelcast.task.node.NodeInfoProvider;
 import com.bagri.server.hazelcast.task.node.NodeKiller;
 import com.bagri.server.hazelcast.task.node.NodeOptionSetter;
@@ -83,7 +84,7 @@ public class DataSerializationFactoryImpl extends com.bagri.client.hazelcast.ser
 	public static final int cli_CollectStatisticTotalsTask = 201;
 	public static final int cli_ResetStatisticsTask = 202;
 	public static final int cli_CountUpdatingDocumentsTask = 203;
-
+	
 	public static final int cli_CreateIndexTask = 205;
 	public static final int cli_RemoveIndexTask = 206;
 	public static final int cli_IndexValueTask = 207;
@@ -115,6 +116,7 @@ public class DataSerializationFactoryImpl extends com.bagri.client.hazelcast.ser
 	public static final int cli_KillNodeTask = 238;
 	public static final int cli_SetNodeOptionTask = 239;
 	public static final int cli_GetNodeInfoTask = 240;
+	public static final int cli_GetNodeStatsTask = 241;
 	
 	public static final int cli_CreateUserTask = 245;
 	public static final int cli_UpdateUserTask = 246;
@@ -189,6 +191,7 @@ public class DataSerializationFactoryImpl extends com.bagri.client.hazelcast.ser
 			case cli_SetNodeOptionTask: return new NodeOptionSetter();
 			case cli_AggregateSchemaInfoTask: return new SchemaStatsAggregator();
 			case cli_GetNodeInfoTask: return new NodeInfoProvider();
+			case cli_GetNodeStatsTask: return new NodeDistributionProvider();
 			case cli_CreateIndexTask: return new IndexCreator();
 			case cli_RemoveIndexTask: return new IndexRemover();
 			case cli_IndexValueTask: return new ValueIndexator();
