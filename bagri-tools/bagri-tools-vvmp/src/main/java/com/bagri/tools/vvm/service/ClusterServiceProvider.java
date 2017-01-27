@@ -385,10 +385,12 @@ public class ClusterServiceProvider implements ClusterManagementService, SchemaM
 
     	int flag = 0;
         try {
-            return (TabularData) connection.invoke(getSchemaObjectName("DocumentManagement", schemaName), 
+        	TabularData result = (TabularData) connection.invoke(getSchemaObjectName("DocumentManagement", schemaName), 
             		"getPartitionStatistics", new Object[] {flag}, new String[] {int.class.getName()});
+            //LOGGER.info("getPartitionStatistics; got results: " + result.size());
+        	return result;
         } catch (Exception e) {
-            LOGGER.throwing(this.getClass().getName(), "getSchemaTransactionStatistics", e);
+            LOGGER.throwing(this.getClass().getName(), "getSchemaPartitionStatistics", e);
             throw new ServiceException(e);
         }
     }

@@ -1,12 +1,15 @@
 package com.bagri.tools.vvm.ui;
 
 import java.awt.BorderLayout;
+import java.awt.Graphics;
 import java.awt.GridLayout;
+import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.TabularData;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import com.bagri.tools.vvm.event.ApplicationEvent;
@@ -16,6 +19,7 @@ import com.bagri.tools.vvm.service.SchemaManagementService;
 import com.sun.tools.visualvm.charts.ChartFactory;
 import com.sun.tools.visualvm.charts.SimpleXYChartDescriptor;
 import com.sun.tools.visualvm.charts.SimpleXYChartSupport;
+import com.sun.tools.visualvm.charts.xy.SimpleXYChartUtils;
 
 public class SchemaCapacityPanel extends JPanel {
 	
@@ -34,13 +38,13 @@ public class SchemaCapacityPanel extends JPanel {
         this.schemaName = schemaName;
         this.schemaService = schemaService;
         this.eventBus = eventBus;
-        createChart();
         setLayout(new BorderLayout());
-        add(chart.getChart(), BorderLayout.CENTER);        
+        createChart();
+        add(chart.getChart(), BorderLayout.CENTER);
     }
 
     private void createChart() {
-        SimpleXYChartDescriptor descriptor = SimpleXYChartDescriptor.decimal(0, false, VALUES_LIMIT);
+        SimpleXYChartDescriptor descriptor = SimpleXYChartDescriptor.decimal(0, true, 271); //VALUES_LIMIT);
 
         descriptor.addLineFillItems("Number of documents");
         descriptor.addLineFillItems("Heap Cost");
@@ -52,24 +56,29 @@ public class SchemaCapacityPanel extends JPanel {
         descriptor.setYAxisDescription("units");
         chart = ChartFactory.createSimpleXYChart(descriptor);
 
+        int left = 50;
+        int bottom = 50;
+        int width = 10;
+        Graphics graph = chart.getChart().getGraphics();
    		//new VolumeStatsGenerator(chart, schemaService, schemaName).start();
-
         try {
 	    	Schema s = schemaService.getSchema(schemaName);
 	    	if (s != null && s.isActive()) {
 	    		TabularData data = schemaService.getSchemaPartitionStatistics(schemaName);
-	    		Set parts = data.keySet();
-	    		for (Object part: parts) {
-	    			CompositeData cd = data.get((Object[]) part);
+	    		Set<List> keys = (Set<List>) data.keySet();
+	        	for (List key: keys) {
+	        		Object[] index = key.toArray();
+	    			CompositeData cd = data.get(index);
 	    			int partition = (Integer) cd.get("partition");
-	    			int count = (Integer) cd.get("count");
-	    			long cost = (Long) cd.get("cost");
-		    		long[] stats = new long[] {count, cost};
+	    			int count = (Integer) cd.get("active count");
+	    			long cost = (Long) cd.get("content cost");
+		    		long[] stats = new long[] {count, cost, 0};
 		    		chart.addValues(partition, stats);
+		    		//graph.drawRect(left + partition*width, bottom, left + (partition + 1)*width, bottom + count);
 	    		}
 	    	}
         } catch (Exception ex) {
-            //LOGGER.severe(ex.getMessage());
+            LOGGER.severe(ex.getMessage());
         }
     }    
 

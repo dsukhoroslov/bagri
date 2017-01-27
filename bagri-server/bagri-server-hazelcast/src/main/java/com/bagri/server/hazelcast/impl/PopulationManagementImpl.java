@@ -187,17 +187,17 @@ public class PopulationManagementImpl implements PopulationManagement, ManagedSe
 	
 	public Collection<PartitionStatistics> getPartitionStatistics() {
 		MapService svc = nodeEngine.getService(MapService.SERVICE_NAME);
-		MapServiceContext xddCtx = svc.getMapServiceContext();
+		MapServiceContext mapCtx = svc.getMapServiceContext();
 		List<Integer> parts = nodeEngine.getPartitionService().getMemberPartitions(nodeEngine.getThisAddress());
 		String address = nodeEngine.getThisAddress().toString();
 		List<PartitionStatistics> stats = new ArrayList<>(parts.size());
 		for (int part: parts) {
-			RecordStore rs = xddCtx.getRecordStore(part, CN_XDM_DOCUMENT);
-			if (rs != null) {
-				stats.add(new PartitionStatistics(address, part, rs.size(), rs.getHeapCost(), rs.getMapDataStore().notFinishedOperationsCount()));
-			}
+			RecordStore drs = mapCtx.getRecordStore(part, CN_XDM_DOCUMENT);
+			RecordStore crs = mapCtx.getRecordStore(part, CN_XDM_CONTENT);
+			stats.add(new PartitionStatistics(address, part, drs.size(), drs.getHeapCost(), drs.getMapDataStore().notFinishedOperationsCount(), 
+					crs.size(), crs.getHeapCost()));
 		}
-		// TODO: what about content, indexes, etc?
+		// TODO: what about indexes, etc?
 		return stats;
 	}
 	

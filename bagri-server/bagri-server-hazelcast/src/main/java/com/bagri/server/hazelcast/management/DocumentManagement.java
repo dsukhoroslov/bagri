@@ -429,6 +429,7 @@ public class DocumentManagement extends SchemaFeatureManagement {
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "typeSwitch", description = "An int flag regulating stats granulatity. 0 = per partition, 1 = per node, 2 = per machine")})
 	public TabularData getPartitionStatistics(int typeSwitch) {
+		logger.debug("getPartitionStatistics.enter; switch is: {}", typeSwitch);
 		NodeDistributionProvider task = new NodeDistributionProvider();
 		Map<Member, Future<java.util.Collection<PartitionStatistics>>> results = execService.submitToAllMembers(task);
 		TabularData result = null;
@@ -452,6 +453,7 @@ public class DocumentManagement extends SchemaFeatureManagement {
 				throw new RuntimeException(ex.getMessage());
 			}
 		}
+		logger.debug("getPartitionStatistics.exit; result size: {}", result.size());
 		return result;
 	}
 	

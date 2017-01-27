@@ -103,6 +103,7 @@
     	<jetty.version>9.2.18.v20160721</jetty.version>
     	<jersey.version>2.23.2</jersey.version>
     	<swagger.version>1.5.10</swagger.version>
+	<jfreechart.version>1.0.19</jfreechart.version>
 
         <junit.version>4.12</junit.version>
         <hamcrest.version>1.3</hamcrest.version>
@@ -292,7 +293,7 @@
             </dependency>
 
 	    <!-- Dependencies for REST server -->
-        <dependency>
+            <dependency>
 	    	<groupId>org.eclipse.jetty</groupId>
 	    	<artifactId>jetty-server</artifactId>
 	    	<version>${jetty.version}</version>
@@ -363,6 +364,12 @@
                 <groupId>io.swagger</groupId>
                 <artifactId>swagger-jaxrs</artifactId>
                 <version>${swagger.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.jfree</groupId>
+                <artifactId>jfreechart</artifactId>
+                <version>${jfreechart.version}</version>
             </dependency>
 
             <!-- Dependencies for unit tests -->

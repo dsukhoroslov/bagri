@@ -18,17 +18,21 @@ public class PartitionStatistics implements Comparable<PartitionStatistics>, Ide
 	private int count;
 	private long cost;
 	private int queue;
+	private int active;
+	private long concost;
 	
 	public PartitionStatistics() {
 		// ser
 	}
 
-	public PartitionStatistics(String address, int partId, int count, long cost, int queue) {
+	public PartitionStatistics(String address, int partId, int count, long cost, int queue, int active, long concost) {
 		this.address = address;
 		this.partId = partId;
 		this.count = count;
 		this.cost = cost;
 		this.queue = queue;
+		this.active = active;
+		this.concost = concost;
 	}
 	
 	/**
@@ -66,6 +70,20 @@ public class PartitionStatistics implements Comparable<PartitionStatistics>, Ide
 		return queue;
 	}
 
+	/**
+	 * @return the active count
+	 */
+	public int getActiveCount() {
+		return active;
+	}
+
+	/**
+	 * @return the content cost
+	 */
+	public long getContentCost() {
+		return concost;
+	}
+
 	public Map<String, Object> toMap() {
 		Map<String, Object> result = new HashMap<>(5);
    		result.put("address", address);
@@ -73,6 +91,8 @@ public class PartitionStatistics implements Comparable<PartitionStatistics>, Ide
    		result.put("count", count);
    		result.put("cost", cost);
    		result.put("in queue", queue);
+   		result.put("active count", active);
+   		result.put("content cost", concost);
 		return result;
 	}
 
@@ -98,6 +118,8 @@ public class PartitionStatistics implements Comparable<PartitionStatistics>, Ide
 		count = in.readInt();
 		cost = in.readLong();
 		queue = in.readInt();
+		active = in.readInt();
+		concost = in.readLong();
 	}
 
 	@Override
@@ -107,6 +129,8 @@ public class PartitionStatistics implements Comparable<PartitionStatistics>, Ide
 		out.writeInt(count);
 		out.writeLong(cost);
 		out.writeInt(queue);
+		out.writeInt(active);
+		out.writeLong(concost);
 	}
 
 }

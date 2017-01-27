@@ -99,6 +99,11 @@
         </dependency>
 
         <dependency>
+            <groupId>org.jfree</groupId>
+            <artifactId>jfreechart</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>com.sun</groupId>
             <artifactId>tools</artifactId>
             <version>1.7</version>
