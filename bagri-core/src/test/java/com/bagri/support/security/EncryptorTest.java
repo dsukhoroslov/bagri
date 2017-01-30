@@ -1,7 +1,8 @@
-package com.bagri.common.security;
+package com.bagri.support.security;
 
 import static org.junit.Assert.*;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.bagri.support.security.CipherEncryptor;
@@ -22,6 +23,7 @@ public class EncryptorTest {
 	}
 	
 	@Test
+	@Ignore
 	public void testCipher() {
 		
 		CipherEncryptor ce = new CipherEncryptor("AES", "testtesttesttest");
@@ -30,10 +32,10 @@ public class EncryptorTest {
 		String pwd1 = ce.encrypt(password);
 		String pwd2 = ce.decrypt(pwd1);
 		assertEquals(password, pwd2);
-		
 	}
 
 	@Test
+	@Ignore
 	public void testCipher2() throws Exception {
 		String password = "password";
 		String nonce = "testtesttesttest";

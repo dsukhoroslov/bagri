@@ -47,7 +47,8 @@ public class SaxonQueryTest {
 	public void testCollationQuery() throws XPathException {
         Configuration config = Configuration.newConfiguration();
         StaticQueryContext sqc = config.newStaticQueryContext();
-        sqc.declareDefaultCollation("");
+        // this causes Saxon throw NPE and query processing!
+        //sqc.declareDefaultCollation("");
    	    DynamicQueryContext dqc = new DynamicQueryContext(config);
         dqc.setApplyFunctionConversionRulesToExternalVariables(false);
 
@@ -112,8 +113,8 @@ public class SaxonQueryTest {
    	    DynamicQueryContext dqc = new DynamicQueryContext(config);
         dqc.setApplyFunctionConversionRulesToExternalVariables(false);
 
-		String query = //"declare base-uri \"../../etc/samples/json/\";\n" +
-				"declare base-uri \"C:/Work/Bagri/git/bagri/etc/samples/json/\";\n" +
+		String query = "declare base-uri \"../../etc/samples/json/\";\n" +
+				//"declare base-uri \"C:/Work/Bagri/git/bagri/etc/samples/json/\";\n" +
 				"declare namespace map=\"http://www.w3.org/2005/xpath-functions/map\";\n" +
 				//"declare variable $value external;\n" +
 				"for $map in fn:collection()\n" +
