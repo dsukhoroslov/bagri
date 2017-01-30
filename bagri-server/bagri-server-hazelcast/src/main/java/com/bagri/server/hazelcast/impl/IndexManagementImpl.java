@@ -1,9 +1,9 @@
 package com.bagri.server.hazelcast.impl;
 
 import static com.bagri.core.api.TransactionManagement.TX_NO;
-import static com.bagri.core.xquery.XQUtils.getAtomicValue;
-import static com.bagri.core.xquery.XQUtils.getBaseTypeForTypeName;
-import static com.bagri.core.xquery.XQUtils.isStringTypeCompatible;
+import static com.bagri.support.util.XQUtils.getAtomicValue;
+import static com.bagri.support.util.XQUtils.getBaseTypeForTypeName;
+import static com.bagri.support.util.XQUtils.isStringTypeCompatible;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -36,9 +36,9 @@ import com.bagri.core.query.PathBuilder;
 import com.bagri.core.query.PathExpression;
 import com.bagri.core.server.api.IndexManagement;
 import com.bagri.core.system.Index;
-import com.bagri.core.xquery.XQUtils;
 import com.bagri.support.stats.StatisticsEvent;
 import com.bagri.support.util.JMXUtils;
+import com.bagri.support.util.XQUtils;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.ReplicatedMap;

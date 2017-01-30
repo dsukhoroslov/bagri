@@ -1,6 +1,6 @@
 package com.bagri.core.server.api.impl;
 
-import static com.bagri.core.xquery.XQUtils.getAtomicValue;
+import static com.bagri.support.util.XQUtils.getAtomicValue;
 
 import java.util.ArrayList;
 import java.util.List;

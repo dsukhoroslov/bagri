@@ -27,8 +27,8 @@ import com.bagri.core.api.BagriException;
 import com.bagri.support.util.XMLUtils;
 
 import static com.bagri.core.api.TransactionManagement.TX_NO;
+import static com.bagri.support.util.XQUtils.getXQException;
 import static com.bagri.core.api.BagriException.ecTransWrongState;
-import static com.bagri.core.xquery.XQUtils.getXQException;
 import static com.bagri.xqj.BagriXQErrors.ex_connection_closed;
 import static com.bagri.xqj.BagriXQErrors.ex_null_context;
 

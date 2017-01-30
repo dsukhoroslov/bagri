@@ -44,6 +44,27 @@ public class SaxonQueryTest {
 	}	
 	
 	@Test
+	public void testCollationQuery() throws XPathException {
+        Configuration config = Configuration.newConfiguration();
+        StaticQueryContext sqc = config.newStaticQueryContext();
+        sqc.declareDefaultCollation("");
+   	    DynamicQueryContext dqc = new DynamicQueryContext(config);
+        dqc.setApplyFunctionConversionRulesToExternalVariables(false);
+
+		String query = "declare base-uri \"../../etc/samples/xmark/\";\n" +
+				"let $auction := fn:doc(\"auction.xml\") return\n" +
+				"for $i in $auction/site//item\n" +
+				"where contains(string(exactly-one($i/description)), \"gold\")\n" +
+				"return $i/name/text()";
+				
+   	    XQueryExpression xqExp = sqc.compileQuery(query);
+        SequenceIterator itr = xqExp.iterator(dqc);
+        Item item = itr.next();
+   	    assertNotNull(item);
+   	    assertNotNull(item.getStringValue());
+	}
+	
+	@Test
 	public void testMapQuery() throws XPathException {
         Configuration config = Configuration.newConfiguration();
         config.setDefaultCollection("");

@@ -161,16 +161,14 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
     	sqc.setInheritNamespaces(ctx.getCopyNamespacesModeInherit() == COPY_NAMESPACES_MODE_INHERIT);
     	sqc.setPreserveNamespaces(ctx.getCopyNamespacesModePreserve() == COPY_NAMESPACES_MODE_PRESERVE);
     	sqc.declareDefaultCollation(ctx.getDefaultCollation());
-    	// TODO: after set all XMark queries were broken!!! as they have no ns.
     	sqc.setDefaultElementNamespace(ctx.getDefaultElementTypeNamespace());
     	sqc.setDefaultFunctionNamespace(ctx.getDefaultFunctionNamespace());
-        //sqc.setEmptyLeast(emptyLeast);
+        sqc.setEmptyLeast(ctx.getDefaultOrderForEmptySequences() == DEFAULT_ORDER_FOR_EMPTY_SEQUENCES_LEAST);
     	sqc.clearNamespaces();
     	String[] prefixes = ctx.getNamespacePrefixes();
     	for (String prefix: prefixes) {
     		sqc.declareNamespace(prefix, ctx.getNamespaceURI(prefix));
     	}
-    	//ctx.getDefaultOrderForEmptySequences()
     	//ctx.getHoldability()
     	//ctx.getOrderingMode()
     	if (ctx.getQueryLanguageTypeAndVersion() == LANGTYPE_XQUERY) {
@@ -178,6 +176,7 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
     	}
     	//ctx.getQueryTimeout()
     	//ctx.getScrollability()
+        //config.setConfigurationProperty(FeatureKeys.PRE_EVALUATE_DOC_FUNCTION, Boolean.TRUE);
     }
     
     protected void setStaticContext(StaticQueryContext sqc, Properties props) throws XQException {
@@ -211,14 +210,16 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
         }
         value = props.getProperty(pn_xqj_defaultElementTypeNamespace);
         if (value != null) {
-        	// TODO: after set all XMark queries were broken!!! as they have no ns.
         	sqc.setDefaultElementNamespace(value);
         }
         value = props.getProperty(pn_xqj_defaultFunctionNamespace);
         if (value != null) {
         	sqc.setDefaultFunctionNamespace(value);
         }
-        //sqc.setEmptyLeast(emptyLeast);
+    	value = props.getProperty(pn_xqj_defaultOrderForEmptySequences);
+    	if (value != null) {
+    		sqc.setEmptyLeast(String.valueOf(DEFAULT_ORDER_FOR_EMPTY_SEQUENCES_LEAST).equals(value));
+    	}
         value = props.getProperty(pn_xqj_copyNamespacesModeInherit);
         if (value != null) {
         	sqc.setInheritNamespaces(String.valueOf(COPY_NAMESPACES_MODE_INHERIT).equals(value));
@@ -237,7 +238,6 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
         		sqc.declareNamespace(namespace.substring(0, idx), namespace.substring(idx + 1));
         	}
     	}
-    	//props.getProperty(pn_defaultOrderForEmptySequences)
     	//props.getProperty(pn_holdability)
     	//props.getProperty(pn_orderingMode)
         value = props.getProperty(pn_xqj_queryLanguageTypeAndVersion);
@@ -248,36 +248,22 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
     	}
     	//props.getProperty(pn_queryTimeout)
     	//props.getProperty(pn_scrollability)
-   		logger.trace("setStaticContext.exit; built context: {}; base URI: {}", sqc, sqc.getBaseURI());
-    }
-
-    protected Properties contextToProps(XQStaticContext ctx) throws XQException {
-    	Properties result = new Properties();
-    	result.put(pn_xqj_baseURI, ctx.getBaseURI());
-    	result.setProperty(pn_xqj_bindingMode, String.valueOf(ctx.getBindingMode()));
-    	result.setProperty(pn_xqj_boundarySpacePolicy, String.valueOf(ctx.getBoundarySpacePolicy()));
-    	result.setProperty(pn_xqj_constructionMode, String.valueOf(ctx.getConstructionMode()));
-    	//ctx.getContextItemStaticType()
-    	result.setProperty(pn_xqj_copyNamespacesModeInherit, String.valueOf(ctx.getCopyNamespacesModeInherit()));
-    	result.setProperty(pn_xqj_copyNamespacesModePreserve, String.valueOf(ctx.getCopyNamespacesModePreserve()));
-    	result.setProperty(pn_xqj_defaultCollationUri, ctx.getDefaultCollation());
-    	result.setProperty(pn_xqj_defaultElementTypeNamespace, ctx.getDefaultElementTypeNamespace());
-    	result.setProperty(pn_xqj_defaultFunctionNamespace, ctx.getDefaultFunctionNamespace());
-    	if (ctx.getNamespacePrefixes().length > 0) {
-    		StringBuffer namespaces = new StringBuffer();
-    		for (String prefix: ctx.getNamespacePrefixes()) {
-    			namespaces.append(prefix).append(":").append(ctx.getNamespaceURI(prefix));
-    			namespaces.append(" ");
-    		}
-    		result.put(pn_xqj_defaultNamespaces, namespaces.toString());
-    	}
-    	result.setProperty(pn_xqj_defaultOrderForEmptySequences, String.valueOf(ctx.getDefaultOrderForEmptySequences()));
-    	result.setProperty(pn_xqj_holdability, String.valueOf(ctx.getHoldability()));
-    	result.setProperty(pn_xqj_orderingMode, String.valueOf(ctx.getOrderingMode()));
-    	result.setProperty(pn_xqj_queryLanguageTypeAndVersion, String.valueOf(ctx.getQueryLanguageTypeAndVersion()));
-    	result.setProperty(pn_xqj_queryTimeout, String.valueOf(ctx.getQueryTimeout()));
-    	result.setProperty(pn_xqj_scrollability, String.valueOf(ctx.getScrollability()));
-    	return result;
+        if (logger.isTraceEnabled()) {
+        	StringBuilder ns = new StringBuilder(); 
+        	Iterator<String> itr = sqc.iterateDeclaredPrefixes(); 
+        	while (itr.hasNext()) {
+        		String prefix = itr.next();
+        		ns.append(prefix).append(":").append(sqc.getNamespaceForPrefix(prefix)).append(" ");
+        	}
+        	if (ns.length() > 1) {
+        		ns.deleteCharAt(ns.length() - 1);
+        	}
+        	logger.trace("setStaticContext.exit; built context: [baseURI: {}; preserveBoundarySpace: {}; constructionMode: {}; defaultCollationName: {}; " +
+        			"defaultElementTypeNamespace: {}; defaultFunctionNamespace: {}; emptyLeast: {}; inheritNamespaces: {}; " +
+        			"preserveNamespaces: {}; defaultNamespaces: {}; queryLanguageTypeAndVersion: {}]",
+        			sqc.getBaseURI(), sqc.isPreserveBoundarySpace(), sqc.getConstructionMode(), sqc.getDefaultCollationName(), sqc.getDefaultElementNamespace(),
+        			sqc.getDefaultFunctionNamespace(), sqc.isEmptyLeast(), sqc.isInheritNamespaces(), sqc.isPreserveNamespaces(), ns.toString(), sqc.getLanguageVersion());
+        }
     }
 
     @Override

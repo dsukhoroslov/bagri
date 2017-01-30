@@ -30,8 +30,8 @@ import org.w3c.dom.ProcessingInstruction;
 import org.w3c.dom.Text;
 
 import com.bagri.core.system.DataType;
-import com.bagri.core.xquery.XQUtils;
 import com.bagri.support.util.XMLUtils;
+import com.bagri.support.util.XQUtils;
 
 import net.sf.saxon.Configuration;
 import net.sf.saxon.dom.DOMObjectModel;

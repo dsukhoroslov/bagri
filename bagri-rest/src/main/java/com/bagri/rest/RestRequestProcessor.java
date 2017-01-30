@@ -1,7 +1,7 @@
 package com.bagri.rest;
 
-import static com.bagri.core.xquery.XQUtils.getAtomicValue;
 import static com.bagri.rest.RestConstants.*;
+import static com.bagri.support.util.XQUtils.getAtomicValue;
 
 import java.io.BufferedWriter;
 import java.io.IOException;

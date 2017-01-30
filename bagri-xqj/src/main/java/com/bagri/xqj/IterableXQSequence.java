@@ -1,6 +1,6 @@
 package com.bagri.xqj;
 
-import static com.bagri.core.xquery.XQUtils.*;
+import static com.bagri.support.util.XQUtils.*;
 import static com.bagri.xqj.BagriXQErrors.ex_sequence_closed;
 import static com.bagri.xqj.BagriXQErrors.ex_sequence_not_scrollable;
 

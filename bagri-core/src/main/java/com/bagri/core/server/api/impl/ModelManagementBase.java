@@ -46,7 +46,7 @@ import com.bagri.core.server.api.ModelManagement;
 import com.bagri.support.idgen.IdGenerator;
 
 import static com.bagri.core.Constants.xs_ns;
-import static com.bagri.core.xquery.XQUtils.getBaseTypeForTypeName;
+import static com.bagri.support.util.XQUtils.getBaseTypeForTypeName;
 
 /**
  * Base implementation for XDM Model Management interface. Very close to its client ancestor class. 

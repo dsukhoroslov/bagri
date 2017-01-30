@@ -1,7 +1,7 @@
 package com.bagri.server.hazelcast.management;
 
 import static com.bagri.core.server.api.CacheConstants.*;
-import static com.bagri.core.xquery.XQUtils.getTypeName;
+import static com.bagri.support.util.XQUtils.getTypeName;
 
 import java.util.Arrays;
 import java.util.Collection;

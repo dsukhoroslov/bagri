@@ -4,8 +4,8 @@ import static com.bagri.core.Constants.pn_document_collections;
 import static com.bagri.core.Constants.pn_document_data_format;
 import static com.bagri.core.Constants.xs_ns;
 import static com.bagri.core.Constants.xs_prefix;
-import static com.bagri.core.xquery.XQUtils.getBaseTypeForTypeName;
 import static com.bagri.support.util.FileUtils.readTextFile;
+import static com.bagri.support.util.XQUtils.getBaseTypeForTypeName;
 
 import java.io.IOException;
 import java.util.ArrayList;
