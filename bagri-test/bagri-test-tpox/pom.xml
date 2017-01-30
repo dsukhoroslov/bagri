@@ -4,13 +4,18 @@
     <parent>
         <groupId>com.bagridb</groupId>
         <artifactId>bagri-test</artifactId>
-        <version>1.1.0-EA2</version>
+        <version>1.1.0</version>
         <relativePath>..</relativePath>
     </parent>
 
     <artifactId>bagri-test-tpox</artifactId>
     <name>bagri-test-tpox</name>
     <description>Bagri TPoX Data Loader</description>
+
+    <properties>
+	<marklogic.xcc.version>8.0.2</marklogic.xcc.version>
+	<marklogic.client.version>3.0.2</marklogic.client.version>
+    </properties>
 
     <dependencies>
 
@@ -36,7 +41,13 @@
         <dependency>
 	    <groupId>com.marklogic</groupId>
 	    <artifactId>marklogic-xcc</artifactId>
-        </dependency>
+	    <version>${marklogic.xcc.version}</version>
+	</dependency>
+	<!--dependency>
+	    <groupId>com.marklogic</groupId>
+	    <artifactId>java-client-api</artifactId>
+	    <version>${marklogic.client.version}</version>
+	</dependency-->
 
         <!-- TPoX benchmark framework -->
         <dependency>
@@ -149,5 +160,14 @@
             </build>
         </profile>
     </profiles>
+
+    <repositories>
+        <!-- for MarkLogic XCC client jar -->
+	<repository>
+      	    <id>MarkLogic-releases</id>
+      	    <name>MarkLogic Releases</name>
+      	    <url>http://developer.marklogic.com/maven2</url>
+  	</repository>
+    </repositories>
 
 </project>
