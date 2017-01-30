@@ -197,7 +197,7 @@ public class PopulationManagementImpl implements PopulationManagement, ManagedSe
 			stats.add(new PartitionStatistics(address, part, drs.size(), drs.getHeapCost(), drs.getMapDataStore().notFinishedOperationsCount(), 
 					crs.size(), crs.getHeapCost()));
 		}
-		// TODO: what about indexes, etc?
+		// TODO: what about elements, indexes, etc?
 		return stats;
 	}
 	

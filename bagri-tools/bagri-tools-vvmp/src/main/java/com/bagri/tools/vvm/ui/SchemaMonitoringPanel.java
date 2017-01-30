@@ -43,10 +43,8 @@ public class SchemaMonitoringPanel extends JPanel {
 
         descriptor.addLineFillItems("Number of documents");
         descriptor.addLineFillItems("Number of elements");
-        //descriptor.addLineFillItems("Consumed size");
         descriptor.addLineFillItems("Open transactions");
         
-        //descriptor.setDetailsItems(new String[]{"Detail 1", "Detail 2", "Detail 3"});
         descriptor.setChartTitle("<html><font size='+1'><b>" + schemaName + " Statistics</b></font></html>");
         descriptor.setXAxisDescription("time");
         descriptor.setYAxisDescription("units");
@@ -76,9 +74,6 @@ public class SchemaMonitoringPanel extends JPanel {
         	    		long[] tValues = service.getSchemaTransactionStatistics(schema);
         	    		long[] stats = new long[] {vValues[0], vValues[1], tValues[1]};
         	    		chart.addValues(System.currentTimeMillis(), stats);
-        	    		//chart.updateDetails(new String[]{1000 * Math.random() + "",
-        	    		//            1000 * Math.random() + "",
-        	    		//            1000 * Math.random() + ""});
         	    	}
                     Thread.sleep(SLEEP_TIME);
                 } catch (Exception ex) {
