@@ -23,9 +23,11 @@ WORKDIR /bagri-$BG_VERSION/bin
 #jmx_port=$(( 3431 + $nodeNum ))
 
 ENV JAVA_OPTS -Xms1g -Xmx2g -XX:NewSize=64m -XX:MaxNewSize=64m \
--XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:+ExplicitGCInvokesConcurrent -XX:+UseCMSInitiatingOccupancyOnly \
+-XX:+UseParNewGC -XX:+UseConcMarkSweepGC \ 
+-XX:+ExplicitGCInvokesConcurrent -XX:+UseCMSInitiatingOccupancyOnly \
 -XX:CMSInitiatingOccupancyFraction=80 -XX:+CMSScavengeBeforeRemark \
--XX:+PrintGC -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+HeapDumpOnOutOfMemoryError \
+-XX:+PrintGC -XX:+PrintGCDetails -XX:+PrintGCDateStamps \
+-XX:+HeapDumpOnOutOfMemoryError \
 -XX:+UseGCLogFileRotation -XX:NumberOfGCLogFiles=10 -XX:GCLogFileSize=256M \
 -Xloggc:../logs/$NODE_NAME/gc/gc.$NODE_NUM.log \
 -Dnode.logdir=../logs/$NODE_NAME \
@@ -40,7 +42,9 @@ ENV JAVA_OPTS -Xms1g -Xmx2g -XX:NewSize=64m -XX:MaxNewSize=64m \
 -Dbdb.access.filename=../config/access.xml \
 -Dbdb.node.instance=$NODE_NUM \
 -Dcom.sun.management.jmxremote \
+-Dcom.sun.management.jmxremote.local.only=false \
 -Dcom.sun.management.jmxremote.port=3431 \ 
+-Dcom.sun.management.jmxremote.rmi.port=3431 \
 -Dcom.sun.management.jmxremote.authenticate=false \
 -Dcom.sun.management.jmxremote.ssl=false \
 -Djava.rmi.server.hostname=192.168.99.100
