@@ -27,8 +27,8 @@
     <url>http://www.bagridb.com</url>
 
     <organization>
-      <name>Project Bagri</name>
-      <url>http://bagridb.com</url>
+        <name>Project Bagri</name>
+        <url>http://bagridb.com</url>
     </organization>
     <developers>
         <developer>
@@ -215,21 +215,21 @@
                 </exclusions>
             </dependency>
 
-	    <dependency>
-	    	<groupId>com.thoughtworks.xstream</groupId>
-	    	<artifactId>xstream</artifactId>
+            <dependency>
+                <groupId>com.thoughtworks.xstream</groupId>
+                <artifactId>xstream</artifactId>
                 <version>${xstream.version}</version>
                 <exclusions>
                     <exclusion>
-			<groupId>xmlpull</groupId>
-			<artifactId>xmlpull</artifactId>
+                        <groupId>xmlpull</groupId>
+                        <artifactId>xmlpull</artifactId>
                     </exclusion>
                     <exclusion>
-			<groupId>xpp3</groupId>
-			<artifactId>xpp3_min</artifactId>
+                        <groupId>xpp3</groupId>
+                        <artifactId>xpp3_min</artifactId>
                     </exclusion>
                 </exclusions>
-	    </dependency>
+            </dependency>
             <dependency>
                 <groupId>xerces</groupId>
                 <artifactId>xercesImpl</artifactId>
@@ -245,16 +245,16 @@
                 <artifactId>Saxon-HE</artifactId>
                 <version>${saxon.version}</version>
             </dependency>
-	    <dependency>
-		<groupId>javax.json</groupId>
-		<artifactId>javax.json-api</artifactId>
-		<version>${json.version}</version>
-	    </dependency>
-	    <dependency>
-		<groupId>org.glassfish</groupId>
-		<artifactId>javax.json</artifactId>
-		<version>${json.ri.version}</version>
-	    </dependency>
+            <dependency>
+                <groupId>javax.json</groupId>
+                <artifactId>javax.json-api</artifactId>
+                <version>${json.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish</groupId>
+                <artifactId>javax.json</artifactId>
+                <version>${json.ri.version}</version>
+            </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-core</artifactId>
@@ -288,71 +288,71 @@
                 <version>${janino.version}</version>
             </dependency>
 
-	    <!-- Dependencies for REST server -->
-        <dependency>
-	    	<groupId>org.eclipse.jetty</groupId>
-	    	<artifactId>jetty-server</artifactId>
-	    	<version>${jetty.version}</version>
-	    </dependency>
-	    <dependency>
-	    	<groupId>org.eclipse.jetty</groupId>
-	    	<artifactId>jetty-servlet</artifactId>
-	    	<version>${jetty.version}</version>
-	    </dependency>
-	    <dependency>
-	    	<groupId>org.eclipse.jetty</groupId>
-	    	<artifactId>jetty-util</artifactId>
-	    	<version>${jetty.version}</version>
-	    </dependency>
-	    <dependency>
-	    	<groupId>org.eclipse.jetty</groupId>
-	    	<artifactId>jetty-jmx</artifactId>
-	    	<version>${jetty.version}</version>
-	    </dependency>
-	    <dependency>
-	    	<groupId>org.glassfish.jersey.core</groupId>
-	    	<artifactId>jersey-server</artifactId>
-	    	<version>${jersey.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.glassfish.hk2</groupId>
-                    <artifactId>osgi-resource-locator</artifactId>
-                </exclusion>
-            </exclusions>
-	    </dependency>
-	    <dependency>
-		    <groupId>org.glassfish.jersey.core</groupId>
-    		<artifactId>jersey-client</artifactId>
-    		<version>${jersey.version}</version>
-	    </dependency>
-	    <dependency>
-		    <groupId>org.glassfish.jersey.containers</groupId>
-		    <artifactId>jersey-container-servlet</artifactId>
-    		<version>${jersey.version}</version>
-		    <scope>runtime</scope>
-	    </dependency>
-	    <dependency>
-	    	<groupId>org.glassfish.jersey.containers</groupId>
-	    	<artifactId>jersey-container-servlet-core</artifactId>
-	    	<version>${jersey.version}</version>
-	    </dependency>
-	    <dependency>
-	    	<groupId>org.glassfish.jersey.containers</groupId>
-	    	<artifactId>jersey-container-jetty-http</artifactId>
-	    	<version>${jersey.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.eclipse.jetty</groupId>
-                    <artifactId>jetty-util</artifactId>
-                </exclusion>
-                <!--exclusion>
-                    <groupId>org.eclipse.jetty</groupId>
-                    <artifactId>jetty-continuation</artifactId>
-                </exclusion-->
-            </exclusions>
-	    </dependency>
+            <!-- Dependencies for REST server -->
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-server</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-servlet</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-util</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-jmx</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.jersey.core</groupId>
+                <artifactId>jersey-server</artifactId>
+                <version>${jersey.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.glassfish.hk2</groupId>
+                        <artifactId>osgi-resource-locator</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.jersey.core</groupId>
+                <artifactId>jersey-client</artifactId>
+                <version>${jersey.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.jersey.containers</groupId>
+                <artifactId>jersey-container-servlet</artifactId>
+                <version>${jersey.version}</version>
+                <scope>runtime</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.jersey.containers</groupId>
+                <artifactId>jersey-container-servlet-core</artifactId>
+                <version>${jersey.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.jersey.containers</groupId>
+                <artifactId>jersey-container-jetty-http</artifactId>
+                <version>${jersey.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.eclipse.jetty</groupId>
+                        <artifactId>jetty-util</artifactId>
+                    </exclusion>
+                    <!--exclusion>
+                        <groupId>org.eclipse.jetty</groupId>
+                        <artifactId>jetty-continuation</artifactId>
+                    </exclusion-->
+                </exclusions>
+            </dependency>
 	        
-	        <dependency>
+            <dependency>
             	<groupId>org.glassfish.jersey.media</groupId>
             	<artifactId>jersey-media-json-jackson</artifactId>
             	<version>${jersey.version}</version>
