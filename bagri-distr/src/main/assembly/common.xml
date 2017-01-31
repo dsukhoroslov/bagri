@@ -127,6 +127,12 @@
             </includes>
         </fileSet>
 
+        <!--release notes-->
+        <fileSet>
+            <directory>src/main/docs</directory>
+            <outputDirectory>/</outputDirectory>
+        </fileSet>
+
         <!--all the dependent modules javadocs generated-->
         <fileSet>
             <directory>${project.build.directory}/apidocs</directory>
