@@ -15,24 +15,37 @@ public class PartitionStatistics implements Comparable<PartitionStatistics>, Ide
 
 	private String address;
 	private int partId;
-	private int count;
-	private long cost;
-	private int queue;
-	private int active;
-	private long concost;
+	private int docCount;
+	private long docCost;
+	private int docInQueue;
+	private int docActive;
+	private long conCost;
+	private int eltCount;
+	private long eltCost; 
+	private int idxCount;
+	private long idxCost;
+	private int resCount;
+	private long resCost;
 	
 	public PartitionStatistics() {
 		// ser
 	}
 
-	public PartitionStatistics(String address, int partId, int count, long cost, int queue, int active, long concost) {
+	public PartitionStatistics(String address, int partId, int docCount, long docCost, int docInQueue, int docActive, long conCost, 
+			int eltCount, long eltCost, int idxCount, long idxCost, int resCount, long resCost) {
 		this.address = address;
 		this.partId = partId;
-		this.count = count;
-		this.cost = cost;
-		this.queue = queue;
-		this.active = active;
-		this.concost = concost;
+		this.docCount = docCount;
+		this.docCost = docCost;
+		this.docInQueue = docInQueue;
+		this.docActive = docActive;
+		this.conCost = conCost;
+		this.eltCount = eltCount;
+		this.eltCost = eltCost;
+		this.idxCount = idxCount;
+		this.idxCost = idxCost;
+		this.resCount = resCount;
+		this.resCost = resCost;
 	}
 	
 	/**
@@ -50,49 +63,97 @@ public class PartitionStatistics implements Comparable<PartitionStatistics>, Ide
 	}
 
 	/**
-	 * @return the count
+	 * @return the document count
 	 */
-	public int getCount() {
-		return count;
+	public int getDocumentCount() {
+		return docCount;
 	}
 
 	/**
-	 * @return the cost
+	 * @return the document cost
 	 */
-	public long getCost() {
-		return cost;
+	public long getDocumentCost() {
+		return docCost;
 	}
 
 	/**
-	 * @return the queue
+	 * @return the updating document count
 	 */
-	public int getQueue() {
-		return queue;
+	public int getQueuedDocumentCount() {
+		return docInQueue;
 	}
 
 	/**
 	 * @return the active count
 	 */
-	public int getActiveCount() {
-		return active;
+	public int getActiveDocumentCount() {
+		return docActive;
 	}
 
 	/**
 	 * @return the content cost
 	 */
 	public long getContentCost() {
-		return concost;
+		return conCost;
+	}
+
+	/**
+	 * @return the element count
+	 */
+	public int getElementCount() {
+		return eltCount;
+	}
+
+	/**
+	 * @return the element cost
+	 */
+	public long getElementCost() {
+		return eltCost;
+	}
+
+	/**
+	 * @return the index count
+	 */
+	public int getIndexCount() {
+		return idxCount;
+	}
+
+	/**
+	 * @return the index cost
+	 */
+	public long getIndexCost() {
+		return idxCost;
+	}
+
+	/**
+	 * @return the result count
+	 */
+	public int getResultCount() {
+		return resCount;
+	}
+
+	/**
+	 * @return the result cost
+	 */
+	public long getResultCost() {
+		return resCost;
 	}
 
 	public Map<String, Object> toMap() {
 		Map<String, Object> result = new HashMap<>(5);
    		result.put("address", address);
    		result.put("partition", partId);
-   		result.put("count", count);
-   		result.put("cost", cost);
-   		result.put("in queue", queue);
-   		result.put("active count", active);
-   		result.put("content cost", concost);
+   		result.put("document count", docCount);
+   		result.put("document cost", docCost);
+   		result.put("in queue", docInQueue);
+   		result.put("active count", docActive);
+   		result.put("content cost", conCost);
+   		result.put("element count", eltCount);
+   		result.put("element cost", eltCost);
+   		result.put("index count", idxCount);
+   		result.put("index cost", idxCost);
+   		result.put("result count", resCount);
+   		result.put("result cost", resCost);
 		return result;
 	}
 
@@ -115,22 +176,34 @@ public class PartitionStatistics implements Comparable<PartitionStatistics>, Ide
 	public void readData(ObjectDataInput in) throws IOException {
 		address = in.readUTF();
 		partId = in.readInt();
-		count = in.readInt();
-		cost = in.readLong();
-		queue = in.readInt();
-		active = in.readInt();
-		concost = in.readLong();
+		docCount = in.readInt();
+		docCost = in.readLong();
+		docInQueue = in.readInt();
+		docActive = in.readInt();
+		conCost = in.readLong();
+		eltCount = in.readInt();
+		eltCost = in.readLong();
+		idxCount = in.readInt();
+		idxCost = in.readLong();
+		resCount = in.readInt();
+		resCost = in.readLong();
 	}
 
 	@Override
 	public void writeData(ObjectDataOutput out) throws IOException {
 		out.writeUTF(address);
 		out.writeInt(partId);
-		out.writeInt(count);
-		out.writeLong(cost);
-		out.writeInt(queue);
-		out.writeInt(active);
-		out.writeLong(concost);
+		out.writeInt(docCount);
+		out.writeLong(docCost);
+		out.writeInt(docInQueue);
+		out.writeInt(docActive);
+		out.writeLong(conCost);
+		out.writeInt(eltCount);
+		out.writeLong(eltCost);
+		out.writeInt(idxCount);
+		out.writeLong(idxCost);
+		out.writeInt(resCount);
+		out.writeLong(resCost);
 	}
 
 }

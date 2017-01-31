@@ -1,13 +1,17 @@
 package com.bagri.tools.vvm.ui;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.TabularData;
+import javax.swing.JButton;
 import javax.swing.JPanel;
 
 import com.bagri.tools.vvm.event.ApplicationEvent;
@@ -31,32 +35,51 @@ public class SchemaCapacityPanel extends JPanel {
     private SimpleXYChartSupport chart;
 
     public SchemaCapacityPanel(String schemaName, SchemaManagementService schemaService, EventBus<ApplicationEvent> eventBus) {
-        super(new GridLayout(1, 1));
+        super(new BorderLayout());
         this.schemaName = schemaName;
         this.schemaService = schemaService;
         this.eventBus = eventBus;
-        setLayout(new BorderLayout());
+        
+        JPanel header = new JPanel();
+        JButton refresh = new JButton("Refresh");
+        refresh.setToolTipText("Reload chart...");
+        refresh.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                onRefresh();
+            }
+        });
+        header.add(refresh);
+        header.setPreferredSize(new Dimension(500, 50));
         createChart();
+        header.setBackground(chart.getChart().getBackground());
+        add(header, BorderLayout.PAGE_START);
         add(chart.getChart(), BorderLayout.CENTER);
     }
 
     private void createChart() {
         SimpleXYChartDescriptor descriptor = SimpleXYChartDescriptor.decimal(0, true, VALUES_LIMIT);
 
-        descriptor.addLineFillItems("Heap Cost");
-        descriptor.addLineFillItems("Number of documents");
-        descriptor.addLineFillItems("Documents in queue");
+        descriptor.addLineFillItems("Elements cost");
+        descriptor.addLineFillItems("Content cost");
+        descriptor.addLineFillItems("Results cost");
+        descriptor.addLineFillItems("Indexes cost");
+        descriptor.addLineFillItems("Documents cost");
         
         descriptor.setChartTitle("<html><font size='+1'><b>" + schemaName + " Capacity</b></font></html>");
         descriptor.setXAxisDescription("partitions");
-        descriptor.setYAxisDescription("cost (Kb)/count (docs)");
-        descriptor.setDetailsItems(new String[] {"Total Cost", "Total Count", "Total in Queue"});
+        descriptor.setYAxisDescription("cost (Kb)");
+        descriptor.setDetailsItems(new String[] {"Total elements cost", "Total content cost", "Total results cost", 
+        		"Total indices cost", "Total documents cost", "Overall cost"});
         chart = ChartFactory.createSimpleXYChart(descriptor);
         //chart.setZoomingEnabled(true);
-
-   		new CapacityStatsProvider(chart, schemaService, schemaName).start();
+        
+        onRefresh();
     }    
 
+    private void onRefresh() {
+   		new CapacityStatsProvider(chart, schemaService, schemaName).start();
+    }
 
     private static class CapacityStatsProvider extends Thread {
 
@@ -73,36 +96,46 @@ public class SchemaCapacityPanel extends JPanel {
         public void run() {
         	// do it once..
             //while (true) {
-                int totalCount = 0;
-                long totalCost = 0;
-                int totalQueue = 0;
                 try {
         	    	Schema s = service.getSchema(schema);
         	    	if (s != null && s.isActive()) {
+                        long totalECost = 0;
+                        long totalCCost = 0;
+                        long totalRCost = 0;
+                        long totalICost = 0;
+                        long totalDCost = 0;
         	    		TabularData data = service.getSchemaPartitionStatistics(schema);
         	    		Set<List> keys = (Set<List>) data.keySet();
         	        	for (List key: keys) {
         	        		Object[] index = key.toArray();
         	    			CompositeData cd = data.get(index);
         	    			int partition = (Integer) cd.get("partition");
-        	    			long cost = (Long) cd.get("content cost");
-        	    			cost = new java.math.BigDecimal(cost).movePointLeft(3).longValue();
-        	    			totalCost += cost;
-        	    			int count = (Integer) cd.get("active count");
-        	    			totalCount += count;
-        	    			int queue = (Integer) cd.get("in queue");
-        	    			totalQueue += queue;
-        		    		long[] stats = new long[] {cost, count, queue};
-        		    		chart.addValues(partition, stats);
+        	    			long eCost = (Long) cd.get("element cost");
+        	    			eCost = new java.math.BigDecimal(eCost).movePointLeft(3).longValue();
+        	    			totalECost += eCost;
+        	    			long cCost = (Long) cd.get("content cost");
+        	    			cCost = new java.math.BigDecimal(cCost).movePointLeft(3).longValue();
+        	    			totalCCost += cCost;
+        	    			long rCost = (Long) cd.get("result cost");
+        	    			rCost = new java.math.BigDecimal(rCost).movePointLeft(3).longValue();
+        	    			totalRCost += rCost;
+        	    			long iCost = (Long) cd.get("index cost");
+        	    			iCost = new java.math.BigDecimal(iCost).movePointLeft(3).longValue();
+        	    			totalICost += iCost;
+        	    			long dCost = (Long) cd.get("document cost");
+        	    			dCost = new java.math.BigDecimal(dCost).movePointLeft(3).longValue();
+        	    			totalDCost += dCost;
+        		    		chart.addValues(partition, new long[] {eCost, cCost, rCost, iCost, dCost});
         	    		}
-        		    	chart.updateDetails(new String[] {chart.formatDecimal(totalCost), chart.formatDecimal(totalCount), chart.formatDecimal(totalQueue)});
+        	        	long overallCost = totalECost + totalCCost + totalRCost + totalICost + totalDCost; 
+        		    	chart.updateDetails(new String[] {chart.formatDecimal(totalECost), chart.formatDecimal(totalCCost), chart.formatDecimal(totalRCost),
+        		    			chart.formatDecimal(totalICost), chart.formatDecimal(totalDCost), chart.formatDecimal(overallCost)});
         	    	}
                 } catch (Exception ex) {
                     LOGGER.severe(ex.getMessage());
                 }
             //}
         }
-
     }
     
 }

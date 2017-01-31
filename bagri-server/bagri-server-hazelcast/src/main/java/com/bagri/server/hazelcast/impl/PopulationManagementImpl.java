@@ -194,10 +194,12 @@ public class PopulationManagementImpl implements PopulationManagement, ManagedSe
 		for (int part: parts) {
 			RecordStore drs = mapCtx.getRecordStore(part, CN_XDM_DOCUMENT);
 			RecordStore crs = mapCtx.getRecordStore(part, CN_XDM_CONTENT);
+			RecordStore ers = mapCtx.getRecordStore(part, CN_XDM_ELEMENT);
+			RecordStore irs = mapCtx.getRecordStore(part, CN_XDM_INDEX);
+			RecordStore rrs = mapCtx.getRecordStore(part, CN_XDM_RESULT); 
 			stats.add(new PartitionStatistics(address, part, drs.size(), drs.getHeapCost(), drs.getMapDataStore().notFinishedOperationsCount(), 
-					crs.size(), crs.getHeapCost()));
+					crs.size(), crs.getHeapCost(), ers.size(), ers.getHeapCost(), irs.size(), irs.getHeapCost(), rrs.size(), rrs.getHeapCost()));
 		}
-		// TODO: what about elements, indexes, etc?
 		return stats;
 	}
 	
