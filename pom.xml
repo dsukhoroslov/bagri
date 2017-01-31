@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright (c) 2013-2016, Project Bagri. All Rights Reserved.
+  ~ Copyright (c) 2013-2017, Project Bagri. All Rights Reserved.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -115,12 +115,8 @@
         <antlr.version>3.2</antlr.version>
         <jcache.version>1.0.0</jcache.version>
         <hazelcast.version>3.7.5</hazelcast.version>
-        <!--hazelcast.version>3.6.4</hazelcast.version-->
         <coherence.version>3.7.1.10</coherence.version>
-        <!--coherence.version>12.1.2-0-0</coherence.version-->
         <coherence-common.version>11.1.0</coherence-common.version>
-        <!--coherence-common.version>12.0.1-SNAPSHOT</coherence-common.version-->
-        <!--coherence-spring.version>1.0.0</coherence-spring.version-->
 
         <!--DEFAULT MAVEN PLUGINS OVERRIDEN VERSIONS-->
         <!--must be greater than 2.2 cause of bug fixes-->
@@ -131,12 +127,12 @@
         <maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
         <maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
         <maven-surefire-plugin.version>2.18.1</maven-surefire-plugin.version>
-	<maven-release-plugin.version>2.5.3</maven-release-plugin.version>
-	<maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
+        <maven-release-plugin.version>2.5.3</maven-release-plugin.version>
+        <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
         <maven-checkstyle-plugin.version>2.17</maven-checkstyle-plugin.version>
-	<maven-project-info-reports-plugin.version>2.8.1</maven-project-info-reports-plugin.version>
+        <maven-project-info-reports-plugin.version>2.8.1</maven-project-info-reports-plugin.version>
         <cobertura-maven-plugin.version>2.7</cobertura-maven-plugin.version>
-	<exec-maven-plugin.version>1.4.0</exec-maven-plugin.version>
+        <exec-maven-plugin.version>1.4.0</exec-maven-plugin.version>
         <findbugs-maven-plugin.version>3.0.0</findbugs-maven-plugin.version>
         <nexus-maven-plugin.version>1.6.7</nexus-maven-plugin.version>
         <!-- Reporting cfg -->
@@ -213,21 +209,21 @@
                 </exclusions>
             </dependency>
 
-	    <dependency>
-	    	<groupId>com.thoughtworks.xstream</groupId>
-	    	<artifactId>xstream</artifactId>
+            <dependency>
+                <groupId>com.thoughtworks.xstream</groupId>
+                <artifactId>xstream</artifactId>
                 <version>${xstream.version}</version>
                 <exclusions>
                     <exclusion>
-			<groupId>xmlpull</groupId>
-			<artifactId>xmlpull</artifactId>
+                        <groupId>xmlpull</groupId>
+                        <artifactId>xmlpull</artifactId>
                     </exclusion>
                     <exclusion>
-			<groupId>xpp3</groupId>
-			<artifactId>xpp3_min</artifactId>
+                        <groupId>xpp3</groupId>
+                        <artifactId>xpp3_min</artifactId>
                     </exclusion>
                 </exclusions>
-	    </dependency>
+            </dependency>
             <dependency>
                 <groupId>xerces</groupId>
                 <artifactId>xercesImpl</artifactId>
@@ -243,16 +239,16 @@
                 <artifactId>Saxon-HE</artifactId>
                 <version>${saxon.version}</version>
             </dependency>
-	    <dependency>
-		<groupId>javax.json</groupId>
-		<artifactId>javax.json-api</artifactId>
-		<version>${json.version}</version>
-	    </dependency>
-	    <dependency>
-		<groupId>org.glassfish</groupId>
-		<artifactId>javax.json</artifactId>
-		<version>${json.ri.version}</version>
-	    </dependency>
+            <dependency>
+                <groupId>javax.json</groupId>
+                <artifactId>javax.json-api</artifactId>
+                <version>${json.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish</groupId>
+                <artifactId>javax.json</artifactId>
+                <version>${json.ri.version}</version>
+            </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-core</artifactId>
@@ -286,58 +282,58 @@
                 <version>${janino.version}</version>
             </dependency>
 
-	    <!-- Dependencies for REST server -->
-    	    <dependency>
-	    	<groupId>org.eclipse.jetty</groupId>
-	    	<artifactId>jetty-server</artifactId>
-	    	<version>${jetty.version}</version>
-	    </dependency>
-	    <dependency>
-	    	<groupId>org.eclipse.jetty</groupId>
-	    	<artifactId>jetty-servlet</artifactId>
-	    	<version>${jetty.version}</version>
-	    </dependency>
-	    <dependency>
-	    	<groupId>org.eclipse.jetty</groupId>
-	    	<artifactId>jetty-util</artifactId>
-	    	<version>${jetty.version}</version>
-	    </dependency>
-	    <dependency>
-	    	<groupId>org.eclipse.jetty</groupId>
-	    	<artifactId>jetty-jmx</artifactId>
-	    	<version>${jetty.version}</version>
-	    </dependency>
-	    <dependency>
-	    	<groupId>org.glassfish.jersey.core</groupId>
-	    	<artifactId>jersey-server</artifactId>
-	    	<version>${jersey.version}</version>
+            <!-- Dependencies for REST server -->
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-server</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-servlet</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-util</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-jmx</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.jersey.core</groupId>
+                <artifactId>jersey-server</artifactId>
+                <version>${jersey.version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.glassfish.hk2</groupId>
                         <artifactId>osgi-resource-locator</artifactId>
                     </exclusion>
                 </exclusions>
-	    </dependency>
-	    <dependency>
-		<groupId>org.glassfish.jersey.core</groupId>
-    		<artifactId>jersey-client</artifactId>
-    		<version>${jersey.version}</version>
-	    </dependency>
-	    <dependency>
-		<groupId>org.glassfish.jersey.containers</groupId>
-		<artifactId>jersey-container-servlet</artifactId>
-    		<version>${jersey.version}</version>
-		<scope>runtime</scope>
-	    </dependency>
-	    <dependency>
-	    	<groupId>org.glassfish.jersey.containers</groupId>
-	    	<artifactId>jersey-container-servlet-core</artifactId>
-	    	<version>${jersey.version}</version>
-	    </dependency>
-	    <dependency>
-	    	<groupId>org.glassfish.jersey.containers</groupId>
-	    	<artifactId>jersey-container-jetty-http</artifactId>
-	    	<version>${jersey.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.jersey.core</groupId>
+                <artifactId>jersey-client</artifactId>
+                <version>${jersey.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.jersey.containers</groupId>
+                <artifactId>jersey-container-servlet</artifactId>
+                <version>${jersey.version}</version>
+                <scope>runtime</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.jersey.containers</groupId>
+                <artifactId>jersey-container-servlet-core</artifactId>
+                <version>${jersey.version}</version>
+            </dependency>
+            <dependency>
+	            <groupId>org.glassfish.jersey.containers</groupId>
+	            <artifactId>jersey-container-jetty-http</artifactId>
+	    	    <version>${jersey.version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.eclipse.jetty</groupId>
@@ -348,11 +344,11 @@
                         <artifactId>jetty-continuation</artifactId>
                     </exclusion-->
                 </exclusions>
-	    </dependency>
-	    <dependency>
-            	<groupId>org.glassfish.jersey.media</groupId>
-            	<artifactId>jersey-media-json-jackson</artifactId>
-            	<version>${jersey.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.jersey.media</groupId>
+                <artifactId>jersey-media-json-jackson</artifactId>
+                <version>${jersey.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.swagger</groupId>
@@ -423,11 +419,11 @@
                     <version>${maven-assembly-plugin.version}</version>
                 </plugin>
                 <plugin>
-		    <groupId>org.codehaus.mojo</groupId>
+                    <groupId>org.codehaus.mojo</groupId>
                     <artifactId>exec-maven-plugin</artifactId>
                     <version>${exec-maven-plugin.version}</version>
                 </plugin>
-	    </plugins>
+            </plugins>
         </pluginManagement>
 
         <plugins>
@@ -495,18 +491,18 @@
                     <checkModificationExcludes>
                         <checkModificationExclude>**\workload_properties.xsd</checkModificationExclude>
                     </checkModificationExcludes>
-		    <pushChanges>false</pushChanges>
+	            <pushChanges>false</pushChanges>
                 </configuration>
             </plugin-->
 
-	    <plugin>
-	        <groupId>org.apache.maven.plugins</groupId>
-	        <artifactId>maven-deploy-plugin</artifactId>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
                 <version>${maven-deploy-plugin.version}</version>
-	        <configuration>
-        	    <skip>true</skip>
-	        </configuration>
-	    </plugin>
+                <configuration>
+        	        <skip>true</skip>
+                </configuration>
+            </plugin>
 
         </plugins>
     </build>
