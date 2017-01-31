@@ -1,6 +1,6 @@
 package com.bagri.xqj;
 
-import static com.bagri.core.xquery.XQUtils.getXQException;
+import static com.bagri.support.util.XQUtils.getXQException;
 import static com.bagri.xqj.BagriXQErrors.ex_expression_closed;
 
 import java.io.IOException;

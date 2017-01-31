@@ -140,6 +140,12 @@
             <source>../bagri-tools/bagri-tools-vvmp/target/bagri-tools-vvmp-${project.version}.nbm</source>
             <outputDirectory>distr</outputDirectory>
         </file>
+
+        <!--license files are copied to the root-->
+        <file>
+            <source>../LICENSE</source>
+            <outputDirectory>/</outputDirectory>
+        </file>
     </files>
 
 </component>  

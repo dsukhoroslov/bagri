@@ -254,7 +254,7 @@ public class PopulationManagementImpl implements PopulationManagement, ManagedSe
 		}
 		return null;
 	}
-	
+
 	//public ManagedService getHzService(String serviceName, String instanceName) {
 	//	return nodeEngine.getHazelcastInstance().getDistributedObject(serviceName, instanceName);
 	//}

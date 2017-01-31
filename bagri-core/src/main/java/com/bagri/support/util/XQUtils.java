@@ -1,13 +1,13 @@
-package com.bagri.core.xquery;
+package com.bagri.support.util;
 
-import static com.bagri.core.Constants.xs_ns;
-import static com.bagri.core.Constants.xs_prefix;
+import static com.bagri.core.Constants.*;
 import static javax.xml.datatype.DatatypeConstants.*;
 import static javax.xml.xquery.XQItemType.*;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URI;
+import java.util.Properties;
 
 import javax.xml.datatype.Duration;
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -16,13 +16,13 @@ import javax.xml.xquery.XQDataFactory;
 import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQItem;
 import javax.xml.xquery.XQItemType;
+import javax.xml.xquery.XQStaticContext;
 
 import org.apache.xerces.impl.dv.util.Base64;
 import org.apache.xerces.util.XMLChar;
 import org.w3c.dom.Node;
 
 import com.bagri.core.api.BagriException;
-import com.bagri.support.util.XMLUtils;
 
 /**
  * set of XQJ static utilities 
@@ -618,6 +618,122 @@ public class XQUtils {
 		XQException xqe = new XQException(message, String.valueOf(errorCode));
 		xqe.initCause(cause);
 		return xqe;
+	}
+
+	/**
+	 * converts XQuery Static Context to set of Properties
+	 * 
+	 * @param ctx XQuery context
+	 * @return java Properties
+	 * @throws XQException in case of conversion error
+	 */
+    public static Properties context2Props(XQStaticContext ctx) throws XQException {
+    	Properties result = new Properties();
+    	result.put(pn_xqj_baseURI, ctx.getBaseURI());
+    	result.setProperty(pn_xqj_bindingMode, String.valueOf(ctx.getBindingMode()));
+    	result.setProperty(pn_xqj_boundarySpacePolicy, String.valueOf(ctx.getBoundarySpacePolicy()));
+    	result.setProperty(pn_xqj_constructionMode, String.valueOf(ctx.getConstructionMode()));
+    	//ctx.getContextItemStaticType()
+    	result.setProperty(pn_xqj_copyNamespacesModeInherit, String.valueOf(ctx.getCopyNamespacesModeInherit()));
+    	result.setProperty(pn_xqj_copyNamespacesModePreserve, String.valueOf(ctx.getCopyNamespacesModePreserve()));
+    	result.setProperty(pn_xqj_defaultCollationUri, ctx.getDefaultCollation());
+    	result.setProperty(pn_xqj_defaultElementTypeNamespace, ctx.getDefaultElementTypeNamespace());
+    	result.setProperty(pn_xqj_defaultFunctionNamespace, ctx.getDefaultFunctionNamespace());
+    	if (ctx.getNamespacePrefixes().length > 0) {
+    		StringBuffer namespaces = new StringBuffer();
+    		for (String prefix: ctx.getNamespacePrefixes()) {
+    			namespaces.append(prefix).append(":").append(ctx.getNamespaceURI(prefix));
+    			namespaces.append(" ");
+    		}
+    		result.put(pn_xqj_defaultNamespaces, namespaces.toString());
+    	}
+    	result.setProperty(pn_xqj_defaultOrderForEmptySequences, String.valueOf(ctx.getDefaultOrderForEmptySequences()));
+    	result.setProperty(pn_xqj_holdability, String.valueOf(ctx.getHoldability()));
+    	result.setProperty(pn_xqj_orderingMode, String.valueOf(ctx.getOrderingMode()));
+    	result.setProperty(pn_xqj_queryLanguageTypeAndVersion, String.valueOf(ctx.getQueryLanguageTypeAndVersion()));
+    	result.setProperty(pn_xqj_queryTimeout, String.valueOf(ctx.getQueryTimeout()));
+    	result.setProperty(pn_xqj_scrollability, String.valueOf(ctx.getScrollability()));
+    	return result;
+    }
+
+	/**
+	 * converts set of Properties to XQuery Static Context
+	 * 
+	 * @param props source Properties to convert
+	 * @param ctx target XQuery context
+	 * @throws XQException in case of conversion error
+	 */
+	public static void props2Context(Properties props, XQStaticContext ctx) throws XQException {
+		String prop = props.getProperty(pn_xqj_baseURI);
+		if (prop != null) {
+			ctx.setBaseURI(prop);
+		}
+		prop = props.getProperty(pn_xqj_bindingMode);
+		if (prop != null) {
+			ctx.setBindingMode(Integer.valueOf(prop));
+		}
+		prop = props.getProperty(pn_xqj_boundarySpacePolicy);
+		if (prop != null) {
+			ctx.setBoundarySpacePolicy(Integer.valueOf(prop));
+		}
+		// pass it as URI!?
+    	//ctx.setContextItemStaticType(...)
+		prop = props.getProperty(pn_xqj_constructionMode);
+		if (prop != null) {
+			ctx.setConstructionMode(Integer.valueOf(prop));
+		}
+		prop = props.getProperty(pn_xqj_copyNamespacesModeInherit);
+		if (prop != null) {
+			ctx.setCopyNamespacesModeInherit(Integer.valueOf(prop));
+		}
+		prop = props.getProperty(pn_xqj_copyNamespacesModePreserve);
+		if (prop != null) {
+			ctx.setCopyNamespacesModePreserve(Integer.valueOf(prop));
+		}
+		prop = props.getProperty(pn_xqj_defaultCollationUri);
+		if (prop != null) {
+			ctx.setDefaultCollation(prop);
+		}
+		prop = props.getProperty(pn_xqj_defaultElementTypeNamespace);
+		if (prop != null) {
+			ctx.setDefaultElementTypeNamespace(prop);
+		}
+		prop = props.getProperty(pn_xqj_defaultFunctionNamespace);
+		if (prop != null) {
+			ctx.setDefaultFunctionNamespace(prop);
+		}
+		prop = props.getProperty(pn_xqj_defaultNamespaces);
+		if (prop != null) {
+			String[] nspaces = prop.split(" ");
+			for (String ns: nspaces) {
+				int pos = ns.indexOf(":");
+				ctx.declareNamespace(ns.substring(0, pos), ns.substring(pos + 1));
+			}
+		}
+		prop = props.getProperty(pn_xqj_defaultOrderForEmptySequences);
+		if (prop != null) {
+			ctx.setDefaultOrderForEmptySequences(Integer.valueOf(prop));
+		}
+		prop = props.getProperty(pn_xqj_holdability);
+		if (prop != null) {
+			ctx.setHoldability(Integer.valueOf(prop));
+		}
+		prop = props.getProperty(pn_xqj_orderingMode);
+		if (prop != null) {
+			ctx.setOrderingMode(Integer.valueOf(prop));
+		}
+		prop = props.getProperty(pn_xqj_queryLanguageTypeAndVersion);
+		if (prop != null) {
+			ctx.setQueryLanguageTypeAndVersion(Integer.valueOf(prop));
+		}
+		prop = props.getProperty(pn_xqj_queryTimeout);
+		if (prop != null) {
+			ctx.setQueryTimeout(Integer.valueOf(prop));
+		}
+		prop = props.getProperty(pn_xqj_scrollability);
+		if (prop != null) {
+			ctx.setScrollability(Integer.valueOf(prop));
+		}
 	}
 
 }

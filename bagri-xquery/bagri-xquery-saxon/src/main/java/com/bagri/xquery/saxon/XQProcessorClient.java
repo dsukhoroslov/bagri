@@ -5,7 +5,8 @@ import static com.bagri.core.Constants.cmd_remove_cln_documents;
 import static com.bagri.core.Constants.cmd_remove_document;
 import static com.bagri.core.Constants.cmd_store_document;
 import static com.bagri.core.Constants.pn_query_command;
-import static com.bagri.core.xquery.XQUtils.getXQException;
+import static com.bagri.support.util.XQUtils.context2Props;
+import static com.bagri.support.util.XQUtils.getXQException;
 import static com.bagri.xquery.saxon.SaxonUtils.itemToXQItem;
 
 import java.util.Collection;
@@ -129,7 +130,7 @@ public class XQProcessorClient extends XQProcessorImpl implements XQProcessor {
 	}
 
 	private Properties collectProperties(XQStaticContext ctx) throws XQException {
-		Properties props = contextToProps(ctx);
+		Properties props = context2Props(ctx);
 		for (String name: properties.stringPropertyNames()) {
 			if (!props.containsKey(name)) {
 				props.setProperty(name, properties.getProperty(name));

@@ -5,9 +5,9 @@ package com.bagri.server.hazelcast.management;
 
 import static com.bagri.core.Constants.*;
 import static com.bagri.support.util.PropUtils.getOutputProperties;
+import static com.bagri.support.util.XQUtils.props2Context;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -110,6 +110,7 @@ public class QueryManagement extends SchemaFeatureManagement {
 		XQPreparedExpression xqpExp = null;
 		try {
 			XQStaticContext ctx = xqConn.getStaticContext();
+			props2Context(schemaManager.getEntity().getProperties(), ctx);
 			props2Context(props, ctx);
 			xqpExp = xqConn.prepareExpression(query, ctx);
 			QName[] vars = xqpExp.getAllExternalVariables();
@@ -128,74 +129,6 @@ public class QueryManagement extends SchemaFeatureManagement {
 		} 
 	}
 	
-	private void props2Context(Properties props, XQStaticContext ctx) throws XQException {
-		String prop = props.getProperty(pn_xqj_baseURI);
-		if (prop != null) {
-			ctx.setBaseURI(prop);
-		}
-		prop = props.getProperty(pn_xqj_constructionMode);
-		if (prop != null) {
-			ctx.setConstructionMode(Integer.valueOf(prop));
-		}
-		prop = props.getProperty(pn_xqj_defaultCollationUri);
-		if (prop != null) {
-			ctx.setDefaultCollation(prop);
-		}
-		prop = props.getProperty(pn_xqj_defaultElementTypeNamespace);
-		if (prop != null) {
-			ctx.setDefaultElementTypeNamespace(prop);
-		}
-		prop = props.getProperty(pn_xqj_defaultFunctionNamespace);
-		if (prop != null) {
-			ctx.setDefaultFunctionNamespace(prop);
-		}
-		prop = props.getProperty(pn_xqj_orderingMode);
-		if (prop != null) {
-			ctx.setOrderingMode(Integer.valueOf(prop));
-		}
-		prop = props.getProperty(pn_xqj_defaultOrderForEmptySequences);
-		if (prop != null) {
-			ctx.setDefaultOrderForEmptySequences(Integer.valueOf(prop));
-		}
-		prop = props.getProperty(pn_xqj_boundarySpacePolicy);
-		if (prop != null) {
-			ctx.setBoundarySpacePolicy(Integer.valueOf(prop));
-		}
-		prop = props.getProperty(pn_xqj_copyNamespacesModePreserve);
-		if (prop != null) {
-			ctx.setCopyNamespacesModePreserve(Integer.valueOf(prop));
-		}
-		prop = props.getProperty(pn_xqj_copyNamespacesModeInherit);
-		if (prop != null) {
-			ctx.setCopyNamespacesModeInherit(Integer.valueOf(prop));
-		}
-		prop = props.getProperty(pn_xqj_bindingMode);
-		if (prop != null) {
-			ctx.setBindingMode(Integer.valueOf(prop));
-		}
-		prop = props.getProperty(pn_xqj_queryLanguageTypeAndVersion);
-		if (prop != null) {
-			ctx.setQueryLanguageTypeAndVersion(Integer.valueOf(prop));
-		}
-		prop = props.getProperty(pn_xqj_holdability);
-		if (prop != null) {
-			ctx.setHoldability(Integer.valueOf(prop));
-		}
-		prop = props.getProperty(pn_xqj_scrollability);
-		if (prop != null) {
-			ctx.setScrollability(Integer.valueOf(prop));
-		}
-		prop = props.getProperty(pn_xqj_queryTimeout);
-		if (prop != null) {
-			ctx.setQueryTimeout(Integer.valueOf(prop));
-		}
-		prop = props.getProperty(pn_xqj_defaultNamespaces);
-		if (prop != null) {
-			// think how to process it properly..
-			//ctx.declareNamespace(prefix, uri);
-		}
-	}
-
 	@ManagedOperation(description="Run XQuery. Returns string output specified by XQuery")
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "query", description = "A query request provided in XQuery syntax"),
@@ -210,6 +143,7 @@ public class QueryManagement extends SchemaFeatureManagement {
 				result = extractResult(cursor, props);
 			} else {
 				XQStaticContext ctx = xqConn.getStaticContext();
+				props2Context(schemaManager.getEntity().getProperties(), ctx);
 				props2Context(props, ctx);
 			    XQExpression xqExp = xqConn.createExpression(ctx);
 			    XQResultSequence xqSec = xqExp.executeQuery(query);
@@ -270,6 +204,7 @@ public class QueryManagement extends SchemaFeatureManagement {
 				result = extractResult(cursor, props);
 			} else {
 				XQStaticContext ctx = xqConn.getStaticContext();
+				props2Context(schemaManager.getEntity().getProperties(), ctx);
 				props2Context(props, ctx);
 				XQPreparedExpression xqpExp = xqConn.prepareExpression(query, ctx);
 			    for (String key: bindings.getCompositeType().keySet()) {

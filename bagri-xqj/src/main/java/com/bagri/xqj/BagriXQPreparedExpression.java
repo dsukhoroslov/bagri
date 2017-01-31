@@ -1,6 +1,6 @@
 package com.bagri.xqj;
 
-import static com.bagri.core.xquery.XQUtils.*;
+import static com.bagri.support.util.XQUtils.*;
 import static com.bagri.xqj.BagriXQErrors.ex_expression_closed;
 
 import java.util.ArrayList;

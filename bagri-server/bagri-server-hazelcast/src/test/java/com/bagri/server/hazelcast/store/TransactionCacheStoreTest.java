@@ -49,7 +49,7 @@ public class TransactionCacheStoreTest extends BagriManagementTest {
 	public static void setUpBeforeClass() throws Exception {
 		sampleRoot = "..\\..\\etc\\samples\\tpox\\";
 		System.setProperty("hz.log.level", "info");
-		System.setProperty("bdb.log.level", "trace");
+		//System.setProperty("bdb.log.level", "trace");
 		System.setProperty(pn_node_instance, "0");
 		System.setProperty("logback.configurationFile", "hz-logging.xml");
 		System.setProperty(pn_config_properties_file, "store.properties");
@@ -60,7 +60,7 @@ public class TransactionCacheStoreTest extends BagriManagementTest {
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
 		// wait for document store..?
-		Thread.sleep(30000);
+		Thread.sleep(5000);
 		//Assert.assertTrue("expected to delete tx log from " + txFileName, Files.deleteIfExists(Paths.get(txFileName)));
 		// delete all stored securities?
 		context.close();

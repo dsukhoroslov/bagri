@@ -4,8 +4,8 @@ import static com.bagri.core.Constants.pn_client_fetchSize;
 import static com.bagri.core.Constants.pn_client_id;
 import static com.bagri.core.Constants.pn_query_command;
 import static com.bagri.core.Constants.pn_xqj_scrollability;
-import static com.bagri.core.xquery.XQUtils.getAtomicValue;
-import static com.bagri.core.xquery.XQUtils.isStringTypeCompatible;
+import static com.bagri.support.util.XQUtils.getAtomicValue;
+import static com.bagri.support.util.XQUtils.isStringTypeCompatible;
 import static com.bagri.core.Constants.pn_schema_fetch_size;
 
 import java.util.ArrayList;

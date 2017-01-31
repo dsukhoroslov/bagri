@@ -1,8 +1,8 @@
 package com.bagri.test.tpox.workload;
 
 import static com.bagri.core.Constants.*;
-import static com.bagri.core.xquery.XQUtils.*;
 import static com.bagri.support.util.PropUtils.setProperty;
+import static com.bagri.support.util.XQUtils.*;
 import static com.bagri.xqj.BagriXQDataSource.*;
 
 import java.sql.SQLException;

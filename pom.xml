@@ -103,7 +103,7 @@
     	<jetty.version>9.2.18.v20160721</jetty.version>
     	<jersey.version>2.23.2</jersey.version>
     	<swagger.version>1.5.10</swagger.version>
-	<jfreechart.version>1.0.19</jfreechart.version>
+	    <jfreechart.version>1.0.19</jfreechart.version>
 
         <junit.version>4.12</junit.version>
         <hamcrest.version>1.3</hamcrest.version>
@@ -122,10 +122,6 @@
         <coherence-common.version>11.1.0</coherence-common.version>
         <!--coherence-common.version>12.0.1-SNAPSHOT</coherence-common.version-->
         <!--coherence-spring.version>1.0.0</coherence-spring.version-->
-        <ycsb.version>0.7.0-SNAPSHOT</ycsb.version>
-
-        <marklogic.xcc.version>8.0.2</marklogic.xcc.version>
-        <marklogic.client.version>3.0.2</marklogic.client.version>
 
         <!--DEFAULT MAVEN PLUGINS OVERRIDEN VERSIONS-->
         <!--must be greater than 2.2 cause of bug fixes-->
@@ -293,7 +289,7 @@
             </dependency>
 
 	    <!-- Dependencies for REST server -->
-            <dependency>
+        <dependency>
 	    	<groupId>org.eclipse.jetty</groupId>
 	    	<artifactId>jetty-server</artifactId>
 	    	<version>${jetty.version}</version>
@@ -317,23 +313,23 @@
 	    	<groupId>org.glassfish.jersey.core</groupId>
 	    	<artifactId>jersey-server</artifactId>
 	    	<version>${jersey.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.glassfish.hk2</groupId>
-                        <artifactId>osgi-resource-locator</artifactId>
-                    </exclusion>
-                </exclusions>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.glassfish.hk2</groupId>
+                    <artifactId>osgi-resource-locator</artifactId>
+                </exclusion>
+            </exclusions>
 	    </dependency>
 	    <dependency>
-		<groupId>org.glassfish.jersey.core</groupId>
+		    <groupId>org.glassfish.jersey.core</groupId>
     		<artifactId>jersey-client</artifactId>
     		<version>${jersey.version}</version>
 	    </dependency>
 	    <dependency>
-		<groupId>org.glassfish.jersey.containers</groupId>
-		<artifactId>jersey-container-servlet</artifactId>
+		    <groupId>org.glassfish.jersey.containers</groupId>
+		    <artifactId>jersey-container-servlet</artifactId>
     		<version>${jersey.version}</version>
-		<scope>runtime</scope>
+		    <scope>runtime</scope>
 	    </dependency>
 	    <dependency>
 	    	<groupId>org.glassfish.jersey.containers</groupId>
@@ -344,18 +340,19 @@
 	    	<groupId>org.glassfish.jersey.containers</groupId>
 	    	<artifactId>jersey-container-jetty-http</artifactId>
 	    	<version>${jersey.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.eclipse.jetty</groupId>
-                        <artifactId>jetty-util</artifactId>
-                    </exclusion>
-                    <!--exclusion>
-                        <groupId>org.eclipse.jetty</groupId>
-                        <artifactId>jetty-continuation</artifactId>
-                    </exclusion-->
-                </exclusions>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.eclipse.jetty</groupId>
+                    <artifactId>jetty-util</artifactId>
+                </exclusion>
+                <!--exclusion>
+                    <groupId>org.eclipse.jetty</groupId>
+                    <artifactId>jetty-continuation</artifactId>
+                </exclusion-->
+            </exclusions>
 	    </dependency>
-	    <dependency>
+	        
+	        <dependency>
             	<groupId>org.glassfish.jersey.media</groupId>
             	<artifactId>jersey-media-json-jackson</artifactId>
             	<version>${jersey.version}</version>
@@ -397,17 +394,6 @@
                 <version>${hazelcast.version}</version>
             </dependency>
 
-	    <dependency>
-		<groupId>com.marklogic</groupId>
-		<artifactId>marklogic-xcc</artifactId>
-		<version>${marklogic.xcc.version}</version>
-	    </dependency>
-	    <dependency>
-		<groupId>com.marklogic</groupId>
-		<artifactId>java-client-api</artifactId>
-		<version>${marklogic.client.version}</version>
-	    </dependency>
-
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
@@ -433,12 +419,6 @@
                 <version>${hamcrest.version}</version>
                 <scope>compile</scope>
             </dependency>
-	    <dependency>
-            	<groupId>com.yahoo.ycsb</groupId>
-            	<artifactId>core</artifactId>
-            	<version>${ycsb.version}</version>
-            	<!--scope>provided</scope-->
-	    </dependency>
 
         </dependencies>
     </dependencyManagement>
@@ -579,6 +559,7 @@
                             </execution>
                         </executions>
                     </plugin>
+                    
                     <!--this is to sign the generated artifacts-->
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
@@ -614,19 +595,19 @@
         </profile>
     </profiles>
 
-  <reporting>
-    <plugins>
+    <reporting>
+        <plugins>
 
-      <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-project-info-reports-plugin</artifactId>
-          <version>${maven-project-info-reports-plugin.version}</version>
-          <!--configuration>
-              <webAccessUrl>https://github.com/dsukhoroslov/bagri/</webAccessUrl>
-              <anonymousConnection>scm:git:git://github.com/dsukhoroslov/bagri.git</anonymousConnection>
-              <developerConnection>scm:git:git@github.com:dsukhoroslov/bagri.git</developerConnection>
-          </configuration-->
-      </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                 <artifactId>maven-project-info-reports-plugin</artifactId>
+                 <version>${maven-project-info-reports-plugin.version}</version>
+                 <!--configuration>
+                     <webAccessUrl>https://github.com/dsukhoroslov/bagri/</webAccessUrl>
+                     <anonymousConnection>scm:git:git://github.com/dsukhoroslov/bagri.git</anonymousConnection>
+                     <developerConnection>scm:git:git@github.com:dsukhoroslov/bagri.git</developerConnection>
+                 </configuration-->
+            </plugin>
 
       <!--plugin>
           <groupId>org.codehaus.mojo</groupId>
@@ -686,20 +667,14 @@
           </reportSets>
       </plugin-->
 
-    </plugins>
-  </reporting>
+        </plugins>
+    </reporting>
 
     <repositories>
-        <!-- for MarkLogic XCC client jar -->
-	<repository>
-      	    <id>MarkLogic-releases</id>
-      	    <name>MarkLogic Releases</name>
-      	    <url>http://developer.marklogic.com/maven2</url>
-  	</repository>
         <!-- for XQJ API -->
         <repository>
-            <id>spring-milestones</id>
-            <url>http://repo.spring.io/libs-milestone/</url>
+            <id>spring-plugins</id>
+            <url>http://repo.spring.io/plugins-release/</url>
         </repository>
     </repositories>
 

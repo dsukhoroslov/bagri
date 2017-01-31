@@ -21,12 +21,12 @@
         <!--<run.jvm.args0>-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005</run.jvm.args0>-->
         <run.jvm.args1>-server -XX:NewSize=256m -XX:MaxNewSize=256m -XX:+ExplicitGCInvokesConcurrent -XX:+UnlockDiagnosticVMOptions -XX:ParGCCardsPerStrideChunk=2048</run.jvm.args1>
         <run.jvm.args2>-XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:+CMSScavengeBeforeRemark -XX:+CMSConcurrentMTEnabled</run.jvm.args2>
-	<!-- -XX:+UseCMSInitiatingOccupancyOnly -XX:CMSInitiatingOccupancyFraction=70 -->
-	<!-- -XX:GCLogFileSize=50M -XX:NumberOfGCLogFiles=10 -XX:+UseGCLogFileRotation -->
+        <!-- -XX:+UseCMSInitiatingOccupancyOnly -XX:CMSInitiatingOccupancyFraction=70 -->
+        <!-- -XX:GCLogFileSize=50M -XX:NumberOfGCLogFiles=10 -XX:+UseGCLogFileRotation -->
         <run.jvm.args3>-XX:+PrintGC -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+HeapDumpOnOutOfMemoryError -Xloggc:./logs/gc/gc.log</run.jvm.args3>
-	<profile>first</profile>
-	<log.level>info</log.level>
-	<node.instance>0</node.instance>
+        <profile>first</profile>
+        <log.level>info</log.level>
+        <node.instance>0</node.instance>
 
         <!-- Build info -->
         <maven.build.timestamp.format>yyyyMMddHHmm</maven.build.timestamp.format>
@@ -190,7 +190,7 @@
                                             <sysproperty key="bdb.log.level" value="debug" />
                                             <sysproperty key="bdb.config.path" value="src/main/resources" />
                                             <sysproperty key="bdb.config.context.file" value="spring/admin-system-context.xml" />
-					    <sysproperty key="bdb.config.properties.file" value="admin.properties" />
+                                            <sysproperty key="bdb.config.properties.file" value="admin.properties" />
                                             <sysproperty key="bdb.config.filename" value="config.xml" />
                                             <sysproperty key="bdb.access.filename" value="access.xml" />
                                             <sysproperty key="bdb.cluster.node.role" value="admin" />
@@ -223,9 +223,9 @@
                                             <sysproperty key="bdb.log.level" value="${log.level}" />
                                             <sysproperty key="bdb.config.path" value="src/main/resources" />
                                             <sysproperty key="bdb.config.context.file" value="spring/cache-system-context.xml" />
-					    <sysproperty key="bdb.config.properties.file" value="${profile}.properties" />
-					    <sysproperty key="bdb.config.filename" value="config.xml" />
-					    <sysproperty key="bdb.access.filename" value="access.xml" />
+                                            <sysproperty key="bdb.config.properties.file" value="${profile}.properties" />
+                                            <sysproperty key="bdb.config.filename" value="config.xml" />
+                                            <sysproperty key="bdb.access.filename" value="access.xml" />
                                             <classpath>
                                                 <path refid="maven.compile.classpath" />
                                                 <path refid="maven.runtime.classpath" />

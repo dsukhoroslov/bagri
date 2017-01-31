@@ -8,8 +8,8 @@ import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQItem;
 import javax.xml.xquery.XQSequence;
 
-import com.bagri.core.xquery.XQUtils;
 import com.bagri.core.xquery.api.XQProcessor;
+import com.bagri.support.util.XQUtils;
 
 public class ScrollableXQSequence extends BagriXQSequence implements XQSequence {
 	

@@ -21,8 +21,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.ProcessingInstruction;
 import org.w3c.dom.Text;
 
-import com.bagri.core.xquery.XQUtils;
 import com.bagri.support.util.XMLUtils;
+import com.bagri.support.util.XQUtils;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.StreamSerializer;
