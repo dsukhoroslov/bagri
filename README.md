@@ -59,5 +59,6 @@ Server side dependencies:
 </dependency>
 ```
 
-All project documentation and other details can be found on [Bagri Web site](http://bagridb.com)
-To leave a feedback or question please visit [our forum](https://groups.google.com/forum/#!forum/bagridb)
+All project documentation and other details can be found on [Bagri Web site](http://bagridb.com).
+
+To leave a feedback or question please visit [our forum](https://groups.google.com/forum/#!forum/bagridb).

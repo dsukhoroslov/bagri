@@ -11,20 +11,20 @@
         <moduleSet>
 	    <useAllReactorProjects>true</useAllReactorProjects>
 	    <excludes> 
-            	<exclude>com.bagri.db:bagri-distr</exclude>
-            	<exclude>com.bagri.db:bagri-rest</exclude>
-            	<exclude>com.bagri.db:bagri-samples-*</exclude>
-            	<exclude>com.bagri.db:bagri-server-*</exclude>
-            	<exclude>com.bagri.db:bagri-test-*</exclude>
-            	<exclude>com.bagri.db:bagri-tools-*</exclude>
+            	<exclude>com.bagridb:bagri-distr</exclude>
+            	<exclude>com.bagridb:bagri-rest</exclude>
+            	<exclude>com.bagridb:bagri-samples-*</exclude>
+            	<exclude>com.bagridb:bagri-server-*</exclude>
+            	<exclude>com.bagridb:bagri-test-*</exclude>
+            	<exclude>com.bagridb:bagri-tools-*</exclude>
 	    </excludes>
 	    <binaries>
         	<outputDirectory>/</outputDirectory>
 	    	<includes>
-		    <include>com.bagri.db:bagri-core</include>
-            	    <include>com.bagri.db:bagri-xqj</include>
-            	    <include>com.bagri.db:bagri-xquery-saxon</include>
-            	    <include>com.bagri.db:bagri-client-hazelcast</include>
+		    <include>com.bagridb:bagri-core</include>
+            	    <include>com.bagridb:bagri-xqj</include>
+            	    <include>com.bagridb:bagri-xquery-saxon</include>
+            	    <include>com.bagridb:bagri-client-hazelcast</include>
             	    <!-- third-party modules -->
             	    <include>com.hazelcast:hazelcast-all</include>
             	    <include>org.slf4j:slf4j-api</include>
