@@ -3,14 +3,10 @@
 
 # Eclipse Files #
 logs/
-output/
 target/
 .settings/
 .classpath
 .project
-
-# test generated xml files #
-etc/samples/default/
 
 # catalog files #
 *.xdb
