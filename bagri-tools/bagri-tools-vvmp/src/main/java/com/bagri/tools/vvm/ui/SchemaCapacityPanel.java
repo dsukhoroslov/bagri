@@ -1,6 +1,7 @@
 package com.bagri.tools.vvm.ui;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -12,6 +13,7 @@ import java.util.logging.Logger;
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.TabularData;
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import com.bagri.tools.vvm.event.ApplicationEvent;
@@ -32,6 +34,7 @@ public class SchemaCapacityPanel extends JPanel {
     private final SchemaManagementService schemaService;
     private final EventBus<ApplicationEvent> eventBus;
     private final String schemaName; 
+    private JPanel header;
     private SimpleXYChartSupport chart;
 
     public SchemaCapacityPanel(String schemaName, SchemaManagementService schemaService, EventBus<ApplicationEvent> eventBus) {
@@ -39,8 +42,15 @@ public class SchemaCapacityPanel extends JPanel {
         this.schemaName = schemaName;
         this.schemaService = schemaService;
         this.eventBus = eventBus;
+
+        createChart();
         
-        JPanel header = new JPanel();
+        header = new JPanel(new GridLayout(2, 4));
+        header.add(new JLabel("Total elements cost:"));
+        header.add(new JLabel("Total content cost:"));
+        header.add(new JLabel("Total results cost:"));
+
+        JPanel panel = new JPanel(new BorderLayout()); // new GridLayout(1, 3));
         JButton refresh = new JButton("Refresh");
         refresh.setToolTipText("Reload chart...");
         refresh.addActionListener(new ActionListener() {
@@ -49,9 +59,15 @@ public class SchemaCapacityPanel extends JPanel {
                 onRefresh();
             }
         });
-        header.add(refresh);
+        panel.setBackground(chart.getChart().getBackground());
+        panel.add(refresh, BorderLayout.EAST); //CENTER);
+        header.add(panel); 
+        
+        header.add(new JLabel("Total indices cost:"));
+        header.add(new JLabel("Total documents cost:"));
+        header.add(new JLabel("Overall cost:"));
+        
         header.setPreferredSize(new Dimension(500, 50));
-        createChart();
         header.setBackground(chart.getChart().getBackground());
         add(header, BorderLayout.PAGE_START);
         add(chart.getChart(), BorderLayout.CENTER);
@@ -69,8 +85,6 @@ public class SchemaCapacityPanel extends JPanel {
         descriptor.setChartTitle("<html><font size='+1'><b>" + schemaName + " Capacity</b></font></html>");
         descriptor.setXAxisDescription("partitions");
         descriptor.setYAxisDescription("cost (Kb)");
-        descriptor.setDetailsItems(new String[] {"Total elements cost", "Total content cost", "Total results cost", 
-        		"Total indices cost", "Total documents cost", "Overall cost"});
         chart = ChartFactory.createSimpleXYChart(descriptor);
         //chart.setZoomingEnabled(true);
         
@@ -78,19 +92,21 @@ public class SchemaCapacityPanel extends JPanel {
     }    
 
     private void onRefresh() {
-   		new CapacityStatsProvider(chart, schemaService, schemaName).start();
+   		new CapacityStatsProvider(chart, schemaService, schemaName, header).start();
     }
 
     private static class CapacityStatsProvider extends Thread {
 
     	private String schema;
+    	private JPanel header;
         private SimpleXYChartSupport chart;
         private SchemaManagementService service;
 
-        private CapacityStatsProvider(SimpleXYChartSupport chart, SchemaManagementService service, String schema) {
+        private CapacityStatsProvider(SimpleXYChartSupport chart, SchemaManagementService service, String schema, JPanel header) {
             this.chart = chart;
             this.service = service;
             this.schema = schema;
+            this.header = header;
         }    
         
         public void run() {
@@ -127,9 +143,14 @@ public class SchemaCapacityPanel extends JPanel {
         	    			totalDCost += dCost;
         		    		chart.addValues(partition, new long[] {eCost, cCost, rCost, iCost, dCost});
         	    		}
-        	        	long overallCost = totalECost + totalCCost + totalRCost + totalICost + totalDCost; 
-        		    	chart.updateDetails(new String[] {chart.formatDecimal(totalECost), chart.formatDecimal(totalCCost), chart.formatDecimal(totalRCost),
-        		    			chart.formatDecimal(totalICost), chart.formatDecimal(totalDCost), chart.formatDecimal(overallCost)});
+        	        	long overallCost = totalECost + totalCCost + totalRCost + totalICost + totalDCost;
+        				Component[] labels = header.getComponents();
+        				((JLabel) labels[0]).setText("Total elements cost: " + chart.formatDecimal(totalECost));
+        				((JLabel) labels[1]).setText("Total content cost: " + chart.formatDecimal(totalCCost));
+        				((JLabel) labels[2]).setText("Total results cost: " + chart.formatDecimal(totalRCost));
+        				((JLabel) labels[4]).setText("Total indices cost: " + chart.formatDecimal(totalICost));
+        				((JLabel) labels[5]).setText("Total documents cost: " + chart.formatDecimal(totalDCost));
+        				((JLabel) labels[6]).setText("Overall cost: " + chart.formatDecimal(overallCost));
         	    	}
                 } catch (Exception ex) {
                     LOGGER.severe(ex.getMessage());
