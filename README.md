@@ -23,7 +23,11 @@ Bagri is distributed under the Apache 2 License.
 download Bagri distributive from the [release section](https://github.com/dsukhoroslov/bagri/releases/tag/untagged-168eb0f1f0bf37296c38)
 
 Or, configure Maven dependencies in your project.
-Cleint side dependencies:
+Client side dependencies:
+
+[![bagridb maven central](
+https://maven-badges.herokuapp.com/maven-central/com.bagridb/bagri-client-hazelcast/badge.svg)](
+https://maven-badges.herokuapp.com/maven-central/com.bagridb/bagri-client-hazelcast)
 
 ```
 <!-- Bagri XQJ driver -->
@@ -43,6 +47,9 @@ Cleint side dependencies:
 
 Server side dependencies:
 
+[![bagridb maven central](
+https://maven-badges.herokuapp.com/maven-central/com.bagridb/bagri-server-hazelcast/badge.svg)](
+https://maven-badges.herokuapp.com/maven-central/com.bagridb/bagri-server-hazelcast)
 ```
 <!-- Bagri REST module -->
 <dependency>
