@@ -22,7 +22,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bagri.core.api.ResultCursor;
+import com.bagri.core.api.SchemaRepository;
 import com.bagri.core.api.TransactionManagement;
+import com.bagri.core.xquery.api.XQProcessor;
 import com.bagri.core.api.BagriException;
 import com.bagri.support.util.XMLUtils;
 
@@ -48,14 +50,6 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 		this(null, null);
 	}
 
-	BagriXQConnection(String username) {
-		this(username, null);
-	}
-	
-	BagriXQConnection(boolean transactional) {
-		this(null, transactional);
-	}
-
 	BagriXQConnection(String username, Boolean transactional) {
 		super();
 		metaData = new BagriXQMetaData(this, username);
@@ -79,10 +73,24 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 		getProcessor().cancelExecution();
 	}
 	
+	void setup(XQProcessor xqp, SchemaRepository xdm) {
+		
+		setProcessor(xqp);
+		xqp.setXQDataFactory(this);
+		xqp.setRepository(xdm);
+	}
+	
 	@Override
 	public void close() throws XQException {
 		
 		//checkState();
+		closeTransaction();
+		getProcessor().getRepository().close();
+		closed = true;
+		logger.debug("close.");
+	}
+	
+	protected void closeTransaction() throws XQException {
 		if (transactional) {
 			if (autoCommit) {
 				try {
@@ -95,10 +103,6 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 				// ??
 			}
 		}
-		
-		getProcessor().getRepository().close();
-		closed = true;
-		logger.debug("close.");
 	}
 
 	@Override
