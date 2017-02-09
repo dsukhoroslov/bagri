@@ -1,6 +1,7 @@
 package com.bagri.server.hazelcast.impl;
 
 import static com.bagri.core.Constants.ctx_repo;
+import static com.bagri.core.Constants.ctx_popService;
 import static com.bagri.core.Constants.pn_schema_format_default;
 import static com.bagri.server.hazelcast.util.HazelcastUtils.hasStorageMembers;
 import static com.bagri.server.hazelcast.util.HazelcastUtils.hz_instance;
@@ -88,7 +89,7 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
 	public void setHzInstance(HazelcastInstance hzInstance) {
 		this.hzInstance = hzInstance;
 		hzInstance.getUserContext().put(ctx_repo, this);
-		setPopulationManagement((PopulationManagement) hzInstance.getUserContext().get("popManager"));
+		setPopulationManagement((PopulationManagement) hzInstance.getUserContext().get(ctx_popService));
 		logger.debug("setHzInstange; got instance: {}", hzInstance.getName());
 	}
 	

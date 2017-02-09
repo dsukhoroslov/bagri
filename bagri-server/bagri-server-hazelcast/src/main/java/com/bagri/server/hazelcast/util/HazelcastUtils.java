@@ -1,6 +1,7 @@
 package com.bagri.server.hazelcast.util;
 
 import static com.bagri.core.Constants.pn_cluster_node_schemas;
+import static com.bagri.server.hazelcast.util.SpringContextHolder.schema_context;
 
 import java.util.Set;
 import org.springframework.context.ApplicationContext;
@@ -14,7 +15,6 @@ import com.hazelcast.core.Member;
 public class HazelcastUtils {
 	
 	public final static String hz_instance = "hzInstance";
-	public final static String app_context = "appContext"; 
 
 	public static HazelcastInstance findSystemInstance() {
 
@@ -46,11 +46,11 @@ public class HazelcastUtils {
 		
 		HazelcastInstance hzInstance = findSystemInstance();
 		if (hzInstance != null) {
-			return (ApplicationContext) hzInstance.getUserContext().get(app_context);
+			return (ApplicationContext) hzInstance.getUserContext().get(schema_context); 
 		}
 		return null;
 	}
-
+/*
 	public static ApplicationContext findContext() {
 		
 		HazelcastInstance hzInstance = findDefaultInstance();
@@ -68,7 +68,7 @@ public class HazelcastUtils {
 		}
 		return null;
 	}
-	
+*/	
 	public static String[] getMemberSchemas(Member member) {
 		String schemas = member.getStringAttribute(pn_cluster_node_schemas);
 		if (schemas != null && schemas.trim().length() > 0) {

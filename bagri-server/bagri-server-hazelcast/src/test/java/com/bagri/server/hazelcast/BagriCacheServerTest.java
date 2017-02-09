@@ -1,8 +1,8 @@
 package com.bagri.server.hazelcast;
 
 import static com.bagri.core.Constants.*;
-import static com.bagri.server.hazelcast.util.HazelcastUtils.app_context;
 import static com.bagri.server.hazelcast.util.HazelcastUtils.hz_instance;
+import static com.bagri.server.hazelcast.util.SpringContextHolder.schema_context;
 import static org.junit.Assert.*;
 
 import java.util.HashMap;
@@ -53,7 +53,7 @@ public class BagriCacheServerTest {
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
         HazelcastInstance hz = Hazelcast.getHazelcastInstanceByName(hz_instance);
-        ClassPathXmlApplicationContext ctx = (ClassPathXmlApplicationContext) hz.getUserContext().get(app_context);
+        ClassPathXmlApplicationContext ctx = (ClassPathXmlApplicationContext) hz.getUserContext().get(schema_context);
 		ctx.close();
 	}
 	

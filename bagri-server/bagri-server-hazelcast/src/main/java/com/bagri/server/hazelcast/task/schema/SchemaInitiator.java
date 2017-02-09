@@ -1,6 +1,7 @@
 package com.bagri.server.hazelcast.task.schema;
 
 import static com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl.factoryId;
+import static com.bagri.core.Constants.ctx_popService;
 import static com.bagri.core.Constants.pn_config_path;
 import static com.bagri.core.Constants.pn_schema_name;
 import static com.bagri.server.hazelcast.serialize.DataSerializationFactoryImpl.cli_InitSchemaTask;
@@ -43,8 +44,6 @@ public class SchemaInitiator implements Callable<Boolean>, IdentifiedDataSeriali
 
 	@Override
 	public Boolean call() throws Exception {
-		//return schemaManager.initSchema(schemaName, properties);
-		
 		String schemaName = schema.getName();
 		HazelcastInstance hz = Hazelcast.getHazelcastInstanceByName(schemaName);
 		if (hz != null) {
@@ -71,8 +70,7 @@ public class SchemaInitiator implements Callable<Boolean>, IdentifiedDataSeriali
 			xdmRepo.setSchema(schema);
     		logger.debug("initSchema; schema {} started on instance: {}", schemaName, hz);
     		
-    		//PopulationManagementImpl popManager = ctx.getBean("popManager", PopulationManagementImpl.class);
-    		PopulationManagementImpl popManager = (PopulationManagementImpl) hz.getUserContext().get("popManager");
+    		PopulationManagementImpl popManager = (PopulationManagementImpl) hz.getUserContext().get(ctx_popService);
     		if (popManager != null) {
     			popManager.checkPopulation(hz.getCluster().getMembers().size());
     		} else {

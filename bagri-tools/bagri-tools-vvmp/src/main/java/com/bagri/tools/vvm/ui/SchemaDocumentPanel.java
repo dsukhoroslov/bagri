@@ -366,7 +366,7 @@ public class SchemaDocumentPanel extends JPanel {
                 clNode.add(doc);
             }
             cnt = clNode.getChildCount() - cnt;
-            LOGGER.info("fillCollectionDocuments; added: " + cnt + "; returning: " + documents.size()); 
+            //LOGGER.info("fillCollectionDocuments; added: " + cnt + "; returning: " + documents.size()); 
             return documents.size();
 		} catch (Exception ex) {
             LOGGER.throwing(this.getClass().getName(), "fillCollectionDocuments", ex);

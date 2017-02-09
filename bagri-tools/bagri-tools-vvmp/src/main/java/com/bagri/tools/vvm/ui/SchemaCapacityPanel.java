@@ -6,8 +6,11 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.logging.Logger;
 
 import javax.management.openmbean.CompositeData;
@@ -20,6 +23,7 @@ import com.bagri.tools.vvm.event.ApplicationEvent;
 import com.bagri.tools.vvm.event.EventBus;
 import com.bagri.tools.vvm.model.Schema;
 import com.bagri.tools.vvm.service.SchemaManagementService;
+import com.bagri.tools.vvm.service.ServiceException;
 import com.sun.tools.visualvm.charts.ChartFactory;
 import com.sun.tools.visualvm.charts.SimpleXYChartDescriptor;
 import com.sun.tools.visualvm.charts.SimpleXYChartSupport;
@@ -28,12 +32,11 @@ public class SchemaCapacityPanel extends JPanel {
 	
     private static final Logger LOGGER = Logger.getLogger(SchemaCapacityPanel.class.getName());
     
-    //private static final long SLEEP_TIME = 1000;
-    private static final int VALUES_LIMIT = 271; // number of partitions..?
-    
+    private final String schemaName; 
     private final SchemaManagementService schemaService;
     private final EventBus<ApplicationEvent> eventBus;
-    private final String schemaName; 
+
+    private int partSize;
     private JPanel header;
     private SimpleXYChartSupport chart;
 
@@ -71,10 +74,20 @@ public class SchemaCapacityPanel extends JPanel {
         header.setBackground(chart.getChart().getBackground());
         add(header, BorderLayout.PAGE_START);
         add(chart.getChart(), BorderLayout.CENTER);
+
+        onRefresh();
     }
 
     private void createChart() {
-        SimpleXYChartDescriptor descriptor = SimpleXYChartDescriptor.decimal(0, true, VALUES_LIMIT);
+    	partSize = 0;
+    	try {
+    		TabularData data = schemaService.getSchemaPartitionStatistics(schemaName);
+    		partSize = data.size();
+    	} catch (ServiceException ex) {
+    		LOGGER.severe("createChart.error: " + ex.getMessage());
+    	}
+
+    	SimpleXYChartDescriptor descriptor = SimpleXYChartDescriptor.decimal(0, true, partSize);
 
         descriptor.addLineFillItems("Elements cost");
         descriptor.addLineFillItems("Content cost");
@@ -87,28 +100,33 @@ public class SchemaCapacityPanel extends JPanel {
         descriptor.setYAxisDescription("cost (Kb)");
         chart = ChartFactory.createSimpleXYChart(descriptor);
         //chart.setZoomingEnabled(true);
-        
-        onRefresh();
     }    
 
     private void onRefresh() {
-   		new CapacityStatsProvider(chart, schemaService, schemaName, header).start();
+    	if (partSize > 0) {
+    		new CapacityStatsProvider(schemaService, schemaName, header, chart).start();
+    	}
     }
 
-    private static class CapacityStatsProvider extends Thread {
+    private static class CapacityStatsProvider extends Thread implements Comparator<List<Integer>> {
 
     	private String schema;
     	private JPanel header;
         private SimpleXYChartSupport chart;
         private SchemaManagementService service;
 
-        private CapacityStatsProvider(SimpleXYChartSupport chart, SchemaManagementService service, String schema, JPanel header) {
-            this.chart = chart;
+        private CapacityStatsProvider(SchemaManagementService service, String schema, JPanel header, SimpleXYChartSupport chart) {
             this.service = service;
             this.schema = schema;
             this.header = header;
+            this.chart = chart;
         }    
-        
+
+		@Override
+		public int compare(List<Integer> o1, List<Integer> o2) {
+			return o1.get(0).compareTo(o2.get(0));
+		}
+
         public void run() {
         	// do it once..
             //while (true) {
@@ -121,8 +139,10 @@ public class SchemaCapacityPanel extends JPanel {
                         long totalICost = 0;
                         long totalDCost = 0;
         	    		TabularData data = service.getSchemaPartitionStatistics(schema);
-        	    		Set<List> keys = (Set<List>) data.keySet();
-        	        	for (List key: keys) {
+        	    		Set<List<Integer>> keys = (Set<List<Integer>>) data.keySet();
+        	    		Set<List<Integer>> sorted = new TreeSet<List<Integer>>(this);
+        	    		sorted.addAll(keys);
+        	        	for (List key: sorted) {
         	        		Object[] index = key.toArray();
         	    			CompositeData cd = data.get(index);
         	    			int partition = (Integer) cd.get("partition");
@@ -157,6 +177,7 @@ public class SchemaCapacityPanel extends JPanel {
                 }
             //}
         }
+
     }
     
 }

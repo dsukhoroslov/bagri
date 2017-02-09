@@ -63,7 +63,7 @@ public class BagriCacheServer {
     	
         context = new ClassPathXmlApplicationContext(contextPath);
         HazelcastInstance hz = context.getBean(hz_instance, HazelcastInstance.class);
-        hz.getUserContext().put(app_context, context);
+        hz.getUserContext().put(schema_context, context);
     	Member local = hz.getCluster().getLocalMember();
         String name = local.getStringAttribute(pn_cluster_node_name);
         String role = local.getStringAttribute(pn_cluster_node_role);

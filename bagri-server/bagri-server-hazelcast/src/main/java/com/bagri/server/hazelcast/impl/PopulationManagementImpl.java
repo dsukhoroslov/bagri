@@ -4,8 +4,6 @@ import static com.bagri.core.Constants.*;
 import static com.bagri.core.server.api.CacheConstants.*;
 import static com.bagri.server.hazelcast.util.SpringContextHolder.*;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -16,7 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 
-import com.bagri.client.hazelcast.PartitionStatistics;
 import com.bagri.core.DocumentKey;
 import com.bagri.core.KeyFactory;
 import com.bagri.core.model.Document;
@@ -183,24 +180,6 @@ public class PopulationManagementImpl implements PopulationManagement, ManagedSe
 			}
 		}
 		return cnt;
-	}
-	
-	public Collection<PartitionStatistics> getPartitionStatistics() {
-		MapService svc = nodeEngine.getService(MapService.SERVICE_NAME);
-		MapServiceContext mapCtx = svc.getMapServiceContext();
-		List<Integer> parts = nodeEngine.getPartitionService().getMemberPartitions(nodeEngine.getThisAddress());
-		String address = nodeEngine.getThisAddress().toString();
-		List<PartitionStatistics> stats = new ArrayList<>(parts.size());
-		for (int part: parts) {
-			RecordStore drs = mapCtx.getRecordStore(part, CN_XDM_DOCUMENT);
-			RecordStore crs = mapCtx.getRecordStore(part, CN_XDM_CONTENT);
-			RecordStore ers = mapCtx.getRecordStore(part, CN_XDM_ELEMENT);
-			RecordStore irs = mapCtx.getRecordStore(part, CN_XDM_INDEX);
-			RecordStore rrs = mapCtx.getRecordStore(part, CN_XDM_RESULT); 
-			stats.add(new PartitionStatistics(address, part, drs.size(), drs.getHeapCost(), drs.getMapDataStore().notFinishedOperationsCount(), 
-					crs.size(), crs.getHeapCost(), ers.size(), ers.getHeapCost(), irs.size(), irs.getHeapCost(), rrs.size(), rrs.getHeapCost()));
-		}
-		return stats;
 	}
 	
 	public Set<DocumentKey> getDocumentKeys() {
