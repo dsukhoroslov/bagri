@@ -31,14 +31,16 @@ public class BagriConnectionPoolXQDataSource extends BagriXQDataSource implement
 
 	@Override
 	public PooledXQConnection getPooledConnection() throws XQException {
-		// create new or get it from pool?
-		return null;
+		// creates new connection.
+		// I have to pass it LogicalXQConn somehow. 
+		// where should I take it??
+		return new BagriPooledXQConnection(getConnection());
 	}
 
 	@Override
 	public PooledXQConnection getPooledConnection(String user, String password) throws XQException {
 		// as above
-		return null;
+		return new BagriPooledXQConnection(getConnection(user, password));
 	}
 
 }

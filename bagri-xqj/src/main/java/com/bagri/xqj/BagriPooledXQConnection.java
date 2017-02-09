@@ -16,14 +16,18 @@ public class BagriPooledXQConnection implements PooledXQConnection {
 	
     private static final Logger logger = LoggerFactory.getLogger(BagriPooledXQConnection.class);
 	
+	private final XQConnection xqConnection;
 	private Set<XQConnectionEventListener> listeners = new HashSet<>();
+	
+	BagriPooledXQConnection(XQConnection xqConn) {
+		this.xqConnection = xqConn;
+	}
 
 	@Override
 	public XQConnection getConnection() throws XQException {
 		//fireErrorEvent(error);
-		//BagriXQConnection conn;
 		//conn.getProcessor().getRepository().getHealthManagement().addHealthChangeListener(this);
-		return null;
+		return xqConnection;
 	}
 
 	@Override

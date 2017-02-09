@@ -1,5 +1,6 @@
 package com.bagri.server.hazelcast.task.schema;
 
+import static com.bagri.core.Constants.ctx_popService;
 import static com.bagri.core.server.api.CacheConstants.CN_XDM_DOCUMENT;
 import static com.bagri.core.server.api.CacheConstants.CN_XDM_TRANSACTION;
 import static com.bagri.core.server.api.CacheConstants.TPN_XDM_POPULATION;
@@ -70,7 +71,7 @@ public class SchemaPopulator extends SchemaProcessingTask implements Callable<Bo
     	logger.info("populateSchema; documents size after loadAll: {}", xddCache.size());
 
 		ITopic<Long> pTopic = hz.getTopic(TPN_XDM_POPULATION);
-		PopulationManagementImpl pm = (PopulationManagementImpl) hz.getUserContext().get("popManager");
+		PopulationManagementImpl pm = (PopulationManagementImpl) hz.getUserContext().get(ctx_popService);
 		int lo = pm.getActiveCount();
 		int hi = pm.getDocumentCount() - lo;
 		long counts = ((long) hi << 32) + lo;
