@@ -6,6 +6,8 @@ import static com.bagri.core.Constants.xs_ns;
 import static com.bagri.core.Constants.xs_prefix;
 import static com.bagri.core.server.api.CacheConstants.PN_XDM_SCHEMA_POOL;
 import static com.bagri.core.server.api.SchemaRepository.bean_id;
+import static com.bagri.support.util.JMXUtils.*;
+
 
 import java.io.IOException;
 import java.util.Date;
@@ -27,6 +29,7 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
+import com.bagri.client.hazelcast.PartitionStatistics;
 import com.bagri.core.api.HealthChangeListener;
 import com.bagri.core.api.HealthState;
 import com.bagri.core.api.SchemaRepository;
@@ -39,12 +42,13 @@ import com.bagri.core.system.Schema;
 import com.bagri.core.system.TriggerAction;
 import com.bagri.core.system.TriggerDefinition;
 import com.bagri.core.system.XQueryTrigger;
+import com.bagri.server.hazelcast.task.doc.DocumentQueueCounter;
+import com.bagri.server.hazelcast.task.node.NodeDistributionProvider;
 import com.bagri.server.hazelcast.task.schema.SchemaActivator;
 import com.bagri.server.hazelcast.task.schema.SchemaHealthAggregator;
 import com.bagri.server.hazelcast.task.schema.SchemaPopulator;
 import com.bagri.server.hazelcast.task.schema.SchemaUpdater;
 import com.bagri.server.hazelcast.util.HazelcastUtils;
-import com.bagri.support.util.JMXUtils;
 import com.bagri.support.util.PropUtils;
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.client.impl.HazelcastClientInstanceImpl;
@@ -172,7 +176,7 @@ public class SchemaManager extends EntityManager<Schema> implements HealthChange
 			try {
 				CompositeData counters = entry.getValue().get();
 				logger.trace("getHealthStatistics; got counters: {}, from member {}", counters, entry.getKey());
-                result = JMXUtils.compositeToTabular("Health", "Desc", "Member", result, counters);
+                result = compositeToTabular("Health", "Desc", "Member", result, counters);
 				logger.trace("getHealthStatistics; got aggregated result: {}", result);
 				cnt++;
 			} catch (InterruptedException | ExecutionException | OpenDataException ex) {
@@ -191,7 +195,7 @@ public class SchemaManager extends EntityManager<Schema> implements HealthChange
 	@ManagedAttribute(description="Returns registered Schema properties")
 	public CompositeData getProperties() {
 		Properties props = getEntity().getProperties();
-		return JMXUtils.propsToComposite(entityName, "properties", props);
+		return propsToComposite(entityName, "properties", props);
 	}
 	
 	@ManagedAttribute(description="Returns registered Schema version")
@@ -327,6 +331,60 @@ public class SchemaManager extends EntityManager<Schema> implements HealthChange
 		execService.submitToAllMembers(pop);
 	}
 
+	@ManagedOperation(description="Return number of not-stored-yet Documents")
+	public int checkUpdatingDocuments() {
+		DocumentQueueCounter task = new DocumentQueueCounter();
+		Map<Member, Future<Integer>> results = execService.submitToAllMembers(task);
+		int result = 0;
+		for (Map.Entry<Member, Future<Integer>> entry: results.entrySet()) {
+			try {
+				result += entry.getValue().get();
+			} catch (InterruptedException | ExecutionException ex) {
+				logger.error("checkUpdatingDocuments.error; ", ex);
+				//throw new RuntimeException(ex.getMessage());
+			}
+		}
+		return result;
+	}
+
+	@ManagedOperation(description="Return partition-related statistics")
+	@ManagedOperationParameters({
+		@ManagedOperationParameter(name = "typeSwitch", description = "An int flag regulating stats granulatity. 0 = per partition, 1 = per node, 2 = per machine")})
+	public TabularData getPartitionStatistics(int typeSwitch) {
+		logger.debug("getPartitionStatistics.enter; switch is: {}", typeSwitch);
+		NodeDistributionProvider task = new NodeDistributionProvider();
+		Map<Member, Future<java.util.Collection<PartitionStatistics>>> results = execService.submitToAllMembers(task);
+		TabularData result = null;
+		java.util.Collection<PartitionStatistics> stats;
+		for (Map.Entry<Member, Future<java.util.Collection<PartitionStatistics>>> entry: results.entrySet()) {
+			try {
+				stats = entry.getValue().get();
+			} catch (InterruptedException | ExecutionException ex) {
+				logger.error("getPartitionStatistics.error; ", ex);
+				//throw new RuntimeException(ex.getMessage());
+				continue;
+			}
+			
+			try {
+				for (PartitionStatistics sts: stats) {
+					CompositeData cd = mapToComposite("stats", "parts", sts.toMap());
+					result = compositeToTabular("stats", "parts", "partition", result, cd);
+				}
+			} catch (OpenDataException ex) {
+				logger.error("getPartitionStatistics.error; ", ex);
+				throw new RuntimeException(ex.getMessage());
+			}
+		}
+		logger.debug("getPartitionStatistics.exit; result size: {}", result.size());
+		return result;
+	}
+	
+	@Override
+	public void onHealthStateChange(HealthState newState) {
+		this.hState = newState;
+	}
+
+	
 	Collection addCollection(String name, String docType, String description) {
 		Schema schema = getEntity();
 		int id = 0; 
@@ -502,11 +560,6 @@ public class SchemaManager extends EntityManager<Schema> implements HealthChange
 			return true;
 		}
 		return false;
-	}
-
-	@Override
-	public void onHealthStateChange(HealthState newState) {
-		this.hState = newState;
 	}
 
 }

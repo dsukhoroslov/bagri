@@ -21,9 +21,9 @@ import com.hazelcast.map.impl.recordstore.RecordStore;
 import com.hazelcast.spi.ManagedService;
 import com.hazelcast.spi.NodeEngine;
 
-public class PartitionManagementService implements ManagedService {
+public class DataDistributionService implements ManagedService {
 
-    private static final transient Logger logger = LoggerFactory.getLogger(PartitionManagementService.class);
+    private static final transient Logger logger = LoggerFactory.getLogger(DataDistributionService.class);
 
     private NodeEngine nodeEngine;
     
@@ -54,7 +54,8 @@ public class PartitionManagementService implements ManagedService {
 			RecordStore crs = mapCtx.getRecordStore(part, CN_XDM_CONTENT);
 			RecordStore ers = mapCtx.getRecordStore(part, CN_XDM_ELEMENT);
 			RecordStore irs = mapCtx.getRecordStore(part, CN_XDM_INDEX);
-			RecordStore rrs = mapCtx.getRecordStore(part, CN_XDM_RESULT); 
+			RecordStore rrs = mapCtx.getRecordStore(part, CN_XDM_RESULT);
+			//mapCtx.getPartitionContainer(part).
 			stats.add(new PartitionStatistics(address, part, drs.size(), drs.getHeapCost(), drs.getMapDataStore().notFinishedOperationsCount(), 
 					crs.size(), crs.getHeapCost(), ers.size(), ers.getHeapCost(), irs.size(), irs.getHeapCost(), rrs.size(), rrs.getHeapCost()));
 		}

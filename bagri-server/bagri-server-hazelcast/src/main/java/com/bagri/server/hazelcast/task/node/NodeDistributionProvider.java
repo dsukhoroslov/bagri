@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
 import com.bagri.client.hazelcast.PartitionStatistics;
-import com.bagri.server.hazelcast.impl.PartitionManagementService;
+import com.bagri.server.hazelcast.impl.DataDistributionService;
 import com.bagri.server.hazelcast.impl.SchemaRepositoryImpl;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
@@ -32,7 +32,7 @@ public class NodeDistributionProvider implements Callable<Collection<PartitionSt
 	@Override
 	public Collection<PartitionStatistics> call() throws Exception {
 		ApplicationContext ctx = (ApplicationContext) getContext(xdmRepo.getSchema().getName(), schema_context);
-		PartitionManagementService svc = ctx.getBean(PartitionManagementService.class);
+		DataDistributionService svc = ctx.getBean(DataDistributionService.class);
 		return svc.getPartitionStatistics();
 	}
 

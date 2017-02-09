@@ -3,9 +3,15 @@ package com.bagri.xqj;
 import javax.xml.xquery.XQException;
 
 public class BagriLogicalXQConnection extends BagriXQConnection {
+	
+	private BagriPooledXQConnection parent;
 
-	public BagriLogicalXQConnection(String username, boolean transactional) {
+	BagriLogicalXQConnection(String username, boolean transactional) {
 		super(username, transactional);
+	}
+	
+	void setParent(BagriPooledXQConnection parent) {
+		this.parent = parent;
 	}
 
 	@Override
@@ -14,7 +20,7 @@ public class BagriLogicalXQConnection extends BagriXQConnection {
 		closeTransaction();
 		closed = true;
 		// now ask poolead parent to go back to pool... 
-		//logger.debug("close.");
+		parent.freeConnection();
 	}
 
 }

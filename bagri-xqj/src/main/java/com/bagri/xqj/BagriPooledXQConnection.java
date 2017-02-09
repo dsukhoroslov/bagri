@@ -22,19 +22,25 @@ public class BagriPooledXQConnection implements PooledXQConnection {
 	BagriPooledXQConnection(XQConnection xqConn) {
 		this.xqConnection = xqConn;
 	}
+	
+	void freeConnection() {
+		//
+		// change state, return to pool..
+		fireCloseEvent();
+	}
+
+	@Override
+	public void close() throws XQException {
+		//fireCloseEvent();
+		// ??
+		listeners.clear();
+	}
 
 	@Override
 	public XQConnection getConnection() throws XQException {
 		//fireErrorEvent(error);
 		//conn.getProcessor().getRepository().getHealthManagement().addHealthChangeListener(this);
 		return xqConnection;
-	}
-
-	@Override
-	public void close() throws XQException {
-		fireCloseEvent();
-		// ??
-		listeners.clear();
 	}
 
 	@Override
@@ -64,5 +70,27 @@ public class BagriPooledXQConnection implements PooledXQConnection {
 			listener.connectionErrorOccurred(event);
 		}
 	}
+	
+/*	
+	private class XQConnection extends BagriXQConnection {
+		
+		XQConnection() {
+			super();
+		}
+		
+		XQConnection(String username, boolean transactional) {
+			super(username, transactional);
+		}
 
+		@Override
+		public void close() throws XQException {
+			//checkState();
+			closeTransaction();
+			closed = true;
+			// now ask poolead parent to go back to pool... 
+			fireCloseEvent();
+		}
+		
+	}
+*/
 }

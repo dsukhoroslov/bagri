@@ -7,9 +7,14 @@ import javax.xml.xquery.XQException;
 
 public class BagriConnectionPoolXQDataSource extends BagriXQDataSource implements ConnectionPoolXQDataSource {
 	
+	public static final String MIN_POOL_SIZE = "min_pool_size";
+	public static final String MAX_POOL_SIZE = "max_pool_size";
+	
 	public BagriConnectionPoolXQDataSource() {
 		super();
 		// add pool-related properties here
+		//properties.setProperty(MIN_POOL_SIZE, "1");
+		//properties.setProperty(MAX_POOL_SIZE, "50");
 	}
 	
 	@Override
@@ -20,13 +25,13 @@ public class BagriConnectionPoolXQDataSource extends BagriXQDataSource implement
 	@Override
 	public XQConnection getConnection() throws XQException {
 		// get pooled connection and create logical connection from it..
-		return null;
+		return super.getConnection();
 	}
 
 	@Override
 	public XQConnection getConnection(String user, String password) throws XQException {
 		// as above
-		return null;
+		return super.getConnection(user, password);
 	}
 
 	@Override

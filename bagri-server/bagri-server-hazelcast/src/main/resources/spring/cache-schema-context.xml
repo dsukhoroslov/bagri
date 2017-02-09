@@ -239,8 +239,8 @@
 					</hz:configuration-->
 				</hz:service>
 
-				<hz:service enabled="true" implementation="partitionService" >
-					<hz:name>PartitionManagementService</hz:name>
+				<hz:service enabled="true" implementation="distrService" >
+					<hz:name>DataDistributionService</hz:name>
 					<hz:properties> 
 						<hz:property name="bdb.node.instance">${bdb.node.instance}</hz:property>
 						<hz:property name="bdb.schema.name">${bdb.schema.name}</hz:property>
@@ -471,7 +471,7 @@
    		<property name="txManagement" ref="txManager" />
 	</bean>
 
-	<bean id="partitionService" class="com.bagri.server.hazelcast.impl.PartitionManagementService">
+	<bean id="distrService" class="com.bagri.server.hazelcast.impl.DataDistributionService">
 		<!--property name="transactionTimeout" value="${bdb.schema.transaction.timeout}"/-->
 	</bean>
 
