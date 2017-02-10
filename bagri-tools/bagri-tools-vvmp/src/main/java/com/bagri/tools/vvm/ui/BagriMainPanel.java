@@ -226,9 +226,10 @@ public class BagriMainPanel extends JPanel implements NotificationListener, Prop
                     splitPane.setRightComponent(panel);
             	} else if (nodeInfo instanceof UserManagement) {
                     splitPane.setRightComponent(getUserManagementView());
-                //} else if (nodeInfo instanceof User) {
+                } else if (nodeInfo instanceof User) {
                     // TODO: implement it..
-                //    User u = (User) nodeInfo;
+                    //User u = (User) nodeInfo;
+                	splitPane.setRightComponent(new DualListBox());
                 } else {
                     JTabbedPane tabbedPane = new JTabbedPane();
                     tabbedPane.addTab(nodeInfo.toString(), makeTextPanel(nodeInfo.toString() + " placeholder"));

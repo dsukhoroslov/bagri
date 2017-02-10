@@ -385,7 +385,7 @@ public class ClusterServiceProvider implements ClusterManagementService, SchemaM
 
     	int flag = 0;
         try {
-        	TabularData result = (TabularData) connection.invoke(getSchemaObjectName("DocumentManagement", schemaName), 
+        	TabularData result = (TabularData) connection.invoke(new ObjectName("com.bagri.db:type=Schema,name=" + schemaName), 
             		"getPartitionStatistics", new Object[] {flag}, new String[] {int.class.getName()});
             //LOGGER.info("getPartitionStatistics; got results: " + result.size());
         	return result;

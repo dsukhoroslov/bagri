@@ -57,6 +57,22 @@
             <optional>false</optional>
             <systemPath>${project.basedir}/lib/org-openide-modules.jar</systemPath>
         </dependency>
+        <!--dependency>
+            <groupId>org.netbeans.lib</groupId>
+            <artifactId>profiler-ui</artifactId>
+            <version>1.0.0</version>
+            <scope>system</scope>
+            <optional>false</optional>
+            <systemPath>${project.basedir}/lib/org-netbeans-lib-profiler-ui.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.lib</groupId>
+            <artifactId>profiler-charts</artifactId>
+            <version>1.0.0</version>
+            <scope>system</scope>
+            <optional>false</optional>
+            <systemPath>${project.basedir}/lib/org-netbeans-lib-profiler-charts.jar</systemPath>
+        </dependency-->
         <dependency>
             <groupId>com.sun.tools</groupId>
             <artifactId>visualvm-application</artifactId>
@@ -98,10 +114,10 @@
             <systemPath>${project.basedir}/lib/com-sun-tools-visualvm-uisupport.jar</systemPath>
         </dependency>
 
-        <dependency>
+        <!--dependency>
             <groupId>org.jfree</groupId>
             <artifactId>jfreechart</artifactId>
-        </dependency>
+        </dependency-->
 
         <dependency>
             <groupId>com.sun</groupId>
