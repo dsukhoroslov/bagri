@@ -186,29 +186,27 @@ public class BagriXQDataSource implements XQDataSource {
 	
 	private XQConnection initConnection(String username) throws XQException {
 
-		BagriXQConnection connect = new BagriXQConnection(username, isTransactional());
-		//if (connect.getProcessor() == null) {
-			Object xqp = makeInstance(XQ_PROCESSOR);
-			if (xqp != null) {
-				if (xqp instanceof XQProcessor) {
-					connect.setProcessor((XQProcessor) xqp);
-					((XQProcessor) xqp).setXQDataFactory(connect);
+		BagriXQConnection connect = createConnection(username);
+		Object xqp = makeInstance(XQ_PROCESSOR);
+		if (xqp != null) {
+			if (xqp instanceof XQProcessor) {
+				connect.setProcessor((XQProcessor) xqp);
+				((XQProcessor) xqp).setXQDataFactory(connect);
 
-					Object xdm = initRepository(connect);
-					if (xdm != null) {
-						if (xdm instanceof SchemaRepository) {
-							((XQProcessor) xqp).setRepository((SchemaRepository) xdm);
-						} else {
-							throw new XQException("Specified Repository class does not implement XDMRepository interface: " + 
-									properties.getProperty(XDM_REPOSITORY));
-						}
-					}						
-				} else {
-					throw new XQException("Specified XQ Processor class does not implement XQProcessor interface: " + 
-							properties.getProperty(XQ_PROCESSOR));
-				}
+				Object xdm = initRepository(connect);
+				if (xdm != null) {
+					if (xdm instanceof SchemaRepository) {
+						((XQProcessor) xqp).setRepository((SchemaRepository) xdm);
+					} else {
+						throw new XQException("Specified Repository class does not implement XDMRepository interface: " + 
+								properties.getProperty(XDM_REPOSITORY));
+					}
+				}						
+			} else {
+				throw new XQException("Specified XQ Processor class does not implement XQProcessor interface: " + 
+						properties.getProperty(XQ_PROCESSOR));
 			}
-		//}
+		}
 		return connect;
 	}
 	

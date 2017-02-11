@@ -14,13 +14,12 @@ import org.slf4j.LoggerFactory;
 
 public class BagriPooledXQConnection implements PooledXQConnection {
 	
-    private static final Logger logger = LoggerFactory.getLogger(BagriPooledXQConnection.class);
-	
 	private final XQConnection xqConnection;
 	private Set<XQConnectionEventListener> listeners = new HashSet<>();
 	
 	BagriPooledXQConnection(XQConnection xqConn) {
 		this.xqConnection = xqConn;
+		((BagriLogicalXQConnection) xqConn).setParent(this);
 	}
 	
 	void freeConnection() {
