@@ -3,9 +3,6 @@ package com.bagri.core.server.api.impl;
 import static com.bagri.support.util.XQUtils.getAtomicValue;
 
 import java.util.ArrayList;
-import java.util.Deque;
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
@@ -85,13 +82,13 @@ public abstract class ContentParserBase {
 	protected class ParserContext {
 
 		protected List<Data> dataList;
-		protected Deque<Data> dataStack;
+		protected Stack<Data> dataStack;
 		protected int docType = -1;
 		protected int elementId;
 		
 		protected ParserContext() {
 			dataList = new ArrayList<Data>();
-			dataStack = new LinkedList<Data>(); 
+			dataStack = new Stack<Data>(); 
 			docType = -1;
 			elementId = 0;
 		}
@@ -100,8 +97,12 @@ public abstract class ContentParserBase {
 			dataList.add(xData);
 		}
 		
+		public void addStack(Data xData) {
+			dataStack.add(xData);
+		}
+
 		public Data lastData() {
-			return dataStack.getLast();
+			return dataStack.lastElement();
 		}
 		
 		public Data peekData() {
@@ -112,9 +113,9 @@ public abstract class ContentParserBase {
 			return dataStack.pop();
 		}
 		
-		public void pushData(Data xData) {
-			dataStack.push(xData);
-		}
+		//public void pushData(Data xData) {
+		//	dataStack.push(xData);
+		//}
 		
 		public List<Data> getDataList() {
 			return dataList;
@@ -128,6 +129,10 @@ public abstract class ContentParserBase {
 			return dataStack.size();
 		}
 		
+		public Data getStackElement(int idx) {
+			return dataStack.elementAt(idx);
+		}
+		
 		public int nextElementId() {
 			return elementId++;
 		}
@@ -136,10 +141,11 @@ public abstract class ContentParserBase {
 			this.docType = docType;
 		}
 		
-		public Iterator<Data> tail() {
-			return dataStack.descendingIterator();
-		}
+		//public Iterator<Data> tail() {
+		//	return dataStack.descendingIterator();
+		//}
 	}
+	
 	
 }
 

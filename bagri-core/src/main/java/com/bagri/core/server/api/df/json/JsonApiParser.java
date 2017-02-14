@@ -7,7 +7,6 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -124,7 +123,7 @@ public class JsonApiParser extends ContentParserBase implements ContentParser {
 	 * @throws BagriException in case of any parsing error
 	 */
 	public List<Data> parse(JsonParser parser) throws BagriException {
-		logger.trace("parse.enter; parser: {}", parser);
+		
 		ParserContext ctx = init();
 		while (parser.hasNext()) {
 			processEvent(ctx, parser);
@@ -184,19 +183,12 @@ public class JsonApiParser extends ContentParserBase implements ContentParser {
 	}
 	
 	private Data getTopData(ParserContext ctx) {
-		Iterator<Data> itr = ctx.tail();
-		while (itr.hasNext()) {
-			Data data = itr.next();
+		for (int i = ctx.getStackSize() - 1; i >= 0; i--) {
+			Data data = ctx.getStackElement(i);
 			if (data != null && data.getElement() != null) {
 				return data;
 			}
 		}
-		//for (int i = dataStack.size() - 1; i >= 0; i--) {
-		//	Data data = dataStack.elementAt(i);
-		//	if (data != null && data.getElement() != null) {
-		//		return data;
-		//	}
-		//}
 		return null;
 	}
 
@@ -208,8 +200,7 @@ public class JsonApiParser extends ContentParserBase implements ContentParser {
 		Element start = new Element();
 		start.setElementId(ctx.nextElementId());
 		Data data = new Data(path, start);
-		//dataStack.add(data);
-		ctx.pushData(data);
+		ctx.addStack(data);
 		ctx.addData(data);
 	}
 
@@ -219,14 +210,11 @@ public class JsonApiParser extends ContentParserBase implements ContentParser {
 	
 	private void processStartElement(ParserContext ctx, boolean isArray) {
 		if (isArray) {
-			//dataStack.add(null);
-			ctx.pushData(null);
+			ctx.addStack(null);
 		} else {
-			//Data current = dataStack.lastElement();  
-			Data current = ctx.lastData();   
+			Data current = ctx.lastData();  
 			if (current == null || current.getNodeKind() != NodeKind.element) {
-				//dataStack.add(null);
-				ctx.pushData(null);
+				ctx.addStack(null);
 			}
 		}
 	}
@@ -249,8 +237,7 @@ public class JsonApiParser extends ContentParserBase implements ContentParser {
 				current = addData(ctx, parent, NodeKind.element, "/" + name, null, XQItemType.XQBASETYPE_ANYTYPE, Occurrence.zeroOrOne); 
 			}
 			if (current != null) {
-				//dataStack.add(current);
-				ctx.pushData(current);
+				ctx.addStack(current);
 			}
 		}
 	}
@@ -264,7 +251,7 @@ public class JsonApiParser extends ContentParserBase implements ContentParser {
 
 	private void processValueElement(ParserContext ctx, String value) throws BagriException {
 		
-		Data current = ctx.popData();
+		Data current = ctx.peekData();
 		boolean isArray = current == null;
 		if (isArray || current.getElement() == null) {
 			current = getTopData(ctx);
@@ -276,8 +263,7 @@ public class JsonApiParser extends ContentParserBase implements ContentParser {
 			current.getElement().setValue(value);
 		}
 		if (isArray) {
-			//dataStack.add(null);
-			ctx.pushData(null);
+			ctx.addStack(null);
 		}
 	}	
 	

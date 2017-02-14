@@ -116,7 +116,7 @@ public class JaksonParser extends ContentParserBase implements ContentParser {
 		logger.trace("processToken; got token: {}; name: {}; value: {}", token.name(), parser.getCurrentName(), parser.getText());
 		
 		switch (token) {
-			
+		
 			case START_OBJECT:
 				if (ctx.getStackSize() == 0) {
 					processDocument(ctx, parser.nextFieldName());
@@ -158,7 +158,7 @@ public class JaksonParser extends ContentParserBase implements ContentParser {
 		start.setElementId(ctx.nextElementId());
 		//start.setParentId(0); // -1 ?
 		Data data = new Data(path, start);
-		//dataStack.add(data);
+		ctx.addStack(data);
 		ctx.addData(data);
 	}
 	
@@ -172,12 +172,10 @@ public class JaksonParser extends ContentParserBase implements ContentParser {
 			Data parent = ctx.peekData();
 			if (name.equals("#text")) {
 				// add marker
-				//dataStack.add(null);
-				ctx.pushData(null);
+				ctx.addStack(null);
 			} else if (!name.equals(parent.getName())) {
 				Data current = addData(ctx, parent, NodeKind.element, "/" + name, null, XQItemType.XQBASETYPE_ANYTYPE, Occurrence.zeroOrOne); 
-				//dataStack.add(current);
-				ctx.pushData(current);
+				ctx.addStack(current);
 			}
 		}
 	}
@@ -195,11 +193,11 @@ public class JaksonParser extends ContentParserBase implements ContentParser {
 			if (current == null) {
 				// #text in array; not sure it'll always work.
 				// use XDMJsonParser.getTopData instead ?
-				//current = dataStack.elementAt(dataStack.size() - 2);
+				current = ctx.getStackElement(ctx.getStackSize() - 2);
 				// this is for Deque
-				Iterator<Data> itr = ctx.tail();
-				itr.next();
-				current = itr.next();
+				//Iterator<Data> itr = dataStack.descendingIterator();
+				//itr.next();
+				//current = itr.next();
 			}
 			addData(ctx, current, NodeKind.text, "/text()", value, XQItemType.XQBASETYPE_ANYATOMICTYPE, Occurrence.zeroOrOne);
 		} else if (isAttribute(name)) {

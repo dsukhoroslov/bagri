@@ -7,11 +7,8 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.Deque;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
@@ -48,9 +45,6 @@ import com.bagri.core.server.api.impl.ContentParserBase;
 public class XmlStaxParser extends ContentParserBase implements ContentParser {
 
 	private static XMLInputFactory factory = XMLInputFactory.newInstance();
-
-	//private StringBuilder chars;
-	//private List<XMLEvent> firstEvents;
 
 	/**
 	 * 
@@ -226,9 +220,6 @@ public class XmlStaxParser extends ContentParserBase implements ContentParser {
 	 */
 	@Override
 	protected XmlParserContext init() {
-		//super.init();
-		//firstEvents = new ArrayList<XMLEvent>();
-		//chars = new StringBuilder();
 		return new XmlParserContext();
 	}
 	
@@ -238,8 +229,7 @@ public class XmlStaxParser extends ContentParserBase implements ContentParser {
 		start.setElementId(ctx.nextElementId());
 		Path path = model.translatePath(ctx.getDocType(), "", NodeKind.document, XQItemType.XQBASETYPE_ANYTYPE, Occurrence.onlyOne);
 		Data data = new Data(path, start);
-		//dataStack.add(data);
-		ctx.pushData(data);
+		ctx.addStack(data);
 		ctx.addData(data);
 	}
 
@@ -248,8 +238,7 @@ public class XmlStaxParser extends ContentParserBase implements ContentParser {
 		
 		Data parent = ctx.peekData();
 		Data current = addData(ctx, parent, NodeKind.element, "/" + element.getName(), null, XQItemType.XQBASETYPE_ANYTYPE, Occurrence.zeroOrOne); 
-		//dataStack.add(current);
-		ctx.pushData(current);
+		ctx.addStack(current);
 
 		for (Iterator<Namespace> itr = element.getNamespaces(); itr.hasNext();) {
 			Namespace ns = itr.next();
@@ -307,8 +296,8 @@ public class XmlStaxParser extends ContentParserBase implements ContentParser {
 		
 		Data piData = addData(ctx, ctx.peekData(), NodeKind.pi, "/?" + pi.getTarget(), pi.getData(), XQItemType.XQBASETYPE_ANYTYPE, Occurrence.zeroOrOne);
 	}
-	
-	
+
+
 	private class XmlParserContext extends ParserContext {
 
 		private StringBuilder chars;
@@ -321,5 +310,4 @@ public class XmlStaxParser extends ContentParserBase implements ContentParser {
 		}
 		
 	}
-
 }
