@@ -54,13 +54,13 @@ public class ModelManagementImpl extends ModelManagementBase {
 		return typeGen;
 	}
 
-	@Override
+	//@Override
 	protected <K> boolean lock(Map<K, ?> cache, K key) {
 		// TODO Auto-generated method stub
 		return true;
 	}
 
-	@Override
+	//@Override
 	protected <K> void unlock(Map<K, ?> cache, K key) { 
 		// TODO Auto-generated method stub
 	}
@@ -75,6 +75,11 @@ public class ModelManagementImpl extends ModelManagementBase {
 		return val2;
 	}
 
+	//@Override
+	//protected <K, V> V putPathIfAbsent(Map<K, V> cache, K key, V value) {
+	//	return putIfAbsent(cache, key, value);
+	//}
+	
 	@Override
 	public Path getPath(int pathId) {
 		for (Path path: pathCache.values()) {

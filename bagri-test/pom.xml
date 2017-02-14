@@ -16,7 +16,6 @@
 
     <modules>
         <module>bagri-test-tpox</module>
-        <module>bagri-test-xqj</module>
         <!--module>bagri-test-ycsb</module-->
     </modules>
 

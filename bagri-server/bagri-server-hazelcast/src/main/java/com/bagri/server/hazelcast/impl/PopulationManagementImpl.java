@@ -209,13 +209,13 @@ public class PopulationManagementImpl implements PopulationManagement, ManagedSe
 
 		docStore.init(xddCache);
 
-		ApplicationContext schemaCtx = (ApplicationContext) getContext(schemaName, schema_context);
+		ApplicationContext schemaCtx = getContext(schemaName);
 		docMgr = schemaCtx.getBean(DocumentManagementImpl.class);
 	}
 	
 	private KeyFactory getKeyFactory() {
 		if (xFactory == null) {
-			ApplicationContext schemaCtx = (ApplicationContext) getContext(schemaName, schema_context);
+			ApplicationContext schemaCtx = getContext(schemaName);
 			xFactory = schemaCtx.getBean("xdmFactory", KeyFactory.class);
 		}
 		return xFactory;

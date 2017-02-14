@@ -64,7 +64,7 @@ public class SchemaInitiator implements Callable<Boolean>, IdentifiedDataSeriali
 
     		hz = ctx.getBean(hz_instance, HazelcastInstance.class);
     		//hz.getConfig().getSecurityConfig().setEnabled(true);
-			setContext(schemaName, schema_context, ctx);
+			setContext(schemaName, ctx);
 			
 			SchemaRepositoryImpl xdmRepo = ctx.getBean(SchemaRepository.bean_id, SchemaRepositoryImpl.class);
 			xdmRepo.setSchema(schema);

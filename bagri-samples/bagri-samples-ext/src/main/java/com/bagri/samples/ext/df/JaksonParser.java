@@ -99,23 +99,18 @@ public class JaksonParser extends ContentParserBase implements ContentParser {
 		
 		logger.trace("parse.enter; context: {}; schema: {}", parser.getParsingContext(), parser.getSchema());
 		
-		init();
+		ParserContext ctx = init();
 		try {
 			while (parser.nextToken() != null) {
-				processToken(parser);
+				processToken(ctx, parser);
 			}
 		} catch (IOException ex) {
 			throw new BagriException(ex, BagriException.ecInOut);
 		}
-		cleanup();
-
-		List<Data> result = dataList;
-		dataList = null;
-		logger.trace("parse.exit; returning {} elements", result); //.size());
-		return result;
+		return ctx.getDataList();
 	}
 	
-	private void processToken(JsonParser parser) throws IOException, BagriException { //, XMLStreamException {
+	private void processToken(ParserContext ctx, JsonParser parser) throws IOException, BagriException { //, XMLStreamException {
 
 		JsonToken token = parser.getCurrentToken();
 		logger.trace("processToken; got token: {}; name: {}; value: {}", token.name(), parser.getCurrentName(), parser.getText());
@@ -123,12 +118,12 @@ public class JaksonParser extends ContentParserBase implements ContentParser {
 		switch (token) {
 			
 			case START_OBJECT:
-				if (dataStack.size() == 0) {
-					processDocument(parser.nextFieldName());
+				if (ctx.getStackSize() == 0) {
+					processDocument(ctx, parser.nextFieldName());
 				} 
 			case START_ARRAY: 
 				if (parser.getCurrentName() != null) {
-					processStartElement(parser.getCurrentName());
+					processStartElement(ctx, parser.getCurrentName());
 				}
 			case NOT_AVAILABLE:
 			case FIELD_NAME:
@@ -136,7 +131,7 @@ public class JaksonParser extends ContentParserBase implements ContentParser {
 			case END_OBJECT:
 			case END_ARRAY: 
 				if (parser.getCurrentName() != null) {
-					processEndElement();
+					processEndElement(ctx);
 				}
 				break;
 			case VALUE_EMBEDDED_OBJECT:
@@ -146,80 +141,82 @@ public class JaksonParser extends ContentParserBase implements ContentParser {
 			case VALUE_NUMBER_INT:
 			case VALUE_TRUE:
 			case VALUE_STRING:
-				processStartElement(parser.getCurrentName());
-				processValueElement(parser.getCurrentName(), parser.getText());
+				processStartElement(ctx, parser.getCurrentName());
+				processValueElement(ctx, parser.getCurrentName(), parser.getText());
 				break;
 			default: 
 				logger.trace("processToken; unknown token: {}", token);
 		}			
 	}
 
-	private void processDocument(String name) throws BagriException {
+	private void processDocument(ParserContext ctx, String name) throws BagriException {
 
 		String root = "/" + (name == null ? "" : name);
-		docType = model.translateDocumentType(root);
-		Path path = model.translatePath(docType, "", NodeKind.document, XQItemType.XQBASETYPE_ANYTYPE, Occurrence.onlyOne); 
+		ctx.setDocType(model.translateDocumentType(root));
+		Path path = model.translatePath(ctx.getDocType(), "", NodeKind.document, XQItemType.XQBASETYPE_ANYTYPE, Occurrence.onlyOne); 
 		Element start = new Element();
-		start.setElementId(elementId++);
+		start.setElementId(ctx.nextElementId());
 		//start.setParentId(0); // -1 ?
 		Data data = new Data(path, start);
-		dataStack.add(data);
-		dataList.add(data);
+		//dataStack.add(data);
+		ctx.addData(data);
 	}
 	
 	private boolean isAttribute(String name) {
 		return name.startsWith("-") || name.startsWith("@");
 	}
 
-	private void processStartElement(String name) throws BagriException {
+	private void processStartElement(ParserContext ctx, String name) throws BagriException {
 		
 		if (name != null && !isAttribute(name)) {
-			Data parent = dataStack.peek();
+			Data parent = ctx.peekData();
 			if (name.equals("#text")) {
 				// add marker
-				dataStack.add(null);
+				//dataStack.add(null);
+				ctx.pushData(null);
 			} else if (!name.equals(parent.getName())) {
-				Data current = addData(parent, NodeKind.element, "/" + name, null, XQItemType.XQBASETYPE_ANYTYPE, Occurrence.zeroOrOne); 
-				dataStack.add(current);
+				Data current = addData(ctx, parent, NodeKind.element, "/" + name, null, XQItemType.XQBASETYPE_ANYTYPE, Occurrence.zeroOrOne); 
+				//dataStack.add(current);
+				ctx.pushData(current);
 			}
 		}
 	}
 
-	private void processEndElement() {
+	private void processEndElement(ParserContext ctx) {
 
-		dataStack.pop();
+		ctx.popData();
 	}
 
-	private void processValueElement(String name, String value) throws BagriException {
+	private void processValueElement(ParserContext ctx, String name, String value) throws BagriException {
 		
 		//value = value.replaceAll("&", "&amp;");
 		if (name == null) {
-			Data current = dataStack.peek();
+			Data current = ctx.peekData();
 			if (current == null) {
 				// #text in array; not sure it'll always work.
 				// use XDMJsonParser.getTopData instead ?
-				current = dataStack.elementAt(dataStack.size() - 2);
+				//current = dataStack.elementAt(dataStack.size() - 2);
 				// this is for Deque
-				//Iterator<Data> itr = dataStack.descendingIterator();
-				//itr.next();
-				//current = itr.next();
+				Iterator<Data> itr = ctx.tail();
+				itr.next();
+				current = itr.next();
 			}
-			addData(current, NodeKind.text, "/text()", value, XQItemType.XQBASETYPE_ANYATOMICTYPE, Occurrence.zeroOrOne);
+			addData(ctx, current, NodeKind.text, "/text()", value, XQItemType.XQBASETYPE_ANYATOMICTYPE, Occurrence.zeroOrOne);
 		} else if (isAttribute(name)) {
-			Data current = dataStack.peek(); 
+			Data current = ctx.peekData(); 
 			name = name.substring(1);
 			if (name.startsWith("xmlns")) {
-				addData(current, NodeKind.namespace, "/#" + name, value, XQItemType.XQBASETYPE_STRING, Occurrence.onlyOne);
+				addData(ctx, current, NodeKind.namespace, "/#" + name, value, XQItemType.XQBASETYPE_STRING, Occurrence.onlyOne);
 			} else {
-				addData(current, NodeKind.attribute, "/@" + name, value, XQItemType.XQBASETYPE_ANYATOMICTYPE, Occurrence.zeroOrOne);
+				addData(ctx, current, NodeKind.attribute, "/@" + name, value, XQItemType.XQBASETYPE_ANYATOMICTYPE, Occurrence.zeroOrOne);
 			}
 		} else {
-			Data current = dataStack.pop();
+			Data current = ctx.popData();
 			if (current == null) {
 				// #text
-				current = dataStack.peek(); 
+				current = ctx.peekData(); 
 			}
-			addData(current, NodeKind.text, "/text()", value, XQItemType.XQBASETYPE_ANYATOMICTYPE, Occurrence.zeroOrOne);
+			addData(ctx, current, NodeKind.text, "/text()", value, XQItemType.XQBASETYPE_ANYATOMICTYPE, Occurrence.zeroOrOne);
 		}
 	}
 	

@@ -66,9 +66,10 @@ public abstract class ModelManagementBase implements ModelManagement {
 	protected abstract IdGenerator<Long> getPathGen();
 	protected abstract IdGenerator<Long> getTypeGen();
     
-	protected abstract <K> boolean lock(Map<K, ?> cache, K key); 
-	protected abstract <K> void unlock(Map<K, ?> cache, K key); 
+	//protected abstract <K> boolean lock(Map<K, ?> cache, K key); 
+	//protected abstract <K> void unlock(Map<K, ?> cache, K key); 
 	protected abstract <K, V> V putIfAbsent(Map<K, V> cache, K key, V value);
+	//protected abstract <K, V> V putPathIfAbsent(Map<K, V> cache, K key, V value);
 
 	protected abstract DocumentType getDocumentTypeById(int typeId);
 	protected abstract Set<Map.Entry<String, Path>> getTypedPathEntries(int typeId);
@@ -363,7 +364,7 @@ public abstract class ModelManagementBase implements ModelManagement {
 		final String root = type.getRootPath();
 		boolean locked = false;
 		try {
-			locked = lock(getTypeCache(), root);
+			locked = true; //lock(getTypeCache(), root);
 			if (!locked) {
 				logger.info("normalizeDocumentType; Can't get lock on document-type {} for normalization, " +
 							"thus it is being normalized by someone else.", type);
@@ -382,7 +383,7 @@ public abstract class ModelManagementBase implements ModelManagement {
 			getTypeCache().put(root, type);
 		} finally {
 			if (locked) {
-				unlock(getTypeCache(), root);
+				//unlock(getTypeCache(), root);
 			}
 		}
 		logger.trace("normalizeDocumentType.exit; typeId: {}; normalized {} path elements", typeId, cnt);

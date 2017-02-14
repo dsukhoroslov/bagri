@@ -31,7 +31,7 @@ public class NodeDistributionProvider implements Callable<Collection<PartitionSt
 
 	@Override
 	public Collection<PartitionStatistics> call() throws Exception {
-		ApplicationContext ctx = (ApplicationContext) getContext(xdmRepo.getSchema().getName(), schema_context);
+		ApplicationContext ctx = getContext(xdmRepo.getSchema().getName());
 		DataDistributionService svc = ctx.getBean(DataDistributionService.class);
 		return svc.getPartitionStatistics();
 	}

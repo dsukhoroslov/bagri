@@ -32,6 +32,7 @@ import com.hazelcast.client.impl.HazelcastClientProxy;
 import com.hazelcast.config.SerializerConfig;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
+import com.hazelcast.core.ReplicatedMap;
 
 public class ClientManagementImpl {
 	
@@ -54,12 +55,14 @@ public class ClientManagementImpl {
 
    	    	HazelcastInstance hzClient = cc.hzInstance; 
    	    	if (cc.addClient(clientId)) {
-   	    		IMap<String, Properties> clientProps = hzClient.getMap(CN_XDM_CLIENT);
+   	    		//IMap<String, Properties> clientProps = hzClient.getMap(CN_XDM_CLIENT);
+   	    		ReplicatedMap<String, Properties> clientProps = hzClient.getReplicatedMap(CN_XDM_CLIENT);
    	    		props.remove(pn_client_dataFactory);
    	    		com.hazelcast.client.impl.HazelcastClientProxy proxy = (com.hazelcast.client.impl.HazelcastClientProxy) hzClient; 
    	    		props.setProperty(pn_client_memberId, proxy.client.getClientClusterService().getLocalClient().getUuid());
    	    		props.setProperty(pn_client_connectedAt, new java.util.Date(proxy.getCluster().getClusterTime()).toString()); 
-   	    		clientProps.set(clientId, props);
+   	    		//clientProps.set(clientId, props);
+   	    		clientProps.put(clientId, props);
    				logger.trace("connect; got new connection for clientId: {}", clientId);
    	    	} else {
    				logger.info("connect; got existing connection for clientId: {}", clientId);
@@ -114,8 +117,10 @@ public class ClientManagementImpl {
 				try {
 		    		if (cc.removeClient(clientId)) {
 		    			found = cc;
-		        		IMap<String, Properties> clientProps = cc.hzInstance.getMap(CN_XDM_CLIENT);
-		        		clientProps.delete(clientId);
+		        		//IMap<String, Properties> clientProps = cc.hzInstance.getMap(CN_XDM_CLIENT);
+		        		ReplicatedMap<String, Properties> clientProps = cc.hzInstance.getReplicatedMap(CN_XDM_CLIENT);
+		        		//clientProps.delete(clientId);
+		        		clientProps.remove(clientId);
 		    			logger.trace("disconnect; clientId {} successfuly disconnected", clientId);
 		        		break;
 		    		} else {

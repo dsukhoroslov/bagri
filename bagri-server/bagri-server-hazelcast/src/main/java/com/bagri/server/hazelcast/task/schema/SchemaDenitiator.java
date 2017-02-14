@@ -31,7 +31,7 @@ public class SchemaDenitiator extends SchemaProcessingTask implements Callable<B
 		// get hzInstance and close it...
 		HazelcastInstance hz = Hazelcast.getHazelcastInstanceByName(schemaName);
 		if (hz != null) {
-			ConfigurableApplicationContext ctx = (ConfigurableApplicationContext) getContext(schemaName, schema_context);
+			ConfigurableApplicationContext ctx = (ConfigurableApplicationContext) getContext(schemaName);
 			ctx.close();
 			result = true;
 		}

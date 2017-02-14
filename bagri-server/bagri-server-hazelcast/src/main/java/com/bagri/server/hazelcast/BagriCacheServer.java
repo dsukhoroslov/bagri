@@ -190,7 +190,7 @@ public class BagriCacheServer {
             	if (xSchema != null) {
             		initialized = initSchema(systemInstance, local, xSchema);
             		//String store = xSchema.getProperty(pn_schema_store_enabled);
-            		ApplicationContext schemaContext = (ApplicationContext) getContext(schemaName, schema_context);
+            		ApplicationContext schemaContext = getContext(schemaName);
             		if (initialized) {
             			// set modules and libraries
             			SchemaRepositoryImpl xRepo = schemaContext.getBean(bean_id, SchemaRepositoryImpl.class);

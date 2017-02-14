@@ -75,6 +75,9 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
     private ApplicationContext appContext;
     private HazelcastInstance hzInstance;
 	private Map<String, XQProcessor> processors = new ConcurrentHashMap<String, XQProcessor>();
+
+	private ConcurrentHashMap<String, ContentBuilder> builders = new ConcurrentHashMap<String, ContentBuilder>();
+	private ConcurrentHashMap<String, ContentParser> parsers = new ConcurrentHashMap<String, ContentParser>();
 	
 	@Override
 	public void setApplicationContext(ApplicationContext context) throws BeansException {
@@ -217,18 +220,28 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
 	
 	@Override
 	public ContentParser getParser(String dataFormat) {
+		ContentParser cp = parsers.get(dataFormat);
+		if (cp != null) {
+			return cp;
+		}
+		
 		DataFormat df = getDataFormat(dataFormat);
 		if (df != null) {
-			return instantiateClass(df.getParserClass());
+			cp = instantiateClass(df.getParserClass());
 		}
-		logger.info("getParser; no parser found for dataFormat: {}", dataFormat); 
-		dataFormat = this.xdmSchema.getProperty(pn_schema_format_default);
-		if ("json".equalsIgnoreCase(dataFormat)) {
-			return new JsonApiParser(getModelManagement());
-		} else if ("xml".equalsIgnoreCase(dataFormat)) {
-			return new XmlStaxParser(getModelManagement());
+		if (cp == null) {
+			logger.info("getParser; no parser found for dataFormat: {}", dataFormat); 
+			String defaultFormat = this.xdmSchema.getProperty(pn_schema_format_default);
+			if ("json".equalsIgnoreCase(defaultFormat)) {
+				cp = new JsonApiParser(getModelManagement());
+			} else if ("xml".equalsIgnoreCase(defaultFormat)) {
+				cp = new XmlStaxParser(getModelManagement());
+			}
 		}
-		return null;
+		if (cp != null) {
+			parsers.putIfAbsent(dataFormat, cp);
+		}
+		return cp;
 	}
 	
 	@Override

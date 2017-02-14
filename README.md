@@ -8,10 +8,10 @@ Consists of the following Maven modules:
 * bagri-client - Bagri client side implementations
 * bagri-server - Bagri server side implementations
 * bagri-rest - Bagri REST server
-* bagri-xqj - JSR225 implementation
+* bagri-xqj - JSR225 implementation, JSR225 TCK runner
 * bagri-xquery - XQuery engine
 * bagri-samples - sample apps, Bagri extensions
-* bagri-test - Test Utilities, e.g. TPoX test suite runner, JSR225 TCK runner
+* bagri-test - Test Utilities, e.g. TPoX test suite runner
 * bagri-tools - Tools/Plugings, e.g. Bagri VisualVM Plugin
 * bagri-distr - distributive package
 * etc - additional libs, sample data, etc...

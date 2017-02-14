@@ -21,6 +21,7 @@ import com.hazelcast.core.EntryListener;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.MapEvent;
+import com.hazelcast.core.ReplicatedMap;
 
 public class ClientManagementImpl implements ClientManagement, ClientListener, EntryListener<String, Properties> {
 	
@@ -28,7 +29,8 @@ public class ClientManagementImpl implements ClientManagement, ClientListener, E
 	
 	private SchemaRepositoryImpl repo;
     private HazelcastInstance hzInstance;
-	private IMap<String, Properties> clientsCache;
+	//private IMap<String, Properties> clientsCache;
+	private ReplicatedMap<String, Properties> clientsCache;
 	
     private boolean enableStats = true;
 	private BlockingQueue<StatisticsEvent> queue;
@@ -39,9 +41,9 @@ public class ClientManagementImpl implements ClientManagement, ClientListener, E
 		logger.debug("setHzInstange; got instance: {}", hzInstance.getName());
 	}
 	
-	public void setClientsCache(IMap<String, Properties> clientsCache) {
+	public void setClientsCache(ReplicatedMap<String, Properties> clientsCache) {
 		this.clientsCache = clientsCache;
-		clientsCache.addEntryListener(this, false);
+		clientsCache.addEntryListener(this); //, false);
 	}
 	
     public void setRepository(SchemaRepositoryImpl repo) {
@@ -105,11 +107,13 @@ public class ClientManagementImpl implements ClientManagement, ClientListener, E
 	public void clientDisconnected(Client client) {
 		String clientId = client.getUuid();
 		logger.trace("clientDisconnected.enter; client: {}", clientId);
-		PropertyPredicate pp = new PropertyPredicate(pn_client_memberId, clientId);
-		Set<String> members = clientsCache.localKeySet(pp);
-		for (String member: members) {
-			clientsCache.delete(member);
-		}
+		
+		// TODO: repair this!
+		//PropertyPredicate pp = new PropertyPredicate(pn_client_memberId, clientId);
+		//Set<String> members = clientsCache.localKeySet(pp);
+		//for (String member: members) {
+		//	clientsCache.delete(member);
+		//}
 
 		//String qName = "client:" + clientId;
 		//boolean destroyed = false;

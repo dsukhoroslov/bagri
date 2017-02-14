@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -123,22 +124,15 @@ public class JsonApiParser extends ContentParserBase implements ContentParser {
 	 * @throws BagriException in case of any parsing error
 	 */
 	public List<Data> parse(JsonParser parser) throws BagriException {
-		
 		logger.trace("parse.enter; parser: {}", parser);
-		
-		init();
+		ParserContext ctx = init();
 		while (parser.hasNext()) {
-			processEvent(parser);
+			processEvent(ctx, parser);
 		}
-		cleanup();
-
-		List<Data> result = dataList;
-		dataList = null;
-		logger.trace("parse.exit; returning {} elements", result); //.size());
-		return result;
+		return ctx.getDataList();
 	}
 	
-	private void processEvent(JsonParser parser) throws BagriException { //, XMLStreamException {
+	private void processEvent(ParserContext ctx, JsonParser parser) throws BagriException { //, XMLStreamException {
 
 		JsonParser.Event event = parser.next();
 		if (event == Event.VALUE_STRING || event == Event.VALUE_NUMBER) {
@@ -152,125 +146,138 @@ public class JsonApiParser extends ContentParserBase implements ContentParser {
 		switch (event) {
 			
 			case START_OBJECT:
-				if (dataStack.size() == 0) {
+				if (ctx.getStackSize() == 0) {
 					parser.next();
-					processDocument(parser.getString());
-					processStartElement(parser.getString());
+					processDocument(ctx, parser.getString());
+					processStartElement(ctx, parser.getString());
 				} else {
-					processStartElement(false);
+					processStartElement(ctx, false);
 				}
 				break;
 			case START_ARRAY: 
-				processStartElement(true);
+				processStartElement(ctx, true);
 				break;
 			case KEY_NAME:
-				processStartElement(parser.getString());
+				processStartElement(ctx, parser.getString());
 				break;
 			case END_ARRAY: 
-				processEndElement();
+				processEndElement(ctx);
 			case END_OBJECT:
-				processEndElement();
+				processEndElement(ctx);
 				break;
 			case VALUE_FALSE:
-				processValueElement("false");
+				processValueElement(ctx, "false");
 				break;
 			case VALUE_TRUE:
-				processValueElement("true");
+				processValueElement(ctx, "true");
 				break;
 			case VALUE_NULL:
-				processValueElement(null);
+				processValueElement(ctx, null);
 				break;
 			case VALUE_NUMBER:
 			case VALUE_STRING:
-				processValueElement(parser.getString());
+				processValueElement(ctx, parser.getString());
 				break;
 			default: 
 				logger.trace("processEvent; unknown event: {}", event);
 		}			
 	}
 	
-	private Data getTopData() {
-		for (int i = dataStack.size() - 1; i >= 0; i--) {
-			Data data = dataStack.elementAt(i);
+	private Data getTopData(ParserContext ctx) {
+		Iterator<Data> itr = ctx.tail();
+		while (itr.hasNext()) {
+			Data data = itr.next();
 			if (data != null && data.getElement() != null) {
 				return data;
 			}
 		}
+		//for (int i = dataStack.size() - 1; i >= 0; i--) {
+		//	Data data = dataStack.elementAt(i);
+		//	if (data != null && data.getElement() != null) {
+		//		return data;
+		//	}
+		//}
 		return null;
 	}
 
-	private void processDocument(String name) throws BagriException {
+	private void processDocument(ParserContext ctx, String name) throws BagriException {
 
 		String root = "/" + (name == null ? "" : name);
-		docType = model.translateDocumentType(root);
-		Path path = model.translatePath(docType, "", NodeKind.document, XQItemType.XQBASETYPE_ANYTYPE, Occurrence.onlyOne);
+		ctx.setDocType(model.translateDocumentType(root));
+		Path path = model.translatePath(ctx.getDocType(), "", NodeKind.document, XQItemType.XQBASETYPE_ANYTYPE, Occurrence.onlyOne);
 		Element start = new Element();
-		start.setElementId(elementId++);
+		start.setElementId(ctx.nextElementId());
 		Data data = new Data(path, start);
-		dataStack.add(data);
-		dataList.add(data);
+		//dataStack.add(data);
+		ctx.pushData(data);
+		ctx.addData(data);
 	}
 
 	private boolean isAttribute(String name) {
 		return name.startsWith("-") || name.startsWith("@");
 	}
 	
-	private void processStartElement(boolean isArray) {
+	private void processStartElement(ParserContext ctx, boolean isArray) {
 		if (isArray) {
-			dataStack.add(null);
+			//dataStack.add(null);
+			ctx.pushData(null);
 		} else {
-			Data current = dataStack.lastElement();  
+			//Data current = dataStack.lastElement();  
+			Data current = ctx.lastData();   
 			if (current == null || current.getNodeKind() != NodeKind.element) {
-				dataStack.add(null);
+				//dataStack.add(null);
+				ctx.pushData(null);
 			}
 		}
 	}
 	
-	private void processStartElement(String name) throws BagriException {
+	private void processStartElement(ParserContext ctx, String name) throws BagriException {
 		
-		Data parent = getTopData();
+		Data parent = getTopData(ctx);
 		if (!name.equals(parent.getName())) {
 			Data current = null;
 			if (isAttribute(name)) {
 				name = name.substring(1);
 				if (name.startsWith("xmlns")) {
-					current = addData(parent, NodeKind.namespace, "/#" + name, null, XQItemType.XQBASETYPE_STRING, Occurrence.zeroOrOne);
+					current = addData(ctx, parent, NodeKind.namespace, "/#" + name, null, XQItemType.XQBASETYPE_STRING, Occurrence.zeroOrOne);
 				} else {
-					current = addData(parent, NodeKind.attribute, "/@" + name, null, XQItemType.XQBASETYPE_ANYATOMICTYPE, Occurrence.zeroOrOne);
+					current = addData(ctx, parent, NodeKind.attribute, "/@" + name, null, XQItemType.XQBASETYPE_ANYATOMICTYPE, Occurrence.zeroOrOne);
 				}
 			} else if (name.equals("#text")) {
 				current = new Data(null, null);  
 			} else {
-				current = addData(parent, NodeKind.element, "/" + name, null, XQItemType.XQBASETYPE_ANYTYPE, Occurrence.zeroOrOne); 
+				current = addData(ctx, parent, NodeKind.element, "/" + name, null, XQItemType.XQBASETYPE_ANYTYPE, Occurrence.zeroOrOne); 
 			}
 			if (current != null) {
-				dataStack.add(current);
+				//dataStack.add(current);
+				ctx.pushData(current);
 			}
 		}
 	}
 
-	private void processEndElement() {
-		if (dataStack.size() > 0) {
-			Data current = dataStack.pop();
+	private void processEndElement(ParserContext ctx) {
+		if (ctx.getStackSize() > 0) {
+			Data current = ctx.popData();
 			logger.trace("processEndElement; got current: {}", current);
 		}
 	}
 
-	private void processValueElement(String value) throws BagriException {
+	private void processValueElement(ParserContext ctx, String value) throws BagriException {
 		
-		Data current = dataStack.pop();
+		Data current = ctx.popData();
 		boolean isArray = current == null;
 		if (isArray || current.getElement() == null) {
-			current = getTopData();
+			current = getTopData(ctx);
 		}
 		if (current.getNodeKind() == NodeKind.element) {
-			addData(current, NodeKind.text, "/text()", value, XQItemType.XQBASETYPE_ANYATOMICTYPE, 
+			addData(ctx, current, NodeKind.text, "/text()", value, XQItemType.XQBASETYPE_ANYATOMICTYPE, 
 					isArray ? Occurrence.zeroOrMany : Occurrence.zeroOrOne);
 		} else {
 			current.getElement().setValue(value);
 		}
 		if (isArray) {
-			dataStack.add(null);
+			//dataStack.add(null);
+			ctx.pushData(null);
 		}
 	}	
 	

@@ -1,13 +1,14 @@
 package com.bagri.server.hazelcast.util;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.springframework.context.ApplicationContext;
 
 public class SpringContextHolder {
 	
 	public static final String schema_context = "appContext";
 	
-	private static final Map<String, Object> context = new HashMap<String, Object>();
+	private static final ConcurrentHashMap<String, Object> context = new ConcurrentHashMap<String, Object>();
 	
 	private SpringContextHolder() {
 		//
@@ -18,29 +19,23 @@ public class SpringContextHolder {
 	}
 
 	public static boolean containsContext(String schemaName, String contextName) {
-		synchronized (context) {
-			return context.containsKey(getFullName(schemaName, contextName));
-		}
+		return context.containsKey(getFullName(schemaName, contextName));
+	}
+	
+	public static ApplicationContext getContext(String schemaName) {
+		return (ApplicationContext) getContext(schemaName, schema_context);
 	}
 	
 	public static Object getContext(String schemaName, String contextName) {
-		synchronized (context) {
-			return context.get(getFullName(schemaName, contextName));
-		}
+		return context.get(getFullName(schemaName, contextName));
 	}
 	
-	public static void setContext(String schemaName, String contextName, Object value) {
-		synchronized (context) {
-			context.put(getFullName(schemaName, contextName), value);
-		}
+	public static void setContext(String schemaName, Object value) {
+		context.put(getFullName(schemaName, schema_context), value);
 	}
 
-	public static void setAbsentContext(String schemaName, String contextName, Object value) {
-		synchronized (context) {
-			String name = getFullName(schemaName, contextName);
-			if (!context.containsKey(name)) {
-				context.put(name, value);
-			}
-		}
+	public static void setAbsentContext(String schemaName, Object value) {
+		context.putIfAbsent(getFullName(schemaName, schema_context), value);
 	}
+
 }

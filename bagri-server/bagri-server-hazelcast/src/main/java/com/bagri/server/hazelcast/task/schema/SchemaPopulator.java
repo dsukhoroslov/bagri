@@ -53,7 +53,7 @@ public class SchemaPopulator extends SchemaProcessingTask implements Callable<Bo
 
     	logger.debug("populateSchema.enter; HZ instance: {}", hz);
 
-		ApplicationContext schemaCtx = (ApplicationContext) getContext(schemaName, schema_context);
+		ApplicationContext schemaCtx = getContext(schemaName);
 		if (schemaCtx == null) {
 	    	logger.info("populateSchema.exit; No Spring Context initialized yet");
 			return false;

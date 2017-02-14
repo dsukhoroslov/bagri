@@ -43,7 +43,7 @@ public abstract class StatisticsTask implements IdentifiedDataSerializable {
 	//}
 	
 	protected StatisticsProvider getStats() {
-		ApplicationContext ctx = (ApplicationContext) getContext(schemaName, schema_context);
+		ApplicationContext ctx = getContext(schemaName);
 		StatisticsProvider stats = ctx.getBean(statsName, StatisticsProvider.class); 
 		//logger.trace("getStats; returning: {}, for name: {}", stats, statsName);
 		return stats;
