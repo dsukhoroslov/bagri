@@ -9,10 +9,10 @@ Consists of the following Maven modules:
 * bagri-server - Bagri server side implementations
 * bagri-rest - Bagri REST server
 * bagri-xqj - JSR225 implementation, JSR225 TCK runner
-* bagri-xquery - XQuery engine
+* bagri-xquery - (X)Query engine implementations
 * bagri-samples - sample apps, Bagri extensions
 * bagri-test - Test Utilities, e.g. TPoX test suite runner
-* bagri-tools - Tools/Plugings, e.g. Bagri VisualVM Plugin
+* bagri-tools - JMX Tools, Bagri VisualVM Plugin
 * bagri-distr - distributive package
 * etc - additional libs, sample data, etc...
 
@@ -23,11 +23,10 @@ Bagri is distributed under the Apache 2 License.
 download Bagri distributive from the [release section](https://github.com/dsukhoroslov/bagri/releases/tag/untagged-168eb0f1f0bf37296c38)
 
 Or, configure Maven dependencies in your project.
-Client side dependencies:
 
 [![bagridb maven central](
 https://maven-badges.herokuapp.com/maven-central/com.bagridb/bagri-client-hazelcast/badge.svg)](
-https://maven-badges.herokuapp.com/maven-central/com.bagridb/bagri-client-hazelcast)
+https://maven-badges.herokuapp.com/maven-central/com.bagridb/bagri-client-hazelcast) Client side dependencies:
 
 ```
 <!-- Bagri XQJ driver -->
@@ -45,11 +44,9 @@ https://maven-badges.herokuapp.com/maven-central/com.bagridb/bagri-client-hazelc
 </dependency>
 ```
 
-Server side dependencies:
-
 [![bagridb maven central](
 https://maven-badges.herokuapp.com/maven-central/com.bagridb/bagri-server-hazelcast/badge.svg)](
-https://maven-badges.herokuapp.com/maven-central/com.bagridb/bagri-server-hazelcast)
+https://maven-badges.herokuapp.com/maven-central/com.bagridb/bagri-server-hazelcast) Server side dependencies:
 ```
 <!-- Bagri REST module -->
 <dependency>
