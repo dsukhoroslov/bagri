@@ -56,8 +56,8 @@ public class DataDistributionService implements ManagedService {
 			RecordStore irs = mapCtx.getRecordStore(part, CN_XDM_INDEX);
 			RecordStore rrs = mapCtx.getRecordStore(part, CN_XDM_RESULT);
 			//mapCtx.getPartitionContainer(part).
-			stats.add(new PartitionStatistics(address, part, drs.size(), drs.getHeapCost(), drs.getMapDataStore().notFinishedOperationsCount(), 
-					crs.size(), crs.getHeapCost(), ers.size(), ers.getHeapCost(), irs.size(), irs.getHeapCost(), rrs.size(), rrs.getHeapCost()));
+			//stats.add(new PartitionStatistics(address, part, drs.size(), drs.getHeapCost(), drs.getMapDataStore().notFinishedOperationsCount(), 
+			//		crs.size(), crs.getHeapCost(), ers.size(), ers.getHeapCost(), irs.size(), irs.getHeapCost(), rrs.size(), rrs.getHeapCost()));
 		}
 		return stats;
 	}
