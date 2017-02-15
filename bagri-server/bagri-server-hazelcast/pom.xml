@@ -75,6 +75,11 @@
             <groupId>net.sf.saxon</groupId>
             <artifactId>Saxon-HE</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.fasterxml</groupId>
+            <artifactId>aalto-xml</artifactId>
+            <scope>runtime</scope>
+        </dependency>
 
         <!-- Spring framework -->
         <dependency>
@@ -238,6 +243,8 @@
                                             <sysproperty key="bdb.config.properties.file" value="${profile}.properties" />
                                             <sysproperty key="bdb.config.filename" value="config.xml" />
                                             <sysproperty key="bdb.access.filename" value="access.xml" />
+                                            <!--sysproperty key="javax.xml.stream.XMLInputFactory" value="com.sun.xml.internal.stream.XMLInputFactoryImpl" /-->
+                                            <sysproperty key="javax.xml.stream.XMLInputFactory" value="com.fasterxml.aalto.stax.InputFactoryImpl" />
                                             <classpath>
                                                 <path refid="maven.compile.classpath" />
                                                 <path refid="maven.runtime.classpath" />

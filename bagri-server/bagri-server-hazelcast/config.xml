@@ -758,6 +758,14 @@
             <type>application/xml</type>
             <properties>
 		<entry name="bdb.schema.parser.schemas"></entry>
+		<entry name="javax.xml.stream.isValidating">false</entry>
+		<entry name="javax.xml.stream.isCoalescing">false</entry>
+		<entry name="javax.xml.stream.isNamespaceAware">true</entry>
+		<entry name="javax.xml.stream.isReplacingEntityReferences">true</entry>
+		<entry name="javax.xml.stream.isSupportingExternalEntities">true</entry>
+		<entry name="javax.xml.stream.reporter"></entry>
+		<entry name="javax.xml.stream.resolver"></entry>
+		<entry name="javax.xml.stream.allocator"></entry>
             </properties>
         </dataFormat>
         <dataFormat name="JSON">
