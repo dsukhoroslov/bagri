@@ -9,6 +9,7 @@ import java.io.StringReader;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.json.Json;
 import javax.json.stream.JsonParser;
@@ -34,20 +35,7 @@ import com.bagri.core.server.api.impl.ContentParserBase;
  */
 public class JsonApiParser extends ContentParserBase implements ContentParser {
 	
-	// TODO: move all of this to the init method !?
-	private static JsonParserFactory factory;
-	static {
-		//JsonProvider provider = JsonProvider.provider();
-		//Map<String, Boolean> config = new HashMap<String, Boolean>();
-		//config.put(JsonFactory.Feature.CANONICALIZE_FIELD_NAMES.name(), true);
-		//config.put(JsonParser.Feature.ALLOW_COMMENTS.name(), true);
-		//config.put(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT.name(), true);
-		//provider.createParserFactory(config); // Understands JsonFactory and JsonParser features
-		
-		Map<String, Object> params = new HashMap<>();
-		//params.put("javax.json.spi.JsonProvider", "com.github.pgelinas.jackson.javax.json.spi.JacksonProvider");
-		factory = Json.createParserFactory(params);
-	}
+	private JsonParserFactory factory = Json.createParserFactory(null);
 	
 	/**
 	 * 
@@ -68,6 +56,21 @@ public class JsonApiParser extends ContentParserBase implements ContentParser {
 	 */
 	public JsonApiParser(ModelManagement model) {
 		super(model);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * 
+	 */
+	@Override
+	public void init(Properties properties) {
+		// process/convert any speciic properties here 
+		Map<String, Object> params = new HashMap<>();
+		for (Map.Entry prop: properties.entrySet()) {
+			//String name = (String) prop.getKey();
+			params.put((String) prop.getKey(), prop.getValue());
+		}
+		factory = Json.createParserFactory(params);
 	}
 
 	/**
@@ -124,7 +127,7 @@ public class JsonApiParser extends ContentParserBase implements ContentParser {
 	 */
 	public List<Data> parse(JsonParser parser) throws BagriException {
 		
-		ParserContext ctx = init();
+		ParserContext ctx = initContext();
 		while (parser.hasNext()) {
 			processEvent(ctx, parser);
 		}
@@ -236,9 +239,7 @@ public class JsonApiParser extends ContentParserBase implements ContentParser {
 			} else {
 				current = addData(ctx, parent, NodeKind.element, "/" + name, null, XQItemType.XQBASETYPE_ANYTYPE, Occurrence.zeroOrOne); 
 			}
-			if (current != null) {
-				ctx.addStack(current);
-			}
+			ctx.addStack(current);
 		}
 	}
 
@@ -251,7 +252,7 @@ public class JsonApiParser extends ContentParserBase implements ContentParser {
 
 	private void processValueElement(ParserContext ctx, String value) throws BagriException {
 		
-		Data current = ctx.peekData();
+		Data current = ctx.popData();
 		boolean isArray = current == null;
 		if (isArray || current.getElement() == null) {
 			current = getTopData(ctx);

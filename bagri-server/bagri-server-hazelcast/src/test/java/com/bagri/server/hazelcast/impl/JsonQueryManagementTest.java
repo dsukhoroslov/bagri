@@ -152,8 +152,7 @@ public class JsonQueryManagementTest extends BagriManagementTest {
 			results.add(text);
 		}
 		docs.close();
-		// does not work any more!!
-		//assertEquals(2, results.size());
+		assertEquals(2, results.size());
 	}
 	
 	@Test

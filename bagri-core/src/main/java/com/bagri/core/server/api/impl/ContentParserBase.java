@@ -38,14 +38,6 @@ public abstract class ContentParserBase {
 		this.model = model;
 	}
 	
-    /**
-     * {@inheritDoc}
-     */
- 	public void init(Map<String, Object> context) {
- 		//
- 		logger.trace("init; got context: {}", context);
- 	}
- 	
 	/**
 	 * 
 	 * @param parent parent data element
@@ -74,7 +66,7 @@ public abstract class ContentParserBase {
 	/**
 	 * initializes parser components before parsing document
 	 */
-	protected ParserContext init() {
+	protected ParserContext initContext() {
 		return new ParserContext();
 	}
 	

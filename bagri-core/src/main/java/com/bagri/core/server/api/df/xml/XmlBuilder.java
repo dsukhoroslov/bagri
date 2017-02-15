@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Stack;
 
 import org.slf4j.Logger;
@@ -49,7 +50,7 @@ public class XmlBuilder implements ContentBuilder {
  	/**
   	 * {@inheritDoc}
   	 */
- 	public void init(Map<String, Object> context) {
+ 	public void init(Properties properties) {
  		//
  		//logger.trace("init; got context: {}", context);
  	}

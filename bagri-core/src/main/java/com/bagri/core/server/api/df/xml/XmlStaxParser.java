@@ -1,5 +1,7 @@
 package com.bagri.core.server.api.df.xml;
 
+import static javax.xml.stream.XMLInputFactory.*;
+
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -9,6 +11,8 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
@@ -56,6 +60,7 @@ public class XmlStaxParser extends ContentParserBase implements ContentParser {
 	 */
 	public static List<Data> parseDocument(ModelManagement model, String xml) throws XMLStreamException, BagriException {
 		XmlStaxParser parser = new XmlStaxParser(model);
+		parser.init(new Properties());
 		return parser.parse(xml);
 	}
 	
@@ -67,6 +72,27 @@ public class XmlStaxParser extends ContentParserBase implements ContentParser {
 		super(model);
 	}
 
+    /**
+     * {@inheritDoc}
+     */
+ 	public void init(Properties properties) {
+ 		logger.trace("init; got context: {}", properties);
+		for (Map.Entry prop: properties.entrySet()) {
+			String name = (String) prop.getKey();
+			if (factory.isPropertySupported(name)) {
+				String value = (String) prop.getValue();
+				if (value != null && value.length() > 0) {
+					if (name.equals(ALLOCATOR) || name.equals(REPORTER) || name.equals(RESOLVER)) {
+						factory.setProperty(name, value);
+					} else {
+						factory.setProperty(name, Boolean.valueOf(value));
+					}
+				}
+			}
+		}
+ 	}
+ 	
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -164,7 +190,7 @@ public class XmlStaxParser extends ContentParserBase implements ContentParser {
 	 */
 	public List<Data> parse(XMLEventReader eventReader) throws BagriException {
 		
-		XmlParserContext ctx = init();
+		XmlParserContext ctx = initContext();
 		while (eventReader.hasNext()) {
 			try {
 				processEvent(ctx, eventReader.nextEvent());
@@ -219,7 +245,7 @@ public class XmlStaxParser extends ContentParserBase implements ContentParser {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected XmlParserContext init() {
+	protected XmlParserContext initContext() {
 		return new XmlParserContext();
 	}
 	

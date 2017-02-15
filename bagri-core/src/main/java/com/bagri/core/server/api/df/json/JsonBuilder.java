@@ -2,6 +2,7 @@ package com.bagri.core.server.api.df.json;
 
 import java.io.InputStream;
 import java.util.Map;
+import java.util.Properties;
 
 import com.bagri.core.DataKey;
 import com.bagri.core.api.BagriException;
@@ -23,7 +24,7 @@ public class JsonBuilder implements ContentBuilder {
  	/**
   	 * {@inheritDoc}
   	 */
- 	public void init(Map<String, Object> context) {
+ 	public void init(Properties properties) {
  		//
  		//logger.trace("init; got context: {}", context);
  	}

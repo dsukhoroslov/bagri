@@ -239,6 +239,7 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
 			}
 		}
 		if (cp != null) {
+			cp.init(df.getProperties());
 			parsers.putIfAbsent(dataFormat, cp);
 		}
 		return cp;
@@ -246,20 +247,27 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
 	
 	@Override
 	public ContentBuilder getBuilder(String dataFormat) {
+		ContentBuilder cb = builders.get(dataFormat);
+		if (cb != null) {
+			return cb;
+		}
+		
 		DataFormat df = getDataFormat(dataFormat);
 		if (df != null) {
 			return instantiateClass(df.getBuilderClass());
 		}
-		logger.info("getBuilder; no builder found for dataFormat: {}", dataFormat); 
-		dataFormat = this.xdmSchema.getProperty(pn_schema_format_default);
-		// JSON builder is not implemented yet..
-		//if ("json".equalsIgnoreCase(dataFormat)) {
-		//	return new JsonBuilder();
-		//} else 
-		if ("xml".equalsIgnoreCase(dataFormat)) {
-			return new XmlBuilder(getModelManagement());
+		if (cb == null) {
+			logger.info("getBuilder; no builder found for dataFormat: {}", dataFormat); 
+			String defaultFormat = this.xdmSchema.getProperty(pn_schema_format_default);
+			if ("xml".equalsIgnoreCase(defaultFormat)) {
+				cb = new XmlBuilder(getModelManagement());
+			}
 		}
-		return null;
+		if (cb != null) {
+			cb.init(df.getProperties());
+			builders.putIfAbsent(dataFormat, cb);
+		}
+		return cb;
 	}
 	
 	private <T> T instantiateClass(String className) {

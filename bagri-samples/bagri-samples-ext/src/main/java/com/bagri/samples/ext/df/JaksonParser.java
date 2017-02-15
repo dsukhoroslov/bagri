@@ -6,9 +6,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
+import javax.json.Json;
 import javax.xml.xquery.XQItemType;
 
 import com.bagri.core.api.BagriException;
@@ -28,8 +32,9 @@ public class JaksonParser extends ContentParserBase implements ContentParser {
 	
 	private static JsonFactory factory = new JsonFactory();
 
-	public static List<Data> parseDocument(ModelManagement dictionary, String json) throws BagriException {
-		JaksonParser parser = new JaksonParser(dictionary);
+	public static List<Data> parseDocument(ModelManagement model, String json) throws BagriException {
+		JaksonParser parser = new JaksonParser(model);
+		parser.init(new Properties());
 		return parser.parse(json);
 	}
 	
@@ -37,21 +42,55 @@ public class JaksonParser extends ContentParserBase implements ContentParser {
 		super(model);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void init(Properties properties) {
+		for (Map.Entry prop: properties.entrySet()) {
+			String name = (String) prop.getKey();
+			JsonParser.Feature f = JsonParser.Feature.valueOf(name);
+			if (f != null) {
+				factory.configure(f, Boolean.valueOf((String) prop.getValue()));
+			}
+		}
+	}
+	
+	private void closeParser(JsonParser jParser) {
+		if (jParser != null) {
+			try {
+				jParser.close();
+			} catch (IOException ex) {
+				logger.error("closeParser.error", ex);
+			}
+		}
+	}
+	
 	@Override
 	public List<Data> parse(String json) throws BagriException { 
-		try (Reader reader = new StringReader(json)) {
-			return parse(reader);
+
+		JsonParser jParser = null;
+		try {
+			jParser = factory.createParser(json);	
+			return parse(jParser);
 		} catch (IOException ex) {
 			throw new BagriException(ex, BagriException.ecInOut);
+		} finally {
+			closeParser(jParser);
 		}
 	}
 	
 	@Override
 	public List<Data> parse(File file) throws BagriException {
-		try (Reader reader = new FileReader(file)) {
-			return parse(reader);
+
+		JsonParser jParser = null;
+		try {
+			jParser = factory.createParser(file);	
+			return parse(jParser);
 		} catch (IOException ex) {
 			throw new BagriException(ex, BagriException.ecInOut);
+		} finally {
+			closeParser(jParser);
 		}
 	}
 	
@@ -65,13 +104,7 @@ public class JaksonParser extends ContentParserBase implements ContentParser {
 		} catch (IOException ex) {
 			throw new BagriException(ex, BagriException.ecInOut);
 		} finally {
-			if (jParser != null) {
-				try {
-					jParser.close();
-				} catch (IOException ex) {
-					// just log it..
-				}
-			}
+			closeParser(jParser);
 		}
 	}
 	
@@ -85,21 +118,14 @@ public class JaksonParser extends ContentParserBase implements ContentParser {
 		} catch (IOException ex) {
 			throw new BagriException(ex, BagriException.ecInOut);
 		} finally {
-			if (jParser != null) {
-				try {
-					jParser.close();
-				} catch (IOException ex) {
-					// just log it..
-				}
-			}
+			closeParser(jParser);
 		}
 	}
 
 	public List<Data> parse(JsonParser parser) throws BagriException {
 		
 		logger.trace("parse.enter; context: {}; schema: {}", parser.getParsingContext(), parser.getSchema());
-		
-		ParserContext ctx = init();
+		ParserContext ctx = initContext();
 		try {
 			while (parser.nextToken() != null) {
 				processToken(ctx, parser);

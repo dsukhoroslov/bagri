@@ -355,6 +355,10 @@
             <properties>
                 <entry name="bdb.schema.password">password</entry>
                 <!--entry name="bdb.schema.password">5f4dcc3b5aa765d61d8327deb882cf99</entry-->
+                <entry name="bdb.schema.multicast.enabled">false</entry>
+                <entry name="bdb.schema.tcp.enabled">true</entry>
+                <entry name="bdb.schema.aws.enabled">false</entry>
+                <entry name="bdb.schema.connect.timeout">5</entry>
                 <entry name="bdb.schema.data.backup.read">false</entry>
                 <entry name="bdb.schema.trans.backup.async">0</entry>
                 <entry name="bdb.schema.store.enabled">false</entry>
@@ -779,7 +783,9 @@
             <builderClass>com.bagri.core.server.api.df.json.JsonBuilder</builderClass>
             <extensions>json</extensions>
             <type>application/json</type>
-            <properties/>
+            <properties>
+		<!--entry name="javax.json.spi.JsonProvider">com.github.pgelinas.jackson.javax.json.spi.JacksonProvider</entry-->
+            </properties>
         </dataFormat>
     </dataFormats>
     <dataStores>

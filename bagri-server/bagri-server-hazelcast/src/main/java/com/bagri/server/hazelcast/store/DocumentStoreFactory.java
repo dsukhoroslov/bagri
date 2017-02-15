@@ -2,6 +2,7 @@ package com.bagri.server.hazelcast.store;
 
 import static com.bagri.core.Constants.*;
 import static com.bagri.server.hazelcast.util.HazelcastUtils.*;
+import static com.bagri.support.util.PropUtils.substituteProperties;
 
 import java.util.Collection;
 import java.util.Map;
@@ -88,15 +89,11 @@ public class DocumentStoreFactory implements MapStoreFactory<DocumentKey, Docume
 		DataStore store = getDataStore(storeType);
 		if (store != null) {
 			storeClass = store.getStoreClass();
+			properties.putAll(store.getProperties());
 			Schema schema = getSchema(schemaName);
 			if (schema != null) {
 				// override store properties with their schema values
-				for (Map.Entry prop: store.getProperties().entrySet()) {
-					String pName = (String) prop.getKey();
-					properties.setProperty(pName, schema.getProperties().getProperty(pName, (String) prop.getValue()));
-				}
-			} else {
-				properties.putAll(store.getProperties());
+				substituteProperties(properties, schema.getProperties());
 			}
 		} else {
 			storeClass = defaultStoreClass;

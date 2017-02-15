@@ -66,8 +66,9 @@ public class JsonApiParserTest {
 		ModelManagement dict = new ModelManagementImpl();
 		JsonApiParser parser = new JsonApiParser(dict);
 		List<Data> elts = parser.parse(json);
+		//System.out.println(elts);
 		assertNotNull(elts);
-		assertEquals(27, elts.size()); // was 28!!
+		assertEquals(28, elts.size()); 
 		Data data = elts.get(0);
 		assertEquals("", data.getPath());
 		assertNull(data.getValue());

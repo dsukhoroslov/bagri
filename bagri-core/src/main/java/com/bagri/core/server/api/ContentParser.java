@@ -1,11 +1,10 @@
 package com.bagri.core.server.api;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.util.List;
-import java.util.Map;
+import java.util.Properties;
 
 import com.bagri.core.api.BagriException;
 import com.bagri.core.model.Data;
@@ -23,9 +22,9 @@ public interface ContentParser {
     /**
      * Lifecycle method. Invoked at Schema initialization phase. 
      * 
-     * @param context the environment context
+     * @param properties the environment context
      */
-    void init(Map<String, Object> context);	
+    void init(Properties properties);	
 
 	/**
 	 * 

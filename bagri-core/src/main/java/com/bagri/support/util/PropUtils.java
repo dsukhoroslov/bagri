@@ -5,9 +5,12 @@ import static com.bagri.support.util.FileUtils.EOL;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.xml.transform.OutputKeys;
+
+import com.bagri.core.system.Schema;
 
 /**
  * A set of static utility methods for Properties
@@ -151,4 +154,24 @@ public class PropUtils {
 		setProperty(source, outProps, OutputKeys.VERSION, null);
 		return outProps;
 	}
+
+	/**
+	 * Substitute basic properties with their concrete values
+	 * 
+	 * @param origin original Properties
+	 * @param substitute substitution Properties
+	 * @return substituted Properties
+	 */
+	public static Properties substituteProperties(Properties origin, Properties substitute) {
+		
+		for (Map.Entry prop: origin.entrySet()) {
+			String name = (String) prop.getKey();
+			String value = substitute.getProperty(name);
+			if (value != null) {
+				origin.setProperty(name, value);
+			}
+		}
+		return origin;
+	}
+	
 }
