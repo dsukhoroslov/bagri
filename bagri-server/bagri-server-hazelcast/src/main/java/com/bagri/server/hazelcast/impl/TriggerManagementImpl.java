@@ -191,7 +191,7 @@ public class TriggerManagementImpl implements TriggerManagement {
 					}
 					int index = trigger.getIndex(); 
 					if (index > impls.size()) {
-						logger.warn("createTrigger; wrong trigger index specified: {}, when size is: {}", 
+						logger.info("createTrigger; wrong trigger index specified: {}, when size is: {}", 
 								index, impls.size());
 						index = impls.size();
 					}

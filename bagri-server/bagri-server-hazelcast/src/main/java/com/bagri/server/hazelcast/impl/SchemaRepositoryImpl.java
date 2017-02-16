@@ -311,7 +311,7 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
 		}
 		
 		HazelcastInstance dataInstance = getHazelcastInstanceByName(hz_instance);
-		if (dataInstance != null) {
+		if (dataInstance != null && hasStorageMembers(dataInstance)) {
 			Map<String, Library> libraries = dataInstance.getMap("libraries");
 			return libraries.values();
 		}
@@ -330,7 +330,7 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
 		}
 		
 		HazelcastInstance dataInstance = getHazelcastInstanceByName(hz_instance);
-		if (dataInstance != null) {
+		if (dataInstance != null && hasStorageMembers(dataInstance)) {
 			Map<String, Module> modules = dataInstance.getMap("modules");
 			return modules.values();
 		}
