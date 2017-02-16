@@ -48,7 +48,7 @@ public class TriggerManagementImpl implements TriggerManagement {
 	private static final transient Logger logger = LoggerFactory.getLogger(TriggerManagementImpl.class);
 
 	private HazelcastInstance hzInstance;
-	private IMap<Integer, TriggerDefinition> trgDict;
+	//private IMap<Integer, TriggerDefinition> trgDict;
     private Map<String, List<TriggerContainer>> triggers = new HashMap<>();
 	private IExecutorService execService;
     private ModelManagementImpl mdlMgr;
@@ -73,13 +73,13 @@ public class TriggerManagementImpl implements TriggerManagement {
 		this.mdlMgr = mdlMgr;
 	}
 
-	protected Map<Integer, TriggerDefinition> getTriggerDictionary() {
-		return trgDict;
-	}
+	//protected Map<Integer, TriggerDefinition> getTriggerDictionary() {
+	//	return trgDict;
+	//}
 	
-	public void setTriggerDictionary(IMap<Integer, TriggerDefinition> trgDict) {
-		this.trgDict = trgDict;
-	}
+	//public void setTriggerDictionary(IMap<Integer, TriggerDefinition> trgDict) {
+	//	this.trgDict = trgDict;
+	//}
 
 	public void setExecService(IExecutorService execService) {
 		this.execService = execService;

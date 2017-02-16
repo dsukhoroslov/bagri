@@ -116,8 +116,8 @@
 
         <antlr.version>3.2</antlr.version>
         <jcache.version>1.0.0</jcache.version>
-        <!--hazelcast.version>3.7.5</hazelcast.version-->
-        <hazelcast.version>3.8-RC1</hazelcast.version>
+        <hazelcast.version>3.7.5</hazelcast.version>
+        <!--hazelcast.version>3.8-RC1</hazelcast.version-->
         <coherence.version>3.7.1.10</coherence.version>
         <coherence-common.version>11.1.0</coherence-common.version>
 

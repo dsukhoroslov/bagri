@@ -3,6 +3,7 @@ package com.bagri.server.hazelcast.impl;
 import static com.bagri.core.Constants.ctx_repo;
 import static com.bagri.core.Constants.ctx_popService;
 import static com.bagri.core.Constants.pn_schema_format_default;
+import static com.bagri.core.server.api.CacheConstants.*;
 import static com.bagri.server.hazelcast.util.HazelcastUtils.hasStorageMembers;
 import static com.bagri.server.hazelcast.util.HazelcastUtils.hz_instance;
 import static com.hazelcast.core.Hazelcast.getHazelcastInstanceByName;
@@ -294,7 +295,7 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
 		if (formats == null) {
 			HazelcastInstance dataInstance = getHazelcastInstanceByName(hz_instance);
 			if (dataInstance != null) {
-				formats = dataInstance.getMap("formats");
+				formats = dataInstance.getMap(CN_SYS_FORMATS);
 			}
 		}
 		if (formats != null) {
@@ -334,7 +335,7 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
 		
 		HazelcastInstance dataInstance = getHazelcastInstanceByName(hz_instance);
 		if (dataInstance != null && hasStorageMembers(dataInstance)) {
-			Map<String, Library> libraries = dataInstance.getMap("libraries");
+			Map<String, Library> libraries = dataInstance.getMap(CN_SYS_LIBRARIES);
 			return libraries.values();
 		}
 		return Collections.emptyList(); 
@@ -353,7 +354,7 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
 		
 		HazelcastInstance dataInstance = getHazelcastInstanceByName(hz_instance);
 		if (dataInstance != null && hasStorageMembers(dataInstance)) {
-			Map<String, Module> modules = dataInstance.getMap("modules");
+			Map<String, Module> modules = dataInstance.getMap(CN_SYS_MODULES);
 			return modules.values();
 		}
 		return Collections.emptyList(); 

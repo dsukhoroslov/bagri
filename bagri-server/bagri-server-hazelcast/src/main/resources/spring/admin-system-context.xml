@@ -50,35 +50,35 @@
 
 			<hz:executor-service name="sys-exec-pool" pool-size="${bdb.cluster.thread.pool:8}" />
 
-			<hz:map name="formats">
+			<hz:map name="sys-formats">
 				<hz:map-store enabled="true" write-delay-seconds="10" initial-mode="EAGER" implementation="dataFormatCacheStore"/>
 			</hz:map>
 
-			<hz:map name="stores">
+			<hz:map name="sys-stores">
 				<hz:map-store enabled="true" write-delay-seconds="10" initial-mode="EAGER" implementation="dataStoreCacheStore"/>
 			</hz:map>
 
-			<hz:map name="modules">
+			<hz:map name="sys-modules">
 				<hz:map-store enabled="true" write-delay-seconds="10" initial-mode="EAGER" implementation="moduleCacheStore"/>
 			</hz:map>
 
-			<hz:map name="libraries">
+			<hz:map name="sys-libraries">
 				<hz:map-store enabled="true" write-delay-seconds="10" initial-mode="EAGER" implementation="libraryCacheStore"/>
 			</hz:map>
 
-			<hz:map name="nodes">
+			<hz:map name="sys-nodes">
 				<hz:map-store enabled="true" write-delay-seconds="10" initial-mode="EAGER" implementation="nodeCacheStore"/>
 			</hz:map>
 			
-			<hz:map name="schemas">
+			<hz:map name="sys-schemas">
 				<hz:map-store enabled="true" write-delay-seconds="10" initial-mode="EAGER" implementation="schemaCacheStore"/>
 			</hz:map>
 
-			<hz:map name="roles">
+			<hz:map name="sys-roles">
 				<hz:map-store enabled="true" write-delay-seconds="10" initial-mode="EAGER" implementation="roleCacheStore"/>
 			</hz:map>
 			
-			<hz:map name="users">
+			<hz:map name="sys-users">
 				<hz:map-store enabled="true" write-delay-seconds="10" initial-mode="EAGER" implementation="userCacheStore"/>
 			</hz:map>
 			
@@ -121,14 +121,14 @@
 		</hz:config>
 	</hz:hazelcast>
 
-	<hz:map id="formats" name="formats" instance-ref="hzInstance"/>
-	<hz:map id="stores" name="stores" instance-ref="hzInstance"/>
-	<hz:map id="modules" name="modules" instance-ref="hzInstance"/>
-	<hz:map id="libraries" name="libraries" instance-ref="hzInstance"/>
-	<hz:map id="nodes" name="nodes" instance-ref="hzInstance"/>
-	<hz:map id="schemas" name="schemas" instance-ref="hzInstance"/>
-	<hz:map id="roles" name="roles" instance-ref="hzInstance"/>
-	<hz:map id="users" name="users" instance-ref="hzInstance"/>
+	<hz:map id="sys-formats" name="sys-formats" instance-ref="hzInstance"/>
+	<hz:map id="sys-stores" name="sys-stores" instance-ref="hzInstance"/>
+	<hz:map id="sys-modules" name="sys-modules" instance-ref="hzInstance"/>
+	<hz:map id="sys-libraries" name="sys-libraries" instance-ref="hzInstance"/>
+	<hz:map id="sys-nodes" name="sys-nodes" instance-ref="hzInstance"/>
+	<hz:map id="sys-schemas" name="sys-schemas" instance-ref="hzInstance"/>
+	<hz:map id="sys-roles" name="sys-roles" instance-ref="hzInstance"/>
+	<hz:map id="sys-users" name="sys-users" instance-ref="hzInstance"/>
 
 	<hz:executorService id="sys-exec-pool" name="sys-exec-pool" instance-ref="hzInstance"/>
 
@@ -176,34 +176,34 @@
 
 	<bean id="dataFormatService" class="com.bagri.server.hazelcast.management.DataFormatManagement">
 		<constructor-arg ref="hzInstance" />
-		<property name="entityCache" ref="formats"/>
+		<property name="entityCache" ref="sys-formats"/>
 	</bean>
 
 	<bean id="dataStoreService" class="com.bagri.server.hazelcast.management.DataStoreManagement">
 		<constructor-arg ref="hzInstance" />
-		<property name="entityCache" ref="stores"/>
+		<property name="entityCache" ref="sys-stores"/>
 	</bean>
 
 	<bean id="moduleService" class="com.bagri.server.hazelcast.management.ModuleManagement">
 		<constructor-arg ref="hzInstance" />
-		<property name="entityCache" ref="modules"/>
+		<property name="entityCache" ref="sys-modules"/>
 		<property name="XQCompiler" ref="xqCompiler"/>
 	</bean>
 
 	<bean id="libraryService" class="com.bagri.server.hazelcast.management.LibraryManagement">
 		<constructor-arg ref="hzInstance" />
-		<property name="entityCache" ref="libraries"/>
+		<property name="entityCache" ref="sys-libraries"/>
 		<property name="XQCompiler" ref="xqCompiler"/>
 	</bean>
 
 	<bean id="clusterService" class="com.bagri.server.hazelcast.management.ClusterManagement">
 		<constructor-arg ref="hzInstance" />
-		<property name="entityCache" ref="nodes"/>
+		<property name="entityCache" ref="sys-nodes"/>
 	</bean>
 
 	<bean id="schemaService" class="com.bagri.server.hazelcast.management.SchemaManagement">
 		<constructor-arg ref="hzInstance" />
-		<property name="entityCache" ref="schemas"/>
+		<property name="entityCache" ref="sys-schemas"/>
 		<property name="clusterService" ref="clusterService"/>
 		<property name="execService" ref="sys-exec-pool"/>
 		<property name="restService" ref="restServer"/>
@@ -233,12 +233,12 @@
 
 	<bean id="roleService" class="com.bagri.server.hazelcast.management.RoleManagement">
 		<constructor-arg ref="hzInstance" />
-		<property name="entityCache" ref="roles"/>
+		<property name="entityCache" ref="sys-roles"/>
 	</bean>
 
 	<bean id="userService" class="com.bagri.server.hazelcast.management.UserManagement">
 		<constructor-arg ref="hzInstance" />
-		<property name="entityCache" ref="users"/>
+		<property name="entityCache" ref="sys-users"/>
 	</bean>
 
 	<bean id="repoProviderService" class="com.bagri.server.hazelcast.impl.RepositoryProviderImpl">

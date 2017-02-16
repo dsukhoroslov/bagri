@@ -54,11 +54,11 @@
 			
 			<hz:queue name="client:*" async-backup-count="0" backup-count="0" />
 			
-			<hz:map name="dict-trigger" in-memory-format="BINARY" async-backup-count="${bdb.schema.dict.backup.async}" 
+			<!--hz:map name="dict-trigger" in-memory-format="BINARY" async-backup-count="${bdb.schema.dict.backup.async}" 
 				backup-count="${bdb.schema.dict.backup.sync}" read-backup-data="${bdb.schema.dict.backup.read}">
 				<hz:near-cache time-to-live-seconds="0" max-idle-seconds="0" eviction-policy="LRU" 
 					max-size="0" invalidate-on-change="true" in-memory-format="OBJECT" cache-local-entries="false"/>
-			</hz:map>
+			</hz:map-->
 			
 			<hz:map name="xdm-key" in-memory-format="BINARY" async-backup-count="${bdb.schema.data.backup.async}" 
 				backup-count="${bdb.schema.data.backup.sync}" read-backup-data="${bdb.schema.data.backup.read}">
@@ -239,7 +239,7 @@
 	<hz:replicatedMap id="dict-namespace" name="dict-namespace" instance-ref="hzInstance" />
 	<hz:replicatedMap id="dict-path" name="dict-path" instance-ref="hzInstance" />
 	<hz:replicatedMap id="dict-index" name="dict-index" instance-ref="hzInstance" />
-	<hz:map id="dict-trigger" name="dict-trigger" instance-ref="hzInstance" />
+	<!--hz:map id="dict-trigger" name="dict-trigger" instance-ref="hzInstance" /-->
 
 	<hz:idGenerator id="xdm.document" name="xdm.document" instance-ref="hzInstance"/>
 	<!--hz:atomicLong id="xdm.document" name="xdm.document" instance-ref="hzInstance"/-->
@@ -410,7 +410,7 @@
 	</bean>
 
 	<bean id="trManager" class="com.bagri.server.hazelcast.impl.TriggerManagementImpl">
-		<property name="triggerDictionary" ref="dict-trigger"/>
+		<!--property name="triggerDictionary" ref="dict-trigger"/-->
 		<property name="execService" ref="xdm-exec-pool"/>
 		<property name="modelManager" ref="mdlManager"/>
 		<property name="statsQueue" ref="triggerQueue"/>

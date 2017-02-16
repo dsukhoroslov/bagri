@@ -113,11 +113,6 @@ public class CacheConstants {
 	 */
 	public static final String PN_XDM_TRANS_POOL = "xdm-trans-pool";
 
-	/**
-	 * System cluster execution service
-	 */
-	public static final String PN_XDM_SYSTEM_POOL = "sys-exec-pool";
-
 	// Topic names
 
 	/**
@@ -134,5 +129,53 @@ public class CacheConstants {
 	 * Population notification topic
 	 */
 	public static final String TPN_XDM_POPULATION = "xdm-population";
+	
+	// System/admin distributed objects
+
+	/**
+	 * DataFormats cache
+	 */
+	public static final String CN_SYS_FORMATS = "sys-formats";
+	
+	/**
+	 * DataStores cache
+	 */
+	public static final String CN_SYS_STORES = "sys-stores";
+	
+	/**
+	 * Modules cache
+	 */
+	public static final String CN_SYS_MODULES = "sys-modules";
+	
+	/**
+	 * Libraries cache
+	 */
+	public static final String CN_SYS_LIBRARIES = "sys-libraries";
+	
+	/**
+	 * Nodes cache
+	 */
+	public static final String CN_SYS_NODES = "sys-nodes";
+	
+	/**
+	 * Schemas cache
+	 */
+	public static final String CN_SYS_SCHEMAS = "sys-schemas";
+	
+	/**
+	 * Roles cache
+	 */
+	public static final String CN_SYS_ROLES = "sys-roles";
+	
+	/**
+	 * Users cache
+	 */
+	public static final String CN_SYS_USERS = "sys-users";
+	
+	/**
+	 * System cluster execution service
+	 */
+	public static final String PN_XDM_SYSTEM_POOL = "sys-exec-pool";
+
 
 }

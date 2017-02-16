@@ -534,7 +534,7 @@
                         <action order="before" scope="insert"/>
                     </actions>
                     <library>trigger_library</library>
-                    <className>com.bagri.samples.ext.SampleTrigger</className>
+                    <className>com.bagri.samples.ext.trigger.SampleTrigger</className>
                 </trigger>
                 <trigger xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns2:javatrigger">
                     <version>1</version>
@@ -548,7 +548,7 @@
                         <action order="after" scope="insert"/>
                     </actions>
                     <library>trigger_library</library>
-                    <className>com.bagri.samples.ext.SecurityTrigger</className>
+                    <className>com.bagri.samples.ext.trigger.SecurityTrigger</className>
                 </trigger>
 		<trigger xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns2:xqtrigger">
                     <version>1</version>

@@ -3,6 +3,8 @@
  */
 package com.bagri.server.hazelcast.management;
 
+import static com.bagri.core.server.api.CacheConstants.CN_SYS_ROLES;
+
 import javax.management.openmbean.TabularData;
 
 import org.springframework.jmx.export.annotation.ManagedAttribute;
@@ -76,7 +78,7 @@ public class UserManagement extends EntityManagement<User> {
 	protected EntityManager<User> createEntityManager(String userName) {
 		UserManager mgr = new UserManager(hzInstance, userName);
 		mgr.setEntityCache(entityCache);
-		IMap<String, Role> roles = hzInstance.getMap("roles");
+		IMap<String, Role> roles = hzInstance.getMap(CN_SYS_ROLES);
 		mgr.setRoleCache(roles);
 		return mgr;
 	}

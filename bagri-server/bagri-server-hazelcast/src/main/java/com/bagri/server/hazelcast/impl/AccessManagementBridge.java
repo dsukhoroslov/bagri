@@ -1,6 +1,8 @@
 package com.bagri.server.hazelcast.impl;
 
 import static com.bagri.core.Constants.pn_access_filename;
+import static com.bagri.core.server.api.CacheConstants.CN_SYS_ROLES;
+import static com.bagri.core.server.api.CacheConstants.CN_SYS_USERS;
 import static com.bagri.server.hazelcast.util.HazelcastUtils.hasStorageMembers;
 
 import java.util.Collection;
@@ -60,8 +62,8 @@ public class AccessManagementBridge implements MembershipListener {
 	       	    }
 	       	}
 		} else {
-			copyCache(hzInstance.getMap("roles"), roles);
-			copyCache(hzInstance.getMap("users"), users);
+			copyCache(hzInstance.getMap(CN_SYS_ROLES), roles);
+			copyCache(hzInstance.getMap(CN_SYS_USERS), users);
 		}
 		logger.trace("setupCaches.exit; lite: {}; initiated roles: {}; users {}", lite, roles.size(), users.size());
 	}

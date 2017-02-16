@@ -18,7 +18,7 @@ public class BagriXQStaticContext implements XQStaticContext {
 	private Map<String, String> namespaces = new HashMap<String, String>(6);
 	private String defaultElementTypeNamespace = ""; //"http://www.w3.org/2001/XMLSchema";
 	private String defaultFunctionNamespace = "http://www.w3.org/2005/xpath-functions";
-	private String defaultCollationUri = "";
+	private String defaultCollationUri = "http://www.w3.org/2005/xpath-functions/collation/codepoint";
 	private String baseUri = "";
 	private int constructionMode = CONSTRUCTION_MODE_PRESERVE;
 	private int orderingMode = ORDERING_MODE_UNORDERED; 
