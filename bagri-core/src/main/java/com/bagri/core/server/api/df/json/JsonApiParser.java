@@ -247,6 +247,7 @@ public class JsonApiParser extends ContentParserBase implements ContentParser {
 		if (ctx.getStackSize() > 0) {
 			Data current = ctx.popData();
 			logger.trace("processEndElement; got current: {}", current);
+			adjustParent(current);
 		}
 	}
 

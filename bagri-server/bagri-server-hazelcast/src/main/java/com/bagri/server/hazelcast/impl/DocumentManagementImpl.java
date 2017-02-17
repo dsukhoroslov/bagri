@@ -647,7 +647,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		if (root != null) {
 			int docType = model.translateDocumentType(root.getPath());
 			// normalize it ASAP !?
-			model.normalizeDocumentType(docType);
+			//model.normalizeDocumentType(docType);
 			Map<DataKey, Elements> elements = new HashMap<DataKey, Elements>(data.size());
 			
 			Set<Integer> fragments = new HashSet<>();

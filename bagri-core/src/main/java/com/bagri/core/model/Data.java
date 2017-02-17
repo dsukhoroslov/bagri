@@ -80,6 +80,17 @@ public class Data implements Comparable<Data> {
     	
     /**
      * 
+     * @return the path parent id
+     */
+    public int getParentPathId() {
+    	if (path != null) {
+    		return path.getParentId();
+    	}
+    	return 0;
+    }
+    
+    /**
+     * 
      * @return the path's post id
      */
     public int getPostId() {
@@ -92,6 +103,14 @@ public class Data implements Comparable<Data> {
      */
     public Object getValue() {
     	return element.getValue();
+    }
+
+    /**
+     * 
+     * @param postId the latest child pathId
+     */
+    public void setPostId(int postId) {
+    	path.setPostId(postId);
     }
     
     /**

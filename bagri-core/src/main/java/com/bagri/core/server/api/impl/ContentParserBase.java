@@ -57,10 +57,26 @@ public abstract class ContentParserBase {
 		String path = parent.getPath() + name;
 		Path xPath = model.translatePath(ctx.getDocType(), path, kind, dataType, occurence);
 		xPath.setParentId(parent.getPathId());
+		if (parent.getPostId() < xPath.getPathId()) {
+			parent.setPostId(xPath.getPathId());
+		}
 		xElt.setValue(getAtomicValue(xPath.getDataType(), value));
 		Data xData = new Data(xPath, xElt);
 		ctx.addData(xData);
 		return xData;
+	}
+	
+	/**
+	 * 
+	 * @param current the current closing element
+	 */
+	protected void adjustParent(Data current) {
+		if (current != null && current.getParentPathId() > 0) {
+			Path parent = model.getPath(current.getParentPathId());
+			if (parent != null && parent.getPostId() < current.getPostId()) {
+				parent.setPostId(current.getPostId());
+			}
+		}
 	}
 	
 	/**

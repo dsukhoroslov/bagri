@@ -168,7 +168,7 @@ public interface ModelManagement {
 	 * @param typeId int; the document's type id  
 	 * @throws BagriException in case of any error 
 	 */
-	void normalizeDocumentType(int typeId) throws BagriException;
+	//void normalizeDocumentType(int typeId) throws BagriException;
 
 	/**
 	 * registers bunch of node path's specified in the XML schema (XSD)   

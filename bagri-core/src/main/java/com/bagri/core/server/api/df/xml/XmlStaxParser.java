@@ -286,21 +286,23 @@ public class XmlStaxParser extends ContentParserBase implements ContentParser {
 	private void processEndElement(XmlParserContext ctx, EndElement element) throws BagriException {
 
 		Data current = ctx.popData();
+		logger.trace("processEndElement; got current: {}", current);
 		if (ctx.chars.length() > 0) {
 			String content = ctx.chars.toString();
 			// normalize xml content.. what if it is already normalized??
 			content = content.replaceAll("&", "&amp;");
 			// trim left/right ? this is schema-dependent. trim if schema-type 
 			// is xs:token, for instance..
-			Data text = addData(ctx, current, NodeKind.text, "/text()", content, XQItemType.XQBASETYPE_ANYATOMICTYPE, Occurrence.zeroOrOne); 
-			ctx.chars.delete(0, ctx.chars.length());
+			addData(ctx, current, NodeKind.text, "/text()", content, XQItemType.XQBASETYPE_ANYATOMICTYPE, Occurrence.zeroOrOne); 
+			ctx.clearChars();
 		}
+		adjustParent(current);
 	}
 
 	private void processCharacters(XmlParserContext ctx, Characters characters) {
 
 		if (characters.getData().trim().length() > 0) {
-			ctx.chars.append(characters.getData());
+			ctx.appendChars(characters.getData());
 		}
 	}
 
@@ -333,6 +335,14 @@ public class XmlStaxParser extends ContentParserBase implements ContentParser {
 			super();
 			firstEvents = new ArrayList<XMLEvent>();
 			chars = new StringBuilder();
+		}
+		
+		void appendChars(String tail) {
+			chars.append(tail);
+		}
+		
+		void clearChars() {
+			chars.delete(0, chars.length());
 		}
 		
 	}

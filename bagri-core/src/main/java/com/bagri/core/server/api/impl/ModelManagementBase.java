@@ -345,6 +345,7 @@ public abstract class ModelManagementBase implements ModelManagement {
 	 * @param typeId int; the document's type id  
 	 * @throws BagriException in case of any error 
 	 */
+	/*
 	public void normalizeDocumentType(int typeId) throws BagriException {
 
 		// TODO: do this via EntryProcessor ?
@@ -433,6 +434,7 @@ public abstract class ModelManagementBase implements ModelManagement {
 		getPathCache().putAll(pes);
 		return pes.size();
 	}
+	*/
 	
 	/**
 	 * translates regex expression like "^/ns0:Security/ns0:SecurityInformation/.(*)/ns0:Sector/text\\(\\)$";
@@ -590,7 +592,7 @@ public abstract class ModelManagementBase implements ModelManagement {
 				
 				List<XSElementDeclaration> parents = new ArrayList<>(4);
 				processElement(docType, "", xsElement, substitutions, parents, 1, 1);
-				normalizeDocumentType(docType);
+				//normalizeDocumentType(docType);
 			}
 		}
 		
