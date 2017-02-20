@@ -35,10 +35,15 @@
 					<hz:ports>${bdb.schema.ports.first}-${bdb.schema.ports.last}</hz:ports> 
 				</hz:outbound-ports>
 				<hz:join>
-					<hz:multicast enabled="false" />
-					<hz:tcp-ip enabled="true" connection-timeout-seconds="10">
-						<hz:members>${bdb.schema.members}</hz:members>
+                                        <hz:multicast enabled="${bdb.schema.multicast.enabled}" multicast-timeout-seconds="${bdb.schema.connect.timeout:10}">
+                                            <!--hz:trusted-interfaces>
+                                                <hz:interface>${bdb.schema.members}</hz:interface>
+                                            </hz:trusted-interfaces-->
+                                        </hz:multicast>					
+					<hz:tcp-ip enabled="${bdb.schema.tcp.enabled}" connection-timeout-seconds="${bdb.schema.connect.timeout:10}">
+						<hz:members>${bdb.schema.members:localhost}</hz:members>
 					</hz:tcp-ip>
+					<hz:aws enabled="${bdb.schema.aws.enabled:false}" connection-timeout-seconds="${bdb.schema.connect.timeout:10}"/>
 				</hz:join>
 			</hz:network>
 
@@ -49,42 +54,11 @@
 			
 			<hz:queue name="client:*" async-backup-count="0" backup-count="0" />
 			
-			<hz:map name="dict-namespace" in-memory-format="BINARY" async-backup-count="${bdb.schema.dict.backup.async}" 
-				backup-count="${bdb.schema.dict.backup.sync}" read-backup-data="${bdb.schema.dict.backup.read}">
-				<hz:near-cache time-to-live-seconds="0" max-idle-seconds="0" eviction-policy="LRU" 
-					max-size="0" invalidate-on-change="true" in-memory-format="OBJECT" cache-local-entries="false"/>
-			</hz:map>
-			<hz:map name="dict-path" in-memory-format="BINARY" async-backup-count="${bdb.schema.dict.backup.async}" 
-				backup-count="${bdb.schema.dict.backup.sync}" read-backup-data="${bdb.schema.dict.backup.read}">
-				<hz:near-cache time-to-live-seconds="0" max-idle-seconds="0" eviction-policy="LRU" 
-					max-size="0" invalidate-on-change="true" in-memory-format="OBJECT" cache-local-entries="false"/>
-				<!--hz:indexes>
-					<hz:index attribute="typeId"/>
-					<hz:index attribute="pathId" ordered="true"/>
-				</hz:indexes-->
-			</hz:map>
-			<!--hz:map name="dict-index" in-memory-format="OBJECT" async-backup-count="${bdb.schema.dict.backup.async}" 
+			<!--hz:map name="dict-trigger" in-memory-format="BINARY" async-backup-count="${bdb.schema.dict.backup.async}" 
 				backup-count="${bdb.schema.dict.backup.sync}" read-backup-data="${bdb.schema.dict.backup.read}">
 				<hz:near-cache time-to-live-seconds="0" max-idle-seconds="0" eviction-policy="LRU" 
 					max-size="0" invalidate-on-change="true" in-memory-format="OBJECT" cache-local-entries="false"/>
 			</hz:map-->
-			
-			<hz:map name="dict-document-type" in-memory-format="BINARY" async-backup-count="${bdb.schema.dict.backup.async}" 
-				backup-count="${bdb.schema.dict.backup.sync}" read-backup-data="${bdb.schema.dict.backup.read}">
-				<!--hz:map-store enabled="true" write-delay-seconds="10" factory-implementation="xdmStoreFactory">
-					<hz:properties>
-						<hz:property name="bdb.schema.name">${bdb.schema.name}</hz:property>
-						<hz:property name="bdb.schema.store.type">${bdb.schema.store.type}</hz:property>
-					</hz:properties>
-				</hz:map-store-->
-				<hz:near-cache time-to-live-seconds="0" max-idle-seconds="0" eviction-policy="LRU" 
-					max-size="0" invalidate-on-change="true" in-memory-format="OBJECT" cache-local-entries="false"/>
-			</hz:map>
-			<hz:map name="dict-trigger" in-memory-format="BINARY" async-backup-count="${bdb.schema.dict.backup.async}" 
-				backup-count="${bdb.schema.dict.backup.sync}" read-backup-data="${bdb.schema.dict.backup.read}">
-				<hz:near-cache time-to-live-seconds="0" max-idle-seconds="0" eviction-policy="LRU" 
-					max-size="0" invalidate-on-change="true" in-memory-format="OBJECT" cache-local-entries="false"/>
-			</hz:map>
 			
 			<hz:map name="xdm-key" in-memory-format="BINARY" async-backup-count="${bdb.schema.data.backup.async}" 
 				backup-count="${bdb.schema.data.backup.sync}" read-backup-data="${bdb.schema.data.backup.read}">
@@ -120,6 +94,12 @@
 				</hz:indexes-->
 			</hz:map>
 
+			<hz:map name="xdm-content" in-memory-format="BINARY" async-backup-count="${bdb.schema.query.backup.async}" 
+					 backup-count="${bdb.schema.query.backup.sync}" read-backup-data="${bdb.schema.query.backup.read}"
+					 eviction-policy="LRU" time-to-live-seconds="0" max-size-policy="USED_HEAP_PERCENTAGE" 
+					 max-size="25">
+			</hz:map>
+
 			<hz:map name="xdm-transaction" in-memory-format="BINARY" async-backup-count="${bdb.schema.trans.backup.async}" 
 				backup-count="${bdb.schema.trans.backup.sync}" read-backup-data="${bdb.schema.trans.backup.read}">
 				<!-- must persist transaction log... --> 
@@ -136,20 +116,6 @@
 				</hz:indexes>
 			</hz:map>
 
-			<hz:map name="xdm-client" in-memory-format="BINARY" async-backup-count="0" backup-count="1"/>
-			
-			<hz:map name="xdm-content" in-memory-format="BINARY" async-backup-count="${bdb.schema.query.backup.async}" 
-					 backup-count="${bdb.schema.query.backup.sync}" read-backup-data="${bdb.schema.query.backup.read}"
-					 eviction-policy="LRU" time-to-live-seconds="0" max-size-policy="USED_HEAP_PERCENTAGE" 
-					 max-size="25">
-			</hz:map>
-			<!--hz:map name="xdm-query" in-memory-format="BINARY" async-backup-count="${bdb.schema.query.backup.async}" 
-					 backup-count="${bdb.schema.query.backup.sync}" read-backup-data="${bdb.schema.query.backup.read}"
-					 eviction-policy="LRU" time-to-live-seconds="0" max-size-policy="USED_HEAP_PERCENTAGE" 
-					 max-size="15" eviction-percentage="10">
-				<hz:near-cache time-to-live-seconds="0" max-idle-seconds="0" eviction-policy="LRU" 
-					max-size="0" invalidate-on-change="true" in-memory-format="OBJECT" cache-local-entries="true"/>
-			</hz:map-->
 			<hz:map name="xdm-result" in-memory-format="BINARY" async-backup-count="${bdb.schema.query.backup.async}" 
 					 backup-count="${bdb.schema.query.backup.sync}" read-backup-data="${bdb.schema.query.backup.read}"
 					 eviction-policy="LRU" time-to-live-seconds="0" max-size-policy="USED_HEAP_PERCENTAGE" 
@@ -164,8 +130,12 @@
 			</hz:topic>
 			<hz:topic name="xdm-population"/>
 			
+			<hz:replicatedmap name="xdm-client" in-memory-format="OBJECT" replication-delay-millis="0"/>
 			<hz:replicatedmap name="xdm-query" in-memory-format="BINARY" replication-delay-millis="0"/>
 			<hz:replicatedmap name="dict-index" in-memory-format="BINARY" replication-delay-millis="0"/>
+			<hz:replicatedmap name="dict-namespace" in-memory-format="OBJECT" replication-delay-millis="0"/> 
+			<hz:replicatedmap name="dict-document-type" in-memory-format="OBJECT" replication-delay-millis="0"/> 
+			<hz:replicatedmap name="dict-path" in-memory-format="BINARY" replication-delay-millis="1"/> 
 			
 			<hz:serialization>
 				<hz:data-serializable-factories>
@@ -257,21 +227,19 @@
 	</hz:hazelcast>
 
 	<hz:map id="xdm-key" name="xdm-key" instance-ref="hzInstance" />
-	<hz:map id="xdm-client" name="xdm-client" instance-ref="hzInstance" />
 	<hz:map id="xdm-content" name="xdm-content" instance-ref="hzInstance" />
-	<hz:replicatedMap id="xdm-query" name="xdm-query" instance-ref="hzInstance" />
-	<!--hz:map id="xdm-query" name="xdm-query" instance-ref="hzInstance" /-->
 	<hz:map id="xdm-result" name="xdm-result" instance-ref="hzInstance" />
 	<hz:map id="xdm-document" name="xdm-document" instance-ref="hzInstance" />
 	<hz:map id="xdm-element" name="xdm-element" instance-ref="hzInstance" />
 	<hz:map id="xdm-index" name="xdm-index" instance-ref="hzInstance" />
 	<hz:map id="xdm-transaction" name="xdm-transaction" instance-ref="hzInstance" />
-	<hz:map id="dict-document-type" name="dict-document-type" instance-ref="hzInstance" />
-	<hz:map id="dict-path" name="dict-path" instance-ref="hzInstance" />
-	<hz:map id="dict-namespace" name="dict-namespace" instance-ref="hzInstance" />
-	<!--hz:map id="dict-index" name="dict-index" instance-ref="hzInstance" /-->
+	<hz:replicatedMap id="xdm-client" name="xdm-client" instance-ref="hzInstance" />
+	<hz:replicatedMap id="xdm-query" name="xdm-query" instance-ref="hzInstance" />
+	<hz:replicatedMap id="dict-document-type" name="dict-document-type" instance-ref="hzInstance" />
+	<hz:replicatedMap id="dict-namespace" name="dict-namespace" instance-ref="hzInstance" />
+	<hz:replicatedMap id="dict-path" name="dict-path" instance-ref="hzInstance" />
 	<hz:replicatedMap id="dict-index" name="dict-index" instance-ref="hzInstance" />
-	<hz:map id="dict-trigger" name="dict-trigger" instance-ref="hzInstance" />
+	<!--hz:map id="dict-trigger" name="dict-trigger" instance-ref="hzInstance" /-->
 
 	<hz:idGenerator id="xdm.document" name="xdm.document" instance-ref="hzInstance"/>
 	<!--hz:atomicLong id="xdm.document" name="xdm.document" instance-ref="hzInstance"/-->
@@ -442,7 +410,7 @@
 	</bean>
 
 	<bean id="trManager" class="com.bagri.server.hazelcast.impl.TriggerManagementImpl">
-		<property name="triggerDictionary" ref="dict-trigger"/>
+		<!--property name="triggerDictionary" ref="dict-trigger"/-->
 		<property name="execService" ref="xdm-exec-pool"/>
 		<property name="modelManager" ref="mdlManager"/>
 		<property name="statsQueue" ref="triggerQueue"/>

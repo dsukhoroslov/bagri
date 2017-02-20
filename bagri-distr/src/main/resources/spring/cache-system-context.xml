@@ -27,11 +27,19 @@
 				<hz:property name="hazelcast.operation.generic.thread.count">${bdb.cluster.thread.pool:8}</hz:property>
 			</hz:properties>
 			<hz:network port="${bdb.cluster.port:3331}" port-auto-increment="true">
+				<hz:outbound-ports>
+					<hz:ports>3330-3430</hz:ports> 
+				</hz:outbound-ports>
 				<hz:join>
-					<hz:multicast enabled="false"/>
-					<hz:tcp-ip enabled="true" connection-timeout-seconds="10">
+                                        <hz:multicast enabled="${bdb.cluster.multicast.enabled:false}" multicast-timeout-seconds="${bdb.cluster.connect.timeout:10}">
+                                            <!--hz:trusted-interfaces>
+                                                <hz:interface>${bdb.cluster.members}</hz:interface>
+                                            </hz:trusted-interfaces-->   
+                                        </hz:multicast>					
+					<hz:tcp-ip enabled="${bdb.cluster.tcp.enabled:true}" connection-timeout-seconds="${bdb.cluster.connect.timeout:10}">
 						<hz:members>${bdb.cluster.members:localhost}</hz:members>
 					</hz:tcp-ip>
+					<hz:aws enabled="${bdb.cluster.aws.enabled:false}" connection-timeout-seconds="${bdb.cluster.connect.timeout:10}"/>
 				</hz:join>
 			</hz:network>
 			<hz:executor-service name="sys-exec-pool" pool-size="${bdb.cluster.thread.pool:8}" />

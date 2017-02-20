@@ -75,14 +75,14 @@ start() {
                 return 1
         fi
 
-        JAVA_OPTS="${JAVA_OPTS} -showversion"
-        JAVA_OPTS="${JAVA_OPTS} -server"
+        JAVA_OPTS="-server -showversion ${JAVA_OPTS}"
 #        ${JAVA_HOME}/bin/java ${JAVA_OPTS} "${main}" </dev/null >>"${stdoutfile}" 2>>"${stderrfile}" &
-        java ${JAVA_OPTS} "${main}" </dev/null >>"${stdoutfile}" 2>>"${stderrfile}" &
-        echo $! >"${pidfile}"
+#        java ${JAVA_OPTS} "${main}" </dev/null >>"${stdoutfile}" 2>>"${stderrfile}" &
+        java ${JAVA_OPTS} "${main}" &
+#        echo $! >"${pidfile}"
 
-        status
-        return $?
+#        status
+#        return $?
 }
 
 kill_node() {

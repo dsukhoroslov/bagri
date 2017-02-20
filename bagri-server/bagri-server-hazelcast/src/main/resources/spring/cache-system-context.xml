@@ -33,7 +33,7 @@
                             <hz:interface>${bdb.cluster.members}</hz:interface>
                         </hz:trusted-interfaces>   
                     </hz:multicast>					
-					<hz:tcp-ip enabled="${bdb.cluster.multicast.enabled:true}" connection-timeout-seconds="${bdb.cluster.connect.timeout:10}">
+					<hz:tcp-ip enabled="${bdb.cluster.tcp.enabled:true}" connection-timeout-seconds="${bdb.cluster.connect.timeout:10}">
 						<hz:members>${bdb.cluster.members:localhost}</hz:members>
 					</hz:tcp-ip>
 					<hz:aws enabled="${bdb.cluster.aws.enabled:false}" connection-timeout-seconds="${bdb.cluster.connect.timeout:10}"/>

@@ -27,6 +27,10 @@
             <description>default schema for test and demo purpose</description>
             <properties>
                 <entry name="bdb.schema.password">5f4dcc3b5aa765d61d8327deb882cf99</entry>
+                <entry name="bdb.schema.multicast.enabled">true</entry>
+                <entry name="bdb.schema.tcp.enabled">false</entry>
+                <entry name="bdb.schema.aws.enabled">false</entry>
+                <entry name="bdb.schema.connect.timeout">5</entry>
                 <entry name="bdb.schema.data.backup.read">false</entry>
                 <entry name="bdb.schema.trans.backup.async">0</entry>
                 <entry name="bdb.schema.store.enabled">false</entry>
@@ -192,7 +196,7 @@
                         <action order="before" scope="insert"/>
                     </actions>
                     <library>trigger_library</library>
-                    <className>com.bagri.samples.ext.SampleTrigger</className>
+                    <className>com.bagri.samples.ext.trigger.SampleTrigger</className>
                 </trigger>
                 <trigger xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns2:javatrigger">
                     <version>1</version>
@@ -206,7 +210,7 @@
                         <action order="after" scope="insert"/>
                     </actions>
                     <library>trigger_library</library>
-                    <className>com.bagri.samples.ext.SecurityTrigger</className>
+                    <className>com.bagri.samples.ext.trigger.SecurityTrigger</className>
                 </trigger>
 		<trigger xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns2:xqtrigger">
                     <version>1</version>
@@ -230,6 +234,10 @@
             <createdBy>admin</createdBy>
             <description>TPoX: schema for TPoX-related tests</description>
             <properties>
+                <entry name="bdb.schema.multicast.enabled">false</entry>
+                <entry name="bdb.schema.tcp.enabled">true</entry>
+                <entry name="bdb.schema.aws.enabled">false</entry>
+                <entry name="bdb.schema.connect.timeout">5</entry>
                 <entry name="bdb.schema.ports.first">10000</entry>
                 <entry name="bdb.schema.ports.last">10100</entry>
                 <entry name="bdb.schema.members">localhost</entry>
@@ -374,6 +382,10 @@
             <createdBy>admin</createdBy>
             <description>XMark benchmark schema</description>
             <properties>
+                <entry name="bdb.schema.multicast.enabled">false</entry>
+                <entry name="bdb.schema.tcp.enabled">true</entry>
+                <entry name="bdb.schema.aws.enabled">false</entry>
+                <entry name="bdb.schema.connect.timeout">5</entry>
                 <entry name="bdb.schema.ports.first">20000</entry>
                 <entry name="bdb.schema.ports.last">20010</entry>
                 <entry name="bdb.schema.members">localhost</entry>
@@ -481,6 +493,10 @@
             <createdBy>admin</createdBy>
             <description>TPoX-J: transient schema for TPoX-related tests; no persistent store</description>
             <properties>
+                <entry name="bdb.schema.multicast.enabled">false</entry>
+                <entry name="bdb.schema.tcp.enabled">true</entry>
+                <entry name="bdb.schema.aws.enabled">false</entry>
+                <entry name="bdb.schema.connect.timeout">5</entry>
                 <entry name="bdb.schema.store.enabled">true</entry>
                 <entry name="bdb.schema.trans.backup.async">0</entry>
                 <entry name="bdb.schema.trans.backup.sync">1</entry>
@@ -626,6 +642,17 @@
             <parserClass>com.bagri.core.server.api.df.xml.XmlStaxParser</parserClass>
             <builderClass>com.bagri.core.server.api.df.xml.XmlBuilder</builderClass>
             <extensions>xml</extensions>
+            <properties>
+		<entry name="bdb.schema.parser.schemas"></entry>
+		<entry name="javax.xml.stream.isValidating">false</entry>
+		<entry name="javax.xml.stream.isCoalescing">false</entry>
+		<entry name="javax.xml.stream.isNamespaceAware">true</entry>
+		<entry name="javax.xml.stream.isReplacingEntityReferences">true</entry>
+		<entry name="javax.xml.stream.isSupportingExternalEntities">true</entry>
+		<entry name="javax.xml.stream.reporter"></entry>
+		<entry name="javax.xml.stream.resolver"></entry>
+		<entry name="javax.xml.stream.allocator"></entry>
+            </properties>
         </dataFormat>
         <dataFormat name="JSON">
             <version>1</version>
@@ -636,6 +663,9 @@
             <parserClass>com.bagri.core.server.api.df.json.JsonApiParser</parserClass>
             <builderClass>com.bagri.core.server.api.df.json.JsonBuilder</builderClass>
             <extensions>json</extensions>
+            <properties>
+		<!--entry name="javax.json.spi.JsonProvider">com.github.pgelinas.jackson.javax.json.spi.JacksonProvider</entry-->
+            </properties>
         </dataFormat>
     </dataFormats>
     <dataStores>
