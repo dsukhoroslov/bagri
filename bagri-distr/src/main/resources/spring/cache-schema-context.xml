@@ -5,7 +5,7 @@
 	xmlns:hz="http://www.hazelcast.com/schema/spring"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.2.xsd
-		http://www.hazelcast.com/schema/spring http://www.hazelcast.com/schema/spring/hazelcast-spring-3.7.xsd">
+		http://www.hazelcast.com/schema/spring http://www.hazelcast.com/schema/spring/hazelcast-spring-3.8.xsd">
 
 	<!-- Beans Declaration -->
 	<context:property-placeholder ignore-unresolvable="true" location="file:${bdb.config.path}/${bdb.config.properties.file}" />

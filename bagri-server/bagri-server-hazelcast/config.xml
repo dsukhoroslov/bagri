@@ -20,349 +20,6 @@
         </node>
     </nodes>
     <schemas>
-        <schema name="YCSB" active="true">
-            <version>1</version>
-            <createdAt>2016-01-26T21:30:58.096+04:00</createdAt>
-            <createdBy>SDV</createdBy>
-            <description>Schema for YCSB Benchmark</description>
-            <properties>
-                <entry name="bdb.schema.password">password</entry>
-                <entry name="bdb.schema.multicast.enabled">false</entry>
-                <entry name="bdb.schema.tcp.enabled">true</entry>
-                <entry name="bdb.schema.aws.enabled">false</entry>
-                <entry name="bdb.schema.connect.timeout">5</entry>
-                <entry name="bdb.schema.store.tx.buffer.size">1024</entry>
-                <entry name="bdb.schema.data.backup.read">false</entry>
-                <entry name="bdb.schema.trans.backup.async">0</entry>
-                <entry name="bdb.schema.store.enabled">false</entry>
-                <entry name="bdb.schema.thread.pool">10</entry>
-                <entry name="bdb.schema.data.cache">NEVER</entry>
-                <entry name="bdb.schema.data.stats.enabled">false</entry>
-                <entry name="bdb.schema.query.cache">true</entry>
-                <entry name="bdb.schema.ports.first">10150</entry>
-                <entry name="bdb.schema.format.default">XML</entry>
-                <entry name="bdb.schema.ports.last">10160</entry>
-                <entry name="bdb.schema.population.size">1</entry>
-                <entry name="bdb.schema.population.buffer.size">1000000</entry>
-                <entry name="bdb.schema.data.backup.async">1</entry>
-                <entry name="bdb.schema.store.data.path">../../etc/samples/ycsb</entry>
-                <entry name="bdb.schema.dict.backup.sync">0</entry>
-                <entry name="bdb.schema.trans.backup.sync">1</entry>
-                <entry name="bdb.schema.query.backup.sync">0</entry>
-                <entry name="bdb.schema.buffer.size">16</entry>
-                <entry name="bdb.schema.dict.backup.async">1</entry>
-                <entry name="bdb.schema.dict.backup.read">true</entry>
-                <entry name="bdb.schema.trans.backup.read">false</entry>
-                <entry name="bdb.schema.query.backup.async">0</entry>
-                <entry name="bdb.schema.members">localhost</entry>
-                <entry name="bdb.schema.data.backup.sync">0</entry>
-                <entry name="bdb.schema.partition.count">157</entry>
-                <entry name="bdb.schema.query.backup.read">true</entry>
-		<entry name="bdb.schema.transaction.timeout">0</entry>
-                <entry name="bdb.schema.health.threshold.low">25</entry>
-                <entry name="bdb.schema.health.threshold.high">0</entry>
-                <entry name="bdb.schema.query.parallel">true</entry>
-                <entry name="bdb.schema.partition.pool">32</entry>
-                <entry name="xqj.schema.baseUri">file:/C:/Work/Bagri/git/bagri/etc/samples/ycsb/</entry>
-                <entry name="xqj.schema.orderingMode">2</entry>
-                <entry name="xqj.schema.queryLanguageTypeAndVersion">1</entry>
-                <entry name="xqj.schema.bindingMode">0</entry>
-                <entry name="xqj.schema.boundarySpacePolicy">1</entry>
-                <entry name="xqj.schema.scrollability">1</entry>
-                <entry name="xqj.schema.holdability">2</entry>
-                <entry name="xqj.schema.copyNamespacesModePreserve">1</entry>
-                <entry name="xqj.schema.queryTimeout">0</entry>
-                <entry name="xqj.schema.defaultFunctionNamespace"></entry>
-                <entry name="xqj.schema.defaultElementTypeNamespace"></entry>
-                <entry name="xqj.schema.copyNamespacesModeInherit">1</entry>
-                <entry name="xqj.schema.defaultOrderForEmptySequences">2</entry>
-                <entry name="xqj.schema.defaultCollationUri">http://www.w3.org/2005/xpath-functions/collation/codepoint</entry>
-                <entry name="xqj.schema.constructionMode">1</entry>
-            </properties>
-            <collections>
-                <collection id="1" name="usertable">
-                    <version>1</version>
-                    <createdAt>2016-05-10T01:01:26.965+03:00</createdAt>
-                    <createdBy>SDV</createdBy>
-                    <!--docType></docType-->
-                    <description>YCSB default collection</description>
-                    <enabled>true</enabled>
-                </collection>
-            </collections>
-            <fragments/>
-            <indexes/>
-            <triggers/>
-        </schema>
-        <schema name="TPoX-J" active="true">
-            <version>1</version>
-            <createdAt>2015-04-22T13:36:26.965+03:00</createdAt>
-            <createdBy>SDV</createdBy>
-            <description>TPoX-J: schema for TPoX-related tests; JSON data format</description>
-            <properties>
-                <entry name="bdb.schema.password">TPoX-J</entry>
-                <entry name="bdb.schema.multicast.enabled">false</entry>
-                <entry name="bdb.schema.tcp.enabled">true</entry>
-                <entry name="bdb.schema.aws.enabled">false</entry>
-                <entry name="bdb.schema.connect.timeout">5</entry>
-                <entry name="bdb.schema.data.backup.read">false</entry>
-                <entry name="bdb.schema.trans.backup.async">0</entry>
-                <entry name="bdb.schema.store.tx.buffer.size">1024</entry>
-                <entry name="bdb.schema.store.enabled">true</entry>
-                <entry name="bdb.schema.thread.pool">8</entry>
-                <entry name="bdb.schema.data.cache">INDEX-ONLY</entry>
-                <entry name="bdb.schema.data.stats.enabled">true</entry>
-                <entry name="bdb.schema.query.cache">true</entry>
-                <entry name="bdb.schema.ports.first">10700</entry>
-                <entry name="bdb.schema.format.default">JSON</entry>
-                <entry name="bdb.schema.store.type">File</entry>
-                <entry name="bdb.schema.ports.last">10800</entry>
-                <entry name="bdb.schema.population.size">1</entry>
-                <entry name="bdb.schema.population.buffer.size">100000</entry>
-                <entry name="bdb.schema.data.backup.async">1</entry>
-                <entry name="bdb.schema.store.data.path">../../etc/samples/json</entry>
-                <entry name="bdb.schema.dict.backup.sync">0</entry>
-                <entry name="bdb.schema.trans.backup.sync">1</entry>
-                <entry name="bdb.schema.query.backup.sync">0</entry>
-                <entry name="bdb.schema.buffer.size">128</entry>
-                <entry name="bdb.schema.dict.backup.async">1</entry>
-                <entry name="bdb.schema.dict.backup.read">true</entry>
-                <entry name="bdb.schema.trans.backup.read">false</entry>
-                <entry name="bdb.schema.query.backup.async">0</entry>
-                <entry name="bdb.schema.members">localhost</entry>
-                <entry name="bdb.schema.data.backup.sync">0</entry>
-                <entry name="bdb.schema.query.backup.read">true</entry>
-                <entry name="bdb.schema.partition.count">271</entry>
-		<entry name="bdb.schema.transaction.timeout">0</entry>
-                <entry name="bdb.schema.health.threshold.low">25</entry>
-                <entry name="bdb.schema.health.threshold.high">0</entry>
-                <entry name="bdb.schema.query.parallel">true</entry>
-                <entry name="bdb.schema.partition.pool">32</entry>
-                <entry name="xqj.schema.baseUri">file:/C:/Work/Bagri/git/bagri/etc/samples/json/</entry>
-                <entry name="xqj.schema.orderingMode">2</entry>
-                <entry name="xqj.schema.queryLanguageTypeAndVersion">1</entry>
-                <entry name="xqj.schema.bindingMode">0</entry>
-                <entry name="xqj.schema.boundarySpacePolicy">1</entry>
-                <entry name="xqj.schema.scrollability">1</entry>
-                <entry name="xqj.schema.holdability">2</entry>
-                <entry name="xqj.schema.copyNamespacesModePreserve">1</entry>
-                <entry name="xqj.schema.queryTimeout">0</entry>
-                <entry name="xqj.schema.defaultFunctionNamespace">http://www.w3.org/2005/xpath-functions/map</entry>
-                <entry name="xqj.schema.defaultElementTypeNamespace"></entry>
-                <entry name="xqj.schema.copyNamespacesModeInherit">1</entry>
-                <entry name="xqj.schema.defaultOrderForEmptySequences">2</entry>
-                <entry name="xqj.schema.defaultCollationUri">http://www.w3.org/2005/xpath-functions/collation/codepoint</entry>
-                <entry name="xqj.schema.constructionMode">1</entry>
-            </properties>
-            <fragments/>
-            <indexes/>
-            <triggers/>
-        </schema>
-        <schema name="XDM" active="true">
-            <version>1</version>
-            <createdAt>2014-10-06T21:30:58.096+04:00</createdAt>
-            <createdBy>SDV</createdBy>
-            <description>Catalog: schema from XDM spec</description>
-            <properties>
-                <entry name="bdb.schema.password">XDM</entry>
-                <entry name="bdb.schema.multicast.enabled">false</entry>
-                <entry name="bdb.schema.tcp.enabled">true</entry>
-                <entry name="bdb.schema.aws.enabled">false</entry>
-                <entry name="bdb.schema.connect.timeout">5</entry>
-                <entry name="bdb.schema.store.tx.buffer.size">1024</entry>
-                <entry name="bdb.schema.data.backup.read">false</entry>
-                <entry name="bdb.schema.trans.backup.async">0</entry>
-                <entry name="bdb.schema.store.enabled">true</entry>
-                <entry name="bdb.schema.thread.pool">10</entry>
-                <entry name="bdb.schema.query.cache">true</entry>
-                <entry name="bdb.schema.ports.first">10050</entry>
-                <entry name="bdb.schema.format.default">XML</entry>
-                <entry name="bdb.schema.store.type">File</entry>
-                <entry name="bdb.schema.data.cache">INDEX-ONLY</entry>
-                <entry name="bdb.schema.data.stats.enabled">true</entry>
-                <entry name="bdb.schema.ports.last">10060</entry>
-                <entry name="bdb.schema.population.size">1</entry>
-                <entry name="bdb.schema.population.buffer.size">100000</entry>
-                <entry name="bdb.schema.data.backup.async">1</entry>
-                <entry name="bdb.schema.store.data.path">../../etc/samples/xdm</entry>
-                <entry name="bdb.schema.dict.backup.sync">0</entry>
-                <entry name="bdb.schema.trans.backup.sync">1</entry>
-                <entry name="bdb.schema.query.backup.sync">0</entry>
-                <entry name="bdb.schema.buffer.size">16</entry>
-                <entry name="bdb.schema.dict.backup.async">1</entry>
-                <entry name="bdb.schema.dict.backup.read">true</entry>
-                <entry name="bdb.schema.trans.backup.read">false</entry>
-                <entry name="bdb.schema.query.backup.async">0</entry>
-                <entry name="bdb.schema.members">localhost</entry>
-                <entry name="bdb.schema.data.backup.sync">0</entry>
-                <entry name="bdb.schema.partition.count">157</entry>
-                <entry name="bdb.schema.query.backup.read">true</entry>
-		<entry name="bdb.schema.transaction.timeout">0</entry>
-                <entry name="bdb.schema.health.threshold.low">25</entry>
-                <entry name="bdb.schema.health.threshold.high">0</entry>
-                <entry name="bdb.schema.query.parallel">true</entry>
-                <entry name="bdb.schema.partition.pool">32</entry>
-                <entry name="xqj.schema.baseUri">file:/C:/Work/Bagri/git/bagri/etc/samples/xdm/</entry>
-                <entry name="xqj.schema.orderingMode">2</entry>
-                <entry name="xqj.schema.queryLanguageTypeAndVersion">1</entry>
-                <entry name="xqj.schema.bindingMode">0</entry>
-                <entry name="xqj.schema.boundarySpacePolicy">1</entry>
-                <entry name="xqj.schema.scrollability">1</entry>
-                <entry name="xqj.schema.holdability">2</entry>
-                <entry name="xqj.schema.copyNamespacesModePreserve">1</entry>
-                <entry name="xqj.schema.queryTimeout">0</entry>
-                <entry name="xqj.schema.defaultFunctionNamespace"></entry>
-                <entry name="xqj.schema.defaultElementTypeNamespace"></entry>
-                <entry name="xqj.schema.copyNamespacesModeInherit">1</entry>
-                <entry name="xqj.schema.defaultOrderForEmptySequences">2</entry>
-                <entry name="xqj.schema.defaultCollationUri">http://www.w3.org/2005/xpath-functions/collation/codepoint</entry>
-                <entry name="xqj.schema.constructionMode">1</entry>
-            </properties>
-            <fragments/>
-            <indexes/>
-            <triggers/>
-        </schema>
-        <schema name="TPoX" active="true">
-            <version>1</version>
-            <createdAt>2014-04-21T14:40:58.096+04:00</createdAt>
-            <createdBy>SDV</createdBy>
-            <description>TPoX: schema for TPoX-related tests</description>
-            <properties>
-                <entry name="bdb.schema.password">TPoX</entry>
-                <entry name="bdb.schema.multicast.enabled">false</entry>
-                <entry name="bdb.schema.tcp.enabled">true</entry>
-                <entry name="bdb.schema.aws.enabled">false</entry>
-                <entry name="bdb.schema.connect.timeout">5</entry>
-                <entry name="bdb.schema.data.backup.read">false</entry>
-                <entry name="bdb.schema.trans.backup.async">0</entry>
-                <entry name="bdb.schema.store.enabled">true</entry>
-                <entry name="bdb.schema.store.tx.buffer.size">2048</entry>
-                <entry name="bdb.schema.thread.pool">16</entry>
-                <entry name="bdb.schema.query.cache">true</entry>
-                <entry name="bdb.schema.ports.first">10000</entry>
-                <entry name="bdb.schema.format.default">XML</entry>
-                <entry name="bdb.schema.data.cache">NEVER</entry>
-                <entry name="bdb.schema.data.stats.enabled">true</entry>
-                <entry name="bdb.schema.store.type">File</entry>
-                <entry name="bdb.schema.ports.last">10100</entry>
-                <entry name="bdb.schema.population.size">1</entry>
-                <entry name="bdb.schema.population.buffer.size">100000</entry>
-                <entry name="bdb.schema.data.backup.async">1</entry>
-                <entry name="bdb.schema.store.data.path">../../etc/samples/tpox</entry>
-                <entry name="bdb.schema.dict.backup.sync">0</entry>
-                <entry name="bdb.schema.trans.backup.sync">1</entry>
-                <entry name="bdb.schema.query.backup.sync">0</entry>
-                <entry name="bdb.schema.buffer.size">64</entry>
-                <entry name="bdb.schema.dict.backup.async">1</entry>
-                <entry name="bdb.schema.dict.backup.read">true</entry>
-                <entry name="bdb.schema.trans.backup.read">false</entry>
-                <entry name="bdb.schema.query.backup.async">0</entry>
-                <entry name="bdb.schema.members">localhost</entry>
-                <entry name="bdb.schema.data.backup.sync">0</entry>
-                <entry name="bdb.schema.query.backup.read">true</entry>
-                <entry name="bdb.schema.partition.count">271</entry>
-		<entry name="bdb.schema.transaction.timeout">0</entry>
-                <entry name="bdb.schema.health.threshold.low">25</entry>
-                <entry name="bdb.schema.health.threshold.high">0</entry>
-                <entry name="bdb.schema.query.parallel">true</entry>
-                <entry name="bdb.schema.partition.pool">32</entry>
-                <entry name="xqj.schema.baseUri">file:/C:/Work/Bagri/git/bagri/etc/samples/tpox/</entry>
-                <entry name="xqj.schema.orderingMode">2</entry>
-                <entry name="xqj.schema.queryLanguageTypeAndVersion">1</entry>
-                <entry name="xqj.schema.bindingMode">0</entry>
-                <entry name="xqj.schema.boundarySpacePolicy">1</entry>
-                <entry name="xqj.schema.scrollability">1</entry>
-                <entry name="xqj.schema.holdability">2</entry>
-                <entry name="xqj.schema.copyNamespacesModePreserve">1</entry>
-                <entry name="xqj.schema.queryTimeout">0</entry>
-                <entry name="xqj.schema.defaultFunctionNamespace"></entry>
-                <entry name="xqj.schema.defaultElementTypeNamespace"></entry>
-                <entry name="xqj.schema.copyNamespacesModeInherit">1</entry>
-                <entry name="xqj.schema.defaultOrderForEmptySequences">2</entry>
-                <entry name="xqj.schema.defaultCollationUri">http://www.w3.org/2005/xpath-functions/collation/codepoint</entry>
-                <entry name="xqj.schema.constructionMode">1</entry>
-            </properties>
-            <collections>
-                <collection id="1" name="CLN_Security">
-                    <version>1</version>
-                    <createdAt>2015-10-20T01:01:26.965+03:00</createdAt>
-                    <createdBy>SDV</createdBy>
-                    <docType>/{http://tpox-benchmark.com/security}Security</docType>
-                    <description>All security documents</description>
-                    <enabled>true</enabled>
-                </collection>
-                <collection id="2" name="CLN_Customer">
-                    <version>1</version>
-                    <createdAt>2015-10-20T01:01:26.965+03:00</createdAt>
-                    <createdBy>SDV</createdBy>
-                    <docType>/{http://tpox-benchmark.com/custacc}Customer</docType>
-                    <description>All customer documents</description>
-                    <enabled>true</enabled>
-                </collection>
-                <collection id="3" name="CLN_Order">
-                    <version>1</version>
-                    <createdAt>2015-10-20T01:01:26.965+03:00</createdAt>
-                    <createdBy>SDV</createdBy>
-                    <docType>/{http://www.fixprotocol.org/FIXML-4-4}FIXML</docType>
-                    <description>All order documents</description>
-                    <enabled>true</enabled>
-                </collection>
-                <collection id="4" name="CLN_Custom">
-                    <version>1</version>
-                    <createdAt>2015-10-20T01:01:26.965+03:00</createdAt>
-                    <createdBy>SDV</createdBy>
-                    <!--docType></docType-->
-                    <description>Custom collection</description>
-                    <enabled>true</enabled>
-                </collection>
-            </collections>
-            <fragments/>
-            <indexes>
-                <index name="IDX_Customer_id">
-                    <version>1</version>
-                    <createdAt>2015-01-25T13:36:26.965+03:00</createdAt>
-                    <createdBy>SDV</createdBy>
-                    <docType>/{http://tpox-benchmark.com/custacc}Customer</docType>
-                    <path>/{http://tpox-benchmark.com/custacc}Customer/@id</path>
-                    <dataType xmlns:xs="http://www.w3.org/2001/XMLSchema">xs:string</dataType>
-                    <unique>true</unique>
-                    <description>Customer id</description>
-                    <enabled>true</enabled>
-                </index>
-                <index name="IDX_Security_Symbol">
-                    <version>1</version>
-                    <createdAt>2015-01-25T13:36:26.965+03:00</createdAt>
-                    <createdBy>SDV</createdBy>
-                    <docType>/{http://tpox-benchmark.com/security}Security</docType>
-                    <path>/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}Symbol/text()</path>
-                    <dataType xmlns:xs="http://www.w3.org/2001/XMLSchema">xs:string</dataType>
-                    <unique>true</unique>
-                    <description>Security Symbol</description>
-                    <enabled>true</enabled>
-                </index>
-                <index name="IDX_Order_ID">
-                    <version>1</version>
-                    <createdAt>2015-01-25T13:36:26.965+03:00</createdAt>
-                    <createdBy>SDV</createdBy>
-                    <docType>/{http://www.fixprotocol.org/FIXML-4-4}FIXML</docType>
-                    <path>/{http://www.fixprotocol.org/FIXML-4-4}FIXML/{http://www.fixprotocol.org/FIXML-4-4}Order/@ID</path>
-                    <dataType xmlns:xs="http://www.w3.org/2001/XMLSchema">xs:string</dataType>
-                    <unique>true</unique>
-                    <description>Order ID</description>
-                    <enabled>true</enabled>
-                </index>
-            </indexes>
-            <resources>
-                <resource name="tpox">
-                    <createdAt>2016-10-04T13:36:26.965+03:00</createdAt>
-                    <createdBy>SDV</createdBy>
-                    <path>/tpox</path>
-                    <module>rest_module</module>
-                    <description>TPoX resource exposed via REST</description>
-                    <enabled>true</enabled>
-                </resource>
-            </resources>
-            <triggers/>
-        </schema>
         <schema name="default" active="true">
             <version>1</version>
             <createdAt>2014-09-27T15:00:58.096+04:00</createdAt>
@@ -371,8 +28,8 @@
             <properties>
                 <entry name="bdb.schema.password">password</entry>
                 <!--entry name="bdb.schema.password">5f4dcc3b5aa765d61d8327deb882cf99</entry-->
-                <entry name="bdb.schema.multicast.enabled">false</entry>
-                <entry name="bdb.schema.tcp.enabled">true</entry>
+                <entry name="bdb.schema.multicast.enabled">true</entry>
+                <entry name="bdb.schema.tcp.enabled">false</entry>
                 <entry name="bdb.schema.aws.enabled">false</entry>
                 <entry name="bdb.schema.connect.timeout">5</entry>
                 <entry name="bdb.schema.data.backup.read">false</entry>
@@ -566,6 +223,148 @@
                 </trigger-->
             </triggers>
         </schema>
+        <schema name="TPoX" active="true">
+            <version>1</version>
+            <createdAt>2014-04-21T14:40:58.096+04:00</createdAt>
+            <createdBy>SDV</createdBy>
+            <description>TPoX: schema for TPoX-related tests</description>
+            <properties>
+                <entry name="bdb.schema.password">TPoX</entry>
+                <entry name="bdb.schema.multicast.enabled">false</entry>
+                <entry name="bdb.schema.tcp.enabled">true</entry>
+                <entry name="bdb.schema.aws.enabled">false</entry>
+                <entry name="bdb.schema.connect.timeout">5</entry>
+                <entry name="bdb.schema.data.backup.read">false</entry>
+                <entry name="bdb.schema.trans.backup.async">0</entry>
+                <entry name="bdb.schema.store.enabled">true</entry>
+                <entry name="bdb.schema.store.tx.buffer.size">2048</entry>
+                <entry name="bdb.schema.thread.pool">16</entry>
+                <entry name="bdb.schema.query.cache">true</entry>
+                <entry name="bdb.schema.ports.first">10000</entry>
+                <entry name="bdb.schema.format.default">XML</entry>
+                <entry name="bdb.schema.data.cache">NEVER</entry>
+                <entry name="bdb.schema.data.stats.enabled">true</entry>
+                <entry name="bdb.schema.store.type">File</entry>
+                <entry name="bdb.schema.ports.last">10100</entry>
+                <entry name="bdb.schema.population.size">1</entry>
+                <entry name="bdb.schema.population.buffer.size">100000</entry>
+                <entry name="bdb.schema.data.backup.async">1</entry>
+                <entry name="bdb.schema.store.data.path">../../etc/samples/tpox</entry>
+                <entry name="bdb.schema.dict.backup.sync">0</entry>
+                <entry name="bdb.schema.trans.backup.sync">1</entry>
+                <entry name="bdb.schema.query.backup.sync">0</entry>
+                <entry name="bdb.schema.buffer.size">64</entry>
+                <entry name="bdb.schema.dict.backup.async">1</entry>
+                <entry name="bdb.schema.dict.backup.read">true</entry>
+                <entry name="bdb.schema.trans.backup.read">false</entry>
+                <entry name="bdb.schema.query.backup.async">0</entry>
+                <entry name="bdb.schema.members">localhost</entry>
+                <entry name="bdb.schema.data.backup.sync">0</entry>
+                <entry name="bdb.schema.query.backup.read">true</entry>
+                <entry name="bdb.schema.partition.count">271</entry>
+		<entry name="bdb.schema.transaction.timeout">0</entry>
+                <entry name="bdb.schema.health.threshold.low">25</entry>
+                <entry name="bdb.schema.health.threshold.high">0</entry>
+                <entry name="bdb.schema.query.parallel">true</entry>
+                <entry name="bdb.schema.partition.pool">32</entry>
+                <entry name="xqj.schema.baseUri">file:/C:/Work/Bagri/git/bagri/etc/samples/tpox/</entry>
+                <entry name="xqj.schema.orderingMode">2</entry>
+                <entry name="xqj.schema.queryLanguageTypeAndVersion">1</entry>
+                <entry name="xqj.schema.bindingMode">0</entry>
+                <entry name="xqj.schema.boundarySpacePolicy">1</entry>
+                <entry name="xqj.schema.scrollability">1</entry>
+                <entry name="xqj.schema.holdability">2</entry>
+                <entry name="xqj.schema.copyNamespacesModePreserve">1</entry>
+                <entry name="xqj.schema.queryTimeout">0</entry>
+                <entry name="xqj.schema.defaultFunctionNamespace"></entry>
+                <entry name="xqj.schema.defaultElementTypeNamespace"></entry>
+                <entry name="xqj.schema.copyNamespacesModeInherit">1</entry>
+                <entry name="xqj.schema.defaultOrderForEmptySequences">2</entry>
+                <entry name="xqj.schema.defaultCollationUri">http://www.w3.org/2005/xpath-functions/collation/codepoint</entry>
+                <entry name="xqj.schema.constructionMode">1</entry>
+            </properties>
+            <collections>
+                <collection id="1" name="CLN_Security">
+                    <version>1</version>
+                    <createdAt>2015-10-20T01:01:26.965+03:00</createdAt>
+                    <createdBy>SDV</createdBy>
+                    <docType>/{http://tpox-benchmark.com/security}Security</docType>
+                    <description>All security documents</description>
+                    <enabled>true</enabled>
+                </collection>
+                <collection id="2" name="CLN_Customer">
+                    <version>1</version>
+                    <createdAt>2015-10-20T01:01:26.965+03:00</createdAt>
+                    <createdBy>SDV</createdBy>
+                    <docType>/{http://tpox-benchmark.com/custacc}Customer</docType>
+                    <description>All customer documents</description>
+                    <enabled>true</enabled>
+                </collection>
+                <collection id="3" name="CLN_Order">
+                    <version>1</version>
+                    <createdAt>2015-10-20T01:01:26.965+03:00</createdAt>
+                    <createdBy>SDV</createdBy>
+                    <docType>/{http://www.fixprotocol.org/FIXML-4-4}FIXML</docType>
+                    <description>All order documents</description>
+                    <enabled>true</enabled>
+                </collection>
+                <collection id="4" name="CLN_Custom">
+                    <version>1</version>
+                    <createdAt>2015-10-20T01:01:26.965+03:00</createdAt>
+                    <createdBy>SDV</createdBy>
+                    <!--docType></docType-->
+                    <description>Custom collection</description>
+                    <enabled>true</enabled>
+                </collection>
+            </collections>
+            <fragments/>
+            <indexes>
+                <index name="IDX_Customer_id">
+                    <version>1</version>
+                    <createdAt>2015-01-25T13:36:26.965+03:00</createdAt>
+                    <createdBy>SDV</createdBy>
+                    <docType>/{http://tpox-benchmark.com/custacc}Customer</docType>
+                    <path>/{http://tpox-benchmark.com/custacc}Customer/@id</path>
+                    <dataType xmlns:xs="http://www.w3.org/2001/XMLSchema">xs:string</dataType>
+                    <unique>true</unique>
+                    <description>Customer id</description>
+                    <enabled>true</enabled>
+                </index>
+                <index name="IDX_Security_Symbol">
+                    <version>1</version>
+                    <createdAt>2015-01-25T13:36:26.965+03:00</createdAt>
+                    <createdBy>SDV</createdBy>
+                    <docType>/{http://tpox-benchmark.com/security}Security</docType>
+                    <path>/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}Symbol/text()</path>
+                    <dataType xmlns:xs="http://www.w3.org/2001/XMLSchema">xs:string</dataType>
+                    <unique>true</unique>
+                    <description>Security Symbol</description>
+                    <enabled>true</enabled>
+                </index>
+                <index name="IDX_Order_ID">
+                    <version>1</version>
+                    <createdAt>2015-01-25T13:36:26.965+03:00</createdAt>
+                    <createdBy>SDV</createdBy>
+                    <docType>/{http://www.fixprotocol.org/FIXML-4-4}FIXML</docType>
+                    <path>/{http://www.fixprotocol.org/FIXML-4-4}FIXML/{http://www.fixprotocol.org/FIXML-4-4}Order/@ID</path>
+                    <dataType xmlns:xs="http://www.w3.org/2001/XMLSchema">xs:string</dataType>
+                    <unique>true</unique>
+                    <description>Order ID</description>
+                    <enabled>true</enabled>
+                </index>
+            </indexes>
+            <resources>
+                <resource name="tpox">
+                    <createdAt>2016-10-04T13:36:26.965+03:00</createdAt>
+                    <createdBy>SDV</createdBy>
+                    <path>/tpox</path>
+                    <module>rest_module</module>
+                    <description>TPoX resource exposed via REST</description>
+                    <enabled>true</enabled>
+                </resource>
+            </resources>
+            <triggers/>
+        </schema>
         <schema name="XMark" active="true">
             <version>2</version>
             <createdAt>2014-07-15T01:13:04.416+04:00</createdAt>
@@ -684,6 +483,207 @@
                     <enabled>true</enabled>
                 </fragment>
             </fragments>
+            <indexes/>
+            <triggers/>
+        </schema>
+        <schema name="TPoX-J" active="true">
+            <version>1</version>
+            <createdAt>2015-04-22T13:36:26.965+03:00</createdAt>
+            <createdBy>SDV</createdBy>
+            <description>TPoX-J: schema for TPoX-related tests; JSON data format</description>
+            <properties>
+                <entry name="bdb.schema.password">TPoX-J</entry>
+                <entry name="bdb.schema.multicast.enabled">false</entry>
+                <entry name="bdb.schema.tcp.enabled">true</entry>
+                <entry name="bdb.schema.aws.enabled">false</entry>
+                <entry name="bdb.schema.connect.timeout">5</entry>
+                <entry name="bdb.schema.data.backup.read">false</entry>
+                <entry name="bdb.schema.trans.backup.async">0</entry>
+                <entry name="bdb.schema.store.tx.buffer.size">1024</entry>
+                <entry name="bdb.schema.store.enabled">true</entry>
+                <entry name="bdb.schema.thread.pool">8</entry>
+                <entry name="bdb.schema.data.cache">INDEX-ONLY</entry>
+                <entry name="bdb.schema.data.stats.enabled">true</entry>
+                <entry name="bdb.schema.query.cache">true</entry>
+                <entry name="bdb.schema.ports.first">10700</entry>
+                <entry name="bdb.schema.format.default">JSON</entry>
+                <entry name="bdb.schema.store.type">File</entry>
+                <entry name="bdb.schema.ports.last">10800</entry>
+                <entry name="bdb.schema.population.size">1</entry>
+                <entry name="bdb.schema.population.buffer.size">100000</entry>
+                <entry name="bdb.schema.data.backup.async">1</entry>
+                <entry name="bdb.schema.store.data.path">../../etc/samples/json</entry>
+                <entry name="bdb.schema.dict.backup.sync">0</entry>
+                <entry name="bdb.schema.trans.backup.sync">1</entry>
+                <entry name="bdb.schema.query.backup.sync">0</entry>
+                <entry name="bdb.schema.buffer.size">128</entry>
+                <entry name="bdb.schema.dict.backup.async">1</entry>
+                <entry name="bdb.schema.dict.backup.read">true</entry>
+                <entry name="bdb.schema.trans.backup.read">false</entry>
+                <entry name="bdb.schema.query.backup.async">0</entry>
+                <entry name="bdb.schema.members">localhost</entry>
+                <entry name="bdb.schema.data.backup.sync">0</entry>
+                <entry name="bdb.schema.query.backup.read">true</entry>
+                <entry name="bdb.schema.partition.count">271</entry>
+		<entry name="bdb.schema.transaction.timeout">0</entry>
+                <entry name="bdb.schema.health.threshold.low">25</entry>
+                <entry name="bdb.schema.health.threshold.high">0</entry>
+                <entry name="bdb.schema.query.parallel">true</entry>
+                <entry name="bdb.schema.partition.pool">32</entry>
+                <entry name="xqj.schema.baseUri">file:/C:/Work/Bagri/git/bagri/etc/samples/json/</entry>
+                <entry name="xqj.schema.orderingMode">2</entry>
+                <entry name="xqj.schema.queryLanguageTypeAndVersion">1</entry>
+                <entry name="xqj.schema.bindingMode">0</entry>
+                <entry name="xqj.schema.boundarySpacePolicy">1</entry>
+                <entry name="xqj.schema.scrollability">1</entry>
+                <entry name="xqj.schema.holdability">2</entry>
+                <entry name="xqj.schema.copyNamespacesModePreserve">1</entry>
+                <entry name="xqj.schema.queryTimeout">0</entry>
+                <entry name="xqj.schema.defaultFunctionNamespace">http://www.w3.org/2005/xpath-functions/map</entry>
+                <entry name="xqj.schema.defaultElementTypeNamespace"></entry>
+                <entry name="xqj.schema.copyNamespacesModeInherit">1</entry>
+                <entry name="xqj.schema.defaultOrderForEmptySequences">2</entry>
+                <entry name="xqj.schema.defaultCollationUri">http://www.w3.org/2005/xpath-functions/collation/codepoint</entry>
+                <entry name="xqj.schema.constructionMode">1</entry>
+            </properties>
+            <fragments/>
+            <indexes/>
+            <triggers/>
+        </schema>
+        <schema name="XDM" active="true">
+            <version>1</version>
+            <createdAt>2014-10-06T21:30:58.096+04:00</createdAt>
+            <createdBy>SDV</createdBy>
+            <description>Catalog: schema from XDM spec</description>
+            <properties>
+                <entry name="bdb.schema.password">XDM</entry>
+                <entry name="bdb.schema.multicast.enabled">false</entry>
+                <entry name="bdb.schema.tcp.enabled">true</entry>
+                <entry name="bdb.schema.aws.enabled">false</entry>
+                <entry name="bdb.schema.connect.timeout">5</entry>
+                <entry name="bdb.schema.store.tx.buffer.size">1024</entry>
+                <entry name="bdb.schema.data.backup.read">false</entry>
+                <entry name="bdb.schema.trans.backup.async">0</entry>
+                <entry name="bdb.schema.store.enabled">true</entry>
+                <entry name="bdb.schema.thread.pool">10</entry>
+                <entry name="bdb.schema.query.cache">true</entry>
+                <entry name="bdb.schema.ports.first">10050</entry>
+                <entry name="bdb.schema.format.default">XML</entry>
+                <entry name="bdb.schema.store.type">File</entry>
+                <entry name="bdb.schema.data.cache">INDEX-ONLY</entry>
+                <entry name="bdb.schema.data.stats.enabled">true</entry>
+                <entry name="bdb.schema.ports.last">10060</entry>
+                <entry name="bdb.schema.population.size">1</entry>
+                <entry name="bdb.schema.population.buffer.size">100000</entry>
+                <entry name="bdb.schema.data.backup.async">1</entry>
+                <entry name="bdb.schema.store.data.path">../../etc/samples/xdm</entry>
+                <entry name="bdb.schema.dict.backup.sync">0</entry>
+                <entry name="bdb.schema.trans.backup.sync">1</entry>
+                <entry name="bdb.schema.query.backup.sync">0</entry>
+                <entry name="bdb.schema.buffer.size">16</entry>
+                <entry name="bdb.schema.dict.backup.async">1</entry>
+                <entry name="bdb.schema.dict.backup.read">true</entry>
+                <entry name="bdb.schema.trans.backup.read">false</entry>
+                <entry name="bdb.schema.query.backup.async">0</entry>
+                <entry name="bdb.schema.members">localhost</entry>
+                <entry name="bdb.schema.data.backup.sync">0</entry>
+                <entry name="bdb.schema.partition.count">157</entry>
+                <entry name="bdb.schema.query.backup.read">true</entry>
+		<entry name="bdb.schema.transaction.timeout">0</entry>
+                <entry name="bdb.schema.health.threshold.low">25</entry>
+                <entry name="bdb.schema.health.threshold.high">0</entry>
+                <entry name="bdb.schema.query.parallel">true</entry>
+                <entry name="bdb.schema.partition.pool">32</entry>
+                <entry name="xqj.schema.baseUri">file:/C:/Work/Bagri/git/bagri/etc/samples/xdm/</entry>
+                <entry name="xqj.schema.orderingMode">2</entry>
+                <entry name="xqj.schema.queryLanguageTypeAndVersion">1</entry>
+                <entry name="xqj.schema.bindingMode">0</entry>
+                <entry name="xqj.schema.boundarySpacePolicy">1</entry>
+                <entry name="xqj.schema.scrollability">1</entry>
+                <entry name="xqj.schema.holdability">2</entry>
+                <entry name="xqj.schema.copyNamespacesModePreserve">1</entry>
+                <entry name="xqj.schema.queryTimeout">0</entry>
+                <entry name="xqj.schema.defaultFunctionNamespace"></entry>
+                <entry name="xqj.schema.defaultElementTypeNamespace"></entry>
+                <entry name="xqj.schema.copyNamespacesModeInherit">1</entry>
+                <entry name="xqj.schema.defaultOrderForEmptySequences">2</entry>
+                <entry name="xqj.schema.defaultCollationUri">http://www.w3.org/2005/xpath-functions/collation/codepoint</entry>
+                <entry name="xqj.schema.constructionMode">1</entry>
+            </properties>
+            <fragments/>
+            <indexes/>
+            <triggers/>
+        </schema>
+        <schema name="YCSB" active="true">
+            <version>1</version>
+            <createdAt>2016-01-26T21:30:58.096+04:00</createdAt>
+            <createdBy>SDV</createdBy>
+            <description>Schema for YCSB Benchmark</description>
+            <properties>
+                <entry name="bdb.schema.password">password</entry>
+                <entry name="bdb.schema.multicast.enabled">false</entry>
+                <entry name="bdb.schema.tcp.enabled">true</entry>
+                <entry name="bdb.schema.aws.enabled">false</entry>
+                <entry name="bdb.schema.connect.timeout">5</entry>
+                <entry name="bdb.schema.store.tx.buffer.size">1024</entry>
+                <entry name="bdb.schema.data.backup.read">false</entry>
+                <entry name="bdb.schema.trans.backup.async">0</entry>
+                <entry name="bdb.schema.store.enabled">false</entry>
+                <entry name="bdb.schema.thread.pool">10</entry>
+                <entry name="bdb.schema.data.cache">NEVER</entry>
+                <entry name="bdb.schema.data.stats.enabled">false</entry>
+                <entry name="bdb.schema.query.cache">true</entry>
+                <entry name="bdb.schema.ports.first">10150</entry>
+                <entry name="bdb.schema.format.default">XML</entry>
+                <entry name="bdb.schema.ports.last">10160</entry>
+                <entry name="bdb.schema.population.size">1</entry>
+                <entry name="bdb.schema.population.buffer.size">1000000</entry>
+                <entry name="bdb.schema.data.backup.async">1</entry>
+                <entry name="bdb.schema.store.data.path">../../etc/samples/ycsb</entry>
+                <entry name="bdb.schema.dict.backup.sync">0</entry>
+                <entry name="bdb.schema.trans.backup.sync">1</entry>
+                <entry name="bdb.schema.query.backup.sync">0</entry>
+                <entry name="bdb.schema.buffer.size">16</entry>
+                <entry name="bdb.schema.dict.backup.async">1</entry>
+                <entry name="bdb.schema.dict.backup.read">true</entry>
+                <entry name="bdb.schema.trans.backup.read">false</entry>
+                <entry name="bdb.schema.query.backup.async">0</entry>
+                <entry name="bdb.schema.members">localhost</entry>
+                <entry name="bdb.schema.data.backup.sync">0</entry>
+                <entry name="bdb.schema.partition.count">157</entry>
+                <entry name="bdb.schema.query.backup.read">true</entry>
+		<entry name="bdb.schema.transaction.timeout">0</entry>
+                <entry name="bdb.schema.health.threshold.low">25</entry>
+                <entry name="bdb.schema.health.threshold.high">0</entry>
+                <entry name="bdb.schema.query.parallel">true</entry>
+                <entry name="bdb.schema.partition.pool">32</entry>
+                <entry name="xqj.schema.baseUri">file:/C:/Work/Bagri/git/bagri/etc/samples/ycsb/</entry>
+                <entry name="xqj.schema.orderingMode">2</entry>
+                <entry name="xqj.schema.queryLanguageTypeAndVersion">1</entry>
+                <entry name="xqj.schema.bindingMode">0</entry>
+                <entry name="xqj.schema.boundarySpacePolicy">1</entry>
+                <entry name="xqj.schema.scrollability">1</entry>
+                <entry name="xqj.schema.holdability">2</entry>
+                <entry name="xqj.schema.copyNamespacesModePreserve">1</entry>
+                <entry name="xqj.schema.queryTimeout">0</entry>
+                <entry name="xqj.schema.defaultFunctionNamespace"></entry>
+                <entry name="xqj.schema.defaultElementTypeNamespace"></entry>
+                <entry name="xqj.schema.copyNamespacesModeInherit">1</entry>
+                <entry name="xqj.schema.defaultOrderForEmptySequences">2</entry>
+                <entry name="xqj.schema.defaultCollationUri">http://www.w3.org/2005/xpath-functions/collation/codepoint</entry>
+                <entry name="xqj.schema.constructionMode">1</entry>
+            </properties>
+            <collections>
+                <collection id="1" name="usertable">
+                    <version>1</version>
+                    <createdAt>2016-05-10T01:01:26.965+03:00</createdAt>
+                    <createdBy>SDV</createdBy>
+                    <!--docType></docType-->
+                    <description>YCSB default collection</description>
+                    <enabled>true</enabled>
+                </collection>
+            </collections>
+            <fragments/>
             <indexes/>
             <triggers/>
         </schema>

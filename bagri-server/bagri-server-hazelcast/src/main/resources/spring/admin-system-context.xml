@@ -7,7 +7,7 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.2.xsd
 		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.2.xsd
-		http://www.hazelcast.com/schema/spring http://www.hazelcast.com/schema/spring/hazelcast-spring-3.7.xsd">
+		http://www.hazelcast.com/schema/spring http://www.hazelcast.com/schema/spring/hazelcast-spring-3.8.xsd">
 
     <!-- Beans Declarations -->
     
@@ -35,16 +35,19 @@
 				<hz:property name="hazelcast.memcache.enabled">false</hz:property>
 			</hz:properties>
 			<hz:network port="${bdb.cluster.port:3331}" port-auto-increment="true">
+				<hz:outbound-ports>
+					<hz:ports>3330-3430</hz:ports> 
+				</hz:outbound-ports>
 				<hz:join>
-                    <hz:multicast enabled="${bdb.cluster.multicast.enabled:false}" multicast-timeout-seconds="${bdb.cluster.connect.timeout:10}">
-                        <hz:trusted-interfaces>
-                            <hz:interface>${bdb.cluster.members}</hz:interface>
-                        </hz:trusted-interfaces>   
-                    </hz:multicast>					
-					<hz:tcp-ip enabled="${bdb.cluster.tcp.enabled:true}" connection-timeout-seconds="${bdb.cluster.connect.timeout:10}">
-						<hz:members>${bdb.cluster.members:localhost}</hz:members>
-					</hz:tcp-ip>
-					<hz:aws enabled="${bdb.cluster.aws.enabled:false}" connection-timeout-seconds="${bdb.cluster.connect.timeout:10}"/>
+                                    <hz:multicast enabled="${bdb.cluster.multicast.enabled:false}" multicast-timeout-seconds="${bdb.cluster.connect.timeout:10}">
+                                        <!--hz:trusted-interfaces>
+                                            <hz:interface>${bdb.cluster.members}</hz:interface>
+                                        </hz:trusted-interfaces-->   
+                                    </hz:multicast>					
+				    <hz:tcp-ip enabled="${bdb.cluster.tcp.enabled:true}" connection-timeout-seconds="${bdb.cluster.connect.timeout:10}">
+					<hz:members>${bdb.cluster.members:localhost}</hz:members>
+				    </hz:tcp-ip>
+				    <hz:aws enabled="${bdb.cluster.aws.enabled:false}" connection-timeout-seconds="${bdb.cluster.connect.timeout:10}"/>
 				</hz:join>
 			</hz:network>
 

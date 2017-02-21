@@ -47,7 +47,7 @@ JAVA_OPTS="$JAVA_OPTS -Dlogback.configurationFile=/$BG_HOME/config/hz-logging.xm
 #JAVA_OPTS="$JAVA_OPTS -Dhz.log.level=debug"
 JAVA_OPTS="$JAVA_OPTS -Dbdb.log.level=info"
 JAVA_OPTS="$JAVA_OPTS -Dbdb.config.path=/$BG_HOME/config"
-JAVA_OPTS="$JAVA_OPTS -Dbdb.config.context.file=spring/cache-system-context.xml"
+JAVA_OPTS="$JAVA_OPTS -Dbdb.config.context.file=file:/$BG_HOME/config/spring/cache-system-context.xml"
 JAVA_OPTS="$JAVA_OPTS -Dbdb.config.properties.file=$nodeName.properties"
 JAVA_OPTS="$JAVA_OPTS -Dbdb.config.filename=/$BG_HOME/config/config.xml"
 JAVA_OPTS="$JAVA_OPTS -Dbdb.access.filename=/$BG_HOME/config/access.xml"
@@ -65,8 +65,8 @@ echo "and classpath: $CLASSPATH"
 
 java -server $JAVA_OPTS com.bagri.server.hazelcast.BagriCacheServer
 PID="$!"
-PID_FILE=$BG_HOME/bg_instance.pid
-echo ${PID} > ${PID_FILE}
+#PID_FILE=$BG_HOME/bg_instance.pid
+#echo ${PID} > ${PID_FILE}
 
 # wait on bagri instance process
 wait ${PID}
