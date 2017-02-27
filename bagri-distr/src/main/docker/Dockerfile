@@ -13,7 +13,7 @@ RUN rm -rf /$BG_HOME/distr && rm -rf /$BG_HOME/docs && rm -rf /$BG_HOME/samples
 RUN mkdir /$BG_HOME/logs && mkdir /$BG_HOME/logs/first && mkdir /$BG_HOME/logs/first/cache && mkdir /$BG_HOME/logs/first/gc
 
 # looks like it is not usable on the Windows platform
-#VOLUME /$BG_HOME/logs
+VOLUME /$BG_HOME
 
 WORKDIR /$BG_HOME/bin
 

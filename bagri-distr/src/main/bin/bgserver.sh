@@ -32,7 +32,7 @@ export CLASSPATH
 
 jmx_port=3431
 
-JAVA_OPTS="-Xms1g -Xmx2g -XX:NewSize=64m -XX:MaxNewSize=64m"
+JAVA_OPTS="-Xms2g -Xmx2g -XX:NewSize=64m -XX:MaxNewSize=64m"
 JAVA_OPTS="$JAVA_OPTS -XX:+UseParNewGC -XX:+UseConcMarkSweepGC"
 JAVA_OPTS="$JAVA_OPTS -XX:+ExplicitGCInvokesConcurrent -XX:+UseCMSInitiatingOccupancyOnly"
 JAVA_OPTS="$JAVA_OPTS -XX:CMSInitiatingOccupancyFraction=80 -XX:+CMSScavengeBeforeRemark"
