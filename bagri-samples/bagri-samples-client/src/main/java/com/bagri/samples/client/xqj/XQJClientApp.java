@@ -162,17 +162,18 @@ public class XQJClientApp implements BagriClientApp {
 		String query = "declare namespace bgdb=\"http://bagridb.com/bdb\";\n" +
 				"declare variable $uri external;\n" + 
 				"declare variable $xml external;\n" + 
-				"declare variable $props external;\n" + 
-				"let $uri := bgdb:store-document($uri, $xml, $props)\n" +
+				//"declare variable $props external;\n" + 
+				//"let $uri := bgdb:store-document($uri, $xml, $props)\n" +
+				"let $uri := bgdb:store-document($uri, $xml)\n" +
 				"return $uri\n";
 
 	    XQPreparedExpression xqpe = xqConn.prepareExpression(query);
 	    xqpe.bindString(new QName("uri"), uri, xqConn.createAtomicType(XQItemType.XQBASETYPE_ANYURI));
 	    xqpe.bindString(new QName("xml"), content, xqConn.createAtomicType(XQItemType.XQBASETYPE_STRING));
-	    List<String> props = new ArrayList<>(2);
-	    props.add(pn_document_data_format + "=xml");
+	    //List<String> props = new ArrayList<>(2);
+	    //props.add(pn_document_data_format + "=xml");
 	    // 
-	    xqpe.bindSequence(new QName("props"), xqConn.createSequence(props.iterator()));
+	    //xqpe.bindSequence(new QName("props"), xqConn.createSequence(props.iterator()));
 	    XQSequence xqs = xqpe.executeQuery();
 	    String result = null;
 	    try {

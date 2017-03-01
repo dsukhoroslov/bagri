@@ -38,9 +38,9 @@ public abstract class BagriManagementTest {
 		return original;
 	}
 	
-	protected String getUri(String fileName) {
-		return Paths.get(fileName).getFileName().toString();
-	}
+	//protected String getUri(String fileName) {
+	//	return Paths.get(fileName).getFileName().toString();
+	//}
 	
 	protected Properties getDocumentProperties() {
 		return null;
@@ -116,15 +116,14 @@ public abstract class BagriManagementTest {
 	}
 	
 	public Document createDocumentTest(String fileName) throws Exception {
-		String xml = readTextFile(fileName);
 		Properties props = getDocumentProperties();
-		return getDocManagement().storeDocumentFromString(getUri(fileName), xml, props);
+		return getDocManagement().storeDocumentFromFile(fileName, props);
 	}
 	
 	public Document updateDocumentTest(String uri, String fileName) throws Exception {
-		String xml = readTextFile(fileName);
+		String content = readTextFile(fileName);
 		Properties props = getDocumentProperties();
-		return getDocManagement().storeDocumentFromString(uri, xml, props);
+		return getDocManagement().storeDocumentFromString(uri, content, props);
 	}
 
 	public void removeDocumentTest(String uri) throws Exception {

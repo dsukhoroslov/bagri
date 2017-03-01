@@ -59,8 +59,8 @@ public class BagriXQDataSource implements XQDataSource {
 		properties.put(pn_client_loginTimeout, "30");
 		properties.put(pn_client_bufferSize, "32"); 
 		properties.put(pn_client_connectAttempts, "3");
-		properties.put(XQ_PROCESSOR, ""); //"com.bagri.xquery.saxon.BagriXQProcessor"); //Proxy
-		properties.put(XDM_REPOSITORY, ""); //"com.bagri.client.hazelcast.impl.SchemaRepositoryImpl"); 
+		properties.put(XQ_PROCESSOR, ""); //"com.bagri.xquery.saxon.XQProcessorClient"); 
+		properties.put(XDM_REPOSITORY, ""); //"com.bagri.client.hazelcast.impl.SchemaRepositoryImpl");
 	}
 
 	/** {@inheritDoc}
@@ -160,29 +160,6 @@ public class BagriXQDataSource implements XQDataSource {
 	protected BagriXQConnection createConnection(String username) {
 		return new BagriXQConnection(username, isTransactional());
 	}
-	
-	//private XQConnection initConnection(String username) throws XQException {
-
-	//	BagriXQConnection connect = createConnection(username);
-	//	Object xqp = makeInstance(XQ_PROCESSOR);
-	//	if (xqp != null) {
-	//		if (xqp instanceof XQProcessor) {
-	//			Object xdm = initRepository(connect);
-	//			if (xdm != null) {
-	//				if (xdm instanceof SchemaRepository) {
-	//					connect.setup((XQProcessor) xqp, (SchemaRepository) xdm); 
-	//				} else {
-	//					throw new XQException("Specified Repository class does not implement SchemaRepository interface: " + 
-	//							properties.getProperty(XDM_REPOSITORY));
-	//				}
-	//			}						
-	//		} else {
-	//			throw new XQException("Specified XQ Processor class does not implement XQProcessor interface: " + 
-	//					properties.getProperty(XQ_PROCESSOR));
-	//		}
-	//	}
-	//	return connect;
-	//}
 	
 	private XQConnection initConnection(String username) throws XQException {
 
