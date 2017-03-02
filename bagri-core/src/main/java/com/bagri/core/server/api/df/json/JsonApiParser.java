@@ -201,7 +201,6 @@ public class JsonApiParser extends ContentParserBase implements ContentParser {
 		ctx.setDocType(model.translateDocumentType(root));
 		Path path = model.translatePath(ctx.getDocType(), "", NodeKind.document, XQItemType.XQBASETYPE_ANYTYPE, Occurrence.onlyOne);
 		Element start = new Element();
-		start.setElementId(ctx.nextElementId());
 		Data data = new Data(path, start);
 		ctx.addStack(data);
 		ctx.addData(data);
@@ -263,6 +262,7 @@ public class JsonApiParser extends ContentParserBase implements ContentParser {
 					isArray ? Occurrence.zeroOrMany : Occurrence.zeroOrOne);
 		} else {
 			current.getElement().setValue(value);
+			// do we need set position here??
 		}
 		if (isArray) {
 			ctx.addStack(null);

@@ -693,16 +693,16 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 					fraPost = 0;
 				}
 				pathIds.add(xdm.getPathId());
-				DataKey xdk = factory.newDataKey(fraPath, xdm.getPathId());
-				//logger.info("loadElements; got key: {}; fraPath: {}; fraPost: {}, partition: {}", 
-				//		xdk, fraPath, fraPost, hzInstance.getPartitionService().getPartition(xdk));
-				Elements xdes = elements.get(xdk);
-				if (xdes == null) {
-					xdes = new Elements(xdk.getPathId(), null);
-					elements.put(xdk, xdes);
+				if (xdm.getValue() != null) {
+					DataKey xdk = factory.newDataKey(fraPath, xdm.getPathId());
+					Elements xdes = elements.get(xdk);
+					if (xdes == null) {
+						xdes = new Elements(xdk.getPathId(), null);
+						elements.put(xdk, xdes);
+					}
+					xdes.addElement(xdm.getElement());
+					indexManager.addIndex(docKey, xdm.getPathId(), xdm.getPath(), xdm.getValue());
 				}
-				xdes.addElement(xdm.getElement());
-				indexManager.addIndex(docKey, xdm.getPathId(), xdm.getPath(), xdm.getValue());
 			}
 			xdmCache.putAll(elements);
 			

@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl;
 import com.bagri.core.model.Element;
-import com.bagri.core.model.NodeKind;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.StreamSerializer;
@@ -24,8 +23,7 @@ public class ElementSerializer implements StreamSerializer<Element> {
 	public Element read(ObjectDataInput in) throws IOException {
 		
 		Element xData = new Element(
-				in.readInt(),
-				in.readInt(),
+				in.readUTF(),
 				in.readObject());
 		return xData;
 	}
@@ -33,8 +31,7 @@ public class ElementSerializer implements StreamSerializer<Element> {
 	@Override
 	public void write(ObjectDataOutput out, Element xElt) throws IOException {
 		
-		out.writeInt(xElt.getElementId());
-		out.writeInt(xElt.getParentId());
+		out.writeUTF(xElt.getPosition());
 		out.writeObject(xElt.getValue());
 	}
 

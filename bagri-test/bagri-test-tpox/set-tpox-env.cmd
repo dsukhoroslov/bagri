@@ -14,7 +14,7 @@ set memory=1024m
 rem specify schema and admin hosts:ports
 set admin_addr=localhost:3330
 set schema_addr=localhost:10500
-rem set schema_addr=192.168.1.100:10500
+rem set schema_addr=192.168.99.100:10500,192.168.99.100:10501
 
 set login=admin
 set password=password

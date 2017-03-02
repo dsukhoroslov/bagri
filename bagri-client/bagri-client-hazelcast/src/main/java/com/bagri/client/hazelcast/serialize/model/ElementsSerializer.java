@@ -2,8 +2,6 @@ package com.bagri.client.hazelcast.serialize.model;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 import com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl;
 import com.bagri.core.model.Element;

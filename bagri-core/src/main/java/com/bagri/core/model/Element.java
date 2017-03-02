@@ -9,10 +9,8 @@ package com.bagri.core.model;
  */
 public class Element implements Comparable<Element> { 
 
-	private int elementId;
-	private int parentId;
+	private String position;
 	private Object value = null;
-	//private int positionInParent;
 	
 	/**
 	 * default constructor
@@ -27,40 +25,24 @@ public class Element implements Comparable<Element> {
 	 * @param parentId the element's parent id
 	 * @param value the element's value
 	 */
-	public Element(int elementId, int parentId, Object value) {
-		super();
-		this.elementId = elementId;
-		this.parentId = parentId;
+	public Element(String position, Object value) {
+		this.position = position;
 		this.value = value;
 	}
 
 	/**
-	 * @return the element's id
+	 * @return the position
 	 */
-	public int getElementId() {
-		return elementId;
+	public String getPosition() {
+		return position;
 	}
 
 	/**
-	 * @param elementId the element Id to set
+	 * @param position the position to set
 	 */
-	public void setElementId(int elementId) {
-		this.elementId = elementId;
-	}
-
-	/**
-	 * @return the parentId
-	 */
-	public int getParentId() {
-		return parentId;
-	}
-
-	/**
-	 * @param parentId the parentId to set
-	 */
-	public void setParentId(int parentId) {
-		this.parentId = parentId;
-	}
+	//public void setPosition(String position) {
+	//	this.position = position;
+	//}
 
 	/**
 	 * @return the value
@@ -197,7 +179,7 @@ public class Element implements Comparable<Element> {
 	 */
 	@Override
 	public int compareTo(Element other) {
-		return (int) (this.elementId - other.elementId);
+		return this.position.compareTo(other.position);
 	}
 
 	/* (non-Javadoc)
@@ -205,7 +187,7 @@ public class Element implements Comparable<Element> {
 	 */
 	@Override
 	public String toString() {
-		return "Element [elementId=" + elementId + ", parentId=" + parentId + ", value=" + value + "]";
+		return "Element [position=" + position + ", value=" + value + "]";
 	}
 
 	

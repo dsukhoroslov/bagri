@@ -34,9 +34,9 @@ public class Data implements Comparable<Data> {
      * 
      * @return the element id
      */
-    public int getElementId() {
-    	return element.getElementId();
-    }
+    //public int getElementId() {
+    //	return element.getElementId();
+    //}
     	
     /**
      * 
@@ -58,8 +58,8 @@ public class Data implements Comparable<Data> {
      * 
      * @return the element parent id
      */
-    public int getParentId() {
-    	return element.getParentId();
+    public String getPosition() {
+    	return element.getPosition();
     }
     
     /**
@@ -119,7 +119,7 @@ public class Data implements Comparable<Data> {
 	@Override
 	public int compareTo(Data other) {
 
-		return (int) (this.getElementId() - other.getElementId());
+		return this.getPosition().compareTo(other.getPosition());
 	}
 
 	/**

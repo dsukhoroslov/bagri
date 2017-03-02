@@ -251,8 +251,8 @@ public class XmlStaxParser extends ContentParserBase implements ContentParser {
 	
 	private void processDocument(XmlParserContext ctx, StartDocument document) throws BagriException {
 
+		// we don't need position for the top element.. 
 		Element start = new Element();
-		start.setElementId(ctx.nextElementId());
 		Path path = model.translatePath(ctx.getDocType(), "", NodeKind.document, XQItemType.XQBASETYPE_ANYTYPE, Occurrence.onlyOne);
 		Data data = new Data(path, start);
 		ctx.addStack(data);

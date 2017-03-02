@@ -2,9 +2,8 @@ package com.bagri.core.model;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.bagri.core.query.Comparison;
 import com.bagri.core.query.PathExpression;
@@ -33,7 +32,7 @@ public class Elements {
 	 * @param pathId the path id
 	 * @param elements the Map of elements
 	 */
-	public Elements(int pathId, Map<Long, Element> elements) {
+	public Elements(int pathId, Collection<Element> elements) {
 		this.pathId = pathId;
 		setElements(elements);
 	}
@@ -50,10 +49,10 @@ public class Elements {
 		}
 		if (elementRef instanceof Element) {
 			Element oldElement = (Element) elementRef;
-			elementRef = new TreeSet<Element>();
-			((Set<Element>) elementRef).add(oldElement);
+			elementRef = new ArrayList<>();
+			((List<Element>) elementRef).add(oldElement);
 		}
-		((Set<Element>) elementRef).add(element);
+		((List<Element>) elementRef).add(element);
 	}
 
 	/**
@@ -67,11 +66,11 @@ public class Elements {
 		}
 		if (elementRef instanceof Element) {
 			// wouldn't be better to keep it in the Set then?
-			Set<Element> elements = new TreeSet<Element>();
+			ArrayList<Element> elements = new ArrayList<>();
 			elements.add((Element) elementRef);
 			return elements;
 		}
-		return (Set<Element>) elementRef;
+		return (List<Element>) elementRef;
 	}
 
 	/**
@@ -86,10 +85,10 @@ public class Elements {
 	 * 
 	 * @param elements elements to set
 	 */
-	public void setElements(Map<Long, Element> elements) {
+	public void setElements(Collection<Element> elements) {
 		elementRef = null;
 		if (elements != null && elements.size() > 0) {
-			for (Element elt : elements.values()) {
+			for (Element elt : elements) {
 				addElement(elt);
 			}
 		}
@@ -122,7 +121,7 @@ public class Elements {
 		if (elementRef instanceof Element) {
 			return compareValue(pex.getCompType(), value, ((Element) elementRef).getValue());
 		} else {
-			return compareValues(pex.getCompType(), value, (Set<Element>) elementRef);
+			return compareValues(pex.getCompType(), value, (List<Element>) elementRef);
 		}
 	}
 
@@ -142,7 +141,7 @@ public class Elements {
 	}
 
 	@SuppressWarnings("unchecked")
-	private boolean compareValues(Comparison comp, Object value, Set<Element> elements) {
+	private boolean compareValues(Comparison comp, Object value, List<Element> elements) {
 
 		for (Element element : elements) {
 			if (element.getValue() != null) {

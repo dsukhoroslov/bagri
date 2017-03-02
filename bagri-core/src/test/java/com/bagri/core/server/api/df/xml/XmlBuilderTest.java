@@ -1,21 +1,25 @@
 package com.bagri.core.server.api.df.xml;
 
+import static com.bagri.core.server.api.impl.ContentBuilderBase.dataToElements;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.bagri.core.DataKey;
 import com.bagri.core.model.Data;
+import com.bagri.core.model.Elements;
 import com.bagri.core.server.api.ModelManagement;
-import com.bagri.core.server.api.df.json.JsonApiParser;
 import com.bagri.core.server.api.impl.ModelManagementImpl;
 
-public class XmlStaxParserTest {
-	
+public class XmlBuilderTest {
+
 	private static String xml = 
 			"<person>\n" +
 	        "    <firstName>John</firstName>\n" +
@@ -62,27 +66,18 @@ public class XmlStaxParserTest {
 
 
 	@Test
-	public void testParse() throws Exception {
-		ModelManagement dict = new ModelManagementImpl();
-		XmlStaxParser parser = new XmlStaxParser(dict);
-		List<Data> elts = parser.parse(xml);
+	public void testBuild() throws Exception {
+		ModelManagement model = new ModelManagementImpl();
+		XmlStaxParser parser = new XmlStaxParser(model);
+		List<Data> data = parser.parse(xml);
 		//System.out.println(elts);
-		assertNotNull(elts);
-		assertEquals(31, elts.size()); 
-		Data data = elts.get(0);
-		assertEquals("", data.getPath());
-		assertNull(data.getValue());
-		data = elts.get(1);
-		assertEquals("/person", data.getPath());
-		assertNull(data.getValue());
-		data = elts.get(2);
-		assertEquals("/person/firstName", data.getPath());
-		data = elts.get(3);
-		assertEquals("/person/firstName/text()", data.getPath());
-		assertEquals("John", data.getValue());
-		//int typeId = 1;
-		//String root = dict.getDocumentRoot(typeId);
-		//assertEquals("", root); -> /firstName	
+		assertNotNull(data);
+		assertEquals(31, data.size());
+		XmlBuilder builder = new XmlBuilder(model);
+		Map<DataKey, Elements> elements = dataToElements(data);
+		String content = builder.buildString(elements);
+		// now compare content vs xml..
+		assertNotNull(content);
 	}
 	
 }

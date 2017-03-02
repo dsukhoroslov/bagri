@@ -4,7 +4,6 @@ import static com.bagri.support.util.XQUtils.getAtomicValue;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Stack;
 
 import org.slf4j.Logger;
@@ -51,16 +50,13 @@ public abstract class ContentParserBase {
 	 */
 	protected Data addData(ParserContext ctx, Data parent, NodeKind kind, String name, String value, int dataType, Occurrence occurence) throws BagriException {
 		logger.trace("addData.enter; name: {}; kind: {}; value: {}; parent: {}", name, kind, value, parent);
-		Element xElt = new Element();
-		xElt.setElementId(ctx.nextElementId());
-		xElt.setParentId(parent.getElementId());
 		String path = parent.getPath() + name;
 		Path xPath = model.translatePath(ctx.getDocType(), path, kind, dataType, occurence);
 		xPath.setParentId(parent.getPathId());
 		if (parent.getPostId() < xPath.getPathId()) {
 			parent.setPostId(xPath.getPathId());
 		}
-		xElt.setValue(getAtomicValue(xPath.getDataType(), value));
+		Element xElt = new Element(ctx.getPosition(), getAtomicValue(xPath.getDataType(), value));
 		Data xData = new Data(xPath, xElt);
 		ctx.addData(xData);
 		return xData;
@@ -92,13 +88,11 @@ public abstract class ContentParserBase {
 		protected List<Data> dataList;
 		protected Stack<Data> dataStack;
 		protected int docType = -1;
-		protected int elementId;
 		
 		protected ParserContext() {
 			dataList = new ArrayList<Data>();
 			dataStack = new Stack<Data>(); 
 			docType = -1;
-			elementId = 0;
 		}
 		
 		public void addData(Data xData) {
@@ -141,8 +135,8 @@ public abstract class ContentParserBase {
 			return dataStack.elementAt(idx);
 		}
 		
-		public int nextElementId() {
-			return elementId++;
+		public String getPosition() {
+			return "1.1"; 
 		}
 		
 		public void setDocType(int docType) {

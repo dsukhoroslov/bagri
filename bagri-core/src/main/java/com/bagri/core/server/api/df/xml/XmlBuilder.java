@@ -14,9 +14,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Stack;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.bagri.core.DataKey;
 import com.bagri.core.api.BagriException;
 import com.bagri.core.model.Data;
@@ -26,6 +23,7 @@ import com.bagri.core.model.NodeKind;
 import com.bagri.core.model.Path;
 import com.bagri.core.server.api.ContentBuilder;
 import com.bagri.core.server.api.ModelManagement;
+import com.bagri.core.server.api.impl.ContentBuilderBase;
 
 /**
  * XDM Builder implementation for XML format. 
@@ -33,18 +31,14 @@ import com.bagri.core.server.api.ModelManagement;
  * @author Denis Sukhoroslov
  *
  */
-public class XmlBuilder implements ContentBuilder {
+public class XmlBuilder extends ContentBuilderBase implements ContentBuilder {
 
-	private static final Logger logger = LoggerFactory.getLogger(XmlBuilder.class);
-	
-	private ModelManagement model;
-	
 	/**
 	 * 
 	 * @param model the XDM model management component
 	 */
 	public XmlBuilder(ModelManagement model) {
-		this.model = model;
+		super(model);
 	}
 	
  	/**
@@ -164,31 +158,31 @@ public class XmlBuilder implements ContentBuilder {
 			//
 		} else {
 			Data top = dataStack.peek();
-			if (data.getParentId() == top.getElementId()) {
+			//if (data.getParentId() == top.getElementId()) {
 				// new child element
-				if (eltOpen) {
-					buff.append(">");
-					eltOpen = false;
-				}
-				if (data.getNodeKind() != NodeKind.text) {
-					buff.append(EOL);
-				}
-			} else {
-				while (top != null && data.getParentId() != top.getElementId()) {
-					if (eltOpen) {
-						buff.append("/>").append(EOL);
-						eltOpen = false;
-					} else {
-						buff.append("</").append(top.getName()).append(">").append(EOL);
-					}
-    				dataStack.pop();
-    				if (dataStack.isEmpty()) {
-    					top = null;
-    				} else {
-    					top = dataStack.peek();
-    				}
-				}
-			}
+			//	if (eltOpen) {
+			//		buff.append(">");
+			//		eltOpen = false;
+			//	}
+			//	if (data.getNodeKind() != NodeKind.text) {
+			//		buff.append(EOL);
+			//	}
+			//} else {
+			//	while (top != null && data.getParentId() != top.getElementId()) {
+			//		if (eltOpen) {
+			//			buff.append("/>").append(EOL);
+			//			eltOpen = false;
+			//		} else {
+			//			buff.append("</").append(top.getName()).append(">").append(EOL);
+			//		}
+    		//		dataStack.pop();
+    		//		if (dataStack.isEmpty()) {
+    		//			top = null;
+    		//		} else {
+    		//			top = dataStack.peek();
+    		//		}
+			//	}
+			//}
 		}
 		return eltOpen;
     }

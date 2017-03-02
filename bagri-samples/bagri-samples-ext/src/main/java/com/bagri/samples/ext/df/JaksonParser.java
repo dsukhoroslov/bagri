@@ -1,18 +1,13 @@
 package com.bagri.samples.ext.df;
 
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
-import java.io.StringReader;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import javax.json.Json;
 import javax.xml.xquery.XQItemType;
 
 import com.bagri.core.api.BagriException;
@@ -181,8 +176,6 @@ public class JaksonParser extends ContentParserBase implements ContentParser {
 		ctx.setDocType(model.translateDocumentType(root));
 		Path path = model.translatePath(ctx.getDocType(), "", NodeKind.document, XQItemType.XQBASETYPE_ANYTYPE, Occurrence.onlyOne); 
 		Element start = new Element();
-		start.setElementId(ctx.nextElementId());
-		//start.setParentId(0); // -1 ?
 		Data data = new Data(path, start);
 		ctx.addStack(data);
 		ctx.addData(data);
