@@ -31,6 +31,28 @@ public class Element implements Comparable<Element> {
 	}
 
 	/**
+	 * @return the element position
+	 */
+	public int getPos() {
+		String[] points = position.split(".");
+		if (points.length > 0) {
+			return Integer.parseInt(points[points.length - 1]);
+		}
+		return 0;
+	}
+
+	/**
+	 * @return the parent position
+	 */
+	public int getParentPos() {
+		String[] points = position.split(".");
+		if (points.length > 1) {
+			return Integer.parseInt(points[points.length - 2]);
+		}
+		return 0;
+	}
+
+	/**
 	 * @return the position
 	 */
 	public String getPosition() {

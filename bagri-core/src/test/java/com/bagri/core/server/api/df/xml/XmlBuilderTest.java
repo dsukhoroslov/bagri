@@ -74,9 +74,9 @@ public class XmlBuilderTest {
 		assertNotNull(data);
 		assertEquals(31, data.size());
 		XmlBuilder builder = new XmlBuilder(model);
-		Map<DataKey, Elements> elements = dataToElements(data);
-		System.out.println(elements);
-		String content = builder.buildString(elements);
+		//Map<DataKey, Elements> elements = dataToElements(data);
+		//System.out.println(elements);
+		String content = builder.buildString(data);
 		System.out.println(content);
 		// now compare content vs xml..
 		assertNotNull(content);

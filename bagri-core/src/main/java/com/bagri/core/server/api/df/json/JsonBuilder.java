@@ -1,11 +1,13 @@
 package com.bagri.core.server.api.df.json;
 
 import java.io.InputStream;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Properties;
 
 import com.bagri.core.DataKey;
 import com.bagri.core.api.BagriException;
+import com.bagri.core.model.Data;
 import com.bagri.core.model.Elements;
 import com.bagri.core.server.api.ContentBuilder;
 import com.bagri.core.server.api.ModelManagement;
@@ -52,6 +54,18 @@ public class JsonBuilder extends ContentBuilderBase implements ContentBuilder {
 	 */
 	@Override
 	public InputStream buildStream(Map<DataKey, Elements> elements) throws BagriException {
+		return null;
+	}
+
+	@Override
+	public String buildString(Collection<Data> elements) throws BagriException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public InputStream buildStream(Collection<Data> elements) throws BagriException {
+		// TODO Auto-generated method stub
 		return null;
 	}
 

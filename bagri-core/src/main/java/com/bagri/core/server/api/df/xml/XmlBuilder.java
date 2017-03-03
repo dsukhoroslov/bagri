@@ -6,10 +6,7 @@ import static com.bagri.support.util.FileUtils.def_encoding;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Stack;
@@ -54,13 +51,21 @@ public class XmlBuilder extends ContentBuilderBase implements ContentBuilder {
 	 */
 	@Override
 	public String buildString(Map<DataKey, Elements> elements) throws BagriException {
-    	StringBuffer buff = new StringBuffer();
     	Collection<Data> dataList = buildDataList(elements);
+    	return buildString(dataList);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+   	public String buildString(Collection<Data> elements) throws BagriException {
     	
+    	StringBuffer buff = new StringBuffer();
     	Stack<Data> dataStack = new Stack<Data>();
     	boolean eltOpen = false;
     	
-    	for (Data data: dataList) {
+    	for (Data data: elements) {
     		String name = data.getName();
     		switch (data.getNodeKind()) {
     			case document: { // this must be the first row..
@@ -141,6 +146,15 @@ public class XmlBuilder extends ContentBuilderBase implements ContentBuilder {
 	 */
 	@Override
 	public InputStream buildStream(Map<DataKey, Elements> elements) throws BagriException {
+    	Collection<Data> dataList = buildDataList(elements);
+    	return buildStream(dataList);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public InputStream buildStream(Collection<Data> elements) throws BagriException {
 		String content = buildString(elements);
 		if (content != null) {
 			try {
@@ -151,63 +165,40 @@ public class XmlBuilder extends ContentBuilderBase implements ContentBuilder {
 		}
 		return null;
 	}
-	
-    private boolean endElement(Stack<Data> dataStack, Data data, StringBuffer buff, boolean eltOpen) {
+
+	private boolean endElement(Stack<Data> dataStack, Data data, StringBuffer buff, boolean eltOpen) {
     	
 		if (dataStack.isEmpty()) {
 			//
 		} else {
 			Data top = dataStack.peek();
-			//if (data.getParentId() == top.getElementId()) {
+			if (data.getParentPos() == top.getPos()) {
 				// new child element
-			//	if (eltOpen) {
-			//		buff.append(">");
-			//		eltOpen = false;
-			//	}
-			//	if (data.getNodeKind() != NodeKind.text) {
-			//		buff.append(EOL);
-			//	}
-			//} else {
-			//	while (top != null && data.getParentId() != top.getElementId()) {
-			//		if (eltOpen) {
-			//			buff.append("/>").append(EOL);
-			//			eltOpen = false;
-			//		} else {
-			//			buff.append("</").append(top.getName()).append(">").append(EOL);
-			//		}
-    		//		dataStack.pop();
-    		//		if (dataStack.isEmpty()) {
-    		//			top = null;
-    		//		} else {
-    		//			top = dataStack.peek();
-    		//		}
-			//	}
-			//}
+				if (eltOpen) {
+					buff.append(">");
+					eltOpen = false;
+				}
+				if (data.getNodeKind() != NodeKind.text) {
+					buff.append(EOL);
+				}
+			} else {
+				while (top != null && data.getParentPos() != top.getPos()) {
+					if (eltOpen) {
+						buff.append("/>").append(EOL);
+						eltOpen = false;
+					} else {
+						buff.append("</").append(top.getName()).append(">").append(EOL);
+					}
+    				dataStack.pop();
+    				if (dataStack.isEmpty()) {
+    					top = null;
+    				} else {
+    					top = dataStack.peek();
+    				}
+				}
+			}
 		}
 		return eltOpen;
     }
     
-    private Collection<Data> buildDataList(Map<DataKey, Elements> elements) {
-
-    	List<Data> dataList = new ArrayList<>(elements.size() * 2);
-    	// here the source elements contain elements with values only
-    	// we should enrich the collection with intermediate parents
-    	for (Map.Entry<DataKey, Elements> entry: elements.entrySet()) {
-    		int pathId = entry.getKey().getPathId();
-    		Path path = model.getPath(pathId);
-    		if (path == null) {
-        		logger.info("buildDataSet; can't get path for pathId: {}", pathId);
-        		continue;
-    		}
-    		
-    		Elements elts = entry.getValue();
-    		for (Element element: elts.getElements()) {
-    			Data data = new Data(path, element);
-    			dataList.add(data);
-    		}
-    	}
-    	Collections.sort(dataList);
-    	return dataList;
-    }
-
 }

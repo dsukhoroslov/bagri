@@ -66,7 +66,7 @@ public class XmlStaxParserTest {
 		ModelManagement dict = new ModelManagementImpl();
 		XmlStaxParser parser = new XmlStaxParser(dict);
 		List<Data> elts = parser.parse(xml);
-		//System.out.println(elts);
+		System.out.println(elts);
 		assertNotNull(elts);
 		assertEquals(31, elts.size()); 
 		Data data = elts.get(0);

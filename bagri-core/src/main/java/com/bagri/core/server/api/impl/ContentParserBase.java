@@ -3,7 +3,9 @@ package com.bagri.core.server.api.impl;
 import static com.bagri.support.util.XQUtils.getAtomicValue;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 
 import org.slf4j.Logger;
@@ -56,9 +58,10 @@ public abstract class ContentParserBase {
 		if (parent.getPostId() < xPath.getPathId()) {
 			parent.setPostId(xPath.getPathId());
 		}
-		Element xElt = new Element(ctx.getPosition(), getAtomicValue(xPath.getDataType(), value));
+		Element xElt = new Element(ctx.getPositionForPath(xPath.getParentId(), xPath.getPathId()), getAtomicValue(xPath.getDataType(), value));
 		Data xData = new Data(xPath, xElt);
 		ctx.addData(xData);
+		logger.trace("addData.exit; returning: {}", xData);
 		return xData;
 	}
 	
@@ -88,11 +91,13 @@ public abstract class ContentParserBase {
 		protected List<Data> dataList;
 		protected Stack<Data> dataStack;
 		protected int docType = -1;
+		protected Map<Integer, Integer> pathPositions;
 		
 		protected ParserContext() {
 			dataList = new ArrayList<Data>();
 			dataStack = new Stack<Data>(); 
 			docType = -1;
+			pathPositions = new HashMap<>();
 		}
 		
 		public void addData(Data xData) {
@@ -135,8 +140,24 @@ public abstract class ContentParserBase {
 			return dataStack.elementAt(idx);
 		}
 		
-		public String getPosition() {
-			return "1.1"; 
+		//public String getPosition() {
+		//	return "1.1"; 
+		//}
+
+		public String getPositionForPath(int parentId, int pathId) {
+			Integer parent = pathPositions.get(parentId);
+			if (parent == null) {
+				parent = new Integer(0);
+			}
+			parent++;
+			pathPositions.put(parentId, parent);
+			Integer pos = pathPositions.get(pathId);
+			if (pos == null) {
+				pos = new Integer(0);
+			}
+			pos++;
+			pathPositions.put(pathId, pos);
+			return parent + "." + pos; 
 		}
 		
 		public void setDocType(int docType) {
