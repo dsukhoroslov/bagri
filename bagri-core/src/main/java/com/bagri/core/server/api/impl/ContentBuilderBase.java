@@ -28,8 +28,19 @@ public abstract class ContentBuilderBase {
 	
 	
 	public static Map<DataKey, Elements> dataToElements(List<Data> data) {
+		long docKey = 0;
 		Map<DataKey, Elements> result = new HashMap<>();
-		//
+		for (Data xdm: data) {
+			if (xdm.getValue() != null) {
+				DataKey xdk = new DataKey(docKey, xdm.getPathId());
+				Elements xdes = result.get(xdk);
+				if (xdes == null) {
+					xdes = new Elements(xdk.getPathId(), null);
+					result.put(xdk, xdes);
+				}
+				xdes.addElement(xdm.getElement());
+			}
+		}
 		return result;
 	}
 	

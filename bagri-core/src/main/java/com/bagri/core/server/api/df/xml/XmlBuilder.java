@@ -189,9 +189,10 @@ public class XmlBuilder extends ContentBuilderBase implements ContentBuilder {
     
     private Collection<Data> buildDataList(Map<DataKey, Elements> elements) {
 
-    	List<Data> dataList = new ArrayList<Data>(elements.size() * 2);
+    	List<Data> dataList = new ArrayList<>(elements.size() * 2);
+    	// here the source elements contain elements with values only
+    	// we should enrich the collection with intermediate parents
     	for (Map.Entry<DataKey, Elements> entry: elements.entrySet()) {
-    		
     		int pathId = entry.getKey().getPathId();
     		Path path = model.getPath(pathId);
     		if (path == null) {

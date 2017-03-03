@@ -2,6 +2,7 @@ package com.bagri.xquery.saxon.ext.doc;
 
 import static com.bagri.core.Constants.bg_ns;
 import static com.bagri.core.Constants.bg_schema;
+import static com.bagri.core.Constants.cmd_query_document_uris;
 import static com.bagri.xquery.saxon.SaxonUtils.sequence2Properties;
 
 import java.util.ArrayList;
@@ -37,7 +38,7 @@ public class QueryDocumentUris extends ExtensionFunctionDefinition {
 
 	@Override
 	public StructuredQName getFunctionQName() {
-		return new StructuredQName(bg_schema, bg_ns, "query-document-uris");
+		return new StructuredQName(bg_schema, bg_ns, cmd_query_document_uris);
 	}
 	
 	@Override 
