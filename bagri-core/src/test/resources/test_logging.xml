@@ -10,7 +10,7 @@
     </appender>
 
     <logger name="com.bagri">
-        <level value="trace"/>
+        <level value="${bdb.log.level:-debug}"/>
     </logger>
 
     <logger name="org.springframework">

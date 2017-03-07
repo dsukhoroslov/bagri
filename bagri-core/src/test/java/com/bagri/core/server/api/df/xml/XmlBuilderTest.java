@@ -1,20 +1,16 @@
 package com.bagri.core.server.api.df.xml;
 
-import static com.bagri.core.server.api.impl.ContentBuilderBase.dataToElements;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
-import java.util.HashMap;
+import java.io.File;
 import java.util.List;
-import java.util.Map;
+import java.util.Properties;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.bagri.core.DataKey;
 import com.bagri.core.model.Data;
-import com.bagri.core.model.Elements;
+import com.bagri.core.model.Element;
 import com.bagri.core.server.api.ModelManagement;
 import com.bagri.core.server.api.impl.ModelManagementImpl;
 
@@ -44,73 +40,155 @@ public class XmlBuilderTest {
 	        "    <gender>\n" +
 	        "        <type>male</type>\n" +
 	        "    </gender>\n" +
-	        "</person>";
+	        "</person>\n";
 
+	private static String auction = 
+			"<?xml version=\"1.0\" standalone=\"yes\"?>\n" +
+			"<site>\n" +
+			"<regions>\n" +
+			"<africa>\n" +
+			"<item id=\"item0\">\n" +
+			"<location>United States</location>\n" +
+			"<quantity>1</quantity>\n" +
+			"<name>duteous nine eighteen </name>\n" +
+			"<payment>Creditcard</payment>\n" +
+			"<description>\n" +
+			"<parlist>\n" +
+			"<listitem>\n" +
+			"<text>\n" +
+			"page rous lady idle authority capt professes stabs monster petition heave humbly removes rescue runs shady peace most piteous worser oak assembly holes patience but malice whoreson mirrors master tenants smocks yielded <keyword> officer embrace such fears distinction attires </keyword>\n" + 
+			"</text>\n" +
+			"</listitem>\n" +
+			"<listitem>\n" +
+			"<text>\n" +
+			"shepherd noble supposed dotage humble servilius bitch theirs venus dismal wounds gum merely raise red breaks earth god folds closet captain dying reek\n" + 
+			"</text>\n" +
+			"</listitem>\n" +
+			"</parlist>\n" +
+			"</description>\n" +
+			"<shipping>Will ship internationally, See description for charges</shipping>\n" +
+			"<incategory category=\"category0\"/>\n" +
+			"<incategory category=\"category0\"/>\n" +
+			"<incategory category=\"category0\"/>\n" +
+			"<incategory category=\"category0\"/>\n" +
+			"<incategory category=\"category0\"/>\n" +
+			"<mailbox>\n" +
+			"<mail>\n" +
+			"<from>Dominic Takano mailto:Takano@yahoo.com</from>\n" +
+			"<to>Mechthild Renear mailto:Renear@acm.org</to>\n" +
+			"<date>10/12/1999</date>\n" +
+			"<text>\n" +
+			"asses scruple learned crowns preventions half whisper logotype weapons doors factious already pestilent sacks dram atwain girdles deserts flood park lest graves discomfort sinful conceiv therewithal motion stained preventions greatly suit observe sinews enforcement <emph> armed </emph> gold gazing set almost catesby turned servilius cook doublet preventions shrunk\n" + 
+			"</text>\n" +
+			"</mail>\n" +
+			"</mailbox>\n" +
+			"</item>\n" +
+			"</africa>\n" +
+			"</regions>\n" +
+			"</site>";
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		System.setProperty("logback.configurationFile", "test-logging.xml");
+		System.setProperty("logback.configurationFile", "test_logging.xml");
 	}
-
-	//@AfterClass
-	//public static void tearDownAfterClass() throws Exception {
-	//}
-
-	//@Before
-	//public void setUp() throws Exception {
-	//}
-
-	//@After
-	//public void tearDown() throws Exception {
-	//}
-
 
 	@Test
 	public void testBuild() throws Exception {
 		ModelManagement model = new ModelManagementImpl();
 		XmlStaxParser parser = new XmlStaxParser(model);
 		List<Data> data = parser.parse(xml);
-		//System.out.println(data);
 		assertNotNull(data);
 		assertEquals(31, data.size());
 		XmlBuilder builder = new XmlBuilder(model);
-		//Map<DataKey, Elements> elements = dataToElements(data);
-		//System.out.println(elements);
+		//Properties props = new Properties();
+		//props.setProperty("xml.pretty.print", "true");
+		//builder.init(props);
 		String content = builder.buildString(data);
-		System.out.println(content);
-		// now compare content vs xml..
+		//System.out.println(content);
 		assertNotNull(content);
+		List<Data> data2 = parser.parse(content);
+		assertEquals(data.size(), data2.size());
 	}
 	
+	@Test
+	public void testBuildManual() throws Exception {
+		ModelManagement model = new ModelManagementImpl();
+		// to prepare model:
+		XmlStaxParser parser = new XmlStaxParser(model);
+		List<Data> data = parser.parse(xml);
+		data.clear();
+		data.add(new Data(model.getPath("/person"), new Element(new int[] {0}, null)));
+		data.add(new Data(model.getPath("/person/firstName"), new Element(new int[] {0, 1}, null)));
+		data.add(new Data(model.getPath("/person/firstName/text()"), new Element(new int[] {0, 1, 1}, "John")));
+		data.add(new Data(model.getPath("/person/lastName"), new Element(new int[] {0, 2}, null)));
+		data.add(new Data(model.getPath("/person/lastName/text()"), new Element(new int[] {0, 2, 1}, "Smith")));
+		data.add(new Data(model.getPath("/person/age"), new Element(new int[] {0, 3}, null)));
+		data.add(new Data(model.getPath("/person/age/text()"), new Element(new int[] {0, 3, 1}, 25)));
+		data.add(new Data(model.getPath("/person/address"), new Element(new int[] {0, 4}, null)));
+		data.add(new Data(model.getPath("/person/address/streetAddress"), new Element(new int[] {0, 4, 1}, null)));
+		data.add(new Data(model.getPath("/person/address/streetAddress/text()"), new Element(new int[] {0, 4, 1, 1}, "21 2nd Street")));
+		data.add(new Data(model.getPath("/person/address/city"), new Element(new int[] {0, 4, 2}, null)));
+		data.add(new Data(model.getPath("/person/address/city/text()"), new Element(new int[] {0, 4, 2, 1}, "New York")));
+		data.add(new Data(model.getPath("/person/address/state"), new Element(new int[] {0, 4, 3}, null)));
+		data.add(new Data(model.getPath("/person/address/state/text()"), new Element(new int[] {0, 4, 3, 1}, "NY")));
+		data.add(new Data(model.getPath("/person/address/postalCode"), new Element(new int[] {0, 4, 4}, null)));
+		data.add(new Data(model.getPath("/person/address/postalCode/text()"), new Element(new int[] {0, 4, 4, 1}, "10021")));
+		data.add(new Data(model.getPath("/person/phoneNumbers"), new Element(new int[] {0, 5}, null)));
+		data.add(new Data(model.getPath("/person/phoneNumbers/phoneNumber"), new Element(new int[] {0, 5, 1}, null)));
+		data.add(new Data(model.getPath("/person/phoneNumbers/phoneNumber/type"), new Element(new int[] {0, 5, 1, 1}, null)));
+		data.add(new Data(model.getPath("/person/phoneNumbers/phoneNumber/type/text()"), new Element(new int[] {0, 5, 1, 1, 1}, "home")));
+		data.add(new Data(model.getPath("/person/phoneNumbers/phoneNumber/number"), new Element(new int[] {0, 5, 1, 2}, null)));
+		data.add(new Data(model.getPath("/person/phoneNumbers/phoneNumber/number/text()"), new Element(new int[] {0, 5, 1, 2, 1}, "212 555-1234")));
+		data.add(new Data(model.getPath("/person/phoneNumbers/phoneNumber"), new Element(new int[] {0, 5, 2}, null)));
+		data.add(new Data(model.getPath("/person/phoneNumbers/phoneNumber/type"), new Element(new int[] {0, 5, 2, 1}, null)));
+		data.add(new Data(model.getPath("/person/phoneNumbers/phoneNumber/type/text()"), new Element(new int[] {0, 5, 2, 1, 1}, "fax")));
+		data.add(new Data(model.getPath("/person/phoneNumbers/phoneNumber/number"), new Element(new int[] {0, 5, 2, 2}, null)));
+		data.add(new Data(model.getPath("/person/phoneNumbers/phoneNumber/number/text()"), new Element(new int[] {0, 5, 2, 2, 1}, "646 555-4567")));
+		data.add(new Data(model.getPath("/person/gender"), new Element(new int[] {0, 6}, null)));
+		data.add(new Data(model.getPath("/person/gender/type"), new Element(new int[] {0, 6, 1}, null)));
+		data.add(new Data(model.getPath("/person/gender/type/text()"), new Element(new int[] {0, 6, 1, 1}, "male")));
+		//System.out.println(data);
+		XmlBuilder builder = new XmlBuilder(model);
+		Properties props = new Properties();
+		props.setProperty("xml.pretty.print", "true");
+		builder.init(props);
+		String content = builder.buildString(data);
+		//System.out.println(content);
+		assertNotNull(content);
+		// now compare content vs xml..
+		//assertEquals(xml, content);
+	}
+
+	@Test
+	public void testBuildAuction() throws Exception {
+		ModelManagement model = new ModelManagementImpl();
+		XmlStaxParser parser = new XmlStaxParser(model);
+		List<Data> data = parser.parse(auction);
+		assertNotNull(data);
+		XmlBuilder builder = new XmlBuilder(model);
+		Properties props = new Properties();
+		props.setProperty("xml.pretty.print", "true");
+		builder.init(props);
+		String content = builder.buildString(data);
+		//System.out.println(content);
+		assertNotNull(content);
+		List<Data> data2 = parser.parse(content);
+		assertEquals(data.size(), data2.size());
+	}
+	
+	@Test
+	public void testBuildAuctionFromFile() throws Exception {
+		ModelManagement model = new ModelManagementImpl();
+		XmlStaxParser parser = new XmlStaxParser(model);
+		File file = new File("..\\etc\\samples\\xmark\\auction.xml");
+		List<Data> data = parser.parse(file);
+		assertNotNull(data);
+		XmlBuilder builder = new XmlBuilder(model);
+		String content = builder.buildString(data);
+		assertNotNull(content);
+		List<Data> data2 = parser.parse(content);
+		assertEquals(data.size(), data2.size());
+	}
+
 }
 
-/*
-
-p1;		<person>
-p2; .1	    <firstName>John</firstName>
-p3; .2	    <lastName>Smith</lastName>
-p4; .3	    <age>25</age>
-p5; .4	    <address>
-p6; .4.1	    <streetAddress>21 2nd Street</streetAddress>
-p7; .4.2	    <city>New York</city>
-p8; .4.3	    <state>NY</state>
-p9; .4.4	    <postalCode>10021</postalCode>
-    		</address>
-p10; .5	    <phoneNumbers>
-p11; .5.1	    <phoneNumber>
-p12; .5.1.1	        <type>home</type>
-p13; .5.1.2	        <number>212 555-1234</number>
-        		</phoneNumber>
-p11; .5.2	    <phoneNumber>
-p12; .5.2.1	        <type>fax</type>
-p13; .5.2.2	        <number>646 555-4567</number>
-        		</phoneNumber>
-    		</phoneNumbers>
-p14; .6		<gender>
-p15; .6.1	   <type>male</type>
-    		</gender>
-		</person>
-
-[Data(p2, .1), Data(p3, .2), Data(p4, .3), Data(p6, .4.1), Data(p7, .4.2), Data(p8, .4.3), Data(p9, .4.4),
- Data(p12, .5.1.1), Data(p13, .5.1.2), Data(p12, .5.2.1), Data(p13, .5.2.2), Data(p15, .6.1)]
-*/

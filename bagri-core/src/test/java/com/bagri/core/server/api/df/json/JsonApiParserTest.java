@@ -2,14 +2,11 @@ package com.bagri.core.server.api.df.json;
 
 import static org.junit.Assert.*;
 
-import java.io.IOException;
 import java.util.List;
 
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
-import com.bagri.core.api.BagriException;
 import com.bagri.core.model.Data;
 import com.bagri.core.server.api.ModelManagement;
 import com.bagri.core.server.api.df.json.JsonApiParser;
@@ -45,7 +42,7 @@ public class JsonApiParserTest {
 			
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		System.setProperty("logback.configurationFile", "test-logging.xml");
+		System.setProperty("logback.configurationFile", "test_logging.xml");
 	}
 
 	//@AfterClass

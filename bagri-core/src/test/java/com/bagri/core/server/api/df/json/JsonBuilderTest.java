@@ -46,7 +46,7 @@ public class JsonBuilderTest {
 				
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		System.setProperty("logback.configurationFile", "test-logging.xml");
+		System.setProperty("logback.configurationFile", "test_logging.xml");
 	}
 
 	//@AfterClass

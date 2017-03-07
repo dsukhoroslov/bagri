@@ -804,6 +804,7 @@
             <extensions>json</extensions>
             <type>application/json</type>
             <properties>
+		<entry name="javax.json.spi.JsonProvider">org.glassfish.json.JsonProviderImpl</entry>
 		<!--entry name="javax.json.spi.JsonProvider">com.github.pgelinas.jackson.javax.json.spi.JacksonProvider</entry-->
             </properties>
         </dataFormat>

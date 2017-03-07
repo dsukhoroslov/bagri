@@ -29,6 +29,9 @@ import com.bagri.core.server.api.impl.ContentBuilderBase;
  *
  */
 public class XmlBuilder extends ContentBuilderBase implements ContentBuilder {
+	
+	private boolean pretty = false;
+	private int ident = 4;
 
 	/**
 	 * 
@@ -42,8 +45,11 @@ public class XmlBuilder extends ContentBuilderBase implements ContentBuilder {
   	 * {@inheritDoc}
   	 */
  	public void init(Properties properties) {
- 		//
- 		//logger.trace("init; got context: {}", context);
+ 		logger.trace("init; got properties: {}", properties);
+ 		String value = properties.getProperty("xml.pretty.print", "false");
+ 		pretty = Boolean.valueOf(value);
+ 		value = properties.getProperty("xml.ident.size", "4");
+ 		ident = Integer.parseInt(value);
  	}
  
 	/**
@@ -64,80 +70,35 @@ public class XmlBuilder extends ContentBuilderBase implements ContentBuilder {
     	StringBuffer buff = new StringBuffer();
     	Stack<Data> dataStack = new Stack<Data>();
     	boolean eltOpen = false;
-    	
-    	for (Data data: elements) {
-    		String name = data.getName();
-    		switch (data.getNodeKind()) {
-    			case document: { // this must be the first row..
-    				buff.append("<?xml version=\"1.0\"?>").append(EOL); // what about: encoding="utf-8"?>
-    				break;
-    			}
-    			case namespace: { 
-    				buff.append(" ").append("xmlns");
-    				if (name != null && name.trim().length() > 0) {
-    					buff.append(":").append(name);
-    				}
-    				buff.append("=\"").append(data.getValue()).append("\"");
-    				break;
-    			}
-    			case element: {
-    				eltOpen = endElement(dataStack, data, buff, eltOpen);
-    	    		// add idents..
-    				dataStack.add(data);
-       				buff.append("<").append(name); 
-       				eltOpen = true;
-       				break;
-    			}
-    			case attribute: { 
-    				if (!dataStack.isEmpty()) {
-    					buff.append(" ").append(name).append("=\"").append(data.getValue()).append("\"");
-    				} else {
-    					buff.append(data.getValue());
-    				}
-    				break;
-    			}
-    			case comment: { 
-    				eltOpen = endElement(dataStack, data, buff, eltOpen);
-    	    		// add idents..
-    				buff.append("<!--").append(data.getValue()).append("-->"); 
-    				if (dataStack.isEmpty()) {
-    					buff.append(EOL);
-    				}
-    				break;
-    			}
-    			case pi: { 
-    				eltOpen = endElement(dataStack, data, buff, eltOpen);
-    	    		// add idents..
-    				buff.append("<?").append(name).append(" ");
-    				buff.append(data.getValue()).append("?>"); 
-    				if (dataStack.isEmpty()) {
-    					buff.append(EOL);
-    				}
-    				break;
-    			}
-    			case text: {
-    				eltOpen = endElement(dataStack, data, buff, eltOpen);
-    	    		// add idents..
-    				buff.append(data.getValue());
-    				break;
-    			}
-    			default: {
-    				//logger.warn("buildXml; unknown NodeKind: {}", data.getNodeKind());
-    			}
-    		}
+
+    	String prefix = "";
+    	for (int i=0; i < ident; i++) {
+    		prefix += " ";
     	}
     	
+    	for (Data data: elements) {
+    		eltOpen = writeElement(data, buff, dataStack, eltOpen, prefix);
+    	}
+
+    	boolean writeIdent = false;
 		while (dataStack.size() > 0) {
 			Data top = dataStack.pop();
 			if (eltOpen) {
-				buff.append("/>").append(EOL);
+				buff.append("/>");
 				eltOpen = false;
 			} else {
-				buff.append("</").append(top.getName()).append(">").append(EOL);
+				if (writeIdent) {
+					for (int i=1; i < top.getLevel(); i++) {
+						buff.append(prefix);
+					}
+				}
+				buff.append("</").append(top.getName()).append(">");
+			}
+			if (pretty) {
+				buff.append(EOL);
+				writeIdent = true;
 			}
 		}
-		// add idents..
-    	
     	return buff.toString();
     }
 
@@ -165,29 +126,108 @@ public class XmlBuilder extends ContentBuilderBase implements ContentBuilder {
 		}
 		return null;
 	}
-
-	private boolean endElement(Stack<Data> dataStack, Data data, StringBuffer buff, boolean eltOpen) {
+	
+	private boolean writeElement(Data data, StringBuffer buff, Stack<Data> dataStack, boolean eltOpen, String prefix) {
+		switch (data.getNodeKind()) {
+			case document: { // this must be the first row..
+				buff.append("<?xml version=\"1.0\"?>"); // what about: encoding="utf-8"?>
+				if (pretty) {
+					buff.append(EOL);
+				}
+				break;
+			}
+			case namespace: { 
+				buff.append(" ").append("xmlns");
+				String name = data.getName();
+				if (name != null && name.trim().length() > 0) {
+					buff.append(":").append(name);
+				}
+				buff.append("=\"").append(data.getValue()).append("\"");
+				break;
+			}
+			case element: {
+				eltOpen = endElement(dataStack, data, buff, eltOpen, prefix);
+				dataStack.add(data);
+				if (pretty) {
+					for (int i=1; i < data.getLevel(); i++) {
+						buff.append(prefix);
+					}
+				}
+   				buff.append("<").append(data.getName()); 
+   				eltOpen = true;
+   				break;
+			}
+			case attribute: { 
+				if (!dataStack.isEmpty()) {
+					buff.append(" ").append(data.getName()).append("=\"").append(data.getValue()).append("\"");
+				} else {
+					buff.append(data.getValue());
+				}
+				break;
+			}
+			case comment: { 
+				eltOpen = endElement(dataStack, data, buff, eltOpen, prefix);
+	    		// add idents..
+				buff.append("<!--").append(data.getValue()).append("-->"); 
+				if (dataStack.isEmpty() && pretty) {
+					buff.append(EOL);
+				}
+				break;
+			}
+			case pi: { 
+				eltOpen = endElement(dataStack, data, buff, eltOpen, prefix);
+	    		// add idents..
+				buff.append("<?").append(data.getName()).append(" ");
+				buff.append(data.getValue()).append("?>"); 
+				if (dataStack.isEmpty() && pretty) {
+					buff.append(EOL);
+				}
+				break;
+			}
+			case text: {
+				eltOpen = endElement(dataStack, data, buff, eltOpen, prefix);
+				buff.append(data.getValue());
+				break;
+			}
+			default: {
+				//logger.warn("buildXml; unknown NodeKind: {}", data.getNodeKind());
+			}
+		}
+		return eltOpen;
+	}
+	
+	private boolean endElement(Stack<Data> dataStack, Data data, StringBuffer buff, boolean eltOpen, String prefix) {
     	
 		if (dataStack.isEmpty()) {
 			//
 		} else {
 			Data top = dataStack.peek();
-			if (data.getParentPos() == top.getPos()) {
+			if (data.getLevel() == top.getLevel() + 1 && data.getParentPos() == top.getPos()) {
 				// new child element
 				if (eltOpen) {
 					buff.append(">");
 					eltOpen = false;
 				}
-				if (data.getNodeKind() != NodeKind.text) {
+				if (data.getNodeKind() != NodeKind.text && pretty) {
 					buff.append(EOL);
 				}
 			} else {
-				while (top != null && data.getParentPos() != top.getPos()) {
+				boolean writeIdent = false;
+				while (top != null && (data.getParentPos() != top.getPos() || data.getLevel() != top.getLevel() + 1)) {
 					if (eltOpen) {
-						buff.append("/>").append(EOL);
+						buff.append("/>");
 						eltOpen = false;
 					} else {
-						buff.append("</").append(top.getName()).append(">").append(EOL);
+						if (writeIdent) {
+							for (int i=1; i < top.getLevel(); i++) {
+								buff.append(prefix);
+							}
+						}
+						buff.append("</").append(top.getName()).append(">");
+					}
+					if (pretty) {
+						buff.append(EOL);
+    					writeIdent = true;
 					}
     				dataStack.pop();
     				if (dataStack.isEmpty()) {

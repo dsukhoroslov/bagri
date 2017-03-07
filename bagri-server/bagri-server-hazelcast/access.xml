@@ -70,6 +70,7 @@
                 <permission resource="com.bagri.db:type=Schema,name=*,kind=IndexManagement">execute modify read</permission>
                 <permission resource="com.bagri.db:type=Schema,name=*,kind=DocumentManagement">execute modify read</permission>
                 <permission resource="com.bagri.db:type=Schema,name=*,kind=ClientManagement">execute modify read</permission>
+                <permission resource="com.bagri.db:type=Schema,name=*,kind=ResourceManagement">execute modify read</permission>
             </permissions>
             <includedRoles></includedRoles>
             <description>management access to all SchemaManagement operations</description>

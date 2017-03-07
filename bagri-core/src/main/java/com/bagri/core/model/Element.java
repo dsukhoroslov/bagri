@@ -1,5 +1,6 @@
 package com.bagri.core.model;
 
+import java.util.Arrays;
 
 /**
  * Contains XDM value.
@@ -9,14 +10,14 @@ package com.bagri.core.model;
  */
 public class Element implements Comparable<Element> { 
 
-	private String position;
+	private int[] position;
 	private Object value = null;
 	
 	/**
 	 * default constructor
 	 */
 	public Element() {
-		//
+		position = new int[0];
 	}
 	
 	/**
@@ -25,46 +26,17 @@ public class Element implements Comparable<Element> {
 	 * @param parentId the element's parent id
 	 * @param value the element's value
 	 */
-	public Element(String position, Object value) {
+	public Element(int[] position, Object value) {
 		this.position = position;
 		this.value = value;
 	}
 
 	/**
-	 * @return the element position
-	 */
-	public int getPos() {
-		String[] points = position.split(".");
-		if (points.length > 0) {
-			return Integer.parseInt(points[points.length - 1]);
-		}
-		return 0;
-	}
-
-	/**
-	 * @return the parent position
-	 */
-	public int getParentPos() {
-		String[] points = position.split(".");
-		if (points.length > 1) {
-			return Integer.parseInt(points[points.length - 2]);
-		}
-		return 0;
-	}
-
-	/**
 	 * @return the position
 	 */
-	public String getPosition() {
+	public int[] getPosition() {
 		return position;
 	}
-
-	/**
-	 * @param position the position to set
-	 */
-	//public void setPosition(String position) {
-	//	this.position = position;
-	//}
 
 	/**
 	 * @return the value
@@ -201,7 +173,20 @@ public class Element implements Comparable<Element> {
 	 */
 	@Override
 	public int compareTo(Element other) {
-		return this.position.compareTo(other.position);
+		for (int i=0; i < position.length; i++) {
+			if (other.position.length > i) {
+				int r = position[i] - other.position[i];
+				if (r != 0) {
+					return r;
+				}
+			} else {
+				return 1;
+			}
+		}
+		if (position.length == other.position.length) {
+			return 0;
+		}
+		return -1;
 	}
 
 	/* (non-Javadoc)
@@ -209,7 +194,7 @@ public class Element implements Comparable<Element> {
 	 */
 	@Override
 	public String toString() {
-		return "Element [position=" + position + ", value=" + value + "]";
+		return "Element [position=" + Arrays.toString(position) + ", value=" + value + "]";
 	}
 
 	

@@ -50,14 +50,15 @@ public class DataDistributionService implements ManagedService {
 		String address = nodeEngine.getThisAddress().toString();
 		List<PartitionStatistics> stats = new ArrayList<>(parts.size());
 		for (int part: parts) {
-			RecordStore drs = mapCtx.getRecordStore(part, CN_XDM_DOCUMENT);
-			RecordStore crs = mapCtx.getRecordStore(part, CN_XDM_CONTENT);
-			RecordStore ers = mapCtx.getRecordStore(part, CN_XDM_ELEMENT);
-			RecordStore irs = mapCtx.getRecordStore(part, CN_XDM_INDEX);
-			RecordStore rrs = mapCtx.getRecordStore(part, CN_XDM_RESULT);
+			RecordStore drs = mapCtx.getExistingRecordStore(part, CN_XDM_DOCUMENT);
+			RecordStore crs = mapCtx.getExistingRecordStore(part, CN_XDM_CONTENT);
+			RecordStore ers = mapCtx.getExistingRecordStore(part, CN_XDM_ELEMENT);
+			RecordStore irs = mapCtx.getExistingRecordStore(part, CN_XDM_INDEX);
+			RecordStore rrs = mapCtx.getExistingRecordStore(part, CN_XDM_RESULT);
 			//mapCtx.getPartitionContainer(part).
-			//stats.add(new PartitionStatistics(address, part, drs.size(), drs.getHeapCost(), drs.getMapDataStore().notFinishedOperationsCount(), 
-			//		crs.size(), crs.getHeapCost(), ers.size(), ers.getHeapCost(), irs.size(), irs.getHeapCost(), rrs.size(), rrs.getHeapCost()));
+			stats.add(new PartitionStatistics(address, part, drs.size(), drs.getOwnedEntryCost(), drs.getMapDataStore().notFinishedOperationsCount(), 
+					crs.size(), crs.getOwnedEntryCost(), ers.size(), ers.getOwnedEntryCost(), irs.size(), irs.getOwnedEntryCost(), rrs.size(), 
+					rrs.getOwnedEntryCost()));
 		}
 		return stats;
 	}

@@ -23,7 +23,7 @@ public class ElementSerializer implements StreamSerializer<Element> {
 	public Element read(ObjectDataInput in) throws IOException {
 		
 		Element xData = new Element(
-				in.readUTF(),
+				in.readIntArray(),
 				in.readObject());
 		return xData;
 	}
@@ -31,7 +31,7 @@ public class ElementSerializer implements StreamSerializer<Element> {
 	@Override
 	public void write(ObjectDataOutput out, Element xElt) throws IOException {
 		
-		out.writeUTF(xElt.getPosition());
+		out.writeIntArray(xElt.getPosition());
 		out.writeObject(xElt.getValue());
 	}
 

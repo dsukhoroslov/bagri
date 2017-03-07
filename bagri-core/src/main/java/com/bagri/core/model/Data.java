@@ -8,41 +8,54 @@ package com.bagri.core.model;
  */
 public class Data implements Comparable<Data> {
     	
-   	private Path path;
-   	private Element element;
+    private int pos = 0;
+    private Path path;
+    private Element element;
     	
-   	/**
-   	 * XDM Data constructor
-   	 * 
-   	 * @param path the path
-   	 * @param element the element
-   	 */
-   	public Data(Path path, Element element) {
-   		this.path = path;
-   		this.element = element;
-   	}
-    	
-   	/**
-   	 * 
-   	 * @return the data element
-   	 */
-    public Element getElement() {
-    	return element;
+    /**
+     * XDM Data constructor
+     * 
+     * @param path the path
+     * @param element the element
+     */
+    public Data(Path path, Element element) {
+	this.path = path;
+	this.element = element;
+    }
+
+    public int addLastChild() {
+    	return ++pos;
     }
 
     /**
      * 
      * @return the element id
      */
-    public int getPos() {
-    	return element.getPos();
+    public int getLastChild() {
+    	return pos;
     }
-    	
+
+    /**
+     * 
+     * @return the data element
+     */
+    public Element getElement() {
+    	return element;
+    }
+
+    /**
+     * 
+     * @return element's level
+     */
+    public int getLevel() {
+    	return element.getPosition().length;
+    }
+
     /**
      * 
      * @return the path's name
      */
-   	public String getName() {
+    public String getName() {
     	return path.getName();
     }
     	
@@ -56,17 +69,33 @@ public class Data implements Comparable<Data> {
     	
     /**
      * 
-     * @return the element parent id
+     * @return the element position
+     */
+    public int getPos() {
+    	int[] pos = element.getPosition();
+		if (pos.length > 0) {
+			return pos[pos.length - 1];
+		}
+		return 0;
+    }
+    
+    /**
+     * 
+     * @return the element's parent position 
      */
     public int getParentPos() {
-    	return element.getParentPos();
+    	int[] pos = element.getPosition();
+		if (pos.length > 1) {
+			return pos[pos.length - 2];
+		}
+		return 0;
     }
 
     /**
      * 
-     * @return the element position
+     * @return the element positions array
      */
-    public String getPosition() {
+    public int[] getPosition() {
     	return element.getPosition();
     }
     
@@ -91,10 +120,7 @@ public class Data implements Comparable<Data> {
      * @return the path parent id
      */
     public int getParentPathId() {
-    	if (path != null) {
-    		return path.getParentId();
-    	}
-    	return 0;
+   		return path.getParentId();
     }
     
     /**
@@ -112,7 +138,7 @@ public class Data implements Comparable<Data> {
     public Object getValue() {
     	return element.getValue();
     }
-
+    
     /**
      * 
      * @param postId the latest child pathId
@@ -126,8 +152,7 @@ public class Data implements Comparable<Data> {
      */
 	@Override
 	public int compareTo(Data other) {
-
-		return this.getPosition().compareTo(other.getPosition());
+		return element.compareTo(other.element);
 	}
 
 	/**
