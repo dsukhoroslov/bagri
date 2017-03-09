@@ -2,6 +2,10 @@ package com.bagri.core.server.api.df.json;
 
 import static org.junit.Assert.*;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileReader;
+import java.io.InputStream;
 import java.util.List;
 
 import org.junit.BeforeClass;
@@ -79,64 +83,24 @@ public class JsonApiParserTest {
 		//String root = dict.getDocumentRoot(typeId);
 		//assertEquals("", root); -> /firstName	
 	}
+
+	@Test
+	public void testParseSecurity() throws Exception {
+		ModelManagement model = new ModelManagementImpl();
+		JsonApiParser parser = new JsonApiParser(model);
+		File f = new File("..\\etc\\samples\\json\\security1500.json");
+		List<Data> data = parser.parse(f);
+		assertNotNull(data);
+		assertEquals(74, data.size());
+		FileReader fr = new FileReader("..\\etc\\samples\\json\\security5621.json");
+		data = parser.parse(fr);
+		assertNotNull(data);
+		assertEquals(68, data.size()); 
+		InputStream fis = new FileInputStream("..\\etc\\samples\\json\\security9012.json");
+		data = parser.parse(fis);
+		assertNotNull(data);
+		assertEquals(76, data.size()); 
+	}
 	
 }
 
-/*
-
-{
-    "firstName": "John",
-    "lastName": "Smith",
-    "age": "25",
-    "address": {
-        "streetAddress": "21 2nd Street",
-        "city": "New York",
-        "state": "NY",
-        "postalCode": "10021"
-    },
-    "phoneNumbers": {
-        "phoneNumber": [
-        {
-            "type": "home",
-            "number": "212 555-1234"
-        },
-        {
-            "type": "fax",
-            "number": "646 555-4567"
-        }]
-    },
-    "gender": {
-        "type": "male"
-    }
-}
-
-*/
-
-/*
-
-<person>
-  <firstName>John</firstName>
-  <lastName>Smith</lastName>
-  <age>25</age>
-  <address>
-    <streetAddress>21 2nd Street</streetAddress>
-    <city>New York</city>
-    <state>NY</state>
-    <postalCode>10021</postalCode>
-  </address>
-  <phoneNumbers>
-    <phoneNumber>
-      <type>home</type>
-      <number>212 555-1234</number>
-    </phoneNumber>
-    <phoneNumber>
-      <type>fax</type>
-      <number>646 555-4567</number>
-    </phoneNumber>
-  </phoneNumbers>
-  <gender>
-    <type>male</type>
-  </gender>
-</person>
-
-*/

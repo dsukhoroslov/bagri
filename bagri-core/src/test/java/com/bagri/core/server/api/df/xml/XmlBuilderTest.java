@@ -1,8 +1,11 @@
 package com.bagri.core.server.api.df.xml;
 
+import static com.bagri.core.Constants.pn_schema_builder_pretty;
 import static org.junit.Assert.*;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Properties;
 
@@ -101,7 +104,7 @@ public class XmlBuilderTest {
 		assertEquals(31, data.size());
 		XmlBuilder builder = new XmlBuilder(model);
 		//Properties props = new Properties();
-		//props.setProperty("xml.pretty.print", "true");
+		//props.setProperty(pn_schema_builder_pretty, "true");
 		//builder.init(props);
 		String content = builder.buildString(data);
 		//System.out.println(content);
@@ -150,7 +153,7 @@ public class XmlBuilderTest {
 		//System.out.println(data);
 		XmlBuilder builder = new XmlBuilder(model);
 		Properties props = new Properties();
-		props.setProperty("xml.pretty.print", "true");
+		props.setProperty(pn_schema_builder_pretty, "true");
 		builder.init(props);
 		String content = builder.buildString(data);
 		//System.out.println(content);
@@ -167,7 +170,7 @@ public class XmlBuilderTest {
 		assertNotNull(data);
 		XmlBuilder builder = new XmlBuilder(model);
 		Properties props = new Properties();
-		props.setProperty("xml.pretty.print", "true");
+		props.setProperty(pn_schema_builder_pretty, "true");
 		builder.init(props);
 		String content = builder.buildString(data);
 		//System.out.println(content);
@@ -185,6 +188,24 @@ public class XmlBuilderTest {
 		assertNotNull(data);
 		XmlBuilder builder = new XmlBuilder(model);
 		String content = builder.buildString(data);
+		assertNotNull(content);
+		List<Data> data2 = parser.parse(content);
+		assertEquals(data.size(), data2.size());
+	}
+
+	@Test
+	public void testBuildCatalog() throws Exception {
+		ModelManagement model = new ModelManagementImpl();
+		XmlStaxParser parser = new XmlStaxParser(model);
+		InputStream fis = new FileInputStream("..\\etc\\samples\\xdm\\catalog.xml");
+		List<Data> data = parser.parse(fis);
+		assertNotNull(data);
+		XmlBuilder builder = new XmlBuilder(model);
+		Properties props = new Properties();
+		props.setProperty(pn_schema_builder_pretty, "true");
+		builder.init(props);
+		String content = builder.buildString(data);
+		System.out.println(content);
 		assertNotNull(content);
 		List<Data> data2 = parser.parse(content);
 		assertEquals(data.size(), data2.size());

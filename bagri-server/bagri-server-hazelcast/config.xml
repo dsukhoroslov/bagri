@@ -782,6 +782,8 @@
             <type>application/xml</type>
             <properties>
 		<entry name="bdb.schema.parser.schemas"></entry>
+		<entry name="bdb.schema.builder.pretty">false</entry>
+		<entry name="bdb.schema.builder.ident">4</entry>
 		<entry name="javax.xml.stream.isValidating">false</entry>
 		<entry name="javax.xml.stream.isCoalescing">false</entry>
 		<entry name="javax.xml.stream.isNamespaceAware">true</entry>

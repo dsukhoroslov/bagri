@@ -86,6 +86,10 @@ public class Constants {
     public static final String pn_schema_fetch_size = "bdb.schema.fetch.size";
     public static final String pn_schema_query_cache = "bdb.schema.query.cache";
     
+    public static final String pn_schema_builder_pretty = "bdb.schema.builder.pretty";
+    public static final String pn_schema_builder_ident = "bdb.schema.builder.ident";
+    public static final String pn_schema_parser_schemas = "bdb.schema.parser.schemas";
+    
     public static final String pn_document_collections = "bdb.document.collections";
     public static final String pn_document_data_format = "bdb.document.data.format";
 

@@ -4,6 +4,8 @@ import static com.bagri.support.util.XQUtils.getAtomicValue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Deque;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
 
@@ -74,10 +76,11 @@ public abstract class ContentParserBase {
 	 * @param current the current closing element
 	 */
 	protected void adjustParent(Data current) {
-		if (current != null && current.getParentPathId() > 0) {
+		if (current != null && current.getElement() != null && current.getParentPathId() > 0) {
 			Path parent = model.getPath(current.getParentPathId());
 			if (parent != null && parent.getPostId() < current.getPostId()) {
 				parent.setPostId(current.getPostId());
+				// ok, but who'll commit it to the cache!?
 			}
 		}
 	}
@@ -93,12 +96,12 @@ public abstract class ContentParserBase {
 	protected class ParserContext {
 
 		protected List<Data> dataList;
-		protected Stack<Data> dataStack;
+		protected LinkedList<Data> dataStack;
 		protected int docType = -1;
 		
 		protected ParserContext() {
 			dataList = new ArrayList<Data>();
-			dataStack = new Stack<Data>(); 
+			dataStack = new LinkedList<Data>(); 
 			docType = -1;
 		}
 		
@@ -107,11 +110,11 @@ public abstract class ContentParserBase {
 		}
 		
 		public void addStack(Data xData) {
-			dataStack.add(xData);
+			dataStack.push(xData);
 		}
 
 		public Data lastData() {
-			return dataStack.lastElement();
+			return dataStack.peekLast(); 
 		}
 		
 		public Data peekData() {
@@ -121,10 +124,6 @@ public abstract class ContentParserBase {
 		public Data popData() {
 			return dataStack.pop();
 		}
-		
-		//public void pushData(Data xData) {
-		//	dataStack.push(xData);
-		//}
 		
 		public List<Data> getDataList() {
 			return dataList;
@@ -139,13 +138,9 @@ public abstract class ContentParserBase {
 		}
 		
 		public Data getStackElement(int idx) {
-			return dataStack.elementAt(idx);
+			return dataStack.get(idx);
 		}
 		
-		//public String getPosition() {
-		//	return  
-		//}
-
 		public void setDocType(int docType) {
 			this.docType = docType;
 		}

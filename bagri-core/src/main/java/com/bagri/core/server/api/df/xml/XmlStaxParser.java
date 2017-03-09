@@ -9,10 +9,12 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
@@ -261,44 +263,39 @@ public class XmlStaxParser extends ContentParserBase implements ContentParser {
 
 	@SuppressWarnings("unchecked")
 	private void processStartElement(XmlParserContext ctx, StartElement element) throws BagriException {
-		
 		Data parent = ctx.peekData();
+		appendCharacters(ctx, parent);
+		
 		Data current = addData(ctx, parent, NodeKind.element, "/" + element.getName(), null, XQItemType.XQBASETYPE_ANYTYPE, Occurrence.zeroOrOne); 
 		ctx.addStack(current);
 
 		for (Iterator<Namespace> itr = element.getNamespaces(); itr.hasNext();) {
 			Namespace ns = itr.next();
 			// TODO: process default namespace properly
-			String nspace = ns.getValue();
-			if (nspace != null) {
-				String prefix = model.translateNamespace(nspace, ns.getName().getLocalPart());
-				addData(ctx, current, NodeKind.namespace, "/#" + prefix, nspace, XQItemType.XQBASETYPE_QNAME, Occurrence.onlyOne);
+			String namespace = ns.getValue();
+			if (namespace != null) {
+				String prefix = model.translateNamespace(namespace, ns.getName().getLocalPart());
+				addNamespace(ctx, current, prefix, namespace);
 			}
 		}
 
 		for (Iterator<Attribute> itr = element.getAttributes(); itr.hasNext();) {
 			Attribute a = itr.next();
-			// TODO: process additional (not registered yet) namespaces properly
+			if (!a.getName().getPrefix().isEmpty()) {
+				String prefix = model.translateNamespace(a.getName().getNamespaceURI(), a.getName().getPrefix());
+				addNamespace(ctx, current, prefix, a.getName().getNamespaceURI());
+			}
 			addData(ctx, current, NodeKind.attribute, "/@" + a.getName(), a.getValue(), XQItemType.XQBASETYPE_ANYATOMICTYPE, Occurrence.onlyOne); 
 		}
 	}
 
 	private void processEndElement(XmlParserContext ctx, EndElement element) throws BagriException {
-
 		Data current = ctx.popData();
-		logger.trace("processEndElement; got current: {}", current);
-		if (ctx.chars.length() > 0) {
-			String content = ctx.chars.toString();
-			// normalize xml content.. what if it is already normalized??
-			content = content.replaceAll("&", "&amp;");
-			// trim left/right ? this is schema-dependent. trim if schema-type 
-			// is xs:token, for instance..
-			addData(ctx, current, NodeKind.text, "/text()", content, XQItemType.XQBASETYPE_ANYATOMICTYPE, Occurrence.zeroOrOne); 
-			ctx.clearChars();
-		}
+		//logger.trace("processEndElement; got ctx: {}", current);
+		appendCharacters(ctx, current);
 		adjustParent(current);
 	}
-
+	
 	private void processCharacters(XmlParserContext ctx, Characters characters) {
 
 		if (characters.getData().trim().length() > 0) {
@@ -325,15 +322,35 @@ public class XmlStaxParser extends ContentParserBase implements ContentParser {
 		Data piData = addData(ctx, ctx.peekData(), NodeKind.pi, "/?" + pi.getTarget(), pi.getData(), XQItemType.XQBASETYPE_ANYTYPE, Occurrence.zeroOrOne);
 	}
 
+	private void addNamespace(XmlParserContext ctx, Data current, String prefix, String namespace) throws BagriException {
+		if (ctx.addNamespace(prefix)) {
+			addData(ctx, current, NodeKind.namespace, "/#" + prefix, namespace, XQItemType.XQBASETYPE_QNAME, Occurrence.onlyOne);
+		}
+	}
+	
+	private void appendCharacters(XmlParserContext ctx, Data current) throws BagriException {
+		if (ctx.chars.length() > 0) {
+			String content = ctx.chars.toString();
+			// normalize xml content.. what if it is already normalized??
+			content = content.replaceAll("&", "&amp;");
+			// trim left/right ? this is schema-dependent. trim if schema-type 
+			// is xs:token, for instance..
+			addData(ctx, current, NodeKind.text, "/text()", content, XQItemType.XQBASETYPE_ANYATOMICTYPE, Occurrence.zeroOrOne); 
+			ctx.clearChars();
+		}
+	}
+
 
 	private class XmlParserContext extends ParserContext {
 
 		private StringBuilder chars;
+		private Set<String> nspaces;
 		private List<XMLEvent> firstEvents;
 		
 		XmlParserContext() {
 			super();
 			firstEvents = new ArrayList<XMLEvent>();
+			nspaces = new HashSet<>();
 			chars = new StringBuilder();
 		}
 		
@@ -343,6 +360,14 @@ public class XmlStaxParser extends ContentParserBase implements ContentParser {
 		
 		void clearChars() {
 			chars.delete(0, chars.length());
+		}
+		
+		boolean addNamespace(String prefix) {
+			// "xml" namespace is assumed, no need to add it 
+			if ("xml".equals(prefix)) {
+				return false;
+			}
+			return nspaces.add(prefix);
 		}
 		
 	}
