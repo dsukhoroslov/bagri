@@ -68,8 +68,8 @@ public class Constants {
     public static final String pn_config_context_file = "bdb.config.context.file";
     public static final String pn_config_properties_file = "bdb.config.properties.file";
 
+    public static final String pn_log_level = "bdb.log.level";
     public static final String pn_node_instance = "bdb.node.instance";
-    
     public static final String pn_spring_context = "bdb.spring.context";
     
     public static final String pn_schema_members = "bdb.schema.members";

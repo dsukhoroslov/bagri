@@ -1,5 +1,6 @@
 package com.bagri.core.server.api.df.json;
 
+import static com.bagri.core.Constants.pn_log_level;
 import static org.junit.Assert.*;
 
 import java.io.File;
@@ -13,10 +14,10 @@ import org.junit.Test;
 
 import com.bagri.core.model.Data;
 import com.bagri.core.server.api.ModelManagement;
-import com.bagri.core.server.api.df.json.JsonApiParser;
+import com.bagri.core.server.api.df.json.JsonpParser;
 import com.bagri.core.server.api.impl.ModelManagementImpl;
 
-public class JsonApiParserTest {
+public class JsonpParserTest {
 
 	private static String json = 
 		"{\n" +
@@ -47,6 +48,7 @@ public class JsonApiParserTest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		System.setProperty("logback.configurationFile", "test_logging.xml");
+		System.setProperty(pn_log_level, "debug");
 	}
 
 	//@AfterClass
@@ -65,7 +67,7 @@ public class JsonApiParserTest {
 	@Test
 	public void testParse() throws Exception {
 		ModelManagement dict = new ModelManagementImpl();
-		JsonApiParser parser = new JsonApiParser(dict);
+		JsonpParser parser = new JsonpParser(dict);
 		List<Data> elts = parser.parse(json);
 		//System.out.println(elts);
 		assertNotNull(elts);
@@ -87,19 +89,19 @@ public class JsonApiParserTest {
 	@Test
 	public void testParseSecurity() throws Exception {
 		ModelManagement model = new ModelManagementImpl();
-		JsonApiParser parser = new JsonApiParser(model);
+		JsonpParser parser = new JsonpParser(model);
 		File f = new File("..\\etc\\samples\\json\\security1500.json");
 		List<Data> data = parser.parse(f);
 		assertNotNull(data);
-		assertEquals(74, data.size());
+		assertEquals(75, data.size());
 		FileReader fr = new FileReader("..\\etc\\samples\\json\\security5621.json");
 		data = parser.parse(fr);
 		assertNotNull(data);
-		assertEquals(68, data.size()); 
+		assertEquals(73, data.size()); 
 		InputStream fis = new FileInputStream("..\\etc\\samples\\json\\security9012.json");
 		data = parser.parse(fis);
 		assertNotNull(data);
-		assertEquals(76, data.size()); 
+		assertEquals(85, data.size()); 
 	}
 	
 }

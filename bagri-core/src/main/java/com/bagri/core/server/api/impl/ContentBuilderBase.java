@@ -1,5 +1,10 @@
 package com.bagri.core.server.api.impl;
 
+import static com.bagri.support.util.FileUtils.def_encoding;
+
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -11,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bagri.core.DataKey;
+import com.bagri.core.api.BagriException;
 import com.bagri.core.model.Data;
 import com.bagri.core.model.Element;
 import com.bagri.core.model.Elements;
@@ -29,6 +35,42 @@ public abstract class ContentBuilderBase {
 	 */
 	protected ContentBuilderBase(ModelManagement model) {
 		this.model = model;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+   	public abstract String buildString(Collection<Data> elements) throws BagriException;
+   	
+	/**
+	 * {@inheritDoc}
+	 */
+	public String buildString(Map<DataKey, Elements> elements) throws BagriException {
+    	Collection<Data> dataList = buildDataList(elements);
+    	return buildString(dataList);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public InputStream buildStream(Map<DataKey, Elements> elements) throws BagriException {
+    	Collection<Data> dataList = buildDataList(elements);
+    	return buildStream(dataList);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public InputStream buildStream(Collection<Data> elements) throws BagriException {
+		String content = buildString(elements);
+		if (content != null) {
+			try {
+				return new ByteArrayInputStream(content.getBytes(def_encoding));
+			} catch (UnsupportedEncodingException ex) {
+				throw new BagriException(ex, BagriException.ecInOut);
+			}
+		}
+		return null;
 	}
 	
     protected Collection<Data> buildDataList(Map<DataKey, Elements> elements) {

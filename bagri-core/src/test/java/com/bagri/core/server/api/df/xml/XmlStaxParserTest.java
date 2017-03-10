@@ -1,5 +1,6 @@
 package com.bagri.core.server.api.df.xml;
 
+import static com.bagri.core.Constants.pn_log_level;
 import static org.junit.Assert.*;
 
 import java.util.List;
@@ -43,6 +44,7 @@ public class XmlStaxParserTest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		System.setProperty("logback.configurationFile", "test_logging.xml");
+		System.setProperty(pn_log_level, "debug");
 	}
 
 	//@AfterClass

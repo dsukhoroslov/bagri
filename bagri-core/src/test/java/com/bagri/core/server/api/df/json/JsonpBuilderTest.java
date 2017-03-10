@@ -1,5 +1,6 @@
 package com.bagri.core.server.api.df.json;
 
+import static com.bagri.core.Constants.pn_log_level;
 import static com.bagri.core.server.api.impl.ContentBuilderBase.dataToElements;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -16,7 +17,7 @@ import com.bagri.core.model.Elements;
 import com.bagri.core.server.api.ModelManagement;
 import com.bagri.core.server.api.impl.ModelManagementImpl;
 
-public class JsonBuilderTest {
+public class JsonpBuilderTest {
 
 	private static String json = 
 			"{\n" +
@@ -47,6 +48,7 @@ public class JsonBuilderTest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		System.setProperty("logback.configurationFile", "test_logging.xml");
+		System.setProperty(pn_log_level, "trace");
 	}
 
 	//@AfterClass
@@ -65,16 +67,15 @@ public class JsonBuilderTest {
 	@Test
 	public void testParse() throws Exception {
 		ModelManagement model = new ModelManagementImpl();
-		JsonApiParser parser = new JsonApiParser(model);
+		JsonpParser parser = new JsonpParser(model);
 		List<Data> data = parser.parse(json);
 		//System.out.println(data);
 		assertNotNull(data);
 		assertEquals(28, data.size()); 
-		JsonBuilder builder = new JsonBuilder(model);
-		Map<DataKey, Elements> elements = dataToElements(data);
-		String content = builder.buildString(elements);
-		// now compare content vs json..
-		//assertNotNull(content);
+		JsonpBuilder builder = new JsonpBuilder(model);
+		String content = builder.buildString(data);
+		System.out.println("content: " + content);
+		assertNotNull(content);
 	}
 		
 }

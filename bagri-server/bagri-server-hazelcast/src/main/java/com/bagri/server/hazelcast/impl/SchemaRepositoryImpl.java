@@ -37,8 +37,8 @@ import com.bagri.core.server.api.ModelManagement;
 import com.bagri.core.server.api.PopulationManagement;
 import com.bagri.core.server.api.SchemaRepository;
 import com.bagri.core.server.api.TriggerManagement;
-import com.bagri.core.server.api.df.json.JsonApiParser;
-import com.bagri.core.server.api.df.json.JsonBuilder;
+import com.bagri.core.server.api.df.json.JsonpParser;
+import com.bagri.core.server.api.df.json.JsonpBuilder;
 import com.bagri.core.server.api.df.xml.XmlBuilder;
 import com.bagri.core.server.api.df.xml.XmlStaxParser;
 import com.bagri.core.system.DataFormat;
@@ -234,7 +234,7 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
 			logger.info("getParser; no parser found for dataFormat: {}", dataFormat); 
 			String defaultFormat = this.xdmSchema.getProperty(pn_schema_format_default);
 			if ("json".equalsIgnoreCase(defaultFormat)) {
-				cp = new JsonApiParser(getModelManagement());
+				cp = new JsonpParser(getModelManagement());
 			} else if ("xml".equalsIgnoreCase(defaultFormat)) {
 				cp = new XmlStaxParser(getModelManagement());
 			}

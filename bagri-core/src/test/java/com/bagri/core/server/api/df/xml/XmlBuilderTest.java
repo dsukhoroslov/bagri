@@ -1,11 +1,13 @@
 package com.bagri.core.server.api.df.xml;
 
+import static com.bagri.core.Constants.pn_log_level;
 import static com.bagri.core.Constants.pn_schema_builder_pretty;
 import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.util.List;
 import java.util.Properties;
 
@@ -34,10 +36,12 @@ public class XmlBuilderTest {
 	        "        <phoneNumber>\n" +
 	        "            <type>home</type>\n" +
 	        "            <number>212 555-1234</number>\n" +
+	        "            <comment></comment>\n" +
 	        "        </phoneNumber>\n" +
 	        "        <phoneNumber>\n" +
 	        "            <type>fax</type>\n" +
 	        "            <number>646 555-4567</number>\n" +
+	        "            <comment/>\n" +
 	        "        </phoneNumber>\n" +
 	        "    </phoneNumbers>\n" +
 	        "    <gender>\n" +
@@ -93,26 +97,9 @@ public class XmlBuilderTest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		System.setProperty("logback.configurationFile", "test_logging.xml");
+		System.setProperty(pn_log_level, "debug");
 	}
 
-	@Test
-	public void testBuild() throws Exception {
-		ModelManagement model = new ModelManagementImpl();
-		XmlStaxParser parser = new XmlStaxParser(model);
-		List<Data> data = parser.parse(xml);
-		assertNotNull(data);
-		assertEquals(31, data.size());
-		XmlBuilder builder = new XmlBuilder(model);
-		//Properties props = new Properties();
-		//props.setProperty(pn_schema_builder_pretty, "true");
-		//builder.init(props);
-		String content = builder.buildString(data);
-		//System.out.println(content);
-		assertNotNull(content);
-		List<Data> data2 = parser.parse(content);
-		assertEquals(data.size(), data2.size());
-	}
-	
 	@Test
 	public void testBuildManual() throws Exception {
 		ModelManagement model = new ModelManagementImpl();
@@ -163,10 +150,28 @@ public class XmlBuilderTest {
 	}
 
 	@Test
+	public void testBuildString() throws Exception {
+		ModelManagement model = new ModelManagementImpl();
+		XmlStaxParser parser = new XmlStaxParser(model);
+		List<Data> data = parser.parse(xml);
+		assertNotNull(data);
+		assertEquals(33, data.size());
+		XmlBuilder builder = new XmlBuilder(model);
+		Properties props = new Properties();
+		props.setProperty(pn_schema_builder_pretty, "true");
+		builder.init(props);
+		String content = builder.buildString(data);
+		System.out.println(content);
+		assertNotNull(content);
+		List<Data> data2 = parser.parse(content);
+		assertEquals(data.size(), data2.size());
+	}
+	
+	@Test
 	public void testBuildAuction() throws Exception {
 		ModelManagement model = new ModelManagementImpl();
 		XmlStaxParser parser = new XmlStaxParser(model);
-		List<Data> data = parser.parse(auction);
+		List<Data> data = parser.parse(new StringReader(auction));
 		assertNotNull(data);
 		XmlBuilder builder = new XmlBuilder(model);
 		Properties props = new Properties();
@@ -205,7 +210,7 @@ public class XmlBuilderTest {
 		props.setProperty(pn_schema_builder_pretty, "true");
 		builder.init(props);
 		String content = builder.buildString(data);
-		System.out.println(content);
+		//System.out.println(content);
 		assertNotNull(content);
 		List<Data> data2 = parser.parse(content);
 		assertEquals(data.size(), data2.size());

@@ -3,22 +3,14 @@ package com.bagri.core.server.api.df.xml;
 import static com.bagri.core.Constants.pn_schema_builder_pretty;
 import static com.bagri.core.Constants.pn_schema_builder_ident;
 import static com.bagri.support.util.FileUtils.EOL;
-import static com.bagri.support.util.FileUtils.def_encoding;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.util.Collection;
 import java.util.Deque;
 import java.util.LinkedList;
-import java.util.Map;
 import java.util.Properties;
-import java.util.Stack;
 
-import com.bagri.core.DataKey;
 import com.bagri.core.api.BagriException;
 import com.bagri.core.model.Data;
-import com.bagri.core.model.Elements;
 import com.bagri.core.model.NodeKind;
 import com.bagri.core.server.api.ContentBuilder;
 import com.bagri.core.server.api.ModelManagement;
@@ -58,15 +50,6 @@ public class XmlBuilder extends ContentBuilderBase implements ContentBuilder {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String buildString(Map<DataKey, Elements> elements) throws BagriException {
-    	Collection<Data> dataList = buildDataList(elements);
-    	return buildString(dataList);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
    	public String buildString(Collection<Data> elements) throws BagriException {
     	
     	Deque<Data> dataStack = new LinkedList<>();
@@ -102,31 +85,6 @@ public class XmlBuilder extends ContentBuilderBase implements ContentBuilder {
     	return buff.toString();
     }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public InputStream buildStream(Map<DataKey, Elements> elements) throws BagriException {
-    	Collection<Data> dataList = buildDataList(elements);
-    	return buildStream(dataList);
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public InputStream buildStream(Collection<Data> elements) throws BagriException {
-		String content = buildString(elements);
-		if (content != null) {
-			try {
-				return new ByteArrayInputStream(content.getBytes(def_encoding));
-			} catch (UnsupportedEncodingException ex) {
-				throw new BagriException(ex, BagriException.ecInOut);
-			}
-		}
-		return null;
-	}
-	
 	private boolean writeElement(Deque<Data> dataStack, StringBuffer buff, Data data, boolean eltOpen, String prefix) {
 		switch (data.getNodeKind()) {
 			case document: { // this must be the first row..

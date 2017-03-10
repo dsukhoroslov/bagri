@@ -33,7 +33,7 @@ import com.bagri.core.server.api.impl.ContentParserBase;
  * @author Denis Sukhoroslov
  *
  */
-public class JsonApiParser extends ContentParserBase implements ContentParser {
+public class JsonpParser extends ContentParserBase implements ContentParser {
 	
 	private JsonParserFactory factory = Json.createParserFactory(null);
 	
@@ -46,7 +46,7 @@ public class JsonApiParser extends ContentParserBase implements ContentParser {
 	 * @throws BagriException in case of content parse exception
 	 */
 	public static List<Data> parseDocument(ModelManagement model, String json) throws IOException, BagriException {
-		JsonApiParser parser = new JsonApiParser(model);
+		JsonpParser parser = new JsonpParser(model);
 		return parser.parse(json);
 	}
 	
@@ -54,7 +54,7 @@ public class JsonApiParser extends ContentParserBase implements ContentParser {
 	 * 
 	 * @param model the model management component
 	 */
-	public JsonApiParser(ModelManagement model) {
+	public JsonpParser(ModelManagement model) {
 		super(model);
 	}
 	
@@ -186,8 +186,10 @@ public class JsonApiParser extends ContentParserBase implements ContentParser {
 	}
 	
 	private Data getTopData(ParserContext ctx) {
-		for (int i = ctx.getStackSize() - 1; i >= 0; i--) {
+		//for (int i = ctx.getStackSize() - 1; i >= 0; i--) {
+		for (int i = 0; i < ctx.getStackSize(); i++) {
 			Data data = ctx.getStackElement(i);
+			logger.trace("getTopData; index: {}; data: {}", i, data);
 			if (data != null && data.getElement() != null) {
 				return data;
 			}

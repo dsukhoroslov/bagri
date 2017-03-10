@@ -801,8 +801,8 @@
             <library>java_library</library>
             <description>JSON Parser/Builder</description>
             <enabled>true</enabled>
-            <parserClass>com.bagri.core.server.api.df.json.JsonApiParser</parserClass>
-            <builderClass>com.bagri.core.server.api.df.json.JsonBuilder</builderClass>
+            <parserClass>com.bagri.core.server.api.df.json.JsonpParser</parserClass>
+            <builderClass>com.bagri.core.server.api.df.json.JsonpBuilder</builderClass>
             <extensions>json</extensions>
             <type>application/json</type>
             <properties>

@@ -14,8 +14,8 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import com.bagri.core.server.api.df.json.JsonApiParser;
-import com.bagri.core.server.api.df.json.JsonBuilder;
+import com.bagri.core.server.api.df.json.JsonpParser;
+import com.bagri.core.server.api.df.json.JsonpBuilder;
 import com.bagri.core.system.DataFormat;
 import com.bagri.core.system.Library;
 import com.bagri.core.system.Module;
