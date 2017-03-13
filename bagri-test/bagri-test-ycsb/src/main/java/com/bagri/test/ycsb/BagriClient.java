@@ -2,6 +2,7 @@ package com.bagri.test.ycsb;
 
 import static com.bagri.core.Constants.*;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -47,12 +48,30 @@ public class BagriClient extends DB {
 		props.setProperty(pn_client_storeMode, pv_client_storeMode_insert);
 		//props.setProperty(pn_document_data_format, "map");
 		HashMap fields = StringByteIterator.getStringMap(values);
+		fields.put("key", key);
 		try {
 			xRepo.getDocumentManagement().storeDocumentFromMap(key, fields, props);
 			return Status.OK;
 		} catch (Exception ex) {
 			logger.error("insert.error", ex);
 			return Status.ERROR;
+		}
+	}
+	
+	private void populateResult(final Map<String, Object> document, final Set<String> fields, 
+			final HashMap<String, ByteIterator> result) {
+		// fill results
+		if (fields == null) {
+			for (Map.Entry<String, Object> entry: document.entrySet()) {
+				result.put(entry.getKey(), new StringByteIterator(entry.getValue().toString()));
+			}
+		} else {
+			for (String field: fields) {
+				Object value = document.get(field);
+				if (value != null) {
+					result.put(field, new StringByteIterator(value.toString()));
+				}
+			}
 		}
 	}
 
@@ -66,19 +85,7 @@ public class BagriClient extends DB {
 				logger.info("read; not found document for key: {}; table: {}", key, table);
 				return Status.NOT_FOUND;
 			}
-			
-			if (fields == null) {
-				for (Map.Entry<String, Object> entry: map.entrySet()) {
-					result.put(entry.getKey(), new StringByteIterator(entry.getValue().toString()));
-				}
-			} else {
-				for (String field: fields) {
-					Object value = map.get(field);
-					if (value != null) {
-						result.put(field, new StringByteIterator(value.toString()));
-					}
-				}
-			}
+			populateResult(map, fields, result);
 			return Status.OK;
 		} catch (Exception ex) {
 			logger.error("read.error; key: " + key, ex);
@@ -91,8 +98,29 @@ public class BagriClient extends DB {
 				final Set<String> fields, final Vector<HashMap<String, ByteIterator>> result) {
 		logger.debug("scan.enter; table: {}; startKey: {}; recordCount: {}; fields: {}", 
 				new Object[] {table, startkey, recordcount, fields});
-		// TODO: implement it
-		return Status.NOT_IMPLEMENTED;
+		try {
+			Collection<String> uris = xRepo.getDocumentManagement().getDocumentUris("uri >= " + startkey);
+			int i = 0;
+			int size = fields == null ? 10 : fields.size();
+			for (String uri: uris) {
+				HashMap<String, ByteIterator> doc = null;
+				Map<String, Object> map = xRepo.getDocumentManagement().getDocumentAsMap(uri, null);
+				if (map == null) {
+					logger.info("read; not found document for uri: {}; table: {}", uri, table);
+				} else {
+					doc = new HashMap<>(size);
+					populateResult(map, fields, doc);
+				}
+				result.add(doc);
+				if (++i >= recordcount) {
+					break;
+				}
+			}
+			return Status.OK;
+		} catch (Exception ex) {
+			logger.error("update.error", ex);
+			return Status.ERROR;
+		}
 	}
 
 	@Override

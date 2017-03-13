@@ -14,7 +14,7 @@
     <description>Bagri YCSB test plugin</description>
 
     <properties>
-	<ycsb.version>0.7.0-SNAPSHOT</ycsb.version>
+	<ycsb.version>0.13.0-SNAPSHOT</ycsb.version>
     </properties>
 
     <dependencies>

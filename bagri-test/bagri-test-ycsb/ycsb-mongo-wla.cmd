@@ -29,7 +29,7 @@ goto exit
 :instructions
 
 echo Usage:
-echo %app_home%\ycsb-loada.cmd
+echo %app_home%\ycsb-mongo-wla.cmd
 goto exit
 
 :exit
