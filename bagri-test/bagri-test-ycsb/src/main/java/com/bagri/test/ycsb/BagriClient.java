@@ -8,11 +8,17 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.bagri.core.api.ResultCursor;
 import com.bagri.core.api.SchemaRepository;
+import com.bagri.core.xquery.api.XQProcessor;
+import com.bagri.support.util.XMLUtils;
+import com.bagri.xqj.BagriXQDataFactory;
+import com.bagri.xquery.saxon.XQProcessorClient;
 import com.bagri.client.hazelcast.impl.SchemaRepositoryImpl;
 import com.yahoo.ycsb.ByteIterator;
 import com.yahoo.ycsb.DB;
@@ -23,13 +29,20 @@ import com.yahoo.ycsb.StringByteIterator;
 public class BagriClient extends DB {
 	
     private static final Logger logger = LoggerFactory.getLogger(BagriClient.class);
-	
+
+	private int counter;
+	private AtomicLong timer = new AtomicLong(0);
+
     private SchemaRepository xRepo;
 	
 	@Override
 	public void init() throws DBException {
 	    Properties props = getProperties();
-	    xRepo = new SchemaRepositoryImpl(props);
+		XQProcessor proc = new XQProcessorClient();
+		BagriXQDataFactory xqFactory = new BagriXQDataFactory();
+		xqFactory.setProcessor(proc);
+		props.put(pn_client_dataFactory,  xqFactory);
+		xRepo = new SchemaRepositoryImpl(props);
 	    logger.info("init.exit; xRepo: {}", xRepo);
 	}
 
@@ -37,6 +50,8 @@ public class BagriClient extends DB {
 	public void cleanup() {
 	    logger.info("cleanup; xRepo: {}", xRepo);
 	    xRepo.close();
+	    //double time = timer.get();
+		//logger.info("cleanup; scan count: {}; full time: {}; avg time: {}", counter, time, time/counter);
 	}
 	
 	@Override
@@ -92,23 +107,23 @@ public class BagriClient extends DB {
 			return Status.ERROR;
 		}
 	}
-
-	@Override
-	public Status scan(final String table, final String startkey, final int recordcount,
+	
+	//@Override
+	public Status scan2(final String table, final String startkey, final int recordcount,
 				final Set<String> fields, final Vector<HashMap<String, ByteIterator>> result) {
-		logger.debug("scan.enter; table: {}; startKey: {}; recordCount: {}; fields: {}", 
-				new Object[] {table, startkey, recordcount, fields});
+		//logger.info("scan.enter; table: {}; startKey: {}; recordCount: {}; fields: {}", 
+		//		new Object[] {table, startkey, recordcount, fields});
 		try {
+			long stamp = System.currentTimeMillis();
 			Collection<String> uris = xRepo.getDocumentManagement().getDocumentUris("uri >= " + startkey);
 			int i = 0;
-			int size = fields == null ? 10 : fields.size();
 			for (String uri: uris) {
 				HashMap<String, ByteIterator> doc = null;
 				Map<String, Object> map = xRepo.getDocumentManagement().getDocumentAsMap(uri, null);
 				if (map == null) {
-					logger.info("read; not found document for uri: {}; table: {}", uri, table);
+					logger.info("scan; not found document for uri: {}; table: {}", uri, table);
 				} else {
-					doc = new HashMap<>(size);
+					doc = new HashMap<>(map.size());
 					populateResult(map, fields, doc);
 				}
 				result.add(doc);
@@ -116,9 +131,49 @@ public class BagriClient extends DB {
 					break;
 				}
 			}
+			stamp = System.currentTimeMillis() - stamp;
+			//logger.info("scan; got uris: {}; returning documents: {}; time taken: {}", uris.size(), result.size(), stamp);
+			//counter++;
+			//timer.addAndGet(stamp);
 			return Status.OK;
 		} catch (Exception ex) {
-			logger.error("update.error", ex);
+			logger.error("scan.error", ex);
+			return Status.ERROR;
+		}
+	}
+	
+	private static String query = "declare variable $startKey external;\n" +
+			"for $doc in fn:collection(\"usertable\")/map\n" +
+			"where $doc/key >= $startKey\n" +
+			"return $doc";
+
+	@Override
+	public Status scan(final String table, final String startkey, final int recordcount,
+			final Set<String> fields, final Vector<HashMap<String, ByteIterator>> result) {
+		//logger.info("scan.enter; table: {}; startKey: {}; recordCount: {}; fields: {}", 
+		//		new Object[] {table, startkey, recordcount, fields});
+		
+		Map<String, Object> params = new HashMap<>(1);
+		params.put("startKey", startkey);
+		Properties props = new Properties();
+		props.setProperty(pn_schema_fetch_size, String.valueOf(recordcount));
+		try {
+			long stamp = System.currentTimeMillis();
+			ResultCursor cursor = xRepo.getQueryManagement().executeQuery(query, params, props);
+			while (cursor.next()) {
+				String xml = cursor.getString();
+				Map<String, Object> map = XMLUtils.mapFromXML(xml);
+				HashMap<String, ByteIterator> doc = new HashMap<>(map.size());
+				populateResult(map, fields, doc);
+				result.add(doc);
+			}
+			stamp = System.currentTimeMillis() - stamp;
+			//logger.info("scan; got uris: {}; returning documents: {}; time taken: {}", uris.size(), result.size(), stamp);
+			//counter++;
+			//timer.addAndGet(stamp);
+			return Status.OK;
+		} catch (Exception ex) {
+			logger.error("scan.error", ex);
 			return Status.ERROR;
 		}
 	}

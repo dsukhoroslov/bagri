@@ -684,7 +684,20 @@
                 </collection>
             </collections>
             <fragments/>
-            <indexes/>
+            <indexes>
+                <index name="IDX_YCSB_Key">
+                    <version>1</version>
+                    <createdAt>2017-03-13T13:36:26.965+03:00</createdAt>
+                    <createdBy>SDV</createdBy>
+                    <docType>/map</docType>
+                    <path>/map/key/text()</path>
+                    <dataType xmlns:xs="http://www.w3.org/2001/XMLSchema">xs:string</dataType>
+                    <range>true</range>
+                    <unique>false</unique>
+                    <description>YCSB Key</description>
+                    <enabled>true</enabled>
+                </index>
+            </indexes>
             <triggers/>
         </schema>
     </schemas>

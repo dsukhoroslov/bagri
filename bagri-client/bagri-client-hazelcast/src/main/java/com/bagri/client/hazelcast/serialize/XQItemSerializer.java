@@ -38,6 +38,7 @@ public class XQItemSerializer implements StreamSerializer<XQItem> {
 	}
 
 	public void setXQDataFactory(XQDataFactory xqDataFactory) {
+		logger.trace("setXQDataFactory; got factory: {}", xqDataFactory);
 		this.xqFactory = xqDataFactory;
 	}
 

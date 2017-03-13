@@ -28,7 +28,11 @@
     </appender>
 
     <logger name="com.bagri">
-        <level value="info"/>
+        <level value="${bdb.log.level:-info}"/>
+    </logger>
+
+    <logger name="com.hazelcast">
+        <level value="${hz.log.level:-warn}"/>
     </logger>
 
     <logger name="org.springframework">

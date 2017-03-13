@@ -773,5 +773,10 @@ public class BagriXQDataFactory extends BagriXQCloseable implements XQDataFactor
 		checkState(ex_connection_closed);
 		return new BagriXQItemType(XQBASETYPE_UNTYPED, XQITEMKIND_TEXT, null, getTypeName(XQBASETYPE_UNTYPED), false, null);
 	}
+	
+	@Override
+	public String toString() {
+		return "BagriXQDataFactory[processor: " + xqProcessor + "]";
+	}
 
 }
