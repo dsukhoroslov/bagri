@@ -2,27 +2,32 @@ package com.bagri.server.hazelcast.impl;
 
 import static com.bagri.core.Constants.pn_config_path;
 import static com.bagri.core.Constants.pn_config_properties_file;
+import static com.bagri.core.Constants.pn_document_collections;
 import static com.bagri.core.Constants.pn_document_data_format;
 import static com.bagri.core.Constants.pn_schema_format_default;
 
+import static org.junit.Assert.*;
+
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Properties;
 
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import com.bagri.core.server.api.df.json.JsonpParser;
-import com.bagri.core.server.api.df.json.JsonpBuilder;
-import com.bagri.core.system.DataFormat;
+import com.bagri.core.api.ResultCursor;
+import com.bagri.core.model.Document;
+import com.bagri.core.system.Collection;
 import com.bagri.core.system.Library;
 import com.bagri.core.system.Module;
 import com.bagri.core.system.Schema;
 import com.bagri.core.test.DocumentManagementTest;
-import com.bagri.core.xquery.api.XQProcessor;
 import com.bagri.server.hazelcast.impl.SchemaRepositoryImpl;
+import com.bagri.support.util.JMXUtils;
 
 public class JsonDocumentManagementTest extends DocumentManagementTest {
 	
@@ -78,5 +83,51 @@ public class JsonDocumentManagementTest extends DocumentManagementTest {
 		return props;
 	}
 
+	
+	@Test
+	public void queryJsonDocumentsTest() throws Exception {
+		
+		Schema schema = ((SchemaRepositoryImpl) xRepo).getSchema();
+		Collection collection = new Collection(1, new Date(), JMXUtils.getCurrentUser(), 1, "products", "", "all products", true);
+		schema.addCollection(collection);
+		collection = new Collection(1, new Date(), JMXUtils.getCurrentUser(), 2, "orders", "", "all orders", true);
+		schema.addCollection(collection);
+		
+		String doc1 = "{\"id\": \"product-1\", \"type\": \"product\", \"name\": \"Pokemon Red\", \"price\": 29.99}";
+		String doc2 = "{\"id\": \"order-1\", \"type\": \"order\", \"products\": [{\"product_id\": \"product-1\", \"quantity\": 2}]}";
+		long txId = getTxManagement().beginTransaction();
+		Properties props = getDocumentProperties();
+		props.setProperty(pn_document_collections, "products");
+		getDocManagement().storeDocumentFromString("product.json", doc1, props);
+		props.setProperty(pn_document_collections, "orders");
+		getDocManagement().storeDocumentFromString("order.json", doc2, props);
+		getTxManagement().commitTransaction(txId);
+	
+		//System.out.println("paths: " + ((SchemaRepositoryImpl) xRepo).getModelManagement().getTypePaths(1));
+		
+		String query = "declare namespace m=\"http://www.w3.org/2005/xpath-functions/map\";\n" +
+				"declare namespace a=\"http://www.w3.org/2005/xpath-functions/array\";\n" +
+				"let $props := map{'method': 'json'}\n" +
+				"for $ord in fn:collection(\"orders\")\n" +
+				"return\n" +
+				   "for $i in (1 to a:size(m:get($ord, 'products')))\n" +
+					"for $pro in fn:collection(\"products\")\n" +
+					  "where m:get($pro, 'id') = m:get(a:get(m:get($ord, 'products'), $i), 'product_id')\n" +
+		  			  "return fn:serialize($ord, $props)"; 
+		  //"return fn:serialize($pro, $props), ', '), ']}#xa;')"; 
+				
+		props = new Properties();
+		//props.setProperty("method", "json");
+		ResultCursor docs = query(query, null, props);
+		assertNotNull(docs);
+		int idx = 0;
+		while (docs.next()) {
+			String json = docs.getString();
+			System.out.print(++idx + ": ");
+			System.out.println(json);
+		}
+		docs.close();
+		assertTrue(idx > 0);
+	}
 	
 }
