@@ -14,7 +14,7 @@
     <description>Bagri YCSB test plugin</description>
 
     <properties>
-	<ycsb.version>0.7.0-SNAPSHOT</ycsb.version>
+	<ycsb.version>0.13.0-SNAPSHOT</ycsb.version>
     </properties>
 
     <dependencies>
@@ -38,7 +38,7 @@
             <artifactId>core</artifactId>
        	    <version>${ycsb.version}</version>
             <!--scope>provided</scope-->
-            <exclusions>
+            <!--exclusions>
                 <exclusion>
                     <groupId>org.codehaus.jackson</groupId>
                     <artifactId>jackson-mapper-asl</artifactId>
@@ -51,7 +51,7 @@
                     <groupId>org.hdrhistogram</groupId>
                     <artifactId>HdrHistogram</artifactId>
                 </exclusion>
-            </exclusions>
+            </exclusions-->
     	</dependency>
 
         <!-- Dependencies for logging -->

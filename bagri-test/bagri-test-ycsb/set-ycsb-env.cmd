@@ -19,7 +19,7 @@ set java_opts=-Xms%memory% -Xmx%memory%
 
 set java_opts=%java_opts% -Dhazelcast.logging.type=slf4j -Dlogback.configurationFile=ycsb-logging.xml
 rem set java_opts=%java_opts% -Dhazelcast.logging.type=slf4j -Dlogback.configurationFile=hz-client-logging.xml
-set java_opts=%java_opts% -Dlog.name=ycsb-client -Dhz.log.level=warn -Dbdb.log.level=trace
+set java_opts=%java_opts% -Dlog.name=ycsb-client -Dhz.log.level=warn -Dbdb.log.level=info
 
 set java_opts=%java_opts% -Dhazelcast.client.event.thread.count=1
 
@@ -37,6 +37,7 @@ set java_opts=%java_opts% -Dbdb.client.loginTimeout=30
 set java_opts=%java_opts% -Dbdb.client.smart=true
 set java_opts=%java_opts% -Dbdb.client.poolSize=50
 set java_opts=%java_opts% -Dbdb.client.healthCheck=skip
+set java_opts=%java_opts% -Dbdb.client.queryCache=false
 
 rem set java_opts=%java_opts% -Duser.country=US -Duser.language=en
 

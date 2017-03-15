@@ -632,7 +632,7 @@
                 <entry name="bdb.schema.thread.pool">10</entry>
                 <entry name="bdb.schema.data.cache">NEVER</entry>
                 <entry name="bdb.schema.data.stats.enabled">false</entry>
-                <entry name="bdb.schema.query.cache">true</entry>
+                <entry name="bdb.schema.query.cache">false</entry>
                 <entry name="bdb.schema.ports.first">10150</entry>
                 <entry name="bdb.schema.format.default">XML</entry>
                 <entry name="bdb.schema.ports.last">10160</entry>

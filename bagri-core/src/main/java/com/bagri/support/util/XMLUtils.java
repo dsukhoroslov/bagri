@@ -412,7 +412,11 @@ public class XMLUtils {
 	        while (reader.hasMoreChildren()) {
 	            reader.moveDown();
 	            String key = reader.getNodeName(); 
-	            Object value = context.convertAnother(map, types.get(key));
+	            Class<?> type = types.get(key);
+	            if (type == null) {
+	            	type = String.class;
+	            }
+	            Object value = context.convertAnother(map, type);
 	            map.put(key, value);
 	            reader.moveUp();
 	        }

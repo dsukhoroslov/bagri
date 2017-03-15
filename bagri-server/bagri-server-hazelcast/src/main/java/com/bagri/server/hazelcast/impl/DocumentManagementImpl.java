@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -59,6 +60,8 @@ import com.bagri.support.util.PropUtils;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.IMap;
+import com.hazelcast.projection.Projection;
+import com.hazelcast.projection.Projections;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
 
@@ -311,24 +314,30 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	public java.util.Collection<String> getDocumentUris(String pattern) {
 		// implement other search types: by dates, owner, etc..
 		logger.trace("getDocumentUris.enter; got pattern: {}", pattern);
-		java.util.Collection<Document> docs;
+		//java.util.Collection<Document> docs;
+		java.util.Collection<String> uris;
+		Projection<Entry<DocumentKey, Document>, String> pro = Projections.singleAttribute("uri");
 		if (pattern != null) {
 			Predicate<DocumentKey, Document> query = DocumentPredicateBuilder.getQuery(pattern);
 	   		//Predicate<XDMDocumentKey, XDMDocument> f = Predicates.and(Predicates.regex("uri", pattern), 
 	   		//		Predicates.equal("txFinish", TX_NO));
-			docs = xddCache.values(query);
+			//docs = xddCache.values(query);
+			uris = xddCache.project(pro, query);
 		} else {
 			// TODO: possible OOM here!! then use PagingPredicate somehow!
-			docs = xddCache.values();
+			//docs = xddCache.values();
+			uris = xddCache.project(pro);
 		}
 
 		// should also check if doc's start transaction is committed?
-		Set<String> result = new HashSet<>(docs.size());
-		for (Document doc: docs) {
-			result.add(doc.getUri());
-		}
-		logger.trace("getDocumentUris.exit; returning: {}", result.size());
-		return result;
+		//Set<String> result = new HashSet<>(docs.size());
+		//for (Document doc: docs) {
+		//	result.add(doc.getUri());
+		//}
+		//logger.trace("getDocumentUris.exit; returning: {}", result.size());
+		//return result;
+		logger.trace("getDocumentUris.exit; returning: {}", uris.size());
+		return new ArrayList<>(uris);
 	}
 
 	@Override

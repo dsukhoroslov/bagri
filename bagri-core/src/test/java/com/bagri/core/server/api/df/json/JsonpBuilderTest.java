@@ -48,7 +48,7 @@ public class JsonpBuilderTest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		System.setProperty("logback.configurationFile", "test_logging.xml");
-		System.setProperty(pn_log_level, "trace");
+		//System.setProperty(pn_log_level, "trace");
 	}
 
 	//@AfterClass

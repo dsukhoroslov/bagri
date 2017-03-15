@@ -4,8 +4,7 @@ import static com.bagri.core.Constants.pn_config_path;
 import static com.bagri.core.Constants.pn_config_properties_file;
 import static com.bagri.core.Constants.pn_document_collections;
 import static com.bagri.core.Constants.pn_node_instance;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -15,6 +14,7 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -69,6 +69,7 @@ public class DocumentManagementImplTest extends DocumentManagementTest {
 	}
 
 	@Test
+	@Ignore
 	public void queryDocumentsTest() throws Exception {
 		
 		Schema schema = ((SchemaRepositoryImpl) xRepo).getSchema();
@@ -82,9 +83,9 @@ public class DocumentManagementImplTest extends DocumentManagementTest {
 		long txId = getTxManagement().beginTransaction();
 		Properties props = new Properties(); //getDocumentProperties();
 		props.setProperty(pn_document_collections, "products");
-		getDocManagement().storeDocumentFromString("product.xml", doc1, props);
+		uris.add(getDocManagement().storeDocumentFromString("product.xml", doc1, props).getUri());
 		props.setProperty(pn_document_collections, "orders");
-		getDocManagement().storeDocumentFromString("order.xml", doc2, props);
+		uris.add(getDocManagement().storeDocumentFromString("order.xml", doc2, props).getUri());
 		getTxManagement().commitTransaction(txId);
 	
 		//System.out.println("paths: " + ((SchemaRepositoryImpl) xRepo).getModelManagement().getTypePaths(1));
@@ -111,4 +112,18 @@ public class DocumentManagementImplTest extends DocumentManagementTest {
 		docs.close();
 		assertTrue(idx > 0);
 	}
+
+	@Test
+	public void queryDocumentUrisTest() throws Exception {
+		storeSecurityTest();
+		storeOrderTest();
+		DocumentManagementImpl dMgr = (DocumentManagementImpl) this.getDocManagement();
+		java.util.Collection<String> uris = dMgr.getDocumentUris("uri like security%");
+		assertEquals(4, uris.size());
+		uris = dMgr.getDocumentUris("uri like order%");
+		assertEquals(2, uris.size());
+		uris = dMgr.getDocumentUris("createdBy = unknown");
+		assertEquals(6, uris.size());
+	}
+	
 }

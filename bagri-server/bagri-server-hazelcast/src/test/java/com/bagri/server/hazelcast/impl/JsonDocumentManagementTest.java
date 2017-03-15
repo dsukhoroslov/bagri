@@ -16,6 +16,7 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -85,6 +86,7 @@ public class JsonDocumentManagementTest extends DocumentManagementTest {
 
 	
 	@Test
+	//@Ignore
 	public void queryJsonDocumentsTest() throws Exception {
 		
 		Schema schema = ((SchemaRepositoryImpl) xRepo).getSchema();
@@ -98,23 +100,30 @@ public class JsonDocumentManagementTest extends DocumentManagementTest {
 		long txId = getTxManagement().beginTransaction();
 		Properties props = getDocumentProperties();
 		props.setProperty(pn_document_collections, "products");
-		getDocManagement().storeDocumentFromString("product.json", doc1, props);
+		uris.add(getDocManagement().storeDocumentFromString("product.json", doc1, props).getUri());
 		props.setProperty(pn_document_collections, "orders");
-		getDocManagement().storeDocumentFromString("order.json", doc2, props);
+		uris.add(getDocManagement().storeDocumentFromString("order.json", doc2, props).getUri());
 		getTxManagement().commitTransaction(txId);
 	
-		//System.out.println("paths: " + ((SchemaRepositoryImpl) xRepo).getModelManagement().getTypePaths(1));
+		//String query = "declare namespace m=\"http://www.w3.org/2005/xpath-functions/map\";\n" +
+		//		"declare namespace a=\"http://www.w3.org/2005/xpath-functions/array\";\n" +
+		//		"let $props := map{'method': 'json'}\n" +
+		//		"for $ord in fn:collection(\"orders\")\n" +
+		//		"return\n" +
+		//		   "for $i in (1 to a:size(m:get($ord, 'products')))\n" +
+		//			"for $pro in fn:collection(\"products\")\n" +
+		//			  "where m:get($pro, 'id') = m:get(a:get(m:get($ord, 'products'), $i), 'product_id')\n" +
+		// 			  "return fn:serialize($ord, $props)"; 
 		
 		String query = "declare namespace m=\"http://www.w3.org/2005/xpath-functions/map\";\n" +
 				"declare namespace a=\"http://www.w3.org/2005/xpath-functions/array\";\n" +
-				"let $props := map{'method': 'json'}\n" +
 				"for $ord in fn:collection(\"orders\")\n" +
-				"return\n" +
-				   "for $i in (1 to a:size(m:get($ord, 'products')))\n" +
-					"for $pro in fn:collection(\"products\")\n" +
-					  "where m:get($pro, 'id') = m:get(a:get(m:get($ord, 'products'), $i), 'product_id')\n" +
-		  			  "return fn:serialize($ord, $props)"; 
-		  //"return fn:serialize($pro, $props), ', '), ']}#xa;')"; 
+			      //"$pro in fn:collection(\"products\")\n" + 
+				    //"$i in (1 to a:size($ord('products')))\n" +
+				  "return distinct-values(m:get($ord('products'), 'product_id'))"; //, fn:string-join(\n" +
+				      //"where $pro('id') = m:get(a:get($ord('products'), 1), 'product_id')\n" +
+				    //  "where $pro('id') = m:get(a:get(m:get($ord, 'products'), $i), 'product_id')\n" +
+				    //  "return fn:serialize(m:put($ord, 'product', $pro), map{'method': 'json'})"; //))";
 				
 		props = new Properties();
 		//props.setProperty("method", "json");
@@ -123,8 +132,7 @@ public class JsonDocumentManagementTest extends DocumentManagementTest {
 		int idx = 0;
 		while (docs.next()) {
 			String json = docs.getString();
-			System.out.print(++idx + ": ");
-			System.out.println(json);
+			System.out.println(++idx + ": " + json);
 		}
 		docs.close();
 		assertTrue(idx > 0);
