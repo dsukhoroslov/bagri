@@ -67,6 +67,11 @@ import com.hazelcast.query.Predicates;
 
 public class DocumentManagementImpl extends DocumentManagementBase implements DocumentManagement {
 	
+	private static final String fnUri = "uri";
+	//private static final String fnTxStart = "txStart";
+	private static final String fnTxFinish = "txFinish";
+	private static final String fnTypeId = "typeId";
+	
 	private KeyFactory factory;
 	private SchemaRepositoryImpl repo;
     private HazelcastInstance hzInstance;
@@ -233,8 +238,8 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	
 	@SuppressWarnings("unchecked")
 	private Set<DocumentKey> getDocumentsOfType(int docType) {
-   		Predicate<DocumentKey, Document> f = Predicates.and(Predicates.equal("typeId", docType), 
-   				Predicates.equal("txFinish", 0L));
+   		Predicate<DocumentKey, Document> f = Predicates.and(Predicates.equal(fnTypeId, docType), 
+   				Predicates.equal(fnTxFinish, TX_NO));
 		return xddCache.keySet(f);
 	}
 	
@@ -260,7 +265,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	}
 
     private DocumentKey getDocumentKey(String uri, boolean next, boolean acceptClosed) {
-    	Set<DocumentKey> keys = xddCache.localKeySet(Predicates.equal("uri", uri));
+    	Set<DocumentKey> keys = xddCache.localKeySet(Predicates.equal(fnUri, uri));
     	if (keys.isEmpty()) {
 			DocumentKey key = factory.newDocumentKey(uri, 0, dvFirst);
     		if (next) {
@@ -276,7 +281,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	    		return null;
 			} else {
 				// think how to get it from concrete node?!
-				keys = xddCache.keySet(Predicates.equal("uri", uri));
+				keys = xddCache.keySet(Predicates.equal(fnUri, uri));
 				if (keys.isEmpty()) {
 		    		return null;
 				}
@@ -312,32 +317,21 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
  	
 	@Override
 	public java.util.Collection<String> getDocumentUris(String pattern) {
-		// implement other search types: by dates, owner, etc..
 		logger.trace("getDocumentUris.enter; got pattern: {}", pattern);
-		//java.util.Collection<Document> docs;
 		java.util.Collection<String> uris;
-		Projection<Entry<DocumentKey, Document>, String> pro = Projections.singleAttribute("uri");
+		Projection<Entry<DocumentKey, Document>, String> pro = Projections.singleAttribute(fnUri);
 		if (pattern != null) {
 			Predicate<DocumentKey, Document> query = DocumentPredicateBuilder.getQuery(pattern);
-	   		//Predicate<XDMDocumentKey, XDMDocument> f = Predicates.and(Predicates.regex("uri", pattern), 
-	   		//		Predicates.equal("txFinish", TX_NO));
-			//docs = xddCache.values(query);
+	   		//Predicate<XDMDocumentKey, XDMDocument> f = Predicates.and(Predicates.regex(fnUri, pattern), 
+	   		//		Predicates.equal(fnTxFinish, TX_NO));
 			uris = xddCache.project(pro, query);
 		} else {
 			// TODO: possible OOM here!! then use PagingPredicate somehow!
-			//docs = xddCache.values();
 			uris = xddCache.project(pro);
 		}
-
 		// should also check if doc's start transaction is committed?
-		//Set<String> result = new HashSet<>(docs.size());
-		//for (Document doc: docs) {
-		//	result.add(doc.getUri());
-		//}
-		//logger.trace("getDocumentUris.exit; returning: {}", result.size());
-		//return result;
 		logger.trace("getDocumentUris.exit; returning: {}", uris.size());
-		return new ArrayList<>(uris);
+		return uris;
 	}
 
 	@Override

@@ -86,7 +86,7 @@ public class JsonDocumentManagementTest extends DocumentManagementTest {
 
 	
 	@Test
-	//@Ignore
+	@Ignore
 	public void queryJsonDocumentsTest() throws Exception {
 		
 		Schema schema = ((SchemaRepositoryImpl) xRepo).getSchema();
@@ -105,37 +105,16 @@ public class JsonDocumentManagementTest extends DocumentManagementTest {
 		uris.add(getDocManagement().storeDocumentFromString("order.json", doc2, props).getUri());
 		getTxManagement().commitTransaction(txId);
 	
-		//String query = "declare namespace m=\"http://www.w3.org/2005/xpath-functions/map\";\n" +
-		//		"declare namespace a=\"http://www.w3.org/2005/xpath-functions/array\";\n" +
-		//		"let $props := map{'method': 'json'}\n" +
-		//		"for $ord in fn:collection(\"orders\")\n" +
-		//		"return\n" +
-		//		   "for $i in (1 to a:size(m:get($ord, 'products')))\n" +
-		//			"for $pro in fn:collection(\"products\")\n" +
-		//			  "where m:get($pro, 'id') = m:get(a:get(m:get($ord, 'products'), $i), 'product_id')\n" +
-		// 			  "return fn:serialize($ord, $props)"; 
-		
 		String query = "declare namespace m=\"http://www.w3.org/2005/xpath-functions/map\";\n" +
 				"declare namespace a=\"http://www.w3.org/2005/xpath-functions/array\";\n" +
-				"for $ord in fn:collection(\"orders\")\n" +
-			      //"$pro in fn:collection(\"products\")\n" + 
-				    //"$i in (1 to a:size($ord('products')))\n" +
-				  "return distinct-values(m:get($ord('products'), 'product_id'))"; //, fn:string-join(\n" +
-				      //"where $pro('id') = m:get(a:get($ord('products'), 1), 'product_id')\n" +
-				    //  "where $pro('id') = m:get(a:get(m:get($ord, 'products'), $i), 'product_id')\n" +
-				    //  "return fn:serialize(m:put($ord, 'product', $pro), map{'method': 'json'})"; //))";
+				"for $ord in collection('orders'), $prod in a:flatten($ord('products')), $pro in collection('products')\n" +
+				"where $pro('id') = $prod('product_id')\n" +
+				"return serialize(m:put(m:remove($ord, 'products'), 'product', m:put($pro, 'quantity', $prod('quantity'))), map{'method': 'json'})";
 				
-		props = new Properties();
-		//props.setProperty("method", "json");
-		ResultCursor docs = query(query, null, props);
+		ResultCursor docs = query(query, null, null);
 		assertNotNull(docs);
-		int idx = 0;
-		while (docs.next()) {
-			String json = docs.getString();
-			System.out.println(++idx + ": " + json);
-		}
+		assertTrue(docs.next());
 		docs.close();
-		assertTrue(idx > 0);
 	}
 	
 }

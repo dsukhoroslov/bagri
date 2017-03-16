@@ -337,6 +337,10 @@ public abstract class ModelManagementBase implements ModelManagement {
 		}
 		return xpath;
 	}
+	
+	public void updatePath(Path path) {
+		getPathCache().put(path.getPath(), path);
+	}
 
 	/**
 	 * normalizes all registered paths belonging to the document type id. 

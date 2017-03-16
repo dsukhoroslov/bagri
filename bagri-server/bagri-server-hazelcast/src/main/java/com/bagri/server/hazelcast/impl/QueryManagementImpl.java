@@ -191,7 +191,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	
 	public Set<Integer> getQueriesForPaths(Collection<Integer> pathIds, boolean checkIndexed) {
 		// TODO: also specify: do we care about unique indexes or not..
-		logger.trace("getQueriesForPaths.enter; got pathIds: {}; query cache size: {}", pathIds, xqCache.size());
+		logger.debug("getQueriesForPaths.enter; got pathIds: {}; query cache size: {}", pathIds, xqCache.size());
 		Set<Integer> result = new HashSet<>();
 		for (Map.Entry<Integer, Query> e: xqCache.entrySet()) {
 			for (ExpressionContainer ec: e.getValue().getXdmQuery().getContainers()) {

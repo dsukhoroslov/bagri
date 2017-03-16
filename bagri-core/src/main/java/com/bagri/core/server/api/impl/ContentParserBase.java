@@ -57,8 +57,11 @@ public abstract class ContentParserBase {
 		Path xPath = model.translatePath(ctx.getDocType(), path, kind, dataType, occurence);
 		xPath.setParentId(parent.getPathId());
 		if (parent.getPostId() < xPath.getPathId()) {
-			parent.setPostId(xPath.getPathId());
+			Path pPath = parent.getDataPath();
+			pPath.setPostId(xPath.getPathId());
+			model.updatePath(pPath);
 		}
+		model.updatePath(xPath);
 		int[] position = parent.getPosition();
 		//if (kind == NodeKind.element) {
 			position = Arrays.copyOf(position, position.length + 1);
@@ -80,7 +83,7 @@ public abstract class ContentParserBase {
 			Path parent = model.getPath(current.getParentPathId());
 			if (parent != null && parent.getPostId() < current.getPostId()) {
 				parent.setPostId(current.getPostId());
-				// ok, but who'll commit it to the cache!?
+				model.updatePath(parent);
 			}
 		}
 	}

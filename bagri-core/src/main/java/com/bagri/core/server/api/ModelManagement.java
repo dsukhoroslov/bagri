@@ -131,6 +131,12 @@ public interface ModelManagement {
 	Collection<Path> getTypePaths(int typeId);
 	
 	/**
+	 * updates the Path in cache
+	 * 
+	 * @param path the Ptah to update
+	 */
+	void updatePath(Path path);
+	/**
 	 * returns document type ID for the root document element specified. root is a long
 	 * path representation like {@literal "/{http://tpox-benchmark.com/security}Security"}
 	 * 

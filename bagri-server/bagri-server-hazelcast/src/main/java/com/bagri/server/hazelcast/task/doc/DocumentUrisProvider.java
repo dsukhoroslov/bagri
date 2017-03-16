@@ -1,5 +1,6 @@
 package com.bagri.server.hazelcast.task.doc;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,9 +29,9 @@ public class DocumentUrisProvider extends com.bagri.client.hazelcast.task.doc.Do
     	((SchemaRepositoryImpl) repo).getXQProcessor(clientId);
     	checkPermission(Permission.Value.read);
     	
-		return docMgr.getDocumentUris(pattern);
+    	Collection<String> uris = docMgr.getDocumentUris(pattern);
+		return new ArrayList<>(uris);
 	}
-
 
 
 }

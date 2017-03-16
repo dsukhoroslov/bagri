@@ -17,7 +17,7 @@
         <level value="${hz.log.level:-info}"/>
     </logger>
 
-    <!--logger name="com.bagri.server.hazelcast.store.TransactionCacheStore">
+    <!--logger name="com.bagri.client.hazelcast.serialize.model.PathSerializer">
         <level value="trace"/>
     </logger-->
 

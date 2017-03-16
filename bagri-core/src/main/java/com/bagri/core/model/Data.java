@@ -50,6 +50,10 @@ public class Data implements Comparable<Data> {
     public int getLevel() {
     	return element.getPosition().length;
     }
+    
+    public Path getDataPath() {
+    	return this.path;
+    }
 
     /**
      * 
@@ -143,9 +147,9 @@ public class Data implements Comparable<Data> {
      * 
      * @param postId the latest child pathId
      */
-    public void setPostId(int postId) {
-    	path.setPostId(postId);
-    }
+    //public void setPostId(int postId) {
+    //	path.setPostId(postId);
+    //}
     
     /**
      * {@inheritDoc}
