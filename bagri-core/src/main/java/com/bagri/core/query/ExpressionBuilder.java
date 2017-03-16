@@ -83,6 +83,17 @@ public class ExpressionBuilder {
 	public List<Expression> getExpressions() {
 		return Collections.unmodifiableList(expressions);
 	}
+	
+	/**
+	 * 
+	 * @return collectionId associated with this builder
+	 */
+	public int getCollectionId() {
+		if (expressions.size() > 0) {
+			return expressions.get(0).getCollectionId();
+		}
+		return 0;
+	}
 
 	/**
 	 * 

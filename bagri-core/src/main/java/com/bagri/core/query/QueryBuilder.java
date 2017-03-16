@@ -50,7 +50,7 @@ public class QueryBuilder implements Cloneable {
 	 * @param container the expression container 
 	 */
 	public void addContainer(ExpressionContainer container) {
-		int clnId = container.getBuilder().getRoot().getCollectionId();
+		int clnId = container.getBuilder().getCollectionId();
 		addContainer(clnId, container);
 	}
 	

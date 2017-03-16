@@ -14,7 +14,6 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -69,7 +68,6 @@ public class DocumentManagementImplTest extends DocumentManagementTest {
 	}
 
 	@Test
-	@Ignore
 	public void queryDocumentsTest() throws Exception {
 		
 		Schema schema = ((SchemaRepositoryImpl) xRepo).getSchema();
@@ -88,8 +86,6 @@ public class DocumentManagementImplTest extends DocumentManagementTest {
 		uris.add(getDocManagement().storeDocumentFromString("order.xml", doc2, props).getUri());
 		getTxManagement().commitTransaction(txId);
 	
-		//System.out.println("paths: " + ((SchemaRepositoryImpl) xRepo).getModelManagement().getTypePaths(1));
-		
 		String query = 
 				"for $ord in fn:collection(\"orders\")/order\n" +
 				"for $pro in fn:collection(\"products\")/product[@id=$ord/products/product/@product_id]\n" + 
@@ -99,18 +95,10 @@ public class DocumentManagementImplTest extends DocumentManagementTest {
 					"    {$ord/products/product/quantity}\n" +
 					"</order>";
 				
-		//props = new Properties();
-		//props.setProperty("method", "json");
-		ResultCursor docs = query(query, null, null); //props);
+		ResultCursor docs = query(query, null, null); 
 		assertNotNull(docs);
-		int idx = 0;
-		while (docs.next()) {
-			String json = docs.getString();
-			System.out.print(++idx + ": ");
-			System.out.println(json);
-		}
+		assertTrue(docs.next());
 		docs.close();
-		assertTrue(idx > 0);
 	}
 
 	@Test

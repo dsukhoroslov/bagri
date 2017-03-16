@@ -319,16 +319,17 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	public java.util.Collection<String> getDocumentUris(String pattern) {
 		logger.trace("getDocumentUris.enter; got pattern: {}", pattern);
 		java.util.Collection<String> uris;
+		Predicate<DocumentKey, Document> query;
 		Projection<Entry<DocumentKey, Document>, String> pro = Projections.singleAttribute(fnUri);
 		if (pattern != null) {
-			Predicate<DocumentKey, Document> query = DocumentPredicateBuilder.getQuery(pattern);
-	   		//Predicate<XDMDocumentKey, XDMDocument> f = Predicates.and(Predicates.regex(fnUri, pattern), 
-	   		//		Predicates.equal(fnTxFinish, TX_NO));
-			uris = xddCache.project(pro, query);
+			query = DocumentPredicateBuilder.getQuery(pattern);
+			if (pattern.indexOf(fnTxFinish) < 0) {
+				query = Predicates.and(query, Predicates.equal(fnTxFinish, TX_NO)); 
+			}
 		} else {
-			// TODO: possible OOM here!! then use PagingPredicate somehow!
-			uris = xddCache.project(pro);
+			query = Predicates.equal(fnTxFinish, TX_NO);
 		}
+		uris = xddCache.project(pro, query);
 		// should also check if doc's start transaction is committed?
 		logger.trace("getDocumentUris.exit; returning: {}", uris.size());
 		return uris;
