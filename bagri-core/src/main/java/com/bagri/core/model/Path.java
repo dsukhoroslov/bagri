@@ -90,6 +90,7 @@ public class Path implements Comparable<Path> {
 			String[] segments = path.split("/");
 	
 			switch (kind) {
+				case array: //[]
 				case attribute: //@
 				case namespace: //#
 				case pi: 		//?

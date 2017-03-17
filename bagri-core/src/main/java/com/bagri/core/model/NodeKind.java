@@ -41,8 +41,13 @@ public enum NodeKind {
 	/**
 	 * text node
 	 */
-	text;
+	text,
 	
+	/**
+	 * array node
+	 */
+	array;
+
 	/**
 	 * 
 	 * @param kind the node kind
@@ -81,6 +86,10 @@ public enum NodeKind {
 		}
 		if (last.endsWith("comment()")) {
 			return NodeKind.comment;
+		}
+		// ???
+		if (last.startsWith("[") && last.endsWith("]")) {
+			return NodeKind.array;
 		}
 		
 		return NodeKind.element;

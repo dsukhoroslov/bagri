@@ -60,10 +60,14 @@ public class JsonpBuilder extends ContentBuilderBase implements ContentBuilder {
 		Writer writer = new StringWriter();
     	JsonGenerator stream = factory.createGenerator(writer);
 		
-    	boolean eltOpen = false;
 		Deque<Data> dataStack = new LinkedList<>();
     	for (Data data: elements) {
-    		eltOpen = writeElement(dataStack, stream, data, eltOpen);
+    		writeElement(dataStack, stream, data);
+    	}
+    	
+    	while (!dataStack.isEmpty()) {
+    		stream.writeEnd();
+    		dataStack.pop();
     	}
 
     	stream.flush();
@@ -76,10 +80,11 @@ public class JsonpBuilder extends ContentBuilderBase implements ContentBuilder {
     	return result;  
 	}
 
-	private boolean writeElement(Deque<Data> dataStack, JsonGenerator stream, Data data, boolean eltOpen) {
+	private void writeElement(Deque<Data> dataStack, JsonGenerator stream, Data data) {
 		switch (data.getNodeKind()) {
 			case document: { // this must be the first row..
-				//buff.append("<?xml version=\"1.0\"?>"); // what about: encoding="utf-8"?>
+				stream.writeStartObject();
+				dataStack.push(data);
 				break;
 			}
 			case namespace: {
@@ -92,11 +97,23 @@ public class JsonpBuilder extends ContentBuilderBase implements ContentBuilder {
 				break;
 			}
 			case element: {
-				//eltOpen = endElement(dataStack, buff, data, eltOpen, prefix);
-				//dataStack.push(data);
-   				//buff.append("<").append(data.getName()); 
-   				//eltOpen = true;
+				endElement(dataStack, stream, data);
+				// must call writeStartObject() in array!
+				Data top = dataStack.peek();
+				if (top != null && top.getNodeKind() == NodeKind.array) {
+					stream.writeStartObject();
+				} else {
+					stream.writeStartObject(data.getName());
+				}
+				dataStack.push(data);
    				break;
+			}
+			case array: {
+				//..
+				endElement(dataStack, stream, data);
+				stream.writeStartArray(data.getName());
+				dataStack.push(data);
+				break;
 			}
 			case attribute: {
 				// check data type..
@@ -112,43 +129,28 @@ public class JsonpBuilder extends ContentBuilderBase implements ContentBuilder {
 				break;
 			}
 			case text: {
-				//eltOpen = endElement(dataStack, buff, data, eltOpen, prefix);
-				//buff.append(data.getValue());
+				endElement(dataStack, stream, data);
+				stream.write(data.getValue().toString());
 				break;
 			}
 			default: {
 				//logger.warn("buildXml; unknown NodeKind: {}", data.getNodeKind());
 			}
 		}
-		return eltOpen;
 	}
 	
-	private boolean endElement(Deque<Data> dataStack, StringBuffer buff, Data data, boolean eltOpen, String prefix) {
+	private void endElement(Deque<Data> dataStack, JsonGenerator stream, Data data) {
     	
 		if (dataStack.isEmpty()) {
 			//
 		} else {
 			Data top = dataStack.peek();
-			if (data.getLevel() == top.getLevel() + 1 && data.getParentPos() == top.getPos()) {
-				// new child element
-				if (eltOpen) {
-					buff.append(">");
-					eltOpen = false;
-				}
-			} else {
-				while (top != null && (data.getParentPos() != top.getPos() || data.getLevel() != top.getLevel() + 1)) {
-					if (eltOpen) {
-						buff.append("/>");
-						eltOpen = false;
-					} else {
-						buff.append("</").append(top.getName()).append(">");
-					}
-    				dataStack.pop();
-   					top = dataStack.peek();
-				}
+			while (top != null && (data.getParentPos() != top.getPos() || data.getLevel() != top.getLevel() + 1)) {
+				stream.writeEnd();
+   				dataStack.pop();
+				top = dataStack.peek();
 			}
 		}
-		return eltOpen;
     }
 	
 	
