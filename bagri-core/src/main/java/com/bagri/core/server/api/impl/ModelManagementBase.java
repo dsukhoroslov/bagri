@@ -7,8 +7,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Stack;
-import java.util.TreeMap;
 
 import javax.xml.namespace.QName;
 import javax.xml.xquery.XQItemType;
@@ -319,21 +317,8 @@ public abstract class ModelManagementBase implements ModelManagement {
 		Path xpath = getPathCache().get(path);
 		if (xpath == null) {
 			int pathId = getPathGen().next().intValue();
-			xpath = new Path(path, typeId, kind, pathId, 0, pathId, dataType, occurrence); // specify parentId, postId at normalization phase
-			Path xp2 = putIfAbsent(getPathCache(), path, xpath);
-			if (xp2.getPathId() == pathId) {
-				DocumentType type = getDocumentTypeById(typeId);
-				if (type == null) {
-					throw new BagriException("document type for typeId " + typeId + " is not registered yet",
-							BagriException.ecModel);
-				}
-				if (type.isNormalized()) {
-					type.setNormalized(false);
-					getTypeCache().put(type.getRootPath(), type);
-				}
-			} else {
-				xpath = xp2;
-			}
+			xpath = new Path(path, typeId, kind, pathId, 0, pathId, dataType, occurrence); 
+			xpath = putIfAbsent(getPathCache(), path, xpath);
 		}
 		return xpath;
 	}
@@ -342,104 +327,6 @@ public abstract class ModelManagementBase implements ModelManagement {
 		getPathCache().put(path.getPath(), path);
 	}
 
-	/**
-	 * normalizes all registered paths belonging to the document type id. 
-	 * i.e. set their parentId and pathId attributes properly  
-	 * 
-	 * @param typeId int; the document's type id  
-	 * @throws BagriException in case of any error 
-	 */
-	/*
-	public void normalizeDocumentType(int typeId) throws BagriException {
-
-		// TODO: do this via EntryProcessor ?
-		logger.trace("normalizeDocumentType.enter; got typeId: {}", typeId);
-
-		DocumentType type = getDocumentTypeById(typeId);
-		if (type == null) {
-			throw new BagriException("type ID \"" + typeId + "\" not registered yet", BagriException.ecModel);
-		}
-		
-		if (type.isNormalized()) {
-			logger.trace("normalizeDocumentType; already normalized (1): {}", type);
-			return;
-		}
-		
-		int cnt = 0;
-		final String root = type.getRootPath();
-		boolean locked = false;
-		try {
-			locked = true; //lock(getTypeCache(), root);
-			if (!locked) {
-				logger.info("normalizeDocumentType; Can't get lock on document-type {} for normalization, " +
-							"thus it is being normalized by someone else.", type);
-				return;
-			}
-			
-			// it can be already normalized after we get lock!
-			type = getDocumentTypeById(typeId);
-			if (type.isNormalized()) {
-				logger.trace("normalizeDocumentType; already normalized (2): {}", type);
-				return;
-			}
-			
-			cnt = normalizeDocPath(type.getTypeId());
-			type.setNormalized(true);
-			getTypeCache().put(root, type);
-		} finally {
-			if (locked) {
-				//unlock(getTypeCache(), root);
-			}
-		}
-		logger.trace("normalizeDocumentType.exit; typeId: {}; normalized {} path elements", typeId, cnt);
-	}
-	
-	private int normalizeDocPath(int typeId) {
-		Set<Map.Entry<String, Path>> entries = getTypedPathEntries(typeId); 
-		
-		TreeMap<Integer, Path> elts = new TreeMap<Integer, Path>(); //entries.size());
-		for (Map.Entry<String, Path> path: entries) {
-			elts.put(path.getValue().getPathId(), path.getValue());
-		}
-		
-		Map<String, Path> pes = new HashMap<String, Path>(entries.size());
-
-		Stack<Path> pathStack = new Stack<Path>();
-		for (Map.Entry<Integer, Path> elt: elts.entrySet()) {
-			Path path = elt.getValue();
-			if (!pathStack.isEmpty()) {
-				Path top = pathStack.peek(); 
-				if (path.getPath().startsWith(top.getPath())) {
-					path.setParentId(top.getPathId());
-				} else {
-					int lastId = top.getPathId();
-					while (top != null && !path.getPath().startsWith(top.getPath())) {
-						top.setPostId(lastId);
-						pathStack.pop();
-						if (pathStack.isEmpty()) {
-							top = null;
-						} else {
-							top = pathStack.peek();
-						}
-					}
-				}				
-			}
-			pathStack.push(path);
-			pes.put(path.getPath(), path);
-		}
-
-		Path top = pathStack.peek(); 
-		int lastId = top.getPathId();
-		while (!pathStack.isEmpty()) {
-			top = pathStack.pop();
-			top.setPostId(lastId);
-		}
-
-		getPathCache().putAll(pes);
-		return pes.size();
-	}
-	*/
-	
 	/**
 	 * translates regex expression like "^/ns0:Security/ns0:SecurityInformation/.(*)/ns0:Sector/text\\(\\)$";
 	 * to an array of registered pathIds which conforms to the regex specified
@@ -471,7 +358,6 @@ public abstract class ModelManagementBase implements ModelManagement {
 	 * @return Set&lt;String&gt;- set of registered paths conforming to the pattern provided
 	 */
 	public Collection<String> getPathFromRegex(int typeId, String regex) {
-
 		logger.trace("getPathFromRegex.enter; got regex: {}, type: {}", regex, typeId);
 		Set<Map.Entry<String, Path>> entries = getTypedPathWithRegex(regex, typeId); 
 		List<String> result = new ArrayList<String>(entries.size());

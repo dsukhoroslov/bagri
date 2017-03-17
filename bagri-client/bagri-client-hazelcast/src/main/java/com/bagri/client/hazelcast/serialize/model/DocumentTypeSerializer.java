@@ -27,7 +27,7 @@ public class DocumentTypeSerializer implements StreamSerializer<DocumentType> {
 	public DocumentType read(ObjectDataInput in) throws IOException {
 		
 		DocumentType xType = new DocumentType(in.readInt(), in.readUTF());
-		xType.setNormalized(in.readBoolean());
+		//xType.setNormalized(in.readBoolean());
 		Collection<String> schemas = in.readObject();
 		for (String schema: schemas) {
 			xType.addSchema(schema);
@@ -40,7 +40,7 @@ public class DocumentTypeSerializer implements StreamSerializer<DocumentType> {
 		
 		out.writeInt(xType.getTypeId());
 		out.writeUTF(xType.getRootPath());
-		out.writeBoolean(xType.isNormalized());
+		//out.writeBoolean(xType.isNormalized());
 		out.writeObject(xType.getSchemas());
 	}
 

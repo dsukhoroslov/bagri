@@ -15,7 +15,7 @@ public class DocumentType {
 	
 	private int typeId;
 	private String rootPath;
-	private boolean normalized = false;
+	//private boolean normalized = false;
 	private Set<String> schemas = new HashSet<>();
 	
 	/**
@@ -52,16 +52,16 @@ public class DocumentType {
 	/**
 	 * @return is the type normalized
 	 */
-	public boolean isNormalized() {
-		return normalized;
-	}
+	//public boolean isNormalized() {
+	//	return normalized;
+	//}
 
 	/**
 	 * @param normalized: boolean; set type's normalized flag
 	 */
-	public void setNormalized(boolean normalized) {
-		this.normalized = normalized;
-	}
+	//public void setNormalized(boolean normalized) {
+	//	this.normalized = normalized;
+	//}
 	
 	/**
 	 * @return Collection of schemas used by the type
