@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.bagridb</groupId>
         <artifactId>bagri</artifactId>
-        <version>1.1.1</version>
+        <version>1.1.2</version>
         <relativePath>..</relativePath>
     </parent>
 
@@ -114,6 +114,63 @@
                     </plugin>
 
                     <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>copy-dependencies</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>copy-dependencies</goal>
+                                </goals>
+                                <configuration>
+                                    <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                                    <overWriteReleases>true</overWriteReleases>
+                                    <overWriteSnapshots>true</overWriteSnapshots>
+                                    <overWriteIfNewer>true</overWriteIfNewer>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>build-dot-net-assembly</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>C:\ikvm-8.1.5717.0\bin\ikvmc.exe</executable>
+                                    <arguments>
+                                        <argument>-target:library</argument>
+                                        <argument>-version:1.2.0.0</argument>
+                                        <argument>-out:target/bagri-${project.version}-xqj.dll</argument>
+                                        <argument>target/lib/bagri-core-${project.version}.jar</argument>
+                                        <argument>target/lib/bagri-xqj-${project.version}.jar</argument>
+                                        <argument>target/lib/bagri-xquery-saxon-${project.version}.jar</argument>
+                                        <argument>target/lib/bagri-client-hazelcast-${project.version}.jar</argument>
+                                        <argument>target/lib/cache-api-${jcache.version}.jar</argument>
+                                        <argument>target/lib/hazelcast-all-${hazelcast.version}.jar</argument>
+                                        <argument>target/lib/javax.json-api-${json.version}.jar</argument>
+                                        <argument>target/lib/slf4j-api-${slf4j.version}.jar</argument>
+                                        <argument>target/lib/logback-core-${logback.version}.jar</argument>
+                                        <argument>target/lib/logback-classic-${logback.version}.jar</argument>
+                                        <argument>target/lib/Saxon-HE-${saxon.version}.jar</argument>
+                                        <argument>target/lib/xstream-${xstream.version}.jar</argument>
+                                        <argument>target/lib/xqj-api-${xqj.version}.jar</argument>
+                                        <argument>target/lib/xml-apis-${xml-apis.version}.jar</argument>
+                                        <argument>target/lib/xercesImpl-${xerces.version}.jar</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    
+                    <plugin>
                         <artifactId>maven-assembly-plugin</artifactId>
                         <executions>
                             <execution>
@@ -158,6 +215,59 @@
                             </execution>
                         </executions>
                     </plugin>
+
+                    <!--plugin>
+                        <groupId>com.spotify</groupId>
+                        <artifactId>docker-maven-plugin</artifactId>
+                        <configuration>
+                            <imageName>bagri/bagri</imageName>
+                            <dockerDirectory>${project.basedir}/src/main/docker</dockerDirectory>
+                            <dockerHost>https://192.168.99.100:2376</dockerHost>
+                            <dockerCertPath>C:\Users\Denis\.docker\machine\machines\default</dockerCertPath>
+                            <resources>
+                                <resource>
+                                    <targetPath>/</targetPath>
+                                    <directory>${project.build.directory}</directory-->
+                                    <!--include>bagri-${project.version}.zip</include-->
+                                <!--/resource>
+                            </resources>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>build-image</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>build</goal>
+                                </goals>
+                            </execution-->
+                            <!--execution>
+                                <id>tag-image</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>tag</goal>
+                                </goals>
+                                <configuration>
+                                    <image>bagri/bagri:latest</image>
+                                    <newName>bagri/bagri:latest</newName>
+                                </configuration>
+                            </execution-->
+                            <!--execution>
+                                <id>push-image</id>
+                                <phase>deploy</phase-->
+                                <!--phase>package</phase-->
+                                <!--goals>
+                                    <goal>push</goal>
+                                </goals>
+                                <configuration>
+                                    <imageName>bagri/bagri</imageName>
+                                    <serverId>docker-hub</serverId>
+                                    <imageTags>
+                                        <imageTag>latest</imageTag>
+                                    </imageTags>					
+                                </configuration>
+                            </execution>        
+                        </executions>
+                    </plugin-->
 
                 </plugins>
             </build>

@@ -124,6 +124,7 @@
             <outputDirectory>/distr</outputDirectory>
             <includes>
                 <include>*-xqj.jar</include>
+                <include>*-xqj.dll</include>
             </includes>
         </fileSet>
 
