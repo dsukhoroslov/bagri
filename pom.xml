@@ -19,7 +19,7 @@
     
     <groupId>com.bagridb</groupId>
     <artifactId>bagri</artifactId>
-    <version>1.1.1</version>
+    <version>1.1.2</version>
     <packaging>pom</packaging>
     <name>bagri</name>
     <description>Bagri: The Root Project</description>
@@ -94,7 +94,8 @@
 
         <xqj.version>1.0</xqj.version>
         <xstream.version>1.4.9</xstream.version>
-        <xerses.version>2.11.0</xerses.version>
+        <xerces.version>2.11.0</xerces.version>
+        <xml-apis.version>1.4.01</xml-apis.version>
         <saxon.version>9.7.0-14</saxon.version>
         <json.version>1.0</json.version>
         <json.ri.version>1.0.4</json.ri.version>
@@ -227,7 +228,7 @@
             <dependency>
                 <groupId>xerces</groupId>
                 <artifactId>xercesImpl</artifactId>
-                <version>${xerses.version}</version>
+                <version>${xerces.version}</version>
             </dependency>
             <dependency>
                 <groupId>javax.xml.xquery</groupId>

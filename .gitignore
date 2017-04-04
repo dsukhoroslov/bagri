@@ -3,7 +3,6 @@
 
 # Eclipse Files #
 logs/
-output/
 target/
 .settings/
 .classpath
@@ -11,6 +10,10 @@ target/
 
 # test generated xml files #
 etc/samples/default/
+
+# test generated reports
+bagri-test/*/output/
+bagri-test/*/xml/
 
 # catalog files #
 *.xdb
