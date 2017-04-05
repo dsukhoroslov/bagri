@@ -14,8 +14,18 @@
 -- limitations under the License.
 --------------------------------------------------------------------
 
+New Features and fixes in Bagri 1.1.2
+========================================
 
-New Features in Bagri 1.1
+
+
+New Features and fixes in Bagri 1.1.1
+========================================
+
+Only one fix was implemented to allow proper structure in Maven Repo
+
+
+New Features in Bagri 1.1.0
 ========================================
 
 Bagri Version 1.1 contains the following new features and enhancements over the previous version (1.0):

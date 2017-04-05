@@ -38,7 +38,7 @@
                     <!--workingDirectory>/tmp</workingDirectory-->
                     <arguments>
                         <argument>/lib:${ikvm.home}\bin</argument>
-                        <argument>/reference:bagri-1.1.2-xqj.dll</argument>
+                        <argument>/reference:Bagri.XQJ.Client.1.1.2.dll</argument>
                         <argument>/reference:IKVM.OpenJDK.Core.dll</argument>
                         <argument>/reference:IKVM.OpenJDK.XML.API.dll</argument>
                         <argument>/reference:IKVM.OpenJDK.XML.XPath.dll</argument>

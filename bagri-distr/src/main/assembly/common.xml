@@ -26,6 +26,7 @@
 	    <!--includeSubModules>true</includeSubModules-->
 	    <includes>
             	<include>com.bagridb:bagri-samples-client</include>
+            	<include>com.bagridb:bagri-samples-csharp</include>
             	<include>com.bagridb:bagri-samples-embedded</include>
             	<include>com.bagridb:bagri-samples-ext</include>
 	    </includes>
@@ -38,6 +39,11 @@
                 	    <include>src/**</include>
                 	    <include>pom.xml</include>
 	            	</includes>
+                        <excludes>
+                            <exclude>/.vs</exclude>
+                            <exclude>/bin</exclude>
+                            <exclude>/obj</exclude>
+                        </excludes>
           	    </fileSet>
         	</fileSets>
       	    </sources>
@@ -124,7 +130,7 @@
             <outputDirectory>/distr</outputDirectory>
             <includes>
                 <include>*-xqj.jar</include>
-                <include>*-xqj.dll</include>
+                <include>Bagri.XQJ.Client.*.dll</include>
             </includes>
         </fileSet>
 
