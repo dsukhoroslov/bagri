@@ -111,7 +111,7 @@ public class BagriDemo
             demo.close();
         }
         Console.WriteLine("Connection closed");
-        //Console.ReadLine();
+        Console.ReadLine();
     }
 
     public BagriDemo(Properties props)

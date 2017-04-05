@@ -19,6 +19,7 @@
         <module>bagri-samples-client</module>
         <module>bagri-samples-embedded</module>
         <module>bagri-samples-ext</module>
+        <!--module>bagri-samples-csharp</module-->
     </modules>
 
     <dependencies>

@@ -1,5 +1,5 @@
 Bagri .NET client produced with help of IKVM tool (https://www.ikvm.net/).
-In order to build and run this demo C# app: 
+In order to build it from command line:
 - install IKVM tool on your local machine
 - copy the bagri-1.1.2-xqj.dll assembly from <bagri_home>\distr folder to <ivm_home>\bin
 - open local pom.xml file and specify two properties:
