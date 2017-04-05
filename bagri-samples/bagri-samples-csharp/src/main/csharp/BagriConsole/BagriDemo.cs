@@ -110,7 +110,7 @@ public class BagriDemo
         } finally {
             demo.close();
         }
-        Console.WriteLine("Connection closed");
+        Console.WriteLine("Connection closed. Now press Enter to close app...");
         Console.ReadLine();
     }
 

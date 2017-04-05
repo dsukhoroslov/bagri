@@ -144,11 +144,11 @@
                                     <goal>exec</goal>
                                 </goals>
                                 <configuration>
-                                    <executable>C:\ikvm-8.1.5717.0\bin\ikvmc.exe</executable>
+                                    <executable>C:\ikvm-7.2.4630.5\bin\ikvmc.exe</executable>
                                     <arguments>
                                         <argument>-target:library</argument>
                                         <argument>-version:1.2.0.0</argument>
-                                        <argument>-out:target/bagri-${project.version}-xqj.dll</argument>
+                                        <argument>-out:target/Bagri.XQJ.Client.${project.version}.dll</argument>
                                         <argument>target/lib/bagri-core-${project.version}.jar</argument>
                                         <argument>target/lib/bagri-xqj-${project.version}.jar</argument>
                                         <argument>target/lib/bagri-xquery-saxon-${project.version}.jar</argument>

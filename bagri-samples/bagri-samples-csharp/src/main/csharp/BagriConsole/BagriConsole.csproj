@@ -6,7 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{A4649E7E-547D-456B-B76B-6967D8735148}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace></RootNamespace>
+    <RootNamespace>
+    </RootNamespace>
     <AssemblyName>BagriConsole</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -32,9 +33,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="bagri-1.1.1-xqj, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\..\..\..\..\..\ikvm-7.2.4630.5\bin\bagri-1.1.1-xqj.dll</HintPath>
+    <Reference Include="Bagri.XQJ.Client.1.1.2">
+      <HintPath>..\..\..\..\..\..\..\..\..\..\ikvm-7.2.4630.5\bin\Bagri.XQJ.Client.1.1.2.dll</HintPath>
     </Reference>
     <Reference Include="IKVM.OpenJDK.Core">
       <HintPath>..\..\..\..\..\..\..\..\..\..\ikvm-7.2.4630.5\bin\IKVM.OpenJDK.Core.dll</HintPath>
