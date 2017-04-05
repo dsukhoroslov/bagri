@@ -38,11 +38,13 @@
             		<includes>
                 	    <include>src/**</include>
                 	    <include>pom.xml</include>
+                	    <include>readme.txt</include>
 	            	</includes>
                         <excludes>
-                            <exclude>/.vs</exclude>
-                            <exclude>/bin</exclude>
-                            <exclude>/obj</exclude>
+                            <exclude>src/main/csharp/.vs/*.*</exclude>
+                            <exclude>**/bin/*.*</exclude>
+                            <exclude>**/obj/*.*</exclude>
+                            <exclude>**/packages/*.*</exclude>
                         </excludes>
           	    </fileSet>
         	</fileSets>

@@ -17,12 +17,16 @@
 New Features and fixes in Bagri 1.1.2
 ========================================
 
+[#106] build .NET client via IKVM: see Bagri.XQJ.Client.1.1.2.dll packaged into new build
+[ #34] produce and package Docker image with Bagri: see bagri/bagri image on DockerHub
+A number of minor fixes were implemented also.
 
 
 New Features and fixes in Bagri 1.1.1
 ========================================
 
-Only one fix was implemented to allow proper structure in Maven Repo
+[#99] Only one fix was implemented to publish some missed artifats to Maven Central
+
 
 
 New Features in Bagri 1.1.0

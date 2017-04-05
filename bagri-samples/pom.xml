@@ -22,9 +22,6 @@
         <module>bagri-samples-csharp</module>
     </modules>
 
-    <dependencies>
-    </dependencies>
-
     <build>
 	<plugins>
 	    <plugin>
