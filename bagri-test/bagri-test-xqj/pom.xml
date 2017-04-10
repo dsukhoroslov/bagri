@@ -1,0 +1,109 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.bagridb</groupId>
+        <artifactId>bagri-test</artifactId>
+        <version>1.1.2</version>
+        <relativePath>..</relativePath>
+    </parent>
+
+    <artifactId>bagri-test-xqj</artifactId>
+    <name>bagri-test-xqj</name>
+    <description>Bagri XQJ Driver TCK</description>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>com.bagridb</groupId>
+            <artifactId>bagri-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.bagridb</groupId>
+            <artifactId>bagri-xqj</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.bagridb</groupId>
+            <artifactId>bagri-xquery-saxon</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.bagridb</groupId>
+            <artifactId>bagri-client-hazelcast</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.xml.xquery</groupId>
+            <artifactId>xqj-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.xml.xquery</groupId>
+            <artifactId>xqj-tck</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <!--optional>false</optional-->
+            <systemPath>${project.basedir}/../../etc/lib/xqj-tck-1.0.jar</systemPath>
+        </dependency>
+
+        <!-- Dependencies for logging -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <!--dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <scope>runtime</scope>
+        </dependency-->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <!--scope>test</scope-->
+        </dependency>
+    </dependencies>
+
+    <profiles>
+        <profile>
+            <id>test</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <executions>
+                            <!-- Run XQL TCK -->
+                            <execution>
+                                <id>run-tck</id>
+                                <phase>test</phase>
+                                <configuration>
+                                    <tasks if="run-tck">
+                                        <java fork="true" classname="com.oracle.xqj.tck.AllTests">
+                                            <!--jvmarg line="${run.jvm.args}"/-->
+                                            <!--sysproperty key="host" value="127.0.0.1" />
+                                            <sysproperty key="port" value="5701"/-->
+                                            <sysproperty key="logback.configurationFile" value="hz-client-logging.xml" />
+                                            <sysproperty key="hz.log.level" value="ERROR" />
+                                            <sysproperty key="bdb.log.level" value="OFF" />
+                                            <sysproperty key="log.name" value="xqj-tck" />
+                                            <sysproperty key="hazelcast.logging.type" value="slf4j" />
+                                            <sysproperty key="com.oracle.xqj.tck.datasource" value="tck.properties" />
+                                            <classpath>
+                                                <path refid="maven.compile.classpath" />
+                                                <path refid="maven.runtime.classpath" />
+                                                <!--pathelement location="config/"/-->
+                                            </classpath>
+                                        </java>
+                                    </tasks>
+                                </configuration>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+</project>

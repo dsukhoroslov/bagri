@@ -1,0 +1,6 @@
+# ignore VS generated files
+.vs/
+bin/
+obj/
+packages/
+*.exe

@@ -102,6 +102,63 @@
                     </plugin>
 
                     <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>copy-dependencies</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>copy-dependencies</goal>
+                                </goals>
+                                <configuration>
+                                    <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                                    <overWriteReleases>true</overWriteReleases>
+                                    <overWriteSnapshots>true</overWriteSnapshots>
+                                    <overWriteIfNewer>true</overWriteIfNewer>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>build-dot-net-assembly</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>C:\ikvm-7.2.4630.5\bin\ikvmc.exe</executable>
+                                    <arguments>
+                                        <argument>-target:library</argument>
+                                        <argument>-version:1.1.2.0</argument>
+                                        <argument>-out:target/Bagri.XQJ.Client.${project.version}.dll</argument>
+                                        <argument>target/lib/bagri-core-${project.version}.jar</argument>
+                                        <argument>target/lib/bagri-xqj-${project.version}.jar</argument>
+                                        <argument>target/lib/bagri-xquery-saxon-${project.version}.jar</argument>
+                                        <argument>target/lib/bagri-client-hazelcast-${project.version}.jar</argument>
+                                        <argument>target/lib/cache-api-${jcache.version}.jar</argument>
+                                        <argument>target/lib/hazelcast-all-${hazelcast.version}.jar</argument>
+                                        <argument>target/lib/javax.json-api-${json.version}.jar</argument>
+                                        <argument>target/lib/slf4j-api-${slf4j.version}.jar</argument>
+                                        <argument>target/lib/logback-core-${logback.version}.jar</argument>
+                                        <argument>target/lib/logback-classic-${logback.version}.jar</argument>
+                                        <argument>target/lib/Saxon-HE-${saxon.version}.jar</argument>
+                                        <argument>target/lib/xstream-${xstream.version}.jar</argument>
+                                        <argument>target/lib/xqj-api-${xqj.version}.jar</argument>
+                                        <argument>target/lib/xml-apis-${xml-apis.version}.jar</argument>
+                                        <argument>target/lib/xercesImpl-${xerces.version}.jar</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    
+                    <plugin>
                         <artifactId>maven-assembly-plugin</artifactId>
                         <executions>
                             <execution>
