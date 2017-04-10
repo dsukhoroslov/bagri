@@ -40,12 +40,12 @@
                 	    <include>pom.xml</include>
                 	    <include>readme.txt</include>
 	            	</includes>
-                        <excludes>
-                            <exclude>src/main/csharp/.vs/*.*</exclude>
-                            <exclude>**/bin/*.*</exclude>
-                            <exclude>**/obj/*.*</exclude>
-                            <exclude>**/packages/*.*</exclude>
-                        </excludes>
+                    <excludes>
+                        <exclude>src/main/csharp/.vs/*.*</exclude>
+                        <exclude>**/bin/*.*</exclude>
+                        <exclude>**/obj/*.*</exclude>
+                        <exclude>**/packages/*.*</exclude>
+                    </excludes>
           	    </fileSet>
         	</fileSets>
       	    </sources>
@@ -126,7 +126,7 @@
             </includes>
         </fileSet>
 
-        <!--produced localy xqj-driver jar goes to distr-->
+        <!--produced localy xqj-driver jar/dll goes to distr-->
         <fileSet>
             <directory>${project.build.directory}</directory>
             <outputDirectory>/distr</outputDirectory>

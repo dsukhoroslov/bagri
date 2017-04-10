@@ -38,8 +38,8 @@ public abstract class DocumentStoreBase {
 	
 	/**
 	 * If returns true the store/delete methods will not be invoked at all.
-	 * 
-	 * @return true if Store allows data updates, false otherwise
+     *
+     * @return read-only flag
 	 */
 	public boolean isReadOnly() {
 		return readOnly;

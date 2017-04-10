@@ -24,11 +24,11 @@
         </dependency>
         <dependency>
             <groupId>com.bagridb</groupId>
-            <artifactId>bagri-xqj</artifactId>
+            <artifactId>bagri-xquery-saxon</artifactId>
         </dependency>
         <dependency>
             <groupId>com.bagridb</groupId>
-            <artifactId>bagri-xquery-saxon</artifactId>
+            <artifactId>bagri-xqj</artifactId>
         </dependency>
         <dependency>
             <groupId>com.bagridb</groupId>
@@ -135,7 +135,7 @@
                                     <executable>C:\ikvm-7.2.4630.5\bin\ikvmc.exe</executable>
                                     <arguments>
                                         <argument>-target:library</argument>
-                                        <argument>-version:1.1.2.0</argument>
+                                        <argument>-version:1.2.0.0</argument>
                                         <argument>-out:target/Bagri.XQJ.Client.${project.version}.dll</argument>
                                         <argument>target/lib/bagri-core-${project.version}.jar</argument>
                                         <argument>target/lib/bagri-xqj-${project.version}.jar</argument>

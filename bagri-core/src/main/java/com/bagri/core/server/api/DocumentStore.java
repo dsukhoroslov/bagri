@@ -29,7 +29,7 @@ public interface DocumentStore {
 	/**
 	 * If returns true the store/delete methods will not be invoked at all.
 	 * 
-	 * @return true if Store allows data updates, false otherwise  
+	 * @return true if store does not allow updates, false otherwise
 	 */
 	boolean isReadOnly();
 
