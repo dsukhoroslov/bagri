@@ -1,8 +1,11 @@
 package com.bagri.core.server.api.df.json;
 
+import static javax.xml.xquery.XQItemType.*;
+
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Deque;
 import java.util.HashMap;
@@ -117,7 +120,19 @@ public class JsonpBuilder extends ContentBuilderBase implements ContentBuilder {
 			}
 			case attribute: {
 				// check data type..
-				stream.write(data.getName(), data.getValue().toString());
+				switch (data.getDataPath().getDataType()) {
+					case XQBASETYPE_BOOLEAN: 
+						stream.write(data.getName(), (Boolean) data.getValue());
+						break;
+					case XQBASETYPE_DECIMAL:
+						stream.write(data.getName(), (BigDecimal) data.getValue());
+						break;
+					case XQBASETYPE_INT:
+						stream.write(data.getName(), (Long) data.getValue());
+						break;
+					default:
+						stream.write(data.getName(), (String) data.getValue());
+				}
 				break;
 			}
 			case comment: {
@@ -130,7 +145,20 @@ public class JsonpBuilder extends ContentBuilderBase implements ContentBuilder {
 			}
 			case text: {
 				endElement(dataStack, stream, data);
-				stream.write(data.getValue().toString());
+				// check data type..
+				switch (data.getDataPath().getDataType()) {
+					case XQBASETYPE_BOOLEAN: 
+						stream.write((Boolean) data.getValue());
+						break;
+					case XQBASETYPE_DECIMAL:
+						stream.write((BigDecimal) data.getValue());
+						break;
+					case XQBASETYPE_INT:
+						stream.write((Long) data.getValue());
+						break;
+					default:
+						stream.write((String) data.getValue());
+				}
 				break;
 			}
 			default: {

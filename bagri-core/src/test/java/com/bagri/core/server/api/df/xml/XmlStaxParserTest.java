@@ -6,6 +6,7 @@ import static org.junit.Assert.*;
 import java.util.List;
 
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.bagri.core.model.Data;
@@ -69,7 +70,7 @@ public class XmlStaxParserTest {
 		assertNotNull(elts);
 		assertEquals(31, elts.size()); 
 		Data data = elts.get(0);
-		assertEquals("", data.getPath());
+		assertEquals("/", data.getPath());
 		assertNull(data.getValue());
 		data = elts.get(1);
 		assertEquals("/person", data.getPath());

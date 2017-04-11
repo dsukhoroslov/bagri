@@ -15,14 +15,9 @@ import javax.json.Json;
 import javax.json.stream.JsonParser;
 import javax.json.stream.JsonParser.Event;
 import javax.json.stream.JsonParserFactory;
-import javax.xml.xquery.XQItemType;
 
 import com.bagri.core.api.BagriException;
 import com.bagri.core.model.Data;
-import com.bagri.core.model.Element;
-import com.bagri.core.model.NodeKind;
-import com.bagri.core.model.Occurrence;
-import com.bagri.core.model.Path;
 import com.bagri.core.server.api.ContentParser;
 import com.bagri.core.server.api.ModelManagement;
 import com.bagri.core.server.api.impl.ContentParserBase;
@@ -64,7 +59,7 @@ public class JsonpParser extends ContentParserBase implements ContentParser {
 	 */
 	@Override
 	public void init(Properties properties) {
-		// process/convert any speciic properties here 
+		// process/convert any specific properties here 
 		Map<String, Object> params = new HashMap<>();
 		for (Map.Entry prop: properties.entrySet()) {
 			//String name = (String) prop.getKey();
@@ -134,6 +129,7 @@ public class JsonpParser extends ContentParserBase implements ContentParser {
 		return ctx.getDataList();
 	}
 	
+	
 	private void processEvent(ParserContext ctx, JsonParser parser) throws BagriException { //, XMLStreamException {
 
 		JsonParser.Event event = parser.next();
@@ -146,129 +142,134 @@ public class JsonpParser extends ContentParserBase implements ContentParser {
 		}
 		
 		switch (event) {
-			
 			case START_OBJECT:
-				if (ctx.getStackSize() == 0) {
-					parser.next();
-					processDocument(ctx, parser.getString());
-					processStartElement(ctx, parser.getString());
+				if (ctx.getTopData() == null) {
+					ctx.addDocument("/");
 				} else {
-					processStartElement(ctx, false);
+					ctx.addElement();
 				}
 				break;
 			case START_ARRAY: 
-				processStartElement(ctx, true);
+				ctx.addArray();
 				break;
 			case KEY_NAME:
-				processStartElement(ctx, parser.getString());
+				ctx.addData(parser.getString());
 				break;
 			case END_ARRAY: 
-				processEndElement(ctx);
 			case END_OBJECT:
-				processEndElement(ctx);
+				ctx.endElement();
 				break;
 			case VALUE_FALSE:
-				processValueElement(ctx, "false");
+				ctx.addValue(false);
 				break;
 			case VALUE_TRUE:
-				processValueElement(ctx, "true");
+				ctx.addValue(true);
 				break;
 			case VALUE_NULL:
-				processValueElement(ctx, null);
+				ctx.addValue();
 				break;
 			case VALUE_NUMBER:
+				if (parser.isIntegralNumber()) {
+					ctx.addValue(parser.getLong());
+				} else {
+					ctx.addValue(parser.getBigDecimal());
+				}
+				break;
 			case VALUE_STRING:
-				processValueElement(ctx, parser.getString());
+				ctx.addValue(parser.getString());
 				break;
 			default: 
 				logger.trace("processEvent; unknown event: {}", event);
 		}			
 	}
 	
-	private Data getTopData(ParserContext ctx) {
-		//for (int i = ctx.getStackSize() - 1; i >= 0; i--) {
-		for (int i = 0; i < ctx.getStackSize(); i++) {
-			Data data = ctx.getStackElement(i);
-			logger.trace("getTopData; index: {}; data: {}", i, data);
-			if (data != null && data.getElement() != null) {
-				return data;
-			}
-		}
-		return null;
-	}
-
-	private void processDocument(ParserContext ctx, String name) throws BagriException {
-
-		String root = "/" + (name == null ? "" : name);
-		ctx.setDocType(model.translateDocumentType(root));
-		Path path = model.translatePath(ctx.getDocType(), "", NodeKind.document, XQItemType.XQBASETYPE_ANYTYPE, Occurrence.onlyOne);
-		Element start = new Element();
-		Data data = new Data(path, start);
-		ctx.addStack(data);
-		ctx.addData(data);
-	}
-
-	private boolean isAttribute(String name) {
-		return name.startsWith("-") || name.startsWith("@");
-	}
-	
-	private void processStartElement(ParserContext ctx, boolean isArray) {
-		if (isArray) {
-			ctx.addStack(null);
-		} else {
-			Data current = ctx.lastData();  
-			if (current == null || current.getNodeKind() != NodeKind.element) {
-				ctx.addStack(null);
-			}
-		}
-	}
-	
-	private void processStartElement(ParserContext ctx, String name) throws BagriException {
-		
-		Data parent = getTopData(ctx);
-		if (!name.equals(parent.getName())) {
-			Data current = null;
-			if (isAttribute(name)) {
-				name = name.substring(1);
-				if (name.startsWith("xmlns")) {
-					current = addData(ctx, parent, NodeKind.namespace, "/#" + name, null, XQItemType.XQBASETYPE_STRING, Occurrence.zeroOrOne);
-				} else {
-					current = addData(ctx, parent, NodeKind.attribute, "/@" + name, null, XQItemType.XQBASETYPE_ANYATOMICTYPE, Occurrence.zeroOrOne);
-				}
-			} else if (name.equals("#text")) {
-				current = new Data(null, null);  
-			} else {
-				current = addData(ctx, parent, NodeKind.element, "/" + name, null, XQItemType.XQBASETYPE_ANYTYPE, Occurrence.zeroOrOne); 
-			}
-			ctx.addStack(current);
-		}
-	}
-
-	private void processEndElement(ParserContext ctx) {
-		if (ctx.getStackSize() > 0) {
-			Data current = ctx.popData();
-			logger.trace("processEndElement; got current: {}", current);
-			adjustParent(current);
-		}
-	}
-
-	private void processValueElement(ParserContext ctx, String value) throws BagriException {
-		
-		Data current = ctx.popData();
-		boolean isArray = current == null;
-		if (isArray || current.getElement() == null) {
-			current = getTopData(ctx);
-		}
-		if (current.getNodeKind() == NodeKind.element) {
-			addData(ctx, current, NodeKind.text, "/text()", value, XQItemType.XQBASETYPE_ANYATOMICTYPE, 
-					isArray ? Occurrence.zeroOrMany : Occurrence.zeroOrOne);
-		} else {
-			current.getElement().setValue(value);
-			// do we need set position here??
-		}
-		if (isArray) {
-			ctx.addStack(null);
-		}
-	}	
-	
 }
+
+
+
+/*	
+private Data getTopData(ParserContext ctx) {
+	//for (int i = ctx.getStackSize() - 1; i >= 0; i--) {
+	for (int i = 0; i < ctx.getStackSize(); i++) {
+		Data data = ctx.getStackElement(i);
+		logger.trace("getTopData; index: {}; data: {}", i, data);
+		if (data != null && data.getElement() != null) {
+			return data;
+		}
+	}
+	return null;
+}
+
+private void processDocument(ParserContext ctx, String name) throws BagriException {
+	String root = "/" + (name == null ? "" : name);
+	ctx.setDocType(model.translateDocumentType(root));
+	Path path = model.translatePath(ctx.getDocType(), "", NodeKind.document, XQItemType.XQBASETYPE_ANYTYPE, Occurrence.onlyOne);
+	Element start = new Element();
+	Data data = new Data(path, start);
+	ctx.addStack(data);
+	ctx.addData(data);
+}
+
+private boolean isAttribute(String name) {
+	return name.startsWith("-") || name.startsWith("@");
+}
+
+private void processStartElement(ParserContext ctx, boolean isArray) {
+	if (isArray) {
+		ctx.addStack(null);
+	} else {
+		Data current = ctx.lastData();  
+		if (current == null || current.getNodeKind() != NodeKind.element) {
+			ctx.addStack(null);
+		}
+	}
+}
+
+private void processStartElement(ParserContext ctx, String name) throws BagriException {
+	
+	Data parent = getTopData(ctx);
+	if (!name.equals(parent.getName())) {
+		Data current = null;
+		if (isAttribute(name)) {
+			name = name.substring(1);
+			if (name.startsWith("xmlns")) {
+				current = addData(ctx, parent, NodeKind.namespace, "/#" + name, null, XQItemType.XQBASETYPE_STRING, Occurrence.zeroOrOne);
+			} else {
+				current = addData(ctx, parent, NodeKind.attribute, "/@" + name, null, XQItemType.XQBASETYPE_ANYATOMICTYPE, Occurrence.zeroOrOne);
+			}
+		} else if (name.equals("#text")) {
+			current = new Data(null, null);  
+		} else {
+			current = addData(ctx, parent, NodeKind.element, "/" + name, null, XQItemType.XQBASETYPE_ANYTYPE, Occurrence.zeroOrOne); 
+		}
+		ctx.addStack(current);
+	}
+}
+
+private void processEndElement(ParserContext ctx) {
+	if (ctx.getStackSize() > 0) {
+		Data current = ctx.popData();
+		logger.trace("processEndElement; got current: {}", current);
+		adjustParent(current);
+	}
+}
+
+private void processValueElement(ParserContext ctx, String value) throws BagriException {
+	
+	Data current = ctx.popData();
+	boolean isArray = current == null;
+	if (isArray || current.getElement() == null) {
+		current = getTopData(ctx);
+	}
+	if (current.getNodeKind() == NodeKind.element) {
+		addData(ctx, current, NodeKind.text, "/text()", value, XQItemType.XQBASETYPE_ANYATOMICTYPE, 
+				isArray ? Occurrence.zeroOrMany : Occurrence.zeroOrOne);
+	} else {
+		current.getElement().setValue(value);
+		// do we need set position here??
+	}
+	if (isArray) {
+		ctx.addStack(null);
+	}
+}	
+*/	

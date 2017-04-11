@@ -22,8 +22,7 @@ public class Element implements Comparable<Element> {
 	
 	/**
 	 * 
-	 * @param elementId the element's id
-	 * @param parentId the element's parent id
+	 * @param position the element's position
 	 * @param value the element's value
 	 */
 	public Element(int[] position, Object value) {

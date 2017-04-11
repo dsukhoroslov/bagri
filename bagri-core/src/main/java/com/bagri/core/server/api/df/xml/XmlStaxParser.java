@@ -209,7 +209,7 @@ public class XmlStaxParser extends ContentParserBase implements ContentParser {
 			ctx.firstEvents.add(xmlEvent);
 			if (xmlEvent.getEventType() == XMLStreamConstants.START_ELEMENT) {
 				String root = "/" + xmlEvent.asStartElement().getName();
-				ctx.setDocType(model.translateDocumentType(root));
+				ctx.addDocument(root);
 				for (XMLEvent event: ctx.firstEvents) {
 					processEvent(ctx, event);
 				}
@@ -217,27 +217,27 @@ public class XmlStaxParser extends ContentParserBase implements ContentParser {
 		} else {
 			switch (xmlEvent.getEventType()) {
 				case XMLStreamConstants.START_DOCUMENT:
-					processDocument(ctx, (StartDocument) xmlEvent);
+					//processDocument(ctx, (StartDocument) xmlEvent);
 					break;
 				case XMLStreamConstants.START_ELEMENT:
 					processStartElement(ctx, xmlEvent.asStartElement());
 					break;
 				case XMLStreamConstants.CHARACTERS:
-					processCharacters(ctx, xmlEvent.asCharacters());
+					ctx.addCharacters(xmlEvent.asCharacters());
 					break;
 				case XMLStreamConstants.END_ELEMENT:
-					processEndElement(ctx, xmlEvent.asEndElement());
+					ctx.endElement();
 					break;
 				case XMLStreamConstants.END_DOCUMENT:
 					break;
 				case XMLStreamConstants.ATTRIBUTE:
-					processAttribute(ctx, (Attribute) xmlEvent);
+					ctx.addAttribute((Attribute) xmlEvent);
 					break;
 				case XMLStreamConstants.COMMENT:
-					processComment(ctx, (Comment) xmlEvent);
+					ctx.addComment((Comment) xmlEvent);
 					break;
 				case XMLStreamConstants.PROCESSING_INSTRUCTION:
-					processPI(ctx, (ProcessingInstruction) xmlEvent);
+					ctx.addProcessingInstruction((ProcessingInstruction) xmlEvent);
 					break;
 			}
 		}
@@ -251,23 +251,23 @@ public class XmlStaxParser extends ContentParserBase implements ContentParser {
 		return new XmlParserContext();
 	}
 	
-	private void processDocument(XmlParserContext ctx, StartDocument document) throws BagriException {
+	//private void processDocument(XmlParserContext ctx, StartDocument document) throws BagriException {
 
 		// we don't need position for the top element.. 
-		Element start = new Element();
-		Path path = model.translatePath(ctx.getDocType(), "", NodeKind.document, XQItemType.XQBASETYPE_ANYTYPE, Occurrence.onlyOne);
-		Data data = new Data(path, start);
-		ctx.addStack(data);
-		ctx.addData(data);
-	}
+		//Element start = new Element();
+		//Path path = model.translatePath(ctx.getDocType(), "", NodeKind.document, XQItemType.XQBASETYPE_ANYTYPE, Occurrence.onlyOne);
+		//Data data = new Data(path, start);
+		//ctx.addStack(data);
+		//ctx.addData(data);
+	//	ctx.addDocument();
+	//}
 
 	@SuppressWarnings("unchecked")
 	private void processStartElement(XmlParserContext ctx, StartElement element) throws BagriException {
-		Data parent = ctx.peekData();
-		appendCharacters(ctx, parent);
+		ctx.appendCharacters();
 		
-		Data current = addData(ctx, parent, NodeKind.element, "/" + element.getName(), null, XQItemType.XQBASETYPE_ANYTYPE, Occurrence.zeroOrOne); 
-		ctx.addStack(current);
+		ctx.addData(element.getName().toString()); // getLocalPart());
+		ctx.addElement(); 
 
 		for (Iterator<Namespace> itr = element.getNamespaces(); itr.hasNext();) {
 			Namespace ns = itr.next();
@@ -275,7 +275,7 @@ public class XmlStaxParser extends ContentParserBase implements ContentParser {
 			String namespace = ns.getValue();
 			if (namespace != null) {
 				String prefix = model.translateNamespace(namespace, ns.getName().getLocalPart());
-				addNamespace(ctx, current, prefix, namespace);
+				ctx.addNamespace(prefix, namespace);
 			}
 		}
 
@@ -283,60 +283,9 @@ public class XmlStaxParser extends ContentParserBase implements ContentParser {
 			Attribute a = itr.next();
 			if (!a.getName().getPrefix().isEmpty()) {
 				String prefix = model.translateNamespace(a.getName().getNamespaceURI(), a.getName().getPrefix());
-				addNamespace(ctx, current, prefix, a.getName().getNamespaceURI());
+				ctx.addNamespace(prefix, a.getName().getNamespaceURI());
 			}
-			addData(ctx, current, NodeKind.attribute, "/@" + a.getName(), a.getValue(), XQItemType.XQBASETYPE_ANYATOMICTYPE, Occurrence.onlyOne); 
-		}
-	}
-
-	private void processEndElement(XmlParserContext ctx, EndElement element) throws BagriException {
-		Data current = ctx.popData();
-		//logger.trace("processEndElement; got ctx: {}", current);
-		appendCharacters(ctx, current);
-		adjustParent(current);
-	}
-	
-	private void processCharacters(XmlParserContext ctx, Characters characters) {
-
-		if (characters.getData().trim().length() > 0) {
-			ctx.appendChars(characters.getData());
-		}
-	}
-
-	private void processComment(XmlParserContext ctx, Comment comment) throws BagriException {
-
-		addData(ctx, ctx.peekData(), NodeKind.comment, "/comment()", comment.getText(), XQItemType.XQBASETYPE_ANYTYPE, Occurrence.zeroOrOne);
-	}
-
-	private void processAttribute(XmlParserContext ctx, Attribute attribute) {
-		// ...
-		logger.trace("attribute: {}", attribute);
-	}
-
-	private void processPI(XmlParserContext ctx, ProcessingInstruction pi) throws BagriException {
-
-		//For a processing-instruction node: processing-instruction(local)[position] where local is the name 
-		//of the processing instruction node and position is an integer representing the position of the selected 
-		//node among its like-named processing-instruction node siblings
-		
-		Data piData = addData(ctx, ctx.peekData(), NodeKind.pi, "/?" + pi.getTarget(), pi.getData(), XQItemType.XQBASETYPE_ANYTYPE, Occurrence.zeroOrOne);
-	}
-
-	private void addNamespace(XmlParserContext ctx, Data current, String prefix, String namespace) throws BagriException {
-		if (ctx.addNamespace(prefix)) {
-			addData(ctx, current, NodeKind.namespace, "/#" + prefix, namespace, XQItemType.XQBASETYPE_QNAME, Occurrence.onlyOne);
-		}
-	}
-	
-	private void appendCharacters(XmlParserContext ctx, Data current) throws BagriException {
-		if (ctx.chars.length() > 0) {
-			String content = ctx.chars.toString();
-			// normalize xml content.. what if it is already normalized??
-			content = content.replaceAll("&", "&amp;");
-			// trim left/right ? this is schema-dependent. trim if schema-type 
-			// is xs:token, for instance..
-			addData(ctx, current, NodeKind.text, "/text()", content, XQItemType.XQBASETYPE_ANYATOMICTYPE, Occurrence.zeroOrOne); 
-			ctx.clearChars();
+			ctx.addData("@" + a.getName(), NodeKind.attribute, a.getValue(), XQItemType.XQBASETYPE_ANYATOMICTYPE, Occurrence.onlyOne); 
 		}
 	}
 
@@ -354,21 +303,52 @@ public class XmlStaxParser extends ContentParserBase implements ContentParser {
 			chars = new StringBuilder();
 		}
 		
-		void appendChars(String tail) {
-			chars.append(tail);
+		private void addAttribute(Attribute attribute) {
+			// ...
+			logger.trace("attribute: {}", attribute);
 		}
-		
-		void clearChars() {
-			chars.delete(0, chars.length());
-		}
-		
-		boolean addNamespace(String prefix) {
-			// "xml" namespace is assumed, no need to add it 
-			if ("xml".equals(prefix)) {
-				return false;
+
+		public void addCharacters(Characters characters) {
+			if (characters.getData().trim().length() > 0) {
+				chars.append(characters.getData());
 			}
-			return nspaces.add(prefix);
 		}
 		
+		void appendCharacters() throws BagriException {
+			if (chars.length() > 0) {
+				String content = chars.toString();
+				// normalize xml content.. what if it is already normalized??
+				content = content.replaceAll("&", "&amp;");
+				// trim left/right ? this is schema-dependent. trim if schema-type 
+				// is xs:token, for instance..
+				addData("text()", NodeKind.text, content, XQItemType.XQBASETYPE_ANYATOMICTYPE, Occurrence.zeroOrOne); 
+				chars.delete(0, chars.length());
+			}
+		}
+
+		public void addComment(Comment comment) throws BagriException {
+			addData("comment()", NodeKind.comment, comment.getText(), XQItemType.XQBASETYPE_ANYTYPE, Occurrence.zeroOrOne);
+		}
+		
+		public void addNamespace(String prefix, String namespace) throws BagriException {
+			// "xml" namespace is assumed, no need to add it 
+			if (!"xml".equals(prefix) && nspaces.add(prefix)) {
+				addData("#" + prefix, NodeKind.namespace, namespace, XQItemType.XQBASETYPE_QNAME, Occurrence.onlyOne);
+			}
+		}
+		
+		public void addProcessingInstruction(ProcessingInstruction pi) throws BagriException {
+			//For a processing-instruction node: processing-instruction(local)[position] where local is the name 
+			//of the processing instruction node and position is an integer representing the position of the selected 
+			//node among its like-named processing-instruction node siblings
+			addData("/?" + pi.getTarget(), NodeKind.pi, pi.getData(), XQItemType.XQBASETYPE_ANYTYPE, Occurrence.zeroOrOne);
+		}
+		
+		@Override
+		public void endElement() throws BagriException {
+			appendCharacters();
+			super.endElement();
+		}
+
 	}
 }

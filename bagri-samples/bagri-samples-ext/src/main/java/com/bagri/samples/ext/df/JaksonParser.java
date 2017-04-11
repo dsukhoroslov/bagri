@@ -137,39 +137,52 @@ public class JaksonParser extends ContentParserBase implements ContentParser {
 		logger.trace("processToken; got token: {}; name: {}; value: {}", token.name(), parser.getCurrentName(), parser.getText());
 		
 		switch (token) {
-		
 			case START_OBJECT:
-				if (ctx.getStackSize() == 0) {
-					processDocument(ctx, parser.nextFieldName());
-				} 
-			case START_ARRAY: 
-				if (parser.getCurrentName() != null) {
-					processStartElement(ctx, parser.getCurrentName());
+				if (ctx.getTopData() == null) {
+					ctx.addDocument("/");
+				} else {
+					ctx.addElement();
 				}
+				break;
+			case START_ARRAY: 
+				ctx.addArray();
+				break;
 			case NOT_AVAILABLE:
+				break;
 			case FIELD_NAME:
+				ctx.addData(parser.getCurrentName());
 				break;
 			case END_OBJECT:
 			case END_ARRAY: 
-				if (parser.getCurrentName() != null) {
-					processEndElement(ctx);
-				}
+				ctx.endElement();
 				break;
 			case VALUE_EMBEDDED_OBJECT:
+				// ???
+				break;
 			case VALUE_FALSE:
+				ctx.addValue(false);
+				break;
 			case VALUE_NULL:
+				ctx.addValue();
+				break;
 			case VALUE_NUMBER_FLOAT:
+				ctx.addValue(parser.getDecimalValue());
+				break;
 			case VALUE_NUMBER_INT:
+				ctx.addValue(parser.getLongValue());
+				break;
 			case VALUE_TRUE:
+				ctx.addValue(true);
+				break;
 			case VALUE_STRING:
-				processStartElement(ctx, parser.getCurrentName());
-				processValueElement(ctx, parser.getCurrentName(), parser.getText());
+				ctx.addValue(parser.getText());
 				break;
 			default: 
 				logger.trace("processToken; unknown token: {}", token);
 		}			
 	}
 
+/*	
 	private void processDocument(ParserContext ctx, String name) throws BagriException {
 
 		String root = "/" + (name == null ? "" : name);
@@ -236,5 +249,5 @@ public class JaksonParser extends ContentParserBase implements ContentParser {
 			addData(ctx, current, NodeKind.text, "/text()", value, XQItemType.XQBASETYPE_ANYATOMICTYPE, Occurrence.zeroOrOne);
 		}
 	}
-	
+*/	
 }

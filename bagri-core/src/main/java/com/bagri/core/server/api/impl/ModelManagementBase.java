@@ -165,6 +165,10 @@ public abstract class ModelManagementBase implements ModelManagement {
 		String result = xns.getPrefix();
 		return result;
 	}
+	
+	private String getPathKey(int typeId, String path) {
+		return typeId + ":" + path;
+	}
 
 	/**
 	 * search for registered full node path like "/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}Name/text()"
@@ -172,8 +176,9 @@ public abstract class ModelManagementBase implements ModelManagement {
 	 * @param path String; node path in Clark form
 	 * @return registered {@link Path} structure if any
 	 */
-	public Path getPath(String path) {
-		return getPathCache().get(normalizePath(path));
+	public Path getPath(int typeId, String path) {
+		String pathKey = getPathKey(typeId, normalizePath(path));
+		return getPathCache().get(pathKey);
 	}
     
 	/**
@@ -193,13 +198,13 @@ public abstract class ModelManagementBase implements ModelManagement {
 	public Path translatePath(int typeId, String path, NodeKind kind, int dataType, Occurrence occurrence) throws BagriException {
 		// "/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}Name/text()"
 		
-		if (kind != NodeKind.document) {
+		//if (kind != NodeKind.document) {
 			if (path == null || path.length() == 0) {
 				return null; //WRONG_PATH;
 			}
 		
 			path = normalizePath(path);
-		}
+		//}
 		Path result = addDictionaryPath(typeId, path, kind, dataType, occurrence); 
 		return result;
 	}
@@ -233,8 +238,8 @@ public abstract class ModelManagementBase implements ModelManagement {
 
 		logger.trace("getPathElements.enter; got path: {}, type: {}", root, typeId);
 		Set<Integer> result = new HashSet<Integer>();
-
-		Path xPath = getPathCache().get(root);
+		String pathKey = getPathKey(typeId, root);
+		Path xPath = getPathCache().get(pathKey);
 		if (xPath != null) {
 			int pId = xPath.getPathId();
 			while (pId <= xPath.getPostId()) {
@@ -272,6 +277,25 @@ public abstract class ModelManagementBase implements ModelManagement {
 		logger.trace("getDocumentType.exit; returning: {}", result);
 		return result;
 	}
+	
+	/**
+	 * returns document type ID for the path element specified. path is already normalized
+	 * just search for a document type where path.startsWith(root) is true 
+	 * 
+	 * returns -1 in case when no such root path found
+	 * 
+	 * @param path normalized path to search for
+	 * @return document typeId found for the full path
+	 */
+	public int findDocumentType(String path) {
+		for (DocumentType type: getTypeCache().values()) {
+			if (path.startsWith(type.getRootPath())) {
+				return type.getTypeId();
+			}
+		}
+		return WRONG_PATH;
+	}
+	
 	
 	/**
 	 * returns document root path like {@literal "/{http://tpox-benchmark.com/security}Security"}
@@ -314,17 +338,19 @@ public abstract class ModelManagementBase implements ModelManagement {
 	protected Path addDictionaryPath(int typeId, String path, NodeKind kind, 
 			int dataType, Occurrence occurrence) throws BagriException {
 
-		Path xpath = getPathCache().get(path);
+		String pathKey = getPathKey(typeId, path);
+		Path xpath = getPathCache().get(pathKey);
 		if (xpath == null) {
 			int pathId = getPathGen().next().intValue();
 			xpath = new Path(path, typeId, kind, pathId, 0, pathId, dataType, occurrence); 
-			xpath = putIfAbsent(getPathCache(), path, xpath);
+			xpath = putIfAbsent(getPathCache(), pathKey, xpath);
 		}
 		return xpath;
 	}
 	
 	public void updatePath(Path path) {
-		getPathCache().put(path.getPath(), path);
+		String pathKey = getPathKey(path.getTypeId(), path.getPath());
+		getPathCache().put(pathKey, path);
 	}
 
 	/**

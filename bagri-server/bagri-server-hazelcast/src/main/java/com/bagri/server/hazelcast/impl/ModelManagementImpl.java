@@ -208,7 +208,6 @@ public class ModelManagementImpl extends ModelManagementBase implements ModelMan
 	}
 
 	@Override
-	@SuppressWarnings("rawtypes")
 	protected Set<Map.Entry<String, Path>> getTypedPathEntries(int typeId) {
 		//Predicate f = Predicates.equal("typeId",  typeId);
 		//Set<Map.Entry<String, Path>> entries = pathCache.entrySet(f);
@@ -223,7 +222,6 @@ public class ModelManagementImpl extends ModelManagementBase implements ModelMan
 	}
 	
 	@Override
-	@SuppressWarnings("rawtypes")
 	protected Set<Map.Entry<String, Path>> getTypedPathWithRegex(String regex, int typeId) {
 		//Predicate filter = new RegexPredicate("path", regex);
 		//if (typeId > 0) {
@@ -278,6 +276,7 @@ public class ModelManagementImpl extends ModelManagementBase implements ModelMan
 	protected <K, V> V putIfAbsent(Map<K, V> map, K key, V value) {
 		ReplicatedMap<K, V> cache = (ReplicatedMap<K, V>) map;
 		V val2 = cache.putIfAbsent(key, value);
+		//V val2 = cache.put(key, value);
 		if (val2 == null) {
 			return value;
 		}

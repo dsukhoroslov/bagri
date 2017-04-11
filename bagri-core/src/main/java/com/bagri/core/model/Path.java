@@ -85,12 +85,26 @@ public class Path implements Comparable<Path> {
 			return null;
 		}
 		
+		String[] segments = path.split("/");
+		if (segments.length > 0) {
+			return segments[segments.length-1];
+		} 
+		return path;
+	}
+
+	/**
+	 * @return the last path portion
+	 */
+	public String getXmlName() {
+		if (kind == NodeKind.document || kind == NodeKind.comment) {
+			return null;
+		}
+		
 		if (name == null) {
 			String last;
 			String[] segments = path.split("/");
 	
 			switch (kind) {
-				case array: //[]
 				case attribute: //@
 				case namespace: //#
 				case pi: 		//?
@@ -100,6 +114,7 @@ public class Path implements Comparable<Path> {
 				case text: 
 					name = segments[segments.length-2];
 					break;
+				case array: //[]
 				case element:
 					if (segments.length > 0) {
 						name = segments[segments.length-1];
@@ -197,10 +212,9 @@ public class Path implements Comparable<Path> {
 	 */
 	@Override
 	public String toString() {
-		return "Path [path=" + path + ", pathId=" + pathId + ", typeId="
-				+ typeId + ", kind=" + kind + ", parentId=" + parentId
-				+ ", postId=" + postId + ", dataType=" + dataType
-				+ ", occurrence=" + occurrence.toString() + "]";
+		return "Path [path=" + path + ", pathId=" + pathId + ", typeId=" + typeId + 
+				", kind=" + kind + ", parentId=" + parentId	+ ", postId=" + postId + 
+				", dataType=" + dataType + ", occurrence=" + occurrence + "]";
 	}
 
 	/**

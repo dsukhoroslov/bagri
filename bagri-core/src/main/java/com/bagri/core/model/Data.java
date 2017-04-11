@@ -7,11 +7,17 @@ package com.bagri.core.model;
  * @since 06.2014 
  */
 public class Data implements Comparable<Data> {
-    	
+
     private int pos = 0;
+    private String name;
     private Path path;
     private Element element;
     	
+    
+    public Data(String name) {
+        this.name = name;
+    }
+    
     /**
      * XDM Data constructor
      * 
@@ -19,20 +25,24 @@ public class Data implements Comparable<Data> {
      * @param element the element
      */
     public Data(Path path, Element element) {
-	this.path = path;
-	this.element = element;
+        this.path = path;
+        this.element = element;
     }
 
+    /**
+     * 
+     * @return the new element position
+     */
     public int addLastChild() {
     	return ++pos;
     }
 
     /**
      * 
-     * @return the element id
+     * @return data name
      */
-    public int getLastChild() {
-    	return pos;
+    public String getDataName() {
+        return name;
     }
 
     /**
@@ -63,10 +73,10 @@ public class Data implements Comparable<Data> {
     	return path.getName();
     }
     	
-   	/**
-   	 * 
-   	 * @return the path's node kind
-   	 */
+   /**
+    * 
+    * @return the path's node kind
+    */
     public NodeKind getNodeKind() {
     	return path.getNodeKind();
     }
@@ -77,10 +87,10 @@ public class Data implements Comparable<Data> {
      */
     public int getPos() {
     	int[] pos = element.getPosition();
-		if (pos.length > 0) {
-			return pos[pos.length - 1];
-		}
-		return 0;
+       if (pos.length > 0) {
+            return pos[pos.length - 1];
+        }
+        return 0;
     }
     
     /**
@@ -89,10 +99,10 @@ public class Data implements Comparable<Data> {
      */
     public int getParentPos() {
     	int[] pos = element.getPosition();
-		if (pos.length > 1) {
-			return pos[pos.length - 2];
-		}
-		return 0;
+        if (pos.length > 1) {
+            return pos[pos.length - 2];
+        }
+        return 0;
     }
 
     /**
@@ -124,7 +134,7 @@ public class Data implements Comparable<Data> {
      * @return the path parent id
      */
     public int getParentPathId() {
-   		return path.getParentId();
+        return path.getParentId();
     }
     
     /**
@@ -143,28 +153,25 @@ public class Data implements Comparable<Data> {
     	return element.getValue();
     }
     
-    /**
-     * 
-     * @param postId the latest child pathId
-     */
-    //public void setPostId(int postId) {
-    //	path.setPostId(postId);
-    //}
-    
+    public void setData(Path path, Element element) {
+        this.path = path;
+        this.element = element;
+    }
+
     /**
      * {@inheritDoc}
      */
-	@Override
-	public int compareTo(Data other) {
-		return element.compareTo(other.element);
-	}
+    @Override
+    public int compareTo(Data other) {
+        return element.compareTo(other.element);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String toString() {
-		return "Data [path=" + path + ", element=" + element + "]";
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return "Data [path=" + path + ", element=" + element + "]";
+    }
 
 }

@@ -75,7 +75,7 @@ public class XmlBuilder extends ContentBuilderBase implements ContentBuilder {
 				if (writeIdent) {
 					addIdents(top, buff, prefix);
 				}
-				buff.append("</").append(top.getName()).append(">");
+				buff.append("</").append(top.getDataPath().getXmlName()).append(">");
 			}
 			if (pretty) {
 				buff.append(EOL);
@@ -96,7 +96,7 @@ public class XmlBuilder extends ContentBuilderBase implements ContentBuilder {
 			}
 			case namespace: { 
 				buff.append(" ").append("xmlns");
-				String name = data.getName();
+				String name = data.getDataPath().getXmlName();
 				if (name != null && name.trim().length() > 0) {
 					buff.append(":").append(name);
 				}
@@ -108,13 +108,13 @@ public class XmlBuilder extends ContentBuilderBase implements ContentBuilder {
 				dataStack.push(data);
 				// don't add idents if we're in mixed content (text)!
 				addIdents(data, buff, prefix);
-   				buff.append("<").append(data.getName()); 
+   				buff.append("<").append(data.getDataPath().getXmlName()); 
    				eltOpen = true;
    				break;
 			}
 			case attribute: { 
 				if (!dataStack.isEmpty()) {
-					buff.append(" ").append(data.getName()).append("=\"").append(data.getValue()).append("\"");
+					buff.append(" ").append(data.getDataPath().getXmlName()).append("=\"").append(data.getValue()).append("\"");
 				} else {
 					buff.append(data.getValue());
 				}
@@ -132,7 +132,7 @@ public class XmlBuilder extends ContentBuilderBase implements ContentBuilder {
 			case pi: { 
 				eltOpen = endElement(dataStack, buff, data, eltOpen, prefix);
 				addIdents(data, buff, prefix);
-				buff.append("<?").append(data.getName()).append(" ");
+				buff.append("<?").append(data.getDataPath().getXmlName()).append(" ");
 				buff.append(data.getValue()).append("?>"); 
 				if (dataStack.isEmpty() && pretty) {
 					buff.append(EOL);
@@ -177,7 +177,7 @@ public class XmlBuilder extends ContentBuilderBase implements ContentBuilder {
 						if (writeIdent) {
 							addIdents(top, buff, prefix);
 						}
-						buff.append("</").append(top.getName()).append(">");
+						buff.append("</").append(top.getDataPath().getXmlName()).append(">");
 					}
 					if (pretty) {
 						buff.append(EOL);

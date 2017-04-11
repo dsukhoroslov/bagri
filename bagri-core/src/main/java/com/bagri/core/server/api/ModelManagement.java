@@ -112,7 +112,7 @@ public interface ModelManagement {
 	 * @param path String; node path in Clark form
 	 * @return registered {@link Path} structure if any
 	 */
-	Path getPath(String path); 
+	Path getPath(int typeId, String path); 
 
 	/**
 	 * return XDM path instance by pathId provided;
@@ -146,6 +146,17 @@ public interface ModelManagement {
 	 * @return document typeId registered for the root path  
 	 */
 	int getDocumentType(String root);
+	
+	/**
+	 * returns document type ID for the path element specified. path is already normalized
+	 * just search for a document type where path.startsWith(root) is true 
+	 * 
+	 * returns -1 in case when no such root path found
+	 * 
+	 * @param path normalized path to search for
+	 * @return document typeId found for the full path
+	 */
+	int findDocumentType(String path);
 	
 	/**
 	 * returns document root path like {@literal "/{http://tpox-benchmark.com/security}Security"}

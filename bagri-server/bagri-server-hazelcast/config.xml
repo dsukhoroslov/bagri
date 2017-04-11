@@ -653,8 +653,8 @@
                 <entry name="bdb.schema.partition.count">157</entry>
                 <entry name="bdb.schema.query.backup.read">true</entry>
 		<entry name="bdb.schema.transaction.timeout">0</entry>
-                <entry name="bdb.schema.health.threshold.low">25</entry>
-                <entry name="bdb.schema.health.threshold.high">0</entry>
+                <entry name="bdb.schema.health.threshold.low">250</entry>
+                <entry name="bdb.schema.health.threshold.high">250</entry>
                 <entry name="bdb.schema.query.parallel">true</entry>
                 <entry name="bdb.schema.partition.pool">32</entry>
                 <entry name="xqj.schema.baseUri">file:/C:/Work/Bagri/git/bagri/etc/samples/ycsb/</entry>
@@ -678,14 +678,14 @@
                     <version>1</version>
                     <createdAt>2016-05-10T01:01:26.965+03:00</createdAt>
                     <createdBy>SDV</createdBy>
-                    <!--docType></docType-->
+                    <!--docType>/map</docType-->
                     <description>YCSB default collection</description>
                     <enabled>true</enabled>
                 </collection>
             </collections>
             <fragments/>
             <indexes>
-                <index name="IDX_YCSB_Key">
+                <!--index name="IDX_YCSB_Key">
                     <version>1</version>
                     <createdAt>2017-03-13T13:36:26.965+03:00</createdAt>
                     <createdBy>SDV</createdBy>
@@ -696,7 +696,7 @@
                     <unique>false</unique>
                     <description>YCSB Key</description>
                     <enabled>true</enabled>
-                </index>
+                </index-->
             </indexes>
             <triggers/>
         </schema>

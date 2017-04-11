@@ -32,7 +32,7 @@ public abstract class DocumentManagementBase extends com.bagri.core.api.impl.Doc
 
 	public Data getDataRoot(List<Data> elements) {
 		for (Data data: elements) {
-			if (data.getNodeKind() == NodeKind.element) {
+			if (data.getNodeKind() == NodeKind.document) { //element) {
 				return data;
 			}
 		}

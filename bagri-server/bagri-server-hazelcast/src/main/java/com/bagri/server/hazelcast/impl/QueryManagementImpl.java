@@ -462,7 +462,8 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			} else {
 				String path = pex.getFullPath();
 				logger.trace("queryPathKeys; path: {}; comparison: {}", path, pex.getCompType());
-				Path xPath = model.getPath(path);
+				int typeId = model.findDocumentType(path);
+				Path xPath = model.getPath(typeId, path); 
 				if (xPath != null) {
 					paths = new HashSet<>(1);
 					pp = Predicates.equal("pathId", xPath.getPathId());

@@ -48,7 +48,7 @@ public class JsonpParserTest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		System.setProperty("logback.configurationFile", "test_logging.xml");
-		//System.setProperty(pn_log_level, "debug");
+		//System.setProperty(pn_log_level, "trace");
 	}
 
 	//@AfterClass
@@ -71,16 +71,16 @@ public class JsonpParserTest {
 		List<Data> elts = parser.parse(json);
 		//System.out.println(elts);
 		assertNotNull(elts);
-		assertEquals(28, elts.size()); 
+		assertEquals(18, elts.size()); 
 		Data data = elts.get(0);
-		assertEquals("", data.getPath());
+		assertEquals("/", data.getPath());
 		assertNull(data.getValue());
 		data = elts.get(1);
 		assertEquals("/firstName", data.getPath());
-		assertNull(data.getValue());
-		data = elts.get(2);
-		assertEquals("/firstName/text()", data.getPath());
 		assertEquals("John", data.getValue());
+		data = elts.get(2);
+		assertEquals("/lastName", data.getPath());
+		assertEquals("Smith", data.getValue());
 		//int typeId = 1;
 		//String root = dict.getDocumentRoot(typeId);
 		//assertEquals("", root); -> /firstName	
@@ -93,15 +93,15 @@ public class JsonpParserTest {
 		File f = new File("..\\etc\\samples\\json\\security1500.json");
 		List<Data> data = parser.parse(f);
 		assertNotNull(data);
-		assertEquals(75, data.size());
+		assertEquals(45, data.size());
 		FileReader fr = new FileReader("..\\etc\\samples\\json\\security5621.json");
 		data = parser.parse(fr);
 		assertNotNull(data);
-		assertEquals(73, data.size()); 
+		assertEquals(44, data.size()); 
 		InputStream fis = new FileInputStream("..\\etc\\samples\\json\\security9012.json");
 		data = parser.parse(fis);
 		assertNotNull(data);
-		assertEquals(85, data.size()); 
+		assertEquals(56, data.size()); 
 	}
 	
 }

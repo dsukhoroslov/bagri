@@ -57,28 +57,28 @@ public class CollectionFinderImpl implements CollectionFinder {
 
 	private static final Logger logger = LoggerFactory.getLogger(CollectionFinderImpl.class);
 
-    private SchemaRepository repo;
-    private QueryBuilder query;
-    private XQueryExpression exp;
+	private SchemaRepository repo;
+	private QueryBuilder query;
+	private XQueryExpression exp;
 
 	private PathBuilder currentPath;
-	//private int collectType;
+	// private int collectType;
 	private int currentType;
-    
-    public CollectionFinderImpl(SchemaRepository repo) {
-    	this.repo = repo;
-    }
 
-    QueryBuilder getQuery() {
-    	// should return Container's copy!?
-    	return query;
-    }
-    
-    void setQuery(QueryBuilder query) {
-    	// copy it! already copied, actually
+	public CollectionFinderImpl(SchemaRepository repo) {
+		this.repo = repo;
+	}
+
+	QueryBuilder getQuery() {
+		// should return Container's copy!?
+		return query;
+	}
+
+	void setQuery(QueryBuilder query) {
+		// copy it! already copied, actually
 		logger.trace("setQuery. got: {}; this: {}", query, this);
-    	this.query = query;
-    }
+		this.query = query;
+	}
 
 	void setExpression(XQueryExpression exp) {
 		this.exp = exp;
@@ -97,30 +97,30 @@ public class CollectionFinderImpl implements CollectionFinder {
 			currentType = Document.clnDefault;
 		} else {
 			collectId = getCollectionId(collectionURI, exp.getExpression().getStaticBaseURIString());
-			currentType = collectId; //0;
+			currentType = collectId; // 0;
 			logger.trace("findCollection. got collection type: {} for uri: {}", collectId, collectionURI);
 		}
 
 		if (query == null) {
 			query = new QueryBuilder();
 			currentPath = new PathBuilder();
-        	//query.addContainer(currentType, new ExpressionContainer());
-			iterate(exp.getExpression(), context); 
+			// query.addContainer(currentType, new ExpressionContainer());
+			iterate(exp.getExpression(), context);
 		} else if (query.hasEmptyParams()) {
 			iterateParams(exp.getExpression(), context);
 		}
 		stamp = System.currentTimeMillis() - stamp;
-		logger.debug("findCollection; time taken: {}; query: {}; this: {}", stamp, query, this); 
+		logger.debug("findCollection; time taken: {}; query: {}; this: {}", stamp, query, this);
 
 		ExpressionContainer exCont = getCurrentContainer();
 		if (exCont.getBuilder().getRoot() == null) {
 			exCont.addExpression(currentType);
-   			logger.trace("findCollection; added always expression for type: {}", currentType);
+			logger.trace("findCollection; added always expression for type: {}", currentType);
 		}
-		
+
 		// provide builder's copy here.
 		exCont = query.getContainer(collectId);
-		ResourceCollection result = new ResourceCollectionImpl(collectionURI, repo, exCont); 
+		ResourceCollection result = new ResourceCollectionImpl(collectionURI, repo, exCont);
 		logger.trace("findCollection. returning result: {} for collection ID: {}", result, collectId);
 		return result;
 	}
@@ -134,10 +134,11 @@ public class CollectionFinderImpl implements CollectionFinder {
 		if (cln != null) {
 			return cln.getId();
 		}
-		logger.info("getCollectionId; no collection found for uri: {}; baseUri: {}, collections: {}", uri, baseUri, schema.getCollections());
+		logger.info("getCollectionId; no collection found for uri: {}; baseUri: {}, collections: {}", uri, baseUri,
+				schema.getCollections());
 		return ModelManagementBase.WRONG_PATH;
 	}
-	
+
 	private Object getValues(Sequence sq) throws XPathException {
 		if (sq != null) {
 			List<Object> result = new ArrayList<>();
@@ -148,330 +149,363 @@ public class CollectionFinderImpl implements CollectionFinder {
 					break;
 				}
 				Object o = SaxonUtils.itemToObject(item);
-				//logger.trace("getVariable; got item: {}", o);
+				// logger.trace("getVariable; got item: {}", o);
 				result.add(o);
-			} 
+			}
 			return result;
 		}
 		return null;
 	}
-	
+
 	private AxisType getAxisType(byte axis) {
-    	switch (axis) {
-			case AxisInfo.ANCESTOR: return AxisType.ANCESTOR;
-			case AxisInfo.ANCESTOR_OR_SELF: return AxisType.ANCESTOR_OR_SELF;
-			case AxisInfo.ATTRIBUTE: return AxisType.ATTRIBUTE;
-			case AxisInfo.CHILD: return AxisType.CHILD; 
-			case AxisInfo.DESCENDANT: return AxisType.DESCENDANT; 
-			case AxisInfo.DESCENDANT_OR_SELF: return AxisType.DESCENDANT_OR_SELF;
-			case AxisInfo.FOLLOWING: return AxisType.FOLLOWING;
-			case AxisInfo.FOLLOWING_SIBLING: return AxisType.FOLLOWING_SIBLING;
-			case AxisInfo.NAMESPACE: return AxisType.NAMESPACE;
-			case AxisInfo.PARENT: return AxisType.PARENT;
-			case AxisInfo.PRECEDING: return AxisType.PRECEDING;
-			case AxisInfo.PRECEDING_OR_ANCESTOR: return null; //??
-			case AxisInfo.PRECEDING_SIBLING: return AxisType.PRECEDING_SIBLING;
-			case AxisInfo.SELF: return AxisType.SELF;
+		switch (axis) {
+		case AxisInfo.ANCESTOR:
+			return AxisType.ANCESTOR;
+		case AxisInfo.ANCESTOR_OR_SELF:
+			return AxisType.ANCESTOR_OR_SELF;
+		case AxisInfo.ATTRIBUTE:
+			return AxisType.ATTRIBUTE;
+		case AxisInfo.CHILD:
+			return AxisType.CHILD;
+		case AxisInfo.DESCENDANT:
+			return AxisType.DESCENDANT;
+		case AxisInfo.DESCENDANT_OR_SELF:
+			return AxisType.DESCENDANT_OR_SELF;
+		case AxisInfo.FOLLOWING:
+			return AxisType.FOLLOWING;
+		case AxisInfo.FOLLOWING_SIBLING:
+			return AxisType.FOLLOWING_SIBLING;
+		case AxisInfo.NAMESPACE:
+			return AxisType.NAMESPACE;
+		case AxisInfo.PARENT:
+			return AxisType.PARENT;
+		case AxisInfo.PRECEDING:
+			return AxisType.PRECEDING;
+		case AxisInfo.PRECEDING_OR_ANCESTOR:
+			return null; // ??
+		case AxisInfo.PRECEDING_SIBLING:
+			return AxisType.PRECEDING_SIBLING;
+		case AxisInfo.SELF:
+			return AxisType.SELF;
 		}
 		return null;
 	}
-	
+
 	private Comparison getComparison(int operator) {
 		switch (operator) {
-			case Token.AND: return Comparison.AND;
-			case Token.OR: return Comparison.OR;
-			case Token.FEQ:
-			case Token.EQUALS: return Comparison.EQ;
-			case Token.FLE:
-			case Token.LE: return Comparison.LE;
-			case Token.FLT:
-			case Token.LT: return Comparison.LT;
-			case Token.FGE:
-			case Token.GE: return Comparison.GE;
-			case Token.FGT:
-			case Token.GT: return Comparison.GT;
-			default: return null;
+		case Token.AND:
+			return Comparison.AND;
+		case Token.OR:
+			return Comparison.OR;
+		case Token.FEQ:
+		case Token.EQUALS:
+			return Comparison.EQ;
+		case Token.FLE:
+		case Token.LE:
+			return Comparison.LE;
+		case Token.FLT:
+		case Token.LT:
+			return Comparison.LT;
+		case Token.FGE:
+		case Token.GE:
+			return Comparison.GE;
+		case Token.FGT:
+		case Token.GT:
+			return Comparison.GT;
+		default:
+			return null;
 		}
 	}
-	
+
 	private void setParentPath(ExpressionBuilder eb, int exIndex, PathBuilder path) {
 		com.bagri.core.query.Expression ex = eb.getExpression(exIndex);
 		if (ex != null) {
-    		path.setPath(ex.getPath()); 
-        	logger.trace("iterate; path switched to: {}; from index: {}", path, exIndex);
+			path.setPath(ex.getPath());
+			logger.trace("iterate; path switched to: {}; from index: {}", path, exIndex);
 		}
 	}
-	
-    private void iterateParams(Expression ex, XPathContext ctx) throws XPathException {
 
-    	//if (ex instanceof Block) {
-    	//	return;
-    	//}
-    	
-    	Iterator<Operand> itr = ex.operands().iterator();
-    	while(itr.hasNext()) {
-    		Expression e = itr.next().getChildExpression(); 
-    		iterateParams(e, ctx);
-    	}
+	private void iterateParams(Expression ex, XPathContext ctx) throws XPathException {
 
-    	if (ex instanceof GeneralComparison10 || ex instanceof GeneralComparison20 || ex instanceof ValueComparison) {
-    		BinaryExpression be = (BinaryExpression) ex;
-    		Object value = null;
-    		String pName = null;
-    		Expression le = be.getLhsExpression();
+		// if (ex instanceof Block) {
+		// return;
+		// }
 
-    		Comparison compType = getComparison(be.getOperator());
-    		if (compType == null) {
-            	logger.debug("iterate; can't get comparison from {}", be);
-    	    	throw new XPathException("Unknown comparison type for expression: " + be);
-    		} 
+		Iterator<Operand> itr = ex.operands().iterator();
+		while (itr.hasNext()) {
+			Expression e = itr.next().getChildExpression();
+			iterateParams(e, ctx);
+		}
 
-    		Expression var;
-    		if (le instanceof VariableReference || le instanceof Literal) {
-    			compType = Comparison.negate(compType);
-    			var = le;
-    		} else {
-    			var = be.getRhsExpression();
-    		}
-    		
-   			if (var instanceof VariableReference) {
-   				Binding bind = ((VariableReference) var).getBinding();
-   				if (bind instanceof LetExpression) {
-   					Expression e2 = ((LetExpression) bind).getSequence();
-   					if (e2 instanceof Atomizer) {
-   			    		e2 = ((Atomizer) e2).getBaseExpression();
-   			    		if (e2 instanceof VariableReference) {
-   			    			// paired ref to the e
-   			    			pName = ((VariableReference) e2).getBinding().getVariableQName().getLocalPart(); 
-   			    		}
-   			    	}
-   				}
-    				
-   				if (pName == null) {
-   					pName = bind.getVariableQName().getClarkName();
-   				}
-   	    		//value = getValues(ctx.evaluateLocalVariable(bind.getLocalSlotNumber()));
-   				try {
-   					value = getValues(bind.evaluateVariable(ctx));
-   				} catch (NullPointerException ee) {
-   					value = null;
-   				}
-   			//} else if (var instanceof StringLiteral) {
-   			//	value = ((StringLiteral) var).getStringValue();
-   			//} else if (var instanceof Literal) {
-   			//	value = getValues(((Literal) var).getValue()); 
-   			}
-    			
+		if (ex instanceof GeneralComparison10 || ex instanceof GeneralComparison20 || ex instanceof ValueComparison) {
+			BinaryExpression be = (BinaryExpression) ex;
+			Object value = null;
+			String pName = null;
+			Expression le = be.getLhsExpression();
+
+			Comparison compType = getComparison(be.getOperator());
+			if (compType == null) {
+				logger.debug("iterate; can't get comparison from {}", be);
+				throw new XPathException("Unknown comparison type for expression: " + be);
+			}
+
+			Expression var;
+			if (le instanceof VariableReference || le instanceof Literal) {
+				compType = Comparison.negate(compType);
+				var = le;
+			} else {
+				var = be.getRhsExpression();
+			}
+
+			if (var instanceof VariableReference) {
+				Binding bind = ((VariableReference) var).getBinding();
+				if (bind instanceof LetExpression) {
+					Expression e2 = ((LetExpression) bind).getSequence();
+					if (e2 instanceof Atomizer) {
+						e2 = ((Atomizer) e2).getBaseExpression();
+						if (e2 instanceof VariableReference) {
+							// paired ref to the e
+							pName = ((VariableReference) e2).getBinding().getVariableQName().getLocalPart();
+						}
+					}
+				}
+
+				if (pName == null) {
+					pName = bind.getVariableQName().getClarkName();
+				}
+				// value =
+				// getValues(ctx.evaluateLocalVariable(bind.getLocalSlotNumber()));
+				try {
+					value = getValues(bind.evaluateVariable(ctx));
+				} catch (NullPointerException ee) {
+					value = null;
+				}
+				// } else if (var instanceof StringLiteral) {
+				// value = ((StringLiteral) var).getStringValue();
+				// } else if (var instanceof Literal) {
+				// value = getValues(((Literal) var).getValue());
+			}
+
 			logger.trace("iterateParams; got reference: {}, value: {}", pName, value);
 			if (pName != null && value != null) {
 				query.setEmptyParam(pName, value);
 			}
-    	}  
-    }
-	
-    private void iterate(Expression ex, XPathContext ctx) throws XPathException {
-    	logger.trace("start: {}; expression: {}", ex.getClass().getName(), ex); 
-
-    	PathBuilder path = currentPath;
-    	//if (ex instanceof Block) {
-        //	logger.trace("end: {}; path: {}", ex.getClass().getName(), path.getFullPath());
-    	//	return;
-    	//}
-    	
-       	if (ex instanceof SystemFunctionCall) {
-       		SystemFunctionCall clx = (SystemFunctionCall) ex;
-       		//if ("collection".equals(clx.getDisplayName()) || "uri-collection".equals(clx.getDisplayName())) {
-       		if (clx.isCallOnSystemFunction("collection") || clx.isCallOnSystemFunction("uri-collection")) {
-       			String collectUri = "";
-       			if (clx.getArity() > 0) {
-       				Expression arg = clx.getArg(0);
-       				if (arg instanceof StringLiteral) {
-       					collectUri = ((StringLiteral) arg).getStringValue();
-       				} else {
-       					// evaluate ?
-       					collectUri = arg.evaluateAsString(ctx).toString();
-       				}
-       			}
-
-       			int clnId = getCollectionId(collectUri, ex.getStaticBaseURIString());
-       			if (clnId < 0) {
-       				clnId = -1 * (query.getContainers().size() + 1); 
-       			}
-       			currentType = clnId;
-	    	    logger.trace("iterate; set collectionId: {} for uri: {}", currentType, collectUri);
-	    	    currentPath = new PathBuilder();
-	    	    path = currentPath;
-	    	    ExpressionContainer exCont = new ExpressionContainer();
-	    	    query.addContainer(currentType, exCont);
-       		}
-    	}
-       	
-    	if (ex instanceof AxisExpression) {
-    		AxisExpression ae = (AxisExpression) ex;
-        	logger.trace("iterate: axis: {}", AxisInfo.axisName[ae.getAxis()]);
-
-        	AxisType axis = getAxisType(ae.getAxis());
-        	String namespace = null;
-        	String segment = null;
-    		NodeTest test = ae.getNodeTest();
-    		if (test != null) {
-		    	int code = test.getFingerprint();
-		    	if (code >= 0) {
-		    		StructuredQName name = ctx.getNamePool().getStructuredQName(code);
-		    		namespace = repo.getModelManagement().getNamespacePrefix(name.getURI());
-		    		segment = name.getLocalPart();
-		    	} else {
-		    		// case with regex..
-		        	logger.trace("iterate: empty code; test: {}", test);
-		        	// depends on axis...
-		        	segment = "*";
-		    	}
-    		}
-        	path.addPathSegment(axis, namespace, segment);
-    	}
-
-    	int exIndex = -1;
-    	if (ex instanceof BooleanExpression) {
-    		Comparison compType = getComparison(((BooleanExpression) ex).getOperator());
-    		if (compType != null) {
-    			//if (currentType == collectType) {
-    			ExpressionContainer exCont = getCurrentContainer();
-    			exIndex = exCont.addExpression(currentType, compType, path);
-    			logger.trace("iterate; added expression at index: {}", exIndex);
-    			//}
-    		} else {
-    	    	throw new XPathException("Unknown comparison type for expression: " + ex);
-    		}
-    	}
-
-    	if (ex instanceof UserFunctionCall) {
-    		UserFunctionCall ufc = (UserFunctionCall) ex;
-			logger.trace("iterate; switching to UDF: {}", ufc.getFunctionName());
-    		//ex = ufc.getTargetFunction(ctx).getBody();
-    		ex = ufc.getFunction().getBody();
-    	}
-    	
-    	Iterator<Operand> itr = ex.operands().iterator();
-    	while(itr.hasNext()) {
-    		Expression e = itr.next().getChildExpression(); 
-    		iterate(e, ctx);
-    	}
-    	
-    	if (ex instanceof GeneralComparison10 || ex instanceof ComparisonExpression) { //GeneralComparison20 || ex instanceof ValueComparison) {
-    		BinaryExpression be = (BinaryExpression) ex;
-    		Object value = null;
-    		String pName = null;
-    		Expression le = be.getLhsExpression();
-
-    		Comparison compType = getComparison(be.getOperator());
-    		if (compType == null) {
-            	logger.debug("iterate; can't get comparison from {}", be);
-    	    	throw new XPathException("Unknown comparison type for expression: " + be);
-    		} 
-
-    		Expression var;
-    		if (le instanceof VariableReference || le instanceof Literal) {
-    			compType = Comparison.revert(compType);
-    			var = le;
-    		} else {
-    			var = be.getRhsExpression();
-    		}
-    		
-   			if (var instanceof VariableReference) {
-   				Binding bind = ((VariableReference) var).getBinding();
-   				if (bind instanceof LetExpression) {
-   					Expression e2 = ((LetExpression) bind).getSequence();
-   					if (e2 instanceof Atomizer) {
-   			    		e2 = ((Atomizer) e2).getBaseExpression();
-   			    		if (e2 instanceof VariableReference) {
-   			    			// paired ref to the e
-   			    			pName = ((VariableReference) e2).getBinding().getVariableQName().getLocalPart(); 
-   			    		}
-   			    	}
-   				}
-    				
-   				if (pName == null) {
-   					pName = bind.getVariableQName().getClarkName();
-   				}
-   	    		//value = getValues(ctx.evaluateLocalVariable(bind.getLocalSlotNumber()));
-   				try {
-   					value = getValues(bind.evaluateVariable(ctx));
-   				} catch (NullPointerException ee) {
-   					value = null;
-   				}
-       			logger.trace("iterate; got reference: {}, value: {}", pName, value);
-   			} else if (var instanceof StringLiteral) {
-   				value = ((StringLiteral) var).getStringValue();
-   			} else if (var instanceof Literal) {
-   				value = getValues(((Literal) var).getValue()); 
-   			}
-    			
-   			if (path.getSegments().size() > 0) {
-	   			ExpressionContainer exCont = getCurrentContainer();
-	   			exIndex = exCont.addExpression(currentType, compType, path, pName, value);
-	   			logger.trace("iterate; added path expression at index: {}", exIndex);
-	   			setParentPath(exCont.getBuilder(), exIndex, path);
-	   			logger.trace("iterate; parent path {} set at index: {}", path, exIndex);
-   			}
-    	}  
-
-    	if (ex instanceof BooleanExpression) {
-			ExpressionContainer exCont = getCurrentContainer();
-    		setParentPath(exCont.getBuilder(), exIndex, path);
-   			logger.trace("iterate; parent path {} set at index: {}", path, exIndex);
-    	}
-    	
-       	if (ex instanceof IntegratedFunctionCall) {
-       		IntegratedFunctionCall ifc = (IntegratedFunctionCall) ex;
-       		if ("map:get".equals(ifc.getDisplayName())) {
-       			Expression arg = ifc.getArg(1); 
-       			if (arg instanceof StringLiteral) {
-           			String namespace = null;
-       				String segment = ((StringLiteral) arg).getStringValue();
-       				AxisType axis = AxisType.CHILD;
-       				if (segment.startsWith("@")) {
-       					axis = AxisType.ATTRIBUTE;
-       					segment = segment.substring(1);
-       				} else if (segment.startsWith("#")) {
-       					axis = AxisType.NAMESPACE;
-       					segment = segment.substring(1);
-       				}
-       				path.addPathSegment(axis, namespace, segment);
-       			} else { 
-       				// the arg can be instanceof VariableReference pointing to array of 
-       				// literals. Can it be used in comparison condition..? 
-       			}
-       		}
 		}
-       	//if (ex instanceof SystemFunctionCall) {
-       		// add FunctionExpression..?
-       	//}
-    	
-    	if (ex instanceof Atomizer) {
-    		Atomizer at = (Atomizer) ex;
-   			logger.trace("iterate; atomizing: {}", at.getBaseExpression());
-    		if (at.getBaseExpression() instanceof BindingReference) {
-       			//logger.trace("iterate; got base ref: {}", at.getBaseExpression());
-    		} else {
-    			PathSegment ps = path.getLastSegment();
-    			if (ps != null && ps.getAxis() == AxisType.CHILD) {
-    				path.addPathSegment(AxisType.CHILD, null, "text()");
-    			}
-    		}
-    	}
+	}
 
-    	logger.trace("end: {}; path: {}", ex.getClass().getName(), path.getFullPath());
-    }
-    
-    private ExpressionContainer getCurrentContainer() {
+	private void iterate(Expression ex, XPathContext ctx) throws XPathException {
+		logger.trace("start: {}; expression: {}", ex.getClass().getName(), ex);
+
+		PathBuilder path = currentPath;
+		// if (ex instanceof Block) {
+		// logger.trace("end: {}; path: {}", ex.getClass().getName(),
+		// path.getFullPath());
+		// return;
+		// }
+
+		if (ex instanceof SystemFunctionCall) {
+			SystemFunctionCall clx = (SystemFunctionCall) ex;
+			// if ("collection".equals(clx.getDisplayName()) ||
+			// "uri-collection".equals(clx.getDisplayName())) {
+			if (clx.isCallOnSystemFunction("collection") || clx.isCallOnSystemFunction("uri-collection")) {
+				String collectUri = "";
+				if (clx.getArity() > 0) {
+					Expression arg = clx.getArg(0);
+					if (arg instanceof StringLiteral) {
+						collectUri = ((StringLiteral) arg).getStringValue();
+					} else {
+						// evaluate ?
+						collectUri = arg.evaluateAsString(ctx).toString();
+					}
+				}
+
+				int clnId = getCollectionId(collectUri, ex.getStaticBaseURIString());
+				if (clnId < 0) {
+					clnId = -1 * (query.getContainers().size() + 1);
+				}
+				currentType = clnId;
+				logger.trace("iterate; set collectionId: {} for uri: {}", currentType, collectUri);
+				currentPath = new PathBuilder();
+				path = currentPath;
+				ExpressionContainer exCont = new ExpressionContainer();
+				query.addContainer(currentType, exCont);
+			}
+		}
+
+		if (ex instanceof AxisExpression) {
+			AxisExpression ae = (AxisExpression) ex;
+			logger.trace("iterate: axis: {}", AxisInfo.axisName[ae.getAxis()]);
+
+			AxisType axis = getAxisType(ae.getAxis());
+			String namespace = null;
+			String segment = null;
+			NodeTest test = ae.getNodeTest();
+			if (test != null) {
+				int code = test.getFingerprint();
+				if (code >= 0) {
+					StructuredQName name = ctx.getNamePool().getStructuredQName(code);
+					namespace = repo.getModelManagement().getNamespacePrefix(name.getURI());
+					segment = name.getLocalPart();
+				} else {
+					// case with regex..
+					logger.trace("iterate: empty code; test: {}", test);
+					// depends on axis...
+					segment = "*";
+				}
+			}
+			path.addPathSegment(axis, namespace, segment);
+		}
+
+		int exIndex = -1;
+		if (ex instanceof BooleanExpression) {
+			Comparison compType = getComparison(((BooleanExpression) ex).getOperator());
+			if (compType != null) {
+				// if (currentType == collectType) {
+				ExpressionContainer exCont = getCurrentContainer();
+				exIndex = exCont.addExpression(currentType, compType, path);
+				logger.trace("iterate; added expression at index: {}", exIndex);
+				// }
+			} else {
+				throw new XPathException("Unknown comparison type for expression: " + ex);
+			}
+		}
+
+		if (ex instanceof UserFunctionCall) {
+			UserFunctionCall ufc = (UserFunctionCall) ex;
+			logger.trace("iterate; switching to UDF: {}", ufc.getFunctionName());
+			// ex = ufc.getTargetFunction(ctx).getBody();
+			ex = ufc.getFunction().getBody();
+		}
+
+		Iterator<Operand> itr = ex.operands().iterator();
+		while (itr.hasNext()) {
+			Expression e = itr.next().getChildExpression();
+			iterate(e, ctx);
+		}
+
+		if (ex instanceof GeneralComparison10 || ex instanceof ComparisonExpression) { // GeneralComparison20
+			// ||
+			// ex
+			// instanceof
+			// ValueComparison)
+			// {
+			BinaryExpression be = (BinaryExpression) ex;
+			Object value = null;
+			String pName = null;
+			Expression le = be.getLhsExpression();
+
+			Comparison compType = getComparison(be.getOperator());
+			if (compType == null) {
+				logger.debug("iterate; can't get comparison from {}", be);
+				throw new XPathException("Unknown comparison type for expression: " + be);
+			}
+
+			Expression var;
+			if (le instanceof VariableReference || le instanceof Literal) {
+				compType = Comparison.revert(compType);
+				var = le;
+			} else {
+				var = be.getRhsExpression();
+			}
+
+			if (var instanceof VariableReference) {
+				Binding bind = ((VariableReference) var).getBinding();
+				if (bind instanceof LetExpression) {
+					Expression e2 = ((LetExpression) bind).getSequence();
+					if (e2 instanceof Atomizer) {
+						e2 = ((Atomizer) e2).getBaseExpression();
+						if (e2 instanceof VariableReference) {
+							// paired ref to the e
+							pName = ((VariableReference) e2).getBinding().getVariableQName().getLocalPart();
+						}
+					}
+				}
+
+				if (pName == null) {
+					pName = bind.getVariableQName().getClarkName();
+				}
+				// value =
+				// getValues(ctx.evaluateLocalVariable(bind.getLocalSlotNumber()));
+				try {
+					value = getValues(bind.evaluateVariable(ctx));
+				} catch (NullPointerException ee) {
+					value = null;
+				}
+				logger.trace("iterate; got reference: {}, value: {}", pName, value);
+			} else if (var instanceof StringLiteral) {
+				value = ((StringLiteral) var).getStringValue();
+			} else if (var instanceof Literal) {
+				value = getValues(((Literal) var).getValue());
+			}
+
+			if (path.getSegments().size() > 0) {
+				ExpressionContainer exCont = getCurrentContainer();
+				exIndex = exCont.addExpression(currentType, compType, path, pName, value);
+				logger.trace("iterate; added path expression at index: {}", exIndex);
+				setParentPath(exCont.getBuilder(), exIndex, path);
+				logger.trace("iterate; parent path {} set at index: {}", path, exIndex);
+			}
+		}
+
+		if (ex instanceof BooleanExpression) {
+			ExpressionContainer exCont = getCurrentContainer();
+			setParentPath(exCont.getBuilder(), exIndex, path);
+			logger.trace("iterate; parent path {} set at index: {}", path, exIndex);
+		}
+
+		if (ex instanceof IntegratedFunctionCall) {
+			IntegratedFunctionCall ifc = (IntegratedFunctionCall) ex;
+			if ("map:get".equals(ifc.getDisplayName())) {
+				Expression arg = ifc.getArg(1);
+				if (arg instanceof StringLiteral) {
+					String namespace = null;
+					String segment = ((StringLiteral) arg).getStringValue();
+					AxisType axis = AxisType.CHILD;
+					if (segment.startsWith("@")) {
+						axis = AxisType.ATTRIBUTE;
+						segment = segment.substring(1);
+					} else if (segment.startsWith("#")) {
+						axis = AxisType.NAMESPACE;
+						segment = segment.substring(1);
+					}
+					path.addPathSegment(axis, namespace, segment);
+				} else {
+					// the arg can be instanceof VariableReference pointing to
+					// array of
+					// literals. Can it be used in comparison condition..?
+				}
+			}
+		}
+		// if (ex instanceof SystemFunctionCall) {
+		// add FunctionExpression..?
+		// }
+
+		if (ex instanceof Atomizer) {
+			Atomizer at = (Atomizer) ex;
+			logger.trace("iterate; atomizing: {}", at.getBaseExpression());
+			if (at.getBaseExpression() instanceof BindingReference) {
+				// logger.trace("iterate; got base ref: {}",
+				// at.getBaseExpression());
+			} else {
+				PathSegment ps = path.getLastSegment();
+				if (ps != null && ps.getAxis() == AxisType.CHILD) {
+					path.addPathSegment(AxisType.CHILD, null, "text()");
+				}
+			}
+		}
+
+		logger.trace("end: {}; path: {}", ex.getClass().getName(), path.getFullPath());
+	}
+
+	private ExpressionContainer getCurrentContainer() {
 		ExpressionContainer exCont = query.getContainer(currentType);
 		if (exCont == null) {
 			exCont = new ExpressionContainer();
 			// not sure is it ok for currentType = -1!
 			query.addContainer(currentType, exCont);
-    		logger.trace("getCurrentContainer; added new container {} for cType: {}", exCont, currentType);
-		}  
-    	return exCont;
-    }
-        
+			logger.trace("getCurrentContainer; added new container {} for cType: {}", exCont, currentType);
+		}
+		return exCont;
+	}
+
 }

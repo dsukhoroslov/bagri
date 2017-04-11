@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Properties;
 
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.bagri.core.model.Data;
@@ -19,6 +20,7 @@ import com.bagri.core.model.Element;
 import com.bagri.core.server.api.ModelManagement;
 import com.bagri.core.server.api.impl.ModelManagementImpl;
 
+//@Ignore
 public class XmlBuilderTest {
 
 	private static String xml = 
@@ -106,37 +108,38 @@ public class XmlBuilderTest {
 		// to prepare model:
 		XmlStaxParser parser = new XmlStaxParser(model);
 		List<Data> data = parser.parse(xml);
+		int typeId = data.get(0).getDataPath().getTypeId();
 		data.clear();
-		data.add(new Data(model.getPath("/person"), new Element(new int[] {0}, null)));
-		data.add(new Data(model.getPath("/person/firstName"), new Element(new int[] {0, 1}, null)));
-		data.add(new Data(model.getPath("/person/firstName/text()"), new Element(new int[] {0, 1, 1}, "John")));
-		data.add(new Data(model.getPath("/person/lastName"), new Element(new int[] {0, 2}, null)));
-		data.add(new Data(model.getPath("/person/lastName/text()"), new Element(new int[] {0, 2, 1}, "Smith")));
-		data.add(new Data(model.getPath("/person/age"), new Element(new int[] {0, 3}, null)));
-		data.add(new Data(model.getPath("/person/age/text()"), new Element(new int[] {0, 3, 1}, 25)));
-		data.add(new Data(model.getPath("/person/address"), new Element(new int[] {0, 4}, null)));
-		data.add(new Data(model.getPath("/person/address/streetAddress"), new Element(new int[] {0, 4, 1}, null)));
-		data.add(new Data(model.getPath("/person/address/streetAddress/text()"), new Element(new int[] {0, 4, 1, 1}, "21 2nd Street")));
-		data.add(new Data(model.getPath("/person/address/city"), new Element(new int[] {0, 4, 2}, null)));
-		data.add(new Data(model.getPath("/person/address/city/text()"), new Element(new int[] {0, 4, 2, 1}, "New York")));
-		data.add(new Data(model.getPath("/person/address/state"), new Element(new int[] {0, 4, 3}, null)));
-		data.add(new Data(model.getPath("/person/address/state/text()"), new Element(new int[] {0, 4, 3, 1}, "NY")));
-		data.add(new Data(model.getPath("/person/address/postalCode"), new Element(new int[] {0, 4, 4}, null)));
-		data.add(new Data(model.getPath("/person/address/postalCode/text()"), new Element(new int[] {0, 4, 4, 1}, "10021")));
-		data.add(new Data(model.getPath("/person/phoneNumbers"), new Element(new int[] {0, 5}, null)));
-		data.add(new Data(model.getPath("/person/phoneNumbers/phoneNumber"), new Element(new int[] {0, 5, 1}, null)));
-		data.add(new Data(model.getPath("/person/phoneNumbers/phoneNumber/type"), new Element(new int[] {0, 5, 1, 1}, null)));
-		data.add(new Data(model.getPath("/person/phoneNumbers/phoneNumber/type/text()"), new Element(new int[] {0, 5, 1, 1, 1}, "home")));
-		data.add(new Data(model.getPath("/person/phoneNumbers/phoneNumber/number"), new Element(new int[] {0, 5, 1, 2}, null)));
-		data.add(new Data(model.getPath("/person/phoneNumbers/phoneNumber/number/text()"), new Element(new int[] {0, 5, 1, 2, 1}, "212 555-1234")));
-		data.add(new Data(model.getPath("/person/phoneNumbers/phoneNumber"), new Element(new int[] {0, 5, 2}, null)));
-		data.add(new Data(model.getPath("/person/phoneNumbers/phoneNumber/type"), new Element(new int[] {0, 5, 2, 1}, null)));
-		data.add(new Data(model.getPath("/person/phoneNumbers/phoneNumber/type/text()"), new Element(new int[] {0, 5, 2, 1, 1}, "fax")));
-		data.add(new Data(model.getPath("/person/phoneNumbers/phoneNumber/number"), new Element(new int[] {0, 5, 2, 2}, null)));
-		data.add(new Data(model.getPath("/person/phoneNumbers/phoneNumber/number/text()"), new Element(new int[] {0, 5, 2, 2, 1}, "646 555-4567")));
-		data.add(new Data(model.getPath("/person/gender"), new Element(new int[] {0, 6}, null)));
-		data.add(new Data(model.getPath("/person/gender/type"), new Element(new int[] {0, 6, 1}, null)));
-		data.add(new Data(model.getPath("/person/gender/type/text()"), new Element(new int[] {0, 6, 1, 1}, "male")));
+		data.add(new Data(model.getPath(typeId, "/person"), new Element(new int[] {0}, null)));
+		data.add(new Data(model.getPath(typeId, "/person/firstName"), new Element(new int[] {0, 1}, null)));
+		data.add(new Data(model.getPath(typeId, "/person/firstName/text()"), new Element(new int[] {0, 1, 1}, "John")));
+		data.add(new Data(model.getPath(typeId, "/person/lastName"), new Element(new int[] {0, 2}, null)));
+		data.add(new Data(model.getPath(typeId, "/person/lastName/text()"), new Element(new int[] {0, 2, 1}, "Smith")));
+		data.add(new Data(model.getPath(typeId, "/person/age"), new Element(new int[] {0, 3}, null)));
+		data.add(new Data(model.getPath(typeId, "/person/age/text()"), new Element(new int[] {0, 3, 1}, 25)));
+		data.add(new Data(model.getPath(typeId, "/person/address"), new Element(new int[] {0, 4}, null)));
+		data.add(new Data(model.getPath(typeId, "/person/address/streetAddress"), new Element(new int[] {0, 4, 1}, null)));
+		data.add(new Data(model.getPath(typeId, "/person/address/streetAddress/text()"), new Element(new int[] {0, 4, 1, 1}, "21 2nd Street")));
+		data.add(new Data(model.getPath(typeId, "/person/address/city"), new Element(new int[] {0, 4, 2}, null)));
+		data.add(new Data(model.getPath(typeId, "/person/address/city/text()"), new Element(new int[] {0, 4, 2, 1}, "New York")));
+		data.add(new Data(model.getPath(typeId, "/person/address/state"), new Element(new int[] {0, 4, 3}, null)));
+		data.add(new Data(model.getPath(typeId, "/person/address/state/text()"), new Element(new int[] {0, 4, 3, 1}, "NY")));
+		data.add(new Data(model.getPath(typeId, "/person/address/postalCode"), new Element(new int[] {0, 4, 4}, null)));
+		data.add(new Data(model.getPath(typeId, "/person/address/postalCode/text()"), new Element(new int[] {0, 4, 4, 1}, "10021")));
+		data.add(new Data(model.getPath(typeId, "/person/phoneNumbers"), new Element(new int[] {0, 5}, null)));
+		data.add(new Data(model.getPath(typeId, "/person/phoneNumbers/phoneNumber"), new Element(new int[] {0, 5, 1}, null)));
+		data.add(new Data(model.getPath(typeId, "/person/phoneNumbers/phoneNumber/type"), new Element(new int[] {0, 5, 1, 1}, null)));
+		data.add(new Data(model.getPath(typeId, "/person/phoneNumbers/phoneNumber/type/text()"), new Element(new int[] {0, 5, 1, 1, 1}, "home")));
+		data.add(new Data(model.getPath(typeId, "/person/phoneNumbers/phoneNumber/number"), new Element(new int[] {0, 5, 1, 2}, null)));
+		data.add(new Data(model.getPath(typeId, "/person/phoneNumbers/phoneNumber/number/text()"), new Element(new int[] {0, 5, 1, 2, 1}, "212 555-1234")));
+		data.add(new Data(model.getPath(typeId, "/person/phoneNumbers/phoneNumber"), new Element(new int[] {0, 5, 2}, null)));
+		data.add(new Data(model.getPath(typeId, "/person/phoneNumbers/phoneNumber/type"), new Element(new int[] {0, 5, 2, 1}, null)));
+		data.add(new Data(model.getPath(typeId, "/person/phoneNumbers/phoneNumber/type/text()"), new Element(new int[] {0, 5, 2, 1, 1}, "fax")));
+		data.add(new Data(model.getPath(typeId, "/person/phoneNumbers/phoneNumber/number"), new Element(new int[] {0, 5, 2, 2}, null)));
+		data.add(new Data(model.getPath(typeId, "/person/phoneNumbers/phoneNumber/number/text()"), new Element(new int[] {0, 5, 2, 2, 1}, "646 555-4567")));
+		data.add(new Data(model.getPath(typeId, "/person/gender"), new Element(new int[] {0, 6}, null)));
+		data.add(new Data(model.getPath(typeId, "/person/gender/type"), new Element(new int[] {0, 6, 1}, null)));
+		data.add(new Data(model.getPath(typeId, "/person/gender/type/text()"), new Element(new int[] {0, 6, 1, 1}, "male")));
 		//System.out.println(data);
 		XmlBuilder builder = new XmlBuilder(model);
 		Properties props = new Properties();

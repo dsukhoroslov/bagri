@@ -649,16 +649,15 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		long stamp = System.currentTimeMillis();
 		Data root = getDataRoot(data);
 		if (root != null) {
-			int docType = model.translateDocumentType(root.getPath());
-			// normalize it ASAP !?
-			//model.normalizeDocumentType(docType);
+			//int docType = model.translateDocumentType(root.getPath());
+			int docType = root.getDataPath().getTypeId();
 			Map<DataKey, Elements> elements = new HashMap<DataKey, Elements>(data.size());
 			
 			Set<Integer> fragments = new HashSet<>();
 			for (Fragment fragment: repo.getSchema().getFragments()) {
 				int fType = model.getDocumentType(fragment.getDocumentType());
 				if (fType == docType) {
-					Path path = model.getPath(fragment.getPath());
+					Path path = model.getPath(docType, fragment.getPath());
 					if (path != null) {
 						fragments.add(path.getPathId());
 					} else if (isRegexPath(fragment.getPath())) {
@@ -691,7 +690,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 					fraPath = DocumentKey.toKey(hash, 0, 0);
 					fragIds.add(fraPath);
 					//fraPost = xdm.getPostId();
-					fraPost = model.getPath(xdm.getPath()).getPostId();
+					fraPost = model.getPath(docType, xdm.getPath()).getPostId();
 				} else if (fraPost > 0 && xdm.getPathId() > fraPost) {
 					fraPath = docKey;
 					fraPost = 0;
