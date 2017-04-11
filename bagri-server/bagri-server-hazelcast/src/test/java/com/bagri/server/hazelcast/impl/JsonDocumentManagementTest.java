@@ -4,6 +4,7 @@ import static com.bagri.core.Constants.pn_config_path;
 import static com.bagri.core.Constants.pn_config_properties_file;
 import static com.bagri.core.Constants.pn_document_collections;
 import static com.bagri.core.Constants.pn_document_data_format;
+import static com.bagri.core.Constants.pn_log_level;
 import static com.bagri.core.Constants.pn_schema_format_default;
 
 import static org.junit.Assert.*;
@@ -35,8 +36,7 @@ public class JsonDocumentManagementTest extends DocumentManagementTest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		sampleRoot = "..\\..\\etc\\samples\\json\\";
-		System.setProperty("hz.log.level", "info");
-		//System.setProperty("bdb.log.level", "trace");
+		//System.setProperty(pn_log_level, "trace");
 		System.setProperty("logback.configurationFile", "hz-logging.xml");
 		System.setProperty(pn_config_properties_file, "test.properties");
 		System.setProperty(pn_config_path, "src\\test\\resources");

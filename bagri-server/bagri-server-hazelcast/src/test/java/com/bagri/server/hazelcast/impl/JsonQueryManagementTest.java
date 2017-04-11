@@ -4,6 +4,7 @@ import static com.bagri.core.Constants.pn_config_path;
 import static com.bagri.core.Constants.pn_config_properties_file;
 import static com.bagri.core.Constants.pn_document_collections;
 import static com.bagri.core.Constants.pn_document_data_format;
+import static com.bagri.core.Constants.pn_log_level;
 import static com.bagri.core.Constants.pn_schema_format_default;
 import static org.junit.Assert.*;
 
@@ -38,8 +39,7 @@ public class JsonQueryManagementTest extends BagriManagementTest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		sampleRoot = "..\\..\\etc\\samples\\json\\";
-		System.setProperty("hz.log.level", "info");
-		//System.setProperty("bdb.log.level", "trace");
+		//System.setProperty(pn_log_level, "trace");
 		System.setProperty("logback.configurationFile", "hz-logging.xml");
 		System.setProperty(pn_config_properties_file, "json.properties");
 		System.setProperty(pn_config_path, "src\\test\\resources");
@@ -139,7 +139,6 @@ public class JsonQueryManagementTest extends BagriManagementTest {
 	
 		String query = "for $map in fn:collection(\"securities\")\n" + 
 				"let $v := get($map, 'Security')\n" +
-				//"where get($v, '-id') = '5621'\n" +
 				"where get($v, 'Symbol') = 'IBM'\n" +
 				"return $v?('Symbol', 'Name')";
 		ResultCursor docs = query(query, null, null);
@@ -159,19 +158,15 @@ public class JsonQueryManagementTest extends BagriManagementTest {
 	public void queryJsonDocumentsTest() throws Exception {
 	
 		String query = "for $uri in fn:uri-collection(\"securities\")\n" +
-				"let $props := map {'method': 'json'}\n" +
 				"let $map := fn:json-doc($uri)\n" +
 				"let $sec := get($map, 'Security')\n" +
 				"where get($sec, 'id') = 5621\n" +
-				//"where get($sec, 'Symbol') = 'IBM'\n" +
-				"return fn:serialize($map, $props)";
+				"return fn:serialize($map, map{'method': 'json'})";
 		
 		Properties props = new Properties();
 		//props.setProperty("method", "json");
 		ResultCursor docs = query(query, null, props);
 		assertNotNull(docs);
-		props = new Properties();
-		//props.setProperty("method", "json");
 		List<String> jsons = new ArrayList<>();
 		while (docs.next()) {
 			String json = docs.getString();

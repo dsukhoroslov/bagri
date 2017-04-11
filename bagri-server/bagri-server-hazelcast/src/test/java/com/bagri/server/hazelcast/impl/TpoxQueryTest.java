@@ -3,6 +3,7 @@ package com.bagri.server.hazelcast.impl;
 import static com.bagri.core.Constants.pn_xqj_baseURI;
 import static com.bagri.core.Constants.pn_config_path;
 import static com.bagri.core.Constants.pn_config_properties_file;
+import static com.bagri.core.Constants.pn_log_level;
 import static org.junit.Assert.*;
 
 import java.util.ArrayList;
@@ -10,8 +11,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
-
-import javax.xml.xquery.XQItem;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -39,8 +38,7 @@ public class TpoxQueryTest extends ClientQueryManagementTest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		sampleRoot = "..\\..\\etc\\samples\\tpox\\";
-		System.setProperty("hz.log.level", "info");
-		//System.setProperty("bdb.log.level", "trace");
+		//System.setProperty(pn_log_level, "trace");
 		System.setProperty("logback.configurationFile", "hz-logging.xml");
 		System.setProperty(pn_config_properties_file, "test.properties");
 		System.setProperty(pn_config_path, "src\\test\\resources");

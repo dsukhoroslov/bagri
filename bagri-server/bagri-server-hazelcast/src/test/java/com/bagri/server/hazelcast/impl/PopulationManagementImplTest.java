@@ -31,8 +31,7 @@ public class PopulationManagementImplTest extends BagriManagementTest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		sampleRoot = "..\\..\\etc\\samples\\tpox\\";
-		System.setProperty("hz.log.level", "info");
-		//System.setProperty("bdb.log.level", "info");
+		//System.setProperty(pn_log_level, "info");
 		System.setProperty(pn_node_instance, "0");
 		System.setProperty("logback.configurationFile", "hz-logging.xml");
 		System.setProperty(pn_config_properties_file, "store.properties");

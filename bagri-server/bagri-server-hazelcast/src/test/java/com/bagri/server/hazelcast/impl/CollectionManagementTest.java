@@ -3,6 +3,7 @@ package com.bagri.server.hazelcast.impl;
 import static com.bagri.core.Constants.pn_config_path;
 import static com.bagri.core.Constants.pn_config_properties_file;
 import static com.bagri.core.Constants.pn_document_collections;
+import static com.bagri.core.Constants.pn_log_level;
 import static org.junit.Assert.*;
 
 import java.util.ArrayList;
@@ -33,8 +34,7 @@ public class CollectionManagementTest extends BagriManagementTest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		sampleRoot = "..\\..\\etc\\samples\\tpox\\";
-		System.setProperty("hz.log.level", "info");
-		//System.setProperty("bdb.log.level", "trace");
+		//System.setProperty(pn_log_level, "trace");
 		System.setProperty("logback.configurationFile", "hz-logging.xml");
 		System.setProperty(pn_config_properties_file, "test.properties");
 		System.setProperty(pn_config_path, "src\\test\\resources");
