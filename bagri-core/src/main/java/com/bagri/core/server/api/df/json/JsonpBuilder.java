@@ -127,7 +127,7 @@ public class JsonpBuilder extends ContentBuilderBase implements ContentBuilder {
 					case XQBASETYPE_DECIMAL:
 						stream.write(data.getName(), (BigDecimal) data.getValue());
 						break;
-					case XQBASETYPE_INT:
+					case XQBASETYPE_LONG:
 						stream.write(data.getName(), (Long) data.getValue());
 						break;
 					default:

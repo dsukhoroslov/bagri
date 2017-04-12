@@ -53,7 +53,6 @@ public abstract class ContentParserBase {
 		private TreeNode<Data> top;
 		
 		public void addDocument(String root) throws BagriException {
-			//String root = "/";
 			docType = model.translateDocumentType(root);
 			Data data = new Data(root);
 			Path path = model.translatePath(docType, "/", NodeKind.document, XQBASETYPE_ANYTYPE, Occurrence.onlyOne);
@@ -112,7 +111,7 @@ public abstract class ContentParserBase {
 		}
 
 		public void addValue(long value) throws BagriException {
-			setData(Long.valueOf(value), XQBASETYPE_INT);
+			setData(Long.valueOf(value), XQBASETYPE_LONG);
 		}
 	
 		public void addValue(String value) throws BagriException {
@@ -192,14 +191,9 @@ public abstract class ContentParserBase {
 		
 		protected void setData(Data current, Data parent, NodeKind kind, Object value, int dataType, Occurrence occurrence) throws BagriException {
 			logger.trace("setData.enter; current: {}; kind: {}; value: {}; parent: {}", current, kind, value, parent);
-			String path;
-			if (parent.getNodeKind() == NodeKind.document) {
-				path = "/";
-			} else {
-				path = parent.getPath();
-				if (!path.endsWith("/")) {
-					path += "/";
-				}
+			String path = parent.getPath();
+			if (!path.endsWith("/")) {
+				path += "/";
 			}
 			path += current.getDataName();
 			Path xPath = model.translatePath(docType, path, kind, dataType, occurrence);
@@ -217,10 +211,6 @@ public abstract class ContentParserBase {
 			current.setData(xPath, xElt);
 			logger.trace("setData.exit; updated data: {}", current);
 		}
-		
-		//public void setDocType(int docType) {
-		//	this.docType = docType;
-		//}
 		
 	}
 	

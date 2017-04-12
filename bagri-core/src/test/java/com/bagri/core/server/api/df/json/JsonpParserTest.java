@@ -96,6 +96,7 @@ public class JsonpParserTest {
 		assertEquals(45, data.size());
 		FileReader fr = new FileReader("..\\etc\\samples\\json\\security5621.json");
 		data = parser.parse(fr);
+		//System.out.println("data: " + data);
 		assertNotNull(data);
 		assertEquals(44, data.size()); 
 		InputStream fis = new FileInputStream("..\\etc\\samples\\json\\security9012.json");

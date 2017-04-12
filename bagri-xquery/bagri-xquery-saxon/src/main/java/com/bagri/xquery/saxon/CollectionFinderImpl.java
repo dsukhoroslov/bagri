@@ -483,7 +483,9 @@ public class CollectionFinderImpl implements CollectionFinder {
 		if (ex instanceof Atomizer) {
 			Atomizer at = (Atomizer) ex;
 			logger.trace("iterate; atomizing: {}", at.getBaseExpression());
-			if (at.getBaseExpression() instanceof BindingReference) {
+			if ((at.getBaseExpression() instanceof BindingReference) ||
+				(at.getBaseExpression() instanceof IntegratedFunctionCall && 
+						"map:get".equals(((IntegratedFunctionCall) at.getBaseExpression()).getDisplayName()))) {
 				// logger.trace("iterate; got base ref: {}",
 				// at.getBaseExpression());
 			} else {

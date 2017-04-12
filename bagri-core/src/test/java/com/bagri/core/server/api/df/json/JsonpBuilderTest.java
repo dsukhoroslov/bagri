@@ -78,7 +78,7 @@ public class JsonpBuilderTest {
 		data.add(new Data(new Path("", 0, NodeKind.document, 1, 0, 25, XQItemType.XQBASETYPE_ANYTYPE, Occurrence.onlyOne), new Element(new int[] {}, null)));
 		data.add(new Data(new Path("/firstName", 0, NodeKind.attribute, 2, 1, 2, XQItemType.XQBASETYPE_STRING, Occurrence.onlyOne), new Element(new int[] {1}, "John")));
 		data.add(new Data(new Path("/lastName", 0, NodeKind.attribute, 3, 1, 3, XQItemType.XQBASETYPE_STRING, Occurrence.onlyOne), new Element(new int[] {2}, "Smith")));
-		data.add(new Data(new Path("/age", 0, NodeKind.attribute, 4, 1, 4, XQItemType.XQBASETYPE_INT, Occurrence.onlyOne), new Element(new int[] {3}, new Long(25))));
+		data.add(new Data(new Path("/age", 0, NodeKind.attribute, 4, 1, 4, XQItemType.XQBASETYPE_LONG, Occurrence.onlyOne), new Element(new int[] {3}, new Long(25))));
 		data.add(new Data(new Path("/address", 0, NodeKind.element, 5, 1, 9, XQItemType.XQBASETYPE_ANYTYPE, Occurrence.onlyOne), new Element(new int[] {4}, null)));
 		data.add(new Data(new Path("/address/streetAddress", 0, NodeKind.attribute, 6, 5, 6, XQItemType.XQBASETYPE_STRING, Occurrence.onlyOne), new Element(new int[] {4, 1}, "21 2nd Street")));
 		data.add(new Data(new Path("/address/city", 0, NodeKind.attribute, 7, 5, 7, XQItemType.XQBASETYPE_STRING, Occurrence.onlyOne), new Element(new int[] {4, 2}, "New York")));
