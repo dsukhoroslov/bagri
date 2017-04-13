@@ -5,6 +5,7 @@ import static com.bagri.core.server.api.CacheConstants.CN_XDM_DOCUMENT;
 import static com.bagri.core.server.api.CacheConstants.CN_XDM_TRANSACTION;
 import static com.bagri.core.server.api.CacheConstants.TPN_XDM_POPULATION;
 import static com.bagri.server.hazelcast.serialize.DataSerializationFactoryImpl.cli_PopulateSchemaTask;
+import static com.bagri.server.hazelcast.util.HazelcastUtils.findSchemaInstance;
 import static com.bagri.server.hazelcast.util.SpringContextHolder.*;
 
 import java.util.concurrent.Callable;
@@ -15,7 +16,6 @@ import com.bagri.core.model.Document;
 import com.bagri.core.model.Transaction;
 import com.bagri.server.hazelcast.impl.PopulationManagementImpl;
 import com.bagri.server.hazelcast.impl.TransactionManagementImpl;
-import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.ITopic;
@@ -35,7 +35,7 @@ public class SchemaPopulator extends SchemaProcessingTask implements Callable<Bo
     	logger.debug("call.enter; schema: {}", schemaName);
     	boolean result = false;
 		// get hzInstance 
-		HazelcastInstance hz = Hazelcast.getHazelcastInstanceByName(schemaName);
+		HazelcastInstance hz = findSchemaInstance(schemaName);
 		if (hz != null) {
 			try {
 				// TODO: ensure that partitions migration has been already finished! 

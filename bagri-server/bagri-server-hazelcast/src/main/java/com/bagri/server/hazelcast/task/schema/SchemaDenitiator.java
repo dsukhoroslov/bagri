@@ -2,12 +2,12 @@ package com.bagri.server.hazelcast.task.schema;
 
 import static com.bagri.server.hazelcast.serialize.DataSerializationFactoryImpl.cli_DenitSchemaTask;
 import static com.bagri.server.hazelcast.util.SpringContextHolder.*;
+import static com.bagri.server.hazelcast.util.HazelcastUtils.findSchemaInstance;
 
 import java.util.concurrent.Callable;
 
 import org.springframework.context.ConfigurableApplicationContext;
 
-import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.spring.context.SpringAware;
 
@@ -29,7 +29,7 @@ public class SchemaDenitiator extends SchemaProcessingTask implements Callable<B
     	logger.trace("call.enter; schema: {}", schemaName);
     	boolean result = false;
 		// get hzInstance and close it...
-		HazelcastInstance hz = Hazelcast.getHazelcastInstanceByName(schemaName);
+		HazelcastInstance hz = findSchemaInstance(schemaName);
 		if (hz != null) {
 			ConfigurableApplicationContext ctx = (ConfigurableApplicationContext) getContext(schemaName);
 			ctx.close();

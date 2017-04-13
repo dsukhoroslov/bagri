@@ -9,6 +9,8 @@ import java.util.Deque;
 import java.util.LinkedList;
 import java.util.Properties;
 
+import javax.xml.stream.XMLOutputFactory;
+
 import com.bagri.core.api.BagriException;
 import com.bagri.core.model.Data;
 import com.bagri.core.model.NodeKind;
@@ -23,6 +25,9 @@ import com.bagri.core.server.api.impl.ContentBuilderBase;
  *
  */
 public class XmlBuilder extends ContentBuilderBase implements ContentBuilder {
+	
+	// TODO: try this..
+	//private XMLOutputFactory factory = XMLOutputFactory.newInstance();
 	
 	private boolean pretty = false;
 	private int ident = 4;
@@ -55,7 +60,7 @@ public class XmlBuilder extends ContentBuilderBase implements ContentBuilder {
     	Deque<Data> dataStack = new LinkedList<>();
     	StringBuffer buff = new StringBuffer();
     	boolean eltOpen = false;
-
+    	
     	String prefix = "";
     	for (int i=0; i < ident; i++) {
     		prefix += " ";
@@ -88,7 +93,7 @@ public class XmlBuilder extends ContentBuilderBase implements ContentBuilder {
 	private boolean writeElement(Deque<Data> dataStack, StringBuffer buff, Data data, boolean eltOpen, String prefix) {
 		switch (data.getNodeKind()) {
 			case document: { // this must be the first row..
-				buff.append("<?xml version=\"1.0\"?>"); // what about: encoding="utf-8"?>
+				buff.append("<?xml version=\"1.0\"?>"); // what about: encoding="utf-8"?>, standalone..
 				if (pretty) {
 					buff.append(EOL);
 				}

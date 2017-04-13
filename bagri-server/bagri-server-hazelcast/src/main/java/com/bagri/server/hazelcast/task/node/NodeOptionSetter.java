@@ -4,7 +4,7 @@ import static com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl.
 import static com.bagri.core.Constants.pn_config_path;
 import static com.bagri.core.Constants.pn_config_properties_file;
 import static com.bagri.server.hazelcast.serialize.DataSerializationFactoryImpl.cli_SetNodeOptionTask;
-import static com.bagri.server.hazelcast.util.HazelcastUtils.hz_instance;
+import static com.bagri.server.hazelcast.util.HazelcastUtils.findSystemInstance;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -15,7 +15,6 @@ import java.util.concurrent.Callable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.Member;
 import com.hazelcast.nio.ObjectDataInput;
@@ -45,7 +44,7 @@ public class NodeOptionSetter implements Callable<Boolean>, IdentifiedDataSerial
 	@Override
 	public Boolean call() throws Exception {
 		logger.trace("call.enter;");
-		HazelcastInstance hzInstance = Hazelcast.getHazelcastInstanceByName(hz_instance);
+		HazelcastInstance hzInstance = findSystemInstance();
 		Member member = hzInstance.getCluster().getLocalMember();
 		boolean result = false;
 

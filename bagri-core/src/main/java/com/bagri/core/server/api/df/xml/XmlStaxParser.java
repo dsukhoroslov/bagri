@@ -217,18 +217,16 @@ public class XmlStaxParser extends ContentParserBase implements ContentParser {
 		} else {
 			switch (xmlEvent.getEventType()) {
 				case XMLStreamConstants.START_DOCUMENT:
-					//processDocument(ctx, (StartDocument) xmlEvent);
+				case XMLStreamConstants.END_DOCUMENT:
 					break;
 				case XMLStreamConstants.START_ELEMENT:
-					processStartElement(ctx, xmlEvent.asStartElement());
+					startElement(ctx, xmlEvent.asStartElement());
 					break;
 				case XMLStreamConstants.CHARACTERS:
 					ctx.addCharacters(xmlEvent.asCharacters());
 					break;
 				case XMLStreamConstants.END_ELEMENT:
 					ctx.endElement();
-					break;
-				case XMLStreamConstants.END_DOCUMENT:
 					break;
 				case XMLStreamConstants.ATTRIBUTE:
 					ctx.addAttribute((Attribute) xmlEvent);
@@ -251,19 +249,8 @@ public class XmlStaxParser extends ContentParserBase implements ContentParser {
 		return new XmlParserContext();
 	}
 	
-	//private void processDocument(XmlParserContext ctx, StartDocument document) throws BagriException {
-
-		// we don't need position for the top element.. 
-		//Element start = new Element();
-		//Path path = model.translatePath(ctx.getDocType(), "", NodeKind.document, XQItemType.XQBASETYPE_ANYTYPE, Occurrence.onlyOne);
-		//Data data = new Data(path, start);
-		//ctx.addStack(data);
-		//ctx.addData(data);
-	//	ctx.addDocument();
-	//}
-
 	@SuppressWarnings("unchecked")
-	private void processStartElement(XmlParserContext ctx, StartElement element) throws BagriException {
+	private void startElement(XmlParserContext ctx, StartElement element) throws BagriException {
 		ctx.appendCharacters();
 		
 		ctx.addData(element.getName().toString()); // getLocalPart());

@@ -1,6 +1,7 @@
 package com.bagri.server.hazelcast.util;
 
 import static com.bagri.core.Constants.pn_cluster_node_schemas;
+import static com.bagri.core.Constants.pn_node_instance;
 import static com.bagri.server.hazelcast.util.SpringContextHolder.schema_context;
 
 import java.util.Set;
@@ -15,6 +16,8 @@ import com.hazelcast.core.Member;
 public class HazelcastUtils {
 	
 	public final static String hz_instance = "hzInstance";
+	
+	private static String node_instance = null;
 
 	public static HazelcastInstance findSystemInstance() {
 
@@ -22,8 +25,12 @@ public class HazelcastUtils {
 	}
 	
 	public static HazelcastInstance findSchemaInstance(String schemaName) {
-
-		return Hazelcast.getHazelcastInstanceByName(schemaName);
+		// do we need synchronize this block?
+		if (node_instance == null) {
+			HazelcastInstance hzInstance = findSystemInstance();
+			node_instance = ((Member) hzInstance.getLocalEndpoint()).getStringAttribute(pn_node_instance);
+		}
+		return Hazelcast.getHazelcastInstanceByName(schemaName + "-" + node_instance);
 	}
 	
 	public static HazelcastInstance findDefaultInstance() {

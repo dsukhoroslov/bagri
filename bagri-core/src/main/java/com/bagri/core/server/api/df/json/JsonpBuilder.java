@@ -27,8 +27,7 @@ import com.bagri.core.server.api.impl.ContentBuilderBase;
 /**
  * Content Builder implementation for JSON format. Uses reference implementation (Glassfish) of json generator.
  * 
- *  NOTE: not implemented yet!
- * 
+ *   
  * @author Denis Sukhoroslov
  *
  */
@@ -78,7 +77,8 @@ public class JsonpBuilder extends ContentBuilderBase implements ContentBuilder {
     	try {
 			writer.close();
 		} catch (IOException ex) {
-			throw new BagriException(ex, BagriException.ecInOut);
+			// just skip it..
+			logger.info("buildString; exception closing stream: {}", ex.getMessage());
 		}
     	return result;  
 	}
@@ -153,7 +153,7 @@ public class JsonpBuilder extends ContentBuilderBase implements ContentBuilder {
 					case XQBASETYPE_DECIMAL:
 						stream.write((BigDecimal) data.getValue());
 						break;
-					case XQBASETYPE_INT:
+					case XQBASETYPE_LONG:
 						stream.write((Long) data.getValue());
 						break;
 					default:
@@ -169,16 +169,16 @@ public class JsonpBuilder extends ContentBuilderBase implements ContentBuilder {
 	
 	private void endElement(Deque<Data> dataStack, JsonGenerator stream, Data data) {
     	
-		if (dataStack.isEmpty()) {
-			//
-		} else {
+		//while (top != null && (data.getParentPos() != top.getPos() || data.getLevel() != top.getLevel() + 1)) {
+		do {
 			Data top = dataStack.peek();
-			while (top != null && (data.getParentPos() != top.getPos() || data.getLevel() != top.getLevel() + 1)) {
+			if (top != null && (/*top.getLevel() > data.getLevel() ||*/ top.getPos() != data.getParentPos())) {
 				stream.writeEnd();
-   				dataStack.pop();
-				top = dataStack.peek();
+				dataStack.pop();
+			} else {
+				break;
 			}
-		}
+		} while (true);
     }
 	
 	

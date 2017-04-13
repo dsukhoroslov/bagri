@@ -1,10 +1,10 @@
 package com.bagri.server.hazelcast.task.schema;
 
 import static com.bagri.server.hazelcast.serialize.DataSerializationFactoryImpl.cli_ExtractSchemaMemberTask;
+import static com.bagri.server.hazelcast.util.HazelcastUtils.findSchemaInstance;
 
 import java.util.concurrent.Callable;
 
-import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.Member;
 
@@ -22,7 +22,7 @@ public class SchemaMemberExtractor extends SchemaProcessingTask implements Calla
 	@Override
 	public String call() throws Exception {
     	logger.trace("call.enter; schema: {}", schemaName);
-		HazelcastInstance hz = Hazelcast.getHazelcastInstanceByName(schemaName);
+		HazelcastInstance hz = findSchemaInstance(schemaName);
     	Member member = hz.getCluster().getLocalMember();
 		String result = member.getUuid();
     	logger.trace("call.exit; returning: {} for member: {}", result, member);

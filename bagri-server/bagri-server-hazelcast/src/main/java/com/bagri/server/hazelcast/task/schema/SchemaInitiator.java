@@ -5,6 +5,7 @@ import static com.bagri.core.Constants.ctx_popService;
 import static com.bagri.core.Constants.pn_config_path;
 import static com.bagri.core.Constants.pn_schema_name;
 import static com.bagri.server.hazelcast.serialize.DataSerializationFactoryImpl.cli_InitSchemaTask;
+import static com.bagri.server.hazelcast.util.HazelcastUtils.findSchemaInstance;
 import static com.bagri.server.hazelcast.util.HazelcastUtils.hz_instance;
 import static com.bagri.server.hazelcast.util.SpringContextHolder.*;
 
@@ -21,7 +22,6 @@ import com.bagri.core.server.api.SchemaRepository;
 import com.bagri.core.system.Schema;
 import com.bagri.server.hazelcast.impl.PopulationManagementImpl;
 import com.bagri.server.hazelcast.impl.SchemaRepositoryImpl;
-import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
@@ -45,7 +45,7 @@ public class SchemaInitiator implements Callable<Boolean>, IdentifiedDataSeriali
 	@Override
 	public Boolean call() throws Exception {
 		String schemaName = schema.getName();
-		HazelcastInstance hz = Hazelcast.getHazelcastInstanceByName(schemaName);
+		HazelcastInstance hz = findSchemaInstance(schemaName);
 		if (hz != null) {
     		logger.debug("initSchema.exit; schema {} already started on instance: {}, returning", schemaName, hz);
     		return false;

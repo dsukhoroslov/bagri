@@ -119,7 +119,6 @@ public class ModelManagementImplTest extends BagriManagementTest {
 	}
 
 	@Test
-	//@Ignore
 	public void getSecurityPathTest() throws Exception {
 		storeSecurityTest();
 		Collection<Path> sec = getSecurityPath();
@@ -128,22 +127,12 @@ public class ModelManagementImplTest extends BagriManagementTest {
 	}
 
 	@Test
-	//@Ignore
 	public void getCustomerPathTest() throws Exception {
 		storeCustomerTest();
 		Collection<Path> sec = getCustomerPath();
 		assertNotNull(sec);
 		assertTrue(sec.size() > 0);
 	}
-	
-	//@Test
-	//public void testParse() throws IOException {
-	//	String sampleRoot = "..\\..\\etc\\samples\\tpox\\";
-	//	String fileName = sampleRoot + "security.xsd";
-	//	XDMSchemaProcessor proc = new XDMSchemaProcessor();
-	//	List<XDMPath> xpl = proc.parse(fileName);
-	//	assertNotNull(xpl);
-	//}
 	
 	@Test
 	public void testNormalizePath() throws Exception {
@@ -182,7 +171,13 @@ public class ModelManagementImplTest extends BagriManagementTest {
 		time = System.currentTimeMillis() - time;
 		double avg = time;
 		avg = avg/count;
-		System.out.println("time taken: " + time + " for " + count + " normalizations; avg time: " + avg);
+		//System.out.println("time taken: " + time + " for " + count + " normalizations; avg time: " + avg);
 	}
+	
+	//@Test
+	//public void testNamespace() throws Exception {
+	//	String ns = ((SchemaRepository) xRepo).getModelManagement().translateNamespace("http://tpox-benchmark.com/security", "ns1");
+	//	assertEquals("ns1", ns);
+	//}
 	
 }

@@ -2,6 +2,7 @@ package com.bagri.server.hazelcast.task.schema;
 
 import static com.bagri.core.server.api.CacheConstants.*;
 import static com.bagri.server.hazelcast.serialize.DataSerializationFactoryImpl.cli_CleanSchemaTask;
+import static com.bagri.server.hazelcast.util.HazelcastUtils.findSchemaInstance;
 
 import java.io.IOException;
 import java.util.concurrent.Callable;
@@ -9,10 +10,7 @@ import java.util.concurrent.Callable;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.bagri.core.model.Query;
-import com.bagri.core.model.QueryResult;
-import com.bagri.core.server.api.QueryManagement;
 import com.bagri.server.hazelcast.impl.HealthManagementImpl;
-import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.ReplicatedMap;
@@ -44,7 +42,7 @@ public class SchemaDocCleaner extends SchemaProcessingTask implements Callable<B
 	public Boolean call() throws Exception {
     	logger.trace("call.enter; schema: {}", schemaName);
     	boolean result = false;
-		HazelcastInstance hz = Hazelcast.getHazelcastInstanceByName(schemaName);
+		HazelcastInstance hz = findSchemaInstance(schemaName);
 		if (hz != null) {
 			// get docs caches and clean them
 			cleanCache(hz, CN_XDM_CONTENT);

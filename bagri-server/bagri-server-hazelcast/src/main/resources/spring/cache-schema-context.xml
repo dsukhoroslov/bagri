@@ -14,7 +14,7 @@
 	<hz:hazelcast id="hzInstance">
 		<hz:config>
 			<hz:spring-aware/>
-			<hz:instance-name>${bdb.schema.name}</hz:instance-name>
+			<hz:instance-name>${bdb.schema.name}-${bdb.node.instance}</hz:instance-name>
 			<hz:group name="${bdb.schema.name}" password="${bdb.schema.password}"/>
 			<hz:management-center url="http://localhost:8080/mancenter" enabled="false"/>
 			<hz:properties>
@@ -107,8 +107,8 @@
 					<hz:properties>
 						<hz:property name="bdb.node.instance">${bdb.node.instance}</hz:property>
 						<hz:property name="bdb.schema.name">${bdb.schema.name}</hz:property>
-	    				<hz:property name="bdb.schema.store.data.path">${bdb.schema.store.data.path}</hz:property>
-	    				<hz:property name="bdb.schema.store.tx.buffer.size">${bdb.schema.store.tx.buffer.size}</hz:property>
+						<hz:property name="bdb.schema.store.data.path">${bdb.schema.store.data.path}</hz:property>
+						<hz:property name="bdb.schema.store.tx.buffer.size">${bdb.schema.store.tx.buffer.size}</hz:property>
 					</hz:properties>
 				</hz:map-store>
 				<hz:indexes>
@@ -202,8 +202,8 @@
 						<hz:property name="bdb.node.instance">${bdb.node.instance}</hz:property>
 						<hz:property name="bdb.schema.name">${bdb.schema.name}</hz:property>
 						<hz:property name="bdb.schema.population.size">${bdb.schema.population.size}</hz:property>
-	    				<hz:property name="bdb.schema.population.buffer.size">${bdb.schema.population.buffer.size}</hz:property>
-	    				<hz:property name="bdb.schema.store.data.path">${bdb.schema.store.data.path}</hz:property>
+						<hz:property name="bdb.schema.population.buffer.size">${bdb.schema.population.buffer.size}</hz:property>
+						<hz:property name="bdb.schema.store.data.path">${bdb.schema.store.data.path}</hz:property>
 					</hz:properties>
 					<!--hz:configuration parser="MyParser">
 					</hz:configuration-->

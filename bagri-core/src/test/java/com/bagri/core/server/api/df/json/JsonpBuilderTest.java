@@ -88,7 +88,7 @@ public class JsonpBuilderTest {
 		data.add(new Data(new Path("/phoneNumber/", 0, NodeKind.element, 11, 10, 13, XQItemType.XQBASETYPE_ANYTYPE, Occurrence.oneOrMany), new Element(new int[] {5, 1}, null)));
 		data.add(new Data(new Path("/phoneNumber/type", 0, NodeKind.attribute, 12, 11, 12, XQItemType.XQBASETYPE_STRING, Occurrence.onlyOne), new Element(new int[] {5, 1, 1}, "home")));
 		data.add(new Data(new Path("/phoneNumber/number", 0, NodeKind.attribute, 13, 11, 13, XQItemType.XQBASETYPE_STRING, Occurrence.onlyOne), new Element(new int[] {5, 1, 2}, "212 555-1234")));
-		data.add(new Data(new Path("/phoneNumbers/", 0, NodeKind.element, 11, 10, 13, XQItemType.XQBASETYPE_ANYTYPE, Occurrence.oneOrMany), new Element(new int[] {5, 2}, null)));
+		data.add(new Data(new Path("/phoneNumber/", 0, NodeKind.element, 11, 10, 13, XQItemType.XQBASETYPE_ANYTYPE, Occurrence.oneOrMany), new Element(new int[] {5, 2}, null)));
 		data.add(new Data(new Path("/phoneNumber/type", 0, NodeKind.attribute, 12, 11, 12, XQItemType.XQBASETYPE_STRING, Occurrence.onlyOne), new Element(new int[] {5, 2, 1}, "fax")));
 		data.add(new Data(new Path("/phoneNumber/number", 0, NodeKind.attribute, 13, 11, 13, XQItemType.XQBASETYPE_STRING, Occurrence.onlyOne), new Element(new int[] {5, 2, 2}, "646 555-4567")));
 		data.add(new Data(new Path("/gender", 0, NodeKind.element, 14, 1, 15, XQItemType.XQBASETYPE_ANYTYPE, Occurrence.onlyOne), new Element(new int[] {6}, null)));

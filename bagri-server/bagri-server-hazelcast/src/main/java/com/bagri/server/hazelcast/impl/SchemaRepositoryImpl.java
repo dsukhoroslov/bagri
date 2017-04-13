@@ -5,8 +5,7 @@ import static com.bagri.core.Constants.ctx_popService;
 import static com.bagri.core.Constants.pn_schema_format_default;
 import static com.bagri.core.server.api.CacheConstants.*;
 import static com.bagri.server.hazelcast.util.HazelcastUtils.hasStorageMembers;
-import static com.bagri.server.hazelcast.util.HazelcastUtils.hz_instance;
-import static com.hazelcast.core.Hazelcast.getHazelcastInstanceByName;
+import static com.bagri.server.hazelcast.util.HazelcastUtils.findSystemInstance;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -293,7 +292,7 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
 		//logger.info("getDataFormat; format: {}", dataFormat);
 		Map<String, DataFormat> formats = xdmFormats;
 		if (formats == null) {
-			HazelcastInstance dataInstance = getHazelcastInstanceByName(hz_instance);
+			HazelcastInstance dataInstance = findSystemInstance();
 			if (dataInstance != null) {
 				formats = dataInstance.getMap(CN_SYS_FORMATS);
 			}
@@ -333,7 +332,7 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
 			return xdmLibraries;
 		}
 		
-		HazelcastInstance dataInstance = getHazelcastInstanceByName(hz_instance);
+		HazelcastInstance dataInstance = findSystemInstance();
 		if (dataInstance != null && hasStorageMembers(dataInstance)) {
 			Map<String, Library> libraries = dataInstance.getMap(CN_SYS_LIBRARIES);
 			return libraries.values();
@@ -352,7 +351,7 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
 			return xdmModules;
 		}
 		
-		HazelcastInstance dataInstance = getHazelcastInstanceByName(hz_instance);
+		HazelcastInstance dataInstance = findSystemInstance();
 		if (dataInstance != null && hasStorageMembers(dataInstance)) {
 			Map<String, Module> modules = dataInstance.getMap(CN_SYS_MODULES);
 			return modules.values();
@@ -391,7 +390,7 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
 		if (xdmFormats != null && xdmModules != null && xdmLibraries != null) {
 			return true;
 		}
-		HazelcastInstance sysInstance = getHazelcastInstanceByName(hz_instance);
+		HazelcastInstance sysInstance = findSystemInstance();
 		if (sysInstance == null) {
 			return false;
 		}
