@@ -10,24 +10,16 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 import com.bagri.core.model.DocumentType;
-import com.bagri.core.model.Namespace;
 import com.bagri.core.model.Path;
 import com.bagri.support.idgen.IdGenerator;
 import com.bagri.support.idgen.SimpleIdGenerator;
 
 public class ModelManagementImpl extends ModelManagementBase {
 	
-	private Map<String, Namespace> nsCache = new ConcurrentHashMap<>();
 	private Map<String, Path> pathCache = new ConcurrentHashMap<>();
 	private Map<String, DocumentType> typeCache = new ConcurrentHashMap<>();
-	private IdGenerator<Long> nsGen = new SimpleIdGenerator(0);
 	private IdGenerator<Long> pathGen = new SimpleIdGenerator(0);
 	private IdGenerator<Long> typeGen = new SimpleIdGenerator(0);
-
-	@Override
-	protected Map<String, Namespace> getNamespaceCache() {
-		return nsCache;
-	}
 
 	@Override
 	protected Map<String, Path> getPathCache() {
@@ -37,11 +29,6 @@ public class ModelManagementImpl extends ModelManagementBase {
 	@Override
 	protected Map<String, DocumentType> getTypeCache() {
 		return typeCache;
-	}
-
-	@Override
-	protected IdGenerator<Long> getNamespaceGen() {
-		return nsGen;
 	}
 
 	@Override

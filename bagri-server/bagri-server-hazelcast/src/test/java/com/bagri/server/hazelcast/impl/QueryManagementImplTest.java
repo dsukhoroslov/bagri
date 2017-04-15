@@ -84,7 +84,7 @@ public class QueryManagementImplTest extends BagriManagementTest {
 
 	
 	public Collection<String> getPrice(String symbol) throws Exception {
-		String prefix = getModelManagement().getNamespacePrefix("http://tpox-benchmark.com/security"); 
+		String prefix = "http://tpox-benchmark.com/security"; 
 		int docType = 0; //getModelManagement().getDocumentType("/" + prefix + ":Security");
 		PathBuilder path = new PathBuilder().
 				addPathSegment(AxisType.CHILD, prefix, "Security").
@@ -99,7 +99,7 @@ public class QueryManagementImplTest extends BagriManagementTest {
 	}
 	
 	public Collection<String> getSecurity(String symbol) throws Exception {
-		String prefix = getModelManagement().getNamespacePrefix("http://tpox-benchmark.com/security"); 
+		String prefix = "http://tpox-benchmark.com/security"; 
 		int docType = 0; //getModelManagement().getDocumentType("/" + prefix + ":Security");
 		PathBuilder path = new PathBuilder().
 				addPathSegment(AxisType.CHILD, prefix, "Security").
@@ -113,7 +113,7 @@ public class QueryManagementImplTest extends BagriManagementTest {
 	}
 	
 	public Collection<String> getOrder(String id) throws Exception {
-		String prefix = getModelManagement().getNamespacePrefix("http://www.fixprotocol.org/FIXML-4-4"); 
+		String prefix = "http://www.fixprotocol.org/FIXML-4-4"; 
 		int docType = 0; //getModelManagement().getDocumentType("/" + prefix + ":FIXML"); // /" + prefix + ":Order");
 		PathBuilder path = new PathBuilder().
 				addPathSegment(AxisType.CHILD, prefix, "FIXML").
@@ -127,7 +127,7 @@ public class QueryManagementImplTest extends BagriManagementTest {
 	}
 	
 	public Collection<String> getCustomerProfile(String id) throws Exception {
-		String prefix = getModelManagement().getNamespacePrefix("http://tpox-benchmark.com/custacc"); 
+		String prefix = "http://tpox-benchmark.com/custacc"; 
 		int docType = 0; //getModelManagement().getDocumentType("/" + prefix + ":Customer");
 		PathBuilder path = new PathBuilder().
 				addPathSegment(AxisType.CHILD, prefix, "Customer").
@@ -156,7 +156,7 @@ public class QueryManagementImplTest extends BagriManagementTest {
 	}
 	
 	public Collection<String> getCustomerAccounts(String id) throws Exception {
-		String prefix = getModelManagement().getNamespacePrefix("http://tpox-benchmark.com/custacc"); 
+		String prefix = "http://tpox-benchmark.com/custacc"; 
 		int docType = 0; //getModelManagement().getDocumentType("/" + prefix + ":Customer");
 		PathBuilder path = new PathBuilder().
 				addPathSegment(AxisType.CHILD, prefix, "Customer").
@@ -186,7 +186,7 @@ public class QueryManagementImplTest extends BagriManagementTest {
 	
 	public Collection<String> searchSecurity(String sector, float peMin, float peMax, float yieldMin) throws Exception {
 
-		String prefix = getModelManagement().getNamespacePrefix("http://tpox-benchmark.com/security"); 
+		String prefix = "http://tpox-benchmark.com/security"; 
 		int docType = 0; //getModelManagement().getDocumentType("/" + prefix + ":Security");
 		PathBuilder path = new PathBuilder().
 				addPathSegment(AxisType.CHILD, prefix, "Security");

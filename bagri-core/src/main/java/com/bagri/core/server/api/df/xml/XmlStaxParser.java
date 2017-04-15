@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
@@ -216,9 +217,6 @@ public class XmlStaxParser extends ContentParserBase implements ContentParser {
 			}
 		} else {
 			switch (xmlEvent.getEventType()) {
-				case XMLStreamConstants.START_DOCUMENT:
-				case XMLStreamConstants.END_DOCUMENT:
-					break;
 				case XMLStreamConstants.START_ELEMENT:
 					startElement(ctx, xmlEvent.asStartElement());
 					break;
@@ -229,13 +227,15 @@ public class XmlStaxParser extends ContentParserBase implements ContentParser {
 					ctx.endElement();
 					break;
 				case XMLStreamConstants.ATTRIBUTE:
-					ctx.addAttribute((Attribute) xmlEvent);
+					ctx.addAttribute(((Attribute) xmlEvent).getName(), ((Attribute) xmlEvent).getValue());
 					break;
 				case XMLStreamConstants.COMMENT:
-					ctx.addComment((Comment) xmlEvent);
+					ctx.addComment(((Comment) xmlEvent).getText());
 					break;
 				case XMLStreamConstants.PROCESSING_INSTRUCTION:
-					ctx.addProcessingInstruction((ProcessingInstruction) xmlEvent);
+					ctx.addProcessingInstruction(((ProcessingInstruction) xmlEvent).getTarget(), ((ProcessingInstruction) xmlEvent).getData());
+					break;
+				default:
 					break;
 			}
 		}
@@ -261,18 +261,19 @@ public class XmlStaxParser extends ContentParserBase implements ContentParser {
 			// TODO: process default namespace properly
 			String namespace = ns.getValue();
 			if (namespace != null) {
-				String prefix = model.translateNamespace(namespace, ns.getName().getLocalPart());
+				//String prefix = model.translateNamespace(namespace, ns.getName().getLocalPart());
+				String prefix = ns.getName().getLocalPart();
 				ctx.addNamespace(prefix, namespace);
 			}
 		}
 
 		for (Iterator<Attribute> itr = element.getAttributes(); itr.hasNext();) {
 			Attribute a = itr.next();
-			if (!a.getName().getPrefix().isEmpty()) {
-				String prefix = model.translateNamespace(a.getName().getNamespaceURI(), a.getName().getPrefix());
-				ctx.addNamespace(prefix, a.getName().getNamespaceURI());
-			}
-			ctx.addData("@" + a.getName(), NodeKind.attribute, a.getValue(), XQItemType.XQBASETYPE_ANYATOMICTYPE, Occurrence.onlyOne); 
+			//if (!a.getName().getPrefix().isEmpty()) {
+			//	String prefix = model.translateNamespace(a.getName().getNamespaceURI(), a.getName().getPrefix());
+			//	ctx.addNamespace(prefix, a.getName().getNamespaceURI());
+			//}
+			ctx.addAttribute(a.getName(), a.getValue()); 
 		}
 	}
 
@@ -290,9 +291,9 @@ public class XmlStaxParser extends ContentParserBase implements ContentParser {
 			chars = new StringBuilder();
 		}
 		
-		private void addAttribute(Attribute attribute) {
-			// ...
-			logger.trace("attribute: {}", attribute);
+		private void addAttribute(QName name, String value) throws BagriException {
+			logger.trace("attribute: {}:{}", name, value);
+			addData("@" + name, NodeKind.attribute, value, XQItemType.XQBASETYPE_ANYATOMICTYPE, Occurrence.onlyOne); 
 		}
 
 		public void addCharacters(Characters characters) {
@@ -313,8 +314,8 @@ public class XmlStaxParser extends ContentParserBase implements ContentParser {
 			}
 		}
 
-		public void addComment(Comment comment) throws BagriException {
-			addData("comment()", NodeKind.comment, comment.getText(), XQItemType.XQBASETYPE_ANYTYPE, Occurrence.zeroOrOne);
+		public void addComment(String comment) throws BagriException {
+			addData("comment()", NodeKind.comment, comment, XQItemType.XQBASETYPE_ANYTYPE, Occurrence.zeroOrOne);
 		}
 		
 		public void addNamespace(String prefix, String namespace) throws BagriException {
@@ -324,11 +325,11 @@ public class XmlStaxParser extends ContentParserBase implements ContentParser {
 			}
 		}
 		
-		public void addProcessingInstruction(ProcessingInstruction pi) throws BagriException {
+		public void addProcessingInstruction(String target, String data) throws BagriException {
 			//For a processing-instruction node: processing-instruction(local)[position] where local is the name 
 			//of the processing instruction node and position is an integer representing the position of the selected 
 			//node among its like-named processing-instruction node siblings
-			addData("/?" + pi.getTarget(), NodeKind.pi, pi.getData(), XQItemType.XQBASETYPE_ANYTYPE, Occurrence.zeroOrOne);
+			addData("/?" + target, NodeKind.pi, data, XQItemType.XQBASETYPE_ANYTYPE, Occurrence.zeroOrOne);
 		}
 		
 		@Override

@@ -511,7 +511,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		for (Collection collect: schema.getCollections()) {
 			String cPath = collect.getDocumentType();
 			// TODO: very inefficient to normalize collections over and over again!
-			cPath = model.normalizePath(cPath);
+			//cPath = model.normalizePath(cPath);
 			if (cPath != null && typePath.equals(cPath)) {
 				return collect;
 			}
@@ -661,7 +661,8 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 					if (path != null) {
 						fragments.add(path.getPathId());
 					} else if (isRegexPath(fragment.getPath())) {
-						String nPath = model.normalizePath(fragment.getPath());
+						//String nPath = model.normalizePath(fragment.getPath());
+						String nPath = fragment.getPath();
 						fragments.addAll(model.translatePathFromRegex(docType, regexFromPath(nPath)));
 					} else {	
 						logger.info("loadElements; path not found for fragment: {}; docType: {} ({})", 

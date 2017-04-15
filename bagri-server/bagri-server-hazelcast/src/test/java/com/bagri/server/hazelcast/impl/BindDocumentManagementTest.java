@@ -35,7 +35,7 @@ public class BindDocumentManagementTest extends BagriManagementTest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		sampleRoot = "..\\..\\etc\\samples\\json\\";
-		//System.setProperty(pn_log_level, "trace");
+		System.setProperty(pn_log_level, "trace");
 		System.setProperty("logback.configurationFile", "hz-logging.xml");
 		System.setProperty(pn_config_properties_file, "test.properties");
 		System.setProperty(pn_config_path, "src\\test\\resources");

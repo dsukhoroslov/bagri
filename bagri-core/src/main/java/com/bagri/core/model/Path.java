@@ -101,20 +101,38 @@ public class Path implements Comparable<Path> {
 		}
 		
 		if (name == null) {
-			String last;
-			String[] segments = path.split("/");
+			String last = null;
+			String[] segments = path.split("[\\{/\\}]+");
+			if (segments.length > 0) {
+				last = segments[segments.length - 1];
+			}
 	
 			switch (kind) {
-				case attribute: //@
+				case attribute: //@ 
+					if (last.startsWith("@")) {
+						name = last.substring(1);
+					} else {
+						name = last;
+					}
+					break;
 				case namespace: //#
-				case pi: 		//?
-					last = segments[segments.length-1];
-					name = last.substring(1);
+					if (last.startsWith("#")) {
+						name = last.substring(1);
+					} else {
+						name = last;
+					}
+					break;
+				case pi: //?
+					if (last.startsWith("?")) {
+						name = last.substring(1);
+					} else {
+						name = last;
+					}
 					break;
 				case text: 
 					name = segments[segments.length-2];
 					break;
-				case array: //[]
+				case array: //[] ??
 				case element:
 					if (segments.length > 0) {
 						name = segments[segments.length-1];

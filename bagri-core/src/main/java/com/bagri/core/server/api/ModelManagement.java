@@ -26,7 +26,7 @@ public interface ModelManagement {
 	 * @param namespace String; the full namespace declaration 
 	 * @return namespace prefix: String; ns0
 	 */
-	String getNamespacePrefix(String namespace);
+	//String getNamespacePrefix(String namespace);
 	
 	/**
 	 * performs translation from full namespace declaration to its prefix part:
@@ -37,7 +37,7 @@ public interface ModelManagement {
 	 * @param namespace String; the full namespace declaration
 	 * @return namespace prefix: String; ns0 or null
 	 */
-	String translateNamespace(String namespace);
+	//String translateNamespace(String namespace);
 	
 	/**
 	 * performs translation from full namespace declaration to its prefix part:
@@ -50,7 +50,7 @@ public interface ModelManagement {
 	 * @param prefix String; the prefix suggested to use when the namespace is not registered yet, e.g. xsi
 	 * @return namespace prefix: String; xsi
 	 */
-	String translateNamespace(String namespace, String prefix);
+	//String translateNamespace(String namespace, String prefix);
 
 	/**
 	 * translates full node path like "/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}Name"
@@ -59,7 +59,7 @@ public interface ModelManagement {
 	 * @param path String; the full node path in Clark form
 	 * @return normalized path: STring; e.g. "/ns0:Security/ns0:Name"
 	 */
-	String normalizePath(String path);
+	//String normalizePath(String path);
 	
 	/**
 	 * translates full node path like "/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}Name/text()"

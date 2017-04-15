@@ -344,7 +344,8 @@ public class CollectionFinderImpl implements CollectionFinder {
 				int code = test.getFingerprint();
 				if (code >= 0) {
 					StructuredQName name = ctx.getNamePool().getStructuredQName(code);
-					namespace = repo.getModelManagement().getNamespacePrefix(name.getURI());
+					//namespace = repo.getModelManagement().getNamespacePrefix(name.getURI());
+					namespace = name.getURI();
 					segment = name.getLocalPart();
 				} else {
 					// case with regex..

@@ -105,7 +105,7 @@ public class TransactionCacheStoreTest extends BagriManagementTest {
 	}
 
 	public Collection<String> getSecurity(String symbol) throws Exception {
-		String prefix = getModelManagement().getNamespacePrefix("http://tpox-benchmark.com/security"); 
+		String prefix = "http://tpox-benchmark.com/security"; 
 		int docType = 0; //getModelManagement().getDocumentType("/" + prefix + ":Security");
 		PathBuilder path = new PathBuilder().
 				addPathSegment(AxisType.CHILD, prefix, "Security").

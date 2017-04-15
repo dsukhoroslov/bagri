@@ -56,7 +56,7 @@ public class RangeIndexManagementTest extends BagriManagementTest {
 			xdmRepo.setDataFormats(getBasicDataFormats());
 			xdmRepo.setLibraries(new ArrayList<Library>());
 			xdmRepo.setModules(new ArrayList<Module>());
-			String typePath = getModelManagement().normalizePath("/{http://tpox-benchmark.com/security}Security");
+			String typePath = "/{http://tpox-benchmark.com/security}Security";
 			Index index = new Index(1, new Date(), xRepo.getUserName(), "IDX_Security_PE", "/{http://tpox-benchmark.com/security}Security", 
 				typePath, "/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}PE/text()", new QName(xs_ns, "decimal", xs_prefix), 
 				true, true, false, "Security PE", true);

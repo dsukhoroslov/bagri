@@ -2,12 +2,9 @@ package com.bagri.client.hazelcast.serialize.model;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
 
 import com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl;
 import com.bagri.core.model.DocumentType;
-import com.bagri.core.model.Namespace;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.StreamSerializer;

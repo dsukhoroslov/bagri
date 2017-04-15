@@ -4,19 +4,17 @@ import static com.bagri.core.server.api.CacheConstants.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.bagri.client.hazelcast.impl.IdGeneratorImpl;
 import com.bagri.core.model.DocumentType;
-import com.bagri.core.model.Namespace;
 import com.bagri.core.model.Path;
 import com.bagri.core.server.api.ModelManagement;
 import com.bagri.core.server.api.impl.ModelManagementBase;
@@ -33,9 +31,6 @@ import com.hazelcast.map.listener.EntryRemovedListener;
 import com.hazelcast.map.listener.EntryUpdatedListener;
 import com.hazelcast.map.listener.MapClearedListener;
 import com.hazelcast.map.listener.MapEvictedListener;
-import com.hazelcast.query.Predicate;
-import com.hazelcast.query.Predicates;
-import com.hazelcast.query.impl.predicates.RegexPredicate;
 
 public class ModelManagementImpl extends ModelManagementBase implements ModelManagement { 
 
@@ -43,9 +38,7 @@ public class ModelManagementImpl extends ModelManagementBase implements ModelMan
 	//protected IMap<String, Namespace> nsCache;
 	//protected IMap<String, DocumentType> typeCache;
 	protected ReplicatedMap<String, Path> pathCache;
-	protected ReplicatedMap<String, Namespace> nsCache;
 	protected ReplicatedMap<String, DocumentType> typeCache;
-	private IdGenerator<Long> nsGen;
 	private IdGenerator<Long> pathGen;
 	private IdGenerator<Long> typeGen;
 	
@@ -65,19 +58,13 @@ public class ModelManagementImpl extends ModelManagementBase implements ModelMan
 	}
 	
 	private void initialize(HazelcastInstance hzInstance) {
-		nsCache = hzInstance.getReplicatedMap(CN_XDM_NAMESPACE_DICT);
 		typeCache = hzInstance.getReplicatedMap(CN_XDM_DOCTYPE_DICT);
 		pathCache = hzInstance.getReplicatedMap(CN_XDM_PATH_DICT);
-		nsGen = new IdGeneratorImpl(hzInstance.getAtomicLong(SQN_NAMESPACE));
 		pathGen = new IdGeneratorImpl(hzInstance.getAtomicLong(SQN_PATH));
 		typeGen = new IdGeneratorImpl(hzInstance.getAtomicLong(SQN_DOCTYPE));
 		// init listeners here
 		//pathCache.addEntryListener(new PathCacheListener()); //, true);
 		pathCache.addEntryListener(new PathEntryListener()); //, true);
-	}
-	
-	protected Map<String, Namespace> getNamespaceCache() {
-		return nsCache;
 	}
 	
 	protected Map<String, Path> getPathCache() {
@@ -88,10 +75,6 @@ public class ModelManagementImpl extends ModelManagementBase implements ModelMan
 		return typeCache;
 	}
 	
-	protected IdGenerator<Long> getNamespaceGen() {
-		return nsGen;
-	}
-	
 	protected IdGenerator<Long> getPathGen() {
 		return pathGen;
 	}
@@ -100,10 +83,6 @@ public class ModelManagementImpl extends ModelManagementBase implements ModelMan
 		return typeGen;
 	}
 
-	public void setNamespaceCache(ReplicatedMap<String, Namespace> nsCache) {
-		this.nsCache = nsCache;
-	}
-	
 	public void setTypeCache(ReplicatedMap<String, DocumentType> typeCache) {
 		this.typeCache = typeCache;
 	}
@@ -112,10 +91,6 @@ public class ModelManagementImpl extends ModelManagementBase implements ModelMan
 		this.pathCache = pathCache;
 	}
 	
-	public void setNamespaceGen(IAtomicLong nsGen) {
-		this.nsGen = new IdGeneratorImpl(nsGen);
-	}
-
 	public void setPathGen(IAtomicLong pathGen) {
 		this.pathGen = new IdGeneratorImpl(pathGen);
 	}
@@ -229,6 +204,8 @@ public class ModelManagementImpl extends ModelManagementBase implements ModelMan
 		//}
 		//Set<Map.Entry<String, Path>> entries = pathCache.entrySet(filter);
 		//return entries;
+		regex = regex.replaceAll("\\{", Matcher.quoteReplacement("\\{"));
+		regex = regex.replaceAll("\\}", Matcher.quoteReplacement("\\}"));
 		Pattern p = Pattern.compile(regex);
 		Set<Map.Entry<String, Path>> result = new HashSet<>();
 		if (typeId > 0) {

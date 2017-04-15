@@ -39,7 +39,6 @@
 			<serializer type-class="com.bagri.core.model.Path" class-name="com.bagri.client.hazelcast.serialize.model.PathSerializer"/>
 			<serializer type-class="com.bagri.core.model.Document" class-name="com.bagri.client.hazelcast.serialize.model.DocumentSerializer"/>
 			<serializer type-class="com.bagri.core.model.DocumentType" class-name="com.bagri.client.hazelcast.serialize.model.DocumentTypeSerializer"/>
-			<serializer type-class="com.bagri.core.model.Namespace" class-name="com.bagri.client.hazelcast.serialize.model.NamespaceSerializer"/>
 			<serializer type-class="com.bagri.core.model.Query" class-name="com.bagri.client.hazelcast.serialize.model.QuerySerializer"/>
 			<serializer type-class="com.bagri.core.model.QueryResult" class-name="com.bagri.client.hazelcast.serialize.model.QueryResultSerializer"/>
 			<serializer type-class="com.bagri.core.model.IndexedDocument" class-name="com.bagri.client.hazelcast.serialize.model.IndexedDocumentSerializer"/>

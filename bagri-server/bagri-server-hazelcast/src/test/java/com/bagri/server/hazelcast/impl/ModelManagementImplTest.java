@@ -87,19 +87,23 @@ public class ModelManagementImplTest extends BagriManagementTest {
 	//	mDictionary.registerSchema(schema);
 	//}
 	
-	protected Collection<Path> getPath(String namespace, String template) {
-		String prefix = getModelManagement().getNamespacePrefix(namespace);
-		String path = String.format(template, prefix);
-		int docType = getModelManagement().getDocumentType(path);
+	//protected Collection<Path> getPath(String namespace, String template) {
+	//	String prefix = getModelManagement().getNamespacePrefix(namespace);
+	//	String path = String.format(template, prefix);
+	//	int docType = getModelManagement().getDocumentType(path);
+	//	return getModelManagement().getTypePaths(docType);
+	//}
+	
+	public Collection<Path> getSecurityPath() {
+		//return getPath("http://tpox-benchmark.com/security", "/%s:Security");
+		int docType = getModelManagement().getDocumentType("/{http://tpox-benchmark.com/security}Security");
 		return getModelManagement().getTypePaths(docType);
 	}
 	
-	public Collection<Path> getSecurityPath() {
-		return getPath("http://tpox-benchmark.com/security", "/%s:Security");
-	}
-	
 	public Collection<Path> getCustomerPath() {
-		return getPath("http://tpox-benchmark.com/custacc", "/%s:Customer");
+		//return getPath("http://tpox-benchmark.com/custacc", "/%s:Customer");
+		int docType = getModelManagement().getDocumentType("/{http://tpox-benchmark.com/custacc}Customer");
+		return getModelManagement().getTypePaths(docType);
 	}
 
 	@Test
@@ -134,45 +138,45 @@ public class ModelManagementImplTest extends BagriManagementTest {
 		assertTrue(sec.size() > 0);
 	}
 	
-	@Test
-	public void testNormalizePath() throws Exception {
-		String path = "/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}Yield/text()";
-		String ns = ((SchemaRepository) xRepo).getModelManagement().translateNamespace("http://tpox-benchmark.com/security");
-		String np = ((SchemaRepository) xRepo).getModelManagement().normalizePath(path);
-		assertNotNull(np);
-		String rp = "/" + ns + ":Security/" + ns + ":Yield/text()";
-		assertEquals("unexpected normalized path: " + np + " when expected: " + rp, rp, np);
-		path = "/Security/Yield/text()";
-		np = ((SchemaRepository) xRepo).getModelManagement().normalizePath(path);
-		assertNotNull(np);
-		assertEquals("unexpected normalized path: " + np + " when expected: " + path, path, np);
-	}
+	//@Test
+	//public void testNormalizePath() throws Exception {
+	//	String path = "/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}Yield/text()";
+	//	String ns = ((SchemaRepository) xRepo).getModelManagement().translateNamespace("http://tpox-benchmark.com/security");
+	//	String np = ((SchemaRepository) xRepo).getModelManagement().normalizePath(path);
+	//	assertNotNull(np);
+	//	String rp = "/" + ns + ":Security/" + ns + ":Yield/text()";
+	//	assertEquals("unexpected normalized path: " + np + " when expected: " + rp, rp, np);
+	//	path = "/Security/Yield/text()";
+	//	np = ((SchemaRepository) xRepo).getModelManagement().normalizePath(path);
+	//	assertNotNull(np);
+	//	assertEquals("unexpected normalized path: " + np + " when expected: " + path, path, np);
+	//}
 	
 
-	@Test
-	public void testNormalizePaths() throws Exception {
-		String path = "/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}Yield/text()";
-		String ns = ((SchemaRepository) xRepo).getModelManagement().translateNamespace("http://tpox-benchmark.com/security");
-		String np = ((SchemaRepository) xRepo).getModelManagement().normalizePath(path);
-		assertNotNull(np);
-		String rp = "/" + ns + ":Security/" + ns + ":Yield/text()";
-		assertEquals("unexpected normalized path: " + np + " when expected: " + rp, rp, np);
+	//@Test
+	//public void testNormalizePaths() throws Exception {
+	//	String path = "/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}Yield/text()";
+	//	String ns = ((SchemaRepository) xRepo).getModelManagement().translateNamespace("http://tpox-benchmark.com/security");
+	//	String np = ((SchemaRepository) xRepo).getModelManagement().normalizePath(path);
+	//	assertNotNull(np);
+	//	String rp = "/" + ns + ":Security/" + ns + ":Yield/text()";
+	//	assertEquals("unexpected normalized path: " + np + " when expected: " + rp, rp, np);
 
-		path = "/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}Yield/";
-		rp = "/" + ns + ":Security/" + ns + ":Yield/";
-		int count = 10000;
-		long time = System.currentTimeMillis();
-		for (int i=0; i < count; i++) {
-			String test = path + i;
-			np = ((SchemaRepository) xRepo).getModelManagement().normalizePath(test);
-			assertNotNull(np);
-			assertEquals("unexpected normalized path: " + np + " when expected: " + rp + i, rp + i, np);
-		}
-		time = System.currentTimeMillis() - time;
-		double avg = time;
-		avg = avg/count;
+	//	path = "/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}Yield/";
+	//	rp = "/" + ns + ":Security/" + ns + ":Yield/";
+	//	int count = 10000;
+	//	long time = System.currentTimeMillis();
+	//	for (int i=0; i < count; i++) {
+	//		String test = path + i;
+	//		np = ((SchemaRepository) xRepo).getModelManagement().normalizePath(test);
+	//		assertNotNull(np);
+	//		assertEquals("unexpected normalized path: " + np + " when expected: " + rp + i, rp + i, np);
+	//	}
+	//	time = System.currentTimeMillis() - time;
+	//	double avg = time;
+	//	avg = avg/count;
 		//System.out.println("time taken: " + time + " for " + count + " normalizations; avg time: " + avg);
-	}
+	//}
 	
 	//@Test
 	//public void testNamespace() throws Exception {

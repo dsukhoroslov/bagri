@@ -78,10 +78,11 @@ public class PathSegment {
 	@Override
 	public String toString() {
 		String ax = axis.getAxis();
-		if (namespace == null) {
+		if (namespace == null || namespace.isEmpty()) {
 			return ax + segment;
 		}
-		return ax + namespace + ":" + segment;
+		//return ax + namespace + ":" + segment;
+		return ax + "{" + namespace + "}" + segment;
 	}
 	
 }

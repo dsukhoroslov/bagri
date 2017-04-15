@@ -36,7 +36,6 @@ import org.w3c.dom.ls.LSInput;
 
 import com.bagri.core.api.BagriException;
 import com.bagri.core.model.DocumentType;
-import com.bagri.core.model.Namespace;
 import com.bagri.core.model.NodeKind;
 import com.bagri.core.model.Occurrence;
 import com.bagri.core.model.Path;
@@ -57,10 +56,8 @@ public abstract class ModelManagementBase implements ModelManagement {
     protected final transient Logger logger = LoggerFactory.getLogger(getClass());
     protected static final long timeout = 100; // 100ms to wait for lock..
 
-	protected abstract Map<String, Namespace> getNamespaceCache();
 	protected abstract Map<String, Path> getPathCache();
 	protected abstract Map<String, DocumentType> getTypeCache();
-	protected abstract IdGenerator<Long> getNamespaceGen();
 	protected abstract IdGenerator<Long> getPathGen();
 	protected abstract IdGenerator<Long> getTypeGen();
     
@@ -87,85 +84,6 @@ public abstract class ModelManagementBase implements ModelManagement {
 		return typeCache.values();
 	}
 	
-	/**
-	 * 
-	 * @return all registered XDM Namespaces
-	 */
-	public Collection<Namespace> getNamespaces() {
-		Map<String, Namespace> nsCache = getNamespaceCache();
-		return nsCache.values();
-	}
-
-    /**
-	 * translates full node path like "/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}Name"
-	 * to its prefixed equivalent: "/ns0:Security/ns0:Name"
-	 *  
-	 * @param path String; the full node path in Clark form
-	 * @return normalized path: String; e.g. "/ns0:Security/ns0:Name"
-     */
-	public String normalizePath(String path) {
-		if (path == null) {
-			return null;
-		}
-		StringBuffer buff = new StringBuffer();
-		int pos = 0, end;
-		char brace = '{';
-		boolean isNamespace = false;
-		while ((end = path.indexOf(brace, pos)) >= 0) {
-            String segment = path.substring(pos, end);
-            pos = end + 1;
-			if (isNamespace) {
-				isNamespace = false;
-				brace = '{';
-				String ns = translateNamespace(segment);
-				buff.append(ns).append(":");
-			} else {
-				isNamespace = true;
-				brace = '}';
-				buff.append(segment);
-			}
-		}
-		buff.append(path.substring(pos));
-		return buff.toString();
-	}
-	
-	/**
-	 * performs translation from full namespace declaration to its prefix part:
-	 * http://tpox-benchmark.com/security -&gt; ns0
-	 * 
-	 * returns null in case when new (not registered yet) namespace provided;
-	 * 
-	 * @param namespace String; the full namespace declaration
-	 * @return namespace prefix: String; ns0 or null
-	 */
-	public String translateNamespace(String namespace) {
-		return translateNamespace(namespace, null);
-	}
-
-	/**
-	 * performs translation from full namespace declaration to its prefix part:
-	 * http://tpox-benchmark.com/security -&gt; ns0
-	 * 
-	 * creates new prefix in case when new (not registered yet) namespace provided;
-	 * uses the suggested prefix for the new one
-	 * 
-	 * @param namespace String; the full namespace declaration
-	 * @param prefix String; the prefix suggested to use when the namespace is not registered yet, e.g. xsi
-	 * @return namespace prefix: String; xsi
-	 */
-	public String translateNamespace(String namespace, String prefix) {
-		Namespace xns = (Namespace) getNamespaceCache().get(namespace);
-		if (xns == null) {
-			if (prefix == null || prefix.isEmpty()) {
-				prefix = "ns" + getNamespaceGen().next();
-			}
-			xns = new Namespace(namespace, prefix, null);
-			xns = putIfAbsent(getNamespaceCache(), namespace, xns);
-		}
-		String result = xns.getPrefix();
-		return result;
-	}
-	
 	private String getPathKey(int typeId, String path) {
 		return typeId + ":" + path;
 	}
@@ -177,7 +95,7 @@ public abstract class ModelManagementBase implements ModelManagement {
 	 * @return registered {@link Path} structure if any
 	 */
 	public Path getPath(int typeId, String path) {
-		String pathKey = getPathKey(typeId, normalizePath(path));
+		String pathKey = getPathKey(typeId, path);
 		return getPathCache().get(pathKey);
 	}
     
@@ -203,27 +121,9 @@ public abstract class ModelManagementBase implements ModelManagement {
 				return null; //WRONG_PATH;
 			}
 		
-			path = normalizePath(path);
+			//path = normalizePath(path);
 		//}
 		Path result = addDictionaryPath(typeId, path, kind, dataType, occurrence); 
-		return result;
-	}
-	
-	/**
-	 * performs translation from full namespace declaration to its prefix part:
-	 * http://tpox-benchmark.com/security -&gt; ns0.
-	 * 
-	 * creates new prefix in case when new (not registered yet) namespace provided;
-	 * 
-	 * @param namespace String; the full namespace declaration 
-	 * @return namespace prefix: String; ns0
-	 */
-	public String getNamespacePrefix(String namespace) {
-		String result = null;
-		Namespace xns = getNamespaceCache().get(namespace);
-		if (xns != null) {
-			result = xns.getPrefix();
-		}
 		return result;
 	}
 	
@@ -263,8 +163,8 @@ public abstract class ModelManagementBase implements ModelManagement {
 	public int getDocumentType(String root) {
 		// 
 		logger.trace("getDocumentType.enter; got path: {}", root);
-		root = normalizePath(root);
-		logger.trace("getDocumentType; normalized path: {}", root);
+		//root = normalizePath(root);
+		//logger.trace("getDocumentType; normalized path: {}", root);
 
 		int result = WRONG_PATH;
 		DocumentType xdt = getTypeCache().get(root);
@@ -321,8 +221,8 @@ public abstract class ModelManagementBase implements ModelManagement {
 	public int translateDocumentType(String root) {
 		//
 		logger.trace("translateDocumentType.enter; got path: {}", root);
-		root = normalizePath(root);
-		logger.trace("translateDocumentType; normalized path: {}", root);
+		//root = normalizePath(root);
+		//logger.trace("translateDocumentType; normalized path: {}", root);
 
 		DocumentType xdt = (DocumentType) getTypeCache().get(root);
 		if (xdt == null) {
@@ -461,11 +361,11 @@ public abstract class ModelManagementBase implements ModelManagement {
 	private List<Path> processModel(XSModel model) throws BagriException {
 		
 		// register namespaces
-		StringList sl = model.getNamespaces();
-		for (Object ns: sl) {
-			String prefix = translateNamespace((String) ns);
-			logger.trace("processModel; namespace: {}; {}", ns, prefix);
-		}
+		//StringList sl = model.getNamespaces();
+		//for (Object ns: sl) {
+		//	String prefix = translateNamespace((String) ns);
+		//	logger.trace("processModel; namespace: {}; {}", ns, prefix);
+		//}
 		
 		XSNamedMap elts = model.getComponents(XSConstants.ELEMENT_DECLARATION);
 
@@ -498,7 +398,7 @@ public abstract class ModelManagementBase implements ModelManagement {
 				Path xp = translatePath(docType, "", NodeKind.document, XQItemType.XQBASETYPE_ANYTYPE, Occurrence.onlyOne); 
 				logger.trace("processModel; document type: {}; got XDMPath: {}", docType, xp);
 				
-				String prefix = translateNamespace(xsElement.getNamespace());
+				//String prefix = translateNamespace(xsElement.getNamespace());
 				// target namespace -> default
 				translatePath(docType, "/#xmlns", NodeKind.namespace, XQItemType.XQBASETYPE_QNAME, Occurrence.onlyOne); 
 

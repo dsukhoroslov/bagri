@@ -165,7 +165,10 @@ public class IndexManagementImpl implements IndexManagement { //, StatisticsProv
 			idx++;
 		}
 		if (isPatternIndex(index)) {
-			String path = mdlMgr.normalizePath(index.getPath());
+			//String path = mdlMgr.normalizePath(index.getPath());
+			String path = index.getPath();
+			path = path.replaceAll("\\{", Matcher.quoteReplacement("\\{"));
+			path = path.replaceAll("\\}", Matcher.quoteReplacement("\\}"));
 			patterns.put(index, Pattern.compile(PathBuilder.regexFromPath(path)));
 		}
 		return result;
@@ -196,7 +199,7 @@ public class IndexManagementImpl implements IndexManagement { //, StatisticsProv
 		String path = index.getPath();
 		Set<Integer> result;
 		if (PathBuilder.isRegexPath(path)) {
-			path = mdlMgr.normalizePath(path);
+			//path = mdlMgr.normalizePath(path);
 			result = mdlMgr.translatePathFromRegex(docType, PathBuilder.regexFromPath(path));
 		} else {
 			int dataType = XQUtils.getBaseTypeForTypeName(index.getDataType());

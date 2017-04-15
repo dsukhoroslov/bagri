@@ -21,7 +21,6 @@ import com.bagri.client.hazelcast.GroupCountPredicate;
 import com.bagri.core.DataKey;
 import com.bagri.core.model.DocumentType;
 import com.bagri.core.model.Elements;
-import com.bagri.core.model.Namespace;
 import com.bagri.core.model.Path;
 import com.bagri.core.system.Fragment;
 import com.bagri.core.system.Schema;
@@ -63,19 +62,6 @@ public class ModelManagement extends SchemaFeatureManagement {
 	@ManagedAttribute(description="Return Fragments registered in the Schema")
 	public TabularData getFragments() {
 		return getTabularFeatures("fragment", "Fragment definition", "name");
-	}
-	
-	@ManagedAttribute(description="Return Namespaces registered in the Schema")
-	public String[] getNamespaces() {
-	    IMap<String, Namespace> nsCache = hzClient.getMap(CN_XDM_NAMESPACE_DICT);
-		Collection<Namespace> nss = nsCache.values();
-		String[] result = new String[nss.size()];
-		int idx = 0;
-		for (Namespace ns: nss) {
-			result[idx++] = ns.getPrefix() + ": " + ns.getUri();
-		}
-		Arrays.sort(result);
-		return result;
 	}
 	
 	@ManagedOperation(description="Adds a new Document Fragment")

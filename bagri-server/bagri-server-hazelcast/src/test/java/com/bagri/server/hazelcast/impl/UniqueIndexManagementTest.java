@@ -64,7 +64,7 @@ public class UniqueIndexManagementTest extends BagriManagementTest {
 		if (schema == null) {
 			schema = new Schema(1, new java.util.Date(), "test", "test", "test schema", true, null);
 			xdmRepo.setSchema(schema);
-			String typePath = getModelManagement().normalizePath("/{http://tpox-benchmark.com/security}Security");
+			String typePath = "/{http://tpox-benchmark.com/security}Security";
 			Index index = new Index(1, new Date(), xRepo.getUserName(), "IDX_Security_Symbol", "/{http://tpox-benchmark.com/security}Security", 
 					typePath, "/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}Symbol/text()", new QName(xs_ns, "string", xs_prefix),
 					true, true, true, "Security Symbol", true);
@@ -87,7 +87,7 @@ public class UniqueIndexManagementTest extends BagriManagementTest {
 	}
 
 	public Collection<String> getSecurity(String symbol) throws Exception {
-		String prefix = getModelManagement().getNamespacePrefix("http://tpox-benchmark.com/security"); 
+		String prefix = "http://tpox-benchmark.com/security"; 
 		int docType = 0; //getModelManagement().getDocumentType("/" + prefix + ":Security");
 		PathBuilder path = new PathBuilder().
 				addPathSegment(AxisType.CHILD, prefix, "Security").

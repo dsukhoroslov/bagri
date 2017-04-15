@@ -12,6 +12,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -26,6 +27,7 @@ public class ConcurrentModelMgmntTest {
 	//}
 	
 	@Test
+	@Ignore
 	public void testDocumentType() throws Exception {
 		System.setProperty("logback.configurationFile", "hz-logging.xml");
 		//System.setProperty(pn_log_level, "trace");
@@ -48,8 +50,6 @@ public class ConcurrentModelMgmntTest {
 			types.add(dt.get());
 		}
 
-		String px = mm.getNamespacePrefix("http://tpox-benchmark.com/security");
-		System.out.println("prefix: " + px);
 		int type = mm.getDocumentType("/{http://tpox-benchmark.com/security}Security");
 		for (int tp: types) {
 			if (tp != type) {

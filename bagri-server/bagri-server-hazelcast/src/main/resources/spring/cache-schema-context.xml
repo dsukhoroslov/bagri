@@ -35,11 +35,11 @@
 					<hz:ports>${bdb.schema.ports.first}-${bdb.schema.ports.last}</hz:ports> 
 				</hz:outbound-ports>
 				<hz:join>
-                                        <hz:multicast enabled="${bdb.schema.multicast.enabled}" multicast-timeout-seconds="${bdb.schema.connect.timeout:10}">
-                                            <!--hz:trusted-interfaces>
-                                                <hz:interface>${bdb.schema.members}</hz:interface>
-                                            </hz:trusted-interfaces-->
-                                        </hz:multicast>					
+					<hz:multicast enabled="${bdb.schema.multicast.enabled}" multicast-timeout-seconds="${bdb.schema.connect.timeout:10}">
+						<!--hz:trusted-interfaces>
+							<hz:interface>${bdb.schema.members}</hz:interface>
+						</hz:trusted-interfaces-->
+					</hz:multicast>					
 					<hz:tcp-ip enabled="${bdb.schema.tcp.enabled}" connection-timeout-seconds="${bdb.schema.connect.timeout:10}">
 						<hz:members>${bdb.schema.members:localhost}</hz:members>
 					</hz:tcp-ip>
@@ -133,7 +133,6 @@
 			<hz:replicatedmap name="xdm-client" in-memory-format="OBJECT" replication-delay-millis="0"/>
 			<hz:replicatedmap name="xdm-query" in-memory-format="BINARY" replication-delay-millis="0"/>
 			<hz:replicatedmap name="dict-index" in-memory-format="BINARY" replication-delay-millis="0"/>
-			<hz:replicatedmap name="dict-namespace" in-memory-format="OBJECT" replication-delay-millis="0"/> 
 			<hz:replicatedmap name="dict-document-type" in-memory-format="OBJECT" replication-delay-millis="0"/> 
 			<hz:replicatedmap name="dict-path" in-memory-format="BINARY" replication-delay-millis="1"/> 
 			
@@ -151,7 +150,6 @@
 					<hz:serializer type-class="com.bagri.core.model.Path" class-name="com.bagri.client.hazelcast.serialize.model.PathSerializer"/>
 					<hz:serializer type-class="com.bagri.core.model.Document" class-name="com.bagri.client.hazelcast.serialize.model.DocumentSerializer"/>
 					<hz:serializer type-class="com.bagri.core.model.DocumentType" class-name="com.bagri.client.hazelcast.serialize.model.DocumentTypeSerializer"/>
-					<hz:serializer type-class="com.bagri.core.model.Namespace" class-name="com.bagri.client.hazelcast.serialize.model.NamespaceSerializer"/>
 					<hz:serializer type-class="com.bagri.core.model.Query" class-name="com.bagri.client.hazelcast.serialize.model.QuerySerializer"/>
 					<hz:serializer type-class="com.bagri.core.model.QueryResult" class-name="com.bagri.client.hazelcast.serialize.model.QueryResultSerializer"/>
 					<hz:serializer type-class="com.bagri.core.model.IndexedDocument" class-name="com.bagri.client.hazelcast.serialize.model.IndexedDocumentSerializer"/>
@@ -236,7 +234,6 @@
 	<hz:replicatedMap id="xdm-client" name="xdm-client" instance-ref="hzInstance" />
 	<hz:replicatedMap id="xdm-query" name="xdm-query" instance-ref="hzInstance" />
 	<hz:replicatedMap id="dict-document-type" name="dict-document-type" instance-ref="hzInstance" />
-	<hz:replicatedMap id="dict-namespace" name="dict-namespace" instance-ref="hzInstance" />
 	<hz:replicatedMap id="dict-path" name="dict-path" instance-ref="hzInstance" />
 	<hz:replicatedMap id="dict-index" name="dict-index" instance-ref="hzInstance" />
 	<!--hz:map id="dict-trigger" name="dict-trigger" instance-ref="hzInstance" /-->
@@ -244,7 +241,6 @@
 	<hz:idGenerator id="xdm.document" name="xdm.document" instance-ref="hzInstance"/>
 	<!--hz:atomicLong id="xdm.document" name="xdm.document" instance-ref="hzInstance"/-->
 	<hz:atomicLong id="xdm.path" name="xdm.path" instance-ref="hzInstance"/>
-	<hz:atomicLong id="xdm.namespace" name="xdm.namespace" instance-ref="hzInstance"/>
 	<hz:atomicLong id="xdm.doctype" name="xdm.doctype" instance-ref="hzInstance"/>
 	<hz:atomicLong id="xdm.transaction" name="xdm.transaction" instance-ref="hzInstance"/>
 	
@@ -383,10 +379,8 @@
 	</bean>
 
 	<bean id="mdlManager" class="com.bagri.server.hazelcast.impl.ModelManagementImpl">
-		<property name="namespaceCache" ref="dict-namespace"/>
 		<property name="pathCache" ref="dict-path"/>
 		<property name="typeCache" ref="dict-document-type"/>
-		<property name="namespaceGen" ref="xdm.namespace"/>
 		<property name="pathGen" ref="xdm.path"/>
 		<property name="typeGen" ref="xdm.doctype"/>
 	</bean>
