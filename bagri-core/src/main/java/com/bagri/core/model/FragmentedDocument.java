@@ -1,8 +1,5 @@
 package com.bagri.core.model;
 
-import static com.bagri.core.DocumentKey.toHash;
-import static com.bagri.core.DocumentKey.toRevision;
-import static com.bagri.core.DocumentKey.toVersion;
 import static com.bagri.support.util.FileUtils.def_encoding;
 
 import java.util.Date;
@@ -27,16 +24,16 @@ public class FragmentedDocument extends Document {
 	/**
 	 * {@inheritDoc}
 	 */
-	public FragmentedDocument(long docKey, String uri, int typeId, String owner, long txId, int bytes, int elts) {
-		this(docKey, uri, typeId, txId, 0, new Date(), owner, def_encoding, bytes, elts);
+	public FragmentedDocument(long docKey, String uri, String root, String owner, long txId, int bytes, int elts) {
+		this(docKey, uri, root, txId, 0, new Date(), owner, def_encoding, bytes, elts);
 	}
 
 	/**
 	 * {@inheritDoc} 
 	 */
-	public FragmentedDocument(long docKey, String uri, int typeId, long txStart, long txFinish, Date createdAt, 
+	public FragmentedDocument(long docKey, String uri, String root, long txStart, long txFinish, Date createdAt, 
 			String createdBy, String encoding, int bytes, int elts) {
-		super(docKey, uri, typeId, txStart, txFinish, createdAt, createdBy, encoding, bytes, elts);
+		super(docKey, uri, root, txStart, txFinish, createdAt, createdBy, encoding, bytes, elts);
 	}
 	
 	public long[] getFragments() {

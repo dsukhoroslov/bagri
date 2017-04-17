@@ -10,7 +10,7 @@ package com.bagri.core.model;
 public class Path implements Comparable<Path> { 
 	
 	private String path;
-	private int typeId;
+	private String root;
 	private NodeKind kind;
 	private int pathId;
 	private int parentId;
@@ -40,11 +40,11 @@ public class Path implements Comparable<Path> {
 	 * @param dataType the node data type
 	 * @param occurrence the node occurrence
 	 */
-	public Path(String path, int typeId, NodeKind kind, int pathId, int parentId, int postId, 
+	public Path(String path, String root, NodeKind kind, int pathId, int parentId, int postId, 
 			int dataType, Occurrence occurrence) {
 		super();
 		this.path = path;
-		this.typeId = typeId;
+		this.root = root;
 		this.kind = kind;
 		this.pathId = pathId;
 		this.parentId = parentId;
@@ -159,8 +159,8 @@ public class Path implements Comparable<Path> {
 	/**
 	 * @return the type id
 	 */
-	public int getTypeId() {
-		return typeId;
+	public String getRoot() {
+		return root;
 	}
 
 	/**
@@ -230,7 +230,7 @@ public class Path implements Comparable<Path> {
 	 */
 	@Override
 	public String toString() {
-		return "Path [path=" + path + ", pathId=" + pathId + ", typeId=" + typeId + 
+		return "Path [path=" + path + ", pathId=" + pathId + ", root=" + root + 
 				", kind=" + kind + ", parentId=" + parentId	+ ", postId=" + postId + 
 				", dataType=" + dataType + ", occurrence=" + occurrence + "]";
 	}

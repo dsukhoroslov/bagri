@@ -259,11 +259,14 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
 		if (cb == null) {
 			logger.info("getBuilder; no builder found for dataFormat: {}", dataFormat); 
 			String defaultFormat = this.xdmSchema.getProperty(pn_schema_format_default);
-			if ("xml".equalsIgnoreCase(defaultFormat)) {
+			if ("json".equalsIgnoreCase(defaultFormat)) {
+				cb = new JsonpBuilder(getModelManagement());
+			} else if ("xml".equalsIgnoreCase(defaultFormat)) {
 				cb = new XmlBuilder(getModelManagement());
 			}
 		}
 		if (cb != null) {
+			// TODO: fix it!!
 			cb.init(df.getProperties());
 			builders.putIfAbsent(dataFormat, cb);
 		}
@@ -411,7 +414,7 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
 			DocumentManagementImpl docMgr = (DocumentManagementImpl) getDocumentManagement();
 			for (Path xPath: paths) {
 				try {
-					docMgr.indexElements(xPath.getTypeId(), xPath.getPathId());
+					docMgr.indexElements(xPath.getPathId());
 				} catch (BagriException ex) {
 					logger.warn("addSchemaIndex.error; index: " + index, ex);
 				}
@@ -439,7 +442,7 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
 			List<Integer> pathIds = new ArrayList<>(paths.length);
 			for (Path xPath: paths) {
 				pathIds.add(xPath.getPathId());
-				cnt += docMgr.deindexElements(xPath.getTypeId(), xPath.getPathId());
+				cnt += docMgr.deindexElements(xPath.getPathId());
 			}
 
 			QueryManagementImpl queryMgr = (QueryManagementImpl) getQueryManagement();

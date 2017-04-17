@@ -19,7 +19,6 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 
 import com.bagri.client.hazelcast.GroupCountPredicate;
 import com.bagri.core.DataKey;
-import com.bagri.core.model.DocumentType;
 import com.bagri.core.model.Elements;
 import com.bagri.core.model.Path;
 import com.bagri.core.system.Fragment;
@@ -46,18 +45,19 @@ public class ModelManagement extends SchemaFeatureManagement {
 		return schema.getFragments();
 	}
 
-	@ManagedAttribute(description="Return Document Types registered in the Schema")
-	public String[] getDocumentTypes() {
-	    IMap<String, DocumentType> dtCache = hzClient.getMap(CN_XDM_DOCTYPE_DICT);
-		Collection<DocumentType> types = dtCache.values();
-		String[] result = new String[types.size()];
-		int idx = 0;
-		for (DocumentType type: types) {
-			result[idx++] = "" + type.getTypeId() + ": " + type.getRootPath();
-		}
-		Arrays.sort(result);
-		return result;
-	}
+	//@ManagedAttribute(description="Return Document Types registered in the Schema")
+	// TODO: collect unique document roots
+	//public String[] getDocumentTypes() {
+	//  IMap<String, DocumentType> dtCache = hzClient.getMap(CN_XDM_DOCTYPE_DICT);
+	//	Collection<DocumentType> types = dtCache.values();
+	//	String[] result = new String[types.size()];
+	//	int idx = 0;
+	//	for (DocumentType type: types) {
+	//		result[idx++] = "" + type.getTypeId() + ": " + type.getRootPath();
+	//	}
+	//	Arrays.sort(result);
+	//	return result;
+	//}
 
 	@ManagedAttribute(description="Return Fragments registered in the Schema")
 	public TabularData getFragments() {

@@ -75,7 +75,7 @@
 				<hz:indexes>
 					<hz:index attribute="txStart"/>
 					<hz:index attribute="txFinish"/>
-					<hz:index attribute="typeId"/>
+					<hz:index attribute="typeRoot"/>
 					<hz:index attribute="uri"/>
 				</hz:indexes>
 			</hz:map>
@@ -133,7 +133,6 @@
 			<hz:replicatedmap name="xdm-client" in-memory-format="OBJECT" replication-delay-millis="0"/>
 			<hz:replicatedmap name="xdm-query" in-memory-format="BINARY" replication-delay-millis="0"/>
 			<hz:replicatedmap name="dict-index" in-memory-format="BINARY" replication-delay-millis="0"/>
-			<hz:replicatedmap name="dict-document-type" in-memory-format="OBJECT" replication-delay-millis="0"/> 
 			<hz:replicatedmap name="dict-path" in-memory-format="BINARY" replication-delay-millis="1"/> 
 			
 			<hz:serialization>
@@ -149,7 +148,6 @@
 					<hz:serializer type-class="com.bagri.core.model.Elements" class-name="com.bagri.client.hazelcast.serialize.model.ElementsSerializer"/>
 					<hz:serializer type-class="com.bagri.core.model.Path" class-name="com.bagri.client.hazelcast.serialize.model.PathSerializer"/>
 					<hz:serializer type-class="com.bagri.core.model.Document" class-name="com.bagri.client.hazelcast.serialize.model.DocumentSerializer"/>
-					<hz:serializer type-class="com.bagri.core.model.DocumentType" class-name="com.bagri.client.hazelcast.serialize.model.DocumentTypeSerializer"/>
 					<hz:serializer type-class="com.bagri.core.model.Query" class-name="com.bagri.client.hazelcast.serialize.model.QuerySerializer"/>
 					<hz:serializer type-class="com.bagri.core.model.QueryResult" class-name="com.bagri.client.hazelcast.serialize.model.QueryResultSerializer"/>
 					<hz:serializer type-class="com.bagri.core.model.IndexedDocument" class-name="com.bagri.client.hazelcast.serialize.model.IndexedDocumentSerializer"/>
@@ -233,7 +231,6 @@
 	<hz:map id="xdm-transaction" name="xdm-transaction" instance-ref="hzInstance" />
 	<hz:replicatedMap id="xdm-client" name="xdm-client" instance-ref="hzInstance" />
 	<hz:replicatedMap id="xdm-query" name="xdm-query" instance-ref="hzInstance" />
-	<hz:replicatedMap id="dict-document-type" name="dict-document-type" instance-ref="hzInstance" />
 	<hz:replicatedMap id="dict-path" name="dict-path" instance-ref="hzInstance" />
 	<hz:replicatedMap id="dict-index" name="dict-index" instance-ref="hzInstance" />
 	<!--hz:map id="dict-trigger" name="dict-trigger" instance-ref="hzInstance" /-->
@@ -241,7 +238,6 @@
 	<hz:idGenerator id="xdm.document" name="xdm.document" instance-ref="hzInstance"/>
 	<!--hz:atomicLong id="xdm.document" name="xdm.document" instance-ref="hzInstance"/-->
 	<hz:atomicLong id="xdm.path" name="xdm.path" instance-ref="hzInstance"/>
-	<hz:atomicLong id="xdm.doctype" name="xdm.doctype" instance-ref="hzInstance"/>
 	<hz:atomicLong id="xdm.transaction" name="xdm.transaction" instance-ref="hzInstance"/>
 	
 	<hz:executorService id="xdm-exec-pool" name="xdm-exec-pool" instance-ref="hzInstance"/>
@@ -355,7 +351,7 @@
 		<property name="xddCache" ref="xdm-document"/>
 		<property name="xdmCache" ref="xdm-element"/>
 		<property name="contentCache" ref="xdm-content"/>
-		<property name="modelManager" ref="mdlManager"/>
+		<property name="modelManager" ref="modelManager"/>
 		<property name="indexManager" ref="idxManager"/>
 		<property name="statsQueue" ref="docQueue"/>
 		<!--property name="txManager" ref="txManager"/-->
@@ -372,17 +368,15 @@
 		<!--property name="execService" ref="xdm-exec-pool"/-->
 		<property name="indexDictionary" ref="dict-index"/>
 		<property name="indexCache" ref="xdm-index"/>
-		<property name="modelManager" ref="mdlManager"/>
+		<property name="modelManager" ref="modelManager"/>
 		<property name="statsQueue" ref="indexQueue"/>
 		<property name="txManager" ref="txManager"/>
 		<property name="documentManager" ref="docManager"/>
 	</bean>
 
-	<bean id="mdlManager" class="com.bagri.server.hazelcast.impl.ModelManagementImpl">
+	<bean id="modelManager" class="com.bagri.server.hazelcast.impl.ModelManagementImpl">
 		<property name="pathCache" ref="dict-path"/>
-		<property name="typeCache" ref="dict-document-type"/>
 		<property name="pathGen" ref="xdm.path"/>
-		<property name="typeGen" ref="xdm.doctype"/>
 	</bean>
 
 	<bean id="queryManager" class="com.bagri.server.hazelcast.impl.QueryManagementImpl">
@@ -406,7 +400,6 @@
 	<bean id="trManager" class="com.bagri.server.hazelcast.impl.TriggerManagementImpl">
 		<!--property name="triggerDictionary" ref="dict-trigger"/-->
 		<property name="execService" ref="xdm-exec-pool"/>
-		<property name="modelManager" ref="mdlManager"/>
 		<property name="statsQueue" ref="triggerQueue"/>
 		<property name="hzInstance" ref="hzInstance"/>
    		<!--property name="repository" ref="xdmRepo" /-->
@@ -424,7 +417,7 @@
 		<property name="accessManagement" ref="accManager"/>
 		<property name="bindingManagement" ref="bindManager"/>
 		<property name="clientManagement" ref="clientManager"/>
-		<property name="modelManagement" ref="mdlManager"/>
+		<property name="modelManagement" ref="modelManager"/>
 		<property name="queryManagement" ref="queryManager"/>
 		<property name="documentManagement" ref="docManager"/>
 		<!--property name="healthManagement" ref="healthManager"/-->

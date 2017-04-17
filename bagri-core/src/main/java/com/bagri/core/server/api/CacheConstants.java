@@ -55,19 +55,9 @@ public class CacheConstants {
 	public static final String CN_XDM_CLIENT = "xdm-client";
 
 	/**
-	 * Namespace cache Key: String (NS URI); Value: com.bagri.xdm.XDMNamespace
-	 */
-	public static final String CN_XDM_NAMESPACE_DICT = "dict-namespace";
-
-	/**
 	 * Path cache Key: String (QName); Value: com.bagri.core.model.Path
 	 */
 	public static final String CN_XDM_PATH_DICT = "dict-path";
-
-	/**
-	 * Document type cache Key: String; Value: com.bagri.core.model.DocumentType
-	 */
-	public static final String CN_XDM_DOCTYPE_DICT = "dict-document-type";
 
 	/**
 	 * Index cache Key: String (Index Name); Value: com.bagri.core.model.Index
@@ -82,19 +72,9 @@ public class CacheConstants {
 	public static final String SQN_DOCUMENT = "xdm.document";
 
 	/**
-	 * Namespace sequence generator
-	 */
-	public static final String SQN_NAMESPACE = "xdm.namespace";
-
-	/**
 	 * Path sequence generator
 	 */
 	public static final String SQN_PATH = "xdm.path";
-
-	/**
-	 * DocumentType sequence generator
-	 */
-	public static final String SQN_DOCTYPE = "xdm.doctype";
 
 	/**
 	 * Transaction sequence generator

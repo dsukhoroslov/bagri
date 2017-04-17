@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -21,7 +20,6 @@ import javax.xml.bind.annotation.XmlSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bagri.client.hazelcast.impl.IdGeneratorImpl;
 import com.bagri.core.api.BagriException;
 import com.bagri.core.model.Document;
 import com.bagri.core.model.Transaction;
@@ -41,7 +39,6 @@ import com.bagri.support.stats.StatisticsEvent;
 import com.bagri.support.util.FileUtils;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
-import com.hazelcast.core.IMap;
 
 public class TriggerManagementImpl implements TriggerManagement {
 
@@ -51,7 +48,6 @@ public class TriggerManagementImpl implements TriggerManagement {
 	//private IMap<Integer, TriggerDefinition> trgDict;
     private Map<String, List<TriggerContainer>> triggers = new HashMap<>();
 	private IExecutorService execService;
-    private ModelManagementImpl mdlMgr;
     private boolean enableStats = true;
 	private BlockingQueue<StatisticsEvent> queue;
 	private SchemaRepositoryImpl repo = null; //
@@ -69,18 +65,6 @@ public class TriggerManagementImpl implements TriggerManagement {
     	this.xqComp = xqComp;
     }
 
-	public void setModelManager(ModelManagementImpl mdlMgr) {
-		this.mdlMgr = mdlMgr;
-	}
-
-	//protected Map<Integer, TriggerDefinition> getTriggerDictionary() {
-	//	return trgDict;
-	//}
-	
-	//public void setTriggerDictionary(IMap<Integer, TriggerDefinition> trgDict) {
-	//	this.trgDict = trgDict;
-	//}
-
 	public void setExecService(IExecutorService execService) {
 		this.execService = execService;
 	}
@@ -93,13 +77,13 @@ public class TriggerManagementImpl implements TriggerManagement {
     	this.enableStats = enable;
     }
     
-    private String getTriggerKey(int typeId, Order order, Scope scope) {
-    	return "" + typeId + ":" + order.name() + ":" + scope.name();
+    private String getTriggerKey(String root, Order order, Scope scope) {
+    	return root + ":" + order.name() + ":" + scope.name();
     }
     
     void applyTrigger(final Document xDoc, final Order order, final Scope scope) throws BagriException {
     	//
-		String key = getTriggerKey(xDoc.getTypeId(), order, scope);
+		String key = getTriggerKey(xDoc.getTypeRoot(), order, scope);
     	List<TriggerContainer> impls = triggers.get(key);
     	if (impls != null) {
     		for (TriggerContainer impl: impls) {
@@ -123,7 +107,7 @@ public class TriggerManagementImpl implements TriggerManagement {
     
     public void runTrigger(Order order, Scope scope, Document xDoc, int index, String clientId) throws BagriException {
 
-		String key = getTriggerKey(xDoc.getTypeId(), order, scope);
+		String key = getTriggerKey(xDoc.getTypeRoot(), order, scope);
     	List<TriggerContainer> impls = triggers.get(key);
     	if (impls != null) {
     		TriggerContainer impl = impls.get(index);
@@ -181,9 +165,8 @@ public class TriggerManagementImpl implements TriggerManagement {
 			}
 	
 			if (impl != null) {
-				int typeId = getDocType(trigger);
 				for (TriggerAction action: trigger.getActions()) {
-					String key = getTriggerKey(typeId, action.getOrder(), action.getScope());
+					String key = getTriggerKey(trigger.getDocType(), action.getOrder(), action.getScope());
 					List<TriggerContainer> impls = triggers.get(key);
 					if (impls == null) {
 						impls = new LinkedList<>();
@@ -298,31 +281,16 @@ public class TriggerManagementImpl implements TriggerManagement {
 	@Override
 	public boolean deleteTrigger(TriggerDefinition trigger) {
 		int cnt = 0;
-		int typeId = getDocType(trigger);
 		for (TriggerAction action: trigger.getActions()) {
-			String key = getTriggerKey(typeId, action.getOrder(), action.getScope());
+			String key = getTriggerKey(trigger.getDocType(), action.getOrder(), action.getScope());
 			List<TriggerContainer> impls = triggers.get(key);
 			if (impls != null) {
 				impls.remove(trigger.getIndex());
 				cnt++;
 			}
 		}
-		logger.trace("deleteTrigger.exit; {} triggers deleted, for type: {}", cnt, typeId);
+		logger.trace("deleteTrigger.exit; {} triggers deleted, for type: {}", cnt, trigger.getDocType());
 		return cnt > 0;
-	}
-
-	private int getDocType(TriggerDefinition trigger) {
-		
-		String type = trigger.getDocType();
-		if (type == null) {
-			// assign trigger to all docTypes!
-			return -1;
-		}
-		
-		int typeId = mdlMgr.getDocumentType(type);
-		// check typeId ?
-		
-		return typeId;
 	}
 
 	private void addURL(URL u) throws IOException {

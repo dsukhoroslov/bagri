@@ -206,7 +206,7 @@ public class XmlStaxParser extends ContentParserBase implements ContentParser {
 	
 	private void processEvent(XmlParserContext ctx, XMLEvent xmlEvent) throws BagriException {
 		
-		if (ctx.getDocType() < 0) {
+		if (ctx.getDocRoot() == null) {
 			ctx.firstEvents.add(xmlEvent);
 			if (xmlEvent.getEventType() == XMLStreamConstants.START_ELEMENT) {
 				String root = "/" + xmlEvent.asStartElement().getName();

@@ -25,7 +25,7 @@ public class Document implements Convertable<Map<String, Object>>, Versionable {
 
 	private long documentKey;
 	private String uri;
-	private int typeId;
+	private String root;
 	private String encoding;
 	private long txStart;
 	private long txFinish;
@@ -46,21 +46,21 @@ public class Document implements Convertable<Map<String, Object>>, Versionable {
 	 * 
 	 * @param docKey the internal document's key
 	 * @param uri the document's uri 
-	 * @param typeId the document's type id
+	 * @param root the document's type root
 	 * @param owner the document's owner
 	 * @param txId the transaction id created the document 
 	 * @param bytes the size of document in bytes
 	 * @param elts the size of document in elements
 	 */
-	public Document(long docKey, String uri, int typeId, String owner, long txId, int bytes, int elts) {
-		this(docKey, uri, typeId, txId, 0, new Date(), owner, def_encoding, bytes, elts);
+	public Document(long docKey, String uri, String root, String owner, long txId, int bytes, int elts) {
+		this(docKey, uri, root, txId, 0, new Date(), owner, def_encoding, bytes, elts);
 	}
 
 	/**
 	 * 
 	 * @param docKey the internal document's key
 	 * @param uri the document's uri 
-	 * @param typeId the document's type id
+	 * @param root the document's type root
 	 * @param txStart the transaction id created the document
 	 * @param txFinish the transaction id finished the document
 	 * @param createdAt the date/time when the document was created
@@ -69,11 +69,11 @@ public class Document implements Convertable<Map<String, Object>>, Versionable {
 	 * @param bytes the size of document in bytes
 	 * @param elts the size of document in elements
 	 */
-	public Document(long docKey, String uri, int typeId, long txStart, long txFinish, Date createdAt, 
+	public Document(long docKey, String uri, String root, long txStart, long txFinish, Date createdAt, 
 			String createdBy, String encoding, int bytes, int elts) {
 		this.documentKey = docKey; //toKey(hash, revision, version);
 		this.uri = uri;
-		this.typeId = typeId;
+		this.root = root;
 		this.txStart = txStart;
 		this.txFinish = txFinish;
 		this.createdAt = createdAt.getTime();
@@ -121,8 +121,8 @@ public class Document implements Convertable<Map<String, Object>>, Versionable {
 	/**
 	 * @return the document's type id
 	 */
-	public int getTypeId() {
-		return typeId;
+	public String getTypeRoot() {
+		return root;
 	}
 
 	/**
@@ -266,7 +266,7 @@ public class Document implements Convertable<Map<String, Object>>, Versionable {
 		result.put("uri", uri);
 		result.put("bytes", bytes);
 		result.put("elements", elements);
-		result.put("type", typeId);
+		result.put("root", root);
 		result.put("encoding", encoding);
 		result.put("txStart", txStart);
 		result.put("txFinish", txFinish);
@@ -284,7 +284,7 @@ public class Document implements Convertable<Map<String, Object>>, Versionable {
 	@Override
 	public String toString() {
 		return "Document [key=" + documentKey + ", version=" + getVersion()
-				+ ", uri=" + uri + ", typeId=" + typeId + ", createdAt=" + getCreatedAt()
+				+ ", uri=" + uri + ", root=" + root + ", createdAt=" + getCreatedAt()
 				+ ", createdBy=" + createdBy + ", encoding=" + encoding + ", bytes=" + bytes  
 				+ ", txStart=" + txStart + ", txFinish=" + txFinish + ", elements=" + elements 
 				+ ", number of fragments=" + getFragments().length

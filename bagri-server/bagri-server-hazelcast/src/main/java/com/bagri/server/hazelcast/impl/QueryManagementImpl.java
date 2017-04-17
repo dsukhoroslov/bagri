@@ -451,7 +451,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		} else {
 			if (pex.isRegex()) {
 				// pass "any" docType here..
-				paths = model.translatePathFromRegex(0, pex.getRegex());
+				paths = model.translatePathFromRegex(null, pex.getRegex());
 				logger.trace("queryPathKeys; regex: {}; pathIds: {}", pex.getRegex(), paths);
 				if (paths.size() > 0) {
 					Integer[] pa = paths.toArray(new Integer[paths.size()]); 
@@ -462,8 +462,10 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			} else {
 				String path = pex.getFullPath();
 				logger.trace("queryPathKeys; path: {}; comparison: {}", path, pex.getCompType());
-				int typeId = model.findDocumentType(path);
-				Path xPath = model.getPath(typeId, path); 
+				Path xPath = model.getPath(model.getPathRoot(path), path);
+				if (xPath == null) {
+					xPath = model.getPath("/", path);
+				}
 				if (xPath != null) {
 					paths = new HashSet<>(1);
 					pp = Predicates.equal("pathId", xPath.getPathId());

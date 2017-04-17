@@ -101,8 +101,9 @@ public class DocumentMemoryStore extends MemoryMappedStore<Long, Document> {
 	@Override
 	protected int getEntrySize(Document entry) {
 		return 4*8 // 4 long's (txStart, txFinish, docKey, createdAt)
-			+ 3*4 // 3 int's (typeId, bytes, elements)
+			+ 2*4 // 2 int's (bytes, elements)
 			+ entry.getUri().getBytes().length + 4 // uri size
+			+ entry.getTypeRoot().getBytes().length + 4 // root size
 			+ entry.getCreatedBy().getBytes().length + 4 // createdBy size
 			+ entry.getEncoding().getBytes().length + 4 // encoding size
 			+ entry.getCollections().length*4 + 4; // collections
@@ -118,14 +119,14 @@ public class DocumentMemoryStore extends MemoryMappedStore<Long, Document> {
 		long txFinish = buff.getLong();
 		long docKey = buff.getLong();
 		String uri = getString(buff);
-		int typeId = buff.getInt();
+		String root = getString(buff);
 		long txStart = buff.getLong();
 		Date createdAt = new Date(buff.getLong());
 		String createdBy = getString(buff);
 		String encoding = getString(buff);
 		int bytes = buff.getInt();
 		int elts = buff.getInt();
-		Document result = new Document(docKey, uri, typeId, txStart, txFinish, createdAt, createdBy, encoding, bytes, elts);
+		Document result = new Document(docKey, uri, root, txStart, txFinish, createdAt, createdBy, encoding, bytes, elts);
 		result.setCollections(getIntArray(buff));
 		if (txFinish > maxTxId) {
 			maxTxId = txFinish;
@@ -144,7 +145,7 @@ public class DocumentMemoryStore extends MemoryMappedStore<Long, Document> {
 		buff.putLong(entry.getTxFinish());
 		buff.putLong(entry.getDocumentKey());
 		putString(buff, entry.getUri());
-		buff.putInt(entry.getTypeId());
+		putString(buff, entry.getTypeRoot());
 		buff.putLong(entry.getTxStart());
 		buff.putLong(entry.getCreatedAt().getTime());
 		putString(buff, entry.getCreatedBy());

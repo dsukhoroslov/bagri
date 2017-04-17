@@ -46,8 +46,8 @@ public class DocumentServiceTest extends JerseyTest {
     	mockPro = mock(RepositoryProvider.class);
         when(mockPro.getRepository("client-id")).thenReturn(mockRepo);
         when(mockRepo.getDocumentManagement()).thenReturn(docMgr);
-        responseXml = new Document(1L, "a0001.xml", 0, "owner", 1, 34, 1);
-        responseJson = new Document(2L, "a0001.xml", 0, "owner", 1, 30, 1);
+        responseXml = new Document(1L, "a0001.xml", "/content", "owner", 1, 34, 1);
+        responseJson = new Document(2L, "a0001.xml", "/content", "owner", 1, 30, 1); // why the same uri??
         try {
 			when(docMgr.storeDocumentFromString("a0001.xml", "<content>initial content</content>", propsXml)).thenReturn(responseXml);
 			when(docMgr.storeDocumentFromString("a0001.xml", "{\"content\": \"updated content\"}", propsJson)).thenReturn(responseJson);

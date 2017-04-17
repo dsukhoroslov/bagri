@@ -195,15 +195,14 @@ public class IndexManagementImpl implements IndexManagement { //, StatisticsProv
 	}
 	
 	private Set<Integer> getPathsForIndex(Index index) throws BagriException {
-		int docType = mdlMgr.translateDocumentType(index.getDocumentType());
 		String path = index.getPath();
 		Set<Integer> result;
 		if (PathBuilder.isRegexPath(path)) {
-			//path = mdlMgr.normalizePath(path);
-			result = mdlMgr.translatePathFromRegex(docType, PathBuilder.regexFromPath(path));
+			// replace {}
+			result = mdlMgr.translatePathFromRegex(index.getDocumentType(), PathBuilder.regexFromPath(path));
 		} else {
 			int dataType = XQUtils.getBaseTypeForTypeName(index.getDataType());
-			Path xPath = mdlMgr.translatePath(docType, path, NodeKind.fromPath(path), dataType, Occurrence.zeroOrOne);
+			Path xPath = mdlMgr.translatePath(index.getDocumentType(), path, NodeKind.fromPath(path), dataType, Occurrence.zeroOrOne);
 			result = new HashSet<>(1);
 			result.add(xPath.getPathId());
 		}
@@ -502,13 +501,7 @@ public class IndexManagementImpl implements IndexManagement { //, StatisticsProv
 		return ids;
 	}
 	
-	public Collection<Integer> getTypeIndexes(int docType, boolean uniqueOnly) {
-		String root = mdlMgr.getDocumentRoot(docType);
-		//Predicate p = Predicates.equal("typePath", root);
-		//if (uniqueOnly) {
-		//	Predicate u = Predicates.equal("unique", true);
-		//	p = Predicates.and(p, u);
-		//}
+	public Collection<Integer> getTypeIndexes(String root, boolean uniqueOnly) {
 		Collection<Integer> result = new HashSet<>(); //idxDict.keySet(p);
 		for (Map.Entry<Integer, Index> e: idxDict.entrySet()) {
 			if (root.equals(e.getValue().getTypePath())) {
@@ -520,7 +513,7 @@ public class IndexManagementImpl implements IndexManagement { //, StatisticsProv
 				result.add(e.getKey());
 			}
 		}
-		logger.trace("getTypeIndexes.exit; returning {} path for type: {}, unique: {}", result.size(), docType, uniqueOnly);
+		logger.trace("getTypeIndexes.exit; returning {} path for root: {}, unique: {}", result.size(), root, uniqueOnly);
 		return result;
 	}
 	

@@ -9,7 +9,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
-import com.bagri.core.model.DocumentType;
 import com.bagri.core.model.Path;
 import com.bagri.support.idgen.IdGenerator;
 import com.bagri.support.idgen.SimpleIdGenerator;
@@ -17,9 +16,7 @@ import com.bagri.support.idgen.SimpleIdGenerator;
 public class ModelManagementImpl extends ModelManagementBase {
 	
 	private Map<String, Path> pathCache = new ConcurrentHashMap<>();
-	private Map<String, DocumentType> typeCache = new ConcurrentHashMap<>();
 	private IdGenerator<Long> pathGen = new SimpleIdGenerator(0);
-	private IdGenerator<Long> typeGen = new SimpleIdGenerator(0);
 
 	@Override
 	protected Map<String, Path> getPathCache() {
@@ -27,18 +24,8 @@ public class ModelManagementImpl extends ModelManagementBase {
 	}
 
 	@Override
-	protected Map<String, DocumentType> getTypeCache() {
-		return typeCache;
-	}
-
-	@Override
 	protected IdGenerator<Long> getPathGen() {
 		return pathGen;
-	}
-
-	@Override
-	protected IdGenerator<Long> getTypeGen() {
-		return typeGen;
 	}
 
 	//@Override
@@ -78,10 +65,10 @@ public class ModelManagementImpl extends ModelManagementBase {
 	}
 
 	@Override
-	public Collection<Path> getTypePaths(int typeId) {
+	public Collection<Path> getTypePaths(String root) {
 		List<Path> paths = new ArrayList<>();
 		for (Path path: pathCache.values()) {
-			if (path.getTypeId() == typeId) {
+			if (path.getRoot().equals(root)) {
 				paths.add(path);
 			}
 		}
@@ -89,20 +76,10 @@ public class ModelManagementImpl extends ModelManagementBase {
 	}
 
 	@Override
-	protected DocumentType getDocumentTypeById(int typeId) {
-		for (DocumentType type: typeCache.values()) {
-			if (type.getTypeId() == typeId) {
-				return type;
-			}
-		}
-		return null;
-	}
-
-	@Override
-	protected Set<Map.Entry<String, Path>> getTypedPathEntries(int typeId) {
+	protected Set<Map.Entry<String, Path>> getTypedPathEntries(String root) {
 		Set<Map.Entry<String, Path>> entries = new HashSet<>();
 		for (Map.Entry<String, Path> entry: pathCache.entrySet()) {
-			if (entry.getValue().getTypeId() == typeId) {
+			if (entry.getValue().getRoot().equals(root)) {
 				entries.add(entry);
 			}
 		}
@@ -110,16 +87,15 @@ public class ModelManagementImpl extends ModelManagementBase {
 	}
 
 	@Override
-	protected Set<Map.Entry<String, Path>> getTypedPathWithRegex(String regex, int typeId) {
+	protected Set<Map.Entry<String, Path>> getTypedPathWithRegex(String regex, String root) {
 		Set<Map.Entry<String, Path>> entries = new HashSet<>();
 		Pattern pattern = Pattern.compile(regex);
 		for (Map.Entry<String, Path> entry: pathCache.entrySet()) {
 			Path path = entry.getValue();
 			if (pattern.matcher(path.getPath()).matches()) {
-				if (typeId > 0 && path.getTypeId() != typeId) {
-					continue;
+				if (path.getRoot().equals(root)) {
+					entries.add(entry);
 				}
-				entries.add(entry);
 			}
 		}
 		return entries;

@@ -70,7 +70,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	private static final String fnUri = "uri";
 	//private static final String fnTxStart = "txStart";
 	private static final String fnTxFinish = "txFinish";
-	private static final String fnTypeId = "typeId";
+	private static final String fnRoot = "root";
 	
 	private KeyFactory factory;
 	private SchemaRepositoryImpl repo;
@@ -142,8 +142,8 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
     	this.enableStats = enable;
     }
     
-    private Set<DataKey> getDocumentElementKeys(String path, long[] fragments, int docType) {
-    	Set<Integer> parts = model.getPathElements(docType, path);
+    private Set<DataKey> getDocumentElementKeys(String path, long[] fragments) {
+    	Set<Integer> parts = model.getPathElements(path);
     	Set<DataKey> keys = new HashSet<DataKey>(parts.size()*fragments.length);
     	// not all the path keys exists as data key for particular document!
     	for (long docKey: fragments) {
@@ -160,8 +160,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			return null;
 		}
 
-		int typeId = doc.getTypeId();
-		Set<DataKey> keys = getDocumentElementKeys(model.getDocumentRoot(typeId), doc.getFragments(), typeId);
+		Set<DataKey> keys = getDocumentElementKeys(doc.getTypeRoot(), doc.getFragments());
 		Map<DataKey, Elements> elements = xdmCache.getAll(keys);
 		return elements.values();
     }
@@ -189,16 +188,16 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		return null;
 	}
 
-	int indexElements(int docType, int pathId) throws BagriException {
-		Set<DocumentKey> docKeys = getDocumentsOfType(docType);
-		String path = model.getPath(pathId).getPath();
+	int indexElements(int pathId) throws BagriException {
+		Path path = model.getPath(pathId);
+		Set<DocumentKey> docKeys = getDocumentsOfType(path.getRoot());
 		int cnt = 0;
 		for (DocumentKey docKey: docKeys) {
 			DataKey xdk = factory.newDataKey(docKey.getKey(), pathId);
 			Elements elts = xdmCache.get(xdk);
 			if (elts != null) {
 				for (Element elt: elts.getElements()) {
-					indexManager.addIndex(docKey.getKey(), pathId, path, elt.getValue());
+					indexManager.addIndex(docKey.getKey(), pathId, path.getPath(), elt.getValue());
 					cnt++;
 				}
 			}
@@ -206,8 +205,9 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		return cnt;
 	}
 
-	int deindexElements(int docType, int pathId) {
-		Set<DocumentKey> docKeys = getDocumentsOfType(docType);
+	int deindexElements(int pathId) {
+		Path path = model.getPath(pathId);
+		Set<DocumentKey> docKeys = getDocumentsOfType(path.getRoot());
 		int cnt = 0;
 		for (DocumentKey docKey: docKeys) {
 			DataKey xdk = factory.newDataKey(docKey.getKey(), pathId);
@@ -237,8 +237,8 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	}
 	
 	@SuppressWarnings("unchecked")
-	private Set<DocumentKey> getDocumentsOfType(int docType) {
-   		Predicate<DocumentKey, Document> f = Predicates.and(Predicates.equal(fnTypeId, docType), 
+	private Set<DocumentKey> getDocumentsOfType(String root) {
+   		Predicate<DocumentKey, Document> f = Predicates.and(Predicates.equal(fnRoot, root), 
    				Predicates.equal(fnTxFinish, TX_NO));
 		return xddCache.keySet(f);
 	}
@@ -341,7 +341,6 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		long stamp = System.currentTimeMillis();
         java.util.Collection<String> result = new ArrayList<String>(docKeys.size());
 		
-        int typeId = -1;
         String root = null;
 		for (Iterator<Long> itr = docKeys.iterator(); itr.hasNext(); ) {
 			DocumentKey docKey = factory.newDocumentKey(itr.next());
@@ -356,17 +355,13 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 				for (Map.Entry<String, Object> param: params.entrySet()) {
 					String key = param.getKey();
 					String path = param.getValue().toString();
-					if (doc.getTypeId() != typeId) {
-						typeId = doc.getTypeId();
-						root = model.getDocumentRoot(typeId); 
-					}
 					String xml = null;
 					if (path.equals(root)) {
 						xml = cntCache.get(docKey);
 					}
 					if (xml == null) {
 				        logger.trace("buildDocument; no content found for doc key: {}", docKey);
-						xml = buildElement(path, doc.getFragments(), doc.getTypeId());
+						xml = buildElement(path, doc.getFragments());
 					}
 					int pos = 0;
 					while (true) {
@@ -390,9 +385,9 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
         return result;
 	}
     
-	private String buildElement(String path, long[] fragments, int docType) throws BagriException {
-        logger.trace("buildElement.enter; got path: {}; docType: {}", path, docType); 
-    	Set<DataKey> xdKeys = getDocumentElementKeys(path, fragments, docType);
+	private String buildElement(String path, long[] fragments) throws BagriException {
+        logger.trace("buildElement.enter; got path: {}", path); 
+    	Set<DataKey> xdKeys = getDocumentElementKeys(path, fragments);
     	String dataFormat = df_xml;
     	String content = repo.getBuilder(dataFormat).buildString(xdmCache.getAll(xdKeys));
         logger.trace("buildXml.exit; returning xml length: {}", content.length()); 
@@ -468,9 +463,8 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			// if docId is not local then buildDocument returns null!
 			// query docId owner node for the XML instead
 			if (hzInstance.getPartitionService().getPartition(docKey).getOwner().localMember()) {
-				String root = model.getDocumentRoot(doc.getTypeId());
 				Map<String, Object> params = new HashMap<>();
-				params.put(":doc", root);
+				params.put(":doc", doc.getTypeRoot());
 				java.util.Collection<String> results = buildDocument(Collections.singleton(docKey.getKey()), ":doc", params);
 				if (!results.isEmpty()) {
 					content = results.iterator().next();
@@ -520,9 +514,8 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	}
 	
 	public String checkDefaultDocumentCollection(Document doc) {
-		String typePath = model.getDocumentRoot(doc.getTypeId());
-		Collection cln = getTypedCollection(repo.getSchema(), typePath);
-		logger.trace("checkDefaultDocumentCollection; got collection: {} for typePath: {}", cln, typePath);
+		Collection cln = getTypedCollection(repo.getSchema(), doc.getTypeRoot());
+		logger.trace("checkDefaultDocumentCollection; got collection: {} for typePath: {}", cln, doc.getTypeRoot());
 		if (cln != null) {
 			doc.addCollection(cln.getId());
 			return cln.getName();
@@ -593,15 +586,16 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			logger.warn("createDocument.exit; the document is not valid as it has no root element");
 			throw new BagriException("invalid document", BagriException.ecDocument);
 		} 
-		int docType = fragments.get(0).intValue();
+
+		String root = data.get(0).getDataPath().getRoot();
 		Document doc;
-		if (fragments.size() == 1) {
-			doc = new Document(docKey.getKey(), uri, docType, txStart, TX_NO, createdAt, createdBy, def_encoding, content.length(), data.size());
+		if (fragments.size() == 0) {
+			doc = new Document(docKey.getKey(), uri, root, txStart, TX_NO, createdAt, createdBy, def_encoding, content.length(), data.size());
 		} else {
-			doc = new FragmentedDocument(docKey.getKey(), uri, docType, txStart, TX_NO, createdAt, createdBy, def_encoding, content.length(), data.size());
+			doc = new FragmentedDocument(docKey.getKey(), uri, root, txStart, TX_NO, createdAt, createdBy, def_encoding, content.length(), data.size());
 			long[] fa = new long[fragments.size()];
 			fa[0] = docKey.getKey();
-			for (int i=1; i < fragments.size(); i++) {
+			for (int i=0; i < fragments.size(); i++) {
 				fa[i] = fragments.get(i);
 			}
 			((FragmentedDocument) doc).setFragments(fa);
@@ -647,31 +641,29 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	private Object[] loadElements(long docKey, List<Data> data) throws BagriException {
 		
 		long stamp = System.currentTimeMillis();
-		Data root = getDataRoot(data);
-		if (root != null) {
-			//int docType = model.translateDocumentType(root.getPath());
-			int docType = root.getDataPath().getTypeId();
+		Data dRoot = getDataRoot(data);
+		if (dRoot != null) {
+			String root = dRoot.getDataPath().getRoot();
 			Map<DataKey, Elements> elements = new HashMap<DataKey, Elements>(data.size());
 			
 			Set<Integer> fragments = new HashSet<>();
 			for (Fragment fragment: repo.getSchema().getFragments()) {
-				int fType = model.getDocumentType(fragment.getDocumentType());
-				if (fType == docType) {
-					Path path = model.getPath(docType, fragment.getPath());
+				if (fragment.getDocumentType().equals(root)) {
+					Path path = model.getPath(root, fragment.getPath());
 					if (path != null) {
 						fragments.add(path.getPathId());
 					} else if (isRegexPath(fragment.getPath())) {
 						//String nPath = model.normalizePath(fragment.getPath());
 						String nPath = fragment.getPath();
-						fragments.addAll(model.translatePathFromRegex(docType, regexFromPath(nPath)));
+						fragments.addAll(model.translatePathFromRegex(root, regexFromPath(nPath)));
 					} else {	
 						logger.info("loadElements; path not found for fragment: {}; docType: {} ({})", 
-								fragment, root.getPath(), docType);
+								fragment, dRoot.getPath(), root);
 					}
 				}
 			}
 			logger.debug("loadElements; fragments found: {}; for docType: {} ({}); docKey: {}", 
-					fragments, root.getPath(), docType, docKey);
+					fragments, dRoot.getPath(), root, docKey);
 			
 			long fraPath = docKey;
 			long fraPost = 0;
@@ -681,7 +673,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			}
 			Set<Integer> pathIds = new HashSet<>(size);
 			List<Long> fragIds = new ArrayList<>(size);
-			fragIds.add(new Long(docType));
+			//fragIds.add(new Long(docType));
 			for (Data xdm: data) {
 				if (fragments.contains(xdm.getPathId())) {
 					// TODO: why don't we shift it?
@@ -691,7 +683,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 					fraPath = DocumentKey.toKey(hash, 0, 0);
 					fragIds.add(fraPath);
 					//fraPost = xdm.getPostId();
-					fraPost = model.getPath(docType, xdm.getPath()).getPostId();
+					fraPost = model.getPath(root, xdm.getPath()).getPostId();
 				} else if (fraPost > 0 && xdm.getPathId() > fraPost) {
 					fraPath = docKey;
 					fraPost = 0;
@@ -883,8 +875,8 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	    if (doc != null) {
 			cntCache.delete(docKey);
 			//srcCache.remove(docKey);
-	    	int size = deleteDocumentElements(doc.getFragments(), doc.getTypeId());
-	    	java.util.Collection<Integer> pathIds = indexManager.getTypeIndexes(doc.getTypeId(), true);
+	    	int size = deleteDocumentElements(doc.getFragments(), doc.getTypeRoot());
+	    	java.util.Collection<Integer> pathIds = indexManager.getTypeIndexes(doc.getTypeRoot(), true);
 	    	for (int pathId: pathIds) {
 	    		deindexElements(docKey.getKey(), pathId);
 	    	}
@@ -909,7 +901,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		logger.trace("evictDocument.enter; xdmKey: {}, xdmDoc: {}", xdmKey, xdmDoc);
 		cntCache.delete(xdmKey);
 		//srcCache.remove(xdmKey);
-    	int size = deleteDocumentElements(xdmDoc.getFragments(), xdmDoc.getTypeId());
+    	int size = deleteDocumentElements(xdmDoc.getFragments(), xdmDoc.getTypeRoot());
 
     	//Collection<Integer> pathIds = indexManager.getTypeIndexes(xdmDoc.getTypeId(), true);
     	//for (int pathId: pathIds) {
@@ -926,11 +918,11 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		logger.trace("evictDocument.exit; evicted: {}", size);
 	}
 	
-	private int deleteDocumentElements(long[] fragments, int typeId) {
+	private int deleteDocumentElements(long[] fragments, String root) {
 
     	int cnt = 0;
     	//Set<XDMDataKey> localKeys = xdmCache.localKeySet();
-    	java.util.Collection<Path> allPaths = model.getTypePaths(typeId);
+    	java.util.Collection<Path> allPaths = model.getTypePaths(root);
 		logger.trace("deleteDocumentElements; got {} possible paths to remove; xdmCache size: {}", 
 				allPaths.size(), xdmCache.size());
 		int iCnt = 0;

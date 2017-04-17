@@ -18,50 +18,6 @@ import com.bagri.core.model.Path;
 public interface ModelManagement {
 	
 	/**
-	 * performs translation from full namespace declaration to its prefix part:
-	 * http://tpox-benchmark.com/security -&gt; ns0.
-	 * 
-	 * creates new prefix in case when new (not registered yet) namespace provided;
-	 * 
-	 * @param namespace String; the full namespace declaration 
-	 * @return namespace prefix: String; ns0
-	 */
-	//String getNamespacePrefix(String namespace);
-	
-	/**
-	 * performs translation from full namespace declaration to its prefix part:
-	 * http://tpox-benchmark.com/security -&gt; ns0
-	 * 
-	 * returns null in case when new (not registered yet) namespace provided;
-	 * 
-	 * @param namespace String; the full namespace declaration
-	 * @return namespace prefix: String; ns0 or null
-	 */
-	//String translateNamespace(String namespace);
-	
-	/**
-	 * performs translation from full namespace declaration to its prefix part:
-	 * http://tpox-benchmark.com/security -&gt; ns0
-	 * 
-	 * creates new prefix in case when new (not registered yet) namespace provided;
-	 * uses the suggested prefix for the new one
-	 * 
-	 * @param namespace String; the full namespace declaration
-	 * @param prefix String; the prefix suggested to use when the namespace is not registered yet, e.g. xsi
-	 * @return namespace prefix: String; xsi
-	 */
-	//String translateNamespace(String namespace, String prefix);
-
-	/**
-	 * translates full node path like "/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}Name"
-	 * to its prefixed equivalent: "/ns0:Security/ns0:Name"
-	 *  
-	 * @param path String; the full node path in Clark form
-	 * @return normalized path: STring; e.g. "/ns0:Security/ns0:Name"
-	 */
-	//String normalizePath(String path);
-	
-	/**
 	 * translates full node path like "/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}Name/text()"
 	 * to XDMPath;
 	 * 
@@ -75,7 +31,7 @@ public interface ModelManagement {
 	 * @return new or existing {@link Path} structure
 	 * @throws BagriException in case of any error
 	 */
-	Path translatePath(int typeId, String path, NodeKind kind, int dataType, Occurrence occurrence) throws BagriException;
+	Path translatePath(String root, String path, NodeKind kind, int dataType, Occurrence occurrence) throws BagriException;
 	
 	/**
 	 * translates regex expression like "^/ns0:Security/ns0:SecurityInformation/.(*)/ns0:Sector/text\\(\\)$";
@@ -85,7 +41,7 @@ public interface ModelManagement {
 	 * @param regex String; regex pattern 
 	 * @return Set&lt;Integer&gt;- set of registered pathIds conforming to the pattern provided
 	 */
-	Set<Integer> translatePathFromRegex(int typeId, String regex);
+	Set<Integer> translatePathFromRegex(String root, String regex);
 	
 	/**
 	 * translates regex expression like "^/ns0:Security/ns0:SecurityInformation/.(*)/ns0:Sector/text\\(\\)$";
@@ -95,7 +51,7 @@ public interface ModelManagement {
 	 * @param regex String; regex pattern 
 	 * @return Set&lt;String&gt;- set of registered paths conforming to the pattern provided
 	 */
-	Collection<String> getPathFromRegex(int typeId, String regex);
+	Collection<String> getPathFromRegex(String root, String regex);
 	
 	/**
 	 * return array of pathIds which are children of the root specified;
@@ -104,7 +60,7 @@ public interface ModelManagement {
 	 * @param root String; root node path 
 	 * @return Set&lt;Integer&gt;- set of registered pathIds who are direct or indirect children of the parent path provided
 	 */
-	Set<Integer> getPathElements(int typeId, String root);
+	Set<Integer> getPathElements(String root);
 	
 	/**
 	 * search for registered full node path like "/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}Name/text()"
@@ -112,7 +68,7 @@ public interface ModelManagement {
 	 * @param path String; node path in Clark form
 	 * @return registered {@link Path} structure if any
 	 */
-	Path getPath(int typeId, String path); 
+	Path getPath(String root, String path); 
 
 	/**
 	 * return XDM path instance by pathId provided;
@@ -128,64 +84,21 @@ public interface ModelManagement {
 	 * @param typeId int; the corresponding document's type
 	 * @return Collection of {@link Path} belonging to the typeId provided; result is sorted by pathId
 	 */
-	Collection<Path> getTypePaths(int typeId);
+	Collection<Path> getTypePaths(String root);
+	
+	/**
+	 * 
+	 * @param path the long element path
+	 * @return the path root
+	 */
+	String getPathRoot(String path);
 	
 	/**
 	 * updates the Path in cache
 	 * 
-	 * @param path the Ptah to update
+	 * @param path the Path to update
 	 */
 	void updatePath(Path path);
-	/**
-	 * returns document type ID for the root document element specified. root is a long
-	 * path representation like {@literal "/{http://tpox-benchmark.com/security}Security"}
-	 * 
-	 * returns -1 in case when root path is not registered in docType cache yet;
-	 * 
-	 * @param root String; the document root path
-	 * @return document typeId registered for the root path  
-	 */
-	int getDocumentType(String root);
-	
-	/**
-	 * returns document type ID for the path element specified. path is already normalized
-	 * just search for a document type where path.startsWith(root) is true 
-	 * 
-	 * returns -1 in case when no such root path found
-	 * 
-	 * @param path normalized path to search for
-	 * @return document typeId found for the full path
-	 */
-	int findDocumentType(String path);
-	
-	/**
-	 * returns document root path like {@literal "/{http://tpox-benchmark.com/security}Security"}
-	 * for the typeId specified
-	 * 
-	 * @param typeId int; the document's type id
-	 * @return String path registered for the type id  
-	 */
-	String getDocumentRoot(int typeId);
-	
-	/**
-	 * returns document type ID for the root document element specified. root is a long
-	 * path representation like {@literal "/{http://tpox-benchmark.com/security}Security"}
-	 * 
-	 * returns new typeId in case when root path is not registered in docType cache yet;
-	 * 
-	 * @param root String; the document root path
-	 * @return int document typeId registered for the root path  
-	 */
-	int translateDocumentType(String root);
-	
-	/**
-	 * normalizes all registered paths belonging to the document type id. 
-	 * i.e. set their parentId and pathId attributes properly  
-	 * 
-	 * @param typeId int; the document's type id  
-	 * @throws BagriException in case of any error 
-	 */
-	//void normalizeDocumentType(int typeId) throws BagriException;
 
 	/**
 	 * registers bunch of node path's specified in the XML schema (XSD)   

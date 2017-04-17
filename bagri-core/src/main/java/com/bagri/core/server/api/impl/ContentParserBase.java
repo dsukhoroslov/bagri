@@ -48,14 +48,14 @@ public abstract class ContentParserBase {
 	
 	protected class ParserContext {
 		
-		private int docType = -1;
+		private String root = null;
 		private TreeNode<Data> tree;
 		private TreeNode<Data> top;
 		
 		public void addDocument(String root) throws BagriException {
-			docType = model.translateDocumentType(root);
+			this.root = root;
 			Data data = new Data(root);
-			Path path = model.translatePath(docType, "/", NodeKind.document, XQBASETYPE_ANYTYPE, Occurrence.onlyOne);
+			Path path = model.translatePath(root, "/", NodeKind.document, XQBASETYPE_ANYTYPE, Occurrence.onlyOne);
 			Element start = new Element();
 			data.setData(path, start);
 			tree = new TreeNode<>(data);
@@ -138,8 +138,8 @@ public abstract class ContentParserBase {
 			return list;
 		}
 		
-		public int getDocType() {
-			return docType;
+		public String getDocRoot() {
+			return root;
 		}
 		
 		public Data getTopData() {
@@ -196,7 +196,7 @@ public abstract class ContentParserBase {
 				path += "/";
 			}
 			path += current.getDataName();
-			Path xPath = model.translatePath(docType, path, kind, dataType, occurrence);
+			Path xPath = model.translatePath(root, path, kind, dataType, occurrence);
 			xPath.setParentId(parent.getPathId());
 			if (parent.getPostId() < xPath.getPathId()) {
 				Path pPath = parent.getDataPath();

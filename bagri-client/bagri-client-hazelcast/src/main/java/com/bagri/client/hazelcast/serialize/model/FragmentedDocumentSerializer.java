@@ -21,7 +21,7 @@ public class FragmentedDocumentSerializer extends DocumentSerializer {
 		FragmentedDocument xDoc = new FragmentedDocument(
 				in.readLong(),
 				in.readUTF(),
-				in.readInt(),
+				in.readUTF(),
 				in.readLong(),
 				in.readLong(),
 				new java.util.Date(in.readLong()),

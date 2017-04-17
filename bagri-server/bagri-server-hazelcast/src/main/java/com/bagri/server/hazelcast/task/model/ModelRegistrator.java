@@ -36,14 +36,15 @@ public class ModelRegistrator implements Callable<Integer>, IdentifiedDataSerial
 
 	@Override
 	public Integer call() throws Exception {
-		int size = ((ModelManagementBase) modelMgr).getDocumentTypes().size();
+		//int size = ((ModelManagementBase) modelMgr).getDocumentTypes().size();
 		//Path path = Paths.get(schemaFile, null);
 		//if (Files.isDirectory(path, null)) {
 			modelMgr.registerSchemaUri(schemaFile);			
 		//} else {
 		//	modelMgr.registerSchemaUri(schemaFile);
 		//}
-		return ((ModelManagementBase) modelMgr).getDocumentTypes().size() - size;
+		//return ((ModelManagementBase) modelMgr).getDocumentTypes().size() - size;
+		return 1;
 	}
 
 	@Override

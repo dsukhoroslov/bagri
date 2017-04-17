@@ -24,7 +24,7 @@ public class DocumentSerializer implements StreamSerializer<Document> {
 		Document xDoc = new Document(
 				in.readLong(),
 				in.readUTF(),
-				in.readInt(),
+				in.readUTF(),
 				in.readLong(),
 				in.readLong(),
 				new java.util.Date(in.readLong()),
@@ -40,7 +40,7 @@ public class DocumentSerializer implements StreamSerializer<Document> {
 	public void write(ObjectDataOutput out, Document xDoc) throws IOException {
 		out.writeLong(xDoc.getDocumentKey());
 		out.writeUTF(xDoc.getUri());
-		out.writeInt(xDoc.getTypeId());
+		out.writeUTF(xDoc.getTypeRoot());
 		out.writeLong(xDoc.getTxStart());
 		out.writeLong(xDoc.getTxFinish());
 		out.writeLong(xDoc.getCreatedAt().getTime());

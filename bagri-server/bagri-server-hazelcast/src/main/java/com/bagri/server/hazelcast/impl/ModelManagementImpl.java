@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -14,7 +15,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.bagri.client.hazelcast.impl.IdGeneratorImpl;
-import com.bagri.core.model.DocumentType;
 import com.bagri.core.model.Path;
 import com.bagri.core.server.api.ModelManagement;
 import com.bagri.core.server.api.impl.ModelManagementBase;
@@ -34,20 +34,11 @@ import com.hazelcast.map.listener.MapEvictedListener;
 
 public class ModelManagementImpl extends ModelManagementBase implements ModelManagement { 
 
-	//protected IMap<String, Path> pathCache;
-	//protected IMap<String, Namespace> nsCache;
-	//protected IMap<String, DocumentType> typeCache;
 	protected ReplicatedMap<String, Path> pathCache;
-	protected ReplicatedMap<String, DocumentType> typeCache;
 	private IdGenerator<Long> pathGen;
-	private IdGenerator<Long> typeGen;
-	
 	private ConcurrentMap<Integer, Path> cachePath = new ConcurrentHashMap<>();
-	private ConcurrentMap<Integer, Set<Path>> cacheType = new ConcurrentHashMap<>();
-
-	//@Autowired
-	//private HazelcastInstance hzInstance;
-
+	private ConcurrentMap<String, Set<Path>> cacheType = new ConcurrentHashMap<>();
+	
 	public ModelManagementImpl() {
 		super();
 	}
@@ -58,10 +49,8 @@ public class ModelManagementImpl extends ModelManagementBase implements ModelMan
 	}
 	
 	private void initialize(HazelcastInstance hzInstance) {
-		typeCache = hzInstance.getReplicatedMap(CN_XDM_DOCTYPE_DICT);
 		pathCache = hzInstance.getReplicatedMap(CN_XDM_PATH_DICT);
 		pathGen = new IdGeneratorImpl(hzInstance.getAtomicLong(SQN_PATH));
-		typeGen = new IdGeneratorImpl(hzInstance.getAtomicLong(SQN_DOCTYPE));
 		// init listeners here
 		//pathCache.addEntryListener(new PathCacheListener()); //, true);
 		pathCache.addEntryListener(new PathEntryListener()); //, true);
@@ -71,20 +60,8 @@ public class ModelManagementImpl extends ModelManagementBase implements ModelMan
 		return pathCache;
 	}
 	
-	protected Map<String, DocumentType> getTypeCache() {
-		return typeCache;
-	}
-	
 	protected IdGenerator<Long> getPathGen() {
 		return pathGen;
-	}
-	
-	protected IdGenerator<Long> getTypeGen() {
-		return typeGen;
-	}
-
-	public void setTypeCache(ReplicatedMap<String, DocumentType> typeCache) {
-		this.typeCache = typeCache;
 	}
 	
 	public void setPathCache(ReplicatedMap<String, Path> pathCache) {
@@ -95,10 +72,6 @@ public class ModelManagementImpl extends ModelManagementBase implements ModelMan
 		this.pathGen = new IdGeneratorImpl(pathGen);
 	}
 	
-	public void setTypeGen(IAtomicLong typeGen) {
-		this.typeGen = new IdGeneratorImpl(typeGen);
-	}
-
 	private Path getPathInternal(int pathId) {
 		//Predicate f = Predicates.equal("pathId", pathId);
 		//Collection<Path> entries = pathCache.values(f);
@@ -127,7 +100,7 @@ public class ModelManagementImpl extends ModelManagementBase implements ModelMan
 		return result;
 	}
 	
-	private Collection<Path> getTypePathsInternal(int typeId) {
+	private Collection<Path> getTypePathsInternal(String root) {
 		//Predicate<String, Path> f = Predicates.equal("typeId", typeId);
 		//Collection<Path> entries = pathCache.values(f);
 		//if (entries.isEmpty()) {
@@ -143,7 +116,7 @@ public class ModelManagementImpl extends ModelManagementBase implements ModelMan
 
 		Collection<Path> result = new ArrayList<>();
 		for (Path path: pathCache.values()) {
-			if (typeId == path.getTypeId()) {
+			if (root.equals(path.getRoot())) {
 				result.add(path);
 			}
 		}
@@ -151,53 +124,36 @@ public class ModelManagementImpl extends ModelManagementBase implements ModelMan
 	}
 	
 	@Override
-	public Collection<Path> getTypePaths(int typeId) {
-		Collection<Path> result = cacheType.get(typeId);
+	public Collection<Path> getTypePaths(String root) {
+		Collection<Path> result = cacheType.get(root);
 		// TODO: think why the result is empty? happens from ModelManagementImplTest only?
 		if (result == null || result.isEmpty()) {
-			result = getTypePathsInternal(typeId);
+			result = getTypePathsInternal(root);
 			if (result != null) {
 				Set<Path> paths = new HashSet<>(result);
 				paths = new HashSet<>();
-				cacheType.putIfAbsent(typeId, paths);
+				cacheType.putIfAbsent(root, paths);
 			}
 		}
 		return result;
 	}
 	
-	
 	@Override
-	protected DocumentType getDocumentTypeById(int typeId) {
-		//Predicate f = Predicates.equal("typeId", typeId);
-		//Set<Map.Entry<String, DocumentType>> types = typeCache.entrySet(f);
-		//if (types.size() == 0) {
-		//	return null;
-		//}
-		//return (DocumentType) types.iterator().next().getValue();
-		for (DocumentType type: typeCache.values()) {
-			if (typeId == type.getTypeId()) {
-				return type;
-			}
-		}
-		return null;
-	}
-
-	@Override
-	protected Set<Map.Entry<String, Path>> getTypedPathEntries(int typeId) {
+	protected Set<Map.Entry<String, Path>> getTypedPathEntries(String root) {
 		//Predicate f = Predicates.equal("typeId",  typeId);
 		//Set<Map.Entry<String, Path>> entries = pathCache.entrySet(f);
 		//return entries;
 		Set<Map.Entry<String, Path>> result = new HashSet<>();
 		for (Map.Entry<String, Path> e: pathCache.entrySet()) {
-			if (typeId == e.getValue().getTypeId()) {
+			if (root.equals(e.getValue().getRoot())) {
 				result.add(e);
 			}
 		}
 		return result;
 	}
-	
+
 	@Override
-	protected Set<Map.Entry<String, Path>> getTypedPathWithRegex(String regex, int typeId) {
+	protected Set<Map.Entry<String, Path>> getTypedPathWithRegex(String regex, String root) {
 		//Predicate filter = new RegexPredicate("path", regex);
 		//if (typeId > 0) {
 		//	filter = Predicates.and(filter, Predicates.equal("typeId", typeId));
@@ -208,29 +164,25 @@ public class ModelManagementImpl extends ModelManagementBase implements ModelMan
 		regex = regex.replaceAll("\\}", Matcher.quoteReplacement("\\}"));
 		Pattern p = Pattern.compile(regex);
 		Set<Map.Entry<String, Path>> result = new HashSet<>();
-		if (typeId > 0) {
-			for (Map.Entry<String, Path> e: pathCache.entrySet()) {
-				Path path = e.getValue();
-				if (typeId == path.getTypeId()) {
-					if (p.matcher(path.getPath()).matches()) {
-						result.add(e);
-					}
-				}
-			}
-		} else {
+		if (root == null) {
 			for (Map.Entry<String, Path> e: pathCache.entrySet()) {
 				Path path = e.getValue();
 				if (p.matcher(path.getPath()).matches()) {
 					result.add(e);
 				}
 			}
+		} else {
+			for (Map.Entry<String, Path> e: pathCache.entrySet()) {
+				Path path = e.getValue();
+				if (root.equals(path.getRoot())) {
+					if (p.matcher(path.getPath()).matches()) {
+						result.add(e);
+					}
+				}
+			}
 		}
 		return result;
 	}
-
-	//private IMap getNamedCache(Map cache) {
-	//	return (IMap) cache;
-	//}
 
 	//@Override
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -278,10 +230,10 @@ public class ModelManagementImpl extends ModelManagementBase implements ModelMan
 		public void entryAdded(EntryEvent<String, Path> event) {
 			Path path = event.getValue();
 			cachePath.putIfAbsent(path.getPathId(), path);
-			Set<Path> paths = cacheType.get(path.getTypeId());
+			Set<Path> paths = cacheType.get(path.getRoot());
 			if (paths == null) {
 				paths = new HashSet<>();
-				Set<Path> paths2 = cacheType.putIfAbsent(path.getTypeId(), paths);
+				Set<Path> paths2 = cacheType.putIfAbsent(path.getRoot(), paths);
 				if (paths2 != null) {
 					paths = paths2;
 				}
@@ -293,10 +245,10 @@ public class ModelManagementImpl extends ModelManagementBase implements ModelMan
 		public void entryUpdated(EntryEvent<String, Path> event) {
 			Path path = event.getValue();
 			cachePath.put(path.getPathId(), path);
-			Set<Path> paths = cacheType.get(path.getTypeId());
+			Set<Path> paths = cacheType.get(path.getRoot());
 			if (paths == null) {
 				paths = new HashSet<>();
-				Set<Path> paths2 = cacheType.putIfAbsent(path.getTypeId(), paths);
+				Set<Path> paths2 = cacheType.putIfAbsent(path.getRoot(), paths);
 				if (paths2 != null) {
 					paths = paths2;
 				}
@@ -308,7 +260,7 @@ public class ModelManagementImpl extends ModelManagementBase implements ModelMan
 		public void entryRemoved(EntryEvent<String, Path> event) {
 			Path path = event.getValue();
 			cachePath.remove(path.getPathId());
-			Set<Path> paths = cacheType.get(path.getTypeId());
+			Set<Path> paths = cacheType.get(path.getRoot());
 			if (paths != null) {
 				paths.remove(path);
 			}
@@ -333,6 +285,7 @@ public class ModelManagementImpl extends ModelManagementBase implements ModelMan
 		
 	}
 
+/*
 	private class PathCacheListener implements MapClearedListener, MapEvictedListener,
 		EntryAddedListener<String, Path>, EntryRemovedListener<String, Path>, EntryUpdatedListener<String, Path> {
 	
@@ -388,5 +341,6 @@ public class ModelManagementImpl extends ModelManagementBase implements ModelMan
 		}
 	
 	}
+*/	
 	
 }
