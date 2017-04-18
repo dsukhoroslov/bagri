@@ -121,7 +121,11 @@ public abstract class ModelManagementBase implements ModelManagement {
 	 */
 	public String getPathRoot(String path) {
 		if (path.startsWith("/{")) {
-			return path.substring(0, path.indexOf("/", path.indexOf("}")));
+			int pos = path.indexOf("/", path.indexOf("}"));
+			if (pos > 0) {
+				return path.substring(0, path.indexOf("/", path.indexOf("}")));
+			}
+			return path;
 		}
 		String[] segments = path.split("/");
 		if (segments.length > 1) {
