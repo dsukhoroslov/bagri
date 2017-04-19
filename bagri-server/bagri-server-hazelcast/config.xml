@@ -354,6 +354,14 @@
                 </index>
             </indexes>
             <resources>
+                <resource name="mmd">
+                    <createdAt>2017-04-04T13:36:26.965+03:00</createdAt>
+                    <createdBy>SDV</createdBy>
+                    <path>/mmd</path>
+                    <module>mmd_module</module>
+                    <description>MakeMyDay resource exposed via REST</description>
+                    <enabled>true</enabled>
+                </resource>
                 <resource name="tpox">
                     <createdAt>2016-10-04T13:36:26.965+03:00</createdAt>
                     <createdBy>SDV</createdBy>
@@ -710,6 +718,16 @@
             <description>The Hello Test Module</description>
             <prefix>hw</prefix>
             <namespace>http://helloworld</namespace>
+            <enabled>true</enabled>
+        </module>
+        <module name="mmd_module">
+            <version>1</version>
+            <createdAt>2017-04-10T13:36:26.965+03:00</createdAt>
+            <createdBy>SDV</createdBy>
+            <fileName>../../etc/samples/tpox/mmd_module.xq</fileName>
+            <description>The MakeMyDay Module</description>
+            <prefix>mmd</prefix>
+            <namespace>http://bagridb.com/mmd</namespace>
             <enabled>true</enabled>
         </module>
         <module name="rest_module">
