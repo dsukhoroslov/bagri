@@ -37,6 +37,7 @@ import com.bagri.core.api.BagriException;
 import com.bagri.core.model.Data;
 import com.bagri.core.model.Element;
 import com.bagri.core.model.NodeKind;
+import com.bagri.core.model.Null;
 import com.bagri.core.model.Occurrence;
 import com.bagri.core.model.Path;
 import com.bagri.core.server.api.ContentParser;
@@ -221,7 +222,9 @@ public class XmlStaxParser extends ContentParserBase implements ContentParser {
 					startElement(ctx, xmlEvent.asStartElement());
 					break;
 				case XMLStreamConstants.CHARACTERS:
-					ctx.addCharacters(xmlEvent.asCharacters());
+					if (!xmlEvent.asCharacters().isWhiteSpace()) {
+						ctx.addCharacters(xmlEvent.asCharacters().getData());
+					}
 					break;
 				case XMLStreamConstants.END_ELEMENT:
 					ctx.endElement();
@@ -261,7 +264,6 @@ public class XmlStaxParser extends ContentParserBase implements ContentParser {
 			// TODO: process default namespace properly
 			String namespace = ns.getValue();
 			if (namespace != null) {
-				//String prefix = model.translateNamespace(namespace, ns.getName().getLocalPart());
 				String prefix = ns.getName().getLocalPart();
 				ctx.addNamespace(prefix, namespace);
 			}
@@ -296,13 +298,11 @@ public class XmlStaxParser extends ContentParserBase implements ContentParser {
 			addData("@" + name, NodeKind.attribute, value, XQItemType.XQBASETYPE_ANYATOMICTYPE, Occurrence.onlyOne); 
 		}
 
-		public void addCharacters(Characters characters) {
-			if (characters.getData().trim().length() > 0) {
-				chars.append(characters.getData());
-			}
+		public void addCharacters(String data) {
+			chars.append(data);
 		}
 		
-		void appendCharacters() throws BagriException {
+		boolean appendCharacters() throws BagriException {
 			if (chars.length() > 0) {
 				String content = chars.toString();
 				// normalize xml content.. what if it is already normalized??
@@ -311,7 +311,9 @@ public class XmlStaxParser extends ContentParserBase implements ContentParser {
 				// is xs:token, for instance..
 				addData("text()", NodeKind.text, content, XQItemType.XQBASETYPE_ANYATOMICTYPE, Occurrence.zeroOrOne); 
 				chars.delete(0, chars.length());
+				return true;
 			}
+			return false;
 		}
 
 		public void addComment(String comment) throws BagriException {
@@ -334,7 +336,11 @@ public class XmlStaxParser extends ContentParserBase implements ContentParser {
 		
 		@Override
 		public void endElement() throws BagriException {
-			appendCharacters();
+			if (!appendCharacters()) {
+				if (isTopEmpty()) {
+					addData("text()", NodeKind.text, Null._null, XQItemType.XQBASETYPE_ANYATOMICTYPE, Occurrence.zeroOrOne);
+				}
+			}
 			super.endElement();
 		}
 

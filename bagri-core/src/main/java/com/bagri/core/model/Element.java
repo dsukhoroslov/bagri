@@ -167,6 +167,7 @@ public class Element implements Comparable<Element> {
 	//	
 	//}
 
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -188,8 +189,48 @@ public class Element implements Comparable<Element> {
 		return -1;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + Arrays.hashCode(position);
+		result = prime * result + ((value == null) ? 0 : value.hashCode());
+		return result;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		Element other = (Element) obj;
+		if (!Arrays.equals(position, other.position)) {
+			return false;
+		}
+		if (value == null) {
+			if (other.value != null) {
+				return false;
+			}
+		} else if (!value.equals(other.value)) {
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * {@inheritDoc}
 	 */
 	@Override
 	public String toString() {

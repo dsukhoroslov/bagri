@@ -39,7 +39,10 @@ public class ModelRegistrator implements Callable<Integer>, IdentifiedDataSerial
 		//int size = ((ModelManagementBase) modelMgr).getDocumentTypes().size();
 		//Path path = Paths.get(schemaFile, null);
 		//if (Files.isDirectory(path, null)) {
-			modelMgr.registerSchemaUri(schemaFile);			
+		
+		// TODO: register schema via ContentModelProcessor!
+		
+			//modelMgr.registerSchemaUri(schemaFile);			
 		//} else {
 		//	modelMgr.registerSchemaUri(schemaFile);
 		//}

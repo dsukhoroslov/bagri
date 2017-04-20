@@ -153,6 +153,10 @@ public class Data implements Comparable<Data> {
     	return element.getValue();
     }
     
+    public boolean isNull() {
+    	return element.getValue() == Null._null;
+    }
+    
     public void setData(Path path, Element element) {
         this.path = path;
         this.element = element;
@@ -173,5 +177,6 @@ public class Data implements Comparable<Data> {
     public String toString() {
         return "Data [path=" + path + ", element=" + element + "]";
     }
+
 
 }

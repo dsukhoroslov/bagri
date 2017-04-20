@@ -119,19 +119,22 @@ public class JsonpBuilder extends ContentBuilderBase implements ContentBuilder {
 				break;
 			}
 			case attribute: {
-				// check data type..
-				switch (data.getDataPath().getDataType()) {
-					case XQBASETYPE_BOOLEAN: 
-						stream.write(data.getName(), (Boolean) data.getValue());
-						break;
-					case XQBASETYPE_DECIMAL:
-						stream.write(data.getName(), (BigDecimal) data.getValue());
-						break;
-					case XQBASETYPE_LONG:
-						stream.write(data.getName(), (Long) data.getValue());
-						break;
-					default:
-						stream.write(data.getName(), (String) data.getValue());
+				if (data.isNull()) {
+					stream.writeNull(data.getName());
+				} else {
+					switch (data.getDataPath().getDataType()) {
+						case XQBASETYPE_BOOLEAN: 
+							stream.write(data.getName(), (Boolean) data.getValue());
+							break;
+						case XQBASETYPE_DECIMAL:
+							stream.write(data.getName(), (BigDecimal) data.getValue());
+							break;
+						case XQBASETYPE_LONG:
+							stream.write(data.getName(), (Long) data.getValue());
+							break;
+						default:
+							stream.write(data.getName(), (String) data.getValue());
+					}
 				}
 				break;
 			}
@@ -145,24 +148,27 @@ public class JsonpBuilder extends ContentBuilderBase implements ContentBuilder {
 			}
 			case text: {
 				endElement(dataStack, stream, data);
-				// check data type..
-				switch (data.getDataPath().getDataType()) {
-					case XQBASETYPE_BOOLEAN: 
-						stream.write((Boolean) data.getValue());
-						break;
-					case XQBASETYPE_DECIMAL:
-						stream.write((BigDecimal) data.getValue());
-						break;
-					case XQBASETYPE_LONG:
-						stream.write((Long) data.getValue());
-						break;
-					default:
-						stream.write((String) data.getValue());
+				if (data.isNull()) {
+					stream.writeNull();
+				} else {
+					switch (data.getDataPath().getDataType()) {
+						case XQBASETYPE_BOOLEAN: 
+							stream.write((Boolean) data.getValue());
+							break;
+						case XQBASETYPE_DECIMAL:
+							stream.write((BigDecimal) data.getValue());
+							break;
+						case XQBASETYPE_LONG:
+							stream.write((Long) data.getValue());
+							break;
+						default:
+							stream.write((String) data.getValue());
+					}
 				}
 				break;
 			}
 			default: {
-				//logger.warn("buildXml; unknown NodeKind: {}", data.getNodeKind());
+				//logger.warn("writeElement; unknown NodeKind: {}", data.getNodeKind());
 			}
 		}
 	}

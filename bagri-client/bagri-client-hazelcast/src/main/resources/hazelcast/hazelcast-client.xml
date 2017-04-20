@@ -34,6 +34,7 @@
 		</portable-factories>
 		<serializers>
 			<!--global-serializer class-name="com.hazelcast.nio.serialization.PortableSerializer"/-->
+			<serializer type-class="com.bagri.core.model.Null" class-name="com.bagri.client.hazelcast.serialize.model.NullSerializer"/>
 			<serializer type-class="com.bagri.core.model.Element" class-name="com.bagri.client.hazelcast.serialize.model.ElementSerializer"/>
 			<serializer type-class="com.bagri.core.model.Elements" class-name="com.bagri.client.hazelcast.serialize.model.ElementsSerializer"/>
 			<serializer type-class="com.bagri.core.model.Path" class-name="com.bagri.client.hazelcast.serialize.model.PathSerializer"/>

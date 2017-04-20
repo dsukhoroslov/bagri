@@ -55,9 +55,9 @@ public class DataSerializationFactoryImpl implements DataSerializableFactory {
 	public static final int cli_XDMDocument = 50;
 	public static final int cli_XDMElement = 51; 
 	//public static final int cli_DataDocumentKey = 52; 
-	public static final int cli_XDMDocumentType = 53;
+	//public static final int cli_XDMDocumentType = 53;
 	public static final int cli_XDMPath = 54;
-	public static final int cli_XDMNamespace = 55;
+	//public static final int cli_XDMNamespace = 55;
 	public static final int cli_XDMElements = 56; 
 	public static final int cli_XDMQuery = 57;
 	public static final int cli_XDMResults = 58;
@@ -68,6 +68,7 @@ public class DataSerializationFactoryImpl implements DataSerializableFactory {
 	public static final int cli_XDMTransaction = 63;
 	public static final int cli_XDMFragmentedDocument = 64;
 	public static final int cli_XDMCounter = 65;
+	public static final int cli_XDMNull = 66;
 
 	public static final int cli_XQItemType = 75;
 	public static final int cli_XQItem = 76;

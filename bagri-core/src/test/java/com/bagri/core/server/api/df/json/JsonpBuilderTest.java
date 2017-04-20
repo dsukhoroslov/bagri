@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.json.stream.JsonGenerator;
@@ -13,12 +14,16 @@ import javax.xml.xquery.XQItemType;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.bagri.core.DataKey;
 import com.bagri.core.model.Data;
 import com.bagri.core.model.Element;
+import com.bagri.core.model.Elements;
 import com.bagri.core.model.NodeKind;
+import com.bagri.core.model.Null;
 import com.bagri.core.model.Occurrence;
 import com.bagri.core.model.Path;
 import com.bagri.core.server.api.ModelManagement;
+import com.bagri.core.server.api.df.xml.XmlBuilder;
 import com.bagri.core.server.api.impl.ModelManagementImpl;
 
 public class JsonpBuilderTest {
@@ -41,7 +46,8 @@ public class JsonpBuilderTest {
 			"    },\n" +
 			"    {\n" +
 			"      \"type\": \"fax\",\n" +
-			"      \"number\": \"646 555-4567\"\n" +
+			"      \"number\": \"646 555-4567\",\n" +
+			"      \"comment\": null\n" +
 			"    }\n" +
 			"  ],\n" +
 			"  \"gender\": {\n" +
@@ -84,15 +90,16 @@ public class JsonpBuilderTest {
 		data.add(new Data(new Path("/address/city", "/", NodeKind.attribute, 7, 5, 7, XQItemType.XQBASETYPE_STRING, Occurrence.onlyOne), new Element(new int[] {4, 2}, "New York")));
 		data.add(new Data(new Path("/address/state", "/", NodeKind.attribute, 8, 5, 8, XQItemType.XQBASETYPE_STRING, Occurrence.onlyOne), new Element(new int[] {4, 3}, "NY")));
 		data.add(new Data(new Path("/address/postalCode", "/", NodeKind.attribute, 9, 5, 9, XQItemType.XQBASETYPE_STRING, Occurrence.onlyOne), new Element(new int[] {4, 4}, "10021")));
-		data.add(new Data(new Path("/phoneNumber", "/", NodeKind.array, 10, 1, 20, XQItemType.XQBASETYPE_ANYTYPE, Occurrence.zeroOrOne), new Element(new int[] {5}, null)));
-		data.add(new Data(new Path("/phoneNumber/", "/", NodeKind.element, 11, 10, 13, XQItemType.XQBASETYPE_ANYTYPE, Occurrence.oneOrMany), new Element(new int[] {5, 1}, null)));
+		data.add(new Data(new Path("/phoneNumber", "/", NodeKind.array, 10, 1, 14, XQItemType.XQBASETYPE_ANYTYPE, Occurrence.zeroOrOne), new Element(new int[] {5}, null)));
+		data.add(new Data(new Path("/phoneNumber/", "/", NodeKind.element, 11, 10, 14, XQItemType.XQBASETYPE_ANYTYPE, Occurrence.oneOrMany), new Element(new int[] {5, 1}, null)));
 		data.add(new Data(new Path("/phoneNumber/type", "/", NodeKind.attribute, 12, 11, 12, XQItemType.XQBASETYPE_STRING, Occurrence.onlyOne), new Element(new int[] {5, 1, 1}, "home")));
 		data.add(new Data(new Path("/phoneNumber/number", "/", NodeKind.attribute, 13, 11, 13, XQItemType.XQBASETYPE_STRING, Occurrence.onlyOne), new Element(new int[] {5, 1, 2}, "212 555-1234")));
-		data.add(new Data(new Path("/phoneNumber/", "/", NodeKind.element, 11, 10, 13, XQItemType.XQBASETYPE_ANYTYPE, Occurrence.oneOrMany), new Element(new int[] {5, 2}, null)));
+		data.add(new Data(new Path("/phoneNumber/", "/", NodeKind.element, 11, 10, 14, XQItemType.XQBASETYPE_ANYTYPE, Occurrence.oneOrMany), new Element(new int[] {5, 2}, null)));
 		data.add(new Data(new Path("/phoneNumber/type", "/", NodeKind.attribute, 12, 11, 12, XQItemType.XQBASETYPE_STRING, Occurrence.onlyOne), new Element(new int[] {5, 2, 1}, "fax")));
 		data.add(new Data(new Path("/phoneNumber/number", "/", NodeKind.attribute, 13, 11, 13, XQItemType.XQBASETYPE_STRING, Occurrence.onlyOne), new Element(new int[] {5, 2, 2}, "646 555-4567")));
-		data.add(new Data(new Path("/gender", "/", NodeKind.element, 14, 1, 15, XQItemType.XQBASETYPE_ANYTYPE, Occurrence.onlyOne), new Element(new int[] {6}, null)));
-		data.add(new Data(new Path("/gender/type", "/", NodeKind.attribute, 15, 14, 15, XQItemType.XQBASETYPE_STRING, Occurrence.onlyOne), new Element(new int[] {6, 1}, "male")));
+		data.add(new Data(new Path("/phoneNumber/comment", "/", NodeKind.attribute, 14, 11, 14, XQItemType.XQBASETYPE_STRING, Occurrence.onlyOne), new Element(new int[] {5, 2, 3}, Null._null)));
+		data.add(new Data(new Path("/gender", "/", NodeKind.element, 15, 1, 16, XQItemType.XQBASETYPE_ANYTYPE, Occurrence.onlyOne), new Element(new int[] {6}, null)));
+		data.add(new Data(new Path("/gender/type", "/", NodeKind.attribute, 16, 15, 16, XQItemType.XQBASETYPE_STRING, Occurrence.onlyOne), new Element(new int[] {6, 1}, "male")));
 		//System.out.println(data);
 		JsonpBuilder builder = new JsonpBuilder(model);
 		Properties props = new Properties();
@@ -106,48 +113,53 @@ public class JsonpBuilderTest {
 	}
 
 	@Test
-	public void testBuild() throws Exception {
+	public void testBuildPerson() throws Exception {
 		ModelManagement model = new ModelManagementImpl();
 		JsonpParser parser = new JsonpParser(model);
 		List<Data> data = parser.parse(json);
 		System.out.println(data);
 		assertNotNull(data);
-		assertEquals(18, data.size()); 
+		assertEquals(19, data.size()); 
 		JsonpBuilder builder = new JsonpBuilder(model);
 		String content = builder.buildString(data);
 		System.out.println("content: " + content);
 		assertNotNull(content);
 	}
 		
-}
-
-	
-/*
-
-	{
-.1	    "firstName": "John",
-.2	    "lastName": "Smith",
-.3	    "age": "25",
-.4	    "address": {
-.4.1	        "streetAddress": "21 2nd Street",
-.4.2	        "city": "New York",
-.4.3	        "state": "NY",
-.4.4	        "postalCode": "10021"
-    	},
-.5	    "phoneNumbers": {
-.5.1	        "phoneNumber": [{
-.5.1.1	            "type": "home",
-.5.1.2	            "number": "212 555-1234"
-        		},
-.5.2       		{
-.5.2.1         		"type": "fax",
-.5.2.2         		"number": "646 555-4567"
-        }]
-    },
-.6	    "gender": {
-.6.1	    "type": "male"
-    	}
+	@Test
+	public void testBuildManualSparse() throws Exception {
+		ModelManagement model = new ModelManagementImpl();
+		// to prepare model:
+		JsonpParser parser = new JsonpParser(model);
+		List<Data> data = parser.parse(json);
+		data.clear();
+		data = new ArrayList<>();
+		//data.add(new Data(new Path("", "/", NodeKind.document, 1, 0, 25, XQItemType.XQBASETYPE_ANYTYPE, Occurrence.onlyOne), new Element(new int[] {}, null)));
+		data.add(new Data(new Path("/firstName", "/", NodeKind.attribute, 2, 1, 2, XQItemType.XQBASETYPE_STRING, Occurrence.onlyOne), new Element(new int[] {1}, "John")));
+		data.add(new Data(new Path("/lastName", "/", NodeKind.attribute, 3, 1, 3, XQItemType.XQBASETYPE_STRING, Occurrence.onlyOne), new Element(new int[] {2}, "Smith")));
+		data.add(new Data(new Path("/age", "/", NodeKind.attribute, 4, 1, 4, XQItemType.XQBASETYPE_LONG, Occurrence.onlyOne), new Element(new int[] {3}, new Long(25))));
+		data.add(new Data(new Path("/address/streetAddress", "/", NodeKind.attribute, 6, 5, 6, XQItemType.XQBASETYPE_STRING, Occurrence.onlyOne), new Element(new int[] {4, 1}, "21 2nd Street")));
+		data.add(new Data(new Path("/address/city", "/", NodeKind.attribute, 7, 5, 7, XQItemType.XQBASETYPE_STRING, Occurrence.onlyOne), new Element(new int[] {4, 2}, "New York")));
+		data.add(new Data(new Path("/address/state", "/", NodeKind.attribute, 8, 5, 8, XQItemType.XQBASETYPE_STRING, Occurrence.onlyOne), new Element(new int[] {4, 3}, "NY")));
+		data.add(new Data(new Path("/address/postalCode", "/", NodeKind.attribute, 9, 5, 9, XQItemType.XQBASETYPE_STRING, Occurrence.onlyOne), new Element(new int[] {4, 4}, "10021")));
+		data.add(new Data(new Path("/phoneNumber/type", "/", NodeKind.attribute, 12, 11, 12, XQItemType.XQBASETYPE_STRING, Occurrence.onlyOne), new Element(new int[] {5, 1, 1}, "home")));
+		data.add(new Data(new Path("/phoneNumber/number", "/", NodeKind.attribute, 13, 11, 13, XQItemType.XQBASETYPE_STRING, Occurrence.onlyOne), new Element(new int[] {5, 1, 2}, "212 555-1234")));
+		data.add(new Data(new Path("/phoneNumber/type", "/", NodeKind.attribute, 12, 11, 12, XQItemType.XQBASETYPE_STRING, Occurrence.onlyOne), new Element(new int[] {5, 2, 1}, "fax")));
+		data.add(new Data(new Path("/phoneNumber/number", "/", NodeKind.attribute, 13, 11, 13, XQItemType.XQBASETYPE_STRING, Occurrence.onlyOne), new Element(new int[] {5, 2, 2}, "646 555-4567")));
+		data.add(new Data(new Path("/phoneNumber/comment", "/", NodeKind.attribute, 14, 11, 14, XQItemType.XQBASETYPE_STRING, Occurrence.onlyOne), new Element(new int[] {5, 2, 3}, Null._null)));
+		data.add(new Data(new Path("/gender/type", "/", NodeKind.attribute, 16, 15, 16, XQItemType.XQBASETYPE_STRING, Occurrence.onlyOne), new Element(new int[] {6, 1}, "male")));
+		//System.out.println(data);
+		JsonpBuilder builder = new JsonpBuilder(model);
+		Properties props = new Properties();
+		props.setProperty(JsonGenerator.PRETTY_PRINTING, "true");
+		builder.init(props);
+		Map<DataKey, Elements> dataMap = JsonpBuilder.dataToElements(data);
+		String content = builder.buildString(dataMap);
+		System.out.println(content);
+		assertNotNull(content);
+		// now compare content vs xml..
+		//assertEquals(xml, content);
 	}
 	
-*/
-	
+}
+

@@ -144,6 +144,7 @@
 				</hz:portable-factories>
 				<hz:serializers>
 					<!--hz:global-serializer class-name="com.hazelcast.nio.serialization.PortableSerializer"/-->
+					<hz:serializer type-class="com.bagri.core.model.Null" class-name="com.bagri.client.hazelcast.serialize.model.NullSerializer"/>
 					<hz:serializer type-class="com.bagri.core.model.Element" class-name="com.bagri.client.hazelcast.serialize.model.ElementSerializer"/>
 					<hz:serializer type-class="com.bagri.core.model.Elements" class-name="com.bagri.client.hazelcast.serialize.model.ElementsSerializer"/>
 					<hz:serializer type-class="com.bagri.core.model.Path" class-name="com.bagri.client.hazelcast.serialize.model.PathSerializer"/>

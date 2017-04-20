@@ -6,11 +6,13 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,8 +76,9 @@ public abstract class ContentBuilderBase {
 	}
 	
     protected Collection<Data> buildDataList(Map<DataKey, Elements> elements) {
-
-    	List<Data> dataList = new ArrayList<>(elements.size() * 2);
+		logger.info("buildDataList; got elements: {}", elements);
+    	Map<Element, Data> dataMap = new HashMap<>();
+    	List<Data> dataList = new ArrayList<>(elements.size()*2);
     	// here the source elements contain elements with values only
     	// we should enrich the collection with intermediate parents
     	for (Map.Entry<DataKey, Elements> entry: elements.entrySet()) {
@@ -86,13 +89,32 @@ public abstract class ContentBuilderBase {
         		continue;
     		}
     		
-    		Elements elts = entry.getValue();
-    		for (Element element: elts.getElements()) {
+    		for (Element element: entry.getValue().getElements()) {
+        		int parentId = path.getParentId();
     			Data data = new Data(path, element);
+				dataMap.put(element, data);
     			dataList.add(data);
+    			Element elt = element;
+    			while (parentId > 0) { //1
+    				int[] position = elt.getPosition();
+    				elt = new Element(Arrays.copyOf(position, position.length - 1), null);
+    				if (dataMap.containsKey(elt)) {
+    					break;
+    				} else {
+    					Path parent = model.getPath(parentId);
+    					if (parent != null) {
+    						data = new Data(parent, elt);
+    						dataMap.put(elt, data);
+    						dataList.add(data);
+    						parentId = parent.getParentId();
+    					}
+    	    		}
+    			}
     		}
+    		
     	}
     	Collections.sort(dataList);
+    	logger.info("buildDataList; returning: {}", dataList);
     	return dataList;
     }
 

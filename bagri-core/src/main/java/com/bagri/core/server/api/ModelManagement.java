@@ -100,20 +100,4 @@ public interface ModelManagement {
 	 */
 	void updatePath(Path path);
 
-	/**
-	 * registers bunch of node path's specified in the XML schema (XSD)   
-	 * 
-	 * @param schema String; schema in plain text  
-	 * @throws BagriException in case of any error
-	 */
-	void registerSchema(String schema) throws BagriException;
-	
-	/**
-	 * registers bunch of schemas located in the schemaUri folder   
-	 * 
-	 * @param schemaUri String; the folder containing schemas to register  
-	 * @throws BagriException in case of any error
-	 */
-	void registerSchemaUri(String schemaUri) throws BagriException;
-	
 }

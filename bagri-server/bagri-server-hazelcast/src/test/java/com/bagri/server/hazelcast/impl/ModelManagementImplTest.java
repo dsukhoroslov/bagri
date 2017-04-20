@@ -3,7 +3,6 @@ package com.bagri.server.hazelcast.impl;
 import static com.bagri.core.Constants.pn_config_path;
 import static com.bagri.core.Constants.pn_config_properties_file;
 import static com.bagri.core.Constants.pn_log_level;
-import static com.bagri.support.util.FileUtils.readTextFile;
 import static org.junit.Assert.*;
 
 import java.util.ArrayList;
@@ -67,49 +66,12 @@ public class ModelManagementImplTest extends BagriManagementTest {
 		return ((SchemaRepository) xRepo).getModelManagement();
 	}
 
-	//protected XDMModelManagement mDictionary;
-	
-	public void registerSecuritySchemaTest() throws Exception { 
-		//String schema = sampleRoot + "security.xsd";
-		String schema = readTextFile(sampleRoot + "security.xsd");
-		getModelManagement().registerSchema(schema);
-	}
-	
-	public void registerCustaccSchemaTest() throws Exception { 
-		//String schema = sampleRoot + "custacc.xsd";
-		String schema = readTextFile(sampleRoot + "custacc.xsd");
-		getModelManagement().registerSchema(schema);
-	}
-	
-	//public void registerCommonSchemaTest() throws IOException { 
-		//String schema = sampleRoot + "custacc.xsd";
-	//	String schema = readTextFile(sampleRoot + "Common.xsd");
-	//	mDictionary.registerSchema(schema);
-	//}
-	
-
 	public Collection<Path> getSecurityPath() {
 		return getModelManagement().getTypePaths("/{http://tpox-benchmark.com/security}Security");
 	}
 	
 	public Collection<Path> getCustomerPath() {
 		return getModelManagement().getTypePaths("/{http://tpox-benchmark.com/custacc}Customer");
-	}
-
-	@Test
-	public void registerSecurityPathTest() throws Exception {
-		registerSecuritySchemaTest();
-		Collection<Path> sec = getSecurityPath();
-		assertNotNull(sec);
-		assertTrue(sec.size() > 0);
-	}
-
-	@Test
-	public void registerCustomerPathTest() throws Exception {
-		registerCustaccSchemaTest();
-		Collection<Path> sec = getCustomerPath();
-		assertNotNull(sec);
-		assertTrue(sec.size() > 0);
 	}
 
 	@Test
