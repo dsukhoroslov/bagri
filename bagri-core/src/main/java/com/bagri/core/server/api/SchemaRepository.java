@@ -74,15 +74,22 @@ public interface SchemaRepository extends com.bagri.core.api.SchemaRepository {
 	/**
 	 * 
 	 * @param dataFormat the name of dataFormat to search for
-	 * @return XDMParser instance associated with the dataFormat name 
+	 * @return ContentParser instance associated with the dataFormat name 
 	 */
 	ContentParser getParser(String dataFormat);
 	
 	/**
 	 * 
 	 * @param dataFormat the name of dataFormat to search for
-	 * @return XDMBuilder instance associated with the dataFormat name
+	 * @return ContentBuilder instance associated with the dataFormat name
 	 */
 	ContentBuilder getBuilder(String dataFormat);
+	
+	/**
+	 * 
+	 * @param dataFormat the name of dataFormat to search for
+	 * @return ContentModeler instance associated with the dataFormat name
+	 */
+	ContentModeler getModeler(String dataFormat);
 	
 }

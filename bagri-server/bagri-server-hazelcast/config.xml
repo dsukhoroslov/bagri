@@ -809,6 +809,7 @@
             <enabled>true</enabled>
             <parserClass>com.bagri.core.server.api.df.xml.XmlStaxParser</parserClass>
             <builderClass>com.bagri.core.server.api.df.xml.XmlBuilder</builderClass>
+            <modelerClass>com.bagri.core.server.api.df.xml.XmlModeler</modelerClass>
             <extensions>xml</extensions>
             <type>application/xml</type>
             <properties>
@@ -834,6 +835,7 @@
             <enabled>true</enabled>
             <parserClass>com.bagri.core.server.api.df.json.JsonpParser</parserClass>
             <builderClass>com.bagri.core.server.api.df.json.JsonpBuilder</builderClass>
+            <modelerClass>com.bagri.core.server.api.df.json.JsonModeler</modelerClass>
             <extensions>json</extensions>
             <type>application/json</type>
             <properties>

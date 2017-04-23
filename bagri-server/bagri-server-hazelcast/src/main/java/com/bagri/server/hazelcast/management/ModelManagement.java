@@ -113,10 +113,11 @@ public class ModelManagement extends SchemaFeatureManagement {
 	
 	@ManagedOperation(description="Return all unique paths for the document type provided")
 	@ManagedOperationParameters({
-		@ManagedOperationParameter(name = "typeId", description = "A document type identifier")})
-	public String[] getPathsForType(int typeId) {
+		@ManagedOperationParameter(name = "root", description = "A document type root")})
+	public String[] getPathsForRoot(String root) {
 	    IMap<String, Path> xpCache = hzClient.getMap(CN_XDM_PATH_DICT);
-		Collection<Path> paths = xpCache.values(Predicates.equal("typeId", typeId)); 
+		Collection<Path> paths = xpCache.values(Predicates.equal("root", root)); 
+		logger.debug("getPathsForRoot; got paths {} for root {}", paths, root);
 		String[] result = new String[paths.size()];
 		int idx = 0;
 		for (Path path: paths) {
@@ -131,13 +132,14 @@ public class ModelManagement extends SchemaFeatureManagement {
 		return null;
 	}
 	
-	@ManagedOperation(description="Register Schema")
+	@ManagedOperation(description="Register Model")
 	@ManagedOperationParameters({
-		@ManagedOperationParameter(name = "schemaFile", description = "A full path to XSD file to register")})
-	public int registerSchema(String schemaFile) {
-		logger.trace("registerSchema.enter;");
+		@ManagedOperationParameter(name = "dataFormat", description = "DataFormat responsible for corresponding Schema"),
+		@ManagedOperationParameter(name = "modelFile", description = "A full path to Schema file to register")})
+	public int registerModel(String dataFormat, String modelFile) {
+		logger.trace("registerModel.enter;");
 		long stamp = System.currentTimeMillis();
-		ModelRegistrator task = new ModelRegistrator(schemaFile);
+		ModelRegistrator task = new ModelRegistrator(dataFormat, modelFile, true);
 		Future<Integer> result = execService.submit(task);
 		int cnt = 0;
 		try {
@@ -146,23 +148,28 @@ public class ModelManagement extends SchemaFeatureManagement {
 			logger.error("", ex);
 		}
 		stamp = System.currentTimeMillis() - stamp;
-		logger.trace("registerSchema.exit; returning: {}; timeTaken: {}", cnt, stamp);
+		logger.trace("registerModel.exit; returning: {}; timeTaken: {}", cnt, stamp);
 		return cnt;
 	}
 	
 	@ManagedOperation(description="Register Schemas")
 	@ManagedOperationParameters({
-		@ManagedOperationParameter(name = "schemaCatalog", description = "A full path to the directory containing XSD files to register")})
-	public int registerSchemas(String schemasCatalog) {
-		// TODO: implement it properly!
-		//int size = modelMgr.getDocumentTypes().size(); 
-		//try {
-		//	modelMgr.registerSchemas(schemasCatalog);
-		//	return modelMgr.getDocumentTypes().size() - size;
-		//} catch (XDMException ex) {
-		//	logger.error("registerSchemas.error:", ex);
-		//}
-		return 0;
+		@ManagedOperationParameter(name = "dataFormat", description = "DataFormat responsible for corresponding Schema"),
+		@ManagedOperationParameter(name = "schemaCatalog", description = "A full path to the directory containing Schema files to register")})
+	public int registerModels(String dataFormat, String modelCatalog) {
+		logger.trace("registerModels.enter;");
+		long stamp = System.currentTimeMillis();
+		ModelRegistrator task = new ModelRegistrator(dataFormat, modelCatalog, false);
+		Future<Integer> result = execService.submit(task);
+		int cnt = 0;
+		try {
+			cnt = result.get();
+		} catch (InterruptedException | ExecutionException ex) {
+			logger.error("", ex);
+		}
+		stamp = System.currentTimeMillis() - stamp;
+		logger.trace("registerModels.exit; returning: {}; timeTaken: {}", cnt, stamp);
+		return cnt;
 	}
 	
 	@ManagedOperation(description="Calculates the number of unique values on the path specified")

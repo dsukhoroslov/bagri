@@ -76,7 +76,7 @@ public abstract class ContentBuilderBase {
 	}
 	
     protected Collection<Data> buildDataList(Map<DataKey, Elements> elements) {
-		logger.info("buildDataList; got elements: {}", elements);
+		logger.trace("buildDataList; got elements: {}", elements);
     	Map<Element, Data> dataMap = new HashMap<>();
     	List<Data> dataList = new ArrayList<>(elements.size()*2);
     	// here the source elements contain elements with values only
@@ -114,7 +114,7 @@ public abstract class ContentBuilderBase {
     		
     	}
     	Collections.sort(dataList);
-    	logger.info("buildDataList; returning: {}", dataList);
+    	logger.trace("buildDataList; returning: {}", dataList);
     	return dataList;
     }
 

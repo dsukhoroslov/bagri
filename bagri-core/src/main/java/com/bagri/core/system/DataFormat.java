@@ -13,9 +13,7 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlID;
 import javax.xml.bind.annotation.XmlList;
-import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
-import javax.xml.bind.annotation.XmlValue;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**
@@ -32,6 +30,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 		"type",
 		"parserClass",
 		"builderClass",
+		"modelerClass",
 		"enabled",
 		"props"
 })
@@ -58,6 +57,9 @@ public class DataFormat extends Entity {
 
 	@XmlElement(required = 	false)
 	private String builderClass;
+	
+	@XmlElement(required = 	false)
+	private String modelerClass;
 	
 	@XmlElement(required = false, defaultValue = "true")
 	private boolean enabled = true;
@@ -89,7 +91,8 @@ public class DataFormat extends Entity {
 	 * @param props the data format properties
 	 */
 	public DataFormat(int version, Date createdAt, String createdBy, String name, String description, String type, 
-			Collection<String> extensions, String parserClass, String builderClass, boolean enabled, Properties props) {
+			Collection<String> extensions, String parserClass, String builderClass, String modelerClass, boolean enabled, 
+			Properties props) {
 		super(version, createdAt, createdBy);
 		this.name = name;
 		this.description = description;
@@ -99,6 +102,7 @@ public class DataFormat extends Entity {
 		}
 		this.parserClass = parserClass;
 		this.builderClass = builderClass;
+		this.modelerClass = modelerClass;
 		this.enabled = enabled;
 		if (props != null) {
 			this.props.putAll(props);
@@ -145,6 +149,13 @@ public class DataFormat extends Entity {
 	 */
 	public String getBuilderClass() {
 		return builderClass;
+	}
+
+	/**
+	 * @return the builder class
+	 */
+	public String getModelerClass() {
+		return modelerClass;
 	}
 
 	/**
@@ -213,6 +224,7 @@ public class DataFormat extends Entity {
 		result.put("extensions", extensions.toString());
 		result.put("parser", parserClass);
 		result.put("builder", builderClass);
+		result.put("modeler", modelerClass);
 		result.put("enabled", enabled);
 		result.put("properties", props.size());
 		result.put("type", type);

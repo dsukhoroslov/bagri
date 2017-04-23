@@ -6,12 +6,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bagri.core.api.BagriException;
-import com.bagri.core.server.api.ContentModelProcessor;
+import com.bagri.core.server.api.ContentModeler;
 import com.bagri.core.server.api.ModelManagement;
 
-public class JsonModelProcessor implements ContentModelProcessor {
+public class JsonModeler implements ContentModeler {
 
-    private static final transient Logger logger = LoggerFactory.getLogger(JsonModelProcessor.class);
+    private static final transient Logger logger = LoggerFactory.getLogger(JsonModeler.class);
 	
 	protected ModelManagement modelMgr;
 	
@@ -19,7 +19,7 @@ public class JsonModelProcessor implements ContentModelProcessor {
 	 * 
 	 * @param model the model management component
 	 */
-	public JsonModelProcessor(ModelManagement modelMgr) {
+	public JsonModeler(ModelManagement modelMgr) {
 		//super(model);
 		this.modelMgr = modelMgr;
 	}

@@ -8,8 +8,8 @@ import java.util.concurrent.Callable;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.bagri.core.server.api.ModelManagement;
-import com.bagri.core.server.api.impl.ModelManagementBase;
+import com.bagri.core.server.api.ContentModeler;
+import com.bagri.server.hazelcast.impl.SchemaRepositoryImpl;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
@@ -18,30 +18,38 @@ import com.hazelcast.spring.context.SpringAware;
 @SpringAware
 public class ModelRegistrator implements Callable<Integer>, IdentifiedDataSerializable {
 	
-	private String schemaFile;
-	private ModelManagement modelMgr;
+	private String dataFormat;
+	private String modelPath;
+	private boolean singleModel;
+	private transient SchemaRepositoryImpl xdmRepo;
 	
 	public ModelRegistrator() {
 		//
 	}
 	
-	public ModelRegistrator(String schemaFile) {
-		this.schemaFile = schemaFile;
+	public ModelRegistrator(String dataFormat, String modelPath, boolean singleModel) {
+		this.dataFormat = dataFormat; 
+		this.modelPath = modelPath;
+		this.singleModel = singleModel;
 	}
 
     @Autowired
-	public void setModelManagement(ModelManagement modelMgr) {
-		this.modelMgr = modelMgr;
+	public void setXDMRepository(SchemaRepositoryImpl xdmRepo) {
+		this.xdmRepo = xdmRepo;
 	}
-
+	
 	@Override
 	public Integer call() throws Exception {
 		//int size = ((ModelManagementBase) modelMgr).getDocumentTypes().size();
 		//Path path = Paths.get(schemaFile, null);
 		//if (Files.isDirectory(path, null)) {
-		
-		// TODO: register schema via ContentModelProcessor!
-		
+
+		ContentModeler cm = xdmRepo.getModeler(dataFormat);
+		if (singleModel) {
+			cm.registerModelUri(modelPath);
+		} else {
+			cm.registerModelUri(modelPath);
+		}
 			//modelMgr.registerSchemaUri(schemaFile);			
 		//} else {
 		//	modelMgr.registerSchemaUri(schemaFile);
@@ -62,12 +70,16 @@ public class ModelRegistrator implements Callable<Integer>, IdentifiedDataSerial
 	
 	@Override
 	public void readData(ObjectDataInput in) throws IOException {
-		schemaFile = in.readUTF();
+		dataFormat = in.readUTF();
+		modelPath = in.readUTF();
+		singleModel = in.readBoolean();
 	}
 	
 	@Override
 	public void writeData(ObjectDataOutput out) throws IOException {
-		out.writeUTF(schemaFile);
+		out.writeUTF(dataFormat);
+		out.writeUTF(modelPath);
+		out.writeBoolean(singleModel);
 	}
 
 }

@@ -19,8 +19,10 @@ import com.bagri.core.api.TransactionManagement;
 import com.bagri.core.api.BagriException;
 import com.bagri.core.model.Document;
 import com.bagri.core.server.api.df.json.JsonpParser;
+import com.bagri.core.server.api.df.json.JsonModeler;
 import com.bagri.core.server.api.df.json.JsonpBuilder;
 import com.bagri.core.server.api.df.xml.XmlBuilder;
+import com.bagri.core.server.api.df.xml.XmlModeler;
 import com.bagri.core.server.api.df.xml.XmlStaxParser;
 import com.bagri.core.system.DataFormat;
 import com.bagri.core.system.Library;
@@ -63,12 +65,12 @@ public abstract class BagriManagementTest {
 		ArrayList<String> cExt = new ArrayList<>(1);
 		cExt.add("xml");
 		DataFormat df = new DataFormat(1, new java.util.Date(), "", "XML", null, "application/xml", cExt, 
-				XmlStaxParser.class.getName(), XmlBuilder.class.getName(), true, null);
+				XmlStaxParser.class.getName(), XmlBuilder.class.getName(), XmlModeler.class.getName(), true, null);
 		cFormats.add(df);
 		cExt = new ArrayList<>(1);
 		cExt.add("json");
 		df = new DataFormat(1, new java.util.Date(), "", "JSON", null, "application/json", cExt, 
-				JsonpParser.class.getName(), JsonpBuilder.class.getName(), true, null);
+				JsonpParser.class.getName(), JsonpBuilder.class.getName(), JsonModeler.class.getName(), true, null);
 		cFormats.add(df);
 		return cFormats;
 	}

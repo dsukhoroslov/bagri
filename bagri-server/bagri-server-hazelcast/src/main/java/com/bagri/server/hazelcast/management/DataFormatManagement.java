@@ -52,17 +52,19 @@ public class DataFormatManagement extends EntityManagement<DataFormat> {
 		@ManagedOperationParameter(name = "name", description = "DataFormat name to create"),
 		@ManagedOperationParameter(name = "parserClass", description = "Parser implementation class name"),
 		@ManagedOperationParameter(name = "builderClass", description = "Builder implementation class name"),
+		@ManagedOperationParameter(name = "modelerClass", description = "Modeler implementation class name"),
 		@ManagedOperationParameter(name = "description", description = "DataFormat description"),
 		@ManagedOperationParameter(name = "type", description = "DataFormat MIME type"),
 		@ManagedOperationParameter(name = "extensions", description = "Comma-separated format extensions"),
 		@ManagedOperationParameter(name = "properties", description = "DataFormat properties with their default values")})
-	public boolean addDataFormat(String name, String parser, String builder, String description, String type, String extensions, String properties) {
+	public boolean addDataFormat(String name, String parser, String builder, String modeler, String description, String type, 
+			String extensions, String properties) {
 		logger.trace("addDataFormat.enter; name: {}", name);
 		DataFormat format = null;
 		if (!entityCache.containsKey(name)) {
 			try {
-				Object result = entityCache.executeOnKey(name, new DataFormatCreator(getCurrentUser(), parser, builder, description,
-						type, Arrays.asList(extensions.split(", ")), propsFromString(properties)));
+				Object result = entityCache.executeOnKey(name, new DataFormatCreator(getCurrentUser(), parser, builder, modeler,
+						description, type, Arrays.asList(extensions.split(", ")), propsFromString(properties)));
 		    	format = (DataFormat) result;
 			} catch (IOException ex) {
 				logger.error("", ex);

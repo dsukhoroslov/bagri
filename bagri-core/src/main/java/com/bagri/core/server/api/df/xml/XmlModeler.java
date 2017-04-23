@@ -4,7 +4,7 @@ import com.bagri.core.api.BagriException;
 import com.bagri.core.model.NodeKind;
 import com.bagri.core.model.Occurrence;
 import com.bagri.core.model.Path;
-import com.bagri.core.server.api.ContentModelProcessor;
+import com.bagri.core.server.api.ContentModeler;
 import com.bagri.core.server.api.ModelManagement;
 
 import java.util.ArrayList;
@@ -42,9 +42,9 @@ import static com.bagri.core.Constants.xs_ns;
 import static com.bagri.support.util.XQUtils.getBaseTypeForTypeName;
 
 
-public class XmlModelProcessor implements ContentModelProcessor {
+public class XmlModeler implements ContentModeler {
 	
-    private static final transient Logger logger = LoggerFactory.getLogger(XmlModelProcessor.class);
+    private static final transient Logger logger = LoggerFactory.getLogger(XmlModeler.class);
 	
 	protected ModelManagement modelMgr;
 	
@@ -52,7 +52,7 @@ public class XmlModelProcessor implements ContentModelProcessor {
 	 * 
 	 * @param model the model management component
 	 */
-	public XmlModelProcessor(ModelManagement modelMgr) {
+	public XmlModeler(ModelManagement modelMgr) {
 		//super(model);
 		this.modelMgr = modelMgr;
 	}

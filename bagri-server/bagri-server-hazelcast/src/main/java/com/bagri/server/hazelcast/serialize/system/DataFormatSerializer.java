@@ -31,6 +31,7 @@ public class DataFormatSerializer extends EntitySerializer implements StreamSeri
 				(Collection<String>) in.readObject(),
 				in.readUTF(),
 				in.readUTF(),
+				in.readUTF(),
 				in.readBoolean(),
 				(Properties) in.readObject());
 	}
@@ -44,6 +45,7 @@ public class DataFormatSerializer extends EntitySerializer implements StreamSeri
 		out.writeObject(xFormat.getExtensions());
 		out.writeUTF(xFormat.getParserClass());
 		out.writeUTF(xFormat.getBuilderClass());
+		out.writeUTF(xFormat.getModelerClass());
 		out.writeBoolean(xFormat.isEnabled());
 		out.writeObject(xFormat.getProperties());
 	}

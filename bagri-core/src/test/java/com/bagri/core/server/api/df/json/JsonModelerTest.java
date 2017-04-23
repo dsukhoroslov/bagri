@@ -9,20 +9,20 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.bagri.core.model.Path;
-import com.bagri.core.server.api.ContentModelProcessor;
+import com.bagri.core.server.api.ContentModeler;
 import com.bagri.core.server.api.ModelManagement;
-import com.bagri.core.server.api.df.json.JsonModelProcessor;
+import com.bagri.core.server.api.df.json.JsonModeler;
 import com.bagri.core.server.api.impl.ModelManagementImpl;
 
-public class JsonModelProcessorTest {
+public class JsonModelerTest {
 
 	private ModelManagement model;
-	private ContentModelProcessor modelPro;
+	private ContentModeler modelPro;
 	
 	@Before
 	public void setUp() throws Exception {
 		model = new ModelManagementImpl();
-		modelPro = new JsonModelProcessor(model);
+		modelPro = new JsonModeler(model);
 	}
 
 	//@After

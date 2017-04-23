@@ -30,6 +30,7 @@ import com.bagri.core.api.impl.SchemaRepositoryBase;
 import com.bagri.core.model.Path;
 import com.bagri.core.server.api.ClientManagement;
 import com.bagri.core.server.api.ContentBuilder;
+import com.bagri.core.server.api.ContentModeler;
 import com.bagri.core.server.api.ContentParser;
 import com.bagri.core.server.api.IndexManagement;
 import com.bagri.core.server.api.ModelManagement;
@@ -37,8 +38,10 @@ import com.bagri.core.server.api.PopulationManagement;
 import com.bagri.core.server.api.SchemaRepository;
 import com.bagri.core.server.api.TriggerManagement;
 import com.bagri.core.server.api.df.json.JsonpParser;
+import com.bagri.core.server.api.df.json.JsonModeler;
 import com.bagri.core.server.api.df.json.JsonpBuilder;
 import com.bagri.core.server.api.df.xml.XmlBuilder;
+import com.bagri.core.server.api.df.xml.XmlModeler;
 import com.bagri.core.server.api.df.xml.XmlStaxParser;
 import com.bagri.core.system.DataFormat;
 import com.bagri.core.system.Index;
@@ -77,6 +80,7 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
 	private Map<String, XQProcessor> processors = new ConcurrentHashMap<String, XQProcessor>();
 
 	private ConcurrentHashMap<String, ContentBuilder> builders = new ConcurrentHashMap<String, ContentBuilder>();
+	private ConcurrentHashMap<String, ContentModeler> modelers = new ConcurrentHashMap<String, ContentModeler>();
 	private ConcurrentHashMap<String, ContentParser> parsers = new ConcurrentHashMap<String, ContentParser>();
 	
 	@Override
@@ -271,6 +275,34 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
 			builders.putIfAbsent(dataFormat, cb);
 		}
 		return cb;
+	}
+	
+	@Override
+	public ContentModeler getModeler(String dataFormat) {
+		ContentModeler cm = modelers.get(dataFormat);
+		if (cm != null) {
+			return cm;
+		}
+		
+		DataFormat df = getDataFormat(dataFormat);
+		if (df != null) {
+			return instantiateClass(df.getModelerClass());
+		}
+		if (cm == null) {
+			logger.info("getModeler; no modeler found for dataFormat: {}", dataFormat); 
+			String defaultFormat = this.xdmSchema.getProperty(pn_schema_format_default);
+			if ("json".equalsIgnoreCase(defaultFormat)) {
+				cm = new JsonModeler(getModelManagement());
+			} else if ("xml".equalsIgnoreCase(defaultFormat)) {
+				cm = new XmlModeler(getModelManagement());
+			}
+		}
+		if (cm != null) {
+			// TODO: fix it!!
+			cm.init(df.getProperties());
+			modelers.putIfAbsent(dataFormat, cm);
+		}
+		return cm;
 	}
 	
 	private <T> T instantiateClass(String className) {

@@ -9,19 +9,19 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.bagri.core.model.Path;
-import com.bagri.core.server.api.ContentModelProcessor;
+import com.bagri.core.server.api.ContentModeler;
 import com.bagri.core.server.api.ModelManagement;
 import com.bagri.core.server.api.impl.ModelManagementImpl;
 
-public class XmlModelProcessorTest {
+public class XmlModelerTest {
 
 	private ModelManagement model;
-	private ContentModelProcessor modelPro;
+	private ContentModeler modelPro;
 	
 	@Before
 	public void setUp() throws Exception {
 		model = new ModelManagementImpl();
-		modelPro = new XmlModelProcessor(model);
+		modelPro = new XmlModeler(model);
 	}
 
 	//@After

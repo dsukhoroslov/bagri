@@ -4,7 +4,7 @@ import java.util.Properties;
 
 import com.bagri.core.api.BagriException;
 
-public interface ContentModelProcessor {
+public interface ContentModeler {
 	
     /**
      * Lifecycle method. Invoked at initialization phase. 
