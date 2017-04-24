@@ -13,7 +13,7 @@ for /l %%x in (5, 1, 10) do (
 rem 	"%java_exec%" -server %java_opts% -cp "%app_home%\target\*;%app_home%\target\lib\*" com.yahoo.ycsb.Client -threads %%x -P bagri-workloada  
 )
 
-"%java_exec%" -server %java_opts% -cp "%app_home%\target\*;%app_home%\target\lib\*" com.yahoo.ycsb.Client -threads 50 -P bagri-workloada  
+"%java_exec%" -server %java_opts% -cp "%app_home%\target\*;%app_home%\target\lib\*" com.yahoo.ycsb.Client -threads 50 -P bagri-workloada
 
 goto exit
 

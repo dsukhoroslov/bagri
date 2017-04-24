@@ -48,7 +48,7 @@ public abstract class ModelManagementBase implements ModelManagement {
 	 */
     public static final int WRONG_PATH = -1;
 
-	private String getPathKey(String root, String path) {
+	protected String getPathKey(String root, String path) {
 		return root + ":" + path;
 	}
 
@@ -69,7 +69,7 @@ public abstract class ModelManagementBase implements ModelManagement {
 	 * 
 	 * creates new XDMPath if it is not registered yet;
 	 * 
-	 * @param typeId int; the corresponding document's type
+	 * @param root String; the corresponding document's root
 	 * @param path String; the full node path in Clark form
 	 * @param kind XDMNodeKind; the type of the node, one of {@link NodeKind} enum literals
 	 * @param dataType int; type of the node value
@@ -77,7 +77,7 @@ public abstract class ModelManagementBase implements ModelManagement {
 	 * @return new or existing {@link Path} structure
 	 * @throws BagriException in case of any error
 	 */
-	public Path translatePath(String root, String path, NodeKind kind, int dataType, Occurrence occurrence) throws BagriException {
+	public Path translatePath(String root, String path, NodeKind kind, int parentId, int dataType, Occurrence occurrence) throws BagriException {
 		// "/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}Name/text()"
 		
 		//if (kind != NodeKind.document) {
@@ -87,7 +87,7 @@ public abstract class ModelManagementBase implements ModelManagement {
 		
 			//path = normalizePath(path);
 		//}
-		Path result = addDictionaryPath(root, path, kind, dataType, occurrence); 
+		Path result = addDictionaryPath(root, path, kind, parentId, dataType, occurrence); 
 		return result;
 	}
 	
@@ -116,7 +116,6 @@ public abstract class ModelManagementBase implements ModelManagement {
 	/**
 	 * return array of pathIds which are children of the root specified;
 	 * 
-	 * @param typeId int; the corresponding document's type
 	 * @param root String; root node path 
 	 * @return Set&lt;Integer&gt;- set of registered pathIds who are direct or indirect children of the parent path provided
 	 */
@@ -137,15 +136,18 @@ public abstract class ModelManagementBase implements ModelManagement {
 		return result; 
 	}
 
-	protected Path addDictionaryPath(String root, String path, NodeKind kind, 
-			int dataType, Occurrence occurrence) throws BagriException {
+	protected Path addDictionaryPath(String root, String path, NodeKind kind, int parentId, int dataType, Occurrence occurrence) throws BagriException {
 
 		String pathKey = getPathKey(root, path);
 		Path xpath = getPathCache().get(pathKey);
 		if (xpath == null) {
 			int pathId = getPathGen().next().intValue();
-			xpath = new Path(path, root, kind, pathId, 0, pathId, dataType, occurrence); 
+			xpath = new Path(path, root, kind, pathId, parentId, 0, dataType, occurrence); 
 			xpath = putIfAbsent(getPathCache(), pathKey, xpath);
+		}
+		if (parentId > 0 && xpath.getParentId() != parentId) {
+			xpath.setParentId(parentId);
+			updatePath(xpath);
 		}
 		return xpath;
 	}
@@ -159,7 +161,7 @@ public abstract class ModelManagementBase implements ModelManagement {
 	 * translates regex expression like "^/ns0:Security/ns0:SecurityInformation/.(*)/ns0:Sector/text\\(\\)$";
 	 * to an array of registered pathIds which conforms to the regex specified
 	 * 
-	 * @param typeId int; the corresponding document's type
+	 * @param root String; the corresponding document's root
 	 * @param regex String; regex pattern 
 	 * @return Set&lt;Integer&gt;- set of registered pathIds conforming to the pattern provided
 	 */
@@ -181,7 +183,7 @@ public abstract class ModelManagementBase implements ModelManagement {
 	 * translates regex expression like "^/ns0:Security/ns0:SecurityInformation/.(*)/ns0:Sector/text\\(\\)$";
 	 * to Collection of registered path which conforms to the regex specified
 	 * 
-	 * @param typeId int; the corresponding document's type
+	 * @param root String; the corresponding document's type
 	 * @param regex String; regex pattern 
 	 * @return Set&lt;String&gt;- set of registered paths conforming to the pattern provided
 	 */
@@ -197,13 +199,13 @@ public abstract class ModelManagementBase implements ModelManagement {
 		return result;
 	}
 	
-	protected int[] fromCollection(Collection<Integer> from) {
-		int idx = 0;
-		int[] result = new int[from.size()];
-		for (Integer i: from) {
-			result[idx++] = i;
-		}
-		return result;
-	}
+	//protected int[] fromCollection(Collection<Integer> from) {
+	//	int idx = 0;
+	//	int[] result = new int[from.size()];
+	//	for (Integer i: from) {
+	//		result[idx++] = i;
+	//	}
+	//	return result;
+	//}
 
 }

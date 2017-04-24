@@ -17,7 +17,7 @@ public class JsonModeler implements ContentModeler {
 	
 	/**
 	 * 
-	 * @param model the model management component
+	 * @param modelMgr the model management component
 	 */
 	public JsonModeler(ModelManagement modelMgr) {
 		//super(model);

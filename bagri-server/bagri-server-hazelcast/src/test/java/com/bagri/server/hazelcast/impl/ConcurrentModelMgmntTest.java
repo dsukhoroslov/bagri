@@ -69,7 +69,7 @@ public class ConcurrentModelMgmntTest {
 		Path path = mm.getPath("/{http://tpox-benchmark.com/security}Security", "/{http://tpox-benchmark.com/security}Security");
 		for (int pt: paths) {
 			if (pt != path.getPathId()) {
-				//fail("got different paths: " + paths + ", when expected: " + path.getPathId());
+				fail("got different paths: " + paths + ", when expected: " + path.getPathId());
 			}
 		}
 	}
@@ -86,7 +86,7 @@ public class ConcurrentModelMgmntTest {
 		public Integer call() throws Exception {
 			Path path = mm.translatePath("/{http://tpox-benchmark.com/security}Security", 
 					"/{http://tpox-benchmark.com/security}Security", ///{http://tpox-benchmark.com/security}Symbol/text()", 
-					NodeKind.element, XQItemType.XQBASETYPE_ANYTYPE, Occurrence.onlyOne);
+					NodeKind.element, 0, XQItemType.XQBASETYPE_ANYTYPE, Occurrence.onlyOne);
 					//NodeKind.text, XQItemType.XQBASETYPE_STRING, Occurrence.onlyOne);
 			return path.getPathId();
 		}

@@ -5,6 +5,7 @@ import static com.bagri.core.server.api.CacheConstants.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -31,10 +32,13 @@ import com.hazelcast.map.listener.EntryRemovedListener;
 import com.hazelcast.map.listener.EntryUpdatedListener;
 import com.hazelcast.map.listener.MapClearedListener;
 import com.hazelcast.map.listener.MapEvictedListener;
+import com.hazelcast.query.Predicate;
+import com.hazelcast.query.Predicates;
+import com.hazelcast.query.impl.predicates.RegexPredicate;
 
 public class ModelManagementImpl extends ModelManagementBase implements ModelManagement { 
 
-	protected ReplicatedMap<String, Path> pathCache;
+	protected IMap<String, Path> pathCache;
 	private IdGenerator<Long> pathGen;
 	private ConcurrentMap<Integer, Path> cachePath = new ConcurrentHashMap<>();
 	private ConcurrentMap<String, Set<Path>> cacheType = new ConcurrentHashMap<>();
@@ -49,11 +53,12 @@ public class ModelManagementImpl extends ModelManagementBase implements ModelMan
 	}
 	
 	private void initialize(HazelcastInstance hzInstance) {
-		pathCache = hzInstance.getReplicatedMap(CN_XDM_PATH_DICT);
+		//pathCache = hzInstance.getReplicatedMap(CN_XDM_PATH_DICT);
+		pathCache = hzInstance.getMap(CN_XDM_PATH_DICT);
 		pathGen = new IdGeneratorImpl(hzInstance.getAtomicLong(SQN_PATH));
 		// init listeners here
 		//pathCache.addEntryListener(new PathCacheListener()); //, true);
-		pathCache.addEntryListener(new PathEntryListener()); //, true);
+		//pathCache.addEntryListener(new PathEntryListener(), true);
 	}
 	
 	protected Map<String, Path> getPathCache() {
@@ -64,7 +69,7 @@ public class ModelManagementImpl extends ModelManagementBase implements ModelMan
 		return pathGen;
 	}
 	
-	public void setPathCache(ReplicatedMap<String, Path> pathCache) {
+	public void setPathCache(IMap<String, Path> pathCache) {
 		this.pathCache = pathCache;
 	}
 	
@@ -73,19 +78,19 @@ public class ModelManagementImpl extends ModelManagementBase implements ModelMan
 	}
 	
 	private Path getPathInternal(int pathId) {
-		//Predicate f = Predicates.equal("pathId", pathId);
-		//Collection<Path> entries = pathCache.values(f);
-		//if (entries.isEmpty()) {
-		//	return null;
-		//}
-		// check size > 1 ??
-		//return entries.iterator().next();
-		for (Path path: pathCache.values()) {
-			if (pathId == path.getPathId()) {
-				return path;
-			}
+		Predicate f = Predicates.equal("pathId", pathId);
+		Collection<Path> entries = pathCache.values(f);
+		if (entries.isEmpty()) {
+			return null;
 		}
-		return null;
+		// check size > 1 ??
+		return entries.iterator().next();
+		//for (Path path: pathCache.values()) {
+		//	if (pathId == path.getPathId()) {
+		//		return path;
+		//	}
+		//}
+		//return null;
 	}
 	
 	@Override
@@ -101,26 +106,26 @@ public class ModelManagementImpl extends ModelManagementBase implements ModelMan
 	}
 	
 	private Collection<Path> getTypePathsInternal(String root) {
-		//Predicate<String, Path> f = Predicates.equal("typeId", typeId);
-		//Collection<Path> entries = pathCache.values(f);
-		//if (entries.isEmpty()) {
-		//	return entries;
-		//}
+		Predicate<String, Path> f = Predicates.equal("root", root);
+		Collection<Path> entries = pathCache.values(f);
+		if (entries.isEmpty()) {
+			return entries;
+		}
 		// check size > 1 ??
-		//List<Path> result = new ArrayList<Path>(entries);
+		List<Path> result = new ArrayList<Path>(entries);
 		//Collections.sort(result);
 		//if (logger.isTraceEnabled()) {
 		//	logger.trace("getTypePath; returning {} for type {}", result, typeId);
 		//}
-		//return result;
-
-		Collection<Path> result = new ArrayList<>();
-		for (Path path: pathCache.values()) {
-			if (root.equals(path.getRoot())) {
-				result.add(path);
-			}
-		}
 		return result;
+
+		//Collection<Path> result = new ArrayList<>();
+		//for (Path path: pathCache.values()) {
+		//	if (root.equals(path.getRoot())) {
+		//		result.add(path);
+		//	}
+		//}
+		//return result;
 	}
 	
 	@Override
@@ -140,48 +145,52 @@ public class ModelManagementImpl extends ModelManagementBase implements ModelMan
 	
 	@Override
 	protected Set<Map.Entry<String, Path>> getTypedPathEntries(String root) {
-		//Predicate f = Predicates.equal("typeId",  typeId);
-		//Set<Map.Entry<String, Path>> entries = pathCache.entrySet(f);
-		//return entries;
-		Set<Map.Entry<String, Path>> result = new HashSet<>();
-		for (Map.Entry<String, Path> e: pathCache.entrySet()) {
-			if (root.equals(e.getValue().getRoot())) {
-				result.add(e);
-			}
-		}
-		return result;
+		Predicate f = Predicates.equal("root",  root);
+		Set<Map.Entry<String, Path>> entries = pathCache.entrySet(f);
+		return entries;
+		
+		//Set<Map.Entry<String, Path>> result = new HashSet<>();
+		//for (Map.Entry<String, Path> e: pathCache.entrySet()) {
+		//	if (root.equals(e.getValue().getRoot())) {
+		//		result.add(e);
+		//	}
+		//}
+		//return result;
 	}
 
 	@Override
 	protected Set<Map.Entry<String, Path>> getTypedPathWithRegex(String regex, String root) {
-		//Predicate filter = new RegexPredicate("path", regex);
-		//if (typeId > 0) {
-		//	filter = Predicates.and(filter, Predicates.equal("typeId", typeId));
-		//}
-		//Set<Map.Entry<String, Path>> entries = pathCache.entrySet(filter);
-		//return entries;
 		regex = regex.replaceAll("\\{", Matcher.quoteReplacement("\\{"));
 		regex = regex.replaceAll("\\}", Matcher.quoteReplacement("\\}"));
-		Pattern p = Pattern.compile(regex);
-		Set<Map.Entry<String, Path>> result = new HashSet<>();
-		if (root == null) {
-			for (Map.Entry<String, Path> e: pathCache.entrySet()) {
-				Path path = e.getValue();
-				if (p.matcher(path.getPath()).matches()) {
-					result.add(e);
-				}
-			}
-		} else {
-			for (Map.Entry<String, Path> e: pathCache.entrySet()) {
-				Path path = e.getValue();
-				if (root.equals(path.getRoot())) {
-					if (p.matcher(path.getPath()).matches()) {
-						result.add(e);
-					}
-				}
-			}
+		Predicate filter = new RegexPredicate("path", regex);
+		if (root != null) {
+			filter = Predicates.and(filter, Predicates.equal("root", root));
 		}
-		return result;
+		Set<Map.Entry<String, Path>> entries = pathCache.entrySet(filter);
+		return entries;
+		
+		//regex = regex.replaceAll("\\{", Matcher.quoteReplacement("\\{"));
+		//regex = regex.replaceAll("\\}", Matcher.quoteReplacement("\\}"));
+		//Pattern p = Pattern.compile(regex);
+		//Set<Map.Entry<String, Path>> result = new HashSet<>();
+		//if (root == null) {
+		//	for (Map.Entry<String, Path> e: pathCache.entrySet()) {
+		//		Path path = e.getValue();
+		//		if (p.matcher(path.getPath()).matches()) {
+		//			result.add(e);
+		//		}
+		//	}
+		//} else {
+		//	for (Map.Entry<String, Path> e: pathCache.entrySet()) {
+		//		Path path = e.getValue();
+		//		if (root.equals(path.getRoot())) {
+		//			if (p.matcher(path.getPath()).matches()) {
+		//				result.add(e);
+		//			}
+		//		}
+		//	}
+		//}
+		//return result;
 	}
 
 	//@Override
@@ -203,7 +212,7 @@ public class ModelManagementImpl extends ModelManagementBase implements ModelMan
 
 	@Override
 	protected <K, V> V putIfAbsent(Map<K, V> map, K key, V value) {
-		ReplicatedMap<K, V> cache = (ReplicatedMap<K, V>) map;
+		IMap<K, V> cache = (IMap<K, V>) map;
 		V val2 = cache.putIfAbsent(key, value);
 		//V val2 = cache.put(key, value);
 		if (val2 == null) {
@@ -213,17 +222,12 @@ public class ModelManagementImpl extends ModelManagementBase implements ModelMan
 		return val2;
 	}
 
-	//@Override
-	//protected <K, V> V putPathIfAbsent(Map<K, V> map, K key, V value) {
-	//	IMap<K, V> cache = (IMap<K, V>) map;
-	//	V val2 = cache.putIfAbsent(key, value);
-	//	if (val2 == null) {
-	//		return value;
-	//	}
-	//	logger.debug("putPathIfAbsent; got collision on cache: {}, key: {}; returning: {}", cache.getName(), key, val2);
-	//	return val2;
-	//}
-
+	@Override
+	public void updatePath(Path path) {
+		String pathKey = getPathKey(path.getRoot(), path.getPath());
+		((IMap<String, Path>) getPathCache()).set(pathKey, path);
+	}
+	
 	private class PathEntryListener implements EntryListener<String, Path> {
 
 		@Override

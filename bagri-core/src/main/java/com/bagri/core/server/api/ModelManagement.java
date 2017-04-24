@@ -23,21 +23,22 @@ public interface ModelManagement {
 	 * 
 	 * creates new XDMPath if it is not registered yet;
 	 * 
-	 * @param typeId int; the corresponding document's type
+	 * @param root String; the corresponding document's root
 	 * @param path String; the full node path in Clark form
 	 * @param kind XDMNodeKind; the type of the node, one of {@link NodeKind} enum literals
+	 * @param parentId int; id of the parent path
 	 * @param dataType int; type of the node value
 	 * @param occurrence {@link Occurrence}; multiplicity of the node
 	 * @return new or existing {@link Path} structure
 	 * @throws BagriException in case of any error
 	 */
-	Path translatePath(String root, String path, NodeKind kind, int dataType, Occurrence occurrence) throws BagriException;
+	Path translatePath(String root, String path, NodeKind kind, int parentId, int dataType, Occurrence occurrence) throws BagriException;
 	
 	/**
 	 * translates regex expression like "^/ns0:Security/ns0:SecurityInformation/.(*)/ns0:Sector/text\\(\\)$";
 	 * to an array of registered pathIds which conforms to the regex specified
 	 * 
-	 * @param typeId int; the corresponding document's type
+	 * @param root String; the corresponding document's root
 	 * @param regex String; regex pattern 
 	 * @return Set&lt;Integer&gt;- set of registered pathIds conforming to the pattern provided
 	 */
@@ -47,7 +48,7 @@ public interface ModelManagement {
 	 * translates regex expression like "^/ns0:Security/ns0:SecurityInformation/.(*)/ns0:Sector/text\\(\\)$";
 	 * to Collection of registered path which conforms to the regex specified
 	 * 
-	 * @param typeId int; the corresponding document's type
+	 * @param root String; the corresponding document's root
 	 * @param regex String; regex pattern 
 	 * @return Set&lt;String&gt;- set of registered paths conforming to the pattern provided
 	 */
@@ -56,7 +57,7 @@ public interface ModelManagement {
 	/**
 	 * return array of pathIds which are children of the root specified;
 	 * 
-	 * @param typeId int; the corresponding document's type
+	 * @param root String; the corresponding document's root
 	 * @param root String; root node path 
 	 * @return Set&lt;Integer&gt;- set of registered pathIds who are direct or indirect children of the parent path provided
 	 */
@@ -65,6 +66,7 @@ public interface ModelManagement {
 	/**
 	 * search for registered full node path like "/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}Name/text()"
 	 * 
+	 * @param root String; node root in Clark form
 	 * @param path String; node path in Clark form
 	 * @return registered {@link Path} structure if any
 	 */
@@ -81,7 +83,7 @@ public interface ModelManagement {
 	/**
 	 * return collection of paths registered for the document type provided;
 	 * 
-	 * @param typeId int; the corresponding document's type
+	 * @param root String; the corresponding document's root
 	 * @return Collection of {@link Path} belonging to the typeId provided; result is sorted by pathId
 	 */
 	Collection<Path> getTypePaths(String root);

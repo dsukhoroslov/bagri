@@ -202,7 +202,7 @@ public class IndexManagementImpl implements IndexManagement { //, StatisticsProv
 			result = mdlMgr.translatePathFromRegex(index.getDocumentType(), PathBuilder.regexFromPath(path));
 		} else {
 			int dataType = XQUtils.getBaseTypeForTypeName(index.getDataType());
-			Path xPath = mdlMgr.translatePath(index.getDocumentType(), path, NodeKind.fromPath(path), dataType, Occurrence.zeroOrOne);
+			Path xPath = mdlMgr.translatePath(index.getDocumentType(), path, NodeKind.fromPath(path), 0, dataType, Occurrence.zeroOrOne);
 			result = new HashSet<>(1);
 			result.add(xPath.getPathId());
 		}

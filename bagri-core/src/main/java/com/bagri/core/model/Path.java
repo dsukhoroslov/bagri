@@ -32,7 +32,7 @@ public class Path implements Comparable<Path> {
 	/**
 	 * 
 	 * @param path the node path
-	 * @param typeId the node type id
+	 * @param root the node root
 	 * @param kind the node kind
 	 * @param pathId the node path id
 	 * @param parentId the node parent id

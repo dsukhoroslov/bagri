@@ -41,6 +41,8 @@ public abstract class ContentParserBase {
 	
 	/**
 	 * initializes parser components before parsing document
+	 * 
+	 * @return the parsing context
 	 */
 	protected ParserContext initContext() {
 		return new ParserContext();
@@ -56,7 +58,7 @@ public abstract class ContentParserBase {
 		public void addDocument(String root) throws BagriException {
 			this.root = root;
 			Data data = new Data(root);
-			Path path = model.translatePath(root, "/", NodeKind.document, XQBASETYPE_ANYTYPE, Occurrence.onlyOne);
+			Path path = model.translatePath(root, "/", NodeKind.document, 0, XQBASETYPE_ANYTYPE, Occurrence.onlyOne);
 			Element start = new Element();
 			data.setData(path, start);
 			tree = new TreeNode<>(data);
@@ -201,14 +203,12 @@ public abstract class ContentParserBase {
 				path += "/";
 			}
 			path += current.getDataName();
-			Path xPath = model.translatePath(root, path, kind, dataType, occurrence);
-			xPath.setParentId(parent.getPathId());
+			Path xPath = model.translatePath(root, path, kind, parent.getPathId(), dataType, occurrence);
 			if (parent.getPostId() < xPath.getPathId()) {
 				Path pPath = parent.getDataPath();
 				pPath.setPostId(xPath.getPathId());
 				model.updatePath(pPath);
 			}
-			model.updatePath(xPath);
 			int[] position = parent.getPosition();
 			position = Arrays.copyOf(position, position.length + 1);
 			position[position.length - 1] = parent.addLastChild();
