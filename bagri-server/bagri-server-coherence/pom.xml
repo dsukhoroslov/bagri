@@ -16,6 +16,9 @@
     <properties>
         <!-- Coherence server java args -->
         <run.jvm.args>-server -Xms512m -Xmx2048m -XX:MaxNewSize=128m -XX:+ExplicitGCInvokesConcurrent -XX:+UseParNewGC -XX:+UseConcMarkSweepGC</run.jvm.args>
+
+        <coherence.version>3.7.1.10</coherence.version>
+        <coherence-common.version>11.1.0</coherence-common.version>
     </properties>
 
     <dependencies>
