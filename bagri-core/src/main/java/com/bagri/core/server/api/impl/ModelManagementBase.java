@@ -142,7 +142,12 @@ public abstract class ModelManagementBase implements ModelManagement {
 		Path xpath = getPathCache().get(pathKey);
 		if (xpath == null) {
 			int pathId = getPathGen().next().intValue();
-			xpath = new Path(path, root, kind, pathId, parentId, 0, dataType, occurrence); 
+			int postId = 0;
+			if (kind == NodeKind.attribute || kind == NodeKind.comment || kind == NodeKind.namespace ||
+					kind == NodeKind.pi || kind == NodeKind.text) {
+				postId = pathId;
+			}
+			xpath = new Path(path, root, kind, pathId, parentId, postId, dataType, occurrence); 
 			xpath = putIfAbsent(getPathCache(), pathKey, xpath);
 		}
 		if (parentId > 0 && xpath.getParentId() != parentId) {

@@ -58,7 +58,7 @@ public class ModelManagementImpl extends ModelManagementBase implements ModelMan
 		pathGen = new IdGeneratorImpl(hzInstance.getAtomicLong(SQN_PATH));
 		// init listeners here
 		//pathCache.addEntryListener(new PathCacheListener()); //, true);
-		//pathCache.addEntryListener(new PathEntryListener(), true);
+		pathCache.addEntryListener(new PathEntryListener(), true);
 	}
 	
 	protected Map<String, Path> getPathCache() {
@@ -78,19 +78,13 @@ public class ModelManagementImpl extends ModelManagementBase implements ModelMan
 	}
 	
 	private Path getPathInternal(int pathId) {
-		Predicate f = Predicates.equal("pathId", pathId);
+		Predicate<String, Path> f = Predicates.equal("pathId", pathId);
 		Collection<Path> entries = pathCache.values(f);
 		if (entries.isEmpty()) {
 			return null;
 		}
 		// check size > 1 ??
 		return entries.iterator().next();
-		//for (Path path: pathCache.values()) {
-		//	if (pathId == path.getPathId()) {
-		//		return path;
-		//	}
-		//}
-		//return null;
 	}
 	
 	@Override
@@ -118,14 +112,6 @@ public class ModelManagementImpl extends ModelManagementBase implements ModelMan
 		//	logger.trace("getTypePath; returning {} for type {}", result, typeId);
 		//}
 		return result;
-
-		//Collection<Path> result = new ArrayList<>();
-		//for (Path path: pathCache.values()) {
-		//	if (root.equals(path.getRoot())) {
-		//		result.add(path);
-		//	}
-		//}
-		//return result;
 	}
 	
 	@Override
@@ -133,7 +119,7 @@ public class ModelManagementImpl extends ModelManagementBase implements ModelMan
 		Collection<Path> result = cacheType.get(root);
 		// TODO: think why the result is empty? happens from ModelManagementImplTest only?
 		if (result == null || result.isEmpty()) {
-			result = getTypePathsInternal(root);
+		    result = getTypePathsInternal(root);
 			if (result != null) {
 				Set<Path> paths = new HashSet<>(result);
 				paths = new HashSet<>();
@@ -145,52 +131,21 @@ public class ModelManagementImpl extends ModelManagementBase implements ModelMan
 	
 	@Override
 	protected Set<Map.Entry<String, Path>> getTypedPathEntries(String root) {
-		Predicate f = Predicates.equal("root",  root);
+		Predicate<String, Path> f = Predicates.equal("root",  root);
 		Set<Map.Entry<String, Path>> entries = pathCache.entrySet(f);
 		return entries;
-		
-		//Set<Map.Entry<String, Path>> result = new HashSet<>();
-		//for (Map.Entry<String, Path> e: pathCache.entrySet()) {
-		//	if (root.equals(e.getValue().getRoot())) {
-		//		result.add(e);
-		//	}
-		//}
-		//return result;
 	}
 
 	@Override
 	protected Set<Map.Entry<String, Path>> getTypedPathWithRegex(String regex, String root) {
 		regex = regex.replaceAll("\\{", Matcher.quoteReplacement("\\{"));
 		regex = regex.replaceAll("\\}", Matcher.quoteReplacement("\\}"));
-		Predicate filter = new RegexPredicate("path", regex);
+		Predicate<String, Path> filter = new RegexPredicate("path", regex);
 		if (root != null) {
 			filter = Predicates.and(filter, Predicates.equal("root", root));
 		}
 		Set<Map.Entry<String, Path>> entries = pathCache.entrySet(filter);
 		return entries;
-		
-		//regex = regex.replaceAll("\\{", Matcher.quoteReplacement("\\{"));
-		//regex = regex.replaceAll("\\}", Matcher.quoteReplacement("\\}"));
-		//Pattern p = Pattern.compile(regex);
-		//Set<Map.Entry<String, Path>> result = new HashSet<>();
-		//if (root == null) {
-		//	for (Map.Entry<String, Path> e: pathCache.entrySet()) {
-		//		Path path = e.getValue();
-		//		if (p.matcher(path.getPath()).matches()) {
-		//			result.add(e);
-		//		}
-		//	}
-		//} else {
-		//	for (Map.Entry<String, Path> e: pathCache.entrySet()) {
-		//		Path path = e.getValue();
-		//		if (root.equals(path.getRoot())) {
-		//			if (p.matcher(path.getPath()).matches()) {
-		//				result.add(e);
-		//			}
-		//		}
-		//	}
-		//}
-		//return result;
 	}
 
 	//@Override

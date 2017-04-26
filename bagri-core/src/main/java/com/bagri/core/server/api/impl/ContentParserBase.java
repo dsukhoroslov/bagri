@@ -58,7 +58,7 @@ public abstract class ContentParserBase {
 		public void addDocument(String root) throws BagriException {
 			this.root = root;
 			Data data = new Data(root);
-			Path path = model.translatePath(root, "/", NodeKind.document, 0, XQBASETYPE_ANYTYPE, Occurrence.onlyOne);
+			Path path = model.translatePath(root, "/", NodeKind.document, 0, XQBASETYPE_UNTYPED, Occurrence.onlyOne);
 			Element start = new Element();
 			data.setData(path, start);
 			tree = new TreeNode<>(data);

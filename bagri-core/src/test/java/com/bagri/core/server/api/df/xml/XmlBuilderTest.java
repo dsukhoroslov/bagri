@@ -340,7 +340,7 @@ public class XmlBuilderTest {
 		props.setProperty(pn_schema_builder_pretty, "true");
 		builder.init(props);
 		String content = builder.buildString(data);
-		System.out.println(content);
+		//System.out.println(content);
 		assertNotNull(content);
 		List<Data> data2 = parser.parse(content);
 		assertEquals(data.size(), data2.size());
@@ -357,7 +357,7 @@ public class XmlBuilderTest {
 		props.setProperty(pn_schema_builder_pretty, "true");
 		builder.init(props);
 		String content = builder.buildString(data);
-		System.out.println(content);
+		//System.out.println(content);
 		assertNotNull(content);
 		List<Data> data2 = parser.parse(content);
 		assertEquals(data.size(), data2.size());
@@ -389,7 +389,7 @@ public class XmlBuilderTest {
 		props.setProperty(pn_schema_builder_pretty, "true");
 		builder.init(props);
 		String content = builder.buildString(data);
-		System.out.println(content);
+		//System.out.println(content);
 		assertNotNull(content);
 		List<Data> data2 = parser.parse(content);
 		assertEquals(data.size(), data2.size());

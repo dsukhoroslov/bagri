@@ -56,11 +56,11 @@
 
 			<hz:map name="dict-path" in-memory-format="BINARY" async-backup-count="${bdb.schema.dict.backup.async}" 
 				backup-count="${bdb.schema.dict.backup.sync}" read-backup-data="${bdb.schema.dict.backup.read}">
-				<hz:near-cache time-to-live-seconds="0" max-idle-seconds="0" eviction-policy="LRU" 
-					max-size="0" invalidate-on-change="true" in-memory-format="OBJECT" cache-local-entries="true"/>
+				<!--hz:near-cache time-to-live-seconds="0" max-idle-seconds="0" eviction-policy="LRU" 
+					max-size="0" invalidate-on-change="true" in-memory-format="OBJECT" cache-local-entries="true"/-->
 				<hz:indexes>
-					<!--hz:index attribute="typeId"/-->
 					<hz:index attribute="pathId" ordered="true"/>
+					<hz:index attribute="root"/>
 				</hz:indexes>
 			</hz:map>
 			
