@@ -86,6 +86,65 @@ public class XmlModelerTest {
             "  </xs:element>\n" +
             "</xs:schema>";	
 	
+	private static String schemaSalamiSlice = 
+			"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" elementFormDefault=\"qualified\" attributeFormDefault=\"unqualified\">\n" +
+	  		"  <xs:element name=\"streetAddress\" type=\"xs:string\"/>\n" +
+	  		"  <xs:element name=\"city\" type=\"xs:string\"/>\n" +
+	  		"  <xs:element name=\"state\" type=\"xs:string\"/>\n" +
+	  		"  <xs:element name=\"postalCode\" type=\"xs:short\"/>\n" +
+	  		"  <xs:element name=\"type\" type=\"xs:string\"/>\n" +
+	  		"  <xs:element name=\"number\" type=\"xs:string\"/>\n" +
+	  		"  <xs:element name=\"comment\" type=\"xs:string\"/>\n" +
+	  		"  <xs:element name=\"phoneNumber\">\n" +
+	    	"    <xs:complexType>\n" +
+	      	"      <xs:sequence>\n" +
+	        "        <xs:element ref=\"type\"/>\n" +
+	        "        <xs:element ref=\"number\"/>\n" +
+	        "        <xs:element ref=\"comment\"/>\n" +
+	        "      </xs:sequence>\n" +
+	        "    </xs:complexType>\n" +
+	        "  </xs:element>\n" +
+	  		"  <xs:element name=\"firstName\" type=\"xs:string\"/>\n" +
+	  		"  <xs:element name=\"lastName\" type=\"xs:string\"/>\n" +
+	  		"  <xs:element name=\"age\" type=\"xs:byte\"/>\n" +
+	  		"  <xs:element name=\"address\">\n" +
+	    	"    <xs:complexType>\n" +
+	      	"      <xs:sequence>\n" +
+	        "        <xs:element ref=\"streetAddress\"/>\n" +
+	        "        <xs:element ref=\"city\"/>\n" +
+	        "        <xs:element ref=\"state\"/>\n" +
+	        "        <xs:element ref=\"postalCode\"/>\n" +
+	        "      </xs:sequence>\n" +
+	        "    </xs:complexType>\n" +
+	        "  </xs:element>\n" +
+	  		"  <xs:element name=\"phoneNumbers\">\n" +
+	    	"    <xs:complexType>\n" +
+	      	"      <xs:sequence>\n" +
+	        "        <xs:element ref=\"phoneNumber\"/>\n" +
+	      	"      </xs:sequence>\n" +
+	    	"    </xs:complexType>\n" +
+	  		"  </xs:element>\n" +
+	  		"  <xs:element name=\"gender\">\n" +
+	    	"    <xs:complexType>\n" +
+	      	"      <xs:sequence>\n" +
+	        "        <xs:element ref=\"type\"/>\n" +
+	      	"      </xs:sequence>\n" +
+	    	"    </xs:complexType>\n" +
+	  		"  </xs:element>\n" +
+	  		"  <xs:element name=\"person\">\n" +
+	    	"    <xs:complexType>\n" +
+	      	"      <xs:sequence>\n" +
+	        "        <xs:element ref=\"firstName\"/>\n" +
+	        "        <xs:element ref=\"lastName\"/>\n" +
+	        "        <xs:element ref=\"age\"/>\n" +
+	        "        <xs:element ref=\"address\"/>\n" +
+	        "        <xs:element ref=\"phoneNumbers\"/>\n" +
+	        "        <xs:element ref=\"gender\"/>\n" +
+	      	"      </xs:sequence>\n" +
+	    	"    </xs:complexType>\n" +
+	  		"  </xs:element>\n" +
+			"</xs:schema>";
+		
 	private static String schemaVenetianBlind = 
 			"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" elementFormDefault=\"qualified\" attributeFormDefault=\"unqualified\">\n" +
 			"  <xs:element name=\"person\" type=\"personType\"/>\n" +
@@ -165,6 +224,31 @@ public class XmlModelerTest {
 	}
 	
 	@Test
+	public void registerSSPersonSchemaTest() throws Exception {
+		XmlStaxParser parser = new XmlStaxParser(model);
+		List<Data> data = parser.parse(xml);
+		modelPro.registerModel(schemaSalamiSlice);
+		Collection<Path> paths = model.getTypePaths("/person");
+		assertNotNull(paths);
+		assertTrue(paths.size() > 0);
+		assertEquals(data.size(), paths.size());
+		compareModels(paths, data);
+	}
+	
+	@Test
+	public void registerSSSchemaPersonTest() throws Exception {
+		modelPro.registerModel(schemaSalamiSlice);
+		Collection<Path> paths = model.getTypePaths("/person");
+		//System.out.println(paths);
+		assertNotNull(paths);
+		assertTrue(paths.size() > 0);
+		XmlStaxParser parser = new XmlStaxParser(model);
+		List<Data> data = parser.parse(xml);
+		assertEquals(data.size(), paths.size());
+		compareModels(paths, data);
+	}
+
+	@Test
 	public void registerVBPersonSchemaTest() throws Exception {
 		XmlStaxParser parser = new XmlStaxParser(model);
 		List<Data> data = parser.parse(xml);
@@ -198,9 +282,9 @@ public class XmlModelerTest {
 			if (path.getParentId() != dt.getParentPathId()) {
 				fail("parents are different for pathId " + dt.getPathId());
 			}
-			//if (path.getParentId() != dt.getPostId()) {
-			//	fail("posts are different for pathId " + dt.getPathId());
-			//}
+			if (path.getPostId() != dt.getPostId()) {
+				fail("posts are different for pathId " + dt.getPathId());
+			}
 		}
 	}
 	
@@ -214,19 +298,20 @@ public class XmlModelerTest {
 		return null;
 	}
 
-	private Collection<Path> getSecurityPath() {
-		return model.getTypePaths("/{http://tpox-benchmark.com/security}Security");
-	}
-	
-	private Collection<Path> getCustomerPath() {
-		return model.getTypePaths("/{http://tpox-benchmark.com/custacc}Customer");
-	}
-
 	@Test
 	public void registerSecurityPathTest() throws Exception {
 		String schema = readTextFile("..\\etc\\samples\\tpox\\security.xsd");
 		modelPro.registerModel(schema);
-		Collection<Path> paths = getSecurityPath();
+		Collection<Path> paths = model.getTypePaths("/{http://tpox-benchmark.com/security}Security");
+		assertNotNull(paths);
+		assertTrue(paths.size() > 0);
+		assertEquals(165, paths.size());
+	}
+
+	@Test
+	public void registerSecurityModelTest() throws Exception {
+		modelPro.registerModelUri("..\\etc\\samples\\tpox\\security.xsd");
+		Collection<Path> paths = model.getTypePaths("/{http://tpox-benchmark.com/security}Security");
 		assertNotNull(paths);
 		assertTrue(paths.size() > 0);
 		assertEquals(165, paths.size());
@@ -236,10 +321,31 @@ public class XmlModelerTest {
 	public void registerCustomerPathTest() throws Exception {
 		String schema = readTextFile("..\\etc\\samples\\tpox\\custacc.xsd");
 		modelPro.registerModel(schema);
-		Collection<Path> paths = getCustomerPath();
+		Collection<Path> paths = model.getTypePaths("/{http://tpox-benchmark.com/custacc}Customer");
 		assertNotNull(paths);
 		assertTrue(paths.size() > 0);
 		assertEquals(162, paths.size());
 	}
 
+	@Test
+	public void registerCustomerModelTest() throws Exception {
+		modelPro.registerModelUri("..\\etc\\samples\\tpox\\custacc.xsd");
+		Collection<Path> paths = model.getTypePaths("/{http://tpox-benchmark.com/custacc}Customer");
+		assertNotNull(paths);
+		assertTrue(paths.size() > 0);
+		assertEquals(162, paths.size());
+	}
+
+	@Test
+	public void registerSchemas() throws Exception {
+		((XmlModeler) modelPro).registerModels("..\\etc\\samples\\tpox\\");
+		Collection<Path> paths = model.getTypePaths("/{http://tpox-benchmark.com/custacc}Customer");
+		assertNotNull(paths);
+		assertTrue(paths.size() > 0);
+		assertEquals(162, paths.size());
+		paths = model.getTypePaths("/{http://tpox-benchmark.com/security}Security");
+		assertNotNull(paths);
+		assertTrue(paths.size() > 0);
+		assertEquals(165, paths.size());
+	}
 }

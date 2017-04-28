@@ -38,7 +38,7 @@ import com.bagri.core.server.api.PopulationManagement;
 import com.bagri.core.server.api.SchemaRepository;
 import com.bagri.core.server.api.TriggerManagement;
 import com.bagri.core.server.api.df.json.JsonpParser;
-import com.bagri.core.server.api.df.json.JsonModeler;
+import com.bagri.core.server.api.df.json.JsonpModeler;
 import com.bagri.core.server.api.df.json.JsonpBuilder;
 import com.bagri.core.server.api.df.xml.XmlBuilder;
 import com.bagri.core.server.api.df.xml.XmlModeler;
@@ -292,7 +292,7 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
 			logger.info("getModeler; no modeler found for dataFormat: {}", dataFormat); 
 			String defaultFormat = this.xdmSchema.getProperty(pn_schema_format_default);
 			if ("json".equalsIgnoreCase(defaultFormat)) {
-				cm = new JsonModeler(getModelManagement());
+				cm = new JsonpModeler(getModelManagement());
 			} else if ("xml".equalsIgnoreCase(defaultFormat)) {
 				cm = new XmlModeler(getModelManagement());
 			}

@@ -7,6 +7,10 @@ import com.bagri.core.model.Path;
 import com.bagri.core.server.api.ContentModeler;
 import com.bagri.core.server.api.ModelManagement;
 
+import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -75,8 +79,7 @@ public class XmlModeler implements ContentModeler {
 	@Override
 	public void registerModel(String model) throws BagriException {
 		
-		XSImplementation impl = (XSImplementation)
-				new DOMXSImplementationSourceImpl().getDOMImplementation("XS-Loader LS");
+		XSImplementation impl = (XSImplementation) new DOMXSImplementationSourceImpl().getDOMImplementation("XS-Loader LS");
 		XSLoader schemaLoader = impl.createXSLoader(null);
 		LSInput lsi = ((DOMImplementationLS) impl).createLSInput();
 		lsi.setStringData(model);
@@ -95,10 +98,30 @@ public class XmlModeler implements ContentModeler {
 
 		XSImplementation impl = (XSImplementation) new DOMXSImplementationSourceImpl().getDOMImplementation("XS-Loader LS");
 		XSLoader schemaLoader = impl.createXSLoader(null);
-		LSInput lsi = ((DOMImplementationLS) impl).createLSInput();
-		lsi.setSystemId(modelsUri);
-		XSModel schema = schemaLoader.load(lsi);
-		processModel(schema);
+		java.nio.file.Path catalog = Paths.get(modelsUri);
+		List<String> files = new ArrayList<>(); 
+		processCatalog(catalog, files);	
+		if (files.size() > 0) {
+			StringList schemas = impl.createStringList(files.toArray(new String[files.size()]));
+			XSModel schema = schemaLoader.loadURIList(schemas);
+			processModel(schema);
+		}
+	}
+	
+	private void processCatalog(java.nio.file.Path catalog, List<String> output) {
+		logger.trace("processCatalog; got catalog: {}", catalog); 
+		try (DirectoryStream<java.nio.file.Path> stream = Files.newDirectoryStream(catalog, "*.xsd")) {
+		    for (java.nio.file.Path path: stream) {
+		        if (Files.isDirectory(path)) {
+		            processCatalog(path, output);
+		        } else {
+		            output.add(path.toString());
+		        }
+		    }
+		} catch (IOException ex) {
+			logger.error("processCatalog.error: " + ex.getMessage(), ex);
+			throw new RuntimeException(ex.getMessage());
+		}
 	}
 
 	/**

@@ -19,7 +19,7 @@ import com.bagri.core.api.TransactionManagement;
 import com.bagri.core.api.BagriException;
 import com.bagri.core.model.Document;
 import com.bagri.core.server.api.df.json.JsonpParser;
-import com.bagri.core.server.api.df.json.JsonModeler;
+import com.bagri.core.server.api.df.json.JsonpModeler;
 import com.bagri.core.server.api.df.json.JsonpBuilder;
 import com.bagri.core.server.api.df.xml.XmlBuilder;
 import com.bagri.core.server.api.df.xml.XmlModeler;
@@ -70,7 +70,7 @@ public abstract class BagriManagementTest {
 		cExt = new ArrayList<>(1);
 		cExt.add("json");
 		df = new DataFormat(1, new java.util.Date(), "", "JSON", null, "application/json", cExt, 
-				JsonpParser.class.getName(), JsonpBuilder.class.getName(), JsonModeler.class.getName(), true, null);
+				JsonpParser.class.getName(), JsonpBuilder.class.getName(), JsonpModeler.class.getName(), true, null);
 		cFormats.add(df);
 		return cFormats;
 	}
