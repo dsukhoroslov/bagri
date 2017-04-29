@@ -124,12 +124,15 @@ public class JsonpModeler implements ContentModeler {
 		// it can be an array also!
 		String type = object.getString("type", null);
 		if (type != null) {
-			String next = path + "/" + field;
+			if (!path.endsWith("/")) {
+				path += "/";
+			}
+			String next = path + field;
 			switch (type) {
 				case "array":
 					Path array = modelMgr.translatePath(parent.getRoot(), next, NodeKind.array, parent.getPathId(), XQItemType.XQBASETYPE_ANYTYPE, occ);
 					JsonObject items = object.getJsonObject("items");
-					processField(array, next, field, items, occ);
+					processField(array, path, field + "/", items, occ);
 					break;
 				case "boolean":
 					modelMgr.translatePath(parent.getRoot(), next, NodeKind.attribute, parent.getPathId(), XQItemType.XQBASETYPE_BOOLEAN, occ);

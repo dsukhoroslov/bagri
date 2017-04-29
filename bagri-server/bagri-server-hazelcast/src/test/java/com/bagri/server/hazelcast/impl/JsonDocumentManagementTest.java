@@ -33,6 +33,34 @@ public class JsonDocumentManagementTest extends DocumentManagementTest {
 	
     private static ClassPathXmlApplicationContext context;
 
+	private static String json = 
+			"{\n" +
+			"  \"firstName\": \"John\",\n" +
+			"  \"lastName\": \"Smith\",\n" +
+			"  \"age\": 25,\n" +
+			"  \"address\": {\n" +
+			"    \"streetAddress\": \"21 2nd Street\",\n" +
+			"    \"city\": \"New York\",\n" +
+			"    \"state\": \"NY\",\n" +
+			"    \"postalCode\": \"10021\"\n" +
+			"  },\n" +
+			"  \"phoneNumber\": [\n" +
+			"    {\n" +
+			"      \"type\": \"home\",\n" +
+			"      \"number\": \"212 555-1234\"\n" +
+			"    },\n" +
+			"    {\n" +
+			"      \"type\": \"fax\",\n" +
+			"      \"number\": \"646 555-4567\",\n" +
+			"      \"comment\": null\n" +
+			"    }\n" +
+			"  ],\n" +
+			"  \"gender\": {\n" +
+			"    \"type\": \"male\"\n" +
+			"  }\n" +
+			"}";
+			
+	
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		sampleRoot = "..\\..\\etc\\samples\\json\\";
@@ -114,4 +142,28 @@ public class JsonDocumentManagementTest extends DocumentManagementTest {
 		docs.close();
 	}
 	
+	@Test
+	public void queryPersonDocumentsTest() throws Exception {
+
+		long txId = getTxManagement().beginTransaction();
+		Properties props = getDocumentProperties();
+		//props.setProperty(pn_document_collections, "person");
+		uris.add(getDocManagement().storeDocumentFromString("person.json", json, props).getUri());
+		getTxManagement().commitTransaction(txId);
+		
+		String query = "declare namespace m=\"http://www.w3.org/2005/xpath-functions/map\";\n" +
+				"declare namespace a=\"http://www.w3.org/2005/xpath-functions/array\";\n" +
+				"for $pn in collection()\n" +
+				"let $phones := m:get($pn, 'phoneNumber')\n" +
+				"for $phone in a:flatten($phones)\n" +
+				"where m:get($phone, 'type') = 'fax'\n" +
+				"return serialize($phone, map{'method': 'json'})";
+				
+		ResultCursor docs = query(query, null, null);
+		assertNotNull(docs);
+		assertTrue(docs.next());
+		//System.out.println(docs.getString());
+		docs.close();
+	}
+
 }

@@ -81,7 +81,7 @@ public abstract class ContentParserBase {
 			TreeNode<Data> node = getLastNamedNode();
 			if (node == null) {
 				// element in array
-				addData("/");
+				addData("");
 				node = top.getLastNode();
 			}
 			Occurrence occurrence = isInArray() ? Occurrence.zeroOrMany : Occurrence.zeroOrOne;
@@ -93,7 +93,7 @@ public abstract class ContentParserBase {
 			TreeNode<Data> node = getLastNamedNode();
 			if (node == null) {
 				// array in document
-				addData("/"); // ??
+				addData(""); // ??
 				node = top.getLastNode();
 			}
 			setData(NodeKind.array, null, XQBASETYPE_ANYTYPE, Occurrence.zeroOrOne);
@@ -181,7 +181,7 @@ public abstract class ContentParserBase {
 				TreeNode<Data> node = getLastNamedNode();
 				if (node == null) {
 					// text in array
-					addData("/");
+					addData("");
 				}
 			} else {			
 				kind = NodeKind.attribute;
