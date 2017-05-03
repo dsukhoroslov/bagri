@@ -23,7 +23,7 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
-public class JaksonParser extends ContentParserBase implements ContentParser {
+public class JaksonParser extends ContentParserBase implements ContentParser<String> {
 	
 	private static JsonFactory factory = new JsonFactory();
 

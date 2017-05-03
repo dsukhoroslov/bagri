@@ -17,7 +17,7 @@ import com.bagri.core.model.Data;
  * @author Denis Sukhoroslov
  *
  */
-public interface ContentParser {
+public interface ContentParser<C> {
 	
     /**
      * Lifecycle method. Invoked at Schema initialization phase. 
@@ -32,7 +32,7 @@ public interface ContentParser {
 	 * @return the list of parsed data elements 
 	 * @throws BagriException in case of parsing error
 	 */
-	List<Data> parse(String source) throws BagriException;
+	List<Data> parse(C source) throws BagriException;
 	
 	/**
 	 * 

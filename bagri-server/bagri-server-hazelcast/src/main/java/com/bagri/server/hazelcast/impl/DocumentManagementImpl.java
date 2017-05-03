@@ -80,8 +80,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
     private TriggerManagementImpl triggerManager;
 
     private IdGenerator<Long> docGen;
-    //private Map<XDMDocumentKey, Source> srcCache;
-    private IMap<DocumentKey, String> cntCache;
+    private IMap<DocumentKey, Object> cntCache;
 	private IMap<DocumentKey, Document> xddCache;
     private IMap<DataKey, Elements> xdmCache;
 
@@ -96,7 +95,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
     	this.triggerManager = (TriggerManagementImpl) repo.getTriggerManagement();
     }
     
-    IMap<DocumentKey, String> getContentCache() {
+    IMap<DocumentKey, Object> getContentCache() {
     	return cntCache;
     }
 
@@ -112,9 +111,8 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
     	this.docGen = docGen;
     }
     
-    public void setContentCache(IMap<DocumentKey, String> cache) {
+    public void setContentCache(IMap<DocumentKey, Object> cache) {
     	this.cntCache = cache;
-    	//this.srcCache = new ConcurrentHashMap<XDMDocumentKey, Source>();
     }
     
     public void setXddCache(IMap<DocumentKey, Document> cache) {
@@ -166,12 +164,6 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
     }
     
 	public String checkDocumentCommited(long docKey, int clnId) throws BagriException {
-		
-		// TODO: make this behavior configurable! 
-		// check if any docs were removed
-		//if (txManager.getCurrentTxId() == TX_NO) {
-		//	return xddCache.containsKey(factory.newXDMDocumentKey(docId));
-		//}
 		
 		Document doc = getDocument(docKey);
 		if (doc != null) {
@@ -260,8 +252,25 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		if (docKey != null) {
 			doc = getDocument(docKey);
 		}
-		//logger.trace("getDocument; returning: {}", doc);
 		return doc;
+	}
+	
+	private Object getDocumentContent(String uri) {
+		Object content = null;
+		DocumentKey docKey = getDocumentKey(uri, false, false);
+		if (docKey != null) {
+			content = getDocumentContent(docKey);
+		}
+		return content;
+		
+	}
+
+	private Object getDocumentContent(DocumentKey docKey) {
+		Object content = cntCache.get(docKey);
+		if (content == null) {
+			// build it with builder!
+		}
+		return content; 
 	}
 
     private DocumentKey getDocumentKey(String uri, boolean next, boolean acceptClosed) {
@@ -316,6 +325,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
     }
  	
 	@Override
+	@SuppressWarnings("unchecked")
 	public java.util.Collection<String> getDocumentUris(String pattern) {
 		logger.trace("getDocumentUris.enter; got pattern: {}", pattern);
 		java.util.Collection<String> uris;
@@ -355,20 +365,21 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 				for (Map.Entry<String, Object> param: params.entrySet()) {
 					String key = param.getKey();
 					String path = param.getValue().toString();
-					String xml = null;
+					String content = null;
 					if (path.equals(root)) {
-						xml = cntCache.get(docKey);
+						// TODO: get and convert to string?
+						content = (String) cntCache.get(docKey);
 					}
-					if (xml == null) {
+					if (content == null) {
 				        logger.trace("buildDocument; no content found for doc key: {}", docKey);
-						xml = buildElement(path, doc.getFragments());
+						content = buildElement(path, doc.getFragments());
 					}
 					int pos = 0;
 					while (true) {
 						int idx = buff.indexOf(key, pos);
 						if (idx < 0) break;
-						buff.replace(idx, idx + key.length(), xml);
-						pos = idx + xml.length();
+						buff.replace(idx, idx + key.length(), content);
+						pos = idx + content.length();
 					}
 				}
 				result.add(buff.toString());
@@ -388,8 +399,9 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	private String buildElement(String path, long[] fragments) throws BagriException {
         logger.trace("buildElement.enter; got path: {}", path); 
     	Set<DataKey> xdKeys = getDocumentElementKeys(path, fragments);
+    	// TODO: it can be other format...
     	String dataFormat = df_xml;
-    	String content = repo.getBuilder(dataFormat).buildString(xdmCache.getAll(xdKeys));
+    	String content = (String) repo.getBuilder(dataFormat).buildContent(xdmCache.getAll(xdKeys));
         logger.trace("buildXml.exit; returning xml length: {}", content.length()); 
        	return content;
     }
@@ -411,11 +423,13 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 
 	@Override
 	public Map<String, Object> getDocumentAsMap(DocumentKey docKey, Properties props) throws BagriException {
-		String xml = getDocumentAsString(docKey, props);
-		if (xml == null) {
-			return null;
-		}
-		return mapFromXML(xml);
+		//String xml = getDocumentAsString(docKey, props);
+		//if (xml == null) {
+		//	return null;
+		//}
+		//return mapFromXML(xml);
+		// TODO: check props: if content is Map then take it directly as Map
+		return (Map<String, Object>) getDocumentContent(docKey);
 	}
 
 	public InputStream getDocumentAsStream(long docKey, Properties props) throws BagriException {
@@ -450,7 +464,8 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	@Override
 	public String getDocumentAsString(DocumentKey docKey, Properties props) throws BagriException {
 		
-		String content = cntCache.get(docKey);
+		// TODO: get and convert to string
+		String content = (String) cntCache.get(docKey);
 		if (content == null) {
 			Document doc = getDocument(docKey);
 			if (doc == null) {
@@ -485,11 +500,6 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		return content;
 	}
 
-	//@Override
-	//public Source getDocumentAsSource(String uri) {
-	//	return srcCache.get(factory.newXDMDocumentKey(docId.getDocumentKey()));
-	//}
-
 	@Override
 	public String getDocumentContentType(long docKey) throws BagriException {
 		// TODO: get it from the document itself?
@@ -504,8 +514,6 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	private Collection getTypedCollection(Schema schema, String typePath) {
 		for (Collection collect: schema.getCollections()) {
 			String cPath = collect.getDocumentType();
-			// TODO: very inefficient to normalize collections over and over again!
-			//cPath = model.normalizePath(cPath);
 			if (cPath != null && typePath.equals(cPath)) {
 				return collect;
 			}
@@ -523,7 +531,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		return null;
 	}
 	
-	private Document createDocument(DocumentKey docKey, String uri, String content, Properties props) throws BagriException {
+	private Document createDocument(DocumentKey docKey, String uri, Object content, Properties props) throws BagriException {
 		logger.trace("createDocument.enter; uri: {}; props: {}", uri, props);
 		String dataFormat = null;
 		int[] collections = null; 
@@ -566,15 +574,17 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		return doc;
 	}
 
-	@Override
+	//@Override
 	@SuppressWarnings("unchecked")
-	public Document createDocument(DocumentKey docKey, String uri, String content, String dataFormat, Date createdAt, String createdBy, 
+	public Document createDocument(DocumentKey docKey, String uri, Object content, String dataFormat, Date createdAt, String createdBy, 
 			long txStart, int[] collections, boolean addContent) throws BagriException {
 		
 		List<Data> data;
+		int length = 0;
 		ContentParser parser = repo.getParser(dataFormat);
 		try {
 			data = parser.parse(content);
+			// TODO: get length from parser
 		} catch (BagriException ex) {
 			logger.info("createDocument; parse error. content: {}", content);
 			throw ex;
@@ -590,9 +600,9 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		String root = data.get(0).getDataPath().getRoot();
 		Document doc;
 		if (fragments.size() == 0) {
-			doc = new Document(docKey.getKey(), uri, root, txStart, TX_NO, createdAt, createdBy, def_encoding, content.length(), data.size());
+			doc = new Document(docKey.getKey(), uri, root, txStart, TX_NO, createdAt, createdBy, def_encoding, length, data.size());
 		} else {
-			doc = new FragmentedDocument(docKey.getKey(), uri, root, txStart, TX_NO, createdAt, createdBy, def_encoding, content.length(), data.size());
+			doc = new FragmentedDocument(docKey.getKey(), uri, root, txStart, TX_NO, createdAt, createdBy, def_encoding, length, data.size());
 			long[] fa = new long[fragments.size()];
 			fa[0] = docKey.getKey();
 			for (int i=0; i < fragments.size(); i++) {
@@ -730,27 +740,27 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 
 	@Override
 	public Document storeDocumentFromMap(String uri, Map<String, Object> fields, Properties props) throws BagriException {
-		String xml = mapToXML(fields);
-		if (xml == null || xml.trim().length() == 0) {
-			throw new BagriException("Can not convert map [" + fields + "] to XML", BagriException.ecDocument);
-		}
-		logger.trace("storeDocumentFromMap; converted map: {}", xml); 
+		//String xml = mapToXML(fields);
+		//if (xml == null || xml.trim().length() == 0) {
+		//	throw new BagriException("Can not convert map [" + fields + "] to XML", BagriException.ecDocument);
+		//}
+		//logger.trace("storeDocumentFromMap; converted map: {}", xml); 
 		
-		if (props != null) {
-			props.setProperty(pn_document_data_format, df_xml);
-		}
-		return storeDocumentFromString(uri, xml, props);
+		//if (props != null) {
+		//	props.setProperty(pn_document_data_format, df_xml);
+		//}
+		//return storeDocumentFromString(uri, xml, props);
+		return storeDocument(uri, fields, props);
 	}
-	
-	//@Override
-	//public XDMDocument storeDocumentFromSource(String uri, Source source, Properties props) {
-	//	srcCache.put(factory.newXDMDocumentKey(docId.getDocumentKey()), source);
-	//	return xddCache.get(docId);
-	//}
 	
 	@Override
 	public Document storeDocumentFromString(String uri, String content, Properties props) throws BagriException {
-		logger.trace("storeDocumentFromString.enter; uri: {}; content: {}; props: {}", uri, content.length(), props);
+		return storeDocument(uri, content, props);
+	}
+	
+	private Document storeDocument(String uri, Object content, Properties props) throws BagriException {
+	
+		logger.trace("storeDocument.enter; uri: {}; content: {}; props: {}", uri, content.getClass().getName(), props);
 		if (uri == null) {
 			throw new BagriException("Empty URI passed", BagriException.ecDocument); 
 		}
@@ -790,7 +800,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 				    				", version: " + doc.getVersion() + " has been concurrently updated", 
 				    				BagriException.ecDocument);
 				    	}
-				    	logger.trace("storeDocumentFromString; going to update document: {}", doc);
+				    	logger.trace("storeDocument; going to update document: {}", doc);
 				    	// we must finish old Document and create a new one!
 						triggerManager.applyTrigger(doc, Order.before, Scope.update);
 				    	doc.finishDocument(txManager.getCurrentTxId());
@@ -811,7 +821,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			} catch (BagriException ex) {
 				throw ex;
 			} catch (Exception ex) {
-				logger.error("storeDocumentFromString.error; uri: " + uri, ex);
+				logger.error("storeDocument.error; uri: " + uri, ex);
 				throw new BagriException(ex, BagriException.ecDocument);
 			} finally {
 				unlockDocument(docKey);

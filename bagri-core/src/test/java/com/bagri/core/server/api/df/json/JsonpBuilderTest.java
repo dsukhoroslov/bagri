@@ -105,7 +105,7 @@ public class JsonpBuilderTest {
 		Properties props = new Properties();
 		props.setProperty(JsonGenerator.PRETTY_PRINTING, "true");
 		builder.init(props);
-		String content = builder.buildString(data);
+		String content = builder.buildContent(data);
 		System.out.println(content);
 		assertNotNull(content);
 		// now compare content vs xml..
@@ -121,7 +121,7 @@ public class JsonpBuilderTest {
 		assertNotNull(data);
 		assertEquals(19, data.size()); 
 		JsonpBuilder builder = new JsonpBuilder(model);
-		String content = builder.buildString(data);
+		String content = builder.buildContent(data);
 		System.out.println("content: " + content);
 		assertNotNull(content);
 	}
@@ -154,7 +154,7 @@ public class JsonpBuilderTest {
 		props.setProperty(JsonGenerator.PRETTY_PRINTING, "true");
 		builder.init(props);
 		Map<DataKey, Elements> dataMap = JsonpBuilder.dataToElements(data);
-		String content = builder.buildString(dataMap);
+		String content = builder.buildContent(dataMap);
 		System.out.println(content);
 		assertNotNull(content);
 		// now compare content vs xml..

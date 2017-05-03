@@ -50,7 +50,7 @@ import com.bagri.core.server.api.impl.ContentParserBase;
  * @author Denis Sukhoroslov
  *
  */
-public class XmlStaxParser extends ContentParserBase implements ContentParser {
+public class XmlStaxParser extends ContentParserBase implements ContentParser<String> {
 
 	private static XMLInputFactory factory = XMLInputFactory.newInstance();
 

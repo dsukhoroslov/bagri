@@ -28,6 +28,22 @@ public class BagriClient extends DB {
     private static final Logger logger = LoggerFactory.getLogger(BagriClient.class);
 
     private SchemaRepository xRepo;
+    
+    private static final Properties readProps = new Properties();
+    private static final Properties insertProps = new Properties();
+    private static final Properties updateProps = new Properties();
+    static {
+		readProps.setProperty(pn_document_data_format, "MAP");
+		
+		insertProps.setProperty(pn_client_storeMode, pv_client_storeMode_insert);
+		insertProps.setProperty(pn_document_collections, "usertable");
+		insertProps.setProperty(pn_document_data_format, "MAP");
+
+		updateProps.setProperty(pn_client_storeMode, pv_client_storeMode_update);
+		updateProps.setProperty(pn_client_txTimeout, "100");
+		updateProps.setProperty(pn_document_collections, "usertable");
+		updateProps.setProperty(pn_document_data_format, "MAP");
+    }
 	
 	@Override
 	public void init() throws DBException {
@@ -50,13 +66,9 @@ public class BagriClient extends DB {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Status insert(final String table, final String key, final HashMap<String, ByteIterator> values) {
 		//logger.debug("insert.enter; table: {}; startKey: {}; values: {}", table, key, values);
-		Properties props = new Properties();
-		props.setProperty(pn_document_collections, table);
-		props.setProperty(pn_client_storeMode, pv_client_storeMode_insert);
-		//props.setProperty(pn_document_data_format, "map");
 		HashMap fields = StringByteIterator.getStringMap(values);
 		try {
-			xRepo.getDocumentManagement().storeDocumentFromMap(key, fields, props);
+			xRepo.getDocumentManagement().storeDocumentFromMap(key, fields, insertProps);
 			return Status.OK;
 		} catch (Exception ex) {
 			logger.error("insert.error", ex);
@@ -86,7 +98,7 @@ public class BagriClient extends DB {
 			    final HashMap<String, ByteIterator> result) {
 		//logger.debug("read.enter; table: {}; startKey: {}; fields: {}", table, key, fields);
 		try {
-			Map<String, Object> map = xRepo.getDocumentManagement().getDocumentAsMap(key, null);
+			Map<String, Object> map = xRepo.getDocumentManagement().getDocumentAsMap(key, readProps);
 			if (map == null) {
 				logger.info("read; not found document for key: {}; table: {}", key, table);
 				return Status.NOT_FOUND;
@@ -110,7 +122,7 @@ public class BagriClient extends DB {
 			int i = 0;
 			for (String uri: uris) {
 				HashMap<String, ByteIterator> doc = null;
-				Map<String, Object> map = xRepo.getDocumentManagement().getDocumentAsMap(uri, null);
+				Map<String, Object> map = xRepo.getDocumentManagement().getDocumentAsMap(uri, readProps);
 				if (map == null) {
 					logger.info("scan; not found document for uri: {}; table: {}", uri, table);
 				} else {
@@ -136,14 +148,9 @@ public class BagriClient extends DB {
 	public Status update(final String table, final String key, final HashMap<String, ByteIterator> values) {
 		//logger.debug("update.enter; table: {}; startKey: {}; values: {}", table, key, values);
 		// probably, we should do merge here: update only fields specified in the values map!
-		Properties props = new Properties();
-		props.setProperty(pn_document_collections, table);
-		props.setProperty(pn_client_storeMode, pv_client_storeMode_update);
-		props.setProperty(pn_client_txTimeout, "100");
-		//props.setProperty(pn_document_data_format, "map");
 		HashMap fields = StringByteIterator.getStringMap(values);
 		try {
-			xRepo.getDocumentManagement().storeDocumentFromMap(key, fields, props);
+			xRepo.getDocumentManagement().storeDocumentFromMap(key, fields, updateProps);
 			return Status.OK;
 		} catch (Exception ex) {
 			logger.error("update.error", ex);

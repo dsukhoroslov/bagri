@@ -81,7 +81,7 @@ public interface DocumentManagement extends com.bagri.core.api.DocumentManagemen
 	 * @return the Document created
 	 * @throws BagriException in case of any error happened
 	 */
-	Document createDocument(DocumentKey docKey, String uri, String content, String dataFormat, 
+	Document createDocument(DocumentKey docKey, String uri, Object content, String dataFormat, 
 			Date createdAt, String createdBy, long txStart, int[] collections, boolean addContent) throws BagriException;
 	
 }

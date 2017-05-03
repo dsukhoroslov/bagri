@@ -25,7 +25,7 @@ import com.bagri.core.model.Elements;
 import com.bagri.core.model.Path;
 import com.bagri.core.server.api.ModelManagement;
 
-public abstract class ContentBuilderBase {
+public abstract class ContentBuilderBase<C> {
 
 	protected final Logger logger = LoggerFactory.getLogger(getClass());
 	
@@ -42,14 +42,14 @@ public abstract class ContentBuilderBase {
 	/**
 	 * {@inheritDoc}
 	 */
-   	public abstract String buildString(Collection<Data> elements) throws BagriException;
+   	public abstract C buildContent(Collection<Data> elements) throws BagriException;
    	
 	/**
 	 * {@inheritDoc}
 	 */
-	public String buildString(Map<DataKey, Elements> elements) throws BagriException {
+	public C buildContent(Map<DataKey, Elements> elements) throws BagriException {
     	Collection<Data> dataList = buildDataList(elements);
-    	return buildString(dataList);
+    	return buildContent(dataList);
 	}
 
 	/**
@@ -64,10 +64,10 @@ public abstract class ContentBuilderBase {
 	 * {@inheritDoc}
 	 */
 	public InputStream buildStream(Collection<Data> elements) throws BagriException {
-		String content = buildString(elements);
+		C content = buildContent(elements);
 		if (content != null) {
 			try {
-				return new ByteArrayInputStream(content.getBytes(def_encoding));
+				return new ByteArrayInputStream(((String) content).getBytes(def_encoding));
 			} catch (UnsupportedEncodingException ex) {
 				throw new BagriException(ex, BagriException.ecInOut);
 			}

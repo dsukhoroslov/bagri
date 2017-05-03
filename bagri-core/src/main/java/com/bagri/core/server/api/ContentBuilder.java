@@ -18,7 +18,7 @@ import com.bagri.core.model.Elements;
  * @author Denis Sukhoroslov
  *
  */
-public interface ContentBuilder {
+public interface ContentBuilder<C> {
 	
     /**
      * Lifecycle method. Invoked at Schema initialization phase. 
@@ -33,7 +33,7 @@ public interface ContentBuilder {
 	 * @return String content representation 
 	 * @throws BagriException in case of any conversion error
 	 */
-    String buildString(Map<DataKey, Elements> elements) throws BagriException;
+    C buildContent(Map<DataKey, Elements> elements) throws BagriException;
     
 	/**
 	 * 
@@ -41,7 +41,7 @@ public interface ContentBuilder {
 	 * @return String content representation 
 	 * @throws BagriException in case of any conversion error
 	 */
-    String buildString(Collection<Data> elements) throws BagriException;
+    C buildContent(Collection<Data> elements) throws BagriException;
 
     /**
      * 

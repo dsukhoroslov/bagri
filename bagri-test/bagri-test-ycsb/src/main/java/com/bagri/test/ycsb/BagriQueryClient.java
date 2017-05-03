@@ -117,7 +117,7 @@ public class BagriQueryClient extends DB {
 	
 	private static String query = "declare variable $startKey external;\n" +
 			"for $doc in fn:collection(\"usertable\")/map\n" +
-			"where $doc/key >= $startKey\n" +
+			"where $doc/key >= $startKey\n" + //$doc/@key !!
 			"return $doc";
 
 	@Override
@@ -129,7 +129,7 @@ public class BagriQueryClient extends DB {
 		Map<String, Object> params = new HashMap<>(1);
 		params.put("startKey", startkey);
 		Properties props = new Properties();
-		props.setProperty(pn_schema_fetch_size, "5"); //String.valueOf(recordcount));
+		props.setProperty(pn_schema_fetch_size, String.valueOf(recordcount));
 		props.setProperty(pn_xqj_scrollability, "1");
 		try {
 			long stamp = System.currentTimeMillis();
@@ -149,9 +149,9 @@ public class BagriQueryClient extends DB {
 			stamp = System.currentTimeMillis();
 			int count = 0;
 			while (cursor.next()) {
-				String xml = cursor.getString();
-				Map<String, Object> map = XMLUtils.mapFromXML(xml);
-				logger.trace("scan; got map: {} for XML: {}", map, xml);
+				//String xml = cursor.getString();
+				Map<String, Object> map = (Map<String, Object>) cursor.getObject(); // XMLUtils.mapFromXML(xml);
+				//logger.trace("scan; got map: {} for XML: {}", map, xml);
 				HashMap<String, ByteIterator> doc = new HashMap<>(map.size());
 				populateResult(map, fields, doc);
 				result.add(doc);

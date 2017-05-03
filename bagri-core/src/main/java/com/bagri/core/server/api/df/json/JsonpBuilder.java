@@ -31,7 +31,7 @@ import com.bagri.core.server.api.impl.ContentBuilderBase;
  * @author Denis Sukhoroslov
  *
  */
-public class JsonpBuilder extends ContentBuilderBase implements ContentBuilder {
+public class JsonpBuilder extends ContentBuilderBase<String> implements ContentBuilder<String> {
 	
 	private JsonGeneratorFactory factory = Json.createGeneratorFactory(null);
 	
@@ -58,7 +58,7 @@ public class JsonpBuilder extends ContentBuilderBase implements ContentBuilder {
  	}
  
 	@Override
-	public String buildString(Collection<Data> elements) throws BagriException {
+	public String buildContent(Collection<Data> elements) throws BagriException {
 		Writer writer = new StringWriter();
     	JsonGenerator stream = factory.createGenerator(writer);
 		

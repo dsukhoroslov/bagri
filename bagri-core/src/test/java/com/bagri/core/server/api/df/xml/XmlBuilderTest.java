@@ -262,7 +262,7 @@ public class XmlBuilderTest {
 		Properties props = new Properties();
 		props.setProperty(pn_schema_builder_pretty, "true");
 		builder.init(props);
-		String content = builder.buildString(data);
+		String content = builder.buildContent(data);
 		//System.out.println(content);
 		assertNotNull(content);
 		content = content.trim();
@@ -317,7 +317,7 @@ public class XmlBuilderTest {
 		Properties props = new Properties();
 		props.setProperty(pn_schema_builder_pretty, "true");
 		builder.init(props);
-		String content = builder.buildString(data);
+		String content = builder.buildContent(data);
 		//System.out.println(content);
 		assertNotNull(content);
 		content = content.trim();
@@ -339,7 +339,7 @@ public class XmlBuilderTest {
 		Properties props = new Properties();
 		props.setProperty(pn_schema_builder_pretty, "true");
 		builder.init(props);
-		String content = builder.buildString(data);
+		String content = builder.buildContent(data);
 		//System.out.println(content);
 		assertNotNull(content);
 		List<Data> data2 = parser.parse(content);
@@ -356,7 +356,7 @@ public class XmlBuilderTest {
 		Properties props = new Properties();
 		props.setProperty(pn_schema_builder_pretty, "true");
 		builder.init(props);
-		String content = builder.buildString(data);
+		String content = builder.buildContent(data);
 		//System.out.println(content);
 		assertNotNull(content);
 		List<Data> data2 = parser.parse(content);
@@ -371,7 +371,7 @@ public class XmlBuilderTest {
 		List<Data> data = parser.parse(file);
 		assertNotNull(data);
 		XmlBuilder builder = new XmlBuilder(model);
-		String content = builder.buildString(data);
+		String content = builder.buildContent(data);
 		assertNotNull(content);
 		List<Data> data2 = parser.parse(content);
 		assertEquals(data.size(), data2.size());
@@ -388,7 +388,7 @@ public class XmlBuilderTest {
 		Properties props = new Properties();
 		props.setProperty(pn_schema_builder_pretty, "true");
 		builder.init(props);
-		String content = builder.buildString(data);
+		String content = builder.buildContent(data);
 		//System.out.println(content);
 		assertNotNull(content);
 		List<Data> data2 = parser.parse(content);
@@ -421,7 +421,7 @@ public class XmlBuilderTest {
 		props.setProperty(pn_schema_builder_pretty, "true");
 		builder.init(props);
 		Map<DataKey, Elements> dataMap = XmlBuilder.dataToElements(data);
-		String content = builder.buildString(dataMap);
+		String content = builder.buildContent(dataMap);
 		//System.out.println(content);
 		assertNotNull(content);
 		content = content.trim();
@@ -441,7 +441,7 @@ public class XmlBuilderTest {
 		props.setProperty(pn_schema_builder_pretty, "true");
 		builder.init(props);
 		Map<DataKey, Elements> dataMap = XmlBuilder.dataToElements(data);
-		String content = builder.buildString(dataMap);
+		String content = builder.buildContent(dataMap);
 		assertNotNull(content);
 		//System.out.println(content);
 		List<Data> data2 = parser.parse(content);
@@ -460,7 +460,7 @@ public class XmlBuilderTest {
 		props.setProperty(pn_schema_builder_pretty, "true");
 		builder.init(props);
 		Map<DataKey, Elements> dataMap = XmlBuilder.dataToElements(data);
-		String content = builder.buildString(dataMap);
+		String content = builder.buildContent(dataMap);
 		assertNotNull(content);
 		//System.out.println(content);
 		List<Data> data2 = parser.parse(content);

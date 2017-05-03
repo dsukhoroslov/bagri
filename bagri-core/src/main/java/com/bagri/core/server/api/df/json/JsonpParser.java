@@ -28,7 +28,7 @@ import com.bagri.core.server.api.impl.ContentParserBase;
  * @author Denis Sukhoroslov
  *
  */
-public class JsonpParser extends ContentParserBase implements ContentParser {
+public class JsonpParser extends ContentParserBase implements ContentParser<String> {
 	
 	private JsonParserFactory factory = Json.createParserFactory(null);
 	

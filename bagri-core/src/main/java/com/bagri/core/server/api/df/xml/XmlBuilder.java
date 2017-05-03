@@ -24,7 +24,7 @@ import com.bagri.core.server.api.impl.ContentBuilderBase;
  * @author Denis Sukhoroslov
  *
  */
-public class XmlBuilder extends ContentBuilderBase implements ContentBuilder {
+public class XmlBuilder extends ContentBuilderBase<String> implements ContentBuilder<String> {
 	
 	// TODO: try this..
 	//private XMLOutputFactory factory = XMLOutputFactory.newInstance();
@@ -55,7 +55,7 @@ public class XmlBuilder extends ContentBuilderBase implements ContentBuilder {
 	 * {@inheritDoc}
 	 */
 	@Override
-   	public String buildString(Collection<Data> elements) throws BagriException {
+   	public String buildContent(Collection<Data> elements) throws BagriException {
     	
     	Deque<Data> dataStack = new LinkedList<>();
     	StringBuffer buff = new StringBuffer();

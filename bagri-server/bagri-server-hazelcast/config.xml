@@ -108,7 +108,7 @@
             </collections>
             <fragments/>
             <indexes>
-                <index name="IDX_Customer_id">
+                <!--index name="IDX_Customer_id">
                     <version>1</version>
                     <createdAt>2015-01-25T13:36:26.965+03:00</createdAt>
                     <createdBy>SDV</createdBy>
@@ -140,7 +140,7 @@
                     <unique>false</unique>
                     <description>Security Sector</description>
                     <enabled>true</enabled>
-                </index>
+                </index-->
                 <!--index name="IDX_Security_PE">
                     <version>1</version>
                     <createdAt>2015-07-21T13:36:26.965+03:00</createdAt>
@@ -153,7 +153,7 @@
                     <description>Security PE</description>
                     <enabled>true</enabled>
                 </index-->
-                <index name="IDX_Security_Yield">
+                <!--index name="IDX_Security_Yield">
                     <version>1</version>
                     <createdAt>2015-07-21T13:36:26.965+03:00</createdAt>
                     <createdBy>SDV</createdBy>
@@ -175,7 +175,7 @@
                     <unique>true</unique>
                     <description>Order ID</description>
                     <enabled>true</enabled>
-                </index>
+                </index-->
             </indexes>
             <triggers>
                 <!--trigger xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns2:javatrigger">
@@ -642,7 +642,7 @@
                 <entry name="bdb.schema.data.stats.enabled">false</entry>
                 <entry name="bdb.schema.query.cache">false</entry>
                 <entry name="bdb.schema.ports.first">10150</entry>
-                <entry name="bdb.schema.format.default">XML</entry>
+                <entry name="bdb.schema.format.default">MAP</entry>
                 <entry name="bdb.schema.ports.last">10160</entry>
                 <entry name="bdb.schema.population.size">1</entry>
                 <entry name="bdb.schema.population.buffer.size">1000000</entry>
@@ -842,6 +842,18 @@
 		<entry name="javax.json.spi.JsonProvider">org.glassfish.json.JsonProviderImpl</entry>
 		<!--entry name="javax.json.spi.JsonProvider">com.github.pgelinas.jackson.javax.json.spi.JacksonProvider</entry-->
             </properties>
+        </dataFormat>
+        <dataFormat name="MAP">
+            <version>1</version>
+            <createdAt>2017-04-30T15:17:20.542+03:00</createdAt>
+            <createdBy>admin</createdBy>
+            <description>MAP Parser/Builder</description>
+            <enabled>true</enabled>
+            <parserClass>com.bagri.core.server.api.df.map.MapParser</parserClass>
+            <builderClass>com.bagri.core.server.api.df.map.MapBuilder</builderClass>
+            <extensions></extensions>
+            <type></type>
+            <properties/>
         </dataFormat>
     </dataFormats>
     <dataStores>
