@@ -807,9 +807,7 @@
             <library>java_library</library>
             <description>XML Parser/Builder</description>
             <enabled>true</enabled>
-            <parserClass>com.bagri.core.server.api.df.xml.XmlStaxParser</parserClass>
-            <builderClass>com.bagri.core.server.api.df.xml.XmlBuilder</builderClass>
-            <modelerClass>com.bagri.core.server.api.df.xml.XmlModeler</modelerClass>
+            <handlerClass>com.bagri.core.server.api.df.xml.XmlHandler</handlerClass>
             <extensions>xml</extensions>
             <type>application/xml</type>
             <properties>
@@ -833,9 +831,7 @@
             <library>java_library</library>
             <description>JSON Parser/Builder</description>
             <enabled>true</enabled>
-            <parserClass>com.bagri.core.server.api.df.json.JsonpParser</parserClass>
-            <builderClass>com.bagri.core.server.api.df.json.JsonpBuilder</builderClass>
-            <modelerClass>com.bagri.core.server.api.df.json.JsonModeler</modelerClass>
+            <handlerClass>com.bagri.core.server.api.df.json.JsonpHandler</handlerClass>
             <extensions>json</extensions>
             <type>application/json</type>
             <properties>
@@ -849,8 +845,7 @@
             <createdBy>admin</createdBy>
             <description>MAP Parser/Builder</description>
             <enabled>true</enabled>
-            <parserClass>com.bagri.core.server.api.df.map.MapParser</parserClass>
-            <builderClass>com.bagri.core.server.api.df.map.MapBuilder</builderClass>
+            <handlerClass>com.bagri.core.server.api.df.map.MapHandler</handlerClass>
             <extensions></extensions>
             <type></type>
             <properties/>

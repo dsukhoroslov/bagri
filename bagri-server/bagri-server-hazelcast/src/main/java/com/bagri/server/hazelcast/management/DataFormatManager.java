@@ -62,14 +62,9 @@ public class DataFormatManager extends EntityManager<DataFormat> {
 		return super.getVersion();
 	}
 	
-	@ManagedAttribute(description="Returns Parser class for this Data Format")
-	public String getParserClass() {
-		return getEntity().getParserClass();
-	}
-	
-	@ManagedAttribute(description="Returns Builder class for this Data Format")
-	public String getBuilderClass() {
-		return getEntity().getBuilderClass();
+	@ManagedAttribute(description="Returns Handler class for this Data Format")
+	public String getHandlerClass() {
+		return getEntity().getHandlerClass();
 	}
 	
 	@ManagedOperation(description="Adds a new file extension")

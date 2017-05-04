@@ -16,9 +16,7 @@ import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
 public class DataFormatCreator extends DataFormatProcessor implements IdentifiedDataSerializable {
 	
-	private String parser;
-	private String builder;
-	private String modeler;
+	private String handler;
 	private String description;
 	private String type;
 	private Collection<String> extensions = new HashSet<>();
@@ -28,11 +26,10 @@ public class DataFormatCreator extends DataFormatProcessor implements Identified
 		// de-ser
 	}
 
-	public DataFormatCreator(String admin, String parser, String builder, String modeler, String description,
-			String type, Collection<String> extensions, Properties properties) {
+	public DataFormatCreator(String admin, String handler, String description, String type, 
+			Collection<String> extensions, Properties properties) {
 		super(1, admin);
-		this.parser = parser;
-		this.builder = builder;
+		this.handler = handler;
 		this.description = description;
 		this.type = type;
 		if (extensions != null) {
@@ -49,7 +46,7 @@ public class DataFormatCreator extends DataFormatProcessor implements Identified
 		if (entry.getValue() == null) {
 			String name = entry.getKey();
 			DataFormat format = new DataFormat(getVersion(), new Date(), getAdmin(), 
-					name, description, type, extensions, parser, builder, modeler, true, properties);
+					name, description, type, extensions, handler, true, properties);
 			entry.setValue(format);
 			auditEntity(AuditType.create, format);
 			return format;
@@ -65,9 +62,7 @@ public class DataFormatCreator extends DataFormatProcessor implements Identified
 	@Override
 	public void readData(ObjectDataInput in) throws IOException {
 		super.readData(in);
-		parser = in.readUTF();
-		builder = in.readUTF();
-		modeler = in.readUTF();
+		handler = in.readUTF();
 		description = in.readUTF();
 		type = in.readUTF();
 		extensions.addAll((Collection<String>) in.readObject());
@@ -77,9 +72,7 @@ public class DataFormatCreator extends DataFormatProcessor implements Identified
 	@Override
 	public void writeData(ObjectDataOutput out) throws IOException {
 		super.writeData(out);
-		out.writeUTF(parser);
-		out.writeUTF(builder);
-		out.writeUTF(modeler);
+		out.writeUTF(handler);
 		out.writeUTF(description);
 		out.writeUTF(type);
 		out.writeObject(extensions);

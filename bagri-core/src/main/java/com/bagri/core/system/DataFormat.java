@@ -28,9 +28,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 		"description",
 		"extensions",
 		"type",
-		"parserClass",
-		"builderClass",
-		"modelerClass",
+		"handlerClass",
 		"enabled",
 		"props"
 })
@@ -53,14 +51,8 @@ public class DataFormat extends Entity {
 	private String type;
 	
 	@XmlElement(required = true)
-	private String parserClass;
+	private String handlerClass;
 
-	@XmlElement(required = 	false)
-	private String builderClass;
-	
-	@XmlElement(required = 	false)
-	private String modelerClass;
-	
 	@XmlElement(required = false, defaultValue = "true")
 	private boolean enabled = true;
 
@@ -85,15 +77,12 @@ public class DataFormat extends Entity {
 	 * @param description the data format description
 	 * @param type the data format type name
 	 * @param extensions the data format file extensions
-	 * @param parserClass the data format parser class
-	 * @param builderClass the data format builder class
-	 * @param modelerClass the data format modeler class
+	 * @param handlerClass the data format handler class
 	 * @param enabled the data format enabled flag
 	 * @param props the data format properties
 	 */
 	public DataFormat(int version, Date createdAt, String createdBy, String name, String description, String type, 
-			Collection<String> extensions, String parserClass, String builderClass, String modelerClass, boolean enabled, 
-			Properties props) {
+			Collection<String> extensions, String handlerClass, boolean enabled, Properties props) {
 		super(version, createdAt, createdBy);
 		this.name = name;
 		this.description = description;
@@ -101,9 +90,7 @@ public class DataFormat extends Entity {
 		if (extensions != null) {
 			this.extensions.addAll(extensions);
 		}
-		this.parserClass = parserClass;
-		this.builderClass = builderClass;
-		this.modelerClass = modelerClass;
+		this.handlerClass = handlerClass;
 		this.enabled = enabled;
 		if (props != null) {
 			this.props.putAll(props);
@@ -139,24 +126,10 @@ public class DataFormat extends Entity {
 	}
 
 	/**
-	 * @return the parser class
+	 * @return the handler class
 	 */
-	public String getParserClass() {
-		return parserClass;
-	}
-
-	/**
-	 * @return the builder class
-	 */
-	public String getBuilderClass() {
-		return builderClass;
-	}
-
-	/**
-	 * @return the builder class
-	 */
-	public String getModelerClass() {
-		return modelerClass;
+	public String getHandlerClass() {
+		return handlerClass;
 	}
 
 	/**
@@ -223,9 +196,7 @@ public class DataFormat extends Entity {
 		result.put("name", name);
 		result.put("description", description);
 		result.put("extensions", extensions.toString());
-		result.put("parser", parserClass);
-		result.put("builder", builderClass);
-		result.put("modeler", modelerClass);
+		result.put("handler", handlerClass);
 		result.put("enabled", enabled);
 		result.put("properties", props.size());
 		result.put("type", type);

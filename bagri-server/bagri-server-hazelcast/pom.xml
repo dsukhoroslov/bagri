@@ -237,6 +237,7 @@
                                             <sysproperty key="node.name" value="first" />
                                             <sysproperty key="bdb.node.instance" value="${node.instance}" />
                                             <sysproperty key="logback.configurationFile" value="hz-logging.xml" />
+                                            <sysproperty key="hazelcast.diagnostics.enabled" value="true" />
                                             <!--sysproperty key="hz.log.level" value="debug" /-->
                                             <sysproperty key="bdb.log.level" value="${log.level}" />
                                             <sysproperty key="bdb.config.path" value="src/main/resources" />

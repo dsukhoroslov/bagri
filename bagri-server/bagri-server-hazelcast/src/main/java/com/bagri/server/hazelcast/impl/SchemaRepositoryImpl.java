@@ -30,6 +30,7 @@ import com.bagri.core.api.impl.SchemaRepositoryBase;
 import com.bagri.core.model.Path;
 import com.bagri.core.server.api.ClientManagement;
 import com.bagri.core.server.api.ContentBuilder;
+import com.bagri.core.server.api.ContentHandler;
 import com.bagri.core.server.api.ContentModeler;
 import com.bagri.core.server.api.ContentParser;
 import com.bagri.core.server.api.IndexManagement;
@@ -37,12 +38,9 @@ import com.bagri.core.server.api.ModelManagement;
 import com.bagri.core.server.api.PopulationManagement;
 import com.bagri.core.server.api.SchemaRepository;
 import com.bagri.core.server.api.TriggerManagement;
-import com.bagri.core.server.api.df.json.JsonpParser;
-import com.bagri.core.server.api.df.json.JsonpModeler;
-import com.bagri.core.server.api.df.json.JsonpBuilder;
-import com.bagri.core.server.api.df.xml.XmlBuilder;
-import com.bagri.core.server.api.df.xml.XmlModeler;
-import com.bagri.core.server.api.df.xml.XmlStaxParser;
+import com.bagri.core.server.api.df.map.MapHandler;
+import com.bagri.core.server.api.df.json.JsonpHandler;
+import com.bagri.core.server.api.df.xml.XmlHandler;
 import com.bagri.core.system.DataFormat;
 import com.bagri.core.system.Index;
 import com.bagri.core.system.Library;
@@ -79,9 +77,7 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
     private HazelcastInstance hzInstance;
 	private Map<String, XQProcessor> processors = new ConcurrentHashMap<String, XQProcessor>();
 
-	private ConcurrentHashMap<String, ContentBuilder> builders = new ConcurrentHashMap<String, ContentBuilder>();
-	private ConcurrentHashMap<String, ContentModeler> modelers = new ConcurrentHashMap<String, ContentModeler>();
-	private ConcurrentHashMap<String, ContentParser> parsers = new ConcurrentHashMap<String, ContentParser>();
+	private ConcurrentHashMap<String, ContentHandler> handlers = new ConcurrentHashMap<String, ContentHandler>();
 	
 	@Override
 	public void setApplicationContext(ApplicationContext context) throws BeansException {
@@ -222,87 +218,58 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
 		this.xdmFactory = factory;
 	}
 	
-	@Override
-	public ContentParser getParser(String dataFormat) {
-		ContentParser cp = parsers.get(dataFormat);
-		if (cp != null) {
-			return cp;
-		}
-		
-		DataFormat df = getDataFormat(dataFormat);
-		if (df != null) {
-			cp = instantiateClass(df.getParserClass());
-		}
-		if (cp == null) {
-			logger.info("getParser; no parser found for dataFormat: {}", dataFormat); 
-			String defaultFormat = this.xdmSchema.getProperty(pn_schema_format_default);
-			if ("json".equalsIgnoreCase(defaultFormat)) {
-				cp = new JsonpParser(getModelManagement());
-			} else if ("xml".equalsIgnoreCase(defaultFormat)) {
-				cp = new XmlStaxParser(getModelManagement());
+	private ContentHandler getHandler(String dataFormat) {
+		ContentHandler ch = handlers.get(dataFormat);
+		if (ch == null) {
+			DataFormat df = getDataFormat(dataFormat);
+			if (df != null) {
+				ch = instantiateClass(df.getHandlerClass());
+			}
+			if (ch == null) {
+				logger.info("getHandler; no handler found for dataFormat: {}", dataFormat); 
+				String defaultFormat = this.xdmSchema.getProperty(pn_schema_format_default);
+				if ("json".equalsIgnoreCase(defaultFormat)) {
+					ch = new JsonpHandler(getModelManagement());
+				} else if ("xml".equalsIgnoreCase(defaultFormat)) {
+					ch = new XmlHandler(getModelManagement());
+				} else if ("map".equalsIgnoreCase(defaultFormat)) {
+					ch = new MapHandler(getModelManagement());
+				}
+			}
+			if (ch != null) {
+				ch.init(df.getProperties());
+				handlers.putIfAbsent(dataFormat, ch);
 			}
 		}
-		if (cp != null) {
-			cp.init(df.getProperties());
-			parsers.putIfAbsent(dataFormat, cp);
+		return ch;
+		
+	}
+	
+	@Override
+	public ContentParser getParser(String dataFormat) {
+		ContentHandler ch = getHandler(dataFormat);
+		if (ch != null) {
+			return ch.getParser();
 		}
-		return cp;
+		return null;
 	}
 	
 	@Override
 	public ContentBuilder getBuilder(String dataFormat) {
-		ContentBuilder cb = builders.get(dataFormat);
-		if (cb != null) {
-			return cb;
+		ContentHandler ch = getHandler(dataFormat);
+		if (ch != null) {
+			return ch.getBuilder();
 		}
-		
-		DataFormat df = getDataFormat(dataFormat);
-		if (df != null) {
-			return instantiateClass(df.getBuilderClass());
-		}
-		if (cb == null) {
-			logger.info("getBuilder; no builder found for dataFormat: {}", dataFormat); 
-			String defaultFormat = this.xdmSchema.getProperty(pn_schema_format_default);
-			if ("json".equalsIgnoreCase(defaultFormat)) {
-				cb = new JsonpBuilder(getModelManagement());
-			} else if ("xml".equalsIgnoreCase(defaultFormat)) {
-				cb = new XmlBuilder(getModelManagement());
-			}
-		}
-		if (cb != null) {
-			// TODO: fix it!!
-			cb.init(df.getProperties());
-			builders.putIfAbsent(dataFormat, cb);
-		}
-		return cb;
+		return null;
 	}
 	
 	@Override
 	public ContentModeler getModeler(String dataFormat) {
-		ContentModeler cm = modelers.get(dataFormat);
-		if (cm != null) {
-			return cm;
+		ContentHandler ch = getHandler(dataFormat);
+		if (ch != null) {
+			return ch.getModeler();
 		}
-		
-		DataFormat df = getDataFormat(dataFormat);
-		if (df != null) {
-			return instantiateClass(df.getModelerClass());
-		}
-		if (cm == null) {
-			logger.info("getModeler; no modeler found for dataFormat: {}", dataFormat); 
-			String defaultFormat = this.xdmSchema.getProperty(pn_schema_format_default);
-			if ("json".equalsIgnoreCase(defaultFormat)) {
-				cm = new JsonpModeler(getModelManagement());
-			} else if ("xml".equalsIgnoreCase(defaultFormat)) {
-				cm = new XmlModeler(getModelManagement());
-			}
-		}
-		if (cm != null) {
-			// TODO: fix it!!
-			cm.init(df.getProperties());
-			modelers.putIfAbsent(dataFormat, cm);
-		}
-		return cm;
+		return null;
 	}
 	
 	private <T> T instantiateClass(String className) {

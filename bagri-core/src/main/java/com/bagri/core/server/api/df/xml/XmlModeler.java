@@ -56,7 +56,7 @@ public class XmlModeler implements ContentModeler {
 	 * 
 	 * @param modelMgr the model management component
 	 */
-	public XmlModeler(ModelManagement modelMgr) {
+	XmlModeler(ModelManagement modelMgr) {
 		//super(model);
 		this.modelMgr = modelMgr;
 	}

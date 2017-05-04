@@ -1,16 +1,21 @@
 package com.bagri.core.server.api.df.xml;
 
 import static com.bagri.core.Constants.pn_log_level;
+import static com.bagri.core.Constants.pn_schema_builder_pretty;
 import static org.junit.Assert.*;
 
 import java.util.List;
+import java.util.Properties;
+
+import javax.json.stream.JsonGenerator;
 
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.bagri.core.model.Data;
 import com.bagri.core.server.api.ModelManagement;
+import com.bagri.core.server.api.df.json.JsonpBuilder;
+import com.bagri.core.server.api.df.json.JsonpParser;
 import com.bagri.core.server.api.impl.ModelManagementImpl;
 
 public class XmlStaxParserTest {
@@ -84,6 +89,27 @@ public class XmlStaxParserTest {
 		//String root = dict.getDocumentRoot(typeId);
 		//assertEquals("", root); -> /firstName	
 	}
+
+	//@Test
+	//public void testConversion() throws Exception {
+	//	ModelManagement model = new ModelManagementImpl();
+	//	XmlStaxParser parser = new XmlStaxParser(model);
+	//	List<Data> data = parser.parse(xml);
+	//	System.out.println(data);
+	//	JsonpBuilder builder = new JsonpBuilder(model);
+	//	Properties props = new Properties();
+	//	props.setProperty(JsonGenerator.PRETTY_PRINTING, "true");
+	//	builder.init(props);
+	//	String content = builder.buildContent(data);
+	//	System.out.println(content);
+	//	assertNotNull(content);
+	//	JsonpParser jParser = new JsonpParser(model);
+	//	List<Data> data2 = jParser.parse(content);
+		//
+	//	assertNotNull(data2);
+	//}
 	
+	
+
 }
 

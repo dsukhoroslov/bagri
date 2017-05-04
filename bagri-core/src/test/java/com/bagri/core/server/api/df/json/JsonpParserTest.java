@@ -1,6 +1,7 @@
 package com.bagri.core.server.api.df.json;
 
 import static com.bagri.core.Constants.pn_log_level;
+import static com.bagri.core.Constants.pn_schema_builder_pretty;
 import static org.junit.Assert.*;
 
 import java.io.File;
@@ -8,13 +9,17 @@ import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Properties;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.bagri.core.model.Data;
+import com.bagri.core.server.api.ContentHandler;
 import com.bagri.core.server.api.ModelManagement;
 import com.bagri.core.server.api.df.json.JsonpParser;
+import com.bagri.core.server.api.df.xml.XmlBuilder;
+import com.bagri.core.server.api.df.xml.XmlHandler;
 import com.bagri.core.server.api.impl.ModelManagementImpl;
 
 public class JsonpParserTest {
@@ -104,6 +109,21 @@ public class JsonpParserTest {
 		assertNotNull(data);
 		assertEquals(56, data.size()); 
 	}
+	
+	//@Test
+	//public void testConversion() throws Exception {
+	//	Properties props = new Properties();
+	//	props.setProperty(pn_schema_builder_pretty, "true");
+	//	ModelManagement model = new ModelManagementImpl();
+	//	ContentHandler hXml = new XmlHandler(model);
+	//	hXml.init(props);
+	//	ContentHandler hJson = new JsonpHandler(model);
+	//	List<Data> data = hJson.getParser().parse(json);
+	//	System.out.println(data);
+	//	String content = hXml.getBuilder().buildContent(data);
+	//	System.out.println(content);
+	//	assertNotNull(content);
+	//}
 	
 }
 

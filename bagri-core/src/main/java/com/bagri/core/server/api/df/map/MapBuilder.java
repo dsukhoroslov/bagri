@@ -13,7 +13,7 @@ import com.bagri.core.server.api.impl.ContentBuilderBase;
 
 public class MapBuilder extends ContentBuilderBase<Map> implements ContentBuilder<Map<String, Object>> {
 
-	public MapBuilder(ModelManagement model) {
+	MapBuilder(ModelManagement model) {
 		super(model);
 	}
 

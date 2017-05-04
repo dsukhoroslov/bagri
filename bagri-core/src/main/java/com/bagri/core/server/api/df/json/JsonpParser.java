@@ -49,7 +49,7 @@ public class JsonpParser extends ContentParserBase implements ContentParser<Stri
 	 * 
 	 * @param model the model management component
 	 */
-	public JsonpParser(ModelManagement model) {
+	JsonpParser(ModelManagement model) {
 		super(model);
 	}
 	

@@ -36,7 +36,7 @@ public class JsonpModeler implements ContentModeler {
 	 * 
 	 * @param modelMgr the model management component
 	 */
-	public JsonpModeler(ModelManagement modelMgr) {
+	JsonpModeler(ModelManagement modelMgr) {
 		//super(model);
 		this.modelMgr = modelMgr;
 	}

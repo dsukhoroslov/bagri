@@ -36,7 +36,7 @@ public class XmlBuilder extends ContentBuilderBase<String> implements ContentBui
 	 * 
 	 * @param model the XDM model management component
 	 */
-	public XmlBuilder(ModelManagement model) {
+	XmlBuilder(ModelManagement model) {
 		super(model);
 	}
 	

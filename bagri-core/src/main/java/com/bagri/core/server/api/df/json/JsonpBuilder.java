@@ -6,10 +6,12 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -19,7 +21,9 @@ import javax.json.stream.JsonGeneratorFactory;
 
 import com.bagri.core.api.BagriException;
 import com.bagri.core.model.Data;
+import com.bagri.core.model.Element;
 import com.bagri.core.model.NodeKind;
+import com.bagri.core.model.Path;
 import com.bagri.core.server.api.ContentBuilder;
 import com.bagri.core.server.api.ModelManagement;
 import com.bagri.core.server.api.impl.ContentBuilderBase;
@@ -39,7 +43,7 @@ public class JsonpBuilder extends ContentBuilderBase<String> implements ContentB
 	 * 
 	 * @param model the XDM model management component
 	 */
-	public JsonpBuilder(ModelManagement model) {
+	JsonpBuilder(ModelManagement model) {
 		super(model);
 	}
 	
@@ -62,6 +66,10 @@ public class JsonpBuilder extends ContentBuilderBase<String> implements ContentB
 		Writer writer = new StringWriter();
     	JsonGenerator stream = factory.createGenerator(writer);
 		
+    	// TODO: think on how to figure out - do we need normalize or not?
+    	// can do it in case of exception, actually...
+    	//elements = normalizeXmlData(elements);
+    	
 		Deque<Data> dataStack = new LinkedList<>();
     	for (Data data: elements) {
     		writeElement(dataStack, stream, data);
@@ -81,6 +89,29 @@ public class JsonpBuilder extends ContentBuilderBase<String> implements ContentB
 			logger.info("buildString; exception closing stream: {}", ex.getMessage());
 		}
     	return result;  
+	}
+	
+	private Collection<Data> normalizeXmlData(Collection<Data> source) {
+		List<Data> result = new ArrayList<>(source.size());
+		Data prev = null;
+		for (Data data: source) {
+			if (prev != null) {
+				if (prev.getNodeKind() == NodeKind.element && data.getNodeKind() == NodeKind.text) {
+					Path path = new Path(prev.getPath(), prev.getDataPath().getRoot(), NodeKind.attribute, prev.getPathId(), prev.getParentPathId(), 
+							prev.getPostId(), prev.getDataPath().getDataType(), prev.getDataPath().getOccurrence());
+					Element elt = new Element(prev.getElement().getPosition(), data.getValue());
+					result.add(new Data(path, elt));
+					prev = null;
+				} else {
+					result.add(prev);
+					prev = data;
+				}
+			} else {
+				prev = data;
+			}
+			// TODO: normalize xml arrays!
+		}
+		return result;
 	}
 
 	private void writeElement(Deque<Data> dataStack, JsonGenerator stream, Data data) {
@@ -175,10 +206,9 @@ public class JsonpBuilder extends ContentBuilderBase<String> implements ContentB
 	
 	private void endElement(Deque<Data> dataStack, JsonGenerator stream, Data data) {
     	
-		//while (top != null && (data.getParentPos() != top.getPos() || data.getLevel() != top.getLevel() + 1)) {
 		do {
 			Data top = dataStack.peek();
-			if (top != null && (/*top.getLevel() > data.getLevel() ||*/ top.getPos() != data.getParentPos())) {
+			if (top != null && (top.getPos() != data.getParentPos())) {
 				stream.writeEnd();
 				dataStack.pop();
 			} else {

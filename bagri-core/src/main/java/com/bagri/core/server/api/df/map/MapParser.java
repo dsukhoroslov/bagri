@@ -19,7 +19,7 @@ import com.bagri.core.server.api.impl.ContentParserBase;
 
 public class MapParser extends ContentParserBase implements ContentParser<Map<String, Object>> {
 
-	public MapParser(ModelManagement model) {
+	MapParser(ModelManagement model) {
 		super(model);
 	}
 

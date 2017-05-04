@@ -72,7 +72,7 @@ public class XmlStaxParser extends ContentParserBase implements ContentParser<St
 	 * 
 	 * @param model the model management component
 	 */
-	public XmlStaxParser(ModelManagement model) {
+	XmlStaxParser(ModelManagement model) {
 		super(model);
 	}
 
