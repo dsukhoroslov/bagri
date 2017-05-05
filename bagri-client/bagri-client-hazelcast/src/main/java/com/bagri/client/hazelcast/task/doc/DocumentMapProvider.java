@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 
-public class DocumentMapProvider extends DocumentAwareTask implements Callable<Map<String, Object>> {
+public class DocumentMapProvider extends DocumentProcessor { //DocumentAwareTask implements Callable<Map<String, Object>> {
 	
 	public DocumentMapProvider() {
 		super();
@@ -16,10 +16,10 @@ public class DocumentMapProvider extends DocumentAwareTask implements Callable<M
 		super(clientId, 0, uri, props);
 	}
 
-	@Override
-	public Map<String, Object> call() throws Exception {
-		return null;
-	}
+	//@Override
+	//public Map<String, Object> call() throws Exception {
+	//	return null;
+	//}
 
 	@Override
 	public int getId() {

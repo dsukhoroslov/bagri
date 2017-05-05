@@ -13,6 +13,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+import com.bagri.client.hazelcast.DocumentPartKey;
 import com.bagri.client.hazelcast.task.doc.*;
 import com.bagri.core.DocumentKey;
 import com.bagri.core.api.DocumentManagement;
@@ -98,15 +99,19 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		logger.trace("getDocumentAsMap.enter; got uri: {}", uri);
 		Map<String, Object> result = null;
 		DocumentMapProvider task = new DocumentMapProvider(repo.getClientId(), uri, props);
-		Future<Map<String, Object>> future = execService.submit(task);
-		try {
-			result = future.get();
-			logger.trace("getDocumentAsMap.exit; got map: {}", result);
-			return result;
-		} catch (InterruptedException | ExecutionException ex) {
-			logger.error("getDocumentAsMap; error getting result", ex);
-			throw new BagriException(ex, ecDocument);
-		}
+		//Future<Map<String, Object>> future = execService.submit(task);
+		//try {
+		//	result = future.get();
+		//	logger.trace("getDocumentAsMap.exit; got map: {}", result);
+		//	return result;
+		//} catch (InterruptedException | ExecutionException ex) {
+		//	logger.error("getDocumentAsMap; error getting result", ex);
+		//	throw new BagriException(ex, ecDocument);
+		//}
+		DocumentKey key = new DocumentPartKey(uri.hashCode(), 0, 1);
+		result = (Map<String, Object>) xddCache.executeOnKey(key, task);
+		logger.trace("getDocumentAsMap.exit; got map: {}", result);
+		return result;
 	}
 
 	@Override

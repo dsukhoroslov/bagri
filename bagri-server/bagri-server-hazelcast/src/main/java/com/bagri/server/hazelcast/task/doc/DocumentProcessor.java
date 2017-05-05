@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.bagri.core.api.DocumentManagement;
+import com.bagri.core.DocumentKey;
 import com.bagri.core.api.BagriException;
 import com.bagri.core.model.Document;
 import com.bagri.core.server.api.SchemaRepository;
@@ -31,7 +32,7 @@ public class DocumentProcessor extends com.bagri.client.hazelcast.task.doc.Docum
 	}
 	
 	@Override
-	public Object process(Entry<Long, Document> entry) {
+	public Object process(Entry<DocumentKey, Document> entry) {
 
 		// TODO: rewrite it to get use of entry
     	((SchemaRepositoryImpl) repo).getXQProcessor(clientId);
@@ -39,7 +40,7 @@ public class DocumentProcessor extends com.bagri.client.hazelcast.task.doc.Docum
 	    	return txMgr.callInTransaction(txId, false, new Callable<Document>() {
 	    		
 		    	public Document call() throws Exception {
-		    		return docMgr.storeDocumentFromString(uri, content, props);
+		    		return null; //docMgr.storeDocumentFromString(uri, content, props);
 		    	}
 	    	});
     	} catch (BagriException ex) {

@@ -6,7 +6,10 @@ import static com.bagri.core.model.Document.clnDefault;
 import static com.bagri.core.model.Document.dvFirst;
 import static com.bagri.core.query.PathBuilder.*;
 import static com.bagri.core.server.api.CacheConstants.PN_XDM_SCHEMA_POOL;
+import static com.bagri.core.server.api.CacheConstants.CN_XDM_CONTENT;
+import static com.bagri.core.server.api.CacheConstants.CN_XDM_DOCUMENT;
 import static com.bagri.core.system.DataFormat.df_xml;
+import static com.bagri.server.hazelcast.util.SpringContextHolder.getContext;
 import static com.bagri.support.util.FileUtils.def_encoding;
 import static com.bagri.support.util.XMLUtils.*;
 
@@ -31,6 +34,8 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+
+import org.springframework.context.ApplicationContext;
 
 import com.bagri.client.hazelcast.task.doc.DocumentContentProvider;
 import com.bagri.core.DataKey;
@@ -60,6 +65,7 @@ import com.bagri.support.util.PropUtils;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.IMap;
+import com.hazelcast.map.impl.recordstore.RecordStore;
 import com.hazelcast.projection.Projection;
 import com.hazelcast.projection.Projections;
 import com.hazelcast.query.Predicate;
@@ -417,7 +423,15 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 
 	@Override
 	public Map<String, Object> getDocumentAsMap(String uri, Properties props) throws BagriException {
-		DocumentKey docKey = getDocumentKey(uri, false, false);
+		//ApplicationContext ctx = getContext(repo.getSchema().getName());
+		//DataDistributionService svc = ctx.getBean(DataDistributionService.class);
+		//RecordStore<?> rs = svc.getRecordStore(uri, CN_XDM_CONTENT);
+		//Set<com.hazelcast.nio.serialization.Data> keys = rs.keySet();
+		//int partId = svc.getPartitionId(uri.hashCode());
+		//DocumentKey docKey = getDocumentKey(uri, false, false);
+		//logger.info("getDocumentAsMap; got uri: {}, hash: {}; uri partId: {}, docKey partId: {}", 
+		//		uri, uri.hashCode(), partId, svc.getPartitionId(docKey)); 
+		DocumentKey docKey = factory.newDocumentKey(uri, 0, dvFirst);
 		return getDocumentAsMap(docKey, props);
 	}
 
@@ -750,7 +764,15 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		//	props.setProperty(pn_document_data_format, df_xml);
 		//}
 		//return storeDocumentFromString(uri, xml, props);
-		return storeDocument(uri, fields, props);
+		Document result = storeDocument(uri, fields, props);
+		
+		//ApplicationContext ctx = getContext(repo.getSchema().getName());
+		//DataDistributionService svc = ctx.getBean(DataDistributionService.class);
+		//int partId = svc.getPartitionId(uri.hashCode());
+		//DocumentKey docKey = getDocumentKey(uri, false, false);
+		//logger.info("storeDocumentFromMap; got uri: {}, hash: {}; uri partId: {}, docKey partId: {}", 
+		//		uri, uri.hashCode(), partId, svc.getPartitionId(docKey)); 
+		return result;
 	}
 	
 	@Override

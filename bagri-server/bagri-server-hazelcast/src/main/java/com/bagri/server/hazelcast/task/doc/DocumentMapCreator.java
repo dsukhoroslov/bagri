@@ -34,6 +34,7 @@ public class DocumentMapCreator extends com.bagri.client.hazelcast.task.doc.Docu
     	return txMgr.callInTransaction(txId, false, new Callable<Document>() {
     		
 	    	public Document call() throws Exception {
+	    		//return new Document(0, uri, "", 0, 0, new java.util.Date(), "admin", "utf-8", 0, 0); 
 	    		return docMgr.storeDocumentFromMap(uri, fields, props);
 	    	}
     	});

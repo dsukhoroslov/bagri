@@ -5,6 +5,7 @@ import static com.bagri.core.Constants.pn_config_properties_file;
 import static com.bagri.core.Constants.pn_document_data_format;
 import static com.bagri.core.Constants.pn_log_level;
 import static com.bagri.core.Constants.pn_node_instance;
+import static com.bagri.server.hazelcast.util.SpringContextHolder.setContext;
 import static org.junit.Assert.*;
 
 import java.util.ArrayList;
@@ -62,6 +63,7 @@ public class BindDocumentManagementTest extends BagriManagementTest {
 			xdmRepo.setDataFormats(getBasicDataFormats());
 			xdmRepo.setLibraries(new ArrayList<Library>());
 			xdmRepo.setModules(new ArrayList<Module>());
+			setContext(schema.getName(), context);
 		}
 	}
 

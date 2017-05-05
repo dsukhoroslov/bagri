@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 import com.bagri.core.DataKey;
 import com.bagri.core.model.Elements;
 import com.bagri.core.query.PathExpression;
+import com.hazelcast.core.ReadOnly;
 import com.hazelcast.map.EntryBackupProcessor;
 import com.hazelcast.map.EntryProcessor;
 import com.hazelcast.nio.ObjectDataInput;
@@ -16,7 +17,7 @@ import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
 @SuppressWarnings("serial")
-public class QueryProcessor implements EntryProcessor<DataKey, Elements>, IdentifiedDataSerializable { 
+public class QueryProcessor implements EntryProcessor<DataKey, Elements>, ReadOnly, IdentifiedDataSerializable { 
 	
 	//private static final transient Logger logger = LoggerFactory.getLogger(QueryProcessor.class);
 	//private Set<String> threads = new HashSet<String>();
