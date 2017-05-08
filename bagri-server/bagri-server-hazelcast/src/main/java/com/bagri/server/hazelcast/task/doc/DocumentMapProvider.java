@@ -35,7 +35,7 @@ public class DocumentMapProvider extends com.bagri.client.hazelcast.task.doc.Doc
 	    	
 			return docMgr.getDocumentAsMap(uri, props);
     	} catch (BagriException ex) {
-    		throw new RuntimeException(ex);
+    		return ex;
     	}
 	}
 }

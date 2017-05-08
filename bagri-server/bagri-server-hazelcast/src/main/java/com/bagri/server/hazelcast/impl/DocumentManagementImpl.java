@@ -37,6 +37,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.springframework.context.ApplicationContext;
 
+import com.bagri.client.hazelcast.DocumentPartKey;
 import com.bagri.client.hazelcast.task.doc.DocumentContentProvider;
 import com.bagri.core.DataKey;
 import com.bagri.core.DocumentKey;
@@ -84,6 +85,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
     private IndexManagementImpl indexManager;
     private TransactionManagementImpl txManager;
     private TriggerManagementImpl triggerManager;
+	private DataDistributionService ddSvc;
 
     private IdGenerator<Long> docGen;
     private IMap<DocumentKey, Object> cntCache;
@@ -92,7 +94,8 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 
     private boolean enableStats = true;
 	private BlockingQueue<StatisticsEvent> queue;
-    
+    private Comparator<DocumentKey> versionComparator = new VersionComparator();
+	
     public void setRepository(SchemaRepositoryImpl repo) {
     	this.repo = repo;
     	this.factory = repo.getFactory();
@@ -146,6 +149,10 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
     	this.enableStats = enable;
     }
     
+    public void setDistrService(DataDistributionService ddSvc) {
+    	this.ddSvc = ddSvc;
+    }
+
     private Set<DataKey> getDocumentElementKeys(String path, long[] fragments) {
     	Set<Integer> parts = model.getPathElements(path);
     	Set<DataKey> keys = new HashSet<DataKey>(parts.size()*fragments.length);
@@ -280,36 +287,34 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	}
 
     private DocumentKey getDocumentKey(String uri, boolean next, boolean acceptClosed) {
-    	Set<DocumentKey> keys = xddCache.localKeySet(Predicates.equal(fnUri, uri));
-    	if (keys.isEmpty()) {
+    	//Set<DocumentKey> keys = xddCache.localKeySet(Predicates.equal(fnUri, uri));
+    	//if (keys.isEmpty()) {
+    	DocumentKey last = ddSvc.getLastKeyForUri(uri);
+    	if (last == null) {
 			DocumentKey key = factory.newDocumentKey(uri, 0, dvFirst);
     		if (next) {
-    			// TODO: bad case: most of the time it'll hit database!
-    			// try to use some internal service (PopulationManager?) instead!
-    			while (xddCache.containsKey(key)) {
+    			while (xddCache.getEntryView(key) != null) {
     				key = factory.newDocumentKey(uri, key.getRevision() + 1, dvFirst);
     			}
     			return key;
     		} 
     		
 			if (hzInstance.getPartitionService().getPartition(key).getOwner().localMember()) {
+				// we have not found corresponding Document for the uri provided, 
+				// and no option to build a new key, so we returning null
 	    		return null;
 			} else {
+				// actually, this is wrong scenario..
+				logger.info("getDocumentKey; the uri provided {} does not belong to this Member", uri); 
 				// think how to get it from concrete node?!
-				keys = xddCache.keySet(Predicates.equal(fnUri, uri));
-				if (keys.isEmpty()) {
+				//keys = xddCache.keySet(Predicates.equal(fnUri, uri));
+				//if (keys.isEmpty()) {
 		    		return null;
-				}
+				//}
 			}
     	}
-    	DocumentKey last = Collections.max(keys, new Comparator<DocumentKey>() {
-
-			@Override
-			public int compare(DocumentKey key1, DocumentKey key2) {
-				return key1.getVersion() - key2.getVersion();
-			}
-    		
-    	});
+    	
+    	//DocumentKey last = Collections.max(keys, versionComparator);
     	if (next) {
     		return factory.newDocumentKey(uri, last.getRevision(), last.getVersion() + 1);
     	}
@@ -423,15 +428,14 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 
 	@Override
 	public Map<String, Object> getDocumentAsMap(String uri, Properties props) throws BagriException {
-		//ApplicationContext ctx = getContext(repo.getSchema().getName());
-		//DataDistributionService svc = ctx.getBean(DataDistributionService.class);
+		DocumentKey docKey = ddSvc.getLastKeyForUri(uri);
+		
 		//RecordStore<?> rs = svc.getRecordStore(uri, CN_XDM_CONTENT);
 		//Set<com.hazelcast.nio.serialization.Data> keys = rs.keySet();
 		//int partId = svc.getPartitionId(uri.hashCode());
 		//DocumentKey docKey = getDocumentKey(uri, false, false);
 		//logger.info("getDocumentAsMap; got uri: {}, hash: {}; uri partId: {}, docKey partId: {}", 
 		//		uri, uri.hashCode(), partId, svc.getPartitionId(docKey)); 
-		DocumentKey docKey = factory.newDocumentKey(uri, 0, dvFirst);
 		return getDocumentAsMap(docKey, props);
 	}
 
@@ -501,14 +505,16 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 				}
 			} else {
 				DocumentContentProvider xp = new DocumentContentProvider(repo.getClientId(), doc.getUri(), props); 
-				IExecutorService execService = hzInstance.getExecutorService(PN_XDM_SCHEMA_POOL);
-				Future<String> future = execService.submitToKeyOwner(xp, doc.getUri());
-				try {
-					content = future.get();
-				} catch (InterruptedException | ExecutionException ex) {
-					logger.error("getDocumentAsString; error getting result", ex);
-					throw new BagriException(ex, BagriException.ecDocument);
-				}
+				//IExecutorService execService = hzInstance.getExecutorService(PN_XDM_SCHEMA_POOL);
+				//Future<String> future = execService.submitToKeyOwner(xp, doc.getUri());
+				//try {
+				//	content = future.get();
+				//} catch (InterruptedException | ExecutionException ex) {
+				//	logger.error("getDocumentAsString; error getting result", ex);
+				//	throw new BagriException(ex, BagriException.ecDocument);
+				//}
+				content = (String) xddCache.executeOnKey(docKey, xp);
+				
 			}
 		}
 		return content;
@@ -1150,4 +1156,13 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		}
 	}
 
+	
+	private static class VersionComparator implements Comparator<DocumentKey> {
+
+		@Override
+		public int compare(DocumentKey key1, DocumentKey key2) {
+			return key1.getVersion() - key2.getVersion();
+		}
+    		
+	}
 }

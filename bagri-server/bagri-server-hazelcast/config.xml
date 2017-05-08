@@ -108,7 +108,7 @@
             </collections>
             <fragments/>
             <indexes>
-                <!--index name="IDX_Customer_id">
+                <index name="IDX_Customer_id">
                     <version>1</version>
                     <createdAt>2015-01-25T13:36:26.965+03:00</createdAt>
                     <createdBy>SDV</createdBy>
@@ -140,7 +140,7 @@
                     <unique>false</unique>
                     <description>Security Sector</description>
                     <enabled>true</enabled>
-                </index-->
+                </index>
                 <!--index name="IDX_Security_PE">
                     <version>1</version>
                     <createdAt>2015-07-21T13:36:26.965+03:00</createdAt>
@@ -153,7 +153,7 @@
                     <description>Security PE</description>
                     <enabled>true</enabled>
                 </index-->
-                <!--index name="IDX_Security_Yield">
+                <index name="IDX_Security_Yield">
                     <version>1</version>
                     <createdAt>2015-07-21T13:36:26.965+03:00</createdAt>
                     <createdBy>SDV</createdBy>
@@ -175,7 +175,7 @@
                     <unique>true</unique>
                     <description>Order ID</description>
                     <enabled>true</enabled>
-                </index-->
+                </index>
             </indexes>
             <triggers>
                 <!--trigger xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns2:javatrigger">

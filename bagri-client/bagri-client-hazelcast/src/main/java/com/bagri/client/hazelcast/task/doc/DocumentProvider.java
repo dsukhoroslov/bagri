@@ -6,7 +6,7 @@ import java.util.concurrent.Callable;
 
 import com.bagri.core.model.Document;
 
-public class DocumentProvider extends DocumentAwareTask implements Callable<Document> {
+public class DocumentProvider extends DocumentProcessor { //AwareTask implements Callable<Document> {
 	
 	public DocumentProvider() {
 		super();
@@ -16,10 +16,10 @@ public class DocumentProvider extends DocumentAwareTask implements Callable<Docu
 		super(clientId, 0, uri, null);
 	}
 
-	@Override
-	public Document call() throws Exception {
-		return null;
-	}
+	//@Override
+	//public Document call() throws Exception {
+	//	return null;
+	//}
 
 	@Override
 	public int getId() {

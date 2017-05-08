@@ -1,7 +1,11 @@
 package com.bagri.server.hazelcast.task.doc;
 
+import java.util.Map.Entry;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.bagri.core.DocumentKey;
+import com.bagri.core.api.BagriException;
 import com.bagri.core.api.DocumentManagement;
 import com.bagri.core.model.Document;
 import com.bagri.core.server.api.SchemaRepository;
@@ -21,12 +25,17 @@ public class DocumentProvider extends com.bagri.client.hazelcast.task.doc.Docume
 	}
 
     @Override
-	public Document call() throws Exception {
+	//public Document call() throws Exception {
+	public Object process(Entry<DocumentKey, Document> entry) {
     	
-    	((SchemaRepositoryImpl) repo).getXQProcessor(clientId);
-    	checkPermission(Permission.Value.read);
-    	
-		return docMgr.getDocument(uri);
+    	try {
+	    	((SchemaRepositoryImpl) repo).getXQProcessor(clientId);
+	    	checkPermission(Permission.Value.read);
+	    	
+			return docMgr.getDocument(uri);
+    	} catch (BagriException ex) {
+    		return ex;
+    	}
 	}
 
 

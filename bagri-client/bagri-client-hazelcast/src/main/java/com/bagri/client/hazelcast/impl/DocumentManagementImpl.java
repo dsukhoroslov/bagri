@@ -51,15 +51,19 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		logger.trace("getDocument.enter; got uri: {}", uri);
 		Document result = null;
 		DocumentProvider task = new DocumentProvider(repo.getClientId(), uri);
-		Future<Document> future = execService.submit(task);
-		try {
-			result = future.get();
-			logger.trace("getDocument.exit; got document: {}", result);
-			return result;
-		} catch (InterruptedException | ExecutionException ex) {
-			logger.error("getDocument; error getting result", ex);
-			throw new BagriException(ex, ecDocument);
-		}
+		//Future<Document> future = execService.submit(task);
+		//try {
+		//	result = future.get();
+		//	logger.trace("getDocument.exit; got document: {}", result);
+		//	return result;
+		//} catch (InterruptedException | ExecutionException ex) {
+		//	logger.error("getDocument; error getting result", ex);
+		//	throw new BagriException(ex, ecDocument);
+		//}
+		DocumentKey key = new DocumentPartKey(uri.hashCode(), 0, 1);
+		result = (Document) xddCache.executeOnKey(key, task);
+		logger.trace("getDocument.exit; got document: {}", result);
+		return result;
 	}
 	
 	@Override
@@ -83,15 +87,19 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		logger.trace("getDocumentAsBean.enter; got uri: {}", uri);
 		Object result = null;
 		DocumentBeanProvider task = new DocumentBeanProvider(repo.getClientId(), uri, props);
-		Future<Object> future = execService.submit(task);
-		try {
-			result = future.get();
-			logger.trace("getDocumentAsBean.exit; got bean: {}", result);
-			return result;
-		} catch (InterruptedException | ExecutionException ex) {
-			logger.error("getDocumentAsBean; error getting result", ex);
-			throw new BagriException(ex, ecDocument);
-		}
+		//Future<Object> future = execService.submit(task);
+		//try {
+		//	result = future.get();
+		//	logger.trace("getDocumentAsBean.exit; got bean: {}", result);
+		//	return result;
+		//} catch (InterruptedException | ExecutionException ex) {
+		//	logger.error("getDocumentAsBean; error getting result", ex);
+		//	throw new BagriException(ex, ecDocument);
+		//}
+		DocumentKey key = new DocumentPartKey(uri.hashCode(), 0, 1);
+		result = xddCache.executeOnKey(key, task);
+		logger.trace("getDocumentAsBean.exit; got bean: {}", result);
+		return result;
 	}
 
 	@Override
@@ -120,15 +128,19 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		logger.trace("getDocumentAsString.enter; got uri: {}", uri);
 		String result = null;
 		DocumentContentProvider task = new DocumentContentProvider(repo.getClientId(), uri, props);
-		Future<String> future = execService.submit(task);
-		try {
-			result = future.get();
-			logger.trace("getDocumentAsString.exit; got content of length: {}", result == null ? 0 : result.length());
-			return result;
-		} catch (InterruptedException | ExecutionException ex) {
-			logger.error("getDocumentAsString; error getting result", ex);
-			throw new BagriException(ex, ecDocument);
-		}
+		//Future<String> future = execService.submit(task);
+		//try {
+		//	result = future.get();
+		//	logger.trace("getDocumentAsString.exit; got content of length: {}", result == null ? 0 : result.length());
+		//	return result;
+		//} catch (InterruptedException | ExecutionException ex) {
+		//	logger.error("getDocumentAsString; error getting result", ex);
+		//	throw new BagriException(ex, ecDocument);
+		//}
+		DocumentKey key = new DocumentPartKey(uri.hashCode(), 0, 1);
+		result = (String) xddCache.executeOnKey(key, task);
+		logger.trace("getDocumentAsString.exit; got content of length: {}", result == null ? 0 : result.length());
+		return result;
 	}
 
 	@Override

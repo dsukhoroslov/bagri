@@ -359,6 +359,7 @@
 		<property name="modelManager" ref="modelManager"/>
 		<property name="indexManager" ref="idxManager"/>
 		<property name="statsQueue" ref="docQueue"/>
+		<property name="distrService" ref="distrService"/>
 		<!--property name="txManager" ref="txManager"/-->
    		<!--property name="repository" ref="xdmRepo" /-->
 	</bean>

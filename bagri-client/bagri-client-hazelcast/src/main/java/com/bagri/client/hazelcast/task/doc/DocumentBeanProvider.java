@@ -5,7 +5,7 @@ import static com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl.
 import java.util.Properties;
 import java.util.concurrent.Callable;
 
-public class DocumentBeanProvider extends DocumentAwareTask implements Callable<Object> {
+public class DocumentBeanProvider extends DocumentProcessor { //AwareTask implements Callable<Object> {
 	
 	public DocumentBeanProvider() {
 		super();
@@ -15,10 +15,10 @@ public class DocumentBeanProvider extends DocumentAwareTask implements Callable<
 		super(clientId, 0, uri, props);
 	}
 
-	@Override
-	public Object call() throws Exception {
-		return null;
-	}
+	//@Override
+	//public Object call() throws Exception {
+	//	return null;
+	//}
 
 	@Override
 	public int getId() {
