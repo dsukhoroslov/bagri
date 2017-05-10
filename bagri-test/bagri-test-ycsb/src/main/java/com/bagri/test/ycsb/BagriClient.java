@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,14 +27,20 @@ import com.yahoo.ycsb.StringByteIterator;
 public class BagriClient extends DB {
 	
     private static final Logger logger = LoggerFactory.getLogger(BagriClient.class);
+    
+	private int counter = 0;
+	private AtomicLong timer = new AtomicLong(0);
+	private AtomicLong timer2 = new AtomicLong(0);
 
     private SchemaRepository xRepo;
     
     private static final Properties readProps = new Properties();
+    private static final Properties scanProps = new Properties();
     private static final Properties insertProps = new Properties();
     private static final Properties updateProps = new Properties();
     static {
 		readProps.setProperty(pn_document_data_format, "MAP");
+		scanProps.setProperty(pn_client_fetchSize, "0");
 		
 		insertProps.setProperty(pn_client_storeMode, pv_client_storeMode_insert);
 		insertProps.setProperty(pn_document_collections, "usertable");
@@ -60,6 +67,11 @@ public class BagriClient extends DB {
 	public void cleanup() {
 	    logger.info("cleanup; xRepo: {}", xRepo);
 	    xRepo.close();
+
+	    double time1 = timer.get();
+	    double time2 = timer2.get();
+		logger.info("cleanup; scan count: {}; full scan time: {}; full query time: {}; avg scan time: {}; avg query time: {}",
+				counter, time1, time2, time1/counter, time2/counter);
 	}
 	
 	@Override
@@ -117,8 +129,11 @@ public class BagriClient extends DB {
 		//logger.info("scan.enter; table: {}; startKey: {}; recordCount: {}; fields: {}", 
 		//		table, startkey, recordcount, fields);
 		try {
-			//long stamp = System.currentTimeMillis();
-			Collection<String> uris = xRepo.getDocumentManagement().getDocumentUris("uri >= " + startkey);
+			long stamp = System.currentTimeMillis();
+			scanProps.setProperty(pn_client_fetchSize, String.valueOf(recordcount));
+			Collection<String> uris = xRepo.getDocumentManagement().getDocumentUris("uri >= " + startkey, scanProps);
+			timer2.addAndGet(System.currentTimeMillis() - stamp);
+			result.ensureCapacity(recordcount);
 			int i = 0;
 			for (String uri: uris) {
 				HashMap<String, ByteIterator> doc = null;
@@ -134,7 +149,8 @@ public class BagriClient extends DB {
 					break;
 				}
 			}
-			//stamp = System.currentTimeMillis() - stamp;
+			timer.addAndGet(System.currentTimeMillis() - stamp);
+			counter++;
 			//logger.info("scan; got uris: {}; returning documents: {}; time taken: {}", uris.size(), result.size(), stamp);
 			return Status.OK;
 		} catch (Exception ex) {

@@ -45,5 +45,12 @@ public class Parameter extends DataType {
 	public String getName() {
 		return name;
 	}
+
+	@Override
+	public String toString() {
+		return "Parameter [name=" + name + ", type=" + getType() + ", cardinality=" + getCardinality() + "]";
+	}
+	
+	
 	
 }

@@ -106,11 +106,11 @@ public class DocumentManagementImplTest extends DocumentManagementTest {
 		storeSecurityTest();
 		storeOrderTest();
 		DocumentManagementImpl dMgr = (DocumentManagementImpl) this.getDocManagement();
-		java.util.Collection<String> uris = dMgr.getDocumentUris("uri like security%");
+		java.util.Collection<String> uris = dMgr.getDocumentUris("uri like security%", null);
 		assertEquals(4, uris.size());
-		uris = dMgr.getDocumentUris("uri like order%");
+		uris = dMgr.getDocumentUris("uri like order%", null);
 		assertEquals(2, uris.size());
-		uris = dMgr.getDocumentUris("createdBy = unknown");
+		uris = dMgr.getDocumentUris("createdBy = unknown", null);
 		assertEquals(6, uris.size());
 	}
 	

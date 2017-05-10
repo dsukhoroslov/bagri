@@ -29,7 +29,7 @@ public class DocumentUrisProvider extends com.bagri.client.hazelcast.task.doc.Do
     	((SchemaRepositoryImpl) repo).getXQProcessor(clientId);
     	checkPermission(Permission.Value.read);
     	
-    	Collection<String> uris = docMgr.getDocumentUris(pattern);
+    	Collection<String> uris = docMgr.getDocumentUris(pattern, props);
 		return new ArrayList<>(uris);
 	}
 

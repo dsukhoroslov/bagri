@@ -67,10 +67,10 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	}
 	
 	@Override
-	public Collection<String> getDocumentUris(String pattern) throws BagriException {
+	public Collection<String> getDocumentUris(String pattern, Properties props) throws BagriException {
 		logger.trace("getDocumentUris.enter; got pattern: {}", pattern);
 		Collection<String> result = null;
-		DocumentUrisProvider task = new DocumentUrisProvider(repo.getClientId(), repo.getTransactionId(), pattern);
+		DocumentUrisProvider task = new DocumentUrisProvider(repo.getClientId(), repo.getTransactionId(), pattern, props);
 		Future<Collection<String>> future = execService.submit(task);
 		try {
 			result = future.get();

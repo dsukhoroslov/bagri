@@ -63,7 +63,7 @@ public class DocumentService  extends RestService {
 		logger.trace("getDocuments.enter; query: {}, page: {}, size: {}", query, page, size);
 		DocumentManagement docMgr = getDocManager();
     	try {
-            Collection<String> uris = docMgr.getDocumentUris(query);
+            Collection<String> uris = docMgr.getDocumentUris(query, null);
             uris = new ArrayList<>(uris);
             Collections.sort((List) uris);
             DocumentBean[] docs = new DocumentBean[size];

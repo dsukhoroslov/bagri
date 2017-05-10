@@ -10,7 +10,7 @@
 	</collections>
 	<transactions>
 		<transaction id="1" name="addDocument" weight="40">
-			<java-plugin>com.bagri.test.tpox.workload.BagriXDMPlugin</java-plugin>
+			<java-plugin>com.bagri.test.tpox.workload.BagriDBPlugin</java-plugin>
 			<parameters>
 				<parameter>
 					<files collection="custacc"/>
@@ -19,7 +19,7 @@
 		</transaction>
 
 		<transaction id="2" name="getCustomerProfile" weight="30">
-			<java-plugin>com.bagri.test.tpox.workload.BagriXDMPlugin</java-plugin>
+			<java-plugin>com.bagri.test.tpox.workload.BagriDBPlugin</java-plugin>
 			<parameters>
 				<parameter>
 					<ids collection="custids" />
@@ -28,7 +28,7 @@
 		</transaction>
 
 		<transaction id="3" name="getCustomerAccounts" weight="30">
-			<java-plugin>com.bagri.test.tpox.workload.BagriXDMPlugin</java-plugin>
+			<java-plugin>com.bagri.test.tpox.workload.BagriDBPlugin</java-plugin>
 			<parameters>
 				<parameter>
 					<ids collection="custids" />

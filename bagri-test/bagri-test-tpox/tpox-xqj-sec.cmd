@@ -14,6 +14,7 @@ rem "%java_exec%" -server %java_opts% -cp "%app_home%\target\*;%app_home%\target
 
 rem insert securities to the cache
 "%java_exec%" -server -showversion %java_opts% -cp "%app_home%\target\*;%app_home%\target\lib\*" net.sf.tpox.workload.core.WorkloadDriver -w queries/XQJ/insSecurity.xml -tr 2604 -u 8
+rem "%java_exec%" -server -showversion %java_opts% -cp "%app_home%\target\*;%app_home%\target\lib\*" net.sf.tpox.workload.core.WorkloadDriver -w queries/XQJ/insSecurity.xml -tr 2
 
 rem perform queries loopig by user count
 for /l %%x in (5, 1, 10) do (

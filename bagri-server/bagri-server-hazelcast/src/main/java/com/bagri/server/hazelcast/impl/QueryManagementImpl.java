@@ -677,7 +677,8 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 						addQuery(xQuery);
 						addQueryResults(query, params, props, cursor, iter);
 					} else {
-						logger.warn("executeQuery; query is not cached after processing: {}", query);
+						// TODO: fix it!
+						logger.debug("executeQuery; query is not cached after processing: {}", query);
 					}
 				}
 			} catch (XQException ex) {

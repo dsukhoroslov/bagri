@@ -18,11 +18,12 @@ public interface DocumentManagement {
 	 * search Document attributes by pattern provided
 	 * 
 	 * @param pattern String; the query string conforming to syntax: Document attribute CMP value,
-	 * for instance: createdBy = admin, bytes &gt; 3000, uri like security% 
+	 * for instance: createdBy = admin, bytes &gt; 3000, uri like security%
+	 * @param props contains query processing instructions
 	 * @return Collection&lt;String&gt; - matched Document uris
 	 * @throws BagriException in case of any error
 	 */
-	Collection<String> getDocumentUris(String pattern) throws BagriException;
+	Collection<String> getDocumentUris(String pattern, Properties props) throws BagriException;
 	
 	// not sure we need it..
 	//Collection<Document> getDocuments(String pattern);

@@ -170,6 +170,7 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 	public Query getCurrentQuery(final String query) throws XQException {
 		if (clnFinder.getQuery() == null) {
 			// not 'collection' query?
+			// TODO: yes, fix it for updating query!
 			return null;
 		}
 		return new Query(query, isQueryReadOnly(query), clnFinder.getQuery());

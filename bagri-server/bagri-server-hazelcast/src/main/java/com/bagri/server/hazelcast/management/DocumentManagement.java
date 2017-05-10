@@ -391,7 +391,7 @@ public class DocumentManagement extends SchemaFeatureManagement {
 		@ManagedOperationParameter(name = "pattern", description = "A pattern to match documents, like: createdBy = admin, bytes > 100")})
 	public java.util.Collection<String> getDocumentUris(String pattern) {
 		try {
-			java.util.Collection<String> result = docManager.getDocumentUris(pattern);
+			java.util.Collection<String> result = docManager.getDocumentUris(pattern, null);
 			logger.debug("getDocumentUris; returning {} ids", result.size());
 			return result;
 		} catch (BagriException ex) {

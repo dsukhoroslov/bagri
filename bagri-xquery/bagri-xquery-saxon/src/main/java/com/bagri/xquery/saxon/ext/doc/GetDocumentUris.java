@@ -1,9 +1,11 @@
 package com.bagri.xquery.saxon.ext.doc;
 
 import static com.bagri.core.Constants.cmd_get_document_uris;
+import static com.bagri.xquery.saxon.SaxonUtils.sequence2Properties;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Properties;
 
 import com.bagri.core.api.BagriException;
 import com.bagri.core.api.DocumentManagement;
@@ -30,12 +32,12 @@ public class GetDocumentUris extends DocumentFunctionExtension {
 
 	@Override
 	public SequenceType[] getArgumentTypes() {
-		return new SequenceType[] {SequenceType.SINGLE_STRING}; 
+		return new SequenceType[] {SequenceType.SINGLE_STRING, SequenceType.ATOMIC_SEQUENCE}; 
 	}
 
 	@Override 
 	public int getMaximumNumberOfArguments() { 
-		return 1; 
+		return 2; 
 	} 	
 	
 	@Override
@@ -52,8 +54,12 @@ public class GetDocumentUris extends DocumentFunctionExtension {
 			public Sequence call(XPathContext context, Sequence[] arguments) throws XPathException {
 				
 				String pattern = arguments[0].head().getStringValue();
+				Properties props = null; 
+				if (arguments.length > 1) {
+					props = sequence2Properties(arguments[2]);
+				}
 				try {
-					Collection<String> uris = xdm.getDocumentUris(pattern);
+					Collection<String> uris = xdm.getDocumentUris(pattern, props);
 					ArrayList<AtomicValue> list = new ArrayList<>(uris.size());
 					for (String uri: uris) {
 						list.add(new StringValue(uri));

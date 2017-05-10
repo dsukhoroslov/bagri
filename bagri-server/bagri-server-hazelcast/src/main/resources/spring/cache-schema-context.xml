@@ -80,7 +80,7 @@
 					<hz:index attribute="txStart"/>
 					<hz:index attribute="txFinish"/>
 					<hz:index attribute="typeRoot"/>
-					<hz:index attribute="uri"/>
+					<hz:index attribute="uri" ordered="true"/>
 				</hz:indexes>
 			</hz:map>
 			<hz:map name="xdm-element" in-memory-format="BINARY" async-backup-count="${bdb.schema.data.backup.async}" 

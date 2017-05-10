@@ -18,7 +18,7 @@ import static com.bagri.support.util.FileUtils.def_encoding;
  * @author Denis Sukhoroslov
  * @since 05.2013 
  */
-public class Document implements Convertable<Map<String, Object>>, Versionable { 
+public class Document implements Comparable<Document>, Convertable<Map<String, Object>>, Versionable { 
 	
 	public static final int dvFirst = 1;
 	public static final int clnDefault = -1;
@@ -289,6 +289,15 @@ public class Document implements Convertable<Map<String, Object>>, Versionable {
 				+ ", txStart=" + txStart + ", txFinish=" + txFinish + ", elements=" + elements 
 				+ ", number of fragments=" + getFragments().length
 				+ ", collections=" + Arrays.toString(getCollections()) + "]";
+	}
+
+	@Override
+	public int compareTo(Document other) {
+		int result = this.uri.compareTo(other.uri);
+		if (result == 0) {
+			result = this.getVersion() - other.getVersion();
+		}
+		return result;
 	}
 
 }

@@ -69,6 +69,7 @@ import com.hazelcast.core.IMap;
 import com.hazelcast.map.impl.recordstore.RecordStore;
 import com.hazelcast.projection.Projection;
 import com.hazelcast.projection.Projections;
+import com.hazelcast.query.PagingPredicate;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
 
@@ -337,8 +338,8 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
  	
 	@Override
 	@SuppressWarnings("unchecked")
-	public java.util.Collection<String> getDocumentUris(String pattern) {
-		logger.trace("getDocumentUris.enter; got pattern: {}", pattern);
+	public java.util.Collection<String> getDocumentUris(String pattern, Properties props) {
+		logger.trace("getDocumentUris.enter; got pattern: {}; props: {}", pattern, props);
 		java.util.Collection<String> uris;
 		Predicate<DocumentKey, Document> query;
 		Projection<Entry<DocumentKey, Document>, String> pro = Projections.singleAttribute(fnUri);
@@ -350,9 +351,22 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		} else {
 			query = Predicates.equal(fnTxFinish, TX_NO);
 		}
-		uris = xddCache.project(pro, query);
+		
+		if (props != null) {
+			int pageSize = Integer.valueOf(props.getProperty(pn_client_fetchSize, "0"));
+			if (pageSize > 0) {
+				query = new PagingPredicate(query, pageSize);
+			}
+			java.util.Collection<Document> docs = xddCache.values(query);
+			uris = new ArrayList<>(docs.size());
+			for (Document doc: docs) {
+				uris.add(doc.getUri());
+			}
+		} else {
+			uris = xddCache.project(pro, query);
+		}
 		// should also check if doc's start transaction is committed?
-		logger.trace("getDocumentUris.exit; returning: {}", uris.size());
+		logger.trace("getDocumentUris.exit; returning: {}", uris);
 		return uris;
 	}
 

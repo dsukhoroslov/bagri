@@ -7,19 +7,29 @@
 	</collections>
 	<transactions>
 
-		<!--transaction id="1" name="addSecurity" weight="100">
+		<transaction id="1" name="addSecurity" weight="100">
 			<java-plugin>com.bagri.test.tpox.workload.BagriXQJPlugin</java-plugin>
 			<parameters>
 				<parameter>
 					<constant value="
 declare namespace bgdb=&quot;http://bagridb.com/bdb&quot;;
 declare variable $sec external;
+declare variable $uri external;
 
-let $id := bgdb:store-document($sec)
+let $id := bgdb:store-document($uri, $sec)
 return $id" />
 				</parameter>
 				<parameter>
 					<constant value="true" />
+				</parameter>
+				<parameter>
+					<constant value="uri" />
+				</parameter>
+				<parameter>
+					<constant value="anyURI" />
+				</parameter>
+				<parameter>
+					<sequence start="10000" step="1"/>
 				</parameter>
 				<parameter>
 					<constant value="sec" />
@@ -31,9 +41,9 @@ return $id" />
 					<files collection="security"/>
 				</parameter>
 			</parameters>
-		</transaction-->
+		</transaction>
 
-		<transaction id="1" name="addSecurity" weight="100">
+		<!--transaction id="1" name="addSecurity" weight="100">
 			<java-plugin>com.bagri.test.tpox.workload.BagriXQJPlugin</java-plugin>
 			<parameters>
 				<parameter>
@@ -61,7 +71,7 @@ return $id" />
 					<sequence start="10000" step="1"/>
 				</parameter>
 			</parameters>
-		</transaction>
+		</transaction-->
 
 	</transactions>
 </workload>

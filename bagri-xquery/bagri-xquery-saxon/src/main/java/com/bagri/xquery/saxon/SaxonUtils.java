@@ -3,6 +3,7 @@ package com.bagri.xquery.saxon;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -231,6 +232,8 @@ public class SaxonUtils {
             } else if (value instanceof QName) {
                 QName q = (QName)value;
                 return new QNameValue(q.getPrefix(), q.getNamespaceURI(), q.getLocalPart()); //BuiltInAtomicType.QNAME, null);
+            } else if (value instanceof URI) {
+            	return new AnyURIValue(value.toString());
             } else {
             	return new ObjectValue(value);
             }
@@ -305,6 +308,8 @@ public class SaxonUtils {
                 QName q = (QName)value;
                 return new QNameValue(q.getPrefix(), q.getNamespaceURI(), q.getLocalPart(), type);
                         //BuiltInAtomicType.QNAME, null);
+            } else if (value instanceof URI) {
+            	return new AnyURIValue(value.toString());
             } else {
                 throw new XPathException("Java object cannot be converted to an XQuery value");
             }

@@ -7,9 +7,8 @@ import com.bagri.client.hazelcast.task.TransactionAwareTask;
 import com.hazelcast.core.PartitionAware;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
-import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
-public abstract class DocumentAwareTask extends TransactionAwareTask implements PartitionAware<Integer>, IdentifiedDataSerializable {
+public abstract class DocumentAwareTask extends TransactionAwareTask implements PartitionAware<Integer> {
 	
 	protected Properties props;
 	protected String uri;
