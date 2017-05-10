@@ -345,9 +345,9 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		Projection<Entry<DocumentKey, Document>, String> pro = Projections.singleAttribute(fnUri);
 		if (pattern != null) {
 			query = DocumentPredicateBuilder.getQuery(pattern);
-			if (pattern.indexOf(fnTxFinish) < 0) {
-				query = Predicates.and(query, Predicates.equal(fnTxFinish, TX_NO)); 
-			}
+			//if (pattern.indexOf(fnTxFinish) < 0) {
+			//	query = Predicates.and(query, Predicates.equal(fnTxFinish, TX_NO)); 
+			//}
 		} else {
 			query = Predicates.equal(fnTxFinish, TX_NO);
 		}
@@ -356,15 +356,26 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			int pageSize = Integer.valueOf(props.getProperty(pn_client_fetchSize, "0"));
 			if (pageSize > 0) {
 				query = new PagingPredicate(query, pageSize);
+				//query = Predicates.and(new PagingPredicate(pageSize), query);
 			}
-			java.util.Collection<Document> docs = xddCache.values(query);
-			uris = new ArrayList<>(docs.size());
+		} //else {
+		//	uris = xddCache.project(pro, query);
+		//}
+		
+		java.util.Collection<Document> docs = xddCache.values(query);
+		uris = new ArrayList<>(docs.size());
+		if (pattern.indexOf(fnTxFinish) < 0) {
+			for (Document doc: docs) {
+				if (doc.getTxFinish() == TX_NO) {
+					uris.add(doc.getUri());
+				}
+			}
+		} else {
 			for (Document doc: docs) {
 				uris.add(doc.getUri());
 			}
-		} else {
-			uris = xddCache.project(pro, query);
 		}
+		
 		// should also check if doc's start transaction is committed?
 		logger.trace("getDocumentUris.exit; returning: {}", uris);
 		return uris;

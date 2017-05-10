@@ -204,7 +204,7 @@
                                             <sysproperty key="com.sun.management.jmxremote" value="true" />
                                             <sysproperty key="com.sun.management.jmxremote.ssl" value="false" />
                                             <sysproperty key="logback.configurationFile" value="hz-logging.xml" />
-                                            <sysproperty key="bdb.log.level" value="debug" />
+                                            <sysproperty key="bdb.log.level" value="${log.level}" />
                                             <sysproperty key="bdb.config.path" value="src/main/resources" />
                                             <sysproperty key="bdb.config.context.file" value="spring/admin-system-context.xml" />
                                             <sysproperty key="bdb.config.properties.file" value="admin.properties" />

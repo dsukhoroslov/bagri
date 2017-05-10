@@ -1,4 +1,4 @@
-package com.bagri.server.hazelcast.serialize.system;
+package com.bagri.client.hazelcast.serialize.system;
 
 import java.io.IOException;
 

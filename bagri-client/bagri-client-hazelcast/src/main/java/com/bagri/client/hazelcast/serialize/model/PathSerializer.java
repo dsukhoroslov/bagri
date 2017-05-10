@@ -28,7 +28,7 @@ public class PathSerializer implements StreamSerializer<Path> {
 
 	@Override
 	public Path read(ObjectDataInput in) throws IOException {
-		logger.trace("read;");
+		//logger.trace("read;");
 		return new Path(
 				in.readUTF(),
 				in.readUTF(),
@@ -44,7 +44,7 @@ public class PathSerializer implements StreamSerializer<Path> {
 
 	@Override
 	public void write(ObjectDataOutput out, Path xPath) throws IOException {
-		logger.trace("write;");
+		//logger.trace("write;");
 		out.writeUTF(xPath.getPath());
 		out.writeUTF(xPath.getRoot());
 		out.writeInt(xPath.getNodeKind().ordinal());

@@ -65,23 +65,27 @@ public class IndexManagement extends SchemaFeatureManagement {
 			boolean range, boolean unique, String description) {
 
 		logger.trace("addIndex.enter;");
-		long stamp = System.currentTimeMillis();
-		Index index = schemaManager.addIndex(name, docType, path, dataType, caseSensitive, range, unique, description);
-		if (index == null) {
-			throw new IllegalStateException("Index '" + name + "' in schema '" + schemaName + "' already exists");
-		}
-		
-		IndexCreator task = new IndexCreator(index);
-		Map<Member, Future<Boolean>> results = execService.submitToAllMembers(task);
 		int cnt = 0;
-		for (Map.Entry<Member, Future<Boolean>> entry: results.entrySet()) {
-			try {
-				if (entry.getValue().get()) {
-					cnt++;
-				}
-			} catch (InterruptedException | ExecutionException ex) {
-				logger.error("addIndex.error; ", ex);
+		long stamp = System.currentTimeMillis();
+		try {
+			Index index = schemaManager.addIndex(name, docType, path, dataType, caseSensitive, range, unique, description);
+			if (index == null) {
+				throw new IllegalStateException("Index '" + name + "' in schema '" + schemaName + "' already exists");
 			}
+			
+			IndexCreator task = new IndexCreator(index);
+			Map<Member, Future<Boolean>> results = execService.submitToAllMembers(task);
+			for (Map.Entry<Member, Future<Boolean>> entry: results.entrySet()) {
+				try {
+					if (entry.getValue().get()) {
+						cnt++;
+					}
+				} catch (InterruptedException | ExecutionException ex) {
+					logger.error("addIndex.error; ", ex);
+				}
+			}
+		} catch (Exception ex) {
+			logger.error("addIndex.error 2; ", ex);
 		}
 		stamp = System.currentTimeMillis() - stamp;
 		logger.trace("addIndex.exit; index created on {} members; time Taken: {}", cnt, stamp);

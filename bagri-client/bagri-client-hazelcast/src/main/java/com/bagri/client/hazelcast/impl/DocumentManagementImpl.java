@@ -45,27 +45,11 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		xddCache = hzClient.getMap(CN_XDM_DOCUMENT);
 		execService = hzClient.getExecutorService(PN_XDM_SCHEMA_POOL);
 	}
-
-	@Override
-	public Document getDocument(String uri) throws BagriException {
-		logger.trace("getDocument.enter; got uri: {}", uri);
-		Document result = null;
-		DocumentProvider task = new DocumentProvider(repo.getClientId(), uri);
-		//Future<Document> future = execService.submit(task);
-		//try {
-		//	result = future.get();
-		//	logger.trace("getDocument.exit; got document: {}", result);
-		//	return result;
-		//} catch (InterruptedException | ExecutionException ex) {
-		//	logger.error("getDocument; error getting result", ex);
-		//	throw new BagriException(ex, ecDocument);
-		//}
-		DocumentKey key = new DocumentPartKey(uri.hashCode(), 0, 1);
-		result = (Document) xddCache.executeOnKey(key, task);
-		logger.trace("getDocument.exit; got document: {}", result);
-		return result;
-	}
 	
+	private DocumentKey getDocumentKey(String uri) {
+		return new DocumentPartKey(uri.hashCode(), 0, 1);
+	}
+
 	@Override
 	public Collection<String> getDocumentUris(String pattern, Properties props) throws BagriException {
 		logger.trace("getDocumentUris.enter; got pattern: {}", pattern);
@@ -83,21 +67,21 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	}
 	
 	@Override
+	public Document getDocument(String uri) throws BagriException {
+		logger.trace("getDocument.enter; got uri: {}", uri);
+		DocumentProvider task = new DocumentProvider(repo.getClientId(), uri);
+		DocumentKey key = getDocumentKey(uri);
+		Document result = (Document) xddCache.executeOnKey(key, task);
+		logger.trace("getDocument.exit; got document: {}", result);
+		return result;
+	}
+	
+	@Override
 	public Object getDocumentAsBean(String uri, Properties props) throws BagriException {
 		logger.trace("getDocumentAsBean.enter; got uri: {}", uri);
-		Object result = null;
 		DocumentBeanProvider task = new DocumentBeanProvider(repo.getClientId(), uri, props);
-		//Future<Object> future = execService.submit(task);
-		//try {
-		//	result = future.get();
-		//	logger.trace("getDocumentAsBean.exit; got bean: {}", result);
-		//	return result;
-		//} catch (InterruptedException | ExecutionException ex) {
-		//	logger.error("getDocumentAsBean; error getting result", ex);
-		//	throw new BagriException(ex, ecDocument);
-		//}
-		DocumentKey key = new DocumentPartKey(uri.hashCode(), 0, 1);
-		result = xddCache.executeOnKey(key, task);
+		DocumentKey key = getDocumentKey(uri);
+		Object result = xddCache.executeOnKey(key, task);
 		logger.trace("getDocumentAsBean.exit; got bean: {}", result);
 		return result;
 	}
@@ -105,19 +89,9 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	@Override
 	public Map<String, Object> getDocumentAsMap(String uri, Properties props) throws BagriException {
 		logger.trace("getDocumentAsMap.enter; got uri: {}", uri);
-		Map<String, Object> result = null;
 		DocumentMapProvider task = new DocumentMapProvider(repo.getClientId(), uri, props);
-		//Future<Map<String, Object>> future = execService.submit(task);
-		//try {
-		//	result = future.get();
-		//	logger.trace("getDocumentAsMap.exit; got map: {}", result);
-		//	return result;
-		//} catch (InterruptedException | ExecutionException ex) {
-		//	logger.error("getDocumentAsMap; error getting result", ex);
-		//	throw new BagriException(ex, ecDocument);
-		//}
-		DocumentKey key = new DocumentPartKey(uri.hashCode(), 0, 1);
-		result = (Map<String, Object>) xddCache.executeOnKey(key, task);
+		DocumentKey key = getDocumentKey(uri);
+		Map<String, Object> result = (Map<String, Object>) xddCache.executeOnKey(key, task);
 		logger.trace("getDocumentAsMap.exit; got map: {}", result);
 		return result;
 	}
@@ -126,19 +100,9 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	public String getDocumentAsString(String uri, Properties props) throws BagriException {
 		// actually, I can try just get it from XML cache!
 		logger.trace("getDocumentAsString.enter; got uri: {}", uri);
-		String result = null;
 		DocumentContentProvider task = new DocumentContentProvider(repo.getClientId(), uri, props);
-		//Future<String> future = execService.submit(task);
-		//try {
-		//	result = future.get();
-		//	logger.trace("getDocumentAsString.exit; got content of length: {}", result == null ? 0 : result.length());
-		//	return result;
-		//} catch (InterruptedException | ExecutionException ex) {
-		//	logger.error("getDocumentAsString; error getting result", ex);
-		//	throw new BagriException(ex, ecDocument);
-		//}
-		DocumentKey key = new DocumentPartKey(uri.hashCode(), 0, 1);
-		result = (String) xddCache.executeOnKey(key, task);
+		DocumentKey key = getDocumentKey(uri);
+		String result = (String) xddCache.executeOnKey(key, task);
 		logger.trace("getDocumentAsString.exit; got content of length: {}", result == null ? 0 : result.length());
 		return result;
 	}

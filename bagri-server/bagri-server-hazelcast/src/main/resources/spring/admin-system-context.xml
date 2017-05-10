@@ -93,25 +93,25 @@
 					<hz:portable-factory factory-id="1" class-name="com.bagri.client.hazelcast.serialize.XDMPortableFactory"/>
 				</hz:portable-factories-->
 				<hz:serializers>
-					<hz:serializer type-class="com.bagri.core.system.DataType" class-name="com.bagri.server.hazelcast.serialize.system.DataTypeSerializer"/>
-					<hz:serializer type-class="com.bagri.core.system.Module" class-name="com.bagri.server.hazelcast.serialize.system.ModuleSerializer"/>
-					<hz:serializer type-class="com.bagri.core.system.Library" class-name="com.bagri.server.hazelcast.serialize.system.LibrarySerializer"/>
-					<hz:serializer type-class="com.bagri.core.system.Function" class-name="com.bagri.server.hazelcast.serialize.system.FunctionSerializer"/>
-					<hz:serializer type-class="com.bagri.core.system.Parameter" class-name="com.bagri.server.hazelcast.serialize.system.ParameterSerializer"/>
-					<hz:serializer type-class="com.bagri.core.system.Node" class-name="com.bagri.server.hazelcast.serialize.system.NodeSerializer"/>
-					<hz:serializer type-class="com.bagri.core.system.Schema" class-name="com.bagri.server.hazelcast.serialize.system.SchemaSerializer"/>
-					<hz:serializer type-class="com.bagri.core.system.Collection" class-name="com.bagri.server.hazelcast.serialize.system.CollectionSerializer"/>
-					<hz:serializer type-class="com.bagri.core.system.Fragment" class-name="com.bagri.server.hazelcast.serialize.system.FragmentSerializer"/>
-					<hz:serializer type-class="com.bagri.core.system.Resource" class-name="com.bagri.server.hazelcast.serialize.system.ResourceSerializer"/>
-					<hz:serializer type-class="com.bagri.core.system.Index" class-name="com.bagri.server.hazelcast.serialize.system.IndexSerializer"/>
-					<hz:serializer type-class="com.bagri.core.system.Role" class-name="com.bagri.server.hazelcast.serialize.system.RoleSerializer"/>
-					<hz:serializer type-class="com.bagri.core.system.User" class-name="com.bagri.server.hazelcast.serialize.system.UserSerializer"/>
-					<hz:serializer type-class="com.bagri.core.system.Permission" class-name="com.bagri.server.hazelcast.serialize.system.PermissionSerializer"/>
-					<hz:serializer type-class="com.bagri.core.system.TriggerAction" class-name="com.bagri.server.hazelcast.serialize.system.TriggerActionSerializer"/>
-					<hz:serializer type-class="com.bagri.core.system.JavaTrigger" class-name="com.bagri.server.hazelcast.serialize.system.JavaTriggerSerializer"/>
-					<hz:serializer type-class="com.bagri.core.system.XQueryTrigger" class-name="com.bagri.server.hazelcast.serialize.system.XQueryTriggerSerializer"/>
-					<hz:serializer type-class="com.bagri.core.system.DataFormat" class-name="com.bagri.server.hazelcast.serialize.system.DataFormatSerializer"/>
-					<hz:serializer type-class="com.bagri.core.system.DataStore" class-name="com.bagri.server.hazelcast.serialize.system.DataStoreSerializer"/>
+					<hz:serializer type-class="com.bagri.core.system.DataType" class-name="com.bagri.client.hazelcast.serialize.system.DataTypeSerializer"/>
+					<hz:serializer type-class="com.bagri.core.system.Module" class-name="com.bagri.client.hazelcast.serialize.system.ModuleSerializer"/>
+					<hz:serializer type-class="com.bagri.core.system.Library" class-name="com.bagri.client.hazelcast.serialize.system.LibrarySerializer"/>
+					<hz:serializer type-class="com.bagri.core.system.Function" class-name="com.bagri.client.hazelcast.serialize.system.FunctionSerializer"/>
+					<hz:serializer type-class="com.bagri.core.system.Parameter" class-name="com.bagri.client.hazelcast.serialize.system.ParameterSerializer"/>
+					<hz:serializer type-class="com.bagri.core.system.Node" class-name="com.bagri.client.hazelcast.serialize.system.NodeSerializer"/>
+					<hz:serializer type-class="com.bagri.core.system.Schema" class-name="com.bagri.client.hazelcast.serialize.system.SchemaSerializer"/>
+					<hz:serializer type-class="com.bagri.core.system.Collection" class-name="com.bagri.client.hazelcast.serialize.system.CollectionSerializer"/>
+					<hz:serializer type-class="com.bagri.core.system.Fragment" class-name="com.bagri.client.hazelcast.serialize.system.FragmentSerializer"/>
+					<hz:serializer type-class="com.bagri.core.system.Resource" class-name="com.bagri.client.hazelcast.serialize.system.ResourceSerializer"/>
+					<hz:serializer type-class="com.bagri.core.system.Index" class-name="com.bagri.client.hazelcast.serialize.system.IndexSerializer"/>
+					<hz:serializer type-class="com.bagri.core.system.Role" class-name="com.bagri.client.hazelcast.serialize.system.RoleSerializer"/>
+					<hz:serializer type-class="com.bagri.core.system.User" class-name="com.bagri.client.hazelcast.serialize.system.UserSerializer"/>
+					<hz:serializer type-class="com.bagri.core.system.Permission" class-name="com.bagri.client.hazelcast.serialize.system.PermissionSerializer"/>
+					<hz:serializer type-class="com.bagri.core.system.TriggerAction" class-name="com.bagri.client.hazelcast.serialize.system.TriggerActionSerializer"/>
+					<hz:serializer type-class="com.bagri.core.system.JavaTrigger" class-name="com.bagri.client.hazelcast.serialize.system.JavaTriggerSerializer"/>
+					<hz:serializer type-class="com.bagri.core.system.XQueryTrigger" class-name="com.bagri.client.hazelcast.serialize.system.XQueryTriggerSerializer"/>
+					<hz:serializer type-class="com.bagri.core.system.DataFormat" class-name="com.bagri.client.hazelcast.serialize.system.DataFormatSerializer"/>
+					<hz:serializer type-class="com.bagri.core.system.DataStore" class-name="com.bagri.client.hazelcast.serialize.system.DataStoreSerializer"/>
 				</hz:serializers>
 			</hz:serialization>
 			<hz:member-attributes>

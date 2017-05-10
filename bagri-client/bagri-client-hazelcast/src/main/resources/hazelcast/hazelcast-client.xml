@@ -55,6 +55,10 @@
 			<serializer type-class="com.bagri.core.query.PathBuilder" class-name="com.bagri.client.hazelcast.serialize.query.PathBuilderSerializer"/>
 			<serializer type-class="com.bagri.core.query.QueryBuilder" class-name="com.bagri.client.hazelcast.serialize.query.QueryBuilderSerializer"/>
 			<serializer type-class="com.bagri.core.query.QueriedPath" class-name="com.bagri.client.hazelcast.serialize.query.QueriedPathSerializer"/>
+			<serializer type-class="com.bagri.core.system.Index" class-name="com.bagri.client.hazelcast.serialize.system.IndexSerializer"/>
+			<serializer type-class="com.bagri.core.system.TriggerAction" class-name="com.bagri.client.hazelcast.serialize.system.TriggerActionSerializer"/>
+			<serializer type-class="com.bagri.core.system.JavaTrigger" class-name="com.bagri.client.hazelcast.serialize.system.JavaTriggerSerializer"/>
+			<serializer type-class="com.bagri.core.system.XQueryTrigger" class-name="com.bagri.client.hazelcast.serialize.system.XQueryTriggerSerializer"/>
 		</serializers>
 	</serialization>
 

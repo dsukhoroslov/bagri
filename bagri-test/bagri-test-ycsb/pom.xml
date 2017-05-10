@@ -15,6 +15,8 @@
 
     <properties>
 	<ycsb.version>0.13.0-SNAPSHOT</ycsb.version>
+	<htrace.version>4.1.0-incubating</htrace.version>
+        <hdrhistogram.version>2.1.9</hdrhistogram.version>
     </properties>
 
     <dependencies>
@@ -53,6 +55,16 @@
                 </exclusion>
             </exclusions-->
     	</dependency>
+        <dependency>
+            <groupId>org.apache.htrace</groupId>
+            <artifactId>htrace-core4</artifactId>
+            <version>${htrace.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hdrhistogram</groupId>
+            <artifactId>HdrHistogram</artifactId>
+            <version>${hdrhistogram.version}</version>
+        </dependency>
 
         <!-- Dependencies for logging -->
         <dependency>
