@@ -637,7 +637,7 @@
                 <entry name="bdb.schema.data.backup.read">false</entry>
                 <entry name="bdb.schema.trans.backup.async">0</entry>
                 <entry name="bdb.schema.store.enabled">false</entry>
-                <entry name="bdb.schema.thread.pool">10</entry>
+                <entry name="bdb.schema.thread.pool">16</entry>
                 <entry name="bdb.schema.data.cache">NEVER</entry>
                 <entry name="bdb.schema.data.stats.enabled">false</entry>
                 <entry name="bdb.schema.query.cache">false</entry>
@@ -664,7 +664,7 @@
                 <entry name="bdb.schema.health.threshold.low">250</entry>
                 <entry name="bdb.schema.health.threshold.high">250</entry>
                 <entry name="bdb.schema.query.parallel">true</entry>
-                <entry name="bdb.schema.partition.pool">32</entry>
+                <entry name="bdb.schema.partition.pool">16</entry>
                 <entry name="xqj.schema.baseUri">file:/C:/Work/Bagri/git/bagri/etc/samples/ycsb/</entry>
                 <entry name="xqj.schema.orderingMode">2</entry>
                 <entry name="xqj.schema.queryLanguageTypeAndVersion">1</entry>

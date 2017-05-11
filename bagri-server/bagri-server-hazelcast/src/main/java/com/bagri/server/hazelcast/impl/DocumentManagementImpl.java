@@ -454,14 +454,18 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	@Override
 	public Map<String, Object> getDocumentAsMap(String uri, Properties props) throws BagriException {
 		DocumentKey docKey = ddSvc.getLastKeyForUri(uri);
-		
 		//RecordStore<?> rs = svc.getRecordStore(uri, CN_XDM_CONTENT);
 		//Set<com.hazelcast.nio.serialization.Data> keys = rs.keySet();
 		//int partId = svc.getPartitionId(uri.hashCode());
 		//DocumentKey docKey = getDocumentKey(uri, false, false);
 		//logger.info("getDocumentAsMap; got uri: {}, hash: {}; uri partId: {}, docKey partId: {}", 
-		//		uri, uri.hashCode(), partId, svc.getPartitionId(docKey)); 
-		return getDocumentAsMap(docKey, props);
+		//		uri, uri.hashCode(), partId, svc.getPartitionId(docKey));
+		
+		Map<String, Object> result = getDocumentAsMap(docKey, props);  
+		if (result == null) {
+			logger.info("getDocumentAsMap; no document found for uri: {}; key: {}", uri, docKey);
+		}
+		return result;
 	}
 
 	@Override
