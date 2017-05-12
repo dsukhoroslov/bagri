@@ -51,6 +51,7 @@ public class DocumentCleaner implements Callable<Transaction>, IdentifiedDataSer
 	
 	@Override
 	public Transaction call() throws Exception {
+		logger.trace("call; going to clean documents for tx: {}", xTx);
 		HazelcastInstance hz = xdmRepo.getHzInstance();
 		IMap<DocumentKey, Document> xddCache = hz.getMap(CN_XDM_DOCUMENT);
 		DocumentManagementImpl docMgr = (DocumentManagementImpl) xdmRepo.getDocumentManagement();

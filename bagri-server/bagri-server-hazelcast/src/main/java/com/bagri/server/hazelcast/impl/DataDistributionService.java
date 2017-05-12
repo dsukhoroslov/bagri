@@ -79,6 +79,11 @@ public class DataDistributionService implements ManagedService {
 		return nodeEngine.getPartitionService().getPartitionId(key);
 	}
 	
+	public boolean isLocalKey(Object key) {
+		int partId = nodeEngine.getPartitionService().getPartitionId(key); 
+		return nodeEngine.getPartitionService().isPartitionOwner(partId);
+	}
+	
 	public RecordStore<?> getRecordStore(int partitionId, String storeName) {
 		MapService svc = nodeEngine.getService(MapService.SERVICE_NAME);
 		MapServiceContext mapCtx = svc.getMapServiceContext();
@@ -109,7 +114,7 @@ public class DataDistributionService implements ManagedService {
 					}
 				}
 			}
-			logger.debug("getKeysForUri; returning: {}", last);
+			logger.debug("getLastKeyForUri; uri: {}; returning: {}", uri, last);
 			return last;
 		} catch (ExecutionException | InterruptedException ex) {
 			logger.error("", ex);

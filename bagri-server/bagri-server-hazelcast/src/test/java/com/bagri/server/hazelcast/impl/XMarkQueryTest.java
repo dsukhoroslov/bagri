@@ -3,6 +3,7 @@ package com.bagri.server.hazelcast.impl;
 import static com.bagri.core.Constants.pn_config_path;
 import static com.bagri.core.Constants.pn_config_properties_file;
 import static com.bagri.core.Constants.pn_log_level;
+import static com.bagri.core.Constants.pn_node_instance;
 import static org.junit.Assert.*;
 
 import java.math.BigDecimal;
@@ -35,6 +36,7 @@ public class XMarkQueryTest extends BagriManagementTest {
 	public static void setUpBeforeClass() throws Exception {
 		sampleRoot = "..\\..\\etc\\samples\\xmark\\";
 		//System.setProperty(pn_log_level, "trace");
+		System.setProperty(pn_node_instance, "0");
 		System.setProperty("logback.configurationFile", "hz-logging.xml");
 		System.setProperty(pn_config_properties_file, "xmark.properties");
 		System.setProperty(pn_config_path, "src\\test\\resources");

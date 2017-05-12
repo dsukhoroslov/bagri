@@ -1,15 +1,12 @@
 package com.bagri.server.hazelcast.impl;
 
 import static com.bagri.core.Constants.*;
+import static com.bagri.core.api.BagriException.ecDocument;
 import static com.bagri.core.api.TransactionManagement.TX_NO;
 import static com.bagri.core.model.Document.clnDefault;
 import static com.bagri.core.model.Document.dvFirst;
 import static com.bagri.core.query.PathBuilder.*;
-import static com.bagri.core.server.api.CacheConstants.PN_XDM_SCHEMA_POOL;
-import static com.bagri.core.server.api.CacheConstants.CN_XDM_CONTENT;
-import static com.bagri.core.server.api.CacheConstants.CN_XDM_DOCUMENT;
 import static com.bagri.core.system.DataFormat.df_xml;
-import static com.bagri.server.hazelcast.util.SpringContextHolder.getContext;
 import static com.bagri.support.util.FileUtils.def_encoding;
 import static com.bagri.support.util.XMLUtils.*;
 
@@ -19,25 +16,18 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import org.springframework.context.ApplicationContext;
-
-import com.bagri.client.hazelcast.DocumentPartKey;
 import com.bagri.client.hazelcast.task.doc.DocumentContentProvider;
 import com.bagri.core.DataKey;
 import com.bagri.core.DocumentKey;
@@ -60,13 +50,11 @@ import com.bagri.core.system.TriggerAction.Order;
 import com.bagri.core.system.TriggerAction.Scope;
 import com.bagri.server.hazelcast.predicate.CollectionPredicate;
 import com.bagri.server.hazelcast.predicate.DocumentPredicateBuilder;
+import com.bagri.server.hazelcast.task.doc.DocumentProcessor;
 import com.bagri.support.idgen.IdGenerator;
 import com.bagri.support.stats.StatisticsEvent;
-import com.bagri.support.util.PropUtils;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.IMap;
-import com.hazelcast.map.impl.recordstore.RecordStore;
 import com.hazelcast.projection.Projection;
 import com.hazelcast.projection.Projections;
 import com.hazelcast.query.PagingPredicate;
@@ -95,7 +83,6 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 
     private boolean enableStats = true;
 	private BlockingQueue<StatisticsEvent> queue;
-    private Comparator<DocumentKey> versionComparator = new VersionComparator();
 	
     public void setRepository(SchemaRepositoryImpl repo) {
     	this.repo = repo;
@@ -300,7 +287,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
     			return key;
     		} 
     		
-			if (hzInstance.getPartitionService().getPartition(key).getOwner().localMember()) {
+			if (ddSvc.isLocalKey(key)) {
 				// we have not found corresponding Document for the uri provided, 
 				// and no option to build a new key, so we returning null
 	    		return null;
@@ -340,14 +327,9 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	@SuppressWarnings("unchecked")
 	public java.util.Collection<String> getDocumentUris(String pattern, Properties props) {
 		logger.trace("getDocumentUris.enter; got pattern: {}; props: {}", pattern, props);
-		java.util.Collection<String> uris;
 		Predicate<DocumentKey, Document> query;
-		Projection<Entry<DocumentKey, Document>, String> pro = Projections.singleAttribute(fnUri);
 		if (pattern != null) {
 			query = DocumentPredicateBuilder.getQuery(pattern);
-			//if (pattern.indexOf(fnTxFinish) < 0) {
-			//	query = Predicates.and(query, Predicates.equal(fnTxFinish, TX_NO)); 
-			//}
 		} else {
 			query = Predicates.equal(fnTxFinish, TX_NO);
 		}
@@ -355,15 +337,16 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		if (props != null) {
 			int pageSize = Integer.valueOf(props.getProperty(pn_client_fetchSize, "0"));
 			if (pageSize > 0) {
-				query = new PagingPredicate(query, pageSize);
+				query = new PagingPredicate<>(query, pageSize);
 				//query = Predicates.and(new PagingPredicate(pageSize), query);
 			}
 		} //else {
+		//  Projection<Entry<DocumentKey, Document>, String> pro = Projections.singleAttribute(fnUri);
 		//	uris = xddCache.project(pro, query);
 		//}
 		
 		java.util.Collection<Document> docs = xddCache.values(query);
-		uris = new ArrayList<>(docs.size());
+		java.util.Collection<String> uris = new ArrayList<>(docs.size());
 		if (pattern.indexOf(fnTxFinish) < 0) {
 			for (Document doc: docs) {
 				if (doc.getTxFinish() == TX_NO) {
@@ -390,7 +373,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
         String root = null;
 		for (Iterator<Long> itr = docKeys.iterator(); itr.hasNext(); ) {
 			DocumentKey docKey = factory.newDocumentKey(itr.next());
-			if (hzInstance.getPartitionService().getPartition(docKey).getOwner().localMember()) {
+			if (ddSvc.isLocalKey(docKey)) {
 				Document doc = xddCache.get(docKey);
 				if (doc == null) {
 					logger.info("buildDocument; lost document for key {}", docKey);
@@ -432,6 +415,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
         return result;
 	}
     
+	@SuppressWarnings("unchecked")
 	private String buildElement(String path, long[] fragments) throws BagriException {
         logger.trace("buildElement.enter; got path: {}", path); 
     	Set<DataKey> xdKeys = getDocumentElementKeys(path, fragments);
@@ -469,6 +453,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public Map<String, Object> getDocumentAsMap(DocumentKey docKey, Properties props) throws BagriException {
 		//String xml = getDocumentAsString(docKey, props);
 		//if (xml == null) {
@@ -524,7 +509,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			
 			// if docId is not local then buildDocument returns null!
 			// query docId owner node for the XML instead
-			if (hzInstance.getPartitionService().getPartition(docKey).getOwner().localMember()) {
+			if (ddSvc.isLocalKey(docKey)) {
 				Map<String, Object> params = new HashMap<>();
 				params.put(":doc", doc.getTypeRoot());
 				java.util.Collection<String> results = buildDocument(Collections.singleton(docKey.getKey()), ":doc", params);
@@ -534,16 +519,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 				}
 			} else {
 				DocumentContentProvider xp = new DocumentContentProvider(repo.getClientId(), doc.getUri(), props); 
-				//IExecutorService execService = hzInstance.getExecutorService(PN_XDM_SCHEMA_POOL);
-				//Future<String> future = execService.submitToKeyOwner(xp, doc.getUri());
-				//try {
-				//	content = future.get();
-				//} catch (InterruptedException | ExecutionException ex) {
-				//	logger.error("getDocumentAsString; error getting result", ex);
-				//	throw new BagriException(ex, BagriException.ecDocument);
-				//}
 				content = (String) xddCache.executeOnKey(docKey, xp);
-				
 			}
 		}
 		return content;
@@ -630,7 +606,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		
 		List<Data> data;
 		int length = 0;
-		ContentParser parser = repo.getParser(dataFormat);
+		ContentParser<Object> parser = repo.getParser(dataFormat);
 		try {
 			data = parser.parse(content);
 			// TODO: get length from parser
@@ -712,7 +688,6 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 					if (path != null) {
 						fragments.add(path.getPathId());
 					} else if (isRegexPath(fragment.getPath())) {
-						//String nPath = model.normalizePath(fragment.getPath());
 						String nPath = fragment.getPath();
 						fragments.addAll(model.translatePathFromRegex(root, regexFromPath(nPath)));
 					} else {	
@@ -732,12 +707,8 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			}
 			Set<Integer> pathIds = new HashSet<>(size);
 			List<Long> fragIds = new ArrayList<>(size);
-			//fragIds.add(new Long(docType));
 			for (Data xdm: data) {
 				if (fragments.contains(xdm.getPathId())) {
-					// TODO: why don't we shift it?
-					//XDMDocumentKey kk = factory.newXDMDocumentKey(docGen.next(), 0);
-					//fraPath = kk.getKey();
 					int hash = docGen.next().intValue(); 
 					fraPath = DocumentKey.toKey(hash, 0, 0);
 					fragIds.add(fraPath);
@@ -764,7 +735,6 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			stamp = System.currentTimeMillis() - stamp;
 			logger.debug("loadElements; cached {} elements for docKey: {}; fragments: {}; time taken: {}", 
 					elements.size(), docKey, fragIds.size(), stamp);
-			//model.normalizeDocumentType(docType);
 			Object[] result = new Object[2];
 			result[0] = fragIds;
 			result[1] = pathIds;
@@ -772,6 +742,101 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		}
 		return null;
 	}
+	
+	public Document processDocument(Map.Entry<DocumentKey, Document> old, long txId, String uri, Object content, List<Data> data, int[] collections) throws BagriException {
+		
+		logger.trace("processDocument.enter; uri: {}; data length: {}; collections: {}", uri, data.size(), collections);
+		
+		//boolean update = (old.getValue() != null); // && (doc.getTxFinish() == TX_NO || !txManager.isTxVisible(doc.getTxFinish())));
+		DocumentKey docKey = old.getKey();
+		if (old.getValue() != null) {
+	    	logger.trace("processDocument; going to update document: {}", old);
+	    	// we must finish old Document and create a new one!
+			//triggerManager.applyTrigger(doc, Order.before, Scope.update);
+	    	Document updated = old.getValue();
+	    	updated.finishDocument(txId);
+		    old.setValue(updated);
+		    docKey = factory.newDocumentKey(docKey.getKey(), docKey.getVersion() + 1); // docKey.getKey() + 1);
+		}
+
+		long key = docKey.getKey();
+		int length = 0; // get it from parser somehow
+		String root = data.get(0).getDataPath().getRoot();
+		Set<Integer> ids = processElements(key, data);
+		Document newDoc = new Document(key, uri, root, txId, TX_NO, new Date(), repo.getUserName(), def_encoding, length, data.size());
+
+		List<String> clns = new ArrayList<>();
+		if (collections != null && collections.length > 0) {
+			newDoc.setCollections(collections);
+			for (Collection cln: repo.getSchema().getCollections()) {
+				for (int clnId: collections) {
+					if (clnId == cln.getId()) {
+						clns.add(cln.getName());
+						break;
+					}
+				}
+			}
+		}
+
+		if (clns.size() == 0) {
+			String cln = checkDefaultDocumentCollection(newDoc);
+			if (cln != null) {
+				clns.add(cln);
+			}
+		}
+		
+		// invalidate cached query results. always do this, even on load?
+		//Set<Integer> paths = (Set<Integer>) ids[1];
+		//((QueryManagementImpl) repo.getQueryManagement()).invalidateQueryResults(paths);
+
+		// update statistics
+		for (String cln: clns) {
+			updateStats(cln, true, data.size(), 0);
+			//updateStats(cln, true, paths.size(), doc.getFragments().length);
+		}
+		updateStats(null, true, data.size(), 0);
+		
+		if (old.getValue() == null) {
+	    	old.setValue(newDoc);
+		} else {
+			xddCache.set(docKey, newDoc);
+		}
+		cntCache.set(docKey, content);
+		
+		logger.trace("processDocument.exit; returning: {}", newDoc);
+		return newDoc;
+	}
+	
+	private Set<Integer> processElements(long docKey, List<Data> data) throws BagriException {
+		
+		Data dRoot = getDataRoot(data);
+		if (dRoot != null) {
+			//String root = dRoot.getDataPath().getRoot();
+			Map<DataKey, Elements> elements = new HashMap<DataKey, Elements>(data.size());
+			Set<Integer> pathIds = new HashSet<>(data.size());
+			for (Data xdm: data) {
+				if (xdm.getValue() != null) {
+					pathIds.add(xdm.getPathId());
+					DataKey xdk = factory.newDataKey(docKey, xdm.getPathId());
+					Elements xdes = elements.get(xdk);
+					if (xdes == null) {
+						xdes = new Elements(xdk.getPathId(), null);
+						elements.put(xdk, xdes);
+					}
+					xdes.addElement(xdm.getElement());
+					//indexManager.addIndex(docKey, xdm.getPathId(), xdm.getPath(), xdm.getValue());
+				}
+			}
+			// TODO: do it directly via RecordStore
+			//xdmCache.putAll(elements);
+			for (Map.Entry<DataKey, Elements> e: elements.entrySet()) {
+				xdmCache.set(e.getKey(), e.getValue());
+			}
+			return pathIds;
+		}
+		throw new BagriException("invalid document: has no root element", ecDocument);
+	}
+
 	
 	@Override
 	public Document storeDocumentFromBean(String uri, Object bean, Properties props) throws BagriException {
@@ -800,13 +865,6 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		//}
 		//return storeDocumentFromString(uri, xml, props);
 		Document result = storeDocument(uri, fields, props);
-		
-		//ApplicationContext ctx = getContext(repo.getSchema().getName());
-		//DataDistributionService svc = ctx.getBean(DataDistributionService.class);
-		//int partId = svc.getPartitionId(uri.hashCode());
-		//DocumentKey docKey = getDocumentKey(uri, false, false);
-		//logger.info("storeDocumentFromMap; got uri: {}, hash: {}; uri partId: {}, docKey partId: {}", 
-		//		uri, uri.hashCode(), partId, svc.getPartitionId(docKey)); 
 		return result;
 	}
 	
@@ -819,74 +877,85 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	
 		logger.trace("storeDocument.enter; uri: {}; content: {}; props: {}", uri, content.getClass().getName(), props);
 		if (uri == null) {
-			throw new BagriException("Empty URI passed", BagriException.ecDocument); 
+			throw new BagriException("Empty URI passed", ecDocument); 
 		}
-
-		boolean update = false;
-		String storeMode = PropUtils.getProperty(props, pn_client_storeMode, pv_client_storeMode_merge);
 		
-		DocumentKey docKey = getDocumentKey(uri, false, true);
+		String storeMode;
+		String dataFormat;
+		int[] collections = null; 
+		if (props == null) {
+			storeMode = pv_client_storeMode_merge;
+			dataFormat = null;
+		} else {
+			storeMode = props.getProperty(pn_client_storeMode, pv_client_storeMode_merge); 
+			dataFormat = props.getProperty(pn_document_data_format);
+
+			String prop = props.getProperty(pn_document_collections);
+			if (prop != null) {
+				StringTokenizer tc = new StringTokenizer(prop, ", ", false);
+				collections = new int[tc.countTokens()];
+				int idx = 0;
+				while (tc.hasMoreTokens()) {
+					String clName = tc.nextToken();
+					Collection cln = repo.getSchema().getCollection(clName);
+					if (cln != null) {
+						collections[idx] = cln.getId();
+					}
+					idx++;
+				}
+			}
+		}
+		
+		DocumentKey docKey = ddSvc.getLastKeyForUri(uri);
 		if (docKey == null) {
 			if (pv_client_storeMode_update.equals(storeMode)) {
-				throw new BagriException("No document found for update. " +  uri, BagriException.ecDocument); 
+				throw new BagriException("No document with URI '" +  uri + "' found for update", ecDocument); 
 			}
 			docKey = factory.newDocumentKey(uri, 0, dvFirst);
 		} else {
 			if (pv_client_storeMode_insert.equals(storeMode)) {
-				throw new BagriException("Document with URI '" + uri + "' already exists; docKey: " + docKey, 
-						BagriException.ecDocument); 
+				throw new BagriException("Document with URI '" + uri + "' already exists; docKey: " + docKey, ecDocument); 
 			}
-		    Document doc = getDocument(docKey);
-			update = (doc != null && (doc.getTxFinish() == TX_NO || !txManager.isTxVisible(doc.getTxFinish())));
+		    //Document doc = getDocument(docKey);
+			//update = (doc != null && (doc.getTxFinish() == TX_NO || !txManager.isTxVisible(doc.getTxFinish())));
+			//triggerManager.applyTrigger(doc, Order.before, Scope.update);
+	    	// do this asynch after tx?
+	    	((QueryManagementImpl) repo.getQueryManagement()).removeQueryResults(docKey.getKey());
+		}
+
+		if (dataFormat == null) {
+			dataFormat = uri.substring(uri.lastIndexOf(".") + 1);
 		}
 		
-		String value = PropUtils.getProperty(props, pn_client_txTimeout, null);
-		long timeout = txManager.getTransactionTimeout(); 
-		if (value != null) {
-			timeout = Long.parseLong(value);
-		}
-		boolean locked = lockDocument(docKey, timeout);
-		if (locked) {
-			try {
-				DocumentKey newKey = docKey;
-				if (update) {
-				    Document doc = getDocument(newKey);
-				    if (doc != null) {
-				    	if (doc.getTxFinish() > TX_NO && txManager.isTxVisible(doc.getTxFinish())) {
-				    		throw new BagriException("Document with key: " + doc.getDocumentKey() + 
-				    				", version: " + doc.getVersion() + " has been concurrently updated", 
-				    				BagriException.ecDocument);
-				    	}
-				    	logger.trace("storeDocument; going to update document: {}", doc);
-				    	// we must finish old Document and create a new one!
-						triggerManager.applyTrigger(doc, Order.before, Scope.update);
-				    	doc.finishDocument(txManager.getCurrentTxId());
-				    	// do this asynch after tx?
-				    	((QueryManagementImpl) repo.getQueryManagement()).removeQueryResults(newKey.getKey());
-				    	xddCache.set(docKey, doc);
-						newKey = getDocumentKey(uri, true, false);
-				    	// shouldn't we lock the newKey too?
-				    }
-				}
-				Document result = createDocument(newKey, uri, content, props);
-				if (update) {
-					txManager.updateCounters(0, 1, 0);
-				} else {
-					txManager.updateCounters(1, 0, 0);
-				}
-			    return result;
-			} catch (BagriException ex) {
-				throw ex;
-			} catch (Exception ex) {
-				logger.error("storeDocument.error; uri: " + uri, ex);
-				throw new BagriException(ex, BagriException.ecDocument);
-			} finally {
-				unlockDocument(docKey);
+		ContentParser<Object> parser = repo.getParser(dataFormat);
+		List<Data> data = parser.parse(content);
+		
+		// if fragmented document - process it in the old style!
+		
+		Object result = xddCache.executeOnKey(docKey, new DocumentProcessor(txManager.getCurrentTxId(), uri, content, data, collections));
+		if (result instanceof Exception) {
+			logger.error("storeDocument.error; uri: {}", uri, result);
+			if (result instanceof BagriException) {
+				throw (BagriException) result;
 			}
-		} else {
-    		throw new BagriException("Was not able to aquire lock while storing Document: " + docKey + 
-    				", timeout: " + timeout, BagriException.ecTransTimeout);
+			throw new BagriException((Exception) result, ecDocument);
 		}
+
+		Scope scope;
+		Document newDoc = (Document) result;
+		if (newDoc.getVersion() > dvFirst) {
+			scope = Scope.update;
+			txManager.updateCounters(0, 1, 0);
+		} else {
+			scope = Scope.insert;
+			txManager.updateCounters(1, 0, 0);
+		}
+		triggerManager.applyTrigger(newDoc, Order.after, scope);
+
+		//((QueryManagementImpl) repo.getQueryManagement()).invalidateQueryResults(paths);
+		
+		logger.trace("storeDocument.exit; returning: {}", newDoc);
+		return newDoc;
 	}
 
 	@Override
@@ -1185,13 +1254,4 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		}
 	}
 
-	
-	private static class VersionComparator implements Comparator<DocumentKey> {
-
-		@Override
-		public int compare(DocumentKey key1, DocumentKey key2) {
-			return key1.getVersion() - key2.getVersion();
-		}
-    		
-	}
 }
