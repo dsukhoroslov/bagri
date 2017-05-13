@@ -114,7 +114,7 @@ public class DataDistributionService implements ManagedService {
 					}
 				}
 			}
-			logger.debug("getLastKeyForUri; uri: {}; returning: {}", uri, last);
+			logger.trace("getLastKeyForUri; uri: {}; returning: {}", uri, last);
 			return last;
 		} catch (ExecutionException | InterruptedException ex) {
 			logger.error("", ex);

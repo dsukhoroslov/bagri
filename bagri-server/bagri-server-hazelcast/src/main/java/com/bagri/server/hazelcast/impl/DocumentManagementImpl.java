@@ -154,6 +154,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
     }
     
     public java.util.Collection<Elements> getDocumentElements(String uri) {
+    	// could be faster to do this via EP..
 		Document doc = getDocument(uri);
 		if (doc == null) {
 			return null;
@@ -743,9 +744,9 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		return null;
 	}
 	
-	public Document processDocument(Map.Entry<DocumentKey, Document> old, long txId, String uri, Object content, List<Data> data, int[] collections) throws BagriException {
+	public Document processDocument(Map.Entry<DocumentKey, Document> old, long txId, String uri, Object content, List<Data> data, Properties props) throws BagriException {
 		
-		logger.trace("processDocument.enter; uri: {}; data length: {}; collections: {}", uri, data.size(), collections);
+		logger.trace("processDocument.enter; uri: {}; data length: {}; props: {}", uri, data.size(), props);
 		
 		//boolean update = (old.getValue() != null); // && (doc.getTxFinish() == TX_NO || !txManager.isTxVisible(doc.getTxFinish())));
 		DocumentKey docKey = old.getKey();
@@ -765,34 +766,23 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		Set<Integer> ids = processElements(key, data);
 		Document newDoc = new Document(key, uri, root, txId, TX_NO, new Date(), repo.getUserName(), def_encoding, length, data.size());
 
-		List<String> clns = new ArrayList<>();
-		if (collections != null && collections.length > 0) {
-			newDoc.setCollections(collections);
-			for (Collection cln: repo.getSchema().getCollections()) {
-				for (int clnId: collections) {
-					if (clnId == cln.getId()) {
-						clns.add(cln.getName());
-						break;
-					}
+		String collections = props == null ? null : props.getProperty(pn_document_collections);
+		if (collections != null) {
+			StringTokenizer tc = new StringTokenizer(collections, ", ", false);
+			while (tc.hasMoreTokens()) {
+				String clName = tc.nextToken();
+				Collection cln = repo.getSchema().getCollection(clName);
+				if (cln != null) {
+					newDoc.addCollection(cln.getId());
+					updateStats(clName, true, data.size(), 0);
+					//updateStats(clName, true, paths.size(), doc.getFragments().length);
 				}
 			}
-		}
-
-		if (clns.size() == 0) {
-			String cln = checkDefaultDocumentCollection(newDoc);
-			if (cln != null) {
-				clns.add(cln);
+		} else {
+			String clName = checkDefaultDocumentCollection(newDoc);
+			if (clName != null) {
+				updateStats(clName, true, data.size(), 0);
 			}
-		}
-		
-		// invalidate cached query results. always do this, even on load?
-		//Set<Integer> paths = (Set<Integer>) ids[1];
-		//((QueryManagementImpl) repo.getQueryManagement()).invalidateQueryResults(paths);
-
-		// update statistics
-		for (String cln: clns) {
-			updateStats(cln, true, data.size(), 0);
-			//updateStats(cln, true, paths.size(), doc.getFragments().length);
 		}
 		updateStats(null, true, data.size(), 0);
 		
@@ -824,7 +814,6 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 						elements.put(xdk, xdes);
 					}
 					xdes.addElement(xdm.getElement());
-					//indexManager.addIndex(docKey, xdm.getPathId(), xdm.getPath(), xdm.getValue());
 				}
 			}
 			// TODO: do it directly via RecordStore
@@ -882,28 +871,12 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		
 		String storeMode;
 		String dataFormat;
-		int[] collections = null; 
 		if (props == null) {
 			storeMode = pv_client_storeMode_merge;
 			dataFormat = null;
 		} else {
 			storeMode = props.getProperty(pn_client_storeMode, pv_client_storeMode_merge); 
 			dataFormat = props.getProperty(pn_document_data_format);
-
-			String prop = props.getProperty(pn_document_collections);
-			if (prop != null) {
-				StringTokenizer tc = new StringTokenizer(prop, ", ", false);
-				collections = new int[tc.countTokens()];
-				int idx = 0;
-				while (tc.hasMoreTokens()) {
-					String clName = tc.nextToken();
-					Collection cln = repo.getSchema().getCollection(clName);
-					if (cln != null) {
-						collections[idx] = cln.getId();
-					}
-					idx++;
-				}
-			}
 		}
 		
 		DocumentKey docKey = ddSvc.getLastKeyForUri(uri);
@@ -932,7 +905,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		
 		// if fragmented document - process it in the old style!
 		
-		Object result = xddCache.executeOnKey(docKey, new DocumentProcessor(txManager.getCurrentTxId(), uri, content, data, collections));
+		Object result = xddCache.executeOnKey(docKey, new DocumentProcessor(txManager.getCurrentTxId(), uri, content, data, props));
 		if (result instanceof Exception) {
 			logger.error("storeDocument.error; uri: {}", uri, result);
 			if (result instanceof BagriException) {
@@ -952,7 +925,21 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		}
 		triggerManager.applyTrigger(newDoc, Order.after, scope);
 
-		//((QueryManagementImpl) repo.getQueryManagement()).invalidateQueryResults(paths);
+		// invalidate cached query results.
+
+    	java.util.Collection<Path> paths = model.getTypePaths(newDoc.getTypeRoot());
+    	Set<Integer> pathIds = new HashSet<>(paths.size());
+		for (Path path: paths) {
+			DataKey dKey = factory.newDataKey(newDoc.getDocumentKey(), path.getPathId());
+			Elements elts = xdmCache.get(dKey);
+			if (elts != null) {
+				for (Element elt: elts.getElements()) {
+					indexManager.addIndex(newDoc.getDocumentKey(), path.getPathId(), path.getPath(), elt.getValue());
+				}
+				pathIds.add(path.getPathId());
+			}
+		}
+		((QueryManagementImpl) repo.getQueryManagement()).invalidateQueryResults(pathIds);
 		
 		logger.trace("storeDocument.exit; returning: {}", newDoc);
 		return newDoc;

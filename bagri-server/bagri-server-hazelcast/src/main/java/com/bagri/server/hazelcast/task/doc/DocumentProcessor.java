@@ -33,18 +33,18 @@ public class DocumentProcessor implements EntryProcessor<DocumentKey, Document>,
 	private String uri;
 	private Object content;
 	private List<Data> data;
-	private int[] collections;
+	private Properties props;
 
 	public DocumentProcessor() {
 		//
 	}
 
-	public DocumentProcessor(long txId, String uri, Object content, List<Data> data, int[] collections) {
+	public DocumentProcessor(long txId, String uri, Object content, List<Data> data, Properties props) {
 		this.txId = txId;
 		this.uri = uri;
 		this.content = content;
 		this.data = data;
-		this.collections = collections;
+		this.props = props;
 	}
 
     @Autowired
@@ -63,7 +63,7 @@ public class DocumentProcessor implements EntryProcessor<DocumentKey, Document>,
 	public Object process(Entry<DocumentKey, Document> entry) {
 		//return null;
     	try {
-    		return docMgr.processDocument(entry, txId, uri, content, data, collections);
+    		return docMgr.processDocument(entry, txId, uri, content, data, props);
     	} catch (BagriException ex) {
     		return ex;
     	}
