@@ -39,6 +39,7 @@ import com.bagri.core.model.Element;
 import com.bagri.core.model.Elements;
 import com.bagri.core.model.FragmentedDocument;
 import com.bagri.core.model.Path;
+import com.bagri.core.model.Transaction;
 import com.bagri.core.server.api.ContentParser;
 import com.bagri.core.server.api.DocumentManagement;
 import com.bagri.core.server.api.impl.DocumentManagementBase;
@@ -905,7 +906,8 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		
 		// if fragmented document - process it in the old style!
 		
-		Object result = xddCache.executeOnKey(docKey, new DocumentProcessor(txManager.getCurrentTxId(), uri, content, data, props));
+		Transaction tx = txManager.getTransaction(txManager.getCurrentTxId());
+		Object result = xddCache.executeOnKey(docKey, new DocumentProcessor(tx, uri, content, data, props));
 		if (result instanceof Exception) {
 			logger.error("storeDocument.error; uri: {}", uri, result);
 			if (result instanceof BagriException) {

@@ -12,12 +12,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.bagri.core.DocumentKey;
 import com.bagri.core.api.BagriException;
+import com.bagri.core.api.TransactionIsolation;
 import com.bagri.core.model.Data;
 import com.bagri.core.model.Document;
+import com.bagri.core.model.Transaction;
 import com.bagri.core.server.api.SchemaRepository;
+import com.bagri.server.hazelcast.impl.DataDistributionService;
 import com.bagri.server.hazelcast.impl.DocumentManagementImpl;
 import com.hazelcast.map.EntryBackupProcessor;
 import com.hazelcast.map.EntryProcessor;
+import com.hazelcast.map.impl.MapEntrySimple;
 import com.hazelcast.spring.context.SpringAware;
 
 @SpringAware
@@ -28,8 +32,9 @@ public class DocumentProcessor implements EntryProcessor<DocumentKey, Document>,
 	private static final transient Logger logger = LoggerFactory.getLogger(DocumentProcessor.class);
 	
 	private transient DocumentManagementImpl docMgr;
+	private transient DataDistributionService ddSvc;
 	
-	private long txId;
+	private Transaction tx;
 	private String uri;
 	private Object content;
 	private List<Data> data;
@@ -39,8 +44,8 @@ public class DocumentProcessor implements EntryProcessor<DocumentKey, Document>,
 		//
 	}
 
-	public DocumentProcessor(long txId, String uri, Object content, List<Data> data, Properties props) {
-		this.txId = txId;
+	public DocumentProcessor(Transaction tx, String uri, Object content, List<Data> data, Properties props) {
+		this.tx = tx;
 		this.uri = uri;
 		this.content = content;
 		this.data = data;
@@ -53,6 +58,10 @@ public class DocumentProcessor implements EntryProcessor<DocumentKey, Document>,
 		this.docMgr = (DocumentManagementImpl) repo.getDocumentManagement();
 	}
 	
+    @Autowired
+    public void setDistrService(DataDistributionService ddSvc) {
+    	this.ddSvc = ddSvc;
+    }
 	
 	@Override
 	public void processBackup(Entry<DocumentKey, Document> entry) {
@@ -62,8 +71,17 @@ public class DocumentProcessor implements EntryProcessor<DocumentKey, Document>,
 	@Override
 	public Object process(Entry<DocumentKey, Document> entry) {
 		//return null;
+		DocumentKey lastKey = ddSvc.getLastKeyForUri(uri);
+		if (lastKey != null && lastKey.getVersion() > entry.getKey().getVersion()) {
+			if (tx.getTxIsolation().ordinal() > TransactionIsolation.readCommited.ordinal()) {
+	    		return new BagriException("Document with key: " + entry.getKey() +	", uri: " + uri + 
+	    				" has been concurrently updated; latest key is: " + lastKey, BagriException.ecDocument);
+			}
+			Document lastDoc = docMgr.getDocument(lastKey.getKey());
+			entry = new MapEntrySimple<DocumentKey, Document>(lastKey, lastDoc);
+		}
     	try {
-    		return docMgr.processDocument(entry, txId, uri, content, data, props);
+    		return docMgr.processDocument(entry, tx.getTxId(), uri, content, data, props);
     	} catch (BagriException ex) {
     		return ex;
     	}

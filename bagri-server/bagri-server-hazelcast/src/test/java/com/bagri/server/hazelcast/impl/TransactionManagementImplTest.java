@@ -9,7 +9,9 @@ import static org.junit.Assert.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 
 import org.junit.After;
@@ -19,6 +21,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import com.bagri.core.api.BagriException;
+import com.bagri.core.api.TransactionIsolation;
 import com.bagri.core.model.Document;
 import com.bagri.core.query.AxisType;
 import com.bagri.core.query.Comparison;
@@ -41,6 +45,7 @@ public class TransactionManagementImplTest extends BagriManagementTest {
 	public static void setUpBeforeClass() throws Exception {
 		sampleRoot = "..\\..\\etc\\samples\\tpox\\";
 		//System.setProperty(pn_log_level, "trace");
+		//System.setProperty("hz.log.level", "trace");
 		System.setProperty(pn_node_instance, "0");
 		System.setProperty("logback.configurationFile", "hz-logging.xml");
 		System.setProperty(pn_config_properties_file, "test.properties");
@@ -158,57 +163,47 @@ public class TransactionManagementImplTest extends BagriManagementTest {
 	@Test
 	public void concurrentUpdateTransactionTest() throws Exception {
 		long txId = getTxManagement().beginTransaction();
-		Document doc = createDocumentTest(sampleRoot + getFileName("security1500.xml"));
+		Document doc = createDocumentTest(sampleRoot + getFileName("security9012.xml"));
 		assertNotNull(doc);
 		assertEquals(txId, doc.getTxStart());
 		uris.add(doc.getUri());
 		getTxManagement().commitTransaction(txId);
 		final String uri = doc.getUri();
 		final CountDownLatch cdl = new CountDownLatch(2);
+		List<Long> keys = new CopyOnWriteArrayList<>();
+		keys.add(doc.getDocumentKey());
 
-		Thread th1 = new Thread(new Runnable() {
+		Thread th1 = new Thread(new DocUpdater(uri, "security5621.xml", cdl, keys, TransactionIsolation.readCommited));
+		Thread th2 = new Thread(new DocUpdater(uri, "security1500.xml", cdl, keys, TransactionIsolation.readCommited));
 
-			@Override
-			public void run() {
-				
-				try {
-					long txId = getTxManagement().beginTransaction();
-					Document doc = updateDocumentTest(uri, sampleRoot + getFileName("security5621.xml"));
-					getTxManagement().commitTransaction(txId);
-					if (doc != null) {
-						uris.add(doc.getUri());
-					}
-				} catch (Exception ex) {
-				}
-				cdl.countDown();
-			}
-		});
-
-		Thread th2 = new Thread(new Runnable() {
-
-			@Override
-			public void run() {
-				
-				try {
-					long txId = getTxManagement().beginTransaction();
-					Document doc = updateDocumentTest(uri, sampleRoot + getFileName("security9012.xml"));
-					getTxManagement().commitTransaction(txId);
-					if (doc != null) {
-						uris.add(doc.getUri());
-					}
-				} catch (Exception ex) {
-				}
-				cdl.countDown();
-			}
-		});
-		
 		th1.start();
 		th2.start();
 		cdl.await();
-		// fails sometime, not clear why
-		//assertFalse("expected less than 3 docs commited", ids.size() == 3);
+		assertTrue("expected 3 versions commited, but got " + keys.size(), keys.size() == 3);
 	}	
 
+	@Test
+	public void concurrentUpdateRepeatableTransactionTest() throws Exception {
+		long txId = getTxManagement().beginTransaction();
+		Document doc = createDocumentTest(sampleRoot + getFileName("security5621.xml"));
+		assertNotNull(doc);
+		assertEquals(txId, doc.getTxStart());
+		uris.add(doc.getUri());
+		getTxManagement().commitTransaction(txId);
+		final String uri = doc.getUri();
+		final CountDownLatch cdl = new CountDownLatch(2);
+		List<Long> keys = new CopyOnWriteArrayList<>();
+		keys.add(doc.getDocumentKey());
+
+		Thread th1 = new Thread(new DocUpdater(uri, "security1500.xml", cdl, keys, TransactionIsolation.repeatableRead));
+		Thread th2 = new Thread(new DocUpdater(uri, "security9012.xml", cdl, keys, TransactionIsolation.repeatableRead));
+
+		th1.start();
+		th2.start();
+		cdl.await();
+		assertTrue("expected 2 versions commited, but got " + keys.size(), keys.size() == 2);
+	}	
+	
 	@Test
 	public void concurrentRollbackTransactionTest() throws Exception {
 		long txId = getTxManagement().beginTransaction();
@@ -219,43 +214,11 @@ public class TransactionManagementImplTest extends BagriManagementTest {
 		getTxManagement().commitTransaction(txId);
 		final String uri = doc.getUri();
 		final CountDownLatch cdl = new CountDownLatch(2);
+		List<Long> keys = new CopyOnWriteArrayList<>();
 
-		Thread th1 = new Thread(new Runnable() {
+		Thread th1 = new Thread(new DocUpdater(uri, "security5621.xml", cdl, keys, TransactionIsolation.readCommited));
+		Thread th2 = new Thread(new DocUpdater(uri, "security9012.xml", cdl, keys, TransactionIsolation.readCommited));
 
-			@Override
-			public void run() {
-				
-				try {
-					long txId = getTxManagement().beginTransaction();
-					Document doc = updateDocumentTest(uri, sampleRoot + getFileName("security5621.xml"));
-					getTxManagement().rollbackTransaction(txId);
-					if (doc != null) {
-						uris.add(doc.getUri());
-					}
-				} catch (Exception ex) {
-				}
-				cdl.countDown();
-			}
-		});
-
-		Thread th2 = new Thread(new Runnable() {
-
-			@Override
-			public void run() {
-				
-				try {
-					long txId = getTxManagement().beginTransaction();
-					Document doc = updateDocumentTest(uri, sampleRoot + getFileName("security9012.xml"));
-					getTxManagement().commitTransaction(txId);
-					if (doc != null) {
-						uris.add(doc.getUri());
-					}
-				} catch (Exception ex) {
-				}
-				cdl.countDown();
-			}
-		});
-		
 		th1.start();
 		Thread.sleep(50);
 		th2.start();
@@ -275,48 +238,57 @@ public class TransactionManagementImplTest extends BagriManagementTest {
 		final String uri = doc.getUri();
 		final CountDownLatch cdl = new CountDownLatch(2);
 		getTxManagement().setTransactionTimeout(10);
+		List<Long> keys = new CopyOnWriteArrayList<>();
 
-		Thread th1 = new Thread(new Runnable() {
-
-			@Override
-			public void run() {
-				
-				try {
-					long txId = getTxManagement().beginTransaction();
-					Document doc = updateDocumentTest(uri, sampleRoot + getFileName("security5621.xml"));
-					getTxManagement().commitTransaction(txId);
-					if (doc != null) {
-						uris.add(doc.getUri());
-					}
-				} catch (Exception ex) {
-				}
-				cdl.countDown();
-			}
-		});
-
-		Thread th2 = new Thread(new Runnable() {
-
-			@Override
-			public void run() {
-				
-				try {
-					long txId = getTxManagement().beginTransaction();
-					Document doc = updateDocumentTest(uri, sampleRoot + getFileName("security9012.xml"));
-					getTxManagement().commitTransaction(txId);
-					if (doc != null) {
-						uris.add(doc.getUri());
-					}
-				} catch (Exception ex) {
-				}
-				cdl.countDown();
-			}
-		});
+		Thread th1 = new Thread(new DocUpdater(uri, "security5621.xml", cdl, keys, TransactionIsolation.readCommited));
+		Thread th2 = new Thread(new DocUpdater(uri, "security9012.xml", cdl, keys, TransactionIsolation.readCommited));
 		
 		th1.start();
 		th2.start();
 		cdl.await();
 		// fails sometime, not clear why
 		//assertFalse("expected less than 3 docs commited", ids.size() == 3);
+	}
+	
+	private class DocUpdater implements Runnable {
+		
+		private String uri;
+		private String uri2;
+		private List<Long> keys;
+		private CountDownLatch latch;
+		private TransactionIsolation tiLevel;
+		
+		DocUpdater(String uri, String uri2, CountDownLatch latch, List<Long> keys, TransactionIsolation tiLevel) {
+			this.uri = uri;
+			this.uri2 = uri2;
+			this.latch = latch;
+			this.keys = keys;
+			this.tiLevel = tiLevel;
+		}
+		
+		@Override
+		public void run() {
+			
+			try {
+				long txId = getTxManagement().beginTransaction(tiLevel);
+				Document doc = updateDocumentTest(uri, sampleRoot + getFileName(uri2));
+				getTxManagement().commitTransaction(txId);
+				if (doc != null) {
+					uris.add(doc.getUri());
+					keys.add(doc.getDocumentKey());
+				}
+			} catch (Exception ex) {
+				try {
+					((TransactionManagementImpl) getTxManagement()).flushCurrentTx();
+				} catch (BagriException e) {
+					e.printStackTrace();
+				}
+				// log it..
+				System.out.println(ex);
+			}
+			latch.countDown();
+		}
+		
 	}
 	
 }

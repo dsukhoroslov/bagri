@@ -1,5 +1,6 @@
 package com.bagri.server.hazelcast.impl;
 
+import static com.bagri.core.api.BagriException.ecTransaction;
 import static com.bagri.core.api.BagriException.ecTransNoNested;
 import static com.bagri.core.api.BagriException.ecTransNotFound;
 import static com.bagri.core.api.BagriException.ecTransWrongState;
@@ -47,7 +48,7 @@ import com.hazelcast.core.MultiExecutionCallback;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
 
-public class TransactionManagementImpl implements TransactionManagement, StatisticsProvider, MultiExecutionCallback {
+public class TransactionManagementImpl implements TransactionManagement, StatisticsProvider { //, MultiExecutionCallback {
 	
     private static final Logger logger = LoggerFactory.getLogger(TransactionManagementImpl.class);
     private static final long TX_START = 5L; 
@@ -66,7 +67,7 @@ public class TransactionManagementImpl implements TransactionManagement, Statist
 	private AtomicLong cntRolled = new AtomicLong(0);
     
 	private SchemaRepositoryImpl repo;
-    //private HazelcastInstance hzInstance;
+    private HazelcastInstance hzInstance;
 	private Cluster cluster;
 	private IdGenerator<Long> txGen;
 	private ITopic<Counter> cTopic;
@@ -83,7 +84,7 @@ public class TransactionManagementImpl implements TransactionManagement, Statist
     }
 	
 	public void setHzInstance(HazelcastInstance hzInstance) {
-		//this.hzInstance = hzInstance;
+		this.hzInstance = hzInstance;
 		cluster = hzInstance.getCluster();
 		txCache = hzInstance.getMap(CN_XDM_TRANSACTION);
 		txGen = new IdGeneratorImpl(hzInstance.getAtomicLong(SQN_TRANSACTION));
@@ -195,29 +196,45 @@ public class TransactionManagementImpl implements TransactionManagement, Statist
 		return false;
 	}
 	
+	Transaction getTransaction(long txId) {
+		return txCache.get(txId);
+	}
+	
 	@Override
 	public boolean isInTransaction() {
 		return getCurrentTxId() > TX_NO; 
 	}
 	
-	private void cleanAffectedDocuments(Transaction xTx) {
+	private void cleanAffectedDocuments(Transaction xTx) throws BagriException {
 		// asynchronous cleaning..
 		//execService.submitToAllMembers(new DocumentCleaner(xTx), this);
 		
-		// synchronous cleaning.. causes a deadlock if used from the common schema exec-pool. 
-		// that is why we use separate exec-pool for transaction tasks 
-		Map<Member, Future<Transaction>> values = execService.submitToAllMembers(new DocumentCleaner(xTx));
         Transaction txClean = null;
-		for (Future<Transaction> value: values.values()) {
-			try {
-				Transaction tx = value.get();
-				if (txClean == null) {
-					txClean = tx;
-				} else {
-					txClean.updateCounters(tx.getDocsCreated(), tx.getDocsUpdated(), tx.getDocsDeleted());
+		DocumentCleaner cleaner = new DocumentCleaner(xTx);
+		if (hzInstance.getCluster().getMembers().size() > 1) {
+			// synchronous cleaning.. causes a deadlock if used from the common schema exec-pool. 
+			// that is why we use separate exec-pool for transaction tasks
+			Map<Member, Future<Transaction>> values = execService.submitToAllMembers(cleaner);
+			for (Future<Transaction> value: values.values()) {
+				try {
+					Transaction tx = value.get();
+					if (txClean == null) {
+						txClean = tx;
+					} else {
+						txClean.updateCounters(tx.getDocsCreated(), tx.getDocsUpdated(), tx.getDocsDeleted());
+					}
+				} catch (InterruptedException | ExecutionException ex) {
+					logger.error("cleanAffectedDocuments.error;", ex);
+					throw new BagriException(ex, ecTransaction);
 				}
-			} catch (InterruptedException | ExecutionException ex) {
+			}
+		} else {
+			cleaner.setXDMRepository(repo);
+			try {
+				txClean = cleaner.call();
+			} catch (Exception ex) {
 				logger.error("cleanAffectedDocuments.error;", ex);
+				throw new BagriException(ex, ecTransaction);
 			}
 		}
 		logger.trace("cleanAffectedDocuments; going to complete {}", txClean);
@@ -308,6 +325,7 @@ public class TransactionManagementImpl implements TransactionManagement, Statist
 		if (autoCommit) {
 			// do not begin tx if it is read-only!
 			if (!readOnly) {
+				// get IsolationLevel from some Properties?
 				txId = beginTransaction();
 			}
 		} else {
@@ -382,29 +400,29 @@ public class TransactionManagementImpl implements TransactionManagement, Statist
 		cntRolled = new AtomicLong(0);
 	}
 
-	@Override
-	public void onResponse(Member member, Object value) {
-        logger.trace("onResponse; got response: {} from member: {}", value, member);
-	}
+	//@Override
+	//public void onResponse(Member member, Object value) {
+    //    logger.trace("onResponse; got response: {} from member: {}", value, member);
+	//}
 
-	@Override
-	public void onComplete(Map<Member, Object> values) {
-        logger.trace("onComplete; got values: {}", values);
-        Transaction txClean = null;
-		for (Object value: values.values()) {
-			Transaction tx = (Transaction) value;
-			if (txClean == null) {
-				txClean = tx;
-			} else {
-				txClean.updateCounters(tx.getDocsCreated(), tx.getDocsUpdated(), tx.getDocsDeleted());
-			}
-		}
-		if (txClean != null) {
-			completeTransaction(txClean);
-		} else {
-			logger.info("onComplete; got empty complete response");
-		}
-	}
+	//@Override
+	//public void onComplete(Map<Member, Object> values) {
+    //    logger.trace("onComplete; got values: {}", values);
+    //    Transaction txClean = null;
+	//	for (Object value: values.values()) {
+	//		Transaction tx = (Transaction) value;
+	//		if (txClean == null) {
+	//			txClean = tx;
+	//		} else {
+	//			txClean.updateCounters(tx.getDocsCreated(), tx.getDocsUpdated(), tx.getDocsDeleted());
+	//		}
+	//	}
+	//	if (txClean != null) {
+	//		completeTransaction(txClean);
+	//	} else {
+	//		logger.info("onComplete; got empty complete response");
+	//	}
+	//}
 	
 	private void completeTransaction(Transaction txClean) {
 		Transaction txSource = txCache.get(txClean.getTxId());

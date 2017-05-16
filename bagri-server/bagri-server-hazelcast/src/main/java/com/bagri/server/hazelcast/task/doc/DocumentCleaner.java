@@ -23,7 +23,6 @@ import com.hazelcast.core.IMap;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
-import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
 import com.hazelcast.spring.context.SpringAware;
 
@@ -59,6 +58,9 @@ public class DocumentCleaner implements Callable<Transaction>, IdentifiedDataSer
 		Set<DocumentKey> dkStarted = xddCache.localKeySet(Predicates.equal("txStart", xTx.getTxId()));
 		Set<DocumentKey> dkFinished = xddCache.localKeySet(Predicates.equal("txFinish", xTx.getTxId()));
 		Transaction result = new Transaction(xTx.getTxId(), xTx.getStartedAt(), xTx.getFinishedAt(), xTx.getStartedBy(), xTx.getTxIsolation(), xTx.getTxState());
+
+		//logger.debug("call; started: {}; finished: {}", dkStarted, dkFinished);
+		//logger.debug("call; all docs: {}", xddCache.values());
 		
 		boolean commit = xTx.getTxState() == TransactionState.commited;
 		// on commit: 
