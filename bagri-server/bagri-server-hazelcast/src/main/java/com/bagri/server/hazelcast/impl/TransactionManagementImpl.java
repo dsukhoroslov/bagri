@@ -241,7 +241,7 @@ public class TransactionManagementImpl implements TransactionManagement, Statist
 		completeTransaction(txClean); 
 	}
 	
-	boolean isTxVisible(long txId) throws BagriException {
+	public boolean isTxVisible(long txId) throws BagriException {
 		if (txId <= TX_INIT) {
 			return true;
 		}

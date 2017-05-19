@@ -6,6 +6,9 @@ import static com.bagri.core.api.TransactionManagement.TX_NO;
 import static com.bagri.core.model.Document.clnDefault;
 import static com.bagri.core.model.Document.dvFirst;
 import static com.bagri.core.query.PathBuilder.*;
+import static com.bagri.core.server.api.CacheConstants.CN_XDM_CONTENT;
+import static com.bagri.core.server.api.CacheConstants.CN_XDM_DOCUMENT;
+import static com.bagri.core.server.api.CacheConstants.CN_XDM_ELEMENT;
 import static com.bagri.core.system.DataFormat.df_xml;
 import static com.bagri.support.util.FileUtils.def_encoding;
 import static com.bagri.support.util.XMLUtils.*;
@@ -50,12 +53,14 @@ import com.bagri.core.system.Schema;
 import com.bagri.core.system.TriggerAction.Order;
 import com.bagri.core.system.TriggerAction.Scope;
 import com.bagri.server.hazelcast.predicate.CollectionPredicate;
+import com.bagri.server.hazelcast.predicate.DocVisiblePredicate;
 import com.bagri.server.hazelcast.predicate.DocumentPredicateBuilder;
 import com.bagri.server.hazelcast.task.doc.DocumentProcessor;
 import com.bagri.support.idgen.IdGenerator;
 import com.bagri.support.stats.StatisticsEvent;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
+import com.hazelcast.map.impl.recordstore.RecordStore;
 import com.hazelcast.projection.Projection;
 import com.hazelcast.projection.Projections;
 import com.hazelcast.query.PagingPredicate;
@@ -520,7 +525,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 					cntCache.set(docKey, content);
 				}
 			} else {
-				DocumentContentProvider xp = new DocumentContentProvider(repo.getClientId(), doc.getUri(), props); 
+				DocumentContentProvider xp = new DocumentContentProvider(repo.getClientId(), txManager.getCurrentTxId(), doc.getUri(), props); 
 				content = (String) xddCache.executeOnKey(docKey, xp);
 			}
 		}
@@ -791,7 +796,9 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	    	old.setValue(newDoc);
 		} else {
 			xddCache.set(docKey, newDoc);
+			//ddSvc.storeData(docKey, newDoc, CN_XDM_DOCUMENT);
 		}
+		//ddSvc.storeData(docKey, content, CN_XDM_CONTENT);
 		cntCache.set(docKey, content);
 		
 		logger.trace("processDocument.exit; returning: {}", newDoc);
@@ -821,6 +828,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			//xdmCache.putAll(elements);
 			for (Map.Entry<DataKey, Elements> e: elements.entrySet()) {
 				xdmCache.set(e.getKey(), e.getValue());
+				//ddSvc.storeData(e.getKey(), e.getValue(), CN_XDM_ELEMENT);
 			}
 			return pathIds;
 		}
@@ -1096,30 +1104,53 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	}
 
 	@Override
-	public java.util.Collection<String> getCollectionDocumentUris(String collection) throws BagriException {
+	public java.util.Collection<String> getCollectionDocumentUris(String collection, Properties props) throws BagriException {
 		Set<DocumentKey> docKeys;
+		int pageSize = 100;
+		if (props != null) {
+			pageSize = Integer.valueOf(props.getProperty(pn_client_fetchSize, "100"));
+		} 
+		PagingPredicate pager = null;
+		Predicate<DocumentKey, Document> query = new DocVisiblePredicate();
 		if (collection == null) {
-			docKeys = xddCache.localKeySet();
+			if (pageSize > 0) {
+				pager = new PagingPredicate(query, pageSize);
+				query = pager;
+			}
 		} else {
 			Collection cln = repo.getSchema().getCollection(collection);
 			if (cln == null) {
 				return null;
 			}
-			//int size = xddCache.size();
-			Predicate<DocumentKey, Document> clp = new CollectionPredicate(cln.getId());
-			docKeys = xddCache.localKeySet(clp);
+			query = Predicates.and(query, new CollectionPredicate(cln.getId()));
+			if (pageSize > 0) {
+				pager = new PagingPredicate(query, pageSize);
+				query = pager;
+			}
 			// TODO: investigate it; the localKeySet returns extra empty key for some reason!
 		}
-		// TODO: use props to fetch docs in batches. otherwise we can get OOM here!
-		Map<DocumentKey, Document> docs = xddCache.getAll(docKeys);
-		Set<String> result = new HashSet<>(docs.size());
-		for (Document doc: docs.values()) {
-		    if (doc.getTxFinish() == TX_NO || !txManager.isTxVisible(doc.getTxFinish())) {
-				// check doc visibility via
-				result.add(doc.getUri());
-			}
+		
+		//Projection pro = Projections.singleAttribute(fnUri);
+		docKeys = xddCache.localKeySet(query);
+		List<String> result = new ArrayList<>(docKeys.size());
+		if (pager != null) {
+			fillUris(docKeys, result);
+			pager.nextPage();
+			// ok, what to do next?? how to know the last page?
+		} else {
+			fillUris(docKeys, result);
 		}
 		return result;
+	}
+	
+	private void fillUris(Set<DocumentKey> keys, java.util.Collection<String> uris) throws BagriException {
+		Map<DocumentKey, Document> docs = xddCache.getAll(keys);
+		for (Document doc: docs.values()) {
+		    //if (doc.getTxFinish() == TX_NO || !txManager.isTxVisible(doc.getTxFinish())) {
+				// check doc visibility via
+		    	uris.add(doc.getUri());
+			//}
+		}
 	}
 
 	Set<Long> getCollectionDocumentKeys(int collectId) {
@@ -1144,8 +1175,8 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	public int removeCollectionDocuments(String collection) throws BagriException {
 		logger.trace("removeCollectionDocuments.enter; collection: {}", collection);
 		int cnt = 0;
-		// remove local documents only?!
-		java.util.Collection<String> uris = getCollectionDocumentUris(collection);
+		// remove local documents only?! yes!
+		java.util.Collection<String> uris = getCollectionDocumentUris(collection, null);
 		for (String uri: uris) {
 			removeDocument(uri);
 			cnt++;

@@ -122,4 +122,16 @@ public class DataDistributionService implements ManagedService {
 		return null;
 	}
 	
+	public Object storeData(Object key, Object value, String storeName) {
+		MapService svc = nodeEngine.getService(MapService.SERVICE_NAME);
+		MapServiceContext mapCtx = svc.getMapServiceContext();
+		int partId = nodeEngine.getPartitionService().getPartitionId(key); 
+		logger.trace("storeData; going to store key: {}; on partition: {}", key, partId);
+		RecordStore<?> rs = mapCtx.getExistingRecordStore(partId, storeName);
+		if (rs != null) {
+			return rs.put(nodeEngine.toData(key), value, 0);
+		}
+		return null;
+	}
+	
 }

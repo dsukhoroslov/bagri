@@ -69,7 +69,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	@Override
 	public Document getDocument(String uri) throws BagriException {
 		logger.trace("getDocument.enter; got uri: {}", uri);
-		DocumentProvider task = new DocumentProvider(repo.getClientId(), uri);
+		DocumentProvider task = new DocumentProvider(repo.getClientId(), repo.getTransactionId(), uri, null);
 		DocumentKey key = getDocumentKey(uri);
 		Document result = (Document) xddCache.executeOnKey(key, task);
 		logger.trace("getDocument.exit; got document: {}", result);
@@ -79,7 +79,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	@Override
 	public Object getDocumentAsBean(String uri, Properties props) throws BagriException {
 		logger.trace("getDocumentAsBean.enter; got uri: {}", uri);
-		DocumentBeanProvider task = new DocumentBeanProvider(repo.getClientId(), uri, props);
+		DocumentBeanProvider task = new DocumentBeanProvider(repo.getClientId(), repo.getTransactionId(), uri, props);
 		DocumentKey key = getDocumentKey(uri);
 		Object result = xddCache.executeOnKey(key, task);
 		logger.trace("getDocumentAsBean.exit; got bean: {}", result);
@@ -89,7 +89,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	@Override
 	public Map<String, Object> getDocumentAsMap(String uri, Properties props) throws BagriException {
 		logger.trace("getDocumentAsMap.enter; got uri: {}", uri);
-		DocumentMapProvider task = new DocumentMapProvider(repo.getClientId(), uri, props);
+		DocumentMapProvider task = new DocumentMapProvider(repo.getClientId(), repo.getTransactionId(), uri, props);
 		DocumentKey key = getDocumentKey(uri);
 		Map<String, Object> result = (Map<String, Object>) xddCache.executeOnKey(key, task);
 		logger.trace("getDocumentAsMap.exit; got map: {}", result);
@@ -98,9 +98,9 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 
 	@Override
 	public String getDocumentAsString(String uri, Properties props) throws BagriException {
-		// actually, I can try just get it from XML cache!
+		// actually, I can try just get it from Content cache!
 		logger.trace("getDocumentAsString.enter; got uri: {}", uri);
-		DocumentContentProvider task = new DocumentContentProvider(repo.getClientId(), uri, props);
+		DocumentContentProvider task = new DocumentContentProvider(repo.getClientId(), repo.getTransactionId(), uri, props);
 		DocumentKey key = getDocumentKey(uri);
 		String result = (String) xddCache.executeOnKey(key, task);
 		logger.trace("getDocumentAsString.exit; got content of length: {}", result == null ? 0 : result.length());
@@ -191,10 +191,10 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	}
 
 	@Override
-	public Collection<String> getCollectionDocumentUris(String collection) {
+	public Collection<String> getCollectionDocumentUris(String collection, Properties props) {
 		logger.trace("getCollectionDocumentIds.enter; collection: {}", collection);
 		//repo.getHealthManagement().checkClusterState();
-		CollectionDocumentsProvider task = new CollectionDocumentsProvider(repo.getClientId(), collection);
+		CollectionDocumentsProvider task = new CollectionDocumentsProvider(repo.getClientId(), repo.getTransactionId(), collection, props);
 		Map<Member, Future<Collection<String>>> results = execService.submitToAllMembers(task);
 		Collection<String> result = new HashSet<String>();
 		for (Map.Entry<Member, Future<Collection<String>>> entry: results.entrySet()) {

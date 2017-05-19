@@ -3,22 +3,16 @@ package com.bagri.client.hazelcast.task.doc;
 import static com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl.cli_ProvideDocumentContentTask;
 
 import java.util.Properties;
-import java.util.concurrent.Callable;
 
-public class DocumentContentProvider extends DocumentProcessor { //AwareTask implements Callable<String> {
+public class DocumentContentProvider extends DocumentProcessor { 
 	
 	public DocumentContentProvider() {
 		super();
 	}
 	
-	public DocumentContentProvider(String clientId, String uri, Properties props) {
-		super(clientId, 0, uri, props);
+	public DocumentContentProvider(String clientId, long txId, String uri, Properties props) {
+		super(clientId, txId, uri, props);
 	}
-
-	//@Override
-	//public String call() throws Exception {
-	//	return null;
-	//}
 
 	@Override
 	public int getId() {

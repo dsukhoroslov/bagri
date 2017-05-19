@@ -25,7 +25,7 @@ public class CollectionDocumentsProvider extends com.bagri.client.hazelcast.task
 	public Collection<String> call() throws Exception {
     	((SchemaRepositoryImpl) repo).getXQProcessor(clientId);
     	checkPermission(Permission.Value.read);
-   		return docMgr.getCollectionDocumentUris(collection);
+   		return docMgr.getCollectionDocumentUris(collection, props);
 	}
 	
 }

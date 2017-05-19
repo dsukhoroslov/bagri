@@ -32,10 +32,11 @@ public interface DocumentManagement {
 	 * return Document uris which belongs to the collection
 	 * 
 	 * @param collection String; the schema collection name
+	 * @param props contains request processing instructions
 	 * @return Collection&lt;String&gt; - Document uris belonging to the collection
 	 * @throws BagriException in case of any error
 	 */
-	Collection<String> getCollectionDocumentUris(String collection) throws BagriException;
+	Collection<String> getCollectionDocumentUris(String collection, Properties props) throws BagriException;
 
 	/**
 	 * return Collection names registered in Repository

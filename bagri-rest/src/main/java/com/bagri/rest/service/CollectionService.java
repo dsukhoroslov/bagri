@@ -55,7 +55,7 @@ public class CollectionService extends RestService {
     public Collection<String> getCollectionDocuments(@PathParam("name") String name) {
 		DocumentManagement docMgr = getDocManager();
 		try {
-			return docMgr.getCollectionDocumentUris(name);
+			return docMgr.getCollectionDocumentUris(name, null);
     	} catch (Exception ex) {
     		logger.error("getCollectionDocuments.error", ex);
     		throw new WebApplicationException(ex, Status.INTERNAL_SERVER_ERROR);

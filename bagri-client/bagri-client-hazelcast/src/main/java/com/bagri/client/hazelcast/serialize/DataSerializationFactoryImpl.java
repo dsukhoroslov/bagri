@@ -93,6 +93,7 @@ public class DataSerializationFactoryImpl implements DataSerializableFactory {
 	public static final int cli_FixedCursor = 92;
 	
 	public static final int cli_GroupCountPredicate = 93;
+	public static final int cli_DocVisiblePredicate = 94;
 	
 	public static final int cli_DocumentKey = 95; 
 	public static final int cli_DocumentPathKey = 96; 
@@ -140,7 +141,6 @@ public class DataSerializationFactoryImpl implements DataSerializableFactory {
 			case cli_FixedCursor: return new FixedCursorImpl();
 			case cli_GroupCountPredicate: return new GroupCountPredicate();
 			case cli_FetchResultsTask: return new ResultFetcher();
-			case cli_ProcessDocumentTask: return new DocumentProcessor();
 			case cli_GetDocumentTask: return new DocumentProvider();
 			case cli_CreateBeanDocumentTask: return new DocumentBeanCreator();
 			case cli_CreateMapDocumentTask: return new DocumentMapCreator();

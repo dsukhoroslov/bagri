@@ -33,6 +33,7 @@ import com.bagri.server.hazelcast.task.stats.StatisticsReseter;
 import com.bagri.support.stats.StatsAggregator;
 import com.bagri.support.util.FileUtils;
 import com.bagri.support.util.JMXUtils;
+import com.bagri.support.util.PropUtils;
 import com.hazelcast.core.Member;
 import com.hazelcast.core.Partition;
 
@@ -377,10 +378,10 @@ public class DocumentManagement extends SchemaFeatureManagement {
 		}
 
 		try {
-			java.util.Collection<String> result = docManager.getCollectionDocumentUris(clName);
+			java.util.Collection<String> result = docManager.getCollectionDocumentUris(clName, propsFromString(props));
 			logger.debug("getCollectionDocuments; returning {} ids", result.size());
 			return result;
-		} catch (BagriException ex) {
+		} catch (BagriException | IOException ex) {
 			logger.error("getCollectionDocuments.error", ex);
 			return null;
 		}

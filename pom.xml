@@ -90,7 +90,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <jcache.version>1.0.0</jcache.version>
-        <hazelcast.version>3.8.1</hazelcast.version>
+        <hazelcast.version>3.8.2</hazelcast.version>
 
         <xqj.version>1.0</xqj.version>
         <xstream.version>1.4.9</xstream.version>

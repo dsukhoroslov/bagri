@@ -59,7 +59,7 @@ public class CollectionServiceTest extends JerseyTest {
     	expected.add("security1500.xml");
     	expected.add("security5621.xml");
     	expected.add("security9012.xml");
-		when(docMgr.getCollectionDocumentUris("securities")).thenReturn(expected);
+		when(docMgr.getCollectionDocumentUris("securities", null)).thenReturn(expected);
 
         response = target("clns").path("securities").request(MediaType.APPLICATION_JSON)
         		.cookie(bg_cookie, "client-id").get(Collection.class);
